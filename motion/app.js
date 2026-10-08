@@ -808,6 +808,56 @@ async function recordUntilDone(ad, audioBuf, prog, note) {
   }
 }
 
+/* The plan's say on a download (owner, 2026-10-08: the pricing "doesn't
+   really cover videos"). Making and watching a video stays free and needs no
+   account; downloading one, or saving it to the library, is one of the
+   plan's downloads, as the studio's videos are, and on Free the video and its
+   photo carry the BUYBACK.AD watermark and the photo is 1080 on its short
+   side. The function decides: /api/export/check before the video is made,
+   /api/export once it is. A copy with no backend (demo) is not gated.
+   Returns null when the account dialog or the limit pop-up has taken over. */
+async function planGate(next, message) {
+  const acct = window.pgfxAccount;
+  if (!acct || acct.demo) return { watermark: false, maxPx: null, count: async () => true };
+  if (!acct.signedIn()) { acct.openAuth({ message, next }); return null; }
+  const limit = (e) => VH().show({
+    title: "You've used this plan's downloads", message: (e && e.message ? e.message + ". " : "") +
+      "Free has 3 a week, photos or videos. Pro has 100 a month with no watermark, Business 500. You can still make and watch videos here.",
+    actions: [{ label: "See plans", primary: true, run: () => { location.href = "../?plans=1"; } }],
+  });
+  try {
+    const g = await acct.api("/export/check", {});
+    return {
+      watermark: !!g.watermark, maxPx: g.maxPx || null,
+      count: async () => { try { await acct.api("/export", {}); return true; } catch (e) { if (e.status === 402) { limit(e); return false; } throw e; } },
+    };
+  } catch (e) {
+    if (e.status === 401 || e.status === 404) { acct.signout(); acct.openAuth({ message, next }); return null; }
+    if (e.status === 402) { limit(e); return null; }
+    throw e;
+  }
+}
+/* the studio's watermark (app.js drawWatermarkMarks): BUYBACK.AD in each corner */
+function drawMarks(x, w, h) {
+  const base = Math.min(w, h), fs = Math.round(base * 0.032), pad = Math.round(base * 0.06);
+  x.save();
+  x.font = "900 " + fs + "px Satoshi, sans-serif";
+  x.globalAlpha = 0.5;
+  x.shadowColor = "rgba(0,0,0,0.55)"; x.shadowBlur = fs * 0.35;
+  x.fillStyle = "#ffffff"; x.textAlign = "center"; x.textBaseline = "middle";
+  for (const [cx, cy, deg] of [[pad, pad, 45], [w - pad, pad, -45], [pad, h - pad, -45], [w - pad, h - pad, 45]]) {
+    x.save(); x.translate(cx, cy); x.rotate(deg * Math.PI / 180); x.fillText("BUYBACK.AD", 0, 0); x.restore();
+  }
+  x.restore();
+}
+/* an Ad whose every frame carries the marks, wherever it is drawn */
+function marked(ad, on) {
+  if (!on) return ad;
+  const draw = ad.frame.bind(ad);
+  ad.frame = (ctx, ...rest) => { const r = draw(ctx, ...rest); drawMarks(ctx, ad.W, ad.H); return r; };
+  return ad;
+}
+
 /* Every way of making the video, best first. A failure moves on rather than
    stopping: the MP4 encoder again in software, then real time; the sound is
    dropped if it is what fails, and the size comes down if memory runs out.
@@ -820,7 +870,7 @@ async function recordUntilDone(ad, audioBuf, prog, note) {
    W0, H0 }; when every way has failed it throws, with what was tried in
    `tried` and the last ad built on the error (e.ad), for the pop-up.
    download() saves what this makes; saveLook() sends it to the library. */
-async function makeVideo(st, { how = "auto", withSound = true, prog = () => {}, note = () => {}, tried = [] } = {}) {
+async function makeVideo(st, { how = "auto", withSound = true, prog = () => {}, note = () => {}, tried = [], watermark = false } = {}) {
   const H = VH();
   let ad = null;
   try {
@@ -828,7 +878,7 @@ async function makeVideo(st, { how = "auto", withSound = true, prog = () => {}, 
     const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
     let scale = 1;
     const even = v => Math.max(2, Math.round(v / 2) * 2);   // H.264 wants even sides
-    const build = () => (scale === 1 ? new Ad(st, state.assets) : new Ad(st, state.assets, even(W0 * scale), even(H0 * scale)));
+    const build = () => marked(scale === 1 ? new Ad(st, state.assets) : new Ad(st, state.assets, even(W0 * scale), even(H0 * scale)), watermark);
     ad = build();
     // the sound is made once, up front; if it will not come, the video is made silent
     let buf = null, soundErr = null, soundDropped = null;
@@ -873,16 +923,19 @@ async function download(opts = {}) {
   let ad = null;
   const tried = [];
   try {
+    const gate = await planGate(() => download(opts), "Create a free account to download your video: 3 free downloads a week, photos or videos.");
+    if (!gate) return;
     const st = harmonise({ ...state.style }, state.locked, indexById());
-    const made = await makeVideo(st, { how, withSound, prog, note, tried });
+    const made = await makeVideo(st, { how, withSound, prog, note, tried, watermark: gate.watermark });
     ad = made.ad;
     const { out, soundErr, soundDropped, scale, mp4Failed, W0, H0 } = made;
+    if (!await gate.count()) { note("Not saved: this plan's downloads are used up."); return; }
 
     const name = `we-buy-phones-${st.aspect.replace(":", "x")}-${st.seed}.${out.ext}`;
     saveVideo(out.blob, name);
     // the photo that goes with it: OfferUp takes a video only with one (makePhoto)
     let photo = null, photoErr = null;
-    try { photo = await makePhoto(st, name, Math.min(ad.W, ad.H), prog); saveVideo(photo.blob, photo.name); }
+    try { photo = await makePhoto(st, name, Math.min(ad.W, ad.H), prog, gate); saveVideo(photo.blob, photo.name); }
     catch (e) { photoErr = e; console.warn("The photo could not be made, the video goes alone:", e); }
     // and the other moment, the alternative to it, read back out of the file (VideoStill.frames, rule 110), settled either way
     if (photo && window.VideoStill && VideoStill.frames)
@@ -906,7 +959,7 @@ async function download(opts = {}) {
       const actions = [];
       if (H.canShareFiles()) actions.push({ label: "Share or save to Photos", primary: true, run: () => H.share(out.blob, name, photo ? [photo] : []) });
       if (silent || scale < 1 || out.via === "live") actions.push({ label: "Try again", run: () => download(opts) });
-      if (photoErr) actions.push({ label: "Try the photo again", run: async () => { const p = await makePhoto(st, name, Math.min(ad.W, ad.H)); saveVideo(p.blob, p.name); offerAgain(out.blob, name, p); } });
+      if (photoErr) actions.push({ label: "Try the photo again", run: async () => { const p = await makePhoto(st, name, Math.min(ad.W, ad.H), () => {}, gate); saveVideo(p.blob, p.name); offerAgain(out.blob, name, p); } });
       H.show({ tone: "info", title: "Video saved, with a catch", message: catches.join(" "), error: photoErr ? String(photoErr.message || photoErr) : tried.join("\n"), report, actions });
     }
   } catch (e) {
@@ -955,13 +1008,19 @@ async function saveLook(stRaw, btn) {
   const st = harmonise({ ...stRaw }, state.locked, indexById());
   let item = null;
   try {
-    const made = await makeVideo(st, { prog, note });
+    // a save is one of the plan's downloads, made at the plan's size and marks (planGate)
+    const gate = await planGate(() => saveLook(stRaw, btn), "Create a free account to save video ads to your library, or sign in.");
+    if (!gate) return null;
+    const made = await makeVideo(st, { prog, note, watermark: gate.watermark });
     const name = `we-buy-phones-${st.aspect.replace(":", "x")}-${st.seed}.${made.out.ext}`;
-    const photo = await makePhoto(st, name, Math.min(made.ad.W, made.ad.H), prog);
+    const photo = await makePhoto(st, name, Math.min(made.ad.W, made.ad.H), prog, gate);
+    if (!await gate.count()) { note("Not saved: this plan's downloads are used up."); return null; }
     prog(0, "Saving to your library");
+    const meta = lookMeta(st);
+    if (gate.watermark) meta.hold = "the watermark";   // held from auto-post, as the studio holds a Free save
     item = await lib.saveVideoAd({
       blob: made.out.blob, name, photo: { blob: photo.blob, name: photo.name, w: photo.w, h: photo.h },
-      meta: lookMeta(st), video: { w: made.ad.W, h: made.ad.H, seconds: st.duration },
+      meta, video: { w: made.ad.W, h: made.ad.H, seconds: st.duration },
       onProgress: p => prog(p, "Saving to your library"),
     });
     note(item ? `Saved to your library: ${name} (${made.ad.W}×${made.ad.H}${made.out.audio ? ", with sound" : ""}) and its photo, ${photo.name}.` : "Not saved to your library.");
@@ -995,7 +1054,7 @@ function saveVideo(blob, name) {
    to the ending, which shows the number alone and is not the ad; it is then
    drawn again at the photo's own size, never a video frame scaled up. Low on
    memory, it is made at the video's size. */
-async function makePhoto(st, videoName, videoShort, prog = () => {}) {
+async function makePhoto(st, videoName, videoShort, prog = () => {}, gate = {}) {
   const VS = window.VideoStill;
   if (!VS) throw new Error("The photo maker did not load.");
   const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
@@ -1007,11 +1066,12 @@ async function makePhoto(st, videoName, videoShort, prog = () => {}) {
     frame: t => { probe.still = null; probe.frame(px, t, { subsFly: 2, subsMove: 2 }); return pc; },
     windows: [[from, to]], onProgress: p => prog(p, "Choosing the photo"),
   });
-  const want = VS.SHORT, sizes = [want, Math.min(want, videoShort || want)].filter((s, i, a) => a.indexOf(s) === i);
+  // the plan's size: Free's photo is 1080 on its short side, as the studio's
+  const want = Math.min(VS.SHORT, gate.maxPx || VS.SHORT), sizes = [want, Math.min(want, videoShort || want)].filter((s, i, a) => a.indexOf(s) === i);
   let last = null;
   for (const s of sizes) {
     try {
-      const { w, h } = VS.size(W0, H0, s), ad = new Ad(st, state.assets, w, h);
+      const { w, h } = VS.size(W0, H0, s), ad = marked(new Ad(st, state.assets, w, h), gate.watermark);
       const c = document.createElement("canvas"); c.width = ad.W; c.height = ad.H;
       ad.still = null; ad.frame(c.getContext("2d"), pick.t, { subsFly: 8, subsMove: 4 }, 1 / 30);   // the export's own quality
       return { blob: await VS.toBlob(c), name: VS.name(videoName, ad.W, ad.H), w: ad.W, h: ad.H, t: pick.t, short: s, wanted: want, pick };

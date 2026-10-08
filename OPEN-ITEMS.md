@@ -2523,3 +2523,81 @@ Not done, and why:
    percent slower to level, and these final numbers are on
    `claude/photo-real-phone-finish` only, `main` merged in; merge it to land
    them. Not deployed, as asked.
+## AS. 2026-10-08 — plans that cover videos, AI in credits, Stripe live on one key
+
+(claude/new-session-awshnq, from `main` at 0a92edc8.)
+
+The owner, over the Pro card and the "Pro checkout is not open yet" toast:
+"this doesn't really cover videos", "or isn't really built around cost
+effectiveness and profitability", "and make it live we can use stripe", then
+"Token or credits? That way if we use real paid models, we can make sure the
+cost of it is still profitable."
+
+What it costs us, measured on the code: photos and videos are drawn and
+encoded in the customer's browser (a download is one function call); the
+video maker's voices and music are files. The only per-use cost is a paid
+model call (an AI background, $0.034 on the default). The daily caps let a
+Pro account spend $40.80 a month of it against $14.16 net (§AN 1).
+
+Done:
+1. **`netlify/lib/plans.mjs`, the one table.** Free / Pro $15 a month or
+   $150 a year / Business $39 or $390; downloads (photos or videos) 3 a week
+   / 100 / 500 a month; AI credits 5 / 75 / 200 a month; library 12 / 300 /
+   1,000; packs of 100 credits for $9 and 300 for $25, never expiring.
+2. **Credits, priced from each model's cost.** One credit buys up to 4 cents
+   of model spend; a call costs ceil(model price / 4c), the dearest model in
+   the fallback chain; a model with no price (in the table or `MODEL_COSTS`)
+   is not sold. Taken before the call, given back if it fails. The free
+   tier's AI has a site-wide day ceiling (`AI_FREE_DAILY_CREDITS`, 100);
+   paid credits are profitable by construction and meet only a runaway guard.
+3. **Stripe on one key** (`netlify/lib/billing.mjs`): prices made on the
+   first sale under lookup keys, the plan confirmed from the session on the
+   return from Checkout, the webhook registered by the site (secret in
+   Blobs), plan and interval switches prorated on the same subscription, a
+   second plan checkout refused, packs credited once, a lapsed period read
+   from Stripe at sign in, test-mode customers not carried into live mode,
+   `/api/admin/billing` and a Billing line on the plans page for operators.
+4. **Videos on every plan, and the video maker inside the plan.** Making and
+   watching stay free with no account; a download (or a star into the
+   library) needs a free account, counts as one download, and on Free every
+   frame carries the BUYBACK.AD marks and the photo is 1080 (`planGate`,
+   `/api/export/check`). It was the strongest asset, free, unmarked and
+   uncounted (§AN 4).
+5. The plans page (monthly/yearly, three plans, switch, packs, credits), the
+   AI credit line under both Generate buttons, the landing's three cards,
+   the FAQ (two answers rewritten, "What are AI credits?" added, ld-faq
+   rebuilt, CSP hashes recomputed), the chooser, about, terms (billing:
+   yearly, prorating, packs), privacy (credits, payment references), the
+   category pages, README, the brief. The poster skin's ghost plan buttons
+   were painted as primary buttons; they are quiet now.
+
+Checked: `scripts/billing_check.mjs` 83 of 83 (credits, downloads, the
+Stripe loop against a stand-in Stripe, and in Chromium under the production
+CSP: the landing at 1440 and 390, the plans page, Checkout and back, the
+switch, a pack); `scripts/plan_economics.mjs` (Pro keeps 77% / 73% at worst,
+Business 78% / 74%, packs 53% / 50%, a free account at most $0.22 a month;
+the copies agree); `ad_library_check.mjs` no failures (its video maker star
+now expects a Free save at 1080, marked, held, counted);
+`library_api_check.mjs` no failures; `video_photo_check.mjs` runs the maker
+as a local copy (`pgfx_local_demo`), since its static server has no `/api`.
+
+Still open:
+1. **Set `STRIPE_SECRET` in Netlify and deploy `main`.** Nothing here can
+   reach Netlify; the deploy workflow skipped every run so far because the
+   repository secrets `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` are not set.
+   Test key first, walk the loop (README, Stripe), then the live key.
+2. **Model prices are third-party figures** where Google's page was out of
+   reach (the higher one where sources disagree). Confirm each against the
+   Gemini bill after the first month; a change is one line in `plans.mjs`.
+3. **Two paths race** for a pack: the return page and the webhook can both
+   read the account before either writes, and Blobs 8.2 has no conditional
+   write. The session id is kept so a later delivery never adds twice; a
+   true simultaneous pair could. Rare (both inside the same second); watch
+   the first packs.
+4. **Hosting per account is an estimate** ($0.25 a paid account a month for
+   its function calls, Blobs and its library link's bandwidth). Netlify's
+   bandwidth went to 20 credits a GB in April 2026 (third party); a busy
+   public library link of videos is the one place it could grow. Read the
+   credits meter after the first month.
+5. **The size cap and the marks are still drawn by the browser** (§AN 5):
+   the count is the hard limit.

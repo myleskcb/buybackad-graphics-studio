@@ -167,7 +167,7 @@ const CATS = [
 ];
 
 const COMMON_FAQ = [
-  ['Is it free?', 'You can design without an account. Downloading needs a free account: 3 downloads a week at 1080 pixels with a BUYBACK.AD watermark. Pro is $15 a month for 100 downloads a month up to 2160 pixels, no watermark, every design.'],
+  ['Is it free?', 'You can design without an account. Downloading needs a free account: 3 downloads a week, photos or videos, at 1080 pixels with a BUYBACK.AD watermark. Pro is $15 a month (or $150 a year) for 100 downloads a month up to 2160 pixels, no watermark, every design and 75 AI credits a month. Business is $39 a month for 500 downloads and 200 AI credits.'],
 ];
 
 const nav = (up) => `<a class="skip" href="#main">Skip to content</a>

@@ -6107,6 +6107,7 @@ function applyBgAnywhere(dataUrl){
 let bggenUrl = null;
 function openBgGen(){
   if (!account && !DEMO){ openAuth('Sign in to generate AI backgrounds'); return; }
+  loadPlanInfo();   // what a background costs in credits now
   $('bggen-overlay').classList.add('show');
   setTimeout(() => $('bggen-prompt').focus(), 60);
 }
@@ -6272,20 +6273,46 @@ function refreshPlanFeats(){
     void c;
     FEAT_FREE_TPL = 'Every Phones design, plus the top 3 in every other category';
     FEAT_PRO_TPL  = 'Every design in all 13 categories';
-    if (typeof PLANS === 'object' && PLANS){
-      PLANS.free.feats[1] = FEAT_FREE_TPL;
-      PLANS.pro.feats[1]  = FEAT_PRO_TPL;
-    }
+    if (typeof PLANS === 'object' && PLANS) planFeatsAll();
   } catch (e){}
 }
 const API_BASE = (window.PGFX_API || '').replace(/\/$/, '');
 const DEMO = !API_BASE;
+/* PLANS:BEGIN. The browser's copy of netlify/lib/plans.mjs, display only
+   (the function enforces its own); scripts/plan_economics.mjs fails when the
+   numbers here and there differ. Prices in cents; weekly/monthly are
+   downloads, photos or videos; credits are AI credits a month; library is
+   ads kept. Owner, 2026-10-08: plans that cover videos, are built on what
+   each thing costs, and charge paid AI in credits. */
 const PLANS = {
-  free: { label:'Free', price:0, priceLabel:'$0', per:'forever', maxPx:1080, watermark:true, weekly:3, monthly:null,
-          feats:['3 downloads a week',FEAT_FREE_TPL,'Standard size (1080 pixels)','Small BUYBACK.AD watermark'] },
-  pro:  { label:'Pro', price:15, priceLabel:'$15', per:'/month', maxPx:2160, watermark:false, weekly:null, monthly:100,
-          feats:['100 downloads a month',FEAT_PRO_TPL,'Up to double size (2160 pixels), no watermark','Add a QR code people can scan'], hot:true },
+  free:     { label:'Free', price:{ month:0 }, weekly:3, monthly:null, maxPx:1080, watermark:true, credits:5, library:12 },
+  pro:      { label:'Pro', price:{ month:1500, year:15000 }, weekly:null, monthly:100, maxPx:2160, watermark:false, credits:75, library:300, hot:true },
+  business: { label:'Business', price:{ month:3900, year:39000 }, weekly:null, monthly:500, maxPx:2160, watermark:false, credits:200, library:1000 },
 };
+const PACKS = {
+  credits100: { label:'100 AI credits', credits:100, price:900 },
+  credits300: { label:'300 AI credits', credits:300, price:2500 },
+};
+/* PLANS:END */
+const usd = (cents) => '$' + (cents % 100 ? (cents / 100).toFixed(2) : String(cents / 100));
+const fmtN = (n) => Number(n).toLocaleString('en-US');
+/* what each card says, worked out from the numbers so the two never drift */
+function planFeats(id){
+  const p = PLANS[id];
+  const dl = p.weekly ? p.weekly + ' downloads a week' : fmtN(p.monthly) + ' downloads a month';
+  if (id === 'free') return [dl + ': photos or videos', FEAT_FREE_TPL, 'Video ads too, with a small BUYBACK.AD watermark',
+    'Standard size (' + p.maxPx + ' pixels)', p.credits + ' AI credits a month'];
+  if (id === 'pro') return [dl + ': photos or videos', FEAT_PRO_TPL, 'Video ads with sound, no watermark',
+    'Up to double size (' + p.maxPx + ' pixels)', p.credits + ' AI credits a month', 'Add a QR code people can scan', 'Keep ' + fmtN(p.library) + ' ads in your library'];
+  return [dl + ': photos or videos', 'Everything in Pro', p.credits + ' AI credits a month', 'Keep ' + fmtN(p.library) + ' ads in your library'];
+}
+function planFeatsAll(){
+  for (const [id, p] of Object.entries(PLANS)){
+    p.feats = planFeats(id);
+    p.priceLabel = usd(p.price.month); p.per = p.price.month ? '/month' : 'forever';
+  }
+}
+planFeatsAll();
 function isoWeek(){ const d = new Date(); const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day);
   const y = new Date(Date.UTC(t.getUTCFullYear(),0,1));
@@ -6306,7 +6333,7 @@ async function api(path, body){
     body: body ? JSON.stringify(body) : undefined,
   });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(j.error || ('HTTP ' + r.status));
+  if (!r.ok){ const e = new Error(j.error || ('HTTP ' + r.status)); e.status = r.status; e.data = j; throw e; }
   return j;
 }
 
@@ -6350,7 +6377,32 @@ async function loadAccount(){
   syncAcctUI();
   return account;
 }
-function planOf(){ const p = (account && account.plan) || 'free'; return PLANS[p] || PLANS.pro; }
+const planKey = (p) => (PLANS[p] ? p : p === 'starter' ? 'pro' : 'free');   // starter: the old name of Pro
+function planOf(){ return PLANS[planKey(account && account.plan)]; }
+/* AI credits: the function's count when there is one, the plan's in demo */
+function creditsOf(){
+  if (!account) return null;
+  if (account.credits) return account.credits;
+  const a = planOf().credits;
+  return { allowance:a, used:0, left:a, bought:0, total:a };
+}
+let aiCost = 1;   // credits an AI background takes now; /api/plans says
+function syncCreditsUI(){
+  const c = creditsOf();
+  const line = !account ? 'Sign in to use AI backgrounds. Free accounts get ' + PLANS.free.credits + ' AI credits a month.'
+    : 'Uses ' + aiCost + ' AI credit' + (aiCost === 1 ? '' : 's') + '. You have ' + c.total + (c.bought ? ' (' + c.left + ' this month + ' + c.bought + ' bought)' : ' left this month') + '.';
+  for (const id of ['bg-credits', 'bggen-credits']){
+    const el = $(id); if (!el) continue;
+    el.innerHTML = '';
+    el.append(line + ' ');
+    if (account && c.total < aiCost * 3){
+      const more = document.createElement('button');
+      more.type = 'button'; more.className = 'ai-more'; more.textContent = 'Get more';
+      more.onclick = () => openPlans('AI credits pay for AI backgrounds. Buy a pack, or move to a plan with more each month.');
+      el.append(more);
+    }
+  }
+}
 function currentPeriod(p){ return p.weekly ? isoWeek() : isoMonth(); }
 function exportsUsed(){
   if (!account) return 0;
@@ -6400,8 +6452,10 @@ function syncQuotaUI(){
     const p = planOf(), rem = exportsRemaining();
     if (rem === Infinity) q.innerHTML = '<b>' + p.label + '</b>: unlimited downloads, up to ' + p.maxPx + ' pixels';
     else q.innerHTML = '<b>' + rem + '</b> of ' + (p.weekly || p.monthly) + ' downloads left this ' + (p.weekly ? 'week' : 'month') +
+      ' · <b>' + creditsOf().total + '</b> AI credits' +
       ((account.plan || 'free') === 'free' ? ' · standard size with watermark. <span class="up" id="quota-plans">Upgrade</span>' : '');
   }
+  syncCreditsUI();
   const up = $('quota-plans');
   if (up) up.onclick = () => openPlans();
   const hint = $('ez-dl-hint');
@@ -6500,79 +6554,200 @@ async function submitAuth(){
 }
 
 // ── plans / checkout ──
+let plansInterval = 'month';
+let billingLive = null;   // /api/plans: is Stripe switched on
+async function loadPlanInfo(){
+  if (DEMO) return;
+  try {
+    const j = await api('/plans');
+    billingLive = !!j.billing;
+    if (j.ai && j.ai.background) aiCost = j.ai.background;
+    syncCreditsUI();
+  } catch (e){ /* the copies in this file stand */ }
+}
 function openPlans(msg){
   buildPlansGrid();
-  $('plans-sub').textContent = msg || 'Simple pricing for volume posters. Upgrade or cancel anytime.';
+  $('plans-sub').textContent = msg || 'Photos and videos on every plan. Pay monthly or yearly, cancel any time.';
   $('plans-demo-note').style.display = DEMO ? '' : 'none';
   $('page-plans').classList.add('active');
+  loadPlanInfo().then(() => buildPlansGrid());
 }
 function buildPlansGrid(){
   const g = $('plans-grid');
   g.innerHTML = '';
+  const cur = planKey(account && account.plan);
+  const sub = account && account.sub;
+  const curInterval = (sub && sub.interval) || 'month';
+  // monthly / yearly
+  const tog = document.createElement('div');
+  tog.className = 'plans-toggle';
+  tog.setAttribute('role', 'group'); tog.setAttribute('aria-label', 'Billing period');
+  for (const [iv, text] of [['month', 'Monthly'], ['year', 'Yearly · 2 months free']]){
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = text;
+    b.setAttribute('aria-pressed', String(plansInterval === iv));
+    b.onclick = () => { plansInterval = iv; buildPlansGrid(); };
+    tog.appendChild(b);
+  }
+  g.appendChild(tog);
+  if (billingLive === false && !DEMO){
+    const n = document.createElement('div');
+    n.className = 'plans-note';
+    n.textContent = 'Checkout opens soon. Until then nothing is charged, and the free plan works as normal.';
+    g.appendChild(n);
+  }
+  const cards = document.createElement('div');
+  cards.className = 'plans-cards';
   Object.entries(PLANS).forEach(([id, p]) => {
-    const cur = account && ((account.plan || 'free') === id || (id === 'pro' && account.plan === 'starter'));
+    const yearly = plansInterval === 'year' && p.price.year;
+    const cents = yearly ? p.price.year : p.price.month;
+    const isCur = account && cur === id && (id === 'free' || curInterval === (yearly ? 'year' : 'month'));
     const card = document.createElement('div');
     card.className = 'plan-card' + (p.hot ? ' hot' : '');
     card.innerHTML = `<div class="plan-name">${p.label}</div>
-      <div class="plan-price">${p.priceLabel}<small> ${p.per}</small></div>
-      <ul class="plan-feats">${p.feats.map(f => '<li>' + f + '</li>').join('')}</ul>` +
-      (cur ? '<div class="plan-current">✓ Your current plan</div>' + (id !== 'free' && !DEMO ? '<button class="plan-btn ghost" id="manage-billing" style="margin-top:10px">Manage billing / cancel</button>' : '')
-           : `<button class="plan-btn${id === 'free' ? ' ghost' : ''}" data-plan="${id}">${id === 'free' ? 'Included' : 'Choose ' + p.label}</button>`);
-    const btn = card.querySelector('.plan-btn');
-    if (btn && id !== 'free') btn.onclick = () => startCheckout('pro');
-    if (btn && id === 'free') btn.disabled = true;
-    const mb = card.querySelector('#manage-billing');
-    if (mb) mb.onclick = async () => {
-      try { const j = await api('/portal', {}); location.href = j.url; }
-      catch (e){ toast('Billing portal unavailable: ' + e.message, 'error'); }
-    };
-    g.appendChild(card);
+      <div class="plan-price">${usd(cents)}<small> ${!cents ? 'forever' : yearly ? '/year' : '/month'}</small></div>
+      <div class="plan-per">${yearly ? usd(Math.round(cents / 12)) + ' a month, billed yearly' : cents ? 'Billed monthly' : 'No card needed'}</div>
+      <ul class="plan-feats">${p.feats.map(f => '<li>' + f + '</li>').join('')}</ul>`;
+    let btn;
+    if (isCur){
+      card.insertAdjacentHTML('beforeend', '<div class="plan-current">✓ Your current plan</div>');
+      if (id !== 'free' && !DEMO){
+        btn = document.createElement('button');
+        btn.className = 'plan-btn ghost'; btn.style.marginTop = '10px'; btn.textContent = 'Manage billing / cancel';
+        btn.onclick = openBillingPortal;
+      }
+    } else if (id === 'free'){
+      btn = document.createElement('button');
+      btn.className = 'plan-btn ghost';
+      if (account && cur !== 'free' && !DEMO){ btn.textContent = 'Cancel in billing'; btn.onclick = openBillingPortal; }
+      else { btn.textContent = 'Included'; btn.disabled = true; }
+    } else {
+      btn = document.createElement('button');
+      btn.className = 'plan-btn';
+      const iv = yearly ? 'year' : 'month';
+      btn.textContent = account && cur !== 'free' ? 'Switch to ' + p.label + (cur === id ? (iv === 'year' ? ' yearly' : ' monthly') : '') : 'Choose ' + p.label;
+      btn.onclick = () => (account && cur !== 'free' ? switchPlan(id, iv) : startCheckout({ plan: id, interval: iv }));
+    }
+    if (btn) card.appendChild(btn);
+    if (isCur && sub && sub.cancelAt) card.insertAdjacentHTML('beforeend', '<div class="plan-per" style="text-align:center;margin-top:8px">Ends ' + new Date(sub.cancelAt).toLocaleDateString() + '</div>');
+    cards.appendChild(card);
   });
+  g.appendChild(cards);
+  // AI credit packs
+  const c = creditsOf();
+  const packs = document.createElement('div');
+  packs.className = 'plans-packs';
+  packs.innerHTML = '<div class="plans-packs-head"><h3>AI credits</h3><p>AI backgrounds are paid for in credits: one background is ' + aiCost + ' credit' + (aiCost === 1 ? '' : 's') +
+    '. Every plan comes with credits each month; packs top you up and never expire.' + (c ? ' You have <b>' + c.total + '</b>.' : '') + '</p></div>';
+  const row = document.createElement('div');
+  row.className = 'plans-pack-row';
+  for (const [id, k] of Object.entries(PACKS)){
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'pack-btn';
+    b.innerHTML = '<b>' + fmtN(k.credits) + ' credits</b><span>' + usd(k.price) + ' once</span>';
+    b.onclick = () => startCheckout({ pack: id });
+    row.appendChild(b);
+  }
+  packs.appendChild(row);
+  g.appendChild(packs);
+  if (isAdmin() && !DEMO) adminBillingLine(g);
 }
-async function startCheckout(planId){
+/* operators see whether Stripe is live, and can make the prices and the
+   webhook before the first customer does */
+async function adminBillingLine(g){
+  const el = document.createElement('div');
+  el.className = 'plans-note'; el.textContent = 'Billing: checking…';
+  g.appendChild(el);
+  const say = (j) => {
+    if (!j.on){ el.textContent = 'Billing is off: ' + (j.say || 'set STRIPE_SECRET in Netlify.'); return; }
+    const prices = j.prices && Object.keys(j.prices).length ? ' · prices: ' + Object.values(j.prices).filter(v => /^price_/.test(v)).length + ' of ' + Object.keys(j.prices).length : '';
+    el.textContent = 'Billing is on (' + j.mode + ' mode) · webhook: ' + (j.webhook && j.webhook.ok ? j.webhook.source : 'not yet, ' + ((j.webhook && j.webhook.reason) || '')) + prices + ' ';
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'ai-more'; b.textContent = 'Set up prices and webhook now';
+    b.onclick = async () => { b.disabled = true; try { say(await api('/admin/billing', {})); } catch (e){ toast(e.message, 'error'); b.disabled = false; } };
+    el.appendChild(b);
+  };
+  try { say(await api('/admin/billing')); } catch (e){ el.textContent = 'Billing status unavailable: ' + e.message; }
+}
+async function openBillingPortal(){
+  try { const j = await api('/portal', {}); location.href = j.url; }
+  catch (e){ toast('Billing portal unavailable: ' + e.message, 'error'); }
+}
+const notOpenYet = () => toast('Checkout is not open yet. Nothing was charged, and your free plan keeps working.', 'error');
+async function startCheckout(what){
+  if (typeof what === 'string') what = { plan: what };
   if (!account){ openAuth('Create an account first, then pick your plan.', () => openPlans()); return; }
   if (DEMO){
-    if (!confirm('Demo checkout: no backend is connected, so this simulates a successful ' + PLANS[planId].label + ' payment. Continue?')) return;
-    demoSave(account.email, { plan: planId });
+    const label = what.pack ? PACKS[what.pack].label : PLANS[what.plan].label;
+    if (!confirm('Demo checkout: no backend is connected, so this simulates a successful ' + label + ' payment. Continue?')) return;
+    if (what.pack){ toast(label + ' are a hosted-site purchase; the demo has no credits ledger.'); return; }
+    demoSave(account.email, { plan: what.plan });
     await loadAccount();
-    showPayResult(true, planId);
+    showPayResult(true, what.plan);
     return;
   }
   try {
-    const j = await api('/checkout', { plan: planId });
+    const j = await api('/checkout', what);
     location.href = j.url; // Stripe-hosted checkout page
   } catch (e){
     // The function answers 503 "Billing is not enabled yet" until the Stripe
-    // keys are set; say that in words a customer can act on.
-    if (/not enabled/i.test(e.message)) toast('Pro checkout is not open yet. Nothing was charged, and your free plan keeps working.', 'error');
+    // key is set; say that in words a customer can act on.
+    if (/not enabled/i.test(e.message)) notOpenYet();
+    else if (e.status === 409 && e.data && e.data.switch) switchPlan(what.plan, what.interval);
     else toast('Checkout failed: ' + e.message, 'error');
   }
 }
-function showPayResult(ok, planId){
+/* a paid account moves to another plan or period on its subscription,
+   prorated: the difference is charged (or credited) today */
+async function switchPlan(id, interval){
+  const p = PLANS[id];
+  const cents = p.price[interval];
+  if (!confirm('Switch to ' + p.label + ' at ' + usd(cents) + (interval === 'year' ? ' a year' : ' a month') +
+    '? The difference for the rest of this period is charged (or credited) to your card on file today.')) return;
+  try {
+    const j = await api('/billing/change', { plan: id, interval });
+    account = j.user; syncAcctUI(); buildPlansGrid();
+    toast('You are on ' + p.label + ' now.', 'success');
+  } catch (e){ if (/not enabled/i.test(e.message)) notOpenYet(); else toast(e.message, 'error'); }
+}
+function showPayResult(ok, planId, kind){
   $('page-plans').classList.remove('active');
-  /* paid, but the account still reads Free: Stripe's webhook has not reached
-     the function yet (handleCheckoutReturn waited for it). Say that, never
-     "You are now on the Free plan" to someone who just paid. */
-  const pending = ok && (!planId || planId === 'free');
+  /* paid, but the account still reads Free: Stripe has not told the
+     function yet (handleCheckoutReturn asked). Say that, never "You are now
+     on the Free plan" to someone who just paid. */
+  const credits = kind === 'credits';
+  const pending = ok && !credits && (!planId || planId === 'free');
   $('pay-ico').textContent = ok ? (pending ? '⏳' : '✅') : '↩️';
-  $('pay-title').textContent = ok ? (pending ? 'Payment received' : 'Payment successful!') : 'Checkout cancelled';
+  $('pay-title').textContent = ok ? (pending ? 'Payment received' : credits ? 'Credits added' : 'Payment successful!') : 'Checkout cancelled';
+  const c = creditsOf();
   $('pay-sub').textContent = ok
-    ? (pending
-        ? 'Pro is switching on. It usually takes a few seconds; if your account still says Free in a minute, reload the page.'
-        : 'You are now on the ' + (PLANS[planId] ? PLANS[planId].label : 'new') + ' plan. Watermark off, full resolution on.')
+    ? (credits ? 'You have ' + (c ? c.total : 'more') + ' AI credits now. Bought credits never expire.'
+      : pending
+        ? 'Your plan is switching on. It usually takes a few seconds; if your account still says Free in a minute, reload the page.'
+        : 'You are now on the ' + (PLANS[planId] ? PLANS[planId].label : 'new') + ' plan: no watermark, full size, videos included, and ' + (PLANS[planId] ? PLANS[planId].credits : '') + ' AI credits a month.')
     : 'No charge was made. You are still on your previous plan.';
   $('pay-overlay').classList.add('show');
 }
 async function handleCheckoutReturn(){
   const q = new URLSearchParams(location.search);
+  if (q.get('billing') === 'back'){ history.replaceState(null, '', location.pathname); loadAccount(); return; }
+  if (q.get('plans')){ history.replaceState(null, '', location.pathname); openPlans(); return; }   // the video maker's "See plans
   const st = q.get('checkout');
   if (!st) return;
+  const sid = q.get('session_id');
   history.replaceState(null, '', location.pathname);
   if (st !== 'success'){ showPayResult(false); return; }
-  /* Stripe sends the browser back before its webhook has always reached the
-     function, so the first /me can still say Free. Ask again for a few
-     seconds before announcing the plan. */
+  /* The plan goes on from Stripe's own record of the session
+     (/checkout/confirm), so it does not wait for the webhook. If that
+     fails, ask /me again for a few seconds before announcing anything. */
   await loadAccount();
+  if (sid && !DEMO && account){
+    try {
+      const j = await api('/checkout/confirm', { session_id: sid });
+      account = j.user; syncAcctUI();
+      if (j.kind === 'credits'){ showPayResult(true, account.plan, 'credits'); return; }
+    } catch (e){ console.warn('checkout confirm:', e); }
+  }
   for (let i = 0; i < 8 && account && (account.plan || 'free') === 'free'; i++){
     await new Promise(r => setTimeout(r, 1500));
     await loadAccount();
@@ -6669,7 +6844,7 @@ function bindSaasUI(){
     syncAcctUI();
     jset('pgfx_tut_done', false);   // brand-new account always gets the tour
     if (pro){
-      openPlans('Pro unlocks every design, 2160px exports and no watermark.');
+      openPlans('Pro unlocks every design, videos without the watermark, 2160 pixel downloads and 75 AI credits a month.');
       return;
     }
     showEditor();
@@ -6687,9 +6862,9 @@ function bindSaasUI(){
   const lpAuth = (mode, msg) => () => { openAuth(msg); setAuthMode(mode); };
   const bindIf = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
   bindIf('lp-login', lpAuth('in'));
-  bindIf('lp-signup', lpAuth('up', 'Create your free account, 3 exports a week, no card needed.'));
+  bindIf('lp-signup', lpAuth('up', 'Create your free account: 3 downloads a week, photos or videos, no card needed.'));
   bindIf('lpf-login', (e) => { e.preventDefault(); lpAuth('in')(); });
-  bindIf('lpf-signup', (e) => { e.preventDefault(); lpAuth('up', 'Create your free account, 3 exports a week, no card needed.')(); });
+  bindIf('lpf-signup', (e) => { e.preventDefault(); lpAuth('up', 'Create your free account: 3 downloads a week, photos or videos, no card needed.')(); });
   bindIf('lpf-studio', (e) => { e.preventDefault(); showEasy(null); });
   $('auth-tab-in').onclick = () => setAuthMode('in');
   $('auth-tab-up').onclick = () => setAuthMode('up');
@@ -6965,8 +7140,17 @@ function ezExportPx(){
 async function aiGenerateBg(userText){
   if (DEMO) throw new Error('AI backgrounds need the hosted site');
   if (!account){ openAuth('Sign in to generate AI backgrounds'); throw new Error('Sign in first'); }
-  const j = await api('/generate-bg', { text: String(userText || ''), category: jget('pgfx_cat', '') || '' });
+  let j;
+  try { j = await api('/generate-bg', { text: String(userText || ''), category: jget('pgfx_cat', '') || '' }); }
+  catch (e){
+    if (e.status === 402 && e.data && e.data.credits){
+      account.credits = e.data.credits; syncQuotaUI();
+      openPlans("You're out of AI credits. A pack tops you up and never expires; a bigger plan brings more every month.");
+    }
+    throw e;
+  }
   if (!j.image) throw new Error('bad-response');
+  if (j.credits && account){ account.credits = j.credits; syncQuotaUI(); }
   return j.image;
 }
 

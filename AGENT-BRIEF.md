@@ -18,7 +18,8 @@ anything.
 resellers. Pick a template, type a headline and a phone number, export a
 post-ready graphic for Facebook Marketplace, OfferUp, Instagram or Craigslist.
 
-It is a **product people pay for** (Free / Pro $15 mo), not an internal tool.
+It is a **product people pay for** (Free / Pro $15 mo / Business $39 mo, AI in
+credits; `netlify/lib/plans.mjs`), not an internal tool.
 That is the standard every change is held to.
 
 | | |
@@ -30,8 +31,9 @@ That is the standard every change is held to.
 | Study program | `docs/` — start at `docs/README.md` |
 
 Single-page app, no build step: `index.html` + `app.js` (~7.7k lines, 560KB) +
-`styles.css`. Free/Pro limits are enforced **server-side** in a Cloudflare
-Worker; the browser copy in `PLANS` is display only.
+`styles.css`. The plan limits and AI credits are enforced **server-side** by the
+Netlify Function (`netlify/functions/api.mjs`, from `netlify/lib/plans.mjs`);
+the browser copy in `PLANS` is display only.
 
 ## The business constraint that governs every decision
 

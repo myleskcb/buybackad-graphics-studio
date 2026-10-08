@@ -25,12 +25,22 @@
       makes a new Stripe price and moves the lookup key; a test-mode customer
       is not used with live keys.
 
-   usage:  node scripts/billing_check.mjs      exits non-zero on any failure */
-import { mkdirSync, writeFileSync, cpSync, rmSync } from 'node:fs';
+   5. In Chromium under the production CSP (skip with --no-browser): the
+      landing's three plans and the credits line, no sideways scroll at 390;
+      the plans page monthly and yearly; Choose Pro yearly goes to Checkout
+      and back to "Payment successful" on Pro; the switch to Business; a
+      pack comes back as "Credits added"; the AI credit hint; no CSP or page
+      errors. SHOT_DIR=/folder keeps screenshots; FABRIC_JS=/path/fabric.min.js
+      when cdnjs is out of reach.
+
+   usage:  node scripts/billing_check.mjs [--no-browser]   exits non-zero on any failure */
+import { mkdirSync, writeFileSync, cpSync, rmSync, readFileSync, existsSync } from 'node:fs';
+import { createServer } from 'node:http';
+import { execSync } from 'node:child_process';
 import { createHmac } from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, extname } from 'node:path';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const bad = [];
@@ -397,7 +407,141 @@ for (const r of plans.economics()) {
   else ok(r.worstCostUsd <= plans.TARGETS.freeCostMax, `free costs at most $${r.worstCostUsd.toFixed(2)} a month`);
 }
 
+/* ---------- 5. in Chromium, under the production CSP ---------- */
+if (!process.argv.includes('--no-browser')) await browserPart();
+
 rmSync(T, { recursive: true, force: true });
 console.log(`billing_check: ${passed} passed, ${bad.length} failed`);
 for (const b of bad) console.log('  FAIL ' + b);
 process.exit(bad.length ? 1 : 0);
+
+async function browserPart() {
+  let chromium;
+  try { ({ chromium } = await import('playwright')); }
+  catch (e) {
+    try { const g = execSync('npm root -g').toString().trim(); ({ chromium } = await import(pathToFileURL(join(g, 'playwright/index.mjs')).href)); }
+    catch (e2) { console.log('billing_check: no playwright, browser part skipped'); return; }
+  }
+  env.STRIPE_SECRET = 'sk_test_browser';
+  delete env.SITE_URL;   // Checkout comes back to the page's own address
+  const csp = (readFileSync(join(ROOT, '_headers'), 'utf8').match(/Content-Security-Policy:\s*(.+)/) || [])[1];
+  const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.mjs': 'application/javascript', '.css': 'text/css', '.json': 'application/json', '.webp': 'image/webp', '.jpg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.woff': 'font/woff', '.mp3': 'audio/mpeg', '.ttf': 'font/ttf' };
+  const server = createServer(async (req, res) => {
+    try {
+      const u = new URL(req.url, 'http://127.0.0.1');
+      if (u.pathname.startsWith('/api/')) {
+        const chunks = []; for await (const c of req) chunks.push(c);
+        const r = await api(new Request('http://' + req.headers.host + u.pathname + u.search, { method: req.method, headers: req.headers, body: chunks.length ? Buffer.concat(chunks) : undefined }));
+        const h = {}; r.headers.forEach((v, k) => { h[k] = v; });
+        res.writeHead(r.status, h); res.end(Buffer.from(await r.arrayBuffer())); return;
+      }
+      let f = join(ROOT, decodeURIComponent(u.pathname));
+      if (u.pathname.endsWith('/')) f = join(f, 'index.html');
+      if (!f.startsWith(ROOT) || !existsSync(f)) { res.writeHead(404); res.end('404'); return; }
+      res.writeHead(200, Object.assign({ 'Content-Type': TYPES[extname(f)] || 'application/octet-stream' }, csp ? { 'Content-Security-Policy': csp } : {}));
+      res.end(readFileSync(f));
+    } catch (e) { res.writeHead(500); res.end(String(e)); }
+  });
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  const BASE = 'http://localhost:' + server.address().port;
+  const fabricJs = process.env.FABRIC_JS ? readFileSync(process.env.FABRIC_JS) : null;
+  const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox'] });
+  const errors = [];
+  const shot = async (page, name) => {
+    if (!process.env.SHOT_DIR) return;
+    mkdirSync(process.env.SHOT_DIR, { recursive: true });
+    await page.waitForTimeout(250);
+    await page.screenshot({ path: join(process.env.SHOT_DIR, name + '.png'), fullPage: false });
+  };
+  const newPage = async (w, token) => {
+    const ctx = await browser.newContext({ viewport: { width: w, height: 900 } });
+    if (token) await ctx.addInitScript((t) => { try { localStorage.setItem('pgfx_token', JSON.stringify(t)); localStorage.setItem('pgfx_seen_account', 'true'); } catch (e) {} }, token);
+    const page = await ctx.newPage();
+    await page.route('**/*', (route) => {
+      const url = route.request().url();
+      if (url.startsWith(BASE)) return route.continue();
+      if (url.startsWith('https://checkout.stripe.test/')) {   // the customer pays; Stripe sends them back
+        const cs = pay(url.split('/').pop());
+        return route.fulfill({ status: 302, headers: { Location: cs.success_url.replace('{CHECKOUT_SESSION_ID}', cs.id) } });
+      }
+      if (/fabric(\.min)?\.js/.test(url) && fabricJs) return route.fulfill({ status: 200, contentType: 'application/javascript', body: fabricJs });
+      return route.abort();
+    });
+    page.on('dialog', (d) => d.accept());
+    page.on('console', (m) => { if (m.type() === 'error' && /Content Security Policy|Refused to/.test(m.text())) errors.push(m.text().slice(0, 200)); });
+    page.on('pageerror', (e) => errors.push('page error: ' + e.message));
+    return page;
+  };
+  try {
+    // the landing's plans, wide and on a phone
+    for (const w of [1440, 390]) {
+      const page = await newPage(w);
+      await page.goto(BASE + '/', { waitUntil: 'domcontentloaded' });
+      await page.waitForTimeout(800);
+      const pr = await page.evaluate(() => {
+        const sec = document.getElementById('pricing');
+        sec.scrollIntoView();
+        return { cards: [...sec.querySelectorAll('.lp-price-card h3')].map((h) => h.textContent), text: sec.innerText, over: document.documentElement.scrollWidth - innerWidth };
+      });
+      ok(pr.cards.join() === 'Free,Pro,Business', `landing ${w}: three plans (${pr.cards.join()})`);
+      ok(/photos or videos/.test(pr.text) && /\$150 a year/.test(pr.text) && /AI credits/.test(pr.text) && /100 credits are \$9/.test(pr.text), `landing ${w}: videos, yearly price and credits on the cards`);
+      ok(pr.over <= 0, `landing ${w}: no sideways scroll (${pr.over}px)`);
+      if (process.env.SHOT_DIR) { await page.waitForTimeout(600); await page.locator('#pricing').screenshot({ path: join(process.env.SHOT_DIR, 'landing-pricing-' + w + '.png') }); }
+      await page.context().close();
+    }
+
+    // a free account: the plans page, Checkout, back on Pro
+    const token = await signup('browser@x.example');
+    for (const w of [1440, 390]) {
+      const page = await newPage(w, token);
+      await page.goto(BASE + '/?plans=1', { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('#page-plans.active .plan-card');
+      await page.waitForTimeout(400);
+      const m = await page.evaluate(() => ({ cards: [...document.querySelectorAll('#plans-grid .plan-card')].map((c) => c.querySelector('.plan-name').textContent + ' ' + c.querySelector('.plan-price').textContent), packs: document.querySelectorAll('.pack-btn').length, over: document.documentElement.scrollWidth - innerWidth, note: (document.querySelector('.plans-note') || {}).textContent || '' }));
+      ok(m.cards.join('|') === 'Free $0 forever|Pro $15 /month|Business $39 /month' && m.packs === 2, `plans ${w}: monthly (${m.cards.join('|')}), two packs`);
+      ok(!/opens soon/.test(m.note), `plans ${w}: billing is on, no "opens soon" note`);
+      await shot(page, 'plans-month-' + w);
+      await page.click('.plans-toggle button:nth-child(2)');
+      const y = await page.evaluate(() => [...document.querySelectorAll('#plans-grid .plan-card .plan-price')].map((p) => p.textContent).join('|'));
+      ok(y === '$0 forever|$150 /year|$390 /year', `plans ${w}: yearly (${y})`);
+      ok(m.over <= 0, `plans ${w}: no sideways scroll`);
+      await shot(page, 'plans-year-' + w);
+      if (w === 390) { await page.context().close(); continue; }
+
+      await Promise.all([page.waitForURL(/checkout=success/, { timeout: 15000 }).catch(() => {}), page.click('#plans-grid .plan-card.hot .plan-btn')]);
+      await page.waitForSelector('#pay-overlay.show', { timeout: 15000 }).catch(() => {});
+      const paid = await page.evaluate(() => ({ title: document.getElementById('pay-title').textContent, sub: document.getElementById('pay-sub').textContent, badge: (document.getElementById('acct-plan') || {}).textContent, url: location.search }));
+      ok(paid.title === 'Payment successful!' && /Pro plan/.test(paid.sub) && paid.url === '', `checkout: back from Stripe on Pro (${paid.title} / ${paid.sub})`);
+      ok(userBlob('browser@x.example').plan === 'pro' && userBlob('browser@x.example').sub.interval === 'year', 'checkout: the account is Pro yearly');
+      await shot(page, 'paid-' + w);
+      await page.click('#pay-ok');
+
+      // the switch to Business, monthly
+      await page.evaluate(() => openPlans());
+      await page.waitForTimeout(400);
+      const cur = await page.evaluate(() => [...document.querySelectorAll('#plans-grid .plan-card')].map((c) => (c.querySelector('.plan-current') ? 'current' : (c.querySelector('.plan-btn') || {}).textContent)).join('|'));
+      ok(cur === 'Cancel in billing|Switch to Pro monthly|Switch to Business', `plans as Pro yearly, monthly view: ${cur}`);
+      await page.click('.plans-toggle button:nth-child(2)');
+      const curY = await page.evaluate(() => [...document.querySelectorAll('#plans-grid .plan-card')].map((c) => (c.querySelector('.plan-current') ? 'current' : (c.querySelector('.plan-btn') || {}).textContent)).join('|'));
+      ok(curY === 'Cancel in billing|current|Switch to Business', `plans as Pro yearly, yearly view: ${curY}`);
+      await page.click('.plans-toggle button:nth-child(1)');
+      await page.click('#plans-grid .plan-card:nth-child(3) .plan-btn');
+      await page.waitForTimeout(800);
+      ok(userBlob('browser@x.example').plan === 'business', 'the switch to Business went through');
+
+      // a pack
+      await Promise.all([page.waitForURL(/checkout=success/, { timeout: 15000 }).catch(() => {}), page.click('.pack-btn')]);
+      await page.waitForSelector('#pay-overlay.show', { timeout: 15000 }).catch(() => {});
+      const pk = await page.evaluate(() => ({ title: document.getElementById('pay-title').textContent, sub: document.getElementById('pay-sub').textContent }));
+      ok(pk.title === 'Credits added' && /300 AI credits/.test(pk.sub), `a pack comes back as credits (${pk.title}: ${pk.sub})`);
+      await page.click('#pay-ok');
+      const hint = await page.evaluate(() => { syncCreditsUI(); return document.getElementById('bggen-credits').textContent; });
+      ok(/Uses 1 AI credit\. You have 300 \(200 this month \+ 100 bought\)/.test(hint), `the AI hint counts credits (${hint})`);
+      await page.context().close();
+    }
+    ok(!errors.length, 'no CSP or page errors' + (errors.length ? ': ' + errors.slice(0, 4).join(' | ') : ''));
+  } finally {
+    await browser.close();
+    server.close();
+  }
+}
