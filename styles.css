@@ -1875,6 +1875,14 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 @media (max-width:1100px){.lpf-cols{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}
 .lp-faq p a{color:var(--accent);text-decoration:underline}
+/* 2026-10-08: the "Ad templates" column is in the owner's order of importance
+   and some lines have sub-lines (Apple: iPhone, iPad, MacBook, Apple Watch,
+   AirPods; gold and silver: coins). A sub-line row sits under its line,
+   indented on a hairline, one size down; scripts/build_seo_pages.mjs writes
+   the column. */
+.lpf-col .lpf-subs{display:flex;flex-wrap:wrap;gap:0 12px;margin:-2px 0 4px;padding-left:10px;border-left:1px solid var(--hairline-strong)}
+.lpf-col .lpf-subs a{font-size:12.5px;padding:3px 0}
+:root[data-skin='poster'] .lpf-col .lpf-subs a{font-size:14px}
 
 /* THE LANDING GRID SHOWS EACH CARD AS IT WILL POST (2026-09-26). The number
    was rebuilt big and sits at the foot of most cards; the caption strip (a

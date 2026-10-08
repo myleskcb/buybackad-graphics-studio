@@ -46,4 +46,6 @@ td{color:var(--text-2)}
 footer.bottom{border-top:1px solid var(--line);max-width:1080px;margin:0 auto;padding:22px 20px 40px;display:flex;gap:10px 22px;flex-wrap:wrap;font-size:14px}
 footer.bottom a{color:var(--text-2)}
 footer.bottom .cats{flex-basis:100%;display:flex;gap:6px 16px;flex-wrap:wrap}
+footer.bottom .cat-sub{display:flex;gap:6px 12px;flex-wrap:wrap;padding-left:10px;border-left:1px solid var(--line)}
+footer.bottom .cat-sub a{color:var(--muted);font-size:13px}
 footer.bottom span{color:var(--muted)}
