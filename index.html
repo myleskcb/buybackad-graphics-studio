@@ -695,6 +695,7 @@
               <textarea id="bg-prompt" placeholder="Describe your background, e.g. gold jewelry on marble, rainy city at night, clean white desk"></textarea>
               <div class="bg-gen-row">
                 <button class="btn-gen" id="bg-generate" style="flex:1">✦ Generate</button>
+                <button class="bggen-more" id="bg-more" type="button" title="Products, style, colours, format and how many">⚙ Options</button>
               </div>
               <div class="bg-result" id="bg-result">
                 <img id="bg-result-img" alt="Generated background">
@@ -1090,22 +1091,53 @@
 </div>
 
 <div class="modal-overlay" id="bggen-overlay">
-  <div class="modal" style="max-width:480px">
-    <h3>✦ Generate a background</h3>
-    <div class="modal-sub">Describe the scene. Pro lighting and ad-ready composition are automatic.</div>
-    <textarea id="bggen-prompt" rows="3" placeholder="e.g. gold jewelry on marble, rainy city at night, clean white desk" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font:500 14px/1.4 var(--ui);padding:10px"></textarea>
-    <div class="bg-gen-row" style="margin-top:10px">
-      <button class="btn-gen" id="bggen-go" style="flex:1">✦ Generate</button>
+  <div class="modal bggen" role="dialog" aria-modal="true" aria-labelledby="bggen-title">
+    <div class="bggen-head">
+      <h3 id="bggen-title">✦ Generate a background</h3>
+      <button class="bggen-x" id="bggen-x" type="button" aria-label="Close">✕</button>
     </div>
-    <div class="bg-result" id="bggen-result">
-      <img id="bggen-img" alt="Generated background">
-      <div class="bg-result-acts">
-        <button id="bggen-use">Use as background</button>
-        <button id="bggen-save">＋ Save to library</button>
-        <button id="bggen-share">🌐 Share</button>
+    <div class="bggen-body" id="bggen-body">
+      <div class="modal-sub">Pick what goes in the shot, say where, choose a look. Pro lighting and ad-ready composition are automatic.</div>
+      <div class="bggen-lab">Category</div>
+      <div class="chips bggen-chips" id="bggen-cats" role="group" aria-label="Category"></div>
+
+      <div class="bggen-lab">Products in the shot <span class="bggen-hint" id="bggen-pick-hint">optional · up to 4 · our real photos</span></div>
+      <div class="bggen-tabs" id="bggen-tabs" role="tablist" aria-label="Product groups"></div>
+      <input type="search" class="bggen-search" id="bggen-search" placeholder="Search models, makes, colours…" aria-label="Search products" hidden>
+      <div class="bggen-grid" id="bggen-grid" role="listbox" aria-multiselectable="true" aria-label="Products"></div>
+      <div class="bggen-picked" id="bggen-picked" aria-live="polite"></div>
+
+      <label class="bggen-lab" for="bggen-prompt">Describe the scene</label>
+      <textarea id="bggen-prompt" class="bggen-text" rows="2" maxlength="280" placeholder="e.g. iphones in the rain, rainy city street at night, clean white desk"></textarea>
+
+      <div class="bggen-lab">Style</div>
+      <div class="chips bggen-chips" id="bggen-styles" role="group" aria-label="Style"></div>
+      <div class="bggen-lab">Colour scheme</div>
+      <div class="chips bggen-chips" id="bggen-pals" role="group" aria-label="Colour scheme"></div>
+      <div class="bggen-custom" id="bggen-custom" hidden>
+        <input type="color" id="bggen-c1" value="#111111" aria-label="Custom colour 1">
+        <input type="color" id="bggen-c2" value="#ff7a1a" aria-label="Custom colour 2">
+        <input type="color" id="bggen-c3" value="#fafaf9" aria-label="Custom colour 3">
+        <span class="bggen-hint">Up to three colours, used as the scene's palette</span>
       </div>
+
+      <div class="bggen-row">
+        <div><label class="bggen-lab" for="bggen-aspect">Format</label><select id="bggen-aspect" class="bggen-select"></select></div>
+        <div><label class="bggen-lab" for="bggen-space">Room for text</label><select id="bggen-space" class="bggen-select"></select></div>
+        <div><div class="bggen-lab">Images</div><div class="fillseg bggen-count" id="bggen-count" role="group" aria-label="How many images"></div></div>
+      </div>
+
+      <button class="btn-gen bggen-go" id="bggen-go" type="button">✦ Generate</button>
+      <details class="bggen-preview" id="bggen-preview" hidden><summary>Operator: the prompt this sends</summary><pre id="bggen-preview-text"></pre></details>
+      <div class="bggen-results" id="bggen-results" aria-live="polite"></div>
     </div>
-    <div class="modal-actions"><button class="btn btn-ghost" id="bggen-close">Close</button></div>
+    <div class="bggen-foot">
+      <div class="bggen-meterbox">
+        <div class="bggen-cost" id="bggen-cost">–</div>
+        <div class="bggen-bal"><span id="bggen-bal">–</span><span class="bggen-meter" aria-hidden="true"><i id="bggen-meter"></i></span></div>
+      </div>
+      <button class="btn btn-ghost" id="bggen-close" type="button">Close</button>
+    </div>
   </div>
 </div>
 
@@ -1127,6 +1159,21 @@
       </div>
     </div>
     <div class="ai-note" id="adminbg-status"></div>
+    <details class="bggen-admin" id="bggen-admin">
+      <summary>Customer generator: recipe, prices, credits</summary>
+      <div class="ai-note">The customer generator's hidden prompt, styles, colour schemes, negative words, prices and allowances. What you save here goes over the built-in recipe and the AI_* settings, is live for customers within a minute, and is never shown to them. Save it empty to go back to the built-in recipe. The full list of keys: <b>Show built-in</b>.</div>
+      <textarea id="bggen-admin-json" rows="10" spellcheck="false" aria-label="Recipe override (JSON)"></textarea>
+      <div class="bg-gen-row">
+        <button class="btn btn-ghost" id="bggen-admin-base" type="button">Show built-in</button>
+        <button class="btn-gen" id="bggen-admin-save" type="button" style="flex:1">Save override</button>
+      </div>
+      <div class="bg-gen-row bggen-grant">
+        <input type="email" id="bggen-grant-email" placeholder="customer@email.com" aria-label="Account email">
+        <input type="number" id="bggen-grant-n" value="10" step="1" aria-label="Credits to add">
+        <button class="btn btn-ghost" id="bggen-grant-go" type="button">Add credits</button>
+      </div>
+      <div class="ai-note" id="bggen-admin-status"></div>
+    </details>
     <div class="modal-actions"><button class="btn btn-ghost" id="adminbg-close">Close</button></div>
   </div>
 </div>
@@ -1316,6 +1363,7 @@
 <script src="iphonesla-link.js"></script>
 <script src="account.js"></script>
 <script src="ad-library.js"></script>
+<script src="bggen.js"></script>
 <script src="offer-assets.js"></script>
 <script src="offer-library.js"></script>
 <script src="site-ux.js"></script>

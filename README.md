@@ -27,8 +27,14 @@ redeploy. `.env.example` is the local copy for `netlify dev`.
 |---|---|
 | `JWT_SECRET` | required; any long random string, signs the sign-in tokens |
 | `ADMIN_EMAILS` | comma-separated operator emails: no caps, no watermark, the admin tools |
-| `GEMINI_KEY` | AI backgrounds (Gemini 3.1 Flash Lite Image by default; `PGFX_BG_MODEL` overrides it). `FAL_KEY` is the Seedream fallback. With neither, the button says the feature is not enabled yet |
-| `RL_USER_DAILY` / `RL_PRO_DAILY` / `RL_GLOBAL_DAILY` | AI backgrounds a day for a Free account, a Pro account and the whole site (defaults 10 / 40 / 400). **The only per-use cost in the product**, about $0.034 an image: read `docs/SAAS-AUDIT-2026-10-05.md` before raising them |
+| `FAL_KEY` | AI backgrounds on fal.ai: Seedream v4 text-to-image for a scene, Seedream v4 **edit** when the customer picks products (the shop's own photographs go in as reference images). First choice whenever it is set. `PGFX_FAL_TEXT_MODEL` / `PGFX_FAL_EDIT_MODEL` swap the models |
+| `GEMINI_KEY` | AI backgrounds on Gemini (3.1 Flash Lite Image by default; `PGFX_BG_MODEL` overrides it): the fallback when fal fails, or the only provider without `FAL_KEY` (`PGFX_BG_PROVIDER=gemini` puts it first). With neither key, the generator says the feature is not enabled yet |
+| `AI_CREDIT_UNIT` | what the generator calls its unit: `credits` (default) or `tokens` |
+| `AI_CREDITS_FREE` / `AI_CREDITS_PRO` | credits a month for a Free and a Pro account (defaults 10 / 150). Operators are not charged |
+| `AI_CREDIT_COST` / `AI_CREDIT_COST_REF` | credits an image costs: a scene alone / with products from the catalogue (defaults 1 / 2) |
+| `AI_MAX_PER_RUN` | images one Generate can ask for (default 4) |
+| `AI_USD_PER_IMAGE` / `AI_USD_PER_IMAGE_REF` | the provider's price per image, shown to operators next to the credit price (default $0.03) |
+| `RL_USER_DAILY` / `RL_PRO_DAILY` / `RL_GLOBAL_DAILY` | AI background images a day for a Free account, a Pro account and the whole site (defaults 10 / 40 / 400), on top of the monthly credits. **The only per-use cost in the product**, about $0.03 an image: read `docs/SAAS-AUDIT-2026-10-05.md` before raising them |
 | `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET`, `PRICE_PRO`, `SITE_URL` | billing, below. Until all four are set, Go Pro says "Pro checkout is not open yet" and nothing is charged |
 | `GOOGLE_CLIENT_ID` | optional; shows the Google sign-in button |
 | `LIBRARY_KEYS`, `LIBRARY_DAILY` | the partner library API, below |

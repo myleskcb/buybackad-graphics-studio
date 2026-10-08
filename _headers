@@ -21,6 +21,14 @@
 /assets/cutouts/*
   Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
 
+# The AI generator's picker thumbnails and model references (scripts/bggen_entities.py);
+# the picker links them with ?v=ASSET_REV like every other asset.
+/assets/bggen-thumbs/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+
+/assets/bggen-refs/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+
 # The showcase renders and the GeoNames tables change only on a redeploy.
 /assets/showcase/*
   Cache-Control: public, max-age=2592000, stale-while-revalidate=86400

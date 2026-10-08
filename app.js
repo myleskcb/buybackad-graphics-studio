@@ -6104,11 +6104,13 @@ function applyBgAnywhere(dataUrl){
 }
 
 // ═══════════════ GENERATE-BG MODAL (works from both editors) ═══════════════
-let bggenUrl = null;
-function openBgGen(){
-  if (!account && !DEMO){ openAuth('Sign in to generate AI backgrounds'); return; }
-  $('bggen-overlay').classList.add('show');
-  setTimeout(() => $('bggen-prompt').focus(), 60);
+/* The modal is bggen.js (2026-10-08): category, products from the shop's own
+   photographs, style, colour scheme, format, how many, and the credits it
+   costs. opts.text prefills the scene. */
+function openBgGen(opts){
+  if (!account && !DEMO){ openAuth('Sign in to generate AI backgrounds', () => openBgGen(opts)); return; }
+  if (window.BGGEN) window.BGGEN.open(opts && opts.text !== undefined ? opts : null);
+  else toast('The background generator did not load, reload the page', 'error');
 }
 function bindNavExtras(){
   $('nav-community').onclick = openCommunity;
@@ -6119,27 +6121,7 @@ function bindNavExtras(){
   if (adm) adm.onclick = openAdminBg;
   $('hist-close').onclick = () => $('hist-overlay').classList.remove('show');
   $('comm-close').onclick = () => $('comm-overlay').classList.remove('show');
-  $('bggen-close').onclick = () => $('bggen-overlay').classList.remove('show');
-  $('bggen-go').onclick = async () => {
-    const btn = $('bggen-go');
-    btn.disabled = true; btn.textContent = '… Generating';
-    try {
-      bggenUrl = await aiGenerateBg($('bggen-prompt').value);
-      $('bggen-img').src = bggenUrl;
-      $('bggen-result').classList.add('show');
-    } catch (err){ toast('Generation failed: ' + (err.message || 'unknown'), 'error'); }
-    btn.disabled = false; btn.textContent = '✦ Generate';
-  };
-  $('bggen-use').onclick = () => { if (bggenUrl){ applyBgAnywhere(bggenUrl); $('bggen-overlay').classList.remove('show'); } };
-  $('bggen-share').onclick = () => publishGenerated(bggenUrl, $('bggen-prompt').value || 'AI background');
-  $('bggen-save').onclick = async () => {
-    if (!bggenUrl) return;
-    const data = await downscaleDataUrl(bggenUrl, 2160);
-    const thumb = await downscaleDataUrl(bggenUrl, 240);
-    await bgPut({ id:'bg-' + Date.now(), name:($('bggen-prompt').value || 'AI background').slice(0, 40), data, thumb, ts:Date.now(), kind:'library' });
-    if (typeof refreshBgLibrary === 'function') refreshBgLibrary();
-    toast('Saved to library', 'success');
-  };
+  // the generate modal binds its own controls (bggen.js)
   bindAdminBg();
 }
 
@@ -6965,9 +6947,11 @@ function ezExportPx(){
 async function aiGenerateBg(userText){
   if (DEMO) throw new Error('AI backgrounds need the hosted site');
   if (!account){ openAuth('Sign in to generate AI backgrounds'); throw new Error('Sign in first'); }
-  const j = await api('/generate-bg', { text: String(userText || ''), category: jget('pgfx_cat', '') || '' });
-  if (!j.image) throw new Error('bad-response');
-  return j.image;
+  const fmt = { square:'1:1', story:'9:16', flyer:'3:4', landscape:'16:9', four3:'4:3', three4:'3:4' }[docFormat] || '1:1';
+  const j = await api('/generate-bg', { text: String(userText || ''), category: jget('pgfx_cat', '') || '', aspect: fmt });
+  if (j.image) return j.image;
+  if (j.url && window.BGGEN) return window.BGGEN.materialize(j);  // past the function's size the provider's link comes back
+  throw new Error('bad-response');
 }
 
 // ── Admin AI Studio (operators only, hidden nav entry) ──
@@ -7072,6 +7056,8 @@ function bindBackgroundsUI(){
   };
   $('bg-generate').onclick = runGen;
   $('bg-retry').onclick = runGen;
+  const more = $('bg-more');  // the full generator: products, style, colours, format, how many
+  if (more) more.onclick = () => openBgGen({ text: $('bg-prompt').value });
   $('bg-share').onclick = () => publishGenerated(lastGenUrl, $('bg-prompt').value || 'AI background');
   $('bg-use').onclick = () => { if (lastGenUrl){ setBgFromDataUrl(lastGenUrl); toast('Background applied'); } };
   $('bg-save').onclick = async () => {

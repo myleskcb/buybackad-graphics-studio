@@ -199,14 +199,15 @@ const SECRET = /Reproduce every product|Avoid:|candid real photo|softbox|strictl
   ok((await hit('GET', '/me', null, free)).status === 200 && (await hit('POST', '/admin/generate-bg', { prompt: 'a plain white wall' }, boss)).status === 200, 'function: /me and the operator\'s verbatim path still answer');
   ok(falCalls.at(-1).body.prompt === 'a plain white wall', 'admin path: the operator\'s words verbatim');
 }
-globalThis.fetch = realFetch;
-rmSync(T, { recursive: true, force: true });
 
-/* ---------- 3. the browser ---------- */
+/* ---------- 3. the browser (the same function, stand-ins and all) ---------- */
 if (!NO_BROWSER) {
   const { browserCheck } = await import(pathToFileURL(join(ROOT, 'scripts/bggen_browser.mjs')).href);
-  await browserCheck({ ROOT, ok });
+  try { await browserCheck({ ROOT, ok, api, falCalls }); }
+  catch (e) { ok(false, 'browser: ' + e.message.split('\n')[0]); }
 }
+globalThis.fetch = realFetch;
+rmSync(T, { recursive: true, force: true });
 
 console.log((bad.length ? 'FAIL' : 'ok') + ' — ' + passed + ' passed, ' + bad.length + ' failed');
 for (const b of bad) console.log('  ✗ ' + b);
