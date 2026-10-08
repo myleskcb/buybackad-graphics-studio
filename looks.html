@@ -1,0 +1,84 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Look Book · BUYBACK.AD</title>
+<meta name="description" content="Every ready-made look in one place: video looks, image ad designs, backgrounds and phone layouts. Pick one and it opens in the editor.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+/* The Look Book: the poster skin's wall (DESIGN-LAW 98): paper, ink outlines, hard offset
+   shadows, four signal colours with one job each. A sticky masthead of tabs and chips over
+   a grid of pinned prints. */
+@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-600.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-700.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-400.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-500.woff2') format('woff2');font-weight:500;font-display:swap}
+:root{
+  --paper:#f2eee4; --card:#fffdf8; --ink:#141414; --ink-2:#3b3833; --dim:#66615a; --line:rgba(20,20,20,.14);
+  --blue:#2b56f5; --blue-ink:#ffffff; --tomato:#ff4a2e; --marigold:#ffc21a; --mint:#12b886;
+  --hard:3px 3px 0 var(--ink); --hard-lg:5px 5px 0 var(--ink); --edge:#141414;
+  --display:'Clash Display','Arial Narrow',system-ui,sans-serif; --body:'Satoshi',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#1b1a1f;--card:#24232a;--ink:#f4f0e8;--ink-2:#d2ccc0;--dim:#a29c90;--line:rgba(244,240,232,.14);--blue:#6f8cff;--blue-ink:#0b0c14;--hard:3px 3px 0 #000;--hard-lg:5px 5px 0 #000;--edge:#000;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#1b1a1f;--card:#24232a;--ink:#f4f0e8;--ink-2:#d2ccc0;--dim:#a29c90;--line:rgba(244,240,232,.14);--blue:#6f8cff;--blue-ink:#0b0c14;--hard:3px 3px 0 #000;--hard-lg:5px 5px 0 #000;--edge:#000;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 var(--body)}
+a{color:inherit}
+.wrap{max-width:1400px;margin:0 auto;padding-inline:16px}
+.mast{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:2px solid var(--edge);padding-block:12px}
+.mast .wrap{display:grid;gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;margin-right:auto}
+.brand b{font:700 28px/1 var(--display);letter-spacing:.01em}
+.brand span{font:500 13px var(--body);color:var(--dim)}
+.back{font:600 14px var(--body);text-decoration:none;border:2px solid var(--edge);background:var(--card);padding:6px 12px;border-radius:8px;box-shadow:var(--hard)}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tabs button,.chips button{font:600 15px var(--body);color:var(--ink);background:var(--card);border:2px solid var(--edge);border-radius:999px;padding:6px 14px;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--blue);color:var(--blue-ink);box-shadow:var(--hard)}
+.tabs button small{font:500 12px var(--body);opacity:.8;margin-left:4px;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.chips button{font-size:13px;padding:4px 11px;border-width:1.5px;white-space:nowrap}
+.chips button[aria-pressed="true"]{background:var(--marigold);color:#141414}
+#q{flex:1 1 220px;min-width:0;font:15px var(--body);color:var(--ink);background:var(--card);border:2px solid var(--edge);border-radius:8px;padding:8px 12px}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--marigold);outline-offset:2px}
+.intro{max-width:70ch;color:var(--ink-2);margin:18px 0 6px}
+section.grp{margin-top:26px}
+section.grp h2{font:700 24px/1.15 var(--display);margin:0 0 4px;text-wrap:balance}
+section.grp p{margin:0 0 12px;color:var(--dim);font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px}
+.look{display:grid;gap:6px;text-decoration:none;min-width:0}
+.pic{position:relative;aspect-ratio:4/5;background:var(--card);border:2px solid var(--edge);border-radius:10px;overflow:hidden;box-shadow:var(--hard);transition:transform .12s,box-shadow .12s}
+.pic.sq{aspect-ratio:1}
+.look:hover .pic{transform:translate(-2px,-2px);box-shadow:var(--hard-lg)}
+.pic img,.pic canvas{width:100%;height:100%;object-fit:cover;display:block}
+.pic .wait{position:absolute;inset:0;display:grid;place-items:center;font:500 12px var(--body);color:var(--dim)}
+.tag{display:inline-block;vertical-align:1px;font:700 10px/1 var(--display);font-style:normal;letter-spacing:.06em;text-transform:uppercase;padding:3px 5px;border-radius:4px;border:1.5px solid #141414;color:#141414;margin-right:4px}
+.tag.v{background:var(--tomato)} .tag.i{background:var(--mint)} .tag.b{background:var(--marigold)} .tag.l{background:#fffdf8}
+.cap{display:grid;gap:1px;min-width:0}
+.cap b{font:600 14px/1.25 var(--body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cap span{font-size:12px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.more{margin:14px 0 0;font:600 14px var(--body);color:var(--blue-ink);background:var(--blue);border:2px solid var(--edge);border-radius:8px;padding:8px 16px;box-shadow:var(--hard);cursor:pointer}
+.empty{color:var(--dim);margin-top:30px}
+footer{margin:48px 0 24px;color:var(--dim);font-size:13px}
+@media (max-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.brand b{font-size:23px}.mast{position:static}}
+@media (prefers-reduced-motion:reduce){.pic{transition:none}}
+</style></head><body>
+<header class="mast"><div class="wrap">
+  <div class="row">
+    <a class="brand" href="./"><b>Look Book</b><span>Graphics Studio by BUYBACK.AD</span></a>
+    <a class="back" href="motion/">Video maker</a>
+    <a class="back" href="./">Image studio</a>
+  </div>
+  <div class="row">
+    <div class="tabs" role="group" aria-label="What to show" id="tabs"></div>
+    <input id="q" type="search" placeholder="Search looks, themes, categories" aria-label="Search the Look Book">
+  </div>
+  <div class="chips" role="group" aria-label="Narrow it down" id="chips"></div>
+</div></header>
+<main class="wrap">
+  <p class="intro" id="intro">Every ready-made look in one place. Pick one and it opens in the editor with your number and phones, ready to change and download.</p>
+  <div id="out"></div>
+  <p class="empty" id="empty" hidden>Nothing matches that search. Try a shorter word, or pick All.</p>
+  <footer>Video looks are drawn live in your browser; each opens in the video maker. Image ads open in the image studio. Downloads follow your plan.</footer>
+</main>
+<script type="module" src="looks.js"></script>
+</body></html>

@@ -19,11 +19,23 @@
  *                                fallback when assets/bg/<file>.jpg isn't in
  *                                the deploy yet.
  *
+ *   GET  /api/library/v1/...     partner path, behind a library key: the
+ *                                imagery catalogue (netlify/lib/library.mjs).
+ *
+ *   /api/ads/...                 the ad library: ads an account saves, and
+ *                                one public link to them for a poster
+ *                                (netlify/lib/adlibrary.mjs).
+ *
  * Env vars: JWT_SECRET (required), GEMINI_KEY (required for AI), ADMIN_EMAILS
- * (comma-separated), optional: PGFX_BG_MODEL, RL_USER_DAILY, RL_PRO_DAILY,
- * RL_GLOBAL_DAILY, STRIPE_SECRET, STRIPE_WEBHOOK_SECRET, PRICE_PRO, SITE_URL.
+ * (comma-separated), optional: FAL_KEY (Seedream fallback when Gemini fails, or
+ * the only provider without GEMINI_KEY), PGFX_BG_MODEL, RL_USER_DAILY, RL_PRO_DAILY,
+ * RL_GLOBAL_DAILY, STRIPE_SECRET, STRIPE_WEBHOOK_SECRET, PRICE_PRO, SITE_URL,
+ * LIBRARY_KEYS (name:key pairs), LIBRARY_DAILY, ADLIB_DAILY, ADLIB_MAX_FREE,
+ * ADLIB_MAX_PRO, ADLIB_MAX_ADMIN.
  */
 import { getStore } from '@netlify/blobs';
+import { libraryRoute } from '../lib/library.mjs';
+import { adLibraryRoute } from '../lib/adlibrary.mjs';
 
 export const config = { path: '/api/*' };
 
@@ -82,6 +94,8 @@ const json = (data, status) => new Response(JSON.stringify(data), {
 // nulls ("Account not found" right after signup).
 const users = () => getStore({ name: 'pgfx-users', consistency: 'strong' });
 const bgStore = () => getStore('pgfx-backgrounds'); // published backgrounds: read-heavy, eventual is fine
+// saved ads: a save is read back at once (the library, its public link)
+const adStore = () => getStore({ name: 'pgfx-ad-library', consistency: 'strong' });
 
 async function getUser(em) { return JSON.parse((await users().get('u:' + em)) || 'null'); }
 async function putUser(u) { await users().set('u:' + u.email, JSON.stringify(u)); }
@@ -212,6 +226,30 @@ export default async (req) => {
   const p = url.pathname.replace(/^\/api/, '').replace(/\/$/, '') || '/';
   if (req.method === 'OPTIONS') return json({});
   try {
+    /* the partner library: its own key, not a signed-in user, so it answers
+       before the account checks. The day's count fails open: a storage
+       hiccup never locks the partner out. */
+    const lib = await libraryRoute(req, url, p, env, {
+      fetchJson: async (u) => { const r = await fetch(u, { headers: { Accept: 'application/json' } }); if (!r.ok) throw new Error(u.replace(url.origin, '') + ' ' + r.status); return r.json(); },
+      count: async (partner) => {
+        try { return await bumpCounter('lib:' + partner + ':' + isoDay(), parseInt(env.LIBRARY_DAILY || '20000', 10)); }
+        catch (e) { console.warn('library: the day count failed, letting it through', e); return true; }
+      },
+    });
+    if (lib) return lib;
+    /* the ad library: its public link answers without an account, so it
+       comes before the JWT check too; its own routes ask for a sign-in */
+    const ads = await adLibraryRoute(req, url, p, env, {
+      store: adStore(),
+      accountsReady: !!env.JWT_SECRET,
+      whoami: (r) => readToken(r, env),
+      account: async (em) => { const u = await getUser(em); return u ? { plan: u.plan || 'free', role: roleFor(em, env) } : null; },
+      count: async (owner) => {
+        try { return await bumpCounter('adlib:' + owner + ':' + isoDay(), parseInt(env.ADLIB_DAILY || '100', 10)); }
+        catch (e) { console.warn('ad library: the day count failed, letting it through', e); return true; }
+      },
+    });
+    if (ads) return ads;
     if (!env.JWT_SECRET) return json({ error: 'Backend not configured (JWT_SECRET missing)' }, 500);
 
     if (p === '/auth/signup' && req.method === 'POST') {
@@ -409,6 +447,7 @@ export default async (req) => {
         mode: 'subscription',
         'line_items[0][price]': env.PRICE_PRO,
         'line_items[0][quantity]': '1',
+        allow_promotion_codes: 'true', // partner and creator discounts are Stripe promotion codes, no code change
         customer_email: em,
         'metadata[email]': em,
         'metadata[plan]': plan,

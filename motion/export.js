@@ -1,7 +1,7 @@
 // Phone Ad Maker export: an MP4 made frame by frame with WebCodecs (no server,
 // no upload), or a real-time recording where WebCodecs is missing.
 
-import { canvas } from "./engine.js";
+import { canvas, EXPORT_QUALITY } from "./engine.js";
 import { renderSoundtrack } from "./audio.js";
 
 // Yield to the page without a timer: a background tab throttles setTimeout to
@@ -68,7 +68,7 @@ export async function exportMp4(ad, onProgress = () => {}, { fps = 30, audioBuf,
     const draw = frameGuard(frames);
     for (let i = 0; i < frames; i++) {
       if (failed) throw failed;
-      draw(() => ad.frame(ctx, i * dt, { subsFly: 8, subsMove: 4 }, dt));
+      draw(() => ad.frame(ctx, i * dt, EXPORT_QUALITY, dt));
       const vf = new VideoFrame(c, { timestamp: Math.round(i * 1e6 / fps), duration: Math.round(1e6 / fps) });
       venc.encode(vf, { keyFrame: i % (fps * 2) === 0 });
       vf.close();

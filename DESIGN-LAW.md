@@ -3021,6 +3021,21 @@ and a third the palette's tinted ink.
 > support colour of a palette becomes a shade of the one hue, not a second
 > colour.
 
+**Reconciled with rule 103, 2026-10-02: two families, never muddy.** Since
+this rule, every card was given a proven two-colour palette (rule 103), which
+removes the random third colour at its source. One hue for everything then
+undid that work: the pass turned colours muddy on 75 of 415 cards (dark greens
+and blues drawn in a warm hue too dark to hold it: olive, brown) and folded
+the pairs into one colour (a Navy & Gold card's gold number went blue). Now a
+card keeps its **two** largest colour families (its palette's pair; gold always
+among them on a card that says GOLD); only a **third** family is folded, into
+the kept one nearest in hue that can hold it at its own luminance; nothing is
+moved into a hue under its muddy floor (rule 103's `muddy()`, with a six-degree
+margin for gamut fitting). Measured on the live cards: muddy results 75 to 0,
+cards the pass changes 242 to 89 (most of them multi-coloured "rainbow"
+headlines settling into the card's two colours). The gate's 'hues' asks the
+same question: a third family the pass can fold.
+
 ## 96. The studio's own chrome is graphite and one blue
 
 Added 2026-09-30. The owner: "fix the purple UI theme it's kinda lame pick
@@ -3774,14 +3789,1021 @@ centred pill, passes both and still looks unfinished.
   Eight are Steps Flow cards, being re-laid out on another branch
   (claude/relaxed-darwin-8aces4) and not touched here.
 
-## 110. A palette is its own colours: two, three or a proven pair, and the effects wear them
+### 109, continued: one alignment to a card (2026-10-04)
+
+The owner, on hudTech-jw07-16 after the first centring: "you need to align
+left for everything so the left one needed the middle box aligned the left
+as well or if you're going to center it then you can't leave the second line
+of the hero aligned left"; then "same thing here" on ticketStub-ck03-15, one
+ticket line left of the others.
+
+- **A card is centred, or on one side, never both.** The measure fails
+  `mixed` (some parts centred, some on a shared edge) and `innerMixed` (the
+  stacked lines on a plate neither on one centre nor on one left edge with
+  each other). A mirrored pair on one band (the outer chips of a row of
+  three) is centred as a pair; a row of a label and its value is not a stack;
+  depth copies and a ✓ in a dot are not lines; up to 15 px off is centred.
+- **What the first pass got wrong.** It centred text only on rectangles, so
+  the lines in a ring or a ticket kept their old place; it paired a 460 px
+  ring with the headline beside it as if it were the line's icon; it counted
+  a faint unfilled ring and a dashed ticket border as solid, so they held
+  lines and blocked moves; and it moved lines from their authored place, so a
+  line the layout holds at its plate's margin never moved (the ticket's
+  PAID ON THE SPOT). Parts are now judged by what is drawn solid (`ccSolid`),
+  any solid shape holding lines is a plate, an icon pairs with its words only
+  at a like height, a row of chips moves as one (`ccRows`), and lines move
+  from where they are drawn, each checked after painting.
+- **The repair** centres the whole card, or when anything cannot be centred,
+  puts every part on the side the headline stands on (`ccPlanLeft`, left or
+  right), or moves nothing. 39 more cards were given one alignment (32
+  centred, 3 left, 1 right, 3 repairs of the tick and the ink only), each
+  through the writers' gate and looked at by eye (one, bubblePop-jw04-35,
+  was not written: moved, its tagline blocks fell away).
+- **Ten could take neither** and are held (holds.json, audit 2026-10-04): a
+  headline on one side over a centred plate with pictures in the way, an arc
+  over a left line, three checklists whose left list stands over a centred
+  plate. 311 cards are live.
+- After: 45 of 291 offered cards fail the measure, none newly; 15 are Steps
+  Flow (another branch), and of the rest 8 read as one alignment by eye with
+  a part a little off.
+
+## 110. A video's real thumbnails are its own frames: read back exact, and more than one
+
+Added 2026-10-04. The owner: "more and more exact versions of real thumbnails
+in the ad". Asked what that meant, two of four: "the photo is the exact video
+frame" and "more versions".
+
+- **The frames come out of the file**, not out of the engine.
+  `VideoStill.frames` reads the finished video back (Mediabunny, vendor/) and
+  saves each frame exactly as the file holds it, at the video's size, as PNG.
+  A frame drawn again can differ from the one that was encoded (the maker
+  keeps its phones from the first settled frame while its rays keep moving),
+  and what a platform's thumbnail picker shows is the file. Rule 108's HD
+  photo stays as it is, drawn again at 1440: it is the one that downloads by
+  itself.
+- **Moments that look different.** Every tenth of a second is scored as
+  rule 108 scores it (detail × stillness², held to its neighbours), and
+  moments are taken best first, at least 0.5 s apart, none under 40% of the
+  best, up to six, each only if 6% of its 32px blocks (on a copy 320 on its
+  long side) move their mean luminance by more than 20 levels from every
+  moment already taken. Measured on seven clips: the same ad with its
+  photograph breathing behind it, 0 of the blocks; the ad against its call to
+  action, 0.62 to 0.80; the phones face-on against the phones landed, 0.117 to
+  0.383. On 16px blocks at 12 levels the breathing read 0.12 to 0.15 and four
+  near-copies were offered. What it gives: in the studio the finished ad and
+  its call to action; in the maker the phones face-on and landed, and an
+  ending where the look has one.
+- **Read through, not sought, a canvas to each frame.** A video recorded in
+  real time (MediaRecorder's WebM) has no index, and asking it for the frame
+  at a time came back empty; the chosen frames are taken on a second pass from
+  the start. With a pool of canvases the reader decodes ahead into canvases
+  it has already handed out: a chosen frame was saved with a later one drawn
+  over it, 16 to 227 levels off, on every frame but the clip's last.
+- **Offered, not pushed.** The one automatic download stays the HD photo.
+  The frames wait in "Photos from your video" (`VideoHelp.photos`): the HD
+  photo first, then the frames, each with Download, and Save all (the share
+  sheet on a phone, where Save to Photos takes them all at once; else one
+  download after another). It opens from "📷 Photos from this video" under
+  the studio's video button (in the editor, under the export buttons), More
+  photos in the toast, and More photos in the maker's note. The frames are
+  read while the video downloads and arrive in the pop-up if it is open.
+  `scripts/video_photo_check.mjs` opens it on every run, saves every card, and
+  holds each frame to the same file decoded again: at most 1 level off.
+- **A 2x screen measures at 1x** (found doing this). Easy Mode's scene and the
+  template thumbnails are never shown on screen, only exported and measured,
+  and are now made with `enableRetinaScaling:false`. fabric's default drew them
+  at twice their size on an iPhone or a Retina Mac, and `pgCheck`, which
+  reads W x H of the canvas, measured its top-left quarter: every line "almost
+  invisible", and every Easy Mode download on those screens stopped at "Not
+  ready to post yet". Measured after: the gate passes at 1x and 2x, desktop
+  and phone; the ad exported on a 2x screen against a 1x one is 48 dB apart,
+  at most 6 levels on any channel, no pixel more than 8.
+- **One picked, one other** (later the same day). The owner: "Auto select the
+  best one, but maybe we have alternative if you don't like it", then
+  "realistically, why would we need two maybe like one? There's only so many
+  frames and currently there are six seconds." So the pop-up is "Your video's
+  photo": the best moment, picked for you (rule 108's HD photo, the one that
+  came with the video), and beside it one alternative, "Not this one? Try
+  this": the best-scoring moment that looks different from the picked one,
+  measured against the picked moment's own frame in the file
+  (`VideoStill.frames` with `around`, `max` 1), at least 0.5 s from it, exact
+  as the file holds it. A clip with no such moment says so rather than offer a
+  near-copy. It opens from "📷 This video's photo" under the studio's video
+  button, Other photo in the toast, and Other photo in the maker's note; Save
+  both. Measured on the check's eight runs: the studio's alternative is its
+  call to action (9.9 s; 7.6 s on Free), the maker's the phones face-on (1.2
+  to 1.4 s) against the picked phones landed with the words (2.6 to 4.2 s);
+  every one 0 levels off the file.
+
+## 111. The library goes to a partner by key: the site's own catalogue, never a copy
+
+Added 2026-10-04. The owner: "build the intermediary so the ad title and
+description page and list it can access the library material from buyback ad
+via a key ... build your part and then give me the rest to put into the
+iPhones LA repo to finish this library of imagery".
+
+- **One route, one key.** `/api/library/v1` (`netlify/lib/library.mjs`,
+  routed before the account checks in `api.mjs`) answers a partner's server
+  holding a key from `LIBRARY_KEYS` (`name:key` pairs, 32 characters or more,
+  compared in constant time; two pairs at once is a rotation). No CORS: a key
+  in a web page is a key anyone has. Each key gets `LIBRARY_DAILY` requests a
+  day (20000), counted fail-open.
+- **The site's own catalogue, read from the deploy.** It reads that deploy's
+  `assets/library.json` and `assets/showcase/index.json` over HTTP (five
+  minutes' cache), so every link it hands out is a file that deploy serves, and
+  a library change reaches the partner with the deploy, never by a second
+  copy. The pictures stay static files; the key gates the catalogue.
+- **Only what the site offers.** Ad designs pass the site's own `scIsLive`
+  (held cards carry a defect and stay out; the check reads the test out of
+  app.js so the two cannot drift); placeholders are never offered; every
+  picture carries `source` and, where the library holds one, its `credit`.
+  A design is a 448px preview with `studio_url` (`?card=<id>`, which opens it
+  in Easy Mode): it is finished in the studio, and the full-size download goes
+  back to iPhones LA through the existing link (`iphonesla-link.js`).
+- **Search ranks the name first.** Every word of `q` must start a word of the
+  item; a word in the name counts 3, in the description 2, elsewhere 1, the
+  library's order breaking ties. Before it, "iphone" opened on two Android
+  phones, filed as they are under iphones.
+- **The other side is handed over tested.** `docs/iphonesla-library/` (not
+  served: docs/ is 404'd) holds the Python client, the two routes, the picker
+  and a paste-ready prompt for `loganipad/iphoneslainv`, which this session
+  could not reach. `scripts/library_handoff_check.mjs` runs all of it against
+  a stand-in BUYBACK.AD: nine Python tests, the README's Flask and FastAPI
+  code as written, and the demo listing page in Chromium, where a pick adds a
+  JPEG with white behind the cut-out to the listing's photos.
+- Measured 2026-10-04: 867 assets (637 cut-outs, 77 scenes, 153 backgrounds)
+  and 311 ad designs, every link a file in the checkout
+  (`scripts/library_api_check.mjs`, which also fails a held card offered,
+  a wrong or short key, the day's cap and a CORS header).
+- **The library is the ads, at full size** (later the same day). The owner,
+  over the first picker, which opened on the product cut-outs: "Those are not
+  the ads those are assets and very old assets at that so it's going to be ads
+  that we approved and send to the library in the buyback ad app ... the ads
+  look way different than that." The API now offers the ads alone, the cards
+  the site offers, and the cut-outs, scenes and backgrounds are gone from it.
+  The studio draws an ad in the browser and a partner's server cannot, so
+  `scripts/render_library_ads.mjs` draws every offered card once at 1080
+  through `renderThumb()` (the picture the library's thumbnail is shrunk
+  from; JPEG 0.88) into `assets/library-ads/`, and the API hands out each ad
+  as that file (`?v=` its sha1), its thumbnail and its studio link. An ad
+  without a render is not offered. The index records each render's sha1 and
+  its thumbnail's: `library_api_check.mjs` fails on an offered card with no
+  render, a render left for a card no longer offered, a file that is not its
+  sha1 or not 1080x1080, and a render older than its thumbnail (run
+  `render_library_ads.mjs --stale` after `rethumb_showcase.mjs`).
+  Measured 2026-10-04: 311 renders, 55 MB, 102 to 396 KB; each one shrunk to
+  448 against its library thumbnail, 28.9 to 35 dB, median 31.7 (the
+  thumbnail is itself a WebP of a JPEG), none under 25.
+- **Search ranks what an ad is for.** A title is a palette and a layout
+  ("Black & Gold · Checklist Hero"), so a word of the category or subject
+  counts 3, of the title or layout 2: "gold" opens on the gold-buying ads, not
+  on phones ads in gold.
+- **One file to hand over.** `docs/iphonesla-library.zip`
+  (`scripts/pack_iphonesla_library.sh`) is the folder; the handoff check fails
+  while the two differ.
+
+## 112. A colour set the visitor builds is held to the law the house's sets are
+
+Added 2026-10-03 (numbered 112 when merged: `main` took 110 and 111 the same days). The owner, of the landing's twelve colour sets: "this is
+too elementary ... we should have a colored pallet builder that can make any
+amount that uses supportive colors ... if you choose a color, it will show you
+a list of the most popular supportive/secondary colors", then: "Maybe we have
+these 12 done for your themes or you can pick a color to start with".
+
+The twelve stay, as the **Ready-made** tab. Beside them, **Build your own**
+(`colour-builder.js`): pick one of fourteen colours (navy, blue, cyan, teal,
+green, lime, gold, yellow, orange, red, pink, purple, black, white) or any
+colour, see what goes with it as small ads, choose which colour is the
+background and which colour the small print takes, and save as many sets as
+you like. A saved set is a colour theme: it sits after ORIG in Easy Mode's and
+the designer's colour rows, beside a + that opens the same builder, and a
+draft or project made with it reopens in it (`ezThemeByName` finds it).
+
+- **What goes with a colour is a list, not a wheel** (rule 14). Each colour
+  has a fixed list of partners from pairings ads and brands have run for
+  decades (`CB_PARTNERS`, mirrored so a pair is found from either end). Rule
+  103's twelve come first, ordered by how many live designs use them, counted
+  on the page (`SHOWCASE.palN`); the rest follow as "classic pairs". The
+  order is curated, not measured popularity: the page says "ready-made sets
+  first, then other classic pairs", and states no number it did not count.
+- **Every set is solved, then checked, before it is shown.** Text on both
+  background stops 4.5:1 for normal sight and protan, deutan and tritan
+  readers; the bright colour 4.5:1 on both stops, 3:1 at worst for
+  colour-blind readers and 1.7:1 from the text (theme_law.mjs); the small
+  print 4.5:1 under all four; the number on its bright box 3:1 (rules 43, 51).
+  Lightness is solved in OKLCH with the hue kept (rules 31, 40).
+- **Every colour stays its name.** A warm colour is never drawn under rule
+  103's muddy floor, the bright colour stays inside its named band, and
+  chroma keeps rule 103's floor where the screen can show it (light blue and
+  mid teal cannot reach 0.12; there the floor is what the gamut holds). Navy,
+  blue and cyan are named by lightness as much as hue, so they carry their own
+  bands; gold, yellow, orange, lime, cyan and pink are never a dark background
+  (they go brown, olive, teal or wine), and black and white always are.
+- **Two families** (rules 95, 103): the small print is a lighter or deeper
+  shade of the background's colour or of the bright colour, never a third
+  hue; on a red background it is the bright colour's (a red one goes salmon),
+  and a shade of a red or pink turns toward crimson, never toward rust.
+- **A pair that cannot pass, or that comes out the same as one already
+  listed, is left out and the page says why**, in plain words (rule 16):
+  yellow under white text has to be drawn as deep as gold, so next to navy it
+  *is* gold; cyan and orange are both bright colours, so neither can be the
+  background; teal on white leaves no small-print colour that reads. A colour
+  the visitor picks is used as near as the law allows, and the page says when
+  it was drawn darker or lighter.
+- **The studio's gate still has the last word** (rule 87): a built set is
+  applied by `themeScene` and checked by `pgGate` before every download,
+  like any theme. Choice holds (rule 101) do not cover built sets; the gate
+  does.
+
+Measured with `scripts/colour_builder_audit.mjs`, which re-scores every set
+with maths of its own (theme_law.mjs's contrast and simulation, rule 103's
+own `muddy()` and `namedBand()` imported from refresh_palettes.mjs), on 80
+pairs from the fourteen colours and ten picked colours: 310 sets, 0 failing;
+worst text 8.26:1, bright colour 4.50:1, bright colour for colour-blind
+readers 3.53:1, bright against text 1.74:1, small print 4.55:1, number on its
+box 4.53:1; all twelve ready-made pairs offered from both their colours; 12
+pairs left out, each with its reason. A mustard gold (`#9b8301`) and a grey
+small print put in by hand fail it (58 failures).
+
+On cards, the eleven sets the fourteen colours open on, applied in Easy Mode
+on seven cards (three classics; four live showcase cards, a light one among
+them) and measured by the gate against each card's own colours: 0 of 77
+renders lose a line (no critical line fails that passed, no other reading
+line falls under 3:1).
+
+**Known, not the builder's:** on `main` a warm bright colour still lets two
+passes draw a dark shape muddy, house themes as much as built sets (19 of 77
+builder renders; the two house themes run as a control, 7 of 14). The
+one-colour pass folds a dark panel or bar into the card's gold at the panel's
+own luminance (`#3f3300` olive on top_buyer's bottom bar, and Orchid Payday's
+`#393300` beside it); rule 95's reconciliation on
+`claude/fervent-pascal-w6mthe` (pgMuddyFloor) keeps it the palette's deep hue
+there (Orchid Payday's bar measured `#47205e`). And the number or call to
+action on an orange or gold box takes the box's hue at its own dark
+luminance (rule 104's plate ink: `#3e1200` brown on gradientWave-nn05-15,
+`#332b00` under Orchid Payday), which no branch guards yet: under the muddy
+floor it should take the deep hue, as rule 103 says of a warm accent.
+
+**Added 2026-10-04: the look, and making a set your own.** The owner: "we
+just need to be able to tweak it to our liking or the style of our business",
+then, of the builder's one white card among dark ones: "Maybe somewhere at
+the top, we choose dark or light theme so ... dark mode, supportive themes
+versus light mode, supportive themes slightly alter it".
+
+- **A look at the head of the builder: Dark or Light.** Every suggestion is
+  solved in the chosen look. Dark is the twelve's look: a deep background
+  (navy, blue, teal, green, red, purple, or black), text near-white, the
+  bright colour light enough to stand out. Light is its mirror: the colours
+  whose name needs light (yellow, gold, lime, cyan, pink, orange; `lY`) are
+  the background as a real colour, never a pastel (rule 103), or white with
+  a breath of the cool colour; text navy-, green- or purple-black; the bright
+  colour drawn deep (navy, blue, red, green, purple, teal, raspberry). So on
+  Light a gold becomes the card and navy the words ("Gold & Navy"); black is
+  the text there and white is the text on Dark, so each stays in its own
+  look, and a pair that only works in the other look is listed under "On
+  Dark" or "On Light" with a button to switch. A ready-made set is marked
+  ready-made only in its own look (Silver & Blue light, the eleven dark).
+- **No outlines.** The owner asked whether the accents could take an outline
+  on Light; rule 1 forbids outlines on type, so a colour that cannot read on
+  a light background is drawn deeper, or becomes the background, instead.
+- **Make it yours.** Each colour of a set has a shade slider (the bright
+  colour a strength slider too), a picker and a code box for an exact colour,
+  and the background a style (flat, soft fade, deep fade; soft is the set's
+  own step between its stops). A slider's ends are the last values at which
+  the set still passes with the other colours as they stand (`cbRange`, on
+  the grid it stepped), so a tweak can make a set lighter, darker, quieter or
+  louder, never unreadable; with no room, the slider is off and says why. A
+  tweak is held to the same law plus three jobs in three colours: the bright
+  colour and the small print keep rule 103's chroma floor where the screen
+  can show it, the small print is neither the bright colour nor the text,
+  and a set has two colour families at most (`cbFamilies`; the near-black or
+  near-white text does not count). The named band is not enforced on a
+  tweak: a business may make its red lighter than a red.
+- **An exact colour is the visitor's.** A typed or picked colour is used as
+  typed where the set passes; where it does not, the small print moves first
+  (fitted, then drawn fresh from the families), then the other main colour,
+  and only then the visitor's own colour, keeping its hue and lifting its
+  chroma to the floor (an olive lightened at its own chroma is khaki). The
+  page says what moved, by how much and to what code (rule 16). A grey or
+  white cannot be the bright colour or the small print, a light background
+  on Dark or a dark one on Light points to the other look, and a third hue
+  for the small print is refused with the reason.
+- **Names and edits.** A set can be named ("Joe's Phones"); a saved set opens
+  for editing, Save changes keeps it in place, and a new name keeps the old
+  one in `aka`, which `ezThemeByName` reads, so a draft or a project made
+  under the old name still opens in it.
+
+Measured with colour_builder_audit.mjs (now both looks and the tweaks): on
+Dark 68 pairs and 204 sets, on Light 67 pairs and 204 sets, 0 failing; 1,804
+tweaked sets (both ends of every slider on every set, each style the builder
+offers, sixteen typed brand colours on the first set of each colour), 0
+failing on the audit's own maths; worst bright colour 4.50:1, for
+colour-blind readers 3.18:1, against the text 1.70:1, small print 4.50:1. A
+builder whose sliders reach 0.15 past their range, or that passes every
+tweak unchecked, fails it. On cards, the twenty sets the fourteen colours
+open on in both looks: 0 of 120 renders lose a line. The muddy paint the
+"Known" paragraph above describes is commoner on Light, where the card's
+leading hue is often the warm background (28 of 60 light renders, 19 of 60
+dark); the same twenty sets on three classics draw it in 24 of 60 renders on
+`main` and in 0 of 60 on `claude/fervent-pascal-w6mthe`.
+
+## 113. A customer reads plain words at a readable size
+
+Added 2026-10-02 on claude/fervent-pascal-w6mthe as 104; numbered 113 when merged into main after 104 to 112. The owner, on the poster look: "I like it now just fix the
+legibility for maximum customer understanding … and simplify any language that
+may be complex."
+
+- **Size floors** (poster look): running text 16 to 18.5px; notes, captions,
+  hints and footer links 13.5 to 15px; small uppercase labels 12.5px, lightly
+  tracked; nothing a customer reads under 12px (a colour swatch's ORIG badge,
+  10.5px, is the one exception). Secondary text is the dark grey (10:1), not
+  the dim one. Measured on the landing, Easy Mode and the designer: text under
+  13px fell from 64 to 27 runs on the landing and 207 to 32 in Easy Mode, and
+  no text a customer reads is under 4.5:1 (Easy Mode had 50, the PRO badges
+  on the strip among them; they are ink pills now).
+- **Plain words.** Short sentences, everyday words, the customer's own terms:
+  download (not export), colours or colour set (not palette, ink, accent or
+  plate), design (not template, where it is the thing they pick), box (not
+  plate), background (not ground), headline style (not tagline), AI
+  background (not BG). No ratios, pixel maths or internals in customer copy:
+  "the headline, number and button stand out from what is behind them", not
+  "measured for contrast on the card's own pixels". The quality check speaks
+  the same way ("is hard to read against what is behind it", "the colours on
+  this ad do not match").
+- Measured on the landing copy: reading grade 6.4 to 4.9, 14.0 to 11.1 words
+  a sentence, reading ease 74 to 80, every fact kept. The FAQ's search-engine
+  copy (JSON-LD) is rebuilt from the visible answers, so the two always match.
+
+
+## 114. A phone in a video is the model it is, and moves the way a camera would see it
+
+Added 2026-10-03 (numbered 114 when merged: `main` took 110 to 113 the same days). The owner, on three turned 17 and 18 Pros in a video: "they
+look like sim tray devices missing the sim tray so it's got a hole... audit
+small detail and fix fill in body color", then "make sure we have even better
+movements, accuracy, and realism".
+
+- **The body is the model's** (`designOf`, motion/engine.js). A turned phone's
+  edge is as deep as Apple's published depth for its width (`BODY`): a Plus
+  turns an edge 0.100 of its width, a 17 Pro 0.122, where every model was
+  0.115. Camera Control is flush and the body's colour; drawn near-black it
+  read as an empty SIM tray.
+- **A control the photograph shows is drawn where the photograph has it**
+  (`MEASURED_CONTROLS`). The 17 and 18 Pro backs show the side button standing
+  proud of the rail 46.8 to 64.4 mm from the top on both sizes; the engine drew
+  it 5 mm higher, so a turned phone showed two. `scripts/audit_phone_views.py`
+  fails a back whose button and drawing disagree by more than 1% of the height.
+  The stripes on the non-Pro backs sit at one share of the height on both sides
+  and both sizes, which buttons do not: they are the shared back's, not a
+  measurement.
+- **Motion blur blurs** (`Ad._subsFor`, `EXPORT_QUALITY`). An export draws the
+  phones at as many moments of the shutter as it takes for no corner to jump
+  more than 3 px between two (8 to 24); a fixed 8 left fast spins, frame 0
+  among them, as a fan of copies. The preview keeps its fixed few, to play live.
+  It costs the export about 1.2 to 1.8 times the drawing time.
+- **A shadow softens as the phone rises, without steps.** It blends the two
+  nearest of its three blurs, as dark together as one, and is as wide as the
+  turned body; picking one blur jumped at a third and two thirds of the height.
+- **Light moves on a turning back.** A soft band crosses it as it turns about 20
+  degrees toward the key light (high left, where the shadows fall from); square
+  to the lens or resting on an edge it is gone, so a still phone is unchanged.
+- `node scripts/motion_phone_check.mjs` measures the blur of every entrance,
+  flat and turned, and the shadow's steps, and exits 1 past either bar; run it
+  and audit_phone_views.py after a change to how the phones are drawn or move.
+- **All the way round** (owner, the same day: "All devices audit the 360 and any
+  other angles"). Every offered phone was turned through 360 degrees upright and
+  at 45, 90 and 180 degrees in the frame. Side-on, a phone shows its edge, as
+  deep as its model (the side was built from stacked outlines, and side-on each
+  is a line: every phone was a 1 to 2 px hairline beside a full-width shadow at
+  90 and 270 degrees, the middle of every wide spin and the start of a flip-in).
+  The edge's slices overlap, so no angle leaves a see-through seam. A phone lying
+  at any angle catches the same key light, high on the left. The iPhone 15 and
+  15 Plus carry the mute switch, not the Action button (`designOf`, checked
+  against Apple's line-up by audit_phone_views.py's FACTS).
+- motion_phone_check.mjs turns one phone of every model the same way, upright and
+  on its side, and fails an edge under 0.8 of the model's depth, a gap inside
+  the body, or a step of the turn over 2.5 times the usual.
+- **A side is its metal's colour** (owner, 2026-10-04, of a Cosmic Orange 17 Pro
+  side-on: "the orange looks a little bit too light"). On a 17 or 18 Pro the
+  sides and the camera plateau are one piece of aluminium, so the side is drawn
+  the plateau's colour, measured off each back (`RAIL`). index.json's `metal` is
+  read off the back's thin rim, where the studio light catches it, and was 13
+  to 55 levels a channel off (1.1 to 3.4 times too light). A measured side is
+  lit as a surface is, its colour scaled by the light with a faint white glint,
+  so it keeps its hue and averages to its own colour (0.89 to 1.10 side-on);
+  mixed toward black and white, the orange went brown at the rims and peach
+  between. Older backs show no part made of their frame's metal, so their sides
+  keep the rim's colour and the old shading. audit_phone_views.py fails a 17 or
+  18 Pro whose RAIL is more than 12 levels off its plateau.
+- **No hand-over to see** (owner, 2026-10-04, of the Burgundy 18 Pro: "the left
+  side kind of does a little bit of a flash and it's a little dark on the edge
+  and then it disappears as the device goes flat. It's not gradual at all").
+  Within 0.86 degrees of flat the phone was drawn as its bare photograph, and
+  the slab before it did not match: a dark sliver down its left side and round
+  its corners (the slab was a rounded rectangle the photo's full size, the
+  photo trimmed to its side button and rounder at the left), the face half a
+  percent large (the lens was focused on the middle of the body), and the side
+  buttons, with most of a pixel of perspective, swapped edges at flat. Now the
+  phone is the slab at every angle, built on its photograph's own outline
+  (`bodyOf`, measured once per photo) 0.8 px inside it, focused on the face we
+  see; the buttons come into view over the first 3.4 degrees; the photograph
+  is drawn from a copy with a clear border (`padded`) so the canvas's
+  hard-edged image rectangle never falls on the phone, its strips sampled
+  rather than stretched; the screen is drawn at twice the size and taken down.
+  Coming flat in steps of 0.05 degrees no step changes more than 17 pixels
+  visibly; at the old hand-over one step changed 4,161 to 8,188.
+  motion_phone_check.mjs's `flat` fails a step over 60. A 6 s export's frames
+  take about a fifth longer to draw.
+## 115. A stack keeps one rhythm down to its call to action, and the action is not another step
+
+Added 2026-10-02 (numbered 115 when merged: `main` took 110 to 114 the same days). The owner, over two Steps Flow cards in the library (the
+first was `stepsFlow-du08-15`): "Can we audit the margin between each bubble?
+I particularly think the CTA should have even margin.. also if we have three
+boxes of the same color, maybe the CTA is a different color? Or maybe it has
+a highlight? See the green one looks a little more cohesive", then "But most
+importantly, continue the same margin between each bubble".
+
+Measured on the 83 Steps Flow cards (the two classics and every showcase
+record) as renderThumb paints them, `scripts/steps_rhythm_audit.mjs --before`:
+
+| | before | after |
+|---|---|---|
+| step 1 to 2, 2 to 3 | 11 to 15px, equal on every card | 11 to 15px, equal on every card |
+| step 3 to the CTA plate | 26px **over** the third card to 33px under it | the same as the steps' gap, on every card |
+| cards with one rhythm | 2 of 83 | 83 of 83 |
+| CTA plate the rows' own neutral | 6 | 0 |
+
+In Easy Mode it was worse: the classic's plate covered the bottom 24px of
+GET PAID in the square, the 16:9 and the 4:3, 9 to 11px in the Tall 3:4 and
+the flyer, and in the story it sat 16px under rows 26px apart. The rows were set by the template; the guides fit and the number's
+floor (rule 53) sized and placed the plate after them, and nothing asked how
+far apart the two had ended up.
+
+- **The rhythm is the steps' own gap.** `pgStepRhythm`, last in the layout
+  (and again after `numberFill`), lays the step cards out again above the
+  plate: one gap apart and one gap off it, each card and everything drawn on
+  it keeping its middle (a sheen keeps its place under the card's top edge).
+- **The plate stays where the guides and the number put it; the rows move.**
+  Rows that do not fit come down in height first, never below their own words
+  plus 9px each side. Only then does a plate (not a band run to the card's
+  edge) give its spare height, from the top, down to its words plus a fifth of
+  them each side: the number fills its plate (`numberFill`), and the owner has
+  already said of these cards' CTA: "very hard to read and too small". Then
+  the gap itself comes down, never under 6px. Rows with room to spare move
+  down to the plate, unless that would cover something they did not.
+- **A stack that was spread on purpose is left alone**: gaps that already
+  differ by more than 6px, or a plate more than three gaps further down.
+- **The CTA is not a fourth step.** `pgCtaStandOut`: where the plate and the
+  step cards are both neutral and within 0.35 of each other in OKLab
+  lightness, or within 0.08 in OKLab, the plate takes the card's accent: the
+  colour the card's own accent plates already wear (the kicker pill, the step
+  numbers), else its headline's, else the hue the card is in, never the rows'
+  colour back. The number and every line and mark on the plate turn to
+  whichever of near-black and near-white reads better, the plate's lightness
+  moving until that is 7:1 (rules 53, 74), then take the plate's hue (rule
+  104). The colour is one the card already has, so the card keeps one hue
+  (rule 95). It runs after every pass that repaints a card, as pgOneHue does.
+  A plate the visitor coloured is theirs.
+- **A plate it recoloured is looked after to the end.** The number grows after
+  the pass and widens its plate under a mark beside it, and a theme takes a
+  coloured plate for an accent plate and repaints it in its own accent. On
+  `stepsFlow-du02-20` under Electric Trust both happened: the phone cue ended
+  on a light blue plate in its old mid blue, 1.6:1, and the every-choice audit
+  held the theme. So on such a plate, anything that does not read (a line
+  under 4.5:1, a mark under 3:1) takes the plate's ink; a tagline look's own
+  colours, which read, are left alone.
+- The six it recoloured: du08-15 and du01-20 (off-white under off-white rows,
+  now the navy of their kicker pills), du02-20 (teal), jw03-15 and jw10-20
+  (a grey pill under grey glass, now the gold of their step numbers), and the
+  classic `dl_silver_stepsFlow_ocean` (a near-black plate under near-black
+  glass, now its cyan).
+- No gate result changed on any of the 83 cards. Easy Mode measured in all six
+  formats on the classic: one rhythm in each, the gate clean.
+- `scripts/steps_rhythm_audit.mjs` exits 1 on a card whose three gaps differ
+  by more than 2px or whose plate reads as a fourth step. `--before` turns
+  both passes off (`window.__pgStepRhythmOff`, `__pgCtaStandOutOff`).
+
+## 116. The headline is the hero: it covers the card like every other card's does
+
+Added 2026-10-03 (numbered 116 when merged). The owner, over `stepsFlow-du01-20` (one word, "iPHONE", in
+the top left of a Steps card, shown in rule 115's before-and-after): "How many
+times do I have to tell you this is not a hero. It's tiny little text that
+looks extremely out of place compared to every other graphic seriously????"
+
+The gate's thumbnail test (`pgCheck` 'thumb') reads the headline's font size:
+0.7 of it on a 160px tile must reach 8px, so any line set at 77px or more
+passes. A 104px extra-condensed word passes, and still looks like a caption.
+What the owner compares is how much of the card the headline's letters cover:
+
+| | px² of headline letters on the 1080 square |
+|---|---|
+| the live library's median | 99,000 |
+| its tenth percentile | 46,000 |
+| CASH IN / 3 STEPS, which reads as a hero | 41,000 to 46,000 |
+| the four Steps cards the owner's words fit | 14,000 to 24,000 |
+| six live cards (four reviewProof, two ticketStub) | 22,000 to 28,000 |
+
+- **The floor is 30,000 px² of letters** (`HERO_MIN` in
+  `scripts/hero_headline.mjs`), measured on the letters (`textInkRect`), not
+  the boxes, on the card as renderThumb lays it out.
+- **A headline under it grows as one block**, by the largest factor the card
+  allows on the real render: its left edge (or centre) kept, its top free to
+  rise to the 6% guide; its letters inside the guides, 38px off every plate,
+  badge and product, and 0.8 of their own height off copy beside them; on the
+  plate and the ground they stood on (the median of every row and column of
+  the ground under the letters and 16px round them, so a headline printed on
+  a slab's label stays on the label); nothing else on the card moving or
+  going (a row pushed down, or a product left out for want of room, is a
+  collision); a sparkle set beside it moving with it; no headline line's
+  contrast falling. A grey headline under 4.5:1 takes the card's near-white
+  (near-black on a light ground). Then the gate (`gateRecords`).
+- Grown: du01-20 (×2.4, 15k to 84k), jw05-31 (×2.24, grey to white, 14k to
+  69k), du03-35 (×1.79, 20k to 65k) and pp09-35 (×1.57, 24k to 59k), all held
+  off the site already; and on the site reviewProof-pp03-35, -io03-15,
+  -pp02-15 (×1.54), -pp02-20 (×1.28), ticketStub-ck03-15 and -du02-30 (×1.32).
+  Three of the Steps cards had failed the gate's thumbnail test; none does now.
+- **A hero names what it wants, and names it exactly.** The owner, of
+  du01-20's grown "iPHONE": "create some room for the words... this just
+  feels incomplete still iPhone.. or maybe we can change it to sell your
+  iphone?"; then "what about WE BUY ALL (skip line) iPHONE 12-18", and, on the
+  way, "or skip.. iPHONE PRO MAX AIR", "more specific and more variety", "too
+  broad". One word is an object, not an ad, and ALL is a claim nobody can
+  picture. It is now WE BUY over iPHONE PRO · MAX · AIR: the lines a seller
+  owns, named, with dots so it reads as three models and not one. The hero
+  runs the card's width (920px of letters, 103px tall) and the lead is under
+  half its height; the pair sits on the middle of the band between the kicker
+  pill and the first step, the hero's box 16% into the lead's (the collision
+  pass calls under 18% a kiss). SELL YOUR / iPHONE, WE BUY ALL / iPHONE 12-18
+  and a three-line WE BUY / iPHONE 12-18 / PRO · PRO MAX · AIR were drawn and
+  passed the gate; the three-line one left every line small.
+- **Four live Glass Cards stay under the floor** (25k to 29k): their headline
+  shares the glass panel with the product, and a bigger headline pushes the
+  product out of the panel (the layout then leaves it off). That is a layout
+  decision, not a size: OPEN-ITEMS §AG.
+- Never judge a headline by its font size alone again: a condensed face and a
+  short word make a large size small. Run `node scripts/hero_headline.mjs
+  --live` (without `--write` it only reports) after anything that sets
+  headline sizes.
+## 117. Real photographs of the goods, never generated scenes or drawn placeholders
+
+Added 2026-10-04 (numbered 117 when merged: `main` took 112 to 116 the same days). The owner, of the fanned trading-card photographs behind
+the sports cards: "These are our classic background images, which I just
+wasn't really a fan of go ahead and remove"; then "replace everything and
+please use images of real things. People buy. This is like so classic AI
+slop", and "We need to look like graphic designers made this, and they would
+never choose that that's incomplete. It's a placeholder at very best."
+
+- **Retired:** every photograph the studio generated for the Designer
+  Library (`assets/bg/dl_*`, the "studio scenes": card fans, coins on burlap,
+  watches on velvet) and every drawn ground (`assets/showcase/bg/dg_cast_*`, a
+  flat colour and a grey slab icon). Fifteen of the nineteen sports
+  photographs were the same three fans.
+- **What stands in:** a real photograph of what the card says it buys, from
+  the curated Commons set in `assets/bg-web` (free licences only, credits in
+  its ATTRIBUTION.json), or the Apple product scenes for iPads and watches.
+  The words choose it (a Rolex for WATCH, a pickup for TACOMA, flatware for
+  STERLING, silver coins for SILVER DOLLARS). It stands sharp, in its own
+  colour, under a neutral shade solved for it, only where the words are.
+- **A photograph that is not a ground:** a single coin's face filling the
+  frame (on black, or a gold disc) and the slabbed Morgan in its red case
+  shade to a flat black field, or put words over a coin's own lettering,
+  once the copy is on them. They are out of the pools (`NOT_A_GROUND`).
+- **Measured, then looked at.** `scripts/reground_showcase.mjs` tries the
+  least-used photographs of a card's pool, solves the shade, and keeps one
+  only through the writers' gate; every result was looked at before it was
+  written (`--pin` writes exactly the one looked at). 89 library cards moved
+  to real photographs; 6 with none that passes are held (holds.json, audit
+  2026-10-04). The templates the studio builds take theirs from the same
+  pools (`BG_REAL` in app.js, the street set and the hand-built set with
+  them), their shade re-solved (ground-fix.json) and gated (classics-gate).
+  The Pokémon offer cards stand on the graded Charizard photographs.
+- **Not done: sports cards.** Commons has no usable photograph of sports
+  cards (searches returned museum trade cards, tournament crowds and two
+  signed baseballs), and the stock libraries designers use (Unsplash, Pexels,
+  Openverse's Flickr) are not reachable from the cloud sessions. The sports
+  cards keep generated scenes until real photographs arrive.
+## 118. The phone mark belongs to the number: its colour, its line, its box
+
+Added 2026-10-02 (written as 110 on claude/beautiful-wozniak-xmvvuk; numbered 118 when merged). The owner, of two car cards: "The Phone icon by the CTA
+looks super out of place and we could always color match it to make the
+theme look more cohesive", and of the second, "Same thing with this one".
+
+The mark beside a number (`Phone Cue`, written by retheme_lab.mjs on two cards
+in five so people know what the number is for) was placed and coloured for
+the number as it stood when the card was generated. The passes after it
+resized, moved and recoloured the number (the faces, the hug of the pill, the
+plate ink of rule 104) and left the mark where it was. Measured on the 93 live
+cards that carry one, on the pixels the studio paints:
+
+| | before | after |
+|---|---|---|
+| mark shown | 60 | 59 |
+| not the number's colour | 60 | 0 |
+| off the box that holds the number | 22 | 0 |
+| more than 12px off the number's middle | 46 | 0 |
+| gap to the digits | -175 to 77px | 18 to 26px |
+
+55 of the 93 asked for `phoneMark`, a name the icon table never had, so the
+lookup fell back to the sparkle: a star stood beside the number. `ICONS.phoneMark`
+is now a handset.
+
+`pgPhoneCue` runs after `pgPlateInk` everywhere the colour passes run (rule 95):
+
+- **Colour.** The mark takes the number's ink, whatever painted it last.
+- **Size and line.** The mark is 0.92 of the digits' cap height, measured from
+  the face, and centred on the digits (not the line box, which the leading and
+  the parentheses make taller).
+- **Box.** Inside the solid shape that holds the number, a gap of a quarter of
+  the number's size to its left. Where the number was centred on its box, the
+  mark and the number are centred together. A rect that hugs the number grows
+  about its middle to take the mark, when the slivers it gains touch no other
+  line and it stays on the card; a drawn shape never grows.
+- **Otherwise hidden.** A mark with no room, or one that would land on another
+  line, is hidden rather than left off its box (2 cards).
+- **The visitor's.** A mark or a number dragged in the designer is never moved
+  again.
+
+Under a colour theme the mark used to keep its old colour on a repainted box
+and vanish; 225 of the 444 themes held off (rule 101) were that, on 18 cards.
+With the mark following the number's ink, the 12 of those cards that are live
+were measured again: 89 themes come back on 9 of them (444 held to 355); the
+marks still lost are stepsFlow's step-number boxes and slabPoster's marks.
+
+It is not only the phone. On the same day 148 of the 331 live cards showed at
+least one sparkle where another mark was meant (265 marks under 31 names the
+table lacks: `corner` 96, `medal` 15, `cash` 14, `dollar` 14, `check` 12,
+`headset` 12, ...). OPEN-ITEMS §AI.
+
+## 119. Every mark is the one the generator drew, and stands clear of the headline
+
+Added 2026-10-03 (written as 111 on claude/beautiful-wozniak-xmvvuk; numbered 119 when merged). The owner: "keep working on the style", after rule 118 and
+the list of why a card looks unfinished (OPEN-ITEMS §AI).
+
+- **The generator's marks are the studio's.** retheme_lab.mjs draws 46 marks
+  into the page it renders with (`ICONS.medal`, `ICONS.corner`, `ICONS.globe`,
+  ...) and writes their names into the records; app.js never had 44 of them,
+  and `ICONS[name] || ICONS.sparkle` drew a star for each. 265 marks on 148
+  live cards were stars. The 44 are copied into `ICONS` as the generator drew
+  them, stroke weights and all (its `pin` and `phoneMark` keep the studio's).
+  Measured after: no mark on a live card falls back; the 466 marks shown are
+  the same 466, none newly on copy or off the card.
+- **A floating mark stands 118px clear of a headline on its row**
+  (`pgFlankClear`, after `pgPhoneCue` in every colour pass). The generator
+  kept its line art that far out because "a green tick beside SELL YOUR read
+  as part of the sentence" (owner, 2026-09-03: "really?"); the layout passes
+  then moved the headlines and left the marks. On the 331 live cards of
+  2026-10-03, 123 of the 166 marks shown sat closer than 118px to a headline
+  on their row, 45 closer than 60px, 4 on it. Now 113 are moved back out to
+  118px and 10 are hidden where there was no room.
+- **A mark that reads as a character never stands beside a headline.** A
+  dollar sign or a tick on a headline's row reads as a letter of it ("$CASH
+  FOR", "SELL YOUR ✓") at any distance: hidden (25 more). `PG_GLYPH_MARKS`.
+- On all 370 live cards after: 145 floating marks shown, none within 118px
+  of a headline on its row.
+- A mark the visitor dragged in the designer stays (`pgHandHook`, shared with
+  rule 118).
+
+## 120. The selling-points strip wears the CTA's colour
+
+Added 2026-10-03 (written as 112 on claude/beautiful-wozniak-xmvvuk; numbered 120 when merged). The owner, of a white strip of selling points above a blue
+call-to-action box: "the white box should be color match to blue or the CTA
+should be matched to white but either way it's lacking cohesiveness".
+
+- On the bubblePop and voltStack layouts the strip (`Info Text Panel`) was
+  drawn white whatever the CTA box (`CTA Card`) was. Where the box is
+  coloured, the strip takes the box's colour, and its words are white, as the
+  CTA's are, unless white would read under 3:1 on it (then near-black).
+- Done in the records, card by card, through the gate: 21 live cards and 7 of
+  the cards brought back with a photograph. One is left as it was:
+  voltStack-su02-30 sets its CTA line over the strip itself, and a coloured
+  strip took that line to 1.36:1.
+- A neutral CTA box keeps a neutral strip (bubblePop-jw04-20: white and white).
+
+## 121. A number alone on a band is on the band's middle, inside the guides
+
+Added 2026-10-03 (written as 113 on claude/beautiful-wozniak-xmvvuk; numbered 121 when merged). Rule 102 put the number on the middle of a plate it has to
+itself and made the gate check it (numCentre: the letters' middle within 12%
+of the plate's middle as it is seen). Two of the studio's own passes then
+disagreed with the gate on the same card:
+
+- **Easy Mode leaves the website line off** when the visitor has none. On
+  stepsFlow and trustSeal the footer band held the website over the number;
+  without it the number was alone, at the band's top.
+- **`numberFill` centred it in the room inside the guides**, and on a band
+  that runs off the card's foot that room's middle sits half a guide (32px)
+  above the band's middle as it is seen: a fifth of a 190px band, past the
+  gate's 12%. It used the right helper, `numberCentreY` (the seen middle,
+  clamped to the guides), only for restaged records.
+
+On 2026-10-03, 21 live cards and 4 classics were kept out of Easy Mode for
+that alone (choice-holds.json). Now:
+
+- `numberFill`, when the number is alone on its plate, sets it with
+  `numberCentreY` like a restaged record. A plate it shares (a CTA over it) is
+  a stack and keeps the room's middle.
+- `pgNumberMiddle`, in every colour pass, sets a number alone on its plate on
+  the same middle when it is further off than the gate allows; a band that
+  runs off the card's foot and is too shallow for both the guide and the
+  middle grows upward into clear space until it is (10 to 20px on stepsFlow's
+  footer).
+- Measured in Easy Mode on all 370 live cards, the work off and on: 22
+  renders change (stepsFlow and trustSeal only), and the number fails its
+  middle on 2 cards where it failed on 21 (trustSeal-jw10-30 and -jw10-31,
+  whose band has copy right above it and cannot grow). The 4 price-badge
+  classics pass. The thumbnail gate is 370 of 370 and the classics 346 of
+  404, as before.
+
+## 122. The hero is one colour and one ink
+
+Added 2026-10-04 (written as 114 on claude/beautiful-wozniak-xmvvuk; numbered 122 when merged). The owner, of voltStack-ca07-15's WE BUY over CARDS: "They
+look like different shades when there's white and black in the hero just
+doesn't make a ton of sense … We should just unify it to one shade one text
+color for the hero", then "any solid color could be a pattern gradient
+whatever you think is fitting but solid colors are most fitting in most
+circumstances".
+
+- **Colour blocks** (the tagline look that sets each headline line on its
+  own block) alternated the theme's two colours line by line, ink by
+  contrast. The one-colour pass (rule 95) then brought the second colour to
+  the first's hue at its own lightness: two shades of one teal, white letters
+  on the darker and black on the lighter. Now every block is the theme's
+  accent and every line takes the one ink that reads on it (white unless it
+  would fall under 4.5:1, the block's lightness moved if neither does).
+- **Solid**, as the owner said fits most cards. A gradient or a pattern is a
+  look of its own (Signature, Gradient, Pattern), chosen for the whole claim,
+  never one per line.
+- Measured on the 380 live cards after: of the 95 with two or more headline
+  lines on bands, none has bands of two colours and none lines of two inks
+  (seven read so to the measure: a white-to-white gradient on one line is
+  still white). 68 live cards carry the look as offered, and any card can
+  take it in Easy Mode or the designer, so its rows in the choice table were
+  measured again on every card (OPEN-ITEMS §AK).
+## 123. One colour vocabulary: the themes are the library's twelve pairings
+
+Added 2026-10-05 (written as 114 on claude/busy-keller-i7qfrf; numbered 123 when merged). The owner: "Audit all themes after we make our master
+library make sure they follow all rules, don't contradict overlap or use
+wrong design language. make it cohesive and complete so they feel like ads
+we made from professional gfx designers."
+
+**Measured first** (`scripts/theme_cohesion_audit.mjs`, written for this, on
+`main` at 9040dcb9). The product spoke four colour vocabularies at once:
+
+- The library's 311 cards were drawn in rule 103's twelve proven pairings,
+  and the landing's Ready-made tab and the colour builder named them so
+  (Navy & Gold, Black & Red...).
+- Easy Mode's and the designer's colour row (`COLOR_THEMES`) offered 21
+  themes of their own, built 2026-08-31 to 2026-09-26, under the names rule
+  103 had retired a week later ("Blue Market", "Orchid Payday", "Gold Offer",
+  "Hot Sale"): a visitor read "Navy & Gold" on the landing and "Blue Ticket"
+  in the studio, and none of the twelve was a theme. Measured on the 21
+  (rule 103's own `muddy()` and `namedBand()`): 17 carried no support colour
+  (rule 51 asks four jobs of a theme); three drew a colour under the muddy
+  floor (Gold Offer's accent `#904d03` and Hot Sale's support `#7a4210`,
+  brown; Mint Counter's accent `#325f01`, olive); six set an accent outside
+  the band where it reads as its name (Mint Market's `#cd92ff`, a lavender
+  above purple's band; Indigo Cash's `#fe7f78`, Deep Red's `#ff6b57` and
+  Electric Trust's `#ff6a55`, salmons above red's; the two muddy accents
+  under theirs); three were named for a plant or a food (Mint Market, Mint
+  Counter, Orchid Payday); every one wore an internal family word in the
+  chip's title ("GFX Grammar", "iOS Flat", "Candy", "Cool Air"; rule 113) and
+  four an internal intent. The audit counted 93 problems on the tree as it
+  stood (the 21 themes, the vocabulary and the aka lines together).
+- `scripts/cvd_audit.py`, which AGENT-BRIEF lists among the checks to run
+  after a deploy, graded a hard-coded list of ten themes ("Teal x Coral",
+  "Crimson x Mint") that matched nothing in app.js, and failed on it: a
+  check asking a question nobody had asked for a month.
+- `assets/choice-holds.json` (rule 101) held themes by the 21 names.
+
+**The rule.**
+
+- **The themes are the palettes.** The colour themes Easy Mode and the
+  designer offer are rule 103's twelve pairings, under the same twelve names
+  the library's cards, the landing's Ready-made tab and the colour builder
+  use. One name means one set of colours everywhere a visitor meets it. A
+  thirteenth is a set the visitor builds (rule 112), or nothing.
+- **A theme is solved, not typed.** Each record is the colour builder's own
+  answer for its pairing (`cbArrangements`, colour-builder.js) in the look
+  the builder calls the pairing ready-made in (Silver & Blue on light, the
+  eleven on dark), printed by `scripts/house_themes.mjs --write`. So a
+  theme and the builder's "Navy & Gold" are the same colours, and every rule
+  the builder holds a set to holds the themes: four jobs (ground, reading
+  ink, bright accent, small print; rule 51), two hue families (rules 95,
+  103), no warm colour under the muddy floor, the accent inside its named
+  band and at rule 103's chroma floor, the ground's two stops in one hue
+  (rule 5), text and small print 4.5:1 on both stops for normal, protan,
+  deutan and tritan sight, the accent 4.5:1 and 3:1 simulated and 1.7:1 from
+  the text, the number 3:1 on an accent box (rules 43, 51, 87, 112). A
+  colour is never edited by hand in `COLOR_THEMES`: re-run the solver.
+- **The small print is a shade of the bright colour's family.** The builder
+  offers two small-print colours, a shade of the background's family first;
+  the themes take the bright colour's (rule 112 allows either). Seen on
+  checklistHero-jw07-15: its badges and icon discs carry the card's own
+  support role, so with a pale-blue small print "Navy & Gold" came out navy
+  and pale blue, with no gold on the card; with a pale gold it is navy and
+  gold. The two colours in the name are the two colours a visitor sees.
+- **The customer's words.** A theme's `family` is its look, Dark or Light;
+  a chip's title is the name and the look ("Navy & Gold · Dark"). No
+  internal family or intent reaches the screen (rule 113).
+- **A retired name still opens.** Each theme lists under `aka` the retired
+  names a draft or a project may have been saved in; `ezThemeByName` finds a
+  theme by either, so nothing a visitor made reopens in the card's own
+  colours by mistake. The mapping is the nearest pairing by the hue the old
+  theme led with, then its ground, then its side (light or dark), with five
+  pinned by the colour their name says (Gold Offer to Black & Gold, Cash
+  Green to Black & Green, Blue Market to Silver & Blue, Orchid Payday to
+  Purple & Gold, Electric Cyan to Midnight & Cyan).
+- **Every check reads the live set.** `cvd_audit.py` and
+  `audit_theme_grammar.mjs` read `COLOR_THEMES` out of app.js and hold every
+  theme to the same roles; the audits that need a light theme and a dark one
+  (ez_theme_audit, designer_audit, every_card_audit's combos) take Silver &
+  Blue and Black & Green; the colour builder audit's control themes are Navy
+  & Gold and Purple & Gold, the warm accents. `theme_cohesion_audit.mjs` is
+  the check that the vocabulary is one: the same twelve names in
+  `COLOR_THEMES`, `PALETTES`, `CB_READY` and on the live cards, every
+  choice-hold theme a live name, every retired name under exactly one `aka`,
+  and each theme inside the law above. It exits 1 on any of them.
+- **The holds follow the names.** A theme is held on a card only by its
+  live name (rule 101), so after the set changes the holds are swept again
+  (`every_card_audit.mjs --dims themes --write-holds`); a sweep over some
+  choices or some cards updates only what it measured and leaves the rest of
+  the table standing, and drops what cannot be held any more: a card the
+  studio no longer offers, and a theme name it no longer offers (a partial
+  run had left 17 unoffered cards holding 168 retired names).
+- **The other colour vocabularies are reported, not yet unified.** The
+  video maker's 165 palettes (motion/catalog.js, motion/themes.js: 34 named
+  for a food, drink or flower, 12 with three families, four named for two
+  colours) and the offer family's 20 looks (offer-library.js: keys a
+  customer never sees) are measured by the same audit and printed; `--strict`
+  fails on them. The offer family's one accent under the muddy floor (the
+  sand look's rust `#8a3b12`) takes the deep hue, navy, at its own luminance
+  (rule 52), as rule 103 says of a warm colour drawn too dark. The video
+  maker is a session of its own (OPEN-ITEMS §AO).
+
+**Measured after.** `theme_cohesion_audit.mjs`: 12 themes, 12 palettes, 12
+ready-made sets, the 311 live cards in the same 12 names; every theme two
+families or one, nothing muddy, every accent in its band; worst text 8.77:1,
+accent 4.54:1 (3.79:1 for a colour-blind reader, Black & Red), accent
+against text 1.74:1, small print 5.68:1, number on its box 4.91:1; 0
+problems once the holds were swept. `cvd_audit.py` 12 of 12; `theme_law.mjs`
+12 of 12 (and the twelve classics' palettes 12 of 12 as before);
+`audit_theme_grammar.mjs` 12 of 12 with every role; `colour_builder_audit.mjs
+--sets-only` all checks pass (12 of 12 ready-made pairs offered from both
+colours, 1,804 tweaked sets, 0 failing); `landing_check.mjs` 0 errors, 0
+failed requests, no overflow at 390 and 1440; `ez_theme_audit.mjs --quick` no
+problems, no page errors. The holds, swept on the new names over every
+offered card (631: 320 classics, 311 library; 7,572 theme renders): 29
+cards fail as offered and are held; a theme is held on 143 card-and-theme
+pairs (1.9% of renders; 2.6% on the 21 at rule 101), on 21 cards, each
+theme on 9 to 15 cards; 92 for a mark that would vanish on what it sits on,
+50 for a line that would lose legibility or fit, 1 for a plate that keeps
+the card's old colour (reviewProof-du08-20). Looks and voices keep their
+table (28 look holds on 21 cards, 1,231 voice holds on 349 cards).
+
+## 111, continued (2026-10-06): the media carries its dates
+
+The owner: "make sure our library is clean and cohesive when it ships off to
+iPhones LA to identify the media by creation / upload dates."
+
+Measured first: the 311 ads the API hands out had no date anywhere. The
+render index carried a day (`rendered: "2026-10-04"`) that the API never
+passed on; the JPEGs, drawn by a browser canvas, carried no EXIF at all; a
+partner's photo library would file every ad under the day it was uploaded
+there. The rest of the record was already cohesive: every one of the 311 had
+a title of the form "Palette · Layout", a category (8), a theme (the twelve),
+a layout (15) and a subject (13), none missing.
+
+- **Three dates, from git, on every render.** `scripts/render_library_ads.mjs`
+  reads them out of the repository's own history on every run, in one walk:
+  `created`, the commit that first added the card's record (the ad entered
+  the library); `updated`, the last commit that touched its record or its
+  library thumbnail (its design last changed); `rendered`, when the full-size
+  picture was drawn (the upload: the time the file was made, kept on the
+  entry from then on). ISO 8601, UTC, to the second; `created <= updated <=
+  rendered` on every entry, and the API check fails otherwise. A shallow
+  clone would date every old card at the clone's first commit, so the script
+  refuses one (`git fetch --unshallow`).
+- **The picture says the same.** Each JPEG carries an EXIF segment
+  (`scripts/_jpeg_exif.mjs`: DateTimeOriginal = created, DateTime = updated,
+  DateTimeDigitized = uploaded, each with OffsetTime +00:00, ImageDescription
+  the title in ASCII, Software "BUYBACK.AD Graphics Studio"), written after
+  the JFIF segment, read back by the check, by ImageMagick and by Pillow,
+  the picture's bytes untouched. A file's sha1, and so the API's `?v=`,
+  moves only when its dates do: `--stamp` writes EXIF again only where it
+  would differ.
+- **The API hands them out and filters on them.** Every ad carries
+  `created`, `updated` and `uploaded`; `?since=` (a day or a timestamp)
+  keeps the ads created, updated or uploaded at or after it, so a partner
+  asks what changed; `?sort=newest|oldest` orders by upload, then update,
+  then creation, and without it the library's own order stands, so nothing
+  a partner already does moves; a malformed `since` or `sort` is 400; one
+  ad's answer carries `Last-Modified` (its upload); the index carries
+  `latest`, the newest of each.
+- **The partner's side keeps the dates with the picture.** The client
+  (`buybackad_library.py`) passes `since` and `sort`, gives `dates(ad)`,
+  `changed_since(when)` and `filename(ad)` (the ad and its upload day:
+  `bubblePop-nn05-30_2026-10-04.jpg`); the picker shows the upload date on
+  every tile, offers newest first, and hands the page a File named for the
+  ad and its upload day and dated with its upload. Three tests more (the
+  dates on every ad, since and sort, the EXIF dates inside the JPEG).
+
+Measured after: `library_api_check.mjs` and `library_handoff_check.mjs` pass
+(the numbers are in OPEN-ITEMS §AP); every one of the 311 renders carries
+its dates in order, in the index and in its EXIF.
+
+## 124. A photo-real phone is a finish chosen by hand, and its light obeys rule 114
+
+Added 2026-10-06 (written as 123 on claude/photo-real-phone-finish; numbered 124 when merged). The owner, asked whether the photo-real phone look for the
+video maker (left out of `main` on 2026-10-05 because the later notes asked
+for simpler phones) was wanted: "this too if possible". It came from
+`claude/sharp-maxwell-q2aq4o` c228696d, written before the 3-D slab, the
+styled phone sets and the wallpapered screen; it was re-drawn on today's slab,
+not merged.
+
+- **Chosen by hand, never by a shuffle.** "Phone finish" (Phones group):
+  Standard, the default and today's look, or Photo-real. It is a kept option
+  (`KEPT_OPTIONS`, weight 0): a shuffle keeps whatever is set and draws nothing
+  for it, so every look number draws as it did. Measured: 85 frames of 16
+  shuffled looks and the default look, rendered before and after, 0 pixels
+  differ.
+- **What it adds** (`softboxes`, `glassAndRim`, the contact shadow in
+  `drawPhone`): the studio's softboxes reflected down the band, a broad sheen
+  across the glass that slides as the phone turns, a catch-light on the rim
+  brightest toward the key light (high left, wherever the phone lies), and a
+  contact shadow: resting, the tightest shadow is darker and drawn in close
+  under the body, and it eases back to the standard shadow over the first
+  quarter of the rise. The standard finish's soft band on a turning back
+  (rule 114) is left out: the sheen does that work.
+- **Its light stays inside rule 114.** The softboxes only take light away
+  between the streaks (black laid over the side, which scales every channel
+  alike, so the hue holds), so no part of a body-colour side is lighter than
+  the standard side, which is no lighter than the body. A side in its measured
+  aluminium (`RAIL`) takes them at a third of the depth and is lifted by what
+  they take on average, capped at its standard peak, so it still averages to
+  its colour. The catch-light is the band's own colour, never white. The sheen
+  and the catch-light go as the glass turns edge on: side on, the glass is a
+  line along the rim, and the white sheen there (and the catch-light making the
+  photograph's own pale rim opaque) read up to 1.58 times the body.
+  `node scripts/motion_finish_check.mjs` measures every phone side on, both
+  finishes: the side's mean against its colour (0.89 to 1.10 for a measured
+  side, or no less than the standard's own less 0.02; under the body for any
+  other), its brightest 0.5% no lighter than the standard's or the body,
+  whichever is lighter, and its hue within 12 degrees. 57 of 57 pass; hue
+  shifts are 1.0 degree or less.
+- **Nothing flips at flat.** A stroke along an edge lying exactly level is
+  drawn by another rule, and the catch-light drawn as a stroke changed a row of
+  140 pixels as a 15 Pro came flat; it is a filled ring. Photo-real draws the
+  face in strips that widen from 3 px near flat to 8 px past about 21 degrees,
+  gradually, through the long lens only (through the Wide 3-D spin's wide lens
+  a strip's top steps, so it keeps 3 px); 6 px strips at flat showed their
+  seams as the phone settled.
+- **No slower.** Every addition is paid for by work the finish can drop. The
+  contact shadow is the resting shadow's own draw made darker (no draw of its
+  own); the softboxes are one fill of the side alone (even-odd against the
+  face); the sheen fills only the slab of glass it lights; the catch-light
+  ring is built on every other point of the outline; a body-colour band is
+  sliced every 2.4 px, not 1.2 (its own light is laid over it; measured
+  aluminium keeps 1.2 px, as its narrow glint sliced coarser read up to 1.13
+  times lighter and averaged 1.10); the face's strips widen
+  through the long lens; a fill that changes no pixel near flat is skipped; and
+  in an export's motion blur the sheen and the softboxes are laid on every
+  other moment of the shutter at double strength (the moments are averaged,
+  and white or black laid over a pixel is linear in its strength, so the
+  average holds). The catch-light keeps its strength on the moments it is
+  drawn, so in a moving frame's blur it is about half; a settled frame draws
+  one moment and is unchanged. Measured on a fast spin's exported frames
+  against drawing every moment: worst frame 0.215 levels off on average.
+  Measured on whole 6 s videos of five large phones, every frame drawn as an
+  export draws it, photo-real takes 15 to 20% less time than standard flat,
+  turned, on a turntable and side on, and the same on the Wide 3-D spin
+  (-1.2% and +0.1%; its wide lens keeps the 3 px strips), OPEN-ITEMS §AR.
+- **Angles.** Side on (left or right, turned 60 degrees) is offered by hand,
+  weight 0; it passes every phone audit in both finishes. The commit's leaned
+  angles (hero three-quarter, leaning back with the bottom edge and port) are
+  left out: leaned, the face is drawn in a grid of cells, and coming to rest it
+  changed 63 to 149 pixels in a 0.05 degree step against the bar of 60, in both
+  finishes (motion_phone_check's `flat`), and the hero view's face sheared past
+  its band. A leaned angle comes back only with a face that passes that test.
+- Before a commit that touches the phones' drawing: motion_phone_check.mjs
+  with and without `--finish photo`, motion_finish_check.mjs, and a pixel diff
+  of shuffled looks before and after.
+
+## 125. A palette is its own colours: two, three or a proven pair, and the effects wear them
 
 Added 2026-10-02. The owner, of the landing's twelve palettes: "I think we
 have more colors than this, right? I mean, there's gotta be more proven
 themes. This is a bit basic. Maybe some color pallets using only two or three
 colors?", then "keep in mind we use things like gradient, and other effects
 that may use extra colors like 3-D", "Or outlines around text", and "make sure
-we have as much capability as possible when it comes to colors".
+we have as much capability as possible when it comes to colors". Written on
+`claude/vigilant-wozniak-kyyy7b` as rule 106, 108 and then 110; merged into
+`main` on 2026-10-08 as 125, after rule 123 had made the twelve pairings the
+only themes. The owner, comparing the two: "What you showed me seem to be
+more cohesive and less random", then "Properly integrate into the main".
+
+> Widens rule 123: the themes are the library's twelve pairings **and** the
+> sign sets of two and three colours below. Everything else rule 123 says
+> holds for all of them: one name everywhere, a customer's words, a retired
+> name still opens, every check reads the live set, the holds follow the
+> names.
 
 **What there was, measured.** The landing showed the library's twelve
 palettes (rule 103). The studio's colour row had 21 themes under generated
@@ -3801,11 +4823,17 @@ finds), on slabPoster-pp04-15 and checklistHero-jw07-15:
 The effects the panel offered could not be drawn, and a palette of two
 colours came out as one.
 
-**The set: 52 themes in four groups** (COLOR_THEMES), every one measured by
-`scripts/theme_law.mjs`: ink and accent at least 4.5:1 on both ends of the
-ground's gradient, the accent at least 3:1 under protan, deutan and tritan
-simulation, the accent at least 1.7:1 from the ink so the money word reads as
-a different colour, a support at least 4.5:1. 52 of 52 pass.
+**The set: 31 themes in three groups** (COLOR_THEMES, as merged into `main`),
+every one held to rule 123's law by `theme_law.mjs`, `cvd_audit.py`,
+`audit_theme_grammar.mjs` and `theme_cohesion_audit.mjs`, each of which
+reads the groups: text and small print at least 4.5:1 on both ends of the
+ground's gradient for normal, protan, deutan and tritan sight; the accent
+4.5:1, and 3:1 simulated; the accent at least 1.7:1 from the text so the
+money word reads as a different colour (not for a two-colour set, whose
+accent is its text); every name plain colour words. 31 of 31 pass every one.
+On the branch the set was 52, the earlier 21 kept under "More"; rule 123 had
+retired those 21 on `main` (their names open the nearest pairing, `aka`),
+so they did not come back.
 
 - **Two colours** (12): a ground and one colour for every word, mark and
   plate, the hand-painted "WE BUY" sign. Named words on ground: Yellow on
@@ -3814,21 +4842,27 @@ a different colour, a support at least 4.5:1. 52 of 52 pass.
   Purple, Black on Orange. The accent is the ink, so the 1.7:1 floor does not
   apply; theme_law requires it to be exactly the ink, with no support. A plate
   in the colour carries its words in the ground's colour (White on Red's
-  number box is white with red digits).
+  number box is white with red digits). Two reds were deepened in their own
+  hue for rule 123's 4.5:1 for a colour-blind reader (theme_law's floor had
+  been 3:1): White on Red's ground `#d71f28` to `#c51c25` (3.92:1 to 4.61:1
+  for a deutan reader), Red on White's red `#c8102e` to `#ba0f2b` (4.02:1 to
+  4.56:1).
 - **Three colours** (7): a ground, the reading ink and one accent for the
   money line and its plates: Red, White & Blue, Navy, White & Red, White,
   Black & Red, Black, White & Red, Black, White & Yellow, Black, White &
-  Orange, Blue, White & Yellow. Measured and left out: Red, White & Yellow
+  Orange, Blue, White & Yellow. The small print is the text colour, as
+  themeScene paints a theme with no support (`T.support || T.ink`), and the
+  audits measure it so. Measured and left out: Red, White & Yellow
   (yellow on red 4.18:1, and 1.45:1 from the white), White, Navy & Orange
   (3.80:1: an orange dark enough to read on white is rust, rule 103), Green,
   White & Yellow (1.64:1 from the white; Green & Gold is the pair).
-- **Proven pairs** (12): the library's palettes (rule 103), each solved from
-  its hues, so a palette named on the landing is one a visitor can put on any
-  card. Two moved from a first solve: Black & Red's accent to 0.27 luminance
-  (it read 4.40:1), Silver & Blue's support deeper (3.74:1); Black & Red's
-  support is silver, since a red light enough to read on charcoal is salmon.
-- **More** (21): the earlier sets, kept under their names so a saved draft
-  finds its theme; the landing counts them and does not show them.
+- **Proven pairs** (12): rule 123's records, the library's palettes as the
+  colour builder solves them (`house_themes.mjs --write`, which now rewrites
+  only these rows), so a palette named on the landing is one a visitor can
+  put on any card. (The branch had solved its own; `main`'s, measured and
+  swept there, replace them.)
+- **Yours**: a set the visitor builds (rule 112), beside the three groups in
+  both colour rows.
 
 **The effects wear the palette** (`thFx`). With a theme on, every colour an
 effect paints is one the palette has: an outline is its darkest colour drawn
@@ -3911,8 +4945,9 @@ through every theme and look, below):
   magenta through a ground change, under ORIG and under a theme, with the
   card's extrude look still on it.
 
-**Measured** (2026-10-03, on the final build; `every_card_audit.mjs --lean`
-with three workers, the most this container's 14 GB holds):
+**Measured on the branch** (2026-10-03, the 52 themes on the branch's final
+build, before the merge; `every_card_audit.mjs --lean` with three workers,
+the most this container's 14 GB holds):
 
 - `every_card_audit.mjs --dims base,themes,looks --write-holds` over every
   offered card, 649: 33,748 theme renders and 8,437 look renders, the 50

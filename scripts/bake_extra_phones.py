@@ -330,9 +330,27 @@ def bake_base():
     return out
 
 
+# Backs baked elsewhere whose width is off Apple's spec: the iPhone 17 finishes
+# were painted on the 16's back and kept the 16's width (the 17 is 71.5 x 149.6 mm).
+REFIT = {"16-white-as-lavender": 427, "16-white-as-sage": 427, "16-white-as-mist-blue": 427}
+
+
+def refit(idx):
+    for p in idx["phones"]:
+        w = REFIT.get(p["id"])
+        if not w:
+            continue
+        f = OUT / f"{p['id']}.webp"
+        im = Image.open(f).convert("RGBA")
+        if im.width != w:
+            im.resize((w, H), Image.LANCZOS).save(f, quality=80, method=6)
+        p["w"] = w
+
+
 def main():
     idx_path = OUT / "index.json"
     idx = json.loads(idx_path.read_text())
+    refit(idx)
     new = bake_pro() + bake_base()
     ids = {p["id"] for p in new}
     keep = [p for p in idx["phones"] if p["id"] not in ids]

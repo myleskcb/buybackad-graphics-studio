@@ -1,31 +1,7 @@
 {
- "about": "Cards the owner's audit of 2026-10-02 holds back from the site (DESIGN-LAW rule 105). Every live card was looked at on contact sheets; a card is held when it is not a finished product: no photograph behind it, or a headline that does not read. scripts/hold_showcase.mjs --write stamps defect \"curated\" on each, which every later audit keeps. Delete a line here and the stamp from index.json to bring a card back. The composition audit of 2026-10-03 (DESIGN-LAW rule 109) added the rows marked audit 2026-10-03: cards whose parts collide in a way centring cannot mend.",
+ "about": "Cards the owner's audit of 2026-10-02 holds back from the site (DESIGN-LAW rule 105). Every live card was looked at on contact sheets; a card is held when it is not a finished product: no photograph behind it, or a headline that does not read. scripts/hold_showcase.mjs --write stamps defect \"curated\" on each, which every later audit keeps. Delete a line here and the stamp from index.json to bring a card back. The composition audit of 2026-10-03 (DESIGN-LAW rule 109) added the rows marked audit 2026-10-03: cards whose parts collide in a way centring cannot mend. Rows marked audit 2026-10-04: one alignment to a card (the owner: \"align left for everything ... or if you're going to center it then you can't leave the second line of the hero aligned left\").",
  "date": "2026-10-02",
  "holds": [
-  {
-   "id": "bubblePop-cd04-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "bubblePop-cd10-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "bubblePop-du02-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "checklistHero-ca05-35",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "hudTech-io03-20",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "scriptRetro-du07-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
   {
    "id": "slabPoster-cd01-30",
    "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
@@ -39,91 +15,7 @@
    "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
   },
   {
-   "id": "stepsFlow-cd05-35",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "stepsFlow-io03-16",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "arcCrown-du02-20",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "arcCrown-pa01-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "bandKnockout-cd06-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "bandKnockout-nn06-35",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "bubblePop-du04-35",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "bubblePop-ik05-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "bubblePop-su02-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "checklistHero-du01-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "checklistHero-du02-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "stepsFlow-cd04-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "stepsFlow-du10-35",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "stepsFlow-jw05-16",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "arcCrown-du07-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "bandKnockout-su05-35",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "bubblePop-pp06-35",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "checklistHero-du05-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
    "id": "slabPoster-gl05-35",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "stepsFlow-du01-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "stepsFlow-du02-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "stepsFlow-du06-35",
    "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
   },
   {
@@ -131,135 +23,11 @@
    "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
   },
   {
-   "id": "voltStack-ck03-20",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "bandKnockout-su02-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "bubblePop-jw04-20",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "scriptRetro-du01-25",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "stepsFlow-du08-15",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "stepsFlow-pa05-15",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "scriptRetro-jw05-16",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
    "id": "slabPoster-jw05-25",
    "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
   },
   {
-   "id": "stepsFlow-jw10-31",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "arcCrown-cd01-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "arcCrown-nn05-20",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "bandKnockout-nn05-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "checklistHero-cd05-35",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "neonNight-gl01-35",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
    "id": "slabPoster-jw03-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "stepsFlow-cd07-35",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "stepsFlow-nn05-15",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "stepsFlow-pp04-15",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "arcCrown-du05-20",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "bandKnockout-ck03-20",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "hudTech-cd06-20",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "neonNight-ck03-20",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "scriptRetro-jw07-16",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "stepsFlow-du07-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "stepsFlow-jw07-17",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "trustSeal-jw07-15",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "voltStack-ca07-15",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "voltStack-du02-20",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "bandKnockout-pa05-20",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "stepsFlow-cd06-30",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "stepsFlow-jw08-35",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "voltStack-gl03-35",
-   "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
-  },
-  {
-   "id": "voltStack-ik05-20",
    "why": "drawn ground: a flat colour or pattern with a small cut-out, no photograph behind it"
   },
   {
@@ -343,10 +111,6 @@
    "why": "a panel or wash covers the photograph: the card reads as a flat colour"
   },
   {
-   "id": "neonNight-jw04-20",
-   "why": "fails the gate: the number sits off the middle of its plate (numCentre), on main as well"
-  },
-  {
    "id": "reviewProof-jw05-30",
    "why": "the call to action collides with the number: its pill sits under the number plate, cut off, empty or running off the card; the steps sit beside their pills",
    "audit": "2026-10-03"
@@ -385,6 +149,76 @@
    "id": "hudTech-nn08-35",
    "why": "a dark headline on a grey ground, muddy, with cut-outs scattered round it",
    "audit": "2026-10-03"
+  },
+  {
+   "id": "trustSeal-io03-15",
+   "why": "parts on two alignments (some centred, some on a side) that centring and aligning to one side cannot reconcile without a new layout",
+   "audit": "2026-10-04"
+  },
+  {
+   "id": "scriptRetro-io03-15",
+   "why": "parts on two alignments (some centred, some on a side) that centring and aligning to one side cannot reconcile without a new layout",
+   "audit": "2026-10-04"
+  },
+  {
+   "id": "scriptRetro-du08-15",
+   "why": "parts on two alignments (some centred, some on a side) that centring and aligning to one side cannot reconcile without a new layout",
+   "audit": "2026-10-04"
+  },
+  {
+   "id": "hudTech-du07-15",
+   "why": "parts on two alignments (some centred, some on a side) that centring and aligning to one side cannot reconcile without a new layout",
+   "audit": "2026-10-04"
+  },
+  {
+   "id": "bandKnockout-pp02-15",
+   "why": "parts on two alignments (some centred, some on a side) that centring and aligning to one side cannot reconcile without a new layout",
+   "audit": "2026-10-04"
+  },
+  {
+   "id": "arcCrown-gl02-15",
+   "why": "parts on two alignments (some centred, some on a side) that centring and aligning to one side cannot reconcile without a new layout",
+   "audit": "2026-10-04"
+  },
+  {
+   "id": "hudTech-jw10-20",
+   "why": "parts on two alignments (some centred, some on a side) that centring and aligning to one side cannot reconcile without a new layout",
+   "audit": "2026-10-04"
+  },
+  {
+   "id": "checklistHero-jw05-20",
+   "why": "parts on two alignments (some centred, some on a side) that centring and aligning to one side cannot reconcile without a new layout",
+   "audit": "2026-10-04"
+  },
+  {
+   "id": "checklistHero-cd06-20",
+   "why": "parts on two alignments (some centred, some on a side) that centring and aligning to one side cannot reconcile without a new layout",
+   "audit": "2026-10-04"
+  },
+  {
+   "id": "checklistHero-pa01-35",
+   "why": "parts on two alignments (some centred, some on a side) that centring and aligning to one side cannot reconcile without a new layout",
+   "audit": "2026-10-04"
+  },
+  {
+   "id": "scriptRetro-ca07-15",
+   "why": "stood on a retired fanned trading-card photograph (owner, 2026-10-04: \"go ahead and remove\"); none of the four other sports photographs passes the gate under it",
+   "audit": "2026-10-04"
+  },
+  {
+   "id": "arcCrown-nn01-30",
+   "why": "stood on a retired fanned trading-card photograph (owner, 2026-10-04: \"go ahead and remove\"); none of the four other sports photographs passes the gate under it",
+   "audit": "2026-10-04"
+  },
+  {
+   "id": "scriptRetro-ik06-20",
+   "why": "stood on a generated photograph (owner, 2026-10-04: \"use images of real things\"); no real photograph of its goods passes the gate under it yet",
+   "audit": "2026-10-04"
+  },
+  {
+   "id": "scriptRetro-cd06-30",
+   "why": "stood on a generated photograph (owner, 2026-10-04: \"use images of real things\"); no real photograph of its goods passes the gate under it yet",
+   "audit": "2026-10-04"
   }
  ]
 }

@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "buyback-lab",
+      "name": "graphics-studio",
       "url": "http://localhost:8899",
       "port": 8899
     }

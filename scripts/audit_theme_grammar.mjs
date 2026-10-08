@@ -1,10 +1,23 @@
 #!/usr/bin/env node
-/* GFX GRAMMAR THEME AUDIT
+/* THEME ROLE AUDIT (DESIGN-LAW rules 51 and 123)
  *
- * The four transplanted campaign themes use four semantic colour roles:
- * ground, reading ink, money/CTA accent, and support/trust. This audit reads
- * the records directly from app.js and fails when any role loses its job on
- * either gradient stop or under protan/deutan/tritan simulation.
+ * Every colour theme has four semantic colour roles: ground (both gradient
+ * stops), reading ink, the bright money/CTA accent, and the small print
+ * (support). This reads COLOR_THEMES directly from app.js and fails when any
+ * role loses its job on either gradient stop or under protan/deutan/tritan
+ * simulation:
+ *   ink      >= 4.5:1 on both stops, every vision
+ *   accent   >= 3.0:1 on both stops, every vision
+ *   support  >= 4.5:1 on both stops, every vision
+ *   accent against the ink >= 1.7:1, so the money word reads as a colour
+ *
+ * Until 2026-10-05 it audited only the four "GFX Grammar" rows, the only ones
+ * that carried a support colour; every theme carries one now (rule 123), so
+ * every theme is held to the same roles. A two- or three-colour set (rule
+ * 125) gives the small print to its text colour, as themeScene paints it
+ * (T.support || T.ink), and a two-colour set's bright colour IS its text
+ * colour, so the 1.7:1 separation does not apply to it; it must say so
+ * exactly (accent === ink).
  */
 import { readFileSync } from 'node:fs';
 
@@ -13,7 +26,7 @@ const start = src.indexOf('const COLOR_THEMES = [');
 const end = src.indexOf('\n];', start);
 if (start < 0 || end < 0) throw new Error('COLOR_THEMES not found in app.js');
 const literal = src.slice(start, end + 2).replace(/^const COLOR_THEMES = /, '');
-const themes = (0, eval)('(' + literal + ')').filter(t => t.family === 'GFX Grammar');
+const themes = (0, eval)('(' + literal + ')');
 
 const lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
 const rgb = hex => { const n = parseInt(String(hex).replace('#', ''), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
@@ -46,16 +59,20 @@ const under = (fg, bg, mode) => mode === 'normal'
 const worst = (fg, grounds, modes = vision) => Math.min(...modes.flatMap(mode => grounds.map(bg => under(fg, bg, mode))));
 
 let failures = 0;
-console.log('\nGFX Grammar theme roles');
+console.log('\nTheme roles (every COLOR_THEMES record)');
 console.log('theme             ink all  accent all  support all  accent/ink  verdict');
 for (const theme of themes) {
   const grounds = [theme.bg.c1, theme.bg.c2];
   const ink = worst(theme.ink, grounds);
   const accent = worst(theme.accent, grounds);
-  const support = worst(theme.support, grounds);
+  const few = theme.group === 'Two colours' || theme.group === 'Three colours';
+  const small = theme.support || (few ? theme.ink : null);
+  const support = small ? worst(small, grounds) : 0;
   const separation = contrast(theme.accent, theme.ink);
-  const valid = typeof theme.intent === 'string' && theme.intent.length > 3;
-  const pass = valid && ink >= 4.5 && accent >= 3 && support >= 4.5 && separation >= 1.7;
+  const one = theme.group === 'Two colours';
+  const valid = typeof small === 'string' && typeof theme.ink === 'string' && typeof theme.accent === 'string'   // every role declared
+    && (!one || (theme.accent === theme.ink && !theme.support));
+  const pass = valid && ink >= 4.5 && accent >= 3 && support >= 4.5 && (one || separation >= 1.7);
   if (!pass) failures++;
   console.log(
     theme.name.padEnd(17) +
@@ -69,6 +86,6 @@ for (const theme of themes) {
 
 const unique = new Set(themes.map(t => t.name)).size === themes.length;
 if (!unique) failures++;
-if (themes.length !== 4) failures++;
-console.log(`\n${themes.length}/4 records · unique names ${unique ? 'PASS' : 'FAIL'} · ${failures ? failures + ' failure(s)' : 'all role checks pass'}\n`);
+if (themes.length < 1) failures++;
+console.log(`\n${themes.length} records · unique names ${unique ? 'PASS' : 'FAIL'} · ${failures ? failures + ' failure(s)' : 'all role checks pass'}\n`);
 process.exit(failures ? 1 : 0);

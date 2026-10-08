@@ -127,7 +127,13 @@ for (const card of cards){
   const tid = await page.evaluate(id => __ed.open(id), card).catch(e => { P(card, 'open', String(e).slice(0, 120)); return null; });
   /* the card on screen is the card asked for: the Reef lower third did not
      open and Sell Your iPhone, still on screen, was measured in its place */
-  if (tid && tid !== card && tid !== 'sc-' + card){ P(card, 'the card did not open', tid + ' is on screen'); rows.push(row); continue; }
+  if (tid && tid !== card && tid !== 'sc-' + card){
+    /* a card the studio holds back (the classics gate, cf92445d) opens the first card
+       on offer by design: noted and skipped, not measured in its place */
+    const gated = await page.evaluate(id => { const t = TEMPLATES.find(x => x.id === id || x.id === 'sc-' + id); return !t || !!t.gated; }, card);
+    if (gated){ console.log(card.padEnd(24) + ' skipped: held back from the studio (it does not open by its id)'); rows.push(row); continue; }
+    P(card, 'the card did not open', tid + ' is on screen'); rows.push(row); continue;
+  }
   if (!tid){ rows.push(row); continue; }
   // the hand-off, and how the page answers while it settles
   const easy = await page.evaluate(() => __ed.easyBoxes());
@@ -163,7 +169,7 @@ for (const card of cards){
   row.orig = diffPct(base.px, back.px);
   if (row.orig > 0.5) P(card, 'ORIG does not put the card back', row.orig + '% of the picture differs');
   // grounds: ORIG and the six, with no theme, a light theme and a dark one
-  for (const th of ['', 'Gold Offer', 'Cash Green']){
+  for (const th of ['', 'Silver & Blue', 'Black & Green']){   // no theme, a light one, a dark one (rule 123)
     await act(`__ed.chip(${JSON.stringify(th)}).click(); document.querySelector('#ed-swatches .ez-sw.orig').click();`);
     const b0 = await measure();
     for (let i = 0; i < 6; i++){
@@ -271,7 +277,7 @@ await browser.close();
 
 console.log('\n' + (problems.length ? problems.length + ' problems' : 'no problems') + ` over ${rows.length} cards · page errors ${pageErrors.length}`);
 const byWhat = {};
-problems.forEach(p => { const k = p.what.replace(/^theme [^:]+: /, 'theme: ').replace(/^(no theme|Gold Offer|Cash Green) swatch \d+/, 'swatch').replace(/^ground \S+ \d+/, 'ground'); (byWhat[k] = byWhat[k] || []).push(p.card); });
+problems.forEach(p => { const k = p.what.replace(/^theme [^:]+: /, 'theme: ').replace(/^(no theme|Silver & Blue|Black & Green) swatch \d+/, 'swatch').replace(/^ground \S+ \d+/, 'ground'); (byWhat[k] = byWhat[k] || []).push(p.card); });
 Object.entries(byWhat).forEach(([k, v]) => console.log('  ' + String(v.length).padStart(4) + '  ' + k + '  (' + [...new Set(v)].slice(0, 6).join(', ') + ')'));
 pageErrors.slice(0, 5).forEach(e => console.log('  page error: ' + e));
 if (argv('--json')) writeFileSync(argv('--json'), JSON.stringify({ rows, problems, pageErrors }, null, 1));

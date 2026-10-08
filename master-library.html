@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Master library | Graphics Studio by BUYBACK.AD</title>
+<meta name="description" content="Every finished ad in one place: the ads saved to a library, and every design the studio offers, at full size.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="pages.css">
+<style>
+main.wide{max-width:1240px}
+.ml-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 18px}
+.ml-tabs button,.ml-chips button{font:700 14px Satoshi,system-ui,sans-serif;border:1.5px solid var(--line);background:var(--panel);color:var(--text-2);border-radius:999px;padding:9px 16px;cursor:pointer;min-height:44px}
+.ml-tabs button[aria-selected="true"],.ml-chips button.on{background:var(--text);color:var(--panel);border-color:var(--text)}
+.ml-tabs button:focus-visible,.ml-chips button:focus-visible,.ml-card a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.ml-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
+.ml-bar input{flex:1 1 220px;min-width:0;font:500 16px Satoshi,system-ui,sans-serif;padding:11px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--panel);color:var(--text)}
+.ml-chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 16px}
+.ml-chips button{padding:7px 12px;font-size:13.5px;min-height:40px}
+.ml-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.ml-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.ml-card .ml-img{display:block;border-radius:10px;overflow:hidden;background:#e7e2d6;aspect-ratio:1}
+.ml-card img{width:100%;height:100%;object-fit:contain;display:block}
+.ml-card video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+.ml-card .ml-img{position:relative}
+.ml-card .ml-kind{position:absolute;top:8px;left:8px;font:700 11px/1 Satoshi,system-ui,sans-serif;letter-spacing:.06em;padding:5px 8px;border-radius:999px;background:rgba(0,0,0,.65);color:#fff;pointer-events:none}
+.ml-card .adl-star{top:8px;right:8px;left:auto}
+.ml-card b{font-size:14.5px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ml-card .ml-meta{font-size:13px;color:var(--muted)}
+.ml-card .ml-post{font-size:13px;color:var(--text-2)}
+.ml-card .ml-held{font-size:13px;color:var(--text);border-left:3px solid #c8321e;padding-left:8px}
+.ml-card .ml-acts{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;font-weight:700;margin-top:2px}
+.ml-card .ml-acts a{text-decoration:none}
+.ml-empty{background:var(--panel);border:1.5px dashed var(--line);border-radius:16px;padding:22px;color:var(--text-2)}
+.ml-feed{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin:0 0 18px}
+.ml-feed code{font-size:13px;word-break:break-all;background:#efe9db;border-radius:6px;padding:2px 6px}
+.ml-feed p{margin:6px 0}
+.ml-count{color:var(--muted);font-size:15px;margin:0 0 12px}
+.ml-more{margin:18px auto 0;display:block}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <a class="brand" href="index.html">GRAPHICS <em>STUDIO</em></a>
+  <nav aria-label="Site">
+    <a href="index.html#lp-templates">Templates</a>
+    <a href="motion/">Video ads</a>
+    <a href="master-library.html" aria-current="page">Library</a>
+    <a class="btn" href="index.html">Make my ad</a>
+  </nav>
+</header>
+<main id="main" class="wide">
+  <div class="crumbs"><a href="index.html">Graphics Studio</a> &rsaquo; <span id="ml-crumb">Master library</span></div>
+  <h1 id="ml-title">Master library</h1>
+  <p class="lead" id="ml-lead">Every finished ad in one place: the ads you saved, and every design the studio offers, at full size. The ★ on a design saves it to your library.</p>
+
+  <div class="ml-tabs" role="tablist" aria-label="Library sections">
+    <button type="button" role="tab" id="tab-saved" aria-controls="sec-saved" aria-selected="true">Saved ads</button>
+    <button type="button" role="tab" id="tab-finished" aria-controls="sec-finished" aria-selected="false">Finished designs</button>
+  </div>
+
+  <section id="sec-saved" role="tabpanel" aria-labelledby="tab-saved">
+    <div class="ml-feed" id="ml-feed" hidden></div>
+    <div class="ml-bar"><input type="search" id="q-saved" placeholder="Search saved ads" aria-label="Search saved ads"></div>
+    <div class="ml-chips" id="chips-saved"></div>
+    <p class="ml-count" id="count-saved"></p>
+    <div class="ml-grid" id="grid-saved"></div>
+  </section>
+
+  <section id="sec-finished" role="tabpanel" aria-labelledby="tab-finished" hidden>
+    <div class="ml-bar"><input type="search" id="q-finished" placeholder="Search designs: gold, iphone, checklist…" aria-label="Search finished designs"></div>
+    <div class="ml-chips" id="chips-finished"></div>
+    <p class="ml-count" id="count-finished"></p>
+    <div class="ml-grid" id="grid-finished"></div>
+    <button type="button" class="btn ghost ml-more" id="more-finished" hidden>Show more</button>
+  </section>
+</main>
+<footer class="bottom">
+  <a href="index.html">Graphics Studio</a>
+  <a href="about.html">About</a>
+  <a href="privacy.html">Privacy</a>
+  <a href="terms.html">Terms</a>
+  <span>&copy; 2026 BUYBACK.AD</span>
+</footer>
+<script src="config.js"></script>
+<script src="account.js"></script>
+<script src="ad-library.js"></script>
+<script src="master-library.js"></script>
+</body>
+</html>

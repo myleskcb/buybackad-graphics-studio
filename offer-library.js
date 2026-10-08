@@ -75,7 +75,7 @@
     blush:    { g1:'#f5d9d6', g2:'#e9c3bf', ink:'#2a1614', sub:'#4f3330', acc:'#8e2a35', band:'#2a1614', bandInk:'#f7dcd8', bandSub:'#d4b5b1' },
     mint:     { g1:'#d9f1e5', g2:'#c1e5d2', ink:'#0f2a1e', sub:'#2f4b3e', acc:'#0f6b44', band:'#0f2a1e', bandInk:'#c9f2dd', bandSub:'#a9cdbb' },
     ink:      { dark:1, g1:'#18181b', g2:'#0a0a0b', ink:'#ffffff', sub:'#bdbdc4', acc:'#e4ff5c', band:'#e4ff5c', bandInk:'#111111', bandSub:'#3a4210' },
-    sand:     { g1:'#ecdec7', g2:'#dcc8a6', ink:'#1f170d', sub:'#433725', acc:'#8a3b12', band:'#8a3b12', bandInk:'#fff4e6', bandSub:'#f3d3bd' },
+    sand:     { g1:'#ecdec7', g2:'#dcc8a6', ink:'#1f170d', sub:'#433725', acc:'#315096', band:'#315096', bandInk:'#fff4e6', bandSub:'#c9dafb' },   // 2026-10-05: the rust accent (#8a3b12, orange drawn under rule 103's muddy floor) takes the deep hue, navy, at the same luminance (rule 52), so the look is sand and navy, not sand and brown
     teal:     { dark:1, g1:'#11535a', g2:'#083237', ink:'#effcfb', sub:'#aad8d5', acc:'#ffc866', band:'#ffc466', bandInk:'#1b1204', bandSub:'#4a3510' },
     plum:     { dark:1, g1:'#4f1a3c', g2:'#2b0c20', ink:'#fff0f7', sub:'#e6bcd2', acc:'#ffa3cc', band:'#ff9ec8', bandInk:'#2b0c20', bandSub:'#5c1d42' },
     sky:      { g1:'#dcedfc', g2:'#c3dcf4', ink:'#0d2138', sub:'#2f435c', acc:'#1a58b8', band:'#0d2138', bandInk:'#dcedfc', bandSub:'#a7bdd6' },
@@ -336,7 +336,7 @@
      white type over it clears 4.5:1, and no picture is darker than it needs. */
   const GROUNDS = {
     sports: [{ file:'dl_sports_arcCrown_crimson', p90:198 }, { file:'dl_sports_agencyGrid_mono', p90:170 }, { file:'dl_sports_glassCard_mono', p90:224 }],
-    pokemon: [{ file:'dl_pokemon_arcCrown_royal', p90:227 }, { file:'dl_pokemon_bubblePop_royal', p90:222 }, { file:'dl_pokemon_agencyGrid_royal', p90:170 }],
+    pokemon: [{ file:'pokemon-charizard-card-1', p90:198 }, { file:'pokemon-charizard-card-2', p90:218 }],   // real photographs (DESIGN-LAW 117)
     strips: [{ file:'strips-contour-next-test-strips-2', p90:171 }, { file:'strips-blood-glucose-test-strips-2', p90:241 }, { file:'strips-blood-glucose-meter-1', p90:203 }],
     coins: [{ file:'coins-coin-collection-album-1', p90:184 }, { file:'coins-morgan-silver-dollar-1', p90:220 }, { file:'coins-american-gold-eagle-coin-1', p90:239 }],
     gold: [{ file:'gold-gold-jewelry-rings-3', p90:254 }, { file:'gold-gold-bracelet-2', p90:178 }, { file:'gold-gold-necklace-chain-close-3', p90:137 }],

@@ -177,9 +177,9 @@ Object.entries(TAMED).forEach(([k,P]) => {
 });
 console.log(`  --> ${palRows.filter(r=>r.pass).length}/${palRows.length} pass   ('!' marks the value that failed)`);
 
-console.log(`\n══ COLOR_THEMES — the ${COLOR_THEMES.length} the customer picks in Easy Mode and the designer ══`);
+console.log(`\n══ COLOR_THEMES — the ${COLOR_THEMES.length} the customer picks in Easy Mode and the designer (rules 123, 125) ══`);
 console.log('   ink and accent against BOTH stops, not just the dark one. A two-colour');
-console.log('   theme (rule 106) sets every word in its one colour, so its accent IS its');
+console.log('   theme (rule 125) sets every word in its one colour, so its accent IS its');
 console.log('   ink and the accent-vs-ink floor does not apply; it must say so exactly.\n');
 console.log('  theme                   ink/c1  ink/c2  acc/c1  acc/c2  accCVD  acc-vs-ink  hue  warm  verdict');
 let ctFails = 0;

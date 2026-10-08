@@ -4,7 +4,6 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Disallow: /lab/
 Disallow: /pick.html
 Disallow: /library.html
 Disallow: /phonegfx-studio.html

@@ -13,7 +13,10 @@
  * for browser equivalents, and injects it into the shell. Re-run it after any
  * engine change and the console is current by construction.
  *
- *   node scripts/build_console.mjs      ->  lab/console.html
+ *   node scripts/build_console.mjs      ->  tools/gfx/console.html (+ console.js)
+ *
+ * It lives under tools/ (not served: netlify.toml 404s /tools/*) and is opened
+ * from a checkout; the lab that used to carry it left the repo on 2026-10-06.
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { FONT_FILES } from '../engine/fonts.mjs';
@@ -29,7 +32,7 @@ let engine = read('engine/engine.mjs');
    HTML stays small and the browser caches them across reloads. */
 const fontsShim = `/* ── inlined by scripts/build_console.mjs ── */
 const FONT_FILES=${JSON.stringify(FONT_FILES)};
-const FONT_BASE='../assets/fonts/';
+const FONT_BASE='../../assets/fonts/';
 function nearestWeight(family,weight){
   const have=Object.keys(FONT_FILES[family]||{}).map(Number);
   if(!have.length)return weight;
@@ -128,7 +131,7 @@ const html = shell
   .replace('/*__FONTCSS__*/', '')          // the page declares its own faces at runtime
   .replace(/__STAMP__/g, stamp);
 
-writeFileSync(ROOT + 'lab/console.html', html);
-writeFileSync(ROOT + 'lab/console.js', js);
-console.log(`lab/console.html  ${(html.length / 1024).toFixed(0)} KB · lab/console.js ${(js.length / 1024).toFixed(0)} KB` +
+writeFileSync(ROOT + 'tools/gfx/console.html', html);
+writeFileSync(ROOT + 'tools/gfx/console.js', js);
+console.log(`tools/gfx/console.html  ${(html.length / 1024).toFixed(0)} KB · console.js ${(js.length / 1024).toFixed(0)} KB` +
   `  (engine ${(engine.length / 1024).toFixed(0)} KB · ui ${(ui.length / 1024).toFixed(0)} KB)`);

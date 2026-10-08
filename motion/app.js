@@ -1,7 +1,7 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks } from "./catalog.js";
-import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf } from "./engine.js";
+import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook } from "./engine.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
@@ -60,7 +60,9 @@ const labelFor = (k, v) => {
   if (k === "glare") return v === .5 ? "Soft" : v === 1 ? "Normal" : "Bright";
   if (k === "front_glimpse") return v === "spin" ? "Flash past in the air" : "Land screen up, then flip";
   if (k === "pose") return { flat: "Flat, all the same", edge_left: "Turned in 3-D, left edge showing", edge_right: "Turned in 3-D, right edge showing",
-    turntable: "Turntable sway, all in step", wide_spin: "Wide 3-D spin" }[v] || v;
+    turntable: "Turntable sway, all in step", wide_spin: "Wide 3-D spin",
+    profile_left: "Side on, left edge", profile_right: "Side on, right edge" }[v] || v;
+  if (k === "phone_finish") return { standard: "Standard", photo: "Photo-real" }[v] || v;
   if (k === "end_face") return { back: "Their backs", front: "Their screens", mixed: "Half and half" }[v];
   if (k === "accents") return ["None", "One", "Two", "Three"][v] ?? v;
   if (k === "accent_kind") return { mix: "Best for this device", emoji: IOS_EMOJI ? "iOS emoji" : "iOS emoji (Apple devices; stand-ins here)", asset: "Studio cutouts", symbol: "Keyboard symbols" }[v] || v;
@@ -77,6 +79,8 @@ function restore() {
     const s = JSON.parse(localStorage.getItem(STORE) || "null");
     if (s && s.style && typeof s.style === "object") { state.style = { ...state.style, ...s.style }; state.locked = new Set(Array.isArray(s.locked) ? s.locked : [...state.locked]); }
     for (const [k, map] of Object.entries(SOUND_ALIASES)) if (map[state.style[k]]) state.style[k] = map[state.style[k]];   // a retired sound shows as its stand-in
+    // the user's own music lives in the page's memory only: after a reload the ad plays its other music
+    if (state.style.track === "upload") { state.style.track = "none"; state.locked.delete("track"); }
     if (s && (s.galleryCat === "all" || SHELVES.some(x => x.id === s.galleryCat))) state.galleryCat = s.galleryCat;
     if (s && typeof s.galleryPlay === "boolean") state.galleryPlay = s.galleryPlay;
   } catch (e) { /* fresh start */ }
@@ -90,6 +94,15 @@ function restore() {
   } catch (e) { /* none */ }
   const q = new URLSearchParams(location.search);
   if (q.get("look")) state.style.seed = parseInt(q.get("look"), 10) || state.style.seed;
+  // a look picked in the Look Book (looks.html): its vibe, ground or phone set, from its seed
+  const pick = { vibe: q.get("vibe"), bg: q.get("bg"), layout: q.get("layout"), aspect: q.get("aspect") };
+  if (pick.vibe || pick.bg || pick.layout) {
+    const { style, locked } = linkedLook({ ...state.style }, parseInt(q.get("look"), 10) || 1, pick);
+    state.style = style;
+    ["vibe", "background", "arrangement"].forEach(k => { if (locked.has(k)) state.locked.add(k); });
+    if (locked.has("vibe")) VIBE_AXES.forEach(a => state.locked.delete(a));
+    try { history.replaceState(null, "", location.pathname); } catch (e) { /* fine */ }
+  }
 }
 
 // ------------------------------------------------------------ building the ad
@@ -112,6 +125,7 @@ async function rebuild() {
     syncPanel(st);
     $("loading").hidden = true;
     scheduleAudit(st);
+    refreshStars();
     state.lastGood = JSON.parse(JSON.stringify(state.style));
   } catch (e) {
     if (id !== state.buildId) return;
@@ -341,6 +355,18 @@ function buildPanel() {
     } catch (err) { console.warn(err); VH().toast("That picture could not be read. Try a PNG or JPG of the phone's back, on a plain background."); }
     e.target.value = "";
   });
+  // the user's own music: decoded here and kept in this page's memory, never sent anywhere;
+  // after a reload, without it, the ad plays its other music
+  $("music-upload").addEventListener("change", async e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    try {
+      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      try { state.assets.userTrack = await ac.decodeAudioData(await f.arrayBuffer()); } finally { if (ac.close) ac.close(); }
+      pushHistory(); state.style.track = "upload"; state.locked.add("track"); save(); rebuild();
+      $("music-upload-name").textContent = `${f.name}: plays from the headline in this ad, until the page is reloaded.`;
+    } catch (err) { console.warn(err); $("music-upload-name").textContent = "That file could not be read as music. Try an MP3, WAV or M4A."; }
+    e.target.value = "";
+  });
 
   // actions
   $("shuffle-look").addEventListener("click", () => shuffle(false));
@@ -357,6 +383,7 @@ function buildPanel() {
     if (state.sound && state.playing) startAudio(curT()); else stopAudio();
   });
   $("download").addEventListener("click", () => download());
+  $("mo-star").addEventListener("click", () => saveLook(state.style));
   document.addEventListener("keydown", e => { if (e.target.matches("input,select,textarea")) return; if (e.key === " ") { e.preventDefault(); togglePlay(); } if (e.key === "n") shuffle(false); });
 }
 
@@ -537,6 +564,8 @@ const STUDIO = {
   pattern: { label: "Patterns", backgrounds: ["dots", "stripes", "grid", "checker", "halftone", "rings", "waves", "halftone_duo", "halftone_comic", "halftone_lines", "checker_diamond", "checker_floor"] },
   light:   { label: "Light and glow", backgrounds: ["rays", "sunburst", "beams", "bokeh", "aurora", "drift", "mesh", "rays_corner", "beams_cross", "beams_stage"] },
   bold:    { label: "Bold and loud", backgrounds: ["bigword", "confetti", "frame", "noise"] },
+  fresh:   { label: "Fresh and clean", backgrounds: ["studio_sweep", "pill_stage", "arch_window", "paper_cut", "ribbon_wave", "concentric", "split_soft", "spot_floor", "marble_soft", "tile_gloss", "sky_gradient", "pastel_blobs", "window_light", "podium_steps", "sun_rays"] },
+  party:   { label: "Party and colour", backgrounds: ["confetti_pop", "sprinkles", "streamers", "confetti_soft", "polka_pop", "terrazzo", "paper_shapes", "glow_orbs", "neon_frame", "bokeh_night", "grid_glow", "halftone_fade", "diagonal_lines", "wave_lines", "checker_fade"] },
 };
 // the approved themes, one shelf per family (each thumbnail a different theme of it)
 const familyShelves = THEME_FAMILIES.map(f => ({ f, ids: Object.keys(VIBES).filter(id => VIBES[id].family === f) })).filter(x => x.ids.length)
@@ -592,6 +621,7 @@ async function thumb(st, w, h, lock) {
   ad.stillAt(ctx);
   frame.appendChild(c); b.appendChild(frame);
   const name = lookName(st), font = labelFor("font", st.font);
+  if (window.adLibrary) frame.appendChild(window.adLibrary.star("motion-" + st.seed, { name, save: () => saveLook({ ...st, number: state.style.number, phones: state.style.phones }) }));
   b.insertAdjacentHTML("beforeend", `<span class="mo-cap"><b>${name}</b><small>${font} · ${labelFor("hook", st.hook)}</small></span>`);
   b.setAttribute("aria-label", `Use this look: ${name}, ${font}`);
   const th = { el: b, st, w, h, ad: keepAds() ? ad : null, ctx, t0: 0, lastT: 0, last: 0, hover: false, seen: false, moving: false };
@@ -783,18 +813,17 @@ async function recordUntilDone(ad, audioBuf, prog, note) {
    dropped if it is what fails, and the size comes down if memory runs out.
    Only when every way has failed does the pop-up come up, and it says what
    was tried and what would fix it. */
-async function download(opts = {}) {
-  const how = opts.how || "auto", withSound = opts.sound !== false;
-  const btn = $("download"); if (btn.disabled) return; btn.disabled = true;
+/* The video of a look, every way of making it best first. A failure moves on
+   rather than stopping: the MP4 encoder again in software, then real time;
+   the sound is dropped if it is what fails, and the size comes down if memory
+   runs out. Returns { ad, out, buf, soundErr, soundDropped, scale, mp4Failed,
+   W0, H0 }; when every way has failed it throws, with what was tried in
+   `tried` and the last ad built on the error (e.ad), for the pop-up.
+   download() saves what this makes; saveLook() sends it to the library. */
+async function makeVideo(st, { how = "auto", withSound = true, prog = () => {}, note = () => {}, tried = [] } = {}) {
   const H = VH();
-  $("progress").hidden = false; $("export-note").textContent = "";
-  const note = t => { $("export-note").textContent = t; };
-  const prog = (p, label) => { $("bar").style.width = Math.round(p * 100) + "%"; $("progress-label").textContent = label; };
-  const checkFor = ad => H.check({ w: ad ? ad.W : 1080, h: ad ? ad.H : 1080, fps: 30, sound: withSound, muxer: typeof window.Mp4Muxer !== "undefined" });
   let ad = null;
-  const tried = [];
   try {
-    const st = harmonise({ ...state.style }, state.locked, indexById());
     await loadFonts(fontsFor(st));
     const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
     let scale = 1;
@@ -829,6 +858,25 @@ async function download(opts = {}) {
       }
     }
     if (!out) throw last || Object.assign(new Error("This browser cannot record video."), { code: "no-recorder" });
+    return { ad, out, buf, soundErr, soundDropped, scale, mp4Failed, W0, H0 };
+  } catch (e) { if (e && typeof e === "object") try { e.ad = ad; } catch (x) { /* frozen */ } throw e; }
+}
+
+async function download(opts = {}) {
+  const how = opts.how || "auto", withSound = opts.sound !== false;
+  const btn = $("download"); if (btn.disabled) return; btn.disabled = true;
+  const H = VH();
+  $("progress").hidden = false; $("export-note").textContent = "";
+  const note = t => { $("export-note").textContent = t; };
+  const prog = (p, label) => { $("bar").style.width = Math.round(p * 100) + "%"; $("progress-label").textContent = label; };
+  const checkFor = ad => H.check({ w: ad ? ad.W : 1080, h: ad ? ad.H : 1080, fps: 30, sound: withSound, muxer: typeof window.Mp4Muxer !== "undefined" });
+  let ad = null;
+  const tried = [];
+  try {
+    const st = harmonise({ ...state.style }, state.locked, indexById());
+    const made = await makeVideo(st, { how, withSound, prog, note, tried });
+    ad = made.ad;
+    const { out, soundErr, soundDropped, scale, mp4Failed, W0, H0 } = made;
 
     const name = `we-buy-phones-${st.aspect.replace(":", "x")}-${st.seed}.${out.ext}`;
     saveVideo(out.blob, name);
@@ -836,6 +884,10 @@ async function download(opts = {}) {
     let photo = null, photoErr = null;
     try { photo = await makePhoto(st, name, Math.min(ad.W, ad.H), prog); saveVideo(photo.blob, photo.name); }
     catch (e) { photoErr = e; console.warn("The photo could not be made, the video goes alone:", e); }
+    // and the other moment, the alternative to it, read back out of the file (VideoStill.frames, rule 110), settled either way
+    if (photo && window.VideoStill && VideoStill.frames)
+      photo.frames = VideoStill.frames(out.blob, { around: photo.t }).then(fs => ({ frames: fs.map(f => Object.assign(f, { name: VideoStill.frameName(name, f.t, f.w, f.h) })) }),
+        e => { console.warn("The video's frames could not be read back:", e); return { error: e }; });
     const silent = withSound && !out.audio;
     $("export-note").textContent = `Saved ${name} (${ad.W}×${ad.H}, ${(out.blob.size / 1e6).toFixed(1)} MB${out.audio ? ", with sound" : withSound ? ", no sound" : ", without sound"})` +
       (photo ? ` and its photo for OfferUp, ${photo.name} (${photo.w}×${photo.h}, the moment at ${photo.t.toFixed(1)} s). ` : ". ");
@@ -859,6 +911,7 @@ async function download(opts = {}) {
     }
   } catch (e) {
     console.error(e);
+    if (!ad && e && e.ad) ad = e.ad;
     const [title, message] = exportTrouble(e);
     note(title + ". " + message);
     const report = await checkFor(ad).catch(() => null);
@@ -873,6 +926,58 @@ async function download(opts = {}) {
       H.show({ title, message, error: tried.length ? "Tried " + tried.join("\n") : String(e.message || e), report, actions });
     }
   } finally { btn.disabled = false; setTimeout(() => { $("progress").hidden = true; }, 1500); }
+}
+
+/* ⭐ Save to library (owner, 2026-10-06: "video ads ... need a star button
+   which will send to library"). The look is made as Download MP4 makes it,
+   with its photo (OfferUp takes a video only with one), and both go to the
+   account's ad library (../ad-library.js) instead of the Downloads folder.
+   Signed out, the account dialog comes first (Create account, on a device
+   that never signed in) and the save follows the sign-in. */
+function lookMeta(st) {
+  const texts = [];
+  const push = (role, t) => { if (typeof t === "string" && t.trim()) texts.push({ role, text: t.trim().slice(0, 200) }); };
+  push("hook", st.hook_text); push("headline", st.headline); push("sub", st.tag); push("label", st.number_label); push("cta", st.cta);
+  return { title: String(st.headline || "WE BUY PHONES").slice(0, 80), category: "phones", template: "motion-" + st.seed, texts,
+    products: (st.phones || []).map(String).filter(id => /^[a-z0-9][a-z0-9-]{0,79}$/.test(id)), source: "motion", hold: "" };
+}
+async function saveLook(stRaw, btn) {
+  const H = VH();
+  const lib = window.adLibrary;
+  if (!lib) { H.toast("The library did not load. Reload the page and try again."); return null; }
+  if (!await lib.signedIn(() => saveLook(stRaw, btn), "Create a free account to save video ads to your library, or sign in.")) return null;
+  const b = btn || $("mo-star");
+  if (b && b.disabled) return null;
+  if (b) b.disabled = true;
+  $("progress").hidden = false; $("export-note").textContent = "";
+  const note = t => { $("export-note").textContent = t; };
+  const prog = (p, label) => { $("bar").style.width = Math.round(p * 100) + "%"; $("progress-label").textContent = label; };
+  const st = harmonise({ ...stRaw }, state.locked, indexById());
+  let item = null;
+  try {
+    const made = await makeVideo(st, { prog, note });
+    const name = `we-buy-phones-${st.aspect.replace(":", "x")}-${st.seed}.${made.out.ext}`;
+    const photo = await makePhoto(st, name, Math.min(made.ad.W, made.ad.H), prog);
+    prog(0, "Saving to your library");
+    item = await lib.saveVideoAd({
+      blob: made.out.blob, name, photo: { blob: photo.blob, name: photo.name, w: photo.w, h: photo.h },
+      meta: lookMeta(st), video: { w: made.ad.W, h: made.ad.H, seconds: st.duration },
+      onProgress: p => prog(p, "Saving to your library"),
+    });
+    note(item ? `Saved to your library: ${name} (${made.ad.W}×${made.ad.H}${made.out.audio ? ", with sound" : ""}) and its photo, ${photo.name}.` : "Not saved to your library.");
+  } catch (e) {
+    console.error(e);
+    const [title, message] = exportTrouble(e);
+    note(title + ". " + message);
+    H.show({ title, message, error: String(e.message || e), actions: [{ label: "Try again", primary: true, run: () => saveLook(stRaw, btn) }] });
+  } finally { if (b) b.disabled = false; refreshStars(); setTimeout(() => { $("progress").hidden = true; }, 1500); }
+  return item;
+}
+/* the stars say what is in the library already */
+function refreshStars() {
+  const lib = window.adLibrary; if (!lib) return;
+  try { lib.paint(); } catch (e) { /* none drawn yet */ }
+  const b = $("mo-star"); if (b) b.classList.toggle("on", lib.isSaved("motion-" + state.style.seed));
 }
 
 function saveVideo(blob, name) {
@@ -929,6 +1034,12 @@ function offerAgain(blob, name, photo) {
     const ph = document.createElement("button"); ph.className = "mo-link"; ph.type = "button"; ph.textContent = "Save photo";
     ph.addEventListener("click", () => saveVideo(photo.blob, photo.name));
     n.appendChild(ph);
+    if (VH().photos) {
+      const more = document.createElement("button"); more.className = "mo-link"; more.type = "button"; more.textContent = "Other photo";
+      more.title = "The photo picked for you, and one other moment from the video, exactly as it shows it";
+      more.addEventListener("click", () => VH().photos(photo));
+      n.appendChild(more);
+    }
   }
   if (VH().canShareFiles()) {
     const sh = document.createElement("button"); sh.className = "mo-link"; sh.type = "button"; sh.textContent = "Share or save to Photos";

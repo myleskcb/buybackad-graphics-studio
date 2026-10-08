@@ -205,6 +205,10 @@ for (const card of cards){
   const plates = base.inv.filter(x => x.cls === 'plate'), chromatic = base.inv.filter(x => x.c >= 0.04);
   const row = { card, plates: plates.length, chromatic: chromatic.length, themes: {} };
   for (const name of themes){
+    /* a theme the studio holds off this card (template-holds.js: its chip is disabled
+       and says why) cannot be picked, so it is not measured as if it had been */
+    const held = await page.evaluate((id, n) => { try { return typeof choiceHoldWhy === 'function' ? choiceHoldWhy('themes', id, n) : null; } catch (e){ return null; } }, tid, name);
+    if (held){ (row.held = row.held || []).push(name); continue; }
     const r = await sceneOf(`__ez.chip(${JSON.stringify(name)}).click();`);
     save(card + '-' + name.replace(/\W+/g, '_'), r);
     const by = Object.fromEntries(r.inv.map(x => [x.key, x]));
@@ -227,7 +231,7 @@ for (const card of cards){
   /* grounds, with no theme, under a light theme and under a dark one: the
      copy has to follow its ground either way (with a theme on, the six
      swatches are the theme's own) */
-  for (const name of [hasOriginal ? '' : null, THEMES.find(n => /Gold Offer/.test(n)), THEMES.find(n => /Cash Green/.test(n))].filter(n => n != null)){
+  for (const name of [hasOriginal ? '' : null, THEMES.find(n => /Silver & Blue/.test(n)), THEMES.find(n => /Black & Green/.test(n))].filter(n => n != null)){
     await page.evaluate(n => __ez.chip(n).click(), name);
     let prev = await sceneOf(`document.querySelector('.ez-sw.orig').click();`);
     const grounds = [['preset 1', `document.querySelector('.ez-sw[data-i="0"]').click();`], ['preset 3', `document.querySelector('.ez-sw[data-i="2"]').click();`],
@@ -311,7 +315,7 @@ for (const card of cards){
 }
 // the six swatches are the theme's, and a swatch picked under one theme is the same swatch of the next
 {
-  const [a, b] = [THEMES.find(n => /Gold Offer/.test(n)) || THEMES[0], THEMES.find(n => /Cash Green/.test(n)) || THEMES[1]];
+  const [a, b] = [THEMES.find(n => /Silver & Blue/.test(n)) || THEMES[0], THEMES.find(n => /Black & Green/.test(n)) || THEMES[1]];
   await openPage();
   await page.evaluate(id => __ez.open(id), cards[0]);
   const st = await page.evaluate((a, b) => {
@@ -328,7 +332,7 @@ await browser.close();
 
 console.log('\n' + (problems.length ? problems.length + ' problems' : 'no problems') + ` over ${rows.length} cards × ${themes.length} themes · page errors ${pageErrors.length}`);
 const byWhat = {};
-problems.forEach(p => { const k = p.what.replace(/^theme [^:]+: /, 'theme: ').replace(/^(No theme|Gold Offer|Cash Green) on [^:]+: /, 'ground: '); (byWhat[k] = byWhat[k] || []).push(p.card); });
+problems.forEach(p => { const k = p.what.replace(/^theme [^:]+: /, 'theme: ').replace(/^(No theme|Silver & Blue|Black & Green) on [^:]+: /, 'ground: '); (byWhat[k] = byWhat[k] || []).push(p.card); });
 Object.entries(byWhat).forEach(([k, v]) => console.log('  ' + String(v.length).padStart(4) + '  ' + k + '  (' + [...new Set(v)].slice(0, 6).join(', ') + ([...new Set(v)].length > 6 ? ', …' : '') + ')'));
 pageErrors.slice(0, 5).forEach(e => console.log('  page error: ' + e));
 if (argv('--json')) writeFileSync(argv('--json'), JSON.stringify({ rows, problems, pageErrors }, null, 1));

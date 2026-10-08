@@ -29,7 +29,7 @@
  *           node scripts/every_card_audit.mjs [--set classics|library|all]
  *             [--ids a,b] [--dims base,themes,looks,voices,combos]
  *             [--workers 4] [--out .render/every-card] [--resume] [--limit N]
- *             [--write-holds] [--lean]
+ *             [--write-holds] [--lean] [--looks blocks,outline]
  * Exits 1 on any problem. Results stream to <out>/results.jsonl, one card a
  * line, so a long run can be resumed (--resume skips the cards already there).
  *
@@ -49,6 +49,9 @@ const BASE = ROOT + (ROOT.includes('?') ? '&' : '?') + 'nochoiceholds=1';
 const argv = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
 const SET = argv('--set') || 'all';
 const DIMS = new Set((argv('--dims') || 'base,themes,looks,voices,combos').split(','));
+/* --looks a,b measures only those tagline looks (and only their combos), and
+   --write-holds then rewrites only their rows, every other look's kept */
+const ONLY_LOOKS = argv('--looks') ? argv('--looks').split(',') : null;
 const WORKERS = +(argv('--workers') || 4);
 const OUT = argv('--out') || new URL('../.render/every-card/', import.meta.url).pathname;
 const LIMIT = +(argv('--limit') || 0);
@@ -182,7 +185,8 @@ const RUNNER = () => {
         }
         chip('').click();
       }
-      const LOOKS = (typeof EZ_TAG_LOOKS !== 'undefined' ? EZ_TAG_LOOKS : []).map(l => l.key || l[0] || l).filter(k => typeof k === 'string');
+      const LOOKS = (typeof EZ_TAG_LOOKS !== 'undefined' ? EZ_TAG_LOOKS : []).map(l => l.key || l[0] || l).filter(k => typeof k === 'string')
+        .filter(k => !window.__onlyLooks || window.__onlyLooks.includes(k));
       if (has('looks')){
         res.looks = {};
         for (const k of LOOKS){
@@ -207,7 +211,7 @@ const RUNNER = () => {
       }
       if (has('combos')){
         res.combos = {};
-        for (const th of ['Gold Offer', 'Cash Green']){
+        for (const th of ['Silver & Blue', 'Black & Green']){   // a light theme and a dark one (rule 123)
           const b = chip(th); if (!b) continue; b.click();
           const t0 = measure(false);
           for (const k of LOOKS){
@@ -232,6 +236,7 @@ await offline(pp);
 await pp.goto(BASE, { waitUntil: 'load', timeout: 180000 });
 await new Promise(r => setTimeout(r, 2500));
 const classics = await pp.evaluate(() => TEMPLATES.filter(t => !/^sc-/.test(t.id) && !t.gated).map(t => t.id));
+const themeNames = await pp.evaluate(() => COLOR_THEMES.map(t => t.name));   // the themes the studio offers (rule 123)
 await probe.close();
 const idx = JSON.parse(readFileSync(new URL('../assets/showcase/index.json', import.meta.url), 'utf8'));
 const library = idx.filter(live).map(c => c.id);
@@ -273,6 +278,7 @@ async function worker(n){
       await page.goto(BASE, { waitUntil: 'load', timeout: 180000 });
       await new Promise(r => setTimeout(r, 2000));
       await page.evaluate(`(${RUNNER.toString()})()`);
+      await page.evaluate(l => { window.__onlyLooks = l; }, ONLY_LOOKS);
       await page.evaluate(() => { loadAccount = async () => account; account = { email: 'audit@local', role: 'user', plan: 'pro' }; });
       if (LEAN) await page.evaluate(() => { _tplAssetsWarmed = true; ensureThumbs = () => {}; });
       const o = await page.evaluate(id => __sw.open(id), card);
@@ -312,10 +318,11 @@ writeFileSync(OUT.replace(/\/?$/, '/') + 'summary.json', JSON.stringify({ cards:
 if (process.argv.includes('--write-holds')){
   const FILE = new URL('../assets/choice-holds.json', import.meta.url).pathname;
   let prev = null; try { prev = JSON.parse(readFileSync(FILE, 'utf8')); } catch (e){}
-  /* a run over some cards, or some dimensions, rewrites only what it measured:
-     a themes-and-looks run keeps every card's voice holds */
-  const some = !!argv('--ids') || !['themes', 'looks', 'voices'].every(d => DIMS.has(d));
-  const holds = some && prev ? prev : { about: '', cards: {}, themes: {}, looks: {}, voices: {} };
+  /* a run over some cards (--ids) or some choices (--dims) updates only what
+     it measured; the rest of the table stands (a themes-only sweep used to
+     write an empty looks and voices table) */
+  const partial = !!argv('--ids') || !['themes', 'looks', 'voices'].every(d => DIMS.has(d));
+  const holds = partial && prev ? prev : { about: '', cards: {}, themes: {}, looks: {}, voices: {} };
   holds.about = 'Cards and choices that fail on the render a visitor gets (scripts/every_card_audit.mjs --write-holds). A card under cards is not offered; a theme, look or voice under a card is off on that card, and says why. DESIGN-LAW rule 101.';
   holds.date = new Date().toISOString().slice(0, 10);
   /* the reason, as the chip's title tells a visitor */
@@ -331,26 +338,40 @@ if (process.argv.includes('--write-holds')){
       : lineOf(n) + ' would not work (' + code + ')'; };
   const why = v => v.reg ? [...new Set(v.reg.map(said))].join('; ')
     : v.unthemed ? 'a plate would keep the card’s old colour' : v.left ? 'the card’s own colours would stay beside it' : v.lost ? 'a mark would vanish on what it sits on' : 'it changes nothing here';
-  const done = new Set(rows.map(r => r.card));
+  /* only a card that opened was measured: one that did not (a held card asked
+     for by id) keeps its rows rather than being written as passing everything */
+  const done = new Set(rows.filter(r => !r.err).map(r => r.card));
   /* a card that fails the gate as offered is not offered at all */
   holds.cards = holds.cards || {};
   done.forEach(c => delete holds.cards[c]);
   rows.forEach(r => { if (!r.err && r.base && r.base.length) holds.cards[r.card] = [...new Set(r.base.map(said))].join('; '); });
-  /* a library card already painted in a palette keeps that palette's colours
-     when the theme of the same name is picked: those are the theme's own, not
-     the card's left beside it (glassCard-jw03-15's gold under Black & Gold,
-     2026-10-03) */
+  /* only what this run measured is rewritten: a dimension left out of --dims
+     keeps its rows, and with --looks only those looks' rows change. A library
+     card already painted in a palette keeps that palette's colours when the
+     theme of the same name is picked: those are the theme's own, not the
+     card's left beside it (glassCard-jw03-15's gold under Black & Gold,
+     2026-10-03, rule 125) */
   const ownPalette = Object.fromEntries(idx.map(c => [c.id, c.theme]));
   const leftOk = (dim, card, k) => dim === 'themes' && ownPalette[card] === k;
-  for (const dim of ['themes', 'looks', 'voices']){
+  for (const dim of ['themes', 'looks', 'voices'].filter(d => DIMS.has(d))){
     holds[dim] = holds[dim] || {};
-    if (!DIMS.has(dim)) continue;
-    done.forEach(c => delete holds[dim][c]);
+    const only = dim === 'looks' && ONLY_LOOKS;
+    done.forEach(c => {
+      if (!only){ delete holds[dim][c]; return; }
+      const cur = holds[dim][c]; if (!cur) return;
+      only.forEach(k => delete cur[k]); if (!Object.keys(cur).length) delete holds[dim][c];
+    });
     rows.forEach(r => {
-      const bad = Object.entries(r[dim] || {}).filter(([k, v]) => !v.err && (v.reg || v.unthemed || (v.left && !leftOk(dim, r.card, k)) || v.lost));
-      if (bad.length) holds[dim][r.card] = Object.fromEntries(bad.map(([k, v]) => [k, why(leftOk(dim, r.card, k) ? Object.assign({}, v, { left: null }) : v)]));
+      const bad = Object.entries(r[dim] || {}).filter(([k, v]) => !v.err && (v.reg || v.unthemed || (v.left && !leftOk(dim, r.card, k)) || v.lost) && (!only || only.includes(k)));
+      if (bad.length) holds[dim][r.card] = Object.assign(only ? (holds[dim][r.card] || {}) : {}, Object.fromEntries(bad.map(([k, v]) => [k, why(leftOk(dim, r.card, k) ? Object.assign({}, v, { left: null }) : v)])));
     });
   }
+  /* a card the studio no longer offers has no chips to hold, and a theme it
+     no longer offers (rule 123: the names changed) cannot be held by name:
+     a partial run left 17 unoffered cards holding 168 retired theme names */
+  const offered = new Set(classics.concat(library));
+  for (const tbl of ['cards', 'themes', 'looks', 'voices']) Object.keys(holds[tbl]).forEach(c => { if (!offered.has(c)) delete holds[tbl][c]; });
+  Object.keys(holds.themes).forEach(c => { Object.keys(holds.themes[c]).forEach(k => { if (!themeNames.includes(k)) delete holds.themes[c][k]; }); if (!Object.keys(holds.themes[c]).length) delete holds.themes[c]; });
   writeFileSync(FILE, JSON.stringify(holds, null, 0));
   console.log('wrote assets/choice-holds.json: cards ' + Object.keys(holds.cards).length + ', ' + ['themes', 'looks', 'voices'].map(d => d + ' ' + Object.values(holds[d]).reduce((n, o) => n + Object.keys(o).length, 0)).join(', '));
 }

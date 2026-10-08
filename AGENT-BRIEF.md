@@ -133,6 +133,15 @@ when its branch is pushed: merge `main` in, run the checks, and put the
 result on `main` the same day, or say plainly in your last message that it
 is not on `main` and why.
 
+**And a session can stop before it gets there.** On 2026-10-05 five sessions
+had stopped at the weekly limit mid-task (OPEN-ITEMS §AM): three with
+finished edits never committed, one with a day of photograph picks on its
+container's disk only, which went with it. Commit and push at each step that
+works, not at the end, and keep the branch merged with `main` as you go; a
+session near its limit stops starting new work (docs/SESSION-PROTOCOL.md, the
+99% rule). Rule numbers and OPEN-ITEMS letters are decided when the work
+lands: four branches had each written a rule 112.
+
 History, and why this matters:
 
 On 2026-09-26 `main` was a month behind: the product had moved on across a
@@ -151,8 +160,8 @@ git merge-base --is-ancestor origin/main <newest-branch> && echo "main is behind
 ```
 
 If `main` is behind the newest integration branch, start from that branch and
-say so. Screenshot the landing before you touch it: the violet Template Lab page
-is current; a warm orange one is August.
+say so. Screenshot the landing before you touch it: the violet landing is
+current; a warm orange one is August.
 
 **The newest branch is not always what is live either.** On 2026-09-29 three
 heads had diverged (`claude/vibrant-lovelace-rze4rx`, the trunk;
@@ -202,7 +211,9 @@ two showed different products. Deploy the same `main` commit to both, or
 retire one; the lasting fix is to link one project to this repository's
 `main` in Netlify (Project configuration, Build & deploy, Link repository;
 publish directory `.`) so that every push to `main` deploys and nobody deploys
-by hand. The cloud sessions cannot reach Netlify (their network policy denies
+by hand. `.github/workflows/deploy.yml` (2026-10-06) is that fix in GitHub's
+hands: it deploys every push to `main` once the repository secrets
+`NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` exist, and does nothing before. The cloud sessions cannot reach Netlify (their network policy denies
 `*.netlify.app` and `api.netlify.com`). The connector's deploy-site does not
 deploy by itself: it returns an `npx @netlify/mcp --site-id … --proxy-path
 https://netlify-mcp.netlify.app/proxy/…` command, which zips the working
@@ -218,14 +229,30 @@ git worktree add ~/Downloads/studio-main origin/main    # the first time
 cd ~/Downloads/studio-main
 git fetch origin && git checkout --detach origin/main   # every time after
 git log -1 --oneline        # the main you mean to ship
+npm ci                      # the API function bundles @netlify/blobs from here
 netlify link --name buybackad-graphics-studio           # the first time
-netlify deploy --dir=.      # DRAFT first, always
+netlify deploy --no-build --dir=.      # DRAFT first, always
 # before it uploads: "Config file" must be …/studio-main/netlify.toml and
 # "Deploy path" …/studio-main; "No config file was defined" means the wrong
 # folder, so Ctrl+C
-# open the draft URL and confirm it renders
-netlify deploy --prod --dir=.
+# open the draft URL and confirm it renders, and that /api/me answers 401
+netlify deploy --no-build --prod --dir=.
 ```
+
+Two traps, found on the 2026-10-06 deploy:
+- **`npm ci` first.** A clean worktree has no `node_modules`. The function
+  uploads without `@netlify/blobs`, and every `/api/*` answers 502. The site
+  itself renders, so only an API probe shows it (`/api/me` must be 401).
+- **`--no-build`.** netlify-cli 26 runs a build before deploying, and its
+  framework detection picks "hugo" for this folder and fails. The site has no
+  build step: the folder is the site.
+
+`buybackad-finished-copy` is in another Netlify team ("myleskcb2's team").
+The Mac's CLI login (team KCB) gets "Not Found" for it, so only an account in
+that team can deploy it or set its `JWT_SECRET`. On 2026-10-06 it still served
+`claude/fervent-pascal-w6mthe` (37a26d34) with no `JWT_SECRET`, so accounts and
+the ad library do not work there. `buybackad-graphics-studio` is the one that
+is current.
 
 Draft-deploy and *look* before `--prod`. Given landmine 2, the preview render is
 the only real check.
@@ -323,10 +350,17 @@ produced." DESIGN-LAW rule 87. In practice:
   role and a line with a solid shape over its letters; `pgUncover` moves
   such copy clear after the layout. A rotated rect is never rebuilt from its
   bounding box.
-- **One colour to a card** (rule 95): `pgOneHue` runs after the layout, a
-  theme, a tagline look and copy-follows-ground; everything coloured on a card
-  is within 30 degrees of its hue, at its own luminance. The gate fails 'hues'.
-  Do not add a pass that paints a second hue after these without running it.
+- **Two colour families to a card** (rule 95 as reconciled with rule 103):
+  `pgOneHue` runs after the layout, a theme, a tagline look and
+  copy-follows-ground; a card keeps its two largest hue families (its proven
+  pair), a third folds into the nearest kept one at its own luminance, never
+  under a warm hue's muddy floor (`pgMuddyFloor`). The gate fails 'hues'. Do
+  not add a pass that paints a third hue after these without running it.
+- **Customer words are plain and readable** (rule 113): download not export,
+  colours not palette/ink/accent/plate, box not plate, background not ground;
+  no ratios or pixel maths in customer copy; text floors 16px running, 13.5px
+  notes, 12.5px labels. Edit the FAQ in its visible <details>; rebuild the
+  ld-faq JSON-LD from them (they must match).
 - **The chrome is the poster look** (rule 98, superseding rule 96): skin
   'poster' is the default (index.html bootstrap): paper, ink outlines, hard
   offset shadows, and four signal colours each with one job (blue action,
@@ -384,19 +418,23 @@ produced." DESIGN-LAW rule 87. In practice:
   twice. Then rethumb_showcase.mjs and verify_showcase.mjs, and bump
   ASSET_REV. (Two sessions answered the same request with 25 and with 12
   pairings; the twelve, the later answer, are the product.)
-- **The studio's colour themes are 52, in groups** (rule 110, 2026-10-02):
-  COLOR_THEMES leads with Two colours (a ground and one colour for every
-  word), Three colours (ground, ink, one accent) and the library's twelve
-  Proven pairs, then the earlier 21 under "More" (the landing counts them,
-  does not show them). `group` is the field; `themeChips` builds both rows.
-  Run `node scripts/theme_law.mjs` after adding one (a two-colour theme's
-  accent must equal its ink). The effects take the palette's colours from
-  `thFx` (outline dark and light, 3-D and offset depth, glow, multicolour
-  letters); never hard-code an effect colour that bypasses it while a theme
-  is on. With a theme on, `pgOneHue` keeps the theme's colours (not one hue);
-  what a look the visitor picked paints is `pgLookInk` and stays theirs. A
-  card as designed draws exactly as before: check that on any change here by
-  drawing its thumbnail with `main`'s app.js and this one.
+- **The studio's colour themes are 31, in three groups** (rule 125, which
+  widens rule 123, 2026-10-08): COLOR_THEMES is Two colours (12: a ground and
+  one colour for every word; accent = ink, no support), Three colours (7:
+  ground, ink, one accent; the small print is the ink) and Proven pairs (rule
+  123's twelve, solved by the colour builder: `house_themes.mjs --write`
+  rewrites only those rows). `group` and `family` (Dark or Light) are on
+  every record; `themeChips` builds Easy Mode's and the designer's rows, the
+  visitor's own sets (`cbThemeChips`) beside them. After any change run
+  `theme_law.mjs`, `cvd_audit.py`, `audit_theme_grammar.mjs` and
+  `theme_cohesion_audit.mjs`; each reads the groups. The effects take the
+  palette's colours from `thFx` (outline dark and light, 3-D and offset
+  depth, glow, multicolour letters); never hard-code an effect colour that
+  bypasses it while a theme is on. With a theme on, `pgOneHue` keeps the
+  theme's colours (not one hue); what a look the visitor picked paints is
+  `pgLookInk` and stays theirs. A card as designed draws exactly as before:
+  check that on any change here by drawing its thumbnail with `main`'s app.js
+  and this one.
 - **Every choice on every card** (rule 101): `node
   scripts/every_card_audit.mjs --write-holds` takes every offered card
   through every theme, look and voice on Easy Mode's render and writes
@@ -404,12 +442,16 @@ produced." DESIGN-LAW rule 87. In practice:
   and keeps a card that fails as offered out of the lists. It takes hours in
   full; run it with `--ids a,b` on the cards a change touches (the table is
   updated for those cards only) and `--resume` to continue a stopped run. It
-  loads the studio with `?nochoiceholds=1`. On a container (a cloud session,
-  about 14 GB) run it with `--lean --workers 3`: a studio page peaks near
-  4 GB, a fourth worker gets its renderer killed for memory, and a page that
-  dies is now reported and opened again rather than hanging the run. The
-  full run (649 cards, themes and looks) took about eight hours that way,
-  in chunks continued with `--resume`.
+  loads the studio with `?nochoiceholds=1`. For the whole population pass
+  its own list as `--ids` too (the offered classics and the live library):
+  without `--ids` the table starts empty, so a run of one dimension (`--dims
+  base`) empties the others, and a classic the table holds drops out of the
+  population and loses its row unmeasured. On a container (a
+  cloud session, about 14 GB) run it with `--lean --workers 3`: a studio page
+  peaks near 4 GB, a fourth worker gets its renderer killed for memory, and a
+  page that dies is reported and opened again rather than hanging the run.
+  The full run (about 640 cards, themes and looks) takes about eight hours
+  that way, in chunks continued with `--resume`.
 - **The designer's guides and lock** (rule 107, 2026-10-02): the pink guides
   (`sgSnap`) and the lock to the middle (`pgCentreLock`, kept by `ccKeep`
   before every render and undo step) work on the parts `ccParts` finds. A
@@ -421,15 +463,77 @@ produced." DESIGN-LAW rule 87. In practice:
   the studio, `makePhoto` in the maker). A new video export path makes one
   too, and keeps it a tap away until the next video (`VideoHelp.keepPhoto`
   in the studio, Save photo in the maker's note): a browser can hold the
-  second download back. Check: `node scripts/video_photo_check.mjs`.
+  second download back. Beside it, one alternative (rule 110): the other
+  moment worth posting that looks different from the picked one, read back
+  out of the file (`VideoStill.frames` with `around`), never drawn again,
+  offered in `VideoHelp.photos`. One, not more: the owner asked for one. Check: `node scripts/video_photo_check.mjs`.
+- **The library API** (rule 111, 2026-10-04): `/api/library/v1` in
+  `netlify/lib/library.mjs`, routed first in `api.mjs`, behind `LIBRARY_KEYS`,
+  offers the library's ads: the cards `scIsLive` offers, each as its 1080
+  render in `assets/library-ads/` (`scripts/render_library_ads.mjs`, through
+  `renderThumb()`). After `rethumb_showcase.mjs`, run
+  `render_library_ads.mjs --stale`: `library_api_check.mjs` fails on a missing,
+  leftover or stale render. Keys stay server-side; no CORS. The iPhones LA
+  side is `docs/iphonesla-library/`, handed over as
+  `docs/iphonesla-library.zip` (`scripts/pack_iphonesla_library.sh`); check it
+  with `node scripts/library_handoff_check.mjs`.
+- **Off-screen scenes are 1x** (rule 110): a `fabric.StaticCanvas` that is
+  only exported or measured takes `enableRetinaScaling:false`. On a 2x screen
+  fabric's default doubles its canvas, and anything reading W x H of it
+  (`pgCheck`) measures a quarter of the ad.
 - **A card's parts line up** (rule 109, 2026-10-03): `node
   scripts/composition_audit.mjs` measures every offered card (`__sc.comp`:
   loose parts, near misses, a picture over a headline) and exits 1 on a
   failure; `scripts/centre_showcase.mjs --ids a,b` repairs with Centre all
   through the writers' gate. A pass that moves a showcase card's layers
-  runs the audit on the cards it touched.
+  runs the audit on the cards it touched. A number and its phone mark
+  (rule 118) are one line to the measure: centred together.
+- **The colour builder** (rule 112, 2026-10-03): `colour-builder.js`, loaded
+  after app.js. The landing's colour section is two tabs (the twelve
+  ready-made sets, or build your own); the + in Easy Mode's and the
+  designer's colour rows opens the same builder. Partners come from the
+  fixed lists in `CB_PARTNERS` (rule 14), every set is solved and checked
+  before it is shown, and saved sets live in localStorage `pgfx_my_colours`,
+  found by `ezThemeByName`. Before a commit that touches it, the colour
+  helpers it calls (hexToOklch, oklchFit, pgLum, pgCr) or the theme passes,
+  run `node scripts/colour_builder_audit.mjs` (about an hour: both looks,
+  every slider end, typed brand colours, then sets on cards; `--sets-only`
+  takes about a minute). A tweak never leaves the law: a slider's ends are
+  `cbRange`'s, an exact colour goes through `cbExact`, and anything saved
+  passes `cbTweakOk`. Saved sets can be renamed; old names live in `aka`.
+- **Real photographs only** (rule 117, 2026-10-04): no generated scene
+  (`assets/bg/dl_*`) or drawn ground (`dg_cast`) behind a card or template
+  where a real photograph of the goods exists. New photographs go in
+  assets/bg-web with their credits (`scripts/fetch_backdrops.mjs`), are
+  looked at before use, and reach cards through
+  `scripts/reground_showcase.mjs` and templates through `BG_REAL` in app.js.
+- **One colour vocabulary** (rule 123, 2026-10-05): the colour themes Easy
+  Mode and the designer offer (`COLOR_THEMES`) are rule 103's twelve
+  pairings, under the library's names, each solved by the colour builder
+  (`node scripts/house_themes.mjs --write`; never edit a colour in the
+  array by hand). `aka` on a theme lists the retired names drafts were
+  saved in. `node scripts/theme_cohesion_audit.mjs` is the check that the
+  vocabulary is one (themes, palettes, the builder's ready-made sets, the
+  live cards, the choice holds) and that each theme keeps the law; run it
+  with `cvd_audit.py` and `theme_law.mjs` before a commit that touches a
+  theme, a palette or the builder, and sweep the holds again
+  (`every_card_audit.mjs --dims themes --write-holds`) after the set
+  changes. The video maker's palettes are a vocabulary of their own still
+  (OPEN-ITEMS §AO).
 - **What is under a line** is found by hiding its ink (`pgHideInk`), never
   the whole object: a line's backing is its ground.
+- **A stack keeps one rhythm to its call to action** (rule 115, 2026-10-02):
+  `pgStepRhythm`, last in the layout and again after `numberFill`, sets the
+  Steps Flow cards one gap apart and one gap off the CTA plate (the rows
+  move, the plate stays); `pgCtaStandOut` gives a plate in its rows' own
+  neutral the card's accent. A pass that moves or resizes the steps or the
+  number's plate after them must leave `node scripts/steps_rhythm_audit.mjs`
+  passing.
+- **The headline is the hero** (rule 116, 2026-10-03): judged by the letters
+  it covers (30,000 px² on the 1080 square at least), never by font size
+  alone. `node scripts/hero_headline.mjs --live` reports any live card under
+  it; with `--write` it grows them, gated. Look at every card on a
+  before-and-after before you show it.
 - **The scripts:** a script that rewrites a showcase record passes its
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the

@@ -2,11 +2,12 @@
 // Ported from iphoneslainv scripts/phone-ad/adengine (the Mac engine).
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
-  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES, THEME_GROUNDS, SOUND_ALIASES, LATE_OPTIONS, KIT_BPM } from "./catalog.js";
+  NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES, THEME_GROUNDS, SOUND_ALIASES, LATE_OPTIONS, KEPT_OPTIONS, KIT_BPM,
+  SEASON_TUNES, SEASON_ACCENTS, SEASON_TRACKS, CLASSICAL_TUNES, TRACKS } from "./catalog.js";
 import { AUDIENCES, GENERAL } from "./audiences.js";
 import { pickVoice, voiceFits } from "./voices.js";
 import { placeAccents, drawAccents, timeAccents } from "./accents.js";
-import { vibeBackground, candidateGround, themeGround, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
+import { vibeBackground, candidateGround, themeGround, freshGround, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
   drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse } from "./decor.js";
 
 // ------------------------------------------------------------ small tools
@@ -85,19 +86,34 @@ export function pal(st) {
 // look number keeps every choice it made before them.
 const ACCENT_AXES = ["accents", "accent_set", "accent_kind", "accent_in", "accent_idle", "accent_out"];
 
+/** A look named by a link (the Look Book, looks.html): a vibe, a ground or a phone set held,
+ *  everything else drawn from the seed, the viewer's own words, number and phones kept. The
+ *  library draws its thumbnail with this, and the maker opens the link with it, so the look
+ *  picked is the look that opens. Returns { style, locked }. */
+export function linkedLook(base, seed, pick = {}) {
+  const locked = new Set(["phones", "number", "aspect"]);
+  const st = { ...base };
+  if (pick.aspect && ASPECTS[pick.aspect]) st.aspect = pick.aspect;
+  if (pick.vibe && VIBES[pick.vibe]) { st.vibe = pick.vibe; locked.add("vibe"); }
+  if (pick.bg && OPTIONS.background.includes(pick.bg)) { st.vibe = "none"; st.background = pick.bg; locked.add("vibe"); locked.add("background"); }
+  if (pick.layout && OPTIONS.arrangement.includes(pick.layout)) { st.arrangement = pick.layout; locked.add("arrangement"); }
+  return { style: harmonise(randomize(st, seed, locked, [], true), locked), locked };
+}
+
 /** Draw every unlocked design axis from the seed, each independently. */
 export function randomize(st, seed, locked = new Set(), phonesPool = [], content = true) {
   const r = rng(seed * 7919 + 13);
   const out = { ...st, seed };
   for (const k of Object.keys(OPTIONS)) {
-    if (k === "pose" || ACCENT_AXES.includes(k) || LATE_OPTIONS.includes(k)) continue;   // their own draws below, so older seeds keep their looks
+    // their own draws below, so older seeds keep their looks; a kept option (the holiday) only by hand
+    if (k === "pose" || ACCENT_AXES.includes(k) || LATE_OPTIONS.includes(k) || KEPT_OPTIONS.includes(k)) continue;
     if (!locked.has(k)) out[k] = r.weighted(OPTIONS[k], WEIGHTS[k]);
   }
   if (!locked.has("pose")) out.pose = rng(seed * 4099 + 71).weighted(OPTIONS.pose, WEIGHTS.pose);
   const ra = rng(seed * 6151 + 29);
   for (const k of ACCENT_AXES) if (!locked.has(k)) out[k] = ra.weighted(OPTIONS[k], WEIGHTS[k]);
   const r2 = rng(seed * 6007 + 29);
-  for (const k of LATE_OPTIONS) if (!locked.has(k)) out[k] = r2.weighted(OPTIONS[k], WEIGHTS[k]);
+  for (const k of LATE_OPTIONS) if (!locked.has(k)) out[k] = r2.weighted(OPTIONS[k], lateWeights(k, out.season));
   for (const [k, p] of Object.entries(FLAGS)) if (!locked.has(k)) out[k] = r() < p;
   if (!locked.has("bpm")) out.bpm = r.int(96, 124);      // the tempo a commercial bed sits at
   audienceInto(out, r, locked);
@@ -105,8 +121,23 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   backsFirst(out, locked);
   copyInto(out, r, locked, content);
   voiceInto(out, r, locked);
-  if (!locked.has("phones") && phonesPool.length > 5) out.phones = r.sample(phonesPool, r.pick([3, 4, 4, 5]));
+  if (!locked.has("phones") && phonesPool.length > 5) out.phones = pickPhones(phonesPool, r.pick([3, 3, 5, 5, 4]), r);
   return harmonise(out, locked);
+}
+
+/** The weights a late sound option is drawn with. An ad set to a holiday by hand draws
+ *  that holiday's tunes (always one), its recordings (mostly, where it has any) and often
+ *  its opening sound; any other ad the catalog's own weights, unchanged, so a look number
+ *  that is not a holiday ad draws what it always drew. */
+function lateWeights(k, season) {
+  const own = { melody: SEASON_TUNES, accent: SEASON_ACCENTS, track: SEASON_TRACKS }[k], mine = own && own[season];
+  if (!mine) return WEIGHTS[k];
+  const w = { ...WEIGHTS[k] };
+  if (k === "accent") { for (const v of mine) w[v] = 8; return w; }
+  for (const v of OPTIONS[k]) w[v] = 0;
+  for (const v of mine) w[v] = 6;
+  if (k === "track") w.none = mine.length ? 6 : 1;            // else a holiday tune made here
+  return w;
 }
 
 /** An opening that shows the phones on frame 0 shows their backs: screen-up
@@ -302,7 +333,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
     st.skew = 0;
   } else {
     // dark type crosses black glass somewhere in almost every layout (a spray halo carries it instead)
-    const onPlate = ["sticker", "box", "highlighter", "cutout", "double_outline", "glass"];
+    const onPlate = ["sticker", "box", "highlighter", "cutout", "double_outline", "glass", "outline_shadow", "underline_bar"];
     if (darkInk && !halo && !onPlate.includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = ["sticker", "box", "highlighter", "double_outline"][st.seed % 4];
     if (darkInk && st.text_fx === "neon") st.text_fx = "sticker";
     if (!darkInk && lum(p.accent) < 0.42 && st.color_mode !== "mono" && st.text_fx !== "box" && !locked.has("color_mode")) st.color_mode = "mono";
@@ -314,7 +345,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (lum(p.ground) > .4 && st.number_style === "neon" && !locked.has("number_style")) st.number_style = "pill";
   // one "quote" is enough: a tag and a label must not say the same thing twice
   if (st.tag && st.number_label && /QUOTE/i.test(st.tag) && /QUOTE/i.test(st.number_label) && !locked.has("number_label")) st.number_label = "";
-  if (FINE_FACES.has(st.font) && ["outline", "neon", "double_outline", "cutout", "long_shadow", "block3d"].includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = "shadow";
+  if (FINE_FACES.has(st.font) && ["outline", "neon", "double_outline", "cutout", "long_shadow", "block3d", "inline", "stamped", "pop_stack"].includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = "shadow";
   if (st.case === "title" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.05);
   if ((FONTS[st.font] || [])[3] === "wide" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.01);
   if (st.decor.includes("sparkle")) st.sparkles = true;
@@ -325,6 +356,28 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (!OPTIONS.melody.includes(st.melody)) st.melody = "none";
   if (!OPTIONS.lead.includes(st.lead)) st.lead = "piano";
   if (!OPTIONS.accent.includes(st.accent)) st.accent = "none";
+  if (!OPTIONS.season.includes(st.season)) st.season = "none";
+  if (!OPTIONS.tone.includes(st.tone)) st.tone = "studio";
+  if (!OPTIONS.track.includes(st.track)) st.track = "none";
+  // a holiday's recordings belong to its ads, and a holiday ad plays only its own (or its
+  // tunes, made here); no music means no recording either, unless one was picked by hand
+  if (!locked.has("track") && st.track !== "none" && st.track !== "upload") {
+    const mine = SEASON_TRACKS[st.season], holiday = Object.values(SEASON_TRACKS).flat().includes(st.track);
+    if ((mine ? !mine.includes(st.track) : holiday) || st.sound_kit === "none") st.track = "none";
+  }
+  // a real recording sets the beat the picture pulses to, but only a beat measured clearly
+  // (a slow, free-flowing piece measures at two or three times its felt tempo)
+  const rec = TRACKS.find(t => t.id === st.track);
+  if (rec && rec.bpm && rec.beat >= .5 && !locked.has("bpm")) st.bpm = Math.round(rec.bpm);
+  // holiday tunes belong to holiday ads, and a holiday ad plays one; an ordinary ad that drew
+  // one plays a classic instead; the drum-free classical kit always carries a classic
+  const holidayTunes = SEASON_TUNES[st.season] || [], anyHoliday = Object.values(SEASON_TUNES).flat();
+  if (!locked.has("melody")) {
+    if (holidayTunes.length && !holidayTunes.includes(st.melody)) st.melody = holidayTunes[(st.seed >>> 0) % holidayTunes.length];
+    else if (!holidayTunes.length && anyHoliday.includes(st.melody)) st.melody = CLASSICAL_TUNES[(st.seed >>> 0) % CLASSICAL_TUNES.length];
+    if (st.sound_kit === "classical" && st.melody === "none") st.melody = CLASSICAL_TUNES[(st.seed >>> 0) % CLASSICAL_TUNES.length];
+  }
+  if (!locked.has("accent") && st.accent === "sleigh_bells" && st.season !== "christmas") st.accent = "none";
   if (st.sound_kit === "none" && !locked.has("melody")) st.melody = "none";
   if (["bumblebee", "turkish_march", "fur_elise", "entertainer", "mountain_king"].includes(st.melody) && st.lead === "organ" && !locked.has("lead"))
     st.lead = ["piano", "marimba", "xylophone", "harpsichord"][st.seed % 4];
@@ -386,21 +439,45 @@ export class Glare {
 }
 
 /** What the model really has, read off its name: a notch (14, 14 Plus, 16e,
- *  17e) or the Dynamic Island (14 Pro on); the mute switch (14 and older) or the
- *  Action button (15 on); Camera Control (16 on, not the e models). A phone we
- *  cannot place (an upload) gets the island and only volume and power. */
+ *  17e) or the Dynamic Island (14 Pro on); the mute switch (14 and older, and the
+ *  15 and 15 Plus) or the Action button (15 Pro, and every model from the 16);
+ *  Camera Control (16 on, not the e models); how deep the
+ *  body is for its width, and where its edge controls sit. A phone we cannot
+ *  place (an upload) gets the island, only volume and power, and the usual depth. */
 export function designOf(model) {
   const m = /iPhone (\d+)(e)?(?: (Pro Max|Pro|Plus))?/.exec(model || "");
-  if (!m) return { notch: false, left: null, camCtrl: false };
+  if (!m) return { notch: false, left: null, camCtrl: false, depth: THICKNESS, controls: CONTROLS };
   const gen = +m[1], e = !!m[2], pro = /Pro/.test(m[3] || "");
-  return { notch: e || gen < 14 || (gen === 14 && !pro), left: gen < 15 ? "mute" : "action", camCtrl: gen >= 16 && !e };
+  const name = `iPhone ${gen}${e ? "e" : ""}${m[3] ? " " + m[3] : ""}`, body = BODY[name];
+  return { notch: e || gen < 14 || (gen === 14 && !pro), left: gen < 15 || (gen === 15 && !pro) ? "mute" : "action", camCtrl: gen >= 16 && !e,
+    depth: body ? body[1] / body[0] : THICKNESS, controls: { ...CONTROLS, ...MEASURED_CONTROLS[name] } };
 }
+
+// Apple's published width and depth of each body in mm (the depth without the
+// camera), so a Pro Max turns a thinner edge than a Pro and a 17 Pro a deeper one
+// than a 16 Pro. The 18 Pro is drawn on the 17 Pro's body, as the phone audit's
+// SPEC has it.
+const BODY = {
+  "iPhone 14": [71.5, 7.80], "iPhone 14 Plus": [78.1, 7.80], "iPhone 14 Pro": [71.5, 7.85], "iPhone 14 Pro Max": [77.6, 7.85],
+  "iPhone 15": [71.6, 7.80], "iPhone 15 Plus": [77.8, 7.80], "iPhone 15 Pro": [70.6, 8.25], "iPhone 15 Pro Max": [76.7, 8.25],
+  "iPhone 16": [71.6, 7.80], "iPhone 16 Plus": [77.8, 7.80], "iPhone 16 Pro": [71.5, 8.25], "iPhone 16 Pro Max": [77.6, 8.25],
+  "iPhone 16e": [71.5, 7.80], "iPhone 17": [71.5, 7.95], "iPhone 17e": [71.5, 7.80],
+  "iPhone 17 Pro": [71.9, 8.75], "iPhone 17 Pro Max": [78.0, 8.75], "iPhone 18 Pro": [71.9, 8.75], "iPhone 18 Pro Max": [78.0, 8.75],
+};
 
 // Where the edge controls sit, as a share of the height from the top (Apple's
 // dimension drawings). Left and right are as you look at the screen.
 const CONTROLS = { mute: [.183, .213], action: [.176, .216], volUp: [.256, .33], volDown: [.352, .426], power: [.27, .405], camCtrl: [.565, .64] };
+// ...except where a factory back shows the control itself, standing proud of the
+// rail, and it sits elsewhere: then it is drawn where the photograph has it, or a
+// turned phone shows two side buttons. The 17 and 18 Pro's side button is 46.8 to
+// 64.4 mm from the top on both sizes (scripts/audit_phone_views.py measures it).
+const MEASURED_CONTROLS = {
+  "iPhone 17 Pro": { power: [.311, .429] }, "iPhone 17 Pro Max": { power: [.287, .394] },
+  "iPhone 18 Pro": { power: [.312, .429] }, "iPhone 18 Pro Max": { power: [.287, .393] },
+};
 
-// A turned phone is drawn as what it is: a rounded slab THICKNESS deep, turned
+// A turned phone is drawn as what it is: a rounded slab as deep as its model, turned
 // about its long axis and seen through a lens a few phone-heights away, the way
 // a product shot is lit and framed. The near edge stands a little taller than
 // the far one, the side is a solid band that wraps the corners, and the face
@@ -410,67 +487,313 @@ const LENS = 6.5;                                  // camera distance, in phone 
 // closer and the far edge breaks into the strips the face is drawn in.
 const WIDE_LENS = 2.2;
 
-function outline(w, h, r, n = 9) {                 // a rounded rectangle, clockwise
+function outline(x0, y0, x1, y1, [tl, tr, br, bl], n = 9) {   // a rounded rectangle, clockwise
   const pts = [];
-  for (const [cx, cy, a0] of [[w / 2 - r, -h / 2 + r, -Math.PI / 2], [w / 2 - r, h / 2 - r, 0], [-w / 2 + r, h / 2 - r, Math.PI / 2], [-w / 2 + r, -h / 2 + r, Math.PI]])
+  for (const [cx, cy, r, a0] of [[x1 - tr, y0 + tr, tr, -Math.PI / 2], [x1 - br, y1 - br, br, 0], [x0 + bl, y1 - bl, bl, Math.PI / 2], [x0 + tl, y0 + tl, tl, Math.PI]])
     for (let i = 0; i <= n; i++) { const a = a0 + i / n * Math.PI / 2; pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
   return pts;
+}
+
+// A canvas draws an image's rectangle with hard edges, snapped to whole pixels, and the backs
+// are trimmed to the phone, so the phone's outline was that rectangle and jumped a pixel
+// column at a time as it turned. Drawn from a copy with a clear border PAD px wide, the snap
+// falls on clear pixels and the outline moves as smoothly as the picture.
+const PAD = 2, PADDED = new WeakMap();
+function padded(img) {
+  let c = PADDED.get(img);
+  if (!c) {
+    c = canvas((img.naturalWidth || img.width) + 2 * PAD, (img.naturalHeight || img.height) + 2 * PAD);
+    c.getContext("2d").drawImage(img, PAD, PAD);
+    PADDED.set(img, c);
+  }
+  return c;
+}
+
+// The body as its back photograph draws it: where its straight edges stand (a button proud of
+// the rail makes the trimmed photo wider than the body) and how round each corner is, as
+// shares of the photo's width and height. The turned slab is built on it, so near flat no
+// part of the slab shows past the photograph. Built on a rounded rectangle the photo's full
+// size, an 18 Pro showed a dark sliver down its left side and round its corners, which went
+// all at once as the phone came flat. Measured once per photo; null where it cannot be.
+const BODIES = new WeakMap();
+function bodyOf(img) {
+  if (!img || typeof img !== "object") return null;
+  if (BODIES.has(img)) return BODIES.get(img);
+  let body = null;
+  try {
+    const W = img.naturalWidth || img.width, H = img.naturalHeight || img.height;
+    if (W > 40 && H > 40) {
+      const c = canvas(W, H), x = c.getContext("2d", { willReadFrequently: true });
+      x.drawImage(img, 0, 0);
+      const a = x.getImageData(0, 0, W, H).data, on = (i, j) => a[(j * W + i) * 4 + 3] > 128;
+      const first = (n, f) => { for (let k = 0; k < n; k++) if (f(k)) return k; return n; };
+      const med = v => v.sort((p, q) => p - q)[v.length >> 1], rows = [], cols = [];
+      for (let j = Math.round(H * .15); j < H * .85; j += 4) rows.push(j);
+      for (let i = Math.round(W * .3); i < W * .7; i += 4) cols.push(i);
+      const L = med(rows.map(j => first(W, i => on(i, j)))), R = W - 1 - med(rows.map(j => first(W, i => on(W - 1 - i, j))));
+      const T = med(cols.map(i => first(H, j => on(i, j)))), B = H - 1 - med(cols.map(i => first(H, j => on(i, H - 1 - j))));
+      // a corner's radius: the circle that best fits how far in from the straight edge each
+      // row near the corner starts (sx, sy: 1 from the left or top, -1 from the right or bottom)
+      const radius = (sx, sy) => {
+        const x0 = sx > 0 ? L : R, y0 = sy > 0 ? T : B, pts = [];
+        for (let d = 0; d < W * .3; d++) pts.push([d, first(Math.round(W * .4), k => on(x0 + sx * k, y0 + sy * d))]);
+        let best = [Infinity, CORNER * W];
+        for (let r = W * .06; r < W * .3; r += .5) {
+          let e = 0;
+          for (const [d, o] of pts) e += ((d < r ? r - Math.sqrt(r * r - (r - d) ** 2) : 0) - o) ** 2;
+          if (e < best[0]) best = [e, r];
+        }
+        return best[1] / W;
+      };
+      const b = { l: L / W, r: (W - 1 - R) / W, t: T / H, b: (H - 1 - B) / H, rad: [radius(1, 1), radius(-1, 1), radius(-1, -1), radius(1, -1)] };
+      if (Math.max(b.l, b.r, b.t, b.b) < .04 && b.rad.every(r => r > .08 && r < .28)) body = b;
+    }
+  } catch (e) { /* a photo we cannot read: the slab keeps the usual outline */ }
+  BODIES.set(img, body);
+  return body;
 }
 
 function poly(ctx, pts) {
   ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath();
 }
 
-function drawSlab(ctx, p, w, h, flip, face) {
-  const c = Math.cos(flip), s = Math.sin(flip), T = THICKNESS * w, D = (p.lens || LENS) * h, R = CORNER * w;
+function hull(pts) {                               // the convex hull, by the monotone chain
+  const a = pts.slice().sort((p, q) => p[0] - q[0] || p[1] - q[1]), lo = [], up = [];
+  const turn = (o, p, q) => (p[0] - o[0]) * (q[1] - o[1]) - (p[1] - o[1]) * (q[0] - o[0]);
+  for (const q of a) { while (lo.length > 1 && turn(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+  for (let i = a.length - 1; i >= 0; i--) { const q = a[i]; while (up.length > 1 && turn(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+  return lo.slice(0, -1).concat(up.slice(0, -1));
+}
+
+function drawSlab(ctx, p, w, h, flip, face, rot = 0, src = [0, 0, face.width, face.height]) {
+  const c = Math.cos(flip), s = Math.sin(flip), T = (p.design.depth || THICKNESS) * w, D = (p.lens || LENS) * h, R = CORNER * w;
   // local x runs to the screen's right, zl out of the screen; sin > 0 brings the
   // screen's right-hand edge (power) toward the lens, sin < 0 its left (volume)
-  const P = (x, y, zl) => { const X = x * c - zl * s, f = D / (D - (x * s + zl * c)); return [X * f, y * f]; };
-  const seen = c >= 0 ? T / 2 : -T / 2;
-  const rim = outline(w, h, R);
+  // The lens is focused on the face we see, not on the middle of the body: square on, that
+  // face then stands at its photograph's own size. (Focused half a body deeper, it stood half a
+  // percent large, and the phone jumped a pixel and a half where the bare photo took over.)
+  const seen = c >= 0 ? T / 2 : -T / 2, focus = D - seen * c, photo = p.finish === "photo";
+  const P = (x, y, zl) => { const X = x * c - zl * s, f = focus / (D - (x * s + zl * c)); return [X * f, y * f]; };
+  // the back photograph lies mirrored on the slab: its left edge is the slab's right (+x). The
+  // body stands 0.8 px inside the photograph's outline, so the photo's soft edge never shows
+  // the side through it (seen flat, its edge pixels darkened by a pixel's width, then let go)
+  const b = p.body, inset = .8, rim = b
+    ? outline(-w / 2 + b.r * w + inset, -h / 2 + b.t * h + inset, w / 2 - b.l * w - inset, h / 2 - b.b * h - inset, [b.rad[1], b.rad[0], b.rad[3], b.rad[2]].map(r => Math.max(0, r * w - inset)))
+    : outline(-w / 2 + inset, -h / 2 + inset, w / 2 - inset, h / 2 - inset, [R, R, R, R].map(r => r - inset));
   // the side: the outline swept from the hidden face to the seen one, brushed
   // metal dark at both rims with a highlight a little in from the near face
-  const steps = Math.min(30, Math.max(6, Math.ceil(T * Math.abs(s) / 1.2)));
+  // (photo-real slices a body-colour band every 2.4 px, not 1.2, and any band under a pixel in
+  // two or three: each slice costs a fill of the whole body, and its own light is laid over the
+  // side at once. Measured aluminium keeps 1.2 px: its narrow glint, sliced coarser, read lighter.)
+  const steps = photo ? (p.railLin ? Math.min(30, Math.max(T * Math.abs(s) < 1 ? 2 : 3, Math.ceil(T * Math.abs(s) / 1.2)))
+      : Math.min(15, Math.max(T * Math.abs(s) < 1 ? 2 : 3, Math.ceil(T * Math.abs(s) / 2.4))))
+    : Math.min(30, Math.max(6, Math.ceil(T * Math.abs(s) / 1.2)));
+  // Each slice is filled back to a slice and a half behind it: side-on, an outline is only
+  // a line, and outlines alone left a phone at 90 degrees a hairline beside its full shadow
+  // (and slices that only met left a see-through seam where their soft edges touched).
   for (let k = 0; k <= steps; k++) {
-    const u = k / steps, zl = -seen + 2 * seen * u;
-    poly(ctx, rim.map(([x, y]) => P(x, y, zl)));
-    ctx.fillStyle = shade(p.metal, -.34 + .5 * Math.exp(-((u - .62) ** 2) / .03) + .08 * u); ctx.fill();
+    const u = k / steps, zl = -seen + 2 * seen * u, at = rim.map(([x, y]) => P(x, y, zl));
+    const zb = -seen + 2 * seen * Math.max(0, (k - 1.5) / steps);
+    poly(ctx, k ? hull(rim.map(([x, y]) => P(x, y, zb)).concat(at)) : at);
+    // a side measured in its own aluminium (RAIL, the 17 and 18 Pros) is lit as a surface and
+    // averages to that colour; any other is the body's own colour a shade darker, never lighter
+    // than the body (owner, 2026-10-04: "we made sure the sides aren't too light ... darken
+    // them to the proper body color"), the soft highlight only lifting it back toward it
+    ctx.fillStyle = p.railLin ? litRail(p.railLin, u, photo ? SOFTBOX_LIFT : 0) : shade(p.metal, -.3 + .24 * Math.exp(-((u - .62) ** 2) / .03) + .04 * u); ctx.fill();
   }
-  // the controls on the side we see, where Apple puts them
+  if (photo) softboxes(ctx, hull(rim.map(([x, y]) => P(x, y, -seen)).concat(rim.map(([x, y]) => P(x, y, seen)))), rim.map(([x, y]) => P(x, y, seen)),
+    P(0, -h / 2, seen)[1], P(0, h / 2, seen)[1], !!p.railLin, p.glassSub ?? 1);
+  // the controls on the side we see, where Apple puts them. They come into view as that side
+  // turns toward the lens, over the first 3.4 degrees: perspective alone gave them most of a
+  // pixel square on, so they jumped from one edge to the other as the phone passed flat.
   const d = p.design, xs = (s > 0 ? 1 : -1) * w / 2 * 1.003;
   const keys = s > 0 ? ["power", ...(d.camCtrl ? ["camCtrl"] : [])] : [...(d.left ? [d.left] : []), "volUp", "volDown"];
-  for (const key of keys) {
-    const [a0, b0] = CONTROLS[key], y0 = -h / 2 + a0 * h, y1 = -h / 2 + b0 * h, q = T * .22;
+  const shown = clamp(Math.abs(s) / .06), alpha = ctx.globalAlpha;
+  ctx.globalAlpha = alpha * shown;
+  for (const key of shown > 0 ? keys : []) {
+    const [a0, b0] = (d.controls || CONTROLS)[key], y0 = -h / 2 + a0 * h, y1 = -h / 2 + b0 * h, q = T * .22;
     poly(ctx, [P(xs, y0, -q), P(xs, y0, q), P(xs, y1, q), P(xs, y1, -q)]);
-    ctx.fillStyle = key === "camCtrl" ? "#1c1d21" : shade(p.metal, -.38); ctx.fill();
+    // Camera Control sits flush in the rail, filled in the body's colour with a fine seam
+    // round it: drawn dark it read as an empty SIM-tray slot (owner, 2026-10-04: "The camera
+    // control button is body color"). Neither it nor the keys' lit edge is lighter than the body.
+    if (key === "camCtrl") {
+      ctx.fillStyle = shade(p.metal, -.3); ctx.fill();
+      poly(ctx, [P(xs, y0 + 1, -q * .72), P(xs, y0 + 1, q * .72), P(xs, y1 - 1, q * .72), P(xs, y1 - 1, -q * .72)]);
+      ctx.fillStyle = shade(p.metal, -.06); ctx.fill();
+      continue;
+    }
+    ctx.fillStyle = shade(p.metal, -.38); ctx.fill();
     poly(ctx, [P(xs, y0 + 1, q * .1), P(xs, y0 + 1, q * .45), P(xs, y1 - 1, q * .45), P(xs, y1 - 1, q * .1)]);
-    ctx.fillStyle = key === "camCtrl" ? "rgba(255,255,255,.16)" : shade(p.metal, .18); ctx.fill();
+    ctx.fillStyle = shade(p.metal, -.14); ctx.fill();   // a lit edge, still no lighter than the body
   }
+  ctx.globalAlpha = alpha;
   // the face, in thin vertical strips so it recedes; the back is seen from behind
-  const fw = face.width, fh = face.height, X = u => (c >= 0 ? u - .5 : .5 - u) * w;
+  const [sx, sy, fw, fh] = src, X = u => (c >= 0 ? u - .5 : .5 - u) * w;
   const near = P(X(0), 0, seen)[0], far = P(X(1), 0, seen)[0];
-  const n = Math.min(96, Math.max(12, Math.ceil(Math.abs(far - near) / 3)));
+  // (photo-real, through the long lens, widens its strips from 3 px near flat to 8 px once turned
+  // past about 21 degrees: across 8 px the perspective is flat to a fraction of a pixel, and it
+  // draws fewer than half the strips. Gradually, so no angle changes the strips at once, and never
+  // near flat, where wide strips' seams show as the phone settles.)
+  const sw0 = photo && D > 5 * h ? 3 + 5 * clamp((Math.abs(s) - .06) / .3) : 3;
+  const n = Math.min(96, Math.max(12, Math.ceil(Math.abs(far - near) / sw0)));
   for (let i = 0; i < n; i++) {
     const [xa, ta] = P(X(i / n), -h / 2, seen), [xb, tb] = P(X((i + 1) / n), -h / 2, seen);
-    const top = (ta + tb) / 2, x0 = Math.min(xa, xb), dw = Math.abs(xb - xa) + .6;
-    ctx.drawImage(face, i / n * fw, 0, fw / n, fh, x0, top, dw, -2 * top);
+    // each strip overlaps the next by 0.6 px so no seam shows, but never runs past the face, and
+    // the overlap takes in more of the photograph rather than stretching the strip over it
+    const top = (ta + tb) / 2, x0 = Math.min(xa, xb), span = Math.abs(xb - xa);
+    let dw = Math.min(span + .6, Math.max(near, far) - x0), sw = Math.min(fw / n * (span > 1e-6 ? dw / span : 1), fw * (1 - i / n));
+    // the clear border round the photograph comes too, so no hard edge falls on the phone
+    const kx = span / (fw / n), ky = -2 * top / fh;
+    let s0 = sx + i / n * fw, d0 = x0;
+    if (i === 0) { s0 -= PAD; sw += PAD; d0 -= PAD * kx; dw += PAD * kx; }
+    if (i === n - 1) { sw += PAD; dw += PAD * kx; }
+    ctx.drawImage(face, s0, sy - PAD, sw, fh + 2 * PAD, d0, top - PAD * ky, dw, -2 * top + 2 * PAD * ky);
   }
   // light: the face falls off toward the edge turned away from the lens
   const ns = s > 0 ? 1 : -1, k = Math.abs(s);
   const g = ctx.createLinearGradient(P(ns * w / 2, 0, seen)[0], 0, P(-ns * w / 2, 0, seen)[0], 0);
   g.addColorStop(0, `rgba(255,255,255,${.07 * k})`); g.addColorStop(.35, "rgba(0,0,0,0)"); g.addColorStop(1, `rgba(0,0,0,${.3 * k})`);
-  poly(ctx, rim.map(([x, y]) => P(x, y, seen))); ctx.fillStyle = g; ctx.fill();
+  // (photo-real leaves out the fill where it would change no pixel: under 0.4 of a level near flat)
+  if (!photo || k > .005) { poly(ctx, rim.map(([x, y]) => P(x, y, seen))); ctx.fillStyle = g; ctx.fill(); }
+  // a turning back catches the key light (high on the left, where the shadows fall
+  // from): a soft band crosses it, away from the light, as its face turns about 20
+  // degrees toward it. Square to the lens or resting on an edge it is gone, so a still
+  // phone looks as it did and only a moving one shows it. However the phone lies in the
+  // frame the light stays where it is: a turn about its long axis faces it toward the
+  // light only as far as that axis lies across the light (on its side, the turn tips it up).
+  // (photo-real lights the glass its own way, a sheen that slides as the phone turns, so it
+  // leaves this band out)
+  if (c < 0 && !photo) {
+    const ra = -rot * Math.PI / 180, across = Math.cos(ra) + Math.sin(ra);
+    const phi = Math.asin(clamp(-s * across, -1, 1)), uc = .5 + Math.sign(across) * (phi - SHEEN_AT) * 6, a = .13 * clamp(Math.abs(c) * 3);
+    if (a > .004 && uc > -.6 && uc < 1.6) {
+      const xL = Math.min(near, far), xR = Math.max(near, far), xc = lerp(xL, xR, uc), sd = (xR - xL) * .22;
+      const g2 = ctx.createLinearGradient(xc - 2.5 * sd, 0, xc + 2.5 * sd, 0);
+      [[0, 0], [.25, .46], [.5, 1], [.75, .46], [1, 0]].forEach(([u, v]) => g2.addColorStop(u, `rgba(255,255,255,${a * v})`));
+      poly(ctx, rim.map(([x, y]) => P(x, y, seen))); ctx.fillStyle = g2; ctx.fill();
+    }
+  }
+  if (photo) glassAndRim(ctx, p, w, h, s, rot, rim.map(([x, y]) => P(x, y, seen)), Math.abs(c));
 }
 
+// ------------------------------------------------------------ the photo-real finish (rule 124)
+// Chosen by hand ("Phone finish", photo); the standard finish above is drawn as it always was.
+// Its light stays inside rule 114: the band is the standard band with a studio's softboxes
+// reflected down its length, and the reflections only ever take light away between the
+// streaks (each stop at most the standard band's own colour, in linear light, so the hue
+// holds and no part of the side is lighter than the standard side, which is no lighter than
+// the body). The catch-light on the rim is the band's own colour. Only the glass, which is
+// glass, takes a white sheen.
+// The softboxes' reflections, as the share of the standard band's light kept along the
+// phone's length, in linear light: all of it in a streak, less between. Laid over the whole
+// side at once as black (at 1 - kept^(1/2.2), which scales each channel alike, so the hue holds
+// and nothing gets lighter). A side in its measured aluminium is lit brighter by what they take
+// on average (SOFTBOX_LIFT), capped at its standard peak, so it still averages to its colour.
+const SOFTBOX = [[0, .8], [.07, 1], [.19, .7], [.42, 1], [.52, .86], [.76, .68], [.9, .94], [1, .74]];
+// Measured aluminium is lit as a surface already, its light near its peak on the pale ones: it
+// takes the softboxes at a third of the depth (lifted by what that takes), or it could not average to its colour.
+const RAIL_SOFTBOX = SOFTBOX.map(([at, m]) => [at, 1 - (1 - m) / 3]);
+const stopsOf = (box, gain = 1) => box.map(([at, m]) => [at, `rgba(0,0,0,${((1 - m ** (1 / 2.2)) * gain).toFixed(3)})`]);
+const SOFTBOX_STOPS = new Map();                   // by depth and strength (see glassSub)
+const softboxStops = (rail, gain) => {
+  const k = (rail ? "r" : "b") + gain;
+  return SOFTBOX_STOPS.get(k) || SOFTBOX_STOPS.set(k, stopsOf(rail ? RAIL_SOFTBOX : SOFTBOX, gain)).get(k);
+};
+const SOFTBOX_LIFT = 1 / RAIL_SOFTBOX.slice(1).reduce((a, [at, m], i) => a + (at - RAIL_SOFTBOX[i][0]) * (m + RAIL_SOFTBOX[i][1]) / 2, 0);
+function softboxes(ctx, side, face, top, bot, rail, gain = 1) {
+  if (!gain) return;                               // a moment of the shutter it skips (Ad._phonesLayer)
+  const g = ctx.createLinearGradient(0, top, 0, bot);
+  for (const [at, col] of softboxStops(rail, gain)) g.addColorStop(at, col);
+  // the side only: the face drawn over it is cut out, so only the band's pixels are touched
+  // (the face's own outline is inside the side's, so even-odd leaves exactly the band)
+  ctx.beginPath();
+  for (const pts of [side, face]) pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+  ctx.fillStyle = g; ctx.fill("evenodd");
+}
+
+// The part of a convex outline between two lines across it (where t, the share of the way
+// from a to b, runs from t0 to t1): a light that covers only part of the glass is filled only there.
+function slabOf(pts, [ax, ay], [bx, by], t0, t1) {
+  const dx = bx - ax, dy = by - ay, d2 = dx * dx + dy * dy, t = ([x, y]) => ((x - ax) * dx + (y - ay) * dy) / d2;
+  const cut = (q, lim, sg) => {                    // keep the side where sg * (t - lim) >= 0
+    const out = [];
+    for (let i = 0; i < q.length; i++) {
+      const A = q[i], B = q[(i + 1) % q.length], ta = t(A), tb = t(B), ka = sg * (ta - lim) >= 0, kb = sg * (tb - lim) >= 0;
+      if (ka) out.push(A);
+      if (ka !== kb) { const k = (lim - ta) / (tb - ta); out.push([A[0] + (B[0] - A[0]) * k, A[1] + (B[1] - A[1]) * k]); }
+    }
+    return out;
+  };
+  return cut(cut(pts, t0, 1), t1, -1);
+}
+
+// A broad soft sheen across the glass, sliding as the phone turns, and a catch-light
+// on the rim, brightest toward the key light (high on the left, wherever the phone lies in the
+// frame), in the band's own colour. Both change smoothly through flat (nothing flips there) and
+// both go as the glass turns edge on (edgeOn, the face's cosine to the lens).
+function glassAndRim(ctx, p, w, h, s, rot, seenRim, edgeOn) {
+  const gain = p.glassSub ?? 1;                    // Ad._phonesLayer: 0 on the moments it skips
+  if (!gain) return;
+  const ra = rot * Math.PI / 180, dx = Math.cos(ra) - Math.sin(ra), dy = Math.sin(ra) + Math.cos(ra);   // high-left to low-right, in the phone's frame
+  const L = Math.hypot(w, h) / 2, k = L / Math.hypot(dx, dy), x0 = -dx * k, y0 = -dy * k, x1 = dx * k, y1 = dy * k;
+  // the sheen goes as the glass turns edge on: side on, the glass is a line along the rim
+  const at = .36 + .22 * s, a = .1 * gain * clamp(edgeOn * 3), g = ctx.createLinearGradient(x0, y0, x1, y1);
+  g.addColorStop(clamp(at - .16), "rgba(255,255,255,0)"); g.addColorStop(clamp(at), `rgba(255,255,255,${a})`);
+  g.addColorStop(clamp(at + .05), `rgba(255,255,255,${a * .45})`); g.addColorStop(clamp(at + .22), "rgba(255,255,255,0)");
+  const lit = a > .002 ? slabOf(seenRim, [x0, y0], [x1, y1], at - .16, at + .22) : [];
+  if (lit.length > 2) { poly(ctx, lit); ctx.fillStyle = g; ctx.fill(); }
+  // the catch-light goes with the glass too: edge on, the photograph's own rim is all there is.
+  // (It keeps its strength on the moments it is drawn, so in a fast move's blur it is about half.)
+  const [r, gg, b] = hexRgb(p.metal), rg = ctx.createLinearGradient(x0, y0, x1, y1), ka = clamp(edgeOn * 3);
+  if (ka < .01) return;
+  rg.addColorStop(0, `rgba(${r},${gg},${b},${.9 * ka})`); rg.addColorStop(1, `rgba(${r},${gg},${b},${.25 * ka})`);
+  // a ring filled between the outline moved out and in by half its width, not a stroke: a stroke
+  // along an edge lying exactly level is drawn by another rule, and its row jumped as the phone
+  // came flat
+  const half = Math.max(.8, w * .005) / 2;
+  ctx.beginPath();
+  const coarse = seenRim.filter((_, i) => i % 2 === 0);   // a line this fine needs half the corner's points
+  for (const pts of [offsetPoly(coarse, half), offsetPoly(coarse, -half)]) pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+  ctx.fillStyle = rg; ctx.fill("evenodd");
+}
+
+// A convex outline moved out by d (in by -d), each corner along the bisector of its two edges.
+function offsetPoly(pts, d) {
+  let area = 0;
+  for (let i = 0; i < pts.length; i++) { const [x0, y0] = pts[i], [x1, y1] = pts[(i + 1) % pts.length]; area += x0 * y1 - x1 * y0; }
+  const sg = area > 0 ? 1 : -1, n = pts.length, out = [];
+  for (let i = 0; i < n; i++) {
+    const [ax, ay] = pts[(i + n - 1) % n], [bx, by] = pts[i], [cx, cy] = pts[(i + 1) % n];
+    let ux = by - ay, uy = ax - bx, vx = cy - by, vy = bx - cx;          // the two edges' outward normals (for sg > 0)
+    const lu = Math.hypot(ux, uy) || 1, lv = Math.hypot(vx, vy) || 1;
+    ux /= lu; uy /= lu; vx /= lv; vy /= lv;
+    let mx = ux + vx, my = uy + vy; const lm = Math.hypot(mx, my) || 1; mx /= lm; my /= lm;
+    const k = d * sg / Math.max(.5, mx * ux + my * uy);
+    out.push([bx + mx * k, by + my * k]);
+  }
+  return out;
+}
+const BLUR_STEP = 3;                               // px a phone corner may move between two moments of one frame (export)
+/** How an exported video's frames are drawn: 8 moments of the shutter while phones fly, 4
+ *  while they turn over, up to 24 where they move fast enough to need them (Ad._subsFor). */
+export const EXPORT_QUALITY = { subsFly: 8, subsMove: 4, maxSubs: 24 };
+const SHEEN_AT = .35;                              // radians a back turns toward the key light before it catches it full on
+
 /** The screen side, switched off: the band, a black border, OLED glass and the
- *  Dynamic Island as a pill only slightly darker than the glass. Drawn centred. */
-function drawFront(ctx, w, h, metal, glare, rot, flip, cxNorm, notch = false) {
+ *  Dynamic Island as a pill only slightly darker than the glass. Drawn centred.
+ *  `screen`, an image, lights the glass with it (a wallpaper), under the glare
+ *  and the island. */
+function drawFront(ctx, w, h, metal, glare, rot, flip, cxNorm, notch = false, screen = null) {
   const R = CORNER * w;
   rrect(ctx, -w / 2, -h / 2, w, h, R); ctx.fillStyle = metal; ctx.fill();
   const b = 0.014 * w;
   rrect(ctx, -w / 2 + b, -h / 2 + b, w - 2 * b, h - 2 * b, R - b); ctx.fillStyle = "#050506"; ctx.fill();
   const s = b + 0.032 * w, sw = w - 2 * s, sh = h - 2 * s, sr = R - s * 1.05;
   rrect(ctx, -w / 2 + s, -h / 2 + s, sw, sh, sr); ctx.fillStyle = "#111215"; ctx.fill();
+  if (screen) {
+    ctx.save(); rrect(ctx, -w / 2 + s, -h / 2 + s, sw, sh, sr); ctx.clip();
+    ctx.drawImage(screen, -w / 2 + s, -h / 2 + s, sw, sh); ctx.restore();
+  }
   if (glare && glare.strength > 0) {
     ctx.save(); rrect(ctx, -w / 2 + s, -h / 2 + s, sw, sh, sr); ctx.clip();
     const a = (glare.angle + rot) * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
@@ -514,12 +837,41 @@ function shadowSprite(w, h, blur) {
   return { c, pad };
 }
 
+// On a 17 or 18 Pro the sides and the camera plateau are one piece of anodised aluminium,
+// so the side is the plateau's colour, measured off each factory back (the median of two
+// clear patches of plateau; scripts/audit_phone_views.py checks it). index.json's "metal"
+// is read off the back's thin rim, where the studio light catches it: 1.1 to 3.4 times too
+// light on these, the Cosmic Orange's side a peach.
+export const RAIL = {
+  "17-pro-cosmic-orange": "#ed8d50", "17-pro-max-cosmic-orange": "#ee8c50", "17-pro-deep-blue": "#434a61",
+  "17-pro-max-deep-blue": "#434a61", "17-pro-silver": "#d9d9d8", "17-pro-max-silver": "#dadada",
+  "18-pro-burgundy": "#5d333a", "18-pro-max-burgundy": "#5e343b", "18-pro-glacier": "#bbc8d9",
+  "18-pro-max-glacier": "#bbc8da", "18-pro-black": "#262628", "18-pro-max-silver": "#e4e5e2",
+};
+
+// A side whose colour is its metal's own (RAIL) is lit as a surface is: the colour scaled by
+// the light in linear terms, darker at both rims and brightest a little in from the near face,
+// with a faint white glint, so it keeps its hue and averages to itself. Mixed toward black and
+// white, as the rim-read sides still are, a saturated colour went brown at the rims and pale
+// between: the Cosmic Orange's side read peach.
+const toLin = v => (v /= 255) <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4;
+const toSrgb = v => Math.round(255 * (v <= .0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - .055));
+function litRail(lin, u, lift = 0) {
+  // photo-real lifts the light by what its softboxes take away, up to the peak, so the side
+  // still averages to its colour and its brightest is no brighter than the standard's
+  const f0 = .61 + .72 * Math.exp(-((u - .6) ** 2) / .1), f = lift ? Math.min(1.33, f0 * lift) : f0;
+  const glint = .035 * Math.exp(-((u - .64) ** 2) / .006);
+  return `rgb(${lin.map(v => toSrgb(Math.min(1, v * f + glint))).join(",")})`;
+}
+
 const SHADOWS = new Map();
 export class Phone {
   constructor(img, meta, ph) {
     this.img = img; this.meta = meta;
     this.h = ph; this.w = ph * (meta.w / meta.h);
-    this.metal = meta.metal;
+    this.metal = RAIL[meta.id] || meta.metal;
+    this.railLin = RAIL[meta.id] ? hexRgb(RAIL[meta.id]).map(toLin) : null;
+    this.body = bodyOf(img);
     this.design = designOf(meta.model);
     // the same size of phone casts the same shadows: made once (a look lays its phones out
     // afresh for each place it tries for the words)
@@ -527,7 +879,7 @@ export class Phone {
     this.shadows = SHADOWS.get(sk) || SHADOWS.set(sk, [2, 10, 22].map(b => shadowSprite(this.w, this.h, b * ph / 400))).get(sk);
     if (SHADOWS.size > 64) SHADOWS.delete(SHADOWS.keys().next().value);
     Object.assign(this, { home: [0, 0], angle: 0, size: 1, reveal: false, landsBack: false, start: [0, 0], arc: [0, 0],
-      spin: 1, flips: 1, tIn: 0, tLand: 1, tReveal: 99, side: 1, glare: null });
+      spin: 1, flips: 1, tIn: 0, tLand: 1, tReveal: 99, side: 1, glare: null, screen: null, finish: "standard" });
   }
 }
 
@@ -535,15 +887,25 @@ export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShad
   const c = Math.cos(flip), ac = Math.abs(c), front = c >= 0;
   const w = p.w * scale, h = p.h * scale;
   const zz = clamp(z, 0, 1);
-  // shadow: tight when it lies flat, big and soft in the air
-  const si = zz < .33 ? 0 : zz < .66 ? 1 : 2, sh = p.shadows[si];
+  // shadow: tight when it lies flat, big and soft in the air. It softens with the
+  // height, blended between the two nearest blurs (picking one jumped at a third and
+  // two thirds of the way up), and is as wide as the turned body, its edge included.
   if (!noShadow) {                                  // a reflection casts none
+    const f = zz * 2, i0 = Math.min(1, Math.floor(f)), k = f - i0, a = op * .42 * (1 - .55 * zz);
+    let a0 = a * (1 - k), a1 = k > 0 ? (a - a0) / (1 - a0) : 0;   // the two together as dark as one
+    // photo-real (rule 124): resting, the shadow is a contact shadow, darker and drawn in close
+    // under the body. It is the tightest blur's own draw made darker (no draw of its own), and it
+    // goes over the first quarter of the rise, never all at once
+    const cf = p.finish === "photo" ? 1 - inOut(clamp(zz / .25)) : 0;
+    if (cf) a0 += op * .34 * cf * (1 - a0);
     ctx.save();
-    ctx.globalAlpha = op * .42 * (1 - .55 * zz);
-    ctx.translate(x + W * (.006 + .03 * zz), y + W * (.010 + .045 * zz));
+    ctx.translate(x + W * (.006 + .03 * zz) * (1 - .55 * cf), y + W * (.010 + .045 * zz) * (1 - .55 * cf));
     ctx.rotate(-rot * Math.PI / 180);
-    ctx.scale(scale * Math.max(ac, .12), scale);
-    ctx.drawImage(sh.c, -p.w / 2 - sh.pad, -p.h / 2 - sh.pad);
+    ctx.scale(scale * Math.max(ac + (p.design.depth || THICKNESS) * Math.abs(Math.sin(flip)), .02), scale);
+    for (const [sh, al] of [[p.shadows[i0], a0], [p.shadows[i0 + 1], a1]]) {
+      if (al <= .001) continue;
+      ctx.globalAlpha = al; ctx.drawImage(sh.c, -p.w / 2 - sh.pad, -p.h / 2 - sh.pad);
+    }
     ctx.restore();
   }
 
@@ -551,26 +913,21 @@ export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShad
   ctx.globalAlpha = op;
   ctx.translate(x, y);
   ctx.rotate(-rot * Math.PI / 180);
-  if (Math.abs(Math.sin(flip)) > .015) {           // turned: the slab, in perspective
-    let face = p.img;
-    if (front) {
-      const fc = p._front || (p._front = canvas(1, 1));
-      fc.width = Math.ceil(w); fc.height = Math.ceil(h);
-      const fx = fc.getContext("2d"); fx.translate(fc.width / 2, fc.height / 2);
-      drawFront(fx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
-      face = fc;
-    }
-    drawSlab(ctx, p, w, h, flip, face);
-    ctx.restore();
-    return;
+  // The phone is always the slab, in perspective, flat to the lens too: it is built to its
+  // photograph's outline and size, so square on it is the photograph. (Drawn as the bare
+  // photograph near flat, it changed at the hand-over: a dark edge blinked out at 0.86 degrees,
+  // and its buttons jumped edges.)
+  let face = padded(p.img), src = [PAD, PAD, p.img.naturalWidth || p.img.width, p.img.naturalHeight || p.img.height];
+  if (front) {
+    // the screen is drawn at twice the size and taken down, so its hairline frame stays as
+    // crisp as one drawn in place
+    const fc = p._front || (p._front = canvas(1, 1)), ss = 2;
+    fc.width = Math.ceil(w * ss) + 2 * PAD * ss; fc.height = Math.ceil(h * ss) + 2 * PAD * ss;
+    const fx = fc.getContext("2d"); fx.translate(fc.width / 2, fc.height / 2); fx.scale(ss, ss);
+    drawFront(fx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch, p.screen);
+    face = fc; src = [(fc.width - w * ss) / 2, (fc.height - h * ss) / 2, w * ss, h * ss];   // the screen as drawn, not the canvas's rounded-up size
   }
-  ctx.scale(Math.max(ac, .02), 1);
-  if (front) drawFront(ctx, w, h, p.metal, p.glare, rot, flip, x / W, p.design.notch);
-  else ctx.drawImage(p.img, -w / 2, -h / 2, w, h);
-  if (ac < .999) {                                 // turning away from the light
-    rrect(ctx, -w / 2, -h / 2, w, h, CORNER * w);
-    ctx.fillStyle = `rgba(0,0,0,${(1 - ac) * .45})`; ctx.fill();
-  }
+  drawSlab(ctx, p, w, h, flip, face, rot, src);
   ctx.restore();
 }
 
@@ -667,7 +1024,7 @@ const LAID_OUT = {
   },
   // a peacock's tail: all standing out from one point low in the middle
   burst(n, r, tall, PH) {
-    const half = Math.min(66, 20 * (n - 1)), R = PH * .5;
+    const half = Math.min(40, 14 * (n - 1)), R = PH * .5;
     return spots(n, t => { const f = lerp(-half, half, t); const a = f * Math.PI / 180;
       return [R * Math.sin(a), -R * Math.cos(a), -f, 1, -Math.abs(f)]; });
   },
@@ -714,6 +1071,68 @@ const LAID_OUT = {
       });
     }
     return out;
+  },
+  // a clean line-up: one size, upright, a little air between each, standing on one line
+  lineup(n, r, tall, PH, PW) {
+    const step = PW * (tall && n > 3 ? 1.04 : 1.12);
+    return spots(n, (t, i) => [(i - (n - 1) / 2) * step, 0, 0, 1, 0]);
+  },
+  // a shop window: the middle phone large and in front, the others smaller, tucked a third
+  // behind it from the side, all standing on one floor
+  showcase(n, r, tall, PH, PW) {
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o), sc = k ? Math.max(.66, 1.12 - .2 * Math.ceil(k)) : 1.12;
+      let x = 0; for (let j = 1; j <= Math.ceil(k); j++) { const a = j === 1 ? 1.12 : Math.max(.66, 1.12 - .2 * (j - 1)), b = Math.max(.66, 1.12 - .2 * j); x += PW * (a + b) / 2 * .72; }
+      if (n % 2 === 0) x = k < 1 ? PW * .4 : x;
+      return [Math.sign(o) * x, -sc * PH / 2, 0, sc, -k]; });
+  },
+  // wings: the middle upright, each pair beside it leaning out a little more and a little lower
+  wings(n, r, tall, PH, PW) {
+    const lean = r.uniform(7, 11);
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o);
+      return [o * PW * (tall ? 1.02 : 1.1), PH * .05 * k * k, -Math.sign(o) * lean * k, 1 - .06 * k, -k]; });
+  },
+  // a gallery wall: one size, each phone on its own with clear air either side, leaning
+  // a touch outward from the middle
+  gallery(n, r, tall, PH, PW) {
+    const step = PW * (tall && n > 3 ? 1.22 : 1.42);
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2; return [o * step, 0, -Math.sign(o) * 4, 1, 0]; });
+  },
+  // a crown: apart from each other along a gentle arch, the middle highest, each pair
+  // leaning out along it
+  crown(n, r, tall, PH, PW) {
+    const step = PW * (tall ? 1.16 : 1.3);
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o);
+      return [o * step, PH * .07 * k * k, -Math.sign(o) * 7 * k, 1 - .05 * k, -k]; });
+  },
+  // a spotlight: the middle phone large, the rest small and apart, all on one floor
+  spotlight(n, r, tall, PH, PW) {
+    const big = 1.2, sm = .68;
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o), sc = k < .75 ? big : sm;
+      const x = k < .75 ? o * PW * .7 : Math.sign(o) * (PW * big / 2 + PW * .22 + PW * sm / 2 + (Math.ceil(k) - 1) * PW * (sm + .2));
+      return [n % 2 ? x : (k < 1 ? Math.sign(o) * PW * .62 : x), -sc * PH / 2, 0, sc, -k]; });
+  },
+  // leaning in: the middle upright and in front, its neighbours tucked behind it from the
+  // side and leaning in toward it
+  lean_in(n, r, tall, PH, PW) {
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o);
+      return [o * PW * .78, PH * .03 * k, Math.sign(o) * 8 * k, 1 - .08 * k, -k]; });
+  },
+  // a row all leaning the same way, evenly apart: one angle for the whole set
+  tilt_row(n, r, tall, PH, PW) {
+    const lean = (r() < .5 ? -1 : 1) * r.uniform(8, 12), step = PW * (tall && n > 3 ? 1.08 : 1.2);
+    return spots(n, (t, i) => [(i - (n - 1) / 2) * step, 0, lean, 1, 0]);
+  },
+  // the middle phone risen a little above its neighbours, all one size, each tucked a
+  // quarter behind the one nearer the middle
+  rise(n, r, tall, PH, PW) {
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, k = Math.abs(o);
+      return [o * PW * .8, k ? PH * .04 * k : -PH * .06, 0, 1, -k]; });
+  },
+  // a fanfare: the middle upright and in front, the rest fanned out behind it from its foot
+  fanfare(n, r, tall, PH, PW) {
+    const half = Math.min(30, 11 * (n - 1)), R = PH * .62;
+    return spots(n, (t, i) => { const o = i - (n - 1) / 2, f = (n > 1 ? lerp(-half, half, t) : 0) * Math.PI / 180;
+      return [R * Math.sin(f) * 1.15, -R * Math.cos(f), -f * 180 / Math.PI, 1 - .04 * Math.abs(o), -Math.abs(o)]; });
   },
   // an arrow: two arms meeting at the phone in front
   chevron(n, r, tall, PH, PW) {
@@ -778,6 +1197,10 @@ const LAID_OUT = {
       return [Math.sin(th) * Rx, c * Ry, -Math.sin(th) * 8, .72 + .34 * (c + 1) / 2, c]; });
   },
 };
+
+/** The styled sets drawn as mirror images about the middle phone. */
+const MIRRORED = new Set(["fan", "arc", "vee", "hand", "burst", "podium", "bookends", "tents", "headliner", "wings", "showcase", "lineup",
+  "gallery", "crown", "spotlight", "lean_in", "rise", "fanfare"]);
 
 /** n spots from f(t, i), t running 0..1 along them. */
 const spots = (n, f) => Array.from({ length: n }, (_, i) => f(n > 1 ? i / (n - 1) : .5, i));
@@ -847,21 +1270,52 @@ function inOutline(P, [x, y]) {
   for (let i = 0, j = P.length - 1; i < P.length; j = i++) if ((P[i][1] > y) !== (P[j][1] > y) && x < (P[j][0] - P[i][0]) * (y - P[i][1]) / (P[j][1] - P[i][1]) + P[i][0]) c = !c;
   return c;
 }
-/** How much of each phone's back shows past the phones drawn over it, 0..1, on a grid of points. */
-function phonesShowing(phones, order) {
-  const Ps = phones.map(landedOutline), out = phones.map(() => 1);
-  order.forEach((i, k) => {
-    const P = Ps[i], over = order.slice(k + 1).map(j => Ps[j]).filter(Q => outlinesMeet(P, Q));
-    if (!over.length) return;
-    let n = 0, v = 0;
-    for (let a = 0; a < 8; a++) for (let b = 0; b < 14; b++) {
-      const u = (a + .5) / 8, w = (b + .5) / 14;
-      const q = [P[0][0] + (P[1][0] - P[0][0]) * u + (P[3][0] - P[0][0]) * w, P[0][1] + (P[1][1] - P[0][1]) * u + (P[3][1] - P[0][1]) * w];
-      n++; if (!over.some(Q => inOutline(Q, q))) v++;
-    }
-    out[i] = v / n;
-  });
+
+// ------------------------------------------------------------ the set's colours
+/* Owner, 2026-10-02: "try not to use too many similar tone devices ... maybe 2 of the same
+   colour but the middle one we could use an orange 17 Pro Max or a burgundy 18 Pro Max".
+   A phone's tone is read off its metal; the set keeps at most two of a tone, the boldest
+   finish stands in the middle, and no two of a tone stand side by side where it can help. */
+export const PHONE_META = {};
+const unitRgb = h => { const n = parseInt(String(h || "#888888").slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255].map(v => v / 255); };
+function toneOf(meta) {
+  const [r, g, b] = unitRgb(meta && meta.metal), mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, sat = mx - mn;
+  if (sat < .14) return l > .62 ? "light" : l < .3 ? "dark" : "grey";
+  let h = mx === r ? ((g - b) / sat) % 6 : mx === g ? (b - r) / sat + 2 : (r - g) / sat + 4; h = (h * 60 + 360) % 360;
+  return h < 18 || h >= 340 ? (l < .45 ? "burgundy" : "red") : h < 45 ? "orange" : h < 70 ? "gold" : h < 170 ? "green" : h < 205 ? "teal" : h < 255 ? "blue" : h < 290 ? "purple" : "pink";
+}
+function boldness(meta) {
+  const [r, g, b] = unitRgb(meta && meta.metal), mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+  const named = /cosmic orange/i.test(meta && meta.finish || "") || /burgundy/i.test(meta && meta.finish || "") ? .45 : 0;
+  return (mx - mn) * (1 - Math.abs(l - .45)) + named + (/pro max/i.test(meta && meta.model || "") ? .05 : 0);
+}
+/** n phones from a pool: at most two of a tone, and one bold finish where the pool has one. */
+export function pickPhones(pool, n, r) {
+  const ids = pool.slice(); for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; }
+  const meta = id => PHONE_META[id], out = [], count = {};
+  const bold = ids.filter(id => meta(id) && boldness(meta(id)) > .55);
+  if (bold.length) {                                       // orange or burgundy, turn about
+    const tones = [...new Set(bold.map(id => toneOf(meta(id))))], t = tones[Math.floor(r() * tones.length)];
+    const id = bold.find(b => toneOf(meta(b)) === t); out.push(id); count[t] = 1;
+  }
+  for (const id of ids) { if (out.length >= n) break; if (out.includes(id)) continue; const t = toneOf(meta(id)); if ((count[t] || 0) >= 2) continue; out.push(id); count[t] = (count[t] || 0) + 1; }
+  for (const id of ids) { if (out.length >= n) break; if (!out.includes(id)) out.push(id); }
   return out;
+}
+/** The order the phones stand in, left to right: the boldest in the middle, then outward,
+ *  never two of a tone side by side where another can go between. */
+function orderByTone(ids, metaOf) {
+  const n = ids.length; if (n < 3) return ids;
+  const left = ids.slice().sort((a, b) => boldness(metaOf(b)) - boldness(metaOf(a)) || ids.indexOf(a) - ids.indexOf(b));
+  const slots = new Array(n), m = Math.floor((n - 1) / 2);
+  slots[m] = left.shift();
+  const order = []; for (let k = 1; k < n; k++) { if (m - k >= 0) order.push(m - k); if (m + k < n) order.push(m + k); }
+  for (const s of order) {
+    const nb = [slots[s - 1], slots[s + 1]].filter(Boolean).map(id => toneOf(metaOf(id)));
+    const i = left.findIndex(id => !nb.includes(toneOf(metaOf(id))));
+    slots[s] = left.splice(i < 0 ? 0 : i, 1)[0];
+  }
+  return slots;
 }
 
 // ------------------------------------------------------------ how they get there
@@ -944,10 +1398,12 @@ const H0 = p => p.h * p.size;
 // The two angles that keep moving (a turntable sway, one wide spin) start from
 // flat once the phones settle; see phoneState0.
 const POSE_TURN = { flat: 0, edge_left: -.6, edge_right: .6 };
+// Side on, by hand only (rule 124): turned 60 degrees, the buttons' edge toward the lens.
+const POSE_SIDE = { profile_left: -1.05, profile_right: 1.05 };
 
 function phoneState(p, t, st) {
   const s = phoneState0(p, t, st);
-  const turn = POSE_TURN[st.pose] || 0;
+  const turn = POSE_TURN[st.pose] || POSE_SIDE[st.pose] || 0;
   if (s && turn) s[4] += turn;
   return s;
 }
@@ -1078,7 +1534,7 @@ function phoneState0(p, t, st) {
   }
   return [hx, hy, s, rot, flip, z, 1];
 }
-const PHONE_TURN = 22 * Math.PI / 180;
+const PHONE_TURN = 14 * Math.PI / 180;     // a flat photo carries a gentle turn; 22 degrees read as warped
 
 // ------------------------------------------------------------ type
 
@@ -1231,7 +1687,7 @@ export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew =
       strokeAll("#2a1a00", size * .07); noShadow(); fillAll(g4); break;
     }
     case "long_shadow": {
-      const L = Math.round(size * .35), col = shade(p.ground, -.45);
+      const L = Math.round(size * .35), col = shade(p.ground, darkInk ? -.15 : -.45);   // never dark under dark letters (owner, 2026-10-03)
       for (let k = L; k >= 1; k -= 1) { ctx.save(); ctx.translate(k, k); fillAll(col); ctx.restore(); }
       fillAll(); break;
     }
@@ -1288,7 +1744,48 @@ export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew =
       const base = !darkInk && contrastOf(accent, p.ground) >= 4.5 ? accent : ink;
       const g5 = ctx.createLinearGradient(0, pad, 0, pad + asc);
       [[0, shade(base, .55)], [.44, base], [.52, shade(base, -.28)], [.6, shade(base, .3)], [1, shade(base, -.08)]].forEach(([o, c2]) => g5.addColorStop(o, c2));
-      ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .04; fillAll(g5); break;
+      ctx.shadowColor = darkInk ? shadowCol : "rgba(0,0,0,.45)"; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .04; fillAll(g5); break;
+    }
+    // more treatments (owner, 2026-10-04: "now more")
+    case "pop_stack": {
+      // two offset copies behind the letters: the accent, then a deeper shade of it, a retro print
+      const d = Math.max(2, size * .045), deep = shade(accent, lum(accent) > .5 ? -.45 : -.3);
+      ctx.save(); ctx.translate(d * 2, d * 2); fillAll(deep); ctx.restore();
+      ctx.save(); ctx.translate(d, d); each((ch, cx, cy, c0) => { ctx.fillStyle = contrastOf(c0, accent) < 2.5 ? shade(c0, lum(c0) > .5 ? -.55 : .5) : accent; ctx.fillText(ch, cx, cy); }); ctx.restore();
+      fillAll(); break;
+    }
+    case "outline_shadow": {
+      // a thick keyline in the deep ground and a hard shadow under it
+      const line = darkInk ? "#ffffff" : shade(p.ground, -.6), d = Math.max(2, size * .05);
+      ctx.save(); ctx.translate(d, d); strokeAll(line, size * .16); fillAll(line); ctx.restore();
+      strokeAll(line, size * .12); fillAll(); break;
+    }
+    case "underline_bar": {
+      // a solid bar of the accent under the line, the letters standing on it
+      const bc = Math.abs(lum(accent) - lum(ink)) > .25 ? accent : (darkInk ? "#ffd60a" : shade(p.ground, -.5));
+      ctx.fillStyle = bc; ctx.fillRect(pad - size * .06, by + desc * .1, inkW + size * .12, Math.max(3, size * .12));
+      ctx.shadowColor = shadowCol; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .03; fillAll(); break;
+    }
+    case "stamped": {
+      // inked with a rubber stamp: the letters knocked back in small specks, always the same specks
+      fillAll();
+      ctx.save(); ctx.globalCompositeOperation = "destination-out";
+      const n = Math.round(inkW * asc / (size * size) * 90);
+      for (let i = 0; i < n; i++) {
+        const u = (Math.sin(i * 12.9898 + chars.length * 78.233) * 43758.5453) % 1, v = (Math.sin(i * 39.3468 + size) * 24634.6345) % 1;
+        const rr = size * (.012 + .02 * Math.abs((Math.sin(i * 7.1) * 9631.7) % 1));
+        ctx.globalAlpha = .55 + .4 * Math.abs((Math.sin(i * 3.3) * 4219.9) % 1);
+        ctx.beginPath(); ctx.arc(pad + Math.abs(u) * inkW, pad + Math.abs(v) * (asc + desc * .3), rr, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.restore(); break;
+    }
+    case "inline": {
+      // a sign-painter's inline: a thin line of the ground drawn inside each letter
+      ctx.shadowColor = shadowCol; ctx.shadowBlur = size * .08; ctx.shadowOffsetY = size * .03; fillAll(); noShadow();
+      ctx.save(); ctx.globalCompositeOperation = "source-atop"; strokeAll(darkInk ? "#ffffff" : p.ground, Math.max(1, size * .022)); ctx.restore();
+      fillAll(); ctx.save(); ctx.globalCompositeOperation = "source-atop"; ctx.globalAlpha = .55;
+      ctx.translate(-size * .012, -size * .012); strokeAll(darkInk ? "#ffffff" : mix(ink, p.ground, .5), Math.max(1, size * .014)); ctx.restore();
+      break;
     }
     default: fillAll();
   }
@@ -1309,7 +1806,7 @@ class Line {
       });
     }
     this.plate = null;
-    if (st.text_fx === "box") {
+    if (st.text_fx === "box" && text.trim()) {                // a blank line has no box (an empty plate read as a stray grey square)
       const px = size * .22, py = size * .07;
       const w = this.inkW + px * 2, h = this.asc * .92 + py * 2;
       const pc = canvas(w + Math.abs(Math.tan(st.skew * Math.PI / 180)) * h + 2, h), x = pc.getContext("2d");
@@ -1377,7 +1874,28 @@ function numberSprite(st, p, size, cta) {
   const sp = inkSprite(text, colors, font, size, st.tracking * .5, fx, p, 0);
   const bodyH = sp.asc + sp.desc;
   let out;
-  if (onPlate || style === "outline") {
+  if (style === "tag") {
+    // a swing tag (owner, 2026-10-04: "shrink the number 10% and scoot it up ... to
+    // essentially center it and give it proper margin so it's not right next to the dot"):
+    // the plate as it was, the figures 10% smaller, centred on the plate by their own ink,
+    // starting a clear gap after the hole so the tag reads as a tag
+    const px = size * .45, py = size * .14, H = sp.asc * .95 + py * 2;
+    const s2 = inkSprite(text, colors, font, size * .9, st.tracking * .5, fx, p, 0);
+    const m = canvas(4, 4).getContext("2d"); m.font = fontCss(font, size * .9);
+    const ink = m.measureText(text), up = ink.actualBoundingBoxAscent || s2.asc * .72, down = ink.actualBoundingBoxDescent || 0;
+    const hole = H * .45, holeR = H * .09, lead = hole + holeR + H * .26;
+    const W = lead + s2.inkW + px * .9;
+    const c = canvas(W + 24, H + 24), x = c.getContext("2d");
+    x.translate(6, 6);
+    x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 14; x.shadowOffsetY = 6;
+    x.beginPath(); x.moveTo(3 + H * .45, 3); x.lineTo(3 + W, 3); x.lineTo(3 + W, 3 + H); x.lineTo(3 + H * .45, 3 + H); x.lineTo(3, 3 + H / 2); x.closePath();
+    x.fillStyle = p.plate; x.fill(); x.restore();
+    x.beginPath(); x.arc(3 + hole, 3 + H / 2, holeR, 0, 7); x.fillStyle = p.ground; x.fill();
+    // the figures' ink centred on the plate: baseline at the middle plus half their height
+    const base = 3 + H / 2 + (up - down) / 2;
+    x.drawImage(s2.c, 3 + lead - s2.pad, base - (s2.pad + s2.asc));
+    out = c;
+  } else if (onPlate || style === "outline") {
     const px = size * .45, py = size * .14;
     const W = sp.inkW + px * 2, H = sp.asc * .95 + py * 2;
     const c = canvas(W + 24, H + 24), x = c.getContext("2d");
@@ -1450,7 +1968,7 @@ function background(st, p, W, H, sc, r) {
   const [cx, cy] = sc;
   const radial = (k = .75) => { const gr = x.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(W, H) * k); gr.addColorStop(0, l); gr.addColorStop(1, g); return gr; };
   x.fillStyle = g; x.fillRect(0, 0, W, H);
-  if (candidateGround(st.background, x, st, p, W, H, sc, r) || themeGround(st.background, x, st, p, W, H, sc, r) || vibeBackground(st.background, x, st, p, W, H, sc, r)) {
+  if (candidateGround(st.background, x, st, p, W, H, sc, r) || freshGround(st.background, x, st, p, W, H, sc, r) || themeGround(st.background, x, st, p, W, H, sc, r) || vibeBackground(st.background, x, st, p, W, H, sc, r)) {
     const vg0 = x.createRadialGradient(cx, cy, Math.hypot(W, H) * .35, cx, cy, Math.hypot(W, H) * .8);
     vg0.addColorStop(0, "rgba(0,0,0,0)"); vg0.addColorStop(1, "rgba(0,0,0,.2)"); x.fillStyle = vg0; x.fillRect(0, 0, W, H);
     if (st.grain) { const nc = noiseTile(256, st.seed, 12); x.globalAlpha = .3; x.fillStyle = x.createPattern(nc, "repeat"); x.fillRect(0, 0, W, H); x.globalAlpha = 1; }
@@ -1734,8 +2252,11 @@ export class Ad {
     const st = this.st, W = this.W, H = this.H;
     const s = stage(st, W, H);
     this.stageC = [s.cx, s.cy]; this.stageSpan = [s.cx - s.hw, s.cx + s.hw];
-    const ids = (st.phones || []).filter(id => this.assets.phones[id]);
-    const spots = arrangement(st.arrangement, ids.length, this.r, W / H < .85, { ...s, W, H });
+    const lr = orderByTone((st.phones || []).filter(id => this.assets.phones[id]), id => this.assets.phones[id].meta);
+    const spots = arrangement(st.arrangement, lr.length, this.r, W / H < .85, { ...s, W, H });
+    // the tones' left-to-right order, onto the layout's spots as they stand left to right
+    const ids = new Array(lr.length);
+    spots.map((sp, i) => i).sort((a, b) => spots[a][0] - spots[b][0] || a - b).forEach((i, k) => { ids[i] = lr[k]; });
     this.phones = ids.map((id, i) => {
       const a = this.assets.phones[id];
       const p = new Phone(a.img, a.meta, s.ph);
@@ -1746,6 +2267,7 @@ export class Ad {
       p.reveal = endsBack && !p.landsBack;
       p.glare = new Glare(rng(st.seed * 101 + i), st.glare);
       p.lens = st.pose === "wide_spin" ? WIDE_LENS : LENS;      // a wide lens makes the spin wide
+      p.finish = st.phone_finish === "photo" ? "photo" : "standard";   // rule 124, chosen by hand
       p.turnSide = st.seed % 2 ? 1 : -1; p.order = i;           // every phone turns the same way
       return p;
     });
@@ -1760,8 +2282,88 @@ export class Ad {
       this.stageC = [P.stageC[0] * W, P.stageC[1] * H]; this.stageSpan = [P.stageSpan[0] * W, P.stageSpan[1] * W];
       return;
     }
-    this._spreadPhones();
+    this._tidyPhones();
     this._phonesInFrame();
+  }
+
+  /** The set's house rules (owner, 2026-10-02, over phones stacked on each other):
+   *  - one angle: every phone leans the same way ("don't mix angles")
+   *  - side by side only: a phone may tuck behind a neighbour from the side, never from
+   *    above or below ("from the sides not the top"); stacked phones part sideways
+   *  - at most half: a tucked phone shows at least half of itself, and phones that do not
+   *    touch keep a little air between them ("allow them some space ... to breathe")
+   *  - the middle phone stands on the stage's centre, in front, its neighbours mirrored
+   *    on either side ("the middle phone should be centered, it would look more clean")
+   *  Only across the stage the layout gave them; where that is not enough, they all stand
+   *  a little smaller. */
+  _tidyPhones() {
+    const phones = this.phones, n = phones.length;
+    if (!n) return;
+    const W = this.W, H = this.H, mg = Math.min(W, H) * .03, cx = this.stageC[0];
+    const byX = () => phones.map((_, i) => i).sort((a, b) => phones[a].home[0] - phones[b].home[0]);
+    if (MIRRORED.has(this.st.arrangement) && n > 1) {         // a styled set: each pair a mirror image, the middle upright
+      const o = byX(), half = Math.floor(n / 2);
+      for (let k = 0; k < half; k++) {
+        const L = phones[o[k]], R = phones[o[n - 1 - k]], a = (Math.abs(L.angle) + Math.abs(R.angle)) / 2, sg = Math.sign(L.angle - R.angle) || 0;
+        L.angle = sg * a; R.angle = -sg * a;
+        const y = (L.home[1] + R.home[1]) / 2, sz = (L.size + R.size) / 2;
+        L.home[1] = R.home[1] = y; L.size = R.size = sz;
+      }
+      if (n % 2) phones[o[(n - 1) / 2]].angle = 0;
+    } else {                                                 // otherwise one lean for all
+      const angs = phones.map(p => p.angle).sort((a, b) => a - b), common = clamp(angs[Math.floor((n - 1) / 2)], -12, 12);
+      phones.forEach(p => { p.angle = common; });
+    }
+    if (n < 2) { phones[0].home[0] = cx; return; }
+    // drawn from the outside in, so the middle stands in front
+    const xo = byX(), mid = (n - 1) / 2;
+    this.drawOrder = xo.map((i, k) => [i, Math.abs(k - mid)]).sort((a, b) => b[1] - a[1]).map(q => q[0]);
+    const outline = (p, e = 0) => { const hw = p.w * p.size / 2 + e, hh = p.h * p.size / 2 + e, th = -p.angle * Math.PI / 180, c = Math.cos(th), sn = Math.sin(th);
+      return [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].map(([x, y]) => [p.home[0] + x * c - y * sn, p.home[1] + x * sn + y * c]); };
+    const hidden = (back, fronts) => { const P = outline(back), Qs = fronts.map(f => outline(f)).filter(Q => outlinesMeet(P, Q)); if (!Qs.length) return 0; let h = 0, m = 0;
+      for (let a = 0; a < 8; a++) for (let b = 0; b < 14; b++) { const u = (a + .5) / 8, w = (b + .5) / 14, q = [P[0][0] + (P[1][0] - P[0][0]) * u + (P[3][0] - P[0][0]) * w, P[0][1] + (P[1][1] - P[0][1]) * u + (P[3][1] - P[0][1]) * w]; m++; if (Qs.some(Q => inOutline(Q, q))) h++; }
+      return h / m; };
+    const front = (i, j) => this.drawOrder.indexOf(i) > this.drawOrder.indexOf(j);
+    const sp = this.stageSpan, pwMax = Math.max(...phones.map(p => p.w * p.size));
+    const xs = () => { let x0 = Infinity, x1 = -Infinity; for (const p of phones) for (const [x] of outline(p)) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); } return [x0, x1]; };
+    const [g0, g1] = xs(), room = [Math.min(g0, Math.max(mg, sp[0] - pwMax / 2)), Math.max(g1, Math.min(W - mg, sp[1] + pwMax / 2))];
+    const fits = () => { const [x0, x1] = xs(); return x0 >= room[0] - 1 && x1 <= room[1] + 1; };
+    const mirror = () => {                                   // the middle on the centre, neighbours mirrored
+      const o = byX(), xsv = o.map(i => phones[i].home[0]), half = Math.floor(n / 2);
+      for (let k = 0; k < half; k++) {
+        const d = Math.max(0, (xsv[n - 1 - k] - xsv[k]) / 2);
+        phones[o[k]].home[0] = cx - d; phones[o[n - 1 - k]].home[0] = cx + d;
+      }
+      if (n % 2) phones[o[(n - 1) / 2]].home[0] = cx;
+    };
+    const breach = () => {                                   // the worst rule broken, and the pairs that break it
+      const bad = [], ph = phones.reduce((a, p) => a + p.h * p.size, 0) / n, gap = phones.reduce((a, p) => a + p.w * p.size, 0) / n * .05;
+      // side by side when the two share nearly all the smaller one's height; otherwise one is above the other
+      const ys = phones.map(p => { const O = outline(p); return [Math.min(...O.map(q => q[1])), Math.max(...O.map(q => q[1]))]; });
+      const stacked = (i, j) => Math.min(ys[i][1], ys[j][1]) - Math.max(ys[i][0], ys[j][0]) < .9 * Math.min(ys[i][1] - ys[i][0], ys[j][1] - ys[j][0]);
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++)
+        if (stacked(i, j) && outlinesMeet(outline(phones[i], gap), outline(phones[j], gap))) bad.push([i, j]);
+      for (let i = 0; i < n; i++) {                          // what all its neighbours in front hide of it, together
+        const fr = phones.map((_, j) => j).filter(j => j !== i && !stacked(i, j) && front(j, i));
+        if (hidden(phones[i], fr.map(j => phones[j])) > .36) for (const j of fr) if (outlinesMeet(outline(phones[i]), outline(phones[j]))) bad.push([i, j]);
+      }
+      return bad;
+    };
+    mirror();
+    for (let k = 0; k < 9; k++) {
+      for (let it = 0; it < 60; it++) {
+        const bad = breach(); if (!bad.length) break;
+        for (const [i, j] of bad) {                          // part sideways, outward from the centre
+          const a = phones[i], b = phones[j], step = pwMax * .035, d = a.home[0] <= b.home[0] ? 1 : -1;
+          a.home[0] -= d * step; b.home[0] += d * step;
+        }
+        mirror();
+      }
+      if (!breach().length && fits()) break;
+      // no room left: the set, smaller, from its own middle
+      for (const p of phones) { p.size *= .94; p.home[0] = cx + (p.home[0] - cx) * .94; }
+      mirror();
+    }
   }
 
   /** No phone is cut by the edge of the frame where the camera settles (giants bleed on
@@ -1785,63 +2387,6 @@ export class Ad {
     if (!dx && !dy) return;
     for (const p of this.phones) p.home = [p.home[0] + dx, p.home[1] + dy];
     this.stageC = [this.stageC[0] + dx, this.stageC[1] + dy];
-  }
-
-  /** Every phone shows most of its back. A back is how a buyer knows the model, and a
-   *  phone buried under two others is a colour, not a phone. Where a layout stacks them
-   *  (a pile, a tower, a hero's satellites) the phones that hide too much of one another
-   *  are pushed apart along the line between them, across the stage the layout gave them
-   *  (never up or down into the words' room, nor past the frame's edge), and only where pushing is not enough do they
-   *  all stand a little smaller. A layout that already shows every back draws as it did.
-   *  (Owner, 2026-09-30, over a mural look whose four phones sat in one clump: "poor phone
-   *  placement, overlapping excessively". Audit of 400 random looks: 144 had a phone less
-   *  than half visible, from pile, tower, hero, spiral, crossed and pairs.) */
-  _spreadPhones() {
-    const SHOW = .68, MIN_K = .72, phones = this.phones, order = this.drawOrder, n = phones.length;
-    if (n < 2) return;
-    const W = this.W, H = this.H, mg = Math.min(W, H) * .03;
-    let vis = phonesShowing(phones, order);
-    if (Math.min(...vis) >= SHOW) return;
-    const bbox = () => { let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-      for (const P of phones.map(landedOutline)) for (const [x, y] of P) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
-      return [x0, y0, x1, y1]; };
-    const b0 = bbox();
-    // they part across the stage the layout gave them, never up or down into the words' room
-    const sp = this.stageSpan, pw = Math.max(...phones.map(p => p.w * p.size)) / 2;
-    const room = [Math.min(b0[0], Math.max(mg, sp[0] - pw)), b0[1], Math.max(b0[2], Math.min(W - mg, sp[1] + pw)), b0[3]];
-    const keepIn = p => {
-      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-      for (const [x, y] of landedOutline(p)) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
-      p.home[0] += Math.max(0, room[0] - x0) - Math.max(0, x1 - room[2]);
-      p.home[1] += Math.max(0, room[1] - y0) - Math.max(0, y1 - room[3]);
-    };
-    // the group's middle: a pair on top of each other parts sideways from it
-    const mid = [(b0[0] + b0[2]) / 2, (b0[1] + b0[3]) / 2];
-    for (let k = 1; ; k *= .94) {
-      for (let it = 0; it < 40 && Math.min(...vis) < SHOW; it++) {
-        const Ps = phones.map(landedOutline);
-        order.forEach((i, a) => {
-          if (vis[i] >= SHOW) return;
-          for (const j of order.slice(a + 1)) {
-            if (!outlinesMeet(Ps[i], Ps[j])) continue;
-            const pi = phones[i], pj = phones[j];
-            let dx = pj.home[0] - pi.home[0], dy = pj.home[1] - pi.home[1];
-            if (Math.hypot(dx, dy) < pi.w * pi.size * .05) { dx = (pj.home[0] - mid[0]) || (i < j ? 1 : -1); dy = 0; }
-            // phones stand tall: parting sideways uncovers a back fastest
-            const d = Math.hypot(dx, dy * .6) || 1, step = pi.w * Math.min(pi.size, pj.size) * .06 * (SHOW - vis[i] + .1) / .4;
-            pi.home[0] -= dx / d * step; pi.home[1] -= dy * .6 / d * step;
-            pj.home[0] += dx / d * step; pj.home[1] += dy * .6 / d * step;
-          }
-        });
-        phones.forEach(keepIn);
-        vis = phonesShowing(phones, order);
-      }
-      if (Math.min(...vis) >= SHOW || k * .94 < MIN_K) break;
-      for (const p of phones) { p.size *= .94; keepIn(p); }
-      vis = phonesShowing(phones, order);
-    }
-    const b1 = bbox();
-    this.stageC = [this.stageC[0] + ((b1[0] + b1[2]) - (b0[0] + b0[2])) / 2, this.stageC[1] + ((b1[1] + b1[3]) - (b0[1] + b0[3])) / 2];
   }
 
   _timeline() {
@@ -2163,7 +2708,7 @@ export class Ad {
     // every other place for the words with the look's own layout, then, only if none is
     // clean, the calmer layouts in every place
     const order = places.filter(p => p !== snap.st.text_pos).map(p => [p, snap.st.arrangement]);
-    for (const a of ["fan", "row"]) if (a !== snap.st.arrangement) for (const p of places) order.push([p, a]);
+    for (const a of ["lineup", "showcase"]) if (a !== snap.st.arrangement) for (const p of places) order.push([p, a]);
     const firstCalm = places.length - 1;
     const r0 = this.r;
     const lay = ([alt, arr], k) => {
@@ -2551,10 +3096,41 @@ export class Ad {
     target.drawImage(c, 0, 0, cw, ch, x - half, yb, cw, ch);
   }
 
-  _phonesLayer(t, dt, quality) {
-    if (this.still && !this.liveGround && !this.livePhones) return this.still;
+  /** How far, in pixels, the furthest-travelling corner of any phone moves while one
+   *  frame's shutter is open (the slab's turn counts: an edge sweeping across the face). */
+  _shutterTravel(t, dt) {
+    const span = dt * .55, n = 8;
+    let most = 0;
+    for (const p of this.phones) {
+      let prev = null, d = 0;
+      for (let k = 0; k <= n; k++) {
+        const s = phoneState(p, t + (k / n - .5) * span, this.st);
+        if (!s) { prev = null; continue; }
+        const [x, y, sc, rot, flip] = s, hw = p.w * sc / 2 * Math.cos(flip), hh = p.h * sc / 2;
+        const a = -rot * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+        const pts = [[hw, hh], [-hw, hh], [hw, -hh], [-hw, -hh]].map(([u, v]) => [x + u * ca - v * sa, y + u * sa + v * ca]);
+        if (prev) d += Math.max(...pts.map((q, i) => Math.hypot(q[0] - prev[i][0], q[1] - prev[i][1])));
+        prev = pts;
+      }
+      most = Math.max(most, d);
+    }
+    return most;
+  }
+
+  /** How many moments of the shutter one frame's phones are drawn at. An export takes as
+   *  many as the motion needs for no corner to jump more than BLUR_STEP px between two of
+   *  them: a fixed 8 left a fast spin as a fan of separate copies, on frame 0 too, which is
+   *  the thumbnail. The preview keeps its fixed few, to play live. */
+  _subsFor(t, dt, quality) {
     const flying = t < this.tl.landed + .02, moving = t < this.tl.revealEnd + .05;
     const subs = flying ? quality.subsFly : moving ? quality.subsMove : 1;
+    if (subs <= 1 || !(quality.maxSubs > subs)) return subs;
+    return Math.min(quality.maxSubs, Math.max(subs, Math.ceil(this._shutterTravel(t, dt) / BLUR_STEP) + 1));
+  }
+
+  _phonesLayer(t, dt, quality) {
+    if (this.still && !this.liveGround && !this.livePhones) return this.still;
+    const subs = this._subsFor(t, dt, quality);
     const ax = this.acc.getContext("2d"), tx = this.tmp.getContext("2d");
     for (let s = 0; s < subs; s++) {
       const ts = subs > 1 ? t + (s / (subs - 1) - .5) * dt * .55 : t;
@@ -2567,6 +3143,10 @@ export class Ad {
         const p = this.phones[i], stt = phoneState(p, ts, this.st);
         if (!stt) continue;
         if (refl) this._reflect(target, p, stt);
+        // photo-real's light on the glass and the band on every other moment of the shutter, at
+        // double strength (the moments are averaged, and white or black laid over a pixel is linear
+        // in its strength, so the average is the same): half the cost
+        if (p.finish === "photo") p.glassSub = subs > 1 ? (s % 2 ? 0 : subs / Math.ceil(subs / 2)) : 1;
         const soft = this.dofBlur && p.size < this.dofSize * .93 && "filter" in target;
         if (soft) target.filter = `blur(${this.dofBlur}px)`;
         drawPhone(target, p, ...stt, this.W);
@@ -2750,7 +3330,7 @@ export class Ad {
     }
   }
 
-  frame(ctx, t, quality = { subsFly: 8, subsMove: 4 }, dt = 1 / 30) {
+  frame(ctx, t, quality = EXPORT_QUALITY, dt = 1 / 30) {
     const st = this.st, W = this.W, H = this.H, tl = this.tl;
     const base = this._phonesLayer(t, dt, quality);
     const [z, px, py, rotDeg] = this._camera(t);
@@ -3155,7 +3735,7 @@ export async function loadPhones(base = "./phones/") {
   const phones = {};
   await Promise.all(idx.phones.map(m => new Promise(res => {
     const img = new Image(); img.decoding = "async";
-    img.onload = () => { phones[m.id] = { img, meta: m }; res(); };
+    img.onload = () => { phones[m.id] = { img, meta: m }; PHONE_META[m.id] = m; res(); };
     img.onerror = () => res();
     img.src = base + m.id + ".webp";
   })));

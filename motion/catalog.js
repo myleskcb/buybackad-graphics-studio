@@ -7,12 +7,14 @@
 // Ported from iphoneslainv scripts/phone-ad (the Mac engine), widened 2-3x.
 //
 // Who the ad is for (an audience: its words, looks, music and voice) lives in
-// audiences.js; the voices in voices.js; the fifty themes in themes.js.
+// audiences.js; the voices in voices.js; the fifty themes in themes.js; the real
+// recordings an ad can play in place of its music in tracks.js.
 
 import { MORE_VIBES, AUDIENCES, AUDIENCE_KEYS, MOODS } from "./audiences.js";
 import { CASTS } from "./voices.js";
 import { THEME_PALETTES, THEME_BOARDS, THEME_GROUNDS, THEMES, THEME_FAMILIES } from "./themes.js";
-export { THEMES, THEME_FAMILIES, THEME_GROUNDS };
+import { TRACKS } from "./tracks.js";
+export { THEMES, THEME_FAMILIES, THEME_GROUNDS, TRACKS };
 
 export const FONTS = {
   // name: [family, weight, file(s), kind]   kind: geometric grotesk condensed wide slab serif display script mono
@@ -371,7 +373,7 @@ export const OPTIONS = {
   skew: [0, 0, 0, 8, 12, -8],
   text_fx: ["shadow", "hard_shadow", "outline", "sticker", "extrude", "box", "glow", "flat",
     "neon", "gradient", "chrome", "gold", "long_shadow", "highlighter", "double_outline", "rgb_split", "cutout",
-    "block3d", "glass", "foil"],
+    "block3d", "glass", "foil", "pop_stack", "outline_shadow", "underline_bar", "stamped", "inline"],
   color_mode: ["mono", "accent_word", "split_lines", "accent_line"],
   text_in: ["slide", "skew_slide", "slide_letters", "wipe", "slam", "drop_letters",
     "typewriter", "word_pop", "blur_in", "rise_mask", "flip_in", "stomp", "scramble", "spin_letters",
@@ -381,16 +383,22 @@ export const OPTIONS = {
   number_format: ["raw", "dashed", "dotted", "parens", "spaced"],
   number_pos: ["bottom-center", "bottom-left", "bottom-right", "under-headline"],
   number_in: ["pop", "slide_up", "type", "wipe", "flip", "roll", "slide_left", "drop", "slot", "glow_on"],
-  arrangement: ["row", "fan", "pile", "diagonal", "arc", "grid", "hero", "cascade",
-    "tower", "spiral", "vee", "ring", "staircase", "crossed", "giants", "pairs",
-    "hand", "domino", "podium", "wave", "burst", "runway", "group", "bookends", "shelf", "chevron", "tilted_grid",
-    "headliner", "collage", "tents", "carousel"],
+  // styled, tidy sets only (owner, 2026-10-02: "stylistic arrangements of phones ... not
+  // messy views"); piles, spirals, rings, towers, collages and the like are gone
+  arrangement: ["lineup", "showcase", "wings", "fan", "hand", "podium", "headliner", "burst", "tents",
+    "gallery", "crown", "spotlight", "lean_in", "tilt_row", "rise", "fanfare"],
   entry: ["fly_spin", "drop", "conveyor", "zoom", "orbit", "deal", "pop", "rain", "boomerang", "split", "spiral_in", "whip",
     "slide_up", "swing", "float_up", "zipper", "sweep", "pinwheel", "snap", "roll", "magnet", "shuffle", "flip_in"],
   end_face: ["back", "front", "mixed"],
   // the phone angle, one for every phone in the video so the set reads as one: flat, turned
   // in 3-D to show one edge, swaying on a turntable, or one wide spin once they land
-  pose: ["flat", "edge_left", "edge_right", "turntable", "wide_spin"],
+  pose: ["flat", "edge_left", "edge_right", "turntable", "wide_spin",
+    // side on to the buttons (rule 124), offered by hand only
+    "profile_left", "profile_right"],
+  // how the phones are lit (rule 124): the standard look, or photo-real (a softbox streak
+  // down the band, a sheen over the glass, a catch-light on the rim, a contact shadow).
+  // Only by hand: a shuffle keeps it (KEPT_OPTIONS), so every look number draws as it did
+  phone_finish: ["standard", "photo"],
   front_glimpse: ["spin", "hold"],
   background: ["radial", "flat", "linear", "split", "rays", "dots", "stripes", "spotlight", "bigword", "grid",
     "mesh", "rings", "checker", "waves", "bokeh", "confetti", "duotone", "halftone", "beams", "frame", "sunburst", "noise",
@@ -400,18 +408,32 @@ export const OPTIONS = {
   camera: ["push_in", "push_out", "still", "drift", "punch", "tilt", "whip_in", "handheld"],
   shake: [0, 1, 2],
   // scored like a commercial: every kit plays chords in a key (audio.js); the grooves
-  // after cinematic are patterns of their own on real instruments (music.js)
+  // after cinematic are patterns of their own on real instruments (music.js), the last
+  // eleven (pop to nu-disco, 2026-10-02 and -03) offered by hand: a shuffle draws the
+  // kits it always drew, so a look number keeps its kit
   sound_kit: ["uplift", "house", "hiphop", "lofi", "minimal", "cinematic",
-    "reggaeton", "jersey_club", "drill", "phonk", "baile_funk", "amapiano", "cumbia", "disco", "uk_garage", "swing", "epic", "march", "bossa", "none"],
+    "reggaeton", "jersey_club", "drill", "phonk", "baile_funk", "amapiano", "cumbia", "disco", "uk_garage", "swing", "epic", "march", "bossa",
+    "pop", "rnb", "motown", "gospel", "classical", "synthwave", "gfunk", "future_bass", "deep_house", "trance", "nu_disco", "none"],
   hit: ["impact", "riser", "cymbal", "bass_drop", "gong", "timpani", "whip", "anvil", "crash", "swell", "orchestra"],
   number_sfx: ["pop", "chime", "register", "whoosh_ding", "ticks", "shave_haircut", "cash_counter", "text_ding", "phone_buzz",
     "bells", "triangle", "glock_run", "harp_gliss", "whistle"],
-  // a famous public-domain tune over the groove (music.js), and what plays it
+  // a famous public-domain tune over the groove (music.js), and what plays it; the holiday
+  // tunes (SEASON_TUNES) play only in an ad set to their holiday
   melody: ["none", "mountain_king", "fur_elise", "beethoven5", "ode_to_joy", "saints", "ballgame", "cucaracha", "toccata",
-    "turkish_march", "eine_kleine", "greensleeves", "morning_mood", "bumblebee", "carol_bells", "entertainer", "canon"],
-  lead: ["piano", "epiano", "vibes", "marimba", "xylophone", "glock", "organ", "harpsichord", "sax", "harp", "kalimba", "synth"],
+    "turkish_march", "eine_kleine", "greensleeves", "morning_mood", "bumblebee", "carol_bells", "entertainer", "canon",
+    "prelude_c", "minuet_g", "mozart40", "spring", "moonlight", "gymnopedie", "oh_susanna",
+    "jingle_bells", "joy_to_world", "we_wish", "dies_irae", "funeral_march"],
+  lead: ["piano", "epiano", "vibes", "marimba", "xylophone", "glock", "organ", "harpsichord", "sax", "harp", "kalimba", "synth",
+    "supersaw", "synth_pluck", "synth_brass", "fm_bell", "gfunk_lead",
+    "guitar", "upright", "clav", "harmonica", "strumstick", "balafon", "organ_b3", "strings", "acid"],
+  // the whole music's character: as mixed, warm, on tape, on vinyl, bright, or in a club
+  tone: ["studio", "warm", "tape", "vinyl", "bright", "club"],
+  // a real recording (tracks.js) in place of the music made here, or the user's own
+  track: ["none", ...TRACKS.map(t => t.id), "upload"],
   // a sound over the opening hook (not the accents below, which are drawn on screen)
-  accent: ["none", "air_horn", "siren", "whistle", "gong", "windchimes", "bell_tree", "vibraslap"],
+  accent: ["none", "air_horn", "siren", "whistle", "gong", "windchimes", "bell_tree", "vibraslap", "sleigh_bells"],
+  // a holiday ad: its tunes and sounds play only here (never set by a shuffle; picked by hand)
+  season: ["none", "christmas", "halloween"],
   glare: [0.5, 1, 1, 1.5],
   hook: ["hook_line", "hook_line", "word_beat", "word_beat", "crash_zoom", "flash_cut", "punch_in", "cold_open"],
   overlay: ["none", "none", "confetti", "light_leak", "vignette_pulse", "lens_flare", "glitch", "grain_live", "sparkle_field",
@@ -426,11 +448,12 @@ export const OPTIONS = {
   outro: ["none", "settle", "end_card"],
   // accents (accents.js): how many, on what topic, drawn as what, and how they move
   accents: [0, 1, 2, 3],
-  accent_set: ["cash", "money", "hype", "phones", "deal", "local", "trust", "sparkle", "checks"],
+  accent_set: ["cash", "money", "hype", "phones", "deal", "local", "trust", "sparkle", "checks",
+    "party", "fast", "premium", "shop", "today", "love", "la_sun", "eco", "keys", "marks"],
   accent_kind: ["mix", "emoji", "asset", "symbol"],
-  accent_in: ["fade", "pop", "slide", "fly", "drop", "flip3d", "wide_spin", "zoom", "swing", "orbit"],
-  accent_idle: ["bob", "pulse", "wiggle", "turntable", "float", "still"],
-  accent_out: ["fade", "pop_out", "fly_out", "spin_out", "drop_out", "none"],
+  accent_in: ["fade", "pop", "slide", "fly", "drop", "flip3d", "wide_spin", "zoom", "swing", "orbit", "bounce_in", "unfold", "spiral", "rise", "stamp"],
+  accent_idle: ["bob", "pulse", "wiggle", "turntable", "float", "still", "sway", "heartbeat", "breathe", "circle"],
+  accent_out: ["fade", "pop_out", "fly_out", "spin_out", "drop_out", "none", "shrink", "rise_out", "flip_out", "blur_out"],
 };
 
 // Spin-offs of the best grounds (audit 2026-09-30), painted in decor.js
@@ -466,6 +489,15 @@ export const GROUND_CANDIDATES = {
 };
 // Owner, 2026-09-30: "keep the spin offs" (all 24, from the review page)
 export const GROUND_REVIEW = { approved: Object.keys(GROUND_CANDIDATES), rejected: [] };
+// The fresh grounds (motion/decor.js FRESH_GROUNDS, 2026-10-03): candidates until the
+// owner approves them on the review page; only approved ones join the shuffle.
+// Owner, 2026-10-04, of all 24 on the review page: "I do like all of them"; the confetti
+// ones asked for the same day ("background confetti like this but with color") come approved.
+export const FRESH_REVIEW = { approved: ["studio_sweep", "pill_stage", "arch_window", "paper_cut", "ribbon_wave", "concentric", "split_soft",
+  "spot_floor", "bokeh_night", "marble_soft", "tile_gloss", "grid_glow", "sky_gradient", "pastel_blobs", "neon_frame", "halftone_fade",
+  "diagonal_lines", "window_light", "podium_steps", "sun_rays", "confetti_soft", "wave_lines", "checker_fade", "glow_orbs",
+  "confetti_pop", "sprinkles", "streamers"], rejected: [] };
+for (const id of FRESH_REVIEW.approved) if (!OPTIONS.background.includes(id)) OPTIONS.background.push(id);
 for (const id of GROUND_REVIEW.approved) {
   const c = GROUND_CANDIDATES[id]; if (!c) continue;
   // the audiences' own looks keep the grounds they were swept and pruned on
@@ -480,7 +512,8 @@ for (const id of GROUND_REVIEW.approved) {
 Object.assign(PALETTES, THEME_PALETTES);
 Object.assign(BOARDS, THEME_BOARDS);
 for (const g of THEME_GROUNDS) if (!OPTIONS.background.includes(g)) OPTIONS.background.push(g);
-export const THEME_REVIEW = { approved: [], rejected: [] };
+// Owner, 2026-10-02: "approve all" (all fifty, after the review page and the 3-D phone fix)
+export const THEME_REVIEW = { approved: Object.keys(THEMES), rejected: [] };
 for (const id of THEME_REVIEW.approved) if (THEMES[id]) { VIBES[id] = THEMES[id]; if (!OPTIONS.vibe.includes(id)) OPTIONS.vibe.push(id); }
 
 // The BACK is what makes a model recognisable: every drawn cut ends on the backs,
@@ -495,7 +528,10 @@ export const WEIGHTS = {
   urgency: { none: 1 },
   number_format: { raw: 0, spaced: .6 },   // ten digits run together read as one long number; the raw format stays a pick by hand
   end_face: { back: 1, front: 0, mixed: 0 },
-  pose: { flat: 3, edge_left: 1, edge_right: 1, turntable: 2, wide_spin: 1 },   // turned, as often as a turntable, either edge
+  arrangement: { lineup: 3, showcase: 3, wings: 2, fan: 2, hand: 2, podium: 2, headliner: 2, burst: 1, tents: 1, gallery: 2, crown: 2, spotlight: 2, lean_in: 2, tilt_row: 2, rise: 2, fanfare: 1 },
+  pose: { flat: 3, edge_left: 1, edge_right: 1, turntable: 2, wide_spin: 1,   // turned, as often as a turntable, either edge
+    profile_left: 0, profile_right: 0 },   // by hand only (rule 124)
+  phone_finish: { standard: 1, photo: 0 },
   accents: { 0: 6, 1: 3, 2: 2, 3: 1 },                   // DESIGN-LAW 88: some looks (about half), and few
   accent_kind: { mix: 3, emoji: 1, asset: 2, symbol: 2 },
   front_glimpse: { spin: 3, hold: 1 },
@@ -505,19 +541,56 @@ export const WEIGHTS = {
   depth: { none: 3, soft_floor: 3, reflection: 2 },
   transition: { fade: 2 },
   outro: { none: 3, settle: 2, end_card: 2 },
-  sound_kit: { uplift: 3, house: 2, hiphop: 2, lofi: 1, minimal: 2, cinematic: 2, none: .5 },
+  // The kits, tunes and instruments added on 2026-10-02 and -03 weigh nothing in a shuffle:
+  // they are offered by hand, and a shuffle draws what it always drew, so a look number
+  // keeps its kit, tune and instrument (a recording, drawn late, may play in their place).
+  // One number here puts any of them in the shuffle, and changes the kit, tune or
+  // instrument of the looks that land on it.
+  sound_kit: { uplift: 3, house: 2, hiphop: 2, lofi: 1, minimal: 2, cinematic: 2, none: .5,
+    pop: 0, rnb: 0, motown: 0, gospel: 0, classical: 0, synthwave: 0, gfunk: 0, future_bass: 0, deep_house: 0, trance: 0, nu_disco: 0 },
   number_sfx: { pop: 2, chime: 2, register: 1, whoosh_ding: 1, ticks: 1 },
-  melody: { none: 5 },
-  accent: { none: 7 },
+  // a holiday tune never in an ordinary ad (the two older ones, Carol of the Bells and the
+  // Toccata, keep their weight so the draw is unchanged, and harmonise plays a classic instead)
+  melody: { none: 5, prelude_c: 0, minuet_g: 0, mozart40: 0, spring: 0, moonlight: 0, gymnopedie: 0, oh_susanna: 0,
+    jingle_bells: 0, joy_to_world: 0, we_wish: 0, dies_irae: 0, funeral_march: 0 },
+  lead: { supersaw: 0, synth_pluck: 0, synth_brass: 0, fm_bell: 0, gfunk_lead: 0,
+    guitar: 0, upright: 0, clav: 0, harmonica: 0, strumstick: 0, balafon: 0, organ_b3: 0, strings: 0, acid: 0 },
+  accent: { none: 7, sleigh_bells: 0 },
+  tone: { studio: 2 },
+  // Most shuffles play a real recording, the modern jazz and funk most of all (owner,
+  // 2026-10-04: "less cliché music: modern jazz and funk first, the warhorses only by hand"):
+  // the pieces everyone has heard in a cartoon only by hand, a holiday's only in a holiday
+  // ad, the user's own only when they add one.
+  track: { none: 10, upload: 0, ...Object.fromEntries(TRACKS.map(t => [t.id,
+    ["gladiators", "can_can", "william_tell", "mountain_king"].includes(t.id) || ["christmas", "halloween"].includes(t.kind) ? 0
+      : t.kind === "jazz" ? 2.5 : t.id === "fur_elise" ? .4 : 1])) },
 };
 
 // The sound options added after the first looks were made. They are drawn from a
-// stream of their own, so every earlier look keeps the design it always had.
-export const LATE_OPTIONS = ["melody", "lead", "accent"];
+// stream of their own, so every earlier look keeps the design it always had; each new
+// one goes at the end, after every draw an earlier look already makes.
+export const LATE_OPTIONS = ["melody", "lead", "accent", "tone", "track"];
+// Options a shuffle never changes: only a hand pick sets them.
+export const KEPT_OPTIONS = ["season", "phone_finish"];
+
+// Holiday music (owner, 2026-10-02: "holiday tunes only in holiday ads"): a holiday's tunes,
+// recordings and opening sound play only in an ad set to that holiday, and an ad set to a
+// holiday with music always plays one of its tunes (or one of its recordings).
+export const SEASON_TUNES = { christmas: ["carol_bells", "jingle_bells", "joy_to_world", "we_wish"],
+  halloween: ["toccata", "dies_irae", "funeral_march"] };
+export const SEASON_ACCENTS = { christmas: ["sleigh_bells"], halloween: ["gong", "windchimes"] };
+export const SEASON_TRACKS = { christmas: TRACKS.filter(t => t.kind === "christmas").map(t => t.id),
+  halloween: TRACKS.filter(t => t.kind === "halloween").map(t => t.id) };
+// The classics a drum-free classical accompaniment plays when no tune is picked, and what an
+// ordinary ad plays in place of a holiday tune.
+export const CLASSICAL_TUNES = ["prelude_c", "minuet_g", "mozart40", "spring", "moonlight", "gymnopedie", "fur_elise", "canon",
+  "eine_kleine", "ode_to_joy", "morning_mood", "greensleeves", "turkish_march"];
 
 // The tempo each newer groove is played at (the scored kits take any).
 export const KIT_BPM = { reggaeton: [88, 100], jersey_club: [136, 144], drill: [138, 146], phonk: [124, 136], baile_funk: [126, 132],
-  amapiano: [110, 115], cumbia: [90, 100], disco: [116, 124], uk_garage: [130, 134], swing: [140, 168], epic: [88, 108], march: [112, 126], bossa: [120, 136] };
+  amapiano: [110, 115], cumbia: [90, 100], disco: [116, 124], uk_garage: [130, 134], swing: [140, 168], epic: [88, 108], march: [112, 126], bossa: [120, 136],
+  pop: [100, 122], rnb: [68, 80], motown: [100, 120], gospel: [88, 104], classical: [72, 100],
+  synthwave: [100, 118], gfunk: [88, 98], future_bass: [140, 152], deep_house: [118, 124], trance: [134, 140], nu_disco: [112, 122] };
 
 // Sounds retired in the commercial pass (owner, 2026-09-30) play as the nearest one
 // still offered, so a saved or locked look keeps working.
@@ -531,18 +604,30 @@ export const SOUND_ALIASES = {
 export const SOUND_NAMES = {
   sound_kit: { uplift: "Uplifting pop", house: "Deep house", hiphop: "Hip-hop", lofi: "Lo-fi", minimal: "Minimal pulse", cinematic: "Cinematic",
     jersey_club: "Jersey club", baile_funk: "Baile funk", uk_garage: "UK garage", swing: "Swing jazz", epic: "Epic drums", march: "March / circus",
-    bossa: "Bossa nova", none: "No music" },
+    bossa: "Bossa nova", pop: "Radio pop", rnb: "R&B slow jam", motown: "Motown soul", classical: "Classical (no drums)",
+    synthwave: "Synthwave (80s)", gfunk: "G-funk (West Coast)", future_bass: "Future bass", deep_house: "Deep house, synth bass",
+    nu_disco: "Nu-disco", none: "No music" },
   hit: { impact: "Low hit", riser: "Swell into a hit", cymbal: "Reverse cymbal", bass_drop: "Sub drop", swell: "Cymbal swell", orchestra: "Orchestra hit" },
   number_sfx: { pop: "Soft pop", chime: "Two bells", register: "Cash register", whoosh_ding: "Whoosh and bell", ticks: "Soft typing",
     shave_haircut: "Shave and a haircut", cash_counter: "Bill counter", text_ding: "Message ding", phone_buzz: "Phone buzz",
     bells: "Tubular bell", glock_run: "Glockenspiel run", harp_gliss: "Harp sweep", whistle: "Referee whistle" },
   melody: { none: "None", mountain_king: "In the Hall of the Mountain King (Grieg)", fur_elise: "Für Elise (Beethoven)", beethoven5: "Symphony No. 5 (Beethoven)",
     ode_to_joy: "Ode to Joy (Beethoven)", saints: "When the Saints Go Marching In", ballgame: "Take Me Out to the Ball Game (1908)",
-    cucaracha: "La Cucaracha", toccata: "Toccata in D minor (Bach)", turkish_march: "Turkish March (Mozart)", eine_kleine: "Eine kleine Nachtmusik (Mozart)",
+    cucaracha: "La Cucaracha", toccata: "Toccata in D minor, Bach (Halloween)", turkish_march: "Turkish March (Mozart)", eine_kleine: "Eine kleine Nachtmusik (Mozart)",
     greensleeves: "Greensleeves", morning_mood: "Morning Mood (Grieg)", bumblebee: "Flight of the Bumblebee (Rimsky-Korsakov)",
-    carol_bells: "Carol of the Bells (Leontovych, 1916)", entertainer: "The Entertainer (Joplin)", canon: "Canon in D (Pachelbel)" },
-  lead: { epiano: "Electric piano", vibes: "Vibraphone", glock: "Glockenspiel", sax: "Tenor sax", synth: "Synth lead" },
-  accent: { none: "None", air_horn: "Air horn", whistle: "Referee whistle", windchimes: "Wind chimes", bell_tree: "Bell tree" },
+    carol_bells: "Carol of the Bells (Christmas)", entertainer: "The Entertainer (Joplin)", canon: "Canon in D (Pachelbel)",
+    prelude_c: "Prelude in C (Bach)", minuet_g: "Minuet in G (Petzold)", mozart40: "Symphony No. 40 (Mozart)", spring: "Spring, Four Seasons (Vivaldi)",
+    moonlight: "Moonlight Sonata (Beethoven)", gymnopedie: "Gymnopédie No. 1 (Satie)", oh_susanna: "Oh! Susanna (Foster)",
+    jingle_bells: "Jingle Bells (Christmas)", joy_to_world: "Joy to the World (Christmas)", we_wish: "We Wish You a Merry Christmas",
+    dies_irae: "Dies Irae (Halloween)", funeral_march: "Funeral March, Chopin (Halloween)" },
+  lead: { epiano: "Electric piano", vibes: "Vibraphone", glock: "Glockenspiel", sax: "Tenor sax", synth: "Warm synth lead", supersaw: "Supersaw",
+    synth_pluck: "Synth pluck", synth_brass: "Synth brass", fm_bell: "FM bell", gfunk_lead: "G-funk whistle lead", guitar: "Nylon guitar",
+    upright: "Upright piano", clav: "Clavinet", strumstick: "Strumstick (dulcimer)", balafon: "Balafon (wood marimba)", organ_b3: "Hammond organ",
+    strings: "String section", acid: "Acid bass synth" },
+  tone: { studio: "Studio", warm: "Warm", tape: "Tape", vinyl: "Vinyl", bright: "Bright", club: "Club" },
+  accent: { none: "None", air_horn: "Air horn", whistle: "Referee whistle", windchimes: "Wind chimes", bell_tree: "Bell tree", sleigh_bells: "Sleigh bells" },
+  season: { none: "None", christmas: "Christmas", halloween: "Halloween" },
+  track: { none: "None: music made for the ad", upload: "My own music (uploaded)", ...Object.fromEntries(TRACKS.map(t => [t.id, t.title])) },
 };
 
 export const FLAGS = { flash: 0.6, shine: 0.5, rgb_hit: 0.3, speed_lines: 0.35, sparkles: 0.35 };
@@ -553,11 +638,11 @@ export const DEFAULT_STYLE = {
   font: "franklin", number_font: "same", case: "upper", tracking: 0, skew: 0,
   text_fx: "shadow", color_mode: "mono", accent_word: -1, text_in: "slide", text_pos: "top-left",
   text_scale: 1, number_style: "plain", number_format: "dashed", number_pos: "bottom-center", number_in: "pop",
-  number_scale: 1, arrangement: "row", entry: "fly_spin", end_face: "back", front_glimpse: "spin", pose: "flat",
+  number_scale: 1, arrangement: "lineup", entry: "fly_spin", end_face: "back", front_glimpse: "spin", pose: "flat", phone_finish: "standard",
   phone_scale: 1, background: "radial", palette: "sand", scrim: -1, camera: "push_in", shake: 1,
   flash: true, shine: true, rgb_hit: false, speed_lines: false, sparkles: false, grain: true,
   sound_kit: "uplift", bpm: 112, hit: "impact", number_sfx: "pop", music_volume: 0.5, glare: 1,
-  melody: "none", lead: "piano", accent: "none",
+  melody: "none", lead: "piano", accent: "none", season: "none", tone: "studio", track: "none",
   overlay: "none", bigword: "CASH", hook: "hook_line", hook_text: "",
   vibe: "none", board: "none", decor: [], urgency: "none", cta: "", lang_mode: "mix", lang: "en", area: "",
   grade: "none", depth: "none", transition: "fade", outro: "none",
@@ -567,7 +652,7 @@ export const DEFAULT_STYLE = {
 // The first ad's look, as a starting point.
 export const CLASSIC = {
   font: "franklin", text_fx: "shadow", text_in: "slide", text_pos: "top-left", number_style: "plain",
-  number_pos: "bottom-center", number_in: "pop", arrangement: "row", pose: "flat", accents: 0, accent_set: "cash", accent_kind: "mix", accent_in: "pop", accent_idle: "bob", accent_out: "fade", entry: "fly_spin", end_face: "back",
+  number_pos: "bottom-center", number_in: "pop", arrangement: "lineup", pose: "flat", accents: 0, accent_set: "cash", accent_kind: "mix", accent_in: "pop", accent_idle: "bob", accent_out: "fade", entry: "fly_spin", end_face: "back",
   front_glimpse: "hold", background: "radial", palette: "sand", color_mode: "mono", camera: "push_in",
   sound_kit: "house", overlay: "none", hook: "cold_open",
 };
@@ -577,10 +662,11 @@ export const LABELS = {
   font: "Typeface", number_font: "Number typeface", case: "Case", tracking: "Letter spacing", skew: "Slant",
   text_fx: "Type treatment", color_mode: "Colour use", text_in: "Headline entrance", text_pos: "Headline position",
   number_style: "Number style", number_format: "Number format", number_pos: "Number position",
-  number_in: "Number entrance", arrangement: "Phone layout", pose: "Phone angle",
+  number_in: "Number entrance", arrangement: "Phone layout", pose: "Phone angle", phone_finish: "Phone finish",
   accents: "Accents", accent_set: "Accent topic", accent_kind: "Accents drawn as", accent_in: "Accents enter by", accent_idle: "Accents move", accent_out: "Accents leave by", entry: "Phones enter by", end_face: "Phones end on",
   front_glimpse: "Screens shown", background: "Background", palette: "Palette", camera: "Camera", shake: "Impact shake",
-  sound_kit: "Music", melody: "Famous tune (public domain)", lead: "Tune played on", accent: "Opening sound", hit: "Headline hit sound", number_sfx: "Number sound", glare: "Screen glare", overlay: "Overlay effect", hook: "Opening hook (first second)",
+  sound_kit: "Music", melody: "Famous tune (public domain)", lead: "Tune played on", accent: "Opening sound", season: "Holiday music", tone: "Mix tone",
+  track: "Real recording (public domain)", hit: "Headline hit sound", number_sfx: "Number sound", glare: "Screen glare", overlay: "Overlay effect", hook: "Opening hook (first second)",
   vibe: "Vibe", board: "Sign board", urgency: "Urgency",
   audience: "Made for", voice: "Voiceover", voice_mood: "Voice mood", voice_cast: "Voice",
   grade: "Colour grade", depth: "Phone depth", transition: "Hook transition", outro: "Ending",
@@ -592,10 +678,10 @@ export const GROUPS = [
   ["Type", ["font", "number_font", "case", "tracking", "skew", "text_fx", "color_mode"]],
   ["Opening", ["hook", "transition", "text_in", "text_pos"]],
   ["Number", ["number_style", "number_format", "number_pos", "number_in"]],
-  ["Phones", ["arrangement", "pose", "entry", "end_face", "front_glimpse", "glare", "depth"]],
+  ["Phones", ["arrangement", "pose", "phone_finish", "entry", "end_face", "front_glimpse", "glare", "depth"]],
   ["Accents", ["accents", "accent_set", "accent_kind", "accent_in", "accent_idle", "accent_out"]],
   ["Scene", ["background", "palette", "camera", "shake", "overlay", "grade", "outro"]],
-  ["Sound", ["sound_kit", "melody", "lead", "accent", "hit", "number_sfx"]],
+  ["Sound", ["track", "sound_kit", "season", "melody", "lead", "tone", "accent", "hit", "number_sfx"]],
 ];
 
 export function countLooks() {
