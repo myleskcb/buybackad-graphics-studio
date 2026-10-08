@@ -2571,15 +2571,26 @@ Done:
    category pages, README, the brief. The poster skin's ghost plan buttons
    were painted as primary buttons; they are quiet now.
 
-Checked: `scripts/billing_check.mjs` 83 of 83 (credits, downloads, the
+Checked: `scripts/billing_check.mjs` 91 of 91 (credits, downloads, the
 Stripe loop against a stand-in Stripe, and in Chromium under the production
 CSP: the landing at 1440 and 390, the plans page, Checkout and back, the
-switch, a pack); `scripts/plan_economics.mjs` (Pro keeps 77% / 73% at worst,
-Business 78% / 74%, packs 53% / 50%, a free account at most $0.22 a month;
-the copies agree); `ad_library_check.mjs` no failures (its video maker star
-now expects a Free save at 1080, marked, held, counted);
-`library_api_check.mjs` no failures; `video_photo_check.mjs` runs the maker
-as a local copy (`pgfx_local_demo`), since its static server has no `/api`.
+switch, a pack; the video maker's Download signed out asks for an account,
+a free account's is counted once at 1080 with a 1080 photo whose corners
+carry the marks against an operator's unmarked 1440 copy of the same look,
+an operator's is not counted, and at the limit it offers the plans);
+`scripts/plan_economics.mjs` (Pro keeps 77% / 73% at worst, Business 78% /
+74%, packs 53% / 50%, a free account at most $0.22 a month; the copies
+agree); `ad_library_check.mjs` no failures (its video maker star now expects
+a Free save at 1080, marked, held, counted); `library_api_check.mjs` no
+failures; `landing_check.mjs` no overflow at 390 or 1440 (its errors are
+cdnjs, out of reach here). `video_photo_check.mjs --only motion` runs the
+maker as a local copy (`pgfx_local_demo`; its static server has no `/api`):
+4:5, 9:16 and 16:9 pass, 1:1 saved its video and photo but found no second
+moment, the real-time WebM flake §AR (not done 2) records.
+
+Found on the way: `account.js` read `pgfx_local_demo` through JSON.parse, so
+the "1" config.js writes came back as the number 1 and never matched: the
+video maker and the master library never ran as a local demo. Fixed.
 
 Still open:
 1. **Set `STRIPE_SECRET` in Netlify and deploy `main`.** Nothing here can

@@ -31,7 +31,7 @@
   const API = (() => {
     if (typeof window.PGFX_API === 'string') return window.PGFX_API.replace(/\/$/, '');
     const local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
-    if (local && jget('pgfx_local_demo', null) === '1') return '';
+    if (local && String(jget('pgfx_local_demo', null)) === '1') return '';   // config.js writes "1", which reads back as the number 1
     const dir = location.pathname.replace(/\/(motion|lab|ads|admin-ads)\/[^/]*$/, '/').replace(/\/[^/]*$/, '/');
     return (dir === '/' ? '' : dir.replace(/\/$/, '')) + '/api';
   })();

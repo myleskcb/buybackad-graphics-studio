@@ -454,7 +454,7 @@ async function browserPart() {
     await page.screenshot({ path: join(process.env.SHOT_DIR, name + '.png'), fullPage: false });
   };
   const newPage = async (w, token) => {
-    const ctx = await browser.newContext({ viewport: { width: w, height: 900 } });
+    const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, acceptDownloads: true });
     if (token) await ctx.addInitScript((t) => { try { localStorage.setItem('pgfx_token', JSON.stringify(t)); localStorage.setItem('pgfx_seen_account', 'true'); } catch (e) {} }, token);
     const page = await ctx.newPage();
     await page.route('**/*', (route) => {
@@ -537,6 +537,59 @@ async function browserPart() {
       await page.click('#pay-ok');
       const hint = await page.evaluate(() => { syncCreditsUI(); return document.getElementById('bggen-credits').textContent; });
       ok(/Uses 1 AI credit\. You have 300 \(200 this month \+ 100 bought\)/.test(hint), `the AI hint counts credits (${hint})`);
+      await page.context().close();
+    }
+    // the video maker: signed out, Download asks for an account; a free account's download is counted, marked, its photo 1080
+    {
+      const page = await newPage(1280);
+      await page.goto(BASE + '/motion/');
+      await page.waitForFunction(() => document.getElementById('loading').hidden && window.pgfxAccount, null, { timeout: 120000 });
+      await page.click('#download');
+      await page.waitForSelector('#acct-overlay.show', { timeout: 15000 }).catch(() => {});
+      ok(await page.$('#acct-overlay.show') !== null, 'video maker: a signed-out Download asks for an account first');
+      const vt = await signup('videos@x.example');
+      await page.evaluate((t) => { localStorage.setItem('pgfx_token', JSON.stringify(t)); }, vt);
+      await page.evaluate(() => document.getElementById('acct-overlay').classList.remove('show'));
+      const files = [];
+      page.on('download', (d) => files.push(d));
+      await page.click('#download');
+      await page.waitForFunction(() => /Saved|could not|cannot|Not saved/.test(document.getElementById('export-note').textContent), null, { timeout: 300000 }).catch(() => {});
+      await page.waitForTimeout(1500);
+      const note = await page.$eval('#export-note', (n) => n.textContent);
+      const u = userBlob('videos@x.example');
+      ok(/Saved we-buy-phones/.test(note) && u.exports && u.exports.count === 1, 'video maker: a free account\'s download is made and counted once (' + note.slice(0, 120) + ')');
+      ok(/1080×1080/.test(note) && /\(1080×1080, the moment/.test(note), 'video maker: Free gets a 1080 video and a 1080 photo, not 1440 (' + note.slice(0, 200) + ')');
+      // the marks: the same look downloaded by an operator (no marks, 1440), scaled to 1080, differs from
+      // Free's photo in the corners where BUYBACK.AD is drawn and hardly at all in the middle
+      const boss = (await hit('POST', '/auth/login', { email: 'boss@studio.example', password: 'a-long-password' })).json.token;
+      await page.evaluate((t) => { localStorage.setItem('pgfx_token', JSON.stringify(t)); }, boss);
+      const freePng = files.find((d) => /\.png$/.test(d.suggestedFilename()));
+      files.length = 0;
+      await page.evaluate(() => { document.getElementById('export-note').textContent = ''; window.VideoHelp && VideoHelp.close(); });
+      await page.click('#download');
+      await page.waitForFunction(() => /Saved|could not|cannot|Not saved/.test(document.getElementById('export-note').textContent), null, { timeout: 300000 }).catch(() => {});
+      await page.waitForTimeout(1500);
+      const bossPng = files.find((d) => /\.png$/.test(d.suggestedFilename()));
+      if (ok(freePng && bossPng, 'video maker: both photos came down')) {
+        const b64 = async (d) => readFileSync(await d.path()).toString('base64');
+        const diff = await page.evaluate(async ([a, b]) => {
+          const load = (s) => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = 'data:image/png;base64,' + s; });
+          const [fa, fb] = await Promise.all([load(a), load(b)]);
+          const px = (img) => { const c = document.createElement('canvas'); c.width = c.height = 1080; const x = c.getContext('2d'); x.drawImage(img, 0, 0, 1080, 1080); return x.getImageData(0, 0, 1080, 1080).data; };
+          const A = px(fa), B = px(fb);
+          const box = (x0, y0, s) => { let t = 0, n = 0; for (let y = y0; y < y0 + s; y++) for (let x = x0; x < x0 + s; x++) { const i = (y * 1080 + x) * 4; t += Math.abs(A[i] - B[i]) + Math.abs(A[i + 1] - B[i + 1]) + Math.abs(A[i + 2] - B[i + 2]); n += 3; } return t / n; };
+          return { sizes: [fa.width, fb.width], corner: box(20, 20, 90), center: box(495, 495, 90) };
+        }, [await b64(freePng), await b64(bossPng)]);
+        ok(diff.sizes[0] === 1080 && diff.sizes[1] === 1440, 'video maker: Free photo 1080, operator photo 1440 (' + diff.sizes + ')');
+        ok(diff.corner > 4 * Math.max(1, diff.center), 'video maker: Free\'s photo carries the marks in the corner (corner differs ' + diff.corner.toFixed(1) + ', middle ' + diff.center.toFixed(1) + ')');
+      }
+      ok(userBlob('boss@studio.example').exports.count === 0, 'video maker: an operator\'s download is not counted');
+      await page.evaluate((t) => { localStorage.setItem('pgfx_token', JSON.stringify(t)); }, vt);
+      const lim = userBlob('videos@x.example'); lim.exports.count = 3; setUser(lim);
+      await page.evaluate(() => window.VideoHelp && VideoHelp.close());
+      await page.click('#download');
+      await page.waitForFunction(() => document.querySelector('.vh-overlay.show, .vh-modal, [role=dialog]') && /used this plan/.test(document.body.innerText), null, { timeout: 30000 }).catch(() => {});
+      ok(/used this plan's downloads/.test(await page.evaluate(() => document.body.innerText)), 'video maker: at the limit, Download says so and offers the plans');
       await page.context().close();
     }
     ok(!errors.length, 'no CSP or page errors' + (errors.length ? ': ' + errors.slice(0, 4).join(' | ') : ''));
