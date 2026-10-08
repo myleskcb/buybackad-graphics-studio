@@ -2540,8 +2540,9 @@ model call (an AI background, $0.034 on the default). The daily caps let a
 Pro account spend $40.80 a month of it against $14.16 net (§AN 1).
 
 Done:
-1. **`netlify/lib/plans.mjs`, the one table.** Free / Pro $15 a month or
-   $150 a year / Business $39 or $390; downloads (photos or videos) 3 a week
+1. **`netlify/lib/plans.mjs`, the one table.** Free / Pro $25 a month or
+   $250 a year / Business $60 or $600 (the owner's prices, 2026-10-08; first
+   built at $15 and $39); downloads (photos or videos) 3 a week
    / 100 / 500 a month; AI credits 5 / 75 / 200 a month; library 12 / 300 /
    1,000; packs of 100 credits for $9 and 300 for $25, never expiring.
 2. **Credits, priced from each model's cost.** One credit buys up to 4 cents
@@ -2578,9 +2579,9 @@ switch, a pack; the video maker's Download signed out asks for an account,
 a free account's is counted once at 1080 with a 1080 photo whose corners
 carry the marks against an operator's unmarked 1440 copy of the same look,
 an operator's is not counted, and at the limit it offers the plans);
-`scripts/plan_economics.mjs` (Pro keeps 77% / 73% at worst, Business 78% /
-74%, packs 53% / 50%, a free account at most $0.22 a month; the copies
-agree); `ad_library_check.mjs` no failures (its video maker star now expects
+`scripts/plan_economics.mjs` (at $25 and $60: Pro keeps 86% / 84% at
+worst, Business 86% / 83%, packs 53% / 50%, a free account at most $0.22 a
+month; the copies agree); `ad_library_check.mjs` no failures (its video maker star now expects
 a Free save at 1080, marked, held, counted); `library_api_check.mjs` no
 failures; `landing_check.mjs` no overflow at 390 or 1440 (its errors are
 cdnjs, out of reach here). `video_photo_check.mjs --only motion` runs the
@@ -2612,3 +2613,9 @@ Still open:
    credits meter after the first month.
 5. **The size cap and the marks are still drawn by the browser** (§AN 5):
    the count is the hard limit.
+6. **$25 is above the market for a single-niche tool** (Canva Pro about
+   $15 to $18, Kittl and Placeit $15, Adobe Express $10; SAAS-AUDIT §3).
+   At $25 a Pro subscriber makes $23.04 a month at projected use against
+   $13.40 at $15, so $25 earns more unless it loses over 42% of the
+   conversions $15 would get; Business at $60 against $39, over 36%. Read
+   the free-to-paid rate for the first months against that line.

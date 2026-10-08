@@ -6286,8 +6286,8 @@ const DEMO = !API_BASE;
    each thing costs, and charge paid AI in credits. */
 const PLANS = {
   free:     { label:'Free', price:{ month:0 }, weekly:3, monthly:null, maxPx:1080, watermark:true, credits:5, library:12 },
-  pro:      { label:'Pro', price:{ month:1500, year:15000 }, weekly:null, monthly:100, maxPx:2160, watermark:false, credits:75, library:300, hot:true },
-  business: { label:'Business', price:{ month:3900, year:39000 }, weekly:null, monthly:500, maxPx:2160, watermark:false, credits:200, library:1000 },
+  pro:      { label:'Pro', price:{ month:2500, year:25000 }, weekly:null, monthly:100, maxPx:2160, watermark:false, credits:75, library:300, hot:true },
+  business: { label:'Business', price:{ month:6000, year:60000 }, weekly:null, monthly:500, maxPx:2160, watermark:false, credits:200, library:1000 },
 };
 const PACKS = {
   credits100: { label:'100 AI credits', credits:100, price:900 },

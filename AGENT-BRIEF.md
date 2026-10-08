@@ -18,7 +18,7 @@ anything.
 resellers. Pick a template, type a headline and a phone number, export a
 post-ready graphic for Facebook Marketplace, OfferUp, Instagram or Craigslist.
 
-It is a **product people pay for** (Free / Pro $15 mo / Business $39 mo, AI in
+It is a **product people pay for** (Free / Pro $25 mo / Business $60 mo, AI in
 credits; `netlify/lib/plans.mjs`), not an internal tool.
 That is the standard every change is held to.
 

@@ -49,12 +49,12 @@ export const PLANS = {
     credits: 5, library: 12, allDesigns: false, qr: false,
   },
   pro: {
-    label: 'Pro', price: { month: 1500, year: 15000 },
+    label: 'Pro', price: { month: 2500, year: 25000 },
     weekly: null, monthly: 100, maxPx: 2160, watermark: false,
     credits: 75, library: 300, allDesigns: true, qr: true,
   },
   business: {
-    label: 'Business', price: { month: 3900, year: 39000 },
+    label: 'Business', price: { month: 6000, year: 60000 },
     weekly: null, monthly: 500, maxPx: 2160, watermark: false,
     credits: 200, library: 1000, allDesigns: true, qr: true,
   },

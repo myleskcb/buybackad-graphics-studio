@@ -278,8 +278,8 @@ let csPro;
   ok(r.status === 200 && /^https:\/\/checkout\.stripe\.test\//.test(r.json.url), 'checkout answers a Stripe URL');
   csPro = [...S.sessions.values()].pop();
   const price = S.prices.get(csPro.line_items[0].price);
-  ok(price && price.unit_amount === 15000 && price.recurring.interval === 'year' && price.lookup_key === 'bbad_pro_year' && price.product === 'bbad_pro',
-    'the yearly Pro price is made: $150, yearly, lookup key bbad_pro_year, product bbad_pro');
+  ok(price && price.unit_amount === 25000 && price.recurring.interval === 'year' && price.lookup_key === 'bbad_pro_year' && price.product === 'bbad_pro',
+    'the yearly Pro price is made: $250, yearly, lookup key bbad_pro_year, product bbad_pro');
   ok(csPro.mode === 'subscription' && csPro.customer_email === 'buyer@x.example' && csPro.metadata.plan === 'pro' && csPro.allow_promotion_codes === 'true',
     'the session: subscription, the account email, plan in metadata, promotion codes on');
   ok(csPro.success_url === 'https://studio.example/?checkout=success&session_id={CHECKOUT_SESSION_ID}', 'success_url carries the session id');
@@ -305,7 +305,7 @@ let csPro;
 
   const sw = await hit('POST', '/billing/change', { plan: 'business', interval: 'month' }, buyer);
   const sub = S.subs.get(userBlob('buyer@x.example').sub.id);
-  ok(sw.status === 200 && sw.json.user.plan === 'business' && sub.items.data[0].price.unit_amount === 3900 && S.lastUpdate.proration_behavior === 'always_invoice',
+  ok(sw.status === 200 && sw.json.user.plan === 'business' && sub.items.data[0].price.unit_amount === 6000 && S.lastUpdate.proration_behavior === 'always_invoice',
     'the switch moves the item to Business monthly, prorated now');
   const lib = await hit('GET', '/ads/mine', undefined, buyer);
   ok(lib.status === 200 && lib.json.limit === 1000, 'the ad library gives Business its 1,000');
@@ -364,15 +364,15 @@ let csPro;
 
 /* a new price in plans.mjs */
 {
-  plans.PLANS.pro.price.month = 1900;
+  plans.PLANS.pro.price.month = 2900;
   billing.forgetPrices();
   const t = await signup('newprice@x.example');
   await hit('POST', '/checkout', { plan: 'pro', interval: 'month' }, t);
   const cs = [...S.sessions.values()].pop();
   const p = S.prices.get(cs.line_items[0].price);
-  const olds = [...S.prices.values()].filter((x) => x.unit_amount === 1500 && x.recurring && x.recurring.interval === 'month');
-  ok(p.unit_amount === 1900 && p.lookup_key === 'bbad_pro_month' && olds.every((x) => x.lookup_key !== 'bbad_pro_month'), 'a new price is made and the lookup key moves to it');
-  plans.PLANS.pro.price.month = 1500;
+  const olds = [...S.prices.values()].filter((x) => x.unit_amount === 2500 && x.recurring && x.recurring.interval === 'month');
+  ok(p.unit_amount === 2900 && p.lookup_key === 'bbad_pro_month' && olds.every((x) => x.lookup_key !== 'bbad_pro_month'), 'a new price is made and the lookup key moves to it');
+  plans.PLANS.pro.price.month = 2500;
   billing.forgetPrices();
 }
 
@@ -484,7 +484,7 @@ async function browserPart() {
         return { cards: [...sec.querySelectorAll('.lp-price-card h3')].map((h) => h.textContent), text: sec.innerText, over: document.documentElement.scrollWidth - innerWidth };
       });
       ok(pr.cards.join() === 'Free,Pro,Business', `landing ${w}: three plans (${pr.cards.join()})`);
-      ok(/photos or videos/.test(pr.text) && /\$150 a year/.test(pr.text) && /AI credits/.test(pr.text) && /100 credits are \$9/.test(pr.text), `landing ${w}: videos, yearly price and credits on the cards`);
+      ok(/photos or videos/.test(pr.text) && /\$250 a year/.test(pr.text) && /AI credits/.test(pr.text) && /100 credits are \$9/.test(pr.text), `landing ${w}: videos, yearly price and credits on the cards`);
       ok(pr.over <= 0, `landing ${w}: no sideways scroll (${pr.over}px)`);
       if (process.env.SHOT_DIR) { await page.waitForTimeout(600); await page.locator('#pricing').screenshot({ path: join(process.env.SHOT_DIR, 'landing-pricing-' + w + '.png') }); }
       await page.context().close();
@@ -498,12 +498,12 @@ async function browserPart() {
       await page.waitForSelector('#page-plans.active .plan-card');
       await page.waitForTimeout(400);
       const m = await page.evaluate(() => ({ cards: [...document.querySelectorAll('#plans-grid .plan-card')].map((c) => c.querySelector('.plan-name').textContent + ' ' + c.querySelector('.plan-price').textContent), packs: document.querySelectorAll('.pack-btn').length, over: document.documentElement.scrollWidth - innerWidth, note: (document.querySelector('.plans-note') || {}).textContent || '' }));
-      ok(m.cards.join('|') === 'Free $0 forever|Pro $15 /month|Business $39 /month' && m.packs === 2, `plans ${w}: monthly (${m.cards.join('|')}), two packs`);
+      ok(m.cards.join('|') === 'Free $0 forever|Pro $25 /month|Business $60 /month' && m.packs === 2, `plans ${w}: monthly (${m.cards.join('|')}), two packs`);
       ok(!/opens soon/.test(m.note), `plans ${w}: billing is on, no "opens soon" note`);
       await shot(page, 'plans-month-' + w);
       await page.click('.plans-toggle button:nth-child(2)');
       const y = await page.evaluate(() => [...document.querySelectorAll('#plans-grid .plan-card .plan-price')].map((p) => p.textContent).join('|'));
-      ok(y === '$0 forever|$150 /year|$390 /year', `plans ${w}: yearly (${y})`);
+      ok(y === '$0 forever|$250 /year|$600 /year', `plans ${w}: yearly (${y})`);
       ok(m.over <= 0, `plans ${w}: no sideways scroll`);
       await shot(page, 'plans-year-' + w);
       if (w === 390) { await page.context().close(); continue; }

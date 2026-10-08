@@ -76,7 +76,7 @@ and the plans page and Checkout in Chromium.
 
 | | Free | Pro | Business |
 |---|---|---|---|
-| Price | $0 | $15 a month, $150 a year | $39 a month, $390 a year |
+| Price | $0 | $25 a month, $250 a year | $60 a month, $600 a year |
 | Downloads, photos or videos | 3 a week | 100 a month | 500 a month |
 | Size, watermark | 1080 px, BUYBACK.AD marks | 2160 px, none | 2160 px, none |
 | Designs | every Phones card + the top 3 of each other category | all | all |
@@ -96,10 +96,12 @@ maker makes and plays videos for anyone, with no account; downloading one
 videos: a free account, one download, and on Free the BUYBACK.AD marks on
 every frame and a 1080 photo.
 
-At worst (every credit spent, plus hosting), against what a price nets after
-Stripe: Pro keeps 77% monthly and 73% yearly, Business 78% and 74%, the packs
-53% and 50%, and a free account costs at most $0.22 a month
-(`plan_economics.mjs` prints it).
+At worst (every credit spent at the full 4 cents, plus hosting), against what
+a price nets after Stripe: Pro keeps 86% monthly and 84% yearly, Business 86%
+and 83%, the packs 53% and 50%, and a free account costs at most $0.22 a
+month (`plan_economics.mjs` prints it). On the default model (3.4 cents a
+background) a Pro subscriber makes about $21 a month with every credit spent
+and $23 at a projected 15 backgrounds; Business about $50 and $56 at 40.
 
 ## Notes
 - Test first with Stripe **test keys** + card 4242 4242 4242 4242.
