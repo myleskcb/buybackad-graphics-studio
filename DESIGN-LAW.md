@@ -4945,6 +4945,44 @@ through every theme and look, below):
   magenta through a ground change, under ORIG and under a theme, with the
   card's extrude look still on it.
 
+**Measured on `main`'s build** (2026-10-08, the merge with rule 123, 31
+themes; the branch's numbers follow):
+
+- `every_card_audit.mjs --lean --workers 3 --dims base,themes,looks
+  --write-holds`, over every card the studio offers and every card the table
+  held (666: 300 classics, 366 live library; the list passed as `--ids`, as
+  AGENT-BRIEF says): 20,646 theme renders and 8,658 look renders, no page
+  lost. Cards held as offered: 10 (`main` held 11; dl_strips_arcCrown_emerald
+  passes). Theme holds 208: the twelve pairs 88 over 12 cards (`main` held
+  them 130 times), Two colours 79 over 19, Three colours 41 over 11; no theme
+  on more than 13 of the 666 (Black on Orange), most on 4 to 9; 140 for a
+  mark that would vanish on what it sits on, 68 for a line that would lose
+  legibility or fit, none for a colour left behind. Look holds 43, as on
+  `main`; the voice holds untouched (1,308).
+- `theme_law.mjs`, `cvd_audit.py`, `audit_theme_grammar.mjs` and
+  `theme_cohesion_audit.mjs`: 31 of 31, no problems; `house_themes.mjs`
+  prints the twelve pairs exactly as COLOR_THEMES has them.
+- `colour_builder_audit.mjs --sets-only`: all checks pass (12 of 12 pairs
+  offered from both colours, 1,803 tweaked sets, 0 failing).
+- `verify_showcase.mjs`: the library 366 of 366; the classics 351 pass and
+  the same 53 held as `main`.
+- `landing_check.mjs`: 0 failed requests, 0 console or page errors, no
+  overflow at 390 or 1440; the Ready-made tab reads 31, its panel holds the
+  twelve and the 31 in their groups.
+- `ez_theme_audit.mjs` on its 19 cards × 31 themes: every plate themed,
+  nothing left behind, one regression (pkm_binder's "Info" line, 2.94:1
+  under White on Green), which the sweep holds.
+- `tagline_audit.mjs`: 12 looks pass on 97 of 97 templates; Glow fails on
+  st_coins_twocol, held on `main` already for the same line.
+- `designer_audit.mjs`: the 31 themes change every card that opens and ORIG
+  puts each back exactly (0%, after the themes and after the swatches);
+  cars_kbb's open-time blocking, 3.2s against the 3s bar, is `main`'s open
+  item (2.9 to 3.7s there, the category's 70 thumbnails).
+- Every live library card as designed, drawn with `main`'s app.js and with
+  this one: median 0.18% of pixels apart; the seven over 0.7% on a loaded
+  machine came back at 0.02 to 0.19% alone, as `main` against itself (0.03
+  to 0.21%).
+
 **Measured on the branch** (2026-10-03, the 52 themes on the branch's final
 build, before the merge; `every_card_audit.mjs --lean` with three workers,
 the most this container's 14 GB holds):

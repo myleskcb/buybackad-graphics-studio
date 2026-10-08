@@ -2546,6 +2546,11 @@ and less random", then "Properly integrate into the main"):
   + beside them; the landing's Ready-made tab shows the library's twelve with
   their designs and every set in its groups, a tap opening the studio with
   it on; Build your own is the colour builder.
+- **Measured on `main`'s build** (DESIGN-LAW 125): every theme and look on
+  all 666 cards, holds written; the library 366/366, the classics the same
+  53 held as `main`; every colour check 31/31; the landing, the colour
+  builder, Easy Mode's themes, the looks and the designer clean but for
+  what `main` already holds or records; the cards as designed as on `main`.
 - **The effects take the palette's colours** (`thFx`): outline, 3-D depth,
   glow, multicolour letters; an Outline choice "Palette"; a new effect and
   look, Offset shadow.
@@ -2577,16 +2582,14 @@ Still open:
    `main` by `.github/workflows/deploy.yml` once its Netlify secrets are set,
    or from the Mac; until one of them runs, the live site shows the version
    deployed last (the owner saw September's generated palettes there).
-2. **The per-card holds the audit wrote**, each a chip turned off on its card
-   with its reason, not a bug the visitor meets. Worth a look one day, since
-   a fix would give the chip back: Black on Orange (11 cards; among them
-   checklistHero-cd04-15's second headline and scriptRetro-io03-15's call to
-   action fail the gate's legibility); trustSeal-du05-15's status
-   text and trustSeal-du02-20's status dot (a tick on a dot in the ink's
-   colour) under Black on Yellow and Black on Orange; reviewProof-pp03-35's
-   quote under White on Red and White on Green (1.5:1); arcCrown-nn01-30's
-   crown under Navy, White & Red; Blue Ticket on bandKnockout-ck04-35, its
-   frame left in the old colour (the one older theme newly held).
+2. **The per-card holds the sweep wrote** on `main`'s build (2026-10-08, 666
+   cards), each a chip turned off on its card with its reason, not a bug the
+   visitor meets: 208 theme holds (140 a mark that would vanish, 68 a line
+   that would read under its floor), Black on Orange on 13 cards the most,
+   the twelve pairs held 88 times against `main`'s 130. Worth a look one day,
+   since a fix gives a chip back: the marks lost on stepsFlow cards (five of
+   the six cards with a lost mark), and pkm_binder's "Info" line under White
+   on Green (2.94:1).
 3. **A red accent lifted for a dark photograph goes salmon** (Black, White &
    Red's headline on sell_iphone): themeScene solves an accent line's
    lightness until it reads, and over rule 103's band red stops being red.
