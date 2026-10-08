@@ -2532,13 +2532,20 @@ themes ... Maybe some color pallets using only two or three colors", then
 extra colors like 3-D. Or outlines around text", and "make sure we have as
 much capability as possible when it comes to colors".
 
-Done (DESIGN-LAW rule 125), on `claude/vigilant-wozniak-kyyy7b`:
-- **52 themes in groups**: Two colours (12 sign looks, Yellow on Black to
-  Black on Orange), Three colours (7, Red, White & Blue and six more), the
-  library's twelve Proven pairs, and the earlier 21 under "More". 52 of 52
-  pass theme_law. The studio's colour row and the designer's are grouped
-  (`themeChips`); the landing shows the library's twelve with their cards and
-  the studio's groups under them, a tap opening the studio with the theme on.
+Done (DESIGN-LAW rule 125), on `claude/vigilant-wozniak-kyyy7b`, merged into
+`main` on 2026-10-08 (the owner: "What you showed me seem to be more cohesive
+and less random", then "Properly integrate into the main"):
+- **31 themes in three groups**: Two colours (12 sign looks, Yellow on Black
+  to Black on Orange), Three colours (7, Red, White & Blue and six more) and
+  rule 123's twelve Proven pairs as the colour builder solves them. On the
+  branch there were 52, the earlier 21 under "More"; rule 123 had retired
+  those on `main` and they stay retired (their names open the nearest pair).
+  31 of 31 pass theme_law, cvd_audit, audit_theme_grammar and
+  theme_cohesion_audit, each taught the groups. The studio's colour row and
+  the designer's are grouped (`themeChips`), the visitor's own sets and the
+  + beside them; the landing's Ready-made tab shows the library's twelve with
+  their designs and every set in its groups, a tap opening the studio with
+  it on; Build your own is the colour builder.
 - **The effects take the palette's colours** (`thFx`): outline, 3-D depth,
   glow, multicolour letters; an Outline choice "Palette"; a new effect and
   look, Offset shadow.
@@ -2566,9 +2573,10 @@ Done (DESIGN-LAW rule 125), on `claude/vigilant-wozniak-kyyy7b`:
 
 Still open:
 
-1. **Merge to `main` and deploy.** This session may push only its own
-   branch; the owner's go-ahead puts it on `main` (merge `main` in first,
-   theme_law and sync_css_fallback --check, then the deploy from the Mac).
+1. **Deploy.** `main` carries it from 2026-10-08. The site is deployed from
+   `main` by `.github/workflows/deploy.yml` once its Netlify secrets are set,
+   or from the Mac; until one of them runs, the live site shows the version
+   deployed last (the owner saw September's generated palettes there).
 2. **The per-card holds the audit wrote**, each a chip turned off on its card
    with its reason, not a bug the visitor meets. Worth a look one day, since
    a fix would give the chip back: Black on Orange (11 cards; among them
@@ -2592,7 +2600,6 @@ Still open:
    another look in the designer puts the line back to its paint before the
    hand colour (taglineEditorApply resets first), as on `main`. Whether a
    hand colour should win over a look is the owner's call.
-5. **`claude/fervent-pascal-w6mthe`** (the plain-words copy, rule 95's two
-   families) is not in `main` or here; its pgOneHue change and this one's
-   wrapper meet in the same pass when it is merged (this one wraps it, so the
-   theme path stays and its two families become the no-theme path).
+5. ~~`claude/fervent-pascal-w6mthe`~~: in `main` before this merge; this
+   branch's pgOneHue wrapper wraps its pass (the theme path is this rule's,
+   its two families the no-theme path).

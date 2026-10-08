@@ -4019,7 +4019,39 @@ Learned:
   - pkill -f matches the shell that runs it: stop audit processes by
     skipping bash in the match, or the tool call dies with its children.
 
+## 2026-10-08 — the colour themes into `main`: two colours, three colours, the twelve pairs
+
+Asked: the owner found their live site showing September's generated
+palettes ("Blue Market", "Gold Trade") and these previews nowhere: "what is
+this and why don't I see this?", "What you showed me seem to be more
+cohesive and less random", then "Properly integrate into the main, I don't
+know what these are".
+
+Found:
+  - Three versions at once. The live site was deployed before 2026-10-01
+    (it still had the Template Lab button and the generated palettes);
+    `main` had moved to the twelve pairings (rule 123) and a colour builder
+    (rule 112); this branch had 52 themes, 169 commits behind `main`.
+  - Rule 123 and this branch had answered the same complaint ("random")
+    from two ends: `main` cut the themes to the twelve, the branch added
+    the sign sets of two and three colours. They fit: the twelve stay the
+    builder's records, the sign sets join them, the 21 retired stay retired.
+  - `main`'s law is stricter than the branch's theme_law: text 4.5:1 for a
+    colour-blind reader, not 3:1. White on Red (3.92:1, deutan) and Red on
+    White (4.02:1) failed it; their reds went a step deeper in their own hue.
+  - `main`'s audits assumed every theme has a small-print colour of its
+    own and a coloured accent; `house_themes.mjs --write` replaced the whole
+    array, so the next regeneration of the pairs would have deleted the 19
+    sign sets. All four checks and the writer now read `group`.
+  - The FAQ's colours answer is inside the JSON-LD block the CSP hashes;
+    changing the words without `csp_hashes.mjs` would have blocked it on
+    the live site with nothing visible on localhost.
+  - The first as-designed comparison showed seven library cards 0.8 to
+    1.3% off `main`; run again, 0.02 to 0.19%, the same as `main` against
+    itself. Images still decoding while another audit loaded the machine.
+    A comparison taken while anything else renders is not a measurement.
+
 RESUME HERE:
-  0. The owner's go-ahead to merge this branch into `main`, then the deploy.
-  1. The per-card holds (OPEN-ITEMS §AS 2), if a chip is worth giving back.
+  0. The deploy (OPEN-ITEMS §AS 1): the workflow's secrets, or the Mac.
+  1. The per-card holds (§AS 2), if a chip is worth giving back.
   2. The salmon red (§AS 3).
