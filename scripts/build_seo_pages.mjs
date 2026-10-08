@@ -23,7 +23,8 @@
 // categories"; coins are "in the gold category or silver category".
 // Fields: cat = the gallery chip the page opens (?cat=, default id);
 // under = {parent id: label} lists the page under that parent in the footers;
-// parent = the breadcrumb parent; label = the footer text.
+// parent = the breadcrumb parent; label = the footer text; one = the name
+// as a word before "ad" ("a console ad"), when it is not the name itself.
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
@@ -54,7 +55,7 @@ const CATS = [
     free: 'Every iPhone, iPad, MacBook and Apple Watch design is on the free plan.',
   },
   {
-    id: 'iphone', slug: 'we-buy-iphones', name: 'iPhones', cat: 'phones', parent: 'apple', under: { apple: 'iPhone' },
+    id: 'iphone', slug: 'we-buy-iphones', name: 'iPhones', one: 'iPhone', cat: 'phones', parent: 'apple', under: { apple: 'iPhone' },
     title: 'We Buy iPhones ad templates',
     h1: '&ldquo;We Buy iPhones&rdquo; ad templates',
     desc: 'Make a We Buy iPhones ad in about a minute: pick a template, add your number and area, download a square image for Marketplace, OfferUp or Instagram. Every iPhone design is free.',
@@ -73,7 +74,7 @@ const CATS = [
     free: 'Every iPhone design is on the free plan.',
   },
   {
-    id: 'ipad', slug: 'we-buy-ipads', name: 'iPads', cat: 'phones', parent: 'apple', under: { apple: 'iPad' },
+    id: 'ipad', slug: 'we-buy-ipads', name: 'iPads', one: 'iPad', cat: 'phones', parent: 'apple', under: { apple: 'iPad' },
     title: 'We Buy iPads ad templates',
     h1: '&ldquo;We Buy iPads&rdquo; ad templates',
     desc: 'Make a We Buy iPads ad for iPad, iPad mini, iPad Air and iPad Pro: pick a template, add your number and area, download a post-ready image. Every iPad design is free.',
@@ -92,7 +93,7 @@ const CATS = [
     free: 'Every iPad design is on the free plan.',
   },
   {
-    id: 'mac', slug: 'we-buy-macbooks', name: 'MacBooks', cat: 'phones', parent: 'apple', under: { apple: 'MacBook' },
+    id: 'mac', slug: 'we-buy-macbooks', name: 'MacBooks', one: 'MacBook', cat: 'phones', parent: 'apple', under: { apple: 'MacBook' },
     title: 'We Buy MacBooks ad templates',
     h1: '&ldquo;We Buy MacBooks&rdquo; ad templates',
     desc: 'Make a We Buy MacBooks ad for MacBook Air and MacBook Pro: pick a template, add your number and area, download a post-ready image. Every MacBook design is free.',
@@ -149,7 +150,7 @@ const CATS = [
     free: 'The top 3 Headphones & Audio designs are on the free plan; Pro unlocks the rest.',
   },
   {
-    id: 'phones', slug: 'we-buy-phones', name: 'phones', title: 'We Buy Phones ad templates',
+    id: 'phones', slug: 'we-buy-phones', name: 'phones', one: 'phone', title: 'We Buy Phones ad templates',
     h1: '&ldquo;We Buy Phones&rdquo; ad templates',
     desc: 'Make a We Buy iPhones ad in about a minute: pick a template, add your number and area, download a square image for Marketplace, OfferUp or Instagram. Every Phones design is free.',
     who: 'phone buyers, repair shops and trade-in resellers who buy iPhones, Samsung Galaxy, Google Pixel and foldable phones from the public',
@@ -167,7 +168,7 @@ const CATS = [
     free: 'Every Phones design is on the free plan.',
   },
   {
-    id: 'consoles', slug: 'we-buy-consoles', name: 'consoles', cat: 'gaming', catLabel: 'Gaming & Consoles', title: 'We Buy Consoles ad templates',
+    id: 'consoles', slug: 'we-buy-consoles', name: 'consoles', one: 'console', cat: 'gaming', catLabel: 'Gaming & Consoles', title: 'We Buy Consoles ad templates',
     h1: '&ldquo;We Buy Consoles&rdquo; ad templates',
     desc: 'Make a We Buy Consoles ad for PS5, Xbox and Nintendo Switch: pick a template, add your number and area, download a post-ready image. Free to start.',
     who: 'game stores and resellers who buy PlayStation, Xbox and Nintendo Switch consoles, controllers, VR headsets and PC handhelds',
@@ -185,7 +186,7 @@ const CATS = [
     free: 'The top 3 Gaming & Consoles designs are on the free plan; Pro unlocks the rest.',
   },
   {
-    id: 'computers', slug: 'we-buy-computers', name: 'computers', catLabel: 'Computers & Parts', title: 'We Buy Computers ad templates',
+    id: 'computers', slug: 'we-buy-computers', name: 'computers', one: 'computer', catLabel: 'Computers & Parts', title: 'We Buy Computers ad templates',
     h1: '&ldquo;We Buy Computers&rdquo; ad templates',
     desc: 'Make a We Buy Computers ad for laptops, monitors, mini PCs and SSDs: pick a template, add your number and area, download a post-ready image. Free to start.',
     who: 'computer buyers and resellers who buy laptops, monitors, mini PCs, SSDs and sealed Chromebooks',
@@ -239,7 +240,7 @@ const CATS = [
     free: 'The top 3 Silver designs are on the free plan; Pro unlocks the rest.',
   },
   {
-    id: 'coins', slug: 'we-buy-coins', name: 'coins', under: { gold: 'Gold coins', silver: 'Silver coins' },
+    id: 'coins', slug: 'we-buy-coins', name: 'coins', one: 'coin', under: { gold: 'Gold coins', silver: 'Silver coins' },
     title: 'We Buy Coins ad templates',
     h1: '&ldquo;We Buy Coins&rdquo; ad templates',
     desc: 'Make a We Buy Coins ad for rare coins and collections: pick a template, add your number and area, download a post-ready image. Free to start.',
@@ -258,7 +259,7 @@ const CATS = [
     free: 'The top 3 Rare Coins designs are on the free plan; Pro unlocks the rest.',
   },
   {
-    id: 'cars', slug: 'we-buy-cars', name: 'cars', title: 'We Buy Cars ad templates',
+    id: 'cars', slug: 'we-buy-cars', name: 'cars', one: 'car', title: 'We Buy Cars ad templates',
     h1: '&ldquo;We Buy Cars&rdquo; ad templates',
     desc: 'Make a We Buy Cars ad for used, junk and damaged cars and trucks: pick a template, add your number and area, download. Free to start.',
     who: 'car buyers, dealers and junk-car buyers who buy used, damaged or non-running cars and trucks',
@@ -276,7 +277,7 @@ const CATS = [
     free: 'The top 3 Cars & Trucks designs are on the free plan; Pro unlocks the rest.',
   },
   {
-    id: 'pokemon', slug: 'we-buy-pokemon-cards', name: 'Pokémon cards', title: 'We Buy Pokémon Cards ad templates',
+    id: 'pokemon', slug: 'we-buy-pokemon-cards', name: 'Pokémon cards', one: 'Pokémon card', title: 'We Buy Pokémon Cards ad templates',
     h1: '&ldquo;We Buy Pok&eacute;mon Cards&rdquo; ad templates',
     desc: 'Make a We Buy Pokémon Cards ad for collections, sealed product and graded cards: pick a template, add your number, download. Free to start.',
     who: 'card shops and collectors who buy Pokémon collections, sealed product and graded cards',
@@ -294,7 +295,7 @@ const CATS = [
     free: 'The top 3 Pokémon Cards designs are on the free plan; Pro unlocks the rest.',
   },
   {
-    id: 'sports', slug: 'we-buy-sports-cards', name: 'sports cards', title: 'We Buy Sports Cards ad templates',
+    id: 'sports', slug: 'we-buy-sports-cards', name: 'sports cards', one: 'sports card', title: 'We Buy Sports Cards ad templates',
     h1: '&ldquo;We Buy Sports Cards&rdquo; ad templates',
     desc: 'Make a We Buy Sports Cards ad for collections, rookies and graded cards: pick a template, add your number and area, download. Free to start.',
     who: 'card shops and collectors who buy baseball, basketball, football and other sports cards',
@@ -312,7 +313,7 @@ const CATS = [
     free: 'The top 3 Sports Cards designs are on the free plan; Pro unlocks the rest.',
   },
   {
-    id: 'strips', slug: 'we-buy-test-strips', name: 'diabetic supplies', title: 'We Buy Diabetic Test Strips ad templates',
+    id: 'strips', slug: 'we-buy-test-strips', name: 'diabetic supplies', one: 'diabetic supplies', title: 'We Buy Diabetic Test Strips ad templates',
     h1: '&ldquo;We Buy Test Strips&rdquo; ad templates',
     desc: 'Make a We Buy Diabetic Test Strips ad: pick a template, add your number and area, download a post-ready image. Check each marketplace’s rules before posting.',
     who: 'buyers of unused diabetic test strips, CGM sensors and other diabetic supplies',
@@ -329,7 +330,7 @@ const CATS = [
     free: 'The top 3 Diabetic Supplies designs are on the free plan; Pro unlocks the rest.',
   },
   {
-    id: 'sneakers', slug: 'we-buy-sneakers', name: 'sneakers', soon: true, title: 'We Buy Sneakers ad templates',
+    id: 'sneakers', slug: 'we-buy-sneakers', name: 'sneakers', one: 'sneaker', soon: true, title: 'We Buy Sneakers ad templates',
     h1: '&ldquo;We Buy Sneakers&rdquo; ad templates',
     desc: 'Sneaker designs for We Buy ads are being made. Until they are ready, make a We Buy Sneakers ad in the studio with your own photo, your number and your area.',
     who: 'sneaker resellers and consignment shops who buy new and worn sneakers',
@@ -347,7 +348,7 @@ const CATS = [
     free: 'Every Phones & Devices design, and the top 3 of every other category, is on the free plan.',
   },
   {
-    id: 'retro', slug: 'we-buy-retro-games', name: 'retro games', soon: true, cat: 'gaming', catLabel: 'Gaming & Consoles', title: 'We Buy Retro Games ad templates',
+    id: 'retro', slug: 'we-buy-retro-games', name: 'retro games', one: 'retro game', soon: true, cat: 'gaming', catLabel: 'Gaming & Consoles', title: 'We Buy Retro Games ad templates',
     h1: '&ldquo;We Buy Retro Games&rdquo; ad templates',
     desc: 'Retro game designs for We Buy ads are being made. Until they are ready, start from a console design in the studio with your own photo, your number and your area.',
     who: 'game stores and collectors who buy retro consoles, cartridges and games',
@@ -386,6 +387,7 @@ const byId = Object.fromEntries(CATS.map((c) => [c.id, c]));
 const top = CATS.filter((c) => !c.under);
 const subsOf = (c) => CATS.filter((s) => s.under && s.under[c.id]);
 const label = (c) => c.label || `We buy ${c.name}`;
+const one = (c) => c.one || c.name;
 const an = (w) => (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w;
 const gallery = (c) => c.catLabel || c.name;
 
@@ -467,7 +469,7 @@ ${nav('../')}
   <div class="crumbs"><a href="../index.html">Graphics Studio</a> &rsaquo; ${parent ? `<a href="${parent.slug}.html">${esc(strip(parent.title))}</a> &rsaquo; ` : ''}${esc(strip(c.title))}</div>
   <h1>${c.h1}</h1>
   <p class="lead">Graphics Studio makes buyback ads for ${esc(c.who)}. Pick a design, type your phone number and area, and download an image ready for Facebook Marketplace, OfferUp, Craigslist, Instagram or a printed flyer.</p>
-  ${c.soon ? `<p class="card"><strong>${esc(c.name[0].toUpperCase() + c.name.slice(1))} designs are on the way.</strong> Until they are in the studio, you can make ${an(c.name)} ad today from ${c.cat ? `a ${esc(gallery(c))} design` : 'a design in the studio'} with your own photo.</p>\n  ` : ''}<div class="ctas">
+  ${c.soon ? `<p class="card"><strong>${esc(one(c)[0].toUpperCase() + one(c).slice(1))} designs are on the way.</strong> Until they are in the studio, you can make ${an(esc(one(c)))} ad today from ${c.cat ? `a ${esc(gallery(c))} design` : 'any design'} with your own photo.</p>\n  ` : ''}<div class="ctas">
     <a class="btn" href="${pick}">${esc(cta)}</a>
     ${['apple', 'iphone', 'phones'].includes(c.id) ? '<a class="btn ghost" href="../motion/">Make a phone video ad</a>' : ''}
     <a class="btn ghost" href="../index.html#pricing">Pricing</a>
@@ -480,14 +482,14 @@ ${nav('../')}
   <ol class="steps">${steps}
   </ol>
 
-  <h2>What to put on ${an(esc(c.name))} buyback ad</h2>
+  <h2>What to put on ${an(esc(one(c)))} buyback ad</h2>
   <ul class="tidy">${c.put.map((p) => `<li>${esc(p)}</li>`).join('\n    ')}</ul>
   <p>Keep it to one headline, a few short selling points and one number. People scroll past an ad in a second; the ones that get texts are readable at a glance on a phone.</p>
 
   <h2>Questions</h2>
   ${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('\n  ')}
 
-  <div class="ctas"><a class="btn" href="${pick}">${c.soon ? esc(cta) : `Make ${an(esc(c.name))} ad`}</a></div>
+  <div class="ctas"><a class="btn" href="${pick}">${c.soon ? esc(cta) : `Make ${an(esc(one(c)))} ad`}</a></div>
 </main>
 ${footer('../')}
 </body>

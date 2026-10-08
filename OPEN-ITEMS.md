@@ -2523,3 +2523,35 @@ Not done, and why:
    percent slower to level, and these final numbers are on
    `claude/photo-real-phone-finish` only, `main` merged in; merge it to land
    them. Not deployed, as asked.
+
+## Ad templates in the owner's order. 2026-10-08: Apple and its devices first, sneakers and retro games listed before their designs
+
+The owner, over the footer's "Ad templates" column: "in order of importance we
+buy apple, phones, consoles, computers, gold, silver, cars, pokemon cards,
+sports cards, diabetic supplies, sneakers", then "apple has sub categories"
+and "we buy retro games". Asked about coins, which the list left out: "it's
+in the gold category or silver category". Asked about sneakers and retro
+games, which have no designs: list them now, designs next.
+
+Done:
+- One table, `CATS` in `scripts/build_seo_pages.mjs`, now writes the category
+  pages, their footers, and the "Ad templates" lists in `index.html` and
+  `about.html` (between `<!-- ad-templates -->` markers), so a list cannot
+  name a page that is not built. 18 pages, up from 8.
+- New pages: Apple, with iPhone, iPad, MacBook, Apple Watch and AirPods under
+  it (breadcrumbs and BreadcrumbList go three deep); consoles; computers;
+  sneakers; retro games. Coins sits under gold and under silver. Test strips
+  is listed as diabetic supplies, its URL unchanged.
+- Every button opens a gallery chip that exists (`?cat=` checked against
+  `site-ux.js`): Apple's devices open Phones & Devices, AirPods open
+  Headphones & Audio, consoles open Gaming & Consoles. Pictures are product
+  cutouts not in `assets/cutout-flags.json`.
+
+Open:
+1. **Sneaker and retro game designs.** Their pages say the designs are on the
+   way and show how to make one today with the seller's own photo; the
+   studio has no blank design to open them on (every design stands on a
+   photograph of its goods). When designs land, drop `soon: true` from the
+   two entries in `CATS` and set their `cat`.
+2. **The studio's own chip order** (`CATS` in app.js, the 2026-10-02 order)
+   was not changed; this list is the footer's and the pages'.
