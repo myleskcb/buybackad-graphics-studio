@@ -58,6 +58,8 @@
  * The router answers null for any path outside /ads.
  */
 
+import { PLANS, planId } from './plans.mjs';
+
 export const REPOST_CHOICES = [0, 1, 2, 3, 5, 7, 14, 30];
 const DAY = 86400000;
 const FEED_RE = /^fd_[A-Za-z0-9_-]{24}$/;
@@ -72,7 +74,7 @@ const PARTS_MAX = Math.ceil(VIDEO_MAX_BYTES / PART_BYTES);
 const SHA_RE = /^[0-9a-f]{64}$/;
 const VIDEO_SECONDS_MAX = 120;
 const MIN_SIDE = 320, MAX_SIDE = 4320;
-const DEFAULT_LIMITS = { free: 12, pro: 300, admin: 2000 };
+const DEFAULT_LIMITS = { admin: 2000 };   // the plans' own are in plans.mjs (library)
 const enc = new TextEncoder();
 
 const reply = (data, status, extra) => new Response(JSON.stringify(data), {
@@ -139,8 +141,8 @@ async function dropVideo(store, owner, id, whole) {
 export function limitFor(acct, env) {
   const n = (k, d) => { const v = parseInt(env[k] || '', 10); return v > 0 ? v : d; };
   if (acct && acct.role === 'admin') return n('ADLIB_MAX_ADMIN', DEFAULT_LIMITS.admin);
-  if (acct && acct.plan && acct.plan !== 'free') return n('ADLIB_MAX_PRO', DEFAULT_LIMITS.pro);
-  return n('ADLIB_MAX_FREE', DEFAULT_LIMITS.free);
+  const plan = planId(acct && acct.plan);
+  return n('ADLIB_MAX_' + plan.toUpperCase(), PLANS[plan].library);
 }
 
 const repostOf = (v, fallback) => {
