@@ -2542,6 +2542,11 @@ Done:
   it (breadcrumbs and BreadcrumbList go three deep); consoles; computers;
   sneakers; retro games. Coins sits under gold and under silver. Test strips
   is listed as diabetic supplies, its URL unchanged.
+- The landing footer: twelve lines in one column ran twice the footer's
+  height, so Ad templates takes a row of its own under the other blocks, in
+  columns that line up under Product, Programs, Talk to us and Legal (the
+  whole row at 3 and 2 tracks). Looked at, light and dark, at 1440, 1280,
+  1024, 768 and 390: no line wraps at 1024 and up, no sideways scroll.
 - Every button opens a gallery chip that exists (`?cat=` checked against
   `site-ux.js`): Apple's devices open Phones & Devices, AirPods open
   Headphones & Audio, consoles open Gaming & Consoles. Pictures are product

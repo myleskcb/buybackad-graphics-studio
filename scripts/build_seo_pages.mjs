@@ -391,18 +391,19 @@ const one = (c) => c.one || c.name;
 const an = (w) => (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w;
 const gallery = (c) => c.catLabel || c.name;
 
-/* the "Ad templates" list: each top line, then its sub-lines in one wrapping
-   row under it (the pages' footers, about.html's and index.html's; each page
-   names its own class for the row) */
-const catList = (up, { link = '', sub = '', subs = '' } = {}, pad = '    ') => top.map((c) => {
+/* the "Ad templates" list: each top line in its own group, its sub-lines in
+   one wrapping row under it, so a list set in columns never parts a line from
+   its sub-lines (the pages' footers, about.html's and index.html's; each page
+   names its own classes) */
+const catList = (up, { grp, subs }, pad = '    ') => top.map((c) => {
   const kids = subsOf(c);
-  const a = `<a${link ? ` class="${link}"` : ''} href="${up}ads/${c.slug}.html">${esc(label(c))}</a>`;
-  if (!kids.length) return a;
-  return a + `\n${pad}<div class="${subs}">` + kids.map((k) => `<a${sub ? ` class="${sub}"` : ''} href="${up}ads/${k.slug}.html">${esc(k.under[c.id])}</a>`).join('') + '</div>';
+  const a = `<a href="${up}ads/${c.slug}.html">${esc(label(c))}</a>`;
+  const row = kids.length ? `<div class="${subs}">` + kids.map((k) => `<a href="${up}ads/${k.slug}.html">${esc(k.under[c.id])}</a>`).join('') + '</div>' : '';
+  return `<div class="${grp}">${a}${row}</div>`;
 }).join(`\n${pad}`);
 
 const footer = (up) => `<footer class="bottom">
-  <div class="cats">${catList(up, { subs: 'cat-sub' })}</div>
+  <div class="cats">${catList(up, { grp: 'cat-grp', subs: 'cat-sub' })}</div>
   <a href="${up}index.html">Graphics Studio</a>
   <a href="${up}motion/">Phone video ads</a>
   <a href="${up}about.html">About</a>
@@ -512,8 +513,8 @@ console.log('wrote', CATS.length, 'pages to ads/');
     if (!re.test(html)) throw new Error(file + ': no <!-- ad-templates --> markers');
     writeFileSync(f, html.replace(re, (m, a, b) => a + list + b));
   };
-  fill('index.html', '\n        ' + catList('', { subs: 'lpf-subs' }, '        '));
-  fill('about.html', '\n    ' + catList('', { subs: 'cat-sub' }));
+  fill('index.html', '\n          ' + catList('', { grp: 'lpf-grp', subs: 'lpf-subs' }, '          '));
+  fill('about.html', '\n    ' + catList('', { grp: 'cat-grp', subs: 'cat-sub' }));
   console.log('footer lists:', top.length, 'lines,', CATS.length - top.length, 'sub-lines');
 }
 
