@@ -727,7 +727,7 @@ function cbPartnersOf(start, mode){
 /* the landing's counts arrive with the library (scBuildFamilies) */
 function cbOnCounts(){
   const n = Object.keys(cbCounts()).length, el = document.querySelector('#cb-tab-ready .n');
-  if (el && n) el.textContent = String(n);
+  if (el && n) el.textContent = String(document.getElementById('theme-grid') && typeof COLOR_THEMES !== 'undefined' ? COLOR_THEMES.length : n);   // the panel holds every set (rule 125)
   document.querySelectorAll('.cb').forEach(c => { const root = c.parentElement; if (root && root.__cb) cbRender(root); });
 }
 function cbMount(root, opts){
@@ -997,11 +997,14 @@ function cbBind(root, v, saved){
 function cbLandingInit(){
   const tabs = $('cb-tabs'), grid = $('fam-grid'), root = $('cb-root');
   if (!tabs || !grid || !root) return;
-  grid.setAttribute('role', 'tabpanel'); grid.setAttribute('aria-labelledby', 'cb-tab-ready');
+  /* the ready-made panel: the library's twelve, and the studio's sets in their
+     groups under them (rule 125), or the twelve alone where the page has no panel */
+  const ready = $('cb-ready') || grid;
+  ready.setAttribute('role', 'tabpanel'); ready.setAttribute('aria-labelledby', 'cb-tab-ready');
   const show = which => {
     const build = which === 'build';
     tabs.querySelectorAll('[role=tab]').forEach(b => { const on = b.dataset.tab === which; b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; b.classList.toggle('on', on); });
-    grid.hidden = build; root.hidden = !build;
+    ready.hidden = build; root.hidden = !build;
     if (build && !root.__cb) cbMount(root, { onUse: th => { showEasy(null); applyColorTheme(th); } });
     try { localStorage.setItem('pgfx_cb_tab', which); } catch (e){}
   };

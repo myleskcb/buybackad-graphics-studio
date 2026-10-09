@@ -2619,3 +2619,87 @@ Still open:
    $13.40 at $15, so $25 earns more unless it loses over 42% of the
    conversions $15 would get; Business at $60 against $39, over 36%. Read
    the free-to-paid rate for the first months against that line.
+
+
+## AT. 2026-10-02 — the colour themes: two colours, three colours, the proven pairs; the effects wear them (DESIGN-LAW 125)
+
+The owner, of the landing's twelve palettes: "there's gotta be more proven
+themes ... Maybe some color pallets using only two or three colors", then
+"keep in mind we use things like gradient, and other effects that may use
+extra colors like 3-D. Or outlines around text", and "make sure we have as
+much capability as possible when it comes to colors".
+
+Done (DESIGN-LAW rule 125), on `claude/vigilant-wozniak-kyyy7b`, merged into
+`main` on 2026-10-08 (the owner: "What you showed me seem to be more cohesive
+and less random", then "Properly integrate into the main"):
+- **31 themes in three groups**: Two colours (12 sign looks, Yellow on Black
+  to Black on Orange), Three colours (7, Red, White & Blue and six more) and
+  rule 123's twelve Proven pairs as the colour builder solves them. On the
+  branch there were 52, the earlier 21 under "More"; rule 123 had retired
+  those on `main` and they stay retired (their names open the nearest pair).
+  31 of 31 pass theme_law, cvd_audit, audit_theme_grammar and
+  theme_cohesion_audit, each taught the groups. The studio's colour row and
+  the designer's are grouped (`themeChips`), the visitor's own sets and the
+  + beside them; the landing's Ready-made tab shows the library's twelve with
+  their designs and every set in its groups, a tap opening the studio with
+  it on; Build your own is the colour builder.
+- **Measured on `main`'s build** (DESIGN-LAW 125): every theme and look on
+  all 666 cards, holds written; the library 366/366, the classics the same
+  53 held as `main`; every colour check 31/31; the landing, the colour
+  builder, Easy Mode's themes, the looks and the designer clean but for
+  what `main` already holds or records; the cards as designed as on `main`.
+- **The effects take the palette's colours** (`thFx`): outline, 3-D depth,
+  glow, multicolour letters; an Outline choice "Palette"; a new effect and
+  look, Offset shadow.
+- **What rule 95 flattened is drawn**: with a theme on, its colours stay
+  (Navy & Gold keeps gold and navy); a look the visitor picks keeps its
+  colours (the Rainbow gradient, Red & blue 3-D and Multicolour had been one
+  colour on every card).
+- **Every palette shows its accent** on a card that gave the accent no job.
+- **§Z 3's three held themes on reviewProof-cd06-15 pass**: a plate matched
+  to a look's gradient now goes lighter or darker by the words on it.
+- **Audited on every offered card** (2026-10-03, the owner: "keep going to
+  make it fully audited and validated"): every_card_audit over all 649
+  cards, themes and looks, holds written (assets/choice-holds.json): 45
+  cards held as offered, the same as `main`; the older themes' holds 444 →
+  275; the 31 new themes 171 holds over 21 cards; looks 37 (36 on `main`).
+  The library gate 329/329, the classics the same 58 failing as stored,
+  ez_theme_audit and tagline_audit clean, designer_audit's ORIG 0% on every
+  card that opens. Five things the audit found are fixed (rule 125): a mark
+  on a large panel, a halo on an even ground, a mark the number's plate slid
+  under, multicolour letters at the line's lightness, and the designer's
+  ORIG (bandKnockout-pp04-15, 29% on `main`). `main` merged in again
+  (b7a67925, rules 108 and 109 there, so this was 110 then; 125 on `main`): its 90
+  re-centred cards measured again on the merged build, three holds moved,
+  the library gate 321/321.
+
+Still open:
+
+1. **Deploy.** `main` carries it from 2026-10-08. The site is deployed from
+   `main` by `.github/workflows/deploy.yml` once its Netlify secrets are set,
+   or from the Mac; until one of them runs, the live site shows the version
+   deployed last (the owner saw September's generated palettes there).
+2. **The per-card holds the sweep wrote** on `main`'s build (2026-10-08, 666
+   cards), each a chip turned off on its card with its reason, not a bug the
+   visitor meets: 208 theme holds (140 a mark that would vanish, 68 a line
+   that would read under its floor), Black on Orange on 13 cards the most,
+   the twelve pairs held 88 times against `main`'s 130. Worth a look one day,
+   since a fix gives a chip back: the marks lost on stepsFlow cards (five of
+   the six cards with a lost mark), and pkm_binder's "Info" line under White
+   on Green (2.94:1).
+3. **A red accent lifted for a dark photograph goes salmon** (Black, White &
+   Red's headline on sell_iphone): themeScene solves an accent line's
+   lightness until it reads, and over rule 103's band red stops being red.
+   Keeping the red and shading the photograph under that line would hold
+   the name; not done.
+4. **A colour set by hand on a line a look styles** is the line's own paint
+   under the look (the designer keeps it through a ground change, and a look
+   that keeps the letters' face, as 3-D does, shows it), but a look that
+   paints the letters (a gradient, multicolour) draws over it while it is
+   on, in Easy Mode and the designer alike, as on `main`; and picking
+   another look in the designer puts the line back to its paint before the
+   hand colour (taglineEditorApply resets first), as on `main`. Whether a
+   hand colour should win over a look is the owner's call.
+5. ~~`claude/fervent-pascal-w6mthe`~~: in `main` before this merge; this
+   branch's pgOneHue wrapper wraps its pass (the theme path is this rule's,
+   its two families the no-theme path).

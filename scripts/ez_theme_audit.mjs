@@ -117,7 +117,7 @@ const installHelpers = () => {
       objs.forEach((o, k) => {
         if (!o || o.visible === false || ground(o) || o.pgKin) return;
         const key = (o.name || o.type) + '#' + (seen[o.name || o.type] = (seen[o.name || o.type] || 0) + 1);
-        if (isText(o)){ if (READ[o.pgRole]) out.push({ key, cls: 'text', role: o.pgRole, paint: paintOf(o.fill), c: chroma(o.fill) }); return; }
+        if (isText(o)){ if (READ[o.pgRole]) out.push({ key, cls: 'text', role: o.pgRole, paint: paintOf(o.fill), c: chroma(o.fill), pi: !!(o.pgPlateInk && o.pgPlateInk === o.fill) }); return; }
         if (!['rect', 'circle', 'polygon', 'path', 'ellipse'].includes(o.type)) return;
         const b = bb(o), area = b.width * b.height;
         const hosts = carriers.has(o);
@@ -213,7 +213,10 @@ for (const card of cards){
     save(card + '-' + name.replace(/\W+/g, '_'), r);
     const by = Object.fromEntries(r.inv.map(x => [x.key, x]));
     const unthemed = plates.filter(p => by[p.key] && by[p.key].paint === p.paint).map(p => p.key);
-    const left = chromatic.filter(x => by[x.key] && by[x.key].paint === x.paint && (x.cls !== 'mark' || !x.stroke || by[x.key].stroke === x.stroke)).map(x => x.key);
+    /* a line pgPlateInk tinted (rule 104) follows its plate: on the theme's plate it is the
+       theme's colour, even where near-black rounds to the hex it had (#2e0000 on an orange
+       plate and on a coral one, dl_phones_gradientWave_sunset) */
+    const left = chromatic.filter(x => by[x.key] && by[x.key].paint === x.paint && !by[x.key].pi && (x.cls !== 'mark' || !x.stroke || by[x.key].stroke === x.stroke)).map(x => x.key);
     const reg = regress(base, r);
     row.themes[name] = { changed: diffPct(base.px, r.px), unthemed: unthemed.length, left: left.length, legib: r.gate.legib, reg: reg.length };
     const lost = base.inv.filter(x => x.cls === 'mark' && x.on != null && x.on >= 2 && by[x.key] && by[x.key].on != null && by[x.key].on < 2).map(x => x.key + ' ' + by[x.key].on);

@@ -21,7 +21,8 @@
  *         CHROME=/path/to/chrome [FABRIC_JS=/path/to/fabric.min.js] \
  *           node scripts/house_themes.mjs [--json out.json] [--write]
  * Prints the literal; --json also writes the records; --write puts the
- * literal into app.js (the rows of COLOR_THEMES; its comment stays). */
+ * literal into app.js (the Proven pairs rows of COLOR_THEMES; the Two and
+ * Three colours rows and the comments stay, rule 125). */
 import puppeteer from 'puppeteer-core';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { BASE, offline } from './_showcase_harness.mjs';
@@ -114,17 +115,23 @@ console.log(`\n${out.length - bad.length}/${out.length} pass`);
 /* the literal for app.js */
 const lit = out.filter(t => !t.err).map(t => {
   const aka = t.aka ? `, aka:[${t.aka.map(n => `'${n}'`).join(', ')}]` : '';
-  return `  { name:'${t.name}',${' '.repeat(Math.max(1, 16 - t.name.length))}family:'${t.look}',  bg:{type:'grad', c1:'${t.bg.c1}', c2:'${t.bg.c2}', a:170}, accent:'${t.accent}', ink:'${t.ink}', support:'${t.support}'${aka} },`;
+  return `  { name:'${t.name}',${' '.repeat(Math.max(1, 16 - t.name.length))}group:'Proven pairs', family:'${t.look}',  bg:{type:'grad', c1:'${t.bg.c1}', c2:'${t.bg.c2}', a:170}, accent:'${t.accent}', ink:'${t.ink}', support:'${t.support}'${aka} },`;
 }).join('\n');
 console.log('\n' + lit);
 if (argv('--json')) writeFileSync(argv('--json'), JSON.stringify(out, null, 1));
-/* --write puts the literal into app.js in place of the array's rows (the
-   comment above the array stays; nothing else in the file is touched) */
+/* --write puts the literal into app.js in place of the array's Proven pairs
+   rows (rule 125: the Two colours and Three colours sets above them, and every
+   comment, stay; nothing else in the file is touched) */
 if (process.argv.includes('--write') && !bad.length && !errors.length){
   const P = new URL('../app.js', import.meta.url).pathname;
   const a = app.indexOf('const COLOR_THEMES = [\n'), b = app.indexOf('\n];', a);
   if (a < 0 || b < 0) throw new Error('COLOR_THEMES not found in app.js');
-  writeFileSync(P, app.slice(0, a) + 'const COLOR_THEMES = [\n' + lit + app.slice(b));
-  console.log('wrote app.js: COLOR_THEMES, ' + out.length + ' themes');
+  const rows = app.slice(a, b).split('\n'), pairRow = l => /group:'Proven pairs'/.test(l);
+  const first = rows.findIndex(pairRow), last = rows.length - 1 - rows.slice().reverse().findIndex(pairRow);
+  if (first < 0) throw new Error('no Proven pairs rows in COLOR_THEMES');
+  if (rows.slice(first, last + 1).some(l => !pairRow(l))) throw new Error('the Proven pairs rows are not together in COLOR_THEMES');
+  const body = rows.slice(0, first).concat(lit.split('\n'), rows.slice(last + 1)).join('\n');
+  writeFileSync(P, app.slice(0, a) + body + app.slice(b));
+  console.log('wrote app.js: COLOR_THEMES, ' + out.length + ' Proven pairs (the other groups kept)');
 }
 process.exit(bad.length || errors.length ? 1 : 0);

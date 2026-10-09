@@ -420,6 +420,23 @@ produced." DESIGN-LAW rule 87. In practice:
   twice. Then rethumb_showcase.mjs and verify_showcase.mjs, and bump
   ASSET_REV. (Two sessions answered the same request with 25 and with 12
   pairings; the twelve, the later answer, are the product.)
+- **The studio's colour themes are 31, in three groups** (rule 125, which
+  widens rule 123, 2026-10-08): COLOR_THEMES is Two colours (12: a ground and
+  one colour for every word; accent = ink, no support), Three colours (7:
+  ground, ink, one accent; the small print is the ink) and Proven pairs (rule
+  123's twelve, solved by the colour builder: `house_themes.mjs --write`
+  rewrites only those rows). `group` and `family` (Dark or Light) are on
+  every record; `themeChips` builds Easy Mode's and the designer's rows, the
+  visitor's own sets (`cbThemeChips`) beside them. After any change run
+  `theme_law.mjs`, `cvd_audit.py`, `audit_theme_grammar.mjs` and
+  `theme_cohesion_audit.mjs`; each reads the groups. The effects take the
+  palette's colours from `thFx` (outline dark and light, 3-D and offset
+  depth, glow, multicolour letters); never hard-code an effect colour that
+  bypasses it while a theme is on. With a theme on, `pgOneHue` keeps the
+  theme's colours (not one hue); what a look the visitor picked paints is
+  `pgLookInk` and stays theirs. A card as designed draws exactly as before:
+  check that on any change here by drawing its thumbnail with `main`'s app.js
+  and this one.
 - **Every choice on every card** (rule 101): `node
   scripts/every_card_audit.mjs --write-holds` takes every offered card
   through every theme, look and voice on Easy Mode's render and writes
@@ -431,7 +448,12 @@ produced." DESIGN-LAW rule 87. In practice:
   its own list as `--ids` too (the offered classics and the live library):
   without `--ids` the table starts empty, so a run of one dimension (`--dims
   base`) empties the others, and a classic the table holds drops out of the
-  population and loses its row unmeasured.
+  population and loses its row unmeasured. On a container (a
+  cloud session, about 14 GB) run it with `--lean --workers 3`: a studio page
+  peaks near 4 GB, a fourth worker gets its renderer killed for memory, and a
+  page that dies is reported and opened again rather than hanging the run.
+  The full run (about 640 cards, themes and looks) takes about eight hours
+  that way, in chunks continued with `--resume`.
 - **The designer's guides and lock** (rule 107, 2026-10-02): the pink guides
   (`sgSnap`) and the lock to the middle (`pgCentreLock`, kept by `ccKeep`
   before every render and undo step) work on the parts `ccParts` finds. A
