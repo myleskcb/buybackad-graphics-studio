@@ -745,8 +745,9 @@ async function browserPart() {
       ok(au.up && au.go === 'Create account', 'video maker: a signed-out star asks for an account, Create account first (' + JSON.stringify(au) + ')');
       await page.fill('#acct-email', 'maker@studio.example'); await page.fill('#acct-pass', 'a-long-password'); await page.click('#acct-go');
       await page.waitForFunction(() => { const st = adLibrary.state(); return st.lib && st.lib.items.length === 1 && st.lib.items[0].video; }, null, { timeout: 180000 }).catch(() => {});
-      const saved = await page.evaluate(() => { const st = adLibrary.state(); const t = st.lib && st.lib.items[0]; return t && { kind: t.kind, template: t.template, source: t.source, seconds: t.video && t.video.seconds, w: t.video && t.video.width, photo: t.image.width, on: document.getElementById('mo-star').classList.contains('on') }; });
-      ok(saved && saved.kind === 'video' && /^motion-/.test(saved.template) && saved.source === 'motion' && saved.w === 1080 && saved.photo === 1440 && saved.on, 'video maker: after the sign-up the look is made and saved with its photo, the star fills (' + JSON.stringify(saved) + ')');
+      const saved = await page.evaluate(async () => { const st = adLibrary.state(); const t = st.lib && st.lib.items[0]; const me = (await pgfxAccount.api('/me')).user; return t && { kind: t.kind, template: t.template, source: t.source, seconds: t.video && t.video.seconds, w: t.video && t.video.width, photo: t.image.width, hold: t.hold, counted: me.exports && me.exports.count, on: document.getElementById('mo-star').classList.contains('on') }; });
+      // a Free save is one of the plan's downloads, at Free's size with the marks, held from auto-post (2026-10-08)
+      ok(saved && saved.kind === 'video' && /^motion-/.test(saved.template) && saved.source === 'motion' && saved.w === 1080 && saved.photo === 1080 && saved.hold === 'the watermark' && saved.counted === 1 && saved.on, 'video maker: after the sign-up the look is made and saved with its photo, as a Free download (1080, watermarked, held, counted), the star fills (' + JSON.stringify(saved) + ')');
       await page.evaluate(() => document.getElementById('looks').scrollIntoView());
       await page.waitForFunction(() => document.querySelectorAll('#gallery .mo-thumb').length >= 4, null, { timeout: 60000 });
       await page.waitForTimeout(600);

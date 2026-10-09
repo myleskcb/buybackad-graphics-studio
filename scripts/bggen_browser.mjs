@@ -107,7 +107,7 @@ export async function browserCheck({ ROOT, ok, api, falCalls }) {
     ok(first.styles >= 8 && first.pals >= 10 && first.count === 4, 'browser: styles, colour schemes and 1-4 images offered');
     await page.waitForFunction(() => { const i = document.querySelector('#bggen-grid .bggen-tile img'); return i && i.complete && i.naturalWidth > 0; }, null, { timeout: 10000 });
     let f = await foot(page);
-    ok(/1 credit\b/.test(f.cost) && /6 of 6 credits left/.test(f.bal) && /Generate 1 image · 1 credit/.test(f.go), 'browser: the footer prices a plain scene and shows the balance (' + JSON.stringify(f) + ')');
+    ok(/1 credit\b/.test(f.cost) && /^5 credits left · this month · resets/.test(f.bal) && /Generate 1 image · 1 credit/.test(f.go), 'browser: the footer prices a plain scene and shows the plan\'s credits (' + JSON.stringify(f) + ')');
     await shot(page, 'open');
 
     await tile(page, 'iPhone 17 Pro Max').click();
@@ -123,28 +123,29 @@ export async function browserCheck({ ROOT, ok, api, falCalls }) {
     await page.click('#bggen-pals .chip[data-pal="volt"]');
     await page.click('#bggen-count button[data-n="4"]');
     f = await foot(page);
-    ok(/8 credits/.test(f.cost) && f.short && f.disabled && /Not enough credits/.test(f.go), 'browser: 4 images × 2 is 8, more than the 6 left: Generate holds (' + JSON.stringify(f) + ')');
-    await page.click('#bggen-count button[data-n="3"]');
+    ok(/8 credits/.test(f.cost) && f.short && f.disabled && /Not enough credits/.test(f.go) && /Get more/.test(f.bal), 'browser: 4 images × 2 is 8, more than the 5 left: Generate holds, Get more offered (' + JSON.stringify(f) + ')');
+    await page.click('#bggen-count button[data-n="2"]');
     f = await foot(page);
-    ok(/6 credits/.test(f.cost) && !f.disabled && /Generate 3 images · 6 credits/.test(f.go), 'browser: 3 images × 2 is 6: Generate goes (' + f.go + ')');
+    ok(/4 credits/.test(f.cost) && !f.disabled && /Generate 2 images · 4 credits/.test(f.go), 'browser: 2 images × 2 is 4: Generate goes (' + f.go + ')');
     await page.selectOption('#bggen-aspect', '9:16');
     await page.fill('#bggen-prompt', 'iphones in the rain');
     await shot(page, 'configured');
 
     const calls = falCalls.length;
     await page.click('#bggen-go');
-    await page.waitForFunction(() => document.querySelectorAll('#bggen-results .bggen-card').length === 3, null, { timeout: 5000 });
+    await page.waitForFunction(() => document.querySelectorAll('#bggen-results .bggen-card').length === 2, null, { timeout: 5000 });
     await page.waitForFunction(() => [...document.querySelectorAll('#bggen-results .bggen-card')].every((c) => !c.classList.contains('busy')), null, { timeout: 30000 });
     const res = await page.evaluate(() => ({
       imgs: [...document.querySelectorAll('#bggen-results .bggen-card img')].filter((i) => i.complete && i.naturalWidth > 0).length,
       errs: document.querySelectorAll('#bggen-results .bggen-card.err').length,
       bal: document.getElementById('bggen-bal').textContent, go: document.getElementById('bggen-go').textContent, disabled: document.getElementById('bggen-go').disabled,
     }));
-    ok(res.imgs === 3 && res.errs === 0, 'browser: three images land (' + JSON.stringify(res) + ')');
-    ok(/0 of 6 credits left/.test(res.bal) && res.disabled && /Out of credits/.test(res.go), 'browser: the balance counted down to 0 and Generate holds');
+    ok(res.imgs === 2 && res.errs === 0, 'browser: two images land (' + JSON.stringify(res) + ')');
+    ok(/^1 credit left/.test(res.bal) && res.disabled && /Not enough credits/.test(res.go), 'browser: the balance came down to 1 and Generate holds (' + JSON.stringify(res) + ')');
+    ok(await page.evaluate(() => account.credits && account.credits.total === 1), 'browser: the studio\'s own credit count follows the run');
     const sent = falCalls.slice(calls);
-    ok(sent.length === 3 && sent.every((c) => c.model === 'fal-ai/bytedance/seedream/v4/edit' && c.body.image_urls.some((u) => /qs-iphone-17-pro-max\.jpg$/.test(u)) && c.body.image_urls.some((u) => /qs-iphone-16-back--teal\.jpg$/.test(u)) && c.body.image_size.height === 2560 && /neon/i.test(c.body.prompt) && /#2563eb/.test(c.body.prompt) && /iphones, rain/.test(c.body.prompt)),
-      'browser: fal got three edit calls with both reference photos, story size, neon, electric blue and the words');
+    ok(sent.length === 2 && sent.every((c) => c.model === 'fal-ai/bytedance/seedream/v4/edit' && c.body.image_urls.some((u) => /qs-iphone-17-pro-max\.jpg$/.test(u)) && c.body.image_urls.some((u) => /qs-iphone-16-back--teal\.jpg$/.test(u)) && c.body.image_size.height === 2560 && /neon/i.test(c.body.prompt) && /#2563eb/.test(c.body.prompt) && /iphones, rain/.test(c.body.prompt)),
+      'browser: fal got two edit calls with both reference photos, story size, neon, electric blue and the words');
     await shot(page, 'results');
     await page.locator('#bggen-results .bggen-card [data-a="use"]').first().click();
     await page.waitForFunction(() => !document.getElementById('bggen-overlay').classList.contains('show'), null, { timeout: 5000 });
@@ -191,14 +192,14 @@ export async function browserCheck({ ROOT, ok, api, falCalls }) {
     await shot(op, 'operator');
     await op.evaluate(() => { document.getElementById('bggen-overlay').classList.remove('show'); openAdminBg(); document.getElementById('bggen-admin').open = true; });
     await op.waitForFunction(() => /Provider: fal/.test(document.getElementById('bggen-admin-status').textContent), null, { timeout: 10000 });
-    await op.fill('#bggen-admin-json', '{"credits":{"unit":"tokens"}}');
+    await op.fill('#bggen-admin-json', '{"maxPerRun":2}');
     await op.click('#bggen-admin-save');
     await op.waitForFunction(() => /Saved/.test(document.getElementById('bggen-admin-status').textContent), null, { timeout: 10000 });
     await op.fill('#bggen-grant-email', 'shop@x.example');
     await op.fill('#bggen-grant-n', '5');
     await op.click('#bggen-grant-go');
-    await op.waitForFunction(() => /5 of 11 tokens left/.test(document.getElementById('bggen-admin-status').textContent), null, { timeout: 10000 }).catch(() => {});
-    ok(/5 of 11 tokens left/.test(await op.locator('#bggen-admin-status').textContent()), 'browser: the console saves the recipe (tokens) and grants 5 (' + await op.locator('#bggen-admin-status').textContent() + ')');
+    await op.waitForFunction(() => /now has 6 AI credits/.test(document.getElementById('bggen-admin-status').textContent), null, { timeout: 10000 }).catch(() => {});
+    ok(/now has 6 AI credits: 1 of this month's 5, and 5 bought/.test(await op.locator('#bggen-admin-status').textContent()), 'browser: the console saves the recipe and grants 5 credits (' + await op.locator('#bggen-admin-status').textContent() + ')');
     await op.fill('#bggen-admin-json', '');
     await op.click('#bggen-admin-save');
     await op.waitForFunction(() => /Cleared/.test(document.getElementById('bggen-admin-status').textContent), null, { timeout: 10000 });

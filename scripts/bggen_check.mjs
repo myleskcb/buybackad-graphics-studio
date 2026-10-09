@@ -86,11 +86,11 @@ const B = await import(pathToFileURL(join(ROOT, 'netlify/lib/bggen.mjs')).href);
   const n = B.composePrompt(R, { category: 'gaming', entities: B.resolveEntities(['consoles:n-controllers'], CAT, R), keywords: [] });
   ok(n.refs.length === 0 && /Featuring wireless controllers/.test(n.prompt), 'prompt: a named subject rides by name, no reference');
   ok(B.colourName('#000000') === 'black' && B.colourName('#ffffff') === 'white' && /blue/.test(B.colourName('#2563eb')) && /orange/.test(B.colourName('#ff7a1a')), 'colour names: black, white, blue, orange');
-  for (const [o, why] of [[{ nope: 1 }, 'unknown key'], [{ credits: { cost: -1 } }, 'negative cost'], [{ models: { falEdit: 'https://evil.example/x' } }, 'a model off fal'], [{ negative: 'text' }, 'negative not a list']]) {
+  for (const [o, why] of [[{ nope: 1 }, 'unknown key'], [{ maxPerRun: 0 }, 'a run of none'], [{ credits: { cost: 0 } }, 'prices are the plans\', not the recipe\'s'], [{ models: { falEdit: 'https://evil.example/x' } }, 'a model off fal'], [{ negative: 'text' }, 'negative not a list']]) {
     let threw = false; try { B.checkOverride(o); } catch (e) { threw = true; }
     ok(threw, 'override: refused, ' + why);
   }
-  ok(B.checkOverride({}) === null && B.checkOverride({ credits: { unit: 'tokens', cost: 3 } }).credits.cost === 3, 'override: empty clears, a good one passes');
+  ok(B.checkOverride({}) === null && B.checkOverride({ maxPerRun: 3 }).maxPerRun === 3, 'override: empty clears, a good one passes');
 }
 
 /* ---------- 2. the real function ---------- */
@@ -107,7 +107,8 @@ writeFileSync(join(T, 'node_modules/@netlify/blobs/index.js'), [
   '    list: async (o) => ({ blobs: [...m.keys()].filter((k) => !o || !o.prefix || k.startsWith(o.prefix)).map((key) => ({ key, etag: "x" })) }) }; };',
 ].join('\n'));
 Object.assign(process.env, { JWT_SECRET: 'bggen-check-' + 'x'.repeat(32), ADMIN_EMAILS: 'boss@studio.example', FAL_KEY: 'test-key',
-  AI_CREDITS_FREE: '6', AI_CREDIT_COST: '1', AI_CREDIT_COST_REF: '2', SITE_URL: 'https://studio.example' });
+  /* the edit model priced at 6 cents: two credits an image with products, one without (plans.mjs) */
+  MODEL_COSTS: JSON.stringify({ 'fal-seedream-v4-edit': 0.06 }), SITE_URL: 'https://studio.example' });
 delete process.env.GEMINI_KEY;
 
 const SITE = 'https://studio.example';
@@ -140,64 +141,78 @@ const hit = async (method, path, body, token) => {
   return { status: res.status, json, raw };
 };
 const SECRET = /Reproduce every product|Avoid:|candid real photo|softbox|strictly limited|calm and uncluttered|trustworthy setting/i;
+const { PLANS } = await import(pathToFileURL(join(T, 'netlify/lib/plans.mjs')).href);
+const FREE = PLANS.free.credits;
 {
   const anon = await hit('GET', '/bggen/config');
   ok(anon.status === 200 && anon.json.enabled && anon.json.account === null && anon.json.styles.length >= 8 && anon.json.palettes.some((x) => x.id === 'custom'), 'config: open to all, styles and colour schemes, no account');
   ok(!SECRET.test(anon.raw) && !/lead|look|say|negative|template/.test(Object.keys(anon.json.styles[1]).join()), 'config: labels only, no prompt text');
   ok(anon.json.usd === undefined && anon.json.provider === undefined, 'config: the provider price is not shown to a customer');
+  ok(anon.json.cost === 1 && anon.json.costRef === 2 && anon.json.unit === 'credits', 'config: the plans\' price, 1 credit a scene, 2 with products at a 6-cent edit model (' + anon.json.cost + '/' + anon.json.costRef + ')');
 
   const free = (await hit('POST', '/auth/signup', { email: 'free@x.example', password: 'a-long-password' })).json.token;
   const boss = (await hit('POST', '/auth/signup', { email: 'boss@studio.example', password: 'a-long-password' })).json.token;
   let c = await hit('GET', '/bggen/config', null, free);
-  ok(c.json.account && c.json.account.left === 6 && c.json.account.unit === 'credits' && c.json.cost === 1 && c.json.costRef === 2, 'config: a free account has 6 credits, 1 a scene, 2 with products');
+  ok(c.json.account && c.json.account.total === FREE && c.json.account.allowance === FREE && c.json.account.bought === 0 && c.json.account.resets, 'config: a free account has the Free plan\'s ' + FREE + ' credits this month');
 
-  const r1 = await hit('POST', '/generate-bg', { text: 'iphones in the rain', category: 'phones', entities: ['iphone:iphone-17-pro-max', 'iphone:iphone-16@teal'], style: 'neon', palette: 'volt', aspect: '9:16', space: 'left' }, free);
+  const r1 = await hit('POST', '/generate-bg', { text: 'iphones in the rain', category: 'phones', entities: ['iphone:iphone-17-pro-max', 'iphone:iphone-16@teal'], style: 'neon', palette: 'volt', aspect: '9:16', space: 'left', count: 1 }, free);
   const f1 = falCalls.at(-1);
-  ok(r1.status === 200 && /^data:image\/jpeg;base64,/.test(r1.json.image) && r1.json.charged === 2 && r1.json.credits.left === 4, 'generate: with products, an image, charged 2, 4 left (' + r1.status + ' ' + (r1.json && (r1.json.error || r1.json.credits && r1.json.credits.left)) + ')');
+  ok(r1.status === 200 && r1.json.images.length === 1 && /^bggen\/img\/[a-f0-9]{32}$/.test(r1.json.images[0].url) && r1.json.spent === 2 && r1.json.credits.total === FREE - 2, 'generate: with products, one picture by link, charged 2 (' + r1.status + ' ' + JSON.stringify(r1.json && (r1.json.error || r1.json.credits)) + ')');
+  const pic = await hit('GET', '/' + r1.json.images[0].url);
+  ok(pic.status === 200 && pic.raw.length > 1000, 'generate: the picture loads from its link');
+  ok((await hit('GET', '/bggen/img/' + 'f'.repeat(32))).status === 404 && (await hit('GET', '/bggen/img/../../u:free@x.example')).status === 404, 'pictures: an unknown or malformed id is 404');
   ok(f1.model === 'fal-ai/bytedance/seedream/v4/edit' && f1.auth === 'Key test-key' && JSON.stringify(f1.body.image_urls) === JSON.stringify([SITE + '/assets/bggen-refs/qs-iphone-17-pro-max.jpg', SITE + '/assets/bggen-refs/qs-iphone-16-back--teal.jpg']), 'generate: the edit model gets the two reference photographs from the site');
   ok(f1.body.image_size.width === 1440 && f1.body.image_size.height === 2560 && f1.body.enable_safety_checker === true && /iphones, rain/.test(f1.body.prompt), 'generate: story size, safety checker on, the keywords in the prompt');
-  ok(!SECRET.test(r1.raw.replace(/"image":"[^"]*"/, '')), 'generate: the fused prompt is not in the answer');
+  ok(!SECRET.test(r1.raw), 'generate: the fused prompt is not in the answer');
 
   const r2 = await hit('POST', '/generate-bg', { text: 'clean white desk', category: 'gold' }, free);
-  ok(r2.status === 200 && falCalls.at(-1).model === 'fal-ai/bytedance/seedream/v4/text-to-image' && r2.json.credits.left === 3, 'generate: the old two-field request still works, text-to-image, charged 1');
+  ok(r2.status === 200 && /^data:image\/jpeg;base64,/.test(r2.json.image) && falCalls.at(-1).model === 'fal-ai/bytedance/seedream/v4/text-to-image' && r2.json.spent === 1 && r2.json.credits.total === FREE - 3, 'generate: the older two-field request still answers one inline image, text-to-image, charged 1');
 
   falFail = 1;
-  const r3 = await hit('POST', '/generate-bg', { text: 'marble', category: 'gold' }, free);
-  ok(r3.status === 502 && r3.json.refunded === true && r3.json.credits.left === 3, 'generate: a failed image is refunded (' + r3.status + ' ' + JSON.stringify(r3.json && r3.json.credits && r3.json.credits.left) + ')');
+  const r3 = await hit('POST', '/generate-bg', { text: 'marble', category: 'gold', count: 1 }, free);
+  ok(r3.status === 502 && r3.json.refunded === true && r3.json.credits.total === FREE - 3, 'generate: a failed image is refunded (' + r3.status + ' ' + JSON.stringify(r3.json && r3.json.credits && r3.json.credits.total) + ')');
 
-  const par = await Promise.all([1, 2, 3].map(() => hit('POST', '/generate-bg', { text: 'velvet', category: 'gold' }, free)));
-  c = await hit('GET', '/bggen/config', null, free);
-  ok(par.every((x) => x.status === 200) && c.json.account.used === 6 && c.json.account.left === 0, 'generate: three in parallel are each charged, none lost (used ' + c.json.account.used + ')');
-  const r4 = await hit('POST', '/generate-bg', { text: 'velvet', category: 'gold' }, free);
-  ok(r4.status === 402 && /Not enough credits/.test(r4.json.error) && r4.json.credits.left === 0, 'generate: past the allowance is 402 with the balance');
+  falFail = 1;
+  const r4 = await hit('POST', '/generate-bg', { text: 'velvet', category: 'gold', count: 2 }, free);
+  ok(r4.status === 200 && r4.json.images.filter((x) => x.url).length === 1 && r4.json.images.filter((x) => x.error).length === 1 && r4.json.spent === 1 && r4.json.refunded === 1 && r4.json.credits.total === FREE - 4, 'generate: two asked, one failed: charged 1, refunded 1 (' + JSON.stringify(r4.json && { s: r4.json.spent, r: r4.json.refunded, t: r4.json.credits && r4.json.credits.total }) + ')');
+  const r5 = await hit('POST', '/generate-bg', { text: 'velvet', category: 'gold', count: 2 }, free);
+  ok(r5.status === 402 && /2 AI backgrounds take 2 credits and you have 1 left/.test(r5.json.error) && r5.json.credits.total === 1, 'generate: past the balance is 402 with the balance (' + (r5.json && r5.json.error) + ')');
   ok((await hit('POST', '/generate-bg', { text: 'x' })).status === 401, 'generate: signed out is 401');
+
+  const gr = await hit('POST', '/admin/bggen-grant', { email: 'free@x.example', credits: 9 }, boss);
+  ok(gr.status === 200 && gr.json.account.bought === 9 && gr.json.account.total === 10, 'grant: 9 credits, added to the bought ones');
+  ok((await hit('POST', '/admin/bggen-grant', { email: 'free@x.example', credits: 9 }, free)).status === 403, 'grant: a customer cannot');
+  const r6 = await hit('POST', '/generate-bg', { category: 'phones', entities: ['iphone:iphone-16'], count: 3 }, free);
+  ok(r6.status === 200 && r6.json.images.length === 3 && r6.json.spent === 6 && r6.json.credits.left === 0 && r6.json.credits.bought === 4, 'generate: three with products, 6 credits, this month\'s first then bought (' + JSON.stringify(r6.json && r6.json.credits) + ')');
+  falFail = 3;
+  const r7 = await hit('POST', '/generate-bg', { category: 'gold', count: 3 }, free);
+  ok(r7.status === 502 && r7.json.credits.bought === 4 && r7.json.credits.total === 4, 'generate: all three failed, the bought credits are back (' + JSON.stringify(r7.json && r7.json.credits) + ')');
+  const me = await hit('GET', '/me', null, free);
+  ok(me.status === 200 && me.json.user.credits.total === 4, 'function: /me reads the same credits (' + JSON.stringify(me.json && me.json.user && me.json.user.credits) + ')');
+  const plans = await hit('GET', '/plans');
+  ok(plans.status === 200 && plans.json.plans.free.credits === FREE, 'function: /plans still answers');
 
   const before = falCalls.length;
   const pv = await hit('POST', '/admin/bggen-preview', { text: 'rain', category: 'phones', entities: ['iphone:iphone-17-pro'], style: 'studio' }, boss);
-  ok(pv.status === 200 && /Apple iPhone 17 Pro/.test(pv.json.prompt) && pv.json.refs.length === 1 && pv.json.cost === 2 && falCalls.length === before, 'preview: an operator sees the exact prompt, nothing generated');
+  ok(pv.status === 200 && /Apple iPhone 17 Pro/.test(pv.json.prompt) && pv.json.refs.length === 1 && pv.json.cost === 2 && pv.json.usd === 0.06 && falCalls.length === before, 'preview: an operator sees the exact prompt and price, nothing generated');
   ok((await hit('POST', '/admin/bggen-preview', { text: 'rain' }, free)).status === 403, 'preview: a customer is refused');
   const cb = await hit('GET', '/bggen/config', null, boss);
-  ok(cb.json.account.unlimited === true && cb.json.usd === 0.03 && cb.json.provider === 'fal', 'config: an operator is unlimited and sees the provider price');
-  const rb = await hit('POST', '/generate-bg', { text: 'rain', category: 'phones' }, boss);
-  ok(rb.status === 200 && rb.json.charged === 0, 'generate: an operator is not charged');
+  ok(cb.json.account.unlimited === true && cb.json.usd === 0.03 && cb.json.usdRef === 0.06 && cb.json.provider === 'fal', 'config: an operator is unlimited and sees the provider price');
+  const rb = await hit('POST', '/generate-bg', { text: 'rain', category: 'phones', count: 2 }, boss);
+  ok(rb.status === 200 && rb.json.spent === 0 && rb.json.images.length === 2, 'generate: an operator is not charged');
 
-  ok((await hit('POST', '/admin/bggen-recipe', { override: { credits: { cost: -3 } } }, boss)).status === 400, 'recipe: a bad override is refused');
-  ok((await hit('POST', '/admin/bggen-recipe', { override: { credits: { unit: 'tokens' } } }, free)).status === 403, 'recipe: a customer cannot save one');
-  const sv = await hit('POST', '/admin/bggen-recipe', { override: { credits: { unit: 'tokens', cost: 3 }, styles: { neon: null, chalk: { label: 'Chalkboard', emoji: '🖍️', lead: 'Chalkboard photograph', look: 'chalk dust' } }, categories: { gold: { anchor: 'velvet jeweller tray mood' } } } }, boss);
-  ok(sv.status === 200 && sv.json.effective.credits.unit === 'tokens' && sv.json.effective.categories.gold.anchor === 'velvet jeweller tray mood' && sv.json.effective.categories.gold.negative.length > 0, 'recipe: an override saves and merges over the base');
+  ok((await hit('POST', '/admin/bggen-recipe', { override: { maxPerRun: 99 } }, boss)).status === 400, 'recipe: a bad override is refused');
+  ok((await hit('POST', '/admin/bggen-recipe', { override: { maxPerRun: 2 } }, free)).status === 403, 'recipe: a customer cannot save one');
+  const sv = await hit('POST', '/admin/bggen-recipe', { override: { maxPerRun: 2, styles: { neon: null, chalk: { label: 'Chalkboard', emoji: '🖍️', lead: 'Chalkboard photograph', look: 'chalk dust' } }, categories: { gold: { anchor: 'velvet jeweller tray mood' } } } }, boss);
+  ok(sv.status === 200 && sv.json.effective.maxPerRun === 2 && sv.json.effective.categories.gold.anchor === 'velvet jeweller tray mood' && sv.json.effective.categories.gold.negative.length > 0, 'recipe: an override saves and merges over the base');
   const c2 = await hit('GET', '/bggen/config', null, free);
-  ok(c2.json.unit === 'tokens' && c2.json.cost === 3 && c2.json.styles.some((s) => s.id === 'chalk') && !c2.json.styles.some((s) => s.id === 'neon'), 'recipe: the next config has the new unit, price and styles');
-  await hit('POST', '/generate-bg', { category: 'gold', style: 'chalk' }, boss);
-  ok(/velvet jeweller tray mood/.test(falCalls.at(-1).body.prompt) && /Chalkboard photograph/.test(falCalls.at(-1).body.prompt), 'recipe: the next prompt uses the override');
-  const gr = await hit('POST', '/admin/bggen-grant', { email: 'free@x.example', credits: 9 }, boss);
-  ok(gr.status === 200 && gr.json.account.grant === 9 && gr.json.account.left === 9, 'grant: 9 extra tokens this month');
-  const r5 = await hit('POST', '/generate-bg', { text: 'velvet', category: 'gold' }, free);
-  ok(r5.status === 200 && r5.json.credits.left === 6 && r5.json.credits.unit === 'tokens', 'generate: the grant is spent at the new price');
+  ok(c2.json.maxPerRun === 2 && c2.json.styles.some((s) => s.id === 'chalk') && !c2.json.styles.some((s) => s.id === 'neon'), 'recipe: the next config has the new limit and styles');
+  const r8 = await hit('POST', '/generate-bg', { category: 'gold', style: 'chalk', count: 4 }, boss);
+  ok(r8.json.images.length === 2 && /velvet jeweller tray mood/.test(falCalls.at(-1).body.prompt) && /Chalkboard photograph/.test(falCalls.at(-1).body.prompt), 'recipe: the next run uses the override and its limit');
   await hit('POST', '/admin/bggen-recipe', { override: null }, boss);
-  ok((await hit('GET', '/bggen/config', null, free)).json.unit === 'credits', 'recipe: clearing the override restores the base');
+  ok((await hit('GET', '/bggen/config', null, free)).json.maxPerRun === 4, 'recipe: clearing the override restores the base');
 
-  ok((await hit('GET', '/me', null, free)).status === 200 && (await hit('POST', '/admin/generate-bg', { prompt: 'a plain white wall' }, boss)).status === 200, 'function: /me and the operator\'s verbatim path still answer');
-  ok(falCalls.at(-1).body.prompt === 'a plain white wall', 'admin path: the operator\'s words verbatim');
+  ok((await hit('POST', '/admin/generate-bg', { prompt: 'a plain white wall' }, boss)).status === 200 && falCalls.at(-1).body.prompt === 'a plain white wall', 'admin path: the operator\'s words verbatim');
 }
 
 /* ---------- 3. the browser (the same function, stand-ins and all) ---------- */

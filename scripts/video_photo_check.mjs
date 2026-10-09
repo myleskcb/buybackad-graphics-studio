@@ -45,10 +45,14 @@ async function openPage(path){
   const page = await browser.newPage();
   await page.setViewport({ width: 1400, height: 900 });
   page.on('pageerror', e => errs.push(path + ': ' + String(e)));
-  await page.evaluateOnNewDocument(() => {
+  await page.evaluateOnNewDocument((maker) => {
     window.__csp = [];
     document.addEventListener('securitypolicyviolation', e => window.__csp.push(e.violatedDirective + ' ' + e.blockedURI));
-  });
+    /* a download from the video maker goes through the plan (motion/app.js
+       planGate) and this static server has no /api: the maker runs as a
+       local copy does, ungated (account.js demo) */
+    try { if (maker) localStorage.setItem('pgfx_local_demo', '1'); else localStorage.removeItem('pgfx_local_demo'); } catch (e){}
+  }, path.startsWith('motion'));
   await page.setRequestInterception(true);
   page.on('request', async q => {
     const u = q.url();

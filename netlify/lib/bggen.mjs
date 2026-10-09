@@ -17,19 +17,18 @@
  *                                   formats, text space), the price and the
  *                                   signed-in account's balance. Labels only:
  *                                   no prompt text ever leaves this file.
- *   POST /api/generate-bg           one image. { text, category, entities[],
- *                                   style, palette, colors[], aspect, space }.
- *                                   A run of N images is N of these in
- *                                   parallel (the studio's modal), so each
- *                                   lands, and is charged, on its own and a
- *                                   function never runs N generations long.
+ *   POST /api/generate-bg           a run. { text, category, entities[],
+ *                                   style, palette, colors[], aspect, space,
+ *                                   count }. Without `count` (the older
+ *                                   callers) one image, inline.
  *   GET  /api/admin/bggen-recipe    operator: the recipe (defaults, override,
  *   POST /api/admin/bggen-recipe    effective) and saving an override. Live in
  *                                   about a minute, no deploy.
  *   POST /api/admin/bggen-preview   operator: the exact prompt a request would
  *                                   send, without generating.
- *   POST /api/admin/bggen-grant     operator: extra credits for an account
- *                                   this month.
+ *   POST /api/admin/bggen-grant     operator: credits for an account, added
+ *                                   to its bought credits (they never expire).
+ *   GET  /api/bggen/img/<id>        a generated picture, by its unguessable id.
  *
  * Entities are <group>:<id>[@finish] from assets/bggen-entities.json
  * (scripts/bggen_entities.py): the shop's own approved photographs. Picked,
@@ -41,23 +40,26 @@
  * customer. The customer's own words are reduced to keywords and moderated
  * before they join it.
  *
- * Credits: each image is a ledger entry `cr:<email>:<YYYY-MM>:<id>:<cost>` in
- * the users store. One entry per image, never a read-modify-write of a
- * running total, so images generated in parallel can never overwrite each
- * other's charge; a failed generation deletes its own entry (the refund). The
- * month's spend is the sum over the prefix. Operators are not charged.
+ * Credits are the plans' (netlify/lib/plans.mjs, one table for the whole
+ * product): an image costs what its model costs us, in credits, the dearest
+ * model in the fallback chain setting the price; the month's plan credits go
+ * first, then bought ones. A run of N images is ONE request: it takes N
+ * images' credits in one write, generates the N in parallel, and gives back
+ * the failures' credits in one more (the ledger is on the account record, so
+ * N requests in parallel could overwrite each other). The pictures go to a
+ * blob store and come back as links, so four large images never meet the
+ * function's 6 MB answer limit. Operators are not charged.
  *
  * Configuration, each layer over the one before:
  *   1. the defaults below
- *   2. env: AI_CREDIT_UNIT ("credits" or "tokens"), AI_CREDITS_FREE,
- *      AI_CREDITS_PRO (per month), AI_CREDIT_COST (an image, scene only),
- *      AI_CREDIT_COST_REF (an image with products from the catalogue),
- *      AI_MAX_PER_RUN, AI_USD_PER_IMAGE, AI_USD_PER_IMAGE_REF (the provider's
- *      price, shown to operators only), PGFX_BG_PROVIDER (fal | gemini),
+ *   2. env: AI_MAX_PER_RUN (images one Generate may ask for, 1 to 8),
+ *      PGFX_BG_PROVIDER (fal | gemini),
  *      PGFX_FAL_TEXT_MODEL, PGFX_FAL_EDIT_MODEL, PGFX_BG_MODEL (Gemini),
  *      PGFX_HOUSE_FRAME and PGFX_CATEGORY_ANCHORS (the older two, still read)
  *   3. the operator's override, saved from the AI Studio (blob recipe/v1)
  */
+
+import { creditState, spendCredits, refundCredits, creditsFor, modelCosts, planId } from './plans.mjs';
 
 export const CATALOGUE_PATH = '/assets/bggen-entities.json';
 const MAX_ENTITIES = 4;
@@ -143,7 +145,7 @@ const DEFAULTS = {
     bottom: { label: 'Bottom', say: 'subject in the upper two thirds, the lower third calm and uncluttered for text' },
     none:   { label: 'Full frame', say: 'subject fills the frame as the hero' },
   },
-  credits: { unit: 'credits', free: 10, pro: 150, cost: 1, costRef: 2, maxPerRun: 4, usd: 0.03, usdRef: 0.03 },
+  maxPerRun: 4,  // images one Generate may ask for (the price is plans.mjs's)
   models: {
     provider: '',  // '' = fal when FAL_KEY is set, else Gemini
     falText: 'fal-ai/bytedance/seedream/v4/text-to-image',
@@ -193,11 +195,10 @@ const clean = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !=
 /** the defaults with the environment applied: what an empty override gives */
 export function baseRecipe(env) {
   let r = merge(DEFAULTS, {
-    credits: clean({ unit: env.AI_CREDIT_UNIT, free: num(env.AI_CREDITS_FREE), pro: num(env.AI_CREDITS_PRO), cost: num(env.AI_CREDIT_COST),
-      costRef: num(env.AI_CREDIT_COST_REF), maxPerRun: num(env.AI_MAX_PER_RUN), usd: num(env.AI_USD_PER_IMAGE), usdRef: num(env.AI_USD_PER_IMAGE_REF) }),
     models: clean({ provider: env.PGFX_BG_PROVIDER, falText: env.PGFX_FAL_TEXT_MODEL, falEdit: env.PGFX_FAL_EDIT_MODEL, gemini: env.PGFX_BG_MODEL }),
   });
   if (env.PGFX_HOUSE_FRAME) r.template = env.PGFX_HOUSE_FRAME;
+  if (num(env.AI_MAX_PER_RUN) !== undefined) r.maxPerRun = num(env.AI_MAX_PER_RUN);
   try {
     if (env.PGFX_CATEGORY_ANCHORS) {
       const a = JSON.parse(env.PGFX_CATEGORY_ANCHORS);
@@ -207,7 +208,7 @@ export function baseRecipe(env) {
   return r;
 }
 
-const RECIPE_KEYS = ['template', 'quality', 'negative', 'refClause', 'categories', 'groups', 'styles', 'palettes', 'paletteClause', 'aspects', 'spaces', 'credits', 'models'];
+const RECIPE_KEYS = ['template', 'quality', 'negative', 'refClause', 'categories', 'groups', 'styles', 'palettes', 'paletteClause', 'aspects', 'spaces', 'maxPerRun', 'models'];
 /** an operator's override, checked for shape before it can be saved */
 export function checkOverride(o) {
   if (o === null || (isObj(o) && !Object.keys(o).length)) return null;
@@ -220,12 +221,7 @@ export function checkOverride(o) {
     for (const k of ['falText', 'falEdit']) if (o.models[k] !== undefined && !/^fal-ai\/[\w./-]+$/.test(o.models[k])) throw new Error('models.' + k + ' must be a fal-ai/… model id');
     if (o.models.provider !== undefined && !['', 'fal', 'gemini'].includes(o.models.provider)) throw new Error('models.provider is fal, gemini or empty');
   }
-  if (o.credits) {
-    for (const [k, v] of Object.entries(o.credits)) {
-      if (k === 'unit') { if (typeof v !== 'string' || !v.trim() || v.length > 20) throw new Error('credits.unit is a short word'); continue; }
-      if (!Number.isFinite(v) || v < 0) throw new Error('credits.' + k + ' must be a number of 0 or more');
-    }
-  }
+  if (o.maxPerRun !== undefined && !(Number.isInteger(o.maxPerRun) && o.maxPerRun >= 1 && o.maxPerRun <= 8)) throw new Error('maxPerRun is a whole number from 1 to 8');
   return o;
 }
 
@@ -375,13 +371,14 @@ async function falImage(job, env, recipe, fetchImpl) {
   const j = await res.json();
   const url = j.images?.[0]?.url;
   if (!url) throw new Error('the model declined this prompt, try different words');
-  if (url.startsWith('data:')) return { image: url };
+  if (url.startsWith('data:')) {
+    const m = url.match(/^data:([^;,]+);base64,(.*)$/s);
+    if (!m) throw new Error('bad image from the model');
+    return { mime: m[1], bytes: Buffer.from(m[2], 'base64') };
+  }
   const img = await fetchImpl(url);
   if (!img.ok) throw new Error('image fetch failed');
-  const buf = await img.arrayBuffer();
-  // a function's answer tops out near 6 MB: past ~4 MB of picture, hand over the link instead
-  if (buf.byteLength > 4000000) return { url };
-  return { image: `data:${img.headers.get('content-type') || 'image/jpeg'};base64,${b64(buf)}` };
+  return { mime: img.headers.get('content-type') || 'image/jpeg', bytes: Buffer.from(await img.arrayBuffer()) };
 }
 
 /** Gemini: the references go inline, ahead of the words */
@@ -412,7 +409,7 @@ async function geminiImage(job, env, recipe, fetchImpl) {
     const part = (j.candidates?.[0]?.content?.parts || []).find((p) => p.inlineData || p.inline_data);
     if (!part) throw new Error('the model declined this prompt — try different words');
     const d = part.inlineData || part.inline_data;
-    return { image: `data:${d.mimeType || d.mime_type || 'image/png'};base64,${d.data}` };
+    return { mime: d.mimeType || d.mime_type || 'image/png', bytes: Buffer.from(d.data, 'base64') };
   }
   throw lastErr || new Error('image model unavailable');
 }
@@ -424,8 +421,10 @@ export const providerOf = (env, recipe) => {
   return env.FAL_KEY ? 'fal' : env.GEMINI_KEY ? 'gemini' : null;
 };
 
+export const dataUrlOf = (out) => `data:${out.mime};base64,${out.bytes.toString('base64')}`;
+
 /**
- * One image. job: { prompt, negative, refs[] (site paths), aspect }.
+ * One image, as { mime, bytes }. job: { prompt, negative, refs[] (site paths), aspect }.
  * The first provider is the recipe's (fal when FAL_KEY is set); the other is
  * the fallback when its key is set too. References: fal fetches them from the
  * site itself when the site is public, else they go inline as data URIs.
@@ -454,54 +453,99 @@ export async function generateImage(job, env, recipe, deps) {
   throw lastErr;
 }
 
-// ---------- credits ----------
-const period = () => new Date().toISOString().slice(0, 7);
+// ---------- credits (plans.mjs) ----------
+/* the fal model ids the recipe runs, by the names plans.mjs prices them
+   under; any other model is priced under its own id (MODEL_COSTS), and a
+   model with no price is not sold */
+const FAL_PRICE_KEY = {
+  'fal-ai/bytedance/seedream/v4/text-to-image': 'fal-seedream-v4',
+  'fal-ai/bytedance/seedream/v4/edit': 'fal-seedream-v4-edit',
+};
+/** the models a job may run on, first choice first, as plans.mjs names them */
+export function jobModels(env, recipe, refs) {
+  const order = providerOf(env, recipe) === 'gemini' ? ['gemini', 'fal'] : ['fal', 'gemini'];
+  return order.filter((p) => (p === 'fal' ? env.FAL_KEY : env.GEMINI_KEY)).map((p) => {
+    if (p === 'gemini') return recipe.models.gemini || 'gemini-3.1-flash-lite-image';
+    const m = refs ? recipe.models.falEdit : recipe.models.falText;
+    return FAL_PRICE_KEY[m] || m;
+  });
+}
+/** credits an image costs: the dearest model it could run on; null = not sold */
+export function jobCredits(env, recipe, refs) {
+  const ms = jobModels(env, recipe, refs);
+  if (!ms.length) return null;
+  let most = 0;
+  for (const m of ms) {
+    const c = creditsFor(m, env);
+    if (c === null) return null;
+    most = Math.max(most, c);
+  }
+  return most;
+}
+/** what an image can cost us at most, in dollars (operators see it) */
+export function jobUsd(env, recipe, refs) {
+  const t = modelCosts(env);
+  return Math.max(0, ...jobModels(env, recipe, refs).map((m) => Number(t[m]) || 0));
+}
 const resetsOn = () => { const d = new Date(); return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1)).toISOString().slice(0, 10); };
-const ledgerPrefix = (em, per) => `cr:${em}:${per}:`;
-export async function creditsUsed(store, em, per = period()) {
-  const { blobs } = await store.list({ prefix: ledgerPrefix(em, per) });
-  return (blobs || []).reduce((s, b) => s + (Number(String(b.key).split(':').pop()) || 0), 0);
+const balanceOf = (user, admin) => (admin ? { unlimited: true, resets: resetsOn() } : { ...creditState(user), unlimited: false, resets: resetsOn() });
+/* give back n credits of a run: bought ones first (they never expire) */
+function part(spent, n) {
+  const fromBought = Math.min(n, spent.fromBought || 0);
+  return { fromBought, fromPlan: Math.min(spent.fromPlan || 0, n - fromBought), period: spent.period };
 }
-function allowanceOf(user, recipe) {
-  const c = recipe.credits;
-  const plan = (user && user.plan) || 'free';
-  const base = plan === 'free' ? c.free : c.pro;
-  const grant = user && user.aiGrant && user.aiGrant.period === period() ? Number(user.aiGrant.credits) || 0 : 0;
-  return { base, grant, allowance: base + grant };
+
+// ---------- generated pictures ----------
+const IMG_ID = /^[a-f0-9]{32}$/;
+const KEEP = 48;  // the newest pictures an account keeps in the store
+async function keepImage(store, em, out) {
+  const id = [...crypto.getRandomValues(new Uint8Array(16))].map((x) => x.toString(16).padStart(2, '0')).join('');
+  await store.set('img/' + id, JSON.stringify({ mime: out.mime, b64: out.bytes.toString('base64'), by: em, ts: Date.now() }));
+  return id;
 }
-export async function balanceOf(store, user, recipe, admin) {
-  const c = recipe.credits;
-  if (admin) return { unit: c.unit, unlimited: true, period: period(), resets: resetsOn() };
-  const { base, grant, allowance } = allowanceOf(user, recipe);
-  const used = await creditsUsed(store, user.email);
-  return { unit: c.unit, unlimited: false, plan: user.plan || 'free', base, grant, allowance, used, left: Math.max(0, allowance - used), period: period(), resets: resetsOn() };
+async function pruneImages(store, em, ids) {
+  const key = 'idx/' + em;
+  let idx = [];
+  try { idx = JSON.parse((await store.get(key)) || '[]'); } catch (e) { idx = []; }
+  idx = idx.concat(ids);
+  const drop = idx.slice(0, Math.max(0, idx.length - KEEP));
+  await store.set(key, JSON.stringify(idx.slice(-KEEP)));
+  await Promise.all(drop.map((id) => store.delete('img/' + id).catch(() => {})));
 }
 
 // ---------- the routes ----------
 /**
- * deps: { json, readToken(req), getUser(em), putUser(u), isAdmin(em), users
- * (strong store: ledger + counters), bg (published-backgrounds store: the
- * override), bump(key, cap) (the daily counters), fetchJson(url), fetch }
+ * deps: { json, readToken(req), getUser(em), putUser(u), freshUser(u),
+ * isAdmin(em), bumpBy(key, n, cap) (the day's ceilings), bg (the published-
+ * backgrounds store: the override), gen (the generated-pictures store),
+ * fetchJson(url), fetch }
  */
 export async function bggenRoute(req, url, p, env, deps) {
   const { json } = deps;
   const routes = ['/bggen/config', '/generate-bg', '/admin/bggen-recipe', '/admin/bggen-preview', '/admin/bggen-grant'];
+  if (p.startsWith('/bggen/img/')) {
+    const id = p.slice('/bggen/img/'.length);
+    const raw = IMG_ID.test(id) ? await deps.gen.get('img/' + id) : null;
+    if (!raw) return json({ error: 'Not found' }, 404);
+    const { mime, b64 } = JSON.parse(raw);
+    return new Response(Buffer.from(b64, 'base64'), { headers: { 'Content-Type': mime, 'Cache-Control': 'private, max-age=86400', 'X-Robots-Tag': 'noindex' } });
+  }
   if (!routes.includes(p)) return null;
   const origin = String(env.SITE_URL || url.origin).replace(/\/+$/, '');
   const recipe = await loadRecipe(env, deps.bg);
   const provider = providerOf(env, recipe);
   const em = await deps.readToken(req);
   const admin = !!em && deps.isAdmin(em);
+  const maxPerRun = Math.max(1, Math.min(8, Math.round(recipe.maxPerRun) || 1));
 
   if (p === '/bggen/config') {
-    const c = recipe.credits;
     const pub = (o) => Object.entries(o).map(([id, v]) => clean({ id, label: v.label, emoji: v.emoji, colors: v.colors }));
+    const cost = jobCredits(env, recipe, false), costRef = jobCredits(env, recipe, true);
     const out = {
-      enabled: !!provider,
-      references: !!provider,  // both providers take reference images
-      unit: c.unit,
-      cost: c.cost, costRef: c.costRef,
-      maxPerRun: Math.max(1, Math.min(8, Math.round(c.maxPerRun) || 1)),
+      enabled: !!provider && cost !== null,
+      references: !!provider && costRef !== null,  // both providers take reference images
+      unit: 'credits',
+      cost, costRef, maxPerRun,
       maxEntities: MAX_ENTITIES,
       styles: pub(recipe.styles),
       palettes: [...pub(recipe.palettes), { id: 'custom', label: 'Custom' }],
@@ -512,9 +556,9 @@ export async function bggenRoute(req, url, p, env, deps) {
     };
     if (em) {
       const user = await deps.getUser(em);
-      if (user) out.account = await balanceOf(deps.users, user, recipe, admin);
+      if (user) out.account = balanceOf(user, admin);
     }
-    if (admin) Object.assign(out, { usd: c.usd, usdRef: c.usdRef, provider });
+    if (admin) Object.assign(out, { usd: jobUsd(env, recipe, false), usdRef: jobUsd(env, recipe, true), provider });
     return json(out);
   }
 
@@ -540,25 +584,26 @@ export async function bggenRoute(req, url, p, env, deps) {
     const n = Math.round(Number(credits));
     if (!target) return json({ error: 'No account with that email' }, 404);
     if (!Number.isFinite(n) || Math.abs(n) > 100000) return json({ error: 'Credits must be a whole number' }, 400);
-    const cur = target.aiGrant && target.aiGrant.period === period() ? Number(target.aiGrant.credits) || 0 : 0;
-    target.aiGrant = { period: period(), credits: Math.max(0, cur + n), by: em, ts: Date.now() };
+    target.creditsBought = Math.max(0, (target.creditsBought || 0) + n);
     await deps.putUser(target);
-    return json({ ok: true, account: await balanceOf(deps.users, target, recipe, false) });
+    return json({ ok: true, account: balanceOf(target, false) });
   }
 
-  // ---- one image, or (operators) the prompt it would send ----
+  // ---- a run, or (operators) the prompt it would send ----
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
   if (p === '/admin/bggen-preview' && !admin) return json({ error: 'Not authorized' }, 403);
   if (!em) return json({ error: 'Sign in to generate backgrounds' }, 401);
   const user = await deps.getUser(em);
   if (!user) return json({ error: 'Account not found' }, 404);
   const body = await req.json().catch(() => ({}));
+  const legacy = !('count' in body);  // the older callers: one image, inline
+  const n = legacy ? 1 : Math.max(1, Math.min(maxPerRun, Math.round(Number(body.count)) || 1));
   const category = String(body.category || '').toLowerCase();
   let entities = [];
   if (Array.isArray(body.entities) && body.entities.length) {
     let cat;
     try { cat = await loadCatalogue(origin, deps.fetchJson); }
-    catch (e) { return json({ error: 'The product catalogue is unavailable, try again' }, 503); }
+    catch (e) { return json({ error: 'The product catalogue is unavailable, try again. Nothing was charged.' }, 503); }
     entities = resolveEntities(body.entities, cat, recipe);
   }
   const job = composePrompt(recipe, {
@@ -566,37 +611,66 @@ export async function bggenRoute(req, url, p, env, deps) {
     style: String(body.style || 'auto'), palette: String(body.palette || 'auto'), colors: body.colors,
     aspect: String(body.aspect || '1:1'), space: String(body.space || 'top'),
   });
-  const cost = job.refs.length ? recipe.credits.costRef : recipe.credits.cost;
+  const cost = jobCredits(env, recipe, job.refs.length > 0);
   if (p === '/admin/bggen-preview') {
-    return json({ prompt: job.prompt, negative: job.negative, refs: job.refs, aspect: job.aspect, entities: entities.map((e) => e.id), cost, provider });
+    return json({ prompt: job.prompt, negative: job.negative, refs: job.refs, aspect: job.aspect, entities: entities.map((e) => e.id), cost, usd: jobUsd(env, recipe, job.refs.length > 0), provider });
   }
   if (!provider) return json({ error: 'AI backgrounds are not enabled yet' }, 503);
+  if (cost === null) {
+    console.error('generate-bg: the image model has no price in plans.mjs or MODEL_COSTS, so it is not sold');
+    return json({ error: 'AI backgrounds are paused for a moment. Nothing was charged.' }, 503);
+  }
 
-  let charge = null;
+  /* the run's credits in one write, the plan's month first (plans.mjs) */
+  const total = cost * n;
+  let spent = null;
   if (!admin) {
-    const userCap = (user.plan || 'free') === 'free' ? parseInt(env.RL_USER_DAILY || '10', 10) : parseInt(env.RL_PRO_DAILY || '40', 10);
-    const bal = await balanceOf(deps.users, user, recipe, false);
-    if (cost > bal.left) {
-      return json({ error: `Not enough ${bal.unit}: this image costs ${cost} and you have ${bal.left} left this month`, credits: bal }, 402);
+    await deps.freshUser(user);
+    spent = spendCredits(user, total);
+    if (!spent) {
+      const c = creditState(user);
+      const what = n > 1 ? `${n} AI backgrounds take ${total}` : `An AI background takes ${total}`;
+      return json({ error: `${what} credit${total === 1 ? '' : 's'} and you have ${c.total} left`, need: total, credits: balanceOf(user, false) }, 402);
     }
-    if (!(await deps.bump(`rl:${em}:${new Date().toISOString().slice(0, 10)}`, userCap))) {
-      return json({ error: 'Daily AI background limit reached — try again tomorrow', credits: bal }, 429);
+    /* the free tier's AI is a marketing cost with a ceiling; paid credits are
+       profitable by construction and only meet the runaway guard (as main's
+       /generate-bg did before this file took it over) */
+    const day = new Date().toISOString().slice(0, 10);
+    if (spent.fromPlan && planId(user.plan) === 'free'
+      && !(await deps.bumpBy('ai:free:' + day, spent.fromPlan, parseInt(env.AI_FREE_DAILY_CREDITS || '100', 10)))) {
+      return json({ error: 'Free AI backgrounds are used up for today. Try again tomorrow, or go Pro. Nothing was charged.', credits: balanceOf(await deps.getUser(em), false) }, 429);
     }
-    if (!(await deps.bump(`rl:global:${new Date().toISOString().slice(0, 10)}`, parseInt(env.RL_GLOBAL_DAILY || '400', 10)))) {
-      return json({ error: 'AI backgrounds are cooling down — try again later', credits: bal }, 429);
+    if (!(await deps.bumpBy('ai:all:' + day, total, parseInt(env.AI_DAILY_CREDITS || '2000', 10)))) {
+      return json({ error: 'AI backgrounds are cooling down. Try again later. Nothing was charged.', credits: balanceOf(await deps.getUser(em), false) }, 429);
     }
-    if (cost > 0) {
-      charge = ledgerPrefix(em, period()) + Date.now().toString(36) + Math.random().toString(36).slice(2, 8) + ':' + cost;
-      await deps.users.set(charge, '1');
-    }
+    await deps.putUser(user);
   }
-  try {
-    const out = await generateImage(job, env, recipe, { origin, fetch: deps.fetch });
-    const credits = await balanceOf(deps.users, user, recipe, admin);
-    return json({ ...out, charged: admin ? 0 : cost, credits });  // the prompt is intentionally NOT returned
-  } catch (err) {
-    if (charge) await deps.users.delete(charge).catch(() => {});  // the refund
-    const credits = await balanceOf(deps.users, user, recipe, admin).catch(() => null);
-    return json({ error: err.message || 'Generation failed', refunded: !!charge, credits }, 502);
+
+  const settled = await Promise.allSettled(Array.from({ length: n }, () => generateImage(job, env, recipe, { origin, fetch: deps.fetch })));
+  const failed = settled.filter((r) => r.status === 'rejected');
+  let credits = balanceOf(user, admin);
+  if (spent && failed.length) {  // the failures' credits back, in one write
+    const back = await deps.getUser(em);
+    if (back) { refundCredits(back, part(spent, failed.length * cost)); await deps.putUser(back); credits = balanceOf(back, false); }
   }
+  const charged = admin ? 0 : (n - failed.length) * cost;
+  const refunded = spent ? failed.length * cost : 0;
+  if (failed.length === n) {
+    return json({ error: (failed[0].reason && failed[0].reason.message) || 'Generation failed', refunded: refunded > 0, credits }, 502);
+  }
+  // the prompt is intentionally NOT returned
+  if (legacy) {
+    const out = settled[0].value;
+    if (out.bytes.length <= 4000000) return json({ image: dataUrlOf(out), spent: charged, credits });
+    const id = await keepImage(deps.gen, em, out);
+    await pruneImages(deps.gen, em, [id]);
+    return json({ url: 'bggen/img/' + id, spent: charged, credits });
+  }
+  const images = [];
+  for (const r of settled) {
+    if (r.status === 'rejected') images.push({ error: (r.reason && r.reason.message) || 'Generation failed' });
+    else images.push({ id: await keepImage(deps.gen, em, r.value) });
+  }
+  await pruneImages(deps.gen, em, images.filter((x) => x.id).map((x) => x.id));
+  return json({ images: images.map((x) => (x.id ? { url: 'bggen/img/' + x.id } : x)), spent: charged, refunded, credits });
 }

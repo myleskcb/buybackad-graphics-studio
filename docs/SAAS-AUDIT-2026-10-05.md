@@ -1,5 +1,15 @@
 # The SaaS side, measured: plans, costs, the market (2026-10-05)
 
+> **2026-10-08: superseded on plans and AI caps** (OPEN-ITEMS §AS). The
+> recommendations below were taken further: AI is sold in credits priced
+> from each model's cost (`netlify/lib/plans.mjs`), Pro has a yearly price
+> ($150, two months free rather than the $120 suggested here, for margin),
+> a Business plan ($39, 500 downloads, 200 credits) was added, the video
+> maker's downloads go through the plan (§3's open question, decided), and
+> Stripe goes live on `STRIPE_SECRET` alone. The worst-case margins are
+> printed by `scripts/plan_economics.mjs`. The market and cost research
+> below still stands.
+
 The owner: "make sure the saas side of things make sense with current model
 and offerings, and is worth the cost and make us enough, use market research."
 

@@ -27,50 +27,83 @@ redeploy. `.env.example` is the local copy for `netlify dev`.
 |---|---|
 | `JWT_SECRET` | required; any long random string, signs the sign-in tokens |
 | `ADMIN_EMAILS` | comma-separated operator emails: no caps, no watermark, the admin tools |
-| `FAL_KEY` | AI backgrounds on fal.ai: Seedream v4 text-to-image for a scene, Seedream v4 **edit** when the customer picks products (the shop's own photographs go in as reference images). First choice whenever it is set. `PGFX_FAL_TEXT_MODEL` / `PGFX_FAL_EDIT_MODEL` swap the models |
+| `FAL_KEY` | AI backgrounds on fal.ai: Seedream v4 text-to-image for a scene, Seedream v4 **edit** when the customer picks products (the shop's own photographs go in as reference images). First choice whenever it is set. `PGFX_FAL_TEXT_MODEL` / `PGFX_FAL_EDIT_MODEL` swap the models (a model `plans.mjs` does not price needs `MODEL_COSTS`) |
 | `GEMINI_KEY` | AI backgrounds on Gemini (3.1 Flash Lite Image by default; `PGFX_BG_MODEL` overrides it): the fallback when fal fails, or the only provider without `FAL_KEY` (`PGFX_BG_PROVIDER=gemini` puts it first). With neither key, the generator says the feature is not enabled yet |
-| `AI_CREDIT_UNIT` | what the generator calls its unit: `credits` (default) or `tokens` |
-| `AI_CREDITS_FREE` / `AI_CREDITS_PRO` | credits a month for a Free and a Pro account (defaults 10 / 150). Operators are not charged |
-| `AI_CREDIT_COST` / `AI_CREDIT_COST_REF` | credits an image costs: a scene alone / with products from the catalogue (defaults 1 / 2) |
-| `AI_MAX_PER_RUN` | images one Generate can ask for (default 4) |
-| `AI_USD_PER_IMAGE` / `AI_USD_PER_IMAGE_REF` | the provider's price per image, shown to operators next to the credit price (default $0.03) |
-| `RL_USER_DAILY` / `RL_PRO_DAILY` / `RL_GLOBAL_DAILY` | AI background images a day for a Free account, a Pro account and the whole site (defaults 10 / 40 / 400), on top of the monthly credits. **The only per-use cost in the product**, about $0.03 an image: read `docs/SAAS-AUDIT-2026-10-05.md` before raising them |
-| `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET`, `PRICE_PRO`, `SITE_URL` | billing, below. Until all four are set, Go Pro says "Pro checkout is not open yet" and nothing is charged |
+| `AI_MAX_PER_RUN` | images one Generate in the AI background generator can ask for (default 4, at most 8). The prompt recipe, styles, colour schemes and negative words are edited in the AI Studio console (operators), not here |
+| `MODEL_COSTS` | optional JSON, dollars a call per model, merged over the table in `netlify/lib/plans.mjs`. AI is sold in **credits** (one credit buys up to 4 cents of model cost; a call costs ceil(price / 4c)), and a model with no price is not sold. Add a model's price here or in `plans.mjs` before pointing `PGFX_BG_MODEL` at it |
+| `AI_FREE_DAILY_CREDITS` / `AI_DAILY_CREDITS` | site-wide ceilings a day: the free tier's AI credits (default 100, about $4) and everyone's (default 2000, a runaway guard). `RL_USER_DAILY`, `RL_PRO_DAILY` and `RL_GLOBAL_DAILY` are retired: credits replace them |
+| `STRIPE_SECRET` | **switches billing on.** The only Stripe setting needed: the prices, the products and the webhook make themselves (below). Until it is set, Go Pro says "Checkout is not open yet" and nothing is charged |
+| `STRIPE_WEBHOOK_SECRET`, `PRICE_<KEY>`, `SITE_URL` | optional. A webhook you made by hand (otherwise the site registers its own); a price you made by hand (`PRICE_PRO_MONTH`, `PRICE_BUSINESS_YEAR`, `PRICE_CREDITS100`…; the old `PRICE_PRO` is `PRICE_PRO_MONTH`); the site's own https origin, where Stripe sends people back and events (defaults to Netlify's `URL`) |
 | `GOOGLE_CLIENT_ID` | optional; shows the Google sign-in button |
 | `LIBRARY_KEYS`, `LIBRARY_DAILY` | the partner library API, below |
 
-Stripe, once:
-1. Product catalog → product "Pro", recurring, $15 a month. Its price id
-   (`price_…`) goes in `PRICE_PRO`. (An annual price is a second Stripe
-   price and a small code change: OPEN-ITEMS §AN 2.)
-2. Developers → Webhooks → endpoint `https://<your site>/api/stripe-webhook`,
-   events `checkout.session.completed` and `customer.subscription.deleted`.
-   Its signing secret (`whsec_…`) goes in `STRIPE_WEBHOOK_SECRET`.
-3. `SITE_URL` is the site's own origin (Stripe sends people back to it).
-4. Discounts for partners and creators (the landing's partnership section)
-   are Stripe promotion codes: Checkout shows a code field, so a code made in
-   Stripe → Coupons needs no code change.
+Stripe, once (owner, 2026-10-08: "make it live we can use stripe"):
+1. Stripe → Developers → API keys. Copy the **secret key**, `sk_test_…` to
+   try it, `sk_live_…` to take money, into `STRIPE_SECRET` in Netlify
+   (Project configuration → Environment variables), and redeploy.
+2. That is all. The first checkout makes the products (`bbad_pro`,
+   `bbad_business`, `bbad_credits`), the six prices under their lookup keys
+   (`bbad_pro_month`, `bbad_pro_year`, `bbad_business_month`,
+   `bbad_business_year`, `bbad_credits100`, `bbad_credits300`) and the webhook
+   at `<SITE_URL>/api/stripe-webhook`, whose signing secret it keeps in Blobs.
+   An operator can do it before the first customer: Plan & billing shows
+   operators a Billing line with **Set up prices and webhook now**.
+3. Walk it once with test keys and card 4242 4242 4242 4242: Choose Pro,
+   pay, land back on "Payment successful!" on Pro; Switch to Business;
+   buy 100 credits; Manage billing → cancel. Then swap in the live key.
+   Test-mode customers and subscriptions are not carried into live mode.
+4. Partner and creator discounts are Stripe promotion codes (Stripe →
+   Coupons); Checkout shows the code field on the plans.
 
-That is the loop: sign-up → Stripe-hosted checkout → webhook flips the plan →
-the function counts every download and tells the browser the plan's size cap
-and watermark. The count is enforced server-side; the size cap and the
-watermark are applied by the browser (OPEN-ITEMS §AN 5).
+The plan switches on when the customer comes back from Checkout
+(`/api/checkout/confirm` reads the session from Stripe), so it never waits
+for the webhook. The webhook carries renewals, plan changes made in the
+billing portal, failed cards and cancellations; without it, a paid account
+whose period has run out is read from Stripe at its next sign-in. A price
+changed in `plans.mjs` makes a new Stripe price on the next sale and moves
+the lookup key to it; people already subscribed keep theirs.
 
 ## Plan rules (change in ONE place each side, and the copy)
-`PLANS` in the SaaS section of `app.js` (what the UI shows) and at the top of
-`netlify/functions/api.mjs` (the enforced truth). The same numbers are written
-out in `index.html` (#pricing, the FAQ, the sign-up chooser), `about.html`,
-`terms.html` and `COMMON_FAQ` in `scripts/build_seo_pages.mjs`; run that
-script after editing the FAQ, it rebuilds the ld-faq JSON-LD and the category
-pages.
+`netlify/lib/plans.mjs` is the enforced truth: the plans, the credit packs,
+each paid model's price and the margin targets. `PLANS`/`PACKS` in the SaaS
+section of `app.js` (between `PLANS:BEGIN` and `PLANS:END`) is what the plans
+page shows. The same numbers are written out in `index.html` (#pricing, the
+FAQ, the sign-up chooser), `about.html`, `terms.html` and `COMMON_FAQ` in
+`scripts/build_seo_pages.mjs`; run that script after editing the FAQ, it
+rebuilds the ld-faq JSON-LD and the category pages. **`node
+scripts/plan_economics.mjs` fails if any plan or pack can lose its margin at
+worst, or if a copy says a different number.** `scripts/billing_check.mjs`
+walks credits, downloads and the whole Stripe loop against a stand-in Stripe,
+and the plans page and Checkout in Chromium.
 
-Free = 3 downloads a week, 1080 px on the short side, BUYBACK.AD watermark,
-every Phones design plus the top 3 of each other category (85 of the 311 cards
-offered on 2026-10-05) · Pro = $15 a month, 100 downloads a month, 2160 px, no
-watermark, every design, the QR code layer. A download is an image, or a video
-with its photo, from the studio, counted once, re-downloads included. The phone
-video maker at `/motion` is free, needs no account and counts nothing. AI
-backgrounds are on both plans under the daily caps above.
+| | Free | Pro | Business |
+|---|---|---|---|
+| Price | $0 | $25 a month, $250 a year | $60 a month, $600 a year |
+| Downloads, photos or videos | 3 a week | 100 a month | 500 a month |
+| Size, watermark | 1080 px, BUYBACK.AD marks | 2160 px, none | 2160 px, none |
+| Designs | every Phones card + the top 3 of each other category | all | all |
+| AI credits a month | 5 | 75 | 200 |
+| Ads kept in the library | 12 | 300 | 1,000 |
+| QR code layer | no | yes | yes |
+
+Credit packs, any account, never expire, spent after the month's: 100 for
+$9, 300 for $25. An AI background is 1 credit on the default model (a credit
+covers up to 4 cents of model cost; Gemini 3 Pro Image would be 4), and a
+failed one gives its credit back.
+
+A download is a photo, or a video with its photo, from the studio or the
+phone video maker at `/motion`, counted once, re-downloads included. The
+maker makes and plays videos for anyone, with no account; downloading one
+(or starring it into the library) goes through the plan like the studio's
+videos: a free account, one download, and on Free the BUYBACK.AD marks on
+every frame and a 1080 photo.
+
+At worst (every credit spent at the full 4 cents, plus hosting), against what
+a price nets after Stripe: Pro keeps 86% monthly and 84% yearly, Business 86%
+and 83%, the packs 53% and 50%, and a free account costs at most $0.22 a
+month (`plan_economics.mjs` prints it). On the default model (3.4 cents a
+background) a Pro subscriber makes about $21 a month with every credit spent
+and $23 at a projected 15 backgrounds; Business about $50 and $56 at 40.
 
 ## Notes
 - Test first with Stripe **test keys** + card 4242 4242 4242 4242.

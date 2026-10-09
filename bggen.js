@@ -16,8 +16,10 @@
    which the server hands the image model as references), a style, a colour
    scheme, a format, where the text goes, and how many. The words that turn
    those into a prompt are the server's (netlify/lib/bggen.mjs) and never come
-   to the browser. A run of N images is N requests in parallel: each lands,
-   and is charged, on its own, and the balance in the footer follows each one.
+   to the browser. The price is the plans' (netlify/lib/plans.mjs: AI
+   credits, this month's first, then bought); the footer shows it and the
+   balance as the choices change, and a run of N images is one request that
+   is charged once and refunds its failures once.
 
    Operators (role admin) also see the exact prompt a request would send, the
    provider's price, and in the AI Studio console the recipe editor and the
@@ -36,7 +38,7 @@
   const PAGE = 60;  // tiles drawn at once; "Show more" draws the next lot
 
   const S = {
-    cfg: null, cfgAt: 0, cat: null, category: 'phones', tab: null, q: '', shown: PAGE,
+    cfg: null, cfgAt: 0, cat: null, pending: 0, category: 'phones', tab: null, q: '', shown: PAGE,
     picked: [],  // { group, id, finish|null }
     style: 'auto', palette: 'auto', colors: ['#111111', '#ff7a1a', '#fafaf9'],
     aspect: '1:1', space: 'top', count: 1, running: 0, bound: false,
@@ -79,8 +81,8 @@
 
   function cost() {
     const c = S.cfg || {};
-    const per = withRefs() ? (c.costRef ?? 0) : (c.cost ?? 0);
-    return { per, n: S.count, total: per * S.count, unit: c.unit || 'credits', refs: withRefs() };
+    const per = withRefs() ? c.costRef : c.cost;  // null: that model has no price, so it is not sold
+    return { per: per ?? null, n: S.count, total: (per || 0) * S.count, unit: 'credits', refs: withRefs() };
   }
 
   // ---------- drawing ----------
@@ -165,6 +167,8 @@
     $('bggen-count').innerHTML = Array.from({ length: max }, (_, i) => `<button type="button" class="${i + 1 === S.count ? 'active' : ''}" data-n="${i + 1}" aria-pressed="${i + 1 === S.count}">${i + 1}</button>`).join('');
   }
   const when = (iso) => { try { return new Date(iso + 'T00:00:00Z').toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' }); } catch (e) { return iso; } };
+  /* the account's AI credits (plans.mjs: this month's plan credits first, then
+     bought ones, which never expire), less a run still on its way */
   function drawFoot() {
     const c = S.cfg;
     const k = cost();
@@ -176,27 +180,30 @@
     else if (!c.enabled) blocked = 'AI backgrounds are not enabled yet';
     else if (!signedIn()) blocked = 'Sign in to generate';
     const plural = (n, w) => n + ' ' + (n === 1 ? w.replace(/s$/, '') : w);
-    let costTxt = c ? `<b>${plural(k.total, k.unit)}</b> · ${plural(k.n, 'images')} × ${k.per}${k.refs ? ' (with products)' : ''}` : '–';
+    let costTxt = c && k.per !== null ? `<b>${plural(k.total, k.unit)}</b> · ${plural(k.n, 'images')} × ${k.per}${k.refs ? ' (with products)' : ''}` : '–';
     if (c && c.usd !== undefined) costTxt += ` · ≈ $${((k.refs ? c.usdRef : c.usd) * k.n).toFixed(2)} at ${esc(c.provider || 'the provider')}`;
-    let bal = blocked || '–';
-    let pct = 0;
+    let bal = esc(blocked || '–');
+    let pct = 0, more = false;
     if (!blocked && a) {
       if (a.unlimited) { bal = 'Operator · unlimited'; pct = 1; }
       else {
-        bal = `${a.left} of ${a.allowance} ${esc(a.unit)} left · resets ${esc(when(a.resets))}`;
-        pct = a.allowance ? a.left / a.allowance : 0;
-        if (k.total > a.left) blocked = a.left ? `Not enough ${a.unit}: lower the count` : `Out of ${a.unit} this month`;
+        const have = Math.max(0, a.total - S.pending);
+        bal = S.pending ? `Spending ${plural(S.pending, 'credits')}… ${have} left`
+          : `<b>${plural(have, 'credits')}</b> left · ${a.bought ? `${a.left} this month + ${a.bought} bought` : 'this month'} · resets ${esc(when(a.resets))}`;
+        pct = have / Math.max(have, a.allowance || 1);
+        if (k.total > have && !S.running) blocked = have ? 'Not enough credits: lower the count' : 'Out of AI credits';
+        more = have < Math.max(k.total, (k.per || 1) * 3);
       }
     }
     $('bggen-cost').innerHTML = costTxt;
-    $('bggen-cost').classList.toggle('short', !!blocked && !!a && !a.unlimited && k.total > a.left);
-    $('bggen-bal').textContent = bal;
+    $('bggen-cost').classList.toggle('short', !!a && !a.unlimited && !S.running && k.total > a.total);
+    $('bggen-bal').innerHTML = bal + (more ? ' <button type="button" class="ai-more" data-more-credits>Get more</button>' : '');
     $('bggen-meter').style.width = Math.round(Math.max(0, Math.min(1, pct)) * 100) + '%';
     $('bggen-meter').parentNode.classList.toggle('low', pct < 0.2);
     go.disabled = !!blocked && blocked !== 'Sign in to generate';
     go.dataset.blocked = blocked;
-    go.textContent = S.running ? `… Generating ${S.running} left` : blocked && go.disabled ? blocked
-      : `✦ Generate ${plural(S.count, 'images')}${c ? ' · ' + plural(k.total, k.unit) : ''}`;
+    go.textContent = S.running ? `… Generating ${plural(S.running, 'images')}` : blocked && go.disabled ? blocked
+      : `✦ Generate ${plural(S.count, 'images')}${c && k.per !== null ? ' · ' + plural(k.total, k.unit) : ''}`;
     if (S.running) go.disabled = true;
     previewSoon();
   }
@@ -230,24 +237,29 @@
     const p = S.picked.map((x) => (itemOf(x.group, x.id) || {}).label).filter(Boolean).join(', ');
     return (p || 'AI background').slice(0, 40);
   }
-  /** an answer's picture as a data URL: inline, or (past the function's size) fetched from the provider's link */
+  /** a picture the function keeps (bggen/img/<id>) as a data URL, so the
+      editors and the library hold it like any other photo */
+  async function pictureOf(path) {
+    const r = await fetch(apiBase() + '/' + String(path).replace(/^\/+/, ''));
+    if (!r.ok) throw new Error('the picture did not load (' + r.status + ')');
+    const blob = await r.blob();
+    return new Promise((res, rej) => { const f = new FileReader(); f.onload = () => res(f.result); f.onerror = () => rej(new Error('the picture did not read')); f.readAsDataURL(blob); });
+  }
+  /** an answer's picture: inline, or a link to one the function kept */
   function materialize(j) {
     if (j.image) return Promise.resolve(j.image);
     if (!j.url) return Promise.reject(new Error('bad-response'));
-    return new Promise((res) => {
-      const im = new Image();
-      im.crossOrigin = 'anonymous';
-      im.onload = () => {
-        try {
-          const cv = document.createElement('canvas');
-          cv.width = im.naturalWidth; cv.height = im.naturalHeight;
-          cv.getContext('2d').drawImage(im, 0, 0);
-          res(cv.toDataURL('image/jpeg', 0.92));
-        } catch (e) { res(j.url); }
-      };
-      im.onerror = () => res(j.url);
-      im.src = j.url;
-    });
+    return pictureOf(j.url);
+  }
+  /* the studio's own credit line and nav follow the run (app.js) */
+  function syncApp(credits) {
+    if (!credits || credits.unlimited) return;
+    try {
+      if (typeof account !== 'undefined' && account) {
+        account.credits = { allowance: credits.allowance, used: credits.used, left: credits.left, bought: credits.bought, total: credits.total, period: credits.period };
+        if (typeof syncQuotaUI === 'function') syncQuotaUI();
+      }
+    } catch (e) { /* the modal's own footer is already right */ }
   }
   function card(ratio) {
     const el = document.createElement('div');
@@ -268,6 +280,10 @@
     el.className = 'bggen-card err';
     el.querySelector('.bggen-img').innerHTML = `<span class="bggen-state">${esc(msg || 'Generation failed')}${refunded ? '<br><small>Not charged</small>' : ''}</span>`;
   }
+  /* A run is ONE request for N images: the function takes the N images'
+     credits in one write and gives back the failures' in one more (the
+     ledger is on the account, plans.mjs), so N requests in parallel could
+     overwrite each other. The cards fill as the pictures load. */
   async function run() {
     const go = $('bggen-go');
     if (go.dataset.blocked === 'Sign in to generate' || !signedIn()) {
@@ -275,7 +291,7 @@
       return;
     }
     if (go.disabled) return;
-    const n = S.count, req = body(), name = nameOf();
+    const n = S.count, req = Object.assign(body(), { count: n }), name = nameOf();
     const box = $('bggen-results');
     const cards = Array.from({ length: n }, () => card(req.aspect));
     const row = document.createElement('div');
@@ -283,18 +299,31 @@
     cards.forEach((c) => row.appendChild(c));
     box.prepend(row);
     row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    S.running += n;
+    S.running = n;
+    S.pending = cost().total;
     drawFoot();
-    await Promise.all(cards.map(async (el) => {
+    let r = null;
+    try { r = await call('/generate-bg', req); }
+    catch (e) { r = { ok: false, status: 0, j: { error: 'Network error. Nothing was charged.' } }; }
+    S.pending = 0;
+    if (r.j && r.j.credits && S.cfg) { S.cfg.account = r.j.credits; syncApp(r.j.credits); }
+    if (!r.ok) {
+      cards.forEach((el) => fail(el, r.j.error || ('HTTP ' + r.status), r.j.refunded));
+      S.running = 0;
+      drawFoot();
+      if (r.status === 401 && typeof openAuth === 'function') openAuth('Sign in to generate AI backgrounds', () => open());
+      if (r.status === 402 && typeof openPlans === 'function') openPlans("You're out of AI credits. A pack tops you up and never expires; a bigger plan brings more every month.");
+      return;
+    }
+    drawFoot();
+    const imgs = r.j.images || (r.j.image || r.j.url ? [r.j] : []);
+    await Promise.all(cards.map(async (el, i) => {
+      const it = imgs[i];
       try {
-        const r = await call('/generate-bg', req);
-        if (r.j && r.j.credits && S.cfg) S.cfg.account = r.j.credits;
-        if (!r.ok) {
-          fail(el, r.j.error || ('HTTP ' + r.status), r.j.refunded);
-          if (r.status === 401 && typeof openAuth === 'function') openAuth('Sign in to generate AI backgrounds', () => open());
-        } else done(el, await materialize(r.j), name);
-      } catch (e) { fail(el, 'Network error, not charged'); }
-      S.running--;
+        if (!it || it.error) fail(el, (it && it.error) || 'Generation failed', true);
+        else done(el, await materialize(it), name);
+      } catch (e) { fail(el, e.message); }
+      S.running = Math.max(0, S.running - 1);
       drawFoot();
     }));
   }
@@ -410,6 +439,9 @@
     $('bggen-count').onclick = (e) => { const b = e.target.closest('[data-n]'); if (b) { S.count = +b.dataset.n; drawLooks(); drawFoot(); } };
     $('bggen-prompt').oninput = () => previewSoon();
     $('bggen-go').onclick = run;
+    $('bggen-bal').onclick = (e) => {
+      if (e.target.closest('[data-more-credits]') && typeof openPlans === 'function') openPlans('AI credits pay for AI backgrounds. Buy a pack, or move to a plan with more each month.');
+    };
     $('bggen-results').onclick = (e) => { const b = e.target.closest('[data-a]'); if (b) act(b.closest('.bggen-card'), b.dataset.a); };
     $('bggen-preview').addEventListener('toggle', previewSoon);
   }
@@ -448,7 +480,7 @@
       const r = await call('/admin/bggen-grant', { email, credits }).catch(() => null);
       if (!r || !r.ok) return status('Not added: ' + ((r && r.j.error) || 'network error'), true);
       const a = r.j.account;
-      status(`${email}: ${a.left} of ${a.allowance} ${a.unit} left this month (${a.grant} added by operators).`);
+      status(`${email} now has ${a.total} AI credits: ${a.left} of this month's ${a.allowance}, and ${a.bought} bought (bought credits never expire).`);
     };
   }
 
