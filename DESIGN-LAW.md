@@ -4785,3 +4785,245 @@ not merged.
 - Before a commit that touches the phones' drawing: motion_phone_check.mjs
   with and without `--finish photo`, motion_finish_check.mjs, and a pixel diff
   of shuffled looks before and after.
+
+## 125. A palette is its own colours: two, three or a proven pair, and the effects wear them
+
+Added 2026-10-02. The owner, of the landing's twelve palettes: "I think we
+have more colors than this, right? I mean, there's gotta be more proven
+themes. This is a bit basic. Maybe some color pallets using only two or three
+colors?", then "keep in mind we use things like gradient, and other effects
+that may use extra colors like 3-D", "Or outlines around text", and "make sure
+we have as much capability as possible when it comes to colors". Written on
+`claude/vigilant-wozniak-kyyy7b` as rule 106, 108 and then 110; merged into
+`main` on 2026-10-08 as 125, after rule 123 had made the twelve pairings the
+only themes. The owner, comparing the two: "What you showed me seem to be
+more cohesive and less random", then "Properly integrate into the main".
+
+> Widens rule 123: the themes are the library's twelve pairings **and** the
+> sign sets of two and three colours below. Everything else rule 123 says
+> holds for all of them: one name everywhere, a customer's words, a retired
+> name still opens, every check reads the live set, the holds follow the
+> names.
+
+**What there was, measured.** The landing showed the library's twelve
+palettes (rule 103). The studio's colour row had 21 themes under generated
+names ("Blue Ticket", "Orchid Payday"), none of them the twelve. And on
+`main` no theme and no headline look could draw more than one colour: rule
+95's pass ran after the theme and after the look and took every colour to the
+card's leading hue. Counted on the render (the colour families `pgHuePaints`
+finds), on slabPoster-pp04-15 and checklistHero-jw07-15:
+
+| | with rule 95's pass | without it |
+|---|---|---|
+| Rainbow gradient | 1 family (shades of pink) | 5 and 6 |
+| Red & blue 3-D | 1 (both offsets red) | 3 and 3 |
+| Multicolour letters | 1 | 5 and 5 |
+| Electric Trust (navy, coral, blue) | 1 on each card | 1 and 2 |
+
+The effects the panel offered could not be drawn, and a palette of two
+colours came out as one.
+
+**The set: 31 themes in three groups** (COLOR_THEMES, as merged into `main`),
+every one held to rule 123's law by `theme_law.mjs`, `cvd_audit.py`,
+`audit_theme_grammar.mjs` and `theme_cohesion_audit.mjs`, each of which
+reads the groups: text and small print at least 4.5:1 on both ends of the
+ground's gradient for normal, protan, deutan and tritan sight; the accent
+4.5:1, and 3:1 simulated; the accent at least 1.7:1 from the text so the
+money word reads as a different colour (not for a two-colour set, whose
+accent is its text); every name plain colour words. 31 of 31 pass every one.
+On the branch the set was 52, the earlier 21 kept under "More"; rule 123 had
+retired those 21 on `main` (their names open the nearest pairing, `aka`),
+so they did not come back.
+
+- **Two colours** (12): a ground and one colour for every word, mark and
+  plate, the hand-painted "WE BUY" sign. Named words on ground: Yellow on
+  Black, Black on Yellow, White on Black, Black on White, White on Red, Red on
+  White, White on Blue, Blue on White, White on Navy, White on Green, White on
+  Purple, Black on Orange. The accent is the ink, so the 1.7:1 floor does not
+  apply; theme_law requires it to be exactly the ink, with no support. A plate
+  in the colour carries its words in the ground's colour (White on Red's
+  number box is white with red digits). Two reds were deepened in their own
+  hue for rule 123's 4.5:1 for a colour-blind reader (theme_law's floor had
+  been 3:1): White on Red's ground `#d71f28` to `#c51c25` (3.92:1 to 4.61:1
+  for a deutan reader), Red on White's red `#c8102e` to `#ba0f2b` (4.02:1 to
+  4.56:1).
+- **Three colours** (7): a ground, the reading ink and one accent for the
+  money line and its plates: Red, White & Blue, Navy, White & Red, White,
+  Black & Red, Black, White & Red, Black, White & Yellow, Black, White &
+  Orange, Blue, White & Yellow. The small print is the text colour, as
+  themeScene paints a theme with no support (`T.support || T.ink`), and the
+  audits measure it so. Measured and left out: Red, White & Yellow
+  (yellow on red 4.18:1, and 1.45:1 from the white), White, Navy & Orange
+  (3.80:1: an orange dark enough to read on white is rust, rule 103), Green,
+  White & Yellow (1.64:1 from the white; Green & Gold is the pair).
+- **Proven pairs** (12): rule 123's records, the library's palettes as the
+  colour builder solves them (`house_themes.mjs --write`, which now rewrites
+  only these rows), so a palette named on the landing is one a visitor can
+  put on any card. (The branch had solved its own; `main`'s, measured and
+  swept there, replace them.)
+- **Yours**: a set the visitor builds (rule 112), beside the three groups in
+  both colour rows.
+
+**The effects wear the palette** (`thFx`). With a theme on, every colour an
+effect paints is one the palette has: an outline is its darkest colour drawn
+near-black round a light letter (navy-black on Navy & Gold, oxblood on White
+on Red, black where the colour is warm, which goes mud dark) and its lightest
+round a dark one (the yellow of Black on Yellow); a 3-D block recedes into its
+dark ground's hue, or a dark ink's (Red, White & Blue's navy), never a warm
+hue; a glow is its accent, and white on a black-and-white palette (it had
+been the hue a grey rounds to); multicolour letters are its own colours. The
+Outline row gains **Palette** (its dark round light letters, its light round
+dark ones), and Auto's black is the palette's dark unless the visitor picks
+Black. A new effect and look, **Offset shadow**: one solid copy of the letters
+set down and right, no blur, in the palette's deep colour, the poster's hard
+shadow (rule 98), measured by the critic like the 3-D block. With no theme,
+every look draws as before.
+
+**A palette is its own colours** (`pgOneHue`, `pgHueCheck` with a theme).
+With a theme on, a paint within 30 degrees of any colour the theme has stays;
+anything else takes the nearest of them at its own luminance, never a warm one
+too dark to hold it (`pgMuddyFloor`, rule 103's floors), and on a
+black-and-white theme it goes neutral. Near white or black a hue clips at the
+edge of the screen's colours and slides (a pale cyan folded to blue came back
+cyan), so the fold drops chroma until it is in the family or neutral. With no
+theme the pass is rule 95's, unchanged.
+
+**A look the visitor picked is theirs** (`pgLookInk`). What a look the
+visitor chose in the panel paints (a rainbow, red and blue offsets, a letter
+in every colour) is left by the pass and the gate, as a colour set by hand
+(pgUser) is. A card's own look (`tpl.look`) stays under rule 95, so every
+card as designed draws as it did.
+
+**The palette's accent shows.** A card whose own colours gave the accent no
+job (slabPoster-pp04-15: its one plate is its support colour, its words
+white) drew Navy & Gold with no gold and Red, White & Blue with no red; on
+checklistHero-jw07-15 three small ticks were the accent's whole job, and no
+gold could be seen. When the lines and plates in the accent's job cover
+under 1.5% of the card, the support plate that carries the number or the
+call to action takes the accent, else the largest support plate, else the
+number's own plate (or the call to action's) up to a fifth of the card;
+never a plate another plate stands on. A two-colour palette's accent is its
+ink, everywhere already.
+
+**A plate matched to a look's gradient goes lighter or darker by its own
+words.** The card looks that match plates to their gradient (Signature,
+Accent into support) push each plate until the words on it read; they counted
+the number on its own pill over reviewProof-cd06-15's call-to-action bar as
+on the bar, could not read dark words and white digits on one colour, and
+sank the bar to black under its dark words: the three themes held on that
+card (OPEN-ITEMS §Z 3), and every new theme with a support. The direction now
+comes from the words standing on the plate itself.
+
+**What the full audit found, and fixed** (2026-10-03, every offered card
+through every theme and look, below):
+
+- **A mark keeps to the panel it is drawn on.** A dark rule on a large dark
+  panel that is not a plate (dl_silver_editorialLux_arctic) was measured
+  against the card's ground and kept its dark ink; a mark now reads the
+  largest solid shape under its centre when no plate hosts it.
+- **A halo goes where it cannot help.** A kicker's dark halo on a mid-tone
+  photograph read 1.44:1 as a smudge round letters that read without it;
+  `thRingFit` drops a blurred ring on an even ground when the ink reads 4.5:1
+  against the worst tenth of the ground under the line.
+- **A mark stays visible on the plate it ends up on** (`thMarksVisible`). The
+  number's plate grows after the theme (numberFill) and can slide under a
+  mark: trustSeal-cd10-20's phone cue landed dark on Blue Market's dark plate,
+  1.46:1, under nine of the older themes. With a theme on, once the card is
+  finished and again after a look, a mark under 2:1 on the solid shape under
+  its centre takes the theme's colour that reads 3:1 there.
+- **A palette's multicolour letters keep their hues at the line's
+  lightness** (`fxLetters`): bubblePop's letters on a light line were drawn
+  at the palette colours' own lightness and two came out black.
+- **The designer's ORIG puts the card back.** edRecolour read a colour the
+  visitor set by hand after taking the look off, against a record taken
+  before the look, so every colour the look's own passes made (the plate ink
+  of rule 104, the one-colour pass) was saved as the card's paint, and ORIG
+  left bandKnockout-pp04-15 29% in theme colours (on `main` too). It now
+  reads the hand colour against what the last pass left, the look included,
+  before the look comes off, and puts the visitor's colour back under the
+  look as the line's own paint: a headline set to magenta by hand stays
+  magenta through a ground change, under ORIG and under a theme, with the
+  card's extrude look still on it.
+
+**Measured on `main`'s build** (2026-10-08, the merge with rule 123, 31
+themes; the branch's numbers follow):
+
+- `every_card_audit.mjs --lean --workers 3 --dims base,themes,looks
+  --write-holds`, over every card the studio offers and every card the table
+  held (666: 300 classics, 366 live library; the list passed as `--ids`, as
+  AGENT-BRIEF says): 20,646 theme renders and 8,658 look renders, no page
+  lost. Cards held as offered: 10 (`main` held 11; dl_strips_arcCrown_emerald
+  passes). Theme holds 208: the twelve pairs 88 over 12 cards (`main` held
+  them 130 times), Two colours 79 over 19, Three colours 41 over 11; no theme
+  on more than 13 of the 666 (Black on Orange), most on 4 to 9; 140 for a
+  mark that would vanish on what it sits on, 68 for a line that would lose
+  legibility or fit, none for a colour left behind. Look holds 43, as on
+  `main`; the voice holds untouched (1,308).
+- `theme_law.mjs`, `cvd_audit.py`, `audit_theme_grammar.mjs` and
+  `theme_cohesion_audit.mjs`: 31 of 31, no problems; `house_themes.mjs`
+  prints the twelve pairs exactly as COLOR_THEMES has them.
+- `colour_builder_audit.mjs --sets-only`: all checks pass (12 of 12 pairs
+  offered from both colours, 1,803 tweaked sets, 0 failing).
+- `verify_showcase.mjs`: the library 366 of 366; the classics 351 pass and
+  the same 53 held as `main`.
+- `landing_check.mjs`: 0 failed requests, 0 console or page errors, no
+  overflow at 390 or 1440; the Ready-made tab reads 31, its panel holds the
+  twelve and the 31 in their groups.
+- `ez_theme_audit.mjs` on its 19 cards × 31 themes: every plate themed,
+  nothing left behind, one regression (pkm_binder's "Info" line, 2.94:1
+  under White on Green), which the sweep holds.
+- `tagline_audit.mjs`: 12 looks pass on 97 of 97 templates; Glow fails on
+  st_coins_twocol, held on `main` already for the same line.
+- `designer_audit.mjs`: the 31 themes change every card that opens and ORIG
+  puts each back exactly (0%, after the themes and after the swatches);
+  cars_kbb's open-time blocking, 3.2s against the 3s bar, is `main`'s open
+  item (2.9 to 3.7s there, the category's 70 thumbnails).
+- Every live library card as designed, drawn with `main`'s app.js and with
+  this one: median 0.18% of pixels apart; the seven over 0.7% on a loaded
+  machine came back at 0.02 to 0.19% alone, as `main` against itself (0.03
+  to 0.21%).
+
+**Measured on the branch** (2026-10-03, the 52 themes on the branch's final
+build, before the merge; `every_card_audit.mjs --lean` with three workers,
+the most this container's 14 GB holds):
+
+- `every_card_audit.mjs --dims base,themes,looks --write-holds` over every
+  offered card, 649: 33,748 theme renders and 8,437 look renders, the 50
+  cards a fix touched run again. Cards held as offered: 45, the same as on
+  `main`. The 21 older themes: 444 holds on `main`, 275 now (161 card-themes
+  held on `main` pass, one new: Blue Ticket on bandKnockout-ck04-35, its frame
+  left in the old colour). The 31 new themes: 171 holds over 21 cards, at
+  most 2% of cards for any theme (Black on Orange 11 cards, Midnight & Cyan,
+  Blue & Green and Black & Green 10). The looks: 37 holds, 36 on `main`; no
+  look newly failing on a card, Offset shadow on none. Written to
+  assets/choice-holds.json, so a held chip is off on its card with its reason.
+- `verify_showcase.mjs`: the library 329 of 329 pass; the classics 346 pass
+  and 58 fail, the same 58 as stored before this change.
+- `ez_theme_audit.mjs` on its 19 cards × 52 themes: no problems (every plate
+  themed, nothing left in the old colours, no regressions).
+- `tagline_audit.mjs`: each of the 13 looks passes on 102 of 102 templates
+  (the five that error are held as offered and open another card).
+- `designer_audit.mjs` on its six cards: the 52 themes change every card
+  that opens and ORIG puts each back exactly (0%), after the themes and after
+  the swatches; the two that do not open (sell_iphone, gold_spot) are held as
+  offered, as on `main`.
+- After `main`'s composition audit re-centred 90 library cards (rule 109),
+  merged here: those 90 run again through every theme and look on the merged
+  build. Three holds moved (scriptRetro-du08-15 gains Black on Orange,
+  trustSeal-jw10-26 loses White on Red, trustSeal-cd06-26 gains the glow look
+  `main` holds too); the library gate 321 of 321 (the composition audit
+  took 8 off the site).
+- `theme_law.mjs`: 52 of 52; the worst ink under a colour-vision
+  simulation 3.92:1 (White on Red), the worst support 4.45:1. (`cvd_audit.py`
+  reads a hand-copied table of the older THEME_DECKS, not COLOR_THEMES, and
+  fails the same three decks on `main`; theme_law's simulation is what
+  measures the 52.)
+- Every card as designed is unchanged: the 78 live cards whose own look
+  matches plates, drawn as renderThumb draws them with `main`'s app.js and
+  with this one, differ by at most 0.66% of pixels (median 0.18%) on the
+  final build, and the same card against `main` itself by 0.63%
+  (hudTech-du01-30, its grain).
+
+> Amends rule 95: with a colour theme on, the card's hue is the theme's
+> colours, not one hue; a look the visitor picked is theirs. Rule 95 stands
+> for a card as designed.

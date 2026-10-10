@@ -29,7 +29,7 @@
  *           node scripts/every_card_audit.mjs [--set classics|library|all]
  *             [--ids a,b] [--dims base,themes,looks,voices,combos]
  *             [--workers 4] [--out .render/every-card] [--resume] [--limit N]
- *             [--write-holds] [--looks blocks,outline]
+ *             [--write-holds] [--lean] [--looks blocks,outline]
  * Exits 1 on any problem. Results stream to <out>/results.jsonl, one card a
  * line, so a long run can be resumed (--resume skips the cards already there).
  *
@@ -55,6 +55,14 @@ const ONLY_LOOKS = argv('--looks') ? argv('--looks').split(',') : null;
 const WORKERS = +(argv('--workers') || 4);
 const OUT = argv('--out') || new URL('../.render/every-card/', import.meta.url).pathname;
 const LIMIT = +(argv('--limit') || 0);
+/* --lean: the studio as opened, without its warm-up (every template's
+   photograph, cut-out and strip thumbnail, decoded as the visitor browses).
+   The audit loads the card's own photograph, cut-outs and faces itself, and
+   nothing it measures reads the others; without them a page peaks well under
+   the 4.75 GB it reached here, so four workers fit in a 14 GB container
+   (2026-10-03: with the warm-up, three were killed for memory and the run
+   waited on them until each card's timeout) */
+const LEAN = process.argv.includes('--lean');
 mkdirSync(OUT, { recursive: true });
 const RESULTS = OUT.replace(/\/?$/, '/') + 'results.jsonl';
 
@@ -91,7 +99,7 @@ const RUNNER = () => {
     objs.forEach((o, k) => {
       if (!o || o.visible === false || ground(o) || o.pgKin) return;
       const key = (o.name || o.type) + '#' + (seen[o.name || o.type] = (seen[o.name || o.type] || 0) + 1);
-      if (isText(o)){ if (READ[o.pgRole]) out.push({ key, cls: 'text', paint: paintOf(o.fill), c: chroma(o.fill) }); return; }
+      if (isText(o)){ if (READ[o.pgRole]) out.push({ key, cls: 'text', paint: paintOf(o.fill), c: chroma(o.fill), pi: !!(o.pgPlateInk && o.pgPlateInk === o.fill) }); return; }
       if (!['rect', 'circle', 'polygon', 'path', 'ellipse'].includes(o.type)) return;
       const b = bb(o), area = b.width * b.height;
       const paint = paintOf(o.fill), stroke = o.stroke && o.strokeWidth ? paintOf(o.stroke) : null;
@@ -164,7 +172,10 @@ const RUNNER = () => {
           const r = measure(true), by = Object.fromEntries(r.inv.map(x => [x.key, x]));
           const row = {};
           const unthemed = plates.filter(p => by[p.key] && by[p.key].paint === p.paint).map(p => p.key);
-          const left = chromatic.filter(x => by[x.key] && by[x.key].paint === x.paint && (x.cls !== 'mark' || !x.stroke || by[x.key].stroke === x.stroke)).map(x => x.key);
+          /* a line pgPlateInk tinted (rule 104) follows its plate: on the theme's plate it is the
+             theme's colour, even where near-black rounds to the hex it had (#2e0000 on an orange
+             plate and on a coral one, dl_phones_gradientWave_sunset) */
+          const left = chromatic.filter(x => by[x.key] && by[x.key].paint === x.paint && !by[x.key].pi && (x.cls !== 'mark' || !x.stroke || by[x.key].stroke === x.stroke)).map(x => x.key);
           const lost = base.inv.filter(x => x.cls === 'mark' && x.on != null && x.on >= 2 && by[x.key] && by[x.key].on != null && by[x.key].on < 2).map(x => x.key + ' ' + by[x.key].on);
           const reg = regress(base.gate, r.gate), ch = diffPct(base.px, r.px);
           if (unthemed.length) row.unthemed = unthemed; if (left.length) row.left = left; if (lost.length) row.lost = lost; if (reg.length) row.reg = reg;
@@ -255,8 +266,12 @@ async function worker(n){
     try { ctx = await browser.createBrowserContext(); } catch (e){ await fresh(); ctx = await browser.createBrowserContext(); }
     let timer;
     try {
-      await Promise.race([new Promise((_, no) => { timer = setTimeout(() => no(new Error('timed out after ' + CARD_MS / 60000 + ' min')), CARD_MS); }), (async () => {
+      let crashed;
+      const died = new Promise((_, no) => { crashed = no; }); died.catch(() => {});   // a crash after the card is done goes nowhere
+      await Promise.race([died, new Promise((_, no) => { timer = setTimeout(() => no(new Error('timed out after ' + CARD_MS / 60000 + ' min')), CARD_MS); }), (async () => {
       const page = await ctx.newPage();
+      /* a renderer that dies (killed for memory) fails its card now, not at the timeout; --resume tries it again */
+      page.on('error', e => crashed(new Error('page crashed: ' + String(e && e.message || e).slice(0, 120))));
       await page.setViewport({ width: 1400, height: 1000 });
       await offline(page);
       page.on('pageerror', e => { (row.pageErrors = row.pageErrors || []).push(String(e).slice(0, 160)); });
@@ -265,11 +280,12 @@ async function worker(n){
       await page.evaluate(`(${RUNNER.toString()})()`);
       await page.evaluate(l => { window.__onlyLooks = l; }, ONLY_LOOKS);
       await page.evaluate(() => { loadAccount = async () => account; account = { email: 'audit@local', role: 'user', plan: 'pro' }; });
+      if (LEAN) await page.evaluate(() => { _tplAssetsWarmed = true; ensureThumbs = () => {}; });
       const o = await page.evaluate(id => __sw.open(id), card);
       if (o.err) row.err = o.err;
       else Object.assign(row, await page.evaluate(d => __sw.run(d), [...DIMS]));
       })()]);
-    } catch (e){ row.err = String(e).slice(0, 200); errors++; if (/timed out|Connection closed|Target closed|Protocol error/.test(row.err)) await fresh(); }
+    } catch (e){ row.err = String(e).slice(0, 200); errors++; if (/timed out|crashed|Connection closed|Target closed|Protocol error/.test(row.err)) await fresh(); }
     clearTimeout(timer);
     await ctx.close().catch(() => {});
     appendFileSync(RESULTS, JSON.stringify(row) + '\n');
@@ -330,7 +346,13 @@ if (process.argv.includes('--write-holds')){
   done.forEach(c => delete holds.cards[c]);
   rows.forEach(r => { if (!r.err && r.base && r.base.length) holds.cards[r.card] = [...new Set(r.base.map(said))].join('; '); });
   /* only what this run measured is rewritten: a dimension left out of --dims
-     keeps its rows, and with --looks only those looks' rows change */
+     keeps its rows, and with --looks only those looks' rows change. A library
+     card already painted in a palette keeps that palette's colours when the
+     theme of the same name is picked: those are the theme's own, not the
+     card's left beside it (glassCard-jw03-15's gold under Black & Gold,
+     2026-10-03, rule 125) */
+  const ownPalette = Object.fromEntries(idx.map(c => [c.id, c.theme]));
+  const leftOk = (dim, card, k) => dim === 'themes' && ownPalette[card] === k;
   for (const dim of ['themes', 'looks', 'voices'].filter(d => DIMS.has(d))){
     holds[dim] = holds[dim] || {};
     const only = dim === 'looks' && ONLY_LOOKS;
@@ -340,8 +362,8 @@ if (process.argv.includes('--write-holds')){
       only.forEach(k => delete cur[k]); if (!Object.keys(cur).length) delete holds[dim][c];
     });
     rows.forEach(r => {
-      const bad = Object.entries(r[dim] || {}).filter(([k, v]) => !v.err && (v.reg || v.unthemed || v.left || v.lost) && (!only || only.includes(k)));
-      if (bad.length) holds[dim][r.card] = Object.assign(only ? (holds[dim][r.card] || {}) : {}, Object.fromEntries(bad.map(([k, v]) => [k, why(v)])));
+      const bad = Object.entries(r[dim] || {}).filter(([k, v]) => !v.err && (v.reg || v.unthemed || (v.left && !leftOk(dim, r.card, k)) || v.lost) && (!only || only.includes(k)));
+      if (bad.length) holds[dim][r.card] = Object.assign(only ? (holds[dim][r.card] || {}) : {}, Object.fromEntries(bad.map(([k, v]) => [k, why(leftOk(dim, r.card, k) ? Object.assign({}, v, { left: null }) : v)])));
     });
   }
   /* a card the studio no longer offers has no chips to hold, and a theme it

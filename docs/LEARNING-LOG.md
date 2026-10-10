@@ -3967,3 +3967,91 @@ RESUME HERE:
   2. A leaned face that passes the coming-flat test, if the owner wants hero
      three-quarter or leaning back (§AR 1).
   3. Deploy `main` from the Mac (AGENT-BRIEF, Deploying).
+
+## 2026-10-02 — 52 colour themes; the effects wear them
+
+Asked: more proven palettes, some of two or three colours, with the
+gradients, 3-D and outlines in mind, "as much capability as possible".
+
+Did (DESIGN-LAW rule 125, OPEN-ITEMS §AT): two-colour and three-colour sets
+and the library's pairs in the studio, measured by theme_law; effects drawn
+from the palette (`thFx`); the one-colour pass keeps a theme's colours and a
+look the visitor picked; the accent shows on every card; the plate-matching
+guard reads the words on the plate itself.
+
+Learned:
+  - The quickest finding came from rendering, not reading: the panel offered
+    sixteen gradients, red and blue 3-D and multicolour letters, and rule
+    95's pass drew every one of them as one colour. No audit had counted the
+    colours a look leaves on the card.
+  - A heuristic that changes a theme (giving the accent a plate) has to be
+    run against the card's own look too: the first version gave the accent
+    to a bar that another plate stood on, and a look then sank it to black.
+  - Pixel comparisons need their own noise floor: the grain differs between
+    two renders of one card on one build by up to 0.63%.
+
+## 2026-10-03 — the 52 themes audited on every card
+
+Asked: "keep going to make it fully audited and validated".
+
+Did: every audit the repo has, on the final build. every_card_audit over all
+649 offered cards, themes and looks (42,000 renders), holds written; the
+library and classics gates; ez_theme_audit; tagline_audit; designer_audit;
+theme_law. Five problems it found are fixed (DESIGN-LAW 125, "What the full
+audit found"); OPEN-ITEMS §AT lists the per-card holds left.
+
+Learned:
+  - Every hang of the full audit at fifteen minutes was the kernel killing a
+    renderer for memory: a studio page peaks near 4 GB and four of them do
+    not fit in 14 GB. The page died silently and its evaluate waited
+    forever. `--lean`, three workers and treating a crashed page as an error
+    to open again made the run finish; a lean run was checked against a
+    normal one first (same results on the same cards).
+  - An audit that writes a table must rewrite only what it measured: a
+    themes-and-looks run had been about to drop every voice hold.
+  - A "left over" colour can be the card's own: on a card whose own palette
+    is the theme, the old colour and the theme's are the same colour.
+    Measure a regression against `main`'s holds, never against zero.
+  - A record of "what the last pass left" has to be taken after every pass
+    that paints, the look and its own passes included, or the next pass
+    reads the passes' colours as the visitor's. The designer's ORIG drift on
+    bandKnockout-pp04-15 was on `main` too; only the designer audit saw it.
+  - pkill -f matches the shell that runs it: stop audit processes by
+    skipping bash in the match, or the tool call dies with its children.
+
+## 2026-10-08 — the colour themes into `main`: two colours, three colours, the twelve pairs
+
+Asked: the owner found their live site showing September's generated
+palettes ("Blue Market", "Gold Trade") and these previews nowhere: "what is
+this and why don't I see this?", "What you showed me seem to be more
+cohesive and less random", then "Properly integrate into the main, I don't
+know what these are".
+
+Found:
+  - Three versions at once. The live site was deployed before 2026-10-01
+    (it still had the Template Lab button and the generated palettes);
+    `main` had moved to the twelve pairings (rule 123) and a colour builder
+    (rule 112); this branch had 52 themes, 169 commits behind `main`.
+  - Rule 123 and this branch had answered the same complaint ("random")
+    from two ends: `main` cut the themes to the twelve, the branch added
+    the sign sets of two and three colours. They fit: the twelve stay the
+    builder's records, the sign sets join them, the 21 retired stay retired.
+  - `main`'s law is stricter than the branch's theme_law: text 4.5:1 for a
+    colour-blind reader, not 3:1. White on Red (3.92:1, deutan) and Red on
+    White (4.02:1) failed it; their reds went a step deeper in their own hue.
+  - `main`'s audits assumed every theme has a small-print colour of its
+    own and a coloured accent; `house_themes.mjs --write` replaced the whole
+    array, so the next regeneration of the pairs would have deleted the 19
+    sign sets. All four checks and the writer now read `group`.
+  - The FAQ's colours answer is inside the JSON-LD block the CSP hashes;
+    changing the words without `csp_hashes.mjs` would have blocked it on
+    the live site with nothing visible on localhost.
+  - The first as-designed comparison showed seven library cards 0.8 to
+    1.3% off `main`; run again, 0.02 to 0.19%, the same as `main` against
+    itself. Images still decoding while another audit loaded the machine.
+    A comparison taken while anything else renders is not a measurement.
+
+RESUME HERE:
+  0. The deploy (OPEN-ITEMS §AT 1): the workflow's secrets, or the Mac.
+  1. The per-card holds (§AT 2), if a chip is worth giving back.
+  2. The salmon red (§AT 3).

@@ -13,7 +13,11 @@
  *
  * Until 2026-10-05 it audited only the four "GFX Grammar" rows, the only ones
  * that carried a support colour; every theme carries one now (rule 123), so
- * every theme is held to the same roles.
+ * every theme is held to the same roles. A two- or three-colour set (rule
+ * 125) gives the small print to its text colour, as themeScene paints it
+ * (T.support || T.ink), and a two-colour set's bright colour IS its text
+ * colour, so the 1.7:1 separation does not apply to it; it must say so
+ * exactly (accent === ink).
  */
 import { readFileSync } from 'node:fs';
 
@@ -61,10 +65,14 @@ for (const theme of themes) {
   const grounds = [theme.bg.c1, theme.bg.c2];
   const ink = worst(theme.ink, grounds);
   const accent = worst(theme.accent, grounds);
-  const support = theme.support ? worst(theme.support, grounds) : 0;
+  const few = theme.group === 'Two colours' || theme.group === 'Three colours';
+  const small = theme.support || (few ? theme.ink : null);
+  const support = small ? worst(small, grounds) : 0;
   const separation = contrast(theme.accent, theme.ink);
-  const valid = typeof theme.support === 'string' && typeof theme.ink === 'string' && typeof theme.accent === 'string';   // every role declared
-  const pass = valid && ink >= 4.5 && accent >= 3 && support >= 4.5 && separation >= 1.7;
+  const one = theme.group === 'Two colours';
+  const valid = typeof small === 'string' && typeof theme.ink === 'string' && typeof theme.accent === 'string'   // every role declared
+    && (!one || (theme.accent === theme.ink && !theme.support));
+  const pass = valid && ink >= 4.5 && accent >= 3 && support >= 4.5 && (one || separation >= 1.7);
   if (!pass) failures++;
   console.log(
     theme.name.padEnd(17) +

@@ -24,7 +24,14 @@
  *
  * What it checks on each house theme (every line fails the run):
  *   name      "Colour & Colour", both plain colour words, no food or drink, no
- *             internal words; `family` a customer's word (Dark, Light)
+ *             internal words; `family` a customer's word (Dark, Light). The
+ *             sign sets of rule 125 are named the same way: "Colour on
+ *             Colour" (Two colours) and "Colour, Colour & Colour" (Three)
+ *   few       a Two colours set sets every word in its one colour (accent ===
+ *             ink, no support); a Two or Three colours set gives its small
+ *             print to its ink, as themeScene paints it (T.support || T.ink),
+ *             and a white or black accent is measured for contrast, not for
+ *             the band or chroma of a colour it is not
  *   roles     ground (two stops), ink, accent and support all present (rule 51)
  *   families  two hue families at most: accent, support and a coloured
  *             ground within 30 degrees of each other count as one (rules 95, 103)
@@ -36,8 +43,8 @@
  *             protan, deutan and tritan sight; accent >= 4.5:1 normal and
  *             >= 3:1 simulated; accent against ink >= 1.7:1; the number on
  *             an accent box >= 3:1 (rules 43, 51, 87, 112)
- *   vocabulary  the same twelve names in COLOR_THEMES, PALETTES, CB_READY and
- *             on the live cards; every choice-hold theme key is a live name;
+ *   vocabulary  the same twelve names in COLOR_THEMES' Proven pairs, PALETTES,
+ *             CB_READY and on the live cards; every choice-hold theme key is a live name;
  *             every retired name is under exactly one theme's `aka`, and no
  *             aka is a live name
  *
@@ -103,11 +110,16 @@ const problems = [], notes = [];
 const P = (where, what) => problems.push({ where, what });
 const names = THEMES.map(t => t.name);
 if (new Set(names).size !== names.length) P('COLOR_THEMES', 'two themes share a name');
+const GROUPS = { 'Two colours': /^([A-Z][a-z]+) on ([A-Z][a-z]+)$/, 'Three colours': /^([A-Z][a-z]+), ([A-Z][a-z]+) & ([A-Z][a-z]+)$/, 'Proven pairs': /^([A-Z][a-z]+) & ([A-Z][a-z]+)$/ };
 THEMES.forEach(t => {
   const w = t.name;
-  const m = /^([A-Z][a-z]+) & ([A-Z][a-z]+)$/.exec(w);
-  if (!m) P(w, 'the name is not "Colour & Colour"');
+  if (!GROUPS[t.group]) P(w, `group "${t.group}" is not one of ${Object.keys(GROUPS).join(', ')}`);
+  const few = t.group === 'Two colours' || t.group === 'Three colours', one = t.group === 'Two colours';
+  const m = (GROUPS[t.group] || GROUPS['Proven pairs']).exec(w);
+  if (!m) P(w, `the name is not ${t.group === 'Two colours' ? '"Colour on Colour"' : t.group === 'Three colours' ? '"Colour, Colour & Colour"' : '"Colour & Colour"'}`);
   else m.slice(1).forEach(c => { if (!COLOUR_WORDS.has(c.toLowerCase())) P(w, `"${c}" is not a plain colour word`); });
+  if (one && (t.accent !== t.ink || t.support)) P(w, 'a two-colour set sets every word in its one colour: accent === ink, no support');
+  if (few && !t.support) t = Object.assign({}, t, { support: t.ink });   // its small print is its ink
   if (FOOD.test(w)) P(w, 'the name is a food, drink or flower');
   if (!LOOKS.has(t.family)) P(w, `family "${t.family}" is not a customer's word (Dark, Light)`);
   if (t.intent) P(w, 'carries an internal "intent"');
@@ -117,32 +129,36 @@ THEMES.forEach(t => {
   const fams = families([t.accent, t.support, t.bg.c1]);
   if (fams.length > 2) P(w, `three colour families (${fams.map(h => Math.round(h)).join(', ')} degrees)`);
   const A = ok(t.accent), S = ok(t.support), g1 = ok(t.bg.c1), g2 = ok(t.bg.c2);
-  if (muddy(A.H, lum(t.accent))) P(w, `the accent ${t.accent} is drawn under its muddy floor`);
+  /* white or black, by design (rule 125); and a few-colour set's small print
+     is its reading ink, which no theme holds to a colour's chroma */
+  const neutralA = few && A.C < 0.05, neutralS = few && t.support === t.ink;
+  if (!neutralA && muddy(A.H, lum(t.accent))) P(w, `the accent ${t.accent} is drawn under its muddy floor`);
   if (S.C >= 0.05 && muddy(S.H, lum(t.support))) P(w, `the support ${t.support} is drawn under its muddy floor`);
   const band = namedBand(A.H), Ya = lum(t.accent);
-  if (Ya < band[0] - 1e-4 || Ya > band[1] + 1e-4) P(w, `the accent is outside the band where it reads as its name (Y ${Ya.toFixed(3)}, band ${band.join('–')})`);
-  if (A.C < floorC(A.H, Ya)) P(w, `the accent is dull (C ${A.C.toFixed(3)})`);
-  if (S.C < floorC(S.H, lum(t.support))) P(w, `the support is dull (C ${S.C.toFixed(3)})`);
+  if (!neutralA && (Ya < band[0] - 1e-4 || Ya > band[1] + 1e-4)) P(w, `the accent is outside the band where it reads as its name (Y ${Ya.toFixed(3)}, band ${band.join('–')})`);
+  if (!neutralA && A.C < floorC(A.H, Ya)) P(w, `the accent is dull (C ${A.C.toFixed(3)})`);
+  if (!neutralS && S.C < floorC(S.H, lum(t.support))) P(w, `the support is dull (C ${S.C.toFixed(3)})`);
   if (g1.C >= 0.05 && g2.C >= 0.05 && gap(g1.H, g2.H) > 30) P(w, `the ground's two stops travel between hues (${Math.round(g1.H)} to ${Math.round(g2.H)})`);
   const ink = worst(t.ink, g, ['normal', ...CVD]), acc = worst(t.accent, g, ['normal']), accCvd = worst(t.accent, g, CVD);
   const vs = cr(t.accent, t.ink), sup = worst(t.support, g, ['normal', ...CVD]), num = cr(plateInk(t), t.accent);
   if (ink < 4.5) P(w, `ink ${ink.toFixed(2)}:1`);
   if (acc < 4.5) P(w, `accent ${acc.toFixed(2)}:1`);
   if (accCvd < 3) P(w, `accent ${accCvd.toFixed(2)}:1 for a colour-blind reader`);
-  if (vs < 1.7) P(w, `accent against ink ${vs.toFixed(2)}:1`);
+  if (!one && vs < 1.7) P(w, `accent against ink ${vs.toFixed(2)}:1`);
   if (sup < 4.5) P(w, `support ${sup.toFixed(2)}:1`);
   if (num < 3) P(w, `the number on an accent box ${num.toFixed(2)}:1`);
-  t._m = { ink, acc, accCvd, vs, sup, num, fams: fams.length };
+  THEMES.find(x => x.name === w)._m = { ink, acc, accCvd, vs, sup, num, fams: fams.length };
 });
 
 /* ── one vocabulary ───────────────────────────────────────────────────── */
 const same = (a, b) => a.length === b.length && a.every(x => b.includes(x));
 const palNames = PALETTES.map(p => p.name), readyNames = Object.values(CB_READY), cardNames = [...new Set(liveCards.map(c => c.theme))];
-if (!same(names, palNames)) P('vocabulary', `Easy Mode's themes and the library's palettes differ: only in themes ${JSON.stringify(names.filter(n => !palNames.includes(n)))}, only in palettes ${JSON.stringify(palNames.filter(n => !names.includes(n)))}`);
-if (!same(names, readyNames)) P('vocabulary', `the builder's ready-made sets differ from the themes: ${JSON.stringify(readyNames.filter(n => !names.includes(n)).concat(names.filter(n => !readyNames.includes(n))))}`);
+const pairs = THEMES.filter(t => t.group === 'Proven pairs').map(t => t.name);
+if (!same(pairs, palNames)) P('vocabulary', `Easy Mode's themes and the library's palettes differ: only in themes ${JSON.stringify(pairs.filter(n => !palNames.includes(n)))}, only in palettes ${JSON.stringify(palNames.filter(n => !pairs.includes(n)))}`);
+if (!same(pairs, readyNames)) P('vocabulary', `the builder's ready-made sets differ from the themes: ${JSON.stringify(readyNames.filter(n => !pairs.includes(n)).concat(pairs.filter(n => !readyNames.includes(n))))}`);
 const strayCards = cardNames.filter(n => !names.includes(n));
 if (strayCards.length) P('vocabulary', `live library cards drawn in a palette no theme has: ${JSON.stringify(strayCards)}`);
-const missingOnCards = names.filter(n => !cardNames.includes(n));
+const missingOnCards = pairs.filter(n => !cardNames.includes(n));
 if (missingOnCards.length) notes.push(`no live library card is drawn in ${missingOnCards.join(', ')}`);
 const holdKeys = [...new Set(Object.values(holds.themes || {}).flatMap(o => Object.keys(o)))];
 const staleHolds = holdKeys.filter(k => !names.includes(k));
@@ -177,10 +193,10 @@ report(offer, 'offer family looks (offer-library.js)');
 
 /* ── the report ───────────────────────────────────────────────────────── */
 console.log(`\nHouse themes (COLOR_THEMES): ${THEMES.length} · library palettes: ${palNames.length} · builder ready-made: ${readyNames.length} · live cards: ${liveCards.length} in ${cardNames.length} palettes`);
-console.log('  theme            look   families  ink   accent  cvd   vs ink  support  number');
-THEMES.forEach(t => { const m = t._m; if (!m) return console.log('  ' + t.name.padEnd(16) + ' (not measured)');
+console.log('  theme                  look   families  ink   accent  cvd   vs ink  support  number');
+THEMES.forEach(t => { const m = t._m; if (!m) return console.log('  ' + t.name.padEnd(22) + ' (not measured)');
   const f = v => v.toFixed(2).padStart(6);
-  console.log(`  ${t.name.padEnd(16)} ${String(t.family).padEnd(6)} ${String(m.fams).padStart(4)}    ${f(m.ink)} ${f(m.acc)} ${f(m.accCvd)} ${f(m.vs)}  ${f(m.sup)}  ${f(m.num)}`); });
+  console.log(`  ${t.name.padEnd(22)} ${String(t.family).padEnd(6)} ${String(m.fams).padStart(4)}    ${f(m.ink)} ${f(m.acc)} ${f(m.accCvd)} ${f(m.vs)}  ${f(m.sup)}  ${f(m.num)}`); });
 other.forEach(o => console.log(`\n${o.label}: ${o.n} · named for two colours ${o.twoColours} · food, drink or flower names ${o.food.length}${o.food.length ? ' (' + o.food.slice(0, 8).join(', ') + (o.food.length > 8 ? ', …' : '') + ')' : ''}` +
   ` · accent or plate under the muddy floor ${o.muddy.length}${o.muddy.length ? ' (' + o.muddy.slice(0, 8).join(', ') + (o.muddy.length > 8 ? ', …' : '') + ')' : ''} · three families ${o.third.length} · ink under 3:1 on its ground ${o.inkUnder3.length}` + (STRICT ? '' : '   [reported; --strict fails on them]')));
 notes.forEach(n => console.log('  note: ' + n));

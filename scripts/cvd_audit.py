@@ -59,6 +59,11 @@ def read_themes(path=APP):
         hexes = dict(re.findall(r"\b(c1|c2|accent|ink|support):'(#[0-9a-fA-F]{6})'", rest))
         if not {"c1", "c2", "accent", "ink"} <= set(hexes):
             sys.exit(f"theme {name}: a colour is missing in app.js ({sorted(hexes)})")
+        # a two- or three-colour set (rule 125) sets its small print in its
+        # text colour, as themeScene paints it (T.support || T.ink); measured so
+        group = (re.search(r"group:'([^']+)'", rest) or [None, None])[1]
+        if group in ("Two colours", "Three colours") and "support" not in hexes:
+            hexes["support"] = hexes["ink"]
         themes.append({"name": name, **hexes})
     if not themes:
         sys.exit("no theme records parsed from COLOR_THEMES")
