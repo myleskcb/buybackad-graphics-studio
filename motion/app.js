@@ -808,32 +808,40 @@ async function recordUntilDone(ad, audioBuf, prog, note) {
   }
 }
 
-/* The plan's say on a download (owner, 2026-10-08: the pricing "doesn't
-   really cover videos"). Making and watching a video stays free and needs no
-   account; downloading one, or saving it to the library, is one of the
-   plan's downloads, as the studio's videos are, and on Free the video and its
-   photo carry the BUYBACK.AD watermark and the photo is 1080 on its short
-   side. The function decides: /api/export/check before the video is made,
-   /api/export once it is. A copy with no backend (demo) is not gated.
-   Returns null when the account dialog or the limit pop-up has taken over. */
+/* The plan's say on a download. Making and watching a video stays free and
+   needs no account; downloading one, or saving it to the library, comes with
+   Pro and Business (owner, 2026-10-09: "videos start at $60") and is one of
+   the plan's downloads, as the studio's videos are. The function decides:
+   /api/export/check before the video is made, /api/export once it is, both
+   with kind "video". The marks and the photo's size follow the plan's
+   answer, so a plan that one day downloads videos with the watermark needs
+   no change here. A copy with no backend (demo) is not gated.
+   Returns null when the account dialog or a pop-up has taken over. */
 async function planGate(next, message) {
   const acct = window.pgfxAccount;
   if (!acct || acct.demo) return { watermark: false, maxPx: null, count: async () => true };
   if (!acct.signedIn()) { acct.openAuth({ message, next }); return null; }
+  const plans = { label: "See plans", primary: true, run: () => { location.href = "../?plans=1"; } };
+  const upsell = () => VH().show({
+    title: "Video downloads come with Pro and Business",
+    message: "Make and watch as many videos as you like here. Downloading them, with sound and no watermark, comes with Pro ($60 a month, 500 downloads) and Business ($100, unlimited).",
+    actions: [plans],
+  });
   const limit = (e) => VH().show({
     title: "You've used this plan's downloads", message: (e && e.message ? e.message + ". " : "") +
-      "Free has 3 a week, photos or videos. Pro has 100 a month with no watermark, Business 500. You can still make and watch videos here.",
-    actions: [{ label: "See plans", primary: true, run: () => { location.href = "../?plans=1"; } }],
+      "Pro has 500 downloads a month, photos or videos; Business is unlimited. You can still make and watch videos here.",
+    actions: [plans],
   });
+  const refused = (e) => { if (e.status === 403) { upsell(); return true; } if (e.status === 402) { limit(e); return true; } return false; };
   try {
-    const g = await acct.api("/export/check", {});
+    const g = await acct.api("/export/check", { kind: "video" });
     return {
       watermark: !!g.watermark, maxPx: g.maxPx || null,
-      count: async () => { try { await acct.api("/export", {}); return true; } catch (e) { if (e.status === 402) { limit(e); return false; } throw e; } },
+      count: async () => { try { await acct.api("/export", { kind: "video" }); return true; } catch (e) { if (refused(e)) return false; throw e; } },
     };
   } catch (e) {
     if (e.status === 401 || e.status === 404) { acct.signout(); acct.openAuth({ message, next }); return null; }
-    if (e.status === 402) { limit(e); return null; }
+    if (refused(e)) return null;
     throw e;
   }
 }
@@ -923,7 +931,7 @@ async function download(opts = {}) {
   let ad = null;
   const tried = [];
   try {
-    const gate = await planGate(() => download(opts), "Create a free account to download your video: 3 free downloads a week, photos or videos.");
+    const gate = await planGate(() => download(opts), "Sign in to download your video. Video downloads come with Pro and Business.");
     if (!gate) return;
     const st = harmonise({ ...state.style }, state.locked, indexById());
     const made = await makeVideo(st, { how, withSound, prog, note, tried, watermark: gate.watermark });
@@ -998,7 +1006,7 @@ async function saveLook(stRaw, btn) {
   const H = VH();
   const lib = window.adLibrary;
   if (!lib) { H.toast("The library did not load. Reload the page and try again."); return null; }
-  if (!await lib.signedIn(() => saveLook(stRaw, btn), "Create a free account to save video ads to your library, or sign in.")) return null;
+  if (!await lib.signedIn(() => saveLook(stRaw, btn), "Sign in to save video ads to your library. Video ads come with Pro and Business.")) return null;
   const b = btn || $("mo-star");
   if (b && b.disabled) return null;
   if (b) b.disabled = true;
@@ -1009,7 +1017,7 @@ async function saveLook(stRaw, btn) {
   let item = null;
   try {
     // a save is one of the plan's downloads, made at the plan's size and marks (planGate)
-    const gate = await planGate(() => saveLook(stRaw, btn), "Create a free account to save video ads to your library, or sign in.");
+    const gate = await planGate(() => saveLook(stRaw, btn), "Sign in to save video ads to your library. Video ads come with Pro and Business.");
     if (!gate) return null;
     const made = await makeVideo(st, { prog, note, watermark: gate.watermark });
     const name = `we-buy-phones-${st.aspect.replace(":", "x")}-${st.seed}.${made.out.ext}`;

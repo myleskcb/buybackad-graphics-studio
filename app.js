@@ -6211,8 +6211,8 @@ const isPro = () => !!account && (account.plan || 'free') !== 'free';
 // invisible to everyone else, the nav entry doesn't render at all.
 const isAdmin = () => !!account && account.role === 'admin';
 async function addQrLayer(){
-  if (!isPro()){
-    openPlans('Scannable QR codes are a Pro feature, point one at any link, or paste a SCANS.AD tracking link and every printed flyer reports its scans back to you.');
+  if (!planOf().qr && !isAdmin()){
+    openPlans('Scannable QR codes come with Pro and Business: point one at any link, or paste a SCANS.AD tracking link and every printed flyer reports its scans back to you.');
     return;
   }
   try { await loadQrLib(); } catch (e){ toast(e.message, 'error'); return; }
@@ -6281,31 +6281,37 @@ const DEMO = !API_BASE;
 /* PLANS:BEGIN. The browser's copy of netlify/lib/plans.mjs, display only
    (the function enforces its own); scripts/plan_economics.mjs fails when the
    numbers here and there differ. Prices in cents; weekly/monthly are
-   downloads, photos or videos; credits are AI credits a month; library is
-   ads kept. Owner, 2026-10-08: plans that cover videos, are built on what
-   each thing costs, and charge paid AI in credits. */
+   downloads (null and null: unlimited); credits are AI credits a month; library is
+   ads kept; video is whether the plan downloads video ads. Owner,
+   2026-10-08: plans that cover videos, are built on what each thing costs,
+   and charge paid AI in credits; 2026-10-09: three paid plans, $25 / $60 /
+   $100, videos from $60, Free as a line above them. */
 const PLANS = {
-  free:     { label:'Free', price:{ month:0 }, weekly:3, monthly:null, maxPx:1080, watermark:true, credits:5, library:12 },
-  pro:      { label:'Pro', price:{ month:2500, year:25000 }, weekly:null, monthly:100, maxPx:2160, watermark:false, credits:75, library:300, hot:true },
-  business: { label:'Business', price:{ month:6000, year:60000 }, weekly:null, monthly:500, maxPx:2160, watermark:false, credits:200, library:1000 },
+  free:     { label:'Free', price:{ month:0 }, weekly:3, monthly:null, maxPx:1080, watermark:true, video:false, credits:5, library:12, qr:false },
+  basic:    { label:'Starter', price:{ month:2500, year:25000 }, weekly:null, monthly:100, maxPx:2160, watermark:false, video:false, credits:50, library:300, qr:false },
+  pro:      { label:'Pro', price:{ month:6000, year:60000 }, weekly:null, monthly:500, maxPx:2160, watermark:false, video:true, credits:200, library:1000, qr:true, hot:true },
+  business: { label:'Business', price:{ month:10000, year:100000 }, weekly:null, monthly:null, maxPx:2160, watermark:false, video:true, credits:500, library:3000, qr:true },
 };
 const PACKS = {
   credits100: { label:'100 AI credits', credits:100, price:900 },
   credits300: { label:'300 AI credits', credits:300, price:2500 },
 };
 /* PLANS:END */
-const usd = (cents) => '$' + (cents % 100 ? (cents / 100).toFixed(2) : String(cents / 100));
+const usd = (cents) => '$' + (cents / 100).toLocaleString('en-US', { minimumFractionDigits: cents % 100 ? 2 : 0, maximumFractionDigits: 2 });
 const fmtN = (n) => Number(n).toLocaleString('en-US');
 /* what each card says, worked out from the numbers so the two never drift */
 function planFeats(id){
   const p = PLANS[id];
-  const dl = p.weekly ? p.weekly + ' downloads a week' : fmtN(p.monthly) + ' downloads a month';
-  if (id === 'free') return [dl + ': photos or videos', FEAT_FREE_TPL, 'Video ads too, with a small BUYBACK.AD watermark',
-    'Standard size (' + p.maxPx + ' pixels)', p.credits + ' AI credits a month'];
-  if (id === 'pro') return [dl + ': photos or videos', FEAT_PRO_TPL, 'Video ads with sound, no watermark',
-    'Up to double size (' + p.maxPx + ' pixels)', p.credits + ' AI credits a month', 'Add a QR code people can scan', 'Keep ' + fmtN(p.library) + ' ads in your library'];
-  return [dl + ': photos or videos', 'Everything in Pro', p.credits + ' AI credits a month', 'Keep ' + fmtN(p.library) + ' ads in your library'];
+  const what = p.video ? ': photos or videos' : '';
+  const dl = p.weekly ? p.weekly + ' photo downloads a week' : p.monthly ? fmtN(p.monthly) + (p.video ? ' downloads a month' : ' photo downloads a month') : 'Unlimited downloads';
+  const credits = p.credits + ' AI credits a month', lib = 'Keep ' + fmtN(p.library) + ' ads in your library';
+  if (id === 'free') return [dl, FEAT_FREE_TPL, 'Standard size (' + p.maxPx + ' pixels) with a small BUYBACK.AD watermark', credits];
+  if (id === 'basic') return [dl, FEAT_PRO_TPL, 'No watermark, up to double size (' + p.maxPx + ' pixels)', credits, lib];
+  if (id === 'pro') return [dl + what, 'Everything in Starter', 'Video ads with sound, no watermark', 'Add a QR code people can scan', credits, lib];
+  return [dl + what, 'Everything in Pro', credits, lib];
 }
+/* the line Free gets above the paid cards */
+const freeLine = () => planFeats('free').join(' · ');
 function planFeatsAll(){
   for (const [id, p] of Object.entries(PLANS)){
     p.feats = planFeats(id);
@@ -6450,7 +6456,7 @@ function syncQuotaUI(){
   if (!account){ q.innerHTML = 'Free plan: 3 downloads a week, standard size. <span class="up" id="quota-plans">See plans</span>'; }
   else {
     const p = planOf(), rem = exportsRemaining();
-    if (rem === Infinity) q.innerHTML = '<b>' + p.label + '</b>: unlimited downloads, up to ' + p.maxPx + ' pixels';
+    if (rem === Infinity) q.innerHTML = '<b>' + p.label + '</b>: unlimited downloads, up to ' + p.maxPx + ' pixels · <b>' + creditsOf().total + '</b> AI credits';
     else q.innerHTML = '<b>' + rem + '</b> of ' + (p.weekly || p.monthly) + ' downloads left this ' + (p.weekly ? 'week' : 'month') +
       ' · <b>' + creditsOf().total + '</b> AI credits' +
       ((account.plan || 'free') === 'free' ? ' · standard size with watermark. <span class="up" id="quota-plans">Upgrade</span>' : '');
@@ -6567,7 +6573,7 @@ async function loadPlanInfo(){
 }
 function openPlans(msg){
   buildPlansGrid();
-  $('plans-sub').textContent = msg || 'Photos and videos on every plan. Pay monthly or yearly, cancel any time.';
+  $('plans-sub').textContent = msg || 'Every design and no watermark on every paid plan; video ads from Pro. Pay monthly or yearly, cancel any time.';
   $('plans-demo-note').style.display = DEMO ? '' : 'none';
   $('page-plans').classList.add('active');
   loadPlanInfo().then(() => buildPlansGrid());
@@ -6596,34 +6602,45 @@ function buildPlansGrid(){
     n.textContent = 'Checkout opens soon. Until then nothing is charged, and the free plan works as normal.';
     g.appendChild(n);
   }
+  /* Free is a line above the paid plans (owner, 2026-10-09) */
+  const fl = document.createElement('div');
+  fl.className = 'plans-free';
+  fl.innerHTML = '<div class="plans-free-name"><b>Free</b> <span>$0</span></div><p>' + freeLine() + '</p>';
+  if (account && cur === 'free') fl.insertAdjacentHTML('beforeend', '<div class="plan-current">✓ Your current plan</div>');
+  else if (account && !DEMO){
+    const b = document.createElement('button');
+    b.className = 'plan-btn ghost'; b.textContent = 'Cancel in billing'; b.onclick = openBillingPortal;
+    fl.appendChild(b);
+  } else if (!account){
+    const b = document.createElement('button');
+    b.className = 'plan-btn ghost'; b.textContent = 'Start free';
+    b.onclick = () => { $('page-plans').classList.remove('active'); openAuth('Create your free account: 3 photo downloads a week, no card needed.'); setAuthMode('up'); };
+    fl.appendChild(b);
+  }
+  g.appendChild(fl);
   const cards = document.createElement('div');
   cards.className = 'plans-cards';
-  Object.entries(PLANS).forEach(([id, p]) => {
+  Object.entries(PLANS).filter(([id]) => id !== 'free').forEach(([id, p]) => {
     const yearly = plansInterval === 'year' && p.price.year;
     const cents = yearly ? p.price.year : p.price.month;
-    const isCur = account && cur === id && (id === 'free' || curInterval === (yearly ? 'year' : 'month'));
+    const isCur = account && cur === id && curInterval === (yearly ? 'year' : 'month');
     const card = document.createElement('div');
     card.className = 'plan-card' + (p.hot ? ' hot' : '');
-    card.innerHTML = `<div class="plan-name">${p.label}</div>
-      <div class="plan-price">${usd(cents)}<small> ${!cents ? 'forever' : yearly ? '/year' : '/month'}</small></div>
-      <div class="plan-per">${yearly ? usd(Math.round(cents / 12)) + ' a month, billed yearly' : cents ? 'Billed monthly' : 'No card needed'}</div>
+    card.innerHTML = (p.hot ? '<div class="plan-tag">Most popular</div>' : '') + `<div class="plan-name">${p.label}</div>
+      <div class="plan-price">${usd(cents)}<small> ${yearly ? '/year' : '/month'}</small></div>
+      <div class="plan-per">${yearly ? usd(Math.round(cents / 12)) + ' a month, billed yearly' : 'Billed monthly'}</div>
       <ul class="plan-feats">${p.feats.map(f => '<li>' + f + '</li>').join('')}</ul>`;
     let btn;
     if (isCur){
       card.insertAdjacentHTML('beforeend', '<div class="plan-current">✓ Your current plan</div>');
-      if (id !== 'free' && !DEMO){
+      if (!DEMO){
         btn = document.createElement('button');
         btn.className = 'plan-btn ghost'; btn.style.marginTop = '10px'; btn.textContent = 'Manage billing / cancel';
         btn.onclick = openBillingPortal;
       }
-    } else if (id === 'free'){
-      btn = document.createElement('button');
-      btn.className = 'plan-btn ghost';
-      if (account && cur !== 'free' && !DEMO){ btn.textContent = 'Cancel in billing'; btn.onclick = openBillingPortal; }
-      else { btn.textContent = 'Included'; btn.disabled = true; }
     } else {
       btn = document.createElement('button');
-      btn.className = 'plan-btn';
+      btn.className = 'plan-btn' + (p.hot ? '' : ' ghost');
       const iv = yearly ? 'year' : 'month';
       btn.textContent = account && cur !== 'free' ? 'Switch to ' + p.label + (cur === id ? (iv === 'year' ? ' yearly' : ' monthly') : '') : 'Choose ' + p.label;
       btn.onclick = () => (account && cur !== 'free' ? switchPlan(id, iv) : startCheckout({ plan: id, interval: iv }));
@@ -6724,7 +6741,7 @@ function showPayResult(ok, planId, kind){
     ? (credits ? 'You have ' + (c ? c.total : 'more') + ' AI credits now. Bought credits never expire.'
       : pending
         ? 'Your plan is switching on. It usually takes a few seconds; if your account still says Free in a minute, reload the page.'
-        : 'You are now on the ' + (PLANS[planId] ? PLANS[planId].label : 'new') + ' plan: no watermark, full size, videos included, and ' + (PLANS[planId] ? PLANS[planId].credits : '') + ' AI credits a month.')
+        : 'You are now on ' + (PLANS[planId] ? PLANS[planId].label : 'your new plan') + ': every design, no watermark, full size' + (PLANS[planId] && PLANS[planId].video ? ', video ads' : '') + ' and ' + (PLANS[planId] ? PLANS[planId].credits : '') + ' AI credits a month.')
     : 'No charge was made. You are still on your previous plan.';
   $('pay-overlay').classList.add('show');
 }
@@ -6756,7 +6773,7 @@ async function handleCheckoutReturn(){
 }
 
 // ── export gate + watermark ──
-async function recordExport(){
+async function recordExport(kind){   // kind 'video' for a video download (Pro and Business)
   if (DEMO){
     const p = planOf(), per = currentPeriod(p);
     const ex = (account.exports && account.exports.period === per) ? account.exports : { period: per, count: 0 };
@@ -6766,23 +6783,26 @@ async function recordExport(){
     syncQuotaUI();
     return true;
   }
-  const j = await api('/export', {});
+  const j = await api('/export', kind ? { kind } : {});
   account = j.user; syncQuotaUI();
   return true;
 }
+/* video downloads come with Pro and Business; anyone can make and watch one */
+const videoAllowed = () => isAdmin() || !!planOf().video;
+const VIDEO_UPSELL = 'Video ads come with Pro ($60 a month) and Business: 10-second videos with sound and no watermark, ready for Reels, Stories and OfferUp.';
 async function gateExport(pxWanted){
   if (!account) await loadAccount();
   if (!account){
     openAuth('Sign in to download, free accounts get 3 exports a week.');
     return null;
   }
-  if (account.role === 'admin') return { px: pxWanted, watermark: false }; // operators: full res, no watermark, no caps
+  if (account.role === 'admin') return { px: pxWanted, watermark: false, video: true }; // operators: full res, no watermark, no caps
   const p = planOf();
   if (exportsRemaining() <= 0){
-    openPlans("You've used all your " + (p.weekly || p.monthly) + ' ' + p.label + ' exports this ' + (p.weekly ? 'week' : 'month') + ', upgrade to keep posting.');
+    openPlans("You've used all your " + (p.weekly || p.monthly) + ' ' + p.label + ' downloads this ' + (p.weekly ? 'week' : 'month') + ', upgrade to keep posting.');
     return null;
   }
-  return { px: Math.min(pxWanted, p.maxPx), watermark: !!p.watermark };
+  return { px: Math.min(pxWanted, p.maxPx), watermark: !!p.watermark, video: !!p.video };
 }
 function applyWatermark(dataUrl, w, h){
   h = h || w;
@@ -6844,7 +6864,7 @@ function bindSaasUI(){
     syncAcctUI();
     jset('pgfx_tut_done', false);   // brand-new account always gets the tour
     if (pro){
-      openPlans('Pro unlocks every design, videos without the watermark, 2160 pixel downloads and 75 AI credits a month.');
+      openPlans('Every paid plan unlocks every design with no watermark. Video ads start with Pro.');
       return;
     }
     showEditor();
@@ -6862,9 +6882,9 @@ function bindSaasUI(){
   const lpAuth = (mode, msg) => () => { openAuth(msg); setAuthMode(mode); };
   const bindIf = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
   bindIf('lp-login', lpAuth('in'));
-  bindIf('lp-signup', lpAuth('up', 'Create your free account: 3 downloads a week, photos or videos, no card needed.'));
+  bindIf('lp-signup', lpAuth('up', 'Create your free account: 3 photo downloads a week, no card needed.'));
   bindIf('lpf-login', (e) => { e.preventDefault(); lpAuth('in')(); });
-  bindIf('lpf-signup', (e) => { e.preventDefault(); lpAuth('up', 'Create your free account: 3 downloads a week, photos or videos, no card needed.')(); });
+  bindIf('lpf-signup', (e) => { e.preventDefault(); lpAuth('up', 'Create your free account: 3 photo downloads a week, no card needed.')(); });
   bindIf('lpf-studio', (e) => { e.preventDefault(); showEasy(null); });
   $('auth-tab-in').onclick = () => setAuthMode('in');
   $('auth-tab-up').onclick = () => setAuthMode('up');
@@ -12559,7 +12579,7 @@ async function deliverVideo(blob, name, photo){
   const give = () => { save(blob, name); if (photo){ save(photo.blob, photo.name); if (VH && VH.keepPhoto) VH.keepPhoto(photo, photo.after, photo.label, photo.cls); } };
   const done = photo ? 'Video and photo downloaded' : 'Video downloaded';
   try {
-    await (VH ? VH.retry(recordExport, { tries: 3, delay: 1200, retryIf: transient }) : recordExport());
+    await (VH ? VH.retry(() => recordExport('video'), { tries: 3, delay: 1200, retryIf: transient }) : recordExport('video'));
     give(); return true;
   } catch (e){
     console.warn('GraphicsStudio motion: export could not be counted', e);
@@ -12640,6 +12660,7 @@ async function ezDownloadVideo(){
   if (!motionMime(!!actx) && typeof VideoEncoder !== 'function'){ videoTrouble({ w: 1080, h: 1080, actx, btn: $('ez-video') }, new Error('this browser cannot record video')); return; }
   const gate = await gateExport(ezExportPx());
   if (!gate) return;
+  if (!gate.video){ openPlans(VIDEO_UPSELL); return; }
   /* the very scene the PNG export draws (renderEzCanvas keeps it instead of
      flattening it), so the video's frame 0 IS the still ad */
   if (!await pgGate('ez', () => renderEzCanvas(1080, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined, undefined, true))) return;
@@ -12653,6 +12674,7 @@ async function editorDownloadVideo(){
   if (!motionMime(!!actx) && typeof VideoEncoder !== 'function'){ videoTrouble({ w: 1080, h: 1080, actx, btn: $('ex-video') }, new Error('this browser cannot record video')); return; }
   const gate = await gateExport(exportSize);
   if (!gate) return;
+  if (!gate.video){ openPlans(VIDEO_UPSELL); return; }
   const d = exportDims(Math.min(gate.px, MOTION.maxShort));
   canvas.discardActiveObject(); canvas.renderAll();
   const sc = new fabric.StaticCanvas(null, { width:CW, height:CH, renderOnAddRemove:false, enableRetinaScaling:false });

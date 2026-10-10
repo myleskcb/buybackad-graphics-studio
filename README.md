@@ -74,34 +74,37 @@ worst, or if a copy says a different number.** `scripts/billing_check.mjs`
 walks credits, downloads and the whole Stripe loop against a stand-in Stripe,
 and the plans page and Checkout in Chromium.
 
-| | Free | Pro | Business |
-|---|---|---|---|
-| Price | $0 | $25 a month, $250 a year | $60 a month, $600 a year |
-| Downloads, photos or videos | 3 a week | 100 a month | 500 a month |
-| Size, watermark | 1080 px, BUYBACK.AD marks | 2160 px, none | 2160 px, none |
-| Designs | every Phones card + the top 3 of each other category | all | all |
-| AI credits a month | 5 | 75 | 200 |
-| Ads kept in the library | 12 | 300 | 1,000 |
-| QR code layer | no | yes | yes |
+| | Free | Starter | Pro | Business |
+|---|---|---|---|---|
+| Price | $0 | $25 a month, $250 a year | $60 a month, $600 a year | $100 a month, $1,000 a year |
+| Downloads | 3 photos a week | 100 photos a month | 500 a month, photos or videos | unlimited, photos or videos |
+| Video ads | make and watch | make and watch | download, no marks | download, no marks |
+| Size, watermark | 1080 px, BUYBACK.AD marks | 2160 px, none | 2160 px, none | 2160 px, none |
+| Designs | every Phones card + the top 3 of each other category | all | all | all |
+| AI credits a month | 5 | 50 | 200 | 500 |
+| Ads kept in the library | 12 | 300 | 1,000 | 3,000 |
+| QR code layer | no | no | yes | yes |
+
+The plan id of Starter is `basic` (an old backend's `starter` was today's
+Pro, and accounts may still carry it). Free shows as a line above the three
+paid cards (owner, 2026-10-09).
 
 Credit packs, any account, never expire, spent after the month's: 100 for
 $9, 300 for $25. An AI background is 1 credit on the default model (a credit
 covers up to 4 cents of model cost; Gemini 3 Pro Image would be 4), and a
 failed one gives its credit back.
 
-A download is a photo, or a video with its photo, from the studio or the
-phone video maker at `/motion`, counted once, re-downloads included. The
-maker makes and plays videos for anyone, with no account; downloading one
-(or starring it into the library) goes through the plan like the studio's
-videos: a free account, one download, and on Free the BUYBACK.AD marks on
-every frame and a 1080 photo.
+A download is a photo, or on Pro and Business a video with its photo, from
+the studio or the phone video maker at `/motion`, counted once, re-downloads
+included. Anyone can make and play videos, with no account; downloading one
+(or starring it into the library) needs Pro or Business: the studio's video
+buttons and the maker ask `/api/export` with `kind: "video"`, which answers
+403 below Pro, and `/api/ads/video/begin` refuses the same.
 
 At worst (every credit spent at the full 4 cents, plus hosting), against what
-a price nets after Stripe: Pro keeps 86% monthly and 84% yearly, Business 86%
-and 83%, the packs 53% and 50%, and a free account costs at most $0.22 a
-month (`plan_economics.mjs` prints it). On the default model (3.4 cents a
-background) a Pro subscriber makes about $21 a month with every credit spent
-and $23 at a projected 15 backgrounds; Business about $50 and $56 at 40.
+a price nets after Stripe: Starter keeps 91% monthly and 89% yearly, Pro 85%
+and 82%, Business 77% and 73%, the packs 53% and 50%, and a free account
+costs at most $0.22 a month (`plan_economics.mjs` prints it).
 
 ## Notes
 - Test first with Stripe **test keys** + card 4242 4242 4242 4242.

@@ -40,29 +40,41 @@ export const MODEL_COST_USD = {
   'fal-seedream-v4': 0.03,               // the fallback on fal, 2048 square
 };
 
-/** Prices in cents. `weekly`/`monthly` are downloads (photos or videos);
- *  `credits` are AI credits a calendar month; `library` is ads saved. */
+/** Prices in cents. `weekly`/`monthly` are downloads (null and null on a
+ *  paid plan: unlimited); `video` is whether the plan downloads video ads
+ *  (studio and video maker; anyone can make and watch one); `credits` are AI
+ *  credits a calendar month; `library` is ads kept.
+ *  Owner, 2026-10-09: "3 plans and the 2nd/3rd has the most features $25,
+ *  $60, $100/mo", videos from $60, Free kept as a line above them. */
 export const PLANS = {
   free: {
     label: 'Free', price: { month: 0 },
-    weekly: 3, monthly: null, maxPx: 1080, watermark: true,
+    weekly: 3, monthly: null, maxPx: 1080, watermark: true, video: false,
     credits: 5, library: 12, allDesigns: false, qr: false,
   },
-  pro: {
-    label: 'Pro', price: { month: 2500, year: 25000 },
-    weekly: null, monthly: 100, maxPx: 2160, watermark: false,
-    credits: 75, library: 300, allDesigns: true, qr: true,
+  basic: {   // shown as Starter
+    label: 'Starter', price: { month: 2500, year: 25000 },
+    weekly: null, monthly: 100, maxPx: 2160, watermark: false, video: false,
+    credits: 50, library: 300, allDesigns: true, qr: false,
   },
-  business: {
-    label: 'Business', price: { month: 6000, year: 60000 },
-    weekly: null, monthly: 500, maxPx: 2160, watermark: false,
+  pro: {
+    label: 'Pro', price: { month: 6000, year: 60000 },
+    weekly: null, monthly: 500, maxPx: 2160, watermark: false, video: true,
     credits: 200, library: 1000, allDesigns: true, qr: true,
   },
+  business: {
+    label: 'Business', price: { month: 10000, year: 100000 },
+    weekly: null, monthly: null, maxPx: 2160, watermark: false, video: true,
+    credits: 500, library: 3000, allDesigns: true, qr: true,
+  },
 };
-/** names an account may still carry from before */
+/** names an account may still carry from before (the first backend's
+ *  "starter" was today's Pro) */
 const LEGACY = { starter: 'pro' };
 export const planId = (p) => (PLANS[p] ? p : LEGACY[p] || 'free');
 export const PAID = Object.keys(PLANS).filter((id) => id !== 'free');
+/** can this plan download (or save to the library) a video ad */
+export const videoOk = (plan) => !!PLANS[planId(plan)].video;
 
 /** One-off AI credit packs, any signed-in account. Never expire; spent after
  *  the month's plan credits. */
@@ -74,8 +86,9 @@ export const PACKS = {
 /** Stripe, US cards: 2.9% + 30c a charge, Billing 0.7% on recurring. */
 export const STRIPE_FEES = { pct: 0.029, fixed: 0.30, billingPct: 0.007 };
 /** Hosting a month an account, an estimate (Netlify credits for its function
- *  calls, Blobs and the bandwidth of its library link; SAAS-AUDIT §2). */
-export const HOSTING_USD = { free: 0.02, paid: 0.25 };
+ *  calls, Blobs and the bandwidth of its library link; SAAS-AUDIT §2). The
+ *  video plans keep more and larger ads (a 10-second clip is 4 to 8 MB). */
+export const HOSTING_USD = { free: 0.02, basic: 0.25, pro: 0.75, business: 2.0 };
 /** The bars scripts/plan_economics.mjs holds every plan and pack to. */
 export const TARGETS = { planMargin: 0.70, packMargin: 0.45, freeCostMax: 0.25 };
 
@@ -158,7 +171,7 @@ export function economics() {
   for (const [id, p] of Object.entries(PLANS)) {
     for (const [interval, cents] of Object.entries(p.price)) {
       const net = netUsd(cents, true) / (interval === 'year' ? 12 : 1);
-      const cost = p.credits * CREDIT_USD + (cents ? HOSTING_USD.paid : HOSTING_USD.free);
+      const cost = p.credits * CREDIT_USD + HOSTING_USD[id];
       rows.push({ kind: 'plan', id, interval, priceUsd: cents / 100, netUsd: net, worstCostUsd: cost, margin: net ? (net - cost) / net : null });
     }
   }

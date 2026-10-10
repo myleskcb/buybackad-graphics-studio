@@ -26,7 +26,8 @@
       is not used with live keys.
 
    5. In Chromium under the production CSP (skip with --no-browser): the
-      landing's three plans and the credits line, no sideways scroll at 390;
+      landing's Free line, three plans and the credits line, no sideways
+      scroll at 390;
       the plans page monthly and yearly; Choose Pro yearly goes to Checkout
       and back to "Payment successful" on Pro; the switch to Business; a
       pack comes back as "Credits added"; the AI credit hint; no CSP or page
@@ -201,7 +202,7 @@ const setUser = (u) => store.get('pgfx-users').set('u:' + u.email, JSON.stringif
 /* ---------- 1. credits ---------- */
 {
   const p = await hit('GET', '/plans');
-  ok(p.status === 200 && p.json.plans.pro.credits === 75 && p.json.packs.credits100.credits === 100, '/plans answers the table');
+  ok(p.status === 200 && p.json.plans.pro.credits === 200 && p.json.plans.basic.label === 'Starter' && p.json.plans.business.monthly === null && p.json.packs.credits100.credits === 100, '/plans answers the table (Starter, Pro 200 credits, Business unlimited)');
   ok(p.json.ai.background === 1 && p.json.billing === false, '/plans: a background is 1 credit on the default model; billing off');
 
   const free = await signup('free@x.example');
@@ -260,6 +261,13 @@ const setUser = (u) => store.get('pgfx-users').set('u:' + u.email, JSON.stringif
   const four = await hit('POST', '/export', {}, t);
   ok(four.status === 402 && four.json.per === 'week' && four.json.limit === 3, 'Free stops at 3 a week with 402');
   ok((await hit('POST', '/export/check', {}, t)).status === 402, '/export/check says so too');
+  const fv = await hit('POST', '/export/check', { kind: 'video' }, await signup('freevideo@x.example'));
+  ok(fv.status === 403 && fv.json.needs === 'video', 'Free does not download videos (403, needs video)');
+  const st = userBlob('freevideo@x.example'); st.plan = 'basic'; setUser(st);
+  const sv = await hit('POST', '/export', { kind: 'video' }, (await hit('POST', '/auth/login', { email: 'freevideo@x.example', password: 'a-long-password' })).json.token);
+  ok(sv.status === 403 && userBlob('freevideo@x.example').exports.count === 0, 'Starter does not download videos, and nothing is counted');
+  const sp = await hit('POST', '/export/check', {}, (await hit('POST', '/auth/login', { email: 'freevideo@x.example', password: 'a-long-password' })).json.token);
+  ok(sp.status === 200 && sp.json.remaining === 100 && sp.json.watermark === false && sp.json.maxPx === 2160, 'Starter: 100 photos a month, no watermark, 2160');
 }
 
 /* ---------- 3. Stripe off ---------- */
@@ -278,8 +286,8 @@ let csPro;
   ok(r.status === 200 && /^https:\/\/checkout\.stripe\.test\//.test(r.json.url), 'checkout answers a Stripe URL');
   csPro = [...S.sessions.values()].pop();
   const price = S.prices.get(csPro.line_items[0].price);
-  ok(price && price.unit_amount === 25000 && price.recurring.interval === 'year' && price.lookup_key === 'bbad_pro_year' && price.product === 'bbad_pro',
-    'the yearly Pro price is made: $250, yearly, lookup key bbad_pro_year, product bbad_pro');
+  ok(price && price.unit_amount === 60000 && price.recurring.interval === 'year' && price.lookup_key === 'bbad_pro_year' && price.product === 'bbad_pro',
+    'the yearly Pro price is made: $600, yearly, lookup key bbad_pro_year, product bbad_pro');
   ok(csPro.mode === 'subscription' && csPro.customer_email === 'buyer@x.example' && csPro.metadata.plan === 'pro' && csPro.allow_promotion_codes === 'true',
     'the session: subscription, the account email, plan in metadata, promotion codes on');
   ok(csPro.success_url === 'https://studio.example/?checkout=success&session_id={CHECKOUT_SESSION_ID}', 'success_url carries the session id');
@@ -297,18 +305,21 @@ let csPro;
   const other = await signup('other@x.example');
   ok((await hit('POST', '/checkout/confirm', { session_id: csPro.id }, other)).status === 403, 'another account cannot claim the session');
   const conf = await hit('POST', '/checkout/confirm', { session_id: csPro.id }, buyer);
-  ok(conf.status === 200 && conf.json.user.plan === 'pro' && conf.json.user.sub.interval === 'year' && conf.json.user.credits.allowance === 75,
-    'the return confirms Pro yearly, 75 credits, without a webhook');
+  ok(conf.status === 200 && conf.json.user.plan === 'pro' && conf.json.user.sub.interval === 'year' && conf.json.user.credits.allowance === 200,
+    'the return confirms Pro yearly, 200 credits, without a webhook');
+  ok((await hit('POST', '/export/check', { kind: 'video' }, buyer)).status === 200, 'Pro downloads videos');
 
   const again = await hit('POST', '/checkout', { plan: 'business', interval: 'month' }, buyer);
   ok(again.status === 409 && again.json.switch === true, 'a second plan checkout is refused: switch instead');
 
   const sw = await hit('POST', '/billing/change', { plan: 'business', interval: 'month' }, buyer);
   const sub = S.subs.get(userBlob('buyer@x.example').sub.id);
-  ok(sw.status === 200 && sw.json.user.plan === 'business' && sub.items.data[0].price.unit_amount === 6000 && S.lastUpdate.proration_behavior === 'always_invoice',
+  ok(sw.status === 200 && sw.json.user.plan === 'business' && sub.items.data[0].price.unit_amount === 10000 && S.lastUpdate.proration_behavior === 'always_invoice',
     'the switch moves the item to Business monthly, prorated now');
   const lib = await hit('GET', '/ads/mine', undefined, buyer);
-  ok(lib.status === 200 && lib.json.limit === 1000, 'the ad library gives Business its 1,000');
+  ok(lib.status === 200 && lib.json.limit === 3000, 'the ad library gives Business its 3,000');
+  const unl = await hit('POST', '/export/check', { kind: 'video' }, buyer);
+  ok(unl.status === 200 && unl.json.remaining === null, 'Business downloads are unlimited');
 
   const portal = await hit('POST', '/portal', {}, buyer);
   ok(portal.status === 200 && /billing\.stripe\.test\/cus_/.test(portal.json.url), 'Manage billing opens the portal for the customer');
@@ -364,15 +375,15 @@ let csPro;
 
 /* a new price in plans.mjs */
 {
-  plans.PLANS.pro.price.month = 2900;
+  plans.PLANS.pro.price.month = 6500;
   billing.forgetPrices();
   const t = await signup('newprice@x.example');
   await hit('POST', '/checkout', { plan: 'pro', interval: 'month' }, t);
   const cs = [...S.sessions.values()].pop();
   const p = S.prices.get(cs.line_items[0].price);
-  const olds = [...S.prices.values()].filter((x) => x.unit_amount === 2500 && x.recurring && x.recurring.interval === 'month');
-  ok(p.unit_amount === 2900 && p.lookup_key === 'bbad_pro_month' && olds.every((x) => x.lookup_key !== 'bbad_pro_month'), 'a new price is made and the lookup key moves to it');
-  plans.PLANS.pro.price.month = 2500;
+  const olds = [...S.prices.values()].filter((x) => x.unit_amount === 6000 && x.recurring && x.recurring.interval === 'month');
+  ok(p.unit_amount === 6500 && p.lookup_key === 'bbad_pro_month' && olds.every((x) => x.lookup_key !== 'bbad_pro_month'), 'a new price is made and the lookup key moves to it');
+  plans.PLANS.pro.price.month = 6000;
   billing.forgetPrices();
 }
 
@@ -396,8 +407,8 @@ let csPro;
   ok((await hit('GET', '/admin/billing', undefined, boss)).status === 403, '/admin/billing is for operators only');
   const t = (await hit('POST', '/auth/login', { email: 'boss@studio.example', password: 'a-long-password' })).json.token;
   const st = await hit('POST', '/admin/billing', {}, t);
-  ok(st.status === 200 && st.json.on && st.json.mode === 'live' && Object.values(st.json.prices).every((v) => /^price_/.test(v)) && Object.keys(st.json.prices).length === 6,
-    '/admin/billing makes and lists every price (4 plan prices, 2 packs)');
+  ok(st.status === 200 && st.json.on && st.json.mode === 'live' && Object.values(st.json.prices).every((v) => /^price_/.test(v)) && Object.keys(st.json.prices).length === 8,
+    '/admin/billing makes and lists every price (6 plan prices, 2 packs)');
 }
 
 /* economics: every plan and pack clears its bar */
@@ -481,10 +492,10 @@ async function browserPart() {
       const pr = await page.evaluate(() => {
         const sec = document.getElementById('pricing');
         sec.scrollIntoView();
-        return { cards: [...sec.querySelectorAll('.lp-price-card h3')].map((h) => h.textContent), text: sec.innerText, over: document.documentElement.scrollWidth - innerWidth };
+        return { cards: [...sec.querySelectorAll('.lp-price-card h3')].map((h) => h.textContent), free: !!sec.querySelector('.lp-free-line'), text: sec.innerText, over: document.documentElement.scrollWidth - innerWidth };
       });
-      ok(pr.cards.join() === 'Free,Pro,Business', `landing ${w}: three plans (${pr.cards.join()})`);
-      ok(/photos or videos/.test(pr.text) && /\$250 a year/.test(pr.text) && /AI credits/.test(pr.text) && /100 credits are \$9/.test(pr.text), `landing ${w}: videos, yearly price and credits on the cards`);
+      ok(pr.cards.join() === 'Starter,Pro,Business' && pr.free, `landing ${w}: Free as a line, then three plans (${pr.cards.join()})`);
+      ok(/photos or videos/.test(pr.text) && /\$1,000 a year/.test(pr.text) && /Unlimited downloads/.test(pr.text) && /AI credits/.test(pr.text) && /100 credits are \$9/.test(pr.text), `landing ${w}: videos, yearly price and credits on the cards`);
       ok(pr.over <= 0, `landing ${w}: no sideways scroll (${pr.over}px)`);
       if (process.env.SHOT_DIR) { await page.waitForTimeout(600); await page.locator('#pricing').screenshot({ path: join(process.env.SHOT_DIR, 'landing-pricing-' + w + '.png') }); }
       await page.context().close();
@@ -497,13 +508,13 @@ async function browserPart() {
       await page.goto(BASE + '/?plans=1', { waitUntil: 'domcontentloaded' });
       await page.waitForSelector('#page-plans.active .plan-card');
       await page.waitForTimeout(400);
-      const m = await page.evaluate(() => ({ cards: [...document.querySelectorAll('#plans-grid .plan-card')].map((c) => c.querySelector('.plan-name').textContent + ' ' + c.querySelector('.plan-price').textContent), packs: document.querySelectorAll('.pack-btn').length, over: document.documentElement.scrollWidth - innerWidth, note: (document.querySelector('.plans-note') || {}).textContent || '' }));
-      ok(m.cards.join('|') === 'Free $0 forever|Pro $25 /month|Business $60 /month' && m.packs === 2, `plans ${w}: monthly (${m.cards.join('|')}), two packs`);
+      const m = await page.evaluate(() => ({ cards: [...document.querySelectorAll('#plans-grid .plan-card')].map((c) => c.querySelector('.plan-name').textContent + ' ' + c.querySelector('.plan-price').textContent), packs: document.querySelectorAll('.pack-btn').length, free: !!document.querySelector('#plans-grid .plans-free'), over: document.documentElement.scrollWidth - innerWidth, note: (document.querySelector('.plans-note') || {}).textContent || '' }));
+      ok(m.cards.join('|') === 'Starter $25 /month|Pro $60 /month|Business $100 /month' && m.free && m.packs === 2, `plans ${w}: Free as a line, monthly (${m.cards.join('|')}), two packs`);
       ok(!/opens soon/.test(m.note), `plans ${w}: billing is on, no "opens soon" note`);
       await shot(page, 'plans-month-' + w);
       await page.click('.plans-toggle button:nth-child(2)');
       const y = await page.evaluate(() => [...document.querySelectorAll('#plans-grid .plan-card .plan-price')].map((p) => p.textContent).join('|'));
-      ok(y === '$0 forever|$250 /year|$600 /year', `plans ${w}: yearly (${y})`);
+      ok(y === '$250 /year|$600 /year|$1,000 /year', `plans ${w}: yearly (${y})`);
       ok(m.over <= 0, `plans ${w}: no sideways scroll`);
       await shot(page, 'plans-year-' + w);
       if (w === 390) { await page.context().close(); continue; }
@@ -511,7 +522,7 @@ async function browserPart() {
       await Promise.all([page.waitForURL(/checkout=success/, { timeout: 15000 }).catch(() => {}), page.click('#plans-grid .plan-card.hot .plan-btn')]);
       await page.waitForSelector('#pay-overlay.show', { timeout: 15000 }).catch(() => {});
       const paid = await page.evaluate(() => ({ title: document.getElementById('pay-title').textContent, sub: document.getElementById('pay-sub').textContent, badge: (document.getElementById('acct-plan') || {}).textContent, url: location.search }));
-      ok(paid.title === 'Payment successful!' && /Pro plan/.test(paid.sub) && paid.url === '', `checkout: back from Stripe on Pro (${paid.title} / ${paid.sub})`);
+      ok(paid.title === 'Payment successful!' && /now on Pro/.test(paid.sub) && /video ads/.test(paid.sub) && paid.url === '', `checkout: back from Stripe on Pro (${paid.title} / ${paid.sub})`);
       ok(userBlob('browser@x.example').plan === 'pro' && userBlob('browser@x.example').sub.interval === 'year', 'checkout: the account is Pro yearly');
       await shot(page, 'paid-' + w);
       await page.click('#pay-ok');
@@ -520,10 +531,10 @@ async function browserPart() {
       await page.evaluate(() => openPlans());
       await page.waitForTimeout(400);
       const cur = await page.evaluate(() => [...document.querySelectorAll('#plans-grid .plan-card')].map((c) => (c.querySelector('.plan-current') ? 'current' : (c.querySelector('.plan-btn') || {}).textContent)).join('|'));
-      ok(cur === 'Cancel in billing|Switch to Pro monthly|Switch to Business', `plans as Pro yearly, monthly view: ${cur}`);
+      ok(cur === 'Switch to Starter|Switch to Pro monthly|Switch to Business', `plans as Pro yearly, monthly view: ${cur}`);
       await page.click('.plans-toggle button:nth-child(2)');
       const curY = await page.evaluate(() => [...document.querySelectorAll('#plans-grid .plan-card')].map((c) => (c.querySelector('.plan-current') ? 'current' : (c.querySelector('.plan-btn') || {}).textContent)).join('|'));
-      ok(curY === 'Cancel in billing|current|Switch to Business', `plans as Pro yearly, yearly view: ${curY}`);
+      ok(curY === 'Switch to Starter|current|Switch to Business', `plans as Pro yearly, yearly view: ${curY}`);
       await page.click('.plans-toggle button:nth-child(1)');
       await page.click('#plans-grid .plan-card:nth-child(3) .plan-btn');
       await page.waitForTimeout(800);
@@ -533,13 +544,16 @@ async function browserPart() {
       await Promise.all([page.waitForURL(/checkout=success/, { timeout: 15000 }).catch(() => {}), page.click('.pack-btn')]);
       await page.waitForSelector('#pay-overlay.show', { timeout: 15000 }).catch(() => {});
       const pk = await page.evaluate(() => ({ title: document.getElementById('pay-title').textContent, sub: document.getElementById('pay-sub').textContent }));
-      ok(pk.title === 'Credits added' && /300 AI credits/.test(pk.sub), `a pack comes back as credits (${pk.title}: ${pk.sub})`);
+      ok(pk.title === 'Credits added' && /600 AI credits/.test(pk.sub), `a pack comes back as credits (${pk.title}: ${pk.sub})`);
       await page.click('#pay-ok');
       const hint = await page.evaluate(() => { syncCreditsUI(); return document.getElementById('bggen-credits').textContent; });
-      ok(/Uses 1 AI credit\. You have 300 \(200 this month \+ 100 bought\)/.test(hint), `the AI hint counts credits (${hint})`);
+      ok(/Uses 1 AI credit\. You have 600 \(500 this month \+ 100 bought\)/.test(hint), `the AI hint counts credits (${hint})`);
       await page.context().close();
     }
-    // the video maker: signed out, Download asks for an account; a free account's download is counted, marked, its photo 1080
+    /* the video maker: signed out, Download asks for an account; Free gets the
+       plans, nothing counted; Pro's download is counted once, a 1080 video and
+       a 1440 photo with no marks (the same pixels as an operator's copy); an
+       operator's is not counted; at Pro's limit it offers the plans */
     {
       const page = await newPage(1280);
       await page.goto(BASE + '/motion/');
@@ -548,29 +562,32 @@ async function browserPart() {
       await page.waitForSelector('#acct-overlay.show', { timeout: 15000 }).catch(() => {});
       ok(await page.$('#acct-overlay.show') !== null, 'video maker: a signed-out Download asks for an account first');
       const vt = await signup('videos@x.example');
-      await page.evaluate((t) => { localStorage.setItem('pgfx_token', JSON.stringify(t)); }, vt);
-      await page.evaluate(() => document.getElementById('acct-overlay').classList.remove('show'));
+      await page.evaluate((t) => { localStorage.setItem('pgfx_token', JSON.stringify(t)); document.getElementById('acct-overlay').classList.remove('show'); }, vt);
+      await page.click('#download');
+      await page.waitForFunction(() => /Video downloads come with Pro and Business/.test(document.body.innerText), null, { timeout: 30000 }).catch(() => {});
+      ok(/Video downloads come with Pro and Business/.test(await page.evaluate(() => document.body.innerText)) && userBlob('videos@x.example').exports.count === 0,
+        'video maker: a free account\'s Download offers Pro and Business, nothing counted');
+      const u = userBlob('videos@x.example'); u.plan = 'pro'; setUser(u);
       const files = [];
       page.on('download', (d) => files.push(d));
-      await page.click('#download');
-      await page.waitForFunction(() => /Saved|could not|cannot|Not saved/.test(document.getElementById('export-note').textContent), null, { timeout: 300000 }).catch(() => {});
-      await page.waitForTimeout(1500);
-      const note = await page.$eval('#export-note', (n) => n.textContent);
-      const u = userBlob('videos@x.example');
-      ok(/Saved we-buy-phones/.test(note) && u.exports && u.exports.count === 1, 'video maker: a free account\'s download is made and counted once (' + note.slice(0, 120) + ')');
-      ok(/1080×1080/.test(note) && /\(1080×1080, the moment/.test(note), 'video maker: Free gets a 1080 video and a 1080 photo, not 1440 (' + note.slice(0, 200) + ')');
-      // the marks: the same look downloaded by an operator (no marks, 1440), scaled to 1080, differs from
-      // Free's photo in the corners where BUYBACK.AD is drawn and hardly at all in the middle
+      const dl = async () => {
+        await page.evaluate(() => { document.getElementById('export-note').textContent = ''; window.VideoHelp && VideoHelp.close(); });
+        await page.click('#download');
+        await page.waitForFunction(() => /Saved|could not|cannot|Not saved/.test(document.getElementById('export-note').textContent), null, { timeout: 300000 }).catch(() => {});
+        await page.waitForTimeout(1500);
+        return page.$eval('#export-note', (n) => n.textContent);
+      };
+      const note = await dl();
+      ok(/Saved we-buy-phones/.test(note) && userBlob('videos@x.example').exports.count === 1, 'video maker: a Pro download is made and counted once (' + note.slice(0, 120) + ')');
+      ok(/1080×1080/.test(note) && /\(1440×1440, the moment/.test(note), 'video maker: Pro gets a 1080 video and a 1440 photo (' + note.slice(0, 200) + ')');
+      const proPng = files.find((d) => /\.png$/.test(d.suggestedFilename()));
+      files.length = 0;
       const boss = (await hit('POST', '/auth/login', { email: 'boss@studio.example', password: 'a-long-password' })).json.token;
       await page.evaluate((t) => { localStorage.setItem('pgfx_token', JSON.stringify(t)); }, boss);
-      const freePng = files.find((d) => /\.png$/.test(d.suggestedFilename()));
-      files.length = 0;
-      await page.evaluate(() => { document.getElementById('export-note').textContent = ''; window.VideoHelp && VideoHelp.close(); });
-      await page.click('#download');
-      await page.waitForFunction(() => /Saved|could not|cannot|Not saved/.test(document.getElementById('export-note').textContent), null, { timeout: 300000 }).catch(() => {});
-      await page.waitForTimeout(1500);
+      await dl();
       const bossPng = files.find((d) => /\.png$/.test(d.suggestedFilename()));
-      if (ok(freePng && bossPng, 'video maker: both photos came down')) {
+      ok(userBlob('boss@studio.example').exports.count === 0, 'video maker: an operator\'s download is not counted');
+      if (ok(proPng && bossPng, 'video maker: both photos came down')) {
         const b64 = async (d) => readFileSync(await d.path()).toString('base64');
         const diff = await page.evaluate(async ([a, b]) => {
           const load = (s) => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = 'data:image/png;base64,' + s; });
@@ -578,17 +595,15 @@ async function browserPart() {
           const px = (img) => { const c = document.createElement('canvas'); c.width = c.height = 1080; const x = c.getContext('2d'); x.drawImage(img, 0, 0, 1080, 1080); return x.getImageData(0, 0, 1080, 1080).data; };
           const A = px(fa), B = px(fb);
           const box = (x0, y0, s) => { let t = 0, n = 0; for (let y = y0; y < y0 + s; y++) for (let x = x0; x < x0 + s; x++) { const i = (y * 1080 + x) * 4; t += Math.abs(A[i] - B[i]) + Math.abs(A[i + 1] - B[i + 1]) + Math.abs(A[i + 2] - B[i + 2]); n += 3; } return t / n; };
-          return { sizes: [fa.width, fb.width], corner: box(20, 20, 90), center: box(495, 495, 90) };
-        }, [await b64(freePng), await b64(bossPng)]);
-        ok(diff.sizes[0] === 1080 && diff.sizes[1] === 1440, 'video maker: Free photo 1080, operator photo 1440 (' + diff.sizes + ')');
-        ok(diff.corner > 4 * Math.max(1, diff.center), 'video maker: Free\'s photo carries the marks in the corner (corner differs ' + diff.corner.toFixed(1) + ', middle ' + diff.center.toFixed(1) + ')');
+          return { sizes: [fa.width, fb.width], corner: box(20, 20, 90) };
+        }, [await b64(proPng), await b64(bossPng)]);
+        ok(diff.sizes.join() === '1440,1440' && diff.corner < 2, 'video maker: Pro\'s photo carries no marks, the same pixels as an operator\'s (' + JSON.stringify(diff) + ')');
       }
-      ok(userBlob('boss@studio.example').exports.count === 0, 'video maker: an operator\'s download is not counted');
       await page.evaluate((t) => { localStorage.setItem('pgfx_token', JSON.stringify(t)); }, vt);
-      const lim = userBlob('videos@x.example'); lim.exports.count = 3; setUser(lim);
+      const lim = userBlob('videos@x.example'); lim.exports.count = 500; setUser(lim);
       await page.evaluate(() => window.VideoHelp && VideoHelp.close());
       await page.click('#download');
-      await page.waitForFunction(() => document.querySelector('.vh-overlay.show, .vh-modal, [role=dialog]') && /used this plan/.test(document.body.innerText), null, { timeout: 30000 }).catch(() => {});
+      await page.waitForFunction(() => /used this plan's downloads/.test(document.body.innerText), null, { timeout: 30000 }).catch(() => {});
       ok(/used this plan's downloads/.test(await page.evaluate(() => document.body.innerText)), 'video maker: at the limit, Download says so and offers the plans');
       await page.context().close();
     }
