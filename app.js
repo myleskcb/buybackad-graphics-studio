@@ -2248,34 +2248,141 @@ function alignPass(sc, W, H){
     if (!r || !b || r === b || (r.top === b.top && r.height === b.height)) return null;
     return { top: r.top, bottom: r.top + r.height, fs: (o.fontSize || 40) * (o.scaleY || 1) };
   };
-  const stack = texts.filter(t => !/marquee|ticker/i.test(t.o.name || ''))
-    .map(t => ({ t, b: bb(t.o) })).filter(x => x.b && x.b.height > 0)
-    .sort((a, c) => a.b.top - c.b.top);
-  for (let pass = 0; pass < 2; pass++){
-    for (let i = 0; i < stack.length; i++){
-      for (let j = i + 1; j < stack.length; j++){
-        const a = stack[i], c = stack[j];
-        const ox = Math.min(a.b.left + a.b.width,  c.b.left + c.b.width)  - Math.max(a.b.left, c.b.left);
-        const oy = Math.min(a.b.top  + a.b.height, c.b.top  + c.b.height) - Math.max(a.b.top,  c.b.top);
-        if (ox <= 2 || oy <= 2) continue;
-        const ia = INK && inkV(a.t.o), ic = INK && inkV(c.t.o);
-        let need;
-        if (ia && ic && ic.top >= ia.top){
-          const gap = Math.max(4, 0.04 * Math.min(ia.fs, ic.fs));
-          need = (ia.bottom + gap) - ic.top;             // letters closer than the gap: push by the shortfall
+  const pullApart = () => {
+    const stack = texts.filter(t => !/marquee|ticker/i.test(t.o.name || ''))
+      .map(t => ({ t, b: bb(t.o) })).filter(x => x.b && x.b.height > 0)
+      .sort((a, c) => a.b.top - c.b.top);
+    for (let pass = 0; pass < 2; pass++){
+      for (let i = 0; i < stack.length; i++){
+        for (let j = i + 1; j < stack.length; j++){
+          const a = stack[i], c = stack[j];
+          const ox = Math.min(a.b.left + a.b.width,  c.b.left + c.b.width)  - Math.max(a.b.left, c.b.left);
+          const oy = Math.min(a.b.top  + a.b.height, c.b.top  + c.b.height) - Math.max(a.b.top,  c.b.top);
+          if (ox <= 2 || oy <= 2) continue;
+          const ia = INK && inkV(a.t.o), ic = INK && inkV(c.t.o);
+          let need;
+          if (ia && ic && ic.top >= ia.top){
+            const gap = Math.max(4, 0.04 * Math.min(ia.fs, ic.fs));
+            need = (ia.bottom + gap) - ic.top;             // letters closer than the gap: push by the shortfall
+            if (need <= 0) continue;
+          } else {
+            const smaller = Math.min(a.b.width * a.b.height, c.b.width * c.b.height);
+            if ((ox * oy) / smaller <= 0.18) continue;        // a kiss, not a collision
+            need = (a.b.top + a.b.height + 6) - c.b.top;
+          }
           if (need <= 0) continue;
-        } else {
-          const smaller = Math.min(a.b.width * a.b.height, c.b.width * c.b.height);
-          if ((ox * oy) / smaller <= 0.18) continue;        // a kiss, not a collision
-          need = (a.b.top + a.b.height + 6) - c.b.top;
+          const room = (H - SAFE_EDGE) - (c.b.top + c.b.height);
+          const shift = Math.min(need, Math.max(0, room));
+          if (shift <= 0) continue;
+          c.t.o.set('top', c.t.o.top + shift);
+          c.t.o.setCoords();
+          c.b = bb(c.t.o) || c.b;
         }
-        if (need <= 0) continue;
-        const room = (H - SAFE_EDGE) - (c.b.top + c.b.height);
-        const shift = Math.min(need, Math.max(0, room));
-        if (shift <= 0) continue;
-        c.t.o.set('top', c.t.o.top + shift);
-        c.t.o.setCoords();
-        c.b = bb(c.t.o) || c.b;
+      }
+    }
+  };
+  const pre3 = new Map(texts.map(t => [t.o, { left: t.o.left, top: t.o.top, scaleX: t.o.scaleX || 1, scaleY: t.o.scaleY || 1,
+    fontSize: t.o.fontSize, strokeWidth: t.o.strokeWidth || 0, b: bb(t.o) }]));
+  pullApart();
+
+  /* ── 3b. A PUSH NEVER BURIES A LINE ──────────────────────────────────────
+     Owner, 2026-10-10, of WE BUY iPHONES (top_buyer) with four selling points
+     ticked: "are we missing layers of details?". The ticks are set in the top
+     corner over CASH BUYER; step 3 pushed the title down, the headline under
+     it, and the subline under the bottom bar, a plate drawn OVER it: the line
+     was in the editor's fields and nowhere on the card, its panel left behind
+     under iPHONES, and TEXT OR CALL NOW shoved below the number. Measured in
+     Easy Mode over the 322 templates with four selling points: 29 cards lost a
+     line under a plate this way (both classics with a subline, and 27 offer
+     cards' headlines or model lines under their steps panel); with each card's
+     own points, none.
+     So where the push carried a line under a plate drawn over it, the lines
+     that were pushed come down in size together, about the column's top, and
+     are pushed again from where they stood, until the column clears the plate
+     (never below half size). A line's own plate goes with it. A textbox keeps
+     its width and only its type comes down: shrunk as an object, the column
+     grew narrower than the selling points in the corner, and the guides
+     (step 5) slid the whole card 35px off centre to bring that corner in.
+     A card where no push buries a line takes none of this. */
+  {
+    const zi = o => objs.indexOf(o);
+    const ovl = (r, s) => Math.max(0, Math.min(r.left + r.width, s.left + s.width) - Math.max(r.left, s.left)) *
+                          Math.max(0, Math.min(r.top + r.height, s.top + s.height) - Math.max(r.top, s.top));
+    const paints = o => {
+      if (o.visible === false || (typeof o.opacity === 'number' && o.opacity < 0.5)) return false;
+      const f = o.fill;
+      if (f && typeof f === 'object') return true;                 // a gradient
+      if (typeof f !== 'string' || !f || f === 'transparent') return false;
+      const m = f.match(/rgba\([^)]*,\s*([\d.]+)\s*\)/i);
+      return !m || parseFloat(m[1]) >= 0.5;
+    };
+    const covers = objs.filter(o => o && o.type === 'rect' && paints(o)).map(o => ({ o, b: bb(o) }))
+      .filter(x => x.b && x.b.width * x.b.height < W * H * 0.9);
+    const buriedUnder = t => {
+      const b = bb(t.o), p = pre3.get(t.o).b; if (!b || !p) return null;
+      const a = b.width * b.height || 1;
+      return covers.find(P => zi(P.o) > zi(t.o) && ovl(b, P.b) > 0.15 * a && ovl(p, P.b) <= 0.15 * a) || null;
+    };
+    const lines = texts.filter(t => !/marquee|ticker/i.test(t.o.name || ''));
+    let hit = null;
+    for (const t of lines){ const P = buriedUnder(t); if (P){ hit = { t, P }; break; } }
+    if (hit){
+      const P = hit.P, floor = P.b.top - 6;
+      const G = lines.filter(t => {
+        const p = pre3.get(t.o).b; if (!p) return false;
+        if (t !== hit.t && Math.abs(t.o.top - pre3.get(t.o).top) <= 0.5) return false;   // not pushed
+        return p.top + p.height / 2 < P.b.top &&
+          Math.min(p.left + p.width, P.b.left + P.b.width) - Math.max(p.left, P.b.left) > 2;
+      });
+      /* a plate that holds one of these lines and nothing else moves with it */
+      const plateOf = new Map();
+      G.forEach(t => {
+        const p = pre3.get(t.o).b;
+        const R = objs.find(o => o && o.type === 'rect' && o !== P.o && o.visible !== false && zi(o) < zi(t.o) && (() => {
+          const r = bb(o); if (!r || r.width >= W * 0.93 || r.height >= H * 0.5) return false;
+          /* by its middle and its height: a textbox's box runs wider than its words and its panel */
+          const pcx = p.left + p.width / 2;
+          if (!(pcx > r.left && pcx < r.left + r.width && p.top >= r.top - 6 && p.top + p.height <= r.top + r.height + 6)) return false;
+          return !texts.some(u => u !== t && (() => { const q = pre3.get(u.o).b; if (!q) return false;
+            const cx = q.left + q.width / 2, cy = q.top + q.height / 2;
+            return cx > r.left && cx < r.left + r.width && cy > r.top && cy < r.top + r.height; })());
+        })());
+        if (R) plateOf.set(t, { o: R, b: bb(R), scaleX: R.scaleX || 1, scaleY: R.scaleY || 1 });
+      });
+      const c0 = Math.min(...G.map(t => pre3.get(t.o).b.top));
+      const isBox = o => o.type === 'textbox';
+      let k = 1;
+      for (let round = 0; round < 4 && k > 0.5; round++){
+        let lo = Infinity, hi = -Infinity;
+        G.forEach(t => { const b = bb(t.o); if (b){ lo = Math.min(lo, b.top); hi = Math.max(hi, b.top + b.height); } });
+        if (hi <= floor + 0.5 || floor - lo <= 0 || hi <= lo) break;
+        k = Math.max(0.5, k * (floor - lo) / (hi - lo));
+        lines.forEach(t => { const s = pre3.get(t.o);
+          t.o.set({ left: s.left, top: s.top, scaleX: s.scaleX, scaleY: s.scaleY });
+          if (isBox(t.o)) t.o.set({ fontSize: s.fontSize, strokeWidth: s.strokeWidth });
+          t.o.setCoords(); });
+        G.forEach(t => {
+          const s = pre3.get(t.o);
+          if (isBox(t.o)) t.o.set({ fontSize: s.fontSize * k, strokeWidth: s.strokeWidth * k });
+          else t.o.set({ scaleX: s.scaleX * k, scaleY: s.scaleY * k });
+          t.o.setCoords();
+          const b = bb(t.o); if (b){ t.o.set('top', t.o.top + (c0 + (s.b.top - c0) * k) - b.top); t.o.setCoords(); }
+        });
+        pullApart();
+      }
+      if (k < 1){
+        plateOf.forEach((R, t) => {
+          /* round the line as it now stands, with its old margins scaled */
+          const p = pre3.get(t.o).b, n = bb(t.o); if (!n) return;
+          const kx = isBox(t.o) ? 1 : k;          // a textbox kept its width, and its plate keeps its own
+          const L = n.left - (p.left - R.b.left) * kx, Rt = n.left + n.width + (R.b.left + R.b.width - (p.left + p.width)) * kx;
+          const T = n.top - (p.top - R.b.top) * k, B = n.top + n.height + (R.b.top + R.b.height - (p.top + p.height)) * k;
+          if (Rt - L < 4 || B - T < 4) return;
+          R.o.set({ scaleX: R.scaleX * (Rt - L) / R.b.width, scaleY: R.scaleY * (B - T) / R.b.height });
+          R.o.setPositionByOrigin(new fabric.Point((L + Rt) / 2, (T + B) / 2), 'center', 'center'); R.o.setCoords();
+          const bx = boxes.find(x => x.o === R.o); if (bx) bx.b = bb(R.o) || bx.b;
+        });
+        G.forEach(t => { t.b = bb(t.o) || t.b; });
       }
     }
   }
@@ -7794,8 +7901,9 @@ function applyBrandVocab(t){
     for (let i = 0; i < rows; i++) lines.push(words.slice(i * per, (i + 1) * per).join(' • '));
     let out = lines.filter(Boolean).join('\n');
     if (!out) return;
-    // match the line's own voice rather than shouting in a sentence-case block
-    if (txt === txt.toUpperCase()) out = out.toUpperCase();
+    // match the line's own voice rather than shouting in a sentence-case block;
+    // in capitals as every upper line is set (cleanText): iPHONE and iPAD keep their small i
+    if (txt === txt.toUpperCase()) out = cleanText(out, 'upper');
     else out = out.replace(/\b([A-Z])([A-Z']+)\b/g, (m, a, b) => a + b.toLowerCase());
     l.text = out;
     done++;

@@ -5027,3 +5027,61 @@ the most this container's 14 GB holds):
 > Amends rule 95: with a colour theme on, the card's hue is the theme's
 > colours, not one hue; a look the visitor picked is theirs. Rule 95 stands
 > for a card as designed.
+
+## 126. A push never buries a line: the column comes down in size instead
+
+Added 2026-10-10. The owner, of WE BUY iPHONES (`top_buyer`) with four
+selling points ticked, a sunburst ground and a colour theme: "are we missing
+layers of details?". The Subline field held the device list; the card showed
+CASH BUYER, WE BUY iPHONES and the number, and no subline.
+
+What happened, measured pass by pass on Easy Mode's own render
+(`renderEzCanvas`): the ticks are a four-line block set in the top corner
+(the card has no badge layer of its own, so Easy Mode adds one at the right
+edge). It overlaps CASH BUYER, and step 3 of `alignPass` (pull colliding text
+apart) pushed the title down, the headline down after it, and the subline to
+y 829 to 941, under the bottom bar, which starts at 779 and is drawn OVER it.
+The push only ever checked the canvas edge. The subline's own panel was
+left behind under iPHONES, and TEXT OR CALL NOW was pushed below the number.
+Every one of the 32 colour choices did the same; it is the layout, not the
+colour.
+
+Over the 322 templates in Easy Mode with four selling points, 29 cards lost a
+line under a plate this way: both classics with a subline (`top_buyer`,
+`bold_buyer`) and 27 offer cards whose headline or model lines went under
+their steps panel. With each card's own selling points, none did, so the
+problem stayed hidden.
+
+- **The rule.** Where a push carries a line under a plate drawn over it
+  (more than 15% of the line covered, where it was clear before the push),
+  the lines the push moved come down in size together, about the top of the
+  column, and are pushed again from where they stood, until the column
+  clears the plate by 6px. Never below half size; past that the column
+  stays as pushed. A line's own plate (a panel holding that line and
+  nothing else) is fitted round it again with its margins scaled. A card
+  where no push buries a line takes none of this: its layout is unchanged.
+- **A textbox keeps its width.** Only its type comes down (font size and
+  outline). Shrunk as an object, the column grew narrower than the selling
+  points in the corner, and the guides (rule 57, step 5) slid the whole
+  card 35px off centre to bring that corner in.
+- **Measured.** Buried lines with four selling points: 29 cards to 0; with
+  each card's own points: 0 to 0. Easy Mode's layout of every template
+  without selling points: unchanged on 321 of 322; the one that moved is
+  `top_buyer` itself, whose subline's second line ran 9px under the bar on
+  every render. With selling points, 69 cards changed: the 29, plus 40 offer
+  cards whose lines were buried during the push and partly uncovered by later
+  passes (a headline cut off, steps out of order). All 69 looked at before
+  and after; none is worse. `top_buyer` under every colour choice: 32 of 32
+  clear. The 366 live library cards, laid out as `renderThumb` lays them
+  out: 0 changed.
+- **Not done here:** Easy Mode's own selling-points block is set 30px from
+  the edge, outside the 6% guide (65px), so the guides move the card to
+  bring it in.
+  It should be set inside the guides from the start. A layout change for
+  every card without its own badges; left for its own pass.
+
+Also in this change: the category's brand list (`applyBrandVocab`) set an
+upper-case line with a plain `toUpperCase()`, so the subline read "IPHONE 17
+PRO MAX • … IPAD". It now goes through `cleanText(…, 'upper')` like every
+other upper-case line: iPHONE and iPAD keep their small i, as WE BUY iPHONES
+does on the same card.

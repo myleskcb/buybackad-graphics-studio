@@ -4055,3 +4055,41 @@ RESUME HERE:
   0. The deploy (OPEN-ITEMS §AT 1): the workflow's secrets, or the Mac.
   1. The per-card holds (§AT 2), if a chip is worth giving back.
   2. The salmon red (§AT 3).
+
+## 2026-10-10 — a line the push buried; an Android on an iPhone card
+
+Studied:            Easy Mode's render of top_buyer with four selling points,
+                    pass by pass (alignPass step 3, fitInsideGuides, the
+                    tagline look), and where "Price Point"'s photograph came
+                    from.
+Measured:           Buried lines (a text 25%+ under an opaque rect drawn
+                    after it) over the 322 templates: 29 with four selling
+                    points, 0 without; after DESIGN-LAW 126, 0 and 0. Layout
+                    diff, every object's box, old app.js against new: 1 of 322
+                    without points (top_buyer), 69 with (all looked at), 0 of
+                    366 live library cards. top_buyer under all 32 colour
+                    choices: clear. Deploy workflow run 7: deploy step skipped.
+Changed:            app.js alignPass step 3 / 3b, applyBrandVocab;
+                    assets/showcase three records and thumbnails; DESIGN-LAW
+                    126; OPEN-ITEMS AU.
+Rejected:           Shrinking the column's textboxes as objects (scaleX/Y):
+                    the column grew narrower than the corner ticks and
+                    fitInsideGuides slid the card 35px off centre. A plate
+                    found by full containment of the line's box: a textbox's
+                    box (1000px) is wider than its own panel (941px), so the
+                    panel was never found. Writing all 31 dry-run re-grounds:
+                    coin faces with their lettering behind the copy.
+                    The script's first photograph for stepsFlow-du08-15 (the
+                    iPhone 15 lineup: the screens' "iPhone 15" beside the
+                    steps) and for stepsFlow-pa05-15 (a 13 Pro under red and
+                    blue light: saturation).
+Found:
+  - The live site is not deployed from main: deploy.yml skips without its
+    secrets, so the owner is looking at a build from before rule 117.
+  - A harness that renders two app.js builds side by side can show a
+    "missing photograph" that is only a photograph still decoding; render
+    again before believing it.
+RESUME HERE:
+  0. The deploy (OPEN-ITEMS §AU 1 / §AT 1).
+  1. NOT_A_GROUND for the lettered coin faces, then the 31 re-grounds (§AU 2).
+  2. Easy Mode's selling points inside the guides (§AU 3).
