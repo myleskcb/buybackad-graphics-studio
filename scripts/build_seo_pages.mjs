@@ -34,7 +34,7 @@ const CATS = [
       'Your phone number, big enough to read on a phone screen, and your area.',
     ],
     faq: [
-      ['Are the phone templates free?', 'Yes. Every design in the Phones category is included on the free plan. The free plan gives you 3 downloads a week at 1080 pixels with a BUYBACK.AD watermark; Pro removes the watermark and raises the limit.'],
+      ['Are the phone templates free?', 'Yes. Every design in the Phones category is included on the free plan. The free plan gives you 3 photo downloads a week at 1080 pixels with a BUYBACK.AD watermark; a paid plan removes the watermark and raises the limit.'],
       ['Can I show a price on the ad?', 'You can type any headline or line of text you like. If you print a price, make sure it is one you will pay, because the ad is yours and so is the promise.'],
     ],
     free: 'Every Phones design is on the free plan.',
@@ -53,9 +53,9 @@ const CATS = [
     ],
     faq: [
       ['Do I need a licence to advertise buying gold?', 'Rules for buying precious metals and secondhand jewelry differ by state and city, and some places require a licence or a hold period. Check yours; the studio makes the ad, it does not check the law for you.'],
-      ['Which gold designs are free?', 'The top 3 designs in the Gold category are on the free plan. Pro unlocks every design in every category.'],
+      ['Which gold designs are free?', 'The top 3 designs in the Gold category are on the free plan. Every paid plan, from Starter at $25 a month, unlocks every design in every category.'],
     ],
-    free: 'The top 3 Gold designs are on the free plan; Pro unlocks the rest.',
+    free: 'The top 3 Gold designs are on the free plan; every paid plan unlocks the rest.',
   },
   {
     id: 'silver', slug: 'we-buy-silver', name: 'silver', title: 'We Buy Silver ad templates',
@@ -70,10 +70,10 @@ const CATS = [
       'Your phone number and your area.',
     ],
     faq: [
-      ['Which silver designs are free?', 'The top 3 designs in the Silver category are on the free plan. Pro unlocks every design in every category.'],
+      ['Which silver designs are free?', 'The top 3 designs in the Silver category are on the free plan. Every paid plan, from Starter at $25 a month, unlocks every design in every category.'],
       ['Can I add my own photo of the silver?', 'Yes. Upload a photo as the background (iPhone HEIC photos work), then blur or tint it so the text stays readable.'],
     ],
-    free: 'The top 3 Silver designs are on the free plan; Pro unlocks the rest.',
+    free: 'The top 3 Silver designs are on the free plan; every paid plan unlocks the rest.',
   },
   {
     id: 'coins', slug: 'we-buy-coins', name: 'coins', title: 'We Buy Coins ad templates',
@@ -88,10 +88,10 @@ const CATS = [
       'Your phone number and your area.',
     ],
     faq: [
-      ['Which coin designs are free?', 'The top 3 designs in the Rare Coins category are on the free plan. Pro unlocks every design in every category.'],
+      ['Which coin designs are free?', 'The top 3 designs in the Rare Coins category are on the free plan. Every paid plan, from Starter at $25 a month, unlocks every design in every category.'],
       ['Can I use the same ad in a story or on a flyer?', 'Yes. Before you download, pick Square, Story 9:16, Flyer 8.5×11, Wide 16:9, Wide 4:3 or Tall 3:4.'],
     ],
-    free: 'The top 3 Rare Coins designs are on the free plan; Pro unlocks the rest.',
+    free: 'The top 3 Rare Coins designs are on the free plan; every paid plan unlocks the rest.',
   },
   {
     id: 'cars', slug: 'we-buy-cars', name: 'cars', title: 'We Buy Cars ad templates',
@@ -107,9 +107,9 @@ const CATS = [
     ],
     faq: [
       ['Do I need to mention the title?', 'Many sellers ask. The rules on buying a vehicle without a title differ by state, so say what you need on the ad and check your state before you promise otherwise.'],
-      ['Which car designs are free?', 'The top 3 designs in the Cars & Trucks category are on the free plan. Pro unlocks every design in every category.'],
+      ['Which car designs are free?', 'The top 3 designs in the Cars & Trucks category are on the free plan. Every paid plan, from Starter at $25 a month, unlocks every design in every category.'],
     ],
-    free: 'The top 3 Cars & Trucks designs are on the free plan; Pro unlocks the rest.',
+    free: 'The top 3 Cars & Trucks designs are on the free plan; every paid plan unlocks the rest.',
   },
   {
     id: 'strips', slug: 'we-buy-test-strips', name: 'diabetic test strips', title: 'We Buy Diabetic Test Strips ad templates',
@@ -124,9 +124,9 @@ const CATS = [
     ],
     faq: [
       ['Can I post this ad on any marketplace?', 'Not always. Some marketplaces restrict ads for buying or selling medical supplies, so read the rules of the place you post before you publish. The studio makes the image; where you may post it is up to each platform.'],
-      ['Which test strip designs are free?', 'The top 3 designs in the Diabetic Supplies category are on the free plan. Pro unlocks every design in every category.'],
+      ['Which test strip designs are free?', 'The top 3 designs in the Diabetic Supplies category are on the free plan. Every paid plan, from Starter at $25 a month, unlocks every design in every category.'],
     ],
-    free: 'The top 3 Diabetic Supplies designs are on the free plan; Pro unlocks the rest.',
+    free: 'The top 3 Diabetic Supplies designs are on the free plan; every paid plan unlocks the rest.',
   },
   {
     id: 'pokemon', slug: 'we-buy-pokemon-cards', name: 'Pokémon cards', title: 'We Buy Pokémon Cards ad templates',
@@ -141,10 +141,10 @@ const CATS = [
       'Your phone number and your area.',
     ],
     faq: [
-      ['Which Pokémon designs are free?', 'The top 3 designs in the Pokémon Cards category are on the free plan. Pro unlocks every design in every category.'],
+      ['Which Pokémon designs are free?', 'The top 3 designs in the Pokémon Cards category are on the free plan. Every paid plan, from Starter at $25 a month, unlocks every design in every category.'],
       ['Can I use Pokémon artwork on my ad?', 'Only use pictures you have the right to use. The studio’s own card pictures are generic product shots; if you upload artwork, the rights are yours to check.'],
     ],
-    free: 'The top 3 Pokémon Cards designs are on the free plan; Pro unlocks the rest.',
+    free: 'The top 3 Pokémon Cards designs are on the free plan; every paid plan unlocks the rest.',
   },
   {
     id: 'sports', slug: 'we-buy-sports-cards', name: 'sports cards', title: 'We Buy Sports Cards ad templates',
@@ -159,15 +159,15 @@ const CATS = [
       'Your phone number and your area.',
     ],
     faq: [
-      ['Which sports card designs are free?', 'The top 3 designs in the Sports Cards category are on the free plan. Pro unlocks every design in every category.'],
+      ['Which sports card designs are free?', 'The top 3 designs in the Sports Cards category are on the free plan. Every paid plan, from Starter at $25 a month, unlocks every design in every category.'],
       ['Will the ad name my town?', 'If you give the studio your ZIP code or city, templates with a service-area line name the towns around you. It is looked up in your browser and saved on your device.'],
     ],
-    free: 'The top 3 Sports Cards designs are on the free plan; Pro unlocks the rest.',
+    free: 'The top 3 Sports Cards designs are on the free plan; every paid plan unlocks the rest.',
   },
 ];
 
 const COMMON_FAQ = [
-  ['Is it free?', 'You can design without an account. Downloading needs a free account: 3 downloads a week, photos or videos, at 1080 pixels with a BUYBACK.AD watermark. Pro is $25 a month (or $250 a year) for 100 downloads a month up to 2160 pixels, no watermark, every design and 75 AI credits a month. Business is $60 a month for 500 downloads and 200 AI credits.'],
+  ['Is it free?', 'You can design without an account. Downloading needs a free account: 3 photo downloads a week at 1080 pixels with a BUYBACK.AD watermark. Starter is $25 a month for 100 photo downloads up to 2160 pixels, no watermark, every design. Pro ($60) adds video ads and 500 downloads a month; Business ($100) is unlimited.'],
 ];
 
 const nav = (up) => `<a class="skip" href="#main">Skip to content</a>

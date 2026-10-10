@@ -50,7 +50,7 @@
 import { getStore } from '@netlify/blobs';
 import { libraryRoute } from '../lib/library.mjs';
 import { adLibraryRoute } from '../lib/adlibrary.mjs';
-import { PLANS, PACKS, PAID, planId, creditState, spendCredits, refundCredits, backgroundCredits } from '../lib/plans.mjs';
+import { PLANS, PACKS, PAID, planId, videoOk, creditState, spendCredits, refundCredits, backgroundCredits } from '../lib/plans.mjs';
 import {
   billingOn, stripeMode, stripe, priceFor, catalog, subState, applySub, applySession, customerOf,
   syncDue, syncSub, ensureWebhook, verifyEvent, webhookSecretKey,
@@ -364,6 +364,10 @@ export default async (req) => {
       // Operators export without caps, watermark or resolution limits.
       if (roleFor(em, env) === 'admin') return json({ user: publicUser(user, env), maxPx: 2160, watermark: false, remaining: null });
       await freshUser(user, env);
+      const { kind } = await req.json().catch(() => ({}));
+      if (kind === 'video' && !videoOk(user.plan)) {
+        return json({ error: 'Video downloads come with Pro and Business', needs: 'video', user: publicUser(user, env) }, 403);
+      }
       const m = exportMeter(user);
       if (m.cap !== null && m.remaining <= 0) {
         return json({ error: 'Download limit reached for this ' + m.per, limit: m.cap, per: m.per, user: publicUser(user, env) }, 402);

@@ -171,7 +171,7 @@ const C = r.body.item;
 ok(r.status === 201 && C.autopost === false && C.post === null, 'save: autopost false is kept');
 ok((await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[3]) } })).status === 507, 'save: the plan\'s cap is 507');
 r = await call('GET', '/ads/mine', { as: 'pro@x.example' });
-ok(r.body.limit === 300 && r.body.items.length === 0 && r.body.links.page !== L.page, 'another account: its own library, its own link, the Pro cap');
+ok(r.body.limit === 1000 && r.body.items.length === 0 && r.body.links.page !== L.page, 'another account: its own library, its own link, the Pro cap');
 ok((await call('GET', '/ads/mine', { as: 'boss@x.example' })).body.limit === 2000, 'an operator: the admin cap');
 
 /* the public link */
@@ -248,6 +248,11 @@ const begin = (body, as) => call('POST', '/ads/video/begin', { as: as || 'free@x
 const part = (id, n, bytes, as) => call('POST', '/ads/video/part?id=' + id + '&n=' + n, { as: as || 'free@x.example', raw: bytes });
 const done = (id, as) => call('POST', '/ads/video/done', { as: as || 'free@x.example', body: { id } });
 const sendAll = async (id, bytes, as) => { const n = Math.ceil(bytes.length / PART_BYTES); for (let i = 0; i < n; i++) { const pr = await part(id, i, bytes.subarray(i * PART_BYTES, (i + 1) * PART_BYTES), as); if (pr.status !== 200) return pr; } return done(id, as); };
+/* video ads are a Pro and Business feature (plans.mjs video, 2026-10-09):
+   a free account is refused at begin; the rest of this section runs the
+   same account on Pro, then puts it back */
+ok((await begin({ id: A.id, format: 'mp4', bytes: V.length, w: 1080, h: 1080, sha256: vsha })).status === 403, 'video: a free account cannot add a video (Pro and Business)');
+accounts['free@x.example'].plan = 'pro';
 ok((await begin({ id: A.id, format: 'avi', bytes: V.length, w: 1080, h: 1080, sha256: vsha })).status === 400, 'video: only MP4 or WebM');
 ok((await begin({ id: A.id, format: 'mp4', bytes: 50 * 1024 * 1024, w: 1080, h: 1080, sha256: vsha })).status === 413, 'video: over 40 MB is 413');
 ok((await begin({ id: A.id, format: 'mp4', bytes: V.length, w: 100, h: 100, sha256: vsha })).status === 400, 'video: under 320 px is 400');
@@ -304,6 +309,7 @@ ok(r.status === 201 && r.body.item.video.bytes === V2.length && r.body.item.vide
 r = await call('POST', '/ads/video/remove', { as: 'free@x.example', body: { id: A.id } });
 ok(r.status === 200 && r.body.item.kind === 'photo' && r.body.item.video === null && (await call('GET', pathOf(AV.video.url))).status === 404 && ![...store.m.keys()].some((k) => k.startsWith('v:')), 'video: removed, the ad is a photo ad again and the bytes are gone');
 ok((await call('POST', '/ads/video/remove', { as: 'free@x.example', body: { id: A.id } })).status === 404, 'video: removing twice is 404');
+accounts['free@x.example'].plan = 'free';
 /* an ad removed takes its video */
 r = await call('POST', '/ads/save', { as: 'pro@x.example', body: { image: dataUrl(J[2]), title: 'Pro video', source: 'motion' } });
 const PV = r.body.item;
@@ -744,10 +750,18 @@ async function browserPart() {
       const au = await page.evaluate(() => ({ up: document.getElementById('acct-tab-up').getAttribute('aria-selected') === 'true', go: document.getElementById('acct-go').textContent }));
       ok(au.up && au.go === 'Create account', 'video maker: a signed-out star asks for an account, Create account first (' + JSON.stringify(au) + ')');
       await page.fill('#acct-email', 'maker@studio.example'); await page.fill('#acct-pass', 'a-long-password'); await page.click('#acct-go');
+      /* video ads come with Pro and Business (2026-10-09): a free account's star
+         offers the plans and saves nothing */
+      await page.waitForFunction(() => /Video downloads come with Pro and Business/.test(document.body.innerText), null, { timeout: 30000 }).catch(() => {});
+      const up = await page.evaluate(() => ({ said: /Video downloads come with Pro and Business/.test(document.body.innerText), saved: (adLibrary.state().lib || { items: [] }).items.length }));
+      ok(up.said && up.saved === 0, 'video maker: a free account\'s star offers Pro and Business and saves nothing (' + JSON.stringify(up) + ')');
+      // the same account as an operator (video, no marks, not counted): the save goes through
+      process.env.ADMIN_EMAILS += ',maker@studio.example';
+      await page.evaluate(() => window.VideoHelp && VideoHelp.close());
+      await page.click('#mo-star');
       await page.waitForFunction(() => { const st = adLibrary.state(); return st.lib && st.lib.items.length === 1 && st.lib.items[0].video; }, null, { timeout: 180000 }).catch(() => {});
       const saved = await page.evaluate(async () => { const st = adLibrary.state(); const t = st.lib && st.lib.items[0]; const me = (await pgfxAccount.api('/me')).user; return t && { kind: t.kind, template: t.template, source: t.source, seconds: t.video && t.video.seconds, w: t.video && t.video.width, photo: t.image.width, hold: t.hold, counted: me.exports && me.exports.count, on: document.getElementById('mo-star').classList.contains('on') }; });
-      // a Free save is one of the plan's downloads, at Free's size with the marks, held from auto-post (2026-10-08)
-      ok(saved && saved.kind === 'video' && /^motion-/.test(saved.template) && saved.source === 'motion' && saved.w === 1080 && saved.photo === 1080 && saved.hold === 'the watermark' && saved.counted === 1 && saved.on, 'video maker: after the sign-up the look is made and saved with its photo, as a Free download (1080, watermarked, held, counted), the star fills (' + JSON.stringify(saved) + ')');
+      ok(saved && saved.kind === 'video' && /^motion-/.test(saved.template) && saved.source === 'motion' && saved.w === 1080 && saved.photo === 1440 && !saved.hold && !saved.counted && saved.on, 'video maker: a plan with video saves the look with its photo (1440, unmarked), the star fills (' + JSON.stringify(saved) + ')');
       await page.evaluate(() => document.getElementById('looks').scrollIntoView());
       await page.waitForFunction(() => document.querySelectorAll('#gallery .mo-thumb').length >= 4, null, { timeout: 60000 });
       await page.waitForTimeout(600);

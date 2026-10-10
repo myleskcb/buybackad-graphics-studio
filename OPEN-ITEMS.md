@@ -2620,6 +2620,39 @@ Still open:
    conversions $15 would get; Business at $60 against $39, over 36%. Read
    the free-to-paid rate for the first months against that line.
 
+### AS, 2026-10-09: three paid plans, videos from Pro
+
+The owner: "can we have 3 plans and the 2nd/3rd has the most features $25,
+$60, $100/mo?", then chose videos from $60 and Free as a line above the
+cards. Free 3 photos a week, 1080, marks, 5 credits; **Starter** (`basic`)
+$25 / $250: 100 photos a month, every design, 2160, no marks, 50 credits,
+300 ads, no video downloads, no QR; **Pro** $60 / $600: 500 downloads,
+photos or videos, video ads, QR, 200 credits, 1,000 ads; **Business** $100 /
+$1,000: unlimited downloads, 500 credits, 3,000 ads. Video downloads are
+refused below Pro at `/api/export` (`kind: "video"`, 403) and at
+`/api/ads/video/begin`; the studio's video buttons and the maker offer the
+plans instead. Anyone still makes and watches videos.
+
+At worst (every credit at 4 cents, plus hosting of $0.25 / $0.75 / $2.00 a
+month for the bigger libraries): Starter keeps 91% / 89%, Pro 85% / 82%,
+Business 77% / 73%. Checked: billing_check 98 of 98 (Free and Starter refused
+videos with nothing counted; Pro's maker download a 1080 video and 1440
+photo, unmarked; Business unlimited and its 3,000; the landing's Free line
+and three cards at 1440 and 390; Checkout, switch, pack); plan_economics
+(every plan clears its bar, the pages agree, video is Pro and Business
+only); ad_library_check (a free account cannot add a video; the maker's star
+on Free offers the plans).
+
+Open:
+1. **Free no longer downloads videos.** The marks code stays (studio and
+   maker) for a plan with `video` and `watermark` both on, if the owner wants
+   watermarked videos on Free again as a lead magnet: one flag in plans.mjs
+   and app.js.
+2. **Unlimited on Business** is for the customer's own advertising (terms
+   §1). A download costs one function call; watch the Netlify credits if one
+   account downloads in the thousands.
+3. **§AS 6 is superseded:** its break-even ($25 against $15) was for Pro at
+   $25; Pro is now $60 with videos, and $25 buys Starter.
 
 ## AT. 2026-10-02 — the colour themes: two colours, three colours, the proven pairs; the effects wear them (DESIGN-LAW 125)
 

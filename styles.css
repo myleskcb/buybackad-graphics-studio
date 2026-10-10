@@ -1283,6 +1283,14 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .plans-toggle button[aria-pressed=true]{background:var(--glass-bg-strong);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.18)}
 .plans-note{font:500 13px/1.5 var(--ui);color:var(--text-2);background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:14px;padding:10px 14px;margin:0 0 16px}
 .plan-per{font:500 12.5px/1.4 var(--ui);color:var(--text-dim)}
+.plans-free{display:flex;align-items:center;gap:14px 18px;flex-wrap:wrap;background:var(--surface-sunk);border:.5px solid var(--hairline);border-radius:16px;padding:12px 16px;margin:0 0 16px}
+.plans-free-name{font:700 15px/1 var(--ui);white-space:nowrap}
+.plans-free-name span{font-family:var(--mono);color:var(--text-dim);margin-left:4px}
+.plans-free p{flex:1 1 320px;margin:0;font:500 13px/1.5 var(--ui);color:var(--text-2)}
+.plans-free .plan-btn{padding:11px 16px}
+.plans-free .plan-current{margin:0}
+.plan-card{position:relative}
+.plan-tag{position:absolute;top:-11px;left:24px;background:var(--accent);color:var(--accent-ink);font:700 11px/1 var(--ui);letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;border-radius:var(--r-pill)}
 .plans-packs{margin-top:22px;background:var(--glass-bg);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:.5px solid var(--glass-edge);border-radius:22px;padding:20px 24px;box-shadow:var(--glass-shadow)}
 .plans-packs h3{font:700 17px/1 var(--ui);letter-spacing:-.02em;margin:0 0 6px}
 .plans-packs p{font:500 13px/1.5 var(--ui);color:var(--text-2);margin:0 0 14px}
@@ -1417,6 +1425,12 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
 .lp-price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;max-width:1040px}
 .lp-price-alt{font-size:13px;color:var(--text-dim);margin:-6px 0 12px}
+.lp-free-line{display:flex;align-items:center;gap:12px 18px;flex-wrap:wrap;max-width:1040px;margin:0 0 20px;padding:14px 18px;border-radius:16px;border:1px solid var(--hairline);background:var(--surface-sunk)}
+.lp-free-line h3{font-size:17px;font-weight:650;margin:0;white-space:nowrap}
+.lp-free-line h3 span{font-family:var(--mono);color:var(--text-dim);font-weight:600;margin-left:6px}
+.lp-free-line p{flex:1 1 320px;margin:0;font-size:13.5px;color:var(--text-2)}
+.lp-price-card{position:relative}
+.lp-price-tag{position:absolute;top:-12px;left:22px;background:var(--accent);color:var(--accent-ink);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;border-radius:999px}
 .lp-price-foot{font-size:13.5px;color:var(--text-2);margin:18px 0 0;max-width:720px}
 .lp-price-card{
   background:var(--glass-bg);

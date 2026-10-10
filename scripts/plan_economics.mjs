@@ -49,7 +49,7 @@ const appjs = readFileSync(join(ROOT, 'app.js'), 'utf8');
 const block = (appjs.match(/\/\* PLANS:BEGIN[\s\S]*?\*\/([\s\S]*?)\/\* PLANS:END \*\//) || [])[1];
 if (ok(block, 'app.js: no PLANS:BEGIN ... PLANS:END block')) {
   const { PLANS, PACKS } = new Function(block + '; return { PLANS, PACKS };')();
-  const KEYS = ['price', 'weekly', 'monthly', 'maxPx', 'watermark', 'credits', 'library'];
+  const KEYS = ['label', 'price', 'weekly', 'monthly', 'maxPx', 'watermark', 'video', 'qr', 'credits', 'library'];
   ok(Object.keys(PLANS).join() === Object.keys(P.PLANS).join(), `app.js plans ${Object.keys(PLANS)} are not ${Object.keys(P.PLANS)}`);
   for (const id of Object.keys(P.PLANS)) {
     for (const k of KEYS) ok(JSON.stringify(PLANS[id] && PLANS[id][k]) === JSON.stringify(P.PLANS[id][k]), `app.js ${id}.${k} is ${JSON.stringify(PLANS[id] && PLANS[id][k])}, plans.mjs says ${JSON.stringify(P.PLANS[id][k])}`);
@@ -58,17 +58,23 @@ if (ok(block, 'app.js: no PLANS:BEGIN ... PLANS:END block')) {
 }
 const usd = (cents) => '$' + (cents % 100 ? (cents / 100).toFixed(2) : String(cents / 100));
 const n = (v) => Number(v).toLocaleString('en-US');
-const pro = P.PLANS.pro, biz = P.PLANS.business, free = P.PLANS.free, c100 = P.PACKS.credits100;
+const st = P.PLANS.basic, pro = P.PLANS.pro, biz = P.PLANS.business, free = P.PLANS.free, c100 = P.PACKS.credits100;
 const pages = {
   'index.html': [
-    `${free.weekly} downloads a week: photos or videos`, `${pro.monthly} downloads a month: photos or videos`, `${n(biz.monthly)} downloads a month: photos or videos`,
-    `${usd(pro.price.month)}<small>/mo</small>`, `${usd(biz.price.month)}<small>/mo</small>`, `or ${usd(pro.price.year)} a year`, `or ${usd(biz.price.year)} a year`,
-    `${free.credits} AI credits a month`, `${pro.credits} AI credits a month`, `${biz.credits} AI credits a month`, `Keep ${n(biz.library)} ads in your library`,
+    `${free.weekly} photo downloads a week`, `${st.monthly} photo downloads a month`, `${pro.monthly} downloads a month: photos or videos`, 'Unlimited downloads: photos or videos',
+    `${usd(st.price.month)}<small>/mo</small>`, `${usd(pro.price.month)}<small>/mo</small>`, `${usd(biz.price.month)}<small>/mo</small>`,
+    `or ${usd(st.price.year)} a year`, `or ${usd(pro.price.year)} a year`, `or $${n(biz.price.year / 100)} a year`,
+    `${free.credits} AI credits a month`, `${st.credits} AI credits a month`, `${pro.credits} AI credits a month`, `${biz.credits} AI credits a month`,
+    `Keep ${st.library} ads in your library`, `Keep ${n(pro.library)} ads in your library`, `Keep ${n(biz.library)} ads in your library`,
     `${c100.credits} credits are ${usd(c100.price)}`,
   ],
-  'about.html': [`Pro, ${usd(pro.price.month)} a month`, `Business, ${usd(biz.price.month)} a month`, `<td>${n(biz.monthly)} a month</td>`, `<td>${pro.credits}</td>`, `<td>${n(biz.library)}</td>`],
-  'terms.html': [`(${usd(pro.price.month)}/month or ${usd(pro.price.year)}/year)`, `(${usd(biz.price.month)}/month or ${usd(biz.price.year)}/year)`, `${pro.monthly} downloads per month`, `${biz.monthly} downloads and ${biz.credits} AI credits`],
+  'about.html': [`Starter, ${usd(st.price.month)} a month`, `Pro, ${usd(pro.price.month)} a month`, `Business, ${usd(biz.price.month)} a month`, `<td>${pro.monthly} a month, photos or videos</td>`,
+    `<td>${free.credits}</td><td>${st.credits}</td><td>${pro.credits}</td><td>${biz.credits}</td>`, `<td>${free.library}</td><td>${st.library}</td><td>${n(pro.library)}</td><td>${n(biz.library)}</td>`],
+  'terms.html': [`(${usd(st.price.month)}/month or ${usd(st.price.year)}/year)`, `(${usd(pro.price.month)}/month or ${usd(pro.price.year)}/year)`, `(${usd(biz.price.month)}/month or $${n(biz.price.year / 100)}/year)`,
+    `${st.monthly} photo downloads per month`, `${pro.monthly} downloads per month`, `${biz.credits} AI credits per month`],
 };
+// the video plans are the ones the pages say download video
+ok(!free.video && !st.video && pro.video && biz.video, 'plans.mjs: video should be Pro and Business only, as the pages say');
 for (const [f, wants] of Object.entries(pages)) {
   const html = readFileSync(join(ROOT, f), 'utf8');
   for (const w of wants) ok(html.includes(w), `${f} does not say "${w}"`);
