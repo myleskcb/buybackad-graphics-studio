@@ -2792,3 +2792,26 @@ Still open:
    handheld and headset cards (`of_pchandheld_type_sand`,
    `of_headset_type_arctic`) have their model names visible again, but
    tight against their rules.
+5. **The Pixel's background, with a real iPhone on the table.** The owner
+   likes the picture ("it's a sick background"). Its phone is a Google Pixel
+   in the palette's neon (DESIGN-LAW 127). Replace it with a real iPhone drawn
+   from `assets/entities.json` (the 17 Pro in Deep Blue answers the navy and
+   cyan), by an image edit given the reference photographs, checked against
+   them before it is used. Blocked in the cloud sessions: no `FAL_KEY` in the
+   environment (Netlify having it does not reach the session), and the
+   network policy refuses `queue.fal.run` ("organization policy"). Both are in
+   the cloud environment's settings: the key under Network secrets or as an
+   environment variable, and the fal hosts under Allowed domains.
+6. **Device entities (N.1): the set is ready, not uploaded.**
+   `scripts/device_entities.mjs` writes `assets/entities.json`: 125 devices
+   (iPhone 34, iPad 27, Mac 40, Watch 13, AirPods 6, other 5) with 281
+   photographs, only authentic cut-outs, the shop's catalog shots and factory
+   backs. Left out: 9 cut-outs marked not authentic and 39 of the video maker's
+   60 phone backs, which are repaints (a 16 back in another finish) or failed.
+   Held: `iphone-duo`, a foldable iPhone render from the quote site, until the
+   owner confirms it is the shipping product. Uploading the set to fal, and
+   N.1's gate, wait on item 5's key and hosts.
+7. **What made the picture.** Only ORCHARD's `data/orchard.db` on the Mac
+   records the prompt and model for `dl_phones_priceAnchor_volt`, and whether
+   it was generated for the slot or picked from ORCHARD's library by its
+   colours. Worth a look when the Mac is at hand.

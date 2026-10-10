@@ -4093,3 +4093,35 @@ RESUME HERE:
   0. The deploy (OPEN-ITEMS §AU 1 / §AT 1).
   1. NOT_A_GROUND for the lettered coin faces, then the 31 re-grounds (§AU 2).
   2. Easy Mode's selling points inside the guides (§AU 3).
+
+## 2026-10-10 (later): what phone that was, and how it got onto an iPhone ad
+
+Studied:            dl_phones_priceAnchor_volt.jpg at full size; where the
+                    153 assets/bg photographs came from (SETUP.md's ORCHARD,
+                    MANIFEST.md, library.json, git history); the device
+                    catalogs as reference sets.
+Measured:           The phone: a Google Pixel 7 Pro / 8 Pro silhouette (visor
+                    camera bar, three lenses, the G), in the card's palette.
+                    Its record: prompt "", sha1 "", 0x0. In git since
+                    2026-09-27 with 152 others in one commit. Live cards on a
+                    retired ground: 61 (30 sports, 31 known, 0 new). Device
+                    entities: 125 with 281 real photographs; 39 of 60 video
+                    backs are repaints.
+Changed:            DESIGN-LAW 127; scripts/device_entities.mjs and
+                    assets/entities.json; scripts/retired_grounds_check.mjs;
+                    OPEN-ITEMS AU 5-7.
+Rejected:           (not tried) Putting an iPhone on the table by hand, a
+                    factory back warped flat onto it: a flat camera bump and
+                    the wrong light would make the picture worse. The edit
+                    wants a model given the reference photographs.
+                    The quote site's foldable "iPhone Duo" as a reference
+                    until the owner confirms it is the shipping product.
+Found:
+  - fal is refused by the cloud environment's network policy as well as
+    missing its key; Gemini's host is reachable but its key is absent too.
+  - A rule that retires an asset is only finished when a script fails on the
+    asset's use and the change is deployed.
+RESUME HERE:
+  0. The cloud environment: FAL_KEY and the fal hosts (OPEN-ITEMS AU 5).
+  1. Then upload assets/entities.json and replace the Pixel (AU 5, 6).
+  2. The deploy (AU 1).
