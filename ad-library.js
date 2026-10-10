@@ -504,7 +504,7 @@
   async function captureVideo(blob, name, photo, c){
     const VH = window.VideoHelp;
     const btn = c.btn, set = t => { if (btn) btn.innerHTML = t; };
-    try { await (VH ? VH.retry(recordExport, { tries: 3, delay: 1200 }) : recordExport()); }
+    try { await (VH ? VH.retry(() => recordExport('video'), { tries: 3, delay: 1200 }) : recordExport('video')); }
     catch (e){ app.toast('The video was made, but the download could not be counted: ' + (e.message || e), 'error'); return false; }
     set('Saving to library…');
     await saveVideoAd({ blob, name, photo, proj: projectNow(c.kind), meta: { source: 'studio' }, video: studioVideoMeta(photo),

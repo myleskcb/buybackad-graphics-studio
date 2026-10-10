@@ -58,7 +58,7 @@
  * The router answers null for any path outside /ads.
  */
 
-import { PLANS, planId } from './plans.mjs';
+import { PLANS, planId, videoOk } from './plans.mjs';
 
 export const REPOST_CHOICES = [0, 1, 2, 3, 5, 7, 14, 30];
 const DAY = 86400000;
@@ -467,6 +467,8 @@ export async function adLibraryRoute(req, url, p, env, deps) {
 
   /* ---------- the video on an ad ---------- */
   if (route === 'video/begin') {
+    // video ads are a Pro and Business feature (plans.mjs video); operators always
+    if (acct.role !== 'admin' && !videoOk(acct.plan)) return reply({ error: 'Video ads come with Pro and Business', needs: 'video' }, 403);
     const lib = await ensureLib(store, owner);
     const item = ID_RE.test(String(body.id || '')) && lib.items.find((x) => x.id === body.id);
     if (!item) return reply({ error: 'No such ad in your library' }, 404);
