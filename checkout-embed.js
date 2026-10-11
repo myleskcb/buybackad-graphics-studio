@@ -13,15 +13,20 @@
    dashboard's Branding settings. Card details go to Stripe inside its own
    frame; they never touch this page or the function.
 
-   A card pays without a redirect; onComplete closes the dialog and app.js's
-   finishCheckout() switches the plan (or the credits) on from Stripe's own
-   record of the session, the same path the hosted page's return takes. A
-   method that must redirect comes back to /?checkout=success&session_id=…,
-   which handleCheckoutReturn() already reads. Stripe.js loads only when
-   someone checks out (it is a script from js.stripe.com, never bundled, as
-   Stripe requires); if it cannot load, open() rejects and startCheckout()
-   sends the customer to the hosted page instead, so a blocker never leaves
-   anyone unable to pay. */
+   Two steps (the audit, 2026-10-11). First the agreement: what is being
+   bought, the renewal terms in plain words, and a box the customer ticks for
+   the Terms of Service (and a plan's automatic renewal) before any Checkout
+   session exists; the function refuses a checkout without it and records the
+   terms version and the time on the session, the subscription or payment,
+   and the account. Then the payment: a card pays without a redirect, and
+   onComplete closes the dialog while app.js's finishCheckout() switches the
+   plan (or the credits) on from Stripe's own record of the session, the same
+   path the hosted page's return takes. A method that must redirect comes back
+   to /?checkout=success&session_id=…, which handleCheckoutReturn() reads.
+   Stripe.js loads only at checkout (a script from js.stripe.com, never
+   bundled, as Stripe requires); if it cannot load, or the function has no
+   publishable key, the customer goes to Stripe's hosted page instead, so a
+   blocker never leaves anyone unable to pay. */
 (function () {
   const $ = (id) => document.getElementById(id);
   let stripeLoad = null;
@@ -54,21 +59,63 @@
     if (ov) ov.classList.remove('show');
   }
 
-  /** o: { clientSecret, publishableKey, sessionId, title, price, note, onDone(sessionId) } */
-  async function open(o) {
-    const StripeCtor = await loadStripe();   // rejects: the caller falls back to the hosted page
-    teardown();                              // Stripe allows one embedded checkout at a time
-    $('co-title').textContent = o.title || 'Checkout';
-    $('co-price').textContent = o.price || '';
-    $('co-note').textContent = o.note || '';
+  const esc = (t) => String(t == null ? '' : t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  let opts = null;
+
+  /* Step 1, the agreement (2026-10-11, the audit): what is being bought, the
+     renewal terms in plain words, and a box the customer ticks for the Terms
+     of Service (and, on a plan, the automatic renewal) before any Checkout
+     session exists. The function refuses a checkout without it and records
+     the version and the time on the session and the account. */
+  function showConsent(o) {
+    $('co-features').innerHTML = (o.features || []).map((f) => '<li>' + esc(f) + '</li>').join('');
+    $('co-terms').textContent = o.terms || '';
+    $('co-agree-text').innerHTML = o.plan
+      ? 'I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms of Service</a>, including the automatic renewal above, and I have read the <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.'
+      : 'I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms of Service</a> and I have read the <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.';
+    $('co-agree').checked = false;
+    $('co-go').disabled = true;
+    $('co-go').textContent = 'Continue to secure payment';
+    $('co-err').textContent = '';
+    $('co-consent').hidden = false;
+    $('co-loading').hidden = true;
+  }
+
+  /* Step 2: the session (asked for only now, with the agreement), then
+     Stripe's form mounted here; the hosted page when the function answers a
+     URL (no publishable key) or Stripe.js cannot load. */
+  async function proceed() {
+    const o = opts;
+    if (!o || !$('co-agree').checked) return;
+    $('co-go').disabled = true;
+    $('co-go').textContent = 'Preparing secure payment…';
+    $('co-err').textContent = '';
+    let j;
+    try { j = await o.start(); }
+    catch (e) {
+      if (o.onError && o.onError(e)) { close(); return; }
+      $('co-err').textContent = e.message || 'Checkout could not start. Nothing was charged.';
+      $('co-go').disabled = false;
+      $('co-go').textContent = 'Try again';
+      return;
+    }
+    if (!j.clientSecret) { location.href = j.url; return; }
+    $('co-consent').hidden = true;
     $('co-loading').hidden = false;
-    $('co-overlay').classList.add('show');
-    const stripe = StripeCtor(o.publishableKey);
+    let StripeCtor;
+    try { StripeCtor = await loadStripe(); }
+    catch (e) {
+      console.warn('embedded checkout:', e);
+      try { location.href = await o.hosted(); } catch (e2) { $('co-loading').hidden = true; $('co-consent').hidden = false; $('co-err').textContent = 'Secure payment could not load. Nothing was charged. Try again.'; $('co-go').disabled = false; $('co-go').textContent = 'Try again'; }
+      return;
+    }
+    teardown();                              // Stripe allows one embedded checkout at a time
+    const stripe = StripeCtor(j.publishableKey);
     const checkout = await stripe.initEmbeddedCheckout({
-      fetchClientSecret: () => Promise.resolve(o.clientSecret),
+      fetchClientSecret: () => Promise.resolve(j.clientSecret),
       onComplete: () => {
         close();
-        if (typeof o.onDone === 'function') o.onDone(o.sessionId);
+        if (typeof o.onDone === 'function') o.onDone(j.sessionId);
       },
     });
     current = checkout;
@@ -76,10 +123,25 @@
     $('co-loading').hidden = true;
   }
 
+  /** o: { title, price, note, features[], terms, plan (bool), start() → the
+   *  /api/checkout answer, hosted() → a hosted Checkout URL, onDone(sessionId),
+   *  onError(e) → true when handled (the dialog closes) } */
+  function open(o) {
+    teardown();
+    opts = o;
+    $('co-title').textContent = o.title || 'Checkout';
+    $('co-price').textContent = o.price || '';
+    $('co-note').textContent = o.note || '';
+    showConsent(o);
+    $('co-overlay').classList.add('show');
+  }
+
   function bind() {
     const ov = $('co-overlay');
     if (!ov) return;
     $('co-x').onclick = close;
+    $('co-agree').onchange = (e) => { $('co-go').disabled = !e.target.checked; };
+    $('co-go').onclick = proceed;
     ov.addEventListener('mousedown', (e) => { if (e.target === ov) close(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && ov.classList.contains('show')) close(); });
   }

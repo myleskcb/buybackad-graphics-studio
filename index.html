@@ -1059,7 +1059,14 @@
       <button class="bggen-x" id="co-x" type="button" aria-label="Close checkout">✕</button>
     </div>
     <div class="co-body">
-      <div class="co-loading" id="co-loading"><span class="bggen-spin" aria-hidden="true"></span> Loading secure payment…</div>
+      <div class="co-consent" id="co-consent">
+        <ul class="co-features" id="co-features"></ul>
+        <p class="co-terms" id="co-terms"></p>
+        <label class="co-agree"><input type="checkbox" id="co-agree"> <span id="co-agree-text"></span></label>
+        <div class="co-err" id="co-err" role="alert"></div>
+        <button class="btn btn-primary co-go" id="co-go" type="button" disabled>Continue to secure payment</button>
+      </div>
+      <div class="co-loading" id="co-loading" hidden><span class="bggen-spin" aria-hidden="true"></span> Loading secure payment…</div>
       <div id="co-mount"></div>
     </div>
     <div class="co-foot">Payments are processed by Stripe; your card details never touch our servers. Cancel any time from Manage billing.</div>

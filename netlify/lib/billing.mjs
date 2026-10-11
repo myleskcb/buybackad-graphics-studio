@@ -29,7 +29,13 @@ export const WEBHOOK_EVENTS = [
   'customer.subscription.created',
   'customer.subscription.updated',
   'customer.subscription.deleted',
+  'charge.refunded',   // a refunded credit pack takes its credits back
 ];
+
+/** The terms a customer agrees to at checkout (terms.html carries the same
+ *  date); recorded on the Checkout session, the subscription or the payment,
+ *  and the account, with the time it was given. */
+export const TERMS_VERSION = '2026-10-11';
 /** statuses that keep the plan on: past_due is Stripe still retrying the card */
 const LIVE = new Set(['active', 'trialing', 'past_due']);
 
@@ -250,3 +256,38 @@ export async function verifyEvent(env, store, payload, header) {
   return null;
 }
 export const webhookSecretKey = whKey;
+
+/* ---------- the billing portal ---------- */
+const portalKey = (mode) => 'stripe:portal:' + mode;
+/** Stripe refuses a portal session until a portal configuration exists, and
+ *  a new Stripe account has none until someone saves the portal settings in
+ *  the dashboard. This makes one (once per mode, its id kept in Blobs):
+ *  cancel at the period's end with a reason, the card, the invoices, and the
+ *  billing details (name, email, address, tax ID) a business needs on an
+ *  invoice. Plan changes stay in the studio (/billing/change). */
+export async function ensurePortalConfig(env, store, site) {
+  const mode = stripeMode(env);
+  const have = await store.get(portalKey(mode));
+  if (have) { try { return JSON.parse(have).id; } catch (e) { /* remake it */ } }
+  const c = await stripe(env, 'POST', '/billing_portal/configurations', {
+    business_profile: {
+      headline: 'Graphics Studio by BUYBACK.AD: your plan, card and invoices',
+      privacy_policy_url: site + '/privacy.html',
+      terms_of_service_url: site + '/terms.html',
+    },
+    default_return_url: site + '/?billing=back',
+    features: {
+      customer_update: { enabled: 'true', allowed_updates: ['name', 'email', 'address', 'tax_id'] },
+      invoice_history: { enabled: 'true' },
+      payment_method_update: { enabled: 'true' },
+      subscription_cancel: {
+        enabled: 'true', mode: 'at_period_end',
+        cancellation_reason: { enabled: 'true', options: ['too_expensive', 'missing_features', 'switched_service', 'unused', 'other'] },
+      },
+    },
+  });
+  await store.set(portalKey(mode), JSON.stringify({ id: c.id, ts: Date.now() }));
+  return c.id;
+}
+export const portalConfigKey = portalKey;
+

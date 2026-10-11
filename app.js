@@ -6750,39 +6750,42 @@ async function startCheckout(what){
     showPayResult(true, what.plan);
     return;
   }
-  try {
-    /* On the site when the function can embed it (checkout-embed.js; it
-       needs STRIPE_PUBLISHABLE_KEY), Stripe's hosted page otherwise, and the
-       hosted page too if Stripe's script cannot load here. */
-    const embed = !!window.PGFX_CHECKOUT;
-    const j = await api('/checkout', embed ? Object.assign({ embedded: true }, what) : what);
-    if (j.clientSecret && embed){
-      const p = what.plan ? PLANS[what.plan] : null, k = what.pack ? PACKS[what.pack] : null;
-      const iv = what.interval === 'year' ? 'year' : 'month';
-      try {
-        await window.PGFX_CHECKOUT.open({
-          clientSecret: j.clientSecret, publishableKey: j.publishableKey, sessionId: j.sessionId,
-          title: p ? 'Graphics Studio ' + p.label : k.label,
-          price: p ? usd(p.price[iv]) + (iv === 'year' ? ' a year' : ' a month') : usd(k.price),
-          note: p ? 'Cancel any time.' : 'Once. Bought credits never expire.',
-          onDone: (sid) => finishCheckout(sid),
-        });
-        return;
-      } catch (e){
-        console.warn('embedded checkout:', e);
-        const h = await api('/checkout', what);
-        location.href = h.url;
-        return;
-      }
-    }
-    location.href = j.url; // Stripe-hosted checkout page
-  } catch (e){
-    // The function answers 503 "Billing is not enabled yet" until the Stripe
-    // key is set; say that in words a customer can act on.
-    if (/not enabled/i.test(e.message)) notOpenYet();
-    else if (e.status === 409 && e.data && e.data.switch) switchPlan(what.plan, what.interval);
-    else toast('Checkout failed: ' + e.message, 'error');
+  const p = what.plan ? PLANS[what.plan] : null, k = what.pack ? PACKS[what.pack] : null;
+  const iv = what.interval === 'year' ? 'year' : 'month';
+  const terms = p
+    ? 'Renews automatically every ' + iv + ' at ' + usd(p.price[iv]) + ' (plus any applicable tax) until you cancel. Cancel any time in Plan & billing, then Manage billing; your plan stays on until the end of the period you paid for. Charges for a period already started are not refunded.'
+    : 'One-time payment of ' + usd(k.price) + ' (plus any applicable tax). Bought credits never expire while your account exists and are used after your plan\'s monthly credits. Credits already used are not refunded.';
+  /* the function answers 503 "Billing is not enabled yet" until the Stripe
+     key is set, 409 when the account already has a plan; said in words a
+     customer can act on */
+  const onError = (e) => {
+    if (/not enabled/i.test(e.message)){ notOpenYet(); return true; }
+    if (e.status === 409 && e.data && e.data.already){ account = e.data.user; syncAcctUI(); showPayResult(true, account.plan); return true; }
+    if (e.status === 409 && e.data && e.data.switch){ switchPlan(what.plan, what.interval); return true; }
+    return false;
+  };
+  const ask = (embedded) => api('/checkout', Object.assign({ consent: true }, embedded ? { embedded: true } : {}, what));
+  /* The agreement first, in the site's own dialog (checkout-embed.js), then
+     Stripe's form inside it when the function can embed it
+     (STRIPE_PUBLISHABLE_KEY), Stripe's hosted page otherwise. */
+  if (window.PGFX_CHECKOUT){
+    window.PGFX_CHECKOUT.open({
+      title: p ? 'Graphics Studio ' + p.label : k.label,
+      price: p ? usd(p.price[iv]) + (iv === 'year' ? ' a year' : ' a month') : usd(k.price),
+      note: p ? 'Cancel any time.' : 'Once. Never expires.',
+      features: p ? planFeats(what.plan) : [fmtN(k.credits) + ' AI credits for AI backgrounds', 'Never expire while your account exists', "Used after your plan's monthly credits"],
+      terms, plan: !!p,
+      start: () => ask(true),
+      hosted: async () => (await ask(false)).url,
+      onDone: (sid) => finishCheckout(sid),
+      onError,
+    });
+    return;
   }
+  // the dialog did not load: the same agreement, asked plainly
+  if (!confirm(terms + '\n\nBy continuing you agree to the Terms of Service (terms.html). Continue to secure payment?')) return;
+  try { location.href = (await ask(false)).url; }
+  catch (e){ if (!onError(e)) toast('Checkout failed: ' + e.message, 'error'); }
 }
 /* a paid account moves to another plan or period on its subscription,
    prorated: the difference is charged (or credited) today */

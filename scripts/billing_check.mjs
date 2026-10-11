@@ -167,7 +167,27 @@ globalThis.fetch = async (input, init = {}) => {
     }
     return reply(200, sub);
   }
-  if (method === 'POST' && path === '/billing_portal/sessions') return reply(200, { url: 'https://billing.stripe.test/' + body.customer });
+  if (method === 'POST' && (m = path.match(/^\/checkout\/sessions\/(.+)\/expire$/))) {
+    const cs = S.sessions.get(m[1]);
+    if (!cs || cs.status !== 'open') return reply(400, { error: { message: 'session is not open' } });
+    cs.status = 'expired'; S.expired = (S.expired || 0) + 1; return reply(200, cs);
+  }
+  if (method === 'POST' && path === '/billing_portal/configurations') {
+    const c = { id: id('bpc'), mode, features: body.features, business_profile: body.business_profile };
+    S.portalConfigs = S.portalConfigs || new Map(); S.portalConfigs.set(c.id, c); return reply(200, c);
+  }
+  if (method === 'POST' && path === '/billing_portal/sessions') {
+    // a Stripe account where nobody has saved the portal settings refuses a session without a configuration
+    if (S.noPortalDefault && !(body.configuration && S.portalConfigs && S.portalConfigs.has(body.configuration))) {
+      return reply(400, { error: { message: 'No configuration provided and your test mode default configuration has not been created. Provide a configuration or create your default by saving your customer portal settings in test mode.' } });
+    }
+    if (body.customer && !S.customers.has(mode + ':' + body.customer)) return missing('customer: ' + body.customer);
+    return reply(200, { url: 'https://billing.stripe.test/' + body.customer });
+  }
+  if (method === 'GET' && (m = path.match(/^\/payment_intents\/(.+)$/))) {
+    const pi = (S.intents || new Map()).get(m[1]);
+    return pi ? reply(200, pi) : missing('payment_intent');
+  }
   return reply(400, { error: { message: 'stand-in Stripe does not know ' + method + ' ' + path } });
 };
 
@@ -178,6 +198,10 @@ function pay(csId) {
   cs.status = 'complete'; cs.payment_status = 'paid';
   if (!cs.customer) { cs.customer = id('cus'); S.customers.set(cs.smode + ':' + cs.customer, { id: cs.customer }); }
   if (cs.mode === 'subscription') cs.subscription = subFor(cs, cs.smode).id;
+  if (cs.mode === 'payment' && !cs.payment_intent) {   // the payment, with the metadata Checkout copies onto it
+    const pi = { id: id('pi'), metadata: (cs.payment_intent_data && cs.payment_intent_data.metadata) || {} };
+    S.intents = S.intents || new Map(); S.intents.set(pi.id, pi); cs.payment_intent = pi.id;
+  }
   return cs;
 }
 
@@ -275,7 +299,7 @@ const setUser = (u) => store.get('pgfx-users').set('u:' + u.email, JSON.stringif
 /* ---------- 3. Stripe off ---------- */
 const buyer = await signup('buyer@x.example');
 {
-  const r = await hit('POST', '/checkout', { plan: 'pro' }, buyer);
+  const r = await hit('POST', '/checkout', { consent: true, plan: 'pro' }, buyer);
   ok(r.status === 503 && /not enabled/.test(r.json.error), 'Stripe off: checkout says billing is not enabled');
 }
 
@@ -284,7 +308,7 @@ env.STRIPE_SECRET = 'sk_test_abc';
 env.SITE_URL = 'https://studio.example';
 let csPro;
 {
-  const r = await hit('POST', '/checkout', { plan: 'pro', interval: 'year' }, buyer);
+  const r = await hit('POST', '/checkout', { consent: true, plan: 'pro', interval: 'year' }, buyer);
   ok(r.status === 200 && /^https:\/\/checkout\.stripe\.test\//.test(r.json.url), 'checkout answers a Stripe URL');
   csPro = [...S.sessions.values()].pop();
   const price = S.prices.get(csPro.line_items[0].price);
@@ -301,15 +325,15 @@ let csPro;
   /* Embedded Checkout (checkout-embed.js): only with a publishable key of
      the secret's mode, and only when the caller asks */
   const emb = await signup('embed@x.example');
-  let er = await hit('POST', '/checkout', { plan: 'basic', interval: 'month', embedded: true }, emb);
+  let er = await hit('POST', '/checkout', { consent: true, plan: 'basic', interval: 'month', embedded: true }, emb);
   ok(er.status === 200 && er.json.url && !er.json.clientSecret, 'embedded: no publishable key, the hosted page as before');
   env.STRIPE_PUBLISHABLE_KEY = 'pk_live_nope';
-  er = await hit('POST', '/checkout', { plan: 'basic', interval: 'month', embedded: true }, emb);
+  er = await hit('POST', '/checkout', { consent: true, plan: 'basic', interval: 'month', embedded: true }, emb);
   ok(er.status === 200 && er.json.url && !er.json.clientSecret, 'embedded: a live publishable key with a test secret, the hosted page');
   env.STRIPE_PUBLISHABLE_KEY = 'pk_test_embed';
-  er = await hit('POST', '/checkout', { plan: 'basic', interval: 'month' }, emb);
+  er = await hit('POST', '/checkout', { consent: true, plan: 'basic', interval: 'month' }, emb);
   ok(er.status === 200 && er.json.url, 'embedded: a caller that does not ask gets the hosted page');
-  er = await hit('POST', '/checkout', { plan: 'basic', interval: 'month', embedded: true }, emb);
+  er = await hit('POST', '/checkout', { consent: true, plan: 'basic', interval: 'month', embedded: true }, emb);
   const csE = [...S.sessions.values()].pop();
   ok(er.status === 200 && !er.json.url && er.json.clientSecret === csE.client_secret && er.json.publishableKey === 'pk_test_embed' && er.json.sessionId === csE.id,
     'embedded: the client secret, the publishable key and the session id, no URL');
@@ -323,7 +347,7 @@ let csPro;
 
   const n = S.prices.size, h = S.hooks.size;
   billing.forgetPrices();
-  await hit('POST', '/checkout', { plan: 'pro', interval: 'year' }, buyer);
+  await hit('POST', '/checkout', { consent: true, plan: 'pro', interval: 'year' }, buyer);
   ok(S.prices.size === n && S.hooks.size === h, 'a second checkout reuses the price and the webhook');
 
   pay(csPro.id);
@@ -334,7 +358,7 @@ let csPro;
     'the return confirms Pro yearly, 200 credits, without a webhook');
   ok((await hit('POST', '/export/check', { kind: 'video' }, buyer)).status === 200, 'Pro downloads videos');
 
-  const again = await hit('POST', '/checkout', { plan: 'business', interval: 'month' }, buyer);
+  const again = await hit('POST', '/checkout', { consent: true, plan: 'business', interval: 'month' }, buyer);
   ok(again.status === 409 && again.json.switch === true, 'a second plan checkout is refused: switch instead');
 
   const sw = await hit('POST', '/billing/change', { plan: 'business', interval: 'month' }, buyer);
@@ -365,7 +389,7 @@ let csPro;
   ok(wh.status === 200 && userBlob('buyer@x.example').plan === 'free', 'a signed webhook ends the plan');
 
   // a fresh plan, then its period runs out with no webhook: read at sign in
-  const r2 = await hit('POST', '/checkout', { plan: 'pro', interval: 'month' }, buyer);
+  const r2 = await hit('POST', '/checkout', { consent: true, plan: 'pro', interval: 'month' }, buyer);
   ok(r2.status === 200, 'after a cancel the account can check out again');
   const cs2 = pay([...S.sessions.values()].pop().id);
   ok(cs2.customer && cs2.customer === userBlob('buyer@x.example').stripeCustomer, 'the second checkout reuses the Stripe customer');
@@ -381,7 +405,7 @@ let csPro;
 /* packs */
 {
   const t = await signup('packs@x.example');
-  const r = await hit('POST', '/checkout', { pack: 'credits100' }, t);
+  const r = await hit('POST', '/checkout', { consent: true, pack: 'credits100' }, t);
   const cs = [...S.sessions.values()].pop();
   ok(r.status === 200 && cs.mode === 'payment' && S.prices.get(cs.line_items[0].price).unit_amount === 900 && cs.customer_creation === 'always' && !cs.allow_promotion_codes,
     'a pack is a one-off payment of $9, a customer made, no promotion codes');
@@ -398,12 +422,76 @@ let csPro;
   ok(after.left === 0 && after.bought === 99, "bought credits are spent after the month's 5");
 }
 
+/* the checkout audit (2026-10-11) */
+{
+  const t = await signup('audit@x.example');
+  // the agreement: required, then recorded on the session, the subscription and the account
+  const no = await hit('POST', '/checkout', { plan: 'basic', interval: 'month' }, t);
+  ok(no.status === 400 && no.json.consent === true && /Terms of Service/.test(no.json.error), 'audit: no checkout without agreeing to the Terms');
+  await hit('POST', '/checkout', { consent: true, plan: 'basic', interval: 'month' }, t);
+  const a1 = [...S.sessions.values()].pop();
+  const tv = billing.TERMS_VERSION;
+  ok(a1.metadata.terms === tv && /^\d{4}-\d\d-\d\dT/.test(a1.metadata.consent_at) && a1.subscription_data.metadata.terms === tv
+    && userBlob('audit@x.example').consent.terms === tv && userBlob('audit@x.example').consent.for === 'basic_month',
+    'audit: the agreement (terms ' + tv + ', the time) is on the session, the subscription and the account');
+  ok(a1.tax_id_collection.enabled === 'true' && /^Renews automatically every month at \$25 plus any tax until you cancel/.test(a1.custom_text.submit.message) && !a1.automatic_tax,
+    'audit: a business can add its tax ID; the renewal terms sit by the pay button; no Stripe Tax unless switched on');
+  // one open checkout per account: a second one expires the first
+  const exp0 = S.expired || 0;
+  await hit('POST', '/checkout', { consent: true, plan: 'pro', interval: 'month' }, t);
+  const a2 = [...S.sessions.values()].pop();
+  ok(a1.status === 'expired' && (S.expired || 0) === exp0 + 1 && a2.status === 'open' && userBlob('audit@x.example').checkout.id === a2.id,
+    'audit: a second checkout expires the first, so two subscriptions cannot both be paid');
+  // the first one paid but never seen here: applied, not sold again
+  pay(a2.id);
+  const a3 = await hit('POST', '/checkout', { consent: true, plan: 'business', interval: 'month' }, t);
+  ok(a3.status === 409 && a3.json.already === true && a3.json.user.plan === 'pro' && userBlob('audit@x.example').plan === 'pro',
+    'audit: a paid checkout not yet confirmed is applied instead of selling a second plan (' + a3.status + ')');
+  // Stripe Tax when it is switched on
+  env.STRIPE_TAX = 'on';
+  const tx = await signup('tax@x.example');
+  await hit('POST', '/checkout', { consent: true, pack: 'credits100' }, tx);
+  const p1 = [...S.sessions.values()].pop();
+  ok(p1.automatic_tax && p1.automatic_tax.enabled === 'true' && p1.invoice_creation.enabled === 'true' && /100 AI credits/.test(p1.invoice_creation.invoice_data.description)
+    && /^One-time payment for 100 AI credits/.test(p1.custom_text.submit.message), 'audit: STRIPE_TAX=on adds tax; a pack gets an invoice and its one-time terms');
+  delete env.STRIPE_TAX;
+  // a customer deleted at Stripe: checkout as new, the portal says so
+  const ghost = userBlob('tax@x.example'); ghost.stripeCustomer = 'cus_deleted'; ghost.stripeMode = 'test'; setUser(ghost);
+  const g1 = await hit('POST', '/checkout', { consent: true, pack: 'credits100' }, tx);
+  ok(g1.status === 200 && !userBlob('tax@x.example').stripeCustomer && [...S.sessions.values()].pop().customer_email === 'tax@x.example',
+    'audit: a customer deleted at Stripe is forgotten and checkout goes on (' + g1.status + ')');
+  // the billing portal on a Stripe account nobody has set up: it makes its own configuration, once
+  pay([...S.sessions.values()].pop().id);
+  await hit('POST', '/checkout/confirm', { session_id: [...S.sessions.values()].pop().id }, tx);
+  S.noPortalDefault = true;
+  const pt = await hit('POST', '/portal', {}, tx);
+  const cfgs = [...(S.portalConfigs || new Map()).values()];
+  ok(pt.status === 200 && /billing\.stripe\.test\//.test(pt.json.url) && cfgs.length === 1 && cfgs[0].features.subscription_cancel.mode === 'at_period_end'
+    && /\/terms\.html$/.test(cfgs[0].business_profile.terms_of_service_url) && [].concat(cfgs[0].features.customer_update.allowed_updates).includes('tax_id'),
+    'audit: Manage billing works on a fresh Stripe account: cancel at period end, invoices, tax ID (' + pt.status + ' ' + (pt.json && pt.json.error) + ')');
+  await hit('POST', '/portal', {}, tx);
+  ok([...S.portalConfigs.values()].length === 1, 'audit: the portal configuration is made once and reused');
+  S.noPortalDefault = false;
+  // a refunded credit pack takes its credits back, once
+  const before = userBlob('tax@x.example').creditsBought;
+  const paidCs = [...S.sessions.values()].pop();
+  const secret = JSON.parse(store.get('pgfx-users').get('stripe:whsec:test')).secret;
+  const sign = (obj) => { const payload = JSON.stringify(obj), ts = Math.floor(Date.now() / 1000); return [payload, { 'Stripe-Signature': 't=' + ts + ',v1=' + createHmac('sha256', secret).update(ts + '.' + payload).digest('hex') }]; };
+  const refund = { type: 'charge.refunded', data: { object: { id: 'ch_refund1', object: 'charge', refunded: true, payment_intent: paidCs.payment_intent } } };
+  const [rp, rh] = sign(refund);
+  await hit('POST', '/stripe-webhook', rp, null, rh);
+  const [rp2, rh2] = sign(refund);
+  await hit('POST', '/stripe-webhook', rp2, null, rh2);
+  ok(before === 100 && userBlob('tax@x.example').creditsBought === 0, 'audit: a refunded pack takes its 100 credits back, once (' + before + ' to ' + userBlob('tax@x.example').creditsBought + ')');
+  ok(billing.WEBHOOK_EVENTS.includes('charge.refunded'), 'audit: the webhook listens for refunds');
+}
+
 /* a new price in plans.mjs */
 {
   plans.PLANS.pro.price.month = 6500;
   billing.forgetPrices();
   const t = await signup('newprice@x.example');
-  await hit('POST', '/checkout', { plan: 'pro', interval: 'month' }, t);
+  await hit('POST', '/checkout', { consent: true, plan: 'pro', interval: 'month' }, t);
   const cs = [...S.sessions.values()].pop();
   const p = S.prices.get(cs.line_items[0].price);
   const olds = [...S.prices.values()].filter((x) => x.unit_amount === 6000 && x.recurring && x.recurring.interval === 'month');
@@ -416,7 +504,7 @@ let csPro;
 {
   env.STRIPE_SECRET = 'sk_live_abc';
   const u = userBlob('buyer@x.example');
-  await hit('POST', '/checkout', { pack: 'credits100' }, buyer);
+  await hit('POST', '/checkout', { consent: true, pack: 'credits100' }, buyer);
   const cs = [...S.sessions.values()].pop();
   ok(!cs.customer && cs.customer_email === 'buyer@x.example', 'a test-mode customer is not used with live keys');
   ok(S.hooks.size === 2 && [...S.hooks.values()].some((h) => h.mode === 'live'), 'live mode registers its own webhook');
@@ -555,7 +643,15 @@ async function browserPart() {
       await shot(page, 'plans-year-' + w);
       if (w === 390) { await page.context().close(); continue; }
 
-      await Promise.all([page.waitForURL(/checkout=success/, { timeout: 15000 }).catch(() => {}), page.click('#plans-grid .plan-card.hot .plan-btn')]);
+      await page.click('#plans-grid .plan-card.hot .plan-btn');
+      await page.waitForSelector('#co-overlay.show #co-agree');
+      const step1 = await page.evaluate(() => ({ title: document.getElementById('co-title').textContent, terms: document.getElementById('co-terms').textContent,
+        feats: document.querySelectorAll('#co-features li').length, locked: document.getElementById('co-go').disabled, links: [...document.querySelectorAll('#co-agree-text a')].map((a) => a.getAttribute('href')).join() }));
+      ok(step1.title === 'Graphics Studio Pro' && /^Renews automatically every year at \$600/.test(step1.terms) && step1.feats >= 4 && step1.locked && step1.links === 'terms.html,privacy.html',
+        `checkout: the agreement first, renewal terms in words, Continue locked until the box is ticked (${JSON.stringify(step1)})`);
+      await shot(page, 'checkout-consent');
+      await page.check('#co-agree');
+      await Promise.all([page.waitForURL(/checkout=success/, { timeout: 15000 }).catch(() => {}), page.click('#co-go')]);
       await page.waitForSelector('#pay-overlay.show', { timeout: 15000 }).catch(() => {});
       const paid = await page.evaluate(() => ({ title: document.getElementById('pay-title').textContent, sub: document.getElementById('pay-sub').textContent, badge: (document.getElementById('acct-plan') || {}).textContent, url: location.search }));
       ok(paid.title === 'Payment successful!' && /now on Pro/.test(paid.sub) && /video ads/.test(paid.sub) && paid.url === '', `checkout: back from Stripe on Pro (${paid.title} / ${paid.sub})`);
@@ -577,7 +673,11 @@ async function browserPart() {
       ok(userBlob('browser@x.example').plan === 'business', 'the switch to Business went through');
 
       // a pack
-      await Promise.all([page.waitForURL(/checkout=success/, { timeout: 15000 }).catch(() => {}), page.click('.pack-btn')]);
+      await page.click('.pack-btn');
+      await page.waitForSelector('#co-overlay.show #co-agree');
+      ok(/^One-time payment of \$9/.test(await page.locator('#co-terms').textContent()), 'checkout: a pack says one-time, no renewal');
+      await page.check('#co-agree');
+      await Promise.all([page.waitForURL(/checkout=success/, { timeout: 15000 }).catch(() => {}), page.click('#co-go')]);
       await page.waitForSelector('#pay-overlay.show', { timeout: 15000 }).catch(() => {});
       const pk = await page.evaluate(() => ({ title: document.getElementById('pay-title').textContent, sub: document.getElementById('pay-sub').textContent }));
       ok(pk.title === 'Credits added' && /600 AI credits/.test(pk.sub), `a pack comes back as credits (${pk.title}: ${pk.sub})`);
@@ -597,6 +697,9 @@ async function browserPart() {
       await page.waitForSelector('#page-plans.active .plan-card');
       const before = page.url();
       await page.click('#plans-grid .plan-card:nth-child(1) .plan-btn');
+      await page.waitForSelector('#co-overlay.show #co-agree');
+      await page.check('#co-agree');
+      await page.click('#co-go');
       await page.waitForSelector('#co-overlay.show #fake-stripe-pay', { timeout: 15000 }).catch(() => {});
       const dlg = await page.evaluate(() => ({ open: document.getElementById('co-overlay').classList.contains('show'), title: document.getElementById('co-title').textContent,
         price: document.getElementById('co-price').textContent, form: !!document.querySelector('#co-mount #fake-stripe-pay'), loading: !document.getElementById('co-loading').hidden }));
@@ -615,6 +718,10 @@ async function browserPart() {
       await phone.goto(BASE + '/?plans=1', { waitUntil: 'domcontentloaded' });
       await phone.waitForSelector('#page-plans.active .plan-card');
       await phone.click('#plans-grid .plan-card:nth-child(1) .plan-btn');
+      await phone.waitForSelector('#co-overlay.show #co-agree');
+      await shot(phone, 'checkout-consent-390');
+      await phone.check('#co-agree');
+      await phone.click('#co-go');
       await phone.waitForSelector('#co-overlay.show #fake-stripe-pay', { timeout: 15000 }).catch(() => {});
       const fit = await phone.evaluate(() => { const r = document.querySelector('#co-overlay .modal').getBoundingClientRect(); return { over: document.documentElement.scrollWidth - innerWidth, w: Math.round(r.width), bottom: Math.round(r.bottom), h: innerHeight }; });
       ok(fit.over <= 0 && fit.w <= 390 && fit.bottom <= fit.h, `embedded checkout at 390 px: no sideways scroll, on screen (${JSON.stringify(fit)})`);
