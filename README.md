@@ -20,6 +20,17 @@ served). Accounts, download counts and the daily counters live in Netlify
 Blobs (store `pgfx-users`). The Cloudflare Worker at `worker.js` is the
 retired first version: not deployed, 404'd at the edge, kept for history.
 
+**Two Netlify projects, two sets of settings.** `buybackad-finished-copy`
+(the one presented, https://buybackad-finished-copy.netlify.app) is linked
+to this repo but builds from the branch `claude/fervent-pascal-w6mthe`, not
+`main`; the `sync-finished-copy` job in `.github/workflows/deploy.yml` moves
+that branch to `main` on every push, so a push to `main` is live there in
+about 30 seconds, no secret needed. `buybackad-graphics-studio` is deployed by
+the same workflow's `deploy` job, which needs the repository **Secrets**
+(not Variables) `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID`. Each project has
+its own environment variables below: a key set on one is not on the other,
+and a changed variable reaches the functions only with the next deploy.
+
 Set these in Netlify (Project configuration → Environment variables), then
 redeploy. `.env.example` is the local copy for `netlify dev`.
 
