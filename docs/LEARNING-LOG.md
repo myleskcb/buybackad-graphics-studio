@@ -4582,3 +4582,30 @@ RESUME HERE:
   0. `pgfx_video_sound` still has no control anywhere (the 2026-10-07 entry
      found it); if the owner wants one, the place is Create video's pop-up
      (`previewVideo`), not a row on step 3.
+
+## 2026-10-11 — upload to the library, ported onto the outbox; the About table on a phone (claude/exciting-thompson-xtdq5g)
+
+Asked: "fix", of what was left: the site not updating, the library upload
+from 2026-10-07 left unmerged, and the About page scrolling sideways.
+
+Done:
+  - ⬆ Upload a photo or video, Add video and Remove video in the Library
+    dialog, ported from `claude/laughing-bardeen-uyh2xt` ab9e1fc5 onto
+    today's outbox (the dialog had changed too much to merge). An upload is
+    offered like every save; a video needs Pro or Business, and a refused
+    one takes its photo off again, so nothing is left half-saved.
+  - about.html's plans table scrolls inside its own box on a phone, the row
+    labels pinned; no page on pages.css scrolls sideways at 360 or 390.
+  - The site: `main` reached `claude/fervent-pascal-w6mthe` twice and
+    Netlify published neither (still 0bafc3be). The cloud session cannot
+    reach any Netlify host, so the deploy list is the owner's to read.
+
+Found:
+  - A test that waits for words the page already shows passes early: the
+    upload row says "(Pro and Business)", and the first refusal test matched
+    it while the upload was at 20%. Wait for the refusal's own toast.
+  - The outbox check counted every input on a card as a switch; Add video's
+    hidden file picker is not one.
+
+Checked: ad_library_check no failures (upload, Add video, Remove video, a
+free account's refused video).
