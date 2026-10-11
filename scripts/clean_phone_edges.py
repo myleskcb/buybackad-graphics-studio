@@ -3,8 +3,11 @@
 The iPhone 16, 16e and 17e backs, and the 17 finishes painted on the 16 White,
 carry their frame's reflections as a band of dark dashes round the edge, and their
 side buttons as a grey stretch cutting the lines of the rim; the 17 and 18 Pro
-backs do neither and are left alone. Run before scripts/bake_extra_phones.py,
-which builds the 14 and 15 on the 16 White (and cleans every back it bakes).
+backs do neither and are left alone. Run once, on the backs as photographed
+(git show 5348890d:motion/phones/<id>.webp has them): a stretch already mended
+reads as plain rim, so the end of one left behind is not found a second time.
+Run before scripts/bake_extra_phones.py, which builds the 14 and 15 on the 16
+White (and cleans every back it bakes).
 
 Run:  python3 scripts/clean_phone_edges.py   (needs pillow, numpy, scipy)
 """

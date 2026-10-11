@@ -41,7 +41,7 @@ def mend_sides(im, depth=12, run=8):
             rr = np.flatnonzero(lab == i)
             if len(rr) < run:
                 continue
-            y0, y1 = max(rr[0] - 3, 0), min(rr[-1] + 3, h - 1)
+            y0, y1 = max(rr[0] - 14, 0), min(rr[-1] + 14, h - 1)   # with the button's end caps, ~9 rows out
             above, below = prof[y0 - 1], prof[y1 + 1]
             for y in range(y0, y1 + 1):
                 f = (y - y0 + 1) / (y1 - y0 + 2)
