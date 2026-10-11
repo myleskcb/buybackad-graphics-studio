@@ -1297,8 +1297,14 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .plans-packs p b{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--text)}
 .plans-pack-row{display:flex;gap:10px;flex-wrap:wrap}
 .pack-btn{flex:1 1 180px;display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:14px;padding:13px 16px;cursor:pointer;font:600 14px/1 var(--ui);min-height:48px}
+.packs-facts{list-style:none;margin:0 0 16px;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:12px 24px}
+@media (max-width:640px){.packs-facts{grid-template-columns:1fr}}
+.packs-facts li{font:500 13px/1.5 var(--ui);color:var(--text-2)}
+.packs-facts li b{display:block;font:700 13px/1.3 var(--ui);color:var(--text);margin-bottom:2px}
 .pack-btn b{font-weight:700}
-.pack-btn span{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--text-2)}
+.pack-what{display:flex;flex-direction:column;gap:5px;text-align:left}
+.pack-what small{font:500 12px/1.2 var(--ui);color:var(--text-2)}
+.pack-price{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--text-2);white-space:nowrap}
 .pack-btn:hover{border-color:var(--accent)}
 .ai-credits{font:500 12px/1.45 var(--ui);color:var(--text-dim);margin-top:6px}
 .ai-more{border:0;background:none;color:var(--accent);font:650 12px/1 var(--ui);text-decoration:underline;cursor:pointer;padding:4px 2px}
