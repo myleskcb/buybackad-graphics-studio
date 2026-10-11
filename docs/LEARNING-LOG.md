@@ -4081,7 +4081,9 @@ Found:
     face as they landed. The "Other photo" (rule 110) now often shows the
     screens, the moment that looks most different.
 
+Owner, over the side-by-side clip of the three: "that is much better. I
+like all of it." All three stay in the shuffle; put on `main` the same day.
+
 RESUME HERE:
-  0. Owner's look at the three moves on the live maker; amplitudes are IDLE
-     in motion/engine.js (turn 3.2 s, rise 4.5% of a phone, pulse 7%).
-  1. Not on `main` yet: branch claude/sleepy-darwin-1bmboq.
+  0. The amplitudes are IDLE in motion/engine.js (turn 3.2 s, rise 4.5% of
+     a phone, pulse 7%), should the owner want any move bigger or calmer.
