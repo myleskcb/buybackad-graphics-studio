@@ -19,6 +19,13 @@
    4. What is offered by hand: each groove added on 2026-10-02 and -03, a tune on
       each lead added then (and the warm synth lead), and each mix tone, render.
    5. 30 shuffled looks render (about two in three draw a recording).
+   6. No sad music, and confetti is heard (owner, 2026-10-11: a confetti ad played the
+      Moonlight Sonata, with a pop over its number that sounded like a voice memo starting):
+      1000 shuffles never play a retired piece (catalog.js SOUND_ALIASES, track and melody)
+      and every one with falling confetti plays the party popper, none without it; a look
+      saved with a retired piece plays its stand-in; the maker offers none of them; and a
+      confetti look renders with the popper heard over its number (its soundtrack there
+      unlike the same look's with the plain pop).
 
    usage: npx http-server -p 8899 -s .   (or python3 -m http.server 8899)
           CHROME=/path/to/chrome node scripts/motion_music_check.mjs
@@ -53,7 +60,7 @@ async function inPage(fn, arg, { block = null } = {}) {
       try {
         const buf = await A.renderSoundtrack(ad);
         let pk = 0; for (let c = 0; c < buf.numberOfChannels; c++) { const d = buf.getChannelData(c); for (let i = 0; i < d.length; i++) pk = Math.max(pk, Math.abs(d[i])); }
-        return { buf, hit: ad.tl.hit, lufs: A.loudness(buf), peak: 20 * Math.log10(pk + 1e-12) };
+        return { buf, hit: ad.tl.hit, number: ad.tl.number, lufs: A.loudness(buf), peak: 20 * Math.log10(pk + 1e-12) };
       } catch (e) { return { error: String(e && e.message || e).slice(0, 200) }; }
     };
     // how different two soundtracks are after the hit: the RMS of their difference against the first's
@@ -85,6 +92,7 @@ const strip = m => m.error ? m : { lufs: m.lufs, peak: m.peak };
   const { res, errors } = await inPage(async () => {
     const { C, look, sound, apart } = window.__mc, out = [];
     for (const [i, t] of C.TRACKS.entries()) {
+      if (C.SOUND_ALIASES.track[t.id]) continue;     // retired: part 6 hears its stand-in
       const over = { sound_kit: 'house', track: t.id }, st = look(700 + i, over, ['sound_kit', 'track']);
       const plain = await sound({ ...st, track: 'none' }), rec = await sound(st);
       out.push({ id: t.id, track: st.track, bpm: st.bpm, rec: rec.error ? rec : { lufs: rec.lufs, peak: rec.peak },
@@ -205,6 +213,57 @@ const strip = m => m.error ? m : { lufs: m.lufs, peak: m.peak };
   for (const r of res) console.log('  ' + judge(`${r.seed} ${r.kit.padEnd(11)} ${r.track.padEnd(20)} ${r.tone.padEnd(6)}`, r.m, r.music));
   console.log(`  ${res.filter(r => r.track !== 'none').length} of 30 play a real recording`);
   expect(!errors.length, `the shuffle page logged errors: ${errors.join(' | ')}`);
+}
+
+// 6. no sad music, and confetti is heard
+{
+  const { res, errors } = await inPage(async () => {
+    const { C, look, sound, apart } = window.__mc, A = C.SOUND_ALIASES;
+    const sad = [], stray = [];
+    let confetti = 0, popper = 0;
+    for (let s = 1; s <= 1000; s++) {
+      const st = look(s);
+      if (A.track[st.track] || A.melody[st.melody]) sad.push(`${s}: ${st.track}/${st.melody}`);
+      if (st.overlay === 'confetti') { confetti++; if (st.number_sfx === 'confetti') popper++; }
+      else if (st.number_sfx === 'confetti') stray.push(`${s}: ${st.overlay}`);
+    }
+    for (const t of C.CLASSICAL_TUNES) if (A.melody[t]) sad.push(`the classics played in place of a holiday tune: ${t}`);
+    const saved = [];
+    for (const k of ['track', 'melody']) for (const [from, to] of Object.entries(A[k])) {
+      const st = look(910, { sound_kit: 'house', track: 'none', [k]: from }, ['sound_kit', 'track', k]);
+      saved.push({ what: `${k} ${from}`, got: st[k], want: to });
+    }
+    const st = look(905, { overlay: 'confetti', sound_kit: 'uplift', track: 'none' }, ['overlay', 'sound_kit', 'track']);
+    const pop = await sound(st), plain = await sound({ ...st, number_sfx: 'pop' });
+    return { sad, stray, confetti, popper, saved, sfx: st.number_sfx, m: pop.error ? pop : { lufs: pop.lufs, peak: pop.peak },
+      apart: pop.buf && plain.buf ? apart(pop.buf, plain.buf, pop.number) : null };
+  });
+  console.log('6. no sad music, and confetti is heard');
+  console.log(`  1000 shuffles: ${res.sad.length} play a retired piece; ${res.popper} of ${res.confetti} with confetti play the popper, ${res.stray.length} without confetti do`);
+  expect(!res.sad.length, `shuffles play a retired piece: ${res.sad.slice(0, 5).join('; ')}`);
+  expect(res.confetti > 0 && res.popper === res.confetti, `${res.confetti - res.popper} of ${res.confetti} confetti looks do not play the popper`);
+  expect(!res.stray.length, `the popper plays with no confetti: ${res.stray.slice(0, 5).join('; ')}`);
+  for (const r of res.saved) {
+    console.log(`  saved with ${r.what.padEnd(18)} plays ${r.got}`);
+    expect(r.got === r.want, `a look saved with ${r.what} plays ${r.got}, not ${r.want}`);
+  }
+  console.log('  ' + judge(`confetti look (${res.sfx})`, res.m) + (res.apart != null ? `, from the number on ${(res.apart * 100).toFixed(0)}% unlike the plain pop` : ''));
+  expect(res.sfx === 'confetti', `a look with confetti locked plays ${res.sfx}, not the popper`);
+  expect(res.apart != null && res.apart > .1, `the popper is not heard over the number (${((res.apart || 0) * 100).toFixed(0)}% unlike the plain pop)`);
+  expect(!errors.length, `the confetti page logged errors: ${errors.join(' | ')}`);
+  // the maker offers no retired piece
+  const p = await browser.newPage(), perr = [];
+  p.on('pageerror', e => perr.push(String(e).slice(0, 300)));
+  await p.goto(BASE + 'motion/index.html', { waitUntil: 'load', timeout: 120000 });
+  await p.waitForFunction(() => document.querySelector('#loading') && document.querySelector('#loading').hidden, { timeout: 120000 });
+  const offered = await p.evaluate(() => Object.fromEntries(['track', 'melody', 'number_sfx'].map(k => [k, [...document.querySelectorAll(`select[data-key=${k}] option`)].map(o => o.value)])));
+  await p.close();
+  const { SOUND_ALIASES } = await import('../motion/catalog.js');
+  const shown = ['track', 'melody'].flatMap(k => offered[k].filter(v => SOUND_ALIASES[k][v]).map(v => `${k} ${v}`));
+  console.log(`  the maker offers ${offered.track.length} recordings and ${offered.melody.length} tunes, ${shown.length} of them retired; the popper ${offered.number_sfx.includes('confetti') ? 'is' : 'is not'} a number sound`);
+  expect(!shown.length, `the maker offers retired pieces: ${shown.join(', ')}`);
+  expect(offered.number_sfx.includes('confetti'), 'the maker does not offer the party popper');
+  expect(!perr.length, `the maker logged errors: ${perr.join(' | ')}`);
 }
 
 await browser.close();

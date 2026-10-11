@@ -5031,3 +5031,50 @@ the most this container's 14 GB holds):
 > Amends rule 95: with a colour theme on, the card's hue is the theme's
 > colours, not one hue; a look the visitor picked is theirs. Rule 95 stands
 > for a card as designed.
+
+## 126. A video ad sounds like a sale: never sad, and nothing in it is a phone going off nearby
+
+Added 2026-10-11. The owner, of a Spanish confetti ad ("COMPRAMOS IPHONES
+USADOS") whose soundtrack was the Moonlight Sonata with a blip over the
+number: "a sad piano song with a iPhone voice memo recording sound randomly
+in the middle of it ... I actually looked around and thought someone around
+me was making a voice memo ... I don't even know [why] I would have a sad
+piano song for any of our ads. It's not likely or conducive of sales." And:
+"some sort of sound effect to corroborate the confetti that is falling down
+from the screen so we can push a happy or upbeat vibe".
+
+**No sad music.** Retired, each playing as an upbeat stand-in
+(`SOUND_ALIASES` in motion/catalog.js): the recordings of the Moonlight
+Sonata (Adagio sostenuto, C sharp minor), Gymnopedie No. 1 ("Lent et
+douloureux") and Fur Elise (A minor), the slow solos by their own markings,
+to Sousa Gone Funk, Aero Groove Evolution and Small Note Boogaloo; and the
+tunes Moonlight, Gymnopedie, Fur Elise and Greensleeves to Ode to Joy, The
+Entertainer, Eine kleine Nachtmusik and Vivaldi's Spring. They stay in
+`OPTIONS`, so a shuffle draws every other look exactly as it did; the maker
+does not offer them, a saved look plays the stand-in, and the classics played
+in place of a holiday tune leave them out. A crude measure of mode and drive
+over the twelve-second clips was tried and dropped: it read the Moonlight as
+E major (its relative major) and swing jazz as pulseless, so the composers'
+markings decided.
+
+**Nothing that sounds like a real phone near the viewer.** The number's
+"pop" was two sine notes rising a fourth with a glide into each, written as
+"the kind a phone makes"; over a quiet piano it is the iPhone's
+start-recording chirp. It is a cork's pop now (a crack, and its body falling
+from an octave over the note). The message ding and the phone buzz are by
+hand only.
+
+**Confetti is heard.** Falling confetti (the overlay, which starts as the
+number lands) plays a party popper as its number sound: a crack, the paper's
+rush, a tambourine's rattle, then up to ten bells tumbling down the key's
+pentatonic scale from under 2.6 kHz, alternating left and right. Harmonise
+sets it on every look with the overlay unless the number sound was picked by
+hand, and takes it off a look without the overlay. The loudest 50 ms over
+the number, music off, one look (seed 905): the popper -19.0 dB, as the
+glockenspiel run (-19.0) and the register (-19.4); the pop -22.0, the two
+bells -20.1; the headline hit in the same renders -9 to -12.
+
+Checked by `scripts/motion_music_check.mjs` part 6: 1000 shuffles play no
+retired piece; 46 of 46 with confetti play the popper and none without it
+does; each retired piece saved in a look plays its stand-in; the maker offers
+none of them.

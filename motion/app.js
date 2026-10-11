@@ -258,7 +258,7 @@ function buildPanel() {
     sec.innerHTML = `<summary>${title}</summary>`;
     for (const k of keys) {
       const row = document.createElement("div"); row.className = "mo-set";
-      const opts = [...new Set(OPTIONS[k])];
+      const opts = [...new Set(OPTIONS[k])].filter(v => !(SOUND_ALIASES[k] && SOUND_ALIASES[k][v]));   // a retired sound is not offered
       row.innerHTML = `<label>${LABELS[k] || k}<select data-key="${k}">${opts.map(v => `<option value="${v}">${labelFor(k, v)}</option>`).join("")}</select></label>
         <button class="mo-lock" data-lock="${k}" aria-pressed="false" title="Lock: keep this when shuffling">&#128275;</button>`;
       sec.appendChild(row);

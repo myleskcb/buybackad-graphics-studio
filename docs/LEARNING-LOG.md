@@ -4130,3 +4130,34 @@ menu, the video maker's link) start hidden and show for an operator account
 account's `onChange` elsewhere, so app.js is not edited for the library.
 The stars, Save to library and the plans' library are unchanged: another
 account can still save, and the server still serves its library.
+
+## 2026-10-11 — no sad music, and confetti you can hear (claude/funny-lamport-1o2xbq)
+
+Asked: the owner, of a confetti ad that played a sad piano piece with "a
+iPhone voice memo recording sound randomly in the middle of it": a more
+upbeat song, and a sound for the falling confetti.
+
+Found:
+  - The confetti overlay starts falling at `tl.number`, the moment the
+    number's sound plays. The default number sound, "pop", was `blip`: two
+    sine notes a fourth apart, each gliding up into its pitch, "the kind a
+    phone makes". Over the quiet Moonlight recording (the bed fell to -24 dB
+    RMS there) it is the start-recording chirp.
+  - The shuffle drew the Moonlight, Gymnopedie and Fur Elise recordings
+    (weights 1, 1 and 0.4 of about 29), Fur Elise and Greensleeves as tunes,
+    and an ordinary ad that drew a holiday tune played one of thirteen
+    classics, Moonlight and Gymnopedie among them.
+
+Done (rule 126): the sad pieces retired through `SOUND_ALIASES` (kept in
+`OPTIONS` so other looks draw as they did, hidden in the panel); `pop`
+re-voiced as a cork pop; a party popper ("confetti", the last number sound,
+weight 0) that harmonise sets wherever confetti falls; the message ding and
+phone buzz by hand only. Before and after clips of the same look were made
+from frames and the mix (scratch only, not committed).
+
+Measured: `motion_music_check.mjs` (with its new part 6) and
+`motion_sound_check.mjs` all clear.
+
+RESUME HERE:
+  0. If the owner wants confetti looks to draw only the brightest music too,
+     the place is harmonise in motion/engine.js, beside the popper rule.
