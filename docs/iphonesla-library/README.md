@@ -40,7 +40,7 @@ The browser never sees the key.
 | `library-picker.js` | the static files | the panel for the listing page: the library's ads, a search, a category. A pick hands the page the ad as a JPEG `File`. |
 | `example_server.py` | reference only | the routes and a demo listing page, standard library, runnable |
 | `test_buybackad_library.py` | the tests | ten checks against a live library (skipped without the env vars) |
-| `autopost_worker.py` | the server's jobs | auto-post and repost from the ad library's public link (below); posts through the shop's own Auto-post |
+| `autopost_worker.py` | the server's jobs | takes the ad library's ads into the site's review, then posts the approved ones through the shop's own Auto-post (below); posts nothing unapproved |
 | `test_autopost.py` | the tests | seven checks of the feed client and the worker against a stand-in library (no network) |
 
 ## Setting it up (the owner, once)
@@ -426,35 +426,41 @@ An ad (an example record):
 
 ### The worker
 
-`autopost_worker.py` does the above with the standard library. It reads the
-link, takes what is due, and calls `post(ad, jpeg_bytes, repost)` for each.
-A `post` with a `video` parameter (`post(ad, jpeg_bytes, repost, video=None)`)
-gets a video ad's clip as bytes too (`BuybackadFeed.video(ad)`; `None` for a
-photo ad); a `post` without one gets the photo alone, as before. It records
-a slot only after `post` returns, so a failed post is tried again on the
-next run. The posted slots live in one small JSON file.
+`autopost_worker.py` does the above with the standard library, review first.
+Each run it reads the link and, for each of today's slots it has not taken:
+
+1. hands an ad it has not seen to `intake(ad, jpeg_bytes, video=None)`, once:
+   the listings site's review, where the title and description maker writes
+   them and a person approves, denies or edits;
+2. asks `approved(ad)`, the site's own answer: approved, and the day's
+   buying-ad share (a little more in aggressive mode) has room for it;
+3. hands an approved ad to `post(ad, jpeg_bytes, repost)` (with a `video`
+   parameter, `post(ad, jpeg_bytes, repost, video=None)` gets a video ad's
+   clip too), and records the slot only after `post` returns, so a failed
+   post is tried again on the next run.
+
+**Nothing is posted without `approved`**: run without it, the worker only
+takes ads into review, and `--post` without `--approved` is refused. The
+slots posted and the ads taken in live in one small JSON file.
 
 ```
 BUYBACKAD_FEED_URL=https://buybackad-graphics-studio.netlify.app/master-library.html?feed=fd_... \
-python3 autopost_worker.py --once --state var/buybackad-autopost.json --post myapp.autopost:post_we_buy_ad
+python3 autopost_worker.py --once --state var/buybackad-autopost.json \
+  --intake myapp.review:take_in_ad --approved myapp.review:is_approved --post myapp.autopost:post_we_buy_ad
 ```
 
 Run it from cron or the app's scheduler every 10 to 15 minutes, or keep it
-running with `--loop 900`. `--dry-run` lists what is due and records nothing;
-`--limit` caps the posts per run (5 by default).
+running with `--loop 900`. `--dry-run` lists what it would take in and post,
+and records nothing; `--limit` caps the posts per run (5 by default).
 
 `post` is the shop's own Auto-post: the same code path a person uses when they
 post a WE BUY ad by hand. It takes the picture as the ad's photo (and, for a
 video ad, the clip as the listing's video, with the photo beside it) and
-writes the listing from `title`, `caption`, `texts`, `products` and
-`category`. It returns the listing's id, which is kept beside the slot. Do not build a second posting
-pipeline. Each marketplace has its own rules on reposting and automation, and
-the shop's daily limits decide how many of the day's slots are posted.
-
-Since 2026-10-11 the worker is the site's to adapt: rather than posting what
-the feed offers straight away, it should bring each new ad into the listings
-site's review (its title and description maker, approve, deny, edit) and post
-only approved ads, within the daily limits, once a day each while `fresh`.
+writes the listing from the title and description approved in the site's
+review. It returns the listing's id, which is kept beside the slot. Do not
+build a second posting pipeline. Each marketplace has its own rules on
+reposting and automation, and the shop's daily limits decide how many of the
+day's slots are posted.
 
 RSS instead of the worker: any RSS reader that takes new items gets each ad
 once a day for its seven days, because each day's slot is a new guid.
@@ -471,9 +477,10 @@ once a day for its seven days, because each day's slot is a new guid.
   (seven slots over three weeks) and not after; it stays listed,
   `fresh: false`. A held ad is never offered.
 - **The worker.** `autopost_worker.py` runs over HTTP against the real
-  function: it posts the due ad once, with its JPEG whole (and a video ad's
-  clip whole, when `post` takes one), and not again on a second run.
-  `test_autopost.py` also passes (eight checks, 2026-10-06).
+  function: `--post` without `--approved` is refused; the ad goes into
+  review once with its picture and clip, nothing is posted until it is
+  approved, then the day's slot is posted once, its JPEG and clip whole.
+  `test_autopost.py` also passes (eleven checks, 2026-10-11).
 - **The studio, in Chromium under the production CSP.** A download offers
   "Save to library". The Library button shows for the owner only. The
   Library dialog shows the saved ad, "offered to iPhones LA daily, day 1 of
@@ -496,7 +503,9 @@ Library → Copy link). From the BUYBACK.AD repo
 (myleskcb/buybackad-graphics-studio), read docs/iphonesla-library/README.md,
 section "Auto-post and repost: the ad library's public link". It is the
 contract. buybackad_library.py (BuybackadFeed) reads it; autopost_worker.py
-is a starting point for the job.
+is the job: plug in intake (into the review queue), approved (the site's
+approval and the day's limit) and post (the existing Auto-post). It posts
+nothing that approved() has not said yes to.
 
 The rules (the owner's):
   - The studio only makes imagery. Every ad saved there is on the link,

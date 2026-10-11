@@ -4171,3 +4171,11 @@ Found:
 Checked: `scripts/ad_library_check.mjs` (router, the real function, iPhones
 LA's worker, its tests, Chromium under the production CSP) and
 `scripts/library_handoff_check.mjs`: no failures.
+
+  Later the same day: the reference worker (docs/iphonesla-library/
+  autopost_worker.py) posted whatever the feed offered, so run as it was it
+  would have posted every saved ad daily with nobody approving. It is review
+  first now: `intake` takes each ad into the site's review once, `approved`
+  is the site's answer (approval and the day's buying-ad share), and nothing
+  is posted without it; `--post` without `--approved` is refused.
+  test_autopost.py has eleven checks; the zip is repacked.

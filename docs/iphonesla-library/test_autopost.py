@@ -10,10 +10,11 @@ import tempfile
 import threading
 import unittest
 
-from autopost_worker import PostedSlots, run_once
+from autopost_worker import PostedSlots, main, run_once
 from buybackad_library import BuybackadFeed, LibraryError
 
 FEED = "fd_" + "A" * 24
+YES = lambda a: True                     # the site's approval check, approving everything
 JPEG = b"\xff\xd8\xff\xe0" + b"\x00" * 2000
 MP4 = b"\x00\x00\x00\x18ftypisom" + b"\x00" * 4000
 
@@ -21,7 +22,7 @@ MP4 = b"\x00\x00\x00\x18ftypisom" + b"\x00" * 4000
 def ad(i, round_=1, hold=None, autopost=True, due="2026-10-05T12:00:00Z", host="", video=False):
     post = None if (hold or not autopost) else {"slot_id": f"ad_{i}@{due}", "due_at": due, "next_at": None, "round": round_}
     return {"id": f"ad_{i}", "title": f"Ad {i}", "category": "phones", "caption": f"We buy {i}", "hold": hold,
-            "autopost": bool(post), "repost_days": 7, "post": post, "kind": "video" if video else "photo",
+            "autopost": bool(post), "repost_days": 1 if post else 0, "post": post, "kind": "video" if video else "photo",
             "image": {"url": f"{host}/api/ads/feed/{FEED}/img/ad_{i}.jpg?v=1", "width": 1080, "height": 1080, "bytes": len(JPEG), "format": "jpg"},
             "video": {"url": f"{host}/api/ads/feed/{FEED}/video/ad_{i}.mp4?v=1", "width": 1080, "height": 1080, "bytes": len(MP4), "format": "mp4", "seconds": 10} if video else None}
 
@@ -80,16 +81,16 @@ class FeedTest(unittest.TestCase):
         posted = []
         post = lambda a, jpeg, repost: posted.append((a["id"], repost, len(jpeg))) or "listing-" + a["id"]
         state = PostedSlots(self.state_path)
-        run_once(self.feed, post, state)
+        run_once(self.feed, post, state, approved=YES)
         self.assertEqual(posted, [("ad_2", False, len(JPEG)), ("ad_1", False, len(JPEG))])
-        run_once(self.feed, post, PostedSlots(self.state_path))      # nothing new is due
+        run_once(self.feed, post, PostedSlots(self.state_path), approved=YES)      # nothing new is due
         self.assertEqual(len(posted), 2)
-        Stand.items[0] = ad(1, round_=2, due="2026-10-12T12:00:00Z", host=self.host)   # its next slot came
-        run_once(self.feed, post, PostedSlots(self.state_path))
+        Stand.items[0] = ad(1, round_=2, due="2026-10-06T12:00:00Z", host=self.host)   # the next day's slot came
+        run_once(self.feed, post, PostedSlots(self.state_path), approved=YES)
         self.assertEqual(posted[-1], ("ad_1", True, len(JPEG)))
         with open(self.state_path) as f:
             slots = json.load(f)["slots"]
-        self.assertEqual(slots["ad_1@2026-10-12T12:00:00Z"]["ref"], "listing-ad_1")
+        self.assertEqual(slots["ad_1@2026-10-06T12:00:00Z"]["ref"], "listing-ad_1")
         self.assertEqual(len(slots), 3)
 
     def test_a_failed_post_is_tried_again(self):
@@ -99,15 +100,15 @@ class FeedTest(unittest.TestCase):
             calls.append(a["id"])
             if len(calls) == 1:
                 raise RuntimeError("marketplace down")
-        out = run_once(self.feed, post, PostedSlots(self.state_path))
+        out = run_once(self.feed, post, PostedSlots(self.state_path), approved=YES)
         self.assertEqual(out[0][0], "failed")
-        run_once(self.feed, post, PostedSlots(self.state_path))
+        run_once(self.feed, post, PostedSlots(self.state_path), approved=YES)
         self.assertEqual(calls, ["ad_2", "ad_1", "ad_2"])
 
     def test_limit_and_dry_run(self):
-        out = run_once(self.feed, lambda *a: None, PostedSlots(self.state_path), limit=1)
+        out = run_once(self.feed, lambda *a: None, PostedSlots(self.state_path), limit=1, approved=YES)
         self.assertEqual([o[0] for o in out], ["posted"])
-        out = run_once(self.feed, lambda *a: 1 / 0, PostedSlots(self.state_path), dry_run=True)
+        out = run_once(self.feed, lambda *a: 1 / 0, PostedSlots(self.state_path), dry_run=True, approved=YES)
         self.assertEqual([o[0] for o in out], ["due"])
         self.assertEqual(len(PostedSlots(self.state_path).slots), 1)
 
@@ -124,12 +125,43 @@ class FeedTest(unittest.TestCase):
         self.assertIsNone(self.feed.video(Stand.items[1]))
         got = []
         post = lambda a, jpeg, repost, video=None: got.append((a["id"], a["kind"], len(jpeg), None if video is None else len(video))) or "listing-" + a["id"]
-        run_once(self.feed, post, PostedSlots(self.state_path))
+        run_once(self.feed, post, PostedSlots(self.state_path), approved=YES)
         self.assertEqual(got, [("ad_6", "photo", len(JPEG), None), ("ad_5", "video", len(JPEG), len(MP4))])
         # a post() written before videos existed still gets the photo, and nothing else
         old = []
-        run_once(self.feed, lambda a, jpeg, repost: old.append((a["id"], len(jpeg))) or 1, PostedSlots(os.path.join(self.dir, "old.json")))
+        run_once(self.feed, lambda a, jpeg, repost: old.append((a["id"], len(jpeg))) or 1, PostedSlots(os.path.join(self.dir, "old.json")), approved=YES)
         self.assertEqual(old, [("ad_6", len(JPEG)), ("ad_5", len(JPEG))])
+
+    def test_nothing_is_posted_before_it_is_approved(self):
+        posted = []
+        post = lambda a, jpeg, repost: posted.append(a["id"])
+        out = run_once(self.feed, post, PostedSlots(self.state_path))             # no approval check at all
+        self.assertEqual(posted, [])
+        self.assertEqual(out, [])
+        out = run_once(self.feed, post, PostedSlots(self.state_path), approved=lambda a: a["id"] == "ad_1")
+        self.assertEqual(posted, ["ad_1"])
+        self.assertEqual([(o[0], o[1]) for o in out], [("waiting", "ad_2"), ("posted", "ad_1")])
+        run_once(self.feed, post, PostedSlots(self.state_path), approved=YES)       # approved later: posted then
+        self.assertEqual(posted, ["ad_1", "ad_2"])
+
+    def test_each_ad_goes_into_review_once(self):
+        taken = []
+
+        def intake(a, jpeg, video=None):
+            taken.append((a["id"], len(jpeg), video))
+            return "review-" + a["id"]
+        run_once(self.feed, lambda *a: None, PostedSlots(self.state_path), intake=intake)
+        self.assertEqual(taken, [("ad_2", len(JPEG), None), ("ad_1", len(JPEG), None)])
+        Stand.items[0] = ad(1, round_=2, due="2026-10-06T12:00:00Z", host=self.host)   # its next day: not taken in again
+        run_once(self.feed, lambda *a: None, PostedSlots(self.state_path), intake=intake)
+        self.assertEqual(len(taken), 2)
+        with open(self.state_path) as f:
+            self.assertEqual(json.load(f)["taken_in"]["ad_1"]["ref"], "review-ad_1")
+
+    def test_post_without_an_approval_check_is_refused(self):
+        with self.assertRaises(SystemExit) as e:
+            main(["--once", "--post", "json:dumps", "--state", self.state_path])
+        self.assertIn("--approved", str(e.exception))
 
     def test_a_reset_link_is_a_clear_error(self):
         gone = BuybackadFeed(f"{self.host}/api/ads/feed/fd_{'B' * 24}")
