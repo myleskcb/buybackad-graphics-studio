@@ -2897,6 +2897,30 @@ siblings share (30 of 56 pass), with nothing for copy, overlap or legibility.
 A theme on these cards repaints the boxes flat (themeScene owns a plate's
 colour); the finish is the card as designed.
 
+**The MacBooks in the photographs** (the owner: "can we apply the same
+effect on the background image?", then of the 11-inch Air on a desk: "this
+MacBook in the background is old design language ... We don't buy so it's
+misrepresenting"). The mac line buys M1 and newer, and two of its three
+photographs showed older or undatable machines: the 2010-2015 11-inch Air,
+and a backlit keyboard close-up whose short function row was used up to the
+M1 Air. They are replaced by a 16-inch M4 Pro (CC0) and an M2 Air (CC BY-SA
+4.0), made exactly as `make_offer_grounds.py` makes a ground (its list
+updated; p90 185 and 200); the M3 Pro stays. All three show a screen, and
+`BG_SCREENS` in mac-wallpapers.js lights it with the card's own screen
+wallpaper (measured corners, the notch through the screen's own map, a
+little dimmer than the product's). Where the photograph's own screen is a
+store page (Apple's art and a price), OFF draws it dark. All seven MacBook
+cards pass the gate on AUTO and on OFF (headline 7.7:1 at the lowest), and
+`every_card_audit.mjs` on them wrote the same holds as before the swap.
+Still on old MacBook photographs: two live library cards on keyboard
+close-ups (bubblePop-jw04-20, slabPoster-jw10-30), whose thumbnails and
+library renders are baked; moving them is the showcase pipeline's job
+(`reground_showcase.mjs`, then rethumb and `render_library_ads.mjs --stale`).
+
+**Every choice on the 56 new cards** (`every_card_audit.mjs --ids`, rule
+101, 44 minutes): 43 voice holds and 1 look hold written for them, no theme
+held, no card held whole, every other row unchanged.
+
 Checked (2026-10-11): `scripts/mac_wallpapers_check.mjs` ok on the 6 offered
 cards with a known screen (11 screen choices each, no new gate failure);
 `ez_theme_audit.mjs --quick` no problems; `designer_audit.mjs` found the
@@ -2924,6 +2948,8 @@ Still open:
 5. **`template-holds.js` predates the flagged pictures** (see Floating above):
    regenerate with `audit_templates.mjs --write` once the owner decides
    whether cards on flagged pictures leave the studio.
+6. **The two library cards on old MacBook keyboards** (see the MacBooks in
+   the photographs, above).
 
 ## AX. 2026-10-10 — a line pushed under a plate, and a phone card that showed an Android (DESIGN-LAW 126, 117)
 

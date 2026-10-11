@@ -28,7 +28,8 @@ GROUNDS = {
     'silver':  ['bg-web/silver-silverware-set-1', 'bg-web/silver-silver-cutlery-1', 'bg-web/silver-silver-jewelry-rings-2'],
     'cars':    ['bg-web/cars-used-car-dealership-lot-1', 'bg-web/trucks-pickup-truck-1', 'bg-web/cars-classic-car-chrome-grille-1'],
     'iphone':  ['bg-web/phones-iphone-15-pro-back-camera-1', 'bg-web/phones-iphone-14-pro-1', 'bg-web/phones-apple-iphone-15-1'],
-    'mac':     ['bg-web/macbook-macbook-on-desk-1', 'bg-web/macbook-macbook-pro-m3-1', 'bg-web/macbook-macbook-air-2'],
+    # M1 and newer only: the line buys nothing older (the owner, 2026-10-11, of an 11-inch Air: "We don't buy so it's misrepresenting")
+    'mac':     ['bg-web/macbook-macbook-pro-16-inch-2', 'bg-web/macbook-macbook-pro-m3-1', 'bg-web/apple-macbook-air-m2-1'],
     # the gaming lines, gaming headsets and monitors: real gamers' rooms (2026-10-11, the owner of the drawn rooms: "too
     # similar of backgrounds and themes", then "We need more relatable gamer style background bedroom photos, so they look
     # clean"): Commons photographs of desk setups and a living room, each in its own colour and light
