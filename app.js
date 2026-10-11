@@ -12683,7 +12683,7 @@ async function deliverVideo(blob, name, photo){
 
 /* The photo that goes with every video. OfferUp takes a video only with a
    photo beside it (owner, 2026-10-03), so each video download brings the ad
-   as a PNG, 1440 on the short side within the plan's cap (photoCap: Free
+   as a JPG (2026-10-11), 1440 on the short side within the plan's cap (photoCap: Free
    stays at its 1080, with the video's watermark). The moment is the video's
    best, measured on its own frames by video-still.js, and it is drawn again
    from a bake made at the photo's own size, so it is never a video frame

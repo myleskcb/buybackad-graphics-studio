@@ -329,7 +329,7 @@
       const r = photo.frames ? await photo.frames : {};
       const list = [photo].concat((r.frames || []).slice(0, 1));
       try {
-        const files = list.map(p => new File([p.blob], p.name, { type: p.blob.type || 'image/png' }));
+        const files = list.map(p => new File([p.blob], p.name, { type: p.blob.type || 'image/jpeg' }));
         if (navigator.canShare && navigator.canShare({ files })){ await navigator.share({ files }); return; }
       } catch (e){ if (e && e.name === 'AbortError') return; }
       for (const p of list){ save(p.blob, p.name); await new Promise(res => setTimeout(res, 350)); }

@@ -89,8 +89,8 @@ for (const where of ['easy', 'editor']){
   }, where, CARD).catch(e => ({ err: String(e) }));
   await new Promise(res => setTimeout(res, 2500));
   const files = readdirSync(DL).filter(f => !before.has(f) && !/crdownload/.test(f));
-  // the video, not its photo (rule 108: every video download saves a PNG beside it)
-  r.where = where; r.file = files.find(f => /\.(mp4|webm)$/.test(f)) || null; r.photo = files.find(f => /\.png$/.test(f)) || null; r.bytes = r.file ? statSync(DL + r.file).size : 0;
+  // the video, not its photo (rule 108: every video download saves a JPG beside it)
+  r.where = where; r.file = files.find(f => /\.(mp4|webm)$/.test(f)) || null; r.photo = files.find(f => /\.jpg$/.test(f)) || null; r.bytes = r.file ? statSync(DL + r.file).size : 0;
   if (r.file){
     const buf = readFileSync(DL + r.file);
     r.decode = await page.evaluate(async (b64) => {

@@ -3675,7 +3675,8 @@ photo because offer requires us to put a photo with any video at and we need
 the HD 1440P version of the ad as a photo so find the best point in the video
 to save". OfferUp takes a video only with a photo beside it.
 
-- **Every video export brings a PNG with it**, under the same export: the
+- **Every video export brings a JPG with it** (a PNG until 2026-10-11, see
+  below), under the same export: the
   studio's Easy Mode and editor (`motionPhoto`, one count for both files in
   `deliverVideo`) and the video maker (`makePhoto` in motion/app.js). A new
   video export path calls one of them, or is not finished.
@@ -3715,7 +3716,7 @@ to save". OfferUp takes a video only with a photo beside it.
   browser can hold a second download back (Chrome asks once per site, a
   phone can drop it), and the studio's only way back was the toast's Save
   photo again, gone in twelve seconds. So in the studio a button,
-  "📷 Download the video's photo", saves the same PNG again from the moment
+  "📷 Download the video's photo", saves the same photo again from the moment
   both files are given until the next video replaces it, a count that went
   through only on Try again included (`VideoHelp.keepPhoto`, from
   `deliverVideo`). In Easy Mode it is right under Download as video, in the
@@ -3728,6 +3729,17 @@ to save". OfferUp takes a video only with a photo beside it.
   ("Its 1440×1440 photo for OfferUp came with it", Save photo again) was a
   195px column with its button hanging off the edge. It is centred by its
   margins now, as wide as it needs up to the screen less 16px a side.
+- **The photo is a JPG, and it downloads on its own too** (added
+  2026-10-11). The owner: "download mp4 and jpg option", then, asked
+  whether the photo with the MP4 should follow, "I think JPG is preferable".
+  `VideoStill.toBlob` writes JPEG at 0.92 for every caller (the maker, the
+  studio, the frames of rule 110): an ad is a photograph and gradients, kept
+  to the eye at 1440×1440 in 0.2 MB, and every ground is filled before it is
+  drawn, so no transparent pixel turns black. The maker has "⬇ Download JPG"
+  beside "⬇ Download MP4": the same photo, same moment and size, without
+  making the video, counted as a photo download (kind "photo"), so every
+  plan has it and Free's is 1080 with the watermark. The library makes its
+  own JPEG from whatever it is given, as before.
 
 ## 109. A card's parts line up: on the middle, or on an edge they share
 
@@ -3835,7 +3847,8 @@ frame" and "more versions".
 
 - **The frames come out of the file**, not out of the engine.
   `VideoStill.frames` reads the finished video back (Mediabunny, vendor/) and
-  saves each frame exactly as the file holds it, at the video's size, as PNG.
+  saves each frame exactly as the file holds it, at the video's size, as a
+  JPG since 2026-10-11 (rule 108; a PNG before).
   A frame drawn again can differ from the one that was encoded (the maker
   keeps its phones from the first settled frame while its rays keep moving),
   and what a platform's thumbnail picker shows is the file. Rule 108's HD
@@ -3868,7 +3881,8 @@ frame" and "more versions".
   photos in the toast, and More photos in the maker's note. The frames are
   read while the video downloads and arrive in the pop-up if it is open.
   `scripts/video_photo_check.mjs` opens it on every run, saves every card, and
-  holds each frame to the same file decoded again: at most 1 level off.
+  holds each frame to the same file decoded again: at most 1 level off as a
+  PNG; as a JPG, 40 dB PSNR or over (47.8 and 47.9 dB measured, 2026-10-11).
 - **A 2x screen measures at 1x** (found doing this). Easy Mode's scene and the
   template thumbnails are never shown on screen, only exported and measured,
   and are now made with `enableRetinaScaling:false`. fabric's default drew them

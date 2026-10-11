@@ -995,7 +995,7 @@ async function download(opts = {}) {
 /* ⬇ Download JPG (owner, 2026-10-11: "download mp4 and jpg option"): the ad
    as a photo alone, without making the video. The same moment and size as the
    photo that comes with every MP4 (makePhoto: the video's best moment, 1440 on
-   its short side), saved as a JPG. A photo is one of the plan's downloads on
+   its short side, a JPG). A photo is one of the plan's downloads on
    every plan, as the studio's are: Free's at 1080 with the watermark. */
 async function downloadJpg() {
   const btn = $("download-jpg"); if (btn.disabled) return; btn.disabled = true;
@@ -1009,7 +1009,7 @@ async function downloadJpg() {
     const st = harmonise({ ...state.style }, state.locked, indexById());
     await loadFonts(fontsFor(st));
     const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
-    const photo = await makePhoto(st, `we-buy-phones-${st.aspect.replace(":", "x")}-${st.seed}.jpg`, Math.min(W0, H0), prog, gate, "image/jpeg");
+    const photo = await makePhoto(st, `we-buy-phones-${st.aspect.replace(":", "x")}-${st.seed}.jpg`, Math.min(W0, H0), prog, gate);
     if (!await gate.count()) { note("Not saved: this plan's downloads are used up."); return; }
     saveVideo(photo.blob, photo.name);
     note(`Saved ${photo.name} (${photo.w}×${photo.h}, ${(photo.blob.size / 1e6).toFixed(1)} MB, the moment at ${photo.t.toFixed(1)} s)` +
@@ -1092,14 +1092,14 @@ function saveVideo(blob, name) {
 
 /* The photo that goes with every video. OfferUp takes a video only with a
    photo beside it (owner, 2026-10-03), so each download brings the ad as a
-   PNG, 1440 on the short side (1440×1440, 1440×1800, 1440×2560, 2560×1440).
+   JPG (owner, 2026-10-11), 1440 on the short side (1440×1440, 1440×1800,
+   1440×2560, 2560×1440).
    The moment is the video's best, measured by video-still.js on a small copy
    of the same look (every size draws the same plan) from the number's arrival
    to the ending, which shows the number alone and is not the ad; it is then
    drawn again at the photo's own size, never a video frame scaled up. Low on
-   memory, it is made at the video's size. type "image/jpeg" makes it a JPG
-   (Download JPG). */
-async function makePhoto(st, videoName, videoShort, prog = () => {}, gate = {}, type = "image/png") {
+   memory, it is made at the video's size. */
+async function makePhoto(st, videoName, videoShort, prog = () => {}, gate = {}) {
   const VS = window.VideoStill;
   if (!VS) throw new Error("The photo maker did not load.");
   const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
@@ -1119,8 +1119,7 @@ async function makePhoto(st, videoName, videoShort, prog = () => {}, gate = {}, 
       const { w, h } = VS.size(W0, H0, s), ad = marked(new Ad(st, state.assets, w, h), gate.watermark);
       const c = document.createElement("canvas"); c.width = ad.W; c.height = ad.H;
       ad.still = null; ad.frame(c.getContext("2d"), pick.t, { subsFly: 8, subsMove: 4 }, 1 / 30);   // the export's own quality
-      const jpg = type === "image/jpeg";
-      return { blob: await VS.toBlob(c, type, jpg ? 0.92 : undefined), name: VS.name(videoName, ad.W, ad.H, jpg ? "jpg" : "png"), w: ad.W, h: ad.H, t: pick.t, short: s, wanted: want, pick };
+      return { blob: await VS.toBlob(c), name: VS.name(videoName, ad.W, ad.H), w: ad.W, h: ad.H, t: pick.t, short: s, wanted: want, pick };
     } catch (e) { last = e; if (!VH().isMemory(e)) throw e; }
   }
   throw last;
