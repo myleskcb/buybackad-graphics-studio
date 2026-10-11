@@ -36,7 +36,7 @@ redeploy. `.env.example` is the local copy for `netlify dev`.
 
 | variable | what it does |
 |---|---|
-| `JWT_SECRET` | required; any long random string, signs the sign-in tokens |
+| `JWT_SECRET` | required; any long random string, signs the sign-in tokens. `GET /api/health` reports `accounts:true` once it is set (and `store:"ok"` once Blobs answers), the one probe to run after a deploy |
 | `ADMIN_EMAILS` | comma-separated operator emails: every feature of every plan whatever plan the account is billed on (no caps, no watermark, video, QR, unlimited AI credits, the biggest library), shown as **Admin** in the studio and on the plans page, and the admin tools. Sign in with the same email; a change reaches the function with the next deploy |
 | `FAL_KEY` | AI backgrounds on fal.ai: Seedream v4 text-to-image for a scene, Seedream v4 **edit** when the customer picks products (the shop's own photographs go in as reference images). First choice whenever it is set. `PGFX_FAL_TEXT_MODEL` / `PGFX_FAL_EDIT_MODEL` swap the models (a model `plans.mjs` does not price needs `MODEL_COSTS`) |
 | `GEMINI_KEY` | AI backgrounds on Gemini (3.1 Flash Lite Image by default; `PGFX_BG_MODEL` overrides it): the fallback when fal fails, or the only provider without `FAL_KEY` (`PGFX_BG_PROVIDER=gemini` puts it first). With neither key, the generator says the feature is not enabled yet |
@@ -203,20 +203,11 @@ paste-ready prompt). After the library's thumbnails are drawn again, run
 ## Ad library and the master library — public link for auto-post
 
 **📚 Library** (Easy Mode's top bar, the editor's top bar, the account menu;
-shown to the owner's admin accounts only) keeps the ads an account saves, on
-the server (Netlify Blobs, `netlify/lib/adlibrary.mjs`, the studio side
-`ad-library.js`). After every download the studio offers **Save to library**,
-or saves every download by itself once **Save every download here** is
-ticked. What is saved is the download itself, as a JPEG: its size and its
-watermark, as the plan gave it.
-
-**Review.** A saved ad waits in **To review** with a suggested title and
-description, drawn from its own words (headline, sub line, badges, info lines,
-call to action), its category and the products on it, put back into normal
-case (`suggest()` in `adlibrary.mjs`); more suggestions sit under each field,
-a tap away. The owner edits them, then **Approve** or **Deny**; an approved ad
-can be edited, sent **Back to review**, or denied. Only approved ads are on
-the public link. The studio posts nothing and sets no schedule.
+shown to the owner's admin accounts only) keeps the ads an account saves, on the server (Netlify Blobs,
+`netlify/lib/adlibrary.mjs`, the studio side `ad-library.js`). After every
+download the studio offers **Save to library**, or saves every download by
+itself once **Save every download here** is ticked. What is saved is the
+download itself, as a JPEG: its size and its watermark, as the plan gave it.
 
 The library has one public link (`master-library.html?feed=fd_…`), shown in
 the dialog with **Copy link**, the JSON feed and RSS. Whoever holds it sees
@@ -224,11 +215,15 @@ these ads and nothing else; **Reset link** makes a new one and the old one
 stops. When the studio is connected to iPhones LA (opened once from its
 Auto-post page), the link is sent there by itself, and again after a reset:
 nobody copies it across (`iplaLink.shareLibrary`, the dialog says whether it
-arrived). The feed lists the approved ads, each offered once from its
-approval; when to post, and to post again, is iPhones LA's
-(`docs/iphonesla-library/autopost_worker.py`, the prompt in that folder's
-README). An ad that shows a website, a QR code, a street address or a social
-handle, or carries the watermark, is saved but held: it cannot be approved.
+arrived). The library is an **outbox**: the studio makes the imagery and
+hands it off, and iPhones LA's listings site writes the titles and
+descriptions, approves, and posts within its daily limits. Every ad saved is
+on the link at once, picture and video, and **offered every day for 7 days**
+from when it was saved (one slot a day), then it retires and new imagery keeps
+the ads fresh. The studio sets no schedule and has no Auto-post switch
+(`docs/iphonesla-library/README.md` has the contract). An ad that shows a
+website, a QR code, a street address or a social handle, or carries the
+watermark, is saved but held: never offered.
 Caps: the plan's (Free 12, Starter 300, Pro 1,000, Business 3,000), operators
 the biggest plan's (`ADLIB_MAX_FREE`, `ADLIB_MAX_PRO`, `ADLIB_MAX_ADMIN`), 100 saves a day (`ADLIB_DAILY`). It needs the real backend
 (`JWT_SECRET` set): in demo mode the dialog says so.
