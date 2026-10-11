@@ -145,7 +145,8 @@ globalThis.fetch = async (input, init = {}) => {
     if (body.customer && !S.customers.has(mode + ':' + body.customer)) return missing('customer: ' + body.customer);
     if (!S.prices.has(body.line_items[0].price)) return missing('price');
     const cs = Object.assign({ id: 'cs_' + mode + '_' + (S.n++).toString(36), object: 'checkout.session', status: 'open', payment_status: 'unpaid', mode: body.mode, smode: mode }, body);
-    cs.url = 'https://checkout.stripe.test/' + cs.id;
+    if (body.ui_mode === 'embedded') { cs.client_secret = cs.id + '_secret_' + (S.n++).toString(36); cs.url = null; }
+    else cs.url = 'https://checkout.stripe.test/' + cs.id;
     S.sessions.set(cs.id, cs); return reply(200, cs);
   }
   if (method === 'GET' && (m = path.match(/^\/checkout\/sessions\/(.+)$/))) {
@@ -297,6 +298,29 @@ let csPro;
     'the webhook is registered at SITE_URL with the subscription events');
   ok(JSON.parse(store.get('pgfx-users').get('stripe:whsec:test')).secret === hooks[0].secret, 'its signing secret is kept (test mode)');
 
+  /* Embedded Checkout (checkout-embed.js): only with a publishable key of
+     the secret's mode, and only when the caller asks */
+  const emb = await signup('embed@x.example');
+  let er = await hit('POST', '/checkout', { plan: 'basic', interval: 'month', embedded: true }, emb);
+  ok(er.status === 200 && er.json.url && !er.json.clientSecret, 'embedded: no publishable key, the hosted page as before');
+  env.STRIPE_PUBLISHABLE_KEY = 'pk_live_nope';
+  er = await hit('POST', '/checkout', { plan: 'basic', interval: 'month', embedded: true }, emb);
+  ok(er.status === 200 && er.json.url && !er.json.clientSecret, 'embedded: a live publishable key with a test secret, the hosted page');
+  env.STRIPE_PUBLISHABLE_KEY = 'pk_test_embed';
+  er = await hit('POST', '/checkout', { plan: 'basic', interval: 'month' }, emb);
+  ok(er.status === 200 && er.json.url, 'embedded: a caller that does not ask gets the hosted page');
+  er = await hit('POST', '/checkout', { plan: 'basic', interval: 'month', embedded: true }, emb);
+  const csE = [...S.sessions.values()].pop();
+  ok(er.status === 200 && !er.json.url && er.json.clientSecret === csE.client_secret && er.json.publishableKey === 'pk_test_embed' && er.json.sessionId === csE.id,
+    'embedded: the client secret, the publishable key and the session id, no URL');
+  ok(csE.ui_mode === 'embedded' && csE.redirect_on_completion === 'if_required' && csE.return_url === 'https://studio.example/?checkout=success&session_id={CHECKOUT_SESSION_ID}'
+    && !csE.success_url && !csE.cancel_url && csE.mode === 'subscription' && csE.metadata.plan === 'basic' && csE.allow_promotion_codes === 'true',
+    'embedded: ui_mode embedded, a card pays in place, the same return address, the same plan, promotion codes on');
+  pay(csE.id);
+  const ec = await hit('POST', '/checkout/confirm', { session_id: csE.id }, emb);
+  ok(ec.status === 200 && ec.json.user.plan === 'basic', 'embedded: the same confirm switches Starter on');
+  delete env.STRIPE_PUBLISHABLE_KEY;
+
   const n = S.prices.size, h = S.hooks.size;
   billing.forgetPrices();
   await hit('POST', '/checkout', { plan: 'pro', interval: 'year' }, buyer);
@@ -441,6 +465,7 @@ async function browserPart() {
   const server = createServer(async (req, res) => {
     try {
       const u = new URL(req.url, 'http://127.0.0.1');
+      if (u.pathname === '/__stripe/pay') { pay(u.searchParams.get('cs')); res.writeHead(204); res.end(); return; }   // the stand-in Stripe.js pays here
       if (u.pathname.startsWith('/api/')) {
         const chunks = []; for await (const c of req) chunks.push(c);
         const r = await api(new Request('http://' + req.headers.host + u.pathname + u.search, { method: req.method, headers: req.headers, body: chunks.length ? Buffer.concat(chunks) : undefined }));
@@ -457,6 +482,15 @@ async function browserPart() {
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
   const BASE = 'http://localhost:' + server.address().port;
   const fabricJs = process.env.FABRIC_JS ? readFileSync(process.env.FABRIC_JS) : null;
+  /* Stripe.js, stood in: initEmbeddedCheckout mounts a Pay button that pays
+     the session (the test server's /__stripe/pay) and calls onComplete, as a
+     card that needs no redirect does */
+  const FAKE_STRIPE_JS = `window.Stripe = function (pk) { return { initEmbeddedCheckout: async function (o) {
+    const secret = await o.fetchClientSecret(); let el = null;
+    return { mount: function (sel) { el = typeof sel === 'string' ? document.querySelector(sel) : sel;
+        el.innerHTML = '<div style="padding:24px;color:#111">Stand-in Stripe (' + pk + ')<br><button id="fake-stripe-pay" type="button">Pay</button></div>';
+        el.querySelector('#fake-stripe-pay').onclick = async function () { await fetch('/__stripe/pay?cs=' + secret.split('_secret_')[0]); o.onComplete && o.onComplete(); }; },
+      destroy: function () { if (el) el.innerHTML = ''; } }; } }; };`;
   const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox'] });
   const errors = [];
   const shot = async (page, name) => {
@@ -477,6 +511,7 @@ async function browserPart() {
         return route.fulfill({ status: 302, headers: { Location: cs.success_url.replace('{CHECKOUT_SESSION_ID}', cs.id) } });
       }
       if (/fabric(\.min)?\.js/.test(url) && fabricJs) return route.fulfill({ status: 200, contentType: 'application/javascript', body: fabricJs });
+      if (url.startsWith('https://js.stripe.com/v3')) return route.fulfill({ status: 200, contentType: 'application/javascript', body: FAKE_STRIPE_JS });
       return route.abort();
     });
     page.on('dialog', (d) => d.accept());
@@ -551,6 +586,43 @@ async function browserPart() {
       const hint = await page.evaluate(() => { syncCreditsUI(); return document.getElementById('bg-credits').textContent; });
       ok(/Uses 1 AI credit\. You have 600 \(500 this month \+ 100 bought\)/.test(hint), `the AI hint counts credits (${hint})`);
       await page.context().close();
+    }
+    /* Embedded Checkout: a free account buys Starter inside the site's own
+       dialog, never leaving the page, and is on Starter after onComplete */
+    {
+      env.STRIPE_PUBLISHABLE_KEY = 'pk_test_embed';
+      const token = await signup('onsite@x.example');
+      const page = await newPage(1440, token);
+      await page.goto(BASE + '/?plans=1', { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('#page-plans.active .plan-card');
+      const before = page.url();
+      await page.click('#plans-grid .plan-card:nth-child(1) .plan-btn');
+      await page.waitForSelector('#co-overlay.show #fake-stripe-pay', { timeout: 15000 }).catch(() => {});
+      const dlg = await page.evaluate(() => ({ open: document.getElementById('co-overlay').classList.contains('show'), title: document.getElementById('co-title').textContent,
+        price: document.getElementById('co-price').textContent, form: !!document.querySelector('#co-mount #fake-stripe-pay'), loading: !document.getElementById('co-loading').hidden }));
+      ok(dlg.open && dlg.title === 'Graphics Studio Starter' && dlg.price === '$25 a month' && dlg.form && !dlg.loading && page.url() === before,
+        `embedded checkout: the form opens in the site's own dialog, on the same page (${JSON.stringify(dlg)})`);
+      await shot(page, 'checkout-embedded');
+      await page.click('#fake-stripe-pay');
+      await page.waitForSelector('#pay-overlay.show', { timeout: 15000 }).catch(() => {});
+      const done = await page.evaluate(() => ({ title: document.getElementById('pay-title').textContent, sub: document.getElementById('pay-sub').textContent,
+        closed: !document.getElementById('co-overlay').classList.contains('show') }));
+      ok(done.title === 'Payment successful!' && /now on Starter/.test(done.sub) && done.closed && userBlob('onsite@x.example').plan === 'basic',
+        `embedded checkout: paid in place, the dialog closes, the account is on Starter (${done.title} / ${done.sub})`);
+      await page.context().close();
+      /* and on a phone the dialog fits */
+      const phone = await newPage(390, await signup('onsite-phone@x.example'));
+      await phone.goto(BASE + '/?plans=1', { waitUntil: 'domcontentloaded' });
+      await phone.waitForSelector('#page-plans.active .plan-card');
+      await phone.click('#plans-grid .plan-card:nth-child(1) .plan-btn');
+      await phone.waitForSelector('#co-overlay.show #fake-stripe-pay', { timeout: 15000 }).catch(() => {});
+      const fit = await phone.evaluate(() => { const r = document.querySelector('#co-overlay .modal').getBoundingClientRect(); return { over: document.documentElement.scrollWidth - innerWidth, w: Math.round(r.width), bottom: Math.round(r.bottom), h: innerHeight }; });
+      ok(fit.over <= 0 && fit.w <= 390 && fit.bottom <= fit.h, `embedded checkout at 390 px: no sideways scroll, on screen (${JSON.stringify(fit)})`);
+      await shot(phone, 'checkout-embedded-390');
+      await phone.click('#co-x');
+      ok(await phone.evaluate(() => !document.getElementById('co-overlay').classList.contains('show') && !document.querySelector('#co-mount #fake-stripe-pay')), 'embedded checkout: Close takes the form down, nothing charged');
+      await phone.context().close();
+      delete env.STRIPE_PUBLISHABLE_KEY;
     }
     /* the video maker: signed out, Download asks for an account; Free gets the
        plans, nothing counted; Pro's download is counted once, a 1080 video and

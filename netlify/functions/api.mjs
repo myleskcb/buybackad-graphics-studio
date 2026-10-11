@@ -404,6 +404,18 @@ export default async (req) => {
       catch (e) { return json({ error: 'Checkout could not start: ' + e.message }, 502); }
       const customer = customerOf(user, env);
       const md = plan ? { email: em, plan, interval } : { email: em, pack, credits: PACKS[pack].credits };
+      /* Embedded Checkout (owner, 2026-10-11: "a functional checkout that is
+         also wrapped so we don't show the main generic Stripe checkout. It's
+         built into our site and looks clean"). With a publishable key of the
+         same mode as the secret, the session is embedded in the site's own
+         dialog (checkout-embed.js) and the browser gets its client secret: a
+         card pays without leaving the page (redirect_on_completion
+         if_required), and a method that has to redirect comes back to the
+         same address the hosted page does. No publishable key, a key of the
+         other mode, or a caller that did not ask: Stripe's hosted page. */
+      const pk = String(env.STRIPE_PUBLISHABLE_KEY || '').trim();
+      const embed = body.embedded === true && /^pk_(test|live)_/.test(pk) && pk.startsWith('pk_test_') === (stripeMode(env) === 'test');
+      const back = site + '/?checkout=success&session_id={CHECKOUT_SESSION_ID}';
       const params = {
         mode: plan ? 'subscription' : 'payment',
         line_items: [{ price, quantity: 1 }],
@@ -416,11 +428,13 @@ export default async (req) => {
         allow_promotion_codes: plan ? 'true' : undefined,
         subscription_data: plan ? { metadata: { email: em, plan } } : undefined,
         payment_intent_data: plan ? undefined : { metadata: md },
-        success_url: site + '/?checkout=success&session_id={CHECKOUT_SESSION_ID}',
-        cancel_url: site + '/?checkout=cancel',
+        ...(embed
+          ? { ui_mode: 'embedded', return_url: back, redirect_on_completion: 'if_required' }
+          : { success_url: back, cancel_url: site + '/?checkout=cancel' }),
       };
       const j = await stripe(env, 'POST', '/checkout/sessions', params).catch((e) => ({ error: e.message }));
       if (j.error) return json({ error: j.error }, 502);
+      if (embed) return json({ clientSecret: j.client_secret, publishableKey: pk, sessionId: j.id });
       return json({ url: j.url });
     }
 

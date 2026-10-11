@@ -6751,7 +6751,30 @@ async function startCheckout(what){
     return;
   }
   try {
-    const j = await api('/checkout', what);
+    /* On the site when the function can embed it (checkout-embed.js; it
+       needs STRIPE_PUBLISHABLE_KEY), Stripe's hosted page otherwise, and the
+       hosted page too if Stripe's script cannot load here. */
+    const embed = !!window.PGFX_CHECKOUT;
+    const j = await api('/checkout', embed ? Object.assign({ embedded: true }, what) : what);
+    if (j.clientSecret && embed){
+      const p = what.plan ? PLANS[what.plan] : null, k = what.pack ? PACKS[what.pack] : null;
+      const iv = what.interval === 'year' ? 'year' : 'month';
+      try {
+        await window.PGFX_CHECKOUT.open({
+          clientSecret: j.clientSecret, publishableKey: j.publishableKey, sessionId: j.sessionId,
+          title: p ? 'Graphics Studio ' + p.label : k.label,
+          price: p ? usd(p.price[iv]) + (iv === 'year' ? ' a year' : ' a month') : usd(k.price),
+          note: p ? 'Cancel any time.' : 'Once. Bought credits never expire.',
+          onDone: (sid) => finishCheckout(sid),
+        });
+        return;
+      } catch (e){
+        console.warn('embedded checkout:', e);
+        const h = await api('/checkout', what);
+        location.href = h.url;
+        return;
+      }
+    }
     location.href = j.url; // Stripe-hosted checkout page
   } catch (e){
     // The function answers 503 "Billing is not enabled yet" until the Stripe
@@ -6801,9 +6824,13 @@ async function handleCheckoutReturn(){
   const sid = q.get('session_id');
   history.replaceState(null, '', location.pathname);
   if (st !== 'success'){ showPayResult(false); return; }
-  /* The plan goes on from Stripe's own record of the session
-     (/checkout/confirm), so it does not wait for the webhook. If that
-     fails, ask /me again for a few seconds before announcing anything. */
+  await finishCheckout(sid);
+}
+/* A paid session, from the hosted page's return or the embedded form's
+   onComplete (checkout-embed.js): the plan goes on from Stripe's own record
+   of the session (/checkout/confirm), so it does not wait for the webhook. If
+   that fails, ask /me again for a few seconds before announcing anything. */
+async function finishCheckout(sid){
   await loadAccount();
   if (sid && !DEMO && account){
     try {

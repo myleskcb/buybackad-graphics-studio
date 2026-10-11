@@ -2485,3 +2485,30 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='poster'] .bggen-pick{border:var(--line-w) solid var(--ink)}
 :root[data-skin='poster'] .bggen-cost{font-size:14px}
 :root[data-skin='poster'] .bggen-bal{font-size:13px}
+
+/* ═══════════ CHECKOUT ON THE SITE (checkout-embed.js, 2026-10-11) ═══════════
+   Stripe's embedded payment form inside the site's own dialog: the plan and
+   its price on top, the form in a white well (Stripe draws on white unless
+   the dashboard's Branding says otherwise), the reassurance underneath. */
+/* over the plans page (#page-plans, 8000) it opens from; under the toasts (9500) */
+.modal-overlay#co-overlay{z-index:8600}
+.modal.co-modal{max-width:1000px;padding:0;display:flex;flex-direction:column;max-height:calc(100vh - 48px);max-height:calc(100dvh - 48px)}
+.co-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:22px 24px 14px;border-bottom:1px solid var(--hairline)}
+.co-kicker{font:700 10.5px/1 var(--ui);letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}
+.co-head h3{margin:0}
+.co-price{margin-top:4px;font:500 14px/1.4 var(--ui);color:var(--text-dim)}
+.co-price b{color:var(--text);font-weight:700}
+.co-body{position:relative;overflow:auto;padding:16px;min-height:260px;overscroll-behavior:contain}
+#co-mount{background:#fff;border-radius:var(--r-md);overflow:hidden;min-height:0}
+#co-mount:empty{display:none}
+.co-loading{display:flex;align-items:center;justify-content:center;gap:10px;min-height:220px;color:var(--text-dim);font:600 13px/1 var(--ui)}
+.co-loading[hidden]{display:none}
+.co-foot{padding:10px 24px 16px;border-top:1px solid var(--hairline);color:var(--text-dim);font:500 11.5px/1.45 var(--ui)}
+@media (max-width:560px){
+  .modal-overlay#co-overlay{padding:0;align-items:flex-end}
+  .modal.co-modal{border-radius:18px 18px 0 0;max-height:96vh;max-height:96dvh}
+  .co-head{padding:16px 16px 12px}
+  .co-body{padding:10px}
+  .co-foot{padding:8px 16px 14px}
+}
+:root[data-skin='poster'] .co-kicker{font-size:12px}
