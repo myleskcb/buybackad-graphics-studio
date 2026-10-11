@@ -36,7 +36,7 @@ redeploy. `.env.example` is the local copy for `netlify dev`.
 
 | variable | what it does |
 |---|---|
-| `JWT_SECRET` | required; any long random string, signs the sign-in tokens |
+| `JWT_SECRET` | required; any long random string, signs the sign-in tokens. `GET /api/health` reports `accounts:true` once it is set (and `store:"ok"` once Blobs answers), the one probe to run after a deploy |
 | `ADMIN_EMAILS` | comma-separated operator emails: every feature of every plan whatever plan the account is billed on (no caps, no watermark, video, QR, unlimited AI credits, the biggest library), shown as **Admin** in the studio and on the plans page, and the admin tools. Sign in with the same email; a change reaches the function with the next deploy |
 | `FAL_KEY` | AI backgrounds on fal.ai: Seedream v4 text-to-image for a scene, Seedream v4 **edit** when the customer picks products (the shop's own photographs go in as reference images). First choice whenever it is set. `PGFX_FAL_TEXT_MODEL` / `PGFX_FAL_EDIT_MODEL` swap the models (a model `plans.mjs` does not price needs `MODEL_COSTS`) |
 | `GEMINI_KEY` | AI backgrounds on Gemini (3.1 Flash Lite Image by default; `PGFX_BG_MODEL` overrides it): the fallback when fal fails, or the only provider without `FAL_KEY` (`PGFX_BG_PROVIDER=gemini` puts it first). With neither key, the generator says the feature is not enabled yet |

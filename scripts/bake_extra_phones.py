@@ -190,7 +190,14 @@ MODULES = {
     "15": ("qs-iphone-15-pro.webp", (13, 11, 143, 146)),       # Natural Titanium
     "14": ("qs-iphone-14-pro-max.webp", (11, 15, 143, 146)),   # Deep Purple
 }
-MOD_AT, MOD_SIZE = .034, .53     # plateau offset and size, in phone widths (the renders, measured)
+# Apple's published height x width, mm. A Pro and its Pro Max carry the same camera:
+# lens centres 20.5, 20.1, 17.2 mm apart on both 14 renders, 19.4 and 20.7 on the 15
+# and 16, the left lens 14 mm in on all six. So the plateau is placed and sized in
+# mm, each render's own scale taken from its height, not as a share of the width
+# (.53 of it was the Pro Max's camera 5% large and the Pro's small).
+MM = {"iPhone 14 Pro": (147.5, 71.5), "iPhone 14 Pro Max": (160.7, 77.6),
+      "iPhone 15 Pro": (146.6, 70.6), "iPhone 15 Pro Max": (159.9, 76.7),
+      "iPhone 16 Pro": (149.6, 71.5), "iPhone 16 Pro Max": (163.0, 77.6)}
 # The Pro plateau as Apple drew it (owner, 2026-10-11: "doesn't really look quite
 # OEM ... as natural as possible without the shiny glimmer"). Taking the colour out
 # of a render, setting it on a grey and painting it back left flat black lenses
@@ -240,7 +247,17 @@ def srgb(c):
     return np.where(c <= .0031308, c * 12.92, 1.055 * np.clip(c, 0, None) ** (1 / 2.4) - .055)
 
 
-def module_oem(gen, size, tint):
+def render_scale(f):
+    """An Apple render's px per mm, from its back's height against Apple's, and
+    where that back's left and top edges are."""
+    a = np.asarray(Image.open(CUT / f).convert("RGBA"))[..., 3] > 128
+    col, row = a[:, 30], a[a.shape[0] // 2]
+    top, bot = np.argmax(col), len(col) - 1 - np.argmax(col[::-1])
+    model = "iPhone " + f[len("qs-iphone-"):-len(".webp")].replace("-pro-max", " Pro Max").replace("-pro", " Pro")
+    return (bot - top + 1) / MM[model][0], int(np.argmax(row)), int(top)
+
+
+def module_oem(gen, tint, px_mm):
     """The generation's plateau as Apple rendered it, its metal moved to the finish.
     Down to a darker finish the metal's colour is scaled in linear light by the
     finish over the render's back colour, as a darker paint under the same light,
@@ -248,9 +265,14 @@ def module_oem(gen, size, tint):
     the shine too (Deep Purple to Gold is 11x, its shadows went blotchy and its
     rims white), so the metal steps up by the Lab difference instead and rolls
     off before white. The lens glass and LiDAR (the dark discs, with the light
-    inside them) and the flash keep the render's own colour: glass whatever the finish."""
+    inside them) and the flash keep the render's own colour: glass whatever the finish.
+    Returns the plateau at `px_mm` and where it goes on the back."""
     from scipy import ndimage
     f, box, (fx, fy, fr) = min(OEM[gen], key=lambda r: abs(render_back(r[0])[0] - hex_lab(tint)[0]))
+    s, left, top = render_scale(f)
+    side = round((box[2] - box[0] + box[3] - box[1]) / 2 / s * px_mm)
+    size = (side, side)
+    at = (round((box[0] - left) / s * px_mm), round((box[1] - top) / s * px_mm))
     m = Image.open(CUT / f).convert("RGBA").crop(box).resize(size, Image.LANCZOS)
     c = np.asarray(m)[..., :3] / 255
     L = color.rgb2lab(c)[..., 0]
@@ -260,14 +282,34 @@ def module_oem(gen, size, tint):
     parts, n = ndimage.label(dark)
     big = 1 + np.nonzero(ndimage.sum(dark, parts, range(1, n + 1)) > dark.size * .002)[0]
     yy, xx = np.mgrid[0:size[1], 0:size[0]]
-    keep = np.isin(parts, big) | (off_lidar(L, size) < .05) | (np.hypot(xx - fx * size[0], yy - fy * size[1]) < fr * size[0] * 1.05)
+    flash = np.hypot(xx - fx * size[0], yy - fy * size[1]) < fr * size[0] * 1.05
+    keep = np.isin(parts, big) | (off_lidar(L, size) < .05) | flash
     k = 1 - ndimage.gaussian_filter(keep.astype(float), 1.0)
     # what the metal is moved from: the render's back for lightness, the plateau's
     # own metal for hue (Blue Titanium's plateau is bluer than its back, b -9 to -6,
     # and left a Black Titanium camera blue)
     back = render_back(f)
     back[1:] = np.median(color.rgb2lab(c)[k > .9][:, 1:], axis=0)
-    if hex_lab(tint)[0] <= back[0]:
+    up = hex_lab(tint)[0] > back[0]
+    # Polished parts keep the render's lightness and take the finish's tint: the
+    # flash, which kept Deep Purple's lavender on Space Black and Gold, and going up
+    # to a lighter finish the steel lens rims with the dark ring inside them. Rims
+    # sit at L 55-58 on Apple's Gold, Sierra Blue and Deep Purple alike (Gold's back
+    # 90, Deep Purple's 31): polished metal mirrors the studio, not the finish, and
+    # stepped up with the glass they went white on a 14 Pro Gold.
+    tinted = flash.copy()
+    if up:
+        for i in big:
+            d = parts == i
+            tinted |= ndimage.binary_dilation(d, iterations=max(3, int(np.sqrt(d.sum() / np.pi) * .3))) & ~d
+    tw = ndimage.gaussian_filter(tinted.astype(float), 1.0)[..., None]
+    lab_c = color.rgb2lab(c)
+    # a flash shows a third of its finish's tint on Apple's coloured renders (Blue
+    # Titanium .34, Deep Purple .33), a polished rim all of it (.7-1.1)
+    lab_c[..., 1:] += (hex_lab(tint)[1:] - back[1:]) * np.clip(lab_c[..., :1] / 60, 0, 1) * np.where(flash, 1 / 3, 1)[..., None]
+    c = c * (1 - tw) + np.clip(color.lab2rgb(lab_c), 0, 1) * tw
+    k = k * (1 - tw[..., 0])
+    if not up:
         to = lin(np.array([int(tint[i:i + 2], 16) for i in (1, 3, 5)]) / 255)
         new = srgb(lin(c) * (to / lin(np.clip(color.lab2rgb(back[None, None])[0, 0], 0, 1))))
     else:
@@ -276,7 +318,7 @@ def module_oem(gen, size, tint):
         new[..., 0] = np.where(new[..., 0] > knee, knee + (100 - knee) * np.tanh((new[..., 0] - knee) / (100 - knee)), new[..., 0])
         new = color.lab2rgb(np.clip(new, [0, -128, -128], [100, 127, 127]))
     out = np.clip(srgb(lin(c) * (1 - k[..., None]) + lin(np.clip(new, 0, 1)) * k[..., None]), 0, 1)
-    return Image.fromarray(np.dstack([out * 255, np.asarray(m)[..., 3]]).round().astype(np.uint8), "RGBA")
+    return Image.fromarray(np.dstack([out * 255, np.asarray(m)[..., 3]]).round().astype(np.uint8), "RGBA"), at
 
 
 def _tones(f, box):
@@ -380,15 +422,13 @@ def bake_pro():
     # blue glass gets the full paint; the steel band gets a lighter tint
     weight = np.maximum(smooth(chroma, 6, 20), 0.85 * smooth(lab[..., 0], 20, 55))
     weight *= np.asarray(clean)[..., 3] / 255 > 0
-    side = round(src.width * MOD_SIZE)
-    mmask = rrect_mask((side, side), round(side * .2), blur=1.2)
     out = []
     for pid, model, finish, target, w in PRO:
         tint = target or blue
         dark = hex_lab(tint)[0] < 40
         im = paint(clean, weight, tint, body_l, LIGHT_DARK if dark else LIGHT_LIGHT)
-        mod = module_oem(pid[:2], (side, side), tint)
-        im = im.copy(); im.paste(mod, (round(src.width * MOD_AT), round(src.width * MOD_AT)), mmask)
+        mod, at = module_oem(pid[:2], tint, src.width / MM[model][1])
+        im = im.copy(); im.paste(mod, at, rrect_mask(mod.size, round(mod.width * .2), blur=1.2))
         im = finish_back(im, w, pid)
         out.append(dict(id=pid, model=model, finish=finish, metal=target or metal_of(im),
                         w=w, h=H, repaint=True, ok=True))
