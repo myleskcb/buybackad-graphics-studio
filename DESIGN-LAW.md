@@ -5027,3 +5027,71 @@ the most this container's 14 GB holds):
 > Amends rule 95: with a colour theme on, the card's hue is the theme's
 > colours, not one hue; a look the visitor picked is theirs. Rule 95 stands
 > for a card as designed.
+
+## 128. One light: a ground drawn as a lit surface is lit by the light that casts the phones' shadows
+
+Added 2026-10-11 (numbered after 126 and 127 on `claude/laughing-keller-c9tp89`,
+which are not on `main` yet; renumber when either lands). The owner, of a
+Titanium video ad on Brushed metal (the video maker's painter, which the studio
+also offers as a scene): "the shading around the corners because its dark and
+then light around the side", "not actually how shadows work", then "audit and
+make sure it's accurate to life like realism and actual device".
+
+- **The key light is high on the left** (rules 114 and 124): the phones'
+  shadows fall to the lower right, and a turning back catches the light from the
+  left. A ground that shows a lit surface (a wall, a sheet of a material, a
+  studio sweep or backdrop) is lit by that light too: brightest toward the top
+  left, or even, never brighter on the far side, and never bright on the
+  diagonal across the light.
+- **What was wrong.** Brushed metal was a gradient from corner to corner with
+  its brightest stop in the middle: dark at the top left and bottom right,
+  bright at the other two corners (Titanium, 1:1, corners L* 55.7, 78.8, 55.2,
+  82.3). No light does that. The owner's screenshot measures the same: corner
+  greys 134 and 129 against 197 and 200. Diamond plate had the same band, and
+  each bar was shaded along its own length, so one row was lit from the lower
+  right and the next from the upper right.
+- **What they are now** (`keyLit`, `streak` in motion/decor.js). The sheet
+  falls off from the top left at 45 degrees, whatever the frame's shape.
+  Brushed metal shows the light's reflection as a soft upright streak a third
+  of the way in, brightest a little above the middle: lines brushed side to
+  side spread a highlight up and down, never along the lines (a horizontally
+  brushed steel door shows the same). The streak is the metal's own light
+  colour, because a coloured metal tints what it reflects (mixed toward white,
+  it took white headlines on Candy teal from 2.84 to 2.63:1). Diamond plate
+  shows the light as a soft patch above and left of the middle; every bar is lit
+  on its side toward the light, dark on the far side, and casts a small shadow
+  away from it. The studio's own Brushed metal (grounds.js) was already a
+  streak across its grain, centred, and is left as it is.
+- **Measured** (`node scripts/ground_light_audit.mjs`): every ground the maker
+  offers, 102 of them, drawn as the maker draws it (the painter and the stage
+  vignette) in 1:1 and 9:16, with its themes' palettes and two of every tone:
+  1,698 drawings, read in L* block by block. *crossed*, (TR + BL − TL − BR) / 2
+  over the corners: one light, a pool, a lens's fall-off, or all of them leave
+  it near 0; over 3 the light is on the diagonal across the key. *facing*: a
+  plane plus a pool about the stage fitted to the light, read toward the key:
+  no more than 4 L* brighter away from it. Brushed metal crossed 25.1 → 0.4,
+  facing 3.2 → 6.1; Diamond plate 15.0 → 0.4, 6.5 → 9.1. All 25 lit surfaces
+  pass. Tonal is held: its backdrop is lit from behind the phones, 4.6 L*
+  brighter low on Editorial cream, on 2 of 24 drawings. The 38 grounds whose
+  bright and dark are their design (a colour gradient, rays, shapes), a sky, a
+  scene that draws its own lamp or sign, or an object on the floor, are listed,
+  not failed.
+- **Nothing is harder to read.** The video maker's own audit
+  (motion/audit-sweep.html, 30 looks held to each ground, seeds 101 to 130,
+  deterministic run to run): Brushed metal's median headline contrast 6.06 →
+  6.23:1, Diamond plate's 5.83 → 6.01:1. Under 3:1, one look on each ground
+  before and after: the same look (Candy teal glow), 2.84 → 2.87 and 2.37 →
+  2.57. Three looks lost "First frame shows something" and one lost "Never
+  still". On the old grounds, the bright corner-to-corner band moved under the
+  flash cut, the whip pan and the push-out, and was counted as something on
+  screen; a mask of what is counted shows the same phones in both (OPEN-ITEMS
+  §AV).
+- **The phones are the real devices**, unchanged and checked again:
+  audit_phone_views.py 59 of 59 (shape against Apple's dimensions, round
+  lenses, island or notch, Action button or mute switch, Camera Control, the
+  side button where the photograph has it, a 17 or 18 Pro's side in its
+  plateau's aluminium); motion_finish_check.mjs 57 of 57; motion_phone_check.mjs
+  all pass. A settled frame of the owner's ad draws Cosmic Orange at (237, 146,
+  95) against the photograph's (245, 129, 64): the sheen, not a shift.
+- Before a change to a ground's light: ground_light_audit.mjs, and the sweep on
+  that ground before and after.

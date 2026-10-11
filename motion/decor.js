@@ -38,6 +38,28 @@ function grain(x, W, H, r, amp = 26, alpha = .45) {
   x.save(); x.globalAlpha = alpha; x.fillStyle = x.createPattern(n, "repeat"); x.fillRect(0, 0, W, H); x.restore();
 }
 
+// A surface lit by the phones' key light, high on the left where their shadows fall from (rule
+// 114): it falls off along that one direction, 45 degrees, whatever the frame's shape, from near
+// (the top left corner) to far (the bottom right). scripts/ground_light_audit.mjs measures it.
+function keyLit(x, W, H, near, far) {
+  const k = (W + H) / 4, gr = x.createLinearGradient(W / 2 - k, H / 2 - k, W / 2 + k, H / 2 + k);
+  gr.addColorStop(0, near); gr.addColorStop(1, far); x.fillStyle = gr; x.fillRect(0, 0, W, H);
+}
+
+// The key light's reflection in a sheet brushed side to side: the grain spreads a highlight up
+// and down, so it is a soft upright streak at xs (sd its spread), in the metal's own light colour
+// col (a coloured metal tints what it reflects), a at its brightest a little above the middle,
+// level with the light, softer toward the top and a third of that at the foot.
+function streak(x, W, H, col, xs, sd, a) {
+  const c = canvas(Math.ceil(W), Math.ceil(H)), s = c.getContext("2d");
+  const band = s.createLinearGradient(xs - 3 * sd, 0, xs + 3 * sd, 0);
+  [[0, 0], [1 / 6, .135], [1 / 3, .61], [.5, 1], [2 / 3, .61], [5 / 6, .135], [1, 0]].forEach(([u, v]) => band.addColorStop(u, rgba(col, a * v)));
+  s.fillStyle = band; s.fillRect(0, 0, W, H);
+  const fall = s.createLinearGradient(0, 0, 0, H); fall.addColorStop(0, "rgba(0,0,0,.6)"); fall.addColorStop(.4, "rgba(0,0,0,1)"); fall.addColorStop(1, "rgba(0,0,0,.33)");
+  s.globalCompositeOperation = "destination-in"; s.fillStyle = fall; s.fillRect(0, 0, W, H);
+  x.drawImage(c, 0, 0);
+}
+
 function stucco(x, base, W, H, r) {
   x.fillStyle = base; x.fillRect(0, 0, W, H);
   blotches(x, W, H, r, 24, .16);
@@ -1226,8 +1248,13 @@ export function themeGround(kind, x, st, p, W, H, sc, r) {
       return true;
     }
     case "brushed_metal": {
-      const gr = x.createLinearGradient(0, 0, W, H); gr.addColorStop(0, shade(g, -.12)); gr.addColorStop(.45, l); gr.addColorStop(.55, shade(l, -.05)); gr.addColorStop(1, shade(g, -.18));
-      x.fillStyle = gr; x.fillRect(0, 0, W, H);
+      // lit by the phones' key light (keyLit): the sheet falls off from the top left, and the
+      // light's reflection is a streak across the grain, not along it (lines brushed side to side
+      // spread a highlight up and down), standing under the light and brightest level with it.
+      // It was a band from the top right corner to the bottom left, dark at the other two: no one
+      // light does that (owner, 2026-10-11: "not actually how shadows work")
+      keyLit(x, W, H, mix(g, l, .6), shade(g, -.06));
+      streak(x, W, H, l, W * .32, W * .085, .8);
       ((r) => { for (let i = 0; i < H * .9; i++) { x.fillStyle = rgba(r() < .5 ? "#ffffff" : "#000000", r.uniform(.02, .06)); x.fillRect(0, r() * H, W, Math.max(.5, H * .0012)); } })(fork(r));
       return true;
     }
@@ -1267,12 +1294,20 @@ export function themeGround(kind, x, st, p, W, H, sc, r) {
       grain(x, W, H, r, 16, .25); return true;
     }
     case "diamond_plate": {
-      const gr = x.createLinearGradient(0, 0, W, H); gr.addColorStop(0, shade(l, -.1)); gr.addColorStop(.5, l); gr.addColorStop(1, shade(g, -.1)); x.fillStyle = gr; x.fillRect(0, 0, W, H);
-      const step = U * .06;
+      // the same key light as Brushed metal: the plate falls off from the top left and shows the
+      // light as a soft patch above and left of the middle; every raised bar is lit on its side
+      // toward the light, dark on the far side, and casts its small shadow away from it. (Each
+      // bar was shaded along its own length, so one row was lit from the lower right and the
+      // next from the upper right, over a band from the top right corner to the bottom left.)
+      keyLit(x, W, H, l, shade(g, -.1));
+      const hi = x.createRadialGradient(W * .3, H * .25, 0, W * .3, H * .25, U * .6); hi.addColorStop(0, rgba(l, .4)); hi.addColorStop(1, rgba(l, 0)); x.fillStyle = hi; x.fillRect(0, 0, W, H);
+      const step = U * .06, a = step * .3, b = step * .07, o = step * .03;
+      const bar = (cx0, cy0, turn) => { x.save(); x.translate(cx0, cy0); x.rotate(turn); x.beginPath(); x.ellipse(0, 0, a, b, 0, 0, TAU); x.restore(); };
       for (let yy = 0, j = 0; yy < H + step; yy += step, j++) for (let xx = (j % 2) * step / 2; xx < W + step; xx += step) {
-        x.save(); x.translate(xx, yy); x.rotate((j % 2 ? 1 : -1) * Math.PI / 4);
-        const lg = x.createLinearGradient(-step * .3, 0, step * .3, 0); lg.addColorStop(0, rgba("#000000", .25)); lg.addColorStop(1, rgba("#ffffff", .35));
-        x.fillStyle = lg; x.beginPath(); x.ellipse(0, 0, step * .3, step * .07, 0, 0, TAU); x.fill(); x.restore();
+        const turn = (j % 2 ? 1 : -1) * Math.PI / 4, k = (j % 2 ? a : b) / Math.SQRT2;   // the bar's reach toward the light
+        bar(xx + o, yy + o, turn); x.fillStyle = "rgba(0,0,0,.16)"; x.fill();
+        const lg = x.createLinearGradient(xx - k, yy - k, xx + k, yy + k); lg.addColorStop(0, rgba("#ffffff", .35)); lg.addColorStop(1, rgba("#000000", .25));
+        bar(xx, yy, turn); x.fillStyle = lg; x.fill();
       }
       return true;
     }
