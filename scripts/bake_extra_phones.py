@@ -26,7 +26,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 from skimage import color
 
-from phone_rim import clean_rim
+from phone_rim import clean_rim, mend_sides
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "motion" / "phones"
@@ -120,7 +120,7 @@ def finish_back(im, w, pid):
     """Match the existing set: trimmed edge to edge, w x 900, a clean rim (phone_rim),
     same softness, same encode."""
     alpha = im.getchannel("A").point(lambda v: 255 if v > 128 else 0)
-    im = clean_rim(im.crop(alpha.getbbox()).resize((w, H), Image.LANCZOS))
+    im = clean_rim(mend_sides(im.crop(alpha.getbbox()).resize((w, H), Image.LANCZOS)))
     r = 0.0
     while sharpness(im) > SHARP and r < 2:
         r += 0.1
