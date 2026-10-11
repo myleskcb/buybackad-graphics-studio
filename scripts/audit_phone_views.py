@@ -98,7 +98,20 @@ def lenses(a, alpha):
         hgt, wid = np.ptp(ys) + 1, np.ptp(xs) + 1
         if len(ys) / (np.pi * hgt * wid / 4) < .8:   # two lenses run together, or a lens in its ring's shadow
             continue
-        out.append(wid / hgt)
+        r = wid / hgt
+        # glass ends in a step, a cast shadow in a ramp, and a ramp moves when the cut
+        # does: on a dark finish the shadow a lens barrel casts down Apple's render
+        # sits at the cut and joins the glass. Read the lens at a cut a little darker
+        # too and keep the rounder; a camera seen at an angle is oval at both (the
+        # 3/4-shot backs of 91939917 read 1.086 and 1.088 either way).
+        core = ndimage.binary_opening((lab == i) & (L < 34), iterations=2)
+        cl, cn = ndimage.label(core)
+        if cn:
+            cy, cx = np.where(cl == 1 + np.argmax(ndimage.sum(core, cl, range(1, cn + 1))))
+            h2, w2 = np.ptp(cy) + 1, np.ptp(cx) + 1
+            if len(cy) / (np.pi * h2 * w2 / 4) >= .8 and abs(w2 / h2 - 1) < abs(r - 1):
+                r = w2 / h2
+        out.append(r)
     return out
 
 
