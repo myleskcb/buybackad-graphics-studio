@@ -177,7 +177,7 @@ ok(r.status === 201 && C.status === 'review' && C.post === null && C.repost_days
 ok((await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[3]) } })).status === 507, 'save: the plan\'s cap is 507');
 r = await call('GET', '/ads/mine', { as: 'pro@x.example' });
 ok(r.body.limit === 1000 && r.body.items.length === 0 && r.body.links.page !== L.page, 'another account: its own library, its own link, the Pro cap');
-ok((await call('GET', '/ads/mine', { as: 'boss@x.example' })).body.limit === 2000, 'an operator: the admin cap');
+ok((await call('GET', '/ads/mine', { as: 'boss@x.example' })).body.limit === 3000, 'an operator: the admin cap, the biggest plan\'s');
 
 /* review: nothing is on the public link until it is approved */
 r = await call('GET', '/ads/feed/' + feedId);
@@ -381,7 +381,7 @@ ok(![...store.m.keys()].some((k) => k.endsWith(':' + PV.id)), 'remove: an ad tak
   const apv = await hit('POST', '/ads/update', { id: sv.json.item.id, status: 'approved' }, su.json.token);
   ok(apv.status === 200 && apv.json.item.status === 'approved' && apv.json.item.post, 'function: approved, it is offered (' + apv.status + ')');
   const mine = await hit('GET', '/ads/mine', null, su.json.token);
-  ok(mine.json.limit === 2000 && mine.json.items.length === 1, 'function: the operator\'s library and cap');
+  ok(mine.json.limit === 3000 && mine.json.items.length === 1, 'function: the operator\'s library and cap');
   const fid = mine.json.links.json.split('/').pop();
   const fd = await hit('GET', '/ads/feed/' + fid);
   ok(fd.status === 200 && fd.json.items[0].id === sv.json.item.id, 'function: the public link answers without a sign-in');

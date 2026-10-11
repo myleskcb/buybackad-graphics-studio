@@ -6253,7 +6253,7 @@ function makeQrDataUrl(text, px){
     if (qr.isDark(r, c)) x.fillRect((c + quiet) * scale, (r + quiet) * scale, scale, scale);
   return cv.toDataURL('image/png');
 }
-const isPro = () => !!account && (account.plan || 'free') !== 'free';
+const isPro = () => isAdmin() || (!!account && (account.plan || 'free') !== 'free');   // paid, or an operator
 // Operator accounts (ADMIN_EMAILS env on the backend). Admin-only surfaces are
 // invisible to everyone else, the nav entry doesn't render at all.
 const isAdmin = () => !!account && account.role === 'admin';
@@ -6431,24 +6431,33 @@ async function loadAccount(){
   return account;
 }
 const planKey = (p) => (PLANS[p] ? p : p === 'starter' ? 'pro' : 'free');   // starter: the old name of Pro
-function planOf(){ return PLANS[planKey(account && account.plan)]; }
+/* An operator account (ADMIN_EMAILS, role admin) has every feature of every
+   plan whatever plan it is billed on, as the function grants it (api.mjs
+   publicUser): the biggest plan's allowances, "Admin" on its badge, AI
+   credits unlimited. account.plan stays the billed plan, which the plans
+   page's checkout reads. Owner, 2026-10-11: the admin account read Free and
+   "not validated for premium", so what was built could not be tried. */
+function planOf(){ return PLANS[isAdmin() ? 'business' : planKey(account && account.plan)]; }
+const planLabel = () => (isAdmin() ? 'Admin' : planOf().label);
 /* AI credits: the function's count when there is one, the plan's in demo */
 function creditsOf(){
   if (!account) return null;
-  if (account.credits) return account.credits;
   const a = planOf().credits;
-  return { allowance:a, used:0, left:a, bought:0, total:a };
+  const c = account.credits || { allowance:a, used:0, left:a, bought:0, total:a };
+  return isAdmin() ? Object.assign({}, c, { unlimited: true }) : c;
 }
+const creditsText = (c) => (c.unlimited ? 'unlimited' : fmtN(c.total));
 let aiCost = 1;   // credits an AI background takes now; /api/plans says
 function syncCreditsUI(){
   const c = creditsOf();
   const line = !account ? 'Sign in to use AI backgrounds. Free accounts get ' + PLANS.free.credits + ' AI credits a month.'
+    : c.unlimited ? 'Uses ' + aiCost + ' AI credit' + (aiCost === 1 ? '' : 's') + '. Admin: unlimited, nothing is charged.'
     : 'Uses ' + aiCost + ' AI credit' + (aiCost === 1 ? '' : 's') + '. You have ' + c.total + (c.bought ? ' (' + c.left + ' this month + ' + c.bought + ' bought)' : ' left this month') + '.';
   for (const id of ['bg-credits', 'bggen-credits']){
     const el = $(id); if (!el) continue;
     el.innerHTML = '';
     el.append(line + ' ');
-    if (account && c.total < aiCost * 3){
+    if (account && !c.unlimited && c.total < aiCost * 3){
       const more = document.createElement('button');
       more.type = 'button'; more.className = 'ai-more'; more.textContent = 'Get more';
       more.onclick = () => openPlans('AI credits pay for AI backgrounds. Buy a pack, or move to a plan with more each month.');
@@ -6476,8 +6485,8 @@ function syncAcctUI(){
     $('acct-label').textContent = account.email.split('@')[0];
     const badge = $('acct-plan');
     badge.style.display = '';
-    badge.textContent = planOf().label.toUpperCase();
-    badge.classList.toggle('free', (account.plan || 'free') === 'free');
+    badge.textContent = planLabel().toUpperCase();
+    badge.classList.toggle('free', !isPro());
   } else {
     $('acct-label').textContent = 'Sign in';
     $('acct-plan').style.display = 'none';
@@ -6486,12 +6495,16 @@ function syncAcctUI(){
   refreshTplLocks();
   syncPartnerUI();   // SCANS.AD surfaces require a signed-in member of both platforms
   const up = $('nav-upgrade');
-  if (up) up.style.display = (!account || (account.plan || 'free') === 'free') ? '' : 'none';
+  if (up) up.style.display = !isPro() ? '' : 'none';
   const adm = $('nav-admin');
   if (adm) adm.style.display = isAdmin() ? '' : 'none';
   const pk = $('ez-pack');
   if (pk) pk.style.display = isAdmin() ? '' : 'none';
   refreshTplLocks();   // admin bypass changes lock badges live
+  /* the plans page can open before the account has loaded (?plans=1, the
+     video maker's See plans): build it again for whoever is signed in */
+  const pp = $('page-plans');
+  if (pp && pp.classList.contains('active')) buildPlansGrid();
   // landing nav auth buttons disappear once signed in
   for (const id of ['lp-login', 'lp-signup']){
     const el = $(id);
@@ -6503,16 +6516,17 @@ function syncQuotaUI(){
   if (!account){ q.innerHTML = 'Free plan: 3 downloads a week, standard size. <span class="up" id="quota-plans">See plans</span>'; }
   else {
     const p = planOf(), rem = exportsRemaining();
-    if (rem === Infinity) q.innerHTML = '<b>' + p.label + '</b>: unlimited downloads, up to ' + p.maxPx + ' pixels · <b>' + creditsOf().total + '</b> AI credits';
+    if (isAdmin()) q.innerHTML = '<b>Admin</b>: every feature of every plan · unlimited downloads, photos and videos, up to ' + p.maxPx + ' pixels, no watermark · <b>unlimited</b> AI credits';
+    else if (rem === Infinity) q.innerHTML = '<b>' + p.label + '</b>: unlimited downloads, up to ' + p.maxPx + ' pixels · <b>' + creditsText(creditsOf()) + '</b> AI credits';
     else q.innerHTML = '<b>' + rem + '</b> of ' + (p.weekly || p.monthly) + ' downloads left this ' + (p.weekly ? 'week' : 'month') +
-      ' · <b>' + creditsOf().total + '</b> AI credits' +
-      ((account.plan || 'free') === 'free' ? ' · standard size with watermark. <span class="up" id="quota-plans">Upgrade</span>' : '');
+      ' · <b>' + creditsText(creditsOf()) + '</b> AI credits' +
+      (!isPro() ? ' · standard size with watermark. <span class="up" id="quota-plans">Upgrade</span>' : '');
   }
   syncCreditsUI();
   const up = $('quota-plans');
   if (up) up.onclick = () => openPlans();
   const hint = $('ez-dl-hint');
-  if (hint) hint.textContent = (planOf().maxPx >= 1440 && account && (account.plan||'free') !== 'free')
+  if (hint) hint.textContent = (planOf().maxPx >= 1440 && isPro())
     ? '1440×1440 PNG minimum, ready for Marketplace, OfferUp & Instagram'
     : 'Standard size (1080×1080) on the Free plan. Upgrade for bigger sizes and no watermark';
 }
@@ -6649,11 +6663,18 @@ function buildPlansGrid(){
     n.textContent = 'Checkout opens soon. Until then nothing is charged, and the free plan works as normal.';
     g.appendChild(n);
   }
+  if (isAdmin()){
+    const n = document.createElement('div');
+    n.className = 'plans-note plans-admin';
+    n.innerHTML = '<b>Admin account: every feature of every plan is on for you</b>, whatever plan you are billed on (' + PLANS[cur].label +
+      '): every design, unlimited photo and video downloads at full size with no watermark, the QR code, unlimited AI credits and the biggest library. Nothing here needs buying; a checkout below is a real one, there to try.';
+    g.appendChild(n);
+  }
   /* Free is a line above the paid plans (owner, 2026-10-09) */
   const fl = document.createElement('div');
   fl.className = 'plans-free';
   fl.innerHTML = '<div class="plans-free-name"><b>Free</b> <span>$0</span></div><p>' + freeLine() + '</p>';
-  if (account && cur === 'free') fl.insertAdjacentHTML('beforeend', '<div class="plan-current">✓ Your current plan</div>');
+  if (account && cur === 'free'){ if (!isAdmin()) fl.insertAdjacentHTML('beforeend', '<div class="plan-current">✓ Your current plan</div>'); }
   else if (account && !DEMO){
     const b = document.createElement('button');
     b.className = 'plan-btn ghost'; b.textContent = 'Cancel in billing'; b.onclick = openBillingPortal;
@@ -6707,7 +6728,7 @@ function buildPlansGrid(){
   const each = aiCost + ' credit' + (aiCost === 1 ? '' : 's');
   const monthly = Object.values(PLANS).map(p => p.label + ' ' + fmtN(p.credits)).join(', ');
   packs.innerHTML = '<div class="plans-packs-head"><h3>AI credits</h3><p>Credits pay for one thing: AI backgrounds. Each background is ' + each + '.' +
-    (c ? ' You have <b>' + fmtN(c.total) + '</b>' + (c.bought ? ' (' + fmtN(c.left) + ' this month + ' + fmtN(c.bought) + ' bought)' : '') + '.' : '') + '</p></div>' +
+    (c ? (c.unlimited ? ' As an admin, yours are <b>unlimited</b>.' : ' You have <b>' + fmtN(c.total) + '</b>' + (c.bought ? ' (' + fmtN(c.left) + ' this month + ' + fmtN(c.bought) + ' bought)' : '') + '.') : '') + '</p></div>' +
     '<ul class="packs-facts">' +
       '<li><b>What you get</b>A new photo made for your ad, shaped to fit it, from Square to Story to Wide. Pick up to 4 products from our own photos (iPhones, Samsung, iPads, Macs, cars, gold, coins, cards and more), a style, a colour scheme and where your words go, or just describe what you want. It is made to leave out text, logos and people, so your headline and number sit on top.</li>' +
       '<li><b>What you can do with it</b>Use it as your ad\'s background, download it, or share it to the community gallery. Save it to your backgrounds and use it again with no more credits.</li>' +
@@ -6751,7 +6772,8 @@ async function openBillingPortal(){
   try { const j = await api('/portal', {}); location.href = j.url; }
   catch (e){ toast('Billing portal unavailable: ' + e.message, 'error'); }
 }
-const notOpenYet = () => toast('Checkout is not open yet. Nothing was charged, and your free plan keeps working.', 'error');
+const notOpenYet = () => toast(isAdmin() ? 'Checkout is not open yet (set STRIPE_SECRET in Netlify). Nothing was charged; your admin account already has every feature.'
+  : 'Checkout is not open yet. Nothing was charged, and your free plan keeps working.', 'error');
 async function startCheckout(what){
   if (typeof what === 'string') what = { plan: what };
   if (!account){ openAuth('Create an account first, then pick your plan.', () => openPlans()); return; }
@@ -6928,7 +6950,7 @@ function bindSaasUI(){
   $('acct-chip').onclick = (e) => {
     if (!account){ openAuth(); return; }
     e.stopPropagation();
-    $('am-email').textContent = account.email + ' · ' + planOf().label;
+    $('am-email').textContent = account.email + ' · ' + planLabel();
     $('am-admin').style.display = isAdmin() ? '' : 'none';
     menu.classList.toggle('open');
   };

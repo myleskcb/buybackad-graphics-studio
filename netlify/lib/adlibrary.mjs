@@ -83,7 +83,9 @@ const PARTS_MAX = Math.ceil(VIDEO_MAX_BYTES / PART_BYTES);
 const SHA_RE = /^[0-9a-f]{64}$/;
 const VIDEO_SECONDS_MAX = 120;
 const MIN_SIDE = 320, MAX_SIDE = 4320;
-const DEFAULT_LIMITS = { admin: 2000 };   // the plans' own are in plans.mjs (library)
+/* the plans' own are in plans.mjs (library); an operator keeps at least what
+   the biggest plan keeps, so an admin account can try every plan's library */
+const DEFAULT_LIMITS = { admin: Math.max(...Object.values(PLANS).map((p) => p.library)) };
 const enc = new TextEncoder();
 
 const reply = (data, status, extra) => new Response(JSON.stringify(data), {

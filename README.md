@@ -37,7 +37,7 @@ redeploy. `.env.example` is the local copy for `netlify dev`.
 | variable | what it does |
 |---|---|
 | `JWT_SECRET` | required; any long random string, signs the sign-in tokens |
-| `ADMIN_EMAILS` | comma-separated operator emails: no caps, no watermark, the admin tools |
+| `ADMIN_EMAILS` | comma-separated operator emails: every feature of every plan whatever plan the account is billed on (no caps, no watermark, video, QR, unlimited AI credits, the biggest library), shown as **Admin** in the studio and on the plans page, and the admin tools. Sign in with the same email; a change reaches the function with the next deploy |
 | `FAL_KEY` | AI backgrounds on fal.ai: Seedream v4 text-to-image for a scene, Seedream v4 **edit** when the customer picks products (the shop's own photographs go in as reference images). First choice whenever it is set. `PGFX_FAL_TEXT_MODEL` / `PGFX_FAL_EDIT_MODEL` swap the models (a model `plans.mjs` does not price needs `MODEL_COSTS`) |
 | `GEMINI_KEY` | AI backgrounds on Gemini (3.1 Flash Lite Image by default; `PGFX_BG_MODEL` overrides it): the fallback when fal fails, or the only provider without `FAL_KEY` (`PGFX_BG_PROVIDER=gemini` puts it first). With neither key, the generator says the feature is not enabled yet |
 | `AI_MAX_PER_RUN` | images one Generate in the AI background generator can ask for (default 4, at most 8). The prompt recipe, styles, colour schemes and negative words are edited in the AI Studio console (operators), not here |
@@ -227,8 +227,8 @@ approval; when to post, and to post again, is iPhones LA's
 (`docs/iphonesla-library/autopost_worker.py`, the prompt in that folder's
 README). An ad that shows a website, a QR code, a street address or a social
 handle, or carries the watermark, is saved but held: it cannot be approved.
-Caps: free 12 ads, Pro 300, operators 2000 (`ADLIB_MAX_FREE`, `ADLIB_MAX_PRO`,
-`ADLIB_MAX_ADMIN`), 100 saves a day (`ADLIB_DAILY`). It needs the real backend
+Caps: the plan's (Free 12, Starter 300, Pro 1,000, Business 3,000), operators
+the biggest plan's (`ADLIB_MAX_FREE`, `ADLIB_MAX_PRO`, `ADLIB_MAX_ADMIN`), 100 saves a day (`ADLIB_DAILY`). It needs the real backend
 (`JWT_SECRET` set): in demo mode the dialog says so.
 
 `master-library.html` without a link is the **master library**: the account's

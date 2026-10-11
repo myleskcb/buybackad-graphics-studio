@@ -100,9 +100,13 @@ const isoDay = () => new Date().toISOString().slice(0, 10);
 
 const adminEmails = (env) => String(env.ADMIN_EMAILS || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean);
 const roleFor = (email, env) => (adminEmails(env).includes(email) ? 'admin' : 'user');
+/* An operator (ADMIN_EMAILS) has every feature of every plan whatever plan it
+   is billed on: no download cap, watermark or size limit (/export), video,
+   AI not charged (bggen.mjs), the biggest library (adlibrary.mjs). `plan` stays
+   the billed one, so checkout can still be tried; credits say unlimited. */
 const publicUser = (u, env) => ({
   email: u.email, plan: planId(u.plan), exports: u.exports, role: roleFor(u.email, env),
-  credits: creditState(u),
+  credits: roleFor(u.email, env) === 'admin' ? { ...creditState(u), unlimited: true } : creditState(u),
   sub: u.sub && u.sub.id ? { plan: u.sub.plan, interval: u.sub.interval, status: u.sub.status, periodEnd: u.sub.periodEnd, cancelAt: u.sub.cancelAt } : null,
 });
 /* the download meter of an account's plan: this period's count, its cap */

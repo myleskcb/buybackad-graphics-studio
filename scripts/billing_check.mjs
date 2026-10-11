@@ -522,6 +522,14 @@ let csPro;
   const st = await hit('POST', '/admin/billing', {}, t);
   ok(st.status === 200 && st.json.on && st.json.mode === 'live' && Object.values(st.json.prices).every((v) => /^price_/.test(v)) && Object.keys(st.json.prices).length === 8,
     '/admin/billing makes and lists every price (6 plan prices, 2 packs)');
+  /* an operator has every feature whatever plan it is billed on: the billed
+     plan stays (checkout can be tried), its credits say unlimited, and a
+     video download is let through on Free */
+  const me = (await hit('GET', '/me', undefined, t)).json.user;
+  ok(me.role === 'admin' && me.plan === 'free' && me.credits.unlimited === true && !(await hit('GET', '/me', undefined, boss)).json.user.credits.unlimited,
+    '/me: an operator billed on Free keeps its plan, its credits are unlimited; another account\'s are not');
+  const ov = await hit('POST', '/export/check', { kind: 'video' }, t);
+  ok(ov.status === 200 && ov.json.watermark === false && ov.json.remaining === null, 'an operator on Free downloads videos, no marks, no cap');
 }
 
 /* economics: every plan and pack clears its bar */
@@ -685,6 +693,26 @@ async function browserPart() {
       /* the AI hint: the sidebar's line (the generator dialog shows the same count in its footer, bggen.js) */
       const hint = await page.evaluate(() => { syncCreditsUI(); return document.getElementById('bg-credits').textContent; });
       ok(/Uses 1 AI credit\. You have 600 \(500 this month \+ 100 bought\)/.test(hint), `the AI hint counts credits (${hint})`);
+      await page.context().close();
+    }
+    /* an operator billed on Free: the studio and the plans page say Admin and
+       every feature, never "Free, your current plan" (owner, 2026-10-11) */
+    {
+      const boss = (await hit('POST', '/auth/login', { email: 'boss@studio.example', password: 'a-long-password' })).json.token;
+      const page = await newPage(1440, boss);
+      await page.goto(BASE + '/?plans=1', { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('#page-plans.active .plan-card');
+      await page.waitForTimeout(400);
+      const a = await page.evaluate(() => ({ badge: document.getElementById('acct-plan').textContent, free: (document.getElementById('acct-plan').className.match(/\bfree\b/) || []).length,
+        note: (document.querySelector('#plans-grid .plans-admin') || {}).textContent || '', current: !!document.querySelector('#plans-grid .plans-free .plan-current'),
+        packs: document.querySelector('#plans-grid .plans-packs-head p').textContent, up: getComputedStyle(document.getElementById('nav-upgrade') || document.body).display,
+        quota: (syncQuotaUI(), (document.getElementById('ez-quota') || {}).textContent || ''), hint: (syncCreditsUI(), document.getElementById('bg-credits').textContent),
+        plan: planOf().label, video: videoAllowed(), qr: planOf().qr }));
+      ok(a.badge === 'ADMIN' && !a.free && /every feature of every plan/.test(a.note) && /billed on \(Free\)/.test(a.note) && !a.current && /unlimited/.test(a.packs) && a.up === 'none',
+        `operator: the plans page says Admin and every feature, not Free as the current plan (${JSON.stringify(a)})`);
+      ok(/^Admin: every feature/.test(a.quota) && /unlimited/.test(a.hint) && a.plan === 'Business' && a.video && a.qr,
+        `operator: the studio's limits are the biggest plan's, AI unlimited (${a.quota} / ${a.hint})`);
+      await shot(page, 'plans-operator');
       await page.context().close();
     }
     /* Embedded Checkout: a free account buys Starter inside the site's own

@@ -4261,3 +4261,38 @@ RESUME HERE:
   0. Apple's own wallpaper files: the owner's licensing call (§AW 1).
   1. Whether cards on flagged pictures leave the studio (§AW 5).
   2. The iPad and the phones' dark screens into `SCREENS` (§AW 2).
+
+## 2026-10-11 — an admin account is every plan, and says so (claude/exciting-thompson-xtdq5g)
+
+Asked: the owner, with a screenshot of the plans page on their admin
+account (Free "your current plan", 5 AI credits, "Checkout is not open
+yet"): "my admin account that has not been validated for premium so I'm not
+able to test all the features I've been creating", and to put every change
+live.
+
+Found:
+  - The function already let operators (ADMIN_EMAILS) past every gate:
+    downloads, video, watermark, AI credits, the library. The studio read
+    `plan: "free"` and showed it: a FREE badge, an Upgrade button, "3 of 3
+    downloads left · 5 AI credits · standard size with watermark", the
+    1080 hint, and Free as the current plan.
+  - The operators' library cap (2000) sat under Business's (3000).
+  - `?plans=1` (the video maker's See plans) builds the plans page before
+    the account has loaded, and nothing built it again: a signed-in
+    customer saw "Start free".
+  - Ten of the day's session branches had pushed and stopped short of
+    `main`; merged here (OPEN-ITEMS letters: the gaming cards keep §AU, the
+    Mac wallpapers are §AW).
+
+Done: `planOf()` is the biggest plan's for an operator, the badge and the
+account menu say Admin, credits say unlimited (the function's `/me` too),
+the plans page says every feature is on and which plan is billed, and the
+checkout buttons stay (they are how billing is tried). The operators' cap
+is the biggest plan's. `syncAcctUI` builds the plans page again when it is
+open. `billing_check.mjs` checks an operator on Free in the function and in
+Chromium.
+
+Checked: billing_check 125 of 125, bggen_check 89 of 89, ad_library_check
+no failures, plan_economics, CSS_FALLBACK in sync. The browser checks need
+`FABRIC_JS` here: cdnjs is out of reach, and without fabric the page stops
+before `TYPE_VOICES` and reads as a page error.
