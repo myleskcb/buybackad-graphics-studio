@@ -4257,6 +4257,10 @@ Found:
     family's product pictures (2026-10-04); the template audit would hold
     most offer cards today, the owner's MacBook card included.
 
+Then the eighth layout, Detailed, a lit finish on the floating boxes, and
+the laptop screens lit by default on every studio card (the owner: "start
+putting the backgrounds in the computer"), one drawn wallpaper per card.
+
 RESUME HERE:
   0. Apple's own wallpaper files: the owner's licensing call (§AW 1).
   1. Whether cards on flagged pictures leave the studio (§AW 5).

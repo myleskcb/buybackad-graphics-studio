@@ -24,9 +24,11 @@
       the front one, through a perspective warp into the angled one, under a
       faint glass sheen, the front one with the notch its 2021 MacBook Pro
       has. The picture is swapped for the lit copy as the card is built
-      (buildLayer), only in Easy Mode's render and its hand-off to the
-      designer, so a card as designed, its thumbnail and the library's renders
-      draw exactly as before.
+      (buildLayer). Since the owner's "Ideally, we start putting the
+      backgrounds in the computer", a studio card's screen is lit as designed
+      with a wallpaper of its own (DEFAULTS, below); a library card's stays as
+      photographed (its thumbnail and library render are baked) unless the
+      visitor picks one.
 
    Loaded after app.js (and grounds.js); the drawing works without app.js, so
    a test page can paint the wallpapers alone (window.MAC_WALLPAPERS.paint). */
@@ -514,14 +516,37 @@
     return c;
   }
 
-  /* what is on the screen: '' (off, as photographed), a wallpaper's key, or
-     'own' (the visitor's picture, kept on this device only, in the studio's
-     photo store with the recent photos: IndexedDB, not localStorage, where a
-     photograph can crowd the drafts out) */
+  /* what the visitor put on the screen: null (AUTO, the card's own wallpaper),
+     'off' (the screen as photographed), a wallpaper's key, or 'own' (the
+     visitor's picture, kept on this device only, in the studio's photo store
+     with the recent photos: IndexedDB, not localStorage, where a photograph
+     can crowd the drafts out) */
   const jg = (k, fb) => { try { return typeof jget === 'function' ? jget(k, fb) : fb; } catch (e){ return fb; } };
   const js = (k, v) => { try { if (typeof jset === 'function') jset(k, v); } catch (e){} };
-  const ST = { key: '', own: null, ownVer: 0 };
-  ST.key = (k => k === 'own' || byKey[k] || photoOf(k) ? k : '')(jg('pgfx_ez_screen', ''));
+  const ST = { key: null, own: null, ownVer: 0 };
+  ST.key = (k => k === 'off' || k === 'own' || byKey[k] || photoOf(k) ? k : null)(jg('pgfx_ez_screen', null));
+  /* THE SCREEN IS LIT BY DEFAULT (2026-10-11, the owner over a Floating
+     MacBook card with its screen off: "Ideally, we start putting the
+     backgrounds in the computer like we talked about"). Every studio card
+     whose picture has a screen we know carries a wallpaper on it as designed,
+     one per card from DEFAULTS by its id, so a category reads as a range: in
+     the template strip, Easy Mode, the download and the designer alike. The
+     defaults are drawn ones, which paint at once wherever a card is built (a
+     photograph loads on first use, and a thumbnail does not wait for it). A
+     library card (showcase) keeps its screen as photographed unless the
+     visitor picks one: its thumbnail and its library render are baked. */
+  const DEFAULTS = ['wpTahoeDay', 'wpGateSunset', 'wpTahoeGlass', 'wpGateNight', 'wpTahoeDusk', 'wpGateFog', 'wpGoldCurves', 'wpTahoeNight'];
+  const DEF = new Map();
+  function defaultFor(tplId){
+    if (!tplId) return '';
+    if (DEF.has(tplId)) return DEF.get(tplId);
+    let tpl = null; try { tpl = TEMPLATES.find(t => t.id === tplId); } catch (e){}
+    let k = '';
+    if (tpl && !tpl.showcase && !/^sc-/.test(tplId)){ let h = 0; for (const ch of String(tplId)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; k = DEFAULTS[h % DEFAULTS.length]; }
+    DEF.set(tplId, k); return k;
+  }
+  /* in Easy Mode the visitor's choice wins; AUTO is the card's own */
+  const chosenFor = tplId => ST.key === 'off' ? '' : ST.key || defaultFor(tplId);
   const LIT = new Map();                         // a few lit cut-outs, newest last (each is a full-size canvas)
   /* `flip`: the picture is drawn mirrored (a product faces into the layout,
      rule 73), so the art goes in mirrored and reads the right way round */
@@ -568,16 +593,21 @@
       return typeof cb === 'function' ? cb.apply(this, arguments) : undefined;
     });
   };
-  /* the screen is lit only where Easy Mode builds the card: its render (the
-     preview, the download, the gate, the video) and the hand-off to the
-     designer. Every other build (thumbnails, the library, the audits) draws
-     the card as designed. */
+  /* Where Easy Mode builds the card (its render: the preview, the download,
+     the gate, the video; and the hand-off to the designer) the screen shows
+     what the visitor chose; every other build (the template strip, the
+     designer opening a template, the audits) shows the card as designed,
+     its own wallpaper on the screen. */
   let ON = false;
   const _buildLayer = buildLayer;
-  buildLayer = function(l){
+  buildLayer = function(l, tplId){
     const o = _buildLayer.apply(this, arguments);
-    try { if (ON && ST.key && l && l.kind === 'cutout' && l.props && o && o.type === 'image' && screenOf(l.props.src)) light(o, l.props.src, ST.key); }
-    catch (e){ console.warn('mac wallpapers: screen', e); }
+    try {
+      if (l && l.kind === 'cutout' && l.props && o && o.type === 'image' && screenOf(l.props.src)){
+        const key = ON ? chosenFor(tplId) : defaultFor(tplId);
+        if (key) light(o, l.props.src, key);
+      }
+    } catch (e){ console.warn('mac wallpapers: screen', e); }
     return o;
   };
   const onFor = fn => function(){ const was = ON; ON = true; try { return fn.apply(this, arguments); } finally { ON = was; } };
@@ -619,6 +649,7 @@
     return !!tpl && (tpl.layers || []).some(l => l.kind === 'cutout' && l.props && screenOf(l.props.src) && !hidden.includes(l.name));
   }
   function pick(key){
+    key = key || null;                                                        // '' and null: AUTO
     const p = photoOf(key);
     if (p && !photoEl(p)){ loadPhoto(p).then(el => { if (el) pick(key); }); return; }
     ST.key = key; js('pgfx_ez_screen', key);
@@ -630,7 +661,7 @@
     const ownB = row.querySelector('[data-screen="own"]');
     if (ownB){ ownB.style.display = ST.own ? '' : 'none'; if (ST.own && ownB.dataset.ver !== String(ST.ownVer)){ ownB.dataset.ver = String(ST.ownVer);
       ownB.style.backgroundImage = 'url("' + cover(ST.own, 96, 60).toDataURL('image/jpeg', 0.85) + '")'; } }
-    row.querySelectorAll('[data-screen]').forEach(b => { const sel = b.dataset.screen === ST.key; b.classList.toggle('sel', sel); b.setAttribute('aria-pressed', sel ? 'true' : 'false'); });
+    row.querySelectorAll('[data-screen]').forEach(b => { const sel = b.dataset.screen === (ST.key || 'auto'); b.classList.toggle('sel', sel); b.setAttribute('aria-pressed', sel ? 'true' : 'false'); });
   }
   const OWN_ID = 'screen-own';                 // its record in the photo store; every list there filters by kind
   function useOwn(url, save){
@@ -648,7 +679,9 @@
     file.after(ttl, row, input);
     const add = (key, title, dress, onclick) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'ez-sw ez-gsw';
       b.dataset.screen = key; b.title = title; b.setAttribute('aria-label', title); dress(b); b.onclick = onclick || (() => pick(key)); row.appendChild(b); return b; };
-    add('', 'Screen off, as photographed', b => { b.textContent = 'OFF'; b.style.background = 'var(--surface-sunk)'; b.style.color = 'var(--text-dim)'; b.style.font = '700 9px/1.1 var(--ui)'; });   // not .orig: syncEzSwatches lights the first .orig
+    const word = (b, w) => { b.textContent = w; b.style.background = 'var(--surface-sunk)'; b.style.color = 'var(--text-dim)'; b.style.font = '700 9px/1.1 var(--ui)'; };   // not .orig: syncEzSwatches lights the first .orig
+    add('auto', 'The design’s own wallpaper', b => word(b, 'AUTO'), () => pick(null));
+    add('off', 'Screen off, as photographed', b => word(b, 'OFF'));
     PHOTOS.forEach(p => add(p.key, p.name, b => { b.style.backgroundImage = 'url("' + url(p.thumb) + '")'; }));
     WALLS.forEach(w => add(w.key, w.name, b => { b.style.backgroundImage = 'url("' + paint(w.key, 96, 60).toDataURL('image/jpeg', 0.85) + '")'; }));
     add('own', 'Your picture', b => { b.style.display = 'none'; });

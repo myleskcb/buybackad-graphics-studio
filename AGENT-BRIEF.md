@@ -506,10 +506,12 @@ produced." DESIGN-LAW rule 87. In practice:
 - **Mac wallpapers and lit screens** (2026-10-11, OPEN-ITEMS §AW):
   `mac-wallpapers.js`, loaded after app.js, registers ten drawn wallpapers
   (`ground:wp…`) as the Wallpapers background group, and lights a laptop
-  picture's screen from Easy Mode's "On the laptop screen" row. It wraps
-  `buildLayer`, but lights a cut-out only inside `renderEzCanvas` and
-  `openAdvancedFromEz`; a card as designed, its thumbnail and every audit
-  draw unchanged. A new picture with a screen is a row in `SCREENS` (its
+  picture's screen. It wraps `buildLayer`: a studio card's screen is lit as
+  designed with its own drawn wallpaper (`DEFAULTS`, by card id) in every
+  build; inside `renderEzCanvas` and `openAdvancedFromEz` the visitor's
+  choice from Easy Mode's "On the laptop screen" row wins (AUTO, OFF, a
+  wallpaper, a photograph, their own picture). Library (showcase) cards stay
+  unlit unless chosen: their renders are baked. A new picture with a screen is a row in `SCREENS` (its
   display's four corners, measured and checked by warping a grid). Apple's
   own wallpaper files are not shipped: Apple's artwork, the owner's call;
   twelve free-licensed photographs of the same places (Commons, credited in

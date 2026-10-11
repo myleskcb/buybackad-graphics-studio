@@ -2835,10 +2835,15 @@ off screen". Done in `mac-wallpapers.js` (loaded after app.js):
 - **On the laptop screen**, an Easy Mode row shown on a card whose picture
   has a screen we know (`SCREENS`: mac-pro-open-front, macbook-open-angle;
   mac-half-open-glow shows its lid). Off, any wallpaper, or the visitor's own
-  picture (kept on the device, in the photo store beside the recent photos). Lit only in Easy Mode's
-  render (preview, download, gate, video) and the hand-off to the designer;
-  thumbnails, the library and the audits draw the card as designed. A lit
+  picture (kept on the device, in the photo store beside the recent photos). A lit
   picture is saved as its recipe (`pgScreen`) and lit again on any load.
+  **Lit by default** (the owner, later: "Ideally, we start putting the
+  backgrounds in the computer like we talked about"): every studio card
+  whose picture has a known screen carries a drawn wallpaper as designed, one
+  per card by its id (`DEFAULTS`), in the strip, Easy Mode, the download and
+  the designer; the row's AUTO is that wallpaper, OFF the screen as
+  photographed. Library cards stay as photographed unless the visitor picks:
+  their thumbnails and library renders are baked.
 
 **Photographs too** (later the same day). The owner: "I wanted the stock
 Mac ones ... if you're able to access wiki media commons, we can try to use
