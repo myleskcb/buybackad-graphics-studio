@@ -346,13 +346,25 @@
     mac: [{ file:'macbook-macbook-on-desk-1', p90:208 }, { file:'macbook-macbook-pro-m3-1', p90:198 }, { file:'macbook-macbook-air-2', p90:34 }],
     space: [{ file:'space-earth-from-iss-night-1', p90:130 }, { file:'space-earth-from-iss-night-3', p90:22 }, { file:'space-moon-surface-nasa-4', p90:99 }, { file:'space-earth-from-iss-night-4', p90:99 }, { file:'space-aurora-from-space-3', p90:172 }, { file:'space-galaxy-hubble-telescope-1', p90:170 }],
   };
-  /* the gaming lines stand in gamers' rooms (the owner: "gamer bedrooms, gamer
-     living rooms, aesthetic gaming set ups"), drawn by
-     scripts/make_gaming_grounds.py until the photographs come; gaming
-     headsets and monitors live in the same rooms */
-  GROUNDS.gaming = [{ file:'gaming-rgb-desk-setup', p90:160 }, { file:'gaming-living-room-tv', p90:179 }, { file:'gaming-bedroom-night', p90:96 }];
+  /* the gaming lines stand on photographs of their own goods like every other
+     category (2026-10-11, the owner of the three drawn gaming rooms every
+     gaming card, headset and monitor stood on: "too similar of backgrounds and
+     themes", "assimilate with the other categories"; DESIGN-LAW 117). The
+     lines with none (laptops, VR, headsets, monitors) take the NASA pictures
+     as the other categories' do; a PC handheld has one photograph, and its
+     and the gaming PC's type cards, which set the model names over the
+     picture, take the NASA frames that hold those names at 4.5:1
+     (audit_templates.mjs; the city lights and the aurora did not). The drawn
+     rooms (scripts/make_gaming_grounds.py) are retired. */
+  Object.assign(GROUNDS, {
+    console: [{ file:'gaming-playstation-5-1', p90:31 }, { file:'gaming-xbox-series-x-3', p90:138 }, { file:'gaming-playstation-5-3', p90:222 }],
+    switch: [{ file:'gaming-nintendo-switch-oled-3', p90:209 }, { file:'gaming-nintendo-switch-2-1', p90:255 }, { file:'gaming-nintendo-switch-3', p90:244 }, { file:'gaming-nintendo-switch-oled-1', p90:219 }],
+    controller: [{ file:'gaming-dualsense-controller-3', p90:255 }, { file:'gaming-dualsense-controller-1', p90:255 }],
+    pchandheld: [{ file:'gaming-steam-deck-2', p90:177 }, GROUNDS.space[0], GROUNDS.space[2]],
+    gamingpc: [GROUNDS.space[1], GROUNDS.space[4], GROUNDS.space[5]],
+  });
   const GROUND_OF = { iphone:'iphone', ipad:'iphone', mac:'mac', gold:'gold', silver:'silver', coins:'coins', car:'cars',
-    strips:'strips', pokemon:'pokemon', sports:'sports', gaming:'gaming', headset:'gaming', monitor:'gaming' };
+    strips:'strips', pokemon:'pokemon', sports:'sports', console:'console', switch:'switch', controller:'controller', pchandheld:'pchandheld', gamingpc:'gamingpc' };
   /* white on black-shaded pixels of luminance v: v * (1 - a) <= 118 is 4.5:1;
      110 and 0.05 are the margin */
   const shadeFor = p90 => +Math.max(0.2, Math.min(0.82, 1 - 110 / Math.max(1, p90) + 0.05)).toFixed(2);

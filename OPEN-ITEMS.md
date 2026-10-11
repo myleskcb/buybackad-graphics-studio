@@ -2737,6 +2737,46 @@ Still open:
    branch's pgOneHue wrapper wraps its pass (the theme path is this rule's,
    its two families the no-theme path).
 
+## AU. 2026-10-11 — the gaming cards on their own goods, not three drawn rooms (DESIGN-LAW 117)
+
+The owner, with a screenshot of the Gaming category: "too similar of
+backgrounds and themes way too similar", then "assimilate with the other
+categories".
+
+Found: all 39 gaming offer cards (consoles, Switch, controllers, gaming
+laptops, VR, PC handhelds, gaming PCs) and the gaming headsets and monitors
+stood on the same three drawn purple-neon rooms
+(`scripts/make_gaming_grounds.py`, §Q), placeholders that rule 117 has ruled
+out since 2026-10-04. Every other category stands on photographs of its own
+goods, or the NASA pictures where there is none, and thirteen Commons
+photographs of consoles, Switches, DualSenses and a Steam Deck had been in
+`assets/bg-web` unused.
+
+Done:
+- `scripts/make_offer_grounds.py` makes grounds for the console (PS5 twice,
+  Xbox on its shelf), Switch (OLED and dock, Joy-Con 2, Switch 2 dock, OLED
+  dock), controller (two DualSenses) and PC handheld (Steam Deck) lines; the
+  two screen-only Switch close-ups are left out (they shade to a flat field).
+  `GROUNDS` and `GROUND_OF` in offer-library.js read them.
+- Laptops, VR, headsets and monitors take the NASA pictures, as audio,
+  cameras and computers do. The PC handheld's and gaming PC's type cards set
+  the model names over the picture: on the city lights and the aurora they
+  fell to 3.3 and 2.65; they take the frames that hold 4.5:1.
+- The new grounds are mapped in `photo-subjects.js` (spliced in: the mapper
+  here does not reproduce the committed table bit for bit, so the other
+  325 entries are left as they were).
+- `audit_templates.mjs --match '^of_'`: 161 cards, the same verdict on every
+  card as before (66 held, all for product pictures flagged on 2026-10-04,
+  none for a ground).
+
+Open:
+1. The gaming lines' holds are their product cut-outs (the console pair, the
+   Switch renders, the controller pair cut at the edge, the VR headset): 20
+   of the 39 cards are held for them, as before this change. They need real
+   cut-outs of the same goods.
+2. Real gaming rooms (scrape-intake item 5) are still welcome, if they differ
+   from one another in colour and light.
+
 ## AV. 2026-10-11 — one light: the metal grounds lit by the phones' key light (DESIGN-LAW 128)
 
 The owner, of a Titanium video ad on Brushed metal: "the shading around the

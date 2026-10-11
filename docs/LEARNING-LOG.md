@@ -4192,3 +4192,26 @@ Found:
 Checked: `scripts/ad_library_check.mjs` (router, the real function, iPhones
 LA's worker posting the approved ad once, its own tests, and Chromium under
 the production CSP): no failures.
+
+## 2026-10-11 — the gaming cards leave the drawn rooms (OPEN-ITEMS §AU)
+
+Asked: a screenshot of the Gaming category, "too similar of backgrounds and
+themes way too similar", then "assimilate with the other categories".
+
+Found:
+  - The sameness was one cause: every gaming, gaming headset and monitor
+    card stood on the same three drawn rooms, all purple neon. The looks
+    (bands, panels) already varied; the ground is most of the card.
+  - The fix was already in the repo: thirteen real gaming photographs in
+    `assets/bg-web` that no ground used, and the other categories' recipe
+    (`make_offer_grounds.py`, the NASA pictures where a line has none).
+  - The template audit is the measure, not the look: two type cards passed
+    by eye on the aurora and the city lights and measured 3.3 and 2.65 for
+    their model names. Trying each NASA frame under them took five runs of a
+    four-card audit.
+  - The subject mapper rebuilt 76 of the committed entries differently on
+    this container's OpenCV; splice new entries, do not rewrite the table.
+
+RESUME HERE:
+  0. Merge to `main` (this branch: `claude/wizardly-bardeen-62280m`).
+  1. The gaming cut-outs held since 2026-10-04 (§AU 1).
