@@ -9421,7 +9421,7 @@ function revealSelectedTpl(){
 function selectEzTpl(id){
   const want = TEMPLATES.find(t => t.id === id);
   if (want && tplLocked(want)){
-    openPlans('“' + want.name + '” is a premium template. Pro unlocks the whole library.');
+    openPlans('“' + want.name + '” is a premium template. Every paid plan, from Starter at $25 a month, unlocks the whole library.');
     if (!ez.tpl || tplLocked(ezTpl())) id = firstFreeTplId();
     else return;
   }
