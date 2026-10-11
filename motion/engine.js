@@ -304,6 +304,51 @@ function copyInto(out, r, locked, content) {
 
 /** The few pairings that do not work, repaired. Nothing here narrows the look;
  *  it only stops two choices colliding on screen. */
+/* What would drown or contradict the phones' move once landed (phoneIdle): something else
+   that moves the phones themselves in a rhythm of its own. Owner, 2026-10-11: "we wanna make
+   sure there's no overlapping effects that may contradict the breathing in case we were to
+   manually configure the effects ... it says breathing, but doesn't breathe it appears
+   broken". Measured by scripts/motion_idle_audit.mjs (each setting by hand, the move drawn
+   against the phones standing still): these three moved the phones' box most, the pump and
+   the hand-held camera as much as a breath does; grain, light, confetti and sparkles only
+   busy the box and leave every move plain to see.
+     the picture pumping on the beat   swells it all, on the beat: a pulse or a breath
+                                       beside it looked "identical"
+     a turntable's sway                a second move of the phones' own, under any move
+     the hand-held camera              wobbles it all, as slowly as a breath or a float */
+const IDLE_CLASHES = [
+  { moves: ["pulse", "breathe"], key: "urgency", val: "beat_pump", calm: "none", name: "Pump on the beat" },
+  { moves: ["spin", "pulse", "breathe", "float"], key: "pose", val: "turntable", calm: "flat", name: "Turntable sway" },
+  { moves: ["breathe", "float"], key: "camera", val: "handheld", calm: "push_in", name: "Handheld camera" },
+];
+const MOVE_WORD = { spin: "spin", pulse: "pulse", breathe: "breathing", float: "floating" };
+const clashes = st => IDLE_CLASHES.filter(c => c.moves.includes(st.phone_idle) && st[c.key] === c.val);
+
+/** Settle every clash between the phones' move and what would drown it, so the panel never
+ *  shows a move that cannot be seen. picked: the setting just chosen by hand, which stays;
+ *  otherwise a move picked by hand stays, and a move a shuffle drew gives way to one that
+ *  clashes with nothing; where none fits (a turntable's sway) and the other was not picked
+ *  by hand either, the other gives way, so the phones still move (a shuffle left them still
+ *  in 20 looks of 60). What gives way is set to a value that fits and let go (unlocked).
+ *  Returns, for a hand pick, a plain note of what changed and why. */
+export function settleIdleClashes(st, locked = new Set(), picked = null) {
+  const notes = [];
+  for (let guard = 0; guard < 4; guard++) {
+    const c = clashes(st)[0]; if (!c) break;
+    const move = st.phone_idle, word = MOVE_WORD[move] || move;
+    const order = ["spin", "float", "pulse", "breathe"], k = (st.seed >>> 0) % order.length;
+    const fit = order.slice(k).concat(order.slice(0, k)).find(m => !clashes({ ...st, phone_idle: m }).length) || "still";
+    if (picked === "phone_idle" || (picked !== c.key && (locked.has("phone_idle") || (fit === "still" && !locked.has(c.key))))) {
+      st[c.key] = c.calm; locked.delete(c.key);
+      notes.push(`“${c.name}” is now off: it would drown the phones’ ${word}.`);
+    } else {
+      st.phone_idle = fit; locked.delete("phone_idle");
+      notes.push(`The phones now ${fit === "still" ? "stand still" : { spin: "spin", float: "float", pulse: "pulse", breathe: "breathe" }[fit]} once landed: “${c.name}” would drown their ${word}.`);
+    }
+  }
+  return notes;
+}
+
 export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (!FONTS[st.font]) st.font = "franklin";
   for (const [k, map] of Object.entries(SOUND_ALIASES)) if (map[st[k]]) st[k] = map[st[k]];
@@ -360,14 +405,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (!OPTIONS.season.includes(st.season)) st.season = "none";
   if (!OPTIONS.tone.includes(st.tone)) st.tone = "studio";
   if (!OPTIONS.phone_idle.includes(st.phone_idle)) st.phone_idle = "spin";
-  // phones that swell once landed and a picture that pumps on the beat are one move twice, and
-  // the pump drowns the swell (owner, 2026-10-11, of a breathe beside a pulse on a pumping
-  // look: "identical from the left or right"): what was picked by hand stays, the other gives
-  // way; in a shuffle the phones turn or float instead
-  if (["pulse", "breathe"].includes(st.phone_idle) && st.urgency === "beat_pump") {
-    if (locked.has("phone_idle") && !locked.has("urgency")) st.urgency = "none";
-    else if (!locked.has("phone_idle")) st.phone_idle = (st.seed >>> 0) % 3 ? "spin" : "float";
-  }
+  settleIdleClashes(st, new Set(locked));         // the caller's own set is the panel's to change
   if (!OPTIONS.track.includes(st.track)) st.track = "none";
   // a holiday's recordings belong to its ads, and a holiday ad plays only its own (or its
   // tunes, made here); no music means no recording either, unless one was picked by hand
@@ -1436,7 +1474,7 @@ function phoneState(p, t, st, rest = false) {
    p.tIdle is when (the timeline's still: every phone down, every reveal and wide spin
    done, and the number IDLE.hold s on its way and landed), p.idleK how much of the rise and the swell the room round the words and the
    number allows (Ad._idleRoom), p.idleAnchor which edge a swell keeps still (0 none, 1
-   the bottom, so it grows up, -1 the top), p.idleAmp a breath's swell, p.beat0 the
+   the bottom, so it grows up, -1 the top) or, for a rise, -1 to bob down instead, p.idleAmp a breath's swell, p.beat0 the
    music's first downbeat. A rise leaves the
    shadow and the reflection on the ground (the state's .rise, in px), the shadow softening
    as the phone leaves it (z), so it is seen to float rather than slide up the frame. */
@@ -1450,7 +1488,14 @@ const IDLE = { turn: 3.2, ease: .45, bob: 1.6, rise: .045, lift: .16, rock: 2.2,
   hold: .9 };
 function phoneIdle(s, p, t, st) {
   const q = t - p.tIdle, k = p.idleK ?? 1, ramp = inOut(clamp(q / .6));
-  const rise = u => { const d = IDLE.rise * H0(p) * k * u; s[1] -= d; s.rise = d; s[5] = Math.max(s[5], IDLE.lift * k * u); };
+  // up off the ground, its shadow and reflection left on it; or, with no room above (idleAnchor
+  // -1), bobbing down and back, shadow and all (a float had no room to rise in 2 looks of 120,
+  // and so did nothing at all)
+  const rise = u => {
+    const d = IDLE.rise * H0(p) * k * u;
+    if (p.idleAnchor === -1) { s[1] += d; s.rise = 0; return; }
+    s[1] -= d; s.rise = d; s[5] = Math.max(s[5], IDLE.lift * k * u);
+  };
   const swell = f => { s[2] *= f; s[1] -= (f - 1) * halfTall(p) * (p.idleAnchor || 0); };
   switch (st.phone_idle) {
     case "spin": {
@@ -1599,7 +1644,7 @@ function phoneState0(p, t, st) {
   if (t > settle) {
     const a = PHONE_TURN * p.turnSide, q = t - settle;
     switch (st.pose) {
-      case "turntable": if (st.phone_idle !== "spin") flip += a * 1.15 * Math.sin(q * 1.35) * clamp(q / .3); break;   // a spin turns them instead
+      case "turntable": if (!st.phone_idle || st.phone_idle === "still") flip += a * 1.15 * Math.sin(q * 1.35) * clamp(q / .3); break;   // a move once landed is theirs instead (IDLE_CLASHES)
       case "wide_spin": {
         const q2 = prog(t, settle + .35 + p.order * .07, 1.05);
         flip += 2 * Math.PI * inOut(q2) * p.turnSide; z = Math.max(z, .3 * Math.sin(Math.PI * q2)); s *= 1 + .06 * Math.sin(Math.PI * q2);
@@ -2788,7 +2833,7 @@ export class Ad {
       const g = p.reveal ? 1.06 : 1.02, grow = 1 + amp * k;
       const tall = mode === "spin" ? 1 + .5 * p.w / ((p.lens || LENS) * p.h - .5 * p.w) : 1;
       const hw = p.w * p.size * g * grow / 2, hh = p.h * p.size * g * grow * tall / 2;
-      const dy = amp ? (grow - 1) * halfTall(p) * anchor : IDLE.rise * H0(p) * k, ang = p.angle + (mode === "float" ? side * IDLE.rock * k : 0);
+      const dy = amp ? (grow - 1) * halfTall(p) * anchor : IDLE.rise * H0(p) * k * (anchor === -1 ? -1 : 1), ang = p.angle + (mode === "float" ? side * IDLE.rock * k : 0);
       const th = -ang * Math.PI / 180, c = Math.cos(th), s = Math.sin(th);
       return [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].map(([x, y]) => [p.home[0] + x * c - y * s, p.home[1] - dy + x * s + y * c]);
     };
@@ -2819,6 +2864,7 @@ export class Ad {
     };
     let best = { k: room(0), anchor: 0, amp: mode === "breathe" ? breath : 0 };
     if (amp && best.k < 1) for (const a of [1, -1]) { const k = room(a); if (k > best.k + .02) best = { ...best, k, anchor: a }; }
+    if (!amp && best.k < .5) { const k = room(-1); if (k > best.k + .02) best = { ...best, k, anchor: -1 }; }   // no room to rise: bob down
     return best;
   }
 
