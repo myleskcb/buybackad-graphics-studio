@@ -381,29 +381,53 @@ ok(![...store.m.keys()].some((k) => k.endsWith(':' + PV.id)), 'remove: an ad tak
   ok((await hit('GET', '/library/v1')).status === 503, 'function: the partner library still answers first (no keys: 503)');
 
   /* 2b. iPhones LA's worker (docs/iphonesla-library/autopost_worker.py) on
-     this link, over HTTP: it posts the due ad once, and not again until its
-     next slot. Its own tests (test_autopost.py) run here too. */
+     this link, over HTTP, review first (2026-10-11): it takes the ad into the
+     site's review once, posts nothing until the site approves it, then posts
+     the day's slot once. Its own tests (test_autopost.py) run here too. */
   const srv = await serveApi(api);
   const HAND = join(ROOT, 'docs/iphonesla-library');
   const W = join(tmpdir(), 'adlib-worker-' + process.pid);
   rmSync(W, { recursive: true, force: true }); mkdirSync(W, { recursive: true });
-  writeFileSync(join(W, 'shop_post.py'), 'import json, os\ndef post(ad, jpeg, repost, video=None):\n    with open(os.path.join(os.path.dirname(__file__), "posted.jsonl"), "a") as f:\n        f.write(json.dumps({"id": ad["id"], "repost": repost, "kind": ad.get("kind"), "video": len(video) if video else None, "bytes": len(jpeg), "jpeg": jpeg[:3] == bytes([255, 216, 255])}) + "\\n")\n    return "listing-1"\n');
+  writeFileSync(join(W, 'shop_post.py'), [
+    'import json, os',
+    'HERE = os.path.dirname(__file__)',
+    'def _log(name, row):',
+    '    with open(os.path.join(HERE, name), "a") as f:',
+    '        f.write(json.dumps(row) + "\\n")',
+    'def intake(ad, jpeg, video=None):',
+    '    _log("intake.jsonl", {"id": ad["id"], "bytes": len(jpeg), "video": len(video) if video else None, "fresh_until": ad.get("fresh_until")})',
+    '    return "review-1"',
+    'def approved(ad):',
+    '    p = os.path.join(HERE, "approved.txt")',
+    '    return os.path.exists(p) and ad["id"] in open(p).read().split()',
+    'def post(ad, jpeg, repost, video=None):',
+    '    _log("posted.jsonl", {"id": ad["id"], "repost": repost, "kind": ad.get("kind"), "video": len(video) if video else None, "bytes": len(jpeg), "jpeg": jpeg[:3] == bytes([255, 216, 255])})',
+    '    return "listing-1"',
+    '',
+  ].join('\n'));
   const pageLink = mine.json.links.page.replace('https://studio.example', srv.base);
   let workerLog = '';
-  const runWorker = () => new Promise((resolve) => {
-    const c = spawn('python3', [join(HAND, 'autopost_worker.py'), '--once', '--state', join(W, 'state.json'), '--post', 'shop_post:post'],
+  const runWorker = (args) => new Promise((resolve) => {
+    const c = spawn('python3', [join(HAND, 'autopost_worker.py'), '--once', '--state', join(W, 'state.json')].concat(args || ['--intake', 'shop_post:intake', '--approved', 'shop_post:approved', '--post', 'shop_post:post']),
       { env: Object.assign({}, process.env, { BUYBACKAD_FEED_URL: pageLink, PYTHONPATH: W + ':' + HAND, PYTHONDONTWRITEBYTECODE: '1' }) });
     c.stdout.on('data', (d) => { workerLog += d; }); c.stderr.on('data', (d) => { workerLog += d; });
     c.on('close', resolve);
   });
+  const jsonl = (f) => existsSync(join(W, f)) ? readFileSync(join(W, f), 'utf8').trim().split('\n').filter(Boolean).map((l) => JSON.parse(l)) : [];
   try {
+    ok((await runWorker(['--post', 'shop_post:post'])) !== 0 && !jsonl('posted.jsonl').length, 'worker: --post without --approved is refused, nothing posted');
+    await runWorker();
+    ok(jsonl('intake.jsonl').length === 1 && jsonl('intake.jsonl')[0].id === sv.json.item.id && jsonl('intake.jsonl')[0].video === vb.length && !jsonl('posted.jsonl').length,
+      'worker: the ad goes into the site\'s review with its picture and clip, and nothing is posted before it is approved (' + JSON.stringify(jsonl('intake.jsonl')) + ')');
+    writeFileSync(join(W, 'approved.txt'), sv.json.item.id + '\n');
     await runWorker(); await runWorker();
-    if (!existsSync(join(W, 'posted.jsonl'))) throw new Error('nothing posted: ' + workerLog.slice(-400));
-    const lines = readFileSync(join(W, 'posted.jsonl'), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
-    ok(lines.length === 1 && lines[0].id === sv.json.item.id && !lines[0].repost && lines[0].jpeg && lines[0].bytes === J[0].length, 'worker: the due ad posted once, its JPEG whole (' + JSON.stringify(lines) + ')');
+    if (!jsonl('posted.jsonl').length) throw new Error('nothing posted: ' + workerLog.slice(-400));
+    const lines = jsonl('posted.jsonl');
+    ok(jsonl('intake.jsonl').length === 1, 'worker: an ad is taken into review once, however many runs');
+    ok(lines.length === 1 && lines[0].id === sv.json.item.id && !lines[0].repost && lines[0].jpeg && lines[0].bytes === J[0].length, 'worker: approved, the day\'s slot posted once, its JPEG whole (' + JSON.stringify(lines) + ')');
     ok(lines.length === 1 && lines[0].kind === 'video' && lines[0].video === vb.length, 'worker: a video ad\'s clip reaches a post() that takes one, whole (' + JSON.stringify(lines) + ')');
-    const st = JSON.parse(readFileSync(join(W, 'state.json'), 'utf8')).slots;
-    ok(Object.keys(st).length === 1 && st[sv.json.item.post.slot_id] && st[sv.json.item.post.slot_id].ref === 'listing-1', 'worker: the slot and the listing id are kept');
+    const st = JSON.parse(readFileSync(join(W, 'state.json'), 'utf8'));
+    ok(Object.keys(st.slots).length === 1 && st.slots[sv.json.item.post.slot_id] && st.slots[sv.json.item.post.slot_id].ref === 'listing-1' && st.taken_in[sv.json.item.id].ref === 'review-1', 'worker: the slot, the listing id and the review item are kept');
   } catch (e) { ok(false, 'worker: ' + String(e.stderr || e.message).slice(0, 300)); }
   try { execFileSync('python3', ['-m', 'unittest', 'test_autopost'], { cwd: HAND, env: Object.assign({}, process.env, { PYTHONDONTWRITEBYTECODE: '1' }), stdio: ['ignore', 'pipe', 'pipe'] }); }
   catch (e) { ok(false, 'test_autopost.py: ' + String(e.stderr || e.message).slice(-400)); }
