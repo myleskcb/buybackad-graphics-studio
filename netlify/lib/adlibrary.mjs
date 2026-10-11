@@ -13,24 +13,22 @@
  * else. Resetting the link makes a new id and the old one stops answering.
  * The link is what iPhones LA is given; nothing on this side posts anywhere.
  *
- * Reviewed before it goes out. Owner, 2026-10-11: "it needs to go to a place
- * where we then configure the titles and descriptions or suggested ones show
- * and we approve or deny or edit", and "we will not make auto post from the
- * graphic studio". Every ad saved waits in review (`status: 'review'`) with a
- * suggested title and description drawn from its own words (suggest()); the
- * owner edits them, then approves or denies. Only approved ads are on the
- * public link. The studio sets no schedule: an approved ad is offered once,
- * from the moment it was approved, and posting or posting again is iPhones
- * LA's. An ad saved before review existed has no status and waits in review.
+ * An outbox. Owner, 2026-10-11: "we will not make auto post from the graphic
+ * studio", and "we're supposed to do the approval or denial of the title
+ * description on the listings iPhone LA site ... so we can send the imagery
+ * and video over automatically without need to download it ourselves". Every
+ * ad saved is on the link at once, its picture and its video, with the words
+ * on it, its category and its products for iPhones LA's title and
+ * description maker. The studio sets no schedule and approves nothing:
+ * reviewing, approving and posting (within the shop's daily limits) are
+ * iPhones LA's.
  *
  *   signed in (Authorization: Bearer <session token>)
- *   GET  /api/ads/mine              the library: name, links, counts, every item
- *                                   with its status and `suggest` {titles, captions}
+ *   GET  /api/ads/mine              the library: name, links, items
  *   POST /api/ads/save              { image: "data:image/jpeg;base64,...", title,
  *                                     category, template, texts, products,
- *                                     caption, hold }  → in review
- *   POST /api/ads/update            { id, title?, caption?, status? }  status:
- *                                     review | approved | denied
+ *                                     caption, hold }
+ *   POST /api/ads/update            { id, title?, caption? }
  *   POST /api/ads/remove            { id }
  *   POST /api/ads/settings          { name? }
  *   POST /api/ads/link/reset        a new public link; the old one stops
@@ -43,20 +41,26 @@
  *   POST /api/ads/video/done        { id }  → the item, with video
  *   POST /api/ads/video/remove      { id }  the video goes, the photo stays
  *
- *   public, by link: approved ads only
+ *   public, by link
  *   GET  /api/ads/feed/<feed>       JSON (also <feed>.json); ?kind=video|photo
- *   GET  /api/ads/feed/<feed>.rss   RSS 2.0 of the approved ads
+ *   GET  /api/ads/feed/<feed>.rss   RSS 2.0 of today's slots (fresh ads, not held), newest first
  *   GET  /api/ads/feed/<feed>/img/<id>.jpg
  *   GET  /api/ads/feed/<feed>/video/<id>.mp4 (or .webm; byte ranges honoured)
  *
- * Offered once. An approved ad has one slot, due when it was approved; its id
- * is "<ad id>@<approval time>", so a poster that keeps the ids it has posted
- * posts each approval once and needs no other state (the shape the feed had
- * when the studio set schedules, so iPhones LA's worker reads it as it was).
- * Approved again after a trip back to review, it is offered again. Ads that
- * show a website, a QR code, a street address or a social handle, or carry
- * the watermark, are saved but held (`hold`) and cannot be approved: the same
- * rule the studio's iPhones LA link keeps for WE BUY pictures.
+ * Offered daily, for seven days. Owner, 2026-10-11: "we could use the same
+ * imagery for seven days per unique ad that is our maximum to keep it fresh
+ * and unique feeling", "reposted daily of course". An ad is fresh for
+ * FRESH_DAYS from when it was saved (`fresh_until`) and has a slot each day of
+ * them: due when it was saved, then every 24 hours, seven slots at most. A
+ * slot's id is "<ad id>@<due time>", so a reader that keeps the ids it has
+ * taken takes each day's slot once and needs no other state (the shape the
+ * feed had when the studio set schedules, so an ad saved then keeps its
+ * first slot's id). Past its seven days it stays listed, with no slot, and
+ * new imagery is made in the studio. How many ads go out in a day is
+ * iPhones LA's: its daily limits choose among the slots offered.
+ * Ads that show a website, a QR code, a street address or a social handle,
+ * or carry the watermark, are listed but held (`hold`, no slot): the same rule
+ * the studio's iPhones LA link keeps for WE BUY pictures.
  *
  * Storage (one Netlify Blobs store, strongly consistent):
  *   o:<owner>       the library: { v, feed, name, items: [...] }
@@ -154,97 +158,18 @@ export function limitFor(acct, env) {
   return n('ADLIB_MAX_' + plan.toUpperCase(), PLANS[plan].library);
 }
 
-export const STATUSES = ['review', 'approved', 'denied'];
-/** an ad's place in review; one saved before review existed waits in review */
-export const statusOf = (item) => (STATUSES.includes(item && item.status) ? item.status : 'review');
-
-/** an approved ad's one slot, due when it was approved; null for any other */
-export function slotOf(item) {
-  if (statusOf(item) !== 'approved' || item.hold) return null;
-  const due = item.reviewed_at || item.updated || item.created;
-  return { slot_id: item.id + '@' + iso(due), due_at: iso(due), next_at: null, round: 1, due_ms: due };
-}
-
-/* ---------- suggested titles and descriptions ----------
-   From the ad's own words (its headline, sub line, badges, info lines and
-   call to action, as iplaLink.graphicFor reads them; never a phone number,
-   website or handle), its category and the products on it. Ad copy is set in
-   capitals, so it is put back into sentence or title case, with the names
-   that have their own casing (iPhone, iCloud, PlayStation…) kept. Nothing is
-   claimed that the ad does not say: the plainer suggestions name only what
-   the shop buys. */
-const CAT_WORDS = {
-  phones: ['iPhones', 'iPhones and phones'], gold: ['Gold', 'gold'], silver: ['Silver', 'silver'],
-  coins: ['Coins', 'coins and coin collections'], cars: ['Cars', 'cars, trucks and SUVs'],
-  pokemon: ['Pokémon Cards', 'Pokémon cards'], sports: ['Sports Cards', 'sports cards'],
-  strips: ['Test Strips', 'diabetic test strips'],
-};
-const OWN_CASE = Object.fromEntries(['iPhone', 'iPhones', 'iPad', 'iPads', 'iCloud', 'iMac', 'MacBook', 'MacBooks', 'AirPods', 'Apple', 'Samsung',
-  'Galaxy', 'Google', 'Pixel', 'Android', 'PlayStation', 'PS4', 'PS5', 'Xbox', 'Nintendo', 'Switch', 'Pokémon', 'PSA', 'BGS', 'SGC', 'KBB',
-  'SUV', 'SUVs', 'TV', 'TVs', 'OEM', 'USA', 'LA', 'ID', 'OK', 'NFL', 'NBA', 'MLB', 'NHL', 'UFC', 'FreeStyle', 'OneTouch', 'Accu-Chek', 'Contour',
-  'Pro', 'Max', 'Ultra', 'Plus', 'Mini', 'Fold', 'Flip']
-  .map((w) => [w.toLowerCase(), w]).concat([['pokemon', 'Pokémon']]));
-const SMALL = new Set(['a', 'an', 'and', 'as', 'at', 'by', 'for', 'in', 'of', 'on', 'or', 'the', 'to', 'with']);
-const tidy = (v) => String(v || '').replace(/[^\p{L}\p{N}\s.,!?'’&$%+\-–:/()#]/gu, ' ').replace(/\s+/g, ' ').trim();
-/* a word with its own casing, a model code (S26, A15), an Apple Watch */
-const ownCase = (s) => s.replace(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu, (w) => OWN_CASE[w.toLowerCase()] || w)
-  .replace(/\b([a-z])(\d{1,3}[a-z]?)\b/g, (m, a, b) => a.toUpperCase() + b)
-  .replace(/\bApple watch(es)?\b/g, 'Apple Watch$1');
-/* a layer's words, a line at a time, its separators (•, ·, |, a spaced slash) as commas */
-const linesOf = (v) => String(v || '').split(/\n+/).map((x) => tidy(x.replace(/\s*[·•|]\s*/g, ', ').replace(/\s+\/\s+/g, ', ').replace(/^[,\s]+|[,\s]+$/g, ''))).filter(Boolean);
-/* headline layers read as one line: "SELL YOUR" runs on into "IPHONE"; "CASH BUYER" and "WE BUY IPHONES" are two thoughts */
-const OPEN = /\b(a|an|the|your|my|our|for|to|of|we|buy|sell|get|top|best|and|or|with)$/i;
-const joinHead = (parts) => parts.reduce((acc, p) => (!acc ? p : acc + (OPEN.test(acc) ? ' ' : ' – ') + p), '');
-function sentenceCase(v) {
-  const s = tidy(v).toLowerCase().replace(/(^|[.!?]\s+)(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
-  return ownCase(s);
-}
-function titleCase(v) {
-  const s = tidy(v).toLowerCase().replace(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu, (w, at) => (at && SMALL.has(w) ? w : w.charAt(0).toUpperCase() + w.slice(1)));
-  return ownCase(s);
-}
-const sentence = (v) => { const s = sentenceCase(v).replace(/[\s,:–-]+$/, ''); return s ? (/[.!?]$/.test(s) ? s : s + '.') : ''; };
-const product = (slug) => titleCase(String(slug).replace(/[-_]+/g, ' ').replace(/\b(\d+)\s*(gb|tb)\b/gi, '$1$2'));
-const fit = (s, cap) => (s.length <= cap ? s : s.slice(0, cap - 1).replace(/\s+\S*$/, '') + '…');
-
-/** suggested titles and descriptions for an ad, best first */
-export function suggest(item) {
-  const texts = Array.isArray(item.texts) ? item.texts : [];
-  const of = (role) => texts.filter((t) => t.role === role).map((t) => t.text);
-  const [catTitle, catNoun] = CAT_WORDS[item.category] || ['', ''];
-  const head = titleCase(joinHead(of('headline').map((h) => linesOf(h).join(' ')).filter(Boolean)));
-  const subLines = of('sub').flatMap(linesOf);
-  const sub = titleCase(subLines[0] || '');
-  const badges = of('badge').concat(of('badges')).flatMap((b) => String(b).split(/\s{2,}|[|•·,✓✔☑]/)).map(tidy).filter(Boolean);
-  const info = of('info').concat(of('text')).flatMap(linesOf);
-  const cta = of('cta').map(sentence).filter(Boolean);
-  /* a phone's picture is named for its model ("18-pro-max-burgundy"): an iPhone */
-  const things = (item.products || []).slice(0, 4).map(product).filter(Boolean).map((t) => (item.category === 'phones' && /^\d/.test(t) ? 'iPhone ' + t : t));
-  const all = texts.map((t) => t.text).join(' ').toLowerCase();
-  const cash = /cash|\$|paid|pay/.test(all);
-
-  const titles = [];
-  if (head) titles.push(head);
-  if (head && sub && head.length + sub.length < 70) titles.push(head + ' – ' + sub);
-  if (catTitle) titles.push('We Buy ' + catTitle + (cash ? ' for Cash' : ''));
-  if (things.length) titles.push((cash ? 'Cash for ' : 'We Buy ') + things.slice(0, 2).join(' and '));
-  /* the title the studio sent (a design's name, its first words), kept from
-     the save; an ad saved before review has only its title */
-  const given = titleCase(item.sent_title != null ? item.sent_title : item.title || '');
-  if (given) titles.push(given);
-
-  const captions = [];
-  const own = [head && sentence(head), ...subLines.map(sentence),
-    badges.length ? sentence(badges.map((b) => b.toLowerCase()).join(', ')) : '',
-    ...info.map(sentence), ...cta].filter(Boolean);
-  if (own.length) captions.push(own.join(' '));
-  const ask = cta[0] || 'Message us with a photo for a quote.';
-  if (catNoun) captions.push('We buy ' + catNoun + (things.length ? ', including ' + things.join(', ') : '') + '. ' + ask);
-  else if (things.length) captions.push('We buy ' + things.join(', ') + '. ' + ask);
-  if (head && catNoun && !/\bwe buy\b/i.test(head)) captions.push(sentence(head) + ' We buy ' + catNoun + (cash ? ' for cash' : '') + '. ' + ask);
-
-  const uniq = (list, cap) => [...new Map(list.map((s) => fit(s.trim(), cap)).filter((s) => s.length > 1).map((s) => [s.toLowerCase(), s])).values()];
-  return { titles: uniq(titles, 80).slice(0, 4), captions: uniq(captions, 500).slice(0, 3) };
+export const FRESH_DAYS = 7;
+const DAY = 86400000;
+/** the moment an ad's imagery is past its seven days */
+export const freshUntil = (item) => item.created + FRESH_DAYS * DAY;
+/** the slot an ad is in now (one a day in its seven days); null for a held ad or one past them */
+export function slotOf(item, now) {
+  const end = freshUntil(item);
+  if (item.hold || now >= end) return null;
+  const base = item.post_from || item.created;
+  const round = now > base ? Math.floor((now - base) / DAY) : 0;
+  const due = base + round * DAY;
+  return { slot_id: item.id + '@' + iso(due), due_at: iso(due), next_at: due + DAY < end ? iso(due + DAY) : null, round: round + 1, due_ms: due };
 }
 
 /* ---------- the stored library ---------- */
@@ -267,9 +192,9 @@ function links(origin, feed) {
   const api = origin + '/api/ads/feed/' + feed;
   return { page: origin + '/master-library.html?feed=' + feed, json: api, rss: api + '.rss' };
 }
-function itemOut(item, origin, feed, now, mine) {
-  const s = slotOf(item);
-  const out = {
+function itemOut(item, origin, feed, now) {
+  const s = slotOf(item, now);
+  return {
     id: item.id,
     title: item.title,
     category: item.category || null,
@@ -291,42 +216,37 @@ function itemOut(item, origin, feed, now, mine) {
     source: item.source || null,
     created: iso(item.created),
     updated: iso(item.updated || item.created),
-    status: statusOf(item),
-    reviewed_at: item.reviewed_at ? iso(item.reviewed_at) : null,
-    /* what a poster read when the studio set schedules: an approved ad is
-       offered (autopost), once (repost_days 0) */
+    fresh_until: iso(freshUntil(item)),
+    fresh: now < freshUntil(item),
+    /* the fields a reader had when the studio set schedules: an ad not held
+       and in its seven days is offered (autopost), daily (repost_days 1) */
     autopost: !!s,
-    repost_days: 0,
+    repost_days: s ? 1 : 0,
     hold: item.hold || null,
     post: s ? { slot_id: s.slot_id, due_at: s.due_at, next_at: s.next_at, round: s.round } : null,
   };
-  if (mine) out.suggest = suggest(item);
-  return out;
 }
-/* the public link lists the approved ads; the owner sees every ad */
-function libOut(lib, origin, now, mine) {
-  const items = mine ? lib.items : lib.items.filter((x) => statusOf(x) === 'approved');
-  const out = {
-    name: lib.name, version: 'adlib-' + items.length + '-' + Math.max(0, ...items.map((x) => x.updated || x.created)).toString(36),
-    updated: items.length ? iso(Math.max(...items.map((x) => x.updated || x.created))) : null,
-    count: items.length,
+function libOut(lib, origin, now) {
+  return {
+    name: lib.name, version: 'adlib-' + lib.items.length + '-' + Math.max(0, ...lib.items.map((x) => x.updated || x.created)).toString(36),
+    updated: lib.items.length ? iso(Math.max(...lib.items.map((x) => x.updated || x.created))) : null,
+    count: lib.items.length,
+    fresh_days: FRESH_DAYS,
     links: links(origin, lib.feed),
-    items: items.map((x) => itemOut(x, origin, lib.feed, now, mine)),
+    items: lib.items.map((x) => itemOut(x, origin, lib.feed, now)),
   };
-  if (mine) out.counts = Object.fromEntries(STATUSES.map((k) => [k, lib.items.filter((x) => statusOf(x) === k).length]));
-  return out;
 }
 
 function rss(lib, origin, now) {
   const l = links(origin, lib.feed);
-  const due = lib.items.map((x) => [slotOf(x), x]).filter((e) => e[0]).sort((a, b) => b[0].due_ms - a[0].due_ms);
+  const due = lib.items.map((x) => [slotOf(x, now), x]).filter((e) => e[0]).sort((a, b) => b[0].due_ms - a[0].due_ms);
   const out = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/" xmlns:atom="http://www.w3.org/2005/Atom">',
     '<channel>',
     '<title>' + esc(lib.name) + '</title>',
     '<link>' + esc(l.page) + '</link>',
-    '<description>' + esc('WE BUY ads approved to post, newest approval first.') + '</description>',
+    '<description>' + esc('WE BUY ads from Graphics Studio, each a new item every day of its seven fresh days, for iPhones LA to review and post.') + '</description>',
     '<atom:link href="' + esc(l.rss) + '" rel="self" type="application/rss+xml"/>',
     '<lastBuildDate>' + rfc822(now) + '</lastBuildDate>',
     '<ttl>60</ttl>',
@@ -466,7 +386,7 @@ export async function adLibraryRoute(req, url, p, env, deps) {
 
   if (route === 'mine' && req.method === 'GET') {
     const lib = await ensureLib(store, owner);
-    return reply(Object.assign(libOut(lib, origin, now, true), { limit: limitFor(acct, env) }));
+    return reply(Object.assign(libOut(lib, origin, now), { limit: limitFor(acct, env) }));
   }
   if (req.method !== 'POST') return reply({ error: 'Not found' }, 404);
 
@@ -502,52 +422,39 @@ export async function adLibraryRoute(req, url, p, env, deps) {
     const sha256 = hex(await crypto.subtle.digest('SHA-256', bytes));
     const lib = await ensureLib(store, owner);
     const same = lib.items.find((x) => x.sha256 === sha256);
-    if (same) return reply({ duplicate: true, item: itemOut(same, origin, lib.feed, now, true), count: lib.items.length });
+    if (same) return reply({ duplicate: true, item: itemOut(same, origin, lib.feed, now), count: lib.items.length });
     const limit = limitFor(acct, env);
     if (lib.items.length >= limit) return reply({ error: 'Your ad library is full (' + limit + ' ads). Remove some to save more.' }, 507);
     if (deps.count && !(await deps.count(owner))) return reply({ error: "You have saved the most ads you can today. Try again tomorrow." }, 429);
     const texts = cleanTexts(body.texts);
-    const given = text(body.title, 80) || defaultCaption(texts, '');
+    const title = text(body.title, 80) || defaultCaption(texts, '') || 'Ad';
     const hold = text(body.hold, 60);
     const item = {
-      id: newId(), title: given || 'Ad', sent_title: given,
+      id: newId(), title,
       category: CAT_RE.test(String(body.category || '')) ? String(body.category) : '',
       template: text(body.template, 120),
       source: text(body.source, 20),
-      caption: '',
+      caption: text(body.caption, 500) || defaultCaption(texts, title),
       texts, products: cleanProducts(body.products),
       w: size.w, h: size.h, bytes: bytes.length, sha256,
-      created: now, updated: now,
-      status: 'review', reviewed_at: null,
+      created: now, updated: now, post_from: now,
       hold,
     };
-    /* it waits in review under the best suggestion, which the owner edits */
-    const s = suggest(item);
-    item.title = s.titles[0] || item.title;
-    item.caption = text(body.caption, 500) || s.captions[0] || defaultCaption(texts, item.title);
     await store.set('i:' + owner + ':' + item.id, bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
     lib.items.unshift(item);
     await writeLib(store, owner, lib);
-    return reply({ item: itemOut(item, origin, lib.feed, now, true), count: lib.items.length, limit }, 201);
+    return reply({ item: itemOut(item, origin, lib.feed, now), count: lib.items.length, limit }, 201);
   }
 
   if (route === 'update') {
     const lib = await ensureLib(store, owner);
     const item = ID_RE.test(String(body.id || '')) && lib.items.find((x) => x.id === body.id);
     if (!item) return reply({ error: 'No such ad in your library' }, 404);
-    if (body.status !== undefined && !STATUSES.includes(body.status)) return reply({ error: 'The status is one of ' + STATUSES.join(', ') }, 400);
-    const title = body.title !== undefined ? text(body.title, 80) : item.title;
-    const caption = body.caption !== undefined ? text(body.caption, 500) : item.caption;
-    if (body.title !== undefined && !title) return reply({ error: 'Give the ad a title' }, 400);
-    const was = statusOf(item), next = body.status || was;
-    if (next === 'approved' && was !== 'approved' && item.hold) return reply({ error: 'This ad shows ' + (item.hold === 'unchecked' ? 'something not checked' : item.hold) + ', so it cannot go to iPhones LA. Fix it in the studio and save it again.' }, 409);
-    if (next === 'approved' && !caption) return reply({ error: 'Write a description before approving' }, 400);
-    item.title = title;
-    item.caption = caption;
-    if (next !== was || item.status !== next) { item.status = next; item.reviewed_at = next === 'review' ? null : now; }
+    if (body.title !== undefined) item.title = text(body.title, 80) || item.title;
+    if (body.caption !== undefined) item.caption = text(body.caption, 500);
     item.updated = now;
     await writeLib(store, owner, lib);
-    return reply({ item: itemOut(item, origin, lib.feed, now, true) });
+    return reply({ item: itemOut(item, origin, lib.feed, now) });
   }
 
   if (route === 'remove') {
@@ -610,7 +517,7 @@ export async function adLibraryRoute(req, url, p, env, deps) {
     item.updated = now;
     await writeLib(store, owner, lib);
     await dropVideo(store, owner, item.id, false);
-    return reply({ item: itemOut(item, origin, lib.feed, now, true) }, 201);
+    return reply({ item: itemOut(item, origin, lib.feed, now) }, 201);
   }
   if (route === 'video/remove') {
     const lib = await ensureLib(store, owner);
@@ -621,7 +528,7 @@ export async function adLibraryRoute(req, url, p, env, deps) {
     item.updated = now;
     await writeLib(store, owner, lib);
     await dropVideo(store, owner, item.id, true);
-    return reply({ item: itemOut(item, origin, lib.feed, now, true) });
+    return reply({ item: itemOut(item, origin, lib.feed, now) });
   }
 
   if (route === 'settings') {
