@@ -14,6 +14,11 @@
  * doubles every axis: six layouts (studio row, studio list, photo band, split,
  * centre, and a type-only card for a line the library has no clean picture
  * of), twenty looks, twelve type pairings.
+ * 2026-10-11, a seventh, Floating: the steps in three rounded boxes and the
+ * number in a rounded box of its own, floating on the photograph instead of
+ * strips run edge to edge (the owner: "it doesn't need to be a strip all the
+ * way across the page"). Built last for each line, so every card before it
+ * keeps its look, face, headline and photograph.
  *
  * This file loads AFTER app.js, so none of app.js's load-time passes touch
  * these cards (assignStyle's duotone, bodyPanel, the brand vocabulary): they
@@ -502,6 +507,37 @@
   const PANEL = 692;                           // the steps' panel under the stage
   const panelFill = L => L.dark ? L.g2 : L.g1;
   const stepsPanel = (L, top) => r('Steps Panel', { left:0, top, width:W, height:BT - top, fill:panelFill(L) });
+  /* FLOATING (2026-10-11, the owner: "it doesn't need to be a strip all the
+     way across the page from left or right ... maybe they could be floating
+     rounded rectangles, three of them ... we could always keep the original
+     as more variety"): the steps as three rounded boxes in the look's panel
+     colour and the number in a rounded box of its own, each lifted off the
+     photograph by a soft shadow. The boxes stand FL from the edges, so the
+     text inside them starts on the headline's own left edge (M). */
+  const FL = M - 28, FW = W - 2 * FL, FGAP = 20, FPAD = 28, FSTEP = 196, FNUM = 186;
+  const FBW = (FW - 2 * FGAP) / 3;
+  const stepBoxes = (L, F, line, top, style) => {
+    const detail = [line.ask, line.meet || MEET, line.paid || PAID], out = [], shadow = sh('rgba(0,0,0,0.34)', 30, 0, 12);
+    STEP_TITLES.forEach((title, i) => {
+      const x = Math.round(FL + i * (FBW + FGAP)), tx = x + FPAD;
+      out.push(r('Step ' + (i + 1) + ' Box', { left:x, top, width:Math.round(FBW), height:FSTEP, fill:panelFill(L), rx:26, ry:26, shadow }));
+      out.push(...marker(L, F, style, i, tx, top + 24));
+      out.push(t('Step ' + (i + 1), 'info', 'none', title, { left:tx, top:top + 66, fontFamily:F.r, fontSize:34, fontWeight:F.rw, fill:L.ink }));
+      out.push(tb('Step ' + (i + 1) + ' Detail', 'info', 'none', detail[i], { left:tx, top:top + 110, width:Math.round(FBW - 2 * FPAD),
+        fontFamily:F.r, fontSize:26, fontWeight:500, fill:L.sub, lineHeight:1.18 }));
+    });
+    return out;
+  };
+  /* the number's own box: the band's colours and lines, rounded and floating */
+  const numberBox = (L, F, top) => {
+    const w = F.rw === 500 ? 700 : F.rw;
+    return [
+      r('Action Band', { left:FL, top, width:FW, height:FNUM, fill:L.band, rx:30, ry:30, shadow:sh('rgba(0,0,0,0.38)', 34, 0, 14) }),
+      t('Call Label', 'cta', 'none', 'Call or text', { left:M, top:top + 26, fontFamily:F.r, fontSize:26, fontWeight:F.rw, fill:L.bandSub }),
+      t('Website', 'website', 'none', SITE, { left:W - M, top:top + 26, originX:'right', fontFamily:F.r, fontSize:26, fontWeight:F.rw, fill:L.bandSub }),
+      t('Phone Number', 'phone', 'none', NUMBER, { left:M, top:top + 62, fontFamily:F.r, fontSize:NUM_PX, fontWeight:w, fill:L.bandInk }),
+    ];
+  };
   const ON_PHOTO = { dark:1 };                 // products on a photograph take the deep shadow
   /* a type-only card's picture: the model names, set large with rules between */
   const ledger = (L, F, names, x, y, w, align) => {
@@ -590,6 +626,19 @@
         ...arrange(set, { x:M + 60, y:prodTop, w:W - 2 * M - 120, h:floor - prodTop }, ON_PHOTO),
         stepsPanel(L, PANEL), ...stepsRow(L, F, line, PANEL + 20, style, 'center'), ...band(L, F, BT, 'center')];
     },
+    /* "Floating": the photograph runs to every edge, the headline and the
+       product on it as in the studio row; the three steps float on it in
+       their own rounded boxes, the number in its box under them */
+    float(L, F, line, head, set, style, G){
+      const fit = fitHead(head, F, W - 2 * M, 2, 112); if (!fit) return null;
+      const NB = 1080 - FL - FNUM, SB = NB - FGAP - FSTEP, top = 110, prodTop = top + fit.h + 26, floor = SB - 18;
+      if (floor - prodTop < 230) return null;
+      /* a step's detail sets in two lines at most in its box */
+      if ([line.ask, line.meet || MEET, line.paid || PAID].some(d => lineW(d, { em: 0.54 }, 26) > 2 * (FBW - 2 * FPAD))) return null;
+      return [...shade(G, top + fit.h + 18, floor), vignette(), models(PH, F, line.models, M, 64), headline(L, F, fit, M, top, W - 2 * M, 'left', PH.ink),
+        ...arrange(set, { x:M, y:prodTop, w:W - 2 * M, h:floor - prodTop }, ON_PHOTO),
+        ...stepBoxes(L, F, line, SB, style), ...numberBox(L, F, NB)];
+    },
     /* "Type": no picture the library can vouch for, so the model names are the
        picture, set large between rules on the photograph */
     type(L, F, line, head, set, style, G){
@@ -609,7 +658,7 @@
         ...band(L, F, BT, 'center')];
     },
   };
-  const LAYOUT_NAME = { row:'Studio row', list:'Studio list', band:'Photo band', split:'Split', center:'Centre', type:'Type', typeCenter:'Type, centred' };
+  const LAYOUT_NAME = { row:'Studio row', list:'Studio list', band:'Photo band', split:'Split', center:'Centre', float:'Floating', type:'Type', typeCenter:'Type, centred' };
 
   /* ── THE BOOK: every line in every layout it can carry. The look, the face,
      the headline and the picture set rotate with a stride per line, so two
@@ -637,7 +686,7 @@
 
   const made = [];
   LINES.forEach((line, li) => {
-    const lays = line.ledger ? ['type', 'typeCenter', 'band'] : ['row', 'list', 'band', 'split', 'center'];
+    const lays = line.ledger ? ['type', 'typeCenter', 'band'] : ['row', 'list', 'band', 'split', 'center', 'float'];   // float last: the cards before it keep their rotation
     const grounds = GROUNDS[GROUND_OF[line.key] || GROUND_OF[line.cat] || 'space'];
     const flavor = (FLAVOR[line.cat] || []).map(k => FACE[k]).filter(Boolean);
     lays.forEach((lay, k) => {

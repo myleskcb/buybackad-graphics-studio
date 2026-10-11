@@ -2818,3 +2818,77 @@ Open:
    one Diamond plate look read under 15% on frame 0 with the same phones
    showing. Measuring against the ground drawn under the same camera would ask
    the question the check means.
+
+## AW. 2026-10-11 — Mac wallpapers: Tahoe and Golden Gate, and a lit laptop screen
+
+The owner, over the MacBook card ("Old MacBook. New money." on the keyboard
+photograph): "can we be able to change the background to stock apple
+backgrounds for tahoe or golden gate or the stock background on front facing
+off screen". Done in `mac-wallpapers.js` (loaded after app.js):
+
+- **Wallpapers, a background group** beside Photos and Blurred photos, in
+  Easy Mode and the designer: Tahoe day, dusk and night, Tahoe glass (light,
+  dark), Golden Gate sunset, night and fog, Golden curves (light, dark). Drawn
+  ground kinds (`ground:wp…`), each in its own colours, shaded like a
+  photograph in the picker and gated like one. A visitor's choice only: no
+  card is designed on one (rule 117 is about what a card ships with).
+- **On the laptop screen**, an Easy Mode row shown on a card whose picture
+  has a screen we know (`SCREENS`: mac-pro-open-front, macbook-open-angle;
+  mac-half-open-glow shows its lid). Off, any wallpaper, or the visitor's own
+  picture (kept on the device, in the photo store beside the recent photos). Lit only in Easy Mode's
+  render (preview, download, gate, video) and the hand-off to the designer;
+  thumbnails, the library and the audits draw the card as designed. A lit
+  picture is saved as its recipe (`pgScreen`) and lit again on any load.
+
+**Photographs too** (later the same day). The owner: "I wanted the stock
+Mac ones ... if you're able to access wiki media commons, we can try to use
+that". Apple's own files are not on Commons (free licences only), and
+apple.com and Google are not reachable from the cloud sessions; what Commons
+has is the places Apple photographed. Twelve photographs of Lake Tahoe and
+the Golden Gate (CC0, CC BY, CC BY-SA), picked by eye from 48 fetched with
+`fetch_backdrops.mjs`, 2048 on the long side, thumbnails in
+`assets/bg-web/thumbs/`, credits in `assets/bg-web/ATTRIBUTION.json`. They
+lead the Wallpapers group and the screen row; each loads on first use.
+
+**Floating, a seventh offer layout** (the owner: "it doesn't need to be a
+strip all the way across the page from left or right and light blue maybe
+they could be floating rounded rectangles three of them ... we could always
+keep the original as more variety"): `float` in offer-library.js, one card
+per line with a picture (28), the steps in three rounded boxes and the number
+in its own, the photograph running to every edge. Built last for each line,
+so the cards before it are unchanged. The gate passes all 28 in Easy Mode.
+`audit_templates.mjs --match _float_` holds 13 for a flagged product picture,
+the same pictures its siblings use: the other offer cards of those lines
+fail the same way (0 of 15 sampled: of_mac_row_sky among them), because
+`template-holds.js` was last written on 2026-09-30, before the category audit
+flagged those pictures (2026-10-04). Regenerating it (`--write`) would take
+the user's own MacBook card out of the studio with the rest: the owner's
+call, not done here.
+
+Checked (2026-10-11): `scripts/mac_wallpapers_check.mjs` ok on the 6 offered
+cards with a known screen (11 screen choices each, no new gate failure);
+`ez_theme_audit.mjs --quick` no problems; `designer_audit.mjs` found the
+same as `main` on the same machine: pkm_binder's "the chip lit is White on
+Navy" (on `main` too), and "the page is busy" on cars_kbb within noise of
+its 3000ms bar (`main` 3167ms, this branch 2779ms on the rerun).
+
+Still open:
+
+1. **Apple's own wallpaper files are not shipped** (the photographs above are the places, not Apple's pictures). They are Apple's artwork;
+   putting them inside a paid product is a licensing call for the owner, not
+   a code change. The drawn ones stand in. A visitor who wants the real one
+   can put their own copy on the screen (the 📷 in the row) or upload it as
+   the background, as with any photo of theirs.
+2. **More screens.** The iPad's `ipad-front-screen-off` and the phones that
+   face front with a dark screen could take the same row: measure the
+   display's corners into `SCREENS`, nothing else changes.
+3. **The designer has no screen row of its own.** It keeps what Easy Mode
+   handed it; changing the screen there means going back to Easy Mode.
+4. **A drawn background costs about 1.8 MB per designer undo step**
+   (measured: sunburst 1782 KB, a device wall 2791 KB, a wallpaper 1823 KB,
+   against 28 KB for the same card on its photograph). Not new with the
+   wallpapers; a ground saved as its recipe, as patterns are
+   (`PG_PAT_STUB`), would fix every drawn ground at once.
+5. **`template-holds.js` predates the flagged pictures** (see Floating above):
+   regenerate with `audit_templates.mjs --write` once the owner decides
+   whether cards on flagged pictures leave the studio.

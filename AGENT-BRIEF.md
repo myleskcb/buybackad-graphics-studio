@@ -503,6 +503,18 @@ produced." DESIGN-LAW rule 87. In practice:
   takes about a minute). A tweak never leaves the law: a slider's ends are
   `cbRange`'s, an exact colour goes through `cbExact`, and anything saved
   passes `cbTweakOk`. Saved sets can be renamed; old names live in `aka`.
+- **Mac wallpapers and lit screens** (2026-10-11, OPEN-ITEMS §AW):
+  `mac-wallpapers.js`, loaded after app.js, registers ten drawn wallpapers
+  (`ground:wp…`) as the Wallpapers background group, and lights a laptop
+  picture's screen from Easy Mode's "On the laptop screen" row. It wraps
+  `buildLayer`, but lights a cut-out only inside `renderEzCanvas` and
+  `openAdvancedFromEz`; a card as designed, its thumbnail and every audit
+  draw unchanged. A new picture with a screen is a row in `SCREENS` (its
+  display's four corners, measured and checked by warping a grid). Apple's
+  own wallpaper files are not shipped: Apple's artwork, the owner's call;
+  twelve free-licensed photographs of the same places (Commons, credited in
+  assets/bg-web/ATTRIBUTION.json) lead the group and load on first use.
+  Check: `node scripts/mac_wallpapers_check.mjs`.
 - **Real photographs only** (rule 117, 2026-10-04): no generated scene
   (`assets/bg/dl_*`) or drawn ground (`dg_cast`) behind a card or template
   where a real photograph of the goods exists. New photographs go in

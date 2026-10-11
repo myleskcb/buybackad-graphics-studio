@@ -4215,3 +4215,49 @@ Found:
 RESUME HERE:
   0. Merge to `main` (this branch: `claude/wizardly-bardeen-62280m`).
   1. The gaming cut-outs held since 2026-10-04 (§AU 1).
+
+## 2026-10-11 — Mac wallpapers and a lit laptop screen (claude/nifty-pasteur-xlv4nu)
+
+Asked: "stock apple backgrounds for tahoe or golden gate or the stock
+background on front facing off screen", over the MacBook offer card.
+
+Done: `mac-wallpapers.js` (OPEN-ITEMS §AW). Ten drawn wallpapers as a
+Wallpapers background group; an "On the laptop screen" row that lights the
+front-facing and angled MacBook pictures with a wallpaper or the visitor's
+own picture.
+
+Found:
+  - The screen's corners were measured off the cut-outs, then checked by
+    warping a grid into them and looking, before any wallpaper went in. The
+    front picture is a 2021 MacBook Pro (camera at 940, 38: the notch goes
+    round it); the angled one a Touch Bar 13-inch, whose chin carries the
+    name, so the display ends at the faint line above it, not at the hinge.
+  - `syncEzSwatches` clears `.sel` from every `.ez-sw` in the page and lights
+    the first `.ez-sw.orig`; a new swatch row needs its own sync after it,
+    and must not use `.orig`.
+  - `.ez-swatches` sets `display`, so the `hidden` attribute does nothing on
+    it; show and hide such a row with `style.display`.
+  - A canvas element on a designer object is saved by fabric as a full PNG
+    in every undo step; the lit picture overrides `toObject` to save the
+    cut-out's address and is lit again in `fabric.Image.fromObject`.
+
+Later the same day: twelve Commons photographs of Lake Tahoe and the Golden
+Gate (Apple's own wallpapers are not on Commons; apple.com and Google are not
+reachable from here), and a seventh offer layout, Floating, from the owner's
+"floating rounded rectangles, three of them".
+
+Found:
+  - Commons answers 429 to a request with no User-Agent, and serves the
+    3840px original when asked for a 2048px thumbnail; `fetch_backdrops.mjs`
+    sends one, and the picks were brought down to 2048 by hand.
+  - A new layout must go last in a line's `lays`: the look, face, headline
+    and photograph rotate by its position, so inserting it earlier would have
+    repainted every card after it.
+  - `template-holds.js` (2026-09-30) is older than the flags on the offer
+    family's product pictures (2026-10-04); the template audit would hold
+    most offer cards today, the owner's MacBook card included.
+
+RESUME HERE:
+  0. Apple's own wallpaper files: the owner's licensing call (§AW 1).
+  1. Whether cards on flagged pictures leave the studio (§AW 5).
+  2. The iPad and the phones' dark screens into `SCREENS` (§AW 2).
