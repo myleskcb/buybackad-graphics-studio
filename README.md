@@ -200,12 +200,21 @@ paste-ready prompt). After the library's thumbnails are drawn again, run
 
 ## Ad library and the master library — public link for auto-post
 
-**📚 Library** (Easy Mode's top bar, the editor's top bar, the account menu)
-keeps the ads an account saves, on the server (Netlify Blobs,
-`netlify/lib/adlibrary.mjs`, the studio side `ad-library.js`). After every
-download the studio offers **Save to library**, or saves every download by
-itself once **Save every download here** is ticked. What is saved is the
-download itself, as a JPEG: its size and its watermark, as the plan gave it.
+**📚 Library** (Easy Mode's top bar, the editor's top bar, the account menu;
+shown to the owner's admin accounts only) keeps the ads an account saves, on
+the server (Netlify Blobs, `netlify/lib/adlibrary.mjs`, the studio side
+`ad-library.js`). After every download the studio offers **Save to library**,
+or saves every download by itself once **Save every download here** is
+ticked. What is saved is the download itself, as a JPEG: its size and its
+watermark, as the plan gave it.
+
+**Review.** A saved ad waits in **To review** with a suggested title and
+description, drawn from its own words (headline, sub line, badges, info lines,
+call to action), its category and the products on it, put back into normal
+case (`suggest()` in `adlibrary.mjs`); more suggestions sit under each field,
+a tap away. The owner edits them, then **Approve** or **Deny**; an approved ad
+can be edited, sent **Back to review**, or denied. Only approved ads are on
+the public link. The studio posts nothing and sets no schedule.
 
 The library has one public link (`master-library.html?feed=fd_…`), shown in
 the dialog with **Copy link**, the JSON feed and RSS. Whoever holds it sees
@@ -213,12 +222,11 @@ these ads and nothing else; **Reset link** makes a new one and the old one
 stops. When the studio is connected to iPhones LA (opened once from its
 Auto-post page), the link is sent there by itself, and again after a reset:
 nobody copies it across (`iplaLink.shareLibrary`, the dialog says whether it
-arrived). Each ad is set to **Auto-post** or not and to post again once, every
-day, every week and so on. The feed lists each ad when it is due, and lists
-it again each time it comes due. iPhones LA reads it and posts through its own
-Auto-post (`docs/iphonesla-library/autopost_worker.py`, the prompt in that
-folder's README). An ad that shows a website, a QR code, a street address or a
-social handle, or carries the watermark, is saved but held from auto-post.
+arrived). The feed lists the approved ads, each offered once from its
+approval; when to post, and to post again, is iPhones LA's
+(`docs/iphonesla-library/autopost_worker.py`, the prompt in that folder's
+README). An ad that shows a website, a QR code, a street address or a social
+handle, or carries the watermark, is saved but held: it cannot be approved.
 Caps: free 12 ads, Pro 300, operators 2000 (`ADLIB_MAX_FREE`, `ADLIB_MAX_PRO`,
 `ADLIB_MAX_ADMIN`), 100 saves a day (`ADLIB_DAILY`). It needs the real backend
 (`JWT_SECRET` set): in demo mode the dialog says so.
