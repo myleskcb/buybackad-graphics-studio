@@ -1,6 +1,14 @@
 [build]
   publish = "."
 
+# Netlify's secrets scan fails a build when the value of a variable marked
+# secret appears in the published files. SITE_URL (the site's own address,
+# written in README.md and the deploy workflow) and STRIPE_PUBLISHABLE_KEY
+# (public by design, sent to every browser at checkout) are not secrets, so
+# the scan skips them; STRIPE_SECRET, JWT_SECRET and FAL_KEY are still scanned.
+[build.environment]
+  SECRETS_SCAN_OMIT_KEYS = "SITE_URL,STRIPE_PUBLISHABLE_KEY"
+
 # Internal engineering notes and audit tooling. These are part of the REPO but
 # not part of the PRODUCT — docs/ is the study program and DESIGN-LAW.md is the
 # house rulebook, neither of which should be fetchable from the marketing site.
