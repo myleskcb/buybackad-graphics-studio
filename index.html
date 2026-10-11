@@ -393,7 +393,7 @@
         <button class="ez-adv-link" id="nav-history">⬇ Export <span class="caret">▾</span></button>
         <div class="view-drop acct-drop" id="export-menu"></div>
       </span>
-      <button class="ez-adv-link" id="nav-adlib" title="Your saved ads and their public link">📚 Library</button>
+      <button class="ez-adv-link" id="nav-adlib" style="display:none" title="Your saved ads and their public link">📚 Library</button>
       <button class="ez-adv-link" id="nav-genbg">✦ AI background</button>
       <button class="ez-adv-link" id="nav-admin" style="display:none">🛠 AI Studio</button>
       <button class="nav-upgrade" id="nav-upgrade" style="display:none">⬆ Upgrade</button>
@@ -403,7 +403,7 @@
           <div class="am-email" id="am-email"></div>
           <button class="view-item" id="am-plans">💳 Plan &amp; billing</button>
           <button class="view-item" id="am-exports">🕘 My downloads</button>
-          <button class="view-item" id="am-adlib">📚 Ad library</button>
+          <button class="view-item" id="am-adlib" style="display:none">📚 Ad library</button>
           <button class="view-item" id="am-admin" style="display:none">🛠 AI Studio</button>
           <button class="view-item" id="am-signout">↪ Sign out</button>
         </div>
@@ -584,7 +584,7 @@
     <button class="tb-btn" id="help-btn" title="Replay the tour">?</button>
     <button class="tb-btn" id="brand-btn" title="Your saved number, website and city">👤 <span class="tb-label">Brand kit</span></button>
     <button class="tb-btn" id="save-tpl-btn" title="Save as reusable template (Ctrl+S)">💾 <span class="tb-label">Save template</span></button>
-    <button class="tb-btn" id="tb-adlib" title="Your saved ads and their public link">📚 <span class="tb-label">Library</span></button>
+    <button class="tb-btn" id="tb-adlib" style="display:none" title="Your saved ads and their public link">📚 <span class="tb-label">Library</span></button>
     <button class="tb-btn" id="export-btn" title="Export PNG">⬇ Export</button>
   </div>
 
@@ -1048,6 +1048,31 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="co-overlay">
+  <div class="modal co-modal" role="dialog" aria-modal="true" aria-labelledby="co-title">
+    <div class="co-head">
+      <div class="co-what">
+        <div class="co-kicker">🔒 Secure checkout</div>
+        <h3 id="co-title">Checkout</h3>
+        <div class="co-price"><b id="co-price"></b> <span id="co-note"></span></div>
+      </div>
+      <button class="bggen-x" id="co-x" type="button" aria-label="Close checkout">✕</button>
+    </div>
+    <div class="co-body">
+      <div class="co-consent" id="co-consent">
+        <ul class="co-features" id="co-features"></ul>
+        <p class="co-terms" id="co-terms"></p>
+        <label class="co-agree"><input type="checkbox" id="co-agree"> <span id="co-agree-text"></span></label>
+        <div class="co-err" id="co-err" role="alert"></div>
+        <button class="btn btn-primary co-go" id="co-go" type="button" disabled>Continue to secure payment</button>
+      </div>
+      <div class="co-loading" id="co-loading" hidden><span class="bggen-spin" aria-hidden="true"></span> Loading secure payment…</div>
+      <div id="co-mount"></div>
+    </div>
+    <div class="co-foot">Payments are processed by Stripe; your card details never touch our servers. Cancel any time from Manage billing.</div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="pay-overlay">
   <div class="modal">
     <div class="auth-ok">
@@ -1389,6 +1414,7 @@
 <script src="account.js"></script>
 <script src="ad-library.js"></script>
 <script src="bggen.js"></script>
+<script src="checkout-embed.js"></script>
 <script src="offer-assets.js"></script>
 <script src="offer-library.js"></script>
 <script src="site-ux.js"></script>

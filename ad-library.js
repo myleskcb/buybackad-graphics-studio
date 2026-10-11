@@ -960,8 +960,34 @@
     }
   }
 
+  /* the Library buttons are the owner's. Owner, 2026-10-11: "only accessible
+     to my account". They start hidden in the page and show for an operator
+     account (ADMIN_EMAILS on the server, role 'admin'), as the AI Studio
+     button does; signed out or any other account, they stay hidden. Only the
+     buttons: the stars, Save to library and the plans' library are as they
+     were. Run after every account change: the studio's syncAcctUI on the
+     studio, the account's onChange on the other pages. */
+  const BUTTONS = ['nav-adlib', 'tb-adlib', 'am-adlib', 'mo-adlib', 'ml-adlib'];
+  function buttons(){
+    let on = app.admin();
+    if (!on){ const a = app.account(); on = !!a && a.role === 'admin'; }
+    BUTTONS.forEach(id => { const b = document.getElementById(id); if (b) b.style.display = on ? '' : 'none'; });
+  }
+  function watchAccount(){
+    const sync = window.syncAcctUI;
+    if (typeof sync === 'function' && !sync.__adlib){
+      const wrapped = function(){
+        const result = sync.apply(this, arguments);
+        try { buttons(); } catch (e){}
+        return result;
+      };
+      wrapped.__adlib = true;
+      window.syncAcctUI = wrapped;
+    }
+  }
+
   function bind(){
-    ['nav-adlib', 'tb-adlib', 'am-adlib', 'mo-adlib', 'ml-adlib'].forEach(id => {
+    BUTTONS.forEach(id => {
       const b = document.getElementById(id);
       if (!b) return;
       b.addEventListener('click', e => {
@@ -974,10 +1000,12 @@
 
   hook();
   bind();
+  watchAccount();
+  buttons();
   stars();
   /* what is saved already, so the stars show it; again after a sign-in */
-  setTimeout(() => { app.ensure().then(() => { if (!ready()) load(); else paint(); }); }, app.here() ? 1500 : 200);
-  if (acct()) acct().onChange(() => { state.lib = null; app.ensure().then(() => { if (!ready()) load(); else { draw(); paint(); } }); });
+  setTimeout(() => { app.ensure().then(() => { buttons(); if (!ready()) load(); else paint(); }); }, app.here() ? 1500 : 200);
+  if (acct()) acct().onChange(() => { state.lib = null; app.ensure().then(() => { buttons(); if (!ready()) load(); else { draw(); paint(); } }); });
 
   window.adLibrary = {
     open, close, load, paint, isSaved,

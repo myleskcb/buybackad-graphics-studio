@@ -64,6 +64,7 @@ const labelFor = (k, v) => {
     profile_left: "Side on, left edge", profile_right: "Side on, right edge" }[v] || v;
   if (k === "phone_finish") return { standard: "Standard", photo: "Photo-real" }[v] || v;
   if (k === "end_face") return { back: "Their backs", front: "Their screens", mixed: "Half and half" }[v];
+  if (k === "phone_idle") return { spin: "Spin round in place, floating", pulse: "Pulse on the beat", float: "Float up and down", still: "Stand still" }[v] || v;
   if (k === "accents") return ["None", "One", "Two", "Three"][v] ?? v;
   if (k === "accent_kind") return { mix: "Best for this device", emoji: IOS_EMOJI ? "iOS emoji" : "iOS emoji (Apple devices; stand-ins here)", asset: "Studio cutouts", symbol: "Keyboard symbols" }[v] || v;
   return String(v).replace(/[_-]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
@@ -1097,8 +1098,10 @@ function saveVideo(blob, name) {
    The moment is the video's best, measured by video-still.js on a small copy
    of the same look (every size draws the same plan) from the number's arrival
    to the ending, which shows the number alone and is not the ad; it is then
-   drawn again at the photo's own size, never a video frame scaled up. Low on
-   memory, it is made at the video's size. */
+   drawn again at the photo's own size, never a video frame scaled up. Phones
+   that spin once landed (phone_idle) are taken only where they face as they
+   landed (Ad.photoWindows), never edge on. Low on memory, it is made at the
+   video's size. */
 async function makePhoto(st, videoName, videoShort, prog = () => {}, gate = {}) {
   const VS = window.VideoStill;
   if (!VS) throw new Error("The photo maker did not load.");
@@ -1109,7 +1112,7 @@ async function makePhoto(st, videoName, videoShort, prog = () => {}, gate = {}) 
   const from = isFinite(probe.tl.number) ? probe.tl.number : 0, to = Math.max(from, (probe.tOutro != null ? probe.tOutro : st.duration) - .05);
   const pick = await VS.best({
     frame: t => { probe.still = null; probe.frame(px, t, { subsFly: 2, subsMove: 2 }); return pc; },
-    windows: [[from, to]], onProgress: p => prog(p, "Choosing the photo"),
+    windows: probe.photoWindows(from, to), onProgress: p => prog(p, "Choosing the photo"),
   });
   // the plan's size: Free's photo is 1080 on its short side, as the studio's
   const want = Math.min(VS.SHORT, gate.maxPx || VS.SHORT), sizes = [want, Math.min(want, videoShort || want)].filter((s, i, a) => a.indexOf(s) === i);

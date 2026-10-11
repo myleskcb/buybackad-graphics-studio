@@ -4083,8 +4083,12 @@ versus light mode, supportive themes slightly alter it".
   a light background is drawn deeper, or becomes the background, instead.
 - **Make it yours.** Each colour of a set has a shade slider (the bright
   colour a strength slider too), a picker and a code box for an exact colour,
-  and the background a style (flat, soft fade, deep fade; soft is the set's
-  own step between its stops). A slider's ends are the last values at which
+  and the background a style (flat, soft fade, deep fade). A fade goes the
+  way that adds contrast, darker on Dark and lighter on Light (the lighter
+  end at the top), so it costs the words nothing and can be seen: soft 0.08
+  in OKLCH lightness, deep 0.16; a near-white fades darker by its own step,
+  as far as the words allow. The visitor's colour stays the first stop. A
+  slider's ends are the last values at which
   the set still passes with the other colours as they stand (`cbRange`, on
   the grid it stepped), so a tweak can make a set lighter, darker, quieter or
   louder, never unreadable; with no room, the slider is off and says why. A
