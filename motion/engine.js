@@ -1420,13 +1420,15 @@ function phoneState(p, t, st, rest = false) {
      spin   round and round where it stands, the way a dropped item turns in Minecraft,
             rising off the ground and settling back twice a turn
      pulse  swells and settles on every other beat of the music, from the headline's hit
+     breathe  swells and settles slowly and evenly, in and out like a breath, off the beat
+            (owner, the same day: "a slower [pulse] that's more of a breathing effect")
      float  rises off the ground and settles back, rocking a little
    p.tIdle is when (the timeline's still: every phone down, every reveal and wide spin
    done), p.idleK how much of the rise and the swell the room round the words and the
    number allows (Ad._idleRoom), p.beat0 the music's first downbeat. A rise leaves the
    shadow and the reflection on the ground (the state's .rise, in px), the shadow softening
    as the phone leaves it (z), so it is seen to float rather than slide up the frame. */
-const IDLE = { turn: 3.2, ease: .45, bob: 1.6, rise: .045, lift: .16, rock: 2.2, pulse: .07, attack: .08, decay: .2 };
+const IDLE = { turn: 3.2, ease: .45, bob: 1.6, rise: .045, lift: .16, rock: 2.2, pulse: .07, attack: .08, decay: .2, breathe: .06, breath: 3 };
 function phoneIdle(s, p, t, st) {
   const q = t - p.tIdle, k = p.idleK ?? 1, ramp = inOut(clamp(q / .6));
   const rise = u => { const d = IDLE.rise * H0(p) * k * u; s[1] -= d; s.rise = d; s[5] = Math.max(s[5], IDLE.lift * k * u); };
@@ -1447,6 +1449,12 @@ function phoneIdle(s, p, t, st) {
       const env = d < IDLE.attack ? Math.sin(Math.PI / 2 * d / IDLE.attack) : Math.exp(-(d - IDLE.attack) / IDLE.decay);
       s[2] *= 1 + IDLE.pulse * k * ramp * env;
       s[5] = Math.max(s[5], .5 * IDLE.lift * k * ramp * env); s.rise = 0;
+      break;
+    }
+    case "breathe": {                               // from rest, and back to it, every IDLE.breath s
+      const u = .5 - .5 * Math.cos(2 * Math.PI * q / IDLE.breath);
+      s[2] *= 1 + IDLE.breathe * k * u;
+      s[5] = Math.max(s[5], .5 * IDLE.lift * k * u); s.rise = 0;
       break;
     }
   }
@@ -2746,10 +2754,10 @@ export class Ad {
     const st = this.st, mode = st.phone_idle, W = this.W, H = this.H, z = settleZoom(st);
     if (!this.phones.length || !mode || mode === "still") return 0;
     const reach = (p, k, side) => {
-      const g = p.reveal ? 1.06 : 1.02, grow = mode === "pulse" ? 1 + IDLE.pulse * k : 1;
+      const g = p.reveal ? 1.06 : 1.02, grow = 1 + ({ pulse: IDLE.pulse, breathe: IDLE.breathe }[mode] || 0) * k;
       const tall = mode === "spin" ? 1 + .5 * p.w / ((p.lens || LENS) * p.h - .5 * p.w) : 1;
       const hw = p.w * p.size * g * grow / 2, hh = p.h * p.size * g * grow * tall / 2;
-      const dy = mode === "pulse" ? 0 : IDLE.rise * H0(p) * k, ang = p.angle + (mode === "float" ? side * IDLE.rock * k : 0);
+      const dy = mode === "pulse" || mode === "breathe" ? 0 : IDLE.rise * H0(p) * k, ang = p.angle + (mode === "float" ? side * IDLE.rock * k : 0);
       const th = -ang * Math.PI / 180, c = Math.cos(th), s = Math.sin(th);
       return [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].map(([x, y]) => [p.home[0] + x * c - y * s, p.home[1] - dy + x * s + y * c]);
     };

@@ -4083,7 +4083,11 @@ Found:
 
 Owner, over the side-by-side clip of the three: "that is much better. I
 like all of it." All three stay in the shuffle; put on `main` the same day.
+Then: "Maybe we do one that's a slower [pulse] that's more of a breathing
+effect": `breathe`, a 6% swell in and out every 3 s, off the beat, from
+rest. In 120 random looks it moved in 119.
 
 RESUME HERE:
   0. The amplitudes are IDLE in motion/engine.js (turn 3.2 s, rise 4.5% of
-     a phone, pulse 7%), should the owner want any move bigger or calmer.
+     a phone, pulse 7%, breathe 6% over 3 s), should the owner want any
+     move bigger or calmer.

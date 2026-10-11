@@ -64,7 +64,7 @@ const labelFor = (k, v) => {
     profile_left: "Side on, left edge", profile_right: "Side on, right edge" }[v] || v;
   if (k === "phone_finish") return { standard: "Standard", photo: "Photo-real" }[v] || v;
   if (k === "end_face") return { back: "Their backs", front: "Their screens", mixed: "Half and half" }[v];
-  if (k === "phone_idle") return { spin: "Spin round in place, floating", pulse: "Pulse on the beat", float: "Float up and down", still: "Stand still" }[v] || v;
+  if (k === "phone_idle") return { spin: "Spin round in place, floating", pulse: "Pulse on the beat", breathe: "Breathe in and out, slowly", float: "Float up and down", still: "Stand still" }[v] || v;
   if (k === "accents") return ["None", "One", "Two", "Three"][v] ?? v;
   if (k === "accent_kind") return { mix: "Best for this device", emoji: IOS_EMOJI ? "iOS emoji" : "iOS emoji (Apple devices; stand-ins here)", asset: "Studio cutouts", symbol: "Keyboard symbols" }[v] || v;
   return String(v).replace(/[_-]/g, " ").replace(/\b\w/g, c => c.toUpperCase());

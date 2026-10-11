@@ -398,9 +398,10 @@ export const OPTIONS = {
   // what the phones do once every one has landed, all in step (owner, 2026-10-11: "at the end
   // when they stay still can we make them pulse ... or spin 360 degrees in place like an item
   // in minecraft ... floating? ... not for this specific ad but in general"): turn round and
-  // round where they stand while they float, swell on the music's beat, or float; standing
-  // still is a pick by hand. Drawn from a stream of its own, so a look number keeps the rest.
-  phone_idle: ["spin", "pulse", "float", "still"],
+  // round where they stand while they float, swell on the music's beat, breathe (the same
+  // day: "a slower [pulse] that's more of a breathing effect"), or float; standing still is
+  // a pick by hand. Drawn from a stream of its own, so a look number keeps the rest.
+  phone_idle: ["spin", "pulse", "breathe", "float", "still"],
   // how the phones are lit (rule 124): the standard look, or photo-real (a softbox streak
   // down the band, a sheen over the glass, a catch-light on the rim, a contact shadow).
   // Only by hand: a shuffle keeps it (KEPT_OPTIONS), so every look number draws as it did
@@ -538,7 +539,7 @@ export const WEIGHTS = {
   pose: { flat: 3, edge_left: 1, edge_right: 1, turntable: 2, wide_spin: 1,   // turned, as often as a turntable, either edge
     profile_left: 0, profile_right: 0 },   // by hand only (rule 124)
   phone_finish: { standard: 1, photo: 0 },
-  phone_idle: { spin: 2, pulse: 2, float: 1, still: 0 },
+  phone_idle: { spin: 2, pulse: 2, breathe: 2, float: 1, still: 0 },
   accents: { 0: 6, 1: 3, 2: 2, 3: 1 },                   // DESIGN-LAW 88: some looks (about half), and few
   accent_kind: { mix: 3, emoji: 1, asset: 2, symbol: 2 },
   front_glimpse: { spin: 3, hold: 1 },
