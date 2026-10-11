@@ -8,10 +8,11 @@
    VideoHelp.check({ w, h, fps, sound, muxer }) -> Promise<report>
      report.items: [{ id, label, ok, detail, fix }] for each thing an export
      leans on; report.mp4 / report.record / report.sound say which paths work.
-   VideoHelp.show({ title, message, error, report, actions, tone, body, wide })
-     opens the pop-up. actions: [{ label, primary, run }]; run() may return a
-     promise, and the pop-up closes before it runs. body: a node shown under
-     the message; wide: room for a grid of pictures.
+   VideoHelp.show({ title, message, error, report, actions, tone, body, wide, onClose })
+     opens the pop-up. actions: [{ label, primary, run, keepOpen, id }]; run(button)
+     may return a promise, and the pop-up closes before it runs unless keepOpen.
+     body: a node shown under the message; wide: room for a grid of pictures
+     or a video; onClose: called once it closes, however it closes.
    VideoHelp.photos(photo) a video's photo, picked (its HD photo), and the
      other moment worth posting (photo.frames, from VideoStill.frames), each
      to download. */
@@ -122,6 +123,10 @@
 .vh-tag{font-style:normal;font-weight:700;font-size:12.5px;color:var(--vh-mut)}
 .vh-pic:first-child .vh-tag{color:var(--vh-acc)}
 @media (max-width:520px){.vh-pic img{height:150px}}
+/* a video to watch before it is kept (the studio's Create video) */
+.vh-video{margin:12px 0 2px}
+.vh-video video{display:block;width:auto;max-width:100%;max-height:min(56vh,520px);margin:0 auto;border-radius:12px;background:#000}
+.vh-said{color:var(--vh-mut);font-size:13.5px;margin:8px 0 0;text-align:center}
 /* the video's photo kept under a row of buttons (the editor's export pop-up), on a line of its own */
 .vh-photo.vh-line{display:flex;align-items:center;justify-content:center;width:100%;margin-top:10px}
 .vh-toast button{flex:none;border:0;background:#b48cff;color:#140a24;font:700 13.5px Satoshi,system-ui,sans-serif;padding:7px 12px;border-radius:99px;cursor:pointer}
@@ -129,7 +134,13 @@
   let styled = false, open = null;
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-  function close(){ if (open){ open.remove(); document.removeEventListener('keydown', open._key); const f = open._focus; open = null; try { f && f.focus(); } catch (e){} } }
+  function close(){
+    if (!open) return;
+    const o = open; open = null;
+    o.remove(); document.removeEventListener('keydown', o._key);
+    try { o._focus && o._focus.focus(); } catch (e){}
+    try { o._onClose && o._onClose(); } catch (e){ console.error(e); }
+  }
 
   function show(o = {}){
     if (!styled){ const s = document.createElement('style'); s.textContent = CSS; document.head.appendChild(s); styled = true; }
@@ -159,13 +170,13 @@
     if (!list.some(a => a.primary) && list.length) list[0].primary = true;
     list.push({ label: 'Close', run: () => {} });
     list.forEach(a => {
-      const b = document.createElement('button'); b.type = 'button'; b.textContent = a.label; if (a.primary) b.className = 'p';
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = a.label; if (a.primary) b.className = 'p'; if (a.id) b.id = a.id;
       b.addEventListener('click', () => { if (!a.keepOpen) close(); try { const r = a.run && a.run(b); if (r && r.catch) r.catch(e => console.error(e)); } catch (e){ console.error(e); } });
       acts.appendChild(b);
     });
     back.appendChild(box);
     back.addEventListener('click', e => { if (e.target === back) close(); });
-    back._focus = document.activeElement;
+    back._focus = document.activeElement; back._onClose = o.onClose;
     back._key = e => {
       if (e.key === 'Escape') close();
       if (e.key === 'Tab'){ const f = [...box.querySelectorAll('button')], i = f.indexOf(document.activeElement);
@@ -329,7 +340,7 @@
       const r = photo.frames ? await photo.frames : {};
       const list = [photo].concat((r.frames || []).slice(0, 1));
       try {
-        const files = list.map(p => new File([p.blob], p.name, { type: p.blob.type || 'image/png' }));
+        const files = list.map(p => new File([p.blob], p.name, { type: p.blob.type || 'image/jpeg' }));
         if (navigator.canShare && navigator.canShare({ files })){ await navigator.share({ files }); return; }
       } catch (e){ if (e && e.name === 'AbortError') return; }
       for (const p of list){ save(p.blob, p.name); await new Promise(res => setTimeout(res, 350)); }

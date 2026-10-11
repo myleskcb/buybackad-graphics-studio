@@ -177,7 +177,7 @@ ok(r.status === 201 && C.autopost === true && C.post && C.post.round === 1, 'sav
 ok((await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[3]) } })).status === 507, 'save: the plan\'s cap is 507');
 r = await call('GET', '/ads/mine', { as: 'pro@x.example' });
 ok(r.body.limit === 1000 && r.body.items.length === 0 && r.body.links.page !== L.page, 'another account: its own library, its own link, the Pro cap');
-ok((await call('GET', '/ads/mine', { as: 'boss@x.example' })).body.limit === 2000, 'an operator: the admin cap');
+ok((await call('GET', '/ads/mine', { as: 'boss@x.example' })).body.limit === 3000, 'an operator: the admin cap, the biggest plan\'s');
 
 /* the public link */
 r = await call('GET', '/ads/feed/' + feedId);
@@ -359,7 +359,7 @@ ok(![...store.m.keys()].some((k) => k.endsWith(':' + PV.id)), 'remove: an ad tak
   const sv = await hit('POST', '/ads/save', { image: dataUrl(J[0]), category: 'phones' }, su.json.token);
   ok(sv.status === 201 && sv.json.item.autopost, 'function: an operator saves an ad set to post (' + sv.status + ')');
   const mine = await hit('GET', '/ads/mine', null, su.json.token);
-  ok(mine.json.limit === 2000 && mine.json.items.length === 1, 'function: the operator\'s library and cap');
+  ok(mine.json.limit === 3000 && mine.json.items.length === 1, 'function: the operator\'s library and cap');
   const fid = mine.json.links.json.split('/').pop();
   const fd = await hit('GET', '/ads/feed/' + fid);
   ok(fd.status === 200 && fd.json.items[0].id === sv.json.item.id, 'function: the public link answers without a sign-in');
@@ -746,13 +746,18 @@ async function browserPart() {
         const lib = adLibrary.state().lib, top = lib.items[0];
         return { before, after: lib.count, top: top && { kind: top.kind, video: top.video && { format: top.video.format, w: top.video.width, h: top.video.height, seconds: top.video.seconds, bytes: top.video.bytes, url: top.video.url } }, label: document.getElementById('ez-video').innerHTML };
       });
-      ok(vid.top && vid.top.kind === 'video' && vid.top.video && vid.top.video.bytes > 10000 && vid.top.video.w === 1080 && vid.top.video.seconds === 10 && /Download as video/.test(vid.label), 'video: Save as video makes the studio\'s video and saves it with its photo (' + JSON.stringify(vid).slice(0, 300) + ')');
+      ok(vid.top && vid.top.kind === 'video' && vid.top.video && vid.top.video.bytes > 10000 && vid.top.video.w === 1080 && vid.top.video.seconds === 10 && /Create video/.test(vid.label), 'video: Save as video makes the studio\'s video and saves it with its photo (' + JSON.stringify(vid).slice(0, 300) + ')');
       if (vid.top && vid.top.video) {
         const pub = await page.evaluate(async (u) => { const r = await fetch(u, { headers: { Range: 'bytes=0-15' } }); return { status: r.status, type: r.headers.get('content-type'), range: r.headers.get('content-range') }; }, vid.top.video.url);
         ok(pub.status === 206 && /^video\//.test(pub.type || '') && /^bytes 0-15\//.test(pub.range || ''), 'video: the public link serves the clip by range (' + JSON.stringify(pub) + ')');
       }
       const askV = await page.evaluate(async () => {
+        const wait = async (f, ms) => { const t = Date.now(); while (!f() && Date.now() - t < ms) await new Promise((r) => setTimeout(r, 400)); return f(); };
+        // Create video: made and shown first (app.js previewVideo), then its Download MP4
         document.getElementById('ez-video').click();
+        if (!await wait(() => document.getElementById('vh-mp4'), 60000)) return { preview: false };
+        document.getElementById('vh-mp4').click();
+        await wait(() => !document.getElementById('vh-mp4') || /Downloaded/.test((document.querySelector('.vh-said') || {}).textContent || ''), 60000);
         const t0 = Date.now();
         let popup = false;
         while (Date.now() - t0 < 60000) {

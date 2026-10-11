@@ -3675,7 +3675,8 @@ photo because offer requires us to put a photo with any video at and we need
 the HD 1440P version of the ad as a photo so find the best point in the video
 to save". OfferUp takes a video only with a photo beside it.
 
-- **Every video export brings a PNG with it**, under the same export: the
+- **Every video export brings a JPG with it** (a PNG until 2026-10-11, see
+  below), under the same export: the
   studio's Easy Mode and editor (`motionPhoto`, one count for both files in
   `deliverVideo`) and the video maker (`makePhoto` in motion/app.js). A new
   video export path calls one of them, or is not finished.
@@ -3715,10 +3716,11 @@ to save". OfferUp takes a video only with a photo beside it.
   browser can hold a second download back (Chrome asks once per site, a
   phone can drop it), and the studio's only way back was the toast's Save
   photo again, gone in twelve seconds. So in the studio a button,
-  "📷 Download the video's photo", saves the same PNG again from the moment
+  "📷 Download the video's photo", saves the same photo again from the moment
   both files are given until the next video replaces it, a count that went
   through only on Try again included (`VideoHelp.keepPhoto`, from
-  `deliverVideo`). In Easy Mode it is right under Download as video, in the
+  `deliverVideo`). In Easy Mode it is right under Create video (Download as
+  video until 2026-10-11, rule 130), in the
   same look; in the editor's export pop-up it takes a line of its own under
   the buttons (a fourth button in that row pushed Cancel out of the pop-up).
   The maker already kept one: Save photo in the note under Download MP4.
@@ -3728,6 +3730,17 @@ to save". OfferUp takes a video only with a photo beside it.
   ("Its 1440×1440 photo for OfferUp came with it", Save photo again) was a
   195px column with its button hanging off the edge. It is centred by its
   margins now, as wide as it needs up to the screen less 16px a side.
+- **The photo is a JPG, and it downloads on its own too** (added
+  2026-10-11). The owner: "download mp4 and jpg option", then, asked
+  whether the photo with the MP4 should follow, "I think JPG is preferable".
+  `VideoStill.toBlob` writes JPEG at 0.92 for every caller (the maker, the
+  studio, the frames of rule 110): an ad is a photograph and gradients, kept
+  to the eye at 1440×1440 in 0.2 MB, and every ground is filled before it is
+  drawn, so no transparent pixel turns black. The maker has "⬇ Download JPG"
+  beside "⬇ Download MP4": the same photo, same moment and size, without
+  making the video, counted as a photo download (kind "photo"), so every
+  plan has it and Free's is 1080 with the watermark. The library makes its
+  own JPEG from whatever it is given, as before.
 
 ## 109. A card's parts line up: on the middle, or on an edge they share
 
@@ -3835,7 +3848,8 @@ frame" and "more versions".
 
 - **The frames come out of the file**, not out of the engine.
   `VideoStill.frames` reads the finished video back (Mediabunny, vendor/) and
-  saves each frame exactly as the file holds it, at the video's size, as PNG.
+  saves each frame exactly as the file holds it, at the video's size, as a
+  JPG since 2026-10-11 (rule 108; a PNG before).
   A frame drawn again can differ from the one that was encoded (the maker
   keeps its phones from the first settled frame while its rays keep moving),
   and what a platform's thumbnail picker shows is the file. Rule 108's HD
@@ -3868,7 +3882,8 @@ frame" and "more versions".
   photos in the toast, and More photos in the maker's note. The frames are
   read while the video downloads and arrive in the pop-up if it is open.
   `scripts/video_photo_check.mjs` opens it on every run, saves every card, and
-  holds each frame to the same file decoded again: at most 1 level off.
+  holds each frame to the same file decoded again: at most 1 level off (as
+  a JPG, against that frame made a JPG the same way, `VideoStill.toBlob`).
 - **A 2x screen measures at 1x** (found doing this). Easy Mode's scene and the
   template thumbnails are never shown on screen, only exported and measured,
   and are now made with `enableRetinaScaling:false`. fabric's default drew them
@@ -5031,3 +5046,157 @@ the most this container's 14 GB holds):
 > Amends rule 95: with a colour theme on, the card's hue is the theme's
 > colours, not one hue; a look the visitor picked is theirs. Rule 95 stands
 > for a card as designed.
+
+## 128. One light: a ground drawn as a lit surface is lit by the light that casts the phones' shadows
+
+Added 2026-10-11 (numbered after 126 and 127 on `claude/laughing-keller-c9tp89`,
+which are not on `main` yet; renumber when either lands). The owner, of a
+Titanium video ad on Brushed metal (the video maker's painter, which the studio
+also offers as a scene): "the shading around the corners because its dark and
+then light around the side", "not actually how shadows work", then "audit and
+make sure it's accurate to life like realism and actual device".
+
+- **The key light is high on the left** (rules 114 and 124): the phones'
+  shadows fall to the lower right, and a turning back catches the light from the
+  left. A ground that shows a lit surface (a wall, a sheet of a material, a
+  studio sweep or backdrop) is lit by that light too: brightest toward the top
+  left, or even, never brighter on the far side, and never bright on the
+  diagonal across the light.
+- **What was wrong.** Brushed metal was a gradient from corner to corner with
+  its brightest stop in the middle: dark at the top left and bottom right,
+  bright at the other two corners (Titanium, 1:1, corners L* 55.7, 78.8, 55.2,
+  82.3). No light does that. The owner's screenshot measures the same: corner
+  greys 134 and 129 against 197 and 200. Diamond plate had the same band, and
+  each bar was shaded along its own length, so one row was lit from the lower
+  right and the next from the upper right.
+- **What they are now** (`keyLit`, `streak` in motion/decor.js). The sheet
+  falls off from the top left at 45 degrees, whatever the frame's shape.
+  Brushed metal shows the light's reflection as a soft upright streak a third
+  of the way in, brightest a little above the middle: lines brushed side to
+  side spread a highlight up and down, never along the lines (a horizontally
+  brushed steel door shows the same). The streak is the metal's own light
+  colour, because a coloured metal tints what it reflects (mixed toward white,
+  it took white headlines on Candy teal from 2.84 to 2.63:1). Diamond plate
+  shows the light as a soft patch above and left of the middle; every bar is lit
+  on its side toward the light, dark on the far side, and casts a small shadow
+  away from it. The studio's own Brushed metal (grounds.js) was already a
+  streak across its grain, centred, and is left as it is.
+- **Measured** (`node scripts/ground_light_audit.mjs`): every ground the maker
+  offers, 102 of them, drawn as the maker draws it (the painter and the stage
+  vignette) in 1:1 and 9:16, with its themes' palettes and two of every tone:
+  1,698 drawings, read in L* block by block. *crossed*, (TR + BL − TL − BR) / 2
+  over the corners: one light, a pool, a lens's fall-off, or all of them leave
+  it near 0; over 3 the light is on the diagonal across the key. *facing*: a
+  plane plus a pool about the stage fitted to the light, read toward the key:
+  no more than 4 L* brighter away from it. Brushed metal crossed 25.1 → 0.4,
+  facing 3.2 → 6.1; Diamond plate 15.0 → 0.4, 6.5 → 9.1. All 25 lit surfaces
+  pass. Tonal is held: its backdrop is lit from behind the phones, 4.6 L*
+  brighter low on Editorial cream, on 2 of 24 drawings. The 38 grounds whose
+  bright and dark are their design (a colour gradient, rays, shapes), a sky, a
+  scene that draws its own lamp or sign, or an object on the floor, are listed,
+  not failed.
+- **Nothing is harder to read.** The video maker's own audit
+  (motion/audit-sweep.html, 30 looks held to each ground, seeds 101 to 130,
+  deterministic run to run): Brushed metal's median headline contrast 6.06 →
+  6.23:1, Diamond plate's 5.83 → 6.01:1. Under 3:1, one look on each ground
+  before and after: the same look (Candy teal glow), 2.84 → 2.87 and 2.37 →
+  2.57. Three looks lost "First frame shows something" and one lost "Never
+  still". On the old grounds, the bright corner-to-corner band moved under the
+  flash cut, the whip pan and the push-out, and was counted as something on
+  screen; a mask of what is counted shows the same phones in both (OPEN-ITEMS
+  §AV).
+- **The phones are the real devices**, unchanged and checked again:
+  audit_phone_views.py 59 of 59 (shape against Apple's dimensions, round
+  lenses, island or notch, Action button or mute switch, Camera Control, the
+  side button where the photograph has it, a 17 or 18 Pro's side in its
+  plateau's aluminium); motion_finish_check.mjs 57 of 57; motion_phone_check.mjs
+  all pass. A settled frame of the owner's ad draws Cosmic Orange at (237, 146,
+  95) against the photograph's (245, 129, 64): the sheen, not a shift.
+- Before a change to a ground's light: ground_light_audit.mjs, and the sweep on
+  that ground before and after.
+
+## 129. A video ad sounds like a sale: never sad, and nothing in it is a phone going off nearby
+
+Added 2026-10-11. The owner, of a Spanish confetti ad ("COMPRAMOS IPHONES
+USADOS") whose soundtrack was the Moonlight Sonata with a blip over the
+number: "a sad piano song with a iPhone voice memo recording sound randomly
+in the middle of it ... I actually looked around and thought someone around
+me was making a voice memo ... I don't even know [why] I would have a sad
+piano song for any of our ads. It's not likely or conducive of sales." And:
+"some sort of sound effect to corroborate the confetti that is falling down
+from the screen so we can push a happy or upbeat vibe".
+
+**No sad music.** Retired, each playing as an upbeat stand-in
+(`SOUND_ALIASES` in motion/catalog.js): the recordings of the Moonlight
+Sonata (Adagio sostenuto, C sharp minor), Gymnopedie No. 1 ("Lent et
+douloureux") and Fur Elise (A minor), the slow solos by their own markings,
+to Sousa Gone Funk, Aero Groove Evolution and Small Note Boogaloo; and the
+tunes Moonlight, Gymnopedie, Fur Elise and Greensleeves to Ode to Joy, The
+Entertainer, Eine kleine Nachtmusik and Vivaldi's Spring. They stay in
+`OPTIONS`, so a shuffle draws every other look exactly as it did; the maker
+does not offer them, a saved look plays the stand-in, and the classics played
+in place of a holiday tune leave them out. A crude measure of mode and drive
+over the twelve-second clips was tried and dropped: it read the Moonlight as
+E major (its relative major) and swing jazz as pulseless, so the composers'
+markings decided.
+
+**Nothing that sounds like a real phone near the viewer.** The number's
+"pop" was two sine notes rising a fourth with a glide into each, written as
+"the kind a phone makes"; over a quiet piano it is the iPhone's
+start-recording chirp. It is a cork's pop now (a crack, and its body falling
+from an octave over the note). The message ding and the phone buzz are by
+hand only.
+
+**Confetti is heard.** Falling confetti (the overlay, which starts as the
+number lands) plays a party popper as its number sound: a crack, the paper's
+rush, a tambourine's rattle, then up to ten bells tumbling down the key's
+pentatonic scale from under 2.6 kHz, alternating left and right. Harmonise
+sets it on every look with the overlay unless the number sound was picked by
+hand, and takes it off a look without the overlay. The loudest 50 ms over
+the number, music off, one look (seed 905): the popper -19.0 dB, as the
+glockenspiel run (-19.0) and the register (-19.4); the pop -22.0, the two
+bells -20.1; the headline hit in the same renders -9 to -12.
+
+Checked by `scripts/motion_music_check.mjs` part 6: 1000 shuffles play no
+retired piece; 46 of 46 with confetti play the popper and none without it
+does; each retired piece saved in a look plays its stand-in; the maker offers
+none of them.
+
+## 130. A photo ad's video is created and watched before it is kept
+
+Added 2026-10-11. The owner: "photo ads don't need a download video option.
+They need a create video option". Asked what Create video should do, of
+three (make it then preview, open the video maker, rename the button), the
+owner chose "make it, then preview".
+
+- **Create video makes it and plays it, and nothing downloads.** Easy Mode's
+  "🎬 Create video" (was "🎬 Download as video") and the editor's (was
+  "🎬 Video") make the 10-second video of the ad (`runVideoExport` with
+  `preview`) and open "Your video" (`previewVideo`): the video playing, with
+  sound where the browser allows it, and its size and length under it.
+  Anyone makes and watches one, signed in or not, as in the video maker.
+- **The plan has its say at the buttons**, which keep the pop-up open and say
+  what happened on its own line (it sits over every toast):
+  ⬇ Download MP4, Pro and Business, the video and its JPG, one video count
+  (`giveVideo`, what the direct download did); ⬇ Download JPG, the video's
+  photo alone, one photo download on any plan, Free's 1080 with the
+  watermark; ⭐ Save to library, Pro and Business, the video with its photo
+  (`adLibrary.keepStudioVideo`). Signed out, the sign-in comes first; its
+  dialog sits under this pop-up, so the pop-up closes, and after the sign-in
+  it opens again and carries on with the button that was pressed. Free and
+  Starter pressing Download MP4 or Save to library get the plans page.
+- **The photo is made when a button asks for it**, at that plan's size and
+  marks, once each; the last video and its scene stay until the next video
+  replaces them.
+- **⭐🎬 Save as video stays the direct path** (`ezDownloadVideo` without
+  `preview`: the plan first, then made and saved), and the checks call it.
+- **The CSP lets the page play its own video**: `media-src 'self' blob:` in
+  `_headers` and `netlify.toml`. Without it `default-src 'self'` refused the
+  blob: URL (measured 2026-10-11: error 4, "media-src blob", a blank player).
+- Measured 2026-10-11 in headless Chromium on Green Gold Glass Card: made in
+  14 to 15 s (real-time recording there), playing unmuted, nothing
+  downloaded; Download MP4 signed out opened the sign-in, and signing in as
+  Pro brought the pop-up back and saved the video and its 1440×1440 JPG on
+  one count; Free's Download JPG saved 1080×1080 on a photo count, its
+  Download MP4 opened the plans; the same at 390 px wide, the buttons one
+  above the other.

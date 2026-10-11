@@ -497,14 +497,21 @@
     return { seconds, fallbackW: photo && photo.w, fallbackH: photo && photo.h };
   }
   async function captureVideo(blob, name, photo, c){
-    const VH = window.VideoHelp;
-    const btn = c.btn, set = t => { if (btn) btn.innerHTML = t; };
-    try { await (VH ? VH.retry(() => recordExport('video'), { tries: 3, delay: 1200 }) : recordExport('video')); }
-    catch (e){ app.toast('The video was made, but the download could not be counted: ' + (e.message || e), 'error'); return false; }
-    set('Saving to library…');
-    await saveVideoAd({ blob, name, photo, proj: projectNow(c.kind), meta: { source: 'studio' }, video: studioVideoMeta(photo),
-      onProgress: p => set('Saving to library… ' + Math.round(p * 100) + '%') });
+    await keepStudioVideo(c.kind, blob, name, photo, c.btn);
     return false;                     // runVideoExport says nothing more: the toast above is the word
+  }
+  /* a studio video, counted as a download and saved with its photo: ⭐🎬's,
+     and Create video's ⭐ Save to library (app.js previewVideo), whose video
+     is already made. The saved item, or null. */
+  async function keepStudioVideo(kind, blob, name, photo, btn){
+    if (!await signedIn(() => keepStudioVideo(kind, blob, name, photo, btn))) return null;
+    const VH = window.VideoHelp;
+    const set = t => { if (btn) btn.innerHTML = t; };
+    try { await (VH ? VH.retry(() => recordExport('video'), { tries: 3, delay: 1200 }) : recordExport('video')); }
+    catch (e){ app.toast('The video was made, but the download could not be counted: ' + (e.message || e), 'error'); return null; }
+    set('Saving to library…');
+    return saveVideoAd({ blob, name, photo, proj: projectNow(kind), meta: { source: 'studio' }, video: studioVideoMeta(photo),
+      onProgress: p => set('Saving to library… ' + Math.round(p * 100) + '%') });
   }
 
   // ---------- the ★ on every ad ----------
@@ -983,7 +990,7 @@
 
   window.adLibrary = {
     open, close, load, paint, isSaved,
-    save: rec => save(rec), saveVideo, saveVideoAd, saveDesign, saveEasy, saveEditor, saveVideoNow,
+    save: rec => save(rec), saveVideo, saveVideoAd, saveDesign, saveEasy, saveEditor, saveVideoNow, keepStudioVideo,
     signedIn: (next, msg) => signedIn(next, msg), ready,
     star: starFor, decorate,
     state: () => ({ lib: state.lib, error: state.error, auto: autoOn(), queued: state.queue.length, last: !!state.last, capture: !!state.capture }),

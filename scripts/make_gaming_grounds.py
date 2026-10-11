@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 """GAMING ROOMS: grounds for the gaming lines, until the photographs come.
 
+RETIRED 2026-10-11. The owner, of every gaming card on these three rooms:
+"too similar of backgrounds and themes way too similar", "assimilate with the
+other categories", "We need more relatable gamer style background bedroom
+photos, so they look clean". The gaming lines now stand on real photographs of
+gamers' rooms (scripts/make_offer_grounds.py, the 'gaming' pool), like every
+other category on its own photographs; drawn grounds are out under DESIGN-LAW
+117. Kept for the record,
+like the retired assets/bg/dl_* scenes; offer-library.js no longer reads the
+files it wrote.
+
 The owner, 2026-09-27, on the console offer cards: "While space is a good
 background for quite literally anything that needs just a basic background
 for the asset to live in.. particularly for these game consoles I think it

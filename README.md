@@ -37,13 +37,14 @@ redeploy. `.env.example` is the local copy for `netlify dev`.
 | variable | what it does |
 |---|---|
 | `JWT_SECRET` | required; any long random string, signs the sign-in tokens |
-| `ADMIN_EMAILS` | comma-separated operator emails: no caps, no watermark, the admin tools |
+| `ADMIN_EMAILS` | comma-separated operator emails: every feature of every plan whatever plan the account is billed on (no caps, no watermark, video, QR, unlimited AI credits, the biggest library), shown as **Admin** in the studio and on the plans page, and the admin tools. Sign in with the same email; a change reaches the function with the next deploy |
 | `FAL_KEY` | AI backgrounds on fal.ai: Seedream v4 text-to-image for a scene, Seedream v4 **edit** when the customer picks products (the shop's own photographs go in as reference images). First choice whenever it is set. `PGFX_FAL_TEXT_MODEL` / `PGFX_FAL_EDIT_MODEL` swap the models (a model `plans.mjs` does not price needs `MODEL_COSTS`) |
 | `GEMINI_KEY` | AI backgrounds on Gemini (3.1 Flash Lite Image by default; `PGFX_BG_MODEL` overrides it): the fallback when fal fails, or the only provider without `FAL_KEY` (`PGFX_BG_PROVIDER=gemini` puts it first). With neither key, the generator says the feature is not enabled yet |
 | `AI_MAX_PER_RUN` | images one Generate in the AI background generator can ask for (default 4, at most 8). The prompt recipe, styles, colour schemes and negative words are edited in the AI Studio console (operators), not here |
 | `MODEL_COSTS` | optional JSON, dollars a call per model, merged over the table in `netlify/lib/plans.mjs`. AI is sold in **credits** (one credit buys up to 4 cents of model cost; a call costs ceil(price / 4c)), and a model with no price is not sold. Add a model's price here or in `plans.mjs` before pointing `PGFX_BG_MODEL` at it |
 | `AI_FREE_DAILY_CREDITS` / `AI_DAILY_CREDITS` | site-wide ceilings a day: the free tier's AI credits (default 100, about $4) and everyone's (default 2000, a runaway guard). `RL_USER_DAILY`, `RL_PRO_DAILY` and `RL_GLOBAL_DAILY` are retired: credits replace them |
 | `STRIPE_SECRET` | **switches billing on.** The only Stripe setting needed: the prices, the products and the webhook make themselves (below). Until it is set, Go Pro says "Checkout is not open yet" and nothing is charged |
+| `STRIPE_PUBLISHABLE_KEY` | optional, and the one to set with `STRIPE_SECRET`: `pk_test_…` with a test secret, `pk_live_…` with a live one. With it, checkout happens **on the site**: Stripe's payment form (card, Apple Pay, Google Pay, Link, whatever the Stripe dashboard's Payment methods switch on) opens inside the site's own dialog (`checkout-embed.js`, Stripe Embedded Checkout) and a card pays without leaving the page. Its look follows the Stripe dashboard's Settings → Branding (colours, font, corners). Without it, or with a key of the other mode, checkout is Stripe's hosted page |
 | `STRIPE_WEBHOOK_SECRET`, `PRICE_<KEY>`, `SITE_URL` | optional. A webhook you made by hand (otherwise the site registers its own); a price you made by hand (`PRICE_PRO_MONTH`, `PRICE_BUSINESS_YEAR`, `PRICE_CREDITS100`…; the old `PRICE_PRO` is `PRICE_PRO_MONTH`); the site's own https origin, where Stripe sends people back and events (defaults to Netlify's `URL`) |
 | `GOOGLE_CLIENT_ID` | optional; shows the Google sign-in button |
 | `LIBRARY_KEYS`, `LIBRARY_DAILY` | the partner library API, below |
@@ -136,8 +137,10 @@ back is lossless. Plan pixel caps apply to the short side, so rectangular
 exports keep their aspect.
 
 ## Video ads
-Every design also downloads as a 10-second video: **Download as video** in
-Easy Mode, **Video** in the editor's export. The clip opens on the finished ad
+Every design also makes a 10-second video: **Create video** in Easy Mode and
+in the editor's export makes it and plays it in a pop-up, with Download MP4
+(with its JPG photo), Download JPG and Save to library (DESIGN-LAW rule 130).
+The video maker (`motion/`) downloads an MP4 or a JPG. The clip opens on the finished ad
 (frame 0 is the still, so every feed thumbnail and muted autoplay shows the
 ad), lets it breathe, and at 5.8 s shifts to a call to action built from the
 card's own headline, action line, number and photograph (DESIGN-LAW rule 65).
@@ -221,8 +224,8 @@ the ads fresh. The studio sets no schedule and has no Auto-post switch
 (`docs/iphonesla-library/README.md` has the contract). An ad that shows a
 website, a QR code, a street address or a social handle, or carries the
 watermark, is saved but held: never offered.
-Caps: free 12 ads, Pro 300, operators 2000 (`ADLIB_MAX_FREE`, `ADLIB_MAX_PRO`,
-`ADLIB_MAX_ADMIN`), 100 saves a day (`ADLIB_DAILY`). It needs the real backend
+Caps: the plan's (Free 12, Starter 300, Pro 1,000, Business 3,000), operators
+the biggest plan's (`ADLIB_MAX_FREE`, `ADLIB_MAX_PRO`, `ADLIB_MAX_ADMIN`), 100 saves a day (`ADLIB_DAILY`). It needs the real backend
 (`JWT_SECRET` set): in demo mode the dialog says so.
 
 `master-library.html` without a link is the **master library**: the account's

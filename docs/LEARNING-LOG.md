@@ -4083,10 +4083,34 @@ Found:
 
 Owner, over the side-by-side clip of the three: "that is much better. I
 like all of it." All three stay in the shuffle; put on `main` the same day.
+Then: "Maybe we do one that's a slower [pulse] that's more of a breathing
+effect": `breathe`, first a 6% swell every 3 s, off the beat, from rest;
+then "Breathing are much more subtle and slow movement not a pulse": 3%
+every 4.5 s, as at rest a body breathes, with half the shadow's change.
+Then, of a clip of breathe beside pulse: "a pulse that's identical from the
+left or right". It was. Three faults, all mine:
+  - The clip's look had "Pump on the beat" (urgency beat_pump: the whole
+    picture zooms on every beat), the same on both sides and far louder
+    than either phone move. harmonise now drops it where the phones swell
+    (or, in a shuffle, the phones spin or float instead).
+  - The phones stood on the line over the number, so a swell about their
+    middles had room for 1.7% (k 0.24). A swell now keeps the edge nearest
+    trouble still and grows away from it (`idleAnchor`); pulse at full size
+    went from 96 looks of 120 to 115.
+  - On phones under a third of the frame, 3% is two or three pixels. A
+    breath now adds at least 1.2% of the frame's short side (up to 6%).
+  - And the video's photo, taken at a spin's whole turn, failed the photo
+    check once at 1:1: a real-time recording's clock drifts, and there the
+    phones turn 20 degrees in 0.2 s. The moves now wait till the number has
+    landed and stood (IDLE.hold, 0.9 s from its arrival), and a spinning
+    look's photo is that held moment: twice in a row, every size passed.
+  Lesson: a demo clip is a measurement. Hold everything but the thing
+  compared still, and look at it before sending it.
 
 RESUME HERE:
   0. The amplitudes are IDLE in motion/engine.js (turn 3.2 s, rise 4.5% of
-     a phone, pulse 7%), should the owner want any move bigger or calmer.
+     a phone, pulse 7%, breathe 3% over 4.5 s), should the owner want any
+     move bigger or calmer.
 
 ## 2026-10-11 — the colour builder's fades, made to be seen (claude/compassionate-babbage-nv318r)
 
@@ -4145,9 +4169,9 @@ use the same imagery for seven days per unique ad that is our maximum",
 
 Done:
   - A review screen with its own suggestions was built in the studio first
-    and dropped before merging: the titles have to come from iPhones LA's
-    own title and description maker, and approval is done on its listings
-    site. What stayed is the outbox.
+    and reached `main` with #11's first commit; this replaces it: the titles
+    have to come from iPhones LA's own title and description maker, and
+    approval is done on its listings site. What stays is the outbox.
   - Every ad saved is on the link at once, picture and video, with its
     words, category and products. No Auto-post switch and no schedule in
     the studio; an old studio's autopost and repost_days are ignored.
@@ -4179,3 +4203,151 @@ LA's worker, its tests, Chromium under the production CSP) and
   is the site's answer (approval and the day's buying-ad share), and nothing
   is posted without it; `--post` without `--approved` is refused.
   test_autopost.py has eleven checks; the zip is repacked.
+
+## 2026-10-11 — the gaming cards leave the drawn rooms (OPEN-ITEMS §AU)
+
+Asked: a screenshot of the Gaming category, "too similar of backgrounds and
+themes way too similar", "assimilate with the other categories", then "We
+need more relatable gamer style background bedroom photos, so they look
+clean".
+
+Found:
+  - The sameness was one cause: every gaming, gaming headset and monitor
+    card stood on the same three drawn rooms, all purple neon. The looks
+    (bands, panels) already varied; the ground is most of the card.
+  - The first answer (photographs of the goods, as iPhones and gold have)
+    was the house pattern but not what the owner wanted for gaming: a
+    controller over a photograph of a controller is clutter, and "gamer
+    style" means the room.
+  - Commons is the only photo source a cloud session reaches, and it has
+    almost no clean gamer bedrooms: 957 licensed candidates from 71
+    searches gave four usable rooms. Say so rather than stretch the set with near misses.
+  - A room photograph has highlights the p90 shade does not see: a window, a
+    lamp, a lit screen. The small type over them fell to 2.7:1 on one room.
+    The template audit found it; the eye did not.
+  - Which card gets which room is the pool's order. Measuring every card on
+    every room once (four audits) and comparing the 24 orders offline beat
+    trying orders one audit at a time.
+  - The credits file mixes escaped and raw non-ASCII; append to it as text,
+    or a rewrite changes unrelated entries.
+
+RESUME HERE:
+  0. Merge to `main` (this branch: `claude/wizardly-bardeen-62280m`).
+  1. A clean gamer bedroom photograph (§AU 1), then the held gaming cut-outs
+     (§AU 2).
+
+## 2026-10-11 — Mac wallpapers and a lit laptop screen (claude/nifty-pasteur-xlv4nu)
+
+Asked: "stock apple backgrounds for tahoe or golden gate or the stock
+background on front facing off screen", over the MacBook offer card.
+
+Done: `mac-wallpapers.js` (OPEN-ITEMS §AW). Ten drawn wallpapers as a
+Wallpapers background group; an "On the laptop screen" row that lights the
+front-facing and angled MacBook pictures with a wallpaper or the visitor's
+own picture.
+
+Found:
+  - The screen's corners were measured off the cut-outs, then checked by
+    warping a grid into them and looking, before any wallpaper went in. The
+    front picture is a 2021 MacBook Pro (camera at 940, 38: the notch goes
+    round it); the angled one a Touch Bar 13-inch, whose chin carries the
+    name, so the display ends at the faint line above it, not at the hinge.
+  - `syncEzSwatches` clears `.sel` from every `.ez-sw` in the page and lights
+    the first `.ez-sw.orig`; a new swatch row needs its own sync after it,
+    and must not use `.orig`.
+  - `.ez-swatches` sets `display`, so the `hidden` attribute does nothing on
+    it; show and hide such a row with `style.display`.
+  - A canvas element on a designer object is saved by fabric as a full PNG
+    in every undo step; the lit picture overrides `toObject` to save the
+    cut-out's address and is lit again in `fabric.Image.fromObject`.
+
+Later the same day: twelve Commons photographs of Lake Tahoe and the Golden
+Gate (Apple's own wallpapers are not on Commons; apple.com and Google are not
+reachable from here), and a seventh offer layout, Floating, from the owner's
+"floating rounded rectangles, three of them".
+
+Found:
+  - Commons answers 429 to a request with no User-Agent, and serves the
+    3840px original when asked for a 2048px thumbnail; `fetch_backdrops.mjs`
+    sends one, and the picks were brought down to 2048 by hand.
+  - A new layout must go last in a line's `lays`: the look, face, headline
+    and photograph rotate by its position, so inserting it earlier would have
+    repainted every card after it.
+  - `template-holds.js` (2026-09-30) is older than the flags on the offer
+    family's product pictures (2026-10-04); the template audit would hold
+    most offer cards today, the owner's MacBook card included.
+
+Then the eighth layout, Detailed, a lit finish on the floating boxes, and
+the laptop screens lit by default on every studio card (the owner: "start
+putting the backgrounds in the computer"), one drawn wallpaper per card.
+
+RESUME HERE:
+  0. Apple's own wallpaper files: the owner's licensing call (§AW 1).
+  1. Whether cards on flagged pictures leave the studio (§AW 5).
+  2. The iPad and the phones' dark screens into `SCREENS` (§AW 2).
+
+## 2026-10-11 — an admin account is every plan, and says so (claude/exciting-thompson-xtdq5g)
+
+Asked: the owner, with a screenshot of the plans page on their admin
+account (Free "your current plan", 5 AI credits, "Checkout is not open
+yet"): "my admin account that has not been validated for premium so I'm not
+able to test all the features I've been creating", and to put every change
+live.
+
+Found:
+  - The function already let operators (ADMIN_EMAILS) past every gate:
+    downloads, video, watermark, AI credits, the library. The studio read
+    `plan: "free"` and showed it: a FREE badge, an Upgrade button, "3 of 3
+    downloads left · 5 AI credits · standard size with watermark", the
+    1080 hint, and Free as the current plan.
+  - The operators' library cap (2000) sat under Business's (3000).
+  - `?plans=1` (the video maker's See plans) builds the plans page before
+    the account has loaded, and nothing built it again: a signed-in
+    customer saw "Start free".
+  - Ten of the day's session branches had pushed and stopped short of
+    `main`; merged here (OPEN-ITEMS letters: the gaming cards keep §AU, the
+    Mac wallpapers are §AW).
+
+Done: `planOf()` is the biggest plan's for an operator, the badge and the
+account menu say Admin, credits say unlimited (the function's `/me` too),
+the plans page says every feature is on and which plan is billed, and the
+checkout buttons stay (they are how billing is tried). The operators' cap
+is the biggest plan's. `syncAcctUI` builds the plans page again when it is
+open. `billing_check.mjs` checks an operator on Free in the function and in
+Chromium.
+
+Checked: billing_check 125 of 125, bggen_check 89 of 89, ad_library_check
+no failures, plan_economics, CSS_FALLBACK in sync. The browser checks need
+`FABRIC_JS` here: cdnjs is out of reach, and without fabric the page stops
+before `TYPE_VOICES` and reads as a page error.
+
+## 2026-10-11 — no sad music, and confetti you can hear (claude/funny-lamport-1o2xbq)
+
+Asked: the owner, of a confetti ad that played a sad piano piece with "a
+iPhone voice memo recording sound randomly in the middle of it": a more
+upbeat song, and a sound for the falling confetti.
+
+Found:
+  - The confetti overlay starts falling at `tl.number`, the moment the
+    number's sound plays. The default number sound, "pop", was `blip`: two
+    sine notes a fourth apart, each gliding up into its pitch, "the kind a
+    phone makes". Over the quiet Moonlight recording (the bed fell to -24 dB
+    RMS there) it is the start-recording chirp.
+  - The shuffle drew the Moonlight, Gymnopedie and Fur Elise recordings
+    (weights 1, 1 and 0.4 of about 29), Fur Elise and Greensleeves as tunes,
+    and an ordinary ad that drew a holiday tune played one of thirteen
+    classics, Moonlight and Gymnopedie among them.
+
+Done (rule 129): the sad pieces retired through `SOUND_ALIASES` (kept in
+`OPTIONS` so other looks draw as they did, hidden in the panel); `pop`
+re-voiced as a cork pop; a party popper ("confetti", the last number sound,
+weight 0) that harmonise sets wherever confetti falls; the message ding and
+phone buzz by hand only. Before and after clips of the same look were made
+from frames and the mix (scratch only, not committed).
+
+Measured: `motion_music_check.mjs` (with its new part 6) and
+`motion_sound_check.mjs` all clear.
+
+RESUME HERE:
+  0. If the owner wants confetti looks to draw only the brightest music too,
+     the place is harmonise in motion/engine.js, beside the popper rule.

@@ -58,7 +58,7 @@ import { adLibraryRoute } from '../lib/adlibrary.mjs';
 import { PLANS, PACKS, PAID, planId, videoOk, creditState, backgroundCredits } from '../lib/plans.mjs';
 import {
   billingOn, stripeMode, stripe, priceFor, catalog, subState, applySub, applySession, customerOf,
-  syncDue, syncSub, ensureWebhook, verifyEvent, webhookSecretKey,
+  syncDue, syncSub, ensureWebhook, verifyEvent, webhookSecretKey, ensurePortalConfig, portalConfigKey, TERMS_VERSION,
 } from '../lib/billing.mjs';
 import { bggenRoute, generateImage, loadRecipe, dataUrlOf } from '../lib/bggen.mjs';
 
@@ -100,9 +100,13 @@ const isoDay = () => new Date().toISOString().slice(0, 10);
 
 const adminEmails = (env) => String(env.ADMIN_EMAILS || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean);
 const roleFor = (email, env) => (adminEmails(env).includes(email) ? 'admin' : 'user');
+/* An operator (ADMIN_EMAILS) has every feature of every plan whatever plan it
+   is billed on: no download cap, watermark or size limit (/export), video,
+   AI not charged (bggen.mjs), the biggest library (adlibrary.mjs). `plan` stays
+   the billed one, so checkout can still be tried; credits say unlimited. */
 const publicUser = (u, env) => ({
   email: u.email, plan: planId(u.plan), exports: u.exports, role: roleFor(u.email, env),
-  credits: creditState(u),
+  credits: roleFor(u.email, env) === 'admin' ? { ...creditState(u), unlimited: true } : creditState(u),
   sub: u.sub && u.sub.id ? { plan: u.sub.plan, interval: u.sub.interval, status: u.sub.status, periodEnd: u.sub.periodEnd, cancelAt: u.sub.cancelAt } : null,
 });
 /* the download meter of an account's plan: this period's count, its cap */
@@ -373,8 +377,24 @@ export default async (req) => {
       const user = await getUser(em);
       const customer = user && customerOf(user, env);
       if (!customer) return json({ error: 'No billing account on file yet' }, 400);
-      const j = await stripe(env, 'POST', '/billing_portal/sessions', { customer, return_url: site + '/?billing=back' })
+      /* a new Stripe account has no portal configuration until one is saved in
+         the dashboard: make one (billing.mjs) rather than fail; a customer
+         deleted at Stripe is forgotten, not retried forever */
+      const pkey = portalConfigKey(stripeMode(env));
+      let cfg = null;
+      try { const raw = await users().get(pkey); if (raw) cfg = JSON.parse(raw).id; } catch (e) { /* none yet */ }
+      const open = (configuration) => stripe(env, 'POST', '/billing_portal/sessions', { customer, return_url: site + '/?billing=back', configuration: configuration || undefined })
         .catch((e) => ({ error: e.message }));
+      let j = await open(cfg);
+      if (j.error && /configuration/i.test(j.error)) {
+        if (cfg) await users().delete(pkey).catch(() => {});
+        try { j = await open(await ensurePortalConfig(env, users(), site)); }
+        catch (e) { j = { error: e.message }; }
+      }
+      if (j.error && /no such customer/i.test(j.error)) {
+        user.stripeCustomer = null; await putUser(user);
+        return json({ error: 'No billing account on file yet' }, 400);
+      }
       if (j.error) return json({ error: j.error }, 502);
       return json({ url: j.url });
     }
@@ -393,9 +413,30 @@ export default async (req) => {
       const plan = pack ? null : planId(body.plan);
       const interval = body.interval === 'year' ? 'year' : 'month';
       if (!pack && (!PAID.includes(plan) || !PLANS[plan].price[interval])) return json({ error: 'Unknown plan' }, 400);
+      /* the customer agrees to the Terms, and to the automatic renewal for a
+         plan, in the site's checkout dialog before any session exists; the
+         agreement goes on the session, the subscription or the payment, and
+         the account, with the version and the time */
+      if (body.consent !== true) return json({ error: 'Agree to the Terms of Service to continue.', consent: true }, 400);
+      const consentAt = new Date().toISOString();
       await freshUser(user, env);
       if (plan && planId(user.plan) !== 'free' && user.sub && user.sub.id && user.sub.status !== 'gone') {
         return json({ error: 'You already have a plan. Switch it instead.', switch: true }, 409);
+      }
+      /* One open checkout per account. A second one (another tab, or the
+         dialog closed and opened again) expires the first, so nobody can pay
+         for two subscriptions; a first one that was paid but not yet seen
+         here is applied instead of selling the plan again. */
+      if (user.checkout && user.checkout.id && Date.now() - (user.checkout.ts || 0) < 86400e3) {
+        const prev = await stripe(env, 'GET', '/checkout/sessions/' + user.checkout.id, { expand: ['subscription'] }).catch(() => null);
+        if (prev && prev.status === 'complete') {
+          if (applySession(user, prev, typeof prev.subscription === 'object' ? prev.subscription : null, env)) await putUser(user);
+          if (plan && planId(user.plan) !== 'free') {
+            return json({ error: 'Your last checkout went through: you are on ' + PLANS[planId(user.plan)].label + '.', already: true, user: publicUser(user, env) }, 409);
+          }
+        } else if (prev && prev.status === 'open') {
+          await stripe(env, 'POST', '/checkout/sessions/' + prev.id + '/expire').catch(() => {});
+        }
       }
       try { await ensureWebhook(env, users(), url.origin); }
       catch (e) { console.warn('billing: the webhook could not be registered; the return page and the sign-in check carry the plan', e.message); }
@@ -403,7 +444,21 @@ export default async (req) => {
       try { price = await priceFor(env, plan ? plan + '_' + interval : pack); }
       catch (e) { return json({ error: 'Checkout could not start: ' + e.message }, 502); }
       const customer = customerOf(user, env);
-      const md = plan ? { email: em, plan, interval } : { email: em, pack, credits: PACKS[pack].credits };
+      const md = Object.assign(plan ? { email: em, plan, interval } : { email: em, pack, credits: PACKS[pack].credits },
+        { terms: TERMS_VERSION, consent_at: consentAt });
+      const money = (c) => '$' + (c / 100).toLocaleString('en-US', { minimumFractionDigits: c % 100 ? 2 : 0 });
+      /* Embedded Checkout (owner, 2026-10-11: "a functional checkout that is
+         also wrapped so we don't show the main generic Stripe checkout. It's
+         built into our site and looks clean"). With a publishable key of the
+         same mode as the secret, the session is embedded in the site's own
+         dialog (checkout-embed.js) and the browser gets its client secret: a
+         card pays without leaving the page (redirect_on_completion
+         if_required), and a method that has to redirect comes back to the
+         same address the hosted page does. No publishable key, a key of the
+         other mode, or a caller that did not ask: Stripe's hosted page. */
+      const pk = String(env.STRIPE_PUBLISHABLE_KEY || '').trim();
+      const embed = body.embedded === true && /^pk_(test|live)_/.test(pk) && pk.startsWith('pk_test_') === (stripeMode(env) === 'test');
+      const back = site + '/?checkout=success&session_id={CHECKOUT_SESSION_ID}';
       const params = {
         mode: plan ? 'subscription' : 'payment',
         line_items: [{ price, quantity: 1 }],
@@ -414,13 +469,36 @@ export default async (req) => {
         metadata: md,
         // partner and creator discounts are Stripe promotion codes, on the plans
         allow_promotion_codes: plan ? 'true' : undefined,
-        subscription_data: plan ? { metadata: { email: em, plan } } : undefined,
+        subscription_data: plan ? { metadata: { email: em, plan, terms: TERMS_VERSION, consent_at: consentAt } } : undefined,
         payment_intent_data: plan ? undefined : { metadata: md },
-        success_url: site + '/?checkout=success&session_id={CHECKOUT_SESSION_ID}',
-        cancel_url: site + '/?checkout=cancel',
+        /* B2B: a business can add its tax ID (and the name and address it
+           wants on the invoice), a credit pack gets an invoice like a plan
+           does, and Stripe Tax works out sales tax when STRIPE_TAX is on (it
+           must be set up in the Stripe dashboard first) */
+        tax_id_collection: { enabled: 'true' },
+        customer_update: customer ? { name: 'auto', address: 'auto' } : undefined,
+        automatic_tax: env.STRIPE_TAX === 'on' ? { enabled: 'true' } : undefined,
+        invoice_creation: plan ? undefined : { enabled: 'true', invoice_data: { description: PACKS[pack].label + ' for Graphics Studio', metadata: md } },
+        // the renewal terms, next to Stripe's own pay button
+        custom_text: { submit: { message: plan
+          ? 'Renews automatically every ' + interval + ' at ' + money(PLANS[plan].price[interval]) + ' plus any tax until you cancel. Cancel any time in Plan & billing; your plan stays on to the end of the period you paid for.'
+          : 'One-time payment for ' + PACKS[pack].credits + ' AI credits. Bought credits never expire.' } },
+        ...(embed
+          ? { ui_mode: 'embedded', return_url: back, redirect_on_completion: 'if_required' }
+          : { success_url: back, cancel_url: site + '/?checkout=cancel' }),
       };
-      const j = await stripe(env, 'POST', '/checkout/sessions', params).catch((e) => ({ error: e.message }));
+      let j = await stripe(env, 'POST', '/checkout/sessions', params).catch((e) => ({ error: e.message }));
+      if (j.error && customer && /no such customer/i.test(j.error)) {
+        // a customer deleted at Stripe: forget it and check out as new
+        user.stripeCustomer = null;
+        Object.assign(params, { customer: undefined, customer_email: em, customer_creation: plan ? undefined : 'always', customer_update: undefined });
+        j = await stripe(env, 'POST', '/checkout/sessions', params).catch((e) => ({ error: e.message }));
+      }
       if (j.error) return json({ error: j.error }, 502);
+      user.checkout = { id: j.id, ts: Date.now() };
+      user.consent = { terms: TERMS_VERSION, at: consentAt, for: plan ? plan + '_' + interval : pack };
+      await putUser(user);
+      if (embed) return json({ clientSecret: j.client_secret, publishableKey: pk, sessionId: j.id });
       return json({ url: j.url });
     }
 
@@ -488,6 +566,23 @@ export default async (req) => {
             ? (typeof obj.subscription === 'object' ? obj.subscription : await stripe(env, 'GET', '/subscriptions/' + obj.subscription))
             : null;
           if (applySession(user, obj, sub, env)) await putUser(user);
+        }
+      }
+      /* a credit pack refunded in full takes its credits back, once */
+      if (ev.type === 'charge.refunded' && obj.refunded && obj.payment_intent) {
+        const piId = typeof obj.payment_intent === 'string' ? obj.payment_intent : obj.payment_intent.id;
+        const pi = await stripe(env, 'GET', '/payment_intents/' + piId).catch(() => null);
+        const pmd = (pi && pi.metadata) || {};
+        const pem = String(pmd.email || '').toLowerCase();
+        const puser = pem && PACKS[pmd.pack] ? await getUser(pem) : null;
+        if (puser) {
+          puser.refunded = Array.isArray(puser.refunded) ? puser.refunded : [];
+          if (!puser.refunded.includes(obj.id)) {
+            puser.refunded.unshift(obj.id);
+            puser.refunded.length = Math.min(puser.refunded.length, 50);
+            puser.creditsBought = Math.max(0, (puser.creditsBought || 0) - PACKS[pmd.pack].credits);
+            await putUser(puser);
+          }
         }
       }
       if (ev.type.startsWith('customer.subscription.')) {
