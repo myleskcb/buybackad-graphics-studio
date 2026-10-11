@@ -14,6 +14,7 @@ from real parts (repaint=true in index.json):
     camera patched out and the generation's square diagonal-lens plateau from
     Apple's straight-on render set in, then painted.
 
+Run scripts/clean_phone_edges.py first (the 14 and 15 are built on the 16 White).
 Check the result with scripts/audit_phone_views.py and motion/views-sheet.html.
 
 Run:  python3 scripts/bake_extra_phones.py   (needs pillow, numpy, scipy, scikit-image)
@@ -24,6 +25,8 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 from skimage import color
+
+from phone_rim import clean_rim
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "motion" / "phones"
@@ -114,9 +117,10 @@ def sharpness(im):
 
 
 def finish_back(im, w, pid):
-    """Match the existing set: trimmed edge to edge, w x 900, same softness, same encode."""
+    """Match the existing set: trimmed edge to edge, w x 900, a clean rim (phone_rim),
+    same softness, same encode."""
     alpha = im.getchannel("A").point(lambda v: 255 if v > 128 else 0)
-    im = im.crop(alpha.getbbox()).resize((w, H), Image.LANCZOS)
+    im = clean_rim(im.crop(alpha.getbbox()).resize((w, H), Image.LANCZOS))
     r = 0.0
     while sharpness(im) > SHARP and r < 2:
         r += 0.1
