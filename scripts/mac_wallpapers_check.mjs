@@ -12,11 +12,15 @@
  *   lit       on every offered card whose picture has a screen we know (the
  *             offer cards and the library cards with mac-pro-open-front or
  *             macbook-open-angle), each wallpaper, each photograph and the
- *             visitor's own picture light it, and the gate (pgCheck) fails nothing it did
- *             not fail with the screen off;
- *   designed  with a wallpaper chosen, a build outside Easy Mode's render
- *             (the thumbnails, the library, the audits) draws the picture
- *             as designed;
+ *             visitor's own picture light it, and the gate (pgCheck) fails
+ *             nothing it did not fail with the screen OFF; AUTO lights a
+ *             studio card with its own wallpaper and leaves a library card
+ *             as photographed;
+ *   designed  whatever the visitor chose, a build outside Easy Mode's render
+ *             (the template strip, the designer opening a template, the
+ *             audits) draws the card as designed: a studio card with its own
+ *             wallpaper, the same one every time, a library card unlit
+ *             (its thumbnail and library render are baked);
  *   designer  the hand-off keeps the lit screen, saves it as its recipe (the
  *             cut-out's address, no picture data) and lights it again when
  *             the canvas is loaded from what it saved.
@@ -80,20 +84,23 @@ const res = await page.evaluate(async () => {
     $('ez-phone').value = '(562) 999-4994';
     const render = key => { MW.screen.key = key; const sc = renderEzCanvas(1080, 'png', undefined, undefined, 'square', true);
       const r = pgCheck(sc), lit = litOf(sc).length; sc.dispose(); return { fails: r.fails.map(f => f.code + ':' + f.line), lit }; };
-    const off = render(''), row = { id: card.id, off: off.fails.length, checked: 0 };
+    const off = render('off'), row = { id: card.id, off: off.fails.length, checked: 0 };
     if (off.lit) fail(card.id, 'lit with the screen off');
+    const library = /^sc-/.test(card.id), auto = render(null);
+    if (library ? auto.lit : !auto.lit) fail(card.id, library ? 'a library card lit on AUTO' : 'a studio card not lit on AUTO');
     for (const key of keys.concat(MW.photos.map(ph => ph.key), 'own')){
       const on = render(key); row.checked++;
       if (!on.lit) fail(card.id + ' ' + key, 'the screen did not light');
       const fresh = on.fails.filter(f => !off.fails.includes(f));
       if (fresh.length) fail(card.id + ' ' + key, 'the gate fails ' + fresh.join(', '));
     }
-    /* designed: the same card built outside Easy Mode's render */
-    MW.screen.key = keys[0];
-    const sc = new fabric.StaticCanvas(null, { width: TPL_W, height: TPL_H, enableRetinaScaling: false });
-    ezTpl().layers.forEach(l => sc.add(buildLayer(l, ezTpl().id)));
-    if (litOf(sc).length) fail(card.id, 'lit outside Easy Mode (a thumbnail or the library would change)');
-    sc.dispose();
+    /* designed: the same card built outside Easy Mode's render, twice, with
+       the visitor's choice set to something else each time */
+    const asDesigned = () => { const sc = new fabric.StaticCanvas(null, { width: TPL_W, height: TPL_H, enableRetinaScaling: false });
+      ezTpl().layers.forEach(l => sc.add(buildLayer(l, ezTpl().id))); const k = litOf(sc).map(o => o.pgScreen).join(); sc.dispose(); return k; };
+    MW.screen.key = 'off'; const d1 = asDesigned(); MW.screen.key = keys[3]; const d2 = asDesigned();
+    if (d1 !== d2) fail(card.id, 'the card as designed follows the visitor\'s choice (' + d1 + ' / ' + d2 + ')');
+    if (library ? d1 : !d1) fail(card.id, library ? 'a library card lit as designed (its baked thumbnail would not match)' : 'a studio card not lit as designed');
     out.cards.push(row);
   }
 
@@ -110,13 +117,13 @@ const res = await page.evaluate(async () => {
     saved.forEach(o => { if (!/\/cutouts\/[^/]+\.(webp|png)(\?|$)/.test(o.src || '') || o.src.length > 300) fail('designer', 'saved as picture data, not the cut-out address'); });
     await new Promise(r => canvas.loadFromJSON(json, r)); await new Promise(r => setTimeout(r, 600));
     if (!litOf(canvas).length) fail('designer', 'not lit again after a load');
-    MW.screen.key = '';
+    MW.screen.key = null;
   }
   return out;
 });
 res.cards.forEach(c => console.log(c.id.padEnd(34), c.skip ? 'skipped: ' + c.skip : 'screen choices ' + c.checked + ', gate fails with the screen off ' + c.off));
 const errs = errors.filter(e => !/alphabetical|willReadFrequently/.test(e));
 if (errs.length) res.fails.push(...errs.map(e => 'page error: ' + e));
-console.log(res.fails.length ? '\nFAIL\n' + res.fails.join('\n') : '\nok: ' + res.cards.filter(c => !c.skip).length + ' cards, every wallpaper draws, lit only in Easy Mode, the designer keeps its recipe');
+console.log(res.fails.length ? '\nFAIL\n' + res.fails.join('\n') : '\nok: ' + res.cards.filter(c => !c.skip).length + ' cards, every wallpaper draws, studio cards lit as designed, library cards as photographed, the designer keeps its recipe');
 await browser.close();
 process.exit(res.fails.length ? 1 : 0);
