@@ -3,7 +3,7 @@
    that comes out. Localhost sends no CSP (rule 49), so the page is served here
    with the Content-Security-Policy from _headers injected into the response.
 
-   For Easy Mode ("Download as video") on a showcase card, and the editor's
+   For Easy Mode (the direct download behind "Create video") on a showcase card, and the editor's
    "Video" on the same design, it records: CSP violations, page errors, the
    toast, the file's name, size and container, and then decodes the file with
    the vendored Mediabunny: duration, video frames, an audio track, and the
@@ -89,8 +89,8 @@ for (const where of ['easy', 'editor']){
   }, where, CARD).catch(e => ({ err: String(e) }));
   await new Promise(res => setTimeout(res, 2500));
   const files = readdirSync(DL).filter(f => !before.has(f) && !/crdownload/.test(f));
-  // the video, not its photo (rule 108: every video download saves a PNG beside it)
-  r.where = where; r.file = files.find(f => /\.(mp4|webm)$/.test(f)) || null; r.photo = files.find(f => /\.png$/.test(f)) || null; r.bytes = r.file ? statSync(DL + r.file).size : 0;
+  // the video, not its photo (rule 108: every video download saves a JPG beside it)
+  r.where = where; r.file = files.find(f => /\.(mp4|webm)$/.test(f)) || null; r.photo = files.find(f => /\.jpg$/.test(f)) || null; r.bytes = r.file ? statSync(DL + r.file).size : 0;
   if (r.file){
     const buf = readFileSync(DL + r.file);
     r.decode = await page.evaluate(async (b64) => {

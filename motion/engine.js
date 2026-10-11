@@ -368,6 +368,12 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (["top-center", "center"].includes(st.text_pos) && ["bottom-left", "bottom-right"].includes(st.number_pos) && !locked.has("number_pos")) st.number_pos = "bottom-center";
   if (st.decor.includes("pinstripe") && st.number_pos === "under-headline" && !locked.has("number_pos")) st.number_pos = "bottom-center";
   if (st.number_in === "type" && !locked.has("number_sfx")) st.number_sfx = "ticks";
+  // falling confetti is heard (owner, 2026-10-11: "some sort of sound effect to corroborate the
+  // confetti"): a party popper as the number lands, when the confetti starts; never without it
+  if (!locked.has("number_sfx")) {
+    if (st.overlay === "confetti") st.number_sfx = "confetti";
+    else if (st.number_sfx === "confetti") st.number_sfx = st.number_in === "type" ? "ticks" : "pop";
+  }
   if (!["hook_line", "word_beat"].includes(st.hook) && ["typewriter", "scramble", "drop_letters", "spin_letters"].includes(st.text_in) && !locked.has("text_in"))
     st.text_in = ["slide", "skew_slide", "slam", "wipe"][st.seed % 4];
   if (st.text_fx === "box" && st.color_mode === "split_lines") st.color_mode = "mono";

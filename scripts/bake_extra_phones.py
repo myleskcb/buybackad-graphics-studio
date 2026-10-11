@@ -6,16 +6,17 @@ from real parts (repaint=true in index.json):
   * Pro / Pro Max (14, 15, 16): the back of the iPhone 15 Pro Blue Titanium
     photo (assets/cutouts/iphone-15-pro-back-blue.webp), straightened, its own
     camera taken out: it was shot from the right, so its plateau shows one side
-    wall and reads backwards when the phone turns the other way. In its place
-    goes the generation's own plateau from Apple's straight-on render (qs-*),
-    then glass and plateau are painted in the finish.
+    wall and reads backwards when the phone turns the other way. The back is
+    painted in the finish; in place of the camera goes the generation's own
+    plateau from Apple's straight-on render (qs-*), lens glass and light as
+    rendered, only its metal moved to the finish (module_oem).
   * 14 / 14 Plus / 15 / 15 Plus: the clean iPhone 16 White back with its pill
     camera patched out and the generation's square diagonal-lens plateau from
     Apple's straight-on render set in, then painted.
 
 Check the result with scripts/audit_phone_views.py and motion/views-sheet.html.
 
-Run:  python3 scripts/bake_extra_phones.py   (needs pillow, numpy, scikit-image)
+Run:  python3 scripts/bake_extra_phones.py   (needs pillow, numpy, scipy, scikit-image)
 """
 import json
 from pathlib import Path
@@ -190,7 +191,92 @@ MODULES = {
     "14": ("qs-iphone-14-pro-max.webp", (11, 15, 143, 146)),   # Deep Purple
 }
 MOD_AT, MOD_SIZE = .034, .53     # plateau offset and size, in phone widths (the renders, measured)
+# The Pro plateau as Apple drew it (owner, 2026-10-11: "doesn't really look quite
+# OEM ... as natural as possible without the shiny glimmer"). Taking the colour out
+# of a render, setting it on a grey and painting it back left flat black lenses
+# with white glints on a grey, sticker-like plateau. Now each Pro takes its
+# generation's plateau whole, lens glass, coatings and light as rendered, and only
+# its metal moves to the finish, from the render nearest the finish in lightness:
+# (file, plateau box in px, flash centre and radius in box widths), measured off
+# each render; its finish beside it.
+OEM = {
+    "16": [("qs-iphone-16-pro-max.webp", (11, 11, 148, 146), (.73, .18, .084))],   # White Titanium
+    "15": [("qs-iphone-15-pro-max.webp", (12, 12, 147, 147), (.74, .17, .085)),    # Blue Titanium
+           ("qs-iphone-15-pro.webp", (13, 11, 143, 146), (.75, .18, .088))],       # Natural Titanium
+    "14": [("qs-iphone-14-pro-max.webp", (11, 15, 143, 146), (.76, .13, .087))],   # Deep Purple
+}
+# How much of the photo's studio light a painted back keeps: it falls 24 L top to
+# bottom. Dark backs that are real photos fall 5-10 (16 Black 9, 17 Pro Max Deep
+# Blue 10, 18 Pro Black 5) and Apple's 15 Pro Max render 9; 0.8 left the dark ones
+# at 19-24, a glare. Light ones fall 12-15 in both, as 0.55 of it does.
+LIGHT_DARK, LIGHT_LIGHT = 0.45, 0.55
 WORK_H = 1800
+
+
+def off_lidar(L, size):
+    """0 on a Pro's LiDAR, 1 elsewhere: found, not assumed, the dark dot low on the right."""
+    yy, xx = np.mgrid[0:size[1], 0:size[0]]
+    zone = (xx > size[0] * .6) & (yy > size[1] * .68) & (xx < size[0] * .95) & (yy < size[1] * .97)
+    dot = zone & (L < np.percentile(L[zone], 12))
+    cy, cx = yy[dot].mean(), xx[dot].mean()
+    r = np.sqrt(dot.sum() / np.pi)
+    return smooth(np.hypot(xx - cx, yy - cy), r * 1.15, r * 1.6)
+
+
+def render_back(f):
+    """The back's own colour on an Apple render (Lab): the glass below the camera,
+    left of the front phone."""
+    im = Image.open(CUT / f).convert("RGBA")
+    W, H = im.size
+    a = np.asarray(im).astype(float)[int(H * .45):int(H * .8), int(W * .03):int(W * .25)] / 255
+    return np.median(color.rgb2lab(a[..., :3])[a[..., 3] > .99], axis=0)
+
+
+def lin(c):
+    return np.where(c <= .04045, c / 12.92, ((c + .055) / 1.055) ** 2.4)
+
+
+def srgb(c):
+    return np.where(c <= .0031308, c * 12.92, 1.055 * np.clip(c, 0, None) ** (1 / 2.4) - .055)
+
+
+def module_oem(gen, size, tint):
+    """The generation's plateau as Apple rendered it, its metal moved to the finish.
+    Down to a darker finish the metal's colour is scaled in linear light by the
+    finish over the render's back colour, as a darker paint under the same light,
+    so its shading and shine fall with it. Up to a lighter one that would scale
+    the shine too (Deep Purple to Gold is 11x, its shadows went blotchy and its
+    rims white), so the metal steps up by the Lab difference instead and rolls
+    off before white. The lens glass and LiDAR (the dark discs, with the light
+    inside them) and the flash keep the render's own colour: glass whatever the finish."""
+    from scipy import ndimage
+    f, box, (fx, fy, fr) = min(OEM[gen], key=lambda r: abs(render_back(r[0])[0] - hex_lab(tint)[0]))
+    m = Image.open(CUT / f).convert("RGBA").crop(box).resize(size, Image.LANCZOS)
+    c = np.asarray(m)[..., :3] / 255
+    L = color.rgb2lab(c)[..., 0]
+    # glass is darker than the render's glass level, and on a dark render darker than
+    # a third of its metal: the Deep Purple's shadow round each lens is not glass
+    dark = ndimage.binary_fill_holes(L < min(_tones(f, box)[0] * 1.4, render_back(f)[0] * .3))
+    parts, n = ndimage.label(dark)
+    big = 1 + np.nonzero(ndimage.sum(dark, parts, range(1, n + 1)) > dark.size * .002)[0]
+    yy, xx = np.mgrid[0:size[1], 0:size[0]]
+    keep = np.isin(parts, big) | (off_lidar(L, size) < .05) | (np.hypot(xx - fx * size[0], yy - fy * size[1]) < fr * size[0] * 1.05)
+    k = 1 - ndimage.gaussian_filter(keep.astype(float), 1.0)
+    # what the metal is moved from: the render's back for lightness, the plateau's
+    # own metal for hue (Blue Titanium's plateau is bluer than its back, b -9 to -6,
+    # and left a Black Titanium camera blue)
+    back = render_back(f)
+    back[1:] = np.median(color.rgb2lab(c)[k > .9][:, 1:], axis=0)
+    if hex_lab(tint)[0] <= back[0]:
+        to = lin(np.array([int(tint[i:i + 2], 16) for i in (1, 3, 5)]) / 255)
+        new = srgb(lin(c) * (to / lin(np.clip(color.lab2rgb(back[None, None])[0, 0], 0, 1))))
+    else:
+        new = color.rgb2lab(c) + (hex_lab(tint) - back)
+        knee = 90
+        new[..., 0] = np.where(new[..., 0] > knee, knee + (100 - knee) * np.tanh((new[..., 0] - knee) / (100 - knee)), new[..., 0])
+        new = color.lab2rgb(np.clip(new, [0, -128, -128], [100, 127, 127]))
+    out = np.clip(srgb(lin(c) * (1 - k[..., None]) + lin(np.clip(new, 0, 1)) * k[..., None]), 0, 1)
+    return Image.fromarray(np.dstack([out * 255, np.asarray(m)[..., 3]]).round().astype(np.uint8), "RGBA")
 
 
 def _tones(f, box):
@@ -217,31 +303,65 @@ def module_neutral(f, box, size, to_med=None, to_spread=None, lidar=True):
     # stretch the spread only a little: a low-res render posterises
     mapped = np.clip(to_med + (L - med) * min(1.25, to_spread / spread), 0, 100)
     k = smooth(L, glass * .8, glass * 1.6)
-    if lidar:                                       # found, not assumed: the dark dot low on the right
-        yy, xx = np.mgrid[0:size[1], 0:size[0]]
-        zone = (xx > size[0] * .6) & (yy > size[1] * .68) & (xx < size[0] * .95) & (yy < size[1] * .97)
-        dot = zone & (L < np.percentile(L[zone], 12))
-        cy, cx = yy[dot].mean(), xx[dot].mean()
-        r = np.sqrt(dot.sum() / np.pi)
-        k = k * smooth(np.hypot(xx - cx, yy - cy), r * 1.15, r * 1.6)
+    if lidar:
+        k = k * off_lidar(L, size)
     lab[..., 0] = L * (1 - k) + mapped * k
     lab[..., 1:] = 0
     rgb = (np.clip(color.lab2rgb(lab), 0, 1) * 255).round().astype(np.uint8)
     return Image.fromarray(np.dstack([rgb, np.asarray(m)[..., 3]]), "RGBA"), to_med
 
 
+def harmonic(img, D):
+    """Solve Laplace's equation over D with the pixels around it held: the smoothest
+    fill that meets its surround, and never lighter or darker than that surround.
+    At the picture's own edge there is no neighbour and no term."""
+    from scipy import sparse
+    from scipy.sparse.linalg import spsolve
+    h, w = D.shape
+    n = int(D.sum())
+    idx = -np.ones(D.shape, int)
+    idx[D] = np.arange(n)
+    ys, xs = np.nonzero(D)
+    diag, r, c, b = np.zeros(n), [], [], np.zeros((n, img.shape[2]))
+    for dy, dx in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+        ny, nx = ys + dy, xs + dx
+        k = np.nonzero((ny >= 0) & (ny < h) & (nx >= 0) & (nx < w))[0]
+        diag[k] += 1
+        ny, nx = ny[k], nx[k]
+        unk = D[ny, nx]
+        r.append(k[unk]); c.append(idx[ny[unk], nx[unk]])
+        np.add.at(b, k[~unk], img[ny[~unk], nx[~unk]])
+    r, c = np.concatenate(r), np.concatenate(c)
+    A = sparse.csc_matrix((np.r_[diag, -np.ones(len(r))], (np.r_[np.arange(n), r], np.r_[np.arange(n), c])), shape=(n, n))
+    out = img.copy()
+    out[D] = spsolve(A, b)
+    return out
+
+
 def erase_module(im):
-    """Fill the photo's own (side-lit) camera with plain back: each column's
-    colour from the clean band between the camera and the logo, carried up."""
+    """Fill the photo's own (side-lit) camera with plain back, grown in from the back
+    right of and below it. The new plateau covers less than this patch, so the strip
+    beside and under it shows: carrying each column up from a band lower down left
+    streaks and a light band there with a hard edge (owner, 2026-10-11: "the shadows
+    on the 14 Pro Max, 15 Pro Max look wrong"). The patch reaches to the top and left
+    edges so the frame's shine along them is not held and cannot glow into the fill;
+    the light is smooth, so it is solved at quarter size."""
     W = im.width
     a = np.asarray(im).astype(float)
-    y0, y1 = round(W * .72), round(W * .84)
-    band = a[y0:y1].mean(0)
-    slope = (a[y1:y1 + (y1 - y0)].mean(0) - a[y0:y1].mean(0)) / (y1 - y0)   # the light's fall down the back
-    ys = np.arange(im.height)[:, None, None] - (y0 + y1) / 2
-    fill = np.clip(band[None] + slope[None] * ys, 0, 255)
     m = Image.new("L", im.size, 0)
     ImageDraw.Draw(m).rounded_rectangle((round(W * .024), round(W * .024), round(W * .69), round(W * .69)), round(W * .14), fill=255)
+    k = 4
+    top = round(W * .9) // k * k
+    sw, sh = W // k, top // k
+    small = np.asarray(Image.fromarray(a[:top, :, :3].round().astype(np.uint8)).resize((sw, sh), Image.BOX)).astype(float)
+    hole = np.asarray(m.crop((0, 0, W, top)).resize((sw, sh), Image.BOX)) > 0
+    hole = np.asarray(Image.fromarray(hole.astype(np.uint8) * 255).filter(ImageFilter.MaxFilter(3))) > 0
+    yy, xx = np.mgrid[0:sh, 0:sw]
+    lim, rim = round(W * .69 / k) + 1, round(W * .06 / k)
+    D = hole | ((yy <= lim) & (xx < rim)) | ((xx <= lim) & (yy < rim))
+    filled = Image.fromarray(np.clip(harmonic(small, D), 0, 255).round().astype(np.uint8)).resize((W, top), Image.BICUBIC)
+    fill = a.copy()
+    fill[:top, :, :3] = np.asarray(filled)
     m = np.asarray(m.filter(ImageFilter.GaussianBlur(W * .01))).astype(float)[..., None] / 255
     out = a.copy()
     out[..., :3] = a[..., :3] * (1 - m) + fill[..., :3] * m
@@ -256,24 +376,18 @@ def bake_pro():
     chroma = np.hypot(lab[..., 1], lab[..., 2])
     body = chroma > 18
     body_l = float(np.median(lab[..., 0][body]))
-    blue = lab_hex(np.median(lab[body], axis=0))
+    blue = lab_hex(render_back(OEM["15"][0][0]))   # Blue Titanium as Apple shows it; the photo's own is bluer
     # blue glass gets the full paint; the steel band gets a lighter tint
     weight = np.maximum(smooth(chroma, 6, 20), 0.85 * smooth(lab[..., 0], 20, 55))
     weight *= np.asarray(clean)[..., 3] / 255 > 0
     side = round(src.width * MOD_SIZE)
-    mods = {g: module_neutral(*MODULES[g], (side, side)) for g in MODULES}
     mmask = rrect_mask((side, side), round(side * .2), blur=1.2)
     out = []
     for pid, model, finish, target, w in PRO:
-        if target is None:
-            im = clean
-        else:
-            dark = hex_lab(target)[0] < 40
-            im = paint(clean, weight, target, body_l, 0.8 if dark else 0.55)
-        # the plateau and lens rings in the finish's colour, the glass left dark
-        mod, ref = mods[pid[:2]]
-        ml = color.rgb2lab(np.asarray(mod)[..., :3] / 255)[..., 0]
-        mod = paint(mod, smooth(ml, 38, 68) * (1 - smooth(ml, 86, 94)), target or blue, ref, 0.6)
+        tint = target or blue
+        dark = hex_lab(tint)[0] < 40
+        im = paint(clean, weight, tint, body_l, LIGHT_DARK if dark else LIGHT_LIGHT)
+        mod = module_oem(pid[:2], (side, side), tint)
         im = im.copy(); im.paste(mod, (round(src.width * MOD_AT), round(src.width * MOD_AT)), mmask)
         im = finish_back(im, w, pid)
         out.append(dict(id=pid, model=model, finish=finish, metal=target or metal_of(im),

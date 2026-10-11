@@ -145,7 +145,8 @@ globalThis.fetch = async (input, init = {}) => {
     if (body.customer && !S.customers.has(mode + ':' + body.customer)) return missing('customer: ' + body.customer);
     if (!S.prices.has(body.line_items[0].price)) return missing('price');
     const cs = Object.assign({ id: 'cs_' + mode + '_' + (S.n++).toString(36), object: 'checkout.session', status: 'open', payment_status: 'unpaid', mode: body.mode, smode: mode }, body);
-    cs.url = 'https://checkout.stripe.test/' + cs.id;
+    if (body.ui_mode === 'embedded') { cs.client_secret = cs.id + '_secret_' + (S.n++).toString(36); cs.url = null; }
+    else cs.url = 'https://checkout.stripe.test/' + cs.id;
     S.sessions.set(cs.id, cs); return reply(200, cs);
   }
   if (method === 'GET' && (m = path.match(/^\/checkout\/sessions\/(.+)$/))) {
@@ -166,7 +167,27 @@ globalThis.fetch = async (input, init = {}) => {
     }
     return reply(200, sub);
   }
-  if (method === 'POST' && path === '/billing_portal/sessions') return reply(200, { url: 'https://billing.stripe.test/' + body.customer });
+  if (method === 'POST' && (m = path.match(/^\/checkout\/sessions\/(.+)\/expire$/))) {
+    const cs = S.sessions.get(m[1]);
+    if (!cs || cs.status !== 'open') return reply(400, { error: { message: 'session is not open' } });
+    cs.status = 'expired'; S.expired = (S.expired || 0) + 1; return reply(200, cs);
+  }
+  if (method === 'POST' && path === '/billing_portal/configurations') {
+    const c = { id: id('bpc'), mode, features: body.features, business_profile: body.business_profile };
+    S.portalConfigs = S.portalConfigs || new Map(); S.portalConfigs.set(c.id, c); return reply(200, c);
+  }
+  if (method === 'POST' && path === '/billing_portal/sessions') {
+    // a Stripe account where nobody has saved the portal settings refuses a session without a configuration
+    if (S.noPortalDefault && !(body.configuration && S.portalConfigs && S.portalConfigs.has(body.configuration))) {
+      return reply(400, { error: { message: 'No configuration provided and your test mode default configuration has not been created. Provide a configuration or create your default by saving your customer portal settings in test mode.' } });
+    }
+    if (body.customer && !S.customers.has(mode + ':' + body.customer)) return missing('customer: ' + body.customer);
+    return reply(200, { url: 'https://billing.stripe.test/' + body.customer });
+  }
+  if (method === 'GET' && (m = path.match(/^\/payment_intents\/(.+)$/))) {
+    const pi = (S.intents || new Map()).get(m[1]);
+    return pi ? reply(200, pi) : missing('payment_intent');
+  }
   return reply(400, { error: { message: 'stand-in Stripe does not know ' + method + ' ' + path } });
 };
 
@@ -177,6 +198,10 @@ function pay(csId) {
   cs.status = 'complete'; cs.payment_status = 'paid';
   if (!cs.customer) { cs.customer = id('cus'); S.customers.set(cs.smode + ':' + cs.customer, { id: cs.customer }); }
   if (cs.mode === 'subscription') cs.subscription = subFor(cs, cs.smode).id;
+  if (cs.mode === 'payment' && !cs.payment_intent) {   // the payment, with the metadata Checkout copies onto it
+    const pi = { id: id('pi'), metadata: (cs.payment_intent_data && cs.payment_intent_data.metadata) || {} };
+    S.intents = S.intents || new Map(); S.intents.set(pi.id, pi); cs.payment_intent = pi.id;
+  }
   return cs;
 }
 
@@ -274,7 +299,7 @@ const setUser = (u) => store.get('pgfx-users').set('u:' + u.email, JSON.stringif
 /* ---------- 3. Stripe off ---------- */
 const buyer = await signup('buyer@x.example');
 {
-  const r = await hit('POST', '/checkout', { plan: 'pro' }, buyer);
+  const r = await hit('POST', '/checkout', { consent: true, plan: 'pro' }, buyer);
   ok(r.status === 503 && /not enabled/.test(r.json.error), 'Stripe off: checkout says billing is not enabled');
 }
 
@@ -283,7 +308,7 @@ env.STRIPE_SECRET = 'sk_test_abc';
 env.SITE_URL = 'https://studio.example';
 let csPro;
 {
-  const r = await hit('POST', '/checkout', { plan: 'pro', interval: 'year' }, buyer);
+  const r = await hit('POST', '/checkout', { consent: true, plan: 'pro', interval: 'year' }, buyer);
   ok(r.status === 200 && /^https:\/\/checkout\.stripe\.test\//.test(r.json.url), 'checkout answers a Stripe URL');
   csPro = [...S.sessions.values()].pop();
   const price = S.prices.get(csPro.line_items[0].price);
@@ -297,9 +322,32 @@ let csPro;
     'the webhook is registered at SITE_URL with the subscription events');
   ok(JSON.parse(store.get('pgfx-users').get('stripe:whsec:test')).secret === hooks[0].secret, 'its signing secret is kept (test mode)');
 
+  /* Embedded Checkout (checkout-embed.js): only with a publishable key of
+     the secret's mode, and only when the caller asks */
+  const emb = await signup('embed@x.example');
+  let er = await hit('POST', '/checkout', { consent: true, plan: 'basic', interval: 'month', embedded: true }, emb);
+  ok(er.status === 200 && er.json.url && !er.json.clientSecret, 'embedded: no publishable key, the hosted page as before');
+  env.STRIPE_PUBLISHABLE_KEY = 'pk_live_nope';
+  er = await hit('POST', '/checkout', { consent: true, plan: 'basic', interval: 'month', embedded: true }, emb);
+  ok(er.status === 200 && er.json.url && !er.json.clientSecret, 'embedded: a live publishable key with a test secret, the hosted page');
+  env.STRIPE_PUBLISHABLE_KEY = 'pk_test_embed';
+  er = await hit('POST', '/checkout', { consent: true, plan: 'basic', interval: 'month' }, emb);
+  ok(er.status === 200 && er.json.url, 'embedded: a caller that does not ask gets the hosted page');
+  er = await hit('POST', '/checkout', { consent: true, plan: 'basic', interval: 'month', embedded: true }, emb);
+  const csE = [...S.sessions.values()].pop();
+  ok(er.status === 200 && !er.json.url && er.json.clientSecret === csE.client_secret && er.json.publishableKey === 'pk_test_embed' && er.json.sessionId === csE.id,
+    'embedded: the client secret, the publishable key and the session id, no URL');
+  ok(csE.ui_mode === 'embedded' && csE.redirect_on_completion === 'if_required' && csE.return_url === 'https://studio.example/?checkout=success&session_id={CHECKOUT_SESSION_ID}'
+    && !csE.success_url && !csE.cancel_url && csE.mode === 'subscription' && csE.metadata.plan === 'basic' && csE.allow_promotion_codes === 'true',
+    'embedded: ui_mode embedded, a card pays in place, the same return address, the same plan, promotion codes on');
+  pay(csE.id);
+  const ec = await hit('POST', '/checkout/confirm', { session_id: csE.id }, emb);
+  ok(ec.status === 200 && ec.json.user.plan === 'basic', 'embedded: the same confirm switches Starter on');
+  delete env.STRIPE_PUBLISHABLE_KEY;
+
   const n = S.prices.size, h = S.hooks.size;
   billing.forgetPrices();
-  await hit('POST', '/checkout', { plan: 'pro', interval: 'year' }, buyer);
+  await hit('POST', '/checkout', { consent: true, plan: 'pro', interval: 'year' }, buyer);
   ok(S.prices.size === n && S.hooks.size === h, 'a second checkout reuses the price and the webhook');
 
   pay(csPro.id);
@@ -310,7 +358,7 @@ let csPro;
     'the return confirms Pro yearly, 200 credits, without a webhook');
   ok((await hit('POST', '/export/check', { kind: 'video' }, buyer)).status === 200, 'Pro downloads videos');
 
-  const again = await hit('POST', '/checkout', { plan: 'business', interval: 'month' }, buyer);
+  const again = await hit('POST', '/checkout', { consent: true, plan: 'business', interval: 'month' }, buyer);
   ok(again.status === 409 && again.json.switch === true, 'a second plan checkout is refused: switch instead');
 
   const sw = await hit('POST', '/billing/change', { plan: 'business', interval: 'month' }, buyer);
@@ -341,7 +389,7 @@ let csPro;
   ok(wh.status === 200 && userBlob('buyer@x.example').plan === 'free', 'a signed webhook ends the plan');
 
   // a fresh plan, then its period runs out with no webhook: read at sign in
-  const r2 = await hit('POST', '/checkout', { plan: 'pro', interval: 'month' }, buyer);
+  const r2 = await hit('POST', '/checkout', { consent: true, plan: 'pro', interval: 'month' }, buyer);
   ok(r2.status === 200, 'after a cancel the account can check out again');
   const cs2 = pay([...S.sessions.values()].pop().id);
   ok(cs2.customer && cs2.customer === userBlob('buyer@x.example').stripeCustomer, 'the second checkout reuses the Stripe customer');
@@ -357,7 +405,7 @@ let csPro;
 /* packs */
 {
   const t = await signup('packs@x.example');
-  const r = await hit('POST', '/checkout', { pack: 'credits100' }, t);
+  const r = await hit('POST', '/checkout', { consent: true, pack: 'credits100' }, t);
   const cs = [...S.sessions.values()].pop();
   ok(r.status === 200 && cs.mode === 'payment' && S.prices.get(cs.line_items[0].price).unit_amount === 900 && cs.customer_creation === 'always' && !cs.allow_promotion_codes,
     'a pack is a one-off payment of $9, a customer made, no promotion codes');
@@ -374,12 +422,76 @@ let csPro;
   ok(after.left === 0 && after.bought === 99, "bought credits are spent after the month's 5");
 }
 
+/* the checkout audit (2026-10-11) */
+{
+  const t = await signup('audit@x.example');
+  // the agreement: required, then recorded on the session, the subscription and the account
+  const no = await hit('POST', '/checkout', { plan: 'basic', interval: 'month' }, t);
+  ok(no.status === 400 && no.json.consent === true && /Terms of Service/.test(no.json.error), 'audit: no checkout without agreeing to the Terms');
+  await hit('POST', '/checkout', { consent: true, plan: 'basic', interval: 'month' }, t);
+  const a1 = [...S.sessions.values()].pop();
+  const tv = billing.TERMS_VERSION;
+  ok(a1.metadata.terms === tv && /^\d{4}-\d\d-\d\dT/.test(a1.metadata.consent_at) && a1.subscription_data.metadata.terms === tv
+    && userBlob('audit@x.example').consent.terms === tv && userBlob('audit@x.example').consent.for === 'basic_month',
+    'audit: the agreement (terms ' + tv + ', the time) is on the session, the subscription and the account');
+  ok(a1.tax_id_collection.enabled === 'true' && /^Renews automatically every month at \$25 plus any tax until you cancel/.test(a1.custom_text.submit.message) && !a1.automatic_tax,
+    'audit: a business can add its tax ID; the renewal terms sit by the pay button; no Stripe Tax unless switched on');
+  // one open checkout per account: a second one expires the first
+  const exp0 = S.expired || 0;
+  await hit('POST', '/checkout', { consent: true, plan: 'pro', interval: 'month' }, t);
+  const a2 = [...S.sessions.values()].pop();
+  ok(a1.status === 'expired' && (S.expired || 0) === exp0 + 1 && a2.status === 'open' && userBlob('audit@x.example').checkout.id === a2.id,
+    'audit: a second checkout expires the first, so two subscriptions cannot both be paid');
+  // the first one paid but never seen here: applied, not sold again
+  pay(a2.id);
+  const a3 = await hit('POST', '/checkout', { consent: true, plan: 'business', interval: 'month' }, t);
+  ok(a3.status === 409 && a3.json.already === true && a3.json.user.plan === 'pro' && userBlob('audit@x.example').plan === 'pro',
+    'audit: a paid checkout not yet confirmed is applied instead of selling a second plan (' + a3.status + ')');
+  // Stripe Tax when it is switched on
+  env.STRIPE_TAX = 'on';
+  const tx = await signup('tax@x.example');
+  await hit('POST', '/checkout', { consent: true, pack: 'credits100' }, tx);
+  const p1 = [...S.sessions.values()].pop();
+  ok(p1.automatic_tax && p1.automatic_tax.enabled === 'true' && p1.invoice_creation.enabled === 'true' && /100 AI credits/.test(p1.invoice_creation.invoice_data.description)
+    && /^One-time payment for 100 AI credits/.test(p1.custom_text.submit.message), 'audit: STRIPE_TAX=on adds tax; a pack gets an invoice and its one-time terms');
+  delete env.STRIPE_TAX;
+  // a customer deleted at Stripe: checkout as new, the portal says so
+  const ghost = userBlob('tax@x.example'); ghost.stripeCustomer = 'cus_deleted'; ghost.stripeMode = 'test'; setUser(ghost);
+  const g1 = await hit('POST', '/checkout', { consent: true, pack: 'credits100' }, tx);
+  ok(g1.status === 200 && !userBlob('tax@x.example').stripeCustomer && [...S.sessions.values()].pop().customer_email === 'tax@x.example',
+    'audit: a customer deleted at Stripe is forgotten and checkout goes on (' + g1.status + ')');
+  // the billing portal on a Stripe account nobody has set up: it makes its own configuration, once
+  pay([...S.sessions.values()].pop().id);
+  await hit('POST', '/checkout/confirm', { session_id: [...S.sessions.values()].pop().id }, tx);
+  S.noPortalDefault = true;
+  const pt = await hit('POST', '/portal', {}, tx);
+  const cfgs = [...(S.portalConfigs || new Map()).values()];
+  ok(pt.status === 200 && /billing\.stripe\.test\//.test(pt.json.url) && cfgs.length === 1 && cfgs[0].features.subscription_cancel.mode === 'at_period_end'
+    && /\/terms\.html$/.test(cfgs[0].business_profile.terms_of_service_url) && [].concat(cfgs[0].features.customer_update.allowed_updates).includes('tax_id'),
+    'audit: Manage billing works on a fresh Stripe account: cancel at period end, invoices, tax ID (' + pt.status + ' ' + (pt.json && pt.json.error) + ')');
+  await hit('POST', '/portal', {}, tx);
+  ok([...S.portalConfigs.values()].length === 1, 'audit: the portal configuration is made once and reused');
+  S.noPortalDefault = false;
+  // a refunded credit pack takes its credits back, once
+  const before = userBlob('tax@x.example').creditsBought;
+  const paidCs = [...S.sessions.values()].pop();
+  const secret = JSON.parse(store.get('pgfx-users').get('stripe:whsec:test')).secret;
+  const sign = (obj) => { const payload = JSON.stringify(obj), ts = Math.floor(Date.now() / 1000); return [payload, { 'Stripe-Signature': 't=' + ts + ',v1=' + createHmac('sha256', secret).update(ts + '.' + payload).digest('hex') }]; };
+  const refund = { type: 'charge.refunded', data: { object: { id: 'ch_refund1', object: 'charge', refunded: true, payment_intent: paidCs.payment_intent } } };
+  const [rp, rh] = sign(refund);
+  await hit('POST', '/stripe-webhook', rp, null, rh);
+  const [rp2, rh2] = sign(refund);
+  await hit('POST', '/stripe-webhook', rp2, null, rh2);
+  ok(before === 100 && userBlob('tax@x.example').creditsBought === 0, 'audit: a refunded pack takes its 100 credits back, once (' + before + ' to ' + userBlob('tax@x.example').creditsBought + ')');
+  ok(billing.WEBHOOK_EVENTS.includes('charge.refunded'), 'audit: the webhook listens for refunds');
+}
+
 /* a new price in plans.mjs */
 {
   plans.PLANS.pro.price.month = 6500;
   billing.forgetPrices();
   const t = await signup('newprice@x.example');
-  await hit('POST', '/checkout', { plan: 'pro', interval: 'month' }, t);
+  await hit('POST', '/checkout', { consent: true, plan: 'pro', interval: 'month' }, t);
   const cs = [...S.sessions.values()].pop();
   const p = S.prices.get(cs.line_items[0].price);
   const olds = [...S.prices.values()].filter((x) => x.unit_amount === 6000 && x.recurring && x.recurring.interval === 'month');
@@ -392,7 +504,7 @@ let csPro;
 {
   env.STRIPE_SECRET = 'sk_live_abc';
   const u = userBlob('buyer@x.example');
-  await hit('POST', '/checkout', { pack: 'credits100' }, buyer);
+  await hit('POST', '/checkout', { consent: true, pack: 'credits100' }, buyer);
   const cs = [...S.sessions.values()].pop();
   ok(!cs.customer && cs.customer_email === 'buyer@x.example', 'a test-mode customer is not used with live keys');
   ok(S.hooks.size === 2 && [...S.hooks.values()].some((h) => h.mode === 'live'), 'live mode registers its own webhook');
@@ -410,6 +522,14 @@ let csPro;
   const st = await hit('POST', '/admin/billing', {}, t);
   ok(st.status === 200 && st.json.on && st.json.mode === 'live' && Object.values(st.json.prices).every((v) => /^price_/.test(v)) && Object.keys(st.json.prices).length === 8,
     '/admin/billing makes and lists every price (6 plan prices, 2 packs)');
+  /* an operator has every feature whatever plan it is billed on: the billed
+     plan stays (checkout can be tried), its credits say unlimited, and a
+     video download is let through on Free */
+  const me = (await hit('GET', '/me', undefined, t)).json.user;
+  ok(me.role === 'admin' && me.plan === 'free' && me.credits.unlimited === true && !(await hit('GET', '/me', undefined, boss)).json.user.credits.unlimited,
+    '/me: an operator billed on Free keeps its plan, its credits are unlimited; another account\'s are not');
+  const ov = await hit('POST', '/export/check', { kind: 'video' }, t);
+  ok(ov.status === 200 && ov.json.watermark === false && ov.json.remaining === null, 'an operator on Free downloads videos, no marks, no cap');
 }
 
 /* economics: every plan and pack clears its bar */
@@ -441,6 +561,7 @@ async function browserPart() {
   const server = createServer(async (req, res) => {
     try {
       const u = new URL(req.url, 'http://127.0.0.1');
+      if (u.pathname === '/__stripe/pay') { pay(u.searchParams.get('cs')); res.writeHead(204); res.end(); return; }   // the stand-in Stripe.js pays here
       if (u.pathname.startsWith('/api/')) {
         const chunks = []; for await (const c of req) chunks.push(c);
         const r = await api(new Request('http://' + req.headers.host + u.pathname + u.search, { method: req.method, headers: req.headers, body: chunks.length ? Buffer.concat(chunks) : undefined }));
@@ -457,6 +578,15 @@ async function browserPart() {
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
   const BASE = 'http://localhost:' + server.address().port;
   const fabricJs = process.env.FABRIC_JS ? readFileSync(process.env.FABRIC_JS) : null;
+  /* Stripe.js, stood in: initEmbeddedCheckout mounts a Pay button that pays
+     the session (the test server's /__stripe/pay) and calls onComplete, as a
+     card that needs no redirect does */
+  const FAKE_STRIPE_JS = `window.Stripe = function (pk) { return { initEmbeddedCheckout: async function (o) {
+    const secret = await o.fetchClientSecret(); let el = null;
+    return { mount: function (sel) { el = typeof sel === 'string' ? document.querySelector(sel) : sel;
+        el.innerHTML = '<div style="padding:24px;color:#111">Stand-in Stripe (' + pk + ')<br><button id="fake-stripe-pay" type="button">Pay</button></div>';
+        el.querySelector('#fake-stripe-pay').onclick = async function () { await fetch('/__stripe/pay?cs=' + secret.split('_secret_')[0]); o.onComplete && o.onComplete(); }; },
+      destroy: function () { if (el) el.innerHTML = ''; } }; } }; };`;
   const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox'] });
   const errors = [];
   const shot = async (page, name) => {
@@ -477,6 +607,7 @@ async function browserPart() {
         return route.fulfill({ status: 302, headers: { Location: cs.success_url.replace('{CHECKOUT_SESSION_ID}', cs.id) } });
       }
       if (/fabric(\.min)?\.js/.test(url) && fabricJs) return route.fulfill({ status: 200, contentType: 'application/javascript', body: fabricJs });
+      if (url.startsWith('https://js.stripe.com/v3')) return route.fulfill({ status: 200, contentType: 'application/javascript', body: FAKE_STRIPE_JS });
       return route.abort();
     });
     page.on('dialog', (d) => d.accept());
@@ -520,7 +651,15 @@ async function browserPart() {
       await shot(page, 'plans-year-' + w);
       if (w === 390) { await page.context().close(); continue; }
 
-      await Promise.all([page.waitForURL(/checkout=success/, { timeout: 15000 }).catch(() => {}), page.click('#plans-grid .plan-card.hot .plan-btn')]);
+      await page.click('#plans-grid .plan-card.hot .plan-btn');
+      await page.waitForSelector('#co-overlay.show #co-agree');
+      const step1 = await page.evaluate(() => ({ title: document.getElementById('co-title').textContent, terms: document.getElementById('co-terms').textContent,
+        feats: document.querySelectorAll('#co-features li').length, locked: document.getElementById('co-go').disabled, links: [...document.querySelectorAll('#co-agree-text a')].map((a) => a.getAttribute('href')).join() }));
+      ok(step1.title === 'Graphics Studio Pro' && /^Renews automatically every year at \$600/.test(step1.terms) && step1.feats >= 4 && step1.locked && step1.links === 'terms.html,privacy.html',
+        `checkout: the agreement first, renewal terms in words, Continue locked until the box is ticked (${JSON.stringify(step1)})`);
+      await shot(page, 'checkout-consent');
+      await page.check('#co-agree');
+      await Promise.all([page.waitForURL(/checkout=success/, { timeout: 15000 }).catch(() => {}), page.click('#co-go')]);
       await page.waitForSelector('#pay-overlay.show', { timeout: 15000 }).catch(() => {});
       const paid = await page.evaluate(() => ({ title: document.getElementById('pay-title').textContent, sub: document.getElementById('pay-sub').textContent, badge: (document.getElementById('acct-plan') || {}).textContent, url: location.search }));
       ok(paid.title === 'Payment successful!' && /now on Pro/.test(paid.sub) && /video ads/.test(paid.sub) && paid.url === '', `checkout: back from Stripe on Pro (${paid.title} / ${paid.sub})`);
@@ -542,7 +681,11 @@ async function browserPart() {
       ok(userBlob('browser@x.example').plan === 'business', 'the switch to Business went through');
 
       // a pack
-      await Promise.all([page.waitForURL(/checkout=success/, { timeout: 15000 }).catch(() => {}), page.click('.pack-btn')]);
+      await page.click('.pack-btn');
+      await page.waitForSelector('#co-overlay.show #co-agree');
+      ok(/^One-time payment of \$9/.test(await page.locator('#co-terms').textContent()), 'checkout: a pack says one-time, no renewal');
+      await page.check('#co-agree');
+      await Promise.all([page.waitForURL(/checkout=success/, { timeout: 15000 }).catch(() => {}), page.click('#co-go')]);
       await page.waitForSelector('#pay-overlay.show', { timeout: 15000 }).catch(() => {});
       const pk = await page.evaluate(() => ({ title: document.getElementById('pay-title').textContent, sub: document.getElementById('pay-sub').textContent }));
       ok(pk.title === 'Credits added' && /600 AI credits/.test(pk.sub), `a pack comes back as credits (${pk.title}: ${pk.sub})`);
@@ -551,6 +694,70 @@ async function browserPart() {
       const hint = await page.evaluate(() => { syncCreditsUI(); return document.getElementById('bg-credits').textContent; });
       ok(/Uses 1 AI credit\. You have 600 \(500 this month \+ 100 bought\)/.test(hint), `the AI hint counts credits (${hint})`);
       await page.context().close();
+    }
+    /* an operator billed on Free: the studio and the plans page say Admin and
+       every feature, never "Free, your current plan" (owner, 2026-10-11) */
+    {
+      const boss = (await hit('POST', '/auth/login', { email: 'boss@studio.example', password: 'a-long-password' })).json.token;
+      const page = await newPage(1440, boss);
+      await page.goto(BASE + '/?plans=1', { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('#page-plans.active .plan-card');
+      await page.waitForTimeout(400);
+      const a = await page.evaluate(() => ({ badge: document.getElementById('acct-plan').textContent, free: (document.getElementById('acct-plan').className.match(/\bfree\b/) || []).length,
+        note: (document.querySelector('#plans-grid .plans-admin') || {}).textContent || '', current: !!document.querySelector('#plans-grid .plans-free .plan-current'),
+        packs: document.querySelector('#plans-grid .plans-packs-head p').textContent, up: getComputedStyle(document.getElementById('nav-upgrade') || document.body).display,
+        quota: (syncQuotaUI(), (document.getElementById('ez-quota') || {}).textContent || ''), hint: (syncCreditsUI(), document.getElementById('bg-credits').textContent),
+        plan: planOf().label, video: videoAllowed(), qr: planOf().qr }));
+      ok(a.badge === 'ADMIN' && !a.free && /every feature of every plan/.test(a.note) && /billed on \(Free\)/.test(a.note) && !a.current && /unlimited/.test(a.packs) && a.up === 'none',
+        `operator: the plans page says Admin and every feature, not Free as the current plan (${JSON.stringify(a)})`);
+      ok(/^Admin: every feature/.test(a.quota) && /unlimited/.test(a.hint) && a.plan === 'Business' && a.video && a.qr,
+        `operator: the studio's limits are the biggest plan's, AI unlimited (${a.quota} / ${a.hint})`);
+      await shot(page, 'plans-operator');
+      await page.context().close();
+    }
+    /* Embedded Checkout: a free account buys Starter inside the site's own
+       dialog, never leaving the page, and is on Starter after onComplete */
+    {
+      env.STRIPE_PUBLISHABLE_KEY = 'pk_test_embed';
+      const token = await signup('onsite@x.example');
+      const page = await newPage(1440, token);
+      await page.goto(BASE + '/?plans=1', { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('#page-plans.active .plan-card');
+      const before = page.url();
+      await page.click('#plans-grid .plan-card:nth-child(1) .plan-btn');
+      await page.waitForSelector('#co-overlay.show #co-agree');
+      await page.check('#co-agree');
+      await page.click('#co-go');
+      await page.waitForSelector('#co-overlay.show #fake-stripe-pay', { timeout: 15000 }).catch(() => {});
+      const dlg = await page.evaluate(() => ({ open: document.getElementById('co-overlay').classList.contains('show'), title: document.getElementById('co-title').textContent,
+        price: document.getElementById('co-price').textContent, form: !!document.querySelector('#co-mount #fake-stripe-pay'), loading: !document.getElementById('co-loading').hidden }));
+      ok(dlg.open && dlg.title === 'Graphics Studio Starter' && dlg.price === '$25 a month' && dlg.form && !dlg.loading && page.url() === before,
+        `embedded checkout: the form opens in the site's own dialog, on the same page (${JSON.stringify(dlg)})`);
+      await shot(page, 'checkout-embedded');
+      await page.click('#fake-stripe-pay');
+      await page.waitForSelector('#pay-overlay.show', { timeout: 15000 }).catch(() => {});
+      const done = await page.evaluate(() => ({ title: document.getElementById('pay-title').textContent, sub: document.getElementById('pay-sub').textContent,
+        closed: !document.getElementById('co-overlay').classList.contains('show') }));
+      ok(done.title === 'Payment successful!' && /now on Starter/.test(done.sub) && done.closed && userBlob('onsite@x.example').plan === 'basic',
+        `embedded checkout: paid in place, the dialog closes, the account is on Starter (${done.title} / ${done.sub})`);
+      await page.context().close();
+      /* and on a phone the dialog fits */
+      const phone = await newPage(390, await signup('onsite-phone@x.example'));
+      await phone.goto(BASE + '/?plans=1', { waitUntil: 'domcontentloaded' });
+      await phone.waitForSelector('#page-plans.active .plan-card');
+      await phone.click('#plans-grid .plan-card:nth-child(1) .plan-btn');
+      await phone.waitForSelector('#co-overlay.show #co-agree');
+      await shot(phone, 'checkout-consent-390');
+      await phone.check('#co-agree');
+      await phone.click('#co-go');
+      await phone.waitForSelector('#co-overlay.show #fake-stripe-pay', { timeout: 15000 }).catch(() => {});
+      const fit = await phone.evaluate(() => { const r = document.querySelector('#co-overlay .modal').getBoundingClientRect(); return { over: document.documentElement.scrollWidth - innerWidth, w: Math.round(r.width), bottom: Math.round(r.bottom), h: innerHeight }; });
+      ok(fit.over <= 0 && fit.w <= 390 && fit.bottom <= fit.h, `embedded checkout at 390 px: no sideways scroll, on screen (${JSON.stringify(fit)})`);
+      await shot(phone, 'checkout-embedded-390');
+      await phone.click('#co-x');
+      ok(await phone.evaluate(() => !document.getElementById('co-overlay').classList.contains('show') && !document.querySelector('#co-mount #fake-stripe-pay')), 'embedded checkout: Close takes the form down, nothing charged');
+      await phone.context().close();
+      delete env.STRIPE_PUBLISHABLE_KEY;
     }
     /* the video maker: signed out, Download asks for an account; Free gets the
        plans, nothing counted; Pro's download is counted once, a 1080 video and
@@ -582,17 +789,18 @@ async function browserPart() {
       const note = await dl();
       ok(/Saved we-buy-phones/.test(note) && userBlob('videos@x.example').exports.count === 1, 'video maker: a Pro download is made and counted once (' + note.slice(0, 120) + ')');
       ok(/1080×1080/.test(note) && /\(1440×1440, the moment/.test(note), 'video maker: Pro gets a 1080 video and a 1440 photo (' + note.slice(0, 200) + ')');
-      const proPng = files.find((d) => /\.png$/.test(d.suggestedFilename()));
+      const isPhoto = (d) => /\.(png|jpe?g)$/.test(d.suggestedFilename());   // a JPG since 2026-10-11 (DESIGN-LAW 108, 110)
+      const proPng = files.find(isPhoto);
       files.length = 0;
       const boss = (await hit('POST', '/auth/login', { email: 'boss@studio.example', password: 'a-long-password' })).json.token;
       await page.evaluate((t) => { localStorage.setItem('pgfx_token', JSON.stringify(t)); }, boss);
       await dl();
-      const bossPng = files.find((d) => /\.png$/.test(d.suggestedFilename()));
+      const bossPng = files.find(isPhoto);
       ok(userBlob('boss@studio.example').exports.count === 0, 'video maker: an operator\'s download is not counted');
       if (ok(proPng && bossPng, 'video maker: both photos came down')) {
         const b64 = async (d) => readFileSync(await d.path()).toString('base64');
         const diff = await page.evaluate(async ([a, b]) => {
-          const load = (s) => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = 'data:image/png;base64,' + s; });
+          const load = (s) => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = 'data:image/' + (s.startsWith('/9j/') ? 'jpeg' : 'png') + ';base64,' + s; });
           const [fa, fb] = await Promise.all([load(a), load(b)]);
           const px = (img) => { const c = document.createElement('canvas'); c.width = c.height = 1080; const x = c.getContext('2d'); x.drawImage(img, 0, 0, 1080, 1080); return x.getImageData(0, 0, 1080, 1080).data; };
           const A = px(fa), B = px(fb);

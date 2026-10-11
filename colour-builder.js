@@ -477,14 +477,41 @@ function cbMoved(picked, used){
 const CB_JOBS = { bg:'background', acc:'bright colour', sup:'small print' };
 function cbLch(hex){ const o = cbOk(hex) || { L:0.5, C:0, h:0 }; return { L:o.L, C:o.C, h:o.h }; }
 function cbRoleHex(th, key){ return key === 'bg' ? th.bg.c1 : key === 'acc' ? th.accent : th.support; }
-/* the background's second stop for a style: Soft is the set's own step
-   from the first stop to the second (as the solver drew it), Deep twice
-   that, Flat none */
-function cbStop2(c1, base, grad){
-  if (grad === 'flat') return c1;
-  const o = cbLch(c1), b1 = cbLch(base.bg.c1), b2 = cbLch(base.bg.c2);
-  const dL = Math.max(0.02, b1.L - b2.L), kC = b1.C > 0.005 ? Math.min(1.2, b2.C / b1.C) : 1;
-  return oklchFit({ L:Math.max(0.02, o.L - (grad === 'deep' ? Math.max(2 * dL, 0.1) : dL)), C:o.C * kC, h:o.h });
+/* the background's second stop for a style, and the angle it is drawn at.
+   Owner, 2026-10-11, of Soft fade on a yellow: "I don't think the fade
+   effect works it just darkens the entire background no fade or gradient".
+   The fade stepped darker by the solver's own step, 0.04 in OKLCH lightness:
+   too little to see across a card, so it read as the whole colour going
+   darker; and on Light, where the words are dark, darker is the way that
+   costs them contrast, so Deep was refused on every coloured light set. A
+   fade now goes the way that adds contrast, darker on Dark and lighter on
+   Light, so it costs the words nothing and can be seen: Soft 0.08 (the
+   house's dark themes step about 0.09), Deep 0.16. The visitor's colour
+   stays the first stop; on Light the angle turns so the lighter end is at
+   the top, as the house's fades fall. A near-white has no lighter to go to:
+   it fades darker by the set's own step (Soft) or twice that (Deep), as far
+   as the words allow. Flat is one colour. */
+const CB_FADE = { soft:0.08, deep:0.16 };
+function cbStop2(c1, base, grad, mode){
+  if (grad === 'flat') return { c2:c1, a:170 };
+  const o = cbLch(c1), step = CB_FADE[grad] || CB_FADE.soft;
+  if (mode !== 'light') return { c2:oklchFit({ L:Math.max(0.02, o.L - step), C:o.C * 0.92, h:o.h }), a:170 };
+  if (o.L <= 0.935) return { c2:oklchFit({ L:Math.min(0.985, o.L + step), C:o.C, h:o.h }), a:350 };
+  const b1 = cbLch(base.bg.c1), b2 = cbLch(base.bg.c2), own = b1.L - b2.L > 0.02;
+  /* the set's own stop as the solver drew it: drawn again from the first, it
+     can round a step darker than the words were checked on */
+  if (grad !== 'deep' && own && c1 === base.bg.c1) return { c2:base.bg.c2, a:170 };
+  const dL = own ? b1.L - b2.L : 0.045, kC = b1.C > 0.005 ? Math.min(1.2, b2.C / b1.C) : 1;
+  return { c2:oklchFit({ L:Math.max(0.02, o.L - (grad === 'deep' ? Math.max(2 * dL, 0.1) : dL)), C:o.C * kC, h:o.h }), a:170 };
+}
+/* the background style a set is in: the one picked, or the one it was saved in */
+function cbGrad(base, tw){ return (tw && tw.grad) || (base && base.made && base.made.grad) || 'soft'; }
+/* a solved set as the builder shows it and saves it: the studio theme with
+   its background drawn in the Soft fade */
+function cbOffer(set, supIdx, name){
+  const th = cbTheme(set, supIdx, name);
+  Object.assign(th.bg, cbStop2(th.bg.c1, th, 'soft', set.mode));
+  return th;
 }
 function cbApply(base, mode, tw){
   tw = tw || {};
@@ -496,7 +523,7 @@ function cbApply(base, mode, tw){
     /* on Dark the text is a near-white with a breath of the background */
     if (mode !== 'light'){ const o = cbLch(th.bg.c1); th.ink = oklchFit({ L:0.975, C:o.C < 0.03 ? 0.006 : 0.012, h:o.h }); }
   }
-  if (tw.bg || tw.grad) th.bg.c2 = cbStop2(th.bg.c1, base, tw.grad || 'soft');
+  if (tw.bg || tw.grad) Object.assign(th.bg, cbStop2(th.bg.c1, base, cbGrad(base, tw), mode));
   if (tw.grad) th.made.grad = tw.grad;
   if (tw.acc) th.accent = oklchFit(tw.acc);
   if (tw.sup) th.support = oklchFit(tw.sup);
@@ -748,7 +775,7 @@ function cbAdHtml(th, big){
       <span class="cb-ad-s">Text a photo for a quote</span><span class="cb-ad-n">(555) 012-3456</span>
     </span>`;
 }
-function cbAdVars(th){ return `--g1:${th.bg.c1};--g2:${th.bg.c2};--ink:${th.ink};--acc:${th.accent};--sup:${th.support};--pin:${cbPlateInk(th)}`; }
+function cbAdVars(th){ return `--ga:${th.bg.a != null ? th.bg.a : 170}deg;--g1:${th.bg.c1};--g2:${th.bg.c2};--ink:${th.ink};--acc:${th.accent};--sup:${th.support};--pin:${cbPlateInk(th)}`; }
 /* a colour's plain name for a chip: light navy, deep red, gold */
 function cbShadeName(hex){
   const Y = cbLum(hex), n = cbNearest(hex).name.toLowerCase();
@@ -773,7 +800,7 @@ function cbView(st){
   if (set) st.s = cbClamp(st.s, 0, set.supports.length - 1);
   let base = null, mode = st.mode;
   if (st.edit){ base = st.edit.base; mode = st.edit.mode; }
-  else if (set){ base = cbTheme(set, st.s); mode = set.mode; }
+  else if (set){ base = cbOffer(set, st.s); mode = set.mode; }
   return { S, list, left, own, items, pick, sets, set, base, mode, th:base ? cbApply(base, mode, st.tw) : null };
 }
 /* one slider of the tweaks: its passing range, or off when there is no room */
@@ -830,7 +857,7 @@ function cbRender(root){
         ${wrongEnd ? `<p class="cb-hint cb-wrong">${S.name} is a ${st.mode === 'light' ? 'dark' : 'light'} background, so it is on ${cbModeName(other)}. <button type="button" class="cb-switch" data-go="${other}" data-cbf="go-${other}">Show ${cbModeName(other)}</button></p>`
           : `<p class="cb-hint">What goes with ${nm} on ${cbModeName(st.mode).toLowerCase()}: our ready-made sets first, then other classic pairs. Each one is checked before you see it. The words read on it, for colour-blind people too.</p>`}
         <div class="cb-pairs" role="radiogroup" aria-label="Second colour">
-          ${items.map((x, i) => { const t = cbTheme(x.sets[0], 0), on = !st.edit && i === st.p;
+          ${items.map((x, i) => { const t = cbOffer(x.sets[0], 0), on = !st.edit && i === st.p;
             return `<button type="button" class="cb-pair${on ? ' on' : ''}" role="radio" aria-checked="${on}" tabindex="${on || (st.edit && i === 0) ? 0 : -1}" data-i="${i}" data-cbf="p-${x.own ? 'own' : x.P.key}">
               ${cbAdHtml(t)}
               <span class="cb-pair-name">${escHtml(x.P.name)}</span>
@@ -859,9 +886,9 @@ function cbRender(root){
         <div class="cb-role"><div class="cb-role-head"><b>Background</b>${cbPicker('bg', th.bg.c1, 'background')}</div>
           ${cbSlider(v, 'bg', 'L', 'Shade', ['darker', 'lighter'])}
           <div class="cb-chips cb-grad" role="group" aria-label="Background style">
-            ${[['flat', 'Flat'], ['soft', 'Soft fade'], ['deep', 'Deep fade']].map(([g, n]) => { const cur = (st.tw.grad || 'soft') === g;
+            ${[['flat', 'Flat'], ['soft', 'Soft fade'], ['deep', 'Deep fade']].map(([g, n]) => { const cur = cbGrad(base, st.tw) === g, f = cbStop2(th.bg.c1, base, g, mode);
               const can = cur || cbTweakOk(cbApply(base, mode, Object.assign({}, st.tw, { grad:g, bg:st.tw.bg || cbLch(th.bg.c1) })));
-              return `<button type="button" class="chip${cur ? ' on' : ''}" aria-pressed="${cur}" data-grad="${g}" data-cbf="g-${g}"${can ? '' : ' disabled title="The words would get hard to read"'}><i style="background:linear-gradient(135deg, ${th.bg.c1}, ${cbStop2(th.bg.c1, base, g)})"></i>${n}</button>`; }).join('')}
+              return `<button type="button" class="chip${cur ? ' on' : ''}" aria-pressed="${cur}" data-grad="${g}" data-cbf="g-${g}"${can ? '' : ' disabled title="The words would get hard to read"'}><i style="background:linear-gradient(${f.a}deg, ${th.bg.c1}, ${f.c2})"></i>${n}</button>`; }).join('')}
           </div></div>
         <div class="cb-role"><div class="cb-role-head"><b>Bright colour</b><small>big words, the number's box</small>${cbPicker('acc', th.accent, 'bright colour')}</div>
           ${cbSlider(v, 'acc', 'L', 'Shade', ['darker', 'lighter'])}
@@ -932,7 +959,7 @@ function cbBind(root, v, saved){
   /* another small print: keep the other tweaks, and fit it to them */
   root.querySelectorAll('[data-s]').forEach(b => b.onclick = go(() => {
     st.s = +b.dataset.s; const tw = Object.assign({}, st.tw); delete tw.sup; st.tw = tw;
-    const b2 = cbTheme(v.set, st.s);
+    const b2 = cbOffer(v.set, st.s);
     if (!cbTweakOk(cbApply(b2, mode, st.tw))){ const f = cbFit(b2, mode, st.tw, 'sup'); if (f) st.tw = f; }
   }));
   root.querySelectorAll('.cb-range').forEach(r => {

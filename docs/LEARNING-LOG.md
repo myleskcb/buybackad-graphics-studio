@@ -4111,3 +4111,232 @@ RESUME HERE:
   0. The amplitudes are IDLE in motion/engine.js (turn 3.2 s, rise 4.5% of
      a phone, pulse 7%, breathe 3% over 4.5 s), should the owner want any
      move bigger or calmer.
+
+## 2026-10-11 — the colour builder's fades, made to be seen (claude/compassionate-babbage-nv318r)
+
+Asked: the owner, of Soft fade on a yellow background: "I don't think the
+fade effect works it just darkens the entire background no fade or
+gradient".
+
+Found:
+  - The fade stepped darker by the solver's own step, 0.04 in OKLCH
+    lightness (#ffd72d to #f1c904). Across a card that reads as the whole
+    colour a little darker, not a fade.
+  - On Light the words are dark, so darker is the way that costs them
+    contrast: a coloured light set had 0.03 to 0.07 of room that way, and
+    Deep fade was refused on every one of them. Lighter had room on every
+    light set, darker on every dark one (0.29 and more).
+  - So a fade goes the way that adds contrast: darker on Dark, lighter on
+    Light with the angle turned so the light end is at the top. Soft is
+    0.08, Deep 0.16; a near-white keeps its own step. The builder shows and
+    saves its sets in the Soft fade (`cbOffer`); `cbTheme` is unchanged, so
+    the house themes `house_themes.mjs` writes do not move.
+  - Drawing a near-white's second stop again from its first rounded one hex
+    step darker than the solver checked, and Navy & Pink on White fell to
+    4.499:1. The set's own stop is kept as drawn.
+  - Editing a saved Flat set showed Soft as chosen and drew Soft when the
+    background moved; the style a set was saved in is now its default.
+
+Measured (`colour_builder_audit.mjs --sets-only`): all checks pass; Soft
+steps 0.061 at the least off near-white; Deep is offered on 283 of 283
+coloured backgrounds (it was refused on every coloured light one).
+
+
+## 2026-10-11 — the Library button is the owner's (claude/compassionate-babbage-nv318r)
+
+Asked: the owner, of the 📚 Library button: "only accessible to my account";
+asked how far, "Only hide the Library button", for the admin emails.
+
+Done: the four Library buttons (the studio's nav and toolbar, the account
+menu, the video maker's link) start hidden and show for an operator account
+(ADMIN_EMAILS, role 'admin' from /api/me), as the AI Studio button does.
+`ad-library.js` does it, wrapping `syncAcctUI` on the studio and on the
+account's `onChange` elsewhere, so app.js is not edited for the library.
+The stars, Save to library and the plans' library are unchanged: another
+account can still save, and the server still serves its library.
+
+## 2026-10-11 — the ad library reviews before anything goes out (claude/compassionate-babbage-nv318r)
+
+Asked: the owner, of the 📚 Library: "make sure the library makes sense it
+needs to go to a place where we then configure the titles and descriptions or
+suggested ones show and we approve or deny or edit", then "But we will not make
+auto post from the graphic studio".
+
+Done:
+  - Every saved ad waits in **To review**; **Approved** and **Denied** beside
+    it. Only approved ads are on the public link (JSON, RSS, the page). An ad
+    saved before review existed has no status, so it waits in review too.
+  - Suggestions come from the ad's own words, never a phone number or
+    website: the headline layers joined (a "SELL YOUR" runs on into "IPHONE";
+    "CASH BUYER" and "WE BUY IPHONES" are joined by a dash), the sub and info
+    lines as sentences, badges as a list, "•" and "|" as commas, set back into
+    normal case with iPhone, iCloud, Pro Max, S26 and Apple Watch kept. The
+    plainer ones name only what the shop buys: nothing the ad does not say.
+  - The Auto-post switch and the repost schedules are gone from the studio.
+    An approved ad is offered once, its slot at its approval, in the feed's
+    old shape, so iPhones LA's worker reads it unchanged and posts each
+    approval once; posting again is iPhones LA's.
+  - A held ad (website, QR, address, handle, watermark) cannot be approved.
+    An approval needs a description; an approved ad keeps one.
+
+Found:
+  - The title the studio sends (a design's name) was offered as a suggestion
+    at the save and lost at the next read, because the save writes the best
+    suggestion over the title: it is kept as `sent_title`.
+  - The browser check clicked the Library button as a free account; since
+    that button is the owner's, the check opens the dialog from code there
+    and checks the button shows for the owner only.
+  - With the only ad approved, To review is empty: the dialog opens on To
+    review while anything waits there, then on Approved.
+
+Checked: `scripts/ad_library_check.mjs` (router, the real function, iPhones
+LA's worker posting the approved ad once, its own tests, and Chromium under
+the production CSP): no failures.
+
+## 2026-10-11 — the gaming cards leave the drawn rooms (OPEN-ITEMS §AU)
+
+Asked: a screenshot of the Gaming category, "too similar of backgrounds and
+themes way too similar", "assimilate with the other categories", then "We
+need more relatable gamer style background bedroom photos, so they look
+clean".
+
+Found:
+  - The sameness was one cause: every gaming, gaming headset and monitor
+    card stood on the same three drawn rooms, all purple neon. The looks
+    (bands, panels) already varied; the ground is most of the card.
+  - The first answer (photographs of the goods, as iPhones and gold have)
+    was the house pattern but not what the owner wanted for gaming: a
+    controller over a photograph of a controller is clutter, and "gamer
+    style" means the room.
+  - Commons is the only photo source a cloud session reaches, and it has
+    almost no clean gamer bedrooms: 957 licensed candidates from 71
+    searches gave four usable rooms. Say so rather than stretch the set with near misses.
+  - A room photograph has highlights the p90 shade does not see: a window, a
+    lamp, a lit screen. The small type over them fell to 2.7:1 on one room.
+    The template audit found it; the eye did not.
+  - Which card gets which room is the pool's order. Measuring every card on
+    every room once (four audits) and comparing the 24 orders offline beat
+    trying orders one audit at a time.
+  - The credits file mixes escaped and raw non-ASCII; append to it as text,
+    or a rewrite changes unrelated entries.
+
+RESUME HERE:
+  0. Merge to `main` (this branch: `claude/wizardly-bardeen-62280m`).
+  1. A clean gamer bedroom photograph (§AU 1), then the held gaming cut-outs
+     (§AU 2).
+
+## 2026-10-11 — Mac wallpapers and a lit laptop screen (claude/nifty-pasteur-xlv4nu)
+
+Asked: "stock apple backgrounds for tahoe or golden gate or the stock
+background on front facing off screen", over the MacBook offer card.
+
+Done: `mac-wallpapers.js` (OPEN-ITEMS §AW). Ten drawn wallpapers as a
+Wallpapers background group; an "On the laptop screen" row that lights the
+front-facing and angled MacBook pictures with a wallpaper or the visitor's
+own picture.
+
+Found:
+  - The screen's corners were measured off the cut-outs, then checked by
+    warping a grid into them and looking, before any wallpaper went in. The
+    front picture is a 2021 MacBook Pro (camera at 940, 38: the notch goes
+    round it); the angled one a Touch Bar 13-inch, whose chin carries the
+    name, so the display ends at the faint line above it, not at the hinge.
+  - `syncEzSwatches` clears `.sel` from every `.ez-sw` in the page and lights
+    the first `.ez-sw.orig`; a new swatch row needs its own sync after it,
+    and must not use `.orig`.
+  - `.ez-swatches` sets `display`, so the `hidden` attribute does nothing on
+    it; show and hide such a row with `style.display`.
+  - A canvas element on a designer object is saved by fabric as a full PNG
+    in every undo step; the lit picture overrides `toObject` to save the
+    cut-out's address and is lit again in `fabric.Image.fromObject`.
+
+Later the same day: twelve Commons photographs of Lake Tahoe and the Golden
+Gate (Apple's own wallpapers are not on Commons; apple.com and Google are not
+reachable from here), and a seventh offer layout, Floating, from the owner's
+"floating rounded rectangles, three of them".
+
+Found:
+  - Commons answers 429 to a request with no User-Agent, and serves the
+    3840px original when asked for a 2048px thumbnail; `fetch_backdrops.mjs`
+    sends one, and the picks were brought down to 2048 by hand.
+  - A new layout must go last in a line's `lays`: the look, face, headline
+    and photograph rotate by its position, so inserting it earlier would have
+    repainted every card after it.
+  - `template-holds.js` (2026-09-30) is older than the flags on the offer
+    family's product pictures (2026-10-04); the template audit would hold
+    most offer cards today, the owner's MacBook card included.
+
+Then the eighth layout, Detailed, a lit finish on the floating boxes, and
+the laptop screens lit by default on every studio card (the owner: "start
+putting the backgrounds in the computer"), one drawn wallpaper per card.
+
+RESUME HERE:
+  0. Apple's own wallpaper files: the owner's licensing call (§AW 1).
+  1. Whether cards on flagged pictures leave the studio (§AW 5).
+  2. The iPad and the phones' dark screens into `SCREENS` (§AW 2).
+
+## 2026-10-11 — an admin account is every plan, and says so (claude/exciting-thompson-xtdq5g)
+
+Asked: the owner, with a screenshot of the plans page on their admin
+account (Free "your current plan", 5 AI credits, "Checkout is not open
+yet"): "my admin account that has not been validated for premium so I'm not
+able to test all the features I've been creating", and to put every change
+live.
+
+Found:
+  - The function already let operators (ADMIN_EMAILS) past every gate:
+    downloads, video, watermark, AI credits, the library. The studio read
+    `plan: "free"` and showed it: a FREE badge, an Upgrade button, "3 of 3
+    downloads left · 5 AI credits · standard size with watermark", the
+    1080 hint, and Free as the current plan.
+  - The operators' library cap (2000) sat under Business's (3000).
+  - `?plans=1` (the video maker's See plans) builds the plans page before
+    the account has loaded, and nothing built it again: a signed-in
+    customer saw "Start free".
+  - Ten of the day's session branches had pushed and stopped short of
+    `main`; merged here (OPEN-ITEMS letters: the gaming cards keep §AU, the
+    Mac wallpapers are §AW).
+
+Done: `planOf()` is the biggest plan's for an operator, the badge and the
+account menu say Admin, credits say unlimited (the function's `/me` too),
+the plans page says every feature is on and which plan is billed, and the
+checkout buttons stay (they are how billing is tried). The operators' cap
+is the biggest plan's. `syncAcctUI` builds the plans page again when it is
+open. `billing_check.mjs` checks an operator on Free in the function and in
+Chromium.
+
+Checked: billing_check 125 of 125, bggen_check 89 of 89, ad_library_check
+no failures, plan_economics, CSS_FALLBACK in sync. The browser checks need
+`FABRIC_JS` here: cdnjs is out of reach, and without fabric the page stops
+before `TYPE_VOICES` and reads as a page error.
+
+## 2026-10-11 — no sad music, and confetti you can hear (claude/funny-lamport-1o2xbq)
+
+Asked: the owner, of a confetti ad that played a sad piano piece with "a
+iPhone voice memo recording sound randomly in the middle of it": a more
+upbeat song, and a sound for the falling confetti.
+
+Found:
+  - The confetti overlay starts falling at `tl.number`, the moment the
+    number's sound plays. The default number sound, "pop", was `blip`: two
+    sine notes a fourth apart, each gliding up into its pitch, "the kind a
+    phone makes". Over the quiet Moonlight recording (the bed fell to -24 dB
+    RMS there) it is the start-recording chirp.
+  - The shuffle drew the Moonlight, Gymnopedie and Fur Elise recordings
+    (weights 1, 1 and 0.4 of about 29), Fur Elise and Greensleeves as tunes,
+    and an ordinary ad that drew a holiday tune played one of thirteen
+    classics, Moonlight and Gymnopedie among them.
+
+Done (rule 129): the sad pieces retired through `SOUND_ALIASES` (kept in
+`OPTIONS` so other looks draw as they did, hidden in the panel); `pop`
+re-voiced as a cork pop; a party popper ("confetti", the last number sound,
+weight 0) that harmonise sets wherever confetti falls; the message ding and
+phone buzz by hand only. Before and after clips of the same look were made
+from frames and the mix (scratch only, not committed).
+
+Measured: `motion_music_check.mjs` (with its new part 6) and
+`motion_sound_check.mjs` all clear.
+
+RESUME HERE:
+  0. If the owner wants confetti looks to draw only the brightest music too,
+     the place is harmonise in motion/engine.js, beside the popper rule.

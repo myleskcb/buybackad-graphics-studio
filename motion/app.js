@@ -258,7 +258,7 @@ function buildPanel() {
     sec.innerHTML = `<summary>${title}</summary>`;
     for (const k of keys) {
       const row = document.createElement("div"); row.className = "mo-set";
-      const opts = [...new Set(OPTIONS[k])];
+      const opts = [...new Set(OPTIONS[k])].filter(v => !(SOUND_ALIASES[k] && SOUND_ALIASES[k][v]));   // a retired sound is not offered
       row.innerHTML = `<label>${LABELS[k] || k}<select data-key="${k}">${opts.map(v => `<option value="${v}">${labelFor(k, v)}</option>`).join("")}</select></label>
         <button class="mo-lock" data-lock="${k}" aria-pressed="false" title="Lock: keep this when shuffling">&#128275;</button>`;
       sec.appendChild(row);
@@ -387,6 +387,7 @@ function buildPanel() {
     if (state.sound && state.playing) startAudio(curT()); else stopAudio();
   });
   $("download").addEventListener("click", () => download());
+  $("download-jpg").addEventListener("click", () => downloadJpg());
   $("mo-star").addEventListener("click", () => saveLook(state.style));
   document.addEventListener("keydown", e => { if (e.target.matches("input,select,textarea")) return; if (e.key === " ") { e.preventDefault(); togglePlay(); } if (e.key === "n") shuffle(false); });
 }
@@ -549,7 +550,7 @@ function syncLocks() {
 function drawPhonePicker() {
   const sel = state.style.phones;
   $("phones").innerHTML = state.index.map(m => `<button class="mo-phone" data-phone="${m.id}" aria-pressed="${sel.includes(m.id)}" title="${m.model} ${m.finish}${m.repaint ? " (painted)" : ""}">
-    <img src="${m.upload ? state.assets.phones[m.id].img.src : "phones/" + m.id + ".webp"}" alt="${m.model} ${m.finish}" loading="lazy"><small>${m.model.replace("iPhone ", "")} ${m.finish}</small></button>`).join("");
+    <img src="${m.upload ? state.assets.phones[m.id].img.src : "phones/" + m.id + ".webp"}" alt="${m.model} ${m.finish}" loading="lazy"><small><b>${m.model.replace("iPhone ", "")}</b>${m.finish.replace(/ Titanium$/, "")}</small></button>`).join("");
   $("phone-count").textContent = `${sel.length} picked`;
 }
 
@@ -819,9 +820,10 @@ async function recordUntilDone(ad, audioBuf, prog, note) {
    /api/export/check before the video is made, /api/export once it is, both
    with kind "video". The marks and the photo's size follow the plan's
    answer, so a plan that one day downloads videos with the watermark needs
-   no change here. A copy with no backend (demo) is not gated.
+   no change here. A copy with no backend (demo) is not gated. kind "photo"
+   (Download JPG) is one of the plan's downloads on every plan, Free's included.
    Returns null when the account dialog or a pop-up has taken over. */
-async function planGate(next, message) {
+async function planGate(next, message, kind = "video") {
   const acct = window.pgfxAccount;
   if (!acct || acct.demo) return { watermark: false, maxPx: null, count: async () => true };
   if (!acct.signedIn()) { acct.openAuth({ message, next }); return null; }
@@ -833,15 +835,16 @@ async function planGate(next, message) {
   });
   const limit = (e) => VH().show({
     title: "You've used this plan's downloads", message: (e && e.message ? e.message + ". " : "") +
+      (kind === "video" ? "" : "Starter has 100 downloads a month, ") +
       "Pro has 500 downloads a month, photos or videos; Business is unlimited. You can still make and watch videos here.",
     actions: [plans],
   });
   const refused = (e) => { if (e.status === 403) { upsell(); return true; } if (e.status === 402) { limit(e); return true; } return false; };
   try {
-    const g = await acct.api("/export/check", { kind: "video" });
+    const g = await acct.api("/export/check", { kind });
     return {
       watermark: !!g.watermark, maxPx: g.maxPx || null,
-      count: async () => { try { await acct.api("/export", { kind: "video" }); return true; } catch (e) { if (refused(e)) return false; throw e; } },
+      count: async () => { try { await acct.api("/export", { kind }); return true; } catch (e) { if (refused(e)) return false; throw e; } },
     };
   } catch (e) {
     if (e.status === 401 || e.status === 404) { acct.signout(); acct.openAuth({ message, next }); return null; }
@@ -993,6 +996,39 @@ async function download(opts = {}) {
   } finally { btn.disabled = false; setTimeout(() => { $("progress").hidden = true; }, 1500); }
 }
 
+/* ⬇ Download JPG (owner, 2026-10-11: "download mp4 and jpg option"): the ad
+   as a photo alone, without making the video. The same moment and size as the
+   photo that comes with every MP4 (makePhoto: the video's best moment, 1440 on
+   its short side, a JPG). A photo is one of the plan's downloads on
+   every plan, as the studio's are: Free's at 1080 with the watermark. */
+async function downloadJpg() {
+  const btn = $("download-jpg"); if (btn.disabled) return; btn.disabled = true;
+  const H = VH();
+  $("progress").hidden = false; $("export-note").textContent = "";
+  const note = t => { $("export-note").textContent = t; };
+  const prog = (p, label) => { $("bar").style.width = Math.round(p * 100) + "%"; $("progress-label").textContent = label; };
+  try {
+    const gate = await planGate(() => downloadJpg(), "Sign in to download your ad as a photo. Free accounts get 3 downloads a week.", "photo");
+    if (!gate) return;
+    const st = harmonise({ ...state.style }, state.locked, indexById());
+    await loadFonts(fontsFor(st));
+    const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
+    const photo = await makePhoto(st, `we-buy-phones-${st.aspect.replace(":", "x")}-${st.seed}.jpg`, Math.min(W0, H0), prog, gate);
+    if (!await gate.count()) { note("Not saved: this plan's downloads are used up."); return; }
+    saveVideo(photo.blob, photo.name);
+    note(`Saved ${photo.name} (${photo.w}×${photo.h}, ${(photo.blob.size / 1e6).toFixed(1)} MB, the moment at ${photo.t.toFixed(1)} s)` +
+      (photo.short < photo.wanted ? `, smaller than ${photo.wanted} on the short side because this device ran low on memory. ` : ". "));
+    offerAgain(photo.blob, photo.name, null);
+    if (H.inApp) H.show({ tone: "info", title: "Photo saved, with a catch", message: "You are in an app's built-in browser, which often does not keep downloads. If the photo does not show up, use Share or open this page in your phone's browser.", actions: [] });
+  } catch (e) {
+    console.error(e);
+    const [title, message] = H.isMemory(e) ? ["Your device ran out of memory", "The photo did not fit in this device's memory. Close other tabs or apps, then try again."]
+      : ["The photo could not be made", "Try again, or try New look. The details are below."];
+    note(title + ". " + message);
+    H.show({ title, message, error: String(e.message || e), actions: [{ label: "Try again", primary: true, run: () => downloadJpg() }] });
+  } finally { btn.disabled = false; setTimeout(() => { $("progress").hidden = true; }, 1500); }
+}
+
 /* ⭐ Save to library (owner, 2026-10-06: "video ads ... need a star button
    which will send to library"). The look is made as Download MP4 makes it,
    with its photo (OfferUp takes a video only with one), and both go to the
@@ -1060,7 +1096,8 @@ function saveVideo(blob, name) {
 
 /* The photo that goes with every video. OfferUp takes a video only with a
    photo beside it (owner, 2026-10-03), so each download brings the ad as a
-   PNG, 1440 on the short side (1440×1440, 1440×1800, 1440×2560, 2560×1440).
+   JPG (owner, 2026-10-11), 1440 on the short side (1440×1440, 1440×1800,
+   1440×2560, 2560×1440).
    The moment is the video's best, measured by video-still.js on a small copy
    of the same look (every size draws the same plan) from the number's arrival
    to the ending, which shows the number alone and is not the ad; it is then
