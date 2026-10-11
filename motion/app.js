@@ -545,7 +545,7 @@ function syncLocks() {
 function drawPhonePicker() {
   const sel = state.style.phones;
   $("phones").innerHTML = state.index.map(m => `<button class="mo-phone" data-phone="${m.id}" aria-pressed="${sel.includes(m.id)}" title="${m.model} ${m.finish}${m.repaint ? " (painted)" : ""}">
-    <img src="${m.upload ? state.assets.phones[m.id].img.src : "phones/" + m.id + ".webp"}" alt="${m.model} ${m.finish}" loading="lazy"><small>${m.model.replace("iPhone ", "")} ${m.finish}</small></button>`).join("");
+    <img src="${m.upload ? state.assets.phones[m.id].img.src : "phones/" + m.id + ".webp"}" alt="${m.model} ${m.finish}" loading="lazy"><small><b>${m.model.replace("iPhone ", "")}</b>${m.finish.replace(/ Titanium$/, "")}</small></button>`).join("");
   $("phone-count").textContent = `${sel.length} picked`;
 }
 
