@@ -31,8 +31,11 @@
        frame(t) draws the video's frame at t seconds and returns its canvas
        (any size; it may return a promise); windows: [[from, to], …] in
        seconds. Resolves { t, score, detail, stillness, rows }.
-   VideoStill.toBlob(canvas)         Promise<Blob>, PNG
-   VideoStill.name(videoName, w, h)  the photo's file name, beside the video's
+   VideoStill.toBlob(canvas, type, quality)
+                                     Promise<Blob>, PNG (or type: 'image/jpeg')
+   VideoStill.name(videoName, w, h, ext)
+                                     the photo's file name, beside the video's
+                                     (ext 'png', or 'jpg')
    VideoStill.frames(videoBlob, { around, max, onProgress })
        the video's own frames, read back out of the file. With `around` (the
        best moment's time): the moment that looks most worth posting of those
@@ -104,14 +107,14 @@
     return { t: pick.t, score: +pick.held.toFixed(3), detail: +pick.detail.toFixed(3), stillness: +pick.stillness.toFixed(4), rows };
   }
 
-  const toBlob = c => c.convertToBlob ? c.convertToBlob({ type: 'image/png' }) : new Promise((res, rej) => {
-    try { c.toBlob(b => b ? res(b) : rej(new Error('the photo could not be encoded (out of memory)')), 'image/png'); }
+  const toBlob = (c, type = 'image/png', quality) => c.convertToBlob ? c.convertToBlob({ type, quality }) : new Promise((res, rej) => {
+    try { c.toBlob(b => b ? res(b) : rej(new Error('the photo could not be encoded (out of memory)')), type, quality); }
     catch (e){ rej(e); }
   });
 
-  function name(video, w, h){
+  function name(video, w, h, ext = 'png'){
     const base = String(video || 'ad').replace(/\.[a-z0-9]+$/i, '').replace(/-video-\d+x\d+$/, '');
-    return base + '-photo-' + w + 'x' + h + '.png';
+    return base + '-photo-' + w + 'x' + h + '.' + ext;
   }
   function frameName(video, t, w, h){
     const base = String(video || 'ad').replace(/\.[a-z0-9]+$/i, '').replace(/-video-\d+x\d+$/, '');

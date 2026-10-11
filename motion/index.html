@@ -40,7 +40,7 @@
 <main id="main" class="mo-main">
   <div class="mo-head">
     <h1>Phone video ads</h1>
-    <p class="mo-sub">Phones fly in and flip to their backs, your headline slides in, your number lands, with music. Pick who it is for (upgraders, students, parents, seniors, gamers, Spanish-speaking families and more) and the look, words, music and voiceover follow; or pick a look yourself, from LA street signs to clean tech, luxury noir, game day and holiday. English, Spanish or both, with a push to text now. Shuffle for a new look, lock what you like, download an MP4. It all runs in your browser: nothing is uploaded. <span class="mo-count" id="look-count"></span></p>
+    <p class="mo-sub">Phones fly in and flip to their backs, your headline slides in, your number lands, with music. Pick who it is for (upgraders, students, parents, seniors, gamers, Spanish-speaking families and more) and the look, words, music and voiceover follow; or pick a look yourself, from LA street signs to clean tech, luxury noir, game day and holiday. English, Spanish or both, with a push to text now. Shuffle for a new look, lock what you like, download an MP4 or a JPG. It all runs in your browser: nothing is uploaded. <span class="mo-count" id="look-count"></span></p>
   </div>
 
   <div class="mo-grid">
@@ -60,7 +60,10 @@
         <button class="mo-btn" id="undo" title="Back to the previous look" disabled>&#8630; Back</button>
         <a class="mo-btn" id="browse" href="#looks">&#9638; Browse looks</a>
         <button class="mo-btn star" id="mo-star" title="Make this video ad and save it to your library, with its photo, for iPhones LA to post">&#11088; Save to library</button>
-        <button class="mo-btn download" id="download">&#11015; Download MP4</button>
+        <span class="mo-dl">
+          <button class="mo-btn download" id="download" title="The video, with its photo for OfferUp">&#11015; Download MP4</button>
+          <button class="mo-btn download" id="download-jpg" title="The ad as a photo, at its best moment">&#11015; Download JPG</button>
+        </span>
       </div>
       <section class="mo-attn" id="attn" aria-label="Attention check">
         <div class="mo-attn-head"><b>Attention check</b><span class="mo-score" id="attn-score">&hellip;</span>
