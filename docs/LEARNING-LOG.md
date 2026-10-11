@@ -4106,11 +4106,31 @@ left or right". It was. Three faults, all mine:
     look's photo is that held moment: twice in a row, every size passed.
   Lesson: a demo clip is a measurement. Hold everything but the thing
   compared still, and look at it before sending it.
+Then: "we wanna make sure there's no overlapping effects that may
+contradict the breathing in case we were to manually configure the effects
+... it says breathing, but doesn't breathe it appears broken".
+  - Measured, not listed from memory: scripts/motion_idle_audit.mjs sets
+    every value of every axis that moves anything by hand beside each move
+    and compares the move's change of the phones' box with everything
+    else's in half a second. Its first measure was raw luma, and film grain
+    and a light sweep failed as loudly as the pump; on shapes at a quarter
+    size (luma less its local mean) only things that move count.
+  - Three settings move the phones themselves: the beat pump, the hand-held
+    camera, a turntable's sway. IDLE_CLASHES; settleIdleClashes keeps what
+    was just picked by hand and says in a toast what gave way. Driven
+    through the real panel in both orders.
+  - First version: a shuffle that drew the sway left the phones still in 20
+    looks of 60. The sway now gives way in a shuffle; only a sway picked by
+    hand stills them.
+  - A float with no room to rise did nothing; it bobs down instead.
 
 RESUME HERE:
   0. The amplitudes are IDLE in motion/engine.js (turn 3.2 s, rise 4.5% of
      a phone, pulse 7%, breathe 3% over 4.5 s), should the owner want any
      move bigger or calmer.
+  1. A new effect that moves the phones or the whole picture: run
+     `node scripts/motion_idle_audit.mjs` (about 8 minutes) and add a row
+     to IDLE_CLASHES if it drowns a move.
 
 ## 2026-10-11 — the colour builder's fades, made to be seen (claude/compassionate-babbage-nv318r)
 
