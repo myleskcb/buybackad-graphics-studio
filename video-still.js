@@ -32,6 +32,7 @@
        frame(t) draws the video's frame at t seconds and returns its canvas
        (any size; it may return a promise); windows: [[from, to], …] in
        seconds. Resolves { t, score, detail, stillness, rows }.
+   VideoStill.QUALITY                0.92, the photos' JPEG quality
    VideoStill.toBlob(canvas)         Promise<Blob>, JPEG at QUALITY
    VideoStill.name(videoName, w, h)  the photo's file name, beside the video's
    VideoStill.frames(videoBlob, { around, max, onProgress })
@@ -210,5 +211,5 @@
     return out.sort((a, b) => b.score - a.score || a.t - b.t);
   }
 
-  window.VideoStill = { SHORT, size, best, toBlob, name, frames, frameName };
+  window.VideoStill = { SHORT, QUALITY, size, best, toBlob, name, frames, frameName };
 })();

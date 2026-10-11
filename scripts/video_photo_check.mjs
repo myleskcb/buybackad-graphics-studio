@@ -4,9 +4,10 @@
    the production CSP, and checks what lands in the downloads folder:
 
      /motion   the video maker, once per size (1:1, 4:5, 9:16, 16:9)
-     studio    Easy Mode's "Download as video" on a showcase card, square and
-               story, as an operator and as a Free account, and the editor's
-               "Video" on the same design
+     studio    the studio's direct video download (ezDownloadVideo, behind
+               Create video's Download MP4 and ⭐🎬 Save as video) on a
+               showcase card, square and story, as an operator and as a Free
+               account, and the editor's on the same design
 
    For each press: exactly one video and one JPG; the JPG 1440 on its short
    side in the video's aspect (1080 on Free, the plan's cap, with the
@@ -21,8 +22,8 @@
    studio's button and the maker's Other photo open them; two cards, the
    picked HD photo (the same bytes) and one other moment at least half a
    second from it, at the video's size and pixel for pixel the frame the file
-   holds at its time (decoded here again; a JPG since 2026-10-11, so held to
-   PSNR rather than to the level).
+   holds at its time (decoded here again and made a JPG the same way: at
+   most 1 level off).
 
    usage:  npx http-server -p 8899 -s .   then
            CHROME=/path/to/chrome [FABRIC_JS=/path/fabric.min.js] node scripts/video_photo_check.mjs [--only motion|studio] [cardId]
@@ -35,7 +36,6 @@ const BASE = process.env.GFX_BASE || 'http://localhost:8899/';
 const argv = process.argv.slice(2), ONLY = argv.includes('--only') ? argv[argv.indexOf('--only') + 1] : null;
 const CARD = argv.filter((a, i) => !a.startsWith('--') && argv[i - 1] !== '--only')[0] || 'glassCard-cd06-15';
 const OUT = new URL('../.render/video-photo/', import.meta.url).pathname;
-const FRAME_DB = 40;   // a read-back frame, saved as a JPG, against the file's own frame: 47.8 and 47.9 dB measured (2026-10-11)
 rmSync(OUT, { recursive: true, force: true }); mkdirSync(OUT, { recursive: true });
 const csp = (readFileSync(new URL('../_headers', import.meta.url), 'utf8').match(/Content-Security-Policy:\s*(.+)/) || [])[1];
 const fab = process.env.FABRIC_JS ? readFileSync(process.env.FABRIC_JS) : null;
@@ -158,8 +158,8 @@ async function sheet(page, r, video, photo, sel, text){
       const img = await createImageBitmap(new Blob([Uint8Array.from(atob(p64), c => c.charCodeAt(0))], { type: 'image/jpeg' }), { colorSpaceConversion: 'none', premultiplyAlpha: 'none' });
       const px = src => { const c = document.createElement('canvas'); c.width = src.width; c.height = src.height; const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(src, 0, 0); return x.getImageData(0, 0, c.width, c.height).data; };
       /* the name gives the time to a tenth of a second: the frame must be one
-         of the file's frames in that tenth, as near as its JPEG keeps it (the
-         best PSNR of that tenth's frames, at FRAME_DB or over). Read through, not
+         of the file's frames in that tenth, pixel for pixel once that frame is
+         made a JPG as VideoStill makes it (a JPG since 2026-10-11). Read through, not
          sought (a real-time recording has no index), a canvas to each frame
          (a pooled one can be drawn over while it is read) */
       const P = px(img);
@@ -167,12 +167,12 @@ async function sheet(page, r, video, photo, sel, text){
       for await (const f of new MB.CanvasSink(vt).canvases(0, dur)){
         if (f.timestamp > t + 0.1) break;
         if (f.timestamp < t - 0.1) continue;
-        const V = px(f.canvas);
+        const jpg = await VideoStill.toBlob(f.canvas);
+        const V = px(await createImageBitmap(jpg, { colorSpaceConversion: 'none', premultiplyAlpha: 'none' }));
         if (V.length !== P.length) return { err: 'the frame is ' + img.width + 'x' + img.height + ', the video ' + vt.displayWidth + 'x' + vt.displayHeight };
-        let se = 0;
-        for (let i = 0; i < P.length; i += 4) for (let k = 0; k < 3; k++){ const d = P[i + k] - V[i + k]; se += d * d; }
-        const psnr = +(10 * Math.log10(255 * 255 / Math.max(1e-9, se / (P.length / 4 * 3)))).toFixed(2);
-        if (!best || psnr > best.psnr) best = { at: +f.timestamp.toFixed(3), psnr };
+        let most = 0;
+        for (let i = 0; i < P.length; i += 4) for (let k = 0; k < 3; k++) most = Math.max(most, Math.abs(P[i + k] - V[i + k]));
+        if (!best || most < best.most) best = { at: +f.timestamp.toFixed(3), most };
       }
       if (!best) return { err: 'no frame of the video near ' + t + ' s' };
       return Object.assign(best, { size: [img.width, img.height] });
@@ -180,7 +180,7 @@ async function sheet(page, r, video, photo, sel, text){
     r.frames.push(Object.assign({ t: +m[1] }, res));
     if (r.t != null && Math.abs(+m[1] - r.t) < 0.45) r.bad.push('the other moment (' + m[1] + ' s) is the picked one (' + r.t + ' s)');
     if (res.err) r.bad.push('frame ' + f + ': ' + res.err);
-    else if (!(res.psnr >= FRAME_DB)) r.bad.push('frame ' + f + ' is not the video\'s frame (' + res.psnr + ' dB)');
+    else if (res.most > 1) r.bad.push('frame ' + f + ' is not the video\'s frame (' + res.most + ' levels off)');
   }
 }
 

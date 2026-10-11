@@ -3,7 +3,7 @@
    that comes out. Localhost sends no CSP (rule 49), so the page is served here
    with the Content-Security-Policy from _headers injected into the response.
 
-   For Easy Mode ("Download as video") on a showcase card, and the editor's
+   For Easy Mode (the direct download behind "Create video") on a showcase card, and the editor's
    "Video" on the same design, it records: CSP violations, page errors, the
    toast, the file's name, size and container, and then decodes the file with
    the vendored Mediabunny: duration, video frames, an audio track, and the

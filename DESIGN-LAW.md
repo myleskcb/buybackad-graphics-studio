@@ -3719,7 +3719,8 @@ to save". OfferUp takes a video only with a photo beside it.
   "📷 Download the video's photo", saves the same photo again from the moment
   both files are given until the next video replaces it, a count that went
   through only on Try again included (`VideoHelp.keepPhoto`, from
-  `deliverVideo`). In Easy Mode it is right under Download as video, in the
+  `deliverVideo`). In Easy Mode it is right under Create video (Download as
+  video until 2026-10-11, rule 126), in the
   same look; in the editor's export pop-up it takes a line of its own under
   the buttons (a fourth button in that row pushed Cancel out of the pop-up).
   The maker already kept one: Save photo in the note under Download MP4.
@@ -3881,8 +3882,8 @@ frame" and "more versions".
   photos in the toast, and More photos in the maker's note. The frames are
   read while the video downloads and arrive in the pop-up if it is open.
   `scripts/video_photo_check.mjs` opens it on every run, saves every card, and
-  holds each frame to the same file decoded again: at most 1 level off as a
-  PNG; as a JPG, 40 dB PSNR or over (47.8 and 47.9 dB measured, 2026-10-11).
+  holds each frame to the same file decoded again: at most 1 level off (as
+  a JPG, against that frame made a JPG the same way, `VideoStill.toBlob`).
 - **A 2x screen measures at 1x** (found doing this). Easy Mode's scene and the
   template thumbnails are never shown on screen, only exported and measured,
   and are now made with `enableRetinaScaling:false`. fabric's default drew them
@@ -5041,3 +5042,42 @@ the most this container's 14 GB holds):
 > Amends rule 95: with a colour theme on, the card's hue is the theme's
 > colours, not one hue; a look the visitor picked is theirs. Rule 95 stands
 > for a card as designed.
+
+## 126. A photo ad's video is created and watched before it is kept
+
+Added 2026-10-11. The owner: "photo ads don't need a download video option.
+They need a create video option". Asked what Create video should do, of
+three (make it then preview, open the video maker, rename the button), the
+owner chose "make it, then preview".
+
+- **Create video makes it and plays it, and nothing downloads.** Easy Mode's
+  "🎬 Create video" (was "🎬 Download as video") and the editor's (was
+  "🎬 Video") make the 10-second video of the ad (`runVideoExport` with
+  `preview`) and open "Your video" (`previewVideo`): the video playing, with
+  sound where the browser allows it, and its size and length under it.
+  Anyone makes and watches one, signed in or not, as in the video maker.
+- **The plan has its say at the buttons**, which keep the pop-up open and say
+  what happened on its own line (it sits over every toast):
+  ⬇ Download MP4, Pro and Business, the video and its JPG, one video count
+  (`giveVideo`, what the direct download did); ⬇ Download JPG, the video's
+  photo alone, one photo download on any plan, Free's 1080 with the
+  watermark; ⭐ Save to library, Pro and Business, the video with its photo
+  (`adLibrary.keepStudioVideo`). Signed out, the sign-in comes first; its
+  dialog sits under this pop-up, so the pop-up closes, and after the sign-in
+  it opens again and carries on with the button that was pressed. Free and
+  Starter pressing Download MP4 or Save to library get the plans page.
+- **The photo is made when a button asks for it**, at that plan's size and
+  marks, once each; the last video and its scene stay until the next video
+  replaces them.
+- **⭐🎬 Save as video stays the direct path** (`ezDownloadVideo` without
+  `preview`: the plan first, then made and saved), and the checks call it.
+- **The CSP lets the page play its own video**: `media-src 'self' blob:` in
+  `_headers` and `netlify.toml`. Without it `default-src 'self'` refused the
+  blob: URL (measured 2026-10-11: error 4, "media-src blob", a blank player).
+- Measured 2026-10-11 in headless Chromium on Green Gold Glass Card: made in
+  14 to 15 s (real-time recording there), playing unmuted, nothing
+  downloaded; Download MP4 signed out opened the sign-in, and signing in as
+  Pro brought the pop-up back and saved the video and its 1440×1440 JPG on
+  one count; Free's Download JPG saved 1080×1080 on a photo count, its
+  Download MP4 opened the plans; the same at 390 px wide, the buttons one
+  above the other.
