@@ -2753,7 +2753,7 @@ off screen". Done in `mac-wallpapers.js` (loaded after app.js):
 - **On the laptop screen**, an Easy Mode row shown on a card whose picture
   has a screen we know (`SCREENS`: mac-pro-open-front, macbook-open-angle;
   mac-half-open-glow shows its lid). Off, any wallpaper, or the visitor's own
-  picture (kept on the device, `pgfx_ez_screen_own`). Lit only in Easy Mode's
+  picture (kept on the device, in the photo store beside the recent photos). Lit only in Easy Mode's
   render (preview, download, gate, video) and the hand-off to the designer;
   thumbnails, the library and the audits draw the card as designed. A lit
   picture is saved as its recipe (`pgScreen`) and lit again on any load.

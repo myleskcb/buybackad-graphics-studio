@@ -485,7 +485,9 @@
   }
 
   /* what is on the screen: '' (off, as photographed), a wallpaper's key, or
-     'own' (the visitor's picture, kept on this device only) */
+     'own' (the visitor's picture, kept on this device only, in the studio's
+     photo store with the recent photos: IndexedDB, not localStorage, where a
+     photograph can crowd the drafts out) */
   const jg = (k, fb) => { try { return typeof jget === 'function' ? jget(k, fb) : fb; } catch (e){ return fb; } };
   const js = (k, v) => { try { if (typeof jset === 'function') jset(k, v); } catch (e){} };
   const ST = { key: '', own: null, ownVer: 0 };
@@ -586,9 +588,11 @@
       ownB.style.backgroundImage = 'url("' + cover(ST.own, 96, 60).toDataURL('image/jpeg', 0.85) + '")'; } }
     row.querySelectorAll('[data-screen]').forEach(b => { const sel = b.dataset.screen === ST.key; b.classList.toggle('sel', sel); b.setAttribute('aria-pressed', sel ? 'true' : 'false'); });
   }
+  const OWN_ID = 'screen-own';                 // its record in the photo store; every list there filters by kind
   function useOwn(url, save){
     const im = new Image();
-    im.onload = () => { ST.own = im; ST.ownVer++; if (save) js('pgfx_ez_screen_own', url); syncRow(); if (ST.key === 'own') schedEzPreview(0); };
+    im.onload = () => { ST.own = im; ST.ownVer++; syncRow(); if (ST.key === 'own') schedEzPreview(0);
+      if (save && typeof bgPut === 'function') bgPut({ id: OWN_ID, name: 'Laptop screen picture', data: url, ts: Date.now(), kind: 'screen' }).catch(() => {}); };
     im.src = url;
   }
   function buildRow(){
@@ -624,7 +628,8 @@
     syncEzSwatches = function(){ const r = _sync.apply(this, arguments); try { syncRow(); } catch (e){} return r; };
   }
   buildRow();
-  { const url = jg('pgfx_ez_screen_own', null); if (typeof url === 'string' && /^data:image\//.test(url)) useOwn(url, false); }
+  if (typeof bgList === 'function') bgList().then(all => { const r = (all || []).find(x => x.id === OWN_ID);
+    if (r && typeof r.data === 'string' && /^data:image\//.test(r.data)) useOwn(r.data, false); }).catch(() => {});
 
   window.MAC_WALLPAPERS = { list: WALLS.map(w => ({ key: w.key, name: w.name, note: w.note })), paint, SCREENS, screenOf, litFor, screen: ST };
 })();
