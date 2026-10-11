@@ -395,6 +395,12 @@ export const OPTIONS = {
   pose: ["flat", "edge_left", "edge_right", "turntable", "wide_spin",
     // side on to the buttons (rule 124), offered by hand only
     "profile_left", "profile_right"],
+  // what the phones do once every one has landed, all in step (owner, 2026-10-11: "at the end
+  // when they stay still can we make them pulse ... or spin 360 degrees in place like an item
+  // in minecraft ... floating? ... not for this specific ad but in general"): turn round and
+  // round where they stand while they float, swell on the music's beat, or float; standing
+  // still is a pick by hand. Drawn from a stream of its own, so a look number keeps the rest.
+  phone_idle: ["spin", "pulse", "float", "still"],
   // how the phones are lit (rule 124): the standard look, or photo-real (a softbox streak
   // down the band, a sheen over the glass, a catch-light on the rim, a contact shadow).
   // Only by hand: a shuffle keeps it (KEPT_OPTIONS), so every look number draws as it did
@@ -532,6 +538,7 @@ export const WEIGHTS = {
   pose: { flat: 3, edge_left: 1, edge_right: 1, turntable: 2, wide_spin: 1,   // turned, as often as a turntable, either edge
     profile_left: 0, profile_right: 0 },   // by hand only (rule 124)
   phone_finish: { standard: 1, photo: 0 },
+  phone_idle: { spin: 2, pulse: 2, float: 1, still: 0 },
   accents: { 0: 6, 1: 3, 2: 2, 3: 1 },                   // DESIGN-LAW 88: some looks (about half), and few
   accent_kind: { mix: 3, emoji: 1, asset: 2, symbol: 2 },
   front_glimpse: { spin: 3, hold: 1 },
@@ -639,7 +646,7 @@ export const DEFAULT_STYLE = {
   text_fx: "shadow", color_mode: "mono", accent_word: -1, text_in: "slide", text_pos: "top-left",
   text_scale: 1, number_style: "plain", number_format: "dashed", number_pos: "bottom-center", number_in: "pop",
   number_scale: 1, arrangement: "lineup", entry: "fly_spin", end_face: "back", front_glimpse: "spin", pose: "flat", phone_finish: "standard",
-  phone_scale: 1, background: "radial", palette: "sand", scrim: -1, camera: "push_in", shake: 1,
+  phone_idle: "spin", phone_scale: 1, background: "radial", palette: "sand", scrim: -1, camera: "push_in", shake: 1,
   flash: true, shine: true, rgb_hit: false, speed_lines: false, sparkles: false, grain: true,
   sound_kit: "uplift", bpm: 112, hit: "impact", number_sfx: "pop", music_volume: 0.5, glare: 1,
   melody: "none", lead: "piano", accent: "none", season: "none", tone: "studio", track: "none",
@@ -663,7 +670,7 @@ export const LABELS = {
   text_fx: "Type treatment", color_mode: "Colour use", text_in: "Headline entrance", text_pos: "Headline position",
   number_style: "Number style", number_format: "Number format", number_pos: "Number position",
   number_in: "Number entrance", arrangement: "Phone layout", pose: "Phone angle", phone_finish: "Phone finish",
-  accents: "Accents", accent_set: "Accent topic", accent_kind: "Accents drawn as", accent_in: "Accents enter by", accent_idle: "Accents move", accent_out: "Accents leave by", entry: "Phones enter by", end_face: "Phones end on",
+  accents: "Accents", accent_set: "Accent topic", accent_kind: "Accents drawn as", accent_in: "Accents enter by", accent_idle: "Accents move", accent_out: "Accents leave by", entry: "Phones enter by", end_face: "Phones end on", phone_idle: "Phones once landed",
   front_glimpse: "Screens shown", background: "Background", palette: "Palette", camera: "Camera", shake: "Impact shake",
   sound_kit: "Music", melody: "Famous tune (public domain)", lead: "Tune played on", accent: "Opening sound", season: "Holiday music", tone: "Mix tone",
   track: "Real recording (public domain)", hit: "Headline hit sound", number_sfx: "Number sound", glare: "Screen glare", overlay: "Overlay effect", hook: "Opening hook (first second)",
@@ -678,7 +685,7 @@ export const GROUPS = [
   ["Type", ["font", "number_font", "case", "tracking", "skew", "text_fx", "color_mode"]],
   ["Opening", ["hook", "transition", "text_in", "text_pos"]],
   ["Number", ["number_style", "number_format", "number_pos", "number_in"]],
-  ["Phones", ["arrangement", "pose", "phone_finish", "entry", "end_face", "front_glimpse", "glare", "depth"]],
+  ["Phones", ["arrangement", "pose", "phone_finish", "entry", "end_face", "phone_idle", "front_glimpse", "glare", "depth"]],
   ["Accents", ["accents", "accent_set", "accent_kind", "accent_in", "accent_idle", "accent_out"]],
   ["Scene", ["background", "palette", "camera", "shake", "overlay", "grade", "outro"]],
   ["Sound", ["track", "sound_kit", "season", "melody", "lead", "tone", "accent", "hit", "number_sfx"]],

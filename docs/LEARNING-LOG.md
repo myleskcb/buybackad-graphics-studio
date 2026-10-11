@@ -4056,6 +4056,38 @@ RESUME HERE:
   1. The per-card holds (§AT 2), if a chip is worth giving back.
   2. The salmon red (§AT 3).
 
+## 2026-10-11 — the video maker's phones move once landed: spin, pulse, float
+
+Asked: over a "We Buy Phones" video, "at the end when they stay still can
+we make them pulse", then "or can we make them spin 360 degrees in place
+like an item in minecraft ... floating?", then "not for this specific ad but
+in general".
+
+Done: `phone_idle` in motion/catalog.js ("Phones once landed": spin, pulse,
+float, still), drawn by `phoneIdle` in motion/engine.js after `tl.still`.
+Shuffles draw it from a seed stream of its own; the default spins.
+
+Found:
+  - The layout stands the phones exactly at the edge of the number's gap
+    (`_roomUnder` bisects to it), so any move that may not cross that edge
+    gets no room: a pulse had none in 15 looks of 120. `_idleRoom` lets the
+    move take the outer half of the gap; one look of 120 left without.
+  - A floor reflection was cut whenever z passed 0.05, so a floating phone's
+    reflection would have blinked once per bob. The rise is carried on the
+    state (`.rise`) and the reflection and shadow stay on the floor.
+  - The video's photo must be a moment of the video (video_photo_check, PSNR
+    24): drawing it with the phones at rest would have failed for a spin.
+    `Ad.photoWindows` takes a spinning look's photo only where the phones
+    face as they landed. The "Other photo" (rule 110) now often shows the
+    screens, the moment that looks most different.
+
+Owner, over the side-by-side clip of the three: "that is much better. I
+like all of it." All three stay in the shuffle; put on `main` the same day.
+
+RESUME HERE:
+  0. The amplitudes are IDLE in motion/engine.js (turn 3.2 s, rise 4.5% of
+     a phone, pulse 7%), should the owner want any move bigger or calmer.
+
 ## 2026-10-11 — the colour builder's fades, made to be seen (claude/compassionate-babbage-nv318r)
 
 Asked: the owner, of Soft fade on a yellow background: "I don't think the
