@@ -333,15 +333,22 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
    --display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter Tight","Inter",ui-sans-serif,sans-serif;
    --c-ink:#ffffff; --c-soft:rgba(255,255,255,.82); --c-faint:rgba(255,255,255,.56);
    --c-glass:rgba(255,255,255,.075); --c-edge:rgba(255,255,255,.17); --k-shine:rgba(255,255,255,.12); --k-shadow:rgba(0,0,0,.42)}
-[data-palette="a"] .k-ti{--k-top:#13433b; --k-low:#08201c; --k-glow:rgba(60,168,134,.5); --k-btn:#a9ecd0; --k-btn-ink:#062019; --k-sel:rgba(169,236,208,.17); --ios-accent:#0e7a5f}
-[data-palette="a"] .k-ws{--k-top:#1d2d63; --k-low:#0a1230; --k-glow:rgba(92,124,235,.48); --k-btn:#d3dfff; --k-btn-ink:#0b1533; --k-sel:rgba(211,223,255,.17); --ios-accent:#2f4fc4}
-[data-palette="b"] .k-ti{--k-top:#2b50d8; --k-low:#14298a; --k-glow:rgba(130,165,255,.45); --k-btn:#ffd84d; --k-btn-ink:#231a00; --k-sel:rgba(255,216,77,.18); --ios-accent:#2346c8}
-[data-palette="b"] .k-ws{--k-top:#203db3; --k-low:#0e1d66; --k-glow:rgba(100,140,255,.4); --k-btn:#ffffff; --k-btn-ink:#10206b; --k-sel:rgba(255,255,255,.18); --ios-accent:#2346c8}
+/* every colourway fades the way the original cards did: dark at the top,
+   lit from the bottom corners (a warm glow bottom-left, a second bottom-right) */
+[data-palette="o"] .k-ti{--k-top:#1d2240; --k-mid:#302d4c; --k-low:#7b4243; --k-glow:rgba(176,96,63,.95); --k-glow2:rgba(150,74,62,.7); --k-btn:#f4b991; --k-btn-ink:#26170e; --k-sel:rgba(244,185,145,.18); --ios-accent:#a84a33}
+[data-palette="o"] .k-ws{--k-top:#1a1b1f; --k-mid:#2a2b30; --k-low:#50525a; --k-glow:rgba(118,120,128,.6); --k-glow2:rgba(118,120,128,0); --k-btn:#ededf0; --k-btn-ink:#16171b; --k-sel:rgba(255,255,255,.14); --ios-accent:#2a2b30}
+[data-palette="a"] .k-ti{--k-top:#0b2026; --k-mid:#123a35; --k-low:#2a6550; --k-glow:rgba(84,176,124,.85); --k-glow2:rgba(60,140,110,.55); --k-btn:#a9ecd0; --k-btn-ink:#062019; --k-sel:rgba(169,236,208,.17); --ios-accent:#0e7a5f}
+[data-palette="a"] .k-ws{--k-top:#0c1231; --k-mid:#1a285a; --k-low:#3a4c96; --k-glow:rgba(104,134,232,.75); --k-glow2:rgba(80,105,200,.5); --k-btn:#d3dfff; --k-btn-ink:#0b1533; --k-sel:rgba(211,223,255,.17); --ios-accent:#2f4fc4}
+[data-palette="b"] .k-ti{--k-top:#13277f; --k-mid:#2140b6; --k-low:#3f63e6; --k-glow:rgba(255,196,92,.5); --k-glow2:rgba(120,160,255,.5); --k-btn:#ffd84d; --k-btn-ink:#231a00; --k-sel:rgba(255,216,77,.18); --ios-accent:#2346c8}
+[data-palette="b"] .k-ws{--k-top:#0d1b60; --k-mid:#1d39a8; --k-low:#4466e0; --k-glow:rgba(150,178,255,.6); --k-glow2:rgba(255,255,255,.14); --k-btn:#ffffff; --k-btn-ink:#10206b; --k-sel:rgba(255,255,255,.18); --ios-accent:#2346c8}
 [data-palette="c"] .k{--c-ink:#121722; --c-soft:rgba(18,23,34,.76); --c-faint:rgba(18,23,34,.52); --c-glass:rgba(255,255,255,.58); --c-edge:rgba(18,23,34,.10); --k-shine:rgba(255,255,255,.95); --k-shadow:rgba(20,30,50,.2)}
-[data-palette="c"] .k-ti{--k-top:#edf4fd; --k-low:#d2e1f5; --k-glow:rgba(255,255,255,.85); --k-btn:#1d4ed8; --k-btn-ink:#ffffff; --k-sel:rgba(29,78,216,.10); --ios-accent:#1d4ed8}
-[data-palette="c"] .k-ws{--k-top:#f3f1ec; --k-low:#dcd7cc; --k-glow:rgba(255,255,255,.85); --k-btn:#1c1a16; --k-btn-ink:#ffffff; --k-sel:rgba(28,26,22,.08); --ios-accent:#1c1a16}
+[data-palette="c"] .k-ti{--k-top:#f7faff; --k-mid:#e7effb; --k-low:#cddcf3; --k-glow:rgba(160,192,245,.7); --k-glow2:rgba(190,212,248,.6); --k-btn:#1d4ed8; --k-btn-ink:#ffffff; --k-sel:rgba(29,78,216,.10); --ios-accent:#1d4ed8}
+[data-palette="c"] .k-ws{--k-top:#faf8f4; --k-mid:#ede9e1; --k-low:#d8d1c4; --k-glow:rgba(222,204,176,.7); --k-glow2:rgba(232,222,206,.6); --k-btn:#1c1a16; --k-btn-ink:#ffffff; --k-sel:rgba(28,26,22,.08); --ios-accent:#1c1a16}
 [data-palette="c"] .k .item{background:#fff}
-.card.k, .stage{background:radial-gradient(110% 90% at 0% 108%, var(--k-glow) 0%, rgba(0,0,0,0) 60%), linear-gradient(172deg, var(--k-top) 0%, var(--k-low) 100%); color:var(--c-ink)}
+.card.k, .stage{background:
+  radial-gradient(120% 95% at 0% 108%, var(--k-glow) 0%, rgba(0,0,0,0) 58%),
+  radial-gradient(80% 70% at 100% 100%, var(--k-glow2) 0%, rgba(0,0,0,0) 65%),
+  linear-gradient(172deg, var(--k-top) 0%, var(--k-mid) 55%, var(--k-low) 100%); color:var(--c-ink)}
 .k .btn{background:var(--k-btn); color:var(--k-btn-ink)}
 .k .btn:focus-visible{outline-color:var(--c-ink)}
 
@@ -442,13 +449,14 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
   </header>
 
   <!-- ═══════════ your picks ═══════════ -->
-  <section aria-labelledby="picks" id="your-picks" data-palette="a">
+  <section aria-labelledby="picks" id="your-picks" data-palette="o">
     <div class="sec-head">
       <h2 id="picks">Your picks</h2>
-      <p>One style from the home page to checkout: clear glass boxes on a coloured ground, then clean iOS sheets where people buy and sell. Every device says whether it's being bought or sold. Prices and specs are examples until they come from the inventory.</p>
+      <p>One style from the home page to checkout: clear glass boxes on the original cards' fade, then clean iOS sheets where people buy and sell. Every device says whether it's being bought or sold. Prices and specs are examples until they come from the inventory.</p>
       <div class="palettes" role="group" aria-label="Colours for your picks">
         <span>Colours</span>
-        <button type="button" class="pal" data-pal="a" aria-pressed="true"><i style="background:#13433b"></i><i style="background:#1d2d63"></i>Evergreen &amp; Midnight</button>
+        <button type="button" class="pal" data-pal="o" aria-pressed="true"><i style="background:#7b4243"></i><i style="background:#3a3b41"></i>Original fade</button>
+        <button type="button" class="pal" data-pal="a" aria-pressed="false"><i style="background:#2a6550"></i><i style="background:#3a4c96"></i>Evergreen &amp; Midnight</button>
         <button type="button" class="pal" data-pal="b" aria-pressed="false"><i style="background:#2b50d8"></i><i style="background:#ffd84d"></i>Cobalt</button>
         <button type="button" class="pal" data-pal="c" aria-pressed="false"><i style="background:#e3edfa"></i><i style="background:#ebe8e1"></i>Daylight</button>
       </div>
@@ -457,7 +465,7 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
     <div class="stop">
       <div class="style-head">
         <h3 class="style-name">1. Home page</h3>
-        <p>Both cards now work the same way: the words on top, a row of clear boxes in the middle, the button at the bottom. The colours are new, so these cards don't repeat the old trade-in and wholesale pair.</p>
+        <p>Both cards now work the same way: the words on top, a row of clear boxes in the middle, the button at the bottom. They keep the original fade, dark at the top and lit from the bottom; the colour buttons above try the same fade in other colours.</p>
       </div>
       <div class="pair match">
         <figure>
