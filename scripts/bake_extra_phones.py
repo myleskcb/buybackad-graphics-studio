@@ -282,14 +282,34 @@ def module_oem(gen, tint, px_mm):
     parts, n = ndimage.label(dark)
     big = 1 + np.nonzero(ndimage.sum(dark, parts, range(1, n + 1)) > dark.size * .002)[0]
     yy, xx = np.mgrid[0:size[1], 0:size[0]]
-    keep = np.isin(parts, big) | (off_lidar(L, size) < .05) | (np.hypot(xx - fx * size[0], yy - fy * size[1]) < fr * size[0] * 1.05)
+    flash = np.hypot(xx - fx * size[0], yy - fy * size[1]) < fr * size[0] * 1.05
+    keep = np.isin(parts, big) | (off_lidar(L, size) < .05) | flash
     k = 1 - ndimage.gaussian_filter(keep.astype(float), 1.0)
     # what the metal is moved from: the render's back for lightness, the plateau's
     # own metal for hue (Blue Titanium's plateau is bluer than its back, b -9 to -6,
     # and left a Black Titanium camera blue)
     back = render_back(f)
     back[1:] = np.median(color.rgb2lab(c)[k > .9][:, 1:], axis=0)
-    if hex_lab(tint)[0] <= back[0]:
+    up = hex_lab(tint)[0] > back[0]
+    # Polished parts keep the render's lightness and take the finish's tint: the
+    # flash, which kept Deep Purple's lavender on Space Black and Gold, and going up
+    # to a lighter finish the steel lens rims with the dark ring inside them. Rims
+    # sit at L 55-58 on Apple's Gold, Sierra Blue and Deep Purple alike (Gold's back
+    # 90, Deep Purple's 31): polished metal mirrors the studio, not the finish, and
+    # stepped up with the glass they went white on a 14 Pro Gold.
+    tinted = flash.copy()
+    if up:
+        for i in big:
+            d = parts == i
+            tinted |= ndimage.binary_dilation(d, iterations=max(3, int(np.sqrt(d.sum() / np.pi) * .3))) & ~d
+    tw = ndimage.gaussian_filter(tinted.astype(float), 1.0)[..., None]
+    lab_c = color.rgb2lab(c)
+    # a flash shows a third of its finish's tint on Apple's coloured renders (Blue
+    # Titanium .34, Deep Purple .33), a polished rim all of it (.7-1.1)
+    lab_c[..., 1:] += (hex_lab(tint)[1:] - back[1:]) * np.clip(lab_c[..., :1] / 60, 0, 1) * np.where(flash, 1 / 3, 1)[..., None]
+    c = c * (1 - tw) + np.clip(color.lab2rgb(lab_c), 0, 1) * tw
+    k = k * (1 - tw[..., 0])
+    if not up:
         to = lin(np.array([int(tint[i:i + 2], 16) for i in (1, 3, 5)]) / 255)
         new = srgb(lin(c) * (to / lin(np.clip(color.lab2rgb(back[None, None])[0, 0], 0, 1))))
     else:
