@@ -530,8 +530,12 @@ console.log('wrote', CATS.length, 'pages to ads/');
   const qa = [...html.matchAll(/<details class="lp-faq"><summary>([\s\S]*?)<\/summary><p>([\s\S]*?)<\/p><\/details>/g)]
     .map((m) => ({ '@type': 'Question', name: decode(m[1]), acceptedAnswer: { '@type': 'Answer', text: decode(m[2]) } }));
   const block = `<script type="application/ld+json" id="ld-faq">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: qa })}</script>`;
-  const re = /<script type="application\/ld\+json" id="ld-faq">[\s\S]*?<\/script>/;
-  html = re.test(html) ? html.replace(re, block) : html.replace('</head>', block + '\n</head>');
+  // every copy, not the first: a merge once left two blocks (2026-10-10 to
+  // 10-11), and replacing only the first kept the stale second one live
+  const re = /<script type="application\/ld\+json" id="ld-faq">[\s\S]*?<\/script>\n?/g;
+  let n = 0;
+  html = html.replace(re, () => (n++ ? '' : block + '\n'));
+  if (!n) html = html.replace('</head>', block + '\n</head>');
   writeFileSync(f, html);
   console.log('index.html FAQPage:', qa.length, 'questions');
 }

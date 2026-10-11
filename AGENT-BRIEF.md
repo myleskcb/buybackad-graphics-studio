@@ -202,6 +202,13 @@ the same way before you build on top of it.
 `netlify.toml`. They ship in the deploy but must not be fetchable — the house
 rulebook is not product. If you add another internal folder, block it too.
 
+GitHub Pages is also switched on for this repository and builds `main` on
+every push ("pages build and deployment"), outside `netlify.toml`, so it
+publishes all of the above. Nothing links to it. `.nojekyll` at the root keeps
+Jekyll off: without it, Jekyll reads every `.md` as a Liquid template, and one
+`{{` in `docs/LEARNING-LOG.md` failed that build from 2026-10-11. Keep the file.
+The owner can switch Pages off under Settings → Pages.
+
 ## Deploying
 
 **Deploy `main`, and only `main`.** Two Netlify projects serve this app:
