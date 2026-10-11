@@ -121,6 +121,54 @@
    "p90": 34
   }
  ],
+ "console": [
+  {
+   "file": "gaming-playstation-5-1",
+   "p90": 31
+  },
+  {
+   "file": "gaming-xbox-series-x-3",
+   "p90": 138
+  },
+  {
+   "file": "gaming-playstation-5-3",
+   "p90": 222
+  }
+ ],
+ "switch": [
+  {
+   "file": "gaming-nintendo-switch-oled-3",
+   "p90": 209
+  },
+  {
+   "file": "gaming-nintendo-switch-2-1",
+   "p90": 255
+  },
+  {
+   "file": "gaming-nintendo-switch-3",
+   "p90": 244
+  },
+  {
+   "file": "gaming-nintendo-switch-oled-1",
+   "p90": 219
+  }
+ ],
+ "controller": [
+  {
+   "file": "gaming-dualsense-controller-3",
+   "p90": 255
+  },
+  {
+   "file": "gaming-dualsense-controller-1",
+   "p90": 255
+  }
+ ],
+ "pchandheld": [
+  {
+   "file": "gaming-steam-deck-2",
+   "p90": 177
+  }
+ ],
  "space": [
   {
    "file": "space-earth-from-iss-night-1",
