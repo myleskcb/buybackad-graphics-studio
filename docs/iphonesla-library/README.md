@@ -300,8 +300,17 @@ them too".
 The key-protected API above is the **Designer Library** (the studio's finished
 designs). This section covers the other library: the **ads the owner saves**
 in the studio (📚 Library, or "Save to library" after a download). It has one
-public link that iPhones LA reads. The ads on it are set to auto-post or not,
-each with its own repost schedule.
+public link that iPhones LA reads.
+
+**Approved first** (the owner, 2026-10-11: "it needs to go to a place where we
+then configure the titles and descriptions or suggested ones show and we
+approve or deny or edit", and "we will not make auto post from the graphic
+studio"). Every saved ad waits in the studio's review with a suggested title
+and description; the owner edits them, then approves or denies. **Only
+approved ads are on the link**, each with the title (`title`) and description
+(`caption`) the owner approved. The studio sets no schedule: an approved ad is
+offered once, from its approval, and when to post or post again is iPhones
+LA's call.
 
 ```
 BUYBACK.AD studio ──save──▶ the ad library ──public link──▶ iPhones LA worker ──▶ Auto-post
@@ -353,40 +362,43 @@ library, so the link names the site the ads were saved on.
 
 | address | answers |
 |---|---|
-| `/api/ads/feed/fd_...` (or `.json`) | `{ name, version, updated, repost_days, count, links, items }`; `?category=phones` filters, `?due=1` gives only what is due to post |
-| `/api/ads/feed/fd_....rss` | RSS 2.0: one item per ad that is due, its picture as the enclosure, its slot as the guid |
+| `/api/ads/feed/fd_...` (or `.json`) | `{ name, version, updated, count, links, items }`: the approved ads; `?category=phones` filters, `?due=1` gives only what is offered to post (approved and not held) |
+| `/api/ads/feed/fd_....rss` | RSS 2.0: one item per approved ad, its picture as the enclosure, its slot as the guid, its description as the description |
 | `/api/ads/feed/fd_.../img/<id>.jpg` | the ad's picture, the JPEG as it was saved (the download, at its size; up to 2160 a side) |
 | `/api/ads/feed/fd_.../video/<id>.mp4` (or `.webm`) | a video ad's clip, byte for byte (`Accept-Ranges: bytes`); `?kind=video` on the feed lists only video ads |
 
 An ad (an example record):
 
 ```json
-{ "id": "ad_mfx1k2abcd", "title": "WE BUY iPHONES", "category": "phones",
-  "caption": "WE BUY iPHONES", "template": "checklistHero",
+{ "id": "ad_mfx1k2abcd", "title": "We Buy iPhones Today", "category": "phones",
+  "caption": "Cash for your iPhone, any condition. Message us with a photo for a quote.", "template": "checklistHero",
   "texts": [{ "role": "headline", "text": "WE BUY iPHONES" }, { "role": "badge", "text": "Cash today" }],
   "products": ["iphone-15-pro"],
   "image": { "url": "https://.../api/ads/feed/fd_.../img/ad_mfx1k2abcd.jpg?v=3f2a9c1d0e4b", "width": 1440, "height": 1440, "bytes": 412233, "format": "jpg" },
   "kind": "video", "source": "studio",
   "video": { "url": "https://.../api/ads/feed/fd_.../video/ad_mfx1k2abcd.mp4?v=9b1c2d3e4f50", "width": 1080, "height": 1080, "bytes": 5213344, "format": "mp4", "seconds": 10 },
   "created": "2026-10-05T12:00:00Z", "updated": "2026-10-05T12:00:00Z",
-  "autopost": true, "repost_days": 7, "hold": null,
-  "post": { "slot_id": "ad_mfx1k2abcd@2026-10-05T12:00:00Z", "due_at": "2026-10-05T12:00:00Z", "next_at": "2026-10-12T12:00:00Z", "round": 1 } }
+  "status": "approved", "reviewed_at": "2026-10-05T12:00:00Z",
+  "autopost": true, "repost_days": 0, "hold": null,
+  "post": { "slot_id": "ad_mfx1k2abcd@2026-10-05T12:00:00Z", "due_at": "2026-10-05T12:00:00Z", "next_at": null, "round": 1 } }
 ```
 
-- `post` is present when the ad is to be posted. It is due at `due_at`; with
-  `repost_days` (1, 2, 3, 5, 7, 14 or 30; 0 means once) it comes due again at
-  `next_at`, as round 2, 3 and so on. Turning auto-post back on makes it due
-  at once.
+- `post` is the ad's one slot, due at its approval (`reviewed_at`);
+  `next_at` is always `null`, `round` always 1 and `repost_days` always 0:
+  the studio sets no schedule. If the owner sends an ad back to review and
+  approves it again, it comes back with a new slot (a new `slot_id`); an edit
+  to an approved ad's words keeps its slot.
 - **`slot_id` is the whole contract**: keep the slot ids you have posted, and
-  post any ad whose current `slot_id` you have not. That posts each ad once
-  per slot, reposts it when the next slot comes, and never doubles up if a
-  run is repeated.
-- `hold` names why an ad is never auto-posted: it shows a website, a QR code,
+  post any ad whose `slot_id` you have not. That posts each approval once and
+  never doubles up if a run is repeated. Posting it again later is yours to
+  decide.
+- `hold` names why an ad cannot be approved: it shows a website, a QR code,
   a street address or a social handle, or it carries the free plan's
-  watermark (the same rule as the studio link's WE BUY pictures). A held ad
-  is listed with `post: null`.
-- `texts` and `products` are what is on the picture (the phone number is left
-  out of `texts`), for writing the listing; `caption` is the owner's line.
+  watermark (the same rule as the studio link's WE BUY pictures). Held ads
+  never reach the link.
+- `title` and `caption` are the listing's title and description as the owner
+  approved them. `texts` and `products` are what is on the picture (the
+  phone number is left out of `texts`).
 - `kind` is `"photo"` or `"video"`. A video ad carries `video` (its clip:
   MP4 where the owner's browser could write one, WebM otherwise, with
   `width`, `height`, `bytes` and `seconds`) beside `image`, which is still the

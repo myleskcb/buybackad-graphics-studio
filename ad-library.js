@@ -13,10 +13,15 @@
 
    An ad is saved to the account's ad library (netlify/lib/adlibrary.mjs):
    the picture as it downloads, as a JPEG, with the words on it and the
-   category, for the poster to write the listing from; a video ad brings its
-   clip beside the photo. The library has one public link; whoever holds it
-   (iPhones LA) reads the ads and which of them are due to post, and posts
-   them again on the schedule set here. Nothing on this side posts anywhere.
+   category; a video ad brings its clip beside the photo. 2026-10-11: "it
+   needs to go to a place where we then configure the titles and
+   descriptions or suggested ones show and we approve or deny or edit", "we
+   will not make auto post from the graphic studio". So a saved ad waits in
+   To review with a suggested title and description; the owner edits them or
+   picks another suggestion, then approves or denies. The library has one
+   public link, and only approved ads are on it; whoever holds it (iPhones
+   LA) does any posting. Nothing on this side posts anywhere or sets a
+   schedule.
 
    Three ways in, all the same save:
    - the ★ on every ad: the landing's gallery, Easy Mode's strip, the
@@ -37,7 +42,7 @@
    - What is saved is what would download: the gated picture (size,
      watermark), never a fresh ungated render.
    - A picture that shows a website, a QR code, a street address or a social
-     handle, or carries the watermark, is saved but held from auto-post: the
+     handle, or carries the watermark, is saved but held from approval: the
      iPhones LA link's own check (iplaLink.refusal), so the two cannot differ.
    - This source is public. It holds no secret; the library link it shows is
      the account's, read from the server after sign-in.
@@ -51,12 +56,11 @@
   const ASK_MS = 12000;                        // how long the "save it" card stays
   const MAX_SIDE = 2160;                       // what Pro downloads at most
   const MAX_CHARS = 5500000;                   // a base64 JPEG under the server's 4.2 MB
-  const REPOST_LABEL = { 0: 'Once', 1: 'Every day', 2: 'Every 2 days', 3: 'Every 3 days', 5: 'Every 5 days', 7: 'Every week', 14: 'Every 2 weeks', 30: 'Every 30 days' };
   const $ = id => document.getElementById(id);
 
   // ---------- the studio and the account, read carefully: app.js may not be on this page ----------
   const acct = () => window.pgfxAccount || null;
-  const state = { lib: null, loading: false, error: '', last: null, queue: [], busy: false, askTimer: null, saved: {}, me: null, capture: null, painting: false };
+  const state = { lib: null, loading: false, error: '', last: null, queue: [], busy: false, askTimer: null, saved: {}, me: null, capture: null, painting: false, tab: null, drafts: {} };
   const app = {
     here(){ try { return typeof showEasy === 'function' && typeof TEMPLATES !== 'undefined'; } catch (e){ return false; } },
     demo(){ try { return DEMO; } catch (e){ return acct() ? acct().demo : true; } },
@@ -178,8 +182,8 @@
   }
 
   const heldLine = h => h === 'unchecked'
-    ? 'Not auto-posted: it could not be checked for a website.'
-    : 'Not auto-posted: it shows ' + h + '.';
+    ? 'It could not be checked for a website, so it cannot be approved for iPhones LA.'
+    : 'It shows ' + h + ', so it cannot be approved for iPhones LA.';
 
   // ---------- the server ----------
   function ready(){
@@ -211,7 +215,7 @@
     state.loading = false;
     /* what the dialog shows of a library: the version strings the server
        stamps are not compared (a save added here leaves them behind) */
-    const key = l => l && JSON.stringify([l.name, l.repost_days, l.links, l.limit, l.count, l.items.map(i => [i.id, i.updated, i.autopost, i.repost_days, i.hold, i.image && i.image.url, i.video && i.video.url])]);
+    const key = l => l && JSON.stringify([l.name, l.links, l.limit, l.count, l.counts, l.items.map(i => [i.id, i.updated, i.status, i.title, i.caption, i.hold, i.image && i.image.url, i.video && i.video.url])]);
     const changed = !!fresh && key(fresh) !== key(state.lib);
     if (fresh) state.lib = fresh;
     if (!had || changed || state.error) draw();
@@ -248,17 +252,17 @@
       if (v === 'sent' || v === 'unsupported' || v === 'refused'){
         try { if (box) box.setItem(SHARED_KEY, JSON.stringify({ page, conn, at: Date.now(), verdict: v })); changed = true; } catch (e){}
       }
-      if (v === 'sent') app.toast('Your library link went to iPhones LA. Its auto-post reads it from now on.', 'success');
+      if (v === 'sent') app.toast('Your library link went to iPhones LA. It sees the ads you approve.', 'success');
       return changed;
     }, () => false).then(r => { sharing = null; return r; });
     return sharing;
   }
   const redraw = changed => { if (changed) draw(); };
   function shareLine(lib){
-    if (!connKey()) return 'To send this link to iPhones LA by itself, open the studio once from iPhones LA → Auto-post. Or copy it across.';
+    if (!connKey()) return 'To send this link to iPhones LA by itself, open the studio once from iPhones LA. Or copy it across.';
     const s = sharedFor(lib.links.page);
     if (!s) return 'Sending this link to iPhones LA…';
-    if (s.verdict === 'sent') return '✓ iPhones LA has this link: its auto-post reads it. A reset sends the new one by itself.';
+    if (s.verdict === 'sent') return '✓ iPhones LA has this link. A reset sends the new one by itself.';
     if (s.verdict === 'unsupported') return 'iPhones LA cannot take the link yet. It is sent by itself once it can (asked again each day), or copy it across.';
     return 'iPhones LA did not take the link. Copy it across instead.';
   }
@@ -279,6 +283,8 @@
     const at = state.lib.items.findIndex(x => x.id === item.id);
     if (at >= 0) state.lib.items[at] = item;
     else if (!duplicate){ state.lib.items.unshift(item); state.lib.count = state.lib.items.length; }
+    state.lib.counts = { review: 0, approved: 0, denied: 0 };
+    state.lib.items.forEach(x => { const k = x.status || 'review'; state.lib.counts[k] = (state.lib.counts[k] || 0) + 1; });
     draw(); paint();
   }
   /* rec: { name, data (a data URL), proj?, meta?: { title, category, template, texts, products, hold, source }, id? } */
@@ -288,15 +294,14 @@
     if (!image){ app.toast('This picture could not be saved: it is too large or could not be read', 'error'); return null; }
     const d = Object.assign(describe(rec.name, rec.proj), rec.meta || {});
     try {
-      const repost = state.lib ? state.lib.repost_days : undefined;
-      const r = await app.call('/ads/save', Object.assign({ image, repost_days: repost }, d));
+      const r = await app.call('/ads/save', Object.assign({ image }, d));
       if (rec.id) state.saved[rec.id] = r.item.id;
       if (!state.lib) await load();                          // the first save makes the library: load() sends its link
       else { took(r.item, !!r.duplicate); if (connKey()) share(state.lib).then(redraw); }
       if (!quiet || r.duplicate || d.hold){
         app.toast(r.duplicate ? 'Already in your ad library'
           : d.hold ? 'Saved to your ad library. ' + heldLine(d.hold)
-          : 'Saved to your ad library ⭐', r.duplicate ? '' : 'success');
+          : 'Saved to your ad library to review ⭐', r.duplicate ? '' : 'success');
       }
       return r.item;
     } catch (e){
@@ -534,8 +539,30 @@
 .adl-card .adl-meta{font-size:12px;color:var(--text-dim)}
 .adl-card .adl-hold{font-size:12px;color:var(--text);border-left:2px solid #ff6259;padding-left:7px}
 .adl-card label.adl-tog{display:flex;gap:7px;align-items:center;margin:0;font-size:13px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--text)}
-.adl-card button.adl-x,.adl-card a.adl-x{background:none;border:none;color:var(--text-dim);font:inherit;font-size:12.5px;cursor:pointer;padding:0;text-align:left;text-decoration:none}
-.adl-card button.adl-x:hover,.adl-card a.adl-x:hover{color:var(--text)}
+.adl-card button.adl-x,.adl-card a.adl-x,.adl-rv button.adl-x,.adl-rv a.adl-x{background:none;border:none;color:var(--text-dim);font:inherit;font-size:12.5px;cursor:pointer;padding:0;text-align:left;text-decoration:none}
+.adl-card button.adl-x:hover,.adl-card a.adl-x:hover,.adl-rv button.adl-x:hover,.adl-rv a.adl-x:hover{color:var(--text)}
+.adl-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 12px}
+.adl-tab{font:600 13.5px/1 var(--ui,system-ui);padding:10px 14px;min-height:40px;border-radius:999px;border:1px solid var(--hairline-strong,rgba(255,255,255,.16));background:transparent;color:var(--text-2);cursor:pointer}
+.adl-tab.on{background:var(--accent,#2b56f5);color:var(--accent-ink,#fff);border-color:transparent}
+.adl-rvs{display:flex;flex-direction:column;gap:12px}
+.adl-rv{display:grid;grid-template-columns:200px minmax(0,1fr);gap:14px;padding:12px;border-radius:14px;background:var(--surface-sunk,rgba(255,255,255,.05));border:1px solid var(--hairline,rgba(255,255,255,.08));font-size:13px;color:var(--text-2);min-width:0}
+.adl-rv-pic{display:flex;flex-direction:column;gap:7px;min-width:0;position:relative}
+.adl-rv-pic img{width:100%;aspect-ratio:1;object-fit:contain;border-radius:9px;background:#0003;display:block}
+.adl-rv-pic .adl-kind{top:6px;left:6px}
+.adl-rv .adl-meta,.adl-rv .adl-status{font-size:12px;color:var(--text-dim)}
+.adl-rv .adl-hold{font-size:12px;color:var(--text);border-left:2px solid #ff6259;padding-left:7px}
+.adl-rv-form{display:flex;flex-direction:column;gap:6px;min-width:0}
+.adl-rv-form label{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin:4px 0 0}
+.adl-rv-form input,.adl-rv-form textarea{width:100%;box-sizing:border-box;font:500 14px/1.4 var(--ui,system-ui);padding:9px 11px;border-radius:10px;border:1px solid var(--hairline-strong,rgba(255,255,255,.16));background:var(--surface-raise,rgba(255,255,255,.06));color:var(--text)}
+.adl-rv-form textarea{resize:vertical;min-height:88px}
+.adl-sugs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-width:0}
+.adl-sugs>span{font-size:12px;color:var(--text-dim)}
+.adl-sug{font:500 12.5px/1.3 var(--ui,system-ui);text-align:left;padding:6px 10px;border-radius:10px;border:1px dashed var(--hairline-strong,rgba(255,255,255,.16));background:transparent;color:var(--text-2);cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adl-sug:hover{border-style:solid;color:var(--text)}
+.adl-sug.on{border-style:solid;border-color:#2fbf71;color:var(--text)}
+.adl-rv-acts{margin-top:6px}
+.adl-rv-acts .btn:disabled{opacity:.45;cursor:default}
+@media (max-width:620px){.adl-rv{grid-template-columns:1fr}.adl-rv-pic img{max-width:260px}}
 .adl-kind{position:absolute;top:14px;left:14px;font:700 10.5px/1 var(--ui,system-ui);letter-spacing:.06em;padding:5px 8px;border-radius:999px;background:rgba(0,0,0,.65);color:#fff}
 .adl-empty{padding:18px;border-radius:14px;border:1px dashed var(--hairline-strong,rgba(255,255,255,.16));color:var(--text-dim);font-size:14px}
 .adl-note{font-size:13px;color:var(--text-dim);margin-top:8px;line-height:1.5}
@@ -728,7 +755,7 @@
     const m = el('div', 'modal adl-modal');
     m.setAttribute('role', 'dialog'); m.setAttribute('aria-label', 'Ad library');
     m.appendChild(el('h3', '', 'Ad library'));
-    m.appendChild(el('div', 'modal-sub', 'Ads you save here get one public link. Give it to iPhones LA and it posts your WE BUY ads, then posts them again on the schedule you pick. The ★ on any ad saves it here; a video ad brings its clip.'));
+    m.appendChild(el('div', 'modal-sub', 'Every ad you save comes here first. Check its title and description, or tap a suggestion, then approve it or deny it. Only approved ads go on your link for iPhones LA, which does the posting.'));
     const why = ready();
     if (why){
       m.appendChild(el('div', 'adl-empty', why === 'signin' ? 'Create a free account, or sign in, to keep a library of your ads and share it. No card needed.' : why));
@@ -751,8 +778,32 @@
       return swap(m);
     }
 
+    // the ads, by where they are in review
+    const counts = lib.counts || { review: lib.items.length, approved: 0, denied: 0 };
+    /* the tab picked, or To review while anything waits there, then Approved */
+    const tab = TABS.some(t => t[0] === state.tab) ? state.tab : counts.review || !counts.approved ? 'review' : 'approved';
+    const tabs = el('div', 'adl-tabs');
+    tabs.setAttribute('role', 'tablist'); tabs.setAttribute('aria-label', 'Ads by review');
+    TABS.forEach(([k, label]) => {
+      const t = el('button', 'adl-tab' + (tab === k ? ' on' : ''), label + ' (' + (counts[k] || 0) + ')');
+      t.type = 'button'; t.setAttribute('role', 'tab'); t.setAttribute('aria-selected', String(tab === k));
+      t.dataset.tab = k;
+      t.onclick = () => { state.tab = k; draw(); };
+      tabs.appendChild(t);
+    });
+    m.appendChild(tabs);
+    const here = lib.items.filter(it => (it.status || 'review') === tab);
+    if (!here.length) m.appendChild(el('div', 'adl-empty', EMPTY[tab]));
+    else {
+      const list = el('div', 'adl-rvs');
+      here.forEach(it => list.appendChild(review(it)));
+      m.appendChild(list);
+    }
+    const videos = lib.items.filter(x => x.video).length;
+    m.appendChild(el('div', 'adl-note', lib.count + ' of ' + lib.limit + ' ads kept' + (videos ? ', ' + videos + ' with video' : '') + '. Remove an ad to free its place.'));
+
     // the public link
-    m.appendChild(el('h4', '', 'Your public link'));
+    m.appendChild(el('h4', '', 'Your link for iPhones LA'));
     const link = el('div', 'adl-link');
     const inp = el('input'); inp.type = 'text'; inp.readOnly = true; inp.value = lib.links.page; inp.setAttribute('aria-label', 'Your public library link');
     inp.onclick = () => inp.select();
@@ -762,7 +813,7 @@
     link.appendChild(op);
     m.appendChild(link);
     const feeds = el('div', 'adl-row'); feeds.style.marginTop = '8px';
-    feeds.appendChild(btn('Copy the feed for auto-post (JSON)', 'btn-ghost', () => copy(lib.links.json, 'Feed link')));
+    feeds.appendChild(btn('Copy JSON feed', 'btn-ghost', () => copy(lib.links.json, 'Feed link')));
     feeds.appendChild(btn('Copy RSS', 'btn-ghost', () => copy(lib.links.rss, 'RSS link')));
     feeds.appendChild(btn('Reset link', 'btn-ghost', async () => {
       if (!window.confirm('Make a new link? The old one stops working, so anyone using it (iPhones LA) needs the new one.')) return;
@@ -771,33 +822,19 @@
     }));
     m.appendChild(feeds);
     m.appendChild(el('div', 'adl-note adl-share', shareLine(lib)));
-    m.appendChild(el('div', 'adl-note', 'Anyone with the link can see these ads, and only these. Ads set to auto-post are listed when they are due, and again every time they come due.'));
+    m.appendChild(el('div', 'adl-note', 'Only approved ads are on this link, each with the title and description you approved, and anyone with the link sees those and nothing else. The studio posts nothing: posting is done in iPhones LA.'));
 
     // settings
     const set = el('div', 'adl-set');
     const nm = el('input'); nm.type = 'text'; nm.value = lib.name || ''; nm.maxLength = 60; nm.setAttribute('aria-label', 'Library name');
     nm.onchange = async () => { try { await app.call('/ads/settings', { name: nm.value }); await load(); } catch (e){ app.toast(e.message, 'error'); } };
     const nmL = el('span', '', 'Name '); nmL.appendChild(nm); set.appendChild(nmL);
-    const rp = el('select'); rp.setAttribute('aria-label', 'New ads post again');
-    (lib.repost_choices || [0, 7]).forEach(n => { const o = el('option', '', REPOST_LABEL[n] || ('Every ' + n + ' days')); o.value = String(n); o.selected = n === lib.repost_days; rp.appendChild(o); });
-    rp.onchange = async () => { try { await app.call('/ads/settings', { repost_days: Number(rp.value) }); await load(); } catch (e){ app.toast(e.message, 'error'); } };
-    const rpL = el('span', '', 'New ads post '); rpL.appendChild(rp); set.appendChild(rpL);
     const au = el('label', 'adl-tog'); au.style.cssText = 'display:flex;gap:7px;align-items:center;margin:0;text-transform:none;letter-spacing:0;font-size:14px;font-weight:600;color:var(--text)';
     const auC = el('input'); auC.type = 'checkbox'; auC.checked = autoOn();
-    auC.onchange = () => { setAuto(auC.checked); app.toast(auC.checked ? 'Every download is saved here now, videos too' : 'Downloads are no longer saved here by themselves'); };
+    auC.onchange = () => { setAuto(auC.checked); app.toast(auC.checked ? 'Every download comes here to review now, videos too' : 'Downloads no longer come here by themselves'); };
     au.appendChild(auC); au.appendChild(document.createTextNode('Save every download here'));
     set.appendChild(au);
     m.appendChild(set);
-
-    // the ads
-    const videos = lib.items.filter(x => x.video).length;
-    m.appendChild(el('h4', '', 'Saved ads (' + lib.count + ' of ' + lib.limit + (videos ? ', ' + videos + ' with video' : '') + ')'));
-    if (!lib.items.length) m.appendChild(el('div', 'adl-empty', 'Nothing saved yet. Press the ★ on any ad, or ⭐ Save to library under your preview, or save one of your recent downloads below.'));
-    else {
-      const grid = el('div', 'adl-grid');
-      lib.items.forEach(it => grid.appendChild(card(it, lib)));
-      m.appendChild(grid);
-    }
 
     // recent downloads
     const recent = el('div');
@@ -827,43 +864,108 @@
     m.appendChild(row);
     swap(m);
   }
-  function card(it, lib){
-    const c = el('div', 'adl-card');
+  const TABS = [['review', 'To review'], ['approved', 'Approved'], ['denied', 'Denied']];
+  const EMPTY = {
+    review: 'Nothing waiting. Press the ★ on any ad, or ⭐ Save to library under your preview, and it comes here for you to check.',
+    approved: 'Nothing approved yet. Approve an ad in To review and it goes on your link for iPhones LA.',
+    denied: 'Nothing denied.',
+  };
+  /* the suggestions under a field: a tap puts one in, to approve as it is or
+     edit first */
+  function sugs(list, field, changed, short){
+    const box = el('div', 'adl-sugs');
+    if (!list || !list.length) return box;
+    box.appendChild(el('span', '', 'Suggested:'));
+    list.forEach(sg => {
+      const b = el('button', 'adl-sug' + (field.value.trim() === sg ? ' on' : ''), short && sg.length > 72 ? sg.slice(0, 70).replace(/\s+\S*$/, '') + '…' : sg);
+      b.type = 'button'; b.title = sg;
+      b.onclick = () => { field.value = sg; changed(); field.focus(); };
+      box.appendChild(b);
+    });
+    return box;
+  }
+  /* one ad in review: its picture, its title and description to edit, and
+     what can be done with it from where it is */
+  function review(it){
+    const at = it.status || 'review', d = state.drafts[it.id] || {};
+    const c = el('div', 'adl-rv');
+    c.dataset.id = it.id;
+    const pic = el('div', 'adl-rv-pic');
     const im = el('img'); im.src = it.image.url; im.alt = it.title; im.loading = 'lazy';
-    c.appendChild(im);
-    if (it.video) c.appendChild(el('span', 'adl-kind', '🎬 VIDEO'));
-    c.appendChild(el('b', '', it.title));
-    c.appendChild(el('span', 'adl-meta', [it.category, it.image.width + ' × ' + it.image.height, it.video ? (it.video.seconds ? it.video.seconds + ' s ' : '') + it.video.format.toUpperCase() : '', 'saved ' + when(it.created)].filter(Boolean).join(' · ')));
-    if (it.hold){
-      c.appendChild(el('span', 'adl-hold', heldLine(it.hold)));
-    } else {
-      const tog = el('label', 'adl-tog');
-      const cb = el('input'); cb.type = 'checkbox'; cb.checked = it.autopost;
-      cb.onchange = () => update(it.id, { autopost: cb.checked });
-      tog.appendChild(cb); tog.appendChild(document.createTextNode('Auto-post'));
-      c.appendChild(tog);
-      const sel = el('select'); sel.setAttribute('aria-label', 'Post again');
-      (lib.repost_choices || [0, 7]).forEach(n => { const o = el('option', '', REPOST_LABEL[n] || ('Every ' + n + ' days')); o.value = String(n); o.selected = n === it.repost_days; sel.appendChild(o); });
-      sel.disabled = !it.autopost;
-      sel.onchange = () => update(it.id, { repost_days: Number(sel.value) });
-      c.appendChild(sel);
-      if (it.post) c.appendChild(el('span', 'adl-meta', it.post.next_at ? 'Due now, then again ' + when(it.post.next_at) : 'Due now, once'));
-    }
-    const row = el('div', 'adl-row');
+    pic.appendChild(im);
+    if (it.video) pic.appendChild(el('span', 'adl-kind', '🎬 VIDEO'));
+    pic.appendChild(el('span', 'adl-meta', [it.category, it.image.width + ' × ' + it.image.height, it.video ? (it.video.seconds ? it.video.seconds + ' s ' : '') + it.video.format.toUpperCase() : '', 'saved ' + when(it.created)].filter(Boolean).join(' · ')));
+    const files = el('div', 'adl-row');
     const dl = el('a', 'adl-x', it.video ? 'Photo' : 'Download'); dl.href = it.image.url; dl.download = slug(it.title) + '.jpg';
-    row.appendChild(dl);
+    files.appendChild(dl);
     if (it.video){
       const dv = el('a', 'adl-x', 'Video'); dv.href = it.video.url; dv.download = slug(it.title) + '.' + it.video.format;
-      row.appendChild(dv);
+      files.appendChild(dv);
     }
     const rm = el('button', 'adl-x', 'Remove'); rm.type = 'button';
     rm.onclick = async () => {
-      if (!window.confirm('Remove "' + it.title + '" from your library? It stops being posted.')) return;
-      try { await app.call('/ads/remove', { id: it.id }); Object.keys(state.saved).forEach(k => { if (state.saved[k] === it.id) delete state.saved[k]; }); await load(); }
+      if (!window.confirm('Remove "' + it.title + '" from your library?' + (at === 'approved' ? ' It comes off your link.' : ''))) return;
+      try { await app.call('/ads/remove', { id: it.id }); Object.keys(state.saved).forEach(k => { if (state.saved[k] === it.id) delete state.saved[k]; }); delete state.drafts[it.id]; await load(); }
       catch (e){ app.toast(e.message || 'Not removed', 'error'); }
     };
-    row.appendChild(rm);
-    c.appendChild(row);
+    files.appendChild(rm);
+    pic.appendChild(files);
+    c.appendChild(pic);
+
+    const f = el('div', 'adl-rv-form');
+    const ti = el('input'); ti.type = 'text'; ti.id = 'adl-t-' + it.id; ti.maxLength = 80; ti.value = d.title != null ? d.title : it.title;
+    const de = el('textarea'); de.id = 'adl-d-' + it.id; de.maxLength = 500; de.rows = 4; de.value = d.caption != null ? d.caption : (it.caption || '');
+    const tl = el('label', '', 'Title'); tl.htmlFor = ti.id;
+    const dlb = el('label', '', 'Description'); dlb.htmlFor = de.id;
+    const sg = it.suggest || {};
+    let tSugs, dSugs;
+    const changed = () => {
+      state.drafts[it.id] = { title: ti.value, caption: de.value };
+      tSugs.querySelectorAll('.adl-sug').forEach(b => b.classList.toggle('on', b.title === ti.value.trim()));
+      dSugs.querySelectorAll('.adl-sug').forEach(b => b.classList.toggle('on', b.title === de.value.trim()));
+      if (saveB) saveB.disabled = !edited();
+    };
+    const edited = () => ti.value.trim() !== it.title || de.value.trim() !== (it.caption || '');
+    tSugs = sugs(sg.titles, ti, changed);
+    dSugs = sugs(sg.captions, de, changed, true);
+    ti.oninput = changed; de.oninput = changed;
+    f.appendChild(tl); f.appendChild(ti); f.appendChild(tSugs);
+    f.appendChild(dlb); f.appendChild(de); f.appendChild(dSugs);
+    if (it.hold) f.appendChild(el('span', 'adl-hold', heldLine(it.hold)));
+    if (at === 'approved') f.appendChild(el('span', 'adl-status', '✓ On your link for iPhones LA' + (it.reviewed_at ? ', approved ' + when(it.reviewed_at) : '')));
+    if (at === 'denied') f.appendChild(el('span', 'adl-status', 'Denied' + (it.reviewed_at ? ' ' + when(it.reviewed_at) : '') + '. Not on your link.'));
+
+    const acts = el('div', 'adl-row adl-rv-acts');
+    const send = async (status, msg) => {
+      const patch = { id: it.id, caption: de.value.trim() };
+      if (ti.value.trim()) patch.title = ti.value.trim();
+      if (status) patch.status = status;
+      acts.querySelectorAll('button').forEach(b => { b.disabled = true; });
+      try { await app.call('/ads/update', patch); delete state.drafts[it.id]; if (msg) app.toast(msg, 'success'); }
+      catch (e){ app.toast(e.message || 'Not changed', 'error'); acts.querySelectorAll('button').forEach(b => { b.disabled = false; }); return; }
+      await load();
+    };
+    const approve = () => {
+      if (!ti.value.trim()){ app.toast('Give the ad a title first', 'error'); ti.focus(); return; }
+      if (!de.value.trim()){ app.toast('Write a description first, or tap a suggestion', 'error'); de.focus(); return; }
+      send('approved', 'Approved: it is on your link for iPhones LA');
+    };
+    let saveB = null;
+    if (at === 'approved'){
+      saveB = btn('Save changes', 'btn-primary', () => send(null, 'Saved'));
+      saveB.disabled = !edited();
+      acts.appendChild(saveB);
+      acts.appendChild(btn('Back to review', 'btn-outline', () => send('review', 'Back in To review, off your link')));
+      acts.appendChild(btn('Deny', 'btn-ghost', () => send('denied', 'Denied, off your link')));
+    } else {
+      const ap = btn(at === 'denied' ? 'Approve instead' : 'Approve', 'btn-primary', approve);
+      if (it.hold){ ap.disabled = true; ap.title = heldLine(it.hold); }
+      acts.appendChild(ap);
+      if (at === 'review') acts.appendChild(btn('Deny', 'btn-outline', () => send('denied', 'Denied')));
+      else acts.appendChild(btn('Back to review', 'btn-outline', () => send('review', 'Back in To review')));
+    }
+    f.appendChild(acts);
+    c.appendChild(f);
     return c;
   }
   function swap(m){
@@ -882,7 +984,7 @@
     ask = el('div', 'adl-ask');
     ask.setAttribute('role', 'status');
     ask.appendChild(el('b', '', rec.blob ? 'Save this video ad to your library?' : 'Save this ad to your library?'));
-    ask.appendChild(el('p', '', rec.blob ? 'Its photo goes with it. Saved ads are on your public link, ready for iPhones LA to post.' : 'Saved ads are on your public link, ready for iPhones LA to post.'));
+    ask.appendChild(el('p', '', (rec.blob ? 'Its photo goes with it. ' : '') + 'It waits in your library for you to check its title and description and approve it for iPhones LA.'));
     const row = el('div', 'adl-row');
     row.appendChild(btn('Save to library', 'btn-primary', async b => { b.disabled = true; b.textContent = 'Saving…'; await (rec.blob ? saveVideoAd(rec) : save(rec)); dismiss(); }));
     row.appendChild(btn('Always save', 'btn-ghost', () => { setAuto(true); enqueue(rec); dismiss(); }));

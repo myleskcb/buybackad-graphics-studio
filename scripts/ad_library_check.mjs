@@ -6,11 +6,13 @@
       503 and no sign-in 401; a save takes a real JPEG and refuses a PNG, a
       picture too small or too large, and a body that is not JSON; the same
       picture twice is one ad; the plan's cap is 507 and the day's count 429;
-      update, settings, remove and the link reset do what they say. The public
-      link answers JSON (CORS, noindex), RSS that parses, and each picture byte
-      for byte; a held ad never auto-posts and cannot be switched on; slots
-      come due on the schedule (a poster that keeps slot ids posts once a slot,
-      and again when the next comes due); a reset link stops answering. A
+      update, settings, remove and the link reset do what they say. A save
+      waits in review under suggestions from its own words; nothing is on the
+      public link until it is approved (2026-10-11), a held ad cannot be, an
+      approval needs a description, and an approved ad is offered once from
+      its approval (back to review and approved again is a new slot; an edit
+      is not). The public link answers JSON (CORS, noindex), RSS that parses,
+      and each picture byte for byte; a reset link stops answering. A
       video on an ad: begin, parts of the stated size, done joins and checks
       them (the hash, the container); it is served byte for byte and by
       range, named on the feed (kind, ?kind=) and in the RSS; a damaged
@@ -19,9 +21,11 @@
       @netlify/blobs: sign up, save, a video in parts, read the public link
       through it; the library key route and /me still answer as before.
    3. In Chromium, the studio and the page, under the production CSP: an Easy
-      Mode download offers "Save to library"; saved, it is in the Library
-      dialog and on the public link (a free account's watermarked ad held from
-      auto-post, an admin's set to post); master-library.html shows the public
+      Mode download offers "Save to library"; the Library button shows for the
+      owner only; saved, the ad waits in To review with suggestions; the owner
+      edits the title, taps a suggested description and approves, and the
+      public page shows it under that title (a free account's watermarked ad
+      cannot be approved and is not on its link); master-library.html shows the public
       library at ?feed= and the finished designs (every offered card); no
       sideways scroll at 390 px. The stars (2026-10-06): an account is
       created from the landing page, the dialog opening on Create account for
@@ -150,39 +154,55 @@ r = await call('POST', '/ads/save', { as: 'free@x.example', body: {
 } });
 ok(r.status === 201, 'save: a JPEG is 201 (' + r.status + ' ' + JSON.stringify(r.body).slice(0, 120) + ')');
 const A = r.body.item;
-ok(A && /^ad_[a-z0-9]{6,24}$/.test(A.id) && A.title === 'WE BUY iPHONES' && A.caption === 'WE BUY iPHONES' && A.category === 'phones', 'save: title and caption from the headline, the category kept');
+ok(A && /^ad_[a-z0-9]{6,24}$/.test(A.id) && A.title === 'We Buy iPhones' && A.caption === 'We buy iPhones. Cash today.' && A.category === 'phones', 'save: title and description are the best suggestion, from the ad\'s own words, set in their own case (' + (A && A.title + ' / ' + A.caption) + ')');
+ok(A && A.suggest && A.suggest.titles[0] === A.title && A.suggest.titles.includes('We Buy iPhones for Cash') && A.suggest.titles.includes('Cash for iPhone 15 Pro') && A.suggest.captions[0] === A.caption && A.suggest.captions.length >= 2, 'save: more suggestions to pick from (' + JSON.stringify(A && A.suggest) + ')');
 ok(A && A.texts.length === 2 && A.texts[1].text === 'Cash today' && JSON.stringify(A.products) === '["iphone-15-pro"]', 'save: texts cleaned (control characters, empties), products de-duplicated and slug-checked');
 ok(A && A.image.width === 1080 && A.image.height === 1080 && A.image.bytes === J[0].length && A.image.url === ORIGIN + '/api/ads/feed/' + feedId + '/img/' + A.id + '.jpg?v=' + sha256(J[0]).slice(0, 12), 'save: the picture\'s size, bytes and a versioned link');
-ok(A && A.autopost === true && A.repost_days === 7 && A.post && A.post.slot_id === A.id + '@2026-10-05T12:00:00Z' && A.post.next_at === '2026-10-12T12:00:00Z' && A.post.round === 1, 'save: auto-post on, due now, again in 7 days');
+ok(A && A.status === 'review' && A.reviewed_at === null && A.autopost === false && A.repost_days === 0 && A.post === null, 'save: it waits in review, offered to nobody');
 
 r = await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[0]), title: 'again' } });
 ok(r.status === 200 && r.body.duplicate === true && r.body.item.id === A.id && r.body.count === 1, 'save: the same picture twice is one ad');
 
 r = await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[1]), title: 'Gold with a website', category: 'gold', hold: 'a website', autopost: true } });
 const H = r.body.item;
-ok(r.status === 201 && H.hold === 'a website' && H.autopost === false && H.post === null, 'save: a held picture is saved but never auto-posts');
-ok((await call('POST', '/ads/update', { as: 'free@x.example', body: { id: H.id, autopost: true } })).status === 409, 'update: a held ad cannot be switched to auto-post');
+ok(r.status === 201 && H.hold === 'a website' && H.status === 'review' && H.autopost === false && H.post === null, 'save: a held picture is saved, in review');
+ok((await call('POST', '/ads/update', { as: 'free@x.example', body: { id: H.id, status: 'approved' } })).status === 409, 'update: a held ad cannot be approved');
 
 dayOk = false;
 ok((await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[2]) } })).status === 429, 'save: over the day\'s count is 429');
 dayOk = true;
-r = await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[2]), title: 'Third', category: 'silver', autopost: false } });
+r = await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[2]), title: 'Third', category: 'silver', autopost: true, repost_days: 7 } });
 const C = r.body.item;
-ok(r.status === 201 && C.autopost === false && C.post === null, 'save: autopost false is kept');
+ok(r.status === 201 && C.status === 'review' && C.post === null && C.repost_days === 0 && C.title === 'We Buy Silver' && C.suggest.titles.includes('Third'), 'save: an old studio\'s autopost and schedule are ignored; the title it sent is a suggestion (' + JSON.stringify(C && { status: C.status, post: C.post, repost: C.repost_days, title: C.title, suggest: C.suggest }) + ')');
 ok((await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[3]) } })).status === 507, 'save: the plan\'s cap is 507');
 r = await call('GET', '/ads/mine', { as: 'pro@x.example' });
 ok(r.body.limit === 1000 && r.body.items.length === 0 && r.body.links.page !== L.page, 'another account: its own library, its own link, the Pro cap');
 ok((await call('GET', '/ads/mine', { as: 'boss@x.example' })).body.limit === 2000, 'an operator: the admin cap');
 
+/* review: nothing is on the public link until it is approved */
+r = await call('GET', '/ads/feed/' + feedId);
+ok(r.status === 200 && r.body.count === 0 && r.body.items.length === 0, 'feed: nothing before an approval');
+r = await call('GET', '/ads/mine', { as: 'free@x.example' });
+ok(r.body.count === 3 && r.body.counts.review === 3 && r.body.counts.approved === 0 && r.body.counts.denied === 0 && r.body.items.every((x) => x.suggest && x.suggest.titles.length), 'mine: every ad, three in review, each with suggestions');
+ok((await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, status: 'posted' } })).status === 400, 'update: the status is review, approved or denied');
+ok((await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, status: 'approved', caption: '' } })).status === 400, 'update: no approval without a description');
+ok((await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, title: '  ' } })).status === 400, 'update: an ad keeps a title');
+r = await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, status: 'approved', title: 'We Buy iPhones Today', caption: 'Cash for your iPhone, any condition.' } });
+const Aok = r.body.item;
+ok(r.status === 200 && Aok.status === 'approved' && Aok.title === 'We Buy iPhones Today' && Aok.caption === 'Cash for your iPhone, any condition.' && Aok.reviewed_at === '2026-10-05T12:00:00Z', 'update: approved with the title and description as edited');
+ok(Aok.autopost === true && Aok.repost_days === 0 && Aok.post && Aok.post.slot_id === A.id + '@2026-10-05T12:00:00Z' && Aok.post.next_at === null && Aok.post.round === 1, 'update: an approved ad is offered once, from its approval');
+r = await call('POST', '/ads/update', { as: 'free@x.example', body: { id: C.id, status: 'approved' } });
+ok(r.status === 200 && r.body.item.status === 'approved' && r.body.item.title === 'We Buy Silver', 'update: approved under its suggestion as it stands');
+
 /* the public link */
 r = await call('GET', '/ads/feed/' + feedId);
-ok(r.status === 200 && r.body.count === 3 && r.body.items.length === 3 && r.body.items[0].id === C.id, 'feed: every ad, newest first');
+ok(r.status === 200 && r.body.count === 2 && r.body.items.length === 2 && r.body.items[0].id === C.id && !r.body.items.some((x) => x.id === H.id), 'feed: the approved ads, newest first; the one in review is not there');
 ok(r.headers.get('access-control-allow-origin') === '*' && /noindex/.test(r.headers.get('x-robots-tag') || '') && /public, max-age=60/.test(r.headers.get('cache-control') || ''), 'feed: CORS, noindex, a minute\'s cache');
 ok(!JSON.stringify(r.body).includes('free@x.example') && !JSON.stringify(r.body).includes(await ownerKey('free@x.example')), 'feed: no email and no owner key in it');
-ok(!r.body.items.some((x) => 'sha256' in x || 'post_from' in x), 'feed: no internal fields');
-ok((await call('GET', '/ads/feed/' + feedId + '.json')).body.count === 3, 'feed: .json is the same');
-ok((await call('GET', '/ads/feed/' + feedId + '?category=gold')).body.items.map((x) => x.id).join() === H.id, 'feed: ?category= filters');
-ok((await call('GET', '/ads/feed/' + feedId + '?due=1')).body.items.map((x) => x.id).join() === A.id, 'feed: ?due=1 is what is due to post');
+ok(!r.body.items.some((x) => 'sha256' in x || 'post_from' in x || 'suggest' in x) && !('counts' in r.body), 'feed: no internal fields, no suggestions, no review counts');
+ok((await call('GET', '/ads/feed/' + feedId + '.json')).body.count === 2, 'feed: .json is the same');
+ok((await call('GET', '/ads/feed/' + feedId + '?category=silver')).body.items.map((x) => x.id).join() === C.id, 'feed: ?category= filters');
+ok((await call('GET', '/ads/feed/' + feedId + '?due=1')).body.items.map((x) => x.id).sort().join() === [A.id, C.id].sort().join(), 'feed: ?due=1 is what is offered to post');
 ok((await call('GET', '/ads/feed/fd_' + 'x'.repeat(24))).status === 404, 'feed: an unknown link is 404');
 ok((await call('GET', '/ads/feed/nonsense')).status === 404, 'feed: a malformed link is 404');
 ok((await call('POST', '/ads/feed/' + feedId, { body: {} })).status === 405, 'feed: POST is 405');
@@ -200,38 +220,43 @@ const rssCheck = (xml) => {
 };
 r = await call('GET', '/ads/feed/' + feedId + '.rss');
 ok(r.status === 200 && /application\/rss\+xml/.test(r.headers.get('content-type')) && rssCheck(r.text), 'rss: well-formed RSS');
-ok((r.text.match(/<item>/g) || []).length === 1 && r.text.includes('<guid isPermaLink="false">' + A.post.slot_id + '</guid>') && r.text.includes('<enclosure url="' + A.image.url.replace(/&/g, '&amp;') + '" length="' + J[0].length + '" type="image/jpeg"/>'), 'rss: one item, the due ad\'s slot, its picture as the enclosure');
+ok((r.text.match(/<item>/g) || []).length === 2 && r.text.includes('<guid isPermaLink="false">' + Aok.post.slot_id + '</guid>') && r.text.includes('<description>Cash for your iPhone, any condition.</description>') && r.text.includes('<enclosure url="' + A.image.url.replace(/&/g, '&amp;') + '" length="' + J[0].length + '" type="image/jpeg"/>'), 'rss: one item, the due ad\'s slot, its picture as the enclosure');
 
-/* the schedule */
+/* offered once: posting again is iPhones LA's, not the studio's */
 const slotsSeen = new Set();
 let posts = 0;
 for (let d = 0; d <= 21; d++) {
   clock = Date.UTC(2026, 9, 5, 12, 0, 0) + d * DAY + 3600000;
-  const due = (await call('GET', '/ads/feed/' + feedId + '?due=1')).body.items;
+  const due = (await call('GET', '/ads/feed/' + feedId + '?due=1')).body.items.filter((x) => x.id === A.id);
   for (const x of due) if (!slotsSeen.has(x.post.slot_id)) { slotsSeen.add(x.post.slot_id); posts++; }
 }
-ok(posts === 4, 'schedule: a weekly ad posts on days 0, 7, 14 and 21 (' + posts + ' posts)');
+ok(posts === 1, 'offered once: an approved ad is one slot over three weeks (' + posts + ')');
 clock = Date.UTC(2026, 9, 26, 13, 0, 0);
-r = await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, repost_days: 0 } });
-ok(r.status === 200 && r.body.item.post && r.body.item.post.next_at === null && r.body.item.post.slot_id === A.id + '@2026-10-05T12:00:00Z', 'schedule: "once" is the first slot, never again');
-ok((await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, repost_days: 4 } })).status === 400, 'update: only the offered schedules');
-await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, autopost: false } });
-r = await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, autopost: true, repost_days: 3, title: 'Renamed', caption: 'We buy iPhones, cash today' } });
-ok(r.body.item.post.slot_id === A.id + '@2026-10-26T13:00:00Z' && r.body.item.title === 'Renamed' && r.body.item.caption === 'We buy iPhones, cash today', 'update: switched back on is due again now; title and caption change');
-clock += 3 * DAY;
-ok(slotOf({ id: 'ad_x', created: 0, post_from: 0, autopost: true, repost_days: 3 }, 3 * DAY).round === 2, 'slotOf: the second slot after one period');
+r = await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, status: 'review' } });
+ok(r.status === 200 && r.body.item.status === 'review' && r.body.item.post === null && r.body.item.reviewed_at === null && !(await call('GET', '/ads/feed/' + feedId)).body.items.some((x) => x.id === A.id), 'update: back to review takes it off the link');
+r = await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, status: 'approved' } });
+ok(r.body.item.post.slot_id === A.id + '@2026-10-26T13:00:00Z', 'update: approved again is offered again, from then');
+clock += DAY;
+r = await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, title: 'Renamed', caption: 'We buy iPhones, cash today' } });
+ok(r.body.item.title === 'Renamed' && r.body.item.caption === 'We buy iPhones, cash today' && r.body.item.post.slot_id === A.id + '@2026-10-26T13:00:00Z', 'update: an edit to an approved ad changes its words, not its slot');
+ok((await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, caption: '' } })).status === 400, 'update: an approved ad keeps a description');
+r = await call('POST', '/ads/update', { as: 'free@x.example', body: { id: C.id, status: 'denied' } });
+ok(r.body.item.status === 'denied' && r.body.item.post === null && (await call('GET', '/ads/feed/' + feedId)).body.items.map((x) => x.id).join() === A.id, 'update: denied comes off the link');
+ok(slotOf({ id: 'ad_x', created: 0, post_from: 0, autopost: true, repost_days: 3 }) === null, 'slotOf: an ad saved before review waits in review, not on the link');
 
-ok((await call('POST', '/ads/settings', { as: 'free@x.example', body: { name: 'iPhones LA', repost_days: 14 } })).body.repost_days === 14, 'settings: the default schedule');
-ok((await call('POST', '/ads/settings', { as: 'free@x.example', body: { repost_days: 9 } })).status === 400, 'settings: only the offered schedules');
+ok((await call('POST', '/ads/settings', { as: 'free@x.example', body: { name: 'iPhones LA', repost_days: 14 } })).body.name === 'iPhones LA', 'settings: the name');
 ok((await call('GET', '/ads/feed/' + feedId)).body.name === 'iPhones LA', 'settings: the name is on the public link');
 
 r = await call('POST', '/ads/remove', { as: 'free@x.example', body: { id: C.id } });
-ok(r.status === 200 && r.body.count === 2, 'remove: gone from the library');
+ok(r.status === 200 && r.body.count === 2, 'remove: gone from the library (a denied ad)');
 ok((await call('GET', '/ads/feed/' + feedId + '/img/' + C.id + '.jpg')).status === 404 && ![...store.m.keys()].some((k) => k.endsWith(':' + C.id)), 'remove: its picture is deleted');
 ok((await call('POST', '/ads/remove', { as: 'free@x.example', body: { id: C.id } })).status === 404, 'remove: twice is 404');
 const proSaved = await call('POST', '/ads/save', { as: 'pro@x.example', body: { image: dataUrl(J[3]) } });
-ok(proSaved.status === 201 && proSaved.body.item.repost_days === 7, 'a new library posts weekly by default');
-ok((await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[3]) } })).body.item.repost_days === 14, 'settings: the next save takes the default');
+ok(proSaved.status === 201 && proSaved.body.item.status === 'review' && proSaved.body.item.post === null, 'a new library\'s first save waits in review');
+r = await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[3]), category: 'coins', texts: [{ role: 'headline', text: 'COINS WANTED' }] } });
+const D = r.body.item;
+ok(D && D.status === 'review', 'a save after approvals still waits in review');
+ok((await call('POST', '/ads/update', { as: 'free@x.example', body: { id: D.id, status: 'approved' } })).status === 200, 'update: a second ad approved');
 ok((await call('POST', '/ads/remove', { as: 'pro@x.example', body: { id: H.id } })).status === 404, 'remove: another account\'s ad is not yours');
 
 r = await call('POST', '/ads/link/reset', { as: 'free@x.example', body: {} });
@@ -239,7 +264,7 @@ const newFeed = r.body.links.page.split('=')[1];
 ok(r.status === 200 && newFeed !== feedId, 'reset: a new link');
 ok((await call('GET', '/ads/feed/' + feedId)).status === 404 && (await call('GET', '/ads/feed/' + feedId + '/img/' + A.id + '.jpg')).status === 404, 'reset: the old link and its pictures stop answering');
 r = await call('GET', '/ads/feed/' + newFeed);
-ok(r.status === 200 && r.body.count === 3 && (await call('GET', pathOf(r.body.items.find((x) => x.id === A.id).image.url))).status === 200, 'reset: the new link has the same ads and pictures');
+ok(r.status === 200 && r.body.count === 2 && (await call('GET', pathOf(r.body.items.find((x) => x.id === A.id).image.url))).status === 200, 'reset: the new link has the same approved ads and pictures');
 
 /* a video on an ad */
 const V = mp4(PART_BYTES * 2 + 12345);      // three parts: two full, one short
@@ -286,8 +311,8 @@ ok((await call('GET', '/ads/feed/' + newFeed + '/video/' + A.id + '.mp4', { head
 ok((await call('GET', '/ads/feed/' + newFeed + '/video/' + A.id + '.webm')).status === 404, 'video: the other extension is 404');
 ok((await call('GET', '/ads/feed/' + newFeed + '/video/ad_nothere1.mp4')).status === 404, 'video: an unknown ad is 404');
 r = await call('GET', '/ads/feed/' + newFeed);
-ok(r.body.items.find((x) => x.id === A.id).kind === 'video' && r.body.items.filter((x) => x.kind === 'photo').length === 2 && r.body.items.every((x) => 'video' in x && 'source' in x), 'feed: kind, video and source on every ad');
-ok((await call('GET', '/ads/feed/' + newFeed + '?kind=video')).body.items.map((x) => x.id).join() === A.id && (await call('GET', '/ads/feed/' + newFeed + '?kind=photo')).body.items.length === 2, 'feed: ?kind= filters');
+ok(r.body.items.find((x) => x.id === A.id).kind === 'video' && r.body.items.filter((x) => x.kind === 'photo').length === 1 && r.body.items.every((x) => 'video' in x && 'source' in x), 'feed: kind, video and source on every ad');
+ok((await call('GET', '/ads/feed/' + newFeed + '?kind=video')).body.items.map((x) => x.id).join() === A.id && (await call('GET', '/ads/feed/' + newFeed + '?kind=photo')).body.items.length === 1, 'feed: ?kind= filters');
 ok(!JSON.stringify(r.body).includes(vsha), 'feed: the video\'s full hash is not in it');
 r = await call('GET', '/ads/feed/' + newFeed + '.rss');
 ok(r.status === 200 && rssCheck(r.text) && r.text.includes('<media:content url="' + AV.video.url.replace(/&/g, '&amp;') + '" type="video/mp4" medium="video" width="1080" height="1080" duration="10"/>') && r.text.includes('<enclosure url="' + AV.image.url.replace(/&/g, '&amp;') + '"'), 'rss: the video rides as media:content beside the picture\'s enclosure');
@@ -352,7 +377,9 @@ ok(![...store.m.keys()].some((k) => k.endsWith(':' + PV.id)), 'remove: an ad tak
   ok(su.status === 200 && su.json.token, 'function: sign up');
   ok((await hit('GET', '/ads/mine')).status === 401, 'function: /ads/mine asks for a sign-in');
   const sv = await hit('POST', '/ads/save', { image: dataUrl(J[0]), category: 'phones' }, su.json.token);
-  ok(sv.status === 201 && sv.json.item.autopost, 'function: an operator saves an ad set to post (' + sv.status + ')');
+  ok(sv.status === 201 && sv.json.item.status === 'review', 'function: an operator saves an ad, in review (' + sv.status + ')');
+  const apv = await hit('POST', '/ads/update', { id: sv.json.item.id, status: 'approved' }, su.json.token);
+  ok(apv.status === 200 && apv.json.item.status === 'approved' && apv.json.item.post, 'function: approved, it is offered (' + apv.status + ')');
   const mine = await hit('GET', '/ads/mine', null, su.json.token);
   ok(mine.json.limit === 2000 && mine.json.items.length === 1, 'function: the operator\'s library and cap');
   const fid = mine.json.links.json.split('/').pop();
@@ -395,10 +422,10 @@ ok(![...store.m.keys()].some((k) => k.endsWith(':' + PV.id)), 'remove: an ad tak
     await runWorker(); await runWorker();
     if (!existsSync(join(W, 'posted.jsonl'))) throw new Error('nothing posted: ' + workerLog.slice(-400));
     const lines = readFileSync(join(W, 'posted.jsonl'), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
-    ok(lines.length === 1 && lines[0].id === sv.json.item.id && !lines[0].repost && lines[0].jpeg && lines[0].bytes === J[0].length, 'worker: the due ad posted once, its JPEG whole (' + JSON.stringify(lines) + ')');
+    ok(lines.length === 1 && lines[0].id === sv.json.item.id && !lines[0].repost && lines[0].jpeg && lines[0].bytes === J[0].length, 'worker: the approved ad posted once, its JPEG whole (' + JSON.stringify(lines) + ')');
     ok(lines.length === 1 && lines[0].kind === 'video' && lines[0].video === vb.length, 'worker: a video ad\'s clip reaches a post() that takes one, whole (' + JSON.stringify(lines) + ')');
     const st = JSON.parse(readFileSync(join(W, 'state.json'), 'utf8')).slots;
-    ok(Object.keys(st).length === 1 && st[sv.json.item.post.slot_id] && st[sv.json.item.post.slot_id].ref === 'listing-1', 'worker: the slot and the listing id are kept');
+    ok(Object.keys(st).length === 1 && st[apv.json.item.post.slot_id] && st[apv.json.item.post.slot_id].ref === 'listing-1', 'worker: the slot and the listing id are kept');
   } catch (e) { ok(false, 'worker: ' + String(e.stderr || e.message).slice(0, 300)); }
   try { execFileSync('python3', ['-m', 'unittest', 'test_autopost'], { cwd: HAND, env: Object.assign({}, process.env, { PYTHONDONTWRITEBYTECODE: '1' }), stdio: ['ignore', 'pipe', 'pipe'] }); }
   catch (e) { ok(false, 'test_autopost.py: ' + String(e.stderr || e.message).slice(-400)); }
@@ -511,26 +538,53 @@ async function browserPart() {
       if (!ok(await ask.isVisible(), 'browser (' + who.email + '): the download offers "Save to library"')) { await page.context().close(); continue; }
       await ask.getByRole('button', { name: 'Save to library' }).click();
       await page.waitForFunction(() => !document.querySelector('.adl-ask'), null, { timeout: 20000 });
-      await page.click('#nav-adlib');
-      await page.waitForFunction(() => { const i = document.querySelector('#adlib-overlay .adl-grid .adl-card img'); return i && i.complete && i.naturalWidth > 0; }, null, { timeout: 20000 });
+      /* the Library button is the owner's (2026-10-11); anyone else's library opens from code */
+      const libBtn = await page.evaluate(() => getComputedStyle(document.getElementById('nav-adlib')).display !== 'none');
+      ok(libBtn === who.admin, 'browser (' + who.email + '): the Library button shows only for the owner (' + libBtn + ')');
+      if (who.admin) await page.click('#nav-adlib'); else await page.evaluate(() => window.adLibrary.open());
+      await page.waitForFunction(() => { const i = document.querySelector('#adlib-overlay .adl-rv img'); return i && i.complete && i.naturalWidth > 0; }, null, { timeout: 20000 });
       const dlg = await page.evaluate(() => {
         const o = document.getElementById('adlib-overlay');
-        const card = o.querySelector('.adl-grid .adl-card');
-        return { link: o.querySelector('.adl-link input').value, cards: o.querySelectorAll('.adl-grid')[0].children.length,
-          held: card.querySelector('.adl-hold') ? card.querySelector('.adl-hold').textContent : '', auto: !!card.querySelector('input[type=checkbox]') && card.querySelector('input[type=checkbox]').checked,
-          img: card.querySelector('img').naturalWidth };
+        const card = o.querySelector('.adl-rv');
+        const ap = [...card.querySelectorAll('.adl-rv-acts button')].find((b) => /^Approve/.test(b.textContent));
+        return { link: o.querySelector('.adl-link input').value, cards: o.querySelectorAll('.adl-rvs .adl-rv').length, tab: (o.querySelector('.adl-tab.on') || {}).textContent,
+          held: card.querySelector('.adl-hold') ? card.querySelector('.adl-hold').textContent : '', title: card.querySelector('input[type=text]').value, caption: card.querySelector('textarea').value,
+          sugs: card.querySelectorAll('.adl-sug').length, approve: !!ap && !ap.disabled, auto: !!card.querySelector('input[type=checkbox]'), img: card.querySelector('img').naturalWidth };
       });
-      ok(dlg.cards === 1 && dlg.img > 0 && /master-library\.html\?feed=fd_/.test(dlg.link), 'browser (' + who.email + '): the Library dialog shows the saved ad and the public link (' + JSON.stringify(dlg) + ')');
+      ok(dlg.cards === 1 && dlg.img > 0 && /^To review \(1\)/.test(dlg.tab || '') && /master-library\.html\?feed=fd_/.test(dlg.link), 'browser (' + who.email + '): the saved ad waits in To review, beside the public link (' + JSON.stringify(dlg) + ')');
+      ok(dlg.title && dlg.caption && dlg.sugs >= 2 && !dlg.auto, 'browser (' + who.email + '): a suggested title and description to edit, more to tap, no auto-post switch (' + JSON.stringify(dlg) + ')');
       await shot(page, 'dialog-' + (who.admin ? 'operator' : 'free'));
-      if (who.admin) ok(dlg.auto && !dlg.held, 'browser: an operator\'s ad is set to auto-post');
-      else ok(/watermark/.test(dlg.held), 'browser: a free account\'s watermarked ad is held from auto-post (' + dlg.held + ')');
+      let approvedTitle = null;
+      if (who.admin) {
+        ok(dlg.approve && !dlg.held, 'browser: an operator\'s ad can be approved');
+        await page.fill('#adlib-overlay .adl-rv input[type=text]', 'We Buy iPhones Today');
+        const capSugs = page.locator('#adlib-overlay .adl-rv textarea + .adl-sugs .adl-sug');
+        const pick = await capSugs.nth(1).getAttribute('title');
+        await capSugs.nth(1).click();
+        const typed = await page.evaluate(() => document.querySelector('#adlib-overlay .adl-rv textarea').value);
+        ok(typed === pick, 'browser: a tap puts a suggested description in (' + typed + ')');
+        await page.locator('#adlib-overlay .adl-rv .adl-rv-acts button', { hasText: 'Approve' }).click();
+        await page.waitForFunction(() => /Approved \(1\)/.test(document.querySelector('#adlib-overlay .adl-tabs').textContent), null, { timeout: 20000 });
+        await page.click('#adlib-overlay .adl-tab[data-tab="approved"]');
+        const ap = await page.evaluate(() => { const c = document.querySelector('#adlib-overlay .adl-rv'); return { title: c.querySelector('input[type=text]').value, caption: c.querySelector('textarea').value, status: (c.querySelector('.adl-status') || {}).textContent }; });
+        ok(ap.title === 'We Buy iPhones Today' && ap.caption === pick && /On your link/.test(ap.status || ''), 'browser: approved as edited, in Approved and on the link (' + JSON.stringify(ap) + ')');
+        await shot(page, 'dialog-approved');
+        approvedTitle = ap.title;
+      } else ok(!dlg.approve && /watermark/.test(dlg.held), 'browser: a free account\'s watermarked ad cannot be approved (' + dlg.held + ')');
       const feedUrl = dlg.link.replace(/^https?:\/\/[^/]+/, BASE);
       const pub = await newPage();
       await pub.goto(feedUrl);
-      await pub.waitForFunction(() => { const i = document.querySelector('#grid-saved .ml-card img'); return i && i.complete && i.naturalWidth > 0; }, null, { timeout: 20000 });
-      const view = await pub.evaluate(() => ({ cards: document.querySelectorAll('#grid-saved .ml-card').length, feed: document.getElementById('ml-feed').textContent, finishedTab: document.querySelector('.ml-tabs').hidden && document.getElementById('sec-finished').hidden, img: document.querySelector('#grid-saved .ml-card img').naturalWidth, title: document.getElementById('ml-title').textContent }));
-      await shot(pub, 'public-' + (who.admin ? 'operator' : 'free'));
-      ok(view.cards === 1 && view.img > 0 && /JSON feed/.test(view.feed) && view.finishedTab, 'browser (' + who.email + '): the public page shows the ad and the feed, nothing of the owner\'s (' + JSON.stringify(view) + ')');
+      if (who.admin) {
+        await pub.waitForFunction(() => { const i = document.querySelector('#grid-saved .ml-card img'); return i && i.complete && i.naturalWidth > 0; }, null, { timeout: 20000 });
+        const view = await pub.evaluate(() => ({ cards: document.querySelectorAll('#grid-saved .ml-card').length, feed: document.getElementById('ml-feed').textContent, finishedTab: document.querySelector('.ml-tabs').hidden && document.getElementById('sec-finished').hidden, img: document.querySelector('#grid-saved .ml-card img').naturalWidth, name: document.querySelector('#grid-saved .ml-card b').textContent }));
+        await shot(pub, 'public-operator');
+        ok(view.cards === 1 && view.img > 0 && view.name === approvedTitle && /JSON feed/.test(view.feed) && view.finishedTab, 'browser: the public page shows the approved ad under its title, and the feed, nothing of the owner\'s (' + JSON.stringify(view) + ')');
+      } else {
+        await pub.waitForSelector('#grid-saved .ml-empty', { timeout: 20000 });
+        const view = await pub.evaluate(() => ({ cards: document.querySelectorAll('#grid-saved .ml-card').length, empty: document.querySelector('#grid-saved .ml-empty').textContent }));
+        await shot(pub, 'public-free');
+        ok(view.cards === 0, 'browser: an ad not approved is not on the public page (' + JSON.stringify(view) + ')');
+      }
       await pub.context().close();
       await page.context().close();
     }
@@ -608,7 +662,7 @@ async function browserPart() {
       await page.goto(BASE + '/index.html');
       await page.waitForFunction(() => window.adLibrary, null, { timeout: 30000 });
       await page.evaluate(() => window.adLibrary.open());   // before Easy Mode has loaded the account: the dialog loads it
-      await page.waitForSelector('#adlib-overlay .adl-card', { timeout: 20000 });
+      await page.waitForSelector('#adlib-overlay .adl-rv', { timeout: 20000 });
       const w = await page.evaluate(() => { const md = document.querySelector('#adlib-overlay .modal'); return { over: md.scrollWidth - md.clientWidth, page: document.documentElement.scrollWidth - window.innerWidth }; });
       await shot(page, 'dialog-390');
       ok(w.over <= 0 && w.page <= 0, 'browser: the Library dialog fits a phone (' + JSON.stringify(w) + ')');
@@ -731,8 +785,8 @@ async function browserPart() {
         return { popup, early: false, asked: !!ask, video: !!(ask && /video ad/.test(ask.textContent)) };
       });
       ok(askV.asked && askV.video && !askV.early, 'video: a video download offers "Save to library" for the video ad, after the helper\'s pop-up (' + JSON.stringify(askV) + ')');
-      await page.click('#nav-adlib');
-      await page.waitForSelector('#adlib-overlay .adl-grid .adl-card', { timeout: 20000 });
+      await page.evaluate(() => window.adLibrary.open());
+      await page.waitForSelector('#adlib-overlay .adl-rv', { timeout: 20000 });
       await page.waitForTimeout(400);
       const dlg = await page.evaluate(() => ({ kinds: document.querySelectorAll('#adlib-overlay .adl-kind').length, videoLinks: document.querySelectorAll('#adlib-overlay a.adl-x[download$=".webm"], #adlib-overlay a.adl-x[download$=".mp4"]').length }));
       ok(dlg.kinds >= 1 && dlg.videoLinks >= 1, 'video: the Library dialog marks the video ad and links its clip (' + JSON.stringify(dlg) + ')');
@@ -768,8 +822,9 @@ async function browserPart() {
       const gal = await page.evaluate(() => ({ thumbs: document.querySelectorAll('#gallery .mo-thumb').length, stars: document.querySelectorAll('#gallery .mo-thumb .adl-star').length }));
       ok(gal.thumbs > 0 && gal.stars === gal.thumbs, 'video maker: every look in the gallery carries a star (' + JSON.stringify(gal) + ')');
       await shot(page, 'maker-gallery');
-      await page.click('#mo-adlib');
-      await page.waitForSelector('#adlib-overlay.show .adl-card', { timeout: 20000 });
+      /* signed up before it was made an operator, so its Library link is still hidden: the dialog opens from code */
+      await page.evaluate(() => window.adLibrary.open());
+      await page.waitForSelector('#adlib-overlay.show .adl-rv', { timeout: 20000 });
       const mdlg = await page.evaluate(() => { const m = document.querySelector('#adlib-overlay .modal'); return { w: Math.round(m.getBoundingClientRect().width), bare: document.documentElement.classList.contains('adl-bare') }; });
       ok(mdlg.w > 300 && mdlg.bare, 'video maker: the Library link opens the dialog, styled without the studio\'s stylesheet (' + JSON.stringify(mdlg) + ')');
       await shot(page, 'maker-dialog');

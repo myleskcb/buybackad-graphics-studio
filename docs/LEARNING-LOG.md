@@ -4130,3 +4130,41 @@ menu, the video maker's link) start hidden and show for an operator account
 account's `onChange` elsewhere, so app.js is not edited for the library.
 The stars, Save to library and the plans' library are unchanged: another
 account can still save, and the server still serves its library.
+
+## 2026-10-11 — the ad library reviews before anything goes out (claude/compassionate-babbage-nv318r)
+
+Asked: the owner, of the 📚 Library: "make sure the library makes sense it
+needs to go to a place where we then configure the titles and descriptions or
+suggested ones show and we approve or deny or edit", then "But we will not make
+auto post from the graphic studio".
+
+Done:
+  - Every saved ad waits in **To review**; **Approved** and **Denied** beside
+    it. Only approved ads are on the public link (JSON, RSS, the page). An ad
+    saved before review existed has no status, so it waits in review too.
+  - Suggestions come from the ad's own words, never a phone number or
+    website: the headline layers joined (a "SELL YOUR" runs on into "IPHONE";
+    "CASH BUYER" and "WE BUY IPHONES" are joined by a dash), the sub and info
+    lines as sentences, badges as a list, "•" and "|" as commas, set back into
+    normal case with iPhone, iCloud, Pro Max, S26 and Apple Watch kept. The
+    plainer ones name only what the shop buys: nothing the ad does not say.
+  - The Auto-post switch and the repost schedules are gone from the studio.
+    An approved ad is offered once, its slot at its approval, in the feed's
+    old shape, so iPhones LA's worker reads it unchanged and posts each
+    approval once; posting again is iPhones LA's.
+  - A held ad (website, QR, address, handle, watermark) cannot be approved.
+    An approval needs a description; an approved ad keeps one.
+
+Found:
+  - The title the studio sends (a design's name) was offered as a suggestion
+    at the save and lost at the next read, because the save writes the best
+    suggestion over the title: it is kept as `sent_title`.
+  - The browser check clicked the Library button as a free account; since
+    that button is the owner's, the check opens the dialog from code there
+    and checks the button shows for the owner only.
+  - With the only ad approved, To review is empty: the dialog opens on To
+    review while anything waits there, then on Approved.
+
+Checked: `scripts/ad_library_check.mjs` (router, the real function, iPhones
+LA's worker posting the approved ad once, its own tests, and Chromium under
+the production CSP): no failures.
