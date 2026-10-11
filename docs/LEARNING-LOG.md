@@ -4331,3 +4331,73 @@ Measured: `motion_music_check.mjs` (with its new part 6) and
 RESUME HERE:
   0. If the owner wants confetti looks to draw only the brightest music too,
      the place is harmonise in motion/engine.js, beside the popper rule.
+
+## 2026-10-10 — a line the push buried; an Android on an iPhone card
+
+Studied:            Easy Mode's render of top_buyer with four selling points,
+                    pass by pass (alignPass step 3, fitInsideGuides, the
+                    tagline look), and where "Price Point"'s photograph came
+                    from.
+Measured:           Buried lines (a text 25%+ under an opaque rect drawn
+                    after it) over the 322 templates: 29 with four selling
+                    points, 0 without; after DESIGN-LAW 126, 0 and 0. Layout
+                    diff, every object's box, old app.js against new: 1 of 322
+                    without points (top_buyer), 69 with (all looked at), 0 of
+                    366 live library cards. top_buyer under all 32 colour
+                    choices: clear. Deploy workflow run 7: deploy step skipped.
+Changed:            app.js alignPass step 3 / 3b, applyBrandVocab;
+                    assets/showcase three records and thumbnails; DESIGN-LAW
+                    126; OPEN-ITEMS AX.
+Rejected:           Shrinking the column's textboxes as objects (scaleX/Y):
+                    the column grew narrower than the corner ticks and
+                    fitInsideGuides slid the card 35px off centre. A plate
+                    found by full containment of the line's box: a textbox's
+                    box (1000px) is wider than its own panel (941px), so the
+                    panel was never found. Writing all 31 dry-run re-grounds:
+                    coin faces with their lettering behind the copy.
+                    The script's first photograph for stepsFlow-du08-15 (the
+                    iPhone 15 lineup: the screens' "iPhone 15" beside the
+                    steps) and for stepsFlow-pa05-15 (a 13 Pro under red and
+                    blue light: saturation).
+Found:
+  - The live site is not deployed from main: deploy.yml skips without its
+    secrets, so the owner is looking at a build from before rule 117.
+  - A harness that renders two app.js builds side by side can show a
+    "missing photograph" that is only a photograph still decoding; render
+    again before believing it.
+RESUME HERE:
+  0. The deploy (OPEN-ITEMS §AX 1 / §AT 1).
+  1. NOT_A_GROUND for the lettered coin faces, then the 31 re-grounds (§AX 2).
+  2. Easy Mode's selling points inside the guides (§AX 3).
+
+## 2026-10-10 (later): what phone that was, and how it got onto an iPhone ad
+
+Studied:            dl_phones_priceAnchor_volt.jpg at full size; where the
+                    153 assets/bg photographs came from (SETUP.md's ORCHARD,
+                    MANIFEST.md, library.json, git history); the device
+                    catalogs as reference sets.
+Measured:           The phone: a Google Pixel 7 Pro / 8 Pro silhouette (visor
+                    camera bar, three lenses, the G), in the card's palette.
+                    Its record: prompt "", sha1 "", 0x0. In git since
+                    2026-09-27 with 152 others in one commit. Live cards on a
+                    retired ground: 61 (30 sports, 31 known, 0 new). Device
+                    entities: 125 with 281 real photographs; 39 of 60 video
+                    backs are repaints.
+Changed:            DESIGN-LAW 127; scripts/device_entities.mjs and
+                    assets/entities.json; scripts/retired_grounds_check.mjs;
+                    OPEN-ITEMS AX 5-7.
+Rejected:           (not tried) Putting an iPhone on the table by hand, a
+                    factory back warped flat onto it: a flat camera bump and
+                    the wrong light would make the picture worse. The edit
+                    wants a model given the reference photographs.
+                    The quote site's foldable "iPhone Duo" as a reference
+                    until the owner confirms it is the shipping product.
+Found:
+  - fal is refused by the cloud environment's network policy as well as
+    missing its key; Gemini's host is reachable but its key is absent too.
+  - A rule that retires an asset is only finished when a script fails on the
+    asset's use and the change is deployed.
+RESUME HERE:
+  0. The cloud environment: FAL_KEY and the fal hosts (OPEN-ITEMS AX 5).
+  1. Then upload assets/entities.json and replace the Pixel (AX 5, 6).
+  2. The deploy (AX 1).

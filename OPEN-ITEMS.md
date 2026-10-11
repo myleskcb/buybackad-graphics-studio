@@ -2915,3 +2915,82 @@ Still open:
 5. **`template-holds.js` predates the flagged pictures** (see Floating above):
    regenerate with `audit_templates.mjs --write` once the owner decides
    whether cards on flagged pictures leave the studio.
+
+## AX. 2026-10-10 — a line pushed under a plate, and a phone card that showed an Android (DESIGN-LAW 126, 117)
+
+The owner, of WE BUY iPHONES with four selling points ticked: "are we missing
+layers of details?" (the Subline field held the device list, the card did
+not show it); then, of a SELL YOUR iPHONE / WE PAY UP TO / CASH card: "also
+that's not an iphone".
+
+Done, on `claude/laughing-keller-c9tp89`:
+- **The subline (DESIGN-LAW 126).** `alignPass` step 3 pushed it under the
+  bottom bar after the ticks pushed the column down. A push that buries a
+  line now shrinks the column it moved instead. With four selling points,
+  29 cards buried a line and now 0 do; without them, every card is as it
+  was except `top_buyer`, whose subline also ran 9px under its bar. The 366
+  live library cards: 0 changed.
+- **iPHONE, not IPHONE.** The category's brand list was upper-cased without
+  `cleanText`; two lines change (`top_buyer`'s Subline,
+  `dl_phones_voltStack_volt`'s Info Text).
+- **The three live phone cards still on generated photographs** (rule 117
+  had moved the templates, not these): `stepsFlow-du08-15` stood on
+  `dl_phones_priceAnchor_volt.jpg`, the night skyline with a Pixel-style
+  Android on a stone table, the photograph in the owner's screenshot. It and
+  `stepsFlow-pa05-15` now stand on iPhone 14 Pro photographs,
+  `scriptRetro-du01-25` (WE BUY IPADS) on the amber iPad scene; looked at,
+  pinned, gated, thumbnails re-rendered.
+
+Still open:
+
+1. **The live site is not this code.** `deploy.yml` has run on every push
+   to `main` and skipped its deploy each time ("Nothing to do without the
+   secrets"; run 7, 2026-10-10, `d3432c6f`). The site is the last deploy
+   from the Mac, before 2026-10-01 (§AT 1). The owner's SELL YOUR iPHONE
+   screenshot is "Price Point" (`dl_phones_priceAnchor_volt`) as it was
+   before rule 117 (2026-10-04), on that generated photograph; in the code
+   it has stood on an iPhone 13 Pro since. Neither this fix nor rule 117 is
+   live until NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID are set, or the Mac
+   deploys.
+2. **31 more live cards on retired generated grounds**, outside sports
+   (`reground_showcase.mjs --skip-cats sports`, dry run 2026-10-10: 34
+   found, 31 with a real photograph that passes the gate, 3 with none:
+   `scriptRetro-jw05-16`, `voltStack-ck03-20`, `stepsFlow-jw08-35`). Not
+   written. Several of the script's picks put the copy over a coin's own
+   lettering ("IN GOD WE TRUST", "OF AMERICA": the Mercury dime, the Lincoln
+   wheat penny, the Liberty Head double eagle, the American Silver Eagle,
+   the Indian Head cent), which rule 117 rules out (`NOT_A_GROUND` names
+   only the older coin files). Those photographs want adding to
+   `NOT_A_GROUND` before the rest is pinned and written.
+3. **Easy Mode's own selling-points block** is set 30px from the edge,
+   outside the 6% guide, so the guides move the whole card to bring it in
+   (DESIGN-LAW 126, "Not done here").
+4. **Lines that go with a pushed line.** Step 3 moves words only. The ledger
+   rules between an offer card's model names, and a panel holding more than
+   one line, stay where they were drawn. With four selling points the
+   handheld and headset cards (`of_pchandheld_type_sand`,
+   `of_headset_type_arctic`) have their model names visible again, but
+   tight against their rules.
+5. **The Pixel's background, with a real iPhone on the table.** The owner
+   likes the picture ("it's a sick background"). Its phone is a Google Pixel
+   in the palette's neon (DESIGN-LAW 127). Replace it with a real iPhone drawn
+   from `assets/entities.json` (the 17 Pro in Deep Blue answers the navy and
+   cyan), by an image edit given the reference photographs, checked against
+   them before it is used. Blocked in the cloud sessions: no `FAL_KEY` in the
+   environment (Netlify having it does not reach the session), and the
+   network policy refuses `queue.fal.run` ("organization policy"). Both are in
+   the cloud environment's settings: the key under Network secrets or as an
+   environment variable, and the fal hosts under Allowed domains.
+6. **Device entities (N.1): the set is ready, not uploaded.**
+   `scripts/device_entities.mjs` writes `assets/entities.json`: 125 devices
+   (iPhone 34, iPad 27, Mac 40, Watch 13, AirPods 6, other 5) with 281
+   photographs, only authentic cut-outs, the shop's catalog shots and factory
+   backs. Left out: 9 cut-outs marked not authentic and 39 of the video maker's
+   60 phone backs, which are repaints (a 16 back in another finish) or failed.
+   Held: `iphone-duo`, a foldable iPhone render from the quote site, until the
+   owner confirms it is the shipping product. Uploading the set to fal, and
+   N.1's gate, wait on item 5's key and hosts.
+7. **What made the picture.** Only ORCHARD's `data/orchard.db` on the Mac
+   records the prompt and model for `dl_phones_priceAnchor_volt`, and whether
+   it was generated for the slot or picked from ORCHARD's library by its
+   colours. Worth a look when the Mac is at hand.
