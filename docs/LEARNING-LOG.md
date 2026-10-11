@@ -4055,3 +4055,33 @@ RESUME HERE:
   0. The deploy (OPEN-ITEMS §AT 1): the workflow's secrets, or the Mac.
   1. The per-card holds (§AT 2), if a chip is worth giving back.
   2. The salmon red (§AT 3).
+
+## 2026-10-11 — the colour builder's fades, made to be seen (claude/compassionate-babbage-nv318r)
+
+Asked: the owner, of Soft fade on a yellow background: "I don't think the
+fade effect works it just darkens the entire background no fade or
+gradient".
+
+Found:
+  - The fade stepped darker by the solver's own step, 0.04 in OKLCH
+    lightness (#ffd72d to #f1c904). Across a card that reads as the whole
+    colour a little darker, not a fade.
+  - On Light the words are dark, so darker is the way that costs them
+    contrast: a coloured light set had 0.03 to 0.07 of room that way, and
+    Deep fade was refused on every one of them. Lighter had room on every
+    light set, darker on every dark one (0.29 and more).
+  - So a fade goes the way that adds contrast: darker on Dark, lighter on
+    Light with the angle turned so the light end is at the top. Soft is
+    0.08, Deep 0.16; a near-white keeps its own step. The builder shows and
+    saves its sets in the Soft fade (`cbOffer`); `cbTheme` is unchanged, so
+    the house themes `house_themes.mjs` writes do not move.
+  - Drawing a near-white's second stop again from its first rounded one hex
+    step darker than the solver checked, and Navy & Pink on White fell to
+    4.499:1. The set's own stop is kept as drawn.
+  - Editing a saved Flat set showed Soft as chosen and drew Soft when the
+    background moved; the style a set was saved in is now its default.
+
+Measured (`colour_builder_audit.mjs --sets-only`): all checks pass; Soft
+steps 0.061 at the least off near-white; Deep is offered on 283 of 283
+coloured backgrounds (it was refused on every coloured light one).
+
