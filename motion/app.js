@@ -1,7 +1,7 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks } from "./catalog.js";
-import { Ad, ASPECTS, randomize, harmonise, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook } from "./engine.js";
+import { Ad, ASPECTS, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook } from "./engine.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
@@ -286,6 +286,9 @@ function buildPanel() {
       syncWords();
     }
     if (["voice", "voice_mood", "voice_cast"].includes(k)) state.style = applyVoice(state.style, (Math.random() * 1e9) | 0, state.locked);
+    // what was just picked stays; whatever would drown the phones' move gives way, said plainly
+    const clash = settleIdleClashes(state.style, state.locked, k);
+    if (clash.length) VH().toast(clash.join(" "));
     save(); rebuild();
   });
   design.addEventListener("click", e => {

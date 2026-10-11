@@ -350,7 +350,10 @@
     silver: [{ file:'silver-silverware-set-1', p90:206 }, { file:'silver-silver-cutlery-1', p90:183 }, { file:'silver-silver-jewelry-rings-2', p90:248 }],
     cars: [{ file:'cars-used-car-dealership-lot-1', p90:189 }, { file:'trucks-pickup-truck-1', p90:198 }, { file:'cars-classic-car-chrome-grille-1', p90:251 }],
     iphone: [{ file:'phones-iphone-15-pro-back-camera-1', p90:166 }, { file:'phones-iphone-14-pro-1', p90:118 }, { file:'phones-apple-iphone-15-1', p90:181 }],
-    mac: [{ file:'macbook-macbook-on-desk-1', p90:208 }, { file:'macbook-macbook-pro-m3-1', p90:198 }, { file:'macbook-macbook-air-2', p90:34 }],
+    /* 2026-10-11, the owner of the 11-inch Air on a desk: "this MacBook in the background is old design language ... We don't buy
+       so it's misrepresenting". The line buys M1 and newer: a 16-inch M4 Pro and an M2 Air stand in for that Air and for a keyboard
+       close-up that could not be dated; the M3 Pro stays. Their screens are lit by mac-wallpapers.js (BG_SCREENS). */
+    mac: [{ file:'macbook-macbook-pro-16-inch-2', p90:185 }, { file:'macbook-macbook-pro-m3-1', p90:198 }, { file:'apple-macbook-air-m2-1', p90:200 }],
     space: [{ file:'space-earth-from-iss-night-1', p90:130 }, { file:'space-earth-from-iss-night-3', p90:22 }, { file:'space-moon-surface-nasa-4', p90:99 }, { file:'space-earth-from-iss-night-4', p90:99 }, { file:'space-aurora-from-space-3', p90:172 }, { file:'space-galaxy-hubble-telescope-1', p90:170 }],
   };
   /* the gaming lines, gaming headsets and monitors stand in real gamers'

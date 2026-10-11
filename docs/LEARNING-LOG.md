@@ -4106,11 +4106,31 @@ left or right". It was. Three faults, all mine:
     look's photo is that held moment: twice in a row, every size passed.
   Lesson: a demo clip is a measurement. Hold everything but the thing
   compared still, and look at it before sending it.
+Then: "we wanna make sure there's no overlapping effects that may
+contradict the breathing in case we were to manually configure the effects
+... it says breathing, but doesn't breathe it appears broken".
+  - Measured, not listed from memory: scripts/motion_idle_audit.mjs sets
+    every value of every axis that moves anything by hand beside each move
+    and compares the move's change of the phones' box with everything
+    else's in half a second. Its first measure was raw luma, and film grain
+    and a light sweep failed as loudly as the pump; on shapes at a quarter
+    size (luma less its local mean) only things that move count.
+  - Three settings move the phones themselves: the beat pump, the hand-held
+    camera, a turntable's sway. IDLE_CLASHES; settleIdleClashes keeps what
+    was just picked by hand and says in a toast what gave way. Driven
+    through the real panel in both orders.
+  - First version: a shuffle that drew the sway left the phones still in 20
+    looks of 60. The sway now gives way in a shuffle; only a sway picked by
+    hand stills them.
+  - A float with no room to rise did nothing; it bobs down instead.
 
 RESUME HERE:
   0. The amplitudes are IDLE in motion/engine.js (turn 3.2 s, rise 4.5% of
      a phone, pulse 7%, breathe 3% over 4.5 s), should the owner want any
      move bigger or calmer.
+  1. A new effect that moves the phones or the whole picture: run
+     `node scripts/motion_idle_audit.mjs` (about 8 minutes) and add a row
+     to IDLE_CLASHES if it drowns a move.
 
 ## 2026-10-11 — the colour builder's fades, made to be seen (claude/compassionate-babbage-nv318r)
 
@@ -4280,6 +4300,12 @@ Found:
 Then the eighth layout, Detailed, a lit finish on the floating boxes, and
 the laptop screens lit by default on every studio card (the owner: "start
 putting the backgrounds in the computer"), one drawn wallpaper per card.
+
+And the screens in the MacBook photographs lit as well, after the owner
+caught an 11-inch Air behind an "M1 and newer" headline: a picture can
+misstate what is bought as surely as the words can. Two photographs replaced
+with an M4 Pro and an M2 Air; a keyboard close-up that cannot be dated is
+treated as wrong.
 
 RESUME HERE:
   0. Apple's own wallpaper files: the owner's licensing call (§AW 1).
@@ -4590,3 +4616,30 @@ RESUME HERE:
   0. `pgfx_video_sound` still has no control anywhere (the 2026-10-07 entry
      found it); if the owner wants one, the place is Create video's pop-up
      (`previewVideo`), not a row on step 3.
+
+## 2026-10-11 — upload to the library, ported onto the outbox; the About table on a phone (claude/exciting-thompson-xtdq5g)
+
+Asked: "fix", of what was left: the site not updating, the library upload
+from 2026-10-07 left unmerged, and the About page scrolling sideways.
+
+Done:
+  - ⬆ Upload a photo or video, Add video and Remove video in the Library
+    dialog, ported from `claude/laughing-bardeen-uyh2xt` ab9e1fc5 onto
+    today's outbox (the dialog had changed too much to merge). An upload is
+    offered like every save; a video needs Pro or Business, and a refused
+    one takes its photo off again, so nothing is left half-saved.
+  - about.html's plans table scrolls inside its own box on a phone, the row
+    labels pinned; no page on pages.css scrolls sideways at 360 or 390.
+  - The site: `main` reached `claude/fervent-pascal-w6mthe` twice and
+    Netlify published neither (still 0bafc3be). The cloud session cannot
+    reach any Netlify host, so the deploy list is the owner's to read.
+
+Found:
+  - A test that waits for words the page already shows passes early: the
+    upload row says "(Pro and Business)", and the first refusal test matched
+    it while the upload was at 20%. Wait for the refusal's own toast.
+  - The outbox check counted every input on a card as a switch; Add video's
+    hidden file picker is not one.
+
+Checked: ad_library_check no failures (upload, Add video, Remove video, a
+free account's refused video).

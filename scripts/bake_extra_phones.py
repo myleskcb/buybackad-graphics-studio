@@ -14,6 +14,7 @@ from real parts (repaint=true in index.json):
     camera patched out and the generation's square diagonal-lens plateau from
     Apple's straight-on render set in, then painted.
 
+Run scripts/clean_phone_edges.py first (the 14 and 15 are built on the 16 White).
 Check the result with scripts/audit_phone_views.py and motion/views-sheet.html.
 
 Run:  python3 scripts/bake_extra_phones.py   (needs pillow, numpy, scipy, scikit-image)
@@ -24,6 +25,8 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 from skimage import color
+
+from phone_rim import clean_rim
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "motion" / "phones"
@@ -114,9 +117,10 @@ def sharpness(im):
 
 
 def finish_back(im, w, pid):
-    """Match the existing set: trimmed edge to edge, w x 900, same softness, same encode."""
+    """Match the existing set: trimmed edge to edge, w x 900, a clean rim (phone_rim),
+    same softness, same encode."""
     alpha = im.getchannel("A").point(lambda v: 255 if v > 128 else 0)
-    im = im.crop(alpha.getbbox()).resize((w, H), Image.LANCZOS)
+    im = clean_rim(im.crop(alpha.getbbox()).resize((w, H), Image.LANCZOS))
     r = 0.0
     while sharpness(im) > SHARP and r < 2:
         r += 0.1
@@ -182,14 +186,6 @@ def straighten(src):
     return img
 
 
-# Apple's own straight-on renders, one per generation: (file, plateau box in px).
-# The plateau is lit from the front in these, so it reads true at any turn;
-# the only full-size back is shot from the right and its camera is not.
-MODULES = {
-    "16": ("qs-iphone-16-pro-max.webp", (11, 11, 148, 146)),   # White Titanium
-    "15": ("qs-iphone-15-pro.webp", (13, 11, 143, 146)),       # Natural Titanium
-    "14": ("qs-iphone-14-pro-max.webp", (11, 15, 143, 146)),   # Deep Purple
-}
 # Apple's published height x width, mm. A Pro and its Pro Max carry the same camera:
 # lens centres 20.5, 20.1, 17.2 mm apart on both 14 renders, 19.4 and 20.7 on the 15
 # and 16, the left lens 14 mm in on all six. So the plateau is placed and sized in
@@ -197,7 +193,9 @@ MODULES = {
 # (.53 of it was the Pro Max's camera 5% large and the Pro's small).
 MM = {"iPhone 14 Pro": (147.5, 71.5), "iPhone 14 Pro Max": (160.7, 77.6),
       "iPhone 15 Pro": (146.6, 70.6), "iPhone 15 Pro Max": (159.9, 76.7),
-      "iPhone 16 Pro": (149.6, 71.5), "iPhone 16 Pro Max": (163.0, 77.6)}
+      "iPhone 16 Pro": (149.6, 71.5), "iPhone 16 Pro Max": (163.0, 77.6),
+      "iPhone 14": (146.7, 71.5), "iPhone 14 Plus": (160.8, 78.1),
+      "iPhone 15": (147.6, 71.6), "iPhone 15 Plus": (160.9, 77.8)}
 # The Pro plateau as Apple drew it (owner, 2026-10-11: "doesn't really look quite
 # OEM ... as natural as possible without the shiny glimmer"). Taking the colour out
 # of a render, setting it on a grey and painting it back left flat black lenses
@@ -253,11 +251,11 @@ def render_scale(f):
     a = np.asarray(Image.open(CUT / f).convert("RGBA"))[..., 3] > 128
     col, row = a[:, 30], a[a.shape[0] // 2]
     top, bot = np.argmax(col), len(col) - 1 - np.argmax(col[::-1])
-    model = "iPhone " + f[len("qs-iphone-"):-len(".webp")].replace("-pro-max", " Pro Max").replace("-pro", " Pro")
+    model = "iPhone " + f[len("qs-iphone-"):-len(".webp")].replace("-pro-max", " Pro Max").replace("-pro", " Pro").replace("-plus", " Plus")
     return (bot - top + 1) / MM[model][0], int(np.argmax(row)), int(top)
 
 
-def module_oem(gen, tint, px_mm):
+def module_oem(gen, tint, px_mm, table=None, lidar=True):
     """The generation's plateau as Apple rendered it, its metal moved to the finish.
     Down to a darker finish the metal's colour is scaled in linear light by the
     finish over the render's back colour, as a darker paint under the same light,
@@ -268,7 +266,7 @@ def module_oem(gen, tint, px_mm):
     inside them) and the flash keep the render's own colour: glass whatever the finish.
     Returns the plateau at `px_mm` and where it goes on the back."""
     from scipy import ndimage
-    f, box, (fx, fy, fr) = min(OEM[gen], key=lambda r: abs(render_back(r[0])[0] - hex_lab(tint)[0]))
+    f, box, (fx, fy, fr) = min((table or OEM)[gen], key=lambda r: abs(render_back(r[0])[0] - hex_lab(tint)[0]))
     s, left, top = render_scale(f)
     side = round((box[2] - box[0] + box[3] - box[1]) / 2 / s * px_mm)
     size = (side, side)
@@ -283,14 +281,22 @@ def module_oem(gen, tint, px_mm):
     big = 1 + np.nonzero(ndimage.sum(dark, parts, range(1, n + 1)) > dark.size * .002)[0]
     yy, xx = np.mgrid[0:size[1], 0:size[0]]
     flash = np.hypot(xx - fx * size[0], yy - fy * size[1]) < fr * size[0] * 1.05
-    keep = np.isin(parts, big) | (off_lidar(L, size) < .05) | flash
+    keep = np.isin(parts, big) | flash
+    if lidar:
+        keep |= off_lidar(L, size) < .05
     k = 1 - ndimage.gaussian_filter(keep.astype(float), 1.0)
-    # what the metal is moved from: the render's back for lightness, the plateau's
-    # own metal for hue (Blue Titanium's plateau is bluer than its back, b -9 to -6,
-    # and left a Black Titanium camera blue)
+    # What the metal is moved from and to. The render's back gives the lightness. The
+    # plateau's own tint goes to the finish's at the render's ratio of plateau tint
+    # to back tint: a 15's camera is the deeper shade of its back (2.0 on Apple's
+    # Pink, 2.7 on its Blue, where the plateau came out greyer than the back), and
+    # Blue Titanium's plateau is bluer than its back (1.6), which a Black Titanium,
+    # with no tint to deepen, does not take on (it had, from the plateau's own blue).
     back = render_back(f)
-    back[1:] = np.median(color.rgb2lab(c)[k > .9][:, 1:], axis=0)
-    up = hex_lab(tint)[0] > back[0]
+    pm = np.median(color.rgb2lab(c)[k > .9][:, 1:], axis=0)
+    t = hex_lab(tint)
+    t[1:] *= np.clip(np.hypot(*pm) / max(np.hypot(*back[1:]), 2), .5, 3)
+    back[1:] = pm
+    up = t[0] > back[0]
     # Polished parts keep the render's lightness and take the finish's tint: the
     # flash, which kept Deep Purple's lavender on Space Black and Gold, and going up
     # to a lighter finish the steel lens rims with the dark ring inside them. Rims
@@ -306,14 +312,15 @@ def module_oem(gen, tint, px_mm):
     lab_c = color.rgb2lab(c)
     # a flash shows a third of its finish's tint on Apple's coloured renders (Blue
     # Titanium .34, Deep Purple .33), a polished rim all of it (.7-1.1)
-    lab_c[..., 1:] += (hex_lab(tint)[1:] - back[1:]) * np.clip(lab_c[..., :1] / 60, 0, 1) * np.where(flash, 1 / 3, 1)[..., None]
+    # (the black ring inside a rim stays black: no tint under L 25, all of it by 55)
+    lab_c[..., 1:] += (t[1:] - back[1:]) * smooth(lab_c[..., :1], 25, 55) * np.where(flash, 1 / 3, 1)[..., None]
     c = c * (1 - tw) + np.clip(color.lab2rgb(lab_c), 0, 1) * tw
     k = k * (1 - tw[..., 0])
     if not up:
-        to = lin(np.array([int(tint[i:i + 2], 16) for i in (1, 3, 5)]) / 255)
+        to = lin(np.clip(color.lab2rgb(t[None, None])[0, 0], 0, 1))
         new = srgb(lin(c) * (to / lin(np.clip(color.lab2rgb(back[None, None])[0, 0], 0, 1))))
     else:
-        new = color.rgb2lab(c) + (hex_lab(tint) - back)
+        new = color.rgb2lab(c) + (t - back)
         knee = 90
         new[..., 0] = np.where(new[..., 0] > knee, knee + (100 - knee) * np.tanh((new[..., 0] - knee) / (100 - knee)), new[..., 0])
         new = color.lab2rgb(np.clip(new, [0, -128, -128], [100, 127, 127]))
@@ -329,28 +336,6 @@ def _tones(f, box):
     rest = L[L > glass * 1.4]
     q1, q3 = np.percentile(rest, [25, 75])
     return glass, float(np.median(rest)), float(q3 - q1)
-
-
-def module_neutral(f, box, size, to_med=None, to_spread=None, lidar=True):
-    """A straight-on plateau from Apple's render, colour taken out, its tones set
-    on a common grey (the 16 Pro White's unless given) so every generation paints
-    alike. The lens glass, and on a Pro the LiDAR, keep their own darks."""
-    m = Image.open(CUT / f).convert("RGBA").crop(box).resize(size, Image.LANCZOS)
-    lab = color.rgb2lab(np.asarray(m)[..., :3] / 255)
-    glass, med, spread = _tones(f, box)
-    _, med16, spread16 = _tones(*MODULES["16"])
-    to_med = med16 if to_med is None else to_med
-    to_spread = spread16 if to_spread is None else to_spread
-    L = lab[..., 0]
-    # stretch the spread only a little: a low-res render posterises
-    mapped = np.clip(to_med + (L - med) * min(1.25, to_spread / spread), 0, 100)
-    k = smooth(L, glass * .8, glass * 1.6)
-    if lidar:
-        k = k * off_lidar(L, size)
-    lab[..., 0] = L * (1 - k) + mapped * k
-    lab[..., 1:] = 0
-    rgb = (np.clip(color.lab2rgb(lab), 0, 1) * 255).round().astype(np.uint8)
-    return Image.fromarray(np.dstack([rgb, np.asarray(m)[..., 3]]), "RGBA"), to_med
 
 
 def harmonic(img, D):
@@ -441,44 +426,39 @@ def rrect_mask(size, r, blur=1.5):
     return m.filter(ImageFilter.GaussianBlur(blur))
 
 
-# The 14 and 15 from Apple's straight-on renders: (file, plateau box in px, size
-# and offset in phone widths, measured off the render).
-BASE_MODULES = {
-    "15": ("qs-iphone-15.webp", (13, 13, 122, 123), .445, .045),
-    "14": ("qs-iphone-14.webp", (8, 12, 120, 123), .457, .045),
+# The 14 and 15 from Apple's straight-on renders, as the Pros: (file, plateau box
+# in px, flash centre and radius in box widths), measured off the render. Their
+# camera went the grey-and-paint way the Pros' did, flat black lenses with grey
+# glints, and at one share of the width for a 15 and a 15 Plus alike.
+BASE_OEM = {
+    "15": [("qs-iphone-15.webp", (13, 13, 122, 123), (.75, .23, .09))],    # Blue
+    "14": [("qs-iphone-14.webp", (8, 12, 120, 123), (.74, .21, .089))],    # Blue
 }
 
 
-def base_composite(gen):
+def base_body():
+    """The clean iPhone 16 White back, its pill camera patched out with the
+    (mirrored) clean top-right corner."""
     body = Image.open(OUT / "16-white.webp").convert("RGBA")
-    W = body.width
-    # patch out the pill camera with the (mirrored) clean top-right corner
     mir = body.transpose(Image.FLIP_LEFT_RIGHT)
     fm = Image.new("L", body.size, 0)
     ImageDraw.Draw(fm).rounded_rectangle((8, 8, 195, 280), 30, fill=255)
     fm = fm.filter(ImageFilter.GaussianBlur(6))
-    body = Image.composite(mir, body, fm)
-    bl = color.rgb2lab(np.asarray(body)[..., :3] / 255)
-    body_l = float(np.median(bl[..., 0][np.asarray(body)[..., 3] > 250]))
-    f, box, size, at = BASE_MODULES[gen]
-    side = round(W * size)
-    # the plateau sits a touch darker than the glass around it, as on the phone
-    mod, _ = module_neutral(f, box, (side, side), to_med=body_l - 4, to_spread=_tones(f, box)[2], lidar=False)
-    body.paste(mod, (round(W * at), round(W * at)), rrect_mask((side, side), round(side * .22)))
-    return body, body_l
+    return Image.composite(mir, body, fm)
 
 
 def bake_base():
-    bodies = {}
-    for gen in BASE_MODULES:
-        body, body_l = base_composite(gen)
-        a = np.asarray(body).astype(float)
-        lab = color.rgb2lab(a[..., :3] / 255)
-        bodies[gen] = (body, body_l, smooth(lab[..., 0], 45, 75) * (a[..., 3] > 0))
+    body = base_body()
+    a = np.asarray(body).astype(float)
+    lab = color.rgb2lab(a[..., :3] / 255)
+    body_l = float(np.median(lab[..., 0][a[..., 3] > 250]))
+    weight = smooth(lab[..., 0], 45, 75) * (a[..., 3] > 0)
     out = []
     for pid, model, finish, target, w in BASE:
-        body, body_l, weight = bodies[pid[:2]]
-        finish_back(paint(body, weight, target, body_l, 0.9), w, pid)
+        im = paint(body, weight, target, body_l, 0.9)
+        mod, at = module_oem(pid[:2], target, im.width / MM[model][1], BASE_OEM, lidar=False)
+        im.paste(mod, at, rrect_mask(mod.size, round(mod.width * .22)))
+        finish_back(im, w, pid)
         out.append(dict(id=pid, model=model, finish=finish, metal=lab_hex(hex_lab(target) - [8, 0, 0]),
                         w=w, h=H, repaint=True, ok=True))
     return out

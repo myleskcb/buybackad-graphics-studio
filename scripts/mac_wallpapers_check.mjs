@@ -21,6 +21,9 @@
  *             audits) draws the card as designed: a studio card with its own
  *             wallpaper, the same one every time, a library card unlit
  *             (its thumbnail and library render are baked);
+ *   behind    a studio card standing on a MacBook photograph with a screen
+ *             (BG_SCREENS) has that screen lit on AUTO, and dark (never the
+ *             photograph's store page) on OFF where the photograph asks;
  *   designer  the hand-off keeps the lit screen, saves it as its recipe (the
  *             cut-out's address, no picture data) and lights it again when
  *             the canvas is loaded from what it saved.
@@ -83,11 +86,15 @@ const res = await page.evaluate(async () => {
     await ensureTplAssets(ezTpl()); await document.fonts.ready;
     $('ez-phone').value = '(562) 999-4994';
     const render = key => { MW.screen.key = key; const sc = renderEzCanvas(1080, 'png', undefined, undefined, 'square', true);
-      const r = pgCheck(sc), lit = litOf(sc).length; sc.dispose(); return { fails: r.fails.map(f => f.code + ':' + f.line), lit }; };
+      const b = sc.backgroundImage, bgLit = !!(b && b._element && b._element.tagName === 'CANVAS');
+      const r = pgCheck(sc), lit = litOf(sc).length; sc.dispose(); return { fails: r.fails.map(f => f.code + ':' + f.line), lit, bgLit }; };
     const off = render('off'), row = { id: card.id, off: off.fails.length, checked: 0 };
     if (off.lit) fail(card.id, 'lit with the screen off');
     const library = /^sc-/.test(card.id), auto = render(null);
     if (library ? auto.lit : !auto.lit) fail(card.id, library ? 'a library card lit on AUTO' : 'a studio card not lit on AUTO');
+    const behind = !library && MW.bgScreenOf(ezTpl().bg && ezTpl().bg.src);
+    if (behind && !auto.bgLit) fail(card.id, 'the MacBook in the background photograph is not lit on AUTO');
+    if (behind && behind.offDark && !off.bgLit) fail(card.id, 'OFF shows the background photograph\'s own store screen');
     for (const key of keys.concat(MW.photos.map(ph => ph.key), 'own')){
       const on = render(key); row.checked++;
       if (!on.lit) fail(card.id + ' ' + key, 'the screen did not light');

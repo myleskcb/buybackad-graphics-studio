@@ -229,6 +229,14 @@ the ads fresh. The studio sets no schedule and has no Auto-post switch
 (`docs/iphonesla-library/README.md` has the contract). An ad that shows a
 website, a QR code, a street address or a social handle, or carries the
 watermark, is saved but held: never offered.
+**⬆ Upload a photo or video** in the Library dialog takes an ad made
+anywhere, from this device: a JPG or PNG as it is, or an MP4 or WebM whose
+photo is its best frame, read out of the file; **Add video** on a photo ad
+puts a clip onto it, **Remove video** takes it off. An upload is not gated
+or counted (it was not made here) and is offered like every save; with no
+layers to read it is not checked for a website, and iPhones LA reviews it
+before posting. A video upload needs Pro or Business; a refused one leaves
+nothing behind.
 Caps: the plan's (Free 12, Starter 300, Pro 1,000, Business 3,000), operators
 the biggest plan's (`ADLIB_MAX_FREE`, `ADLIB_MAX_PRO`, `ADLIB_MAX_ADMIN`), 100 saves a day (`ADLIB_DAILY`). It needs the real backend
 (`JWT_SECRET` set): in demo mode the dialog says so.

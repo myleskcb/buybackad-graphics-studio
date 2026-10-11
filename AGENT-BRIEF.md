@@ -516,6 +516,9 @@ produced." DESIGN-LAW rule 87. In practice:
   own wallpaper files are not shipped: Apple's artwork, the owner's call;
   twelve free-licensed photographs of the same places (Commons, credited in
   assets/bg-web/ATTRIBUTION.json) lead the group and load on first use.
+  The MacBook photographs the offer cards stand on light their screens too
+  (`BG_SCREENS`), with the product's wallpaper; the mac line shows M1 and
+  newer only, in pictures as in words.
   Check: `node scripts/mac_wallpapers_check.mjs`.
 - **Real photographs only** (rule 117, 2026-10-04): no generated scene
   (`assets/bg/dl_*`) or drawn ground (`dg_cast`) behind a card or template
