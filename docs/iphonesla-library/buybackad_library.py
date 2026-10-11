@@ -207,15 +207,16 @@ class BuybackadLibrary:
 
 class BuybackadFeed:
     """The ad library's public link: the ads saved in the BUYBACK.AD studio
-    (📚 Library), and which of them are due to post.
+    (📚 Library), and which of them are offered today.
 
-    Each ad set to auto-post carries `post`: {"slot_id", "due_at", "next_at",
-    "round"}. It is due when it is saved (or switched on) and again every
-    `repost_days` days (0: once). A poster keeps the slot ids it has posted:
-    an ad whose current slot_id is not among them is due, so each ad is
-    posted once per slot, and posted again when its next slot comes. An ad
-    with `hold` set (it shows a website, a QR code, an address or a handle,
-    or carries the watermark) never has a slot.
+    Each ad is offered once a day for seven days from when it was saved
+    (`fresh_until`): it carries `post`: {"slot_id", "due_at", "next_at",
+    "round"}, a new slot each day, round 1 to 7. A reader keeps the slot ids
+    it has taken: an ad whose current slot_id is not among them is due, so
+    each ad comes once a day for its seven days. Past them (`fresh` false),
+    or with `hold` set (it shows a website, a QR code, an address or a handle,
+    or carries the watermark), it has no slot. Approval and posting are the
+    site's (autopost_worker.py).
     """
 
     def __init__(self, feed_url: str, timeout: float = 15.0):
@@ -254,8 +255,8 @@ class BuybackadFeed:
             raise LibraryError(f"BUYBACK.AD ad library unreachable: {e}") from None
 
     def due(self, posted=(), category: str | None = None) -> list:
-        """The ads to post now: set to auto-post, not held, and whose current
-        slot is not in `posted` (the slot ids already posted). Oldest due first."""
+        """The ads offered today: fresh, not held, and whose current slot is
+        not in `posted` (the slot ids already taken). Oldest due first."""
         seen = set(posted)
         items = [a for a in self.read(category).get("items", [])
                  if a.get("post") and not a.get("hold") and a["post"].get("slot_id") not in seen]

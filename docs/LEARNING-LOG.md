@@ -4169,9 +4169,9 @@ use the same imagery for seven days per unique ad that is our maximum",
 
 Done:
   - A review screen with its own suggestions was built in the studio first
-    and dropped before merging: the titles have to come from iPhones LA's
-    own title and description maker, and approval is done on its listings
-    site. What stayed is the outbox.
+    and reached `main` with #11's first commit; this replaces it: the titles
+    have to come from iPhones LA's own title and description maker, and
+    approval is done on its listings site. What stays is the outbox.
   - Every ad saved is on the link at once, picture and video, with its
     words, category and products. No Auto-post switch and no schedule in
     the studio; an old studio's autopost and repost_days are ignored.
@@ -4195,6 +4195,14 @@ Found:
 Checked: `scripts/ad_library_check.mjs` (router, the real function, iPhones
 LA's worker, its tests, Chromium under the production CSP) and
 `scripts/library_handoff_check.mjs`: no failures.
+
+  Later the same day: the reference worker (docs/iphonesla-library/
+  autopost_worker.py) posted whatever the feed offered, so run as it was it
+  would have posted every saved ad daily with nobody approving. It is review
+  first now: `intake` takes each ad into the site's review once, `approved`
+  is the site's answer (approval and the day's buying-ad share), and nothing
+  is posted without it; `--post` without `--approved` is refused.
+  test_autopost.py has eleven checks; the zip is repacked.
 
 ## 2026-10-11 — the gaming cards leave the drawn rooms (OPEN-ITEMS §AU)
 
