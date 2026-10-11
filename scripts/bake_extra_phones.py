@@ -190,6 +190,18 @@ MODULES = {
     "14": ("qs-iphone-14-pro-max.webp", (11, 15, 143, 146)),   # Deep Purple
 }
 MOD_AT, MOD_SIZE = .034, .53     # plateau offset and size, in phone widths (the renders, measured)
+# Not too shiny (owner, 2026-10-11: "the highlight looks excessive ... too shiny or
+# fake"), measured on the real dark backs (16 Black, 17 Pro Max Deep Blue, 18 Pro
+# Black, 18 Pro Max Burgundy) and Apple's dark renders (14 and 15 Pro Max):
+#   the light down the back falls 5-10 L top to bottom on those (the 15 Pro Max
+#   render 9). The photo under every Pro falls 24 and 0.8 of it left the dark ones
+#   at 19-24, a glare; light ones fall 12-15 in both, as 0.55 of it does.
+#   the plateau's brightest 1% sits 40-50 L over its metal there, and none of it
+#   white. Highlights left unpainted stayed white on a dark finish (4-6% of the
+#   14's and 15's plateau at L 90 or more), so they peak at most HI over the
+#   finish: all of that on a dark one, none on a light one (55 L and up).
+LIGHT_DARK, LIGHT_LIGHT = 0.45, 0.55
+HI = 45
 WORK_H = 1800
 
 
@@ -211,11 +223,18 @@ def module_neutral(f, box, size, to_med=None, to_spread=None, lidar=True):
     lab = color.rgb2lab(np.asarray(m)[..., :3] / 255)
     glass, med, spread = _tones(f, box)
     _, med16, spread16 = _tones(*MODULES["16"])
+    lifted = to_med is None and med < med16
     to_med = med16 if to_med is None else to_med
     to_spread = spread16 if to_spread is None else to_spread
     L = lab[..., 0]
     # stretch the spread only a little: a low-res render posterises
-    mapped = np.clip(to_med + (L - med) * min(1.25, to_spread / spread), 0, 100)
+    mapped = to_med + (L - med) * min(1.25, to_spread / spread)
+    if lifted:
+        # a darker render lifted to the grey runs its highlights past white (the
+        # 14's Deep Purple sits 50 L under it): roll them off, not clip them flat
+        knee = 90
+        mapped = np.where(mapped > knee, knee + (100 - knee) * np.tanh((mapped - knee) / (100 - knee)), mapped)
+    mapped = np.clip(mapped, 0, 100)
     k = smooth(L, glass * .8, glass * 1.6)
     if lidar:                                       # found, not assumed: the dark dot low on the right
         yy, xx = np.mgrid[0:size[1], 0:size[0]]
@@ -304,20 +323,34 @@ def bake_pro():
     mmask = rrect_mask((side, side), round(side * .2), blur=1.2)
     out = []
     for pid, model, finish, target, w in PRO:
-        if target is None:
-            im = clean
-        else:
-            dark = hex_lab(target)[0] < 40
-            im = paint(clean, weight, target, body_l, 0.8 if dark else 0.55)
+        tint = target or blue
+        dark = hex_lab(tint)[0] < 40
+        im = paint(clean, weight, tint, body_l, LIGHT_DARK if dark else LIGHT_LIGHT)
         # the plateau and lens rings in the finish's colour, the glass left dark
         mod, ref = mods[pid[:2]]
         ml = color.rgb2lab(np.asarray(mod)[..., :3] / 255)[..., 0]
-        mod = paint(mod, smooth(ml, 38, 68) * (1 - smooth(ml, 86, 94)), target or blue, ref, 0.6)
+        mod = dim_highlights(paint(mod, smooth(ml, 38, 68) * (1 - smooth(ml, 86, 94)), tint, ref, 0.6), ml, tint)
         im = im.copy(); im.paste(mod, (round(src.width * MOD_AT), round(src.width * MOD_AT)), mmask)
         im = finish_back(im, w, pid)
         out.append(dict(id=pid, model=model, finish=finish, metal=target or metal_of(im),
                         w=w, h=H, repaint=True, ok=True))
     return out
+
+
+def dim_highlights(mod, ml, tint):
+    """The plateau's highlights, left unpainted and so white, brought down to peak
+    at most HI over the finish and lightly tinted by it; their shape is kept.
+    A light finish has no white to bring down and is left as it was."""
+    t = hex_lab(tint)
+    if t[0] + HI >= 100:
+        return mod
+    a = np.asarray(mod).astype(float) / 255
+    lab = color.rgb2lab(a[..., :3])
+    h = smooth(ml, 86, 94) * smooth(ml, 38, 68)
+    lab[..., 0] -= h * np.maximum(ml - (t[0] + (ml - t[0]) * HI / (100 - t[0])), 0)
+    lab[..., 1:] = lab[..., 1:] * (1 - h[..., None]) + t[1:] * h[..., None] * .5
+    rgb = np.clip(color.lab2rgb(lab), 0, 1)
+    return Image.fromarray(np.dstack([rgb * 255, a[..., 3:] * 255]).round().astype(np.uint8), "RGBA")
 
 
 def rrect_mask(size, r, blur=1.5):
