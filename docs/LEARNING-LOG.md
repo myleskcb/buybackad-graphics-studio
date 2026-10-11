@@ -4083,10 +4083,34 @@ Found:
 
 Owner, over the side-by-side clip of the three: "that is much better. I
 like all of it." All three stay in the shuffle; put on `main` the same day.
+Then: "Maybe we do one that's a slower [pulse] that's more of a breathing
+effect": `breathe`, first a 6% swell every 3 s, off the beat, from rest;
+then "Breathing are much more subtle and slow movement not a pulse": 3%
+every 4.5 s, as at rest a body breathes, with half the shadow's change.
+Then, of a clip of breathe beside pulse: "a pulse that's identical from the
+left or right". It was. Three faults, all mine:
+  - The clip's look had "Pump on the beat" (urgency beat_pump: the whole
+    picture zooms on every beat), the same on both sides and far louder
+    than either phone move. harmonise now drops it where the phones swell
+    (or, in a shuffle, the phones spin or float instead).
+  - The phones stood on the line over the number, so a swell about their
+    middles had room for 1.7% (k 0.24). A swell now keeps the edge nearest
+    trouble still and grows away from it (`idleAnchor`); pulse at full size
+    went from 96 looks of 120 to 115.
+  - On phones under a third of the frame, 3% is two or three pixels. A
+    breath now adds at least 1.2% of the frame's short side (up to 6%).
+  - And the video's photo, taken at a spin's whole turn, failed the photo
+    check once at 1:1: a real-time recording's clock drifts, and there the
+    phones turn 20 degrees in 0.2 s. The moves now wait till the number has
+    landed and stood (IDLE.hold, 0.9 s from its arrival), and a spinning
+    look's photo is that held moment: twice in a row, every size passed.
+  Lesson: a demo clip is a measurement. Hold everything but the thing
+  compared still, and look at it before sending it.
 
 RESUME HERE:
   0. The amplitudes are IDLE in motion/engine.js (turn 3.2 s, rise 4.5% of
-     a phone, pulse 7%), should the owner want any move bigger or calmer.
+     a phone, pulse 7%, breathe 3% over 4.5 s), should the owner want any
+     move bigger or calmer.
 
 ## 2026-10-11 — the colour builder's fades, made to be seen (claude/compassionate-babbage-nv318r)
 
