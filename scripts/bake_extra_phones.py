@@ -15,7 +15,7 @@ from real parts (repaint=true in index.json):
 
 Check the result with scripts/audit_phone_views.py and motion/views-sheet.html.
 
-Run:  python3 scripts/bake_extra_phones.py   (needs pillow, numpy, scikit-image)
+Run:  python3 scripts/bake_extra_phones.py   (needs pillow, numpy, scipy, scikit-image)
 """
 import json
 from pathlib import Path
@@ -230,18 +230,57 @@ def module_neutral(f, box, size, to_med=None, to_spread=None, lidar=True):
     return Image.fromarray(np.dstack([rgb, np.asarray(m)[..., 3]]), "RGBA"), to_med
 
 
+def harmonic(img, D):
+    """Solve Laplace's equation over D with the pixels around it held: the smoothest
+    fill that meets its surround, and never lighter or darker than that surround.
+    At the picture's own edge there is no neighbour and no term."""
+    from scipy import sparse
+    from scipy.sparse.linalg import spsolve
+    h, w = D.shape
+    n = int(D.sum())
+    idx = -np.ones(D.shape, int)
+    idx[D] = np.arange(n)
+    ys, xs = np.nonzero(D)
+    diag, r, c, b = np.zeros(n), [], [], np.zeros((n, img.shape[2]))
+    for dy, dx in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+        ny, nx = ys + dy, xs + dx
+        k = np.nonzero((ny >= 0) & (ny < h) & (nx >= 0) & (nx < w))[0]
+        diag[k] += 1
+        ny, nx = ny[k], nx[k]
+        unk = D[ny, nx]
+        r.append(k[unk]); c.append(idx[ny[unk], nx[unk]])
+        np.add.at(b, k[~unk], img[ny[~unk], nx[~unk]])
+    r, c = np.concatenate(r), np.concatenate(c)
+    A = sparse.csc_matrix((np.r_[diag, -np.ones(len(r))], (np.r_[np.arange(n), r], np.r_[np.arange(n), c])), shape=(n, n))
+    out = img.copy()
+    out[D] = spsolve(A, b)
+    return out
+
+
 def erase_module(im):
-    """Fill the photo's own (side-lit) camera with plain back: each column's
-    colour from the clean band between the camera and the logo, carried up."""
+    """Fill the photo's own (side-lit) camera with plain back, grown in from the back
+    right of and below it. The new plateau covers less than this patch, so the strip
+    beside and under it shows: carrying each column up from a band lower down left
+    streaks and a light band there with a hard edge (owner, 2026-10-11: "the shadows
+    on the 14 Pro Max, 15 Pro Max look wrong"). The patch reaches to the top and left
+    edges so the frame's shine along them is not held and cannot glow into the fill;
+    the light is smooth, so it is solved at quarter size."""
     W = im.width
     a = np.asarray(im).astype(float)
-    y0, y1 = round(W * .72), round(W * .84)
-    band = a[y0:y1].mean(0)
-    slope = (a[y1:y1 + (y1 - y0)].mean(0) - a[y0:y1].mean(0)) / (y1 - y0)   # the light's fall down the back
-    ys = np.arange(im.height)[:, None, None] - (y0 + y1) / 2
-    fill = np.clip(band[None] + slope[None] * ys, 0, 255)
     m = Image.new("L", im.size, 0)
     ImageDraw.Draw(m).rounded_rectangle((round(W * .024), round(W * .024), round(W * .69), round(W * .69)), round(W * .14), fill=255)
+    k = 4
+    top = round(W * .9) // k * k
+    sw, sh = W // k, top // k
+    small = np.asarray(Image.fromarray(a[:top, :, :3].round().astype(np.uint8)).resize((sw, sh), Image.BOX)).astype(float)
+    hole = np.asarray(m.crop((0, 0, W, top)).resize((sw, sh), Image.BOX)) > 0
+    hole = np.asarray(Image.fromarray(hole.astype(np.uint8) * 255).filter(ImageFilter.MaxFilter(3))) > 0
+    yy, xx = np.mgrid[0:sh, 0:sw]
+    lim, rim = round(W * .69 / k) + 1, round(W * .06 / k)
+    D = hole | ((yy <= lim) & (xx < rim)) | ((xx <= lim) & (yy < rim))
+    filled = Image.fromarray(np.clip(harmonic(small, D), 0, 255).round().astype(np.uint8)).resize((W, top), Image.BICUBIC)
+    fill = a.copy()
+    fill[:top, :, :3] = np.asarray(filled)
     m = np.asarray(m.filter(ImageFilter.GaussianBlur(W * .01))).astype(float)[..., None] / 255
     out = a.copy()
     out[..., :3] = a[..., :3] * (1 - m) + fill[..., :3] * m
