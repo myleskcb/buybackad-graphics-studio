@@ -29,12 +29,11 @@ GROUNDS = {
     'cars':    ['bg-web/cars-used-car-dealership-lot-1', 'bg-web/trucks-pickup-truck-1', 'bg-web/cars-classic-car-chrome-grille-1'],
     'iphone':  ['bg-web/phones-iphone-15-pro-back-camera-1', 'bg-web/phones-iphone-14-pro-1', 'bg-web/phones-apple-iphone-15-1'],
     'mac':     ['bg-web/macbook-macbook-on-desk-1', 'bg-web/macbook-macbook-pro-m3-1', 'bg-web/macbook-macbook-air-2'],
-    # the gaming lines with a photograph of their own goods (2026-10-11, the owner of the drawn gaming rooms: "too similar
-    # of backgrounds and themes", "assimilate with the other categories"); the screen-only Switch close-ups shade to a flat field
-    'console':    ['bg-web/gaming-playstation-5-1', 'bg-web/gaming-xbox-series-x-3', 'bg-web/gaming-playstation-5-3'],
-    'switch':     ['bg-web/gaming-nintendo-switch-oled-3', 'bg-web/gaming-nintendo-switch-2-1', 'bg-web/gaming-nintendo-switch-3', 'bg-web/gaming-nintendo-switch-oled-1'],
-    'controller': ['bg-web/gaming-dualsense-controller-3', 'bg-web/gaming-dualsense-controller-1'],
-    'pchandheld': ['bg-web/gaming-steam-deck-2'],
+    # the gaming lines, gaming headsets and monitors: real gamers' rooms (2026-10-11, the owner of the drawn rooms: "too
+    # similar of backgrounds and themes", then "We need more relatable gamer style background bedroom photos, so they look
+    # clean"): Commons photographs of desk setups and a living room, each in its own colour and light
+    'gaming':  ['bg-web/rooms-home-desk-setup-1', 'bg-web/rooms-desk-setup-1', 'bg-web/rooms-living-room-console-1',
+                'bg-web/rooms-gaming-pc-setup-1'],
     # no photograph of these lines' goods yet: the NASA pictures, which show no product at all
     'space':   ['bg-web/space-earth-from-iss-night-1', 'bg-web/space-earth-from-iss-night-3', 'bg-web/space-moon-surface-nasa-4',
                 'bg-web/space-earth-from-iss-night-4', 'bg-web/space-aurora-from-space-3', 'bg-web/space-galaxy-hubble-telescope-1'],

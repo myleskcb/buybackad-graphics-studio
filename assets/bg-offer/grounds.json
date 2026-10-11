@@ -121,52 +121,22 @@
    "p90": 34
   }
  ],
- "console": [
+ "gaming": [
   {
-   "file": "gaming-playstation-5-1",
-   "p90": 31
+   "file": "rooms-home-desk-setup-1",
+   "p90": 165
   },
   {
-   "file": "gaming-xbox-series-x-3",
-   "p90": 138
+   "file": "rooms-desk-setup-1",
+   "p90": 199
   },
   {
-   "file": "gaming-playstation-5-3",
-   "p90": 222
-  }
- ],
- "switch": [
-  {
-   "file": "gaming-nintendo-switch-oled-3",
-   "p90": 209
+   "file": "rooms-living-room-console-1",
+   "p90": 190
   },
   {
-   "file": "gaming-nintendo-switch-2-1",
-   "p90": 255
-  },
-  {
-   "file": "gaming-nintendo-switch-3",
-   "p90": 244
-  },
-  {
-   "file": "gaming-nintendo-switch-oled-1",
-   "p90": 219
-  }
- ],
- "controller": [
-  {
-   "file": "gaming-dualsense-controller-3",
-   "p90": 255
-  },
-  {
-   "file": "gaming-dualsense-controller-1",
-   "p90": 255
-  }
- ],
- "pchandheld": [
-  {
-   "file": "gaming-steam-deck-2",
-   "p90": 177
+   "file": "rooms-gaming-pc-setup-1",
+   "p90": 230
   }
  ],
  "space": [

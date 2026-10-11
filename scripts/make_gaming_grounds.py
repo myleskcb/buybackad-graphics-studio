@@ -3,9 +3,11 @@
 
 RETIRED 2026-10-11. The owner, of every gaming card on these three rooms:
 "too similar of backgrounds and themes way too similar", "assimilate with the
-other categories". The gaming lines now stand on photographs of their own goods
-(scripts/make_offer_grounds.py) and on the NASA pictures, like every other
-category; drawn grounds are out under DESIGN-LAW 117. Kept for the record,
+other categories", "We need more relatable gamer style background bedroom
+photos, so they look clean". The gaming lines now stand on real photographs of
+gamers' rooms (scripts/make_offer_grounds.py, the 'gaming' pool), like every
+other category on its own photographs; drawn grounds are out under DESIGN-LAW
+117. Kept for the record,
 like the retired assets/bg/dl_* scenes; offer-library.js no longer reads the
 files it wrote.
 
