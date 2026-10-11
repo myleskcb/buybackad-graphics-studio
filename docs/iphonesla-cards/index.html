@@ -146,8 +146,10 @@ figcaption ul{margin:0; padding-left:18px; display:flex; flex-direction:column; 
 .slip-head{display:flex; justify-content:space-between; align-items:center; font:600 clamp(8.5px,1.6cqi,10.5px)/1 var(--body); letter-spacing:.12em; text-transform:uppercase; color:var(--chalk-soft)}
 .ex{background:#fff3c4; color:#5a4300; padding:.4em .6em; border-radius:999px; letter-spacing:.08em}
 .slip-row{display:grid; grid-template-columns:auto 1fr auto; column-gap:2cqi; row-gap:.5cqi; align-items:baseline; padding-bottom:1.6cqi; border-bottom:1px solid var(--chalk-line)}
-.slip-row img{grid-row:1 / span 3; align-self:center; position:static; height:8.5cqi; width:auto; filter:none}
+.slip-row img{grid-row:1 / span 4; align-self:center; position:static; height:8.5cqi; width:auto; filter:none}
 .slip-row .nm{font-weight:600; line-height:1.2; min-width:0}
+.slip-row .role{grid-column:2 / -1; font-size:.74em; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#1d4ed8}
+.slip-row .role.sell{color:#2f7a4f}
 .slip-row .spec, .slip-row .meta{grid-column:2 / -1; font-size:.86em; line-height:1.3; color:var(--chalk-soft)}
 .slip-row .meta{display:flex; flex-wrap:wrap; align-items:center; gap:.3em .55em}
 .grade{border:1px solid #c3c5cc; color:var(--chalk-ink); border-radius:999px; padding:.12em .55em; font-weight:600; font-size:.92em; line-height:1.2}
@@ -291,9 +293,7 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
 .stop{display:flex; flex-direction:column; gap:16px; padding-top:28px; border-top:1px solid var(--line)}
 .pair.match{align-items:stretch}
 .match > figure > .card{flex:1; display:flex; flex-direction:column}
-.match .picks{flex:1; align-items:center}
-.match .band{height:34cqi}
-.match .pick .pic{height:16cqi}
+.match .boxes{flex:1; align-content:center}
 .nb{white-space:nowrap}
 .match .card > .copy.full:last-child{margin-top:auto}
 .shop-head{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:2.4cqi 4cqi; padding:5cqi 5.4cqi 0; position:relative; z-index:2}
@@ -326,42 +326,153 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
   .item .li-price b{font-size:clamp(19px,5.6cqi,26px)}
   .item .li-save{font-size:clamp(9.5px,2.6cqi,11.5px)}
 }
-@media (prefers-reduced-motion: reduce){ .pick, .chip, .seg.cut, .sw, .sw::after{transition:none} }
+/* ── your picks: one style, three colourways ──────────────────
+   Each card or stage reads its ground and accent from the section's
+   data-palette; on Apple devices the type is the system's own (SF). */
+.k{--body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",ui-sans-serif,system-ui,sans-serif;
+   --display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter Tight","Inter",ui-sans-serif,sans-serif;
+   --c-ink:#ffffff; --c-soft:rgba(255,255,255,.82); --c-faint:rgba(255,255,255,.56);
+   --c-glass:rgba(255,255,255,.075); --c-edge:rgba(255,255,255,.17); --k-shine:rgba(255,255,255,.12); --k-shadow:rgba(0,0,0,.42)}
+[data-palette="a"] .k-ti{--k-top:#13433b; --k-low:#08201c; --k-glow:rgba(60,168,134,.5); --k-btn:#a9ecd0; --k-btn-ink:#062019; --k-sel:rgba(169,236,208,.17); --ios-accent:#0e7a5f}
+[data-palette="a"] .k-ws{--k-top:#1d2d63; --k-low:#0a1230; --k-glow:rgba(92,124,235,.48); --k-btn:#d3dfff; --k-btn-ink:#0b1533; --k-sel:rgba(211,223,255,.17); --ios-accent:#2f4fc4}
+[data-palette="b"] .k-ti{--k-top:#2b50d8; --k-low:#14298a; --k-glow:rgba(130,165,255,.45); --k-btn:#ffd84d; --k-btn-ink:#231a00; --k-sel:rgba(255,216,77,.18); --ios-accent:#2346c8}
+[data-palette="b"] .k-ws{--k-top:#203db3; --k-low:#0e1d66; --k-glow:rgba(100,140,255,.4); --k-btn:#ffffff; --k-btn-ink:#10206b; --k-sel:rgba(255,255,255,.18); --ios-accent:#2346c8}
+[data-palette="c"] .k{--c-ink:#121722; --c-soft:rgba(18,23,34,.76); --c-faint:rgba(18,23,34,.52); --c-glass:rgba(255,255,255,.58); --c-edge:rgba(18,23,34,.10); --k-shine:rgba(255,255,255,.95); --k-shadow:rgba(20,30,50,.2)}
+[data-palette="c"] .k-ti{--k-top:#edf4fd; --k-low:#d2e1f5; --k-glow:rgba(255,255,255,.85); --k-btn:#1d4ed8; --k-btn-ink:#ffffff; --k-sel:rgba(29,78,216,.10); --ios-accent:#1d4ed8}
+[data-palette="c"] .k-ws{--k-top:#f3f1ec; --k-low:#dcd7cc; --k-glow:rgba(255,255,255,.85); --k-btn:#1c1a16; --k-btn-ink:#ffffff; --k-sel:rgba(28,26,22,.08); --ios-accent:#1c1a16}
+[data-palette="c"] .k .item{background:#fff}
+.card.k, .stage{background:radial-gradient(110% 90% at 0% 108%, var(--k-glow) 0%, rgba(0,0,0,0) 60%), linear-gradient(172deg, var(--k-top) 0%, var(--k-low) 100%); color:var(--c-ink)}
+.k .btn{background:var(--k-btn); color:var(--k-btn-ink)}
+.k .btn:focus-visible{outline-color:var(--c-ink)}
+
+.palettes{display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:4px}
+.palettes > span{font-size:13px; color:var(--muted); margin-right:2px}
+.pal{display:inline-flex; align-items:center; gap:7px; padding:6px 12px 6px 7px; border-radius:999px; border:1px solid var(--line); background:var(--panel); color:var(--ink); font:500 13px/1 var(--body); cursor:pointer}
+.pal i{display:block; width:15px; height:15px; border-radius:50%; border:1px solid rgba(0,0,0,.14); margin-right:-4px}
+.pal i:last-of-type{margin-right:2px}
+.pal[aria-pressed="true"]{border-color:var(--ink); box-shadow:inset 0 0 0 1px var(--ink)}
+.pal:focus-visible{outline:2px solid var(--mark); outline-offset:2px}
+
+/* the clear boxes */
+.boxes{display:grid; gap:1.8cqi; padding:3.2cqi 5.4cqi 0; position:relative; z-index:2}
+.boxes.five{grid-template-columns:repeat(5,1fr)}
+.boxes.lotrow{grid-template-columns:1fr 1fr 1fr auto 1.3fr}
+.k .gbox{all:unset; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:1.2cqi; padding:2.6cqi 1cqi 2.2cqi; border-radius:2.8cqi; background:var(--c-glass); border:1px solid var(--c-edge); box-shadow:inset 0 1px 0 var(--k-shine); font:600 clamp(10.5px,2.1cqi,13px)/1.15 var(--body); color:var(--c-ink); text-align:center; position:relative; min-width:0; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px)}
+.k button.gbox{cursor:pointer; transition:background .15s, border-color .15s}
+.k button.gbox:hover{background:var(--k-sel)}
+.k .gbox[aria-pressed="true"]{border-color:var(--k-btn); background:var(--k-sel)}
+.k .gbox:focus-visible{outline:2px solid var(--c-ink); outline-offset:2px}
+.gbox .pic{height:14cqi; width:100%; display:flex; align-items:center; justify-content:center}
+.gbox img{max-height:100%; max-width:100%; width:auto; height:auto; filter:drop-shadow(0 .8cqi 1.2cqi var(--k-shadow))}
+.gbox .q{position:absolute; z-index:1; top:1.1cqi; right:1.1cqi; font:600 clamp(9px,1.7cqi,11px)/1 var(--body); padding:.38em .55em; border-radius:999px; background:var(--k-btn); color:var(--k-btn-ink); font-variant-numeric:tabular-nums}
+.lot-arrow{align-self:center; font:500 clamp(14px,3.4cqi,22px)/1 var(--body); color:var(--c-faint)}
+.k .gbox.result{justify-content:center; gap:.9cqi; border-color:var(--k-btn)}
+.gbox.result .tick{width:clamp(20px,5.6cqi,30px); height:clamp(20px,5.6cqi,30px); border-radius:50%; background:var(--k-btn); color:var(--k-btn-ink); display:grid; place-items:center; font:700 clamp(11px,2.6cqi,15px)/1 var(--body)}
+.gbox.result b{font:700 clamp(14px,3.6cqi,22px)/1 var(--display)}
+.gbox.result small{font-weight:500; color:var(--c-soft); font-size:.9em; line-height:1.3}
+
+/* the shop's "trade-in applied" line: the switch itself lives at checkout */
+.applied{display:flex; align-items:center; gap:10px; background:var(--c-glass); border:1px solid var(--c-edge); border-radius:999px; padding:7px 16px 7px 8px; font:600 clamp(12px,1.5cqi,14px)/1.2 var(--body); color:var(--c-ink)}
+.applied .dot{flex:none; width:24px; height:24px; border-radius:50%; background:#34c759; color:#fff; display:grid; place-items:center; font-size:13px}
+.applied small{display:block; font-weight:500; color:var(--c-soft); font-size:.86em}
+
+/* iOS sheets: checkout and the lot */
+.stage{border-radius:20px; padding:clamp(14px,3.6vw,30px) clamp(10px,3.6vw,30px); display:flex; justify-content:center}
+.ios{container-type:inline-size; --ios-bg:#f2f2f7; --ios-cell:#ffffff; --ios-label:#000000; --ios-2:rgba(60,60,67,.62); --ios-sep:rgba(60,60,67,.2); --ios-fill:rgba(118,118,128,.12); --ios-green:#34c759; --ios-credit:#248a3d;
+  width:100%; max-width:400px; background:var(--ios-bg); color:var(--ios-label); border-radius:22px; padding:8px 14px 18px;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",ui-sans-serif,system-ui,sans-serif; font-size:15px; line-height:1.3; letter-spacing:-.01em; box-shadow:0 26px 60px -22px rgba(0,0,0,.6)}
+.grab{width:36px; height:5px; border-radius:3px; background:#c7c7cc; margin:0 auto 10px}
+.ios-nav{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; font-size:17px; min-height:30px; padding:0 2px}
+.ios-nav .l{color:var(--ios-accent)} .ios-nav .c{font-weight:600} .ios-nav .r{justify-self:end; color:var(--ios-accent)}
+.ios-title{font:700 30px/1.12 -apple-system,BlinkMacSystemFont,"SF Pro Display","Inter Tight","Inter",sans-serif; letter-spacing:-.025em; margin:12px 4px 4px; color:var(--ios-label)}
+.ios-sub{color:var(--ios-2); margin:0 4px; font-size:15px; display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px}
+.ios-ex{background:#fff3c4; color:#5a4300; font-size:11px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; padding:2px 7px; border-radius:6px}
+.ios-h{font-size:13px; text-transform:uppercase; letter-spacing:.01em; color:var(--ios-2); margin:20px 16px 7px; display:flex; align-items:center; gap:7px}
+.ios-h .who{width:8px; height:8px; border-radius:50%; background:#0a84ff}
+.ios-h .who.sell{background:var(--ios-green)}
+.ios-group{background:var(--ios-cell); border-radius:12px; overflow:hidden}
+.ios-row{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:12px; padding:11px 16px; position:relative; min-height:44px; color:var(--ios-label)}
+.ios-row + .ios-row::before{content:""; position:absolute; top:0; right:0; left:16px; height:1px; transform:scaleY(.5); transform-origin:top; background:var(--ios-sep)}
+.ios-row.two{grid-template-columns:1fr auto}
+.thumb{width:46px; height:58px; border-radius:10px; background:var(--ios-bg); display:flex; align-items:center; justify-content:center}
+.thumb img{max-height:48px; max-width:40px; width:auto; height:auto}
+.ios-row .t{display:flex; flex-direction:column; gap:2px; min-width:0}
+.ios-row .t b{font-weight:600; font-size:16px; letter-spacing:-.015em}
+.ios-row .t > span{font-size:13px; color:var(--ios-2)}
+.ios-row .v{font-weight:600; font-size:16px; font-variant-numeric:tabular-nums; white-space:nowrap}
+.ios-row .v.credit{color:var(--ios-credit)}
+.ios-row.total .t, .ios-row.total .v{font-weight:700; font-size:17px}
+.ios-grade{display:inline-block; background:var(--ios-fill); color:var(--ios-label); border-radius:5px; padding:1px 6px; font-size:12px; font-weight:600; margin-right:4px}
+.ios-icon{width:30px; height:30px; border-radius:7px; background:var(--ios-green); display:grid; place-items:center}
+.ios-row.toggle{cursor:pointer}
+.ios-switch{position:relative; width:51px; height:31px; flex:none}
+.ios-switch input{position:absolute; inset:0; width:100%; height:100%; margin:0; opacity:0; cursor:pointer; z-index:1}
+.ios-switch .trk{position:absolute; inset:0; border-radius:999px; background:#e9e9eb; transition:background .2s}
+.ios-switch .trk::after{content:""; position:absolute; top:2px; left:2px; width:27px; height:27px; border-radius:50%; background:#fff; box-shadow:0 3px 8px rgba(0,0,0,.15), 0 1px 1px rgba(0,0,0,.16); transition:transform .2s}
+.ios-switch input:checked + .trk{background:var(--ios-green)}
+.ios-switch input:checked + .trk::after{transform:translateX(20px)}
+.ios-switch input:focus-visible + .trk{outline:2px solid var(--ios-accent); outline-offset:2px}
+.ios-foot{font-size:13px; color:var(--ios-2); margin:7px 16px 0; line-height:1.35}
+.ios-btn{display:block; width:100%; margin-top:18px; border:0; border-radius:14px; background:var(--ios-accent); color:#fff; font:600 17px/1 -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",sans-serif; letter-spacing:-.01em; padding:16px; cursor:pointer}
+.ios-btn:focus-visible{outline:2px solid var(--ios-accent); outline-offset:3px}
+.co-sell, .co-credit-row{transition:opacity .2s}
+.no-trade .co-sell{opacity:.38}
+.no-trade .co-credit-row{display:none}
+.ios-row .r{display:flex; flex-direction:column; align-items:flex-end; gap:7px}
+.ios-step{display:inline-flex; align-items:center; background:var(--ios-fill); border-radius:9px; height:32px}
+.ios-step button{all:unset; width:44px; height:32px; display:grid; place-items:center; font-size:20px; line-height:1; color:var(--ios-label); cursor:pointer}
+.ios-step button:focus-visible{outline:2px solid var(--ios-accent); outline-offset:-2px; border-radius:9px}
+.ios-step i{width:1px; height:18px; background:rgba(60,60,67,.29)}
+.ios-row.add{grid-template-columns:auto 1fr; color:var(--ios-accent); font-size:16px}
+.qx{white-space:nowrap}
+@container (max-width: 380px){
+  .ios-row[data-unit] .r{grid-column:2 / -1; flex-direction:row; justify-content:space-between; align-items:center}
+  .ios-row[data-unit] .thumb{align-self:start}
+}
+
+@media (prefers-reduced-motion: reduce){ .pick, .chip, .seg.cut, .sw, .sw::after, .k button.gbox, .ios-switch .trk, .ios-switch .trk::after, .co-sell{transition:none} }
 </style>
 
 <main class="wrap">
   <header class="page">
     <p class="kicker">iPhones.LA · home page</p>
     <h1>Trade-In &amp; Wholesale Cards</h1>
-    <p class="intro">Your picks are at the top, in the order a customer meets them. After them: six ways to show how much a trade-in takes off the price of a device in our shop. Below that, the trade-in card now shows every kind of device we take, and the wholesale card shows a lot being built. Then come five more styles, each in a trade-in and a wholesale version, that show what each service does before anyone taps.</p>
+    <p class="intro">Your picks are at the top in one style, from the home page to checkout, with three colourways to try. After them: six ways to show how much a trade-in takes off the price of a device in our shop. Below that, the trade-in card now shows every kind of device we take, and the wholesale card shows a lot being built. Then come five more styles, each in a trade-in and a wholesale version, that show what each service does before anyone taps.</p>
     <p class="note"><b>About the wholesale card.</b> The wholesale configuration pages weren't reachable from here, so this card is drawn from the lot builder's basic pieces: a tile for each category with a count. Send a screenshot of the configuration page and the card will match it exactly.</p>
   </header>
 
   <!-- ═══════════ your picks ═══════════ -->
-  <section aria-labelledby="picks" id="your-picks">
+  <section aria-labelledby="picks" id="your-picks" data-palette="a">
     <div class="sec-head">
       <h2 id="picks">Your picks</h2>
-      <p>The cards you chose, in the order a customer meets them: the home page, then the shop, then the quote. Devices carry real-looking specs (storage, colour, carrier, grade, battery); prices and specs are examples until they come from the inventory.</p>
+      <p>One style from the home page to checkout: clear glass boxes on a coloured ground, then clean iOS sheets where people buy and sell. Every device says whether it's being bought or sold. Prices and specs are examples until they come from the inventory.</p>
+      <div class="palettes" role="group" aria-label="Colours for your picks">
+        <span>Colours</span>
+        <button type="button" class="pal" data-pal="a" aria-pressed="true"><i style="background:#13433b"></i><i style="background:#1d2d63"></i>Evergreen &amp; Midnight</button>
+        <button type="button" class="pal" data-pal="b" aria-pressed="false"><i style="background:#2b50d8"></i><i style="background:#ffd84d"></i>Cobalt</button>
+        <button type="button" class="pal" data-pal="c" aria-pressed="false"><i style="background:#e3edfa"></i><i style="background:#ebe8e1"></i>Daylight</button>
+      </div>
     </div>
 
     <div class="stop">
       <div class="style-head">
         <h3 class="style-name">1. Home page</h3>
-        <p>The trade-in card is the first step of the form; the wholesale card shows the whole deal in one picture. Side by side they keep the same height.</p>
+        <p>Both cards now work the same way: the words on top, a row of clear boxes in the middle, the button at the bottom. The colours are new, so these cards don't repeat the old trade-in and wholesale pair.</p>
       </div>
       <div class="pair match">
         <figure>
-          <article class="card ti" data-picker>
+          <article class="card k k-ti" data-picker>
             <div class="copy full">
               <p class="eyebrow">Trade in a device</p>
               <h3 class="title sm">What are you trading in?</h3>
+              <p class="lede" style="margin:0">Pick one to see your offer, then put it toward a new device.</p>
             </div>
-            <div class="picks" role="group" aria-label="Device to trade in">
-              <button class="pick" type="button" data-name="iPhone" aria-pressed="false"><span class="pic"><img src="img/iphone-17-pro-orange.webp" alt=""></span>iPhone</button>
-              <button class="pick" type="button" data-name="iPad" aria-pressed="false"><span class="pic"><img src="img/ipad-air-purple.webp" alt=""></span>iPad</button>
-              <button class="pick" type="button" data-name="Mac" aria-pressed="false"><span class="pic"><img src="img/macbook-air-sky.webp" alt=""></span>Mac</button>
-              <button class="pick" type="button" data-name="Watch" aria-pressed="false"><span class="pic"><img src="img/watch-rose.webp" alt=""></span>Watch</button>
-              <button class="pick" type="button" data-name="AirPods" aria-pressed="false"><span class="pic"><img src="img/airpods-pro.webp" alt=""></span>AirPods</button>
+            <div class="boxes five" role="group" aria-label="Device to trade in">
+              <button class="pick gbox" type="button" data-name="iPhone" aria-pressed="false"><span class="pic"><img src="img/iphone-17-pro-orange.webp" alt=""></span>iPhone</button>
+              <button class="pick gbox" type="button" data-name="iPad" aria-pressed="false"><span class="pic"><img src="img/ipad-air-purple.webp" alt=""></span>iPad</button>
+              <button class="pick gbox" type="button" data-name="Mac" aria-pressed="false"><span class="pic"><img src="img/macbook-air-sky.webp" alt=""></span>Mac</button>
+              <button class="pick gbox" type="button" data-name="Watch" aria-pressed="false"><span class="pic"><img src="img/watch-rose.webp" alt=""></span>Watch</button>
+              <button class="pick gbox" type="button" data-name="AirPods" aria-pressed="false"><span class="pic"><img src="img/airpods-pro.webp" alt=""></span>AirPods</button>
             </div>
             <div class="bar">
               <button class="btn" type="button"><span class="lbl">Start a trade-in</span> <span aria-hidden="true">→</span></button>
@@ -370,21 +481,22 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
           </article>
         </figure>
         <figure>
-          <article class="card ws">
-            <div class="band" aria-hidden="true">
-              <img class="dev" src="img/macbook-pro-black.webp" alt="" style="width:24cqi;left:6cqi;top:7cqi;transform:rotate(-6deg)">
-              <img class="dev" src="img/ipad-air-blue.webp" alt="" style="width:14cqi;left:22cqi;top:12cqi;transform:rotate(8deg)">
-              <img class="dev" src="img/iphone-16-pro-white.webp" alt="" style="width:9cqi;left:9cqi;top:17cqi;transform:rotate(-14deg)">
-              <img class="dev" src="img/iphone-16-pro-black.webp" alt="" style="width:9cqi;left:16cqi;top:19cqi;transform:rotate(-3deg)">
-              <img class="dev" src="img/iphone-15-pro-natural.webp" alt="" style="width:9cqi;left:33cqi;top:18cqi;transform:rotate(12deg)">
-              <span class="arrow">→</span>
-              <div class="payout"><small>Lot paid</small><b>1 order</b><span>37 devices, each one priced</span><span class="paid">✓ Paid</span></div>
-            </div>
-            <div class="copy full" style="padding-bottom:5.4cqi">
+          <article class="card k k-ws">
+            <div class="copy full">
               <p class="eyebrow">Wholesale</p>
               <h3 class="title sm">A whole lot in. One payment out.</h3>
-              <p class="lede">Every iPhone, iPad and Mac gets its own price, all in one order.</p>
+              <p class="lede" style="margin:0">Every iPhone, iPad and Mac gets its own price, all in one order.</p>
+            </div>
+            <div class="boxes lotrow">
+              <div class="gbox"><span class="q">×24</span><span class="pic"><img src="img/iphone-16-pro-white.webp" alt=""></span>iPhones</div>
+              <div class="gbox"><span class="q">×8</span><span class="pic"><img src="img/ipad-air-blue.webp" alt=""></span>iPads</div>
+              <div class="gbox"><span class="q">×5</span><span class="pic"><img src="img/macbook-pro-black.webp" alt=""></span>Macs</div>
+              <span class="lot-arrow" aria-hidden="true">→</span>
+              <div class="gbox result"><span class="tick" aria-hidden="true">✓</span><b>1 order</b><small>37 devices<br>paid together</small></div>
+            </div>
+            <div class="bar">
               <button class="btn" type="button">Build a lot <span aria-hidden="true">→</span></button>
+              <p class="foot">Every device priced · one order</p>
             </div>
           </article>
         </figure>
@@ -394,67 +506,118 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
     <div class="stop">
       <div class="style-head">
         <h3 class="style-name">2. In the shop</h3>
-        <p>Once a customer has an offer, every device in the shop shows its price with the trade-in taken off (style E, across the whole shelf). The switch shows full prices again. Try it.</p>
+        <p>Once a customer has an offer, every device shows its price with the trade-in already taken off. The switch to turn it off moves to checkout, so the shop stays simple.</p>
       </div>
       <figure>
-          <article class="card ti shop" data-shop>
-            <div class="shop-head">
-              <div class="copy">
-                <p class="eyebrow">Shop with your trade-in</p>
-                <h3 class="title sm">Every price, minus your offer</h3>
-              </div>
-              <label class="shop-toggle" for="shop-tradein"><input type="checkbox" id="shop-tradein" checked><span class="sw" aria-hidden="true"></span><span>Use my trade-in<small>iPhone 15 Pro · −$330</small></span></label>
+        <article class="card k k-ti shop">
+          <div class="shop-head">
+            <div class="copy">
+              <p class="eyebrow">Shop with your trade-in</p>
+              <h3 class="title sm">Every price, minus your offer</h3>
             </div>
-            <div class="shelf">
-              <div class="item" data-price="899"><span class="pic"><img src="img/iphone-17-pro-orange.webp" alt=""></span><span class="li-name">iPhone 17 Pro</span><span class="li-spec">256 GB · Cosmic Orange · Unlocked</span><span class="li-spec">Grade A · Battery 100%</span><div class="li-price"><b class="now">$569</b><s>$899</s></div><span class="li-save">−$330 with your iPhone 15 Pro</span></div>
-              <div class="item" data-price="479"><span class="pic"><img src="img/ipad-air-blue.webp" alt=""></span><span class="li-name">iPad Air <span class="nb">11-inch</span> (M3)</span><span class="li-spec">128 GB · Wi-Fi · Blue</span><span class="li-spec">Grade A · Battery 97%</span><div class="li-price"><b class="now">$149</b><s>$479</s></div><span class="li-save">−$330 with your iPhone 15 Pro</span></div>
-              <div class="item" data-price="799"><span class="pic"><img src="img/macbook-air-sky.webp" alt=""></span><span class="li-name">MacBook Air <span class="nb">13-inch</span> (M4)</span><span class="li-spec">16 GB · 256 GB SSD · Sky Blue</span><span class="li-spec">Grade A · 42 battery cycles</span><div class="li-price"><b class="now">$469</b><s>$799</s></div><span class="li-save">−$330 with your iPhone 15 Pro</span></div>
-            </div>
-            <p class="foot shelf-foot">Example prices and specs · the offer comes off whichever device they pick</p>
-          </article>
+            <p class="applied"><span class="dot" aria-hidden="true">✓</span><span>Trade-in applied<small>iPhone 15 Pro · −$330 · change it at checkout</small></span></p>
+          </div>
+          <div class="shelf">
+            <div class="item"><span class="pic"><img src="img/iphone-17-pro-orange.webp" alt=""></span><span class="li-name">iPhone 17 Pro</span><span class="li-spec">256 GB · Cosmic Orange · Unlocked</span><span class="li-spec">Grade A · Battery 100%</span><div class="li-price"><b class="now">$569</b><s>$899</s></div><span class="li-save">−$330 with your iPhone 15 Pro</span></div>
+            <div class="item"><span class="pic"><img src="img/ipad-air-blue.webp" alt=""></span><span class="li-name">iPad Air <span class="nb">11-inch</span> (M3)</span><span class="li-spec">128 GB · Wi-Fi · Blue</span><span class="li-spec">Grade A · Battery 97%</span><div class="li-price"><b class="now">$149</b><s>$479</s></div><span class="li-save">−$330 with your iPhone 15 Pro</span></div>
+            <div class="item"><span class="pic"><img src="img/macbook-air-sky.webp" alt=""></span><span class="li-name">MacBook Air <span class="nb">13-inch</span> (M4)</span><span class="li-spec">16 GB · 256 GB SSD · Sky Blue</span><span class="li-spec">Grade A · 42 battery cycles</span><div class="li-price"><b class="now">$469</b><s>$799</s></div><span class="li-save">−$330 with your iPhone 15 Pro</span></div>
+          </div>
+          <p class="foot shelf-foot">Example prices and specs · the offer comes off whichever device they pick</p>
+        </article>
       </figure>
     </div>
 
     <div class="stop">
       <div class="style-head">
-        <h3 class="style-name">3. The quote</h3>
-        <p>When they pick a device, the filled-in quote shows the math before they confirm. The lot sheet is its partner on the wholesale side.</p>
+        <h3 class="style-name">3. Checkout</h3>
+        <p>Clean iOS sheets. Trade-in checkout lists what you're buying, then what you're selling, with "Use my trade-in" at the bottom so it can be turned off. The wholesale sheet has a + and − for every line. Try both.</p>
       </div>
       <div class="pair">
         <figure>
-          <article class="card ti quote">
-            <div class="copy">
-              <p class="eyebrow">Yours toward a new one</p>
-              <h3 class="title">Trade In A Device</h3>
-              <p class="lede">Your offer comes straight off the price</p>
-              <button class="btn" type="button">Start a trade-in <span aria-hidden="true">→</span></button>
-              <p class="foot">Your offer first · then pick a device</p>
+          <div class="stage k k-ti">
+            <div class="ios" data-checkout data-price="899" data-credit="330">
+              <div class="grab" aria-hidden="true"></div>
+              <div class="ios-nav"><span class="l">Cancel</span><span class="c">Checkout</span><span class="r"></span></div>
+              <h4 class="ios-title">Almost yours</h4>
+              <p class="ios-sub">Check it over, then pay. <span class="ios-ex">Example</span></p>
+
+              <p class="ios-h"><span class="who" aria-hidden="true"></span>You're buying</p>
+              <div class="ios-group">
+                <div class="ios-row">
+                  <span class="thumb"><img src="img/iphone-17-pro-orange.webp" alt=""></span>
+                  <span class="t"><b>iPhone 17 Pro</b><span>256 GB · Cosmic Orange · Unlocked</span><span><span class="ios-grade">Grade A</span>Battery 100%</span></span>
+                  <span class="v">$899</span>
+                </div>
+              </div>
+
+              <div class="co-sell">
+                <p class="ios-h"><span class="who sell" aria-hidden="true"></span>You're selling · trade-in</p>
+                <div class="ios-group">
+                  <div class="ios-row">
+                    <span class="thumb"><img src="img/iphone-15-pro-natural.webp" alt=""></span>
+                    <span class="t"><b>iPhone 15 Pro</b><span>128 GB · Natural Titanium · Unlocked</span><span><span class="ios-grade">Good</span>Battery 88% · no cracks</span></span>
+                    <span class="v credit">−$330</span>
+                  </div>
+                </div>
+              </div>
+
+              <p class="ios-h">Summary</p>
+              <div class="ios-group">
+                <div class="ios-row two"><span class="t">iPhone 17 Pro</span><span class="v">$899</span></div>
+                <div class="ios-row two co-credit-row"><span class="t">Trade-in credit</span><span class="v credit">−$330</span></div>
+                <div class="ios-row two total"><span class="t">Total</span><span class="v co-total">$569</span></div>
+              </div>
+
+              <p class="ios-h">Trade-in</p>
+              <div class="ios-group">
+                <label class="ios-row toggle">
+                  <span class="ios-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h14l-4-4"/><path d="M20 16H6l4 4"/></svg></span>
+                  <span class="t"><b>Use my trade-in</b><span>iPhone 15 Pro · −$330</span></span>
+                  <span class="ios-switch"><input type="checkbox" id="co-tradein" role="switch" checked><span class="trk"></span></span>
+                </label>
+              </div>
+              <p class="ios-foot co-note" aria-live="polite">Turn this off to pay full price and keep your iPhone 15 Pro.</p>
+              <button class="ios-btn co-pay" type="button">Pay $569</button>
             </div>
-            <div class="slip" aria-label="Example trade-in quote">
-              <div class="slip-head"><span>Trade-in quote</span><span class="ex">Example</span></div>
-              <div class="slip-row"><img src="img/iphone-17-pro-orange.webp" alt=""><b class="nm">iPhone 17 Pro</b><span class="amt">$899</span><span class="spec">256 GB · Cosmic Orange · Unlocked</span><span class="meta"><span class="grade">Grade A</span>Battery 100% · from our shop</span></div>
-              <div class="slip-row"><img src="img/iphone-15-pro-natural.webp" alt=""><b class="nm">Your iPhone 15 Pro</b><span class="amt neg">−$330</span><span class="spec">128 GB · Natural Titanium · Unlocked</span><span class="meta"><span class="grade">Good</span>Battery 88% · no cracks</span></div>
-              <div class="slip-total"><span>You pay<small>the difference</small></span><b>$569</b></div>
-            </div>
-          </article>
+          </div>
         </figure>
         <figure>
-          <article class="card ws quote">
-            <div class="copy">
-              <p class="eyebrow">Lots and resellers</p>
-              <h3 class="title">Sell Wholesale</h3>
-              <p class="lede">Every device priced, the whole lot in one order</p>
-              <button class="btn" type="button">Build a lot <span aria-hidden="true">→</span></button>
-              <p class="foot">iPhones · iPads · Macs</p>
+          <div class="stage k k-ws">
+            <div class="ios" data-lotsheet>
+              <div class="grab" aria-hidden="true"></div>
+              <div class="ios-nav"><span class="l">Cancel</span><span class="c">Sell wholesale</span><span class="r">Help</span></div>
+              <h4 class="ios-title">Your lot</h4>
+              <p class="ios-sub">Every device gets its own price. <span class="ios-ex">Example</span></p>
+
+              <p class="ios-h"><span class="who sell" aria-hidden="true"></span>You're selling · <span class="lot-ndev">21 devices</span></p>
+              <div class="ios-group">
+                <div class="ios-row" data-unit="480" data-qty="12">
+                  <span class="thumb"><img src="img/iphone-16-pro-black.webp" alt=""></span>
+                  <span class="t"><b>iPhone 16 Pro</b><span>256 GB · Black Titanium · Unlocked</span><span><span class="ios-grade">Grade A</span><span class="qx" aria-live="polite">12 × $480</span></span></span>
+                  <span class="r"><span class="v ln">$5,760</span><span class="ios-step"><button type="button" class="dec" aria-label="One fewer iPhone 16 Pro">−</button><i></i><button type="button" class="inc" aria-label="One more iPhone 16 Pro">+</button></span></span>
+                </div>
+                <div class="ios-row" data-unit="330" data-qty="6">
+                  <span class="thumb"><img src="img/ipad-air-blue.webp" alt=""></span>
+                  <span class="t"><b>iPad Air <span class="nb">11-inch</span> (M3)</b><span>128 GB · Wi-Fi · Blue</span><span><span class="ios-grade">Grade A</span><span class="qx" aria-live="polite">6 × $330</span></span></span>
+                  <span class="r"><span class="v ln">$1,980</span><span class="ios-step"><button type="button" class="dec" aria-label="One fewer iPad Air">−</button><i></i><button type="button" class="inc" aria-label="One more iPad Air">+</button></span></span>
+                </div>
+                <div class="ios-row" data-unit="820" data-qty="3">
+                  <span class="thumb"><img src="img/macbook-pro-black.webp" alt=""></span>
+                  <span class="t"><b>MacBook Pro <span class="nb">14-inch</span> (M4)</b><span>16 GB · 512 GB SSD · Space Black</span><span><span class="ios-grade">Grade B</span><span class="qx" aria-live="polite">3 × $820</span></span></span>
+                  <span class="r"><span class="v ln">$2,460</span><span class="ios-step"><button type="button" class="dec" aria-label="One fewer MacBook Pro">−</button><i></i><button type="button" class="inc" aria-label="One more MacBook Pro">+</button></span></span>
+                </div>
+                <div class="ios-row add"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M12 7v10M7 12h10" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg><span>Add devices</span></div>
+              </div>
+
+              <p class="ios-h">Payout</p>
+              <div class="ios-group">
+                <div class="ios-row two"><span class="t">Devices</span><span class="v lot-n">21</span></div>
+                <div class="ios-row two total"><span class="t">We pay you</span><span class="v lot-sum">$10,200</span></div>
+              </div>
+              <p class="ios-foot">One order, one payment for the whole lot. Change any count with − and +.</p>
+              <button class="ios-btn lot-pay" type="button">Sell my lot for $10,200</button>
             </div>
-            <div class="slip" aria-label="Example lot sheet">
-              <div class="slip-head"><span>Lot sheet</span><span class="ex">Example</span></div>
-              <div class="slip-row"><img src="img/iphone-16-pro-black.webp" alt=""><b class="nm">iPhone 16 Pro</b><span class="amt">$5,760</span><span class="spec">256 GB · Black Titanium · Unlocked</span><span class="meta"><span class="grade">Grade A</span>12 × $480</span></div>
-              <div class="slip-row"><img src="img/ipad-air-blue.webp" alt=""><b class="nm">iPad Air <span class="nb">11-inch</span> (M3)</b><span class="amt">$1,980</span><span class="spec">128 GB · Wi-Fi · Blue</span><span class="meta"><span class="grade">Grade A</span>6 × $330</span></div>
-              <div class="slip-row"><img src="img/macbook-pro-black.webp" alt=""><b class="nm">MacBook Pro <span class="nb">14-inch</span> (M4)</b><span class="amt">$2,460</span><span class="spec">16 GB · 512 GB SSD · Space Black</span><span class="meta"><span class="grade">Grade B</span>3 × $820</span></div>
-              <div class="slip-total"><span>Lot total<small>21 devices · one order</small></span><b>$10,200</b></div>
-            </div>
-          </article>
+          </div>
         </figure>
       </div>
     </div>
@@ -816,8 +979,8 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
             </div>
             <div class="slip" aria-label="Example trade-in quote">
               <div class="slip-head"><span>Trade-in quote</span><span class="ex">Example</span></div>
-              <div class="slip-row"><img src="img/iphone-17-pro-orange.webp" alt=""><b class="nm">iPhone 17 Pro</b><span class="amt">$899</span><span class="spec">256 GB · Cosmic Orange · Unlocked</span><span class="meta"><span class="grade">Grade A</span>Battery 100% · from our shop</span></div>
-              <div class="slip-row"><img src="img/iphone-15-pro-natural.webp" alt=""><b class="nm">Your iPhone 15 Pro</b><span class="amt neg">−$330</span><span class="spec">128 GB · Natural Titanium · Unlocked</span><span class="meta"><span class="grade">Good</span>Battery 88% · no cracks</span></div>
+              <div class="slip-row"><img src="img/iphone-17-pro-orange.webp" alt=""><span class="role">You're buying</span><b class="nm">iPhone 17 Pro</b><span class="amt">$899</span><span class="spec">256 GB · Cosmic Orange · Unlocked</span><span class="meta"><span class="grade">Grade A</span>Battery 100% · from our shop</span></div>
+              <div class="slip-row"><img src="img/iphone-15-pro-natural.webp" alt=""><span class="role sell">You're selling</span><b class="nm">iPhone 15 Pro</b><span class="amt neg">−$330</span><span class="spec">128 GB · Natural Titanium · Unlocked</span><span class="meta"><span class="grade">Good</span>Battery 88% · no cracks</span></div>
               <div class="slip-total"><span>You pay<small>the difference</small></span><b>$569</b></div>
             </div>
           </article>
@@ -832,7 +995,7 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
               <p class="foot">iPhones · iPads · Macs</p>
             </div>
             <div class="slip" aria-label="Example lot sheet">
-              <div class="slip-head"><span>Lot sheet</span><span class="ex">Example</span></div>
+              <div class="slip-head"><span>Lot sheet · you're selling</span><span class="ex">Example</span></div>
               <div class="slip-row"><img src="img/iphone-16-pro-black.webp" alt=""><b class="nm">iPhone 16 Pro</b><span class="amt">$5,760</span><span class="spec">256 GB · Black Titanium · Unlocked</span><span class="meta"><span class="grade">Grade A</span>12 × $480</span></div>
               <div class="slip-row"><img src="img/ipad-air-blue.webp" alt=""><b class="nm">iPad Air <span class="nb">11-inch</span> (M3)</b><span class="amt">$1,980</span><span class="spec">128 GB · Wi-Fi · Blue</span><span class="meta"><span class="grade">Grade A</span>6 × $330</span></div>
               <div class="slip-row"><img src="img/macbook-pro-black.webp" alt=""><b class="nm">MacBook Pro <span class="nb">14-inch</span> (M4)</b><span class="amt">$2,460</span><span class="spec">16 GB · 512 GB SSD · Space Black</span><span class="meta"><span class="grade">Grade B</span>3 × $820</span></div>
@@ -980,14 +1143,49 @@ document.querySelectorAll('[data-offers]').forEach(function (card) {
     });
   });
 });
-document.querySelectorAll('[data-shop]').forEach(function (card) {
-  var box = card.querySelector('input');
-  box.addEventListener('change', function () {
-    card.classList.toggle('plain', !box.checked);
-    card.querySelectorAll('.item').forEach(function (it) {
-      var price = +it.dataset.price;
-      it.querySelector('.now').textContent = usd(box.checked ? price - 330 : price);
+/* Your picks: the colourways, the checkout's trade-in switch, the lot's steppers. */
+(function () {
+  var sec = document.getElementById('your-picks');
+  sec.querySelectorAll('.pal').forEach(function (b) {
+    b.addEventListener('click', function () {
+      sec.setAttribute('data-palette', b.dataset.pal);
+      sec.querySelectorAll('.pal').forEach(function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
     });
   });
+})();
+document.querySelectorAll('[data-checkout]').forEach(function (sheet) {
+  var box = sheet.querySelector('input'), price = +sheet.dataset.price, credit = +sheet.dataset.credit;
+  function paint() {
+    var on = box.checked, total = on ? price - credit : price;
+    sheet.classList.toggle('no-trade', !on);
+    sheet.querySelector('.co-total').textContent = usd(total);
+    sheet.querySelector('.co-pay').textContent = 'Pay ' + usd(total);
+    sheet.querySelector('.co-note').textContent = on
+      ? 'Turn this off to pay full price and keep your iPhone 15 Pro.'
+      : "You're keeping your iPhone 15 Pro and paying full price. Turn it back on any time.";
+  }
+  box.addEventListener('change', paint);
+  paint();
+});
+document.querySelectorAll('[data-lotsheet]').forEach(function (sheet) {
+  var rows = sheet.querySelectorAll('[data-unit]');
+  function paint() {
+    var n = 0, sum = 0;
+    rows.forEach(function (row) {
+      var q = +row.dataset.qty, u = +row.dataset.unit;
+      n += q; sum += q * u;
+      row.querySelector('.ln').textContent = usd(q * u);
+      row.querySelector('.qx').textContent = q + ' × ' + usd(u);
+    });
+    sheet.querySelector('.lot-ndev').textContent = n + ' device' + (n === 1 ? '' : 's');
+    sheet.querySelector('.lot-n').textContent = n;
+    sheet.querySelector('.lot-sum').textContent = usd(sum);
+    sheet.querySelector('.lot-pay').textContent = n ? 'Sell my lot for ' + usd(sum) : 'Add a device to start';
+  }
+  rows.forEach(function (row) {
+    row.querySelector('.dec').addEventListener('click', function () { row.dataset.qty = Math.max(0, +row.dataset.qty - 1); paint(); });
+    row.querySelector('.inc').addEventListener('click', function () { row.dataset.qty = Math.min(999, +row.dataset.qty + 1); paint(); });
+  });
+  paint();
 });
 </script>
