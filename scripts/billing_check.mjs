@@ -624,10 +624,11 @@ async function browserPart() {
       const pr = await page.evaluate(() => {
         const sec = document.getElementById('pricing');
         sec.scrollIntoView();
-        return { cards: [...sec.querySelectorAll('.lp-price-card h3')].map((h) => h.textContent), free: !!sec.querySelector('.lp-free-line'), text: sec.innerText, over: document.documentElement.scrollWidth - innerWidth };
+        return { cards: [...sec.querySelectorAll('.lp-price-card h3')].map((h) => h.textContent), free: !!sec.querySelector('.lp-price-card:first-child.lp-price-free'), text: sec.innerText, over: document.documentElement.scrollWidth - innerWidth };
       });
-      ok(pr.cards.join() === 'Starter,Pro,Business' && pr.free, `landing ${w}: Free as a line, then three plans (${pr.cards.join()})`);
+      ok(pr.cards.join() === 'Free,Starter,Pro,Business' && pr.free, `landing ${w}: Free first, left of the three plans (${pr.cards.join()})`);
       ok(/photos or videos/.test(pr.text) && /\$1,000 a year/.test(pr.text) && /Unlimited downloads/.test(pr.text) && /AI credits/.test(pr.text) && /100 credits are \$9/.test(pr.text), `landing ${w}: videos, yearly price and credits on the cards`);
+      ok(/you save \$50/.test(pr.text) && /you save \$120/.test(pr.text) && /you save \$200/.test(pr.text), `landing ${w}: each paid card says what yearly saves`);
       ok(pr.over <= 0, `landing ${w}: no sideways scroll (${pr.over}px)`);
       if (process.env.SHOT_DIR) { await page.waitForTimeout(600); await page.locator('#pricing').screenshot({ path: join(process.env.SHOT_DIR, 'landing-pricing-' + w + '.png') }); }
       await page.context().close();
@@ -640,13 +641,18 @@ async function browserPart() {
       await page.goto(BASE + '/?plans=1', { waitUntil: 'domcontentloaded' });
       await page.waitForSelector('#page-plans.active .plan-card');
       await page.waitForTimeout(400);
-      const m = await page.evaluate(() => ({ cards: [...document.querySelectorAll('#plans-grid .plan-card')].map((c) => c.querySelector('.plan-name').textContent + ' ' + c.querySelector('.plan-price').textContent), packs: document.querySelectorAll('.pack-btn').length, free: !!document.querySelector('#plans-grid .plans-free'), over: document.documentElement.scrollWidth - innerWidth, note: (document.querySelector('.plans-note') || {}).textContent || '' }));
-      ok(m.cards.join('|') === 'Starter $25 /month|Pro $60 /month|Business $100 /month' && m.free && m.packs === 2, `plans ${w}: Free as a line, monthly (${m.cards.join('|')}), two packs`);
+      const m = await page.evaluate(() => ({ cards: [...document.querySelectorAll('#plans-grid .plan-card')].map((c) => c.querySelector('.plan-name').textContent + ' ' + c.querySelector('.plan-price').textContent), packs: document.querySelectorAll('.pack-btn').length, free: !!document.querySelector('#plans-grid .plan-card:first-child.plan-free'), freeCur: !!document.querySelector('#plans-grid .plan-free .plan-current'), over: document.documentElement.scrollWidth - innerWidth, note: (document.querySelector('.plans-note') || {}).textContent || '',
+        per: [...document.querySelectorAll('#plans-grid .plan-card .plan-per')].map((e) => e.textContent).join('|'), trust: (document.querySelector('#plans-grid .plans-trust') || {}).textContent || '' }));
+      ok(m.cards.join('|') === 'Free $0 forever|Starter $25 /month|Pro $60 /month|Business $100 /month' && m.free && m.packs === 2 && (w !== 1440 || m.freeCur), `plans ${w}: Free first (the free account's current plan), then monthly (${m.cards.join('|')}), two packs`);
+      ok(/Or \$250 a year: you save \$50/.test(m.per) && /Or \$600 a year: you save \$120/.test(m.per) && /Or \$1,000 a year: you save \$200/.test(m.per), `plans ${w}: monthly cards say what yearly saves (${m.per})`);
+      ok(/Secure checkout/.test(m.trust) && /Cancel any time/.test(m.trust) && !/What customers say/.test(m.trust), `plans ${w}: what you can count on, at the bottom; no reviews until there are real ones`);
       ok(!/opens soon/.test(m.note), `plans ${w}: billing is on, no "opens soon" note`);
       await shot(page, 'plans-month-' + w);
       await page.click('.plans-toggle button:nth-child(2)');
       const y = await page.evaluate(() => [...document.querySelectorAll('#plans-grid .plan-card .plan-price')].map((p) => p.textContent).join('|'));
-      ok(y === '$250 /year|$600 /year|$1,000 /year', `plans ${w}: yearly (${y})`);
+      ok(y === '$0 forever|$250 /year|$600 /year|$1,000 /year', `plans ${w}: yearly (${y})`);
+      const ys = await page.evaluate(() => [...document.querySelectorAll('#plans-grid .plan-save')].map((e) => e.textContent).join('|'));
+      ok(ys === 'You save $50 a year|You save $120 a year|You save $200 a year', `plans ${w}: yearly cards say the saving (${ys})`);
       ok(m.over <= 0, `plans ${w}: no sideways scroll`);
       await shot(page, 'plans-year-' + w);
       if (w === 390) { await page.context().close(); continue; }
@@ -671,12 +677,12 @@ async function browserPart() {
       await page.evaluate(() => openPlans());
       await page.waitForTimeout(400);
       const cur = await page.evaluate(() => [...document.querySelectorAll('#plans-grid .plan-card')].map((c) => (c.querySelector('.plan-current') ? 'current' : (c.querySelector('.plan-btn') || {}).textContent)).join('|'));
-      ok(cur === 'Switch to Starter|Switch to Pro monthly|Switch to Business', `plans as Pro yearly, monthly view: ${cur}`);
+      ok(cur === 'Cancel in billing|Switch to Starter|Switch to Pro monthly|Switch to Business', `plans as Pro yearly, monthly view: ${cur}`);
       await page.click('.plans-toggle button:nth-child(2)');
       const curY = await page.evaluate(() => [...document.querySelectorAll('#plans-grid .plan-card')].map((c) => (c.querySelector('.plan-current') ? 'current' : (c.querySelector('.plan-btn') || {}).textContent)).join('|'));
-      ok(curY === 'Switch to Starter|current|Switch to Business', `plans as Pro yearly, yearly view: ${curY}`);
+      ok(curY === 'Cancel in billing|Switch to Starter|current|Switch to Business', `plans as Pro yearly, yearly view: ${curY}`);
       await page.click('.plans-toggle button:nth-child(1)');
-      await page.click('#plans-grid .plan-card:nth-child(3) .plan-btn');
+      await page.click('#plans-grid .plan-card:nth-child(4) .plan-btn');
       await page.waitForTimeout(800);
       ok(userBlob('browser@x.example').plan === 'business', 'the switch to Business went through');
 
@@ -704,7 +710,7 @@ async function browserPart() {
       await page.waitForSelector('#page-plans.active .plan-card');
       await page.waitForTimeout(400);
       const a = await page.evaluate(() => ({ badge: document.getElementById('acct-plan').textContent, free: (document.getElementById('acct-plan').className.match(/\bfree\b/) || []).length,
-        note: (document.querySelector('#plans-grid .plans-admin') || {}).textContent || '', current: !!document.querySelector('#plans-grid .plans-free .plan-current'),
+        note: (document.querySelector('#plans-grid .plans-admin') || {}).textContent || '', current: !!document.querySelector('#plans-grid .plan-free .plan-current'),
         packs: document.querySelector('#plans-grid .plans-packs-head p').textContent, up: getComputedStyle(document.getElementById('nav-upgrade') || document.body).display,
         quota: (syncQuotaUI(), (document.getElementById('ez-quota') || {}).textContent || ''), hint: (syncCreditsUI(), document.getElementById('bg-credits').textContent),
         plan: planOf().label, video: videoAllowed(), qr: planOf().qr }));
@@ -724,7 +730,7 @@ async function browserPart() {
       await page.goto(BASE + '/?plans=1', { waitUntil: 'domcontentloaded' });
       await page.waitForSelector('#page-plans.active .plan-card');
       const before = page.url();
-      await page.click('#plans-grid .plan-card:nth-child(1) .plan-btn');
+      await page.click('#plans-grid .plan-card:nth-child(2) .plan-btn');
       await page.waitForSelector('#co-overlay.show #co-agree');
       await page.check('#co-agree');
       await page.click('#co-go');
@@ -745,7 +751,7 @@ async function browserPart() {
       const phone = await newPage(390, await signup('onsite-phone@x.example'));
       await phone.goto(BASE + '/?plans=1', { waitUntil: 'domcontentloaded' });
       await phone.waitForSelector('#page-plans.active .plan-card');
-      await phone.click('#plans-grid .plan-card:nth-child(1) .plan-btn');
+      await phone.click('#plans-grid .plan-card:nth-child(2) .plan-btn');
       await phone.waitForSelector('#co-overlay.show #co-agree');
       await shot(phone, 'checkout-consent-390');
       await phone.check('#co-agree');
@@ -758,6 +764,25 @@ async function browserPart() {
       ok(await phone.evaluate(() => !document.getElementById('co-overlay').classList.contains('show') && !document.querySelector('#co-mount #fake-stripe-pay')), 'embedded checkout: Close takes the form down, nothing charged');
       await phone.context().close();
       delete env.STRIPE_PUBLISHABLE_KEY;
+    }
+    /* Stripe off: the plans page and the toast say the same thing, and
+       Choose says it at once, before the agreement (owner, 2026-10-11: "make
+       it more clear and cohesive") */
+    {
+      const key = env.STRIPE_SECRET; delete env.STRIPE_SECRET;
+      const page = await newPage(1440, await signup('notyet@x.example'));
+      await page.goto(BASE + '/?plans=1', { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('#page-plans.active .plan-card');
+      await page.waitForFunction(() => /opens soon/.test((document.querySelector('#plans-grid .plans-note') || {}).textContent || ''), null, { timeout: 10000 }).catch(() => {});
+      await page.click('#plans-grid .plan-card.hot .plan-btn');
+      await page.waitForTimeout(300);
+      const off = await page.evaluate(() => ({ note: (document.querySelector('#plans-grid .plans-note') || {}).textContent || '', toast: document.getElementById('notif').textContent,
+        kind: document.getElementById('notif').className, dialog: !!document.querySelector('#co-overlay.show') }));
+      ok(off.note === 'Checkout opens soon. Until then nothing is charged, and Free works as normal.' && off.toast === 'Checkout opens soon, so nothing was charged. Free works as normal until then.' && !/error/.test(off.kind) && !off.dialog,
+        `Stripe off: one wording on the page and in the toast, not an error, no agreement first (${JSON.stringify(off)})`);
+      await shot(page, 'plans-not-open');
+      await page.context().close();
+      env.STRIPE_SECRET = key;
     }
     /* the video maker: signed out, Download asks for an account; Free gets the
        plans, nothing counted; Pro's download is counted once, a 1080 video and
