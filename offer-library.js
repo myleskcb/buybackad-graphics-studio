@@ -18,7 +18,9 @@
  * number in a rounded box of its own, floating on the photograph instead of
  * strips run edge to edge (the owner: "it doesn't need to be a strip all the
  * way across the page"). Built last for each line, so every card before it
- * keeps its look, face, headline and photograph.
+ * keeps its look, face, headline and photograph. An eighth, Detailed, the
+ * same offer spelled out with icons, a checklist and arrows (the owner: "we
+ * need the informative approach"), built after it.
  *
  * This file loads AFTER app.js, so none of app.js's load-time passes touch
  * these cards (assignStyle's duotone, bodyPanel, the brand vocabulary): they
@@ -478,7 +480,7 @@
         : { left:M, top:top + 60, fontFamily:F.r, fontSize:NUM_PX, fontWeight:w, fill:ink }),
     ];
   };
-  const vignette = () => ({ kind:'vignette', name:'Vignette', props:{ strength: 0.22 } });
+  const vignette = s => ({ kind:'vignette', name:'Vignette', props:{ strength: s || 0.22 } });
   /* the shade: solid neutral black from the top to under the last line of
      type on the photograph, then fading toward the product, which stands on
      the photograph as it was shot */
@@ -504,11 +506,32 @@
      text inside them starts on the headline's own left edge (M). */
   const FL = M - 28, FW = W - 2 * FL, FGAP = 20, FPAD = 28, FSTEP = 196, FNUM = 186;
   const FBW = (FW - 2 * FGAP) / 3;
+  /* THE FINISH (the owner: "gradient, fade or highlight on the top of the
+     floating boxes ... overlay grain ... vignette or sunburst to make the
+     colours feel a little more alive"). Light and shade only, never a new
+     hue (rules 56 and 85): a box is lit from above in its own colour (a
+     lighter top fading to its colour) with a thin sheen along its top edge;
+     the photograph under the boxes takes a fine grain and a deeper vignette;
+     a soft pool of white light stands behind the product. */
+  const hx2 = h => { const v = String(h).replace('#', ''); return [0, 2, 4].map(i => parseInt(v.slice(i, i + 2), 16)); };
+  const lift = (h, k) => '#' + hx2(h).map(c => Math.round(c + (255 - c) * k).toString(16).padStart(2, '0')).join('');
+  const lumOf = h => { const [r, g, b] = hx2(h).map(c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+  /* a box's fill: its colour, lit from the top (a dark box lifts more than a light one) */
+  const litFill = h => ({ fill:h, grad:{ c1: lift(h, lumOf(h) < 0.3 ? 0.16 : 0.45), c2:h, a:180 } });
+  const sheen = (name, x, top, w, h) => r(name, { left:x + 20, top:top + 2, width:Math.round(w - 40), height:2, rx:1, ry:1,
+    fill: lumOf(h) < 0.3 ? 'rgba(255,255,255,0.32)' : 'rgba(255,255,255,0.85)' });
+  const grain = () => ({ kind:'grain', name:'Grain', props:{ opacity:0.08 } });
+  /* the light behind the product: rings of faint white, widest faintest */
+  const lightPool = (cx, cy, rad) => Array.from({ length:12 }, (_, i) => {
+    const rr = Math.round(rad * (1 - i * 0.075));
+    return ci('Light ' + (i + 1), { left:Math.round(cx - rr), top:Math.round(cy - rr * 0.8), radius:rr, scaleY:0.8, fill:'rgba(255,255,255,0.022)' });
+  });
   const stepBoxes = (L, F, line, top, style) => {
     const detail = [line.ask, line.meet || MEET, line.paid || PAID], out = [], shadow = sh('rgba(0,0,0,0.34)', 30, 0, 12);
     STEP_TITLES.forEach((title, i) => {
       const x = Math.round(FL + i * (FBW + FGAP)), tx = x + FPAD;
-      out.push(r('Step ' + (i + 1) + ' Box', { left:x, top, width:Math.round(FBW), height:FSTEP, fill:panelFill(L), rx:26, ry:26, shadow }));
+      out.push(r('Step ' + (i + 1) + ' Box', Object.assign({ left:x, top, width:Math.round(FBW), height:FSTEP, rx:26, ry:26, shadow }, litFill(panelFill(L)))));
+      out.push(sheen('Step ' + (i + 1) + ' Sheen', x, top, FBW, panelFill(L)));
       out.push(...marker(L, F, style, i, tx, top + 24));
       out.push(t('Step ' + (i + 1), 'info', 'none', title, { left:tx, top:top + 66, fontFamily:F.r, fontSize:34, fontWeight:F.rw, fill:L.ink }));
       out.push(tb('Step ' + (i + 1) + ' Detail', 'info', 'none', detail[i], { left:tx, top:top + 110, width:Math.round(FBW - 2 * FPAD),
@@ -516,11 +539,83 @@
     });
     return out;
   };
+  /* DETAILED (2026-10-11, the owner: "add a little more detail or graphic
+     design language ... sometimes that language is a little too simplified
+     for the average consumer ... we need the informative approach"). The
+     same offer spelled out: what is bought under a WE BUY label, what to know
+     before meeting as a checklist, how it works as three steps each with its
+     icon and an arrow between them, the number with its phone mark (rule
+     118). Every word is the line's own (models, ask, check, the steps), so it
+     informs without claiming anything new (DESIGN-LAW 55). Icons from the
+     studio's outline set (app.js ICONS: one stroke weight, round caps); the
+     chat bubble is added to it here. */
+  if (typeof ICONS !== 'undefined' && !ICONS.chat)
+    ICONS.chat = { d:'M24 18 H76 A12 12 0 0 1 88 30 V58 A12 12 0 0 1 76 70 H46 L28 84 V70 H24 A12 12 0 0 1 12 58 V30 A12 12 0 0 1 24 18 Z M30 38 H70 M30 52 H58', min:28 };
+  const icon = (name, ic, x, y, size, ink) => ({ kind:'path', icon:ic, name, role:'deco', props:{ left:x, top:y, size, fill:ink } });
+  const STEP_ICONS = ['chat', 'pin', 'cash'];
+  const DSTEP = 168, DNUM = 180, DGAP = 24;
+  const DBW = (FW - 2 * DGAP) / 3;
+  const weBuy = (L, F, text, y) => {
+    const pw = 150;
+    return [
+      r('We Buy Pill', { left:M, top:y, width:pw, height:46, fill:L.band, rx:23, ry:23 }),
+      t('We Buy', 'deco', 'none', 'WE BUY', { left:M + pw / 2, top:y + 9, originX:'center', fontFamily:F.r, fontSize:26, fontWeight:700, fill:L.bandInk, charSpacing:80 }),
+      t('Models', 'sub', 'none', text, { left:M + pw + 18, top:y + 9, fontFamily:F.r, fontSize:26, fontWeight:F.rw, fill:PH.ink }),
+    ];
+  };
+  /* the checklist on one see-through grey card (never tinted, rule 85: the
+     FAQ's "boxes over a photo are see-through grey"), so a busy photograph
+     stays behind the words; its lines share one left edge (rule 109) */
+  const KNOW_W = 600 - M - 24, KNOW_H = n => 70 + n * 50;
+  const goodToKnow = (L, F, items, x, y) => { const dot = lumOf(L.band) > 0.25 ? L.band : '#ffffff', tick = dot === L.band ? L.bandInk : '#111111'; return [
+    r('Know Card', { left:x - 22, top:y - 18, width:KNOW_W + 22, height:KNOW_H(items.length), rx:22, ry:22, fill:'rgba(8,8,10,0.62)', stroke:'rgba(255,255,255,0.18)', strokeWidth:1.5 }),
+    t('Know Label', 'deco', 'none', 'GOOD TO KNOW', { left:x, top:y, fontFamily:F.r, fontSize:26, fontWeight:700, fill:PH.sub, charSpacing:120 }),
+    ...items.flatMap((text, i) => {
+      const yy = y + 44 + i * 50;
+      return [ci('Know ' + (i + 1) + ' Dot', { left:x, top:yy, radius:16, fill:dot }),               // a dark accent would vanish on the grey card
+        icon('Know ' + (i + 1) + ' Tick', 'check', x + 8, yy + 8, 16, tick),
+        t('Know ' + (i + 1), 'info', 'none', text, { left:x + 44, top:yy + 1, fontFamily:F.r, fontSize:26, fontWeight:500, fill:PH.ink })];
+    }),
+  ]; };
+  const stepCards = (L, F, line, top) => {
+    const detail = [line.ask, line.meet || MEET, line.paid || PAID], out = [], shadow = sh('rgba(0,0,0,0.34)', 28, 0, 10);
+    STEP_TITLES.forEach((title, i) => {
+      const x = Math.round(FL + i * (DBW + DGAP));
+      out.push(r('Step ' + (i + 1) + ' Box', Object.assign({ left:x, top, width:Math.round(DBW), height:DSTEP, rx:22, ry:22, shadow }, litFill(panelFill(L)))));
+      out.push(sheen('Step ' + (i + 1) + ' Sheen', x, top, DBW, panelFill(L)));
+      out.push(ci('Step ' + (i + 1) + ' Badge', { left:x + 20, top:top + 20, radius:26, fill:L.acc }));
+      out.push(icon('Step ' + (i + 1) + ' Icon', STEP_ICONS[i], x + 31, top + 31, 30, L.g1));
+      out.push(t('Step ' + (i + 1), 'info', 'none', title, { left:x + 84, top:top + 27, fontFamily:F.r, fontSize:34, fontWeight:F.rw, fill:L.ink }));
+      out.push(tb('Step ' + (i + 1) + ' Detail', 'info', 'none', detail[i], { left:x + 22, top:top + 88, width:Math.round(DBW - 44),
+        fontFamily:F.r, fontSize:26, fontWeight:500, fill:L.sub, lineHeight:1.18 }));
+      if (i < 2){                                                   // the arrow on the seam to the next step
+        const ax = Math.round(x + DBW + DGAP / 2);
+        out.push(ci('Step ' + (i + 1) + ' Arrow Dot', { left:ax - 17, top:top + 29, radius:17, fill:L.band }));
+        out.push(icon('Step ' + (i + 1) + ' Arrow', 'arrowRight', ax - 9, top + 37, 18, L.bandInk));
+      }
+    });
+    return out;
+  };
+  /* the number's box with its mark: a disc in the number's own colour, the
+     handset cut out of it in the box's, centred on the number's line */
+  const numberCard = (L, F, top) => {
+    const w = F.rw === 500 ? 700 : F.rw, cy = top + 108;
+    return [
+      r('Action Band', Object.assign({ left:FL, top, width:FW, height:DNUM, rx:30, ry:30, shadow:sh('rgba(0,0,0,0.38)', 34, 0, 14) }, litFill(L.band))),
+      sheen('Action Band Sheen', FL, top, FW, L.band),
+      ci('Phone Mark Disc', { left:M, top:cy - 34, radius:34, fill:L.bandInk }),
+      icon('Phone Mark', 'phoneMark', M + 15, cy - 19, 38, L.band),
+      t('Call Label', 'cta', 'none', 'Call or text', { left:M + 88, top:top + 26, fontFamily:F.r, fontSize:26, fontWeight:F.rw, fill:L.bandSub }),
+      t('Website', 'website', 'none', SITE, { left:W - M, top:top + 26, originX:'right', fontFamily:F.r, fontSize:26, fontWeight:F.rw, fill:L.bandSub }),
+      t('Phone Number', 'phone', 'none', NUMBER, { left:M + 88, top:top + 62, fontFamily:F.r, fontSize:NUM_PX, fontWeight:w, fill:L.bandInk }),
+    ];
+  };
   /* the number's own box: the band's colours and lines, rounded and floating */
   const numberBox = (L, F, top) => {
     const w = F.rw === 500 ? 700 : F.rw;
     return [
-      r('Action Band', { left:FL, top, width:FW, height:FNUM, fill:L.band, rx:30, ry:30, shadow:sh('rgba(0,0,0,0.38)', 34, 0, 14) }),
+      r('Action Band', Object.assign({ left:FL, top, width:FW, height:FNUM, rx:30, ry:30, shadow:sh('rgba(0,0,0,0.38)', 34, 0, 14) }, litFill(L.band))),
+      sheen('Action Band Sheen', FL, top, FW, L.band),
       t('Call Label', 'cta', 'none', 'Call or text', { left:M, top:top + 26, fontFamily:F.r, fontSize:26, fontWeight:F.rw, fill:L.bandSub }),
       t('Website', 'website', 'none', SITE, { left:W - M, top:top + 26, originX:'right', fontFamily:F.r, fontSize:26, fontWeight:F.rw, fill:L.bandSub }),
       t('Phone Number', 'phone', 'none', NUMBER, { left:M, top:top + 62, fontFamily:F.r, fontSize:NUM_PX, fontWeight:w, fill:L.bandInk }),
@@ -623,9 +718,28 @@
       if (floor - prodTop < 230) return null;
       /* a step's detail sets in two lines at most in its box */
       if ([line.ask, line.meet || MEET, line.paid || PAID].some(d => lineW(d, { em: 0.54 }, 26) > 2 * (FBW - 2 * FPAD))) return null;
-      return [...shade(G, top + fit.h + 18, floor), vignette(), models(PH, F, line.models, M, 64), headline(L, F, fit, M, top, W - 2 * M, 'left', PH.ink),
+      return [...shade(G, top + fit.h + 18, floor), vignette(0.32), grain(), ...lightPool(CX, (prodTop + floor) / 2, (floor - prodTop) * 0.95),
+        models(PH, F, line.models, M, 64), headline(L, F, fit, M, top, W - 2 * M, 'left', PH.ink),
         ...arrange(set, { x:M, y:prodTop, w:W - 2 * M, h:floor - prodTop }, ON_PHOTO),
         ...stepBoxes(L, F, line, SB, style), ...numberBox(L, F, NB)];
+    },
+    /* "Detailed": the informative card. The WE BUY label and the models, the
+       headline, a checklist on the left with the product on the right, how
+       it works in three steps with icons and arrows, the number with its mark */
+    info(L, F, line, head, set, style, G){
+      const fit = fitHead(head, F, W - 2 * M, 2, 108); if (!fit) return null;
+      const NB = 1080 - FL - DNUM, SB = NB - 22 - DSTEP, HOW = SB - 44, top = 122, mid = top + fit.h + 50;
+      const items = (line.check || []).slice(0, 3), RF = { em: 0.54 };
+      if (items.length < 2 || mid - 18 + KNOW_H(items.length) > HOW - 12 || HOW - 16 - mid < 180) return null;
+      if (items.some(c => lineW(c, RF, 26) > KNOW_W - 60)) return null;                      // a tick's line stays on its card, left of the product
+      if (M + 168 + lineW(line.models, RF, 26) > W - M) return null;                          // the models fit beside the label
+      if ([line.ask, line.meet || MEET, line.paid || PAID].some(d => lineW(d, RF, 26) > 2 * (DBW - 44))) return null;
+      const pw = W - M - 600, ph = HOW - 16 - mid;
+      return [...shade(G, HOW + 34, SB - 8), vignette(0.32), grain(), ...lightPool(600 + pw / 2, mid + ph / 2, Math.min(pw, ph * 1.2) * 0.62), ...weBuy(L, F, line.models, 56), headline(L, F, fit, M, top, W - 2 * M, 'left', PH.ink),
+        ...goodToKnow(L, F, items, M, mid),
+        ...arrange(set, { x:600, y:mid, w:W - M - 600, h:HOW - 16 - mid }, ON_PHOTO),
+        t('How Label', 'deco', 'none', 'HOW IT WORKS', { left:M, top:HOW, fontFamily:F.r, fontSize:26, fontWeight:700, fill:PH.sub, charSpacing:120 }),
+        ...stepCards(L, F, line, SB), ...numberCard(L, F, NB)];
     },
     /* "Type": no picture the library can vouch for, so the model names are the
        picture, set large between rules on the photograph */
@@ -646,7 +760,7 @@
         ...band(L, F, BT, 'center')];
     },
   };
-  const LAYOUT_NAME = { row:'Studio row', list:'Studio list', band:'Photo band', split:'Split', center:'Centre', float:'Floating', type:'Type', typeCenter:'Type, centred' };
+  const LAYOUT_NAME = { row:'Studio row', list:'Studio list', band:'Photo band', split:'Split', center:'Centre', float:'Floating', info:'Detailed', type:'Type', typeCenter:'Type, centred' };
 
   /* ── THE BOOK: every line in every layout it can carry. The look, the face,
      the headline and the picture set rotate with a stride per line, so two
@@ -674,7 +788,7 @@
 
   const made = [];
   LINES.forEach((line, li) => {
-    const lays = line.ledger ? ['type', 'typeCenter', 'band'] : ['row', 'list', 'band', 'split', 'center', 'float'];   // float last: the cards before it keep their rotation
+    const lays = line.ledger ? ['type', 'typeCenter', 'band'] : ['row', 'list', 'band', 'split', 'center', 'float', 'info'];   // new layouts last: the cards before them keep their rotation
     const grounds = GROUNDS[GROUND_OF[line.key] || GROUND_OF[line.cat] || 'space'];
     const flavor = (FLAVOR[line.cat] || []).map(k => FACE[k]).filter(Boolean);
     lays.forEach((lay, k) => {

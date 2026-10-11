@@ -2783,6 +2783,24 @@ flagged those pictures (2026-10-04). Regenerating it (`--write`) would take
 the user's own MacBook card out of the studio with the rest: the owner's
 call, not done here.
 
+**Detailed, an eighth offer layout, and a finish on both** (the owner: "add
+a little more detail or graphic design language ... too simplified for the
+average consumer ... we need the informative approach", then "gradient, fade
+or highlight on the top of the floating boxes ... overlay grain ... vignette
+or sunburst to make the colours feel a little more alive"). `info`: a WE BUY
+label with the models, a GOOD TO KNOW checklist (the line's own `check`
+items) on one see-through grey card, HOW IT WORKS as three steps with an
+icon each (chat, pin, cash; `ICONS.chat` added) and arrows on the seams, and
+the number with its phone mark (rule 118). Every word is the line's own.
+The finish, Floating and Detailed alike, is light and shade only (rules 56,
+85): each box lit from the top in its own colour with a sheen line, grain and
+a deeper vignette on the photograph, a soft pool of white light behind the
+product. 28 Detailed cards; all 56 new cards pass the gate in Easy Mode, and
+`audit_templates.mjs` rejects them only for the flagged pictures their
+siblings share (30 of 56 pass), with nothing for copy, overlap or legibility.
+A theme on these cards repaints the boxes flat (themeScene owns a plate's
+colour); the finish is the card as designed.
+
 Checked (2026-10-11): `scripts/mac_wallpapers_check.mjs` ok on the 6 offered
 cards with a known screen (11 screen choices each, no new gate failure);
 `ez_theme_audit.mjs --quick` no problems; `designer_audit.mjs` found the
