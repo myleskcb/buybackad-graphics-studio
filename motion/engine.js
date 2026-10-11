@@ -106,10 +106,11 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   const out = { ...st, seed };
   for (const k of Object.keys(OPTIONS)) {
     // their own draws below, so older seeds keep their looks; a kept option (the holiday) only by hand
-    if (k === "pose" || ACCENT_AXES.includes(k) || LATE_OPTIONS.includes(k) || KEPT_OPTIONS.includes(k)) continue;
+    if (k === "pose" || k === "phone_idle" || ACCENT_AXES.includes(k) || LATE_OPTIONS.includes(k) || KEPT_OPTIONS.includes(k)) continue;
     if (!locked.has(k)) out[k] = r.weighted(OPTIONS[k], WEIGHTS[k]);
   }
   if (!locked.has("pose")) out.pose = rng(seed * 4099 + 71).weighted(OPTIONS.pose, WEIGHTS.pose);
+  if (!locked.has("phone_idle")) out.phone_idle = rng(seed * 3329 + 41).weighted(OPTIONS.phone_idle, WEIGHTS.phone_idle);
   const ra = rng(seed * 6151 + 29);
   for (const k of ACCENT_AXES) if (!locked.has(k)) out[k] = ra.weighted(OPTIONS[k], WEIGHTS[k]);
   const r2 = rng(seed * 6007 + 29);
@@ -358,6 +359,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (!OPTIONS.accent.includes(st.accent)) st.accent = "none";
   if (!OPTIONS.season.includes(st.season)) st.season = "none";
   if (!OPTIONS.tone.includes(st.tone)) st.tone = "studio";
+  if (!OPTIONS.phone_idle.includes(st.phone_idle)) st.phone_idle = "spin";
   if (!OPTIONS.track.includes(st.track)) st.track = "none";
   // a holiday's recordings belong to its ads, and a holiday ad plays only its own (or its
   // tunes, made here); no music means no recording either, unless one was picked by hand
@@ -883,7 +885,7 @@ export class Phone {
   }
 }
 
-export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShadow = false) {
+export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShadow = false, shadowDy = 0) {
   const c = Math.cos(flip), ac = Math.abs(c), front = c >= 0;
   const w = p.w * scale, h = p.h * scale;
   const zz = clamp(z, 0, 1);
@@ -899,7 +901,7 @@ export function drawPhone(ctx, p, x, y, scale, rot, flip, z, op, W, tint, noShad
     const cf = p.finish === "photo" ? 1 - inOut(clamp(zz / .25)) : 0;
     if (cf) a0 += op * .34 * cf * (1 - a0);
     ctx.save();
-    ctx.translate(x + W * (.006 + .03 * zz) * (1 - .55 * cf), y + W * (.010 + .045 * zz) * (1 - .55 * cf));
+    ctx.translate(x + W * (.006 + .03 * zz) * (1 - .55 * cf), y + shadowDy + W * (.010 + .045 * zz) * (1 - .55 * cf));   // shadowDy: on the ground under a phone floating above it
     ctx.rotate(-rot * Math.PI / 180);
     ctx.scale(scale * Math.max(ac + (p.design.depth || THICKNESS) * Math.abs(Math.sin(flip)), .02), scale);
     for (const [sh, al] of [[p.shadows[i0], a0], [p.shadows[i0 + 1], a1]]) {
@@ -1401,11 +1403,53 @@ const POSE_TURN = { flat: 0, edge_left: -.6, edge_right: .6 };
 // Side on, by hand only (rule 124): turned 60 degrees, the buttons' edge toward the lens.
 const POSE_SIDE = { profile_left: -1.05, profile_right: 1.05 };
 
-function phoneState(p, t, st) {
+/** rest: the phones as they stand once landed, without the move they make after (a still
+ *  of the ad, its photo, and what the words are measured against). */
+function phoneState(p, t, st, rest = false) {
   const s = phoneState0(p, t, st);
   const turn = POSE_TURN[st.pose] || POSE_SIDE[st.pose] || 0;
   if (s && turn) s[4] += turn;
+  if (s && !rest && p.tIdle != null && t > p.tIdle) phoneIdle(s, p, t, st);
   return s;
+}
+
+/* What the phones do once every one has landed (st.phone_idle), all in step so the set
+   reads as one, each easing in from rest so nothing jumps. Owner, 2026-10-11: "at the end
+   when they stay still can we make them pulse ... or spin 360 degrees in place like an
+   item in minecraft ... floating? ... not for this specific ad but in general".
+     spin   round and round where it stands, the way a dropped item turns in Minecraft,
+            rising off the ground and settling back twice a turn
+     pulse  swells and settles on every other beat of the music, from the headline's hit
+     float  rises off the ground and settles back, rocking a little
+   p.tIdle is when (the timeline's still: every phone down, every reveal and wide spin
+   done), p.idleK how much of the rise and the swell the room round the words and the
+   number allows (Ad._idleRoom), p.beat0 the music's first downbeat. A rise leaves the
+   shadow and the reflection on the ground (the state's .rise, in px), the shadow softening
+   as the phone leaves it (z), so it is seen to float rather than slide up the frame. */
+const IDLE = { turn: 3.2, ease: .45, bob: 1.6, rise: .045, lift: .16, rock: 2.2, pulse: .07, attack: .08, decay: .2 };
+function phoneIdle(s, p, t, st) {
+  const q = t - p.tIdle, k = p.idleK ?? 1, ramp = inOut(clamp(q / .6));
+  const rise = u => { const d = IDLE.rise * H0(p) * k * u; s[1] -= d; s.rise = d; s[5] = Math.max(s[5], IDLE.lift * k * u); };
+  switch (st.phone_idle) {
+    case "spin": {
+      // the turn speeds up from standing to one turn in IDLE.turn s, with no jolt at the start
+      const w = 2 * Math.PI / IDLE.turn, e = IDLE.ease;
+      s[4] += p.turnSide * w * (q - e * (1 - Math.exp(-q / e)));
+      rise(.5 - .5 * Math.cos(2 * Math.PI * q / IDLE.bob));
+      break;
+    }
+    case "float":
+      rise(.5 - .5 * Math.cos(2 * Math.PI * q / IDLE.bob));
+      s[3] += IDLE.rock * k * ramp * Math.sin(2 * Math.PI * q / (IDLE.bob * 1.5));
+      break;
+    case "pulse": {
+      const P = 2 * 60 / (st.bpm || 112), d = (((t - (p.beat0 ?? p.tIdle)) % P) + P) % P;
+      const env = d < IDLE.attack ? Math.sin(Math.PI / 2 * d / IDLE.attack) : Math.exp(-(d - IDLE.attack) / IDLE.decay);
+      s[2] *= 1 + IDLE.pulse * k * ramp * env;
+      s[5] = Math.max(s[5], .5 * IDLE.lift * k * ramp * env); s.rise = 0;
+      break;
+    }
+  }
 }
 
 function phoneState0(p, t, st) {
@@ -1524,7 +1568,7 @@ function phoneState0(p, t, st) {
   if (t > settle) {
     const a = PHONE_TURN * p.turnSide, q = t - settle;
     switch (st.pose) {
-      case "turntable": flip += a * 1.15 * Math.sin(q * 1.35) * clamp(q / .3); break;
+      case "turntable": if (st.phone_idle !== "spin") flip += a * 1.15 * Math.sin(q * 1.35) * clamp(q / .3); break;   // a spin turns them instead
       case "wide_spin": {
         const q2 = prog(t, settle + .35 + p.order * .07, 1.05);
         flip += 2 * Math.PI * inOut(q2) * p.turnSide; z = Math.max(z, .3 * Math.sin(Math.PI * q2)); s *= 1 + .06 * Math.sin(Math.PI * q2);
@@ -2195,6 +2239,8 @@ export class Ad {
     this.tLanded = this.phones.length ? planEntries(this.phones, st, this.W, this.H, this.r, this.stageC, this.drawOrder) : .3;
     this._timeline();
     this._typeTimeline();
+    this.idleK = this.plan ? (this.plan.idle ?? 0) : this._idleRoom();
+    for (const p of this.phones) p.idleK = this.idleK;
     this._buildDecor();
     this.bg = background(st, this.p, this.W, this.H, this.stageC, rng(st.seed + 1));
     this.liveGround = ["sunburst", "aurora", "drift"].includes(st.background);
@@ -2218,7 +2264,7 @@ export class Ad {
   toPlan() {
     const W = this.W, H = this.H, U = Math.min(W, H);
     return {
-      st: { ...this.st }, lay: this._lay,
+      st: { ...this.st }, lay: this._lay, idle: this.idleK,
       phones: this.phones.map(p => ({ x: p.home[0] / W, y: p.home[1] / H, size: p.size, angle: p.angle })),
       drawOrder: this.drawOrder.slice(), stageC: [this.stageC[0] / W, this.stageC[1] / H], stageSpan: [this.stageSpan[0] / W, this.stageSpan[1] / W],
       burst: this.burst ? { x: this.burst.x / W, y: this.burst.y / H, R: this.burst.R / U } : null,
@@ -2544,7 +2590,11 @@ export class Ad {
     const settled = p => p.reveal ? p.tReveal + .5 : p.tLand + .15;
     const turnEnd = { wide_spin: 1.5 }[st.pose];
     if (turnEnd) this.tl.still = Math.max(this.tl.still, ...this.phones.map(p => settled(p) + turnEnd + p.order * .07));
-    this.livePhones = st.pose === "turntable" && this.phones.length > 0;
+    // then, every phone down and done turning, they move as the look says, all together (phoneIdle)
+    const idle = this.phones.length > 0 && !!st.phone_idle && st.phone_idle !== "still";
+    this.tl.idle = idle ? this.tl.still : null;
+    for (const p of this.phones) { p.tIdle = this.tl.idle; p.beat0 = this.tl.hit; }
+    this.livePhones = this.phones.length > 0 && (st.pose === "turntable" || idle);
     // an ending only where the number has had its time on screen first
     const tO = st.duration - 1.1;
     this.tOutro = st.outro && st.outro !== "none" && st.duration >= 4.5 && tO >= this.tl.number + 1.4 ? tO : null;
@@ -2660,12 +2710,13 @@ export class Ad {
     this.phoneFit = { ...this.phoneFit, k: this.phoneFit.k * best.k, dy: this.phoneFit.dy + best.dy, head: true };
   }
 
-  /** How much of the words' box the phones cover where the camera settles, 0..1. */
-  _headCover() {
+  /** How much of the words' box the phones cover where the camera settles, 0..1 (outlines:
+   *  the phones' as laid out, where they land unless given). */
+  _headCover(outlines = null) {
     const pos = this.pos;
     if (!pos || !this.phones.length) return 0;
     const b = pos.board || pos.outer, g = this.size * .06, o = [b[0] - g, b[1] - g, b[2] + g, b[3] + g], z = settleZoom(this.st);   // with a breath of room round the words
-    const Ps = this.phones.map(p => onCamera(landedOutline(p), this.W, this.H, z)), O = onCamera([[o[0], o[1]], [o[2], o[3]]], this.W, this.H, z);
+    const Ps = (outlines || this.phones.map(landedOutline)).map(P => onCamera(P, this.W, this.H, z)), O = onCamera([[o[0], o[1]], [o[2], o[3]]], this.W, this.H, z);
     let n = 0, c = 0;
     for (let i = 0; i < 16; i++) for (let j = 0; j < 6; j++) {
       const q = [lerp(O[0][0], O[1][0], (i + .5) / 16), lerp(O[0][1], O[1][1], (j + .5) / 6)];
@@ -2683,6 +2734,49 @@ export class Ad {
       hid = Math.max(hid, h / m);
     }
     return Math.max(c / n, hid - .12);                    // a phone may tuck its edge under the words, no more
+  }
+
+  /** How much of their rise and swell the phones may take once landed (phoneIdle), 0..1: as
+   *  much as keeps every phone off the number and what sits under it, on no more of the words
+   *  than it already tucks under, and inside the frame wherever it was, all where the camera
+   *  settles. Each phone is taken at the furthest the move carries it: risen, swollen, rocked
+   *  either way, and for a spin as tall as its near edge stands in perspective. Decided at the
+   *  plan size, so every size moves alike. */
+  _idleRoom() {
+    const st = this.st, mode = st.phone_idle, W = this.W, H = this.H, z = settleZoom(st);
+    if (!this.phones.length || !mode || mode === "still") return 0;
+    const reach = (p, k, side) => {
+      const g = p.reveal ? 1.06 : 1.02, grow = mode === "pulse" ? 1 + IDLE.pulse * k : 1;
+      const tall = mode === "spin" ? 1 + .5 * p.w / ((p.lens || LENS) * p.h - .5 * p.w) : 1;
+      const hw = p.w * p.size * g * grow / 2, hh = p.h * p.size * g * grow * tall / 2;
+      const dy = mode === "pulse" ? 0 : IDLE.rise * H0(p) * k, ang = p.angle + (mode === "float" ? side * IDLE.rock * k : 0);
+      const th = -ang * Math.PI / 180, c = Math.cos(th), s = Math.sin(th);
+      return [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].map(([x, y]) => [p.home[0] + x * c - y * s, p.home[1] - dy + x * s + y * c]);
+    };
+    const at = k => this.phones.flatMap(p => [reach(p, k, 1), reach(p, k, -1)]);
+    // the number, and everything under it, as _roomUnder keeps it clear, but with half its
+    // breathing room: the layout stands the phones at the edge of all of it, and a move that
+    // may not touch that edge does not move at all (a swell had no room in 15 looks of 120)
+    const num = this.num, pos = this.pos, size = this.size;
+    let column = null;
+    if (num && num.c && pos && pos.num) {
+      const labH = num.label ? num.label.height + size * .06 : 0, g = Math.max(size * .15, H * .018) / 2;
+      column = [pos.num[0] - g * .5, pos.num[1] - labH - g, pos.num[0] + num.c.width + g * .5, H * 3];
+    }
+    const inFrame = P => onCamera(P, W, H, z).every(([x, y]) => x >= 0 && x <= W && y >= 0 && y <= H);
+    const rest = this.phones.map(landedOutline);
+    const hitsNum = Ps => column && Ps.some(P => hitsRect(onCamera(P, W, H, z), column));
+    const numFree = !hitsNum(rest), headAt = this._headCover(rest), framed = rest.map(inFrame);
+    const fits = k => {
+      const Ps = at(k);
+      if (numFree && hitsNum(Ps)) return false;
+      if (this._headCover(Ps) > Math.max(.03, headAt) + .01) return false;
+      return Ps.every((P, i) => !framed[i >> 1] || inFrame(P));
+    };
+    if (fits(1)) return 1;
+    let lo = 0, hi = 1;
+    for (let i = 0; i < 10; i++) { const mid = (lo + hi) / 2; if (fits(mid)) lo = mid; else hi = mid; }
+    return lo < .1 ? 0 : lo;
   }
 
   /** The last resort for words on phones: where the phones cannot make room, the words
@@ -2986,7 +3080,7 @@ export class Ad {
     for (let round = 0; round < 3; round++) {
       x.save(); x.scale(1 / q, 1 / q); x.drawImage(this.bg, 0, 0);
       const tEnd = this.st.duration - .1;
-      for (const i of this.drawOrder) { const p = this.phones[i], stt = phoneState(p, tEnd, this.st); if (stt) drawPhone(x, p, ...stt, W); }
+      for (const i of this.drawOrder) { const p = this.phones[i], stt = phoneState(p, tEnd, this.st, true); if (stt) drawPhone(x, p, ...stt, W); }
       x.restore();
       if (this.scrimC) x.drawImage(this.scrimC, 0, 0, w, h);
       const d = x.getImageData(Math.max(0, Math.floor(bx0 / q)), Math.max(0, Math.floor(by0 / q)), Math.max(1, Math.ceil((bx1 - bx0) / q)), Math.max(1, Math.ceil((by1 - by0) / q))).data;
@@ -3077,9 +3171,12 @@ export class Ad {
   /** A phone's mirror image in a glossy floor, under its lowest edge, fading out fast. */
   _reflect(target, p, stt) {
     const [x, y, scale, rot, flip, z, op] = stt;
-    if (z > .05 || Math.abs(rot) > 24 || op < .99) return;
+    // a phone floating once landed (phoneIdle) is mirrored in the floor it rose from, further
+    // off as it rises; its lift is not a flight, so the reflection stays
+    const up = stt.rise || 0;
+    if ((stt.rise != null ? 0 : z) > .05 || Math.abs(rot) > 24 || op < .99) return;
     const w = p.w * scale * Math.max(Math.abs(Math.cos(flip)), .02), h = p.h * scale, a = rot * Math.PI / 180;
-    const yb = y + Math.abs(w / 2 * Math.sin(a)) + Math.abs(h / 2 * Math.cos(a));
+    const yb = y + up + Math.abs(w / 2 * Math.sin(a)) + Math.abs(h / 2 * Math.cos(a));
     const depth = h * .32, half = Math.hypot(w, h) / 2 + 4;
     if (yb + 4 > this.H) return;
     const c = this._reflC || (this._reflC = canvas(8, 8));
@@ -3140,7 +3237,7 @@ export class Ad {
       if (this.liveGround) this._drawLiveGround(target, ts);
       const refl = this.st.depth === "reflection";
       for (const i of this.drawOrder) {
-        const p = this.phones[i], stt = phoneState(p, ts, this.st);
+        const p = this.phones[i], stt = phoneState(p, ts, this.st, this.restPhones);
         if (!stt) continue;
         if (refl) this._reflect(target, p, stt);
         // photo-real's light on the glass and the band on every other moment of the shutter, at
@@ -3149,7 +3246,7 @@ export class Ad {
         if (p.finish === "photo") p.glassSub = subs > 1 ? (s % 2 ? 0 : subs / Math.ceil(subs / 2)) : 1;
         const soft = this.dofBlur && p.size < this.dofSize * .93 && "filter" in target;
         if (soft) target.filter = `blur(${this.dofBlur}px)`;
-        drawPhone(target, p, ...stt, this.W);
+        drawPhone(target, p, ...stt, this.W, undefined, false, stt.rise || 0);
         if (soft) target.filter = "none";
       }
       if (s > 0) { ax.globalAlpha = 1 / (s + 1); ax.drawImage(this.tmp, 0, 0); ax.globalAlpha = 1; }
@@ -3704,8 +3801,34 @@ export class Ad {
     ctx.drawImage(snap, k, 0); ctx.drawImage(snap, -k, 0); ctx.restore();
   }
 
-  /** A still of the finished ad, for galleries. */
-  stillAt(ctx, t) { this.still = null; this.frame(ctx, t ?? (this.tOutro != null ? this.tOutro - .05 : this.st.duration - .1), { subsFly: 1, subsMove: 1 }); }
+  /** Where the video's photo may be taken (makePhoto, from the number's arrival to the
+   *  ending): anywhere, except that phones spinning once landed (phoneIdle) are taken only
+   *  where they face as they landed, before the spin and at each whole turn, so the photo, a
+   *  moment of the video, never catches them edge on or with their screens up. */
+  photoWindows(from, to) {
+    const t0 = this.tl.idle;
+    if (this.st.phone_idle !== "spin" || t0 == null || t0 >= to) return [[from, to]];
+    const w = 2 * Math.PI / IDLE.turn, e = IDLE.ease, out = [];
+    if (t0 > from) out.push([from, t0]);
+    for (let n = 1; n < 100; n++) {
+      // the n-th whole turn: w (q - e (1 - exp(-q / e))) = 2 pi n, by Newton from the turn without the ease
+      let q = n * IDLE.turn + e;
+      for (let i = 0; i < 8; i++) q -= (w * (q - e * (1 - Math.exp(-q / e))) - 2 * Math.PI * n) / (w * (1 - Math.exp(-q / e)));
+      const t = t0 + q;
+      if (t - .1 > to) break;
+      if (t + .1 >= from) out.push([Math.max(from, t - .1), Math.min(to, t + .1)]);
+    }
+    // three moments at least to a window: a lone one has no neighbours to show it moving, and would win
+    const kept = out.filter(([a, b]) => b - a >= .2 - 1e-6);
+    return kept.length ? kept : [[from, to]];
+  }
+
+  /** A still of the finished ad, for galleries, its phones at rest (not caught mid-turn or mid-swell). */
+  stillAt(ctx, t) {
+    const was = this.restPhones; this.still = null; this.restPhones = true;
+    try { this.frame(ctx, t ?? (this.tOutro != null ? this.tOutro - .05 : this.st.duration - .1), { subsFly: 1, subsMove: 1 }); }
+    finally { this.restPhones = was; this.still = null; }
+  }
 }
 
 export function star(ctx, x, y, s, col) {
