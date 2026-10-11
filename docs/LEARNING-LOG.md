@@ -4087,3 +4087,46 @@ like all of it." All three stay in the shuffle; put on `main` the same day.
 RESUME HERE:
   0. The amplitudes are IDLE in motion/engine.js (turn 3.2 s, rise 4.5% of
      a phone, pulse 7%), should the owner want any move bigger or calmer.
+
+## 2026-10-11 — the colour builder's fades, made to be seen (claude/compassionate-babbage-nv318r)
+
+Asked: the owner, of Soft fade on a yellow background: "I don't think the
+fade effect works it just darkens the entire background no fade or
+gradient".
+
+Found:
+  - The fade stepped darker by the solver's own step, 0.04 in OKLCH
+    lightness (#ffd72d to #f1c904). Across a card that reads as the whole
+    colour a little darker, not a fade.
+  - On Light the words are dark, so darker is the way that costs them
+    contrast: a coloured light set had 0.03 to 0.07 of room that way, and
+    Deep fade was refused on every one of them. Lighter had room on every
+    light set, darker on every dark one (0.29 and more).
+  - So a fade goes the way that adds contrast: darker on Dark, lighter on
+    Light with the angle turned so the light end is at the top. Soft is
+    0.08, Deep 0.16; a near-white keeps its own step. The builder shows and
+    saves its sets in the Soft fade (`cbOffer`); `cbTheme` is unchanged, so
+    the house themes `house_themes.mjs` writes do not move.
+  - Drawing a near-white's second stop again from its first rounded one hex
+    step darker than the solver checked, and Navy & Pink on White fell to
+    4.499:1. The set's own stop is kept as drawn.
+  - Editing a saved Flat set showed Soft as chosen and drew Soft when the
+    background moved; the style a set was saved in is now its default.
+
+Measured (`colour_builder_audit.mjs --sets-only`): all checks pass; Soft
+steps 0.061 at the least off near-white; Deep is offered on 283 of 283
+coloured backgrounds (it was refused on every coloured light one).
+
+
+## 2026-10-11 — the Library button is the owner's (claude/compassionate-babbage-nv318r)
+
+Asked: the owner, of the 📚 Library button: "only accessible to my account";
+asked how far, "Only hide the Library button", for the admin emails.
+
+Done: the four Library buttons (the studio's nav and toolbar, the account
+menu, the video maker's link) start hidden and show for an operator account
+(ADMIN_EMAILS, role 'admin' from /api/me), as the AI Studio button does.
+`ad-library.js` does it, wrapping `syncAcctUI` on the studio and on the
+account's `onChange` elsewhere, so app.js is not edited for the library.
+The stars, Save to library and the plans' library are unchanged: another
+account can still save, and the server still serves its library.
