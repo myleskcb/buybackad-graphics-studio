@@ -12,8 +12,10 @@ their octave pipe, and the kalimba is tuned by ear. Every zone gets the octave i
 really sounds in (`shift`, and +1200 cents for an organ note that sounds an octave
 up) and a fine tuning in cents, so every instrument plays in tune with every other.
 
-usage: python3 scripts/build_motion_sounds.py <VCSL clone> motion/sounds <ffmpeg>
+usage: python3 scripts/build_motion_sounds.py <VCSL clone> motion/sounds <ffmpeg> [--hits a,b]
   (git clone --filter=blob:none https://github.com/sgossner/VCSL; any ffmpeg with libmp3lame)
+  --hits a,b builds only those one-shots and adds them to the index.json on disk; every other
+  sound, and every note's measured tuning, stays exactly as it is.
 """
 import json, os, re, subprocess, sys, numpy as np
 
@@ -96,6 +98,15 @@ HITS = {
     "tamb_shake":    ("Idiophones/Struck Idiophones/Tambourine 1/Tamb1_Shake_rr1_Mid.wav", .6, .08),
     "clap":          ("Idiophones/Struck Idiophones/Claps/Clap_rr1.wav", .5, .14),
     "clap2":         ("Idiophones/Struck Idiophones/Claps/Clap_rr2.wav", .5, .14),
+    # the rest of the library's claps, for a crowd clapping under falling confetti (2026-10-11)
+    "clap3":         ("Idiophones/Struck Idiophones/Claps/Clap_rr3.wav", .5, .14),
+    "clap4":         ("Idiophones/Struck Idiophones/Claps/Clap_rr4.wav", .5, .14),
+    "clap5":         ("Idiophones/Struck Idiophones/Claps/Clap_rr5.wav", .5, .14),
+    "clap6":         ("Idiophones/Struck Idiophones/Claps/Clap_rr6.wav", .5, .14),
+    "solo_clap1":    ("Idiophones/Struck Idiophones/Claps/SoloClap_vl1.wav", .5, .14),
+    "solo_clap2":    ("Idiophones/Struck Idiophones/Claps/SoloClap_vl2.wav", .5, .14),
+    "solo_clap3":    ("Idiophones/Struck Idiophones/Claps/SoloClap_vl3.wav", .5, .14),
+    "solo_clap4":    ("Idiophones/Struck Idiophones/Claps/SoloClap_vl4.wav", .5, .14),
     "hat":           ("Idiophones/Struck Idiophones/Hi-Hat Cymbal/HiHat_HitC_v3_rr1_Mid.wav", .25, .08),
     "hat_open":      ("Idiophones/Struck Idiophones/Hi-Hat Cymbal/HiHat_HitLoose_rr1_Mid.wav", .8, .08),
     "snare":         ("Membranophones/Struck Membranophones/Snare Drum, Modern 1/Snare2_HitSN_v5_rr1_Mid.wav", .6, .14),
@@ -133,6 +144,17 @@ HITS = {
 }
 
 have = set(files)
+if "--hits" in sys.argv:
+    with open(f"{OUT}/index.json") as fp: manifest = json.load(fp)
+    for hid in sys.argv[sys.argv.index("--hits") + 1].split(","):
+        path, mx, rms = HITS[hid]
+        if path not in have: sys.exit(f"missing {path}")
+        x = level(trim(load(path), mx, tail=min(.3, mx * .4)), target_rms=rms, win=.12)
+        write(x, f"{OUT}/{hid}.mp3", 112)
+        manifest["hits"][hid] = path
+        print(hid, path, os.path.getsize(f"{OUT}/{hid}.mp3"), "bytes")
+    with open(f"{OUT}/index.json", "w") as fp: json.dump(manifest, fp, indent=1)
+    sys.exit(0)
 manifest = {"source": "Versilian Community Sample Library (VCSL), CC0 1.0 Universal, https://github.com/sgossner/VCSL",
             "pitched": {}, "hits": {}}
 total = 0

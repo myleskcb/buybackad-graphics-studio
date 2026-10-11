@@ -24,8 +24,9 @@
       1000 shuffles never play a retired piece (catalog.js SOUND_ALIASES, track and melody)
       and every one with falling confetti plays the party popper, none without it; a look
       saved with a retired piece plays its stand-in; the maker offers none of them; and a
-      confetti look renders with the popper heard over its number (its soundtrack there
-      unlike the same look's with the plain pop).
+      confetti look renders with the celebration heard over the music (its soundtrack from
+      the number on at least 25% unlike the same look's with the plain pop; 39% when the
+      crowd's claps went in, 2026-10-11, 17% for the popper and bells alone).
 
    usage: npx http-server -p 8899 -s .   (or python3 -m http.server 8899)
           CHROME=/path/to/chrome node scripts/motion_music_check.mjs
@@ -249,7 +250,7 @@ const strip = m => m.error ? m : { lufs: m.lufs, peak: m.peak };
   }
   console.log('  ' + judge(`confetti look (${res.sfx})`, res.m) + (res.apart != null ? `, from the number on ${(res.apart * 100).toFixed(0)}% unlike the plain pop` : ''));
   expect(res.sfx === 'confetti', `a look with confetti locked plays ${res.sfx}, not the popper`);
-  expect(res.apart != null && res.apart > .1, `the popper is not heard over the number (${((res.apart || 0) * 100).toFixed(0)}% unlike the plain pop)`);
+  expect(res.apart != null && res.apart > .25, `the popper is not heard over the number (${((res.apart || 0) * 100).toFixed(0)}% unlike the plain pop)`);
   expect(!errors.length, `the confetti page logged errors: ${errors.join(' | ')}`);
   // the maker offers no retired piece
   const p = await browser.newPage(), perr = [];

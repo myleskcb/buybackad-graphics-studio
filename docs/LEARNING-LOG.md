@@ -4643,3 +4643,38 @@ Found:
 
 Checked: ad_library_check no failures (upload, Add video, Remove video, a
 free account's refused video).
+
+## 2026-10-11 — confetti as a celebration (claude/funny-lamport-1o2xbq)
+
+Asked: the owner, of the confetti popper: "more more more so it's relevant",
+after asking for the free sound library the project once used.
+
+Found:
+  - The free sound source was Wikimedia Commons (its API, no key; the
+    recordings in motion/sounds/tracks) and the VCSL sample library on GitHub
+    (the drums and instruments). No other sound service is in the history
+    (Pixabay appears only for photographs, ElevenLabs only for voices).
+  - Commons holds fitting sounds in the public domain: a party blower
+    (File:Luftrüssel.ogg, public domain), a crowd clapping and cheering
+    (File:Clapping hurray (cropped).oga, public domain), applause from
+    Freesound (File:277021 sandermotions applause-2.wav, CC0). Its file server
+    answered 429 to this session's shared connection all day; the API came
+    back, the files never did. archive.org is denied here.
+  - The popper and bells alone sat about 5 dB under the music.
+
+Done: the other eight VCSL claps (`build_motion_sounds.py --hits`, which
+builds named one-shots into the index on disk and touches nothing else); the
+confetti burst is two poppers, the tambourine, the bells and a crowd of nine
+pairs of hands, louder, with the music stepping back 7 dB for a second
+(rule 129, continued). Its draws come from a stream of their own, so the pass
+that learns which recordings to load asks for the claps that play.
+
+Measured: the burst an estimated 2 to 5 dB over the music on four looks;
+`motion_music_check.mjs` (part 6 now asks 25%, 39% measured) and
+`motion_sound_check.mjs` all clear.
+
+RESUME HERE:
+  0. When Commons serves files again, the three sounds above can join the
+     burst (a cheer and a blower would say "party" louder than claps):
+     fetch them with a polite User-Agent, trim, level, and record the trail
+     as tracks/index.json does.

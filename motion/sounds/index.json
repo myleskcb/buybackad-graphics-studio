@@ -746,6 +746,14 @@
   "whistle_long": "Aerophones/Edge-blown Aerophones/Ball Whistle/Main_BallWhistle_Long-001.wav",
   "siren": "Aerophones/Free Aerophones/Siren/Main_SirenWhistle-005.wav",
   "sleigh": "Idiophones/Struck Idiophones/Sleigh Bells/Sleighbells_Hit_rr1_Mid.wav",
-  "sleigh_shake": "Idiophones/Struck Idiophones/Sleigh Bells/sleighbell1_shake1.wav"
+  "sleigh_shake": "Idiophones/Struck Idiophones/Sleigh Bells/sleighbell1_shake1.wav",
+  "clap3": "Idiophones/Struck Idiophones/Claps/Clap_rr3.wav",
+  "clap4": "Idiophones/Struck Idiophones/Claps/Clap_rr4.wav",
+  "clap5": "Idiophones/Struck Idiophones/Claps/Clap_rr5.wav",
+  "clap6": "Idiophones/Struck Idiophones/Claps/Clap_rr6.wav",
+  "solo_clap1": "Idiophones/Struck Idiophones/Claps/SoloClap_vl1.wav",
+  "solo_clap2": "Idiophones/Struck Idiophones/Claps/SoloClap_vl2.wav",
+  "solo_clap3": "Idiophones/Struck Idiophones/Claps/SoloClap_vl3.wav",
+  "solo_clap4": "Idiophones/Struck Idiophones/Claps/SoloClap_vl4.wav"
  }
 }

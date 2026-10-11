@@ -5325,3 +5325,31 @@ owner chose "make it, then preview".
   one count; Free's Download JPG saved 1080×1080 on a photo count, its
   Download MP4 opened the plans; the same at 390 px wide, the buttons one
   above the other.
+
+## 129, continued (2026-10-11): confetti bursts as a celebration
+
+The owner, of the popper rule 129 added: "more more more so it's relevant".
+The popper and bells alone sat about 5 dB under the music under them.
+
+Falling confetti's number sound is now a party burst: two poppers, left then
+right like a pair of confetti cannons (a crack, a little body, the paper's
+rush), a tambourine's rattle, the bells tumbling down the key as before, and
+a small crowd clapping: nine pairs of hands, each at its own place, pitch and
+pace (four to six claps a second), drawn from the ten recorded claps of the
+CC0 library (eight added for this, `build_motion_sounds.py --hits`), swelling
+in over a third of a second and gone by two. The music steps back 7 dB for
+the burst and returns over the next second. The burst's draws come from a
+stream of their own, so the pass that learns which recordings to load asks
+for the claps that play.
+
+Measured on four looks (two scored kits, two recordings): every one levels
+to -16 LUFS and peaks under -1 dBFS; over the second after the burst the
+claps and poppers sit an estimated 2 to 5 dB over the music under them (from
+the difference against the same look with the plain pop, which also holds
+the music's dip). `motion_music_check.mjs` part 6 now asks a confetti look's
+soundtrack from the number on to be at least 25% unlike the same look's with
+the plain pop (39% measured; 17% with the popper and bells alone).
+
+A recorded cheer would say "party" louder than claps: Wikimedia Commons holds
+a public-domain party blower and crowd cheer (the learning log names them),
+not fetched because its file server refused the session's connection.

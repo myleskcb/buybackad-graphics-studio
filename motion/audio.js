@@ -184,6 +184,7 @@ function compose(ad, ctx, voDur, rec) {
   const S = synth(ctx, noise, r, sfx, rec), M = synth(ctx, noise, r, music, rec);
   playedByHand(M, st, rec);                                  // the music only: the effects stay exact
   const booms = [];
+  let celebrate = null;                                     // when confetti bursts (the number sound)
   const boom = (t, g) => { if (t < -.02) return; S.boom(Math.max(0, t), g); booms.push(Math.max(0, t)); };
 
   // ---- the phones arrive: a soft swish each and a muted landing
@@ -282,13 +283,29 @@ function compose(ad, ctx, voDur, rec) {
     case "glock_run": [0, 4, 7, 12].forEach((iv, i) => S.note(tl.number + i * .055, "glock", 84 + A.keyPc % 12 + iv - (minor && iv === 4 ? 1 : 0), .5, .45)); break;
     case "harp_gliss": [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24].forEach((iv, i) => S.note(tl.number - .25 + i * .035, "harp", 60 + A.keyPc % 12 + iv, .6, .35 - i * .015, .2)); break;
     case "whistle": S.hit(tl.number, "whistle", .5, .2); break;
-    // falling confetti (engine.js _overlay starts it as the number lands): a party popper and
-    // the rattle of the paper, then bells tumbling down the key, left and right, as it falls
+    // falling confetti (engine.js _overlay starts it as the number lands), a celebration
+    // (owner, 2026-10-11: "more more more so it's relevant"): two poppers, left then right, like
+    // a pair of confetti cannons, the rattle of the paper, bells tumbling down the key as it
+    // falls, and a small crowd clapping (real claps, CC0), swelling in and dying away by
+    // two seconds; the music steps back for the burst (celebrate, below)
     case "confetti": {
-      S.popper(tl.number, .5); S.hit(tl.number + .01, "tamb_shake", .45, .2);
+      // drawn from a stream of its own: the pass that learns which recordings to load draws
+      // the same claps as the one that plays them
+      const t0 = tl.number, until = Math.min(T - .3, t0 + 2.2), rc = rng(st.seed * 131 + 7);
+      S.popper(t0, .9, -.35); S.popper(t0 + .11, .75, .35); celebrate = t0;
+      S.hit(t0 + .01, "tamb_shake", .75, .2);
       const scale = minor ? [0, 3, 5, 7, 10] : [0, 2, 4, 7, 9], fall = [];
       for (let m = 99; m >= 79 && fall.length < 10; m--) if (hz(m) < 2600 && scale.includes(((m - A.keyPc) % 12 + 12) % 12)) fall.push(m);
-      fall.forEach((m, i) => S.bell(tl.number + .12 + i * .09 + (r() - .5) * .025, hz(m), .075 * (1 - i / 14), i % 2 ? .45 : -.45));
+      fall.forEach((m, i) => S.bell(t0 + .12 + i * .09 + (rc() - .5) * .025, hz(m), .12 * (1 - i / 14), i % 2 ? .45 : -.45));
+      // each pair of hands at its own place, pitch and pace (four to six claps a second)
+      const CLAPS = ["clap", "clap2", "clap3", "clap4", "clap5", "clap6", "solo_clap1", "solo_clap2", "solo_clap3", "solo_clap4"], hands = 9;
+      for (let h = 0; h < hands; h++) {
+        const pan = (rc() * 2 - 1) * .75, rate = .9 + rc() * .22, gap = 1 / (4 + rc() * 2);
+        for (let t = t0 + .06 + rc() * .25; t < until; t += gap * (.88 + rc() * .24)) {
+          const u = t - t0, swell = Math.min(1, u / .35) * Math.exp(-Math.max(0, u - .35) / .65);
+          if (swell > .04) S.hit(t, CLAPS[(rc() * CLAPS.length) | 0], 1.15 * swell * (.75 + rc() * .25) / Math.sqrt(hands / 3), pan, rate, 0, until);
+        }
+      }
       break;
     }
     default: S.pop(tl.number + .05, .15, bell1);
@@ -321,6 +338,10 @@ function compose(ad, ctx, voDur, rec) {
   if (music.duck) for (const t of [...new Set(booms)].sort((x, y) => x - y)) {
     if (t < openAt - .01) continue;
     music.duck.gain.setTargetAtTime(.5, t, .012); music.duck.gain.setTargetAtTime(1, t + .1, .22);
+  }
+  // and further, for longer, under a confetti burst, so the celebration is heard over it
+  if (music.duck && celebrate != null && celebrate >= openAt - .01) {
+    music.duck.gain.setTargetAtTime(.45, celebrate, .02); music.duck.gain.setTargetAtTime(1, celebrate + 1.1, .35);
   }
   // under a voiceover the music steps back, and then the whole bed
   if (voDur) duckUnder(VO_START, VO_START + voDur, [music.in.gain, musicLevel, MUSIC_UNDER], [music.verb.gain, 1, MUSIC_UNDER], [bedOut.gain, 1, BED_UNDER]);
@@ -582,12 +603,12 @@ function synth(ctx, noise, r, bus, rec) {
       const n = noiseSrc(t, .03), gn = ctx.createGain(); env(gn, t, .001, gain * .6, .018); n.connect(filt("bandpass", 1500, .8)).connect(gn); out(gn, 0, .15);
     },
     /** A party popper: a sharp crack with a little body, and the paper rushing out of it. */
-    popper(t, gain) {
+    popper(t, gain, pan = 0) {
       const n = noiseSrc(t, .06), gn = ctx.createGain(); env(gn, t, .001, gain * .7, .04);
-      n.connect(filt("highpass", 700)).connect(filt("lowpass", 6000)).connect(gn); out(gn, 0, .35);
+      n.connect(filt("highpass", 700)).connect(filt("lowpass", 6000)).connect(gn); out(gn, pan, .35);
       const o = osc("sine", t, .22, 190); o.frequency.exponentialRampToValueAtTime(70, T0(t) + .07);
-      const g = ctx.createGain(); env(g, t, .002, gain * .5, .15); o.connect(g); out(g, 0, .1);
-      S.swish(t + .01, .5, false, 0, gain * .2);
+      const g = ctx.createGain(); env(g, t, .002, gain * .5, .15); o.connect(g); out(g, pan, .1);
+      S.swish(t + .01, .5, false, pan, gain * .2);
     },
     bell(t, f, gain, pan = .15) {
       [[1, 1, 1.4], [2, .3, .8], [3.01, .12, .4], [4.2, .05, .25]].forEach(([m, a, d]) => {
