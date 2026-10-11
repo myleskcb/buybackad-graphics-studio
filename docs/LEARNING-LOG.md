@@ -4196,25 +4196,34 @@ the production CSP): no failures.
 ## 2026-10-11 — the gaming cards leave the drawn rooms (OPEN-ITEMS §AU)
 
 Asked: a screenshot of the Gaming category, "too similar of backgrounds and
-themes way too similar", then "assimilate with the other categories".
+themes way too similar", "assimilate with the other categories", then "We
+need more relatable gamer style background bedroom photos, so they look
+clean".
 
 Found:
   - The sameness was one cause: every gaming, gaming headset and monitor
     card stood on the same three drawn rooms, all purple neon. The looks
     (bands, panels) already varied; the ground is most of the card.
-  - The fix was already in the repo: thirteen real gaming photographs in
-    `assets/bg-web` that no ground used, and the other categories' recipe
-    (`make_offer_grounds.py`, the NASA pictures where a line has none).
-  - The template audit is the measure, not the look: two type cards passed
-    by eye on the aurora and the city lights and measured 3.3 and 2.65 for
-    their model names. Trying each NASA frame under them took five runs of a
-    four-card audit.
-  - The subject mapper rebuilt 76 of the committed entries differently on
-    this container's OpenCV; splice new entries, do not rewrite the table.
+  - The first answer (photographs of the goods, as iPhones and gold have)
+    was the house pattern but not what the owner wanted for gaming: a
+    controller over a photograph of a controller is clutter, and "gamer
+    style" means the room.
+  - Commons is the only photo source a cloud session reaches, and it has
+    almost no clean gamer bedrooms: 957 licensed candidates from 71
+    searches gave four usable rooms. Say so rather than stretch the set with near misses.
+  - A room photograph has highlights the p90 shade does not see: a window, a
+    lamp, a lit screen. The small type over them fell to 2.7:1 on one room.
+    The template audit found it; the eye did not.
+  - Which card gets which room is the pool's order. Measuring every card on
+    every room once (four audits) and comparing the 24 orders offline beat
+    trying orders one audit at a time.
+  - The credits file mixes escaped and raw non-ASCII; append to it as text,
+    or a rewrite changes unrelated entries.
 
 RESUME HERE:
   0. Merge to `main` (this branch: `claude/wizardly-bardeen-62280m`).
-  1. The gaming cut-outs held since 2026-10-04 (§AU 1).
+  1. A clean gamer bedroom photograph (§AU 1), then the held gaming cut-outs
+     (§AU 2).
 
 ## 2026-10-11 — Mac wallpapers and a lit laptop screen (claude/nifty-pasteur-xlv4nu)
 

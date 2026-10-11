@@ -8331,5 +8331,57 @@
   "page": "https://commons.wikimedia.org/wiki/File%3AGoldenGateBridge%20BakerBeach%20MC.jpg",
   "width": 2048,
   "height": 1365
+ },
+ {
+  "file": "rooms-desk-setup-1.jpg",
+  "cat": "rooms",
+  "query": "desk setup",
+  "title": "File:Desk setup dc.jpg",
+  "artist": "Pea santsbh",
+  "license": "CC0",
+  "usage": "Creative Commons Zero, Public Domain Dedication",
+  "credit": "Own work",
+  "page": "https://commons.wikimedia.org/wiki/File%3ADesk%20setup%20dc.jpg",
+  "width": 4000,
+  "height": 3000
+ },
+ {
+  "file": "rooms-gaming-pc-setup-1.jpg",
+  "cat": "rooms",
+  "query": "gaming setup",
+  "title": "File:Gaming PC-Setup - Astaroth- The Completed System.jpg",
+  "artist": "Brian Wong",
+  "license": "CC BY-SA 2.0",
+  "usage": "Creative Commons Attribution-Share Alike 2.0",
+  "credit": "https://www.flickr.com/photos/57993471@N06/37984775242/",
+  "page": "https://commons.wikimedia.org/wiki/File%3AGaming%20PC-Setup%20-%20Astaroth-%20The%20Completed%20System.jpg",
+  "width": 6020,
+  "height": 4016
+ },
+ {
+  "file": "rooms-living-room-console-1.jpg",
+  "cat": "rooms",
+  "query": "my gaming setup",
+  "title": "File:Gaming Setup.jpg",
+  "artist": "VPaleontologist",
+  "license": "CC BY-SA 4.0",
+  "usage": "Creative Commons Attribution-Share Alike 4.0",
+  "credit": "Own work",
+  "page": "https://commons.wikimedia.org/wiki/File%3AGaming%20Setup.jpg",
+  "width": 4032,
+  "height": 3024
+ },
+ {
+  "file": "rooms-home-desk-setup-1.jpg",
+  "cat": "rooms",
+  "query": "home office setup monitor",
+  "title": "File:Home Office (2020) (49517006647).jpg",
+  "artist": "Ted Mielczarek",
+  "license": "CC0",
+  "usage": "Creative Commons Zero, Public Domain Dedication",
+  "credit": "https://www.flickr.com/photos/49243838@N00/49517006647/",
+  "page": "https://commons.wikimedia.org/wiki/File%3AHome%20Office%20(2020)%20(49517006647).jpg",
+  "width": 4032,
+  "height": 3024
  }
 ]

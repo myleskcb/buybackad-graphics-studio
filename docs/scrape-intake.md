@@ -94,20 +94,23 @@ packshots, whole, on a plain background, 1000px or more on the long side.
 5. **Gaming rooms** (grounds, `kind=photo`, `line=console`; the owner:
    "gamer bedrooms, gamer living rooms, aesthetic gaming set ups"). The three
    drawn placeholder rooms (`scripts/make_gaming_grounds.py`) were retired on
-   2026-10-11 (the owner: "too similar of backgrounds and themes"): consoles,
-   Switch, controllers and PC handhelds now stand on Commons photographs of
-   their goods, the other gaming lines on the NASA pictures. Real rooms are
-   still welcome if they differ from one another in colour and light (not
-   three purple-neon rooms). Wanted, one or more of each:
+   2026-10-11 (the owner: "too similar of backgrounds and themes", then
+   "relatable gamer style background bedroom photos, so they look clean"):
+   every gaming card now stands on one of four Commons photographs of real
+   rooms (three desk setups and a living room with the PS5 under the TV).
+   Commons has no clean gamer bedroom, so the bedroom is still wanted most;
+   more rooms are welcome if they differ from these in colour and light (not
+   purple neon). Wanted, one or more of each:
    - an aesthetic setup: a desk against a wall, RGB strip or light panels, a
      monitor or two, a tower with a glass side;
    - a gamer's bedroom at night: the bed, an LED strip, a desk with its screen;
    - a living room: a TV with the console under it, bias lighting, the couch.
    Wide, from a little back, the room in soft focus and nothing branded in
    the middle: the product is drawn over it, and the lower third carries the
-   steps and the number. Landed as `photo` rows they go in front of that
-   line's own grounds (`GROUNDS.console` and its neighbours in
-   offer-library.js).
+   steps and the number. Landed as `photo` rows with `line=console` they go
+   in front of the console line's grounds; to give them to every gaming
+   line, add them to the `gaming` pool in scripts/make_offer_grounds.py and
+   `GROUNDS.gaming` in offer-library.js, then run audit_templates.mjs.
 6. **Phones without a photograph of their own** (they stand on NASA
    pictures today): Galaxy S24 and S25 Ultra, Pixel 9 and 9 Pro, Galaxy Z Fold
    and Flip, Pixel Fold, Galaxy Tab. Grounds (`kind=photo`) for the tech lines

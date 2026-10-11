@@ -2737,45 +2737,54 @@ Still open:
    branch's pgOneHue wrapper wraps its pass (the theme path is this rule's,
    its two families the no-theme path).
 
-## AU. 2026-10-11 — the gaming cards on their own goods, not three drawn rooms (DESIGN-LAW 117)
+## AU. 2026-10-11 — the gaming cards in real gamers' rooms, not three drawn ones (DESIGN-LAW 117)
 
 The owner, with a screenshot of the Gaming category: "too similar of
-backgrounds and themes way too similar", then "assimilate with the other
-categories".
+backgrounds and themes way too similar", "assimilate with the other
+categories", then "We need more relatable gamer style background bedroom
+photos, so they look clean".
 
 Found: all 39 gaming offer cards (consoles, Switch, controllers, gaming
 laptops, VR, PC handhelds, gaming PCs) and the gaming headsets and monitors
 stood on the same three drawn purple-neon rooms
 (`scripts/make_gaming_grounds.py`, §Q), placeholders that rule 117 has ruled
-out since 2026-10-04. Every other category stands on photographs of its own
-goods, or the NASA pictures where there is none, and thirteen Commons
-photographs of consoles, Switches, DualSenses and a Steam Deck had been in
-`assets/bg-web` unused.
+out since 2026-10-04. Every other category stands on photographs.
 
 Done:
-- `scripts/make_offer_grounds.py` makes grounds for the console (PS5 twice,
-  Xbox on its shelf), Switch (OLED and dock, Joy-Con 2, Switch 2 dock, OLED
-  dock), controller (two DualSenses) and PC handheld (Steam Deck) lines; the
-  two screen-only Switch close-ups are left out (they shade to a flat field).
-  `GROUNDS` and `GROUND_OF` in offer-library.js read them.
-- Laptops, VR, headsets and monitors take the NASA pictures, as audio,
-  cameras and computers do. The PC handheld's and gaming PC's type cards set
-  the model names over the picture: on the city lights and the aurora they
-  fell to 3.3 and 2.65; they take the frames that hold 4.5:1.
-- The new grounds are mapped in `photo-subjects.js` (spliced in: the mapper
-  here does not reproduce the committed table bit for bit, so the other
-  325 entries are left as they were).
-- `audit_templates.mjs --match '^of_'`: 161 cards, the same verdict on every
-  card as before (66 held, all for product pictures flagged on 2026-10-04,
-  none for a ground).
+- A first pass put the lines on photographs of their own goods (PS5, Switch,
+  DualSense, Steam Deck) and the NASA pictures; the owner asked for rooms
+  instead, and a controller cut-out over a photograph of a controller read
+  as clutter. Those grounds are gone.
+- Four Commons photographs of real rooms, chosen from 957 freely licensed
+  candidates across 71 searches for gaming setups, bedrooms, living rooms and desks
+  (the stock libraries are unreachable from a cloud session): a home desk
+  with grey walls, a desk setup with an ultrawide monitor, a living room
+  with the PS5 under the TV, and a white desk with a glass-side tower and an
+  Xbox controller (`assets/bg-web/rooms-*`, credits in its ATTRIBUTION.json:
+  two CC0, two CC BY-SA). `make_offer_grounds.py` makes them the `gaming`
+  pool, and every gaming line, gaming headset and monitor uses it (7 to 9
+  cards a room).
+- Left out: a dark room lit by its screens (its small type at 2.7:1 under the
+  shade its p90 solves), a bedroom with a gaming chair and a cluttered desk,
+  a purple-neon desk with no author on its Commons page, and photographs with
+  people or event branding in them.
+- The pool's order is the one where no line of copy is less legible than on
+  the drawn rooms: each card measured on each room with `audit_templates.mjs`,
+  then the 24 orders compared.
+- The rooms are mapped in `photo-subjects.js` (spliced in: the mapper here
+  does not reproduce the committed table bit for bit).
+- `audit_templates.mjs --match '^of_'`: 161 cards, the same verdict as
+  `main` on every card (66 held, all for product pictures flagged on
+  2026-10-04; 87 contrast warnings, none new).
 
 Open:
-1. The gaming lines' holds are their product cut-outs (the console pair, the
+1. A clean gamer bedroom. Commons has none (its bedrooms are hotels,
+   museums and dorms); the owner's own photographs or a stock library would
+   land through scripts/ingest_assets.py (docs/scrape-intake.md item 5).
+2. The gaming lines' holds are their product cut-outs (the console pair, the
    Switch renders, the controller pair cut at the edge, the VR headset): 20
    of the 39 cards are held for them, as before this change. They need real
    cut-outs of the same goods.
-2. Real gaming rooms (scrape-intake item 5) are still welcome, if they differ
-   from one another in colour and light.
 
 ## AV. 2026-10-11 — one light: the metal grounds lit by the phones' key light (DESIGN-LAW 128)
 

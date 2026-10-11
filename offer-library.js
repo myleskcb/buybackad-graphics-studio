@@ -353,25 +353,21 @@
     mac: [{ file:'macbook-macbook-on-desk-1', p90:208 }, { file:'macbook-macbook-pro-m3-1', p90:198 }, { file:'macbook-macbook-air-2', p90:34 }],
     space: [{ file:'space-earth-from-iss-night-1', p90:130 }, { file:'space-earth-from-iss-night-3', p90:22 }, { file:'space-moon-surface-nasa-4', p90:99 }, { file:'space-earth-from-iss-night-4', p90:99 }, { file:'space-aurora-from-space-3', p90:172 }, { file:'space-galaxy-hubble-telescope-1', p90:170 }],
   };
-  /* the gaming lines stand on photographs of their own goods like every other
-     category (2026-10-11, the owner of the three drawn gaming rooms every
-     gaming card, headset and monitor stood on: "too similar of backgrounds and
-     themes", "assimilate with the other categories"; DESIGN-LAW 117). The
-     lines with none (laptops, VR, headsets, monitors) take the NASA pictures
-     as the other categories' do; a PC handheld has one photograph, and its
-     and the gaming PC's type cards, which set the model names over the
-     picture, take the NASA frames that hold those names at 4.5:1
-     (audit_templates.mjs; the city lights and the aurora did not). The drawn
-     rooms (scripts/make_gaming_grounds.py) are retired. */
-  Object.assign(GROUNDS, {
-    console: [{ file:'gaming-playstation-5-1', p90:31 }, { file:'gaming-xbox-series-x-3', p90:138 }, { file:'gaming-playstation-5-3', p90:222 }],
-    switch: [{ file:'gaming-nintendo-switch-oled-3', p90:209 }, { file:'gaming-nintendo-switch-2-1', p90:255 }, { file:'gaming-nintendo-switch-3', p90:244 }, { file:'gaming-nintendo-switch-oled-1', p90:219 }],
-    controller: [{ file:'gaming-dualsense-controller-3', p90:255 }, { file:'gaming-dualsense-controller-1', p90:255 }],
-    pchandheld: [{ file:'gaming-steam-deck-2', p90:177 }, GROUNDS.space[0], GROUNDS.space[2]],
-    gamingpc: [GROUNDS.space[1], GROUNDS.space[4], GROUNDS.space[5]],
-  });
+  /* the gaming lines, gaming headsets and monitors stand in real gamers'
+     rooms, photographs like every other category's (2026-10-11, the owner of
+     the three drawn rooms they stood on before: "too similar of backgrounds
+     and themes", "assimilate with the other categories", then "We need more
+     relatable gamer style background bedroom photos, so they look clean";
+     DESIGN-LAW 117): Commons photographs of desk setups and a living room with
+     the console under the TV, each in its own colour and light. Their order
+     is the one that leaves every line of copy at least as legible as the drawn
+     rooms did (audit_templates.mjs, each card measured on each room); a room
+     dark but for lit screens (p90 136, p99 226) was left out, its small type
+     at 2.7:1. The drawn rooms (scripts/make_gaming_grounds.py) are retired. */
+  GROUNDS.gaming = [{ file:'rooms-home-desk-setup-1', p90:165 }, { file:'rooms-desk-setup-1', p90:199 }, { file:'rooms-living-room-console-1', p90:190 },
+    { file:'rooms-gaming-pc-setup-1', p90:230 }];
   const GROUND_OF = { iphone:'iphone', ipad:'iphone', mac:'mac', gold:'gold', silver:'silver', coins:'coins', car:'cars',
-    strips:'strips', pokemon:'pokemon', sports:'sports', console:'console', switch:'switch', controller:'controller', pchandheld:'pchandheld', gamingpc:'gamingpc' };
+    strips:'strips', pokemon:'pokemon', sports:'sports', gaming:'gaming', headset:'gaming', monitor:'gaming' };
   /* white on black-shaded pixels of luminance v: v * (1 - a) <= 118 is 4.5:1;
      110 and 0.05 are the margin */
   const shadeFor = p90 => +Math.max(0.2, Math.min(0.82, 1 - 110 / Math.max(1, p90) + 0.05)).toFixed(2);
