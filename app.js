@@ -6716,8 +6716,8 @@ function buildPlansGrid(){
   g.appendChild(packs);
   if (isAdmin() && !DEMO) adminBillingLine(g);
 }
-/* operators see whether Stripe is live, and can make the prices and the
-   webhook before the first customer does */
+/* operators see whether Stripe is live, and can make the prices, the
+   webhook and the wallets' domain before the first customer does */
 async function adminBillingLine(g){
   const el = document.createElement('div');
   el.className = 'plans-note'; el.textContent = 'Billing: checking…';
@@ -6725,9 +6725,11 @@ async function adminBillingLine(g){
   const say = (j) => {
     if (!j.on){ el.textContent = 'Billing is off: ' + (j.say || 'set STRIPE_SECRET in Netlify.'); return; }
     const prices = j.prices && Object.keys(j.prices).length ? ' · prices: ' + Object.values(j.prices).filter(v => /^price_/.test(v)).length + ' of ' + Object.keys(j.prices).length : '';
-    el.textContent = 'Billing is on (' + j.mode + ' mode) · webhook: ' + (j.webhook && j.webhook.ok ? j.webhook.source : 'not yet, ' + ((j.webhook && j.webhook.reason) || '')) + prices + ' ';
+    const wallets = j.paymentDomain ? ' · wallets domain: ' + (j.paymentDomain.ok ? (j.paymentDomain.applePay ? 'Apple Pay ' + j.paymentDomain.applePay : j.paymentDomain.source) : 'not yet') : '';
+    const form = j.embedded === false ? ' · payment form: Stripe\u2019s page (publishable key missing or of the other mode)' : '';
+    el.textContent = 'Billing is on (' + j.mode + ' mode) · webhook: ' + (j.webhook && j.webhook.ok ? j.webhook.source : 'not yet, ' + ((j.webhook && j.webhook.reason) || '')) + wallets + prices + form + ' ';
     const b = document.createElement('button');
-    b.type = 'button'; b.className = 'ai-more'; b.textContent = 'Set up prices and webhook now';
+    b.type = 'button'; b.className = 'ai-more'; b.textContent = 'Set up prices, webhook and wallets now';
     b.onclick = async () => { b.disabled = true; try { say(await api('/admin/billing', {})); } catch (e){ toast(e.message, 'error'); b.disabled = false; } };
     el.appendChild(b);
   };

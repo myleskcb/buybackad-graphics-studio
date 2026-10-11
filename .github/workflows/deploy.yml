@@ -112,3 +112,40 @@ jobs:
             git push origin "HEAD:refs/heads/$BRANCH"
           fi
           echo "$BRANCH now carries ${GITHUB_SHA::8}: Netlify builds buybackad-finished-copy from it."
+
+      # What the live copy answers once Netlify has built it: billing on and in
+      # which mode, the payment form inside the site, AI backgrounds priced, the
+      # legal pages and the CSP that lets Stripe's form load. Public answers
+      # only (no secret is read or printed). It warns instead of failing, so
+      # main stays green while a setting is being changed in Netlify.
+      - name: Check the live site
+        env:
+          SITE: https://buybackad-finished-copy.netlify.app
+        run: |
+          sleep 45
+          plans=''
+          for i in $(seq 1 16); do
+            plans=$(curl -fsS --max-time 20 "$SITE/api/plans" || true)
+            # the first answer with these fields is a deploy of this code
+            echo "$plans" | jq -e 'has("embedded")' >/dev/null 2>&1 && break
+            sleep 15
+          done
+          row() { echo "| $1 | $2 |" >> "$GITHUB_STEP_SUMMARY"; echo "$1: $2"; }
+          warn() { echo "::warning title=$1::$2"; row "$1" "⚠️ $2"; }
+          { echo "### $SITE"; echo; echo "| Check | Result |"; echo "|---|---|"; } >> "$GITHUB_STEP_SUMMARY"
+          if ! echo "$plans" | jq -e . >/dev/null 2>&1; then
+            warn "API" "/api/plans did not answer JSON"
+          else
+            if [ "$(echo "$plans" | jq -r .billing)" = "true" ]; then row "Billing" "on, $(echo "$plans" | jq -r .billingMode) mode"
+            else warn "Billing" "off: STRIPE_SECRET is not set on the Netlify project"; fi
+            if [ "$(echo "$plans" | jq -r .embedded)" = "true" ]; then row "Payment form" "inside the site"
+            elif [ "$(echo "$plans" | jq -r .billing)" = "true" ]; then warn "Payment form" "opens on Stripe's page: STRIPE_PUBLISHABLE_KEY is missing or not the same mode as STRIPE_SECRET"; fi
+            if [ "$(echo "$plans" | jq -r '.ai.background')" != "null" ]; then row "AI backgrounds" "on, $(echo "$plans" | jq -r '.ai.background') credit(s) each"
+            else warn "AI backgrounds" "off: FAL_KEY (or GEMINI_KEY) is not set on the Netlify project, or its model has no price"; fi
+          fi
+          for page in terms.html privacy.html checkout-embed.js; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$SITE/$page")
+            if [ "$code" = "200" ]; then row "/$page" "200"; else warn "/$page" "answered $code"; fi
+          done
+          if curl -sSI --max-time 20 "$SITE/" | grep -i '^content-security-policy:' | grep -q 'js.stripe.com'; then row "CSP" "allows Stripe's form"
+          else warn "CSP" "the page's Content-Security-Policy does not allow js.stripe.com"; fi

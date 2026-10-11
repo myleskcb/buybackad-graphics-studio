@@ -141,6 +141,22 @@ globalThis.fetch = async (input, init = {}) => {
     const h = { id: id('we'), mode, url: body.url, enabled_events: body.enabled_events, secret: 'whsec_' + (S.n++).toString(36) + 'secret' };
     S.hooks.set(h.id, h); return reply(200, h);
   }
+  if (method === 'GET' && path === '/payment_method_domains') {
+    S.pmds = S.pmds || new Map();
+    return reply(200, { data: [...S.pmds.values()].filter((d) => d.mode === mode && (!body.domain_name || d.domain_name === body.domain_name)) });
+  }
+  if (method === 'POST' && path === '/payment_method_domains') {
+    S.pmds = S.pmds || new Map();
+    if ([...S.pmds.values()].some((d) => d.mode === mode && d.domain_name === body.domain_name)) return reply(400, { error: { message: 'domain already registered' } });
+    const d = { id: id('pmd'), mode, domain_name: body.domain_name, enabled: body.enabled === 'true', apple_pay: { status: 'active' }, google_pay: { status: 'active' } };
+    S.pmds.set(d.id, d); return reply(200, d);
+  }
+  if (method === 'POST' && (m = path.match(/^\/payment_method_domains\/(.+)$/))) {
+    const d = S.pmds && S.pmds.get(m[1]);
+    if (!d || d.mode !== mode) return missing('payment_method_domain');
+    if (body.enabled) d.enabled = body.enabled === 'true';
+    return reply(200, d);
+  }
   if (method === 'POST' && path === '/checkout/sessions') {
     if (body.customer && !S.customers.has(mode + ':' + body.customer)) return missing('customer: ' + body.customer);
     if (!S.prices.has(body.line_items[0].price)) return missing('price');
@@ -229,6 +245,7 @@ const setUser = (u) => store.get('pgfx-users').set('u:' + u.email, JSON.stringif
   const p = await hit('GET', '/plans');
   ok(p.status === 200 && p.json.plans.pro.credits === 200 && p.json.plans.basic.label === 'Starter' && p.json.plans.business.monthly === null && p.json.packs.credits100.credits === 100, '/plans answers the table (Starter, Pro 200 credits, Business unlimited)');
   ok(p.json.ai.background === 1 && p.json.billing === false, '/plans: a background is 1 credit on the default model; billing off');
+  ok(p.json.billingMode === null && p.json.embedded === false, '/plans: billing off has no mode and no on-site form');
 
   const free = await signup('free@x.example');
   const me = (await hit('GET', '/me', undefined, free)).json.user;
@@ -321,6 +338,12 @@ let csPro;
   ok(hooks.length === 1 && hooks[0].url === 'https://studio.example/api/stripe-webhook' && [].concat(hooks[0].enabled_events).includes('customer.subscription.updated'),
     'the webhook is registered at SITE_URL with the subscription events');
   ok(JSON.parse(store.get('pgfx-users').get('stripe:whsec:test')).secret === hooks[0].secret, 'its signing secret is kept (test mode)');
+  const doms = [...(S.pmds || new Map()).values()];
+  ok(doms.length === 1 && doms[0].domain_name === 'studio.example' && doms[0].enabled && doms[0].mode === 'test',
+    'the payment method domain (Apple Pay, Google Pay, Link in the on-site form) registers itself for SITE_URL');
+  ok(JSON.parse(store.get('pgfx-users').get('stripe:pmdomain:test:studio.example')).id === doms[0].id, 'its registration is kept (test mode)');
+  let pl = (await hit('GET', '/plans')).json;
+  ok(pl.billing === true && pl.billingMode === 'test' && pl.embedded === false, '/plans: test mode, no publishable key, so no on-site form');
 
   /* Embedded Checkout (checkout-embed.js): only with a publishable key of
      the secret's mode, and only when the caller asks */
@@ -330,7 +353,9 @@ let csPro;
   env.STRIPE_PUBLISHABLE_KEY = 'pk_live_nope';
   er = await hit('POST', '/checkout', { consent: true, plan: 'basic', interval: 'month', embedded: true }, emb);
   ok(er.status === 200 && er.json.url && !er.json.clientSecret, 'embedded: a live publishable key with a test secret, the hosted page');
+  ok((await hit('GET', '/plans')).json.embedded === false, '/plans: keys of different modes, no on-site form');
   env.STRIPE_PUBLISHABLE_KEY = 'pk_test_embed';
+  ok((await hit('GET', '/plans')).json.embedded === true, '/plans: keys of the same mode, the on-site form');
   er = await hit('POST', '/checkout', { consent: true, plan: 'basic', interval: 'month' }, emb);
   ok(er.status === 200 && er.json.url, 'embedded: a caller that does not ask gets the hosted page');
   er = await hit('POST', '/checkout', { consent: true, plan: 'basic', interval: 'month', embedded: true }, emb);
@@ -349,6 +374,7 @@ let csPro;
   billing.forgetPrices();
   await hit('POST', '/checkout', { consent: true, plan: 'pro', interval: 'year' }, buyer);
   ok(S.prices.size === n && S.hooks.size === h, 'a second checkout reuses the price and the webhook');
+  ok(S.pmds.size === 1 && S.calls.filter((c) => c === 'GET /payment_method_domains').length === 1, 'later checkouts reuse the domain registration without asking Stripe again');
 
   pay(csPro.id);
   const other = await signup('other@x.example');
@@ -508,10 +534,26 @@ let csPro;
   const cs = [...S.sessions.values()].pop();
   ok(!cs.customer && cs.customer_email === 'buyer@x.example', 'a test-mode customer is not used with live keys');
   ok(S.hooks.size === 2 && [...S.hooks.values()].some((h) => h.mode === 'live'), 'live mode registers its own webhook');
+  ok([...S.pmds.values()].filter((d) => d.mode === 'live' && d.domain_name === 'studio.example' && d.enabled).length === 1, 'live mode registers its own payment method domain');
   const paid = userBlob('buyer@x.example');
   paid.plan = 'pro'; paid.sub = Object.assign({}, u.sub, { status: 'active', plan: 'pro', checkedAt: 0 }); setUser(paid);
   const me = (await hit('GET', '/me', undefined, buyer)).json.user;
   ok(me.plan === 'free', 'a test-mode subscription read with live keys is gone, and so is its plan');
+}
+
+/* a domain someone registered and switched off is switched back on, not registered twice */
+{
+  const was = env.SITE_URL;
+  env.SITE_URL = 'https://other.example';
+  S.pmds.set('pmd_off', { id: 'pmd_off', mode: 'live', domain_name: 'other.example', enabled: false, apple_pay: { status: 'inactive' }, google_pay: { status: 'active' } });
+  await hit('POST', '/checkout', { consent: true, pack: 'credits100' }, buyer);
+  const same = [...S.pmds.values()].filter((d) => d.domain_name === 'other.example');
+  ok(same.length === 1 && same[0].enabled, 'a disabled payment method domain is switched back on, not registered twice');
+  env.SITE_URL = 'https://studio--draft.netlify.app';
+  const before = S.pmds.size;
+  await hit('POST', '/checkout', { consent: true, pack: 'credits100' }, buyer);
+  ok(S.pmds.size === before, 'a draft deploy address is never registered as a payment method domain');
+  env.SITE_URL = was;
 }
 
 /* operators */
@@ -522,6 +564,9 @@ let csPro;
   const st = await hit('POST', '/admin/billing', {}, t);
   ok(st.status === 200 && st.json.on && st.json.mode === 'live' && Object.values(st.json.prices).every((v) => /^price_/.test(v)) && Object.keys(st.json.prices).length === 8,
     '/admin/billing makes and lists every price (6 plan prices, 2 packs)');
+  ok(st.json.paymentDomain && st.json.paymentDomain.ok && st.json.paymentDomain.host === 'studio.example', '/admin/billing shows the payment method domain');
+  const sg = await hit('GET', '/admin/billing', undefined, t);
+  ok(sg.json.paymentDomain && sg.json.paymentDomain.ok && sg.json.paymentDomain.source === 'stored', '/admin/billing reads the stored domain registration');
 }
 
 /* economics: every plan and pack clears its bar */

@@ -59,6 +59,7 @@ import { PLANS, PACKS, PAID, planId, videoOk, creditState, backgroundCredits } f
 import {
   billingOn, stripeMode, stripe, priceFor, catalog, subState, applySub, applySession, customerOf,
   syncDue, syncSub, ensureWebhook, verifyEvent, webhookSecretKey, ensurePortalConfig, portalConfigKey, TERMS_VERSION,
+  ensurePaymentDomain, paymentDomainKey,
 } from '../lib/billing.mjs';
 import { bggenRoute, generateImage, loadRecipe, dataUrlOf } from '../lib/bggen.mjs';
 
@@ -97,6 +98,13 @@ const isoWeek = () => { const d = new Date(); const t = new Date(Date.UTC(d.getF
   return t.getUTCFullYear() + '-W' + String(Math.ceil((((t - y) / 86400000) + 1) / 7)).padStart(2, '0'); };
 const isoMonth = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); };
 const isoDay = () => new Date().toISOString().slice(0, 10);
+
+/* the publishable key when it can mount the on-site payment form: present
+   and of the same mode (test or live) as the secret; otherwise '' */
+const formKey = (env) => {
+  const pk = String(env.STRIPE_PUBLISHABLE_KEY || '').trim();
+  return /^pk_(test|live)_/.test(pk) && pk.startsWith('pk_test_') === (stripeMode(env) === 'test') ? pk : '';
+};
 
 const adminEmails = (env) => String(env.ADMIN_EMAILS || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean);
 const roleFor = (email, env) => (adminEmails(env).includes(email) ? 'admin' : 'user');
@@ -193,7 +201,11 @@ export default async (req) => {
     if (ads) return ads;
     /* what the plans page shows, from the table that is enforced */
     if (p === '/plans') {
-      return json({ plans: PLANS, packs: PACKS, ai: { background: backgroundCredits(env) }, billing: billingOn(env) });
+      /* billingMode and embedded say, without a secret, whether checkout is
+         test or live and whether its form opens inside the site (the deploy
+         check in .github/workflows/deploy.yml reads them) */
+      return json({ plans: PLANS, packs: PACKS, ai: { background: backgroundCredits(env) }, billing: billingOn(env),
+        billingMode: billingOn(env) ? stripeMode(env) : null, embedded: billingOn(env) && !!formKey(env) });
     }
     if (!env.JWT_SECRET) return json({ error: 'Backend not configured (JWT_SECRET missing)' }, 500);
 
@@ -434,8 +446,11 @@ export default async (req) => {
           await stripe(env, 'POST', '/checkout/sessions/' + prev.id + '/expire').catch(() => {});
         }
       }
-      try { await ensureWebhook(env, users(), url.origin); }
-      catch (e) { console.warn('billing: the webhook could not be registered; the return page and the sign-in check carry the plan', e.message); }
+      /* the webhook, and the domain the wallets need in the on-site form,
+         register themselves (once per mode); neither stops a checkout */
+      const [wh, pmd] = await Promise.allSettled([ensureWebhook(env, users(), url.origin), ensurePaymentDomain(env, users(), url.origin)]);
+      if (wh.status === 'rejected') console.warn('billing: the webhook could not be registered; the return page and the sign-in check carry the plan', wh.reason && wh.reason.message);
+      if (pmd.status === 'rejected') console.warn('billing: the payment method domain could not be registered; cards still work, wallets may not show', pmd.reason && pmd.reason.message);
       let price;
       try { price = await priceFor(env, plan ? plan + '_' + interval : pack); }
       catch (e) { return json({ error: 'Checkout could not start: ' + e.message }, 502); }
@@ -452,8 +467,8 @@ export default async (req) => {
          if_required), and a method that has to redirect comes back to the
          same address the hosted page does. No publishable key, a key of the
          other mode, or a caller that did not ask: Stripe's hosted page. */
-      const pk = String(env.STRIPE_PUBLISHABLE_KEY || '').trim();
-      const embed = body.embedded === true && /^pk_(test|live)_/.test(pk) && pk.startsWith('pk_test_') === (stripeMode(env) === 'test');
+      const pk = formKey(env);
+      const embed = body.embedded === true && !!pk;
       const back = site + '/?checkout=success&session_id={CHECKOUT_SESSION_ID}';
       const params = {
         mode: plan ? 'subscription' : 'payment',
@@ -599,15 +614,20 @@ export default async (req) => {
       const em = await readToken(req, env);
       if (!em || roleFor(em, env) !== 'admin') return json({ error: 'Not authorized' }, 403);
       if (!billingOn(env)) return json({ on: false, say: 'Set STRIPE_SECRET in Netlify to switch billing on.' });
-      const out = { on: true, mode: stripeMode(env), site, prices: {}, webhook: null };
+      const out = { on: true, mode: stripeMode(env), site, embedded: !!formKey(env), prices: {}, webhook: null, paymentDomain: null };
       if (req.method === 'POST') {
         try { out.webhook = await ensureWebhook(env, users(), url.origin); } catch (e) { out.webhook = { ok: false, reason: e.message }; }
+        try { out.paymentDomain = await ensurePaymentDomain(env, users(), url.origin); } catch (e) { out.paymentDomain = { ok: false, reason: e.message }; }
         for (const key of Object.keys(catalog())) {
           try { out.prices[key] = await priceFor(env, key); } catch (e) { out.prices[key] = 'error: ' + e.message; }
         }
       } else {
         const stored = await users().get(webhookSecretKey(stripeMode(env)));
         out.webhook = env.STRIPE_WEBHOOK_SECRET ? { ok: true, source: 'env' } : stored ? { ok: true, source: 'stored', url: JSON.parse(stored).url } : { ok: false, reason: 'not registered yet (the first checkout registers it)' };
+        let host = '';
+        try { host = new URL(site).hostname; } catch (e) { /* none */ }
+        const dom = host ? await users().get(paymentDomainKey(stripeMode(env), host)) : null;
+        out.paymentDomain = dom ? Object.assign({ ok: true, source: 'stored' }, JSON.parse(dom)) : { ok: false, reason: 'not registered yet (the first checkout registers it)' };
       }
       return json(out);
     }

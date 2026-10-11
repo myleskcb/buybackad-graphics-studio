@@ -231,6 +231,35 @@ export async function ensureWebhook(env, store, origin) {
   return { ok: true, source: 'created', url };
 }
 
+/* ---------- the payment method domain ---------- */
+const pmdKey = (mode, host) => 'stripe:pmdomain:' + mode + ':' + host;
+
+/** Apple Pay, Google Pay and Link show in the embedded form only on a domain
+ *  registered with Stripe (Settings, Payment method domains). This registers
+ *  the site's own, once per mode and host (kept in Blobs), the way the
+ *  webhook registers itself, and turns a disabled registration back on.
+ *  Same rule as the webhook: never a draft deploy's address. */
+export async function ensurePaymentDomain(env, store, origin) {
+  const mode = stripeMode(env);
+  const site = String(env.SITE_URL || env.URL || origin || '').replace(/\/$/, '');
+  let host = '';
+  try { host = new URL(site).hostname; } catch (e) { /* no address */ }
+  if (!/^https:\/\//.test(site) || !host || host.includes('--') || /^(localhost|127\.)/.test(host)) {
+    return { ok: false, reason: 'no production https address to register (set SITE_URL)' };
+  }
+  const have = await store.get(pmdKey(mode, host));
+  if (have) { try { return Object.assign({ ok: true, source: 'stored' }, JSON.parse(have)); } catch (e) { /* remake it */ } }
+  const list = await stripe(env, 'GET', '/payment_method_domains', { domain_name: host, limit: 10 });
+  let d = (list.data || []).find((x) => x.domain_name === host);
+  const source = d ? 'found' : 'created';
+  if (d && !d.enabled) d = await stripe(env, 'POST', '/payment_method_domains/' + d.id, { enabled: 'true' });
+  if (!d) d = await stripe(env, 'POST', '/payment_method_domains', { domain_name: host, enabled: 'true' });
+  const rec = { id: d.id, host, applePay: (d.apple_pay && d.apple_pay.status) || null, googlePay: (d.google_pay && d.google_pay.status) || null, ts: Date.now() };
+  await store.set(pmdKey(mode, host), JSON.stringify(rec));
+  return Object.assign({ ok: true, source }, rec);
+}
+export const paymentDomainKey = pmdKey;
+
 const enc = new TextEncoder();
 async function hmacHex(secret, msg) {
   const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);

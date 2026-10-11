@@ -511,7 +511,13 @@ async function browserPart() {
       if (!ok(await ask.isVisible(), 'browser (' + who.email + '): the download offers "Save to library"')) { await page.context().close(); continue; }
       await ask.getByRole('button', { name: 'Save to library' }).click();
       await page.waitForFunction(() => !document.querySelector('.adl-ask'), null, { timeout: 20000 });
-      await page.click('#nav-adlib');
+      /* the Library buttons are the operator's (owner, 2026-10-11: "only
+         accessible to my account"); any other account keeps Save to library,
+         and the test opens its dialog through the open() the buttons call */
+      const navShown = await page.isVisible('#nav-adlib');
+      ok(navShown === who.admin, 'browser (' + who.email + '): the Library button is ' + (who.admin ? 'shown to an operator' : 'hidden from a non-operator') + ' (' + navShown + ')');
+      if (who.admin) await page.click('#nav-adlib');
+      else await page.evaluate(() => adLibrary.open());
       await page.waitForFunction(() => { const i = document.querySelector('#adlib-overlay .adl-grid .adl-card img'); return i && i.complete && i.naturalWidth > 0; }, null, { timeout: 20000 });
       const dlg = await page.evaluate(() => {
         const o = document.getElementById('adlib-overlay');
@@ -757,6 +763,11 @@ async function browserPart() {
       ok(up.said && up.saved === 0, 'video maker: a free account\'s star offers Pro and Business and saves nothing (' + JSON.stringify(up) + ')');
       // the same account as an operator (video, no marks, not counted): the save goes through
       process.env.ADMIN_EMAILS += ',maker@studio.example';
+      /* the page learns the role when it loads the account, as an operator's
+         would at sign-in; then the Library buttons (operator only) show */
+      await page.reload();
+      await page.waitForFunction(() => document.getElementById('loading').hidden && window.adLibrary && window.pgfxAccount, null, { timeout: 60000 });
+      await page.waitForFunction(() => { const b = document.getElementById('mo-adlib'); return b && b.style.display !== 'none'; }, null, { timeout: 20000 }).catch(() => {});
       await page.evaluate(() => window.VideoHelp && VideoHelp.close());
       await page.click('#mo-star');
       await page.waitForFunction(() => { const st = adLibrary.state(); return st.lib && st.lib.items.length === 1 && st.lib.items[0].video; }, null, { timeout: 180000 }).catch(() => {});

@@ -57,9 +57,14 @@ Stripe, once (owner, 2026-10-08: "make it live we can use stripe"):
    `bbad_business`, `bbad_credits`), the six prices under their lookup keys
    (`bbad_pro_month`, `bbad_pro_year`, `bbad_business_month`,
    `bbad_business_year`, `bbad_credits100`, `bbad_credits300`) and the webhook
-   at `<SITE_URL>/api/stripe-webhook`, whose signing secret it keeps in Blobs.
+   at `<SITE_URL>/api/stripe-webhook`, whose signing secret it keeps in Blobs,
+   and registers the site's domain under Payment method domains so Apple Pay,
+   Google Pay and Link can show in the on-site form.
    An operator can do it before the first customer: Plan & billing shows
-   operators a Billing line with **Set up prices and webhook now**.
+   operators a Billing line with **Set up prices, webhook and wallets now**.
+   After every push to main, the `sync-finished-copy` job also reads the live
+   copy's public answers (billing and its mode, the on-site form, AI
+   backgrounds, the legal pages, the CSP) and lists them in the run summary.
 3. Walk it once with test keys and card 4242 4242 4242 4242: Choose Pro,
    pay, land back on "Payment successful!" on Pro; Switch to Business;
    buy 100 credits; Manage billing → cancel. Then swap in the live key.
