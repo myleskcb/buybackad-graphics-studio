@@ -2736,3 +2736,42 @@ Still open:
 5. ~~`claude/fervent-pascal-w6mthe`~~: in `main` before this merge; this
    branch's pgOneHue wrapper wraps its pass (the theme path is this rule's,
    its two families the no-theme path).
+
+## AU. 2026-10-11 — Mac wallpapers: Tahoe and Golden Gate, and a lit laptop screen
+
+The owner, over the MacBook card ("Old MacBook. New money." on the keyboard
+photograph): "can we be able to change the background to stock apple
+backgrounds for tahoe or golden gate or the stock background on front facing
+off screen". Done in `mac-wallpapers.js` (loaded after app.js):
+
+- **Wallpapers, a background group** beside Photos and Blurred photos, in
+  Easy Mode and the designer: Tahoe day, dusk and night, Tahoe glass (light,
+  dark), Golden Gate sunset, night and fog, Golden curves (light, dark). Drawn
+  ground kinds (`ground:wp…`), each in its own colours, shaded like a
+  photograph in the picker and gated like one. A visitor's choice only: no
+  card is designed on one (rule 117 is about what a card ships with).
+- **On the laptop screen**, an Easy Mode row shown on a card whose picture
+  has a screen we know (`SCREENS`: mac-pro-open-front, macbook-open-angle;
+  mac-half-open-glow shows its lid). Off, any wallpaper, or the visitor's own
+  picture (kept on the device, `pgfx_ez_screen_own`). Lit only in Easy Mode's
+  render (preview, download, gate, video) and the hand-off to the designer;
+  thumbnails, the library and the audits draw the card as designed. A lit
+  picture is saved as its recipe (`pgScreen`) and lit again on any load.
+
+Still open:
+
+1. **Apple's own wallpaper files are not shipped.** They are Apple's artwork;
+   putting them inside a paid product is a licensing call for the owner, not
+   a code change. The drawn ones stand in. A visitor who wants the real one
+   can put their own copy on the screen (the 📷 in the row) or upload it as
+   the background, as with any photo of theirs.
+2. **More screens.** The iPad's `ipad-front-screen-off` and the phones that
+   face front with a dark screen could take the same row: measure the
+   display's corners into `SCREENS`, nothing else changes.
+3. **The designer has no screen row of its own.** It keeps what Easy Mode
+   handed it; changing the screen there means going back to Easy Mode.
+4. **A drawn background costs about 1.8 MB per designer undo step**
+   (measured: sunburst 1782 KB, a device wall 2791 KB, a wallpaper 1823 KB,
+   against 28 KB for the same card on its photograph). Not new with the
+   wallpapers; a ground saved as its recipe, as patterns are
+   (`PG_PAT_STUB`), would fix every drawn ground at once.

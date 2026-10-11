@@ -491,12 +491,16 @@
   const ST = { key: '', own: null, ownVer: 0 };
   ST.key = (k => k === 'own' || byKey[k] ? k : '')(jg('pgfx_ez_screen', ''));
   const LIT = new Map();                         // a few lit cut-outs, newest last (each is a full-size canvas)
-  function litFor(src, base, key){
+  /* `flip`: the picture is drawn mirrored (a product faces into the layout,
+     rule 73), so the art goes in mirrored and reads the right way round */
+  const mirror = c => { const m = document.createElement('canvas'); m.width = c.width; m.height = c.height;
+    const g = m.getContext('2d'); g.translate(c.width, 0); g.scale(-1, 1); g.drawImage(c, 0, 0); return m; };
+  function litFor(src, base, key, flip){
     const spec = screenOf(src); if (!spec || !key || !base || !(base.naturalWidth || base.width)) return null;
     if (key === 'own' && !ST.own) return null;
-    const id = fileOf(src) + '|' + key + '|' + (key === 'own' ? ST.ownVer : '');
+    const id = fileOf(src) + '|' + key + '|' + (key === 'own' ? ST.ownVer : '') + (flip ? '|m' : '');
     if (LIT.has(id)){ const c = LIT.get(id); LIT.delete(id); LIT.set(id, c); return c; }
-    const c = litCanvas(base, spec, (aw, ah) => key === 'own' ? cover(ST.own, Math.round(aw), Math.round(ah)) : paint(key, aw, ah));
+    const c = litCanvas(base, spec, (aw, ah) => { const a = key === 'own' ? cover(ST.own, Math.round(aw), Math.round(ah)) : paint(key, aw, ah); return flip ? mirror(a) : a; });
     if (!c) return null;
     LIT.set(id, c); while (LIT.size > 4) LIT.delete(LIT.keys().next().value);
     return c;
@@ -507,7 +511,7 @@
      Any load of a saved picture lights it again (fabric.Image.fromObject). */
   function light(o, src, key){
     const base = o.getElement && o.getElement(); if (!base || base.tagName === 'CANVAS') return false;
-    const lit = litFor(src, base, key); if (!lit) return false;
+    const lit = litFor(src, base, key, !!o.flipX); if (!lit) return false;
     const from = base.src || src;
     o.setElement(lit);
     o.pgScreen = key;
