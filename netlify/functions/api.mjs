@@ -32,6 +32,9 @@
  *
  *   GET  /api/plans              public. The plans, the packs and what an AI
  *                                background costs in credits now.
+ *   GET  /api/health             public. One probe after a deploy: accounts
+ *                                (JWT_SECRET), store, ai, google and billing as
+ *                                booleans, the store's verdict; never a value.
  *   /api/checkout, /checkout/confirm, /billing/change, /portal,
  *   /stripe-webhook, /admin/billing   Stripe (netlify/lib/billing.mjs).
  *
@@ -198,6 +201,16 @@ export default async (req) => {
     /* what the plans page shows, from the table that is enforced */
     if (p === '/plans') {
       return json({ plans: PLANS, packs: PACKS, ai: { background: backgroundCredits(env) }, billing: billingOn(env) });
+    }
+    /* One probe for a deploy (SETUP.md; the workflow's "What went live"):
+       the function runs with its dependency (anything but 502 says so),
+       accounts are switched on (JWT_SECRET), and the users store answers.
+       Booleans and a store verdict only, never a value. billing is the
+       same test the plans page and checkout use (STRIPE_SECRET alone). */
+    if (p === '/health') {
+      let store = 'ok';
+      try { await users().get('u:health@probe.invalid'); } catch (e) { store = 'error: ' + String((e && e.message) || e).slice(0, 160); }
+      return json({ ok: store === 'ok' && !!env.JWT_SECRET, accounts: !!env.JWT_SECRET, store, ai: !!(env.GEMINI_KEY || env.FAL_KEY), google: !!env.GOOGLE_CLIENT_ID, billing: billingOn(env) });
     }
     if (!env.JWT_SECRET) return json({ error: 'Backend not configured (JWT_SECRET missing)' }, 500);
 

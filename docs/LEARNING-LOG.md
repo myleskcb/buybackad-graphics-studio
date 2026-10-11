@@ -4331,3 +4331,172 @@ Measured: `motion_music_check.mjs` (with its new part 6) and
 RESUME HERE:
   0. If the owner wants confetti looks to draw only the brightest music too,
      the place is harmonise in motion/engine.js, beside the popper rule.
+
+## 2026-10-07 — Photo | Video on the Download step (claude/funny-ride-kyis07)
+
+The owner, over a screenshot of Easy Mode's step 3: "maybe the top line has
+a photo or video toggle.. and download as video if photo will be changed to
+configure as video".
+
+Found:
+  - `pgfx_video_sound` had been read by the video export (`motionSoundOn`)
+    since the sound was made, and nothing had ever set it: there was no
+    sound control anywhere.
+  - Three things hung off `#ez-video` as the video button: the export's
+    progress label and the helper's Try again (`ezDownloadVideo`), the
+    library's Save as video (`saveVideoNow('ez')` showed its progress there)
+    and the photo-after-video button (`VideoHelp.keepPhoto` lands after the
+    button and copies its class, so after the Download button it must be
+    given the dashed class or it comes out as a second blue button).
+  - `showEasy` is hoisted, so `typeof window.showEasy === 'function'` is true
+    while app.js is still running and a call then dies in the TDZ of a later
+    const (`TYPE_VOICES`). Wait for `window.adLibrary` (loaded after app.js).
+  - Playwright tries the last route registered first: an abort for every CDN
+    registered after the fabric fulfil swallowed fabric. fabric 5.3.1 is not
+    on npm (logged 2026-10-06); 5.3.0 served the check.
+
+Did: one switch on the Download line (index.html `#ez-kind`, Photo | Video,
+kept in `pgfx_ez_kind`); the Download button makes what it says (ezDownload
+wrapped; ezDownloadVideo takes its button, default `ez-download`); the dashed
+button under it is the way across (Configure as video / Configure as photo);
+the video kind plays the clip itself where the still was (`#ez-preview-video`,
+the still's scene kept and baked by the export's own motionBake, drawn by its
+motionDraw at MOTION.fps, phase kept across re-bakes, nothing drawn off
+screen), a Sound On | Silent row writing `pgfx_video_sound`, its own hint,
+Save as video in place of Save to library (CSS by the card's `is-video`
+class, so no script fights the plan and partner inline displays); the
+library's star shows its own progress; README; the two check scripts that
+pressed `#ez-video`.
+
+Checked (Chromium, fabric 5.3.0 from npm, fonts aborted, app.js appended
+code ran with no page error): photo kind labels and rows; the way across;
+video kind labels, rows, 560×560 bake playing, frames 1.3 s apart differ,
+t = 7.2 s draws the call to action; Silent and On write the key; Download in
+the video kind calls ezDownloadVideo('ez-download') and in the photo kind
+does not; Story re-bakes 560×996; typing re-bakes without restarting the
+clip; back to photo stops the loop; arrow keys cross; the kind survives a
+reload and plays once Easy Mode opens; 390 px: the switch sits on the
+Download line, no sideways scroll. tests-iphonesla-link.mjs 68 of 68.
+Not run here: motion_export_check, video_photo_check, ad_library_check
+(puppeteer-core is not installed and no CDN reaches this container);
+verify_csp.mjs cannot reach the live site from here.
+
+Rejected: a third kind or a music row (nothing in app.js's export takes
+music; the motion maker's tracks are its own); sound on the preview (a feed
+starts every clip muted, so the preview does).
+
+RESUME HERE:
+  0. Merge this branch to `main` and deploy `main` from the Mac. On the live
+     site: Photo | Video, Download my video, Save as video from the star, the
+     photo button under Download after a video.
+  1. Run ad_library_check.mjs and video_photo_check.mjs (its selector moved
+     to `#ez-download + .vh-photo`) and motion_export_check.mjs on a Mac.
+
+## 2026-10-07 — the logins: a chip on the landing, the three-step page after sign-up, a dialog that names a dead backend (claude/funny-ride-kyis07, continued)
+
+The owner, after the Photo | Video switch: "fix them and the logins".
+"Them": the three checks that session could not run. "The logins": the
+account flow, which this container cannot try on the live site (every
+Netlify host is denied here), so it was driven in Chromium against the real
+function with the stand-in store, the way ad_library_check does.
+
+Found:
+  - The GitHub deploy (deploy.yml) has run three times and deployed nothing:
+    its "Nothing to do without the secrets" step ran and "Deploy to
+    production" was skipped on every run, so NETLIFY_AUTH_TOKEN and
+    NETLIFY_SITE_ID are not set on the repository. The live site is still
+    whatever the Mac last pushed; what the owner sees when they log in there
+    cannot be read from here.
+  - A signed-in visitor on the landing page had no account control at all:
+    syncAcctUI hid Log in and Sign up free, and the only chip (#acct-chip)
+    is in the studio's nav. No name, no plan, no sign-out, until the studio
+    opened. The footer kept offering Create free account and Log in to a
+    visitor already in.
+  - Create account → Free sent a new account into the advanced editor
+    (showEditor + loadTemplate), not the three-step page every other door
+    opens.
+  - When the account server itself is the problem, the dialog said "HTTP
+    502" or "HTTP 404": the two deploy mistakes AGENT-BRIEF already names (a
+    function shipped without npm ci; a site shipped without its function)
+    and a project without JWT_SECRET were indistinguishable from a typo to
+    anyone but the person who had read the brief.
+  - The checks themselves all passed, once they could run: puppeteer-core
+    from npm, fabric 5.3.0 served in place of the CDN, Chromium from
+    /opt/pw-browsers. library_api_check, ad_library_check (an account from
+    the landing, every star, Save as video), motion_export_check (300
+    frames, sound, no CSP violation), video_photo_check --only studio.
+  - On sign-out the token is stored as the JSON string "null", so a harness
+    that reads localStorage raw sees a token that is not there.
+
+Did: the landing's own account chip (#lp-acct: name, plan badge, a menu
+with Plan & billing, My downloads, Ad library, Sign out) in place of Log in
+/ Sign up free, the footer's Sign out, both driven by syncAcctUI; a new
+account lands on the three-step page unless it signed up from inside the
+studio (a download's gate keeps it where it was); api() carries the status
+on its error and authErrorText (app.js) and explain (account.js) turn 502,
+a 404 HTML page and "JWT_SECRET missing" into sentences that name the cause
+and the fix; GET /api/health (accounts, store, ai, google, billing: booleans
+and a store verdict only), probed by the workflow's "What went live" and the
+SETUP checklist; README's JWT_SECRET row; main merged in (0a92edc8).
+
+Checked (Chromium, the real function, stand-in Blobs): 23 of 23 in the
+login harness: signed out and in on the landing at 1280 and 390 (no sideways
+scroll, no badge on a phone), the chip's menu, Ad library from it, sign-out,
+Log in on Sign in, a wrong password, Enter, the quota line, the dialog on a
+phone, /api/health with and without JWT_SECRET, and the three dead-backend
+messages in the studio's dialog and the master library's. ad_library_check
+run again on the changed flow. tests-iphonesla-link 68 of 68.
+
+Rejected: a proactive probe when the dialog opens (ensureGoogleAuth's
+/auth/config result is cached once; the submit path says the same thing
+without a second request); changing the network-error message in api()
+(deliverVideo and the helper match "Failed to fetch" on it).
+
+RESUME HERE:
+  0. Set NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID on the repository (the
+     comment at the top of .github/workflows/deploy.yml says where), or
+     deploy `main` from the Mac with `npm ci` first. Then
+     `curl https://buybackad-graphics-studio.netlify.app/api/health`: it must
+     say accounts:true and store:"ok". If accounts:false, set JWT_SECRET on
+     that Netlify project; if 502, the deploy skipped npm ci.
+  1. On the live site: Sign up free from the landing, land on Make your ad,
+     back to the landing and see the chip, Sign out from it.
+  2. Merge this branch to `main`.
+
+## 2026-10-11 — claude/funny-ride-kyis07 merged onto ec593ed3: the logins in, the Photo | Video switch not
+
+The two 2026-10-07 entries above never reached `main`; this merge brings
+them onto ec593ed3, where Easy Mode's step 3 had moved on.
+
+Taken (8cab45d7, the logins): the landing's account chip and its menu, the
+footer's Sign out, a new account landing on the three-step page,
+`authErrorText` (app.js) and `explain` (account.js) for a dead backend,
+`GET /api/health`, the workflow's probe of it (the `deploy` job's "What
+went live"; `sync-finished-copy` as it was), README's and SETUP's lines.
+Adapted: the chip's badge and menu read `planLabel()` and `isPro()`, so an
+operator reads Admin as on the studio's chip; its 📚 Ad library is one of
+ad-library.js's owner-only BUTTONS (`lpam-adlib`, hidden by default, bound
+there, as `am-adlib` is); /api/health's billing is `billingOn(env)`, the
+test the plans page and checkout use, not the four variables billing needed
+on 2026-10-07.
+
+Not taken (eb1f5ed0, Photo | Video): the owner's later word on the same
+button, 2026-10-11, was "photo ads don't need a download video option. They
+need a create video option", and "make it, then preview" (rule 130). The
+switch made the Download button a direct video download and turned
+`#ez-video` (now 🎬 Create video) into Configure as video, rebinding it: two
+competing video controls on one step. Create video already plays the real
+file before anything is kept, so the switch's clip-in-place-of-the-still
+preview, its Sound row, its hint, its CSS (whose `@media (max-width:920px){{`
+would have swallowed the rules after it) and the `ezDownload` /
+`schedEzPreview` wraps stay out. The ⭐🎬 star's own progress went with them:
+it was there because the switch removed the video button, and on
+ec593ed3 Create video showing ⭐🎬's progress is what keeps the two from
+recording at once (both go by `#ez-video`'s disabled state).
+video_photo_check and ad_library_check stay ec593ed3's, and so do
+`ezDownloadVideo(opts)` and ad-library.js but for `lpam-adlib`.
+
+RESUME HERE:
+  0. `pgfx_video_sound` still has no control anywhere (the 2026-10-07 entry
+     found it); if the owner wants one, the place is Create video's pop-up
+     (`previewVideo`), not a row on step 3.

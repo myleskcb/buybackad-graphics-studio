@@ -1069,7 +1069,7 @@
      buttons: the stars, Save to library and the plans' library are as they
      were. Run after every account change: the studio's syncAcctUI on the
      studio, the account's onChange on the other pages. */
-  const BUTTONS = ['nav-adlib', 'tb-adlib', 'am-adlib', 'mo-adlib', 'ml-adlib'];
+  const BUTTONS = ['nav-adlib', 'tb-adlib', 'am-adlib', 'lpam-adlib', 'mo-adlib', 'ml-adlib'];   // lpam-adlib: the landing's account menu (2026-10-07)
   function buttons(){
     let on = app.admin();
     if (!on){ const a = app.account(); on = !!a && a.role === 'admin'; }
