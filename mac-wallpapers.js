@@ -505,6 +505,7 @@
       const art = artOf(spec.art[0], spec.art[1]); if (!art) return null;
       warpInto(g, art, q, 12);
     }
+    if (spec.dim){ g.fillStyle = 'rgba(0,0,0,' + spec.dim + ')'; g.fillRect(0, 0, w, h); }   // a screen inside a photograph keeps the photograph's exposure
     g.fillStyle = lin(g, q[0][0], q[0][1], q[2][0], q[2][1], [[0, 'rgba(255,255,255,0.10)'], [0.42, 'rgba(255,255,255,0.025)'], [0.43, 'rgba(255,255,255,0)'], [1, 'rgba(0,0,0,0.07)']]);
     g.fillRect(0, 0, w, h);
     g.restore();
@@ -512,6 +513,10 @@
       const n = spec.notch, x = n.cx - n.w / 2, y = q[0][1] - 1;
       g.fillStyle = '#050506'; g.beginPath(); g.moveTo(x, y); g.lineTo(x + n.w, y); g.lineTo(x + n.w, y + n.h - n.r);
       g.quadraticCurveTo(x + n.w, y + n.h, x + n.w - n.r, y + n.h); g.lineTo(x + n.r, y + n.h); g.quadraticCurveTo(x, y + n.h, x, y + n.h - n.r); g.closePath(); g.fill();
+    }
+    if (spec.notchUV){                                                     // a notch seen at an angle: its corners through the screen's own map
+      const P = homography(q), [u0, u1, vh] = spec.notchUV;
+      g.fillStyle = '#050506'; g.beginPath(); [[u0, 0], [u1, 0], [u1, vh], [u0, vh]].forEach(([u, v], i) => { const [x, y] = P(u, v); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath(); g.fill();
     }
     return c;
   }
@@ -610,9 +615,72 @@
     } catch (e){ console.warn('mac wallpapers: screen', e); }
     return o;
   };
-  const onFor = fn => function(){ const was = ON; ON = true; try { return fn.apply(this, arguments); } finally { ON = was; } };
+  let CUR = null;                                // the card being built, for the background below
+  const onFor = fn => function(){ const was = ON, cur = CUR; ON = true; try { CUR = ezTpl().id; } catch (e){}
+    try { return fn.apply(this, arguments); } finally { ON = was; CUR = cur; } };
   renderEzCanvas = onFor(renderEzCanvas);
   if (typeof openAdvancedFromEz === 'function') openAdvancedFromEz = onFor(openAdvancedFromEz);
+
+  /* ── THE SCREENS IN THE BACKGROUND PHOTOGRAPHS (2026-10-11, the owner, of
+     the MacBook cards' photographs: "can we apply the same effect on the
+     background image?"). Two of the three MacBook photographs the offer cards
+     stand on show a laptop's screen: the Air from above (showing someone's
+     old desktop) and the 14-inch Pro at an angle (off, with its notch). Their
+     displays are measured here like the cut-outs' (corners in the photo's own
+     1080 pixels, the Pro's top-left beyond the frame, checked by warping a
+     grid), and lit with the same wallpaper as the card's product screen, so
+     the two always match; a little dimmer, as a screen photographed in a room
+     is. The lit copy stands in for the photograph only while the studio
+     builds that card (TPL_BG_ELS for the length of freshBgImage); a blurred
+     background stays as photographed. ── */
+  /* offDark: the photograph's own screen is a store's page (Apple's art, a
+     price), so OFF draws it dark rather than as photographed */
+  const BG_SCREENS = {
+    'macbook-macbook-pro-16-inch-2': { quad: [[269, 22], [1000, 101], [890, 555], [271, 454]], art: [1280, 828], dim: 0.06, notchUV: [0.466, 0.534, 0.032], offDark: true },
+    'macbook-macbook-pro-m3-1':      { quad: [[-46, 107], [595, 38], [699, 471], [135, 682]], art: [1280, 828], dim: 0.18, notchUV: [0.468, 0.532, 0.034] },
+    'apple-macbook-air-m2-1':        { quad: [[364, 56], [1050, 116], [952, 608], [337, 491]], art: [1280, 828], dim: 0.06, notchUV: [0.466, 0.534, 0.034], offDark: true },
+  };
+  const bgScreenOf = src => { const m = /\/bg-offer\/([^/?]+)\.jpg(\?|$)/.exec(String(src || '')); return m ? BG_SCREENS[m[1]] || null : null; };
+  const LITBG = new Map();
+  function litBgFor(src, key){
+    const spec = bgScreenOf(src), base = (() => { try { return TPL_BG_ELS[src]; } catch (e){ return null; } })();
+    if (!spec || !key || !base || !(base.naturalWidth || base.width)) return null;
+    if (key === 'own' && !ST.own) return null;
+    const ph = photoOf(key); if (ph && !photoEl(ph)) return null;
+    const id = src + '|' + key + '|' + (key === 'own' ? ST.ownVer : '');
+    if (LITBG.has(id)){ const c = LITBG.get(id); LITBG.delete(id); LITBG.set(id, c); return c; }
+    const dark = (aw, ah) => { const d = document.createElement('canvas'); d.width = aw; d.height = ah; const g = d.getContext('2d');
+      g.fillStyle = lin(g, 0, 0, aw, ah, [[0, '#1a1b1f'], [1, '#08080a']]); g.fillRect(0, 0, aw, ah); return d; };
+    const c = litCanvas(base, spec, (aw, ah) => key === '__dark' ? dark(aw, ah) : key === 'own' ? cover(ST.own, aw, ah) : ph ? cover(photoEl(ph), aw, ah) : paint(key, aw, ah));
+    if (!c) return null;
+    LITBG.set(id, c); while (LITBG.size > 4) LITBG.delete(LITBG.keys().next().value);
+    return c;
+  }
+  /* the designer keeps the screen it was handed (or the card's own) for its later repaints */
+  let ED_KEY = null;
+  const bgKeyFor = id => !id ? '' : ON ? chosenFor(id) : (ED_KEY && ED_KEY.id === id) ? ED_KEY.key : defaultFor(id);
+  if (typeof freshBgImage === 'function' && typeof TPL_BG_ELS !== 'undefined'){
+    const _fresh = freshBgImage;
+    freshBgImage = function(src, blur){
+      const spec = !blur && bgScreenOf(src), key = spec ? bgKeyFor(CUR) || (spec.offDark ? '__dark' : '') : '';
+      const lit = key ? litBgFor(src, key) : null;
+      if (!lit) return _fresh.apply(this, arguments);
+      const own = TPL_BG_ELS[src]; TPL_BG_ELS[src] = lit;
+      try { return _fresh.apply(this, arguments); } finally { TPL_BG_ELS[src] = own; }
+    };
+  }
+  if (typeof renderThumb === 'function'){
+    const _thumb = renderThumb;
+    renderThumb = function(tpl){ const cur = CUR; CUR = tpl && tpl.id; try { return _thumb.apply(this, arguments); } finally { CUR = cur; } };
+  }
+  if (typeof applyBgSpec === 'function'){
+    const _apply = applyBgSpec;
+    applyBgSpec = function(){
+      let id = null; try { id = typeof edTpl === 'function' && edTpl() ? edTpl().id : null; } catch (e){}
+      if (ON && id) ED_KEY = { id, key: chosenFor(id) };
+      const cur = CUR; CUR = id || CUR; try { return _apply.apply(this, arguments); } finally { CUR = cur; }
+    };
+  }
 
   /* the wallpapers as a background group, beside the photographs */
   if (typeof EZ_GROUND_STYLES !== 'undefined'){
@@ -710,5 +778,5 @@
   if (typeof bgList === 'function') bgList().then(all => { const r = (all || []).find(x => x.id === OWN_ID);
     if (r && typeof r.data === 'string' && /^data:image\//.test(r.data)) useOwn(r.data, false); }).catch(() => {});
 
-  window.MAC_WALLPAPERS = { list: WALLS.map(w => ({ key: w.key, name: w.name, note: w.note })), photos: PHOTOS, loadPhoto, paint, SCREENS, screenOf, litFor, screen: ST };
+  window.MAC_WALLPAPERS = { list: WALLS.map(w => ({ key: w.key, name: w.name, note: w.note })), photos: PHOTOS, loadPhoto, paint, SCREENS, screenOf, litFor, BG_SCREENS, bgScreenOf, screen: ST };
 })();

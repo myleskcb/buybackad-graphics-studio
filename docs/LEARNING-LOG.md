@@ -4101,6 +4101,12 @@ Then the eighth layout, Detailed, a lit finish on the floating boxes, and
 the laptop screens lit by default on every studio card (the owner: "start
 putting the backgrounds in the computer"), one drawn wallpaper per card.
 
+And the screens in the MacBook photographs lit as well, after the owner
+caught an 11-inch Air behind an "M1 and newer" headline: a picture can
+misstate what is bought as surely as the words can. Two photographs replaced
+with an M4 Pro and an M2 Air; a keyboard close-up that cannot be dated is
+treated as wrong.
+
 RESUME HERE:
   0. Apple's own wallpaper files: the owner's licensing call (§AU 1).
   1. Whether cards on flagged pictures leave the studio (§AU 5).
