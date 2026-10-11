@@ -107,7 +107,7 @@ async function recordingsFor(ad) {
  *  the page; it never leaves the browser), as an AudioBuffer; null for none, and null where
  *  it will not load or decode, so the music made here plays and the ad is never silent. */
 async function trackFor(ad) {
-  const id = ad.st.track;
+  const id = alias("track", ad.st.track);
   try {
     const buf = id === "upload" ? (ad.assets && ad.assets.userTrack) || null
       : TRACKS.some(t => t.id === id) ? await sampleBuffer("tracks/" + id) : null;
@@ -124,7 +124,7 @@ async function mixBed(ad, voDur, rec) {
 
 /** The bed's graph, built in ctx. rec: the recordings it may play (recordingsFor). */
 function compose(ad, ctx, voDur, rec) {
-  const st = ad.st, tl = ad.tl, T = st.duration;
+  const st = { ...ad.st, melody: alias("melody", ad.st.melody) }, tl = ad.tl, T = st.duration;
   const kit = alias("sound_kit", st.sound_kit || "uplift"), hitKind = alias("hit", st.hit), numKind = alias("number_sfx", st.number_sfx);
   const r = rng(st.seed * 17 + 3);
   const noise = noiseBuffer(ctx, 2, st.seed);
@@ -260,10 +260,10 @@ function compose(ad, ctx, voDur, rec) {
 
   // ---- the number
   const n = ad.num.text.replace(/\s/g, "").length;
-  switch (st.number_in === "type" ? "ticks" : numKind) {
+  switch (st.number_in === "type" && numKind !== "confetti" ? "ticks" : numKind) {
     case "ticks": { const k = Math.min(n, 12), step = Math.min(.06, .7 / k);
       for (let i = 0; i < k; i++) S.key(tl.number + i * step, .09 * (.8 + .4 * r()));
-      S.blip(tl.number + k * step + .02, .13, bell1); break; }
+      S.pop(tl.number + k * step + .02, .13, bell1); break; }
     case "register": S.register(tl.number + .05, .32, bell1); break;
     case "chime": S.bell(tl.number + .05, bell1, .15); S.bell(tl.number + .15, bell2, .13); break;
     case "whoosh_ding": S.swish(tl.number - .25, .35, true, .3, .09); S.bell(tl.number + .12, bell2, .15); break;
@@ -282,12 +282,21 @@ function compose(ad, ctx, voDur, rec) {
     case "glock_run": [0, 4, 7, 12].forEach((iv, i) => S.note(tl.number + i * .055, "glock", 84 + A.keyPc % 12 + iv - (minor && iv === 4 ? 1 : 0), .5, .45)); break;
     case "harp_gliss": [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24].forEach((iv, i) => S.note(tl.number - .25 + i * .035, "harp", 60 + A.keyPc % 12 + iv, .6, .35 - i * .015, .2)); break;
     case "whistle": S.hit(tl.number, "whistle", .5, .2); break;
-    default: S.blip(tl.number + .05, .15, bell1);
+    // falling confetti (engine.js _overlay starts it as the number lands): a party popper and
+    // the rattle of the paper, then bells tumbling down the key, left and right, as it falls
+    case "confetti": {
+      S.popper(tl.number, .5); S.hit(tl.number + .01, "tamb_shake", .45, .2);
+      const scale = minor ? [0, 3, 5, 7, 10] : [0, 2, 4, 7, 9], fall = [];
+      for (let m = 99; m >= 79 && fall.length < 10; m--) if (hz(m) < 2600 && scale.includes(((m - A.keyPc) % 12 + 12) % 12)) fall.push(m);
+      fall.forEach((m, i) => S.bell(tl.number + .12 + i * .09 + (r() - .5) * .025, hz(m), .075 * (1 - i / 14), i % 2 ? .45 : -.45));
+      break;
+    }
+    default: S.pop(tl.number + .05, .15, bell1);
   }
   if (st.shine || st.sparkles) S.sparkle(tl.shine, .045, tonic);
   const cues = ad.cues || {};
   if (cues.board != null) { S.tock(cues.board, .1, 0); S.thump(cues.board + .04, .12, 0); }
-  if (cues.burst != null) S.blip(cues.burst, .1, bell2);
+  if (cues.burst != null) S.pop(cues.burst, .1, bell2);
   if (cues.stamp != null) { S.thump(cues.stamp + .2, .32, 0); S.tock(cues.stamp + .2, .08, 0); }
   if (cues.tape != null) S.swish(cues.tape, .38, false, .3, .08);
   if (ad.tOutro != null) { S.bell(ad.tOutro, bell1, .08); S.bell(ad.tOutro + .09, bell2, .07); }
@@ -564,17 +573,26 @@ function synth(ctx, noise, r, bus, rec) {
       if (t < -.01) return;
       [[620, 1, .07], [930, .5, .05]].forEach(([f, a, d]) => { const o = osc("sine", t, d, f), g = ctx.createGain(); env(g, t, .001, gain * a, d); o.connect(g); out(g, pan, .15); });
     },
-    /** A soft two-note "select", the kind a phone makes. */
-    blip(t, gain, f) {
-      [[f, 0, .18], [f * 1.335, .07, .26]].forEach(([fq, o2, d]) => {
-        const o = osc("sine", t + o2, d, fq * .94); o.frequency.exponentialRampToValueAtTime(fq, T0(t + o2) + .02);
-        const g = ctx.createGain(); env(g, t + o2, .003, gain, d); o.connect(g); out(g, 0, .25);
-      });
+    /** A cork's pop: a crack, and its body falling from an octave over f. Until 2026-10-11 this
+     *  was a soft two-note "select", the kind a phone makes, rising a fourth: the owner heard it
+     *  over a number and looked round for whoever had started a voice memo. */
+    pop(t, gain, f) {
+      const o = osc("sine", t, .14, f * 2); o.frequency.exponentialRampToValueAtTime(f * .6, T0(t) + .045);
+      const g = ctx.createGain(); env(g, t, .002, gain, .1); o.connect(g); out(g, 0, .2);
+      const n = noiseSrc(t, .03), gn = ctx.createGain(); env(gn, t, .001, gain * .6, .018); n.connect(filt("bandpass", 1500, .8)).connect(gn); out(gn, 0, .15);
     },
-    bell(t, f, gain) {
+    /** A party popper: a sharp crack with a little body, and the paper rushing out of it. */
+    popper(t, gain) {
+      const n = noiseSrc(t, .06), gn = ctx.createGain(); env(gn, t, .001, gain * .7, .04);
+      n.connect(filt("highpass", 700)).connect(filt("lowpass", 6000)).connect(gn); out(gn, 0, .35);
+      const o = osc("sine", t, .22, 190); o.frequency.exponentialRampToValueAtTime(70, T0(t) + .07);
+      const g = ctx.createGain(); env(g, t, .002, gain * .5, .15); o.connect(g); out(g, 0, .1);
+      S.swish(t + .01, .5, false, 0, gain * .2);
+    },
+    bell(t, f, gain, pan = .15) {
       [[1, 1, 1.4], [2, .3, .8], [3.01, .12, .4], [4.2, .05, .25]].forEach(([m, a, d]) => {
         if (f * m > 5000) return;
-        const o = osc("sine", t, d, f * m), g = ctx.createGain(); env(g, t, .002, gain * a, d); o.connect(g); out(g, .15, .35);
+        const o = osc("sine", t, d, f * m), g = ctx.createGain(); env(g, t, .002, gain * a, d); o.connect(g); out(g, pan, .35);
       });
     },
     register(t, gain, f) {

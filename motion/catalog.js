@@ -422,8 +422,10 @@ export const OPTIONS = {
     "reggaeton", "jersey_club", "drill", "phonk", "baile_funk", "amapiano", "cumbia", "disco", "uk_garage", "swing", "epic", "march", "bossa",
     "pop", "rnb", "motown", "gospel", "classical", "synthwave", "gfunk", "future_bass", "deep_house", "trance", "nu_disco", "none"],
   hit: ["impact", "riser", "cymbal", "bass_drop", "gong", "timpani", "whip", "anvil", "crash", "swell", "orchestra"],
+  // confetti: the party popper an ad with falling confetti plays as its number lands (engine.js
+  // harmonise), last so every earlier look draws as it did
   number_sfx: ["pop", "chime", "register", "whoosh_ding", "ticks", "shave_haircut", "cash_counter", "text_ding", "phone_buzz",
-    "bells", "triangle", "glock_run", "harp_gliss", "whistle"],
+    "bells", "triangle", "glock_run", "harp_gliss", "whistle", "confetti"],
   // a famous public-domain tune over the groove (music.js), and what plays it; the holiday
   // tunes (SEASON_TUNES) play only in an ad set to their holiday
   melody: ["none", "mountain_king", "fur_elise", "beethoven5", "ode_to_joy", "saints", "ballgame", "cucaracha", "toccata",
@@ -556,7 +558,10 @@ export const WEIGHTS = {
   // instrument of the looks that land on it.
   sound_kit: { uplift: 3, house: 2, hiphop: 2, lofi: 1, minimal: 2, cinematic: 2, none: .5,
     pop: 0, rnb: 0, motown: 0, gospel: 0, classical: 0, synthwave: 0, gfunk: 0, future_bass: 0, deep_house: 0, trance: 0, nu_disco: 0 },
-  number_sfx: { pop: 2, chime: 2, register: 1, whoosh_ding: 1, ticks: 1 },
+  // a message ding or a phone buzzing only by hand: a viewer takes them for a real phone near
+  // them (owner, 2026-10-11, of the pop that sounded like a voice memo starting: "I actually
+  // looked around ... it was that confusing"); the popper only where confetti falls
+  number_sfx: { pop: 2, chime: 2, register: 1, whoosh_ding: 1, ticks: 1, text_ding: 0, phone_buzz: 0, confetti: 0 },
   // a holiday tune never in an ordinary ad (the two older ones, Carol of the Bells and the
   // Toccata, keep their weight so the draw is unchanged, and harmonise plays a classic instead)
   melody: { none: 5, prelude_c: 0, minuet_g: 0, mozart40: 0, spring: 0, moonlight: 0, gymnopedie: 0, oh_susanna: 0,
@@ -591,8 +596,9 @@ export const SEASON_TRACKS = { christmas: TRACKS.filter(t => t.kind === "christm
   halloween: TRACKS.filter(t => t.kind === "halloween").map(t => t.id) };
 // The classics a drum-free classical accompaniment plays when no tune is picked, and what an
 // ordinary ad plays in place of a holiday tune.
-export const CLASSICAL_TUNES = ["prelude_c", "minuet_g", "mozart40", "spring", "moonlight", "gymnopedie", "fur_elise", "canon",
-  "eine_kleine", "ode_to_joy", "morning_mood", "greensleeves", "turkish_march"];
+// The sad ones (SOUND_ALIASES below) are not among them.
+export const CLASSICAL_TUNES = ["prelude_c", "minuet_g", "mozart40", "spring", "canon",
+  "eine_kleine", "ode_to_joy", "morning_mood", "turkish_march"];
 
 // The tempo each newer groove is played at (the scored kits take any).
 export const KIT_BPM = { reggaeton: [88, 100], jersey_club: [136, 144], drill: [138, 146], phonk: [124, 136], baile_funk: [126, 132],
@@ -606,6 +612,14 @@ export const SOUND_ALIASES = {
   sound_kit: { trap: "hiphop", boombap: "hiphop", edm: "house", funk: "uplift", afrobeat: "house", drumline: "cinematic" },
   hit: { glitch: "impact", clap_stack: "impact" },
   number_sfx: { coin: "chime" },
+  // The sad pieces, retired (owner, 2026-10-11, of a confetti ad that played the Moonlight
+  // Sonata: "I don't even know [why] I would have a sad piano song for any of our ads. It's not
+  // likely or conducive of sales"): the slow, sorrowful solos by their own markings (Moonlight,
+  // Adagio sostenuto in C sharp minor; Gymnopedie No. 1, "Lent et douloureux"; Fur Elise, in A
+  // minor) and Greensleeves' lament. Each plays as an upbeat stand-in, the jazz and funk first
+  // (owner, 2026-10-04). They stay in OPTIONS so a shuffle draws as it did; the panel hides them.
+  track: { moonlight: "sousa_funk", gymnopedie: "aero_groove", fur_elise: "small_note_boogaloo" },
+  melody: { moonlight: "ode_to_joy", gymnopedie: "entertainer", fur_elise: "eine_kleine", greensleeves: "spring" },
 };
 
 // The panel's names for the sounds; any other shows as its own words ("reggaeton": Reggaeton).
@@ -616,7 +630,7 @@ export const SOUND_NAMES = {
     synthwave: "Synthwave (80s)", gfunk: "G-funk (West Coast)", future_bass: "Future bass", deep_house: "Deep house, synth bass",
     nu_disco: "Nu-disco", none: "No music" },
   hit: { impact: "Low hit", riser: "Swell into a hit", cymbal: "Reverse cymbal", bass_drop: "Sub drop", swell: "Cymbal swell", orchestra: "Orchestra hit" },
-  number_sfx: { pop: "Soft pop", chime: "Two bells", register: "Cash register", whoosh_ding: "Whoosh and bell", ticks: "Soft typing",
+  number_sfx: { pop: "Pop", confetti: "Party popper and confetti", chime: "Two bells", register: "Cash register", whoosh_ding: "Whoosh and bell", ticks: "Soft typing",
     shave_haircut: "Shave and a haircut", cash_counter: "Bill counter", text_ding: "Message ding", phone_buzz: "Phone buzz",
     bells: "Tubular bell", glock_run: "Glockenspiel run", harp_gliss: "Harp sweep", whistle: "Referee whistle" },
   melody: { none: "None", mountain_king: "In the Hall of the Mountain King (Grieg)", fur_elise: "Für Elise (Beethoven)", beethoven5: "Symphony No. 5 (Beethoven)",
