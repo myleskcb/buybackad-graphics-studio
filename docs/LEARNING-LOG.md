@@ -4085,3 +4085,16 @@ Measured (`colour_builder_audit.mjs --sets-only`): all checks pass; Soft
 steps 0.061 at the least off near-white; Deep is offered on 283 of 283
 coloured backgrounds (it was refused on every coloured light one).
 
+
+## 2026-10-11 — the Library button is the owner's (claude/compassionate-babbage-nv318r)
+
+Asked: the owner, of the 📚 Library button: "only accessible to my account";
+asked how far, "Only hide the Library button", for the admin emails.
+
+Done: the four Library buttons (the studio's nav and toolbar, the account
+menu, the video maker's link) start hidden and show for an operator account
+(ADMIN_EMAILS, role 'admin' from /api/me), as the AI Studio button does.
+`ad-library.js` does it, wrapping `syncAcctUI` on the studio and on the
+account's `onChange` elsewhere, so app.js is not edited for the library.
+The stars, Save to library and the plans' library are unchanged: another
+account can still save, and the server still serves its library.
