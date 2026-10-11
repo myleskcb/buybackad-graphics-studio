@@ -2758,6 +2758,13 @@ off screen". Done in `mac-wallpapers.js` (loaded after app.js):
   thumbnails, the library and the audits draw the card as designed. A lit
   picture is saved as its recipe (`pgScreen`) and lit again on any load.
 
+Checked (2026-10-11): `scripts/mac_wallpapers_check.mjs` ok on the 6 offered
+cards with a known screen (11 screen choices each, no new gate failure);
+`ez_theme_audit.mjs --quick` no problems; `designer_audit.mjs` found the
+same as `main` on the same machine: pkm_binder's "the chip lit is White on
+Navy" (on `main` too), and "the page is busy" on cars_kbb within noise of
+its 3000ms bar (`main` 3167ms, this branch 2779ms on the rerun).
+
 Still open:
 
 1. **Apple's own wallpaper files are not shipped.** They are Apple's artwork;
