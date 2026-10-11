@@ -6,11 +6,13 @@
  * screen" row. This checks, on the real studio:
  *
  *   draw      every wallpaper paints a picture (not one flat colour) as a
- *             1080 background and in a screen's shape;
+ *             1080 background and in a screen's shape; every photograph
+ *             (Lake Tahoe, the Golden Gate) loads, with its thumbnail and its
+ *             credit in assets/bg-web/ATTRIBUTION.json;
  *   lit       on every offered card whose picture has a screen we know (the
  *             offer cards and the library cards with mac-pro-open-front or
- *             macbook-open-angle), each wallpaper and the visitor's own
- *             picture light it, and the gate (pgCheck) fails nothing it did
+ *             macbook-open-angle), each wallpaper, each photograph and the
+ *             visitor's own picture light it, and the gate (pgCheck) fails nothing it did
  *             not fail with the screen off;
  *   designed  with a wallpaper chosen, a build outside Easy Mode's render
  *             (the thumbnails, the library, the audits) draws the picture
@@ -44,6 +46,16 @@ const res = await page.evaluate(async () => {
     const sc = MW.paint(k, 1266, 831); if (spread(sc) < 40) fail('draw ' + k, 'the screen picture is flat');
   });
   if (!EZ_GROUND_STYLES.some(s => s.key === 'wallpapers')) fail('picker', 'no Wallpapers group');
+  const credits = await fetch('assets/bg-web/ATTRIBUTION.json').then(r => r.json()).catch(() => []);
+  for (const ph of MW.photos){
+    const el = await MW.loadPhoto(ph); if (!el) fail('photo ' + ph.key, 'does not load');
+    else if (Math.max(el.naturalWidth, el.naturalHeight) > 2048) fail('photo ' + ph.key, 'over 2048px on its long side (renders black on a card)');
+    const th = await fetch(ph.thumb, { method: 'HEAD' }).catch(() => null); if (!th || !th.ok) fail('photo ' + ph.key, 'no thumbnail');
+    const c = credits.find(a => 'assets/bg-web/' + a.file === ph.src);
+    if (!c || !c.license || /NC|ND/.test(c.license)) fail('photo ' + ph.key, c ? 'licence ' + c.license : 'no credit in ATTRIBUTION.json');
+  }
+  const specs = ezGroundSpecs(EZ_GROUND_STYLES.find(s => s.key === 'wallpapers'));
+  if (MW.photos.some(ph => !specs.some(x => x.bg.src === ph.src))) fail('picker', 'a photograph is missing from the Wallpapers group');
 
   /* the visitor's own picture: a test card with words on it */
   const own = document.createElement('canvas'); own.width = 1200; own.height = 800;
@@ -70,7 +82,7 @@ const res = await page.evaluate(async () => {
       const r = pgCheck(sc), lit = litOf(sc).length; sc.dispose(); return { fails: r.fails.map(f => f.code + ':' + f.line), lit }; };
     const off = render(''), row = { id: card.id, off: off.fails.length, checked: 0 };
     if (off.lit) fail(card.id, 'lit with the screen off');
-    for (const key of keys.concat('own')){
+    for (const key of keys.concat(MW.photos.map(ph => ph.key), 'own')){
       const on = render(key); row.checked++;
       if (!on.lit) fail(card.id + ' ' + key, 'the screen did not light');
       const fresh = on.fails.filter(f => !off.fails.includes(f));

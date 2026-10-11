@@ -4081,6 +4081,23 @@ Found:
     in every undo step; the lit picture overrides `toObject` to save the
     cut-out's address and is lit again in `fabric.Image.fromObject`.
 
+Later the same day: twelve Commons photographs of Lake Tahoe and the Golden
+Gate (Apple's own wallpapers are not on Commons; apple.com and Google are not
+reachable from here), and a seventh offer layout, Floating, from the owner's
+"floating rounded rectangles, three of them".
+
+Found:
+  - Commons answers 429 to a request with no User-Agent, and serves the
+    3840px original when asked for a 2048px thumbnail; `fetch_backdrops.mjs`
+    sends one, and the picks were brought down to 2048 by hand.
+  - A new layout must go last in a line's `lays`: the look, face, headline
+    and photograph rotate by its position, so inserting it earlier would have
+    repainted every card after it.
+  - `template-holds.js` (2026-09-30) is older than the flags on the offer
+    family's product pictures (2026-10-04); the template audit would hold
+    most offer cards today, the owner's MacBook card included.
+
 RESUME HERE:
   0. Apple's own wallpaper files: the owner's licensing call (§AU 1).
-  1. The iPad and the phones' dark screens into `SCREENS` (§AU 2).
+  1. Whether cards on flagged pictures leave the studio (§AU 5).
+  2. The iPad and the phones' dark screens into `SCREENS` (§AU 2).

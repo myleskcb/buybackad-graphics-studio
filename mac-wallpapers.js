@@ -396,6 +396,36 @@
   const byKey = Object.fromEntries(WALLS.map(w => [w.key, w]));
   WALLS.forEach(w => GROUNDS.register(w.key, { name: w.name, note: w.note, group: 'wallpapers', draw: (g, W, H) => w.draw(g, W, H) }));
 
+  /* ── THE PHOTOGRAPHS (2026-10-11). The owner: "I wanted the stock Mac ones
+     ... if you're able to access wiki media commons, we can try to use that".
+     Apple's own files are not on Commons (it takes free licences only, and
+     Apple's are not); the places Apple photographed for them are: Lake Tahoe
+     and the Golden Gate, under free licences (CC0, CC BY, CC BY-SA), fetched
+     with scripts/fetch_backdrops.mjs, picked by eye from 48, 2048 on the long
+     side, credits in assets/bg-web/ATTRIBUTION.json. They come first, in the
+     picker and on the screen; the drawn ones follow. A photograph loads on
+     first use (2048px JPEGs: not for every visitor at page load). ── */
+  const PHOTOS = [
+    ['sand-harbor-lake-tahoe-3', 'Tahoe, clear water'], ['lake-tahoe-boulders-2', 'Tahoe, winter'], ['lake-tahoe-1', 'Tahoe, morning'],
+    ['emerald-bay-lake-tahoe-2', 'Tahoe, Emerald Bay'], ['lake-tahoe-sunset-4', 'Tahoe, sunset'], ['lake-tahoe-sunset-1', 'Tahoe, pink sunset'],
+    ['golden-gate-bridge-sunset-3', 'Golden Gate, golden hour'], ['golden-gate-bridge-baker-beach-2', 'Golden Gate, Baker Beach'],
+    ['golden-gate-bridge-sunset-4', 'Golden Gate, purple sunset'], ['golden-gate-bridge-at-night-1', 'Golden Gate, night'],
+    ['golden-gate-bridge-from-battery-spencer-3', 'Golden Gate above the fog'], ['golden-gate-bridge-fog-4', 'Golden Gate, fog at dusk'],
+  ].map(([f, name]) => ({ key: 'ph:' + f, name, src: 'assets/bg-web/wallpaper-' + f + '.jpg', thumb: 'assets/bg-web/thumbs/wallpaper-' + f + '.jpg' }));
+  const photoOf = k => PHOTOS.find(p => p.key === k || p.src === k) || null;
+  const url = src => typeof assetUrl === 'function' ? assetUrl(src) : src;
+  const photoEl = p => { try { const el = TPL_BG_ELS[p.src]; return el && el.width ? el : null; } catch (e){ return null; } };
+  const loading = new Map();
+  /* into the studio's own store of backgrounds (TPL_BG_ELS), where every render reads a photograph */
+  const loadPhoto = p => {
+    if (!p) return Promise.resolve(null);
+    const have = photoEl(p); if (have) return Promise.resolve(have);
+    if (!loading.has(p.key)) loading.set(p.key, new Promise(res => { const el = new Image();
+      el.onload = () => { try { TPL_BG_ELS[p.src] = el; } catch (e){} loading.delete(p.key); res(el); };
+      el.onerror = () => { loading.delete(p.key); res(null); }; el.src = url(p.src); }));
+    return loading.get(p.key);
+  };
+
   /** a wallpaper on a fresh canvas of w x h (no grain: a screen is clean) */
   function paint(key, w, h){
     const c = document.createElement('canvas'); c.width = Math.round(w); c.height = Math.round(h);
@@ -491,7 +521,7 @@
   const jg = (k, fb) => { try { return typeof jget === 'function' ? jget(k, fb) : fb; } catch (e){ return fb; } };
   const js = (k, v) => { try { if (typeof jset === 'function') jset(k, v); } catch (e){} };
   const ST = { key: '', own: null, ownVer: 0 };
-  ST.key = (k => k === 'own' || byKey[k] ? k : '')(jg('pgfx_ez_screen', ''));
+  ST.key = (k => k === 'own' || byKey[k] || photoOf(k) ? k : '')(jg('pgfx_ez_screen', ''));
   const LIT = new Map();                         // a few lit cut-outs, newest last (each is a full-size canvas)
   /* `flip`: the picture is drawn mirrored (a product faces into the layout,
      rule 73), so the art goes in mirrored and reads the right way round */
@@ -500,9 +530,10 @@
   function litFor(src, base, key, flip){
     const spec = screenOf(src); if (!spec || !key || !base || !(base.naturalWidth || base.width)) return null;
     if (key === 'own' && !ST.own) return null;
+    const ph = photoOf(key); if (ph && !photoEl(ph)) return null;               // not loaded yet: off until it is
     const id = fileOf(src) + '|' + key + '|' + (key === 'own' ? ST.ownVer : '') + (flip ? '|m' : '');
     if (LIT.has(id)){ const c = LIT.get(id); LIT.delete(id); LIT.set(id, c); return c; }
-    const c = litCanvas(base, spec, (aw, ah) => { const a = key === 'own' ? cover(ST.own, Math.round(aw), Math.round(ah)) : paint(key, aw, ah); return flip ? mirror(a) : a; });
+    const c = litCanvas(base, spec, (aw, ah) => { const a = key === 'own' ? cover(ST.own, Math.round(aw), Math.round(ah)) : ph ? cover(photoEl(ph), Math.round(aw), Math.round(ah)) : paint(key, aw, ah); return flip ? mirror(a) : a; });
     if (!c) return null;
     LIT.set(id, c); while (LIT.size > 4) LIT.delete(LIT.keys().next().value);
     return c;
@@ -530,7 +561,10 @@
   const _fromObject = fabric.Image.fromObject;
   fabric.Image.fromObject = function(obj, cb){
     return _fromObject.call(this, obj, function(img){
-      try { if (img && obj && obj.pgScreen) light(img, obj.src, obj.pgScreen); } catch (e){ console.warn('mac wallpapers: relight', e); }
+      try {
+        if (img && obj && obj.pgScreen && !light(img, obj.src, obj.pgScreen) && photoOf(obj.pgScreen))
+          loadPhoto(photoOf(obj.pgScreen)).then(() => { if (light(img, obj.src, obj.pgScreen) && img.canvas) img.canvas.requestRenderAll(); });
+      } catch (e){ console.warn('mac wallpapers: relight', e); }
       return typeof cb === 'function' ? cb.apply(this, arguments) : undefined;
     });
   };
@@ -560,12 +594,20 @@
     const _ezGroundSpecs = ezGroundSpecs;
     ezGroundSpecs = function(st, PArg){
       const out = _ezGroundSpecs.apply(this, arguments);
-      if (st && st.key === 'wallpapers'){ const lightInk = scLum((PArg || ezPalette()).ink) > 0.4;
-        out.forEach(x => Object.assign(x.bg, { scrim: 0.42, scrimColor: lightInk ? '#0b0b0d' : '#f6f6f4', scrimMode: 'gradient' })); }
+      if (st && st.key === 'wallpapers'){ const lightInk = scLum((PArg || ezPalette()).ink) > 0.4, shade = { scrim: 0.42, scrimColor: lightInk ? '#0b0b0d' : '#f6f6f4', scrimMode: 'gradient' };
+        out.forEach(x => Object.assign(x.bg, shade));
+        /* the photographs as the category photographs are offered (ezGroundSpecs 'photo') */
+        return PHOTOS.map(p => ({ title: p.name, thumb: url(p.thumb), bg: Object.assign({ type: 'image', src: p.src, blur: 0, grade: { treat: 'natural' } }, shade) })).concat(out); }
       return out;
     };
     const row = document.getElementById('ez-bgstyles');
     if (row && row.dataset.built){ delete row.dataset.built; row.innerHTML = ''; try { ezDrawnSync(); } catch (e){} }
+    /* a photograph is loaded before it is used, in Easy Mode and the designer */
+    const loadFirst = fn => function(bg){ const p = bg && photoOf(bg.src), self = this, args = arguments;
+      if (p && !photoEl(p)){ loadPhoto(p).then(el => { if (el) fn.apply(self, args); else if (typeof toast === 'function') toast('That photo could not be loaded', 'error'); }); return; }
+      return fn.apply(this, arguments); };
+    if (typeof ezUseGround === 'function') ezUseGround = loadFirst(ezUseGround);
+    if (typeof edSetGround === 'function') edSetGround = loadFirst(edSetGround);
   }
 
   /* ── Easy Mode's "On the laptop screen" row, under the backgrounds; shown
@@ -577,6 +619,8 @@
     return !!tpl && (tpl.layers || []).some(l => l.kind === 'cutout' && l.props && screenOf(l.props.src) && !hidden.includes(l.name));
   }
   function pick(key){
+    const p = photoOf(key);
+    if (p && !photoEl(p)){ loadPhoto(p).then(el => { if (el) pick(key); }); return; }
     ST.key = key; js('pgfx_ez_screen', key);
     syncRow(); schedEzPreview(0);
   }
@@ -605,6 +649,7 @@
     const add = (key, title, dress, onclick) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'ez-sw ez-gsw';
       b.dataset.screen = key; b.title = title; b.setAttribute('aria-label', title); dress(b); b.onclick = onclick || (() => pick(key)); row.appendChild(b); return b; };
     add('', 'Screen off, as photographed', b => { b.textContent = 'OFF'; b.style.background = 'var(--surface-sunk)'; b.style.color = 'var(--text-dim)'; b.style.font = '700 9px/1.1 var(--ui)'; });   // not .orig: syncEzSwatches lights the first .orig
+    PHOTOS.forEach(p => add(p.key, p.name, b => { b.style.backgroundImage = 'url("' + url(p.thumb) + '")'; }));
     WALLS.forEach(w => add(w.key, w.name, b => { b.style.backgroundImage = 'url("' + paint(w.key, 96, 60).toDataURL('image/jpeg', 0.85) + '")'; }));
     add('own', 'Your picture', b => { b.style.display = 'none'; });
     const up = document.createElement('button'); up.type = 'button'; up.className = 'ez-sw'; up.title = 'Put your own picture on the screen';
@@ -628,8 +673,9 @@
     syncEzSwatches = function(){ const r = _sync.apply(this, arguments); try { syncRow(); } catch (e){} return r; };
   }
   buildRow();
+  if (photoOf(ST.key)) loadPhoto(photoOf(ST.key)).then(el => { if (el) schedEzPreview(0); });    // a photograph chosen last visit
   if (typeof bgList === 'function') bgList().then(all => { const r = (all || []).find(x => x.id === OWN_ID);
     if (r && typeof r.data === 'string' && /^data:image\//.test(r.data)) useOwn(r.data, false); }).catch(() => {});
 
-  window.MAC_WALLPAPERS = { list: WALLS.map(w => ({ key: w.key, name: w.name, note: w.note })), paint, SCREENS, screenOf, litFor, screen: ST };
+  window.MAC_WALLPAPERS = { list: WALLS.map(w => ({ key: w.key, name: w.name, note: w.note })), photos: PHOTOS, loadPhoto, paint, SCREENS, screenOf, litFor, screen: ST };
 })();

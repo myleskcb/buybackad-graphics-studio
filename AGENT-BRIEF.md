@@ -511,7 +511,10 @@ produced." DESIGN-LAW rule 87. In practice:
   `openAdvancedFromEz`; a card as designed, its thumbnail and every audit
   draw unchanged. A new picture with a screen is a row in `SCREENS` (its
   display's four corners, measured and checked by warping a grid). Apple's
-  own wallpaper files are not shipped: Apple's artwork, the owner's call.
+  own wallpaper files are not shipped: Apple's artwork, the owner's call;
+  twelve free-licensed photographs of the same places (Commons, credited in
+  assets/bg-web/ATTRIBUTION.json) lead the group and load on first use.
+  Check: `node scripts/mac_wallpapers_check.mjs`.
 - **Real photographs only** (rule 117, 2026-10-04): no generated scene
   (`assets/bg/dl_*`) or drawn ground (`dg_cast`) behind a card or template
   where a real photograph of the goods exists. New photographs go in
