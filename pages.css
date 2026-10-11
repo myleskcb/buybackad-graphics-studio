@@ -42,6 +42,13 @@ table{border-collapse:collapse;width:100%;margin:10px 0;font-size:15px}
 th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
 th{background:var(--panel);color:var(--text)}
 td{color:var(--text-2)}
+/* A table wider than a phone scrolls inside its own box, never the page
+   (about.html's plans table needs about 490px); the row labels stay put. */
+.table-wrap{overflow-x:auto;margin:10px 0}
+.table-wrap table{margin:0;border-collapse:separate;border-spacing:0;border-top:1px solid var(--line)}
+.table-wrap th,.table-wrap td{border-width:0 1px 1px 0}
+.table-wrap tr>:first-child{border-left-width:1px}
+@media (max-width:640px){.table-wrap table{font-size:14px}.table-wrap th,.table-wrap td{padding:8px 9px}.table-wrap tr>:first-child{position:sticky;left:0;z-index:1}.table-wrap td:first-child{background:var(--bg)}}
 .note{font-size:14px;color:var(--muted)}
 footer.bottom{border-top:1px solid var(--line);max-width:1080px;margin:0 auto;padding:22px 20px 40px;display:flex;gap:10px 22px;flex-wrap:wrap;font-size:14px}
 footer.bottom a{color:var(--text-2)}
