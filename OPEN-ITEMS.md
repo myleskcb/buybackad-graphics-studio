@@ -2736,3 +2736,45 @@ Still open:
 5. ~~`claude/fervent-pascal-w6mthe`~~: in `main` before this merge; this
    branch's pgOneHue wrapper wraps its pass (the theme path is this rule's,
    its two families the no-theme path).
+
+## AV. 2026-10-11 — one light: the metal grounds lit by the phones' key light (DESIGN-LAW 128)
+
+The owner, of a Titanium video ad on Brushed metal: "the shading around the
+corners because its dark and then light around the side", "not actually how
+shadows work", "audit and make sure it's accurate to life like realism and
+actual device". Lettered after `claude/laughing-keller-c9tp89`'s §AU, which
+is not on `main` yet.
+
+Done, on `claude/friendly-tesla-hrhpmn`:
+- Brushed metal and Diamond plate (motion/decor.js) are lit from the top left,
+  where the phones' shadows fall from. Brushed metal has an upright streak
+  across its grain; Diamond plate's bars are lit on the side toward the light
+  and cast their shadows away from it. The studio's scenes of the same names
+  are the same painters.
+- `scripts/ground_light_audit.mjs`: all 102 grounds, 1,698 drawings. The 25
+  lit surfaces pass, Tonal is held (DESIGN-LAW 128), and 38 grounds are listed
+  as design, sky or their own light.
+- Checked, unchanged: audit_phone_views.py 59/59, motion_finish_check.mjs
+  57/57, motion_phone_check.mjs all pass. The headline contrast sweep is no
+  worse on either ground.
+
+Open:
+1. **Not on `main`.** This session was told to push its own branch only.
+   Merge `main` in, re-run ground_light_audit.mjs, and land it.
+2. **Noise is lit from the lower right** (facing −22.9 L*). Flipped to the key
+   light, it cost white headlines at the top: on 30 looks the median went 6.17
+   → 5.88:1, and one look (Candy teal glow) went 3.46 → 2.70, under the bar. So
+   it was put back and listed as a colour gradient, with Linear (random angle),
+   Split soft and the skies. Lighting it from the top left would need the
+   headline's own plate or shadow to cover those looks first. The owner's call.
+3. **Brick lamp's lamp** is drawn anywhere from 0.15 left to 0.15 right of the
+   stage, while the phones' shadows fall to the right, as if lit from the left.
+   Keeping the lamp left of the phones would make them agree. Not done: the
+   night scenes are lit by what they draw and are listed, not held.
+4. **The first-frame audit counts a moving ground as something on screen**
+   (motion/audit.js `cover0`, and `deadAir` the same way). On the old metal
+   grounds, the bright band moving under the flash cut or whip pan counted as
+   up to 10% of the frame; with that band gone, three Brushed metal looks and
+   one Diamond plate look read under 15% on frame 0 with the same phones
+   showing. Measuring against the ground drawn under the same camera would ask
+   the question the check means.
