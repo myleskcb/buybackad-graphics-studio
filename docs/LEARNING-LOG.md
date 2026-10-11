@@ -4155,43 +4155,46 @@ account's `onChange` elsewhere, so app.js is not edited for the library.
 The stars, Save to library and the plans' library are unchanged: another
 account can still save, and the server still serves its library.
 
-## 2026-10-11 — the ad library reviews before anything goes out (claude/compassionate-babbage-nv318r)
+## 2026-10-11 — the ad library is an outbox: the studio makes imagery, iPhones LA does the rest (claude/compassionate-babbage-nv318r)
 
-Asked: the owner, of the 📚 Library: "make sure the library makes sense it
-needs to go to a place where we then configure the titles and descriptions or
-suggested ones show and we approve or deny or edit", then "But we will not make
-auto post from the graphic studio".
+Asked: the owner, of the 📚 Library: first "it needs to go to a place where we
+then configure the titles and descriptions or suggested ones show and we
+approve or deny or edit"; then "we're supposed to do the approval or denial of
+the title description on the listings iPhone LA site and that was the purpose
+of connecting Cloudflare so we can send the imagery and video over
+automatically without need to download it ourselves", "we should just build
+imagery that we can pass off the rest can be handled on the site", "we could
+use the same imagery for seven days per unique ad that is our maximum",
+"reposted daily of course".
 
 Done:
-  - Every saved ad waits in **To review**; **Approved** and **Denied** beside
-    it. Only approved ads are on the public link (JSON, RSS, the page). An ad
-    saved before review existed has no status, so it waits in review too.
-  - Suggestions come from the ad's own words, never a phone number or
-    website: the headline layers joined (a "SELL YOUR" runs on into "IPHONE";
-    "CASH BUYER" and "WE BUY IPHONES" are joined by a dash), the sub and info
-    lines as sentences, badges as a list, "•" and "|" as commas, set back into
-    normal case with iPhone, iCloud, Pro Max, S26 and Apple Watch kept. The
-    plainer ones name only what the shop buys: nothing the ad does not say.
-  - The Auto-post switch and the repost schedules are gone from the studio.
-    An approved ad is offered once, its slot at its approval, in the feed's
-    old shape, so iPhones LA's worker reads it unchanged and posts each
-    approval once; posting again is iPhones LA's.
-  - A held ad (website, QR, address, handle, watermark) cannot be approved.
-    An approval needs a description; an approved ad keeps one.
+  - A review screen with its own suggestions was built in the studio first
+    and dropped before merging: the titles have to come from iPhones LA's
+    own title and description maker, and approval is done on its listings
+    site. What stayed is the outbox.
+  - Every ad saved is on the link at once, picture and video, with its
+    words, category and products. No Auto-post switch and no schedule in
+    the studio; an old studio's autopost and repost_days are ignored.
+  - Offered every day for seven days from the save (`fresh_until`, one slot
+    a day, round 1 to 7), then retired: listed with `fresh: false` and no
+    slot. The feed keeps its old shape (`post.slot_id`, `autopost`,
+    `repost_days: 1`), so a reader of it needs no change to take each day's
+    slot once; the daily limits (buying ads' safe share, more in aggressive
+    mode) are the site's.
+  - The hand-off README and its paste-ready prompt now ask iPhones LA to
+    bring each ad into its review and post only approved ones within its
+    limits; the zip is repacked.
 
 Found:
-  - The title the studio sends (a design's name) was offered as a suggestion
-    at the save and lost at the next read, because the save writes the best
-    suggestion over the title: it is kept as `sent_title`.
-  - The browser check clicked the Library button as a free account; since
-    that button is the owner's, the check opens the dialog from code there
-    and checks the button shows for the owner only.
-  - With the only ad approved, To review is empty: the dialog opens on To
-    review while anything waits there, then on Approved.
+  - The browser check clicked the Library button as a free account; that
+    button has been the owner's since the morning, so the check opens the
+    dialog from code there and checks the button shows for the owner only.
+  - The iPhones LA repository (loganipad/iphoneslainv) is not reachable from
+    this account, so its side is the hand-off prompt.
 
 Checked: `scripts/ad_library_check.mjs` (router, the real function, iPhones
-LA's worker posting the approved ad once, its own tests, and Chromium under
-the production CSP): no failures.
+LA's worker, its tests, Chromium under the production CSP) and
+`scripts/library_handoff_check.mjs`: no failures.
 
 ## 2026-10-11 — the gaming cards leave the drawn rooms (OPEN-ITEMS §AU)
 

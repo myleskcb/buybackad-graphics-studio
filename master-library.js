@@ -9,8 +9,8 @@
 
    Two sections:
    - Saved ads. With ?feed=<link id> it is that library's public page (what
-     iPhones LA is given): the ads approved in the studio's review, and the
-     feed addresses a poster reads. Without one it is the signed-in account's own
+     iPhones LA is given): its ads, every one saved, and the feed addresses
+     iPhones LA reads them from (it reviews and posts them there). Without one it is the signed-in account's own
      library (/api/ads/mine, the session token the studio keeps).
    - Finished designs: every card the studio offers, read from this deploy
      (assets/showcase/index.json and the full-size renders in
@@ -119,12 +119,10 @@
     }
     c.appendChild(el('b', '', it.title));
     c.appendChild(el('span', 'ml-meta', [catName(it.category), it.image.width + ' × ' + it.image.height, it.video ? it.video.format.toUpperCase() + ' ' + it.video.width + ' × ' + it.video.height : '', 'saved ' + when(it.created)].filter(Boolean).join(' · ')));
-    if (it.caption && it.caption !== it.title) c.appendChild(el('span', 'ml-meta', it.caption));
-    const st = it.status || 'review';
-    if (it.hold) c.appendChild(el('span', 'ml-held', it.hold === 'unchecked' ? 'Held: not checked for a website, so it cannot go to iPhones LA' : 'Held: it shows ' + it.hold + ', so it cannot go to iPhones LA'));
-    else if (st === 'approved') c.appendChild(el('span', 'ml-post', 'Approved' + (it.reviewed_at ? ' ' + when(it.reviewed_at) : '') + ', on the link for iPhones LA'));
-    else if (st === 'denied') c.appendChild(el('span', 'ml-meta', 'Denied: not on the link'));
-    else c.appendChild(el('span', 'ml-meta', 'Waiting for review in the studio (📚 Library)'));
+    if (it.hold) c.appendChild(el('span', 'ml-held', it.hold === 'unchecked' ? 'Held: not checked for a website, so not for iPhones LA' : 'Held: it shows ' + it.hold + ', so not for iPhones LA'));
+    else if (it.fresh === false) c.appendChild(el('span', 'ml-held', 'Past its 7 days: no longer offered'));
+    else if (it.post) c.appendChild(el('span', 'ml-post', 'Offered daily, day ' + it.post.round + ' of 7' + (it.post.next_at ? ', next ' + when(it.post.next_at) : ', its last')));
+    else c.appendChild(el('span', 'ml-meta', 'For iPhones LA'));
     const acts = el('div', 'ml-acts');
     acts.appendChild(link(it.image.url, it.video ? 'Photo' : 'Download', { download: slug(it.title) + '.jpg' }));
     if (it.video) acts.appendChild(link(it.video.url, 'Video', { download: slug(it.title) + '.' + it.video.format }));
@@ -135,10 +133,10 @@
     const box = $('ml-feed');
     box.hidden = false;
     box.textContent = '';
-    box.appendChild(el('b', '', isOwner ? 'Your public link' : 'For posting'));
+    box.appendChild(el('b', '', isOwner ? 'Your public link' : 'For iPhones LA'));
     const p1 = el('p', '', isOwner
-      ? 'Give this page to iPhones LA. Anyone with it sees the ads you approved and nothing else. Reset it in the studio (📚 Library) to stop the old one.'
-      : 'The approved ads, each with its title and description, newest approval first. A poster reads one of these:');
+      ? 'Give this page to iPhones LA. Anyone with it sees these ads and nothing else. Reset it in the studio (📚 Library) to stop the old one.'
+      : 'Every ad saved in Graphics Studio, picture and video. Each is offered daily for 7 days from when it was saved, then retires. iPhones LA reads one of these and reviews and posts the ads there:');
     box.appendChild(p1);
     const rows = isOwner ? [['This page', lib.links.page], ['JSON feed', lib.links.json], ['RSS', lib.links.rss]] : [['JSON feed', lib.links.json], ['RSS', lib.links.rss]];
     rows.forEach(([label, url]) => {
@@ -188,15 +186,15 @@
     feedBox(lib, !feed);
     if (!lib.items.length){ say(feed ? 'This library has no ads yet.' : 'Nothing saved yet. Download an ad in the studio and press "Save to library".', feed ? null : ['index.html', 'Open the studio']); return lib; }
     section('saved', lib.items.map(searchable), savedCard, {
-      countLine: n => n + (n === 1 ? ' ad' : ' ads') + (feed ? ' approved' : ', ' + lib.items.filter(x => x.status === 'approved').length + ' approved, ' + lib.items.filter(x => (x.status || 'review') === 'review').length + ' to review'),
+      countLine: n => n + (n === 1 ? ' ad' : ' ads') + ', ' + lib.items.filter(x => x.post).length + ' offered today',
     });
     return lib;
   }
 
   /* ---------- finished designs ---------- */
   /* the design's full-size render, as shown, into the account's library; the
-     words on it read from its record, a website on it holds it from
-     approval (the same rule the studio keeps); it waits in review */
+     words on it read from its record, a website on it holds it from iPhones LA
+     (the same rule the studio keeps) */
   async function saveFinished(x){
     const lib = window.adLibrary;
     if (!lib) throw new Error('the library did not load; reload the page');
