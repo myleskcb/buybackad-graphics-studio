@@ -789,17 +789,18 @@ async function browserPart() {
       const note = await dl();
       ok(/Saved we-buy-phones/.test(note) && userBlob('videos@x.example').exports.count === 1, 'video maker: a Pro download is made and counted once (' + note.slice(0, 120) + ')');
       ok(/1080×1080/.test(note) && /\(1440×1440, the moment/.test(note), 'video maker: Pro gets a 1080 video and a 1440 photo (' + note.slice(0, 200) + ')');
-      const proPng = files.find((d) => /\.png$/.test(d.suggestedFilename()));
+      const isPhoto = (d) => /\.(png|jpe?g)$/.test(d.suggestedFilename());   // a JPG since 2026-10-11 (DESIGN-LAW 108, 110)
+      const proPng = files.find(isPhoto);
       files.length = 0;
       const boss = (await hit('POST', '/auth/login', { email: 'boss@studio.example', password: 'a-long-password' })).json.token;
       await page.evaluate((t) => { localStorage.setItem('pgfx_token', JSON.stringify(t)); }, boss);
       await dl();
-      const bossPng = files.find((d) => /\.png$/.test(d.suggestedFilename()));
+      const bossPng = files.find(isPhoto);
       ok(userBlob('boss@studio.example').exports.count === 0, 'video maker: an operator\'s download is not counted');
       if (ok(proPng && bossPng, 'video maker: both photos came down')) {
         const b64 = async (d) => readFileSync(await d.path()).toString('base64');
         const diff = await page.evaluate(async ([a, b]) => {
-          const load = (s) => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = 'data:image/png;base64,' + s; });
+          const load = (s) => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = 'data:image/' + (s.startsWith('/9j/') ? 'jpeg' : 'png') + ';base64,' + s; });
           const [fa, fb] = await Promise.all([load(a), load(b)]);
           const px = (img) => { const c = document.createElement('canvas'); c.width = c.height = 1080; const x = c.getContext('2d'); x.drawImage(img, 0, 0, 1080, 1080); return x.getImageData(0, 0, 1080, 1080).data; };
           const A = px(fa), B = px(fb);
