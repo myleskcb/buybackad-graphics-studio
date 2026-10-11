@@ -143,8 +143,13 @@ const report = { sets: [], left: [], ready: [], cards: [] };
       const S = cbColour(k), r = cbPartners(S, counts, mode);
       r.left.forEach(l => left.push({ mode, start: k, partner: l.P.key, why: l.why }));
       r.list.forEach((x, pi) => x.sets.forEach((set, ai) => set.supports.forEach((_, si) => {
-        const th = cbTheme(set, si);
-        out.push(row(th, { mode, start: k, partner: x.P.key, pi, ai, si, ready: x.ready, n: x.n, setMode: set.mode, pairHex: set.pair ? set.pair.hex : null, own: cbCheck(th).ok && cbTweakOk(th) }));
+        const th = cbOffer(set, si);
+        /* the Soft fade has to be seen (owner, 2026-10-11: "it just darkens
+           the entire background"): a lightness step of 0.06 at the least,
+           except on a near-white, which has no lighter to go to */
+        const L1 = cbLch(th.bg.c1).L, fade = Math.abs(L1 - cbLch(th.bg.c2).L), nearWhite = set.mode === 'light' && L1 > 0.935;
+        const deep = cbTweakOk(cbApply(th, set.mode, { grad: 'deep', bg: cbLch(th.bg.c1) }));
+        out.push(row(th, { mode, start: k, partner: x.P.key, pi, ai, si, ready: x.ready, n: x.n, setMode: set.mode, pairHex: set.pair ? set.pair.hex : null, own: cbCheck(th).ok && cbTweakOk(th), fade, nearWhite, deep }));
         if (si || k.startsWith('#')) return;
         /* the tweaks: each slider's two ends, each style the builder offers */
         [['bg', 'L'], ['acc', 'L'], ['acc', 'C'], ['sup', 'L']].forEach(([key, f]) => {
@@ -165,6 +170,7 @@ const report = { sets: [], left: [], ready: [], cards: [] };
   }, PICKS);
   for (const t of all.out){
     const s = score(t);
+    if (!t.nearWhite && t.fade < 0.06) s.bad.push('soft fade too faint to see (lightness step ' + t.fade.toFixed(3) + ')');
     if (s.bad.length || !t.own){ fails++; console.log(`  FAIL ${t.mode} ${t.start} + ${t.partner} (${t.name}, small print ${t.si}): ${s.bad.join('; ') || 'the builder\'s own check disagrees'}`); }
     report.sets.push(Object.assign({}, t, { score: s }));
   }
@@ -189,6 +195,8 @@ const report = { sets: [], left: [], ready: [], cards: [] };
     const here = all.out.filter(t => t.mode === m), shown = new Set(here.filter(t => !t.start.startsWith('#')).map(t => t.start + '+' + t.partner)).size;
     console.log(`\n${m}: ${here.length} sets (${shown} pairs from the 14 colours, plus ${PICKS.length} picked colours), ${all.left.filter(l => l.mode === m && !l.start.startsWith('#')).length} pairs left out`);
     console.log('  ' + worst(here));
+    const fades = here.filter(t => !t.nearWhite).map(t => t.fade);
+    console.log(`  soft fade: lightness step ${Math.min(...fades).toFixed(3)} at the least off near-white · deep fade offered on ${here.filter(t => t.deep && !t.nearWhite).length} of ${here.filter(t => !t.nearWhite).length} coloured backgrounds, ${here.filter(t => t.deep && t.nearWhite).length} of ${here.filter(t => t.nearWhite).length} near-white`);
   }
   console.log(`\ntweaks: ${all.tweaks.length} tweaked sets (slider ends, styles, typed brand colours), ${tweakFails} failing`);
   console.log('  ' + worst(all.tweaks, true));
