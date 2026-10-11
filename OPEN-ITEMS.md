@@ -2736,3 +2736,307 @@ Still open:
 5. ~~`claude/fervent-pascal-w6mthe`~~: in `main` before this merge; this
    branch's pgOneHue wrapper wraps its pass (the theme path is this rule's,
    its two families the no-theme path).
+
+## AU. 2026-10-11 — the gaming cards in real gamers' rooms, not three drawn ones (DESIGN-LAW 117)
+
+The owner, with a screenshot of the Gaming category: "too similar of
+backgrounds and themes way too similar", "assimilate with the other
+categories", then "We need more relatable gamer style background bedroom
+photos, so they look clean".
+
+Found: all 39 gaming offer cards (consoles, Switch, controllers, gaming
+laptops, VR, PC handhelds, gaming PCs) and the gaming headsets and monitors
+stood on the same three drawn purple-neon rooms
+(`scripts/make_gaming_grounds.py`, §Q), placeholders that rule 117 has ruled
+out since 2026-10-04. Every other category stands on photographs.
+
+Done:
+- A first pass put the lines on photographs of their own goods (PS5, Switch,
+  DualSense, Steam Deck) and the NASA pictures; the owner asked for rooms
+  instead, and a controller cut-out over a photograph of a controller read
+  as clutter. Those grounds are gone.
+- Four Commons photographs of real rooms, chosen from 957 freely licensed
+  candidates across 71 searches for gaming setups, bedrooms, living rooms and desks
+  (the stock libraries are unreachable from a cloud session): a home desk
+  with grey walls, a desk setup with an ultrawide monitor, a living room
+  with the PS5 under the TV, and a white desk with a glass-side tower and an
+  Xbox controller (`assets/bg-web/rooms-*`, credits in its ATTRIBUTION.json:
+  two CC0, two CC BY-SA). `make_offer_grounds.py` makes them the `gaming`
+  pool, and every gaming line, gaming headset and monitor uses it (7 to 9
+  cards a room).
+- Left out: a dark room lit by its screens (its small type at 2.7:1 under the
+  shade its p90 solves), a bedroom with a gaming chair and a cluttered desk,
+  a purple-neon desk with no author on its Commons page, and photographs with
+  people or event branding in them.
+- The pool's order is the one where no line of copy is less legible than on
+  the drawn rooms: each card measured on each room with `audit_templates.mjs`,
+  then the 24 orders compared.
+- The rooms are mapped in `photo-subjects.js` (spliced in: the mapper here
+  does not reproduce the committed table bit for bit).
+- `audit_templates.mjs --match '^of_'`: 161 cards, the same verdict as
+  `main` on every card (66 held, all for product pictures flagged on
+  2026-10-04; 87 contrast warnings, none new).
+
+Open:
+1. A clean gamer bedroom. Commons has none (its bedrooms are hotels,
+   museums and dorms); the owner's own photographs or a stock library would
+   land through scripts/ingest_assets.py (docs/scrape-intake.md item 5).
+2. The gaming lines' holds are their product cut-outs (the console pair, the
+   Switch renders, the controller pair cut at the edge, the VR headset): 20
+   of the 39 cards are held for them, as before this change. They need real
+   cut-outs of the same goods.
+
+## AV. 2026-10-11 — one light: the metal grounds lit by the phones' key light (DESIGN-LAW 128)
+
+The owner, of a Titanium video ad on Brushed metal: "the shading around the
+corners because its dark and then light around the side", "not actually how
+shadows work", "audit and make sure it's accurate to life like realism and
+actual device". (That branch's section landed as §AX, the gaming cards
+having taken §AU first.)
+
+Done, on `claude/friendly-tesla-hrhpmn`:
+- Brushed metal and Diamond plate (motion/decor.js) are lit from the top left,
+  where the phones' shadows fall from. Brushed metal has an upright streak
+  across its grain; Diamond plate's bars are lit on the side toward the light
+  and cast their shadows away from it. The studio's scenes of the same names
+  are the same painters.
+- `scripts/ground_light_audit.mjs`: all 102 grounds, 1,698 drawings. The 25
+  lit surfaces pass, Tonal is held (DESIGN-LAW 128), and 38 grounds are listed
+  as design, sky or their own light.
+- Checked, unchanged: audit_phone_views.py 59/59, motion_finish_check.mjs
+  57/57, motion_phone_check.mjs all pass. The headline contrast sweep is no
+  worse on either ground.
+
+Open:
+1. **Not on `main`.** This session was told to push its own branch only.
+   Merge `main` in, re-run ground_light_audit.mjs, and land it.
+2. **Noise is lit from the lower right** (facing −22.9 L*). Flipped to the key
+   light, it cost white headlines at the top: on 30 looks the median went 6.17
+   → 5.88:1, and one look (Candy teal glow) went 3.46 → 2.70, under the bar. So
+   it was put back and listed as a colour gradient, with Linear (random angle),
+   Split soft and the skies. Lighting it from the top left would need the
+   headline's own plate or shadow to cover those looks first. The owner's call.
+3. **Brick lamp's lamp** is drawn anywhere from 0.15 left to 0.15 right of the
+   stage, while the phones' shadows fall to the right, as if lit from the left.
+   Keeping the lamp left of the phones would make them agree. Not done: the
+   night scenes are lit by what they draw and are listed, not held.
+4. **The first-frame audit counts a moving ground as something on screen**
+   (motion/audit.js `cover0`, and `deadAir` the same way). On the old metal
+   grounds, the bright band moving under the flash cut or whip pan counted as
+   up to 10% of the frame; with that band gone, three Brushed metal looks and
+   one Diamond plate look read under 15% on frame 0 with the same phones
+   showing. Measuring against the ground drawn under the same camera would ask
+   the question the check means.
+
+## AW. 2026-10-11 — Mac wallpapers: Tahoe and Golden Gate, and a lit laptop screen
+
+The owner, over the MacBook card ("Old MacBook. New money." on the keyboard
+photograph): "can we be able to change the background to stock apple
+backgrounds for tahoe or golden gate or the stock background on front facing
+off screen". Done in `mac-wallpapers.js` (loaded after app.js):
+
+- **Wallpapers, a background group** beside Photos and Blurred photos, in
+  Easy Mode and the designer: Tahoe day, dusk and night, Tahoe glass (light,
+  dark), Golden Gate sunset, night and fog, Golden curves (light, dark). Drawn
+  ground kinds (`ground:wp…`), each in its own colours, shaded like a
+  photograph in the picker and gated like one. A visitor's choice only: no
+  card is designed on one (rule 117 is about what a card ships with).
+- **On the laptop screen**, an Easy Mode row shown on a card whose picture
+  has a screen we know (`SCREENS`: mac-pro-open-front, macbook-open-angle;
+  mac-half-open-glow shows its lid). Off, any wallpaper, or the visitor's own
+  picture (kept on the device, in the photo store beside the recent photos). A lit
+  picture is saved as its recipe (`pgScreen`) and lit again on any load.
+  **Lit by default** (the owner, later: "Ideally, we start putting the
+  backgrounds in the computer like we talked about"): every studio card
+  whose picture has a known screen carries a drawn wallpaper as designed, one
+  per card by its id (`DEFAULTS`), in the strip, Easy Mode, the download and
+  the designer; the row's AUTO is that wallpaper, OFF the screen as
+  photographed. Library cards stay as photographed unless the visitor picks:
+  their thumbnails and library renders are baked.
+
+**Photographs too** (later the same day). The owner: "I wanted the stock
+Mac ones ... if you're able to access wiki media commons, we can try to use
+that". Apple's own files are not on Commons (free licences only), and
+apple.com and Google are not reachable from the cloud sessions; what Commons
+has is the places Apple photographed. Twelve photographs of Lake Tahoe and
+the Golden Gate (CC0, CC BY, CC BY-SA), picked by eye from 48 fetched with
+`fetch_backdrops.mjs`, 2048 on the long side, thumbnails in
+`assets/bg-web/thumbs/`, credits in `assets/bg-web/ATTRIBUTION.json`. They
+lead the Wallpapers group and the screen row; each loads on first use.
+
+**Floating, a seventh offer layout** (the owner: "it doesn't need to be a
+strip all the way across the page from left or right and light blue maybe
+they could be floating rounded rectangles three of them ... we could always
+keep the original as more variety"): `float` in offer-library.js, one card
+per line with a picture (28), the steps in three rounded boxes and the number
+in its own, the photograph running to every edge. Built last for each line,
+so the cards before it are unchanged. The gate passes all 28 in Easy Mode.
+`audit_templates.mjs --match _float_` holds 13 for a flagged product picture,
+the same pictures its siblings use: the other offer cards of those lines
+fail the same way (0 of 15 sampled: of_mac_row_sky among them), because
+`template-holds.js` was last written on 2026-09-30, before the category audit
+flagged those pictures (2026-10-04). Regenerating it (`--write`) would take
+the user's own MacBook card out of the studio with the rest: the owner's
+call, not done here.
+
+**Detailed, an eighth offer layout, and a finish on both** (the owner: "add
+a little more detail or graphic design language ... too simplified for the
+average consumer ... we need the informative approach", then "gradient, fade
+or highlight on the top of the floating boxes ... overlay grain ... vignette
+or sunburst to make the colours feel a little more alive"). `info`: a WE BUY
+label with the models, a GOOD TO KNOW checklist (the line's own `check`
+items) on one see-through grey card, HOW IT WORKS as three steps with an
+icon each (chat, pin, cash; `ICONS.chat` added) and arrows on the seams, and
+the number with its phone mark (rule 118). Every word is the line's own.
+The finish, Floating and Detailed alike, is light and shade only (rules 56,
+85): each box lit from the top in its own colour with a sheen line, grain and
+a deeper vignette on the photograph, a soft pool of white light behind the
+product. 28 Detailed cards; all 56 new cards pass the gate in Easy Mode, and
+`audit_templates.mjs` rejects them only for the flagged pictures their
+siblings share (30 of 56 pass), with nothing for copy, overlap or legibility.
+A theme on these cards repaints the boxes flat (themeScene owns a plate's
+colour); the finish is the card as designed.
+
+Checked (2026-10-11): `scripts/mac_wallpapers_check.mjs` ok on the 6 offered
+cards with a known screen (11 screen choices each, no new gate failure);
+`ez_theme_audit.mjs --quick` no problems; `designer_audit.mjs` found the
+same as `main` on the same machine: pkm_binder's "the chip lit is White on
+Navy" (on `main` too), and "the page is busy" on cars_kbb within noise of
+its 3000ms bar (`main` 3167ms, this branch 2779ms on the rerun).
+
+Still open:
+
+1. **Apple's own wallpaper files are not shipped** (the photographs above are the places, not Apple's pictures). They are Apple's artwork;
+   putting them inside a paid product is a licensing call for the owner, not
+   a code change. The drawn ones stand in. A visitor who wants the real one
+   can put their own copy on the screen (the 📷 in the row) or upload it as
+   the background, as with any photo of theirs.
+2. **More screens.** The iPad's `ipad-front-screen-off` and the phones that
+   face front with a dark screen could take the same row: measure the
+   display's corners into `SCREENS`, nothing else changes.
+3. **The designer has no screen row of its own.** It keeps what Easy Mode
+   handed it; changing the screen there means going back to Easy Mode.
+4. **A drawn background costs about 1.8 MB per designer undo step**
+   (measured: sunburst 1782 KB, a device wall 2791 KB, a wallpaper 1823 KB,
+   against 28 KB for the same card on its photograph). Not new with the
+   wallpapers; a ground saved as its recipe, as patterns are
+   (`PG_PAT_STUB`), would fix every drawn ground at once.
+5. **`template-holds.js` predates the flagged pictures** (see Floating above):
+   regenerate with `audit_templates.mjs --write` once the owner decides
+   whether cards on flagged pictures leave the studio.
+
+## AX. 2026-10-10 — a line pushed under a plate, and a phone card that showed an Android (DESIGN-LAW 126, 117)
+
+The owner, of WE BUY iPHONES with four selling points ticked: "are we missing
+layers of details?" (the Subline field held the device list, the card did
+not show it); then, of a SELL YOUR iPHONE / WE PAY UP TO / CASH card: "also
+that's not an iphone".
+
+Done, on `claude/laughing-keller-c9tp89`:
+- **The subline (DESIGN-LAW 126).** `alignPass` step 3 pushed it under the
+  bottom bar after the ticks pushed the column down. A push that buries a
+  line now shrinks the column it moved instead. With four selling points,
+  29 cards buried a line and now 0 do; without them, every card is as it
+  was except `top_buyer`, whose subline also ran 9px under its bar. The 366
+  live library cards: 0 changed.
+- **iPHONE, not IPHONE.** The category's brand list was upper-cased without
+  `cleanText`; two lines change (`top_buyer`'s Subline,
+  `dl_phones_voltStack_volt`'s Info Text).
+- **The three live phone cards still on generated photographs** (rule 117
+  had moved the templates, not these): `stepsFlow-du08-15` stood on
+  `dl_phones_priceAnchor_volt.jpg`, the night skyline with a Pixel-style
+  Android on a stone table, the photograph in the owner's screenshot. It and
+  `stepsFlow-pa05-15` now stand on iPhone 14 Pro photographs,
+  `scriptRetro-du01-25` (WE BUY IPADS) on the amber iPad scene; looked at,
+  pinned, gated, thumbnails re-rendered.
+
+Still open:
+
+1. **The live site is not this code.** `deploy.yml` has run on every push
+   to `main` and skipped its deploy each time ("Nothing to do without the
+   secrets"; run 7, 2026-10-10, `d3432c6f`). The site is the last deploy
+   from the Mac, before 2026-10-01 (§AT 1). The owner's SELL YOUR iPHONE
+   screenshot is "Price Point" (`dl_phones_priceAnchor_volt`) as it was
+   before rule 117 (2026-10-04), on that generated photograph; in the code
+   it has stood on an iPhone 13 Pro since. Neither this fix nor rule 117 is
+   live until NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID are set, or the Mac
+   deploys.
+2. **31 more live cards on retired generated grounds**, outside sports
+   (`reground_showcase.mjs --skip-cats sports`, dry run 2026-10-10: 34
+   found, 31 with a real photograph that passes the gate, 3 with none:
+   `scriptRetro-jw05-16`, `voltStack-ck03-20`, `stepsFlow-jw08-35`). Not
+   written. Several of the script's picks put the copy over a coin's own
+   lettering ("IN GOD WE TRUST", "OF AMERICA": the Mercury dime, the Lincoln
+   wheat penny, the Liberty Head double eagle, the American Silver Eagle,
+   the Indian Head cent), which rule 117 rules out (`NOT_A_GROUND` names
+   only the older coin files). Those photographs want adding to
+   `NOT_A_GROUND` before the rest is pinned and written.
+3. **Easy Mode's own selling-points block** is set 30px from the edge,
+   outside the 6% guide, so the guides move the whole card to bring it in
+   (DESIGN-LAW 126, "Not done here").
+4. **Lines that go with a pushed line.** Step 3 moves words only. The ledger
+   rules between an offer card's model names, and a panel holding more than
+   one line, stay where they were drawn. With four selling points the
+   handheld and headset cards (`of_pchandheld_type_sand`,
+   `of_headset_type_arctic`) have their model names visible again, but
+   tight against their rules.
+5. **The Pixel's background, with a real iPhone on the table.** The owner
+   likes the picture ("it's a sick background"). Its phone is a Google Pixel
+   in the palette's neon (DESIGN-LAW 127). Replace it with a real iPhone drawn
+   from `assets/entities.json` (the 17 Pro in Deep Blue answers the navy and
+   cyan), by an image edit given the reference photographs, checked against
+   them before it is used. Blocked in the cloud sessions: no `FAL_KEY` in the
+   environment (Netlify having it does not reach the session), and the
+   network policy refuses `queue.fal.run` ("organization policy"). Both are in
+   the cloud environment's settings: the key under Network secrets or as an
+   environment variable, and the fal hosts under Allowed domains.
+6. **Device entities (N.1): the set is ready, not uploaded.**
+   `scripts/device_entities.mjs` writes `assets/entities.json`: 125 devices
+   (iPhone 34, iPad 27, Mac 40, Watch 13, AirPods 6, other 5) with 281
+   photographs, only authentic cut-outs, the shop's catalog shots and factory
+   backs. Left out: 9 cut-outs marked not authentic and 39 of the video maker's
+   60 phone backs, which are repaints (a 16 back in another finish) or failed.
+   Held: `iphone-duo`, a foldable iPhone render from the quote site, until the
+   owner confirms it is the shipping product. Uploading the set to fal, and
+   N.1's gate, wait on item 5's key and hosts.
+7. **What made the picture.** Only ORCHARD's `data/orchard.db` on the Mac
+   records the prompt and model for `dl_phones_priceAnchor_volt`, and whether
+   it was generated for the slot or picked from ORCHARD's library by its
+   colours. Worth a look when the Mac is at hand.
+
+## Ad templates in the owner's order. 2026-10-08: Apple and its devices first, sneakers and retro games listed before their designs
+
+The owner, over the footer's "Ad templates" column: "in order of importance we
+buy apple, phones, consoles, computers, gold, silver, cars, pokemon cards,
+sports cards, diabetic supplies, sneakers", then "apple has sub categories"
+and "we buy retro games". Asked about coins, which the list left out: "it's
+in the gold category or silver category". Asked about sneakers and retro
+games, which have no designs: list them now, designs next.
+
+Done:
+- One table, `CATS` in `scripts/build_seo_pages.mjs`, now writes the category
+  pages, their footers, and the "Ad templates" lists in `index.html` and
+  `about.html` (between `<!-- ad-templates -->` markers), so a list cannot
+  name a page that is not built. 18 pages, up from 8.
+- New pages: Apple, with iPhone, iPad, MacBook, Apple Watch and AirPods under
+  it (breadcrumbs and BreadcrumbList go three deep); consoles; computers;
+  sneakers; retro games. Coins sits under gold and under silver. Test strips
+  is listed as diabetic supplies, its URL unchanged.
+- The landing footer: twelve lines in one column ran twice the footer's
+  height, so Ad templates takes a row of its own under the other blocks, in
+  columns that line up under Product, Programs, Talk to us and Legal (the
+  whole row at 3 and 2 tracks). Looked at, light and dark, at 1440, 1280,
+  1024, 768 and 390: no line wraps at 1024 and up, no sideways scroll.
+- Every button opens a gallery chip that exists (`?cat=` checked against
+  `site-ux.js`): Apple's devices open Phones & Devices, AirPods open
+  Headphones & Audio, consoles open Gaming & Consoles. Pictures are product
+  cutouts not in `assets/cutout-flags.json`.
+
+Open:
+1. **Sneaker and retro game designs.** Their pages say the designs are on the
+   way and show how to make one today with the seller's own photo; the
+   studio has no blank design to open them on (every design stands on a
+   photograph of its goods). When designs land, drop `soon: true` from the
+   two entries in `CATS` and set their `cat`.
+2. **The studio's own chip order** (`CATS` in app.js, the 2026-10-02 order)
+   was not changed; this list is the footer's and the pages'.

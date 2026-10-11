@@ -567,6 +567,14 @@ let csPro;
   ok(st.json.paymentDomain && st.json.paymentDomain.ok && st.json.paymentDomain.host === 'studio.example', '/admin/billing shows the payment method domain');
   const sg = await hit('GET', '/admin/billing', undefined, t);
   ok(sg.json.paymentDomain && sg.json.paymentDomain.ok && sg.json.paymentDomain.source === 'stored', '/admin/billing reads the stored domain registration');
+  /* an operator has every feature whatever plan it is billed on: the billed
+     plan stays (checkout can be tried), its credits say unlimited, and a
+     video download is let through on Free */
+  const me = (await hit('GET', '/me', undefined, t)).json.user;
+  ok(me.role === 'admin' && me.plan === 'free' && me.credits.unlimited === true && !(await hit('GET', '/me', undefined, boss)).json.user.credits.unlimited,
+    '/me: an operator billed on Free keeps its plan, its credits are unlimited; another account\'s are not');
+  const ov = await hit('POST', '/export/check', { kind: 'video' }, t);
+  ok(ov.status === 200 && ov.json.watermark === false && ov.json.remaining === null, 'an operator on Free downloads videos, no marks, no cap');
 }
 
 /* economics: every plan and pack clears its bar */
@@ -732,6 +740,26 @@ async function browserPart() {
       ok(/Uses 1 AI credit\. You have 600 \(500 this month \+ 100 bought\)/.test(hint), `the AI hint counts credits (${hint})`);
       await page.context().close();
     }
+    /* an operator billed on Free: the studio and the plans page say Admin and
+       every feature, never "Free, your current plan" (owner, 2026-10-11) */
+    {
+      const boss = (await hit('POST', '/auth/login', { email: 'boss@studio.example', password: 'a-long-password' })).json.token;
+      const page = await newPage(1440, boss);
+      await page.goto(BASE + '/?plans=1', { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('#page-plans.active .plan-card');
+      await page.waitForTimeout(400);
+      const a = await page.evaluate(() => ({ badge: document.getElementById('acct-plan').textContent, free: (document.getElementById('acct-plan').className.match(/\bfree\b/) || []).length,
+        note: (document.querySelector('#plans-grid .plans-admin') || {}).textContent || '', current: !!document.querySelector('#plans-grid .plans-free .plan-current'),
+        packs: document.querySelector('#plans-grid .plans-packs-head p').textContent, up: getComputedStyle(document.getElementById('nav-upgrade') || document.body).display,
+        quota: (syncQuotaUI(), (document.getElementById('ez-quota') || {}).textContent || ''), hint: (syncCreditsUI(), document.getElementById('bg-credits').textContent),
+        plan: planOf().label, video: videoAllowed(), qr: planOf().qr }));
+      ok(a.badge === 'ADMIN' && !a.free && /every feature of every plan/.test(a.note) && /billed on \(Free\)/.test(a.note) && !a.current && /unlimited/.test(a.packs) && a.up === 'none',
+        `operator: the plans page says Admin and every feature, not Free as the current plan (${JSON.stringify(a)})`);
+      ok(/^Admin: every feature/.test(a.quota) && /unlimited/.test(a.hint) && a.plan === 'Business' && a.video && a.qr,
+        `operator: the studio's limits are the biggest plan's, AI unlimited (${a.quota} / ${a.hint})`);
+      await shot(page, 'plans-operator');
+      await page.context().close();
+    }
     /* Embedded Checkout: a free account buys Starter inside the site's own
        dialog, never leaving the page, and is on Starter after onComplete */
     {
@@ -806,17 +834,18 @@ async function browserPart() {
       const note = await dl();
       ok(/Saved we-buy-phones/.test(note) && userBlob('videos@x.example').exports.count === 1, 'video maker: a Pro download is made and counted once (' + note.slice(0, 120) + ')');
       ok(/1080×1080/.test(note) && /\(1440×1440, the moment/.test(note), 'video maker: Pro gets a 1080 video and a 1440 photo (' + note.slice(0, 200) + ')');
-      const proPng = files.find((d) => /\.png$/.test(d.suggestedFilename()));
+      const isPhoto = (d) => /\.(png|jpe?g)$/.test(d.suggestedFilename());   // a JPG since 2026-10-11 (DESIGN-LAW 108, 110)
+      const proPng = files.find(isPhoto);
       files.length = 0;
       const boss = (await hit('POST', '/auth/login', { email: 'boss@studio.example', password: 'a-long-password' })).json.token;
       await page.evaluate((t) => { localStorage.setItem('pgfx_token', JSON.stringify(t)); }, boss);
       await dl();
-      const bossPng = files.find((d) => /\.png$/.test(d.suggestedFilename()));
+      const bossPng = files.find(isPhoto);
       ok(userBlob('boss@studio.example').exports.count === 0, 'video maker: an operator\'s download is not counted');
       if (ok(proPng && bossPng, 'video maker: both photos came down')) {
         const b64 = async (d) => readFileSync(await d.path()).toString('base64');
         const diff = await page.evaluate(async ([a, b]) => {
-          const load = (s) => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = 'data:image/png;base64,' + s; });
+          const load = (s) => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = 'data:image/' + (s.startsWith('/9j/') ? 'jpeg' : 'png') + ';base64,' + s; });
           const [fa, fb] = await Promise.all([load(a), load(b)]);
           const px = (img) => { const c = document.createElement('canvas'); c.width = c.height = 1080; const x = c.getContext('2d'); x.drawImage(img, 0, 0, 1080, 1080); return x.getImageData(0, 0, 1080, 1080).data; };
           const A = px(fa), B = px(fb);

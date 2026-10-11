@@ -32,6 +32,9 @@
  *
  *   GET  /api/plans              public. The plans, the packs and what an AI
  *                                background costs in credits now.
+ *   GET  /api/health             public. One probe after a deploy: accounts
+ *                                (JWT_SECRET), store, ai, google and billing as
+ *                                booleans, the store's verdict; never a value.
  *   /api/checkout, /checkout/confirm, /billing/change, /portal,
  *   /stripe-webhook, /admin/billing   Stripe (netlify/lib/billing.mjs).
  *
@@ -108,9 +111,13 @@ const formKey = (env) => {
 
 const adminEmails = (env) => String(env.ADMIN_EMAILS || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean);
 const roleFor = (email, env) => (adminEmails(env).includes(email) ? 'admin' : 'user');
+/* An operator (ADMIN_EMAILS) has every feature of every plan whatever plan it
+   is billed on: no download cap, watermark or size limit (/export), video,
+   AI not charged (bggen.mjs), the biggest library (adlibrary.mjs). `plan` stays
+   the billed one, so checkout can still be tried; credits say unlimited. */
 const publicUser = (u, env) => ({
   email: u.email, plan: planId(u.plan), exports: u.exports, role: roleFor(u.email, env),
-  credits: creditState(u),
+  credits: roleFor(u.email, env) === 'admin' ? { ...creditState(u), unlimited: true } : creditState(u),
   sub: u.sub && u.sub.id ? { plan: u.sub.plan, interval: u.sub.interval, status: u.sub.status, periodEnd: u.sub.periodEnd, cancelAt: u.sub.cancelAt } : null,
 });
 /* the download meter of an account's plan: this period's count, its cap */
@@ -206,6 +213,16 @@ export default async (req) => {
          check in .github/workflows/deploy.yml reads them) */
       return json({ plans: PLANS, packs: PACKS, ai: { background: backgroundCredits(env) }, billing: billingOn(env),
         billingMode: billingOn(env) ? stripeMode(env) : null, embedded: billingOn(env) && !!formKey(env) });
+    }
+    /* One probe for a deploy (SETUP.md; the workflow's "What went live"):
+       the function runs with its dependency (anything but 502 says so),
+       accounts are switched on (JWT_SECRET), and the users store answers.
+       Booleans and a store verdict only, never a value. billing is the
+       same test the plans page and checkout use (STRIPE_SECRET alone). */
+    if (p === '/health') {
+      let store = 'ok';
+      try { await users().get('u:health@probe.invalid'); } catch (e) { store = 'error: ' + String((e && e.message) || e).slice(0, 160); }
+      return json({ ok: store === 'ok' && !!env.JWT_SECRET, accounts: !!env.JWT_SECRET, store, ai: !!(env.GEMINI_KEY || env.FAL_KEY), google: !!env.GOOGLE_CLIENT_ID, billing: billingOn(env) });
     }
     if (!env.JWT_SECRET) return json({ error: 'Backend not configured (JWT_SECRET missing)' }, 500);
 

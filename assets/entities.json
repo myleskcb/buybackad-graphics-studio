@@ -1,0 +1,2987 @@
+{
+ "held": {
+  "iphone-duo": "qs-iphone-duo is a foldable iPhone render from the quote site; confirm it is the real product before it is a reference"
+ },
+ "about": "Every device the shop buys, with the real photographs we hold of it: the reference set an image model is given so it draws the real product (DESIGN-LAW 127, OPEN-ITEMS N.1). Written by scripts/device_entities.mjs from assets/devices.json, assets/cutouts/devices.json (authentic only) and motion/phones/index.json (no repaints). uploaded is filled by the upload step once FAL_KEY and the fal hosts are available.",
+ "entities": [
+  {
+   "id": "airpods",
+   "name": "AirPods",
+   "line": "airpods",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-device-airpods.webp",
+     "bytes": 8758,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "airpods-3",
+   "name": "AirPods (3rd gen)",
+   "line": "airpods",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-airpods-3.webp",
+     "bytes": 8882,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "airpods-max",
+   "name": "AirPods Max",
+   "line": "airpods",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-device-airpods-max.webp",
+     "bytes": 28496,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "airpods-pro",
+   "name": "AirPods Pro",
+   "line": "airpods",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-device-airpods-pro.webp",
+     "bytes": 8106,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "airpods-pro-2",
+   "name": "AirPods Pro 2",
+   "line": "airpods",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-airpods-pro-2.webp",
+     "bytes": 9134,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "airpods-pro-3",
+   "name": "AirPods Pro 3",
+   "line": "airpods",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-airpods-pro-3.webp",
+     "bytes": 8106,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-11-a16",
+   "name": "iPad (A16)",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-11-a16.webp",
+     "bytes": 13134,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-11-a16--blue.webp",
+     "bytes": 18690,
+     "finish": "blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-11-a16--pink.webp",
+     "bytes": 17876,
+     "finish": "pink",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-11-a16--silver.webp",
+     "bytes": 15532,
+     "finish": "silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-11-a16--yellow.webp",
+     "bytes": 17880,
+     "finish": "yellow",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-10",
+   "name": "iPad 10",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-10.webp",
+     "bytes": 13134,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-5",
+   "name": "iPad 5",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-5.webp",
+     "bytes": 37108,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-6",
+   "name": "iPad 6",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-6.webp",
+     "bytes": 31118,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-7",
+   "name": "iPad 7",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-7.webp",
+     "bytes": 12366,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-8",
+   "name": "iPad 8",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-8.webp",
+     "bytes": 9542,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-9",
+   "name": "iPad 9",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-9.webp",
+     "bytes": 11064,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-air-11-m2",
+   "name": "iPad Air 11-inch (M2)",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-air-11-m2.webp",
+     "bytes": 26720,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-11-m2--blue.webp",
+     "bytes": 36752,
+     "finish": "blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-11-m2--purple.webp",
+     "bytes": 35604,
+     "finish": "purple",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-11-m2--space-gray.webp",
+     "bytes": 31264,
+     "finish": "space-gray",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-11-m2--starlight.webp",
+     "bytes": 35428,
+     "finish": "starlight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-air-11-m3",
+   "name": "iPad Air 11-inch (M3)",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-air-11-m3.webp",
+     "bytes": 26720,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-11-m3--blue.webp",
+     "bytes": 36752,
+     "finish": "blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-11-m3--purple.webp",
+     "bytes": 35604,
+     "finish": "purple",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-11-m3--space-gray.webp",
+     "bytes": 31264,
+     "finish": "space-gray",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-11-m3--starlight.webp",
+     "bytes": 35428,
+     "finish": "starlight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-air-11-m4",
+   "name": "iPad Air 11-inch (M4)",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-air-11-m4.webp",
+     "bytes": 24190,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-11-m4--blue.webp",
+     "bytes": 36752,
+     "finish": "blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-11-m4--purple.webp",
+     "bytes": 35604,
+     "finish": "purple",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-11-m4--space-gray.webp",
+     "bytes": 31264,
+     "finish": "space-gray",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-11-m4--starlight.webp",
+     "bytes": 35428,
+     "finish": "starlight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-air-13-m2",
+   "name": "iPad Air 13-inch (M2)",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-air-13-m2.webp",
+     "bytes": 33260,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-13-m2--blue.webp",
+     "bytes": 46906,
+     "finish": "blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-13-m2--purple.webp",
+     "bytes": 45540,
+     "finish": "purple",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-13-m2--space-gray.webp",
+     "bytes": 40246,
+     "finish": "space-gray",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-13-m2--starlight.webp",
+     "bytes": 45476,
+     "finish": "starlight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-air-13-m3",
+   "name": "iPad Air 13-inch (M3)",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-air-13-m3.webp",
+     "bytes": 33260,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-13-m3--blue.webp",
+     "bytes": 46906,
+     "finish": "blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-13-m3--purple.webp",
+     "bytes": 45540,
+     "finish": "purple",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-13-m3--space-gray.webp",
+     "bytes": 40246,
+     "finish": "space-gray",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-13-m3--starlight.webp",
+     "bytes": 45476,
+     "finish": "starlight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-air-13-m4",
+   "name": "iPad Air 13-inch (M4)",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-air-13-m4.webp",
+     "bytes": 30762,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-13-m4--blue.webp",
+     "bytes": 46906,
+     "finish": "blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-13-m4--purple.webp",
+     "bytes": 45540,
+     "finish": "purple",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-13-m4--space-gray.webp",
+     "bytes": 40246,
+     "finish": "space-gray",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-air-13-m4--starlight.webp",
+     "bytes": 45476,
+     "finish": "starlight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-air-3",
+   "name": "iPad Air 3",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-air-3.webp",
+     "bytes": 29160,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-air-4",
+   "name": "iPad Air 4",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-air-4.webp",
+     "bytes": 18766,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-air-5",
+   "name": "iPad Air 5",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-air-5.webp",
+     "bytes": 15194,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-mini-7-a17-pro",
+   "name": "iPad mini (A17 Pro)",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-mini-7-a17-pro.webp",
+     "bytes": 16626,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-mini-7-a17-pro--blue.webp",
+     "bytes": 22084,
+     "finish": "blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-mini-7-a17-pro--purple.webp",
+     "bytes": 19564,
+     "finish": "purple",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-mini-7-a17-pro--space-gray.webp",
+     "bytes": 20246,
+     "finish": "space-gray",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-mini-7-a17-pro--starlight.webp",
+     "bytes": 19836,
+     "finish": "starlight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-mini-5",
+   "name": "iPad mini 5",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-mini-5.webp",
+     "bytes": 7060,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-mini-6",
+   "name": "iPad mini 6",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-mini-6.webp",
+     "bytes": 18012,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-pro-11-m4",
+   "name": "iPad Pro 11-inch (M4)",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-pro-11-m4.webp",
+     "bytes": 21546,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-pro-11-m4--silver.webp",
+     "bytes": 25150,
+     "finish": "silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-pro-11-m4--space-black.webp",
+     "bytes": 25224,
+     "finish": "space-black",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-pro-11-m5",
+   "name": "iPad Pro 11-inch (M5)",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-pro-11-m5.webp",
+     "bytes": 21670,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-pro-12-9-3rd-gen",
+   "name": "iPad Pro 12.9-inch (3rd gen)",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-pro-12-9-3rd-gen.webp",
+     "bytes": 33376,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-pro-12-9-4th-gen",
+   "name": "iPad Pro 12.9-inch (4th gen)",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-pro-12-9-4th-gen.webp",
+     "bytes": 39298,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-pro-12-9-5th-gen",
+   "name": "iPad Pro 12.9-inch (5th gen)",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-pro-12-9-5th-gen.webp",
+     "bytes": 62322,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-pro-12-9-6th-gen",
+   "name": "iPad Pro 12.9-inch (6th gen)",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-pro-12-9-6th-gen.webp",
+     "bytes": 48006,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-pro-13-m4",
+   "name": "iPad Pro 13-inch (M4)",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-pro-13-m4.webp",
+     "bytes": 24536,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-pro-13-m4--silver.webp",
+     "bytes": 29562,
+     "finish": "silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-pro-13-m4--space-black.webp",
+     "bytes": 29400,
+     "finish": "space-black",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "ipad-pro-13-m5",
+   "name": "iPad Pro 13-inch (M5)",
+   "line": "ipad",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-ipad-pro-13-m5.webp",
+     "bytes": 24536,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-pro-13-m5--silver.webp",
+     "bytes": 29562,
+     "finish": "silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-ipad-pro-13-m5--space-black.webp",
+     "bytes": 29400,
+     "finish": "space-black",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-11",
+   "name": "iPhone 11",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-11.webp",
+     "bytes": 15374,
+     "finish": null,
+     "view": "back+front pair",
+     "faces": "front",
+     "source": "assets/cutouts/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-11-pro",
+   "name": "iPhone 11 Pro",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-11-pro.webp",
+     "bytes": 17012,
+     "finish": null,
+     "view": "back+front pair",
+     "faces": "front",
+     "source": "assets/cutouts/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-11-pro-max",
+   "name": "iPhone 11 Pro Max",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-11-pro-max.webp",
+     "bytes": 24816,
+     "finish": null,
+     "view": "back+front pair",
+     "faces": "front",
+     "source": "assets/cutouts/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-12",
+   "name": "iPhone 12",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-12-back--blue.webp",
+     "bytes": 6178,
+     "finish": "blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-12-back--green.webp",
+     "bytes": 6426,
+     "finish": "green",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-12-back--purple.webp",
+     "bytes": 6432,
+     "finish": "purple",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-12-back--white.webp",
+     "bytes": 5412,
+     "finish": "white",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-12.webp",
+     "bytes": 12284,
+     "finish": null,
+     "view": "back+front pair",
+     "faces": "front",
+     "source": "assets/cutouts/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-12-mini",
+   "name": "iPhone 12 mini",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-12-mini.webp",
+     "bytes": 10972,
+     "finish": null,
+     "view": "back+front pair",
+     "faces": "front",
+     "source": "assets/cutouts/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-12-pro",
+   "name": "iPhone 12 Pro",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-12-pro-back--gold.webp",
+     "bytes": 7398,
+     "finish": "gold",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-12-pro-back--graphite.webp",
+     "bytes": 7108,
+     "finish": "graphite",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-12-pro-back--pacific-blue.webp",
+     "bytes": 7888,
+     "finish": "pacific-blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-12-pro.webp",
+     "bytes": 12538,
+     "finish": null,
+     "view": "back+front pair",
+     "faces": "front",
+     "source": "assets/cutouts/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-12-pro-max",
+   "name": "iPhone 12 Pro Max",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-12-pro-max.webp",
+     "bytes": 15132,
+     "finish": null,
+     "view": "back+front pair",
+     "faces": "front",
+     "source": "assets/cutouts/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-13",
+   "name": "iPhone 13",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-13.webp",
+     "bytes": 15072,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-13-back--blue.webp",
+     "bytes": 6990,
+     "finish": "blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-13-back--green.webp",
+     "bytes": 5758,
+     "finish": "green",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-13-back--midnight.webp",
+     "bytes": 4990,
+     "finish": "midnight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-13-back--pink.webp",
+     "bytes": 6568,
+     "finish": "pink",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-13-back--starlight.webp",
+     "bytes": 5672,
+     "finish": "starlight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-13-mini",
+   "name": "iPhone 13 Mini",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-13-mini.webp",
+     "bytes": 12650,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-13-pro",
+   "name": "iPhone 13 Pro",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-13-pro.webp",
+     "bytes": 15094,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-13-pro-back--alpine-green.webp",
+     "bytes": 7916,
+     "finish": "alpine-green",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-13-pro-back--gold.webp",
+     "bytes": 7878,
+     "finish": "gold",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-13-pro-back--graphite.webp",
+     "bytes": 7716,
+     "finish": "graphite",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-13-pro-back--sierra-blue.webp",
+     "bytes": 8146,
+     "finish": "sierra-blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-13-pro-max",
+   "name": "iPhone 13 Pro Max",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-13-pro-max.webp",
+     "bytes": 14146,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-14",
+   "name": "iPhone 14",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-14.webp",
+     "bytes": 17054,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-14-plus",
+   "name": "iPhone 14 Plus",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-14-plus.webp",
+     "bytes": 17938,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-14-pro",
+   "name": "iPhone 14 Pro",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-14-pro.webp",
+     "bytes": 18082,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-14-pro-max",
+   "name": "iPhone 14 Pro Max",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-14-pro-max.webp",
+     "bytes": 17202,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-15",
+   "name": "iPhone 15",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-15.webp",
+     "bytes": 18434,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-15-plus",
+   "name": "iPhone 15 Plus",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-15-plus.webp",
+     "bytes": 19392,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-15-pro",
+   "name": "iPhone 15 Pro",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-15-pro.webp",
+     "bytes": 35760,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-15-pro-max",
+   "name": "iPhone 15 Pro Max",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-15-pro-max.webp",
+     "bytes": 45238,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-16",
+   "name": "iPhone 16",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-16.webp",
+     "bytes": 18134,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-16-back--black.webp",
+     "bytes": 5940,
+     "finish": "black",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-16-back--pink.webp",
+     "bytes": 8250,
+     "finish": "pink",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-16-back--teal.webp",
+     "bytes": 7984,
+     "finish": "teal",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-16-back--ultramarine.webp",
+     "bytes": 8616,
+     "finish": "ultramarine",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-16-back--white.webp",
+     "bytes": 5866,
+     "finish": "white",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "motion/phones/16-pink.webp",
+     "bytes": 15236,
+     "finish": "Pink",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    },
+    {
+     "src": "motion/phones/16-white.webp",
+     "bytes": 11728,
+     "finish": "White",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    },
+    {
+     "src": "motion/phones/16-black.webp",
+     "bytes": 11388,
+     "finish": "Black",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-16-plus",
+   "name": "iPhone 16 Plus",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-16-plus.webp",
+     "bytes": 19248,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-16-plus-back--white.webp",
+     "bytes": 6068,
+     "finish": "white",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-16-pro",
+   "name": "iPhone 16 Pro",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-16-pro.webp",
+     "bytes": 18130,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-16-pro-max",
+   "name": "iPhone 16 Pro Max",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-16-pro-max.webp",
+     "bytes": 18378,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-16e",
+   "name": "iPhone 16e",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-16e.webp",
+     "bytes": 15874,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-16e-back--black.webp",
+     "bytes": 4492,
+     "finish": "black",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-16e-back--white.webp",
+     "bytes": 4546,
+     "finish": "white",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "motion/phones/16e-white.webp",
+     "bytes": 9480,
+     "finish": "White",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    },
+    {
+     "src": "motion/phones/16e-black.webp",
+     "bytes": 9160,
+     "finish": "Black",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-17",
+   "name": "iPhone 17",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-17.webp",
+     "bytes": 19350,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-17-air",
+   "name": "iPhone 17 Air",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-17-air.webp",
+     "bytes": 15760,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-17-pro",
+   "name": "iPhone 17 Pro",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-17-pro.webp",
+     "bytes": 21712,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/ip-gen17-plateau-white.webp",
+     "bytes": 43722,
+     "finish": "Silver",
+     "view": "back",
+     "faces": "front",
+     "source": "assets/cutouts/devices.json"
+    },
+    {
+     "src": "assets/cutouts/ip-gen17-plateau-blue.webp",
+     "bytes": 40484,
+     "finish": "Deep Blue",
+     "view": "side",
+     "faces": "front",
+     "source": "assets/cutouts/devices.json"
+    },
+    {
+     "src": "motion/phones/17-pro-cosmic-orange.webp",
+     "bytes": 21406,
+     "finish": "Cosmic Orange",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    },
+    {
+     "src": "motion/phones/17-pro-deep-blue.webp",
+     "bytes": 16496,
+     "finish": "Deep Blue",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    },
+    {
+     "src": "motion/phones/17-pro-silver.webp",
+     "bytes": 16214,
+     "finish": "Silver",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-17-pro-max",
+   "name": "iPhone 17 Pro Max",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-17-pro-max.webp",
+     "bytes": 18600,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "motion/phones/17-pro-max-cosmic-orange.webp",
+     "bytes": 19840,
+     "finish": "Cosmic Orange",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    },
+    {
+     "src": "motion/phones/17-pro-max-deep-blue.webp",
+     "bytes": 14686,
+     "finish": "Deep Blue",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    },
+    {
+     "src": "motion/phones/17-pro-max-silver.webp",
+     "bytes": 15310,
+     "finish": "Silver",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-17e",
+   "name": "iPhone 17e",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-17e.webp",
+     "bytes": 14684,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-17e-back--black.webp",
+     "bytes": 4460,
+     "finish": "black",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-17e-back--soft-pink.webp",
+     "bytes": 4756,
+     "finish": "soft-pink",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-iphone-17e-back--white.webp",
+     "bytes": 4258,
+     "finish": "white",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "motion/phones/17e-soft-pink.webp",
+     "bytes": 10092,
+     "finish": "Soft Pink",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    },
+    {
+     "src": "motion/phones/17e-white.webp",
+     "bytes": 9300,
+     "finish": "White",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    },
+    {
+     "src": "motion/phones/17e-black.webp",
+     "bytes": 9174,
+     "finish": "Black",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-18-pro",
+   "name": "iPhone 18 Pro",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-18-pro.webp",
+     "bytes": 15072,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "motion/phones/18-pro-burgundy.webp",
+     "bytes": 16854,
+     "finish": "Burgundy",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    },
+    {
+     "src": "motion/phones/18-pro-glacier.webp",
+     "bytes": 17862,
+     "finish": "Glacier",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    },
+    {
+     "src": "motion/phones/18-pro-black.webp",
+     "bytes": 12998,
+     "finish": "Black",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-18-pro-max",
+   "name": "iPhone 18 Pro Max",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-18-pro-max.webp",
+     "bytes": 15994,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "motion/phones/18-pro-max-burgundy.webp",
+     "bytes": 15592,
+     "finish": "Burgundy",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    },
+    {
+     "src": "motion/phones/18-pro-max-glacier.webp",
+     "bytes": 16710,
+     "finish": "Glacier",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    },
+    {
+     "src": "motion/phones/18-pro-max-silver.webp",
+     "bytes": 14844,
+     "finish": "Silver",
+     "view": "back",
+     "source": "motion/phones/index.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-xr",
+   "name": "iPhone XR",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-xr.webp",
+     "bytes": 19750,
+     "finish": null,
+     "view": "back+front pair",
+     "faces": "front",
+     "source": "assets/cutouts/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-xs",
+   "name": "iPhone XS",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-xs.webp",
+     "bytes": 33840,
+     "finish": null,
+     "view": "back+front pair",
+     "faces": "front",
+     "source": "assets/cutouts/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "iphone-xs-max",
+   "name": "iPhone XS Max",
+   "line": "iphone",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-iphone-xs-max.webp",
+     "bytes": 32384,
+     "finish": null,
+     "view": "back+front pair",
+     "faces": "front",
+     "source": "assets/cutouts/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "imac",
+   "name": "iMac",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-device-imac.webp",
+     "bytes": 8468,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "imac-24-m1",
+   "name": "iMac 24-inch (M1)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-imac-24-m1-2021.webp",
+     "bytes": 12336,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-imac-24-m1--blue.webp",
+     "bytes": 13354,
+     "finish": "blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-imac-24-m1--green.webp",
+     "bytes": 12982,
+     "finish": "green",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-imac-24-m1--orange.webp",
+     "bytes": 13134,
+     "finish": "orange",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-imac-24-m1--pink.webp",
+     "bytes": 13088,
+     "finish": "pink",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-imac-24-m1--purple.webp",
+     "bytes": 13142,
+     "finish": "purple",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-imac-24-m1--silver.webp",
+     "bytes": 12470,
+     "finish": "silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-imac-24-m1--yellow.webp",
+     "bytes": 13278,
+     "finish": "yellow",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "imac-24-m3",
+   "name": "iMac 24-inch (M3)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-imac-24-m3-2023.webp",
+     "bytes": 12336,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "imac-24-m4",
+   "name": "iMac 24-inch (M4)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-imac-24-m4-2024.webp",
+     "bytes": 8714,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-imac-24-m4--blue.webp",
+     "bytes": 10598,
+     "finish": "blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-imac-24-m4--green.webp",
+     "bytes": 10546,
+     "finish": "green",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-imac-24-m4--orange.webp",
+     "bytes": 11686,
+     "finish": "orange",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-imac-24-m4--pink.webp",
+     "bytes": 10964,
+     "finish": "pink",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-imac-24-m4--purple.webp",
+     "bytes": 10014,
+     "finish": "purple",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-imac-24-m4--silver.webp",
+     "bytes": 8772,
+     "finish": "silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-imac-24-m4--yellow.webp",
+     "bytes": 9860,
+     "finish": "yellow",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "mac-studio",
+   "name": "Mac Studio",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-device-mac-studio.webp",
+     "bytes": 10686,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "mac-mini-m1",
+   "name": "mac-mini-m1",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-macmini-m1-2020.webp",
+     "bytes": 1062,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "mac-mini-m2",
+   "name": "mac-mini-m2",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-macmini-m2-2023.webp",
+     "bytes": 800,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "mac-studio-2022",
+   "name": "mac-studio-2022",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-macstudio-2022.webp",
+     "bytes": 10790,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "mac-studio-2025",
+   "name": "mac-studio-2025",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-macstudio-2025.webp",
+     "bytes": 10790,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-air",
+   "name": "MacBook Air",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-device-macbook-air.webp",
+     "bytes": 9862,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-air-13",
+   "name": "MacBook Air 13-inch",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-macbook-air-13--midnight.webp",
+     "bytes": 14468,
+     "finish": "midnight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-air-13--silver.webp",
+     "bytes": 14288,
+     "finish": "silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-air-13--sky-blue.webp",
+     "bytes": 14534,
+     "finish": "sky-blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-air-13--space-gray.webp",
+     "bytes": 14348,
+     "finish": "space-gray",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-air-13--starlight.webp",
+     "bytes": 14316,
+     "finish": "starlight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-air-13-m1",
+   "name": "MacBook Air 13-inch (M1)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mba-13-m1-2020.webp",
+     "bytes": 11056,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-air-13-m2",
+   "name": "MacBook Air 13-inch (M2)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mba-13-m2-2022.webp",
+     "bytes": 13998,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-air-13-m3",
+   "name": "MacBook Air 13-inch (M3)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mba-13-m3-2024.webp",
+     "bytes": 13998,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-air-13-m4",
+   "name": "MacBook Air 13-inch (M4)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mba-13-m4-2025.webp",
+     "bytes": 13998,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-air-13-m5",
+   "name": "MacBook Air 13-inch (M5)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mba-13-m5-2026.webp",
+     "bytes": 31024,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-air-13-m5--midnight.webp",
+     "bytes": 31606,
+     "finish": "midnight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-air-13-m5--silver.webp",
+     "bytes": 32056,
+     "finish": "silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-air-13-m5--sky-blue.webp",
+     "bytes": 32974,
+     "finish": "sky-blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-air-13-m5--starlight.webp",
+     "bytes": 35080,
+     "finish": "starlight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-air-15",
+   "name": "MacBook Air 15-inch",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-macbook-air-15--midnight.webp",
+     "bytes": 16564,
+     "finish": "midnight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-air-15--silver.webp",
+     "bytes": 16398,
+     "finish": "silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-air-15--sky-blue.webp",
+     "bytes": 16406,
+     "finish": "sky-blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-air-15--space-gray.webp",
+     "bytes": 16378,
+     "finish": "space-gray",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-air-15--starlight.webp",
+     "bytes": 16136,
+     "finish": "starlight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-air-15-m2",
+   "name": "MacBook Air 15-inch (M2)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mba-15-m2-2023.webp",
+     "bytes": 16208,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-air-15-m3",
+   "name": "MacBook Air 15-inch (M3)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mba-15-m3-2024.webp",
+     "bytes": 16208,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-air-15-m4",
+   "name": "MacBook Air 15-inch (M4)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mba-15-m4-2025.webp",
+     "bytes": 16208,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-air-15-m5",
+   "name": "MacBook Air 15-inch (M5)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mba-15-m5-2026.webp",
+     "bytes": 37694,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-air-15-m5--midnight.webp",
+     "bytes": 37698,
+     "finish": "midnight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-air-15-m5--silver.webp",
+     "bytes": 37400,
+     "finish": "silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-air-15-m5--sky-blue.webp",
+     "bytes": 37822,
+     "finish": "sky-blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-air-15-m5--starlight.webp",
+     "bytes": 40958,
+     "finish": "starlight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-neo-13",
+   "name": "MacBook Neo 13-inch",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mbneo-13-a18pro-2026.webp",
+     "bytes": 12024,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-neo-13--blush.webp",
+     "bytes": 12388,
+     "finish": "blush",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-neo-13--citrus.webp",
+     "bytes": 12908,
+     "finish": "citrus",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-neo-13--indigo.webp",
+     "bytes": 14012,
+     "finish": "indigo",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-neo-13--silver.webp",
+     "bytes": 12424,
+     "finish": "silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro",
+   "name": "MacBook Pro",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-device-macbook-pro.webp",
+     "bytes": 9620,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-13-m1",
+   "name": "MacBook Pro 13-inch (M1)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mbp-13-m1-2020.webp",
+     "bytes": 9930,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-13-m2",
+   "name": "MacBook Pro 13-inch (M2)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mbp-13-m2-2022.webp",
+     "bytes": 11258,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-14",
+   "name": "MacBook Pro 14-inch",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-macbook-pro-14--silver.webp",
+     "bytes": 15444,
+     "finish": "silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-pro-14--space-black.webp",
+     "bytes": 14626,
+     "finish": "space-black",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-pro-14--space-gray.webp",
+     "bytes": 15088,
+     "finish": "space-gray",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-14-2021",
+   "name": "MacBook Pro 14-inch (2021)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mbp-14-2021.webp",
+     "bytes": 12874,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-14-2023",
+   "name": "MacBook Pro 14-inch (2023)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mbp-14-2023.webp",
+     "bytes": 12874,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-14-m3pro",
+   "name": "MacBook Pro 14-inch (M3 Pro)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mbp-14-m3pro-2023.webp",
+     "bytes": 12886,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-14-m3",
+   "name": "MacBook Pro 14-inch (M3)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mbp-14-m3-2023.webp",
+     "bytes": 12886,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-14-m4pro",
+   "name": "MacBook Pro 14-inch (M4 Pro)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mbp-14-m4pro-2024.webp",
+     "bytes": 12886,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-14-m4",
+   "name": "MacBook Pro 14-inch (M4)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mbp-14-m4-2024.webp",
+     "bytes": 12864,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-14-m5",
+   "name": "MacBook Pro 14-inch (M5)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mbp-14-m5-2025.webp",
+     "bytes": 6832,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-pro-14-m5--silver.webp",
+     "bytes": 8044,
+     "finish": "silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-pro-14-m5--space-black.webp",
+     "bytes": 7370,
+     "finish": "space-black",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-16",
+   "name": "MacBook Pro 16-inch",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-macbook-pro-16--silver.webp",
+     "bytes": 16426,
+     "finish": "silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-pro-16--space-black.webp",
+     "bytes": 16602,
+     "finish": "space-black",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-pro-16--space-gray.webp",
+     "bytes": 16486,
+     "finish": "space-gray",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-16-2021",
+   "name": "MacBook Pro 16-inch (2021)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mbp-16-2021.webp",
+     "bytes": 16118,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-16-2023",
+   "name": "MacBook Pro 16-inch (2023)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mbp-16-2023.webp",
+     "bytes": 16118,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-16-m3pro",
+   "name": "MacBook Pro 16-inch (M3 Pro)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mbp-16-m3pro-2023.webp",
+     "bytes": 15762,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-16-m4pro",
+   "name": "MacBook Pro 16-inch (M4 Pro)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mbp-16-m4pro-2024.webp",
+     "bytes": 15762,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-16-m5pro",
+   "name": "MacBook Pro 16-inch (M5 Pro)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-mbp-16-m5pro-2026.webp",
+     "bytes": 8602,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "macbook-pro-16-m5",
+   "name": "MacBook Pro 16-inch (M5)",
+   "line": "mac",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-macbook-pro-16-m5--silver.webp",
+     "bytes": 8290,
+     "finish": "silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-macbook-pro-16-m5--space-black.webp",
+     "bytes": 8314,
+     "finish": "space-black",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "apple-tv",
+   "name": "Apple TV",
+   "line": "other",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-device-apple-tv.webp",
+     "bytes": 8286,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "apple-tv-4k-2",
+   "name": "Apple TV 4K",
+   "line": "other",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-apple-tv-4k-2.webp",
+     "bytes": 8756,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "vision-pro",
+   "name": "Apple Vision Pro",
+   "line": "other",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-device-vision-pro.webp",
+     "bytes": 14950,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "homepod",
+   "name": "HomePod",
+   "line": "other",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-device-homepod.webp",
+     "bytes": 64216,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "homepod-mini",
+   "name": "HomePod mini",
+   "line": "other",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-homepod-mini.webp",
+     "bytes": 37718,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "watch-se",
+   "name": "Apple Watch SE",
+   "line": "watch",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-watch-se-2020.webp",
+     "bytes": 31436,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-se--aluminum-brush-gold.webp",
+     "bytes": 32752,
+     "finish": "aluminum-brush-gold",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "watch-se2",
+   "name": "Apple Watch SE 2",
+   "line": "watch",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-watch-se2-2022.webp",
+     "bytes": 26198,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-se2--aluminum-midnight.webp",
+     "bytes": 30158,
+     "finish": "aluminum-midnight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-se2--aluminum-silver.webp",
+     "bytes": 28062,
+     "finish": "aluminum-silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-se2--aluminum-starlight.webp",
+     "bytes": 27712,
+     "finish": "aluminum-starlight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "watch-se3",
+   "name": "Apple Watch SE 3",
+   "line": "watch",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-watch-se3-2025.webp",
+     "bytes": 28916,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-se3--aluminum-midnight.webp",
+     "bytes": 25594,
+     "finish": "aluminum-midnight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-se3--aluminum-starlight.webp",
+     "bytes": 22326,
+     "finish": "aluminum-starlight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "watch-s10",
+   "name": "Apple Watch Series 10",
+   "line": "watch",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-watch-s10-2024.webp",
+     "bytes": 93336,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s10--aluminum-jet-black.webp",
+     "bytes": 56148,
+     "finish": "aluminum-jet-black",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s10--aluminum-rose-gold.webp",
+     "bytes": 61334,
+     "finish": "aluminum-rose-gold",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s10--aluminum-silver.webp",
+     "bytes": 51862,
+     "finish": "aluminum-silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s10--titanium-gold.webp",
+     "bytes": 104788,
+     "finish": "titanium-gold",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s10--titanium-natural.webp",
+     "bytes": 99400,
+     "finish": "titanium-natural",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s10--titanium-slate.webp",
+     "bytes": 94548,
+     "finish": "titanium-slate",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "watch-s11",
+   "name": "Apple Watch Series 11",
+   "line": "watch",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-watch-s11-2025.webp",
+     "bytes": 81244,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s11--aluminum-jet-black.webp",
+     "bytes": 27142,
+     "finish": "aluminum-jet-black",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s11--aluminum-rose-gold.webp",
+     "bytes": 23494,
+     "finish": "aluminum-rose-gold",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s11--aluminum-silver.webp",
+     "bytes": 26808,
+     "finish": "aluminum-silver",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s11--aluminum-space-gray.webp",
+     "bytes": 29586,
+     "finish": "aluminum-space-gray",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s11--titanium-gold.webp",
+     "bytes": 92998,
+     "finish": "titanium-gold",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s11--titanium-natural.webp",
+     "bytes": 88098,
+     "finish": "titanium-natural",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s11--titanium-slate.webp",
+     "bytes": 83534,
+     "finish": "titanium-slate",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "watch-s5",
+   "name": "Apple Watch Series 5",
+   "line": "watch",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-watch-s5-2019.webp",
+     "bytes": 58390,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "watch-s6",
+   "name": "Apple Watch Series 6",
+   "line": "watch",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-watch-s6-2020.webp",
+     "bytes": 56696,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s6--aluminum-blue.webp",
+     "bytes": 61986,
+     "finish": "aluminum-blue",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "watch-s7",
+   "name": "Apple Watch Series 7",
+   "line": "watch",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-watch-s7-2021.webp",
+     "bytes": 36410,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s7--aluminum-green.webp",
+     "bytes": 41746,
+     "finish": "aluminum-green",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "watch-s8",
+   "name": "Apple Watch Series 8",
+   "line": "watch",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-watch-s8-2022.webp",
+     "bytes": 23684,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s8--aluminum-midnight.webp",
+     "bytes": 29156,
+     "finish": "aluminum-midnight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "watch-s9",
+   "name": "Apple Watch Series 9",
+   "line": "watch",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-watch-s9-2023.webp",
+     "bytes": 53454,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-s9--aluminum-midnight.webp",
+     "bytes": 58010,
+     "finish": "aluminum-midnight",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "watch-ultra",
+   "name": "Apple Watch Ultra",
+   "line": "watch",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-watch-ultra-2022.webp",
+     "bytes": 83832,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-ultra--titanium-natural.webp",
+     "bytes": 91580,
+     "finish": "titanium-natural",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "watch-ultra2",
+   "name": "Apple Watch Ultra 2",
+   "line": "watch",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-watch-ultra2-2023.webp",
+     "bytes": 79014,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-ultra2--titanium-black.webp",
+     "bytes": 76670,
+     "finish": "titanium-black",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-ultra2--titanium-natural.webp",
+     "bytes": 87840,
+     "finish": "titanium-natural",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  },
+  {
+   "id": "watch-ultra3",
+   "name": "Apple Watch Ultra 3",
+   "line": "watch",
+   "refs": [
+    {
+     "src": "assets/cutouts/qs-sheet-watch-ultra3-2025.webp",
+     "bytes": 36562,
+     "finish": null,
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-ultra3--titanium-black.webp",
+     "bytes": 43166,
+     "finish": "titanium-black",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    },
+    {
+     "src": "assets/cutouts/qs-watch-ultra3--titanium-natural.webp",
+     "bytes": 45994,
+     "finish": "titanium-natural",
+     "view": "catalog",
+     "source": "assets/devices.json"
+    }
+   ],
+   "uploaded": {}
+  }
+ ]
+}

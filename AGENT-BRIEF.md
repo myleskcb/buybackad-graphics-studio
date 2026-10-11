@@ -503,6 +503,20 @@ produced." DESIGN-LAW rule 87. In practice:
   takes about a minute). A tweak never leaves the law: a slider's ends are
   `cbRange`'s, an exact colour goes through `cbExact`, and anything saved
   passes `cbTweakOk`. Saved sets can be renamed; old names live in `aka`.
+- **Mac wallpapers and lit screens** (2026-10-11, OPEN-ITEMS §AW):
+  `mac-wallpapers.js`, loaded after app.js, registers ten drawn wallpapers
+  (`ground:wp…`) as the Wallpapers background group, and lights a laptop
+  picture's screen. It wraps `buildLayer`: a studio card's screen is lit as
+  designed with its own drawn wallpaper (`DEFAULTS`, by card id) in every
+  build; inside `renderEzCanvas` and `openAdvancedFromEz` the visitor's
+  choice from Easy Mode's "On the laptop screen" row wins (AUTO, OFF, a
+  wallpaper, a photograph, their own picture). Library (showcase) cards stay
+  unlit unless chosen: their renders are baked. A new picture with a screen is a row in `SCREENS` (its
+  display's four corners, measured and checked by warping a grid). Apple's
+  own wallpaper files are not shipped: Apple's artwork, the owner's call;
+  twelve free-licensed photographs of the same places (Commons, credited in
+  assets/bg-web/ATTRIBUTION.json) lead the group and load on first use.
+  Check: `node scripts/mac_wallpapers_check.mjs`.
 - **Real photographs only** (rule 117, 2026-10-04): no generated scene
   (`assets/bg/dl_*`) or drawn ground (`dg_cast`) behind a card or template
   where a real photograph of the goods exists. New photographs go in
@@ -531,6 +545,23 @@ produced." DESIGN-LAW rule 87. In practice:
   neutral the card's accent. A pass that moves or resizes the steps or the
   number's plate after them must leave `node scripts/steps_rhythm_audit.mjs`
   passing.
+- **A step's numeral sits in the middle of its circle** (2026-10-07):
+  `pgStepNumCentre`, after every layout and after a voice, measures the
+  numeral's ink (`pgInkBox`, shadow off) and moves it onto the middle of its
+  "Step Num Box". The box had held the text's em box centred, and a digit's
+  ink rides high or low in that box by its face (2 to 3.5px on 80 of the 83
+  Steps cards, 6.5px for an old-style serif 3). A pass that moves a step's
+  number or its circle, or sets its face, must leave
+  `node scripts/step_number_audit.mjs` passing (`--before` measures with the
+  pass off).
+- **The look's controls travel** (2026-10-07): the Headline style
+  sub-controls (gradient presets, stops and angle; the 36 patterns, their
+  size and slide; outline; effect) are one block, `#ez-tag-more`, that
+  `ezTagHost` moves under Easy Mode's chips or the Designer's. They keep
+  their ids; `ezTagPreview` draws Easy Mode's preview or the Designer's
+  canvas (`taglineEditorApply`) by where the block stands. Keep both pages'
+  chip rows feeding the same `ez.tag`, and run
+  `node scripts/tagline_panel_check.mjs` after touching the panel.
 - **The headline is the hero** (rule 116, 2026-10-03): judged by the letters
   it covers (30,000 px² on the 1080 square at least), never by font size
   alone. `node scripts/hero_headline.mjs --live` reports any live card under

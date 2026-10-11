@@ -1112,6 +1112,12 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 @media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}
 .ez-upload-bg{width:100%;margin-top:14px;background:var(--surface-sunk);color:var(--text);border:2px dashed var(--hairline-strong);border-radius:var(--r-lg);font:650 16px/1 var(--ui);padding:16px;cursor:pointer;transition:border-color .15s,background .15s}
 .ez-upload-bg:hover{border-color:var(--accent);background:var(--accent-wash)}
+/* bulk import, under the background swatches: a compact cousin of the preview card's upload button */
+.ez-bulk{display:inline-flex;align-items:center;gap:8px;margin-top:10px;background:var(--surface-sunk);color:var(--text);border:2px dashed var(--hairline-strong);border-radius:var(--r-pill);font:650 12.5px/1 var(--ui);padding:10px 14px;cursor:pointer;transition:border-color .15s,background .15s}
+.ez-bulk small{font:500 11.5px/1 var(--ui);color:var(--text-dim)}
+.ez-bulk:hover{border-color:var(--accent);background:var(--accent-wash)}
+.ez-bulk:disabled{opacity:.65;cursor:progress}
+.ez-bulk:disabled:hover{border-color:var(--hairline-strong);background:var(--surface-sunk)}
 .ez-dl{width:100%;margin-top:14px;background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:var(--accent-ink);border:none;border-radius:var(--r-lg);font:700 17px/1 var(--ui);letter-spacing:-.015em;padding:17px;cursor:pointer;transition:transform .1s,filter .15s;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),var(--glow-accent)}
 .ez-dl:hover{filter:brightness(1.06)}
 .ez-dl:active{transform:scale(.985)}
@@ -1201,7 +1207,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 /* easy recents + layers + star */
 .ez-subttl{font:700 10.5px/1 var(--ui);color:var(--text-dim);letter-spacing:.09em;text-transform:uppercase;margin:12px 0 6px}
 #ez-recents{display:flex;flex-wrap:wrap;gap:10px}
-#ez-recents:empty::after{content:'Photos you use will appear here';color:var(--text-dim);font:500 11.5px/1 var(--ui)}
+#ez-recents:empty::after{content:'Photos you use or import will appear here';color:var(--text-dim);font:500 11.5px/1 var(--ui)}
 .ez-recent{position:relative;width:40px;height:40px;border-radius:12px;border:3px solid transparent;padding:0;cursor:pointer;overflow:hidden;background:var(--surface-sunk)}
 .ez-recent img{width:100%;height:100%;object-fit:cover;display:block}
 .ez-recent.sel{border-color:var(--accent)}
@@ -1297,8 +1303,14 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .plans-packs p b{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--text)}
 .plans-pack-row{display:flex;gap:10px;flex-wrap:wrap}
 .pack-btn{flex:1 1 180px;display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:14px;padding:13px 16px;cursor:pointer;font:600 14px/1 var(--ui);min-height:48px}
+.packs-facts{list-style:none;margin:0 0 16px;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:12px 24px}
+@media (max-width:640px){.packs-facts{grid-template-columns:1fr}}
+.packs-facts li{font:500 13px/1.5 var(--ui);color:var(--text-2)}
+.packs-facts li b{display:block;font:700 13px/1.3 var(--ui);color:var(--text);margin-bottom:2px}
 .pack-btn b{font-weight:700}
-.pack-btn span{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--text-2)}
+.pack-what{display:flex;flex-direction:column;gap:5px;text-align:left}
+.pack-what small{font:500 12px/1.2 var(--ui);color:var(--text-2)}
+.pack-price{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--text-2);white-space:nowrap}
 .pack-btn:hover{border-color:var(--accent)}
 .ai-credits{font:500 12px/1.45 var(--ui);color:var(--text-dim);margin-top:6px}
 .ai-more{border:0;background:none;color:var(--accent);font:650 12px/1 var(--ui);text-decoration:underline;cursor:pointer;padding:4px 2px}
@@ -1919,10 +1931,28 @@ input[type=range]{width:100%;accent-color:var(--accent)}
    2. The footer gained an "Ad templates" column (links to the category pages),
       so it is six blocks now: let the grid fit them instead of a fixed four. */
 .hero h1,.lp-section-head h2,.lp-cta h2{word-spacing:.1em}
-.lpf-cols{grid-template-columns:1.4fr repeat(5,minmax(0,1fr))}
+.lpf-cols{grid-template-columns:1.4fr repeat(4,minmax(0,1fr))}   /* five blocks a row; Ad templates takes a row of its own (2026-10-08) */
 @media (max-width:1100px){.lpf-cols{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:760px){.lpf-cols{grid-template-columns:1fr 1fr}}
 .lp-faq p a{color:var(--accent);text-decoration:underline}
+/* 2026-10-08: the "Ad templates" column is in the owner's order of importance,
+   twelve lines, and some have sub-lines (Apple: iPhone, iPad, MacBook, Apple
+   Watch, AirPods; gold and silver: coins). As one column it ran twice the
+   height of the footer, so it takes a row of its own under the other blocks,
+   set in columns as wide as the grid's tracks with the grid's gap, so its
+   columns line up under Product, Programs, Talk to us and Legal (under the
+   whole row at 3 and 2 tracks). Each line keeps its sub-lines with it; a
+   sub-line row sits under its line, indented on a hairline, one size down.
+   scripts/build_seo_pages.mjs writes the list. */
+.lpf-cols{grid-auto-flow:row dense}
+.lpf-col-ads{grid-column:2/-1}
+.lpf-ads{columns:4;column-gap:28px}
+.lpf-grp{break-inside:avoid}
+.lpf-col .lpf-subs{display:flex;flex-wrap:wrap;gap:0 12px;margin:-1px 0 5px;padding-left:10px;border-left:1px solid var(--hairline-strong)}
+.lpf-col .lpf-subs a{font-size:12.5px;padding:2px 0}
+:root[data-skin='poster'] .lpf-col .lpf-subs a{font-size:13.5px}
+@media (max-width:1100px){.lpf-col-ads{grid-column:1/-1}.lpf-ads{columns:3}}
+@media (max-width:760px){.lpf-ads{columns:2}}
 
 /* THE LANDING GRID SHOWS EACH CARD AS IT WILL POST (2026-09-26). The number
    was rebuilt big and sits at the foot of most cards; the caption strip (a
@@ -2025,6 +2055,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ez-voices button.active{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}
 .ed-voices{gap:5px}
 .ed-voices button{padding:7px 10px;font-size:11px}
+/* the look's sub-controls, hosted under the Designer's chips (ezTagHost) */
+#ez-tag-more.in-editor{margin-top:10px}
+#ez-tag-more.in-editor .ez-fxrow button{padding:7px 11px;font-size:11px}
+#ez-tag-more.in-editor .ez-subttl{margin-top:10px}
 
 /* ═════════════════════════════════════════════════════════════════════════
    POSTER — THE HOUSE LOOK, 2026-10-01 (DESIGN-LAW rule 98).
@@ -2333,13 +2367,16 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='poster'] .ez-field input,
 :root[data-skin='poster'] .ez-field textarea{font-size:16px}
 :root[data-skin='poster'] .ez-fxrow button,
-:root[data-skin='poster'] #ltab-bg .ez-fxrow button{font-size:13.5px}
+:root[data-skin='poster'] #ltab-bg .ez-fxrow button,
+:root[data-skin='poster'] #ez-tag-more.in-editor .ez-fxrow button{font-size:13.5px}
 :root[data-skin='poster'] .ez-chip,
 :root[data-skin='poster'] .ez-sizes .chip{font-size:14px}
 :root[data-skin='poster'] .ez-lname{font-size:14px}
 :root[data-skin='poster'] .ez-lprev{font-size:12.5px;color:var(--text-2)}
 :root[data-skin='poster'] .ez-stepline small{font-size:14px;color:var(--text-2)}
 :root[data-skin='poster'] .ez-fxnote{font-size:13.5px;color:var(--text-2)}
+:root[data-skin='poster'] .ez-bulk{font-size:13.5px}
+:root[data-skin='poster'] .ez-bulk small{font-size:13.5px;color:var(--text-2)}
 :root[data-skin='poster'] .ez-hint{font-size:13.5px;color:var(--text-2)}
 :root[data-skin='poster'] .ez-adv-link{font-size:14px}
 :root[data-skin='poster'] .ez-tagstyle{font-size:12.5px}
@@ -2525,3 +2562,15 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .co-err:empty{display:none}
 .co-go{width:100%;justify-content:center}
 .co-go:disabled{opacity:.55;cursor:not-allowed}
+
+/* ═══ THE LANDING'S ACCOUNT CHIP (2026-10-07) ═══
+   The studio's chip lives in the studio's nav, so a signed-in visitor on the
+   landing page had no account control at all. This one takes the place of
+   Log in / Sign up free; on a phone the plan badge goes and the name is
+   clipped, so the nav that was measured at 375px (above) keeps its width. */
+#lp-acct .acct-chip{padding:7px 12px}
+#lp-acct-label{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:640px){
+  #lp-acct .acct-plan{display:none}
+  #lp-acct-label{max-width:64px}
+}

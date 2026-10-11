@@ -121,6 +121,24 @@
    "p90": 34
   }
  ],
+ "gaming": [
+  {
+   "file": "rooms-home-desk-setup-1",
+   "p90": 165
+  },
+  {
+   "file": "rooms-desk-setup-1",
+   "p90": 199
+  },
+  {
+   "file": "rooms-living-room-console-1",
+   "p90": 190
+  },
+  {
+   "file": "rooms-gaming-pc-setup-1",
+   "p90": 230
+  }
+ ],
  "space": [
   {
    "file": "space-earth-from-iss-night-1",

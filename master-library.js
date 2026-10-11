@@ -9,8 +9,8 @@
 
    Two sections:
    - Saved ads. With ?feed=<link id> it is that library's public page (what
-     iPhones LA is given): its ads, which are set to auto-post, and the feed
-     addresses a poster reads. Without one it is the signed-in account's own
+     iPhones LA is given): its ads, every one saved, and the feed addresses
+     iPhones LA reads them from (it reviews and posts them there). Without one it is the signed-in account's own
      library (/api/ads/mine, the session token the studio keeps).
    - Finished designs: every card the studio offers, read from this deploy
      (assets/showcase/index.json and the full-size renders in
@@ -29,7 +29,6 @@
   const CAT_NAME = { phones: 'Phones', gold: 'Gold', silver: 'Silver', coins: 'Coins', cars: 'Cars', strips: 'Test strips',
     pokemon: 'Pokémon', sports: 'Sports cards', gaming: 'Gaming', audio: 'Audio', computers: 'Computers', wearables: 'Wearables',
     cameras: 'Cameras', offer: 'Offers', classics: 'Classics' };
-  const REPOST = { 0: 'once', 1: 'every day', 7: 'every week', 14: 'every 2 weeks', 30: 'every 30 days' };
   const $ = id => document.getElementById(id);
   const words = s => String(s || '').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
   const live = c => !!c && !c.defect && c.imagery !== 'none' && !(typeof c.chroma === 'number' && c.chroma < 0.05);
@@ -120,9 +119,10 @@
     }
     c.appendChild(el('b', '', it.title));
     c.appendChild(el('span', 'ml-meta', [catName(it.category), it.image.width + ' × ' + it.image.height, it.video ? it.video.format.toUpperCase() + ' ' + it.video.width + ' × ' + it.video.height : '', 'saved ' + when(it.created)].filter(Boolean).join(' · ')));
-    if (it.hold) c.appendChild(el('span', 'ml-held', it.hold === 'unchecked' ? 'Not auto-posted: not checked for a website' : 'Not auto-posted: it shows ' + it.hold));
-    else if (it.post) c.appendChild(el('span', 'ml-post', 'Auto-post: due ' + when(it.post.due_at) + (it.post.next_at ? ', again ' + when(it.post.next_at) + ' (' + (REPOST[it.repost_days] || 'every ' + it.repost_days + ' days') + ')' : ', once')));
-    else c.appendChild(el('span', 'ml-meta', 'Not set to auto-post'));
+    if (it.hold) c.appendChild(el('span', 'ml-held', it.hold === 'unchecked' ? 'Held: not checked for a website, so not for iPhones LA' : 'Held: it shows ' + it.hold + ', so not for iPhones LA'));
+    else if (it.fresh === false) c.appendChild(el('span', 'ml-held', 'Past its 7 days: no longer offered'));
+    else if (it.post) c.appendChild(el('span', 'ml-post', 'Offered daily, day ' + it.post.round + ' of 7' + (it.post.next_at ? ', next ' + when(it.post.next_at) : ', its last')));
+    else c.appendChild(el('span', 'ml-meta', 'For iPhones LA'));
     const acts = el('div', 'ml-acts');
     acts.appendChild(link(it.image.url, it.video ? 'Photo' : 'Download', { download: slug(it.title) + '.jpg' }));
     if (it.video) acts.appendChild(link(it.video.url, 'Video', { download: slug(it.title) + '.' + it.video.format }));
@@ -133,10 +133,10 @@
     const box = $('ml-feed');
     box.hidden = false;
     box.textContent = '';
-    box.appendChild(el('b', '', isOwner ? 'Your public link' : 'For auto-post'));
+    box.appendChild(el('b', '', isOwner ? 'Your public link' : 'For iPhones LA'));
     const p1 = el('p', '', isOwner
       ? 'Give this page to iPhones LA. Anyone with it sees these ads and nothing else. Reset it in the studio (📚 Library) to stop the old one.'
-      : 'Ads set to auto-post are listed when they are due, and listed again each time they come due. A poster reads one of these:');
+      : 'Every ad saved in Graphics Studio, picture and video. Each is offered daily for 7 days from when it was saved, then retires. iPhones LA reads one of these and reviews and posts the ads there:');
     box.appendChild(p1);
     const rows = isOwner ? [['This page', lib.links.page], ['JSON feed', lib.links.json], ['RSS', lib.links.rss]] : [['JSON feed', lib.links.json], ['RSS', lib.links.rss]];
     rows.forEach(([label, url]) => {
@@ -186,14 +186,14 @@
     feedBox(lib, !feed);
     if (!lib.items.length){ say(feed ? 'This library has no ads yet.' : 'Nothing saved yet. Download an ad in the studio and press "Save to library".', feed ? null : ['index.html', 'Open the studio']); return lib; }
     section('saved', lib.items.map(searchable), savedCard, {
-      countLine: n => n + (n === 1 ? ' ad' : ' ads') + ', ' + lib.items.filter(x => x.post).length + ' set to auto-post',
+      countLine: n => n + (n === 1 ? ' ad' : ' ads') + ', ' + lib.items.filter(x => x.post).length + ' offered today',
     });
     return lib;
   }
 
   /* ---------- finished designs ---------- */
   /* the design's full-size render, as shown, into the account's library; the
-     words on it read from its record, a website on it holds it from auto-post
+     words on it read from its record, a website on it holds it from iPhones LA
      (the same rule the studio keeps) */
   async function saveFinished(x){
     const lib = window.adLibrary;

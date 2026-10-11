@@ -40,7 +40,7 @@ The browser never sees the key.
 | `library-picker.js` | the static files | the panel for the listing page: the library's ads, a search, a category. A pick hands the page the ad as a JPEG `File`. |
 | `example_server.py` | reference only | the routes and a demo listing page, standard library, runnable |
 | `test_buybackad_library.py` | the tests | ten checks against a live library (skipped without the env vars) |
-| `autopost_worker.py` | the server's jobs | auto-post and repost from the ad library's public link (below); posts through the shop's own Auto-post |
+| `autopost_worker.py` | the server's jobs | takes the ad library's ads into the site's review, then posts the approved ones through the shop's own Auto-post (below); posts nothing unapproved |
 | `test_autopost.py` | the tests | seven checks of the feed client and the worker against a stand-in library (no network) |
 
 ## Setting it up (the owner, once)
@@ -300,8 +300,29 @@ them too".
 The key-protected API above is the **Designer Library** (the studio's finished
 designs). This section covers the other library: the **ads the owner saves**
 in the studio (📚 Library, or "Save to library" after a download). It has one
-public link that iPhones LA reads. The ads on it are set to auto-post or not,
-each with its own repost schedule.
+public link that iPhones LA reads.
+
+**The studio makes imagery; the site does the rest** (the owner, 2026-10-11:
+"we're supposed to do the approval or denial of the title description on the
+listings iPhone LA site", "we should just build imagery that we can pass off
+the rest can be handled on the site. We can organize it from there and
+refresh the content on a daily basis", "we could use the same imagery for
+seven days per unique ad that is our maximum to keep it fresh and unique
+feeling", "reposted daily of course"). So:
+
+- Every ad saved in the studio is on the link at once: its picture, its
+  video if it has one, the words on it, its category and its products. There
+  is nothing to download and no Auto-post switch or schedule in the studio.
+- Each ad is **offered every day for 7 days** from when it was saved (one slot
+  a day, `fresh_until` says when the seven days end), then it retires: it
+  stays listed with `fresh: false` and no slot. New imagery comes from the
+  studio.
+- **iPhones LA's side**: read the link daily (or more often); bring each
+  new ad into the listings site's review, where its own title and description
+  maker writes them and a person approves, denies or edits; post the approved
+  ones within the shop's daily limits (the safe share of buying ads in a
+  day, a little higher in aggressive mode), at most once a day each and only
+  while the ad is fresh. The studio never posts.
 
 ```
 BUYBACK.AD studio ──save──▶ the ad library ──public link──▶ iPhones LA worker ──▶ Auto-post
@@ -353,8 +374,8 @@ library, so the link names the site the ads were saved on.
 
 | address | answers |
 |---|---|
-| `/api/ads/feed/fd_...` (or `.json`) | `{ name, version, updated, repost_days, count, links, items }`; `?category=phones` filters, `?due=1` gives only what is due to post |
-| `/api/ads/feed/fd_....rss` | RSS 2.0: one item per ad that is due, its picture as the enclosure, its slot as the guid |
+| `/api/ads/feed/fd_...` (or `.json`) | `{ name, version, updated, count, fresh_days, links, items }`: every ad saved; `?category=phones` filters, `?due=1` gives only what is offered today (fresh, not held) |
+| `/api/ads/feed/fd_....rss` | RSS 2.0: one item per ad offered today, its picture as the enclosure, its slot as the guid (a new guid each day of its seven) |
 | `/api/ads/feed/fd_.../img/<id>.jpg` | the ad's picture, the JPEG as it was saved (the download, at its size; up to 2160 a side) |
 | `/api/ads/feed/fd_.../video/<id>.mp4` (or `.webm`) | a video ad's clip, byte for byte (`Accept-Ranges: bytes`); `?kind=video` on the feed lists only video ads |
 
@@ -369,24 +390,28 @@ An ad (an example record):
   "kind": "video", "source": "studio",
   "video": { "url": "https://.../api/ads/feed/fd_.../video/ad_mfx1k2abcd.mp4?v=9b1c2d3e4f50", "width": 1080, "height": 1080, "bytes": 5213344, "format": "mp4", "seconds": 10 },
   "created": "2026-10-05T12:00:00Z", "updated": "2026-10-05T12:00:00Z",
-  "autopost": true, "repost_days": 7, "hold": null,
-  "post": { "slot_id": "ad_mfx1k2abcd@2026-10-05T12:00:00Z", "due_at": "2026-10-05T12:00:00Z", "next_at": "2026-10-12T12:00:00Z", "round": 1 } }
+  "fresh_until": "2026-10-12T12:00:00Z", "fresh": true,
+  "autopost": true, "repost_days": 1, "hold": null,
+  "post": { "slot_id": "ad_mfx1k2abcd@2026-10-05T12:00:00Z", "due_at": "2026-10-05T12:00:00Z", "next_at": "2026-10-06T12:00:00Z", "round": 1 } }
 ```
 
-- `post` is present when the ad is to be posted. It is due at `due_at`; with
-  `repost_days` (1, 2, 3, 5, 7, 14 or 30; 0 means once) it comes due again at
-  `next_at`, as round 2, 3 and so on. Turning auto-post back on makes it due
-  at once.
-- **`slot_id` is the whole contract**: keep the slot ids you have posted, and
-  post any ad whose current `slot_id` you have not. That posts each ad once
-  per slot, reposts it when the next slot comes, and never doubles up if a
-  run is repeated.
-- `hold` names why an ad is never auto-posted: it shows a website, a QR code,
+- `post` is today's slot: due at `due_at` (when the ad was saved, then every
+  24 hours), `round` 1 to 7, `next_at` tomorrow's or `null` on the last day.
+  `repost_days` is 1 while an ad is offered and `autopost` true, the fields
+  a reader of the older feed expects. Past its seven days (`fresh: false`),
+  or held, an ad has `post: null`.
+- **`slot_id` is the whole contract**: keep the slot ids you have taken, and
+  take any ad whose current `slot_id` you have not. That gives each ad once a
+  day for its seven days, and never doubles up if a run is repeated. Whether
+  a day's slot is posted is the site's call: its daily limits choose among
+  what is offered.
+- `hold` names why an ad is never offered: it shows a website, a QR code,
   a street address or a social handle, or it carries the free plan's
-  watermark (the same rule as the studio link's WE BUY pictures). A held ad
-  is listed with `post: null`.
-- `texts` and `products` are what is on the picture (the phone number is left
-  out of `texts`), for writing the listing; `caption` is the owner's line.
+  watermark (the same rule as the studio link's WE BUY pictures).
+- `texts`, `products` and `category` are what is on the picture (the phone
+  number is left out of `texts`), for the site's title and description
+  maker; `title` and `caption` are the studio's plain defaults (the
+  headline), not a listing.
 - `kind` is `"photo"` or `"video"`. A video ad carries `video` (its clip:
   MP4 where the owner's browser could write one, WebM otherwise, with
   `width`, `height`, `bytes` and `seconds`) beside `image`, which is still the
@@ -401,33 +426,44 @@ An ad (an example record):
 
 ### The worker
 
-`autopost_worker.py` does the above with the standard library. It reads the
-link, takes what is due, and calls `post(ad, jpeg_bytes, repost)` for each.
-A `post` with a `video` parameter (`post(ad, jpeg_bytes, repost, video=None)`)
-gets a video ad's clip as bytes too (`BuybackadFeed.video(ad)`; `None` for a
-photo ad); a `post` without one gets the photo alone, as before. It records
-a slot only after `post` returns, so a failed post is tried again on the
-next run. The posted slots live in one small JSON file.
+`autopost_worker.py` does the above with the standard library, review first.
+Each run it reads the link and, for each of today's slots it has not taken:
+
+1. hands an ad it has not seen to `intake(ad, jpeg_bytes, video=None)`, once:
+   the listings site's review, where the title and description maker writes
+   them and a person approves, denies or edits;
+2. asks `approved(ad)`, the site's own answer: approved, and the day's
+   buying-ad share (a little more in aggressive mode) has room for it;
+3. hands an approved ad to `post(ad, jpeg_bytes, repost)` (with a `video`
+   parameter, `post(ad, jpeg_bytes, repost, video=None)` gets a video ad's
+   clip too), and records the slot only after `post` returns, so a failed
+   post is tried again on the next run.
+
+**Nothing is posted without `approved`**: run without it, the worker only
+takes ads into review, and `--post` without `--approved` is refused. The
+slots posted and the ads taken in live in one small JSON file.
 
 ```
 BUYBACKAD_FEED_URL=https://buybackad-graphics-studio.netlify.app/master-library.html?feed=fd_... \
-python3 autopost_worker.py --once --state var/buybackad-autopost.json --post myapp.autopost:post_we_buy_ad
+python3 autopost_worker.py --once --state var/buybackad-autopost.json \
+  --intake myapp.review:take_in_ad --approved myapp.review:is_approved --post myapp.autopost:post_we_buy_ad
 ```
 
 Run it from cron or the app's scheduler every 10 to 15 minutes, or keep it
-running with `--loop 900`. `--dry-run` lists what is due and records nothing;
-`--limit` caps the posts per run (5 by default).
+running with `--loop 900`. `--dry-run` lists what it would take in and post,
+and records nothing; `--limit` caps the posts per run (5 by default).
 
 `post` is the shop's own Auto-post: the same code path a person uses when they
 post a WE BUY ad by hand. It takes the picture as the ad's photo (and, for a
 video ad, the clip as the listing's video, with the photo beside it) and
-writes the listing from `title`, `caption`, `texts`, `products` and
-`category`. It returns the listing's id, which is kept beside the slot. Do not build a second posting
-pipeline. Each marketplace has its own rules on reposting and automation, and
-the schedule set in the studio should stay inside them.
+writes the listing from the title and description approved in the site's
+review. It returns the listing's id, which is kept beside the slot. Do not
+build a second posting pipeline. Each marketplace has its own rules on
+reposting and automation, and the shop's daily limits decide how many of the
+day's slots are posted.
 
-RSS instead of the worker: any RSS auto-poster that posts new items will post
-each ad once per slot, because a repost is a new guid.
+RSS instead of the worker: any RSS reader that takes new items gets each ad
+once a day for its seven days, because each day's slot is a new guid.
 
 ### Checked (2026-10-05, from the BUYBACK.AD repo)
 
@@ -437,50 +473,65 @@ each ad once per slot, because a repost is a new guid.
   same picture saved twice is one ad. Each plan has a cap and there is a
   daily count. The link answers JSON, RSS and pictures byte for byte. A
   reset link stops answering.
-- **The schedule.** A weekly ad comes due on days 0, 7, 14 and 21.
+- **Daily for seven days.** An ad is offered on each of its seven days
+  (seven slots over three weeks) and not after; it stays listed,
+  `fresh: false`. A held ad is never offered.
 - **The worker.** `autopost_worker.py` runs over HTTP against the real
-  function: it posts the due ad once, with its JPEG whole (and a video ad's
-  clip whole, when `post` takes one), and not again on a second run.
-  `test_autopost.py` also passes (eight checks, 2026-10-06).
+  function: `--post` without `--approved` is refused; the ad goes into
+  review once with its picture and clip, nothing is posted until it is
+  approved, then the day's slot is posted once, its JPEG and clip whole.
+  `test_autopost.py` also passes (eleven checks, 2026-10-11).
 - **The studio, in Chromium under the production CSP.** A download offers
-  "Save to library". The Library dialog shows the saved ad and the link. A
-  free account's watermarked ad is held from auto-post; an operator's is set
-  to post. The public page shows the ad.
+  "Save to library". The Library button shows for the owner only. The
+  Library dialog shows the saved ad, "offered to iPhones LA daily, day 1 of
+  7", and the link, with no switch or schedule to set. A free account's
+  watermarked ad is held. The public page shows the ad.
 
 Not checked from here: `loganipad/iphoneslainv` itself, which this session
 cannot reach.
 
-### Paste-ready prompt for the iPhones LA session (auto-post)
+### Paste-ready prompt for the iPhones LA session (review, then post)
 
 ```
-In loganipad/iphoneslainv: auto-post BUYBACK.AD's saved WE BUY ads, and post
-them again on their schedule, through the shop's existing Auto-post.
+In loganipad/iphoneslainv: bring BUYBACK.AD's WE BUY ads into the listings
+site's review every day, and post the approved ones through the shop's
+existing Auto-post, within its daily limits.
 
-The ads come from BUYBACK.AD's ad library: a public link the owner copies in
-the BUYBACK.AD studio (📚 Library → Copy link). From the BUYBACK.AD repo
-(myleskcb/buybackad-graphics-studio), take docs/iphonesla-library.zip and read
-its README.md, section "Auto-post and repost: the ad library's public link".
-It is the contract.
-  - buybackad_library.py  (BuybackadFeed is new; replace the old copy)
-  - autopost_worker.py    the worker: what is due, once per slot, retried on failure
-  - test_autopost.py      into the tests
+The ads come from BUYBACK.AD's ad library: a public link the studio sends by
+itself to POST /api/buy-ads/studio/library (or the owner copies it from 📚
+Library → Copy link). From the BUYBACK.AD repo
+(myleskcb/buybackad-graphics-studio), read docs/iphonesla-library/README.md,
+section "Auto-post and repost: the ad library's public link". It is the
+contract. buybackad_library.py (BuybackadFeed) reads it; autopost_worker.py
+is the job: plug in intake (into the review queue), approved (the site's
+approval and the day's limit) and post (the existing Auto-post). It posts
+nothing that approved() has not said yes to.
 
-1. Add POST /api/buy-ads/studio/library (README, "The link arrives by
-   itself"): the studio sends its library link there by itself. Store it in the
-   database as the feed the worker reads; BUYBACKAD_FEED_URL is only the fallback.
-2. Write post(ad, jpeg_bytes, repost, video=None) over the EXISTING
-   Auto-post: the ad's picture becomes the WE BUY ad's photo, and the
-   listing text comes from ad["title"], ad["caption"], ad["texts"],
-   ad["products"] and ad["category"]. When video is not None (ad["kind"] ==
-   "video"; MP4 or WebM, see ad["video"]["format"]) it is the listing's
-   video, posted with the photo beside it, where the marketplace takes
-   one. It returns the listing's id. Use the same code path as a WE BUY ad
-   posted by hand. Do not add a second posting pipeline.
-3. Schedule autopost_worker.run_once (or the CLI with --once) every 10 to 15
-   minutes, with its state file somewhere that survives a deploy.
-4. Run test_autopost.py. Then save one ad in the BUYBACK.AD studio and watch
-   it post on the next run. Run again: it must not post twice.
-Report: where post() hooks into Auto-post, the schedule, the test output, and
-the first real post.
+The rules (the owner's):
+  - The studio only makes imagery. Every ad saved there is on the link,
+    picture and video, with texts, products and category. It approves
+    nothing and posts nothing.
+  - Titles and descriptions are written here, by the listings site's own
+    title and description maker, from ad["texts"], ad["products"],
+    ad["category"] and the picture. A person approves, denies or edits them
+    here. Nothing is posted before it is approved.
+  - An ad's imagery is used for 7 days at most (ad["fresh_until"]), posted
+    at most once a day in them (one ad["post"]["slot_id"] a day). Past its
+    seven days (ad["fresh"] false) it is not posted again.
+  - The day's posts stay within the shop's daily limits: buying ads take
+    their safe share of the day's posts, a little more in aggressive mode.
+
+1. Accept POST /api/buy-ads/studio/library (README, "The link arrives by
+   itself") if it is not there yet; store the link as the feed to read.
+2. Once a day (or every few hours), read the feed and put each new ad into
+   the review queue with its picture, its video if any, and the title and
+   description your maker writes for it. Keep the ids already taken.
+3. Post approved ads through the EXISTING Auto-post (the same code path as a
+   WE BUY ad posted by hand; no second pipeline): each day, among the
+   approved ads whose current slot you have not posted and that are still
+   fresh, post as many as the day's buying-ad limit allows.
+4. Show in the review screen how many of its 7 days each ad has left.
+Report: where the review queue and the limit live, the job's schedule, and
+the first real ad taken in, approved and posted.
 ```
 

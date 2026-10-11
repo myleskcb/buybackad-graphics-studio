@@ -4083,10 +4083,34 @@ Found:
 
 Owner, over the side-by-side clip of the three: "that is much better. I
 like all of it." All three stay in the shuffle; put on `main` the same day.
+Then: "Maybe we do one that's a slower [pulse] that's more of a breathing
+effect": `breathe`, first a 6% swell every 3 s, off the beat, from rest;
+then "Breathing are much more subtle and slow movement not a pulse": 3%
+every 4.5 s, as at rest a body breathes, with half the shadow's change.
+Then, of a clip of breathe beside pulse: "a pulse that's identical from the
+left or right". It was. Three faults, all mine:
+  - The clip's look had "Pump on the beat" (urgency beat_pump: the whole
+    picture zooms on every beat), the same on both sides and far louder
+    than either phone move. harmonise now drops it where the phones swell
+    (or, in a shuffle, the phones spin or float instead).
+  - The phones stood on the line over the number, so a swell about their
+    middles had room for 1.7% (k 0.24). A swell now keeps the edge nearest
+    trouble still and grows away from it (`idleAnchor`); pulse at full size
+    went from 96 looks of 120 to 115.
+  - On phones under a third of the frame, 3% is two or three pixels. A
+    breath now adds at least 1.2% of the frame's short side (up to 6%).
+  - And the video's photo, taken at a spin's whole turn, failed the photo
+    check once at 1:1: a real-time recording's clock drifts, and there the
+    phones turn 20 degrees in 0.2 s. The moves now wait till the number has
+    landed and stood (IDLE.hold, 0.9 s from its arrival), and a spinning
+    look's photo is that held moment: twice in a row, every size passed.
+  Lesson: a demo clip is a measurement. Hold everything but the thing
+  compared still, and look at it before sending it.
 
 RESUME HERE:
   0. The amplitudes are IDLE in motion/engine.js (turn 3.2 s, rise 4.5% of
-     a phone, pulse 7%), should the owner want any move bigger or calmer.
+     a phone, pulse 7%, breathe 3% over 4.5 s), should the owner want any
+     move bigger or calmer.
 
 ## 2026-10-11 — the colour builder's fades, made to be seen (claude/compassionate-babbage-nv318r)
 
@@ -4130,3 +4154,439 @@ menu, the video maker's link) start hidden and show for an operator account
 account's `onChange` elsewhere, so app.js is not edited for the library.
 The stars, Save to library and the plans' library are unchanged: another
 account can still save, and the server still serves its library.
+
+## 2026-10-11 — the ad library is an outbox: the studio makes imagery, iPhones LA does the rest (claude/compassionate-babbage-nv318r)
+
+Asked: the owner, of the 📚 Library: first "it needs to go to a place where we
+then configure the titles and descriptions or suggested ones show and we
+approve or deny or edit"; then "we're supposed to do the approval or denial of
+the title description on the listings iPhone LA site and that was the purpose
+of connecting Cloudflare so we can send the imagery and video over
+automatically without need to download it ourselves", "we should just build
+imagery that we can pass off the rest can be handled on the site", "we could
+use the same imagery for seven days per unique ad that is our maximum",
+"reposted daily of course".
+
+Done:
+  - A review screen with its own suggestions was built in the studio first
+    and reached `main` with #11's first commit; this replaces it: the titles
+    have to come from iPhones LA's own title and description maker, and
+    approval is done on its listings site. What stays is the outbox.
+  - Every ad saved is on the link at once, picture and video, with its
+    words, category and products. No Auto-post switch and no schedule in
+    the studio; an old studio's autopost and repost_days are ignored.
+  - Offered every day for seven days from the save (`fresh_until`, one slot
+    a day, round 1 to 7), then retired: listed with `fresh: false` and no
+    slot. The feed keeps its old shape (`post.slot_id`, `autopost`,
+    `repost_days: 1`), so a reader of it needs no change to take each day's
+    slot once; the daily limits (buying ads' safe share, more in aggressive
+    mode) are the site's.
+  - The hand-off README and its paste-ready prompt now ask iPhones LA to
+    bring each ad into its review and post only approved ones within its
+    limits; the zip is repacked.
+
+Found:
+  - The browser check clicked the Library button as a free account; that
+    button has been the owner's since the morning, so the check opens the
+    dialog from code there and checks the button shows for the owner only.
+  - The iPhones LA repository (loganipad/iphoneslainv) is not reachable from
+    this account, so its side is the hand-off prompt.
+
+Checked: `scripts/ad_library_check.mjs` (router, the real function, iPhones
+LA's worker, its tests, Chromium under the production CSP) and
+`scripts/library_handoff_check.mjs`: no failures.
+
+  Later the same day: the reference worker (docs/iphonesla-library/
+  autopost_worker.py) posted whatever the feed offered, so run as it was it
+  would have posted every saved ad daily with nobody approving. It is review
+  first now: `intake` takes each ad into the site's review once, `approved`
+  is the site's answer (approval and the day's buying-ad share), and nothing
+  is posted without it; `--post` without `--approved` is refused.
+  test_autopost.py has eleven checks; the zip is repacked.
+
+## 2026-10-11 — the gaming cards leave the drawn rooms (OPEN-ITEMS §AU)
+
+Asked: a screenshot of the Gaming category, "too similar of backgrounds and
+themes way too similar", "assimilate with the other categories", then "We
+need more relatable gamer style background bedroom photos, so they look
+clean".
+
+Found:
+  - The sameness was one cause: every gaming, gaming headset and monitor
+    card stood on the same three drawn rooms, all purple neon. The looks
+    (bands, panels) already varied; the ground is most of the card.
+  - The first answer (photographs of the goods, as iPhones and gold have)
+    was the house pattern but not what the owner wanted for gaming: a
+    controller over a photograph of a controller is clutter, and "gamer
+    style" means the room.
+  - Commons is the only photo source a cloud session reaches, and it has
+    almost no clean gamer bedrooms: 957 licensed candidates from 71
+    searches gave four usable rooms. Say so rather than stretch the set with near misses.
+  - A room photograph has highlights the p90 shade does not see: a window, a
+    lamp, a lit screen. The small type over them fell to 2.7:1 on one room.
+    The template audit found it; the eye did not.
+  - Which card gets which room is the pool's order. Measuring every card on
+    every room once (four audits) and comparing the 24 orders offline beat
+    trying orders one audit at a time.
+  - The credits file mixes escaped and raw non-ASCII; append to it as text,
+    or a rewrite changes unrelated entries.
+
+RESUME HERE:
+  0. Merge to `main` (this branch: `claude/wizardly-bardeen-62280m`).
+  1. A clean gamer bedroom photograph (§AU 1), then the held gaming cut-outs
+     (§AU 2).
+
+## 2026-10-11 — Mac wallpapers and a lit laptop screen (claude/nifty-pasteur-xlv4nu)
+
+Asked: "stock apple backgrounds for tahoe or golden gate or the stock
+background on front facing off screen", over the MacBook offer card.
+
+Done: `mac-wallpapers.js` (OPEN-ITEMS §AW). Ten drawn wallpapers as a
+Wallpapers background group; an "On the laptop screen" row that lights the
+front-facing and angled MacBook pictures with a wallpaper or the visitor's
+own picture.
+
+Found:
+  - The screen's corners were measured off the cut-outs, then checked by
+    warping a grid into them and looking, before any wallpaper went in. The
+    front picture is a 2021 MacBook Pro (camera at 940, 38: the notch goes
+    round it); the angled one a Touch Bar 13-inch, whose chin carries the
+    name, so the display ends at the faint line above it, not at the hinge.
+  - `syncEzSwatches` clears `.sel` from every `.ez-sw` in the page and lights
+    the first `.ez-sw.orig`; a new swatch row needs its own sync after it,
+    and must not use `.orig`.
+  - `.ez-swatches` sets `display`, so the `hidden` attribute does nothing on
+    it; show and hide such a row with `style.display`.
+  - A canvas element on a designer object is saved by fabric as a full PNG
+    in every undo step; the lit picture overrides `toObject` to save the
+    cut-out's address and is lit again in `fabric.Image.fromObject`.
+
+Later the same day: twelve Commons photographs of Lake Tahoe and the Golden
+Gate (Apple's own wallpapers are not on Commons; apple.com and Google are not
+reachable from here), and a seventh offer layout, Floating, from the owner's
+"floating rounded rectangles, three of them".
+
+Found:
+  - Commons answers 429 to a request with no User-Agent, and serves the
+    3840px original when asked for a 2048px thumbnail; `fetch_backdrops.mjs`
+    sends one, and the picks were brought down to 2048 by hand.
+  - A new layout must go last in a line's `lays`: the look, face, headline
+    and photograph rotate by its position, so inserting it earlier would have
+    repainted every card after it.
+  - `template-holds.js` (2026-09-30) is older than the flags on the offer
+    family's product pictures (2026-10-04); the template audit would hold
+    most offer cards today, the owner's MacBook card included.
+
+Then the eighth layout, Detailed, a lit finish on the floating boxes, and
+the laptop screens lit by default on every studio card (the owner: "start
+putting the backgrounds in the computer"), one drawn wallpaper per card.
+
+RESUME HERE:
+  0. Apple's own wallpaper files: the owner's licensing call (§AW 1).
+  1. Whether cards on flagged pictures leave the studio (§AW 5).
+  2. The iPad and the phones' dark screens into `SCREENS` (§AW 2).
+
+## 2026-10-11 — an admin account is every plan, and says so (claude/exciting-thompson-xtdq5g)
+
+Asked: the owner, with a screenshot of the plans page on their admin
+account (Free "your current plan", 5 AI credits, "Checkout is not open
+yet"): "my admin account that has not been validated for premium so I'm not
+able to test all the features I've been creating", and to put every change
+live.
+
+Found:
+  - The function already let operators (ADMIN_EMAILS) past every gate:
+    downloads, video, watermark, AI credits, the library. The studio read
+    `plan: "free"` and showed it: a FREE badge, an Upgrade button, "3 of 3
+    downloads left · 5 AI credits · standard size with watermark", the
+    1080 hint, and Free as the current plan.
+  - The operators' library cap (2000) sat under Business's (3000).
+  - `?plans=1` (the video maker's See plans) builds the plans page before
+    the account has loaded, and nothing built it again: a signed-in
+    customer saw "Start free".
+  - Ten of the day's session branches had pushed and stopped short of
+    `main`; merged here (OPEN-ITEMS letters: the gaming cards keep §AU, the
+    Mac wallpapers are §AW).
+
+Done: `planOf()` is the biggest plan's for an operator, the badge and the
+account menu say Admin, credits say unlimited (the function's `/me` too),
+the plans page says every feature is on and which plan is billed, and the
+checkout buttons stay (they are how billing is tried). The operators' cap
+is the biggest plan's. `syncAcctUI` builds the plans page again when it is
+open. `billing_check.mjs` checks an operator on Free in the function and in
+Chromium.
+
+Checked: billing_check 125 of 125, bggen_check 89 of 89, ad_library_check
+no failures, plan_economics, CSS_FALLBACK in sync. The browser checks need
+`FABRIC_JS` here: cdnjs is out of reach, and without fabric the page stops
+before `TYPE_VOICES` and reads as a page error.
+
+## 2026-10-11 — no sad music, and confetti you can hear (claude/funny-lamport-1o2xbq)
+
+Asked: the owner, of a confetti ad that played a sad piano piece with "a
+iPhone voice memo recording sound randomly in the middle of it": a more
+upbeat song, and a sound for the falling confetti.
+
+Found:
+  - The confetti overlay starts falling at `tl.number`, the moment the
+    number's sound plays. The default number sound, "pop", was `blip`: two
+    sine notes a fourth apart, each gliding up into its pitch, "the kind a
+    phone makes". Over the quiet Moonlight recording (the bed fell to -24 dB
+    RMS there) it is the start-recording chirp.
+  - The shuffle drew the Moonlight, Gymnopedie and Fur Elise recordings
+    (weights 1, 1 and 0.4 of about 29), Fur Elise and Greensleeves as tunes,
+    and an ordinary ad that drew a holiday tune played one of thirteen
+    classics, Moonlight and Gymnopedie among them.
+
+Done (rule 129): the sad pieces retired through `SOUND_ALIASES` (kept in
+`OPTIONS` so other looks draw as they did, hidden in the panel); `pop`
+re-voiced as a cork pop; a party popper ("confetti", the last number sound,
+weight 0) that harmonise sets wherever confetti falls; the message ding and
+phone buzz by hand only. Before and after clips of the same look were made
+from frames and the mix (scratch only, not committed).
+
+Measured: `motion_music_check.mjs` (with its new part 6) and
+`motion_sound_check.mjs` all clear.
+
+RESUME HERE:
+  0. If the owner wants confetti looks to draw only the brightest music too,
+     the place is harmonise in motion/engine.js, beside the popper rule.
+
+## 2026-10-10 — a line the push buried; an Android on an iPhone card
+
+Studied:            Easy Mode's render of top_buyer with four selling points,
+                    pass by pass (alignPass step 3, fitInsideGuides, the
+                    tagline look), and where "Price Point"'s photograph came
+                    from.
+Measured:           Buried lines (a text 25%+ under an opaque rect drawn
+                    after it) over the 322 templates: 29 with four selling
+                    points, 0 without; after DESIGN-LAW 126, 0 and 0. Layout
+                    diff, every object's box, old app.js against new: 1 of 322
+                    without points (top_buyer), 69 with (all looked at), 0 of
+                    366 live library cards. top_buyer under all 32 colour
+                    choices: clear. Deploy workflow run 7: deploy step skipped.
+Changed:            app.js alignPass step 3 / 3b, applyBrandVocab;
+                    assets/showcase three records and thumbnails; DESIGN-LAW
+                    126; OPEN-ITEMS AX.
+Rejected:           Shrinking the column's textboxes as objects (scaleX/Y):
+                    the column grew narrower than the corner ticks and
+                    fitInsideGuides slid the card 35px off centre. A plate
+                    found by full containment of the line's box: a textbox's
+                    box (1000px) is wider than its own panel (941px), so the
+                    panel was never found. Writing all 31 dry-run re-grounds:
+                    coin faces with their lettering behind the copy.
+                    The script's first photograph for stepsFlow-du08-15 (the
+                    iPhone 15 lineup: the screens' "iPhone 15" beside the
+                    steps) and for stepsFlow-pa05-15 (a 13 Pro under red and
+                    blue light: saturation).
+Found:
+  - The live site is not deployed from main: deploy.yml skips without its
+    secrets, so the owner is looking at a build from before rule 117.
+  - A harness that renders two app.js builds side by side can show a
+    "missing photograph" that is only a photograph still decoding; render
+    again before believing it.
+RESUME HERE:
+  0. The deploy (OPEN-ITEMS §AX 1 / §AT 1).
+  1. NOT_A_GROUND for the lettered coin faces, then the 31 re-grounds (§AX 2).
+  2. Easy Mode's selling points inside the guides (§AX 3).
+
+## 2026-10-10 (later): what phone that was, and how it got onto an iPhone ad
+
+Studied:            dl_phones_priceAnchor_volt.jpg at full size; where the
+                    153 assets/bg photographs came from (SETUP.md's ORCHARD,
+                    MANIFEST.md, library.json, git history); the device
+                    catalogs as reference sets.
+Measured:           The phone: a Google Pixel 7 Pro / 8 Pro silhouette (visor
+                    camera bar, three lenses, the G), in the card's palette.
+                    Its record: prompt "", sha1 "", 0x0. In git since
+                    2026-09-27 with 152 others in one commit. Live cards on a
+                    retired ground: 61 (30 sports, 31 known, 0 new). Device
+                    entities: 125 with 281 real photographs; 39 of 60 video
+                    backs are repaints.
+Changed:            DESIGN-LAW 127; scripts/device_entities.mjs and
+                    assets/entities.json; scripts/retired_grounds_check.mjs;
+                    OPEN-ITEMS AX 5-7.
+Rejected:           (not tried) Putting an iPhone on the table by hand, a
+                    factory back warped flat onto it: a flat camera bump and
+                    the wrong light would make the picture worse. The edit
+                    wants a model given the reference photographs.
+                    The quote site's foldable "iPhone Duo" as a reference
+                    until the owner confirms it is the shipping product.
+Found:
+  - fal is refused by the cloud environment's network policy as well as
+    missing its key; Gemini's host is reachable but its key is absent too.
+  - A rule that retires an asset is only finished when a script fails on the
+    asset's use and the change is deployed.
+RESUME HERE:
+  0. The cloud environment: FAL_KEY and the fal hosts (OPEN-ITEMS AX 5).
+  1. Then upload assets/entities.json and replace the Pixel (AX 5, 6).
+  2. The deploy (AX 1).
+
+## 2026-10-07 — Photo | Video on the Download step (claude/funny-ride-kyis07)
+
+The owner, over a screenshot of Easy Mode's step 3: "maybe the top line has
+a photo or video toggle.. and download as video if photo will be changed to
+configure as video".
+
+Found:
+  - `pgfx_video_sound` had been read by the video export (`motionSoundOn`)
+    since the sound was made, and nothing had ever set it: there was no
+    sound control anywhere.
+  - Three things hung off `#ez-video` as the video button: the export's
+    progress label and the helper's Try again (`ezDownloadVideo`), the
+    library's Save as video (`saveVideoNow('ez')` showed its progress there)
+    and the photo-after-video button (`VideoHelp.keepPhoto` lands after the
+    button and copies its class, so after the Download button it must be
+    given the dashed class or it comes out as a second blue button).
+  - `showEasy` is hoisted, so `typeof window.showEasy === 'function'` is true
+    while app.js is still running and a call then dies in the TDZ of a later
+    const (`TYPE_VOICES`). Wait for `window.adLibrary` (loaded after app.js).
+  - Playwright tries the last route registered first: an abort for every CDN
+    registered after the fabric fulfil swallowed fabric. fabric 5.3.1 is not
+    on npm (logged 2026-10-06); 5.3.0 served the check.
+
+Did: one switch on the Download line (index.html `#ez-kind`, Photo | Video,
+kept in `pgfx_ez_kind`); the Download button makes what it says (ezDownload
+wrapped; ezDownloadVideo takes its button, default `ez-download`); the dashed
+button under it is the way across (Configure as video / Configure as photo);
+the video kind plays the clip itself where the still was (`#ez-preview-video`,
+the still's scene kept and baked by the export's own motionBake, drawn by its
+motionDraw at MOTION.fps, phase kept across re-bakes, nothing drawn off
+screen), a Sound On | Silent row writing `pgfx_video_sound`, its own hint,
+Save as video in place of Save to library (CSS by the card's `is-video`
+class, so no script fights the plan and partner inline displays); the
+library's star shows its own progress; README; the two check scripts that
+pressed `#ez-video`.
+
+Checked (Chromium, fabric 5.3.0 from npm, fonts aborted, app.js appended
+code ran with no page error): photo kind labels and rows; the way across;
+video kind labels, rows, 560×560 bake playing, frames 1.3 s apart differ,
+t = 7.2 s draws the call to action; Silent and On write the key; Download in
+the video kind calls ezDownloadVideo('ez-download') and in the photo kind
+does not; Story re-bakes 560×996; typing re-bakes without restarting the
+clip; back to photo stops the loop; arrow keys cross; the kind survives a
+reload and plays once Easy Mode opens; 390 px: the switch sits on the
+Download line, no sideways scroll. tests-iphonesla-link.mjs 68 of 68.
+Not run here: motion_export_check, video_photo_check, ad_library_check
+(puppeteer-core is not installed and no CDN reaches this container);
+verify_csp.mjs cannot reach the live site from here.
+
+Rejected: a third kind or a music row (nothing in app.js's export takes
+music; the motion maker's tracks are its own); sound on the preview (a feed
+starts every clip muted, so the preview does).
+
+RESUME HERE:
+  0. Merge this branch to `main` and deploy `main` from the Mac. On the live
+     site: Photo | Video, Download my video, Save as video from the star, the
+     photo button under Download after a video.
+  1. Run ad_library_check.mjs and video_photo_check.mjs (its selector moved
+     to `#ez-download + .vh-photo`) and motion_export_check.mjs on a Mac.
+
+## 2026-10-07 — the logins: a chip on the landing, the three-step page after sign-up, a dialog that names a dead backend (claude/funny-ride-kyis07, continued)
+
+The owner, after the Photo | Video switch: "fix them and the logins".
+"Them": the three checks that session could not run. "The logins": the
+account flow, which this container cannot try on the live site (every
+Netlify host is denied here), so it was driven in Chromium against the real
+function with the stand-in store, the way ad_library_check does.
+
+Found:
+  - The GitHub deploy (deploy.yml) has run three times and deployed nothing:
+    its "Nothing to do without the secrets" step ran and "Deploy to
+    production" was skipped on every run, so NETLIFY_AUTH_TOKEN and
+    NETLIFY_SITE_ID are not set on the repository. The live site is still
+    whatever the Mac last pushed; what the owner sees when they log in there
+    cannot be read from here.
+  - A signed-in visitor on the landing page had no account control at all:
+    syncAcctUI hid Log in and Sign up free, and the only chip (#acct-chip)
+    is in the studio's nav. No name, no plan, no sign-out, until the studio
+    opened. The footer kept offering Create free account and Log in to a
+    visitor already in.
+  - Create account → Free sent a new account into the advanced editor
+    (showEditor + loadTemplate), not the three-step page every other door
+    opens.
+  - When the account server itself is the problem, the dialog said "HTTP
+    502" or "HTTP 404": the two deploy mistakes AGENT-BRIEF already names (a
+    function shipped without npm ci; a site shipped without its function)
+    and a project without JWT_SECRET were indistinguishable from a typo to
+    anyone but the person who had read the brief.
+  - The checks themselves all passed, once they could run: puppeteer-core
+    from npm, fabric 5.3.0 served in place of the CDN, Chromium from
+    /opt/pw-browsers. library_api_check, ad_library_check (an account from
+    the landing, every star, Save as video), motion_export_check (300
+    frames, sound, no CSP violation), video_photo_check --only studio.
+  - On sign-out the token is stored as the JSON string "null", so a harness
+    that reads localStorage raw sees a token that is not there.
+
+Did: the landing's own account chip (#lp-acct: name, plan badge, a menu
+with Plan & billing, My downloads, Ad library, Sign out) in place of Log in
+/ Sign up free, the footer's Sign out, both driven by syncAcctUI; a new
+account lands on the three-step page unless it signed up from inside the
+studio (a download's gate keeps it where it was); api() carries the status
+on its error and authErrorText (app.js) and explain (account.js) turn 502,
+a 404 HTML page and "JWT_SECRET missing" into sentences that name the cause
+and the fix; GET /api/health (accounts, store, ai, google, billing: booleans
+and a store verdict only), probed by the workflow's "What went live" and the
+SETUP checklist; README's JWT_SECRET row; main merged in (0a92edc8).
+
+Checked (Chromium, the real function, stand-in Blobs): 23 of 23 in the
+login harness: signed out and in on the landing at 1280 and 390 (no sideways
+scroll, no badge on a phone), the chip's menu, Ad library from it, sign-out,
+Log in on Sign in, a wrong password, Enter, the quota line, the dialog on a
+phone, /api/health with and without JWT_SECRET, and the three dead-backend
+messages in the studio's dialog and the master library's. ad_library_check
+run again on the changed flow. tests-iphonesla-link 68 of 68.
+
+Rejected: a proactive probe when the dialog opens (ensureGoogleAuth's
+/auth/config result is cached once; the submit path says the same thing
+without a second request); changing the network-error message in api()
+(deliverVideo and the helper match "Failed to fetch" on it).
+
+RESUME HERE:
+  0. Set NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID on the repository (the
+     comment at the top of .github/workflows/deploy.yml says where), or
+     deploy `main` from the Mac with `npm ci` first. Then
+     `curl https://buybackad-graphics-studio.netlify.app/api/health`: it must
+     say accounts:true and store:"ok". If accounts:false, set JWT_SECRET on
+     that Netlify project; if 502, the deploy skipped npm ci.
+  1. On the live site: Sign up free from the landing, land on Make your ad,
+     back to the landing and see the chip, Sign out from it.
+  2. Merge this branch to `main`.
+
+## 2026-10-11 — claude/funny-ride-kyis07 merged onto ec593ed3: the logins in, the Photo | Video switch not
+
+The two 2026-10-07 entries above never reached `main`; this merge brings
+them onto ec593ed3, where Easy Mode's step 3 had moved on.
+
+Taken (8cab45d7, the logins): the landing's account chip and its menu, the
+footer's Sign out, a new account landing on the three-step page,
+`authErrorText` (app.js) and `explain` (account.js) for a dead backend,
+`GET /api/health`, the workflow's probe of it (the `deploy` job's "What
+went live"; `sync-finished-copy` as it was), README's and SETUP's lines.
+Adapted: the chip's badge and menu read `planLabel()` and `isPro()`, so an
+operator reads Admin as on the studio's chip; its 📚 Ad library is one of
+ad-library.js's owner-only BUTTONS (`lpam-adlib`, hidden by default, bound
+there, as `am-adlib` is); /api/health's billing is `billingOn(env)`, the
+test the plans page and checkout use, not the four variables billing needed
+on 2026-10-07.
+
+Not taken (eb1f5ed0, Photo | Video): the owner's later word on the same
+button, 2026-10-11, was "photo ads don't need a download video option. They
+need a create video option", and "make it, then preview" (rule 130). The
+switch made the Download button a direct video download and turned
+`#ez-video` (now 🎬 Create video) into Configure as video, rebinding it: two
+competing video controls on one step. Create video already plays the real
+file before anything is kept, so the switch's clip-in-place-of-the-still
+preview, its Sound row, its hint, its CSS (whose `@media (max-width:920px){{`
+would have swallowed the rules after it) and the `ezDownload` /
+`schedEzPreview` wraps stay out. The ⭐🎬 star's own progress went with them:
+it was there because the switch removed the video button, and on
+ec593ed3 Create video showing ⭐🎬's progress is what keeps the two from
+recording at once (both go by `#ez-video`'s disabled state).
+video_photo_check and ad_library_check stay ec593ed3's, and so do
+`ezDownloadVideo(opts)` and ad-library.js but for `lpam-adlib`.
+
+RESUME HERE:
+  0. `pgfx_video_sound` still has no control anywhere (the 2026-10-07 entry
+     found it); if the owner wants one, the place is Create video's pop-up
+     (`previewVideo`), not a row on step 3.

@@ -8,9 +8,11 @@
       picture twice is one ad; the plan's cap is 507 and the day's count 429;
       update, settings, remove and the link reset do what they say. The public
       link answers JSON (CORS, noindex), RSS that parses, and each picture byte
-      for byte; a held ad never auto-posts and cannot be switched on; slots
-      come due on the schedule (a poster that keeps slot ids posts once a slot,
-      and again when the next comes due); a reset link stops answering. A
+      for byte. The library is an outbox (2026-10-11): every ad not held is
+      offered, a slot a day for its seven fresh days and then none (a reader
+      that keeps slot ids takes each day's once); the studio sets no schedule
+      and an old studio's autopost and repost_days are ignored; a reset link
+      stops answering. A
       video on an ad: begin, parts of the stated size, done joins and checks
       them (the hash, the container); it is served byte for byte and by
       range, named on the feed (kind, ?kind=) and in the RSS; a damaged
@@ -19,9 +21,10 @@
       @netlify/blobs: sign up, save, a video in parts, read the public link
       through it; the library key route and /me still answer as before.
    3. In Chromium, the studio and the page, under the production CSP: an Easy
-      Mode download offers "Save to library"; saved, it is in the Library
-      dialog and on the public link (a free account's watermarked ad held from
-      auto-post, an admin's set to post); master-library.html shows the public
+      Mode download offers "Save to library"; the Library button shows for the
+      owner only; saved, it is in the Library dialog, offered daily, and on the
+      public link (a free account's watermarked ad held, no switch or schedule
+      to set); master-library.html shows the public
       library at ?feed= and the finished designs (every offered card); no
       sideways scroll at 390 px. The stars (2026-10-06): an account is
       created from the landing page, the dialog opening on Create account for
@@ -153,26 +156,28 @@ const A = r.body.item;
 ok(A && /^ad_[a-z0-9]{6,24}$/.test(A.id) && A.title === 'WE BUY iPHONES' && A.caption === 'WE BUY iPHONES' && A.category === 'phones', 'save: title and caption from the headline, the category kept');
 ok(A && A.texts.length === 2 && A.texts[1].text === 'Cash today' && JSON.stringify(A.products) === '["iphone-15-pro"]', 'save: texts cleaned (control characters, empties), products de-duplicated and slug-checked');
 ok(A && A.image.width === 1080 && A.image.height === 1080 && A.image.bytes === J[0].length && A.image.url === ORIGIN + '/api/ads/feed/' + feedId + '/img/' + A.id + '.jpg?v=' + sha256(J[0]).slice(0, 12), 'save: the picture\'s size, bytes and a versioned link');
-ok(A && A.autopost === true && A.repost_days === 7 && A.post && A.post.slot_id === A.id + '@2026-10-05T12:00:00Z' && A.post.next_at === '2026-10-12T12:00:00Z' && A.post.round === 1, 'save: auto-post on, due now, again in 7 days');
+ok(A && A.autopost === true && A.repost_days === 1 && A.post && A.post.slot_id === A.id + '@2026-10-05T12:00:00Z' && A.post.next_at === '2026-10-06T12:00:00Z' && A.post.round === 1, 'save: offered at once, again tomorrow');
+ok(A && A.fresh === true && A.fresh_until === '2026-10-12T12:00:00Z', 'save: fresh for seven days');
 
 r = await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[0]), title: 'again' } });
 ok(r.status === 200 && r.body.duplicate === true && r.body.item.id === A.id && r.body.count === 1, 'save: the same picture twice is one ad');
 
 r = await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[1]), title: 'Gold with a website', category: 'gold', hold: 'a website', autopost: true } });
 const H = r.body.item;
-ok(r.status === 201 && H.hold === 'a website' && H.autopost === false && H.post === null, 'save: a held picture is saved but never auto-posts');
-ok((await call('POST', '/ads/update', { as: 'free@x.example', body: { id: H.id, autopost: true } })).status === 409, 'update: a held ad cannot be switched to auto-post');
+ok(r.status === 201 && H.hold === 'a website' && H.autopost === false && H.post === null, 'save: a held picture is saved but never offered');
+r = await call('POST', '/ads/update', { as: 'free@x.example', body: { id: H.id, autopost: true, repost_days: 3 } });
+ok(r.status === 200 && r.body.item.post === null && r.body.item.repost_days === 0, 'update: an old studio\'s autopost and schedule are ignored; a held ad stays held');
 
 dayOk = false;
 ok((await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[2]) } })).status === 429, 'save: over the day\'s count is 429');
 dayOk = true;
 r = await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[2]), title: 'Third', category: 'silver', autopost: false } });
 const C = r.body.item;
-ok(r.status === 201 && C.autopost === false && C.post === null, 'save: autopost false is kept');
+ok(r.status === 201 && C.autopost === true && C.post && C.post.round === 1, 'save: every ad not held is offered (an old studio\'s autopost: false is ignored)');
 ok((await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[3]) } })).status === 507, 'save: the plan\'s cap is 507');
 r = await call('GET', '/ads/mine', { as: 'pro@x.example' });
 ok(r.body.limit === 1000 && r.body.items.length === 0 && r.body.links.page !== L.page, 'another account: its own library, its own link, the Pro cap');
-ok((await call('GET', '/ads/mine', { as: 'boss@x.example' })).body.limit === 2000, 'an operator: the admin cap');
+ok((await call('GET', '/ads/mine', { as: 'boss@x.example' })).body.limit === 3000, 'an operator: the admin cap, the biggest plan\'s');
 
 /* the public link */
 r = await call('GET', '/ads/feed/' + feedId);
@@ -182,7 +187,8 @@ ok(!JSON.stringify(r.body).includes('free@x.example') && !JSON.stringify(r.body)
 ok(!r.body.items.some((x) => 'sha256' in x || 'post_from' in x), 'feed: no internal fields');
 ok((await call('GET', '/ads/feed/' + feedId + '.json')).body.count === 3, 'feed: .json is the same');
 ok((await call('GET', '/ads/feed/' + feedId + '?category=gold')).body.items.map((x) => x.id).join() === H.id, 'feed: ?category= filters');
-ok((await call('GET', '/ads/feed/' + feedId + '?due=1')).body.items.map((x) => x.id).join() === A.id, 'feed: ?due=1 is what is due to post');
+ok((await call('GET', '/ads/feed/' + feedId + '?due=1')).body.items.map((x) => x.id).sort().join() === [A.id, C.id].sort().join(), 'feed: ?due=1 is what is offered today (not the held one)');
+ok((await call('GET', '/ads/feed/' + feedId)).body.fresh_days === 7, 'feed: says how many days an ad is fresh');
 ok((await call('GET', '/ads/feed/fd_' + 'x'.repeat(24))).status === 404, 'feed: an unknown link is 404');
 ok((await call('GET', '/ads/feed/nonsense')).status === 404, 'feed: a malformed link is 404');
 ok((await call('POST', '/ads/feed/' + feedId, { body: {} })).status === 405, 'feed: POST is 405');
@@ -200,29 +206,26 @@ const rssCheck = (xml) => {
 };
 r = await call('GET', '/ads/feed/' + feedId + '.rss');
 ok(r.status === 200 && /application\/rss\+xml/.test(r.headers.get('content-type')) && rssCheck(r.text), 'rss: well-formed RSS');
-ok((r.text.match(/<item>/g) || []).length === 1 && r.text.includes('<guid isPermaLink="false">' + A.post.slot_id + '</guid>') && r.text.includes('<enclosure url="' + A.image.url.replace(/&/g, '&amp;') + '" length="' + J[0].length + '" type="image/jpeg"/>'), 'rss: one item, the due ad\'s slot, its picture as the enclosure');
+ok((r.text.match(/<item>/g) || []).length === 2 && r.text.includes('<guid isPermaLink="false">' + A.post.slot_id + '</guid>') && r.text.includes('<enclosure url="' + A.image.url.replace(/&/g, '&amp;') + '" length="' + J[0].length + '" type="image/jpeg"/>'), 'rss: one item, the due ad\'s slot, its picture as the enclosure');
 
-/* the schedule */
+/* offered daily for seven days, then retired: posting is iPhones LA's */
 const slotsSeen = new Set();
 let posts = 0;
 for (let d = 0; d <= 21; d++) {
   clock = Date.UTC(2026, 9, 5, 12, 0, 0) + d * DAY + 3600000;
-  const due = (await call('GET', '/ads/feed/' + feedId + '?due=1')).body.items;
+  const due = (await call('GET', '/ads/feed/' + feedId + '?due=1')).body.items.filter((x) => x.id === A.id);
   for (const x of due) if (!slotsSeen.has(x.post.slot_id)) { slotsSeen.add(x.post.slot_id); posts++; }
 }
-ok(posts === 4, 'schedule: a weekly ad posts on days 0, 7, 14 and 21 (' + posts + ' posts)');
+ok(posts === 7, 'daily: an ad is offered on each of its seven days and not after (' + posts + ' slots in three weeks)');
+r = await call('GET', '/ads/feed/' + feedId);
+const Aold = r.body.items.find((x) => x.id === A.id);
+ok(Aold && Aold.fresh === false && Aold.post === null && Aold.autopost === false, 'daily: past its seven days it stays listed, no longer offered');
 clock = Date.UTC(2026, 9, 26, 13, 0, 0);
-r = await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, repost_days: 0 } });
-ok(r.status === 200 && r.body.item.post && r.body.item.post.next_at === null && r.body.item.post.slot_id === A.id + '@2026-10-05T12:00:00Z', 'schedule: "once" is the first slot, never again');
-ok((await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, repost_days: 4 } })).status === 400, 'update: only the offered schedules');
-await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, autopost: false } });
-r = await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, autopost: true, repost_days: 3, title: 'Renamed', caption: 'We buy iPhones, cash today' } });
-ok(r.body.item.post.slot_id === A.id + '@2026-10-26T13:00:00Z' && r.body.item.title === 'Renamed' && r.body.item.caption === 'We buy iPhones, cash today', 'update: switched back on is due again now; title and caption change');
-clock += 3 * DAY;
-ok(slotOf({ id: 'ad_x', created: 0, post_from: 0, autopost: true, repost_days: 3 }, 3 * DAY).round === 2, 'slotOf: the second slot after one period');
+r = await call('POST', '/ads/update', { as: 'free@x.example', body: { id: A.id, title: 'Renamed', caption: 'We buy iPhones, cash today' } });
+ok(r.status === 200 && r.body.item.title === 'Renamed' && r.body.item.caption === 'We buy iPhones, cash today', 'update: title and caption change');
+ok(slotOf({ id: 'ad_x', created: 0, post_from: 0 }, 3 * DAY + 5).round === 4 && slotOf({ id: 'ad_x', created: 0, post_from: 0 }, 6 * DAY).next_at === null && slotOf({ id: 'ad_x', created: 0, post_from: 0 }, 7 * DAY) === null, 'slotOf: day four is round four, day seven the last, then none');
 
-ok((await call('POST', '/ads/settings', { as: 'free@x.example', body: { name: 'iPhones LA', repost_days: 14 } })).body.repost_days === 14, 'settings: the default schedule');
-ok((await call('POST', '/ads/settings', { as: 'free@x.example', body: { repost_days: 9 } })).status === 400, 'settings: only the offered schedules');
+ok((await call('POST', '/ads/settings', { as: 'free@x.example', body: { name: 'iPhones LA', repost_days: 14 } })).body.name === 'iPhones LA', 'settings: the name (a schedule sent is ignored)');
 ok((await call('GET', '/ads/feed/' + feedId)).body.name === 'iPhones LA', 'settings: the name is on the public link');
 
 r = await call('POST', '/ads/remove', { as: 'free@x.example', body: { id: C.id } });
@@ -230,8 +233,8 @@ ok(r.status === 200 && r.body.count === 2, 'remove: gone from the library');
 ok((await call('GET', '/ads/feed/' + feedId + '/img/' + C.id + '.jpg')).status === 404 && ![...store.m.keys()].some((k) => k.endsWith(':' + C.id)), 'remove: its picture is deleted');
 ok((await call('POST', '/ads/remove', { as: 'free@x.example', body: { id: C.id } })).status === 404, 'remove: twice is 404');
 const proSaved = await call('POST', '/ads/save', { as: 'pro@x.example', body: { image: dataUrl(J[3]) } });
-ok(proSaved.status === 201 && proSaved.body.item.repost_days === 7, 'a new library posts weekly by default');
-ok((await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[3]) } })).body.item.repost_days === 14, 'settings: the next save takes the default');
+ok(proSaved.status === 201 && proSaved.body.item.post && proSaved.body.item.post.round === 1 && proSaved.body.item.repost_days === 1, 'a new library\'s first save is offered at once, daily');
+ok((await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[3]) } })).body.item.post.slot_id.endsWith('@2026-10-26T13:00:00Z'), 'a new save is offered from when it is saved');
 ok((await call('POST', '/ads/remove', { as: 'pro@x.example', body: { id: H.id } })).status === 404, 'remove: another account\'s ad is not yours');
 
 r = await call('POST', '/ads/link/reset', { as: 'free@x.example', body: {} });
@@ -289,7 +292,9 @@ r = await call('GET', '/ads/feed/' + newFeed);
 ok(r.body.items.find((x) => x.id === A.id).kind === 'video' && r.body.items.filter((x) => x.kind === 'photo').length === 2 && r.body.items.every((x) => 'video' in x && 'source' in x), 'feed: kind, video and source on every ad');
 ok((await call('GET', '/ads/feed/' + newFeed + '?kind=video')).body.items.map((x) => x.id).join() === A.id && (await call('GET', '/ads/feed/' + newFeed + '?kind=photo')).body.items.length === 2, 'feed: ?kind= filters');
 ok(!JSON.stringify(r.body).includes(vsha), 'feed: the video\'s full hash is not in it');
+{ const keep = clock; clock = Date.UTC(2026, 9, 6, 13, 0, 0);      // inside A's seven days: today's RSS carries it
 r = await call('GET', '/ads/feed/' + newFeed + '.rss');
+clock = keep; }
 ok(r.status === 200 && rssCheck(r.text) && r.text.includes('<media:content url="' + AV.video.url.replace(/&/g, '&amp;') + '" type="video/mp4" medium="video" width="1080" height="1080" duration="10"/>') && r.text.includes('<enclosure url="' + AV.image.url.replace(/&/g, '&amp;') + '"'), 'rss: the video rides as media:content beside the picture\'s enclosure');
 /* a damaged upload leaves the ad as it was */
 r = await begin({ id: A.id, format: 'mp4', bytes: V.length, w: 1080, h: 1080, sha256: sha256(mp4(100)) });
@@ -354,7 +359,7 @@ ok(![...store.m.keys()].some((k) => k.endsWith(':' + PV.id)), 'remove: an ad tak
   const sv = await hit('POST', '/ads/save', { image: dataUrl(J[0]), category: 'phones' }, su.json.token);
   ok(sv.status === 201 && sv.json.item.autopost, 'function: an operator saves an ad set to post (' + sv.status + ')');
   const mine = await hit('GET', '/ads/mine', null, su.json.token);
-  ok(mine.json.limit === 2000 && mine.json.items.length === 1, 'function: the operator\'s library and cap');
+  ok(mine.json.limit === 3000 && mine.json.items.length === 1, 'function: the operator\'s library and cap');
   const fid = mine.json.links.json.split('/').pop();
   const fd = await hit('GET', '/ads/feed/' + fid);
   ok(fd.status === 200 && fd.json.items[0].id === sv.json.item.id, 'function: the public link answers without a sign-in');
@@ -376,29 +381,53 @@ ok(![...store.m.keys()].some((k) => k.endsWith(':' + PV.id)), 'remove: an ad tak
   ok((await hit('GET', '/library/v1')).status === 503, 'function: the partner library still answers first (no keys: 503)');
 
   /* 2b. iPhones LA's worker (docs/iphonesla-library/autopost_worker.py) on
-     this link, over HTTP: it posts the due ad once, and not again until its
-     next slot. Its own tests (test_autopost.py) run here too. */
+     this link, over HTTP, review first (2026-10-11): it takes the ad into the
+     site's review once, posts nothing until the site approves it, then posts
+     the day's slot once. Its own tests (test_autopost.py) run here too. */
   const srv = await serveApi(api);
   const HAND = join(ROOT, 'docs/iphonesla-library');
   const W = join(tmpdir(), 'adlib-worker-' + process.pid);
   rmSync(W, { recursive: true, force: true }); mkdirSync(W, { recursive: true });
-  writeFileSync(join(W, 'shop_post.py'), 'import json, os\ndef post(ad, jpeg, repost, video=None):\n    with open(os.path.join(os.path.dirname(__file__), "posted.jsonl"), "a") as f:\n        f.write(json.dumps({"id": ad["id"], "repost": repost, "kind": ad.get("kind"), "video": len(video) if video else None, "bytes": len(jpeg), "jpeg": jpeg[:3] == bytes([255, 216, 255])}) + "\\n")\n    return "listing-1"\n');
+  writeFileSync(join(W, 'shop_post.py'), [
+    'import json, os',
+    'HERE = os.path.dirname(__file__)',
+    'def _log(name, row):',
+    '    with open(os.path.join(HERE, name), "a") as f:',
+    '        f.write(json.dumps(row) + "\\n")',
+    'def intake(ad, jpeg, video=None):',
+    '    _log("intake.jsonl", {"id": ad["id"], "bytes": len(jpeg), "video": len(video) if video else None, "fresh_until": ad.get("fresh_until")})',
+    '    return "review-1"',
+    'def approved(ad):',
+    '    p = os.path.join(HERE, "approved.txt")',
+    '    return os.path.exists(p) and ad["id"] in open(p).read().split()',
+    'def post(ad, jpeg, repost, video=None):',
+    '    _log("posted.jsonl", {"id": ad["id"], "repost": repost, "kind": ad.get("kind"), "video": len(video) if video else None, "bytes": len(jpeg), "jpeg": jpeg[:3] == bytes([255, 216, 255])})',
+    '    return "listing-1"',
+    '',
+  ].join('\n'));
   const pageLink = mine.json.links.page.replace('https://studio.example', srv.base);
   let workerLog = '';
-  const runWorker = () => new Promise((resolve) => {
-    const c = spawn('python3', [join(HAND, 'autopost_worker.py'), '--once', '--state', join(W, 'state.json'), '--post', 'shop_post:post'],
+  const runWorker = (args) => new Promise((resolve) => {
+    const c = spawn('python3', [join(HAND, 'autopost_worker.py'), '--once', '--state', join(W, 'state.json')].concat(args || ['--intake', 'shop_post:intake', '--approved', 'shop_post:approved', '--post', 'shop_post:post']),
       { env: Object.assign({}, process.env, { BUYBACKAD_FEED_URL: pageLink, PYTHONPATH: W + ':' + HAND, PYTHONDONTWRITEBYTECODE: '1' }) });
     c.stdout.on('data', (d) => { workerLog += d; }); c.stderr.on('data', (d) => { workerLog += d; });
     c.on('close', resolve);
   });
+  const jsonl = (f) => existsSync(join(W, f)) ? readFileSync(join(W, f), 'utf8').trim().split('\n').filter(Boolean).map((l) => JSON.parse(l)) : [];
   try {
+    ok((await runWorker(['--post', 'shop_post:post'])) !== 0 && !jsonl('posted.jsonl').length, 'worker: --post without --approved is refused, nothing posted');
+    await runWorker();
+    ok(jsonl('intake.jsonl').length === 1 && jsonl('intake.jsonl')[0].id === sv.json.item.id && jsonl('intake.jsonl')[0].video === vb.length && !jsonl('posted.jsonl').length,
+      'worker: the ad goes into the site\'s review with its picture and clip, and nothing is posted before it is approved (' + JSON.stringify(jsonl('intake.jsonl')) + ')');
+    writeFileSync(join(W, 'approved.txt'), sv.json.item.id + '\n');
     await runWorker(); await runWorker();
-    if (!existsSync(join(W, 'posted.jsonl'))) throw new Error('nothing posted: ' + workerLog.slice(-400));
-    const lines = readFileSync(join(W, 'posted.jsonl'), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
-    ok(lines.length === 1 && lines[0].id === sv.json.item.id && !lines[0].repost && lines[0].jpeg && lines[0].bytes === J[0].length, 'worker: the due ad posted once, its JPEG whole (' + JSON.stringify(lines) + ')');
+    if (!jsonl('posted.jsonl').length) throw new Error('nothing posted: ' + workerLog.slice(-400));
+    const lines = jsonl('posted.jsonl');
+    ok(jsonl('intake.jsonl').length === 1, 'worker: an ad is taken into review once, however many runs');
+    ok(lines.length === 1 && lines[0].id === sv.json.item.id && !lines[0].repost && lines[0].jpeg && lines[0].bytes === J[0].length, 'worker: approved, the day\'s slot posted once, its JPEG whole (' + JSON.stringify(lines) + ')');
     ok(lines.length === 1 && lines[0].kind === 'video' && lines[0].video === vb.length, 'worker: a video ad\'s clip reaches a post() that takes one, whole (' + JSON.stringify(lines) + ')');
-    const st = JSON.parse(readFileSync(join(W, 'state.json'), 'utf8')).slots;
-    ok(Object.keys(st).length === 1 && st[sv.json.item.post.slot_id] && st[sv.json.item.post.slot_id].ref === 'listing-1', 'worker: the slot and the listing id are kept');
+    const st = JSON.parse(readFileSync(join(W, 'state.json'), 'utf8'));
+    ok(Object.keys(st.slots).length === 1 && st.slots[sv.json.item.post.slot_id] && st.slots[sv.json.item.post.slot_id].ref === 'listing-1' && st.taken_in[sv.json.item.id].ref === 'review-1', 'worker: the slot, the listing id and the review item are kept');
   } catch (e) { ok(false, 'worker: ' + String(e.stderr || e.message).slice(0, 300)); }
   try { execFileSync('python3', ['-m', 'unittest', 'test_autopost'], { cwd: HAND, env: Object.assign({}, process.env, { PYTHONDONTWRITEBYTECODE: '1' }), stdio: ['ignore', 'pipe', 'pipe'] }); }
   catch (e) { ok(false, 'test_autopost.py: ' + String(e.stderr || e.message).slice(-400)); }
@@ -511,25 +540,24 @@ async function browserPart() {
       if (!ok(await ask.isVisible(), 'browser (' + who.email + '): the download offers "Save to library"')) { await page.context().close(); continue; }
       await ask.getByRole('button', { name: 'Save to library' }).click();
       await page.waitForFunction(() => !document.querySelector('.adl-ask'), null, { timeout: 20000 });
-      /* the Library buttons are the operator's (owner, 2026-10-11: "only
-         accessible to my account"); any other account keeps Save to library,
-         and the test opens its dialog through the open() the buttons call */
-      const navShown = await page.isVisible('#nav-adlib');
-      ok(navShown === who.admin, 'browser (' + who.email + '): the Library button is ' + (who.admin ? 'shown to an operator' : 'hidden from a non-operator') + ' (' + navShown + ')');
-      if (who.admin) await page.click('#nav-adlib');
-      else await page.evaluate(() => adLibrary.open());
+      /* the Library button is the owner's (2026-10-11); anyone else's library opens from code */
+      const libBtn = await page.evaluate(() => getComputedStyle(document.getElementById('nav-adlib')).display !== 'none');
+      ok(libBtn === who.admin, 'browser (' + who.email + '): the Library button shows only for the owner (' + libBtn + ')');
+      if (who.admin) await page.click('#nav-adlib'); else await page.evaluate(() => window.adLibrary.open());
       await page.waitForFunction(() => { const i = document.querySelector('#adlib-overlay .adl-grid .adl-card img'); return i && i.complete && i.naturalWidth > 0; }, null, { timeout: 20000 });
       const dlg = await page.evaluate(() => {
         const o = document.getElementById('adlib-overlay');
         const card = o.querySelector('.adl-grid .adl-card');
         return { link: o.querySelector('.adl-link input').value, cards: o.querySelectorAll('.adl-grid')[0].children.length,
-          held: card.querySelector('.adl-hold') ? card.querySelector('.adl-hold').textContent : '', auto: !!card.querySelector('input[type=checkbox]') && card.querySelector('input[type=checkbox]').checked,
+          held: card.querySelector('.adl-hold') ? card.querySelector('.adl-hold').textContent : '', sent: card.querySelector('.adl-sent') ? card.querySelector('.adl-sent').textContent : '',
+          controls: card.querySelectorAll('input, select').length,
           img: card.querySelector('img').naturalWidth };
       });
       ok(dlg.cards === 1 && dlg.img > 0 && /master-library\.html\?feed=fd_/.test(dlg.link), 'browser (' + who.email + '): the Library dialog shows the saved ad and the public link (' + JSON.stringify(dlg) + ')');
       await shot(page, 'dialog-' + (who.admin ? 'operator' : 'free'));
-      if (who.admin) ok(dlg.auto && !dlg.held, 'browser: an operator\'s ad is set to auto-post');
-      else ok(/watermark/.test(dlg.held), 'browser: a free account\'s watermarked ad is held from auto-post (' + dlg.held + ')');
+      ok(dlg.controls === 0, 'browser (' + who.email + '): no auto-post switch or schedule on a saved ad (' + dlg.controls + ')');
+      if (who.admin) ok(/Offered to iPhones LA daily, day 1 of 7/.test(dlg.sent) && !dlg.held, 'browser: an operator\'s ad is offered daily (' + dlg.sent + ')');
+      else ok(/watermark/.test(dlg.held), 'browser: a free account\'s watermarked ad is held (' + dlg.held + ')');
       const feedUrl = dlg.link.replace(/^https?:\/\/[^/]+/, BASE);
       const pub = await newPage();
       await pub.goto(feedUrl);
@@ -718,13 +746,18 @@ async function browserPart() {
         const lib = adLibrary.state().lib, top = lib.items[0];
         return { before, after: lib.count, top: top && { kind: top.kind, video: top.video && { format: top.video.format, w: top.video.width, h: top.video.height, seconds: top.video.seconds, bytes: top.video.bytes, url: top.video.url } }, label: document.getElementById('ez-video').innerHTML };
       });
-      ok(vid.top && vid.top.kind === 'video' && vid.top.video && vid.top.video.bytes > 10000 && vid.top.video.w === 1080 && vid.top.video.seconds === 10 && /Download as video/.test(vid.label), 'video: Save as video makes the studio\'s video and saves it with its photo (' + JSON.stringify(vid).slice(0, 300) + ')');
+      ok(vid.top && vid.top.kind === 'video' && vid.top.video && vid.top.video.bytes > 10000 && vid.top.video.w === 1080 && vid.top.video.seconds === 10 && /Create video/.test(vid.label), 'video: Save as video makes the studio\'s video and saves it with its photo (' + JSON.stringify(vid).slice(0, 300) + ')');
       if (vid.top && vid.top.video) {
         const pub = await page.evaluate(async (u) => { const r = await fetch(u, { headers: { Range: 'bytes=0-15' } }); return { status: r.status, type: r.headers.get('content-type'), range: r.headers.get('content-range') }; }, vid.top.video.url);
         ok(pub.status === 206 && /^video\//.test(pub.type || '') && /^bytes 0-15\//.test(pub.range || ''), 'video: the public link serves the clip by range (' + JSON.stringify(pub) + ')');
       }
       const askV = await page.evaluate(async () => {
+        const wait = async (f, ms) => { const t = Date.now(); while (!f() && Date.now() - t < ms) await new Promise((r) => setTimeout(r, 400)); return f(); };
+        // Create video: made and shown first (app.js previewVideo), then its Download MP4
         document.getElementById('ez-video').click();
+        if (!await wait(() => document.getElementById('vh-mp4'), 60000)) return { preview: false };
+        document.getElementById('vh-mp4').click();
+        await wait(() => !document.getElementById('vh-mp4') || /Downloaded/.test((document.querySelector('.vh-said') || {}).textContent || ''), 60000);
         const t0 = Date.now();
         let popup = false;
         while (Date.now() - t0 < 60000) {
@@ -737,7 +770,7 @@ async function browserPart() {
         return { popup, early: false, asked: !!ask, video: !!(ask && /video ad/.test(ask.textContent)) };
       });
       ok(askV.asked && askV.video && !askV.early, 'video: a video download offers "Save to library" for the video ad, after the helper\'s pop-up (' + JSON.stringify(askV) + ')');
-      await page.click('#nav-adlib');
+      await page.evaluate(() => window.adLibrary.open());
       await page.waitForSelector('#adlib-overlay .adl-grid .adl-card', { timeout: 20000 });
       await page.waitForTimeout(400);
       const dlg = await page.evaluate(() => ({ kinds: document.querySelectorAll('#adlib-overlay .adl-kind').length, videoLinks: document.querySelectorAll('#adlib-overlay a.adl-x[download$=".webm"], #adlib-overlay a.adl-x[download$=".mp4"]').length }));
@@ -779,7 +812,8 @@ async function browserPart() {
       const gal = await page.evaluate(() => ({ thumbs: document.querySelectorAll('#gallery .mo-thumb').length, stars: document.querySelectorAll('#gallery .mo-thumb .adl-star').length }));
       ok(gal.thumbs > 0 && gal.stars === gal.thumbs, 'video maker: every look in the gallery carries a star (' + JSON.stringify(gal) + ')');
       await shot(page, 'maker-gallery');
-      await page.click('#mo-adlib');
+      /* signed up before it was made an operator, so its Library link is still hidden: the dialog opens from code */
+      await page.evaluate(() => window.adLibrary.open());
       await page.waitForSelector('#adlib-overlay.show .adl-card', { timeout: 20000 });
       const mdlg = await page.evaluate(() => { const m = document.querySelector('#adlib-overlay .modal'); return { w: Math.round(m.getBoundingClientRect().width), bare: document.documentElement.classList.contains('adl-bare') }; });
       ok(mdlg.w > 300 && mdlg.bare, 'video maker: the Library link opens the dialog, styled without the studio\'s stylesheet (' + JSON.stringify(mdlg) + ')');
@@ -802,7 +836,7 @@ async function browserPart() {
       const fin = await page.evaluate(() => ({ cards: document.querySelectorAll('#grid-finished .ml-card').length, stars: document.querySelectorAll('#grid-finished .ml-card .adl-star').length }));
       ok(fin.cards > 0 && fin.stars === fin.cards, 'master library: every finished design carries a star (' + JSON.stringify(fin) + ')');
       const star = await page.evaluate(async () => { const s = document.querySelector('#grid-finished .ml-card .adl-star'); const ref = s.dataset.ref; s.click(); const t0 = Date.now(); while (Date.now() - t0 < 30000) { await new Promise((r) => setTimeout(r, 300)); const st = adLibrary.state(); if (st.lib && st.lib.items.some((i) => i.template === ref)) break; } const it = adLibrary.state().lib.items.find((i) => i.template === ref); return { on: s.classList.contains('on'), it: it && { hold: it.hold, source: it.source, w: it.image.width, texts: it.texts.length } }; });
-      ok(star.on && star.it && star.it.source === 'master' && star.it.w === 1080 && star.it.hold === 'a website' && star.it.texts > 0, 'master library: a star saves the full-size render, held from auto-post for the website on it (' + JSON.stringify(star) + ')');
+      ok(star.on && star.it && star.it.source === 'master' && star.it.w === 1080 && star.it.hold === 'a website' && star.it.texts > 0, 'master library: a star saves the full-size render, held for the website on it (' + JSON.stringify(star) + ')');
       await shot(page, 'master-stars');
       await page.context().close();
       const p2 = await newPage(390);

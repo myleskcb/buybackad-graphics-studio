@@ -1,7 +1,8 @@
 /* Video still: the photo that goes out with every video ad.
 
    OfferUp takes a video only with a photo beside it, so every video download
-   brings the ad as a photo too, 1440 pixels on its short side (1440×1440
+   brings the ad as a photo too, a JPG (owner, 2026-10-11: "I think JPG is
+   preferable"), 1440 pixels on its short side (1440×1440
    square, 1440×2560 story, 2560×1440 wide), drawn at that size by the same
    frame function as the video, never a video frame scaled up. Owner,
    2026-10-03: "every single video ad has a photo because offer requires us to
@@ -31,7 +32,8 @@
        frame(t) draws the video's frame at t seconds and returns its canvas
        (any size; it may return a promise); windows: [[from, to], …] in
        seconds. Resolves { t, score, detail, stillness, rows }.
-   VideoStill.toBlob(canvas)         Promise<Blob>, PNG
+   VideoStill.QUALITY                0.92, the photos' JPEG quality
+   VideoStill.toBlob(canvas)         Promise<Blob>, JPEG at QUALITY
    VideoStill.name(videoName, w, h)  the photo's file name, beside the video's
    VideoStill.frames(videoBlob, { around, max, onProgress })
        the video's own frames, read back out of the file. With `around` (the
@@ -42,6 +44,10 @@
    VideoStill.frameName(videoName, t, w, h)  a frame's file name */
 (function(){
   const SHORT = 1440, GRID = 320, STEP = 0.1, MOVE = 8, TIE = 0.995;
+  /* the photos are JPGs: an ad is a photograph and gradients, which a JPEG
+     at 0.92 keeps to the eye at about a tenth of the PNG's size, and every
+     ground is opaque (the engines fill it first), so nothing turns black */
+  const TYPE = 'image/jpeg', QUALITY = 0.92;
   // read once, while this script runs: the decoder sits beside it in vendor/, on either page
   const MB_URL = new URL('vendor/mediabunny-1.60.0.min.mjs', (document.currentScript && document.currentScript.src) || location.href).href;
   // a message round trip, not a timer: a background tab throttles timers
@@ -104,18 +110,18 @@
     return { t: pick.t, score: +pick.held.toFixed(3), detail: +pick.detail.toFixed(3), stillness: +pick.stillness.toFixed(4), rows };
   }
 
-  const toBlob = c => c.convertToBlob ? c.convertToBlob({ type: 'image/png' }) : new Promise((res, rej) => {
-    try { c.toBlob(b => b ? res(b) : rej(new Error('the photo could not be encoded (out of memory)')), 'image/png'); }
+  const toBlob = (c, type = TYPE, quality = QUALITY) => c.convertToBlob ? c.convertToBlob({ type, quality }) : new Promise((res, rej) => {
+    try { c.toBlob(b => b ? res(b) : rej(new Error('the photo could not be encoded (out of memory)')), type, quality); }
     catch (e){ rej(e); }
   });
 
   function name(video, w, h){
     const base = String(video || 'ad').replace(/\.[a-z0-9]+$/i, '').replace(/-video-\d+x\d+$/, '');
-    return base + '-photo-' + w + 'x' + h + '.png';
+    return base + '-photo-' + w + 'x' + h + '.jpg';
   }
   function frameName(video, t, w, h){
     const base = String(video || 'ad').replace(/\.[a-z0-9]+$/i, '').replace(/-video-\d+x\d+$/, '');
-    return base + '-frame-' + t.toFixed(1) + 's-' + w + 'x' + h + '.png';
+    return base + '-frame-' + t.toFixed(1) + 's-' + w + 'x' + h + '.jpg';
   }
 
   /* ---- the video's own frames ----
@@ -205,5 +211,5 @@
     return out.sort((a, b) => b.score - a.score || a.t - b.t);
   }
 
-  window.VideoStill = { SHORT, size, best, toBlob, name, frames, frameName };
+  window.VideoStill = { SHORT, QUALITY, size, best, toBlob, name, frames, frameName };
 })();

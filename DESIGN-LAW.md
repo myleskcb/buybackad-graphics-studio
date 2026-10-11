@@ -3675,7 +3675,8 @@ photo because offer requires us to put a photo with any video at and we need
 the HD 1440P version of the ad as a photo so find the best point in the video
 to save". OfferUp takes a video only with a photo beside it.
 
-- **Every video export brings a PNG with it**, under the same export: the
+- **Every video export brings a JPG with it** (a PNG until 2026-10-11, see
+  below), under the same export: the
   studio's Easy Mode and editor (`motionPhoto`, one count for both files in
   `deliverVideo`) and the video maker (`makePhoto` in motion/app.js). A new
   video export path calls one of them, or is not finished.
@@ -3715,10 +3716,11 @@ to save". OfferUp takes a video only with a photo beside it.
   browser can hold a second download back (Chrome asks once per site, a
   phone can drop it), and the studio's only way back was the toast's Save
   photo again, gone in twelve seconds. So in the studio a button,
-  "📷 Download the video's photo", saves the same PNG again from the moment
+  "📷 Download the video's photo", saves the same photo again from the moment
   both files are given until the next video replaces it, a count that went
   through only on Try again included (`VideoHelp.keepPhoto`, from
-  `deliverVideo`). In Easy Mode it is right under Download as video, in the
+  `deliverVideo`). In Easy Mode it is right under Create video (Download as
+  video until 2026-10-11, rule 130), in the
   same look; in the editor's export pop-up it takes a line of its own under
   the buttons (a fourth button in that row pushed Cancel out of the pop-up).
   The maker already kept one: Save photo in the note under Download MP4.
@@ -3728,6 +3730,17 @@ to save". OfferUp takes a video only with a photo beside it.
   ("Its 1440×1440 photo for OfferUp came with it", Save photo again) was a
   195px column with its button hanging off the edge. It is centred by its
   margins now, as wide as it needs up to the screen less 16px a side.
+- **The photo is a JPG, and it downloads on its own too** (added
+  2026-10-11). The owner: "download mp4 and jpg option", then, asked
+  whether the photo with the MP4 should follow, "I think JPG is preferable".
+  `VideoStill.toBlob` writes JPEG at 0.92 for every caller (the maker, the
+  studio, the frames of rule 110): an ad is a photograph and gradients, kept
+  to the eye at 1440×1440 in 0.2 MB, and every ground is filled before it is
+  drawn, so no transparent pixel turns black. The maker has "⬇ Download JPG"
+  beside "⬇ Download MP4": the same photo, same moment and size, without
+  making the video, counted as a photo download (kind "photo"), so every
+  plan has it and Free's is 1080 with the watermark. The library makes its
+  own JPEG from whatever it is given, as before.
 
 ## 109. A card's parts line up: on the middle, or on an edge they share
 
@@ -3835,7 +3848,8 @@ frame" and "more versions".
 
 - **The frames come out of the file**, not out of the engine.
   `VideoStill.frames` reads the finished video back (Mediabunny, vendor/) and
-  saves each frame exactly as the file holds it, at the video's size, as PNG.
+  saves each frame exactly as the file holds it, at the video's size, as a
+  JPG since 2026-10-11 (rule 108; a PNG before).
   A frame drawn again can differ from the one that was encoded (the maker
   keeps its phones from the first settled frame while its rays keep moving),
   and what a platform's thumbnail picker shows is the file. Rule 108's HD
@@ -3868,7 +3882,8 @@ frame" and "more versions".
   photos in the toast, and More photos in the maker's note. The frames are
   read while the video downloads and arrive in the pop-up if it is open.
   `scripts/video_photo_check.mjs` opens it on every run, saves every card, and
-  holds each frame to the same file decoded again: at most 1 level off.
+  holds each frame to the same file decoded again: at most 1 level off (as
+  a JPG, against that frame made a JPG the same way, `VideoStill.toBlob`).
 - **A 2x screen measures at 1x** (found doing this). Easy Mode's scene and the
   template thumbnails are never shown on screen, only exported and measured,
   and are now made with `enableRetinaScaling:false`. fabric's default drew them
@@ -5031,3 +5046,282 @@ the most this container's 14 GB holds):
 > Amends rule 95: with a colour theme on, the card's hue is the theme's
 > colours, not one hue; a look the visitor picked is theirs. Rule 95 stands
 > for a card as designed.
+
+## 126. A push never buries a line: the column comes down in size instead
+
+Added 2026-10-10. The owner, of WE BUY iPHONES (`top_buyer`) with four
+selling points ticked, a sunburst ground and a colour theme: "are we missing
+layers of details?". The Subline field held the device list; the card showed
+CASH BUYER, WE BUY iPHONES and the number, and no subline.
+
+What happened, measured pass by pass on Easy Mode's own render
+(`renderEzCanvas`): the ticks are a four-line block set in the top corner
+(the card has no badge layer of its own, so Easy Mode adds one at the right
+edge). It overlaps CASH BUYER, and step 3 of `alignPass` (pull colliding text
+apart) pushed the title down, the headline down after it, and the subline to
+y 829 to 941, under the bottom bar, which starts at 779 and is drawn OVER it.
+The push only ever checked the canvas edge. The subline's own panel was
+left behind under iPHONES, and TEXT OR CALL NOW was pushed below the number.
+Every one of the 32 colour choices did the same; it is the layout, not the
+colour.
+
+Over the 322 templates in Easy Mode with four selling points, 29 cards lost a
+line under a plate this way: both classics with a subline (`top_buyer`,
+`bold_buyer`) and 27 offer cards whose headline or model lines went under
+their steps panel. With each card's own selling points, none did, so the
+problem stayed hidden.
+
+- **The rule.** Where a push carries a line under a plate drawn over it
+  (more than 15% of the line covered, where it was clear before the push),
+  the lines the push moved come down in size together, about the top of the
+  column, and are pushed again from where they stood, until the column
+  clears the plate by 6px. Never below half size; past that the column
+  stays as pushed. A line's own plate (a panel holding that line and
+  nothing else) is fitted round it again with its margins scaled. A card
+  where no push buries a line takes none of this: its layout is unchanged.
+- **A textbox keeps its width.** Only its type comes down (font size and
+  outline). Shrunk as an object, the column grew narrower than the selling
+  points in the corner, and the guides (rule 57, step 5) slid the whole
+  card 35px off centre to bring that corner in.
+- **Measured.** Buried lines with four selling points: 29 cards to 0; with
+  each card's own points: 0 to 0. Easy Mode's layout of every template
+  without selling points: unchanged on 321 of 322; the one that moved is
+  `top_buyer` itself, whose subline's second line ran 9px under the bar on
+  every render. With selling points, 69 cards changed: the 29, plus 40 offer
+  cards whose lines were buried during the push and partly uncovered by later
+  passes (a headline cut off, steps out of order). All 69 looked at before
+  and after; none is worse. `top_buyer` under every colour choice: 32 of 32
+  clear. The 366 live library cards, laid out as `renderThumb` lays them
+  out: 0 changed.
+- **Not done here:** Easy Mode's own selling-points block is set 30px from
+  the edge, outside the 6% guide (65px), so the guides move the card to
+  bring it in.
+  It should be set inside the guides from the start. A layout change for
+  every card without its own badges; left for its own pass.
+
+Also in this change: the category's brand list (`applyBrandVocab`) set an
+upper-case line with a plain `toUpperCase()`, so the subline read "IPHONE 17
+PRO MAX • … IPAD". It now goes through `cleanText(…, 'upper')` like every
+other upper-case line: iPHONE and iPAD keep their small i, as WE BUY iPHONES
+does on the same card.
+
+## 127. A product in a generated picture is drawn from photographs of the real thing
+
+Added 2026-10-10. The owner, of a SELL YOUR iPHONE / WE PAY UP TO / CASH card:
+"also that's not an iphone", then "can we tell what phone that is, learn the
+mistake, and how we made it". Of the picture itself: "it's a sick background".
+
+**What phone it is.** `assets/bg/dl_phones_priceAnchor_volt.jpg`, the "Price
+Point" background: a night skyline over a stone table, and on the table a
+Google Pixel. The visor-style camera bar across the back with three lenses and
+a flash, and the "G" in the middle, are the Pixel 7 Pro / 8 Pro design. No
+Pixel has the neon trim. The lime edge, cyan rail and lime lens ring are the
+template's palette, "electric lime + cyan accents on deep navy" (`MOOD.volt`),
+painted onto the phone.
+
+**How we made it.**
+- **Made by ORCHARD.** The 153 Designer Library backgrounds were generated by
+  ORCHARD, the local photo engine on the owner's Mac (SETUP.md §4; its
+  backdrop board, curate wizard and library picker wrote approved pictures
+  into `assets/bg/`). Each slot's brief (`assets/bg/MANIFEST.md`,
+  `BG_MANIFEST` in app.js) is the category's scene plus the palette's mood.
+  For phones the scene is "extreme macro of iPhone Pro camera arrays layered
+  in a fan". The picture in the slot is not that scene at all, so either the
+  prompt was different or a picture was picked for the slot by its colours.
+  Only ORCHARD's `data/orchard.db`, on the Mac, records which.
+- **Approved on mood, not on the product.** Nothing compared the product in
+  the picture with the product the ad sells.
+- **No provenance.** The 153 files entered git together on 2026-09-27
+  (`7fd78273`, a commit about the showcase audits). They already existed on
+  2026-08-28, when the learning log audited them. `assets/library.json` has `prompt: ""`, `sha1: ""` and
+  `w: 0, h: 0` for every one. Nobody could trace the picture back to how it
+  was made.
+- **Retired, still in use.** Rule 117 (2026-10-04) retired every
+  `assets/bg/dl_*` photograph and moved the templates off them. Nothing
+  checked the cards. 34 live cards outside sports still stood on one,
+  `stepsFlow-du08-15` on this very picture (three phone cards moved
+  2026-10-10).
+- **Fixed in code, not on the site.** The deploy workflow has skipped its
+  deploy on every push for want of its secrets. The site still serves a build
+  from before rule 117, where "Price Point" itself stands on the Pixel.
+
+**The rule.**
+1. **References, not words.** A product in a generated picture is drawn from
+   photographs of the real product: the device's references in
+   `assets/entities.json` (`scripts/device_entities.mjs`, only photographs
+   marked authentic, never a repaint or a concept render). A model asked
+   for "an iPhone" in words draws its idea of a flagship phone.
+2. **The palette paints the ground, never the product.** Mood words ("lime",
+   "cyan accents") stay out of the part of the prompt that describes the
+   device. A product keeps its factory finish (the owner, 2026-09-27: "never
+   re-skin a device colour").
+3. **Every generated file says how it was made.** Its prompt, model, seed or
+   request id, the reference photographs it was given, and its hash go into
+   its record when it is written, not later.
+4. **Checked against the reference before anyone approves it.** The camera
+   module (shape, lens count and layout), the logo, the buttons and the rail
+   are compared with the device's references and its spec, and anything
+   off is refused (OPEN-ITEMS N.1's gate). Approval looks at the product at
+   full size, not at the mood of a thumbnail.
+5. **A retirement is checked, and is not done until it is live.**
+   `scripts/retired_grounds_check.mjs` fails when a live card stands on a
+   retired ground that is not on its known list. A fix that is not deployed
+   has not reached the people the rule was for.
+
+The background itself stays. The owner likes it ("it's a sick background").
+Its phone is to be replaced by a real iPhone drawn from the references
+(OPEN-ITEMS AX 5).
+
+## 128. One light: a ground drawn as a lit surface is lit by the light that casts the phones' shadows
+
+Added 2026-10-11 (numbered after 126 and 127 from `claude/laughing-keller-c9tp89`,
+which landed with them). The owner, of a
+Titanium video ad on Brushed metal (the video maker's painter, which the studio
+also offers as a scene): "the shading around the corners because its dark and
+then light around the side", "not actually how shadows work", then "audit and
+make sure it's accurate to life like realism and actual device".
+
+- **The key light is high on the left** (rules 114 and 124): the phones'
+  shadows fall to the lower right, and a turning back catches the light from the
+  left. A ground that shows a lit surface (a wall, a sheet of a material, a
+  studio sweep or backdrop) is lit by that light too: brightest toward the top
+  left, or even, never brighter on the far side, and never bright on the
+  diagonal across the light.
+- **What was wrong.** Brushed metal was a gradient from corner to corner with
+  its brightest stop in the middle: dark at the top left and bottom right,
+  bright at the other two corners (Titanium, 1:1, corners L* 55.7, 78.8, 55.2,
+  82.3). No light does that. The owner's screenshot measures the same: corner
+  greys 134 and 129 against 197 and 200. Diamond plate had the same band, and
+  each bar was shaded along its own length, so one row was lit from the lower
+  right and the next from the upper right.
+- **What they are now** (`keyLit`, `streak` in motion/decor.js). The sheet
+  falls off from the top left at 45 degrees, whatever the frame's shape.
+  Brushed metal shows the light's reflection as a soft upright streak a third
+  of the way in, brightest a little above the middle: lines brushed side to
+  side spread a highlight up and down, never along the lines (a horizontally
+  brushed steel door shows the same). The streak is the metal's own light
+  colour, because a coloured metal tints what it reflects (mixed toward white,
+  it took white headlines on Candy teal from 2.84 to 2.63:1). Diamond plate
+  shows the light as a soft patch above and left of the middle; every bar is lit
+  on its side toward the light, dark on the far side, and casts a small shadow
+  away from it. The studio's own Brushed metal (grounds.js) was already a
+  streak across its grain, centred, and is left as it is.
+- **Measured** (`node scripts/ground_light_audit.mjs`): every ground the maker
+  offers, 102 of them, drawn as the maker draws it (the painter and the stage
+  vignette) in 1:1 and 9:16, with its themes' palettes and two of every tone:
+  1,698 drawings, read in L* block by block. *crossed*, (TR + BL − TL − BR) / 2
+  over the corners: one light, a pool, a lens's fall-off, or all of them leave
+  it near 0; over 3 the light is on the diagonal across the key. *facing*: a
+  plane plus a pool about the stage fitted to the light, read toward the key:
+  no more than 4 L* brighter away from it. Brushed metal crossed 25.1 → 0.4,
+  facing 3.2 → 6.1; Diamond plate 15.0 → 0.4, 6.5 → 9.1. All 25 lit surfaces
+  pass. Tonal is held: its backdrop is lit from behind the phones, 4.6 L*
+  brighter low on Editorial cream, on 2 of 24 drawings. The 38 grounds whose
+  bright and dark are their design (a colour gradient, rays, shapes), a sky, a
+  scene that draws its own lamp or sign, or an object on the floor, are listed,
+  not failed.
+- **Nothing is harder to read.** The video maker's own audit
+  (motion/audit-sweep.html, 30 looks held to each ground, seeds 101 to 130,
+  deterministic run to run): Brushed metal's median headline contrast 6.06 →
+  6.23:1, Diamond plate's 5.83 → 6.01:1. Under 3:1, one look on each ground
+  before and after: the same look (Candy teal glow), 2.84 → 2.87 and 2.37 →
+  2.57. Three looks lost "First frame shows something" and one lost "Never
+  still". On the old grounds, the bright corner-to-corner band moved under the
+  flash cut, the whip pan and the push-out, and was counted as something on
+  screen; a mask of what is counted shows the same phones in both (OPEN-ITEMS
+  §AV).
+- **The phones are the real devices**, unchanged and checked again:
+  audit_phone_views.py 59 of 59 (shape against Apple's dimensions, round
+  lenses, island or notch, Action button or mute switch, Camera Control, the
+  side button where the photograph has it, a 17 or 18 Pro's side in its
+  plateau's aluminium); motion_finish_check.mjs 57 of 57; motion_phone_check.mjs
+  all pass. A settled frame of the owner's ad draws Cosmic Orange at (237, 146,
+  95) against the photograph's (245, 129, 64): the sheen, not a shift.
+- Before a change to a ground's light: ground_light_audit.mjs, and the sweep on
+  that ground before and after.
+
+## 129. A video ad sounds like a sale: never sad, and nothing in it is a phone going off nearby
+
+Added 2026-10-11. The owner, of a Spanish confetti ad ("COMPRAMOS IPHONES
+USADOS") whose soundtrack was the Moonlight Sonata with a blip over the
+number: "a sad piano song with a iPhone voice memo recording sound randomly
+in the middle of it ... I actually looked around and thought someone around
+me was making a voice memo ... I don't even know [why] I would have a sad
+piano song for any of our ads. It's not likely or conducive of sales." And:
+"some sort of sound effect to corroborate the confetti that is falling down
+from the screen so we can push a happy or upbeat vibe".
+
+**No sad music.** Retired, each playing as an upbeat stand-in
+(`SOUND_ALIASES` in motion/catalog.js): the recordings of the Moonlight
+Sonata (Adagio sostenuto, C sharp minor), Gymnopedie No. 1 ("Lent et
+douloureux") and Fur Elise (A minor), the slow solos by their own markings,
+to Sousa Gone Funk, Aero Groove Evolution and Small Note Boogaloo; and the
+tunes Moonlight, Gymnopedie, Fur Elise and Greensleeves to Ode to Joy, The
+Entertainer, Eine kleine Nachtmusik and Vivaldi's Spring. They stay in
+`OPTIONS`, so a shuffle draws every other look exactly as it did; the maker
+does not offer them, a saved look plays the stand-in, and the classics played
+in place of a holiday tune leave them out. A crude measure of mode and drive
+over the twelve-second clips was tried and dropped: it read the Moonlight as
+E major (its relative major) and swing jazz as pulseless, so the composers'
+markings decided.
+
+**Nothing that sounds like a real phone near the viewer.** The number's
+"pop" was two sine notes rising a fourth with a glide into each, written as
+"the kind a phone makes"; over a quiet piano it is the iPhone's
+start-recording chirp. It is a cork's pop now (a crack, and its body falling
+from an octave over the note). The message ding and the phone buzz are by
+hand only.
+
+**Confetti is heard.** Falling confetti (the overlay, which starts as the
+number lands) plays a party popper as its number sound: a crack, the paper's
+rush, a tambourine's rattle, then up to ten bells tumbling down the key's
+pentatonic scale from under 2.6 kHz, alternating left and right. Harmonise
+sets it on every look with the overlay unless the number sound was picked by
+hand, and takes it off a look without the overlay. The loudest 50 ms over
+the number, music off, one look (seed 905): the popper -19.0 dB, as the
+glockenspiel run (-19.0) and the register (-19.4); the pop -22.0, the two
+bells -20.1; the headline hit in the same renders -9 to -12.
+
+Checked by `scripts/motion_music_check.mjs` part 6: 1000 shuffles play no
+retired piece; 46 of 46 with confetti play the popper and none without it
+does; each retired piece saved in a look plays its stand-in; the maker offers
+none of them.
+
+## 130. A photo ad's video is created and watched before it is kept
+
+Added 2026-10-11. The owner: "photo ads don't need a download video option.
+They need a create video option". Asked what Create video should do, of
+three (make it then preview, open the video maker, rename the button), the
+owner chose "make it, then preview".
+
+- **Create video makes it and plays it, and nothing downloads.** Easy Mode's
+  "🎬 Create video" (was "🎬 Download as video") and the editor's (was
+  "🎬 Video") make the 10-second video of the ad (`runVideoExport` with
+  `preview`) and open "Your video" (`previewVideo`): the video playing, with
+  sound where the browser allows it, and its size and length under it.
+  Anyone makes and watches one, signed in or not, as in the video maker.
+- **The plan has its say at the buttons**, which keep the pop-up open and say
+  what happened on its own line (it sits over every toast):
+  ⬇ Download MP4, Pro and Business, the video and its JPG, one video count
+  (`giveVideo`, what the direct download did); ⬇ Download JPG, the video's
+  photo alone, one photo download on any plan, Free's 1080 with the
+  watermark; ⭐ Save to library, Pro and Business, the video with its photo
+  (`adLibrary.keepStudioVideo`). Signed out, the sign-in comes first; its
+  dialog sits under this pop-up, so the pop-up closes, and after the sign-in
+  it opens again and carries on with the button that was pressed. Free and
+  Starter pressing Download MP4 or Save to library get the plans page.
+- **The photo is made when a button asks for it**, at that plan's size and
+  marks, once each; the last video and its scene stay until the next video
+  replaces them.
+- **⭐🎬 Save as video stays the direct path** (`ezDownloadVideo` without
+  `preview`: the plan first, then made and saved), and the checks call it.
+- **The CSP lets the page play its own video**: `media-src 'self' blob:` in
+  `_headers` and `netlify.toml`. Without it `default-src 'self'` refused the
+  blob: URL (measured 2026-10-11: error 4, "media-src blob", a blank player).
+- Measured 2026-10-11 in headless Chromium on Green Gold Glass Card: made in
+  14 to 15 s (real-time recording there), playing unmuted, nothing
+  downloaded; Download MP4 signed out opened the sign-in, and signing in as
+  Pro brought the pop-up back and saved the video and its 1440×1440 JPG on
+  one count; Free's Download JPG saved 1080×1080 on a photo count, its
+  Download MP4 opened the plans; the same at 390 px wide, the buttons one
+  above the other.

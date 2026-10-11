@@ -15,8 +15,11 @@
    the picture as it downloads, as a JPEG, with the words on it and the
    category, for the poster to write the listing from; a video ad brings its
    clip beside the photo. The library has one public link; whoever holds it
-   (iPhones LA) reads the ads and which of them are due to post, and posts
-   them again on the schedule set here. Nothing on this side posts anywhere.
+   (iPhones LA) reads the ads. 2026-10-11: "we will not make auto post from
+   the graphic studio", and the titles, descriptions, approval and posting
+   are done on iPhones LA's listings site. So the library is an outbox: an
+   ad saved here is on the link at once, picture and video, with nothing to
+   download, and nothing on this side posts anywhere or sets a schedule.
 
    Three ways in, all the same save:
    - the ★ on every ad: the landing's gallery, Easy Mode's strip, the
@@ -37,7 +40,7 @@
    - What is saved is what would download: the gated picture (size,
      watermark), never a fresh ungated render.
    - A picture that shows a website, a QR code, a street address or a social
-     handle, or carries the watermark, is saved but held from auto-post: the
+     handle, or carries the watermark, is saved but held from iPhones LA: the
      iPhones LA link's own check (iplaLink.refusal), so the two cannot differ.
    - This source is public. It holds no secret; the library link it shows is
      the account's, read from the server after sign-in.
@@ -51,7 +54,6 @@
   const ASK_MS = 12000;                        // how long the "save it" card stays
   const MAX_SIDE = 2160;                       // what Pro downloads at most
   const MAX_CHARS = 5500000;                   // a base64 JPEG under the server's 4.2 MB
-  const REPOST_LABEL = { 0: 'Once', 1: 'Every day', 2: 'Every 2 days', 3: 'Every 3 days', 5: 'Every 5 days', 7: 'Every week', 14: 'Every 2 weeks', 30: 'Every 30 days' };
   const $ = id => document.getElementById(id);
 
   // ---------- the studio and the account, read carefully: app.js may not be on this page ----------
@@ -178,8 +180,8 @@
   }
 
   const heldLine = h => h === 'unchecked'
-    ? 'Not auto-posted: it could not be checked for a website.'
-    : 'Not auto-posted: it shows ' + h + '.';
+    ? 'Not for iPhones LA: it could not be checked for a website.'
+    : 'Not for iPhones LA: it shows ' + h + '.';
 
   // ---------- the server ----------
   function ready(){
@@ -211,7 +213,7 @@
     state.loading = false;
     /* what the dialog shows of a library: the version strings the server
        stamps are not compared (a save added here leaves them behind) */
-    const key = l => l && JSON.stringify([l.name, l.repost_days, l.links, l.limit, l.count, l.items.map(i => [i.id, i.updated, i.autopost, i.repost_days, i.hold, i.image && i.image.url, i.video && i.video.url])]);
+    const key = l => l && JSON.stringify([l.name, l.links, l.limit, l.count, l.items.map(i => [i.id, i.updated, i.hold, i.image && i.image.url, i.video && i.video.url])]);
     const changed = !!fresh && key(fresh) !== key(state.lib);
     if (fresh) state.lib = fresh;
     if (!had || changed || state.error) draw();
@@ -248,7 +250,7 @@
       if (v === 'sent' || v === 'unsupported' || v === 'refused'){
         try { if (box) box.setItem(SHARED_KEY, JSON.stringify({ page, conn, at: Date.now(), verdict: v })); changed = true; } catch (e){}
       }
-      if (v === 'sent') app.toast('Your library link went to iPhones LA. Its auto-post reads it from now on.', 'success');
+      if (v === 'sent') app.toast('Your library link went to iPhones LA. Every ad you save reaches it from now on.', 'success');
       return changed;
     }, () => false).then(r => { sharing = null; return r; });
     return sharing;
@@ -258,7 +260,7 @@
     if (!connKey()) return 'To send this link to iPhones LA by itself, open the studio once from iPhones LA → Auto-post. Or copy it across.';
     const s = sharedFor(lib.links.page);
     if (!s) return 'Sending this link to iPhones LA…';
-    if (s.verdict === 'sent') return '✓ iPhones LA has this link: its auto-post reads it. A reset sends the new one by itself.';
+    if (s.verdict === 'sent') return '✓ iPhones LA has this link: every ad you save reaches it. A reset sends the new one by itself.';
     if (s.verdict === 'unsupported') return 'iPhones LA cannot take the link yet. It is sent by itself once it can (asked again each day), or copy it across.';
     return 'iPhones LA did not take the link. Copy it across instead.';
   }
@@ -288,8 +290,7 @@
     if (!image){ app.toast('This picture could not be saved: it is too large or could not be read', 'error'); return null; }
     const d = Object.assign(describe(rec.name, rec.proj), rec.meta || {});
     try {
-      const repost = state.lib ? state.lib.repost_days : undefined;
-      const r = await app.call('/ads/save', Object.assign({ image, repost_days: repost }, d));
+      const r = await app.call('/ads/save', Object.assign({ image }, d));
       if (rec.id) state.saved[rec.id] = r.item.id;
       if (!state.lib) await load();                          // the first save makes the library: load() sends its link
       else { took(r.item, !!r.duplicate); if (connKey()) share(state.lib).then(redraw); }
@@ -354,12 +355,6 @@
     try { await (rec.blob ? saveVideoAd(rec, true) : save(rec, true)); } catch (e){}
     state.busy = false;
     pump();
-  }
-  async function update(id, patch){
-    try {
-      await app.call('/ads/update', Object.assign({ id }, patch));
-      await load();
-    } catch (e){ app.toast(e.message || 'Not changed', 'error'); await load(); }
   }
 
   // ---------- a design card, drawn as it would download ----------
@@ -502,14 +497,21 @@
     return { seconds, fallbackW: photo && photo.w, fallbackH: photo && photo.h };
   }
   async function captureVideo(blob, name, photo, c){
-    const VH = window.VideoHelp;
-    const btn = c.btn, set = t => { if (btn) btn.innerHTML = t; };
-    try { await (VH ? VH.retry(() => recordExport('video'), { tries: 3, delay: 1200 }) : recordExport('video')); }
-    catch (e){ app.toast('The video was made, but the download could not be counted: ' + (e.message || e), 'error'); return false; }
-    set('Saving to library…');
-    await saveVideoAd({ blob, name, photo, proj: projectNow(c.kind), meta: { source: 'studio' }, video: studioVideoMeta(photo),
-      onProgress: p => set('Saving to library… ' + Math.round(p * 100) + '%') });
+    await keepStudioVideo(c.kind, blob, name, photo, c.btn);
     return false;                     // runVideoExport says nothing more: the toast above is the word
+  }
+  /* a studio video, counted as a download and saved with its photo: ⭐🎬's,
+     and Create video's ⭐ Save to library (app.js previewVideo), whose video
+     is already made. The saved item, or null. */
+  async function keepStudioVideo(kind, blob, name, photo, btn){
+    if (!await signedIn(() => keepStudioVideo(kind, blob, name, photo, btn))) return null;
+    const VH = window.VideoHelp;
+    const set = t => { if (btn) btn.innerHTML = t; };
+    try { await (VH ? VH.retry(() => recordExport('video'), { tries: 3, delay: 1200 }) : recordExport('video')); }
+    catch (e){ app.toast('The video was made, but the download could not be counted: ' + (e.message || e), 'error'); return null; }
+    set('Saving to library…');
+    return saveVideoAd({ blob, name, photo, proj: projectNow(kind), meta: { source: 'studio' }, video: studioVideoMeta(photo),
+      onProgress: p => set('Saving to library… ' + Math.round(p * 100) + '%') });
   }
 
   // ---------- the ★ on every ad ----------
@@ -728,7 +730,7 @@
     const m = el('div', 'modal adl-modal');
     m.setAttribute('role', 'dialog'); m.setAttribute('aria-label', 'Ad library');
     m.appendChild(el('h3', '', 'Ad library'));
-    m.appendChild(el('div', 'modal-sub', 'Ads you save here get one public link. Give it to iPhones LA and it posts your WE BUY ads, then posts them again on the schedule you pick. The ★ on any ad saves it here; a video ad brings its clip.'));
+    m.appendChild(el('div', 'modal-sub', 'Every ad you save here goes to iPhones LA by itself, picture and video, with nothing to download. Titles, descriptions, approval and posting are done there. The ★ on any ad saves it here; a video ad brings its clip.'));
     const why = ready();
     if (why){
       m.appendChild(el('div', 'adl-empty', why === 'signin' ? 'Create a free account, or sign in, to keep a library of your ads and share it. No card needed.' : why));
@@ -762,7 +764,7 @@
     link.appendChild(op);
     m.appendChild(link);
     const feeds = el('div', 'adl-row'); feeds.style.marginTop = '8px';
-    feeds.appendChild(btn('Copy the feed for auto-post (JSON)', 'btn-ghost', () => copy(lib.links.json, 'Feed link')));
+    feeds.appendChild(btn('Copy JSON feed', 'btn-ghost', () => copy(lib.links.json, 'Feed link')));
     feeds.appendChild(btn('Copy RSS', 'btn-ghost', () => copy(lib.links.rss, 'RSS link')));
     feeds.appendChild(btn('Reset link', 'btn-ghost', async () => {
       if (!window.confirm('Make a new link? The old one stops working, so anyone using it (iPhones LA) needs the new one.')) return;
@@ -771,17 +773,13 @@
     }));
     m.appendChild(feeds);
     m.appendChild(el('div', 'adl-note adl-share', shareLine(lib)));
-    m.appendChild(el('div', 'adl-note', 'Anyone with the link can see these ads, and only these. Ads set to auto-post are listed when they are due, and again every time they come due.'));
+    m.appendChild(el('div', 'adl-note', 'Anyone with the link can see these ads, and only these. Each ad is offered every day for ' + (lib.fresh_days || 7) + ' days from when it was saved, then it retires and a new one keeps things fresh. The studio posts nothing: iPhones LA reviews each ad and posts it within its daily limits.'));
 
     // settings
     const set = el('div', 'adl-set');
     const nm = el('input'); nm.type = 'text'; nm.value = lib.name || ''; nm.maxLength = 60; nm.setAttribute('aria-label', 'Library name');
     nm.onchange = async () => { try { await app.call('/ads/settings', { name: nm.value }); await load(); } catch (e){ app.toast(e.message, 'error'); } };
     const nmL = el('span', '', 'Name '); nmL.appendChild(nm); set.appendChild(nmL);
-    const rp = el('select'); rp.setAttribute('aria-label', 'New ads post again');
-    (lib.repost_choices || [0, 7]).forEach(n => { const o = el('option', '', REPOST_LABEL[n] || ('Every ' + n + ' days')); o.value = String(n); o.selected = n === lib.repost_days; rp.appendChild(o); });
-    rp.onchange = async () => { try { await app.call('/ads/settings', { repost_days: Number(rp.value) }); await load(); } catch (e){ app.toast(e.message, 'error'); } };
-    const rpL = el('span', '', 'New ads post '); rpL.appendChild(rp); set.appendChild(rpL);
     const au = el('label', 'adl-tog'); au.style.cssText = 'display:flex;gap:7px;align-items:center;margin:0;text-transform:none;letter-spacing:0;font-size:14px;font-weight:600;color:var(--text)';
     const auC = el('input'); auC.type = 'checkbox'; auC.checked = autoOn();
     auC.onchange = () => { setAuto(auC.checked); app.toast(auC.checked ? 'Every download is saved here now, videos too' : 'Downloads are no longer saved here by themselves'); };
@@ -791,7 +789,8 @@
 
     // the ads
     const videos = lib.items.filter(x => x.video).length;
-    m.appendChild(el('h4', '', 'Saved ads (' + lib.count + ' of ' + lib.limit + (videos ? ', ' + videos + ' with video' : '') + ')'));
+    const fresh = lib.items.filter(x => x.post).length;
+    m.appendChild(el('h4', '', 'Saved ads (' + lib.count + ' of ' + lib.limit + (videos ? ', ' + videos + ' with video' : '') + ', ' + fresh + ' offered today)'));
     if (!lib.items.length) m.appendChild(el('div', 'adl-empty', 'Nothing saved yet. Press the ★ on any ad, or ⭐ Save to library under your preview, or save one of your recent downloads below.'));
     else {
       const grid = el('div', 'adl-grid');
@@ -834,21 +833,10 @@
     if (it.video) c.appendChild(el('span', 'adl-kind', '🎬 VIDEO'));
     c.appendChild(el('b', '', it.title));
     c.appendChild(el('span', 'adl-meta', [it.category, it.image.width + ' × ' + it.image.height, it.video ? (it.video.seconds ? it.video.seconds + ' s ' : '') + it.video.format.toUpperCase() : '', 'saved ' + when(it.created)].filter(Boolean).join(' · ')));
-    if (it.hold){
-      c.appendChild(el('span', 'adl-hold', heldLine(it.hold)));
-    } else {
-      const tog = el('label', 'adl-tog');
-      const cb = el('input'); cb.type = 'checkbox'; cb.checked = it.autopost;
-      cb.onchange = () => update(it.id, { autopost: cb.checked });
-      tog.appendChild(cb); tog.appendChild(document.createTextNode('Auto-post'));
-      c.appendChild(tog);
-      const sel = el('select'); sel.setAttribute('aria-label', 'Post again');
-      (lib.repost_choices || [0, 7]).forEach(n => { const o = el('option', '', REPOST_LABEL[n] || ('Every ' + n + ' days')); o.value = String(n); o.selected = n === it.repost_days; sel.appendChild(o); });
-      sel.disabled = !it.autopost;
-      sel.onchange = () => update(it.id, { repost_days: Number(sel.value) });
-      c.appendChild(sel);
-      if (it.post) c.appendChild(el('span', 'adl-meta', it.post.next_at ? 'Due now, then again ' + when(it.post.next_at) : 'Due now, once'));
-    }
+    const days = lib.fresh_days || 7;
+    if (it.hold) c.appendChild(el('span', 'adl-hold', heldLine(it.hold)));
+    else if (it.fresh === false) c.appendChild(el('span', 'adl-hold', 'Past its ' + days + ' days, so no longer offered. Make a new one to keep it fresh.'));
+    else c.appendChild(el('span', 'adl-meta adl-sent', '✓ Offered to iPhones LA daily' + (it.post ? ', day ' + it.post.round + ' of ' + days : '')));
     const row = el('div', 'adl-row');
     const dl = el('a', 'adl-x', it.video ? 'Photo' : 'Download'); dl.href = it.image.url; dl.download = slug(it.title) + '.jpg';
     row.appendChild(dl);
@@ -858,7 +846,7 @@
     }
     const rm = el('button', 'adl-x', 'Remove'); rm.type = 'button';
     rm.onclick = async () => {
-      if (!window.confirm('Remove "' + it.title + '" from your library? It stops being posted.')) return;
+      if (!window.confirm('Remove "' + it.title + '" from your library? It comes off your link for iPhones LA.')) return;
       try { await app.call('/ads/remove', { id: it.id }); Object.keys(state.saved).forEach(k => { if (state.saved[k] === it.id) delete state.saved[k]; }); await load(); }
       catch (e){ app.toast(e.message || 'Not removed', 'error'); }
     };
@@ -882,7 +870,7 @@
     ask = el('div', 'adl-ask');
     ask.setAttribute('role', 'status');
     ask.appendChild(el('b', '', rec.blob ? 'Save this video ad to your library?' : 'Save this ad to your library?'));
-    ask.appendChild(el('p', '', rec.blob ? 'Its photo goes with it. Saved ads are on your public link, ready for iPhones LA to post.' : 'Saved ads are on your public link, ready for iPhones LA to post.'));
+    ask.appendChild(el('p', '', (rec.blob ? 'Its photo goes with it. ' : '') + 'Saved ads go to iPhones LA by themselves, to review and post there.'));
     const row = el('div', 'adl-row');
     row.appendChild(btn('Save to library', 'btn-primary', async b => { b.disabled = true; b.textContent = 'Saving…'; await (rec.blob ? saveVideoAd(rec) : save(rec)); dismiss(); }));
     row.appendChild(btn('Always save', 'btn-ghost', () => { setAuto(true); enqueue(rec); dismiss(); }));
@@ -960,7 +948,7 @@
      buttons: the stars, Save to library and the plans' library are as they
      were. Run after every account change: the studio's syncAcctUI on the
      studio, the account's onChange on the other pages. */
-  const BUTTONS = ['nav-adlib', 'tb-adlib', 'am-adlib', 'mo-adlib', 'ml-adlib'];
+  const BUTTONS = ['nav-adlib', 'tb-adlib', 'am-adlib', 'lpam-adlib', 'mo-adlib', 'ml-adlib'];   // lpam-adlib: the landing's account menu (2026-10-07)
   function buttons(){
     let on = app.admin();
     if (!on){ const a = app.account(); on = !!a && a.role === 'admin'; }
@@ -1002,7 +990,7 @@
 
   window.adLibrary = {
     open, close, load, paint, isSaved,
-    save: rec => save(rec), saveVideo, saveVideoAd, saveDesign, saveEasy, saveEditor, saveVideoNow,
+    save: rec => save(rec), saveVideo, saveVideoAd, saveDesign, saveEasy, saveEditor, saveVideoNow, keepStudioVideo,
     signedIn: (next, msg) => signedIn(next, msg), ready,
     star: starFor, decorate,
     state: () => ({ lib: state.lib, error: state.error, auto: autoOn(), queued: state.queue.length, last: !!state.last, capture: !!state.capture }),

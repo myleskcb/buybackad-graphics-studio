@@ -13,14 +13,24 @@
  * else. Resetting the link makes a new id and the old one stops answering.
  * The link is what iPhones LA is given; nothing on this side posts anywhere.
  *
+ * An outbox. Owner, 2026-10-11: "we will not make auto post from the graphic
+ * studio", and "we're supposed to do the approval or denial of the title
+ * description on the listings iPhone LA site ... so we can send the imagery
+ * and video over automatically without need to download it ourselves". Every
+ * ad saved is on the link at once, its picture and its video, with the words
+ * on it, its category and its products for iPhones LA's title and
+ * description maker. The studio sets no schedule and approves nothing:
+ * reviewing, approving and posting (within the shop's daily limits) are
+ * iPhones LA's.
+ *
  *   signed in (Authorization: Bearer <session token>)
  *   GET  /api/ads/mine              the library: name, links, items
  *   POST /api/ads/save              { image: "data:image/jpeg;base64,...", title,
  *                                     category, template, texts, products,
- *                                     caption, hold, autopost, repost_days }
- *   POST /api/ads/update            { id, title?, caption?, autopost?, repost_days? }
+ *                                     caption, hold }
+ *   POST /api/ads/update            { id, title?, caption? }
  *   POST /api/ads/remove            { id }
- *   POST /api/ads/settings          { name?, repost_days? }  (the default for new saves)
+ *   POST /api/ads/settings          { name? }
  *   POST /api/ads/link/reset        a new public link; the old one stops
  *
  *   a video on a saved ad (a video ad: the clip beside its photo), sent in
@@ -33,22 +43,27 @@
  *
  *   public, by link
  *   GET  /api/ads/feed/<feed>       JSON (also <feed>.json); ?kind=video|photo
- *   GET  /api/ads/feed/<feed>.rss   RSS 2.0 of what is due to post
+ *   GET  /api/ads/feed/<feed>.rss   RSS 2.0 of today's slots (fresh ads, not held), newest first
  *   GET  /api/ads/feed/<feed>/img/<id>.jpg
  *   GET  /api/ads/feed/<feed>/video/<id>.mp4 (or .webm; byte ranges honoured)
  *
- * Posting and posting again. An ad set to auto-post has a slot: it is due when
- * it is saved (or when auto-post is turned on), and again every repost_days
- * days after that (0: once). The slot's id is "<ad id>@<due time>", so a poster
- * that keeps the ids it has posted posts each ad once per slot and needs no
- * other state, and the RSS item for an ad is its current slot: an RSS
- * auto-poster that posts every new item posts the ad again each time a slot
- * comes due. Ads that show a website, a QR code, a street address or a social
- * handle, or carry the watermark, are saved but held from auto-post (`hold`):
- * the same rule the studio's iPhones LA link keeps for WE BUY pictures.
+ * Offered daily, for seven days. Owner, 2026-10-11: "we could use the same
+ * imagery for seven days per unique ad that is our maximum to keep it fresh
+ * and unique feeling", "reposted daily of course". An ad is fresh for
+ * FRESH_DAYS from when it was saved (`fresh_until`) and has a slot each day of
+ * them: due when it was saved, then every 24 hours, seven slots at most. A
+ * slot's id is "<ad id>@<due time>", so a reader that keeps the ids it has
+ * taken takes each day's slot once and needs no other state (the shape the
+ * feed had when the studio set schedules, so an ad saved then keeps its
+ * first slot's id). Past its seven days it stays listed, with no slot, and
+ * new imagery is made in the studio. How many ads go out in a day is
+ * iPhones LA's: its daily limits choose among the slots offered.
+ * Ads that show a website, a QR code, a street address or a social handle,
+ * or carry the watermark, are listed but held (`hold`, no slot): the same rule
+ * the studio's iPhones LA link keeps for WE BUY pictures.
  *
  * Storage (one Netlify Blobs store, strongly consistent):
- *   o:<owner>       the library: { v, feed, name, repost_days, items: [...] }
+ *   o:<owner>       the library: { v, feed, name, items: [...] }
  *   f:<feed>        <owner>
  *   i:<owner>:<id>  the JPEG
  *   v:<owner>:<id>  the video, once joined; vu:/vp:<owner>:<id>… an upload
@@ -60,8 +75,6 @@
 
 import { PLANS, planId, videoOk } from './plans.mjs';
 
-export const REPOST_CHOICES = [0, 1, 2, 3, 5, 7, 14, 30];
-const DAY = 86400000;
 const FEED_RE = /^fd_[A-Za-z0-9_-]{24}$/;
 const ID_RE = /^ad_[a-z0-9]{6,24}$/;
 const CAT_RE = /^[a-z0-9-]{1,30}$/;
@@ -74,7 +87,9 @@ const PARTS_MAX = Math.ceil(VIDEO_MAX_BYTES / PART_BYTES);
 const SHA_RE = /^[0-9a-f]{64}$/;
 const VIDEO_SECONDS_MAX = 120;
 const MIN_SIDE = 320, MAX_SIDE = 4320;
-const DEFAULT_LIMITS = { admin: 2000 };   // the plans' own are in plans.mjs (library)
+/* the plans' own are in plans.mjs (library); an operator keeps at least what
+   the biggest plan keeps, so an admin account can try every plan's library */
+const DEFAULT_LIMITS = { admin: Math.max(...Object.values(PLANS).map((p) => p.library)) };
 const enc = new TextEncoder();
 
 const reply = (data, status, extra) => new Response(JSON.stringify(data), {
@@ -145,19 +160,18 @@ export function limitFor(acct, env) {
   return n('ADLIB_MAX_' + plan.toUpperCase(), PLANS[plan].library);
 }
 
-const repostOf = (v, fallback) => {
-  const n = Number(v);
-  return REPOST_CHOICES.includes(n) ? n : fallback;
-};
-
-/** when an ad is due to post: the slot it is in now, or null when it does not auto-post */
+export const FRESH_DAYS = 7;
+const DAY = 86400000;
+/** the moment an ad's imagery is past its seven days */
+export const freshUntil = (item) => item.created + FRESH_DAYS * DAY;
+/** the slot an ad is in now (one a day in its seven days); null for a held ad or one past them */
 export function slotOf(item, now) {
-  if (!item.autopost || item.hold) return null;
+  const end = freshUntil(item);
+  if (item.hold || now >= end) return null;
   const base = item.post_from || item.created;
-  const period = (item.repost_days || 0) * DAY;
-  const round = period > 0 && now > base ? Math.floor((now - base) / period) : 0;
-  const due = base + round * period;
-  return { slot_id: item.id + '@' + iso(due), due_at: iso(due), next_at: period ? iso(due + period) : null, round: round + 1, due_ms: due };
+  const round = now > base ? Math.floor((now - base) / DAY) : 0;
+  const due = base + round * DAY;
+  return { slot_id: item.id + '@' + iso(due), due_at: iso(due), next_at: due + DAY < end ? iso(due + DAY) : null, round: round + 1, due_ms: due };
 }
 
 /* ---------- the stored library ---------- */
@@ -170,7 +184,7 @@ async function writeLib(store, owner, lib) { await store.set('o:' + owner, JSON.
 async function ensureLib(store, owner) {
   let lib = await readLib(store, owner);
   if (lib && FEED_RE.test(lib.feed || '')) return lib;
-  lib = Object.assign({ v: 1, name: 'Ad library', repost_days: 7, items: [] }, lib || {}, { feed: newFeed() });
+  lib = Object.assign({ v: 1, name: 'Ad library', items: [] }, lib || {}, { feed: newFeed() });
   await store.set('f:' + lib.feed, owner);
   await writeLib(store, owner, lib);
   return lib;
@@ -204,8 +218,12 @@ function itemOut(item, origin, feed, now) {
     source: item.source || null,
     created: iso(item.created),
     updated: iso(item.updated || item.created),
-    autopost: !!item.autopost && !item.hold,
-    repost_days: item.repost_days || 0,
+    fresh_until: iso(freshUntil(item)),
+    fresh: now < freshUntil(item),
+    /* the fields a reader had when the studio set schedules: an ad not held
+       and in its seven days is offered (autopost), daily (repost_days 1) */
+    autopost: !!s,
+    repost_days: s ? 1 : 0,
     hold: item.hold || null,
     post: s ? { slot_id: s.slot_id, due_at: s.due_at, next_at: s.next_at, round: s.round } : null,
   };
@@ -214,8 +232,8 @@ function libOut(lib, origin, now) {
   return {
     name: lib.name, version: 'adlib-' + lib.items.length + '-' + Math.max(0, ...lib.items.map((x) => x.updated || x.created)).toString(36),
     updated: lib.items.length ? iso(Math.max(...lib.items.map((x) => x.updated || x.created))) : null,
-    repost_days: lib.repost_days,
     count: lib.items.length,
+    fresh_days: FRESH_DAYS,
     links: links(origin, lib.feed),
     items: lib.items.map((x) => itemOut(x, origin, lib.feed, now)),
   };
@@ -230,7 +248,7 @@ function rss(lib, origin, now) {
     '<channel>',
     '<title>' + esc(lib.name) + '</title>',
     '<link>' + esc(l.page) + '</link>',
-    '<description>' + esc('WE BUY ads to post. Each ad comes back as a new item when it is due to post again.') + '</description>',
+    '<description>' + esc('WE BUY ads from Graphics Studio, each a new item every day of its seven fresh days, for iPhones LA to review and post.') + '</description>',
     '<atom:link href="' + esc(l.rss) + '" rel="self" type="application/rss+xml"/>',
     '<lastBuildDate>' + rfc822(now) + '</lastBuildDate>',
     '<ttl>60</ttl>',
@@ -370,7 +388,7 @@ export async function adLibraryRoute(req, url, p, env, deps) {
 
   if (route === 'mine' && req.method === 'GET') {
     const lib = await ensureLib(store, owner);
-    return reply(Object.assign(libOut(lib, origin, now), { limit: limitFor(acct, env), repost_choices: REPOST_CHOICES }));
+    return reply(Object.assign(libOut(lib, origin, now), { limit: limitFor(acct, env) }));
   }
   if (req.method !== 'POST') return reply({ error: 'Not found' }, 404);
 
@@ -422,8 +440,6 @@ export async function adLibraryRoute(req, url, p, env, deps) {
       texts, products: cleanProducts(body.products),
       w: size.w, h: size.h, bytes: bytes.length, sha256,
       created: now, updated: now, post_from: now,
-      autopost: !hold && body.autopost !== false,
-      repost_days: repostOf(body.repost_days, lib.repost_days),
       hold,
     };
     await store.set('i:' + owner + ':' + item.id, bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
@@ -438,17 +454,6 @@ export async function adLibraryRoute(req, url, p, env, deps) {
     if (!item) return reply({ error: 'No such ad in your library' }, 404);
     if (body.title !== undefined) item.title = text(body.title, 80) || item.title;
     if (body.caption !== undefined) item.caption = text(body.caption, 500);
-    if (body.repost_days !== undefined) {
-      const r = repostOf(body.repost_days, null);
-      if (r === null) return reply({ error: 'Post again every ' + REPOST_CHOICES.join(', ') + ' days (0: once)' }, 400);
-      item.repost_days = r;
-    }
-    if (body.autopost !== undefined) {
-      const on = body.autopost === true;
-      if (on && item.hold) return reply({ error: 'This ad is held from auto-post (' + item.hold + '). Fix it in the studio and save it again.' }, 409);
-      if (on && !item.autopost) item.post_from = now;     // turned on: due now
-      item.autopost = on;
-    }
     item.updated = now;
     await writeLib(store, owner, lib);
     return reply({ item: itemOut(item, origin, lib.feed, now) });
@@ -531,13 +536,8 @@ export async function adLibraryRoute(req, url, p, env, deps) {
   if (route === 'settings') {
     const lib = await ensureLib(store, owner);
     if (body.name !== undefined) lib.name = text(body.name, 60) || 'Ad library';
-    if (body.repost_days !== undefined) {
-      const r = repostOf(body.repost_days, null);
-      if (r === null) return reply({ error: 'Post again every ' + REPOST_CHOICES.join(', ') + ' days (0: once)' }, 400);
-      lib.repost_days = r;
-    }
     await writeLib(store, owner, lib);
-    return reply({ name: lib.name, repost_days: lib.repost_days });
+    return reply({ name: lib.name });
   }
 
   if (route === 'link/reset') {
