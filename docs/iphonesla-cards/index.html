@@ -139,14 +139,18 @@ figcaption ul{margin:0; padding-left:18px; display:flex; flex-direction:column; 
 .payout .paid{align-self:flex-start; background:#2f7a4f; color:#fff; font:700 clamp(9px,1.7cqi,11px)/1 var(--body); padding:.5em .75em; border-radius:999px}
 
 /* ── style: a filled-in quote ─────────────────────────────── */
-.quote .copy{min-height:58cqi; max-width:47%}
-.slip{position:absolute; right:4.5cqi; top:5cqi; width:43cqi; background:var(--chalk); color:var(--chalk-ink); border-radius:2.4cqi; padding:2.8cqi 3cqi 3cqi; transform:rotate(2.5deg); box-shadow:0 2cqi 4cqi rgba(0,0,0,.5); z-index:2; display:flex; flex-direction:column; gap:1.6cqi; font-size:clamp(10px,2cqi,13px)}
+.quote{display:flex; flex-wrap:wrap; align-items:flex-start}
+.quote .copy{max-width:none; flex:1 0 45%}
+.quote .slip{flex:1 1 240px}
+.slip{position:relative; margin:5cqi 4.5cqi 6cqi 1cqi; background:var(--chalk); color:var(--chalk-ink); border-radius:2.4cqi; padding:2.8cqi 3cqi 3cqi; transform:rotate(2.5deg); box-shadow:0 2cqi 4cqi rgba(0,0,0,.5); z-index:2; display:flex; flex-direction:column; gap:1.6cqi; font-size:clamp(10px,2cqi,13px)}
 .slip-head{display:flex; justify-content:space-between; align-items:center; font:600 clamp(8.5px,1.6cqi,10.5px)/1 var(--body); letter-spacing:.12em; text-transform:uppercase; color:var(--chalk-soft)}
 .ex{background:#fff3c4; color:#5a4300; padding:.4em .6em; border-radius:999px; letter-spacing:.08em}
-.slip-row{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:2cqi; padding-bottom:1.6cqi; border-bottom:1px solid var(--chalk-line)}
-.slip-row img{position:static; height:7cqi; width:auto; filter:none}
-.slip-row .what{display:flex; flex-direction:column; font-weight:600; line-height:1.2; min-width:0}
-.slip-row small{font-weight:400; color:var(--chalk-soft); font-size:.86em}
+.slip-row{display:grid; grid-template-columns:auto 1fr auto; column-gap:2cqi; row-gap:.5cqi; align-items:baseline; padding-bottom:1.6cqi; border-bottom:1px solid var(--chalk-line)}
+.slip-row img{grid-row:1 / span 3; align-self:center; position:static; height:8.5cqi; width:auto; filter:none}
+.slip-row .nm{font-weight:600; line-height:1.2; min-width:0}
+.slip-row .spec, .slip-row .meta{grid-column:2 / -1; font-size:.86em; line-height:1.3; color:var(--chalk-soft)}
+.slip-row .meta{display:flex; flex-wrap:wrap; align-items:center; gap:.3em .55em}
+.grade{border:1px solid #c3c5cc; color:var(--chalk-ink); border-radius:999px; padding:.12em .55em; font-weight:600; font-size:.92em; line-height:1.2}
 .amt{font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap}
 .amt.neg{color:#2f7a4f}
 .slip-total{display:flex; justify-content:space-between; align-items:baseline; gap:2cqi}
@@ -154,9 +158,9 @@ figcaption ul{margin:0; padding-left:18px; display:flex; flex-direction:column; 
 .slip-total small{display:block; font-size:.86em; color:var(--chalk-soft); font-weight:400}
 .slip-total b{font:700 clamp(16px,4cqi,25px)/1 var(--display); font-variant-numeric:tabular-nums}
 @container (max-width: 480px){
-  .quote .copy{max-width:none; min-height:0; padding-right:5.4cqi; padding-bottom:0}
-  .quote .slip{position:relative; right:auto; top:auto; width:auto; margin:4cqi 5.4cqi 6cqi; transform:rotate(1.5deg)}
-  .quote .slip-row img{height:10cqi}
+  .quote .copy{padding-right:5.4cqi; padding-bottom:0}
+  .quote .slip{margin:4cqi 5.4cqi 6cqi; transform:rotate(1.5deg)}
+  .quote .slip-row img{height:11cqi}
 }
 
 /* ── style: the card is the first step ────────────────────── */
@@ -205,6 +209,7 @@ figcaption ul{margin:0; padding-left:18px; display:flex; flex-direction:column; 
 .ptag s{font:600 clamp(12px,2.8cqi,17px)/1 var(--display); color:var(--chalk-soft); text-decoration-thickness:2px; text-decoration-color:#c2412d}
 .ptag b{font:700 clamp(22px,6.6cqi,40px)/1 var(--display); letter-spacing:-.02em; font-variant-numeric:tabular-nums}
 .ptag span{font-size:clamp(9.5px,1.8cqi,11.5px); color:var(--chalk-soft); line-height:1.25}
+.ptag .tag-spec{font-size:clamp(8.5px,1.55cqi,10px); margin:-.2cqi 0 .6cqi}
 .sticker.big{font-size:clamp(12px,2.8cqi,17px); padding:.5em .75em}
 
 /* b, f: a bar the length of our price */
@@ -271,15 +276,55 @@ figcaption ul{margin:0; padding-left:18px; display:flex; flex-direction:column; 
 .li-toggle input{position:absolute; opacity:0; width:1px; height:1px}
 .sw{flex:none; width:clamp(32px,6.8cqi,40px); height:clamp(19px,4cqi,24px); border-radius:999px; background:#c9cbd1; position:relative; transition:background .2s}
 .sw::after{content:""; position:absolute; top:2px; left:2px; width:calc(clamp(19px,4cqi,24px) - 4px); aspect-ratio:1; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.3); transition:transform .2s}
-.li-toggle input:checked + .sw{background:#2f7a4f}
-.li-toggle input:checked + .sw::after{transform:translateX(calc(clamp(32px,6.8cqi,40px) - clamp(19px,4cqi,24px)))}
-.li-toggle input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px}
+input:checked + .sw{background:#2f7a4f}
+input:checked + .sw::after{transform:translateX(calc(clamp(32px,6.8cqi,40px) - clamp(19px,4cqi,24px)))}
+input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px}
+.shop-toggle input:focus-visible + .sw{outline-color:#fff}
 .listing.plain s, .listing.plain .li-save{visibility:hidden}
 @container (max-width: 480px){
   .listcard .copy{max-width:none; min-height:0; padding-right:5.4cqi; padding-bottom:0}
   .listcard .listing{position:relative; right:auto; top:auto; width:auto; margin:4cqi 5.4cqi 6cqi; grid-template-columns:16cqi 1fr; transform:rotate(1deg)}
   .tagcard .copy{max-width:54%}
   .tagcard .art{scale:.8; transform-origin:100% 50%}
+}
+/* ── your picks ───────────────────────────────────────────── */
+.stop{display:flex; flex-direction:column; gap:16px; padding-top:28px; border-top:1px solid var(--line)}
+.pair.match{align-items:stretch}
+.match > figure > .card{flex:1; display:flex; flex-direction:column}
+.match .picks{flex:1; align-items:center}
+.match .band{height:34cqi}
+.match .pick .pic{height:16cqi}
+.nb{white-space:nowrap}
+.match .card > .copy.full:last-child{margin-top:auto}
+.shop-head{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:2.4cqi 4cqi; padding:5cqi 5.4cqi 0; position:relative; z-index:2}
+.shop-head .copy{padding:0; max-width:none}
+.shop-head .title{margin:0}
+.shop-toggle{display:flex; align-items:center; gap:1.2cqi; cursor:pointer; background:var(--c-glass); border:1px solid var(--c-edge); border-radius:999px; padding:.9cqi 2.2cqi .9cqi 1.1cqi; font:600 clamp(11.5px,1.5cqi,14px)/1.2 var(--body); color:var(--c-ink); position:relative}
+.shop-toggle small{display:block; font-weight:500; color:var(--c-soft); font-size:.86em}
+.shop-toggle input{position:absolute; opacity:0; width:1px; height:1px}
+.shop-toggle .sw{width:36px; height:22px}
+.shop-toggle .sw::after{width:18px}
+.shop-toggle input:checked + .sw::after{transform:translateX(14px)}
+.shelf{display:grid; grid-template-columns:repeat(3,1fr); gap:2.2cqi; padding:3.2cqi 5.4cqi 0; position:relative; z-index:2}
+.item{background:var(--chalk); color:var(--chalk-ink); border-radius:1.8cqi; padding:2.2cqi 2.2cqi 2.4cqi; display:flex; flex-direction:column; gap:.5cqi; box-shadow:0 1.4cqi 2.6cqi rgba(0,0,0,.35); min-width:0}
+.item .pic{height:13cqi; display:flex; align-items:center; justify-content:center; margin-bottom:1.2cqi}
+.item .pic img{max-height:100%; max-width:100%; width:auto; height:auto}
+.item .li-name{font-size:clamp(12.5px,1.6cqi,15px)}
+.item .li-spec{font-size:clamp(10.5px,1.2cqi,12px)}
+.item .li-price b{font-size:clamp(20px,3cqi,30px)}
+.item .li-price s{font-size:clamp(11px,1.5cqi,14px)}
+.item .li-save{font-size:clamp(10px,1.2cqi,12px); margin-top:.4cqi}
+.shop.plain .item s, .shop.plain .item .li-save{visibility:hidden}
+.shelf-foot{padding:2.4cqi 5.4cqi 4.4cqi; margin:0; position:relative; z-index:2}
+@container (max-width: 620px){
+  .shelf{grid-template-columns:1fr; gap:3cqi}
+  .item{display:grid; grid-template-columns:24cqi 1fr; column-gap:4cqi; row-gap:.6cqi; align-items:center; padding:3cqi; border-radius:3cqi}
+  .item .pic{grid-row:1 / span 6; height:24cqi; margin:0}
+  .item > :not(.pic){grid-column:2}
+  .item .li-name{font-size:clamp(12.5px,3.4cqi,15px)}
+  .item .li-spec{font-size:clamp(10px,2.7cqi,12px)}
+  .item .li-price b{font-size:clamp(19px,5.6cqi,26px)}
+  .item .li-save{font-size:clamp(9.5px,2.6cqi,11.5px)}
 }
 @media (prefers-reduced-motion: reduce){ .pick, .chip, .seg.cut, .sw, .sw::after{transition:none} }
 </style>
@@ -288,9 +333,132 @@ figcaption ul{margin:0; padding-left:18px; display:flex; flex-direction:column; 
   <header class="page">
     <p class="kicker">iPhones.LA · home page</p>
     <h1>Trade-In &amp; Wholesale Cards</h1>
-    <p class="intro">New at the top: six ways to show how much a trade-in takes off the price of a device in our shop. Below that, the trade-in card now shows every kind of device we take, and the wholesale card shows a lot being built. Then come five more styles, each in a trade-in and a wholesale version, that show what each service does before anyone taps.</p>
+    <p class="intro">Your picks are at the top, in the order a customer meets them. After them: six ways to show how much a trade-in takes off the price of a device in our shop. Below that, the trade-in card now shows every kind of device we take, and the wholesale card shows a lot being built. Then come five more styles, each in a trade-in and a wholesale version, that show what each service does before anyone taps.</p>
     <p class="note"><b>About the wholesale card.</b> The wholesale configuration pages weren't reachable from here, so this card is drawn from the lot builder's basic pieces: a tile for each category with a count. Send a screenshot of the configuration page and the card will match it exactly.</p>
   </header>
+
+  <!-- ═══════════ your picks ═══════════ -->
+  <section aria-labelledby="picks" id="your-picks">
+    <div class="sec-head">
+      <h2 id="picks">Your picks</h2>
+      <p>The cards you chose, in the order a customer meets them: the home page, then the shop, then the quote. Devices carry real-looking specs (storage, colour, carrier, grade, battery); prices and specs are examples until they come from the inventory.</p>
+    </div>
+
+    <div class="stop">
+      <div class="style-head">
+        <h3 class="style-name">1. Home page</h3>
+        <p>The trade-in card is the first step of the form; the wholesale card shows the whole deal in one picture. Side by side they keep the same height.</p>
+      </div>
+      <div class="pair match">
+        <figure>
+          <article class="card ti" data-picker>
+            <div class="copy full">
+              <p class="eyebrow">Trade in a device</p>
+              <h3 class="title sm">What are you trading in?</h3>
+            </div>
+            <div class="picks" role="group" aria-label="Device to trade in">
+              <button class="pick" type="button" data-name="iPhone" aria-pressed="false"><span class="pic"><img src="img/iphone-17-pro-orange.webp" alt=""></span>iPhone</button>
+              <button class="pick" type="button" data-name="iPad" aria-pressed="false"><span class="pic"><img src="img/ipad-air-purple.webp" alt=""></span>iPad</button>
+              <button class="pick" type="button" data-name="Mac" aria-pressed="false"><span class="pic"><img src="img/macbook-air-sky.webp" alt=""></span>Mac</button>
+              <button class="pick" type="button" data-name="Watch" aria-pressed="false"><span class="pic"><img src="img/watch-rose.webp" alt=""></span>Watch</button>
+              <button class="pick" type="button" data-name="AirPods" aria-pressed="false"><span class="pic"><img src="img/airpods-pro.webp" alt=""></span>AirPods</button>
+            </div>
+            <div class="bar">
+              <button class="btn" type="button"><span class="lbl">Start a trade-in</span> <span aria-hidden="true">→</span></button>
+              <p class="foot">Your offer first · then pick a device</p>
+            </div>
+          </article>
+        </figure>
+        <figure>
+          <article class="card ws">
+            <div class="band" aria-hidden="true">
+              <img class="dev" src="img/macbook-pro-black.webp" alt="" style="width:24cqi;left:6cqi;top:7cqi;transform:rotate(-6deg)">
+              <img class="dev" src="img/ipad-air-blue.webp" alt="" style="width:14cqi;left:22cqi;top:12cqi;transform:rotate(8deg)">
+              <img class="dev" src="img/iphone-16-pro-white.webp" alt="" style="width:9cqi;left:9cqi;top:17cqi;transform:rotate(-14deg)">
+              <img class="dev" src="img/iphone-16-pro-black.webp" alt="" style="width:9cqi;left:16cqi;top:19cqi;transform:rotate(-3deg)">
+              <img class="dev" src="img/iphone-15-pro-natural.webp" alt="" style="width:9cqi;left:33cqi;top:18cqi;transform:rotate(12deg)">
+              <span class="arrow">→</span>
+              <div class="payout"><small>Lot paid</small><b>1 order</b><span>37 devices, each one priced</span><span class="paid">✓ Paid</span></div>
+            </div>
+            <div class="copy full" style="padding-bottom:5.4cqi">
+              <p class="eyebrow">Wholesale</p>
+              <h3 class="title sm">A whole lot in. One payment out.</h3>
+              <p class="lede">Every iPhone, iPad and Mac gets its own price, all in one order.</p>
+              <button class="btn" type="button">Build a lot <span aria-hidden="true">→</span></button>
+            </div>
+          </article>
+        </figure>
+      </div>
+    </div>
+
+    <div class="stop">
+      <div class="style-head">
+        <h3 class="style-name">2. In the shop</h3>
+        <p>Once a customer has an offer, every device in the shop shows its price with the trade-in taken off (style E, across the whole shelf). The switch shows full prices again. Try it.</p>
+      </div>
+      <figure>
+          <article class="card ti shop" data-shop>
+            <div class="shop-head">
+              <div class="copy">
+                <p class="eyebrow">Shop with your trade-in</p>
+                <h3 class="title sm">Every price, minus your offer</h3>
+              </div>
+              <label class="shop-toggle" for="shop-tradein"><input type="checkbox" id="shop-tradein" checked><span class="sw" aria-hidden="true"></span><span>Use my trade-in<small>iPhone 15 Pro · −$330</small></span></label>
+            </div>
+            <div class="shelf">
+              <div class="item" data-price="899"><span class="pic"><img src="img/iphone-17-pro-orange.webp" alt=""></span><span class="li-name">iPhone 17 Pro</span><span class="li-spec">256 GB · Cosmic Orange · Unlocked</span><span class="li-spec">Grade A · Battery 100%</span><div class="li-price"><b class="now">$569</b><s>$899</s></div><span class="li-save">−$330 with your iPhone 15 Pro</span></div>
+              <div class="item" data-price="479"><span class="pic"><img src="img/ipad-air-blue.webp" alt=""></span><span class="li-name">iPad Air <span class="nb">11-inch</span> (M3)</span><span class="li-spec">128 GB · Wi-Fi · Blue</span><span class="li-spec">Grade A · Battery 97%</span><div class="li-price"><b class="now">$149</b><s>$479</s></div><span class="li-save">−$330 with your iPhone 15 Pro</span></div>
+              <div class="item" data-price="799"><span class="pic"><img src="img/macbook-air-sky.webp" alt=""></span><span class="li-name">MacBook Air <span class="nb">13-inch</span> (M4)</span><span class="li-spec">16 GB · 256 GB SSD · Sky Blue</span><span class="li-spec">Grade A · 42 battery cycles</span><div class="li-price"><b class="now">$469</b><s>$799</s></div><span class="li-save">−$330 with your iPhone 15 Pro</span></div>
+            </div>
+            <p class="foot shelf-foot">Example prices and specs · the offer comes off whichever device they pick</p>
+          </article>
+      </figure>
+    </div>
+
+    <div class="stop">
+      <div class="style-head">
+        <h3 class="style-name">3. The quote</h3>
+        <p>When they pick a device, the filled-in quote shows the math before they confirm. The lot sheet is its partner on the wholesale side.</p>
+      </div>
+      <div class="pair">
+        <figure>
+          <article class="card ti quote">
+            <div class="copy">
+              <p class="eyebrow">Yours toward a new one</p>
+              <h3 class="title">Trade In A Device</h3>
+              <p class="lede">Your offer comes straight off the price</p>
+              <button class="btn" type="button">Start a trade-in <span aria-hidden="true">→</span></button>
+              <p class="foot">Your offer first · then pick a device</p>
+            </div>
+            <div class="slip" aria-label="Example trade-in quote">
+              <div class="slip-head"><span>Trade-in quote</span><span class="ex">Example</span></div>
+              <div class="slip-row"><img src="img/iphone-17-pro-orange.webp" alt=""><b class="nm">iPhone 17 Pro</b><span class="amt">$899</span><span class="spec">256 GB · Cosmic Orange · Unlocked</span><span class="meta"><span class="grade">Grade A</span>Battery 100% · from our shop</span></div>
+              <div class="slip-row"><img src="img/iphone-15-pro-natural.webp" alt=""><b class="nm">Your iPhone 15 Pro</b><span class="amt neg">−$330</span><span class="spec">128 GB · Natural Titanium · Unlocked</span><span class="meta"><span class="grade">Good</span>Battery 88% · no cracks</span></div>
+              <div class="slip-total"><span>You pay<small>the difference</small></span><b>$569</b></div>
+            </div>
+          </article>
+        </figure>
+        <figure>
+          <article class="card ws quote">
+            <div class="copy">
+              <p class="eyebrow">Lots and resellers</p>
+              <h3 class="title">Sell Wholesale</h3>
+              <p class="lede">Every device priced, the whole lot in one order</p>
+              <button class="btn" type="button">Build a lot <span aria-hidden="true">→</span></button>
+              <p class="foot">iPhones · iPads · Macs</p>
+            </div>
+            <div class="slip" aria-label="Example lot sheet">
+              <div class="slip-head"><span>Lot sheet</span><span class="ex">Example</span></div>
+              <div class="slip-row"><img src="img/iphone-16-pro-black.webp" alt=""><b class="nm">iPhone 16 Pro</b><span class="amt">$5,760</span><span class="spec">256 GB · Black Titanium · Unlocked</span><span class="meta"><span class="grade">Grade A</span>12 × $480</span></div>
+              <div class="slip-row"><img src="img/ipad-air-blue.webp" alt=""><b class="nm">iPad Air <span class="nb">11-inch</span> (M3)</b><span class="amt">$1,980</span><span class="spec">128 GB · Wi-Fi · Blue</span><span class="meta"><span class="grade">Grade A</span>6 × $330</span></div>
+              <div class="slip-row"><img src="img/macbook-pro-black.webp" alt=""><b class="nm">MacBook Pro <span class="nb">14-inch</span> (M4)</b><span class="amt">$2,460</span><span class="spec">16 GB · 512 GB SSD · Space Black</span><span class="meta"><span class="grade">Grade B</span>3 × $820</span></div>
+              <div class="slip-total"><span>Lot total<small>21 devices · one order</small></span><b>$10,200</b></div>
+            </div>
+          </article>
+        </figure>
+      </div>
+    </div>
+  </section>
 
   <!-- ═══════════ 0. what comes off the price ═══════════ -->
   <section aria-labelledby="off" id="what-comes-off">
@@ -312,7 +480,7 @@ figcaption ul{margin:0; padding-left:18px; display:flex; flex-direction:column; 
           </div>
           <div class="art" aria-hidden="true">
             <img class="dev" src="img/iphone-17-pro-blue.webp" alt="" style="width:20cqi;left:53cqi;top:5cqi;transform:rotate(-7deg)">
-            <div class="ptag"><small>iPhone 17 Pro</small><s>$899</s><b>$569</b><span>with your iPhone 15 Pro</span></div>
+            <div class="ptag"><small>iPhone 17 Pro</small><span class="tag-spec">256 GB · Deep Blue · Unlocked</span><s>$899</s><b>$569</b><span>with your iPhone 15 Pro</span></div>
             <span class="sticker big" style="left:62cqi;top:11cqi;transform:rotate(-12deg);z-index:4">−$330</span>
           </div>
         </article>
@@ -328,7 +496,7 @@ figcaption ul{margin:0; padding-left:18px; display:flex; flex-direction:column; 
             <p class="lede" style="margin-bottom:0">Your old phone pays for part of the new one</p>
           </div>
           <div class="meter" role="img" aria-label="Example: iPhone 17 Pro $899. Your iPhone 15 Pro covers $330. You pay $569.">
-            <div class="meter-top"><img src="img/iphone-17-pro-orange.webp" alt="">iPhone 17 Pro · 256 GB<b>$899</b></div>
+            <div class="meter-top"><img src="img/iphone-17-pro-orange.webp" alt="">iPhone 17 Pro · 256 GB · Cosmic Orange<b>$899</b></div>
             <div class="track">
               <div class="seg cut" style="width:36.7%"><img src="img/iphone-15-pro-natural.webp" alt=""><b>−$330</b></div>
               <div class="seg rest"><span>You pay</span><b>$569</b></div>
@@ -374,9 +542,9 @@ figcaption ul{margin:0; padding-left:18px; display:flex; flex-direction:column; 
             <h3 class="title sm">Trade In A Device</h3>
           </div>
           <div class="eq" role="img" aria-label="Example: iPhone 17 Pro $899 minus your iPhone 15 Pro $330 equals you pay $569.">
-            <div class="eqc"><span class="pic"><img src="img/iphone-17-pro-orange.webp" alt=""></span><small>iPhone 17 Pro</small><b>$899</b></div>
+            <div class="eqc"><span class="pic"><img src="img/iphone-17-pro-orange.webp" alt=""></span><small>iPhone 17 Pro<br>256 GB</small><b>$899</b></div>
             <span class="eqop">−</span>
-            <div class="eqc"><span class="pic"><img src="img/iphone-15-pro-natural.webp" alt="" style="filter:saturate(.7) drop-shadow(0 .8cqi 1.2cqi rgba(0,0,0,.4))"></span><small>Your iPhone 15 Pro</small><b>$330</b></div>
+            <div class="eqc"><span class="pic"><img src="img/iphone-15-pro-natural.webp" alt="" style="filter:saturate(.7) drop-shadow(0 .8cqi 1.2cqi rgba(0,0,0,.4))"></span><small>Your iPhone 15 Pro<br>128 GB</small><b>$330</b></div>
             <span class="eqop">=</span>
             <div class="eqc res"><small>You pay</small><b>$569</b><small>Example prices</small></div>
           </div>
@@ -402,7 +570,8 @@ figcaption ul{margin:0; padding-left:18px; display:flex; flex-direction:column; 
             <img src="img/iphone-17-pro-orange.webp" alt="">
             <div class="li-body">
               <span class="li-name">iPhone 17 Pro</span>
-              <span class="li-spec">256 GB · Cosmic Orange</span>
+              <span class="li-spec">256 GB · Cosmic Orange · Unlocked</span>
+              <span class="li-spec">Grade A · Battery 100%</span>
               <div class="li-price"><b class="li-now">$569</b><s>$899</s></div>
               <span class="li-save">−$330 with your iPhone 15 Pro</span>
             </div>
@@ -426,7 +595,7 @@ figcaption ul{margin:0; padding-left:18px; display:flex; flex-direction:column; 
             <button class="chip" type="button" data-offer="470" data-name="iPhone 16 Pro" aria-pressed="false">iPhone 16 Pro</button>
           </div>
           <div class="meter">
-            <div class="meter-top"><img src="img/iphone-17-pro-blue.webp" alt="">iPhone 17 Pro · 256 GB<b>$899</b></div>
+            <div class="meter-top"><img src="img/iphone-17-pro-blue.webp" alt="">iPhone 17 Pro · 256 GB · Deep Blue<b>$899</b></div>
             <div class="track" aria-live="polite">
               <div class="seg cut" style="width:36.7%"><b class="cut-amt">−$330</b></div>
               <div class="seg rest"><span>You pay</span><b class="pay-amt">$569</b></div>
@@ -647,8 +816,8 @@ figcaption ul{margin:0; padding-left:18px; display:flex; flex-direction:column; 
             </div>
             <div class="slip" aria-label="Example trade-in quote">
               <div class="slip-head"><span>Trade-in quote</span><span class="ex">Example</span></div>
-              <div class="slip-row"><img src="img/iphone-17-pro-orange.webp" alt=""><span class="what">iPhone 17 Pro<small>256 GB · from our shop</small></span><span class="amt">$899</span></div>
-              <div class="slip-row"><img src="img/iphone-15-pro-natural.webp" alt=""><span class="what">Your iPhone 15 Pro<small>128 GB · good</small></span><span class="amt neg">−$330</span></div>
+              <div class="slip-row"><img src="img/iphone-17-pro-orange.webp" alt=""><b class="nm">iPhone 17 Pro</b><span class="amt">$899</span><span class="spec">256 GB · Cosmic Orange · Unlocked</span><span class="meta"><span class="grade">Grade A</span>Battery 100% · from our shop</span></div>
+              <div class="slip-row"><img src="img/iphone-15-pro-natural.webp" alt=""><b class="nm">Your iPhone 15 Pro</b><span class="amt neg">−$330</span><span class="spec">128 GB · Natural Titanium · Unlocked</span><span class="meta"><span class="grade">Good</span>Battery 88% · no cracks</span></div>
               <div class="slip-total"><span>You pay<small>the difference</small></span><b>$569</b></div>
             </div>
           </article>
@@ -664,10 +833,10 @@ figcaption ul{margin:0; padding-left:18px; display:flex; flex-direction:column; 
             </div>
             <div class="slip" aria-label="Example lot sheet">
               <div class="slip-head"><span>Lot sheet</span><span class="ex">Example</span></div>
-              <div class="slip-row"><img src="img/iphone-16-pro-black.webp" alt=""><span class="what">iPhone 16 Pro<small>×12</small></span><span class="amt">$4,560</span></div>
-              <div class="slip-row"><img src="img/ipad-air-blue.webp" alt=""><span class="what">iPad Air<small>×6</small></span><span class="amt">$1,440</span></div>
-              <div class="slip-row"><img src="img/macbook-pro-black.webp" alt=""><span class="what">MacBook Pro<small>×3</small></span><span class="amt">$1,170</span></div>
-              <div class="slip-total"><span>Lot total<small>21 devices · one order</small></span><b>$7,170</b></div>
+              <div class="slip-row"><img src="img/iphone-16-pro-black.webp" alt=""><b class="nm">iPhone 16 Pro</b><span class="amt">$5,760</span><span class="spec">256 GB · Black Titanium · Unlocked</span><span class="meta"><span class="grade">Grade A</span>12 × $480</span></div>
+              <div class="slip-row"><img src="img/ipad-air-blue.webp" alt=""><b class="nm">iPad Air <span class="nb">11-inch</span> (M3)</b><span class="amt">$1,980</span><span class="spec">128 GB · Wi-Fi · Blue</span><span class="meta"><span class="grade">Grade A</span>6 × $330</span></div>
+              <div class="slip-row"><img src="img/macbook-pro-black.webp" alt=""><b class="nm">MacBook Pro <span class="nb">14-inch</span> (M4)</b><span class="amt">$2,460</span><span class="spec">16 GB · 512 GB SSD · Space Black</span><span class="meta"><span class="grade">Grade B</span>3 × $820</span></div>
+              <div class="slip-total"><span>Lot total<small>21 devices · one order</small></span><b>$10,200</b></div>
             </div>
           </article>
         </figure>
@@ -808,6 +977,16 @@ document.querySelectorAll('[data-offers]').forEach(function (card) {
       card.querySelector('.cut-amt').textContent = '−' + usd(offer);
       card.querySelector('.pay-amt').textContent = usd(PRICE - offer);
       card.querySelector('.cut-name').textContent = 'Your ' + chip.dataset.name + ' covers this much';
+    });
+  });
+});
+document.querySelectorAll('[data-shop]').forEach(function (card) {
+  var box = card.querySelector('input');
+  box.addEventListener('change', function () {
+    card.classList.toggle('plain', !box.checked);
+    card.querySelectorAll('.item').forEach(function (it) {
+      var price = +it.dataset.price;
+      it.querySelector('.now').textContent = usd(box.checked ? price - 330 : price);
     });
   });
 });
