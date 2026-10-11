@@ -1,0 +1,552 @@
+<title>Trade-In &amp; Wholesale Cards</title>
+<!-- Mockups for the two home-page cards on iPhones.LA (owner, 2026-10-11).
+     Published as an Artifact, so no doctype/head/body of its own: the
+     publisher wraps it. To open it locally, serve this folder and open
+     index.html; images are the shop's own cut-outs, copied small into img/. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: a review sheet. Each card at the site's own proportions with a short note on why it works; the cards keep the site's dark grounds in both page themes. */
+:root{
+  --bg:#eceef1; --panel:#f8f9fb; --ink:#14161b; --muted:#596170; --line:#d6dae1; --mark:#9a4f2b;
+  --display:"Inter Tight","Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --body:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  /* the cards' own palette, the same in both themes, as on the site */
+  --ti-top:#1d2240; --ti-mid:#302d4c; --ti-low:#7b4243;
+  --peach:#f4b991; --peach-ink:#26170e;
+  --ws-top:#1a1b1f; --ws-mid:#2a2b30; --ws-low:#50525a;
+  --chalk:#ededf0; --chalk-ink:#16171b; --chalk-soft:#5c606a; --chalk-line:#d5d6db;
+  --c-ink:#ffffff; --c-soft:rgba(255,255,255,.84); --c-faint:rgba(255,255,255,.58);
+  --c-glass:rgba(255,255,255,.07); --c-edge:rgba(255,255,255,.14);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#0e1013; --panel:#15181d; --ink:#eceef2; --muted:#9ba3af; --line:#272b33; --mark:#f0b48f; color-scheme:dark }
+}
+:root[data-theme="dark"]{ --bg:#0e1013; --panel:#15181d; --ink:#eceef2; --muted:#9ba3af; --line:#272b33; --mark:#f0b48f; color-scheme:dark }
+
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg); color:var(--ink); font-family:var(--body); font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased}
+.wrap{max-width:1140px; margin:0 auto; padding-inline:20px; padding-block:40px 80px; display:flex; flex-direction:column; gap:64px}
+
+/* ── the sheet ─────────────────────────────────────────────── */
+.page{display:flex; flex-direction:column; gap:12px; max-width:70ch}
+.kicker{font:600 11px/1.2 var(--body); letter-spacing:.16em; text-transform:uppercase; color:var(--mark); margin:0}
+h1{font:600 clamp(30px,5vw,46px)/1.05 var(--display); letter-spacing:-.025em; margin:0; text-wrap:balance}
+.intro{color:var(--muted); margin:0; font-size:16px}
+.note{margin:4px 0 0; padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:var(--panel); color:var(--muted); font-size:14px}
+.note b{color:var(--ink); font-weight:600}
+
+section{display:flex; flex-direction:column; gap:22px}
+.sec-head{display:flex; flex-direction:column; gap:6px; max-width:72ch}
+h2{font:600 clamp(21px,2.6vw,27px)/1.15 var(--display); letter-spacing:-.015em; margin:0}
+.sec-head p{margin:0; color:var(--muted)}
+.style{display:flex; flex-direction:column; gap:16px; padding-top:28px; border-top:1px solid var(--line)}
+.style-head{display:flex; flex-direction:column; gap:4px; max-width:72ch}
+h3.style-name{font:600 18px/1.25 var(--display); margin:0; letter-spacing:-.01em}
+.style-head p{margin:0; color:var(--muted); font-size:14.5px}
+
+.pair{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr)); gap:24px; align-items:start}
+figure{margin:0; display:flex; flex-direction:column; gap:12px; min-width:0}
+figcaption{font-size:13.5px; color:var(--muted); display:flex; flex-direction:column; gap:6px}
+figcaption b{color:var(--ink); font-weight:600}
+figcaption ul{margin:0; padding-left:18px; display:flex; flex-direction:column; gap:3px}
+
+/* ── the card ──────────────────────────────────────────────── */
+.card{position:relative; overflow:hidden; border-radius:20px; color:var(--c-ink); container-type:inline-size; isolation:isolate; font-family:var(--body); line-height:1.4}
+.card.ti, .half.ti{background:
+  radial-gradient(120% 95% at 0% 108%, rgba(176,96,63,.95) 0%, rgba(176,96,63,0) 58%),
+  radial-gradient(80% 70% at 100% 100%, rgba(150,74,62,.7) 0%, rgba(150,74,62,0) 65%),
+  linear-gradient(172deg, var(--ti-top) 0%, var(--ti-mid) 55%, var(--ti-low) 100%)}
+.card.ws, .half.ws{background:
+  radial-gradient(110% 90% at 0% 112%, rgba(118,120,128,.6) 0%, rgba(118,120,128,0) 60%),
+  linear-gradient(172deg, var(--ws-top) 0%, var(--ws-mid) 60%, var(--ws-low) 100%)}
+
+.copy{position:relative; z-index:3; display:flex; flex-direction:column; align-items:flex-start; padding:5.6cqi 0 5cqi 5.4cqi; max-width:52%}
+.copy.full{max-width:none; padding-right:5.4cqi; padding-bottom:0}
+.eyebrow{font:600 clamp(9px,1.75cqi,11px)/1.2 var(--body); letter-spacing:.16em; text-transform:uppercase; color:var(--c-soft); margin:0 0 2.2cqi}
+.title{font:600 clamp(24px,6cqi,38px)/1.07 var(--display); letter-spacing:-.022em; margin:0 0 2.4cqi; text-wrap:balance; color:var(--c-ink)}
+.title.sm{font-size:clamp(21px,4.6cqi,30px)}
+.lede{font-size:clamp(12.5px,2.45cqi,15px); line-height:1.45; color:var(--c-soft); margin:0 0 3.6cqi; max-width:36ch; text-wrap:pretty}
+.btn{font:600 clamp(12.5px,2.3cqi,14px)/1 var(--body); display:inline-flex; align-items:center; gap:.45em; padding:clamp(10px,2.1cqi,13px) clamp(15px,3.3cqi,20px); border-radius:999px; border:0; cursor:pointer; white-space:nowrap}
+.ti .btn{background:var(--peach); color:var(--peach-ink)}
+.ws .btn{background:var(--chalk); color:var(--chalk-ink)}
+.btn:hover{filter:brightness(1.06)}
+.btn:focus-visible, .pick:focus-visible, .stepper button:focus-visible{outline:2px solid #fff; outline-offset:2px}
+.foot{font-size:clamp(10px,1.85cqi,11.5px); color:var(--c-faint); margin:2.4cqi 0 0}
+
+.art{position:absolute; inset:0; z-index:1; pointer-events:none}
+.art img, .dev{position:absolute; display:block; height:auto; max-width:none; filter:drop-shadow(0 1.4cqi 2.2cqi rgba(0,0,0,.45))}
+/* a card's cqi are its children's: the height is set on the copy, which holds the card open */
+.hero .copy{min-height:48cqi}
+@container (max-width: 480px){
+  .hero .copy{max-width:56%}
+  .fam{scale:.84; transform-origin:100% 100%}
+  .lot{scale:.84; left:62cqi}
+}
+
+/* ── 1a trade-in: the family ──────────────────────────────── */
+.fam .mac   {width:43cqi; left:58cqi; bottom:19cqi}
+.fam .ipad  {width:24cqi; left:52cqi; bottom:-5cqi; transform:rotate(-8deg)}
+.fam .pods  {width:9cqi; left:90.5cqi; bottom:27cqi; transform:rotate(12deg)}
+.fam .watch {width:13cqi; left:70cqi; bottom:-2.5cqi; transform:rotate(-4deg)}
+.fam .phone {width:17cqi; left:80cqi; bottom:-9cqi; transform:rotate(9deg)}
+
+/* ── 1b wholesale: the lot builder's tiles ────────────────── */
+.lot{position:absolute; left:58cqi; bottom:-1cqi; width:46cqi; display:grid; grid-template-columns:1fr 1fr; gap:2.2cqi; transform:rotate(-7deg); transform-origin:bottom left; z-index:1}
+.tile{background:var(--chalk); color:var(--chalk-ink); border-radius:2.6cqi; padding:1.8cqi 2cqi 2cqi; display:flex; flex-direction:column; gap:1.2cqi; box-shadow:0 1.6cqi 3cqi rgba(0,0,0,.45)}
+.tile .pic{height:13cqi; display:flex; align-items:center; justify-content:center}
+.tile .pic img{position:static; max-height:100%; width:auto; max-width:100%; filter:none}
+.tile .row{display:flex; justify-content:space-between; align-items:center; gap:4px; font:600 clamp(9px,1.9cqi,12.5px)/1 var(--body)}
+.qty{background:var(--chalk-ink); color:var(--chalk); border-radius:999px; padding:.35em .6em; font-variant-numeric:tabular-nums}
+.tile.add{background:transparent; border:1.5px dashed rgba(255,255,255,.34); color:var(--c-soft); box-shadow:none; align-items:center; justify-content:center; font:600 clamp(9px,1.9cqi,12.5px)/1.2 var(--body); text-align:center}
+.tile.add span{font-size:2.2em; font-weight:400; line-height:1}
+
+/* ── style: steps ─────────────────────────────────────────── */
+.flow{list-style:none; margin:0; padding:3cqi 5.4cqi 0; display:grid; grid-template-columns:repeat(3,1fr); gap:5cqi; position:relative; z-index:2}
+.flow li{display:flex; flex-direction:column; gap:1.4cqi; position:relative; min-width:0}
+.flow li:not(:last-child)::after{content:"→"; position:absolute; right:-4.1cqi; top:9cqi; transform:translateX(50%); font:500 clamp(14px,3.4cqi,22px)/1 var(--body); color:var(--c-faint)}
+.viz{height:22cqi; position:relative; border-radius:2.4cqi; background:var(--c-glass); border:1px solid var(--c-edge)}
+.viz img{position:absolute; height:auto; max-width:none; filter:drop-shadow(0 1cqi 1.6cqi rgba(0,0,0,.4))}
+.step-cap{display:flex; gap:1.4cqi; align-items:baseline; font-size:clamp(11.5px,2.25cqi,14px); line-height:1.3; color:var(--c-soft)}
+.step-cap .n{flex:none; font:600 clamp(10px,1.9cqi,12px)/1 var(--body); width:2.2em; height:2.2em; border-radius:50%; display:inline-grid; place-items:center; border:1px solid var(--c-edge); color:var(--c-ink); transform:translateY(-.15em)}
+.bar{display:flex; flex-wrap:wrap; align-items:center; gap:2cqi 3.4cqi; padding:4cqi 5.4cqi 5cqi; position:relative; z-index:2}
+.bar .foot{margin:0}
+
+.tag{position:absolute; inset:0; margin:auto; width:62%; height:58%; background:var(--peach); color:var(--peach-ink); border-radius:1.6cqi 1.6cqi 1.6cqi 1.6cqi; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.6cqi; transform:rotate(-5deg); box-shadow:0 1.2cqi 2cqi rgba(0,0,0,.35)}
+.tag::before{content:""; position:absolute; left:1.6cqi; top:50%; width:1.6cqi; height:1.6cqi; border-radius:50%; background:var(--ti-mid); transform:translateY(-50%)}
+.tag b{font:700 clamp(18px,5.4cqi,34px)/1 var(--display)}
+.tag small{font:600 clamp(8.5px,1.6cqi,10.5px)/1 var(--body); letter-spacing:.12em; text-transform:uppercase}
+.sticker{position:absolute; background:var(--peach); color:var(--peach-ink); font:700 clamp(9px,1.7cqi,11px)/1 var(--body); padding:.55em .7em; border-radius:999px; box-shadow:0 .8cqi 1.4cqi rgba(0,0,0,.35); white-space:nowrap}
+
+.mini{position:absolute; inset:2cqi; background:var(--chalk); color:var(--chalk-ink); border-radius:1.6cqi; padding:1.6cqi 1.8cqi; display:flex; flex-direction:column; justify-content:center; gap:1.1cqi; font:600 clamp(8.5px,1.6cqi,10.5px)/1.1 var(--body)}
+.mini div{display:flex; justify-content:space-between; gap:4px; padding-bottom:1cqi; border-bottom:1px solid var(--chalk-line)}
+.mini div:last-child{border:0; padding:0}
+.mini i{font-style:normal; color:#2f7a4f}
+.done{position:absolute; inset:2cqi; background:var(--chalk); color:var(--chalk-ink); border-radius:1.6cqi; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1cqi; text-align:center; font:600 clamp(9px,1.8cqi,11.5px)/1.2 var(--body)}
+.done .tick{width:6.4cqi; height:6.4cqi; border-radius:50%; background:#2f7a4f; color:#fff; display:grid; place-items:center; font:700 clamp(12px,3.2cqi,20px)/1 var(--body)}
+.done b{font:700 clamp(13px,3.4cqi,21px)/1 var(--display)}
+
+/* ── style: swap (picture on top, words under it) ─────────── */
+.band{position:relative; height:40cqi; z-index:1}
+.band .arrow{position:absolute; left:50%; top:47%; transform:translate(-50%,-50%); font:600 clamp(22px,7cqi,44px)/1 var(--display); color:var(--peach); z-index:4}
+.ws .band .arrow{color:var(--chalk)}
+.dim{filter:saturate(.55) brightness(.78) drop-shadow(0 1.4cqi 2.2cqi rgba(0,0,0,.45)) !important}
+.payout{position:absolute; left:59cqi; top:9cqi; width:30cqi; background:var(--chalk); color:var(--chalk-ink); border-radius:2.6cqi; padding:3cqi 3.2cqi; display:flex; flex-direction:column; gap:1.3cqi; transform:rotate(3deg); box-shadow:0 1.6cqi 3cqi rgba(0,0,0,.45); z-index:3}
+.payout small{font:600 clamp(8.5px,1.6cqi,10.5px)/1 var(--body); letter-spacing:.12em; text-transform:uppercase; color:var(--chalk-soft)}
+.payout b{font:700 clamp(16px,4.6cqi,29px)/1 var(--display); letter-spacing:-.01em}
+.payout span{font-size:clamp(10px,1.9cqi,12px); color:var(--chalk-soft)}
+.payout .paid{align-self:flex-start; background:#2f7a4f; color:#fff; font:700 clamp(9px,1.7cqi,11px)/1 var(--body); padding:.5em .75em; border-radius:999px}
+
+/* ── style: a filled-in quote ─────────────────────────────── */
+.quote .copy{min-height:58cqi; max-width:47%}
+.slip{position:absolute; right:4.5cqi; top:5cqi; width:43cqi; background:var(--chalk); color:var(--chalk-ink); border-radius:2.4cqi; padding:2.8cqi 3cqi 3cqi; transform:rotate(2.5deg); box-shadow:0 2cqi 4cqi rgba(0,0,0,.5); z-index:2; display:flex; flex-direction:column; gap:1.6cqi; font-size:clamp(10px,2cqi,13px)}
+.slip-head{display:flex; justify-content:space-between; align-items:center; font:600 clamp(8.5px,1.6cqi,10.5px)/1 var(--body); letter-spacing:.12em; text-transform:uppercase; color:var(--chalk-soft)}
+.ex{background:#fff3c4; color:#5a4300; padding:.4em .6em; border-radius:999px; letter-spacing:.08em}
+.slip-row{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:2cqi; padding-bottom:1.6cqi; border-bottom:1px solid var(--chalk-line)}
+.slip-row img{position:static; height:7cqi; width:auto; filter:none}
+.slip-row .what{display:flex; flex-direction:column; font-weight:600; line-height:1.2; min-width:0}
+.slip-row small{font-weight:400; color:var(--chalk-soft); font-size:.86em}
+.amt{font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap}
+.amt.neg{color:#2f7a4f}
+.slip-total{display:flex; justify-content:space-between; align-items:baseline; gap:2cqi}
+.slip-total span{font-weight:600}
+.slip-total small{display:block; font-size:.86em; color:var(--chalk-soft); font-weight:400}
+.slip-total b{font:700 clamp(16px,4cqi,25px)/1 var(--display); font-variant-numeric:tabular-nums}
+@container (max-width: 480px){
+  .quote .copy{max-width:none; min-height:0; padding-right:5.4cqi; padding-bottom:0}
+  .quote .slip{position:relative; right:auto; top:auto; width:auto; margin:4cqi 5.4cqi 6cqi; transform:rotate(1.5deg)}
+  .quote .slip-row img{height:10cqi}
+}
+
+/* ── style: the card is the first step ────────────────────── */
+.picks{display:grid; grid-template-columns:repeat(5,1fr); gap:1.8cqi; padding:3cqi 5.4cqi 0; position:relative; z-index:2}
+.picks.three{grid-template-columns:repeat(3,1fr)}
+.pick{all:unset; box-sizing:border-box; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:1.4cqi; padding:2.4cqi 1cqi 2cqi; border-radius:2.4cqi; background:var(--c-glass); border:1px solid var(--c-edge); font:600 clamp(10.5px,2.1cqi,13px)/1.1 var(--body); color:var(--c-ink); text-align:center; transition:background .15s, border-color .15s}
+.pick:hover{background:rgba(255,255,255,.12)}
+.pick[aria-pressed="true"]{border-color:var(--peach); background:rgba(244,185,145,.16)}
+.pick .pic, .lotpick .pic{height:13cqi; width:100%; display:flex; align-items:center; justify-content:center}
+.pick img, .lotpick img{max-height:100%; max-width:100%; width:auto; height:auto; filter:drop-shadow(0 .8cqi 1.2cqi rgba(0,0,0,.4))}
+.lotpick{display:flex; flex-direction:column; align-items:center; gap:1.6cqi; padding:2.4cqi 1.6cqi 2cqi; border-radius:2.4cqi; background:var(--c-glass); border:1px solid var(--c-edge); font:600 clamp(10.5px,2.1cqi,13px)/1.1 var(--body)}
+.stepper{display:flex; align-items:center; gap:1.4cqi; background:rgba(0,0,0,.28); border-radius:999px; padding:.6cqi}
+.stepper button{all:unset; cursor:pointer; width:clamp(22px,4.6cqi,28px); height:clamp(22px,4.6cqi,28px); border-radius:50%; display:grid; place-items:center; background:var(--chalk); color:var(--chalk-ink); font:600 clamp(13px,2.6cqi,16px)/1 var(--body)}
+.stepper output{min-width:2.2em; text-align:center; font-variant-numeric:tabular-nums}
+
+/* ── style: which one is for me ───────────────────────────── */
+.chooser{container-type:inline-size}
+.split{display:grid; grid-template-columns:1fr 1fr; position:relative; border-radius:20px; overflow:hidden}
+.half{position:relative; overflow:hidden; color:var(--c-ink); container-type:inline-size; isolation:isolate}
+.half .copy{min-height:56cqi}
+.half .copy{max-width:60%; padding:7cqi 0 7cqi 7cqi}
+.half .title{font-size:clamp(22px,7.4cqi,34px)}
+.half .eyebrow{font-size:clamp(9px,2.2cqi,11px)}
+.half .lede{font-size:clamp(12.5px,3cqi,15px)}
+.half .btn{font-size:clamp(12.5px,2.9cqi,14px)}
+.or{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:5; width:46px; height:46px; border-radius:50%; background:var(--chalk); color:var(--chalk-ink); display:grid; place-items:center; font:600 13px/1 var(--display); box-shadow:0 6px 16px rgba(0,0,0,.4)}
+.one .phone{width:23cqi; left:62cqi; bottom:-12cqi; transform:rotate(8deg)}
+.many .ipad{width:32cqi; left:66cqi; bottom:6cqi; transform:rotate(6deg)}
+.many img.p1{width:17cqi; left:58cqi; bottom:-14cqi; transform:rotate(-14deg)}
+.many img.p2{width:17cqi; left:67cqi; bottom:-11cqi; transform:rotate(-5deg)}
+.many img.p3{width:17cqi; left:76cqi; bottom:-10cqi; transform:rotate(4deg)}
+.many img.p4{width:17cqi; left:85cqi; bottom:-12cqi; transform:rotate(13deg)}
+@container (max-width: 640px){
+  .split{grid-template-columns:1fr}
+  .split .half .copy{min-height:62cqi}
+}
+@media (prefers-reduced-motion: reduce){ .pick{transition:none} }
+</style>
+
+<main class="wrap">
+  <header class="page">
+    <p class="kicker">iPhones.LA · home page</p>
+    <h1>Trade-In &amp; Wholesale Cards</h1>
+    <p class="intro">The trade-in card now shows every kind of device we take, and the wholesale card shows a lot being built. Further down are five more styles, each in a trade-in and a wholesale version, that show what each service does before anyone taps.</p>
+    <p class="note"><b>About the wholesale card.</b> The wholesale configuration pages weren't reachable from here, so this card is drawn from the lot builder's basic pieces: a tile for each category with a count. Send a screenshot of the configuration page and the card will match it exactly.</p>
+  </header>
+
+  <!-- ═══════════ 1. the two cards ═══════════ -->
+  <section aria-labelledby="s1">
+    <div class="sec-head">
+      <h2 id="s1">The two cards, revised</h2>
+      <p>Same grounds, type and buttons as today. Only the pictures and one line of copy change.</p>
+    </div>
+    <div class="pair">
+      <figure>
+        <article class="card ti hero">
+          <div class="copy">
+            <p class="eyebrow">Yours toward a new one</p>
+            <h3 class="title">Trade In A Device</h3>
+            <p class="lede">Sell us your iPhone, iPad, Mac, Watch or AirPods, then put the offer toward one from our shop</p>
+            <button class="btn" type="button">Start a trade-in <span aria-hidden="true">→</span></button>
+            <p class="foot">Your offer first · then pick a device</p>
+          </div>
+          <div class="art fam" aria-hidden="true">
+            <img class="mac" src="img/macbook-air-sky.webp" alt="">
+            <img class="pods" src="img/airpods-pro.webp" alt="">
+            <img class="ipad" src="img/ipad-air-purple.webp" alt="">
+            <img class="watch" src="img/watch-rose.webp" alt="">
+            <img class="phone" src="img/iphone-17-pro-orange.webp" alt="">
+          </div>
+        </article>
+        <figcaption>
+          <b>Trade-in: the whole family</b>
+          <ul>
+            <li>A MacBook, iPad, Apple Watch, AirPods and iPhone in place of two phones, so it's clear we take more than phones.</li>
+            <li>The sentence names the same five categories, so the words match the picture.</li>
+          </ul>
+        </figcaption>
+      </figure>
+
+      <figure>
+        <article class="card ws hero">
+          <div class="copy">
+            <p class="eyebrow">Lots and resellers</p>
+            <h3 class="title">Sell Wholesale</h3>
+            <p class="lede">Price a whole lot of iPhones, iPads and Macs on one page</p>
+            <button class="btn" type="button">Build a lot <span aria-hidden="true">→</span></button>
+            <p class="foot">Every device priced · one order</p>
+          </div>
+          <div class="lot" aria-hidden="true">
+            <div class="tile"><div class="pic"><img src="img/iphone-16-pro-white.webp" alt=""></div><div class="row">iPhone <span class="qty">×24</span></div></div>
+            <div class="tile"><div class="pic"><img src="img/ipad-air-blue.webp" alt=""></div><div class="row">iPad <span class="qty">×8</span></div></div>
+            <div class="tile"><div class="pic"><img src="img/macbook-pro-black.webp" alt=""></div><div class="row">Mac <span class="qty">×5</span></div></div>
+            <div class="tile add"><span>+</span>Add a device</div>
+          </div>
+        </article>
+        <figcaption>
+          <b>Wholesale: the lot builder's own tiles</b>
+          <ul>
+            <li>Same graphite ground and light button as today.</li>
+            <li>The two phones become the tiles from the lot builder: one per category with a count, plus an empty one to add more. A reseller sees what the page does before tapping.</li>
+          </ul>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ═══════════ 2. five more styles ═══════════ -->
+  <section aria-labelledby="s2">
+    <div class="sec-head">
+      <h2 id="s2">Five more styles</h2>
+      <p>Each one is built to show what we do without needing an explanation. They work as home-page cards, landing-page heroes or ads.</p>
+    </div>
+
+    <!-- A. steps -->
+    <div class="style">
+      <div class="style-head">
+        <h3 class="style-name">How it works</h3>
+        <p>The three steps are the whole service, so nobody has to guess what happens after the tap.</p>
+      </div>
+      <div class="pair">
+        <figure>
+          <article class="card ti">
+            <div class="copy full">
+              <p class="eyebrow">Yours toward a new one</p>
+              <h3 class="title sm">Trade In A Device</h3>
+            </div>
+            <ol class="flow">
+              <li>
+                <div class="viz" aria-hidden="true">
+                  <img src="img/iphone-13-pink.webp" alt="" style="height:17cqi;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-8deg)">
+                </div>
+                <span class="step-cap"><span class="n">1</span>Tell us what you have</span>
+              </li>
+              <li>
+                <div class="viz" aria-hidden="true"><div class="tag"><b>$</b><small>Offer</small></div></div>
+                <span class="step-cap"><span class="n">2</span>Get your offer</span>
+              </li>
+              <li>
+                <div class="viz" aria-hidden="true">
+                  <img src="img/iphone-17-pro-orange.webp" alt="" style="height:18cqi;left:50%;top:50%;transform:translate(-50%,-50%) rotate(6deg)">
+                  <span class="sticker" style="right:1.4cqi;bottom:2cqi;transform:rotate(-6deg)">− offer</span>
+                </div>
+                <span class="step-cap"><span class="n">3</span>Put it toward a new one</span>
+              </li>
+            </ol>
+            <div class="bar">
+              <button class="btn" type="button">Start a trade-in <span aria-hidden="true">→</span></button>
+              <p class="foot">iPhone · iPad · Mac · Watch · AirPods</p>
+            </div>
+          </article>
+        </figure>
+        <figure>
+          <article class="card ws">
+            <div class="copy full">
+              <p class="eyebrow">Lots and resellers</p>
+              <h3 class="title sm">Sell Wholesale</h3>
+            </div>
+            <ol class="flow">
+              <li>
+                <div class="viz" aria-hidden="true">
+                  <img src="img/ipad-air-blue.webp" alt="" style="height:13cqi;left:12%;top:16%;transform:rotate(-8deg)">
+                  <img src="img/iphone-16-pro-black.webp" alt="" style="height:13cqi;left:44%;top:22%;transform:rotate(4deg)">
+                  <img src="img/iphone-16-pro-white.webp" alt="" style="height:13cqi;left:60%;top:30%;transform:rotate(12deg)">
+                </div>
+                <span class="step-cap"><span class="n">1</span>List the devices in your lot</span>
+              </li>
+              <li>
+                <div class="viz" aria-hidden="true">
+                  <div class="mini"><div>iPhone ×24 <i>✓</i></div><div>iPad ×8 <i>✓</i></div><div>Mac ×5 <i>✓</i></div></div>
+                </div>
+                <span class="step-cap"><span class="n">2</span>Every device gets its own price</span>
+              </li>
+              <li>
+                <div class="viz" aria-hidden="true">
+                  <div class="done"><span class="tick">✓</span><b>1 order</b>37 devices</div>
+                </div>
+                <span class="step-cap"><span class="n">3</span>One order, one payment</span>
+              </li>
+            </ol>
+            <div class="bar">
+              <button class="btn" type="button">Build a lot <span aria-hidden="true">→</span></button>
+              <p class="foot">iPhones · iPads · Macs</p>
+            </div>
+          </article>
+        </figure>
+      </div>
+    </div>
+
+    <!-- B. swap -->
+    <div class="style">
+      <div class="style-head">
+        <h3 class="style-name">Before and after</h3>
+        <p>One picture tells the story: what you bring in on the left, what you leave with on the right. The picture sits on top so the card also works tall, in a grid or as a story ad.</p>
+      </div>
+      <div class="pair">
+        <figure>
+          <article class="card ti">
+            <div class="band" aria-hidden="true">
+              <img class="dev dim" src="img/iphone-13-pink.webp" alt="" style="width:13cqi;left:22cqi;top:9cqi;transform:rotate(-10deg)">
+              <span class="arrow">→</span>
+              <img class="dev" src="img/iphone-17-pro-blue.webp" alt="" style="width:17cqi;left:62cqi;top:5cqi;transform:rotate(7deg)">
+              <span class="sticker" style="left:72cqi;top:28cqi;transform:rotate(-8deg);z-index:4">Your offer comes off</span>
+            </div>
+            <div class="copy full" style="padding-bottom:5.4cqi">
+              <p class="eyebrow">Trade in</p>
+              <h3 class="title sm">Old phone in. New phone out.</h3>
+              <p class="lede">Your offer comes off the price of any device in our shop.</p>
+              <button class="btn" type="button">Start a trade-in <span aria-hidden="true">→</span></button>
+            </div>
+          </article>
+        </figure>
+        <figure>
+          <article class="card ws">
+            <div class="band" aria-hidden="true">
+              <img class="dev" src="img/macbook-pro-black.webp" alt="" style="width:24cqi;left:6cqi;top:7cqi;transform:rotate(-6deg)">
+              <img class="dev" src="img/ipad-air-blue.webp" alt="" style="width:14cqi;left:22cqi;top:12cqi;transform:rotate(8deg)">
+              <img class="dev" src="img/iphone-16-pro-white.webp" alt="" style="width:9cqi;left:9cqi;top:17cqi;transform:rotate(-14deg)">
+              <img class="dev" src="img/iphone-16-pro-black.webp" alt="" style="width:9cqi;left:16cqi;top:19cqi;transform:rotate(-3deg)">
+              <img class="dev" src="img/iphone-15-pro-natural.webp" alt="" style="width:9cqi;left:33cqi;top:18cqi;transform:rotate(12deg)">
+              <span class="arrow">→</span>
+              <div class="payout"><small>Lot paid</small><b>1 order</b><span>37 devices, each one priced</span><span class="paid">✓ Paid</span></div>
+            </div>
+            <div class="copy full" style="padding-bottom:5.4cqi">
+              <p class="eyebrow">Wholesale</p>
+              <h3 class="title sm">A whole lot in. One payment out.</h3>
+              <p class="lede">Every iPhone, iPad and Mac gets its own price, all in one order.</p>
+              <button class="btn" type="button">Build a lot <span aria-hidden="true">→</span></button>
+            </div>
+          </article>
+        </figure>
+      </div>
+    </div>
+
+    <!-- C. a filled-in quote -->
+    <div class="style">
+      <div class="style-head">
+        <h3 class="style-name">A filled-in quote</h3>
+        <p>A finished quote shows the result before anyone starts. The numbers here are examples: on the site they must come from live prices, or the card keeps its Example label.</p>
+      </div>
+      <div class="pair">
+        <figure>
+          <article class="card ti quote">
+            <div class="copy">
+              <p class="eyebrow">Yours toward a new one</p>
+              <h3 class="title">Trade In A Device</h3>
+              <p class="lede">Your offer comes straight off the price</p>
+              <button class="btn" type="button">Start a trade-in <span aria-hidden="true">→</span></button>
+              <p class="foot">Your offer first · then pick a device</p>
+            </div>
+            <div class="slip" aria-label="Example trade-in quote">
+              <div class="slip-head"><span>Trade-in quote</span><span class="ex">Example</span></div>
+              <div class="slip-row"><img src="img/iphone-17-pro-orange.webp" alt=""><span class="what">iPhone 17 Pro<small>256 GB · from our shop</small></span><span class="amt">$899</span></div>
+              <div class="slip-row"><img src="img/iphone-15-pro-natural.webp" alt=""><span class="what">Your iPhone 15 Pro<small>128 GB · good</small></span><span class="amt neg">−$330</span></div>
+              <div class="slip-total"><span>You pay<small>the difference</small></span><b>$569</b></div>
+            </div>
+          </article>
+        </figure>
+        <figure>
+          <article class="card ws quote">
+            <div class="copy">
+              <p class="eyebrow">Lots and resellers</p>
+              <h3 class="title">Sell Wholesale</h3>
+              <p class="lede">Every device priced, the whole lot in one order</p>
+              <button class="btn" type="button">Build a lot <span aria-hidden="true">→</span></button>
+              <p class="foot">iPhones · iPads · Macs</p>
+            </div>
+            <div class="slip" aria-label="Example lot sheet">
+              <div class="slip-head"><span>Lot sheet</span><span class="ex">Example</span></div>
+              <div class="slip-row"><img src="img/iphone-16-pro-black.webp" alt=""><span class="what">iPhone 16 Pro<small>×12</small></span><span class="amt">$4,560</span></div>
+              <div class="slip-row"><img src="img/ipad-air-blue.webp" alt=""><span class="what">iPad Air<small>×6</small></span><span class="amt">$1,440</span></div>
+              <div class="slip-row"><img src="img/macbook-pro-black.webp" alt=""><span class="what">MacBook Pro<small>×3</small></span><span class="amt">$1,170</span></div>
+              <div class="slip-total"><span>Lot total<small>21 devices · one order</small></span><b>$7,170</b></div>
+            </div>
+          </article>
+        </figure>
+      </div>
+    </div>
+
+    <!-- D. the card is the first step -->
+    <div class="style">
+      <div class="style-head">
+        <h3 class="style-name">Start from the card</h3>
+        <p>The card is the first step of the form. Tapping a device starts the trade-in at that category, and the wholesale counts carry into the lot builder. Try them.</p>
+      </div>
+      <div class="pair">
+        <figure>
+          <article class="card ti" data-picker>
+            <div class="copy full">
+              <p class="eyebrow">Trade in a device</p>
+              <h3 class="title sm">What are you trading in?</h3>
+            </div>
+            <div class="picks" role="group" aria-label="Device to trade in">
+              <button class="pick" type="button" data-name="iPhone" aria-pressed="false"><span class="pic"><img src="img/iphone-17-pro-orange.webp" alt=""></span>iPhone</button>
+              <button class="pick" type="button" data-name="iPad" aria-pressed="false"><span class="pic"><img src="img/ipad-air-purple.webp" alt=""></span>iPad</button>
+              <button class="pick" type="button" data-name="Mac" aria-pressed="false"><span class="pic"><img src="img/macbook-air-sky.webp" alt=""></span>Mac</button>
+              <button class="pick" type="button" data-name="Watch" aria-pressed="false"><span class="pic"><img src="img/watch-rose.webp" alt=""></span>Watch</button>
+              <button class="pick" type="button" data-name="AirPods" aria-pressed="false"><span class="pic"><img src="img/airpods-pro.webp" alt=""></span>AirPods</button>
+            </div>
+            <div class="bar">
+              <button class="btn" type="button"><span class="lbl">Start a trade-in</span> <span aria-hidden="true">→</span></button>
+              <p class="foot">Your offer first · then pick a device</p>
+            </div>
+          </article>
+        </figure>
+        <figure>
+          <article class="card ws" data-lot>
+            <div class="copy full">
+              <p class="eyebrow">Lots and resellers</p>
+              <h3 class="title sm">What's in your lot?</h3>
+            </div>
+            <div class="picks three">
+              <div class="lotpick"><span class="pic"><img src="img/iphone-16-pro-white.webp" alt=""></span>iPhones
+                <span class="stepper"><button type="button" class="minus" aria-label="One fewer iPhone">−</button><output id="lot-iphone" aria-live="polite">12</output><button type="button" class="plus" aria-label="One more iPhone">+</button></span></div>
+              <div class="lotpick"><span class="pic"><img src="img/ipad-air-blue.webp" alt=""></span>iPads
+                <span class="stepper"><button type="button" class="minus" aria-label="One fewer iPad">−</button><output id="lot-ipad" aria-live="polite">6</output><button type="button" class="plus" aria-label="One more iPad">+</button></span></div>
+              <div class="lotpick"><span class="pic"><img src="img/macbook-pro-black.webp" alt=""></span>Macs
+                <span class="stepper"><button type="button" class="minus" aria-label="One fewer Mac">−</button><output id="lot-mac" aria-live="polite">3</output><button type="button" class="plus" aria-label="One more Mac">+</button></span></div>
+            </div>
+            <div class="bar">
+              <button class="btn" type="button"><span class="lbl">Price 21 devices</span> <span aria-hidden="true">→</span></button>
+              <p class="foot">Every device priced · one order</p>
+            </div>
+          </article>
+        </figure>
+      </div>
+    </div>
+
+    <!-- E. which one is for me -->
+    <div class="style">
+      <div class="style-head">
+        <h3 class="style-name">Which one is for me?</h3>
+        <p>One card replaces the two and sorts visitors by what they have: one device, or a whole lot. Also works at the top of a "Sell" page.</p>
+      </div>
+      <figure class="chooser">
+        <div class="split">
+          <article class="half ti">
+            <div class="copy">
+              <p class="eyebrow">Trade in</p>
+              <h3 class="title">Selling one device?</h3>
+              <p class="lede">Put its offer toward a new one from our shop</p>
+              <button class="btn" type="button">Start a trade-in <span aria-hidden="true">→</span></button>
+            </div>
+            <div class="art one" aria-hidden="true"><img class="phone" src="img/iphone-17-pro-orange.webp" alt=""></div>
+          </article>
+          <article class="half ws">
+            <div class="copy">
+              <p class="eyebrow">Wholesale</p>
+              <h3 class="title">Selling a whole lot?</h3>
+              <p class="lede">Price every iPhone, iPad and Mac on one page, in one order</p>
+              <button class="btn" type="button">Build a lot <span aria-hidden="true">→</span></button>
+            </div>
+            <div class="art many" aria-hidden="true">
+              <img class="ipad" src="img/ipad-air-blue.webp" alt="">
+              <img class="p1" src="img/iphone-16-pro-white.webp" alt="">
+              <img class="p2" src="img/iphone-15-pro-natural.webp" alt="">
+              <img class="p3" src="img/iphone-16-pro-black.webp" alt="">
+              <img class="p4" src="img/iphone-16-teal.webp" alt="">
+            </div>
+          </article>
+          <span class="or" aria-hidden="true">or</span>
+        </div>
+      </figure>
+    </div>
+  </section>
+</main>
+
+<script>
+/* Start from the card: a picked device names the button; the lot counts add up. */
+document.querySelectorAll('[data-picker]').forEach(function (card) {
+  var label = card.querySelector('.btn .lbl');
+  card.querySelectorAll('.pick').forEach(function (tile) {
+    tile.addEventListener('click', function () {
+      card.querySelectorAll('.pick').forEach(function (o) { o.setAttribute('aria-pressed', o === tile ? 'true' : 'false'); });
+      label.textContent = 'Get my ' + tile.dataset.name + ' offer';
+    });
+  });
+});
+document.querySelectorAll('[data-lot]').forEach(function (card) {
+  var label = card.querySelector('.btn .lbl');
+  function update() {
+    var n = 0;
+    card.querySelectorAll('.stepper output').forEach(function (o) { n += +o.textContent; });
+    label.textContent = n ? 'Price ' + n + ' device' + (n === 1 ? '' : 's') : 'Add a device to start';
+  }
+  card.querySelectorAll('.stepper').forEach(function (st) {
+    var out = st.querySelector('output');
+    st.querySelector('.minus').addEventListener('click', function () { out.textContent = Math.max(0, +out.textContent - 1); update(); });
+    st.querySelector('.plus').addEventListener('click', function () { out.textContent = Math.min(999, +out.textContent + 1); update(); });
+  });
+  update();
+});
+</script>
