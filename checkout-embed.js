@@ -24,9 +24,11 @@
    path the hosted page's return takes. A method that must redirect comes back
    to /?checkout=success&session_id=…, which handleCheckoutReturn() reads.
    Stripe.js loads only at checkout (a script from js.stripe.com, never
-   bundled, as Stripe requires); if it cannot load, or the function has no
-   publishable key, the customer goes to Stripe's hosted page instead, so a
-   blocker never leaves anyone unable to pay. */
+   bundled, as Stripe requires), the dahlia build to match the API version
+   the session is made with (ui_mode embedded_page, 2026-10-12); if it cannot
+   load, or the function has no publishable key, the customer goes to
+   Stripe's hosted page instead, so a blocker never leaves anyone unable to
+   pay. */
 (function () {
   const $ = (id) => document.getElementById(id);
   let stripeLoad = null;
@@ -37,7 +39,7 @@
     if (stripeLoad) return stripeLoad;
     stripeLoad = new Promise((resolve, reject) => {
       const s = document.createElement('script');
-      s.src = 'https://js.stripe.com/v3/';
+      s.src = 'https://js.stripe.com/dahlia/stripe.js';
       s.async = true;
       s.onload = () => (window.Stripe ? resolve(window.Stripe) : reject(new Error('Stripe did not load')));
       s.onerror = () => { stripeLoad = null; s.remove(); reject(new Error('Stripe did not load')); };
@@ -111,7 +113,9 @@
     }
     teardown();                              // Stripe allows one embedded checkout at a time
     const stripe = StripeCtor(j.publishableKey);
-    const checkout = await stripe.initEmbeddedCheckout({
+    // dahlia renamed initEmbeddedCheckout (the old name throws there)
+    const create = stripe.createEmbeddedCheckoutPage || stripe.initEmbeddedCheckout;
+    const checkout = await create.call(stripe, {
       fetchClientSecret: () => Promise.resolve(j.clientSecret),
       onComplete: () => {
         close();

@@ -483,7 +483,10 @@ export default async (req) => {
          card pays without leaving the page (redirect_on_completion
          if_required), and a method that has to redirect comes back to the
          same address the hosted page does. No publishable key, a key of the
-         other mode, or a caller that did not ask: Stripe's hosted page. */
+         other mode, or a caller that did not ask: Stripe's hosted page.
+         embedded_page is the dahlia name (API 2026-03-25.dahlia); the account
+         is on it, and Stripe refuses the old 'embedded' with "The ui_mode
+         value embedded is no longer supported" (2026-10-12). */
       const pk = formKey(env);
       const embed = body.embedded === true && !!pk;
       const back = site + '/?checkout=success&session_id={CHECKOUT_SESSION_ID}';
@@ -512,7 +515,7 @@ export default async (req) => {
           ? 'Renews automatically every ' + interval + ' at ' + money(PLANS[plan].price[interval]) + ' plus any tax until you cancel. Cancel any time in Plan & billing; your plan stays on to the end of the period you paid for.'
           : 'One-time payment for ' + PACKS[pack].credits + ' AI credits. Bought credits never expire.' } },
         ...(embed
-          ? { ui_mode: 'embedded', return_url: back, redirect_on_completion: 'if_required' }
+          ? { ui_mode: 'embedded_page', return_url: back, redirect_on_completion: 'if_required' }
           : { success_url: back, cancel_url: site + '/?checkout=cancel' }),
       };
       let j = await stripe(env, 'POST', '/checkout/sessions', params).catch((e) => ({ error: e.message }));
