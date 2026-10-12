@@ -62,12 +62,15 @@ const BADGE_SWAP = ['NO FEES', 'DISCREET', 'SAME DAY', 'FAIR PRICE', 'CASH PAID'
  *    better than pics because technically we advertise a lot on the offerup
  *    app where they can't even send photos so they can directly reach us in
  *    the messenger in the app. It doesn't allow photos for non-business
- *    accounts." A first step the seller cannot take loses them at step one,
- *    so it asks for what any messenger carries. The label keeps its length
- *    and the line is shorter than the one it replaces, so no plate grows. */
+ *    accounts." Then: "we still get text messages in bound but it can be a
+ *    mix", "so pics isn't bad it's just not possible on all platforms". So
+ *    step one asks for what every messenger carries and keeps pictures as the
+ *    other way in. The label keeps its length; the line measured 355px on the
+ *    narrowest plates (nn01-30, nn05-30: 401px of room, the old line 353px)
+ *    and narrower than the old line on every other card. */
 export const STEP_ONE = [
   [/^TEXT PICS$/, 'TEXT INFO'],
-  [/^Snap photos(,| and) text them over\.( 30 seconds\.)?$/, 'Tell us what you have.'],
+  [/^Snap photos(,| and) text them over\.( 30 seconds\.)?$/, 'Details or pics, either works.'],
 ];
 
 /* returns { changed: [...] } and rewrites tpl.layers in place */
@@ -200,7 +203,7 @@ export const CLAIM_FIX = [
   [/\bGET AN INSTANT OFFER\b/, 'GET A CASH OFFER'], [/\bCALL FOR INSTANT OFFER\b/, 'CALL FOR A CASH OFFER'],
   [/\bTEXT NOW FOR INSTANT CASH\b/, 'TEXT NOW FOR A CASH OFFER'], [/\bADMIT: INSTANT CASH\b/, 'ADMIT: CASH OFFER'],
   [/\bTEXT A PHOTO FOR AN INSTANT QUOTE\b/, 'TEXT A PHOTO FOR A QUOTE'], [/\bCERT NUMBERS GET INSTANT QUOTES\b/, 'SEND CERT NUMBERS FOR A QUOTE'],
-  [/^Snap photos, text them over\. 30 seconds\.$/, 'Tell us what you have.'],
+  [/^Snap photos, text them over\. 30 seconds\.$/, 'Details or pics, either works.'],
   [/^Firm quote in minutes\. Zero obligation\.$/, 'A firm quote by text. Zero obligation.'],
   [/\bTEXT A PIC, OFFER IN MINUTES\b/, 'TEXT A PIC, GET AN OFFER'], [/\bREPLIES IN MINUTES, NOT DAYS\b/, 'TEXT A PHOTO, GET A PRICE'],
   [/\bVIN \+ MILES = OFFER IN 10 MINUTES\b/, 'VIN + MILES = A CASH OFFER'], [/ 60 MINUTES\.$/, ''],

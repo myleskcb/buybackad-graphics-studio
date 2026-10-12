@@ -8,7 +8,7 @@
  *   V.product { src }             V.fonts FONT_PAIRS entry  V.plate { shape, fill, outline }
  *   V.cta { shape, outline }      V.look  a tagline look for the card (applyCardLook)
  * page.evaluate(composeInPage, rec, id, V, MICRO) → { rec, webp, png, S, faces, boxes, crit, accent, photoHue, ink } | { err } */
-export const MICRO = ['Tell us what you have.', 'Firm quote in minutes.', 'Same-day cash or transfer.'];
+export const MICRO = ['Details or pics, either works.', 'Firm quote in minutes.', 'Same-day cash or transfer.'];
 export async function composeInPage(rec, id, V, MICRO){
   const claim = V.claim;
   const L0 = rec.tpl.layers, get = nm => L0.find(l => l.name === nm);

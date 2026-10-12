@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20261005a';
+const ASSET_REV = '20261012a';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -1205,7 +1205,7 @@ const TEMPLATES = [
         t('Kicker', 'sub', 'upper', 'HOW IT WORKS', { left:234, top:102, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'#ffffff', fontWeight:'800', charSpacing:120 }),
         t('Headline 1', 'headline', 'upper', 'CASH IN', { left:84, top:172, fontFamily:'Clash Display', fontSize:104, fill:P.ink }),
         t('Headline 2', 'headline', 'upper', '3 STEPS', { left:84, top:274, fontFamily:'Clash Display', fontSize:142, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 24) }),
-        ...row(1, 452, '1', 'TEXT INFO', 'Tell us what you have.'),
+        ...row(1, 452, '1', 'TEXT INFO', 'Details or pics, either works.'),
         ...row(2, 606, '2', 'GET OFFER', 'A firm quote by text. Zero obligation.'),
         ...row(3, 760, '3', 'GET PAID', 'Cash or instant transfer, same day.'),
         ...phoneBar(P, T, 924),

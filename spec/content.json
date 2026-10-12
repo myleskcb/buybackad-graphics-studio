@@ -68,7 +68,7 @@
     "steps": [
       [
         "TEXT INFO",
-        "Model and condition"
+        "Details or pics"
       ],
       [
         "GET OFFER",
@@ -149,7 +149,7 @@
     "steps": [
       [
         "SEND VIN",
-        "And the miles."
+        "Typed or a photo."
       ],
       [
         "GET OFFER",
