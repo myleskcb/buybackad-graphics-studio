@@ -65,7 +65,7 @@ button.wk-box{cursor:pointer; transition:background .15s, border-color .15s}
 button.wk-box:hover{background:var(--c-select)}
 .wk-box[aria-pressed="true"]{border-color:var(--c-mark); background:var(--c-select)}
 .wk-box__pic{height:14cqi; width:100%; display:flex; align-items:center; justify-content:center}
-.wk-box__pic img{max-height:100%; max-width:100%; width:auto; height:auto; filter:drop-shadow(0 .8cqi 1.2cqi var(--c-shadow))}
+.wk-box__pic img{max-height:100%; max-width:100%; width:auto; height:auto; filter:drop-shadow(0 .6cqi 1cqi var(--c-shadow))}
 .wk-box__count{position:absolute; z-index:1; top:1.1cqi; right:1.1cqi; padding:.38em .55em; border-radius:var(--radius-pill); background:var(--c-mark); color:var(--c-on-mark);
   font:600 clamp(9px,1.7cqi,11px)/1 var(--font-text); font-variant-numeric:tabular-nums}
 .wk-box--result{justify-content:center; gap:.9cqi; border-color:var(--c-mark)}
@@ -164,8 +164,9 @@ button.wk-box:hover{background:var(--c-select)}
 
 /* ── Shop tile ── */
 .wk-shelf{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px}
-.wk-tile{display:flex; flex-direction:column; gap:4px; min-width:0; padding:16px; border-radius:var(--radius-box); background:var(--cell); color:var(--label); box-shadow:var(--shadow-tile)}
-.wk-tile__pic{height:120px; margin-bottom:8px; display:flex; align-items:center; justify-content:center}
+.wk-tile{display:flex; flex-direction:column; gap:4px; min-width:0; padding:16px; border-radius:var(--radius-box); background:var(--cell); color:var(--label)}
+.wk-card .wk-tile, .wk-stage .wk-tile{box-shadow:var(--shadow-tile)}
+.wk-tile__pic{height:132px; margin-bottom:10px; padding:12px; border-radius:var(--radius-group); background:var(--thumb); display:flex; align-items:center; justify-content:center}
 .wk-tile__pic img{max-height:100%; max-width:100%; width:auto; height:auto}
 .wk-tile__name{font:600 15px/1.2 var(--font-text)}
 .wk-tile__spec{font-size:12px; line-height:16px; color:var(--label-2)}
@@ -175,10 +176,18 @@ button.wk-box:hover{background:var(--c-select)}
 
 /* ── Offer ── */
 .wk-offer{display:flex; flex-direction:column; align-items:center; gap:6px; padding:24px 16px; border-radius:var(--radius-group); background:var(--cell); text-align:center}
-.wk-offer img{height:120px; width:auto; margin-bottom:6px}
+.wk-offer img{box-sizing:content-box; height:112px; width:auto; padding:12px 28px; margin-bottom:6px; border-radius:var(--radius-box); background:var(--thumb)}
 .wk-offer__label{font-size:13px; line-height:18px; text-transform:uppercase; letter-spacing:.01em; color:var(--label-2)}
 .wk-offer__amount{font:700 44px/1 var(--font-display); letter-spacing:-.03em; color:var(--credit); font-variant-numeric:tabular-nums}
 .wk-offer__what{font-size:15px; line-height:20px; color:var(--label-2)}
+
+/* ── Celebration: an offer that counts up, a success mark, confetti ── */
+.wk-count{display:inline-block}
+.wk-count.is-done{animation:wk-pop .45s cubic-bezier(.2,.9,.3,1.4)}
+@keyframes wk-pop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+.wk-success{width:64px; height:64px; margin:14px auto 0; border-radius:50%; display:grid; place-items:center; background:var(--s-accent); color:var(--s-on-accent); font:700 30px/1 var(--font-text); animation:wk-pop-in .5s cubic-bezier(.2,.9,.3,1.4) both}
+@keyframes wk-pop-in{0%{transform:scale(.4); opacity:0}100%{transform:scale(1); opacity:1}}
+.wk-confetti{position:fixed; inset:0; z-index:50; pointer-events:none}
 
 /* ── Page frame (pages, not components) ── */
 .wk-page{min-height:100%; padding:0 16px 32px; background:var(--bg)}
@@ -190,4 +199,5 @@ button.wk-box:hover{background:var(--c-select)}
 
 @media (prefers-reduced-motion: reduce){
   button.wk-box, .wk-switch__track, .wk-switch__track::after{transition:none}
+  .wk-count.is-done, .wk-success{animation:none}
 }

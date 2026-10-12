@@ -1,0 +1,15 @@
+<!-- @dsCard group="Status" height=340 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Celebration — preview</title>
+<style>html,body{margin:0;background:var(--bg)}body{padding:16px}</style></head>
+<body class="wk">
+<div class="wk-trade" style="max-width:400px">
+  <div class="wk-success" data-wk-confetti aria-hidden="true">✓</div>
+  <h1 class="wk-large-title" style="text-align:center">You're all set</h1>
+  <div class="wk-offer" style="margin-top:12px"><span class="wk-offer__label">Your offer</span><span class="wk-offer__amount" data-wk-count="330">$330</span></div>
+  <button class="wk-btn-plain" type="button" id="again">Play it again</button>
+</div>
+<script>LAKit.mount(document);document.getElementById('again').addEventListener('click',function(){LAKit.countUp(document.querySelector('[data-wk-count]'));LAKit.confetti(document.querySelector('.wk-success'));});</script>
+</body>
+</html>

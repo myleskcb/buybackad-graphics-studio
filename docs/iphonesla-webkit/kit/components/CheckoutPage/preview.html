@@ -14,11 +14,11 @@
     <div data-checkout>
     <p class="wk-section"><span class="wk-dot wk-dot--buy" aria-hidden="true"></span>You're buying</p>
     <div class="wk-group">
-        <div class="wk-row"><span class="wk-thumb"><img src="/_blob/dd0841fd503441ef977336d3017e4085" alt=""></span><span class="wk-row__t"><b>iPhone 17 Pro</b><span>256 GB · Cosmic Orange · Unlocked</span><span><span class="wk-grade">Grade A</span>Battery 100%</span></span><span class="wk-row__v">$899</span></div>
+        <div class="wk-row"><span class="wk-thumb"><img src="/_blob/300910dffa92133661e8bdef1202ecaf" alt=""></span><span class="wk-row__t"><b>iPhone 17 Pro</b><span>256 GB · Cosmic Orange · Unlocked</span><span><span class="wk-grade">Grade A</span>Battery 100%</span></span><span class="wk-row__v">$899</span></div>
       </div>
     <div class="co-sell"><p class="wk-section"><span class="wk-dot wk-dot--sell" aria-hidden="true"></span>You're selling · trade-in</p>
     <div class="wk-group">
-        <div class="wk-row"><span class="wk-thumb"><img src="/_blob/cabce67e34d8b1528f37cc21f7efdc1b" alt=""></span><span class="wk-row__t"><b>iPhone 15 Pro</b><span>128 GB · Natural Titanium · Unlocked</span><span><span class="wk-grade">Good</span>Battery 88% · no cracks</span></span><span class="wk-row__v wk-row__v--credit">−$330</span></div>
+        <div class="wk-row"><span class="wk-thumb"><img src="/_blob/9e8edc157dc6760392758f1800eaacec" alt=""></span><span class="wk-row__t"><b>iPhone 15 Pro</b><span>128 GB · Natural Titanium · Unlocked</span><span><span class="wk-grade">Good</span>Battery 88% · no cracks</span></span><span class="wk-row__v wk-row__v--credit">−$330</span></div>
       </div></div>
     <p class="wk-section">Summary</p>
     <div class="wk-group">
@@ -43,6 +43,6 @@
 (function(){var s=document.querySelector('[data-checkout]'),box=s.querySelector('input[type=checkbox]');function paint(){var on=box.checked,t=on?569:899;
 s.querySelectorAll('.co-sell').forEach(function(e){e.style.opacity=on?'':'0.38';});s.querySelector('.co-credit').hidden=!on;s.querySelector('.co-total').textContent=LAKit.usd(t);
 s.querySelector('.co-pay').textContent='Pay '+LAKit.usd(t);s.querySelector('.co-note').textContent=on?'Turn this off to pay full price and keep your iPhone 15 Pro.':"You're keeping your iPhone 15 Pro and paying full price. Turn it back on any time.";}
-box.addEventListener('change',paint);paint();})();</script>
+box.addEventListener('change',paint);paint();s.querySelector('.co-pay').addEventListener('click',function(){LAKit.confetti(this);this.textContent='Paid';});})();</script>
 </body>
 </html>

@@ -30,6 +30,7 @@ Service cards and stages fade from the service colour at the top to its darkest 
 
 - Glass: frosted boxes (`trade-card-glass`, a `trade-card-edge` border, a `trade-card-shine` top highlight) hold device photos on a card. Use five in a row, or three counts, an arrow and a result.
 - Sheets: `radius-sheet` corners, a grabber, a nav bar, one large title, grouped lists (`radius-group`), one full-width button (`radius-button`). On a stage they lift with `shadow-sheet`.
+- Shadows are rare: a sheet on its stage, shop tiles only on a fade (`shadow-tile`), device photos on glass. Nothing on `bg` casts a shadow.
 - Radii: `radius-chip` 5, `radius-icon` 7, `radius-control` 9, `radius-thumb` 10, `radius-group` 12, `radius-button` 14, `radius-box` 16, `radius-card` 20, `radius-sheet` 22, and `radius-pill` for pills and switches.
 - Spacing follows iOS: 16px row padding and page gutter (`space-4`), 12px between a photo and its text (`space-3`), 20px above a section header (`space-5`).
 
@@ -45,19 +46,25 @@ Line icons from Lucide (ISC licence), 2px stroke, round caps, drawn inline with 
 
 ## Device photos
 
-Real cut-out photos only (Devices): transparent WebP of the shop's own devices, never drawn or generated. On a fade they get a soft drop shadow (`trade-card-shadow`); in rows they sit in a `thumb` frame. Show the colour that is for sale or being sold, and never use one model's photo for another.
+Apple's own product renders only, exactly as published: never recoloured to fake a finish, never with a redrawn edge, an added highlight or a removed one. Every iPhone is Apple's two-up render (back and front), as are the iPad, Mac, Watch and AirPods photos, so the whole range reads as one set; name the finish the render shows ("iPhone 16 Pro · Desert Titanium"). Photos sit on the light `thumb` frame in rows, tiles and the offer panel, in both themes, never on black. On a fade they get one soft drop shadow (`trade-card-shadow`), nothing more.
+
+## Motion
+
+- An offer or payout counts up from $0 when it comes into view, then pops once (`data-wk-count`).
+- A paid order or a sent lot opens with a success mark and one burst of confetti in `confetti-green`, `confetti-red`, `confetti-yellow` and `confetti-blue` (`data-wk-confetti`).
+- Nothing else moves. Under reduced motion amounts show at once and no confetti falls.
 
 ## Components
 
-ServiceCard, GlassBox and IconBadge make the home page. Sheet, GroupedList, Switch, Stepper, SegmentedControl, CheckList and Button make the task pages. ShopTile, OfferHero and Chips carry prices. Load `components/bundle.css` after the tokens, put `class="wk"` on the page's root, and call `LAKit.mount(document)` once (`components/bundle.js`) for the switches, steppers and single choices; each change fires a `wk:change` event for the page to recount its totals.
+ServiceCard, GlassBox and IconBadge make the home page. Sheet, GroupedList, Switch, Stepper, SegmentedControl, CheckList and Button make the task pages. ShopTile, OfferHero and Chips carry prices; Celebration counts offers up and throws confetti. Load `components/bundle.css` after the tokens, put `class="wk"` on the page's root, and call `LAKit.mount(document)` once (`components/bundle.js`) for the switches, steppers and single choices; each change fires a `wk:change` event for the page to recount its totals.
 
 ## Pages
 
-HomePage, ShopPage, then the trade-in flow (TradeInPickPage, TradeInConditionPage, TradeInOfferPage, CheckoutPage, OrderPlacedPage) and the wholesale flow (LotPage, AddDevicesPage, LotSentPage), each built only from the components above at phone width.
+HomePage, ShopPage, then the trade-in flow (TradeInPickPage for the series, TradeInModelPage for the model, TradeInConditionPage, TradeInOfferPage, CheckoutPage, OrderPlacedPage) and the wholesale flow (LotPage, AddDevicesPage, LotSentPage), each built only from the components above at phone width.
 
 ## Intentional additions
 
-The approved screens had no segmented control, single-choice list or offer panel; SegmentedControl, CheckList and OfferHero were added for the trade-in pages that pick a model, describe its condition and show the offer.
+The approved screens had no segmented control, single-choice list or offer panel; SegmentedControl, CheckList and OfferHero were added for the trade-in pages that pick a model, describe its condition and show the offer. Celebration was added at the owner's request, for the count-up on offers and the confetti on finished orders.
 
 ## Not in the kit
 

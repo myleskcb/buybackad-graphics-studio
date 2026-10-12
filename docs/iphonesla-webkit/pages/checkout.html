@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>iPhones.LA · Checkout</title>
+<link rel="stylesheet" href="../webkit.css"><script src="../webkit.js"></script>
+<style>html,body{margin:0;background:var(--bg)}body{padding:0px}</style></head>
+<body class="wk">
+<div class="wk-stage wk-trade" style="border-radius:0;min-height:100vh;align-items:flex-start">
+  <div class="wk-sheet">
+    <div class="wk-grabber" aria-hidden="true"></div>
+    <div class="wk-nav"><span>Cancel</span><span class="wk-nav__c">Checkout</span><span></span></div>
+    <h1 class="wk-large-title">Almost yours</h1>
+    <p class="wk-sub">Check it over, then pay. <span class="wk-example">Example</span></p>
+    
+    <div data-checkout>
+    <p class="wk-section"><span class="wk-dot wk-dot--buy" aria-hidden="true"></span>You're buying</p>
+    <div class="wk-group">
+        <div class="wk-row"><span class="wk-thumb"><img src="../kit/assets/Devices/iphone-17-pro-cosmic-orange.webp" alt=""></span><span class="wk-row__t"><b>iPhone 17 Pro</b><span>256 GB · Cosmic Orange · Unlocked</span><span><span class="wk-grade">Grade A</span>Battery 100%</span></span><span class="wk-row__v">$899</span></div>
+      </div>
+    <div class="co-sell"><p class="wk-section"><span class="wk-dot wk-dot--sell" aria-hidden="true"></span>You're selling · trade-in</p>
+    <div class="wk-group">
+        <div class="wk-row"><span class="wk-thumb"><img src="../kit/assets/Devices/iphone-15-pro-natural.webp" alt=""></span><span class="wk-row__t"><b>iPhone 15 Pro</b><span>128 GB · Natural Titanium · Unlocked</span><span><span class="wk-grade">Good</span>Battery 88% · no cracks</span></span><span class="wk-row__v wk-row__v--credit">−$330</span></div>
+      </div></div>
+    <p class="wk-section">Summary</p>
+    <div class="wk-group">
+        <div class="wk-row wk-row--two"><span>iPhone 17 Pro</span><span class="wk-row__v">$899</span></div>
+        <div class="wk-row wk-row--two co-credit"><span>Trade-in credit</span><span class="wk-row__v wk-row__v--credit">−$330</span></div>
+        <div class="wk-row wk-row--two wk-row--total"><span>Total</span><span class="wk-row__v co-total">$569</span></div>
+    </div>
+    <p class="wk-section">Trade-in</p>
+    <div class="wk-group">
+        <label class="wk-row wk-row--toggle">
+          <span class="wk-icon"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 11.985 3a1.784 1.784 0 0 1 1.546.888l3.943 6.843"/><path d="m13.378 9.633 4.096 1.098 1.097-4.096"/></svg></span>
+          <span class="wk-row__t"><b>Use my trade-in</b><span>iPhone 15 Pro · −$330</span></span>
+          <span class="wk-switch"><input type="checkbox" role="switch" id="co-tradein" checked><span class="wk-switch__track"></span></span>
+        </label>
+      </div>
+    <p class="wk-foot co-note" aria-live="polite">Turn this off to pay full price and keep your iPhone 15 Pro.</p>
+    <button class="wk-btn-block co-pay" type="button">Pay $569</button>
+    </div>
+  </div>
+</div>
+<script>LAKit.mount(document);
+(function(){var s=document.querySelector('[data-checkout]'),box=s.querySelector('input[type=checkbox]');function paint(){var on=box.checked,t=on?569:899;
+s.querySelectorAll('.co-sell').forEach(function(e){e.style.opacity=on?'':'0.38';});s.querySelector('.co-credit').hidden=!on;s.querySelector('.co-total').textContent=LAKit.usd(t);
+s.querySelector('.co-pay').textContent='Pay '+LAKit.usd(t);s.querySelector('.co-note').textContent=on?'Turn this off to pay full price and keep your iPhone 15 Pro.':"You're keeping your iPhone 15 Pro and paying full price. Turn it back on any time.";}
+box.addEventListener('change',paint);paint();s.querySelector('.co-pay').addEventListener('click',function(){LAKit.confetti(this);this.textContent='Paid';});})();</script>
+</body>
+</html>

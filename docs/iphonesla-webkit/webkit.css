@@ -1,9 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&display=swap");
 /* iPhones.LA Web Kit, for the site: tokens (from kit/tokens.json) then the components (kit/components/bundle.css).
    Put class="wk" on the page root and load webkit.js, then call LAKit.mount(document). */
-:root{--bg:#f2f2f7;--cell:#ffffff;--thumb:var(--bg);--fill:rgba(118,118,128,0.12);--seg-on:#ffffff;--separator:rgba(60,60,67,0.29);--grabber:#c7c7cc;--label:#000000;--label-2:#636366;--accent:#0062cc;--on-accent:#ffffff;--trade:#1a7f45;--on-trade:#ffffff;--wholesale:#2a2b30;--on-wholesale:#ffffff;--credit:#1e7a38;--strike:#c2412d;--switch-on:#34c759;--switch-off:#e9e9eb;--knob:#ffffff;--buying:#0a84ff;--selling:#34c759;--example-bg:#fff3c4;--example-ink:#5a4300;--save-bg:#e3f1e8;--save-ink:#1f6b40;--trade-card-top:#22884b;--trade-card-mid:#186039;--trade-card-low:#082418;--trade-card-glow:rgba(3,20,12,0.5);--trade-card-glow-2:rgba(3,20,12,0.35);--trade-card-ink:#ffffff;--trade-card-ink-2:rgba(255,255,255,0.92);--trade-card-ink-3:rgba(255,255,255,0.75);--trade-card-glass:rgba(255,255,255,0.12);--trade-card-edge:rgba(255,255,255,0.22);--trade-card-shine:rgba(255,255,255,0.2);--trade-card-select:rgba(255,255,255,0.2);--trade-card-mark:#b2f0c4;--trade-card-on-mark:#052414;--trade-card-shadow:rgba(0,0,0,0.35);--trade-card-btn:#b2f0c4;--trade-card-on-btn:#052414;--trade-card-foot-note:rgba(255,255,255,0.9);--wholesale-card-top:#6e7077;--wholesale-card-mid:#3a3c41;--wholesale-card-low:#0b0b0d;--wholesale-card-glow:rgba(0,0,0,0.45);--wholesale-card-glow-2:rgba(0,0,0,0);--wholesale-card-ink:#ffffff;--wholesale-card-ink-2:rgba(255,255,255,0.92);--wholesale-card-ink-3:rgba(255,255,255,0.75);--wholesale-card-glass:rgba(255,255,255,0.12);--wholesale-card-edge:rgba(255,255,255,0.22);--wholesale-card-shine:rgba(255,255,255,0.2);--wholesale-card-select:rgba(255,255,255,0.18);--wholesale-card-mark:#ededf0;--wholesale-card-on-mark:#16171b;--wholesale-card-shadow:rgba(0,0,0,0.35);--wholesale-card-btn:#ededf0;--wholesale-card-on-btn:#16171b;--wholesale-card-foot-note:rgba(255,255,255,0.9);--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--radius-chip:5px;--radius-icon:7px;--radius-control:9px;--radius-thumb:10px;--radius-group:12px;--radius-button:14px;--radius-box:16px;--radius-card:20px;--radius-sheet:22px;--radius-pill:999px;--shadow-sheet:0 26px 60px -22px rgba(0,0,0,0.6);--shadow-tile:0 14px 26px -8px rgba(0,0,0,0.28);--shadow-knob:0 3px 8px rgba(0,0,0,0.15), 0 1px 1px rgba(0,0,0,0.16);--shadow-seg:0 3px 8px rgba(0,0,0,0.12), 0 3px 1px rgba(0,0,0,0.04);--font-text:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", ui-sans-serif, system-ui, sans-serif;--font-display:-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter Tight", "Inter", ui-sans-serif, sans-serif}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#000000;--cell:#1c1c1e;--thumb:var(--bg);--fill:rgba(118,118,128,0.24);--seg-on:#636366;--separator:rgba(84,84,88,0.65);--grabber:#48484a;--label:#ffffff;--label-2:#a1a1a6;--accent:#409cff;--on-accent:#00172f;--trade:#34c759;--on-trade:#00210b;--wholesale:#e5e5ea;--on-wholesale:#1c1c1e;--credit:#30d158;--strike:#ff6961;--switch-on:#30d158;--switch-off:#39393d;--knob:#ffffff;--buying:#0a84ff;--selling:#30d158;--example-bg:#3d3200;--example-ink:#ffe58a;--save-bg:#0f2e1b;--save-ink:#7ee2a0;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#000000;--cell:#1c1c1e;--thumb:var(--bg);--fill:rgba(118,118,128,0.24);--seg-on:#636366;--separator:rgba(84,84,88,0.65);--grabber:#48484a;--label:#ffffff;--label-2:#a1a1a6;--accent:#409cff;--on-accent:#00172f;--trade:#34c759;--on-trade:#00210b;--wholesale:#e5e5ea;--on-wholesale:#1c1c1e;--credit:#30d158;--strike:#ff6961;--switch-on:#30d158;--switch-off:#39393d;--knob:#ffffff;--buying:#0a84ff;--selling:#30d158;--example-bg:#3d3200;--example-ink:#ffe58a;--save-bg:#0f2e1b;--save-ink:#7ee2a0;color-scheme:dark}
+:root{--bg:#f2f2f7;--cell:#ffffff;--thumb:#f2f2f7;--fill:rgba(118,118,128,0.12);--seg-on:#ffffff;--separator:rgba(60,60,67,0.29);--grabber:#c7c7cc;--label:#000000;--label-2:#636366;--accent:#0062cc;--on-accent:#ffffff;--trade:#1a7f45;--on-trade:#ffffff;--wholesale:#2a2b30;--on-wholesale:#ffffff;--credit:#1e7a38;--strike:#c2412d;--switch-on:#34c759;--switch-off:#e9e9eb;--knob:#ffffff;--buying:#0a84ff;--selling:#34c759;--example-bg:#fff3c4;--example-ink:#5a4300;--save-bg:#e3f1e8;--save-ink:#1f6b40;--confetti-green:#34c759;--confetti-red:#ff3b30;--confetti-yellow:#ffcc00;--confetti-blue:#0a84ff;--trade-card-top:#22884b;--trade-card-mid:#186039;--trade-card-low:#082418;--trade-card-glow:rgba(3,20,12,0.5);--trade-card-glow-2:rgba(3,20,12,0.35);--trade-card-ink:#ffffff;--trade-card-ink-2:rgba(255,255,255,0.92);--trade-card-ink-3:rgba(255,255,255,0.75);--trade-card-glass:rgba(255,255,255,0.12);--trade-card-edge:rgba(255,255,255,0.22);--trade-card-shine:rgba(255,255,255,0.2);--trade-card-select:rgba(255,255,255,0.2);--trade-card-mark:#b2f0c4;--trade-card-on-mark:#052414;--trade-card-shadow:rgba(0,0,0,0.25);--trade-card-btn:#b2f0c4;--trade-card-on-btn:#052414;--trade-card-foot-note:rgba(255,255,255,0.9);--wholesale-card-top:#6e7077;--wholesale-card-mid:#3a3c41;--wholesale-card-low:#0b0b0d;--wholesale-card-glow:rgba(0,0,0,0.45);--wholesale-card-glow-2:rgba(0,0,0,0);--wholesale-card-ink:#ffffff;--wholesale-card-ink-2:rgba(255,255,255,0.92);--wholesale-card-ink-3:rgba(255,255,255,0.75);--wholesale-card-glass:rgba(255,255,255,0.12);--wholesale-card-edge:rgba(255,255,255,0.22);--wholesale-card-shine:rgba(255,255,255,0.2);--wholesale-card-select:rgba(255,255,255,0.18);--wholesale-card-mark:#ededf0;--wholesale-card-on-mark:#16171b;--wholesale-card-shadow:rgba(0,0,0,0.25);--wholesale-card-btn:#ededf0;--wholesale-card-on-btn:#16171b;--wholesale-card-foot-note:rgba(255,255,255,0.9);--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--radius-chip:5px;--radius-icon:7px;--radius-control:9px;--radius-thumb:10px;--radius-group:12px;--radius-button:14px;--radius-box:16px;--radius-card:20px;--radius-sheet:22px;--radius-pill:999px;--shadow-sheet:0 26px 60px -22px rgba(0,0,0,0.6);--shadow-tile:0 8px 20px -12px rgba(0,0,0,0.35);--shadow-knob:0 3px 8px rgba(0,0,0,0.15), 0 1px 1px rgba(0,0,0,0.16);--shadow-seg:0 3px 8px rgba(0,0,0,0.12), 0 3px 1px rgba(0,0,0,0.04);--font-text:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", ui-sans-serif, system-ui, sans-serif;--font-display:-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter Tight", "Inter", ui-sans-serif, sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#000000;--cell:#1c1c1e;--thumb:#e3e3e8;--fill:rgba(118,118,128,0.24);--seg-on:#636366;--separator:rgba(84,84,88,0.65);--grabber:#48484a;--label:#ffffff;--label-2:#a1a1a6;--accent:#409cff;--on-accent:#00172f;--trade:#34c759;--on-trade:#00210b;--wholesale:#e5e5ea;--on-wholesale:#1c1c1e;--credit:#30d158;--strike:#ff6961;--switch-on:#30d158;--switch-off:#39393d;--knob:#ffffff;--buying:#0a84ff;--selling:#30d158;--example-bg:#3d3200;--example-ink:#ffe58a;--save-bg:#0f2e1b;--save-ink:#7ee2a0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#000000;--cell:#1c1c1e;--thumb:#e3e3e8;--fill:rgba(118,118,128,0.24);--seg-on:#636366;--separator:rgba(84,84,88,0.65);--grabber:#48484a;--label:#ffffff;--label-2:#a1a1a6;--accent:#409cff;--on-accent:#00172f;--trade:#34c759;--on-trade:#00210b;--wholesale:#e5e5ea;--on-wholesale:#1c1c1e;--credit:#30d158;--strike:#ff6961;--switch-on:#30d158;--switch-off:#39393d;--knob:#ffffff;--buying:#0a84ff;--selling:#30d158;--example-bg:#3d3200;--example-ink:#ffe58a;--save-bg:#0f2e1b;--save-ink:#7ee2a0;color-scheme:dark}
 /* iPhones.LA Web Kit: the components. Every colour, space, radius and shadow
    is a token from tokens.css; font sizes follow the type styles in tokens.json. */
 
@@ -70,7 +70,7 @@ button.wk-box{cursor:pointer; transition:background .15s, border-color .15s}
 button.wk-box:hover{background:var(--c-select)}
 .wk-box[aria-pressed="true"]{border-color:var(--c-mark); background:var(--c-select)}
 .wk-box__pic{height:14cqi; width:100%; display:flex; align-items:center; justify-content:center}
-.wk-box__pic img{max-height:100%; max-width:100%; width:auto; height:auto; filter:drop-shadow(0 .8cqi 1.2cqi var(--c-shadow))}
+.wk-box__pic img{max-height:100%; max-width:100%; width:auto; height:auto; filter:drop-shadow(0 .6cqi 1cqi var(--c-shadow))}
 .wk-box__count{position:absolute; z-index:1; top:1.1cqi; right:1.1cqi; padding:.38em .55em; border-radius:var(--radius-pill); background:var(--c-mark); color:var(--c-on-mark);
   font:600 clamp(9px,1.7cqi,11px)/1 var(--font-text); font-variant-numeric:tabular-nums}
 .wk-box--result{justify-content:center; gap:.9cqi; border-color:var(--c-mark)}
@@ -169,8 +169,9 @@ button.wk-box:hover{background:var(--c-select)}
 
 /* ── Shop tile ── */
 .wk-shelf{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px}
-.wk-tile{display:flex; flex-direction:column; gap:4px; min-width:0; padding:16px; border-radius:var(--radius-box); background:var(--cell); color:var(--label); box-shadow:var(--shadow-tile)}
-.wk-tile__pic{height:120px; margin-bottom:8px; display:flex; align-items:center; justify-content:center}
+.wk-tile{display:flex; flex-direction:column; gap:4px; min-width:0; padding:16px; border-radius:var(--radius-box); background:var(--cell); color:var(--label)}
+.wk-card .wk-tile, .wk-stage .wk-tile{box-shadow:var(--shadow-tile)}
+.wk-tile__pic{height:132px; margin-bottom:10px; padding:12px; border-radius:var(--radius-group); background:var(--thumb); display:flex; align-items:center; justify-content:center}
 .wk-tile__pic img{max-height:100%; max-width:100%; width:auto; height:auto}
 .wk-tile__name{font:600 15px/1.2 var(--font-text)}
 .wk-tile__spec{font-size:12px; line-height:16px; color:var(--label-2)}
@@ -180,10 +181,18 @@ button.wk-box:hover{background:var(--c-select)}
 
 /* ── Offer ── */
 .wk-offer{display:flex; flex-direction:column; align-items:center; gap:6px; padding:24px 16px; border-radius:var(--radius-group); background:var(--cell); text-align:center}
-.wk-offer img{height:120px; width:auto; margin-bottom:6px}
+.wk-offer img{box-sizing:content-box; height:112px; width:auto; padding:12px 28px; margin-bottom:6px; border-radius:var(--radius-box); background:var(--thumb)}
 .wk-offer__label{font-size:13px; line-height:18px; text-transform:uppercase; letter-spacing:.01em; color:var(--label-2)}
 .wk-offer__amount{font:700 44px/1 var(--font-display); letter-spacing:-.03em; color:var(--credit); font-variant-numeric:tabular-nums}
 .wk-offer__what{font-size:15px; line-height:20px; color:var(--label-2)}
+
+/* ── Celebration: an offer that counts up, a success mark, confetti ── */
+.wk-count{display:inline-block}
+.wk-count.is-done{animation:wk-pop .45s cubic-bezier(.2,.9,.3,1.4)}
+@keyframes wk-pop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+.wk-success{width:64px; height:64px; margin:14px auto 0; border-radius:50%; display:grid; place-items:center; background:var(--s-accent); color:var(--s-on-accent); font:700 30px/1 var(--font-text); animation:wk-pop-in .5s cubic-bezier(.2,.9,.3,1.4) both}
+@keyframes wk-pop-in{0%{transform:scale(.4); opacity:0}100%{transform:scale(1); opacity:1}}
+.wk-confetti{position:fixed; inset:0; z-index:50; pointer-events:none}
 
 /* ── Page frame (pages, not components) ── */
 .wk-page{min-height:100%; padding:0 16px 32px; background:var(--bg)}
@@ -195,4 +204,5 @@ button.wk-box:hover{background:var(--c-select)}
 
 @media (prefers-reduced-motion: reduce){
   button.wk-box, .wk-switch__track, .wk-switch__track::after{transition:none}
+  .wk-count.is-done, .wk-success{animation:none}
 }

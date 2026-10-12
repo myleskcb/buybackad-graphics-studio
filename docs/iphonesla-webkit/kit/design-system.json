@@ -18,16 +18,22 @@
    "name": "Devices",
    "tile": "m",
    "order": [
+    "iphone-18-pro.webp",
+    "iphone-17-pro-cosmic-orange.webp",
+    "iphone-17-pro-max-silver.webp",
+    "iphone-air.webp",
+    "iphone-17.webp",
+    "iphone-17e.webp",
+    "iphone-16-pro-desert.webp",
+    "iphone-16-pro-max-white.webp",
+    "iphone-16-ultramarine.webp",
+    "iphone-15-pro-natural.webp",
+    "iphone-14-pro.webp",
+    "iphone-13-blue.webp",
+    "iphone-12.webp",
     "airpods-pro.webp",
     "ipad-air-blue.webp",
     "ipad-air-purple.webp",
-    "iphone-13-pink.webp",
-    "iphone-15-pro-natural.webp",
-    "iphone-16-pro-black.webp",
-    "iphone-16-pro-white.webp",
-    "iphone-16-teal.webp",
-    "iphone-17-pro-blue.webp",
-    "iphone-17-pro-orange.webp",
     "macbook-air-sky.webp",
     "macbook-pro-black.webp",
     "watch-rose.webp"
@@ -51,48 +57,6 @@
      "size": 24932,
      "type": "image/webp"
     },
-    "iphone-13-pink.webp": {
-     "name": "iphone-13-pink.webp",
-     "blob": "10e9bd4f4c8f9b7c35877e2e1dc76138",
-     "size": 5356,
-     "type": "image/webp"
-    },
-    "iphone-15-pro-natural.webp": {
-     "name": "iphone-15-pro-natural.webp",
-     "blob": "cabce67e34d8b1528f37cc21f7efdc1b",
-     "size": 7844,
-     "type": "image/webp"
-    },
-    "iphone-16-pro-black.webp": {
-     "name": "iphone-16-pro-black.webp",
-     "blob": "a09d1943029b5b59f483c5cc3db4f275",
-     "size": 6692,
-     "type": "image/webp"
-    },
-    "iphone-16-pro-white.webp": {
-     "name": "iphone-16-pro-white.webp",
-     "blob": "58d3d1b1012b71604a3a48c2e8c7f1e1",
-     "size": 7854,
-     "type": "image/webp"
-    },
-    "iphone-16-teal.webp": {
-     "name": "iphone-16-teal.webp",
-     "blob": "8ee93e0f72881e2a1eaaa47a093e1b0b",
-     "size": 6906,
-     "type": "image/webp"
-    },
-    "iphone-17-pro-blue.webp": {
-     "name": "iphone-17-pro-blue.webp",
-     "blob": "2b3f367391a527fcfd6eb5ae1bab14d7",
-     "size": 7690,
-     "type": "image/webp"
-    },
-    "iphone-17-pro-orange.webp": {
-     "name": "iphone-17-pro-orange.webp",
-     "blob": "dd0841fd503441ef977336d3017e4085",
-     "size": 9694,
-     "type": "image/webp"
-    },
     "macbook-air-sky.webp": {
      "name": "macbook-air-sky.webp",
      "blob": "5df5b146da312c704141f73020b7cda3",
@@ -109,6 +73,84 @@
      "name": "watch-rose.webp",
      "blob": "ae65caf59baa4e2e323736df408dc3c0",
      "size": 18576,
+     "type": "image/webp"
+    },
+    "iphone-18-pro.webp": {
+     "name": "iphone-18-pro.webp",
+     "blob": "d269b6c576076ea46b094b1c797318ff",
+     "size": 13778,
+     "type": "image/webp"
+    },
+    "iphone-17-pro-cosmic-orange.webp": {
+     "name": "iphone-17-pro-cosmic-orange.webp",
+     "blob": "300910dffa92133661e8bdef1202ecaf",
+     "size": 19354,
+     "type": "image/webp"
+    },
+    "iphone-17-pro-max-silver.webp": {
+     "name": "iphone-17-pro-max-silver.webp",
+     "blob": "2d81e27759d9d3a5cda48ddde51ab97b",
+     "size": 16590,
+     "type": "image/webp"
+    },
+    "iphone-air.webp": {
+     "name": "iphone-air.webp",
+     "blob": "f3184a6d9d75234d3062a90d5e2b919a",
+     "size": 13344,
+     "type": "image/webp"
+    },
+    "iphone-17.webp": {
+     "name": "iphone-17.webp",
+     "blob": "af838978ce80ad963b1d4d4590beedd4",
+     "size": 15538,
+     "type": "image/webp"
+    },
+    "iphone-17e.webp": {
+     "name": "iphone-17e.webp",
+     "blob": "885be6de4ca771a3eca493df30218faf",
+     "size": 13312,
+     "type": "image/webp"
+    },
+    "iphone-16-pro-desert.webp": {
+     "name": "iphone-16-pro-desert.webp",
+     "blob": "9071df23b09f7c167d406e188363f508",
+     "size": 15396,
+     "type": "image/webp"
+    },
+    "iphone-16-pro-max-white.webp": {
+     "name": "iphone-16-pro-max-white.webp",
+     "blob": "87bee02cb9d53cc3a1fcd851dcc7c014",
+     "size": 16602,
+     "type": "image/webp"
+    },
+    "iphone-16-ultramarine.webp": {
+     "name": "iphone-16-ultramarine.webp",
+     "blob": "b62914e5bdf4f7aa61c2f7be0cdd0446",
+     "size": 15086,
+     "type": "image/webp"
+    },
+    "iphone-15-pro-natural.webp": {
+     "name": "iphone-15-pro-natural.webp",
+     "blob": "9e8edc157dc6760392758f1800eaacec",
+     "size": 28870,
+     "type": "image/webp"
+    },
+    "iphone-14-pro.webp": {
+     "name": "iphone-14-pro.webp",
+     "blob": "bc14a53a9bfab7199802c8b81d022e74",
+     "size": 15606,
+     "type": "image/webp"
+    },
+    "iphone-13-blue.webp": {
+     "name": "iphone-13-blue.webp",
+     "blob": "19c2ebfeab27c7e3fb2ea23726cc2fe6",
+     "size": 12292,
+     "type": "image/webp"
+    },
+    "iphone-12.webp": {
+     "name": "iphone-12.webp",
+     "blob": "7fe612b7e4835d29ba33f957130f601f",
+     "size": 11030,
      "type": "image/webp"
     }
    }
@@ -144,7 +186,7 @@
  "lastChange": {
   "by": "Claude",
   "via": "Claude Code",
-  "at": "2026-10-12T02:07:24Z",
-  "note": "Card fades: trade-in green to dark green, wholesale grey to black, white words, mint and light-grey buttons"
+  "at": "2026-10-12T09:54:52Z",
+  "note": "Apple's renders for every iPhone, light photo frames in dark mode, lighter shop shadows, count-up offers, confetti, series then models"
  }
 }
