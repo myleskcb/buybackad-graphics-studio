@@ -335,10 +335,10 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
    --c-glass:rgba(255,255,255,.075); --c-edge:rgba(255,255,255,.17); --k-shine:rgba(255,255,255,.12); --k-shadow:rgba(0,0,0,.42)}
 /* every colourway fades the way the original cards did: dark at the top,
    lit from the bottom corners (a warm glow bottom-left, a second bottom-right) */
+[data-palette="g"] .k-ti{--k-top:#0a231d; --k-mid:#12402f; --k-low:#2b7a4b; --k-glow:rgba(92,200,120,.8); --k-glow2:rgba(60,160,110,.55); --k-btn:#b2f0c4; --k-btn-ink:#052414; --k-sel:rgba(178,240,196,.18); --ios-accent:#1a7f45}
+[data-palette="g"] .k-ws{--k-top:#1a1b1f; --k-mid:#2a2b30; --k-low:#50525a; --k-glow:rgba(118,120,128,.6); --k-glow2:rgba(118,120,128,0); --k-btn:#ededf0; --k-btn-ink:#16171b; --k-sel:rgba(255,255,255,.14); --ios-accent:#2a2b30}
 [data-palette="o"] .k-ti{--k-top:#1d2240; --k-mid:#302d4c; --k-low:#7b4243; --k-glow:rgba(176,96,63,.95); --k-glow2:rgba(150,74,62,.7); --k-btn:#f4b991; --k-btn-ink:#26170e; --k-sel:rgba(244,185,145,.18); --ios-accent:#a84a33}
 [data-palette="o"] .k-ws{--k-top:#1a1b1f; --k-mid:#2a2b30; --k-low:#50525a; --k-glow:rgba(118,120,128,.6); --k-glow2:rgba(118,120,128,0); --k-btn:#ededf0; --k-btn-ink:#16171b; --k-sel:rgba(255,255,255,.14); --ios-accent:#2a2b30}
-[data-palette="a"] .k-ti{--k-top:#0b2026; --k-mid:#123a35; --k-low:#2a6550; --k-glow:rgba(84,176,124,.85); --k-glow2:rgba(60,140,110,.55); --k-btn:#a9ecd0; --k-btn-ink:#062019; --k-sel:rgba(169,236,208,.17); --ios-accent:#0e7a5f}
-[data-palette="a"] .k-ws{--k-top:#0c1231; --k-mid:#1a285a; --k-low:#3a4c96; --k-glow:rgba(104,134,232,.75); --k-glow2:rgba(80,105,200,.5); --k-btn:#d3dfff; --k-btn-ink:#0b1533; --k-sel:rgba(211,223,255,.17); --ios-accent:#2f4fc4}
 [data-palette="b"] .k-ti{--k-top:#13277f; --k-mid:#2140b6; --k-low:#3f63e6; --k-glow:rgba(255,196,92,.5); --k-glow2:rgba(120,160,255,.5); --k-btn:#ffd84d; --k-btn-ink:#231a00; --k-sel:rgba(255,216,77,.18); --ios-accent:#2346c8}
 [data-palette="b"] .k-ws{--k-top:#0d1b60; --k-mid:#1d39a8; --k-low:#4466e0; --k-glow:rgba(150,178,255,.6); --k-glow2:rgba(255,255,255,.14); --k-btn:#ffffff; --k-btn-ink:#10206b; --k-sel:rgba(255,255,255,.18); --ios-accent:#2346c8}
 [data-palette="c"] .k{--c-ink:#121722; --c-soft:rgba(18,23,34,.76); --c-faint:rgba(18,23,34,.52); --c-glass:rgba(255,255,255,.58); --c-edge:rgba(18,23,34,.10); --k-shine:rgba(255,255,255,.95); --k-shadow:rgba(20,30,50,.2)}
@@ -350,6 +350,9 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
   radial-gradient(80% 70% at 100% 100%, var(--k-glow2) 0%, rgba(0,0,0,0) 65%),
   linear-gradient(172deg, var(--k-top) 0%, var(--k-mid) 55%, var(--k-low) 100%); color:var(--c-ink)}
 .k .btn{background:var(--k-btn); color:var(--k-btn-ink)}
+.k .badge{position:absolute; z-index:3; top:5cqi; right:5.4cqi; width:clamp(40px,9.6cqi,54px); aspect-ratio:1; border-radius:50%; display:grid; place-items:center; background:var(--c-glass); border:1px solid var(--c-edge); box-shadow:inset 0 1px 0 var(--k-shine); color:var(--k-btn); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px)}
+.k .badge svg{width:56%; height:56%}
+.has-badge .copy.full{padding-right:calc(5.4cqi + clamp(40px,9.6cqi,54px) + 2cqi)}
 .k .btn:focus-visible{outline-color:var(--c-ink)}
 
 .palettes{display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:4px}
@@ -449,14 +452,14 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
   </header>
 
   <!-- ═══════════ your picks ═══════════ -->
-  <section aria-labelledby="picks" id="your-picks" data-palette="o">
+  <section aria-labelledby="picks" id="your-picks" data-palette="g">
     <div class="sec-head">
       <h2 id="picks">Your picks</h2>
-      <p>One style from the home page to checkout: clear glass boxes on the original cards' fade, then clean iOS sheets where people buy and sell. Every device says whether it's being bought or sold. Prices and specs are examples until they come from the inventory.</p>
+      <p>One style from the home page to checkout: clear glass boxes on the original cards' fade, green for trade-in with a recycle mark, then clean iOS sheets where people buy and sell. Every device says whether it's being bought or sold. Prices and specs are examples until they come from the inventory.</p>
       <div class="palettes" role="group" aria-label="Colours for your picks">
         <span>Colours</span>
-        <button type="button" class="pal" data-pal="o" aria-pressed="true"><i style="background:#7b4243"></i><i style="background:#3a3b41"></i>Original fade</button>
-        <button type="button" class="pal" data-pal="a" aria-pressed="false"><i style="background:#2a6550"></i><i style="background:#3a4c96"></i>Evergreen &amp; Midnight</button>
+        <button type="button" class="pal" data-pal="g" aria-pressed="true"><i style="background:#2b7a4b"></i><i style="background:#3a3b41"></i>Green &amp; graphite</button>
+        <button type="button" class="pal" data-pal="o" aria-pressed="false"><i style="background:#7b4243"></i><i style="background:#3a3b41"></i>Original sunset</button>
         <button type="button" class="pal" data-pal="b" aria-pressed="false"><i style="background:#2b50d8"></i><i style="background:#ffd84d"></i>Cobalt</button>
         <button type="button" class="pal" data-pal="c" aria-pressed="false"><i style="background:#e3edfa"></i><i style="background:#ebe8e1"></i>Daylight</button>
       </div>
@@ -465,11 +468,12 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
     <div class="stop">
       <div class="style-head">
         <h3 class="style-name">1. Home page</h3>
-        <p>Both cards now work the same way: the words on top, a row of clear boxes in the middle, the button at the bottom. They keep the original fade, dark at the top and lit from the bottom; the colour buttons above try the same fade in other colours.</p>
+        <p>Both cards now work the same way: the words on top, a row of clear boxes in the middle, the button at the bottom. Trade-in is green with a recycle mark; wholesale keeps its graphite, with a box. Both keep the original fade, dark at the top and lit from the bottom.</p>
       </div>
       <div class="pair match">
         <figure>
-          <article class="card k k-ti" data-picker>
+          <article class="card k k-ti has-badge" data-picker>
+            <span class="badge" title="Trade-in"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 11.985 3a1.784 1.784 0 0 1 1.546.888l3.943 6.843"/><path d="m13.378 9.633 4.096 1.098 1.097-4.096"/></svg></span>
             <div class="copy full">
               <p class="eyebrow">Trade in a device</p>
               <h3 class="title sm">What are you trading in?</h3>
@@ -489,7 +493,8 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
           </article>
         </figure>
         <figure>
-          <article class="card k k-ws">
+          <article class="card k k-ws has-badge">
+            <span class="badge" title="Wholesale"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/></svg></span>
             <div class="copy full">
               <p class="eyebrow">Wholesale</p>
               <h3 class="title sm">A whole lot in. One payment out.</h3>
@@ -523,7 +528,7 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
               <p class="eyebrow">Shop with your trade-in</p>
               <h3 class="title sm">Every price, minus your offer</h3>
             </div>
-            <p class="applied"><span class="dot" aria-hidden="true">✓</span><span>Trade-in applied<small>iPhone 15 Pro · −$330 · change it at checkout</small></span></p>
+            <p class="applied"><span class="dot"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 11.985 3a1.784 1.784 0 0 1 1.546.888l3.943 6.843"/><path d="m13.378 9.633 4.096 1.098 1.097-4.096"/></svg></span><span>Trade-in applied<small>iPhone 15 Pro · −$330 · change it at checkout</small></span></p>
           </div>
           <div class="shelf">
             <div class="item"><span class="pic"><img src="img/iphone-17-pro-orange.webp" alt=""></span><span class="li-name">iPhone 17 Pro</span><span class="li-spec">256 GB · Cosmic Orange · Unlocked</span><span class="li-spec">Grade A · Battery 100%</span><div class="li-price"><b class="now">$569</b><s>$899</s></div><span class="li-save">−$330 with your iPhone 15 Pro</span></div>
@@ -579,7 +584,7 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
               <p class="ios-h">Trade-in</p>
               <div class="ios-group">
                 <label class="ios-row toggle">
-                  <span class="ios-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h14l-4-4"/><path d="M20 16H6l4 4"/></svg></span>
+                  <span class="ios-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 11.985 3a1.784 1.784 0 0 1 1.546.888l3.943 6.843"/><path d="m13.378 9.633 4.096 1.098 1.097-4.096"/></svg></span>
                   <span class="t"><b>Use my trade-in</b><span>iPhone 15 Pro · −$330</span></span>
                   <span class="ios-switch"><input type="checkbox" id="co-tradein" role="switch" checked><span class="trk"></span></span>
                 </label>
