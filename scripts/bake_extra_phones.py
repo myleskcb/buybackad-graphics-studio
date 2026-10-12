@@ -26,6 +26,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 from skimage import color
 
+from phone_finish import save_back, smooth_body
 from phone_rim import clean_rim
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -118,7 +119,7 @@ def sharpness(im):
 
 def finish_back(im, w, pid):
     """Match the existing set: trimmed edge to edge, w x 900, a clean rim (phone_rim),
-    same softness, same encode."""
+    same softness, smooth glass saved lossless (phone_finish)."""
     alpha = im.getchannel("A").point(lambda v: 255 if v > 128 else 0)
     im = clean_rim(im.crop(alpha.getbbox()).resize((w, H), Image.LANCZOS))
     r = 0.0
@@ -130,7 +131,8 @@ def finish_back(im, w, pid):
         if sharpness(soft) <= SHARP:
             im = soft
             break
-    im.save(OUT / f"{pid}.webp", quality=80, method=6)
+    im = smooth_body(im)
+    save_back(im, OUT / f"{pid}.webp")
     return im
 
 
@@ -477,7 +479,7 @@ def refit(idx):
         f = OUT / f"{p['id']}.webp"
         im = Image.open(f).convert("RGBA")
         if im.width != w:
-            im.resize((w, H), Image.LANCZOS).save(f, quality=80, method=6)
+            save_back(im.resize((w, H), Image.LANCZOS), f)
         p["w"] = w
 
 
