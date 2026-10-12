@@ -20,12 +20,11 @@ Write like a friendly person at the counter: short sentences, "you" and "we", no
 
 ## The fade
 
-Service cards and stages fade from light at the top to dark at the bottom: `trade-card-top` (pale mint) → `trade-card-mid` at 48% → `trade-card-low` (deep green), with `trade-card-glow` deepening the bottom corners. Wholesale is the same in greys: `wholesale-card-top` → `wholesale-card-mid` → `wholesale-card-low`.
+Service cards and stages fade from the service colour at the top to its darkest shade at the bottom: trade-in from green (`trade-card-top`) through `trade-card-mid` at 48% to dark green (`trade-card-low`), wholesale from grey (`wholesale-card-top`) to black (`wholesale-card-low`), with a glow deepening the bottom corners.
 
-- Words in the light part (eyebrow, title, lede, box labels) use `trade-card-ink` and `trade-card-ink-2`.
-- The bottom row sits on the dark part: the pill button in `trade-card-btn` with `trade-card-on-btn` text, and its note in `trade-card-foot-note`.
-- Marks in the light part (the badge icon, a box's count, a chosen box's edge) use `trade-card-mark`.
-- Nothing else goes on the dark part.
+- Every word on a card is white: `trade-card-ink` for titles and box labels, `trade-card-ink-2` for the eyebrow and lede, `trade-card-foot-note` beside the button.
+- The button is mint on trade-in (`trade-card-btn`) and light grey on wholesale (`wholesale-card-btn`), with dark text; counts and a chosen box's edge use the same light colour (`trade-card-mark`).
+- The badge mark is white on its glass disc.
 
 ## Surfaces and shape
 

@@ -335,16 +335,15 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
    --c-glass:rgba(255,255,255,.075); --c-edge:rgba(255,255,255,.17); --k-shine:rgba(255,255,255,.12); --k-shadow:rgba(0,0,0,.42)}
 /* every colourway fades the way the original cards did: dark at the top,
    lit from the bottom corners (a warm glow bottom-left, a second bottom-right) */
-/* Green & graphite: both cards fade from light at the top to dark at the bottom,
-   so the words at the top are dark and the button and small print at the bottom light */
-[data-palette="g"] .k-ti{--k-top:#effaf2; --k-mid:#cdeed7; --k-mid-at:48%; --k-low:#0f3d27; --k-glow:rgba(8,46,28,.55); --k-glow2:rgba(12,60,38,.4); --k-btn:#1a7f45; --k-btn-ink:#ffffff; --k-sel:rgba(26,127,69,.10); --ios-accent:#1a7f45;
-  --c-ink:#0d2a1a; --c-soft:rgba(13,42,26,.76); --c-faint:rgba(13,42,26,.6); --c-glass:rgba(255,255,255,.62); --c-edge:rgba(13,42,26,.10); --k-shine:rgba(255,255,255,.95); --k-shadow:rgba(20,60,35,.22)}
+/* Green & graphite: trade-in fades from green at the top to dark green at the bottom,
+   wholesale from grey to black; every word on them is white, the button and counts light */
+[data-palette="g"] .k-ti{--k-top:#22884b; --k-mid:#186039; --k-mid-at:48%; --k-low:#082418; --k-glow:rgba(3,20,12,.5); --k-glow2:rgba(3,20,12,.35); --k-btn:#b2f0c4; --k-btn-ink:#052414; --k-sel:rgba(255,255,255,.2); --ios-accent:#1a7f45;
+  --c-ink:#ffffff; --c-soft:rgba(255,255,255,.92); --c-faint:rgba(255,255,255,.75); --c-glass:rgba(255,255,255,.12); --c-edge:rgba(255,255,255,.22); --k-shine:rgba(255,255,255,.2); --k-shadow:rgba(0,0,0,.35)}
 [data-palette="g"] .k-ti .item{background:#fff}
-[data-palette="g"] .k-ws{--k-top:#f3f3f5; --k-mid:#d8d9de; --k-mid-at:48%; --k-low:#1c1d21; --k-glow:rgba(10,10,12,.45); --k-glow2:rgba(10,10,12,0); --k-btn:#2a2b30; --k-btn-ink:#ffffff; --k-sel:rgba(42,43,48,.08); --ios-accent:#2a2b30;
-  --c-ink:#16171b; --c-soft:rgba(22,23,27,.76); --c-faint:rgba(22,23,27,.6); --c-glass:rgba(255,255,255,.6); --c-edge:rgba(22,23,27,.10); --k-shine:rgba(255,255,255,.95); --k-shadow:rgba(0,0,0,.22)}
+[data-palette="g"] .k-ws{--k-top:#6e7077; --k-mid:#3a3c41; --k-mid-at:48%; --k-low:#0b0b0d; --k-glow:rgba(0,0,0,.45); --k-glow2:rgba(0,0,0,0); --k-btn:#ededf0; --k-btn-ink:#16171b; --k-sel:rgba(255,255,255,.18); --ios-accent:#2a2b30;
+  --c-ink:#ffffff; --c-soft:rgba(255,255,255,.92); --c-faint:rgba(255,255,255,.75); --c-glass:rgba(255,255,255,.12); --c-edge:rgba(255,255,255,.22); --k-shine:rgba(255,255,255,.2); --k-shadow:rgba(0,0,0,.35)}
+[data-palette="g"] .k .badge{color:#ffffff}
 [data-palette="g"] .k .bar, [data-palette="g"] .k .shelf-foot{--c-faint:rgba(255,255,255,.9)}
-[data-palette="g"] .k-ti .bar{--k-btn:#b2f0c4; --k-btn-ink:#052414}
-[data-palette="g"] .k-ws .bar{--k-btn:#ededf0; --k-btn-ink:#16171b}
 [data-palette="o"] .k-ti{--k-top:#1d2240; --k-mid:#302d4c; --k-low:#7b4243; --k-glow:rgba(176,96,63,.95); --k-glow2:rgba(150,74,62,.7); --k-btn:#f4b991; --k-btn-ink:#26170e; --k-sel:rgba(244,185,145,.18); --ios-accent:#a84a33}
 [data-palette="o"] .k-ws{--k-top:#1a1b1f; --k-mid:#2a2b30; --k-low:#50525a; --k-glow:rgba(118,120,128,.6); --k-glow2:rgba(118,120,128,0); --k-btn:#ededf0; --k-btn-ink:#16171b; --k-sel:rgba(255,255,255,.14); --ios-accent:#2a2b30}
 [data-palette="b"] .k-ti{--k-top:#13277f; --k-mid:#2140b6; --k-low:#3f63e6; --k-glow:rgba(255,196,92,.5); --k-glow2:rgba(120,160,255,.5); --k-btn:#ffd84d; --k-btn-ink:#231a00; --k-sel:rgba(255,216,77,.18); --ios-accent:#2346c8}
@@ -463,10 +462,10 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
   <section aria-labelledby="picks" id="your-picks" data-palette="g">
     <div class="sec-head">
       <h2 id="picks">Your picks</h2>
-      <p>One style from the home page to checkout: clear glass boxes on a fade from light at the top to dark at the bottom, green for trade-in with a recycle mark, then clean iOS sheets where people buy and sell. Every device says whether it's being bought or sold. Prices and specs are examples until they come from the inventory.</p>
+      <p>One style from the home page to checkout: clear glass boxes on a fade, green to dark green for trade-in (with a recycle mark) and grey to black for wholesale, then clean iOS sheets where people buy and sell. Every device says whether it's being bought or sold. Prices and specs are examples until they come from the inventory.</p>
       <div class="palettes" role="group" aria-label="Colours for your picks">
         <span>Colours</span>
-        <button type="button" class="pal" data-pal="g" aria-pressed="true"><i style="background:#1f6b45"></i><i style="background:#2a2b30"></i>Green &amp; graphite</button>
+        <button type="button" class="pal" data-pal="g" aria-pressed="true"><i style="background:#22884b"></i><i style="background:#3a3c41"></i>Green &amp; graphite</button>
         <button type="button" class="pal" data-pal="o" aria-pressed="false"><i style="background:#7b4243"></i><i style="background:#3a3b41"></i>Original sunset</button>
         <button type="button" class="pal" data-pal="b" aria-pressed="false"><i style="background:#2b50d8"></i><i style="background:#ffd84d"></i>Cobalt</button>
         <button type="button" class="pal" data-pal="c" aria-pressed="false"><i style="background:#e3edfa"></i><i style="background:#ebe8e1"></i>Daylight</button>
@@ -476,7 +475,7 @@ input:focus-visible + .sw{outline:2px solid var(--chalk-ink); outline-offset:2px
     <div class="stop">
       <div class="style-head">
         <h3 class="style-name">1. Home page</h3>
-        <p>Both cards now work the same way: the words on top, a row of clear boxes in the middle, the button at the bottom. Both fade from light at the top to dark at the bottom: green for trade-in, with a recycle mark, and graphite for wholesale, with a box.</p>
+        <p>Both cards now work the same way: the words on top, a row of clear boxes in the middle, the button at the bottom. Trade-in fades from green at the top to dark green at the bottom, with a recycle mark; wholesale from grey to black, with a box.</p>
       </div>
       <div class="pair match">
         <figure>

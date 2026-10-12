@@ -1,6 +1,6 @@
 # iPhones.LA Web Kit
 
-The look the owner approved on 2026-10-12 ("This theme looks extremely good ... use that as our general Web kit"), made into one kit for every page of the iPhones.LA site: service cards with clear glass boxes on a fade that runs light at the top to dark at the bottom (green for trade-in, graphite for wholesale), and iOS sheets for the tasks (trade in, check out, build a lot).
+The look the owner approved on 2026-10-12 ("This theme looks extremely good ... use that as our general Web kit"), made into one kit for every page of the iPhones.LA site: service cards with clear glass boxes on a fade (green to dark green for trade-in, grey to black for wholesale), and iOS sheets for the tasks (trade in, check out, build a lot).
 
 The live kit, with every component and page rendered, is the Design System artifact https://claude.ai/artifact/5nnwXW7ADFsFynBMKTUBsC (private to the owner until shared). This folder is its source, for the site's repo:
 
