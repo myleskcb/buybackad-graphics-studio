@@ -4690,3 +4690,30 @@ RESUME HERE:
      then Save to library and Download, both kinds.
   1. The library dialog has no "download all". The owner gave bulk download
      as the reason Save to library matters most. Ask before building one.
+
+## 2026-10-12 (later) — Easy Mode's bar folds into ☰ when its row does not fit (claude/practical-ramanujan-b87mty)
+
+The owner, over step 3 on a phone: "seems awkward with the floating menu
+bar". (The previous entry's screenshots showed it; I had wrongly called it a
+screenshot artifact.)
+
+Found: the pinned bar wrapped wherever its row did not fit. It was four rows
+at 390px (217px of an 844px screen) and 171px at 700px. From 761 to about
+1000px it was two rows (about 100px). The landing's bar had been made one
+row on phones (2026-10-06); Easy Mode's never was.
+
+Did: `.ez-nav.compact`, set by `ezNavMenu` (app.js) when the full row would
+wrap. It is measured, not tied to a screen width, because the row is wider
+signed in and wider again for an operator. Folded, the bar is one row: the
+mark, Upgrade, the account and ☰. ☰ opens Dark or light, Community, Export,
+AI background and Advanced editor in a panel. A pick, Escape, a tap
+elsewhere or ☰ shuts it; Dark or light and Export keep it open. The full row
+is laid out as before, through `display:contents` on the group.
+
+Checked (Chromium, at 360 to 1400px): one row at every width, 61 to 67px,
+folded up to 1000px and full from 1024, nothing off screen, no sideways
+scroll. The panel's five items, Dark or light keeping it open, Export's list
+on screen inside it, and Escape shutting both all pass.
+
+RESUME HERE: try the bar on a real phone on the live site once `main` is
+deployed.

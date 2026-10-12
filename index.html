@@ -405,18 +405,22 @@
 
 <!-- ═══════════════════ EASY MODE (default) ═══════════════════ -->
 <div id="page-easy">
-  <nav class="ez-nav">
+  <nav class="ez-nav" id="ez-nav">
     <button class="logo" id="ez-logo"><span class="logo-mark">▰</span>GRAPHICS <em>STUDIO</em></button>
-    <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">
-      <button class="theme-btn" data-theme-toggle title="Switch between dark and light" aria-label="Switch between dark and light"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor"/></svg></button>
-      <button class="ez-adv-link" id="nav-community">🌐 Community</button>
-      <span class="view-menu">
-        <button class="ez-adv-link" id="nav-history">⬇ Export <span class="caret">▾</span></button>
-        <div class="view-drop acct-drop" id="export-menu"></div>
+    <span class="ez-nav-links">
+      <!-- on a phone these fold into the ☰ menu (ez-nav-toggle); on a wider screen they sit in the row as before -->
+      <span class="ez-nav-more" id="ez-nav-more">
+        <button class="theme-btn" data-theme-toggle title="Switch between dark and light" aria-label="Switch between dark and light"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor"/></svg><span class="ez-nav-say">Dark or light</span></button>
+        <button class="ez-adv-link" id="nav-community">🌐 Community</button>
+        <span class="view-menu">
+          <button class="ez-adv-link" id="nav-history">⬇ Export <span class="caret">▾</span></button>
+          <div class="view-drop acct-drop" id="export-menu"></div>
+        </span>
+        <button class="ez-adv-link" id="nav-adlib" style="display:none" title="Your saved ads and their public link">📚 Library</button>
+        <button class="ez-adv-link" id="nav-genbg">✦ AI background</button>
+        <button class="ez-adv-link" id="nav-admin" style="display:none">🛠 AI Studio</button>
+        <button class="ez-adv-link" id="ez-adv-link">Advanced editor →</button>
       </span>
-      <button class="ez-adv-link" id="nav-adlib" style="display:none" title="Your saved ads and their public link">📚 Library</button>
-      <button class="ez-adv-link" id="nav-genbg">✦ AI background</button>
-      <button class="ez-adv-link" id="nav-admin" style="display:none">🛠 AI Studio</button>
       <button class="nav-upgrade" id="nav-upgrade" style="display:none">⬆ Upgrade</button>
       <span class="view-menu">
         <button class="acct-chip" id="acct-chip"><span id="acct-label">Sign in</span><span class="acct-plan free" id="acct-plan" style="display:none">FREE</span></button>
@@ -429,7 +433,7 @@
           <button class="view-item" id="am-signout">↪ Sign out</button>
         </div>
       </span>
-      <button class="ez-adv-link" id="ez-adv-link">Advanced editor →</button>
+      <button type="button" class="ez-nav-toggle" id="ez-nav-toggle" aria-expanded="false" aria-controls="ez-nav-more" aria-label="Menu" title="Menu"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path class="ez-nav-bars" d="M3 5.5h14M3 10h14M3 14.5h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path class="ez-nav-x" d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
     </span>
   </nav>
   <div class="ez-wrap">

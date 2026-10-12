@@ -1378,7 +1378,6 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .hist-dl{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:var(--r-pill);font:600 11.5px/1 var(--ui);padding:9px 13px;cursor:pointer;flex:none}
 .hist-dl:hover{border-color:var(--accent);color:var(--accent)}
 .hist-empty{color:var(--text-dim);font:500 13px/1.5 var(--ui);text-align:center;padding:26px 0}
-@media (max-width:760px){ .ez-nav{flex-wrap:wrap;gap:8px} }
 /* The label plus a 210px select is wider than a phone, and overflow-x:hidden
    was clipping the select's right edge instead of showing it. */
 @media (max-width:560px){
@@ -2639,3 +2638,56 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-theme='dark'][data-skin='poster'] .ez-dl2,
 :root[data-theme='dark'][data-skin='poster'] .ez-kind,
 :root[data-theme='dark'][data-skin='poster'] .ez-kind button{border-color:#000}
+
+/* ═══ EASY MODE'S BAR WHEN IT DOES NOT FIT (2026-10-12) ═══
+   Owner, over step 3 on a phone: "seems awkward with the floating menu bar".
+   The bar wrapped wherever its row did not fit: four rows at 390px (217px of
+   an 844px screen), two from 761 to about 1000, pinned over every step. Now
+   when the full row would wrap, app.js (ezNavMenu, measured, since the row
+   is wider signed in and wider again for an operator) sets .compact: one row
+   like the landing's, with the mark, Upgrade, the account and a menu button
+   (☰) that opens the rest (Community, Export, AI background, Advanced editor,
+   dark or light) in a panel under the bar. Otherwise the group is
+   display:contents and the row is laid out as before, Advanced editor last. */
+.ez-nav-links{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.ez-nav-more{display:contents}
+.ez-nav-more #ez-adv-link{order:1}
+.ez-nav-say,.ez-nav-toggle{display:none}
+.ez-nav.compact{flex-wrap:nowrap;gap:8px}
+.ez-nav.compact .ez-nav-links{flex-wrap:nowrap;min-width:0}
+.ez-nav.compact .ez-nav-more{display:none}
+.ez-nav.compact .ez-nav-toggle{display:grid;place-items:center;flex:none;width:42px;height:42px;padding:0;border:.5px solid var(--glass-edge);border-radius:var(--r-pill);background:var(--glass-bg-strong);color:var(--text);cursor:pointer}
+.ez-nav-toggle .ez-nav-x,.ez-nav.open .ez-nav-toggle .ez-nav-bars{display:none}
+.ez-nav.open .ez-nav-toggle .ez-nav-x{display:inline}
+.ez-nav-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ez-nav.compact.open .ez-nav-more{display:flex;flex-direction:column;align-items:stretch;gap:2px;position:absolute;top:100%;right:0;width:min(100%,420px);padding:8px 12px 12px;background:var(--glass-bg-strong);border-bottom:.5px solid var(--glass-edge);border-left:.5px solid var(--glass-edge);box-shadow:0 18px 30px -18px rgba(0,0,0,.45)}
+.ez-nav.compact.open .ez-nav-more > .view-menu{display:block}
+.ez-nav.compact.open .ez-nav-more .ez-adv-link,
+.ez-nav.compact.open .ez-nav-more .theme-btn{display:flex;align-items:center;gap:10px;width:100%;height:auto;min-height:46px;padding:12px;border-radius:var(--r-md);font:600 16px/1.2 var(--ui);color:var(--text);text-align:left}
+.ez-nav.compact.open .ez-nav-more .ez-nav-say{display:inline}
+.ez-nav.compact.open .ez-nav-more #ez-adv-link{order:0}
+.ez-nav.compact.open .ez-nav-more .view-drop{left:0;right:auto}
+.ez-nav.compact .acct-chip,.ez-nav.compact .nav-upgrade{min-height:42px;white-space:nowrap}
+@media (max-width:760px){
+  .ez-nav{padding:8px 12px}
+}
+@media (max-width:640px){
+  /* the mark alone, as the landing's bar on a phone: the wordmark and three
+     controls do not fit 360 to 414 */
+  .ez-nav .logo{font-size:0;gap:0}
+}
+@media (max-width:480px){
+  .ez-nav .acct-plan{display:none}
+  #acct-label{display:inline-block;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+}
+@media (max-width:440px){
+  .ez-nav.compact.open .ez-nav-more{width:100%;border-left:0}
+}
+:root[data-skin='poster'] .ez-nav-toggle{border:var(--line-w) solid var(--ink);background:var(--surface-solid)}
+:root[data-theme='dark'][data-skin='poster'] .ez-nav-toggle{border-color:#000}
+:root[data-skin='poster'] .ez-nav.compact.open .ez-nav-more{background:var(--field);border-bottom:var(--line-w) solid var(--ink);border-left:var(--line-w) solid var(--ink)}
+:root[data-skin='poster'] .ez-nav.compact.open .ez-nav-more .ez-adv-link:hover,
+:root[data-skin='poster'] .ez-nav.compact.open .ez-nav-more .theme-btn:hover{background:var(--surface-sunk)}
+@media (max-width:440px){
+  :root[data-skin='poster'] .ez-nav.compact.open .ez-nav-more{border-left:0}
+}

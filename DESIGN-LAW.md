@@ -5364,3 +5364,11 @@ bulk download."
 - Check: `ad_library_check.mjs` (Save to library's Video + image; Download's
   Video + image offers the save), `video_photo_check.mjs --only studio` (the
   photo kept after Download, as the dashed button), `motion_export_check.mjs`.
+- **The bar folds when its row does not fit** (the owner, the same day, over
+  step 3 on a phone: "seems awkward with the floating menu bar"). Easy
+  Mode's pinned bar used to wrap: four rows at 390px (217px of an 844px
+  screen) and two from 761 to about 1000. When the full row would wrap it is
+  now `.compact`: one row (the mark, Upgrade, the account, ☰), and ☰ opens
+  the rest in a panel under it (`ezNavMenu`). Whether it folds is measured,
+  not set by a screen width: the row is wider signed in and wider again for
+  an operator. A wider screen keeps the full row as it was.
