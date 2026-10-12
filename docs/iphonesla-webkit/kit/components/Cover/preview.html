@@ -1,0 +1,39 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Cover</title>
+<style>
+html,body{margin:0;background:var(--bg)}
+.cv{position:relative;width:960px;height:288px;overflow:hidden;background:var(--bg)}
+.cv svg{position:absolute;inset:0}
+.trade{fill:var(--trade)} .tint{fill:var(--trade-card-mid)} .slab{fill:var(--wholesale)} .buy{fill:var(--buying)}
+.blk{rx:var(--radius-card)}
+.track{rx:16px} .on{fill:var(--switch-on)} .off{fill:var(--switch-off)} .knob{fill:var(--knob)}
+.name{position:absolute;left:40px;bottom:58px;margin:0;max-width:440px;font:700 72px/.95 var(--font-display);letter-spacing:-.03em;color:var(--label)}
+.tag{position:absolute;left:40px;bottom:32px;margin:0;max-width:440px;font:400 14px/18px var(--font-text);color:var(--label-2)}
+</style></head>
+<body>
+<div class="cv">
+<svg width="960" height="288" viewBox="0 0 960 288" aria-hidden="true">
+<!-- blocks: trade 200x136, trade-card-mid 200x88 (space-4 apart), wholesale slab 260x288 bleeding off the top and right, a buying disc r14; corners radius-card
+     arrangement: one tall slab with two satellites stacked on its left, the disc tucked into the lower one
+     pattern: switches, track and knob cut from radius-pill; the kit's own control (on is the trade-in, off is keeping your phone), chosen because the brand is soft iOS shapes
+     steps and radii: space-4 16 gaps, space-6 24 margins, radius-card 20, tracks 52x32 with rx 16 (half the short side), knobs r13.5 -->
+<rect class="trade blk" x="508" y="24" width="200" height="136"/>
+<rect class="tint blk" x="508" y="176" width="200" height="88"/>
+<circle class="buy" cx="676" cy="220" r="14"/>
+<rect class="slab blk" x="724" y="-24" width="260" height="288"/>
+<rect class="on track" x="764" y="40" width="52" height="32"/><circle class="knob" cx="800" cy="56" r="13.5"/>
+<rect class="off track" x="764" y="96" width="52" height="32"/><circle class="knob" cx="780" cy="112" r="13.5"/>
+<rect class="on track" x="764" y="152" width="52" height="32"/><circle class="knob" cx="800" cy="168" r="13.5"/>
+<rect class="off track" x="764" y="208" width="52" height="32"/><circle class="knob" cx="780" cy="224" r="13.5"/>
+<rect class="off track" x="840" y="40" width="52" height="32"/><circle class="knob" cx="856" cy="56" r="13.5"/>
+<rect class="on track" x="840" y="96" width="52" height="32"/><circle class="knob" cx="876" cy="112" r="13.5"/>
+<rect class="off track" x="840" y="152" width="52" height="32"/><circle class="knob" cx="856" cy="168" r="13.5"/>
+<rect class="on track" x="840" y="208" width="52" height="32"/><circle class="knob" cx="876" cy="224" r="13.5"/>
+</svg>
+<p class="name">iPhones.LA<br>Web Kit</p>
+<p class="tag">From the home page to checkout, in one kit.</p>
+</div>
+</body>
+</html>

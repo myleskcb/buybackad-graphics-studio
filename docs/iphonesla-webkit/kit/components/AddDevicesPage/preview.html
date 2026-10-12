@@ -1,0 +1,31 @@
+<!-- @dsCard group="Pages" height=900 width=390 page subtitle="Wholesale: add devices to the lot by model and count." -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>AddDevicesPage — preview</title>
+<style>html,body{margin:0;background:var(--bg)}body{padding:0px}</style></head>
+<body class="wk">
+<div class="wk-stage wk-wholesale" style="border-radius:0;min-height:100vh;align-items:flex-start">
+  <div class="wk-sheet">
+    <div class="wk-grabber" aria-hidden="true"></div>
+    <div class="wk-nav"><span>Cancel</span><span class="wk-nav__c">Add devices</span><span>Done</span></div>
+    <h1 class="wk-large-title">Add devices</h1>
+    <p class="wk-sub">Set how many of each. Specs come next.</p>
+    
+    <div style="margin-top:16px"><div class="wk-seg" role="group" aria-label="Category" data-wk-single><button type="button" aria-pressed="true">iPhone</button><button type="button" aria-pressed="false">iPad</button><button type="button" aria-pressed="false">Mac</button></div></div>
+    <div data-add>
+    <p class="wk-section">iPhone</p>
+    <div class="wk-group">
+        <div class="wk-row" data-qty="0"><span class="wk-thumb wk-thumb--sm"><img src="/_blob/2b3f367391a527fcfd6eb5ae1bab14d7" alt=""></span><span class="wk-row__t"><b>iPhone 17 Pro</b><span><span data-qty-out>0</span> in this lot</span></span><span class="wk-stepper"><button type="button" data-step="-1" aria-label="One fewer iPhone 17 Pro">−</button><i></i><button type="button" data-step="1" aria-label="One more iPhone 17 Pro">+</button></span></div>
+        <div class="wk-row" data-qty="12"><span class="wk-thumb wk-thumb--sm"><img src="/_blob/a09d1943029b5b59f483c5cc3db4f275" alt=""></span><span class="wk-row__t"><b>iPhone 16 Pro</b><span><span data-qty-out>12</span> in this lot</span></span><span class="wk-stepper"><button type="button" data-step="-1" aria-label="One fewer iPhone 16 Pro">−</button><i></i><button type="button" data-step="1" aria-label="One more iPhone 16 Pro">+</button></span></div>
+        <div class="wk-row" data-qty="4"><span class="wk-thumb wk-thumb--sm"><img src="/_blob/8ee93e0f72881e2a1eaaa47a093e1b0b" alt=""></span><span class="wk-row__t"><b>iPhone 16</b><span><span data-qty-out>4</span> in this lot</span></span><span class="wk-stepper"><button type="button" data-step="-1" aria-label="One fewer iPhone 16">−</button><i></i><button type="button" data-step="1" aria-label="One more iPhone 16">+</button></span></div>
+        <div class="wk-row" data-qty="2"><span class="wk-thumb wk-thumb--sm"><img src="/_blob/cabce67e34d8b1528f37cc21f7efdc1b" alt=""></span><span class="wk-row__t"><b>iPhone 15 Pro</b><span><span data-qty-out>2</span> in this lot</span></span><span class="wk-stepper"><button type="button" data-step="-1" aria-label="One fewer iPhone 15 Pro">−</button><i></i><button type="button" data-step="1" aria-label="One more iPhone 15 Pro">+</button></span></div>
+        <div class="wk-row" data-qty="0"><span class="wk-thumb wk-thumb--sm"><img src="/_blob/10e9bd4f4c8f9b7c35877e2e1dc76138" alt=""></span><span class="wk-row__t"><b>iPhone 13</b><span><span data-qty-out>0</span> in this lot</span></span><span class="wk-stepper"><button type="button" data-step="-1" aria-label="One fewer iPhone 13">−</button><i></i><button type="button" data-step="1" aria-label="One more iPhone 13">+</button></span></div>
+      </div>
+    <button class="wk-btn-block add-go" type="button">Add 18 devices</button>
+    </div>
+  </div>
+</div>
+<script>LAKit.mount(document);
+(function(){var s=document.querySelector('[data-add]');function paint(){var n=0;s.querySelectorAll('[data-qty]').forEach(function(r){n+=+r.getAttribute('data-qty');});s.querySelector('.add-go').textContent=n?'Add '+n+' device'+(n===1?'':'s'):'Pick a device to add';}s.addEventListener('wk:change',paint);paint();})();</script>
+</body>
+</html>

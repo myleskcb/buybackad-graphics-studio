@@ -1,0 +1,22 @@
+<!-- @dsCard group="Controls" height=170 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Stepper — preview</title>
+<style>html,body{margin:0;background:var(--bg)}body{padding:16px}</style></head>
+<body class="wk">
+<div class="wk-wholesale wk-sheet" style="box-shadow:none" data-lot>
+  <div class="wk-group">
+        <div class="wk-row" data-qty="12" data-unit="480">
+          <span class="wk-thumb"><img src="/_blob/a09d1943029b5b59f483c5cc3db4f275" alt=""></span>
+          <span class="wk-row__t"><b>iPhone 16 Pro</b><span>256 GB · Black Titanium · Unlocked</span><span><span class="wk-grade">Grade A</span><span class="wk-qx" aria-live="polite">12 × $480</span></span></span>
+          <span class="wk-row__r"><span class="wk-row__v wk-ln">$5,760</span><span class="wk-stepper"><button type="button" data-step="-1" aria-label="One fewer iPhone 16 Pro">−</button><i></i><button type="button" data-step="1" aria-label="One more iPhone 16 Pro">+</button></span></span>
+        </div>
+      </div>
+  <span hidden class="lot-ndev"></span><span hidden class="lot-n"></span><span hidden class="lot-sum"></span><span hidden class="lot-pay"></span>
+</div>
+<script>LAKit.mount(document);
+(function(){var s=document.querySelector('[data-lot]');function paint(){var n=0,sum=0;s.querySelectorAll('[data-unit]').forEach(function(r){var q=+r.getAttribute('data-qty'),u=+r.getAttribute('data-unit');n+=q;sum+=q*u;r.querySelector('.wk-ln').textContent=LAKit.usd(q*u);r.querySelector('.wk-qx').textContent=q+' × '+LAKit.usd(u);});
+s.querySelector('.lot-ndev').textContent=n+' device'+(n===1?'':'s');s.querySelector('.lot-n').textContent=n;s.querySelector('.lot-sum').textContent=LAKit.usd(sum);s.querySelector('.lot-pay').textContent=n?'Sell my lot for '+LAKit.usd(sum):'Add a device to start';}
+s.addEventListener('wk:change',paint);paint();})();</script>
+</body>
+</html>

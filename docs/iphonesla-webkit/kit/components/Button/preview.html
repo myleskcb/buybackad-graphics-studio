@@ -1,0 +1,21 @@
+<!-- @dsCard group="Actions" height=300 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Button — preview</title>
+<style>html,body{margin:0;background:var(--bg)}body{padding:16px}</style></head>
+<body class="wk">
+<div style="display:grid;gap:16px">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+    <div class="wk-card wk-trade"><div class="wk-card__foot" style="padding-top:10cqi"><a class="wk-btn" href="#">Start a trade-in <span aria-hidden="true">→</span></a><p class="wk-card__note">Your offer first</p></div></div>
+    <div class="wk-card wk-wholesale"><div class="wk-card__foot" style="padding-top:10cqi"><a class="wk-btn" href="#">Build a lot <span aria-hidden="true">→</span></a><p class="wk-card__note">One order</p></div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;max-width:760px">
+    <div><button class="wk-btn-block" type="button" style="margin:0">Buy now</button></div>
+    <div class="wk-trade"><button class="wk-btn-block" type="button" style="margin:0">Pay $569</button></div>
+    <div class="wk-wholesale"><button class="wk-btn-block" type="button" style="margin:0">Sell my lot</button></div>
+  </div>
+  <div class="wk-trade" style="max-width:240px"><button class="wk-btn-plain" type="button">Start over</button></div>
+</div>
+<script>LAKit.mount(document);</script>
+</body>
+</html>
