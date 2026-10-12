@@ -5325,3 +5325,42 @@ owner chose "make it, then preview".
   one count; Free's Download JPG saved 1080×1080 on a photo count, its
   Download MP4 opened the plans; the same at 390 px wide, the buttons one
   above the other.
+
+
+## 131. Easy Mode's download step: one size menu, ▶ in the preview, and two buttons that ask
+
+Added 2026-10-12. Supersedes rule 130 for Easy Mode only; the editor keeps
+its Create video pop-up. The owner, over a screenshot of step 3: "this part
+of the site is really confusing ... have the aspect ratios as one major
+drop-down ... then on the right we have a playback button to play it or
+pause it ... save as video seems a little redundant ... Ask if you want
+image or [video] and image. The .zip seems a little bit redundant ... save
+to library [is the] most important because most people will probably do a
+bulk download."
+
+- **The sizes are one drop-down** (`#ez-size`, `buildEzSizes`), with ▶
+  beside it (`#ez-play`). The F key still steps through them.
+- **▶ plays the video in the preview's place and pauses it** (`ezMotion`):
+  the export's own frames (`motionBake` once, `motionDraw` at t) on a canvas,
+  baked at the size shown (1080 at most), with the download's sound when
+  sound is on. It shows the scene the video download draws, so before a
+  background is picked it plays on the designed background, not on the blurred
+  placeholder. Nothing is recorded or counted. Any change to the ad brings
+  the still back (`ezMotion.changed`, compared on the still preview's own JPEG, so
+  a redraw of the same ad keeps it playing). Leaving Easy Mode or the tab
+  pauses it.
+- **⭐ Save to library is the main button, ⬇ Download comes after it**, and
+  each asks: 🖼 Image, or 🎬 Video + image (`ezAskKind`, a menu under the
+  button). Image is the existing `saveEasy` / `ezDownload`. Video takes the
+  direct path (`ezVideoTo`: the plan first, then made, counted and kept with
+  its photo, rule 108). Without a video plan it shows a Pro tag and opens the
+  plans page.
+- **One video at a time** (`ezVideoBusy`). The library takes the next
+  finished video (`state.capture`), so a save started while a download is
+  recording would swap the two.
+- **Gone from the step:** 🎬 Create video (▶ replaces it), ⭐🎬 Save as video
+  (Save to library asks instead) and 📦 the category zip (`exportCategoryPack`,
+  operator-only).
+- Check: `ad_library_check.mjs` (Save to library's Video + image; Download's
+  Video + image offers the save), `video_photo_check.mjs --only studio` (the
+  photo kept after Download, as the dashed button), `motion_export_check.mjs`.

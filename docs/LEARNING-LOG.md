@@ -4643,3 +4643,50 @@ Found:
 
 Checked: ad_library_check no failures (upload, Add video, Remove video, a
 free account's refused video).
+
+## 2026-10-12 — Easy Mode's download step made simple: one size menu, ▶ in the preview, two buttons that ask (claude/practical-ramanujan-b87mty)
+
+The owner, over a screenshot of step 3: "this part of the site is really
+confusing". They asked for: the sizes as one drop-down, a play/pause
+button on its right, Download asking "image, or video and image", no Save as
+video, no .zip, and Save to library as the main button. DESIGN-LAW rule 131.
+
+Done:
+  - `#ez-size` drop-down (`buildEzSizes`), F key kept; `#ez-play` plays the
+    video on a canvas in the preview's place (`ezMotion`: motionBake once,
+    motionDraw at t, sound where it is on) and pauses on the frame it is on.
+    Any change to the ad brings the still back.
+  - ⭐ Save to library (main) and ⬇ Download each ask, in a menu under the
+    button (`ezAskKind`). The video goes through `ezVideoTo`, the direct path.
+  - Removed: Create video, Save as video and the category zip
+    (`exportCategoryPack`) from Easy Mode. The editor's export is unchanged.
+
+Found:
+  - The library's `state.capture` takes the NEXT finished video. With two
+    buttons that can each start a video, a save started while a download
+    recorded would have swapped them. `ezVideoBusy` allows one at a time; it
+    used to be the shared `#ez-video` button's disabled state.
+  - `VideoHelp.keepPhoto` copies its anchor's class. After the new outline
+    Download it would have looked like a second Download, so the photo button
+    is passed `ez-open-adv` (dashed).
+  - A redraw of the same ad (fonts and pictures arriving) calls
+    schedEzPreview too. Comparing the new still's JPEG with the one the bake
+    was made from tells a real change from a redraw.
+  - video_photo_check's "studio easy square free" (a Free account's
+    watermarked video) fails on the unchanged base commit too. It predates
+    Free losing video downloads (§AS), so this change did not cause it.
+
+Checked (Chromium, fabric 5.3.0 from npm, puppeteer-core installed with
+--no-save): ad_library_check no failures; video_photo_check --only studio,
+every case but the pre-existing Free one; motion_export_check exit 0;
+tests-iphonesla-link 68 of 68; sync_css_fallback in sync. Driven by hand in a
+script: play, pause holds the frame, resume from t, an edit brings the still
+back, a same-ad redraw keeps playing, Story plays tall, F steps the size,
+both menus (Escape, tap outside, the button again), Pro image and video
+downloads, one video at a time, at 412 px and 1400 px, light and dark.
+
+RESUME HERE:
+  0. Merge to `main` and deploy `main` from the Mac; on the live site, try ▶,
+     then Save to library and Download, both kinds.
+  1. The library dialog has no "download all". The owner gave bulk download
+     as the reason Save to library matters most. Ask before building one.

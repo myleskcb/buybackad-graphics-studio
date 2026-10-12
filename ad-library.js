@@ -27,8 +27,9 @@
      designs, the video maker's looks. A design card is drawn as it would
      download, with the brand kit's number and website, through the same
      gate, size and watermark, and counted as a download.
-   - ⭐ Save to library and ⭐🎬 Save as video under the Easy Mode preview
-     and in the designer's export: the ad as made, its words and photo.
+   - ⭐ Save to library under the Easy Mode preview (it asks: the image, or
+     the video with its image), and ⭐ Library and ⭐🎬 Video to library in
+     the designer's export: the ad as made, its words and photo.
    - after a download (a picture or a video): the "save it" card, or every
      download once "Save every download here" is ticked.
    - ⬆ Upload in the Library dialog: a photo or a video ad from this device
@@ -536,17 +537,20 @@
     if (item){ app.toast(item.hold ? 'Saved to your library. ' + heldLine(item.hold) : 'Saved to your library ⭐' + (app.admin() ? '' : ' (1 download used)'), 'success'); try { $('export-overlay').classList.remove('show'); } catch (e){} }
     return item;
   }
-  /* the video, made by the studio's own video button and caught on its way
-     to the download: counted as that download is, then saved with its photo */
+  /* the video, made by the studio's own video path and caught on its way
+     to the download: counted as that download is, then saved with its photo.
+     Easy Mode's comes from Save to library's "Video + image" (app.js
+     ezAskKind), and says how it is going on that button. */
   async function saveVideoNow(kind){
     if (!await signedIn(() => saveVideoNow(kind))) return;
-    const id = kind === 'adv' ? 'ex-video' : 'ez-video';
+    const id = kind === 'adv' ? 'ex-video' : 'ez-star';
     const btn = $(id);
     if (!btn || btn.disabled) return;
     state.capture = { kind, btn };
+    const again = () => saveVideoNow(kind);
     try {
       if (kind === 'adv') await guardVideo(editorDownloadVideo, id);
-      else await guardVideo(ezDownloadVideo, id);
+      else await guardVideo(() => ezDownloadVideo({ btn, again }), id, again);
     } finally { if (state.capture && state.capture.btn === btn) state.capture = null; }
   }
   function studioVideoMeta(photo){
@@ -557,9 +561,10 @@
     await keepStudioVideo(c.kind, blob, name, photo, c.btn);
     return false;                     // runVideoExport says nothing more: the toast above is the word
   }
-  /* a studio video, counted as a download and saved with its photo: ⭐🎬's,
-     and Create video's ⭐ Save to library (app.js previewVideo), whose video
-     is already made. The saved item, or null. */
+  /* a studio video, counted as a download and saved with its photo: Save
+     to library's video, the designer's ⭐🎬, and the editor's Create video's
+     ⭐ Save to library (app.js previewVideo), whose video is already made.
+     The saved item, or null. */
   async function keepStudioVideo(kind, blob, name, photo, btn){
     if (!await signedIn(() => keepStudioVideo(kind, blob, name, photo, btn))) return null;
     const VH = window.VideoHelp;
@@ -609,9 +614,6 @@
 .ez-tpl .tpl-lock{left:6px}
 .mini-tpl .adl-star{top:5px;left:5px;width:22px;height:22px;line-height:22px;font-size:11px;opacity:0}
 .mini-tpl:hover .adl-star,.mini-tpl .adl-star.on,.mini-tpl .adl-star:focus-visible,.mini-tpl .adl-star.busy{opacity:1}
-.adl-starrow{display:flex;gap:8px;margin-top:10px}
-.adl-starrow .ez-open-adv{margin-top:0;flex:1}
-.adl-starrow .ez-open-adv.on{border-style:solid;border-color:#ffd200;color:var(--text)}
 .hist-row .adl-hist{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:999px;font:600 11.5px/1 var(--ui);padding:9px 11px;cursor:pointer;flex:none;margin-right:8px}
 .hist-row .adl-hist:hover{border-color:#ffd200;color:#ffd200}
 `;
@@ -747,9 +749,11 @@
       }
     } catch (e){}
     /* the ad as made */
-    const ezS = $('ez-star'), ezV = $('ez-star-video'), exS = $('ex-star'), exV = $('ex-star-video');
-    if (ezS) ezS.onclick = () => saveEasy();
-    if (ezV) ezV.onclick = () => saveVideoNow('ez');
+    const ezS = $('ez-star'), exS = $('ex-star'), exV = $('ex-star-video');
+    /* Easy Mode's asks first: the image, or the video with its image */
+    if (ezS) ezS.onclick = e => (typeof ezAskKind === 'function'
+      ? ezAskKind(e.currentTarget, kind => (kind === 'video' ? ezVideoTo('library') : saveEasy()))
+      : saveEasy());
     if (exS) exS.onclick = () => saveEditor();
     if (exV) exV.onclick = () => saveVideoNow('adv');
     paint();

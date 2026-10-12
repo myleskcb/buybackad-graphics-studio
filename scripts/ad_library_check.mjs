@@ -33,9 +33,10 @@
       star; a strip star saves the design at the plan's size, counted as a
       download, a free account's held for its watermark; Save to library
       under the preview and in the designer's export save the ad as made;
-      Save as video makes the studio's video and saves it with its photo,
-      served by range on the link; a video download offers the save once the
-      helper's pop-up is closed. The video maker: a signed-out star opens
+      Save to library's Video + image makes the studio's video and saves it
+      with its photo, served by range on the link; a video download
+      (Download, then Video + image) offers the save once the helper's
+      pop-up is closed. The video maker: a signed-out star opens
       Create account and the save follows the sign-up; every gallery look has
       a star; the Library link opens the dialog there. The master library:
       a saved video ad plays, every finished design has a star, a star saves
@@ -676,7 +677,7 @@ async function browserPart() {
       await page.evaluate(() => { document.getElementById('auth-overlay').classList.remove('show'); showEasy(null); });
       await page.waitForTimeout(1500);
       await page.evaluate(() => document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')));
-      const strip = await page.evaluate(() => ({ tiles: document.querySelectorAll('#ez-strip .ez-tpl').length, stars: document.querySelectorAll('#ez-strip .ez-tpl .adl-star').length, buttons: !!document.getElementById('ez-star') && !!document.getElementById('ez-star-video') }));
+      const strip = await page.evaluate(() => ({ tiles: document.querySelectorAll('#ez-strip .ez-tpl').length, stars: document.querySelectorAll('#ez-strip .ez-tpl .adl-star').length, buttons: !!document.getElementById('ez-star') && !!document.getElementById('ez-download') && !document.getElementById('ez-star-video') }));
       ok(strip.tiles > 0 && strip.stars === strip.tiles && strip.buttons, 'stars: every look in the Easy Mode strip, and the two buttons under the preview (' + JSON.stringify(strip) + ')');
       const st = await page.evaluate(async () => {
         const before = account.exports ? account.exports.count : 0;
@@ -744,23 +745,24 @@ async function browserPart() {
         await adLibrary.saveVideoNow('ez');
         await new Promise((r) => setTimeout(r, 300));
         const lib = adLibrary.state().lib, top = lib.items[0];
-        return { before, after: lib.count, top: top && { kind: top.kind, video: top.video && { format: top.video.format, w: top.video.width, h: top.video.height, seconds: top.video.seconds, bytes: top.video.bytes, url: top.video.url } }, label: document.getElementById('ez-video').innerHTML };
+        return { before, after: lib.count, top: top && { kind: top.kind, video: top.video && { format: top.video.format, w: top.video.width, h: top.video.height, seconds: top.video.seconds, bytes: top.video.bytes, url: top.video.url } }, label: document.getElementById('ez-star').innerHTML };
       });
-      ok(vid.top && vid.top.kind === 'video' && vid.top.video && vid.top.video.bytes > 10000 && vid.top.video.w === 1080 && vid.top.video.seconds === 10 && /Create video/.test(vid.label), 'video: Save as video makes the studio\'s video and saves it with its photo (' + JSON.stringify(vid).slice(0, 300) + ')');
+      ok(vid.top && vid.top.kind === 'video' && vid.top.video && vid.top.video.bytes > 10000 && vid.top.video.w === 1080 && vid.top.video.seconds === 10 && /Save to library/.test(vid.label), 'video: Save to library\'s Video + image makes the studio\'s video and saves it with its photo (' + JSON.stringify(vid).slice(0, 300) + ')');
       if (vid.top && vid.top.video) {
         const pub = await page.evaluate(async (u) => { const r = await fetch(u, { headers: { Range: 'bytes=0-15' } }); return { status: r.status, type: r.headers.get('content-type'), range: r.headers.get('content-range') }; }, vid.top.video.url);
         ok(pub.status === 206 && /^video\//.test(pub.type || '') && /^bytes 0-15\//.test(pub.range || ''), 'video: the public link serves the clip by range (' + JSON.stringify(pub) + ')');
       }
       const askV = await page.evaluate(async () => {
         const wait = async (f, ms) => { const t = Date.now(); while (!f() && Date.now() - t < ms) await new Promise((r) => setTimeout(r, 400)); return f(); };
-        // Create video: made and shown first (app.js previewVideo), then its Download MP4
-        document.getElementById('ez-video').click();
-        if (!await wait(() => document.getElementById('vh-mp4'), 60000)) return { preview: false };
-        document.getElementById('vh-mp4').click();
-        await wait(() => !document.getElementById('vh-mp4') || /Downloaded/.test((document.querySelector('.vh-said') || {}).textContent || ''), 60000);
+        // Download, then Video + image (app.js ezAskKind, ezVideoTo): made, counted and downloaded
+        document.getElementById('ez-download').click();
+        const item = document.querySelector('.ez-kind [data-kind="video"]');
+        if (!item) return { menu: false };
+        item.click();
+        await wait(() => document.getElementById('ez-download').disabled, 5000);
         const t0 = Date.now();
         let popup = false;
-        while (Date.now() - t0 < 60000) {
+        while (Date.now() - t0 < 120000) {
           await new Promise((r) => setTimeout(r, 400));
           const vh = document.querySelector('.vh-back');
           if (vh) { popup = true; await new Promise((r) => setTimeout(r, 1200)); if (document.querySelector('.adl-ask')) return { popup, early: true }; vh.remove(); }

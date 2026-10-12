@@ -134,7 +134,7 @@ costs at most $0.22 a month (`plan_economics.mjs` prints it).
 ## Formats
 **Square 1:1 is the format the ads are designed for; Tall 3:4 comes second and
 Story 9:16 is occasional** (owner, 2026-09-27). Both the editor (topbar picker)
-and Easy Mode (the size chips) offer six: Square 1:1 (1080×1080), Tall 3:4
+and Easy Mode (the Size drop-down) offer six: Square 1:1 (1080×1080), Tall 3:4
 (1080×1440), Story 9:16 (1080×1920), Flyer 8.5×11 (1080×1398, prints at ~250
 dpi on a Pro 2× export), Wide 16:9 (1920×1080) and Wide 4:3 (1440×1080).
 Templates are authored square and re-flow into the chosen format; switching
@@ -142,9 +142,12 @@ back is lossless. Plan pixel caps apply to the short side, so rectangular
 exports keep their aspect.
 
 ## Video ads
-Every design also makes a 10-second video: **Create video** in Easy Mode and
-in the editor's export makes it and plays it in a pop-up, with Download MP4
-(with its JPG photo), Download JPG and Save to library (DESIGN-LAW rule 130).
+Every design also makes a 10-second video. In Easy Mode, **▶** beside the
+Size drop-down plays it in the preview and pauses it, and **⭐ Save to
+library** and **⬇ Download** each ask: Image, or Video + image (DESIGN-LAW
+rule 131). In the editor's export, **Create video** makes it and plays it in a
+pop-up, with Download MP4 (with its JPG photo), Download JPG and Save to
+library (rule 130).
 The video maker (`motion/`) downloads an MP4 or a JPG. The clip opens on the finished ad
 (frame 0 is the still, so every feed thumbnail and muted autoplay shows the
 ad), lets it breathe, and at 5.8 s shifts to a call to action built from the
@@ -254,9 +257,10 @@ designs, and every look in the video maker. A star on a design draws it as it
 would download, with the brand kit's number and website on it, through the
 same gate, at the plan's size and watermark, and counts it as a download
 (operators are not counted); the star fills once the ad is in the library.
-Under the Easy Mode preview and in the designer's export, **⭐ Save to
-library** saves the ad as made and **⭐🎬 Save as video** makes the studio's
-10-second video and saves it with its photo instead of downloading it. After
+Under the Easy Mode preview, **⭐ Save to library** asks Image (the ad as
+made) or Video + image (the studio's 10-second video, saved with its photo
+instead of downloaded); in the designer's export, **⭐ Library** and **⭐🎬
+Video to library** do the same. After
 a video download the save card offers the video ad too. In the video maker
 (`/motion`), **⭐ Save to library** beside Download MP4 and the star on each
 gallery look make that look, with its photo, and send both. A video ad on

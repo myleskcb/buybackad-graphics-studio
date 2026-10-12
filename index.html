@@ -557,16 +557,15 @@
       <div class="ez-card ez-preview-card">
         <div class="ez-stepline" style="margin-top:0"><span class="ez-stepnum">3</span><h2>Download</h2></div>
         <img id="ez-preview" alt="Live preview of your ad">
+        <canvas id="ez-motion" class="ez-motion" hidden role="img" aria-label="Your ad as a video"></canvas>
+        <div class="ez-viewrow">
+          <label class="ez-sizepick" for="ez-size"><span>Size</span><select id="ez-size" title="The size of your ad"></select></label>
+          <button type="button" class="ez-play" id="ez-play" aria-pressed="false" aria-label="Play the video of this ad" title="Play the video of this ad"><svg class="ez-play-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><svg class="ez-pause-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z"/></svg></button>
+        </div>
         <button class="ez-upload-bg" id="ez-upload-bg">📸&nbsp; Upload background photo</button>
         <input type="file" id="ez-upload-bg-file" accept="image/*,.heic,.heif" style="display:none">
-        <div class="ez-sizes" id="ez-sizes" title="Export size"></div>
-        <button class="ez-dl" id="ez-download">⬇&nbsp; Download my ad</button>
-        <button class="ez-open-adv" id="ez-video" title="Make a 10-second video of this ad and watch it before you keep it, for Reels, Stories and TikTok: it opens as the finished ad, the photo breathes, the headline, selling points and number each get a beat, then it shifts to its call to action">🎬&nbsp; Create video</button>
-        <div class="adl-starrow">
-          <button class="ez-open-adv" id="ez-star" title="Save this ad to your library, as it is here, so iPhones LA can post it">⭐&nbsp; Save to library</button>
-          <button class="ez-open-adv" id="ez-star-video" title="Make the 10-second video of this ad and save it to your library with its photo">⭐🎬&nbsp; Save as video</button>
-        </div>
-        <button class="ez-open-adv" id="ez-pack" style="display:none">📦&nbsp; Export category pack (zip)</button>
+        <button class="ez-dl" id="ez-star" aria-haspopup="menu" aria-expanded="false" title="Save this ad to your library, as it is here, so iPhones LA can post it">⭐&nbsp; Save to library</button>
+        <button class="ez-dl2" id="ez-download" aria-haspopup="menu" aria-expanded="false">⬇&nbsp; Download</button>
         <button class="ez-order" id="ez-order" style="display:none" title="Send this ad to SCANS.AD, printed, posted around town, every scan tracked">🖨&nbsp; Order prints + posting</button>
         <div class="ez-quota" id="ez-quota"></div>
         <button class="ez-open-adv" id="ez-open-adv">Fine-tune in advanced editor</button>

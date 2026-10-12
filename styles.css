@@ -1779,9 +1779,6 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .area-chips span:first-child{background:var(--accent-wash);border-color:rgba(var(--accent-rgb),.4);color:var(--text)}
 #ez-area{cursor:pointer}
 
-/* Easy Mode export sizes */
-.ez-sizes{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
-.ez-sizes .chip{font-size:12px;padding:6px 11px;min-height:30px}
 .stat-lead b{color:var(--accent)}
 @media(max-width:640px){.lp-stats{gap:8px 22px}.stat b{font-size:19px}}
 
@@ -2385,8 +2382,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='poster'] .ez-fxrow button,
 :root[data-skin='poster'] #ltab-bg .ez-fxrow button,
 :root[data-skin='poster'] #ez-tag-more.in-editor .ez-fxrow button{font-size:13.5px}
-:root[data-skin='poster'] .ez-chip,
-:root[data-skin='poster'] .ez-sizes .chip{font-size:14px}
+:root[data-skin='poster'] .ez-chip{font-size:14px}
 :root[data-skin='poster'] .ez-lname{font-size:14px}
 :root[data-skin='poster'] .ez-lprev{font-size:12.5px;color:var(--text-2)}
 :root[data-skin='poster'] .ez-stepline small{font-size:14px;color:var(--text-2)}
@@ -2590,3 +2586,56 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   #lp-acct .acct-plan{display:none}
   #lp-acct-label{max-width:64px}
 }
+
+/* ═══ EASY MODE'S DOWNLOAD CARD (2026-10-12) ═══
+   Owner: "this part of the site is really confusing". Under the preview, one
+   row: the size drop-down and ▶, the video played in the preview's place
+   (app.js ezMotion). Then Save to library, the main button, and Download,
+   each asking image or video with its image in a small menu under it
+   (ezAskKind). The canvas takes the preview's own sizes. */
+#ez-preview[hidden],.ez-motion[hidden]{display:none!important}
+.ez-preview-card canvas.ez-motion{display:block;width:100%;height:auto;max-width:100%;border-radius:var(--r-lg);background:var(--surface-sunk)}
+@media (max-width:920px){.ez-preview-card canvas.ez-motion{max-height:52vh;width:auto;margin:0 auto}}
+.ez-viewrow{display:flex;gap:10px;margin-top:14px;align-items:stretch}
+.ez-sizepick{position:relative;flex:1;min-width:0;display:flex;align-items:center;gap:10px;margin:0;padding:0 40px 0 16px;min-height:52px;border:1px solid var(--hairline-strong);border-radius:var(--r-lg);background:var(--surface-solid);cursor:pointer;text-transform:none;letter-spacing:0}
+.ez-sizepick::after{content:'';position:absolute;right:18px;top:50%;width:8px;height:8px;margin-top:-6px;border-right:2px solid var(--text);border-bottom:2px solid var(--text);transform:rotate(45deg);pointer-events:none}
+.ez-sizepick span{flex:none;font:600 13.5px/1 var(--ui);color:var(--text-2)}
+.ez-sizepick select{flex:1;min-width:0;height:50px;margin:0;padding:0;border:0;background:none;-webkit-appearance:none;appearance:none;font:700 16px/1.2 var(--ui);color:var(--text);cursor:pointer;outline:none;text-overflow:ellipsis}
+.ez-sizepick:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.ez-play{position:relative;flex:none;width:56px;min-height:52px;display:grid;place-items:center;padding:0;border:1px solid var(--hairline-strong);border-radius:var(--r-lg);background:var(--surface-solid);color:var(--text);cursor:pointer}
+.ez-play svg{width:24px;height:24px;fill:currentColor}
+.ez-play .ez-pause-i,.ez-play.on .ez-play-i{display:none}
+.ez-play.on .ez-pause-i{display:block}
+.ez-play:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ez-play.busy{cursor:progress}
+.ez-play.busy svg{opacity:.25}
+.ez-play.busy::after{content:'';position:absolute;top:50%;left:50%;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:ez-spin .8s linear infinite}
+@keyframes ez-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.ez-play.busy::after{animation-duration:2.4s}}
+.ez-dl2{display:block;width:100%;margin-top:10px;padding:15px;border:1px solid var(--hairline-strong);border-radius:var(--r-lg);background:var(--surface-solid);color:var(--text);font:700 16px/1 var(--ui);letter-spacing:-.01em;cursor:pointer;transition:transform .1s}
+.ez-dl2:hover{border-color:var(--text-dim)}
+.ez-dl2:active{transform:scale(.985)}
+.ez-dl:disabled,.ez-dl2:disabled{cursor:progress;opacity:.8}
+.ez-kind{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;padding:8px;border:1px solid var(--hairline-strong);border-radius:var(--r-lg);background:var(--surface-sunk)}
+.ez-kind button{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;padding:12px;border:1px solid var(--hairline-strong);border-radius:calc(var(--r-lg) - 4px);background:var(--surface-solid);color:var(--text);font:inherit;text-align:left;cursor:pointer}
+.ez-kind button:hover{border-color:var(--accent)}
+.ez-kind button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ez-kind b{font:700 15px/1.25 var(--ui)}
+.ez-kind small{font:500 13.5px/1.35 var(--ui);color:var(--text-2)}
+.ez-kind-pro{display:inline-block;margin-left:2px;padding:2px 7px;border-radius:999px;background:var(--text);color:var(--surface-solid);font:700 12.5px/1.2 var(--ui);letter-spacing:.02em;vertical-align:1px}
+@media (max-width:360px){.ez-kind{grid-template-columns:1fr}}
+:root[data-skin='poster'] .ez-sizepick,
+:root[data-skin='poster'] .ez-play,
+:root[data-skin='poster'] .ez-dl2{border:var(--line-w) solid var(--ink);box-shadow:var(--hard)}
+:root[data-skin='poster'] .ez-play:hover,
+:root[data-skin='poster'] .ez-dl2:hover{background:var(--pop-marigold);color:#141414}
+:root[data-skin='poster'] .ez-play.on{background:var(--text);color:var(--surface-solid)}
+:root[data-skin='poster'] .ez-kind{border:var(--line-w) solid var(--ink);background:var(--surface-raise)}
+:root[data-skin='poster'] .ez-kind button{border:var(--line-w) solid var(--ink)}
+:root[data-skin='poster'] .ez-kind button:hover{background:var(--pop-marigold);color:#141414}
+:root[data-skin='poster'] .ez-kind button:hover small{color:#141414}
+:root[data-theme='dark'][data-skin='poster'] .ez-sizepick,
+:root[data-theme='dark'][data-skin='poster'] .ez-play,
+:root[data-theme='dark'][data-skin='poster'] .ez-dl2,
+:root[data-theme='dark'][data-skin='poster'] .ez-kind,
+:root[data-theme='dark'][data-skin='poster'] .ez-kind button{border-color:#000}
