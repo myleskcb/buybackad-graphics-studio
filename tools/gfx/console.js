@@ -2714,7 +2714,7 @@ const CONTENT={
   cta:"GET AN INSTANT OFFER",phone:"(562) 999-4994",addr:"yourname.com · Your City",
   quote:"Cracked 15 Pro in, cash out. Twenty minutes.",
   quoteBy:"Marcus T. · Carson, CA",rating:"4.9 · 200+ REVIEWS",
-  steps:[["TEXT PICS","Snap it, send it"],["SEE THE NUMBER","Firm quote, fast."],
+  steps:[["TEXT INFO","Model and condition"],["SEE THE NUMBER","Firm quote, fast."],
          ["GET PAID","Cash or transfer"]],
   /* what the copy is ABOUT, so the picture can be held to it */
   subject:{brand:['iphone'],gen:[17,16,15],cond:'clean'}},
@@ -2729,7 +2729,7 @@ const CONTENT={
   cta:"GET A BROKEN-PHONE QUOTE",phone:"(562) 999-4994",addr:"yourname.com · Your City",
   quote:"Screen in pieces, still got $420 for it.",
   quoteBy:"Dana R. · Lakewood, CA",rating:"4.9 · 200+ REVIEWS",
-  steps:[["TEXT PICS","Cracks and all"],["SEE THE NUMBER","Firm, for the damage"],
+  steps:[["TEXT INFO","Cracks and all"],["SEE THE NUMBER","Firm, for the damage"],
          ["GET PAID","Cash or transfer"]],
   subject:{brand:['iphone','samsung','pixel'],cond:'cracked'}},
  cars:{brand:"YOUR NAME",mark:"YN",kicker:"YOUR TAGLINE",hero:"car",
@@ -2742,7 +2742,7 @@ const CONTENT={
   cta:"GET AN INSTANT OFFER",phone:"(562) 999-4994",addr:"yourname.com · Your City",
   quote:"Old Civic gone the same day, cash in hand.",
   quoteBy:"Jordan K. · Long Beach, CA",rating:"4.9 · 200+ SELLERS",
-  steps:[["SEND VIN","Dash photo. Done."],["SEE THE NUMBER","Firm figure, fast."],
+  steps:[["SEND VIN","And the miles."],["SEE THE NUMBER","Firm figure, fast."],
          ["FREE TOW","We tow, you bank."]],
   subject:{brand:['car'],cond:'any'}}          // "runs or not": a damaged car is on-message
 };

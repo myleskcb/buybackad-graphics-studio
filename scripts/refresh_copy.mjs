@@ -57,6 +57,18 @@ const LINE = [
   [/^SHOW US THE .+ NUMBER\..*$/i, () => 'SEND A PHOTO. GET A NUMBER.'],
 ];
 const BADGE_SWAP = ['NO FEES', 'DISCREET', 'SAME DAY', 'FAIR PRICE', 'CASH PAID', 'NO PRESSURE', 'LOCAL BUYER', 'FREE QUOTE'];
+/* 6. STEP ONE ASKS FOR WORDS (2026-10-12). The owner, over the Steps Flow
+ *    card's "TEXT PICS / Snap photos, text them over.": "Text info might be
+ *    better than pics because technically we advertise a lot on the offerup
+ *    app where they can't even send photos so they can directly reach us in
+ *    the messenger in the app. It doesn't allow photos for non-business
+ *    accounts." A first step the seller cannot take loses them at step one,
+ *    so it asks for what any messenger carries. The label keeps its length
+ *    and the line is shorter than the one it replaces, so no plate grows. */
+export const STEP_ONE = [
+  [/^TEXT PICS$/, 'TEXT INFO'],
+  [/^Snap photos(,| and) text them over\.( 30 seconds\.)?$/, 'Tell us what you have.'],
+];
 
 /* returns { changed: [...] } and rewrites tpl.layers in place */
 export function rewriteCopy(tpl, cat){
@@ -111,6 +123,11 @@ export function rewriteCopy(tpl, cat){
       });
       changed.push(l.text.replace(/\n/g, '/') + ' -> ' + nt.replace(/\n/g, '/')); l.text = nt;
     }
+  });
+  L.forEach(l => {
+    if (typeof l.text !== 'string' || !/^Step (Lab|Micro) \d$/.test(l.name || '')) return;
+    const nt = STEP_ONE.reduce((s, [re, to]) => s.replace(re, to), l.text);
+    if (nt !== l.text){ changed.push(l.text + ' -> ' + nt); l.text = nt; }
   });
   return changed.concat(honestCopy(tpl, cat, have));
 }
@@ -183,7 +200,7 @@ export const CLAIM_FIX = [
   [/\bGET AN INSTANT OFFER\b/, 'GET A CASH OFFER'], [/\bCALL FOR INSTANT OFFER\b/, 'CALL FOR A CASH OFFER'],
   [/\bTEXT NOW FOR INSTANT CASH\b/, 'TEXT NOW FOR A CASH OFFER'], [/\bADMIT: INSTANT CASH\b/, 'ADMIT: CASH OFFER'],
   [/\bTEXT A PHOTO FOR AN INSTANT QUOTE\b/, 'TEXT A PHOTO FOR A QUOTE'], [/\bCERT NUMBERS GET INSTANT QUOTES\b/, 'SEND CERT NUMBERS FOR A QUOTE'],
-  [/^Snap photos, text them over\. 30 seconds\.$/, 'Snap photos and text them over.'],
+  [/^Snap photos, text them over\. 30 seconds\.$/, 'Tell us what you have.'],
   [/^Firm quote in minutes\. Zero obligation\.$/, 'A firm quote by text. Zero obligation.'],
   [/\bTEXT A PIC, OFFER IN MINUTES\b/, 'TEXT A PIC, GET AN OFFER'], [/\bREPLIES IN MINUTES, NOT DAYS\b/, 'TEXT A PHOTO, GET A PRICE'],
   [/\bVIN \+ MILES = OFFER IN 10 MINUTES\b/, 'VIN + MILES = A CASH OFFER'], [/ 60 MINUTES\.$/, ''],

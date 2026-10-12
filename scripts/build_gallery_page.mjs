@@ -11,7 +11,7 @@ const THEMES = [
   { key:'trustSeal',     name:'Trust Seal',      style:'Credentialed',  tags:['professional','tiles','licensed'],
     premise:'The licensed operator. A kicker seal over the money word, then four fact tiles: top payout, rating, years, same-day. For sellers who want to know you are legitimate before they text.' },
   { key:'stepsFlow',     name:'Steps Flow',      style:'Explainer',     tags:['how it works','friendly','1-2-3'],
-    premise:'How it works in three steps. Text pics, get offer, get paid. Lowers the barrier for first-time sellers; pairs with a product up top and a phone bar at the foot.' },
+    premise:'How it works in three steps. Text info, get offer, get paid. Lowers the barrier for first-time sellers; pairs with a product up top and a phone bar at the foot.' },
   { key:'bubblePop',     name:'Bubble Pop',      style:'Playful',       tags:['playful','rounded','sticker'],
     premise:'Rounded, bright, sticker energy. Big friendly type, a tilted TOP $$$ sticker, pill panels. Made for Pokémon, sports cards and younger sellers; still carries the phone number at full size.' },
   { key:'voltStack',     name:'Volt Stack',      style:'Bold',          tags:['bold','stacked','electric'],
