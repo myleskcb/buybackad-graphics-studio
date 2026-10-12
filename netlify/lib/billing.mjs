@@ -35,7 +35,7 @@ export const WEBHOOK_EVENTS = [
 /** The terms a customer agrees to at checkout (terms.html carries the same
  *  date); recorded on the Checkout session, the subscription or the payment,
  *  and the account, with the time it was given. */
-export const TERMS_VERSION = '2026-10-11';
+export const TERMS_VERSION = '2026-10-12';
 /** statuses that keep the plan on: past_due is Stripe still retrying the card */
 const LIVE = new Set(['active', 'trialing', 'past_due']);
 
