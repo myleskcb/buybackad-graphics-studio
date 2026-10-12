@@ -8,7 +8,7 @@
  *   V.product { src }             V.fonts FONT_PAIRS entry  V.plate { shape, fill, outline }
  *   V.cta { shape, outline }      V.look  a tagline look for the card (applyCardLook)
  * page.evaluate(composeInPage, rec, id, V, MICRO) → { rec, webp, png, S, faces, boxes, crit, accent, photoHue, ink } | { err } */
-export const MICRO = ['Snap photos, text them over.', 'Firm quote in minutes.', 'Same-day cash or transfer.'];
+export const MICRO = ['Details or pics, either works.', 'Firm quote in minutes.', 'Same-day cash or transfer.'];
 export async function composeInPage(rec, id, V, MICRO){
   const claim = V.claim;
   const L0 = rec.tpl.layers, get = nm => L0.find(l => l.name === nm);
@@ -184,7 +184,7 @@ export async function composeInPage(rec, id, V, MICRO){
     const half = s => Math.max(...['1', '2', '3'].map(d => inkBox(text('n', 'deco', 'none', d, { left: 200, top: 200, fontFamily: DISPLAY, fontSize: s, fontWeight: DW, charSpacing: 0 })).w)) / 2;
     for (let k = 0; k < 12 && 64 - half(numFs) < plateAirNeed(cardW, numFs) + 2; k++) numFs -= 4;
   }
-  const labs = [1, 2, 3].map(i => (get('Step Lab ' + i) || {}).text || ['TEXT PICS', 'GET OFFER', 'GET PAID'][i - 1]);
+  const labs = [1, 2, 3].map(i => (get('Step Lab ' + i) || {}).text || ['TEXT INFO', 'GET OFFER', 'GET PAID'][i - 1]);
   const steps = [];
   cardTop.forEach((y, k) => {
     const i = k + 1;
