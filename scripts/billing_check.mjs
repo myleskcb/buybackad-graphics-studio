@@ -161,7 +161,9 @@ globalThis.fetch = async (input, init = {}) => {
     if (body.customer && !S.customers.has(mode + ':' + body.customer)) return missing('customer: ' + body.customer);
     if (!S.prices.has(body.line_items[0].price)) return missing('price');
     const cs = Object.assign({ id: 'cs_' + mode + '_' + (S.n++).toString(36), object: 'checkout.session', status: 'open', payment_status: 'unpaid', mode: body.mode, smode: mode }, body);
-    if (body.ui_mode === 'embedded') { cs.client_secret = cs.id + '_secret_' + (S.n++).toString(36); cs.url = null; }
+    // the account's API version (2026-03-25.dahlia on) refuses the old name, as Stripe does
+    if (body.ui_mode === 'embedded') return reply(400, { error: { type: 'invalid_request_error', param: 'ui_mode', message: 'The ui_mode value embedded is no longer supported. Use embedded_page instead.' } });
+    if (body.ui_mode === 'embedded_page') { cs.client_secret = cs.id + '_secret_' + (S.n++).toString(36); cs.url = null; }
     else cs.url = 'https://checkout.stripe.test/' + cs.id;
     S.sessions.set(cs.id, cs); return reply(200, cs);
   }
@@ -362,9 +364,9 @@ let csPro;
   const csE = [...S.sessions.values()].pop();
   ok(er.status === 200 && !er.json.url && er.json.clientSecret === csE.client_secret && er.json.publishableKey === 'pk_test_embed' && er.json.sessionId === csE.id,
     'embedded: the client secret, the publishable key and the session id, no URL');
-  ok(csE.ui_mode === 'embedded' && csE.redirect_on_completion === 'if_required' && csE.return_url === 'https://studio.example/?checkout=success&session_id={CHECKOUT_SESSION_ID}'
+  ok(csE.ui_mode === 'embedded_page' && csE.redirect_on_completion === 'if_required' && csE.return_url === 'https://studio.example/?checkout=success&session_id={CHECKOUT_SESSION_ID}'
     && !csE.success_url && !csE.cancel_url && csE.mode === 'subscription' && csE.metadata.plan === 'basic' && csE.allow_promotion_codes === 'true',
-    'embedded: ui_mode embedded, a card pays in place, the same return address, the same plan, promotion codes on');
+    'embedded: ui_mode embedded_page, a card pays in place, the same return address, the same plan, promotion codes on');
   pay(csE.id);
   const ec = await hit('POST', '/checkout/confirm', { session_id: csE.id }, emb);
   ok(ec.status === 200 && ec.json.user.plan === 'basic', 'embedded: the same confirm switches Starter on');
