@@ -1,11 +1,10 @@
 """Clean the speckled frame round the photographed phone backs (motion/phones).
 
 The iPhone 16, 16e and 17e backs, and the 17 finishes painted on the 16 White,
-carry their frame's reflections as a band of dark dashes round the edge, and their
-side buttons as a grey stretch cutting the lines of the rim; the 17 and 18 Pro
-backs do neither and are left alone. Run once, on the backs as photographed
-(git show 5348890d:motion/phones/<id>.webp has them): a stretch already mended
-reads as plain rim, so the end of one left behind is not found a second time.
+carry their frame's reflections as a band of dark dashes round the edge, and lose
+the band inside the outline half way round the top-right corner; the 17 and 18
+Pro backs do neither and are left alone. Run once, on the backs as photographed
+(git show 85accb2d:motion/phones/<id>.webp has them).
 Run before scripts/bake_extra_phones.py, which builds the 14 and 15 on the 16
 White (and cleans every back it bakes).
 
@@ -15,7 +14,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from phone_rim import clean_rim, mend_sides
+from phone_rim import clean_rim, mend_top_corner
 
 OUT = Path(__file__).resolve().parent.parent / "motion" / "phones"
 IDS = ["16-white", "16-black", "16-pink", "16-teal", "16-ultramarine", "16e-white", "16e-black",
@@ -24,5 +23,5 @@ IDS = ["16-white", "16-black", "16-pink", "16-teal", "16-ultramarine", "16e-whit
 
 for pid in IDS:
     f = OUT / f"{pid}.webp"
-    clean_rim(mend_sides(Image.open(f))).save(f, quality=80, method=6)
+    clean_rim(mend_top_corner(Image.open(f))).save(f, quality=80, method=6)
     print(pid)
