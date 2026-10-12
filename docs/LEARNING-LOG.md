@@ -4713,7 +4713,12 @@ is laid out as before, through `display:contents` on the group.
 Checked (Chromium, at 360 to 1400px): one row at every width, 61 to 67px,
 folded up to 1000px and full from 1024, nothing off screen, no sideways
 scroll. The panel's five items, Dark or light keeping it open, Export's list
-on screen inside it, and Escape shutting both all pass.
+on screen inside it, and Escape shutting both all pass. So do: a tap
+elsewhere, ☰ again and a pick each shut it, the pick doing its job
+(Community, Advanced editor). Scrolled to step 3 at 390px the bar is 61px of
+844. Signed in, Free folds up to 1100px and is full at 1400. Pro is full from
+1100. An operator (Library and AI Studio in the menu) folds at 1100 and is
+full at 1400.
 
 RESUME HERE: try the bar on a real phone on the live site once `main` is
 deployed.
