@@ -4673,6 +4673,8 @@ Measured: the burst an estimated 2 to 5 dB over the music on four looks;
 `motion_music_check.mjs` (part 6 now asks 25%, 39% measured) and
 `motion_sound_check.mjs` all clear.
 
+Owner, over the preview of the Spanish confetti ad with the burst: "better".
+
 RESUME HERE:
   0. When Commons serves files again, the three sounds above can join the
      burst (a cheer and a blower would say "party" louder than claps):
