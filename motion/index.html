@@ -15,6 +15,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../pages.css">
+<link rel="stylesheet" href="../builder.css">
 <link rel="stylesheet" href="motion.css">
 <script src="vendor/mp4-muxer.min.js" defer></script>
 <script src="../video-help.js" defer></script>
@@ -25,89 +26,75 @@
 </head>
 <body class="mo">
 <a class="skip" href="#main">Skip to content</a>
-<header class="top">
-  <a class="brand" href="../index.html">GRAPHICS <em>STUDIO</em></a>
+<header class="ez-nav">
+  <a class="logo" href="../index.html"><span class="logo-mark" aria-hidden="true"></span>GRAPHICS <em>STUDIO</em></a>
   <nav aria-label="Site">
-    <a href="../index.html#lp-templates">Image ads</a>
-    <a href="./" aria-current="page">Video ads</a>
-    <a href="../looks.html">Look Book</a>
-    <a href="../master-library.html" id="mo-adlib" style="display:none" title="The ads you saved, and their public link">📚 Library</a>
-    <a href="../index.html#pricing">Pricing</a>
-    <a href="../about.html">About</a>
+    <a class="ez-adv-link" href="../looks.html">Look Book</a>
+    <a class="ez-adv-link" href="../master-library.html" id="mo-adlib" style="display:none" title="The ads you saved, and their public link">&#128218; Library</a>
+    <a class="ez-adv-link" href="../index.html#pricing">Pricing</a>
+    <a class="ez-adv-link" href="../about.html">About</a>
   </nav>
 </header>
 
-<main id="main" class="mo-main">
-  <div class="mo-head">
-    <h1>Phone video ads</h1>
-    <p class="mo-sub">Phones fly in and flip to their backs, your headline slides in, your number lands, with music. Pick who it is for (upgraders, students, parents, seniors, gamers, Spanish-speaking families and more) and the look, words, music and voiceover follow; or pick a look yourself, from LA street signs to clean tech, luxury noir, game day and holiday. English, Spanish or both, with a push to text now. Shuffle for a new look, lock what you like, download an MP4 or a JPG. It all runs in your browser: nothing is uploaded. <span class="mo-count" id="look-count"></span></p>
+<main id="main" class="ez-wrap">
+  <div class="ez-head bld-head">
+    <div>
+      <h1>Make your video ad</h1>
+      <p>Three steps, under a minute. Phones fly in, your words land, with music. Nothing is uploaded.</p>
+    </div>
+    <nav class="bld-switch" aria-label="What to make">
+      <a href="../index.html?studio"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="2.75" width="12.5" height="10.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="5.5" cy="6.5" r="1.4" fill="currentColor"/><path d="M2.5 12l4-4 3 3 2-2 2.5 2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Image ad</a>
+      <span aria-current="page"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="3.25" width="9" height="9.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.75 7l3.5-2.25v6.5L10.75 9z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Video ad</span>
+    </nav>
   </div>
 
-  <div class="mo-grid">
-    <section class="mo-stage-col" aria-label="Preview">
-      <div class="mo-stage" id="stage">
-        <canvas id="preview" width="720" height="720" aria-label="Preview of the video ad"></canvas>
-        <div class="mo-loading" id="loading">Loading phones and fonts&hellip;</div>
-      </div>
-      <div class="mo-transport">
-        <button class="mo-icon" id="play" aria-label="Pause" title="Play or pause">&#10074;&#10074;</button>
-        <input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Position in the video">
-        <button class="mo-icon" id="sound" aria-pressed="false" title="Sound on or off">&#128263;</button>
-      </div>
-      <div class="mo-actions">
-        <button class="mo-btn primary" id="shuffle-look" title="New design, same words and phones">&#10227; New look</button>
-        <button class="mo-btn" id="shuffle-all" title="New design, new words">&#9861; Surprise me</button>
-        <button class="mo-btn" id="undo" title="Back to the previous look" disabled>&#8630; Back</button>
-        <a class="mo-btn" id="browse" href="#looks">&#9638; Browse looks</a>
-        <button class="mo-btn star" id="mo-star" title="Make this video ad and save it to your library, with its photo, for iPhones LA to post">&#11088; Save to library</button>
-        <span class="mo-dl">
-          <button class="mo-btn download" id="download" title="The video, with its photo for OfferUp">&#11015; Download MP4</button>
-          <button class="mo-btn download" id="download-jpg" title="The ad as a photo, at its best moment">&#11015; Download JPG</button>
-        </span>
-      </div>
-      <details class="mo-attn" id="attn">
-        <summary><b>Attention check</b> <span class="mo-score" id="attn-score">&hellip;</span> <span class="mo-attn-hint">measured frame by frame</span></summary>
-        <canvas id="attn-curve" width="640" height="70" aria-hidden="true"></canvas>
-        <ul class="mo-attn-list" id="attn-list"></ul>
-        <label class="mo-check mo-strong"><input type="checkbox" id="strong-only" checked> New looks must pass</label>
-        <p class="mo-note">Measured off the rendered frames: what is on the very first frame, how much moves, and when the words can actually be read. Viewers decide in about a second and a half, often with the sound off.</p>
-      </details>
-      <div class="mo-progress" id="progress" hidden><div class="mo-bar"><i id="bar"></i></div><span id="progress-label"></span></div>
-      <p class="mo-note" id="export-note"></p>
+  <section id="looks" aria-labelledby="looks-h">
+    <div class="ez-stepline"><span class="ez-stepnum">1</span><h2 id="looks-h">Pick a look</h2><small>tap one <span id="looks-count"></span></small></div>
+    <div class="ez-catrow">
+      <label for="gallery-cats">What kind of look?</label>
+      <select id="gallery-cats" class="cat-select"></select>
+      <label class="mo-check"><input type="checkbox" id="play-all"> Play them all</label>
+      <span class="ez-moves">
+        <button class="ez-move key" id="shuffle-look" title="New design, same words and phones">&#10227; New look</button>
+        <button class="ez-move" id="shuffle-all" title="New design, new words">&#9861; Surprise me</button>
+        <button class="ez-move" id="undo" title="Back to the previous look" disabled>&#8630; Back</button>
+        <button class="ez-move" id="looks-all" aria-pressed="false" title="Every look of this kind, in rows">&#9638; See them all</button>
+      </span>
+    </div>
+    <div id="gallery" class="mo-gallery"></div>
+    <div id="gallery-end"><button class="ez-move mo-more" id="more" hidden>Show 24 more</button></div>
+  </section>
 
-    </section>
-
-    <aside class="mo-panel" aria-label="Settings">
-      <details open class="mo-sec">
-        <summary>Words</summary>
-        <div class="mo-field">Language <span class="mo-opt">Mix gives some looks in English, some in Spanish, some in both</span>
-          <div class="mo-seg" id="langs" role="radiogroup" aria-label="Language">
-            <button data-lang="en" role="radio">English</button>
-            <button data-lang="es" role="radio">Español</button>
-            <button data-lang="both" role="radio">Both</button>
-            <button data-lang="mix" role="radio">Mix</button>
-          </div>
+  <div class="ez-main">
+    <section class="ez-card" aria-label="Your words and settings">
+      <div class="ez-stepline"><span class="ez-stepnum">2</span><h2>Type your info</h2></div>
+      <label class="mo-field">Your phone number
+        <input id="f-number" inputmode="tel" maxlength="20" placeholder="(555) 123-4567" autocomplete="tel">
+      </label>
+      <label class="mo-field">Label over the number <span class="mo-opt">(optional)</span>
+        <input id="f-label" maxlength="24" placeholder="CALL OR TEXT">
+      </label>
+      <label class="mo-field">Your area <span class="mo-opt">(the city the ads name, like LA or Long Beach)</span>
+        <input id="f-area" maxlength="30" placeholder="LA" autocomplete="address-level2">
+      </label>
+      <label class="mo-field">Headline
+        <span class="mo-row"><input id="f-headline" list="headline-list" maxlength="60"><button class="mo-mini" id="new-headline" title="Another headline">&#10227;</button></span>
+      </label>
+      <datalist id="headline-list"></datalist>
+      <label class="mo-field">Opening line <span class="mo-opt">(the first second: the Hook line and Word beat openings show it)</span>
+        <span class="mo-row"><input id="f-hook" maxlength="44" placeholder="STILL GOT YOUR OLD IPHONE?"><button class="mo-mini" id="new-hook" title="Another opening line">&#10227;</button></span>
+      </label>
+      <label class="mo-field">Small line under it <span class="mo-opt">(optional)</span>
+        <input id="f-tag" maxlength="40" placeholder="TEXT FOR A QUOTE">
+      </label>
+      <div class="mo-field">Language <span class="mo-opt">(Mix gives some looks in English, some in Spanish, some in both)</span>
+        <div class="mo-seg" id="langs" role="radiogroup" aria-label="Language">
+          <button data-lang="en" role="radio">English</button>
+          <button data-lang="es" role="radio">Español</button>
+          <button data-lang="both" role="radio">Both</button>
+          <button data-lang="mix" role="radio">Mix</button>
         </div>
-        <label class="mo-field">Your area <span class="mo-opt">the city the ads name, like LA or Long Beach</span>
-          <input id="f-area" maxlength="30" placeholder="LA" autocomplete="address-level2">
-        </label>
-        <label class="mo-field">Opening line <span class="mo-opt">the first second: the Hook line and Word beat openings show it</span>
-          <span class="mo-row"><input id="f-hook" maxlength="44" placeholder="STILL GOT YOUR OLD IPHONE?"><button class="mo-mini" id="new-hook" title="Another opening line">&#10227;</button></span>
-        </label>
-        <label class="mo-field">Headline
-          <span class="mo-row"><input id="f-headline" list="headline-list" maxlength="60"><button class="mo-mini" id="new-headline" title="Another headline">&#10227;</button></span>
-        </label>
-        <datalist id="headline-list"></datalist>
-        <label class="mo-field">Small line under it <span class="mo-opt">optional</span>
-          <input id="f-tag" maxlength="40" placeholder="TEXT FOR A QUOTE">
-        </label>
-        <label class="mo-field">Your phone number
-          <input id="f-number" inputmode="tel" maxlength="20" placeholder="(555) 123-4567">
-        </label>
-        <label class="mo-field">Label over the number <span class="mo-opt">optional</span>
-          <input id="f-label" maxlength="24" placeholder="CALL OR TEXT">
-        </label>
-      </details>
+      </div>
 
       <details open class="mo-sec">
         <summary>Phones <span class="mo-opt" id="phone-count"></span></summary>
@@ -120,6 +107,8 @@
         <label class="mo-check"><input type="checkbox" id="shuffle-phones"> Surprise me picks phones too</label>
       </details>
 
+      <div id="design"></div>
+
       <details class="mo-sec">
         <summary>Your own music</summary>
         <label class="mo-upload">&#9835; Use a song you have the rights to use in ads (MP3, WAV or M4A)
@@ -127,40 +116,54 @@
         <p class="mo-note" id="music-upload-name">It stays in your browser and plays from the headline. Without one, the ad plays a real public-domain recording or music made for it.</p>
       </details>
 
-      <details open class="mo-sec">
-        <summary>Format</summary>
-        <div class="mo-seg" id="aspects" role="radiogroup" aria-label="Size">
-          <button data-aspect="1:1" role="radio">Square 1:1</button>
-          <button data-aspect="4:5" role="radio">Feed 4:5</button>
-          <button data-aspect="9:16" role="radio">Story 9:16</button>
-          <button data-aspect="16:9" role="radio">Wide 16:9</button>
-        </div>
-        <div class="mo-seg" id="lengths" role="radiogroup" aria-label="Length">
-          <button data-len="5" role="radio">5 s</button>
-          <button data-len="6" role="radio">6 s</button>
-          <button data-len="8" role="radio">8 s</button>
-        </div>
-      </details>
-
-      <div id="design"></div>
-
       <details class="mo-sec">
         <summary>Extras</summary>
         <div class="mo-flags" id="flags"></div>
       </details>
       <p class="mo-note mo-seed">Look number <b id="seed"></b>. The same number with the same settings always makes the same video.</p>
-    </aside>
+    </section>
+
+    <section class="ez-card ez-preview-card" aria-label="Preview and download">
+      <div class="ez-stepline"><span class="ez-stepnum">3</span><h2>Download</h2></div>
+      <div class="mo-stage" id="stage">
+        <canvas id="preview" width="720" height="720" aria-label="Preview of the video ad"></canvas>
+        <div class="mo-loading" id="loading">Loading phones and fonts&hellip;</div>
+      </div>
+      <div class="mo-transport">
+        <button class="mo-icon" id="play" aria-label="Pause" title="Play or pause">&#10074;&#10074;</button>
+        <input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Position in the video">
+        <button class="mo-icon" id="sound" aria-pressed="false" title="Sound on or off">&#128263;</button>
+      </div>
+      <div class="ez-sizes" id="aspects" role="radiogroup" aria-label="Size">
+        <button data-aspect="1:1" role="radio">Square 1:1</button>
+        <button data-aspect="4:5" role="radio">Feed 4:5</button>
+        <button data-aspect="9:16" role="radio">Story 9:16</button>
+        <button data-aspect="16:9" role="radio">Wide 16:9</button>
+      </div>
+      <div class="ez-sizes" id="lengths" role="radiogroup" aria-label="Length">
+        <button data-len="5" role="radio">5 s</button>
+        <button data-len="6" role="radio">6 s</button>
+        <button data-len="8" role="radio">8 s</button>
+      </div>
+      <button class="ez-dl" id="download" title="The video, with its photo for OfferUp">&#11015;&nbsp; Download MP4</button>
+      <button class="ez-open-adv" id="download-jpg" title="The ad as a photo, at its best moment">&#11015;&nbsp; Download JPG</button>
+      <button class="ez-open-adv star" id="mo-star" title="Make this video ad and save it to your library, with its photo, for iPhones LA to post">&#11088;&nbsp; Save to library</button>
+      <div class="mo-progress" id="progress" hidden><div class="mo-bar"><i id="bar"></i></div><span id="progress-label"></span></div>
+      <p class="mo-note" id="export-note"></p>
+      <p class="ez-hint">An MP4 with sound, and a photo of it for OfferUp. Made in your browser.</p>
+      <details class="mo-attn" id="attn">
+        <summary><b>Attention check</b> <span class="mo-score" id="attn-score">&hellip;</span> <span class="mo-attn-hint">measured frame by frame</span></summary>
+        <canvas id="attn-curve" width="640" height="70" aria-hidden="true"></canvas>
+        <ul class="mo-attn-list" id="attn-list"></ul>
+        <label class="mo-check mo-strong"><input type="checkbox" id="strong-only" checked> New looks must pass</label>
+        <p class="mo-note">Measured off the rendered frames: what is on the very first frame, how much moves, and when the words can actually be read. Viewers decide in about a second and a half, often with the sound off.</p>
+      </details>
+    </section>
   </div>
 
-  <section class="mo-looks" id="looks" aria-labelledby="looks-h">
-    <div class="mo-looks-head">
-      <h2 class="mo-h2" id="looks-h">More looks <span class="mo-opt" id="looks-count"></span></h2>
-      <label class="mo-check"><input type="checkbox" id="play-all"> Play them all</label>
-    </div>
-    <p class="mo-note">Browse by look. Your words, phones and locked settings stay; everything else is new. Point at a look to watch it move, tap it to use it.</p>
-    <div class="mo-vibes" id="gallery-cats" role="radiogroup" aria-label="Show looks of one kind"></div>
-    <div id="gallery"></div>
-    <div id="gallery-end"><button class="mo-btn mo-more" id="more">Show 24 more</button></div>
+  <section class="mo-about" aria-labelledby="about-h">
+    <h2 id="about-h">Phone video ads</h2>
+    <p>Phones fly in and flip to their backs, your headline slides in, your number lands, with music. Pick who it is for (upgraders, students, parents, seniors, gamers, Spanish-speaking families and more) and the look, words, music and voiceover follow; or pick a look yourself, from LA street signs to clean tech, luxury noir, game day and holiday. English, Spanish or both, with a push to text now. Shuffle for a new look, lock what you like, download an MP4 or a JPG. It all runs in your browser: nothing is uploaded. <span class="mo-count" id="look-count"></span></p>
   </section>
 </main>
 

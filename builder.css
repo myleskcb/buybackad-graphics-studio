@@ -1,0 +1,125 @@
+/* The builders' one design language (owner, 2026-10-13: "unify design language / builder
+   for the image and video builder so it's the same experience just slightly varying").
+
+   The image builder (index.html, Easy Mode) is the model: the house look of DESIGN-LAW
+   rule 98 (warm paper, ink type, an ink line and a hard offset shadow, the action blue,
+   the marigold step numbers) laid out as three numbered steps: 1 Pick a look (a strip
+   across the top), 2 Type your info (the form, left), 3 Download (the preview, right,
+   sticky; under 920px the steps stack in their numbered order). Its components live in
+   styles.css as .ez-*.
+
+   This file carries two things:
+   - .bld-switch, the Image ad / Video ad switch, on both builders, the same in both;
+   - the video builder (motion/, body.mo) built from the same components, by the same
+     .ez-* names, at the values they resolve to in the image builder's poster skin
+     (measured off it, computed style, 2026-10-13). The video builder does not load
+     styles.css (120 KB of editor chrome), so they are restated here, scoped to .mo. */
+
+/* ------------------------------------------------------------ the switch (both builders) */
+.bld-switch{display:inline-flex;gap:2px;padding:3px;border:2px solid var(--ink,#141414);border-radius:999px;
+  background:var(--surface-solid,#fffdf8);box-shadow:3px 3px 0 var(--ink,#141414);flex:none}
+.bld-switch > *{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:999px;color:var(--text,#141414);
+  font:700 14px/1 Satoshi,system-ui,sans-serif;text-decoration:none;white-space:nowrap}
+.bld-switch a:hover{background:var(--surface-sunk,rgba(20,20,20,.05))}
+.bld-switch [aria-current=page]{background:var(--text,#141414);color:var(--field,var(--bg,#f2eee4))}
+.bld-switch a:focus-visible{outline:3px solid var(--accent,#2b56f5);outline-offset:2px}
+.bld-switch svg{width:16px;height:16px;flex:none}
+/* the title row: the title and its line on the left, the switch on the right */
+.bld-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px 24px;flex-wrap:wrap}
+.bld-head .bld-switch{margin-bottom:22px}
+:root[data-theme='dark'] .bld-switch{border-color:rgba(244,240,232,.24);box-shadow:3px 3px 0 #000}
+
+/* ------------------------------------------------------------ the video builder */
+.mo{
+  --ink:#141414;--field:#f2eee4;--surface-solid:#fffdf8;--surface-raise:#f8f4ec;--surface-sunk:rgba(20,20,20,.05);
+  --hairline:rgba(20,20,20,.12);--hairline-strong:rgba(20,20,20,.24);--text-dim:#66615a;
+  --accent-wash:rgba(43,86,245,.10);--marigold:#ffc21a;--hard:3px 3px 0 var(--ink);
+  --ui:Satoshi,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;
+  font-family:var(--ui);line-height:1.45;letter-spacing:-.006em}
+
+/* the bar: paper, an ink rule under it, the mark and the wordmark */
+.mo .ez-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 26px;position:sticky;top:0;z-index:40;
+  background:#fbf8f1;border-bottom:1px solid rgba(20,20,20,.85)}
+.mo .logo{display:inline-flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;
+  font:600 17px/1 'Clash Display',Satoshi,sans-serif;letter-spacing:-.02em;word-spacing:.1em;white-space:nowrap}
+.mo .logo em{font-style:normal;color:var(--accent)}
+.mo .logo-mark{width:30px;height:30px;flex:none;border-radius:10px;border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink);
+  background:conic-gradient(from 0deg,#2b56f5 0 25%,#ff4a2e 0 50%,#ffc21a 0 75%,#12b886 0)}
+.mo .ez-nav nav{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.mo .ez-adv-link{color:var(--text-dim);font:600 14px/1 var(--ui);padding:9px 12px;border-radius:999px;text-decoration:none;white-space:nowrap}
+.mo .ez-adv-link:hover{color:var(--text);background:var(--surface-sunk)}
+.mo .ez-adv-link[aria-current=page]{color:var(--text)}
+@media (max-width:760px){.mo .ez-nav{flex-wrap:wrap;padding:10px 16px}}
+
+.mo .ez-wrap{max-width:1160px;margin:0 auto;padding:26px 22px 90px}
+.mo .ez-head h1{font:700 clamp(24px,3.5vw,34px)/1.1 var(--ui);letter-spacing:-.035em;margin:0 0 4px}
+.mo .ez-head p{color:var(--text-dim);margin:0 0 22px;font-size:14px}
+
+/* the steps: a marigold number in an ink ring */
+.mo .ez-stepline{display:flex;align-items:center;gap:10px;margin:26px 0 12px}
+.mo .ez-stepnum{width:26px;height:26px;border-radius:50%;flex:none;background:var(--marigold);color:#141414;border:2px solid var(--ink);
+  font:700 13px/22px var(--mono);text-align:center}
+.mo .ez-stepline h2{font:650 17px/1 var(--ui);letter-spacing:-.02em;margin:0}
+.mo .ez-stepline small{color:var(--text-2);font-size:14px;margin-left:2px}
+
+/* step 1's row: what kind of look, and the moves that make a new one */
+.mo .ez-catrow{display:flex;align-items:center;gap:10px 12px;margin:0 0 12px;flex-wrap:wrap}
+.mo .ez-catrow label:not(.mo-check),.mo .ez-label{font:700 12.5px/1 var(--ui);color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;flex:none}
+.mo .cat-select{background:var(--surface-raise);border:1px solid var(--hairline-strong);border-radius:13px;color:var(--text);
+  font:600 14px/1 var(--ui);padding:11px 13px;min-width:210px;cursor:pointer}
+@media (max-width:620px){.mo .ez-catrow .cat-select{flex:1 1 100%}.mo .ez-moves{margin-left:0}}
+.mo .cat-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}
+.mo .ez-moves{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.mo .ez-move{font:600 13.5px/1 var(--ui);color:var(--text);background:var(--surface-raise);border:1px solid var(--hairline-strong);
+  border-radius:999px;padding:10px 14px;cursor:pointer;white-space:nowrap;min-height:38px}
+.mo .ez-move:hover{border-color:var(--ink)}
+.mo .ez-move:disabled{opacity:.45;cursor:default;border-color:var(--hairline-strong)}
+.mo .ez-move.key{border:2px solid var(--ink);box-shadow:var(--hard);background:var(--surface-solid)}
+.mo .ez-move.key:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+
+/* the cards and the two columns, the preview sticky beside the form */
+.mo .ez-main{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:26px;align-items:start;margin-top:14px}
+.mo .ez-card{background:var(--surface-solid);border:1.5px solid var(--ink);border-radius:22px;padding:20px;min-width:0}
+.mo .ez-card > .ez-stepline:first-child{margin-top:0}
+.mo .ez-preview-card{position:sticky;top:84px}
+@media (max-width:920px){.mo .ez-main{grid-template-columns:minmax(0,1fr)}.mo .ez-preview-card{position:static}}
+
+/* fields: an uppercase label over a soft paper well */
+.mo .ez-field,.mo .mo-field{display:block;margin:0 0 14px}
+.mo .mo-field{font:700 12.5px/1.35 var(--ui);color:var(--text-2);text-transform:uppercase;letter-spacing:.06em}
+.mo .mo-field .mo-opt{text-transform:none;letter-spacing:0}
+.mo .mo-field input,.mo .mo-field select,.mo .mo-set select{display:block;width:100%;margin-top:6px;background:var(--surface-raise);
+  border:1px solid var(--hairline-strong);border-radius:13px;color:var(--text);font:500 16px/1.35 var(--ui);padding:11px 13px;
+  min-height:45px;text-transform:none;letter-spacing:0}
+.mo .mo-field input:focus,.mo .mo-set select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}
+.mo .ez-subttl{font:700 12.5px/1 var(--ui);color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px}
+
+/* chips: the image builder's option row, the selected one in the action blue */
+.mo .mo-seg{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.mo .mo-seg button{flex:0 1 auto;background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text-dim);border-radius:999px;
+  padding:8px 13px;font:600 13.5px/1 var(--ui);cursor:pointer;min-height:34px}
+.mo .mo-seg button:hover{color:var(--text);border-color:var(--hairline-strong)}
+.mo .mo-seg button[aria-checked=true]{background:var(--accent-wash);color:var(--accent);border:1px solid var(--accent)}
+/* sizes, under the preview: the image builder's size chips, the chosen one inked */
+.mo .ez-sizes{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
+.mo .ez-sizes button{font:600 14px/1 var(--ui);padding:8px 12px;min-height:34px;border-radius:999px;border:.5px solid var(--hairline-strong);
+  background:var(--surface-sunk);color:var(--text-2);cursor:pointer}
+.mo .ez-sizes button:hover{color:var(--text);border-color:var(--text-dim)}
+.mo .ez-sizes button[aria-checked=true]{background:var(--ink);color:#fff;border:1px solid var(--ink)}
+.mo .ez-sizes + .ez-sizes{margin-top:6px}
+
+/* the actions: the one that makes the file printed in blue, the rest dashed and quiet */
+.mo .ez-dl{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;background:var(--accent);color:#fff;
+  border:2px solid var(--ink);border-radius:18px;box-shadow:var(--hard);font:700 17px/1 var(--ui);letter-spacing:-.015em;padding:17px;cursor:pointer}
+.mo .ez-dl:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+.mo .ez-dl:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.mo .ez-dl:disabled{opacity:.6;cursor:default;transform:none;box-shadow:var(--hard)}
+.mo .ez-open-adv{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:10px;background:none;
+  border:1px dashed var(--hairline-strong);color:var(--text-dim);border-radius:18px;font:600 13px/1 var(--ui);padding:12px;cursor:pointer;min-height:40px}
+.mo .ez-open-adv:hover{color:var(--text);border-color:var(--text-dim)}
+.mo .ez-open-adv:disabled{opacity:.5;cursor:default}
+.mo .ez-open-adv.star.on{border:1px solid #e0b400;color:var(--text);box-shadow:inset 0 0 0 1px #e0b400}
+.mo .ez-hint{font-size:13.5px;color:var(--text-2);margin:10px 0 0;text-align:center}
+.mo .ez-dl:focus-visible,.mo .ez-open-adv:focus-visible,.mo .ez-move:focus-visible,.mo .ez-sizes button:focus-visible,
+.mo .mo-seg button:focus-visible,.mo .cat-select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}

@@ -97,6 +97,7 @@
      13.6s load (measured 2026-09-04). The studio fetches what it needs when
      somebody opens it. -->
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="builder.css">
 
 <!-- ABOVE-THE-FOLD BACKDROPS, preloaded.
      app.js is only ~160ms of download but ~2s of EXECUTION (243 templates get
@@ -433,9 +434,15 @@
     </span>
   </nav>
   <div class="ez-wrap">
-    <div class="ez-head">
-      <h1>Make your ad</h1>
-      <p>Three steps, under a minute. We tidy up the layout for you.</p>
+    <div class="ez-head bld-head">
+      <div>
+        <h1>Make your ad</h1>
+        <p>Three steps, under a minute. We tidy up the layout for you.</p>
+      </div>
+      <nav class="bld-switch" aria-label="What to make">
+        <span aria-current="page"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="2.75" width="12.5" height="10.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="5.5" cy="6.5" r="1.4" fill="currentColor"/><path d="M2.5 12l4-4 3 3 2-2 2.5 2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Image ad</span>
+        <a href="motion/"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="3.25" width="9" height="9.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.75 7l3.5-2.25v6.5L10.75 9z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Video ad</a>
+      </nav>
     </div>
 
     <div class="ez-stepline"><span class="ez-stepnum">1</span><h2>Pick a look</h2><small>tap one</small></div>

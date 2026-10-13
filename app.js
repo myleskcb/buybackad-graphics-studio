@@ -21378,6 +21378,17 @@ function pgDepthReads(sc){
   }, 50));
 }
 
+/* THE STUDIO BY LINK. ?studio opens the image builder itself, not the landing: the video
+   builder's Image ad / Video ad switch (builder.css) lands here, as its Video ad lands in
+   the video builder. Cleared as ?tpl is. */
+{
+  let studio = false; try { studio = new URLSearchParams(location.search).has('studio'); } catch (e){}
+  if (studio) window.addEventListener('load', () => setTimeout(() => {
+    try { if (!$('page-easy').classList.contains('active')) showEasy(null); } catch (e){ console.warn('Studio link:', e); }
+    try { const u = new URL(location.href); u.searchParams.delete('studio'); history.replaceState(history.state, '', u.pathname + u.search + u.hash); } catch (e){}
+  }, 50));
+}
+
 /* PHONE SETS IN THE IMAGE ADS (owner, 2026-10-02/03: "unify the engine and add any of
    these features / abilities to the photo ads"; then "Step 2 ... groups of 3-5 phones in
    the photo ads, using the same tidy layouts and rules as the videos"). Appended, not

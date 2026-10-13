@@ -653,41 +653,52 @@ async function thumb(st, w, h, lock) {
     pushHistory();
     state.style = { ...st, number: state.style.number, phones: state.style.phones };
     if (lock) { state.locked.add("vibe"); VIBE_AXES.forEach(a => state.locked.delete(a)); }   // New look stays in the shelf browsed
-    save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" });
+    save(); syncWords(); rebuild();
+    $("stage").scrollIntoView({ behavior: "smooth", block: "nearest" });   // the preview, beside the strip or (on a phone) below the form
   });
   thumbs.push(th);
   if (state.thumbSeen) state.thumbSeen.observe(b);
   return b;
 }
 
+/* Step 1, as the image builder's: what kind of look (its shelves, grouped, in one list, as the
+   image builder's "What are you buying?") over one strip of looks across the page, which draws
+   more as it is scrolled to its end. "See them all" lays the same looks out in rows, the
+   gallery it was; there more come from its button only, since rows that grew as the page was
+   scrolled would push steps 2 and 3, under them now, out of reach. */
 function buildGallery() {
   const cur = state.galleryCat || "all";
-  let html = `<button role="radio" data-cat="all" aria-checked="${cur === "all"}">All</button>`, grp = null;
+  let html = `<option value="all">All looks, one of each</option>`, grp = null;
   for (const s of SHELVES) {
-    if (s.group !== grp) { grp = s.group; html += `<span class="mo-chip-grp">${grp}</span>`; }
-    html += `<button role="radio" data-cat="${s.id}" aria-checked="${cur === s.id}">${s.label}</button>`;
+    if (s.group !== grp) { if (grp) html += "</optgroup>"; grp = s.group; html += `<optgroup label="${grp}">`; }
+    html += `<option value="${s.id}">${s.label}</option>`;
   }
-  $("gallery-cats").innerHTML = html;
-  $("gallery-cats").addEventListener("click", e => { const b = e.target.closest("[data-cat]"); if (b) setShelf(b.dataset.cat); });
-  $("gallery").addEventListener("click", e => { const b = e.target.closest(".mo-link[data-cat]"); if (b) setShelf(b.dataset.cat); });
+  $("gallery-cats").innerHTML = html + "</optgroup>";
+  $("gallery-cats").value = cur;
+  $("gallery-cats").addEventListener("change", e => setShelf(e.target.value));
   $("play-all").checked = state.galleryPlay;
   $("play-all").addEventListener("change", e => { state.galleryPlay = e.target.checked; save(); });
   $("more").addEventListener("click", () => renderGallery(false));
-  $("browse").addEventListener("click", e => { e.preventDefault(); $("looks").scrollIntoView({ behavior: "smooth", block: "start" }); });
-  if ("IntersectionObserver" in window) {
+  $("looks-all").addEventListener("click", () => {
+    state.galleryWide = !state.galleryWide;
+    $("looks-all").setAttribute("aria-pressed", String(state.galleryWide));
+    $("looks-all").innerHTML = state.galleryWide ? "&#9644; One row" : "&#9638; See them all";
+    $("gallery").classList.toggle("wide", state.galleryWide);
+    if (!state.galleryWide) $("looks").scrollIntoView({ behavior: "smooth", block: "start" });
+    syncMore();
+  });
+  $("gallery").addEventListener("scroll", () => { if (!state.galleryWide && wantMore()) renderGallery(false); }, { passive: true });
+  if ("IntersectionObserver" in window)
     state.thumbSeen = new IntersectionObserver(es => es.forEach(en => { const th = thumbs.find(x => x.el === en.target); if (th) th.seen = en.isIntersecting; }), { rootMargin: "80px" });
-    // the end of the gallery coming near the screen draws the next batch
-    new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) renderGallery(false); }, { rootMargin: "600px" }).observe($("gallery-end"));
-  }
   requestAnimationFrame(thumbLoop);
 }
 
 function setShelf(cat) {
   if (cat === (state.galleryCat || "all")) return;
   state.galleryCat = cat; save();
-  document.querySelectorAll("#gallery-cats [data-cat]").forEach(x => x.setAttribute("aria-checked", String(x.dataset.cat === cat)));
+  $("gallery-cats").value = cat;
+  $("gallery").scrollLeft = 0;
   renderGallery(true);
-  $("gallery-cats").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 /** Runs fn once el is within a screen's height of view (at once where that cannot be watched). */
@@ -736,15 +747,16 @@ function thumbLoop(now) {
   requestAnimationFrame(thumbLoop);
 }
 
-const galleryDone = () => (state.galleryCat || "all") === "all" ? state.galleryShelf >= SHELVES.length : state.galleryShown >= SHELF_MAX;
-const nearEnd = () => { const e = $("gallery-end"); return e && e.getBoundingClientRect().top < innerHeight + 600; };
+const galleryDone = () => state.galleryShown >= SHELF_MAX;
+/** More looks are wanted by the strip near its end (rows take them from their button). */
+const wantMore = () => { const g = $("gallery"); return !state.galleryWide && g.scrollWidth - g.scrollLeft - g.clientWidth < 600; };
 
-/** The button under the gallery says how many the next batch adds, and goes at the end. */
+/** The button under the rows says how many the next batch adds, and goes at the end (the
+ *  strip draws more as it is scrolled, so it has none). */
 function syncMore() {
-  const b = $("more"), row = state.galleryRow || 4;
-  const next = (state.galleryCat || "all") === "all" ? Math.min(SHELVES.length - state.galleryShelf, Math.ceil(GALLERY_PAGE / row)) * row
-    : Math.min(GALLERY_PAGE, SHELF_MAX - state.galleryShown);
-  b.hidden = galleryDone(); b.disabled = false; b.textContent = `Show ${next} more`;
+  const b = $("more");
+  b.hidden = !state.galleryWide || galleryDone(); b.disabled = false;
+  b.textContent = `Show ${Math.min(GALLERY_PAGE, SHELF_MAX - state.galleryShown)} more`;
 }
 
 async function renderGallery(reset) {
@@ -754,7 +766,7 @@ async function renderGallery(reset) {
   // adding thumbnails of the old size, the old number or the old shelf to the new one
   if (reset) {
     g.innerHTML = ""; state.galleryGen = (state.galleryGen || 0) + 1;
-    state.galleryShown = 0; state.galleryShelf = 0; state.galleryGroup = null;
+    state.galleryShown = 0;
     thumbs.forEach(th => state.thumbSeen && state.thumbSeen.unobserve(th.el)); thumbs.length = 0;
     $("looks-count").textContent = "";
   }
@@ -762,45 +774,26 @@ async function renderGallery(reset) {
   if (state.galleryBusy === gen || galleryDone()) return;
   const [W, H] = ASPECTS[state.style.aspect] || ASPECTS["1:1"];
   const k = THUMB_MAX / Math.max(W, H), cat = state.galleryCat || "all";
-  // the thumbnails take the shape of the size chosen, a wide one in a wider column; a
-  // shelf in All fills one row of them, and has at least four
+  // the thumbnails take the shape of the size chosen, a wide one in a wider column
   const min = H > W * 1.2 ? 150 : W > H * 1.2 ? 250 : 180;
   g.style.setProperty("--ar", `${W} / ${H}`); g.style.setProperty("--thumb-min", min + "px");
-  if (reset) state.galleryRow = Math.max(4, Math.floor((g.clientWidth + 12) / (min + 12)));
   state.galleryBusy = gen; $("more").disabled = true;
   const shown = () => { $("looks-count").textContent = `${thumbs.length} shown`; };
   let made = 0;
+  // All: one look of each kind in turn, so the strip's first screen samples every shelf;
+  // one kind: its looks, which keep its vibe when used (New look stays in it)
+  const shelves = cat === "all" ? SHELVES : SHELVES.filter(s => s.id === cat);
   try {
-    if (cat === "all") {
-      while (made < GALLERY_PAGE && state.galleryShelf < SHELVES.length) {
-        const shelf = SHELVES[state.galleryShelf++];
-        if (shelf.group !== state.galleryGroup) { state.galleryGroup = shelf.group; g.insertAdjacentHTML("beforeend", `<h3 class="mo-shelf-grp">${shelf.group}</h3>`); }
-        const sec = document.createElement("section"); sec.className = "mo-shelf";
-        sec.innerHTML = `<header><h4>${shelf.label}</h4><button class="mo-link" data-cat="${shelf.id}">See all &rsaquo;</button></header><div class="mo-gallery"></div>`;
-        g.appendChild(sec);
-        const grid = sec.querySelector(".mo-gallery");
-        for (let i = 0; i < state.galleryRow; i++) {
-          const b = await shelfThumb(shelf, W, H, k, false);
-          if (!live()) return;
-          if (b) { grid.appendChild(b); made++; shown(); }
-          await new Promise(r => setTimeout(r, 0));
-        }
-      }
-    } else {
-      const shelf = SHELVES.find(s => s.id === cat);
-      let grid = g.querySelector(".mo-gallery");
-      if (!grid) { grid = document.createElement("div"); grid.className = "mo-gallery"; g.appendChild(grid); }
-      for (let i = 0; i < GALLERY_PAGE && state.galleryShown < SHELF_MAX; i++) {
-        const b = await shelfThumb(shelf, W, H, k, true);
-        if (!live()) return;
-        if (b) { grid.appendChild(b); made++; shown(); }
-        state.galleryShown++;                          // a look skipped still counts, so a shelf that will not draw ends
-        await new Promise(r => setTimeout(r, 0));
-      }
+    for (let i = 0; i < GALLERY_PAGE && state.galleryShown < SHELF_MAX && shelves.length; i++) {
+      const b = await shelfThumb(shelves[state.galleryShown % shelves.length], W, H, k, cat !== "all");
+      if (!live()) return;
+      if (b) { g.appendChild(b); made++; shown(); }
+      state.galleryShown++;                            // a look skipped still counts, so a shelf that will not draw ends
+      await new Promise(r => setTimeout(r, 0));
     }
   } finally { if (state.galleryBusy === gen) { state.galleryBusy = null; syncMore(); } }
-  // still in view after a batch (a tall screen): keep going
-  if (live() && made && nearEnd()) renderGallery(false);
+  // still wanted after a batch (a tall screen, a wide strip): keep going
+  if (live() && made && wantMore()) renderGallery(false);
 }
 
 // ------------------------------------------------------------ download
