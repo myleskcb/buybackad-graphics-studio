@@ -1349,10 +1349,13 @@ const TEMPLATES = [
     ],
     checklistHero: (P, T, C) => {
       const rows = C.sub.split('\n');
+      /* rows 28 px higher on a 92 px pitch: at 576 + i*96 the third point
+         ended 6 px over the CTA card and read as one block with it (the
+         owner, 2026-10-13, on the gold, Pokémon, cars and test-strip lists) */
       const mk = (i) => ([
-        ci('Tick ' + (i+1), { left:96, top:566 + i*96, radius:27, fill:P.a1, shadow:sh(P.glow, 14) }),
-        t('Tick Mark ' + (i+1), 'deco', 'none', '✓', { left:123, top:576 + i*96, originX:'center', fontFamily:'Satoshi', fontSize:38, fill:onAccent(P), fontWeight:'900' }),
-        t('Point ' + (i+1), 'info', 'upper', rows[i], { left:164, top:576 + i*96, fontFamily:T.s, fontSize:39, fill:P.ink, fontWeight:'800' }),
+        ci('Tick ' + (i+1), { left:96, top:538 + i*92, radius:27, fill:P.a1, shadow:sh(P.glow, 14) }),
+        t('Tick Mark ' + (i+1), 'deco', 'none', '✓', { left:123, top:548 + i*92, originX:'center', fontFamily:'Satoshi', fontSize:38, fill:onAccent(P), fontWeight:'900' }),
+        t('Point ' + (i+1), 'info', 'upper', rows[i], { left:164, top:548 + i*92, fontFamily:T.s, fontSize:39, fill:P.ink, fontWeight:'800' }),
       ]);
       return [
         ...trust(P, T, C.badges),
@@ -2994,6 +2997,16 @@ function buildLayer(l, tplId, dw, dh){
       strokeLineCap: 'round', strokeLineJoin: 'round',
       originX: 'left', originY: 'top', objectCaching: false
     }));
+    /* The box is authored, the drawing is not square in it: fabric puts a
+       path's left/top at the corner of its OWN outline, so a mark that does
+       not fill its 100-unit box (the bullion bars sit 26-78 down it) landed
+       up and to the left of the badge it was centred on, 9 px on a 66 px
+       disc. Centre the outline on the box's centre instead. The owner,
+       2026-10-13: "the icons can be centered in the circles". */
+    if (!p.angle){
+      const cx = (p.left || 0) + size / 2, cy = (p.top || 0) + size / 2;
+      obj.set({ left: cx - obj.getScaledWidth() / 2, top: cy - obj.getScaledHeight() / 2 });
+    }
     obj.pgIcon = ICONS[l.icon] ? l.icon : 'sparkle';
   }
   else if (l.kind === 'textbox') obj = new fabric.Textbox(txt, Object.assign({paintFirst:'stroke'}, p));
