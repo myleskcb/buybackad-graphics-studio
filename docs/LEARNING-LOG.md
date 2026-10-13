@@ -4643,3 +4643,42 @@ Found:
 
 Checked: ad_library_check no failures (upload, Add video, Remove video, a
 free account's refused video).
+
+## 2026-10-13 — the video maker's rail and phones: real sizes, every 13 and 14, the Pros' right side (claude/blissful-euler-t5idkp)
+
+Asked, on /motion: the settings rail ran on past the preview ("why not shrink
+the side rail"); the 16 Ultramarine and Teal were missing; the 14 in red, then
+the 13 and 14 series in every colour; Pro and Plus hidden behind a toggle so
+one view shows the most colours; a Pro and its Pro Max the same size ("factually
+incorrect"); the painted Pros' right side clipped.
+
+Done:
+  - The rail ends where the preview column does (contain:size; it scrolls
+    inside), stacked as before under 920 px.
+  - The picker opens on the regular, e and Pro Max models (52 of 89); "Show
+    Pro, Plus and mini models too" brings the rest. engine.js BODY carries
+    Apple's height; a set draws its tallest phone at the stage's height and
+    each other at its share, feet level. The picker's tiles do the same.
+  - The 22 painted Pros take the left's frame on the right (mirror_rim).
+  - 30 new backs: the 13 and 13 Pro from Apple's renders, the 13 mini and 13
+    Pro Max as those backs at their size (camera kept at its own), the 14 red
+    from a photograph squared up, the rest of the 14s painted as before.
+
+Found:
+  - ok:false hid two good backs for a month; audit_phone_views passes them.
+    A flag nothing re-checks outlives its reason.
+  - A dark patch is not a lens: where light crosses the glass the dark part is
+    the lens less a slice, and its width over height reads 0.87 to 1.73 on a
+    round lens. The arc of its outline is the lens.
+  - A side button standing proud of the rail tilts a fitted edge line; leave
+    its rows out.
+  - motion_phone_check's turn step is the phone's largest step over its own
+    usual one. A back near black all over (13 Midnight) has a small usual step,
+    so the hand-over past 180 degrees, the 16 Black's in pixels, reads 2.8
+    against a bar of 2.5. Left failing and said so; a grey ground did not help.
+
+RESUME HERE:
+  0. The 13 Midnight's turn step (above): the owner's call whether the bar
+     takes the set's usual step, or the Midnight stays a known exception.
+  1. device_entities.mjs takes motion/phones backs without repaint: the 13
+     and 13 Pro renders and the 14 red photo are new there when it is re-run.
