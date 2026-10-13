@@ -78,7 +78,7 @@ const TEMPLATES = [
     {kind:'text', name:'Arrow', role:'deco', text:'👉', props:{left:85, top:848, fontSize:62}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT US NOW!', props:{left:CW/2, top:828, originX:'center', fontFamily:F_DISPLAY, fontSize:56, fill:'#ff5000', stroke:'#000000', strokeWidth:3}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2+20, top:885, originX:'center', fontFamily:F_COND, fontSize:90, fill:'#ff5000', fontWeight:'900', shadow:sh('rgba(255,80,0,0.4)',22)}},
-    {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:950, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.45)'}},
+    {kind:'text', name:'Website', role:'website', casing:'none', text:'iPhones.LA', props:{left:CW/2, top:950, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.45)'}},
   ]},
 { id:'top_buyer', name:'Local Cash Buyer', tag:'buyer', cat:'phones',
   bg:{type:'image', src:'assets/tplbg/top_buyer.jpg', scrim:0.5, fallback:{type:'grad', c1:'#1a1a2e', c2:'#16213e', a:180}},
@@ -132,7 +132,7 @@ const TEMPLATES = [
     {kind:'text', name:'Emoji', role:'deco', text:'📱', props:{left:128, top:768, fontSize:90}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT US TODAY!', props:{left:CW/2, top:718, originX:'center', fontFamily:F_COND, fontSize:40, fill:'rgba(0,0,0,0.6)', fontWeight:'900'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2+40, top:788, originX:'center', fontFamily:F_DISPLAY, fontSize:95, fill:'#ffffff', stroke:'#c03000', strokeWidth:4}},
-    {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:935, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.45)'}},
+    {kind:'text', name:'Website', role:'website', casing:'none', text:'iPhones.LA', props:{left:CW/2, top:935, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.45)'}},
   ]},
 { id:'bold_buyer', name:'Bold Buyer, Hot Pink', tag:'buyer', cat:'phones',
   bg:{type:'image', src:'assets/tplbg/bold_buyer.jpg', scrim:0.55, fallback:{type:'grad', c1:'#ff1493', c2:'#ff6600', a:135}},
@@ -164,7 +164,7 @@ const TEMPLATES = [
     {kind:'textbox', name:'Items', role:'info', casing:'upper', text:'RINGS \u2022 CHAINS \u2022 COINS \u2022 DENTAL\nBROKEN JEWELRY WELCOME\n10K \u2022 14K \u2022 18K \u2022 24K', props:{left:CW/2, top:430, width:CW-140, originX:'center', fontFamily:'Khand', fontSize:56, fill:'#ffffff', textAlign:'center', lineHeight:1.35, fontWeight:'600'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TESTED \u0026 PAID IN FRONT OF YOU', props:{left:CW/2, top:760, originX:'center', fontFamily:F_COND, fontSize:44, fill:'#c9b27c', fontWeight:'700'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:850, originX:'center', fontFamily:'Clash Display', fontSize:100, fill:'#ffffff', shadow:sh('rgba(0,0,0,0.6)',18,3,3)}},
-    {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:980, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
+    {kind:'text', name:'Website', role:'website', casing:'none', text:'iPhones.LA', props:{left:CW/2, top:980, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
 { id:'gold_lux', name:'Luxury Minimal Gold', tag:'sell', cat:'gold',
   bg:{type:'solid', c:'#0b0b0d'},
@@ -207,7 +207,7 @@ const TEMPLATES = [
     {kind:'text', name:'Sub', role:'sub', casing:'upper', text:'FREE APPRAISAL', props:{left:CW/2, top:640, originX:'center', fontFamily:'Satoshi', fontSize:32, fill:'#8a6d1f', charSpacing:340, fontWeight:'700'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:740, originX:'center', fontFamily:'Zodiak', fontSize:84, fill:'#1c1710', fontWeight:'700'}},
     {kind:'rect', name:'Rule Bottom', props:{left:90, top:900, width:CW-180, height:6, fill:'#1c1710'}},
-    {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:940, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'#8a6d1f', fontWeight:'600'}},
+    {kind:'text', name:'Website', role:'website', casing:'none', text:'iPhones.LA', props:{left:CW/2, top:940, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'#8a6d1f', fontWeight:'600'}},
   ]},
 { id:'gold_marker', name:'Handwritten Payout', tag:'promo', cat:'gold', tier:'premium',
   bg:{type:'grad', c1:'#1a1a1f', c2:'#000000', a:180},
@@ -229,7 +229,7 @@ const TEMPLATES = [
     {kind:'textbox', name:'Items', role:'info', casing:'upper', text:'EAGLES \u2022 BARS \u2022 JUNK SILVER\n90% COINS \u2022 STERLING FLATWARE', props:{left:CW/2, top:440, width:CW-140, originX:'center', fontFamily:F_COND, fontSize:52, fill:'#8fa3bb', textAlign:'center', lineHeight:1.4, fontWeight:'700'}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'PRICED LIVE OFF SPOT', props:{left:CW/2, top:660, originX:'center', fontFamily:'Khand', fontSize:40, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:790, originX:'center', fontFamily:'Clash Display', fontSize:98, fill:'#c7d0dc'}},
-    {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:930, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
+    {kind:'text', name:'Website', role:'website', casing:'none', text:'iPhones.LA', props:{left:CW/2, top:930, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
 { id:'silver_ounce', name:'Per Ounce Bold', tag:'promo', cat:'silver',
   bg:{type:'solid', c:'#e9edf2'},
@@ -357,7 +357,7 @@ const TEMPLATES = [
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Bring their written offer.\nWe will give you ours. Straight answers only.', props:{left:CW/2, top:530, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#c7d0dc', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'VIN + MILES = A CASH OFFER', props:{left:CW/2, top:700, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:810, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4da3ff'}},
-    {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:950, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
+    {kind:'text', name:'Website', role:'website', casing:'none', text:'iPhones.LA', props:{left:CW/2, top:950, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
 { id:'cars_junk', name:'Junk Car Grunge', tag:'sell', cat:'cars', tier:'premium',
   bg:{type:'solid', c:'#171310'},
@@ -422,7 +422,7 @@ const TEMPLATES = [
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Unopened \u2022 Unexpired \u2022 Factory sealed\nAll major brands, boxes checked\nand paid while you wait.', props:{left:CW/2, top:400, width:CW-180, originX:'center', fontFamily:F_UI, fontSize:44, fill:'#1d3a38', textAlign:'center', lineHeight:1.5}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'TEXT A PHOTO OF THE BOXES', props:{left:CW/2, top:680, originX:'center', fontFamily:'Satoshi', fontSize:32, fill:'#0f6e6a', fontWeight:'800'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:780, originX:'center', fontFamily:'Satoshi', fontSize:84, fill:'#0f6e6a', fontWeight:'900'}},
-    {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:920, originX:'center', fontFamily:F_UI, fontSize:28, fill:'#5a8683'}},
+    {kind:'text', name:'Website', role:'website', casing:'none', text:'iPhones.LA', props:{left:CW/2, top:920, originX:'center', fontFamily:F_UI, fontSize:28, fill:'#5a8683'}},
   ]},
 { id:'strips_box', name:'Box Count Bold', tag:'promo', cat:'strips', tier:'premium',
   bg:{type:'grad', c1:'#123c5e', c2:'#071726', a:170},
@@ -474,7 +474,7 @@ const TEMPLATES = [
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Base Set \u2022 Charizards \u2022 1st Editions\nShadowless \u2022 Japanese \u2022 Full binders\nWe grade-check for free, in front of you.', props:{left:CW/2, top:430, width:CW-150, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bcd0ff', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'CASH, NOT STORE CREDIT', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:52, fill:'#ffd200', fontWeight:'700'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffffff'}},
-    {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:940, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
+    {kind:'text', name:'Website', role:'website', casing:'none', text:'iPhones.LA', props:{left:CW/2, top:940, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
 { id:'pkm_zard', name:'Charizard Callout', tag:'promo', cat:'pokemon',
   bg:{type:'grad', c1:'#ff5000', c2:'#8a1500', a:160},
@@ -515,7 +515,7 @@ const TEMPLATES = [
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'We pre-screen your raw cards with the\nsame checklist graders use, centering,\nedges, surface, and pay for the upside.', props:{left:CW/2, top:420, width:CW-170, originX:'center', fontFamily:F_UI, fontSize:40, fill:'#bcd0ff', textAlign:'center', lineHeight:1.5}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'SLABS ALSO BOUGHT AT COMP PRICES', props:{left:CW/2, top:650, originX:'center', fontFamily:'Khand', fontSize:38, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:780, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#ffd200'}},
-    {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:930, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
+    {kind:'text', name:'Website', role:'website', casing:'none', text:'iPhones.LA', props:{left:CW/2, top:930, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
 { id:'pkm_jp', name:'Japanese Exclusives', tag:'buyer', cat:'pokemon', tier:'premium',
   bg:{type:'grad', c1:'#c81d4e', c2:'#3d0a1c', a:150},
@@ -546,7 +546,7 @@ const TEMPLATES = [
     {kind:'textbox', name:'Info', role:'info', casing:'none', text:'Prizm \u2022 Topps Chrome \u2022 Bowman 1sts\nAutos \u0026 numbered parallels, we track\nlive sales, you get the real number.', props:{left:CW/2, top:450, width:CW-160, originX:'center', fontFamily:F_UI, fontSize:42, fill:'#bfe7cd', textAlign:'center', lineHeight:1.45}},
     {kind:'text', name:'CTA', role:'cta', casing:'upper', text:'NO CONSIGNMENT WAIT, PAID TODAY', props:{left:CW/2, top:680, originX:'center', fontFamily:'Khand', fontSize:42, fill:'#ffffff', fontWeight:'600'}},
     {kind:'text', name:'Phone Number', role:'phone', casing:'none', text:'(562) 999-4994', props:{left:CW/2, top:800, originX:'center', fontFamily:'Clash Display', fontSize:96, fill:'#4dff88'}},
-    {kind:'text', name:'Website', role:'website', casing:'none', text:'iphones.LA', props:{left:CW/2, top:940, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
+    {kind:'text', name:'Website', role:'website', casing:'none', text:'iPhones.LA', props:{left:CW/2, top:940, originX:'center', fontFamily:F_UI, fontSize:26, fill:'rgba(255,255,255,0.4)'}},
   ]},
 { id:'sports_score', name:'Scoreboard Flash', tag:'promo', cat:'sports',
   bg:{type:'solid', c:'#0a0a0d'},
@@ -832,7 +832,7 @@ const TEMPLATES = [
     r('CTA Card', { left:CX-380, top:838, width:760, height:194, rx:28, fill:P.deep, shadow:sh('rgba(0,0,0,0.45)', 30, 0, 12) }),
     t('CTA', 'cta', 'upper', cta, { left:CX, top:862, originX:'center', fontFamily:T.d, fontSize:54, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh(P.glow, 20) }),
     t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:934, originX:'center', fontFamily:'Satoshi', fontSize:58, fill:'#ffffff', fontWeight:'900', stroke:'#000000', strokeWidth:2 }),
-    t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:1002, originX:'center', fontFamily:'Satoshi', fontSize:21, fill:'rgba(255,255,255,0.45)' }),
+    t('Website', 'website', 'none', 'iPhones.LA', { left:CX, top:1002, originX:'center', fontFamily:'Satoshi', fontSize:21, fill:'rgba(255,255,255,0.45)' }),
   ];
   const phoneBar = (P, T, y) => [
     r('Phone Plate', { left:CX-330, top:y, width:660, height:118, rx:24, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh(P.glow, 26) }),
@@ -1223,7 +1223,7 @@ const TEMPLATES = [
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:296, originX:'center', fontFamily:T.d, fontSize:216, grad:{ c1:P.a1, c2:P.a2, a:100 }, stroke:'#000000', strokeWidth:8, shadow:sh(P.glow, 32) }),
       t('Items', 'info', 'upper', C.items, { left:CX, top:590, originX:'center', fontFamily:T.s, fontSize:44, fill:P.sub, fontWeight:'700', charSpacing:60 }),
       subBlock(P, T, C.price, 674, 46), ...phoneBar(P, T, 806),
-      t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:966, originX:'center', fontFamily:'Satoshi', fontSize:22, fill:P.sub, opacity:0.7 }),
+      t('Website', 'website', 'none', 'iPhones.LA', { left:CX, top:966, originX:'center', fontFamily:'Satoshi', fontSize:22, fill:P.sub, opacity:0.7 }),
     ],
     neonNight: (P, T, C) => [
       t('Neon Kicker', 'sub', 'upper', C.k, { left:CX, top:120, originX:'center', fontFamily:'Clash Display', fontSize:40, fill:P.a1, charSpacing:180, shadow:sh(P.glow, 28) }),
@@ -1232,7 +1232,7 @@ const TEMPLATES = [
       t('Items', 'info', 'upper', C.items, { left:CX, top:660, originX:'center', fontFamily:T.s, fontSize:42, fill:P.ink, fontWeight:'600', charSpacing:40, opacity:0.9 }),
       rg('Neon Frame', { left:CX-330, top:790, width:660, height:130, rx:26, fill:'rgba(0,0,0,0.45)', stroke:P.a1, strokeWidth:2.5, shadow:sh(P.glow, 22) }),
       t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:818, originX:'center', fontFamily:'Satoshi', fontSize:62, fill:P.ink, fontWeight:'900', shadow:sh(P.glow, 16) }),
-      t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:960, originX:'center', fontFamily:'Satoshi', fontSize:22, fill:P.sub, opacity:0.65 }),
+      t('Website', 'website', 'none', 'iPhones.LA', { left:CX, top:960, originX:'center', fontFamily:'Satoshi', fontSize:22, fill:P.sub, opacity:0.65 }),
     ],
     editorialLux: (P, T, C) => [
       rg('Hairline Frame', { left:56, top:56, width:W-112, height:W-112, rx:20, fill:'rgba(0,0,0,0)', stroke:P.ink, strokeWidth:1.5, opacity:0.5 }),
@@ -1256,7 +1256,7 @@ const TEMPLATES = [
       t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:512, originX:'center', fontFamily:T.d, fontSize:196, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 30) }),
       t('Items', 'info', 'upper', C.items, { left:CX, top:742, originX:'center', fontFamily:T.s, fontSize:40, fill:P.sub, charSpacing:40 }),
       ...phoneBar(P, T, 838),
-      t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:990, originX:'center', fontFamily:'Satoshi', fontSize:22, fill:P.sub, opacity:0.7 }),
+      t('Website', 'website', 'none', 'iPhones.LA', { left:CX, top:990, originX:'center', fontFamily:'Satoshi', fontSize:22, fill:P.sub, opacity:0.7 }),
     ],
     bandKnockout: (P, T, C) => [
       ...trust(P, T, C.badges),
@@ -1312,7 +1312,7 @@ const TEMPLATES = [
       r('Price Strip', { left:CX-410, top:650, width:820, height:92, rx:18, grad:{ c1:P.a1, c2:P.a2, a:95 } }),   // 820: "PAID AT CURRENT MARKET RATES" ran 50px past 660
       t('Price Line', 'info', 'upper', C.price, { left:CX, top:668, originX:'center', fontFamily:T.s, fontSize:44, fill:onAccent(P), fontWeight:'900' }),
       t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:806, originX:'center', fontFamily:'Satoshi', fontSize:74, fill:P.ink, fontWeight:'900' }),
-      t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:924, originX:'center', fontFamily:'Satoshi', fontSize:24, fill:P.sub }),
+      t('Website', 'website', 'none', 'iPhones.LA', { left:CX, top:924, originX:'center', fontFamily:'Satoshi', fontSize:24, fill:P.sub }),
     ],
     scriptRetro: (P, T, C) => [
       // connected script faces must stay one run, curving per-glyph severs the joins
@@ -1345,7 +1345,7 @@ const TEMPLATES = [
       t('Reward', 'info', 'upper', ', REWARD, ', { left:CX, top:678, originX:'center', fontFamily:T.s, fontSize:30, fill:P.sub, charSpacing:340 }),
       t('Price Line', 'info', 'upper', C.price, { left:CX, top:734, originX:'center', fontFamily:T.d, fontSize:44, fill:P.a2 }),
       t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:838, originX:'center', fontFamily:T.d, fontSize:66, fill:P.ink }),
-      t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:944, originX:'center', fontFamily:T.s, fontSize:24, fill:P.sub }),
+      t('Website', 'website', 'none', 'iPhones.LA', { left:CX, top:944, originX:'center', fontFamily:T.s, fontSize:24, fill:P.sub }),
     ],
     checklistHero: (P, T, C) => {
       const rows = C.sub.split('\n');
@@ -1376,7 +1376,7 @@ const TEMPLATES = [
       t('Kicker', 'sub', 'upper', C.k, { left:770, top:120, originX:'center', fontFamily:T.s, fontSize:32, fill:P.ink, charSpacing:200, fontWeight:'700', backgroundColor:'rgba(0,0,0,0.35)', padding:12 }),
       r('Phone Chip', { left:560, top:860, width:470, height:112, rx:24, grad:{ c1:P.a1, c2:P.a2, a:95 }, shadow:sh(P.glow, 22) }),
       t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:795, top:884, originX:'center', fontFamily:'Satoshi', fontSize:47, fill:onAccent(P), fontWeight:'900' }),
-      t('Website', 'website', 'none', 'iphones.LA', { left:795, top:1000, originX:'center', fontFamily:'Satoshi', fontSize:22, fill:P.ink, opacity:0.6 }),
+      t('Website', 'website', 'none', 'iPhones.LA', { left:795, top:1000, originX:'center', fontFamily:'Satoshi', fontSize:22, fill:P.ink, opacity:0.6 }),
     ],
     gradientWave: (P, T, C) => [
       ...trust(P, T, C.badges),
@@ -1403,7 +1403,7 @@ const TEMPLATES = [
     t('Price Line', 'info', 'upper', C.big, { left:64, top:796, fontFamily:T.d, fontSize:104, grad:{ c1:P.a1, c2:P.a2, a:100 } }),
     t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:W-64, top:820, originX:'right', fontFamily:'Satoshi', fontSize:42, fill:P.ink, fontWeight:'800' }),
     t('CTA', 'cta', 'upper', C.cta, { left:W-64, top:884, originX:'right', fontFamily:T.s, fontSize:25, fill:P.a1, charSpacing:130, fontWeight:'700' }),
-    t('Website', 'website', 'none', 'iphones.LA', { left:W-64, top:934, originX:'right', fontFamily:'Satoshi', fontSize:20, fill:P.sub, opacity:0.8 }),
+    t('Website', 'website', 'none', 'iPhones.LA', { left:W-64, top:934, originX:'right', fontFamily:'Satoshi', fontSize:20, fill:P.sub, opacity:0.8 }),
   ];
   LAYOUTS.priceAnchor = (P, T, C) => [
     t('Kicker', 'sub', 'upper', C.h1 + ' ' + C.h2, { left:CX, top:118, originX:'center', fontFamily:T.s, fontSize:34, fill:P.ink, charSpacing:260, fontWeight:'700', opacity:0.92 }),
@@ -1412,7 +1412,7 @@ const TEMPLATES = [
     t('Price Line', 'headline', 'upper', C.big, { left:CX, top:372, originX:'center', fontFamily:T.d, fontSize:246, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 34) }),
     t('Offer Line', 'info', 'upper', C.items, { left:CX, top:678, originX:'center', fontFamily:T.s, fontSize:35, fill:P.sub, charSpacing:60 }),
     ...phoneBar(P, T, 786),
-    t('Website', 'website', 'none', 'iphones.LA', { left:CX, top:948, originX:'center', fontFamily:'Satoshi', fontSize:21, fill:P.sub, opacity:0.7 }),
+    t('Website', 'website', 'none', 'iPhones.LA', { left:CX, top:948, originX:'center', fontFamily:'Satoshi', fontSize:21, fill:P.sub, opacity:0.7 }),
   ];
   /* the band's copy 24px higher than it was drawn: the items line ran under the bottom guide (6%,
      rule 57). The eight lowerThird classics are still held for their hierarchy: the headline shares
@@ -2759,6 +2759,84 @@ function alignPass(sc, W, H){
   /* ── 6. NO LINE ON A PLATE'S EDGE (rule 58), last, after the guides ────── */
   if (INK) linesOffEdges(sc, W, H);
   if (INK && typeof claimShade === 'function') claimShade(sc, W, H);   // the thumbnail shows the card that opens
+  websiteCorner(sc, W, H);
+}
+
+/* THE WEBSITE IN A CORNER. The owner, 2026-10-13: "update url to iPhones.LA
+   and put it in better placements around each ad so it's less obvious and
+   noticeable", "or similar locations small opaque text". The layouts set the
+   website under the phone number, where it crowded the number's plate (it sat
+   on the pill's edge on the iPad and silver cards) and competed with the one
+   line that has to win. It goes to the first free corner of the guides instead
+   (bottom right, bottom left, top left, top right), small and quiet, in the ink
+   of the words that already stand on the ground there (the badges, else the
+   first headline line), clear of every plate, word, photo and corner mark by
+   PAD. With no free corner it stays where its layout put it. The globe icon
+   drawn beside it goes. */
+function websiteCorner(sc, W, H){
+  W = W || TPL_W; H = H || TPL_H;
+  let objs; try { objs = sc.getObjects(); } catch (e){ return 0; }
+  const isText = o => o && (o.type === 'i-text' || o.type === 'text' || o.type === 'textbox');
+  const site = objs.find(o => isText(o) && o.pgRole === 'website' && o.visible !== false && /\S/.test(o.text || ''));
+  if (!site || site.pgCorner) return 0;
+  const u = Math.min(W, H) / TPL_W, G = Math.round(GUIDE * Math.min(W, H)), PAD = 14 * u;
+  const bb = o => { try { o.setCoords(); return o.getBoundingRect(true, true); } catch (e){ return null; } };
+  const ground = o => /^(BG|Scrim|Overlay|Vignette|Grain)$/.test(o.name || '') || o.pgBgRect || o.pgScrim;
+  const obstacles = objs.filter(o => o && o !== site && o.visible !== false && !ground(o) && o.name !== 'Cursor' && !(o.opacity != null && o.opacity < 0.05))
+    .map(o => ({ o, b: bb(o) }))
+    .filter(x => x.b && x.b.width > 0 && !(x.b.width >= W * 0.85 && x.b.height >= H * 0.85));   // the ground and full frames
+  const solid = c => typeof c === 'string' && !/^rgba\([^)]*,\s*0(\.\d+)?\)$/.test(c);
+  const onGround = x => !obstacles.some(p => p.o !== x && (p.o.type === 'rect' || p.o.type === 'circle') && solid(p.o.fill) && (() => {
+    const b = bb(x), c = b && { x: b.left + b.width / 2, y: b.top + b.height / 2 };
+    return c && c.x > p.b.left && c.x < p.b.left + p.b.width && c.y > p.b.top && c.y < p.b.top + p.b.height; })());
+  const inkFrom = objs.find(o => isText(o) && o.pgRole === 'badges' && o.visible !== false && solid(o.fill) && onGround(o))
+    || objs.find(o => isText(o) && o.name === 'Headline 1' && o.visible !== false && solid(o.fill) && onGround(o));
+  const ink = inkFrom ? inkFrom.fill : '#f6f6f4';
+  const prev = { left: site.left, top: site.top, originX: site.originX, originY: site.originY, fontSize: site.fontSize, opacity: site.opacity,
+    fill: site.fill, charSpacing: site.charSpacing, fontWeight: site.fontWeight, shadow: site.shadow, scaleX: site.scaleX, scaleY: site.scaleY };
+  site.set({ fontSize: Math.round(21 * u), fontWeight: '600', charSpacing: 20, opacity: 0.85, fill: ink, scaleX: 1, scaleY: 1,
+    shadow: new fabric.Shadow({ color: 'rgba(0,0,0,0.35)', blur: 6 * u, offsetX: 0, offsetY: 1 }) });
+  /* the ground a corner offers, measured: the scene painted under the line's
+     box without the line, as linear luminance, its 10th and 90th percentile.
+     The ink of the badges was a guess, and on 73 live cards the corner was not
+     the ground the badges stood on (1.2:1 at worst). */
+  const lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  const groundOf = b => {
+    try {
+      const p = 4 * u, crop = { left: Math.max(0, b.left - p), top: Math.max(0, b.top - p) };
+      crop.width = Math.max(1, Math.min(W - crop.left, b.width + 2 * p)); crop.height = Math.max(1, Math.min(H - crop.top, b.height + 2 * p));
+      site.visible = false;
+      const cv = sc.toCanvasElement(1, crop);
+      site.visible = true;
+      const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data, v = [];
+      for (let i = 0; i < d.length; i += 8) v.push(0.2126 * lin(d[i]) + 0.7152 * lin(d[i + 1]) + 0.0722 * lin(d[i + 2]));
+      v.sort((a, c) => a - c);
+      return v.length ? { lo: v[Math.floor(v.length * 0.1)], hi: v[Math.floor(v.length * 0.9)], mid: v[Math.floor(v.length / 2)] } : null;
+    } catch (e){ site.visible = true; return null; }
+  };
+  const LIGHT = '#f6f6f4', DARK = '#141414', L_LIGHT = 0.918, L_DARK = 0.007, WANT = 3.6;
+  const spots = [['right', 'bottom', W - G, H - G], ['left', 'bottom', G, H - G], ['left', 'top', G, G], ['right', 'top', W - G, G]];
+  for (const [ox, oy, x, y] of spots){
+    site.set({ originX: ox, originY: oy, left: x, top: y }); site.setCoords();
+    const b = bb(site);
+    const hit = obstacles.some(p => b.left < p.b.left + p.b.width + PAD && b.left + b.width > p.b.left - PAD &&
+                                     b.top < p.b.top + p.b.height + PAD && b.top + b.height > p.b.top - PAD);
+    if (hit) continue;
+    const g = groundOf(b);
+    if (g){
+      /* light ink on a dark corner, dark on a light one, judged against the
+         worst of the ground under it; a corner that holds neither is skipped */
+      const light = g.mid < 0.18;
+      const cr = light ? (L_LIGHT + 0.05) / (g.hi + 0.05) : (g.lo + 0.05) / (L_DARK + 0.05);
+      if (cr < WANT) continue;
+      site.set({ fill: light ? LIGHT : DARK, shadow: light ? site.shadow : null });
+    }
+    site.pgCorner = ox + '-' + oy;
+    objs.forEach(o => { if (o && o.name === 'Cursor' && o.type === 'path') o.visible = false; });
+    return 1;
+  }
+  site.set(prev); site.setCoords();
+  return 0;
 }
 
 /* THE GUIDES — DESIGN-LAW rule 57.
