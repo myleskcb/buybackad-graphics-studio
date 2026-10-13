@@ -528,14 +528,10 @@ export function heightOf(model) { const b = BODY[modelName(MODEL.exec(model || "
 // dimension drawings). Left and right are as you look at the screen.
 const CONTROLS = { mute: [.183, .213], action: [.176, .216], volUp: [.256, .33], volDown: [.352, .426], power: [.27, .405], camCtrl: [.565, .64] };
 // ...except where a factory back shows the control itself, standing proud of the
-// rail, and it sits elsewhere: then it is drawn where the photograph (or render) has it, or
-// a turned phone shows two side buttons. The 17 and 18 Pro's side button is 46.8 to
+// rail, and it sits elsewhere: then it is drawn where the photograph has it, or a
+// turned phone shows two side buttons. The 17 and 18 Pro's side button is 46.8 to
 // 64.4 mm from the top on both sizes (scripts/audit_phone_views.py measures it).
 const MEASURED_CONTROLS = {
-  // Apple's 13 renders show the side button on all four 13s at the same share (the mini
-  // and the Pro Max are the 13's and the 13 Pro's backs at their size)
-  "iPhone 13 mini": { power: [.299, .418] }, "iPhone 13": { power: [.299, .418] },
-  "iPhone 13 Pro": { power: [.299, .418] }, "iPhone 13 Pro Max": { power: [.299, .418] },
   "iPhone 17 Pro": { power: [.311, .429] }, "iPhone 17 Pro Max": { power: [.287, .394] },
   "iPhone 18 Pro": { power: [.312, .429] }, "iPhone 18 Pro Max": { power: [.287, .393] },
 };
@@ -643,29 +639,31 @@ function drawSlab(ctx, p, w, h, flip, face, rot = 0, src = [0, 0, face.width, fa
   const b = p.body, inset = .8, rim = b
     ? outline(-w / 2 + b.r * w + inset, -h / 2 + b.t * h + inset, w / 2 - b.l * w - inset, h / 2 - b.b * h - inset, [b.rad[1], b.rad[0], b.rad[3], b.rad[2]].map(r => Math.max(0, r * w - inset)))
     : outline(-w / 2 + inset, -h / 2 + inset, w / 2 - inset, h / 2 - inset, [R, R, R, R].map(r => r - inset));
-  // the side: the outline swept from the hidden face to the seen one, brushed
-  // metal dark at both rims with a highlight a little in from the near face
-  // (photo-real slices a body-colour band every 2.4 px, not 1.2, and any band under a pixel in
-  // two or three: each slice costs a fill of the whole body, and its own light is laid over the
-  // side at once. Measured aluminium keeps 1.2 px: its narrow glint, sliced coarser, read lighter.)
-  const steps = photo ? (p.railLin ? Math.min(30, Math.max(T * Math.abs(s) < 1 ? 2 : 3, Math.ceil(T * Math.abs(s) / 1.2)))
-      : Math.min(15, Math.max(T * Math.abs(s) < 1 ? 2 : 3, Math.ceil(T * Math.abs(s) / 2.4))))
-    : Math.min(30, Math.max(6, Math.ceil(T * Math.abs(s) / 1.2)));
-  // Each slice is filled back to a slice and a half behind it: side-on, an outline is only
-  // a line, and outlines alone left a phone at 90 degrees a hairline beside its full shadow
-  // (and slices that only met left a see-through seam where their soft edges touched).
-  for (let k = 0; k <= steps; k++) {
-    const u = k / steps, zl = -seen + 2 * seen * u, at = rim.map(([x, y]) => P(x, y, zl));
-    const zb = -seen + 2 * seen * Math.max(0, (k - 1.5) / steps);
-    poly(ctx, k ? hull(rim.map(([x, y]) => P(x, y, zb)).concat(at)) : at);
-    // a side measured in its own aluminium (RAIL, the 17 and 18 Pros) is lit as a surface and
-    // averages to that colour; any other is the body's own colour a shade darker, never lighter
-    // than the body (owner, 2026-10-04: "we made sure the sides aren't too light ... darken
-    // them to the proper body color"), the soft highlight only lifting it back toward it
-    ctx.fillStyle = p.railLin ? litRail(p.railLin, u, photo ? SOFTBOX_LIFT : 0) : shade(p.metal, -.3 + .24 * Math.exp(-((u - .62) ** 2) / .03) + .04 * u); ctx.fill();
-  }
-  if (photo) softboxes(ctx, hull(rim.map(([x, y]) => P(x, y, -seen)).concat(rim.map(([x, y]) => P(x, y, seen)))), rim.map(([x, y]) => P(x, y, seen)),
-    P(0, -h / 2, seen)[1], P(0, h / 2, seen)[1], !!p.railLin, p.glassSub ?? 1);
+  // the side: the outline swept from the hidden face to the seen one, brushed metal dark at
+  // both rims with a highlight a little in from the near face. One fill of the solid the
+  // outline sweeps (the hull of the two faces' outlines: perspective takes each point of the
+  // outline along a straight line, so the hull is exact, side-on included), shaded across its
+  // depth by a gradient through the same colours. It was up to 30 slices, each one colour:
+  // under a corner, where the end of the slab shows, each slice's edge stood a pixel below
+  // the last and the colours stepped into ribs across the rounded end (owner, 2026-10-13:
+  // "we still struggle to generate corners / shading on rounded edge object").
+  // A side measured in its own aluminium (RAIL, the 17 and 18 Pros) is lit as a surface and
+  // averages to that colour; any other is the body's own colour a shade darker, never lighter
+  // than the body (owner, 2026-10-04: "we made sure the sides aren't too light ... darken
+  // them to the proper body color"), the soft highlight only lifting it back toward it.
+  const sideOf = u => p.railLin ? litRail(p.railLin, u, photo ? SOFTBOX_LIFT : 0) : shade(p.metal, -.3 + .24 * Math.exp(-((u - .62) ** 2) / .03) + .04 * u);
+  const back = rim.map(([x, y]) => P(x, y, -seen)), seenRim = rim.map(([x, y]) => P(x, y, seen)), side = hull(back.concat(seenRim));
+  poly(ctx, side);
+  const edgeX = s >= 0 ? Math.max(...rim.map(q => q[0])) : Math.min(...rim.map(q => q[0]));
+  const ga = P(edgeX, 0, -seen)[0], gb = P(edgeX, 0, seen)[0];
+  if (Math.abs(gb - ga) > .05) {
+    const g = ctx.createLinearGradient(ga, 0, gb, 0);
+    for (let k = 0; k <= SIDE_STOPS; k++) g.addColorStop(k / SIDE_STOPS, sideOf(k / SIDE_STOPS));
+    ctx.fillStyle = g;
+  } else ctx.fillStyle = sideOf(1);
+  ctx.fill();
+  if (Math.abs(s) > .01) cornerFall(ctx, side, seenRim, P(0, -h / 2, seen)[1], P(0, h / 2, seen)[1], (b ? Math.max(b.rad[2], b.rad[3]) * w : R) / h);
+  if (photo) softboxes(ctx, side, seenRim, P(0, -h / 2, seen)[1], P(0, h / 2, seen)[1], !!p.railLin, p.glassSub ?? 1);
   // the controls on the side we see, where Apple puts them. They come into view as that side
   // turns toward the lens, over the first 3.4 degrees: perspective alone gave them most of a
   // pixel square on, so they jumped from one edge to the other as the phone passed flat.
@@ -699,6 +697,12 @@ function drawSlab(ctx, p, w, h, flip, face, rot = 0, src = [0, 0, face.width, fa
   // near flat, where wide strips' seams show as the phone settles.)
   const sw0 = photo && D > 5 * h ? 3 + 5 * clamp((Math.abs(s) - .06) / .3) : 3;
   const n = Math.min(96, Math.max(12, Math.ceil(Math.abs(far - near) / sw0)));
+  // turned past 60 degrees the photograph is squeezed to under half its width, and the usual
+  // smoothing sampled its fine rim into a zigzag along the top and bottom edges; there the
+  // browser's best filter takes it down. Not nearer flat: the best filter changes its level
+  // with the scale, and a back coming flat changed 235 pixels in a twentieth of a degree.
+  const sq = ctx.imageSmoothingQuality;
+  if (Math.abs(c) < .5) ctx.imageSmoothingQuality = "high";
   for (let i = 0; i < n; i++) {
     const [xa, ta] = P(X(i / n), -h / 2, seen), [xb, tb] = P(X((i + 1) / n), -h / 2, seen);
     // each strip overlaps the next by 0.6 px so no seam shows, but never runs past the face, and
@@ -712,6 +716,7 @@ function drawSlab(ctx, p, w, h, flip, face, rot = 0, src = [0, 0, face.width, fa
     if (i === n - 1) { sw += PAD; dw += PAD * kx; }
     ctx.drawImage(face, s0, sy - PAD, sw, fh + 2 * PAD, d0, top - PAD * ky, dw, -2 * top + 2 * PAD * ky);
   }
+  ctx.imageSmoothingQuality = sq;
   // light: the face falls off toward the edge turned away from the lens
   const ns = s > 0 ? 1 : -1, k = Math.abs(s);
   const g = ctx.createLinearGradient(P(ns * w / 2, 0, seen)[0], 0, P(-ns * w / 2, 0, seen)[0], 0);
@@ -769,6 +774,26 @@ function softboxes(ctx, side, face, top, bot, rail, gain = 1) {
   for (const [at, col] of softboxStops(rail, gain)) g.addColorStop(at, col);
   // the side only: the face drawn over it is cut out, so only the band's pixels are touched
   // (the face's own outline is inside the side's, so even-odd leaves exactly the band)
+  ctx.beginPath();
+  for (const pts of [side, face]) pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+  ctx.fillStyle = g; ctx.fill("evenodd");
+}
+
+// The side wraps the corners. Where it rounds the bottom ones it turns down, away from the key
+// light (high on the left), and falls off darker as round metal does; it was one tone all the
+// way round, and a corner read as a flat cut through a slab (owner, 2026-10-13: "we still
+// struggle to generate corners / shading on rounded edge object so it just looks a little
+// odd"). Down the corner's arc the side faces the floor by the sine of its turn, which is the
+// share of the way down the corner; the fall eases in from the straight side so no crease
+// shows where the arc begins. Only darker: the side is never lighter than the body (rule 114),
+// so the top corners, which turn toward the light, keep the side's own light. The side only:
+// the face drawn over it is cut out (even-odd, as the softboxes).
+const CORNER_FALL = .34;
+const SIDE_STOPS = 24;                             // the side's gradient across its depth (the highlight is 0.17 wide)
+function cornerFall(ctx, side, face, top, bot, rb) {
+  const g = ctx.createLinearGradient(0, top, 0, bot), z = 1 - rb;
+  g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(clamp(z), "rgba(0,0,0,0)");
+  for (const u of [.25, .5, .75, 1]) g.addColorStop(clamp(z + rb * u), `rgba(0,0,0,${(CORNER_FALL * u ** 1.5).toFixed(3)})`);
   ctx.beginPath();
   for (const pts of [side, face]) pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
   ctx.fillStyle = g; ctx.fill("evenodd");
