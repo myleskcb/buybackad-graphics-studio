@@ -2,7 +2,7 @@
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks } from "./catalog.js";
 import { Ad, ASPECTS, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook } from "./engine.js";
-import { AUDIENCES, MOODS } from "./audiences.js";
+import { AUDIENCES, AUDIENCE_ALIASES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
 import { exportMp4, recordRealtime, canEncode, recorderMime } from "./export.js";
@@ -80,6 +80,9 @@ function restore() {
     const s = JSON.parse(localStorage.getItem(STORE) || "null");
     if (s && s.style && typeof s.style === "object") { state.style = { ...state.style, ...s.style }; state.locked = new Set(Array.isArray(s.locked) ? s.locked : [...state.locked]); }
     for (const [k, map] of Object.entries(SOUND_ALIASES)) if (map[state.style[k]]) state.style[k] = map[state.style[k]];   // a retired sound shows as its stand-in
+    // an audience folded into a theme opens as that theme; one never heard of, as everyone
+    const aud = AUDIENCE_ALIASES[state.style.audience] || state.style.audience;
+    state.style.audience = AUDIENCES[aud] ? aud : "none";
     // the user's own music lives in the page's memory only: after a reload the ad plays its other music
     if (state.style.track === "upload") { state.style.track = "none"; state.locked.delete("track"); }
     if (s && (s.galleryCat === "all" || SHELVES.some(x => x.id === s.galleryCat))) state.galleryCat = s.galleryCat;

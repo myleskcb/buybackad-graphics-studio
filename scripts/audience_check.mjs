@@ -14,10 +14,12 @@
       fits the 5-second ad, so the shortest ad can speak too.
    4. Every cast and mood an audience names exists, and every cast's voices
       are ones the generator can find.
+   5. Every audience folded into a theme (AUDIENCE_ALIASES) names a theme
+      that is there, and no live audience is also an alias.
 
    usage: node scripts/audience_check.mjs      exits non-zero on any problem */
 import { FONTS, PALETTES, OPTIONS, VIBES, COPY, HEADLINES, HOOKS, TAGS } from '../motion/catalog.js';
-import { AUDIENCES, MORE_VIBES, MOODS, GENERAL, scriptSecs } from '../motion/audiences.js';
+import { AUDIENCES, AUDIENCE_ALIASES, MORE_VIBES, MOODS, GENERAL, scriptSecs } from '../motion/audiences.js';
 import { CASTS, VOICE_MOODS, PREMADE, voWindow } from '../motion/voices.js';
 import { BANNED, CLAIM, PRICE, PROOF, HOURS, DASH, COMPANY, LICENSE } from './refresh_copy.mjs';
 
@@ -105,6 +107,12 @@ for (const [k, a] of Object.entries(everyone)) {
     }
     if (!list.some(s => scriptSecs(s) <= W5)) bad(`audience ${k}.vo.${L}`, `nothing fits the 5-second ad (${W5.toFixed(1)} s)`);
   }
+}
+
+// 5. the audiences folded into a theme
+for (const [old, to] of Object.entries(AUDIENCE_ALIASES)) {
+  if (AUDIENCES[old]) bad(`alias ${old}`, 'is a live audience too');
+  if (!AUDIENCES[to]) bad(`alias ${old}`, `"${to}" is not an audience`);
 }
 
 const n = Object.keys(AUDIENCES).length, v = Object.keys(MORE_VIBES).length;

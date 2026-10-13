@@ -3084,6 +3084,8 @@ four times in five. It never draws one whose words state a service not every
 buyer offers (bulk lots, cracked phones); the maker's user picks those, and
 so says it.
 
+> Superseded in part (rule 131): the sixteen are nine, six themes a shuffle draws and three picked by hand (the holidays joined bulk and cracked).
+
 **Fourteen looks that are not LA signs** join the fourteen that are: clean
 tech, luxury noir, family warm, campus, gamer RGB, eco green, breaking news,
 pro office, clear and simple, holiday, repair bench, Y2K pop, mercado bright
@@ -5325,3 +5327,62 @@ owner chose "make it, then preview".
   one count; Free's Download JPG saved 1080×1080 on a photo count, its
   Download MP4 opened the plans; the same at 390 px wide, the buttons one
   above the other.
+
+
+## 131. A video ad is made for one of a few broad themes, not one of sixteen people
+
+Added 2026-10-13. The owner, of the maker's "Made for" menu (seventeen rows,
+Everyone and sixteen audiences): "audit and unify as many as possible maybe
+simplify the concepts", then "so we can have overarching themes?"
+
+**Where two audiences shared their moods, speakers and looks, they were one
+person written twice.** They are one theme now (`motion/audiences.js`),
+with every line and script of each:
+
+| Theme | Was |
+|---|---|
+| Upgraders | upgraders, premium owners, busy professionals |
+| Students and Gen Z | students, gamers and Gen Z |
+| Home and family | parents and families, movers and declutterers, the eco-minded |
+| Seniors | seniors |
+| Locals and deal seekers | hometown locals, deal seekers, drivers and gig workers |
+| Spanish speakers | Spanish-speaking families |
+| Businesses and bulk (by hand) | businesses and bulk |
+| Cracked or broken (by hand) | cracked or broken |
+| Holiday season (by hand) | holiday season |
+
+- **Seniors stay their own.** Their look is the one held to 9:1 (rule 97)
+  and their openings are calm; folded into Home and family, a playful voice
+  or a louder look could reach them. Spanish speakers stay their own: a
+  language, with its own speakers, drawn mostly in Spanish.
+- **The holidays are picked by hand.** A shuffle drew Holiday season one
+  time in seventeen, all year, with NEW IPHONE UNDER THE TREE? in July; the
+  holiday music (`season`) was already by hand. In 2,000 shuffles now: 0
+  holiday lines.
+- **Each theme's pools are the union of its people's**, pruned to what fits
+  all of them: Upgraders lost Y2K pop (it stays with Students and Gen Z) and
+  the hype mood (premium owners are told "no shouting"); its overlays are
+  the premium ones (none, bloom, light rays).
+- **Lines: 244 distinct before, 237 after.** Five were near repeats of a
+  line the theme keeps (OLD PHONE?, OLD PHONE IN A DRAWER?, SELL YOUR PRO
+  MAX, CAMBIA TU IPHONE POR EFECTIVO, and the script "Old phone, new cash.
+  Snap a pic and text us."). Two promised cash for a worn phone (PHONE
+  TAKING A BEATING?, WORN OUT? STILL WORTH CASH) where any shuffle could
+  draw them; what damage is worth is Cracked or broken's to say, by hand.
+  Scripts: 90 before, 89 after.
+- **A shuffle still draws a theme about four times in five**: Everyone
+  weighs 1.5 against six themes of 1 (it was 4 against thirteen). In 2,000
+  shuffles: Everyone 413, each theme 245 to 275, the three by hand 0.
+- **Every speaker is heard in every mood** across a theme's English scripts
+  in the default voice bank (two takes a script): Locals and deal seekers
+  keeps four speakers, so its 18 takes cover its 16 pairs. The bank is 178
+  takes and 10,326 characters (`--full`: 1,146 and 66,598, every merged
+  script by every merged speaker).
+- **A look saved with a folded audience opens as its theme**
+  (`AUDIENCE_ALIASES`, read when the maker restores a saved look); one it
+  has never heard of opens as Everyone. `scripts/audience_check.mjs` fails
+  if an alias names no theme or is itself a live audience.
+- Measured 2026-10-13: `audience_check` all clear (9 audiences, 289 lines,
+  89 scripts); `motion_sound_check --looks 20` all clear, all nine picked
+  through the real panel; saved looks with luxury, eco_minded, gig_workers
+  and an unknown key opened as upgraders, parents, locals and Everyone.

@@ -4643,3 +4643,28 @@ Found:
 
 Checked: ad_library_check no failures (upload, Add video, Remove video, a
 free account's refused video).
+
+
+## 2026-10-13 — the video maker's audiences, unified into themes (claude/friendly-curie-shtc0j)
+
+Asked: "audit and unify as many as possible maybe simplify the concepts",
+"so we can have overarching themes?", of the maker's "Made for" menu.
+
+Done: sixteen audiences are nine (DESIGN-LAW 131, OPEN-ITEMS §AY), six a
+shuffle draws and three by hand; folded audiences open as their theme.
+
+Found:
+  - Audiences that share their moods, speakers and looks are one person
+    written twice: count the overlap before adding another.
+  - Holiday season was drawn by a shuffle all year, though the holiday music
+    beside it was by hand. A thing tied to a season is by hand.
+  - Two drawn lines (PHONE TAKING A BEATING?, WORN OUT? STILL WORTH CASH)
+    made the by-hand Cracked or broken's promise; a merge that reads every
+    line together is what showed it.
+  - Merging pools multiplies the voice bank's `--full` plan (scripts times
+    speakers times moods): 546 takes became 1,146 though the default plan
+    went 180 to 178.
+
+Checked: audience_check all clear; motion_sound_check --looks 20 all clear,
+all nine through the real panel; 2,000 shuffles (Everyone 413, each theme
+245 to 275, by hand 0); saved looks with folded keys opened as their themes.

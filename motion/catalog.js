@@ -529,8 +529,8 @@ for (const id of THEME_REVIEW.approved) if (THEMES[id]) { VIBES[id] = THEMES[id]
 // and most show the fronts only as they flash past. Type that ENTERS FROM THE
 // LEFT is drawn three times as often as the rest.
 export const WEIGHTS = {
-  // an ad for everyone stays common; an audience that states a service (bulk, cracked) is only ever picked by hand
-  audience: { none: 4, ...Object.fromEntries(AUDIENCE_KEYS.filter(k => AUDIENCES[k].byHand).map(k => [k, 0])) },
+  // an ad for everyone one time in five; an audience that states a service (bulk, cracked) or a season is only ever picked by hand
+  audience: { none: 1.5, ...Object.fromEntries(AUDIENCE_KEYS.filter(k => AUDIENCES[k].byHand).map(k => [k, 0])) },
   voice: { on: 3, off: 1 },
   vibe: { none: 5 },
   board: { none: 10 },

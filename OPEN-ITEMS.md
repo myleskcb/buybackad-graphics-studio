@@ -3030,6 +3030,32 @@ Still open:
    it was generated for the slot or picked from ORCHARD's library by its
    colours. Worth a look when the Mac is at hand.
 
+## AY. 2026-10-13 — the video maker's audiences: sixteen people, nine themes (DESIGN-LAW 131)
+
+The owner, of the "Made for" menu: "audit and unify as many as possible
+maybe simplify the concepts", "so we can have overarching themes?"
+
+Done, on `claude/friendly-curie-shtc0j`:
+- **Nine audiences, six a shuffle draws**: Upgraders (with premium owners
+  and busy professionals), Students and Gen Z (with gamers), Home and family
+  (parents, movers, the eco-minded), Seniors, Locals and deal seekers (with
+  drivers and gig workers), Spanish speakers; Businesses and bulk, Cracked or
+  broken and Holiday season by hand. Every line and script of a folded
+  audience is in its theme but seven: five near repeats and two that
+  promised cash for a worn phone.
+- **Holiday season is by hand**: a shuffle drew it one time in seventeen,
+  all year.
+- **Saved looks keep working**: `AUDIENCE_ALIASES` opens a folded audience
+  as its theme; `audience_check` holds the aliases.
+
+Still open:
+1. **The themes are a proposal.** To split one again, give the people their
+   own entry back in `motion/audiences.js` (commit e0f01996 has them as
+   they were), and drop their alias.
+2. **The voice bank is still unrecorded** (§W 1). It is 178 takes and 10,326
+   characters now; `--full` grew to 1,146 takes and 66,598 characters,
+   since a theme has more scripts and more speakers than any one person had.
+
 ## Ad templates in the owner's order. 2026-10-08: Apple and its devices first, sneakers and retro games listed before their designs
 
 The owner, over the footer's "Ad templates" column: "in order of importance we

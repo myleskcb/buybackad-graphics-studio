@@ -8,7 +8,7 @@
    Each script is recorded twice by default, by two different speakers, and
    across an audience's scripts every speaker is heard in every mood, so no two
    ads for the same people sound alike. --full records every script by every
-   speaker in every mood instead (about three times the characters). Takes
+   speaker in every mood instead (about six times the characters). Takes
    already on disk are kept, so a run can stop and resume.
 
    The key is read from ELEVENLABS_API_KEY, or from a line of that name in the
