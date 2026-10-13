@@ -50,13 +50,18 @@ SPEC = {
     "iPhone 15": (71.6, 147.6), "iPhone 15 Plus": (77.8, 160.9),
     "iPhone 14 Pro": (71.5, 147.5), "iPhone 14 Pro Max": (77.6, 160.7),
     "iPhone 14": (71.5, 146.7), "iPhone 14 Plus": (78.1, 160.8),
+    "iPhone 13 Pro": (71.5, 146.7), "iPhone 13 Pro Max": (78.1, 160.8),
+    "iPhone 13": (71.5, 146.7), "iPhone 13 mini": (64.2, 131.5),
 }
 SCALE = .993
 
-# Apple's line-up: (notch, left control, Camera Control). The 15 and 15 Plus kept
+# Apple's line-up: (notch, left control, Camera Control). Every 13 has the notch and
+# the mute switch. The 15 and 15 Plus kept
 # the mute switch; the Action button came on the 15 Pro and on every 16. The 17e
 # and the 18 Pro are left out until their sheets are checked.
 FACTS = {
+    "iPhone 13 mini": (True, "mute", False), "iPhone 13": (True, "mute", False),
+    "iPhone 13 Pro": (True, "mute", False), "iPhone 13 Pro Max": (True, "mute", False),
     "iPhone 14": (True, "mute", False), "iPhone 14 Plus": (True, "mute", False),
     "iPhone 14 Pro": (False, "mute", False), "iPhone 14 Pro Max": (False, "mute", False),
     "iPhone 15": (False, "mute", False), "iPhone 15 Plus": (False, "mute", False),
@@ -72,9 +77,13 @@ def luma(a):
     return .2126 * a[..., 0] + .7152 * a[..., 1] + .0722 * a[..., 2]
 
 
-def edges(alpha):
+def edges(alpha, skip=None):
+    """The steepest side: slope of each edge's line. Rows where a side button stands
+    proud of the rail (skip, a share of the height) are left out: a button is not a tilt."""
     h, w = alpha.shape
     rows = np.arange(int(h * .25), int(h * .75), 10)
+    if skip:
+        rows = rows[(rows < skip[0] * h - 4) | (rows > skip[1] * h + 4)]
     cols = np.arange(int(w * .3), int(w * .7), 6)
     left = [np.where(alpha[y] > 128)[0].min() for y in rows]
     right = [np.where(alpha[y] > 128)[0].max() for y in rows]
@@ -99,6 +108,15 @@ def lenses(a, alpha):
         if len(ys) / (np.pi * hgt * wid / 4) < .8:   # two lenses run together, or a lens in its ring's shadow
             continue
         r = wid / hgt
+        # where the studio light crosses the glass (a lit wedge or crescent, as on Apple's
+        # 13 renders) the dark part is the lens less a slice: its outline is the lens's arc
+        # and a chord. The circle through the most outline points finds the arc, and an
+        # upright ellipse through the arc gives the lens's own width over height; a camera
+        # seen at an angle is oval there too. Kept when the arc holds a quarter of the outline
+        # and is about as wide as the patch (9 in 10: a sharpened edge is ragged).
+        arc = arc_ratio(lab == i)
+        if arc and abs(arc - 1) < abs(r - 1):
+            r = arc
         # glass ends in a step, a cast shadow in a ramp, and a ramp moves when the cut
         # does: on a dark finish the shadow a lens barrel casts down Apple's render
         # sits at the cut and joins the glass. Read the lens at a cut a little darker
@@ -113,6 +131,34 @@ def lenses(a, alpha):
                 r = w2 / h2
         out.append(r)
     return out
+
+
+def arc_ratio(mask, tries=400, tol=1.0):
+    from skimage import measure
+    cs = measure.find_contours(np.pad(mask, 1).astype(float), .5)
+    p = max(cs, key=len)[:, ::-1] - 1
+    rng = np.random.default_rng(0)
+    best = None
+    for _ in range(tries):
+        a, b, c = p[rng.choice(len(p), 3, replace=False)]
+        M = 2 * np.array([b - a, c - a])
+        if abs(np.linalg.det(M)) < 1e-6:
+            continue
+        ctr = np.linalg.solve(M, [b @ b - a @ a, c @ c - a @ a])
+        inl = np.abs(np.hypot(*(p - ctr).T) - np.hypot(*(a - ctr))) < tol
+        if best is None or inl.sum() > best.sum():
+            best = inl
+    if best is None or best.mean() < 1 / 4:
+        return None
+    q = p[best]
+    sol = np.linalg.lstsq(np.c_[2 * q, np.ones(len(q))], (q ** 2).sum(1), rcond=None)[0]
+    ctr = sol[:2]
+    if 2 * np.sqrt(sol[2] + ctr @ ctr) < .9 * max(np.ptp(p, 0)):
+        return None
+    k = np.linalg.lstsq((q - ctr) ** 2, np.ones(len(q)), rcond=None)[0]
+    if (k <= 0).any():
+        return None
+    return float(np.sqrt(k[1] / k[0]))
 
 
 def side_button(alpha):
@@ -184,7 +230,7 @@ def main():
         sw, sh = SPEC.get(p["model"], (None, None))
         shape = (p["w"] / (900 * SCALE * sw / sh) - 1) * 100 if sw else float("nan")
         if sw and abs(shape) > 1.5: bad.append("shape")
-        vs, hs = edges(alpha)
+        vs, hs = edges(alpha, side_button(alpha))
         if max(vs, hs) > .006: bad.append("square")
         ls = lenses(a, alpha)
         if any(abs(r - 1) > .08 for r in ls): bad.append("lens shape")

@@ -4643,3 +4643,63 @@ Found:
 
 Checked: ad_library_check no failures (upload, Add video, Remove video, a
 free account's refused video).
+
+## 2026-10-13 — the video maker's rail and phones: real sizes, every 13 and 14, the Pros' right side (claude/blissful-euler-t5idkp)
+
+Asked, on /motion: the settings rail ran on past the preview ("why not shrink
+the side rail"); the 16 Ultramarine and Teal were missing; the 14 in red, then
+the 13 and 14 series in every colour; Pro and Plus hidden behind a toggle so
+one view shows the most colours; a Pro and its Pro Max the same size ("factually
+incorrect"); the painted Pros' right side clipped.
+
+Done:
+  - The rail ends where the preview column does (contain:size; it scrolls
+    inside), stacked as before under 920 px.
+  - The picker opens on the regular, e and Pro Max models (52 of 89); "Show
+    Pro, Plus and mini models too" brings the rest. engine.js BODY carries
+    Apple's height; a set draws its tallest phone at the stage's height and
+    each other at its share, feet level. The picker's tiles do the same.
+  - The 22 painted Pros take the left's frame on the right (mirror_rim).
+  - 30 new backs: the 13 and 13 Pro from Apple's renders, the 13 mini and 13
+    Pro Max as those backs at their size (camera kept at its own), the 14 red
+    from a photograph squared up, the rest of the 14s painted as before.
+
+Found:
+  - ok:false hid two good backs for a month; audit_phone_views passes them.
+    A flag nothing re-checks outlives its reason.
+  - A dark patch is not a lens: where light crosses the glass the dark part is
+    the lens less a slice, and its width over height reads 0.87 to 1.73 on a
+    round lens. The arc of its outline is the lens.
+  - A side button standing proud of the rail tilts a fitted edge line; leave
+    its rows out.
+  - motion_phone_check's turn step is the phone's largest step over its own
+    usual one. A back near black all over (13 Midnight) has a small usual step,
+    so the hand-over past 180 degrees, the 16 Black's in pixels, reads 2.8
+    against a bar of 2.5. Left failing and said so; a grey ground did not help.
+
+Then, the same day: "audit all graphics", "unify styling for maximum
+similarity and so they look recognizable", and of a turned 17 Pro Max: "we
+still struggle to generate corners / shading on rounded edge object".
+  - The sheet of all 89 at true size showed the 13 renders (gradient, gloss
+    streak, black-and-white logo) and the 14 red photo standing apart. They
+    now go the 14s' and 15s' way: one body, one light, one logo, each with
+    its own finish's plateau from Apple's render. Recognisable by the camera,
+    alike in everything else.
+  - The turned side is one fill shaded across its depth (it was 30 slices,
+    which ribbed the rounded ends), falls off darker round the bottom corners,
+    and past 60 degrees the face is drawn with the best smoothing (its rim had
+    aliased into a zigzag).
+
+Found:
+  - A recolour that steps a render up in lightness shifts its hue (Blue to
+    red went coral); scaling a lighter render down in linear light keeps it.
+    Pick the source render for the step, not only the nearest lightness.
+  - imageSmoothingQuality "high" changes its mip level with the scale: on
+    everywhere, a back coming flat jumped 235 px in 0.05 degrees.
+  - motion_phone_check samples one colour a model, so a near-black finish
+    fails or passes by which colour comes first (14 Midnight 2.75, unsampled).
+
+RESUME HERE:
+  0. The Midnight turn step (13 and 14 alike, 2.7): the owner's call whether
+     the bar takes the set's usual step, or Midnight stays a known exception.
+  1. device_entities.mjs: no new authentic backs (every 13 is painted now).

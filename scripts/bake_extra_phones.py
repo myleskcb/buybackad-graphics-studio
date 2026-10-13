@@ -3,16 +3,24 @@
 No full-size straight-on photo exists for these finishes, so each is built
 from real parts (repaint=true in index.json):
 
-  * Pro / Pro Max (14, 15, 16): the back of the iPhone 15 Pro Blue Titanium
+  * Pro / Pro Max (13, 14, 15, 16): the back of the iPhone 15 Pro Blue Titanium
     photo (assets/cutouts/iphone-15-pro-back-blue.webp), straightened, its own
     camera taken out: it was shot from the right, so its plateau shows one side
     wall and reads backwards when the phone turns the other way. The back is
     painted in the finish; in place of the camera goes the generation's own
     plateau from Apple's straight-on render (qs-*), lens glass and light as
     rendered, only its metal moved to the finish (module_oem).
-  * 14 / 14 Plus / 15 / 15 Plus: the clean iPhone 16 White back with its pill
-    camera patched out and the generation's square diagonal-lens plateau from
-    Apple's straight-on render set in, then painted.
+  * 13 / 13 mini / 14 / 14 Plus / 15 / 15 Plus: the clean iPhone 16 White back
+    with its pill camera patched out and the generation's square diagonal-lens
+    plateau from Apple's straight-on render set in, then painted.
+
+One body, one light and one logo for every back made here, so a set reads as one
+family and each phone by its camera (owner, 2026-10-13: "unify styling for maximum
+similarity and so they look recognizable"). Apple's 13 renders were first used
+whole, and stood out: a studio gradient top to bottom, a diagonal gloss streak
+and a black-and-white logo none of the others have. Now only their plateaus are
+used, each finish's own where Apple drew it. A finish one generation shares with
+another is one colour (Midnight, Starlight, (PRODUCT)RED, Silver).
 
 Run scripts/clean_phone_edges.py first (the 14 and 15 are built on the 16 White).
 Check the result with scripts/audit_phone_views.py and motion/views-sheet.html.
@@ -36,6 +44,11 @@ H = 900
 # (id, model, finish, body colour, width at h=900). Widths are Apple's published
 # width/height x 900 x 0.993, the same scale the existing backs sit on (the 16
 # is 437 by spec and 434 here; the 17 Pro 431 and 428).
+# A finish more than one generation shares is one colour: Midnight and Starlight as
+# Apple's 13 renders show them, a little off their black and white; (PRODUCT)RED as
+# a photograph of the 14 in it shows it (photo-iphone-14-red); the Pros' Silver a
+# cool white
+MIDNIGHT, STARLIGHT, RED, SILVER = "#1f252d", "#f2ede5", "#d6132e", "#e7e8e5"
 PRO = [
     ("16-pro-max-desert", "iPhone 16 Pro Max", "Desert Titanium", "#c2a78f", 425),
     ("16-pro-desert", "iPhone 16 Pro", "Desert Titanium", "#c2a78f", 427),
@@ -59,6 +72,19 @@ PRO = [
     ("14-pro-black", "iPhone 14 Pro", "Space Black", "#403f42", 433),
     ("14-pro-max-gold", "iPhone 14 Pro Max", "Gold", "#efe2c6", 432),
     ("14-pro-gold", "iPhone 14 Pro", "Gold", "#efe2c6", 433),
+    ("14-pro-max-silver", "iPhone 14 Pro Max", "Silver", SILVER, 432),
+    ("14-pro-silver", "iPhone 14 Pro", "Silver", SILVER, 433),
+    # the 13 Pro's finishes as Apple's renders of them measure (render_back)
+    ("13-pro-max-graphite", "iPhone 13 Pro Max", "Graphite", "#575551", 434),
+    ("13-pro-graphite", "iPhone 13 Pro", "Graphite", "#575551", 435),
+    ("13-pro-max-gold", "iPhone 13 Pro Max", "Gold", "#f4e2c8", 434),
+    ("13-pro-gold", "iPhone 13 Pro", "Gold", "#f4e2c8", 435),
+    ("13-pro-max-silver", "iPhone 13 Pro Max", "Silver", SILVER, 434),
+    ("13-pro-silver", "iPhone 13 Pro", "Silver", SILVER, 435),
+    ("13-pro-max-sierra-blue", "iPhone 13 Pro Max", "Sierra Blue", "#97b0c7", 434),
+    ("13-pro-sierra-blue", "iPhone 13 Pro", "Sierra Blue", "#97b0c7", 435),
+    ("13-pro-max-alpine-green", "iPhone 13 Pro Max", "Alpine Green", "#4a5a49", 434),
+    ("13-pro-alpine-green", "iPhone 13 Pro", "Alpine Green", "#4a5a49", 435),
 ]
 BASE = [
     ("15-plus-pink", "iPhone 15 Plus", "Pink", "#f0d3d8", 432),
@@ -73,6 +99,25 @@ BASE = [
     ("14-yellow", "iPhone 14", "Yellow", "#f4e08e", 435),
     ("14-plus-purple", "iPhone 14 Plus", "Purple", "#ddd0e6", 434),
     ("14-purple", "iPhone 14", "Purple", "#ddd0e6", 435),
+    ("14-plus-midnight", "iPhone 14 Plus", "Midnight", MIDNIGHT, 434),
+    ("14-midnight", "iPhone 14", "Midnight", MIDNIGHT, 435),
+    ("14-plus-starlight", "iPhone 14 Plus", "Starlight", STARLIGHT, 434),
+    ("14-starlight", "iPhone 14", "Starlight", STARLIGHT, 435),
+    ("14-plus-red", "iPhone 14 Plus", "(PRODUCT)RED", RED, 434),
+    ("14-red", "iPhone 14", "(PRODUCT)RED", RED, 435),
+    # the 13's own finishes as Apple's renders of them measure, and the shared ones
+    ("13-midnight", "iPhone 13", "Midnight", MIDNIGHT, 435),
+    ("13-mini-midnight", "iPhone 13 mini", "Midnight", MIDNIGHT, 436),
+    ("13-starlight", "iPhone 13", "Starlight", STARLIGHT, 435),
+    ("13-mini-starlight", "iPhone 13 mini", "Starlight", STARLIGHT, 436),
+    ("13-blue", "iPhone 13", "Blue", "#1e5e7a", 435),
+    ("13-mini-blue", "iPhone 13 mini", "Blue", "#1e5e7a", 436),
+    ("13-pink", "iPhone 13", "Pink", "#f8ddd6", 435),
+    ("13-mini-pink", "iPhone 13 mini", "Pink", "#f8ddd6", 436),
+    ("13-green", "iPhone 13", "Green", "#364736", 435),
+    ("13-mini-green", "iPhone 13 mini", "Green", "#364736", 436),
+    ("13-red", "iPhone 13", "(PRODUCT)RED", RED, 435),
+    ("13-mini-red", "iPhone 13 mini", "(PRODUCT)RED", RED, 436),
 ]
 
 
@@ -191,7 +236,8 @@ def straighten(src):
 # and 16, the left lens 14 mm in on all six. So the plateau is placed and sized in
 # mm, each render's own scale taken from its height, not as a share of the width
 # (.53 of it was the Pro Max's camera 5% large and the Pro's small).
-MM = {"iPhone 14 Pro": (147.5, 71.5), "iPhone 14 Pro Max": (160.7, 77.6),
+MM = {"iPhone 13 mini": (131.5, 64.2), "iPhone 13": (146.7, 71.5), "iPhone 13 Pro": (146.7, 71.5), "iPhone 13 Pro Max": (160.8, 78.1),
+      "iPhone 14 Pro": (147.5, 71.5), "iPhone 14 Pro Max": (160.7, 77.6),
       "iPhone 15 Pro": (146.6, 70.6), "iPhone 15 Pro Max": (159.9, 76.7),
       "iPhone 16 Pro": (149.6, 71.5), "iPhone 16 Pro Max": (163.0, 77.6),
       "iPhone 14": (146.7, 71.5), "iPhone 14 Plus": (160.8, 78.1),
@@ -209,7 +255,17 @@ OEM = {
     "15": [("qs-iphone-15-pro-max.webp", (12, 12, 147, 147), (.74, .17, .085)),    # Blue Titanium
            ("qs-iphone-15-pro.webp", (13, 11, 143, 146), (.75, .18, .088))],       # Natural Titanium
     "14": [("qs-iphone-14-pro-max.webp", (11, 15, 143, 146), (.76, .13, .087))],   # Deep Purple
+    # the 13 Pro in each finish Apple drew it in, back only (the owner's device art);
+    # a finish named here takes that render's plateau (module_oem's finish). Silver, which
+    # Apple drew no back of, takes the Sierra Blue's, its lens rings steel with a little
+    # blue the step takes out (from the Gold they stayed brass; from the Graphite, whose
+    # glass is barely darker than its metal, a lens was lifted with the metal)
+    "13": [(f"qs-iphone-13-pro-back--{f.lower().replace(' ', '-')}.webp", (10, 12, 138, 142), (.74, .154, .08), f, *more)
+           for f, *more in (("Graphite",), ("Gold",), ("Sierra Blue", "Silver"), ("Alpine Green",))],
 }
+# renders whose lens glass the studio light crosses: the lit slice of each lens is
+# glass, not metal, so every lens is kept whole (a 13 recoloured had red glints)
+LIT_GLASS = {"13"}
 # How much of the photo's studio light a painted back keeps: it falls 24 L top to
 # bottom. Dark backs that are real photos fall 5-10 (16 Black 9, 17 Pro Max Deep
 # Blue 10, 18 Pro Black 5) and Apple's 15 Pro Max render 9; 0.8 left the dark ones
@@ -251,11 +307,12 @@ def render_scale(f):
     a = np.asarray(Image.open(CUT / f).convert("RGBA"))[..., 3] > 128
     col, row = a[:, 30], a[a.shape[0] // 2]
     top, bot = np.argmax(col), len(col) - 1 - np.argmax(col[::-1])
-    model = "iPhone " + f[len("qs-iphone-"):-len(".webp")].replace("-pro-max", " Pro Max").replace("-pro", " Pro").replace("-plus", " Plus")
+    name = f[len("qs-iphone-"):-len(".webp")].split("--")[0].replace("-back", "")   # qs-iphone-13-pro-back--gold
+    model = "iPhone " + name.replace("-pro-max", " Pro Max").replace("-pro", " Pro").replace("-plus", " Plus")
     return (bot - top + 1) / MM[model][0], int(np.argmax(row)), int(top)
 
 
-def module_oem(gen, tint, px_mm, table=None, lidar=True):
+def module_oem(gen, tint, px_mm, table=None, lidar=True, finish=None):
     """The generation's plateau as Apple rendered it, its metal moved to the finish.
     Down to a darker finish the metal's colour is scaled in linear light by the
     finish over the render's back colour, as a darker paint under the same light,
@@ -264,9 +321,12 @@ def module_oem(gen, tint, px_mm, table=None, lidar=True):
     rims white), so the metal steps up by the Lab difference instead and rolls
     off before white. The lens glass and LiDAR (the dark discs, with the light
     inside them) and the flash keep the render's own colour: glass whatever the finish.
+    A render a row names for the finish is taken over the nearest.
     Returns the plateau at `px_mm` and where it goes on the back."""
     from scipy import ndimage
-    f, box, (fx, fy, fr) = min((table or OEM)[gen], key=lambda r: abs(render_back(r[0])[0] - hex_lab(tint)[0]))
+    rows = (table or OEM)[gen]
+    own = [r for r in rows if finish in r[3:]]
+    f, box, (fx, fy, fr) = (own or [min(rows, key=lambda r: abs(render_back(r[0])[0] - hex_lab(tint)[0]))])[0][:3]
     s, left, top = render_scale(f)
     side = round((box[2] - box[0] + box[3] - box[1]) / 2 / s * px_mm)
     size = (side, side)
@@ -282,6 +342,11 @@ def module_oem(gen, tint, px_mm, table=None, lidar=True):
     yy, xx = np.mgrid[0:size[1], 0:size[0]]
     flash = np.hypot(xx - fx * size[0], yy - fy * size[1]) < fr * size[0] * 1.05
     keep = np.isin(parts, big) | flash
+    if gen in LIT_GLASS:                             # each lens whole: as wide as its dark part, on its bottom
+        for i in big:
+            ys, xs = np.nonzero(parts == i)
+            r = max(np.ptp(xs), np.ptp(ys)) / 2 + .5
+            keep |= np.hypot(xx - (xs.min() + xs.max()) / 2, yy - (ys.max() - r)) < r + 1
     if lidar:
         keep |= off_lidar(L, size) < .05
     k = 1 - ndimage.gaussian_filter(keep.astype(float), 1.0)
@@ -395,10 +460,31 @@ def erase_module(im):
     return Image.fromarray(out.round().astype(np.uint8), "RGBA")
 
 
+def mirror_rim(im, band=.035, feather=.45):
+    """The right half's frame as the left's, mirrored. straighten() rebuilds the near
+    (right) side at the glass plus a thin rim, so every Pro painted on it showed a dark
+    hairline down its right side and squared-off right corners where the left shows the
+    titanium band and round ones (owner, 2026-10-13: "the clipped sides ... right side").
+    A back is the same frame both sides, so on the right half everything within `band`
+    of the outline (rim, the seam to the glass, the corners and the silhouette itself) is
+    the left's, mirrored, blended into the glass over the inner part of the band. The
+    band is measured on the left's outline, mirrored, so it follows the corners."""
+    from scipy import ndimage
+    a = np.asarray(im).astype(float)
+    W = a.shape[1]
+    mir = a[:, ::-1]
+    d = ndimage.distance_transform_edt(a[..., 3] > 128)[:, ::-1]
+    D = W * band
+    w = 1 - smooth(d, D * feather, D)
+    w[:, :W // 2] = 0
+    out = a * (1 - w[..., None]) + mir * w[..., None]
+    return Image.fromarray(out.round().astype(np.uint8), "RGBA")
+
+
 def bake_pro():
     src = straighten(Image.open(CUT / "iphone-15-pro-back-blue.webp").convert("RGBA"))
     src = src.resize((round(WORK_H * .478), WORK_H), Image.LANCZOS)
-    clean = erase_module(src)
+    clean = mirror_rim(erase_module(src))
     lab = color.rgb2lab(np.asarray(clean)[..., :3] / 255)
     chroma = np.hypot(lab[..., 1], lab[..., 2])
     body = chroma > 18
@@ -412,7 +498,7 @@ def bake_pro():
         tint = target or blue
         dark = hex_lab(tint)[0] < 40
         im = paint(clean, weight, tint, body_l, LIGHT_DARK if dark else LIGHT_LIGHT)
-        mod, at = module_oem(pid[:2], tint, src.width / MM[model][1])
+        mod, at = module_oem(pid[:2], tint, src.width / MM[model][1], finish=finish)
         im = im.copy(); im.paste(mod, at, rrect_mask(mod.size, round(mod.width * .2), blur=1.2))
         im = finish_back(im, w, pid)
         out.append(dict(id=pid, model=model, finish=finish, metal=target or metal_of(im),
@@ -433,6 +519,10 @@ def rrect_mask(size, r, blur=1.5):
 BASE_OEM = {
     "15": [("qs-iphone-15.webp", (13, 13, 122, 123), (.75, .23, .09))],    # Blue
     "14": [("qs-iphone-14.webp", (8, 12, 120, 123), (.74, .21, .089))],    # Blue
+    # (PRODUCT)RED takes the Pink's, scaled down in linear light so its shading holds
+    # (stepped up from the Blue, nearest in lightness, it went coral)
+    "13": [(f"qs-iphone-13-back--{f.lower()}.webp", (10, 11, 112, 113), (.78, .215, .087), f, *more)
+           for f, *more in (("Midnight",), ("Starlight",), ("Blue",), ("Pink", "(PRODUCT)RED"), ("Green",))],
 }
 
 
@@ -456,13 +546,12 @@ def bake_base():
     out = []
     for pid, model, finish, target, w in BASE:
         im = paint(body, weight, target, body_l, 0.9)
-        mod, at = module_oem(pid[:2], target, im.width / MM[model][1], BASE_OEM, lidar=False)
+        mod, at = module_oem(pid[:2], target, im.width / MM[model][1], BASE_OEM, lidar=False, finish=finish)
         im.paste(mod, at, rrect_mask(mod.size, round(mod.width * .22)))
         finish_back(im, w, pid)
         out.append(dict(id=pid, model=model, finish=finish, metal=lab_hex(hex_lab(target) - [8, 0, 0]),
                         w=w, h=H, repaint=True, ok=True))
     return out
-
 
 # Backs baked elsewhere whose width is off Apple's spec: the iPhone 17 finishes
 # were painted on the 16's back and kept the 16's width (the 17 is 71.5 x 149.6 mm).
@@ -488,14 +577,14 @@ def main():
     new = bake_pro() + bake_base()
     ids = {p["id"] for p in new}
     keep = [p for p in idx["phones"] if p["id"] not in ids]
-    # generation order: 18 Pro, 17 Pro, 17, 16 Pro, 16, 17e/16e, 15 Pro, 15, 14 Pro, 14
+    # generation order: 18 Pro, 17 Pro, 17, 16 Pro, 16, 17e/16e, 15 Pro, 15, 14 Pro, 14, 13 Pro, 13
     def at(pred):
         return next(i for i, p in enumerate(keep) if pred(p))
     pro16 = [p for p in new if p["id"].startswith("16-pro")]
     rest = [p for p in new if not p["id"].startswith("16-pro")]
     i = at(lambda p: p["model"] == "iPhone 16")
     keep[i:i] = pro16
-    order = ["15-pro", "15-", "14-pro", "14-"]
+    order = ["15-pro", "15-", "14-pro", "14-", "13-pro", "13-"]
     for pre in order:
         keep += [p for p in rest if p["id"].startswith(pre) and p not in keep]
     idx["phones"] = keep
