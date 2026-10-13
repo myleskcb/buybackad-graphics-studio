@@ -67,8 +67,11 @@ a.mo-btn{display:inline-flex;align-items:center;text-decoration:none}
 .mo-more{display:block;margin:18px auto 4px}
 .mo-gallery-empty{grid-column:1/-1;color:var(--muted);font-size:14px;margin:10px 2px}
 
-.mo-panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:6px 14px 14px;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}
-@media (max-width:920px){.mo-panel{position:static;max-height:none}}
+/* the rail ends where the preview column ends: contain:size keeps its own length out of the
+   row, so the preview sets the row's height and the rail fills it (no taller than the screen)
+   and scrolls inside, instead of running on past the buttons and leaving a gap beside it */
+.mo-panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:6px 14px 14px;position:sticky;top:12px;align-self:stretch;contain:size;min-height:min(420px,calc(100vh - 24px));max-height:calc(100vh - 24px);overflow:auto}
+@media (max-width:920px){.mo-panel{position:static;contain:none;min-height:0;max-height:none}}
 .mo-sec{background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:10px 2px;margin:0}
 .mo-sec:last-of-type{border-bottom:0}
 .mo-sec summary{font-size:15px;padding:4px 0}
@@ -81,7 +84,8 @@ a.mo-btn{display:inline-flex;align-items:center;text-decoration:none}
 /* wide enough for the whole name, model over finish (five across cut 43 of 60 names to "18 Pro M…") */
 .mo-phones{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;margin:8px 0}
 .mo-phone{position:relative;padding:6px 2px 5px;border:2px solid var(--line);border-radius:10px;background:var(--bg);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;font-family:Satoshi,system-ui,sans-serif}
-.mo-phone img{height:62px;width:auto;object-fit:contain}
+/* --ph: the model's height against the tallest's, its feet on the row's line */
+.mo-phone img{height:calc(62px * var(--ph,1));margin-top:calc(62px * (1 - var(--ph,1)));width:auto;object-fit:contain}
 .mo-phone small{display:block;width:100%;font-size:9.5px;line-height:1.15;color:var(--muted);text-align:center;overflow-wrap:anywhere;text-wrap:balance}
 .mo-phone small b{display:block;font-weight:700;color:var(--text-2)}
 .mo-phone[aria-pressed=true]{border-color:var(--btn);background:color-mix(in srgb,var(--btn) 14%,var(--bg))}
