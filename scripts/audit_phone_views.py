@@ -79,8 +79,7 @@ def luma(a):
 
 def edges(alpha, skip=None):
     """The steepest side: slope of each edge's line. Rows where a side button stands
-    proud of the rail (skip, a share of the height) are left out: a button is not a tilt
-    (Apple's 13 renders show the side button on the left from .30 to .42)."""
+    proud of the rail (skip, a share of the height) are left out: a button is not a tilt."""
     h, w = alpha.shape
     rows = np.arange(int(h * .25), int(h * .75), 10)
     if skip:

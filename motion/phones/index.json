@@ -1,5 +1,5 @@
 {
- "_note": "Phone backs for the video maker, baked by iphoneslainv scripts/phone-ad (cut out, covered strips rebuilt and measured), and by scripts/bake_extra_phones.py. repaint=true means no straight-on photograph or render of that model in that finish exists in the source set: the back is a real one painted in the finish, or, with made, a real back of its pair at this model's size, the camera kept at its own (the 13 mini and the 13 Pro Max from the 13's and 13 Pro's, the 14 Plus (PRODUCT)RED from the 14's).",
+ "_note": "Phone backs for the video maker, baked by iphoneslainv scripts/phone-ad (cut out, covered strips rebuilt and measured), and by scripts/bake_extra_phones.py. repaint=true means the back is a clean real back painted in that finish, with the generation's own camera plateau from Apple's straight-on render, because no straight-on photo of that back exists in the source set: one body, one light and one logo for all of them, so a set reads as one family and each phone by its camera.",
  "phones": [
   {
    "id": "18-pro-max-burgundy",
@@ -652,84 +652,80 @@
    "ok": true
   },
   {
-   "id": "14-red",
-   "model": "iPhone 14",
-   "finish": "(PRODUCT)RED",
-   "metal": "#d7223b",
-   "w": 435,
-   "h": 900,
-   "repaint": false,
-   "ok": true
-  },
-  {
    "id": "14-plus-red",
    "model": "iPhone 14 Plus",
    "finish": "(PRODUCT)RED",
-   "metal": "#d7223b",
+   "metal": "#bc001d",
    "w": 434,
    "h": 900,
    "repaint": true,
-   "ok": true,
-   "made": "the 14's back at the 14 Plus's size"
+   "ok": true
+  },
+  {
+   "id": "14-red",
+   "model": "iPhone 14",
+   "finish": "(PRODUCT)RED",
+   "metal": "#bc001d",
+   "w": 435,
+   "h": 900,
+   "repaint": true,
+   "ok": true
   },
   {
    "id": "13-pro-max-graphite",
    "model": "iPhone 13 Pro Max",
    "finish": "Graphite",
-   "metal": "#464740",
+   "metal": "#575551",
    "w": 434,
    "h": 900,
    "repaint": true,
-   "ok": true,
-   "made": "the 13 Pro's back at the 13 Pro Max's size"
+   "ok": true
   },
   {
    "id": "13-pro-graphite",
    "model": "iPhone 13 Pro",
    "finish": "Graphite",
-   "metal": "#44453e",
+   "metal": "#575551",
    "w": 435,
    "h": 900,
-   "repaint": false,
+   "repaint": true,
    "ok": true
   },
   {
    "id": "13-pro-max-gold",
    "model": "iPhone 13 Pro Max",
    "finish": "Gold",
-   "metal": "#bfad89",
+   "metal": "#f4e2c8",
    "w": 434,
    "h": 900,
    "repaint": true,
-   "ok": true,
-   "made": "the 13 Pro's back at the 13 Pro Max's size"
+   "ok": true
   },
   {
    "id": "13-pro-gold",
    "model": "iPhone 13 Pro",
    "finish": "Gold",
-   "metal": "#bfad89",
+   "metal": "#f4e2c8",
    "w": 435,
    "h": 900,
-   "repaint": false,
+   "repaint": true,
    "ok": true
   },
   {
    "id": "13-pro-max-silver",
    "model": "iPhone 13 Pro Max",
    "finish": "Silver",
-   "metal": "#b2b2b0",
+   "metal": "#e7e8e5",
    "w": 434,
    "h": 900,
    "repaint": true,
-   "ok": true,
-   "made": "the 13 Pro's back at the 13 Pro Max's size"
+   "ok": true
   },
   {
    "id": "13-pro-silver",
    "model": "iPhone 13 Pro",
    "finish": "Silver",
-   "metal": "#b2b2b0",
+   "metal": "#e7e8e5",
    "w": 435,
    "h": 900,
    "repaint": true,
@@ -739,154 +735,147 @@
    "id": "13-pro-max-sierra-blue",
    "model": "iPhone 13 Pro Max",
    "finish": "Sierra Blue",
-   "metal": "#74889e",
+   "metal": "#97b0c7",
    "w": 434,
    "h": 900,
    "repaint": true,
-   "ok": true,
-   "made": "the 13 Pro's back at the 13 Pro Max's size"
+   "ok": true
   },
   {
    "id": "13-pro-sierra-blue",
    "model": "iPhone 13 Pro",
    "finish": "Sierra Blue",
-   "metal": "#74879e",
+   "metal": "#97b0c7",
    "w": 435,
    "h": 900,
-   "repaint": false,
+   "repaint": true,
    "ok": true
   },
   {
    "id": "13-pro-max-alpine-green",
    "model": "iPhone 13 Pro Max",
    "finish": "Alpine Green",
-   "metal": "#3f4c40",
+   "metal": "#4a5a49",
    "w": 434,
    "h": 900,
    "repaint": true,
-   "ok": true,
-   "made": "the 13 Pro's back at the 13 Pro Max's size"
+   "ok": true
   },
   {
    "id": "13-pro-alpine-green",
    "model": "iPhone 13 Pro",
    "finish": "Alpine Green",
-   "metal": "#3e4c40",
+   "metal": "#4a5a49",
    "w": 435,
    "h": 900,
-   "repaint": false,
+   "repaint": true,
    "ok": true
   },
   {
    "id": "13-midnight",
    "model": "iPhone 13",
    "finish": "Midnight",
-   "metal": "#050913",
+   "metal": "#0e151c",
    "w": 435,
    "h": 900,
-   "repaint": false,
+   "repaint": true,
    "ok": true
   },
   {
    "id": "13-mini-midnight",
    "model": "iPhone 13 mini",
    "finish": "Midnight",
-   "metal": "#08090f",
+   "metal": "#0e151c",
    "w": 436,
    "h": 900,
    "repaint": true,
-   "ok": true,
-   "made": "the 13's back at the 13 mini's size"
+   "ok": true
   },
   {
    "id": "13-starlight",
    "model": "iPhone 13",
    "finish": "Starlight",
-   "metal": "#b7b4af",
+   "metal": "#dbd6ce",
    "w": 435,
    "h": 900,
-   "repaint": false,
+   "repaint": true,
    "ok": true
   },
   {
    "id": "13-mini-starlight",
    "model": "iPhone 13 mini",
    "finish": "Starlight",
-   "metal": "#b7b4b0",
+   "metal": "#dbd6ce",
    "w": 436,
    "h": 900,
    "repaint": true,
-   "ok": true,
-   "made": "the 13's back at the 13 mini's size"
+   "ok": true
   },
   {
    "id": "13-blue",
    "model": "iPhone 13",
    "finish": "Blue",
-   "metal": "#2e6386",
+   "metal": "#004b66",
    "w": 435,
    "h": 900,
-   "repaint": false,
+   "repaint": true,
    "ok": true
   },
   {
    "id": "13-mini-blue",
    "model": "iPhone 13 mini",
    "finish": "Blue",
-   "metal": "#2e6487",
+   "metal": "#004b66",
    "w": 436,
    "h": 900,
    "repaint": true,
-   "ok": true,
-   "made": "the 13's back at the 13 mini's size"
+   "ok": true
   },
   {
    "id": "13-pink",
    "model": "iPhone 13",
    "finish": "Pink",
-   "metal": "#c2aead",
+   "metal": "#e1c7c0",
    "w": 435,
    "h": 900,
-   "repaint": false,
+   "repaint": true,
    "ok": true
   },
   {
    "id": "13-mini-pink",
    "model": "iPhone 13 mini",
    "finish": "Pink",
-   "metal": "#c2aeae",
+   "metal": "#e1c7c0",
    "w": 436,
    "h": 900,
    "repaint": true,
-   "ok": true,
-   "made": "the 13's back at the 13 mini's size"
+   "ok": true
   },
   {
    "id": "13-green",
    "model": "iPhone 13",
    "finish": "Green",
-   "metal": "#384a32",
+   "metal": "#253525",
    "w": 435,
    "h": 900,
-   "repaint": false,
+   "repaint": true,
    "ok": true
   },
   {
    "id": "13-mini-green",
    "model": "iPhone 13 mini",
    "finish": "Green",
-   "metal": "#374a32",
+   "metal": "#253525",
    "w": 436,
    "h": 900,
    "repaint": true,
-   "ok": true,
-   "made": "the 13's back at the 13 mini's size"
+   "ok": true
   },
   {
    "id": "13-red",
    "model": "iPhone 13",
    "finish": "(PRODUCT)RED",
-   "metal": "#e02234",
+   "metal": "#bc001d",
    "w": 435,
    "h": 900,
    "repaint": true,
@@ -896,12 +885,11 @@
    "id": "13-mini-red",
    "model": "iPhone 13 mini",
    "finish": "(PRODUCT)RED",
-   "metal": "#e12335",
+   "metal": "#bc001d",
    "w": 436,
    "h": 900,
    "repaint": true,
-   "ok": true,
-   "made": "the 13's back at the 13 mini's size"
+   "ok": true
   }
  ]
 }

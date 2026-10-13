@@ -561,7 +561,7 @@ function drawPhonePicker(keep = false) {
   const sel = state.style.phones, top = Math.max(1, ...state.index.map(m => heightOf(m.model)));
   const shown = state.index.filter(m => state.allPhones || !minorModel(m) || m.upload || sel.includes(m.id) || (keep && pickerShown.has(m.id)));
   pickerShown = new Set(shown.map(m => m.id));
-  $("phones").innerHTML = shown.map(m => `<button class="mo-phone" data-phone="${m.id}" aria-pressed="${sel.includes(m.id)}" title="${m.model} ${m.finish}${m.made ? ` (${m.made})` : m.repaint ? " (painted)" : ""}">
+  $("phones").innerHTML = shown.map(m => `<button class="mo-phone" data-phone="${m.id}" aria-pressed="${sel.includes(m.id)}" title="${m.model} ${m.finish}${m.repaint ? " (painted)" : ""}">
     <img src="${m.upload ? state.assets.phones[m.id].img.src : "phones/" + m.id + ".webp"}" alt="${m.model} ${m.finish}" loading="lazy" style="--ph:${(heightOf(m.model) / top || 1).toFixed(3)}"><small><b>${m.model.replace("iPhone ", "")}</b>${m.finish.replace(/ Titanium$/, "").replace(")", ")<wbr>")}</small></button>`).join("");
   $("phone-count").textContent = `${sel.length} picked`;
   const more = state.index.filter(minorModel).length;
