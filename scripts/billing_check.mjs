@@ -161,7 +161,7 @@ globalThis.fetch = async (input, init = {}) => {
     if (body.customer && !S.customers.has(mode + ':' + body.customer)) return missing('customer: ' + body.customer);
     if (!S.prices.has(body.line_items[0].price)) return missing('price');
     const cs = Object.assign({ id: 'cs_' + mode + '_' + (S.n++).toString(36), object: 'checkout.session', status: 'open', payment_status: 'unpaid', mode: body.mode, smode: mode }, body);
-    if (body.ui_mode === 'embedded') { cs.client_secret = cs.id + '_secret_' + (S.n++).toString(36); cs.url = null; }
+    if (body.ui_mode === 'embedded_page') { cs.client_secret = cs.id + '_secret_' + (S.n++).toString(36); cs.url = null; }
     else cs.url = 'https://checkout.stripe.test/' + cs.id;
     S.sessions.set(cs.id, cs); return reply(200, cs);
   }
@@ -362,9 +362,9 @@ let csPro;
   const csE = [...S.sessions.values()].pop();
   ok(er.status === 200 && !er.json.url && er.json.clientSecret === csE.client_secret && er.json.publishableKey === 'pk_test_embed' && er.json.sessionId === csE.id,
     'embedded: the client secret, the publishable key and the session id, no URL');
-  ok(csE.ui_mode === 'embedded' && csE.redirect_on_completion === 'if_required' && csE.return_url === 'https://studio.example/?checkout=success&session_id={CHECKOUT_SESSION_ID}'
+  ok(csE.ui_mode === 'embedded_page' && csE.redirect_on_completion === 'if_required' && csE.return_url === 'https://studio.example/?checkout=success&session_id={CHECKOUT_SESSION_ID}'
     && !csE.success_url && !csE.cancel_url && csE.mode === 'subscription' && csE.metadata.plan === 'basic' && csE.allow_promotion_codes === 'true',
-    'embedded: ui_mode embedded, a card pays in place, the same return address, the same plan, promotion codes on');
+    'embedded: ui_mode embedded_page, a card pays in place, the same return address, the same plan, promotion codes on');
   pay(csE.id);
   const ec = await hit('POST', '/checkout/confirm', { session_id: csE.id }, emb);
   ok(ec.status === 200 && ec.json.user.plan === 'basic', 'embedded: the same confirm switches Starter on');
@@ -623,10 +623,10 @@ async function browserPart() {
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
   const BASE = 'http://localhost:' + server.address().port;
   const fabricJs = process.env.FABRIC_JS ? readFileSync(process.env.FABRIC_JS) : null;
-  /* Stripe.js, stood in: initEmbeddedCheckout mounts a Pay button that pays
+  /* Stripe.js (dahlia), stood in: createEmbeddedCheckoutPage mounts a Pay button that pays
      the session (the test server's /__stripe/pay) and calls onComplete, as a
      card that needs no redirect does */
-  const FAKE_STRIPE_JS = `window.Stripe = function (pk) { return { initEmbeddedCheckout: async function (o) {
+  const FAKE_STRIPE_JS = `window.Stripe = function (pk) { return { createEmbeddedCheckoutPage: async function (o) {
     const secret = await o.fetchClientSecret(); let el = null;
     return { mount: function (sel) { el = typeof sel === 'string' ? document.querySelector(sel) : sel;
         el.innerHTML = '<div style="padding:24px;color:#111">Stand-in Stripe (' + pk + ')<br><button id="fake-stripe-pay" type="button">Pay</button></div>';
@@ -652,7 +652,7 @@ async function browserPart() {
         return route.fulfill({ status: 302, headers: { Location: cs.success_url.replace('{CHECKOUT_SESSION_ID}', cs.id) } });
       }
       if (/fabric(\.min)?\.js/.test(url) && fabricJs) return route.fulfill({ status: 200, contentType: 'application/javascript', body: fabricJs });
-      if (url.startsWith('https://js.stripe.com/v3')) return route.fulfill({ status: 200, contentType: 'application/javascript', body: FAKE_STRIPE_JS });
+      if (url.startsWith('https://js.stripe.com/dahlia/')) return route.fulfill({ status: 200, contentType: 'application/javascript', body: FAKE_STRIPE_JS });
       return route.abort();
     });
     page.on('dialog', (d) => d.accept());
