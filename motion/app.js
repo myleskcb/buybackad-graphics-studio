@@ -1,7 +1,7 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks } from "./catalog.js";
-import { Ad, ASPECTS, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook } from "./engine.js";
+import { Ad, ASPECTS, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook } from "./engine.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
@@ -17,7 +17,8 @@ const VH = () => window.VideoHelp || { retry: async fn => fn(0), waitVisible: as
   show: () => {}, check: async () => null, share: null, save: null, canShareFiles: () => false, safetyNet: () => {}, inApp: false };
 VH().safetyNet();
 const PREVIEW_MAX = 720;
-const DEFAULT_PHONES = ["18-pro-max-burgundy", "17-pro-cosmic-orange", "18-pro-glacier", "16-pink"];
+// the picker opens on the regular models and the Pro Maxes (allPhones shows the rest), so the defaults are among them
+const DEFAULT_PHONES = ["18-pro-max-burgundy", "17-pro-max-cosmic-orange", "18-pro-max-glacier", "16-pink"];
 
 const state = {
   style: { ...DEFAULT_STYLE, ...CLASSIC, phones: DEFAULT_PHONES.slice() },
@@ -30,6 +31,7 @@ const state = {
   // the gallery: the shelf it shows, and whether every look on screen moves (on for a mouse, unless motion is turned down)
   galleryCat: "all",
   galleryPlay: matchMedia("(hover: hover) and (pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches,
+  allPhones: false,                                  // the picker shows the Pro, Plus and mini models too
 };
 
 const BOARD_NAMES = { none: "No sign", freeway: "Green freeway sign", freeway_blue: "Blue freeway sign", poster: "Swap meet poster",
@@ -73,7 +75,7 @@ const labelFor = (k, v) => {
 // ------------------------------------------------------------ persistence
 
 function save() {
-  try { localStorage.setItem(STORE, JSON.stringify({ style: state.style, locked: [...state.locked], galleryCat: state.galleryCat, galleryPlay: state.galleryPlay })); } catch (e) { /* private mode */ }
+  try { localStorage.setItem(STORE, JSON.stringify({ style: state.style, locked: [...state.locked], galleryCat: state.galleryCat, galleryPlay: state.galleryPlay, allPhones: state.allPhones })); } catch (e) { /* private mode */ }
 }
 function restore() {
   try {
@@ -84,6 +86,7 @@ function restore() {
     if (state.style.track === "upload") { state.style.track = "none"; state.locked.delete("track"); }
     if (s && (s.galleryCat === "all" || SHELVES.some(x => x.id === s.galleryCat))) state.galleryCat = s.galleryCat;
     if (s && typeof s.galleryPlay === "boolean") state.galleryPlay = s.galleryPlay;
+    if (s && typeof s.allPhones === "boolean") state.allPhones = s.allPhones;
   } catch (e) { /* fresh start */ }
   // a saved look from an older version must not stop the page from starting
   if (!Array.isArray(state.style.phones)) state.style.phones = DEFAULT_PHONES.slice();
@@ -347,8 +350,9 @@ function buildPanel() {
     const id = b.dataset.phone, list = state.style.phones;
     const i = list.indexOf(id);
     if (i >= 0) { if (list.length > 1) list.splice(i, 1); } else { if (list.length >= 6) list.shift(); list.push(id); }
-    save(); drawPhonePicker(); rebuild();
+    save(); drawPhonePicker(true); rebuild();
   });
+  $("all-phones").addEventListener("change", e => { state.allPhones = e.target.checked; save(); drawPhonePicker(); });
   $("upload").addEventListener("change", async e => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
     try {
@@ -547,11 +551,22 @@ function syncLocks() {
   });
 }
 
-function drawPhonePicker() {
-  const sel = state.style.phones;
-  $("phones").innerHTML = state.index.map(m => `<button class="mo-phone" data-phone="${m.id}" aria-pressed="${sel.includes(m.id)}" title="${m.model} ${m.finish}${m.repaint ? " (painted)" : ""}">
-    <img src="${m.upload ? state.assets.phones[m.id].img.src : "phones/" + m.id + ".webp"}" alt="${m.model} ${m.finish}" loading="lazy"><small><b>${m.model.replace("iPhone ", "")}</b>${m.finish.replace(/ Titanium$/, "")}</small></button>`).join("");
+/* The picker opens on the regular models and the Pro Maxes: a Pro is its Pro Max's camera
+   and colours, a Plus or a mini its regular model's, so leaving them out shows the most
+   colours at once (owner, 2026-10-13). A picked phone always shows, and un-picking one
+   (keep) leaves it where it is, so the grid does not move under the pointer. Each stands at its own height against the tallest, feet level, as in the video. */
+const minorModel = m => / (Pro|Plus|mini)$/.test(m.model || "");
+let pickerShown = new Set();
+function drawPhonePicker(keep = false) {
+  const sel = state.style.phones, top = Math.max(1, ...state.index.map(m => heightOf(m.model)));
+  const shown = state.index.filter(m => state.allPhones || !minorModel(m) || m.upload || sel.includes(m.id) || (keep && pickerShown.has(m.id)));
+  pickerShown = new Set(shown.map(m => m.id));
+  $("phones").innerHTML = shown.map(m => `<button class="mo-phone" data-phone="${m.id}" aria-pressed="${sel.includes(m.id)}" title="${m.model} ${m.finish}${m.repaint ? " (painted)" : ""}">
+    <img src="${m.upload ? state.assets.phones[m.id].img.src : "phones/" + m.id + ".webp"}" alt="${m.model} ${m.finish}" loading="lazy" style="--ph:${(heightOf(m.model) / top || 1).toFixed(3)}"><small><b>${m.model.replace("iPhone ", "")}</b>${m.finish.replace(/ Titanium$/, "")}</small></button>`).join("");
   $("phone-count").textContent = `${sel.length} picked`;
+  const more = state.index.filter(minorModel).length;
+  $("all-phones").checked = state.allPhones;
+  $("all-phones-label").textContent = `Show Pro, Plus and mini models too${more ? ` (${more})` : ""}`;
 }
 
 // ------------------------------------------------------------ more looks

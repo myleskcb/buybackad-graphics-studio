@@ -498,26 +498,31 @@ export class Glare {
  *  Camera Control (16 on, not the e models); how deep the
  *  body is for its width, and where its edge controls sit. A phone we cannot
  *  place (an upload) gets the island, only volume and power, and the usual depth. */
+const MODEL = /iPhone (\d+)(e)?(?: (Pro Max|Pro|Plus|mini))?/;
+const modelName = m => m && `iPhone ${m[1]}${m[2] || ""}${m[3] ? " " + m[3] : ""}`;
 export function designOf(model) {
-  const m = /iPhone (\d+)(e)?(?: (Pro Max|Pro|Plus))?/.exec(model || "");
+  const m = MODEL.exec(model || "");
   if (!m) return { notch: false, left: null, camCtrl: false, depth: THICKNESS, controls: CONTROLS };
   const gen = +m[1], e = !!m[2], pro = /Pro/.test(m[3] || "");
-  const name = `iPhone ${gen}${e ? "e" : ""}${m[3] ? " " + m[3] : ""}`, body = BODY[name];
+  const name = modelName(m), body = BODY[name];
   return { notch: e || gen < 14 || (gen === 14 && !pro), left: gen < 15 || (gen === 15 && !pro) ? "mute" : "action", camCtrl: gen >= 16 && !e,
     depth: body ? body[1] / body[0] : THICKNESS, controls: { ...CONTROLS, ...MEASURED_CONTROLS[name] } };
 }
 
-// Apple's published width and depth of each body in mm (the depth without the
-// camera), so a Pro Max turns a thinner edge than a Pro and a 17 Pro a deeper one
-// than a 16 Pro. The 18 Pro is drawn on the 17 Pro's body, as the phone audit's
-// SPEC has it.
+// Apple's published width, depth and height of each body in mm (the depth without
+// the camera), so a Pro Max turns a thinner edge than a Pro and a 17 Pro a deeper one
+// than a 16 Pro, and stands taller beside it: a set draws each phone at its own height
+// (heightOf). The 18 Pro is drawn on the 17 Pro's body, as the phone audit's SPEC has it.
 const BODY = {
-  "iPhone 14": [71.5, 7.80], "iPhone 14 Plus": [78.1, 7.80], "iPhone 14 Pro": [71.5, 7.85], "iPhone 14 Pro Max": [77.6, 7.85],
-  "iPhone 15": [71.6, 7.80], "iPhone 15 Plus": [77.8, 7.80], "iPhone 15 Pro": [70.6, 8.25], "iPhone 15 Pro Max": [76.7, 8.25],
-  "iPhone 16": [71.6, 7.80], "iPhone 16 Plus": [77.8, 7.80], "iPhone 16 Pro": [71.5, 8.25], "iPhone 16 Pro Max": [77.6, 8.25],
-  "iPhone 16e": [71.5, 7.80], "iPhone 17": [71.5, 7.95], "iPhone 17e": [71.5, 7.80],
-  "iPhone 17 Pro": [71.9, 8.75], "iPhone 17 Pro Max": [78.0, 8.75], "iPhone 18 Pro": [71.9, 8.75], "iPhone 18 Pro Max": [78.0, 8.75],
+  "iPhone 13 mini": [64.2, 7.65, 131.5], "iPhone 13": [71.5, 7.65, 146.7], "iPhone 13 Pro": [71.5, 7.65, 146.7], "iPhone 13 Pro Max": [78.1, 7.65, 160.8],
+  "iPhone 14": [71.5, 7.80, 146.7], "iPhone 14 Plus": [78.1, 7.80, 160.8], "iPhone 14 Pro": [71.5, 7.85, 147.5], "iPhone 14 Pro Max": [77.6, 7.85, 160.7],
+  "iPhone 15": [71.6, 7.80, 147.6], "iPhone 15 Plus": [77.8, 7.80, 160.9], "iPhone 15 Pro": [70.6, 8.25, 146.6], "iPhone 15 Pro Max": [76.7, 8.25, 159.9],
+  "iPhone 16": [71.6, 7.80, 147.6], "iPhone 16 Plus": [77.8, 7.80, 160.9], "iPhone 16 Pro": [71.5, 8.25, 149.6], "iPhone 16 Pro Max": [77.6, 8.25, 163.0],
+  "iPhone 16e": [71.5, 7.80, 146.7], "iPhone 17": [71.5, 7.95, 149.6], "iPhone 17e": [71.5, 7.80, 146.7],
+  "iPhone 17 Pro": [71.9, 8.75, 150.0], "iPhone 17 Pro Max": [78.0, 8.75, 163.4], "iPhone 18 Pro": [71.9, 8.75, 150.0], "iPhone 18 Pro Max": [78.0, 8.75, 163.4],
 };
+/** A model's height in mm, 0 where it is not known (an upload). */
+export function heightOf(model) { const b = BODY[modelName(MODEL.exec(model || ""))]; return b ? b[2] : 0; }
 
 // Where the edge controls sit, as a share of the height from the top (Apple's
 // dimension drawings). Left and right are as you look at the screen.
@@ -2385,9 +2390,15 @@ export class Ad {
     // the tones' left-to-right order, onto the layout's spots as they stand left to right
     const ids = new Array(lr.length);
     spots.map((sp, i) => i).sort((a, b) => spots[a][0] - spots[b][0] || a - b).forEach((i, k) => { ids[i] = lr[k]; });
+    // each phone at its own height, the set's tallest at the stage's: a Pro Max stands over
+    // a Pro or a 16 beside it, as it does on a shop counter (all at one height, a 6.1-inch
+    // phone stood as tall as a 6.9-inch one), their feet level (below). A phone of no known
+    // size (an upload) is drawn full height.
+    const mm = id => heightOf(this.assets.phones[id].meta.model);
+    const top = Math.max(0, ...lr.map(mm));
     this.phones = ids.map((id, i) => {
       const a = this.assets.phones[id];
-      const p = new Phone(a.img, a.meta, s.ph);
+      const p = new Phone(a.img, a.meta, s.ph * (mm(id) && top ? mm(id) / top : 1));
       const [ux, uy, ang, sc] = spots[i];
       p.home = [s.cx + ux * s.hw, s.cy + uy * s.hh]; p.angle = ang; p.size = sc;
       const endsBack = { back: true, front: false, mixed: i % 2 === 0 }[st.end_face] ?? true;
@@ -2411,6 +2422,8 @@ export class Ad {
       return;
     }
     this._tidyPhones();
+    // the shorter ones down onto the tallest's line, once the tidy has levelled mirrored pairs
+    this.phones.forEach(p => { p.home[1] += (s.ph - p.h) * p.size / 2 * Math.cos(p.angle * Math.PI / 180); });
     this._phonesInFrame();
   }
 
