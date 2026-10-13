@@ -528,10 +528,14 @@ export function heightOf(model) { const b = BODY[modelName(MODEL.exec(model || "
 // dimension drawings). Left and right are as you look at the screen.
 const CONTROLS = { mute: [.183, .213], action: [.176, .216], volUp: [.256, .33], volDown: [.352, .426], power: [.27, .405], camCtrl: [.565, .64] };
 // ...except where a factory back shows the control itself, standing proud of the
-// rail, and it sits elsewhere: then it is drawn where the photograph has it, or a
-// turned phone shows two side buttons. The 17 and 18 Pro's side button is 46.8 to
+// rail, and it sits elsewhere: then it is drawn where the photograph (or render) has it, or
+// a turned phone shows two side buttons. The 17 and 18 Pro's side button is 46.8 to
 // 64.4 mm from the top on both sizes (scripts/audit_phone_views.py measures it).
 const MEASURED_CONTROLS = {
+  // Apple's 13 renders show the side button on all four 13s at the same share (the mini
+  // and the Pro Max are the 13's and the 13 Pro's backs at their size)
+  "iPhone 13 mini": { power: [.299, .418] }, "iPhone 13": { power: [.299, .418] },
+  "iPhone 13 Pro": { power: [.299, .418] }, "iPhone 13 Pro Max": { power: [.299, .418] },
   "iPhone 17 Pro": { power: [.311, .429] }, "iPhone 17 Pro Max": { power: [.287, .394] },
   "iPhone 18 Pro": { power: [.312, .429] }, "iPhone 18 Pro Max": { power: [.287, .393] },
 };

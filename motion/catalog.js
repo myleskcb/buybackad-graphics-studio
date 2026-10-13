@@ -213,6 +213,8 @@ export const FINISH_PALETTES = {
   "Lavender": "lavender", "Sage": "sage", "Soft Pink": "soft-pink", "Pink": "flamingo",
   "Cosmic Orange": "tangerine", "Deep Blue": "midnight", "Mist Blue": "ice", "Silver": "chrome",
   "Black": "carbon", "White": "paper",
+  "(PRODUCT)RED": "signal_red", "Midnight": "midnight", "Starlight": "paper", "Graphite": "carbon",
+  "Sierra Blue": "ice", "Alpine Green": "pine",
 };
 
 export const HEADLINES = [
