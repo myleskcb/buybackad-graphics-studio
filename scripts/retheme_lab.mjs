@@ -1551,6 +1551,10 @@ const cards = await page.evaluate(async (PLAN, picks, DONORS, THEMES, PAL, CUTS,
       if (isText && l.role === 'deco' && l.name !== 'Stars' && /[★—─•]/.test(l.text) && !/[A-Za-z0-9]/.test(l.text)) l.text = s.divider;
       /* the kicker tilts where the category is playful */
       if (isText && l.name === 'Kicker' && s.kick) p.angle = s.kick;
+      /* and its ribbon with it: tilting the words alone ran them across the
+         ribbon (owner, 2026-10-13: "grails wanted is diagonal to the direction
+         it should be going"; scripts/kicker_on_ribbon.mjs) */
+      if (l.kind === 'rect' && /^Kicker (Ribbon|Pill)$/.test(l.name || '') && s.kick) p.angle = s.kick;
       /* the plate shape is the category's */
       if (l.__shape){
         const h0 = p.height || 0; delete p.ry; delete p.skewX;

@@ -1194,7 +1194,6 @@ const TEMPLATES = [
       const gs = 'rgba(255,255,255,0.35)';
       const row = (i, y, num, lab, micro) => [
         rg('Step Card ' + i, { left:84, top:y, width:W-168, height:138, rx:30, fill:gf, stroke:gs, strokeWidth:1.5, shadow:sh('rgba(0,0,0,0.35)', 24, 0, 10) }),
-        rg('Step Card ' + i + ' Sheen', { left:110, top:y+7, width:W-220, height:8, rx:4, fill:'rgba(255,255,255,0.16)' }),
         r('Step Num Box ' + i, { left:112, top:y+27, width:84, height:84, rx:24, grad:{ c1:P.a1, c2:P.a2, a:120 }, shadow:sh(P.glow, 16) }),
         t('Step Num ' + i, 'deco', 'none', num, { left:154, top:y+38, originX:'center', fontFamily:'Clash Display', fontSize:52, fill:P.deep }),
         t('Step Lab ' + i, 'info', 'upper', lab, { left:226, top:y+26, fontFamily:'Satoshi', fontSize:40, fill:'#ffffff', fontWeight:'900', charSpacing:30 }),
