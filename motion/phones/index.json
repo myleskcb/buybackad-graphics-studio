@@ -239,7 +239,7 @@
    "w": 434,
    "h": 900,
    "repaint": false,
-   "ok": false
+   "ok": true
   },
   {
    "id": "16-teal",
@@ -249,7 +249,7 @@
    "w": 434,
    "h": 900,
    "repaint": false,
-   "ok": false
+   "ok": true
   },
   {
    "id": "16-pink",

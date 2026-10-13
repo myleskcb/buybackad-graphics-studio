@@ -395,10 +395,31 @@ def erase_module(im):
     return Image.fromarray(out.round().astype(np.uint8), "RGBA")
 
 
+def mirror_rim(im, band=.035, feather=.45):
+    """The right half's frame as the left's, mirrored. straighten() rebuilds the near
+    (right) side at the glass plus a thin rim, so every Pro painted on it showed a dark
+    hairline down its right side and squared-off right corners where the left shows the
+    titanium band and round ones (owner, 2026-10-13: "the clipped sides ... right side").
+    A back is the same frame both sides, so on the right half everything within `band`
+    of the outline (rim, the seam to the glass, the corners and the silhouette itself) is
+    the left's, mirrored, blended into the glass over the inner part of the band. The
+    band is measured on the left's outline, mirrored, so it follows the corners."""
+    from scipy import ndimage
+    a = np.asarray(im).astype(float)
+    W = a.shape[1]
+    mir = a[:, ::-1]
+    d = ndimage.distance_transform_edt(a[..., 3] > 128)[:, ::-1]
+    D = W * band
+    w = 1 - smooth(d, D * feather, D)
+    w[:, :W // 2] = 0
+    out = a * (1 - w[..., None]) + mir * w[..., None]
+    return Image.fromarray(out.round().astype(np.uint8), "RGBA")
+
+
 def bake_pro():
     src = straighten(Image.open(CUT / "iphone-15-pro-back-blue.webp").convert("RGBA"))
     src = src.resize((round(WORK_H * .478), WORK_H), Image.LANCZOS)
-    clean = erase_module(src)
+    clean = mirror_rim(erase_module(src))
     lab = color.rgb2lab(np.asarray(clean)[..., :3] / 255)
     chroma = np.hypot(lab[..., 1], lab[..., 2])
     body = chroma > 18
