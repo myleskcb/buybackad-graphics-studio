@@ -4703,3 +4703,47 @@ RESUME HERE:
   0. The Midnight turn step (13 and 14 alike, 2.7): the owner's call whether
      the bar takes the set's usual step, or Midnight stays a known exception.
   1. device_entities.mjs: no new authentic backs (every 13 is painted now).
+
+## 2026-10-13 — the library's ads, as the owner saw them on the homepage wall
+
+The owner, of the nine ads on the hero wall: "each ad is bad … really
+represents our company poorly". Everything was measured on the 366 live
+cards through the studio's own renderThumb() and kept only through the gate.
+  - Icons sat up-left in their badges: fabric places a path by its outline's
+    corner, and the ICONS marks do not fill their 100-unit box. buildLayer now
+    centres the outline on the box (9 px on a 66 px disc for the bars).
+  - Every live checklist ended 4-17 px over its CTA card (layout 576 + i*96
+    vs a card at 818). Layout moved to 548 + i*92; 72 records lifted
+    (clear_list_from_cta.mjs). First pass measured headroom only to the money
+    word and ran 8 lists into a Headline 3 or a product: the ceiling is
+    whatever is painted lowest above the list, not the money word.
+  - Money word off-centre under a centred first line on 13 cards
+    (centre_money_word.mjs), kicker words tilted against their ribbon on 46
+    (kicker_on_ribbon.mjs; the cause was retheme_lab tilting the words alone),
+    trust seal tiles flush-left on pills, grey 'Sheen' strips on white tiles
+    and step rows (tidy_trust_tiles.mjs, round_step_cards.mjs), 42 square step
+    rows around a 24 px box (back to the approved 30), 60 photographs blurred
+    10-24 px (58 sharp now, shade re-solved by reground_showcase --pin).
+  - The website: iPhones.LA, and alignPass ends with websiteCorner(): the first
+    free corner of the guides, 21 px, ink chosen by the ground measured under
+    it (sc.toCanvasElement on the crop). Guessing the ink from the badges left
+    73 corners at 1.2-3:1.
+  - Sports: the owner rejects the game's photographs (glove, fields) as not
+    card-related; Commons has no usable card photographs (posters, players'
+    faces, crowds), so the pool is the one graded-card scan.
+
+Found:
+  - A 'Sheen' strip is a highlight on dark glass and a smudge on a white
+    panel: a look that whitens a panel has to drop its sheen.
+  - The writers' gate passes a lift that crowds a line it never asked about;
+    spacing needs its own measure (gaps.mjs / listtop.mjs in the session's
+    scratchpad did it: line box to plate, list top to anything above).
+
+RESUME HERE:
+  0. Not on main: claude/wonderful-rubin-irgpdv carries all of this, main
+     merged in. The owner to say merge.
+  1. Sports cards need real photographs of cards (slabs, binders, a table of
+     cards): shoot them; the pool has one.
+  2. 33 live cards keep the website under the number (no free corner).
+  3. The owner asked for each category's ads grouped by buying angle (We buy
+     classic, Reviews, Credibility, Steps, Competitors, Sell Now): not built.
