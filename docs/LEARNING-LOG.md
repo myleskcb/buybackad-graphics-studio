@@ -4677,8 +4677,29 @@ Found:
     so the hand-over past 180 degrees, the 16 Black's in pixels, reads 2.8
     against a bar of 2.5. Left failing and said so; a grey ground did not help.
 
+Then, the same day: "audit all graphics", "unify styling for maximum
+similarity and so they look recognizable", and of a turned 17 Pro Max: "we
+still struggle to generate corners / shading on rounded edge object".
+  - The sheet of all 89 at true size showed the 13 renders (gradient, gloss
+    streak, black-and-white logo) and the 14 red photo standing apart. They
+    now go the 14s' and 15s' way: one body, one light, one logo, each with
+    its own finish's plateau from Apple's render. Recognisable by the camera,
+    alike in everything else.
+  - The turned side is one fill shaded across its depth (it was 30 slices,
+    which ribbed the rounded ends), falls off darker round the bottom corners,
+    and past 60 degrees the face is drawn with the best smoothing (its rim had
+    aliased into a zigzag).
+
+Found:
+  - A recolour that steps a render up in lightness shifts its hue (Blue to
+    red went coral); scaling a lighter render down in linear light keeps it.
+    Pick the source render for the step, not only the nearest lightness.
+  - imageSmoothingQuality "high" changes its mip level with the scale: on
+    everywhere, a back coming flat jumped 235 px in 0.05 degrees.
+  - motion_phone_check samples one colour a model, so a near-black finish
+    fails or passes by which colour comes first (14 Midnight 2.75, unsampled).
+
 RESUME HERE:
-  0. The 13 Midnight's turn step (above): the owner's call whether the bar
-     takes the set's usual step, or the Midnight stays a known exception.
-  1. device_entities.mjs takes motion/phones backs without repaint: the 13
-     and 13 Pro renders and the 14 red photo are new there when it is re-run.
+  0. The Midnight turn step (13 and 14 alike, 2.7): the owner's call whether
+     the bar takes the set's usual step, or Midnight stays a known exception.
+  1. device_entities.mjs: no new authentic backs (every 13 is painted now).
