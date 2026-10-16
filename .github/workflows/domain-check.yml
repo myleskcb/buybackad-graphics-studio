@@ -37,12 +37,15 @@ jobs:
             done
             src=rdap
             if [ "$code" = "200" ]; then st=taken
-            elif [ "$code" = "404" ]; then st=free
             else
-              src=whois
+              # rdap.org answers 404 for every name in some TLDs (.io, .co,
+              # .studio, .so were caught out with google.io and amazon.co),
+              # so a 404 is checked again at the registry's whois
+              src="whois"
               out=$(timeout 25 whois "$d" 2>/dev/null || true)
-              if echo "$out" | grep -qiE 'no match|not found|no entries found|no data found|status: *free|is available|no object found|domain not found'; then st=free
-              elif echo "$out" | grep -qiE 'creation date|created|registrar:|registered|status: *(active|ok)'; then st=taken
+              if echo "$out" | grep -qiE 'creation date|created:|registrar:|registry domain id|domain status: *(client|server|active|ok)'; then st=taken
+              elif echo "$out" | grep -qiE 'no match|not found|no entries found|no data found|status: *free|is available|no object found|domain not found'; then st=free
+              elif [ "$code" = "404" ]; then st="free?"; src="rdap only"
               else st="unknown ($code)"; fi
             fi
             echo "$d: $st ($src)"
