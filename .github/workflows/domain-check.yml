@@ -1,0 +1,46 @@
+# Is a domain name free? Run by hand (Actions → Domain check → Run workflow)
+# with names separated by spaces. Registry lookups (RDAP, whois for the TLDs
+# without RDAP) from GitHub's runner; the answer lands in the run summary.
+# "free" means no registration was found: the registrar still sets the
+# price, and some free names are premium.
+name: Domain check
+
+on:
+  workflow_dispatch:
+    inputs:
+      names:
+        description: Domain names, separated by spaces (e.g. buyads.com webuy.ai)
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Look the names up
+        env:
+          NAMES: ${{ inputs.names }}
+        run: |
+          sudo apt-get install -y -qq whois >/dev/null 2>&1 || true
+          { echo "| Name | Status | Source |"; echo "|---|---|---|"; } >> "$GITHUB_STEP_SUMMARY"
+          for d in $NAMES; do
+            d=$(echo "$d" | tr 'A-Z' 'a-z' | tr -cd 'a-z0-9.-')
+            [ -z "$d" ] && continue
+            code=$(curl -s -L -o /tmp/r.json -w '%{http_code}' --max-time 20 "https://rdap.org/domain/$d" || echo 000)
+            src=rdap
+            if [ "$code" = "200" ]; then st=taken
+            elif [ "$code" = "404" ]; then st=free
+            else
+              src=whois
+              out=$(timeout 25 whois "$d" 2>/dev/null || true)
+              if echo "$out" | grep -qiE 'no match|not found|no entries found|no data found|status: *free|is available|no object found|domain not found'; then st=free
+              elif echo "$out" | grep -qiE 'creation date|created|registrar:|registered|status: *(active|ok)'; then st=taken
+              else st="unknown ($code)"; fi
+            fi
+            echo "$d: $st ($src)"
+            echo "| $d | $st | $src |" >> "$GITHUB_STEP_SUMMARY"
+            sleep 1
+          done
