@@ -316,7 +316,7 @@
       return;
     }
     if (go.disabled) return;
-    const n = S.count, req = Object.assign(body(), { count: n }), name = nameOf();
+    const n = S.count, req = Object.assign(body(), { count: n, queue: true }), name = nameOf();
     const box = $('bggen-results');
     const cards = Array.from({ length: n }, () => card(req.aspect));
     const row = document.createElement('div');

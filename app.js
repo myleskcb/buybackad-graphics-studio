@@ -7550,7 +7550,7 @@ async function aiGenerateBg(userText){
      after (a picture can take longer than the function may run); without
      it, the older one-field request answers inline */
   const queued = !!(window.BGGEN && window.BGGEN.follow);
-  try { j = await api('/generate-bg', Object.assign({ text: String(userText || ''), category: jget('pgfx_cat', '') || '', aspect: fmt }, queued ? { count: 1 } : {})); }
+  try { j = await api('/generate-bg', Object.assign({ text: String(userText || ''), category: jget('pgfx_cat', '') || '', aspect: fmt }, queued ? { count: 1, queue: true } : {})); }
   catch (e){
     if (e.status === 402 && e.data && e.data.credits){
       account.credits = e.data.credits; syncQuotaUI();

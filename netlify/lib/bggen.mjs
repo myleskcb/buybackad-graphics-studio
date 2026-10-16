@@ -19,8 +19,11 @@
  *                                   no prompt text ever leaves this file.
  *   POST /api/generate-bg           a run. { text, category, entities[],
  *                                   style, palette, colors[], aspect, space,
- *                                   count }. Without `count` (the older
- *                                   callers) one image, inline.
+ *                                   count, queue }. Without `count` (the
+ *                                   older callers) one image, inline. With
+ *                                   `queue: true` the run answers at once
+ *                                   with a job and its pictures pending:
+ *   GET  /api/bggen/job/<id>        the run's pictures as they land.
  *   GET  /api/admin/bggen-recipe    operator: the recipe (defaults, override,
  *   POST /api/admin/bggen-recipe    effective) and saving an override. Live in
  *                                   about a minute, no deploy.
@@ -715,7 +718,10 @@ export async function bggenRoute(req, url, p, env, deps) {
   /* fal first: the pictures go to its queue and the page collects them
      (collectJob), so a slow picture never meets the function's time limit.
      A picture fal would not take goes to Gemini, when it is set up. */
-  if (!legacy && provider === 'fal') {
+  /* only a page that asks after its run (queue: true, bggen.js since
+     2026-10-16) is given one: a tab opened before then would show its
+     pending pictures as "bad-response", so it waits as it always did */
+  if (!legacy && body.queue === true && provider === 'fal') {
     const fetchImpl = deps.fetch || fetch;
     let refBytes = null;
     const needBytes = async () => (refBytes = refBytes || await Promise.all(job.refs.map((r) => bytesOf(origin + '/' + r, fetchImpl))));

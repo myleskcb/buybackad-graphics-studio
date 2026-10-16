@@ -170,7 +170,7 @@ const hit = async (method, path, body, token) => {
 /* a run of N, as the page does it: submit, then ask after the job until it is done */
 const polls = [];
 const run = async (body, token) => {
-  const first = await hit('POST', '/generate-bg', body, token);
+  const first = await hit('POST', '/generate-bg', Object.assign({ queue: true }, body), token);
   if (first.status !== 200 || !first.json.job) return first;
   let r = first;
   for (let i = 0; i < 10 && !r.json.done; i++) { r = await hit('GET', '/bggen/job/' + first.json.job, null, token); polls.push(r); }
@@ -245,7 +245,7 @@ const FREE = PLANS.free.credits;
   const rr = await run({ category: 'gold', count: 2 }, free);
   ok(rr.status === 502 && rr.json.refunded === true && rr.json.credits.total === 9, 'queue: a run the queue refuses whole is 502 and refunded');
   falStuck = true;
-  const rs = await hit('POST', '/generate-bg', { category: 'gold', count: 2 }, free);
+  const rs = await hit('POST', '/generate-bg', { category: 'gold', count: 2, queue: true }, free);
   const p1 = await hit('GET', '/bggen/job/' + rs.json.job, null, free);
   ok(rs.json.credits.total === 7 && p1.json.done === false && p1.json.images.every((x) => x.pending), 'queue: a slow picture stays pending, still charged');
   const gen = globalThis.__blobs.get('pgfx-generated');
@@ -255,6 +255,9 @@ const FREE = PLANS.free.credits;
   const p2 = await hit('GET', '/bggen/job/' + rs.json.job, null, free);
   ok(p2.json.done && p2.json.images.every((x) => /took too long/.test(x.error)) && p2.json.refunded === 2 && p2.json.credits.total === 9 && [...falJobs.values()].filter((j) => j.cancelled).length === 2, 'queue: a picture not in after five minutes is cancelled and refunded (' + JSON.stringify(p2.json) + ')');
   falStuck = false;
+  /* a tab opened before the queue sends count without queue: it waits for its pictures */
+  const old = await hit('POST', '/generate-bg', { category: 'gold', count: 2 }, free);
+  ok(old.status === 200 && !old.json.job && old.json.images.length === 2 && old.json.images.every((x) => x.url) && falCalls.at(-1).queued !== true, 'queue: a page that does not ask after its run gets its pictures in the answer');
 
   const before = falCalls.length;
   const pv = await hit('POST', '/admin/bggen-preview', { text: 'rain', category: 'phones', entities: ['iphone:iphone-17-pro'], style: 'studio' }, boss);
