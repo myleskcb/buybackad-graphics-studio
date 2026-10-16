@@ -6717,6 +6717,7 @@ function ensureGoogleAuth(){
             await loadAccount();
             $('auth-forms').style.display = 'none';
             $('auth-ok').style.display = '';
+            doneMark($('auth-ok-ico'), 'ok');
             $('auth-ok-title').textContent = 'Signed in with Google';
             $('auth-ok-sub').textContent = "You're in as " + j.user.email + '.';
           } catch (err){ $('auth-err').textContent = err.message || 'Google sign-in failed'; }
@@ -7032,6 +7033,23 @@ async function switchPlan(id, interval){
     toast('You are on ' + p.label + ' now.', 'success');
   } catch (e){ if (/not enabled/i.test(e.message)) notOpenYet(); else toast(e.message, 'error'); }
 }
+/* The done mark (owner, 2026-10-16: "a cheesy emoji check mark, why not our
+   theme's check mark? or some sort of animation?"). Drawn in the house
+   colours, it draws itself when the dialog opens: the ring, then the fill,
+   then the tick, and one echo ring. 'wait' is an arc turning on its track
+   (payment received, plan switching on), 'back' a quiet return arrow
+   (checkout cancelled). Replacing the SVG restarts the animation; reduced
+   motion shows the finished mark. styles.css, .done-mark. */
+const DONE_MARKS = {
+  ok: '<circle class="dm-echo" cx="32" cy="32" r="29"/><circle class="dm-ring" cx="32" cy="32" r="29"/><circle class="dm-fill" cx="32" cy="32" r="29"/><path class="dm-tick" d="M19.5 33l8.5 8.5L45 24.5"/>',
+  wait: '<circle class="dm-track" cx="32" cy="32" r="29"/><circle class="dm-spin" cx="32" cy="32" r="29"/>',
+  back: '<circle class="dm-track" cx="32" cy="32" r="29"/><path class="dm-back" d="M36 21L25 32l11 11"/>',
+};
+function doneMark(el, state){
+  if (!el) return;
+  el.className = 'done-mark dm-' + (DONE_MARKS[state] ? state : 'ok');
+  el.innerHTML = '<svg viewBox="0 0 64 64" focusable="false">' + (DONE_MARKS[state] || DONE_MARKS.ok) + '</svg>';
+}
 function showPayResult(ok, planId, kind){
   $('page-plans').classList.remove('active');
   /* paid, but the account still reads Free: Stripe has not told the
@@ -7039,7 +7057,7 @@ function showPayResult(ok, planId, kind){
      on the Free plan" to someone who just paid. */
   const credits = kind === 'credits';
   const pending = ok && !credits && (!planId || planId === 'free');
-  $('pay-ico').textContent = ok ? (pending ? '⏳' : '✅') : '↩️';
+  doneMark($('pay-ico'), ok ? (pending ? 'wait' : 'ok') : 'back');
   $('pay-title').textContent = ok ? (pending ? 'Payment received' : credits ? 'Credits added' : 'Payment successful!') : 'Checkout cancelled';
   const c = creditsOf();
   $('pay-sub').textContent = ok

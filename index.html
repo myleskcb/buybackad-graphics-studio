@@ -77,6 +77,8 @@
   d.setAttribute('data-accent', accent);
   d.setAttribute('data-type', type);
   d.setAttribute('data-theme', theme);
+  /* the counter finish (styles.css, 2026-10-16), shown by ?finish=counter */
+  if (q.finish === 'counter') d.setAttribute('data-finish', 'counter');
   window.pgfxLoadTypeFace = function(t){
     if (!GF[t] || document.getElementById('gf-' + t)) return;
     var l = document.createElement('link'); l.id = 'gf-' + t; l.rel = 'stylesheet';
@@ -1063,7 +1065,7 @@
       </button>
     </div>
     <div class="auth-ok" id="auth-ok" style="display:none">
-      <div class="big">🎉</div>
+      <div class="done-mark" id="auth-ok-ico" aria-hidden="true"></div>
       <h3 id="auth-ok-title">Account created!</h3>
       <div class="modal-sub" id="auth-ok-sub">You're signed in and on the Free plan: 3 photo downloads a week.</div>
       <div class="modal-actions" style="justify-content:center">
@@ -1101,7 +1103,7 @@
 <div class="modal-overlay" id="pay-overlay">
   <div class="modal">
     <div class="auth-ok">
-      <div class="big" id="pay-ico">✅</div>
+      <div class="done-mark" id="pay-ico" aria-hidden="true"></div>
       <h3 id="pay-title">Payment successful!</h3>
       <div class="modal-sub" id="pay-sub">Your plan is now active.</div>
       <div class="modal-actions" style="justify-content:center">

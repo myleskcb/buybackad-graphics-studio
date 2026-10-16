@@ -2590,3 +2590,199 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   #lp-acct .acct-plan{display:none}
   #lp-acct-label{max-width:64px}
 }
+
+/* ── The done mark (doneMark() in app.js): a payment or an account that went
+   through draws itself in the house colours, instead of an emoji. ── */
+.done-mark{width:72px;height:72px;margin:0 auto 16px;position:relative}
+.done-mark svg{display:block;width:100%;height:100%;overflow:visible}
+.done-mark circle,.done-mark path{transform-box:fill-box;transform-origin:center}
+.dm-ring{fill:none;stroke:var(--text);stroke-width:2.5;stroke-dasharray:183;stroke-dashoffset:183;transform:rotate(-90deg);animation:dm-draw .55s cubic-bezier(.65,0,.35,1) forwards}
+.dm-fill{fill:var(--accent);transform:scale(0);animation:dm-pop .42s .45s cubic-bezier(.34,1.3,.64,1) forwards}
+.dm-tick{fill:none;stroke:var(--accent-ink);stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:38;stroke-dashoffset:38;animation:dm-draw .3s .74s cubic-bezier(.65,0,.35,1) forwards}
+.dm-echo{fill:none;stroke:var(--accent);stroke-width:1.5;opacity:0;animation:dm-echo .8s .78s ease-out forwards}
+.dm-track{fill:none;stroke:var(--hairline-strong);stroke-width:2.5}
+.dm-spin{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:44 183;animation:dm-turn .9s linear infinite}
+.dm-back{fill:none;stroke:var(--text-2);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:32;stroke-dashoffset:32;animation:dm-draw .35s .1s ease-out forwards}
+.modal-overlay.show .done-mark ~ h3{animation:dm-rise .4s .5s both}
+@keyframes dm-draw{to{stroke-dashoffset:0}}
+@keyframes dm-pop{to{transform:scale(1)}}
+@keyframes dm-turn{to{transform:rotate(360deg)}}
+@keyframes dm-echo{0%{opacity:.55;transform:scale(1)}100%{opacity:0;transform:scale(1.42)}}
+@keyframes dm-rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .done-mark *,.modal-overlay.show .done-mark ~ h3{animation:none!important}
+  .dm-ring,.dm-tick,.dm-back{stroke-dashoffset:0}
+  .dm-fill{transform:none}
+  .dm-echo{display:none}
+}
+
+/* ════════════════ FINISH: COUNTER (2026-10-16) ════════════════
+   The owner, 2026-10-16: "it's looking vibe coded still, I see other sites
+   with this overall theme / style … I want to look more original and stand
+   out", and "the oatmeal color is nice though". The poster look (ink
+   outlines, hard offset shadows, tilted stickers, four pop colours) is the
+   neo-brutalist kit a great many generated sites now wear. The counter keeps
+   the oatmeal paper and takes everything else from where these ads live: a
+   buyback shop's counter and the proof table behind it.
+   - Paper #f2eee4, ink #171512 and ONE spot colour, stamp red #e3241b: the
+     WE BUY sign, the price tag, the SOLD stamp. Actions are ink; red marks
+     what matters (the claim, the hot plan, a link on hover, a done mark).
+   - Signage type: Sofia Sans Extra Condensed caps for display, Schibsted
+     Grotesk for reading, DM Mono for slugs, counts and prices.
+   - Print, not stickers: hairlines, small square corners, no offset shadow,
+     nothing tilted; crop marks frame a card, a mono slug labels a section.
+   Sits on top of the poster skin; ?finish=counter shows it until the owner
+   says yes, then the bootstrap in index.html makes it the default. */
+@font-face{font-family:'Sofia Sans Extra Condensed';src:url('assets/fonts/sofia-sans-xcond-var.woff2') format('woff2');font-weight:500 900;font-style:normal;font-display:swap}
+@font-face{font-family:'Schibsted Grotesk';src:url('assets/fonts/schibsted-grotesk-var.woff2') format('woff2');font-weight:400 900;font-style:normal;font-display:swap}
+@font-face{font-family:'DM Mono';src:url('assets/fonts/dm-mono-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+
+:root[data-theme][data-finish='counter']{
+  --ink:#171512;--paper:#f2eee4;--stamp:#e3241b;
+  --hard:none;--hard-lg:none;--line-w:1px;
+  --display:'Sofia Sans Extra Condensed','Arial Narrow',Impact,sans-serif;
+  --ui:'Schibsted Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --mono:'DM Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --r-lg:8px;--r-md:6px;--r-sm:4px;
+  --field:#f2eee4;
+  --glass-bg:#f8f5ee;--glass-bg-strong:#fbf9f4;--glass-edge:rgba(23,21,18,.16);
+  --glass-shadow:none;--glass-shadow-lift:0 30px 60px -24px rgba(23,21,18,.38);
+  --surface-solid:#fbf9f4;--surface-raise:#f7f3ea;--surface-sunk:rgba(23,21,18,.05);--surface3:#e9e2d3;
+  --text:#171512;--text-2:#3d3933;--text-dim:#6b655c;
+  --hairline:rgba(23,21,18,.12);--hairline-strong:rgba(23,21,18,.24);
+  --accent:#e3241b;--accent-ink:#ffffff;--accent-wash:rgba(227,36,27,.08);--accent-deep:#c11a12;--accent-soft:#f9d9d6;
+  --accent-rgb:227,36,27;--accent2-rgb:227,36,27;--ring:#e3241b;--ring-rgb:227,36,27;
+  --brand-1:#e3241b;--brand-2:#171512;--brand-rgb:227,36,27;
+  --good:#1d6b45;
+  --lift-1:none;--lift-2:none;--lift-3:0 30px 60px -24px rgba(23,21,18,.38);
+  --glow-accent:0 0 0 0 transparent;
+  --crop:rgba(23,21,18,.55);
+  /* the poster's four pop colours, folded into the counter's three */
+  --pop-blue:var(--text);--pop-tomato:var(--accent);--pop-marigold:#e9e2d3;--pop-mint:var(--good);
+}
+:root[data-theme='dark'][data-finish='counter']{
+  --ink:#0f0e0c;--paper:#171512;--stamp:#ff4a3d;
+  --field:#171512;
+  --glass-bg:#201d19;--glass-bg-strong:#24211c;--glass-edge:rgba(239,233,220,.14);
+  --glass-shadow-lift:0 30px 60px -24px rgba(0,0,0,.7);
+  --surface-solid:#211e1a;--surface-raise:#1d1a17;--surface-sunk:rgba(239,233,220,.06);--surface3:#2a2620;
+  --text:#efe9dc;--text-2:#cbc3b4;--text-dim:#998f81;
+  --hairline:rgba(239,233,220,.1);--hairline-strong:rgba(239,233,220,.22);
+  --accent:#ff4a3d;--accent-ink:#171512;--accent-wash:rgba(255,74,61,.12);--accent-deep:#e3241b;--accent-soft:#4a1d19;
+  --accent-rgb:255,74,61;--accent2-rgb:255,74,61;--ring:#ff4a3d;--ring-rgb:255,74,61;
+  --brand-1:#ff4a3d;--brand-2:#efe9dc;--brand-rgb:255,74,61;
+  --good:#5fd39a;
+  --lift-3:0 30px 60px -24px rgba(0,0,0,.7);
+  --crop:rgba(239,233,220,.5);
+}
+:root[data-finish='counter'] body{font-family:var(--ui)}
+
+/* actions: an ink block with square corners; red on hover, a press is a nudge */
+:root[data-finish='counter'] .btn{border-radius:4px;letter-spacing:0;font-weight:600}
+:root[data-finish='counter'] .btn-primary,
+:root[data-finish='counter'] .btn-gen,
+:root[data-finish='counter'] .tpl-card .tpl-use,
+:root[data-finish='counter'] .plan-btn{background:var(--text);color:var(--field);border:1px solid var(--text);box-shadow:none;border-radius:4px;filter:none}
+:root[data-finish='counter'] .btn-primary:hover,
+:root[data-finish='counter'] .btn-gen:hover,
+:root[data-finish='counter'] .tpl-card .tpl-use:hover,
+:root[data-finish='counter'] .plan-btn:hover{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);transform:none;box-shadow:none;filter:none}
+:root[data-finish='counter'] .btn-primary:active,
+:root[data-finish='counter'] .btn-outline:active{transform:translateY(1px);box-shadow:none}
+:root[data-finish='counter'] .btn-outline{background:transparent;color:var(--text);border:1px solid var(--text);box-shadow:none}
+:root[data-finish='counter'] .btn-outline:hover{background:var(--text);color:var(--field);transform:none;box-shadow:none}
+:root[data-finish='counter'] .chip{border-radius:3px;border:1px solid var(--hairline-strong);background:transparent}
+:root[data-finish='counter'] .chip.on{background:var(--text);color:var(--field);border-color:var(--text);box-shadow:none}
+
+/* the bar and the mark: a hairline under the bar; the mark is an ink tile with a red stamp */
+:root[data-finish='counter'] .topbar{border-bottom:1px solid var(--hairline-strong)}
+:root[data-finish='counter'] .logo .logo-mark{background:radial-gradient(circle at 68% 32%,var(--accent) 0 21%,transparent 22%),var(--text);border:0;box-shadow:none;border-radius:4px}
+:root[data-finish='counter'] .logo em{color:var(--accent)}
+
+/* the hero: a slug line, then the claim in sign-painter caps, the money words in red */
+:root[data-finish='counter'] .hero-eyebrow{background:none;border:0;box-shadow:none;transform:none;padding:0;border-radius:0;color:var(--text-2);font:400 12.5px/1.45 var(--mono);letter-spacing:.06em;text-transform:uppercase;gap:10px}
+:root[data-finish='counter'] .hero-eyebrow::before{content:'';width:9px;height:9px;border-radius:50%;background:var(--accent);flex:none}
+:root[data-finish='counter'] .hero h1{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(50px,6.6vw,98px);line-height:.9;letter-spacing:.004em}
+:root[data-finish='counter'] .hero h1 em{background:none;color:var(--accent);padding:0;font-style:normal}
+:root[data-finish='counter'] .wall-card,
+:root[data-finish='counter'] .wall-card:nth-child(n){border:0;border-radius:3px;box-shadow:0 1px 0 rgba(23,21,18,.08);transform:none}
+:root[data-finish='counter'] .wall-card:nth-child(n):hover{transform:translateY(-3px);box-shadow:0 18px 30px -18px rgba(23,21,18,.5)}
+
+/* sections: a mono slug for the kicker, sign caps for the heading */
+:root[data-finish='counter'] .lp-kicker{font:400 12.5px/1.45 var(--mono);letter-spacing:.06em;color:var(--text-2);text-transform:uppercase}
+:root[data-finish='counter'] .lp-kicker::before,
+:root[data-finish='counter'] .lp-section:nth-of-type(n) .lp-kicker::before{width:9px;height:9px;border-radius:50%;background:var(--accent);border:0}
+:root[data-finish='counter'] .lp-section-head h2,
+:root[data-finish='counter'] .lp-cta-inner h2{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(38px,4.8vw,66px);line-height:.92;letter-spacing:.004em}
+:root[data-finish='counter'] .stat b{font-family:var(--mono);font-weight:400;letter-spacing:-.02em;color:var(--text)}
+:root[data-finish='counter'] .stat-lead b{color:var(--accent)}
+
+/* the goods ticker: a straight ink band, sign caps, red dots between */
+:root[data-finish='counter'] .lp-ticker-band{transform:none;margin:0;background:#171512}
+:root[data-theme='dark'][data-finish='counter'] .lp-ticker-band{background:#2a2620}
+:root[data-finish='counter'] .lp-ticker span{font:800 clamp(22px,2.6vw,32px)/1 var(--display);letter-spacing:.02em;color:#f2eee4}
+:root[data-finish='counter'] .lp-ticker i,
+:root[data-finish='counter'] .lp-ticker i:nth-of-type(n){width:8px;height:8px;border-radius:50%;background:var(--accent)}
+
+/* crop marks: four corner ticks just outside the card, the proof table's frame */
+:root[data-finish='counter'] .lp-price-card,
+:root[data-finish='counter'] .flow-step,
+:root[data-finish='counter'] .plan-card{position:relative;overflow:visible}
+:root[data-finish='counter'] .lp-price-card::after,
+:root[data-finish='counter'] .plan-card::after{
+  content:'';position:absolute;inset:-9px;pointer-events:none;
+  background:
+    linear-gradient(var(--crop),var(--crop)) left 0 top 9px/5px 1px no-repeat,
+    linear-gradient(var(--crop),var(--crop)) left 9px top 0/1px 5px no-repeat,
+    linear-gradient(var(--crop),var(--crop)) right 0 top 9px/5px 1px no-repeat,
+    linear-gradient(var(--crop),var(--crop)) right 9px top 0/1px 5px no-repeat,
+    linear-gradient(var(--crop),var(--crop)) left 0 bottom 9px/5px 1px no-repeat,
+    linear-gradient(var(--crop),var(--crop)) left 9px bottom 0/1px 5px no-repeat,
+    linear-gradient(var(--crop),var(--crop)) right 0 bottom 9px/5px 1px no-repeat,
+    linear-gradient(var(--crop),var(--crop)) right 9px bottom 0/1px 5px no-repeat}
+:root[data-finish='counter'] .lp-price-card{border:0;box-shadow:none;border-radius:2px;background:var(--surface-solid)}
+:root[data-finish='counter'] .lp-price-card.hot{border:0;box-shadow:inset 0 4px 0 var(--accent)}
+:root[data-finish='counter'] .lp-price-card li::before{color:var(--accent);text-shadow:none}
+:root[data-finish='counter'] .plan-card{border:0;border-radius:2px;box-shadow:none;background:var(--surface-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
+:root[data-finish='counter'] .plan-card.hot{border:0;box-shadow:inset 0 4px 0 var(--accent)}
+:root[data-finish='counter'] .plan-name{font:800 28px/1 var(--display);text-transform:uppercase;letter-spacing:.01em}
+:root[data-finish='counter'] .plan-price{font-weight:400}
+:root[data-finish='counter'] .plan-feats li::before{color:var(--accent)}
+
+/* how it works: numbered like a spec sheet, a rule above each step */
+:root[data-finish='counter'] .flow-step{border:0;border-top:1px solid var(--text);border-radius:0;box-shadow:none;background:transparent;padding-left:0;padding-right:0}
+:root[data-finish='counter'] .flow-step .fs-num,
+:root[data-finish='counter'] .flow-step:nth-child(n) .fs-num{background:none;border:0;color:var(--accent);font:400 13px/1 var(--mono);letter-spacing:.06em;padding:0}
+
+/* the closing call: an ink block, the action red */
+:root[data-finish='counter'] .lp-cta-inner{background:#171512;color:#f2eee4;border:0;box-shadow:none;border-radius:4px}
+:root[data-theme='dark'][data-finish='counter'] .lp-cta-inner{background:#2a2620}
+:root[data-finish='counter'] .lp-cta-inner h2{color:#f2eee4}
+:root[data-finish='counter'] .lp-cta-inner p{color:rgba(242,238,228,.78)}
+:root[data-finish='counter'] .lp-cta-inner .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-finish='counter'] .lp-cta-inner .btn-primary:hover{background:#f2eee4;border-color:#f2eee4;color:#171512}
+:root[data-finish='counter'] .lp-cta-inner .btn-outline{background:transparent;color:#f2eee4;border-color:rgba(242,238,228,.6)}
+:root[data-finish='counter'] .lp-cta-inner .btn-outline:hover{background:#f2eee4;color:#171512}
+
+/* dialogs: paper, a soft lift, sign caps for the title */
+:root[data-finish='counter'] .modal{border-radius:6px;border:0;box-shadow:var(--lift-3)}
+:root[data-finish='counter'] .modal h3{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:30px;line-height:1;letter-spacing:.01em}
+:root[data-finish='counter'] .modal-overlay{-webkit-backdrop-filter:none;backdrop-filter:none}
+
+/* the rest of the poster's offsets and highlighters, in the counter's terms */
+:root[data-finish='counter'] .fam-card.on,
+:root[data-finish='counter'] .cb-pair.on,
+:root[data-finish='counter'] .cb-look-btn.on{box-shadow:0 0 0 2px var(--text)}
+:root[data-finish='counter'] ::selection{background:var(--accent);color:#fff}
+:root[data-finish='counter'] #lp-templates .chip.on{background:#f2eee4;border-color:#f2eee4;color:#171512}
+:root[data-finish='counter'] #page-plans h1{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(40px,5vw,64px);line-height:.92;letter-spacing:.004em}
+:root[data-finish='counter'] .ez-stepnum{background:var(--text);color:var(--field);border:0}
+/* dark: the poster's dark-mode rules sit one attribute higher, so the counter answers them there */
+:root[data-theme='dark'][data-finish='counter'] .hero h1 em{background:none;color:var(--accent)}
+:root[data-theme='dark'][data-finish='counter'] .btn-primary{border-color:var(--text)}
+:root[data-theme='dark'][data-finish='counter'] .btn-outline{border-color:var(--text)}
+:root[data-theme='dark'][data-finish='counter'] .chip.on{background:var(--text);color:var(--field);border-color:var(--text)}
+:root[data-theme='dark'][data-finish='counter'] .lp-price-card{box-shadow:none}
+:root[data-theme='dark'][data-finish='counter'] .lp-price-card.hot{box-shadow:inset 0 4px 0 var(--accent)}
+:root[data-theme='dark'][data-finish='counter'] .flow-step{box-shadow:none;border-top-color:var(--text)}
+:root[data-theme='dark'][data-finish='counter'] .cb-start.on{box-shadow:0 0 0 2px var(--text)}
