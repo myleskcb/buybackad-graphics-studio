@@ -7546,7 +7546,11 @@ async function aiGenerateBg(userText){
   if (!account){ openAuth('Sign in to generate AI backgrounds'); throw new Error('Sign in first'); }
   const fmt = { square:'1:1', story:'9:16', flyer:'3:4', landscape:'16:9', four3:'4:3', three4:'3:4' }[docFormat] || '1:1';
   let j;
-  try { j = await api('/generate-bg', { text: String(userText || ''), category: jget('pgfx_cat', '') || '', aspect: fmt }); }
+  /* with bggen.js on the page the run goes through fal's queue and is asked
+     after (a picture can take longer than the function may run); without
+     it, the older one-field request answers inline */
+  const queued = !!(window.BGGEN && window.BGGEN.follow);
+  try { j = await api('/generate-bg', Object.assign({ text: String(userText || ''), category: jget('pgfx_cat', '') || '', aspect: fmt }, queued ? { count: 1 } : {})); }
   catch (e){
     if (e.status === 402 && e.data && e.data.credits){
       account.credits = e.data.credits; syncQuotaUI();
@@ -7555,6 +7559,15 @@ async function aiGenerateBg(userText){
     throw e;
   }
   if (j.credits && account){ account.credits = j.credits; syncQuotaUI(); }
+  if (j.job){
+    let it = null;
+    const last = await window.BGGEN.follow(j, (i, x) => { if (i === 0) it = x; });
+    if (last.credits && account){ account.credits = last.credits; syncQuotaUI(); }
+    if (!it || it.error) throw new Error((it && it.error) || 'Generation failed');
+    return window.BGGEN.materialize(it);
+  }
+  if (j.images) j = j.images[0] || {};
+  if (j.error) throw new Error(j.error);
   if (j.image) return j.image;
   if (j.url && window.BGGEN) return window.BGGEN.materialize(j);  // past the answer's size limit the picture comes as a link
   throw new Error('bad-response');

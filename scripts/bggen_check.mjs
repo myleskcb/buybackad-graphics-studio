@@ -114,7 +114,11 @@ delete process.env.GEMINI_KEY;
 const SITE = 'https://studio.example';
 const JPEG = readFileSync(join(ROOT, CAT.groups.iphone.items[0].ref));
 const falCalls = [];
-let falFail = 0;
+let falFail = 0;        // pictures fal makes and then fails
+let falSubmitFail = 0;  // pictures fal's queue refuses
+let falStuck = false;   // pictures that never finish
+const falJobs = new Map();
+const QUEUE = 'https://queue.fal.run/';
 const realFetch = globalThis.fetch;
 globalThis.fetch = async (u, init) => {
   u = String(u);
@@ -126,6 +130,29 @@ globalThis.fetch = async (u, init) => {
     await new Promise((r) => setTimeout(r, 5));
     if (falFail > 0) { falFail--; return new Response('{"detail":"boom"}', { status: 500 }); }
     return new Response(JSON.stringify({ images: [{ url: 'https://v3.fal.media/files/out-' + falCalls.length + '.jpg' }] }), { headers: { 'Content-Type': 'application/json' } });
+  }
+  if (u.startsWith(QUEUE) && init && init.method === 'POST') {
+    const body = JSON.parse(init.body);
+    falCalls.push({ model: u.slice(QUEUE.length), body, auth: init.headers.Authorization, queued: true });
+    if (falSubmitFail > 0) { falSubmitFail--; return new Response('{"detail":"busy"}', { status: 503 }); }
+    const rid = 'r' + falCalls.length;
+    falJobs.set(rid, { polls: 0, fail: falFail > 0 ? (falFail--, true) : false, stuck: falStuck, n: falCalls.length });
+    const base = QUEUE + 'fal-ai/bytedance/requests/' + rid;
+    return new Response(JSON.stringify({ request_id: rid, status_url: base + '/status', response_url: base, cancel_url: base + '/cancel' }), { headers: { 'Content-Type': 'application/json' } });
+  }
+  if (u.startsWith(QUEUE + 'fal-ai/bytedance/requests/')) {
+    const [rid, what] = u.slice((QUEUE + 'fal-ai/bytedance/requests/').length).split('/');
+    const j = falJobs.get(rid);
+    if (!j) return new Response('{}', { status: 404 });
+    if (init && init.headers && init.headers.Authorization !== 'Key test-key') return new Response('{}', { status: 401 });
+    if (what === 'cancel') { j.cancelled = true; return new Response('{}'); }
+    if (what === 'status') {
+      j.polls++;
+      const st = j.stuck ? 'IN_PROGRESS' : j.polls < 2 ? 'IN_QUEUE' : 'COMPLETED';
+      return new Response(JSON.stringify({ status: st }), { status: st === 'COMPLETED' ? 200 : 202, headers: { 'Content-Type': 'application/json' } });
+    }
+    if (j.fail) return new Response('{"detail":"boom"}', { status: 500 });
+    return new Response(JSON.stringify({ images: [{ url: 'https://v3.fal.media/files/out-' + j.n + '.jpg' }] }), { headers: { 'Content-Type': 'application/json' } });
   }
   if (u.startsWith('https://v3.fal.media/')) return new Response(JPEG, { headers: { 'Content-Type': 'image/jpeg' } });
   throw new Error('unexpected fetch ' + u);
@@ -139,6 +166,15 @@ const hit = async (method, path, body, token) => {
   const raw = await res.text();
   let json = null; try { json = JSON.parse(raw); } catch (e) {}
   return { status: res.status, json, raw };
+};
+/* a run of N, as the page does it: submit, then ask after the job until it is done */
+const polls = [];
+const run = async (body, token) => {
+  const first = await hit('POST', '/generate-bg', body, token);
+  if (first.status !== 200 || !first.json.job) return first;
+  let r = first;
+  for (let i = 0; i < 10 && !r.json.done; i++) { r = await hit('GET', '/bggen/job/' + first.json.job, null, token); polls.push(r); }
+  return Object.assign(r, { first });
 };
 const SECRET = /Reproduce every product|Avoid:|candid real photo|softbox|strictly limited|calm and uncluttered|trustworthy setting/i;
 const { PLANS } = await import(pathToFileURL(join(T, 'netlify/lib/plans.mjs')).href);
@@ -155,7 +191,7 @@ const FREE = PLANS.free.credits;
   let c = await hit('GET', '/bggen/config', null, free);
   ok(c.json.account && c.json.account.total === FREE && c.json.account.allowance === FREE && c.json.account.bought === 0 && c.json.account.resets, 'config: a free account has the Free plan\'s ' + FREE + ' credits this month');
 
-  const r1 = await hit('POST', '/generate-bg', { text: 'iphones in the rain', category: 'phones', entities: ['iphone:iphone-17-pro-max', 'iphone:iphone-16@teal'], style: 'neon', palette: 'volt', aspect: '9:16', space: 'left', count: 1 }, free);
+  const r1 = await run({ text: 'iphones in the rain', category: 'phones', entities: ['iphone:iphone-17-pro-max', 'iphone:iphone-16@teal'], style: 'neon', palette: 'volt', aspect: '9:16', space: 'left', count: 1 }, free);
   const f1 = falCalls.at(-1);
   ok(r1.status === 200 && r1.json.images.length === 1 && /^bggen\/img\/[a-f0-9]{32}$/.test(r1.json.images[0].url) && r1.json.spent === 2 && r1.json.credits.total === FREE - 2, 'generate: with products, one picture by link, charged 2 (' + r1.status + ' ' + JSON.stringify(r1.json && (r1.json.error || r1.json.credits)) + ')');
   const pic = await hit('GET', '/' + r1.json.images[0].url);
@@ -169,28 +205,56 @@ const FREE = PLANS.free.credits;
   ok(r2.status === 200 && /^data:image\/jpeg;base64,/.test(r2.json.image) && falCalls.at(-1).model === 'fal-ai/bytedance/seedream/v4/text-to-image' && r2.json.spent === 1 && r2.json.credits.total === FREE - 3, 'generate: the older two-field request still answers one inline image, text-to-image, charged 1');
 
   falFail = 1;
-  const r3 = await hit('POST', '/generate-bg', { text: 'marble', category: 'gold', count: 1 }, free);
-  ok(r3.status === 502 && r3.json.refunded === true && r3.json.credits.total === FREE - 3, 'generate: a failed image is refunded (' + r3.status + ' ' + JSON.stringify(r3.json && r3.json.credits && r3.json.credits.total) + ')');
+  const r3 = await run({ text: 'marble', category: 'gold', count: 1 }, free);
+  ok(r3.status === 200 && r3.json.done && r3.json.images[0].error && r3.json.refunded === 1 && r3.json.credits.total === FREE - 3, 'generate: a failed image is refunded (' + r3.status + ' ' + JSON.stringify(r3.json && r3.json.credits && r3.json.credits.total) + ')');
 
   falFail = 1;
-  const r4 = await hit('POST', '/generate-bg', { text: 'velvet', category: 'gold', count: 2 }, free);
+  const r4 = await run({ text: 'velvet', category: 'gold', count: 2 }, free);
   ok(r4.status === 200 && r4.json.images.filter((x) => x.url).length === 1 && r4.json.images.filter((x) => x.error).length === 1 && r4.json.spent === 1 && r4.json.refunded === 1 && r4.json.credits.total === FREE - 4, 'generate: two asked, one failed: charged 1, refunded 1 (' + JSON.stringify(r4.json && { s: r4.json.spent, r: r4.json.refunded, t: r4.json.credits && r4.json.credits.total }) + ')');
-  const r5 = await hit('POST', '/generate-bg', { text: 'velvet', category: 'gold', count: 2 }, free);
+  const r5 = await run({ text: 'velvet', category: 'gold', count: 2 }, free);
   ok(r5.status === 402 && /2 AI backgrounds take 2 credits and you have 1 left/.test(r5.json.error) && r5.json.credits.total === 1, 'generate: past the balance is 402 with the balance (' + (r5.json && r5.json.error) + ')');
   ok((await hit('POST', '/generate-bg', { text: 'x' })).status === 401, 'generate: signed out is 401');
 
   const gr = await hit('POST', '/admin/bggen-grant', { email: 'free@x.example', credits: 9 }, boss);
   ok(gr.status === 200 && gr.json.account.bought === 9 && gr.json.account.total === 10, 'grant: 9 credits, added to the bought ones');
   ok((await hit('POST', '/admin/bggen-grant', { email: 'free@x.example', credits: 9 }, free)).status === 403, 'grant: a customer cannot');
-  const r6 = await hit('POST', '/generate-bg', { category: 'phones', entities: ['iphone:iphone-16'], count: 3 }, free);
+  const r6 = await run({ category: 'phones', entities: ['iphone:iphone-16'], count: 3 }, free);
   ok(r6.status === 200 && r6.json.images.length === 3 && r6.json.spent === 6 && r6.json.credits.left === 0 && r6.json.credits.bought === 4, 'generate: three with products, 6 credits, this month\'s first then bought (' + JSON.stringify(r6.json && r6.json.credits) + ')');
   falFail = 3;
-  const r7 = await hit('POST', '/generate-bg', { category: 'gold', count: 3 }, free);
-  ok(r7.status === 502 && r7.json.credits.bought === 4 && r7.json.credits.total === 4, 'generate: all three failed, the bought credits are back (' + JSON.stringify(r7.json && r7.json.credits) + ')');
+  const r7 = await run({ category: 'gold', count: 3 }, free);
+  ok(r7.status === 200 && r7.json.done && r7.json.images.every((x) => x.error) && r7.json.credits.bought === 4 && r7.json.credits.total === 4, 'generate: all three failed, the bought credits are back (' + JSON.stringify(r7.json && r7.json.credits) + ')');
   const me = await hit('GET', '/me', null, free);
   ok(me.status === 200 && me.json.user.credits.total === 4, 'function: /me reads the same credits (' + JSON.stringify(me.json && me.json.user && me.json.user.credits) + ')');
   const plans = await hit('GET', '/plans');
   ok(plans.status === 200 && plans.json.plans.free.credits === FREE, 'function: /plans still answers');
+
+  /* the queue: the run answers before its pictures are made, and the page
+     collects them; nothing is refunded twice; a picture that never comes is
+     cancelled and refunded after five minutes */
+  ok(r1.first.json.job && r1.first.json.done === false && r1.first.json.images[0].pending && r1.first.json.credits.total === FREE - 2, 'queue: the run answers at once, charged, its picture pending');
+  ok(falCalls.filter((c) => c.queued).length >= 10 && polls.some((x) => x.json.done === false), 'queue: pictures go through fal\'s queue and are asked after');
+  const again = await hit('GET', '/bggen/job/' + r7.first.json.job, null, free);
+  ok(again.status === 200 && again.json.done && again.json.credits.total === 4, 'queue: asking after a settled run refunds nothing more (' + JSON.stringify(again.json && again.json.credits) + ')');
+  const other = (await hit('POST', '/auth/signup', { email: 'other@x.example', password: 'a-long-password' })).json.token;
+  ok((await hit('GET', '/bggen/job/' + r7.first.json.job, null, other)).status === 404 && (await hit('GET', '/bggen/job/' + r7.first.json.job)).status === 401 && (await hit('GET', '/bggen/job/nope', null, free)).status === 404, 'queue: a run is its owner\'s only');
+  await hit('POST', '/admin/bggen-grant', { email: 'free@x.example', credits: 6 }, boss);
+  falSubmitFail = 1;
+  const rq = await run({ category: 'gold', count: 2 }, free);
+  ok(rq.status === 200 && rq.json.done && rq.json.images.filter((x) => x.url).length === 1 && rq.json.images.filter((x) => x.error).length === 1 && rq.json.credits.total === 9, 'queue: a picture the queue refuses is refunded (' + JSON.stringify(rq.json && rq.json.credits) + ')');
+  falSubmitFail = 2;
+  const rr = await run({ category: 'gold', count: 2 }, free);
+  ok(rr.status === 502 && rr.json.refunded === true && rr.json.credits.total === 9, 'queue: a run the queue refuses whole is 502 and refunded');
+  falStuck = true;
+  const rs = await hit('POST', '/generate-bg', { category: 'gold', count: 2 }, free);
+  const p1 = await hit('GET', '/bggen/job/' + rs.json.job, null, free);
+  ok(rs.json.credits.total === 7 && p1.json.done === false && p1.json.images.every((x) => x.pending), 'queue: a slow picture stays pending, still charged');
+  const gen = globalThis.__blobs.get('pgfx-generated');
+  const rec = JSON.parse(gen.get('job/' + rs.json.job));
+  rec.at -= 6 * 60 * 1000;
+  gen.set('job/' + rs.json.job, JSON.stringify(rec));
+  const p2 = await hit('GET', '/bggen/job/' + rs.json.job, null, free);
+  ok(p2.json.done && p2.json.images.every((x) => /took too long/.test(x.error)) && p2.json.refunded === 2 && p2.json.credits.total === 9 && [...falJobs.values()].filter((j) => j.cancelled).length === 2, 'queue: a picture not in after five minutes is cancelled and refunded (' + JSON.stringify(p2.json) + ')');
+  falStuck = false;
 
   const before = falCalls.length;
   const pv = await hit('POST', '/admin/bggen-preview', { text: 'rain', category: 'phones', entities: ['iphone:iphone-17-pro'], style: 'studio' }, boss);
@@ -198,7 +262,7 @@ const FREE = PLANS.free.credits;
   ok((await hit('POST', '/admin/bggen-preview', { text: 'rain' }, free)).status === 403, 'preview: a customer is refused');
   const cb = await hit('GET', '/bggen/config', null, boss);
   ok(cb.json.account.unlimited === true && cb.json.usd === 0.03 && cb.json.usdRef === 0.06 && cb.json.provider === 'fal', 'config: an operator is unlimited and sees the provider price');
-  const rb = await hit('POST', '/generate-bg', { text: 'rain', category: 'phones', count: 2 }, boss);
+  const rb = await run({ text: 'rain', category: 'phones', count: 2 }, boss);
   ok(rb.status === 200 && rb.json.spent === 0 && rb.json.images.length === 2, 'generate: an operator is not charged');
 
   ok((await hit('POST', '/admin/bggen-recipe', { override: { maxPerRun: 99 } }, boss)).status === 400, 'recipe: a bad override is refused');
@@ -207,7 +271,7 @@ const FREE = PLANS.free.credits;
   ok(sv.status === 200 && sv.json.effective.maxPerRun === 2 && sv.json.effective.categories.gold.anchor === 'velvet jeweller tray mood' && sv.json.effective.categories.gold.negative.length > 0, 'recipe: an override saves and merges over the base');
   const c2 = await hit('GET', '/bggen/config', null, free);
   ok(c2.json.maxPerRun === 2 && c2.json.styles.some((s) => s.id === 'chalk') && !c2.json.styles.some((s) => s.id === 'neon'), 'recipe: the next config has the new limit and styles');
-  const r8 = await hit('POST', '/generate-bg', { category: 'gold', style: 'chalk', count: 4 }, boss);
+  const r8 = await run({ category: 'gold', style: 'chalk', count: 4 }, boss);
   ok(r8.json.images.length === 2 && /velvet jeweller tray mood/.test(falCalls.at(-1).body.prompt) && /Chalkboard photograph/.test(falCalls.at(-1).body.prompt), 'recipe: the next run uses the override and its limit');
   await hit('POST', '/admin/bggen-recipe', { override: null }, boss);
   ok((await hit('GET', '/bggen/config', null, free)).json.maxPerRun === 4, 'recipe: clearing the override restores the base');

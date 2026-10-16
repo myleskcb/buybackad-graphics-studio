@@ -251,6 +251,31 @@
     if (!j.url) return Promise.reject(new Error('bad-response'));
     return pictureOf(j.url);
   }
+  /* A queued run (the answer has `job`): the function answered before the
+     pictures were made, so ask after it until it is done. each(i, it) runs
+     once per picture as it lands or fails; resolves with the last answer. */
+  async function follow(j, each) {
+    const seen = new Set();
+    const report = (a) => (a.images || []).forEach((it, i) => { if (!it.pending && !seen.has(i)) { seen.add(i); each(i, it); } });
+    report(j);
+    let misses = 0;
+    const until = Date.now() + 6 * 60 * 1000;
+    while (!j.done && Date.now() < until) {
+      await new Promise((r) => setTimeout(r, 2500));
+      let r;
+      try { r = await call('/bggen/job/' + j.job); }
+      catch (e) { r = { ok: false, status: 0, j: {} }; }
+      if (!r.ok) {
+        if (r.status === 401 || r.status === 404 || ++misses > 5) break;
+        continue;
+      }
+      misses = 0;
+      j = r.j;
+      report(j);
+    }
+    if (!j.done) (j.images || []).forEach((it, i) => { if (!seen.has(i)) each(i, { error: 'Still working: check back in a minute', lost: true }); });
+    return j;
+  }
   /* the studio's own credit line and nav follow the run (app.js) */
   function syncApp(credits) {
     if (!credits || credits.unlimited) return;
@@ -316,16 +341,23 @@
       return;
     }
     drawFoot();
-    const imgs = r.j.images || (r.j.image || r.j.url ? [r.j] : []);
-    await Promise.all(cards.map(async (el, i) => {
-      const it = imgs[i];
+    const land = async (el, it) => {
       try {
-        if (!it || it.error) fail(el, (it && it.error) || 'Generation failed', true);
+        if (!it || it.error) fail(el, (it && it.error) || 'Generation failed', !(it && it.lost));
         else done(el, await materialize(it), name);
       } catch (e) { fail(el, e.message); }
       S.running = Math.max(0, S.running - 1);
       drawFoot();
-    }));
+    };
+    if (r.j.job) {
+      const lands = [];
+      const last = await follow(r.j, (i, it) => { if (cards[i]) lands.push(land(cards[i], it)); });
+      await Promise.all(lands);
+      if (last.credits && S.cfg) { S.cfg.account = last.credits; syncApp(last.credits); drawFoot(); }
+      return;
+    }
+    const imgs = r.j.images || (r.j.image || r.j.url ? [r.j] : []);
+    await Promise.all(cards.map((el, i) => land(el, imgs[i])));
   }
 
   // ---------- results ----------
@@ -484,6 +516,6 @@
     };
   }
 
-  window.BGGEN = { open, close, materialize, cost, state: S };
+  window.BGGEN = { open, close, materialize, follow, cost, state: S };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindAdmin); else bindAdmin();
 })();

@@ -333,7 +333,7 @@ export default async (req) => {
       const clean = String(prompt || '').trim().slice(0, 600);
       if (!clean) return json({ error: 'Empty prompt' }, 400);
       const recipe = await loadRecipe(env, bgStore());
-      const out = await generateImage({ prompt: clean, negative: '', refs: [], aspect: '1:1' }, env, recipe, { origin: env.SITE_URL || url.origin }); // verbatim — operator owns the words
+      const out = await generateImage({ prompt: clean, negative: '', refs: [], aspect: '1:1' }, env, recipe, { origin: env.SITE_URL || url.origin, deadline: Date.now() + 25000 }); // verbatim — operator owns the words
       return json({ image: dataUrlOf(out), prompt: clean });
     }
 

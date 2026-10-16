@@ -356,19 +356,19 @@ async function bytesOf(u, fetchImpl) {
 }
 
 /** fal: Seedream text-to-image, or Seedream edit with the references */
-async function falImage(job, env, recipe, fetchImpl) {
+function falRequest(job, env, recipe) {
   const m = recipe.models;
   const size = (recipe.aspects[job.aspect] || {}).fal || { width: 2048, height: 2048 };
   const body = { prompt: job.prompt, image_size: size, num_images: 1, enable_safety_checker: true };
   if (m.negativeField && job.negative) body.negative_prompt = job.negative;
   if (job.refs.length) body.image_urls = job.refUrls;
-  const res = await fetchImpl('https://fal.run/' + (job.refs.length ? m.falEdit : m.falText), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Key ' + env.FAL_KEY },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) throw new Error(`image model error (${res.status})`);
-  const j = await res.json();
+  return {
+    model: job.refs.length ? m.falEdit : m.falText,
+    init: { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Key ' + env.FAL_KEY }, body: JSON.stringify(body) },
+  };
+}
+/** a fal answer's picture, as { mime, bytes } */
+async function falOutput(j, fetchImpl) {
   const url = j.images?.[0]?.url;
   if (!url) throw new Error('the model declined this prompt, try different words');
   if (url.startsWith('data:')) {
@@ -379,6 +379,47 @@ async function falImage(job, env, recipe, fetchImpl) {
   const img = await fetchImpl(url);
   if (!img.ok) throw new Error('image fetch failed');
   return { mime: img.headers.get('content-type') || 'image/jpeg', bytes: Buffer.from(await img.arrayBuffer()) };
+}
+async function falImage(job, env, recipe, fetchImpl) {
+  const { model, init } = falRequest(job, env, recipe);
+  const res = await fetchImpl('https://fal.run/' + model, init);
+  if (!res.ok) throw new Error(`image model error (${res.status})`);
+  return falOutput(await res.json(), fetchImpl);
+}
+
+/* fal's queue: a picture takes longer than the function may run (Netlify
+   answers 504 at 30 s and the run's refund never happens), so a run hands
+   its pictures to the queue, answers at once, and the page asks after them
+   (GET /api/bggen/job/<id>) until each is in. */
+const FAL_QUEUE = 'https://queue.fal.run/';
+async function falSubmit(job, env, recipe, fetchImpl) {
+  const { model, init } = falRequest(job, env, recipe);
+  const res = await fetchImpl(FAL_QUEUE + model, { ...init, signal: AbortSignal.timeout(10000) });
+  if (!res.ok) throw new Error(`image model error (${res.status})`);
+  const j = await res.json();
+  if (![j.status_url, j.response_url].every((u) => typeof u === 'string' && u.startsWith(FAL_QUEUE))) throw new Error('image model error (no queue answer)');
+  return { status: j.status_url, result: j.response_url, cancel: typeof j.cancel_url === 'string' && j.cancel_url.startsWith(FAL_QUEUE) ? j.cancel_url : null };
+}
+/** a queued picture: null while it is still being made, else { mime, bytes }.
+    Throws when it failed: e.hard when fal says so, else a hiccup worth asking again. */
+async function falCollect(q, env, fetchImpl) {
+  const hard = (e) => Object.assign(e, { hard: true });
+  const auth = { headers: { Authorization: 'Key ' + env.FAL_KEY }, signal: AbortSignal.timeout(8000) };
+  const st = await fetchImpl(q.status, auth);
+  if (!st.ok && st.status !== 202) {
+    const e = new Error(`image model error (${st.status})`);
+    throw st.status >= 500 || st.status === 429 ? e : hard(e);
+  }
+  const s = await st.json().catch(() => ({}));
+  if (s.status !== 'COMPLETED') return null;
+  const res = await fetchImpl(q.result, { headers: auth.headers, signal: AbortSignal.timeout(8000) });
+  if (!res.ok) {
+    const j = await res.json().catch(() => ({}));
+    const why = typeof j.detail === 'string' ? j.detail : '';
+    throw hard(new Error(/safety|nsfw|content/i.test(why) ? 'the model declined this prompt, try different words' : `image model error (${res.status})`));
+  }
+  try { return await falOutput(await res.json(), fetchImpl); }
+  catch (e) { throw hard(e); }
 }
 
 /** Gemini: the references go inline, ahead of the words */
@@ -430,27 +471,39 @@ export const dataUrlOf = (out) => `data:${out.mime};base64,${out.bytes.toString(
  * site itself when the site is public, else they go inline as data URIs.
  */
 export async function generateImage(job, env, recipe, deps) {
-  const fetchImpl = (deps && deps.fetch) || fetch;
+  const base = (deps && deps.fetch) || fetch;
+  /* deps.deadline (ms since epoch): every call gives up by then, so the
+     function still answers, and refunds, before the platform's 30 s cut */
+  const deadline = (deps && deps.deadline) || 0;
+  const fetchImpl = deadline
+    ? (u, init) => base(u, { ...init, signal: AbortSignal.timeout(Math.max(1, deadline - Date.now())) })
+    : base;
   const origin = String((deps && deps.origin) || env.SITE_URL || '').replace(/\/+$/, '');
-  const order = providerOf(env, recipe) === 'gemini' ? ['gemini', 'fal'] : ['fal', 'gemini'];
+  const order = (deps && deps.only) ? [deps.only] : providerOf(env, recipe) === 'gemini' ? ['gemini', 'fal'] : ['fal', 'gemini'];
   const usable = order.filter((p) => (p === 'fal' ? env.FAL_KEY : env.GEMINI_KEY));
   if (!usable.length) throw new Error('no image provider configured');
   const refs = job.refs || [];
-  const publicSite = /^https:\/\//.test(origin) && !/\/\/(localhost|127\.|0\.0\.0\.0)/.test(origin);
   let refBytes = null;
   const needBytes = async () => (refBytes = refBytes || await Promise.all(refs.map((r) => bytesOf(origin + '/' + r, fetchImpl))));
   let lastErr;
   for (const p of usable) {
+    if (deadline && deadline - Date.now() < 3000) break;  // no time left for the fallback
     try {
       if (p === 'fal') {
-        const refUrls = publicSite ? refs.map((r) => origin + '/' + r)
-          : (await needBytes()).map((b) => `data:${b.mime};base64,${b64(b.data)}`);
+        const refUrls = await refUrlsFor(refs, origin, needBytes);
         return await falImage({ ...job, refs, refUrls }, env, recipe, fetchImpl);
       }
       return await geminiImage({ ...job, refs, refBytes: refs.length ? await needBytes() : [] }, env, recipe, fetchImpl);
     } catch (e) { lastErr = e; }
   }
-  throw lastErr;
+  if (lastErr && /abort|timeout/i.test(lastErr.name + ' ' + lastErr.message)) throw new Error('the image model took too long, try again');
+  throw lastErr || new Error('the image model took too long, try again');
+}
+/* fal fetches the references from the site itself when the site is public,
+   else they go inline as data URIs */
+async function refUrlsFor(refs, origin, needBytes) {
+  const publicSite = /^https:\/\//.test(origin) && !/\/\/(localhost|127\.|0\.0\.0\.0)/.test(origin);
+  return publicSite ? refs.map((r) => origin + '/' + r) : (await needBytes()).map((b) => `data:${b.mime};base64,${b64(b.data)}`);
 }
 
 // ---------- credits (plans.mjs) ----------
@@ -497,9 +550,12 @@ function part(spent, n) {
 
 // ---------- generated pictures ----------
 const IMG_ID = /^[a-f0-9]{32}$/;
+const newId = () => [...crypto.getRandomValues(new Uint8Array(16))].map((x) => x.toString(16).padStart(2, '0')).join('');
+const SYNC_BUDGET = 24000;     // a run that waits for its pictures answers by then (Netlify cuts at 30 s)
+const JOB_TTL = 5 * 60 * 1000;  // a queued picture not in by then has failed, and is refunded
 const KEEP = 48;  // the newest pictures an account keeps in the store
 async function keepImage(store, em, out) {
-  const id = [...crypto.getRandomValues(new Uint8Array(16))].map((x) => x.toString(16).padStart(2, '0')).join('');
+  const id = newId();
   await store.set('img/' + id, JSON.stringify({ mime: out.mime, b64: out.bytes.toString('base64'), by: em, ts: Date.now() }));
   return id;
 }
@@ -530,13 +586,23 @@ export async function bggenRoute(req, url, p, env, deps) {
     const { mime, b64 } = JSON.parse(raw);
     return new Response(Buffer.from(b64, 'base64'), { headers: { 'Content-Type': mime, 'Cache-Control': 'private, max-age=86400', 'X-Robots-Tag': 'noindex' } });
   }
-  if (!routes.includes(p)) return null;
+  if (!routes.includes(p) && !p.startsWith('/bggen/job/')) return null;
+  const t0 = Date.now();
   const origin = String(env.SITE_URL || url.origin).replace(/\/+$/, '');
   const recipe = await loadRecipe(env, deps.bg);
   const provider = providerOf(env, recipe);
   const em = await deps.readToken(req);
   const admin = !!em && deps.isAdmin(em);
   const maxPerRun = Math.max(1, Math.min(8, Math.round(recipe.maxPerRun) || 1));
+
+  if (p.startsWith('/bggen/job/')) {
+    const id = p.slice('/bggen/job/'.length);
+    if (!em) return json({ error: 'Sign in to generate backgrounds' }, 401);
+    const raw = IMG_ID.test(id) ? await deps.gen.get('job/' + id) : null;
+    const rec = raw ? JSON.parse(raw) : null;
+    if (!rec || rec.by !== em) return json({ error: 'Not found' }, 404);
+    return json(await collectJob(id, rec, env, deps, admin));
+  }
 
   if (p === '/bggen/config') {
     const pub = (o) => Object.entries(o).map(([id, v]) => clean({ id, label: v.label, emoji: v.emoji, colors: v.colors }));
@@ -646,7 +712,33 @@ export async function bggenRoute(req, url, p, env, deps) {
     await deps.putUser(user);
   }
 
-  const settled = await Promise.allSettled(Array.from({ length: n }, () => generateImage(job, env, recipe, { origin, fetch: deps.fetch })));
+  /* fal first: the pictures go to its queue and the page collects them
+     (collectJob), so a slow picture never meets the function's time limit.
+     A picture fal would not take goes to Gemini, when it is set up. */
+  if (!legacy && provider === 'fal') {
+    const fetchImpl = deps.fetch || fetch;
+    let refBytes = null;
+    const needBytes = async () => (refBytes = refBytes || await Promise.all(job.refs.map((r) => bytesOf(origin + '/' + r, fetchImpl))));
+    const refUrls = refUrlsFor(job.refs, origin, needBytes);
+    const subs = await Promise.allSettled(Array.from({ length: n }, async () => falSubmit({ ...job, refUrls: await refUrls }, env, recipe, fetchImpl)));
+    const items = await Promise.all(subs.map(async (r) => {
+      if (r.status === 'fulfilled') return { q: r.value };
+      if (env.GEMINI_KEY) {
+        try { return { id: await keepImage(deps.gen, em, await generateImage(job, env, recipe, { origin, fetch: deps.fetch, only: 'gemini', deadline: t0 + SYNC_BUDGET })) }; }
+        catch (e) { return { error: e.message || 'Generation failed' }; }
+      }
+      return { error: (r.reason && r.reason.message) || 'Generation failed' };
+    }));
+    const id = newId();
+    const rec = { by: em, at: Date.now(), cost, spent, items };
+    await deps.gen.set('job/' + id, JSON.stringify(rec));
+    const out = await collectJob(id, rec, env, deps, admin, { fresh: true });
+    if (out.done && !out.images.some((x) => x.url)) return json({ error: out.images[0].error || 'Generation failed', refunded: out.refunded > 0, credits: out.credits }, 502);
+    if (!out.credits) out.credits = balanceOf(user, admin);
+    return json(out);
+  }
+
+  const settled = await Promise.allSettled(Array.from({ length: n }, () => generateImage(job, env, recipe, { origin, fetch: deps.fetch, deadline: t0 + SYNC_BUDGET })));
   const failed = settled.filter((r) => r.status === 'rejected');
   let credits = balanceOf(user, admin);
   if (spent && failed.length) {  // the failures' credits back, in one write
@@ -673,4 +765,60 @@ export async function bggenRoute(req, url, p, env, deps) {
   }
   await pruneImages(deps.gen, em, images.filter((x) => x.id).map((x) => x.id));
   return json({ images: images.map((x) => (x.id ? { url: 'bggen/img/' + x.id } : x)), spent: charged, refunded, credits });
+}
+
+/**
+ * A queued run, as the page sees it: { job, done, images: [{ url } |
+ * { error } | { pending }], spent, refunded, credits }. Each call asks fal
+ * after the pictures still out, keeps the ones that are in, and once none is
+ * out gives back the failures' credits, once.
+ * opts.fresh: the run was submitted just now, so nothing is asked yet.
+ */
+async function collectJob(id, rec, env, deps, admin, opts) {
+  const fetchImpl = deps.fetch || fetch;
+  const late = Date.now() - rec.at > JOB_TTL;
+  let changed = false;
+  if (!(opts && opts.fresh)) {
+    await Promise.all(rec.items.map(async (x) => {
+      if (!x.q) return;
+      try {
+        const out = await falCollect(x.q, env, fetchImpl);
+        if (out) { x.id = await keepImage(deps.gen, rec.by, out); delete x.q; changed = true; return; }
+        if (!late) return;
+        throw Object.assign(new Error('the image model took too long, try again'), { hard: true });
+      } catch (e) {
+        if (!e.hard && !late) return;  // a hiccup on the way to fal: ask again next time
+        if (late && x.q.cancel) fetchImpl(x.q.cancel, { method: 'PUT', headers: { Authorization: 'Key ' + env.FAL_KEY } }).catch(() => {});
+        x.error = e.hard ? e.message : 'the image model took too long, try again';
+        delete x.q;
+        changed = true;
+      }
+    }));
+  }
+  const done = rec.items.every((x) => !x.q);
+  const failed = rec.items.filter((x) => x.error).length;
+  let credits = null;
+  /* settled is written before the refund, so a later ask never refunds
+     again (the page asks one at a time; Blobs 8 has no conditional write) */
+  const settling = done && !rec.settled;
+  if (settling) { rec.settled = true; changed = true; }
+  if (changed) await deps.gen.set('job/' + id, JSON.stringify(rec));
+  if (settling) {
+    const kept = rec.items.filter((x) => x.id).map((x) => x.id);
+    if (kept.length) await pruneImages(deps.gen, rec.by, kept);
+    if (rec.spent && failed) {
+      const back = await deps.getUser(rec.by);
+      if (back) { refundCredits(back, part(rec.spent, failed * rec.cost)); await deps.putUser(back); credits = balanceOf(back, false); }
+    }
+  }
+  if (done && !credits) { const u = await deps.getUser(rec.by); if (u) credits = balanceOf(u, admin); }
+  const n = rec.items.length;
+  return {
+    job: id,
+    done,
+    images: rec.items.map((x) => (x.id ? { url: 'bggen/img/' + x.id } : x.error ? { error: x.error } : { pending: true })),
+    spent: rec.spent ? (n - (done ? failed : 0)) * rec.cost : 0,
+    refunded: rec.spent && done ? failed * rec.cost : 0,
+    credits,
+  };
 }
