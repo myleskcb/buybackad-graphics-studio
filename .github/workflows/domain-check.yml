@@ -29,7 +29,12 @@ jobs:
           for d in $NAMES; do
             d=$(echo "$d" | tr 'A-Z' 'a-z' | tr -cd 'a-z0-9.-')
             [ -z "$d" ] && continue
-            code=$(curl -s -L -o /tmp/r.json -w '%{http_code}' --max-time 20 "https://rdap.org/domain/$d" || echo 000)
+            # rdap.org answers 429 when asked too fast: wait and ask again
+            for try in 1 2 3 4; do
+              code=$(curl -s -L -o /tmp/r.json -w '%{http_code}' --max-time 20 "https://rdap.org/domain/$d" || echo 000)
+              [ "$code" = "429" ] || break
+              sleep $((try * 8))
+            done
             src=rdap
             if [ "$code" = "200" ]; then st=taken
             elif [ "$code" = "404" ]; then st=free
@@ -42,5 +47,5 @@ jobs:
             fi
             echo "$d: $st ($src)"
             echo "| $d | $st | $src |" >> "$GITHUB_STEP_SUMMARY"
-            sleep 1
+            sleep 3
           done
