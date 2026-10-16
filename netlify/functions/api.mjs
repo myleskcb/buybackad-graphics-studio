@@ -8,8 +8,8 @@
  *
  *   GET  /api/bggen/config       customer path (netlify/lib/bggen.mjs): the
  *   POST /api/generate-bg        choices, the price and the balance; one image
- *                                per call. The user's text is reduced to clean
- *                                keywords and fused, with the products they
+ *                                per call. The user's text, cleaned and kept as
+ *                                their sentence, is fused with the products they
  *                                picked (sent to the model as reference photos),
  *                                the style and the colour scheme, into the house
  *                                prompt server-side; moderation, credits and

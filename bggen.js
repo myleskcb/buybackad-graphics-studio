@@ -181,7 +181,10 @@
     else if (!signedIn()) blocked = 'Sign in to generate';
     const plural = (n, w) => n + ' ' + (n === 1 ? w.replace(/s$/, '') : w);
     let costTxt = c && k.per !== null ? `<b>${plural(k.total, k.unit)}</b> · ${plural(k.n, 'images')} × ${k.per}${k.refs ? ' (with products)' : ''}` : '–';
-    if (c && c.usd !== undefined) costTxt += ` · ≈ $${((k.refs ? c.usdRef : c.usd) * k.n).toFixed(2)} at ${esc(c.provider || 'the provider')}`;
+    /* the provider's price reaches operator accounts only (bggen.mjs
+       sends usd to an admin); customers see credits. Labelled, so the
+       owner knows nobody else sees it (2026-10-16: "hide cost for normal users") */
+    if (c && c.usd !== undefined) costTxt += ` · <span class="bggen-op" title="Only admin accounts see this">admin only: ≈ $${((k.refs ? c.usdRef : c.usd) * k.n).toFixed(2)} at ${esc(c.provider || 'the provider')}</span>`;
     let bal = esc(blocked || '–');
     let pct = 0, more = false;
     if (!blocked && a) {

@@ -40,8 +40,10 @@
  * photo. A named subject with no photograph rides in the prompt by name.
  *
  * The prompt is built here from the recipe and is never returned to a
- * customer. The customer's own words are reduced to keywords and moderated
- * before they join it.
+ * customer. The customer's own words join it as their sentence (cleanScene:
+ * moderated, no links, quotes, lettering requests or instructions), right
+ * after the products; keywords only decide which house negatives lift.
+ * The prompt audit, 2026-10-16, is in composePrompt's comments.
  *
  * Credits are the plans' (netlify/lib/plans.mjs, one table for the whole
  * product): an image costs what its model costs us, in credits, the dearest
@@ -70,16 +72,25 @@ const RECIPE_KEY = 'recipe/v1';
 
 // ---------- the recipe (secret: never sent to a customer) ----------
 const DEFAULTS = {
-  /* {lead}. {subject}{anchor}. {look}. {palette}{composition}. {quality}. Avoid: {negative}
-     PGFX_HOUSE_FRAME, when set, replaces the template; it may use any of these */
-  template: '{lead}. {subject}{anchor}. {look}. {palette}{composition}. {quality}.',
+  /* {lead}. {subject}{anchor}. {look}. {palette}{composition}. {fidelity}. {quality}. Avoid: {negative}
+     The customer's scene sits right after the products, ahead of the house's
+     look and fidelity clauses, because the image model weighs early words
+     most (the prompt audit, 2026-10-16). A template without {fidelity} gets
+     it after the subject, as before. PGFX_HOUSE_FRAME, when set, replaces
+     the template; it may use any of these */
+  template: '{lead}. {subject}{anchor}. {look}. {palette}{composition}. {fidelity}. {quality}.',
   quality: 'Sharp focus on the subject, realistic materials, true-to-life colour and reflections, believable professional photograph',
-  // every image; a term the customer's own products need (hands, for "hand offering cash") is dropped for that image
-  negative: ['text', 'letters', 'words', 'numbers', 'captions', 'watermark', 'signature', 'added logos or brand marks', 'price tags',
-    'people', 'faces', 'hands', 'body parts', 'extra or duplicated products', 'warped or melted product edges', 'distorted proportions',
-    'cartoon', 'illustration', 'CGI render look', 'plastic look', 'oversaturated colour', 'heavy HDR', 'dark muddy exposure',
-    'cluttered composition', 'blurry subject', 'low resolution', 'frame borders', 'collage', 'split screen'],
-  refClause: 'Feature exactly the products shown in the reference images, unchanged: {list}. Reproduce every product faithfully from its reference image: identical shape, proportions, camera layout, buttons, materials, colour and finish, at a believable real-world scale, fully in frame. Never redesign, recolour, duplicate or add other products',
+  // when the customer asks for artwork (cartoon, 3D, watercolour), in place of the photograph's lead, look and quality
+  artQuality: 'Polished commercial artwork, clean and high-detail, consistent light and colour',
+  /* every image; a term the customer's own products or words need (hands,
+     for "hand offering cash"; cartoon, for "cartoon style") is lifted for
+     that image. Short on purpose: Seedream has no negative field, so the
+     list rides in the prompt itself, and every word named there is a word
+     the model may draw (29 terms before the audit, 16 now) */
+  negative: ['text', 'lettering', 'numbers', 'watermarks', 'logos or brand marks', 'price tags',
+    'people', 'faces', 'hands', 'extra or duplicated products', 'warped or distorted products',
+    'cartoon look', 'CGI render look', 'cluttered composition', 'frame borders', 'collage or split screen'],
+  refClause: 'The products are exactly those in the reference images: {list}. Reproduce each one faithfully: identical shape, proportions, camera layout, buttons, materials, colour and finish, at a believable real-world scale, fully in frame; never redesign, recolour, duplicate or add products',
   categories: {
     phones:    { anchor: 'a clean, trustworthy setting for selling a phone', scene: 'a premium smartphone on a clean surface', negative: ['phone cases', 'older phone models in the background', 'tangled cables'] },
     gaming:    { anchor: 'a modern gaming setup mood', scene: 'a modern game console and controllers on a clean desk', negative: ['on-screen game footage', 'readable game titles'] },
@@ -132,7 +143,7 @@ const DEFAULTS = {
     sunset:   { label: 'Sunset', colors: ['#7c2d12', '#f97316', '#f9a8d4'], say: 'burnt orange, warm peach and dusk magenta' },
     coral:    { label: 'Terracotta', colors: ['#9a3412', '#e07a5f', '#f2cc8f'], say: 'terracotta, coral and warm sand' },
   },
-  paletteClause: 'Colour palette strictly limited to {say} ({hex}): these colours dominate the backdrop, surfaces and light, with no other strong hues. ',
+  paletteClause: 'Colour palette for the backdrop, surfaces and light strictly limited to {say} ({hex}), with no other strong hues there; the products keep their own true colours. ',
   aspects: {
     '1:1':  { label: 'Square', fal: { width: 2048, height: 2048 }, say: 'Square composition' },
     '4:5':  { label: 'Portrait 4:5', fal: { width: 1792, height: 2240 }, gemini: '4:5', say: 'Vertical 4:5 composition' },
@@ -167,7 +178,7 @@ export const BLOCKLIST = /\b(nude|naked|nsfw|sex|sexual|porn|topless|erotic|ling
 export function extractKeywords(text, max = 8) {
   const t = String(text || '').slice(0, 280).toLowerCase()
     .replace(/https?:\S+|[\w.+-]+@[\w-]+\.\S+|@\w+|#\w+/g, ' ') // urls, emails, handles, tags
-    .replace(/[^a-z\s-]/g, ' ');
+    .replace(/[^a-z0-9\s-]/g, ' ');   // digits stay: PS5, 24k, 4x4
   const words = [];
   const seen = new Set();
   for (const raw of t.split(/\s+/)) {
@@ -180,6 +191,36 @@ export function extractKeywords(text, max = 8) {
   }
   return words;
 }
+
+/* The scene, in the customer's own words (the prompt audit, 2026-10-16:
+   "red Tesla Model 3 parked downtown at night in the rain" used to reach the
+   model as "red, tesla, model, parked, downtown, night, rain", the 3 and
+   every relation between the words gone). The sentence is kept, cleaned:
+   no links, handles or quotes; no word asking for lettering ("no text",
+   "write", "logo": the ad's own words go on top later, and the picture
+   never carries any); no instruction words; no blocked word. */
+const LETTERING = /^(text|texts|word|words|letter|letters|lettering|writing|written|caption|captions|says|saying|font|fonts|typography|headline|title|titles|logo|logos|watermark|watermarks|write|writes|draw|render|spell|spelled|spelling|sign|signs|signage)$/i;
+const INSTRUCTION = /^(ignore|disregard|instruction|instructions|prompt|prompts|previous|system|assistant|please|pls|plz)$/i;
+export function cleanScene(text, max = 220) {
+  let t = String(text || '').slice(0, 400)
+    .replace(/https?:\S+|[\w.+-]+@[\w-]+\.\S+|@\w+|#\w+/g, ' ')
+    .replace(/(\w)['’](\w)/g, '$1$2')
+    .replace(/["“”«»][^"“”«»]{0,80}["“”«»]|(^|\s)['‘][^'‘’]{1,80}['’](?=\s|$|[,.])/g, ' ')   // anything quoted is words to print
+    .replace(/[^\p{L}\p{N}\s,.&+\-]/gu, ' ')
+    .replace(/\b(?:no|without|with no)\s+(?:any\s+)?(?:text|words?|letters?|lettering|writing|captions?|logos?|watermarks?|signs?)\b/gi, ' ');
+  const words = t.split(/\s+/).filter((w) => {
+    const bare = w.replace(/[^\p{L}\p{N}]/gu, '');
+    return bare && !BLOCKLIST.test(bare) && !LETTERING.test(bare) && !INSTRUCTION.test(bare);
+  }).map((w) => (/^[A-Z][A-Z&.,+-]+$/.test(w) ? w.toLowerCase() : w));   // a word in capitals reads as a word to print; PS5 keeps its own
+  let out = words.join(' ').replace(/\s+([,.])/g, '$1').replace(/([,.&+-])(?:\s*[,.&+-])+/g, '$1').replace(/^[\s,.&+-]+|[\s,.&+-]+$/g, '');
+  // what is left at the front of a removed request ("and the on a, gold watch")
+  while (/^(and|or|but|then|the|a|an|of|on|in|with|to|at)\b[\s,.]*/i.test(out)) out = out.replace(/^(and|or|but|then|the|a|an|of|on|in|with|to|at)\b[\s,.]*/i, '');
+  if (out.length > max) out = out.slice(0, max).replace(/\s+\S*$/, '');
+  return out.length >= 2 ? out : '';
+}
+/* words in the scene that change how the house prompt reads */
+const ART = /\b(cartoon|cartoony|illustration|illustrated|comic|comics|anime|manga|3d|cgi|clay|claymation|painting|painted|watercolou?r|vector|pixel art|low poly|drawing|sketch|sketched)\b/i;
+const OWN_LIGHT = /\b(night|nighttime|midnight|moody|dark|low key|low-key|neon|sunset|sunrise|golden hour|dusk|dawn|candle|candlelit|spotlight|spotlit|backlit|rain|rainy|storm|fog|foggy|misty|cinematic)\b/i;
 
 // ---------- configuration layers ----------
 const isObj = (x) => x && typeof x === 'object' && !Array.isArray(x);
@@ -211,7 +252,7 @@ export function baseRecipe(env) {
   return r;
 }
 
-const RECIPE_KEYS = ['template', 'quality', 'negative', 'refClause', 'categories', 'groups', 'styles', 'palettes', 'paletteClause', 'aspects', 'spaces', 'maxPerRun', 'models'];
+const RECIPE_KEYS = ['template', 'quality', 'artQuality', 'negative', 'refClause', 'categories', 'groups', 'styles', 'palettes', 'paletteClause', 'aspects', 'spaces', 'maxPerRun', 'models'];
 /** an operator's override, checked for shape before it can be saved */
 export function checkOverride(o) {
   if (o === null || (isObj(o) && !Object.keys(o).length)) return null;
@@ -219,7 +260,7 @@ export function checkOverride(o) {
   if (JSON.stringify(o).length > 64000) throw new Error('The override is over 64 KB');
   for (const k of Object.keys(o)) if (!RECIPE_KEYS.includes(k)) throw new Error('Unknown recipe key: ' + k);
   if (o.negative !== undefined && !(Array.isArray(o.negative) && o.negative.every((x) => typeof x === 'string'))) throw new Error('negative must be a list of words');
-  for (const k of ['template', 'quality', 'refClause', 'paletteClause']) if (o[k] !== undefined && typeof o[k] !== 'string') throw new Error(k + ' must be text');
+  for (const k of ['template', 'quality', 'artQuality', 'refClause', 'paletteClause']) if (o[k] !== undefined && typeof o[k] !== 'string') throw new Error(k + ' must be text');
   if (o.models) {
     for (const k of ['falText', 'falEdit']) if (o.models[k] !== undefined && !/^fal-ai\/[\w./-]+$/.test(o.models[k])) throw new Error('models.' + k + ' must be a fal-ai/… model id');
     if (o.models.provider !== undefined && !['', 'fal', 'gemini'].includes(o.models.provider)) throw new Error('models.provider is fal, gemini or empty');
@@ -309,7 +350,9 @@ function paletteText(recipe, palette, colors) {
 
 // ---------- the prompt ----------
 const HAND_WORDS = /\b(hand|hands|holding|counting|offering)\b/i;
-const POLICY = new Set(['text', 'letters', 'words', 'numbers', 'captions', 'watermark', 'signature', 'added logos or brand marks', 'people', 'faces']);
+const POLICY = new Set(['text', 'lettering', 'numbers', 'watermarks', 'logos or brand marks', 'people', 'faces',
+  // the names before the audit, for an operator's saved override
+  'letters', 'words', 'captions', 'watermark', 'signature', 'added logos or brand marks']);
 export function composePrompt(recipe, opts) {
   const cat = recipe.categories[opts.category] || {};
   const style = recipe.styles[opts.style] || recipe.styles.auto || Object.values(recipe.styles)[0] || {};
@@ -319,34 +362,59 @@ export function composePrompt(recipe, opts) {
   const refs = ents.filter((e) => e.ref);
   const named = ents.filter((e) => !e.ref);
   const kw = opts.keywords || [];
+  // the customer's sentence (cleanScene), else their keywords as before
+  const scene = String(opts.scene || '').trim() || kw.join(', ');
+  const art = (scene.match(ART) || [])[0] || '';
+  const ownLight = !art && OWN_LIGHT.test(scene);
 
+  /* the subject: the products by name first, then the customer's scene in
+     their own words; the house's category scene and anchor only when they
+     gave none (the anchor used to trail a beach scene with "a clean,
+     trustworthy setting for selling a phone") */
+  const products = [
+    ...refs.map((e, i) => (refs.length > 1 ? e.say + ' (reference image ' + (i + 1) + ')' : e.say)),
+    ...named.map((e) => e.say.toLowerCase()),
+  ];
   const parts = [];
-  if (refs.length) {
-    const list = refs.map((e, i) => (refs.length > 1 ? 'image ' + (i + 1) + ' is ' : '') + e.say).join('; ');
-    parts.push(recipe.refClause.replace('{list}', list));
-  }
-  if (named.length) parts.push((refs.length ? 'Also ' : 'Featuring ') + named.map((e) => e.say.toLowerCase()).join(', '));
-  if (kw.length) parts.push('Setting: ' + kw.join(', '));
-  if (!parts.length) parts.push(cat.scene || 'a clean premium surface');
+  if (products.length) parts.push('Featuring ' + products.join(', '));
+  if (scene) parts.push('Scene: ' + scene);
+  else if (!products.length) parts.push(cat.scene || 'a clean premium surface');
   const subject = parts.join('. ');
+  const fidelity = refs.length
+    ? recipe.refClause.replace('{list}', refs.map((e, i) => (refs.length > 1 ? 'image ' + (i + 1) + ' is ' : '') + e.say).join('; '))
+    : '';
 
-  const composition = [aspect.say, space.say, refs.length || named.length ? 'products fully visible, not cropped at the edges' : ''].filter(Boolean).join(', ');
+  const composition = [aspect.say, space.say, products.length ? 'products fully visible, not cropped at the edges' : ''].filter(Boolean).join(', ');
   /* what you put in is what comes out: a word the customer typed lifts the
-     same word from the Avoid list (cartoon, collage), and a product with hands
-     in it lifts hands; the policy terms stay whatever is typed */
-  const allow = ents.some((e) => HAND_WORDS.test(e.label)) || kw.some((w) => HAND_WORDS.test(w));
+     negative it names (cartoon, collage, frame), a product with hands in it
+     lifts hands, artwork lifts the cartoon and CGI looks; the policy terms
+     stay whatever is typed */
+  const typed = new Set([...kw, ...scene.toLowerCase().split(/[^a-z0-9]+/)].filter(Boolean));
+  const allowHands = ents.some((e) => HAND_WORDS.test(e.label)) || HAND_WORDS.test(scene);
   const negative = [...new Set([...(recipe.negative || []), ...(cat.negative || [])])]
-    .filter((n) => !(allow && /^(hands|body parts)$/.test(n)))
-    .filter((n) => POLICY.has(n) || !kw.includes(n));
+    .filter((n) => !(allowHands && /^(hands|body parts)$/.test(n)))
+    .filter((n) => !(art && /cartoon|illustration|cgi|render|plastic/i.test(n)))
+    .filter((n) => !(ownLight && /dark muddy exposure|oversaturated/i.test(n)))
+    .filter((n) => POLICY.has(n) || !n.toLowerCase().split(/\s+or\s+/).some((alt) => typed.has(alt) || (alt.includes(' ') && (' ' + scene.toLowerCase() + ' ').includes(' ' + alt + ' '))));
 
+  /* the customer's own light (night, moody, neon, rain) replaces the
+     style's look, which names its own light (the house style's "bright
+     true-to-life exposure" fought "moody lighting"); artwork replaces the
+     photograph's lead, look and quality */
+  const lead = art ? (recipe.artQuality || 'Polished commercial artwork') + ', ' + art + ' style' : style.lead || '';
+  const house = !opts.style || opts.style === 'auto' || !recipe.styles[opts.style];   // a style the customer picked keeps its own look
+  const look = art ? '' : ownLight && house ? 'Light and mood exactly as the scene describes' : style.look || '';
+  const quality = art ? '' : recipe.quality || '';
+  const tpl = /\{fidelity\}/.test(recipe.template) ? recipe.template : recipe.template.replace('{subject}', '{subject}. {fidelity}');
   const fill = (t) => t
-    .replace('{lead}', style.lead || '').replace('{look}', style.look || '')
-    .replace('{subject}', subject).replace('{anchor}', cat.anchor ? ', ' + cat.anchor : '')
+    .replace('{lead}', lead).replace('{look}', look)
+    .replace('{subject}', subject).replace('{anchor}', !scene && cat.anchor ? ', ' + cat.anchor : '')
+    .replace('{fidelity}', fidelity)
     .replace('{palette}', paletteText(recipe, opts.palette, opts.colors)).replace('{composition}', composition)
-    .replace('{quality}', recipe.quality || '').replace('{negative}', negative.join(', '));
-  let prompt = fill(recipe.template)
+    .replace('{quality}', quality).replace('{negative}', negative.join(', '));
+  let prompt = fill(tpl)
     .replace(/\s+/g, ' ').replace(/\s+([.,])/g, '$1').replace(/([.,])(?:\s*[.,])+/g, '$1').replace(/^[.,\s]+/, '').trim();
-  if (!recipe.models.negativeField && negative.length && !/\{negative\}/.test(recipe.template)) prompt += ' Avoid: ' + negative.join(', ') + '.';
+  if (!recipe.models.negativeField && negative.length && !/\{negative\}/.test(tpl)) prompt += ' Avoid: ' + negative.join(', ') + '.';
   return { prompt, negative: negative.join(', '), refs: refs.map((e) => e.ref), aspect: opts.aspect in recipe.aspects ? opts.aspect : '1:1' };
 }
 
@@ -676,7 +744,7 @@ export async function bggenRoute(req, url, p, env, deps) {
     entities = resolveEntities(body.entities, cat, recipe);
   }
   const job = composePrompt(recipe, {
-    category, entities, keywords: extractKeywords(body.text),
+    category, entities, keywords: extractKeywords(body.text), scene: cleanScene(body.text),
     style: String(body.style || 'auto'), palette: String(body.palette || 'auto'), colors: body.colors,
     aspect: String(body.aspect || '1:1'), space: String(body.space || 'top'),
   });

@@ -144,7 +144,7 @@ export async function browserCheck({ ROOT, ok, api, falCalls }) {
     ok(/^1 credit left/.test(res.bal) && res.disabled && /Not enough credits/.test(res.go), 'browser: the balance came down to 1 and Generate holds (' + JSON.stringify(res) + ')');
     ok(await page.evaluate(() => account.credits && account.credits.total === 1), 'browser: the studio\'s own credit count follows the run');
     const sent = falCalls.slice(calls);
-    ok(sent.length === 2 && sent.every((c) => c.model === 'fal-ai/bytedance/seedream/v4/edit' && c.body.image_urls.some((u) => /qs-iphone-17-pro-max\.jpg$/.test(u)) && c.body.image_urls.some((u) => /qs-iphone-16-back--teal\.jpg$/.test(u)) && c.body.image_size.height === 2560 && /neon/i.test(c.body.prompt) && /#2563eb/.test(c.body.prompt) && /iphones, rain/.test(c.body.prompt)),
+    ok(sent.length === 2 && sent.every((c) => c.model === 'fal-ai/bytedance/seedream/v4/edit' && c.body.image_urls.some((u) => /qs-iphone-17-pro-max\.jpg$/.test(u)) && c.body.image_urls.some((u) => /qs-iphone-16-back--teal\.jpg$/.test(u)) && c.body.image_size.height === 2560 && /neon/i.test(c.body.prompt) && /#2563eb/.test(c.body.prompt) && /Scene: iphones in the rain/.test(c.body.prompt)),
       'browser: fal got two edit calls with both reference photos, story size, neon, electric blue and the words');
     await shot(page, 'results');
     await page.locator('#bggen-results .bggen-card [data-a="use"]').first().click();

@@ -2786,3 +2786,4 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-theme='dark'][data-finish='counter'] .lp-price-card.hot{box-shadow:inset 0 4px 0 var(--accent)}
 :root[data-theme='dark'][data-finish='counter'] .flow-step{box-shadow:none;border-top-color:var(--text)}
 :root[data-theme='dark'][data-finish='counter'] .cb-start.on{box-shadow:0 0 0 2px var(--text)}
+.bggen-op{color:var(--text-dim);font-size:.92em}

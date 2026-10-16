@@ -6562,16 +6562,33 @@ function demoSave(email, patch){
   jset('pgfx_demo_users', users);
 }
 
+/* Only an answer that the sign-in is no good (401) or the account is gone
+   (404) signs the studio out. A dropped connection, a phone waking up, a
+   slow or failing function keeps the account it had, after one more try,
+   and the studio asks again when the window is back online or in front.
+   Owner, 2026-10-16: "or the session signs out" (the studio used to drop
+   to signed out on any failed /me, with the sign-in still good). */
+const signedOutBy = (e) => !!e && (e.status === 401 || e.status === 404);
 async function loadAccount(){
   try {
     if (DEMO) account = demoMe();
     else if (getToken()) account = (await api('/me')).user;
     else account = null;
-  } catch (e){ account = null; }
+  } catch (e){
+    let err = e;
+    if (!signedOutBy(err)){
+      await new Promise((r) => setTimeout(r, 1200));
+      try { account = (await api('/me')).user; err = null; }
+      catch (e2){ err = e2; }
+    }
+    if (signedOutBy(err)){ account = null; jset('pgfx_token', null); }   // a dead sign-in is let go
+    // otherwise the account it had stays
+  }
   if (account) jset('pgfx_seen_account', true);   // the auth dialog opens on Sign in from now on
   syncAcctUI();
   return account;
 }
+['online', 'focus'].forEach((ev) => window.addEventListener(ev, () => { if (!DEMO && !account && getToken()) loadAccount(); }));
 const planKey = (p) => (PLANS[p] ? p : p === 'starter' ? 'pro' : 'free');   // starter: the old name of Pro
 /* An operator account (ADMIN_EMAILS, role admin) has every feature of every
    plan whatever plan it is billed on, as the function grants it (api.mjs
