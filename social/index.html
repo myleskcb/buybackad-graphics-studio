@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#20231f">
+  <title>iPhones.LA Social Studio</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../pages.css">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="config.js"></script>
+  <script defer src="../account.js"></script>
+  <script defer src="../motion/vendor/mp4-muxer.min.js"></script>
+  <script defer src="../video-still.js"></script>
+  <script type="module" src="app.js"></script>
+</head>
+<body class="social-studio">
+  <a class="ss-skip" href="#workspace">Skip to workspace</a>
+  <header class="ss-top">
+    <div class="ss-brand" aria-label="iPhones.LA">
+      <svg class="ss-brand-mark" viewBox="0 0 28 34" fill="none" aria-hidden="true">
+        <rect x="5" y="2" width="18" height="30" rx="5" stroke="currentColor" stroke-width="2.5"/>
+        <path d="M11 6h6M12 28h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span>iPhones<span class="ss-brand-dot">.</span>LA</span>
+    </div>
+    <span class="ss-workspace-label"><span class="ss-dot" aria-hidden="true"></span>Business workspace</span>
+  </header>
+
+  <main class="ss-main">
+    <div class="ss-intro">
+      <div>
+        <p class="ss-eyebrow">Made for the shop</p>
+        <h1>Social Studio<span>.</span></h1>
+      </div>
+      <p class="ss-intro-copy">Fresh inventory. Helpful tips. A reason to stop scrolling.<br>Make a graphic or video, then post it your way.</p>
+    </div>
+
+    <section id="access" class="ss-access" aria-labelledby="access-title">
+      <div class="ss-access-icon" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none"><rect x="7" y="14" width="18" height="14" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M11 14V9a5 5 0 0 1 10 0v5M16 20v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </div>
+      <p class="ss-eyebrow">iPhones.LA team</p>
+      <h2 id="access-title">Your shop's creative workspace.</h2>
+      <p>Sign in with your business admin account to make and save social content.</p>
+      <button id="sign-in" class="ss-button ss-primary" type="button">Sign in to workspace <span aria-hidden="true">↗</span></button>
+      <p id="access-note" class="ss-help" role="status">Checking workspace access…</p>
+    </section>
+
+    <div id="workspace" hidden>
+      <div class="ss-studio-grid">
+        <section class="ss-editor ss-panel" aria-labelledby="editor-title">
+          <div class="ss-panel-heading">
+            <div>
+              <p class="ss-eyebrow">01 / Create</p>
+              <h2 id="editor-title">Make it yours</h2>
+            </div>
+            <button id="reset-draft" class="ss-text-button" type="button">Start fresh</button>
+          </div>
+
+          <div class="ss-mode" role="group" aria-label="Content type">
+            <button id="mode-graphic" type="button" aria-pressed="true">
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="7.5" cy="7.5" r="1.3" fill="currentColor"/><path d="m4 15 4-4 3 2 3-5 3 4" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              Graphic
+            </button>
+            <button id="mode-video" type="button" aria-pressed="false">
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="m8 6.5 5 3.5-5 3.5v-7Z" fill="currentColor"/></svg>
+              Video
+            </button>
+          </div>
+
+          <div class="ss-fields">
+            <div class="ss-two-col">
+              <label class="ss-field">Post about
+                <select id="category">
+                  <option value="inventory">Inventory</option>
+                  <option value="selling">Selling to us</option>
+                  <option value="tips">Tips &amp; how-to</option>
+                  <option value="seasonal">Seasonal</option>
+                  <option value="updates">Shop updates</option>
+                </select>
+              </label>
+              <label class="ss-field">Starting point
+                <select id="preset" aria-label="Post starting point"></select>
+              </label>
+            </div>
+
+            <div class="ss-rule"></div>
+
+            <label class="ss-field" for="headline"><span class="ss-label-line">Headline <span>60 characters max</span></span>
+              <input id="headline" type="text" maxlength="60" placeholder="Something worth sharing" autocomplete="off">
+            </label>
+            <label class="ss-field" for="detail"><span class="ss-label-line">Supporting line <span>40 characters max</span></span>
+              <input id="detail" type="text" maxlength="40" placeholder="Keep it short and useful" autocomplete="off">
+            </label>
+            <div class="ss-two-col">
+              <label class="ss-field" for="cta">Call to action
+                <input id="cta" type="text" maxlength="24" value="iPhones.LA · Text us" autocomplete="off">
+              </label>
+              <label class="ss-field" for="phone">Business phone
+                <input id="phone" type="tel" value="(562) 999-4994" autocomplete="off" inputmode="tel">
+              </label>
+            </div>
+
+            <div class="ss-photo">
+              <label class="ss-upload" for="photo">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4 4 4M4 14v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span><strong>Add your product photo</strong><span>JPG, PNG or WebP</span></span>
+                <span class="ss-upload-plus" aria-hidden="true">+</span>
+                <input id="photo" class="ss-visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="photo-note">
+              </label>
+              <div class="ss-photo-meta">
+                <p id="photo-note" class="ss-help">Use a photo of the actual item for inventory posts.</p>
+                <button id="remove-photo" class="ss-text-button" type="button" disabled>Remove photo</button>
+              </div>
+            </div>
+
+            <div class="ss-rule"></div>
+
+            <div class="ss-format-row">
+              <label class="ss-field" for="aspect">Format
+                <select id="aspect">
+                  <option value="9:16">Story · 9:16</option>
+                  <option value="4:5">Feed · 4:5</option>
+                  <option value="1:1">Square · 1:1</option>
+                </select>
+              </label>
+              <label class="ss-field" for="look">Look
+                <select id="look">
+                  <option value="clean">Clean</option>
+                  <option value="bold">Bold</option>
+                  <option value="editorial">Editorial</option>
+                </select>
+              </label>
+              <label class="ss-field" for="duration">Duration
+                <select id="duration">
+                  <option value="6">6 seconds</option>
+                  <option value="8">8 seconds</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="ss-field" for="caption"><span class="ss-label-line">Post caption <span>Not on the artwork</span></span>
+              <textarea id="caption" rows="4" maxlength="1500" placeholder="Add the details people need before they reach out."></textarea>
+            </label>
+
+            <label class="ss-field" for="expires"><span class="ss-label-line">Relevant until <span>Optional</span></span>
+              <input id="expires" type="date" aria-describedby="expires-help">
+            </label>
+            <p id="expires-help" class="ss-help ss-attached-help">A reminder for seasonal posts and updates. This does not schedule a post.</p>
+          </div>
+        </section>
+
+        <section class="ss-preview-panel" aria-labelledby="preview-title">
+          <div class="ss-preview-sticky">
+            <div class="ss-preview-heading">
+              <div>
+                <p class="ss-eyebrow">02 / Preview</p>
+                <h2 id="preview-title">Ready for the feed</h2>
+              </div>
+              <span id="preview-size" class="ss-size-label">1080 × 1920</span>
+            </div>
+            <div class="ss-preview-stage">
+              <canvas id="preview" width="1080" height="1920" aria-label="Preview of your social post">A preview of your social post appears here. Edit its text and style using the controls.</canvas>
+            </div>
+            <div class="ss-preview-meta">
+              <p id="preview-note" class="ss-help">Your finished artwork, just as it will download.</p>
+              <label class="ss-play" for="play"><input id="play" type="checkbox"><span class="ss-play-icon" aria-hidden="true"></span>Play video</label>
+            </div>
+            <div class="ss-export">
+              <div class="ss-export-heading">
+                <div>
+                  <p class="ss-eyebrow">03 / Share</p>
+                  <h3>Take it from here</h3>
+                </div>
+                <svg viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M8 20 21 7M8 7h13v13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="ss-export-buttons">
+                <button id="download-jpg" class="ss-button ss-primary" type="button">
+                  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9m0 0 3-3m-3 3L7 9M4 13v3a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Download JPG
+                </button>
+                <button id="download-video" class="ss-button ss-secondary" type="button">
+                  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9m0 0 3-3m-3 3L7 9M4 13v3a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Download video
+                </button>
+                <button id="copy-caption" class="ss-button ss-secondary" type="button">Copy caption</button>
+              </div>
+              <p class="ss-help">Downloads are ready for manual posting to your social accounts.</p>
+              <p id="status" class="ss-status" role="status" aria-live="polite"></p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="ss-drafts ss-panel" aria-labelledby="drafts-title">
+        <div class="ss-drafts-intro">
+          <p class="ss-eyebrow">Keep the good ones</p>
+          <h2 id="drafts-title">Your draft shelf</h2>
+          <p>Drafts and their photos stay in this browser. Save a recipe as JSON to use again elsewhere.</p>
+        </div>
+        <div class="ss-draft-controls">
+          <div class="ss-draft-row">
+            <label class="ss-field" for="draft-name">Name this draft
+              <input id="draft-name" type="text" maxlength="80" placeholder="e.g. Friday inventory story" autocomplete="off">
+            </label>
+            <button id="save-draft" class="ss-button ss-dark" type="button">Save draft</button>
+          </div>
+          <div class="ss-draft-row">
+            <label class="ss-field" for="drafts">Saved in this browser
+              <select id="drafts"><option value="">No saved drafts yet</option></select>
+            </label>
+            <button id="load-draft" class="ss-button ss-secondary" type="button">Load</button>
+            <button id="delete-draft" class="ss-text-button ss-delete" type="button">Delete</button>
+          </div>
+          <div class="ss-draft-files">
+            <button id="export-draft" class="ss-text-button" type="button">Download recipe JSON <span aria-hidden="true">↗</span></button>
+            <label class="ss-text-button ss-import" for="import-draft">Import recipe JSON
+              <input id="import-draft" class="ss-visually-hidden" type="file" accept=".json,application/json">
+            </label>
+            <span class="ss-help">Recipes do not include photos.</span>
+          </div>
+        </div>
+      </section>
+    </div>
+    <noscript><p class="ss-no-script">Enable JavaScript to use Social Studio.</p></noscript>
+  </main>
+  <footer class="ss-footer"><span>iPhones.LA Social Studio</span><span>For our business. Made to share.</span></footer>
+</body>
+</html>

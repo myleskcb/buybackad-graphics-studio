@@ -4703,3 +4703,41 @@ RESUME HERE:
   0. The Midnight turn step (13 and 14 alike, 2.7): the owner's call whether
      the bar takes the set's usual step, or Midnight stays a known exception.
   1. device_entities.mjs: no new authentic backs (every 13 is painted now).
+
+## 2026-10-20 — iPhones.LA's internal social workspace
+
+Asked: customize Graphics Studio and Video Ads for the shop's own social
+content, including items, selling instructions, information, seasonal posts
+and updates. Keep it out of the consumer app for now.
+
+Done:
+  - `/social/` reuses the motion composition, audit, still selection, music
+    and export modules with business copy, three looks and three formats.
+    The deployed workspace requires the existing Studio admin role.
+  - Separate browser drafts keep their own photos. Inventory exports need
+    the real item photo; the adapter preserves the whole photograph rather
+    than generating unseen views or removing its background.
+  - JPG, video and caption downloads are manual. The page omits the library
+    and iPhones.LA feed hooks, so a seasonal graphic cannot reach the
+    marketplace. The shop's existing inventory autoposter is unchanged.
+
+Found:
+  - A completed photo decode or account request can arrive after the user
+    changes drafts or signs out. Both now check the request's current
+    identity before changing the page; browser checks hold and release the
+    requests to exercise those races.
+  - A radial ground scaled into a Story safe area leaves a visible rectangle.
+    The business looks use flat grounds and leave space around the composition.
+
+Checked: draft validation and Los Angeles dates; local-only preview flag;
+browser admin gate, saved photos, late upload, JPG and MP4 downloads, and
+390 px layout. The UI's MP4 is H.264, 1080 × 1920 with AAC audio. All nine
+look/format combinations and 24 populated preset/format combinations pass
+the renderer's blocking checks. Square bold/editorial retain minor shared
+first-frame/motion advisories. Shared customer rendering and billing code
+were not edited.
+
+RESUME HERE:
+  0. `/social/` is the internal creative tool. See `docs/social-studio.md`.
+     Custom campaign scheduling and social autoposting are separate work;
+     no posting integration or schedule was added in this session.

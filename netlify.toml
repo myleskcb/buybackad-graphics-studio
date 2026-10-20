@@ -346,6 +346,13 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
 
+# The shop's internal creative workspace is reached directly by its admins.
+[[headers]]
+  for = "/social/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "private, max-age=0, must-revalidate"
+
 # TEMPORARY: the ad review admin (admin-ads/). Remove this block with the folder.
 [[headers]]
   for = "/admin-ads/*"

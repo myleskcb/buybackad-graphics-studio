@@ -93,6 +93,10 @@
 /admin-ads/*
   X-Robots-Tag: noindex, nofollow
 
+/social/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: private, max-age=0, must-revalidate
+
 # The video encoder is vendored under a versioned filename, so it can be cached
 # for good; a new version gets a new name.
 /vendor/*
