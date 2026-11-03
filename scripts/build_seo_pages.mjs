@@ -530,9 +530,32 @@ console.log('wrote', CATS.length, 'pages to ads/');
   const qa = [...html.matchAll(/<details class="lp-faq"><summary>([\s\S]*?)<\/summary><p>([\s\S]*?)<\/p><\/details>/g)]
     .map((m) => ({ '@type': 'Question', name: decode(m[1]), acceptedAnswer: { '@type': 'Answer', text: decode(m[2]) } }));
   const block = `<script type="application/ld+json" id="ld-faq">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: qa })}</script>`;
-  const re = /<script type="application\/ld\+json" id="ld-faq">[\s\S]*?<\/script>/;
-  html = re.test(html) ? html.replace(re, block) : html.replace('</head>', block + '\n</head>');
+  /* every ld-faq block, not the first: a second, stale copy ("twelve colour
+     sets") sat beside the rebuilt one, two FAQPage graphs, one of them false
+     (the SEO audit, 2026-11-03). The first is replaced, the rest removed. */
+  const re = /\s*<script type="application\/ld\+json" id="ld-faq">[\s\S]*?<\/script>/g;
+  let first = true;
+  html = re.test(html) ? html.replace(re, (m) => { const lead = m.match(/^\s*/)[0]; if (!first) return ''; first = false; return lead + block; })
+    : html.replace('</head>', block + '\n</head>');
+  /* the Offers in the site's JSON-LD, from the table the server charges by
+     (netlify/lib/plans.mjs). They said Pro was $15 a month, the price of
+     August, while the page sold $25, $60 and $100: Google shows the
+     structured price, so a searcher was told a fifth of the real one. */
+  const { PLANS } = await import(root + 'netlify/lib/plans.mjs');
+  const fmt = (n) => Number(n).toLocaleString('en-US');
+  const offerFor = (id) => {
+    const p = PLANS[id], usd = String(p.price.month / 100);
+    const dl = p.weekly ? p.weekly + ' downloads a week' : p.monthly ? fmt(p.monthly) + ' downloads a month' : 'Unlimited downloads';
+    const description = [dl, 'up to ' + p.maxPx + ' pixels', p.watermark ? 'with a watermark' : 'no watermark', p.video ? 'video ads' : null, p.credits + ' AI credits a month'].filter(Boolean).join(', ');
+    const o = { '@type': 'Offer', name: p.label, price: usd, priceCurrency: 'USD', description };
+    if (p.price.month) o.priceSpecification = { '@type': 'UnitPriceSpecification', price: usd, priceCurrency: 'USD', unitCode: 'MON', referenceQuantity: { '@type': 'QuantitativeValue', value: '1', unitCode: 'MON' } };
+    return o;
+  };
+  const offers = Object.keys(PLANS).map(offerFor).map((o) => JSON.stringify(o)).join(',\n');
+  const graphRe = /(\{"@type":"Offer"[\s\S]*?)(\]\}\s*\n\]\}\s*\n<\/script>)/;
+  if (graphRe.test(html)) html = html.replace(graphRe, (m, _old, tail) => offers + tail);
+  else console.warn('index.html: the Offer list was not found; prices not rewritten');
   writeFileSync(f, html);
-  console.log('index.html FAQPage:', qa.length, 'questions');
+  console.log('index.html FAQPage:', qa.length, 'questions; Offers:', Object.keys(PLANS).length);
 }
 export { CATS, nav, footer, SITE };
