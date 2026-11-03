@@ -42,6 +42,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync, unlinkSync, readdir
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { openStudio, live } from './_showcase_harness.mjs';
+import { installLibraryFinish } from './_library_finish.mjs';
 import { exifStamp, exifRead } from './_jpeg_exif.mjs';
 
 const ROOT = new URL('..', import.meta.url).pathname;
@@ -96,12 +97,15 @@ const items = { ...prev.items };
 const failed = [];
 if (todo.length) {
   const { browser, page, errors } = await openStudio();
+  // iPhones LA's copies: the website line and the plate padding (_library_finish.mjs, 2026-11-03)
+  await installLibraryFinish(page);
+  await page.evaluate(() => { __lib.on = true; });
   for (let i = 0; i < todo.length; i += 6) {
     const batch = todo.slice(i, i + 6).map((c) => c.id);
     const out = await page.evaluate(async (ids, size, q) => {
       const res = [];
       for (const id of ids) {
-        try { res.push({ id, jpg: renderThumb(await __sc.load(id), size, q) }); }
+        try { res.push({ id, jpg: renderThumb(__lib.copy(await __sc.load(id)), size, q) }); }
         catch (e) { res.push({ id, err: String(e).slice(0, 120) }); }
       }
       return res;
