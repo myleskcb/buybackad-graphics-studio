@@ -203,13 +203,13 @@ window.FS = {
     const parts = [["service line", g.tag && g.pos.tag, g.tag], ["call to action", g.num.label && g.pos.label, g.num.label], ["website", g.site && g.pos.site, g.site]];
     g.tag = null; g.num = { ...g.num, label: null }; g.site = null; g.still = null;
     g.frame(gc.getContext("2d"), t, { subsFly: 2, subsMove: 2 }, 1 / 30);
-    const px = gc.getContext("2d").getImageData(0, 0, 540, 540).data, lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
+    const gpx = gc.getContext("2d").getImageData(0, 0, 540, 540).data, lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
     const contrast = {};
     for (const [name, at, spr] of parts) {
       if (!at || !spr) continue;
       const Ls = [];
       for (let y = Math.max(0, at[1] | 0); y < Math.min(540, at[1] + spr.height); y += 2)
-        for (let x = Math.max(0, at[0] | 0); x < Math.min(540, at[0] + spr.width); x += 2) { const q = (y * 540 + x) * 4; Ls.push(.2126 * lin(px[q]) + .7152 * lin(px[q + 1]) + .0722 * lin(px[q + 2])); }
+        for (let x = Math.max(0, at[0] | 0); x < Math.min(540, at[0] + spr.width); x += 2) { const q = (y * 540 + x) * 4; Ls.push(.2126 * lin(gpx[q]) + .7152 * lin(gpx[q + 1]) + .0722 * lin(gpx[q + 2])); }
       Ls.sort((a, b) => a - b);
       const worst = Ls[Math.min(Ls.length - 1, Math.floor(Ls.length * (light ? .9 : .1)))], [r, gg, b] = [ink.slice(1, 3), ink.slice(3, 5), ink.slice(5, 7)].map(h => lin(parseInt(h, 16)));
       const L = .2126 * r + .7152 * gg + .0722 * b, cr = (Math.max(L, worst) + .05) / (Math.min(L, worst) + .05);
