@@ -15,7 +15,8 @@
  * (audit_plate_padding.mjs --library) apply it to iPhones LA's copies only.
  *
  * copy(t)   the website line reads "Visit our website at www.iPhones.LA",
- *           at 30px where it was 20-26, at least 85% opaque where it was 40-45%
+ *           at 30px where it was 20-26, at least 85% opaque where it was 40-45%;
+ *           a seller is asked for the IMEI or serial, never a picture (LIBRARY_SAY)
  * finish    runs after the studio's alignPass (renderThumb's own sequence):
  *           on every plate, the words and marks on it are measured as drawn
  *           (each drawn with and without itself) and centred on it as one
@@ -34,17 +35,30 @@
  */
 export const LIBRARY_SITE = 'Visit our website at www.iPhones.LA';
 export const LIBRARY_SITE_PX = 30;
+/* What a seller is asked to send. The owner, 2026-11-03: "text us a pic is the worst way for
+   us since we rely on a chatbot ... that quotes via messaging and reading their post or
+   messages", "please make it text us imei", "or text us serial", "text us now", "pics is less
+   ideal since we don't analyze photos as much". The whole line is matched, so nothing else
+   on a card changes. */
+export const LIBRARY_SAY = [
+  ['Details or pics, either works.', 'Your IMEI or serial number.'],
+  ['TEXT A PIC', 'TEXT IMEI'],
+  ['TEXT A PIC · GET A PRICE', 'TEXT YOUR IMEI · GET A PRICE'],
+  ['TEXT A PHOTO, GET A NUMBER', 'TEXT YOUR IMEI, GET A PRICE'],
+];
 
 export async function installLibraryFinish(page) {
-  await page.evaluate((SITE, SITE_PX) => {
+  await page.evaluate((SITE, SITE_PX, SAY) => {
     if (window.__lib) return;
     const lib = window.__lib = { on: false, log: [] };
     // the old line was a whisper (40-45% white on many cards); a URL has to be read: its own
     // colour, at least 85% there
     const solidInk = f => String(f || '').replace(/rgba\(([^,]+),([^,]+),([^,]+),\s*([0-9.]+)\s*\)/, (m, r, g, b, a) => `rgba(${r},${g},${b},${Math.max(0.85, +a)})`);
+    const say = new Map(SAY);
     lib.copy = t => Object.assign({}, t, { layers: t.layers.map(l => l.role === 'website'
       ? Object.assign({}, l, { text: SITE, props: Object.assign({}, l.props, { fontSize: Math.max(SITE_PX, (l.props && l.props.fontSize) || 0),
-          fill: solidInk(l.props && l.props.fill), opacity: Math.max(0.85, (l.props && l.props.opacity != null) ? l.props.opacity : 1) }) }) : l) });
+          fill: solidInk(l.props && l.props.fill), opacity: Math.max(0.85, (l.props && l.props.opacity != null) ? l.props.opacity : 1) }) })
+      : typeof l.text === 'string' && say.has(l.text.trim()) ? Object.assign({}, l, { text: say.get(l.text.trim()) }) : l) });
 
     const box = o => { const b = o.getBoundingRect(true, true); return { l: b.left, t: b.top, r: b.left + b.width, b: b.top + b.height }; };
     const solid = o => o.visible !== false && (o.opacity == null || o.opacity >= 0.5) && !o.pgScrim && !o.pgBgRect && !o.group
@@ -191,5 +205,5 @@ export async function installLibraryFinish(page) {
     const align = window.alignPass, look = window.applyCardLook;
     window.alignPass = function (sc, W, H) { const r = align.apply(this, arguments); if (lib.on) { if (typeof look === 'function') sc.__libPending = [W, H]; else run(sc, W, H); } return r; };
     if (typeof look === 'function') window.applyCardLook = function (sc) { const r = look.apply(this, arguments); if (lib.on && sc.__libPending) { const [W, H] = sc.__libPending; sc.__libPending = null; run(sc, W, H); } return r; };
-  }, LIBRARY_SITE, LIBRARY_SITE_PX);
+  }, LIBRARY_SITE, LIBRARY_SITE_PX, LIBRARY_SAY);
 }

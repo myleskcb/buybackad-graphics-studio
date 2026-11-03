@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* Feed stills: draw the 32 iPhone cards again with the video engine (harness.js),
-   one look each, no two alike, and measure them against the library cards
+   one look each, in one house style, no two alike, and measure them against the library cards
    they replace.
 
    usage:  python3 -m http.server 8931 --bind 127.0.0.1   (repo root), then
@@ -15,10 +15,8 @@
    - each card shows one iPhone model (15 to 18 Pro Max) in two or three of
      its colours; no two stills share their set of phones, and no phone is
      the front phone of more than two;
-   - no two share a palette with the same background, and no palette is
-     used more than twice;
-   - the headline's typeface rotates through heavy, legible faces, so no
-     face carries more than three.
+   - every card in the house style below; no two share a colourway with the
+     same ground, and each colourway carries an even share.
    A look that fails the engine's own audit (words, headline, number,
    contrast) or lets a line drop below body size is skipped for the next seed. */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -36,21 +34,25 @@ const { chromium } = process.env.PLAYWRIGHT_MODULE ? await import(process.env.PL
 const { cards: all } = JSON.parse(readFileSync(ROOT + 'tools/feed-stills/cards.json', 'utf8'));
 const cards = only ? all.filter(c => only.split(',').includes(c.id)) : all;
 
-// Heavy faces that stay legible in a thumbnail; the rounded/bubbly ones first.
-const FACES = ['luckiest', 'tilt-warp', 'bungee', 'unbounded', 'franklin', 'satoshi', 'chivo', 'clash',
-  'bricolage', 'schibsted', 'russo', 'bangers', 'sofia-xcond', 'oswald'];
-// A long headline ("SELL YOUR iPHONE & iPAD") takes three lines in a wide face and leaves the
-// phones no room; a condensed face sets it in two, as large.
-const CONDENSED = ['sofia-xcond', 'oswald', 'big-shoulders', 'barlow-cond', 'saira-cond', 'teko', 'khand', 'squada'];
+/* THE HOUSE STYLE. The owner, 2026-11-03, over the first full set: "some of the outlines look
+   clean but further unify all themes", "drop old ones that look tacky cheesy or ununified ... or
+   just look randomized or out of place", "we want scroll stopping award worthy designs".
+   So every card is set the same way: one face (Chivo Black), capitals, the double outline,
+   one accent word, the number in a pill, centred under the headline. What varies is the
+   phones, the colourway (a dark ground with one bright accent, or one light) and a quiet
+   ground. The rest of the maker's catalogue (candy, confetti, checkers, arcade, murals, neon
+   brick, starfields, script and display faces, boards, stickers) stays out of this set. */
+const HOUSE = { font: 'chivo', text_fx: 'double_outline', case: 'upper', color_mode: 'accent_word', number_style: 'pill', text_pos: 'top-center' };
+const COLOURWAYS = ['graphite', 'ink_blue', 'black_gold', 'money_green', 'oxblood', 'klein', 'midnight_glass', 'cream_black'];
+const GROUNDS = ['radial', 'spotlight', 'studio_sweep', 'tonal', 'spot_floor', 'linear'];
+const ARRANGEMENTS = ['lineup', 'fan', 'showcase', 'podium', 'wings'];
 // The video maker's options that put small words or stray marks (sparkles, a typing caret) on the
 // picture are held off; the phones face back, flat, without the idle spin (caught turned in a
 // photo they read as black slabs, not iPhones); and the camera
 // holds still, so the still is drawn where the plan put everything (the margins are checked there).
 // A sign board round the headline (neon box, kraft tag) costs it about a third of its size
 // (measured: 98-107px in a board, 151-157px without), and the number with it.
-const QUIET = { decor: [], urgency: 'none', overlay: 'none', accents: 0, board: 'none', number_pos: 'bottom-center', number_format: 'parens', camera: 'still', shake: 0, sparkles: false, text_in: 'slide', pose: 'flat', end_face: 'back', phone_idle: 'breathe', text_scale: 1.25, number_scale: 1.12 };
-// The number is the call to action, so it is always drawn as a button, never bare digits.
-const BUTTONS = ['pill', 'box', 'tag'];
+const QUIET = { decor: [], urgency: 'none', overlay: 'none', accents: 0, board: 'none', number_pos: 'bottom-center', number_format: 'parens', camera: 'still', shake: 0, sparkles: false, text_in: 'slide', pose: 'flat', end_face: 'back', phone_idle: 'breathe', grade: 'none', depth: 'none', text_scale: 1.25, number_scale: 1.12, ...HOUSE };
 
 /** The library card's own sizes, from its record (assets/showcase/tpl). */
 function before(id) {
@@ -88,16 +90,17 @@ const phonesFor = (i, s) => {
 };
 console.log('models:', models.map(g => g.model + ' ' + g.ids.length).join(', '));
 
-const used = { sets: new Set(), front: {}, ground: new Set(), palette: {}, face: {} };
+const used = { sets: new Set(), front: {}, ground: new Set(), palette: {} };
+const PALETTE_MAX = Math.ceil(cards.length / COLOURWAYS.length);
 const report = [];
 for (let i = 0; i < cards.length; i++) {
   const card = cards[i];
   let got = null, tried = 0, skipped = {};
-  const faces = card.headline.length > 16 ? CONDENSED : FACES;
   for (let s = 0; s < 120 && !got; s++) {
     const seed = 7001 + i * 97 + s;
-    const font = faces[(i + s) % faces.length];
-    if ((used.face[font] || 0) >= 3) continue;
+    const palette = COLOURWAYS[(i + Math.floor(s / GROUNDS.length)) % COLOURWAYS.length], background = GROUNDS[(i + s) % GROUNDS.length];
+    if ((used.palette[palette] || 0) >= PALETTE_MAX || used.ground.has(palette + '|' + background)) continue;
+    const arrangement = ARRANGEMENTS[(2 * i + s) % ARRANGEMENTS.length];
     const phones = phonesFor(i, s);
     if (used.sets.has([...phones].sort().join(','))) { skipped['same phones as another card'] = (skipped['same phones as another card'] || 0) + 1; continue; }
     // the engine grows a headline to fill up to 36% of the height; where that leaves the
@@ -105,20 +108,19 @@ for (let i = 0; i < cards.length; i++) {
     const long = card.headline.length > 16, scale = long ? (s < 50 ? 1.05 : .9) : (s < 60 ? 1.25 : 1.05);
     tried++;
     const r = await page.evaluate(([content, seed, lock]) => FS.look(content, seed, lock),
-      [{ headline: card.headline, feed_line: card.line, feed_site: 'Visit our website at www.iPhones.LA', number: '(562) 999-4994', number_label: card.cta }, seed, { ...QUIET, font, number_style: BUTTONS[(i + s) % BUTTONS.length], text_pos: (i + s) % 2 ? 'top-left' : 'top-center', text_scale: scale, phones }]);
+      [{ headline: card.headline, feed_line: card.line, feed_site: 'Visit our website at www.iPhones.LA', number: '(562) 999-4994', number_label: card.cta }, seed, { ...QUIET, palette, background, arrangement, text_scale: scale, phones }]);
     const st = r.style, set = [...st.phones].sort().join(','), front = st.phones[0];
     const ground = st.palette + '|' + st.background;
     const clash = !r.ok ? r.why.join('; ')
       : used.sets.has(set) ? 'same phones as another card'
       : (used.front[front] || 0) >= 2 ? 'front phone used twice already'
       : used.ground.has(ground) ? 'same palette and background as another card'
-      : (used.palette[st.palette] || 0) >= 2 ? 'palette used twice already' : '';
+      : (used.palette[st.palette] || 0) >= PALETTE_MAX ? 'colourway used enough already' : '';
     if (clash) { skipped[clash] = (skipped[clash] || 0) + 1; continue; }
-    got = { r, seed, font };
+    got = { r, seed };
     used.sets.add(set); used.ground.add(ground);
     used.front[front] = (used.front[front] || 0) + 1;
     used.palette[st.palette] = (used.palette[st.palette] || 0) + 1;
-    used.face[font] = (used.face[font] || 0) + 1;
   }
   if (!got) { console.log(`${card.id}: no look passed in ${tried} tries`, skipped); report.push({ id: card.id, ok: false, skipped }); continue; }
   const { r, seed } = got, st = r.style;
