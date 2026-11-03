@@ -71,6 +71,63 @@ export const FONTS = {
   "jetbrains":        ["JetBrains Mono", 700, "jetbrains-mono-700.woff2", "mono"],
   "cabin-sketch":     ["Cabin Sketch", 700, "cabin-sketch-700.woff2", "display"],
   "kalam":            ["Kalam", 700, "kalam-700.woff2", "script"],
+  // the cuts the owner's type pairs set that the list above did not have (TYPE_VOICES)
+  "sofia-xcond-800":  ["Sofia Sans Extra Condensed", 800, "sofia-sans-xcond-var.woff2", "condensed"],
+  "unbounded-800":    ["Unbounded", 800, "unbounded-var.woff2", "wide"],
+  "schibsted-800":    ["Schibsted Grotesk", 800, "schibsted-grotesk-var.woff2", "grotesk"],
+  "schibsted-700":    ["Schibsted Grotesk", 700, "schibsted-grotesk-var.woff2", "grotesk"],
+  "satoshi-700":      ["Satoshi", 700, "satoshi-700.woff2", "geometric"],
+  "chivo-700":        ["Chivo", 700, "chivo-700.woff2", "grotesk"],
+  "franklin-700":     ["Libre Franklin", 700, "libre-franklin-700.woff2", "grotesk"],
+};
+
+// the pair cuts are never drawn on their own: the shuffle draws from the faces it always
+// had, so every look number keeps its look (a longer list moved every draw after it)
+export const PAIR_CUTS = new Set(["sofia-xcond-800", "unbounded-800", "schibsted-800", "schibsted-700", "satoshi-700", "chivo-700", "franklin-700"]);
+
+/* THE OWNER'S TYPE PAIRS (DESIGN-LAW 100, carried into the video by 133). The
+   photo ads' FONT_PAIRS in app.js, the same eighteen voices, each a display face
+   for the headline, the opening line, the number and the marks, and a reading
+   face (at its label weight, 700 or more: WEIGHT_FLOOR) for everything read:
+   the small line, the label over the number, the selling points, the call to
+   action and the ticker. scripts/type_voices_check.mjs fails if this list and
+   app.js's say different things. numberRead: the number takes the reading face
+   where the display face's figures are weak (Sedgwick's 9 reads as a g, the
+   stencil's 4 leaves a stray dot). */
+export const TYPE_VOICES = {
+  street:  { name: "Street",  display: "sofia-xcond-800", label: "schibsted-800" },
+  bold:    { name: "Bold",    display: "oswald",          label: "satoshi-700" },
+  stadium: { name: "Stadium", display: "big-shoulders",   label: "manrope" },
+  sport:   { name: "Sport",   display: "teko",            label: "chivo-700" },
+  tech:    { name: "Tech",    display: "saira-cond",      label: "sora" },
+  block:   { name: "Block",   display: "barlow-cond",     label: "franklin-700" },
+  arcade:  { name: "Arcade",  display: "russo",           label: "sora" },
+  squad:   { name: "Squad",   display: "squada",          label: "instrument-sans" },
+  comic:   { name: "Comic",   display: "knewave",         label: "nunito" },
+  marker:  { name: "Marker",  display: "sedgwick",        label: "manrope", numberRead: true },
+  retro:   { name: "Retro",   display: "bungee",          label: "instrument-sans" },
+  pop:     { name: "Pop",     display: "luckiest",        label: "nunito" },
+  luxe:    { name: "Luxe",    display: "gloock",          label: "schibsted-700" },
+  modern:  { name: "Modern",  display: "unbounded-800",   label: "instrument-sans" },
+  warp:    { name: "Warp",    display: "tilt-warp",       label: "sora" },
+  stencil: { name: "Stencil", display: "stencil",         label: "barlow-cond", numberRead: true },
+  grotesk: { name: "Grotesk", display: "bricolage",       label: "instrument-sans" },
+  serif:   { name: "Serif",   display: "young-serif",     label: "manrope" },
+};
+/* Every face a look, a vibe, a theme or a sign may still name, to the voice that
+   speaks closest to it, so a saved look and every shuffle land on a pair. */
+export const VOICE_OF_FONT = {
+  "unbounded": "modern", "unbounded-800": "modern", "bricolage": "grotesk", "sofia-xcond": "street", "sofia-xcond-800": "street",
+  "schibsted": "grotesk", "clash": "modern", "satoshi": "modern", "chivo": "grotesk", "franklin": "grotesk", "oswald": "bold",
+  "big-shoulders": "stadium", "stencil": "stencil", "barlow-cond": "block", "saira-cond": "tech", "teko": "sport", "khand": "sport",
+  "russo": "arcade", "bungee": "retro", "bungee-shade": "retro", "bangers": "pop", "luckiest": "pop", "knewave": "comic",
+  "shrikhand": "pop", "tilt-warp": "warp", "audiowide": "arcade", "squada": "squad", "wallpoet": "stencil", "faster-one": "tech",
+  "fascinate": "retro", "rye": "retro", "pirata": "luxe", "marker": "marker", "sedgwick": "marker", "kaushan": "comic",
+  "wet-paint": "marker", "rubik-dirt": "stencil", "press-start": "arcade", "gloock": "luxe", "young-serif": "serif", "zodiak": "serif",
+  "melodrama": "luxe", "cormorant": "luxe", "roboto-slab": "serif", "zilla-slab": "serif", "manrope": "grotesk", "sora": "tech",
+  "instrument-sans": "grotesk", "instrument-serif": "luxe", "nunito": "pop", "sniglet": "pop", "special-elite": "serif",
+  "jetbrains": "tech", "cabin-sketch": "marker", "kalam": "comic",
+  "schibsted-800": "grotesk", "schibsted-700": "grotesk", "satoshi-700": "modern", "chivo-700": "grotesk", "franklin-700": "grotesk",
 };
 
 // Faces too fine or too busy to carry an outline or a thin treatment.
@@ -251,6 +308,11 @@ export const COPY = {
     ticker: ["TEXT A PIC", "GET A PRICE", "CASH", "LOCAL TO {AREA}", "ALL MODELS", "CALL OR TEXT", "SE HABLA ESPAÑOL", "IT LOSES VALUE EVERY MONTH"],
     stamp: ["CASH", "CASH PAID", "LOCAL"],
     burst: ["CASH!", "LOCAL!", "FREE QUOTE", "{CODE}"],
+    // the selling points under the words (the photo ads' stack, DESIGN-LAW 83): only what every
+    // shop on the site can say, so no speed, no condition and no price promise
+    points: ["FREE QUOTE", "CASH PAID", "ALL MODELS", "LOCAL BUYER", "TEXT A PIC", "MEET LOCALLY"],
+    // the strike-out opening (owner, 2026-11-03): "NO MORE" over what sellers are tired of, crossed out
+    strike_lead: "NO MORE", strikes: ["LOWBALLS", "FAKE OFFERS", "SHADY BUYERS", "SKETCHY MEETUPS"],
   },
   es: {
     hooks: ["¿TIENES UN IPHONE QUE YA NO USAS?", "¿CAMBIASTE DE TELÉFONO?", "¿IPHONE VIEJO EN EL CAJÓN?", "¡OYE! ¿Y ESE IPHONE VIEJO?",
@@ -265,6 +327,8 @@ export const COPY = {
     ticker: ["MÁNDANOS FOTO", "TE DAMOS PRECIO", "EFECTIVO", "SOMOS DE {AREA}", "TODOS LOS MODELOS", "LLAMA O MANDA TEXTO", "PIERDE VALOR CADA MES"],
     stamp: ["EFECTIVO", "EFECTIVO", "LOCAL"],
     burst: ["¡EFECTIVO!", "¡LOCAL!", "{CODE}"],
+    points: ["COTIZACIÓN GRATIS", "PAGO EN EFECTIVO", "TODOS LOS MODELOS", "COMPRADOR LOCAL", "MANDA UNA FOTO"],
+    strike_lead: "NO MÁS", strikes: ["OFERTAS BAJAS", "OFERTAS FALSAS", "COMPRADORES DUDOSOS", "ENCUENTROS RAROS"],
   },
   both: { labels: ["CALL OR TEXT \u00b7 LLAMA O ESCRIBE", "TEXT US \u00b7 MÁNDANOS TEXTO"] },
 };
@@ -368,8 +432,9 @@ export const OPTIONS = {
   vibe: ["none", ...Object.keys(VIBES)],
   board: ["none", ...Object.keys(BOARDS)],
   urgency: ["none", "pulse_cta", "caution_tape", "ticker", "stamp", "arrows", "flash_border", "beat_pump"],
-  font: Object.keys(FONTS),
-  number_font: ["same", ...Object.keys(FONTS)],
+  font: Object.keys(FONTS).filter(k => !PAIR_CUTS.has(k)),
+  number_font: ["same", ...Object.keys(FONTS).filter(k => !PAIR_CUTS.has(k))],
+  type_pair: Object.keys(TYPE_VOICES),
   case: ["upper", "title"],
   tracking: [-0.02, 0, 0.02, 0.05, 0.1],
   skew: [0, 0, 0, 8, 12, -8],
@@ -446,7 +511,7 @@ export const OPTIONS = {
   // a holiday ad: its tunes and sounds play only here (never set by a shuffle; picked by hand)
   season: ["none", "christmas", "halloween"],
   glare: [0.5, 1, 1, 1.5],
-  hook: ["hook_line", "hook_line", "word_beat", "word_beat", "crash_zoom", "flash_cut", "punch_in", "cold_open"],
+  hook: ["hook_line", "hook_line", "word_beat", "word_beat", "crash_zoom", "flash_cut", "punch_in", "cold_open", "strike_out"],
   overlay: ["none", "none", "confetti", "light_leak", "vignette_pulse", "lens_flare", "glitch", "grain_live", "sparkle_field",
     "bokeh_drift", "light_rays", "dust", "shimmer", "bloom"],
   // the whole frame's colour, as a last pass
@@ -534,6 +599,8 @@ export const WEIGHTS = {
   // an ad for everyone stays common; an audience that states a service (bulk, cracked) is only ever picked by hand
   audience: { none: 4, ...Object.fromEntries(AUDIENCE_KEYS.filter(k => AUDIENCES[k].byHand).map(k => [k, 0])) },
   voice: { on: 3, off: 1 },
+  // the strike-out opening is picked by hand (weight 0, last in the list: every look number draws what it drew)
+  hook: { strike_out: 0 },
   vibe: { none: 5 },
   board: { none: 10 },
   urgency: { none: 1 },
@@ -586,7 +653,7 @@ export const WEIGHTS = {
 // one goes at the end, after every draw an earlier look already makes.
 export const LATE_OPTIONS = ["melody", "lead", "accent", "tone", "track"];
 // Options a shuffle never changes: only a hand pick sets them.
-export const KEPT_OPTIONS = ["season", "phone_finish"];
+export const KEPT_OPTIONS = ["season", "phone_finish", "type_pair"];   // a type pair follows the face a shuffle draws (harmonise), unless picked
 
 // Holiday music (owner, 2026-10-02: "holiday tunes only in holiday ads"): a holiday's tunes,
 // recordings and opening sound play only in an ad set to that holiday, and an ad set to a
@@ -671,6 +738,11 @@ export const DEFAULT_STYLE = {
   vibe: "none", board: "none", decor: [], urgency: "none", cta: "", lang_mode: "mix", lang: "en", area: "",
   grade: "none", depth: "none", transition: "fade", outro: "none",
   audience: "none", voice: "on", voice_mood: "confident", voice_cast: "host_m", vo_clip: "", vo_text: "", vo_lang: "en",
+  // the selling points: null picks them from the words (pointsOf in engine.js), "" shows none,
+  // and anything typed is the customer's own list, comma separated
+  points: null,
+  strike_text: "",   // the strike-out opening's crossed-out words ("" draws one from COPY[lang].strikes)
+  type_pair: "",     // the owner's type pair (TYPE_VOICES): follows the face drawn unless picked by hand (harmonise)
 };
 
 // The first ad's look, as a starting point.
@@ -683,7 +755,7 @@ export const CLASSIC = {
 
 // Human labels for the panel.
 export const LABELS = {
-  font: "Typeface", number_font: "Number typeface", case: "Case", tracking: "Letter spacing", skew: "Slant",
+  font: "Typeface", type_pair: "Type pair", number_font: "Number typeface", case: "Case", tracking: "Letter spacing", skew: "Slant",
   text_fx: "Type treatment", color_mode: "Colour use", text_in: "Headline entrance", text_pos: "Headline position",
   number_style: "Number style", number_format: "Number format", number_pos: "Number position",
   number_in: "Number entrance", arrangement: "Phone layout", pose: "Phone angle", phone_finish: "Phone finish",
@@ -699,7 +771,7 @@ export const LABELS = {
 export const GROUPS = [
   ["Audience and voice", ["audience", "voice", "voice_mood", "voice_cast"]],
   ["Vibe and urgency", ["vibe", "board", "urgency"]],
-  ["Type", ["font", "number_font", "case", "tracking", "skew", "text_fx", "color_mode"]],
+  ["Type", ["type_pair", "number_font", "case", "tracking", "skew", "text_fx", "color_mode"]],
   ["Opening", ["hook", "transition", "text_in", "text_pos"]],
   ["Number", ["number_style", "number_format", "number_pos", "number_in"]],
   ["Phones", ["arrangement", "pose", "phone_finish", "entry", "end_face", "phone_idle", "front_glimpse", "glare", "depth"]],

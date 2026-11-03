@@ -3066,3 +3066,66 @@ Open:
    two entries in `CATS` and set their `cat`.
 2. **The studio's own chip order** (`CATS` in app.js, the 2026-10-02 order)
    was not changed; this list is the footer's and the pages'.
+
+## AY. 2026-11-03 — the video maker takes the photo ads' selling points (DESIGN-LAW 131)
+
+The owner: "the videos look so much better but the photos are more detailed
+and fit better for getting conversions", "use the same rule set", "include
+the same details elements", "we don't want the video aspect to take from the
+quality of a photo ad".
+
+Done (motion/ only; photo ads unchanged):
+- Selling-point chips in every video look that has room, the default look
+  included; a "Selling points" field in the maker; none in the social studio.
+- Neon headlines only on night grounds (palette audit: 95 failing looks of
+  1,376 down to 44, none failing across palettes).
+
+Open:
+1. **44 looks under 3:1**, mostly 2.8 to 2.99 on pale palettes (sandstone,
+   sky, blush, sage, candy_pop, postcard_sun). `motion/palette-audit.json`
+   lists them; the photo bar is 3.2.
+2. **Three square looks in ten have no room** for selling points: their phones
+   already stand at 0.55 of their first size. Decide whether a smaller
+   product or no chips is the better ad.
+3. **The other direction**: what makes the video looks better (art direction
+   per theme, one light, the grounds) for the photo ads, under their gates.
+   Needs the owner to point at the video looks they mean.
+4. **The video maker's 172 palettes still differ from the photo ads' 31
+   house themes** (rule 123); 34 carry food or flower names and 2 draw a
+   colour under the muddy floor (theme_cohesion_audit.mjs).
+
+## AZ. 2026-11-03 — letters that never touch, plates off the bands, the video in the owner's pairs (DESIGN-LAW 132, 133)
+
+The owner: "for videos we need better type faces", "selling points and
+general information", "fully encompass all of the design language", then,
+over top_buyer: "why is this so condensed and touching? multiple boxes and
+the text? poor margins".
+
+Done: keepLetterGaps and plateOffBars (photo ads, every path through
+alignPass, again after the look and last in renderEzCanvas); TYPE_VOICES and
+`type_pair` in the video maker with every line in its role's face;
+openTracking in the video sprites; scripts/type_gap_audit.mjs and
+scripts/type_voices_check.mjs.
+
+Open:
+1. **The site the owner looked at is behind main.** Its Easy Mode button
+   said "Download as video" (renamed "Create video" 2026-10-11). Set the
+   repository secrets NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID so
+   buybackad-graphics-studio deploys with every push, as the finished copy
+   already does.
+2. **Plates on a band by design are not checked.** plateOffBars acts on a
+   plate fitted around one line (step 4); a panel holding several lines (the
+   offer family's Steps Panel over its Shade) is left as laid out. The audit
+   counts those as meeting a band; two that are not shades:
+   checklistHero-jw10-30 and slabPoster-jw10-30 (Tagline Block / Poster Frame).
+3. **Video contrast with the pairs:** 47 looks of 1,376 under 3:1 (44 before
+   the pairs); the new faces account for the three, not the gaps.
+4. **Square selling points** fit on 57% of square looks with the pairs'
+   wider faces (70% before).
+5. **The emoji beside the headline** (the owner's screenshot, 📲 against
+   "WE") draws only on Apple devices and was on the old deploy; it is placed
+   a quarter of its size from the line's box, which is never narrower than
+   its letters. Check it on the current site on an iPhone.
+6. **Strikethrough (DESIGN-LAW 134)**: a ready-made photo card that uses it
+   ("NO MORE ~~LOWBALLS~~") is not built; the ✎ S and the editor's S set it on
+   any line, and the video maker has the strike-out opening.

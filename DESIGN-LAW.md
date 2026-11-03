@@ -5325,3 +5325,164 @@ owner chose "make it, then preview".
   one count; Free's Download JPG saved 1080×1080 on a photo count, its
   Download MP4 opened the plans; the same at 390 px wide, the buttons one
   above the other.
+
+## 131. A video ad carries the photo ads' selling points, and its lettering reads its ground
+
+Added 2026-11-03. The owner, of the video maker against the photo ads: "the
+videos look so much better but the photos are more detailed and fit better
+for getting conversions", then "use the same rule set", "include the same
+details elements", "we don't want the video aspect to take from the quality
+of a photo ad", "make it way better". Rule 83 already said one engine, the
+picture and the video; the video maker (`motion/`) never took the photo ads'
+selling-points stack, and nothing here changes how a photo ad is drawn.
+
+- **Every video look shows its selling points** (`pointsOf`, `_perkSearch`,
+  `_perks` in motion/engine.js): up to three chips in the call to action's
+  colour with a tick on each (rule 120), stacked in one rhythm (rule 115), or,
+  where a stack has no room, the photo ads' one-row strip. Left to the look
+  they are the first three of `COPY[lang].points` that repeat no word the
+  headline, tag or label says (one "quote" is enough); typed in the new
+  "Selling points" field they are the customer's own, and an empty field
+  shows none. The list says only what every shop can say: FREE QUOTE, CASH
+  PAID, ALL MODELS, LOCAL BUYER, TEXT A PIC, MEET LOCALLY (Spanish beside
+  them), never speed, condition or price. Five stars are not carried over:
+  the video maker's copy rules forbid a ranking.
+- **They never sit on a phone, the words or the number.** Placed before any
+  decoration (a sticker does not sell), at 3% of the short side at the least
+  (rule 113), smaller, then two instead of three, then none. Where nothing is
+  clear, the phones make room the way they do for the number
+  (`_perksRoom`): the group a little smaller, held at its foot or its head,
+  never under 0.8 of itself or 0.55 of the phones as first laid out; then a
+  slide aside of up to 12% of the width, a move that may never add to what
+  the phones cover of the words or the number. The plan carries the result,
+  so every size draws the same chips.
+- **They come in after the number**, one after another from the side they
+  stand on, so the HD photo that goes out with the video (rule 108) has them.
+- **The social studio shows none** (`points: ""` in social/media.js): an
+  informational post never inherits a buying offer.
+- **A neon headline is a night sign** (harmonise): on a ground lighter than
+  0.15 it becomes the tight shadow. Measured 2026-11-03 over 92 palettes on
+  one look: neon 2.0 to 2.95:1 on mid-dark grounds, 2.9 to 4.3 at night, the
+  shadow 3.7 to 6.9. In the palette audit (172 palettes × 8 looks) the one
+  look that failed on 64 palettes fails on none; 95 failing looks became 44.
+
+Measured 2026-11-03 at the plan size, 80 random looks a format: selling
+points on 70% of square looks (the default look included, as a strip under
+the headline), 99% of 4:5, 100% of 9:16 and 16:9; before, none. The attention
+audit over 40 looks is unchanged (score 100, every check the same, contrast
+median 6.76 against 6.74). A look takes 74 ms to lay out against 66.
+
+Not done here: the 44 looks still under 3:1 (most at 2.8 to 2.99, on pale
+palettes such as sandstone, sky, blush and sage), and square looks whose
+phones already stand at 0.55 have no room left; three square looks in ten show
+no chips rather than shrink the product further.
+
+## 132. Letters never touch, word spaces stay word spaces, and a plate never meets a band
+
+Added 2026-11-03. The owner, over WE BUY iPHONES (top_buyer) in Easy Mode:
+"why is this so condensed and touching? multiple boxes and the text? poor
+margins". Measured on that card: Clash Display 700 tracked -34 by
+opticalTracking under a 6 and a 9px outline painted beneath the fill, so the
+letters' ink met (WE read as one shape, the closest gap -0.07 of the size) and
+the word space fell to a letter gap (CASHBUYER at 0.08, (562)999 at 0.12). Its
+model-list panel, fitted about its own old centre, held its words 16px from
+the top and 9px from the bottom and ended 1px above the cream bar.
+
+- **Every line is measured on its own glyphs** (`keepLetterGaps`: at the top
+  of `alignPass`, so Easy Mode, the download, the video and the editor alike;
+  again after the card's look is applied, which re-sets some lines' tracking;
+  and last in `renderEzCanvas`): each glyph's ink is drawn once per face and
+  read row by row (`glyphRows`), placed where fabric sets it (`__charBounds`,
+  kerning and tracking in), widened by its outline; two letters touch only
+  where both have ink in the same row, so a j's tail under the letter before
+  it, an f's hook or a capital's arm over a small letter is not a touch.
+  Italic is measured upright: no italic is self-hosted, so every italic is the
+  browser's even slant of the upright face, which moves every letter alike. A gap under 0.025 of the size, or a
+  word space (ink to ink) under 0.2, opens the tracking just enough, and the
+  line comes down in size to the width it had (rule 100's footprint), so
+  nothing around it moves; a textbox keeps its line breaks and widens by what
+  its longest line gained. Connected scripts, curved lines, rules and
+  box-drawing strokes, a face that has not loaded, and a line that would need
+  more than 0.14 of its size are left alone. A first cut measured letters by
+  their bounding boxes: it read every italic and every j as touching, set
+  "Settling An Estate?"'s body one word to a line and narrowed a textbox that
+  had re-wrapped. The before/after sheet caught it, not a number.
+- **A fitted plate is centred on its words, and keeps PLATE_GAP (14px, or
+  its padding) from a full-width band** (`plateOffBars`, step 4): it moves
+  away into the room the other words leave, measured on their letters, then,
+  only if that is not enough, its words come down, to 80% at the least.
+- **The video maker keeps the same gaps** (`openTracking` in motion/engine.js:
+  a line's tracking opens, never closes, to the same two numbers, by 0.12 of
+  the size at the most; a script face keeps its joins).
+
+`scripts/type_gap_audit.mjs` renders every card as Easy Mode draws it and
+counts lines whose letters touch, lines under the letter gap, word spaces
+under 0.2 and plates within 6px of a band; it carries its own measure, so it
+grades a checkout from before the rule as well. Measured 2026-11-03 on the
+712 cards the site shows (28 held), square, the same measure both sides:
+letters touching on 646 lines of 308 cards before, 1 line of 1 card after
+(st_coins_pricebadge's roundel label); under the letter gap 1,246 lines of 455
+cards, then 1; word spaces under 0.2 on 607 lines of 269 cards, then 1;
+plates within 6px of a band on 29 cards, then 28, of which 26 are the offer
+family's Steps Panel over its own Shade (a band it sits on by design) and two
+are open (OPEN-ITEMS §AZ).
+
+## 133. A video is set in the owner's type pairs, every line in its role
+
+Added 2026-11-03. The owner, of the video maker's frames: "for videos we need
+better type faces though", "selling points and general information", "we need
+them to fully encompass all of the design language". The maker drew any of 53
+faces for the headline and set the small line and the label over the number in
+that same display face at a quarter of its size, while the chips, the call to
+action and the ticker were always Oswald.
+
+- **The type is one of rule 100's eighteen pairs** (`TYPE_VOICES` in
+  motion/catalog.js, `type_pair` on the look; "Type pair" in the panel in
+  place of the typeface). Picked by hand it holds; otherwise it is the pair
+  closest to the face the look, its vibe, its theme or its sign drew
+  (`VOICE_OF_FONT`), so every look number keeps its palette, its words and its
+  layout and only its faces become the pair's.
+- **Each line takes its role's face**: the headline, the opening line, the
+  number and the marks the display face (the number the reading face for
+  Marker and Stencil, whose figures are weak); the small line, the label over
+  the number, the selling points, the call-to-action badge, the caution tape
+  and the ticker the reading face at its label weight (700 or 800).
+- **The two lists cannot drift**: `scripts/type_voices_check.mjs` fails if
+  TYPE_VOICES and app.js's FONT_PAIRS name a different face or weight, or a
+  face has no file in assets/fonts/.
+- Measured 2026-11-03 on the final code: the attention sweep of 40 looks keeps
+  its score (100), the headline reads at 1.2 s (1.27 before) and the number at
+  2.0 s; median headline contrast 6.51 (6.76), 35 of 40 over 3:1 (37). The
+  palette audit (172 × 8) has 47 looks under 3:1 (44). The pair faces set
+  wider than some of the old ones, so selling points fit on 59% of square looks
+  (70%); 99% of 4:5, 100% of 9:16 and 16:9.
+- The video's letter gaps count each treatment's own outline (`FX_OUTLINE`:
+  an outline 0.05 of the size, chrome and gold 0.07, neon 0.085, outline and
+  shadow 0.12, the double outline's inner ring 0.14). Measured on the bare
+  letters alone the outlines met again and the palette audit had 61 looks
+  under 3:1.
+- The key is `type_pair`, not `voice`: `voice` is the voiceover (on/off). A
+  first cut named it `voice`, which moved the option's place in the shuffle's
+  draws (every look number drew another look) and set the voiceover's default
+  to nothing; the seed comparison caught it before it shipped.
+
+## 134. Strikethrough crosses out what sellers are tired of
+
+Added 2026-11-03. The owner: "we could do bold underline, maybe find a place
+for strikethrough", then "no more (skip line) lowballs (strikethrough)", "or
+fake offers", "shady buyers", "sketchy meetups".
+
+- **A line can be struck through** in Easy Mode's ✎ menu (S beside B, I and
+  U; `strike` in the line's style, fabric's `linethrough`) and in the editor's
+  Style row (S beside I and U). Saved with the card like underline.
+- **The video maker has a strike-out opening** (`hook: "strike_out"`): "NO
+  MORE" over the crossed-out words, at one size, then a red marker stroke
+  draws across the second line, a little uphill, from 0.32 to 0.62 s, with
+  the marker's swipe in the mix, and the scene comes in at 1.3 s. The words
+  are the customer's (the opening-line field holds them with this opening) or
+  one of `COPY[lang].strikes`: LOWBALLS, FAKE OFFERS, SHADY BUYERS, SKETCHY
+  MEETUPS; OFERTAS BAJAS, OFERTAS FALSAS, COMPRADORES DUDOSOS, ENCUENTROS RAROS
+  ("NO MÁS"). Picked by hand only: last in the hook list at weight 0, so every
+  look number draws what it drew.
+- What is crossed out is a kind of experience, never a named shop, a price or
+  a promise about speed or condition: the maker's copy rules hold.

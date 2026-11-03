@@ -4741,3 +4741,72 @@ RESUME HERE:
   0. `/social/` is the internal creative tool. See `docs/social-studio.md`.
      Custom campaign scheduling and social autoposting are separate work;
      no posting integration or schedule was added in this session.
+
+## 2026-11-03 — the video maker carries the photo ads' selling points (DESIGN-LAW 131)
+
+Asked: the videos look better, the photos convert better; one rule set, the
+same detail elements in both, and the video side never taking from the
+photo ads' quality.
+
+Done:
+  - Selling points in the video maker: up to three chips in the CTA's colour,
+    a stack or a one-row strip, placed clear of the words, the number and the
+    phones, with the phones making room (smaller to 0.8, or a slide aside)
+    where nothing is clear. A "Selling points" field; empty shows none. Off
+    in the social studio. Photo ads untouched.
+  - Neon headlines only on night grounds: the look that failed contrast on
+    64 of 172 palettes fails on none.
+
+Found:
+  - The chip search first stopped three sizes in (about 28 px at plan size)
+    and never reached the 3% floor, which is what fits beside the default
+    look's headline. A coverage run without the faces loaded measured the
+    chips in a fallback font twice as wide: load fonts before measuring.
+  - Square looks put the words under the phones as often as above them; the
+    room left is beside the phones, so the search looks there too.
+
+Checked: palette audit 172 × 8 (44 under 3:1, from 95); attention sweep of 40
+looks unchanged; coverage at plan size 70% square, 99% 4:5, 100% 9:16 and
+16:9; the maker's page in Chromium (field, save, clear; no errors); the social
+studio check with its browser part.
+
+RESUME HERE:
+  0. DESIGN-LAW 131's "Not done here": the 44 pale-palette looks under 3:1,
+     and the square looks with no room for selling points.
+  1. The photo side's turn: what makes the videos look better (one light,
+     the themes' art direction, the grounds) brought to the photo ads under
+     their gates. Ask the owner to point at the video looks they like best.
+
+## 2026-11-03 (later) — letters that never touch, and the video in the owner's type pairs (DESIGN-LAW 132, 133)
+
+Asked: "for videos we need better type faces", "selling points and general
+information", "fully encompass all of the design language"; then, over
+top_buyer in Easy Mode, "why is this so condensed and touching? multiple boxes
+and the text? poor margins".
+
+Done:
+  - Photo ads: every line measured on its glyphs before the layout
+    (keepLetterGaps in alignPass); tracking opens where letters touch or a
+    word space falls under 0.2 of the size, the line keeping its width. A
+    fitted plate is centred on its words and keeps 14px from a full-width band.
+  - Video maker: the eighteen type pairs (TYPE_VOICES, `type_pair`), every
+    line in its role's face; the same letter gaps in its own sprites.
+  - scripts/type_gap_audit.mjs (the library, before and after) and
+    scripts/type_voices_check.mjs (the two lists of pairs agree).
+
+Found:
+  - The owner's screenshot said "Download as video": the button has said
+    "Create video" since 2026-10-11, so that site was an old deploy. Check
+    which URL a screenshot is from before chasing what it shows.
+  - `voice` was already the voiceover key; a new option by that name moved
+    its place in the shuffle's draws and blanked the voiceover default.
+    Compare a few seeds before and after any catalog change.
+  - Box measures misread italics (overhang by design) and a textbox that
+    re-wraps must widen, not narrow: the before/after sheet showed both.
+  - fabric is not reachable on cdnjs from the cloud session; `npm pack
+    fabric@5.3.0` gives a build for FABRIC_JS.
+
+RESUME HERE:
+  0. DESIGN-LAW 132/133's open ends (OPEN-ITEMS §AZ).
+  1. Deploy: the hand-deployed project lags main; the GitHub secrets
+     NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID make it follow.

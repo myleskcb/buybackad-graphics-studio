@@ -1,7 +1,7 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
-import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks } from "./catalog.js";
-import { Ad, ASPECTS, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook } from "./engine.js";
+import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES } from "./catalog.js";
+import { Ad, ASPECTS, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf } from "./engine.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
@@ -39,8 +39,8 @@ const BOARD_NAMES = { none: "No sign", freeway: "Green freeway sign", freeway_bl
   marquee: "Theatre marquee", store_sign: "Corner store sign" };
 const URGENCY_NAMES = { none: "None", pulse_cta: "Pulsing TEXT NOW badge", caution_tape: "Caution tape", ticker: "Scrolling ticker",
   stamp: "CASH stamp", arrows: "Arrows at the number", flash_border: "Border flashing on the beat", beat_pump: "Pump on the beat" };
-const VIBE_AXES = ["palette", "background", "font", "text_fx", "number_style", "board", "decor", "skew"];
-const WORD_KEYS = ["headline", "tag", "number_label", "hook_text"];
+const VIBE_AXES = ["palette", "background", "font", "type_pair", "text_fx", "number_style", "board", "decor", "skew"];
+const WORD_KEYS = ["headline", "tag", "number_label", "hook_text", "points"];
 
 // what an audience decides, let go when one is picked by hand so the whole ad follows it
 const AUDIENCE_AXES = ["vibe", ...VIBE_AXES, "sound_kit", "grade", "hook", "overlay", "urgency", "bpm", "voice_mood", "voice_cast", ...WORD_KEYS];
@@ -54,6 +54,7 @@ const labelFor = (k, v) => {
   if (k === "board") return BOARD_NAMES[v] || v;
   if (SOUND_NAMES[k] && SOUND_NAMES[k][v]) return SOUND_NAMES[k][v];
   if (k === "urgency") return URGENCY_NAMES[v] || v;
+  if (k === "type_pair") return TYPE_VOICES[v] ? `${TYPE_VOICES[v].name}: ${FONTS[TYPE_VOICES[v].display][0]} + ${FONTS[TYPE_VOICES[v].label][0]}` : v;
   if (k === "font" || k === "number_font") return v === "same" ? "Same as headline" : (FONTS[v] ? FONTS[v][0] : v);
   if (k === "palette") return v === "match" ? "Match a phone's colour" : v.replace(/[_-]/g, " ").replace(/\bla\b/g, "LA").replace(/\b\w/g, c => c.toUpperCase());
   if (k === "tracking") return v < 0 ? "Tight" : v === 0 ? "Normal" : v <= .02 ? "Open" : v <= .05 ? "Wide" : "Extra wide";
@@ -308,7 +309,9 @@ function buildPanel() {
   const bind = (id, key, fmt = v => v) => $(id).addEventListener("input", debounce(e => { state.style[key] = fmt(e.target.value); state.locked.add(key); save(); rebuild(); }, 280));
   bind("f-headline", "headline", v => v.toUpperCase().slice(0, 60) || "WE BUY PHONES");
   bind("f-tag", "tag"); bind("f-label", "number_label");
-  bind("f-hook", "hook_text", v => v.toUpperCase().slice(0, 44));
+  bind("f-points", "points", v => v.toUpperCase().slice(0, 80));   // empty means none; the look's own come back with new words
+  // the opening line's field: with the strike-out opening it holds the crossed-out words
+  $("f-hook").addEventListener("input", debounce(e => { const k = state.style.hook === "strike_out" ? "strike_text" : "hook_text"; state.style[k] = e.target.value.toUpperCase().slice(0, k === "strike_text" ? 28 : 44); state.locked.add(k); save(); rebuild(); }, 280));
   // another line in the look's own language, everything else left as it is
   const anotherLine = key => {
     pushHistory();
@@ -333,7 +336,7 @@ function buildPanel() {
     const after = areaOf(state.style);
     if (before && after && before !== after) {             // the city already written into the words follows the field
       const re = new RegExp(`\\b${before.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "g");
-      ["headline", "tag", "number_label", "hook_text", "cta", "urgent", "stamp_text", "burst_text"].forEach(k => { if (typeof state.style[k] === "string") state.style[k] = state.style[k].replace(re, after); });
+      ["headline", "tag", "number_label", "hook_text", "points", "cta", "urgent", "stamp_text", "burst_text"].forEach(k => { if (typeof state.style[k] === "string") state.style[k] = state.style[k].replace(re, after); });
       if (Array.isArray(state.style.ticker_items)) state.style.ticker_items = state.style.ticker_items.map(s => s.replace(re, after));
     }
     save(); syncWords(); rebuild();
@@ -412,7 +415,7 @@ function pushHistory() { state.history.push(JSON.parse(JSON.stringify(state.styl
 async function shuffle(all) {
   pushHistory();
   const locked = new Set(state.locked);
-  if (all) ["headline", "tag", "number_label", "hook_text"].forEach(k => locked.delete(k));
+  if (all) ["headline", "tag", "number_label", "hook_text", "points"].forEach(k => locked.delete(k));
   const pool = all && $("shuffle-phones").checked ? state.index.map(m => m.id) : [];
   if (pool.length) locked.delete("phones"); else locked.add("phones");
   const btns = [$("shuffle-look"), $("shuffle-all")]; btns.forEach(b => b.disabled = true);
@@ -434,7 +437,8 @@ function syncWords() {
   $("f-tag").value = state.style.tag || "";
   $("f-number").value = state.style.number || "";
   $("f-label").value = state.style.number_label || "";
-  $("f-hook").value = state.style.hook_text || "";
+  $("f-hook").value = state.style.hook === "strike_out" ? strikeOf(state.style).text : (state.style.hook_text || "");
+  if (document.activeElement !== $("f-points")) $("f-points").value = pointsOf(state.style).join(", ");
   if (document.activeElement !== $("f-area")) $("f-area").value = state.style.area || "";
   document.querySelectorAll("#langs [data-lang]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.lang === (state.style.lang_mode || "mix"))));
 }

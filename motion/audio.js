@@ -200,6 +200,8 @@ function compose(ad, ctx, voDur, rec) {
   switch (st.hook) {
     case "hook_line":
       boom(0, .8); if (ad.hookEnd > .6) S.swish(ad.hookEnd - .4, .45, true, 0, .1); break;
+    case "strike_out":                               // the hit, the marker's swipe as the line crosses it out, the hand-over
+      boom(0, .8); S.swish(.32, .3, false, 0, .12); if (ad.hookEnd > .6) S.swish(ad.hookEnd - .4, .45, true, 0, .1); break;
     case "word_beat": {
       boom(0, .7);
       const c0 = A.tune ? A.tune.chords[0] : KITS[kit] ? A.chordAt(0) : prog[0], tones = voicing(tonic + c0[0], c0[1], 67);

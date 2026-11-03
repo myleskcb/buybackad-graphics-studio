@@ -2152,10 +2152,112 @@ function opticalLeftShift(obj){
       bottom is the single worst thing here — every social crop clips it.
       Marquee strips are edge-hugging BY DESIGN and are exempt. */
 const SAFE_EDGE = 24;
+/* ═══════════════ LETTERS NEVER TOUCH (DESIGN-LAW 132) ═══════════════
+   The owner, over WE BUY iPHONES (top_buyer) in Easy Mode, 2026-11-03: "why is
+   this so condensed and touching?". Measured on that card: Clash Display 700
+   tracked -34 by opticalTracking, with a 6 and a 9px outline painted under the
+   fill, so every letter's ink met its neighbour's ("WE" read as one shape) and
+   the word space shrank to a letter gap ("CASHBUYER", "(562)999"). The tracking
+   table knew the size, not the face or the outline.
+
+   So before the layout, every line is measured on its own glyphs: each
+   letter's ink from the face itself (measureText's actual bounds), at the
+   place fabric sets it (__charBounds, kerning and tracking included), widened
+   by the outline. A gap under LETTER_GAP of the type size, or a word space
+   (ink to ink) under WORD_GAP, opens the tracking just enough; the line then
+   comes down in size to keep the width it had, so the layout around it holds
+   (rule 100: each line keeps its footprint). Script and connected faces, curved
+   lines and a face that has not loaded are left as they are. letterGaps() is
+   also what scripts/type_gap_audit.mjs measures with. */
+const LETTER_GAP = 0.025, WORD_GAP = 0.2;
+const JOINED_FACES = /Kaushan|Knewave|Sedgwick|Permanent Marker|Pacifico|Lobster|Great Vibes|Yellowtail|Kalam|Rubik Wet Paint|Cabin Sketch/i;
+/* Each glyph's ink, row by row (its left and right edge in each row, in ems from its origin), drawn
+   once per face: two letters touch only where both have ink in the same row, so a j's tail under the
+   letter before it, an f's hook or an italic's lean are not counted as touching (their boxes overlap,
+   their ink does not). */
+const _glyphRows = new Map();
+let _gapCanvas = null;
+function glyphRows(face, ch){
+  const key = face + '|' + ch;
+  if (_glyphRows.has(key)) return _glyphRows.get(key);
+  const S = 100, c = _gapCanvas || (_gapCanvas = document.createElement('canvas'));
+  c.width = 3 * S; c.height = 2 * S;
+  const x = c.getContext('2d', { willReadFrequently: true });
+  x.clearRect(0, 0, c.width, c.height); x.font = face; x.fillStyle = '#000'; x.textBaseline = 'alphabetic';
+  x.fillText(ch, S, 1.4 * S);
+  const d = x.getImageData(0, 0, c.width, c.height).data, rows = [];
+  for (let y = 0; y < c.height; y += 2){
+    let l = -1, r = -1;
+    for (let k = 0; k < c.width; k++) if (d[(y * c.width + k) * 4 + 3] > 96){ if (l < 0) l = k; r = k; }
+    rows.push(l < 0 ? null : [(l - S) / S, (r + 1 - S) / S]);
+  }
+  const out = rows.some(Boolean) ? rows : null;
+  _glyphRows.set(key, out);
+  return out;
+}
+function letterGaps(o){
+  if (!o || typeof o.text !== 'string' || !o.text.trim()) return null;
+  if (JOINED_FACES.test(o.fontFamily || '') || (typeof tsIsCurve === 'function' && tsIsCurve(o))) return null;
+  const stale = () => !o.__charBounds || !o._textLines || o._textLines.some((l, i) => l.length && !(o.__charBounds[i] || []).length);
+  if (stale()) { try { o.initDimensions(); } catch (e){ return null; } }
+  if (stale() && o.measureLine) { try { o._textLines.forEach((l, i) => o.measureLine(i)); } catch (e){ /* measured as it stands */ } }
+  if (!o.__charBounds) return null;
+  /* upright: italic is the browser's slant of the upright face (no italic is self-hosted), a shear that
+     moves every letter alike at each height, so its gaps are the upright letters' gaps */
+  const fam = String(o.fontFamily || ''), face = 'normal ' + (o.fontWeight || 400) + ' 100px ' + (/[,"']/.test(fam) ? fam : '"' + fam + '"');
+  try { if (document.fonts && !document.fonts.check(face)) return null; } catch (e){ /* an odd family name: measure anyway */ }
+  const fs = o.fontSize || 40, sw = o.stroke && o.strokeWidth ? o.strokeWidth / fs : 0;
+  const gap = (A, xa, B, xb) => {
+    let g = Infinity;
+    for (let r = 0; r < A.length; r++) if (A[r] && B[r]) g = Math.min(g, (xb + B[r][0]) - (xa + A[r][1]));
+    return g - sw;
+  };
+  let minL = Infinity, minW = Infinity;
+  o._textLines.forEach((line, li) => {
+    const cb = o.__charBounds[li]; if (!cb) return;
+    let prev = null, space = false;
+    for (let i = 0; i < line.length; i++){
+      const ch = line[i];
+      if (/\s/.test(ch)){ if (prev) space = true; continue; }
+      if (!cb[i] || /[\u2500-\u259f_\u2014\u2015]/.test(ch)){ prev = null; continue; }   // rules and box lines join by design
+      const R = glyphRows(face, ch); if (!R) continue;
+      const x0 = cb[i].left / fs;
+      if (prev){ const g = gap(prev.R, prev.x, R, x0); if (isFinite(g)){ if (space) minW = Math.min(minW, g); else minL = Math.min(minL, g); } }
+      prev = { R, x: x0 }; space = false;
+    }
+  });
+  return { letter: minL, word: minW };
+}
+function keepLetterGaps(objs){
+  let fixed = 0;
+  (objs || []).forEach(o => {
+    if (!o || !/^(i-text|text|textbox)$/.test(o.type || '')) return;
+    for (let pass = 0; pass < 2; pass++){
+      const g = letterGaps(o); if (!g) return;
+      const need = Math.max(isFinite(g.letter) ? LETTER_GAP - g.letter : 0, isFinite(g.word) ? (WORD_GAP - g.word) / 2 : 0);
+      if (need <= 0.002 || need > 0.14) return;   // more than that is a face the measure misreads, not a tight line
+      const c = o.getCenterPoint(), w0 = o.getScaledWidth(), lines0 = o._textLines.length;
+      const box = o.type === 'textbox', add = Math.ceil(need * 1000);
+      const longest = box ? Math.max(...o._textLines.map(l => l.length)) : 0;
+      o.set('charSpacing', Math.min(400, (o.charSpacing || 0) + add));
+      o.initDimensions();
+      // a textbox keeps its line breaks: it widens by what its longest line gained, never narrows
+      for (let k = 0; box && o._textLines.length > lines0 && k < 4; k++){
+        o.set('width', o.width + add / 1000 * o.fontSize * Math.max(1, longest) * (k ? 1.5 : 1) + 2); o.initDimensions();
+      }
+      const w1 = o.getScaledWidth();
+      if (w1 > w0 + 0.5){ const k = w0 / w1; o.set({ scaleX: (o.scaleX || 1) * k, scaleY: (o.scaleY || 1) * k }); }
+      o.setPositionByOrigin(c, 'center', 'center'); o.setCoords();
+      fixed++;
+    }
+  });
+  return fixed;
+}
 function alignPass(sc, W, H){
   W = W || TPL_W; H = H || TPL_H;
   let objs;
   try { objs = sc.getObjects(); } catch (e){ return; }
+  keepLetterGaps(objs);      // before anything is placed: the layout lays out letters that do not touch (rule 132)
   if (typeof tsBindRings === 'function') tsBindRings(sc);   // a crown on its halo, a legend on its seal (rule 99)
   /* Letters, not boxes (DESIGN-LAW 76) is how an audited, restaged card is laid
      out; the rest of the library was tuned against the box passes and moves to
@@ -2471,7 +2573,52 @@ function alignPass(sc, W, H){
                 originX:'left', originY:'top' });
     box.o.setCoords();
     box.b = bb(box.o) || box.b;
+    plateOffBars(box, t2, padV);
   });
+  /* A plate never meets a band (DESIGN-LAW 132). The owner, over top_buyer's
+     model list: "multiple boxes and the text? poor margins". Its panel was
+     fitted about its own old centre, its words 16px from the top and 9px from
+     the bottom, and it ended 1px above the cream bar under it. So a fitted
+     plate is centred on its words, and where it comes within PLATE_GAP of a
+     full-width band (a bottom bar, a header strip) it moves away into the
+     clear room the other words leave (measured on their letters), then, if
+     that is not enough, its words come down in size, to 80% at the least. */
+  function plateOffBars(box, t2, padV){
+    const PLATE_GAP = Math.max(14, Math.round(padV));
+    const all = objs.filter(o => o && o.type === 'rect' && o !== box.o).map(o => ({ o, b: bb(o) }))
+      .filter(x => x.b && x.b.width >= W * 0.93 && x.b.height < H * 0.6);
+    if (!all.length) return;
+    const ink = o => (typeof textInkRect === 'function' ? textInkRect(o) : null) || bb(o);
+    const move = dy => { const c = t2.o.getCenterPoint(); t2.o.setPositionByOrigin(new fabric.Point(c.x, c.y + dy), 'center', 'center'); t2.o.setCoords();
+      box.o.set({ top: box.o.top + dy }); box.o.setCoords(); box.b = bb(box.o) || box.b; t2.b = bb(t2.o) || t2.b; };
+    // centred on its words first: equal room above and below
+    const tb = ink(t2.o), off = (tb.top + tb.height / 2) - (box.b.top + box.b.height / 2);
+    if (Math.abs(off) > 1){ box.o.set({ top: box.o.top + off }); box.o.setCoords(); box.b = bb(box.o) || box.b; }
+    for (const bar of all){
+      const B = bar.b, P = box.b;
+      if (P.top >= B.top && P.top + P.height <= B.top + B.height) continue;    // a plate on the band, by design
+      const others = texts.filter(x => x !== t2 && x.o.visible !== false).map(x => ink(x.o)).filter(Boolean);
+      if (P.top < B.top && P.top + P.height > B.top - PLATE_GAP){              // the band is under it: up
+        const need = P.top + P.height - (B.top - PLATE_GAP);
+        const roof = Math.max(0, ...others.filter(r => r.top + r.height <= P.top + 2 && r.left < P.left + P.width && r.left + r.width > P.left).map(r => r.top + r.height + PLATE_GAP));
+        const up = Math.max(0, Math.min(need, P.top - roof));
+        if (up) move(-up);
+        const rest = need - up;
+        if (rest > 0.5){
+          const c = t2.o.getCenterPoint(), th = t2.b.height, k = Math.max(0.8, (th - rest) / th);
+          t2.o.set({ scaleX: (t2.o.scaleX || 1) * k, scaleY: (t2.o.scaleY || 1) * k }); t2.o.setPositionByOrigin(new fabric.Point(c.x, c.y - (th - th * k) / 2), 'center', 'center'); t2.o.setCoords();
+          const nb = ink(t2.o), w2 = box.b.width - (t2.b.width - nb.width), h2 = box.b.height - (th - nb.height);
+          box.o.set({ left: nb.left + nb.width / 2 - w2 / 2, top: nb.top + nb.height / 2 - h2 / 2, width: w2 / (box.o.scaleX || 1), height: h2 / (box.o.scaleY || 1) });
+          box.o.setCoords(); box.b = bb(box.o) || box.b; t2.b = bb(t2.o) || t2.b;
+        }
+      } else if (P.top + P.height > B.top + B.height && P.top < B.top + B.height + PLATE_GAP){   // the band is over it: down
+        const need = B.top + B.height + PLATE_GAP - P.top;
+        const floor = Math.min(H, ...others.filter(r => r.top >= P.top + P.height - 2 && r.left < P.left + P.width && r.left + r.width > P.left).map(r => r.top - PLATE_GAP));
+        const down = Math.max(0, Math.min(need, floor - (P.top + P.height)));
+        if (down) move(down);
+      }
+    }
+  }
 
   /* ── 4b. WORDS STAY ON THEIR PLATE ───────────────────────────────────────
      A panel that holds several lines is not resized by step 4, so a headline
@@ -4333,6 +4480,7 @@ function refreshProps(){
     $('pt-lh').closest('.field').style.display = isCurved ? 'none' : '';
     $('pt-italic').classList.toggle('active', src.fontStyle === 'italic');
     $('pt-under').classList.toggle('active', !isCurved && !!o.underline);
+    $('pt-strike').classList.toggle('active', !isCurved && !!o.linethrough);
     const shp = o.pgShape || (isCurved ? { kind:'arc', bend:o.pgCurved.curve } : null);   // (rule 99)
     $('pt-curve').value = shp ? shp.bend : 0;
     $('pt-curve-val').textContent = shp ? shp.bend : 0;
@@ -4446,6 +4594,7 @@ function bindPropsControls(){
     if (o.pgCurved) rebuildCurved(o, { style:{ fontStyle: nv } }); else o.set('fontStyle', nv);
   });
   $('pt-under').onclick = () => withActive(o => { o.set('underline', !o.underline); $('pt-under').classList.toggle('active', !!o.underline); });
+  $('pt-strike').onclick = () => withActive(o => { o.set('linethrough', !o.linethrough); $('pt-strike').classList.toggle('active', !!o.linethrough); });
   $('pt-fill').addEventListener('input', () => withActive(o => { o.pgFillGrad = null; textProp('fill', $('pt-fill').value); }));
   // highlight strip behind the text (the color the old selling-points pill was
   // stuck on, now editable, and removable)
@@ -5958,6 +6107,7 @@ function ezStyleProps(st, base){
   if (st.bold !== undefined) p.fontWeight = st.bold ? '800' : (base.fontWeight || '400');
   if (st.italic !== undefined) p.fontStyle = st.italic ? 'italic' : 'normal';
   if (st.underline !== undefined) p.underline = !!st.underline;
+  if (st.strike !== undefined) p.linethrough = !!st.strike;          // NO MORE ~LOWBALLS~ (owner, 2026-11-03)
   if (st.fill) p.fill = st.fill;
   if (st.stroke !== undefined || st.sw !== undefined){
     p.stroke = st.stroke || base.stroke || '#000000';
@@ -6002,6 +6152,7 @@ function openTxtPop(anchor, layerName){
   $('tp-b').classList.toggle('active', st.bold !== undefined ? st.bold : baseBold);
   $('tp-i').classList.toggle('active', st.italic !== undefined ? st.italic : tpTarget.base.fontStyle === 'italic');
   $('tp-u').classList.toggle('active', !!st.underline);
+  $('tp-s').classList.toggle('active', !!st.strike);
   $('tp-fill').value = st.fill || (ez._themed && ez._themed[tpTarget.layerName]) || toHex(tpTarget.base.fill, '#ffffff');
   $('tp-stroke').value = st.stroke || toHex(tpTarget.base.stroke, '#000000');
   $('tp-sw').value = st.sw !== undefined ? st.sw : (tpTarget.base.strokeWidth || 0);
@@ -6040,6 +6191,7 @@ function bindTxtPop(){
   $('tp-b').onclick = () => { $('tp-b').classList.toggle('active'); upd({ bold: $('tp-b').classList.contains('active') }); };
   $('tp-i').onclick = () => { $('tp-i').classList.toggle('active'); upd({ italic: $('tp-i').classList.contains('active') }); };
   $('tp-u').onclick = () => { $('tp-u').classList.toggle('active'); upd({ underline: $('tp-u').classList.contains('active') }); };
+  $('tp-s').onclick = () => { $('tp-s').classList.toggle('active'); upd({ strike: $('tp-s').classList.contains('active') }); };
   $('tp-fill').addEventListener('input', () => upd({ fill: $('tp-fill').value }));
   $('tp-stroke').addEventListener('input', () => upd({ stroke: $('tp-stroke').value, sw: +$('tp-sw').value }));
   $('tp-sw').addEventListener('input', () => { $('tp-sw-val').textContent = $('tp-sw').value; upd({ stroke: $('tp-stroke').value, sw: +$('tp-sw').value }); });
@@ -10064,6 +10216,7 @@ function renderEzCanvas(px, fmt, q, mode, format, keep){
      solved on the colours and the ground the card ends with, and the preview,
      the download and the video are the same picture (DESIGN-LAW 83) */
   ez.tagInfo = ezApplyTagline(sc, DW, DH, !keep && fmt === 'jpeg', (px || 560) / Math.min(DW, DH), tpl);
+  keepLetterGaps(sc.getObjects());       // last, on the card as it is drawn: each line keeps its width, so nothing moves (rule 132)
   sc.renderAll();
   if (keep) return sc;          // the video export animates this exact scene, and disposes it
   const url = sc.toDataURL({ format: fmt || 'jpeg', quality: q || 0.85, multiplier: (px || 560) / Math.min(DW, DH) });
@@ -16708,6 +16861,7 @@ function taglineApply(sc, tpl, W, H, spec, opts){
     // plate air may have moved a line: a pattern's sheet stays put on the card
     sc.getObjects().forEach(o => { if (o.fill && o.fill.pgAnchor) o.fill.pgAnchor(o); });
     if (info.touched) tagEmojiAgain(sc, W, H);
+    keepLetterGaps(sc.getObjects());     // a look that re-sets its lines' tracking keeps their letters apart too (rule 132)
     info.pal = pal; info.look = info.look || look;
     return info;
   } catch (e){
