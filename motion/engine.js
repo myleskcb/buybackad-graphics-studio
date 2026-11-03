@@ -3,7 +3,7 @@
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
   NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES, THEME_GROUNDS, SOUND_ALIASES, LATE_OPTIONS, KEPT_OPTIONS, KIT_BPM,
-  SEASON_TUNES, SEASON_ACCENTS, SEASON_TRACKS, CLASSICAL_TUNES, TRACKS } from "./catalog.js";
+  SEASON_TUNES, SEASON_ACCENTS, SEASON_TRACKS, CLASSICAL_TUNES, TRACKS, TYPE_VOICES, VOICE_OF_FONT } from "./catalog.js";
 import { AUDIENCES, GENERAL } from "./audiences.js";
 import { pickVoice, voiceFits } from "./voices.js";
 import { placeAccents, drawAccents, timeAccents } from "./accents.js";
@@ -417,6 +417,13 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (lum(p.ground) > .4 && st.number_style === "neon" && !locked.has("number_style")) st.number_style = "pill";
   // one "quote" is enough: a tag and a label must not say the same thing twice
   if (st.tag && st.number_label && /QUOTE/i.test(st.tag) && /QUOTE/i.test(st.number_label) && !locked.has("number_label")) st.number_label = "";
+  // the type is one of the owner's pairs (DESIGN-LAW 100, 133): picked by hand, or the one closest
+  // to the face the look drew (its vibe's, its theme's, its sign's); the headline takes its display face
+  // a face set by hand (a caller that holds it, or a typeface picked before the pairs) stays the headline's,
+  // its pair's reading face doing the rest, unless a pair was picked by hand
+  const pairPicked = locked.has("type_pair") && !!TYPE_VOICES[st.type_pair];
+  if (!pairPicked) st.type_pair = VOICE_OF_FONT[st.font] || "grotesk";
+  { const v = TYPE_VOICES[st.type_pair]; if (pairPicked || !locked.has("font")) st.font = v.display; if (!locked.has("number_font")) st.number_font = v.numberRead ? v.label : "same"; }
   if (FINE_FACES.has(st.font) && ["outline", "neon", "double_outline", "cutout", "long_shadow", "block3d", "inline", "stamped", "pop_stack"].includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = "shadow";
   if (st.case === "title" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.05);
   if ((FONTS[st.font] || [])[3] === "wide" && !locked.has("tracking")) st.tracking = Math.min(st.tracking, 0.01);
@@ -1732,9 +1739,12 @@ export async function loadFonts(names) {
   }));
 }
 
+/** The reading face of the look's type pair, for everything read rather than shouted (DESIGN-LAW 133). */
+export function labelFont(st) { const v = TYPE_VOICES[st.type_pair] || TYPE_VOICES[VOICE_OF_FONT[st.font]]; return v ? v.label : "oswald"; }
+
 /** Every face one look draws with: headline, number, the signs' own lettering and the starburst. */
 export function fontsFor(st) {
-  const f = [st.font, st.number_font === "same" ? st.font : st.number_font, "oswald"];
+  const f = [st.font, st.number_font === "same" ? st.font : st.number_font, "oswald", labelFont(st)];
   if ((st.decor || []).includes("starburst")) f.push(burstFontFor(st));
   return [...new Set(f)].filter(n => FONTS[n]);
 }
@@ -1780,9 +1790,57 @@ export function formatNumber(num, fmt) {
 
 /** Characters set in a face with one treatment, on their own canvas.
  *  colors[i] colours char i. Returns {c, pad, inkW, xs, asc, desc}. */
+/** Letters never touch (DESIGN-LAW 132, the photo ads' rule in the video): the tracking a line is
+ *  set with opens, never closes, until every two letters' ink stands LETTER_GAP of the size apart
+ *  and every word space (ink to ink) WORD_GAP, measured on the face's own glyphs. A connected
+ *  script keeps its joins. */
+const LETTER_GAP = .025, WORD_GAP = .2;
+const GLYPH_ROWS = new Map();
+/** A glyph's ink row by row (left and right edge in ems from its origin), drawn once per face: two
+ *  letters touch only where both have ink in the same row (a j's tail or an f's hook do not). */
+function glyphRows(fontName, ch) {
+  const key = fontName + "|" + ch;
+  if (GLYPH_ROWS.has(key)) return GLYPH_ROWS.get(key);
+  const S = 100, c = canvas(3 * S, 2 * S), x = c.getContext("2d", { willReadFrequently: true });
+  x.font = fontCss(fontName, S); x.fillStyle = "#000"; x.fillText(ch, S, 1.4 * S);
+  const d = x.getImageData(0, 0, c.width, c.height).data, rows = [];
+  for (let y = 0; y < c.height; y += 2) {
+    let l = -1, r = -1;
+    for (let k = 0; k < c.width; k++) if (d[(y * c.width + k) * 4 + 3] > 96) { if (l < 0) l = k; r = k; }
+    rows.push(l < 0 ? null : [(l - S) / S, (r + 1 - S) / S]);
+  }
+  const out = rows.some(Boolean) ? rows : null;
+  GLYPH_ROWS.set(key, out);
+  return out;
+}
+// what a treatment's own outline adds round each letter, both sides together, in ems (inkSprite's
+// line widths): a stroke is centred on the letter's edge, so two neighbours each give half of it to the
+// gap. A sticker's plate and a double outline's outer ring join the word into one shape by design.
+const FX_OUTLINE = { outline: .05, chrome: .07, gold: .07, neon: .085, outline_shadow: .12, double_outline: .14 };
+function openTracking(m, chars, size, tracking, fontName, fx) {
+  if ((FONTS[fontName] || [])[3] === "script") return tracking;
+  const allow = FX_OUTLINE[fx] || 0;
+  const adv = {}, w = ch => adv[ch] ?? (adv[ch] = m.measureText(ch).width / size);
+  // the closest the two glyphs' ink comes, in ems, with their origins d apart
+  const near = (A, B, d) => { let g = Infinity; for (let r = 0; r < A.length; r++) if (A[r] && B[r]) g = Math.min(g, d + B[r][0] - A[r][1]); return g; };
+  let need = tracking, prev = null, space = false;
+  for (const ch of chars) {
+    if (/\s/.test(ch)) { if (prev) space = true; continue; }
+    const R = glyphRows(fontName, ch); if (!R) continue;
+    if (prev) {
+      // origins prev.w + t apart (a space: prev.w + space + 2t)
+      if (space) { const g = near(prev.R, R, prev.w + w(" ")) - allow; if (isFinite(g)) need = Math.max(need, (WORD_GAP - g) / 2); }
+      else { const g = near(prev.R, R, prev.w) - allow; if (isFinite(g)) need = Math.max(need, LETTER_GAP - g); }
+    }
+    prev = { R, w: w(ch) }; space = false;
+  }
+  return Math.min(need, tracking + .12);       // a face the measure misreads opens a little, not a lot
+}
+
 export function inkSprite(chars, colors, fontName, size, tracking, fx, p, skew = 0, withSkew = true) {
   const m0 = canvas(4, 4).getContext("2d");
   m0.font = fontCss(fontName, size);
+  tracking = openTracking(m0, chars, size, tracking, fontName, fx);
   const xs = []; let x = 0;
   for (const ch of chars) { xs.push(x); x += m0.measureText(ch).width + tracking * size; }
   const inkW = Math.max(1, x - tracking * size);
@@ -2022,10 +2080,10 @@ function headlineLines(st, p, size, nLines) {
 }
 
 /** A speech-bubble badge (TEXT NOW) that points at the number. */
-function ctaBadge(text, size, hot) {
+function ctaBadge(text, size, hot, face = "oswald") {
   const ink = lum(hot) > .55 ? "#111111" : "#ffffff";
   const fs = Math.max(12, size * .4);
-  const sp = inkSprite(text, text.split("").map(() => ink), "oswald", fs, .05, "flat", { ink, accent: ink, ground: hot, plate: hot, plate_ink: ink }, 0);
+  const sp = inkSprite(text, text.split("").map(() => ink), face, fs, .05, "flat", { ink, accent: ink, ground: hot, plate: hot, plate_ink: ink }, 0);
   const px = fs * .6, py = fs * .26, w = sp.inkW + px * 2, h = sp.asc * .92 + py * 2, tail = h * .34;
   const c = canvas(w + 12, h + tail + 12), x = c.getContext("2d");
   x.translate(6, 4);
@@ -2041,10 +2099,10 @@ function ctaBadge(text, size, hot) {
  *  (the photo ads' stack, DESIGN-LAW 115 and 120: one rhythm down the stack, and the strip
  *  wears the CTA's colour). rows: each chip's slice of the sprite, shadow included, cut on
  *  the middle of the gaps so a chip drawn on its own never repeats a neighbour's shadow. */
-function perksSprite(items, fs, hot, align, row = false) {
+function perksSprite(items, fs, hot, align, row = false, face = "oswald") {
   const ink = contrastOf(hot, "#111111") >= contrastOf(hot, "#ffffff") ? "#111111" : "#ffffff";
   const P = { ink, accent: ink, ground: hot, plate: hot, plate_ink: ink };
-  const sps = items.map(s => inkSprite(s, s.split("").map(() => ink), "oswald", fs, .04, "flat", P, 0));
+  const sps = items.map(s => inkSprite(s, s.split("").map(() => ink), face, fs, .04, "flat", P, 0));
   const py = fs * .3, px = fs * .52, tick = fs * .62, tg = fs * .34;
   const asc = Math.max(...sps.map(sp => sp.asc)), h = asc * .92 + py * 2;
   const ws = sps.map(sp => px + tick + tg + sp.inkW + px), cw = Math.max(...ws);
@@ -2156,10 +2214,10 @@ function numberSprite(st, p, size, cta) {
   } else out = sp.c;
   const trimmed = trim(out);
   let label = null;
-  if (cta) return { c: trimmed, label: ctaBadge(applyCase(cta.text, "upper"), size, cta.hot), text, cta: true };
+  if (cta) return { c: trimmed, label: ctaBadge(applyCase(cta.text, "upper"), size, cta.hot, labelFont(st)), text, cta: true };
   if (st.number_label) {
     const lt = applyCase(st.number_label, "upper");
-    const lsp = inkSprite(lt, lt.split("").map(() => p.ink), font, Math.max(12, size * .34), .08, lum(p.ink) < .5 ? "flat" : "shadow", p, 0);
+    const lsp = inkSprite(lt, lt.split("").map(() => p.ink), labelFont(st), Math.max(12, size * .34), .08, lum(p.ink) < .5 ? "flat" : "shadow", p, 0);
     label = trim(lsp.c);
   }
   return { c: trimmed, label, text };
@@ -2654,7 +2712,7 @@ export class Ad {
     }
     const gapOf = z => z * (["box", "sticker", "highlighter", "cutout", "double_outline", "glass"].includes(st.text_fx) ? .14 : B ? .09 : .02);
     const ctaOf = () => st.urgency === "pulse_cta" ? { text: st.cta || (st.lang === "es" ? "¡MÁNDANOS TEXTO!" : "TEXT NOW"), hot: this.hot } : null;
-    const tagOf = z => { const ph = this.pHead; return st.tag ? trim(inkSprite(applyCase(st.tag, "upper"), st.tag.split("").map(() => ph.ink), st.font, z * .26, .12, lum(ph.ink) < .5 ? "flat" : "shadow", ph).c) : null; };
+    const tagOf = z => { const ph = this.pHead; return st.tag ? trim(inkSprite(applyCase(st.tag, "upper"), st.tag.split("").map(() => ph.ink), labelFont(st), z * .26, .12, lum(ph.ink) < .5 ? "flat" : "shadow", ph).c) : null; };
     if (this.plan) {                                         // the plan's type, at this size
       const L = this.plan.lay, z = L.size * H, ls = headlineLines(st, this.pHead, z, L.bestN), lh = ls[0].asc * .98 + gapOf(z);
       const bh = lh * (ls.length - 1) + ls[0].asc, tg = tagOf(z);
@@ -2675,7 +2733,7 @@ export class Ad {
       if (widest + 2 * bpad * size > maxW || blockH + (1.6 * bpad + btabs) * size > maxH) { size *= .93; continue; }
       const ph = this.pHead;
       const tk = st.tag + "|" + size.toFixed(3);
-      tag = st.tag ? ((this._tagCache ||= new Map()).get(tk) || this._tagCache.set(tk, trim(inkSprite(applyCase(st.tag, "upper"), st.tag.split("").map(() => ph.ink), st.font, size * .26, .12, lum(ph.ink) < .5 ? "flat" : "shadow", ph).c)).get(tk)) : null;
+      tag = st.tag ? ((this._tagCache ||= new Map()).get(tk) || this._tagCache.set(tk, trim(inkSprite(applyCase(st.tag, "upper"), st.tag.split("").map(() => ph.ink), labelFont(st), size * .26, .12, lum(ph.ink) < .5 ? "flat" : "shadow", ph).c)).get(tk)) : null;
       let nSize = Math.min(size * .72, W * (wide ? .075 : .11)) * (st.number_scale || 1);
       const cta = st.urgency === "pulse_cta" ? { text: st.cta || (st.lang === "es" ? "¡MÁNDANOS TEXTO!" : "TEXT NOW"), hot: this.hot } : null;
       const ns = z => { const k = z.toFixed(3) + "|" + (cta ? 1 : 0) + "|" + st.number_pos; return (this._numCache ||= new Map()).get(k) || this._numCache.set(k, numberSprite(st, p, z, cta)).get(k); };
@@ -3158,7 +3216,7 @@ export class Ad {
     };
     if (PL) {
       const L = PL.perks;
-      if (L) keep({ q: perksSprite(items.slice(0, L.n), L.fs * U, this.hot, L.align, L.row), x: L.x * W, y: L.y * H, fs: L.fs * U, n: L.n, al: L.align });
+      if (L) keep({ q: perksSprite(items.slice(0, L.n), L.fs * U, this.hot, L.align, L.row, labelFont(this.st)), x: L.x * W, y: L.y * H, fs: L.fs * U, n: L.n, al: L.align });
       return;
     }
     const f = this._perkSearch(items, avoid.map(grow).concat(this._phoneGroup()), o, nb);
@@ -3189,7 +3247,7 @@ export class Ad {
     };
     // the chips are made once per look and size (the room search below tries many phone placements)
     const cache = this._perkSprites ||= new Map();
-    const sprite = (n, fs, al, row) => { const k = `${items.slice(0, n).join("|")}|${fs.toFixed(2)}|${al}|${row}`; return cache.get(k) || cache.set(k, perksSprite(items.slice(0, n), fs, this.hot, al, row)).get(k); };
+    const sprite = (n, fs, al, row) => { const k = `${items.slice(0, n).join("|")}|${fs.toFixed(2)}|${al}|${row}`; return cache.get(k) || cache.set(k, perksSprite(items.slice(0, n), fs, this.hot, al, row, labelFont(st))).get(k); };
     // readable in a feed (DESIGN-LAW 113): a little over the tag's size, never under 3% of the short side
     const fs0 = clamp(size * .34, U * .032, U * .05), floor = U * .03;
     const counts = items.length > 2 ? [items.length, 2] : [items.length];
@@ -3353,7 +3411,7 @@ export class Ad {
       const col = lum(p.ground) > .45 ? r.pick(["#d62828", "#1d4ed8", "#b5179e"]) : this.hot;
       const text = st.stamp_text || (es ? "EFECTIVO" : "CASH");
       for (let fs = Math.min(size * .5, Math.min(W, H) * .07), k = 0; k < 4 && !this.stamp; k++, fs *= .8) {
-        const S = buildStamp(text, fs, col, "oswald", r), R = Math.max(S.width, S.height) * .5;
+        const S = buildStamp(text, fs, col, burstFontFor(st) === st.font ? st.font : "oswald", r), R = Math.max(S.width, S.height) * .5;   // a mark wears the display face
         const s = PL ? (PL.stamp && PL.stamp.k === k ? { x: PL.stamp.x * W, y: PL.stamp.y * H, over: 0 } : null) : freeSpot(W, H, R, avoid.map(grow), this.stageC);
         if (s && s.over < .1) { this.stamp = { S, x: s.x, y: s.y, t0: tl.number + .55, k }; avoid.push([s.x - R, s.y - R, s.x + R, s.y + R]); }
       }
@@ -3381,7 +3439,7 @@ export class Ad {
     if (st.urgency === "ticker") {
       const items = st.ticker_items && st.ticker_items.length ? st.ticker_items
         : es ? ["MÁNDANOS FOTO", "TE DAMOS PRECIO", "EFECTIVO", "PIERDE VALOR CADA MES"] : ["TEXT A PIC", "GET A PRICE", "CASH", "IT LOSES VALUE EVERY MONTH"];
-      this.ticker = buildTicker(items.map(s => applyCase(s, "upper")), this.tickerH, "oswald",
+      this.ticker = buildTicker(items.map(s => applyCase(s, "upper")), this.tickerH, labelFont(st),
         { bg: "#0d0d0f", line: this.hot, ink: "#ffffff", badge: this.hot, badgeInk: lum(this.hot) > .55 ? "#111111" : "#ffffff" },
         applyCase(st.cta || (es ? "¡MÁNDANOS TEXTO!" : "TEXT NOW"), "upper"));
     }
@@ -4008,7 +4066,7 @@ export class Ad {
     if (this.arrow) drawNeonArrow(ctx, this.arrow.from, this.arrow.to, this.arrow.color, t, this.arrow.t0, this.size);
     if (st.urgency === "arrows" && this.arrowsMode) drawChevrons(ctx, this.numBox, this.size, this.hot, t, tl.number + .3, this.W, this.arrowsMode);
     if (this.stamp) drawStamp(ctx, this.stamp.S, this.stamp.x, this.stamp.y, t, this.stamp.t0);
-    if (this.tape) drawTape(ctx, this.W, this.H, this.tape.corner, applyCase(this.tape.text, "upper"), t, this.tape.t0, "oswald", false);
+    if (this.tape) drawTape(ctx, this.W, this.H, this.tape.corner, applyCase(this.tape.text, "upper"), t, this.tape.t0, labelFont(this.st), false);
   }
 
   _speedLines(ctx, t) {

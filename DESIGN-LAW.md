@@ -5376,3 +5376,92 @@ Not done here: the 44 looks still under 3:1 (most at 2.8 to 2.99, on pale
 palettes such as sandstone, sky, blush and sage), and square looks whose
 phones already stand at 0.55 have no room left; three square looks in ten show
 no chips rather than shrink the product further.
+
+## 132. Letters never touch, word spaces stay word spaces, and a plate never meets a band
+
+Added 2026-11-03. The owner, over WE BUY iPHONES (top_buyer) in Easy Mode:
+"why is this so condensed and touching? multiple boxes and the text? poor
+margins". Measured on that card: Clash Display 700 tracked -34 by
+opticalTracking under a 6 and a 9px outline painted beneath the fill, so the
+letters' ink met (WE read as one shape, the closest gap -0.07 of the size) and
+the word space fell to a letter gap (CASHBUYER at 0.08, (562)999 at 0.12). Its
+model-list panel, fitted about its own old centre, held its words 16px from
+the top and 9px from the bottom and ended 1px above the cream bar.
+
+- **Every line is measured on its own glyphs** (`keepLetterGaps`: at the top
+  of `alignPass`, so Easy Mode, the download, the video and the editor alike;
+  again after the card's look is applied, which re-sets some lines' tracking;
+  and last in `renderEzCanvas`): each glyph's ink is drawn once per face and
+  read row by row (`glyphRows`), placed where fabric sets it (`__charBounds`,
+  kerning and tracking in), widened by its outline; two letters touch only
+  where both have ink in the same row, so a j's tail under the letter before
+  it, an f's hook or a capital's arm over a small letter is not a touch.
+  Italic is measured upright: no italic is self-hosted, so every italic is the
+  browser's even slant of the upright face, which moves every letter alike. A gap under 0.025 of the size, or a
+  word space (ink to ink) under 0.2, opens the tracking just enough, and the
+  line comes down in size to the width it had (rule 100's footprint), so
+  nothing around it moves; a textbox keeps its line breaks and widens by what
+  its longest line gained. Connected scripts, curved lines, rules and
+  box-drawing strokes, a face that has not loaded, and a line that would need
+  more than 0.14 of its size are left alone. A first cut measured letters by
+  their bounding boxes: it read every italic and every j as touching, set
+  "Settling An Estate?"'s body one word to a line and narrowed a textbox that
+  had re-wrapped. The before/after sheet caught it, not a number.
+- **A fitted plate is centred on its words, and keeps PLATE_GAP (14px, or
+  its padding) from a full-width band** (`plateOffBars`, step 4): it moves
+  away into the room the other words leave, measured on their letters, then,
+  only if that is not enough, its words come down, to 80% at the least.
+- **The video maker keeps the same gaps** (`openTracking` in motion/engine.js:
+  a line's tracking opens, never closes, to the same two numbers, by 0.12 of
+  the size at the most; a script face keeps its joins).
+
+`scripts/type_gap_audit.mjs` renders every card as Easy Mode draws it and
+counts lines whose letters touch, lines under the letter gap, word spaces
+under 0.2 and plates within 6px of a band; it carries its own measure, so it
+grades a checkout from before the rule as well. Measured 2026-11-03 on the
+712 cards the site shows (28 held), square, the same measure both sides:
+letters touching on 646 lines of 308 cards before, 1 line of 1 card after
+(st_coins_pricebadge's roundel label); under the letter gap 1,246 lines of 455
+cards, then 1; word spaces under 0.2 on 607 lines of 269 cards, then 1;
+plates within 6px of a band on 29 cards, then 28, of which 26 are the offer
+family's Steps Panel over its own Shade (a band it sits on by design) and two
+are open (OPEN-ITEMS §AZ).
+
+## 133. A video is set in the owner's type pairs, every line in its role
+
+Added 2026-11-03. The owner, of the video maker's frames: "for videos we need
+better type faces though", "selling points and general information", "we need
+them to fully encompass all of the design language". The maker drew any of 53
+faces for the headline and set the small line and the label over the number in
+that same display face at a quarter of its size, while the chips, the call to
+action and the ticker were always Oswald.
+
+- **The type is one of rule 100's eighteen pairs** (`TYPE_VOICES` in
+  motion/catalog.js, `type_pair` on the look; "Type pair" in the panel in
+  place of the typeface). Picked by hand it holds; otherwise it is the pair
+  closest to the face the look, its vibe, its theme or its sign drew
+  (`VOICE_OF_FONT`), so every look number keeps its palette, its words and its
+  layout and only its faces become the pair's.
+- **Each line takes its role's face**: the headline, the opening line, the
+  number and the marks the display face (the number the reading face for
+  Marker and Stencil, whose figures are weak); the small line, the label over
+  the number, the selling points, the call-to-action badge, the caution tape
+  and the ticker the reading face at its label weight (700 or 800).
+- **The two lists cannot drift**: `scripts/type_voices_check.mjs` fails if
+  TYPE_VOICES and app.js's FONT_PAIRS name a different face or weight, or a
+  face has no file in assets/fonts/.
+- Measured 2026-11-03 on the final code: the attention sweep of 40 looks keeps
+  its score (100), the headline reads at 1.2 s (1.27 before) and the number at
+  2.0 s; median headline contrast 6.51 (6.76), 35 of 40 over 3:1 (37). The
+  palette audit (172 × 8) has 47 looks under 3:1 (44). The pair faces set
+  wider than some of the old ones, so selling points fit on 59% of square looks
+  (70%); 99% of 4:5, 100% of 9:16 and 16:9.
+- The video's letter gaps count each treatment's own outline (`FX_OUTLINE`:
+  an outline 0.05 of the size, chrome and gold 0.07, neon 0.085, outline and
+  shadow 0.12, the double outline's inner ring 0.14). Measured on the bare
+  letters alone the outlines met again and the palette audit had 61 looks
+  under 3:1.
+- The key is `type_pair`, not `voice`: `voice` is the voiceover (on/off). A
+  first cut named it `voice`, which moved the option's place in the shuffle's
+  draws (every look number drew another look) and set the voiceover's default
+  to nothing; the seed comparison caught it before it shipped.

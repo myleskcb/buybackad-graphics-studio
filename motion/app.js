@@ -1,6 +1,6 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
-import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks } from "./catalog.js";
+import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES } from "./catalog.js";
 import { Ad, ASPECTS, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf } from "./engine.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
@@ -39,7 +39,7 @@ const BOARD_NAMES = { none: "No sign", freeway: "Green freeway sign", freeway_bl
   marquee: "Theatre marquee", store_sign: "Corner store sign" };
 const URGENCY_NAMES = { none: "None", pulse_cta: "Pulsing TEXT NOW badge", caution_tape: "Caution tape", ticker: "Scrolling ticker",
   stamp: "CASH stamp", arrows: "Arrows at the number", flash_border: "Border flashing on the beat", beat_pump: "Pump on the beat" };
-const VIBE_AXES = ["palette", "background", "font", "text_fx", "number_style", "board", "decor", "skew"];
+const VIBE_AXES = ["palette", "background", "font", "type_pair", "text_fx", "number_style", "board", "decor", "skew"];
 const WORD_KEYS = ["headline", "tag", "number_label", "hook_text", "points"];
 
 // what an audience decides, let go when one is picked by hand so the whole ad follows it
@@ -54,6 +54,7 @@ const labelFor = (k, v) => {
   if (k === "board") return BOARD_NAMES[v] || v;
   if (SOUND_NAMES[k] && SOUND_NAMES[k][v]) return SOUND_NAMES[k][v];
   if (k === "urgency") return URGENCY_NAMES[v] || v;
+  if (k === "type_pair") return TYPE_VOICES[v] ? `${TYPE_VOICES[v].name}: ${FONTS[TYPE_VOICES[v].display][0]} + ${FONTS[TYPE_VOICES[v].label][0]}` : v;
   if (k === "font" || k === "number_font") return v === "same" ? "Same as headline" : (FONTS[v] ? FONTS[v][0] : v);
   if (k === "palette") return v === "match" ? "Match a phone's colour" : v.replace(/[_-]/g, " ").replace(/\bla\b/g, "LA").replace(/\b\w/g, c => c.toUpperCase());
   if (k === "tracking") return v < 0 ? "Tight" : v === 0 ? "Normal" : v <= .02 ? "Open" : v <= .05 ? "Wide" : "Extra wide";

@@ -4776,3 +4776,37 @@ RESUME HERE:
   1. The photo side's turn: what makes the videos look better (one light,
      the themes' art direction, the grounds) brought to the photo ads under
      their gates. Ask the owner to point at the video looks they like best.
+
+## 2026-11-03 (later) — letters that never touch, and the video in the owner's type pairs (DESIGN-LAW 132, 133)
+
+Asked: "for videos we need better type faces", "selling points and general
+information", "fully encompass all of the design language"; then, over
+top_buyer in Easy Mode, "why is this so condensed and touching? multiple boxes
+and the text? poor margins".
+
+Done:
+  - Photo ads: every line measured on its glyphs before the layout
+    (keepLetterGaps in alignPass); tracking opens where letters touch or a
+    word space falls under 0.2 of the size, the line keeping its width. A
+    fitted plate is centred on its words and keeps 14px from a full-width band.
+  - Video maker: the eighteen type pairs (TYPE_VOICES, `type_pair`), every
+    line in its role's face; the same letter gaps in its own sprites.
+  - scripts/type_gap_audit.mjs (the library, before and after) and
+    scripts/type_voices_check.mjs (the two lists of pairs agree).
+
+Found:
+  - The owner's screenshot said "Download as video": the button has said
+    "Create video" since 2026-10-11, so that site was an old deploy. Check
+    which URL a screenshot is from before chasing what it shows.
+  - `voice` was already the voiceover key; a new option by that name moved
+    its place in the shuffle's draws and blanked the voiceover default.
+    Compare a few seeds before and after any catalog change.
+  - Box measures misread italics (overhang by design) and a textbox that
+    re-wraps must widen, not narrow: the before/after sheet showed both.
+  - fabric is not reachable on cdnjs from the cloud session; `npm pack
+    fabric@5.3.0` gives a build for FABRIC_JS.
+
+RESUME HERE:
+  0. DESIGN-LAW 132/133's open ends (OPEN-ITEMS §AZ).
+  1. Deploy: the hand-deployed project lags main; the GitHub secrets
+     NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID make it follow.
