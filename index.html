@@ -973,16 +973,38 @@
 </div>
 
 <div class="modal-overlay" id="area-overlay">
-  <div class="modal area-modal">
-    <h3>Where do you buy?</h3>
-    <div class="modal-sub">Your ZIP or city. Service-area lines and &ldquo;we cover&rdquo; copy will name the towns around you, so every ad reads local wherever you post it. Saved on this device, change it any time.</div>
+  <div class="modal area-modal" role="dialog" aria-modal="true" aria-labelledby="area-title">
+    <h3 id="area-title">Where do you buy?</h3>
+    <div class="modal-sub">Type your ZIP or city, then choose the towns your ads name. Saved on this device, change it any time.</div>
     <label for="area-input">ZIP code or city</label>
     <div class="area-inrow">
-      <input type="text" id="area-input" placeholder="92101 or San Diego, CA" autocomplete="postal-code" inputmode="text" spellcheck="false">
+      <input type="text" id="area-input" placeholder="92101 or San Diego, CA" autocomplete="postal-code" inputmode="text" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="area-suggest" aria-expanded="false">
       <button type="button" class="btn btn-outline" id="area-locate" title="Use my location">&#9678; Locate me</button>
     </div>
-    <div class="area-suggest" id="area-suggest"></div>
-    <div class="area-preview" id="area-preview"></div>
+    <div class="area-suggest" id="area-suggest" role="listbox" aria-label="Places"></div>
+    <div class="area-edit" id="area-edit" hidden>
+      <div class="area-home" id="area-home"></div>
+      <div class="area-sec">
+        <div class="area-sec-head">
+          <span class="area-sec-title" id="area-on-title">Towns on your ads</span>
+          <button type="button" class="area-reset" id="area-reset" hidden>Reset to suggested</button>
+        </div>
+        <div class="area-hint">Designs with a service-area line print these, in this order. Tap a town to take it off. Drag one, or use the arrow keys, to move it.</div>
+        <div class="area-line" id="area-line" aria-live="polite">
+          <div class="area-line-cap"><span class="cap-text">As it prints</span><span class="cap-shot">On the design you&rsquo;re editing</span></div>
+          <img id="area-line-img" alt="">
+          <span class="area-line-text"></span>
+        </div>
+        <div class="area-fit" id="area-fit"><i><b></b></i><span></span></div>
+        <div class="area-chips area-on" id="area-on" role="list" aria-labelledby="area-on-title"></div>
+        <div class="area-sub" id="area-near-head">Nearby <span>tap to add</span></div>
+        <div class="area-chips area-near" id="area-near"></div>
+        <div class="area-addrow">
+          <input type="text" id="area-add" placeholder="Add another town" autocomplete="off" spellcheck="false" aria-label="Add another town" role="combobox" aria-autocomplete="list" aria-controls="area-add-suggest" aria-expanded="false">
+        </div>
+        <div class="area-suggest" id="area-add-suggest" role="listbox" aria-label="Towns to add"></div>
+      </div>
+    </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" id="area-skip">Not now</button>
       <button class="btn btn-primary" id="area-save" disabled>Use this area</button>

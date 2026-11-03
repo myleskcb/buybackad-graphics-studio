@@ -1769,14 +1769,71 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .area-opt:hover{border-color:var(--accent);background:var(--accent-wash)}
 .area-opt span{font-family:var(--mono);font-size:11.5px;color:var(--text-dim);font-variant-numeric:tabular-nums}
 .area-none{font-size:13px;color:var(--text-dim);padding:8px 2px}
-.area-preview{margin-top:14px;display:flex;flex-direction:column;gap:10px}
-.area-preview:empty{display:none}
-.area-home{font-weight:650;font-size:14.5px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+/* 2026-11-03: the pills became controls. A town ON the line is a filled
+   accent button with its place number and an x (tap takes it off, drag
+   moves it); a town you can ADD is an outlined button with a +. The old
+   look, grey pills with the first one lit, read as picked-and-clickable and
+   was neither. */
+.area-opt.on{border-color:var(--accent);background:var(--accent-wash)}
+.area-opt:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.area-modal{max-height:calc(100vh - 48px);max-height:calc(100dvh - 48px);overflow:auto;overscroll-behavior:contain}
+.area-modal [hidden]{display:none!important}
+.area-edit{margin-top:16px;display:flex;flex-direction:column;gap:14px}
+.area-home{font-weight:650;font-size:14.5px;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
+.area-home .area-zip{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text-dim);font-variant-numeric:tabular-nums}
 .area-home em{font-style:normal;font-weight:500;font-size:12.5px;color:var(--text-dim)}
-.area-row b{display:block;font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}
+.area-sec{display:flex;flex-direction:column;gap:8px;padding-top:14px;border-top:.5px solid var(--hairline)}
+.area-sec-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.area-sec-title{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim)}
+.area-reset{font:inherit;font-size:12.5px;font-weight:650;color:var(--accent);background:none;border:0;padding:4px 2px;cursor:pointer}
+.area-reset:hover{text-decoration:underline}
+.area-hint{font-size:12.5px;line-height:1.45;color:var(--text-dim);margin-top:-2px}
+/* the line as it prints: the ads' own face, white on a dark plate; or, when
+   the card open in Easy Mode carries the line, that card cropped to it */
+.area-line{position:relative;border-radius:12px;background:#15151b;border:.5px solid var(--hairline-strong);padding:26px 14px 14px;text-align:center;overflow:hidden}
+.area-line-cap{position:absolute;left:12px;top:8px;font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+.area-line .cap-shot,.area-line.shot .cap-text{display:none}
+.area-line.shot .cap-shot{display:inline}
+.area-line-text{display:block;font:italic 800 13.5px/1.45 'Schibsted Grotesk',var(--ui);letter-spacing:.06em;color:#fff;text-transform:uppercase;overflow-wrap:anywhere}
+.area-line img{display:none}
+.area-line.shot{padding:24px 0 0;background:#000}
+.area-line.shot img{display:block;width:100%;height:auto}
+.area-line.shot .area-line-text{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.area-line.shot .area-line-cap{color:rgba(255,255,255,.62)}
+/* length meter: the tick is where the line stops fitting at full size */
+.area-fit{display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:600;color:var(--text-2)}
+.area-fit i{position:relative;flex:0 0 72px;height:5px;border-radius:3px;background:var(--surface-sunk);box-shadow:inset 0 0 0 .5px var(--hairline-strong)}
+.area-fit i::after{content:'';position:absolute;top:-2px;bottom:-2px;left:var(--mark,76%);width:1.5px;background:var(--text-dim);border-radius:1px}
+.area-fit b{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--good);transition:width .18s ease}
+.area-fit.warn b{background:var(--warn)}
+.area-fit.bad b{background:var(--danger)}
+.area-fit.bad span{color:var(--text)}
 .area-chips{display:flex;flex-wrap:wrap;gap:6px}
-.area-chips span{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:var(--r-pill);background:var(--surface-sunk);border:.5px solid var(--hairline-strong);color:var(--text-2)}
-.area-chips span:first-child{background:var(--accent-wash);border-color:rgba(var(--accent-rgb),.4);color:var(--text)}
+.area-tok,.area-near-opt{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:13px;font-weight:650;line-height:1;min-height:34px;padding:7px 11px;border-radius:var(--r-pill);cursor:pointer;transition:background .13s,border-color .13s,color .13s,box-shadow .13s}
+.area-tok{background:var(--accent-wash);border:1px solid rgba(var(--accent-rgb),.55);color:var(--text);touch-action:none;user-select:none;-webkit-user-select:none}
+.area-tok:hover{border-color:var(--accent)}
+.area-tok:hover .area-tok-x{opacity:1;color:var(--danger)}
+.area-tok-n{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--accent);color:var(--accent-ink,#fff);font-family:var(--mono);font-size:10.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.area-tok-x{font-size:15px;line-height:1;opacity:.55;margin-left:1px}
+.area-tok-tag{font-size:10px;font-weight:600;letter-spacing:.02em;color:var(--text-dim)}
+.area-tok.dragging{position:relative;z-index:2;cursor:grabbing;box-shadow:0 8px 22px -6px rgba(0,0,0,.45);transition:none}
+.area-tok.drop-before{box-shadow:-3px 0 0 0 var(--accent)}
+.area-tok.drop-after{box-shadow:3px 0 0 0 var(--accent)}
+.area-near-opt{background:transparent;border:1px dashed var(--hairline-strong);color:var(--text-2)}
+.area-near-opt span{font-size:15px;font-weight:500;line-height:1;color:var(--accent)}
+.area-near-opt:hover:not(:disabled){border-style:solid;border-color:var(--accent);color:var(--text);background:var(--accent-wash)}
+.area-near-opt:disabled{opacity:.45;cursor:not-allowed}
+.area-sub{font-size:12px;font-weight:650;color:var(--text-2);margin-top:4px}
+.area-sub span{font-weight:500;color:var(--text-dim);margin-left:4px}
+.area-addrow{margin-top:2px}
+.modal .area-addrow input{padding:9px 12px;font-size:13.5px}
+.area-addrow input:disabled{opacity:.6}
+@media(max-width:640px){
+  #area-overlay{padding:10px}
+  .area-modal{padding:20px 18px;max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px)}
+  .area-inrow .btn{padding:9px 11px}
+  .area-tok,.area-near-opt{min-height:38px}
+}
 #ez-area{cursor:pointer}
 
 /* Easy Mode export sizes */
