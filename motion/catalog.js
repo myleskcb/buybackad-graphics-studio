@@ -312,7 +312,7 @@ export const COPY = {
     // shop on the site can say, so no speed, no condition and no price promise
     points: ["FREE QUOTE", "CASH PAID", "ALL MODELS", "LOCAL BUYER", "TEXT A PIC", "MEET LOCALLY"],
     // the strike-out opening (owner, 2026-11-03): "NO MORE" over what sellers are tired of, crossed out
-    strike_lead: "NO MORE", strikes: ["LOWBALLS", "FAKE OFFERS", "SHADY BUYERS", "SKETCHY MEETUPS", "WASTING TIME"],
+    strike_lead: "NO MORE", strikes: ["LOWBALLS", "FAKE OFFERS", "SHADY BUYERS", "SKETCHY MEETUPS", "WASTING TIME", "TIME WASTERS"],
   },
   es: {
     hooks: ["¿TIENES UN IPHONE QUE YA NO USAS?", "¿CAMBIASTE DE TELÉFONO?", "¿IPHONE VIEJO EN EL CAJÓN?", "¡OYE! ¿Y ESE IPHONE VIEJO?",
@@ -328,7 +328,7 @@ export const COPY = {
     stamp: ["EFECTIVO", "EFECTIVO", "LOCAL"],
     burst: ["¡EFECTIVO!", "¡LOCAL!", "{CODE}"],
     points: ["COTIZACIÓN GRATIS", "PAGO EN EFECTIVO", "TODOS LOS MODELOS", "COMPRADOR LOCAL", "MANDA UNA FOTO"],
-    strike_lead: "NO MÁS", strikes: ["OFERTAS BAJAS", "OFERTAS FALSAS", "COMPRADORES DUDOSOS", "ENCUENTROS RAROS", "PÉRDIDAS DE TIEMPO"],
+    strike_lead: "NO MÁS", strikes: ["OFERTAS BAJAS", "OFERTAS FALSAS", "COMPRADORES DUDOSOS", "ENCUENTROS RAROS", "PÉRDIDAS DE TIEMPO", "PLANTONES"],
   },
   both: { labels: ["CALL OR TEXT \u00b7 LLAMA O ESCRIBE", "TEXT US \u00b7 MÁNDANOS TEXTO"] },
 };
