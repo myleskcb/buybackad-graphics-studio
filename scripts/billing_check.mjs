@@ -575,6 +575,13 @@ let csPro;
     '/me: an operator billed on Free keeps its plan, its credits are unlimited; another account\'s are not');
   const ov = await hit('POST', '/export/check', { kind: 'video' }, t);
   ok(ov.status === 200 && ov.json.watermark === false && ov.json.remaining === null, 'an operator on Free downloads videos, no marks, no cap');
+  /* the owner is an operator even where ADMIN_EMAILS leaves them out
+     (here it names only boss@studio.example) */
+  const own = await hit('POST', '/auth/signup', { email: 'MylesKCB@gmail.com', password: 'a-long-password' });
+  const ou = own.json.user || {};
+  const oe = await hit('POST', '/export/check', { kind: 'video' }, own.json.token);
+  ok(ou.role === 'admin' && ou.credits && ou.credits.unlimited === true && oe.status === 200 && oe.json.watermark === false && oe.json.remaining === null,
+    'the owner (myleskcb@gmail.com) is an operator without ADMIN_EMAILS: every feature, unlimited credits, no marks, no cap');
 }
 
 /* economics: every plan and pack clears its bar */
