@@ -44,7 +44,7 @@ export const LIBRARY_SAY = [
   ['Details or pics, either works.', 'Your IMEI or serial number.'],
   ['TEXT A PIC', 'TEXT IMEI'],
   ['TEXT A PIC · GET A PRICE', 'TEXT YOUR IMEI · GET A PRICE'],
-  ['TEXT A PHOTO, GET A NUMBER', 'TEXT YOUR IMEI, GET A PRICE'],
+  ['TEXT A PHOTO, GET A NUMBER', 'TEXT US NOW'],
 ];
 
 export async function installLibraryFinish(page) {
