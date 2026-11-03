@@ -43,11 +43,12 @@ const FACES = ['luckiest', 'tilt-warp', 'bungee', 'unbounded', 'franklin', 'sato
 // phones no room; a condensed face sets it in two, as large.
 const CONDENSED = ['sofia-xcond', 'oswald', 'big-shoulders', 'barlow-cond', 'saira-cond', 'teko', 'khand', 'squada'];
 // The video maker's options that put small words or stray marks (sparkles, a typing caret) on the
-// picture are held off, and the camera
+// picture are held off; the phones face back, flat, without the idle spin (caught turned in a
+// photo they read as black slabs, not iPhones); and the camera
 // holds still, so the still is drawn where the plan put everything (the margins are checked there).
 // A sign board round the headline (neon box, kraft tag) costs it about a third of its size
 // (measured: 98-107px in a board, 151-157px without), and the number with it.
-const QUIET = { decor: [], urgency: 'none', overlay: 'none', accents: 0, board: 'none', number_pos: 'bottom-center', number_format: 'parens', camera: 'still', shake: 0, sparkles: false, text_in: 'slide', text_scale: 1.25, number_scale: 1.12 };
+const QUIET = { decor: [], urgency: 'none', overlay: 'none', accents: 0, board: 'none', number_pos: 'bottom-center', number_format: 'parens', camera: 'still', shake: 0, sparkles: false, text_in: 'slide', pose: 'flat', end_face: 'back', phone_idle: 'breathe', text_scale: 1.25, number_scale: 1.12 };
 // The number is the call to action, so it is always drawn as a button, never bare digits.
 const BUTTONS = ['pill', 'box', 'tag'];
 

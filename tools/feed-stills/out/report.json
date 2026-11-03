@@ -1,0 +1,1498 @@
+{
+ "made": "2026-11-03T02:42:22.814Z",
+ "summary": {
+  "made": 28,
+  "of": 32,
+  "before": {
+   "headline": 146,
+   "number": 88,
+   "smallest": 24,
+   "cardsWithTextUnder40": 28
+  },
+  "after": {
+   "headline": 146,
+   "number": 108,
+   "smallest": 45,
+   "minSmallest": 45
+  },
+  "distinct": {
+   "phoneSets": 28,
+   "grounds": 28,
+   "faces": 16
+  }
+ },
+ "cards": [
+  {
+   "id": "checklistHero-cd06-15",
+   "ok": true,
+   "seed": 7001,
+   "headline": "SELL YOUR iPHONE",
+   "line": "PAID SAME DAY • ANY CONDITION • ANY CARRIER",
+   "cta": "TEXT A PIC TO",
+   "look": {
+    "font": "luckiest",
+    "number_style": "pill",
+    "palette": "store_red",
+    "background": "stucco",
+    "arrangement": "fan",
+    "board": "none",
+    "text_fx": "box",
+    "case": "upper"
+   },
+   "phones": [
+    "18-pro-max-burgundy",
+    "18-pro-max-glacier",
+    "18-pro-max-silver"
+   ],
+   "subjectFit": 0.63,
+   "px": {
+    "headline": 123,
+    "number": 99,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 11.01,
+    "call to action": 11.13,
+    "website": 11.05
+   },
+   "phonesDrawn": 0.17,
+   "before": {
+    "headline": 176,
+    "number": 109,
+    "smallest": 24,
+    "under40": 6
+   },
+   "skipped": {}
+  },
+  {
+   "id": "trustSeal-cd10-15",
+   "ok": true,
+   "seed": 7155,
+   "headline": "YOUR LOCAL iPHONE BUYER",
+   "line": "TEXT A PIC • FREE QUOTE • NO FEES",
+   "cta": "CALL OR TEXT",
+   "look": {
+    "font": "big-shoulders",
+    "number_style": "box",
+    "palette": "graphite",
+    "background": "flat",
+    "arrangement": "tents",
+    "board": "none",
+    "text_fx": "flat",
+    "case": "title"
+   },
+   "phones": [
+    "16-pro-natural",
+    "16-pro-white",
+    "16-pro-black"
+   ],
+   "subjectFit": 0.59,
+   "px": {
+    "headline": 146,
+    "number": 108,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 15.92,
+    "call to action": 15.36,
+    "website": 16.29
+   },
+   "phonesDrawn": 0.15,
+   "before": {
+    "headline": 137,
+    "number": 85,
+    "smallest": 16,
+    "under40": 9
+   },
+   "skipped": {
+    "phones under 13% of the height": 45,
+    "headline and number 22px apart; headline and call to action overlap; headline and phones overlap": 1,
+    "headline and call to action overlap; headline and phones overlap": 2,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 4,
+    "headline and number 20px apart; headline and call to action overlap; headline and phones 18px apart": 1,
+    "phones under 13% of the height; headline and call to action overlap; headline and phones overlap": 2,
+    "headline and number 20px apart; headline and call to action overlap": 1,
+    "headline and call to action overlap; headline and phones 17px apart": 1
+   }
+  },
+  {
+   "id": "stepsFlow-du08-15",
+   "ok": false,
+   "skipped": {
+    "phones under 13% of the height": 109,
+    "same phones as another card": 2,
+    "headline and call to action overlap; headline and phones overlap": 5,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 1,
+    "headline and call to action overlap": 3
+   }
+  },
+  {
+   "id": "bubblePop-du07-15",
+   "ok": true,
+   "seed": 7295,
+   "headline": "SELL YOUR iPHONE",
+   "line": "TEXT A PIC • GET A PRICE • PAID TODAY",
+   "cta": "TEXT A PIC TO",
+   "look": {
+    "font": "chivo",
+    "number_style": "pill",
+    "palette": "cream_black",
+    "background": "split",
+    "arrangement": "rise",
+    "board": "none",
+    "text_fx": "double_outline",
+    "case": "title"
+   },
+   "phones": [
+    "17-pro-cosmic-orange",
+    "17-pro-deep-blue",
+    "17-pro-silver"
+   ],
+   "subjectFit": 0.62,
+   "px": {
+    "headline": 153,
+    "number": 105,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 11.19,
+    "call to action": 16.94,
+    "website": 10.99
+   },
+   "phonesDrawn": 0.18,
+   "before": {
+    "headline": 141,
+    "number": 87,
+    "smallest": 24,
+    "under40": 2
+   },
+   "skipped": {
+    "phones under 13% of the height": 2,
+    "headline and call to action overlap; headline and phones 18px apart": 1
+   }
+  },
+  {
+   "id": "bubblePop-io03-15",
+   "ok": true,
+   "seed": 7389,
+   "headline": "WE BUY iPHONES",
+   "line": "iPHONE 15 TO 18 PRO MAX • PAID SAME DAY",
+   "cta": "GET YOUR OFFER",
+   "look": {
+    "font": "franklin",
+    "number_style": "box",
+    "palette": "pine",
+    "background": "radial",
+    "arrangement": "podium",
+    "board": "none",
+    "text_fx": "flat",
+    "case": "upper"
+   },
+   "phones": [
+    "16-white-as-lavender",
+    "16-white-as-sage",
+    "16-white-as-mist-blue"
+   ],
+   "subjectFit": 0.64,
+   "px": {
+    "headline": 150,
+    "number": 87,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 10.21,
+    "call to action": 9.28,
+    "website": 11.67
+   },
+   "phonesDrawn": 0.17,
+   "before": {
+    "headline": 127,
+    "number": 84,
+    "smallest": 24,
+    "under40": 2
+   },
+   "skipped": {}
+  },
+  {
+   "id": "slabPoster-pp04-15",
+   "ok": true,
+   "seed": 7487,
+   "headline": "SELL YOUR iPHONE",
+   "line": "CASH PAID TODAY • WE MEET YOU LOCALLY",
+   "cta": "CALL OR TEXT",
+   "look": {
+    "font": "chivo",
+    "number_style": "pill",
+    "palette": "store_green",
+    "background": "stucco",
+    "arrangement": "lean_in",
+    "board": "none",
+    "text_fx": "double_outline",
+    "case": "upper"
+   },
+   "phones": [
+    "16-pro-max-natural",
+    "16-pro-max-white",
+    "16-pro-max-black"
+   ],
+   "subjectFit": 0.74,
+   "px": {
+    "headline": 140,
+    "number": 113,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 10.56,
+    "call to action": 9.78,
+    "website": 10.56
+   },
+   "phonesDrawn": 0.19,
+   "before": {
+    "headline": 146,
+    "number": 90,
+    "smallest": 22,
+    "under40": 3
+   },
+   "skipped": {
+    "phones under 13% of the height": 1
+   }
+  },
+  {
+   "id": "scriptRetro-ck03-15",
+   "ok": true,
+   "seed": 7606,
+   "headline": "SELL YOUR iPHONE",
+   "line": "FREE QUOTE • NO FEES • NO OBLIGATION",
+   "cta": "TEXT A PIC TO",
+   "look": {
+    "font": "tilt-warp",
+    "number_style": "tag",
+    "palette": "bubblegum",
+    "background": "checker",
+    "arrangement": "lean_in",
+    "board": "none",
+    "text_fx": "double_outline",
+    "case": "title"
+   },
+   "phones": [
+    "17e-black",
+    "17e-soft-pink"
+   ],
+   "subjectFit": 0.67,
+   "px": {
+    "headline": 146,
+    "number": 108,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 10.62,
+    "call to action": 10.66,
+    "website": 9.94
+   },
+   "phonesDrawn": 0.18,
+   "before": {
+    "headline": 116,
+    "number": 84,
+    "smallest": 30,
+    "under40": 4
+   },
+   "skipped": {
+    "headline and call to action overlap; headline and phones 20px apart": 1,
+    "same phones as another card": 2,
+    "phones under 13% of the height": 16,
+    "service line contrast 2.0:1": 1,
+    "headline and call to action overlap; headline and phones 17px apart": 1,
+    "headline and call to action overlap; headline and phones 16px apart": 1,
+    "headline and call to action overlap": 1
+   }
+  },
+  {
+   "id": "hudTech-jw05-15",
+   "ok": true,
+   "seed": 7683,
+   "headline": "SELL YOUR iPHONE",
+   "line": "ANY CONDITION • CASH OR TRANSFER TODAY",
+   "cta": "GET YOUR OFFER",
+   "look": {
+    "font": "russo",
+    "number_style": "box",
+    "palette": "candy_red",
+    "background": "candy_fade",
+    "arrangement": "tents",
+    "board": "none",
+    "text_fx": "extrude",
+    "case": "upper"
+   },
+   "phones": [
+    "16-white",
+    "16-black",
+    "16-ultramarine"
+   ],
+   "subjectFit": 0.6,
+   "px": {
+    "headline": 147,
+    "number": 109,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 9.24,
+    "call to action": 6.04,
+    "website": 5.82
+   },
+   "phonesDrawn": 0.17,
+   "before": {
+    "headline": 126,
+    "number": 84,
+    "smallest": 26,
+    "under40": 4
+   },
+   "skipped": {
+    "phones under 13% of the height": 3
+   }
+  },
+  {
+   "id": "bubblePop-gl02-20",
+   "ok": true,
+   "seed": 7830,
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "line": "TEXT A PIC • GET A PRICE • PAID TODAY",
+   "cta": "CALL OR TEXT",
+   "look": {
+    "font": "teko",
+    "number_style": "box",
+    "palette": "onyx_gold",
+    "background": "beams_stage",
+    "arrangement": "wings",
+    "board": "none",
+    "text_fx": "long_shadow",
+    "case": "title"
+   },
+   "phones": [
+    "15-green",
+    "15-pink"
+   ],
+   "subjectFit": 0.62,
+   "px": {
+    "headline": 146,
+    "number": 118,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 17.01,
+    "call to action": 15.79,
+    "website": 19.13
+   },
+   "phonesDrawn": 0.15,
+   "before": {
+    "headline": 142,
+    "number": 88,
+    "smallest": 24,
+    "under40": 2
+   },
+   "skipped": {
+    "phones under 13% of the height": 35,
+    "headline and call to action overlap; headline and phones overlap": 8,
+    "same phones as another card": 3,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 4,
+    "headline and call to action overlap; headline and phones 16px apart": 1,
+    "headline and call to action overlap; headline and phones 15px apart": 1,
+    "service line contrast 2.8:1; call to action contrast 2.8:1": 1
+   }
+  },
+  {
+   "id": "bubblePop-cd01-20",
+   "ok": true,
+   "seed": 7935,
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "line": "ANY CONDITION • ANY CARRIER • NO FEES",
+   "cta": "CALL OR TEXT",
+   "look": {
+    "font": "khand",
+    "number_style": "box",
+    "palette": "pine",
+    "background": "bokeh",
+    "arrangement": "headliner",
+    "board": "none",
+    "text_fx": "shadow",
+    "case": "title"
+   },
+   "phones": [
+    "18-pro-glacier",
+    "18-pro-black",
+    "18-pro-burgundy"
+   ],
+   "subjectFit": 0.67,
+   "px": {
+    "headline": 136,
+    "number": 109,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 9,
+    "call to action": 9.7,
+    "website": 10.9
+   },
+   "phonesDrawn": 0.18,
+   "before": {
+    "headline": 167,
+    "number": 104,
+    "smallest": 24,
+    "under40": 1
+   },
+   "skipped": {
+    "phones under 13% of the height": 35,
+    "headline and call to action overlap; headline and phones 15px apart": 3,
+    "headline and call to action overlap; headline and phones 14px apart": 1,
+    "headline and call to action overlap; headline and phones 18px apart": 1,
+    "headline and call to action overlap; headline and phones overlap": 7,
+    "headline and call to action overlap; headline and phones 20px apart": 1,
+    "phones under 13% of the height; headline and call to action overlap; headline and phones overlap": 2,
+    "headline and call to action overlap; headline and phones 19px apart": 1,
+    "same phones as another card": 9,
+    "headline and call to action overlap; headline and phones 13px apart": 1
+   }
+  },
+  {
+   "id": "voltStack-du05-20",
+   "ok": true,
+   "seed": 8066,
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "line": "FREE QUOTE BY TEXT • PAID SAME DAY",
+   "cta": "CALL OR TEXT",
+   "look": {
+    "font": "oswald",
+    "number_style": "pill",
+    "palette": "lime",
+    "background": "confetti",
+    "arrangement": "podium",
+    "board": "none",
+    "text_fx": "highlighter",
+    "case": "title"
+   },
+   "phones": [
+    "16-pro-max-black",
+    "16-pro-max-desert"
+   ],
+   "subjectFit": 0.72,
+   "px": {
+    "headline": 136,
+    "number": 109,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 15.84,
+    "call to action": 16.16,
+    "website": 14.25
+   },
+   "phonesDrawn": 0.17,
+   "before": {
+    "headline": 175,
+    "number": 109,
+    "smallest": 24,
+    "under40": 3
+   },
+   "skipped": {
+    "headline and call to action overlap; headline and phones overlap": 9,
+    "phones under 13% of the height": 51,
+    "same phones as another card": 30,
+    "phones under 13% of the height; headline and call to action overlap; headline and phones overlap": 1,
+    "service line contrast 1.5:1": 1,
+    "headline and call to action overlap": 1,
+    "service line contrast 1.9:1; call to action contrast 2.7:1; website contrast 2.6:1": 1,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 1
+   }
+  },
+  {
+   "id": "voltStack-gl04-20",
+   "ok": true,
+   "seed": 8072,
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "line": "WE MEET YOU LOCALLY • CASH TODAY",
+   "cta": "TEXT A PIC TO",
+   "look": {
+    "font": "squada",
+    "number_style": "pill",
+    "palette": "mural_marigold",
+    "background": "mural_waves",
+    "arrangement": "gallery",
+    "board": "none",
+    "text_fx": "double_outline",
+    "case": "title"
+   },
+   "phones": [
+    "15-pro-blue",
+    "15-pro-black",
+    "15-pro-natural"
+   ],
+   "subjectFit": 0.65,
+   "px": {
+    "headline": 147,
+    "number": 119,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 4.99,
+    "call to action": 3.95,
+    "website": 4.64
+   },
+   "phonesDrawn": 0.17,
+   "before": {
+    "headline": 175,
+    "number": 109,
+    "smallest": 24,
+    "under40": 3
+   },
+   "skipped": {
+    "phones under 13% of the height": 4
+   }
+  },
+  {
+   "id": "neonNight-nn04-20",
+   "ok": false,
+   "skipped": {
+    "website inside the margin; headline and number 16px apart; headline and call to action overlap": 2,
+    "headline and call to action overlap; headline and phones overlap": 4,
+    "phones under 13% of the height": 60,
+    "same phones as another card": 37,
+    "website inside the margin; headline and number 16px apart; headline and call to action overlap; headline and phones overlap": 2,
+    "phones under 13% of the height; headline and call to action overlap; headline and phones overlap": 2,
+    "words touch the phones; website inside the margin; headline and number 16px apart; headline and call to action overlap; headline and phones overlap": 1,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 5,
+    "headline and number 19px apart; headline and call to action overlap": 1,
+    "headline and call to action overlap; headline and phones 13px apart": 2,
+    "headline and number 19px apart; headline and call to action overlap; headline and phones 14px apart": 1,
+    "headline and call to action overlap": 1,
+    "headline and call to action overlap; headline and phones 15px apart": 1,
+    "headline and number 21px apart; headline and call to action overlap; headline and phones overlap": 1
+   }
+  },
+  {
+   "id": "neonNight-jw04-20",
+   "ok": true,
+   "seed": 8318,
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "line": "FAST BUYER • FIRM QUOTE BY TEXT",
+   "cta": "TEXT A PIC TO",
+   "look": {
+    "font": "teko",
+    "number_style": "pill",
+    "palette": "seafoam",
+    "background": "tonal",
+    "arrangement": "headliner",
+    "board": "none",
+    "text_fx": "highlighter",
+    "case": "title"
+   },
+   "phones": [
+    "16-white-as-mist-blue",
+    "16-white-as-lavender"
+   ],
+   "subjectFit": 0.68,
+   "px": {
+    "headline": 136,
+    "number": 109,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 8.97,
+    "call to action": 9.63,
+    "website": 7.94
+   },
+   "phonesDrawn": 0.17,
+   "before": {
+    "headline": 172,
+    "number": 107,
+    "smallest": 25,
+    "under40": 2
+   },
+   "skipped": {
+    "phones under 13% of the height": 22,
+    "same phones as another card": 27,
+    "headline and call to action overlap; headline and phones overlap": 4,
+    "phones under 13% of the height; headline and call to action overlap; headline and phones overlap": 1,
+    "headline and call to action overlap; headline and phones 13px apart": 1,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 1
+   }
+  },
+  {
+   "id": "gradientWave-io03-20",
+   "ok": true,
+   "seed": 8432,
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "line": "TEXT A PHOTO, GET A NUMBER",
+   "cta": "TEXT A PIC TO",
+   "look": {
+    "font": "squada",
+    "number_style": "pill",
+    "palette": "oxblood",
+    "background": "radial",
+    "arrangement": "gallery",
+    "board": "none",
+    "text_fx": "shadow",
+    "case": "title"
+   },
+   "phones": [
+    "16-teal",
+    "16-pink",
+    "16-white"
+   ],
+   "subjectFit": 0.69,
+   "px": {
+    "headline": 136,
+    "number": 93,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 12.7,
+    "call to action": 11.99,
+    "website": 14.24
+   },
+   "phonesDrawn": 0.18,
+   "before": {
+    "headline": 154,
+    "number": 96,
+    "smallest": 24,
+    "under40": 3
+   },
+   "skipped": {
+    "same phones as another card": 33,
+    "phones under 13% of the height": 24,
+    "headline and call to action overlap": 3,
+    "headline and call to action overlap; headline and phones 15px apart": 2,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 4,
+    "headline and call to action overlap; headline and phones overlap": 5,
+    "phones under 13% of the height; headline and call to action overlap; headline and phones overlap": 1,
+    "service line contrast 3.2:1; call to action contrast 2.7:1": 1
+   }
+  },
+  {
+   "id": "ticketStub-pp04-20",
+   "ok": true,
+   "seed": 8471,
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "line": "CASH PAID TODAY • NO FEES",
+   "cta": "CALL OR TEXT",
+   "look": {
+    "font": "khand",
+    "number_style": "pill",
+    "palette": "butter",
+    "background": "tonal",
+    "arrangement": "showcase",
+    "board": "none",
+    "text_fx": "double_outline",
+    "case": "upper"
+   },
+   "phones": [
+    "17-pro-max-cosmic-orange",
+    "17-pro-max-deep-blue",
+    "17-pro-max-silver"
+   ],
+   "subjectFit": 0.58,
+   "px": {
+    "headline": 127,
+    "number": 103,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 12.54,
+    "call to action": 8.21,
+    "website": 10.62
+   },
+   "phonesDrawn": 0.16,
+   "before": {
+    "headline": 116,
+    "number": 84,
+    "smallest": 25,
+    "under40": 4
+   },
+   "skipped": {
+    "same phones as another card": 7,
+    "phones under 13% of the height": 5,
+    "headline and call to action overlap; headline and phones overlap": 1,
+    "headline and call to action overlap; headline and phones 13px apart": 1,
+    "headline and call to action overlap": 1
+   }
+  },
+  {
+   "id": "hudTech-ca07-20",
+   "ok": false,
+   "skipped": {
+    "same phones as another card": 28,
+    "phones under 13% of the height": 74,
+    "headline and call to action overlap; headline and phones overlap": 6,
+    "headline and call to action overlap": 6,
+    "call to action and phones overlap": 3,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 2,
+    "words touch the phones; headline and phones overlap; call to action and phones overlap": 1
+   }
+  },
+  {
+   "id": "hudTech-cd10-20",
+   "ok": true,
+   "seed": 8722,
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "line": "ONLINE NOW • QUOTE IN MINUTES",
+   "cta": "CALL OR TEXT",
+   "look": {
+    "font": "oswald",
+    "number_style": "tag",
+    "palette": "steel",
+    "background": "flat",
+    "arrangement": "lineup",
+    "board": "none",
+    "text_fx": "shadow",
+    "case": "title"
+   },
+   "phones": [
+    "15-pro-max-white",
+    "15-pro-max-blue",
+    "15-pro-max-black"
+   ],
+   "subjectFit": 0.64,
+   "px": {
+    "headline": 136,
+    "number": 109,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 15.11,
+    "call to action": 14.69,
+    "website": 15.66
+   },
+   "phonesDrawn": 0.18,
+   "before": {
+    "headline": 128,
+    "number": 84,
+    "smallest": 25,
+    "under40": 4
+   },
+   "skipped": {
+    "same phones as another card": 22,
+    "phones under 13% of the height": 38,
+    "headline and call to action overlap": 2,
+    "headline and call to action overlap; headline and phones overlap": 5,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 2,
+    "headline and call to action overlap; headline and phones 18px apart": 2,
+    "headline and call to action overlap; headline and phones 17px apart": 1
+   }
+  },
+  {
+   "id": "arcCrown-cd01-20",
+   "ok": true,
+   "seed": 8755,
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "line": "TEXT A PIC • GET A PRICE",
+   "cta": "TEXT A PIC TO",
+   "look": {
+    "font": "big-shoulders",
+    "number_style": "tag",
+    "palette": "mango",
+    "background": "confetti",
+    "arrangement": "hand",
+    "board": "none",
+    "text_fx": "double_outline",
+    "case": "title"
+   },
+   "phones": [
+    "16-white-as-sage",
+    "16-white-as-mist-blue"
+   ],
+   "subjectFit": 0.55,
+   "px": {
+    "headline": 127,
+    "number": 103,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 11.51,
+    "call to action": 11.88,
+    "website": 10.87
+   },
+   "phonesDrawn": 0.16,
+   "before": {
+    "headline": 167,
+    "number": 104,
+    "smallest": 25,
+    "under40": 1
+   },
+   "skipped": {
+    "same phones as another card": 6,
+    "phones under 13% of the height": 2
+   }
+  },
+  {
+   "id": "glassCard-nn01-20",
+   "ok": true,
+   "seed": 8844,
+   "headline": "SELL YOUR iPHONE",
+   "line": "iPHONE 15 TO 18 PRO MAX • ANY CARRIER",
+   "cta": "GET YOUR OFFER",
+   "look": {
+    "font": "satoshi",
+    "number_style": "box",
+    "palette": "night_blue",
+    "background": "brick_lamp",
+    "arrangement": "rise",
+    "board": "none",
+    "text_fx": "neon",
+    "case": "title"
+   },
+   "phones": [
+    "16-pro-max-black",
+    "16-pro-max-desert",
+    "16-pro-max-natural"
+   ],
+   "subjectFit": 0.64,
+   "px": {
+    "headline": 146,
+    "number": 108,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 9.77,
+    "call to action": 13.69,
+    "website": 17.25
+   },
+   "phonesDrawn": 0.16,
+   "before": {
+    "headline": 120,
+    "number": 84,
+    "smallest": 24,
+    "under40": 4
+   },
+   "skipped": {}
+  },
+  {
+   "id": "checklistHero-jw10-30",
+   "ok": true,
+   "seed": 8952,
+   "headline": "WE BUY iPHONES",
+   "line": "PAID SAME DAY • WE MEET YOU LOCALLY",
+   "cta": "TEXT A PIC TO",
+   "look": {
+    "font": "unbounded",
+    "number_style": "box",
+    "palette": "butter",
+    "background": "sunburst",
+    "arrangement": "crown",
+    "board": "none",
+    "text_fx": "sticker",
+    "case": "title"
+   },
+   "phones": [
+    "16-white",
+    "16-black"
+   ],
+   "subjectFit": 0.68,
+   "px": {
+    "headline": 146,
+    "number": 108,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 14.53,
+    "call to action": 14.66,
+    "website": 13.09
+   },
+   "phonesDrawn": 0.16,
+   "before": {
+    "headline": 212,
+    "number": 109,
+    "smallest": 24,
+    "under40": 6
+   },
+   "skipped": {
+    "phones under 13% of the height": 8,
+    "service line contrast 1.0:1": 1,
+    "same phones as another card": 2
+   }
+  },
+  {
+   "id": "checklistHero-jw05-30",
+   "ok": true,
+   "seed": 9040,
+   "headline": "SELL YOUR iPHONE",
+   "line": "ANY CONDITION • ANY CARRIER • PAID TODAY",
+   "cta": "GET YOUR OFFER",
+   "look": {
+    "font": "schibsted",
+    "number_style": "tag",
+    "palette": "oxblood",
+    "background": "bokeh",
+    "arrangement": "showcase",
+    "board": "none",
+    "text_fx": "flat",
+    "case": "title"
+   },
+   "phones": [
+    "16-black",
+    "16-ultramarine"
+   ],
+   "subjectFit": 0.67,
+   "px": {
+    "headline": 146,
+    "number": 108,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 13.26,
+    "call to action": 13.34,
+    "website": 15.1
+   },
+   "phonesDrawn": 0.16,
+   "before": {
+    "headline": 172,
+    "number": 107,
+    "smallest": 24,
+    "under40": 5
+   },
+   "skipped": {
+    "same phones as another card": 1,
+    "phones under 13% of the height": 1
+   }
+  },
+  {
+   "id": "trustSeal-du07-30",
+   "ok": true,
+   "seed": 9158,
+   "headline": "YOUR LOCAL iPHONE BUYER",
+   "line": "NO FEES • NOTHING TAKEN OFF • SAME DAY",
+   "cta": "CALL OR TEXT",
+   "look": {
+    "font": "teko",
+    "number_style": "pill",
+    "palette": "ink_blue",
+    "background": "linear",
+    "arrangement": "rise",
+    "board": "none",
+    "text_fx": "box",
+    "case": "title"
+   },
+   "phones": [
+    "15-pro-max-black",
+    "15-pro-max-natural"
+   ],
+   "subjectFit": 0,
+   "px": {
+    "headline": 127,
+    "number": 103,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 11.62,
+    "call to action": 11.76,
+    "website": 10.64
+   },
+   "phonesDrawn": 0.25,
+   "before": {
+    "headline": 137,
+    "number": 85,
+    "smallest": 16,
+    "under40": 9
+   },
+   "skipped": {
+    "words touch the phones; headline and phones overlap; call to action and phones overlap": 4,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 4,
+    "headline and call to action overlap; headline and phones overlap": 1,
+    "phones under 13% of the height; headline and call to action overlap; headline and phones overlap": 1,
+    "headline and number 22px apart; headline and call to action overlap; headline and phones overlap": 1,
+    "words touch the phones; headline and number 22px apart; headline and call to action overlap; headline and phones overlap": 1,
+    "headline and call to action overlap": 1,
+    "words touch the phones; headline and phones overlap": 1,
+    "phones drawn 3% of the height": 3,
+    "service line contrast 2.2:1; call to action contrast 2.3:1; website contrast 2.7:1": 1,
+    "words touch the phones; headline and phones overlap; call to action and phones 6px apart": 1,
+    "phones under 13% of the height": 2,
+    "words touch the phones; headline and phones overlap; call to action and phones 1px apart": 1,
+    "service line contrast 3.0:1; call to action contrast 3.1:1; website contrast 3.2:1": 1
+   }
+  },
+  {
+   "id": "stepsFlow-nn01-30",
+   "ok": true,
+   "seed": 9300,
+   "headline": "FAST CASH FOR iPHONES",
+   "line": "TEXT A PIC → FIRM QUOTE → GET PAID",
+   "cta": "STEP 1: TEXT",
+   "look": {
+    "font": "barlow-cond",
+    "number_style": "box",
+    "palette": "steel",
+    "background": "spotlight",
+    "arrangement": "headliner",
+    "board": "none",
+    "text_fx": "flat",
+    "case": "title"
+   },
+   "phones": [
+    "18-pro-glacier",
+    "18-pro-black"
+   ],
+   "subjectFit": 0.6,
+   "px": {
+    "headline": 146,
+    "number": 108,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 15.26,
+    "call to action": 13.37,
+    "website": 18.16
+   },
+   "phonesDrawn": 0.15,
+   "before": {
+    "headline": 196,
+    "number": 140,
+    "smallest": 26,
+    "under40": 7
+   },
+   "skipped": {
+    "phones under 13% of the height": 39,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 2,
+    "same phones as another card": 16,
+    "headline and call to action overlap; headline and phones 13px apart": 1,
+    "headline and call to action overlap; headline and phones 16px apart": 1,
+    "headline and call to action overlap; headline and phones overlap": 1
+   }
+  },
+  {
+   "id": "stepsFlow-nn05-30",
+   "ok": true,
+   "seed": 9391,
+   "headline": "TOP iPHONE BUYER",
+   "line": "QUOTE IN MINUTES • CASH OR TRANSFER",
+   "cta": "TEXT A PIC TO",
+   "look": {
+    "font": "bungee",
+    "number_style": "tag",
+    "palette": "ice",
+    "background": "aurora",
+    "arrangement": "headliner",
+    "board": "none",
+    "text_fx": "double_outline",
+    "case": "title"
+   },
+   "phones": [
+    "17-pro-max-deep-blue",
+    "17-pro-max-silver"
+   ],
+   "subjectFit": 0.7,
+   "px": {
+    "headline": 146,
+    "number": 108,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 11.99,
+    "call to action": 12.38,
+    "website": 10.39
+   },
+   "phonesDrawn": 0.19,
+   "before": {
+    "headline": 204,
+    "number": 144,
+    "smallest": 26,
+    "under40": 7
+   },
+   "skipped": {
+    "same phones as another card": 22,
+    "phones under 13% of the height": 27,
+    "headline and call to action overlap": 3,
+    "headline and call to action overlap; headline and phones 19px apart": 1,
+    "headline and call to action overlap; headline and phones 17px apart": 1,
+    "service line contrast 1.7:1; phones drawn 3% of the height": 1,
+    "headline and call to action overlap; headline and phones overlap": 2,
+    "words touch the phones; headline and phones overlap; call to action and phones overlap": 2,
+    "headline and call to action overlap; headline and phones 16px apart": 2,
+    "headline and call to action overlap; headline and phones 14px apart": 1
+   }
+  },
+  {
+   "id": "slabPoster-jw10-30",
+   "ok": true,
+   "seed": 9440,
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "line": "LONG BEACH • LAKEWOOD • DOWNEY • CARSON",
+   "cta": "CALL OR TEXT",
+   "look": {
+    "font": "squada",
+    "number_style": "pill",
+    "palette": "forest",
+    "background": "sunburst",
+    "arrangement": "wings",
+    "board": "none",
+    "text_fx": "foil",
+    "case": "title"
+   },
+   "phones": [
+    "15-plus-blue",
+    "15-plus-green"
+   ],
+   "subjectFit": 0.67,
+   "px": {
+    "headline": 133,
+    "number": 107,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 8.82,
+    "call to action": 8.45,
+    "website": 10.45
+   },
+   "phonesDrawn": 0.19,
+   "before": {
+    "headline": 174,
+    "number": 84,
+    "smallest": 22,
+    "under40": 3
+   },
+   "skipped": {
+    "phones under 13% of the height": 6,
+    "same phones as another card": 2,
+    "headline and call to action overlap; headline and phones overlap": 3,
+    "headline and call to action overlap": 1
+   }
+  },
+  {
+   "id": "scriptRetro-cd10-30",
+   "ok": true,
+   "seed": 9573,
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "line": "TEXT A PHOTO, GET A NUMBER",
+   "cta": "TEXT A PIC TO",
+   "look": {
+    "font": "saira-cond",
+    "number_style": "box",
+    "palette": "radio_amber",
+    "background": "brick_lamp",
+    "arrangement": "showcase",
+    "board": "none",
+    "text_fx": "flat",
+    "case": "title"
+   },
+   "phones": [
+    "17-pro-deep-blue",
+    "17-pro-silver"
+   ],
+   "subjectFit": 0.66,
+   "px": {
+    "headline": 136,
+    "number": 109,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 7.33,
+    "call to action": 10.55,
+    "website": 14.01
+   },
+   "phonesDrawn": 0.17,
+   "before": {
+    "headline": 116,
+    "number": 84,
+    "smallest": 27,
+    "under40": 4
+   },
+   "skipped": {
+    "phones under 13% of the height": 12,
+    "same phones as another card": 22,
+    "headline and call to action overlap; headline and phones overlap": 3,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 1
+   }
+  },
+  {
+   "id": "hudTech-du01-30",
+   "ok": false,
+   "skipped": {
+    "phones under 13% of the height": 48,
+    "headline and call to action overlap; headline and phones overlap": 2,
+    "headline and call to action overlap": 8,
+    "same phones as another card": 58,
+    "headline and call to action overlap; headline and phones 16px apart": 1,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 2,
+    "headline and call to action overlap; headline and phones 17px apart": 1
+   }
+  },
+  {
+   "id": "slabPoster-io06-35",
+   "ok": true,
+   "seed": 9781,
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "line": "ONLINE NOW • CASH PAID TODAY",
+   "cta": "CALL OR TEXT",
+   "look": {
+    "font": "saira-cond",
+    "number_style": "tag",
+    "palette": "arcade_80s",
+    "background": "starfield",
+    "arrangement": "gallery",
+    "board": "none",
+    "text_fx": "extrude",
+    "case": "title"
+   },
+   "phones": [
+    "16-pro-white",
+    "16-pro-black",
+    "16-pro-desert"
+   ],
+   "subjectFit": 0.65,
+   "px": {
+    "headline": 136,
+    "number": 109,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 17.91,
+    "call to action": 14.46,
+    "website": 14.47
+   },
+   "phonesDrawn": 0.17,
+   "before": {
+    "headline": 147,
+    "number": 91,
+    "smallest": 22,
+    "under40": 3
+   },
+   "skipped": {
+    "same phones as another card": 27,
+    "phones under 13% of the height": 17,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 2,
+    "headline and call to action overlap; headline and phones overlap": 2
+   }
+  },
+  {
+   "id": "ticketStub-nn06-35",
+   "ok": true,
+   "seed": 9884,
+   "headline": "SELL YOUR iPHONE",
+   "line": "CASH OFFER TODAY • NO OBLIGATION",
+   "cta": "TEXT A PIC TO",
+   "look": {
+    "font": "tilt-warp",
+    "number_style": "pill",
+    "palette": "bubblegum",
+    "background": "aurora",
+    "arrangement": "podium",
+    "board": "none",
+    "text_fx": "double_outline",
+    "case": "upper"
+   },
+   "phones": [
+    "17e-white",
+    "17e-black",
+    "17e-soft-pink"
+   ],
+   "subjectFit": 0.76,
+   "px": {
+    "headline": 158,
+    "number": 108,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 11.48,
+    "call to action": 10.95,
+    "website": 8.69
+   },
+   "phonesDrawn": 0.17,
+   "before": {
+    "headline": 116,
+    "number": 84,
+    "smallest": 23,
+    "under40": 5
+   },
+   "skipped": {
+    "same phones as another card": 37,
+    "phones under 13% of the height": 20,
+    "headline and call to action overlap; headline and phones 15px apart": 1,
+    "headline and call to action overlap": 3,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 2,
+    "headline and call to action overlap; headline and phones 16px apart": 2,
+    "headline and call to action overlap; headline and phones 17px apart": 2,
+    "headline and call to action overlap; headline and phones 19px apart": 3
+   }
+  },
+  {
+   "id": "bandKnockout-ck07-35",
+   "ok": true,
+   "seed": 9998,
+   "headline": "SELL YOUR iPHONE",
+   "line": "DISCREET • SAME DAY • FAIR PRICE",
+   "cta": "GET YOUR OFFER",
+   "look": {
+    "font": "satoshi",
+    "number_style": "pill",
+    "palette": "slate",
+    "background": "linear",
+    "arrangement": "showcase",
+    "board": "none",
+    "text_fx": "flat",
+    "case": "upper"
+   },
+   "phones": [
+    "15-pro-max-black",
+    "15-pro-max-natural",
+    "15-pro-max-white"
+   ],
+   "subjectFit": 0.76,
+   "px": {
+    "headline": 147,
+    "number": 109,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 8.45,
+    "call to action": 7.47,
+    "website": 7.83
+   },
+   "phonesDrawn": 0.17,
+   "before": {
+    "headline": 115,
+    "number": 84,
+    "smallest": 24,
+    "under40": 6
+   },
+   "skipped": {
+    "same phones as another card": 42,
+    "phones under 13% of the height": 34,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 5,
+    "headline and call to action overlap; headline and phones 21px apart": 1,
+    "headline and call to action overlap": 2,
+    "headline and call to action overlap; headline and phones 18px apart": 1,
+    "headline and call to action overlap; headline and phones 16px apart": 1,
+    "service line contrast 3.2:1; call to action contrast 2.8:1": 1
+   }
+  },
+  {
+   "id": "glassCard-ca03-35",
+   "ok": true,
+   "seed": 10032,
+   "headline": "SELL YOUR iPHONE",
+   "line": "TEXT A PIC • GET A PRICE • PAID TODAY",
+   "cta": "CALL OR TEXT",
+   "look": {
+    "font": "oswald",
+    "number_style": "box",
+    "palette": "ink_blue",
+    "background": "stripes",
+    "arrangement": "showcase",
+    "board": "none",
+    "text_fx": "flat",
+    "case": "title"
+   },
+   "phones": [
+    "16-pro-max-white",
+    "16-pro-max-black",
+    "16-pro-max-desert"
+   ],
+   "subjectFit": 0.67,
+   "px": {
+    "headline": 153,
+    "number": 105,
+    "service": 60,
+    "cta": 50,
+    "website": 45,
+    "smallest": 45
+   },
+   "contrast": {
+    "service line": 15.8,
+    "call to action": 15.23,
+    "website": 16.19
+   },
+   "phonesDrawn": 0.17,
+   "before": {
+    "headline": 108,
+    "number": 83,
+    "smallest": 24,
+    "under40": 4
+   },
+   "skipped": {
+    "same phones as another card": 16,
+    "phones under 13% of the height": 4,
+    "headline and call to action overlap; headline and phones 16px apart": 1,
+    "words touch the phones; headline and call to action overlap; headline and phones overlap": 1,
+    "headline and call to action overlap": 1,
+    "headline and call to action overlap; headline and phones 22px apart": 1
+   }
+  }
+ ]
+}

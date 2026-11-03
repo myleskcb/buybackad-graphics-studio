@@ -80,12 +80,32 @@ maker's own photo (the look the owner pointed at), at 1080 square:
 - the call to action at 50px, the number always drawn as a button;
 - "Visit our website at www.iPhones.LA" at 45px.
 
-Nothing on them is under 45px; the library cards went down to 17px. Each card
-shows one iPhone model (15 to 18 Pro Max) in two or three of its colours. No
-two cards share a phone set or a background. Every look passed the engine's
-audit, a 38px margin and a 22px gap between blocks. `report.json` has every
-size, before and after. `sheet.jpg` is the set; `compare.jpg` is library card
-against still. Every claim on them is one the library's cards already make.
+**28 of the 32 are made.** Four found no look that passed every check in
+60-120 tries: `stepsFlow-du08-15` ("CASH IN 3 STEPS"), `neonNight-nn04-20`
+("WE BUY iPHONES PAID SAME DAY"), and `hudTech-ca07-20` and `hudTech-du01-30`
+("SELL YOUR iPHONE"). There is no picture for those four rather than one that
+fails a check.
+
+On the 28:
+
+- **Size:** nothing is under 45px; the library cards went down to 17px.
+  Number median 108px (library 88), headline median 146px (the same).
+- **Phones:** each card shows one iPhone model (15 to 18 Pro Max) in two or
+  three of its colours, from the back. No two cards share a phone set or a
+  background.
+- **Checks:** every look passed the engine's audit, a 38px margin and a 22px
+  gap between blocks. On the delivered picture itself, the phones are at least
+  15% of the height and clear of the words, and every added line has at least
+  3.9:1 contrast against its own ground. Only card 11 (`voltStack-gl04-20`,
+  3.95:1 on its call to action) is under 4.5:1; it is the one to drop if any.
+- **Files:** `report.json` has every size and contrast, before and after.
+  `sheet.jpg` is the set; `compare.jpg` is library card against still. Every
+  claim on them is one the library's cards already make.
+
+Three faults were caught by looking at the pictures, not by the checks, and
+each is now a check or a rule: a number photographed mid-wipe ("999-49");
+phones photographed in flight or measured on a smaller copy, which drew a grey
+speck; and phones caught turned, which read as black slabs.
 
 These are **not in the library yet**: the owner has not seen them. To use
 them, post the JPGs directly, or ask the Graphics Studio session to add them
