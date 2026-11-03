@@ -10,7 +10,8 @@
    sheet.jpg (the new set) and compare.jpg (library card | feed still).
 
    What "no two alike" means here, checked on every pick:
-   - phones at least 13% of the height (the words come first: the owner asked for them large);
+   - phones at least 13% of the height as drawn, clear of every text block (the words come
+     first: the owner asked for them large);
    - each card shows one iPhone model (15 to 18 Pro Max) in two or three of
      its colours; no two stills share their set of phones, and no phone is
      the front phone of more than two;
@@ -124,7 +125,7 @@ for (let i = 0; i < cards.length; i++) {
   const row = {
     id: card.id, ok: true, seed, headline: card.headline, line: card.line, cta: card.cta,
     look: { font: st.font, number_style: st.number_style, palette: st.palette, background: st.background, arrangement: st.arrangement, board: st.board, text_fx: st.text_fx, case: st.case },
-    phones: st.phones, subjectFit: r.subjectFit, px: r.px, contrast: r.contrast, before: before(card.id), skipped,
+    phones: st.phones, subjectFit: r.subjectFit, px: r.px, contrast: r.contrast, phonesDrawn: r.phonesDrawn, before: before(card.id), skipped,
   };
   report.push(row);
   console.log(`${String(i + 1).padStart(2)} ${card.id.padEnd(22)} seed ${seed} ${st.font.padEnd(11)} ${st.palette}/${st.background} ` +

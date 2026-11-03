@@ -169,7 +169,11 @@ async function still(st, size) {
   const [W0, H0] = ASPECTS[st.aspect];
   const g = VS.size(W0, H0, 360), probe = new FeedAd(st, assets, g.w, g.h);
   const pc = canvas(probe.W, probe.H), px = pc.getContext("2d");
-  const from = isFinite(probe.tl.number) ? probe.tl.number : 0, to = Math.max(from, (probe.tOutro != null ? probe.tOutro : st.duration) - .05);
+  // the photo is taken only once everything has landed: the number's entrance done (a wipe
+  // caught half way cut it to "999-49"), the service line in, the phones down (caught in flight
+  // they drew as a grey speck); the checks above measure the landed layout, so this is that
+  const from = Math.max(isFinite(probe.tl.number) ? probe.tl.number + .8 : 0, (probe.tl.tag || 0) + .5, (probe.tLanded || 0) + .3);
+  const to = Math.max(from + .1, (probe.tOutro != null ? probe.tOutro : st.duration) - .05);
   const pick = await VS.best({ frame: t => { probe.still = null; probe.frame(px, t, { subsFly: 2, subsMove: 2 }); return pc; }, windows: probe.photoWindows(from, to) });
   const { w, h } = VS.size(W0, H0, size), ad = new FeedAd(st, assets, w, h);
   const c = canvas(ad.W, ad.H);
@@ -196,25 +200,48 @@ window.FS = {
     for (const c of audit.checks) if (REQUIRED.includes(c.id) && !c.ok) why.push(c.label + ": " + c.value);
     if (why.length) return { ok: false, why, style: st };
     const { c, ad, t } = await still(st, size);
-    // the lines this file adds, against the ground they stand on: drawn once without them, the
-    // ground's brightest tenth under light ink (darkest under dark) must give 3.5:1, the
-    // large-text standard with room to spare, so a busy ground cannot swallow them
-    const g = new FeedAd(st, assets, 540, 540), gc = canvas(540, 540), ink = g.pHead.ink, light = lum(ink) >= .5;
-    const parts = [["service line", g.tag && g.pos.tag, g.tag], ["call to action", g.num.label && g.pos.label, g.num.label], ["website", g.site && g.pos.site, g.site]];
-    g.tag = null; g.num = { ...g.num, label: null }; g.site = null; g.still = null;
-    g.frame(gc.getContext("2d"), t, { subsFly: 2, subsMove: 2 }, 1 / 30);
-    const gpx = gc.getContext("2d").getImageData(0, 0, 540, 540).data, lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
+    // Everything below is measured on the picture that is delivered (1080, at the photo's own
+    // moment), drawn twice more: without the lines this file adds, and without them and the
+    // phones. A smaller copy is not the same picture: for some entrances (rain) the phones of a
+    // 540 copy stood at the side while the 1080 photo had them as a grey speck in the middle.
+    const S = ad.W, bare = (phones) => {
+      const x = new FeedAd(st, assets, S, S), xc = canvas(S, S);
+      x.tag = null; x.num = { ...x.num, label: null }; x.site = null; x.still = null;
+      if (!phones) x.drawOrder = [];
+      x.frame(xc.getContext("2d"), t, { subsFly: 8, subsMove: 4 }, 1 / 30);
+      return xc.getContext("2d").getImageData(0, 0, S, S).data;
+    };
+    const gpx = bare(true), npx = bare(false), ink = ad.pHead.ink, light = lum(ink) >= .5;
+    const lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
+    const parts = [["service line", ad.tag && ad.pos.tag, ad.tag], ["call to action", ad.num.label && ad.pos.label, ad.num.label], ["website", ad.site && ad.pos.site, ad.site]];
+    // the lines this file adds, against the ground they stand on: the ground's brightest tenth
+    // under light ink (darkest under dark) must give 3.5:1, the large-text standard with room
+    // to spare, so a busy ground cannot swallow them
     const contrast = {};
     for (const [name, at, spr] of parts) {
       if (!at || !spr) continue;
       const Ls = [];
-      for (let y = Math.max(0, at[1] | 0); y < Math.min(540, at[1] + spr.height); y += 2)
-        for (let x = Math.max(0, at[0] | 0); x < Math.min(540, at[0] + spr.width); x += 2) { const q = (y * 540 + x) * 4; Ls.push(.2126 * lin(gpx[q]) + .7152 * lin(gpx[q + 1]) + .0722 * lin(gpx[q + 2])); }
+      for (let y = Math.max(0, at[1] | 0); y < Math.min(S, at[1] + spr.height); y += 3)
+        for (let x = Math.max(0, at[0] | 0); x < Math.min(S, at[0] + spr.width); x += 3) { const q = (y * S + x) * 4; Ls.push(.2126 * lin(gpx[q]) + .7152 * lin(gpx[q + 1]) + .0722 * lin(gpx[q + 2])); }
       Ls.sort((a, b) => a - b);
       const worst = Ls[Math.min(Ls.length - 1, Math.floor(Ls.length * (light ? .9 : .1)))], [r, gg, b] = [ink.slice(1, 3), ink.slice(3, 5), ink.slice(5, 7)].map(h => lin(parseInt(h, 16)));
       const L = .2126 * r + .7152 * gg + .0722 * b, cr = (Math.max(L, worst) + .05) / (Math.min(L, worst) + .05);
       contrast[name] = +cr.toFixed(2);
       if (cr < 3.5) why.push(`${name} contrast ${cr.toFixed(1)}:1`);
+    }
+    // the phones as drawn: the pixels that change without them. At least 13% of the height,
+    // clear of every block of words
+    let pl = S, pt = S, pr = -1, pb = -1;
+    for (let y = 0; y < S; y += 3) for (let x = 0; x < S; x += 3) {
+      const q = (y * S + x) * 4;
+      if (Math.abs(gpx[q] - npx[q]) + Math.abs(gpx[q + 1] - npx[q + 1]) + Math.abs(gpx[q + 2] - npx[q + 2]) > 90) { if (x < pl) pl = x; if (x > pr) pr = x; if (y < pt) pt = y; if (y > pb) pb = y; }
+    }
+    const drawn = pr < 0 ? 0 : (pb - pt) / S;
+    if (drawn < .13) why.push(`phones drawn ${Math.round(drawn * 100)}% of the height`);
+    else {
+      const gp = S * FEED.gap * .8, rects = [["headline", ad.pos.outer], ["number", [ad.pos.num[0], ad.pos.num[1], ad.pos.num[0] + ad.num.c.width, ad.pos.num[1] + ad.num.c.height]]];
+      for (const [name, at, spr] of parts) if (at && spr) rects.push([name, [at[0], at[1], at[0] + spr.width, at[1] + spr.height]]);
+      for (const [name, r] of rects) if (pl < r[2] && pr > r[0] && pt < r[3] + gp && pb > r[1] - gp) why.push(`phones as drawn reach the ${name}`);
     }
     if (why.length) return { ok: false, why, style: st };
     const H = ad.H;
@@ -224,7 +251,7 @@ window.FS = {
       website: ad.site ? Math.round(H * FEED.site) : 0,
     };
     px.smallest = Math.min(...Object.values(px).filter(Boolean));
-    return { ok: true, url: c.toDataURL("image/jpeg", .9), t, px, contrast, subjectFit: +ad.subjectFit.toFixed(2),
+    return { ok: true, url: c.toDataURL("image/jpeg", .9), t, px, contrast, phonesDrawn: +drawn.toFixed(2), phoneInk: [pl, pt, pr, pb], subjectFit: +ad.subjectFit.toFixed(2),
       audit: audit.checks.map(c => ({ id: c.id, ok: c.ok, value: c.value })), style: st };
   },
   /** A contact sheet: rows of [label, dataURL]. */
