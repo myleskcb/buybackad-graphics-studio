@@ -46,8 +46,10 @@ drawn on the iPhones LA side.
   `render_library_ads.mjs` after the studio's layout. It centres the words on
   each box with clearance, growing the box where needed. It also moves a
   headline or badge off a bar it runs into, and enlarges 16-17px sub-labels
-  to 20px. Afterwards 6 of 70 cards have findings (1-3px on thin bars, all
-  watch/iPad/MacBook cards); none of the 32 iPhone cards has one.
+  to 20px. Afterwards 7 of 70 cards have findings. Six are 1-3px short on
+  thin bars, all watch/iPad/MacBook cards. The seventh is one of the 32,
+  `glassCard-nn01-20`, whose two headline lines sit 5px apart (the check
+  wants 6): tight leading rather than a collision.
 
 This applies to iPhones LA's copies only. The same cards are customer
 templates, where the website line is the customer's own site and the studio
