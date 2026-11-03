@@ -69,48 +69,57 @@ owner has now asked for the website on the picture. If OfferUp or Marketplace
 reject these, the line can come off the library copies by setting
 `LIBRARY_SITE` in `_library_finish.mjs` and re-rendering.
 
-## Done for review (asks 1 and 2): feed stills
+## Done for review: the full-element ads, as stills and videos
 
-`tools/feed-stills/out/`: each of the 32 cards' words redrawn as the video
-maker's own photo (the look the owner pointed at), at 1080 square:
+Later the same day the owner asked for more: "text us imei", "or text us
+serial", "text us now" (the shop's chatbot quotes from what is typed, not
+from photos); "further unify all themes", "drop old ones that look tacky
+cheesy or ununified"; "we need all elements.. locations.. selling points..
+hero.. sub title... cta.. watermark.. ideally device models we buy"; "a bold
+claim" at the top ("top dollar", "max offer", "always available", "quickest
+reply", "honest buyer", "top buyer"); icons "0-2 per ad"; "animate all".
 
-- the headline as large as the engine fits it;
-- a how-it-works line at 60px, replacing the model list most cards carried
-  ("iPhone 18 Pro Max • 18 Pro • 17 • 16 • 15");
-- the call to action at 50px, the number always drawn as a button;
-- "Visit our website at www.iPhones.LA" at 45px.
+`tools/feed-stills/out/` now holds 27 of the 32 iPhone ads in one house style,
+drawn by the video maker's engine (`harness.js`, the engine used read-only).
+Top to bottom, each has:
 
-**28 of the 32 are made.** Four found no look that passed every check in
-60-120 tries: `stepsFlow-du08-15` ("CASH IN 3 STEPS"), `neonNight-nn04-20`
-("WE BUY iPHONES PAID SAME DAY"), and `hudTech-ca07-20` and `hudTech-du01-30`
-("SELL YOUR iPHONE"). There is no picture for those four rather than one that
-fails a check.
+- a claim badge: "TOP DOLLAR • MAX OFFER", "ALWAYS AVAILABLE • QUICK REPLIES",
+  "HONEST BUYER • TOP DOLLAR" and others. "#1", "best" and "fastest" are left
+  out: those need proof;
+- the hero;
+- the models bought;
+- three selling points as the engine's chips, merged from
+  `claude/busy-albattani-eh7gxo`;
+- one iPhone model in its own colours, plus one 3D icon;
+- the call to action ("TEXT US NOW", "CALL OR TEXT") and the number in a pill;
+- the towns after a pin, over "Visit our website at www.iPhones.LA".
 
-On the 28:
+Every card is set in Chivo Black with the double outline and one accent word,
+in eight colourways on six quiet grounds.
 
-- **Size:** nothing is under 45px; the library cards went down to 17px.
-  Number median 108px (library 88), headline median 146px (the same).
-- **Phones:** each card shows one iPhone model (15 to 18 Pro Max) in two or
-  three of its colours, from the back. No two cards share a phone set or a
-  background.
-- **Checks:** every look passed the engine's audit, a 38px margin and a 22px
-  gap between blocks. On the delivered picture itself, the phones are at least
-  15% of the height and clear of the words, and every added line has at least
-  3.9:1 contrast against its own ground. Only card 11 (`voltStack-gl04-20`,
-  3.95:1 on its call to action) is under 4.5:1; it is the one to drop if any.
-- **Files:** `report.json` has every size and contrast, before and after.
-  `sheet.jpg` is the set; `compare.jpg` is library card against still. Every
-  claim on them is one the library's cards already make.
+The checks, on the delivered picture: a 38px margin, 22px between blocks,
+phones at least 11% of the height and clear of the words, and every added line
+at least 4.5:1 against its ground. Every line is 45px or more except the chips
+(about 34px, sized by the engine to the room left). Five cards found no look
+that passed: `stepsFlow-du08-15`, `bubblePop-gl02-20`, `neonNight-jw04-20`,
+`arcCrown-cd01-20` and `slabPoster-io06-35`.
 
-Three faults were caught by looking at the pictures, not by the checks, and
-each is now a check or a rule: a number photographed mid-wipe ("999-49");
-phones photographed in flight or measured on a smaller copy, which drew a grey
-speck; and phones caught turned, which read as black slabs.
+`node tools/feed-stills/video.mjs` draws each one as the engine's 6-second MP4
+with music: the badge pops in and glows, the headline slides, the chips come
+in one by one, the number pops. The MP4s (2-3 MB each) are kept out of git.
 
-These are **not in the library yet**: the owner has not seen them. To use
-them, post the JPGs directly, or ask the Graphics Studio session to add them
-to the library. Re-run with `node tools/feed-stills/render.mjs` (instructions
-at the top of the file).
+**Faults found on the way, each now fixed.** The page sat two folders deep and
+every engine font 404ed, so all stills before 2026-11-03 07:30 UTC were in
+Arial; the page's base is `/motion/` now. The engine's plan, made by the plain
+`Ad`, placed the phones elsewhere than `FeedAd` did; `FeedAd` lays out itself
+(`plan: false`). Stills photographed mid-animation cut the number and the
+phones; the photo is taken once everything has landed, and the checks are on
+that picture.
+
+**Not in the library yet**: the owner has not approved them. Retiring the old
+card designs from iPhones LA's feed needs a hold list in
+`netlify/lib/library.mjs`. Its feed is today whatever the site offers its
+customers, so a card cannot be dropped for iPhones LA alone.
 
 ## Working in parallel without doing the work twice
 
@@ -126,6 +135,9 @@ at the top of the file).
 - **Two of the owner's sessions were editing this repo at the same time as
   this one.** "Site performance" was in `motion/engine.js` (selling points
   in the video looks) and "Buttons not responding" in `app.js` (the Easy Mode
-  area line). This work edited neither file, and the feed stills use the
-  engine read-only, so the selling points arrive in the stills when that work
-  lands on `main` and the stills are re-run.
+  area line). This work edited neither file. Its branch merged "Site
+  performance"'s (`claude/busy-albattani-eh7gxo`) to use those selling points
+  rather than write a second set. It sent that session the owner's theme
+  requests ("unify into all designs and main engine", the video palettes on
+  the photo ads, animated elements, no "TEXT A PIC" in its default points),
+  since customer-side theme unification is the shared rulebook it proposed.
