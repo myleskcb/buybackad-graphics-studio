@@ -95,8 +95,8 @@ class FeedAd extends Ad {
       });
       const l = Math.min(...box.map(b => b[0])), r = Math.max(...box.map(b => b[2]));
       const y0 = Math.min(...box.map(b => b[1])), y1 = Math.max(...box.map(b => b[3]));
-      // the phones fill the room the words leave: shrunk to fit, or grown up to half again
-      const k = Math.min(1.5, (bottom - top) / (y1 - y0), W * .9 / (r - l));
+      // the phones fill the room the words leave: shrunk to fit, or grown up to 1.8x
+      const k = Math.min(1.8, (bottom - top) / (y1 - y0), W * .9 / (r - l));
       const cx = (l + r) / 2, cy = (y0 + y1) / 2;
       const ty = Math.max(top + (y1 - y0) * k / 2, Math.min(bottom - (y1 - y0) * k / 2, cy));
       for (const p of this.phones) { p.home = [W / 2 + (p.home[0] - cx) * k, ty + (p.home[1] - cy) * k]; p.size *= k; }
@@ -121,8 +121,8 @@ function blockers(ad, st) {
   if (st.feed_line && !ad.tag) out.push("service line did not fit at body size");
   if (st.number_label && !ad.num.label) out.push("call to action did not fit at body size");
   if (ad._headCover() > .01) out.push("words touch the phones");
-  if ((ad.subjectFit ?? 1) < .45) out.push("phones squeezed below 45%");
-  if (ad.phones.length) { const pb = phoneBox(ad); if (pb[3] - pb[1] < ad.H * .2) out.push("phones under a fifth of the height"); }
+  // the phones, at least 13% of the height (140px on a 1080 square): the words come first
+  if (ad.phones.length) { const pb = phoneBox(ad); if (pb[3] - pb[1] < ad.H * .13) out.push("phones under 13% of the height"); }
   const rects = [["headline", ad.pos.outer], ["number", [ad.pos.num[0], ad.pos.num[1], ad.pos.num[0] + ad.num.c.width, ad.pos.num[1] + ad.num.c.height]]];
   if (ad.tag) rects.push(["service line", [ad.pos.tag[0], ad.pos.tag[1], ad.pos.tag[0] + ad.tag.width, ad.pos.tag[1] + ad.tag.height]]);
   if (ad.num.label && ad.pos.label) rects.push(["call to action", [ad.pos.label[0], ad.pos.label[1], ad.pos.label[0] + ad.num.label.width, ad.pos.label[1] + ad.num.label.height]]);
@@ -196,6 +196,27 @@ window.FS = {
     for (const c of audit.checks) if (REQUIRED.includes(c.id) && !c.ok) why.push(c.label + ": " + c.value);
     if (why.length) return { ok: false, why, style: st };
     const { c, ad, t } = await still(st, size);
+    // the lines this file adds, against the ground they stand on: drawn once without them, the
+    // ground's brightest tenth under light ink (darkest under dark) must give 3.5:1, the
+    // large-text standard with room to spare, so a busy ground cannot swallow them
+    const g = new FeedAd(st, assets, 540, 540), gc = canvas(540, 540), ink = g.pHead.ink, light = lum(ink) >= .5;
+    const parts = [["service line", g.tag && g.pos.tag, g.tag], ["call to action", g.num.label && g.pos.label, g.num.label], ["website", g.site && g.pos.site, g.site]];
+    g.tag = null; g.num = { ...g.num, label: null }; g.site = null; g.still = null;
+    g.frame(gc.getContext("2d"), t, { subsFly: 2, subsMove: 2 }, 1 / 30);
+    const px = gc.getContext("2d").getImageData(0, 0, 540, 540).data, lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
+    const contrast = {};
+    for (const [name, at, spr] of parts) {
+      if (!at || !spr) continue;
+      const Ls = [];
+      for (let y = Math.max(0, at[1] | 0); y < Math.min(540, at[1] + spr.height); y += 2)
+        for (let x = Math.max(0, at[0] | 0); x < Math.min(540, at[0] + spr.width); x += 2) { const q = (y * 540 + x) * 4; Ls.push(.2126 * lin(px[q]) + .7152 * lin(px[q + 1]) + .0722 * lin(px[q + 2])); }
+      Ls.sort((a, b) => a - b);
+      const worst = Ls[Math.min(Ls.length - 1, Math.floor(Ls.length * (light ? .9 : .1)))], [r, gg, b] = [ink.slice(1, 3), ink.slice(3, 5), ink.slice(5, 7)].map(h => lin(parseInt(h, 16)));
+      const L = .2126 * r + .7152 * gg + .0722 * b, cr = (Math.max(L, worst) + .05) / (Math.min(L, worst) + .05);
+      contrast[name] = +cr.toFixed(2);
+      if (cr < 3.5) why.push(`${name} contrast ${cr.toFixed(1)}:1`);
+    }
+    if (why.length) return { ok: false, why, style: st };
     const H = ad.H;
     const px = {
       headline: Math.round(ad.size), number: Math.round(ad._lay.nSize * H),
@@ -203,7 +224,7 @@ window.FS = {
       website: ad.site ? Math.round(H * FEED.site) : 0,
     };
     px.smallest = Math.min(...Object.values(px).filter(Boolean));
-    return { ok: true, url: c.toDataURL("image/jpeg", .9), t, px, subjectFit: +ad.subjectFit.toFixed(2),
+    return { ok: true, url: c.toDataURL("image/jpeg", .9), t, px, contrast, subjectFit: +ad.subjectFit.toFixed(2),
       audit: audit.checks.map(c => ({ id: c.id, ok: c.ok, value: c.value })), style: st };
   },
   /** A contact sheet: rows of [label, dataURL]. */

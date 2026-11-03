@@ -10,8 +10,10 @@
    sheet.jpg (the new set) and compare.jpg (library card | feed still).
 
    What "no two alike" means here, checked on every pick:
-   - no two stills share their set of phones, and no phone is the front
-     phone of more than two;
+   - phones at least 13% of the height (the words come first: the owner asked for them large);
+   - each card shows one iPhone model (15 to 18 Pro Max) in two or three of
+     its colours; no two stills share their set of phones, and no phone is
+     the front phone of more than two;
    - no two share a palette with the same background, and no palette is
      used more than twice;
    - the headline's typeface rotates through heavy, legible faces, so no
@@ -36,13 +38,17 @@ const cards = only ? all.filter(c => only.split(',').includes(c.id)) : all;
 // Heavy faces that stay legible in a thumbnail; the rounded/bubbly ones first.
 const FACES = ['luckiest', 'tilt-warp', 'bungee', 'unbounded', 'franklin', 'satoshi', 'chivo', 'clash',
   'bricolage', 'schibsted', 'russo', 'bangers', 'sofia-xcond', 'oswald'];
-// The video maker's options that put small words on the picture are held off, and the camera
+// A long headline ("SELL YOUR iPHONE & iPAD") takes three lines in a wide face and leaves the
+// phones no room; a condensed face sets it in two, as large.
+const CONDENSED = ['sofia-xcond', 'oswald', 'big-shoulders', 'barlow-cond', 'saira-cond', 'teko', 'khand', 'squada'];
+// The video maker's options that put small words or stray marks (sparkles, a typing caret) on the
+// picture are held off, and the camera
 // holds still, so the still is drawn where the plan put everything (the margins are checked there).
 // A sign board round the headline (neon box, kraft tag) costs it about a third of its size
 // (measured: 98-107px in a board, 151-157px without), and the number with it.
-const QUIET = { decor: [], urgency: 'none', overlay: 'none', accents: 0, board: 'none', number_pos: 'bottom-center', number_format: 'parens', camera: 'still', shake: 0, text_scale: 1.25, number_scale: 1.12 };
+const QUIET = { decor: [], urgency: 'none', overlay: 'none', accents: 0, board: 'none', number_pos: 'bottom-center', number_format: 'parens', camera: 'still', shake: 0, sparkles: false, text_in: 'slide', text_scale: 1.25, number_scale: 1.12 };
 // The number is the call to action, so it is always drawn as a button, never bare digits.
-const BUTTONS = ['pill', 'box', 'sticker', 'ticket', 'tag'];
+const BUTTONS = ['pill', 'box', 'tag'];
 
 /** The library card's own sizes, from its record (assets/showcase/tpl). */
 function before(id) {
@@ -62,18 +68,42 @@ await page.goto(BASE + '/tools/feed-stills/index.html');
 await page.waitForFunction(() => window.FS && window.VideoStill, null, { timeout: 60000 });
 console.log('phones:', await page.evaluate(() => FS.ready()));
 
+/* The phones (owner: "we have the ability to configure phones to any way shape or form"):
+   each card shows one model in two or three of its real colours, models the cards name
+   (iPhone 15 to 18 Pro Max), newest first, the next model for each card in turn, so no two
+   cards share a set and the variety reads as chosen. Fewer, larger phones than the maker's
+   own draw of three to five, which on a square full of large words shrank to a strip. */
+const models = [];
+for (const m of await page.evaluate(() => FS.phones())) {
+  if (!/^iPhone 1[5-9]/.test(m.model)) continue;
+  let g = models.find(x => x.model === m.model); if (!g) models.push(g = { model: m.model, ids: [] });
+  g.ids.push(m.id);
+}
+const phonesFor = (i, s) => {
+  const g = models[(i + Math.floor(s / 10)) % models.length], n = g.ids.length, k = n >= 3 && s % 3 !== 2 ? 3 : Math.min(2, n);
+  const start = (Math.floor(i / models.length) * k + s) % n;
+  return Array.from({ length: k }, (_, j) => g.ids[(start + j) % n]);
+};
+console.log('models:', models.map(g => g.model + ' ' + g.ids.length).join(', '));
+
 const used = { sets: new Set(), front: {}, ground: new Set(), palette: {}, face: {} };
 const report = [];
 for (let i = 0; i < cards.length; i++) {
   const card = cards[i];
   let got = null, tried = 0, skipped = {};
-  for (let s = 0; s < 80 && !got; s++) {
+  const faces = card.headline.length > 16 ? CONDENSED : FACES;
+  for (let s = 0; s < 120 && !got; s++) {
     const seed = 7001 + i * 97 + s;
-    const font = FACES[(i + s) % FACES.length];
+    const font = faces[(i + s) % faces.length];
     if ((used.face[font] || 0) >= 3) continue;
+    const phones = phonesFor(i, s);
+    if (used.sets.has([...phones].sort().join(','))) { skipped['same phones as another card'] = (skipped['same phones as another card'] || 0) + 1; continue; }
+    // the engine grows a headline to fill up to 36% of the height; where that leaves the
+    // phones no room, the later tries start it a little smaller (still 120-140px)
+    const long = card.headline.length > 16, scale = long ? (s < 50 ? 1.05 : .9) : (s < 60 ? 1.25 : 1.05);
     tried++;
     const r = await page.evaluate(([content, seed, lock]) => FS.look(content, seed, lock),
-      [{ headline: card.headline, feed_line: card.line, feed_site: 'Visit our website at www.iPhones.LA', number: '(562) 999-4994', number_label: card.cta }, seed, { ...QUIET, font, number_style: BUTTONS[(i + s) % BUTTONS.length], text_pos: (i + s) % 2 ? 'top-left' : 'top-center' }]);
+      [{ headline: card.headline, feed_line: card.line, feed_site: 'Visit our website at www.iPhones.LA', number: '(562) 999-4994', number_label: card.cta }, seed, { ...QUIET, font, number_style: BUTTONS[(i + s) % BUTTONS.length], text_pos: (i + s) % 2 ? 'top-left' : 'top-center', text_scale: scale, phones }]);
     const st = r.style, set = [...st.phones].sort().join(','), front = st.phones[0];
     const ground = st.palette + '|' + st.background;
     const clash = !r.ok ? r.why.join('; ')
@@ -94,7 +124,7 @@ for (let i = 0; i < cards.length; i++) {
   const row = {
     id: card.id, ok: true, seed, headline: card.headline, line: card.line, cta: card.cta,
     look: { font: st.font, number_style: st.number_style, palette: st.palette, background: st.background, arrangement: st.arrangement, board: st.board, text_fx: st.text_fx, case: st.case },
-    phones: st.phones, subjectFit: r.subjectFit, px: r.px, before: before(card.id), skipped,
+    phones: st.phones, subjectFit: r.subjectFit, px: r.px, contrast: r.contrast, before: before(card.id), skipped,
   };
   report.push(row);
   console.log(`${String(i + 1).padStart(2)} ${card.id.padEnd(22)} seed ${seed} ${st.font.padEnd(11)} ${st.palette}/${st.background} ` +
