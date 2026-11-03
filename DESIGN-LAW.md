@@ -5491,3 +5491,28 @@ fake offers", "shady buyers", "sketchy meetups".
   look number draws what it drew.
 - What is crossed out is a kind of experience, never a named shop, a price or
   a promise about speed or condition: the maker's copy rules hold.
+
+## 135. An ad set: six ads that do not repeat each other
+
+Added 2026-11-03. The owner: "all good heros / selling points make for good
+video ads. we need a variety of styles too for our ads", "so we can captivate
+any audience and anyone scrolling", "maybe they ignored our first ad or two
+but we need to have enough variations and styles that one may get to them".
+The gallery varies the look and holds the customer's words, so every look in
+it says the same thing the same way: a seller who scrolled past one has seen
+them all.
+
+- **"Make 6 different ads"** (`makeAdSet` in motion/app.js, "Your ad set" over
+  the gallery) makes six ads from the customer's number, phones and area, one
+  per angle (`ANGLES`), each with its own opening: a question (the hook line),
+  the strike-out (rule 134), money (word by word), local (straight to the
+  phones), its value (a crash zoom, with the true urgency line), a flash cut.
+- **The words are the maker's approved lines only**, in the customer's
+  language; set to mix, the strike-out and the local ad are in Spanish. A
+  local headline without an area takes its plain line.
+- **No two alike**: no two ads share a type pair, a palette or a look (a
+  theme's family, or a plain look's ground); a repeat only when ten seeds turn
+  up nothing new. Each is the strongest of its seeds by the attention audit
+  (90 and over, the headline's contrast, the words and the number read).
+- Measured 2026-11-03 on the page, headless: six ads in 7 to 10 s, no page
+  errors, in English and in mix. Each press makes a new set.

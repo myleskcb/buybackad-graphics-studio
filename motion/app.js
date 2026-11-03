@@ -618,6 +618,64 @@ function shelfStyle(shelf, seed) {
   return harmonise(randomize(base, seed, locked, [], false), locked, indexById());
 }
 
+/* THE AD SET (owner, 2026-11-03: "maybe they ignored our first ad or two but we need to have
+   enough variations and styles that one may get to them"). Six ads from the customer's number,
+   phones and area that do not repeat each other: each an angle of its own (the words, from the
+   maker's approved copy only) and an opening of its own, and no two sharing a type pair, a
+   palette or a look; each the strongest of the seeds tried by the attention audit. */
+const ANGLES = [
+  { id: "question", label: "Question", hook: "hook_line", en: { hook_text: "STILL GOT YOUR OLD IPHONE?", headline: "WE BUY IPHONES" }, es: { hook_text: "¿TIENES UN IPHONE QUE YA NO USAS?", headline: "COMPRAMOS IPHONES" } },
+  { id: "strike", label: "Strike-out", hook: "strike_out", es2: true, en: { headline: "LOCAL IPHONE BUYERS" }, es: { headline: "TE COMPRAMOS TU IPHONE" } },
+  { id: "money", label: "Money", hook: "word_beat", en: { hook_text: "OLD PHONE IN A DRAWER?", headline: "TURN YOUR PHONE INTO CASH" }, es: { hook_text: "¿IPHONE VIEJO EN EL CAJÓN?", headline: "CAMBIA TU IPHONE POR EFECTIVO" } },
+  { id: "local", label: "Local", hook: "cold_open", es2: true, en: { headline: "WE BUY IPHONES IN {AREA}", alt: "SELL YOUR IPHONE LOCALLY" }, es: { headline: "COMPRAMOS IPHONES EN {AREA}", alt: "VENDE TU IPHONE AQUÍ" } },
+  { id: "value", label: "Its value", hook: "crash_zoom", en: { headline: "SELL IT WHILE IT'S WORTH MORE", tag: "IT LOSES VALUE EVERY MONTH" }, es: { headline: "VÉNDELO MIENTRAS VALE MÁS", tag: "PIERDE VALOR CADA MES" } },
+  { id: "flash", label: "Flash cut", hook: "flash_cut", en: { headline: "CASH FOR YOUR IPHONE" }, es: { headline: "DINERO EN EFECTIVO POR TU IPHONE" } },
+];
+const SET_HELD = ["phones", "number", "aspect", "duration", "area", "headline", "tag", "number_label", "hook_text", "hook", "lang", "lang_mode", "points", "strike_text"];
+
+function angleStyle(angle, lang, seed) {
+  const C = angle[lang], area = areaOf(state.style);
+  const fill = t => t && t.includes("{AREA}") ? (area ? t.replace("{AREA}", lang === "es" && area === "LA" ? "L.A." : area) : null) : t;
+  const words = { headline: fill(C.headline) || C.alt, tag: C.tag || "", hook_text: C.hook_text || "", number_label: "", points: null, strike_text: "" };
+  const base = { ...state.style, ...words, hook: angle.hook, lang, lang_mode: lang };
+  const locked = new Set(SET_HELD);
+  return harmonise(randomize(base, seed, locked, [], false), locked, indexById());
+}
+
+async function makeAdSet() {
+  const btn = $("adset-make"), grid = $("adset"), count = $("adset-count");
+  btn.disabled = true; grid.innerHTML = ""; count.textContent = "making…";
+  const [W, H] = ASPECTS[state.style.aspect] || ASPECTS["1:1"], k = THUMB_MAX / Math.max(W, H);
+  const mode = state.style.lang_mode || "mix", used = { pair: new Set(), palette: new Set(), look: new Set() };
+  const lookOf = st => (VIBES[st.vibe] && (VIBES[st.vibe].family || st.vibe)) || st.background;
+  let n = 0;
+  try {
+    for (const angle of ANGLES) {
+      const lang = mode === "es" ? "es" : mode === "en" ? "en" : angle.es2 ? "es" : "en";
+      let best = null;
+      for (let tries = 0; tries < 10; tries++) {
+        const st = angleStyle(angle, lang, (Math.random() * 1e9) | 0);
+        const fresh = !used.pair.has(st.type_pair) && !used.palette.has(st.palette) && !used.look.has(lookOf(st));
+        if (!fresh && tries < 8) continue;           // a repeat only when nothing new turns up
+        await loadFonts(fontsFor(st));
+        const rep = await auditLook(st, state.assets, { size: 120, secs: 3.4, sound: false });
+        const ok = id => rep.checks.find(c => c.id === id)?.ok;
+        const score = rep.score + (ok("contrast") ? 10 : 0) + (ok("words") && ok("number") ? 10 : 0);
+        if (!best || score > best.score) best = { st, score };
+        if (rep.score >= 90 && ok("contrast") && ok("words") && ok("number")) break;
+      }
+      if (!best) continue;
+      used.pair.add(best.st.type_pair); used.palette.add(best.st.palette); used.look.add(lookOf(best.st));
+      const b = await thumb(best.st, Math.round(W * k), Math.round(H * k), false);
+      b.querySelector(".mo-cap b").textContent = `${angle.label} · ${lookName(best.st)}`;
+      grid.appendChild(b); count.textContent = `${++n} of ${ANGLES.length}`;
+      await new Promise(r => setTimeout(r, 0));
+    }
+    count.textContent = `${n} ads, no two alike`;
+  } catch (e) { console.warn("Ad set:", e); count.textContent = n ? `${n} made` : "could not be made"; }
+  finally { btn.disabled = false; }
+}
+
 /** What a look is called under its thumbnail: its vibe, or for a plain look its ground. */
 const lookName = st => st.vibe && st.vibe !== "none" && VIBES[st.vibe] ? VIBES[st.vibe].label
   : (GROUND_CANDIDATES[st.background] || {}).label || labelFor("background", st.background);
@@ -644,7 +702,7 @@ async function thumb(st, w, h, lock) {
   const ctx = c.getContext("2d");
   ad.stillAt(ctx);
   frame.appendChild(c); b.appendChild(frame);
-  const name = lookName(st), font = labelFor("font", st.font);
+  const name = lookName(st), font = TYPE_VOICES[st.type_pair] ? TYPE_VOICES[st.type_pair].name + " type" : labelFor("font", st.font);
   if (window.adLibrary) frame.appendChild(window.adLibrary.star("motion-" + st.seed, { name, save: () => saveLook({ ...st, number: state.style.number, phones: state.style.phones }) }));
   b.insertAdjacentHTML("beforeend", `<span class="mo-cap"><b>${name}</b><small>${font} · ${labelFor("hook", st.hook)}</small></span>`);
   b.setAttribute("aria-label", `Use this look: ${name}, ${font}`);
@@ -677,6 +735,7 @@ function buildGallery() {
   $("play-all").checked = state.galleryPlay;
   $("play-all").addEventListener("change", e => { state.galleryPlay = e.target.checked; save(); });
   $("more").addEventListener("click", () => renderGallery(false));
+  $("adset-make").addEventListener("click", () => makeAdSet());
   $("browse").addEventListener("click", e => { e.preventDefault(); $("looks").scrollIntoView({ behavior: "smooth", block: "start" }); });
   if ("IntersectionObserver" in window) {
     state.thumbSeen = new IntersectionObserver(es => es.forEach(en => { const th = thumbs.find(x => x.el === en.target); if (th) th.seen = en.isIntersecting; }), { rootMargin: "80px" });
