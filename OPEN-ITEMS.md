@@ -3066,3 +3066,30 @@ Open:
    two entries in `CATS` and set their `cat`.
 2. **The studio's own chip order** (`CATS` in app.js, the 2026-10-02 order)
    was not changed; this list is the footer's and the pages'.
+
+## AY. 2026-11-03 — the video maker takes the photo ads' selling points (DESIGN-LAW 131)
+
+The owner: "the videos look so much better but the photos are more detailed
+and fit better for getting conversions", "use the same rule set", "include
+the same details elements", "we don't want the video aspect to take from the
+quality of a photo ad".
+
+Done (motion/ only; photo ads unchanged):
+- Selling-point chips in every video look that has room, the default look
+  included; a "Selling points" field in the maker; none in the social studio.
+- Neon headlines only on night grounds (palette audit: 95 failing looks of
+  1,376 down to 44, none failing across palettes).
+
+Open:
+1. **44 looks under 3:1**, mostly 2.8 to 2.99 on pale palettes (sandstone,
+   sky, blush, sage, candy_pop, postcard_sun). `motion/palette-audit.json`
+   lists them; the photo bar is 3.2.
+2. **Three square looks in ten have no room** for selling points: their phones
+   already stand at 0.55 of their first size. Decide whether a smaller
+   product or no chips is the better ad.
+3. **The other direction**: what makes the video looks better (art direction
+   per theme, one light, the grounds) for the photo ads, under their gates.
+   Needs the owner to point at the video looks they mean.
+4. **The video maker's 172 palettes still differ from the photo ads' 31
+   house themes** (rule 123); 34 carry food or flower names and 2 draw a
+   colour under the muddy floor (theme_cohesion_audit.mjs).

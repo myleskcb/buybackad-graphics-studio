@@ -251,6 +251,9 @@ export const COPY = {
     ticker: ["TEXT A PIC", "GET A PRICE", "CASH", "LOCAL TO {AREA}", "ALL MODELS", "CALL OR TEXT", "SE HABLA ESPAÑOL", "IT LOSES VALUE EVERY MONTH"],
     stamp: ["CASH", "CASH PAID", "LOCAL"],
     burst: ["CASH!", "LOCAL!", "FREE QUOTE", "{CODE}"],
+    // the selling points under the words (the photo ads' stack, DESIGN-LAW 83): only what every
+    // shop on the site can say, so no speed, no condition and no price promise
+    points: ["FREE QUOTE", "CASH PAID", "ALL MODELS", "LOCAL BUYER", "TEXT A PIC", "MEET LOCALLY"],
   },
   es: {
     hooks: ["¿TIENES UN IPHONE QUE YA NO USAS?", "¿CAMBIASTE DE TELÉFONO?", "¿IPHONE VIEJO EN EL CAJÓN?", "¡OYE! ¿Y ESE IPHONE VIEJO?",
@@ -265,6 +268,7 @@ export const COPY = {
     ticker: ["MÁNDANOS FOTO", "TE DAMOS PRECIO", "EFECTIVO", "SOMOS DE {AREA}", "TODOS LOS MODELOS", "LLAMA O MANDA TEXTO", "PIERDE VALOR CADA MES"],
     stamp: ["EFECTIVO", "EFECTIVO", "LOCAL"],
     burst: ["¡EFECTIVO!", "¡LOCAL!", "{CODE}"],
+    points: ["COTIZACIÓN GRATIS", "PAGO EN EFECTIVO", "TODOS LOS MODELOS", "COMPRADOR LOCAL", "MANDA UNA FOTO"],
   },
   both: { labels: ["CALL OR TEXT \u00b7 LLAMA O ESCRIBE", "TEXT US \u00b7 MÁNDANOS TEXTO"] },
 };
@@ -671,6 +675,9 @@ export const DEFAULT_STYLE = {
   vibe: "none", board: "none", decor: [], urgency: "none", cta: "", lang_mode: "mix", lang: "en", area: "",
   grade: "none", depth: "none", transition: "fade", outro: "none",
   audience: "none", voice: "on", voice_mood: "confident", voice_cast: "host_m", vo_clip: "", vo_text: "", vo_lang: "en",
+  // the selling points: null picks them from the words (pointsOf in engine.js), "" shows none,
+  // and anything typed is the customer's own list, comma separated
+  points: null,
 };
 
 // The first ad's look, as a starting point.

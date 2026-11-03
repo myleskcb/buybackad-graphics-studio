@@ -78,6 +78,7 @@ function campaignStyle(draft, hasPhoto) {
     urgency: "none", cta: "", overlay: "none", outro: "none", grade: "none", depth: "none",
     flash: false, shine: false, shake: 0, glare: 0, grain: false, sparkles: false,
     speed_lines: false, rgb_hit: false, scrim: 0, voice: "off", vo_clip: "", vo_text: "", track: "none",
+    points: "",   // no selling points: an informational post never inherits the maker's buying offer
   };
 }
 

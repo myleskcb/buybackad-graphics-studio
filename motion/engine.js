@@ -286,6 +286,7 @@ function copyInto(out, r, locked, content) {
     if (!locked.has("headline")) out.headline = pick(headL, "headlines", out.headline);
     if (!locked.has("tag")) out.tag = out.urgency !== "none" && r() < .3 ? pick(otherL, "urgent") : pick(otherL, "tags");
     if (!locked.has("number_label")) out.number_label = lang === "both" && r() < .6 ? r.pick(COPY.both.labels) : pick(otherL, "labels");
+    if (!locked.has("points")) out.points = null;   // picked from the new words (pointsOf), no draw of its own
     if (!locked.has("hook_text")) {
       const hooks = pool(headL, "hooks"), short = hooks.filter(h => h.split(/\s+/).length <= 5);
       out.hook_text = r.pick(out.hook === "word_beat" && short.length ? short : hooks);
@@ -300,6 +301,20 @@ function copyInto(out, r, locked, content) {
     out.ticker_items = r.sample(items, Math.min(items.length, 5));
   }
   return out;
+}
+
+/** The selling points a look shows (the photo ads' stack, DESIGN-LAW 83): the customer's own,
+ *  comma separated ("" shows none), or, left to the look, the first three of its language's
+ *  list that repeat no word the headline, the tag or the label already says (one "quote" is
+ *  enough, as harmonise() says of the label). Three at most, short enough to stand as chips. */
+export function pointsOf(st) {
+  const cut = s => s.trim().toUpperCase().slice(0, 24);
+  if (typeof st.points === "string") return st.points.split(/[,\n•·|]+/).map(cut).filter(Boolean).slice(0, 3);
+  const head = st.headline || "", lang = st.lang || "en";
+  const es = lang === "both" ? !SPANISH.test(head) : lang === "es" || SPANISH.test(head);
+  const stems = s => s.toUpperCase().split(/[^A-ZÁÉÍÓÚÑÜ]+/).filter(w => w.length >= 4).map(w => w.slice(0, 5));
+  const said = new Set(stems(`${head} ${st.tag || ""} ${st.number_label || ""}`));
+  return ((COPY[es ? "es" : "en"] || {}).points || []).filter(s => !stems(s).some(w => said.has(w))).slice(0, 3);
 }
 
 /** The few pairings that do not work, repaired. Nothing here narrows the look;
@@ -393,6 +408,11 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
     if (lum(p.ground) > .5 && ["outline", "neon"].includes(st.text_fx) && !locked.has("text_fx")) st.text_fx = st.text_fx === "outline" ? "double_outline" : "shadow";
     // a hairline outline only holds on a truly dark ground; elsewhere it gets the tight shadow
     if (lum(p.ground) > .25 && st.text_fx === "outline" && !locked.has("text_fx")) st.text_fx = "shadow";
+    // a neon tube is a night sign: on a mid-dark ground (brown, cobalt, forest) its glow
+    // spreads to the ground's own tone and the headline measured 2.0 to 2.95:1 across 92
+    // palettes; at night (ground under .15) it held 2.9 to 4.3, and the tight shadow gave
+    // 3.7 to 6.9 on the same looks (DESIGN-LAW 83: a style reads the ground it lands on)
+    if (lum(p.ground) > .15 && st.text_fx === "neon" && !locked.has("text_fx")) st.text_fx = "shadow";
   }
   if (lum(p.ground) > .4 && st.number_style === "neon" && !locked.has("number_style")) st.number_style = "pill";
   // one "quote" is enough: a tag and a label must not say the same thing twice
@@ -2017,6 +2037,44 @@ function ctaBadge(text, size, hot) {
   return trim(c);
 }
 
+/** The selling points as a stack of chips in the call to action's colour, a tick on each
+ *  (the photo ads' stack, DESIGN-LAW 115 and 120: one rhythm down the stack, and the strip
+ *  wears the CTA's colour). rows: each chip's slice of the sprite, shadow included, cut on
+ *  the middle of the gaps so a chip drawn on its own never repeats a neighbour's shadow. */
+function perksSprite(items, fs, hot, align, row = false) {
+  const ink = contrastOf(hot, "#111111") >= contrastOf(hot, "#ffffff") ? "#111111" : "#ffffff";
+  const P = { ink, accent: ink, ground: hot, plate: hot, plate_ink: ink };
+  const sps = items.map(s => inkSprite(s, s.split("").map(() => ink), "oswald", fs, .04, "flat", P, 0));
+  const py = fs * .3, px = fs * .52, tick = fs * .62, tg = fs * .34;
+  const asc = Math.max(...sps.map(sp => sp.asc)), h = asc * .92 + py * 2;
+  const ws = sps.map(sp => px + tick + tg + sp.inkW + px), cw = Math.max(...ws);
+  const gap = row ? fs * .45 : h * .3, pad = Math.ceil(fs * .55), n = items.length;
+  // a stack (one chip under another), or, where a stack has no room, the photo ads' strip: one row
+  const bw = row ? ws.reduce((a, b) => a + b, 0) + gap * (n - 1) : cw, bh = row ? h : n * h + (n - 1) * gap;
+  const c = canvas(Math.ceil(bw + pad * 2), Math.ceil(bh + pad * 2)), x = c.getContext("2d");
+  const rows = [];
+  let cx = pad;
+  sps.forEach((sp, i) => {
+    const w = ws[i];
+    const rx = row ? cx : pad + (align === "r" ? cw - w : align === "c" ? (cw - w) / 2 : 0), ry = row ? pad : pad + i * (h + gap);
+    cx += w + gap;
+    x.save(); x.shadowColor = "rgba(0,0,0,.32)"; x.shadowBlur = fs * .35; x.shadowOffsetY = fs * .1;
+    rrect(x, rx, ry, w, h, h / 2); x.fillStyle = hot; x.fill(); x.restore();
+    const tx = rx + px, ty = ry + h / 2;
+    x.save(); x.strokeStyle = ink; x.lineWidth = fs * .14; x.lineCap = "round"; x.lineJoin = "round";
+    x.beginPath(); x.moveTo(tx + tick * .04, ty + tick * .02); x.lineTo(tx + tick * .37, ty + tick * .33); x.lineTo(tx + tick * .96, ty - tick * .34); x.stroke(); x.restore();
+    x.drawImage(sp.c, tx + tick + tg - sp.pad, ry + py - sp.pad - sp.asc * .04 + (asc - sp.asc) * .46);
+    if (row) {
+      const x0 = i ? rx - gap / 2 : 0, x1 = i < n - 1 ? rx + w + gap / 2 : c.width;
+      rows.push({ x: x0, y: 0, w: x1 - x0, h: c.height });
+    } else {
+      const y0 = i ? ry - gap / 2 : 0, y1 = i < n - 1 ? ry + h + gap / 2 : c.height;
+      rows.push({ x: Math.max(0, rx - pad), y: y0, w: Math.min(c.width, rx + w + pad) - Math.max(0, rx - pad), h: y1 - y0 });
+    }
+  });
+  return { c, rows, pad, w: bw, h: bh, row };
+}
+
 function numberSprite(st, p, size, cta) {
   const text = formatNumber(st.number, st.number_format) || "YOUR NUMBER";
   let font = st.number_font === "same" ? st.font : st.number_font;
@@ -2350,6 +2408,7 @@ export class Ad {
       this._numberBelowPhones();
       this._headlineOffPhones();
       this._wordsOffPhones();
+      this._perksRoom();
     }
     // how the phones get there is planned from where they finally land (the same draws from this.r as ever)
     this.tLanded = this.phones.length ? planEntries(this.phones, st, this.W, this.H, this.r, this.stageC, this.drawOrder) : .3;
@@ -2387,6 +2446,7 @@ export class Ad {
       stamp: this.stamp ? { k: this.stamp.k, x: this.stamp.x / W, y: this.stamp.y / H } : null,
       tape: this.tape ? this.tape.corner : null, arrowsMode: this.arrowsMode, arrow: !!this.arrow, pinstripe: !!this.pinstripe,
       accents: (this.accents || []).map(a => ({ ...a, x: a.x / W, y: a.y / H, R: a.R / U, t0: undefined, tOut: undefined })),
+      perks: this.perks ? { n: this.perks.n, fs: this.perks.fs / U, align: this.perks.align, row: this.perks.sp.row, x: this.perks.x / W, y: this.perks.y / H } : null,
     };
   }
 
@@ -3081,6 +3141,158 @@ export class Ad {
     return { ok, xs, y0, oy, block, board, outer, tag: tagXY, num: [nx, ny], label: labXY };
   }
 
+  /** The selling points (DESIGN-LAW 83: the photo ads' details in the video too). Placed
+   *  before any decoration, since they sell and a sticker does not: under the words, over the
+   *  number, or down a side, wherever they cover nothing that matters (the words, the number,
+   *  a phone or the gap between the phones, the ticker, the awning) and stay in frame once the
+   *  camera settles. Smaller, then two instead of three, then none: never on a phone. */
+  _placePerks(avoid, grow, o, nb, PL, U) {
+    const W = this.W, H = this.H;
+    this.perks = null;
+    const items = pointsOf(this.st);
+    if (!items.length) return;
+    const keep = (f) => {
+      const t0 = this.tl.number + .35, cx = f.x + f.q.c.width / 2;
+      this.perks = { sp: f.q, x: f.x, y: f.y, fs: f.fs, n: f.n, align: f.al, t0, dir: cx < W * .4 ? -1 : cx > W * .6 ? 1 : 0 };
+      avoid.push([f.x + f.q.pad, f.y + f.q.pad, f.x + f.q.pad + f.q.w, f.y + f.q.pad + f.q.h]);
+    };
+    if (PL) {
+      const L = PL.perks;
+      if (L) keep({ q: perksSprite(items.slice(0, L.n), L.fs * U, this.hot, L.align, L.row), x: L.x * W, y: L.y * H, fs: L.fs * U, n: L.n, al: L.align });
+      return;
+    }
+    const f = this._perkSearch(items, avoid.map(grow).concat(this._phoneGroup()), o, nb);
+    if (f) keep(f);
+  }
+
+  /** The phones' whole group where the camera settles: chips in the gap between two phones read as clutter. */
+  _phoneGroup() {
+    if (!this.phones.length) return [];
+    let gx0 = Infinity, gy0 = Infinity, gx1 = -Infinity, gy1 = -Infinity;
+    for (const P of this.phones.map(q => onCamera(landedOutline(q), this.W, this.H, settleZoom(this.st)))) for (const [px, py] of P) { gx0 = Math.min(gx0, px); gy0 = Math.min(gy0, py); gx1 = Math.max(gx1, px); gy1 = Math.max(gy1, py); }
+    return [[gx0, gy0, gx1, gy1]];
+  }
+
+  /** Where the selling points go, given what they must stay clear of (hard, already grown):
+   *  a stack under the words, across from them, over the number, beside it or down a side,
+   *  then the photo ads' one-row strip under the words or over the number; smaller, then
+   *  two instead of three. Null where none of that is clear. */
+  _perkSearch(items, hard, o, nb) {
+    const st = this.st, W = this.W, H = this.H, size = this.size, mg = this.margin, U = Math.min(W, H);
+    const align = ["top-center", "center"].includes(st.text_pos) ? "c" : st.text_pos === "top-right" ? "r" : "l";
+    const z = settleZoom(st), seen = (x, y) => [W / 2 + (x - W / 2) * z, H / 2 + (y - H / 2) * z];
+    const inFrame = b => { const a = seen(b[0], b[1]), c = seen(b[2], b[3]); return a[0] >= W * .015 && c[0] <= W * .985 && a[1] >= this.insetTop + H * .012 && c[1] <= H * .985; };
+    const over = b => {
+      let a = 0;
+      for (const q of hard) a += Math.max(0, Math.min(b[2], q[2]) - Math.max(b[0], q[0])) * Math.max(0, Math.min(b[3], q[3]) - Math.max(b[1], q[1]));
+      return a / Math.max(1, (b[2] - b[0]) * (b[3] - b[1]));
+    };
+    // the chips are made once per look and size (the room search below tries many phone placements)
+    const cache = this._perkSprites ||= new Map();
+    const sprite = (n, fs, al, row) => { const k = `${items.slice(0, n).join("|")}|${fs.toFixed(2)}|${al}|${row}`; return cache.get(k) || cache.set(k, perksSprite(items.slice(0, n), fs, this.hot, al, row)).get(k); };
+    // readable in a feed (DESIGN-LAW 113): a little over the tag's size, never under 3% of the short side
+    const fs0 = clamp(size * .34, U * .032, U * .05), floor = U * .03;
+    const counts = items.length > 2 ? [items.length, 2] : [items.length];
+    for (const n of counts) for (const row of [false, true]) for (let k = 0; k < 6; k++) {   // down to the floor
+      const fs = Math.max(floor, fs0 * .88 ** k);
+      if (k && fs0 * .88 ** (k - 1) <= floor) break;
+      const q = sprite(n, fs, align, row), w = q.w, h = q.h, gap = size * .3;
+      const under = st.number_pos === "under-headline" ? nb[3] : o[3];
+      const ax = align === "c" ? (W - w) / 2 : align === "r" ? o[2] - w : o[0];
+      const nxl = align === "r" ? nb[2] - w : align === "c" ? (nb[0] + nb[2] - w) / 2 : nb[0];
+      const nmid = (nb[1] + nb[3]) / 2 - h / 2, wmid = Math.min((o[1] + o[3]) / 2 - h / 2, o[3] - h);
+      const across = align === "r" ? [mg, wmid] : align === "l" ? [W - mg - w, wmid] : null;
+      const cands = row
+        ? [[ax, under + gap * .7], [nxl, nb[1] - gap * .7 - h], [(W - w) / 2, nb[1] - gap * .7 - h]]
+        : [[ax, under + gap], ...(across ? [across, [across[0], o[1]]] : []), [nxl, nb[1] - gap - h], [mg, nmid], [W - mg - w, nmid]];
+      if (!row) {
+        // beside the phones, level with them, and the top corners: where the words sit under
+        // the phones (most square looks), that is the room the frame has left
+        const g = this._phoneGroup()[0], top = this.insetTop + H * .05;
+        if (g) cands.push([mg, (g[1] + g[3]) / 2 - h / 2], [W - mg - w, (g[1] + g[3]) / 2 - h / 2]);
+        cands.push([mg, top], [W - mg - w, top]);
+        for (const f of [.36, .5, .64]) cands.push([mg, H * f - h / 2], [W - mg - w, H * f - h / 2]);
+      }
+      for (const [x0, y0] of cands) {
+        const b = [x0, y0, x0 + w, y0 + h];
+        if (!inFrame(b) || over(b) >= .012) continue;
+        const al = row ? align : x0 + w / 2 < W * .4 ? "l" : x0 + w / 2 > W * .6 ? "r" : align;
+        return { q: al === align ? q : sprite(n, fs, al, false), x: x0 - q.pad, y: y0 - q.pad, fs, n, al };
+      }
+    }
+    return null;
+  }
+
+  /** Room for the selling points, made the way the number's is (_numberBelowPhones): where
+   *  they fit nowhere as the layout stands, the phones' group stands a little smaller, held
+   *  at its foot (room opens under the words) or at its head (room opens over the number),
+   *  the least that clears them. Never under PERK_FIT of the group, nor under TOTAL_FIT of
+   *  the phones as first laid out: a selling point is worth less than the product. A look
+   *  that already has room, or that cannot make it, draws as it did. */
+  _perksRoom() {
+    const PERK_FIT = .8, TOTAL_FIT = .55;
+    const items = pointsOf(this.st);
+    if (!items.length || !this.phones.length || !this.pos || !this.num) return;
+    const W = this.W, H = this.H, size = this.size, pos = this.pos, o = pos.outer;
+    const labH = this.num.label ? this.num.label.height + size * .06 : 0;
+    const nb = [pos.num[0], pos.num[1] - labH, pos.num[0] + this.num.c.width, pos.num[1] + this.num.c.height];
+    const pad = size * .1, grow = b => [b[0] - pad, b[1] - pad, b[2] + pad, b[3] + pad];
+    const fixed = [this.boardDef && pos.board ? [o[0], o[1] - size * .5, o[2], o[3]] : o, nb];
+    if (this.tickerH) fixed.push([0, this.tickerY, W, this.tickerY + this.tickerH]);
+    if (this.awningH) fixed.push([0, 0, W, this.awningH]);
+    const hardNow = () => {
+      const h = fixed.map(grow);
+      for (const P of this.phones.map(p => onCamera(landedOutline(p), W, H, settleZoom(this.st)))) {
+        let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+        for (const [x, y] of P) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+        h.push(grow([x0, y0, x1, y1]));
+      }
+      return h.concat(this._phoneGroup());
+    };
+    if (this._perkSearch(items, hardNow(), o, nb)) return;
+    const kNow = this.phoneFit ? this.phoneFit.k || 1 : 1, kMin = Math.max(PERK_FIT, TOTAL_FIT / kNow);
+    if (kMin >= 1) return;
+    const saved = this.phones.map(p => ({ home: p.home.slice(), size: p.size })), sc = this.stageC.slice();
+    const restore = () => { this.phones.forEach((p, i) => { p.home = saved[i].home.slice(); p.size = saved[i].size; }); this.stageC = sc.slice(); };
+    const g = this._phoneGroup()[0], gx = (g[0] + g[2]) / 2;
+    // how much of the words and the number the phones cover: a move may never add to it
+    const boxes = () => this.phones.map(p => onCamera(landedOutline(p), W, H, settleZoom(this.st))).map(P => [Math.min(...P.map(q => q[0])), Math.min(...P.map(q => q[1])), Math.max(...P.map(q => q[0])), Math.max(...P.map(q => q[1]))]);
+    const cover = () => { let a = 0; for (const b of boxes()) for (const f of fixed) a += Math.max(0, Math.min(b[2], f[2]) - Math.max(b[0], f[0])) * Math.max(0, Math.min(b[3], f[3]) - Math.max(b[1], f[1])); return a; };
+    const cover0 = cover(), edge = W * .02;
+    const tryAt = (k, ay, dx) => {
+      const T = ([x, y]) => [gx + k * (x - gx) + dx, ay + k * (y - ay)];
+      restore();
+      this.phones.forEach((p, i) => { p.home = T(p.home); p.size = saved[i].size * k; });
+      this.stageC = T(sc);
+      const G = this._phoneGroup()[0];
+      if (dx && (G[0] < edge || G[2] > W - edge)) return false;
+      if (cover() > cover0 + 1) return false;
+      return !!this._perkSearch(items, hardNow(), o, nb);
+    };
+    // smaller first, held at the foot (room under the words) or the head (room over the number);
+    // then aside, the least slide that opens a side for them, a little smaller if need be
+    for (let k = .96; k >= kMin - 1e-6; k -= .04)
+      for (const ay of [g[3], g[1]]) if (tryAt(k, ay, 0)) { this.phoneFit = { ...(this.phoneFit || {}), k: kNow * k, perks: k }; return; }
+    const side = this.st.text_pos === "top-right" ? [-1, 1] : [1, -1];   // away from where the words lean first
+    for (const k of [1, .96, .92, .88].filter(v => v >= kMin - 1e-6))
+      for (const f of [.04, .08, .12]) for (const sgn of side)
+        if (tryAt(k, (g[1] + g[3]) / 2, sgn * f * W)) { this.phoneFit = { ...(this.phoneFit || {}), k: kNow * k, perks: k, slide: sgn * f }; return; }
+    restore();
+  }
+
+  /** The selling points come in one after another once the number has landed, from the side they stand on. */
+  _perks(ctx, t) {
+    const P = this.perks; if (!P) return;
+    const { c, rows } = P.sp;
+    rows.forEach((R, i) => {
+      const q = prog(t, P.t0 + i * .1, .42); if (q <= 0) return;
+      const dx = P.dir * (1 - outBack(q, 1.4)) * this.W * .06, dy = P.dir ? 0 : (1 - outCubic(q)) * this.size * .3;
+      ctx.save(); ctx.globalAlpha = clamp(q * 2.5);
+      ctx.drawImage(c, R.x, R.y, R.w, R.h, P.x + R.x + dx, P.y + R.y + dy, R.w, R.h);
+      ctx.restore();
+    });
+  }
+
   /** A round piece of radius about R where it covers under a tenth of anything that matters. */
   _spot(R, avoid) {
     for (let k = 0; k < 4; k++, R *= .82) {
@@ -3118,6 +3330,7 @@ export class Ad {
     }
     if (this.decor.has("spray_halo") && !this.board) this.spray = buildSpray(pos.block, size, haloColour(this.pHead), r);
     const U = Math.min(W, H), PL = this.plan;
+    this._placePerks(avoid, grow, o, nb, PL, U);
     const s0 = PL ? (PL.burst && { x: PL.burst.x * W, y: PL.burst.y * H, R: PL.burst.R * U })
       : this.decor.has("starburst") ? this._spot(U * .105, avoid.map(grow)) : null;
     if (s0) {
@@ -3589,6 +3802,7 @@ export class Ad {
     if (this.tag) { const q = prog(t, tl.tag, .35); if (q > 0) { ctx.globalAlpha = q; ctx.drawImage(this.tag, lerp(this.pos.tag[0] - W * .05, this.pos.tag[0], outCubic(q)), this.pos.tag[1]); ctx.globalAlpha = 1; } }
     if (this.pinstripe) drawPinstripe(ctx, this.pos.outer, this.size, lum(this.p.accent) > .45 ? this.p.accent : "#f6c945", t, tl.tag + .1);
     this._number(ctx, t);
+    this._perks(ctx, t);
     this._urgency(ctx, t);
     if (this.accents && this.accents.length) drawAccents(ctx, this.accents, t, st, this.p, W, H, (this.assets || {}).accents);
     if (st.sparkles) this._sparkles(ctx, t);

@@ -5325,3 +5325,54 @@ owner chose "make it, then preview".
   one count; Free's Download JPG saved 1080×1080 on a photo count, its
   Download MP4 opened the plans; the same at 390 px wide, the buttons one
   above the other.
+
+## 131. A video ad carries the photo ads' selling points, and its lettering reads its ground
+
+Added 2026-11-03. The owner, of the video maker against the photo ads: "the
+videos look so much better but the photos are more detailed and fit better
+for getting conversions", then "use the same rule set", "include the same
+details elements", "we don't want the video aspect to take from the quality
+of a photo ad", "make it way better". Rule 83 already said one engine, the
+picture and the video; the video maker (`motion/`) never took the photo ads'
+selling-points stack, and nothing here changes how a photo ad is drawn.
+
+- **Every video look shows its selling points** (`pointsOf`, `_perkSearch`,
+  `_perks` in motion/engine.js): up to three chips in the call to action's
+  colour with a tick on each (rule 120), stacked in one rhythm (rule 115), or,
+  where a stack has no room, the photo ads' one-row strip. Left to the look
+  they are the first three of `COPY[lang].points` that repeat no word the
+  headline, tag or label says (one "quote" is enough); typed in the new
+  "Selling points" field they are the customer's own, and an empty field
+  shows none. The list says only what every shop can say: FREE QUOTE, CASH
+  PAID, ALL MODELS, LOCAL BUYER, TEXT A PIC, MEET LOCALLY (Spanish beside
+  them), never speed, condition or price. Five stars are not carried over:
+  the video maker's copy rules forbid a ranking.
+- **They never sit on a phone, the words or the number.** Placed before any
+  decoration (a sticker does not sell), at 3% of the short side at the least
+  (rule 113), smaller, then two instead of three, then none. Where nothing is
+  clear, the phones make room the way they do for the number
+  (`_perksRoom`): the group a little smaller, held at its foot or its head,
+  never under 0.8 of itself or 0.55 of the phones as first laid out; then a
+  slide aside of up to 12% of the width, a move that may never add to what
+  the phones cover of the words or the number. The plan carries the result,
+  so every size draws the same chips.
+- **They come in after the number**, one after another from the side they
+  stand on, so the HD photo that goes out with the video (rule 108) has them.
+- **The social studio shows none** (`points: ""` in social/media.js): an
+  informational post never inherits a buying offer.
+- **A neon headline is a night sign** (harmonise): on a ground lighter than
+  0.15 it becomes the tight shadow. Measured 2026-11-03 over 92 palettes on
+  one look: neon 2.0 to 2.95:1 on mid-dark grounds, 2.9 to 4.3 at night, the
+  shadow 3.7 to 6.9. In the palette audit (172 palettes × 8 looks) the one
+  look that failed on 64 palettes fails on none; 95 failing looks became 44.
+
+Measured 2026-11-03 at the plan size, 80 random looks a format: selling
+points on 70% of square looks (the default look included, as a strip under
+the headline), 99% of 4:5, 100% of 9:16 and 16:9; before, none. The attention
+audit over 40 looks is unchanged (score 100, every check the same, contrast
+median 6.76 against 6.74). A look takes 74 ms to lay out against 66.
+
+Not done here: the 44 looks still under 3:1 (most at 2.8 to 2.99, on pale
+palettes such as sandstone, sky, blush and sage), and square looks whose
+phones already stand at 0.55 have no room left; three square looks in ten show
+no chips rather than shrink the product further.
