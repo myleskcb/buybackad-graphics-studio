@@ -109,7 +109,11 @@ const formKey = (env) => {
   return /^pk_(test|live)_/.test(pk) && pk.startsWith('pk_test_') === (stripeMode(env) === 'test') ? pk : '';
 };
 
-const adminEmails = (env) => String(env.ADMIN_EMAILS || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean);
+/* The owner is an operator on every deploy, whether or not the Netlify
+   project carries ADMIN_EMAILS (owner, 2026-11-03: "auto give me the admin
+   myleskcb@gmail.com free pro access"). ADMIN_EMAILS adds to it. */
+const OWNER_EMAILS = ['myleskcb@gmail.com'];
+const adminEmails = (env) => [...OWNER_EMAILS, ...String(env.ADMIN_EMAILS || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean)];
 const roleFor = (email, env) => (adminEmails(env).includes(email) ? 'admin' : 'user');
 /* An operator (ADMIN_EMAILS) has every feature of every plan whatever plan it
    is billed on: no download cap, watermark or size limit (/export), video,
