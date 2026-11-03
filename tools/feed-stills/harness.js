@@ -343,6 +343,19 @@ window.FS = {
     return { ok: !why.length, why, url: c.toDataURL("image/jpeg", .9), t, px, contrast, phonesDrawn: +drawn.toFixed(2), phoneInk: [pl, pt, pr, pb], subjectFit: +ad.subjectFit.toFixed(2),
       audit: audit.checks.map(c => ({ id: c.id, ok: c.ok, value: c.value })), style: st };
   },
+  /** The same ad as a video: every setting as the still had it (report.json's style), drawn
+   *  by the engine's own MP4 exporter (motion/export.js), its music without a voice. */
+  async video(style, size = 1080) {
+    await window.FS.ready();
+    await loadFonts([...fontsFor(style), "franklin"]);
+    const { exportMp4 } = await import("../../motion/export.js");
+    const st = { ...style, voice: "off", vo_clip: "", vo_text: "" };
+    const ad = new FeedAd(st, assets, size, size);
+    let res;
+    try { res = await exportMp4(ad, () => {}); } catch (e) { res = await exportMp4(ad, () => {}, { audioBuf: null }); }
+    const url = await new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(res.blob); });
+    return { url, audio: res.audio, bytes: res.blob.size, seconds: st.duration };
+  },
   /** A contact sheet: rows of [label, dataURL]. */
   async sheet(items, cols = 8, cell = 270) {
     const rows = Math.ceil(items.length / cols), lab = 22;

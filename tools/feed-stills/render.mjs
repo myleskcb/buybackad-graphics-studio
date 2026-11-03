@@ -130,6 +130,7 @@ for (let i = 0; i < cards.length; i++) {
     id: card.id, ok: true, seed, headline: card.headline, line: card.line, cta: card.cta,
     look: { font: st.font, number_style: st.number_style, palette: st.palette, background: st.background, arrangement: st.arrangement, board: st.board, text_fx: st.text_fx, case: st.case },
     phones: st.phones, subjectFit: r.subjectFit, px: r.px, contrast: r.contrast, phonesDrawn: r.phonesDrawn, before: before(card.id), skipped,
+    style: st,   // every setting the still was drawn with: tools/feed-stills/video.mjs draws the same ad as a video
   };
   report.push(row);
   console.log(`${String(i + 1).padStart(2)} ${card.id.padEnd(22)} seed ${seed} ${st.font.padEnd(11)} ${st.palette}/${st.background} ` +

@@ -19,3 +19,6 @@ tools/offer-cards/__pycache__/
 
 # scraped photographs waiting for scripts/ingest_assets.py; what it lands goes to assets/
 incoming/
+
+# feed stills as videos, several MB each, made by tools/feed-stills/video.mjs
+tools/feed-stills/out/video/
