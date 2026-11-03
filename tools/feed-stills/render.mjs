@@ -103,12 +103,13 @@ for (let i = 0; i < cards.length; i++) {
     const arrangement = ARRANGEMENTS[(2 * i + s) % ARRANGEMENTS.length];
     const phones = phonesFor(i, s);
     if (used.sets.has([...phones].sort().join(','))) { skipped['same phones as another card'] = (skipped['same phones as another card'] || 0) + 1; continue; }
-    // the engine grows a headline to fill up to 36% of the height; where that leaves the
-    // phones no room, the later tries start it a little smaller (still 120-140px)
-    const long = card.headline.length > 16, scale = long ? (s < 50 ? 1.05 : .9) : (s < 60 ? 1.25 : 1.05);
+    // the engine grows a headline to fill up to 36% of the height, in three lines if that is
+    // larger; started at .85 it sets 'SELL YOUR / iPHONE' in two at about 138px and leaves the
+    // claim, the selling points and the phones their room
+    const long = card.headline.length > 16, scale = long ? (s < 50 ? .75 : .68) : (s < 60 ? .85 : .78);
     tried++;
     const r = await page.evaluate(([content, seed, lock]) => FS.look(content, seed, lock),
-      [{ headline: card.headline, feed_line: card.line, feed_site: 'Visit our website at www.iPhones.LA', number: '(562) 999-4994', number_label: card.cta }, seed, { ...QUIET, palette, background, arrangement, text_scale: scale, phones }]);
+      [{ headline: card.headline, feed_line: card.line, feed_site: 'Visit our website at www.iPhones.LA', feed_where: card.where, feed_claim: card.claim, points: card.points, number: '(562) 999-4994', number_label: card.cta }, seed, { ...QUIET, palette, background, arrangement, text_scale: scale, phones, accents: 1, accent_set: ['cash', 'deal', 'local'][i % 3], accent_kind: 'asset', accent_in: 'pop', accent_idle: 'pulse' }]);
     const st = r.style, set = [...st.phones].sort().join(','), front = st.phones[0];
     const ground = st.palette + '|' + st.background;
     const clash = !r.ok ? r.why.join('; ')

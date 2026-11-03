@@ -2,6 +2,10 @@
 <meta charset="utf-8">
 <title>Feed stills</title>
 <meta name="robots" content="noindex">
-<script src="../../video-still.js"></script>
-<script type="module" src="harness.js"></script>
+<!-- the engine fetches its fonts, phones and cutouts by paths relative to the page
+     (FONT_FILES_BASE "../assets/fonts/"), as the video maker at /motion/ does: so this page
+     resolves them from there. Without it every font 404ed and the stills fell back to Arial. -->
+<base href="/motion/">
+<script src="/video-still.js"></script>
+<script type="module" src="/tools/feed-stills/harness.js"></script>
 <body style="margin:0;background:#111"></body>
