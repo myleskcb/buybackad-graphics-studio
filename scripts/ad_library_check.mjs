@@ -21,8 +21,9 @@
       @netlify/blobs: sign up, save, a video in parts, read the public link
       through it; the library key route and /me still answer as before.
    3. In Chromium, the studio and the page, under the production CSP: an Easy
-      Mode download offers "Save to library"; the Library button shows for the
-      owner only; saved, it is in the Library dialog, offered daily, and on the
+      Mode download offers "Save to library" to the owner and to nobody else
+      (2026-11-03: every way into the library is the owner's); the Library
+      button shows for the owner only; saved, it is in the Library dialog, offered daily, and on the
       public link (a free account's watermarked ad held, no switch or schedule
       to set); master-library.html shows the public
       library at ?feed= and the finished designs (every offered card); no
@@ -536,10 +537,21 @@ async function browserPart() {
       // the studio may ask for the shop's area on the way in; a person answers it first
       await page.evaluate(() => document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')));
       const ask = page.locator('.adl-ask');
-      await ask.waitFor({ timeout: 10000 }).catch(() => {});
-      if (!ok(await ask.isVisible(), 'browser (' + who.email + '): the download offers "Save to library"')) { await page.context().close(); continue; }
-      await ask.getByRole('button', { name: 'Save to library' }).click();
-      await page.waitForFunction(() => !document.querySelector('.adl-ask'), null, { timeout: 20000 });
+      await ask.waitFor({ timeout: who.admin ? 10000 : 4000 }).catch(() => {});
+      const asked = await ask.isVisible();
+      if (who.admin){
+        if (!ok(asked, 'browser (' + who.email + '): the download offers "Save to library"')) { await page.context().close(); continue; }
+        await ask.getByRole('button', { name: 'Save to library' }).click();
+        await page.waitForFunction(() => !document.querySelector('.adl-ask'), null, { timeout: 20000 });
+      } else {
+        /* the library is the owner's (2026-11-03): a customer's download asks
+           nothing, and no star or save button is on their page. The rest runs
+           on a save made from code, as the History ⭐ makes it */
+        ok(!asked, 'browser (' + who.email + '): a customer\'s download does not offer the owner\'s library');
+        const shown = await page.evaluate(() => [...document.querySelectorAll('.adl-star, .adl-starrow, #ex-star, #ex-star-video, .adl-hist')].filter((e) => e.getClientRects().length).length);
+        ok(shown === 0, 'browser (' + who.email + '): no library star or save button is shown to a customer (' + shown + ')');
+        await page.evaluate(async () => { const r = (await histList())[0]; await window.adLibrary.save({ id: r.id, name: r.name, data: r.data, proj: r.proj }); });
+      }
       /* the Library button is the owner's (2026-10-11); anyone else's library opens from code */
       const libBtn = await page.evaluate(() => getComputedStyle(document.getElementById('nav-adlib')).display !== 'none');
       ok(libBtn === who.admin, 'browser (' + who.email + '): the Library button shows only for the owner (' + libBtn + ')');
@@ -828,16 +840,16 @@ async function browserPart() {
       const page = await newPage();
       await page.goto(BASE + '/motion/');
       await page.waitForFunction(() => document.getElementById('loading').hidden && window.adLibrary && window.pgfxAccount, null, { timeout: 60000 });
-      await page.click('#mo-star');
-      await page.waitForSelector('#acct-overlay.show', { timeout: 10000 });
-      const au = await page.evaluate(() => ({ up: document.getElementById('acct-tab-up').getAttribute('aria-selected') === 'true', go: document.getElementById('acct-go').textContent }));
-      ok(au.up && au.go === 'Create account', 'video maker: a signed-out star asks for an account, Create account first (' + JSON.stringify(au) + ')');
-      await page.fill('#acct-email', 'maker@studio.example'); await page.fill('#acct-pass', 'a-long-password'); await page.click('#acct-go');
-      /* video ads come with Pro and Business (2026-10-09): a free account's star
-         offers the plans and saves nothing */
-      await page.waitForFunction(() => /Video downloads come with Pro and Business/.test(document.body.innerText), null, { timeout: 30000 }).catch(() => {});
-      const up = await page.evaluate(() => ({ said: /Video downloads come with Pro and Business/.test(document.body.innerText), saved: (adLibrary.state().lib || { items: [] }).items.length }));
-      ok(up.said && up.saved === 0, 'video maker: a free account\'s star offers Pro and Business and saves nothing (' + JSON.stringify(up) + ')');
+      /* the library is the owner's (2026-11-03): signed out, or a customer,
+         the video maker shows no star and no Save to library */
+      const starShown = () => page.evaluate(() => [...document.querySelectorAll('#mo-star, .adl-star')].filter((e) => e.getClientRects().length).length);
+      ok(await starShown() === 0, 'video maker: signed out, no library star is shown');
+      const mtoken = await page.evaluate(async () => (await (await fetch('/api/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'maker@studio.example', password: 'a-long-password' }) })).json()).token);
+      await page.evaluate((t) => localStorage.setItem('pgfx_token', JSON.stringify(t)), mtoken);
+      await page.reload();
+      await page.waitForFunction(() => document.getElementById('loading').hidden && window.adLibrary && window.pgfxAccount, null, { timeout: 60000 });
+      await page.waitForTimeout(1500);
+      ok(await starShown() === 0, 'video maker: a customer sees no library star');
       // the same account as an operator (video, no marks, not counted): the save goes through
       process.env.ADMIN_EMAILS += ',maker@studio.example';
       /* the page learns the role when it loads the account, as an operator's
@@ -885,11 +897,10 @@ async function browserPart() {
       await page.context().close();
       const p2 = await newPage(390);
       await p2.goto(BASE + '/master-library.html#finished');
-      await p2.waitForSelector('#grid-finished .ml-card .adl-star', { timeout: 20000 });
-      await p2.click('#grid-finished .ml-card .adl-star');
-      await p2.waitForSelector('#acct-overlay.show', { timeout: 10000 });
-      const so = await p2.evaluate(() => ({ up: document.getElementById('acct-tab-up').getAttribute('aria-selected') === 'true', wide: document.documentElement.scrollWidth - window.innerWidth }));
-      ok(so.up && so.wide <= 0, 'master library: signed out, a star opens Create account, inside a phone\'s width (' + JSON.stringify(so) + ')');
+      await p2.waitForSelector('#grid-finished .ml-card', { timeout: 20000 });
+      await p2.waitForTimeout(800);
+      const so = await p2.evaluate(() => ({ stars: [...document.querySelectorAll('.adl-star')].filter((e) => e.getClientRects().length).length, wide: document.documentElement.scrollWidth - window.innerWidth }));
+      ok(so.stars === 0 && so.wide <= 0, 'master library: signed out, no library star, inside a phone\'s width (' + JSON.stringify(so) + ')');
       await shot(p2, 'master-auth-390');
       await p2.context().close();
     } catch (e) { ok(false, 'master library stars: ' + String(e.message || e).split('\n')[0]); }
