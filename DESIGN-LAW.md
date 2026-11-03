@@ -5465,3 +5465,24 @@ action and the ticker were always Oswald.
   first cut named it `voice`, which moved the option's place in the shuffle's
   draws (every look number drew another look) and set the voiceover's default
   to nothing; the seed comparison caught it before it shipped.
+
+## 134. Strikethrough crosses out what sellers are tired of
+
+Added 2026-11-03. The owner: "we could do bold underline, maybe find a place
+for strikethrough", then "no more (skip line) lowballs (strikethrough)", "or
+fake offers", "shady buyers", "sketchy meetups".
+
+- **A line can be struck through** in Easy Mode's ✎ menu (S beside B, I and
+  U; `strike` in the line's style, fabric's `linethrough`) and in the editor's
+  Style row (S beside I and U). Saved with the card like underline.
+- **The video maker has a strike-out opening** (`hook: "strike_out"`): "NO
+  MORE" over the crossed-out words, at one size, then a red marker stroke
+  draws across the second line, a little uphill, from 0.32 to 0.62 s, with
+  the marker's swipe in the mix, and the scene comes in at 1.3 s. The words
+  are the customer's (the opening-line field holds them with this opening) or
+  one of `COPY[lang].strikes`: LOWBALLS, FAKE OFFERS, SHADY BUYERS, SKETCHY
+  MEETUPS; OFERTAS BAJAS, OFERTAS FALSAS, COMPRADORES DUDOSOS, ENCUENTROS RAROS
+  ("NO MÁS"). Picked by hand only: last in the hook list at weight 0, so every
+  look number draws what it drew.
+- What is crossed out is a kind of experience, never a named shop, a price or
+  a promise about speed or condition: the maker's copy rules hold.

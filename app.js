@@ -4480,6 +4480,7 @@ function refreshProps(){
     $('pt-lh').closest('.field').style.display = isCurved ? 'none' : '';
     $('pt-italic').classList.toggle('active', src.fontStyle === 'italic');
     $('pt-under').classList.toggle('active', !isCurved && !!o.underline);
+    $('pt-strike').classList.toggle('active', !isCurved && !!o.linethrough);
     const shp = o.pgShape || (isCurved ? { kind:'arc', bend:o.pgCurved.curve } : null);   // (rule 99)
     $('pt-curve').value = shp ? shp.bend : 0;
     $('pt-curve-val').textContent = shp ? shp.bend : 0;
@@ -4593,6 +4594,7 @@ function bindPropsControls(){
     if (o.pgCurved) rebuildCurved(o, { style:{ fontStyle: nv } }); else o.set('fontStyle', nv);
   });
   $('pt-under').onclick = () => withActive(o => { o.set('underline', !o.underline); $('pt-under').classList.toggle('active', !!o.underline); });
+  $('pt-strike').onclick = () => withActive(o => { o.set('linethrough', !o.linethrough); $('pt-strike').classList.toggle('active', !!o.linethrough); });
   $('pt-fill').addEventListener('input', () => withActive(o => { o.pgFillGrad = null; textProp('fill', $('pt-fill').value); }));
   // highlight strip behind the text (the color the old selling-points pill was
   // stuck on, now editable, and removable)
@@ -6105,6 +6107,7 @@ function ezStyleProps(st, base){
   if (st.bold !== undefined) p.fontWeight = st.bold ? '800' : (base.fontWeight || '400');
   if (st.italic !== undefined) p.fontStyle = st.italic ? 'italic' : 'normal';
   if (st.underline !== undefined) p.underline = !!st.underline;
+  if (st.strike !== undefined) p.linethrough = !!st.strike;          // NO MORE ~LOWBALLS~ (owner, 2026-11-03)
   if (st.fill) p.fill = st.fill;
   if (st.stroke !== undefined || st.sw !== undefined){
     p.stroke = st.stroke || base.stroke || '#000000';
@@ -6149,6 +6152,7 @@ function openTxtPop(anchor, layerName){
   $('tp-b').classList.toggle('active', st.bold !== undefined ? st.bold : baseBold);
   $('tp-i').classList.toggle('active', st.italic !== undefined ? st.italic : tpTarget.base.fontStyle === 'italic');
   $('tp-u').classList.toggle('active', !!st.underline);
+  $('tp-s').classList.toggle('active', !!st.strike);
   $('tp-fill').value = st.fill || (ez._themed && ez._themed[tpTarget.layerName]) || toHex(tpTarget.base.fill, '#ffffff');
   $('tp-stroke').value = st.stroke || toHex(tpTarget.base.stroke, '#000000');
   $('tp-sw').value = st.sw !== undefined ? st.sw : (tpTarget.base.strokeWidth || 0);
@@ -6187,6 +6191,7 @@ function bindTxtPop(){
   $('tp-b').onclick = () => { $('tp-b').classList.toggle('active'); upd({ bold: $('tp-b').classList.contains('active') }); };
   $('tp-i').onclick = () => { $('tp-i').classList.toggle('active'); upd({ italic: $('tp-i').classList.contains('active') }); };
   $('tp-u').onclick = () => { $('tp-u').classList.toggle('active'); upd({ underline: $('tp-u').classList.contains('active') }); };
+  $('tp-s').onclick = () => { $('tp-s').classList.toggle('active'); upd({ strike: $('tp-s').classList.contains('active') }); };
   $('tp-fill').addEventListener('input', () => upd({ fill: $('tp-fill').value }));
   $('tp-stroke').addEventListener('input', () => upd({ stroke: $('tp-stroke').value, sw: +$('tp-sw').value }));
   $('tp-sw').addEventListener('input', () => { $('tp-sw-val').textContent = $('tp-sw').value; upd({ stroke: $('tp-stroke').value, sw: +$('tp-sw').value }); });

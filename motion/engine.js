@@ -144,7 +144,7 @@ function lateWeights(k, season) {
 /** An opening that shows the phones on frame 0 shows their backs: screen-up
  *  phones are black glass in the thumbnail. */
 function backsFirst(out, locked) {
-  if (!["hook_line", "word_beat"].includes(out.hook) && out.front_glimpse === "hold" && !locked.has("front_glimpse")) out.front_glimpse = "spin";
+  if (!["hook_line", "word_beat", "strike_out"].includes(out.hook) && out.front_glimpse === "hold" && !locked.has("front_glimpse")) out.front_glimpse = "spin";
   return out;
 }
 
@@ -303,6 +303,15 @@ function copyInto(out, r, locked, content) {
   return out;
 }
 
+/** The strike-out opening's two lines: "NO MORE" and what sellers are tired of, the customer's own
+ *  words or one of the language's list, the same for a look every time (no draw of its own). */
+export function strikeOf(st) {
+  const es = st.lang === "es" || SPANISH.test(st.headline || "") && st.lang !== "both";
+  const C = COPY[es ? "es" : "en"] || COPY.en, list = C.strikes || COPY.en.strikes;
+  const text = String(st.strike_text || "").trim().toUpperCase().slice(0, 28) || list[(st.seed >>> 0) % list.length];
+  return { lead: C.strike_lead || "NO MORE", text };
+}
+
 /** The selling points a look shows (the photo ads' stack, DESIGN-LAW 83): the customer's own,
  *  comma separated ("" shows none), or, left to the look, the first three of its language's
  *  list that repeat no word the headline, the tag or the label already says (one "quote" is
@@ -389,7 +398,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
     if (st.overlay === "confetti") st.number_sfx = "confetti";
     else if (st.number_sfx === "confetti") st.number_sfx = st.number_in === "type" ? "ticks" : "pop";
   }
-  if (!["hook_line", "word_beat"].includes(st.hook) && ["typewriter", "scramble", "drop_letters", "spin_letters"].includes(st.text_in) && !locked.has("text_in"))
+  if (!["hook_line", "word_beat", "strike_out"].includes(st.hook) && ["typewriter", "scramble", "drop_letters", "spin_letters"].includes(st.text_in) && !locked.has("text_in"))
     st.text_in = ["slide", "skew_slide", "slam", "wipe"][st.seed % 4];
   if (st.text_fx === "box" && st.color_mode === "split_lines") st.color_mode = "mono";
   if (board) {
@@ -1450,7 +1459,7 @@ function planEntries(phones, st, W, H, r, stageC, drawOrder) {
     const p = phones[i];
     // The first 3 seconds decide whether anyone watches: phones are already in
     // the air at frame 0 and land fast. A hook line owns the first second.
-    const lead = ["hook_line", "word_beat"].includes(st.hook) ? .5 : st.hook === "crash_zoom" ? .22 : st.hook === "punch_in" ? -.7 : -.45;
+    const lead = ["hook_line", "word_beat", "strike_out"].includes(st.hook) ? .5 : st.hook === "crash_zoom" ? .22 : st.hook === "punch_in" ? -.7 : -.45;
     // ...but IN the air: at frame 0 no phone is more than half way through its flight, so
     // a short entrance (a pop, a whip) under an early lead still flies in rather than
     // standing there landed. (Owner, 2026-09-30: "it doesn't fly or move in".)
@@ -2520,6 +2529,7 @@ export class Ad {
   _hookEnd() {
     const st = this.st;
     if (st.hook === "hook_line") return .92;
+    if (st.hook === "strike_out") return 1.3;        // read it, see it crossed out (.32 to .62 s), read it crossed out
     if (st.hook === "word_beat") {
       const n = Math.max(1, applyCase(st.hook_text || HOOKS[0], "upper").split(/\s+/).filter(Boolean).length);
       this.hookBeat = clamp(.95 / n, .16, .24);
@@ -2685,7 +2695,7 @@ export class Ad {
     // words on screen within a second: the headline starts as the phones arrive, not after the last one lands
     const lands = this.phones.map(p => p.tLand).sort((a, b) => a - b), median = lands.length ? lands[Math.floor(lands.length / 2)] : .3;
     this.hookEnd = this._hookEnd();
-    const text = ["hook_line", "word_beat"].includes(st.hook) ? this.hookEnd
+    const text = ["hook_line", "word_beat", "strike_out"].includes(st.hook) ? this.hookEnd
       : st.hook === "crash_zoom" ? .42 : Math.max(.3, Math.min(.45, median + .02, revealEnd + .02));
     this.tl = { landed: this.tLanded, revealEnd, text, still: revealEnd + .25 };
   }
@@ -2797,6 +2807,18 @@ export class Ad {
       }
       this.hookSize = hs;
     }
+    this.hookStrike = null;
+    if (st.hook === "strike_out") {
+      // NO MORE / ~~LOWBALLS~~: two lines at one size, the second crossed out in _hookLine
+      const { lead, text } = strikeOf(st), hp = { ...p, ink: "#ffffff", accent: "#ffffff" };
+      let hs = H * (wide ? .2 : tall ? .1 : .15);
+      for (let k = 0; k < 16; k++) {
+        const sp = [lead, text].map(l => inkSprite(l, l.split("").map(() => "#ffffff"), hookFont, hs, .01, "shadow", hp, 0));
+        if (Math.max(...sp.map(q => q.inkW)) <= W * .82 && sp.length * sp[0].asc * 1.02 <= H * .5) { this.hookLines = sp; break; }
+        hs *= .92;
+      }
+      this.hookSize = hs; this.hookStrike = this.hookLines ? 1 : null;
+    }
     this.hookWords = false;
     if (st.hook === "word_beat") {
       const words = applyCase(st.hook_text || HOOKS[0], "upper").split(/\s+/).filter(Boolean);
@@ -2813,7 +2835,7 @@ export class Ad {
       });
       this.hookWords = true;
     }
-    this._hook = { hookLines: this.hookLines, hookSize: this.hookSize, hookWords: this.hookWords };
+    this._hook = { hookLines: this.hookLines, hookSize: this.hookSize, hookWords: this.hookWords, hookStrike: this.hookStrike };
   }
 
   /** When the words and the number arrive, once the phones' timeline is known. */
@@ -3672,7 +3694,7 @@ export class Ad {
       for (const p of this.phones) { hits.push([p.tLand, .004 * lvl]); if (p.reveal) hits.push([p.tReveal + .5, .0018 * lvl]); }
       if (["slam", "stomp"].includes(this.st.text_in)) hits.push([this.tl.hit, .006 * lvl]);
       if (this.st.hook === "punch_in") hits.push([.5, .007 * lvl]);
-      if (["hook_line", "word_beat"].includes(this.st.hook)) hits.push([0, .008 * lvl]);
+      if (["hook_line", "word_beat", "strike_out"].includes(this.st.hook)) hits.push([0, .008 * lvl]);
     }
     if (this.hookWords) this.hookLines.forEach((_, i) => { if (i) hits.push([i * this.hookBeat, .004]); });
     if (this.stamp) hits.push([this.stamp.t0 + .2, .007]);
@@ -3720,6 +3742,17 @@ export class Ad {
     const lh = this.hookLines[0].asc * 1.02, total = lh * this.hookLines.length;
     ctx.save(); ctx.globalAlpha = a; ctx.translate(W / 2, H / 2); ctx.scale(s, s);
     this.hookLines.forEach((L, i) => ctx.drawImage(L.c, -L.inkW / 2 - L.pad, -total / 2 + i * lh - L.pad));
+    if (this.hookStrike != null) {
+      // a marker stroke across the line, left to right, a little uphill, in a red that reads on the wash
+      const L = this.hookLines[this.hookStrike], q = outCubic(prog(t, .32, .3));
+      if (q > 0) {
+        const y = -total / 2 + this.hookStrike * lh + L.asc - this.hookSize * .36, x0 = -L.inkW / 2 - this.hookSize * .08, len = (L.inkW + this.hookSize * .16) * q;
+        ctx.save(); ctx.rotate(-2.5 * Math.PI / 180); ctx.lineCap = "round";
+        ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowBlur = this.hookSize * .08; ctx.shadowOffsetY = this.hookSize * .03;
+        ctx.strokeStyle = "#ff2d3b"; ctx.lineWidth = this.hookSize * .13;
+        ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x0 + len, y); ctx.stroke(); ctx.restore();
+      }
+    }
     ctx.restore();
   }
 

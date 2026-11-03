@@ -1,7 +1,7 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES } from "./catalog.js";
-import { Ad, ASPECTS, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf } from "./engine.js";
+import { Ad, ASPECTS, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf } from "./engine.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
@@ -310,7 +310,8 @@ function buildPanel() {
   bind("f-headline", "headline", v => v.toUpperCase().slice(0, 60) || "WE BUY PHONES");
   bind("f-tag", "tag"); bind("f-label", "number_label");
   bind("f-points", "points", v => v.toUpperCase().slice(0, 80));   // empty means none; the look's own come back with new words
-  bind("f-hook", "hook_text", v => v.toUpperCase().slice(0, 44));
+  // the opening line's field: with the strike-out opening it holds the crossed-out words
+  $("f-hook").addEventListener("input", debounce(e => { const k = state.style.hook === "strike_out" ? "strike_text" : "hook_text"; state.style[k] = e.target.value.toUpperCase().slice(0, k === "strike_text" ? 28 : 44); state.locked.add(k); save(); rebuild(); }, 280));
   // another line in the look's own language, everything else left as it is
   const anotherLine = key => {
     pushHistory();
@@ -436,7 +437,7 @@ function syncWords() {
   $("f-tag").value = state.style.tag || "";
   $("f-number").value = state.style.number || "";
   $("f-label").value = state.style.number_label || "";
-  $("f-hook").value = state.style.hook_text || "";
+  $("f-hook").value = state.style.hook === "strike_out" ? strikeOf(state.style).text : (state.style.hook_text || "");
   if (document.activeElement !== $("f-points")) $("f-points").value = pointsOf(state.style).join(", ");
   if (document.activeElement !== $("f-area")) $("f-area").value = state.style.area || "";
   document.querySelectorAll("#langs [data-lang]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.lang === (state.style.lang_mode || "mix"))));

@@ -311,6 +311,8 @@ export const COPY = {
     // the selling points under the words (the photo ads' stack, DESIGN-LAW 83): only what every
     // shop on the site can say, so no speed, no condition and no price promise
     points: ["FREE QUOTE", "CASH PAID", "ALL MODELS", "LOCAL BUYER", "TEXT A PIC", "MEET LOCALLY"],
+    // the strike-out opening (owner, 2026-11-03): "NO MORE" over what sellers are tired of, crossed out
+    strike_lead: "NO MORE", strikes: ["LOWBALLS", "FAKE OFFERS", "SHADY BUYERS", "SKETCHY MEETUPS"],
   },
   es: {
     hooks: ["¿TIENES UN IPHONE QUE YA NO USAS?", "¿CAMBIASTE DE TELÉFONO?", "¿IPHONE VIEJO EN EL CAJÓN?", "¡OYE! ¿Y ESE IPHONE VIEJO?",
@@ -326,6 +328,7 @@ export const COPY = {
     stamp: ["EFECTIVO", "EFECTIVO", "LOCAL"],
     burst: ["¡EFECTIVO!", "¡LOCAL!", "{CODE}"],
     points: ["COTIZACIÓN GRATIS", "PAGO EN EFECTIVO", "TODOS LOS MODELOS", "COMPRADOR LOCAL", "MANDA UNA FOTO"],
+    strike_lead: "NO MÁS", strikes: ["OFERTAS BAJAS", "OFERTAS FALSAS", "COMPRADORES DUDOSOS", "ENCUENTROS RAROS"],
   },
   both: { labels: ["CALL OR TEXT \u00b7 LLAMA O ESCRIBE", "TEXT US \u00b7 MÁNDANOS TEXTO"] },
 };
@@ -508,7 +511,7 @@ export const OPTIONS = {
   // a holiday ad: its tunes and sounds play only here (never set by a shuffle; picked by hand)
   season: ["none", "christmas", "halloween"],
   glare: [0.5, 1, 1, 1.5],
-  hook: ["hook_line", "hook_line", "word_beat", "word_beat", "crash_zoom", "flash_cut", "punch_in", "cold_open"],
+  hook: ["hook_line", "hook_line", "word_beat", "word_beat", "crash_zoom", "flash_cut", "punch_in", "cold_open", "strike_out"],
   overlay: ["none", "none", "confetti", "light_leak", "vignette_pulse", "lens_flare", "glitch", "grain_live", "sparkle_field",
     "bokeh_drift", "light_rays", "dust", "shimmer", "bloom"],
   // the whole frame's colour, as a last pass
@@ -596,6 +599,8 @@ export const WEIGHTS = {
   // an ad for everyone stays common; an audience that states a service (bulk, cracked) is only ever picked by hand
   audience: { none: 4, ...Object.fromEntries(AUDIENCE_KEYS.filter(k => AUDIENCES[k].byHand).map(k => [k, 0])) },
   voice: { on: 3, off: 1 },
+  // the strike-out opening is picked by hand (weight 0, last in the list: every look number draws what it drew)
+  hook: { strike_out: 0 },
   vibe: { none: 5 },
   board: { none: 10 },
   urgency: { none: 1 },
@@ -736,6 +741,7 @@ export const DEFAULT_STYLE = {
   // the selling points: null picks them from the words (pointsOf in engine.js), "" shows none,
   // and anything typed is the customer's own list, comma separated
   points: null,
+  strike_text: "",   // the strike-out opening's crossed-out words ("" draws one from COPY[lang].strikes)
   type_pair: "",     // the owner's type pair (TYPE_VOICES): follows the face drawn unless picked by hand (harmonise)
 };
 

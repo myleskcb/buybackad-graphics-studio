@@ -3126,3 +3126,6 @@ Open:
    "WE") draws only on Apple devices and was on the old deploy; it is placed
    a quarter of its size from the line's box, which is never narrower than
    its letters. Check it on the current site on an iPhone.
+6. **Strikethrough (DESIGN-LAW 134)**: a ready-made photo card that uses it
+   ("NO MORE ~~LOWBALLS~~") is not built; the ✎ S and the editor's S set it on
+   any line, and the video maker has the strike-out opening.
