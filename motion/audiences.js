@@ -146,18 +146,18 @@ export const AUDIENCES = {
     copy: {
       en: { hooks: ["GOT THE NEW IPHONE?", "UPGRADED THIS YEAR?", "NEW PHONE. OLD ONE?", "WHERE'S YOUR OLD IPHONE?"],
         headlines: ["SELL THE ONE YOU REPLACED", "YOUR OLD IPHONE IS WORTH CASH", "UPGRADED? SELL THE OLD ONE", "NEW PHONE? CASH FOR THE OLD ONE"],
-        tags: ["TEXT A PIC, GET A PRICE", "ALL MODELS WANTED", "FREE QUOTE"], cta: ["TEXT US", "GET YOUR QUOTE"] },
+        tags: ["TEXT YOUR IMEI, GET A PRICE", "ALL MODELS WANTED", "FREE QUOTE"], cta: ["TEXT US", "GET YOUR QUOTE"] },
       es: { hooks: ["¿YA TIENES EL NUEVO IPHONE?", "¿CAMBIASTE DE IPHONE?"],
         headlines: ["VENDE EL IPHONE QUE YA NO USAS", "TU IPHONE VIEJO VALE DINERO"],
-        tags: ["MÁNDANOS UNA FOTO", "COTIZACIÓN GRATIS"], cta: ["¡MÁNDANOS TEXTO!"] },
+        tags: ["MÁNDANOS EL IMEI", "COTIZACIÓN GRATIS"], cta: ["¡MÁNDANOS TEXTO!"] },
     },
     vo: {
       en: ["Got the new iPhone? Your old one is worth cash.",
         "New phone in your hand? Turn the old one into cash. Text the number on your screen.",
-        "You upgraded. Now let the old iPhone pay you back. Text us a picture for a quote.",
-        "Old iPhone sitting in a drawer? Text us a photo for a free quote."],
+        "You upgraded. Now let the old iPhone pay you back. Text us your IMEIture for a quote.",
+        "Old iPhone sitting in a drawer? Text us your IMEI for a free quote."],
       es: ["¿Ya tienes el iPhone nuevo? Tu iPhone viejo vale dinero.",
-        "¿Cambiaste de iPhone? Mándanos una foto del viejo y te damos una cotización."],
+        "¿Cambiaste de iPhone? Mándanos el IMEI del viejo y te damos una cotización."],
     },
   },
   students: {
@@ -169,18 +169,18 @@ export const AUDIENCES = {
     copy: {
       en: { hooks: ["BROKE? CHECK YOUR DRAWER", "TEXTBOOK MONEY?", "OLD PHONE = RENT MONEY?", "STUDENTS, LOOK"],
         headlines: ["TURN YOUR OLD IPHONE INTO CASH", "YOUR OLD PHONE IS MONEY", "CASH FOR YOUR OLD IPHONE"],
-        tags: ["TEXT A PIC", "FREE QUOTE", "ALL MODELS"], cta: ["TEXT US", "TEXT NOW"] },
+        tags: ["TEXT US NOW", "FREE QUOTE", "ALL MODELS"], cta: ["TEXT US", "TEXT NOW"] },
       es: { hooks: ["¿TE FALTA DINERO?", "¿TIENES UN IPHONE VIEJO?"],
         headlines: ["TU IPHONE VIEJO VALE DINERO", "CAMBIA TU IPHONE POR EFECTIVO"],
-        tags: ["MÁNDANOS UNA FOTO"], cta: ["¡MÁNDANOS TEXTO!"] },
+        tags: ["MÁNDANOS EL IMEI"], cta: ["¡MÁNDANOS TEXTO!"] },
     },
     vo: {
       en: ["Textbook money is hiding in your drawer.",
-        "That old iPhone? It's cash. Text us a pic for a quote.",
+        "That old iPhone? It's cash. Text us your IMEI for a quote.",
         "Broke till Friday? Your old iPhone isn't. Text the number on your screen for a free quote.",
-        "Old phone, new cash. Snap a pic and text us."],
+        "Old phone, new cash. Text us your IMEI."],
       es: ["¿Te falta dinero? Tu iPhone viejo vale efectivo.",
-        "Mándanos una foto de tu iPhone viejo y te damos precio."],
+        "Mándanos el IMEI de tu iPhone viejo y te damos precio."],
     },
   },
   parents: {
@@ -199,7 +199,7 @@ export const AUDIENCES = {
     },
     vo: {
       en: ["A drawer full of old phones? We buy them.",
-        "The kids upgraded again? We'll buy the old iPhones. Just text us a picture.",
+        "The kids upgraded again? We'll buy the old iPhones. Just text us your IMEIture.",
         "Clear out the drawer of old iPhones. Call or text the number on your screen.",
         "Old family phones are worth something. Text us for a free quote."],
       es: ["¿Un cajón lleno de celulares viejos? Nosotros los compramos.",
@@ -238,16 +238,16 @@ export const AUDIENCES = {
     copy: {
       en: { hooks: ["NO TIME TO SELL YOUR OLD IPHONE?", "OLD PHONE, NO HASSLE"],
         headlines: ["SELL YOUR OLD IPHONE WITHOUT THE HASSLE", "ONE TEXT. ONE QUOTE.", "WE BUY IPHONES"],
-        tags: ["TEXT A PIC, GET A PRICE", "MEET UP LOCAL"], cta: ["TEXT US", "GET YOUR QUOTE"] },
+        tags: ["TEXT YOUR IMEI, GET A PRICE", "MEET UP LOCAL"], cta: ["TEXT US", "GET YOUR QUOTE"] },
       es: { hooks: ["¿SIN TIEMPO PARA VENDER TU IPHONE?"],
-        headlines: ["VENDE TU IPHONE SIN COMPLICACIONES"], tags: ["MÁNDANOS UNA FOTO"], cta: ["¡COTIZA AHORA!"] },
+        headlines: ["VENDE TU IPHONE SIN COMPLICACIONES"], tags: ["MÁNDANOS EL IMEI"], cta: ["¡COTIZA AHORA!"] },
     },
     vo: {
       en: ["Sell your old iPhone without the hassle.",
-        "One photo, one text, one quote. That's it.",
-        "No listings, no strangers, no back and forth. Just text a photo of your old iPhone."],
+        "One text, one quote. That's it.",
+        "No listings, no strangers, no back and forth. Just text us your old iPhone's IMEI."],
       es: ["Vende tu iPhone viejo sin complicaciones.",
-        "Una foto, un texto y te damos precio."],
+        "Un texto con el IMEI y te damos precio."],
     },
   },
   deal_seekers: {
@@ -259,16 +259,16 @@ export const AUDIENCES = {
     copy: {
       en: { hooks: ["GOT ANOTHER QUOTE?", "SELLING YOUR IPHONE?", "WAIT. READ THIS."],
         headlines: ["GET A CASH OFFER FOR YOUR IPHONE", "A FAIR CASH OFFER", "WE BUY IPHONES. FAIR AND LOCAL."],
-        tags: ["COMPARE US", "FREE QUOTE", "TEXT A PIC, GET A PRICE"], cta: ["TEXT NOW", "GET YOUR QUOTE"] },
+        tags: ["COMPARE US", "FREE QUOTE", "TEXT YOUR IMEI, GET A PRICE"], cta: ["TEXT NOW", "GET YOUR QUOTE"] },
       es: { hooks: ["¿VENDES TU IPHONE?", "¿YA TIENES OTRA COTIZACIÓN?"],
         headlines: ["UNA OFERTA JUSTA EN EFECTIVO", "COMPRAMOS IPHONES"], tags: ["COTIZACIÓN GRATIS"], cta: ["¡COTIZA AHORA!"] },
     },
     vo: {
       en: ["Selling your iPhone? Get our cash offer first.",
-        "Already got a quote? Get ours too. Text a pic to the number on your screen.",
-        "Before you list it, get a fair cash offer from a local buyer. Text us a photo."],
+        "Already got a quote? Get ours too. Text your IMEI to the number on your screen.",
+        "Before you list it, get a fair cash offer from a local buyer. Text us your IMEI."],
       es: ["¿Vas a vender tu iPhone? Pide nuestra oferta en efectivo.",
-        "Antes de venderlo, mándanos una foto y compara nuestra oferta."],
+        "Antes de venderlo, mándanos el IMEI y compara nuestra oferta."],
     },
   },
   spanish_speakers: {
@@ -280,12 +280,12 @@ export const AUDIENCES = {
     copy: {
       es: { hooks: ["¡OYE! ¿Y ESE IPHONE VIEJO?", "¿TIENES UN IPHONE QUE YA NO USAS?", "¡ATENCIÓN, FAMILIA!"],
         headlines: ["COMPRAMOS IPHONES", "TU IPHONE VIEJO VALE DINERO", "SOMOS DE AQUÍ. COMPRAMOS IPHONES."],
-        tags: ["SE HABLA ESPAÑOL", "MÁNDANOS UNA FOTO", "COTIZACIÓN GRATIS"], cta: ["¡MÁNDANOS TEXTO!", "¡LLAMA YA!"] },
+        tags: ["SE HABLA ESPAÑOL", "MÁNDANOS EL IMEI", "COTIZACIÓN GRATIS"], cta: ["¡MÁNDANOS TEXTO!", "¡LLAMA YA!"] },
       en: { hooks: ["SE HABLA ESPAÑOL"], headlines: ["WE BUY IPHONES"], tags: ["SE HABLA ESPAÑOL"], cta: ["CALL OR TEXT"] },
     },
     vo: {
       es: ["¡Oye! ¿Y ese iPhone viejo? Nosotros lo compramos.",
-        "Tu iPhone viejo vale dinero. Mándanos una foto y te damos precio.",
+        "Tu iPhone viejo vale dinero. Mándanos el IMEI y te damos precio.",
         "Somos de aquí y hablamos español. Llama o manda texto al número en tu pantalla.",
         "Compramos iPhones usados. Cotización gratis, en español."],
       en: ["We buy iPhones. Se habla español.", "We buy iPhones. Se habla español. Call or text the number on your screen."],
@@ -300,15 +300,15 @@ export const AUDIENCES = {
     copy: {
       en: { hooks: ["DRIVE FOR A LIVING?", "PHONE TAKING A BEATING?", "NEW WORK PHONE?"],
         headlines: ["CASH FOR YOUR OLD WORK PHONE", "WE BUY USED IPHONES", "WORN OUT? STILL WORTH CASH"],
-        tags: ["TEXT A PIC", "MEET UP LOCAL", "ALL MODELS"], cta: ["TEXT US", "CALL OR TEXT"] },
-      es: { hooks: ["¿MANEJAS PARA VIVIR?"], headlines: ["EFECTIVO POR TU CELULAR DEL TRABAJO"], tags: ["MÁNDANOS UNA FOTO"], cta: ["¡MÁNDANOS TEXTO!"] },
+        tags: ["TEXT US NOW", "MEET UP LOCAL", "ALL MODELS"], cta: ["TEXT US", "CALL OR TEXT"] },
+      es: { hooks: ["¿MANEJAS PARA VIVIR?"], headlines: ["EFECTIVO POR TU CELULAR DEL TRABAJO"], tags: ["MÁNDANOS EL IMEI"], cta: ["¡MÁNDANOS TEXTO!"] },
     },
     vo: {
       en: ["New work phone? Sell us the old one.",
         "Your phone works as hard as you do. When it's replaced, it's still worth cash.",
-        "Drivers, that old iPhone in the glovebox is cash. Text a pic to the number on your screen."],
+        "Drivers, that old iPhone in the glovebox is cash. Text your IMEI to the number on your screen."],
       es: ["¿Celular nuevo para el trabajo? Véndenos el viejo.",
-        "Ese iPhone viejo todavía vale dinero. Mándanos una foto."],
+        "Ese iPhone viejo todavía vale dinero. Mándanos el IMEI."],
     },
   },
   eco_minded: {
@@ -360,15 +360,15 @@ export const AUDIENCES = {
     copy: {
       en: { hooks: ["STOP SCROLLING", "LOOT DROP IN YOUR DRAWER", "OLD PHONE?"],
         headlines: ["CASH OUT YOUR OLD IPHONE", "OLD PHONE. NEW MONEY.", "LEVEL UP: SELL YOUR OLD IPHONE"],
-        tags: ["TEXT A PIC", "ALL MODELS"], cta: ["TEXT US", "TEXT NOW"] },
-      es: { hooks: ["DEJA DE SCROLLEAR"], headlines: ["CAMBIA TU IPHONE VIEJO POR EFECTIVO"], tags: ["MÁNDANOS UNA FOTO"], cta: ["¡MÁNDANOS TEXTO!"] },
+        tags: ["TEXT US NOW", "ALL MODELS"], cta: ["TEXT US", "TEXT NOW"] },
+      es: { hooks: ["DEJA DE SCROLLEAR"], headlines: ["CAMBIA TU IPHONE VIEJO POR EFECTIVO"], tags: ["MÁNDANOS EL IMEI"], cta: ["¡MÁNDANOS TEXTO!"] },
     },
     vo: {
       en: ["Stop scrolling. Your old iPhone is cash.",
-        "Old phone, new money. Text us a pic and cash out.",
-        "Loot drop: that old iPhone in your drawer is real money. Text us a pic."],
+        "Old phone, new money. Text us your IMEI and cash out.",
+        "Loot drop: that old iPhone in your drawer is real money. Text us your IMEI."],
       es: ["Deja de scrollear. Tu iPhone viejo es dinero.",
-        "Celular viejo, dinero nuevo. Mándanos una foto."],
+        "Celular viejo, dinero nuevo. Mándanos el IMEI."],
     },
   },
   luxury: {
@@ -386,9 +386,9 @@ export const AUDIENCES = {
     vo: {
       en: ["Upgraded to the new Pro? We buy last year's.",
         "Your last iPhone Pro deserves a proper sale. Text us for a quote.",
-        "We buy iPhone Pro and Pro Max, quietly and simply. Text us a photo."],
+        "We buy iPhone Pro and Pro Max, quietly and simply. Text us your IMEI."],
       es: ["¿Ya tienes el nuevo Pro? Compramos el del año pasado.",
-        "Compramos iPhone Pro y Pro Max. Mándanos una foto."],
+        "Compramos iPhone Pro y Pro Max. Mándanos el IMEI."],
     },
   },
   broken_phones: {
@@ -399,16 +399,16 @@ export const AUDIENCES = {
     looks: { vibes: ["repair_shop", "bandit_sign", "breaking_news"], sound_kit: ["hiphop", "uplift", "minimal"], bpm: [96, 116], grade: ["film", "none"] },
     copy: {
       en: { hooks: ["CRACKED SCREEN?", "DROPPED IT?", "DEAD BATTERY?"],
-        headlines: ["WE BUY CRACKED IPHONES TOO", "BROKEN? TEXT US A PIC", "CRACKED? ASK US"],
-        tags: ["TEXT A PIC, GET A PRICE", "CRACKED SCREENS WELCOME", "FREE QUOTE"], cta: ["TEXT US", "TEXT A PIC"] },
-      es: { hooks: ["¿PANTALLA ROTA?"], headlines: ["COMPRAMOS IPHONES ROTOS TAMBIÉN", "¿ROTO? MÁNDANOS UNA FOTO"], tags: ["PANTALLAS ROTAS TAMBIÉN"], cta: ["¡MÁNDANOS TEXTO!"] },
+        headlines: ["WE BUY CRACKED IPHONES TOO", "BROKEN? TEXT US NOW", "CRACKED? ASK US"],
+        tags: ["TEXT YOUR IMEI, GET A PRICE", "CRACKED SCREENS WELCOME", "FREE QUOTE"], cta: ["TEXT US", "TEXT US NOW"] },
+      es: { hooks: ["¿PANTALLA ROTA?"], headlines: ["COMPRAMOS IPHONES ROTOS TAMBIÉN", "¿ROTO? MÁNDANOS TEXTO"], tags: ["PANTALLAS ROTAS TAMBIÉN"], cta: ["¡MÁNDANOS TEXTO!"] },
     },
     vo: {
       en: ["Cracked screen? We buy those too.",
-        "Dropped it, cracked it, battery's done? Text us a pic anyway.",
-        "Don't write off a broken iPhone. Text us a photo and we'll tell you what we can do."],
+        "Dropped it, cracked it, battery's done? Text us your IMEI anyway.",
+        "Don't write off a broken iPhone. Text us your IMEI and we'll tell you what we can do."],
       es: ["¿Pantalla rota? También la compramos.",
-        "¿Se te rompió el iPhone? Mándanos una foto de todos modos."],
+        "¿Se te rompió el iPhone? Mándanos el IMEI de todos modos."],
     },
   },
   declutter: {
@@ -426,7 +426,7 @@ export const AUDIENCES = {
     vo: {
       en: ["Moving? Pack less, and sell us the old iPhones.",
         "Found old iPhones while you clean out? We buy them.",
-        "Clearing out the house? Every old iPhone you find is cash. Text us a photo."],
+        "Clearing out the house? Every old iPhone you find is cash. Text us your IMEI."],
       es: ["¿Te vas a mudar? Empaca menos y véndenos los iPhones viejos.",
         "¿Encontraste iPhones viejos limpiando? Nosotros los compramos."],
     },
@@ -440,13 +440,13 @@ export const AUDIENCES = {
     copy: {
       en: { hooks: ["NEW IPHONE UNDER THE TREE?", "HOLIDAY UPGRADE?", "GIFTING A NEW IPHONE?"],
         headlines: ["TURN LAST YEAR'S IPHONE INTO HOLIDAY CASH", "NEW IPHONE? SELL THE OLD ONE", "HOLIDAY CASH FROM YOUR OLD IPHONE"],
-        tags: ["FREE QUOTE", "TEXT A PIC"], cta: ["TEXT US"] },
+        tags: ["FREE QUOTE", "TEXT US NOW"], cta: ["TEXT US"] },
       es: { hooks: ["¿UN IPHONE NUEVO DE REGALO?"], headlines: ["TU IPHONE VIEJO, DINERO PARA LAS FIESTAS"], tags: ["COTIZACIÓN GRATIS"], cta: ["¡MÁNDANOS TEXTO!"] },
     },
     vo: {
       en: ["New iPhone under the tree? Sell us the old one.",
-        "Turn last year's iPhone into holiday cash. Text us a pic.",
-        "New iPhone this season? The old one is holiday cash. Text us a pic."],
+        "Turn last year's iPhone into holiday cash. Text us your IMEI.",
+        "New iPhone this season? The old one is holiday cash. Text us your IMEI."],
       es: ["¿Un iPhone nuevo de regalo? Véndenos el viejo.",
         "Convierte tu iPhone viejo en dinero para las fiestas."],
     },
@@ -464,10 +464,10 @@ export const AUDIENCES = {
     },
     vo: {
       en: ["We're from here, and we buy iPhones.",
-        "Local buyers, meeting up nearby. Text us a pic of your old iPhone.",
-        "Skip the strangers online. We're local, and we'll meet you nearby. Text us a pic."],
+        "Local buyers, meeting up nearby. Text us your IMEI of your old iPhone.",
+        "Skip the strangers online. We're local, and we'll meet you nearby. Text us your IMEI."],
       es: ["Somos de aquí y compramos iPhones.",
-        "Compradores locales. Mándanos una foto de tu iPhone viejo."],
+        "Compradores locales. Mándanos el IMEI de tu iPhone viejo."],
     },
   },
 };
@@ -478,11 +478,11 @@ export const AUDIENCE_KEYS = Object.keys(AUDIENCES);
 export const GENERAL = {
   label: "Everyone", moods: ["confident", "hype", "warm", "street"], casts: ["host_m", "host_f", "crisp_f", "warm_m", "street_m"],
   vo: {
-    en: ["We buy iPhones. Text us a pic.",
-      "Your old iPhone is worth cash. Text us a photo for a free quote.",
+    en: ["We buy iPhones. Text us your IMEI.",
+      "Your old iPhone is worth cash. Text us your IMEI for a free quote.",
       "Got an iPhone you don't use? We buy them. Text the number on your screen."],
-    es: ["Compramos iPhones. Mándanos una foto.",
-      "Tu iPhone viejo vale dinero. Mándanos una foto y te damos precio."],
+    es: ["Compramos iPhones. Mándanos el IMEI.",
+      "Tu iPhone viejo vale dinero. Mándanos el IMEI y te damos precio."],
   },
 };
 

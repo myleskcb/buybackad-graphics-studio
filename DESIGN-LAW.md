@@ -5485,8 +5485,7 @@ fake offers", "shady buyers", "sketchy meetups".
   SWITCH, THE RUNAROUND, ENDLESS TEXTING, GAMES; OFERTAS BAJAS, OFERTAS FALSAS,
   COMPRADORES DUDOSOS, ENCUENTROS RAROS, PÉRDIDAS DE TIEMPO, PLANTONES, GENTE
   INFORMAL, ESTAFADORES, TRAMPAS, VUELTAS, MENSAJES SIN FIN, JUEGOS ("NO MÁS").
-  Held out of the list, typed by hand where a shop can say it: SLOW BUYERS (a
-  speed promise), HIDDEN FEES and HAGGLING (promises about fees and price that
+  Held out of the list, typed by hand where a shop can say it: HIDDEN FEES and HAGGLING (promises about fees and price that
   not every shop makes), anything priced against a trade-in. Picked by hand only: last in the hook list at weight 0, so every
   look number draws what it drew.
 - What is crossed out is a kind of experience, never a named shop, a price or
@@ -5516,3 +5515,24 @@ them all.
   (90 and over, the headline's contrast, the words and the number read).
 - Measured 2026-11-03 on the page, headless: six ads in 7 to 10 s, no page
   errors, in English and in mix. Each press makes a new set.
+
+## 136. A phone ad asks for a text, not a picture
+
+Added 2026-11-03. The owner (relayed from the iPhones LA session, then here):
+"text us a pic is the worst way for us since we rely on a chatbot lm that
+quotes via messaging", "please make it text us imei", "or text us serial",
+"text us now"; here: "make it more direct", "so people appreciate the aspect
+of speed".
+
+- In the video maker every call to text a photo is a direct one: TEXT A PIC
+  is TEXT US NOW, or TEXT YOUR IMEI beside GET A PRICE; TEXT A PHOTO FOR A
+  QUOTE is TEXT YOUR IMEI FOR A QUOTE; the selling point is QUOTE BY TEXT;
+  the voiceover scripts say "text us your IMEI"; Spanish MÁNDANOS TEXTO,
+  MÁNDANOS EL IMEI, COTIZA POR TEXTO (catalog, themes, audiences, the engine's
+  ticker). BROKEN? TEXT US A PIC is BROKEN? TEXT US NOW.
+- SLOW BUYERS joins the strike-out list (COMPRADORES LENTOS), the owner
+  having put speed forward as what sellers want; rule 134's hold on speed
+  lines is lifted for it.
+- The photo ads are not changed here: their gold, coin, card and car cards
+  ask for photos because an IMEI cannot price those goods; the phone cards'
+  "text a pic" lines are OPEN-ITEMS §AZ 7.
