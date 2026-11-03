@@ -5481,8 +5481,13 @@ fake offers", "shady buyers", "sketchy meetups".
   the marker's swipe in the mix, and the scene comes in at 1.3 s. The words
   are the customer's (the opening-line field holds them with this opening) or
   one of `COPY[lang].strikes`: LOWBALLS, FAKE OFFERS, SHADY BUYERS, SKETCHY
-  MEETUPS, WASTING TIME, TIME WASTERS; OFERTAS BAJAS, OFERTAS FALSAS,
-  COMPRADORES DUDOSOS, ENCUENTROS RAROS, PÉRDIDAS DE TIEMPO, PLANTONES ("NO MÁS"). Picked by hand only: last in the hook list at weight 0, so every
+  MEETUPS, WASTING TIME, TIME WASTERS, NO-SHOWS, FLAKES, SCAMMERS, BAIT AND
+  SWITCH, THE RUNAROUND, ENDLESS TEXTING, GAMES; OFERTAS BAJAS, OFERTAS FALSAS,
+  COMPRADORES DUDOSOS, ENCUENTROS RAROS, PÉRDIDAS DE TIEMPO, PLANTONES, GENTE
+  INFORMAL, ESTAFADORES, TRAMPAS, VUELTAS, MENSAJES SIN FIN, JUEGOS ("NO MÁS").
+  Held out of the list, typed by hand where a shop can say it: SLOW BUYERS (a
+  speed promise), HIDDEN FEES and HAGGLING (promises about fees and price that
+  not every shop makes), anything priced against a trade-in. Picked by hand only: last in the hook list at weight 0, so every
   look number draws what it drew.
 - What is crossed out is a kind of experience, never a named shop, a price or
   a promise about speed or condition: the maker's copy rules hold.
