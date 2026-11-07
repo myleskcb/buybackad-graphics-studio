@@ -170,8 +170,9 @@ class FeedAd extends Ad {
     super.frame(ctx, t, quality, dt);
     const C = this.claim;
     if (C) {
-      // pops in first, then its glow breathes (a 1.6 s pulse) for the rest of the ad
-      const q = prog(t, .1, .45);
+      // pops in with the headline (after the video's opening: a strike-out has the screen to
+      // itself), then its glow breathes (a 1.6 s pulse) for the rest of the ad
+      const q = prog(t, Math.max(.1, (this.tl.text ?? .25) - .15), .45);
       if (q > 0) {
         const s = .7 + .3 * outBack(q), cx = C.x + C.c.width / 2, cy = C.y + C.c.height / 2;
         const glow = .5 + .5 * Math.sin(t * Math.PI * 2 / 1.6);
