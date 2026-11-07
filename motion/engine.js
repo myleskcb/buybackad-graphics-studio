@@ -3460,7 +3460,7 @@ export class Ad {
     }
     if (st.urgency === "ticker") {
       const items = st.ticker_items && st.ticker_items.length ? st.ticker_items
-        : es ? ["MÁNDANOS FOTO", "TE DAMOS PRECIO", "EFECTIVO", "PIERDE VALOR CADA MES"] : ["TEXT A PIC", "GET A PRICE", "CASH", "IT LOSES VALUE EVERY MONTH"];
+        : es ? ["MÁNDANOS EL IMEI", "TE DAMOS PRECIO", "EFECTIVO", "PIERDE VALOR CADA MES"] : ["TEXT YOUR IMEI", "GET A PRICE", "CASH", "IT LOSES VALUE EVERY MONTH"];
       this.ticker = buildTicker(items.map(s => applyCase(s, "upper")), this.tickerH, labelFont(st),
         { bg: "#0d0d0f", line: this.hot, ink: "#ffffff", badge: this.hot, badgeInk: lum(this.hot) > .55 ? "#111111" : "#ffffff" },
         applyCase(st.cta || (es ? "¡MÁNDANOS TEXTO!" : "TEXT NOW"), "upper"));

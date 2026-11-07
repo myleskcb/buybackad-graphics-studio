@@ -5481,8 +5481,58 @@ fake offers", "shady buyers", "sketchy meetups".
   the marker's swipe in the mix, and the scene comes in at 1.3 s. The words
   are the customer's (the opening-line field holds them with this opening) or
   one of `COPY[lang].strikes`: LOWBALLS, FAKE OFFERS, SHADY BUYERS, SKETCHY
-  MEETUPS; OFERTAS BAJAS, OFERTAS FALSAS, COMPRADORES DUDOSOS, ENCUENTROS RAROS
-  ("NO MÁS"). Picked by hand only: last in the hook list at weight 0, so every
+  MEETUPS, WASTING TIME, TIME WASTERS, NO-SHOWS, FLAKES, SCAMMERS, BAIT AND
+  SWITCH, THE RUNAROUND, ENDLESS TEXTING, GAMES; OFERTAS BAJAS, OFERTAS FALSAS,
+  COMPRADORES DUDOSOS, ENCUENTROS RAROS, PÉRDIDAS DE TIEMPO, PLANTONES, GENTE
+  INFORMAL, ESTAFADORES, TRAMPAS, VUELTAS, MENSAJES SIN FIN, JUEGOS ("NO MÁS").
+  Held out of the list, typed by hand where a shop can say it: HIDDEN FEES and HAGGLING (promises about fees and price that
+  not every shop makes), anything priced against a trade-in. Picked by hand only: last in the hook list at weight 0, so every
   look number draws what it drew.
 - What is crossed out is a kind of experience, never a named shop, a price or
   a promise about speed or condition: the maker's copy rules hold.
+
+## 135. An ad set: six ads that do not repeat each other
+
+Added 2026-11-03. The owner: "all good heros / selling points make for good
+video ads. we need a variety of styles too for our ads", "so we can captivate
+any audience and anyone scrolling", "maybe they ignored our first ad or two
+but we need to have enough variations and styles that one may get to them".
+The gallery varies the look and holds the customer's words, so every look in
+it says the same thing the same way: a seller who scrolled past one has seen
+them all.
+
+- **"Make 6 different ads"** (`makeAdSet` in motion/app.js, "Your ad set" over
+  the gallery) makes six ads from the customer's number, phones and area, one
+  per angle (`ANGLES`), each with its own opening: a question (the hook line),
+  the strike-out (rule 134), money (word by word), local (straight to the
+  phones), its value (a crash zoom, with the true urgency line), a flash cut.
+- **The words are the maker's approved lines only**, in the customer's
+  language; set to mix, the strike-out and the local ad are in Spanish. A
+  local headline without an area takes its plain line.
+- **No two alike**: no two ads share a type pair, a palette or a look (a
+  theme's family, or a plain look's ground); a repeat only when ten seeds turn
+  up nothing new. Each is the strongest of its seeds by the attention audit
+  (90 and over, the headline's contrast, the words and the number read).
+- Measured 2026-11-03 on the page, headless: six ads in 7 to 10 s, no page
+  errors, in English and in mix. Each press makes a new set.
+
+## 136. A phone ad asks for a text, not a picture
+
+Added 2026-11-03. The owner (relayed from the iPhones LA session, then here):
+"text us a pic is the worst way for us since we rely on a chatbot lm that
+quotes via messaging", "please make it text us imei", "or text us serial",
+"text us now"; here: "make it more direct", "so people appreciate the aspect
+of speed".
+
+- In the video maker every call to text a photo is a direct one: TEXT A PIC
+  is TEXT US NOW, or TEXT YOUR IMEI beside GET A PRICE; TEXT A PHOTO FOR A
+  QUOTE is TEXT YOUR IMEI FOR A QUOTE; the selling point is QUOTE BY TEXT;
+  the voiceover scripts say "text us your IMEI"; Spanish MÁNDANOS TEXTO,
+  MÁNDANOS EL IMEI, COTIZA POR TEXTO (catalog, themes, audiences, the engine's
+  ticker). BROKEN? TEXT US A PIC is BROKEN? TEXT US NOW.
+- SLOW BUYERS joins the strike-out list (COMPRADORES LENTOS), the owner
+  having put speed forward as what sellers want; rule 134's hold on speed
+  lines is lifted for it.
+- The photo ads are not changed here: their gold, coin, card and car cards
+  ask for photos because an IMEI cannot price those goods; the phone cards'
+  "text a pic" lines are OPEN-ITEMS §AZ 7.

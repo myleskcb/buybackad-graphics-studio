@@ -3129,3 +3129,7 @@ Open:
 6. **Strikethrough (DESIGN-LAW 134)**: a ready-made photo card that uses it
    ("NO MORE ~~LOWBALLS~~") is not built; the ✎ S and the editor's S set it on
    any line, and the video maker has the strike-out opening.
+7. **Photo ads' phone cards still say "text a pic"** (DESIGN-LAW 136 changed the
+   video maker only). app.js and the showcase cards carry about 100 photo asks
+   across every category; the phone and device ones want TEXT US NOW / TEXT
+   YOUR IMEI, the gold, coin, card and car ones need their photos.
