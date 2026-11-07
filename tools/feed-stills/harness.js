@@ -326,6 +326,21 @@ window.FS = {
     }
     const drawn = pr < 0 ? 0 : (pb - pt) / S;
     if (drawn < .11) why.push(`phones drawn ${Math.round(drawn * 100)}% of the height`);
+    // the phones stand off their ground: burgundy and black phones on a ruby ground vanished.
+    // The middle brightness of the phones' pixels against the ground's under them, 1.6:1 or more
+    if (pr >= 0) {
+      const P = [], G = [];
+      for (let y = pt; y <= pb; y += 3) for (let x = pl; x <= pr; x += 3) {
+        const q = (y * S + x) * 4, L = (d) => .2126 * lin(d[q]) + .7152 * lin(d[q + 1]) + .0722 * lin(d[q + 2]);
+        G.push(L(npx));
+        if (Math.abs(gpx[q] - npx[q]) + Math.abs(gpx[q + 1] - npx[q + 1]) + Math.abs(gpx[q + 2] - npx[q + 2]) > 90) P.push(L(gpx));
+      }
+      const mid = a => { a.sort((x, y) => x - y); return a[Math.floor(a.length / 2)] || 0; };
+      const pl2 = mid(P), gl = mid(G), sep = (Math.max(pl2, gl) + .05) / (Math.min(pl2, gl) + .05);
+      if (sep < 1.6) why.push(`phones blend into the ground (${sep.toFixed(2)}:1)`);
+    }
+    // the selling points on the picture delivered (a smaller copy found room this one did not)
+    if (st.points && !ad.perks) why.push("selling points missing in the picture");
     else {
       const gp = S * FEED.gap * .8, rects = [["headline", ad.pos.outer], ["number", [ad.pos.num[0], ad.pos.num[1], ad.pos.num[0] + ad.num.c.width, ad.pos.num[1] + ad.num.c.height]]];
       if (ad.claim) rects.push(["claim", [ad.claim.x, ad.claim.y, ad.claim.x + ad.claim.c.width, ad.claim.y + ad.claim.c.height]]);

@@ -1,0 +1,531 @@
+{
+ "_doc": "Every ad generate.mjs has made, so the next run repeats none: its words and its phone set. Appended by tools/feed-stills/generate.mjs; seeded with the 27 of 2026-11-03 (tools/feed-stills/out).",
+ "ads": [
+  {
+   "id": "checklistHero-cd06-15",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE",
+   "claim": "TOP DOLLAR \u2022 MAX OFFER",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "TEXT YOUR IMEI, CASH SAME DAY, NO FEES",
+   "cta": "TEXT US NOW",
+   "where": "\ud83d\udccd LONG BEACH \u2022 LAKEWOOD \u2022 DOWNEY",
+   "palette": "graphite",
+   "background": "radial",
+   "arrangement": "lineup",
+   "phones": [
+    "18-pro-max-burgundy",
+    "18-pro-max-glacier",
+    "18-pro-max-silver"
+   ],
+   "hook": "punch_in",
+   "strike_text": ""
+  },
+  {
+   "id": "trustSeal-cd10-15",
+   "batch": "2026-11-03",
+   "headline": "YOUR LOCAL iPHONE BUYER",
+   "claim": "ALWAYS AVAILABLE \u2022 QUICK REPLIES",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "TEXT US NOW, WE MEET YOU, PAID TODAY",
+   "cta": "CALL OR TEXT",
+   "where": "\ud83d\udccd CARSON \u2022 TORRANCE \u2022 LONG BEACH",
+   "palette": "ink_blue",
+   "background": "spotlight",
+   "arrangement": "showcase",
+   "phones": [
+    "18-pro-burgundy",
+    "18-pro-glacier",
+    "18-pro-black"
+   ],
+   "hook": "cold_open",
+   "strike_text": ""
+  },
+  {
+   "id": "bubblePop-du07-15",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE",
+   "claim": "MAX OFFER \u2022 FAST CASH",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "TEXT YOUR IMEI, CASH OR TRANSFER, LOCAL MEETUP",
+   "cta": "TEXT US NOW",
+   "where": "\ud83d\udccd CARSON \u2022 TORRANCE \u2022 LONG BEACH",
+   "palette": "oxblood",
+   "background": "studio_sweep",
+   "arrangement": "showcase",
+   "phones": [
+    "16-white-as-mist-blue",
+    "16-white-as-lavender"
+   ],
+   "hook": "crash_zoom",
+   "strike_text": ""
+  },
+  {
+   "id": "bubblePop-io03-15",
+   "batch": "2026-11-03",
+   "headline": "WE BUY iPHONES",
+   "claim": "TOP BUYER \u2022 QUICK REPLIES",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "TOP DOLLAR, FAIR & HONEST, FAST REPLIES",
+   "cta": "GET YOUR OFFER",
+   "where": "\ud83d\udccd LONG BEACH \u2022 LAKEWOOD \u2022 DOWNEY",
+   "palette": "klein",
+   "background": "linear",
+   "arrangement": "lineup",
+   "phones": [
+    "16-white-as-sage",
+    "16-white-as-mist-blue",
+    "16-white-as-lavender"
+   ],
+   "hook": "word_beat",
+   "strike_text": ""
+  },
+  {
+   "id": "slabPoster-pp04-15",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE",
+   "claim": "TOP DOLLAR PAID",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "TEXT YOUR IMEI, CASH SAME DAY, NO FEES",
+   "cta": "CALL OR TEXT",
+   "where": "\ud83d\udccd CARSON \u2022 TORRANCE \u2022 LONG BEACH",
+   "palette": "klein",
+   "background": "spot_floor",
+   "arrangement": "lineup",
+   "phones": [
+    "16-pro-max-natural",
+    "16-pro-max-white"
+   ],
+   "hook": "word_beat",
+   "strike_text": ""
+  },
+  {
+   "id": "scriptRetro-ck03-15",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE",
+   "claim": "TOP DOLLAR \u2022 MAX OFFER",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "TEXT US NOW, WE MEET YOU, PAID TODAY",
+   "cta": "TEXT US NOW",
+   "where": "\ud83d\udccd LONG BEACH \u2022 LAKEWOOD \u2022 DOWNEY",
+   "palette": "midnight_glass",
+   "background": "radial",
+   "arrangement": "showcase",
+   "phones": [
+    "16-pro-desert",
+    "16-pro-natural",
+    "16-pro-white"
+   ],
+   "hook": "hook_line",
+   "strike_text": ""
+  },
+  {
+   "id": "hudTech-jw05-15",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE",
+   "claim": "ALWAYS AVAILABLE \u2022 QUICK REPLIES",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "QUOTE BY TEXT, NO LOWBALLS, MAIL-IN OK",
+   "cta": "GET YOUR OFFER",
+   "where": "\ud83d\udccd CARSON \u2022 TORRANCE \u2022 LONG BEACH",
+   "palette": "cream_black",
+   "background": "spotlight",
+   "arrangement": "wings",
+   "phones": [
+    "16-ultramarine",
+    "16-teal",
+    "16-pink"
+   ],
+   "hook": "flash_cut",
+   "strike_text": ""
+  },
+  {
+   "id": "bubblePop-cd01-20",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "claim": "MAX OFFER \u2022 FAST CASH",
+   "line": "ALL iPHONE & iPAD MODELS",
+   "points": "TOP DOLLAR, FAIR & HONEST, FAST REPLIES",
+   "cta": "CALL OR TEXT",
+   "where": "\ud83d\udccd CARSON \u2022 TORRANCE \u2022 LONG BEACH",
+   "palette": "ink_blue",
+   "background": "tonal",
+   "arrangement": "podium",
+   "phones": [
+    "16e-white",
+    "16e-black"
+   ],
+   "hook": "flash_cut",
+   "strike_text": ""
+  },
+  {
+   "id": "voltStack-du05-20",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "claim": "TOP BUYER \u2022 QUICK REPLIES",
+   "line": "ALL iPHONE & iPAD MODELS",
+   "points": "IMEI OR SERIAL, CASH SAME DAY, NO FEES",
+   "cta": "CALL OR TEXT",
+   "where": "\ud83d\udccd LONG BEACH \u2022 LAKEWOOD \u2022 DOWNEY",
+   "palette": "black_gold",
+   "background": "radial",
+   "arrangement": "showcase",
+   "phones": [
+    "15-pro-max-natural",
+    "15-pro-max-white"
+   ],
+   "hook": "hook_line",
+   "strike_text": ""
+  },
+  {
+   "id": "voltStack-gl04-20",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "claim": "TOP DOLLAR PAID",
+   "line": "ALL iPHONE & iPAD MODELS",
+   "points": "TEXT US NOW, WE MEET YOU, PAID TODAY",
+   "cta": "TEXT US NOW",
+   "where": "\ud83d\udccd CARSON \u2022 TORRANCE \u2022 LONG BEACH",
+   "palette": "money_green",
+   "background": "linear",
+   "arrangement": "showcase",
+   "phones": [
+    "15-pro-blue",
+    "15-pro-black",
+    "15-pro-natural"
+   ],
+   "hook": "hook_line",
+   "strike_text": ""
+  },
+  {
+   "id": "neonNight-nn04-20",
+   "batch": "2026-11-03",
+   "headline": "WE BUY iPHONES PAID SAME DAY",
+   "claim": "TOP DOLLAR \u2022 MAX OFFER",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "QUOTE BY TEXT, NO LOWBALLS, MAIL-IN OK",
+   "cta": "CALL OR TEXT",
+   "where": "\ud83d\udccd LONG BEACH \u2022 LAKEWOOD \u2022 DOWNEY",
+   "palette": "oxblood",
+   "background": "linear",
+   "arrangement": "showcase",
+   "phones": [
+    "17-pro-silver",
+    "17-pro-cosmic-orange"
+   ],
+   "hook": "hook_line",
+   "strike_text": ""
+  },
+  {
+   "id": "gradientWave-io03-20",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "claim": "HONEST BUYER \u2022 TOP DOLLAR",
+   "line": "ALL iPHONE & iPAD MODELS",
+   "points": "TOP DOLLAR, FAIR & HONEST, FAST REPLIES",
+   "cta": "TEXT US NOW",
+   "where": "\ud83d\udccd LONG BEACH \u2022 LAKEWOOD \u2022 DOWNEY",
+   "palette": "midnight_glass",
+   "background": "spot_floor",
+   "arrangement": "lineup",
+   "phones": [
+    "18-pro-max-glacier",
+    "18-pro-max-silver"
+   ],
+   "hook": "punch_in",
+   "strike_text": ""
+  },
+  {
+   "id": "ticketStub-pp04-20",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "claim": "MAX OFFER \u2022 FAST CASH",
+   "line": "ALL iPHONE & iPAD MODELS",
+   "points": "IMEI OR SERIAL, CASH SAME DAY, NO FEES",
+   "cta": "CALL OR TEXT",
+   "where": "\ud83d\udccd CARSON \u2022 TORRANCE \u2022 LONG BEACH",
+   "palette": "cream_black",
+   "background": "studio_sweep",
+   "arrangement": "lineup",
+   "phones": [
+    "18-pro-glacier",
+    "18-pro-black"
+   ],
+   "hook": "hook_line",
+   "strike_text": ""
+  },
+  {
+   "id": "hudTech-ca07-20",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE",
+   "claim": "TOP BUYER \u2022 QUICK REPLIES",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "TEXT US NOW, WE MEET YOU, PAID TODAY",
+   "cta": "GET YOUR OFFER",
+   "where": "\ud83d\udccd LONG BEACH \u2022 LAKEWOOD \u2022 DOWNEY",
+   "palette": "graphite",
+   "background": "spot_floor",
+   "arrangement": "showcase",
+   "phones": [
+    "17-pro-max-cosmic-orange",
+    "17-pro-max-deep-blue",
+    "17-pro-max-silver"
+   ],
+   "hook": "punch_in",
+   "strike_text": ""
+  },
+  {
+   "id": "hudTech-cd10-20",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "claim": "TOP DOLLAR PAID",
+   "line": "ALL iPHONE & iPAD MODELS",
+   "points": "QUOTE BY TEXT, NO LOWBALLS, MAIL-IN OK",
+   "cta": "CALL OR TEXT",
+   "where": "\ud83d\udccd CARSON \u2022 TORRANCE \u2022 LONG BEACH",
+   "palette": "ink_blue",
+   "background": "spot_floor",
+   "arrangement": "wings",
+   "phones": [
+    "17-pro-deep-blue",
+    "17-pro-silver"
+   ],
+   "hook": "crash_zoom",
+   "strike_text": ""
+  },
+  {
+   "id": "glassCard-nn01-20",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE",
+   "claim": "ALWAYS AVAILABLE \u2022 QUICK REPLIES",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "TOP DOLLAR, FAIR & HONEST, FAST REPLIES",
+   "cta": "GET YOUR OFFER",
+   "where": "\ud83d\udccd CARSON \u2022 TORRANCE \u2022 LONG BEACH",
+   "palette": "money_green",
+   "background": "spotlight",
+   "arrangement": "podium",
+   "phones": [
+    "16-pro-max-black",
+    "16-pro-max-desert",
+    "16-pro-max-natural"
+   ],
+   "hook": "hook_line",
+   "strike_text": ""
+  },
+  {
+   "id": "checklistHero-jw10-30",
+   "batch": "2026-11-03",
+   "headline": "WE BUY iPHONES",
+   "claim": "HONEST BUYER \u2022 TOP DOLLAR",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "TEXT YOUR IMEI, CASH SAME DAY, NO FEES",
+   "cta": "TEXT US NOW",
+   "where": "\ud83d\udccd LONG BEACH \u2022 LAKEWOOD \u2022 DOWNEY",
+   "palette": "oxblood",
+   "background": "spotlight",
+   "arrangement": "lineup",
+   "phones": [
+    "16-pro-black",
+    "16-pro-desert"
+   ],
+   "hook": "word_beat",
+   "strike_text": ""
+  },
+  {
+   "id": "checklistHero-jw05-30",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE",
+   "claim": "MAX OFFER \u2022 FAST CASH",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "TEXT US NOW, WE MEET YOU, PAID TODAY",
+   "cta": "GET YOUR OFFER",
+   "where": "\ud83d\udccd CARSON \u2022 TORRANCE \u2022 LONG BEACH",
+   "palette": "klein",
+   "background": "tonal",
+   "arrangement": "showcase",
+   "phones": [
+    "16-white",
+    "16-black",
+    "16-ultramarine"
+   ],
+   "hook": "punch_in",
+   "strike_text": ""
+  },
+  {
+   "id": "trustSeal-du07-30",
+   "batch": "2026-11-03",
+   "headline": "YOUR LOCAL iPHONE BUYER",
+   "claim": "TOP BUYER \u2022 QUICK REPLIES",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "QUOTE BY TEXT, NO LOWBALLS, MAIL-IN OK",
+   "cta": "CALL OR TEXT",
+   "where": "\ud83d\udccd LONG BEACH \u2022 LAKEWOOD \u2022 DOWNEY",
+   "palette": "midnight_glass",
+   "background": "spotlight",
+   "arrangement": "showcase",
+   "phones": [
+    "17e-soft-pink",
+    "17e-white",
+    "17e-black"
+   ],
+   "hook": "flash_cut",
+   "strike_text": ""
+  },
+  {
+   "id": "stepsFlow-nn01-30",
+   "batch": "2026-11-03",
+   "headline": "FAST CASH FOR iPHONES",
+   "claim": "TOP DOLLAR PAID",
+   "line": "TEXT YOUR IMEI \u2192 FIRM QUOTE \u2192 GET PAID",
+   "points": "CASH SAME DAY, NO FEES, WE MEET YOU",
+   "cta": "STEP 1: TEXT",
+   "where": "\ud83d\udccd CARSON \u2022 TORRANCE \u2022 LONG BEACH",
+   "palette": "cream_black",
+   "background": "radial",
+   "arrangement": "lineup",
+   "phones": [
+    "15-blue",
+    "15-green",
+    "15-pink"
+   ],
+   "hook": "word_beat",
+   "strike_text": ""
+  },
+  {
+   "id": "stepsFlow-nn05-30",
+   "batch": "2026-11-03",
+   "headline": "TOP iPHONE BUYER",
+   "claim": "TOP DOLLAR \u2022 MAX OFFER",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "TOP DOLLAR, FAIR & HONEST, FAST REPLIES",
+   "cta": "TEXT US NOW",
+   "where": "\ud83d\udccd LONG BEACH \u2022 LAKEWOOD \u2022 DOWNEY",
+   "palette": "graphite",
+   "background": "studio_sweep",
+   "arrangement": "lineup",
+   "phones": [
+    "15-pro-max-blue",
+    "15-pro-max-black"
+   ],
+   "hook": "flash_cut",
+   "strike_text": ""
+  },
+  {
+   "id": "slabPoster-jw10-30",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "claim": "ALWAYS AVAILABLE \u2022 QUICK REPLIES",
+   "line": "ALL iPHONE & iPAD MODELS",
+   "points": "IMEI OR SERIAL, CASH SAME DAY, NO FEES",
+   "cta": "CALL OR TEXT",
+   "where": "\ud83d\udccd CARSON \u2022 TORRANCE \u2022 LONG BEACH",
+   "palette": "black_gold",
+   "background": "studio_sweep",
+   "arrangement": "showcase",
+   "phones": [
+    "15-pro-natural",
+    "15-pro-white",
+    "15-pro-blue"
+   ],
+   "hook": "cold_open",
+   "strike_text": ""
+  },
+  {
+   "id": "scriptRetro-cd10-30",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE & iPAD",
+   "claim": "HONEST BUYER \u2022 TOP DOLLAR",
+   "line": "ALL iPHONE & iPAD MODELS",
+   "points": "TEXT US NOW, WE MEET YOU, PAID TODAY",
+   "cta": "TEXT US NOW",
+   "where": "\ud83d\udccd LONG BEACH \u2022 LAKEWOOD \u2022 DOWNEY",
+   "palette": "black_gold",
+   "background": "tonal",
+   "arrangement": "podium",
+   "phones": [
+    "15-plus-blue",
+    "15-plus-green",
+    "15-plus-pink"
+   ],
+   "hook": "word_beat",
+   "strike_text": ""
+  },
+  {
+   "id": "hudTech-du01-30",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE",
+   "claim": "MAX OFFER \u2022 FAST CASH",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "QUOTE BY TEXT, NO LOWBALLS, MAIL-IN OK",
+   "cta": "GET YOUR OFFER",
+   "where": "\ud83d\udccd CARSON \u2022 TORRANCE \u2022 LONG BEACH",
+   "palette": "money_green",
+   "background": "studio_sweep",
+   "arrangement": "wings",
+   "phones": [
+    "15-blue",
+    "15-green"
+   ],
+   "hook": "word_beat",
+   "strike_text": ""
+  },
+  {
+   "id": "ticketStub-nn06-35",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE",
+   "claim": "TOP DOLLAR PAID",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "TOP DOLLAR, FAIR & HONEST, FAST REPLIES",
+   "cta": "TEXT US NOW",
+   "where": "\ud83d\udccd CARSON \u2022 TORRANCE \u2022 LONG BEACH",
+   "palette": "klein",
+   "background": "spotlight",
+   "arrangement": "lineup",
+   "phones": [
+    "18-pro-burgundy",
+    "18-pro-glacier"
+   ],
+   "hook": "hook_line",
+   "strike_text": ""
+  },
+  {
+   "id": "bandKnockout-ck07-35",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE",
+   "claim": "TOP DOLLAR \u2022 MAX OFFER",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "TEXT YOUR IMEI, CASH SAME DAY, NO FEES",
+   "cta": "GET YOUR OFFER",
+   "where": "\ud83d\udccd LONG BEACH \u2022 LAKEWOOD \u2022 DOWNEY",
+   "palette": "midnight_glass",
+   "background": "studio_sweep",
+   "arrangement": "showcase",
+   "phones": [
+    "17-pro-max-cosmic-orange",
+    "17-pro-max-deep-blue"
+   ],
+   "hook": "crash_zoom",
+   "strike_text": ""
+  },
+  {
+   "id": "glassCard-ca03-35",
+   "batch": "2026-11-03",
+   "headline": "SELL YOUR iPHONE",
+   "claim": "ALWAYS AVAILABLE \u2022 QUICK REPLIES",
+   "line": "iPHONE 15 \u2013 18 PRO MAX",
+   "points": "TEXT US NOW, WE MEET YOU, PAID TODAY",
+   "cta": "CALL OR TEXT",
+   "where": "\ud83d\udccd CARSON \u2022 TORRANCE \u2022 LONG BEACH",
+   "palette": "cream_black",
+   "background": "tonal",
+   "arrangement": "wings",
+   "phones": [
+    "17-pro-cosmic-orange",
+    "17-pro-deep-blue"
+   ],
+   "hook": "punch_in",
+   "strike_text": ""
+  }
+ ]
+}

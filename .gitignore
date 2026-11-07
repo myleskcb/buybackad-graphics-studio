@@ -21,4 +21,4 @@ tools/offer-cards/__pycache__/
 incoming/
 
 # feed stills as videos, several MB each, made by tools/feed-stills/video.mjs
-tools/feed-stills/out/video/
+tools/feed-stills/**/video/

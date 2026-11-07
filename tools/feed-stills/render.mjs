@@ -19,19 +19,24 @@
      same ground, and each colourway carries an even share.
    A look that fails the engine's own audit (words, headline, number,
    contrast) or lets a line drop below body size is skipped for the next seed. */
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
 const ROOT = new URL('../../', import.meta.url).pathname;
-const OUT = ROOT + 'tools/feed-stills/out/';
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
+const at = p => p.startsWith('/') ? p : ROOT + p;
+// --cards: the card list (default the 32 library cards); --out: where the batch goes;
+// --avoid: a ledger (tools/feed-stills/ledger.json) whose phone sets and looks are not repeated
+const OUT = at(arg('--out', 'tools/feed-stills/out/')).replace(/\/?$/, '/');
+const CARDS = at(arg('--cards', 'tools/feed-stills/cards.json'));
+const AVOID = arg('--avoid', '');
 const BASE = arg('--base', 'http://127.0.0.1:8931');
 const only = arg('--ids', '');
 mkdirSync(OUT, { recursive: true });
 // PLAYWRIGHT_MODULE as in scripts/social_studio_check.mjs; else a global install, found the way require() finds it
 const { chromium } = process.env.PLAYWRIGHT_MODULE ? await import(process.env.PLAYWRIGHT_MODULE) : createRequire(import.meta.url)('playwright');
 
-const { cards: all } = JSON.parse(readFileSync(ROOT + 'tools/feed-stills/cards.json', 'utf8'));
+const { cards: all } = JSON.parse(readFileSync(CARDS, 'utf8'));
 const cards = only ? all.filter(c => only.split(',').includes(c.id)) : all;
 
 /* THE HOUSE STYLE. The owner, 2026-11-03, over the first full set: "some of the outlines look
@@ -56,6 +61,7 @@ const QUIET = { decor: [], urgency: 'none', overlay: 'none', accents: 0, board: 
 
 /** The library card's own sizes, from its record (assets/showcase/tpl). */
 function before(id) {
+  if (!existsSync(ROOT + `assets/showcase/tpl/${id}.json`)) return null;   // a new ad has no library card
   const t = JSON.parse(readFileSync(ROOT + `assets/showcase/tpl/${id}.json`, 'utf8')).tpl;
   const sizes = t.layers.filter(l => l.text && l.props && l.props.fontSize).map(l => ({ role: l.role, px: l.props.fontSize }));
   const of = r => sizes.filter(s => s.role === r).map(s => s.px);
@@ -83,14 +89,28 @@ for (const m of await page.evaluate(() => FS.phones())) {
   let g = models.find(x => x.model === m.model); if (!g) models.push(g = { model: m.model, ids: [] });
   g.ids.push(m.id);
 }
-const phonesFor = (i, s) => {
-  const g = models[(i + Math.floor(s / 10)) % models.length], n = g.ids.length, k = n >= 3 && s % 3 !== 2 ? 3 : Math.min(2, n);
-  const start = (Math.floor(i / models.length) * k + s) % n;
-  return Array.from({ length: k }, (_, j) => g.ids[(start + j) % n]);
+// every two- and three-colour set of a model, each colour in front in turn
+const setsOf = g => {
+  const out = [], n = g.ids.length;
+  for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) {
+    for (let c = b + 1; c < n; c++) out.push([g.ids[b], g.ids[a], g.ids[c]]);
+    out.push([g.ids[a], g.ids[b]]);
+  }
+  return out;
+};
+const phonesFor = (i, s, model) => {
+  // a card that names a model ("SELL YOUR iPHONE 17") shows that model, in its colours
+  const own = model && models.find(g => g.model === model);
+  const g = own || models[(i + Math.floor(s / 10)) % models.length], sets = setsOf(g);
+  return sets[(i * 7 + s) % sets.length];
 };
 console.log('models:', models.map(g => g.model + ' ' + g.ids.length).join(', '));
 
 const used = { sets: new Set(), front: {}, ground: new Set(), palette: {} };
+// sets an earlier batch showed are passed over for the first 60 tries of a card, then allowed:
+// a batch never repeats a set within itself, and repeats an older one only when it must
+const older = new Set();
+if (AVOID && existsSync(at(AVOID))) for (const a of JSON.parse(readFileSync(at(AVOID), 'utf8')).ads || []) if (a.phones) older.add([...a.phones].sort().join(','));
 const PALETTE_MAX = Math.ceil(cards.length / COLOURWAYS.length);
 const report = [];
 for (let i = 0; i < cards.length; i++) {
@@ -98,18 +118,24 @@ for (let i = 0; i < cards.length; i++) {
   let got = null, tried = 0, skipped = {};
   for (let s = 0; s < 120 && !got; s++) {
     const seed = 7001 + i * 97 + s;
-    const palette = COLOURWAYS[(i + Math.floor(s / GROUNDS.length)) % COLOURWAYS.length], background = GROUNDS[(i + s) % GROUNDS.length];
+    // a card may bring its own order of colourways, grounds and arrangements (generate.mjs)
+    const CW = card.colourways || COLOURWAYS, GR = card.grounds || GROUNDS, AR = card.arrangements || ARRANGEMENTS;
+    const palette = CW[(i + Math.floor(s / GR.length)) % CW.length], background = GR[(i + s) % GR.length];
     if ((used.palette[palette] || 0) >= PALETTE_MAX || used.ground.has(palette + '|' + background)) continue;
-    const arrangement = ARRANGEMENTS[(2 * i + s) % ARRANGEMENTS.length];
-    const phones = phonesFor(i, s);
-    if (used.sets.has([...phones].sort().join(','))) { skipped['same phones as another card'] = (skipped['same phones as another card'] || 0) + 1; continue; }
+    const arrangement = AR[(2 * i + s) % AR.length];
+    const phones = phonesFor(i, s, card.model);
+    const key = [...phones].sort().join(',');
+    if (used.sets.has(key) || (s < 60 && older.has(key))) { skipped['same phones as another card'] = (skipped['same phones as another card'] || 0) + 1; continue; }
     // the engine grows a headline to fill up to 36% of the height, in three lines if that is
     // larger; started at .85 it sets 'SELL YOUR / iPHONE' in two at about 138px and leaves the
     // claim, the selling points and the phones their room
     const long = card.headline.length > 16, scale = long ? (s < 50 ? .75 : .68) : (s < 60 ? .85 : .78);
     tried++;
     const r = await page.evaluate(([content, seed, lock]) => FS.look(content, seed, lock),
-      [{ headline: card.headline, feed_line: card.line, feed_site: 'Visit our website at www.iPhones.LA', feed_where: card.where, feed_claim: card.claim, points: card.points, number: '(562) 999-4994', number_label: card.cta }, seed, { ...QUIET, palette, background, arrangement, text_scale: scale, phones, accents: 1, accent_set: ['cash', 'deal', 'local'][i % 3], accent_kind: 'asset', accent_in: 'pop', accent_idle: 'pulse' }]);
+      [{ headline: card.headline, feed_line: card.line, feed_site: 'Visit our website at www.iPhones.LA', feed_where: card.where, feed_claim: card.claim, points: card.points, number: '(562) 999-4994', number_label: card.cta }, seed, { ...QUIET, palette, background, arrangement, text_scale: scale, phones,
+        accents: card.accents ?? 1, accent_set: card.accent_set || ['cash', 'deal', 'local'][i % 3], accent_kind: 'asset', accent_in: card.accent_in || 'pop', accent_idle: card.accent_idle || 'pulse',
+        // the video's opening (the still is taken after it): the engine's own, or a strike-out
+        ...(card.hook ? { hook: card.hook, hook_text: card.hook_text || '', strike_text: card.strike_text || '' } : {}) }]);
     const st = r.style, set = [...st.phones].sort().join(','), front = st.phones[0];
     const ground = st.palette + '|' + st.background;
     const clash = !r.ok ? r.why.join('; ')
@@ -133,15 +159,16 @@ for (let i = 0; i < cards.length; i++) {
     style: st,   // every setting the still was drawn with: tools/feed-stills/video.mjs draws the same ad as a video
   };
   report.push(row);
+  const B = row.before || {};
   console.log(`${String(i + 1).padStart(2)} ${card.id.padEnd(22)} seed ${seed} ${st.font.padEnd(11)} ${st.palette}/${st.background} ` +
-    `head ${row.before.headline}→${r.px.headline} num ${row.before.number}→${r.px.number} smallest ${row.before.smallest}→${r.px.smallest} phones ${st.phones.length}`);
+    `head ${B.headline ?? '-'}→${r.px.headline} num ${B.number ?? '-'}→${r.px.number} smallest ${B.smallest ?? '-'}→${r.px.smallest} phones ${st.phones.length}`);
 }
 
-const done = report.filter(r => r.ok);
+const done = report.filter(r => r.ok), had = done.filter(r => r.before);
 const median = a => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.floor(s.length / 2)] : null; };
 const summary = {
   made: done.length, of: cards.length,
-  before: { headline: median(done.map(r => r.before.headline)), number: median(done.map(r => r.before.number)), smallest: median(done.map(r => r.before.smallest)), cardsWithTextUnder40: done.filter(r => r.before.under40 > 0).length },
+  before: had.length ? { headline: median(had.map(r => r.before.headline)), number: median(had.map(r => r.before.number)), smallest: median(had.map(r => r.before.smallest)), cardsWithTextUnder40: had.filter(r => r.before.under40 > 0).length } : null,
   after: { headline: median(done.map(r => r.px.headline)), number: median(done.map(r => r.px.number)), smallest: median(done.map(r => r.px.smallest)), minSmallest: Math.min(...done.map(r => r.px.smallest)) },
   distinct: { phoneSets: new Set(done.map(r => [...r.phones].sort().join(','))).size, grounds: new Set(done.map(r => r.look.palette + '|' + r.look.background)).size, faces: new Set(done.map(r => r.look.font)).size },
 };
@@ -153,8 +180,10 @@ const url = f => 'data:image/jpeg;base64,' + readFileSync(f).toString('base64');
 const after = done.map((r, i) => [`${i + 1} ${r.id}`, url(OUT + r.id + '.jpg')]);
 const sheet = await page.evaluate(([items]) => FS.sheet(items, 8, 270), [after]);
 writeFileSync(OUT + 'sheet.jpg', Buffer.from(sheet.split(',')[1], 'base64'));
-const pairs = done.flatMap((r, i) => [[`${i + 1} before`, url(ROOT + `assets/library-ads/${r.id}.jpg`)], [`${i + 1} after`, url(OUT + r.id + '.jpg')]]);
-const compare = await page.evaluate(([items]) => FS.sheet(items, 8, 270), [pairs]);
-writeFileSync(OUT + 'compare.jpg', Buffer.from(compare.split(',')[1], 'base64'));
+const pairs = had.filter(r => existsSync(ROOT + `assets/library-ads/${r.id}.jpg`)).flatMap((r, i) => [[`${i + 1} before`, url(ROOT + `assets/library-ads/${r.id}.jpg`)], [`${i + 1} after`, url(OUT + r.id + '.jpg')]]);
+if (pairs.length) {
+  const compare = await page.evaluate(([items]) => FS.sheet(items, 8, 270), [pairs]);
+  writeFileSync(OUT + 'compare.jpg', Buffer.from(compare.split(',')[1], 'base64'));
+}
 await browser.close();
 console.log('wrote', OUT);

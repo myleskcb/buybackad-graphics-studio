@@ -10,12 +10,14 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
-const ROOT = new URL('../../', import.meta.url).pathname, OUT = ROOT + 'tools/feed-stills/out/video/';
+const ROOT = new URL('../../', import.meta.url).pathname;
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
+const at = p => p.startsWith('/') ? p : ROOT + p;
+const DIR = at(arg('--out', 'tools/feed-stills/out/')).replace(/\/?$/, '/'), OUT = DIR + 'video/';   // --out: the batch's folder
 const BASE = arg('--base', 'http://127.0.0.1:8931'), only = arg('--ids', '');
 mkdirSync(OUT, { recursive: true });
 const { chromium } = process.env.PLAYWRIGHT_MODULE ? await import(process.env.PLAYWRIGHT_MODULE) : createRequire(import.meta.url)('playwright');
-const rows = JSON.parse(readFileSync(ROOT + 'tools/feed-stills/out/report.json', 'utf8')).cards.filter(c => c.ok && c.style && (!only || only.split(',').includes(c.id)));
+const rows = JSON.parse(readFileSync(DIR + 'report.json', 'utf8')).cards.filter(c => c.ok && c.style && (!only || only.split(',').includes(c.id)));
 
 const browser = await chromium.launch();
 const page = await browser.newPage();
