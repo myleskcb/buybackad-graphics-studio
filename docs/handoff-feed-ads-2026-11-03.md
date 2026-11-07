@@ -121,6 +121,29 @@ card designs from iPhones LA's feed needs a hold list in
 `netlify/lib/library.mjs`. Its feed is today whatever the site offers its
 customers, so a card cannot be dropped for iPhones LA alone.
 
+## The generator, and the weekly run (2026-11-07)
+
+The owner: "ads look good keep making more", "can we make this self working and creating new
+styles and new variations", "new elements". `tools/feed-stills/generate.mjs` composes a batch
+of new ads from parts inside the house style:
+
+- **Words:** heroes, some naming a model and showing only it; claims; the models bought; three
+  chips (a way to reach us, the money, trust or ease); calls to action; towns.
+- **Looks:** sixteen colourways, six grounds, five arrangements, five 3D icon sets with five idle
+  motions.
+- **Video openings:** a third open on a strike-out from the merged branch ("NO MORE LOWBALLS").
+
+It renders the batch through every check and appends `tools/feed-stills/ledger.json`, so no
+ad's words or phone set repeat. Batch 2026-11-07 is in `tools/feed-stills/batches/`: 24 of 24
+passed.
+
+A scheduled task, "Weekly iPhones LA ad batch" (`trig_01DcVWSzCdwSPBV4nvZsZbgR`), runs it every
+Sunday at 20:37 Los Angeles time with `--count 12`. Each run starts a fresh session, reviews
+the sheet, pushes the batch to this branch and notifies the owner. It never merges, deploys
+or changes the generator. When it was created the tool warned that it stores no connectors
+and records no repository. If a run cannot reach the repo, recreate it from the claude.ai
+routines page with the repository selected.
+
 ## Working in parallel without doing the work twice
 
 - **One owner per surface.** The ad pictures are made here, in
