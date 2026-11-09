@@ -75,6 +75,41 @@
       <div class="mo-progress" id="progress" hidden><div class="mo-bar"><i id="bar"></i></div><span id="progress-label"></span></div>
       <p class="mo-note" id="export-note"></p>
 
+      <section class="mo-quick" id="quick" aria-labelledby="quick-h">
+        <h2 class="mo-quick-h" id="quick-h">&#9889; Quick ad <span class="mo-opt">a new look for the angle, its photo or video, and a listing written from what is on it</span></h2>
+        <div class="mo-seg" id="qa-angles" role="radiogroup" aria-label="Angle of the ad">
+          <button data-angle="auto" role="radio" title="The angle the ad's own words and audience say">From the ad</button>
+          <button data-angle="wholesale" role="radio" title="Resellers, repair shops and anyone with a lot to sell: one offer for the lot">Wholesale buyer</button>
+          <button data-angle="local_buyer" role="radio" title="Someone nearby who meets up and pays on the spot">Local buyer</button>
+          <button data-angle="local" role="radio">Local shop</button>
+          <button data-angle="damaged" role="radio">Cracked</button>
+          <button data-angle="upgrade" role="radio">Upgrading</button>
+          <button data-angle="general" role="radio">We buy these</button>
+        </div>
+        <div class="mo-quick-row">
+          <div class="mo-seg" id="qa-kind" role="radiogroup" aria-label="Make a photo or a video">
+            <button data-kind="photo" role="radio">Photo</button>
+            <button data-kind="video" role="radio">Video and its photo</button>
+          </div>
+          <label class="mo-quick-tone">Tone <select id="qa-tone"></select></label>
+          <button class="mo-btn primary" id="quick-ad" title="A new look made for the angle, downloaded as a photo or video, with its title and description below">&#9889; Make quick ad</button>
+        </div>
+        <div class="mo-listing">
+          <div class="mo-listing-row"><label for="qa-title">Title</label> <span class="mo-opt" id="qa-title-n"></span>
+            <button class="mo-mini" id="qa-new-title" title="Another title" aria-label="Another title">&#10227;</button>
+            <button class="mo-link" id="qa-copy-title" type="button">Copy</button></div>
+          <textarea id="qa-title" rows="2" maxlength="80" spellcheck="true"></textarea>
+          <div class="mo-listing-row"><label for="qa-body">Description</label> <span class="mo-opt" id="qa-body-n"></span>
+            <button class="mo-mini" id="qa-new-body" title="Another description" aria-label="Another description">&#10227;</button>
+            <button class="mo-link" id="qa-copy-body" type="button">Copy</button></div>
+          <textarea id="qa-body" rows="12" maxlength="3000" spellcheck="true"></textarea>
+          <p class="mo-note mo-qa-check" id="qa-check" aria-live="polite"></p>
+          <p class="mo-note" id="qa-read"></p>
+          <p class="mo-qa-actions"><button class="mo-link" id="qa-copy-all" type="button">Copy title and description</button>
+            <button class="mo-link" id="qa-save-txt" type="button">Save as a text file</button></p>
+        </div>
+      </section>
+
     </section>
 
     <aside class="mo-panel" aria-label="Settings">

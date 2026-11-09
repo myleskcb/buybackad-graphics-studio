@@ -494,13 +494,14 @@ export function legitimacy(title, body) {
   return { score, verdict: score >= LEGIT_AT ? "legitimate" : score >= BORDERLINE_AT ? "borderline" : "spam", signals };
 }
 
-/** Blockers stop an ad being approved on iPhones LA; warnings are shown beside it (buy_ad_copy.lint, without the price). */
+/** Blockers stop an ad being approved on iPhones LA, and here say "fix before
+ *  posting"; warnings are shown beside it (buy_ad_copy.lint, without the price). */
 export function lint(title, body) {
   title = String(title || "").trim(); body = String(body || "").trim();
   const blockers = [], warnings = [];
   if (!title) blockers.push(finding("title_missing", "The title is empty."));
   else {
-    if (!CRM_BUY_AD.test(title)) blockers.push(finding("crm_title", "The title needs \"We buy\", \"Sell us your\", \"Sell your\" or \"Buyback\": iPhones LA's CRM reads a reply as a seller only then."));
+    if (!CRM_BUY_AD.test(title)) blockers.push(finding("crm_title", "The title needs \"We buy\", \"Sell us your\", \"Sell your\" or \"Buyback\", so it reads as a buy ad and the replies come from sellers."));
     if (title.length > TITLE_MAX) blockers.push(finding("title_long", `The title is ${title.length} characters; keep it under ${TITLE_MAX}.`));
     else if (title.length > TITLE_FEED) warnings.push(finding("title_cut", `The feed shows the first ${TITLE_FEED} characters; the model is in them.`));
     const [n, c] = caps(title); if (n >= 8 && c > .5) warnings.push(finding("caps", "Mostly capital letters reads as shouting and as spam."));

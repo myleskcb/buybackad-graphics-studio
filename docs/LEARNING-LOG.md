@@ -4741,3 +4741,65 @@ RESUME HERE:
   0. `/social/` is the internal creative tool. See `docs/social-studio.md`.
      Custom campaign scheduling and social autoposting are separate work;
      no posting integration or schedule was added in this session.
+
+## 2026-11-09 — the video maker's Quick ad: wholesale and local buyer angles, and iPhones LA's listing maker (claude/quirky-ride-gi02j6)
+
+Asked: "Wholesale buyer and local buyer style / angle of ad... and also include
+our iPhones LA esque Title and description generator to complete a full ad",
+"with a quick ad generator function that makes a photo or video with the title
+and description corresponding", "relevant to the photo image and the elements
+in image", "so maximize title and description keywords and length".
+
+Done:
+  - motion/audiences.js: Wholesale buyer and Local buyer, each with its looks,
+    words on screen (EN, ES), voices and scripts. Both by hand only (weight 0),
+    so no saved look number draws differently.
+  - motion/listing.js: the listings site's WE BUY maker (app/buy_ad_copy.py in
+    myleskcb/iphoneslainv-1, read 2026-11-09) ported: angles x tones word for
+    word, a new wholesale angle in its voice, and its lint and legitimacy
+    checks. The ad decides the words (readAd): the phones on the picture and
+    their finishes, the words printed on it, its audience, area and language.
+    Titles take the pattern and tails that carry the most distinct search words
+    and pictured models, up to 80 with the model inside the feed's 60.
+    Descriptions grow paragraph by paragraph (pictured models with their
+    storage sizes and colours, conditions, carrier, getting ready, the meet,
+    Spanish for a Spanish ad) while under 2,900 and every check passes.
+  - motion/index.html, app.js: ⚡ Quick ad under the preview. An angle chip,
+    Photo or Video, a tone; Make quick ad gives the ad the angle's audience and
+    the angle's own words (angleWords, inside the strong-look search, so the
+    attention check measures the final words), then downloads through the same
+    gates as the Download buttons. The title and description are rewritten
+    whenever the ad changes, checked live (hand edits too), with ↻, Copy and
+    Save as a text file.
+
+Found:
+  - The longest description is not the most keywords: "iPhone" said eight
+    times is stuffing on the listings site's own check, and five Pro Maxes say
+    "Pro Max" five times. The pictured paragraph has shorter forms, down to
+    "the iPhone 18, 17, 16, 15 and 14 Pro Max", and the Spanish paragraph is
+    chosen with it, not after it.
+  - A vibe's own lines ride beside an audience's in the copy pool, so a Local
+    buyer look on a freeway sign said "PRÓXIMA SALIDA". A quick ad for an angle
+    draws only the angle's lines.
+  - The title's feed-length note is the title's: counting it against each
+    description paragraph kept every description at its base length.
+
+Not done, on purpose: the "stealth" post (a WE BUY ad listed and titled as a
+phone for sale, so buyers do not know it is an ad). It misleads the people who
+answer it, the marketplaces remove it, and the listings site's own check
+scores it hardest (bait_title, 40 points). The listing always says it buys.
+
+Checked: scripts/listing_check.mjs (2,538 listings, all clear; titles 36 to
+80, median 69; descriptions 1,336 to 2,875, median 2,124);
+scripts/quick_ad_check.mjs in Chromium under the production CSP (wholesale
+photo, local buyer MP4 and photo, a bad hand edit refused, ↻, Copy, Save as a
+text file, 390 wide; all passed); scripts/audience_check.mjs all clear.
+Not run: motion_sound_check (needs puppeteer-core). The new scripts have no
+voice clips yet: `node scripts/voice_bank.mjs --only wholesale,local_buyer`
+records them (ElevenLabs key); until then those ads play music and sound only.
+
+RESUME HERE:
+  0. Record the two audiences' voiceovers (above).
+  1. The ad library's feed still carries the studio's plain title (the
+     headline); sending the Quick ad listing with a saved ad is the owner's
+     call, since iPhones LA's review writes its own.

@@ -1,13 +1,14 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks } from "./catalog.js";
-import { Ad, ASPECTS, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook } from "./engine.js";
+import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook } from "./engine.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
 import { exportMp4, recordRealtime, canEncode, recorderMime } from "./export.js";
 import { auditLook, drawCurve } from "./audit.js";
 import { loadAccents, IOS_EMOJI } from "./accents.js";
+import { listingFor, lint, TONES, ANGLES, ANGLE_AUDIENCE, TITLE_MAX, TITLE_FEED, BODY_MAX } from "./listing.js";
 
 const $ = id => document.getElementById(id);
 const STORE = "pgfx_motion_v1";
@@ -127,6 +128,7 @@ async function rebuild() {
     state.audio = null;
     if (state.sound) startAudio(0);
     syncPanel(st);
+    writeListing(st);
     $("loading").hidden = true;
     scheduleAudit(st);
     refreshStars();
@@ -189,11 +191,11 @@ function showAudit(rep) {
 }
 
 /** A look is strong when it scores 90+ and passes what decides a scroll. */
-async function strongSeed(base, locked, pool, content) {
+async function strongSeed(base, locked, pool, content, post = st => st) {
   let best = null;
   for (let k = 0; k < 8; k++) {
     const seed = (Math.random() * 1e9) | 0;
-    const st = randomize(base, seed, locked, pool, content);
+    const st = post(randomize(base, seed, locked, pool, content));
     const h = harmonise({ ...st }, locked, indexById());
     await loadFonts(fontsFor(h));
     const rep = await auditLook(h, state.assets, { size: 120, secs: 3.4, sound: false });
@@ -1174,13 +1176,162 @@ function offerAgain(blob, name, photo) {
   }
 }
 
+// ------------------------------------------------------------ ⚡ quick ad and its listing
+/* The owner, 2026-11-09: "Wholesale buyer and local buyer style / angle of
+   ad", "include our iPhones LA esque Title and description generator to
+   complete a full ad", "a quick ad generator function that makes a photo or
+   video with the title and description corresponding", "relevant to the photo
+   image and the elements in image", "maximize title and description keywords
+   and length". The listing (listing.js) is written from the ad as built: its
+   phones, the words on it, its audience, area and language, and is rewritten
+   whenever the ad changes. Make quick ad gives the ad the angle's audience
+   (its look, words and voice), finds a look that passes the attention check,
+   and downloads it as a photo or a video through the same gates as the
+   Download buttons. The listing always says the post buys (the iPhones LA
+   checks score a buy ad dressed as a phone for sale hardest). */
+const QUICK_STORE = "pgfx_motion_quick_v1";
+const quick = { angle: "auto", kind: "photo", tone: "plain", tv: 0, bv: 0, sig: "", st: null, listing: null };
+
+function buildQuick() {
+  try { const q = JSON.parse(localStorage.getItem(QUICK_STORE) || "null");
+    if (q && (q.angle === "auto" || ANGLES[q.angle])) quick.angle = q.angle;
+    if (q && ["photo", "video"].includes(q.kind)) quick.kind = q.kind;
+    if (q && TONES[q.tone]) quick.tone = q.tone;
+  } catch (e) { /* fresh */ }
+  const keep = () => { try { localStorage.setItem(QUICK_STORE, JSON.stringify({ angle: quick.angle, kind: quick.kind, tone: quick.tone })); } catch (e) { /* private mode */ } };
+  $("qa-tone").innerHTML = Object.entries(TONES).map(([k, t]) => `<option value="${k}" title="${t.note}">${t.label}</option>`).join("");
+  const syncChips = () => {
+    document.querySelectorAll("#qa-angles [data-angle]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.angle === quick.angle)));
+    document.querySelectorAll("#qa-kind [data-kind]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.kind === quick.kind)));
+    $("qa-tone").value = quick.tone;
+  };
+  syncChips();
+  // picking an angle or a tone rewrites the listing for the ad on screen; Make quick ad makes the look for it
+  $("qa-angles").addEventListener("click", e => { const b = e.target.closest("[data-angle]"); if (!b) return; quick.angle = b.dataset.angle; quick.tv = quick.bv = 0; keep(); syncChips(); writeListing(quick.st, true); });
+  $("qa-kind").addEventListener("click", e => { const b = e.target.closest("[data-kind]"); if (!b) return; quick.kind = b.dataset.kind; keep(); syncChips(); });
+  $("qa-tone").addEventListener("change", e => { quick.tone = TONES[e.target.value] ? e.target.value : "plain"; quick.tv = quick.bv = 0; keep(); writeListing(quick.st, true); });
+  $("qa-new-title").addEventListener("click", () => { quick.tv++; writeListing(quick.st, true, "title"); });
+  $("qa-new-body").addEventListener("click", () => { quick.bv++; writeListing(quick.st, true, "body"); });
+  $("qa-title").addEventListener("input", showCheck);
+  $("qa-body").addEventListener("input", showCheck);
+  $("qa-copy-title").addEventListener("click", () => copyText($("qa-title").value, "Title copied."));
+  $("qa-copy-body").addEventListener("click", () => copyText($("qa-body").value, "Description copied."));
+  $("qa-copy-all").addEventListener("click", () => copyText($("qa-title").value.trim() + "\n\n" + $("qa-body").value.trim(), "Title and description copied."));
+  $("qa-save-txt").addEventListener("click", () => {
+    const seed = quick.st ? quick.st.seed : state.style.seed;
+    saveVideo(new Blob([$("qa-title").value.trim() + "\n\n" + $("qa-body").value.trim() + "\n"], { type: "text/plain;charset=utf-8" }), `we-buy-phones-${seed}-listing.txt`);
+  });
+  $("quick-ad").addEventListener("click", () => quickAd());
+}
+
+/** The listing for the ad as built. Rewritten when the ad, the angle, the tone
+ *  or a ↻ changes; a hand edit stays until then. `only` keeps the other field. */
+function writeListing(st, force = false, only = "") {
+  if (!st || !$("qa-title")) return;
+  quick.st = st;
+  const sig = JSON.stringify([st.phones, st.headline, st.tag, st.hook_text, st.number_label, st.cta, st.audience, st.area, st.lang, quick.angle, quick.tone, quick.tv, quick.bv]);
+  if (!force && sig === quick.sig) return;
+  quick.sig = sig;
+  let L;
+  try { L = listingFor(st, indexById(), { angle: quick.angle, tone: quick.tone, titleVariant: quick.tv, bodyVariant: quick.bv }); }
+  catch (e) { console.warn("The listing could not be written:", e); return; }
+  quick.listing = L;
+  if (only !== "body") $("qa-title").value = L.title;
+  if (only !== "title") $("qa-body").value = L.description;
+  const r = L.read, bits = [];
+  if (r.models.length) bits.push(r.models.map(m => (r.finishes[m] || []).length ? `${m} (${r.finishes[m].join(", ")})` : m).join(", "));
+  if (r.uploads) bits.push(`${r.uploads} uploaded phone${r.uploads > 1 ? "s" : ""}, named as an iPhone`);
+  if (r.words.headline) bits.push(`“${r.words.headline}”`);
+  bits.push(r.area ? r.area : "no area: add yours under Words to name it");
+  if (r.lang !== "en") bits.push(r.lang === "es" ? "Spanish" : "English and Spanish");
+  const why = quick.angle !== "auto" ? "picked" : r.why === "audience" ? "from its audience" : r.why === "words" ? "from its words" : "the default";
+  $("qa-read").textContent = `Written from the ad: ${bits.join(" · ")}. Angle: ${L.angleLabel} (${why}).`;
+  showCheck();
+}
+
+/** The listing checks (iPhones LA's, listing.js) on what the boxes say now, hand edits included. */
+function showCheck() {
+  const t = $("qa-title").value, b = $("qa-body").value, c = lint(t, b), el = $("qa-check");
+  $("qa-title-n").textContent = `${t.trim().length} / ${TITLE_MAX}` + (t.trim().length > TITLE_FEED ? ` (the feed shows ${TITLE_FEED})` : "");
+  $("qa-body-n").textContent = `${b.trim().length.toLocaleString()} / ${BODY_MAX.toLocaleString()}`;
+  el.innerHTML = "";
+  const head = document.createElement("span");
+  head.innerHTML = c.ok ? `<b>Passes the listing checks</b> (the marketplaces' posting rules and the signs of spam). Reads ${c.legit.verdict}, ${c.legit.score} of 100.` : `<span class="bad">Fix before posting:</span> `;
+  el.appendChild(head);
+  const notes = [...c.blockers, ...c.warnings.filter(w => w.code !== "title_cut")].map(f => f.message);
+  if (notes.length) el.appendChild(document.createTextNode(" " + notes.join(" ")));
+}
+
+/** The audience's own words on the picture, in the look's language (the
+ *  headline in one, the small line in the other for a look in both), as the
+ *  engine's copy pass draws them, without the vibe's lines beside them. */
+function angleWords(st) {
+  const a = AUDIENCES[st.audience]; if (!a || !a.copy) return st;
+  const out = { ...st }, area = areaOf(st), r = rng((st.seed || 1) * 9137 + 7);
+  const headL = out.lang === "both" ? (r() < .6 ? "en" : "es") : out.lang === "es" ? "es" : "en";
+  const otherL = out.lang === "both" ? (headL === "en" ? "es" : "en") : headL;
+  const pool = (L, key) => ((a.copy[L] || {})[key] || []).map(s => !s.includes("{AREA}") ? s : area ? s.replace(/\{AREA\}/g, L === "es" && area === "LA" ? "L.A." : area) : null).filter(Boolean);
+  const set = (field, L, key, fit = () => true) => { const p = pool(L, key).filter(fit); if (p.length && !state.locked.has(field)) out[field] = r.pick(p); };
+  set("headline", headL, "headlines");
+  set("hook_text", headL, "hooks", h => out.hook !== "word_beat" || h.split(/\s+/).length <= 5);
+  set("tag", otherL, "tags");
+  set("cta", otherL, "cta");
+  return out;
+}
+
+async function copyText(text, said) {
+  try { await navigator.clipboard.writeText(text); VH().toast(said); }
+  catch (e) {                                       // an older browser or a blocked clipboard: select it for a long-press copy
+    const ta = document.createElement("textarea"); ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand("copy"); } catch (x) { /* none */ }
+    ta.remove(); VH().toast(ok ? said : "Copy did not work here: select the text and copy it.");
+  }
+}
+
+/** ⚡ Make quick ad: the angle's audience on the ad, a strong new look with its
+ *  words, then the photo or the video, with the listing written for it. */
+async function quickAd() {
+  const btn = $("quick-ad"); if (btn.disabled) return; btn.disabled = true;
+  const note = t => { $("export-note").textContent = t; };
+  try {
+    pushHistory();
+    const st = { ...state.style };
+    const audience = quick.angle === "auto" ? st.audience : ANGLE_AUDIENCE[quick.angle] || "none";
+    st.audience = audience;
+    // the audience decides the look, the words and the voice; the phones, number, size and length stay
+    AUDIENCE_AXES.forEach(k => state.locked.delete(k));
+    state.locked.add("audience");
+    const locked = new Set(state.locked);
+    locked.add("phones");
+    note(`Making a ${quick.angle === "auto" ? "new" : ANGLES[quick.angle].label.toLowerCase()} look…`);
+    // a look's vibe brings lines of its own ("NEXT EXIT: ..."); a quick ad for an angle says the angle's
+    const post = quick.angle === "auto" ? (x => x) : angleWords;
+    let next;
+    try { next = $("strong-only").checked ? await strongSeed(st, locked, [], true, post) : post(randomize(st, (Math.random() * 1e9) | 0, locked, [], true)); }
+    catch (e) { console.warn("Strong-look search failed, shuffling without it:", e); next = post(randomize(st, (Math.random() * 1e9) | 0, locked, [], true)); }
+    state.style = next;
+    quick.tv = quick.bv = 0;
+    save(); syncWords(); drawPhonePicker();
+    await rebuild();
+    writeListing(harmonise({ ...state.style }, state.locked, indexById()), true);
+    btn.disabled = false;
+    if (quick.kind === "video") await download(); else await downloadJpg();
+    const n = $("export-note");
+    if (n && /^Saved /.test(n.textContent)) n.insertBefore(document.createTextNode("Its title and description are in Quick ad, below. "), n.firstChild);
+  } catch (e) {
+    console.error(e);
+    note("The quick ad could not be made. Try again, or use New look and the Download buttons.");
+  } finally { btn.disabled = false; }
+}
+
 function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 
 // ------------------------------------------------------------ start
 
 (async function main() {
   restore();
-  try { buildPanel(); buildGallery(); }
+  try { buildPanel(); buildGallery(); buildQuick(); }
   catch (e) {
     // a look saved by an older version can break the panel: clear it and start once more
     console.error("The panel could not be built:", e);
