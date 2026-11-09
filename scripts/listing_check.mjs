@@ -12,7 +12,8 @@
       80 characters at most, with the lead model inside the first 60 (what the
       feed shows), and names a phone that is on the picture.
    3. It is about the picture: the description names every model on it (up to
-      five), its area when there is one, and a Spanish ad has its Spanish.
+      six) and quotes its headline where the checks allow, its area when there
+      is one, and a Spanish ad has its Spanish.
    4. It is long: every title at least 40 characters where the patterns allow,
       every description at least 1,200 (the report prints the spread).
    5. Nothing left over: no {placeholder}, no "your area shop", no OfferUp
@@ -21,7 +22,7 @@
 
    usage: node scripts/listing_check.mjs      exits non-zero on any problem */
 import { readFileSync } from 'node:fs';
-import { listingFor, readAd, titleOptions, describe, lint, compactModels, ANGLES, ANGLE_KEYS, ANGLE_AUDIENCE, TONES, TITLE_MAX, TITLE_FEED, BODY_MAX } from '../motion/listing.js';
+import { listingFor, readAd, titleOptions, describe, lint, compactModels, areaCase, ANGLES, ANGLE_KEYS, ANGLE_AUDIENCE, TONES, TITLE_MAX, TITLE_FEED, BODY_MAX } from '../motion/listing.js';
 import { AUDIENCES } from '../motion/audiences.js';
 
 const idx = JSON.parse(readFileSync(new URL('../motion/phones/index.json', import.meta.url), 'utf8')).phones;
@@ -70,8 +71,8 @@ for (const angle of ANGLE_KEYS) for (const tone of Object.keys(TONES)) {
       if (read.models.length && !read.models.some(m => title.includes(m) || title.includes(m.replace(/^iPhone /, '')))) bad(where, `"${title}" names no phone on the picture`);
       if (lead && title.indexOf(lead) + lead.length > TITLE_FEED) bad(where, `"${title}": the model is past the feed's ${TITLE_FEED}`);
       // 3
-      const compact = compactModels(read.models.slice(0, 5));   // "the iPhone 18, 17 and 16 Pro Max" names all three
-      for (const m of read.models.slice(0, 5)) {
+      const compact = compactModels(read.models.slice(0, 6));   // "the iPhone 18, 17 and 16 Pro Max" names all three
+      for (const m of read.models.slice(0, 6)) {
         const short = m.replace(/^iPhone /, '');
         if (!body.includes(compact) && !body.includes(m) && !new RegExp(`\\b${short.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(body)) bad(where, `the description does not name ${m}, which is on the picture`);
       }
@@ -145,6 +146,45 @@ if (priced(undefined).blockers.length) bad('price', 'a listing without a price f
       if (again.title !== L.title || again.description !== L.description) bad(`run of ${angle} ads #${i + 1}`, 'the same ad wrote a different listing once its own was remembered');
       history.push({ key: `ad${i}`, title: L.title, body: L.description });
     });
+  }
+}
+
+// what the business can say: no shop, no same day, Spanish spoken
+{
+  const st = { phones: SETS[0], area: 'Long Beach', lang: 'en', headline: 'WE BUY IPHONES' };
+  for (const angle of ANGLE_KEYS) for (const tone of Object.keys(TONES)) for (let v = 0; v < ANGLES[angle].tones[tone].bodies.length; v++) {
+    const where = `business/${angle}/${tone}/${v}`;
+    const off = listingFor(st, meta, { angle, tone, bodyVariant: v, titleVariant: v, biz: { shop: false, sameDay: false, spanish: false } });
+    const both = off.title + '\n' + off.description;
+    if (/\bshop\b/i.test(both)) bad(where, `no shop, and it says: ${both.match(/[^.\n]*\bshop\b[^.\n]*/i)[0]}`);
+    if (/same[- ]day/i.test(off.title) || /usually the same day|the same day or the next|nearby the same day/i.test(off.description)) bad(where, 'no same day, and it promises one');
+    if (/Hablamos|se habla/i.test(both)) bad(where, 'an English ad of a business that does not speak Spanish says it does');
+    if (!off.check.ok || off.check.warnings.some(w => w.code !== 'title_cut')) bad(where, `with the business off: ${[...off.check.blockers, ...off.check.warnings].map(f => f.code).join(', ')}`);
+    const es = listingFor(st, meta, { angle, tone, bodyVariant: v, titleVariant: v, biz: { spanish: true } });
+    if (!/Hablamos español/.test(es.description)) bad(where, 'a business that speaks Spanish has no Spanish paragraph');
+    if ((es.description.match(/Hablamos español/g) || []).length > 1) bad(where, '"Hablamos español" twice');
+  }
+}
+// a Spanish-only ad leads with its Spanish
+{ const L = listingFor({ phones: SETS[0], area: 'Long Beach', lang: 'es' }, meta, { angle: 'wholesale' }); if (!/^Hablamos español/.test(L.description)) bad('Spanish ad', 'does not open in Spanish'); }
+// the area as it is written; the Spanish article is not Los Angeles
+for (const [typed, want] of [['long beach', 'Long Beach'], ['LONG BEACH', 'Long Beach'], ['Long beach', 'Long Beach'], ['la', 'LA'], ['L.A.', 'L.A.'], ['McAllen', 'McAllen'], ['san bernardino', 'San Bernardino'], ['East LA', 'East LA']])
+  if (areaCase(typed) !== want) bad('area', `"${typed}" is written "${areaCase(typed)}", not "${want}"`);
+if (readAd({ phones: SETS[0], tag: 'MÁNDANOS LA LISTA', headline: 'COMPRAMOS IPHONES AL MAYOREO' }, meta).area) bad('area', 'the Spanish "LA" read as Los Angeles');
+if (readAd({ phones: SETS[0], headline: 'WE BUY IPHONES' }, meta, { area: 'LONG BEACH' }).area !== 'Long Beach') bad('area', 'the area the ad prints is not used');
+// the picture's headline, quoted
+{ const L = listingFor({ phones: SETS[0], area: 'Long Beach', headline: 'WE BUY IPHONE LOTS' }, meta, { angle: 'wholesale' }); if (!L.description.includes('“WE BUY IPHONE LOTS”')) bad('headline', 'the picture\'s headline is not in the description'); }
+{ const L = listingFor({ phones: SETS[0], area: 'Long Beach', headline: 'CASH FOR YOUR IPHONE' }, meta, { angle: 'general' }); if (/CASH FOR YOUR IPHONE/.test(L.description) || !L.check.ok) bad('headline', 'a headline the checks refuse was quoted'); }
+// another title and another description are always another, even beside a run of recent ads
+for (const angle of ANGLE_KEYS) {
+  const st = { phones: SETS[0], area: 'Long Beach', headline: 'WE BUY IPHONES' };
+  let L = listingFor(st, meta, { angle }), seenT = new Set([L.title]), seenB = new Set([L.description]);
+  const history = [{ key: 'old', title: L.title, body: L.description }];
+  for (let i = 1; i <= 3; i++) {
+    const next = listingFor(st, meta, { angle, titleVariant: i, bodyVariant: i, history, key: 'now', avoid: { title: L.title, body: L.description } });
+    if (next.title === L.title) bad(`another/${angle} #${i}`, `the same title again: "${next.title}"`);
+    if (next.description === L.description) bad(`another/${angle} #${i}`, 'the same description again');
+    L = next; seenT.add(L.title); seenB.add(L.description);
   }
 }
 

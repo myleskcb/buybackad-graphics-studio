@@ -97,7 +97,7 @@ export const ANGLES = {
         ],
       },
       urgent: {
-        titles: ["Same-day buyback enquiry for {lead}", "Sell your {lead} today if ready"],
+        titles: ["Same-day buyback inquiry for {lead}", "Sell your {lead} today if ready"],
         bodies: [
           "Ready to sell your {lead} today? Ask us what meeting times are available around {area}. Include {details} so we can discuss the offer first.\n\nBefore heading over, agree the time with us and sign out of your Apple account. We check the device and pay at the meeting; nothing needs shipping. The price on this post is a clean-device example. We cannot take anything reported lost or stolen.",
           "Today's checklist for selling {models}:\nSend the specifications and any damage in a message.\nWait for our quote and confirmation of a time.\nBack up your data and remove your Apple account before the visit.\n\nWe meet locally in {area}; availability decides whether today works. The price on this post assumes clean condition, and the actual offer depends on your device. Reported lost or stolen items are not accepted.",
@@ -193,21 +193,21 @@ export const ANGLES = {
         ],
       },
       professional: {
-        titles: ["Neighbourhood buyback for {lead}", "Sell your {lead} by appointment"],
+        titles: ["Neighborhood buyback for {lead}", "Sell your {lead} by appointment"],
         bodies: [
-          "Local sale of {models}, arranged by message. Please provide {details} before requesting a visit. A quote gives you a number to consider without travelling first.\n\nWe agree a meeting in {area}, inspect together and pay directly. The price on this post is based on a clean example; condition determines your individual offer. The seller needs to sign out of their Apple account. Devices reported lost or stolen are not eligible.",
+          "Local sale of {models}, arranged by message. Please provide {details} before requesting a visit. A quote gives you a number to consider without traveling first.\n\nWe agree a meeting in {area}, inspect together and pay directly. The price on this post is based on a clean example; condition determines your individual offer. The seller needs to sign out of their Apple account. Devices reported lost or stolen are not eligible.",
           "An in-person purchase has three parts: description, agreement, inspection. For your {lead}, begin with the specifications and condition in a message.\n\nAfter considering our quote, choose an agreed meeting at the shop or a nearby public place. We check the item before payment. For comparison, the price on this post represents a clean unit. Apple accounts must be removed, and lost or stolen devices cannot be sold to us.",
         ],
       },
       urgent: {
         titles: ["Nearby {lead} buyback today", "Sell your {lead} during today's visit"],
         bodies: [
-          "Already planning to be near {area} today? Ask about selling your {lead} while you're here. Send the model details and condition first so we can reply with an offer and discuss a time.\n\nPlease wait for confirmation before travelling. We pay at the local meeting after checking the device. The price on this post assumes a clean one. Sign out of Apple beforehand; we exclude anything reported lost or stolen.",
+          "Already planning to be near {area} today? Ask about selling your {lead} while you're here. Send the model details and condition first so we can reply with an offer and discuss a time.\n\nPlease wait for confirmation before traveling. We pay at the local meeting after checking the device. The price on this post assumes a clean one. Sign out of Apple beforehand; we exclude anything reported lost or stolen.",
           "A local sale needn't involve packing a parcel. If you'd like to sell {models} today, message us your specifications and ask whether we can meet. Availability varies.\n\nWe agree the quote and the visit with you, then look over the device before paying. Keep your data backed up and remove the Apple account before handover. The price on this post is a clean-condition illustration, not a promise for every unit. Lost or stolen goods are excluded.",
         ],
       },
       friendly: {
-        titles: ["Hi neighbour, sell us your {lead}", "Nearby shop: we buy your {lead}"],
+        titles: ["Hi neighbor, sell us your {lead}", "Nearby shop: we buy your {lead}"],
         bodies: [
           "Hello from {area}. If selling your {lead} means meeting someone new, we can arrange to meet at our shop or a public spot nearby. Start here with a message about {details}.\n\nWe'll discuss an offer before either of us makes plans. At the meeting we look it over together and pay there. The price on this post gives a clean-device reference. Please remove your Apple account, and only offer devices not reported lost or stolen.",
           "Prefer talking about your {lead} before making a trip? That's what messages are for. Tell us the model and how you've used it; mention anything worth knowing about its condition.\n\nWe're a resale shop in {area}, and a local meeting lets us check it with you rather than asking you to ship it. The price on this post is for a clean example. Yours needs to be signed out of Apple and free of any lost or stolen report.",
@@ -230,9 +230,9 @@ export const ANGLES = {
         ],
       },
       professional: {
-        titles: ["Local {lead} buyback enquiry", "Sell your {lead} with an agreed time"],
+        titles: ["Local {lead} buyback inquiry", "Sell your {lead} with an agreed time"],
         bodies: [
-          "Availability enquiry: {models}, {area}. Send {details} and your preferred meeting time in a message. We respond with an offer and arrange the visit by agreement.\n\nThe purchase is completed after an inspection together, with payment at the meeting. The price on this post describes clean condition; a quote for your device may differ. Only owners able to remove their Apple account can sell. Reported lost or stolen devices are not purchased.",
+          "Availability inquiry: {models}, {area}. Send {details} and your preferred meeting time in a message. We respond with an offer and arrange the visit by agreement.\n\nThe purchase is completed after an inspection together, with payment at the meeting. The price on this post describes clean condition; a quote for your device may differ. Only owners able to remove their Apple account can sell. Reported lost or stolen devices are not purchased.",
           "To arrange a nearby sale of your {lead}, include both the device specifications and when you're available. We can then discuss its value and whether a same-day meeting suits.\n\nKeep the appointment confirmed in messages before setting off. Inspection takes place with you before payment. The price on this post uses a clean device for reference. Account sign-out is required before sale, and devices reported lost or stolen are excluded.",
         ],
       },
@@ -298,7 +298,7 @@ export const ANGLES = {
 const MORE = {
   conditions: { not: ["damaged", "wholesale"], en: "New, used, cracked screen, cracked back, scratches, a worn battery or a battery service message: tell us what you've got as plainly as you can, and the offer will be close to what we pay when we meet." },
   damaged: { only: ["damaged"], en: "Cracked screens, cracked backs, dead pixels, Face ID that stopped working, a battery service message, a bent frame or a {device_word} that won't charge: tell us what it does and doesn't do, and we'll quote it as it is." },
-  lots: { only: ["wholesale"], en: "A lot can be mixed: different models, storage sizes, colours and conditions in one batch. A simple list works (model, storage, carrier or unlocked, condition, and any cracks or battery messages), or a photo of the phones with their About screens open. We quote each one and give you a single number for the lot." },
+  lots: { only: ["wholesale"], en: "A lot can be mixed: different models, storage sizes, colors and conditions in one batch. A simple list works (model, storage, carrier or unlocked, condition, and any cracks or battery messages), or a photo of the phones with their About screens open. We quote each one and give you a single number for the lot." },
   carrier: { en: "Tell us if it's unlocked or which carrier it's on (AT&T, Verizon, T-Mobile or another); we'll go over that in the chat." },
   find: { en: "Not sure which model you have? It's in {where_to_find}, along with the storage." },
   where: { en: "We're based in {area} and meet at our shop or a public spot nearby, by agreement." },
@@ -338,6 +338,39 @@ export function fill(pattern, ctx, models = ctx.models, trim = true) {
 }
 
 // ---------------------------------------------------------------------------
+// The business: what iPhones LA's words say about the shop that a customer of
+// the studio may not be able to say. Each is on by default (iPhones LA's own
+// listing) and the page lets a customer turn it off; off, the words say only
+// what is still true. Spanish is off unless the ad speaks it or it is turned on.
+// ---------------------------------------------------------------------------
+export const BUSINESS = {
+  shop: { label: "We have a shop", note: "Off: you meet at a public spot, and the words say reseller or buyer, never shop.", on: true },
+  sameDay: { label: "We can meet the same day", note: "Off: no title or line says same day.", on: true },
+  spanish: { label: "We speak Spanish", note: "On: a paragraph in Spanish, and \"se habla español\" may end the title.", on: false },
+};
+export const businessOf = biz => Object.fromEntries(Object.entries(BUSINESS).map(([k, b]) => [k, biz && typeof biz[k] === "boolean" ? biz[k] : b.on]));
+const NO_SHOP = [
+  [/\bat our shop or a public spot\b/g, "at a public spot"], [/\bat the shop or a nearby public place\b/g, "at a nearby public place"],
+  [/\bWe're a local Apple resale shop\b/g, "We're a local Apple reseller"], [/\bSelling to our resale shop starts\b/g, "Selling to us starts"],
+  [/\bWe're a resale shop in\b/g, "We're a reseller in"], [/\b([Aa]) small (.+?) shop that buys\b/g, "$1 small $2 business that buys"],
+  [/\b([Aa]) local shop\b/g, "$1 local buyer"], [/\b([Aa]) local (.+?) shop\b/g, "$1 local $2 buyer"],
+  [/\bthrough our shop\b/g, "to a local buyer"], [/^Nearby shop: /g, "Nearby buyer: "],
+];
+const NO_SAME_DAY = [
+  [/ the same day or the next/g, ""], [/, usually the same day\./g, "."], [/, usually the same day,/g, ","], [/ the same day and get paid/g, " and get paid"],
+];
+const SAME_DAY = /same[- ]day/i;
+/** A text as this business can say it. */
+export function business(text, biz) {
+  const b = businessOf(biz);
+  let t = String(text);
+  if (!b.shop) t = NO_SHOP.reduce((x, [re, to]) => x.replace(re, to), t);
+  if (!b.sameDay) t = NO_SAME_DAY.reduce((x, [re, to]) => x.replace(re, to), t);
+  return t;
+}
+const speaksSpanish = ctx => ctx.lang !== "en" || businessOf(ctx.biz).spanish;
+
+// ---------------------------------------------------------------------------
 // Reading the ad: what is on the picture decides the words
 // ---------------------------------------------------------------------------
 const NEWEST = m => { const n = /iPhone (\d+)/.exec(m); return n ? Number(n[1]) * 10 + (/Pro Max/.test(m) ? 3 : / Pro/.test(m) ? 2 : /Plus|Air/.test(m) ? 1 : 0) : -1; };
@@ -355,11 +388,24 @@ export const ANGLE_KEYS = Object.keys(ANGLES);
  *  words on the picture and the voice all say the same thing as the listing. */
 export const ANGLE_AUDIENCE = { general: "none", damaged: "broken_phones", upgrade: "upgraders", local: "locals", local_buyer: "local_buyer", wholesale: "wholesale" };
 
-const titleCase = s => /[a-z]/.test(s) || s.length <= 3 ? s : s.toLowerCase().replace(/\b[a-z]/g, c => c.toUpperCase());
+/** A typed city as it is written: "long beach", "LONG BEACH" and "Long beach"
+ *  are Long Beach; "LA", "L.A." and "McAllen" keep the capitals they were typed with. */
+export function areaCase(s) {
+  s = String(s || "").trim().replace(/\s+/g, " ");
+  if (!s) return "";
+  if (/^[a-z]{2}$/i.test(s)) return s.toUpperCase();                 // la, oc, sf
+  const allUpper = s === s.toUpperCase();
+  return s.split(" ").map(w => {
+    if (/^(?:[A-Z]\.)+$/.test(w) || (!allUpper && /^[A-Z]{2,3}$/.test(w)) || (allUpper && /^[A-Z]{2}$/.test(w))) return w;
+    if (allUpper || w === w.toLowerCase()) return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+    return w;
+  }).join(" ");
+}
 
 /** What the listing is written from: the ad's phones, words, audience, area
- *  and language. `meta` maps a phone id to its { model, finish }. */
-export function readAd(st, meta = {}) {
+ *  and language. `meta` maps a phone id to its { model, finish }; `area` is
+ *  the area the ad prints (engine.areaOf), when the caller knows it. */
+export function readAd(st, meta = {}, { area: printed } = {}) {
   const phones = (st.phones || []).map(id => meta[id]).filter(Boolean);
   const finishes = {};
   for (const p of phones) {
@@ -373,8 +419,9 @@ export function readAd(st, meta = {}) {
   const said = Object.values(words).filter(s => typeof s === "string").join(" · ");
   let angle = AUDIENCE_ANGLE[st.audience] || "", why = angle ? "audience" : "";
   if (!angle) for (const [k, re] of WORD_ANGLES) if (re.test(said)) { angle = k; why = "words"; break; }
-  const typed = String(st.area || "").split(",")[0].trim();
-  const area = typed ? titleCase(typed) : (/\bL\.?A\.?\b/.test(said) ? "LA" : "");
+  // the area typed, else the one the ad prints; never the Spanish article ("MÁNDANOS LA LISTA")
+  const typed = String(st.area || printed || "").split(",")[0].trim();
+  const area = typed ? areaCase(typed) : (/\bL\.A\.|\bIN LA\b/.test(said) ? "LA" : "");
   const lang = st.lang === "es" || st.lang === "both" ? st.lang : "en";
   return { models, finishes, words, said, angle: angle || "general", why: why || "default", area, lang, uploads: (st.phones || []).filter(id => meta[id] && meta[id].upload).length };
 }
@@ -626,11 +673,15 @@ export function titleOptions(ctx, angle = ctx.angle, tone = "plain") {
   const pats = [...new Set([...(A.tones[tone] || A.tones.plain).titles, ...A.tones.plain.titles])];
   const sets = [ctx.models.slice(0, 2), ctx.models.slice(0, 1)].filter((s, i, a) => i === 0 || s.length !== a[0].length);
   const out = new Map();
+  const b = businessOf(ctx.biz);
+  // a business that speaks Spanish says so where a Spanish speaker searching will see it
+  const allTails = [...A.tails, ...(speaksSpanish(ctx) ? [", se habla español"] : [])];
   pats.forEach((pat, pi) => {
     if (/\{area\}/.test(pat) && !ctx.area) return;
+    if (!b.sameDay && SAME_DAY.test(pat)) return;
     for (const models of sets) {
-      const base = fill(pat, ctx, models);
-      const tails = A.tails.filter(t => ctx.area || !/\{area\}/.test(t)).map(t => fill(t, ctx, models, false));
+      const base = business(fill(pat, ctx, models), b);
+      const tails = allTails.filter(t => (ctx.area || !/\{area\}/.test(t)) && (b.sameDay || !SAME_DAY.test(t))).map(t => fill(t, ctx, models, false));
       const tries = [base];
       for (const t1 of tails) { tries.push(base + t1); for (const t2 of tails) if (t2 !== t1) tries.push(base + t1 + t2); }
       for (const t of tries) {
@@ -647,7 +698,7 @@ export function titleOptions(ctx, angle = ctx.angle, tone = "plain") {
         const lead = models[0] || "";
         if (lead && t.indexOf(lead) + lead.length > TITLE_FEED) continue;   // the model is what the feed shows
         // what is on the picture counts most: each pictured model named is worth a search word and a half
-        const words = SEARCH_WORDS.filter(re => re.test(t)).length + (ctx.area && t.includes(ctx.area) ? 1 : 0);
+        const words = SEARCH_WORDS.filter(re => re.test(t)).length + (ctx.area && t.includes(ctx.area) ? 1 : 0) + (/español/.test(t) ? 1 : 0);
         out.set(t, { title: t, pattern: pi, score: words * 12 + models.length * 18 + t.length * .25, words });
       }
     }
@@ -666,20 +717,27 @@ const joinWords = list => list.length <= 1 ? (list[0] || "") : list.slice(0, -1)
  *  takes the longest that still passes (the family word said eight times is
  *  stuffing, so the shorter ones say it once). */
 function modelsParagraphs(ctx) {
-  const ms = ctx.models.slice(0, 5);
+  const ms = ctx.models.slice(0, 6);
   if (!ms.length) return [];
   const short = (m, i) => i ? m.replace(/^iPhone (?=\d+e? \S)/, "") : m;
   const finish = m => (ctx.finishes[m] || []).length ? ` in ${joinWords(ctx.finishes[m])}` : "";
   const sizes = m => ` in ${joinWords(LINEUP[m]).replace(/ and (\S+)$/, " or $1")}`;
-  const open = "We're buying, not selling: the phones in the picture are the models we're looking for";
+  // the picture's own headline, quoted as it is printed, when it says something a listing may say
+  const head = String((ctx.words || {}).headline || "").trim().replace(/[“”"]/g, "");
+  const opens = [
+    ...(head && head.length <= 60 ? [`We're buying, not selling: the picture says “${head}”, and the phones in it are the models we're looking for`] : []),
+    "We're buying, not selling: the phones in the picture are the models we're looking for",
+  ];
   const known = ms.filter(m => LINEUP[m]);
   const out = [];
-  if (known.length) out.push(
-    `${open}, the ${joinWords(ms.map(m => m + finish(m)))}. We buy them in every storage size Apple made (${known.map(m => m + sizes(m)).join("; ")}), in any colour.`,
-    `${open}, the ${joinWords(ms.map((m, i) => short(m, i) + finish(m)))}. We buy them in every storage size Apple made (${known.map((m, i) => short(m, i) + sizes(m)).join("; ")}), in any colour.`);
-  out.push(`${open}: the ${joinWords(ms.map((m, i) => short(m, i) + finish(m)))}, in any storage size and colour.`,
-    `${open}: the ${joinModels(ms)}, in any storage size and colour.`,
-    `${open}: the ${compactModels(ms)}, in any storage size and colour.`);
+  for (const open of opens) {
+    if (known.length) out.push(
+      `${open}, the ${joinWords(ms.map(m => m + finish(m)))}. We buy them in every storage size Apple made (${known.map(m => m + sizes(m)).join("; ")}), in any color.`,
+      `${open}, the ${joinWords(ms.map((m, i) => short(m, i) + finish(m)))}. We buy them in every storage size Apple made (${known.map((m, i) => short(m, i) + sizes(m)).join("; ")}), in any color.`);
+    out.push(`${open}, the ${joinWords(ms.map((m, i) => short(m, i) + finish(m)))}, in any storage size and color.`,
+      `${open}, the ${joinModels(ms)}, in any storage size and color.`,
+      `${open}, the ${compactModels(ms)}, in any storage size and color.`);
+  }
   return out;
 }
 
@@ -707,9 +765,9 @@ function spanishParagraph(ctx, angle) {
 // nothing to name: said the way a person would say it without one.
 const NO_AREA = [
   [/\ba small your area shop\b/g, "a small local shop"], [/\ba local your area shop\b/g, "a local shop"],
-  [/\bHello from your area\./g, "Hello, neighbour."], [/\ba your area meeting\b/g, "a nearby meeting"],
+  [/\bHello from your area\./g, "Hello, neighbor."], [/\ba your area meeting\b/g, "a nearby meeting"],
   [/\bthe agreed your area meeting\b/g, "the agreed meeting"], [/\bLocation: your area\./g, "Location: nearby."],
-  [/\b(enquiry: .+?), your area\./g, "$1, nearby."], [/\bnear your area today\b/g, "nearby today"],
+  [/\b(inquiry: .+?), your area\./g, "$1, nearby."], [/\bnear your area today\b/g, "nearby today"],
   [/\bLocal iPhone buyer in your area\./g, "Local iPhone buyer, meeting nearby."], [/\ba local buyer in your area\./g, "a local buyer."],
   [/\bin your area\b/g, "nearby"], [/\baround your area\b/g, "nearby"],
 ];
@@ -719,8 +777,9 @@ const placeless = (text, ctx) => ctx.area ? text : NO_AREA.reduce((t, [re, to]) 
  *  and how the buying works, for as long as every check still passes. */
 export function describe(ctx, angle = ctx.angle, tone = "plain", variant = 0, title = "We buy iPhones") {
   const A = ANGLES[angle] || ANGLES.general, T = A.tones[tone] || A.tones.plain;
-  let text = placeless(fill(T.bodies[((variant % T.bodies.length) + T.bodies.length) % T.bodies.length], ctx, ctx.models.slice(0, 3)), ctx);
-  // iPhones LA speaks Spanish; a customer whose ad is English only may not: a Spanish ad says it in its own paragraph
+  const say = t => business(placeless(t, ctx), ctx.biz);
+  let text = say(fill(T.bodies[((variant % T.bodies.length) + T.bodies.length) % T.bodies.length], ctx, ctx.models.slice(0, 3)));
+  // iPhones LA's "Hablamos español": said once, by the Spanish paragraph, when the ad or the business speaks it
   text = text.replace(/ Hablamos español\./g, "");
   const parts = text.split("\n\n");
   const head = parts[0], last = parts.length > 1 ? parts[parts.length - 1] : "", middle = parts.slice(1, -1);
@@ -732,15 +791,19 @@ export function describe(ctx, angle = ctx.angle, tone = "plain", variant = 0, ti
     if (k === "where" && (!ctx.area || already.includes(ctx.area))) continue;   // the area is a search word: said once at least
     if (k === "find" && already.includes(FAMILY.where_to_find)) continue;
     if (k === "prep" && /\berase\b/i.test(already)) continue;
-    extras.push(placeless(fill(MORE[k].en, ctx), ctx));
+    extras.push(say(fill(MORE[k].en, ctx)));
   }
   const pictured = modelsParagraphs(ctx);
-  const spanish = ctx.lang !== "en" ? spanishParagraph(ctx, angle) : "";
+  const spanish = speaksSpanish(ctx) ? spanishParagraph(ctx, angle) : "";
   // the order a reader meets them in: what is on the picture first, the rules
-  // last, then the Spanish; a paragraph stays only if the whole still passes
+  // last, then the Spanish (first, on an ad in Spanish only); a paragraph
+  // stays only if the whole still passes
   let shown = "", es = false;
   const kept = [];
-  const body = () => [head, shown, ...middle, ...kept, last, es ? spanish : ""].filter(Boolean).join("\n\n");
+  const body = () => {
+    const en = [head, shown, ...middle, ...kept, last];
+    return (es ? (ctx.lang === "es" ? [spanish, ...en] : [...en, spanish]) : en).filter(Boolean).join("\n\n");
+  };
   // the title's own notes (the feed's cut) are the title's: the body is held to everything else
   const fine = () => { const t = body(); if (t.length > BODY_AIM) return false; const c = lint(title, t); return c.ok && !c.warnings.some(w => w.code !== "title_cut") && c.legit.score >= 95; };
   // a Spanish ad keeps its Spanish: the pictured paragraph is chosen with it in
@@ -752,34 +815,47 @@ export function describe(ctx, angle = ctx.angle, tone = "plain", variant = 0, ti
 }
 
 /** The listing for the ad on screen. `history` is the user's recent listings
- *  ({ key, title, body }); the one under `key` is this ad's own. The title and
- *  description start at the variants asked for and move on past any that the
- *  marketplace could not tell from a recent ad (a colliding title, a
- *  description 80% the same), in the tone asked for and then the others. */
-export function listingFor(st, meta = {}, { angle = "auto", tone = "plain", titleVariant = 0, bodyVariant = 0, history = [], key = "", price } = {}) {
-  const read = readAd(st, meta);
+ *  ({ key, title, body }); the one under `key` is this ad's own. `avoid` is
+ *  what the boxes show now ({ title, body }), for ↻. The title and the
+ *  description start at the variants asked for and move on past any that is
+ *  shown now or that the marketplace could not tell from a recent ad (a
+ *  colliding title, a description 80% the same): the descriptions of the tone
+ *  asked for first, then the other tones'. `biz` is what the business can say
+ *  (BUSINESS); `area` the area the ad prints. */
+export function listingFor(st, meta = {}, { angle = "auto", tone = "plain", titleVariant = 0, bodyVariant = 0, history = [], key = "", price, avoid = {}, biz, area } = {}) {
+  const read = readAd(st, meta, { area });
   const use = angle && angle !== "auto" && ANGLES[angle] ? angle : read.angle;
-  const ctx = { ...read, angle: use };
+  const ctx = { ...read, angle: use, biz: businessOf(biz) };
   const past = history.filter(h => h && h.key !== key);
   const others = past.map(h => h.title).filter(Boolean), bodies = past.map(h => h.body).filter(Boolean);
   const wrap = (n, i) => ((i % n) + n) % n;
-  const collides = t => others.some(o => o.trim().toLowerCase() === t.toLowerCase() || titlesCollide(t, o));
-  const tones = [TONES[tone] ? tone : "plain", ...Object.keys(TONES).filter(k => k !== tone)];
-  let first = null, fresh = null;
-  for (const tn of tones) {
-    const titles = titleOptions(ctx, use, tn), T = ANGLES[use].tones[tn] || ANGLES[use].tones.plain;
-    const order = titles.map((_, i) => wrap(titles.length, titleVariant + i));
-    const tIdx = order.find(i => !collides(titles[i].title));
-    const title = titles.length ? titles[tIdx ?? order[0]].title : `We buy ${joinModels(ctx.models.slice(0, 2)) || FAMILY.plural}`;
-    for (let i = 0; i < T.bodies.length; i++) {
-      const v = wrap(T.bodies.length, bodyVariant + i), description = describe(ctx, use, tn, v, title);
-      const cand = { tone: tn, title, description, titleCount: titles.length, bodyCount: T.bodies.length, bodyIndex: v };
-      if (!first) first = cand;
-      if (!collides(title) && !bodies.some(b => similarity(description, b) >= NEAR_COPY)) { fresh = cand; break; }
-    }
-    if (fresh || !past.length) break;
+  const same = (a, b) => !!a && !!b && a.trim().toLowerCase() === b.trim().toLowerCase();
+  const asked = TONES[tone] ? tone : "plain";
+
+  // the title: the next one round from titleVariant that is not shown now and not a recent ad's twin
+  const titles = titleOptions(ctx, use, asked);
+  const collides = t => others.some(o => same(o, t) || titlesCollide(t, o));
+  let title = `We buy ${joinModels(ctx.models.slice(0, 2)) || FAMILY.plural}`;
+  if (titles.length) {
+    const order = titles.map((_, i) => titles[wrap(titles.length, titleVariant + i)].title);
+    title = order.find(t => !same(t, avoid.title) && !collides(t)) || order.find(t => !same(t, avoid.title)) || order[0];
   }
-  const pick = fresh || first;
-  return { angle: use, angleLabel: ANGLES[use].label, ...pick, toneAsked: tone, read,
-    check: lint(pick.title, pick.description, { price, others, bodies }) };
+
+  // the description: round the asked tone's from bodyVariant, then the other tones', first that is new
+  const cands = [];
+  const T0 = ANGLES[use].tones[asked] || ANGLES[use].tones.plain;
+  T0.bodies.forEach((_, i) => cands.push({ tone: asked, v: wrap(T0.bodies.length, bodyVariant + i) }));
+  for (const tn of Object.keys(TONES)) if (tn !== asked && ANGLES[use].tones[tn]) ANGLES[use].tones[tn].bodies.forEach((_, v) => cands.push({ tone: tn, v }));
+  let pick = null, fallback = null;
+  for (const c of cands) {
+    if (!past.length && !avoid.body && c !== cands[0]) break;               // nothing to keep apart from: the one asked for
+    const description = describe(ctx, use, c.tone, c.v, title);
+    const shown = same(description, avoid.body);
+    if (!fallback && !shown) fallback = { ...c, description };
+    if (!shown && !bodies.some(b => similarity(description, b) >= NEAR_COPY)) { pick = { ...c, description }; break; }
+  }
+  pick = pick || fallback || { tone: asked, v: wrap(T0.bodies.length, bodyVariant), description: describe(ctx, use, asked, wrap(T0.bodies.length, bodyVariant), title) };
+  return { angle: use, angleLabel: ANGLES[use].label, tone: pick.tone, toneAsked: asked, title, description: pick.description, bodyIndex: pick.v,
+    titleCount: titles.length, bodyCount: T0.bodies.length, read, biz: ctx.biz,
+    check: lint(title, pick.description, { price, others, bodies }) };
 }
