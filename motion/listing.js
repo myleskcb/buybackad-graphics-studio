@@ -270,18 +270,21 @@ export const ANGLES = {
         titles: ["Wholesale buyback for {lead} lots", "Sell your {lead} inventory by the lot"],
         bodies: [
           "Bulk purchase of {models}, quoted as one lot. Please send a list giving {details} for each unit, or a photo of the devices with their About screens.\n\nWe reply with a single offer for the lot and arrange an inspection in {area}. Each unit is checked and its IMEI verified in person before payment for the whole lot. The price on this post describes one clean unit, not a lot valuation. Every device must be released from its owner's Apple account and not reported lost or stolen.",
+          "Lot purchases are quoted from a written inventory. For each {device_word}, list the model, storage, carrier or unlocked status, and condition, noting any cracked glass, replaced parts or battery service messages.\n\nWe return one figure for the lot. At an agreed meeting in {area}, each unit is powered on, inspected and its IMEI checked before payment for the lot is made. The price on this post refers to a single clean {lead}. Devices must be signed out of their owners' Apple accounts and not reported lost or stolen.",
         ],
       },
       urgent: {
         titles: ["Moving a {lead} lot today? We buy it", "Sell your {lead} lot this week"],
         bodies: [
           "Need to move a lot of {family_plural} this week? Send the list now, with {details} for each, and ask which meeting times are available around {area}.\n\nWe quote the lot before you travel, then check every unit with you and pay for it at the meeting; timing is by agreement. The price on this post is one clean unit, so damage and mixed models change the lot offer. Each device must be signed out of its Apple account and not reported lost or stolen.",
+          "Clearing stock this week? Message us the list today, with {details} for each {device_word}, and say when you can meet around {area}.\n\nWe confirm the lot offer and a time before you travel; availability decides the day. At the meeting we check every unit with you and pay for the lot there. The price on this post is one clean {lead}, so the lot is quoted unit by unit. Each must be signed out of its Apple account and not reported lost or stolen.",
         ],
       },
       friendly: {
         titles: ["A box of {family_plural}? We buy the lot", "Sell us the whole {family} lot"],
         bodies: [
           "Got a box of {family_plural} you'd rather sell in one go? We buy them as a lot, mixed models and mixed condition welcome, {models} especially.\n\nA quick list is plenty: the model and storage of each ({where_to_find}), carrier or unlocked, and anything cracked. We'll come back with one number for the lot, meet you around {area}, check them over together and pay right there. The price on this post is about one clean {lead}. Each needs to be signed out of its Apple account and not reported lost or stolen.",
+          "Running a repair counter or flipping phones on the side? When the drawer of {family_plural} fills up, we'll take the lot off your hands in one go.\n\nSend what you have: model, storage, carrier or unlocked, and anything cracked or acting up. We'll come back with one number, meet you around {area}, look them over with you and pay right there. The price on this post is about one clean {lead}. Every one needs to be signed out of its Apple account and not reported lost or stolen.",
         ],
       },
     },
@@ -457,8 +460,60 @@ function buysLocked(text) {
   return "";
 }
 
-/** How a post reads: { score, verdict, signals } (buy_ad_copy.legitimacy, without the price). */
-export function legitimacy(title, body) {
+// ---- the price, and the other ads it goes up beside (buy_ad_copy: _price,
+// placeholder_price, titles_collide, shingles, similarity, SOFT_WORDS, COLOR_WORDS)
+
+/** A typed price as a number ("$650", "1,200"), or null. */
+export function priceOf(value) {
+  if (value === null || value === undefined) return null;
+  const s = String(value).replace(/[$,\s]/g, "");
+  return /^\d+(\.\d{1,2})?$/.test(s) ? Number(s) : null;
+}
+/** Why a price is a placeholder rather than a figure, or "". */
+export function placeholderPrice(value) {
+  const amount = priceOf(value);
+  if (amount === null) return "";
+  const whole = Math.floor(amount), fmt = n => "$" + Math.round(n).toLocaleString("en-US");
+  if (amount <= 5) return `${fmt(amount)} is a placeholder price that tops a low-to-high sort.`;
+  if (amount === whole && whole >= 99 && /^9+$/.test(String(whole))) return `${fmt(whole)} is a placeholder price, not an offer.`;
+  if (amount === whole && whole >= 1000 && whole % 1000 === 0) return `${fmt(whole)} is a round placeholder that sits the post among new phones.`;
+  if (amount >= 5000) return `${fmt(amount)} is not a price anybody pays for a used device.`;
+  return "";
+}
+// Words a title can lose or gain on the selling page without being another listing, and colours
+const SOFT_WORDS = new Set(["condition", "good", "used", "fair", "excellent", "new", "like", "mint", "great", "unlocked", "locked",
+  "authentic", "genuine", "grade", "a", "b", "c", "storage", "ram", "with", "and", "the", "for", "or", "in", "clean", "parts", "open",
+  "box", "activated", "unactivated", "no", "free", "accessories"]);
+const COLOR_WORDS = new Set(["black", "white", "silver", "gold", "gray", "grey", "space", "blue", "red", "green", "purple", "pink",
+  "yellow", "midnight", "starlight", "graphite", "sierra", "alpine", "natural", "titanium", "desert", "rose", "coral", "product", "jet",
+  "deep", "pacific", "teal", "ultramarine", "lavender", "orange", "sky", "sage", "mist", "cosmic", "phantom", "violet", "indigo", "navy",
+  "lilac", "sand", "clay", "obsidian", "porcelain"]);
+const titleTokens = text => new Set(String(text || "").toLowerCase().match(/[a-z0-9]+/g) || []);
+const hardTokens = text => new Set([...titleTokens(text)].filter(w => !SOFT_WORDS.has(w) && !COLOR_WORDS.has(w)));
+const sameSet = (a, b) => a.size === b.size && [...a].every(x => b.has(x));
+const within = (a, b) => [...a].every(x => b.has(x));
+/** Why a marketplace's title matcher could not tell these two listings apart, or "". */
+export function titlesCollide(a, b) {
+  const ta = titleTokens(a), tb = titleTokens(b);
+  if (!ta.size || !tb.size) return "";
+  const ha = hardTokens(a);
+  if (ha.size && sameSet(ha, hardTokens(b))) return "the same identifying words";
+  if (within(ta, tb) || within(tb, ta)) return "every word of one is inside the other";
+  return "";
+}
+const shingles = (text, n = 3) => { const w = String(text || "").toLowerCase().match(/[a-z0-9']+/g) || []; const s = new Set(); for (let i = 0; i + n <= w.length; i++) s.add(w.slice(i, i + n).join(" ")); return s; };
+/** How much of two descriptions is the same three-word runs, 0 to 1. */
+export function similarity(a, b) {
+  const sa = shingles(a), sb = shingles(b);
+  if (!sa.size || !sb.size) return 0;
+  let common = 0; for (const x of sa) if (sb.has(x)) common++;
+  return common / (sa.size + sb.size - common);
+}
+export const NEAR_COPY = .8;
+
+/** How a post reads: { score, verdict, signals } (buy_ad_copy.legitimacy). `price`
+ *  when there is one; `bodies` the descriptions it could be live beside. */
+export function legitimacy(title, body, { price, bodies = [] } = {}) {
   title = String(title || "").trim(); body = String(body || "").trim();
   const both = title + "\n" + body, signals = [];
   const add = (code, weight, message) => signals.push({ code, weight, message });
@@ -488,15 +543,22 @@ export function legitimacy(title, body) {
   else if (LOCKED.test(both)) add("locked_words", 10, "Lock, finance or blacklist words.");
   else if (CARRIER_LOCKED.test(both)) add("carrier_locked", 5, "Promises about carrier-locked phones.");
   if (/\bcash\b/i.test(both)) add("cash", 5, "The word cash.");
+  const bait = placeholderPrice(price);
+  if (bait) add("price_bait", 15, bait);
   if (body && body.length < 60) add("thin", 15, "A description of a few words reads as a placeholder.");
   else if (body && body.length < 120) add("thin", 5, "A very short description.");
+  if (body && bodies.some(o => o && o.trim() !== body && similarity(body, o) >= NEAR_COPY))
+    add("near_copy", 15, "Nearly the same description as another of your ads; a copy posted twice reads as spam.");
   const score = Math.max(0, 100 - signals.reduce((a, s) => a + s.weight, 0));
   return { score, verdict: score >= LEGIT_AT ? "legitimate" : score >= BORDERLINE_AT ? "borderline" : "spam", signals };
 }
 
 /** Blockers stop an ad being approved on iPhones LA, and here say "fix before
- *  posting"; warnings are shown beside it (buy_ad_copy.lint, without the price). */
-export function lint(title, body) {
+ *  posting"; warnings are shown beside it (buy_ad_copy.lint). `price` is
+ *  checked when given (undefined skips it: the generator writes words only);
+ *  `others` are the titles and `bodies` the descriptions of the user's other
+ *  recent ads, which it could be live beside. */
+export function lint(title, body, { price, others = [], bodies = [] } = {}) {
   title = String(title || "").trim(); body = String(body || "").trim();
   const blockers = [], warnings = [];
   if (!title) blockers.push(finding("title_missing", "The title is empty."));
@@ -531,7 +593,19 @@ export function lint(title, body) {
     if (stuffed.length) warnings.push(finding("body_stuffed", `"${stuffed[0]}" appears ${t.filter(x => x === stuffed[0]).length} times in the description; that reads as keyword stuffing.`));
   }
   if (/any\s+condition/i.test(both)) warnings.push(finding("any_condition", "\"Any condition\" over-promises: an Apple-account-locked device can't be bought."));
-  const legit = legitimacy(title, body);
+  if (price !== undefined) {
+    const amount = priceOf(price);
+    if (amount === null) blockers.push(finding("price_missing", "Set a price: OfferUp and Marketplace need one. Use about what you pay for a clean one of the lead model, as the description says."));
+    else if (amount <= 5) warnings.push(finding("price_bait", `$${amount} reads as a placeholder price meant to top a price sort.`));
+    else if (amount >= 1500) warnings.push(finding("price_inflated", `$${amount.toLocaleString("en-US")} reads as an inflated price; listings priced like that are removed.`));
+  }
+  for (const other of others) {
+    if (!other) continue;
+    if (other.trim().toLowerCase() === title.toLowerCase()) { warnings.push(finding("duplicate", `Another of your ads already uses the title "${other}".`)); break; }
+    const why = titlesCollide(title, other);
+    if (why) { warnings.push(finding("collides", `It could not be told apart from your ad "${other}" (${why}); posting both at once can take the wrong one down. ↻ gives another title.`)); break; }
+  }
+  const legit = legitimacy(title, body, { price, bodies });
   if (legit.verdict === "spam") blockers.push(finding("reads_as_spam", `This reads as spam (score ${legit.score} of 100).`));
   else if (legit.verdict === "borderline") warnings.push(finding("reads_borderline", `This reads as borderline (score ${legit.score} of 100).`));
   return { ok: !blockers.length, blockers, warnings, legit };
@@ -645,7 +719,10 @@ const placeless = (text, ctx) => ctx.area ? text : NO_AREA.reduce((t, [re, to]) 
  *  and how the buying works, for as long as every check still passes. */
 export function describe(ctx, angle = ctx.angle, tone = "plain", variant = 0, title = "We buy iPhones") {
   const A = ANGLES[angle] || ANGLES.general, T = A.tones[tone] || A.tones.plain;
-  const parts = placeless(fill(T.bodies[((variant % T.bodies.length) + T.bodies.length) % T.bodies.length], ctx, ctx.models.slice(0, 3)), ctx).split("\n\n");
+  let text = placeless(fill(T.bodies[((variant % T.bodies.length) + T.bodies.length) % T.bodies.length], ctx, ctx.models.slice(0, 3)), ctx);
+  // iPhones LA speaks Spanish; a customer whose ad is English only may not: a Spanish ad says it in its own paragraph
+  text = text.replace(/ Hablamos español\./g, "");
+  const parts = text.split("\n\n");
   const head = parts[0], last = parts.length > 1 ? parts[parts.length - 1] : "", middle = parts.slice(1, -1);
   const extras = [];
   const want = (k) => { const x = MORE[k]; return (!x.only || x.only.includes(angle)) && !(x.not || []).includes(angle); };
@@ -674,14 +751,35 @@ export function describe(ctx, angle = ctx.angle, tone = "plain", variant = 0, ti
   return body();
 }
 
-/** The listing for the ad on screen. */
-export function listingFor(st, meta = {}, { angle = "auto", tone = "plain", titleVariant = 0, bodyVariant = 0 } = {}) {
+/** The listing for the ad on screen. `history` is the user's recent listings
+ *  ({ key, title, body }); the one under `key` is this ad's own. The title and
+ *  description start at the variants asked for and move on past any that the
+ *  marketplace could not tell from a recent ad (a colliding title, a
+ *  description 80% the same), in the tone asked for and then the others. */
+export function listingFor(st, meta = {}, { angle = "auto", tone = "plain", titleVariant = 0, bodyVariant = 0, history = [], key = "", price } = {}) {
   const read = readAd(st, meta);
   const use = angle && angle !== "auto" && ANGLES[angle] ? angle : read.angle;
   const ctx = { ...read, angle: use };
-  const titles = titleOptions(ctx, use, tone);
-  const t = titles.length ? titles[((titleVariant % titles.length) + titles.length) % titles.length].title : `We buy ${joinModels(ctx.models.slice(0, 2)) || FAMILY.plural}`;
-  const description = describe(ctx, use, tone, bodyVariant, t);
-  return { angle: use, angleLabel: ANGLES[use].label, tone, title: t, description, titleCount: titles.length,
-    bodyCount: (ANGLES[use].tones[tone] || ANGLES[use].tones.plain).bodies.length, read, check: lint(t, description) };
+  const past = history.filter(h => h && h.key !== key);
+  const others = past.map(h => h.title).filter(Boolean), bodies = past.map(h => h.body).filter(Boolean);
+  const wrap = (n, i) => ((i % n) + n) % n;
+  const collides = t => others.some(o => o.trim().toLowerCase() === t.toLowerCase() || titlesCollide(t, o));
+  const tones = [TONES[tone] ? tone : "plain", ...Object.keys(TONES).filter(k => k !== tone)];
+  let first = null, fresh = null;
+  for (const tn of tones) {
+    const titles = titleOptions(ctx, use, tn), T = ANGLES[use].tones[tn] || ANGLES[use].tones.plain;
+    const order = titles.map((_, i) => wrap(titles.length, titleVariant + i));
+    const tIdx = order.find(i => !collides(titles[i].title));
+    const title = titles.length ? titles[tIdx ?? order[0]].title : `We buy ${joinModels(ctx.models.slice(0, 2)) || FAMILY.plural}`;
+    for (let i = 0; i < T.bodies.length; i++) {
+      const v = wrap(T.bodies.length, bodyVariant + i), description = describe(ctx, use, tn, v, title);
+      const cand = { tone: tn, title, description, titleCount: titles.length, bodyCount: T.bodies.length, bodyIndex: v };
+      if (!first) first = cand;
+      if (!collides(title) && !bodies.some(b => similarity(description, b) >= NEAR_COPY)) { fresh = cand; break; }
+    }
+    if (fresh || !past.length) break;
+  }
+  const pick = fresh || first;
+  return { angle: use, angleLabel: ANGLES[use].label, ...pick, toneAsked: tone, read,
+    check: lint(pick.title, pick.description, { price, others, bodies }) };
 }

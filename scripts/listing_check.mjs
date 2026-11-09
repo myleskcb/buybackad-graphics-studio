@@ -110,6 +110,44 @@ said({ headline: 'WE BUY IPHONES' }, 'general');
 const up = readAd({ phones: ['upload-1', '16-pink'] }, { ...meta, 'upload-1': { id: 'upload-1', model: 'Your phone', finish: 'IMG_0001', upload: true } });
 if (up.models.join() !== 'iPhone 16' || up.uploads !== 1) bad('reading the ad', `an upload read as ${JSON.stringify(up.models)}`);
 
+// an ad of uploaded phones only: no model to name, still a whole listing that passes
+{
+  const upMeta = { ...meta, 'upload-2': { id: 'upload-2', model: 'Your phone', finish: 'IMG_2', upload: true } };
+  for (const angle of ANGLE_KEYS) {
+    const L = listingFor({ phones: ['upload-2'], area: 'Long Beach', lang: 'en' }, upMeta, { angle });
+    if (!L.check.ok || L.check.warnings.some(w => w.code !== 'title_cut')) bad(`uploads only/${angle}`, `"${L.title}": ${[...L.check.blockers, ...L.check.warnings].map(f => f.code).join(', ')}`);
+    if (/Your phone|IMG_2|\{/.test(L.title + L.description)) bad(`uploads only/${angle}`, 'names the upload or leaves a placeholder');
+    if (/in the picture are the models/.test(L.description)) bad(`uploads only/${angle}`, 'claims pictured models it cannot name');
+  }
+}
+// "Hablamos español" only on an ad that speaks Spanish
+for (const lang of ['en', 'es']) {
+  const L = listingFor({ phones: SETS[0], area: 'Long Beach', lang }, meta, { angle: 'general', bodyVariant: 1 });
+  if ((lang === 'en') === /Hablamos/.test(L.description)) bad('Spanish claim', `${lang} ad ${lang === 'en' ? 'says' : 'does not say'} "Hablamos español"`);
+}
+// the price, as the listings site checks it
+const priced = p => listingFor({ phones: SETS[0], area: 'Long Beach' }, meta, { angle: 'local_buyer', price: p }).check;
+const expect = (p, want) => { const c = priced(p), got = [...c.blockers, ...c.warnings].map(f => f.code).concat(c.legit.signals.map(s => 'legit:' + s.code)); for (const w of want) if (!got.includes(w)) bad(`price ${JSON.stringify(p)}`, `expected ${w}, got ${got.join(', ') || 'nothing'}`); if (!want.length && got.some(g => !/title_cut/.test(g))) bad(`price ${JSON.stringify(p)}`, `expected a clean pass, got ${got.join(', ')}`); };
+expect('', ['price_missing']); expect('abc', ['price_missing']); expect('650', []); expect('$1,240', []);
+expect('1', ['price_bait', 'legit:price_bait']); expect('999', ['legit:price_bait']); expect('1000', ['legit:price_bait']); expect('2000', ['price_inflated', 'legit:price_bait']);
+if (priced(undefined).blockers.length) bad('price', 'a listing without a price field is blocked');
+// a run of ads in one angle: each title tells apart from the others, each description is no copy of another
+{
+  const history = [], runSets = [...SETS, ['13-pink'], ['15-blue', '14-yellow']].filter(s => s.every(id => meta[id]));
+  for (const angle of ['wholesale', 'local_buyer']) {
+    history.length = 0;
+    runSets.forEach((phones, i) => {
+      const L = listingFor({ phones, area: 'Long Beach', lang: 'en' }, meta, { angle, history, key: `ad${i}` });
+      const codes = L.check.warnings.map(w => w.code).concat(L.check.legit.signals.map(s => s.code));
+      if (i < Object.values(ANGLES[angle].tones).reduce((n, t) => n + t.bodies.length, 0) && codes.some(c => ['duplicate', 'collides', 'near_copy'].includes(c))) bad(`run of ${angle} ads #${i + 1}`, `"${L.title}": ${codes.join(', ')}`);
+      // the same ad again is not a copy of itself
+      const again = listingFor({ phones, area: 'Long Beach', lang: 'en' }, meta, { angle, history: [...history, { key: `ad${i}`, title: L.title, body: L.description }], key: `ad${i}` });
+      if (again.title !== L.title || again.description !== L.description) bad(`run of ${angle} ads #${i + 1}`, 'the same ad wrote a different listing once its own was remembered');
+      history.push({ key: `ad${i}`, title: L.title, body: L.description });
+    });
+  }
+}
+
 const spread = a => { const s = [...a].sort((x, y) => x - y); return `${s[0]} to ${s[s.length - 1]}, median ${s[s.length >> 1]}`; };
 console.log(`${n} listings: ${ANGLE_KEYS.length} angles x ${Object.keys(TONES).length} tones x their descriptions, ${SETS.length} phone sets, ${AREAS.length} areas, ${LANGS.length} languages`);
 console.log(`  titles ${spread(titleLens)} characters; descriptions ${spread(bodyLens)}`);
