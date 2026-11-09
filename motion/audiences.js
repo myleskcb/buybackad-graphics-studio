@@ -470,6 +470,55 @@ export const AUDIENCES = {
         "Compradores locales. Mándanos una foto de tu iPhone viejo."],
     },
   },
+  // The two buying angles (owner, 2026-11-09: "Wholesale buyer and local buyer
+  // style / angle of ad"), the same angles iPhones LA's listing maker writes
+  // titles and descriptions for (motion/listing.js). Both by hand only: each
+  // states how the buyer works (a lot quoted at once; a meet nearby), and an
+  // option a shuffle never draws leaves every saved look number as it was.
+  wholesale: {
+    label: "Wholesale buyer", byHand: true, who: "Resellers, repair shops, flippers, and anyone with a box of phones to move at once.",
+    insight: "One buyer who quotes the whole lot and pays for it at once beats selling phones one at a time.",
+    avoid: "Consumer cuteness, claims about paying the most, anything that looks like a side hustle.",
+    moods: ["confident", "newsy", "street"], casts: ["crisp_m", "news_m", "crisp_f", "street_m"],
+    looks: { vibes: ["pro_office", "breaking_news", "repair_shop", "swap_meet"], sound_kit: ["hiphop", "minimal", "house"], bpm: [104, 122], grade: ["clean", "punchy"] },
+    copy: {
+      en: { hooks: ["GOT A BOX OF IPHONES?", "SELLING IN BULK?", "RESELLERS, LISTEN UP", "A WHOLE LOT TO SELL?"],
+        headlines: ["WE BUY IPHONES WHOLESALE", "WHOLESALE IPHONE BUYER", "ONE OFFER FOR THE WHOLE LOT", "WE BUY IPHONE LOTS"],
+        tags: ["BULK OK", "ONE QUOTE FOR THE LOT", "MIXED MODELS WELCOME", "TEXT A LIST OR A PIC"], cta: ["TEXT US", "GET A QUOTE"] },
+      es: { hooks: ["¿TIENES UNA CAJA DE IPHONES?", "¿VENDES AL MAYOREO?"],
+        headlines: ["COMPRAMOS IPHONES AL MAYOREO", "UNA OFERTA POR TODO EL LOTE"],
+        tags: ["MÁNDANOS LA LISTA", "COTIZACIÓN GRATIS"], cta: ["¡MÁNDANOS TEXTO!"] },
+    },
+    vo: {
+      en: ["Selling iPhones in bulk? We buy the whole lot.",
+        "Resellers and repair shops: one offer for the whole lot of iPhones. Text the number on your screen.",
+        "A box of iPhones to move? Text us a list or a photo for one offer."],
+      es: ["¿Vendes iPhones al mayoreo? Compramos todo el lote.",
+        "Una sola oferta por todo el lote. Manda texto al número en tu pantalla."],
+    },
+  },
+  local_buyer: {
+    label: "Local buyer", byHand: true, who: "Ready to sell one phone and would rather meet someone nearby than ship it or list it.",
+    insight: "A buyer nearby who checks the phone with them and pays on the spot is the simple way to sell.",
+    avoid: "Mail-in talk, corporate tone, promises about timing.",
+    moods: ["street", "confident", "warm"], casts: ["street_m", "street_f", "host_m", "warm_f"],
+    looks: { vibes: ["bandit_sign", "corner_store", "sunset_blvd", "freeway", "clean_tech"], sound_kit: ["hiphop", "house", "uplift"], bpm: [100, 122], grade: ["film", "punchy", "clean"] },
+    copy: {
+      en: { hooks: ["SELLING YOUR IPHONE?", "SKIP THE SHIPPING", "READY TO SELL?", "IPHONE BUYER NEARBY"],
+        headlines: ["LOCAL IPHONE BUYER", "SELL YOUR IPHONE TO A LOCAL BUYER", "WE BUY IPHONES IN {AREA}", "MEET NEARBY, GET PAID"],
+        tags: ["MEET UP LOCAL", "PAID ON THE SPOT", "NEW, USED OR CRACKED", "NO SHIPPING"], cta: ["TEXT US", "GET YOUR QUOTE"] },
+      es: { hooks: ["¿VENDES TU IPHONE?", "¿LISTO PARA VENDER?"],
+        headlines: ["COMPRADOR LOCAL DE IPHONES", "VENDE TU IPHONE AQUÍ MISMO"],
+        tags: ["NOS VEMOS CERCA", "TE PAGAMOS AL MOMENTO"], cta: ["¡MÁNDANOS TEXTO!"] },
+    },
+    vo: {
+      en: ["Selling your iPhone? We're a local buyer.",
+        "Skip the shipping. Meet a local buyer and get paid. Text the number on your screen.",
+        "Ready to sell your iPhone? We meet nearby, check it with you, and pay right there."],
+      es: ["¿Vendes tu iPhone? Somos compradores locales.",
+        "Nos vemos cerca y te pagamos al momento. Manda texto al número en tu pantalla."],
+    },
+  },
 };
 
 export const AUDIENCE_KEYS = Object.keys(AUDIENCES);
