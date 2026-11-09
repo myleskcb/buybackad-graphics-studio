@@ -27,8 +27,10 @@
  *   GET  /api/ads/mine              the library: name, links, items
  *   POST /api/ads/save              { image: "data:image/jpeg;base64,...", title,
  *                                     category, template, texts, products,
- *                                     caption, hold }
- *   POST /api/ads/update            { id, title?, caption? }
+ *                                     caption, hold, listing? }
+ *   POST /api/ads/update            { id, title?, caption?, listing? }
+ *   listing: { title, description, price } from the video maker's Quick ad, or
+ *   null; on the feed as it was saved (cleanListing)
  *   POST /api/ads/remove            { id }
  *   POST /api/ads/settings          { name? }
  *   POST /api/ads/link/reset        a new public link; the old one stops
@@ -203,6 +205,7 @@ function itemOut(item, origin, feed, now) {
     caption: item.caption || '',
     texts: item.texts || [],
     products: item.products || [],
+    listing: item.listing || null,
     template: item.template || null,
     image: {
       url: origin + '/api/ads/feed/' + feed + '/img/' + item.id + '.jpg?v=' + item.sha256.slice(0, 12),
@@ -279,6 +282,21 @@ function cleanTexts(v) {
 function cleanProducts(v) {
   if (!Array.isArray(v)) return [];
   return [...new Set(v.map((s) => String(s || '').toLowerCase()).filter((s) => SLUG_RE.test(s)))].slice(0, 24);
+}
+/* The listing the video maker's Quick ad wrote for the ad (motion/listing.js,
+   2026-11-09): a title, a description and the user's price, for the listings
+   site's review to start from. It still writes and approves its own. Words
+   only, held to size here, never to meaning: line breaks kept, other control
+   characters out. Null when there is none, or it is not whole. */
+function cleanListing(v) {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return null;
+  const title = text(v.title, 80);
+  const description = typeof v.description === 'string'
+    ? v.description.replace(/\r\n?/g, '\n').replace(/[\x00-\x09\x0b-\x1f\x7f]/g, ' ').replace(/[ \t]+/g, ' ').replace(/ *\n */g, '\n').replace(/\n{3,}/g, '\n\n').trim().slice(0, 3000)
+    : '';
+  if (!title || !description) return null;
+  const n = typeof v.price === 'number' ? v.price : typeof v.price === 'string' && /^\d+(\.\d{1,2})?$/.test(v.price.trim()) ? Number(v.price) : NaN;
+  return { title, description, price: Number.isFinite(n) && n > 0 && n < 100000 ? Math.round(n * 100) / 100 : null };
 }
 function defaultCaption(texts, title) {
   const head = texts.find((t) => t.role === 'headline') || texts[0];
@@ -438,6 +456,7 @@ export async function adLibraryRoute(req, url, p, env, deps) {
       source: text(body.source, 20),
       caption: text(body.caption, 500) || defaultCaption(texts, title),
       texts, products: cleanProducts(body.products),
+      listing: cleanListing(body.listing),
       w: size.w, h: size.h, bytes: bytes.length, sha256,
       created: now, updated: now, post_from: now,
       hold,
@@ -454,6 +473,7 @@ export async function adLibraryRoute(req, url, p, env, deps) {
     if (!item) return reply({ error: 'No such ad in your library' }, 404);
     if (body.title !== undefined) item.title = text(body.title, 80) || item.title;
     if (body.caption !== undefined) item.caption = text(body.caption, 500);
+    if (body.listing !== undefined) item.listing = cleanListing(body.listing);
     item.updated = now;
     await writeLib(store, owner, lib);
     return reply({ item: itemOut(item, origin, lib.feed, now) });

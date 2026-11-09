@@ -391,6 +391,8 @@ An ad (an example record):
   "video": { "url": "https://.../api/ads/feed/fd_.../video/ad_mfx1k2abcd.mp4?v=9b1c2d3e4f50", "width": 1080, "height": 1080, "bytes": 5213344, "format": "mp4", "seconds": 10 },
   "created": "2026-10-05T12:00:00Z", "updated": "2026-10-05T12:00:00Z",
   "fresh_until": "2026-10-12T12:00:00Z", "fresh": true,
+  "listing": { "title": "We buy iPhone 15 Pro and 15 Pro Max in Long Beach, new or used",
+               "description": "We buy iPhone 15 Pro and 15 Pro Max in person around Long Beach. …", "price": 650 },
   "autopost": true, "repost_days": 1, "hold": null,
   "post": { "slot_id": "ad_mfx1k2abcd@2026-10-05T12:00:00Z", "due_at": "2026-10-05T12:00:00Z", "next_at": "2026-10-06T12:00:00Z", "round": 1 } }
 ```
@@ -412,6 +414,16 @@ An ad (an example record):
   number is left out of `texts`), for the site's title and description
   maker; `title` and `caption` are the studio's plain defaults (the
   headline), not a listing.
+- `listing` (2026-11-09) is the title, description and price the video
+  maker's ⚡ Quick ad wrote for this ad, or `null` (every ad saved another
+  way, and every ad saved before). It is written by a port of this site's own
+  `app/buy_ad_copy.py`: its angles and tones (plus a wholesale angle), its
+  `lint` and `legitimacy` checks, the pictured models and the area, and the
+  user's hand edits and price as they were when the ad was saved. It is a
+  suggestion for the review to start from: the review still writes, approves
+  or denies its own, and nothing here is posted without that. `title` is 80
+  characters at most, `description` 3,000 with its line breaks, `price` a
+  number or `null`.
 - `kind` is `"photo"` or `"video"`. A video ad carries `video` (its clip:
   MP4 where the owner's browser could write one, WebM otherwise, with
   `width`, `height`, `bytes` and `seconds`) beside `image`, which is still the

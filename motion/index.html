@@ -76,7 +76,8 @@
       <p class="mo-note" id="export-note"></p>
 
       <section class="mo-quick" id="quick" aria-labelledby="quick-h">
-        <h2 class="mo-quick-h" id="quick-h">&#9889; Quick ad <span class="mo-opt">a new look for the angle, its photo or video, and a listing written from what is on it</span></h2>
+        <h2 class="mo-quick-h" id="quick-h">&#9889; Quick ad</h2>
+        <p class="mo-note mo-quick-sub">A new look for the angle, its photo or video, and a title and description written from what is on it.</p>
         <div class="mo-seg" id="qa-angles" role="radiogroup" aria-label="Angle of the ad">
           <button data-angle="auto" role="radio" title="The angle the ad's own words and audience say">From the ad</button>
           <button data-angle="wholesale" role="radio" title="Resellers, repair shops and anyone with a lot to sell: one offer for the lot">Wholesale buyer</button>
@@ -90,21 +91,24 @@
           <div class="mo-seg" id="qa-kind" role="radiogroup" aria-label="Make a photo or a video">
             <button data-kind="photo" role="radio">Photo</button>
             <button data-kind="video" role="radio">Video and its photo</button>
+            <button data-kind="library" role="radio" title="The video and its photo saved to your library, with this title, price and description">Save to library</button>
           </div>
           <label class="mo-quick-tone">Tone <select id="qa-tone"></select></label>
           <button class="mo-btn primary" id="quick-ad" title="A new look made for the angle, downloaded as a photo or video, with its title and description below">&#9889; Make quick ad</button>
         </div>
+        <div class="mo-biz" id="qa-biz" role="group" aria-label="What your listing can say about your business"></div>
         <div class="mo-listing">
           <div class="mo-listing-row"><label for="qa-title">Title</label> <span class="mo-opt" id="qa-title-n"></span>
             <button class="mo-mini" id="qa-new-title" title="Another title" aria-label="Another title">&#10227;</button>
-            <button class="mo-link" id="qa-copy-title" type="button">Copy</button></div>
+            <button class="mo-link" id="qa-copy-title" type="button" aria-label="Copy the title">Copy</button></div>
           <textarea id="qa-title" rows="2" maxlength="80" spellcheck="true"></textarea>
           <label class="mo-listing-price" for="qa-price">Price <span class="mo-opt" id="qa-price-hint">about what you pay for a clean one, as the description says</span></label>
           <span class="mo-price-box"><span aria-hidden="true">$</span><input id="qa-price" inputmode="decimal" autocomplete="off" maxlength="9" placeholder="0"></span>
           <div class="mo-listing-row"><label for="qa-body">Description</label> <span class="mo-opt" id="qa-body-n"></span>
             <button class="mo-mini" id="qa-new-body" title="Another description" aria-label="Another description">&#10227;</button>
-            <button class="mo-link" id="qa-copy-body" type="button">Copy</button></div>
+            <button class="mo-link" id="qa-copy-body" type="button" aria-label="Copy the description">Copy</button></div>
           <textarea id="qa-body" rows="12" maxlength="3000" spellcheck="true"></textarea>
+          <p class="mo-note mo-qa-stale" id="qa-stale" hidden>The ad changed since you edited the listing; your words are kept. <button class="mo-link" id="qa-rewrite" type="button">Rewrite it for this ad</button></p>
           <p class="mo-note mo-qa-check" id="qa-check" aria-live="polite"></p>
           <p class="mo-note" id="qa-read"></p>
           <p class="mo-qa-actions"><button class="mo-link" id="qa-copy-all" type="button">Copy title and description</button>

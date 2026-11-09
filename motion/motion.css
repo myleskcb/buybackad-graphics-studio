@@ -146,7 +146,12 @@ a.mo-btn{display:inline-flex;align-items:center;text-decoration:none}
 .mo-quick-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
 .mo-quick-row .mo-seg{flex:1 1 220px;margin:4px 0}
 .mo-quick-tone{font-size:13px;font-weight:700;color:var(--text-2);display:flex;align-items:center;gap:6px}
-.mo-quick-tone select{background:var(--bg);color:var(--text);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:600 14px Satoshi,system-ui,sans-serif;min-height:40px}
+.mo-quick-tone select{background:var(--bg);color:var(--text);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:600 16px Satoshi,system-ui,sans-serif;min-height:40px}
+.mo-quick-sub{margin:0 0 4px}
+.mo-biz{display:flex;flex-wrap:wrap;gap:0 16px;margin:2px 0 0}
+.mo-biz .mo-check{margin:6px 0}
+.mo-qa-stale{background:color-mix(in srgb,var(--btn) 10%,var(--bg));border-radius:10px;padding:8px 10px;color:var(--text-2)}
+.mo-qa-stale[hidden]{display:none}
 .mo-listing{margin-top:8px}
 .mo-listing-row{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-size:13px;font-weight:700;color:var(--text-2)}
 .mo-listing-row label{color:var(--text)}
@@ -160,5 +165,9 @@ a.mo-btn{display:inline-flex;align-items:center;text-decoration:none}
 .mo-price-box input{width:9ch;background:var(--bg);color:var(--text);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:600 16px Satoshi,system-ui,sans-serif;min-height:40px}
 .mo-qa-check b{color:var(--text)}
 .mo-qa-check .bad{color:#c2410c;font-weight:700}
+.mo-qa-check.todo{color:var(--text-2)}
 .mo-qa-actions{display:flex;flex-wrap:wrap;gap:4px 14px;margin:4px 0 0}
 @media (max-width:520px){.mo-quick-row .mo-btn{flex:1 1 100%}}
+/* the title wraps to three lines on a phone: the box grows to show all of it */
+.mo-listing #qa-title{field-sizing:content;min-height:calc(2 * 1.45em + 22px)}
+@media (max-width:520px){.mo-listing #qa-title{min-height:calc(3 * 1.45em + 22px)}}

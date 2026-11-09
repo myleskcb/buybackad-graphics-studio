@@ -4803,3 +4803,58 @@ RESUME HERE:
   1. The ad library's feed still carries the studio's plain title (the
      headline); sending the Quick ad listing with a saved ad is the owner's
      call, since iPhones LA's review writes its own.
+
+## 2026-11-09 (later) — Quick ad audited for what was missing, and fixed (claude/quirky-ride-gi02j6)
+
+Asked: "fix and audit extensively for missing incomplete or unfinished /
+planned features". An independent read of the diff beside this session's own.
+
+Fixed:
+  - The listing checks had lost three of iPhones LA's: the price (missing
+    blocks; $5 and under, all nines, round thousands, $1,500+ flagged), titles a
+    marketplace cannot tell apart, and descriptions 80% the same as another.
+    The page has a price field (kept per lead model) and remembers the
+    listings this browser copied, saved or made (14 days, 30): a new one is
+    written apart from them, and ↻ always gives another.
+  - Wholesale had 5 descriptions to the others' 8; now 8.
+  - What iPhones LA can say and a customer may not: "our shop", "usually the
+    same day", "Hablamos español". Three switches (shop, same day, Spanish);
+    off, the words say only what stays true. Spanish is said once, by its
+    paragraph, first on a Spanish-only ad, and may end the title.
+  - The description quotes the picture's headline (when the checks allow) and
+    names up to six pictured models; US spelling (color, neighbor, inquiry).
+  - The area as written (long beach → Long Beach), the one the ad prints, and
+    the Spanish article in "MÁNDANOS LA LISTA" is no longer Los Angeles.
+  - Make quick ad: one at a time (it stayed pressable during its download,
+    and saved the old look under the new listing); From the ad keeps what is
+    locked; Back restores the locks as well as the look; a hand edit is kept
+    when the ad changes, with "Rewrite it for this ad"; an audience chosen by
+    hand puts a picked angle back to From the ad; a Save to library choice.
+  - The library carries the listing: lookMeta sends it, adlibrary.mjs keeps
+    it (cleanListing: title 80, description 3,000 with its line breaks, price),
+    and the feed shows it as `listing` (null otherwise). README updated, zip
+    repacked. The review on iPhones LA still writes and approves its own.
+  - Accessibility and phone: the tone menu at 16px (iOS zoom), the subtitle out
+    of the heading, the check line (a live region) waits for typing to pause,
+    the two Copy buttons named apart, Enter cannot break the title, the title
+    box shows all three lines at 390, and the panel has its own try so a
+    failure there cannot clear the saved look.
+
+Checked: listing_check (2,700 listings and the new cases) all clear;
+audience_check all clear; ad_library_check --no-browser no failures (with the
+listing kept, cleaned, updated); quick_ad_check 47 checks all passed under the
+production CSP. library_handoff_check needs puppeteer-core, which this
+container lacks: the zip was checked by hand (same files, README byte for byte).
+
+Not done:
+  - Voiceovers: motion/voice/manifest.json has no clips for any audience, so
+    every video plays music only. `node scripts/voice_bank.mjs` records them
+    (an ElevenLabs key; the dry run plans 20 takes, 1,324 characters).
+  - Quick ad's Save to library is not pressed in a browser here (it needs a
+    signed-in account and the backend); the save path is the ⭐ button's.
+  - The check reads the words, not the picture: a picture that says CASH is
+    the studio's copy rules' to keep, not the listing's.
+
+RESUME HERE:
+  0. Record the voice bank (above).
+  1. Merge to main when the owner has looked at /motion/'s Quick ad.
