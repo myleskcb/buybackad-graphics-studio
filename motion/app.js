@@ -956,8 +956,25 @@ async function makeVideo(st, { how = "auto", withSound = true, prog = () => {}, 
   } catch (e) { if (e && typeof e === "object") try { e.ad = ad; } catch (x) { /* frozen */ } throw e; }
 }
 
+/** The ad's number, before anything is made from it: Easy Mode's rule (app.js
+ *  ezDownload), so a download never says YOUR NUMBER (the engine's stand-in for an
+ *  empty one) or carries a number nobody can dial. False, with the field shown and
+ *  focused, when it is missing or not a number someone can dial. (Usability audit, 2026-11-10:
+ *  Quick ad downloaded an ad saying YOUR NUMBER, and one with a 20-digit number.) */
+function numberReady() {
+  const raw = String(state.style.number || "").trim(), digits = raw.replace(/\D/g, "");
+  // a US number (10 digits, or 11 starting with 1), or one written with + and its country code
+  if (digits.length === 10 || (digits.length === 11 && digits[0] === "1") || (raw[0] === "+" && digits.length >= 8 && digits.length <= 15)) return true;
+  const f = $("f-number"), sec = f && f.closest("details");
+  if (sec) sec.open = true;
+  VH().toast(digits ? `That number has ${digits.length} digits; a US number has 10 (start with + for another country). Check it under Words, then try again.` : "Type your phone number first, under Words: buyers need to reach you.");
+  if (f) { f.scrollIntoView({ behavior: "smooth", block: "center" }); f.focus({ preventScroll: true }); }
+  return false;
+}
+
 async function download(opts = {}) {
   const how = opts.how || "auto", withSound = opts.sound !== false;
+  if (!numberReady()) return;
   const btn = $("download"); if (btn.disabled) return; btn.disabled = true;
   const H = VH();
   $("progress").hidden = false; $("export-note").textContent = "";
@@ -1031,6 +1048,7 @@ async function download(opts = {}) {
    its short side, a JPG). A photo is one of the plan's downloads on
    every plan, as the studio's are: Free's at 1080 with the watermark. */
 async function downloadJpg() {
+  if (!numberReady()) return;
   const btn = $("download-jpg"); if (btn.disabled) return; btn.disabled = true;
   const H = VH();
   $("progress").hidden = false; $("export-note").textContent = "";
@@ -1079,6 +1097,7 @@ function lookMeta(st) {
   return meta;
 }
 async function saveLook(stRaw, btn) {
+  if (!numberReady()) return null;
   const H = VH();
   const lib = window.adLibrary;
   if (!lib) { H.toast("The library did not load. Reload the page and try again."); return null; }
@@ -1333,6 +1352,8 @@ async function syncBuyList(st, refill = false) {
 }
 
 async function downloadBuyList() {
+  // no number is allowed (the card says "message us"); a number that cannot be dialled is not
+  if (String(state.style.number || "").trim() && !numberReady()) return;
   const btn = $("bl-download"); if (btn.disabled) return; btn.disabled = true;
   const note = t => { $("bl-check").textContent = t; };
   try {
@@ -1469,6 +1490,7 @@ async function copyText(text, said) {
 async function quickAd() {
   const btn = $("quick-ad");
   if (btn.disabled) return;
+  if (!numberReady()) return;
   if ($("download").disabled || $("download-jpg").disabled || ($("mo-star") && $("mo-star").disabled)) { VH().toast("A download is still being made. Make the quick ad when it is done."); return; }
   btn.disabled = true;
   const note = t => { $("export-note").textContent = t; };

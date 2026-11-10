@@ -13,7 +13,15 @@ the studio's own engine; the listing page puts one on a listing as a photo.
 
 BUYBACK.AD's part is built and on `main` (`netlify/lib/library.mjs`, served as
 `/api/library/v1`; the renders in `assets/library-ads/`; DESIGN-LAW rule 111).
-This folder is the rest, for `loganipad/iphoneslainv`.
+This folder is the rest, for `myleskcb/iphoneslainv-1` (the repo was
+`loganipad/iphoneslainv` until the move of 2026-10-19).
+
+**Read this first (2026-11-10):** iPhones.LA did not take this folder's
+client, picker or worker. It reads the ad library's feed with its own
+`app/buyback_ad_feed.py`, approves each studio ad once on its `/ads` page, and
+never calls `/api/library/v1`. How the two repos really talk today, and what
+each side owes the other, is `docs/IPHONESLA-CONNECTION.md`. This folder stays
+as the reference for the Designer Library API.
 
 ## How the two apps talk
 
@@ -254,14 +262,14 @@ above, taken out of this file and run; `example_server.py`'s listing page in
 Chromium (the picker loads the ads with their upload dates, "gold" narrows
 them, newest first orders them, a pick adds the ad to the photos named for
 its upload day, byte for byte the library's file); and
-`docs/iphonesla-library.zip` holding exactly these files. Not checked from there: `loganipad/iphoneslainv`
+`docs/iphonesla-library.zip` holding exactly these files. Not checked from there: `myleskcb/iphoneslainv-1`
 itself, which that session could not reach, and the live site, which has the
 API only once `main` is deployed with `LIBRARY_KEYS` set.
 
 ## Paste-ready prompt for the iPhones LA session
 
 ```
-In loganipad/iphoneslainv: add the BUYBACK.AD ad library to the listing page
+In myleskcb/iphoneslainv-1: add the BUYBACK.AD ad library to the listing page
 (the page where a listing gets its title and description and is listed).
 The library is BUYBACK.AD's finished ads (with our number on them) as
 1080x1080 JPEGs; a picked ad goes on the listing as a photo.
@@ -499,13 +507,13 @@ once a day for its seven days, because each day's slot is a new guid.
   7", and the link, with no switch or schedule to set. A free account's
   watermarked ad is held. The public page shows the ad.
 
-Not checked from here: `loganipad/iphoneslainv` itself, which this session
+Not checked from here: `myleskcb/iphoneslainv-1` itself, which this session
 cannot reach.
 
 ### Paste-ready prompt for the iPhones LA session (review, then post)
 
 ```
-In loganipad/iphoneslainv: bring BUYBACK.AD's WE BUY ads into the listings
+In myleskcb/iphoneslainv-1: bring BUYBACK.AD's WE BUY ads into the listings
 site's review every day, and post the approved ones through the shop's
 existing Auto-post, within its daily limits.
 

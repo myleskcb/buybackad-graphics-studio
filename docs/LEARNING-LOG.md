@@ -4924,3 +4924,39 @@ RESUME HERE:
   0. Record the voice bank (2026-11-09).
   1. Merge to main when the owner has looked at /motion/'s Quick ad, Sell
      direct and the buying list.
+
+## 2026-11-10 (later) — the iPhones.LA connection written down; Quick ad and downloads need a number (claude/quirky-ride-gi02j6)
+
+Asked: "write any information or connections necessary to make sure it's
+fully in communication with the iPhones LA repo", and an audit of how easy the
+studio is to use.
+
+Done:
+  - docs/IPHONESLA-CONNECTION.md: the seven connections both ways (connect
+    code to `gfx_` token, brief, image import with the `graphic` tag file, the
+    library link, the feed iPLA reads every 10 minutes, the link back, and the
+    Designer Library iPLA never called), each side's settings, a "change X,
+    change Y" list, the mismatches found, a prompt for a session on
+    myleskcb/iphoneslainv-1, and an end-to-end test. Read against iPLA
+    `30866d5`; its claims were spot-checked in both repos (the CORS default,
+    STUDIO_SITES, the fields `read_ad` reads, the 4 MB cap, the stale links).
+  - The studio's link back to the shop pointed at /repost#configurator, which
+    shows only posting slots since 2026-09-22; it is /ads#studio now, every
+    message names the Ad Generator, and a return on admin.iphones.la is kept
+    (derived from the shop's own origin, so the source still names one host).
+  - The old repo name is gone from the current docs; the hand-off README says
+    iPLA built its own reader; the zip is repacked (README byte for byte).
+  - The usability audit found the video maker downloading an ad that says YOUR
+    NUMBER (the engine's stand-in for an empty number), and one with a 20-digit
+    number. Download video, Download photo, Save to library and Quick ad now ask
+    for a number someone can dial first (10 digits, 11 starting with 1, or + and
+    a country code), Easy Mode's rule, and show the field. The buying list may
+    go without a number (it says "message us") but never with a wrong one.
+
+Checked: tests-iphonesla-link 68 of 68; buylist_check all passed (the number
+cases included); quick_ad_check 47 all passed.
+
+Owed (in the connection doc): GFX_STUDIO_ORIGINS on iPLA's Render service for
+finished-copy; the owner's call on the number on WE BUY pictures; iPLA's side
+(the listing field, ?due=1, the cutout slugs, its own stale links, a real feed
+fixture in its tests).

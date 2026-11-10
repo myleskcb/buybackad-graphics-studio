@@ -251,7 +251,7 @@ Off the owner's Mac (a sandbox, CI): `CHROME=/path/to/chrome` and
 
 Still open:
 
-- **The 50 offer cards** live in `loganipad/iphoneslainv`, out of this repo's
+- **The 50 offer cards** live in `myleskcb/iphoneslainv-1`, out of this repo's
   reach. `docs/handoff-offer-cards-number.md` has the rule at 1200px and a
   paste-ready prompt. Owner's call inside it: does the marketplace set carry
   the number too.
@@ -2155,7 +2155,7 @@ Check: `scripts/ad_library_check.mjs`.
    production from here, because this session's network cannot reach
    Netlify.
 2. **iPhones LA has to plug `post()` into its Auto-post.** The handoff zip and
-   prompt are ready; `loganipad/iphoneslainv` is out of this session's reach.
+   prompt are ready; `myleskcb/iphoneslainv-1` is out of this session's reach.
 3. **One save at a time.** The library index is read, changed and written per
    save, so two saves at the very same moment (two tabs) could drop one. The
    studio saves one after another. A lock or one blob per ad is the fix if

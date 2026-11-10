@@ -7,7 +7,8 @@
         own check (contrast against the ground under them, and width).
      4. A typed list is kept; the Spanish card says it in Spanish; too long a
         line is shrunk to fit, never cut; Use the ad's phones goes back.
-     5. Download saves a JPG of the ad's size that is not blank.
+     5. Download saves a JPG of the ad's size that is not blank; with no number,
+        or one nobody can dial, Quick ad makes nothing and shows the field.
      6. No page errors, no CSP violations, nothing scrolls sideways at 390.
 
    usage:  python3 -m http.server 8931   (in the repo), then
@@ -126,6 +127,19 @@ const dims = await page.evaluate(async b64 => { const im = new Image(); im.src =
 const aspect = await page.evaluate(() => JSON.parse(localStorage.getItem('pgfx_motion_v1') || localStorage.getItem('pgfx_motion') || '{}')?.style?.aspect || null);
 ok(/^buying-list-\d{4}-\d\d-\d\d-\d+x\d+\.jpg$/.test(dl.suggestedFilename()) && bytes.length > 20000 && dims[0] >= 1080, `download ${dl.suggestedFilename()}, ${dims.join('x')}, ${(bytes.length / 1024).toFixed(0)} KB` + (aspect ? ` (ad ${aspect})` : ''));
 ok(/^Saved buying-list/.test(await page.textContent('#bl-check')), 'the note says what was saved');
+
+// 5b: no number, or one nobody can dial: Quick ad and the downloads stop and show the field
+const noDownload = async (fill, what) => {
+  await page.fill('#f-number', fill); await page.waitForTimeout(700);
+  let got = false; const on = () => { got = true; }; page.on('download', on);
+  await page.click('#quick-ad'); await page.waitForTimeout(2500); page.off('download', on);
+  const focused = await page.evaluate(() => document.activeElement && document.activeElement.id);
+  ok(!got && focused === 'f-number', `${what}: Make quick ad makes nothing and shows the number field`);
+};
+await noDownload('', 'no number');
+await noDownload('56299949945629994994', 'a 20-digit number');
+await noDownload('(562) 999-4994 (562)', 'a 13-digit number');
+await page.fill('#f-number', '(562) 999-4994'); await page.waitForTimeout(700);
 
 // 6
 await page.setViewportSize({ width: 390, height: 900 });

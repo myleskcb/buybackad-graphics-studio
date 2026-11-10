@@ -165,15 +165,16 @@ test('the API origin is hard-coded and nothing in a fragment can change it', asy
   assert.ok(s.calls.length >= 2);
   for (const c of s.calls) assert.ok(c.url.startsWith(API + '/api/buy-ads/studio/'), 'went to ' + c.url);
   assert.equal(s.ctx.iplaLink.state().brief.return, undefined, 'a return address off the shop is dropped');
-  assert.equal(backLink(s.doc).href, 'https://iphones.la/repost#configurator');
+  assert.equal(backLink(s.doc).href, 'https://iphones.la/ads#studio');
   assert.ok(!JSON.stringify(plain(s.ctx.iplaLink.state())).includes('evil'));
 });
 
-test('a return address is kept only when it is exactly the shop', async () => {
+test('a return address is kept only when it is exactly the shop (iphones.la or admin.iphones.la)', async () => {
   const href = async r => { const s = studio({ hash: '#ipla=' + CODE + '&brief=' + b64url({ family: 'iphone', return: r }), respond: () => ({ status: 200, body: { token: TOKEN } }) }); await settle(); assert.equal(backLink(s.doc).attrs.target, '_blank'); assert.equal(backLink(s.doc).attrs.rel, 'noopener'); return backLink(s.doc).href; };
-  assert.equal(await href('https://iphones.la/repost?tab=1#configurator'), 'https://iphones.la/repost?tab=1#configurator');
+  assert.equal(await href('https://iphones.la/ads?tab=1#studio'), 'https://iphones.la/ads?tab=1#studio');
+  assert.equal(await href('https://admin.iphones.la/ads#studio'), 'https://admin.iphones.la/ads#studio');
   for (const bad of ['https://iphones.la.evil.example/repost', 'https://user:pw@iphones.la/repost', 'http://iphones.la/repost', 'https://www.iphones.la/repost', 'javascript:alert(1)', '//evil.example', 42]){
-    assert.equal(await href(bad), 'https://iphones.la/repost#configurator', String(bad));
+    assert.equal(await href(bad), 'https://iphones.la/ads#studio', String(bad));
   }
 });
 
@@ -201,7 +202,7 @@ test('the exchange is called once, with no cookie and no token, and the token is
   await s.runTimers();
   assert.deepEqual(plain(s.toasts), [{ msg: 'Connected to iPhones LA', kind: 'success' }]);
   assert.match(pageText(s.doc), /Connected to iPhones LA/);
-  assert.match(pageText(s.doc), /Back to Auto-post/);
+  assert.match(pageText(s.doc), /Back to the Ad Generator/);
 });
 
 test('a reload does not trade a code again: it asks once whether the link still stands', async () => {
@@ -564,7 +565,7 @@ test('Disconnect forgets the token here and says where the link is really ended'
   await settle();
   s.ctx.iplaLink.disconnect();
   assert.equal(s.local._m.ipla_link, undefined);
-  assert.match(s.ctx.iplaLink.state().note, /use Auto-post/);
+  assert.match(s.ctx.iplaLink.state().note, /use the Ad Generator/);
 });
 
 // ───────────── pictures the shop cannot use ─────────────

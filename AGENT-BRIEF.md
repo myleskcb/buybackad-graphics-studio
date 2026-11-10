@@ -479,6 +479,12 @@ produced." DESIGN-LAW rule 87. In practice:
   side is `docs/iphonesla-library/`, handed over as
   `docs/iphonesla-library.zip` (`scripts/pack_iphonesla_library.sh`); check it
   with `node scripts/library_handoff_check.mjs`.
+- **Everything that talks to iPhones.LA** (`myleskcb/iphoneslainv-1`, once
+  `loganipad/iphoneslainv`) is mapped in `docs/IPHONESLA-CONNECTION.md`: the
+  connect code and `gfx_` token, the four `/api/buy-ads/studio/*` calls, the ad
+  library's feed iPLA reads, the settings on each side, and what each side
+  owes. A change to any of those paths, fields or cutout names updates that
+  file in the same change.
 - **Off-screen scenes are 1x** (rule 110): a `fabric.StaticCanvas` that is
   only exported or measured takes `enableRetinaScaling:false`. On a 2x screen
   fabric's default doubles its canvas, and anything reading W x H of it
