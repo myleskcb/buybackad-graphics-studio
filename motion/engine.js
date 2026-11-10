@@ -123,6 +123,7 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   copyInto(out, r, locked, content);
   voiceInto(out, r, locked);
   if (!locked.has("phones") && phonesPool.length > 5) out.phones = pickPhones(phonesPool, r.pick([3, 3, 5, 5, 4]), r);
+  lotInto(out, rng(seed * 3121 + 7), locked);
   return harmonise(out, locked);
 }
 
@@ -159,6 +160,20 @@ export function applyAudience(st, seed, locked = new Set()) {
   backsFirst(out, locked);
   copyInto(out, r, locked, true);
   voiceInto(out, r, locked);
+  return lotInto(out, rng(seed * 3121 + 7), locked);
+}
+
+/** A wholesale ad is about a lot, so its picture shows one (owner, 2026-11-10:
+ *  wholesale pictures "always show 3 or more phones grouped together"): at
+ *  least the audience's `lot` phones, standing in one of its group layouts. The
+ *  phones already picked stay; only more are added. Its own seed, so no other
+ *  draw of the look moves, and an audience with no `lot` draws nothing here. */
+export function lotInto(out, r, locked = new Set()) {
+  const a = AUDIENCES[out.audience], n = a && a.lot;
+  if (!n) return out;
+  const rows = ((a.looks || {}).arrangement || []).filter(x => OPTIONS.arrangement.includes(x));
+  if (rows.length && !locked.has("arrangement") && !rows.includes(out.arrangement)) out.arrangement = r.pick(rows);
+  if ((out.phones || []).length < n) out.phones = lotPhones(out.phones, n);
   return out;
 }
 
@@ -1388,6 +1403,26 @@ export function pickPhones(pool, n, r) {
   }
   for (const id of ids) { if (out.length >= n) break; if (out.includes(id)) continue; const t = toneOf(meta(id)); if ((count[t] || 0) >= 2) continue; out.push(id); count[t] = (count[t] || 0) + 1; }
   for (const id of ids) { if (out.length >= n) break; if (!out.includes(id)) out.push(id); }
+  return out;
+}
+/** Phones for a lot of at least n: the picked ones stay, and the rest come from
+ *  the phones on hand, the picked models in their other finishes first, then
+ *  the models nearest them in generation, the regular line before a Pro, Plus,
+ *  mini or e, in the index's own order, so one pick always grows the same way.
+ *  No upload is added (it is the user's own phone, not stock). */
+export function lotPhones(ids, n, metas = Object.values(PHONE_META)) {
+  const out = (ids || []).filter(Boolean);
+  if (out.length >= n) return out.slice();
+  const gen = m => +((/iPhone (\d+)/.exec(m.model || "") || [])[1] || 0);
+  const minor = m => / (Pro|Plus|mini)$|\de$/.test(m.model || "");
+  const list = metas.filter(m => m && m.id && m.ok !== false);
+  const picked = out.map(id => list.find(m => m.id === id)).filter(Boolean);
+  const models = new Set(picked.map(m => m.model));
+  const target = picked.length ? Math.max(...picked.map(gen)) : Math.max(0, ...list.map(gen));
+  const rank = (m, i) => [models.has(m.model) ? 0 : 1, Math.abs(gen(m) - target), minor(m) ? 1 : 0, i];
+  const rest = list.map((m, i) => ({ m, k: rank(m, i) })).filter(x => !x.m.upload && !out.includes(x.m.id))
+    .sort((a, b) => { for (let j = 0; j < a.k.length; j++) if (a.k[j] !== b.k[j]) return a.k[j] - b.k[j]; return 0; });
+  for (const x of rest) { if (out.length >= n) break; out.push(x.m.id); }
   return out;
 }
 /** The order the phones stand in, left to right: the boldest in the middle, then outward,

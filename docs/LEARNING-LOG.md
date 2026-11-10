@@ -4858,3 +4858,69 @@ Not done:
 RESUME HERE:
   0. Record the voice bank (above).
   1. Merge to main when the owner has looked at /motion/'s Quick ad.
+
+## 2026-11-10 — a wholesale ad shows a lot, Sell direct in place of Local buyer, and the buying list card (claude/quirky-ride-gi02j6)
+
+Asked: "are there actual distinctions in wholesale buyer ads? or buyback ads
+or direct buyer ads", "so it's more geared to b2b and existing businesses?",
+then "all 3": wholesale pictures always show 3 or more phones grouped; replace
+Local buyer with a Sell direct angle; a "This week we're buying" list card.
+
+Measured first: the six listing angles share 5 to 13% of their wording (word
+trigrams, closest description), which says only that each was written
+separately. What each tells a seller is the real test: wholesale's words are
+in no other angle (lot, list, box, mixed, IMEIs, resellers, repair shops,
+businesses); Local buyer's own words were phrasing (inquiry, appointment,
+suits), because the general ad already says local shop, meet nearby, paid on
+the spot, no shipping. And a wholesale picture could show one phone: no
+audience set how many phones stand on the ad.
+
+Done:
+  - The lot (engine.js lotInto, lotPhones; audiences.js wholesale `lot: 3` and
+    `looks.arrangement`): the wholesale audience adds phones up to 3 (the
+    picked models in their other finishes first, then the nearest models, the
+    regular line before Pro, Plus, mini or e; never an upload) and stands them
+    in one of six one-size layouts (lineup, rise, tilt_row, lean_in, wings,
+    fan). Its own seed, so no other draw of any look moves; an audience with no
+    `lot` draws nothing. The picker refuses to go under 3 on a wholesale ad and
+    says why; a wholesale look saved with fewer phones is topped up on load.
+    300 seeds of applyAudience and of randomize, and after harmonise: 0 looks
+    without a lot.
+  - Sell direct (audiences.js `direct`, listing.js `direct`, the chip): what
+    selling straight to the buyer saves next to listing it yourself: no
+    listing to write, no waiting for a buyer, one message to one buyer. It
+    names no marketplace and promises no speed, price or "no lowballs". The
+    business toggles learned its three shop lines (NO_SHOP). A look or quick ad
+    saved as local_buyer opens as direct (ANGLE_ALIASES; restore()).
+    "LOCAL IPHONE BUYER" now reads as the Local shop angle.
+  - The buying list (motion/buylist.js, the block under Quick ad's listing): for
+    a wholesale ad, the models from the picture newest first until the user
+    types their own, one offer for the lot, mixed lots welcome, the area, text a
+    list or a photo, the number. The ad's palette, faces and size; its phones in
+    a row on a tall card, giving way before a model is left off. Measured before
+    it is saved: each line's WCAG contrast against what is under it (engine.js
+    contrastOf; swapped to near-black or white where short) and its width
+    (shrunk, never cut); a failing card is not saved and the check says which
+    line. Downloads through Download photo's plan gate (sign-in, the plan's
+    downloads, its size, the watermark), 2160 on a paid plan.
+
+Checked: scripts/buylist_check.mjs (new): the lot and the picker's floor, the
+card for wholesale only, 1,376 cards (every palette x every size x English and
+Spanish) passing their own checks, a typed list kept and a long line fitted,
+Spanish words, no price, dash or claim, a 2160 JPG download, 390 wide, no page
+errors, no CSP violations: all passed. quick_ad_check 47 all passed (Sell direct
+in place of Local buyer). listing_check all clear (2,700 listings, the new
+readings). audience_check all clear (the direct scripts fit the 5- and
+8-second ads).
+
+Found:
+  - motion_phone_check (fly_spin, deal) fails two spin steps on 13-midnight and
+    13-mini-midnight (2.7 and 2.6 against a bar of 2.5). The same two fail on
+    the commit before this change, so they are older than it.
+  - motion_sound_check needs puppeteer-core; the ESM checks need playwright
+    beside the repo (a node_modules link to the global one, gitignored).
+
+RESUME HERE:
+  0. Record the voice bank (2026-11-09).
+  1. Merge to main when the owner has looked at /motion/'s Quick ad, Sell
+     direct and the buying list.

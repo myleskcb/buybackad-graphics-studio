@@ -1,14 +1,15 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks } from "./catalog.js";
-import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook } from "./engine.js";
+import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, lotInto } from "./engine.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
 import { exportMp4, recordRealtime, canEncode, recorderMime } from "./export.js";
 import { auditLook, drawCurve } from "./audit.js";
 import { loadAccents, IOS_EMOJI } from "./accents.js";
-import { listingFor, lint, priceOf, businessOf, BUSINESS, TONES, ANGLES, ANGLE_AUDIENCE, TITLE_MAX, TITLE_FEED, BODY_MAX } from "./listing.js";
+import { listingFor, lint, priceOf, businessOf, BUSINESS, TONES, ANGLES, ANGLE_AUDIENCE, ANGLE_ALIASES, TITLE_MAX, TITLE_FEED, BODY_MAX, readAd } from "./listing.js";
+import { drawBuyList, buyListModels, parseModels, MAX_ROWS } from "./buylist.js";
 
 const $ = id => document.getElementById(id);
 const STORE = "pgfx_motion_v1";
@@ -91,6 +92,7 @@ function restore() {
   } catch (e) { /* fresh start */ }
   // a saved look from an older version must not stop the page from starting
   if (!Array.isArray(state.style.phones)) state.style.phones = DEFAULT_PHONES.slice();
+  if (state.style.audience === "local_buyer") state.style.audience = "direct";   // Local buyer became Sell direct (2026-11-10)
   try {                                              // the studio's brand kit
     const b = JSON.parse(localStorage.getItem("pgfx_brand") || "null");
     if (b && b.phone && !state.style.number) state.style.number = b.phone;
@@ -288,7 +290,7 @@ function buildPanel() {
     if (k === "audience") {                         // so is an audience: its look, its words and its voice
       AUDIENCE_AXES.forEach(a => state.locked.delete(a));
       state.style = applyAudience(state.style, (Math.random() * 1e9) | 0, state.locked);
-      syncWords();
+      syncWords(); drawPhonePicker();                // a wholesale audience may add phones for its lot
     }
     if (["voice", "voice_mood", "voice_cast"].includes(k)) state.style = applyVoice(state.style, (Math.random() * 1e9) | 0, state.locked);
     // what was just picked stays; whatever would drown the phones' move gives way, said plainly
@@ -351,7 +353,12 @@ function buildPanel() {
     const b = e.target.closest("[data-phone]"); if (!b) return;
     const id = b.dataset.phone, list = state.style.phones;
     const i = list.indexOf(id);
-    if (i >= 0) { if (list.length > 1) list.splice(i, 1); } else { if (list.length >= 6) list.shift(); list.push(id); }
+    // a wholesale ad shows a lot (engine.js lotInto), so it keeps at least that many
+    const lot = (AUDIENCES[state.style.audience] || {}).lot || 1;
+    if (i >= 0) {
+      if (list.length > Math.max(1, lot)) list.splice(i, 1);
+      else if (lot > 1) { VH().toast(`A wholesale ad shows a lot, so it keeps at least ${lot} phones. Pick another phone first, or another audience.`); return; }
+    } else { if (list.length >= 6) list.shift(); list.push(id); }
     save(); drawPhonePicker(true); rebuild();
   });
   $("all-phones").addEventListener("change", e => { state.allPhones = e.target.checked; save(); drawPhonePicker(); });
@@ -1203,7 +1210,7 @@ function offerAgain(blob, name, photo) {
    checks score a buy ad dressed as a phone for sale hardest). */
 const QUICK_STORE = "pgfx_motion_quick_v1";
 const quick = { angle: "auto", kind: "photo", tone: "plain", tv: 0, bv: 0, sig: "", st: null, listing: null, prices: {}, history: [], lead: "",
-  biz: {}, edited: { title: false, body: false }, audSeen: undefined };
+  biz: {}, edited: { title: false, body: false }, audSeen: undefined, list: null };
 // the listings this browser copied, saved or made a quick ad of: the marketplace
 // takes down a second post it cannot tell from the first, and a copied
 // description reads as spam, so new ones are checked against these (14 days, 30 at most)
@@ -1211,7 +1218,7 @@ const HISTORY_DAYS = 14, HISTORY_MAX = 30;
 const adKey = st => st ? [st.seed, (st.phones || []).join(","), st.headline || ""].join("|") : "";
 const recent = () => quick.history.filter(h => h && h.at > Date.now() - HISTORY_DAYS * 864e5);
 function keepQuick() {
-  try { localStorage.setItem(QUICK_STORE, JSON.stringify({ angle: quick.angle, kind: quick.kind, tone: quick.tone, biz: quick.biz, prices: quick.prices, history: recent().slice(-HISTORY_MAX) })); } catch (e) { /* private mode */ }
+  try { localStorage.setItem(QUICK_STORE, JSON.stringify({ angle: quick.angle, kind: quick.kind, tone: quick.tone, biz: quick.biz, prices: quick.prices, list: quick.list, history: recent().slice(-HISTORY_MAX) })); } catch (e) { /* private mode */ }
 }
 /** This listing, as the boxes say it now, among the ones to keep apart from. */
 function remember() {
@@ -1236,11 +1243,13 @@ function syncQuickChips() {
 
 function buildQuick() {
   try { const q = JSON.parse(localStorage.getItem(QUICK_STORE) || "null");
-    if (q && (q.angle === "auto" || ANGLES[q.angle])) quick.angle = q.angle;
+    const angle = q && (ANGLE_ALIASES[q.angle] || q.angle);   // an angle retired since it was saved
+    if (angle === "auto" || ANGLES[angle]) quick.angle = angle;
     if (q && ["photo", "video", "library"].includes(q.kind)) quick.kind = q.kind;
     if (q && TONES[q.tone]) quick.tone = q.tone;
     if (q && q.prices && typeof q.prices === "object") for (const [m, v] of Object.entries(q.prices)) if (typeof v === "string" && priceOf(v) !== null) quick.prices[m] = v;
     if (q && Array.isArray(q.history)) quick.history = q.history.filter(h => h && typeof h.key === "string" && typeof h.title === "string" && typeof h.body === "string" && Number.isFinite(h.at));
+    if (q && typeof q.list === "string") quick.list = q.list.slice(0, 600);
     quick.biz = businessOf(q && q.biz);
   } catch (e) { quick.biz = businessOf(null); }
   const keep = keepQuick;
@@ -1279,6 +1288,74 @@ function buildQuick() {
   });
   $("qa-rewrite").addEventListener("click", () => { quick.edited = { title: false, body: false }; writeListing(quick.st, true); });
   $("quick-ad").addEventListener("click", () => quickAd());
+  // the buying list: typed by hand it stays the user's; Use the ad's phones goes back to the picture's
+  $("bl-models").addEventListener("input", () => { quick.list = $("bl-models").value; keepQuick(); buyListSoon(); });
+  $("bl-reset").addEventListener("click", () => { quick.list = null; keepQuick(); syncBuyList(quick.st, true); });
+  $("bl-download").addEventListener("click", () => downloadBuyList());
+}
+
+/* ✔ This week we're buying (motion/buylist.js): shown for a wholesale ad, the
+   models from its picture until the user types their own, a live preview, and a
+   download through the same plan gate as Download photo (sign-in, the plan's
+   downloads, its size and watermark). A card that fails its own check is not
+   saved, and the check says which line and why. */
+const isWholesale = st => quick.angle === "wholesale" || (quick.angle === "auto" && (() => {
+  try { return readAd(st, indexById(), { area: areaOf(st) }).angle === "wholesale"; } catch (e) { return false; }
+})());
+function buyListRows(st) {
+  return quick.list === null ? buyListModels(st, indexById()) : parseModels(quick.list);
+}
+let blTimer = 0, blDraw = 0;
+function buyListSoon() { clearTimeout(blTimer); blTimer = setTimeout(() => syncBuyList(quick.st), 250); }
+async function syncBuyList(st, refill = false) {
+  const box = $("qa-buylist"); if (!box || !st) return;
+  const on = isWholesale(st);
+  box.hidden = !on;
+  if (!on) return;
+  if (quick.list === null || refill) $("bl-models").value = buyListModels(st, indexById()).join("\n");
+  const id = ++blDraw;
+  try {
+    const h = harmonise({ ...st }, state.locked, indexById());
+    await loadFonts(fontsFor(h));
+    if (id !== blDraw) return;                          // a newer change is already drawing
+    const rows = buyListRows(h);
+    const [W0] = ASPECTS[h.aspect] || ASPECTS["4:5"];
+    const card = drawBuyList(h, rows, state.assets, { scale: 270 / W0 });
+    const pv = $("bl-preview");
+    pv.width = card.canvas.width; pv.height = card.canvas.height;
+    pv.getContext("2d").drawImage(card.canvas, 0, 0);
+    const typed = quick.list === null ? 0 : String(quick.list).split(/\r?\n/).filter(l => l.trim()).length;
+    $("bl-n").textContent = `${card.rows.length} on the card` + (typed > card.rows.length ? ` (${typed - card.rows.length} left off: ${typed > MAX_ROWS ? `the card holds ${MAX_ROWS} at most` : "this size has room for no more"})` : "");
+    const fails = card.checks.filter(c => !c.ok);
+    $("bl-check").textContent = fails.length ? "Not ready: " + fails.map(c => c.label).join(" ") : `Ready: every line reads against its ground and fits. Size ${h.aspect}, as the ad.`;
+    $("bl-download").disabled = !!fails.length;
+  } catch (e) { console.warn("The buying list could not be drawn:", e); $("bl-check").textContent = "The preview could not be drawn. Try again, or pick another look."; }
+}
+
+async function downloadBuyList() {
+  const btn = $("bl-download"); if (btn.disabled) return; btn.disabled = true;
+  const note = t => { $("bl-check").textContent = t; };
+  try {
+    const gate = await planGate(() => downloadBuyList(), "Sign in to download your buying list. Free accounts get 3 downloads a week.", "photo");
+    if (!gate) return;
+    const st = harmonise({ ...state.style }, state.locked, indexById());
+    await loadFonts(fontsFor(st));
+    const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["4:5"], short = Math.min(W0, H0);
+    const want = Math.min(2160, gate.maxPx || 2160), scale = want / short;
+    const card = drawBuyList(st, buyListRows(st), state.assets, { scale });
+    const fails = card.checks.filter(c => !c.ok);
+    if (fails.length) { note("Not saved: " + fails.map(c => c.label).join(" ")); return; }
+    const x = card.canvas.getContext("2d");
+    if (gate.watermark) { x.setTransform(1, 0, 0, 1, 0, 0); drawMarks(x, card.canvas.width, card.canvas.height); }
+    const blob = await new Promise((res, rej) => card.canvas.toBlob(b => b ? res(b) : rej(new Error("The card could not be encoded")), "image/jpeg", .92));
+    if (!await gate.count()) { note("Not saved: this plan's downloads are used up."); return; }
+    const day = new Date().toISOString().slice(0, 10), name = `buying-list-${day}-${st.aspect.replace(":", "x")}.jpg`;
+    saveVideo(blob, name);
+    note(`Saved ${name} (${card.canvas.width}×${card.canvas.height}, ${card.rows.length} models).`);
+  } catch (e) {
+    console.error(e);
+    note("The buying list could not be made. Try again; the details are in the console.");
+  } finally { btn.disabled = false; }
 }
 
 /** The listing for the ad as built. Rewritten when the ad, the angle, the tone,
@@ -1287,6 +1364,7 @@ function buildQuick() {
 function writeListing(st, force = false, only = "") {
   if (!st || !$("qa-title")) return;
   quick.st = st;
+  syncBuyList(st);
   // an audience chosen by hand (the panel, a look from the gallery) speaks for the ad: a picked angle that says otherwise steps back
   if (!force && quick.audSeen !== undefined && st.audience !== quick.audSeen && quick.angle !== "auto" && ANGLE_AUDIENCE[quick.angle] !== st.audience) {
     quick.angle = "auto"; keepQuick(); syncQuickChips();
@@ -1478,6 +1556,7 @@ async function start() {
   state.assets.accents = await loadAccents("../assets/cutouts/");
   state.style.phones = state.style.phones.filter(id => phones[id]);
   if (!state.style.phones.length) state.style.phones = DEFAULT_PHONES.filter(id => phones[id]);
+  lotInto(state.style, rng(1), new Set(["arrangement"]));   // a wholesale look saved with fewer phones than a lot
   try { sessionStorage.removeItem("pgfx_motion_reset"); } catch (e) { /* storage off */ }
   syncWords(); drawPhonePicker();
   await rebuild();

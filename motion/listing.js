@@ -219,39 +219,43 @@ export const ANGLES = {
   // From iPhones LA's study of the resellers' WE BUY ads (2026-09-17): the
   // phrases sellers search ("iPhone buyer", "sell your iPhone", "same day"),
   // said the way a person says them.
-  local_buyer: {
-    label: "Local buyer",
+  // Sell direct, in place of Local buyer (owner, 2026-11-10): what selling straight to
+  // the buyer saves next to listing it yourself. Every line is how the sale works (no
+  // listing of your own, one buyer, an offer back, a meeting); none names a
+  // marketplace, and none promises speed, a price or "no lowballs".
+  direct: {
+    label: "Sell direct",
     tones: {
       plain: {
-        titles: ["Sell your {lead} to a local buyer", "We buy {lead} - same day, {area}"],
+        titles: ["Sell your {lead} direct - no listing needed", "Sell your {lead} straight to a local shop", "We buy {models} direct - skip the listing"],
         bodies: [
-          "Local {family} buyer in {area}. If you're ready to sell your {lead}, new or used, message us {details} and we'll send you an offer.\n\nWe meet nearby, usually the same day, check it over with you and you're paid on the spot. No shipping and no store credit.\n\nIt needs to be signed out of your Apple account and not reported lost or stolen. The price on this post is about what we pay for a clean one.",
-          "Selling your {lead}? We're a local buyer in {area}.\n\n1. Message us {details}\n2. We reply with an offer\n3. Meet nearby the same day and get paid on the spot\n\nNew, used or cracked is fine. It needs to be signed out of your Apple account and not reported lost or stolen. The price on this post is about what we pay for a clean one.",
+          "Thinking of listing your {lead} online? You can skip that part and sell it straight to us, a local {area} shop that buys {family_plural}, {models} included.\n\nThere's no listing to write, no photos to set up and no waiting for the right buyer to message. Send us {details}, and we reply with an offer. If it works for you, we meet nearby, look it over together and pay you right there.\n\nIt needs to be signed out of your Apple account and not reported lost or stolen. The price on this post is about what we pay for a clean one.",
+          "Selling your {lead} yourself means a listing, a run of \"is this still available?\" messages and meeting whoever answers. Selling it to us is one conversation with one buyer.\n\n1. Message us {details}\n2. We reply with an offer\n3. Meet nearby in {area} and get paid once we've looked it over together\n\nNew, used or cracked is fine. It needs to be signed out of your Apple account and not reported lost or stolen. The price on this post is about what we pay for a clean one.",
         ],
       },
       professional: {
-        titles: ["Local {lead} buyback inquiry", "Sell your {lead} with an agreed time"],
+        titles: ["Direct buyback for {lead}", "Sell your {lead} direct to our shop"],
         bodies: [
-          "Availability inquiry: {models}, {area}. Send {details} and your preferred meeting time in a message. We respond with an offer and arrange the visit by agreement.\n\nThe purchase is completed after an inspection together, with payment at the meeting. The price on this post describes clean condition; a quote for your device may differ. Only owners able to remove their Apple account can sell. Reported lost or stolen devices are not purchased.",
-          "To arrange a nearby sale of your {lead}, include both the device specifications and when you're available. We can then discuss its value and whether a same-day meeting suits.\n\nKeep the appointment confirmed in messages before setting off. Inspection takes place with you before payment. The price on this post uses a clean device for reference. Account sign-out is required before sale, and devices reported lost or stolen are excluded.",
+          "Direct purchase of {models} by a resale shop in {area}. Instead of listing the device and screening buyers, send us {details} in a message.\n\nWe reply with an offer. If you accept, we agree a meeting, inspect the device together and pay at the meeting. The price on this post describes a clean example, not an individual valuation. Only devices released from their owner's Apple account and not reported lost or stolen can be purchased.",
+          "A direct sale replaces the listing with a quote. Describe your {lead}, including {details}, and we return a number for you to consider.\n\nThere is no listing period and no search for a buyer: we are the buyer. An agreed meeting in {area} lets both of us check its condition before payment. The price on this post refers to a clean unit. Sign out of Apple first; lost or stolen devices are excluded.",
         ],
       },
       urgent: {
-        titles: ["Sell your {lead} at today's local meet", "Today nearby: we buy your {lead}"],
+        titles: ["Sell your {lead} without a listing", "Skip the listing - we buy your {lead}"],
         bodies: [
-          "Want to sell your {lead} without shipping it away? Send {details} and ask if there is a meeting available today around {area}.\n\nOur offer comes before your trip. After confirming a time, bring the device signed out of its Apple account; we look it over together and pay on the spot. The price on this post is a clean-unit guide, so damage changes the offer. Nothing reported lost or stolen can be accepted.",
-          "This afternoon may work for a local {lead} sale: check with us first. A message describing condition and specifications gets the conversation started, and we agree a time if today's availability fits.\n\nAt handover we inspect and pay in person. Back up anything you need and disconnect the Apple account before selling. The price on this post reflects a clean example; your individual quote may differ. Devices with lost or stolen reports are excluded.",
+          "Rather not wait on a listing for your {lead}? Message us {details} and ask which meeting times are open around {area}.\n\nWe quote it before you travel. After we agree a time, bring it signed out of its Apple account; we look it over together and pay at the meeting. The price on this post is a clean-unit guide, so damage changes the offer. Nothing reported lost or stolen can be accepted.",
+          "No listing, no buyer search: send the model, storage and condition of your {lead} today and say when you could meet in {area}.\n\nWe confirm an offer and a time with you; availability decides the day. At the meeting we check it with you and pay there. The price on this post assumes a clean one. It must be signed out of its Apple account and not reported lost or stolen.",
         ],
       },
       friendly: {
-        titles: ["Ready to part with your {lead}? We buy it", "Sell us your spare {lead} nearby"],
+        titles: ["Skip the listing, sell us your {lead}", "Never got round to listing your {lead}? We buy it"],
         bodies: [
-          "Have a little time to talk about your {lead}? Tell us what you've got and when you could meet nearby. {details_cap} helps us come back with an offer.\n\nIf the number suits, we'll find an agreed time around {area}, check it with you and pay there. The price on this post is about a clean one; wear can change yours. You'll need to sign out of Apple before selling, and it must not be reported lost or stolen.",
-          "Selling your {lead} locally starts with a conversation. You can ask about today's times while telling us the model, specifications and any problems. We don't need you to send it through the mail.\n\nOnce a time and offer suit, we meet, look it over and pay in person. The price on this post shows an example in clean condition. Please have your Apple account removed for the visit. We cannot buy items reported lost or stolen.",
+          "Not in the mood to list your {lead} and answer messages about it? Tell us about it instead. {details_cap} is plenty to start.\n\nWe're a shop in {area} that buys {family_plural}. We'll come back with an offer, and if it suits you we meet nearby, look it over together and pay there. The price on this post is about a clean one. Please sign out of Apple first; it can't be reported lost or stolen.",
+          "Have {a_lead} you meant to list and never did? Skip the listing. Send us what you know about it ({where_to_find}), and anything that's cracked or acting up.\n\nOne message gets you an offer from one buyer: us. If it works, we meet around {area}, check it with you and pay right there. The price on this post shows a clean example. It needs to be signed out of Apple and not reported lost or stolen.",
         ],
       },
     },
-    tails: [" in {area}", ", new or used", " - meet nearby", " - paid on the spot"],
+    tails: [" in {area}", ", new or used", " - one offer", " - paid on the spot"],
   },
   // New here, in the same voice. iPhones LA's own rules for a lot: three or
   // more is wholesale, any amount (owner, 2026-08-20 and 2026-10-28), quoted
@@ -302,7 +306,7 @@ const MORE = {
   carrier: { en: "Tell us if it's unlocked or which carrier it's on (AT&T, Verizon, T-Mobile or another); we'll go over that in the chat." },
   find: { en: "Not sure which model you have? It's in {where_to_find}, along with the storage." },
   where: { en: "We're based in {area} and meet at our shop or a public spot nearby, by agreement." },
-  local: { not: ["local", "local_buyer"], en: "We're local, so there's no shipping and no mail-in kit: we meet at our shop or a public spot around {area}, look it over together and you're paid right there." },
+  local: { not: ["local"], en: "We're local, so there's no shipping and no mail-in kit: we meet at our shop or a public spot around {area}, look it over together and you're paid right there." },
   prep: { not: ["upgrade"], en: "Before we meet: back up your photos, turn off Find My, sign out of your Apple account and erase it (Settings > General > Transfer or Reset). If any of that is new to you, message us and we'll walk you through it." },
   meet: { en: "At the meet we power it on and check the screen, cameras, buttons, Face ID and battery health with you, and confirm it's signed out. Then you're paid, and that's it." },
   box: { not: ["damaged"], en: "Still have the box, the charger or a case? Bring them along, and tell us if it's sealed or open box." },
@@ -355,6 +359,7 @@ const NO_SHOP = [
   [/\bWe're a resale shop in\b/g, "We're a reseller in"], [/\b([Aa]) small (.+?) shop that buys\b/g, "$1 small $2 business that buys"],
   [/\b([Aa]) local shop\b/g, "$1 local buyer"], [/\b([Aa]) local (.+?) shop\b/g, "$1 local $2 buyer"],
   [/\bthrough our shop\b/g, "to a local buyer"], [/^Nearby shop: /g, "Nearby buyer: "],
+  [/\bby a resale shop in\b/g, "by a reseller in"], [/\bdirect to our shop\b/g, "direct to us"], [/\bWe're a shop in\b/g, "We're a buyer in"],
 ];
 const NO_SAME_DAY = [
   [/ the same day or the next/g, ""], [/, usually the same day\./g, "."], [/, usually the same day,/g, ","], [/ the same day and get paid/g, " and get paid"],
@@ -374,19 +379,21 @@ const speaksSpanish = ctx => ctx.lang !== "en" || businessOf(ctx.biz).spanish;
 // Reading the ad: what is on the picture decides the words
 // ---------------------------------------------------------------------------
 const NEWEST = m => { const n = /iPhone (\d+)/.exec(m); return n ? Number(n[1]) * 10 + (/Pro Max/.test(m) ? 3 : / Pro/.test(m) ? 2 : /Plus|Air/.test(m) ? 1 : 0) : -1; };
-const AUDIENCE_ANGLE = { wholesale: "wholesale", business_bulk: "wholesale", local_buyer: "local_buyer", locals: "local",
+const AUDIENCE_ANGLE = { wholesale: "wholesale", business_bulk: "wholesale", direct: "direct", local_buyer: "direct", locals: "local",
   broken_phones: "damaged", upgraders: "upgrade", holiday: "upgrade" };
 const WORD_ANGLES = [
   ["wholesale", /WHOLESALE|\bBULK\b|\bLOTS?\b|MAYOREO|\bLOTE\b|BOX OF|RESELLER/i],
   ["damaged", /CRACK|BROKEN|DAMAGED|DROPPED|\bROT[AO]S?\b|DEAD BATTERY/i],
-  ["local_buyer", /LOCAL (?:IPHONE )?BUYERS?|IPHONE BUYERS?|BUYER NEARBY|COMPRADOR(?:ES)? LOCAL|MEET NEARBY|NOS VEMOS/i],
+  ["direct", /SELL(?: IT| YOUR \w+)? DIRECT|\bDIRECTO?\b|NO LISTING|SKIP (?:THE )?LISTING|SELLING IT YOURSELF|\bLIST IT\b|PUBLICAR|PUBLIQUES/i],
   ["upgrade", /UPGRAD|NEW IPHONE|NEW PHONE|CAMBIASTE/i],
   ["local", /NEIGHBOU?R|FROM HERE|\bLOCALS?\b|VECINO|DE AQU[ÍI]/i],
 ];
 export const ANGLE_KEYS = Object.keys(ANGLES);
 /** The audience the quick ad uses for an angle (audiences.js), so the look, the
  *  words on the picture and the voice all say the same thing as the listing. */
-export const ANGLE_AUDIENCE = { general: "none", damaged: "broken_phones", upgrade: "upgraders", local: "locals", local_buyer: "local_buyer", wholesale: "wholesale" };
+export const ANGLE_AUDIENCE = { general: "none", damaged: "broken_phones", upgrade: "upgraders", local: "locals", direct: "direct", wholesale: "wholesale" };
+/** An angle retired since a saved quick ad or look named it, and the one that took its place. */
+export const ANGLE_ALIASES = { local_buyer: "direct" };
 
 /** A typed city as it is written: "long beach", "LONG BEACH" and "Long beach"
  *  are Long Beach; "LA", "L.A." and "McAllen" keep the capitals they were typed with. */

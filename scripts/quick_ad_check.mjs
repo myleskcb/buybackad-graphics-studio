@@ -7,7 +7,7 @@
      2. Wholesale buyer + Photo: Make quick ad gives the ad the wholesale
         audience's words, downloads a JPG, and the title and description are
         rewritten for it (wholesale words, the pictured models, the area);
-     3. Local buyer + Video: the same, with the video and its photo;
+     3. Sell direct + Video: the same, with the video and its photo;
      4. a hand edit that names no buying fails the checks on the page;
      5. ↻ gives another title; Copy puts the listing on the clipboard; Save
         as a text file downloads it;
@@ -105,8 +105,8 @@ const quickAd = async (angle, kind, expect) => {
 await quickAd('wholesale', 'photo', { headline: /WHOLESALE|LOT|BULK|MAYOREO|LOTE|BOX|RESELLER/, title: /wholesale|bulk|lot/i });
 if (SHOTS) await page.locator('#quick').screenshot({ path: SHOTS + '/quick-wholesale.png' });
 // 3
-await quickAd('local_buyer', 'video', { headline: /LOCAL|BUYER|NEARBY|SHIPPING|SELL|COMPRADOR|VENDE|AQUÍ|IPHONES IN/, title: /local buyer|same day|local/i });
-if (SHOTS) await page.screenshot({ path: SHOTS + '/quick-local-buyer-1400.png', fullPage: false });
+await quickAd('direct', 'video', { headline: /DIRECT|LISTING|LIST IT|SELLING IT YOURSELF|ONE MESSAGE|DIRECTO|PUBLIC/, title: /direct|listing|straight/i });
+if (SHOTS) await page.screenshot({ path: SHOTS + '/quick-direct-1400.png', fullPage: false });
 
 // 3b: the same angle again is not a copy of the first wholesale listing
 const W1 = (await page.evaluate(() => JSON.parse(localStorage.getItem('pgfx_motion_quick_v1')).history)).find(h => /wholesale|bulk|lot/i.test(h.title));
@@ -156,7 +156,7 @@ await page.check('#qa-biz [data-biz="spanish"]');
 ok(/Hablamos español/.test(await page.inputValue('#qa-body')), 'a business that speaks Spanish gets its Spanish paragraph');
 await page.check('#qa-biz [data-biz="shop"]'); await page.check('#qa-biz [data-biz="sameDay"]'); await page.uncheck('#qa-biz [data-biz="spanish"]');
 // 5d: an audience picked by hand steps a picked angle back to From the ad
-await page.click('#qa-angles [data-angle="local_buyer"]');
+await page.click('#qa-angles [data-angle="direct"]');
 await page.selectOption('select[data-key="audience"]', 'broken_phones');
 await page.waitForFunction(() => document.querySelector('#qa-angles [data-angle="auto"]').getAttribute('aria-checked') === 'true', null, { timeout: 15000 }).catch(() => {});
 ok(await page.getAttribute('#qa-angles [data-angle="auto"]', 'aria-checked') === 'true' && /Cracked/.test(await page.textContent('#qa-read')), 'an audience chosen by hand puts the angle back to From the ad');

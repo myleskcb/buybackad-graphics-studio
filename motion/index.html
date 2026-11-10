@@ -81,7 +81,7 @@
         <div class="mo-seg" id="qa-angles" role="radiogroup" aria-label="Angle of the ad">
           <button data-angle="auto" role="radio" title="The angle the ad's own words and audience say">From the ad</button>
           <button data-angle="wholesale" role="radio" title="Resellers, repair shops and anyone with a lot to sell: one offer for the lot">Wholesale buyer</button>
-          <button data-angle="local_buyer" role="radio" title="Someone nearby who meets up and pays on the spot">Local buyer</button>
+          <button data-angle="direct" role="radio" title="Sell straight to the shop instead of listing it yourself: one message, one offer">Sell direct</button>
           <button data-angle="local" role="radio">Local shop</button>
           <button data-angle="damaged" role="radio">Cracked</button>
           <button data-angle="upgrade" role="radio">Upgrading</button>
@@ -113,6 +113,20 @@
           <p class="mo-note" id="qa-read"></p>
           <p class="mo-qa-actions"><button class="mo-link" id="qa-copy-all" type="button">Copy title and description</button>
             <button class="mo-link" id="qa-save-txt" type="button">Save as a text file</button></p>
+        </div>
+        <div class="mo-buylist" id="qa-buylist" hidden aria-labelledby="bl-h">
+          <h3 class="mo-buylist-h" id="bl-h">This week we're buying</h3>
+          <p class="mo-note">A list card for resellers and repair shops: the models you want, one offer for the lot, and your number, in this ad's colours. Send it in a message or post it beside the ad.</p>
+          <div class="mo-buylist-body">
+            <div class="mo-buylist-edit">
+              <div class="mo-listing-row"><label for="bl-models">Models, one a line</label> <span class="mo-opt" id="bl-n"></span>
+                <button class="mo-link" id="bl-reset" type="button">Use the ad's phones</button></div>
+              <textarea id="bl-models" rows="7" spellcheck="false" aria-describedby="bl-check"></textarea>
+              <p class="mo-note mo-qa-check" id="bl-check" aria-live="polite"></p>
+              <button class="mo-btn" id="bl-download" type="button">Download buying list</button>
+            </div>
+            <canvas class="mo-buylist-preview" id="bl-preview" width="270" height="338" role="img" aria-label="Preview of the buying list card"></canvas>
+          </div>
         </div>
       </section>
 

@@ -45,7 +45,7 @@ const AREAS = ['Long Beach', '', 'LOS ANGELES'];
 const LANGS = ['en', 'es', 'both'];
 
 for (const [k, a] of Object.entries(ANGLE_AUDIENCE)) if (a !== 'none' && !AUDIENCES[a]) bad(`angle ${k}`, `its audience "${a}" is not in audiences.js`);
-for (const k of ['wholesale', 'local_buyer']) { if (!ANGLES[k]) bad('angles', `no ${k} angle`); if (!AUDIENCES[k]) bad('audiences', `no ${k} audience`); }
+for (const k of ['wholesale', 'direct']) { if (!ANGLES[k]) bad('angles', `no ${k} angle`); if (!AUDIENCES[k]) bad('audiences', `no ${k} audience`); }
 
 let n = 0, titleLens = [], bodyLens = [];
 for (const angle of ANGLE_KEYS) for (const tone of Object.keys(TONES)) {
@@ -102,10 +102,14 @@ for (const angle of ANGLE_KEYS) for (const tone of Object.keys(TONES)) {
 const said = (words, angle) => { const r = readAd({ phones: SETS[0], ...words }, meta); if (r.angle !== angle) bad('reading the ad', `${JSON.stringify(words)} read as ${r.angle}, not ${angle}`); };
 said({ headline: 'WE BUY IPHONES WHOLESALE' }, 'wholesale');
 said({ headline: 'COMPRAMOS IPHONES AL MAYOREO' }, 'wholesale');
-said({ headline: 'LOCAL IPHONE BUYER' }, 'local_buyer');
+said({ headline: 'LOCAL IPHONE BUYER' }, 'local');
+said({ headline: 'SELL YOUR IPHONE DIRECT' }, 'direct');
+said({ headline: 'SKIP THE LISTING, SELL IT TO US' }, 'direct');
+said({ headline: 'VENDE TU IPHONE DIRECTO' }, 'direct');
 said({ headline: 'WE BUY CRACKED IPHONES TOO' }, 'damaged');
 said({ headline: 'WE BUY IPHONES', audience: 'wholesale' }, 'wholesale');
-said({ headline: 'WE BUY IPHONES', audience: 'local_buyer' }, 'local_buyer');
+said({ headline: 'WE BUY IPHONES', audience: 'direct' }, 'direct');
+said({ headline: 'WE BUY IPHONES', audience: 'local_buyer' }, 'direct');   // a look saved before Sell direct
 said({ headline: 'WE BUY IPHONES' }, 'general');
 // an uploaded phone is not named as a model
 const up = readAd({ phones: ['upload-1', '16-pink'] }, { ...meta, 'upload-1': { id: 'upload-1', model: 'Your phone', finish: 'IMG_0001', upload: true } });
@@ -127,7 +131,7 @@ for (const lang of ['en', 'es']) {
   if ((lang === 'en') === /Hablamos/.test(L.description)) bad('Spanish claim', `${lang} ad ${lang === 'en' ? 'says' : 'does not say'} "Hablamos español"`);
 }
 // the price, as the listings site checks it
-const priced = p => listingFor({ phones: SETS[0], area: 'Long Beach' }, meta, { angle: 'local_buyer', price: p }).check;
+const priced = p => listingFor({ phones: SETS[0], area: 'Long Beach' }, meta, { angle: 'direct', price: p }).check;
 const expect = (p, want) => { const c = priced(p), got = [...c.blockers, ...c.warnings].map(f => f.code).concat(c.legit.signals.map(s => 'legit:' + s.code)); for (const w of want) if (!got.includes(w)) bad(`price ${JSON.stringify(p)}`, `expected ${w}, got ${got.join(', ') || 'nothing'}`); if (!want.length && got.some(g => !/title_cut/.test(g))) bad(`price ${JSON.stringify(p)}`, `expected a clean pass, got ${got.join(', ')}`); };
 expect('', ['price_missing']); expect('abc', ['price_missing']); expect('650', []); expect('$1,240', []);
 expect('1', ['price_bait', 'legit:price_bait']); expect('999', ['legit:price_bait']); expect('1000', ['legit:price_bait']); expect('2000', ['price_inflated', 'legit:price_bait']);
@@ -135,7 +139,7 @@ if (priced(undefined).blockers.length) bad('price', 'a listing without a price f
 // a run of ads in one angle: each title tells apart from the others, each description is no copy of another
 {
   const history = [], runSets = [...SETS, ['13-pink'], ['15-blue', '14-yellow']].filter(s => s.every(id => meta[id]));
-  for (const angle of ['wholesale', 'local_buyer']) {
+  for (const angle of ['wholesale', 'direct']) {
     history.length = 0;
     runSets.forEach((phones, i) => {
       const L = listingFor({ phones, area: 'Long Beach', lang: 'en' }, meta, { angle, history, key: `ad${i}` });
