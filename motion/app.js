@@ -1400,7 +1400,7 @@ function writeListing(st, force = false, only = "") {
   let L;
   try {
     L = listingFor(st, indexById(), { angle: quick.angle, tone: quick.tone, titleVariant: quick.tv, bodyVariant: quick.bv, history: recent(), key: adKey(st),
-      biz: quick.biz, area: areaOf(st), avoid: only === "title" ? { title: $("qa-title").value } : only === "body" ? { body: $("qa-body").value } : {} });
+      biz: quick.biz, area: areaOf(st), avoid: only === "title" ? { title: [$("qa-title").value, quick.listing && quick.listing.title] } : only === "body" ? { body: [$("qa-body").value, quick.listing && quick.listing.description] } : {} });
   } catch (e) { console.warn("The listing could not be written:", e); return; }
   quick.listing = L;
   if (only !== "body") { $("qa-title").value = L.title; quick.edited.title = false; }

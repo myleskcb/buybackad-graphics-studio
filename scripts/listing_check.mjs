@@ -191,6 +191,15 @@ for (const angle of ANGLE_KEYS) {
     L = next; seenT.add(L.title); seenB.add(L.description);
   }
 }
+// ↻ after a hand edit: neither the edited box nor the title written before it comes back
+for (const angle of ANGLE_KEYS) for (const phones of SETS) {
+  const st = { phones, area: 'Long Beach' };
+  const written = listingFor(st, meta, { angle });
+  if (written.titleCount < 3) continue;
+  const edit = written.title + ' today', next = listingFor(st, meta, { angle, titleVariant: 1, avoid: { title: [edit, written.title], body: [written.description + ' Thanks.', written.description] } });
+  if (next.title === written.title || next.title === edit) bad(`after an edit/${angle}`, `↻ gave back "${next.title}"`);
+  if (next.description === written.description) bad(`after an edit/${angle}`, '↻ gave back the description written before the edit');
+}
 
 const spread = a => { const s = [...a].sort((x, y) => x - y); return `${s[0]} to ${s[s.length - 1]}, median ${s[s.length >> 1]}`; };
 console.log(`${n} listings: ${ANGLE_KEYS.length} angles x ${Object.keys(TONES).length} tones x their descriptions, ${SETS.length} phone sets, ${AREAS.length} areas, ${LANGS.length} languages`);

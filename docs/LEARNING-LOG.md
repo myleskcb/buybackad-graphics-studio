@@ -4960,3 +4960,54 @@ Owed (in the connection doc): GFX_STUDIO_ORIGINS on iPLA's Render service for
 finished-copy; the owner's call on the number on WE BUY pictures; iPLA's side
 (the listing field, ?due=1, the cutout slugs, its own stale links, a real feed
 fixture in its tests).
+
+## 2026-11-10 (evening) — the number's line has air, and the starburst finds the open room (claude/quirky-ride-gi02j6)
+
+Asked, over a gallery of Theatre marquee thumbnails: "audit these cta all
+touch the box"; then, over a yellow look with ¡EFECTIVO! beside the number:
+"why is it in the corner versus above the phones in the right empty middle
+space".
+
+Measured first (scripts/motion_cta_audit.mjs, new: builds the Ad the page
+builds, at export size and at the gallery's 320px thumbnails, and reads its
+layout):
+  - The call-to-action line ("CALL OR TEXT", "LLAMA O MANDA TEXTO") sat
+    exactly .06 of the number's type size over the number box on every look
+    that has one: 127 of 127 marquee looks, 498 of 498 across 600.
+  - On 5 of 80 marquee thumbnails the line was on the sign. Two causes, both
+    only at small sizes: the line's type stopped at 12px (two to three times
+    its share on a thumbnail), and the number box's shadow and margin were
+    fixed pixels (a 14px blur), so a thumbnail's box was half again its share
+    taller and pushed the line up into the sign. The tag line inside the
+    marquee stays on its cream panel (checked against the bulb border).
+  - The starburst went to a corner on 16 of 22 looks that had one: freeSpot
+    tried the four corners, two edge midpoints and the top centre, against the
+    words' whole block as one rectangle, so the room beside a short line and
+    above the phones was never tried.
+
+Done:
+  - LABEL_GAP .18 (engine.js): the line's air over the number box, in every
+    place that lays it out; the audit fails a look under .14 (DESIGN-LAW 58).
+  - The line's type and the number box's shadow and margin follow the type
+    size, so a thumbnail is the export at a smaller size.
+  - freeSpot (decor.js) looks across the whole picture: the spot that covers
+    nothing with the most open room around it, nearer the stage on a tie; it
+    keeps off each line and the tag on their own (not the block's rectangle),
+    the number and the phones, and only where the camera, pushed in where it
+    settles, shows all of it. The stamp uses it too.
+  - ↻ Another title / description after a hand edit no longer hands back the
+    text written before the edit (listingFor's avoid takes a list; a Quick ad
+    check caught it once in four runs, since more phones on a wholesale ad
+    meant longer titles and fewer of them).
+
+Checked: motion_cta_audit, 600 looks: the line at .18 on all 498, none on a
+sign, no starburst on copy, 3 starbursts in a corner (where the corner was the
+open room); buylist_check all passed; quick_ad_check 47 all passed on 6 of 7
+runs (one run printed nothing and did not come back when repeated); listing
+check all clear with the new after-an-edit case; audience_check all clear.
+motion_phone_check shows only the two spin steps older than today.
+
+Found, not fixed: on some looks the headline's last letter is cut on a
+straight line ("NO LO TIRES, VÉNDELO" as "VÉNDELC", pop_comic seed 31, es,
+4:5). The commit before today does the same. Not the plate reveal's clip, not
+the wipe's; the line sprite's width or a stroke past it is next to measure.

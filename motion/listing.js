@@ -837,6 +837,9 @@ export function listingFor(st, meta = {}, { angle = "auto", tone = "plain", titl
   const others = past.map(h => h.title).filter(Boolean), bodies = past.map(h => h.body).filter(Boolean);
   const wrap = (n, i) => ((i % n) + n) % n;
   const same = (a, b) => !!a && !!b && a.trim().toLowerCase() === b.trim().toLowerCase();
+  // what ↻ keeps apart from: a text, or a list (the box as it reads and the one written
+  // before a hand edit, so Another title never hands back the title just edited away)
+  const avoided = (list, t) => [].concat(list || []).some(x => same(t, x));
   const asked = TONES[tone] ? tone : "plain";
 
   // the title: the next one round from titleVariant that is not shown now and not a recent ad's twin
@@ -845,7 +848,7 @@ export function listingFor(st, meta = {}, { angle = "auto", tone = "plain", titl
   let title = `We buy ${joinModels(ctx.models.slice(0, 2)) || FAMILY.plural}`;
   if (titles.length) {
     const order = titles.map((_, i) => titles[wrap(titles.length, titleVariant + i)].title);
-    title = order.find(t => !same(t, avoid.title) && !collides(t)) || order.find(t => !same(t, avoid.title)) || order[0];
+    title = order.find(t => !avoided(avoid.title, t) && !collides(t)) || order.find(t => !avoided(avoid.title, t)) || order[0];
   }
 
   // the description: round the asked tone's from bodyVariant, then the other tones', first that is new
@@ -857,7 +860,7 @@ export function listingFor(st, meta = {}, { angle = "auto", tone = "plain", titl
   for (const c of cands) {
     if (!past.length && !avoid.body && c !== cands[0]) break;               // nothing to keep apart from: the one asked for
     const description = describe(ctx, use, c.tone, c.v, title);
-    const shown = same(description, avoid.body);
+    const shown = avoided(avoid.body, description);
     if (!fallback && !shown) fallback = { ...c, description };
     if (!shown && !bodies.some(b => similarity(description, b) >= NEAR_COPY)) { pick = { ...c, description }; break; }
   }

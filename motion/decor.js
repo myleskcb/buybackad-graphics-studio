@@ -524,21 +524,38 @@ export function drawBoard(ctx, B, x, y, t, t0, W, H) {
 
 // ------------------------------------------------------------ decorations in front
 
-/** Where a round thing of radius R fits best: the corner or edge that covers
- *  the least of the words and the number. */
-export function freeSpot(W, H, R, avoid, prefer) {
-  const m = Math.min(W, H) * .04;
-  const cands = [[W - m - R, m + R], [m + R, m + R], [W - m - R, H - m - R], [m + R, H - m - R], [W - m - R, H * .5], [m + R, H * .5], [W * .5, m + R]];
-  let best = null;
-  for (const [x, y] of cands) {
+/** Where a round thing of radius R fits best. It looks across the whole picture,
+ *  not only its corners: the spot that covers none of `avoid` (each line, the
+ *  number, the phones) with the most open room around it, nearer the stage on a
+ *  tie. Before 2026-11-10 it tried the four corners, two edge midpoints and the
+ *  top centre against the words' whole block, so the open space beside a short
+ *  line and above the phones was never tried, and a CASH! starburst went to a
+ *  corner next to the number (owner: "why is it in the corner versus above the
+ *  phones in the right empty middle space"). `fits(x, y, R)`, when given, says
+ *  whether the camera shows the whole piece there. Returns { x, y, score, over },
+ *  `over` the share of R² it covers. */
+export function freeSpot(W, H, R, avoid, prefer, { fits } = {}) {
+  const m = Math.min(W, H) * .04, U = Math.min(W, H), step = Math.max(2, R * .25);
+  const cover = (x, y) => {
     let o = 0;
     for (const b of avoid) {
       const ix = Math.max(0, Math.min(x + R, b[2]) - Math.max(x - R, b[0])), iy = Math.max(0, Math.min(y + R, b[3]) - Math.max(y - R, b[1]));
       o += ix * iy;
     }
-    const d = prefer ? Math.hypot(x - prefer[0], y - prefer[1]) / Math.hypot(W, H) : 0;
-    const score = o / (R * R) + d * .3;
-    if (!best || score < best.score) best = { x, y, score, over: o / (R * R) };
+    return o / (R * R);
+  };
+  // the open room around a spot: its distance to the nearest thing it must keep off, or to the margin
+  const room = (x, y) => {
+    let c = Math.min(x - R - m, W - m - R - x, y - R - m, H - m - R - y);
+    for (const b of avoid) { const dx = Math.max(b[0] - x, 0, x - b[2]), dy = Math.max(b[1] - y, 0, y - b[3]); c = Math.min(c, Math.hypot(dx, dy) - R); }
+    return c;
+  };
+  let best = null;
+  for (let y = m + R; y <= H - m - R + .01; y += step) for (let x = m + R; x <= W - m - R + .01; x += step) {
+    if (fits && !fits(x, y, R)) continue;
+    const over = cover(x, y), d = prefer ? Math.hypot(x - prefer[0], y - prefer[1]) / Math.hypot(W, H) : 0;
+    const score = over > 0 ? 10 + over + d * .3 : -room(x, y) / U + d * .15;
+    if (!best || score < best.score) best = { x, y, score, over };
   }
   return best;
 }
