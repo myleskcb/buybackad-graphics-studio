@@ -1,0 +1,23 @@
+/* UX MOVES, independent of the look: the suite bar, the number-first hero, the works-with row. */
+.lab-suite{position:fixed;top:0;left:0;right:0;z-index:301;height:34px;display:flex;align-items:center;gap:22px;padding:0 clamp(16px,4vw,40px);background:var(--text);color:var(--field);font:500 12px/1 var(--mono);letter-spacing:.04em}
+.lab-suite b{font:700 14px/1 var(--display);font-stretch:80%;letter-spacing:0;text-transform:none}
+.lab-suite .ls-apps{display:flex;gap:4px;margin-left:6px}
+.lab-suite .ls-app{display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:3px;color:inherit;opacity:.72;text-decoration:none;white-space:nowrap}
+.lab-suite .ls-app i{width:9px;height:9px;border-radius:2px;border:1.5px solid currentColor}
+.lab-suite .ls-app.on{opacity:1;background:rgba(255,255,255,.12)}
+.lab-suite .ls-app.on i{background:var(--block,var(--accent));border-color:var(--block,var(--accent))}
+.lab-suite .ls-app.resale i{background:#8140F5;border-color:#8140F5}
+.lab-suite .ls-right{margin-left:auto;opacity:.72}
+:root .lp-nav{top:34px}
+:root .hero{padding-top:146px}
+.lab-num{margin:2px 0 14px;max-width:520px}
+.lab-num label{display:block;font:500 11px/16px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);margin-bottom:8px}
+.lab-num .ln-row{display:flex;gap:0}
+.lab-num input{flex:1;min-width:0;height:60px;padding:0 18px;border:1.5px solid var(--text);border-right:0;border-radius:4px 0 0 4px;background:var(--surface-solid);color:var(--text);font:500 26px/1 var(--mono);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.lab-num button{height:60px;padding:0 26px;border:1.5px solid var(--text);border-radius:0 4px 4px 0;background:var(--accent);color:var(--accent-ink);font:600 17px/1 var(--ui);white-space:nowrap}
+.lab-num .ln-sub{margin-top:10px;font:400 14px/20px var(--ui);color:var(--text-dim)}
+.lab-works{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:26px;padding-top:18px;border-top:1px solid var(--hairline-strong);max-width:560px}
+.lab-works span.lw-k{font:500 11px/16px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);margin-right:4px}
+.lab-works .lw{font:500 13px/1 var(--ui);padding:8px 11px;border:1px solid var(--hairline-strong);border-radius:2px;color:var(--text);background:var(--surface-solid);white-space:nowrap}
+.lab-works .lw small{font:400 12px/1 var(--ui);color:var(--text-dim);margin-left:6px}
+.lab-works .lw.soon{border-style:dashed;background:transparent;color:var(--text-2)}

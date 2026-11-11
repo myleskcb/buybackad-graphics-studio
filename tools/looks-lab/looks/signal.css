@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Libre+Franklin:wght@400;500;600;700&display=swap');
+/* SIGNAL: the yellow-and-black of a WE BUY sign, as a colour-blocked brand. */
+:root[data-theme][data-finish='counter'][data-lab='signal']{
+  --yellow:#FFD60A;
+  --display:'Big Shoulders Display','Sofia Sans Extra Condensed','Arial Narrow',Impact,sans-serif;
+  --ui:'Libre Franklin',-apple-system,'Segoe UI',Roboto,sans-serif;
+  --ink:#111111;--paper:#ffffff;--stamp:#111111;
+  --r-lg:2px;--r-md:2px;--r-sm:2px;
+  --field:#ffffff;
+  --glass-bg:#ffffff;--glass-bg-strong:#ffffff;--glass-edge:rgba(17,17,17,.2);
+  --surface-solid:#ffffff;--surface-raise:#f5f5f2;--surface-sunk:rgba(17,17,17,.05);--surface3:#e8e8e3;
+  --text:#111111;--text-2:#333333;--text-dim:#5c5c5c;
+  --hairline:rgba(17,17,17,.14);--hairline-strong:rgba(17,17,17,.3);
+  --accent:#111111;--accent-ink:#FFD60A;--accent-wash:rgba(255,214,10,.22);--accent-deep:#000000;--accent-soft:#FFF3B0;
+  --accent-rgb:17,17,17;--accent2-rgb:255,214,10;--ring:#111111;--ring-rgb:17,17,17;
+  --brand-1:#FFD60A;--brand-2:#111111;--brand-rgb:255,214,10;
+  --good:#1d6b45;--crop:rgba(17,17,17,.55);
+  --stage-1:#f1f1ee;--stage-2:#e6e6e1;
+
+  body{font-family:var(--ui)}
+  .lp-nav{background:#111;border-bottom:0;box-shadow:none}
+  .lp-nav .logo{color:#fff;font:800 22px/1 var(--display);letter-spacing:.03em}
+  .lp-nav .logo .logo-mark{background:var(--yellow);border-radius:0;color:transparent;width:26px;height:26px;box-shadow:inset 0 0 0 5px var(--yellow),inset 0 0 0 26px #111}
+  .lp-nav .logo em{color:var(--yellow)}
+  .lp-nav .lp-nav-links a{color:rgba(255,255,255,.82);font-weight:500}
+  .lp-nav .lp-nav-links a:hover{color:var(--yellow)}
+  .lp-nav .theme-btn,.lp-nav .btn-ghost{color:#fff}
+  .lp-nav .btn-outline{border:1.5px solid #fff;color:#fff;background:transparent}
+  .lp-nav .btn-primary{background:var(--yellow);border-color:var(--yellow);color:#111}
+  .btn{border-radius:2px;font-weight:700}
+  .btn-primary,.btn-gen,.plan-btn,.tpl-card .tpl-use{background:#111;border:1.5px solid #111;color:var(--yellow);border-radius:2px}
+  .btn-primary:hover,.btn-gen:hover,.plan-btn:hover{background:#fff;border-color:#111;color:#111}
+  .btn-outline{border:1.5px solid #111;color:#111;background:transparent}
+  .btn-outline:hover{background:#111;color:var(--yellow)}
+  .btn-ghost{color:#111}
+
+  .hero{max-width:none;margin:0;background:var(--yellow);padding-left:max(clamp(16px,5vw,48px),calc((100vw - 1200px)/2 + 48px));padding-right:max(clamp(16px,5vw,48px),calc((100vw - 1200px)/2 + 48px));padding-top:64px;padding-bottom:0;align-items:stretch;min-height:0;gap:48px;overflow:hidden}
+  .hero-copy{padding:56px 0 60px;align-self:center;color:#111}
+  @media (max-width:900px){.hero-wall{height:420px}.hero-copy{padding:40px 0 8px}}
+  .hero h1{color:#111}
+  .hero-eyebrow{color:#111;font:600 12.5px/1.45 var(--ui);letter-spacing:.09em}
+  .hero-eyebrow::before{background:#111;border-radius:0;width:10px;height:10px}
+  .hero h1{font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:clamp(54px,6.1vw,88px);line-height:.92;letter-spacing:.004em;word-spacing:.04em;margin-bottom:26px}
+  .hero h1 em{display:inline-block;background:#111;color:var(--yellow);padding:.07em .14em .03em;margin:.1em 0 0 -.04em;line-height:.9}
+  .hero p{color:#111;font-size:18px;line-height:1.55}
+  .hero-note{color:#333}
+  .hero-wall{transform:none;-webkit-mask-image:none;mask-image:none;height:760px;align-self:stretch;gap:12px;overflow:hidden}
+  .wall-col,.wall-col:nth-child(n){gap:12px}
+  .wall-card,.wall-card:nth-child(n){border:0;border-radius:0;box-shadow:0 14px 26px -14px rgba(0,0,0,.55)}
+  @media (max-width:900px){.logo em{margin-left:.3em}}
+  .lp-stats{max-width:none;margin:0;background:#111;border-top:0;padding:20px max(clamp(16px,5vw,48px),calc((100vw - 1200px)/2 + 48px))}
+  .stat b,.stat-lead b{color:var(--yellow);font-family:var(--display);font-weight:800;font-size:30px;letter-spacing:.01em}
+  .stat span{color:rgba(255,255,255,.82)}
+  .lp-kicker{font:600 12.5px/1.45 var(--ui);letter-spacing:.09em;color:#111}
+  .lp-kicker::before,.lp-section:nth-of-type(n) .lp-kicker::before{background:var(--yellow);border-radius:0;box-shadow:0 0 0 1.5px #111}
+  .lp-section-head h2,.lp-cta-inner h2{font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:clamp(40px,5vw,70px);line-height:.9}
+  .lp-ticker-band{background:var(--yellow)}
+  .lp-ticker span{font:900 clamp(24px,2.8vw,36px)/1 var(--display);color:#111}
+  .lp-ticker i,.lp-ticker i:nth-of-type(n){background:#111;border-radius:0}
+  .lp-cta-inner{background:var(--yellow);border-radius:0}
+  .lp-cta-inner h2,.lp-cta-inner p{color:#111}
+  .lp-cta-inner .btn-primary{background:#111;border-color:#111;color:var(--yellow)}
+  .lp-cta-inner .btn-outline{color:#111;border-color:#111}
+  .lp-price-card.hot,.plan-card.hot{box-shadow:inset 0 6px 0 var(--yellow),0 0 0 1.5px #111}
+  .plan-name{font:900 30px/1 var(--display)}
+  .ez-head h1{font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:56px;line-height:.9;letter-spacing:.004em}
+  .ez-stepnum{background:var(--yellow);color:#111;box-shadow:0 0 0 1.5px #111}
+  .chip.on{background:#111;color:var(--yellow);border-color:#111}
+  .modal h3{font-family:var(--display);font-weight:900}
+  .logo{font:800 22px/1 var(--display);letter-spacing:.03em}
+  .logo .logo-mark{background:var(--yellow);border-radius:0;color:transparent;width:26px;height:26px;box-shadow:inset 0 0 0 5px var(--yellow),inset 0 0 0 26px #111}
+  .logo em{color:var(--text)}
+  .topbar{border-bottom:2px solid #111}
+}
+:root[data-theme='dark'][data-finish='counter'][data-lab='signal']{
+  --paper:#111;--field:#111111;
+  --surface-solid:#1b1b1b;--surface-raise:#232323;--surface-sunk:rgba(255,255,255,.06);--surface3:#2e2e2e;
+  --text:#f5f5f0;--text-2:#cfcfc8;--text-dim:#9a9a92;
+  --hairline:rgba(255,255,255,.12);--hairline-strong:rgba(255,255,255,.26);
+  --accent:#FFD60A;--accent-ink:#111;--accent-deep:#ffe04a;--accent-soft:#3b3207;--ring:#FFD60A;--ring-rgb:255,214,10;
+  --stage-1:#1b1b1b;--stage-2:#0c0c0c;
+  .btn-primary{background:var(--yellow);border-color:var(--yellow);color:#111}
+  .btn-outline{border-color:#f5f5f0;color:#f5f5f0}
+  .hero .btn-primary{background:#111;border-color:#111;color:var(--yellow)}
+  .hero .btn-outline,.hero .btn-ghost{border-color:#111;color:#111}
+  .lp-kicker{color:#f5f5f0}
+}
