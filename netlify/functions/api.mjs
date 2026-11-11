@@ -17,6 +17,8 @@
  *                                returned to the client.
  *   POST /api/admin/generate-bg  admin path. Prompt used VERBATIM; returned
  *                                with the image so it can be edited + re-run.
+ *   GET|PUT /api/admin/approvals admin path. The approval page's marks:
+ *                                which ads are commercial worthy, hero worthy, denied.
  *   POST /api/admin/approve-bg   admin path. Publishes an image to the blob
  *                                store under a Designer Library filename.
  *   GET  /api/bg/<filename>      public. Serves published blobs — the site's
@@ -153,6 +155,8 @@ const bgStore = () => getStore('pgfx-backgrounds'); // published backgrounds: re
 const genStore = () => getStore({ name: 'pgfx-generated', consistency: 'strong' });
 // saved ads: a save is read back at once (the library, its public link)
 const adStore = () => getStore({ name: 'pgfx-ad-library', consistency: 'strong' });
+// the owner's approvals (approve.html): read back at once on another device
+const approvalStore = () => getStore({ name: 'pgfx-approvals', consistency: 'strong' });
 
 async function getUser(em) { return JSON.parse((await users().get('u:' + em)) || 'null'); }
 async function putUser(u) { await users().set('u:' + u.email, JSON.stringify(u)); }
@@ -351,6 +355,24 @@ export default async (req) => {
       if (m[2].length > 12 * 1024 * 1024) return json({ error: 'Image too large' }, 400);
       await bgStore().set('bg/' + filename, JSON.stringify({ mime: 'image/' + m[1], b64: m[2], by: em, ts: Date.now() }));
       return json({ ok: true, filename, url: '/api/bg/' + filename });
+    }
+
+    // ---------- the owner's approvals (approve.html) ----------
+    // Which ads are commercial worthy, hero worthy or denied: one record, kept
+    // for the operators so a phone and a Mac show the same marks.
+    if (p === '/admin/approvals' && (req.method === 'GET' || req.method === 'PUT')) {
+      const em = await readToken(req, env);
+      if (!em || roleFor(em, env) !== 'admin') return json({ error: 'Not authorized' }, 403);
+      if (req.method === 'GET') {
+        return json({ approvals: JSON.parse((await approvalStore().get('approvals')) || 'null') || { commercial: [], hero: [], denied: [], ts: 0 } });
+      }
+      const b = await req.json().catch(() => null);
+      const ids = (a) => (Array.isArray(a) ? [...new Set(a.filter((k) => typeof k === 'string' && /^[\w-]{1,80}$/.test(k)))].slice(0, 5000) : null);
+      const rec = b && { commercial: ids(b.commercial), hero: ids(b.hero), denied: ids(b.denied) };
+      if (!rec || !rec.commercial || !rec.hero || !rec.denied) return json({ error: 'Send commercial, hero and denied as lists of card ids' }, 400);
+      rec.ts = Date.now(); rec.by = em;
+      await approvalStore().set('approvals', JSON.stringify(rec));
+      return json({ ok: true, ts: rec.ts });
     }
 
     if (p === '/admin/bg-status') {

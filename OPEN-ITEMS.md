@@ -3066,3 +3066,45 @@ Open:
    two entries in `CATS` and set their `cat`.
 2. **The studio's own chip order** (`CATS` in app.js, the 2026-10-02 order)
    was not changed; this list is the footer's and the pages'.
+
+## Ad approvals. 2026-11-11: one page to mark an ad commercial worthy, hero worthy, or denied
+
+The owner: "make sure we have an approval page for the commercial worthy ads
+and hero worthy". There was none on the site: the hero picker opens only from
+a checkout (`tools/hero-picker/`, 404'd at the edge), `pick.html` is good/bad
+over an older set, and nothing recorded "commercial worthy" at all.
+
+Done:
+- `approve.html` (`approve.js`, `approve.css`), served, noindex. Every live
+  card of `assets/showcase/index.json` (366 today, the wall's own `scIsLive`
+  test, the hero picker's order) with three marks: **Commercial**, **Hero**,
+  **No**. Commercial and Hero are separate, a card may carry both; No clears
+  them. Tabs To review / All / Commercial worthy / Hero worthy / Denied,
+  category chips, search by name or SKU, keys C H X on a focused card. Hero
+  ads keep the order they were picked in (the number on the card).
+- The marks are written to the browser on every tap, and for a signed-in
+  operator to the server (`GET|PUT /api/admin/approvals`, store
+  `pgfx-approvals`, newest copy wins), so a phone and a Mac agree.
+- **Export lists** gives `assets/commercial-picks.json` (new, empty today)
+  and `assets/hero-picks.json` in the shape the wall reads. A first visit
+  starts from those two files: 12 of the 17 hero picks on file are live
+  cards and show as hero worthy; the other 5 are held cards the wall
+  already skips.
+- Check: `node scripts/approve_check.mjs` (the route as the real function
+  with a stand-in store, the page's files, the noindex lines). In Chromium at
+  1440 and 390: marks, order numbers, tabs, search, export, a reload keeping
+  the marks, the signed-in save against a mocked API; no page errors, no
+  sideways scroll.
+
+Open:
+1. **The landing does not read the server copy.** A Hero mark reaches the
+   wall when the exported `hero-picks.json` is committed and deployed, as
+   with the hero picker before. Reading `/api` on every landing visit was
+   not added unasked.
+2. **Nothing consumes `commercial-picks.json` yet.** It is the owner's list;
+   what a commercial worthy ad earns (first in the gallery, the only cards
+   iPhones LA auto-posts, the cards made into video ads) is the owner's call.
+3. **Photo ads only.** The video ads are drawn in the browser by `/motion`;
+   their review (stars, favourites) is still `/admin-ads/`.
+4. Not exercised against production: this session's network cannot reach
+   Netlify. The server save needs `JWT_SECRET`, as every account feature.

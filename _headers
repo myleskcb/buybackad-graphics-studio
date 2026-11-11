@@ -83,6 +83,9 @@
 /pick.html
   X-Robots-Tag: noindex, nofollow
 
+/approve.html
+  X-Robots-Tag: noindex, nofollow
+
 /library.html
   X-Robots-Tag: noindex, nofollow
 
