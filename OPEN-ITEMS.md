@@ -3086,7 +3086,7 @@ Open, in the audit's order:
 6. Three top bars across landing, Easy Mode and the video maker; the card's
    own video is not named anywhere "Video ads" leads.
 7. No listing words for customers ("Words for your post": one model to an
-   ad, a buying phrase, under 60 characters).
+   ad, said as a buyer).
 8. The ad on a device's screen: a button beside Download and Create video,
    on `drawFront`'s screen slot and `SCREENS`; the gate measuring the number
    at the size it lands.
