@@ -43,6 +43,15 @@
     <p class="mo-sub">Phones fly in and flip to their backs, your headline slides in, your number lands, with music. Pick who it is for (upgraders, students, parents, seniors, gamers, Spanish-speaking families and more) and the look, words, music and voiceover follow; or pick a look yourself, from LA street signs to clean tech, luxury noir, game day and holiday. English, Spanish or both, with a push to text now. Shuffle for a new look, lock what you like, download an MP4 or a JPG. It all runs in your browser: nothing is uploaded. <span class="mo-count" id="look-count"></span></p>
   </div>
 
+  <div class="mo-mode" aria-label="Kind of ad">
+    <div class="mo-seg" id="mode" role="radiogroup" aria-label="Kind of ad">
+      <button data-full="1" role="radio" title="Every detail on one ad, in one clean style, as a photo and as a video">Full ad <span class="mo-new">New</span></button>
+      <button data-full="0" role="radio" title="Every look the maker has: street signs, neon, pastel, and more">Any look</button>
+    </div>
+    <p class="mo-note mo-full-only">Your claim, headline, models, selling points, phones, number, towns and website on one ad, as large as each fits, in one clean style. Download it as a photo or a video. New look changes the colours and the arrangement.</p>
+    <p class="mo-note mo-any-only">Every look the maker has, from LA street signs to clean tech. Your full ad is kept as you left it.</p>
+  </div>
+
   <div class="mo-grid">
     <section class="mo-stage-col" aria-label="Preview">
       <div class="mo-stage" id="stage">
@@ -72,6 +81,7 @@
         <label class="mo-check mo-strong"><input type="checkbox" id="strong-only" checked> New looks must pass</label>
         <p class="mo-note">Measured off the rendered frames: what is on the very first frame, how much moves, and when the words can actually be read. Viewers decide in about a second and a half, often with the sound off.</p>
       </details>
+      <p class="mo-note mo-full-only mo-full-note" id="full-note" aria-live="polite"></p>
       <div class="mo-progress" id="progress" hidden><div class="mo-bar"><i id="bar"></i></div><span id="progress-label"></span></div>
       <p class="mo-note" id="export-note"></p>
 
@@ -146,14 +156,17 @@
         <label class="mo-field">Your area <span class="mo-opt">the city the ads name, like LA or Long Beach</span>
           <input id="f-area" maxlength="30" placeholder="LA" autocomplete="address-level2">
         </label>
-        <label class="mo-field">Opening line <span class="mo-opt">the first second: the Hook line and Word beat openings show it</span>
+        <label class="mo-field mo-full-only">Bold claim at the top <span class="mo-opt">empty gives one from the list</span>
+          <input id="f-claim" maxlength="44" placeholder="TOP DOLLAR &bull; FAST CASH">
+        </label>
+        <label class="mo-field mo-any-only">Opening line <span class="mo-opt">the first second: the Hook line and Word beat openings show it</span>
           <span class="mo-row"><input id="f-hook" maxlength="44" placeholder="STILL GOT YOUR OLD IPHONE?"><button class="mo-mini" id="new-hook" title="Another opening line">&#10227;</button></span>
         </label>
         <label class="mo-field">Headline
           <span class="mo-row"><input id="f-headline" list="headline-list" maxlength="60"><button class="mo-mini" id="new-headline" title="Another headline">&#10227;</button></span>
         </label>
         <datalist id="headline-list"></datalist>
-        <label class="mo-field">Small line under it <span class="mo-opt">optional</span>
+        <label class="mo-field"><span class="mo-any-only">Small line under it</span><span class="mo-full-only">Line under it</span> <span class="mo-opt mo-any-only">optional</span><span class="mo-opt mo-full-only">the models you buy, or how it works</span>
           <input id="f-tag" maxlength="40" placeholder="TEXT FOR A QUOTE">
         </label>
         <label class="mo-field">Your phone number
@@ -165,6 +178,18 @@
         <label class="mo-field">Selling points <span class="mo-opt">up to 3, commas between; empty for none</span>
           <input id="f-points" maxlength="80" placeholder="FREE QUOTE, CASH PAID, ALL MODELS">
         </label>
+        <label class="mo-field mo-full-only">Towns you serve <span class="mo-opt">up to 3, with &bull; or commas between; empty uses your area</span>
+          <input id="f-towns" maxlength="60" placeholder="LONG BEACH &bull; LAKEWOOD &bull; DOWNEY">
+        </label>
+        <label class="mo-field mo-full-only">Your website <span class="mo-opt">optional; printed as &ldquo;Visit our website at &hellip;&rdquo;</span>
+          <input id="f-site" maxlength="40" placeholder="www.yourshop.com" inputmode="url" autocapitalize="off" spellcheck="false">
+        </label>
+        <label class="mo-field mo-full-only">Sticker <span class="mo-opt">one or two short words</span>
+          <input id="f-burst" maxlength="14" placeholder="CASH!">
+        </label>
+        <div class="mo-field mo-full-only">Colours <span class="mo-opt">Any lets New look choose</span>
+          <div class="mo-colours" id="full-colours" role="radiogroup" aria-label="Colours of the ad"></div>
+        </div>
       </details>
 
       <details open class="mo-sec">
@@ -202,7 +227,7 @@
 
       <div id="design"></div>
 
-      <details class="mo-sec">
+      <details class="mo-sec mo-any-only">
         <summary>Extras</summary>
         <div class="mo-flags" id="flags"></div>
       </details>
@@ -210,7 +235,7 @@
     </aside>
   </div>
 
-  <section class="mo-looks" id="adset-sec" aria-labelledby="adset-h">
+  <section class="mo-looks mo-any-only" id="adset-sec" aria-labelledby="adset-h">
     <div class="mo-looks-head">
       <h2 class="mo-h2" id="adset-h">Your ad set <span class="mo-opt" id="adset-count"></span></h2>
       <button class="mo-btn" id="adset-make">Make 6 different ads</button>
@@ -224,8 +249,9 @@
       <h2 class="mo-h2" id="looks-h">More looks <span class="mo-opt" id="looks-count"></span></h2>
       <label class="mo-check"><input type="checkbox" id="play-all"> Play them all</label>
     </div>
-    <p class="mo-note">Browse by look. Your words, phones and locked settings stay; everything else is new. Point at a look to watch it move, tap it to use it.</p>
-    <div class="mo-vibes" id="gallery-cats" role="radiogroup" aria-label="Show looks of one kind"></div>
+    <p class="mo-note mo-any-only">Browse by look. Your words, phones and locked settings stay; everything else is new. Point at a look to watch it move, tap it to use it.</p>
+    <p class="mo-note mo-full-only">Your ad in other colours and arrangements. Tap one to use it.</p>
+    <div class="mo-vibes mo-any-only" id="gallery-cats" role="radiogroup" aria-label="Show looks of one kind"></div>
     <div id="gallery"></div>
     <div id="gallery-end"><button class="mo-btn mo-more" id="more">Show 24 more</button></div>
   </section>

@@ -179,3 +179,20 @@ a.mo-btn{display:inline-flex;align-items:center;text-decoration:none}
 /* the title wraps to three lines on a phone: the box grows to show all of it */
 .mo-listing #qa-title{field-sizing:content;min-height:calc(2 * 1.45em + 22px)}
 @media (max-width:520px){.mo-listing #qa-title{min-height:calc(3 * 1.45em + 22px)}}
+
+
+/* THE FULL AD's switch, its fields and its colours (2026-11-11). What only one mode uses is
+   hidden in the other: [data-full] on <main> is set by syncMode() in app.js. */
+.mo-mode { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 0 0 14px; }
+.mo-mode .mo-seg { flex: none; }
+.mo-mode .mo-seg button { font-weight: 700; padding-inline: 16px; }
+.mo-mode .mo-note { margin: 0; flex: 1 1 320px; }
+.mo-new { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: #1f8a4c; color: #fff; font-size: 11.5px; font-weight: 700; letter-spacing: .02em; vertical-align: 1px; }
+[data-full="1"] .mo-any-only, [data-full="0"] .mo-full-only { display: none !important; }
+.mo-full-note:empty { display: none; }
+.mo-full-note { color: #8a4b00; font-weight: 600; }
+.mo-colours { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.mo-colours button { width: 34px; height: 34px; border-radius: 50%; border: 2px solid rgba(0, 0, 0, .18); padding: 0; cursor: pointer;
+  background: linear-gradient(135deg, var(--c1, #fff) 0 55%, var(--c2, #ddd) 55% 100%); font-size: 12.5px; font-weight: 700; color: inherit; }
+.mo-colours button[data-colour=""] { width: auto; padding: 0 12px; border-radius: 999px; background: none; }
+.mo-colours button[aria-checked="true"] { outline: 3px solid #1d4ed8; outline-offset: 2px; }

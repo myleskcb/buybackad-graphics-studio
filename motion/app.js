@@ -2,6 +2,7 @@
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES } from "./catalog.js";
 import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf, lotInto } from "./engine.js";
+import { FullAd, fullStyle, fullBlockers, COLOURWAYS } from "./fullad.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
@@ -34,7 +35,19 @@ const state = {
   galleryCat: "all",
   galleryPlay: matchMedia("(hover: hover) and (pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches,
   allPhones: false,                                  // the picker shows the Pro, Plus and mini models too
+  full: true,                                        // the full ad (motion/fullad.js): every element, in the house style
 };
+
+/* THE FULL AD (owner, 2026-11-11: "I still don't see picture ads that look in line with the
+   video ads"; "maximize elements.. sizing.. spacing.. positioning"; "eye catchy elements").
+   One switch over the maker: on, the ad is drawn by FullAd in the house style, with the claim,
+   the towns, the website and the sticker beside the words the maker already had, as a photo
+   and as a video. state.style stays the customer's own look and words underneath, so Any look
+   brings it back as it was. Every path that draws goes through these three. */
+const fullOf = st => fullStyle(st, st.seed, state.index, st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {}, state.locked);
+const settle = (st, locked = state.locked) => state.full ? fullOf(st) : harmonise(st, locked, indexById());
+const AdOf = st => st && st.full ? FullAd : Ad;
+const adFor = (st, w, h) => new (AdOf(st))(st, state.assets, w, h);
 
 const BOARD_NAMES = { none: "No sign", freeway: "Green freeway sign", freeway_blue: "Blue freeway sign", poster: "Swap meet poster",
   bandit_yellow: "Yellow street sign", bandit_white: "White street sign", flyer: "Tear-off flyer", neon_box: "Neon box",
@@ -78,7 +91,7 @@ const labelFor = (k, v) => {
 // ------------------------------------------------------------ persistence
 
 function save() {
-  try { localStorage.setItem(STORE, JSON.stringify({ style: state.style, locked: [...state.locked], galleryCat: state.galleryCat, galleryPlay: state.galleryPlay, allPhones: state.allPhones })); } catch (e) { /* private mode */ }
+  try { localStorage.setItem(STORE, JSON.stringify({ style: state.style, locked: [...state.locked], galleryCat: state.galleryCat, galleryPlay: state.galleryPlay, allPhones: state.allPhones, full: state.full })); } catch (e) { /* private mode */ }
 }
 function restore() {
   try {
@@ -90,6 +103,7 @@ function restore() {
     if (s && (s.galleryCat === "all" || SHELVES.some(x => x.id === s.galleryCat))) state.galleryCat = s.galleryCat;
     if (s && typeof s.galleryPlay === "boolean") state.galleryPlay = s.galleryPlay;
     if (s && typeof s.allPhones === "boolean") state.allPhones = s.allPhones;
+    if (s && typeof s.full === "boolean") state.full = s.full;         // a visitor from before the full ad starts on it: their look is one tap away, under Any look
   } catch (e) { /* fresh start */ }
   // a saved look from an older version must not stop the page from starting
   if (!Array.isArray(state.style.phones)) state.style.phones = DEFAULT_PHONES.slice();
@@ -100,11 +114,14 @@ function restore() {
     const home = b && b.area && (b.area.home || b.area.city);
     if (home && !state.style.area) state.style.area = String(home);
   } catch (e) { /* none */ }
+  delete state.style.full;                           // the switch is the page's, never a saved look's
   const q = new URLSearchParams(location.search);
+  if (q.get("full") === "1") state.full = true; else if (q.get("full") === "0") state.full = false;
   if (q.get("look")) state.style.seed = parseInt(q.get("look"), 10) || state.style.seed;
   // a look picked in the Look Book (looks.html): its vibe, ground or phone set, from its seed
   const pick = { vibe: q.get("vibe"), bg: q.get("bg"), layout: q.get("layout"), aspect: q.get("aspect") };
   if (pick.vibe || pick.bg || pick.layout) {
+    state.full = false;                              // a look picked in the Look Book is shown as picked
     const { style, locked } = linkedLook({ ...state.style }, parseInt(q.get("look"), 10) || 1, pick);
     state.style = style;
     ["vibe", "background", "arrangement"].forEach(k => { if (locked.has(k)) state.locked.add(k); });
@@ -118,12 +135,12 @@ function restore() {
 async function rebuild() {
   const id = ++state.buildId;
   try {
-    const st = harmonise({ ...state.style }, state.locked, indexById());
+    const st = settle({ ...state.style });
     await loadFonts(fontsFor(st));
     if (id !== state.buildId) return;
     const [W, H] = ASPECTS[st.aspect] || ASPECTS["1:1"];
     const k = Math.min(1, PREVIEW_MAX / Math.max(W, H));
-    const ad = new Ad(st, state.assets, Math.round(W * k), Math.round(H * k));
+    const ad = adFor(st, Math.round(W * k), Math.round(H * k));
     if (id !== state.buildId) return;
     state.ad = ad;
     const c = $("preview"); c.width = ad.W; c.height = ad.H;
@@ -131,6 +148,7 @@ async function rebuild() {
     state.audio = null;
     if (state.sound) startAudio(0);
     syncPanel(st);
+    syncFull(ad);
     writeListing(st);
     $("loading").hidden = true;
     scheduleAudit(st);
@@ -179,7 +197,7 @@ function scheduleAudit(st) {
   auditTimer = setTimeout(async () => {
     const id = ++auditId;
     try {
-      const rep = await auditLook(st, state.assets, { size: 200, secs: 4, sound: true });
+      const rep = await auditLook(st, state.assets, { size: 200, secs: 4, sound: true, AdClass: AdOf(st) });
       if (id !== auditId) return;
       showAudit(rep);
     } catch (e) { console.warn("audit", e); }
@@ -198,10 +216,11 @@ async function strongSeed(base, locked, pool, content, post = st => st) {
   let best = null;
   for (let k = 0; k < 8; k++) {
     const seed = (Math.random() * 1e9) | 0;
-    const st = post(randomize(base, seed, locked, pool, content));
-    const h = harmonise({ ...st }, locked, indexById());
+    // the full ad's look comes from its number alone: a new look is a new number, the style underneath kept
+    const st = state.full && !content ? { ...base, seed } : post(randomize(base, seed, locked, pool, content));
+    const h = settle({ ...st }, locked);
     await loadFonts(fontsFor(h));
-    const rep = await auditLook(h, state.assets, { size: 120, secs: 3.4, sound: false });
+    const rep = await auditLook(h, state.assets, { size: 120, secs: 3.4, sound: false, AdClass: AdOf(h) });
     const ok = id => rep.checks.find(c => c.id === id)?.ok;
     if (!best || rep.score > best.score) best = { st, score: rep.score };
     if (rep.score >= 90 && ok("frame0") && ok("words") && ok("number") && ok("contrast")) return st;
@@ -257,12 +276,42 @@ function stopAudio() { if (state.audioSrc) { try { state.audioSrc.stop(); } catc
 
 // ------------------------------------------------------------ the panel
 
+// the full ad's fields: [input, key in the style, longest]
+const FULL_FIELDS = [["f-claim", "feed_claim", 44], ["f-towns", "feed_where", 60], ["f-site", "site", 40], ["f-burst", "feed_burst", 14]];
+const COLOUR_NAMES = { graphite: "Charcoal & green", ink_blue: "Navy & gold", black_gold: "Black & gold", money_green: "Green & gold", oxblood: "Burgundy & cream",
+  klein: "Blue & yellow", midnight_glass: "Midnight & sky", cream_black: "Cream & black", sapphire: "Sapphire & sky", emerald: "Emerald & gold", ruby: "Ruby & gold",
+  carbon: "Black & orange", midnight_teal: "Teal & mint", royal: "Indigo & amber", noir: "Black & pink", midnight: "Midnight & yellow" };
+const fullName = st => COLOUR_NAMES[st.palette] || lookName(st);
+
+/** The page in the mode it is in: what only the full ad uses, and what only Any look does. */
+function syncMode() {
+  $("main").dataset.full = state.full ? "1" : "0";
+  document.querySelectorAll("#mode [data-full]").forEach(b => b.setAttribute("aria-checked", String((b.dataset.full === "1") === state.full)));
+}
+/** After a full ad is drawn: which colours it wears, and anything it could not fit, said plainly. */
+function syncFull(ad) {
+  const note = $("full-note"); if (!note) return;
+  if (!ad || !ad.full) { note.textContent = ""; return; }
+  document.querySelectorAll("#full-colours [data-colour]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.colour === (state.style.full_palette || "") || (!state.style.full_palette && b.dataset.colour === ""))));
+  const why = fullBlockers(ad);
+  const plain = w => w.replace("selling points left out: no room at a readable size", "The selling points did not fit. Use shorter ones, or a shorter headline.")
+    .replace(/^(claim|line|call to action|footer) left out.*/, (m, k) => `The ${k === "line" ? "line under the headline" : k === "footer" ? "towns and website" : k} did not fit at a readable size. Shorten it.`)
+    .replace(/^headline set at.*/, "The headline is long, so it is set small. A shorter one reads from further away.")
+    .replace(/^product \d+% of the height/, "The phones are small on this size. A shorter headline or the Feed 4:5 size gives them more room.");
+  const said = [...new Set(why.map(plain).filter(w => /^[A-Z]/.test(w)))];
+  note.textContent = said.join(" ");
+}
+
 function buildPanel() {
+  $("full-colours").innerHTML = `<button role="radio" data-colour="" aria-checked="true" title="The colours change with New look">Any</button>`
+    + COLOURWAYS.map(k => { const p = PALETTES[k]; return `<button role="radio" data-colour="${k}" aria-checked="false" title="${COLOUR_NAMES[k] || k}" aria-label="${COLOUR_NAMES[k] || k}" style="--c1:${p.ground};--c2:${p.accent}"></button>`; }).join("");
+  syncMode();
   $("look-count").textContent = `${Number(countLooks()).toExponential(1).replace("e+", " × 10^")} possible looks from ${Object.keys(FONTS).length} typefaces and ${new Set(OPTIONS.palette.filter(v => v !== "match")).size} palettes.`;   // the held themes' palettes are known, not offered
   $("headline-list").innerHTML = [...HEADLINES, ...COPY.es.headlines.filter(h => !h.includes("{"))].map(h => `<option value="${h}">`).join("");
   const design = $("design");
   for (const [title, keys] of GROUPS) {
-    const sec = document.createElement("details"); sec.className = "mo-sec"; sec.open = ["Audience and voice", "Type", "Scene", "Vibe and urgency"].includes(title);
+    // the full ad keeps who it is for and how it sounds; how it looks is the house style's
+    const sec = document.createElement("details"); sec.className = "mo-sec" + (["Audience and voice", "Sound"].includes(title) ? "" : " mo-any-only"); sec.open = ["Audience and voice", "Type", "Scene", "Vibe and urgency"].includes(title);
     sec.innerHTML = `<summary>${title}</summary>`;
     for (const k of keys) {
       const row = document.createElement("div"); row.className = "mo-set";
@@ -314,6 +363,24 @@ function buildPanel() {
   bind("f-headline", "headline", v => v.toUpperCase().slice(0, 60) || "WE BUY PHONES");
   bind("f-tag", "tag"); bind("f-label", "number_label");
   bind("f-points", "points", v => v.toUpperCase().slice(0, 80));   // empty means none; the look's own come back with new words
+  // the full ad's own words: empty gives the claim and the sticker their words back (no ad goes out bare);
+  // empty towns fall back to Your area, and an empty website is left off
+  for (const [id, key, max] of FULL_FIELDS) $(id).addEventListener("input", debounce(e => {
+    const v = e.target.value.trim().slice(0, max);
+    if (v) state.style[key] = key === "site" ? v : v.toUpperCase(); else delete state.style[key];
+    save(); rebuild();
+  }, 280));
+  $("mode").addEventListener("click", e => {
+    const b = e.target.closest("[data-full]"); if (!b) return;
+    const on = b.dataset.full === "1"; if (on === state.full) return;
+    state.full = on; save(); syncMode(); rebuild(); renderGallery(true);
+  });
+  $("full-colours").addEventListener("click", e => {
+    const b = e.target.closest("[data-colour]"); if (!b) return;
+    pushHistory();
+    if (b.dataset.colour) state.style.full_palette = b.dataset.colour; else delete state.style.full_palette;
+    save(); rebuild();
+  });
   // the opening line's field: with the strike-out opening it holds the crossed-out words
   $("f-hook").addEventListener("input", debounce(e => { const k = state.style.hook === "strike_out" ? "strike_text" : "hook_text"; state.style[k] = e.target.value.toUpperCase().slice(0, k === "strike_text" ? 28 : 44); state.locked.add(k); save(); rebuild(); }, 280));
   // another line in the look's own language, everything else left as it is
@@ -434,12 +501,14 @@ async function shuffle(all) {
   if (pool.length) locked.delete("phones"); else locked.add("phones");
   const btns = [$("shuffle-look"), $("shuffle-all")]; btns.forEach(b => b.disabled = true);
   try {
-    try {
-      state.style = $("strong-only").checked ? await strongSeed(state.style, locked, pool, all)
-        : randomize(state.style, (Math.random() * 1e9) | 0, locked, pool, all);
-    } catch (e) {                                   // the attention check failed: shuffle without it
+    // the full ad's look is its number: New look gives it another, and lets the colours change with it
+    // (colours picked by hand are picked again); the customer's own look underneath is left as it was
+    const base = state.full && !all ? (({ full_palette, ...rest }) => rest)(state.style) : state.style;
+    const plain = () => state.full && !all ? { ...base, seed: (Math.random() * 1e9) | 0 } : randomize(state.style, (Math.random() * 1e9) | 0, locked, pool, all);
+    try { state.style = $("strong-only").checked ? await strongSeed(base, locked, pool, all) : plain(); }
+    catch (e) {                                     // the attention check failed: shuffle without it
       console.warn("Strong-look search failed, shuffling without it:", e);
-      state.style = randomize(state.style, (Math.random() * 1e9) | 0, locked, pool, all);
+      state.style = plain();
     }
   } finally { btns.forEach(b => b.disabled = false); }
   state.style.number = state.style.number;              // the number is never shuffled
@@ -454,6 +523,7 @@ function syncWords() {
   $("f-hook").value = state.style.hook === "strike_out" ? strikeOf(state.style).text : (state.style.hook_text || "");
   if (document.activeElement !== $("f-points")) $("f-points").value = pointsOf(state.style).join(", ");
   if (document.activeElement !== $("f-area")) $("f-area").value = state.style.area || "";
+  for (const [id, key] of FULL_FIELDS) if (document.activeElement !== $(id)) $(id).value = state.style[key] || "";
   document.querySelectorAll("#langs [data-lang]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.lang === (state.style.lang_mode || "mix"))));
 }
 
@@ -710,16 +780,16 @@ async function shelfThumb(shelf, W, H, k, lock) {
  *  keeps its vibe, so New look stays in the shelf it came from. */
 async function thumb(st, w, h, lock) {
   await loadFonts(fontsFor(st));
-  const ad = new Ad(st, state.assets, w, h);
+  const ad = adFor(st, w, h);
   const b = document.createElement("button"); b.className = "mo-thumb"; b.title = "Use this look";
   const frame = document.createElement("span"); frame.className = "mo-thumb-img";
   const c = document.createElement("canvas"); c.width = ad.W; c.height = ad.H;
   const ctx = c.getContext("2d");
   ad.stillAt(ctx);
   frame.appendChild(c); b.appendChild(frame);
-  const name = lookName(st), font = TYPE_VOICES[st.type_pair] ? TYPE_VOICES[st.type_pair].name + " type" : labelFor("font", st.font);
-  if (window.adLibrary) frame.appendChild(window.adLibrary.star("motion-" + st.seed, { name, save: () => saveLook({ ...st, number: state.style.number, phones: state.style.phones }) }));
-  b.insertAdjacentHTML("beforeend", `<span class="mo-cap"><b>${name}</b><small>${font} · ${labelFor("hook", st.hook)}</small></span>`);
+  const name = st.full ? fullName(st) : lookName(st), font = st.full ? "Full ad" : TYPE_VOICES[st.type_pair] ? TYPE_VOICES[st.type_pair].name + " type" : labelFor("font", st.font);
+  if (window.adLibrary) frame.appendChild(window.adLibrary.star("motion-" + st.seed, { name, save: () => saveLook(st.full ? { ...state.style, seed: st.seed, full_palette: st.palette } : { ...st, number: state.style.number, phones: state.style.phones }) }));
+  b.insertAdjacentHTML("beforeend", `<span class="mo-cap"><b>${name}</b><small>${font}${st.full ? "" : " · " + labelFor("hook", st.hook)}</small></span>`);
   b.setAttribute("aria-label", `Use this look: ${name}, ${font}`);
   const th = { el: b, st, w, h, ad: keepAds() ? ad : null, ctx, t0: 0, lastT: 0, last: 0, hover: false, seen: false, moving: false };
   const hover = on => { th.hover = on; if (on) th.moving = false; };
@@ -728,6 +798,7 @@ async function thumb(st, w, h, lock) {
   b.addEventListener("focus", () => hover(true)); b.addEventListener("blur", () => hover(false));
   b.addEventListener("click", () => {
     pushHistory();
+    if (st.full) { state.style = { ...state.style, seed: st.seed, full_palette: st.palette }; save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }   // a full ad's look is its number and its colours
     state.style = { ...st, number: state.style.number, phones: state.style.phones };
     if (lock) { state.locked.add("vibe"); VIBE_AXES.forEach(a => state.locked.delete(a)); }   // New look stays in the shelf browsed
     save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" });
@@ -786,7 +857,7 @@ function thumbLoop(now) {
     if (th.ad) return true;
     if (built || th.broken) return false;
     built = true;
-    try { th.ad = new Ad(th.st, state.assets, th.w, th.h); return true; } catch (e) { th.broken = true; return false; }
+    try { th.ad = adFor(th.st, th.w, th.h); return true; } catch (e) { th.broken = true; return false; }
   };
   const draw = th => {
     if (!ready(th)) return;
@@ -814,13 +885,15 @@ function thumbLoop(now) {
   requestAnimationFrame(thumbLoop);
 }
 
-const galleryDone = () => (state.galleryCat || "all") === "all" ? state.galleryShelf >= SHELVES.length : state.galleryShown >= SHELF_MAX;
+const FULL_MAX = 48;                                  // the full ad's gallery: this many looks of it, at most
+const galleryDone = () => state.full ? state.galleryShown >= FULL_MAX : (state.galleryCat || "all") === "all" ? state.galleryShelf >= SHELVES.length : state.galleryShown >= SHELF_MAX;
 const nearEnd = () => { const e = $("gallery-end"); return e && e.getBoundingClientRect().top < innerHeight + 600; };
 
 /** The button under the gallery says how many the next batch adds, and goes at the end. */
 function syncMore() {
   const b = $("more"), row = state.galleryRow || 4;
-  const next = (state.galleryCat || "all") === "all" ? Math.min(SHELVES.length - state.galleryShelf, Math.ceil(GALLERY_PAGE / row)) * row
+  const next = state.full ? Math.min(12, FULL_MAX - state.galleryShown)
+    : (state.galleryCat || "all") === "all" ? Math.min(SHELVES.length - state.galleryShelf, Math.ceil(GALLERY_PAGE / row)) * row
     : Math.min(GALLERY_PAGE, SHELF_MAX - state.galleryShown);
   b.hidden = galleryDone(); b.disabled = false; b.textContent = `Show ${next} more`;
 }
@@ -849,7 +922,21 @@ async function renderGallery(reset) {
   const shown = () => { $("looks-count").textContent = `${thumbs.length} shown`; };
   let made = 0;
   try {
-    if (cat === "all") {
+    if (state.full) {
+      // the full ad's gallery: this ad in other colours and arrangements, one look a number
+      let grid = g.querySelector(".mo-gallery");
+      if (!grid) { grid = document.createElement("div"); grid.className = "mo-gallery"; g.appendChild(grid); }
+      for (let i = 0; i < 12 && state.galleryShown < FULL_MAX; i++) {
+        const base = (({ full_palette, ...rest }) => rest)(state.style), seed = state.gallerySeed++;
+        let b = null;
+        try { b = await thumb(fullStyle({ ...base, seed }, seed, state.index, {}, state.locked), Math.round(W * k), Math.round(H * k), false); }
+        catch (e) { console.warn("Full ad look " + seed + " skipped:", e); }
+        if (!live()) return;
+        if (b) { grid.appendChild(b); made++; shown(); }
+        state.galleryShown++;
+        await new Promise(r => setTimeout(r, 0));
+      }
+    } else if (cat === "all") {
       while (made < GALLERY_PAGE && state.galleryShelf < SHELVES.length) {
         const shelf = SHELVES[state.galleryShelf++];
         if (shelf.group !== state.galleryGroup) { state.galleryGroup = shelf.group; g.insertAdjacentHTML("beforeend", `<h3 class="mo-shelf-grp">${shelf.group}</h3>`); }
@@ -986,7 +1073,7 @@ async function makeVideo(st, { how = "auto", withSound = true, prog = () => {}, 
     const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
     let scale = 1;
     const even = v => Math.max(2, Math.round(v / 2) * 2);   // H.264 wants even sides
-    const build = () => marked(scale === 1 ? new Ad(st, state.assets) : new Ad(st, state.assets, even(W0 * scale), even(H0 * scale)), watermark);
+    const build = () => marked(scale === 1 ? adFor(st) : adFor(st, even(W0 * scale), even(H0 * scale)), watermark);
     ad = build();
     // the sound is made once, up front; if it will not come, the video is made silent
     let buf = null, soundErr = null, soundDropped = null;
@@ -1050,7 +1137,7 @@ async function download(opts = {}) {
   try {
     const gate = await planGate(() => download(opts), "Sign in to download your video. Video downloads come with Pro and Business.");
     if (!gate) return;
-    const st = harmonise({ ...state.style }, state.locked, indexById());
+    const st = settle({ ...state.style });
     const made = await makeVideo(st, { how, withSound, prog, note, tried, watermark: gate.watermark });
     ad = made.ad;
     const { out, soundErr, soundDropped, scale, mp4Failed, W0, H0 } = made;
@@ -1121,7 +1208,7 @@ async function downloadJpg() {
   try {
     const gate = await planGate(() => downloadJpg(), "Sign in to download your ad as a photo. Free accounts get 3 downloads a week.", "photo");
     if (!gate) return;
-    const st = harmonise({ ...state.style }, state.locked, indexById());
+    const st = settle({ ...state.style });
     await loadFonts(fontsFor(st));
     const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
     const photo = await makePhoto(st, `we-buy-phones-${st.aspect.replace(":", "x")}-${st.seed}.jpg`, Math.min(W0, H0), prog, gate);
@@ -1149,7 +1236,8 @@ async function downloadJpg() {
 function lookMeta(st) {
   const texts = [];
   const push = (role, t) => { if (typeof t === "string" && t.trim()) texts.push({ role, text: t.trim().slice(0, 200) }); };
-  push("hook", st.hook_text); push("headline", st.headline); push("sub", st.tag); push("label", st.number_label); push("cta", st.cta);
+  push("hook", st.hook_text); push("headline", st.headline); push("sub", st.full ? st.feed_line : st.tag); push("label", st.number_label); push("cta", st.cta);
+  if (st.full) { push("claim", st.feed_claim); push("points", st.points); push("where", st.feed_where); push("site", st.feed_site); }
   const meta = { title: String(st.headline || "WE BUY PHONES").slice(0, 80), category: "phones", template: "motion-" + st.seed, texts,
     products: (st.phones || []).map(String).filter(id => /^[a-z0-9][a-z0-9-]{0,79}$/.test(id)), source: "motion", hold: "" };
   // the listing Quick ad wrote for this ad, as its boxes say it (hand edits and the price included), for the
@@ -1172,7 +1260,7 @@ async function saveLook(stRaw, btn) {
   $("progress").hidden = false; $("export-note").textContent = "";
   const note = t => { $("export-note").textContent = t; };
   const prog = (p, label) => { $("bar").style.width = Math.round(p * 100) + "%"; $("progress-label").textContent = label; };
-  const st = harmonise({ ...stRaw }, state.locked, indexById());
+  const st = stRaw.full ? stRaw : settle({ ...stRaw });
   let item = null;
   try {
     // a save is one of the plan's downloads, made at the plan's size and marks (planGate)
@@ -1228,10 +1316,13 @@ async function makePhoto(st, videoName, videoShort, prog = () => {}, gate = {}) 
   const VS = window.VideoStill;
   if (!VS) throw new Error("The photo maker did not load.");
   const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
-  const g = VS.size(W0, H0, 360), probe = new Ad(st, state.assets, g.w, g.h);
+  const g = VS.size(W0, H0, 360), probe = adFor(st, g.w, g.h);
   const pc = document.createElement("canvas"); pc.width = probe.W; pc.height = probe.H;
   const px = pc.getContext("2d");
-  const from = isFinite(probe.tl.number) ? probe.tl.number : 0, to = Math.max(from, (probe.tOutro != null ? probe.tOutro : st.duration) - .05);
+  // a full ad's photo is taken once every block has landed: the number's entrance done, the selling
+  // points, the towns and the website in, the phones down (tools/feed-stills: a wipe caught half way cut the number)
+  const n0 = isFinite(probe.tl.number) ? probe.tl.number : 0;
+  const from = st.full ? Math.max(n0 + .9, (probe.tLanded || 0) + .3) : n0, to = Math.max(from + (st.full ? .1 : 0), (probe.tOutro != null ? probe.tOutro : st.duration) - .05);
   const pick = await VS.best({
     frame: t => { probe.still = null; probe.frame(px, t, { subsFly: 2, subsMove: 2 }); return pc; },
     windows: probe.photoWindows(from, to), onProgress: p => prog(p, "Choosing the photo"),
@@ -1241,7 +1332,7 @@ async function makePhoto(st, videoName, videoShort, prog = () => {}, gate = {}) 
   let last = null;
   for (const s of sizes) {
     try {
-      const { w, h } = VS.size(W0, H0, s), ad = marked(new Ad(st, state.assets, w, h), gate.watermark);
+      const { w, h } = VS.size(W0, H0, s), ad = marked(adFor(st, w, h), gate.watermark);
       const c = document.createElement("canvas"); c.width = ad.W; c.height = ad.H;
       ad.still = null; ad.frame(c.getContext("2d"), pick.t, { subsFly: 8, subsMove: 4 }, 1 / 30);   // the export's own quality
       return { blob: await VS.toBlob(c), name: VS.name(videoName, ad.W, ad.H), w: ad.W, h: ad.H, t: pick.t, short: s, wanted: want, pick };
@@ -1398,7 +1489,7 @@ async function syncBuyList(st, refill = false) {
   if (quick.list === null || refill) $("bl-models").value = buyListModels(st, indexById()).join("\n");
   const id = ++blDraw;
   try {
-    const h = harmonise({ ...st }, state.locked, indexById());
+    const h = st.full ? st : settle({ ...st });
     await loadFonts(fontsFor(h));
     if (id !== blDraw) return;                          // a newer change is already drawing
     const rows = buyListRows(h);
@@ -1423,7 +1514,7 @@ async function downloadBuyList() {
   try {
     const gate = await planGate(() => downloadBuyList(), "Sign in to download your buying list. Free accounts get 3 downloads a week.", "photo");
     if (!gate) return;
-    const st = harmonise({ ...state.style }, state.locked, indexById());
+    const st = settle({ ...state.style });
     await loadFonts(fontsFor(st));
     const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["4:5"], short = Math.min(W0, H0);
     const want = Math.min(2160, gate.maxPx || 2160), scale = want / short;
@@ -1488,7 +1579,7 @@ function writeListing(st, force = false, only = "") {
 
 /** The counts at once; the check line when typing pauses (it is a live region, read aloud). */
 let checkTimer = 0;
-function checkSoon() { counts(); clearTimeout(checkTimer); checkTimer = setTimeout(showCheck, 500); }
+function checkSoon() { counts(); $("qa-check").setAttribute("aria-busy", "true"); clearTimeout(checkTimer); checkTimer = setTimeout(showCheck, 500); }   // busy until the line is the typed words' own
 function counts() {
   const t = $("qa-title").value.trim(), b = $("qa-body").value.trim();
   $("qa-title-n").textContent = `${t.length} / ${TITLE_MAX}` + (t.length > TITLE_FEED ? ` (the feed shows ${TITLE_FEED})` : "");
@@ -1501,6 +1592,7 @@ function showCheck() {
   clearTimeout(checkTimer); counts();
   const key = adKey(quick.st), past = recent().filter(h => h.key !== key);
   const t = $("qa-title").value, b = $("qa-body").value, el = $("qa-check");
+  el.removeAttribute("aria-busy");
   const c = lint(t, b, { price: $("qa-price").value, others: past.map(h => h.title), bodies: past.map(h => h.body) });
   el.innerHTML = "";
   // the words are the maker's; the price is the user's to set, so its absence alone is a next step, not a failure
@@ -1580,7 +1672,7 @@ async function quickAd() {
     quick.edited = { title: false, body: false };
     save(); syncWords(); drawPhonePicker(); syncLocks();
     await rebuild();
-    writeListing(harmonise({ ...state.style }, state.locked, indexById()), true);
+    writeListing(settle({ ...state.style }), true);
     if (quick.kind === "library") await saveLook(state.style);
     else if (quick.kind === "video") await download();
     else await downloadJpg();

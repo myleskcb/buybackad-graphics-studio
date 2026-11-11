@@ -2100,7 +2100,7 @@ class Line {
   }
 }
 
-function headlineLines(st, p, size, nLines) {
+export function headlineLines(st, p, size, nLines) {
   const text = applyCase(st.headline, st.case);
   const lines = splitLines(text, nLines);
   const ink = st.text_fx === "box" ? p.plate_ink : p.ink;
@@ -2143,7 +2143,7 @@ function ctaBadge(text, size, hot, face = "oswald") {
  *  (the photo ads' stack, DESIGN-LAW 115 and 120: one rhythm down the stack, and the strip
  *  wears the CTA's colour). rows: each chip's slice of the sprite, shadow included, cut on
  *  the middle of the gaps so a chip drawn on its own never repeats a neighbour's shadow. */
-function perksSprite(items, fs, hot, align, row = false, face = "oswald") {
+export function perksSprite(items, fs, hot, align, row = false, face = "oswald") {
   const ink = contrastOf(hot, "#111111") >= contrastOf(hot, "#ffffff") ? "#111111" : "#ffffff";
   const P = { ink, accent: ink, ground: hot, plate: hot, plate_ink: ink };
   const sps = items.map(s => inkSprite(s, s.split("").map(() => ink), face, fs, .04, "flat", P, 0));
@@ -2184,7 +2184,7 @@ function perksSprite(items, fs, hot, align, row = false, face = "oswald") {
  *  scripts/motion_cta_audit.mjs, which fails a look under .14. */
 export const LABEL_GAP = .18;
 
-function numberSprite(st, p, size, cta) {
+export function numberSprite(st, p, size, cta) {
   const text = formatNumber(st.number, st.number_format) || "YOUR NUMBER";
   let font = st.number_font === "same" ? st.font : st.number_font;
   if (FINE_FACES.has(font) || !FONTS[font]) font = "oswald";
@@ -3451,7 +3451,7 @@ export class Ad {
     const o = pos.outer, words = this.board ? [[o[0], o[1] - size * .5, o[2], o[3]]]
       : [...this.lines.map((L, i) => [pos.xs[i], pos.y0 + i * this.lineH, pos.xs[i] + L.inkW, pos.y0 + (i + 1) * this.lineH]),
         ...(this.tag && pos.tag ? [[pos.tag[0], pos.tag[1], pos.tag[0] + this.tag.width, pos.tag[1] + this.tag.height]] : [])];
-    const avoid = [...words, nb];
+    const avoid = [...words, nb, ...(this.keepClear || [])];   // keepClear: a subclass's own blocks (the full ad's claim, footer, sticker)
     // a round piece is placed only where the camera, pushed in where it settles, shows all of it
     const zs = settleZoom(st), seen = (x, y) => [W / 2 + (x - W / 2) * zs, H / 2 + (y - H / 2) * zs];
     this._fits = (x, y, R) => { const a = seen(x - R, y - R), c = seen(x + R, y + R); return a[0] >= W * .012 && c[0] <= W * .988 && a[1] >= this.insetTop + H * .008 && c[1] <= H * .99; };

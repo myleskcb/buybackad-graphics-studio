@@ -59,7 +59,9 @@ await page.waitForFunction(() => document.getElementById('loading').hidden, null
 await page.waitForFunction(() => document.getElementById('qa-title').value.length > 0, null, { timeout: 30000 });
 
 // the check line waits for typing to pause (it is read aloud); give it that pause
-const checkLine = async () => { await page.waitForTimeout(700); return page.textContent('#qa-check'); };
+// (700 ms was a guess at the pause: with the page busy drawing, the line came 930 ms after the price was typed;
+// the line is aria-busy until it is the typed words' own, so wait for that)
+const checkLine = async () => { await page.waitForTimeout(700); await page.waitForFunction(() => document.getElementById('qa-check').getAttribute('aria-busy') !== 'true', null, { timeout: 10000 }).catch(() => {}); return page.textContent('#qa-check'); };
 const listing = () => page.evaluate(() => ({ title: document.getElementById('qa-title').value, body: document.getElementById('qa-body').value,
   check: document.getElementById('qa-check').textContent, read: document.getElementById('qa-read').textContent,
   headline: document.getElementById('f-headline').value, tag: document.getElementById('f-tag').value, note: document.getElementById('export-note').textContent }));
