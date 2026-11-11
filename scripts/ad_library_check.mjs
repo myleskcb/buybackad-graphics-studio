@@ -866,6 +866,9 @@ async function browserPart() {
       await page.waitForFunction(() => document.getElementById('loading').hidden && window.adLibrary && window.pgfxAccount, null, { timeout: 60000 });
       await page.waitForFunction(() => { const b = document.getElementById('mo-adlib'); return b && b.style.display !== 'none'; }, null, { timeout: 20000 }).catch(() => {});
       await page.evaluate(() => window.VideoHelp && VideoHelp.close());
+      /* a number is asked for before anything is made (2026-11-10: "require a number before a
+         video maker download"): the star said "Type your phone number first" and saved nothing */
+      await page.fill('#f-number', '(562) 999-4994'); await page.waitForTimeout(900);
       await page.click('#mo-star');
       await page.waitForFunction(() => { const st = adLibrary.state(); return st.lib && st.lib.items.length === 1 && st.lib.items[0].video; }, null, { timeout: 180000 }).catch(() => {});
       const saved = await page.evaluate(async () => { const st = adLibrary.state(); const t = st.lib && st.lib.items[0]; const me = (await pgfxAccount.api('/me')).user; return t && { kind: t.kind, template: t.template, source: t.source, seconds: t.video && t.video.seconds, w: t.video && t.video.width, photo: t.image.width, hold: t.hold, counted: me.exports && me.exports.count, on: document.getElementById('mo-star').classList.contains('on') }; });

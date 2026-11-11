@@ -11613,8 +11613,11 @@ function applyTemplateHolds(){
   try {
     if (/[?&]noholds=1\b/.test(location.search)) return 0;
     const H = (typeof window !== 'undefined' && window.TEMPLATE_HOLDS) || {};
+    /* RETIRED (2026-11-11, template-retired.js): the first hand-made designs and the street set,
+       replaced by the full ad in the house style. They leave the lists the same way; ?noretire=1 keeps them. */
+    const R = /[?&]noretire=1\b/.test(location.search) ? {} : (typeof window !== 'undefined' && window.TEMPLATE_RETIRED) || {};
     let n = 0;
-    for (let i = TEMPLATES.length - 1; i >= 0; i--) if (H[TEMPLATES[i].id]){ TEMPLATES.splice(i, 1); n++; }
+    for (let i = TEMPLATES.length - 1; i >= 0; i--) if (H[TEMPLATES[i].id] || R[TEMPLATES[i].id]){ TEMPLATES.splice(i, 1); n++; }
     if (n) _freeFirst3 = null;
     return n;
   } catch (e){ return 0; }

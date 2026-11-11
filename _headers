@@ -53,6 +53,9 @@
 /template-holds.js
   Cache-Control: public, max-age=0, must-revalidate
 
+/template-retired.js
+  Cache-Control: public, max-age=0, must-revalidate
+
 /offer-assets.js
   Cache-Control: public, max-age=0, must-revalidate
 
