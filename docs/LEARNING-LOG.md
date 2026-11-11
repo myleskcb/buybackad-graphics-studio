@@ -4810,3 +4810,273 @@ RESUME HERE:
   0. DESIGN-LAW 132/133's open ends (OPEN-ITEMS §AZ).
   1. Deploy: the hand-deployed project lags main; the GitHub secrets
      NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID make it follow.
+
+## 2026-11-09 — the video maker's Quick ad: wholesale and local buyer angles, and iPhones LA's listing maker (claude/quirky-ride-gi02j6)
+
+Asked: "Wholesale buyer and local buyer style / angle of ad... and also include
+our iPhones LA esque Title and description generator to complete a full ad",
+"with a quick ad generator function that makes a photo or video with the title
+and description corresponding", "relevant to the photo image and the elements
+in image", "so maximize title and description keywords and length".
+
+Done:
+  - motion/audiences.js: Wholesale buyer and Local buyer, each with its looks,
+    words on screen (EN, ES), voices and scripts. Both by hand only (weight 0),
+    so no saved look number draws differently.
+  - motion/listing.js: the listings site's WE BUY maker (app/buy_ad_copy.py in
+    myleskcb/iphoneslainv-1, read 2026-11-09) ported: angles x tones word for
+    word, a new wholesale angle in its voice, and its lint and legitimacy
+    checks. The ad decides the words (readAd): the phones on the picture and
+    their finishes, the words printed on it, its audience, area and language.
+    Titles take the pattern and tails that carry the most distinct search words
+    and pictured models, up to 80 with the model inside the feed's 60.
+    Descriptions grow paragraph by paragraph (pictured models with their
+    storage sizes and colours, conditions, carrier, getting ready, the meet,
+    Spanish for a Spanish ad) while under 2,900 and every check passes.
+  - motion/index.html, app.js: ⚡ Quick ad under the preview. An angle chip,
+    Photo or Video, a tone; Make quick ad gives the ad the angle's audience and
+    the angle's own words (angleWords, inside the strong-look search, so the
+    attention check measures the final words), then downloads through the same
+    gates as the Download buttons. The title and description are rewritten
+    whenever the ad changes, checked live (hand edits too), with ↻, Copy and
+    Save as a text file.
+
+Found:
+  - The longest description is not the most keywords: "iPhone" said eight
+    times is stuffing on the listings site's own check, and five Pro Maxes say
+    "Pro Max" five times. The pictured paragraph has shorter forms, down to
+    "the iPhone 18, 17, 16, 15 and 14 Pro Max", and the Spanish paragraph is
+    chosen with it, not after it.
+  - A vibe's own lines ride beside an audience's in the copy pool, so a Local
+    buyer look on a freeway sign said "PRÓXIMA SALIDA". A quick ad for an angle
+    draws only the angle's lines.
+  - The title's feed-length note is the title's: counting it against each
+    description paragraph kept every description at its base length.
+
+Not done, on purpose: the "stealth" post (a WE BUY ad listed and titled as a
+phone for sale, so buyers do not know it is an ad). It misleads the people who
+answer it, the marketplaces remove it, and the listings site's own check
+scores it hardest (bait_title, 40 points). The listing always says it buys.
+
+Checked: scripts/listing_check.mjs (2,538 listings, all clear; titles 36 to
+80, median 69; descriptions 1,336 to 2,875, median 2,124);
+scripts/quick_ad_check.mjs in Chromium under the production CSP (wholesale
+photo, local buyer MP4 and photo, a bad hand edit refused, ↻, Copy, Save as a
+text file, 390 wide; all passed); scripts/audience_check.mjs all clear.
+Not run: motion_sound_check (needs puppeteer-core). The new scripts have no
+voice clips yet: `node scripts/voice_bank.mjs --only wholesale,local_buyer`
+records them (ElevenLabs key); until then those ads play music and sound only.
+
+RESUME HERE:
+  0. Record the two audiences' voiceovers (above).
+  1. The ad library's feed still carries the studio's plain title (the
+     headline); sending the Quick ad listing with a saved ad is the owner's
+     call, since iPhones LA's review writes its own.
+
+## 2026-11-09 (later) — Quick ad audited for what was missing, and fixed (claude/quirky-ride-gi02j6)
+
+Asked: "fix and audit extensively for missing incomplete or unfinished /
+planned features". An independent read of the diff beside this session's own.
+
+Fixed:
+  - The listing checks had lost three of iPhones LA's: the price (missing
+    blocks; $5 and under, all nines, round thousands, $1,500+ flagged), titles a
+    marketplace cannot tell apart, and descriptions 80% the same as another.
+    The page has a price field (kept per lead model) and remembers the
+    listings this browser copied, saved or made (14 days, 30): a new one is
+    written apart from them, and ↻ always gives another.
+  - Wholesale had 5 descriptions to the others' 8; now 8.
+  - What iPhones LA can say and a customer may not: "our shop", "usually the
+    same day", "Hablamos español". Three switches (shop, same day, Spanish);
+    off, the words say only what stays true. Spanish is said once, by its
+    paragraph, first on a Spanish-only ad, and may end the title.
+  - The description quotes the picture's headline (when the checks allow) and
+    names up to six pictured models; US spelling (color, neighbor, inquiry).
+  - The area as written (long beach → Long Beach), the one the ad prints, and
+    the Spanish article in "MÁNDANOS LA LISTA" is no longer Los Angeles.
+  - Make quick ad: one at a time (it stayed pressable during its download,
+    and saved the old look under the new listing); From the ad keeps what is
+    locked; Back restores the locks as well as the look; a hand edit is kept
+    when the ad changes, with "Rewrite it for this ad"; an audience chosen by
+    hand puts a picked angle back to From the ad; a Save to library choice.
+  - The library carries the listing: lookMeta sends it, adlibrary.mjs keeps
+    it (cleanListing: title 80, description 3,000 with its line breaks, price),
+    and the feed shows it as `listing` (null otherwise). README updated, zip
+    repacked. The review on iPhones LA still writes and approves its own.
+  - Accessibility and phone: the tone menu at 16px (iOS zoom), the subtitle out
+    of the heading, the check line (a live region) waits for typing to pause,
+    the two Copy buttons named apart, Enter cannot break the title, the title
+    box shows all three lines at 390, and the panel has its own try so a
+    failure there cannot clear the saved look.
+
+Checked: listing_check (2,700 listings and the new cases) all clear;
+audience_check all clear; ad_library_check --no-browser no failures (with the
+listing kept, cleaned, updated); quick_ad_check 47 checks all passed under the
+production CSP. library_handoff_check needs puppeteer-core, which this
+container lacks: the zip was checked by hand (same files, README byte for byte).
+
+Not done:
+  - Voiceovers: motion/voice/manifest.json has no clips for any audience, so
+    every video plays music only. `node scripts/voice_bank.mjs` records them
+    (an ElevenLabs key; the dry run plans 20 takes, 1,324 characters).
+  - Quick ad's Save to library is not pressed in a browser here (it needs a
+    signed-in account and the backend); the save path is the ⭐ button's.
+  - The check reads the words, not the picture: a picture that says CASH is
+    the studio's copy rules' to keep, not the listing's.
+
+RESUME HERE:
+  0. Record the voice bank (above).
+  1. Merge to main when the owner has looked at /motion/'s Quick ad.
+
+## 2026-11-10 — a wholesale ad shows a lot, Sell direct in place of Local buyer, and the buying list card (claude/quirky-ride-gi02j6)
+
+Asked: "are there actual distinctions in wholesale buyer ads? or buyback ads
+or direct buyer ads", "so it's more geared to b2b and existing businesses?",
+then "all 3": wholesale pictures always show 3 or more phones grouped; replace
+Local buyer with a Sell direct angle; a "This week we're buying" list card.
+
+Measured first: the six listing angles share 5 to 13% of their wording (word
+trigrams, closest description), which says only that each was written
+separately. What each tells a seller is the real test: wholesale's words are
+in no other angle (lot, list, box, mixed, IMEIs, resellers, repair shops,
+businesses); Local buyer's own words were phrasing (inquiry, appointment,
+suits), because the general ad already says local shop, meet nearby, paid on
+the spot, no shipping. And a wholesale picture could show one phone: no
+audience set how many phones stand on the ad.
+
+Done:
+  - The lot (engine.js lotInto, lotPhones; audiences.js wholesale `lot: 3` and
+    `looks.arrangement`): the wholesale audience adds phones up to 3 (the
+    picked models in their other finishes first, then the nearest models, the
+    regular line before Pro, Plus, mini or e; never an upload) and stands them
+    in one of six one-size layouts (lineup, rise, tilt_row, lean_in, wings,
+    fan). Its own seed, so no other draw of any look moves; an audience with no
+    `lot` draws nothing. The picker refuses to go under 3 on a wholesale ad and
+    says why; a wholesale look saved with fewer phones is topped up on load.
+    300 seeds of applyAudience and of randomize, and after harmonise: 0 looks
+    without a lot.
+  - Sell direct (audiences.js `direct`, listing.js `direct`, the chip): what
+    selling straight to the buyer saves next to listing it yourself: no
+    listing to write, no waiting for a buyer, one message to one buyer. It
+    names no marketplace and promises no speed, price or "no lowballs". The
+    business toggles learned its three shop lines (NO_SHOP). A look or quick ad
+    saved as local_buyer opens as direct (ANGLE_ALIASES; restore()).
+    "LOCAL IPHONE BUYER" now reads as the Local shop angle.
+  - The buying list (motion/buylist.js, the block under Quick ad's listing): for
+    a wholesale ad, the models from the picture newest first until the user
+    types their own, one offer for the lot, mixed lots welcome, the area, text a
+    list or a photo, the number. The ad's palette, faces and size; its phones in
+    a row on a tall card, giving way before a model is left off. Measured before
+    it is saved: each line's WCAG contrast against what is under it (engine.js
+    contrastOf; swapped to near-black or white where short) and its width
+    (shrunk, never cut); a failing card is not saved and the check says which
+    line. Downloads through Download photo's plan gate (sign-in, the plan's
+    downloads, its size, the watermark), 2160 on a paid plan.
+
+Checked: scripts/buylist_check.mjs (new): the lot and the picker's floor, the
+card for wholesale only, 1,376 cards (every palette x every size x English and
+Spanish) passing their own checks, a typed list kept and a long line fitted,
+Spanish words, no price, dash or claim, a 2160 JPG download, 390 wide, no page
+errors, no CSP violations: all passed. quick_ad_check 47 all passed (Sell direct
+in place of Local buyer). listing_check all clear (2,700 listings, the new
+readings). audience_check all clear (the direct scripts fit the 5- and
+8-second ads).
+
+Found:
+  - motion_phone_check (fly_spin, deal) fails two spin steps on 13-midnight and
+    13-mini-midnight (2.7 and 2.6 against a bar of 2.5). The same two fail on
+    the commit before this change, so they are older than it.
+  - motion_sound_check needs puppeteer-core; the ESM checks need playwright
+    beside the repo (a node_modules link to the global one, gitignored).
+
+RESUME HERE:
+  0. Record the voice bank (2026-11-09).
+  1. Merge to main when the owner has looked at /motion/'s Quick ad, Sell
+     direct and the buying list.
+
+## 2026-11-10 (later) — the iPhones.LA connection written down; Quick ad and downloads need a number (claude/quirky-ride-gi02j6)
+
+Asked: "write any information or connections necessary to make sure it's
+fully in communication with the iPhones LA repo", and an audit of how easy the
+studio is to use.
+
+Done:
+  - docs/IPHONESLA-CONNECTION.md: the seven connections both ways (connect
+    code to `gfx_` token, brief, image import with the `graphic` tag file, the
+    library link, the feed iPLA reads every 10 minutes, the link back, and the
+    Designer Library iPLA never called), each side's settings, a "change X,
+    change Y" list, the mismatches found, a prompt for a session on
+    myleskcb/iphoneslainv-1, and an end-to-end test. Read against iPLA
+    `30866d5`; its claims were spot-checked in both repos (the CORS default,
+    STUDIO_SITES, the fields `read_ad` reads, the 4 MB cap, the stale links).
+  - The studio's link back to the shop pointed at /repost#configurator, which
+    shows only posting slots since 2026-09-22; it is /ads#studio now, every
+    message names the Ad Generator, and a return on admin.iphones.la is kept
+    (derived from the shop's own origin, so the source still names one host).
+  - The old repo name is gone from the current docs; the hand-off README says
+    iPLA built its own reader; the zip is repacked (README byte for byte).
+  - The usability audit found the video maker downloading an ad that says YOUR
+    NUMBER (the engine's stand-in for an empty number), and one with a 20-digit
+    number. Download video, Download photo, Save to library and Quick ad now ask
+    for a number someone can dial first (10 digits, 11 starting with 1, or + and
+    a country code), Easy Mode's rule, and show the field. The buying list may
+    go without a number (it says "message us") but never with a wrong one.
+
+Checked: tests-iphonesla-link 68 of 68; buylist_check all passed (the number
+cases included); quick_ad_check 47 all passed.
+
+Owed (in the connection doc): GFX_STUDIO_ORIGINS on iPLA's Render service for
+finished-copy; the owner's call on the number on WE BUY pictures; iPLA's side
+(the listing field, ?due=1, the cutout slugs, its own stale links, a real feed
+fixture in its tests).
+
+## 2026-11-10 (evening) — the number's line has air, and the starburst finds the open room (claude/quirky-ride-gi02j6)
+
+Asked, over a gallery of Theatre marquee thumbnails: "audit these cta all
+touch the box"; then, over a yellow look with ¡EFECTIVO! beside the number:
+"why is it in the corner versus above the phones in the right empty middle
+space".
+
+Measured first (scripts/motion_cta_audit.mjs, new: builds the Ad the page
+builds, at export size and at the gallery's 320px thumbnails, and reads its
+layout):
+  - The call-to-action line ("CALL OR TEXT", "LLAMA O MANDA TEXTO") sat
+    exactly .06 of the number's type size over the number box on every look
+    that has one: 127 of 127 marquee looks, 498 of 498 across 600.
+  - On 5 of 80 marquee thumbnails the line was on the sign. Two causes, both
+    only at small sizes: the line's type stopped at 12px (two to three times
+    its share on a thumbnail), and the number box's shadow and margin were
+    fixed pixels (a 14px blur), so a thumbnail's box was half again its share
+    taller and pushed the line up into the sign. The tag line inside the
+    marquee stays on its cream panel (checked against the bulb border).
+  - The starburst went to a corner on 16 of 22 looks that had one: freeSpot
+    tried the four corners, two edge midpoints and the top centre, against the
+    words' whole block as one rectangle, so the room beside a short line and
+    above the phones was never tried.
+
+Done:
+  - LABEL_GAP .18 (engine.js): the line's air over the number box, in every
+    place that lays it out; the audit fails a look under .14 (DESIGN-LAW 58).
+  - The line's type and the number box's shadow and margin follow the type
+    size, so a thumbnail is the export at a smaller size.
+  - freeSpot (decor.js) looks across the whole picture: the spot that covers
+    nothing with the most open room around it, nearer the stage on a tie; it
+    keeps off each line and the tag on their own (not the block's rectangle),
+    the number and the phones, and only where the camera, pushed in where it
+    settles, shows all of it. The stamp uses it too.
+  - ↻ Another title / description after a hand edit no longer hands back the
+    text written before the edit (listingFor's avoid takes a list; a Quick ad
+    check caught it once in four runs, since more phones on a wholesale ad
+    meant longer titles and fewer of them).
+
+Checked: motion_cta_audit, 600 looks: the line at .18 on all 498, none on a
+sign, no starburst on copy, 3 starbursts in a corner (where the corner was the
+open room); buylist_check all passed; quick_ad_check 47 all passed on 6 of 7
+runs (one run printed nothing and did not come back when repeated); listing
+check all clear with the new after-an-edit case; audience_check all clear.
+motion_phone_check shows only the two spin steps older than today.
+
+Found, not fixed: on some looks the headline's last letter is cut on a
+straight line ("NO LO TIRES, VÉNDELO" as "VÉNDELC", pop_comic seed 31, es,
+4:5). The commit before today does the same. Not the plate reveal's clip, not
+the wipe's; the line sprite's width or a stroke past it is next to measure.

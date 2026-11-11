@@ -1,7 +1,7 @@
 # Offer cards: the phone number, big
 
 The 50 offer cards (iPhones.LA, drawn by `scripts/offer_ads.py` in
-loganipad/iphoneslainv) carried the number at 40px, the support size, in a
+myleskcb/iphoneslainv-1) carried the number at 40px, the support size, in a
 line at the foot of the social version. The owner: "lacking a big/medium phone
 number for people to contact us." Until the generator sets it big itself, this
 puts it big on an exported batch, card by card, from the pictures and the

@@ -158,6 +158,7 @@ ok(A && A.texts.length === 2 && A.texts[1].text === 'Cash today' && JSON.stringi
 ok(A && A.image.width === 1080 && A.image.height === 1080 && A.image.bytes === J[0].length && A.image.url === ORIGIN + '/api/ads/feed/' + feedId + '/img/' + A.id + '.jpg?v=' + sha256(J[0]).slice(0, 12), 'save: the picture\'s size, bytes and a versioned link');
 ok(A && A.autopost === true && A.repost_days === 1 && A.post && A.post.slot_id === A.id + '@2026-10-05T12:00:00Z' && A.post.next_at === '2026-10-06T12:00:00Z' && A.post.round === 1, 'save: offered at once, again tomorrow');
 ok(A && A.fresh === true && A.fresh_until === '2026-10-12T12:00:00Z', 'save: fresh for seven days');
+ok(A && A.listing === null, 'save: an ad saved without a listing has listing null');
 
 r = await call('POST', '/ads/save', { as: 'free@x.example', body: { image: dataUrl(J[0]), title: 'again' } });
 ok(r.status === 200 && r.body.duplicate === true && r.body.item.id === A.id && r.body.count === 1, 'save: the same picture twice is one ad');
@@ -316,9 +317,16 @@ ok(r.status === 200 && r.body.item.kind === 'photo' && r.body.item.video === nul
 ok((await call('POST', '/ads/video/remove', { as: 'free@x.example', body: { id: A.id } })).status === 404, 'video: removing twice is 404');
 accounts['free@x.example'].plan = 'free';
 /* an ad removed takes its video */
-r = await call('POST', '/ads/save', { as: 'pro@x.example', body: { image: dataUrl(J[2]), title: 'Pro video', source: 'motion' } });
+// the video maker's Quick ad listing rides with the ad (2026-11-09): kept, cleaned, on the feed as saved
+const LISTING = { title: '  We buy iPhone 18 Pro Max in bulk - wholesale lots in Long Beach  ', description: 'Line one.\r\n\r\n\r\nLine two\u0007 with a bell.\n' + 'x'.repeat(3200), price: '650' };
+r = await call('POST', '/ads/save', { as: 'pro@x.example', body: { image: dataUrl(J[2]), title: 'Pro video', source: 'motion', listing: LISTING } });
 const PV = r.body.item;
 ok(r.status === 201 && PV.source === 'motion' && PV.kind === 'photo', 'save: the source is kept, a new ad is a photo ad');
+ok(PV.listing && PV.listing.title === 'We buy iPhone 18 Pro Max in bulk - wholesale lots in Long Beach' && PV.listing.description.startsWith('Line one.\n\nLine two  with a bell.') === false && PV.listing.description.startsWith('Line one.\n\nLine two with a bell.') && PV.listing.description.length === 3000 && PV.listing.price === 650,
+  'save: the listing is kept: the title trimmed, the description\'s line breaks kept and control characters out, 3,000 at most, the price a number (' + JSON.stringify(PV.listing && { ...PV.listing, description: PV.listing.description.slice(0, 40) }) + ')');
+ok((await call('POST', '/ads/save', { as: 'pro@x.example', body: { image: dataUrl(resized(J[2], 1000, 1000)), listing: { title: 'only a title' } } })).body.item.listing === null, 'save: a listing without a description is not kept');
+r = await call('POST', '/ads/update', { as: 'pro@x.example', body: { id: PV.id, listing: { title: 'We buy iPhones', description: 'New words.', price: -3 } } });
+ok(r.status === 200 && r.body.item.listing.description === 'New words.' && r.body.item.listing.price === null, 'update: the listing can be rewritten; a price that is not one is null');
 await begin({ id: PV.id, format: 'mp4', bytes: V2.length, w: 1080, h: 1080, sha256: sha256(V2) }, 'pro@x.example');
 r = await sendAll(PV.id, V2, 'pro@x.example');
 const proOwner = await ownerKey('pro@x.example');

@@ -1,13 +1,15 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES } from "./catalog.js";
-import { Ad, ASPECTS, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf } from "./engine.js";
+import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf, lotInto } from "./engine.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
 import { exportMp4, recordRealtime, canEncode, recorderMime } from "./export.js";
 import { auditLook, drawCurve } from "./audit.js";
 import { loadAccents, IOS_EMOJI } from "./accents.js";
+import { listingFor, lint, priceOf, businessOf, BUSINESS, TONES, ANGLES, ANGLE_AUDIENCE, ANGLE_ALIASES, TITLE_MAX, TITLE_FEED, BODY_MAX, readAd } from "./listing.js";
+import { drawBuyList, buyListModels, parseModels, MAX_ROWS } from "./buylist.js";
 
 const $ = id => document.getElementById(id);
 const STORE = "pgfx_motion_v1";
@@ -91,6 +93,7 @@ function restore() {
   } catch (e) { /* fresh start */ }
   // a saved look from an older version must not stop the page from starting
   if (!Array.isArray(state.style.phones)) state.style.phones = DEFAULT_PHONES.slice();
+  if (state.style.audience === "local_buyer") state.style.audience = "direct";   // Local buyer became Sell direct (2026-11-10)
   try {                                              // the studio's brand kit
     const b = JSON.parse(localStorage.getItem("pgfx_brand") || "null");
     if (b && b.phone && !state.style.number) state.style.number = b.phone;
@@ -128,6 +131,7 @@ async function rebuild() {
     state.audio = null;
     if (state.sound) startAudio(0);
     syncPanel(st);
+    writeListing(st);
     $("loading").hidden = true;
     scheduleAudit(st);
     refreshStars();
@@ -190,11 +194,11 @@ function showAudit(rep) {
 }
 
 /** A look is strong when it scores 90+ and passes what decides a scroll. */
-async function strongSeed(base, locked, pool, content) {
+async function strongSeed(base, locked, pool, content, post = st => st) {
   let best = null;
   for (let k = 0; k < 8; k++) {
     const seed = (Math.random() * 1e9) | 0;
-    const st = randomize(base, seed, locked, pool, content);
+    const st = post(randomize(base, seed, locked, pool, content));
     const h = harmonise({ ...st }, locked, indexById());
     await loadFonts(fontsFor(h));
     const rep = await auditLook(h, state.assets, { size: 120, secs: 3.4, sound: false });
@@ -287,7 +291,7 @@ function buildPanel() {
     if (k === "audience") {                         // so is an audience: its look, its words and its voice
       AUDIENCE_AXES.forEach(a => state.locked.delete(a));
       state.style = applyAudience(state.style, (Math.random() * 1e9) | 0, state.locked);
-      syncWords();
+      syncWords(); drawPhonePicker();                // a wholesale audience may add phones for its lot
     }
     if (["voice", "voice_mood", "voice_cast"].includes(k)) state.style = applyVoice(state.style, (Math.random() * 1e9) | 0, state.locked);
     // what was just picked stays; whatever would drown the phones' move gives way, said plainly
@@ -352,7 +356,12 @@ function buildPanel() {
     const b = e.target.closest("[data-phone]"); if (!b) return;
     const id = b.dataset.phone, list = state.style.phones;
     const i = list.indexOf(id);
-    if (i >= 0) { if (list.length > 1) list.splice(i, 1); } else { if (list.length >= 6) list.shift(); list.push(id); }
+    // a wholesale ad shows a lot (engine.js lotInto), so it keeps at least that many
+    const lot = (AUDIENCES[state.style.audience] || {}).lot || 1;
+    if (i >= 0) {
+      if (list.length > Math.max(1, lot)) list.splice(i, 1);
+      else if (lot > 1) { VH().toast(`A wholesale ad shows a lot, so it keeps at least ${lot} phones. Pick another phone first, or another audience.`); return; }
+    } else { if (list.length >= 6) list.shift(); list.push(id); }
     save(); drawPhonePicker(true); rebuild();
   });
   $("all-phones").addEventListener("change", e => { state.allPhones = e.target.checked; save(); drawPhonePicker(); });
@@ -382,7 +391,12 @@ function buildPanel() {
   // actions
   $("shuffle-look").addEventListener("click", () => shuffle(false));
   $("shuffle-all").addEventListener("click", () => shuffle(true));
-  $("undo").addEventListener("click", () => { const prev = state.history.pop(); if (prev) { state.style = prev; save(); syncWords(); drawPhonePicker(); rebuild(); } $("undo").disabled = !state.history.length; });
+  // Back: the look, and the locks it had (a quick ad or an audience lets locks go)
+  $("undo").addEventListener("click", () => {
+    const prev = state.history.pop();
+    if (prev) { if (prev.style) { state.style = prev.style; state.locked = new Set(prev.locked); } else state.style = prev; save(); syncWords(); drawPhonePicker(); syncLocks(); rebuild(); }
+    $("undo").disabled = !state.history.length;
+  });
   $("play").addEventListener("click", togglePlay);
   $("scrub").addEventListener("input", e => {
     const d = state.ad ? state.ad.st.duration : 6;
@@ -410,7 +424,7 @@ function togglePlay() {
   }
 }
 
-function pushHistory() { state.history.push(JSON.parse(JSON.stringify(state.style))); if (state.history.length > 30) state.history.shift(); $("undo").disabled = false; }
+function pushHistory() { state.history.push({ style: JSON.parse(JSON.stringify(state.style)), locked: [...state.locked] }); if (state.history.length > 30) state.history.shift(); $("undo").disabled = false; }
 
 async function shuffle(all) {
   pushHistory();
@@ -1005,8 +1019,25 @@ async function makeVideo(st, { how = "auto", withSound = true, prog = () => {}, 
   } catch (e) { if (e && typeof e === "object") try { e.ad = ad; } catch (x) { /* frozen */ } throw e; }
 }
 
+/** The ad's number, before anything is made from it: Easy Mode's rule (app.js
+ *  ezDownload), so a download never says YOUR NUMBER (the engine's stand-in for an
+ *  empty one) or carries a number nobody can dial. False, with the field shown and
+ *  focused, when it is missing or not a number someone can dial. (Usability audit, 2026-11-10:
+ *  Quick ad downloaded an ad saying YOUR NUMBER, and one with a 20-digit number.) */
+function numberReady() {
+  const raw = String(state.style.number || "").trim(), digits = raw.replace(/\D/g, "");
+  // a US number (10 digits, or 11 starting with 1), or one written with + and its country code
+  if (digits.length === 10 || (digits.length === 11 && digits[0] === "1") || (raw[0] === "+" && digits.length >= 8 && digits.length <= 15)) return true;
+  const f = $("f-number"), sec = f && f.closest("details");
+  if (sec) sec.open = true;
+  VH().toast(digits ? `That number has ${digits.length} digits; a US number has 10 (start with + for another country). Check it under Words, then try again.` : "Type your phone number first, under Words: buyers need to reach you.");
+  if (f) { f.scrollIntoView({ behavior: "smooth", block: "center" }); f.focus({ preventScroll: true }); }
+  return false;
+}
+
 async function download(opts = {}) {
   const how = opts.how || "auto", withSound = opts.sound !== false;
+  if (!numberReady()) return;
   const btn = $("download"); if (btn.disabled) return; btn.disabled = true;
   const H = VH();
   $("progress").hidden = false; $("export-note").textContent = "";
@@ -1080,6 +1111,7 @@ async function download(opts = {}) {
    its short side, a JPG). A photo is one of the plan's downloads on
    every plan, as the studio's are: Free's at 1080 with the watermark. */
 async function downloadJpg() {
+  if (!numberReady()) return;
   const btn = $("download-jpg"); if (btn.disabled) return; btn.disabled = true;
   const H = VH();
   $("progress").hidden = false; $("export-note").textContent = "";
@@ -1117,10 +1149,18 @@ function lookMeta(st) {
   const texts = [];
   const push = (role, t) => { if (typeof t === "string" && t.trim()) texts.push({ role, text: t.trim().slice(0, 200) }); };
   push("hook", st.hook_text); push("headline", st.headline); push("sub", st.tag); push("label", st.number_label); push("cta", st.cta);
-  return { title: String(st.headline || "WE BUY PHONES").slice(0, 80), category: "phones", template: "motion-" + st.seed, texts,
+  const meta = { title: String(st.headline || "WE BUY PHONES").slice(0, 80), category: "phones", template: "motion-" + st.seed, texts,
     products: (st.phones || []).map(String).filter(id => /^[a-z0-9][a-z0-9-]{0,79}$/.test(id)), source: "motion", hold: "" };
+  // the listing Quick ad wrote for this ad, as its boxes say it (hand edits and the price included), for the
+  // listings site's review to start from (netlify/lib/adlibrary.mjs: listing); never another ad's
+  if (quick.st && adKey(quick.st) === adKey(st) && $("qa-title") && $("qa-title").value.trim()) {
+    const price = priceOf($("qa-price").value);
+    meta.listing = { title: $("qa-title").value.trim().slice(0, 80), description: $("qa-body").value.trim().slice(0, 3000), price };
+  }
+  return meta;
 }
 async function saveLook(stRaw, btn) {
+  if (!numberReady()) return null;
   const H = VH();
   const lib = window.adLibrary;
   if (!lib) { H.toast("The library did not load. Reload the page and try again."); return null; }
@@ -1237,6 +1277,323 @@ function offerAgain(blob, name, photo) {
   }
 }
 
+// ------------------------------------------------------------ ⚡ quick ad and its listing
+/* The owner, 2026-11-09: "Wholesale buyer and local buyer style / angle of
+   ad", "include our iPhones LA esque Title and description generator to
+   complete a full ad", "a quick ad generator function that makes a photo or
+   video with the title and description corresponding", "relevant to the photo
+   image and the elements in image", "maximize title and description keywords
+   and length". The listing (listing.js) is written from the ad as built: its
+   phones, the words on it, its audience, area and language, and is rewritten
+   whenever the ad changes. Make quick ad gives the ad the angle's audience
+   (its look, words and voice), finds a look that passes the attention check,
+   and downloads it as a photo or a video through the same gates as the
+   Download buttons. The listing always says the post buys (the iPhones LA
+   checks score a buy ad dressed as a phone for sale hardest). */
+const QUICK_STORE = "pgfx_motion_quick_v1";
+const quick = { angle: "auto", kind: "photo", tone: "plain", tv: 0, bv: 0, sig: "", st: null, listing: null, prices: {}, history: [], lead: "",
+  biz: {}, edited: { title: false, body: false }, audSeen: undefined, list: null };
+// the listings this browser copied, saved or made a quick ad of: the marketplace
+// takes down a second post it cannot tell from the first, and a copied
+// description reads as spam, so new ones are checked against these (14 days, 30 at most)
+const HISTORY_DAYS = 14, HISTORY_MAX = 30;
+const adKey = st => st ? [st.seed, (st.phones || []).join(","), st.headline || ""].join("|") : "";
+const recent = () => quick.history.filter(h => h && h.at > Date.now() - HISTORY_DAYS * 864e5);
+function keepQuick() {
+  try { localStorage.setItem(QUICK_STORE, JSON.stringify({ angle: quick.angle, kind: quick.kind, tone: quick.tone, biz: quick.biz, prices: quick.prices, list: quick.list, history: recent().slice(-HISTORY_MAX) })); } catch (e) { /* private mode */ }
+}
+/** This listing, as the boxes say it now, among the ones to keep apart from. */
+function remember() {
+  const st = quick.st; if (!st) return;
+  const key = adKey(st), title = $("qa-title").value.trim(), body = $("qa-body").value.trim();
+  if (!title && !body) return;
+  quick.history = [...recent().filter(h => h.key !== key), { key, title, body, at: Date.now() }].slice(-HISTORY_MAX);
+  keepQuick();
+}
+const listingText = () => {
+  const p = priceOf($("qa-price").value);
+  return $("qa-title").value.trim() + (p !== null ? `\nPrice: $${p.toLocaleString("en-US")}` : "") + "\n\n" + $("qa-body").value.trim();
+};
+
+/** The chips show what is picked. */
+function syncQuickChips() {
+  document.querySelectorAll("#qa-angles [data-angle]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.angle === quick.angle)));
+  document.querySelectorAll("#qa-kind [data-kind]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.kind === quick.kind)));
+  document.querySelectorAll("#qa-biz [data-biz]").forEach(c => { c.checked = !!quick.biz[c.dataset.biz]; });
+  $("qa-tone").value = quick.tone;
+}
+
+function buildQuick() {
+  try { const q = JSON.parse(localStorage.getItem(QUICK_STORE) || "null");
+    const angle = q && (ANGLE_ALIASES[q.angle] || q.angle);   // an angle retired since it was saved
+    if (angle === "auto" || ANGLES[angle]) quick.angle = angle;
+    if (q && ["photo", "video", "library"].includes(q.kind)) quick.kind = q.kind;
+    if (q && TONES[q.tone]) quick.tone = q.tone;
+    if (q && q.prices && typeof q.prices === "object") for (const [m, v] of Object.entries(q.prices)) if (typeof v === "string" && priceOf(v) !== null) quick.prices[m] = v;
+    if (q && Array.isArray(q.history)) quick.history = q.history.filter(h => h && typeof h.key === "string" && typeof h.title === "string" && typeof h.body === "string" && Number.isFinite(h.at));
+    if (q && typeof q.list === "string") quick.list = q.list.slice(0, 600);
+    quick.biz = businessOf(q && q.biz);
+  } catch (e) { quick.biz = businessOf(null); }
+  const keep = keepQuick;
+  // the library choice only where the library is (ad-library.js); a saved choice without it falls back to a photo
+  if (!window.adLibrary) { const b = document.querySelector('#qa-kind [data-kind="library"]'); if (b) b.remove(); if (quick.kind === "library") quick.kind = "photo"; }
+  $("qa-tone").innerHTML = Object.entries(TONES).map(([k, t]) => `<option value="${k}" title="${t.note}">${t.label}</option>`).join("");
+  $("qa-biz").innerHTML = Object.entries(BUSINESS).map(([k, b]) => `<label class="mo-check" title="${b.note}"><input type="checkbox" data-biz="${k}"> ${b.label}</label>`).join("");
+  syncQuickChips();
+  // picking an angle, a tone or what the business can say rewrites the listing for the ad on screen; Make quick ad makes the look for it
+  $("qa-angles").addEventListener("click", e => { const b = e.target.closest("[data-angle]"); if (!b) return; quick.angle = b.dataset.angle; quick.tv = quick.bv = 0; keep(); syncQuickChips(); writeListing(quick.st, true); });
+  $("qa-kind").addEventListener("click", e => { const b = e.target.closest("[data-kind]"); if (!b) return; quick.kind = b.dataset.kind; keep(); syncQuickChips(); });
+  $("qa-tone").addEventListener("change", e => { quick.tone = TONES[e.target.value] ? e.target.value : "plain"; quick.tv = quick.bv = 0; keep(); writeListing(quick.st, true); });
+  $("qa-biz").addEventListener("change", e => { const k = e.target.dataset.biz; if (!k) return; quick.biz = { ...quick.biz, [k]: e.target.checked }; keep(); writeListing(quick.st, true); });
+  $("qa-new-title").addEventListener("click", () => { quick.tv++; writeListing(quick.st, true, "title"); });
+  $("qa-new-body").addEventListener("click", () => { quick.bv++; writeListing(quick.st, true, "body"); });
+  // a title is one line: Enter would put a line break in it
+  $("qa-title").addEventListener("keydown", e => { if (e.key === "Enter") e.preventDefault(); });
+  $("qa-title").addEventListener("input", () => {
+    const t = $("qa-title"); if (/[\r\n]/.test(t.value)) t.value = t.value.replace(/\s*[\r\n]+\s*/g, " ");
+    quick.edited.title = true; checkSoon();
+  });
+  $("qa-body").addEventListener("input", () => { quick.edited.body = true; checkSoon(); });
+  // the price is kept for the lead model, so the next ad for the same phone starts with it
+  $("qa-price").addEventListener("input", () => {
+    const v = $("qa-price").value.trim();
+    if (quick.lead) { if (priceOf(v) !== null) quick.prices[quick.lead] = v; else if (!v) delete quick.prices[quick.lead]; keep(); }
+    checkSoon();
+  });
+  $("qa-copy-title").addEventListener("click", () => { remember(); copyText($("qa-title").value, "Title copied."); });
+  $("qa-copy-body").addEventListener("click", () => { remember(); copyText($("qa-body").value, "Description copied."); });
+  $("qa-copy-all").addEventListener("click", () => { remember(); copyText(listingText(), "Title, price and description copied."); });
+  $("qa-save-txt").addEventListener("click", () => {
+    remember();
+    const seed = quick.st ? quick.st.seed : state.style.seed;
+    saveVideo(new Blob([listingText() + "\n"], { type: "text/plain;charset=utf-8" }), `we-buy-phones-${seed}-listing.txt`);
+  });
+  $("qa-rewrite").addEventListener("click", () => { quick.edited = { title: false, body: false }; writeListing(quick.st, true); });
+  $("quick-ad").addEventListener("click", () => quickAd());
+  // the buying list: typed by hand it stays the user's; Use the ad's phones goes back to the picture's
+  $("bl-models").addEventListener("input", () => { quick.list = $("bl-models").value; keepQuick(); buyListSoon(); });
+  $("bl-reset").addEventListener("click", () => { quick.list = null; keepQuick(); syncBuyList(quick.st, true); });
+  $("bl-download").addEventListener("click", () => downloadBuyList());
+}
+
+/* ✔ This week we're buying (motion/buylist.js): shown for a wholesale ad, the
+   models from its picture until the user types their own, a live preview, and a
+   download through the same plan gate as Download photo (sign-in, the plan's
+   downloads, its size and watermark). A card that fails its own check is not
+   saved, and the check says which line and why. */
+const isWholesale = st => quick.angle === "wholesale" || (quick.angle === "auto" && (() => {
+  try { return readAd(st, indexById(), { area: areaOf(st) }).angle === "wholesale"; } catch (e) { return false; }
+})());
+function buyListRows(st) {
+  return quick.list === null ? buyListModels(st, indexById()) : parseModels(quick.list);
+}
+let blTimer = 0, blDraw = 0;
+function buyListSoon() { clearTimeout(blTimer); blTimer = setTimeout(() => syncBuyList(quick.st), 250); }
+async function syncBuyList(st, refill = false) {
+  const box = $("qa-buylist"); if (!box || !st) return;
+  const on = isWholesale(st);
+  box.hidden = !on;
+  if (!on) return;
+  if (quick.list === null || refill) $("bl-models").value = buyListModels(st, indexById()).join("\n");
+  const id = ++blDraw;
+  try {
+    const h = harmonise({ ...st }, state.locked, indexById());
+    await loadFonts(fontsFor(h));
+    if (id !== blDraw) return;                          // a newer change is already drawing
+    const rows = buyListRows(h);
+    const [W0] = ASPECTS[h.aspect] || ASPECTS["4:5"];
+    const card = drawBuyList(h, rows, state.assets, { scale: 270 / W0 });
+    const pv = $("bl-preview");
+    pv.width = card.canvas.width; pv.height = card.canvas.height;
+    pv.getContext("2d").drawImage(card.canvas, 0, 0);
+    const typed = quick.list === null ? 0 : String(quick.list).split(/\r?\n/).filter(l => l.trim()).length;
+    $("bl-n").textContent = `${card.rows.length} on the card` + (typed > card.rows.length ? ` (${typed - card.rows.length} left off: ${typed > MAX_ROWS ? `the card holds ${MAX_ROWS} at most` : "this size has room for no more"})` : "");
+    const fails = card.checks.filter(c => !c.ok);
+    $("bl-check").textContent = fails.length ? "Not ready: " + fails.map(c => c.label).join(" ") : `Ready: every line reads against its ground and fits. Size ${h.aspect}, as the ad.`;
+    $("bl-download").disabled = !!fails.length;
+  } catch (e) { console.warn("The buying list could not be drawn:", e); $("bl-check").textContent = "The preview could not be drawn. Try again, or pick another look."; }
+}
+
+async function downloadBuyList() {
+  // no number is allowed (the card says "message us"); a number that cannot be dialled is not
+  if (String(state.style.number || "").trim() && !numberReady()) return;
+  const btn = $("bl-download"); if (btn.disabled) return; btn.disabled = true;
+  const note = t => { $("bl-check").textContent = t; };
+  try {
+    const gate = await planGate(() => downloadBuyList(), "Sign in to download your buying list. Free accounts get 3 downloads a week.", "photo");
+    if (!gate) return;
+    const st = harmonise({ ...state.style }, state.locked, indexById());
+    await loadFonts(fontsFor(st));
+    const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["4:5"], short = Math.min(W0, H0);
+    const want = Math.min(2160, gate.maxPx || 2160), scale = want / short;
+    const card = drawBuyList(st, buyListRows(st), state.assets, { scale });
+    const fails = card.checks.filter(c => !c.ok);
+    if (fails.length) { note("Not saved: " + fails.map(c => c.label).join(" ")); return; }
+    const x = card.canvas.getContext("2d");
+    if (gate.watermark) { x.setTransform(1, 0, 0, 1, 0, 0); drawMarks(x, card.canvas.width, card.canvas.height); }
+    const blob = await new Promise((res, rej) => card.canvas.toBlob(b => b ? res(b) : rej(new Error("The card could not be encoded")), "image/jpeg", .92));
+    if (!await gate.count()) { note("Not saved: this plan's downloads are used up."); return; }
+    const day = new Date().toISOString().slice(0, 10), name = `buying-list-${day}-${st.aspect.replace(":", "x")}.jpg`;
+    saveVideo(blob, name);
+    note(`Saved ${name} (${card.canvas.width}×${card.canvas.height}, ${card.rows.length} models).`);
+  } catch (e) {
+    console.error(e);
+    note("The buying list could not be made. Try again; the details are in the console.");
+  } finally { btn.disabled = false; }
+}
+
+/** The listing for the ad as built. Rewritten when the ad, the angle, the tone,
+ *  the business or a ↻ changes. A hand edit is kept when the ad changes under
+ *  it: the page says so and offers to rewrite. `only` keeps the other box. */
+function writeListing(st, force = false, only = "") {
+  if (!st || !$("qa-title")) return;
+  quick.st = st;
+  syncBuyList(st);
+  // an audience chosen by hand (the panel, a look from the gallery) speaks for the ad: a picked angle that says otherwise steps back
+  if (!force && quick.audSeen !== undefined && st.audience !== quick.audSeen && quick.angle !== "auto" && ANGLE_AUDIENCE[quick.angle] !== st.audience) {
+    quick.angle = "auto"; keepQuick(); syncQuickChips();
+  }
+  quick.audSeen = st.audience;
+  const sig = JSON.stringify([st.phones, st.headline, st.tag, st.hook_text, st.number_label, st.cta, st.audience, st.area, st.lang, st.vibe, quick.angle, quick.tone, quick.tv, quick.bv, quick.biz]);
+  if (!force && sig === quick.sig) return;
+  quick.sig = sig;
+  const edited = (quick.edited.title || quick.edited.body) && !force;
+  $("qa-stale").hidden = !edited;
+  if (edited) { showCheck(); return; }                // the boxes stay the user's until they ask for the rewrite
+  let L;
+  try {
+    L = listingFor(st, indexById(), { angle: quick.angle, tone: quick.tone, titleVariant: quick.tv, bodyVariant: quick.bv, history: recent(), key: adKey(st),
+      biz: quick.biz, area: areaOf(st), avoid: only === "title" ? { title: [$("qa-title").value, quick.listing && quick.listing.title] } : only === "body" ? { body: [$("qa-body").value, quick.listing && quick.listing.description] } : {} });
+  } catch (e) { console.warn("The listing could not be written:", e); return; }
+  quick.listing = L;
+  if (only !== "body") { $("qa-title").value = L.title; quick.edited.title = false; }
+  if (only !== "title") { $("qa-body").value = L.description; quick.edited.body = false; }
+  $("qa-stale").hidden = true;
+  // the price this browser last gave the lead model, when it changes
+  const lead = L.read.models[0] || "iPhone";
+  if (lead !== quick.lead) { quick.lead = lead; $("qa-price").value = quick.prices[lead] || ""; }
+  $("qa-price-hint").textContent = `about what you pay for a clean ${lead}, as the description says`;
+  const r = L.read, bits = [];
+  if (r.models.length) bits.push(r.models.map(m => (r.finishes[m] || []).length ? `${m} (${r.finishes[m].join(", ")})` : m).join(", "));
+  if (r.uploads) bits.push(`${r.uploads} uploaded phone${r.uploads > 1 ? "s" : ""}, named as an iPhone`);
+  if (r.words.headline) bits.push(`“${r.words.headline}”`);
+  bits.push(r.area ? r.area : "no area: add yours under Words to name it");
+  if (r.lang !== "en") bits.push(r.lang === "es" ? "Spanish" : "English and Spanish");
+  const why = quick.angle !== "auto" ? "picked" : r.why === "audience" ? "from its audience" : r.why === "words" ? "from its words" : "the default";
+  const toned = L.tone !== L.toneAsked ? ` Tone: ${TONES[L.tone].label}, because the ${TONES[L.toneAsked].label.toLowerCase()} descriptions are shown or in your recent listings.` : "";
+  $("qa-read").textContent = `Written from the ad: ${bits.join(" · ")}. Angle: ${L.angleLabel} (${why}).${toned}`;
+  showCheck();
+}
+
+/** The counts at once; the check line when typing pauses (it is a live region, read aloud). */
+let checkTimer = 0;
+function checkSoon() { counts(); clearTimeout(checkTimer); checkTimer = setTimeout(showCheck, 500); }
+function counts() {
+  const t = $("qa-title").value.trim(), b = $("qa-body").value.trim();
+  $("qa-title-n").textContent = `${t.length} / ${TITLE_MAX}` + (t.length > TITLE_FEED ? ` (the feed shows ${TITLE_FEED})` : "");
+  $("qa-body-n").textContent = `${b.length.toLocaleString()} / ${BODY_MAX.toLocaleString()}`;
+}
+
+/** The listing checks (iPhones LA's, listing.js) on what the boxes say now,
+ *  hand edits and the price included, beside this browser's recent listings. */
+function showCheck() {
+  clearTimeout(checkTimer); counts();
+  const key = adKey(quick.st), past = recent().filter(h => h.key !== key);
+  const t = $("qa-title").value, b = $("qa-body").value, el = $("qa-check");
+  const c = lint(t, b, { price: $("qa-price").value, others: past.map(h => h.title), bodies: past.map(h => h.body) });
+  el.innerHTML = "";
+  // the words are the maker's; the price is the user's to set, so its absence alone is a next step, not a failure
+  const words = c.blockers.filter(f => f.code !== "price_missing"), noPrice = c.blockers.length > words.length;
+  const head = document.createElement("span");
+  head.innerHTML = !words.length ? `<b>${noPrice ? "The title and description pass" : "Passes"} the listing checks</b> (the marketplaces' posting rules and the signs of spam, on the words). Reads ${c.legit.verdict}, ${c.legit.score} of 100.`
+    : `<span class="bad">Fix before posting:</span> `;
+  el.appendChild(head);
+  const notes = [...words, ...c.warnings.filter(w => w.code !== "title_cut")].map(f => f.message);
+  // what costs the score, when the notes above have not said it already
+  const said = new Set([...c.blockers, ...c.warnings].map(f => f.code));
+  const costs = c.legit.signals.filter(g => !said.has(g.code) && !(g.code === "price_bait" && said.has("price_inflated"))).map(g => g.message);
+  if (costs.length) notes.push("What lowers the score: " + costs.join(" "));
+  if (noPrice) notes.push(c.blockers.find(f => f.code === "price_missing").message);
+  if (notes.length) el.appendChild(document.createTextNode(" " + notes.join(" ")));
+  el.classList.toggle("todo", noPrice);
+}
+
+/** The audience's own words on the picture, in the look's language (the
+ *  headline in one, the small line in the other for a look in both), as the
+ *  engine's copy pass draws them, without the vibe's lines beside them. */
+function angleWords(st) {
+  const a = AUDIENCES[st.audience]; if (!a || !a.copy) return st;
+  const out = { ...st }, area = areaOf(st), r = rng((st.seed || 1) * 9137 + 7);
+  const headL = out.lang === "both" ? (r() < .6 ? "en" : "es") : out.lang === "es" ? "es" : "en";
+  const otherL = out.lang === "both" ? (headL === "en" ? "es" : "en") : headL;
+  const pool = (L, key) => ((a.copy[L] || {})[key] || []).map(s => !s.includes("{AREA}") ? s : area ? s.replace(/\{AREA\}/g, L === "es" && area === "LA" ? "L.A." : area) : null).filter(Boolean);
+  const set = (field, L, key, fit = () => true) => { const p = pool(L, key).filter(fit); if (p.length && !state.locked.has(field)) out[field] = r.pick(p); };
+  set("headline", headL, "headlines");
+  set("hook_text", headL, "hooks", h => out.hook !== "word_beat" || h.split(/\s+/).length <= 5);
+  set("tag", otherL, "tags");
+  set("cta", otherL, "cta");
+  return out;
+}
+
+async function copyText(text, said) {
+  try { await navigator.clipboard.writeText(text); VH().toast(said); }
+  catch (e) {                                       // an older browser or a blocked clipboard: select it for a long-press copy
+    const ta = document.createElement("textarea"); ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand("copy"); } catch (x) { /* none */ }
+    ta.remove(); VH().toast(ok ? said : "Copy did not work here: select the text and copy it.");
+  }
+}
+
+/** ⚡ Make quick ad: for an angle, its audience on the ad (its look, words and
+ *  voice, as picking the audience in the panel does); for From the ad, a new
+ *  look that keeps what is locked. Then the photo, the video and its photo, or
+ *  a save to the library with the listing, through the same gates as the
+ *  buttons that do each. One at a time: it waits for a download already running. */
+async function quickAd() {
+  const btn = $("quick-ad");
+  if (btn.disabled) return;
+  if (!numberReady()) return;
+  if ($("download").disabled || $("download-jpg").disabled || ($("mo-star") && $("mo-star").disabled)) { VH().toast("A download is still being made. Make the quick ad when it is done."); return; }
+  btn.disabled = true;
+  const note = t => { $("export-note").textContent = t; };
+  try {
+    pushHistory();                                  // Back brings the look, its words and its locks back
+    const st = { ...state.style }, auto = quick.angle === "auto";
+    const locked = new Set(state.locked);
+    if (!auto) {
+      st.audience = ANGLE_AUDIENCE[quick.angle] || "none";
+      AUDIENCE_AXES.forEach(k => { state.locked.delete(k); locked.delete(k); });
+      state.locked.add("audience"); locked.add("audience");
+    }
+    locked.add("phones");
+    note(auto ? "Making a new look…" : `Making a new look for the ${ANGLES[quick.angle].label} angle…`);
+    // a look's vibe brings lines of its own ("NEXT EXIT: ..."); a quick ad for an angle says the angle's
+    const post = auto ? (x => x) : angleWords;
+    let next;
+    try { next = $("strong-only").checked ? await strongSeed(st, locked, [], true, post) : post(randomize(st, (Math.random() * 1e9) | 0, locked, [], true)); }
+    catch (e) { console.warn("Strong-look search failed, shuffling without it:", e); next = post(randomize(st, (Math.random() * 1e9) | 0, locked, [], true)); }
+    state.style = next;
+    // a new look starts on variants of its own, so two quick ads in a row do not open the same way
+    quick.tv = quick.bv = (next.seed >>> 0) % 997;
+    quick.edited = { title: false, body: false };
+    save(); syncWords(); drawPhonePicker(); syncLocks();
+    await rebuild();
+    writeListing(harmonise({ ...state.style }, state.locked, indexById()), true);
+    if (quick.kind === "library") await saveLook(state.style);
+    else if (quick.kind === "video") await download();
+    else await downloadJpg();
+    const n = $("export-note");
+    if (n && /^Saved/.test(n.textContent)) {
+      n.insertBefore(document.createTextNode(quick.kind === "library" ? "Its title, price and description went with it, and are in Quick ad below. " : "Its title and description are in Quick ad, below. "), n.firstChild);
+      remember();                                    // the next quick ad's listing is kept apart from this one
+    }
+  } catch (e) {
+    console.error(e);
+    note("The quick ad could not be made. Try again, or use New look and the Download buttons.");
+  } finally { btn.disabled = false; }
+}
+
 function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 
 // ------------------------------------------------------------ start
@@ -1254,6 +1611,8 @@ function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTi
       actions: [{ label: "Reload the page", primary: true, run: () => location.reload() }] });
     return;
   }
+  // its own try: the Quick ad panel failing must not clear the saved look as the catch above does
+  try { buildQuick(); } catch (e) { console.error("Quick ad could not be set up:", e); const q = $("quick"); if (q) q.hidden = true; }
   await start();
 })();
 
@@ -1282,6 +1641,7 @@ async function start() {
   state.assets.accents = await loadAccents("../assets/cutouts/");
   state.style.phones = state.style.phones.filter(id => phones[id]);
   if (!state.style.phones.length) state.style.phones = DEFAULT_PHONES.filter(id => phones[id]);
+  lotInto(state.style, rng(1), new Set(["arrangement"]));   // a wholesale look saved with fewer phones than a lot
   try { sessionStorage.removeItem("pgfx_motion_reset"); } catch (e) { /* storage off */ }
   syncWords(); drawPhonePicker();
   await rebuild();

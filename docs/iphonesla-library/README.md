@@ -13,7 +13,15 @@ the studio's own engine; the listing page puts one on a listing as a photo.
 
 BUYBACK.AD's part is built and on `main` (`netlify/lib/library.mjs`, served as
 `/api/library/v1`; the renders in `assets/library-ads/`; DESIGN-LAW rule 111).
-This folder is the rest, for `loganipad/iphoneslainv`.
+This folder is the rest, for `myleskcb/iphoneslainv-1` (the repo was
+`loganipad/iphoneslainv` until the move of 2026-10-19).
+
+**Read this first (2026-11-10):** iPhones.LA did not take this folder's
+client, picker or worker. It reads the ad library's feed with its own
+`app/buyback_ad_feed.py`, approves each studio ad once on its `/ads` page, and
+never calls `/api/library/v1`. How the two repos really talk today, and what
+each side owes the other, is `docs/IPHONESLA-CONNECTION.md`. This folder stays
+as the reference for the Designer Library API.
 
 ## How the two apps talk
 
@@ -254,14 +262,14 @@ above, taken out of this file and run; `example_server.py`'s listing page in
 Chromium (the picker loads the ads with their upload dates, "gold" narrows
 them, newest first orders them, a pick adds the ad to the photos named for
 its upload day, byte for byte the library's file); and
-`docs/iphonesla-library.zip` holding exactly these files. Not checked from there: `loganipad/iphoneslainv`
+`docs/iphonesla-library.zip` holding exactly these files. Not checked from there: `myleskcb/iphoneslainv-1`
 itself, which that session could not reach, and the live site, which has the
 API only once `main` is deployed with `LIBRARY_KEYS` set.
 
 ## Paste-ready prompt for the iPhones LA session
 
 ```
-In loganipad/iphoneslainv: add the BUYBACK.AD ad library to the listing page
+In myleskcb/iphoneslainv-1: add the BUYBACK.AD ad library to the listing page
 (the page where a listing gets its title and description and is listed).
 The library is BUYBACK.AD's finished ads (with our number on them) as
 1080x1080 JPEGs; a picked ad goes on the listing as a photo.
@@ -391,6 +399,8 @@ An ad (an example record):
   "video": { "url": "https://.../api/ads/feed/fd_.../video/ad_mfx1k2abcd.mp4?v=9b1c2d3e4f50", "width": 1080, "height": 1080, "bytes": 5213344, "format": "mp4", "seconds": 10 },
   "created": "2026-10-05T12:00:00Z", "updated": "2026-10-05T12:00:00Z",
   "fresh_until": "2026-10-12T12:00:00Z", "fresh": true,
+  "listing": { "title": "We buy iPhone 15 Pro and 15 Pro Max in Long Beach, new or used",
+               "description": "We buy iPhone 15 Pro and 15 Pro Max in person around Long Beach. …", "price": 650 },
   "autopost": true, "repost_days": 1, "hold": null,
   "post": { "slot_id": "ad_mfx1k2abcd@2026-10-05T12:00:00Z", "due_at": "2026-10-05T12:00:00Z", "next_at": "2026-10-06T12:00:00Z", "round": 1 } }
 ```
@@ -412,6 +422,16 @@ An ad (an example record):
   number is left out of `texts`), for the site's title and description
   maker; `title` and `caption` are the studio's plain defaults (the
   headline), not a listing.
+- `listing` (2026-11-09) is the title, description and price the video
+  maker's ⚡ Quick ad wrote for this ad, or `null` (every ad saved another
+  way, and every ad saved before). It is written by a port of this site's own
+  `app/buy_ad_copy.py`: its angles and tones (plus a wholesale angle), its
+  `lint` and `legitimacy` checks, the pictured models and the area, and the
+  user's hand edits and price as they were when the ad was saved. It is a
+  suggestion for the review to start from: the review still writes, approves
+  or denies its own, and nothing here is posted without that. `title` is 80
+  characters at most, `description` 3,000 with its line breaks, `price` a
+  number or `null`.
 - `kind` is `"photo"` or `"video"`. A video ad carries `video` (its clip:
   MP4 where the owner's browser could write one, WebM otherwise, with
   `width`, `height`, `bytes` and `seconds`) beside `image`, which is still the
@@ -487,13 +507,13 @@ once a day for its seven days, because each day's slot is a new guid.
   7", and the link, with no switch or schedule to set. A free account's
   watermarked ad is held. The public page shows the ad.
 
-Not checked from here: `loganipad/iphoneslainv` itself, which this session
+Not checked from here: `myleskcb/iphoneslainv-1` itself, which this session
 cannot reach.
 
 ### Paste-ready prompt for the iPhones LA session (review, then post)
 
 ```
-In loganipad/iphoneslainv: bring BUYBACK.AD's WE BUY ads into the listings
+In myleskcb/iphoneslainv-1: bring BUYBACK.AD's WE BUY ads into the listings
 site's review every day, and post the approved ones through the shop's
 existing Auto-post, within its daily limits.
 

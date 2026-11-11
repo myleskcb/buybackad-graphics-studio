@@ -139,3 +139,43 @@ a.mo-btn{display:inline-flex;align-items:center;text-decoration:none}
 .mo-attn-list li{color:var(--text-2);display:flex;gap:6px}
 .mo-attn-list li b{font-weight:700;color:var(--text)}
 .mo-attn-list li i{font-style:normal;width:16px;flex:none}
+
+/* ⚡ Quick ad: the angle, photo or video, and the listing written from the ad (listing.js) */
+.mo-quick{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:12px 0}
+.mo-quick-h{font-size:17px;margin:2px 0 4px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.mo-quick-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.mo-quick-row .mo-seg{flex:1 1 220px;margin:4px 0}
+.mo-quick-tone{font-size:13px;font-weight:700;color:var(--text-2);display:flex;align-items:center;gap:6px}
+.mo-quick-tone select{background:var(--bg);color:var(--text);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:600 16px Satoshi,system-ui,sans-serif;min-height:40px}
+.mo-quick-sub{margin:0 0 4px}
+.mo-biz{display:flex;flex-wrap:wrap;gap:0 16px;margin:2px 0 0}
+.mo-biz .mo-check{margin:6px 0}
+.mo-qa-stale{background:color-mix(in srgb,var(--btn) 10%,var(--bg));border-radius:10px;padding:8px 10px;color:var(--text-2)}
+.mo-qa-stale[hidden]{display:none}
+.mo-listing{margin-top:8px}
+.mo-buylist{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.mo-buylist[hidden]{display:none}
+.mo-buylist-h{font-size:15px;margin:2px 0 2px}
+.mo-buylist-body{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-start}
+.mo-buylist-edit{flex:1 1 240px;min-width:0}
+.mo-buylist-edit textarea{width:100%;box-sizing:border-box;margin-top:5px;background:var(--bg);color:var(--text);border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;font:500 16px/1.45 Satoshi,system-ui,sans-serif;resize:vertical}
+.mo-buylist-edit textarea:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.mo-buylist-preview{flex:0 0 auto;width:180px;height:auto;border-radius:10px;border:1px solid var(--line);background:var(--bg)}
+.mo-listing-row{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-size:13px;font-weight:700;color:var(--text-2)}
+.mo-listing-row label{color:var(--text)}
+.mo-listing-row .mo-opt{margin-right:auto}
+.mo-listing-row .mo-mini{margin-top:0;width:36px;height:36px}
+/* 16px: running text (rule 113), and under it iOS Safari zooms the page into a field it focuses */
+.mo-listing textarea{width:100%;box-sizing:border-box;margin-top:5px;background:var(--bg);color:var(--text);border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;font:500 16px/1.45 Satoshi,system-ui,sans-serif;resize:vertical}
+.mo-listing textarea:focus-visible,.mo-price-box input:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.mo-listing-price{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;margin:10px 0 0;font-size:13px;font-weight:700;color:var(--text)}
+.mo-price-box{display:inline-flex;align-items:center;gap:6px;margin-top:5px;font:700 16px Satoshi,system-ui,sans-serif;color:var(--text-2)}
+.mo-price-box input{width:9ch;background:var(--bg);color:var(--text);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:600 16px Satoshi,system-ui,sans-serif;min-height:40px}
+.mo-qa-check b{color:var(--text)}
+.mo-qa-check .bad{color:#c2410c;font-weight:700}
+.mo-qa-check.todo{color:var(--text-2)}
+.mo-qa-actions{display:flex;flex-wrap:wrap;gap:4px 14px;margin:4px 0 0}
+@media (max-width:520px){.mo-quick-row .mo-btn{flex:1 1 100%}}
+/* the title wraps to three lines on a phone: the box grows to show all of it */
+.mo-listing #qa-title{field-sizing:content;min-height:calc(2 * 1.45em + 22px)}
+@media (max-width:520px){.mo-listing #qa-title{min-height:calc(3 * 1.45em + 22px)}}

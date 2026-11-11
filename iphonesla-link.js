@@ -2,7 +2,7 @@
 /* ═══════════════════════════════════════════════════════
    iPhones LA link. One additive file, loaded after app.js.
 
-   The shop's Auto-post page opens this studio with a one-time connect code in
+   The shop's Ad Generator page (/ads) opens this studio with a one-time connect code in
    the URL fragment. This file trades the code for an upload token, and from
    then on every finished export is also sent to the shop's WE BUY picture
    library, where it lands UNSELECTED: a person over there still decides what an
@@ -35,7 +35,9 @@
   const IMAGES = API + '/api/buy-ads/studio/images';
   const BRIEF = API + '/api/buy-ads/studio/brief';
   const LIBRARY = API + '/api/buy-ads/studio/library';
-  const BACK = API + '/repost#configurator';
+  // the WE BUY pictures live on the shop's Ad Generator, /ads (its studio card is #studio);
+  // /repost#configurator kept only the slot split after 2026-09-22
+  const BACK = API + '/ads#studio';
 
   const LINK_KEY = 'ipla_link';      // localStorage: {token, connectedAt}
   const BRIEF_KEY = 'ipla_verified_brief'; // sessionStorage: accepted after exchange, for this tab only
@@ -120,11 +122,14 @@
     } catch (e){ return null; }
   }
 
-  // "Back to Auto-post" goes to the shop and nowhere else, whatever the link said.
+  // "Back to the Ad Generator" goes to the shop and nowhere else, whatever the link
+  // said: iphones.la, or admin.iphones.la, where the shop's staff pages live once its
+  // admin host is on (iPhones LA app/admin_host.py), so a brief written there keeps its return.
+  const RETURN_ORIGINS = [API, API.replace('://', '://admin.')];   // a link back, never a request: requests go to API alone
   function safeReturn(v){
     try {
       const u = new URL(String(v));
-      if (u.origin === API && !u.username && !u.password) return u.href;
+      if (RETURN_ORIGINS.includes(u.origin) && !u.username && !u.password) return u.href;
     } catch (e){}
     return '';
   }
@@ -219,8 +224,8 @@
       const card = el('div', 'ipla-card');
       card.appendChild(el('b', '', state.connecting ? 'Connecting to iPhones LA'
         : state.link ? 'Connected to iPhones LA' : 'Not connected to iPhones LA'));
-      if (state.link) card.appendChild(el('p', '', 'Exports go to your iPhones LA library. Pick them in Auto-post.'));
-      else if (!state.connecting) card.appendChild(el('p', '', 'Nothing is sent. Open the studio from Auto-post to connect.'));
+      if (state.link) card.appendChild(el('p', '', 'Exports go to your iPhones LA library. Pick them in the Ad Generator.'));
+      else if (!state.connecting) card.appendChild(el('p', '', 'Nothing is sent. Open the studio from the Ad Generator to connect.'));
       if (state.brief && briefLine(state.brief)) card.appendChild(el('p', '', 'Making: ' + briefLine(state.brief)));
       if (state.brief && state.brief.headline) card.appendChild(el('p', '', 'Headline: ' + state.brief.headline));
       if (state.link || state.brief){
@@ -232,7 +237,7 @@
       if (state.note) card.appendChild(el('p', state.noteKind === 'error' ? 'bad' : state.noteKind === 'success' ? 'ok' : '', state.note));
       if (state.queue.length) card.appendChild(el('p', '', state.queue.length === 1 ? '1 picture waiting to send.' : state.queue.length + ' pictures waiting to send.'));
       const row = el('div', 'ipla-row');
-      const back = el('a', '', 'Back to Auto-post');
+      const back = el('a', '', 'Back to the Ad Generator');
       back.href = (state.brief && state.brief.return) || BACK;
       back.setAttribute('rel', 'noopener');
       back.setAttribute('target', '_blank');
@@ -297,7 +302,7 @@
   const sentence = j => (j && typeof j.detail === 'string' && j.detail.length <= 200) ? j.detail : '';
 
   // One try, never a retry: the code is single-use and the fragment is already
-  // gone. A person whose exchange failed clicks Generate in Auto-post again.
+  // gone. A person whose exchange failed opens the studio from the Ad Generator again.
   async function exchange(code, brief, version){
     state.connecting = true; setOpen(true); render();
     let msg = '', ok = false;
@@ -316,10 +321,10 @@
         if (brief) writeJson(session, BRIEF_KEY, brief);
         ok = true;
       } else {
-        msg = sentence(j) || 'That link did not work. Open the studio from Auto-post again.';
+        msg = sentence(j) || 'That link did not work. Open the studio from the Ad Generator again.';
       }
     } catch (e){
-      msg = 'Could not reach iPhones LA. Open the studio from Auto-post again.';
+      msg = 'Could not reach iPhones LA. Open the studio from the Ad Generator again.';
     }
     if (version !== state.connectVersion) return;
     state.connecting = false;
@@ -338,7 +343,7 @@
         headers: { Authorization: 'Bearer ' + token },
       });
       if (!state.link || state.link.token !== token || state.connecting) return;
-      if (r.status === 401){ forget('iPhones LA ended this connection. Open the studio from Auto-post to connect again.'); return; }
+      if (r.status === 401){ forget('iPhones LA ended this connection. Open the studio from the Ad Generator to connect again.'); return; }
       if (!r.ok) return;
       const j = await r.json().catch(() => ({}));
       const cap = j && j.limits && j.limits.max_upload_bytes;
@@ -371,7 +376,7 @@
     } catch (e){ return 'retry'; }
     if (!state.link || state.link.token !== token) return 'not-connected';
     if (r.ok) return 'sent';
-    if (r.status === 401){ forget('iPhones LA ended this connection. Open the studio from Auto-post to connect again.'); return 'not-connected'; }
+    if (r.status === 401){ forget('iPhones LA ended this connection. Open the studio from the Ad Generator to connect again.'); return 'not-connected'; }
     if (r.status === 404 || r.status === 405) return 'unsupported';
     if (r.status === 408 || r.status === 429 || r.status >= 500) return 'retry';
     return 'refused';
@@ -394,7 +399,7 @@
     state.queue.length = 0;
     try { clearTimeout(state.timer); } catch (e){}
     state.timer = null;
-    say('Disconnected. Nothing more is sent. To end the link for good, use Auto-post.', '', true);
+    say('Disconnected. Nothing more is sent. To end the link for good, use the Ad Generator.', '', true);
   }
 
   // ---------- is this picture one the shop can use ----------
@@ -642,13 +647,13 @@
       const done = () => { if (at >= 0) state.queue.splice(at, 1); };
       if (out.verdict === 'sent'){
         done();
-        say(out.duplicate ? 'Already in the iPhones LA library.' : 'Sent to iPhones LA. Pick it in Auto-post.', 'success');
+        say(out.duplicate ? 'Already in the iPhones LA library.' : 'Sent to iPhones LA. Pick it in the Ad Generator.', 'success');
       } else if (out.verdict === 'forget'){
-        forget('iPhones LA ended this connection. Open the studio from Auto-post to connect again.');
+        forget('iPhones LA ended this connection. Open the studio from the Ad Generator to connect again.');
         return;
       } else if (out.verdict === 'full'){
         state.queue.length = 0;
-        say(out.msg || 'The iPhones LA library is full. Remove pictures in Auto-post, then export again.', 'error');
+        say(out.msg || 'The iPhones LA library is full. Remove pictures in the Ad Generator, then export again.', 'error');
         return;
       } else if (out.verdict === 'drop'){
         done();
@@ -711,7 +716,7 @@
       clearBrief(); // an absent, malformed or refused new brief never reuses old tags
       state.connecting = false;
       if (CODE_RE.test(frag.ipla)) exchange(frag.ipla, decodeBrief(frag.brief), version);
-      else say('That link did not work. Open the studio from Auto-post again.', 'error');
+      else say('That link did not work. Open the studio from the Ad Generator again.', 'error');
     } else if (initial && state.link){
       checkLink();
     }

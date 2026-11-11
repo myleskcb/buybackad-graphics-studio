@@ -123,6 +123,7 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   copyInto(out, r, locked, content);
   voiceInto(out, r, locked);
   if (!locked.has("phones") && phonesPool.length > 5) out.phones = pickPhones(phonesPool, r.pick([3, 3, 5, 5, 4]), r);
+  lotInto(out, rng(seed * 3121 + 7), locked);
   return harmonise(out, locked);
 }
 
@@ -159,6 +160,20 @@ export function applyAudience(st, seed, locked = new Set()) {
   backsFirst(out, locked);
   copyInto(out, r, locked, true);
   voiceInto(out, r, locked);
+  return lotInto(out, rng(seed * 3121 + 7), locked);
+}
+
+/** A wholesale ad is about a lot, so its picture shows one (owner, 2026-11-10:
+ *  wholesale pictures "always show 3 or more phones grouped together"): at
+ *  least the audience's `lot` phones, standing in one of its group layouts. The
+ *  phones already picked stay; only more are added. Its own seed, so no other
+ *  draw of the look moves, and an audience with no `lot` draws nothing here. */
+export function lotInto(out, r, locked = new Set()) {
+  const a = AUDIENCES[out.audience], n = a && a.lot;
+  if (!n) return out;
+  const rows = ((a.looks || {}).arrangement || []).filter(x => OPTIONS.arrangement.includes(x));
+  if (rows.length && !locked.has("arrangement") && !rows.includes(out.arrangement)) out.arrangement = r.pick(rows);
+  if ((out.phones || []).length < n) out.phones = lotPhones(out.phones, n);
   return out;
 }
 
@@ -1426,6 +1441,26 @@ export function pickPhones(pool, n, r) {
   for (const id of ids) { if (out.length >= n) break; if (!out.includes(id)) out.push(id); }
   return out;
 }
+/** Phones for a lot of at least n: the picked ones stay, and the rest come from
+ *  the phones on hand, the picked models in their other finishes first, then
+ *  the models nearest them in generation, the regular line before a Pro, Plus,
+ *  mini or e, in the index's own order, so one pick always grows the same way.
+ *  No upload is added (it is the user's own phone, not stock). */
+export function lotPhones(ids, n, metas = Object.values(PHONE_META)) {
+  const out = (ids || []).filter(Boolean);
+  if (out.length >= n) return out.slice();
+  const gen = m => +((/iPhone (\d+)/.exec(m.model || "") || [])[1] || 0);
+  const minor = m => / (Pro|Plus|mini)$|\de$/.test(m.model || "");
+  const list = metas.filter(m => m && m.id && m.ok !== false);
+  const picked = out.map(id => list.find(m => m.id === id)).filter(Boolean);
+  const models = new Set(picked.map(m => m.model));
+  const target = picked.length ? Math.max(...picked.map(gen)) : Math.max(0, ...list.map(gen));
+  const rank = (m, i) => [models.has(m.model) ? 0 : 1, Math.abs(gen(m) - target), minor(m) ? 1 : 0, i];
+  const rest = list.map((m, i) => ({ m, k: rank(m, i) })).filter(x => !x.m.upload && !out.includes(x.m.id))
+    .sort((a, b) => { for (let j = 0; j < a.k.length; j++) if (a.k[j] !== b.k[j]) return a.k[j] - b.k[j]; return 0; });
+  for (const x of rest) { if (out.length >= n) break; out.push(x.m.id); }
+  return out;
+}
 /** The order the phones stand in, left to right: the boldest in the middle, then outward,
  *  never two of a tone side by side where another can go between. */
 function orderByTone(ids, metaOf) {
@@ -2142,6 +2177,13 @@ function perksSprite(items, fs, hot, align, row = false, face = "oswald") {
   return { c, rows, pad, w: bw, h: bh, row };
 }
 
+/** The air between the number's call to action ("CALL OR TEXT") and the number
+ *  box under it, as a share of the number's type size. It was .06, and on every
+ *  look the line touched the box (owner, 2026-11-10: "these cta all touch the
+ *  box"; DESIGN-LAW rule 58, copy is never touched by a plate's edge). Measured by
+ *  scripts/motion_cta_audit.mjs, which fails a look under .14. */
+export const LABEL_GAP = .18;
+
 function numberSprite(st, p, size, cta) {
   const text = formatNumber(st.number, st.number_format) || "YOUR NUMBER";
   let font = st.number_font === "same" ? st.font : st.number_font;
@@ -2158,6 +2200,10 @@ function numberSprite(st, p, size, cta) {
   if (style === "split") { const cut = text.search(/\d{3}\D*\d/) >= 0 ? text.replace(/\D/g, "").length === 10 ? text.length - 8 : 3 : 3; colors = text.split("").map((_, i) => i < cut ? (lum(p.accent) > .35 ? p.accent : "#ffffff") : col); }
   const sp = inkSprite(text, colors, font, size, st.tracking * .5, fx, p, 0);
   const bodyH = sp.asc + sp.desc;
+  // the plate's shadow and margin follow the type: drawn in fixed pixels (a 14px blur) they
+  // stayed full size on the gallery's thumbnails, where the type is a quarter of an export's,
+  // and the box grew by half again, up into the line and the sign above it (2026-11-10)
+  const sk = Math.max(.2, size / 96);
   let out;
   if (style === "tag") {
     // a swing tag (owner, 2026-10-04: "shrink the number 10% and scoot it up ... to
@@ -2170,9 +2216,9 @@ function numberSprite(st, p, size, cta) {
     const ink = m.measureText(text), up = ink.actualBoundingBoxAscent || s2.asc * .72, down = ink.actualBoundingBoxDescent || 0;
     const hole = H * .45, holeR = H * .09, lead = hole + holeR + H * .26;
     const W = lead + s2.inkW + px * .9;
-    const c = canvas(W + 24, H + 24), x = c.getContext("2d");
-    x.translate(6, 6);
-    x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 14; x.shadowOffsetY = 6;
+    const c = canvas(W + 24 * sk, H + 24 * sk), x = c.getContext("2d");
+    x.translate(6 * sk, 6 * sk);
+    x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 14 * sk; x.shadowOffsetY = 6 * sk;
     x.beginPath(); x.moveTo(3 + H * .45, 3); x.lineTo(3 + W, 3); x.lineTo(3 + W, 3 + H); x.lineTo(3 + H * .45, 3 + H); x.lineTo(3, 3 + H / 2); x.closePath();
     x.fillStyle = p.plate; x.fill(); x.restore();
     x.beginPath(); x.arc(3 + hole, 3 + H / 2, holeR, 0, 7); x.fillStyle = p.ground; x.fill();
@@ -2183,13 +2229,13 @@ function numberSprite(st, p, size, cta) {
   } else if (onPlate || style === "outline") {
     const px = size * .45, py = size * .14;
     const W = sp.inkW + px * 2, H = sp.asc * .95 + py * 2;
-    const c = canvas(W + 24, H + 24), x = c.getContext("2d");
-    x.translate(6, 6);
+    const c = canvas(W + 24 * sk, H + 24 * sk), x = c.getContext("2d");
+    x.translate(6 * sk, 6 * sk);
     const r = style === "pill" ? H / 2 : size * .1;
     if (style === "outline") {
       rrect(x, 3, 3, W, H, r); x.strokeStyle = p.ink; x.lineWidth = Math.max(3, size * .06); x.stroke();
     } else {
-      x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 14; x.shadowOffsetY = 6;
+      x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 14 * sk; x.shadowOffsetY = 6 * sk;
       if (style === "ticket") {
         rrect(x, 3, 3, W, H, size * .06); x.fillStyle = p.plate; x.fill(); x.restore();
         x.globalCompositeOperation = "destination-out";
@@ -2226,7 +2272,9 @@ function numberSprite(st, p, size, cta) {
   if (cta) return { c: trimmed, label: ctaBadge(applyCase(cta.text, "upper"), size, cta.hot, labelFont(st)), text, cta: true };
   if (st.number_label) {
     const lt = applyCase(st.number_label, "upper");
-    const lsp = inkSprite(lt, lt.split("").map(() => p.ink), labelFont(st), Math.max(12, size * .34), .08, lum(p.ink) < .5 ? "flat" : "shadow", p, 0);
+    // its type follows the ad's size: a 12px floor drew it two to three times too big on the
+    // gallery's thumbnails (320 on the long side), out over the sign above it (2026-11-10)
+    const lsp = inkSprite(lt, lt.split("").map(() => p.ink), labelFont(st), Math.max(4, size * .34), .08, lum(p.ink) < .5 ? "flat" : "shadow", p, 0);
     label = trim(lsp.c);
   }
   return { c: trimmed, label, text };
@@ -2918,7 +2966,7 @@ export class Ad {
     const W = this.W, H = this.H, z = settleZoom(this.st), pos = this.pos, size = this.size, num = this.num;
     const g = Math.max(size * .08, H * .01);
     const o = pos.board || pos.outer;
-    const labH = num.label ? num.label.height + size * .06 : 0;
+    const labH = num.label ? num.label.height + size * LABEL_GAP : 0;
     const nb = [pos.num[0], pos.num[1] - labH, pos.num[0] + num.c.width, pos.num[1] + num.c.height];
     const under = this.st.number_pos === "under-headline";
     const column = [nb[0] - g * .5, nb[1] - g, nb[2] + g * .5, under ? nb[3] + g : H * 3];
@@ -3031,7 +3079,7 @@ export class Ad {
     const num = this.num, pos = this.pos, size = this.size;
     let column = null;
     if (num && num.c && pos && pos.num) {
-      const labH = num.label ? num.label.height + size * .06 : 0, g = Math.max(size * .15, H * .018) / 2;
+      const labH = num.label ? num.label.height + size * LABEL_GAP : 0, g = Math.max(size * .15, H * .018) / 2;
       column = [pos.num[0] - g * .5, pos.num[1] - labH - g, pos.num[0] + num.c.width + g * .5, H * 3];
     }
     const inFrame = P => onCamera(P, W, H, z).every(([x, y]) => x >= 0 && x <= W && y >= 0 && y <= H);
@@ -3129,7 +3177,7 @@ export class Ad {
    *  will show them, not where they are laid out. */
   _roomUnder(pos, num, size, strict = false) {
     const W = this.W, H = this.H, z = settleZoom(this.st);
-    const labH = num.label ? num.label.height + size * .06 : 0;
+    const labH = num.label ? num.label.height + size * LABEL_GAP : 0;
     const g = Math.max(size * .15, H * .018);
     const nb = [pos.num[0], pos.num[1] - labH, pos.num[0] + num.c.width, pos.num[1] + num.c.height];
     const column = [nb[0] - g * .5, nb[1] - g, nb[2] + g * .5, H * 3];      // the number, and everything under it
@@ -3171,7 +3219,7 @@ export class Ad {
     const tagH = tag ? tag.height + tagGap : 0;
     const padX = B ? B.pad * size : 0, padY = B ? B.pad * .8 * size : 0, tabs = B ? (B.tabs || 0) * size : 0;
     const outerH = blockH + tagH + padY * 2 + tabs;
-    const labH = num.label ? num.label.height + size * .06 : 0;
+    const labH = num.label ? num.label.height + size * LABEL_GAP : 0;
     // words at the bottom with the number under them sit as one stack on the bottom margin
     const under = st.number_pos === "under-headline", stack = under ? size * (B ? .45 : .28) + labH + num.c.height : 0;
     const top = Math.max(H * .075, this.insetTop + H * .035 + (B && ["freeway", "freeway_blue", "store_sign"].includes(st.board) ? size * .35 : 0));
@@ -3376,7 +3424,7 @@ export class Ad {
   /** A round piece of radius about R where it covers under a tenth of anything that matters. */
   _spot(R, avoid) {
     for (let k = 0; k < 4; k++, R *= .82) {
-      const s = freeSpot(this.W, this.H, R, avoid, this.stageC);
+      const s = freeSpot(this.W, this.H, R, avoid, this.stageC, { fits: this._fits });
       if (s && s.over < .1) return { ...s, R };
     }
     return null;
@@ -3394,10 +3442,19 @@ export class Ad {
         { code: codeOf(st), tabsH, numberText: formatNumber(st.number, "dashed"), font: "oswald" });
       if (this.board) this.cues.board = tl.text - .12;
     }
-    const labH = this.num.label ? this.num.label.height + size * .06 : 0;
+    const labH = this.num.label ? this.num.label.height + size * LABEL_GAP : 0;
     const nb = [pos.num[0], pos.num[1] - labH, pos.num[0] + this.num.c.width, pos.num[1] + this.num.c.height];
     this.numBox = nb;
-    const o = pos.outer, avoid = [this.board ? [o[0], o[1] - size * .5, o[2], o[3]] : o, nb];
+    // the words as they stand, each line and the tag on its own, so the open room beside a
+    // short line counts as open (the block's one rectangle shut out the space right of
+    // "¡MÁNDANOS FOTO!", where the owner wanted the starburst); a sign is one piece
+    const o = pos.outer, words = this.board ? [[o[0], o[1] - size * .5, o[2], o[3]]]
+      : [...this.lines.map((L, i) => [pos.xs[i], pos.y0 + i * this.lineH, pos.xs[i] + L.inkW, pos.y0 + (i + 1) * this.lineH]),
+        ...(this.tag && pos.tag ? [[pos.tag[0], pos.tag[1], pos.tag[0] + this.tag.width, pos.tag[1] + this.tag.height]] : [])];
+    const avoid = [...words, nb];
+    // a round piece is placed only where the camera, pushed in where it settles, shows all of it
+    const zs = settleZoom(st), seen = (x, y) => [W / 2 + (x - W / 2) * zs, H / 2 + (y - H / 2) * zs];
+    this._fits = (x, y, R) => { const a = seen(x - R, y - R), c = seen(x + R, y + R); return a[0] >= W * .012 && c[0] <= W * .988 && a[1] >= this.insetTop + H * .008 && c[1] <= H * .99; };
     if (this.tickerH) avoid.push([0, this.tickerY, W, this.tickerY + this.tickerH]);
     if (this.awningH) avoid.push([0, 0, W, this.awningH]);
     const pad = size * .1, grow = b => [b[0] - pad, b[1] - pad, b[2] + pad, b[3] + pad];
@@ -3434,7 +3491,7 @@ export class Ad {
       const text = st.stamp_text || (es ? "EFECTIVO" : "CASH");
       for (let fs = Math.min(size * .5, Math.min(W, H) * .07), k = 0; k < 4 && !this.stamp; k++, fs *= .8) {
         const S = buildStamp(text, fs, col, burstFontFor(st) === st.font ? st.font : "oswald", r), R = Math.max(S.width, S.height) * .5;   // a mark wears the display face
-        const s = PL ? (PL.stamp && PL.stamp.k === k ? { x: PL.stamp.x * W, y: PL.stamp.y * H, over: 0 } : null) : freeSpot(W, H, R, avoid.map(grow), this.stageC);
+        const s = PL ? (PL.stamp && PL.stamp.k === k ? { x: PL.stamp.x * W, y: PL.stamp.y * H, over: 0 } : null) : freeSpot(W, H, R, avoid.map(grow), this.stageC, { fits: this._fits });
         if (s && s.over < .1) { this.stamp = { S, x: s.x, y: s.y, t0: tl.number + .55, k }; avoid.push([s.x - R, s.y - R, s.x + R, s.y + R]); }
       }
       if (this.stamp) this.cues.stamp = this.stamp.t0;

@@ -59,14 +59,14 @@ re-lay the card around them.
 ## Where the generator lives
 
 The 50 are the **offer cards** from the study session "Teaching the Engine
-Design" (2026-09-24 to 26), made in **`loganipad/iphoneslainv`**:
+Design" (2026-09-24 to 26), made in **`myleskcb/iphoneslainv-1`**:
 `app/ad_offers.py`, `app/design_school/offer.py`, `depth.py`, `solids.py`,
 `scripts/offer_ads.py`, and the Offer look on `/ads`. They were sent to the owner
 as 100 files at 1200×1200: `marketplace/` ("Message us", no number) and
 `social/` (with (562) 999-4994 and iPhones.LA/sell). In the social set the
 number is a small line at the foot of the card.
 
-This session's GitHub access does not reach `loganipad/iphoneslainv`, so the
+This session's GitHub access does not reach `myleskcb/iphoneslainv-1`, so the
 generator's fix has to land there (the 50 already sent were fixed on the
 pictures, above). Everything below is what that session needs.
 
@@ -122,7 +122,7 @@ of the Studio change.
 ## Paste-ready prompt for the iPhones LA session
 
 ```text
-In loganipad/iphoneslainv: the offer cards (app/ad_offers.py, app/design_school/offer.py,
+In myleskcb/iphoneslainv-1: the offer cards (app/ad_offers.py, app/design_school/offer.py,
 scripts/offer_ads.py, the Offer look on /ads) set the phone number at 40px, the support
 size, in the social version's action band. The owner wants it doubled: the Graphics Studio
 put it at 80px on the 50 of 2026-09-25 from the pictures (tools/offer-cards in

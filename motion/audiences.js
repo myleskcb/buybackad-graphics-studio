@@ -470,6 +470,64 @@ export const AUDIENCES = {
         "Compradores locales. Mándanos el IMEI de tu iPhone viejo."],
     },
   },
+  // The buying angles (owner, 2026-11-09: "Wholesale buyer and local buyer
+  // style / angle of ad"; Local buyer became Sell direct on 2026-11-10), the same angles iPhones LA's listing maker writes
+  // titles and descriptions for (motion/listing.js). Both by hand only: each
+  // states how the buyer works (a lot quoted at once; a meet nearby), and an
+  // option a shuffle never draws leaves every saved look number as it was.
+  wholesale: {
+    label: "Wholesale buyer", byHand: true, lot: 3, who: "Resellers, repair shops, flippers, and anyone with a box of phones to move at once.",
+    insight: "One buyer who quotes the whole lot and pays for it at once beats selling phones one at a time.",
+    avoid: "Consumer cuteness, claims about paying the most, anything that looks like a side hustle.",
+    moods: ["confident", "newsy", "street"], casts: ["crisp_m", "news_m", "crisp_f", "street_m"],
+    // a lot on the picture (engine.js lotInto): at least `lot` phones, one size and close
+    // together, so it reads as a box of phones and not one hero phone
+    looks: { vibes: ["pro_office", "breaking_news", "repair_shop", "swap_meet"], sound_kit: ["hiphop", "minimal", "house"], bpm: [104, 122], grade: ["clean", "punchy"],
+      arrangement: ["lineup", "rise", "tilt_row", "lean_in", "wings", "fan"] },
+    copy: {
+      en: { hooks: ["GOT A BOX OF IPHONES?", "SELLING IN BULK?", "RESELLERS, LISTEN UP", "A WHOLE LOT TO SELL?"],
+        headlines: ["WE BUY IPHONES WHOLESALE", "WHOLESALE IPHONE BUYER", "ONE OFFER FOR THE WHOLE LOT", "WE BUY IPHONE LOTS"],
+        tags: ["BULK OK", "ONE QUOTE FOR THE LOT", "MIXED MODELS WELCOME", "TEXT A LIST OR A PIC"], cta: ["TEXT US", "GET A QUOTE"] },
+      es: { hooks: ["¿TIENES UNA CAJA DE IPHONES?", "¿VENDES AL MAYOREO?"],
+        headlines: ["COMPRAMOS IPHONES AL MAYOREO", "UNA OFERTA POR TODO EL LOTE"],
+        tags: ["MÁNDANOS LA LISTA", "COTIZACIÓN GRATIS"], cta: ["¡MÁNDANOS TEXTO!"] },
+    },
+    vo: {
+      en: ["Selling iPhones in bulk? We buy the whole lot.",
+        "Resellers and repair shops: one offer for the whole lot of iPhones. Text the number on your screen.",
+        "A box of iPhones to move? Text us a list or a photo for one offer."],
+      es: ["¿Vendes iPhones al mayoreo? Compramos todo el lote.",
+        "Una sola oferta por todo el lote. Manda texto al número en tu pantalla."],
+    },
+  },
+  // Sell direct replaced Local buyer (owner, 2026-11-10): "local buyer" said what the
+  // general ad already says, since every customer of the studio is a local shop. What
+  // a direct buyer offers that the alternative does not is no listing of your own:
+  // one message to one buyer instead of a post, the questions and the waiting. It
+  // names no marketplace and promises no speed or price. A look saved as local_buyer
+  // opens as this one (motion/app.js restore).
+  direct: {
+    label: "Sell direct", byHand: true, who: "About to list their own iPhone online, and not keen on the listing, the questions and the waiting.",
+    insight: "Selling straight to the shop that buys it is one message to one buyer, where a listing of your own is a post, a stream of questions and a wait.",
+    avoid: "Naming or knocking a marketplace, promises about speed or price, \"no lowballs\", anything that sounds like a side hustle.",
+    moods: ["confident", "warm", "street"], casts: ["host_m", "warm_f", "crisp_f", "street_m"],
+    looks: { vibes: ["clean_tech", "corner_store", "sunset_blvd", "pro_office"], sound_kit: ["uplift", "house", "minimal"], bpm: [100, 120], grade: ["clean", "film"] },
+    copy: {
+      en: { hooks: ["SKIP SELLING IT YOURSELF", "DON'T LIST IT. SELL IT.", "NO LISTING TO WRITE", "DONE WITH \"STILL AVAILABLE?\""],
+        headlines: ["SELL YOUR IPHONE DIRECT", "SELL DIRECT TO A LOCAL SHOP", "ONE MESSAGE, ONE OFFER", "SKIP THE LISTING, SELL IT TO US"],
+        tags: ["NO LISTING NEEDED", "ONE BUYER, ONE OFFER", "NOTHING TO SHIP", "NEW, USED OR CRACKED"], cta: ["TEXT US", "GET AN OFFER"] },
+      es: { hooks: ["¿PARA QUÉ PUBLICARLO?", "NO LO PUBLIQUES, VÉNDELO"],
+        headlines: ["VENDE TU IPHONE DIRECTO", "VÉNDELO DIRECTO A UNA TIENDA"],
+        tags: ["SIN PUBLICAR NADA", "UNA SOLA OFERTA"], cta: ["¡MÁNDANOS TEXTO!"] },
+    },
+    vo: {
+      en: ["Skip the listing. Sell your iPhone to us.",
+        "No listing to write and no waiting on buyers. Text the number on your screen for an offer.",
+        "Sell your iPhone straight to a local shop: one message, one offer, and you're paid when we meet."],
+      es: ["¿Vendes tu iPhone? No lo publiques, véndenoslo.",
+        "Una sola oferta, sin publicar nada. Manda texto al número en tu pantalla."],
+    },
+  },
 };
 
 export const AUDIENCE_KEYS = Object.keys(AUDIENCES);
