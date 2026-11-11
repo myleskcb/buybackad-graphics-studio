@@ -3192,3 +3192,59 @@ Open, in the audit's order:
    the library feed for its poster.
 10. The explainers: story (9:16) cuts, a voiceover, Spanish, and an address
     on the end card once one resolves.
+
+## BC. 2026-11-11 — the full ad: picture ads in the video's style, for every line (DESIGN-LAW 137)
+
+(claude/friendly-heisenberg-868z63, from `main` at eb7b8fcf, with six branches merged in first.)
+
+The owner: "I still don't see picture ads that look in line with the video
+ads", "how much unification work is left?"; then the list of work left, taken
+as the order; then "maximize elements.. sizing.. spacing.. positioning..",
+"also eye catchy elements".
+
+Done:
+- **Six branches merged** (intelligent-cannon with busy-albattani, quirky-ride,
+  focused-edison, tender-maxwell, vigilant-brown, festive-ramanujan). Git
+  flagged five small conflicts; two breaks it did not flag were found by
+  loading the pages: `motion/app.js` declared `ANGLES` twice (the video maker
+  did not load), and the merged `index.html` had an inline script whose hash
+  was not in the policy. Both fixed.
+- **The full ad** in the video maker, the default mode (`motion/fullad.js`,
+  rule 137), with the claim, towns, website, sticker and colours as fields.
+  Photo, video, Quick ad, the gallery and the library save all draw it.
+- **35 lines** through "What you buy": the offer family's pictures and words.
+- **The twelve proven pairs** are its colours.
+- **90 templates retired** (`template-retired.js`); 313 offered.
+- `scripts/full_ad_check.mjs`, `build_full_subjects.mjs`,
+  `build_house_colours.mjs`.
+
+Open:
+1. **Not on `main`, not deployed.** The branch is pushed. Putting it on `main`
+   is the owner's word; with the repository secrets set, the push deploys.
+2. **The photo templates themselves are not redrawn.** 313 templates and 362
+   library cards are still photograph-backed designs in their own type; only
+   the first designs and the street set were retired. The next retirement
+   (the designer layouts, then the offer family) is the owner's call, line by
+   line, once they have seen the full ad live.
+3. **The studio's Easy Mode has no full ad.** It lives in the video maker; the
+   landing's video section points at it. A card in Easy Mode's picker that
+   opens the maker on the same line would put it where photo customers start.
+4. **iPhones LA's weekly batch still draws with `FeedAd`** and its own sixteen
+   colourways (`tools/feed-stills`), by retrying seeds. Moving it to `FullAd`
+   and the twelve pairs is a change to ads the owner approved: ask first.
+5. **Any look is as it was**: 172 palettes (34 food or flower names, 12 with
+   three hue families), selling points on about half of square looks. The
+   full ad does not use them; renaming them still touches audiences.js,
+   palette-audit.json and saved looks (§AO item 1).
+6. **Other products**: seven lines have no clean picture (gaming PCs, PC
+   handhelds, gaming headsets, SSDs, mini PCs, sealed Chromebooks, Meta
+   glasses) and are drawn with words alone; their Spanish words are not
+   written; Quick ad's listing and the voice-over are phones only, so both are
+   put away for them.
+7. **A square holds the product at about 23% of its height** with all nine
+   blocks. 4:5 gives it 32 to 35%: say so where the size is chosen, or make
+   4:5 the full ad's first size.
+8. **Checks this container could not run**: `landing_check.mjs` (its page
+   waits on a CDN the sandbox blocks) and three upload-a-video steps of
+   `ad_library_check.mjs`, which fail the same way on untouched `main`. Run
+   both on the Mac before a deploy.

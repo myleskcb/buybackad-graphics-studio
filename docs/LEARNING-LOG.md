@@ -5129,3 +5129,44 @@ nothing else; merge it to put learn.html and the videos on the site.
 RESUME HERE: the audit's section 8 is the order. Nothing in it is built
 except the videos. The end card prints no address until one resolves
 (`render.mjs --url`).
+
+## 2026-11-11 — picture ads in the video's style: the full ad (DESIGN-LAW 137; claude/friendly-heisenberg-868z63)
+
+Asked: why no picture ad looks like the video ads, how many can be unified and
+how much work is left; then to do that work in order; then "maximize
+elements.. sizing.. spacing.. positioning..", "also eye catchy elements".
+
+Done:
+  - Counted first: 712 photo designs offered, none in the video look; 51
+    house-style stills existed, iPhone only, on a branch never merged.
+  - Merged six branches; the full ad in the video maker (photo and video),
+    for 35 lines, in the twelve proven pairs; 90 old templates retired.
+
+Found:
+  - A merge git calls clean can still kill a page: two branches each declared
+    `ANGLES` in one module. Load every page after a merge, before any check.
+  - A check that waits a fixed time is a check of the machine: the listing
+    line came 930 ms after the price, the check read at 700. The line is
+    aria-busy until it is current; wait on the state, not the clock.
+  - The stills were laid out by retrying seeds (up to 120). That is a batch
+    tool. For a customer, write the layout: the square's first draw with the
+    old class overlapped four blocks.
+  - The engine spreads phones across the stage; packed shoulder to shoulder
+    the same set stood a third larger and left room for a sticker.
+  - A debounced field loses what was typed when another control refills the
+    form inside its pause (the number, typed then the product changed).
+  - A stale check blames the wrong thing: the library check's video-maker
+    save failed because a later rule asks for a number first, not because of
+    the merge. Run the check on untouched `main` before reading a failure.
+
+Checked: full_ad_check (256 ads and the page), quick_ad_check, buylist_check,
+listing_check, motion_cta_audit, social_studio_check, area_dialog_check,
+type_voices_check, the iPhones LA link tests, CSP hashes, the CSS copy; every
+page loaded with no errors; ad_library_check to the same three upload-a-video
+failures as untouched `main`.
+
+RESUME HERE:
+  0. OPEN-ITEMS §BC: it is not on `main`. Ask the owner, then merge `main` in
+     again, run the checks and put it there.
+  1. §BC 2 to 4: which photo generation goes next, the full ad in Easy Mode's
+     picker, and whether iPhones LA's weekly batch moves to FullAd.

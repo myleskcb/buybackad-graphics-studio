@@ -5536,3 +5536,69 @@ of speed".
 - The photo ads are not changed here: their gold, coin, card and car cards
   ask for photos because an IMEI cannot price those goods; the phone cards'
   "text a pic" lines are OPEN-ITEMS §AZ 7.
+
+## 137. The full ad: every element on one ad, laid out by rule, in one house style
+
+Added 2026-11-11. The owner, with the video maker's frames beside the photo
+templates: "I still don't see picture ads that look in line with the video
+ads", "you could look side-by-side and it is self evident"; then, of the ad
+that was to close the gap, "need to make sure we're maximize elements..
+sizing.. spacing.. positioning..", "also eye catchy elements".
+
+Measured the same day on what the site offered: 712 photo designs (362
+library cards, 350 templates), none in the video look; the only stills in it
+were 51 iPhone ads for iPhones LA on a branch never merged. Of 600 shuffled
+video looks on `main`, none carried selling points, and none anywhere a claim,
+a towns line or a website.
+
+- **One ad carries all of it** (`motion/fullad.js` `FullAd`): the claim in a
+  badge, the headline, the line under it (the models bought), three selling
+  points, the product, a sticker, the call to action, the number between
+  chevrons, the towns after a pin, the website as a sentence. Every block is
+  drawn when its words are given, and `fullStyle()` gives every one a default,
+  so no ad goes out bare. As a photo and as a video of the same ad.
+- **Laid out by rule, not by retry.** The feed stills tried up to 120 seeds a
+  card until one passed; a customer typing a headline gets one try. `FullAd`
+  places every block itself, top to bottom, so it fits the first time in all
+  four sizes. Never bring back a search over seeds for layout.
+- **Sizing**: each block takes the largest size its room allows and none goes
+  under its floor (`FULL`: the line 56px, the call to action 48px, the footer
+  35px, chips 32px, on a 1080 short side). The headline gives way before the
+  product does: the product keeps a band of the height (21.5% of a square, 36%
+  of 4:5, 42% of a story), stands shoulder to shoulder (the engine spreads a
+  set across the frame), and the band takes whichever shape shows it largest.
+- **Spacing and positioning**: one margin (3.5% of the short side), one gap
+  (2%), the room left over shared equally between the blocks; one axis for the
+  words; the middle band split into columns that leave no third of the frame
+  empty.
+- **Eye-catchers, none on a word or a product**: the glowing claim, the accent
+  word, a starburst sticker beside the product, chevrons at the number, one 3D
+  icon where the size has room. The sticker wears the card's own ink: two
+  colour families to a card (rule 95) holds here too.
+- **The colours are the twelve proven pairs** (rule 123), by the same names and
+  the same colours as Easy Mode's themes: `motion/house-colours.js`, made from
+  `COLOR_THEMES` by `scripts/build_house_colours.mjs`. Never type a colour
+  into it.
+- **Every line the library sells**: iPhones are the maker's painted phones;
+  any other line (`motion/subjects.json`, made from the offer family's `LINES`
+  by `scripts/build_full_subjects.mjs`) brings its approved pictures, its
+  models line and its points, drawn as they are, face on. No phone
+  voice-over, no phone listing and no phone picker on an ad about anything
+  else.
+- **A small line reads on the ground under it**: where one reads under 4.5:1
+  on the ground as drawn, that stretch is evened toward the pair's own ground
+  colour (`_evenGround`; dark ink on a grey floor read 2.65).
+- **What it cost is said plainly**: a headline too long to stay large, points
+  that found no room, a product left small. `syncFull` says it under the
+  preview in the customer's words (rule 113); the ad is still drawn.
+- **Checked** by `scripts/full_ad_check.mjs` (exit 1 on a failure): 256 ads
+  (five sets of words, four sizes, six looks; then every other product in every
+  size) for elements, sizes, gaps, margins, the axis, the eye-catchers and
+  contrast on the ground as drawn, then the page. Run it, `quick_ad_check` and
+  `buylist_check` before a commit that touches `fullad.js`, the maker's page
+  or the engine's painters it calls.
+- **Retired the same day** (`template-retired.js`, by hand): the 50 first
+  designs and the 40 street templates, 57 of them offered, every line of
+  which the full ad now draws. `?noretire=1` shows them; nothing is deleted.
+
+Not done here: OPEN-ITEMS §BC.

@@ -598,5 +598,19 @@ produced." DESIGN-LAW rule 87. In practice:
   run out of order (refresh reads git HEAD; import restores the tone grade;
   naturalize then darken; support_highlights before neutral_panels; content
   audit after overlap; curate last).
+- **The full ad** (rule 137, 2026-11-11): `motion/fullad.js` `FullAd` is the
+  house-style ad with every element, laid out by rule (never by retrying
+  seeds), the video maker's default mode. Its colours are the twelve proven
+  pairs (`motion/house-colours.js`, from `build_house_colours.mjs`) and its
+  other products the offer family's lines (`motion/subjects.json`, from
+  `build_full_subjects.mjs`): never edit either file by hand. Every draw in
+  the maker goes through `settle()` and `adFor()` in `motion/app.js`; a new
+  path that calls `harmonise` or `new Ad` directly draws the wrong ad in full
+  mode. Before a commit that touches it, the maker's page or the engine's
+  painters: `node scripts/full_ad_check.mjs`, then `quick_ad_check.mjs` and
+  `buylist_check.mjs`. Retired templates are `template-retired.js` (by hand;
+  `?noretire=1` shows them).
+- **After any merge, load every page** (2026-11-11): a merge git calls clean
+  left `motion/app.js` declaring one name twice, and the video maker dead.
 - **The record of what is still inconsistent** is docs/COHESION-AUDIT.md.
   Read it before touching the classics' passes or the render paths.
