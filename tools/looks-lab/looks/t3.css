@@ -1,2 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&display=swap');
-:root[data-theme][data-skin='poster'][data-lab='t3']{--display:'Big Shoulders Display',Impact,sans-serif;.hero h1{font-weight:900;text-transform:uppercase;letter-spacing:.004em;word-spacing:.04em;font-size:clamp(48px,6vw,84px);line-height:.94}.logo{font-family:var(--display);font-weight:800;font-size:21px;letter-spacing:.03em}}
+:root[data-theme][data-skin='poster'][data-lab='t3']{
+  --display:'Big Shoulders Display',Impact,sans-serif;
+  .hero-copy{container-type:inline-size}
+  /* measured in this face (em): BUYBACK ADS 5.07, THAT MAKE 4.17, STRANGERS 4.28, TEXT YOU FIRST. 5.88 (+.12 highlighter) */
+  .hero h1{font-weight:900;text-transform:uppercase;letter-spacing:.004em;word-spacing:.04em;line-height:.94;font-size:clamp(34px,6vw,84px);font-size:clamp(34px,16cqi,96px)}
+  .hero h1 em{display:inline-block;white-space:nowrap}
+  .logo{font-family:var(--display);font-weight:800;font-size:21px;letter-spacing:.03em}
+}
