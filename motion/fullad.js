@@ -370,6 +370,13 @@ export class FullAd extends Ad {
     if (F.evened.length) { this.still = null; }
   }
 
+  /** An ad with no product picture (a line the library has no clean picture of): the engine's
+   *  styled arrangements give a spot even for no phones, and a spot with no phone threw. */
+  _buildPhones() {
+    if (!(this.st.phones || []).some(id => this.assets.phones[id])) this.st.arrangement = "lineup";
+    super._buildPhones();
+  }
+
   /* the engine's own room-making passes: this layout is final when _layoutType returns */
   _numberBelowPhones() {} _headlineOffPhones() {} _wordsOffPhones() {} _perksRoom() {}
 
@@ -497,7 +504,15 @@ export class FullAd extends Ad {
     // the arrangement keeps its character (a line, a fan, a shop window, a podium, wings) at
     // the spacing below, in phone widths. A leaning neighbour may tuck a little behind the
     // middle phone from the side, never from above (the set's house rules, 2026-10-02).
-    if (hasPhones) {
+    const flat = this.phones.some(q => q.meta && q.meta.flat);
+    if (hasPhones && flat) {
+      // a product's own pictures (a subject from the offer family): side by side as they are, the
+      // second at its size beside the first, a tenth of the narrower's width between them, feet level
+      const ps = this.phones, PH = Math.max(...ps.map(q => q.h * (q.meta.k || 1)));
+      let x = 0, was = 0;
+      ps.forEach(q => { const sc = q.meta.k || 1, hw = q.w * sc / 2; q.angle = 0; q.size = sc; x += was ? was + Math.min(was, hw) * .2 + hw : hw; q.home = [x, (PH - q.h * sc) / 2]; was = hw; });
+      this.drawOrder = ps.map((_, i) => i);
+    } else if (hasPhones) {
       const ps = [...this.phones].sort((a, b) => a.home[0] - b.home[0]), n = ps.length;
       const PW = Math.max(...ps.map(q => q.w)), PH = Math.max(...ps.map(q => q.h));
       const spot = ({
@@ -667,6 +682,41 @@ export class FullAd extends Ad {
     this._hookText();
   }
 
+  /** A product's own pictures are drawn as they are, face on: the engine's phone painter turns a
+   *  picture as a phone (a screen behind it, rails down its sides), which a console, a ring or a
+   *  car is not (the social studio's CampaignAd does the same for a photograph of stock). Each
+   *  rises into its place with a floor shadow under it, then breathes. */
+  _phonesLayer(t, dt, quality) {
+    if (!this.phones.some(q => q.meta && q.meta.flat)) return super._phonesLayer(t, dt, quality);
+    const ctx = this.acc.getContext("2d"), H = this.H;
+    ctx.globalAlpha = 1; ctx.drawImage(this.bg, 0, 0);
+    this._drawRays(ctx, t);
+    if (this.liveGround) this._drawLiveGround(ctx, t);
+    // a light behind the product, in the colourway's own lighter tone: a black tablet on a navy
+    // ground, or a dark laptop on indigo, stood in the dark without it
+    const G = this.full && this.full.group;
+    if (G) {
+      const cx = (G[0] + G[2]) / 2, cy = (G[1] + G[3]) / 2, rx = (G[2] - G[0]) * .78, ry = (G[3] - G[1]) * .72, k = Math.min(1, Math.max(0, (t - .05) / .5));
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(rx, ry);
+      const gl = ctx.createRadialGradient(0, 0, 0, 0, 0, 1), [r, g, b] = [1, 3, 5].map(i => parseInt(this.p.light.slice(i, i + 2), 16)), up = v => Math.round(v + (255 - v) * .35);
+      gl.addColorStop(0, `rgba(${up(r)},${up(g)},${up(b)},${.62 * k})`); gl.addColorStop(.55, `rgba(${up(r)},${up(g)},${up(b)},${.22 * k})`); gl.addColorStop(1, `rgba(${up(r)},${up(g)},${up(b)},0)`);
+      ctx.fillStyle = gl; ctx.fillRect(-1, -1, 2, 2); ctx.restore();
+    }
+    this.drawOrder.forEach((i, n) => {
+      const q = this.phones[i], p = prog(t, .12 + n * .14, .6); if (p <= 0) return;
+      const w = q.w * q.size, h = q.h * q.size, rise = (1 - (1 - (1 - p) ** 3)) * H * .05;
+      const s = (.84 + .16 * outBack(p, 1.3)) * (1 + .012 * Math.sin((t + n * .7) * Math.PI * 2 / 2.6) * Math.min(1, Math.max(0, t - 1.2)));
+      ctx.save(); ctx.globalAlpha = Math.min(1, p * 1.5);
+      ctx.save(); ctx.translate(q.home[0], q.home[1] + h * .49); ctx.scale(w * .5, Math.max(4, h * .05));
+      const sh = ctx.createRadialGradient(0, 0, 0, 0, 0, 1); sh.addColorStop(0, "rgba(0,0,0,.42)"); sh.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = sh; ctx.fillRect(-1, -1, 2, 2); ctx.restore();
+      ctx.translate(q.home[0], q.home[1] + rise); ctx.scale(s, s);
+      ctx.drawImage(q.img, -w / 2, -h / 2, w, h);
+      ctx.restore();
+    });
+    return this.acc;
+  }
+
   /** The selling points go where the layout put them (the engine's search is not run). */
   _placePerks(avoid) {
     this.perks = null;
@@ -743,14 +793,18 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   };
   // fewer phones, larger (five on a square full of large words shrank to a strip): two where the
   // product shares its row with the selling points (a square, a wide frame), three where it has the width
-  const most = st.aspect === "4:5" || st.aspect === "9:16" ? 3 : 2;
+  // (a subject from the offer family brings its own set of one or two pictures: all of it)
+  const subject = !!st.subject && st.subject !== "iphone";
+  const most = subject ? 4 : st.aspect === "4:5" || st.aspect === "9:16" ? 3 : 2;
   const have = (st.phones || []).slice(0, most);
   const base = { ...DEFAULT_STYLE, ...st, ...QUIET, ...look, ...words, phones: have, full: true, seed };
   const locked = new Set([...keep, ...Object.keys(QUIET), ...Object.keys(look), ...Object.keys(words), "phones", "headline", "tag", "number", "aspect", "duration", "lang", "lang_mode", "area", "full", "accent_word", "strike_text", "hook_text"]);
-  const pool = have.length ? [] : phoneIndex.map(m => m.id);
+  const pool = have.length || subject ? [] : phoneIndex.map(m => m.id);   // another product never borrows iPhones
   const idx = Object.fromEntries(phoneIndex.map(m => [m.id, m]));
   const out = harmonise(randomize(base, seed, locked, pool, false), locked, idx);
-  return { ...out, ...QUIET, ...look, ...words, full: true, phones: (out.phones || []).slice(0, most) };
+  // the voice-over's lines are about phones: an ad for anything else plays its music alone
+  const quiet = subject ? { voice: "off", vo_clip: "", vo_text: "" } : {};
+  return { ...out, ...QUIET, ...look, ...words, ...quiet, full: true, phones: subject ? have : (out.phones || []).slice(0, most) };
 }
 
 /** What would stop this ad going out, in words: a block left out for want of room, a block
@@ -781,4 +835,19 @@ export function fullMeasure(ad) {
   const k = 1080 / U, px = Object.fromEntries(Object.entries(F.px).map(([n, v]) => [n, Math.round(v * k)]));
   const smallest = Math.min(...Object.values(px).filter(Boolean));
   return { blocks: Object.keys(R), fill: +area.toFixed(3), px, smallest, product: F.group ? +((F.group[3] - F.group[1]) / H).toFixed(3) : 0, sticker: !!F.burst, icon: !!(ad.accents && ad.accents.length), chevrons: !!ad.fullChevrons };
+}
+
+/** A subject's set of pictures (motion/subjects.json, from the offer family) as the engine's
+ *  assets: { ids, assets }. Each is marked flat, so FullAd draws it as it is. */
+export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cutouts/") {
+  const sets = subject.sets || [];
+  if (!sets.length) return { ids: [], assets: {} };
+  const set = sets[((setIndex % sets.length) + sets.length) % sets.length], assets = {}, ids = [];
+  await Promise.all(set.map(async ({ file, k }) => {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.decoding = "async"; i.onload = () => res(i); i.onerror = () => rej(new Error("The picture " + file + " did not load.")); i.src = base + file + ".webp"; });
+    const id = "sub-" + file;
+    assets[id] = { img, meta: { id, model: subject.label, finish: "", w: img.naturalWidth, h: img.naturalHeight, metal: "#888888", flat: true, k: k || 1 } };
+  }));
+  for (const { file } of set) ids.push("sub-" + file);
+  return { ids, assets };
 }

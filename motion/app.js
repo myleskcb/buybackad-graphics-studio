@@ -2,7 +2,7 @@
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES } from "./catalog.js";
 import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf, lotInto } from "./engine.js";
-import { FullAd, fullStyle, fullBlockers, COLOURWAYS } from "./fullad.js";
+import { FullAd, fullStyle, fullBlockers, loadSubjectSet, COLOURWAYS } from "./fullad.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
@@ -44,7 +44,25 @@ const state = {
    the towns, the website and the sticker beside the words the maker already had, as a photo
    and as a video. state.style stays the customer's own look and words underneath, so Any look
    brings it back as it was. Every path that draws goes through these three. */
-const fullOf = st => fullStyle(st, st.seed, state.index, st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {}, state.locked);
+/* WHAT THE AD IS ABOUT (motion/subjects.json, made from the offer family's 35 lines). iPhones are
+   the maker's own painted phones, picked in Phones; any other line brings its approved pictures
+   and its models line, and the full ad draws them in the phones' place. Only the full ad: the
+   looks under Any look fly, flip and land phones. */
+const subjects = { list: [], loaded: {} };           // loaded: "key|set" -> the ids of its pictures, once in state.assets
+const subjectOf = st => st.subject && st.subject !== "iphone" ? subjects.list.find(s => s.key === st.subject) || null : null;
+async function ensureSubject(st) {
+  const S = subjectOf(st); if (!S || !S.sets.length) return;
+  const set = (st.subject_set | 0) % S.sets.length, k = S.key + "|" + set;
+  if (subjects.loaded[k]) return;
+  const got = await loadSubjectSet(S, set, "../assets/cutouts/");
+  Object.assign(state.assets.phones, got.assets); subjects.loaded[k] = got.ids;
+}
+const fullOf = st => {
+  const S = state.full ? subjectOf(st) : null, pick = st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {};
+  if (!S) return fullStyle({ ...st, subject: "" }, st.seed, state.index, pick, state.locked);
+  const ids = S.sets.length ? subjects.loaded[S.key + "|" + ((st.subject_set | 0) % S.sets.length)] || [] : [];
+  return fullStyle({ ...st, phones: ids.length ? ids : ["none"] }, st.seed, state.index, pick, state.locked);
+};
 const settle = (st, locked = state.locked) => state.full ? fullOf(st) : harmonise(st, locked, indexById());
 const AdOf = st => st && st.full ? FullAd : Ad;
 const adFor = (st, w, h) => new (AdOf(st))(st, state.assets, w, h);
@@ -135,6 +153,7 @@ function restore() {
 async function rebuild() {
   const id = ++state.buildId;
   try {
+    if (state.full) await ensureSubject(state.style);
     const st = settle({ ...state.style });
     await loadFonts(fontsFor(st));
     if (id !== state.buildId) return;
@@ -283,9 +302,21 @@ const COLOUR_NAMES = { graphite: "Charcoal & green", ink_blue: "Navy & gold", bl
   carbon: "Black & orange", midnight_teal: "Teal & mint", royal: "Indigo & amber", noir: "Black & pink", midnight: "Midnight & yellow" };
 const fullName = st => COLOUR_NAMES[st.palette] || lookName(st);
 
+/** What the ad can be about, into its picker: iPhones first (the maker's own), then the offer family's lines by group. */
+function fillSubjects() {
+  const groups = [];
+  for (const s of subjects.list) { if (s.key === "iphone") continue; let g = groups.find(x => x[0] === s.group); if (!g) groups.push(g = [s.group, []]); g[1].push(s); }
+  $("f-subject").innerHTML = `<option value="iphone">iPhones</option>` + groups.map(([g, ss]) => `<optgroup label="${g}">${ss.map(s => `<option value="${s.key}">${s.label}</option>`).join("")}</optgroup>`).join("");
+  syncMode();
+}
+const fileStem = st => { const S = st.full ? subjectOf(st) : null; return "we-buy-" + (S ? S.key : "phones"); };
+
 /** The page in the mode it is in: what only the full ad uses, and what only Any look does. */
 function syncMode() {
   $("main").dataset.full = state.full ? "1" : "0";
+  $("main").dataset.subject = state.full && subjectOf(state.style) ? "other" : "phones";
+  const sel = $("f-subject"); if (sel && document.activeElement !== sel) sel.value = subjectOf(state.style) ? state.style.subject : "iphone";
+  const S = subjectOf(state.style); $("new-picture").hidden = !(S && S.sets.length > 1);
   document.querySelectorAll("#mode [data-full]").forEach(b => b.setAttribute("aria-checked", String((b.dataset.full === "1") === state.full)));
 }
 /** After a full ad is drawn: which colours it wears, and anything it could not fit, said plainly. */
@@ -305,13 +336,35 @@ function syncFull(ad) {
 function buildPanel() {
   $("full-colours").innerHTML = `<button role="radio" data-colour="" aria-checked="true" title="The colours change with New look">Any</button>`
     + COLOURWAYS.map(k => { const p = PALETTES[k]; return `<button role="radio" data-colour="${k}" aria-checked="false" title="${COLOUR_NAMES[k] || k}" aria-label="${COLOUR_NAMES[k] || k}" style="--c1:${p.ground};--c2:${p.accent}"></button>`; }).join("");
+  $("f-subject").addEventListener("change", e => {
+    // words typed a moment ago are still waiting on their pause: keep them (the fields are filled again below)
+    if ($("f-number").value.trim()) state.style.number = $("f-number").value;
+    for (const [id, key, max] of FULL_FIELDS) { const v = $(id).value.trim().slice(0, max); if (v) state.style[key] = key === "site" ? v : v.toUpperCase(); }
+    pushHistory();
+    const was = subjectOf(state.style), key = e.target.value, S = subjects.list.find(s => s.key === key);
+    // the words the last subject brought leave with it; words typed by hand for it stay only if they are not its own
+    const own = was ? [was.heads, [was.models.toUpperCase()], [was.points]] : [];
+    if (key === "iphone" || !S) {
+      delete state.style.subject; delete state.style.subject_set;
+      if (was) { if (own[0].includes(state.style.headline)) state.style.headline = "WE BUY IPHONES"; if (own[1].includes(state.style.tag)) state.style.tag = ""; if (own[2].includes(state.style.points)) state.style.points = null; }
+    } else {
+      state.style.subject = key; state.style.subject_set = 0;
+      state.style.headline = S.heads[0].toUpperCase(); state.style.tag = S.models.toUpperCase(); state.style.points = S.points;
+      ["headline", "tag", "points"].forEach(k => state.locked.add(k));
+    }
+    save(); syncWords(); syncMode(); rebuild(); renderGallery(true);
+  });
+  $("new-picture").addEventListener("click", () => {
+    const S = subjectOf(state.style); if (!S || S.sets.length < 2) return;
+    pushHistory(); state.style.subject_set = ((state.style.subject_set | 0) + 1) % S.sets.length; save(); rebuild(); renderGallery(true);
+  });
   syncMode();
   $("look-count").textContent = `${Number(countLooks()).toExponential(1).replace("e+", " × 10^")} possible looks from ${Object.keys(FONTS).length} typefaces and ${new Set(OPTIONS.palette.filter(v => v !== "match")).size} palettes.`;   // the held themes' palettes are known, not offered
   $("headline-list").innerHTML = [...HEADLINES, ...COPY.es.headlines.filter(h => !h.includes("{"))].map(h => `<option value="${h}">`).join("");
   const design = $("design");
   for (const [title, keys] of GROUPS) {
     // the full ad keeps who it is for and how it sounds; how it looks is the house style's
-    const sec = document.createElement("details"); sec.className = "mo-sec" + (["Audience and voice", "Sound"].includes(title) ? "" : " mo-any-only"); sec.open = ["Audience and voice", "Type", "Scene", "Vibe and urgency"].includes(title);
+    const sec = document.createElement("details"); sec.className = "mo-sec" + (title === "Audience and voice" ? " mo-phone-only" : title === "Sound" ? "" : " mo-any-only"); sec.open = ["Audience and voice", "Type", "Scene", "Vibe and urgency"].includes(title);
     sec.innerHTML = `<summary>${title}</summary>`;
     for (const k of keys) {
       const row = document.createElement("div"); row.className = "mo-set";
@@ -929,7 +982,7 @@ async function renderGallery(reset) {
       for (let i = 0; i < 12 && state.galleryShown < FULL_MAX; i++) {
         const base = (({ full_palette, ...rest }) => rest)(state.style), seed = state.gallerySeed++;
         let b = null;
-        try { b = await thumb(fullStyle({ ...base, seed }, seed, state.index, {}, state.locked), Math.round(W * k), Math.round(H * k), false); }
+        try { await ensureSubject(base); b = await thumb(fullOf({ ...base, seed }), Math.round(W * k), Math.round(H * k), false); }
         catch (e) { console.warn("Full ad look " + seed + " skipped:", e); }
         if (!live()) return;
         if (b) { grid.appendChild(b); made++; shown(); }
@@ -1143,7 +1196,7 @@ async function download(opts = {}) {
     const { out, soundErr, soundDropped, scale, mp4Failed, W0, H0 } = made;
     if (!await gate.count()) { note("Not saved: this plan's downloads are used up."); return; }
 
-    const name = `we-buy-phones-${st.aspect.replace(":", "x")}-${st.seed}.${out.ext}`;
+    const name = `${fileStem(st)}-${st.aspect.replace(":", "x")}-${st.seed}.${out.ext}`;
     saveVideo(out.blob, name);
     // the photo that goes with it: OfferUp takes a video only with one (makePhoto)
     let photo = null, photoErr = null;
@@ -1211,7 +1264,7 @@ async function downloadJpg() {
     const st = settle({ ...state.style });
     await loadFonts(fontsFor(st));
     const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
-    const photo = await makePhoto(st, `we-buy-phones-${st.aspect.replace(":", "x")}-${st.seed}.jpg`, Math.min(W0, H0), prog, gate);
+    const photo = await makePhoto(st, `${fileStem(st)}-${st.aspect.replace(":", "x")}-${st.seed}.jpg`, Math.min(W0, H0), prog, gate);
     if (!await gate.count()) { note("Not saved: this plan's downloads are used up."); return; }
     saveVideo(photo.blob, photo.name);
     note(`Saved ${photo.name} (${photo.w}×${photo.h}, ${(photo.blob.size / 1e6).toFixed(1)} MB, the moment at ${photo.t.toFixed(1)} s)` +
@@ -1238,8 +1291,9 @@ function lookMeta(st) {
   const push = (role, t) => { if (typeof t === "string" && t.trim()) texts.push({ role, text: t.trim().slice(0, 200) }); };
   push("hook", st.hook_text); push("headline", st.headline); push("sub", st.full ? st.feed_line : st.tag); push("label", st.number_label); push("cta", st.cta);
   if (st.full) { push("claim", st.feed_claim); push("points", st.points); push("where", st.feed_where); push("site", st.feed_site); }
-  const meta = { title: String(st.headline || "WE BUY PHONES").slice(0, 80), category: "phones", template: "motion-" + st.seed, texts,
-    products: (st.phones || []).map(String).filter(id => /^[a-z0-9][a-z0-9-]{0,79}$/.test(id)), source: "motion", hold: "" };
+  const S = st.full ? subjectOf(st) : null;
+  const meta = { title: String(st.headline || "WE BUY PHONES").slice(0, 80), category: S ? S.cat : "phones", template: "motion-" + st.seed, texts,
+    products: S ? [] : (st.phones || []).map(String).filter(id => /^[a-z0-9][a-z0-9-]{0,79}$/.test(id)), source: "motion", hold: "" };
   // the listing Quick ad wrote for this ad, as its boxes say it (hand edits and the price included), for the
   // listings site's review to start from (netlify/lib/adlibrary.mjs: listing); never another ad's
   if (quick.st && adKey(quick.st) === adKey(st) && $("qa-title") && $("qa-title").value.trim()) {
@@ -1267,7 +1321,7 @@ async function saveLook(stRaw, btn) {
     const gate = await planGate(() => saveLook(stRaw, btn), "Sign in to save video ads to your library. Video ads come with Pro and Business.");
     if (!gate) return null;
     const made = await makeVideo(st, { prog, note, watermark: gate.watermark });
-    const name = `we-buy-phones-${st.aspect.replace(":", "x")}-${st.seed}.${made.out.ext}`;
+    const name = `${fileStem(st)}-${st.aspect.replace(":", "x")}-${st.seed}.${made.out.ext}`;
     const photo = await makePhoto(st, name, Math.min(made.ad.W, made.ad.H), prog, gate);
     if (!await gate.count()) { note("Not saved: this plan's downloads are used up."); return null; }
     prog(0, "Saving to your library");
@@ -1732,6 +1786,10 @@ async function start() {
   const { phones, index } = got;
   state.assets.phones = phones; state.index = index;
   state.assets.accents = await loadAccents("../assets/cutouts/");
+  // what else an ad can be about; without the list the maker is iPhones only, as it was
+  try { subjects.list = (await (await fetch("./subjects.json", { cache: "no-cache" })).json()).subjects || []; } catch (e) { console.warn("The list of other products did not load:", e); subjects.list = []; }
+  if (!subjectOf(state.style)) { delete state.style.subject; delete state.style.subject_set; }
+  fillSubjects();
   state.style.phones = state.style.phones.filter(id => phones[id]);
   if (!state.style.phones.length) state.style.phones = DEFAULT_PHONES.filter(id => phones[id]);
   lotInto(state.style, rng(1), new Set(["arrangement"]));   // a wholesale look saved with fewer phones than a lot

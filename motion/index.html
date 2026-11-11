@@ -49,7 +49,7 @@
       <button data-full="0" role="radio" title="Every look the maker has: street signs, neon, pastel, and more">Any look</button>
     </div>
     <p class="mo-note mo-full-only">Your claim, headline, models, selling points, phones, number, towns and website on one ad, as large as each fits, in one clean style. Download it as a photo or a video. New look changes the colours and the arrangement.</p>
-    <p class="mo-note mo-any-only">Every look the maker has, from LA street signs to clean tech. Your full ad is kept as you left it.</p>
+    <p class="mo-note mo-any-only">Every look the maker has, from LA street signs to clean tech, for phones. Your full ad is kept as you left it.</p>
   </div>
 
   <div class="mo-grid">
@@ -85,7 +85,7 @@
       <div class="mo-progress" id="progress" hidden><div class="mo-bar"><i id="bar"></i></div><span id="progress-label"></span></div>
       <p class="mo-note" id="export-note"></p>
 
-      <section class="mo-quick" id="quick" aria-labelledby="quick-h">
+      <section class="mo-quick mo-phone-only" id="quick" aria-labelledby="quick-h">
         <h2 class="mo-quick-h" id="quick-h">&#9889; Quick ad</h2>
         <p class="mo-note mo-quick-sub">A new look for the angle, its photo or video, and a title and description written from what is on it.</p>
         <div class="mo-seg" id="qa-angles" role="radiogroup" aria-label="Angle of the ad">
@@ -156,6 +156,9 @@
         <label class="mo-field">Your area <span class="mo-opt">the city the ads name, like LA or Long Beach</span>
           <input id="f-area" maxlength="30" placeholder="LA" autocomplete="address-level2">
         </label>
+        <label class="mo-field mo-full-only">What you buy <span class="mo-opt">its pictures and its models line come with it</span>
+          <span class="mo-row"><select id="f-subject" aria-label="What you buy"><option value="iphone">iPhones</option></select><button class="mo-mini" id="new-picture" type="button" title="Another picture of it" aria-label="Another picture of it" hidden>&#10227;</button></span>
+        </label>
         <label class="mo-field mo-full-only">Bold claim at the top <span class="mo-opt">empty gives one from the list</span>
           <input id="f-claim" maxlength="44" placeholder="TOP DOLLAR &bull; FAST CASH">
         </label>
@@ -192,7 +195,7 @@
         </div>
       </details>
 
-      <details open class="mo-sec">
+      <details open class="mo-sec mo-phone-only">
         <summary>Phones <span class="mo-opt" id="phone-count"></span></summary>
         <p class="mo-note">Pick 2 to 5. Every phone lands on its back, where the cameras make the model easy to recognise.</p>
         <label class="mo-check mo-strong"><input type="checkbox" id="all-phones"> <span id="all-phones-label">Show Pro, Plus and mini models too</span></label>

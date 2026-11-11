@@ -20,6 +20,10 @@
    the customer (syncFull in motion/app.js), and here that is reported, not failed. An overlap or
    a block off the frame fails whatever the words.
 
+   Then every other product the full ad can be about (motion/subjects.json, the offer family's
+   35 lines): each drawn in every size with the words its line brings, held to the same rules,
+   and its pictures to standing off their ground.
+
    Then the page: the maker opens on the full ad, its fields redraw it, Any look brings the old
    panel back, the photo downloads at 1440, nothing scrolls sideways at 390, no page error.
 
@@ -142,7 +146,71 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
   await page.close();
 }
 
-/* ---------- 2. the page ---------- */
+/* ---------- 2. every other product ---------- */
+{
+  const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
+  const errors = []; page.on('pageerror', e => errors.push(String(e)));
+  await page.goto(BASE + 'motion/', { waitUntil: 'load', timeout: 120000 });
+  await page.waitForFunction(() => document.getElementById('loading').hidden, null, { timeout: 120000 });
+  const out = await page.evaluate(async ({ ASPECTS, wantSheet }) => {
+    const E = await import('/motion/engine.js'), C = await import('/motion/catalog.js'), A = await import('/motion/accents.js'), F = await import('/motion/fullad.js');
+    const { phones, index } = await E.loadPhones('/motion/phones/');
+    const assets = { phones, index, accents: await A.loadAccents('/assets/cutouts/') };
+    const subs = (await (await fetch('/motion/subjects.json', { cache: 'no-store' })).json()).subjects.filter(s => s.key !== 'iphone');
+    const rows = [], sheet = [];
+    let n = 0;
+    for (const S of subs) for (const aspect of ASPECTS) {
+      const setN = S.sets.length ? n % S.sets.length : 0, seed = 12001 + n++ * 6151;
+      const got = await F.loadSubjectSet(S, setN, '/assets/cutouts/'); Object.assign(assets.phones, got.assets);
+      const st = F.fullStyle({ ...C.DEFAULT_STYLE, subject: S.key, phones: got.ids.length ? got.ids : ['none'], headline: S.heads[n % S.heads.length].toUpperCase(), tag: S.models.toUpperCase(), points: S.points,
+        number: '(562) 999-4994', aspect, feed_where: 'LONG BEACH • LAKEWOOD • DOWNEY', site: 'www.YourShop.com' }, seed, index);
+      await E.loadFonts([...E.fontsFor(st), 'franklin']);
+      const [W0, H0] = E.ASPECTS[aspect], k = 1080 / Math.min(W0, H0);
+      const ad = new F.FullAd(st, assets, Math.round(W0 * k), Math.round(H0 * k));
+      rows.push({ key: S.key, aspect, pictures: got.ids.length, drawn: ad.phones.length, why: F.fullBlockers(ad), m: F.fullMeasure(ad), voice: st.voice });
+      if (wantSheet && aspect === '1:1') {
+        const c = E.canvas(ad.W, ad.H), t = Math.max(isFinite(ad.tl.number) ? ad.tl.number + 1.2 : 0, (ad.tOutro != null ? ad.tOutro : st.duration) - .4);
+        ad.still = null; ad.frame(c.getContext('2d'), t, { subsFly: 8, subsMove: 4 }, 1 / 30);
+        const small = E.canvas(360, 360); small.getContext('2d').drawImage(c, 0, 0, 360, 360);
+        sheet.push([S.key, small.toDataURL('image/jpeg', .86), 360, 360]);
+      }
+    }
+    return { rows, sheet, lines: subs.length };
+  }, { ASPECTS, wantSheet: !!SHEET });
+  if (errors.length) fail('page errors while drawing the other products: ' + errors.slice(0, 3).join(' | '));
+  // a models line is as long as the offer family wrote it: two rows of it may cost a square's product some height,
+  // which is said to the customer; anything else fails
+  const soft = /^product \d+% of the height$/;
+  let softN = 0;
+  for (const r of out.rows) {
+    const id = `${r.key} ${r.aspect}`;
+    if (r.pictures !== r.drawn) fail(`${id}: ${r.pictures} pictures, ${r.drawn} drawn`);
+    if (r.voice !== 'off') fail(`${id}: a phone voice-over on an ad that is not about phones`);
+    for (const w of r.why) { if (soft.test(w)) softN++; else fail(`${id}: ${w}`); }
+    if (r.pictures && !r.m.sticker && !r.m.chevrons) fail(`${id}: no sticker and no chevrons`);
+  }
+  const med = a => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.floor(s.length / 2)] : 0; };
+  const wp = out.rows.filter(r => r.pictures);
+  console.log(`drew ${out.rows.length} full ads for ${out.lines} other products (${new Set(wp.map(r => r.key)).size} with pictures): headline ${med(out.rows.map(r => r.m.px.headline))}px, product ${Math.round(med(wp.map(r => r.m.product)) * 100)}% of the height, sticker ${wp.filter(r => r.m.sticker).length}/${wp.length}` + (softN ? `; ${softN} with a small product, said to the customer` : ''));
+  if (SHEET && out.sheet.length) {
+    const url = await page.evaluate(async (items) => {
+      const cell = 240, lab = 18, cols = 7, rowsN = Math.ceil(items.length / cols);
+      const c = document.createElement('canvas'); c.width = cols * cell; c.height = rowsN * (cell + lab);
+      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.font = 'bold 12px sans-serif';
+      for (let i = 0; i < items.length; i++) {
+        const img = new Image(); await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = items[i][1]; });
+        const cx = (i % cols) * cell, cy = Math.floor(i / cols) * (cell + lab);
+        x.fillStyle = '#111'; x.fillText(items[i][0], cx + 4, cy + 13); x.drawImage(img, cx, cy + lab, cell - 2, cell - 2);
+      }
+      return c.toDataURL('image/jpeg', .86);
+    }, out.sheet);
+    writeFileSync(SHEET.replace(/\/?$/, '/') + 'subjects.jpg', Buffer.from(url.split(',')[1], 'base64'));
+    console.log('  wrote ' + SHEET.replace(/\/?$/, '/') + 'subjects.jpg');
+  }
+  await page.close();
+}
+
+/* ---------- 3. the page ---------- */
 {
   const ctx = await browser.newContext({ viewport: { width: 1400, height: 1000 }, acceptDownloads: true });
   await ctx.addInitScript(() => { try { localStorage.setItem('pgfx_local_demo', '1'); } catch (e) { /* none */ } });
@@ -178,6 +246,13 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
   ok(await page.inputValue('#f-towns') !== '' && await page.inputValue('#f-site') === 'www.YourShop.com', 'back on the full ad, its words are as they were left');
   await page.reload({ waitUntil: 'load' }); await page.waitForFunction(() => document.getElementById('loading').hidden, null, { timeout: 60000 });
   ok(await page.inputValue('#f-site') === 'www.YourShop.com' && await page.evaluate(() => document.getElementById('main').dataset.full) === '1', 'a reload keeps the mode and the words');
+  // another product: its words and pictures come with it, and what only a phone ad uses is put away
+  await page.selectOption('#f-subject', 'gold'); await page.waitForTimeout(2200);
+  ok(await page.inputValue('#f-headline') === 'WE BUY GOLD' && /GOLD/.test(await page.inputValue('#f-tag')) && !(await shown('quick')) && await page.inputValue('#f-number') === '(562) 999-4994', 'What you buy: Gold brings its headline and its line, keeps the number, and puts Quick ad and the phone picker away');
+  const [dl2] = await Promise.all([page.waitForEvent('download', { timeout: 90000 }), page.click('#download-jpg')]);
+  ok(/^we-buy-gold-.*-photo-\d+x\d+\.jpg$/.test(dl2.suggestedFilename()), `its photo downloads under its own name (${dl2.suggestedFilename()})`);
+  await page.selectOption('#f-subject', 'iphone'); await page.waitForTimeout(1500);
+  ok(await page.inputValue('#f-headline') === 'WE BUY IPHONES' && await shown('quick'), 'back to iPhones: the phone words and Quick ad return');
   await page.setViewportSize({ width: 390, height: 800 }); await page.waitForTimeout(900);
   const wide = await page.evaluate(() => document.documentElement.scrollWidth);
   ok(wide <= 391, `nothing scrolls sideways at 390 (${wide})`);
