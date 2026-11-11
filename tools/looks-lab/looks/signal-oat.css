@@ -1,0 +1,9 @@
+/* @include signal.css */
+/* black and yellow on the oatmeal paper: yellow is the highlighter block, not the field */
+:root[data-theme][data-finish='counter'][data-lab='signal-oat']{
+  --field:#f2eee4;--paper:#f2eee4;--surface-solid:#faf7f0;--surface-raise:#f5f1e7;--glass-bg:#faf7f0;--glass-bg-strong:#faf7f0;--stage-1:#ebe7da;--stage-2:#dfdacb;
+  .hero{background:#f2eee4}
+  .hero h1 em{background:var(--yellow);color:#111}
+  .hero-eyebrow::before{background:var(--yellow);box-shadow:0 0 0 1.5px #111}
+  .wall-card,.wall-card:nth-child(n){box-shadow:0 14px 26px -14px rgba(0,0,0,.4)}
+}

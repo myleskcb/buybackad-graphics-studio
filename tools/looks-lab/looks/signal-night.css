@@ -1,0 +1,21 @@
+/* @include signal.css */
+/* the sign at night: black field, yellow type */
+:root[data-theme][data-finish='counter'][data-lab='signal-night']{
+  .hero{background:#111}
+  .hero-copy{color:#f5f5f0}
+  .hero h1{color:var(--yellow)}
+  .hero h1 em{background:var(--yellow);color:#111}
+  .hero p{color:#ecece5}
+  .hero-note{color:#b9b9b0}
+  .hero-eyebrow{color:#f5f5f0}
+  .hero-eyebrow::before{background:var(--yellow)}
+  .hero .btn-primary{background:var(--yellow);border-color:var(--yellow);color:#111}
+  .hero .btn-outline{border-color:#f5f5f0;color:#f5f5f0}
+  .hero .btn-outline:hover{background:#f5f5f0;color:#111}
+  .hero .btn-ghost{color:#f5f5f0}
+  .lp-nav{border-bottom:1px solid rgba(255,255,255,.2)}
+  .lp-stats{background:var(--yellow)}
+  .stat b,.stat-lead b{color:#111}
+  .stat span{color:#111}
+  .wall-card,.wall-card:nth-child(n){box-shadow:none}
+}

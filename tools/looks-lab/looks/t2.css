@@ -1,0 +1,2 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap');
+:root[data-theme][data-skin='poster'][data-lab='t2']{--display:'Instrument Sans',sans-serif;.hero h1{font-weight:650;font-stretch:80%;letter-spacing:-.014em;word-spacing:0;font-size:clamp(40px,5.2vw,72px);line-height:1}.logo{font-family:var(--display);font-stretch:80%;font-weight:700;font-size:20px}}

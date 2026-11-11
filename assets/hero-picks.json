@@ -1,5 +1,5 @@
 {
-  "note": "Hand-picked hero cards, chosen in the hero picker (node scripts/build_hero_picker.mjs, then open tools/hero-picker/index.html from a checkout). Entries may be a SKU (CHK-JW07-16) or a card id (checklistHero-jw07-16). Order is the order they appear. An empty list means the wall picks for itself: measured colourfulness, one palette per card, a product in every one.",
+  "note": "Hand-picked hero cards, chosen in the hero picker (node scripts/build_hero_picker.mjs, then open tools/hero-picker/index.html from a checkout). Entries may be a SKU (CHK-JW07-16) or a card id (checklistHero-jw07-16). Order is the order they appear. An empty list means the wall picks for itself: measured colourfulness, one palette per card, a product in every one. \"never\" names cards that stay in the library and are kept off the wall whatever the mix asks for: a SKU, a card id, or an offer card's template id (app.js, scOffWall).",
   "picks": [
     "SCR-NN04-20",
     "STP-NN01-20",
@@ -18,5 +18,8 @@
     "LOW-DU07-30",
     "CHK-PP02-20",
     "LOW-JW07-20"
+  ],
+  "never": [
+    "of_ipad_list_sand"
   ]
 }

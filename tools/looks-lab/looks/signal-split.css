@@ -1,0 +1,7 @@
+/* @include signal.css */
+/* split: the words on yellow, the ads on black */
+:root[data-theme][data-finish='counter'][data-lab='signal-split']{
+  .wall-card,.wall-card:nth-child(n){box-shadow:none}
+  @media (min-width:901px){.hero-wall{box-shadow:0 0 0 100vmax #111;clip-path:inset(-100vmax -100vmax -100vmax -24px)}}
+  @media (max-width:900px){.hero-wall{box-shadow:0 0 0 100vmax #111;clip-path:inset(-13px -100vmax -100vmax -100vmax)}}
+}

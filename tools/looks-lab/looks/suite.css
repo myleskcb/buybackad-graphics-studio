@@ -1,0 +1,33 @@
+/* @include family.css */
+/* SUITE: the family grammar on hue-free graphite, with Graphics Studio's own slab colour. */
+:root[data-theme][data-finish='counter'][data-lab='suite']{
+  --block:#FF5A1F;--on-block:#141414;--on-block-muted:rgba(20,20,20,.72);--dot:#FF5A1F;--control:#767676;
+  --ink:#141414;--paper:#F3F3F3;--stamp:#FF5A1F;
+  --field:#F3F3F3;
+  --glass-edge:rgba(20,20,20,.14);
+  --surface-solid:#ffffff;--surface-raise:#ECECEC;--surface-sunk:rgba(20,20,20,.05);--surface3:#E1E1E1;
+  --text:#141414;--text-2:#4A4A4A;--text-dim:#666666;
+  --hairline:rgba(20,20,20,.10);--hairline-strong:rgba(20,20,20,.22);
+  --accent:#FF5A1F;--accent-ink:#141414;--accent-wash:rgba(255,90,31,.10);--accent-deep:#F04A10;--accent-soft:#FFE0D3;
+  --accent-rgb:255,90,31;--accent2-rgb:255,90,31;--ring:#141414;--ring-rgb:20,20,20;
+  --brand-1:#FF5A1F;--brand-2:#141414;--brand-rgb:255,90,31;
+  --good:#1d6b45;--crop:rgba(20,20,20,.5);
+  --stage-1:#ECECEC;--stage-2:#E1E1E1;
+  .chip.on{background:var(--text);color:var(--field);border-color:var(--text)}
+  .lp-cta-inner h2,.lp-cta-inner p{color:#141414}
+  .lp-cta-inner .btn-primary{background:#141414;border-color:#141414;color:#fff}
+  .lp-cta-inner .btn-outline{color:#141414;border-color:rgba(20,20,20,.6)}
+}
+:root[data-theme='dark'][data-finish='counter'][data-lab='suite']{
+  --control:#8a8a8a;
+  --ink:#0F0F0F;--paper:#0F0F0F;
+  --field:#0F0F0F;
+  --glass-bg:#191919;--glass-bg-strong:#191919;--glass-edge:rgba(255,255,255,.14);
+  --surface-solid:#191919;--surface-raise:#222222;--surface-sunk:rgba(255,255,255,.06);--surface3:#2c2c2c;
+  --text:#F4F4F4;--text-2:#B0B0B0;--text-dim:#8e8e8e;
+  --hairline:rgba(255,255,255,.10);--hairline-strong:rgba(255,255,255,.20);
+  --accent:#FF6A33;--accent-ink:#141414;--accent-deep:#FF7C4A;--accent-soft:#3a1d10;
+  --ring:#F4F4F4;--ring-rgb:244,244,244;
+  --stage-1:#191919;--stage-2:#0F0F0F;
+  .lp-ticker-band{background:#191919}
+}
