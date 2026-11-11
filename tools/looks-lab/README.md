@@ -60,10 +60,13 @@ format but square.
 `card-prototypes/cards.cjs` repaints the gold and the coins Steps Flow cards
 at runtime to the owner's notes of 2026-11-11 (the notes and the measurements
 are at the top of the file). Prototypes only: the records are not changed. To
-make them real, the gold card needs its number placed by the engine with even
-margins in the band (today it is set 9px above the band's top edge), and the
-coins card needs its three plates set to one scheme in its record, in a way the
-one-colour pass (rule 95) accepts.
+make the gold card real, its number has to be placed by the engine with even
+margins in the band (today it is set 9px above the band's top edge).
+
+The coins card IS built (2026-11-11): the owner chose "party colors", "the
+pattern fill" and "color accents". `scripts/party_coins_steps.mjs` writes its
+record, and `partyPlate` at the end of `app.js` paints the green plate's $
+lattice and confetti as the plate's own fill.
 
 ## The headline lock
 
