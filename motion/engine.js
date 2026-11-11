@@ -3362,7 +3362,7 @@ export class Ad {
     const items = pointsOf(this.st);
     if (!items.length || !this.phones.length || !this.pos || !this.num) return;
     const W = this.W, H = this.H, size = this.size, pos = this.pos, o = pos.outer;
-    const labH = this.num.label ? this.num.label.height + size * .06 : 0;
+    const labH = this.num.label ? this.num.label.height + size * LABEL_GAP : 0;
     const nb = [pos.num[0], pos.num[1] - labH, pos.num[0] + this.num.c.width, pos.num[1] + this.num.c.height];
     const pad = size * .1, grow = b => [b[0] - pad, b[1] - pad, b[2] + pad, b[3] + pad];
     const fixed = [this.boardDef && pos.board ? [o[0], o[1] - size * .5, o[2], o[3]] : o, nb];

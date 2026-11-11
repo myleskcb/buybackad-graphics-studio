@@ -636,8 +636,9 @@ function shelfStyle(shelf, seed) {
    enough variations and styles that one may get to them"). Six ads from the customer's number,
    phones and area that do not repeat each other: each an angle of its own (the words, from the
    maker's approved copy only) and an opening of its own, and no two sharing a type pair, a
-   palette or a look; each the strongest of the seeds tried by the attention audit. */
-const ANGLES = [
+   palette or a look; each the strongest of the seeds tried by the attention audit.
+   SET_ANGLES, not ANGLES: the listing maker's angles (listing.js) carry that name on this page. */
+const SET_ANGLES = [
   { id: "question", label: "Question", hook: "hook_line", en: { hook_text: "STILL GOT YOUR OLD IPHONE?", headline: "WE BUY IPHONES" }, es: { hook_text: "¿TIENES UN IPHONE QUE YA NO USAS?", headline: "COMPRAMOS IPHONES" } },
   { id: "strike", label: "Strike-out", hook: "strike_out", es2: true, en: { headline: "LOCAL IPHONE BUYERS" }, es: { headline: "TE COMPRAMOS TU IPHONE" } },
   { id: "money", label: "Money", hook: "word_beat", en: { hook_text: "OLD PHONE IN A DRAWER?", headline: "TURN YOUR PHONE INTO CASH" }, es: { hook_text: "¿IPHONE VIEJO EN EL CAJÓN?", headline: "CAMBIA TU IPHONE POR EFECTIVO" } },
@@ -664,7 +665,7 @@ async function makeAdSet() {
   const lookOf = st => (VIBES[st.vibe] && (VIBES[st.vibe].family || st.vibe)) || st.background;
   let n = 0;
   try {
-    for (const angle of ANGLES) {
+    for (const angle of SET_ANGLES) {
       const lang = mode === "es" ? "es" : mode === "en" ? "en" : angle.es2 ? "es" : "en";
       let best = null;
       for (let tries = 0; tries < 10; tries++) {
@@ -682,7 +683,7 @@ async function makeAdSet() {
       used.pair.add(best.st.type_pair); used.palette.add(best.st.palette); used.look.add(lookOf(best.st));
       const b = await thumb(best.st, Math.round(W * k), Math.round(H * k), false);
       b.querySelector(".mo-cap b").textContent = `${angle.label} · ${lookName(best.st)}`;
-      grid.appendChild(b); count.textContent = `${++n} of ${ANGLES.length}`;
+      grid.appendChild(b); count.textContent = `${++n} of ${SET_ANGLES.length}`;
       await new Promise(r => setTimeout(r, 0));
     }
     count.textContent = `${n} ads, no two alike`;

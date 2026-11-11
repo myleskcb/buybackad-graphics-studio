@@ -3134,7 +3134,7 @@ Open:
    across every category; the phone and device ones want TEXT US NOW / TEXT
    YOUR IMEI, the gold, coin, card and car ones need their photos.
 
-## AY. 2026-11-03 — the area dialog: the pills work, and it edits what prints
+## BA. 2026-11-03 — the area dialog: the pills work, and it edits what prints
 
 Owner, on the "Where do you buy?" dialog: "these buttons do nothing, i can't
 configure anything". Its three rows of pills were `<span>`s, the first in
@@ -3165,7 +3165,7 @@ size (04101 had come to 1.66 x).
 CSP and reads back what the cards print (42 checks); `--measure` re-takes the
 meter's marks. `FABRIC_JS=/path/fabric.min.js` where cdnjs is unreachable.
 
-## AY. 2026-11-11 — the flow audit, and five explainer videos
+## BB. 2026-11-11 — the flow audit, and five explainer videos
 
 `docs/FLOW-AUDIT-2026-11-11.md`: the live path walked at 1440 and 390 wide,
 the three kinds of ad, the listing words, the plans beside reselling.us's.
