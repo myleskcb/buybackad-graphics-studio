@@ -31,6 +31,30 @@ The sheets use CSS nesting and pull their faces from Google Fonts. Both are
 fine for a preview and neither should ship: flatten the rules and vendor the
 fonts into `assets/fonts` when a look is built in.
 
+## The Cash Buyer ad
+
+`ad-prototype/` redraws the first ad in Easy Mode (`top_buyer`) at runtime, to
+the owner's notes of 2026-11-11, without touching `app.js`. `make.cjs` says how
+to run it and what each version is; `page-helpers.js` holds the new `$` ground,
+the subline fix and the contrast measurement (each line's fill against the
+pixels behind it).
+
+What it found, for whoever builds it in:
+
+- The grey ground is `placeholderBgImage` (app.js ~9913): the photo is shown as
+  a grey blur until a background is picked.
+- The title is forced white by the `top_buyer` row of `COLOUR_FIX` (~1791).
+- The headline is authored white; `colourTheory` (~8882) makes it orange and
+  `inkVsWash` (~8465, via `liftInk`) lifts it to peach. A change to the spec at
+  line 83 alone does not survive these passes: an authored neon orange comes
+  out pale. The card needs an opt-out there, and that pass runs on every classic.
+- The subline's panel is sized by `bodyPanel` (~8695) before `alignPass`
+  shrinks the type, so the type ends up small in a wide box.
+- Versions A, B and C go against rules 8, 95 and 122. D and E do not.
+
+Not run on any version: the colour-vision pass (rule 43), `pgCheck`, any
+format but square.
+
 ## The headline lock
 
 The owner, on the capitals: "clearly we should have text you first all in one
