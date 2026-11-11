@@ -238,8 +238,8 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
   ok(said === '' || /^[A-Z]/.test(said), 'a very long headline is drawn, and anything it cost is said plainly (' + JSON.stringify(said.slice(0, 90)) + ')');
   await page.fill('#f-headline', 'SELL YOUR IPHONE'); await page.waitForTimeout(900);
   // a colour picked by hand holds; Any look and back
-  await page.click('#full-colours [data-colour="emerald"]'); await page.waitForTimeout(900);
-  ok(await page.evaluate(() => document.querySelector('#full-colours [data-colour="emerald"]').getAttribute('aria-checked')) === 'true', 'a colour picked by hand is marked');
+  await page.click('#full-colours [data-colour="green_gold"]'); await page.waitForTimeout(900);
+  ok(await page.evaluate(() => document.querySelector('#full-colours [data-colour="green_gold"]').getAttribute('aria-checked')) === 'true', 'a colour picked by hand is marked');
   await page.click('#mode [data-full="0"]'); await page.waitForTimeout(1500);
   ok(await page.evaluate(() => document.getElementById('main').dataset.full) === '0' && !(await shown('f-claim')) && await page.evaluate(() => document.querySelector('#design select[data-key="text_fx"]').closest('details').getClientRects().length > 0), 'Any look puts the full ad\'s fields away and brings the looks back');
   await page.click('#mode [data-full="1"]'); await page.waitForTimeout(1200);

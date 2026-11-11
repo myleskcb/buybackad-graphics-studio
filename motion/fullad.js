@@ -18,6 +18,7 @@ import { Ad, inkSprite, splitLines, trim, canvas, lum, prog, outBack, rng, clamp
 import { FONTS, PALETTES, DEFAULT_STYLE } from "./catalog.js";
 import { drawChevrons } from "./decor.js";
 import { placeAccents, timeAccents } from "./accents.js";
+import { HOUSE_COLOURS } from "./house-colours.js";
 
 // Proportions of the frame's width. 1080 x .052 = 56px, x .044 = 48px, x .032 = 35px.
 // edge: nothing nearer the frame's edge than 38px; gap: no two stacked blocks nearer than 22px.
@@ -292,8 +293,13 @@ export const HOUSE = { font: "chivo", text_fx: "double_outline", case: "upper", 
 export const QUIET = { decor: [], urgency: "none", overlay: "none", accents: 0, board: "none", number_pos: "bottom-center", number_format: "parens",
   camera: "still", shake: 0, sparkles: false, text_in: "slide", pose: "flat", end_face: "back", phone_idle: "breathe", grade: "none", depth: "none",
   text_scale: 1, number_scale: 1, tracking: 0, skew: 0, hook: "none", season: "none", phone_finish: "standard", transition: "none", ...HOUSE };
-export const COLOURWAYS = ["graphite", "ink_blue", "black_gold", "money_green", "oxblood", "klein", "midnight_glass", "cream_black",
-  "sapphire", "emerald", "ruby", "carbon", "midnight_teal", "royal", "noir", "midnight"];
+/* The full ad's colours are the photo ads' twelve proven pairs (DESIGN-LAW 123: one colour
+   vocabulary), by the same names and the same colours as Easy Mode's themes: house-colours.js is
+   made from app.js COLOR_THEMES by scripts/build_house_colours.mjs. (It first drew from sixteen of
+   the video maker's own palettes, so "Navy & Gold" was two navies and two golds.) The iPhones LA
+   feed stills keep their own list (tools/feed-stills/render.mjs). */
+export const COLOURWAYS = HOUSE_COLOURS.map(c => c.key);
+export const COLOUR_OF = Object.fromEntries(HOUSE_COLOURS.map(c => [c.key, c]));
 export const GROUNDS = ["radial", "spotlight", "studio_sweep", "tonal", "spot_floor", "linear"];
 export const ARRANGEMENTS = ["lineup", "fan", "showcase", "podium", "wings"];
 export const ICONS = ["cash", "money", "deal", "local", "trust"];
@@ -778,7 +784,10 @@ export class FullAd extends Ad {
 export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const r = rng((seed >>> 0) * 7 + 11), one = a => a[Math.floor(r() * a.length) % a.length];
   const es = st.lang === "es";
-  const look = { palette: one(COLOURWAYS), background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...pick };
+  // the colours: one of the twelve by the seed, or the one picked; carried as the palette's own
+  // colours (the engine's pal() lays st.colors over the palette named), so the catalogue is not touched
+  const first = one(COLOURWAYS), key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, ...picked } = pick;
+  const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...picked };
   const area = (st.area || "").trim();
   const words = {
     feed_claim: st.feed_claim ?? one(FULL_WORDS.claim),

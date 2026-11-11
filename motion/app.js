@@ -2,7 +2,7 @@
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES } from "./catalog.js";
 import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf, lotInto } from "./engine.js";
-import { FullAd, fullStyle, fullBlockers, loadSubjectSet, COLOURWAYS } from "./fullad.js";
+import { FullAd, fullStyle, fullBlockers, loadSubjectSet, COLOURWAYS, COLOUR_OF } from "./fullad.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
@@ -297,10 +297,7 @@ function stopAudio() { if (state.audioSrc) { try { state.audioSrc.stop(); } catc
 
 // the full ad's fields: [input, key in the style, longest]
 const FULL_FIELDS = [["f-claim", "feed_claim", 44], ["f-towns", "feed_where", 60], ["f-site", "site", 40], ["f-burst", "feed_burst", 14]];
-const COLOUR_NAMES = { graphite: "Charcoal & green", ink_blue: "Navy & gold", black_gold: "Black & gold", money_green: "Green & gold", oxblood: "Burgundy & cream",
-  klein: "Blue & yellow", midnight_glass: "Midnight & sky", cream_black: "Cream & black", sapphire: "Sapphire & sky", emerald: "Emerald & gold", ruby: "Ruby & gold",
-  carbon: "Black & orange", midnight_teal: "Teal & mint", royal: "Indigo & amber", noir: "Black & pink", midnight: "Midnight & yellow" };
-const fullName = st => COLOUR_NAMES[st.palette] || lookName(st);
+const fullName = st => (COLOUR_OF[st.full_colour] || {}).name || lookName(st);   // the pair's name, the same as Easy Mode's theme
 
 /** What the ad can be about, into its picker: iPhones first (the maker's own), then the offer family's lines by group. */
 function fillSubjects() {
@@ -335,7 +332,7 @@ function syncFull(ad) {
 
 function buildPanel() {
   $("full-colours").innerHTML = `<button role="radio" data-colour="" aria-checked="true" title="The colours change with New look">Any</button>`
-    + COLOURWAYS.map(k => { const p = PALETTES[k]; return `<button role="radio" data-colour="${k}" aria-checked="false" title="${COLOUR_NAMES[k] || k}" aria-label="${COLOUR_NAMES[k] || k}" style="--c1:${p.ground};--c2:${p.accent}"></button>`; }).join("");
+    + COLOURWAYS.map(k => { const c = COLOUR_OF[k]; return `<button role="radio" data-colour="${k}" aria-checked="false" title="${c.name}" aria-label="${c.name}" style="--c1:${c.colors.ground};--c2:${c.colors.accent}"></button>`; }).join("");
   $("f-subject").addEventListener("change", e => {
     // words typed a moment ago are still waiting on their pause: keep them (the fields are filled again below)
     if ($("f-number").value.trim()) state.style.number = $("f-number").value;
@@ -841,7 +838,7 @@ async function thumb(st, w, h, lock) {
   ad.stillAt(ctx);
   frame.appendChild(c); b.appendChild(frame);
   const name = st.full ? fullName(st) : lookName(st), font = st.full ? "Full ad" : TYPE_VOICES[st.type_pair] ? TYPE_VOICES[st.type_pair].name + " type" : labelFor("font", st.font);
-  if (window.adLibrary) frame.appendChild(window.adLibrary.star("motion-" + st.seed, { name, save: () => saveLook(st.full ? { ...state.style, seed: st.seed, full_palette: st.palette } : { ...st, number: state.style.number, phones: state.style.phones }) }));
+  if (window.adLibrary) frame.appendChild(window.adLibrary.star("motion-" + st.seed, { name, save: () => saveLook(st.full ? { ...state.style, seed: st.seed, full_palette: st.full_colour } : { ...st, number: state.style.number, phones: state.style.phones }) }));
   b.insertAdjacentHTML("beforeend", `<span class="mo-cap"><b>${name}</b><small>${font}${st.full ? "" : " · " + labelFor("hook", st.hook)}</small></span>`);
   b.setAttribute("aria-label", `Use this look: ${name}, ${font}`);
   const th = { el: b, st, w, h, ad: keepAds() ? ad : null, ctx, t0: 0, lastT: 0, last: 0, hover: false, seen: false, moving: false };
@@ -851,7 +848,7 @@ async function thumb(st, w, h, lock) {
   b.addEventListener("focus", () => hover(true)); b.addEventListener("blur", () => hover(false));
   b.addEventListener("click", () => {
     pushHistory();
-    if (st.full) { state.style = { ...state.style, seed: st.seed, full_palette: st.palette }; save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }   // a full ad's look is its number and its colours
+    if (st.full) { state.style = { ...state.style, seed: st.seed, full_palette: st.full_colour }; save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }   // a full ad's look is its number and its colours
     state.style = { ...st, number: state.style.number, phones: state.style.phones };
     if (lock) { state.locked.add("vibe"); VIBE_AXES.forEach(a => state.locked.delete(a)); }   // New look stays in the shelf browsed
     save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" });
