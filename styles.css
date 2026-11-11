@@ -1028,10 +1028,16 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 }
 .ez-tpl{flex:none;width:132px;cursor:pointer;background:none;border:none;padding:0;scroll-snap-align:start;text-align:center;position:relative}
 .ez-tpl img{width:132px;height:132px;border-radius:var(--r-lg);display:block;border:3px solid transparent;transition:border-color .15s,transform .15s,box-shadow .15s;object-fit:cover}
-.ez-tpl span{display:block;font:600 11px/1.2 var(--ui);color:var(--text-dim);margin-top:6px}
+.ez-tpl .tpl-name{display:block;font:600 11px/1.2 var(--ui);color:var(--text-dim);margin-top:6px}
 .ez-tpl:hover img{transform:translateY(-2px);box-shadow:var(--lift-2)}
-.ez-tpl.sel img{border-color:var(--accent);box-shadow:var(--glow-accent)}
-.ez-tpl.sel span{color:var(--text)}
+/* ONE selection mark: the thumbnail's own rounded border (owner, 2026-11-03:
+   "what is this double highlighting"). The button also wore a ring 2px off
+   it, square in Chrome, round in Safari, plus a glow; three marks for one
+   state. Keyboard focus keeps its own :focus-visible ring. */
+.ez-tpl.sel img{border-color:var(--accent);box-shadow:none}
+.ez-tpl.sel .tpl-name{color:var(--text)}
+/* a locked card says PRO in its caption: the art stays readable */
+.ez-tpl .tpl-pro{display:inline-block;vertical-align:1px;margin-right:5px;padding:2px 5px 2px;border-radius:4px;font:700 8.5px/1 var(--ui);letter-spacing:.08em;color:var(--text);background:var(--surface-raise);border:1px solid var(--hairline-strong)}
 .ez-main{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:26px;align-items:start}
 .ez-card{
   background:var(--glass-bg);
@@ -1354,7 +1360,6 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 /* premium template locks */
 .tpl-lock{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.72);color:var(--warn);font:700 9.5px/1 var(--ui);letter-spacing:.06em;padding:5px 8px;border-radius:var(--r-pill);pointer-events:none;z-index:3}
 .ez-tpl{position:relative}
-.ez-tpl .tpl-lock{top:6px;left:6px}
 .ez-tpl.locked img{filter:grayscale(.35) brightness(.72)}
 .ez-tpl.locked:hover img{filter:grayscale(.15) brightness(.85)}
 .tpl-card.locked img{filter:grayscale(.35) brightness(.7)}
@@ -1867,7 +1872,6 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .look-swatch.on{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--ring)}
 .lp-price-card.hot{box-shadow:var(--glass-shadow),0 0 0 2px var(--ring),0 18px 50px -20px rgba(var(--accent-rgb),.5)}
 .hero-eyebrow{border-color:rgba(var(--ring-rgb),.45)}
-.ez-tpl.sel{outline:2px solid var(--ring);outline-offset:2px}
 .look-dot{background:linear-gradient(135deg,var(--accent) 0 55%,var(--ring) 55% 100%)}
 .stat-lead b{color:var(--accent)}
 .lp-kicker::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ring);margin-right:8px;vertical-align:1px}
@@ -1917,9 +1921,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   background:rgba(0,0,0,.62);border:1px solid rgba(255,255,255,.35);display:grid;place-items:center;font-size:22px;box-shadow:0 8px 24px -8px rgba(0,0,0,.7)}
 .wall-card .pro-guard::after{width:40px;height:40px;font-size:16px}
 .ez-tpl.locked{position:relative}
-.ez-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+.ez-tpl.locked::after{content:'';position:absolute;top:0;left:0;right:0;height:132px;pointer-events:none;border-radius:var(--r-lg);
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>");
   background-size:120px 120px;mix-blend-mode:overlay}
+@media (max-width:480px){.ez-tpl.locked::after{height:104px}}
 .flow-step .btn{margin-top:16px}
 
 /* locked mini cards in the editor's left panel and its picker */
@@ -2372,7 +2377,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='poster'] .lpf-brand p{font-size:15px;color:var(--text-2)}
 :root[data-skin='poster'] .lpf-base{font-size:13.5px;color:var(--text-2)}
 /* Easy Mode */
-:root[data-skin='poster'] .ez-tpl span{font-size:13px;line-height:1.25}
+:root[data-skin='poster'] .ez-tpl .tpl-name{font-size:13px;line-height:1.25}
 :root[data-skin='poster'] .tpl-lock{font-size:11px;background:#141414;color:#fff;border:1.5px solid #141414;opacity:1}
 :root[data-skin='poster'] .tpl-card .tpl-lockpill{font-size:12px}
 :root[data-skin='poster'] .ez-field label,
@@ -2398,6 +2403,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='poster'] .ez-tagstyle{font-size:12.5px}
 :root[data-skin='poster'] .ez-theme.orig,
 :root[data-skin='poster'] .ez-sw.orig{font-size:10.5px}
+/* "Original", not "ORIG" (2026-11-03): the word, so the chip grows for it */
+.ez-theme.orig,.ed-themes .ez-theme.orig{width:auto;min-width:52px;padding:0 10px}
 /* the designer */
 :root[data-skin='poster'] .panel-tabs button{font-size:13.5px}
 :root[data-skin='poster'] .psec-title{font-size:12.5px;letter-spacing:.06em;color:var(--text-2)}

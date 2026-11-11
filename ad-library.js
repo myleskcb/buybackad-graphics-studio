@@ -188,6 +188,19 @@
     : 'Not for iPhones LA: it shows ' + h + '.';
 
   // ---------- the server ----------
+  /* Owner, 2026-11-03, auditing the picker for customers: the ★ on every
+     card, Save to library, ⭐🎬, the History ⭐ and the "save it" card after
+     each download were all still shown to every account. A customer pressed
+     a star with no label, spent a download, and saved into a library only
+     the owner can open, told it "goes to iPhones LA". Since 2026-10-11 the
+     library is the owner's ("only accessible to my account"), so now every
+     way into it is too: OWNER_CSS hides them, and nothing here offers a
+     save to anyone else. */
+  function owner(){
+    if (app.admin()) return true;
+    const a = app.account();
+    return !!a && a.role === 'admin';
+  }
   function ready(){
     if (app.demo()) return 'The ad library keeps your ads on the server, so it works on the hosted site, not in demo mode.';
     if (!app.account()) return 'signin';
@@ -606,7 +619,6 @@
 .tpl-card.adl-has .tpl-lockpill{left:48px}
 .tpl-card .adl-star{top:12px;left:12px}
 .ez-tpl .adl-star{top:6px;right:6px;left:auto;width:26px;height:26px;line-height:26px;font-size:13px}
-.ez-tpl .tpl-lock{left:6px}
 .mini-tpl .adl-star{top:5px;left:5px;width:22px;height:22px;line-height:22px;font-size:11px;opacity:0}
 .mini-tpl:hover .adl-star,.mini-tpl .adl-star.on,.mini-tpl .adl-star:focus-visible,.mini-tpl .adl-star.busy{opacity:1}
 .adl-starrow{display:flex;gap:8px;margin-top:10px}
@@ -614,6 +626,13 @@
 .adl-starrow .ez-open-adv.on{border-style:solid;border-color:#ffd200;color:var(--text)}
 .hist-row .adl-hist{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:999px;font:600 11.5px/1 var(--ui);padding:9px 11px;cursor:pointer;flex:none;margin-right:8px}
 .hist-row .adl-hist:hover{border-color:#ffd200;color:#ffd200}
+`;
+  /* every way into the library is the owner's (see buttons()). Hidden until
+     the account is known to be an operator's, so a customer never sees a ★
+     flash in and out. */
+  const OWNER_CSS = `
+html:not(.adl-owner) .adl-star,html:not(.adl-owner) .adl-starrow,html:not(.adl-owner) #ex-star,html:not(.adl-owner) #ex-star-video,
+html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner) .adl-ask{display:none!important}
 `;
   const BARE_CSS = `
 .adl-bare #adlib-overlay{position:fixed;inset:0;z-index:460;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(10,10,14,.6);backdrop-filter:blur(6px)}
@@ -645,7 +664,7 @@
   }
   function style(){
     if (styled) return;
-    const st = el('style'); st.textContent = CSS + (app.here() ? '' : BARE_CSS);
+    const st = el('style'); st.textContent = CSS + OWNER_CSS + (app.here() ? '' : BARE_CSS);
     (document.head || document.body).appendChild(st);
     if (!app.here()) document.documentElement.classList.add('adl-bare');
     styled = true;
@@ -719,7 +738,8 @@
     style();
     wrap('scCard', (card, a) => { const c = a[0]; if (card && c) decorate(card, 'sc-' + c.id, { name: c.name }); });
     wrap('scClassicCard', (card, a) => { const t = a[0]; if (card && t) decorate(card, t.id, { name: t.name }); });
-    wrap('buildEzStrip', () => document.querySelectorAll('#ez-strip .ez-tpl[data-tpl]').forEach(b => decorate(b, b.dataset.tpl, { name: (b.querySelector('span:last-child') || {}).textContent })));
+    const tplName = id => { try { return (TEMPLATES.find(t => t.id === id) || {}).name; } catch (e){ return undefined; } };
+    wrap('buildEzStrip', () => document.querySelectorAll('#ez-strip .ez-tpl[data-tpl]').forEach(b => decorate(b, b.dataset.tpl, { name: tplName(b.dataset.tpl) })));
     wrap('buildPickerGrid', (r, a) => {
       let f = a[0]; try { if (f === undefined) f = currentFilter; } catch (e){}
       if (f === 'mine') return;
@@ -982,11 +1002,12 @@
     // the history record addHistory just wrote, so "Recent downloads" can show it saved
     app.history().then(rs => { const r = rs.find(x => x.name === name && x.data === dataUrl); if (r) rec.id = r.id; });
     if (ready()) return;                  // signed out or demo: say nothing after every download
+    if (!owner()) return;                 // the library is the owner's
     if (autoOn()) enqueue(rec);
     else offer(rec);
   }
   function videoDownloaded(blob, name, photo){
-    if (!blob || ready()) return;
+    if (!blob || ready() || !owner()) return;
     const kind = (() => { try { return $('page-editor').classList.contains('active') ? 'adv' : 'ez'; } catch (e){ return 'ez'; } })();
     const rec = { blob, name, photo, proj: projectNow(kind), meta: { source: 'studio' }, video: studioVideoMeta(photo) };
     state.last = rec;
@@ -1040,9 +1061,9 @@
      studio, the account's onChange on the other pages. */
   const BUTTONS = ['nav-adlib', 'tb-adlib', 'am-adlib', 'lpam-adlib', 'mo-adlib', 'ml-adlib'];   // lpam-adlib: the landing's account menu (2026-10-07)
   function buttons(){
-    let on = app.admin();
-    if (!on){ const a = app.account(); on = !!a && a.role === 'admin'; }
+    const on = owner();
     BUTTONS.forEach(id => { const b = document.getElementById(id); if (b) b.style.display = on ? '' : 'none'; });
+    document.documentElement.classList.toggle('adl-owner', on);
   }
   function watchAccount(){
     const sync = window.syncAcctUI;
@@ -1072,6 +1093,7 @@
   hook();
   bind();
   watchAccount();
+  style();
   buttons();
   stars();
   /* what is saved already, so the stars show it; again after a sign-in */

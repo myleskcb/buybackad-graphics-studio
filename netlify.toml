@@ -365,6 +365,16 @@
   status = 404
   force = true
 
+# The function's source (2026-11-03). Deployed with --dir=. the folder was a
+# static file tree too: /netlify/functions/api.mjs downloaded the server's
+# code, its routes and the owner's address. The function itself answers at
+# /api/* (and /.netlify/functions/), which this does not touch.
+[[redirects]]
+  from = "/netlify/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
 [[headers]]
   for = "/vendor/*"
   [headers.values]
