@@ -57,3 +57,10 @@ footer.bottom .cat-grp{break-inside:avoid;padding:3px 0}
 footer.bottom .cat-sub{display:flex;gap:2px 12px;flex-wrap:wrap;margin:3px 0 2px;padding-left:10px;border-left:1px solid var(--line)}
 footer.bottom .cat-sub a{color:var(--muted);font-size:13px}
 footer.bottom span{color:var(--muted)}
+/* learn.html: the explainer videos, one beside its words (stacked on a phone) */
+.vids{margin:30px 0 8px}
+.vid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:22px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;margin:16px 0;scroll-margin-top:16px}
+.vid video{display:block;width:100%;height:auto;aspect-ratio:1;border-radius:12px;background:#141414}
+.vid h2{margin:0 0 8px}
+.vid p{margin:0 0 8px}
+@media (max-width:640px){.vid{grid-template-columns:1fr;gap:12px;padding:14px}}

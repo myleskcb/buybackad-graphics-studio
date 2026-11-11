@@ -176,6 +176,14 @@ production CSP and decodes the files), `scripts/motion_gallery.mjs` +
 exercised in this repo's test container (its Chromium has no H.264 encoder):
 export one clip from Chrome or Safari before announcing it.
 
+## Explainer videos
+`learn.html` shows five short videos about the product (what it is, how to
+make an ad, looking professional, asking an AI or picking a finished design,
+the price). They are drawn and rendered by `tools/explainers/` (its README has
+the commands); the files are `assets/explainers/*.mp4`. After changing a plan
+run `node tools/explainers/check.mjs`: the videos' numbers are held to
+`netlify/lib/plans.mjs`, and a number that moved means a render.
+
 ## Colour sets
 One vocabulary (DESIGN-LAW rule 123): the twelve colour sets the library's
 cards are made in (Navy & Gold, Navy & Orange, Midnight & Cyan, Blue & Green,
