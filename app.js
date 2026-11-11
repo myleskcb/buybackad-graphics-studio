@@ -11453,8 +11453,24 @@ function scLoadPicks(){
   if (SHOWCASE.picks) return Promise.resolve(SHOWCASE.picks);
   return fetch('assets/hero-picks.json', { cache:'no-cache' })
     .then(r => r.ok ? r.json() : null)
-    .then(j => (SHOWCASE.picks = (j && Array.isArray(j.picks)) ? j.picks : []))
+    .then(j => {
+      SHOWCASE.never = (j && Array.isArray(j.never)) ? j.never.map(k => String(k).trim().toUpperCase()) : [];
+      return (SHOWCASE.picks = (j && Array.isArray(j.picks)) ? j.picks : []);
+    })
     .catch(() => (SHOWCASE.picks = []));
+}
+/* KEPT OFF THE WALL. The owner, 2026-11-11, of the iPad "Studio list" offer
+   card on the home page: "This ad I'm not very proud of and I wouldn't put
+   this on the homepage." hero-picks.json's "never" names cards that stay in
+   the library and never take a slot on the wall: a SKU, a card id, or an
+   offer card's template id. Takes a showcase card, a template, or a wall item
+   ({ classic: template }). */
+function scOffWall(it){
+  const n = SHOWCASE.never || [];
+  if (!n.length || !it) return false;
+  const has = k => n.indexOf(String(k).toUpperCase()) !== -1;
+  if (it.classic) return has(it.classic.id);
+  return has(it.id) || (it.layout ? has(scSku(it)) : false);
 }
 function scPickedCards(cards){
   const want = SHOWCASE.picks || [];
@@ -11620,6 +11636,7 @@ function scBuildWall(cards){
   if (!wall) return;
   const cols = [...wall.querySelectorAll('.wall-col')];
   if (!cols.length) return;
+  cards = cards.filter(c => !scOffWall(c));   // the owner's "never on the home page" list (hero-picks.json)
   /* The wall is the first click anyone makes, and a first click that opens
      a paywall is a bad one (the old hero fan had the same rule): unlocked
      cards fill it, and only if there are too few do locked ones follow. */
@@ -11662,7 +11679,7 @@ function scBuildWall(cards){
     vivid.slice().sort((a, b) => (b.chroma - a.chroma) || (b.affinity - a.affinity))
       .forEach(c => { (seen.has(c.theme) ? again : fresh).push(c); seen.add(c.theme); });
     const free = list => list.filter(c => !scLocked(c)).concat(list.filter(c => scLocked(c)));
-    const offers = varietyOrder(scOfferPool());
+    const offers = varietyOrder(scOfferPool().filter(t => !scOffWall(t)));
     const offerItems = offers.filter(t => !tplLocked(t)).concat(offers.filter(t => tplLocked(t))).map(t => ({ classic:t }));
     picks = scMix(chosenByHand.concat(free(fresh), free(again), offerItems), want);
   } else {
