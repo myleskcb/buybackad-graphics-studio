@@ -3066,3 +3066,31 @@ Open:
    two entries in `CATS` and set their `cat`.
 2. **The studio's own chip order** (`CATS` in app.js, the 2026-10-02 order)
    was not changed; this list is the footer's and the pages'.
+
+## AY. 2026-11-11 — the flow audit, and five explainer videos
+
+`docs/FLOW-AUDIT-2026-11-11.md`: the live path walked at 1440 and 390 wide,
+the three kinds of ad, the listing words, the plans beside reselling.us's.
+Built: `tools/explainers/` and `learn.html` (five videos, `README.md` there).
+
+Open, in the audit's order:
+
+1. `buybackad-graphics-studio.netlify.app` serves a build from before
+   2026-10-08 (Pro at $15) and is the address in every canonical link, the
+   sitemap, README and AGENT-BRIEF. Redeploy it from `main` or retire it.
+2. Easy Mode on a phone: the preview is 3,087 px below the number field.
+3. First run: the area pop-up before any design; "No background selected" on
+   the default card, whose preview is not what downloads.
+4. The library is on the paid plans and its buttons are admin-only.
+5. No password reset or email confirmation, with billing on.
+6. Three top bars across landing, Easy Mode and the video maker; the card's
+   own video is not named anywhere "Video ads" leads.
+7. No listing words for customers ("Words for your post": one model to an
+   ad, a buying phrase, under 60 characters).
+8. The ad on a device's screen: a button beside Download and Create video,
+   on `drawFront`'s screen slot and `SCREENS`; the gate measuring the number
+   at the size it lands.
+9. reselling.us: a link each way, then one writer for listing words, then
+   the library feed for its poster.
+10. The explainers: story (9:16) cuts, a voiceover, Spanish, and an address
+    on the end card once one resolves.

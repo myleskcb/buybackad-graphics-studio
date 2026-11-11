@@ -621,6 +621,10 @@ Measured:
   Gallery v2: 26 clips (18 square, 6 at 3:4, 2 at 9:16), all pass.
 
 Learned:
+  - This repository is public. The first draft of the audit quoted the
+    owner's private repositories; the commit was stopped and those lines went
+    to the owner directly. Before writing a finding into `docs/`, ask where
+    it came from.
   - A straddle test cannot see a line that fills its plate: 97% inside is
     "inside". Air is its own measurement, and it has to be taken in the
     plate's frame and on ink.
@@ -4741,3 +4745,48 @@ RESUME HERE:
   0. `/social/` is the internal creative tool. See `docs/social-studio.md`.
      Custom campaign scheduling and social autoposting are separate work;
      no posting integration or schedule was added in this session.
+
+## 2026-11-11 — the flow walked end to end; five explainer videos (claude/vigilant-brown-sft14m)
+
+Asked: audit the flow and the continuity between picture ads, video ads and
+ads shown on a device's screen, with listing words that read as a single item;
+show the plans and how they connect to reselling.us; then video ads that
+explain the product, with the AI comparison and the price, "a no-brainer".
+
+Found (docs/FLOW-AUDIT-2026-11-11.md has the evidence and the order):
+  - buybackad-graphics-studio.netlify.app is a build from before 2026-10-08
+    and still sells Pro at $15; every canonical link points at it.
+    buybackad-finished-copy.netlify.app is `main`.
+  - At 390 wide the preview is 3,087 px below the number field.
+  - Two pop-ups before the first ad: the area, then "No background selected"
+    on the default card, whose preview is not its download.
+  - The library is sold on three plans and its door is admin-only.
+  - The ad on a device's screen is parts, not a product: a lit laptop screen
+    (own picture by hand), device walls, and a `screen` slot in the video
+    engine's `drawFront` that nothing fills.
+  - The studio writes no listing words; "single item" that works is one
+    model to an ad, said as a buyer.
+  - reselling.us and the studio share no plan, link or sign-in.
+
+Learned:
+  - A time printed by a walk script includes its own fixed waits. Two "load
+    times" in the first draft of the audit were mostly `waitForTimeout`;
+    they were taken out. Time a thing from the click to the element.
+  - A check of the product's address is a check of one host. The docs' host
+    answered 200 with last month's product; only its bytes against `main`'s
+    showed it.
+
+Built:
+  - tools/explainers/ (engine.js, videos.js, render.mjs, shots.mjs,
+    check.mjs): five square videos drawn frame by frame from the time alone,
+    on the poster look, with the studio's own screens and library renders.
+    assets/explainers/*.mp4 and posters; learn.html; a link from the
+    landing's workflow section, its footer, About and the sitemap.
+  - check.mjs holds the videos' numbers to netlify/lib/plans.mjs.
+
+Not on `main`: this branch only. The session may push to its own branch and
+nothing else; merge it to put learn.html and the videos on the site.
+
+RESUME HERE: the audit's section 8 is the order. Nothing in it is built
+except the videos. The end card prints no address until one resolves
+(`render.mjs --url`).

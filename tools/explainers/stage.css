@@ -1,0 +1,66 @@
+/* The explainer videos' stage: the studio's poster look (paper, ink outlines,
+   hard offset shadows, four signal colours, DESIGN-LAW rule 98) on a fixed
+   1080 square. Nothing here animates by itself: engine.js sets every moving
+   property from the time it is asked for, so a frame is the same picture
+   however often it is drawn. */
+@font-face{font-family:'Unbounded';src:url('../../assets/fonts/unbounded-var.woff2') format('woff2');font-weight:200 900}
+@font-face{font-family:'Clash Display';src:url('../../assets/fonts/clash-display-600.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Clash Display';src:url('../../assets/fonts/clash-display-700.woff2') format('woff2');font-weight:700}
+@font-face{font-family:'Satoshi';src:url('../../assets/fonts/satoshi-500.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Satoshi';src:url('../../assets/fonts/satoshi-700.woff2') format('woff2');font-weight:700}
+@font-face{font-family:'Satoshi';src:url('../../assets/fonts/satoshi-900.woff2') format('woff2');font-weight:900}
+@font-face{font-family:'DM Mono';src:url('../../assets/fonts/dm-mono-400.woff2') format('woff2');font-weight:400}
+:root{--ink:#141414;--paper:#f2eee4;--panel:#fffdf8;--blue:#2b56f5;--tomato:#ff4a2e;--gold:#ffc21a;--mint:#12b886}
+*{box-sizing:border-box}
+html,body{margin:0;background:#0b0b0b}
+body.live{display:grid;place-items:center;min-height:100vh}
+#stage{width:1080px;height:1080px;position:relative;overflow:hidden;background:var(--paper);color:var(--ink);font-family:Satoshi,system-ui,sans-serif;transform-origin:0 0}
+.scene{position:absolute;inset:0;overflow:hidden;display:none}
+.scene.dark{color:var(--paper)}
+.t{font-family:'Unbounded',sans-serif;font-weight:800;line-height:1.1;letter-spacing:-.025em;white-space:nowrap}
+.t.clash{font-family:'Clash Display',sans-serif;font-weight:700;letter-spacing:-.005em;line-height:1.08}
+.t.body{font-family:Satoshi,sans-serif;font-weight:700;letter-spacing:0;line-height:1.28;white-space:normal}
+.t.mono{font-family:'DM Mono',monospace;font-weight:400;letter-spacing:0}
+mark{background:linear-gradient(var(--gold),var(--gold)) no-repeat 0 58%/calc(var(--m,1)*100%) 82%;color:var(--ink);padding:0 .1em;margin:0 -.1em;border-radius:.08em}
+mark.w{background-image:linear-gradient(var(--panel),var(--panel))}
+.card{border:4px solid var(--ink);border-radius:26px;overflow:hidden;box-shadow:10px 10px 0 var(--ink);background:#fff}
+.card img{display:block;width:100%;height:100%;object-fit:cover}
+.card.top img{object-position:0 0}
+.dark .card,.card.lit{box-shadow:10px 10px 0 var(--gold)}
+.card.flat{box-shadow:none}
+.chip{font:700 32px/1 Satoshi,sans-serif;padding:14px 26px;border:3px solid var(--ink);border-radius:999px;background:var(--panel);color:var(--ink);box-shadow:5px 5px 0 var(--ink);white-space:nowrap}
+.dark .chip{box-shadow:5px 5px 0 rgba(0,0,0,.55)}
+.box{border:4px solid var(--ink);border-radius:26px;box-shadow:10px 10px 0 var(--ink);background:var(--panel);color:var(--ink)}
+.dark .box{box-shadow:10px 10px 0 rgba(0,0,0,.6)}
+.num{width:84px;height:84px;border-radius:50%;background:var(--gold);border:4px solid var(--ink);display:grid;place-items:center;font:800 40px 'Unbounded',sans-serif;flex:none}
+.row{display:flex;align-items:center;gap:28px;padding:0 34px}
+.row b{font:800 44px 'Unbounded',sans-serif;letter-spacing:-.02em}
+.row span{font:700 36px/1.2 Satoshi,sans-serif}
+.tap{border:7px solid var(--blue);border-radius:50%;pointer-events:none}
+/* the brand mark and the progress line, on every frame */
+#bug{position:absolute;left:44px;top:40px;display:flex;align-items:center;gap:14px;z-index:20;font:700 25px 'Clash Display',sans-serif;letter-spacing:.03em;color:var(--ink)}
+#bug i{width:42px;height:42px;border-radius:11px;border:3px solid var(--ink);background:conic-gradient(var(--tomato) 0 25%,var(--mint) 0 50%,var(--gold) 0 75%,var(--blue) 0);display:block}
+#bug em{font-style:normal;color:var(--blue)}
+#stage.dark #bug{color:var(--paper)}#stage.dark #bug em{color:var(--gold)}#stage.dark #bug i{border-color:var(--paper)}
+#bar{position:absolute;left:0;bottom:0;height:10px;width:100%;background:rgba(20,20,20,.14);z-index:20}
+#bar b{display:block;height:100%;background:var(--blue);width:0}
+#stage.dark #bar{background:rgba(242,238,228,.18)}#stage.dark #bar b{background:var(--gold)}
+/* a plain post, drawn: words typed over a photo in the phone's own font */
+.plain{background:linear-gradient(155deg,#8d8474,#5d564b 55%,#3f3a33);font-family:Arial,Helvetica,sans-serif;color:#ffe94d;position:relative}
+.plain u{position:absolute;left:31%;top:16%;width:38%;height:58%;border-radius:9%;background:linear-gradient(160deg,#2a2a2e,#101013);border:2px solid #47474d;text-decoration:none}
+.plain p{position:absolute;margin:0;left:6%;right:6%;text-align:center;font-weight:700;text-shadow:0 1px 2px #000}
+/* the phone a feed is read on */
+.phone{border:9px solid var(--ink);border-radius:58px;background:#fff;overflow:hidden;box-shadow:12px 12px 0 var(--ink)}
+.phone .bar{height:74px;background:#f1f1f3;border-bottom:2px solid #dedee3;display:flex;align-items:flex-end;padding:0 22px 12px;font:700 25px Satoshi,sans-serif;color:#444}
+.feed{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px}
+.feed>div{aspect-ratio:1;border-radius:14px;overflow:hidden;position:relative}
+.feed img{width:100%;height:100%;display:block;object-fit:cover}
+.shim{background:linear-gradient(120deg,#3a3a40,#55555e 45%,#3a3a40 55%,#2c2c31);border:4px solid var(--paper);border-radius:22px;display:grid;place-items:center;color:var(--paper);font:700 30px Satoshi,sans-serif}
+.badge{position:absolute;right:-16px;top:-16px;width:62px;height:62px;border-radius:50%;background:var(--tomato);border:4px solid var(--paper);display:grid;place-items:center;font:900 34px Satoshi,sans-serif;color:#fff}
+.col{padding:30px 34px}
+.col h4{margin:0 0 20px;font:700 38px 'Clash Display',sans-serif}
+.col p{margin:0 0 16px;font:700 32px/1.2 Satoshi,sans-serif;display:flex;gap:14px}
+.col p::before{content:'';flex:none;width:18px;height:18px;border-radius:50%;margin-top:11px;background:var(--tomato)}
+.col.good p::before{background:var(--mint)}
+.logo{border-radius:36px;border:6px solid var(--ink);background:conic-gradient(var(--tomato) 0 25%,var(--mint) 0 50%,var(--gold) 0 75%,var(--blue) 0);box-shadow:10px 10px 0 var(--ink)}
+.cta{font:700 44px/1 Satoshi,sans-serif;padding:26px 54px;border:4px solid var(--ink);border-radius:999px;background:var(--blue);color:#fff;box-shadow:8px 8px 0 var(--ink);white-space:nowrap}
