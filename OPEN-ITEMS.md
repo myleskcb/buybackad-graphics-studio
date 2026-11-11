@@ -3133,3 +3133,34 @@ Open:
    video maker only). app.js and the showcase cards carry about 100 photo asks
    across every category; the phone and device ones want TEXT US NOW / TEXT
    YOUR IMEI, the gold, coin, card and car ones need their photos.
+
+## AY. 2026-11-03 — the area dialog: the pills work, and it edits what prints
+
+Owner, on the "Where do you buy?" dialog: "these buttons do nothing, i can't
+configure anything". Its three rows of pills were `<span>`s, the first in
+each lit as if picked. The first row ("Service-area lines will mention") was
+the reviewer towns, which no card prints; nor does any card print the
+"LA & OC" region (both still swapped by `localizeText()` should a card carry
+them again). What prints is the service-area line: 127 cards carry
+`LONG BEACH · LAKEWOOD · DOWNEY · CARSON · TORRANCE`, 46 of them live in
+Easy Mode (28 panel feet, 15 info blocks, 3 items lines).
+
+The dialog is now that line's editor: the towns on it, numbered in order (tap
+one to take it off, drag it or use the arrow keys to move it), the nearby
+towns to tap on, "Add another town" (any town within 150 miles, with its
+distance), Reset to suggested, the line as it prints (or, when the card open
+in Easy Mode carries it, that card drawn with the draft and cropped to the
+line), and a length meter. Eight towns at most. "Not now" discards the edit;
+an area saved before this gets its nearby list on open.
+
+The meter's marks (`AREA_FIT` in app.js) are measured, not chosen: every live
+card keeps the line's size up to 1.20 x the library's own line, 7 to 9 cards
+lose 3-8% from 1.26 to 1.32, and from 1.35 the info blocks wrap to a third
+line and 19+ cards print it at 0.77. The suggestion now leads with the
+buyer's own town (a Long Beach ZIP had been getting a line without Long
+Beach), skips parts of a town already named, and is trimmed to fit at full
+size (04101 had come to 1.66 x).
+
+`node scripts/area_dialog_check.mjs` walks every control under the production
+CSP and reads back what the cards print (42 checks); `--measure` re-takes the
+meter's marks. `FABRIC_JS=/path/fabric.min.js` where cdnjs is unreachable.
