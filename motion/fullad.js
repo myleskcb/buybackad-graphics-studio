@@ -18,7 +18,7 @@ import { Ad, inkSprite, splitLines, trim, canvas, lum, prog, outBack, rng, clamp
 import { FONTS, FINE_FACES, PALETTES, DEFAULT_STYLE } from "./catalog.js";
 import { drawChevrons } from "./decor.js";
 import { placeAccents, timeAccents } from "./accents.js";
-import { HOUSE_COLOURS } from "./house-colours.js";
+import { HOUSE_COLOURS, LINES } from "./house-colours.js";
 
 // Proportions of the frame's width. 1080 x .052 = 56px, x .044 = 48px, x .032 = 35px.
 // edge: nothing nearer the frame's edge than 38px; gap: no two stacked blocks nearer than 22px.
@@ -285,6 +285,8 @@ export const FULL = {
   burst: .112, burstMin: .08,       // the sticker's radius
   icon: .085, iconMin: .055,
 };
+/** The chevrons' size and weight, farthest from the number first (_chevrons: never their opacity). */
+export const CHEVRON_STEP = [.7, .85, 1];
 
 /** The house style (tools/feed-stills/render.mjs HOUSE and QUIET, 2026-11-03): one face, capitals,
  *  the double outline, one accent word, the number in a pill, and everything in the maker that
@@ -328,14 +330,56 @@ export const FULL_WORDS = {
 const stems = s => new Set(String(s || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/[^A-Z0-9$]+/).filter(w => w.length >= 4 || w === "$$$").map(w => w.slice(0, 5)));
 export const sharesWord = (a, b) => { const B = stems(b); return [...stems(a)].some(w => B.has(w)); };
 
+/** A colour's OKLCH chroma and hue (DESIGN-LAW 40: colour is judged in OKLCH, never in sRGB). */
+export function oklchOf(hex) {
+  const f = v => { v /= 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
+  const [r, g, b] = [1, 3, 5].map(i => f(parseInt(String(hex).slice(i, i + 2), 16) || 0));
+  const l = Math.cbrt(.4122214708 * r + .5363325363 * g + .0514459929 * b), m = Math.cbrt(.2119034982 * r + .6806995451 * g + .1073969566 * b), s = Math.cbrt(.0883024619 * r + .2817188376 * g + .6299787005 * b);
+  const A = 1.9779984951 * l - 2.4285922050 * m + .4505937099 * s, B = .0259040371 * l + .7827717662 * m - .8086757660 * s;
+  return { L: .2104542553 * l + .793617785 * m - .0040720468 * s, C: Math.hypot(A, B), h: (Math.atan2(B, A) * 180 / Math.PI + 360) % 360 };
+}
+
+/* A WORD THAT NAMES A COLOUR IS DRAWN IN IT, OR NOT ACCENTED (rule 138). The accent goes to the
+   goods, so on a gold or silver ad it paints the metal's own name: before this, WE BUY GOLD drew
+   GOLD in cyan, green, red or blue on seven of the twelve pairs, and WE BUY SILVER drew SILVER in
+   gold, orange or yellow on seven. Gold is the gold-and-yellow band of rule 103's namedBand (hue
+   65 to 110, C .1 and up: Red & Yellow's #e5b800 is gold, Navy & Orange's #ff7a00 is not); silver
+   is a cool colour (hue 180 to 285: cyan, blue) or no colour at all. (The photo ads hold the same
+   line: pgHuePlan keeps gold among a card's two families when its headline says GOLD.) */
+const COLOUR_WORD = { GOLD: "gold", GOLDEN: "gold", ORO: "gold", SILVER: "silver", PLATA: "silver" };
+export function wordAgrees(word, hex) {
+  const named = COLOUR_WORD[String(word || "").toUpperCase().replace(/[^A-ZÁÉÍÓÚÑ]/g, "")];
+  if (!named || !hex) return true;
+  const { C, h } = oklchOf(hex);
+  return named === "gold" ? C >= .1 && h >= 65 && h < 110 : C < .04 || (h >= 180 && h < 285);
+}
+
 /** Which word of the headline wears the accent: the goods, else the money, else the verb, else the
- *  last word. ("UPGRADING? SELL YOUR OLD ONE" accented ONE, the one word that says nothing.) */
+ *  last word. ("UPGRADING? SELL YOUR OLD ONE" accented ONE, the one word that says nothing.) Given
+ *  the accent's colour, a word naming another colour is passed over: WE BUY GOLD on Black & Red
+ *  accents BUY, and GOLD stays in the ink. */
 const GOODS = /^(I?PHONES?|IPADS?|IMACS?|MACBOOKS?|WATCH(ES)?|GALAXY|PIXEL|FOLDABLES?|TABLETS?|CONSOLES?|SWITCH|CONTROLLERS?|LAPTOPS?|HEADSETS?|HANDHELDS?|PCS?|HEADPHONES|EARBUDS|SPEAKERS?|MONITORS?|SSDS?|CHROMEBOOKS?|GLASSES|SMARTWATCH(ES)?|GOLD|SILVER|COINS?|CARS?|TRUCKS?|STRIPS|CARDS?|CAMERAS?|DRONES?|CELULAR(ES)?|TEL[EÉ]FONOS?|ORO|PLATA|MONEDAS?|CARROS?)$/;
 const MONEY = /^(CASH|PAID|MONEY|DOLLAR|EFECTIVO|DINERO)$/, VERB = /^(SELL|BUY|TRADE|VENDE|COMPRAMOS)$/;
-export function accentWord(headline) {
+export function accentWord(headline, accent) {
   const ws = String(headline || "").toUpperCase().split(/\s+/).map(w => w.replace(/[^A-ZÁÉÍÓÚÑ0-9]/g, ""));
-  for (const re of [GOODS, MONEY, VERB]) { for (let i = ws.length - 1; i >= 0; i--) if (re.test(ws[i])) return i; }
+  const ok = i => wordAgrees(ws[i], accent);
+  for (const re of [GOODS, MONEY, VERB]) { for (let i = ws.length - 1; i >= 0; i--) if (re.test(ws[i]) && ok(i)) return i; }
+  for (let i = ws.length - 1; i >= 0; i--) if (ws[i] && ok(i)) return i;
   return ws.length - 1;
+}
+
+/** The pairs a seeded ad may be drawn in: those that suit its line (house-colours.js suits, from
+ *  the library's AFFINITY), and, when its headline names a colour, those whose accent is that
+ *  colour, so the accent can paint it. All twelve, in their order, for any other ad: a seed that
+ *  drew a pair before draws the same one. A pair picked by hand is never narrowed (fullStyle). */
+export function pairsFor(subject, headline) {
+  let keys = LINES.includes(subject) ? HOUSE_COLOURS.filter(c => (c.suits || []).includes(subject)).map(c => c.key) : COLOURWAYS;
+  const named = String(headline || "").toUpperCase().split(/\s+/).filter(w => COLOUR_WORD[w.replace(/[^A-ZÁÉÍÓÚÑ]/g, "")]);
+  if (named.length) {
+    const agree = keys.filter(k => named.some(w => wordAgrees(w, COLOUR_OF[k].colors.accent)));
+    if (agree.length) keys = agree;
+  }
+  return keys.length ? keys : COLOURWAYS;
 }
 
 /** A map pin, drawn (an emoji pin is a different picture on every device, and none on some). */
@@ -858,19 +902,28 @@ export class FullAd extends Ad {
     this._chevrons(ctx, t);
   }
 
-  /** Three chevrons either side of the number, brighter the nearer they stand to it, a pulse
+  /** Three chevrons either side of the number, larger the nearer they stand to it, a glow
    *  running inward along them. (The engine's own light one of three by the clock, so a photo
-   *  caught whichever was lit: the outer one on one ad, the middle one on the next.) */
+   *  caught whichever was lit: the outer one on one ad, the middle one on the next.)
+   *  Every chevron is the pair's accent at full strength. They first stepped toward the number
+   *  in opacity (.32, .6, 1), and a see-through accent is the accent mixed into the ground in
+   *  sRGB: gold over navy drew #504b3a (OKLCH C .028, khaki-grey), orange over navy a brown,
+   *  gold over purple a rose-brown (hue 25, a third family), lime-gold over green an olive. Rule
+   *  103: an accent keeps C .12 or more, and a warm hue is never drawn under its muddy floor. So
+   *  the step is in size and weight, which no ground can turn into a third colour (rule 138). */
   _chevrons(ctx, t) {
     const sz = this.fullChevrons; if (!sz) return;
     const q = prog(t, this.tl.number + .3, .3); if (q <= 0) return;
-    const [x0, y0, x1, y1] = this.numBox, cy = (y0 + y1) / 2, pulse = Math.floor(t * 5) % 3;
-    ctx.save(); ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = this.hot; ctx.lineWidth = Math.max(2, sz * .28); ctx.shadowColor = this.hot;
+    const [x0, y0, x1, y1] = this.numBox, cy = (y0 + y1) / 2, pulse = Math.floor(t * 5) % 3, K = CHEVRON_STEP;
+    // each tip .6 of the size off the pill, then a step of .9 of the two neighbours' mean size: a smaller chevron stands nearer its neighbour
+    const tip = [sz * (.6 + .9 * ((K[2] + K[1]) / 2 + (K[1] + K[0]) / 2)), sz * (.6 + .9 * (K[2] + K[1]) / 2), sz * .6];
+    ctx.save(); ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = this.hot; ctx.shadowColor = this.hot; ctx.globalAlpha = q;
     for (let i = 0; i < 3; i++) {                           // 0 is the farthest from the number
-      ctx.globalAlpha = q * Math.min(1, [.32, .6, 1][i] + (i === pulse ? .2 : 0)); ctx.shadowBlur = i === 2 ? sz * .6 : 0;
-      const d = sz * .6 + (2 - i) * sz * .9, lx = x0 - d, rx = x1 + d;
-      ctx.beginPath(); ctx.moveTo(lx - sz * .35, cy - sz * .45); ctx.lineTo(lx, cy); ctx.lineTo(lx - sz * .35, cy + sz * .45); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(rx + sz * .35, cy - sz * .45); ctx.lineTo(rx, cy); ctx.lineTo(rx + sz * .35, cy + sz * .45); ctx.stroke();
+      const k = K[i], d = tip[i], lx = x0 - d, rx = x1 + d, ax = sz * .35 * k, ay = sz * .45 * k;
+      ctx.lineWidth = Math.max(2, sz * .28 * k);
+      ctx.shadowBlur = i === 2 ? sz * .6 : i === pulse ? sz * .35 : 0;
+      ctx.beginPath(); ctx.moveTo(lx - ax, cy - ay); ctx.lineTo(lx, cy); ctx.lineTo(lx - ax, cy + ay); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(rx + ax, cy - ay); ctx.lineTo(rx, cy); ctx.lineTo(rx + ax, cy + ay); ctx.stroke();
     }
     ctx.restore();
   }
@@ -883,9 +936,10 @@ export class FullAd extends Ad {
 export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const r = rng((seed >>> 0) * 7 + 11), one = a => a[Math.floor(r() * a.length) % a.length];
   const es = st.lang === "es";
-  // the colours: one of the twelve by the seed, or the one picked; carried as the palette's own
-  // colours (the engine's pal() lays st.colors over the palette named), so the catalogue is not touched
-  const first = one(COLOURWAYS), key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, ...picked } = pick;
+  // the colours: one of the twelve by the seed (of those that suit the line and any colour its
+  // headline names: pairsFor), or the one picked; carried as the palette's own colours (the
+  // engine's pal() lays st.colors over the palette named), so the catalogue is not touched
+  const first = one(pairsFor(st.subject, st.headline)), key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, ...picked } = pick;
   const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...picked };
   const area = (st.area || "").trim();
   // What the customer left empty is filled from the lists, each line chosen so that it does not
@@ -903,7 +957,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
     // the website as a sentence, so it reads as an address (owner, 2026-11-03: "that way they know it's a URL")
     feed_site: st.feed_site ?? (st.site ? (es ? "Visítanos en " : "Visit our website at ") + String(st.site).trim() : ""),
     feed_burst: burst,
-    accent_word: accentWord(st.headline),
+    accent_word: accentWord(st.headline, look.colors.accent),
   };
   // fewer phones, larger (five on a square full of large words shrank to a strip): two where the
   // product shares its row with the selling points (a square, a wide frame), three where it has the width
