@@ -19,7 +19,7 @@ const CUTOUT_EXT = '.webp';
    the app requests carries this revision; bump it whenever assets/bg,
    assets/cutouts, assets/grounds or assets/showcase change. Caches stay keyed
    by the bare path, which is what templates name. */
-const ASSET_REV = '20261012a';
+const ASSET_REV = '20261112a';
 function assetUrl(src){ return /^assets\//.test(String(src || '')) ? src + '?v=' + ASSET_REV : src; }
 
 // ---------- safe storage (works standalone; degrades to memory) ----------
@@ -3116,6 +3116,7 @@ function buildLayer(l, tplId, dw, dh){
       p.fill = hexToRgba(p.fill, plate ? 0.92 : 0.45);
     }
     obj = new fabric.Rect(p);
+    if (l.party && typeof partyPlate === 'function') partyPlate(obj, l.party);   // a plate that celebrates (partyPlate, end of file)
   }
   else if (l.kind === 'circle') obj = new fabric.Circle(p);
   else if (l.kind === 'path'){
@@ -22381,4 +22382,76 @@ function thMarksVisible(sc){
   taglineApply = function(sc){ const r = _tgApply.apply(this, arguments);
     try { if (typeof canvas !== 'undefined' && canvas && sc === canvas) canvas.getObjects().forEach(o => { if (edPaintable(o) && o.pgAutoFill != null) o.pgAutoFill = edFillKey(o); }); } catch (e){}
     return r; };
+}
+
+/* ═══ A PLATE THAT CELEBRATES (2026-11-11) ════════════════════════════════
+   The owner, of the coins Steps Flow card (stepsFlow-cd10-20), whose three
+   step plates were two sage greens and a white: "This one doesn't make sense
+   with the colors", then, shown the options, "confetti on #3?", "party
+   colors", "the pattern fill", "color accents", "all good".
+
+   A record may give a rect a `party` spec. The plate's fill is then painted
+   from it: the plate's own colour, a quiet tone-on-tone $ lattice, and
+   confetti in party colours at the end of the plate its words leave free.
+   It is the plate's FILL, not layers on top of it, so the pieces travel with
+   the plate through every layout pass and every format, can never be parted
+   from it, and add nothing to the layers a person sees in the designer.
+
+   The colours were chosen by the owner, so the plate is his, as a colour set
+   by hand is (pgUser; rule 125: "Rule 95 was against colours no one chose;
+   these were chosen"): the one-colour pass and the gate leave it. Seeded, so
+   every paint of the card draws the same pieces. Appended and wrapped, not
+   spliced (AGENT-BRIEF 1).
+     party: { base, glyph?, seed?, pieces?, from?, colors? }
+       base    the plate's colour
+       glyph   the lattice's colour (omit for no lattice)
+       from    where the confetti starts, as a share of the plate's width (0.6)
+       pieces  how many (60); colors: the party palette */
+function partyPlate(obj, spec){
+  if (!obj || !spec || typeof document === 'undefined') return obj;
+  const W = Math.max(8, Math.round(obj.width || 0)), H = Math.max(8, Math.round(obj.height || 0));
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const g = cv.getContext('2d'); if (!g) return obj;
+  const base = spec.base || '#1f9d55', u = H / 138;                 // u: the pieces' size follows the plate's height
+  g.fillStyle = base; g.fillRect(0, 0, W, H);
+  let s = (spec.seed == null ? 1 : spec.seed) | 0;
+  const r = () => { s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  if (spec.glyph){
+    g.fillStyle = spec.glyph; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = '800 ' + Math.round(30 * u) + 'px "Satoshi","Arial Black",Arial,sans-serif';
+    const sx = 84 * u, sy = 64 * u; let j = 0;
+    for (let y = sy * 0.25; y < H + sy; y += sy / 2, j++) for (let x = (j % 2 ? sx * 0.75 : sx * 0.25); x < W + sx; x += sx){ g.save(); g.translate(x, y); g.rotate(-0.22); g.fillText('$', 0, 0); g.restore(); }
+  }
+  const pal = Array.isArray(spec.colors) && spec.colors.length ? spec.colors : ['#ff4d6d', '#ffd60a', '#4cc9f0', '#ffffff', '#ff9f1c', '#b388ff'];
+  const from = spec.from == null ? 0.6 : spec.from, n = spec.pieces == null ? 60 : spec.pieces;
+  for (let i = 0; i < n; i++){
+    const x = W * (from + (0.97 - from) * r()), y = H * (0.07 + 0.86 * r()), k = r();
+    g.save(); g.translate(x, y); g.rotate(2 * Math.PI * r()); g.globalAlpha = 0.86 + 0.14 * r(); g.fillStyle = pal[Math.floor(r() * pal.length)];
+    if (k < 0.62){ const w = (12 + 12 * r()) * u, h = (5 + 4 * r()) * u; g.fillRect(-w / 2, -h / 2, w, h); }
+    else if (k < 0.86){ g.beginPath(); g.arc(0, 0, (3.5 + 3 * r()) * u, 0, 2 * Math.PI); g.fill(); }
+    else { const a = (7 + 3 * r()) * u; g.beginPath(); g.moveTo(0, -a); g.lineTo(a, a); g.lineTo(-a, a); g.closePath(); g.fill(); }
+    g.restore();
+  }
+  obj.set('fill', new fabric.Pattern({ source: cv, repeat: 'repeat' }));
+  obj.pgParty = spec; obj.pgUser = true; obj.dirty = true;
+  return obj;
+}
+EXTRA_PROPS.push('pgParty');
+{
+  /* the designer keeps each object's paint as data (edPaintOf) and puts it
+     back (edPaintSet). A party plate's paint is its colour and its spec, not
+     the picture drawn from them: kept as the colour, and drawn again when
+     that colour is put back. A person who gives the plate another colour has
+     taken it out of the party, and it stays the colour they gave it. */
+  const _of = edPaintOf, _set = edPaintSet;
+  const drawn = o => !!(o && o.pgParty && o.fill && typeof o.fill === 'object' && o.fill.source);
+  edPaintOf = function(o){ const p = _of.apply(this, arguments); if (p && drawn(o)) p.fill = o.pgParty.base || '#1f9d55'; return p; };
+  edPaintSet = function(o, p){
+    const r = _set.apply(this, arguments);
+    if (o && o.pgParty && p){
+      const same = typeof p.fill === 'string' && p.fill.toLowerCase() === String(o.pgParty.base || '#1f9d55').toLowerCase();
+      if (same) partyPlate(o, o.pgParty); else delete o.pgParty;
+    }
+    return r;
+  };
 }
