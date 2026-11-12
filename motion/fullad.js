@@ -895,7 +895,11 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const line = st.feed_line ?? (st.tag || one(FULL_WORDS.line));
   const points = st.points ?? (pointsOf(st).length ? pointsOf(st).join(", ") : fresh(FULL_WORDS.points, [st.headline, line]));
   const label = st.number_label || (es ? "LLAMA O MANDA TEXTO" : FULL_WORDS.label[0]);
-  const claim = st.feed_claim ?? fresh(FULL_WORDS.claim, [st.headline, line, points]);
+  // who is buying: a business name, where one is given, takes the badge (the first thing read). An ad
+  // with no name on it is the pattern of the buyers nobody trusts (competitor research, 2026-11-12:
+  // the brand is what carries the eye to the rest of an ad; "top dollar" is on every sign in the trade)
+  const biz = String(st.biz || "").trim();
+  const claim = st.feed_claim ?? (biz ? biz.toUpperCase() : fresh(FULL_WORDS.claim, [st.headline, line, points]));
   const burst = st.feed_burst ?? fresh(es ? FULL_WORDS.burst_es : FULL_WORDS.burst, [st.headline, line, points, claim, label]);
   const words = {
     feed_claim: claim, feed_line: line, points, number_label: label,
@@ -996,7 +1000,7 @@ export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cu
 
    Each finding is { code, level, say }: level "fix" stops a download until the customer says
    go on; "note" is said and does not stop it. say is in the customer's words (rule 113). */
-const PF = { edge: .016, small: 4.5, large: 3, product: 1.25, thumbHead: 20, thumbNum: 16 };   // edge: 17px of 1080; a shadow's fringe on a light ground reaches 21
+const PF = { edge: .016, small: 4.5, large: 3, product: 1.25, thumbHead: 20, thumbNum: 16, calm: .32 };   // calm: JPEG bytes a pixel at 540 (see fullPreflight); the 120 phone ads of full_ad_check weigh .105 to .243   // edge: 17px of 1080; a shadow's fringe on a light ground reaches 21
 const PROOF = /(^|[^A-Z0-9])(#\s?1|NO\.?\s?1|NUMBER ONE|BEST|HIGHEST|FASTEST|GUARANTEED?|MOST MONEY|LOWEST|UNBEATABLE)([^A-Z0-9]|$)/i;
 
 /** The words alone: what repeats, what needs proof, what will not read as what it is. */
@@ -1016,6 +1020,7 @@ export function fullWords(st) {
   }
   const site = String(st.site || st.feed_site || "").trim();
   if (site && !/[a-z0-9-]+\.[a-z]{2,}/i.test(site)) say("address", "note", "The website does not look like an address. Write it as it is typed, like www.yourshop.com.");
+  if (!site && !String(st.biz || "").trim()) say("identity", "note", "Nothing on the ad says who is buying. Add your business name: a named buyer is the one people trust.");
   const digits = String(st.number || "").replace(/\D/g, "");
   if (!digits) say("address", "fix", "There is no phone number on the ad.");
   else if (!(digits.length === 10 || (digits.length === 11 && digits[0] === "1") || (String(st.number).trim()[0] === "+" && digits.length >= 8))) say("address", "note", `The phone number has ${digits.length} digits. A US number has 10.`);
@@ -1101,6 +1106,17 @@ export function fullPreflight(ad, frame) {
   checks.push({ id: "feed", ok: feedOk, value: `headline ${hPx}px and number ${nPx}px tall in a feed preview` });
   if (hPx < PF.thumbHead) say("feed", "note", "The headline is long, so it is set small: it may not read in a feed's small preview. A shorter headline is set larger.");
   if (nPx < PF.thumbNum) say("feed", "note", "The phone number is small in a feed's preview.");
+
+  /* calm: how busy the picture is, by what it weighs compressed. Dense detail is the measured thing that
+     costs an ad attention in a feed, and compressed size is how the eye-tracking work measured it
+     (competitor research, 2026-11-12). The bar is set over what this layout draws today (full_ad_check
+     prints the spread), so it catches the day a ground, an effect or an icon makes the ad busier. */
+  // weighed at one size (540 on the short side), whatever size the picture is: a small picture weighs more a pixel
+  let bpp = 0;
+  try { const k = 540 / U, sw = Math.round(W * k), sh = Math.round(H * k), sc = canvas(sw, sh); sc.getContext("2d").drawImage(frame, 0, 0, sw, sh); bpp = sc.toDataURL("image/jpeg", .8).length * .75 / (sw * sh); }
+  catch (e) { /* a canvas that cannot be read is not measured */ }
+  checks.push({ id: "calm", ok: !bpp || bpp <= PF.calm, value: bpp ? `${(bpp * 100).toFixed(1)} of ${(PF.calm * 100).toFixed(0)} allowed` : "not measured", bpp });
+  if (bpp > PF.calm) say("calm", "note", "The picture is busy. A plainer look reads faster in a feed: try New look.");
 
   // the layout's own findings, and the words
   const lay = fullBlockers(ad), soft = /^(product \d+% of the height|headline set at)/;

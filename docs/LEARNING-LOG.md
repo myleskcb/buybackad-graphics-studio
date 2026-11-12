@@ -5170,3 +5170,31 @@ RESUME HERE:
      again, run the checks and put it there.
   1. §BC 2 to 4: which photo generation goes next, the full ad in Easy Mode's
      picker, and whether iPhones LA's weekly batch moves to FullAd.
+
+## 2026-11-12 — live; every design looked at; an ad that checks itself (DESIGN-LAW 138)
+
+Asked: go live; another layer of self-checking before an ad is made; "can we
+have you yourself Claude on it every design"; competitor ads: what we miss,
+what to leave out, what catches the eye.
+
+Done: `main` moved; ten ads reviewed at full size, thirteen faults fixed at
+their source; `fullPreflight` and `fullWords`; a business name on the ad; the
+competitor pass written down.
+
+Found:
+  - Looking beats measuring for what nobody thought to measure: ticks under the
+    number, brackets low in the pill, a handshake photograph beside flat type.
+    Then turn what was seen into a measure so it cannot come back.
+  - The first cut of a new measure is wrong in the old way. The contrast check
+    counted letters' soft edges as ground and failed readable lines, the very
+    error THEME-AUDIT recorded in September. Read the old corrections first.
+  - A deploy that says success may have deployed nothing: the job passed with
+    "Nothing to do without the secrets". Read the job's steps, not its tick.
+  - A sheet of thumbnails hides what one picture at full size shows. Review at
+    the size it is posted.
+  - Research that could not open a page says so in its first line, or it reads
+    as more than it is.
+
+RESUME HERE:
+  0. OPEN-ITEMS §BD 1: this round is not on `main`. Ask, then put it there.
+  1. §BD 3: the owner's decisions from the research, one at a time.

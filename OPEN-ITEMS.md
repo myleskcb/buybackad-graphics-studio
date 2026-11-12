@@ -3248,3 +3248,38 @@ Open:
    waits on a CDN the sandbox blocks) and three upload-a-video steps of
    `ad_library_check.mjs`, which fail the same way on untouched `main`. Run
    both on the Mac before a deploy.
+
+## BD. 2026-11-12 — live; the review by eye; the pre-flight; competitors (DESIGN-LAW 138)
+
+(claude/friendly-heisenberg-868z63. `main` moved to 9dddf354 on the owner's "go live".)
+
+Done:
+- **`main` is §BC's work.** GitHub's deploy run moved buybackad-finished-copy's
+  branch (it builds itself). The direct deploy to buybackad-graphics-studio was
+  **skipped: NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID are not set** on the
+  repository. Set them and re-run "Deploy main to Netlify", or deploy from the Mac.
+- **Reviewed by eye**: thirteen faults in ten ads, fixed where each starts
+  (docs/FULL-AD-REVIEW-2026-11-12.md).
+- **The pre-flight** (rule 138) on the page, before every download, in the check.
+- **A business name** on the ad (the badge), from the competitor pass.
+- **Competitor and evidence research**: docs/COMPETITOR-RESEARCH-2026-11-12.md.
+
+Open:
+1. **This round is on the branch, not on `main`** (everything after 9dddf354).
+2. **The research saw no competitor picture**: every image host is blocked from
+   the cloud container. Thirty minutes by hand (its section 2.5), or those hosts
+   allowed in the environment, closes it.
+3. **For the owner to decide, from the research**: an OfferUp-safe export (no
+   number, no website, little text); the website line off the picture; three
+   claims instead of six; the sticker off by default; an owner-entered price
+   line and proof chip; a "data wiped" chip; a real photograph in the product's
+   place. Each cuts against something the owner asked for by name (the website
+   on 2026-11-03, "maximize elements" and "eye catchy elements" on 2026-11-11),
+   so none was changed.
+4. **"Text a photo, get a price"** (research) is rule 136's opposite: for phones
+   the named first step is TEXT YOUR IMEI.
+5. **Claude on every customer's ad** is not built: the pre-flight is the
+   automatic part. A model looking at each ad needs the backend to call one per
+   ad (cost and seconds each); the weekly iPhones LA batch already has a session
+   look at its sheet. Offer it as a paid "second opinion" only if wanted.
+6. **Any look** has none of this: the pre-flight and the review are the full ad's.

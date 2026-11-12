@@ -5602,3 +5602,45 @@ a towns line or a website.
   which the full ad now draws. `?noretire=1` shows them; nothing is deleted.
 
 Not done here: OPEN-ITEMS §BC.
+
+## 138. The pre-flight: an ad is measured on its own delivered picture before it goes out
+
+Added 2026-11-12. The owner: "is there anything we can do to add another layer
+of intelligence another layer of self validating or auditing before it's
+generated or in the generating process/design process?", "how do these ads
+never have mistakes".
+
+Rule 87 has every generation measured before it is produced. For the full ad
+that measure was the layout reading its own numbers (`fullBlockers`), and a
+layout's numbers are what it meant to draw. The review of the same day found
+three faults those numbers passed (a number's brackets 4px from its pill's
+edge, ticks under the number on a light ground, a headline's outline in the
+margin).
+
+- **`fullPreflight(ad, frame)`** (`motion/fullad.js`) draws nothing and trusts
+  nothing: it reads the picture as delivered. Nothing within 17px of the edge
+  (of a 1080 short side); every line against the pixels actually behind its
+  letters, 4.5:1 for the small lines and 3:1 for the headline and number; each
+  product against the ground behind it, 1.25:1; the headline and number 20px
+  and 16px tall in a feed's small preview; the picture's weight compressed (how
+  busy it is) within a quarter of the busiest ad the layout draws today; the
+  layout's own findings; and the words.
+- **`fullWords(st)`**: no promise twice (two lines sharing a word's stem),
+  nothing that needs proof ("#1", "best", "highest", "fastest", "guaranteed"),
+  no "up to" price, a website that reads as one, a number that is one, and a
+  name: an ad that says nowhere who is buying is told so.
+- **Letters' soft edges are not ground.** The first cut failed readable lines:
+  a letter's edge is a blend of ink and ground, and a pill's box holds its round
+  ends. The ring round the letters is left out and a pill is read on its
+  straight middle (docs/THEME-AUDIT.md's first correction, met again).
+- **A finding is "fix" or "note".** A fix stops a photo, a video and a library
+  save until the customer chooses Go back and fix it or Download it anyway
+  (`preflightGate`). A note is said under the preview. Both in the customer's
+  words (rule 113). New look takes only looks that pass.
+- **A check that cannot run never stands between a customer and their ad**: an
+  error in the pre-flight lets the download through and is logged.
+- **Checked**: `scripts/full_ad_check.mjs` runs it on all 256 ads (none with a
+  fix on ordinary words) and presses the gate on the page.
+
+The review that prompted it, with its thirteen faults and the five patterns
+under them, is docs/FULL-AD-REVIEW-2026-11-12.md. Not done here: OPEN-ITEMS §BD.
