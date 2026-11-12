@@ -60,8 +60,15 @@ format but square.
 `card-prototypes/cards.cjs` repaints the gold and the coins Steps Flow cards
 at runtime to the owner's notes of 2026-11-11 (the notes and the measurements
 are at the top of the file). Prototypes only: the records are not changed. To
-make the gold card real, its number has to be placed by the engine with even
-margins in the band (today it is set 9px above the band's top edge).
+the gold card is built too (2026-11-12): `scripts/step_styles.mjs
+stepsFlow-nn01-31 outline --room`. The prototype's "44px above, 47 below" put
+the website line inside the 6% guide, which rule 57 forbids; the built card
+keeps the words on the guide and starts the band higher instead (42px of band
+above the number's box, where it was 9px over the edge).
+
+`scripts/_step_styles.mjs` holds six step styles for any Steps Flow card
+(party, pattern, accents, outline, glow, solid), from the owner's "The more
+styles the better".
 
 The coins card IS built (2026-11-11): the owner chose "party colors", "the
 pattern fill" and "color accents". `scripts/party_coins_steps.mjs` writes its
