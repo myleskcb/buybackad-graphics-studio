@@ -617,7 +617,8 @@ produced." DESIGN-LAW rule 87. In practice:
   (each pair's `suits`, written from refresh_palettes.mjs `AFFINITY` by
   `build_house_colours.mjs`) and that keep it to two colour families with
   its bold phones (`meta.body`, measured from each picture by `loadPhones`).
-  A hand-picked pair is never narrowed.
+  A hand-picked pair is never narrowed. Check: `node
+  scripts/full_colour_check.mjs`, with `full_ad_check.mjs`.
 - **Browser checks without a server or cdnjs** (2026-11-12): a cloud session
   may be refused `python3 -m http.server`. Pass
   `PLAYWRIGHT_MODULE=$PWD/scripts/pw_local.cjs` (and `FABRIC_JS=…` for the

@@ -5653,5 +5653,14 @@ Midnight & Cyan and Silver & Blue, Pokémon never a neutral ground; the default
 phones Navy & Orange, Teal & Orange, Red & Yellow, the three blacks and Silver
 & Blue; neutral phones all twelve, as before.
 
+**Checked** by `scripts/full_colour_check.mjs` (about a minute, exit 1 on a
+failure): every chevron in every pair reaches the accent on the delivered
+picture, colour words on all twelve pairs, 900 seeded ads on the restricted
+lines, 1,440 seeded ads with bold phones (and every phone set still draws two
+pairs or more), and 600 ads that must draw the pair they drew before. Each of
+the three faults, put back by hand, fails it. Run it with `full_ad_check`
+before a commit that touches the full ad's colours, `accentWord`, `pairsFor`,
+the chevrons, `house-colours.js` or `loadPhones`.
+
 Not done here (OPEN-ITEMS §BD): the lit patch of each ground is under rule
 103's ground chroma, because so are some of the themes' own grounds.

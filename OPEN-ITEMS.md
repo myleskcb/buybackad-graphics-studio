@@ -3313,8 +3313,13 @@ Done (rule 138):
   set (an orange 17 Pro Max in the middle) no longer lands on Midnight & Cyan,
   Blue & Green or Green & Gold. Phone colours are measured from the pictures
   at load (`bodyColour`).
-- Checks: full_ad_check, quick_ad_check, buylist_check all clear after each
-  change; every page loads with no errors.
+- `scripts/full_colour_check.mjs` holds all three (chevrons read off the
+  delivered pixels; words, lines and phones over 3,000 drawn styles; 600 ads
+  that must draw the pair they drew before). Each fault put back fails it.
+- Checks: full_ad_check, quick_ad_check, buylist_check, social_studio_check,
+  listing_check, audience_check and motion_cta_audit all clear on the final
+  code; theme_law, audit_theme_grammar, theme_cohesion_audit and cvd_audit
+  pass; every page loads with no errors.
 
 Open:
 1. **Not on `main`.** Pushed to its branch; merging is the owner's word.
@@ -3343,3 +3348,16 @@ Open:
    that would not (done the same day).
 7. **iPhones LA's weekly batch** still draws its own sixteen colourways
    (`tools/feed-stills`), untouched here (§BC 4).
+8. **The engine's own chevrons fade by opacity too** (`motion/decor.js`
+   `drawChevrons`: the two unlit of three at .35, a running light). Every plain
+   video look ("Any look") and iPhones LA's feed stills draw them, so a warm
+   accent's unlit chevrons are the same khaki and brown as the full ad's were.
+   Not changed: the feed's ads are the owner's approved set (§BC 4), and the
+   running light is an animation the owner may want as it is. The rule 138
+   fix, if wanted: unlit at full colour without the glow and at the full ad's
+   `CHEVRON_STEP` sizes, lit with the glow.
+9. **Not re-run here**: `steps_rhythm_audit.mjs` and `step_number_audit.mjs`
+   for the merged step styles (their harness is puppeteer-core against a
+   server on 8899). The step-styles session ran `audit_card.mjs` and `pgCheck`
+   in four sizes on the cards it changed; run the two on the Mac before a
+   deploy.

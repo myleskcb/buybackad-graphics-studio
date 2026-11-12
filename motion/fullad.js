@@ -925,21 +925,29 @@ export class FullAd extends Ad {
    *  103: an accent keeps C .12 or more, and a warm hue is never drawn under its muddy floor. So
    *  the step is in size and weight, which no ground can turn into a third colour (rule 138). */
   _chevrons(ctx, t) {
-    const sz = this.fullChevrons; if (!sz) return;
+    const marks = chevronMarks(this); if (!marks.length) return;
     const q = prog(t, this.tl.number + .3, .3); if (q <= 0) return;
-    const [x0, y0, x1, y1] = this.numBox, cy = (y0 + y1) / 2, pulse = Math.floor(t * 5) % 3, K = CHEVRON_STEP;
-    // each tip .6 of the size off the pill, then a step of .9 of the two neighbours' mean size: a smaller chevron stands nearer its neighbour
-    const tip = [sz * (.6 + .9 * ((K[2] + K[1]) / 2 + (K[1] + K[0]) / 2)), sz * (.6 + .9 * (K[2] + K[1]) / 2), sz * .6];
+    const sz = this.fullChevrons, pulse = Math.floor(t * 5) % 3;
     ctx.save(); ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = this.hot; ctx.shadowColor = this.hot; ctx.globalAlpha = q;
-    for (let i = 0; i < 3; i++) {                           // 0 is the farthest from the number
-      const k = K[i], d = tip[i], lx = x0 - d, rx = x1 + d, ax = sz * .35 * k, ay = sz * .45 * k;
-      ctx.lineWidth = Math.max(2, sz * .28 * k);
-      ctx.shadowBlur = i === 2 ? sz * .6 : i === pulse ? sz * .35 : 0;
-      ctx.beginPath(); ctx.moveTo(lx - ax, cy - ay); ctx.lineTo(lx, cy); ctx.lineTo(lx - ax, cy + ay); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(rx + ax, cy - ay); ctx.lineTo(rx, cy); ctx.lineTo(rx + ax, cy + ay); ctx.stroke();
+    for (const m of marks) {                                // i 0 is the farthest from the number
+      ctx.lineWidth = m.width;
+      ctx.shadowBlur = m.i === 2 ? sz * .6 : m.i === pulse ? sz * .35 : 0;
+      ctx.beginPath(); ctx.moveTo(m.lx - m.ax, m.cy - m.ay); ctx.lineTo(m.lx, m.cy); ctx.lineTo(m.lx - m.ax, m.cy + m.ay); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(m.rx + m.ax, m.cy - m.ay); ctx.lineTo(m.rx, m.cy); ctx.lineTo(m.rx + m.ax, m.cy + m.ay); ctx.stroke();
     }
     ctx.restore();
   }
+}
+
+/** Where the full ad's chevrons stand: for each of the three (i 0 the farthest from the number), the
+ *  left and right tips (lx, rx), the middle line (cy), the arms' reach (ax, ay) and the stroke. Each
+ *  tip .6 of the size off the pill, then a step of .9 of the two neighbours' mean size, so a smaller
+ *  chevron stands nearer its neighbour. The painter and full_colour_check.mjs both read it. */
+export function chevronMarks(ad) {
+  const sz = ad.fullChevrons; if (!sz || !ad.numBox) return [];
+  const [x0, y0, x1, y1] = ad.numBox, cy = (y0 + y1) / 2, K = CHEVRON_STEP;
+  const tip = [sz * (.6 + .9 * ((K[2] + K[1]) / 2 + (K[1] + K[0]) / 2)), sz * (.6 + .9 * (K[2] + K[1]) / 2), sz * .6];
+  return K.map((k, i) => ({ i, k, lx: x0 - tip[i], rx: x1 + tip[i], cy, ax: sz * .35 * k, ay: sz * .45 * k, width: Math.max(2, sz * .28 * k) }));
 }
 
 /** The style a full ad is drawn with: the customer's words and phones, the house style locked,

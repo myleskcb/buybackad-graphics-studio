@@ -5221,10 +5221,15 @@ Learned:
     goes to the network past other routes, so the module answers fetch() and
     continue() for the repo too.
 
-Checked (after the last change): full_ad_check all clear (256 ads and the
-page), quick_ad_check all passed, buylist_check all passed (with the production
-CSP), every page loads with no errors; seeded draws over 300 seeds as in rule
-138; iPhone ads with neutral phones draw exactly the pairs they drew before.
+Checked (on the final code): full_ad_check all clear (256 ads and the page),
+quick_ad_check and buylist_check all passed under the production CSP,
+social_studio_check, listing_check, audience_check and motion_cta_audit all
+clear; theme_law, audit_theme_grammar, theme_cohesion_audit and cvd_audit pass
+(31/31 themes under all three colour-vision simulations); every page loads with
+no errors. New: scripts/full_colour_check.mjs, all clear, and failing on each of
+the three faults when it is put back (a check that has only ever passed proves
+little). The chevron geometry moved into chevronMarks() for it: 24 renders
+pixel-identical before and after the move.
 
 Not on `main`: this branch only (the session may push nowhere else).
 
