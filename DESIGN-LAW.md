@@ -5602,3 +5602,56 @@ a towns line or a website.
   which the full ad now draws. `?noretire=1` shows them; nothing is deleted.
 
 Not done here: OPEN-ITEMS §BC.
+
+## 138. A full ad's colours: no see-through accent, a metal in its own colour, the product counted
+
+Added 2026-11-12. The owner, of the full ad in the twelve pairs (rule 137):
+"the theming is much better", "but still needs tweaks". The twelve pairs drawn
+on one ad, everything else held, one sheet per product (iPhone, MacBook, gold,
+silver, coins, car, Pokémon, the owner's default phones), looked at cell by cell
+and measured in OKLCH. Three faults, each in every pair it could reach.
+
+- **An accent is never faded by opacity.** The chevrons stepped toward the
+  number in opacity (.32, .6, 1). A see-through colour is that colour mixed
+  into whatever is under it, in sRGB: gold over navy drew `#504b3a` (C .028,
+  khaki grey), orange over navy a brown, gold over purple a rose-brown at hue
+  25 (a third family on a two-family card), gold over green an olive. Rule
+  103 keeps an accent at C .12 and up and a warm hue over its muddy floor; an
+  opacity step breaks both on every dark pair with a warm accent. Step a
+  repeated mark in size and weight (`CHEVRON_STEP`: 70, 85, 100%, each a step
+  from its neighbour in proportion to their size), never in opacity.
+- **A word that names a colour is drawn in it, or is not accented.** The
+  accent goes to the goods (rule 137), so on a gold or silver ad it paints the
+  metal's name: WE BUY GOLD drew GOLD in cyan, green, red or blue on seven of
+  the twelve pairs, and SILVER was gold, orange or yellow on seven. Gold is
+  hue 65 to 110 at C .1 and up (rule 103's named band: Red & Yellow's `#e5b800`
+  is gold, Navy & Orange's `#ff7a00` is not); silver is a cool hue (180 to
+  285) or no hue. `accentWord` passes over a colour word the accent is not
+  (WE BUY GOLD on Black & Red accents BUY), and a seeded ad on a line the
+  library's `AFFINITY` restricts (gold, silver, test strips, Pokémon) draws
+  its pair from those that suit it, written into `house-colours.js` as each
+  pair's `suits` by `build_house_colours.mjs`, never typed. The photo ads hold
+  the same line (`pgHuePlan` keeps gold among a card's two families when its
+  headline says GOLD).
+- **The product counts toward the two families** (rule 95). The owner's
+  default set stands a Cosmic Orange 17 Pro Max in the middle, and the seed
+  drew any pair under it; an orange phone on Midnight & Cyan or Blue & Green
+  is a third colour. A phone counts when its picture is a colour: measured
+  from the picture at load (`bodyColour`, the middle 80% of its opaque pixels
+  by lightness; the index's `metal` is the frame and undersays the back), C
+  .07 and up, which is six finishes ((PRODUCT)RED, Cosmic Orange,
+  Ultramarine, Yellow, Pink, the 13's Blue). A seeded ad draws from the pairs
+  that keep it to two families (hues within 30 degrees are one, as
+  `pgHuePlan` counts them; a neutral ground is none); phones that are two
+  colours by themselves may also stand on a neutral ground.
+- **A pair picked by hand is never narrowed**, and an ad that brings none of
+  these (any other line, neutral phones, no colour word) draws exactly the pair
+  its seed drew before: the same list, one draw.
+
+Measured after: over 300 seeds, gold draws only its five gold pairs, silver
+Midnight & Cyan and Silver & Blue, Pokémon never a neutral ground; the default
+phones Navy & Orange, Teal & Orange, Red & Yellow, the three blacks and Silver
+& Blue; neutral phones all twelve, as before.
+
+Not done here (OPEN-ITEMS §BD): the lit patch of each ground is under rule
+103's ground chroma, because so are some of the themes' own grounds.

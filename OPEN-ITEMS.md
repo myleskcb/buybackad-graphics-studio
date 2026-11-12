@@ -3290,3 +3290,56 @@ Open:
    their review (stars, favourites) is still `/admin-ads/`.
 4. Not exercised against production: this session's network cannot reach
    Netlify. The server save needs `JWT_SECRET`, as every account feature.
+
+## BD. 2026-11-12 — the full ad's colours, tweaked (DESIGN-LAW 138)
+
+(claude/admiring-hamilton-6bbehw, from `main` at 9dddf354, with
+claude/friendly-heisenberg-868z63 (the full ad reviewed by eye, the pre-flight),
+claude/festive-ramanujan-vhcayy (six step styles) and
+claude/wizardly-keller-abkuc4 (the approval page) merged in first.)
+
+The owner: "the theming is much better", "but still needs tweaks". No tweak was
+named, so the twelve pairs were drawn on the same ad, everything else held, one
+sheet per product, and every cell looked at and measured in OKLCH.
+
+Done (rule 138):
+- **The chevrons are the accent at full strength**, stepped in size, not
+  opacity. The opacity step drew khaki, brown, rose-brown and olive on every
+  dark pair with a warm accent.
+- **GOLD and SILVER are drawn in their own colour or not accented**, and a
+  seeded gold, silver, test strip or Pokémon ad draws its pair from the
+  library's own `AFFINITY` (now each pair's `suits` in `house-colours.js`).
+- **A bold phone counts toward the two colour families**: the owner's default
+  set (an orange 17 Pro Max in the middle) no longer lands on Midnight & Cyan,
+  Blue & Green or Green & Gold. Phone colours are measured from the pictures
+  at load (`bodyColour`).
+- Checks: full_ad_check, quick_ad_check, buylist_check all clear after each
+  change; every page loads with no errors.
+
+Open:
+1. **Not on `main`.** Pushed to its branch; merging is the owner's word.
+2. **Navy & Gold and Purple & Gold with an orange phone** are excluded by 4
+   degrees: gold is hue 81, the Cosmic Orange body 47, and the law's family gap
+   is 30 (`pgHuePlan`). By eye both look fine (analogous warms). If the owner
+   wants them back, widen `FAMILY_GAP` to 35 in `motion/fullad.js` and say so in
+   rule 138; Green & Gold comes back with them.
+3. **The lit patch of each ground is under rule 103's ground chroma** (the
+   pair's `light`, its lighter stop mixed a fifth toward white in sRGB: navy
+   C .091, green .083, teal .053 where 0.14 is asked at that luminance). Not
+   changed: some themes' own grounds are under it too (Teal & Orange's ground
+   is C .049), and those are the studio's themes, solved by the colour builder.
+   Lifting the lights in OKLCH would make the grounds bluer, greener and redder;
+   that is the owner's call, and it should go through `house_themes.mjs`.
+4. **The cash icon at 4:5** (the photo of a fan of banknotes, about 55px) stands
+   alone under the sticker and reads as a stray mark at feed size. It was chosen
+   on 2026-11-12 over the handshake, the pin and the shield; the next look at
+   it is the layout's, not the colours'.
+5. **The sticker on Silver & Blue is a dark navy star** (the card's ink, as the
+   white star is on the dark pairs). Consistent by rule 137; whether a light
+   card's sticker should take the accent instead is the owner's call.
+6. ~~`hotColour()` can fall back to colours outside the pair~~ (yellow, pink,
+   green, cyan) when an accent is too close to its ground in luminance. All
+   twelve give their own accent; `build_house_colours.mjs` now refuses a pair
+   that would not (done the same day).
+7. **iPhones LA's weekly batch** still draws its own sixteen colourways
+   (`tools/feed-stills`), untouched here (§BC 4).

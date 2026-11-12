@@ -56,6 +56,11 @@ const colours = rows.map(([, name, family, c1, c2, accent, ink, support]) => {
   // what the ad's parts must read at, on the colours as written here
   const need = [['ink on the ground', cr(ink, ground), 7], ['ink on the lit ground', cr(ink, light), 4.5], ['the plate\'s words', cr(plate_ink, accent), 4.5], ['the accent on the ground', cr(accent, ground), 3]];
   for (const [what, got, want] of need) if (got < want) { console.error(`${name}: ${what} reads ${got.toFixed(2)}:1, under ${want}:1`); process.exit(1); }
+  // the chips, the chevrons and the pin are the engine's hotColour(), which takes the accent only when
+  // it stands .3 off the ground and over .25 in the engine's own (gamma) luminance, and otherwise a
+  // stock yellow, pink, green or cyan: a third colour on the card (rule 138)
+  const gl = h => { const [r, g, b] = rgb(h); return (.2126 * r + .7152 * g + .0722 * b) / 255; };
+  if (!(Math.abs(gl(accent) - gl(ground)) > .3 && gl(accent) > .25)) { console.error(`${name}: the engine's hotColour() would not take the accent ${accent} on ${ground}, and would paint the chips and chevrons a colour outside the pair`); process.exit(1); }
   return row;
 });
 
