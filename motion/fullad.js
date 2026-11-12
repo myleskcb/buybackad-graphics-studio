@@ -14,7 +14,7 @@
 // reuses the engine's painter, placement and collision passes and changes only what the maker
 // keeps small or leaves out.
 import { Ad, inkSprite, splitLines, trim, canvas, lum, prog, outBack, rng, clamp, contrastOf, fontCss, applyCase, labelFont, burstFontFor,
-  headlineLines, numberSprite, perksSprite, pointsOf, randomize, harmonise, formatNumber } from "./engine.js";
+  headlineLines, numberSprite, perksSprite, pointsOf, randomize, harmonise, formatNumber, oklchOf } from "./engine.js";
 import { FONTS, FINE_FACES, PALETTES, DEFAULT_STYLE } from "./catalog.js";
 import { drawChevrons } from "./decor.js";
 import { placeAccents, timeAccents } from "./accents.js";
@@ -330,15 +330,6 @@ export const FULL_WORDS = {
 const stems = s => new Set(String(s || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/[^A-Z0-9$]+/).filter(w => w.length >= 4 || w === "$$$").map(w => w.slice(0, 5)));
 export const sharesWord = (a, b) => { const B = stems(b); return [...stems(a)].some(w => B.has(w)); };
 
-/** A colour's OKLCH chroma and hue (DESIGN-LAW 40: colour is judged in OKLCH, never in sRGB). */
-export function oklchOf(hex) {
-  const f = v => { v /= 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
-  const [r, g, b] = [1, 3, 5].map(i => f(parseInt(String(hex).slice(i, i + 2), 16) || 0));
-  const l = Math.cbrt(.4122214708 * r + .5363325363 * g + .0514459929 * b), m = Math.cbrt(.2119034982 * r + .6806995451 * g + .1073969566 * b), s = Math.cbrt(.0883024619 * r + .2817188376 * g + .6299787005 * b);
-  const A = 1.9779984951 * l - 2.4285922050 * m + .4505937099 * s, B = .0259040371 * l + .7827717662 * m - .8086757660 * s;
-  return { L: .2104542553 * l + .793617785 * m - .0040720468 * s, C: Math.hypot(A, B), h: (Math.atan2(B, A) * 180 / Math.PI + 360) % 360 };
-}
-
 /* A WORD THAT NAMES A COLOUR IS DRAWN IN IT, OR NOT ACCENTED (rule 138). The accent goes to the
    goods, so on a gold or silver ad it paints the metal's own name: before this, WE BUY GOLD drew
    GOLD in cyan, green, red or blue on seven of the twelve pairs, and WE BUY SILVER drew SILVER in
@@ -368,16 +359,38 @@ export function accentWord(headline, accent) {
   return ws.length - 1;
 }
 
+/* TWO COLOUR FAMILIES TO A CARD, THE PRODUCT COUNTED (rule 138). The owner's default set stands
+   a Cosmic Orange 17 Pro Max in the middle, and the seed drew any of the twelve pairs under it: an
+   orange phone on Midnight & Cyan, Blue & Green or Purple & Gold is a third colour. A phone counts
+   when its picture is a colour (meta.body, measured at load: C .07 and up, the six bold finishes);
+   hues within 30 degrees are one family (the photo ads' pgHuePlan), a neutral ground (C under .04)
+   none. The seed draws from the pairs that keep the card to two; where the phones alone are two
+   (a pink and an ultramarine), from those that add the fewest and from the neutral grounds. */
+export const BOLD_C = .07, FAMILY_GAP = 30;
+const hueGap = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+export function familyCount(hues) { const f = []; for (const h of hues) if (!f.some(x => hueGap(x, h) <= FAMILY_GAP)) f.push(h); return f.length; }
+const pairHues = c => [c.colors.ground, c.colors.accent].map(oklchOf).filter(k => k.C >= .04).map(k => k.h);
+
 /** The pairs a seeded ad may be drawn in: those that suit its line (house-colours.js suits, from
- *  the library's AFFINITY), and, when its headline names a colour, those whose accent is that
- *  colour, so the accent can paint it. All twelve, in their order, for any other ad: a seed that
- *  drew a pair before draws the same one. A pair picked by hand is never narrowed (fullStyle). */
-export function pairsFor(subject, headline) {
+ *  the library's AFFINITY); when its headline names a colour, those whose accent is that colour,
+ *  so the accent can paint it; and of those, the ones that keep it to two colour families with the
+ *  bold phones on it (phoneHues: the body hues of the phones it shows). All twelve, in their order,
+ *  for any other ad: a seed that drew a pair before draws the same one. A pair picked by hand is
+ *  never narrowed (fullStyle). */
+export function pairsFor(subject, headline, phoneHues = []) {
   let keys = LINES.includes(subject) ? HOUSE_COLOURS.filter(c => (c.suits || []).includes(subject)).map(c => c.key) : COLOURWAYS;
   const named = String(headline || "").toUpperCase().split(/\s+/).filter(w => COLOUR_WORD[w.replace(/[^A-ZÁÉÍÓÚÑ]/g, "")]);
   if (named.length) {
     const agree = keys.filter(k => named.some(w => wordAgrees(w, COLOUR_OF[k].colors.accent)));
     if (agree.length) keys = agree;
+  }
+  if (phoneHues.length && keys.length) {
+    const n = Object.fromEntries(keys.map(k => [k, familyCount([...pairHues(COLOUR_OF[k]), ...phoneHues])]));
+    const best = Math.max(2, Math.min(...Object.values(n))), many = familyCount(phoneHues) >= 2;
+    // phones that are two colours by themselves stand on a neutral ground too (black, silver): it adds
+    // only its accent, where every coloured ground would add a family (and pink, ultramarine and teal
+    // 16s drew Silver & Blue on every seed)
+    keys = keys.filter(k => n[k] <= best || (many && oklchOf(COLOUR_OF[k].colors.ground).C < .04));
   }
   return keys.length ? keys : COLOURWAYS;
 }
@@ -939,7 +952,16 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   // the colours: one of the twelve by the seed (of those that suit the line and any colour its
   // headline names: pairsFor), or the one picked; carried as the palette's own colours (the
   // engine's pal() lays st.colors over the palette named), so the catalogue is not touched
-  const first = one(pairsFor(st.subject, st.headline)), key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, ...picked } = pick;
+  // fewer phones, larger (five on a square full of large words shrank to a strip): two where the
+  // product shares its row with the selling points (a square, a wide frame), three where it has the width
+  // (a subject from the offer family brings its own set of one or two pictures: all of it). The bold
+  // ones among them have a say in the colours (pairsFor).
+  const subject = !!st.subject && st.subject !== "iphone";
+  const most = subject ? 4 : st.aspect === "4:5" || st.aspect === "9:16" ? 3 : 2;
+  const have = (st.phones || []).slice(0, most);
+  const idx = Object.fromEntries(phoneIndex.map(m => [m.id, m]));
+  const bold = subject ? [] : have.map(id => (idx[id] || {}).body).filter(b => b && b.C >= BOLD_C).map(b => b.h);
+  const first = one(pairsFor(st.subject, st.headline, bold)), key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, ...picked } = pick;
   const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...picked };
   const area = (st.area || "").trim();
   // What the customer left empty is filled from the lists, each line chosen so that it does not
@@ -959,16 +981,9 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
     feed_burst: burst,
     accent_word: accentWord(st.headline, look.colors.accent),
   };
-  // fewer phones, larger (five on a square full of large words shrank to a strip): two where the
-  // product shares its row with the selling points (a square, a wide frame), three where it has the width
-  // (a subject from the offer family brings its own set of one or two pictures: all of it)
-  const subject = !!st.subject && st.subject !== "iphone";
-  const most = subject ? 4 : st.aspect === "4:5" || st.aspect === "9:16" ? 3 : 2;
-  const have = (st.phones || []).slice(0, most);
   const base = { ...DEFAULT_STYLE, ...st, ...QUIET, ...look, ...words, phones: have, full: true, seed };
   const locked = new Set([...keep, ...Object.keys(QUIET), ...Object.keys(look), ...Object.keys(words), "phones", "headline", "tag", "number", "aspect", "duration", "lang", "lang_mode", "area", "full", "accent_word", "strike_text", "hook_text"]);
   const pool = have.length || subject ? [] : phoneIndex.map(m => m.id);   // another product never borrows iPhones
-  const idx = Object.fromEntries(phoneIndex.map(m => [m.id, m]));
   const out = harmonise(randomize(base, seed, locked, pool, false), locked, idx);
   // the voice-over's lines are about phones: an ad for anything else plays its music alone
   const quiet = subject ? { voice: "off", vo_clip: "", vo_text: "" } : {};

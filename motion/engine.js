@@ -1410,6 +1410,37 @@ function inOutline(P, [x, y]) {
   return c;
 }
 
+// ------------------------------------------------------------ colour in OKLCH
+/** OKLab of one sRGB colour (0-255 channels). DESIGN-LAW 40: colour is judged in OKLCH, never sRGB. */
+export function oklabOf(R, G, B) {
+  const f = v => { v /= 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
+  const r = f(R), g = f(G), b = f(B);
+  const l = Math.cbrt(.4122214708 * r + .5363325363 * g + .0514459929 * b), m = Math.cbrt(.2119034982 * r + .6806995451 * g + .1073969566 * b), s = Math.cbrt(.0883024619 * r + .2817188376 * g + .6299787005 * b);
+  return [.2104542553 * l + .793617785 * m - .0040720468 * s, 1.9779984951 * l - 2.428592205 * m + .4505937099 * s, .0259040371 * l + .7827717662 * m - .808675766 * s];
+}
+/** A colour's OKLCH lightness, chroma and hue. */
+export function oklchOf(hex) {
+  const [L, A, B] = oklabOf(...[1, 3, 5].map(i => parseInt(String(hex).slice(i, i + 2), 16) || 0));
+  return { L, C: Math.hypot(A, B), h: (Math.atan2(B, A) * 180 / Math.PI + 360) % 360 };
+}
+/** The colour a phone's picture reads as, measured once at load (loadPhones: meta.body): the mean
+ *  of the middle 80% of its opaque pixels by lightness, so the camera's black and the glare are
+ *  left out. Its metal (meta.metal) is the frame's, and undersays the back: a Teal 16 is C .041 by
+ *  its picture. The bold finishes come out C .078 and up ((PRODUCT)RED, Cosmic Orange,
+ *  Ultramarine, Yellow, Pink, the 13's Blue); every other is under .05. */
+export function bodyColour(img) {
+  const w = 40, h = Math.max(1, Math.round(40 * (img.naturalHeight || img.height) / (img.naturalWidth || img.width)));
+  const c = canvas(w, h), x = c.getContext("2d", { willReadFrequently: true });
+  x.drawImage(img, 0, 0, w, h);
+  const d = x.getImageData(0, 0, w, h).data, px = [];
+  for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200) px.push(oklabOf(d[i], d[i + 1], d[i + 2]));
+  if (px.length < 20) return null;
+  px.sort((a, b) => a[0] - b[0]);
+  const mid = px.slice(Math.floor(px.length * .1), Math.ceil(px.length * .9)), n = mid.length;
+  const A = mid.reduce((t, p) => t + p[1], 0) / n, B = mid.reduce((t, p) => t + p[2], 0) / n, L = mid.reduce((t, p) => t + p[0], 0) / n;
+  return { L: +L.toFixed(3), C: +Math.hypot(A, B).toFixed(3), h: Math.round((Math.atan2(B, A) * 180 / Math.PI + 360) % 360) };
+}
+
 // ------------------------------------------------------------ the set's colours
 /* Owner, 2026-10-02: "try not to use too many similar tone devices ... maybe 2 of the same
    colour but the middle one we could use an orange 17 Pro Max or a burgundy 18 Pro Max".
@@ -4369,7 +4400,7 @@ export async function loadPhones(base = "./phones/") {
   const phones = {};
   await Promise.all(idx.phones.map(m => new Promise(res => {
     const img = new Image(); img.decoding = "async";
-    img.onload = () => { phones[m.id] = { img, meta: m }; PHONE_META[m.id] = m; res(); };
+    img.onload = () => { try { m.body = bodyColour(img); } catch (e) { m.body = null; } phones[m.id] = { img, meta: m }; PHONE_META[m.id] = m; res(); };
     img.onerror = () => res();
     img.src = base + m.id + ".webp";
   })));
