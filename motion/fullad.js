@@ -541,7 +541,9 @@ export class FullAd extends Ad {
         const lk = size.toFixed(2) + "|" + best.n;
         lines = (this._lineCache ||= new Map()).get(lk) || this._lineCache.set(lk, headlineLines(st, ph, size, best.n)).get(lk);
         lineH = lines[0].asc * .98 + gapOf(size); blockH = lineH * (lines.length - 1) + lines[0].asc;
-        const widest = Math.max(...lines.map(L => L.inkW));
+        // the letters and the outline round them stay inside the column: a headline as wide as the column
+        // put its outline 17px from the frame's edge, in the margin (found by the pre-flight on the picture)
+        const widest = Math.max(...lines.map(L => L.inkW)) + size * .34;
         if (widest <= colW && blockH <= maxH * 1.02) break;
         size *= Math.min(.97, colW / widest, maxH * 1.02 / blockH);
       }
@@ -962,4 +964,165 @@ export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cu
   }));
   for (const { file } of set) ids.push("sub-" + file);
   return { ids, assets };
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════
+   THE PRE-FLIGHT (2026-11-12): the ad checks itself before it goes out
+
+   Owner: "is there anything we can do to add another layer of intelligence another layer of self
+   validating or auditing before it's generated or in the generating process", and "how do these
+   ads never have mistakes always look perfect".
+
+   The layout above is its own first check (fullBlockers reads the layout's numbers). A layout's
+   numbers are what it meant to draw. This reads what it drew: the delivered picture, pixel by
+   pixel, with none of the layout's code in the measuring, plus the words as words. The house
+   rule it serves is DESIGN-LAW 87 (every generation is measured before it is produced) and the
+   brief's warning under it: a check that shares the mistake it is checking for passes it.
+
+   On the picture (frame: the ad as delivered; ad.bg: its ground alone):
+     edge        nothing drawn nearer the frame's edge than 1.6% of the short side (17px of 1080)
+     reads       every line against the pixels actually behind its letters: 4.5:1 for the small
+                 lines, 3:1 for the headline and the number (a product, a sticker or a glow under
+                 a line counts, because it is in the picture)
+     product     the product stands off the ground behind it: 1.25:1 at the middle of each
+     feed        the headline and the number are still letters on a feed's small preview (the
+                 picture at a quarter of its size): 20px and 16px tall at least
+   On the words:
+     once        no promise made twice (two lines sharing a word's stem)
+     proof       no claim that needs proof ("#1", "best", "highest", "fastest", "guaranteed"),
+                 and no "up to" price, which buyers read as the usual one (FTC, 2012)
+     address     the website reads as an address; the number is a number
+   And the layout's own (fullBlockers): margins, gaps, floors, the product's share.
+
+   Each finding is { code, level, say }: level "fix" stops a download until the customer says
+   go on; "note" is said and does not stop it. say is in the customer's words (rule 113). */
+const PF = { edge: .016, small: 4.5, large: 3, product: 1.25, thumbHead: 20, thumbNum: 16 };   // edge: 17px of 1080; a shadow's fringe on a light ground reaches 21
+const PROOF = /(^|[^A-Z0-9])(#\s?1|NO\.?\s?1|NUMBER ONE|BEST|HIGHEST|FASTEST|GUARANTEED?|MOST MONEY|LOWEST|UNBEATABLE)([^A-Z0-9]|$)/i;
+
+/** The words alone: what repeats, what needs proof, what will not read as what it is. */
+export function fullWords(st) {
+  const out = [], say = (code, level, s) => out.push({ code, level, say: s });
+  const parts = [["headline", st.headline], ["line under the headline", st.feed_line], ["claim", st.feed_claim], ["selling points", st.points], ["sticker", st.feed_burst]].filter(p => p[1]);
+  // a promise made twice: the claim, the points and the sticker against each other (the headline and its
+  // line name the goods, and may share the goods' name with anything)
+  const promises = parts.filter(p => ["claim", "selling points", "sticker"].includes(p[0]));
+  for (let i = 0; i < promises.length; i++) for (let j = i + 1; j < promises.length; j++) {
+    const A = stems(promises[i][1]), shared = [...stems(promises[j][1])].filter(w => A.has(w));
+    if (shared.length) say("once", "note", `The ${promises[i][0]} and the ${promises[j][0]} both say ${shared[0]}. Say it once and use the other for something new.`);
+  }
+  for (const [name, text] of parts) {
+    const m = PROOF.exec(String(text)); if (m) say("proof", "note", `"${m[2].trim().toUpperCase()}" in the ${name} is a claim you may be asked to prove. "Top dollar" or "fair offer" says it without the risk.`);
+    if (/\bUP TO\s*\$?\d/i.test(String(text))) say("proof", "note", `"Up to" a price in the ${name} is read as the usual price. Name what you pay for one model, or leave the price out.`);
+  }
+  const site = String(st.site || st.feed_site || "").trim();
+  if (site && !/[a-z0-9-]+\.[a-z]{2,}/i.test(site)) say("address", "note", "The website does not look like an address. Write it as it is typed, like www.yourshop.com.");
+  const digits = String(st.number || "").replace(/\D/g, "");
+  if (!digits) say("address", "fix", "There is no phone number on the ad.");
+  else if (!(digits.length === 10 || (digits.length === 11 && digits[0] === "1") || (String(st.number).trim()[0] === "+" && digits.length >= 8))) say("address", "note", `The phone number has ${digits.length} digits. A US number has 10.`);
+  const pts = String(st.points || "").split(",").map(s => s.trim()).filter(Boolean);
+  if (pts.some(p => p.length > 18)) say("once", "note", "A selling point is long. Three or four short words read best in a chip.");
+  return out;
+}
+
+/** The delivered picture, measured. frame: a canvas holding the ad as drawn at ad.W x ad.H, every
+ *  block landed. Returns { ok, checks: [{ id, ok, value }], findings: [{ code, level, say }] }. */
+export function fullPreflight(ad, frame) {
+  const F = ad.full, R = F.rects, W = ad.W, H = ad.H, U = F.U, st = ad.st;
+  const findings = [], checks = [], say = (code, level, s) => findings.push({ code, level, say: s });
+  const px = frame.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, W, H).data;
+  const bg = ad.bg.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, W, H).data;
+  const lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
+  const Lat = (d, q) => .2126 * lin(d[q]) + .7152 * lin(d[q + 1]) + .0722 * lin(d[q + 2]);
+  const Lhex = h => { const [r, g, b] = [1, 3, 5].map(i => lin(parseInt(h.slice(i, i + 2), 16))); return .2126 * r + .7152 * g + .0722 * b; };
+  const cr = (a, b) => (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
+  const drawn = q => Math.abs(px[q] - bg[q]) + Math.abs(px[q + 1] - bg[q + 1]) + Math.abs(px[q + 2] - bg[q + 2]) > 96;   // a letter, a plate, a product: not a glow
+
+  // edge: the box of everything drawn, against the frame
+  let x0 = W, y0 = H, x1 = -1, y1 = -1;
+  for (let y = 0; y < H; y += 2) for (let x = 0; x < W; x += 2) if (drawn((y * W + x) * 4)) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  const near = x1 < 0 ? U : Math.min(x0, y0, W - 1 - x1, H - 1 - y1), edgeOk = near >= U * PF.edge;
+  checks.push({ id: "edge", ok: edgeOk, value: `${Math.round(near / U * 1080)}px from the edge` });
+  if (!edgeOk) say("edge", "fix", "Something on the ad runs to the edge of the picture and may be cut off when it is posted.");
+
+  /* reads: inside a block's box, the pixels of its ink's colour are its letters; what stands behind
+     them is every pixel that is not a letter NOR within a few pixels of one. That ring matters: a
+     letter's soft edge is a blend of ink and ground, and counted as ground it reads 1:1 however
+     clear the type is (docs/THEME-AUDIT.md, correction 1: the first cut of this check failed
+     readable lines on exactly that, 2026-11-12). The ground's worst tenth (its brightest under
+     light ink, its darkest under dark) must still give the ratio. */
+  const reads = (r, inkHex) => {
+    const bx0 = Math.max(0, r[0] | 0), by0 = Math.max(0, r[1] | 0), bw = Math.min(W, Math.ceil(r[2])) - bx0, bh = Math.min(H, Math.ceil(r[3])) - by0;
+    if (bw < 6 || bh < 6) return 99;
+    const Li = Lhex(inkHex), light = Li >= .18, n = bw * bh, Lm = new Float32Array(n), isInk = new Uint8Array(n);
+    for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) { const L = Lat(px, ((by0 + y) * W + bx0 + x) * 4), i = y * bw + x; Lm[i] = L; if (cr(L, Li) < 1.6) isInk[i] = 1; }
+    // the ring round the letters: grown by d pixels, across then down
+    const d = Math.max(2, Math.round(U * .0045)), row = new Uint8Array(n), ring = new Uint8Array(n);
+    for (let y = 0; y < bh; y++) { let run = -1e9; for (let x = 0; x < bw; x++) { if (isInk[y * bw + x]) run = x; if (x - run <= d) row[y * bw + x] = 1; } run = 1e9; for (let x = bw - 1; x >= 0; x--) { if (isInk[y * bw + x]) run = x; if (run - x <= d) row[y * bw + x] = 1; } }
+    for (let x = 0; x < bw; x++) { let run = -1e9; for (let y = 0; y < bh; y++) { if (row[y * bw + x]) run = y; if (y - run <= d) ring[y * bw + x] = 1; } run = 1e9; for (let y = bh - 1; y >= 0; y--) { if (row[y * bw + x]) run = y; if (run - y <= d) ring[y * bw + x] = 1; } }
+    const Ls = []; for (let i = 0; i < n; i += 2) if (!ring[i]) Ls.push(Lm[i]);
+    if (Ls.length < 24) return 99;                          // letters fill the box: nothing behind them to measure
+    Ls.sort((a, b) => a - b);
+    return cr(Li, Ls[Math.min(Ls.length - 1, Math.floor(Ls.length * (light ? .9 : .1)))]);
+  };
+  // a pill's box holds its round ends, where the ground shows: the words are measured on the pill's straight middle
+  const inPill = r => { const h = r[3] - r[1]; return [r[0] + h * .5, r[1] + h * .14, r[2] - h * .5, r[3] - h * .14]; };
+  const ink = ad.pHead.ink, plateInk = contrastOf(ad.p.plate_ink, ad.p.plate) >= 3.5 ? ad.p.plate_ink : (lum(ad.p.plate) > .5 ? "#111111" : "#ffffff");
+  const lines = [["line", "the line under the headline", ink, PF.small], ["call to action", "the line over the number", ink, PF.small], ["footer", "the towns and website", ink, PF.small],
+    ["number", "the phone number", plateInk, PF.large], ["claim", "the claim", ad.claim ? ad.claim.ink : plateInk, PF.small]];
+  let worst = 99, worstName = "";
+  for (const [key, name, col, need] of lines) {
+    let r = R[key]; if (!r) continue;
+    if (key === "number") r = inPill(r);
+    if (key === "claim") r = inPill([ad.claim.x, ad.claim.y, ad.claim.x + ad.claim.c.width, ad.claim.y + ad.claim.c.height]);
+    const got = reads(r, col);
+    if (got < worst) { worst = got; worstName = name; }
+    if (got < need) say("reads", got < need * .8 ? "fix" : "note", `${name[0].toUpperCase() + name.slice(1)} is hard to read against what is behind it. Try another colour, or New look.`);
+  }
+  checks.push({ id: "reads", ok: !findings.some(f => f.code === "reads"), value: worst > 90 ? "every line clear" : `${worst.toFixed(1)}:1 at the least (${worstName})` });
+
+  // product: the middle of each product against the ground behind it
+  if (F.group && ad.phones.length) {
+    let low = 99;
+    for (const q of ad.phones) {
+      const cx = q.home[0] | 0, cy = q.home[1] | 0, s = Math.max(4, Math.round(Math.min(q.w, q.h) * q.size * .12)), P = [], G = [];
+      for (let y = cy - s; y <= cy + s; y += 2) for (let x = cx - s; x <= cx + s; x += 2) { if (x < 0 || y < 0 || x >= W || y >= H) continue; const o = (y * W + x) * 4; P.push(Lat(px, o)); G.push(Lat(bg, o)); }
+      if (!P.length) continue;
+      const mid = a => { a.sort((u, v) => u - v); return a[a.length >> 1]; };
+      low = Math.min(low, cr(mid(P), mid(G)));
+    }
+    const pOk = low >= PF.product;
+    checks.push({ id: "product", ok: pOk, value: low > 90 ? "clear" : `${low.toFixed(2)}:1 against the ground` });
+    if (!pOk) say("product", "note", "One of the products is close to the background's colour and may be hard to see. Try another colour for the ad.");
+  }
+
+  // feed: the letters' height on a small preview (the picture at a quarter of its size)
+  const k = 270 / U, hPx = Math.round((F.px.headline || 0) * .72 * k), nPx = Math.round((ad.num && ad.num.inkH ? ad.num.inkH : (F.px.number || 0) * .72) * k);
+  const feedOk = hPx >= PF.thumbHead && nPx >= PF.thumbNum;
+  checks.push({ id: "feed", ok: feedOk, value: `headline ${hPx}px and number ${nPx}px tall in a feed preview` });
+  if (hPx < PF.thumbHead) say("feed", "note", "The headline is long, so it is set small: it may not read in a feed's small preview. A shorter headline is set larger.");
+  if (nPx < PF.thumbNum) say("feed", "note", "The phone number is small in a feed's preview.");
+
+  // the layout's own findings, and the words
+  const lay = fullBlockers(ad), soft = /^(product \d+% of the height|headline set at)/;
+  checks.push({ id: "layout", ok: !lay.some(w => !soft.test(w)), value: lay.length ? lay[0] : "every block in its place" });
+  for (const w of lay) {
+    if (/^headline set at/.test(w)) continue;                                     // said by the feed check
+    if (/^product \d+%/.test(w)) say("layout", "note", "The product is small on this size. A shorter headline, or the Feed 4:5 size, gives it more room.");
+    else if (/left out/.test(w)) say("layout", "fix", /selling points/.test(w) ? "The selling points did not fit. Use shorter ones, or a shorter headline." : `The ${w.split(" left out")[0].replace("line", "line under the headline").replace("footer", "towns and website")} did not fit at a readable size. Shorten it.`);
+    else if (/sticker set at/.test(w)) say("layout", "note", "The sticker's words are long, so they are set small. One or two short words read best.");
+    else say("layout", "fix", "Two parts of the ad are too close together or outside the margin. Shorter words will fix it.");
+  }
+  const words = fullWords(st);
+  checks.push({ id: "words", ok: !words.length, value: words.length ? words[0].say : "no promise twice, nothing that needs proof" });
+  findings.push(...words);
+  const seen = new Set(), uniq = findings.filter(f => !seen.has(f.say) && seen.add(f.say));
+  return { ok: !uniq.some(f => f.level === "fix"), clean: !uniq.length, checks, findings: uniq };
+}
+
+/** The ad drawn as it will be delivered (every block landed), for the pre-flight and for a photo. */
+export function fullStill(ad) {
+  const c = canvas(ad.W, ad.H), st = ad.st;
+  const t = Math.max(isFinite(ad.tl.number) ? ad.tl.number + 1.2 : 0, (ad.tLanded || 0) + .6, (ad.tOutro != null ? ad.tOutro : st.duration) - .4);
+  ad.still = null; ad.frame(c.getContext("2d"), t, { subsFly: 4, subsMove: 2 }, 1 / 30);
+  return c;
 }

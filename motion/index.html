@@ -81,6 +81,11 @@
         <label class="mo-check mo-strong"><input type="checkbox" id="strong-only" checked> New looks must pass</label>
         <p class="mo-note">Measured off the rendered frames: what is on the very first frame, how much moves, and when the words can actually be read. Viewers decide in about a second and a half, often with the sound off.</p>
       </details>
+      <details class="mo-attn mo-full-only" id="full-checks" hidden>
+        <summary><b>Checked before it goes out</b> <span class="mo-score" id="full-checks-sum">&hellip;</span> <span class="mo-attn-hint">measured on the picture itself</span></summary>
+        <ul class="mo-attn-list" id="full-checks-list"></ul>
+        <p class="mo-note">Every time the ad changes it is drawn once more as it will be saved, and that picture is measured: nothing off the edge, every line readable against what is behind it, the product clear of the background, the headline and number readable in a feed's small preview, every part with its room, and the words (nothing said twice, nothing that needs proof).</p>
+      </details>
       <p class="mo-note mo-full-only mo-full-note" id="full-note" aria-live="polite"></p>
       <div class="mo-progress" id="progress" hidden><div class="mo-bar"><i id="bar"></i></div><span id="progress-label"></span></div>
       <p class="mo-note" id="export-note"></p>

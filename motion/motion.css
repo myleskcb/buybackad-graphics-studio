@@ -199,3 +199,4 @@ a.mo-btn{display:inline-flex;align-items:center;text-decoration:none}
 /* an ad about something other than phones: what only a phone ad uses is put away */
 [data-subject="other"] .mo-phone-only { display: none !important; }
 #f-subject { flex: 1; min-width: 0; }
+.mo-full-note.mo-full-fix { color: #a3261b; }

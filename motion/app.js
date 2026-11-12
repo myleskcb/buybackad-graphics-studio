@@ -2,7 +2,7 @@
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES } from "./catalog.js";
 import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf, lotInto } from "./engine.js";
-import { FullAd, fullStyle, fullBlockers, loadSubjectSet, COLOURWAYS, COLOUR_OF } from "./fullad.js";
+import { FullAd, fullStyle, fullPreflight, fullStill, loadSubjectSet, COLOURWAYS, COLOUR_OF } from "./fullad.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
@@ -239,6 +239,7 @@ async function strongSeed(base, locked, pool, content, post = st => st) {
     const st = state.full && !content ? { ...base, seed } : post(randomize(base, seed, locked, pool, content));
     const h = settle({ ...st }, locked);
     await loadFonts(fontsFor(h));
+    if (h.full) { try { const a = adFor(h, 360, Math.round(360 * (ASPECTS[h.aspect] || [1, 1])[1] / (ASPECTS[h.aspect] || [1, 1])[0])); if (!fullPreflight(a, fullStill(a)).ok) continue; } catch (e) { /* the audit below decides */ } }
     const rep = await auditLook(h, state.assets, { size: 120, secs: 3.4, sound: false, AdClass: AdOf(h) });
     const ok = id => rep.checks.find(c => c.id === id)?.ok;
     if (!best || rep.score > best.score) best = { st, score: rep.score };
@@ -316,18 +317,50 @@ function syncMode() {
   const S = subjectOf(state.style); $("new-picture").hidden = !(S && S.sets.length > 1);
   document.querySelectorAll("#mode [data-full]").forEach(b => b.setAttribute("aria-checked", String((b.dataset.full === "1") === state.full)));
 }
-/** After a full ad is drawn: which colours it wears, and anything it could not fit, said plainly. */
+/* THE PRE-FLIGHT ON THE PAGE (fullad.js fullPreflight, 2026-11-12: "another layer of self
+   validating or auditing before it's generated"). After a full ad is drawn the page draws it once
+   more as it will be delivered and measures that picture: its edges, every line against what is
+   behind it, the product against the ground, the letters' size in a feed's preview, the layout
+   and the words. What it finds is said under the preview in plain words; what would spoil the ad
+   stops a download until the customer says go on (preflightGate). */
+const CHECK_NAMES = { edge: "Nothing runs off the edge", reads: "Every line reads against what is behind it", product: "The product stands off the background",
+  feed: "It reads in a feed's small preview", layout: "Every part has its room", words: "The words: nothing twice, nothing that needs proof" };
+let preTimer = 0, preId = 0;
 function syncFull(ad) {
-  const note = $("full-note"); if (!note) return;
-  if (!ad || !ad.full) { note.textContent = ""; return; }
+  const note = $("full-note"), box = $("full-checks"); if (!note || !box) return;
+  clearTimeout(preTimer);
+  if (!ad || !ad.full) { note.textContent = ""; box.hidden = true; return; }
   document.querySelectorAll("#full-colours [data-colour]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.colour === (state.style.full_palette || "") || (!state.style.full_palette && b.dataset.colour === ""))));
-  const why = fullBlockers(ad);
-  const plain = w => w.replace("selling points left out: no room at a readable size", "The selling points did not fit. Use shorter ones, or a shorter headline.")
-    .replace(/^(claim|line|call to action|footer) left out.*/, (m, k) => `The ${k === "line" ? "line under the headline" : k === "footer" ? "towns and website" : k} did not fit at a readable size. Shorten it.`)
-    .replace(/^headline set at.*/, "The headline is long, so it is set small. A shorter one reads from further away.")
-    .replace(/^product \d+% of the height/, "The phones are small on this size. A shorter headline or the Feed 4:5 size gives them more room.");
-  const said = [...new Set(why.map(plain).filter(w => /^[A-Z]/.test(w)))];
-  note.textContent = said.join(" ");
+  box.hidden = false; $("full-checks-sum").textContent = "checking…"; $("full-checks-sum").className = "mo-score";
+  const id = ++preId;
+  preTimer = setTimeout(() => {
+    if (id !== preId || state.ad !== ad) return;
+    let rep; try { rep = fullPreflight(ad, fullStill(ad)); } catch (e) { console.warn("pre-flight", e); return; }
+    state.preflight = { ad, rep };
+    const passed = rep.checks.filter(c => c.ok).length, fixes = rep.findings.filter(f => f.level === "fix");
+    $("full-checks-sum").textContent = `${passed} of ${rep.checks.length}`; $("full-checks-sum").className = "mo-score " + (fixes.length ? "bad" : passed === rep.checks.length ? "good" : "ok");
+    $("full-checks-list").innerHTML = rep.checks.map(c => `<li><i>${c.ok ? "✅" : "⚠️"}</i><span>${CHECK_NAMES[c.id] || c.id}: <b>${String(c.value).replace(/</g, "&lt;")}</b></span></li>`).join("");
+    note.textContent = [...fixes, ...rep.findings.filter(f => f.level !== "fix")].slice(0, 3).map(f => f.say).join(" ");
+    note.classList.toggle("mo-full-fix", fixes.length > 0);
+  }, 320);
+}
+
+/** Before a full ad is made into a file: measured once more at the size it is delivered at. Clear, it goes
+ *  out. With something to fix, the customer is told what, and chooses to go back or to download it as it is. */
+async function preflightGate(st) {
+  if (!st.full) return true;
+  let rep;
+  try {
+    const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"], k = 1080 / Math.min(W0, H0), ad = adFor(st, Math.round(W0 * k), Math.round(H0 * k));
+    rep = fullPreflight(ad, fullStill(ad));
+  } catch (e) { console.warn("pre-flight", e); return true; }      // a check that cannot run never stands between a customer and their ad
+  const fixes = rep.findings.filter(f => f.level === "fix");
+  if (!fixes.length) return true;
+  return new Promise(resolve => {
+    let said = false; const done = v => { if (!said) { said = true; resolve(v); } };
+    VH().show({ tone: "info", title: "Check this ad before it goes out", message: fixes.map(f => f.say).join(" "),
+      actions: [{ label: "Go back and fix it", primary: true, run: () => done(false) }, { label: "Download it anyway", run: () => done(true) }], onClose: () => done(false) });
+  });
 }
 
 function buildPanel() {
@@ -1188,6 +1221,7 @@ async function download(opts = {}) {
     const gate = await planGate(() => download(opts), "Sign in to download your video. Video downloads come with Pro and Business.");
     if (!gate) return;
     const st = settle({ ...state.style });
+    if (st.full) { await loadFonts(fontsFor(st)); if (!await preflightGate(st)) { note("Not saved: the ad is waiting for its fix."); return; } }
     const made = await makeVideo(st, { how, withSound, prog, note, tried, watermark: gate.watermark });
     ad = made.ad;
     const { out, soundErr, soundDropped, scale, mp4Failed, W0, H0 } = made;
@@ -1260,6 +1294,7 @@ async function downloadJpg() {
     if (!gate) return;
     const st = settle({ ...state.style });
     await loadFonts(fontsFor(st));
+    if (!await preflightGate(st)) { note("Not saved: the ad is waiting for its fix."); return; }
     const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
     const photo = await makePhoto(st, `${fileStem(st)}-${st.aspect.replace(":", "x")}-${st.seed}.jpg`, Math.min(W0, H0), prog, gate);
     if (!await gate.count()) { note("Not saved: this plan's downloads are used up."); return; }
@@ -1312,6 +1347,7 @@ async function saveLook(stRaw, btn) {
   const note = t => { $("export-note").textContent = t; };
   const prog = (p, label) => { $("bar").style.width = Math.round(p * 100) + "%"; $("progress-label").textContent = label; };
   const st = stRaw.full ? stRaw : settle({ ...stRaw });
+  if (st.full) { await loadFonts(fontsFor(st)); if (!await preflightGate(st)) { if (b) b.disabled = false; $("progress").hidden = true; return null; } }
   let item = null;
   try {
     // a save is one of the plan's downloads, made at the plan's size and marks (planGate)
