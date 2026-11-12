@@ -5654,7 +5654,9 @@ silver, coins, car, Pokémon, the owner's default phones), looked at cell by cel
 and measured in OKLCH. Three faults, each in every pair it could reach.
 
 - **An accent is never faded by opacity.** The chevrons stepped toward the
-  number in opacity (.32, .6, 1). A see-through colour is that colour mixed
+  number in opacity (.32, .6, 1), set that morning so a photo would stop
+  catching whichever chevron the clock had lit (docs/FULL-AD-REVIEW-2026-11-12.md
+  item 7; that intent is kept). A see-through colour is that colour mixed
   into whatever is under it, in sRGB: gold over navy drew `#504b3a` (C .028,
   khaki grey), orange over navy a brown, gold over purple a rose-brown at hue
   25 (a third family on a two-family card), gold over green an olive. Rule

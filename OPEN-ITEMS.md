@@ -3340,7 +3340,9 @@ sheet per product, and every cell looked at and measured in OKLCH.
 Done (rule 139):
 - **The chevrons are the accent at full strength**, stepped in size, not
   opacity. The opacity step drew khaki, brown, rose-brown and olive on every
-  dark pair with a warm accent.
+  dark pair with a warm accent. The review's fix it replaces (§BD, item 7 of
+  docs/FULL-AD-REVIEW-2026-11-12.md: always larger toward the number, never
+  lit by the clock) still holds.
 - **GOLD and SILVER are drawn in their own colour or not accented**, and a
   seeded gold, silver, test strip or Pokémon ad draws its pair from the
   library's own `AFFINITY` (now each pair's `suits` in `house-colours.js`).
