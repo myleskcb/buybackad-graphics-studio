@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* THE FULL AD'S COLOURS, MEASURED (DESIGN-LAW 138; motion/fullad.js).
+/* THE FULL AD'S COLOURS, MEASURED (DESIGN-LAW 139; motion/fullad.js).
 
    The owner, 2026-11-12, of the full ad in the twelve proven pairs: "the theming is much better",
    "but still needs tweaks". Three faults were found and fixed where they start; this holds them:

@@ -96,7 +96,7 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
       }
       // the ad's own pre-flight, on the picture as delivered
       const c = F.fullStill(ad), pre = F.fullPreflight(ad, c);
-      rows.push({ name, aspect, seed, palette: st.full_colour, phones: st.phones.length, why, missing, offAxis, contrast, m, pre: { ok: pre.ok, failed: pre.checks.filter(x => !x.ok).map(x => x.id + ': ' + x.value), findings: pre.findings } });
+      rows.push({ name, aspect, seed, palette: st.full_colour, phones: st.phones.length, why, missing, offAxis, contrast, m, bpp: (pre.checks.find(x => x.id === 'calm') || {}).bpp || 0, pre: { ok: pre.ok, failed: pre.checks.filter(x => !x.ok).map(x => x.id + ': ' + x.value), findings: pre.findings } });
       if (wantSheet && s === 0) sheet.push([`${name} ${aspect}`, c.toDataURL('image/jpeg', .88), ad.W, ad.H]);
     }
     return { rows, sheet };
@@ -127,6 +127,7 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
     console.log(`  ${a.padEnd(5)} headline ${med(rs.map(r => r.m.px.headline))}px  number ${med(rs.map(r => r.m.px.number))}px  smallest line ${Math.min(...rs.map(r => r.m.smallest))}px  product ${Math.round(med(wp.map(r => r.m.product)) * 100)}% of the height  sticker ${wp.filter(r => r.m.sticker).length}/${wp.length}  icon ${wp.filter(r => r.m.icon).length}/${wp.length}  chevrons ${rs.filter(r => r.m.chevrons).length}/${rs.length}  frame covered ${Math.round(med(rs.map(r => r.m.fill)) * 100)}%`);
   }
   if (notes.length) console.log(`  said to the customer, not failed (long words): ${notes.length}, e.g. ${notes[0]}`);
+  { const b = out.rows.map(r => r.bpp).filter(Boolean).sort((x, y) => x - y); if (b.length) console.log(`  how busy (JPEG bytes a pixel x100): least ${(b[0] * 100).toFixed(1)}, middle ${(b[b.length >> 1] * 100).toFixed(1)}, most ${(b[b.length - 1] * 100).toFixed(1)}`); }
   console.log(`  pre-flight on the delivered picture: ${out.rows.filter(r => r.pre.ok).length}/${out.rows.length} with nothing to fix; notes said: ${Object.entries(preNotes).map(([k, n]) => k + ' ' + n).join(', ') || 'none'}`);
   if (SHEET && out.sheet.length) {
     mkdirSync(SHEET, { recursive: true });
@@ -228,7 +229,7 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
   ok(await shown('f-claim') && await shown('f-towns') && await shown('f-site') && await shown('f-burst') && await shown('full-colours'), 'its fields are shown: claim, towns, website, sticker, colours');
   ok(!(await page.evaluate(() => [...document.querySelectorAll('#design select[data-key="palette"], #design select[data-key="text_fx"], #flags')].some(e => e.getClientRects().length))), 'the looks it does not use are put away');
   ok(await page.evaluate(() => !!document.querySelector('#design select[data-key="audience"]') && document.querySelector('#design select[data-key="audience"]').getClientRects().length > 0), 'who the ad is for stays');
-  await page.fill('#f-number', '(562) 999-4994'); await page.fill('#f-headline', 'SELL YOUR IPHONE'); await page.fill('#f-towns', 'Long Beach • Lakewood • Downey'); await page.fill('#f-site', 'www.YourShop.com');
+  await page.fill('#f-number', '(562) 999-4994'); await page.fill('#f-headline', 'SELL YOUR IPHONE'); await page.fill('#f-towns', 'Long Beach • Lakewood • Downey'); await page.fill('#f-site', 'www.YourShop.com'); await page.fill('#f-biz', 'Your Shop');
   await page.waitForTimeout(1500);
   ok((await page.textContent('#full-note')).trim() === '', 'ordinary words fit: the page has nothing to say (' + JSON.stringify((await page.textContent('#full-note')).trim()) + ')');
   // the photo: the full ad at 1440, by the button a customer presses

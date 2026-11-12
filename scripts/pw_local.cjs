@@ -10,7 +10,7 @@
    usage:  PLAYWRIGHT_MODULE=$PWD/scripts/pw_local.cjs node scripts/full_ad_check.mjs
            FABRIC_JS=/path/fabric.min.js for the studio's pages (npm pack fabric@5.3.0, then
            package/dist/fabric.min.js; npm has no 5.3.1, the version cdnjs serves)
-   Written 2026-11-12 (OPEN-ITEMS §BD). */
+   Written 2026-11-12 (OPEN-ITEMS §BE). */
 const pw = require('playwright');
 const fs = require('fs');
 const path = require('path');

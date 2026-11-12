@@ -330,7 +330,7 @@ export const FULL_WORDS = {
 const stems = s => new Set(String(s || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/[^A-Z0-9$]+/).filter(w => w.length >= 4 || w === "$$$").map(w => w.slice(0, 5)));
 export const sharesWord = (a, b) => { const B = stems(b); return [...stems(a)].some(w => B.has(w)); };
 
-/* A WORD THAT NAMES A COLOUR IS DRAWN IN IT, OR NOT ACCENTED (rule 138). The accent goes to the
+/* A WORD THAT NAMES A COLOUR IS DRAWN IN IT, OR NOT ACCENTED (rule 139). The accent goes to the
    goods, so on a gold or silver ad it paints the metal's own name: before this, WE BUY GOLD drew
    GOLD in cyan, green, red or blue on seven of the twelve pairs, and WE BUY SILVER drew SILVER in
    gold, orange or yellow on seven. Gold is the gold-and-yellow band of rule 103's namedBand (hue
@@ -359,7 +359,7 @@ export function accentWord(headline, accent) {
   return ws.length - 1;
 }
 
-/* TWO COLOUR FAMILIES TO A CARD, THE PRODUCT COUNTED (rule 138). The owner's default set stands
+/* TWO COLOUR FAMILIES TO A CARD, THE PRODUCT COUNTED (rule 139). The owner's default set stands
    a Cosmic Orange 17 Pro Max in the middle, and the seed drew any of the twelve pairs under it: an
    orange phone on Midnight & Cyan, Blue & Green or Purple & Gold is a third colour. A phone counts
    when its picture is a colour (meta.body, measured at load: C .07 and up, the six bold finishes);
@@ -923,7 +923,7 @@ export class FullAd extends Ad {
    *  sRGB: gold over navy drew #504b3a (OKLCH C .028, khaki-grey), orange over navy a brown,
    *  gold over purple a rose-brown (hue 25, a third family), lime-gold over green an olive. Rule
    *  103: an accent keeps C .12 or more, and a warm hue is never drawn under its muddy floor. So
-   *  the step is in size and weight, which no ground can turn into a third colour (rule 138). */
+   *  the step is in size and weight, which no ground can turn into a third colour (rule 139). */
   _chevrons(ctx, t) {
     const marks = chevronMarks(this); if (!marks.length) return;
     const q = prog(t, this.tl.number + .3, .3); if (q <= 0) return;
@@ -979,7 +979,11 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const line = st.feed_line ?? (st.tag || one(FULL_WORDS.line));
   const points = st.points ?? (pointsOf(st).length ? pointsOf(st).join(", ") : fresh(FULL_WORDS.points, [st.headline, line]));
   const label = st.number_label || (es ? "LLAMA O MANDA TEXTO" : FULL_WORDS.label[0]);
-  const claim = st.feed_claim ?? fresh(FULL_WORDS.claim, [st.headline, line, points]);
+  // who is buying: a business name, where one is given, takes the badge (the first thing read). An ad
+  // with no name on it is the pattern of the buyers nobody trusts (competitor research, 2026-11-12:
+  // the brand is what carries the eye to the rest of an ad; "top dollar" is on every sign in the trade)
+  const biz = String(st.biz || "").trim();
+  const claim = st.feed_claim ?? (biz ? biz.toUpperCase() : fresh(FULL_WORDS.claim, [st.headline, line, points]));
   const burst = st.feed_burst ?? fresh(es ? FULL_WORDS.burst_es : FULL_WORDS.burst, [st.headline, line, points, claim, label]);
   const words = {
     feed_claim: claim, feed_line: line, points, number_label: label,
@@ -1073,7 +1077,7 @@ export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cu
 
    Each finding is { code, level, say }: level "fix" stops a download until the customer says
    go on; "note" is said and does not stop it. say is in the customer's words (rule 113). */
-const PF = { edge: .016, small: 4.5, large: 3, product: 1.25, thumbHead: 20, thumbNum: 16 };   // edge: 17px of 1080; a shadow's fringe on a light ground reaches 21
+const PF = { edge: .016, small: 4.5, large: 3, product: 1.25, thumbHead: 20, thumbNum: 16, calm: .32 };   // calm: JPEG bytes a pixel at 540 (see fullPreflight); the 120 phone ads of full_ad_check weigh .105 to .243   // edge: 17px of 1080; a shadow's fringe on a light ground reaches 21
 const PROOF = /(^|[^A-Z0-9])(#\s?1|NO\.?\s?1|NUMBER ONE|BEST|HIGHEST|FASTEST|GUARANTEED?|MOST MONEY|LOWEST|UNBEATABLE)([^A-Z0-9]|$)/i;
 
 /** The words alone: what repeats, what needs proof, what will not read as what it is. */
@@ -1093,6 +1097,7 @@ export function fullWords(st) {
   }
   const site = String(st.site || st.feed_site || "").trim();
   if (site && !/[a-z0-9-]+\.[a-z]{2,}/i.test(site)) say("address", "note", "The website does not look like an address. Write it as it is typed, like www.yourshop.com.");
+  if (!site && !String(st.biz || "").trim()) say("identity", "note", "Nothing on the ad says who is buying. Add your business name: a named buyer is the one people trust.");
   const digits = String(st.number || "").replace(/\D/g, "");
   if (!digits) say("address", "fix", "There is no phone number on the ad.");
   else if (!(digits.length === 10 || (digits.length === 11 && digits[0] === "1") || (String(st.number).trim()[0] === "+" && digits.length >= 8))) say("address", "note", `The phone number has ${digits.length} digits. A US number has 10.`);
@@ -1178,6 +1183,17 @@ export function fullPreflight(ad, frame) {
   checks.push({ id: "feed", ok: feedOk, value: `headline ${hPx}px and number ${nPx}px tall in a feed preview` });
   if (hPx < PF.thumbHead) say("feed", "note", "The headline is long, so it is set small: it may not read in a feed's small preview. A shorter headline is set larger.");
   if (nPx < PF.thumbNum) say("feed", "note", "The phone number is small in a feed's preview.");
+
+  /* calm: how busy the picture is, by what it weighs compressed. Dense detail is the measured thing that
+     costs an ad attention in a feed, and compressed size is how the eye-tracking work measured it
+     (competitor research, 2026-11-12). The bar is set over what this layout draws today (full_ad_check
+     prints the spread), so it catches the day a ground, an effect or an icon makes the ad busier. */
+  // weighed at one size (540 on the short side), whatever size the picture is: a small picture weighs more a pixel
+  let bpp = 0;
+  try { const k = 540 / U, sw = Math.round(W * k), sh = Math.round(H * k), sc = canvas(sw, sh); sc.getContext("2d").drawImage(frame, 0, 0, sw, sh); bpp = sc.toDataURL("image/jpeg", .8).length * .75 / (sw * sh); }
+  catch (e) { /* a canvas that cannot be read is not measured */ }
+  checks.push({ id: "calm", ok: !bpp || bpp <= PF.calm, value: bpp ? `${(bpp * 100).toFixed(1)} of ${(PF.calm * 100).toFixed(0)} allowed` : "not measured", bpp });
+  if (bpp > PF.calm) say("calm", "note", "The picture is busy. A plainer look reads faster in a feed: try New look.");
 
   // the layout's own findings, and the words
   const lay = fullBlockers(ad), soft = /^(product \d+% of the height|headline set at)/;

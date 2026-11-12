@@ -3291,7 +3291,42 @@ Open:
 4. Not exercised against production: this session's network cannot reach
    Netlify. The server save needs `JWT_SECRET`, as every account feature.
 
-## BD. 2026-11-12 — the full ad's colours, tweaked (DESIGN-LAW 138)
+## BD. 2026-11-12 — live; the review by eye; the pre-flight; competitors (DESIGN-LAW 138)
+
+(claude/friendly-heisenberg-868z63. `main` moved to 9dddf354 on the owner's "go live".)
+
+Done:
+- **`main` is §BC's work.** GitHub's deploy run moved buybackad-finished-copy's
+  branch (it builds itself). The direct deploy to buybackad-graphics-studio was
+  **skipped: NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID are not set** on the
+  repository. Set them and re-run "Deploy main to Netlify", or deploy from the Mac.
+- **Reviewed by eye**: thirteen faults in ten ads, fixed where each starts
+  (docs/FULL-AD-REVIEW-2026-11-12.md).
+- **The pre-flight** (rule 138) on the page, before every download, in the check.
+- **A business name** on the ad (the badge), from the competitor pass.
+- **Competitor and evidence research**: docs/COMPETITOR-RESEARCH-2026-11-12.md.
+
+Open:
+1. **This round is on the branch, not on `main`** (everything after 9dddf354).
+2. **The research saw no competitor picture**: every image host is blocked from
+   the cloud container. Thirty minutes by hand (its section 2.5), or those hosts
+   allowed in the environment, closes it.
+3. **For the owner to decide, from the research**: an OfferUp-safe export (no
+   number, no website, little text); the website line off the picture; three
+   claims instead of six; the sticker off by default; an owner-entered price
+   line and proof chip; a "data wiped" chip; a real photograph in the product's
+   place. Each cuts against something the owner asked for by name (the website
+   on 2026-11-03, "maximize elements" and "eye catchy elements" on 2026-11-11),
+   so none was changed.
+4. **"Text a photo, get a price"** (research) is rule 136's opposite: for phones
+   the named first step is TEXT YOUR IMEI.
+5. **Claude on every customer's ad** is not built: the pre-flight is the
+   automatic part. A model looking at each ad needs the backend to call one per
+   ad (cost and seconds each); the weekly iPhones LA batch already has a session
+   look at its sheet. Offer it as a paid "second opinion" only if wanted.
+6. **Any look** has none of this: the pre-flight and the review are the full ad's.
+
+## BE. 2026-11-12 — the full ad's colours, tweaked (DESIGN-LAW 139)
 
 (claude/admiring-hamilton-6bbehw, from `main` at 9dddf354, with
 claude/friendly-heisenberg-868z63 (the full ad reviewed by eye, the pre-flight),
@@ -3302,7 +3337,7 @@ The owner: "the theming is much better", "but still needs tweaks". No tweak was
 named, so the twelve pairs were drawn on the same ad, everything else held, one
 sheet per product, and every cell looked at and measured in OKLCH.
 
-Done (rule 138):
+Done (rule 139):
 - **The chevrons are the accent at full strength**, stepped in size, not
   opacity. The opacity step drew khaki, brown, rose-brown and olive on every
   dark pair with a warm accent.
@@ -3327,7 +3362,7 @@ Open:
    degrees: gold is hue 81, the Cosmic Orange body 47, and the law's family gap
    is 30 (`pgHuePlan`). By eye both look fine (analogous warms). If the owner
    wants them back, widen `FAMILY_GAP` to 35 in `motion/fullad.js` and say so in
-   rule 138; Green & Gold comes back with them.
+   rule 139; Green & Gold comes back with them.
 3. **The lit patch of each ground is under rule 103's ground chroma** (the
    pair's `light`, its lighter stop mixed a fifth toward white in sRGB: navy
    C .091, green .083, teal .053 where 0.14 is asked at that luminance). Not
@@ -3353,7 +3388,7 @@ Open:
    video look ("Any look") and iPhones LA's feed stills draw them, so a warm
    accent's unlit chevrons are the same khaki and brown as the full ad's were.
    Not changed: the feed's ads are the owner's approved set (§BC 4), and the
-   running light is an animation the owner may want as it is. The rule 138
+   running light is an animation the owner may want as it is. The rule 139
    fix, if wanted: unlit at full colour without the glow and at the full ad's
    `CHEVRON_STEP` sizes, lit with the glow.
 9. **Not re-run here**: `steps_rhythm_audit.mjs` and `step_number_audit.mjs`

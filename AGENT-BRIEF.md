@@ -610,7 +610,7 @@ produced." DESIGN-LAW rule 87. In practice:
   painters: `node scripts/full_ad_check.mjs`, then `quick_ad_check.mjs` and
   `buylist_check.mjs`. Retired templates are `template-retired.js` (by hand;
   `?noretire=1` shows them).
-- **The full ad's colours** (rule 138, 2026-11-12): never fade an accent by
+- **The full ad's colours** (rule 139, 2026-11-12): never fade an accent by
   opacity (a see-through gold over navy is khaki); a word naming a colour
   (GOLD, SILVER, ORO, PLATA) is accented only by that colour (`accentWord`);
   a seeded ad's pair comes from `pairsFor`: the pairs that suit its line

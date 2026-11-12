@@ -297,7 +297,7 @@ function stopAudio() { if (state.audioSrc) { try { state.audioSrc.stop(); } catc
 // ------------------------------------------------------------ the panel
 
 // the full ad's fields: [input, key in the style, longest]
-const FULL_FIELDS = [["f-claim", "feed_claim", 44], ["f-towns", "feed_where", 60], ["f-site", "site", 40], ["f-burst", "feed_burst", 14]];
+const FULL_FIELDS = [["f-biz", "biz", 28], ["f-claim", "feed_claim", 44], ["f-towns", "feed_where", 60], ["f-site", "site", 40], ["f-burst", "feed_burst", 14]];
 const fullName = st => (COLOUR_OF[st.full_colour] || {}).name || lookName(st);   // the pair's name, the same as Easy Mode's theme
 
 /** What the ad can be about, into its picker: iPhones first (the maker's own), then the offer family's lines by group. */
@@ -323,7 +323,7 @@ function syncMode() {
    behind it, the product against the ground, the letters' size in a feed's preview, the layout
    and the words. What it finds is said under the preview in plain words; what would spoil the ad
    stops a download until the customer says go on (preflightGate). */
-const CHECK_NAMES = { edge: "Nothing runs off the edge", reads: "Every line reads against what is behind it", product: "The product stands off the background",
+const CHECK_NAMES = { calm: "The picture is calm enough to read fast", edge: "Nothing runs off the edge", reads: "Every line reads against what is behind it", product: "The product stands off the background",
   feed: "It reads in a feed's small preview", layout: "Every part has its room", words: "The words: nothing twice, nothing that needs proof" };
 let preTimer = 0, preId = 0;
 function syncFull(ad) {
