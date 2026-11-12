@@ -14,8 +14,8 @@
 // reuses the engine's painter, placement and collision passes and changes only what the maker
 // keeps small or leaves out.
 import { Ad, inkSprite, splitLines, trim, canvas, lum, prog, outBack, rng, clamp, contrastOf, fontCss, applyCase, labelFont, burstFontFor,
-  headlineLines, numberSprite, perksSprite, pointsOf, randomize, harmonise } from "./engine.js";
-import { FONTS, PALETTES, DEFAULT_STYLE } from "./catalog.js";
+  headlineLines, numberSprite, perksSprite, pointsOf, randomize, harmonise, formatNumber } from "./engine.js";
+import { FONTS, FINE_FACES, PALETTES, DEFAULT_STYLE } from "./catalog.js";
 import { drawChevrons } from "./decor.js";
 import { placeAccents, timeAccents } from "./accents.js";
 import { HOUSE_COLOURS } from "./house-colours.js";
@@ -289,7 +289,7 @@ export const FULL = {
 /** The house style (tools/feed-stills/render.mjs HOUSE and QUIET, 2026-11-03): one face, capitals,
  *  the double outline, one accent word, the number in a pill, and everything in the maker that
  *  puts small words or stray marks on the picture held off. */
-export const HOUSE = { font: "chivo", text_fx: "double_outline", case: "upper", color_mode: "accent_word", number_style: "pill", text_pos: "top-center" };
+export const HOUSE = { font: "chivo", text_fx: "double_outline", case: "brand", color_mode: "accent_word", number_style: "pill", text_pos: "top-center" };
 export const QUIET = { decor: [], urgency: "none", overlay: "none", accents: 0, board: "none", number_pos: "bottom-center", number_format: "parens",
   camera: "still", shake: 0, sparkles: false, text_in: "slide", pose: "flat", end_face: "back", phone_idle: "breathe", grade: "none", depth: "none",
   text_scale: 1, number_scale: 1, tracking: 0, skew: 0, hook: "none", season: "none", phone_finish: "standard", transition: "none", ...HOUSE };
@@ -300,9 +300,16 @@ export const QUIET = { decor: [], urgency: "none", overlay: "none", accents: 0, 
    feed stills keep their own list (tools/feed-stills/render.mjs). */
 export const COLOURWAYS = HOUSE_COLOURS.map(c => c.key);
 export const COLOUR_OF = Object.fromEntries(HOUSE_COLOURS.map(c => [c.key, c]));
-export const GROUNDS = ["radial", "spotlight", "studio_sweep", "tonal", "spot_floor", "linear"];
+/* Grounds with nothing drawn in them. The review of 2026-11-12 found the others' features under
+   the content: the edges of spot_floor's cone ran behind the chips and through the chevrons, and
+   studio_sweep's floor line stood as a row of ticks under the number. The depth comes from the
+   light the layout puts behind the product, where it knows the product is. */
+export const GROUNDS = ["radial", "tonal", "linear"];
 export const ARRANGEMENTS = ["lineup", "fan", "showcase", "podium", "wings"];
-export const ICONS = ["cash", "money", "deal", "local", "trust"];
+/* One icon, where a size has room for one: the fan of banknotes. The review of 2026-11-12: the
+   handshake is a photograph of two suits (clip art beside flat type), the red pin repeats the
+   footer's pin, and pin and shield each bring a third colour onto a two-colour card. */
+export const ICONS = ["cash"];
 /** What an ad says when its maker has typed nothing: claims any buyer can stand behind (no "#1",
  *  "best" or "fastest", which need proof; DESIGN-LAW's honest-claims rule). */
 export const FULL_WORDS = {
@@ -310,8 +317,26 @@ export const FULL_WORDS = {
   line: ["ALL MODELS WANTED", "NEW, USED OR CRACKED", "ANY CARRIER • ANY CONDITION"],
   points: ["FREE QUOTE, CASH SAME DAY, NO FEES", "QUOTE BY TEXT, PAID TODAY, WE MEET YOU", "TEXT US NOW, TOP DOLLAR, ANY CONDITION"],
   label: ["CALL OR TEXT", "TEXT US NOW", "GET YOUR OFFER"],
-  burst: ["CASH!", "FAST CASH", "TOP $$$", "PAID TODAY"],
+  burst: ["CASH!", "FAST CASH", "TOP $$$", "PAID TODAY", "SAME DAY", "EASY SALE"],
+  burst_es: ["PAGO HOY", "PAGO YA", "FÁCIL"],
 };
+
+/* ONE PROMISE, ONCE. The review of 2026-11-12 found the same promise three times on one square:
+   "CASH TODAY" in the claim, "CASH PAID" in a chip, "PAID TODAY" on the sticker. Two lines share a
+   promise when they share a word's stem (four letters and up, its first five), the test the
+   iPhones LA generator uses (tools/feed-stills/generate.mjs). */
+const stems = s => new Set(String(s || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/[^A-Z0-9$]+/).filter(w => w.length >= 4 || w === "$$$").map(w => w.slice(0, 5)));
+export const sharesWord = (a, b) => { const B = stems(b); return [...stems(a)].some(w => B.has(w)); };
+
+/** Which word of the headline wears the accent: the goods, else the money, else the verb, else the
+ *  last word. ("UPGRADING? SELL YOUR OLD ONE" accented ONE, the one word that says nothing.) */
+const GOODS = /^(I?PHONES?|IPADS?|IMACS?|MACBOOKS?|WATCH(ES)?|GALAXY|PIXEL|FOLDABLES?|TABLETS?|CONSOLES?|SWITCH|CONTROLLERS?|LAPTOPS?|HEADSETS?|HANDHELDS?|PCS?|HEADPHONES|EARBUDS|SPEAKERS?|MONITORS?|SSDS?|CHROMEBOOKS?|GLASSES|SMARTWATCH(ES)?|GOLD|SILVER|COINS?|CARS?|TRUCKS?|STRIPS|CARDS?|CAMERAS?|DRONES?|CELULAR(ES)?|TEL[EÉ]FONOS?|ORO|PLATA|MONEDAS?|CARROS?)$/;
+const MONEY = /^(CASH|PAID|MONEY|DOLLAR|EFECTIVO|DINERO)$/, VERB = /^(SELL|BUY|TRADE|VENDE|COMPRAMOS)$/;
+export function accentWord(headline) {
+  const ws = String(headline || "").toUpperCase().split(/\s+/).map(w => w.replace(/[^A-ZÁÉÍÓÚÑ0-9]/g, ""));
+  for (const re of [GOODS, MONEY, VERB]) { for (let i = ws.length - 1; i >= 0; i--) if (re.test(ws[i])) return i; }
+  return ws.length - 1;
+}
 
 /** A map pin, drawn (an emoji pin is a different picture on every device, and none on some). */
 function pin(x, cx, cy, h, fill, dot) {
@@ -333,6 +358,24 @@ function footRow(text, px, color, family, weight, pinFill) {
   return c;
 }
 
+/** The number on its pill, the figures centred in it by their own ink. The engine's pill is set
+ *  from the face's ascent, so the brackets of "(562)", which hang under the baseline, came within
+ *  4px of its lower edge while 22px stood clear above (review, 2026-11-12; DESIGN-LAW 58: copy is
+ *  never touched by a plate's edge). Returns the sprite, the margin its shadow takes round the
+ *  pill, and the pill's own size. */
+function numberPill(text, size, font, p) {
+  const col = contrastOf(p.plate_ink, p.plate) >= 3.5 ? p.plate_ink : (lum(p.plate) > .5 ? "#111111" : "#ffffff");
+  const P = { ...p, ink: col, accent: col };
+  const ink = trim(inkSprite(text, [...text].map(() => col), font, size, 0, "flat", P, 0).c);
+  const padX = size * .5, padY = Math.max(size * .17, ink.height * .19), w = Math.ceil(ink.width + padX * 2), h = Math.ceil(ink.height + padY * 2);
+  const sk = Math.max(.2, size / 96), m = Math.ceil(16 * sk);
+  const c = canvas(w + m * 2, h + m * 2), x = c.getContext("2d");
+  x.save(); x.shadowColor = "rgba(0,0,0,.32)"; x.shadowBlur = 11 * sk; x.shadowOffsetY = 4 * sk;
+  x.beginPath(); x.roundRect(m, m, w, h, h / 2); x.fillStyle = p.plate; x.fill(); x.restore();
+  x.drawImage(ink, m + (w - ink.width) / 2, m + (h - ink.height) / 2);
+  return { c, pad: m, w, h, inkH: ink.height };
+}
+
 const stackRows = (rows, gap) => {
   const c = canvas(Math.max(...rows.map(r => r.width)), Math.ceil(rows.reduce((h, r) => h + r.height, 0) + gap * (rows.length - 1)));
   let y = 0; for (const r of rows) { c.getContext("2d").drawImage(r, (c.width - r.width) / 2, y); y += r.height + gap; }
@@ -342,7 +385,20 @@ const stackRows = (rows, gap) => {
 export class FullAd extends Ad {
   constructor(style, assets, width, height) {
     super(style, assets, width, height, { plan: false });   // laid out at this size by the rules below, never from the plain engine's plan
+    this._productLight();
     this._evenGround();
+  }
+
+  /** A light behind the product, in the colourway's own lighter tone, painted into the ground once.
+   *  The review of 2026-11-12: a deep-blue phone on charcoal, a black tablet on navy and a dark
+   *  laptop on indigo stood in the dark. The layout knows where the product is; a ground does not. */
+  _productLight() {
+    const G = this.full && this.full.group; if (!G) return;
+    const x = this.bg.getContext("2d"), cx = (G[0] + G[2]) / 2, cy = (G[1] + G[3]) / 2, rx = (G[2] - G[0]) * .8, ry = (G[3] - G[1]) * .74;
+    const [r, g, b] = [1, 3, 5].map(i => parseInt(this.p.light.slice(i, i + 2), 16)), up = v => Math.round(v + (255 - v) * .35), c = a => `rgba(${up(r)},${up(g)},${up(b)},${a})`;
+    x.save(); x.translate(cx, cy); x.scale(rx, ry);
+    const gl = x.createRadialGradient(0, 0, 0, 0, 0, 1); gl.addColorStop(0, c(.6)); gl.addColorStop(.55, c(.22)); gl.addColorStop(1, c(0));
+    x.fillStyle = gl; x.fillRect(-1, -1, 2, 2); x.restore();
   }
 
   /** The small lines stand on the ground itself, and a ground has a lit patch or a floor: dark ink
@@ -391,13 +447,17 @@ export class FullAd extends Ad {
   _layoutType() {
     const st = this.st, W = this.W, H = this.H, p = this.p, ph = this.pHead;
     const U = Math.min(W, H), ar = W / H, wide = ar >= 1.3, tall = ar < .7;
-    const e = U * FULL.edge, g = U * FULL.gap, ey = tall ? H * .055 : e;    // a story stays clear of the app's bars
+    const e = U * FULL.edge, g = U * FULL.gap;
+    // A story is shown under the app's own bars: the account's name across the top, the reply box and the
+    // button across the bottom. Meta asks for about 14% clear at the top and 20% at the bottom of a 9:16
+    // (250 and 340px of 1920); the ground runs under them, the ad stands between.
+    const eyT = tall ? H * .125 : e, eyB = tall ? H * .17 : e;
     // the column the words stand in; on a wide frame the product has the right of it
     const cx0 = e, cx1 = wide ? W * .56 : W - e, colW = cx1 - cx0, mid = (cx0 + cx1) / 2;
     const font = LEGIBLE.has((FONTS[st.font] || [])[3]) ? st.font : "franklin";
     const [fam, fwt] = FONTS[font] || FONTS.franklin;
     const ink = ph.ink, fx = lum(ink) < .5 ? "flat" : "shadow";
-    const upper = t => t.toUpperCase().replace(/\bIPHONE/g, "iPHONE").replace(/\bIPAD/g, "iPAD");
+    const upper = t => applyCase(t, "brand");                 // one spelling on the card: the headline's
     const paint = (line, px) => trim(inkSprite(line, [...line].map(() => ink), font, px, .02, fx, ph).c);
     /* A line of body type in the fewest rows that fit: one; two, broken at a separator
        ("A • B • C") or between words; three, one item a row. Smaller only when no break
@@ -441,10 +501,12 @@ export class FullAd extends Ad {
     const labB = body(st.number_label, U * FULL.label, U * FULL.labelMin, 1);
     if (st.number_label && !labB) F.left.push("call to action");
     // the number: its pill a fixed share of the column, the chevrons either side of it
-    const numFor = z => { const n = numberSprite({ ...st, number_label: "" }, p, z, null); return { ...n, label: null }; };
+    const numText = formatNumber(st.number, st.number_format) || "YOUR NUMBER";
+    let numFont = st.number_font === "same" ? st.font : st.number_font; if (FINE_FACES.has(numFont) || !FONTS[numFont]) numFont = "oswald";
+    const numFor = z => { const n = numberPill(numText, z, numFont, p); return { ...n, text: numText, label: null }; };
     let nz = U * .09, num = numFor(nz);
-    nz *= Math.min(colW * FULL.pill / num.c.width, U * FULL.number / nz); num = numFor(nz);
-    for (let k = 0; k < 4 && num.c.width > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.c.width; num = numFor(nz); }
+    nz *= Math.min(colW * FULL.pill / num.w, U * FULL.number / nz); num = numFor(nz);
+    for (let k = 0; k < 4 && num.w > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.w; num = numFor(nz); }
     if (labB) num = { ...num, label: labB.c };
     // the footer: the towns after a pin, over the website
     const where = (st.feed_where || "").replace(/^\s*\p{Extended_Pictographic}️?\s*/u, "").trim().toUpperCase(), site = (st.feed_site || "").trim();
@@ -454,7 +516,7 @@ export class FullAd extends Ad {
       const pmin = Math.floor(U * FULL.footMin);
       for (let px = Math.round(U * FULL.foot); ; px = Math.max(pmin, Math.floor(px * .94))) {
         const rows = [where && footRow(where, px, ink, lf, lw, this.hot), site && footRow(site, px, ink, lf, lw)].filter(Boolean);
-        if (rows.every(r => r.width <= colW)) { foot = { c: rows.length === 1 ? rows[0] : stackRows(rows, Math.round(U * .006)), px }; break; }
+        if (rows.every(r => r.width <= colW)) { foot = { c: trim(rows.length === 1 ? rows[0] : stackRows(rows, Math.round(U * .006))), px }; break; }   // trimmed: a gap is measured to its letters
         if (px <= pmin) break;
       }
       if (!foot) F.left.push("footer");
@@ -487,23 +549,20 @@ export class FullAd extends Ad {
     };
     const hasChips = pointsOf(st).length > 0, hasPhones = this.phones.length > 0;
     // the gaps between one block and the next, in units of g; the room left over stretches them all alike
-    const gClaim = 1.15, gBand = 1.4, gLab = .8, gFoot = 1.25;
+    const gClaim = 1.15, gBand = 1.4, gLab = .8, gFoot = 1.1;
     // the line under the headline clears the outline that hangs under its letters
     const tagGap = hd => Math.max(g * .9, hd.size * .24);
     const fixedOf = hd => (claim ? claim.c.height + g * gClaim : 0) + hd.blockH + (tagB ? tagB.c.height + tagGap(hd) : 0) + g * gBand * 2
-      + (labB ? labB.c.height + g * gLab : 0) + num.c.height + (foot ? foot.c.height + g * gFoot : 0);
-    // the product's band: what the words must leave it (a wide frame keeps only the chips there)
-    const bandMin = wide ? (hasChips ? U * .075 : 0) : H * (!hasPhones && !hasChips ? 0 : !hasPhones ? .1 : tall ? .42 : ar < .9 ? .36 : .215);
-    let headMax = H * (wide ? .36 : tall ? .18 : ar < .9 ? .22 : .3), hd = headAt(headMax), band = H - 2 * ey - fixedOf(hd);
-    for (let k = 0; k < 14 && band < bandMin && hd.size > U * .072; k++) { headMax *= .93; hd = headAt(headMax); band = H - 2 * ey - fixedOf(hd); }
-    band = Math.max(0, band);
+      + (labB ? labB.c.height + g * gLab : 0) + num.h + (foot ? foot.c.height + g * gFoot : 0);
 
     /* ---- the band: selling points | the product | the sticker and the icon ----
        Sized before it is placed: the band takes the height its contents reach, and the room
-       left over goes to the gaps. Two shapes are tried, and the one that shows the product
-       larger is kept: the points beside the product (a low band), or across the top of it. */
+       left over goes to the gaps. Three shapes are tried, and the one that shows the product
+       largest is kept: the points beside the product (a low band), across the top of it, or
+       (a tall frame) in a stack with the sticker beside them and the product under both. */
     const items = pointsOf(st), face = labelFont(st);
-    const phoneCap = H * (wide ? .8 : tall ? .4 : .46);
+    const Hu = H - eyT - eyB;                                 // the height the ad stands in (a story's, between the app's bars)
+    const phoneCap = wide ? H * .8 : Hu * (tall ? .52 : .49);
     const reach = q => { const a = q.angle * Math.PI / 180; return [q.size * (q.w * Math.abs(Math.cos(a)) + q.h * Math.abs(Math.sin(a))) / 2, q.size * (q.h * Math.abs(Math.cos(a)) + q.w * Math.abs(Math.sin(a))) / 2]; };
     // The engine spreads a set across its stage: a video's phones have the frame to themselves.
     // Here they stand shoulder to shoulder on one floor, in the engine's left-to-right order:
@@ -574,10 +633,10 @@ export class FullAd extends Ad {
       }
       return beside;
     };
-    const shape = (mode) => {
+    const shape = (mode, band) => {
       if (wide) {
         const chips = items.length ? chipsFor([[items.length, true], [items.length, false], [2, true], [2, false]], colW, band, "c") : null;
-        return { mode: "wide", chips, sub: subject(W - e - W * .59, H - 2 * ey), need: chips ? chips.q.h : 0 };
+        return { mode: "wide", chips, sub: subject(W - e - W * .59, H - 2 * e), need: chips ? chips.q.h : 0 };
       }
       if (mode === "side") {
         const chips = items.length && band > U * .05 ? chipsFor(hasPhones ? [[items.length, false], [2, false]] : [[items.length, true], [items.length, false], [2, false]], hasPhones ? colW * .47 : colW, band, hasPhones ? "l" : "c") : null;
@@ -597,18 +656,42 @@ export class FullAd extends Ad {
       const sub = subject(colW, band - (chips ? chips.q.h + g * 1.4 : 0));
       return { mode, chips, sub, need: (chips ? chips.q.h + (sub.h ? g * 1.4 : 0) : 0) + sub.h };
     };
-    // the shape that shows the product largest; a sticker is worth a quarter of the product's size, an icon a twentieth
-    const worth = T => T ? T.sub.k * (1 + (T.sub.rb || T.rb ? .25 : 0) + (T.sub.ri ? .05 : 0)) * (T.chips || !items.length ? 1 : .7) : -1;
-    let S = shape("side");
-    if (!wide && hasPhones) for (const m of ["stack", "tall"]) { const T = shape(m); if (worth(T) > worth(S) * 1.03) S = T; }
+    // the shape that shows the product largest; a sticker is worth a quarter of the product's size, an icon a
+    // twentieth, and larger points break a tie (a stack of them at 43px against a strip at 33px)
+    const worth = T => T ? T.sub.k * (1 + (T.sub.rb || T.rb ? .25 : 0) + (T.sub.ri ? .05 : 0)) * (T.chips ? (T.chips.fs / (U * FULL.chip)) ** .35 : items.length ? .7 : 1) : -1;
+    const bestShape = band => { let S = shape("side", band); if (!wide && hasPhones) for (const m of ["stack", "tall"]) { const T = shape(m, band); if (worth(T) > worth(S) * 1.03) S = T; } return S; };
+
+    /* ---- the headline gives way only while the product is held back by the band's height ----
+       The band is owed a share of the frame (bandMin), but only a product that can use it: a
+       laptop or a car is as wide as the column long before it is that tall, and the review of
+       2026-11-12 found "CASH FOR MACBOOKS" set at 70px to keep room no laptop could fill. */
+    const bandMin = wide ? (hasChips ? U * .075 : 0) : Hu * (!hasPhones && !hasChips ? 0 : !hasPhones ? .1 : tall ? .45 : ar < .9 ? .38 : .23);
+    // what the band's contents would take of the share they are owed: all of it for phones, less for a wide picture
+    const wantBand = Math.min(bandMin, bestShape(bandMin).need || bandMin);
+    const bandOf = h => Math.max(0, Hu - fixedOf(h));
+    let headMax = wide ? H * .36 : Hu * (tall ? .26 : ar < .9 ? .235 : .32), hd = headAt(headMax), band = bandOf(hd);
+    for (let k = 0; k < 14 && band < wantBand - 1 && hd.size > U * .072; k++) { headMax *= .93; hd = headAt(headMax); band = bandOf(hd); }
+    let S = bestShape(band);
+    // and room the band's contents cannot use goes back to the headline, while it makes the headline larger
+    // (a headline as wide as the column gains nothing) and costs the product nothing
+    for (let k = 0; k < 8 && band - S.need > g * 2.5; k++) {
+      const h2 = headAt(headMax * 1.07); if (h2.size <= hd.size * 1.01) break;
+      const raw = Hu - fixedOf(h2), S2 = bestShape(Math.max(0, raw));
+      // never at the cost of the points (an ad with no picture grew its headline until they fell out
+      // and the footer left the frame: full_ad_check, sealed SSDs on a wide frame)
+      if (raw < S2.need - 1 || worth(S2) < worth(S) * .985 || !!S2.chips !== !!S.chips || (S.chips && S2.chips.fs < S.chips.fs * .98)) break;
+      headMax *= 1.07; hd = h2; band = raw; S = S2;
+    }
+    // and whatever the words, the stack stays inside the frame: the headline goes on giving way
+    for (let k = 0; k < 12 && Hu - fixedOf(hd) < S.need - 1 && hd.size > U * .05; k++) { headMax *= .93; hd = headAt(headMax); band = bandOf(hd); S = bestShape(band); }
     const chips = S.chips, sub = S.sub, side = S.mode === "side";
-    if (globalThis.FULL_DEBUG) console.log('DBG', JSON.stringify({ W, H, band: Math.round(band), colW: Math.round(colW), gw: Math.round(gw), gh: Math.round(gh), n: this.phones.length, mode: S.mode, k: +sub.k.toFixed(3), rb: Math.round(sub.rb), ri: Math.round(sub.ri), subW: Math.round(sub.w), subH: Math.round(sub.h), chipsW: chips ? Math.round(chips.q.w) : 0, chipsH: chips ? Math.round(chips.q.h) : 0, head: Math.round(hd.size) }));
+    if (globalThis.FULL_DEBUG) console.log('DBG', JSON.stringify({ W, H, band: Math.round(band), need: Math.round(S.need), colW: Math.round(colW), gw: Math.round(gw), gh: Math.round(gh), n: this.phones.length, mode: S.mode, k: +sub.k.toFixed(3), rb: Math.round(sub.rb), ri: Math.round(sub.ri), chips: chips ? Math.round(chips.fs) : 0, head: Math.round(hd.size) }));
     if (items.length && !chips) F.left.push("selling points");
     // the band takes what its contents reach; what is over is shared: each gap grows by the same step, the rest above and below
     const need = Math.min(band, S.need), spare = Math.max(0, band - need);
     const nStretch = 1 + (claim ? 1 : 0) + (tagB ? 1 : 0) + (labB ? 1 : 0) + (foot ? 1 : 0);
     const stretch = Math.min(g * 1.3, spare / (nStretch + 1.5)), bandH = need, pad = (spare - stretch * nStretch) / 2;
-    let y = ey + Math.max(0, pad);
+    let y = eyT + Math.max(0, pad);
     const R = F.rects, put = (name, c, cx = mid) => { const r = [cx - c.width / 2, y, cx + c.width / 2, y + c.height]; R[name] = r; y += c.height; return r; };
     if (claim) { const r = put("claim", claim.c); claim.x = r[0]; claim.y = r[1]; y += g * gClaim + stretch; }
     const y0 = y, xs = hd.lines.map(L => mid - L.inkW / 2);
@@ -621,7 +704,8 @@ export class FullAd extends Ad {
     const bandTop = y, bandBot = y + bandH; y = bandBot + g * gBand + stretch * .5;
     let labXY = null;
     if (labB) { const r = put("call to action", labB.c); labXY = [r[0], r[1]]; y += g * gLab + stretch; }
-    const nr = put("number", num.c), nxy = [nr[0], nr[1]];
+    // the pill is what is spaced and measured; its sprite carries the shadow's margin round it
+    const nr = R.number = [mid - num.w / 2, y, mid + num.w / 2, y + num.h], nxy = [nr[0] - num.pad, nr[1] - num.pad]; y += num.h;
     let footXY = null;
     if (foot) { y += g * gFoot + stretch; const r = put("footer", foot.c); footXY = [r[0], r[1]]; }
     F.band = [cx0, bandTop, cx1, bandBot]; F.mode = S.mode;
@@ -698,16 +782,6 @@ export class FullAd extends Ad {
     ctx.globalAlpha = 1; ctx.drawImage(this.bg, 0, 0);
     this._drawRays(ctx, t);
     if (this.liveGround) this._drawLiveGround(ctx, t);
-    // a light behind the product, in the colourway's own lighter tone: a black tablet on a navy
-    // ground, or a dark laptop on indigo, stood in the dark without it
-    const G = this.full && this.full.group;
-    if (G) {
-      const cx = (G[0] + G[2]) / 2, cy = (G[1] + G[3]) / 2, rx = (G[2] - G[0]) * .78, ry = (G[3] - G[1]) * .72, k = Math.min(1, Math.max(0, (t - .05) / .5));
-      ctx.save(); ctx.translate(cx, cy); ctx.scale(rx, ry);
-      const gl = ctx.createRadialGradient(0, 0, 0, 0, 0, 1), [r, g, b] = [1, 3, 5].map(i => parseInt(this.p.light.slice(i, i + 2), 16)), up = v => Math.round(v + (255 - v) * .35);
-      gl.addColorStop(0, `rgba(${up(r)},${up(g)},${up(b)},${.62 * k})`); gl.addColorStop(.55, `rgba(${up(r)},${up(g)},${up(b)},${.22 * k})`); gl.addColorStop(1, `rgba(${up(r)},${up(g)},${up(b)},0)`);
-      ctx.fillStyle = gl; ctx.fillRect(-1, -1, 2, 2); ctx.restore();
-    }
     this.drawOrder.forEach((i, n) => {
       const q = this.phones[i], p = prog(t, .12 + n * .14, .6); if (p <= 0) return;
       const w = q.w * q.size, h = q.h * q.size, rise = (1 - (1 - (1 - p) ** 3)) * H * .05;
@@ -741,8 +815,14 @@ export class FullAd extends Ad {
     this.burst = null;
     if (F.burst) {
       const ph = this.pHead, fill = ph.ink, inkc = contrastOf(fill, this.p.ground) >= 3 ? this.p.ground : (lum(fill) > .5 ? "#111111" : "#ffffff");
-      this.burst = { ...F.burst, fill, ink: inkc, text: st.feed_burst || (st.lang === "es" ? "¡EFECTIVO!" : "CASH!"), t0: this.tl.hit + .12, font: burstFontFor(st) };
+      this.burst = { ...F.burst, fill, ink: inkc, text: st.feed_burst || (st.lang === "es" ? "PAGO HOY" : "CASH!"), t0: this.tl.hit + .12, font: burstFontFor(st) };
       this.cues.burst = this.burst.t0;
+      // the size its words come out at (decor.js drawStarburst: two rows for two words, shrunk until the widest fits)
+      const text = applyCase(this.burst.text, "upper"), ws = text.split(" "), rows = ws.length > 1 && text.length > 6 ? [ws.slice(0, Math.ceil(ws.length / 2)).join(" "), ws.slice(Math.ceil(ws.length / 2)).join(" ")] : [text];
+      const m = canvas(4, 4).getContext("2d"); let fs = F.burst.R * (rows.length > 1 ? .42 : .5);
+      m.font = fontCss(this.burst.font, fs);
+      while (Math.max(...rows.map(l => m.measureText(l).width)) > F.burst.R * 1.3 && fs > 6) { fs *= .92; m.font = fontCss(this.burst.font, fs); }
+      F.px.sticker = Math.round(fs);
     }
     // one 3D icon in its slot (the engine resolves the artwork; the slot is this layout's)
     this.accents = [];
@@ -773,7 +853,24 @@ export class FullAd extends Ad {
       const q = prog(t, this.tl.number + .15, .35);
       if (q > 0) { ctx.save(); ctx.globalAlpha = q; ctx.drawImage(this.site, this.pos.site[0], this.pos.site[1] + (1 - q) * U * .02); ctx.restore(); }
     }
-    if (this.fullChevrons) drawChevrons(ctx, this.numBox, this.fullChevrons * 2, this.hot, t, this.tl.number + .3, this.W, "sides");
+    this._chevrons(ctx, t);
+  }
+
+  /** Three chevrons either side of the number, brighter the nearer they stand to it, a pulse
+   *  running inward along them. (The engine's own light one of three by the clock, so a photo
+   *  caught whichever was lit: the outer one on one ad, the middle one on the next.) */
+  _chevrons(ctx, t) {
+    const sz = this.fullChevrons; if (!sz) return;
+    const q = prog(t, this.tl.number + .3, .3); if (q <= 0) return;
+    const [x0, y0, x1, y1] = this.numBox, cy = (y0 + y1) / 2, pulse = Math.floor(t * 5) % 3;
+    ctx.save(); ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = this.hot; ctx.lineWidth = Math.max(2, sz * .28); ctx.shadowColor = this.hot;
+    for (let i = 0; i < 3; i++) {                           // 0 is the farthest from the number
+      ctx.globalAlpha = q * Math.min(1, [.32, .6, 1][i] + (i === pulse ? .2 : 0)); ctx.shadowBlur = i === 2 ? sz * .6 : 0;
+      const d = sz * .6 + (2 - i) * sz * .9, lx = x0 - d, rx = x1 + d;
+      ctx.beginPath(); ctx.moveTo(lx - sz * .35, cy - sz * .45); ctx.lineTo(lx, cy); ctx.lineTo(lx - sz * .35, cy + sz * .45); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(rx + sz * .35, cy - sz * .45); ctx.lineTo(rx, cy); ctx.lineTo(rx + sz * .35, cy + sz * .45); ctx.stroke();
+    }
+    ctx.restore();
   }
 }
 
@@ -789,16 +886,22 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const first = one(COLOURWAYS), key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, ...picked } = pick;
   const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...picked };
   const area = (st.area || "").trim();
+  // What the customer left empty is filled from the lists, each line chosen so that it does not
+  // repeat a promise the lines before it already make (the customer's own words are never changed:
+  // fullWords() says where they repeat). The order is the order they are read in.
+  const fresh = (list, said) => { const start = Math.floor(r() * list.length); for (let i = 0; i < list.length; i++) { const w = list[(start + i) % list.length]; if (!said.some(x => sharesWord(w, x))) return w; } return list[start]; };
+  const line = st.feed_line ?? (st.tag || one(FULL_WORDS.line));
+  const points = st.points ?? (pointsOf(st).length ? pointsOf(st).join(", ") : fresh(FULL_WORDS.points, [st.headline, line]));
+  const label = st.number_label || (es ? "LLAMA O MANDA TEXTO" : FULL_WORDS.label[0]);
+  const claim = st.feed_claim ?? fresh(FULL_WORDS.claim, [st.headline, line, points]);
+  const burst = st.feed_burst ?? fresh(es ? FULL_WORDS.burst_es : FULL_WORDS.burst, [st.headline, line, points, claim, label]);
   const words = {
-    feed_claim: st.feed_claim ?? one(FULL_WORDS.claim),
-    feed_line: st.feed_line ?? (st.tag || one(FULL_WORDS.line)),
-    // the maker's own points for these words where it has them (its field shows those), else the list's
-    points: st.points ?? (pointsOf(st).length ? pointsOf(st).join(", ") : one(FULL_WORDS.points)),
-    number_label: st.number_label || (es ? "LLAMA O MANDA TEXTO" : FULL_WORDS.label[0]),
+    feed_claim: claim, feed_line: line, points, number_label: label,
     feed_where: st.feed_where ?? (area ? area.toUpperCase() : ""),
     // the website as a sentence, so it reads as an address (owner, 2026-11-03: "that way they know it's a URL")
     feed_site: st.feed_site ?? (st.site ? (es ? "Visítanos en " : "Visit our website at ") + String(st.site).trim() : ""),
-    feed_burst: st.feed_burst ?? (es ? "¡EFECTIVO!" : one(FULL_WORDS.burst)),
+    feed_burst: burst,
+    accent_word: accentWord(st.headline),
   };
   // fewer phones, larger (five on a square full of large words shrank to a strip): two where the
   // product shares its row with the selling points (a square, a wide frame), three where it has the width
@@ -831,7 +934,7 @@ export function fullBlockers(ad) {
     if (dx < 0 && dy < 0) out.push(`${names[i]} and ${names[j]} overlap`);
     else if (Math.max(dx, dy) < gap) out.push(`${names[i]} and ${names[j]} ${Math.round(Math.max(dx, dy) / U * 1080)}px apart`);
   }
-  const floor = { headline: .064, number: .07, line: FULL.tagMin, cta: FULL.labelMin, footer: FULL.footMin, claim: FULL.claimMin, chips: FULL.chipMin };
+  const floor = { headline: .064, number: .07, line: FULL.tagMin, cta: FULL.labelMin, footer: FULL.footMin, claim: FULL.claimMin, chips: FULL.chipMin, sticker: .026 };
   for (const [k, v] of Object.entries(F.px)) if (v && v < U * floor[k] - 1) out.push(`${k} set at ${Math.round(v / U * 1080)}px, under its floor`);
   if (ad.phones.length) { const gph = F.group ? (F.group[3] - F.group[1]) / H : 0; if (gph < (F.wide ? .3 : .15)) out.push(`product ${Math.round(gph * 100)}% of the height`); }
   return out;

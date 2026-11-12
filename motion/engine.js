@@ -1797,6 +1797,10 @@ export const fontCss = (name, size) => { const [fam, wt] = FONTS[name] || FONTS.
 
 const KEEP_UPPER = new Set(["LA", "OC", "SF", "NYC", "USA", "IE", "SGV", "DTLA", "LB", "SD"]);
 export function applyCase(text, cs) {
+  // "brand": capitals with Apple's own small i (iPHONE, iPAD, iMAC), the way the full ad's other
+  // lines are set. Not one of OPTIONS.case: only the full ad asks for it (a look drawn in it had
+  // IPHONE in its headline and iPHONE in the line under it, 2026-11-12).
+  if (cs === "brand") return text.toUpperCase().replace(/\bIPHONE/g, "iPHONE").replace(/\bIPAD/g, "iPAD").replace(/\bIMAC/g, "iMAC");
   let out = cs === "upper" ? text.toUpperCase() : text.split(/\s+/).map(w => !w ? w
     : KEEP_UPPER.has(w.replace(/[^A-Za-z]/g, "").toUpperCase()) && w === w.toUpperCase() ? w : w[0].toUpperCase() + w.slice(1).toLowerCase()).join(" ");
   if (cs !== "upper") out = out.replace(/\bIphone/g, "iPhone").replace(/\bIpad/g, "iPad").replace(/\bMacbook/g, "MacBook");
@@ -4111,6 +4115,10 @@ export class Ad {
       case "slot": {
         // each slice spins down like a slot reel and stops, left to right
         const n = Math.max(6, Math.min(12, this.num.text.length));
+        // once every reel has stopped the number is drawn whole: the slices overlap by a pixel, and the
+        // pill's soft shadow, drawn twice in each overlap, stood as a row of ticks under the number
+        // on a light ground (seen 2026-11-12 on Silver & Blue)
+        if (prog(t, tl.number + (n - 1) * .045, .5) >= 1) { draw(nx, ny); break; }
         for (let i = 0; i < n; i++) {
           const qi = prog(t, tl.number + i * .045, .5); if (qi <= 0) continue;
           const x0 = c.width * i / n, w = c.width / n + 1, e = outCubic(qi), off = ((1 - e) * 3 * c.height) % c.height;
@@ -4128,6 +4136,7 @@ export class Ad {
       case "roll": {
         // each slice of the number rolls up into place, left to right
         const n = 10;
+        if (prog(t, tl.number + (n - 1) * .04, .35) >= 1) { draw(nx, ny); break; }   // landed: drawn whole (the slices' overlap doubled the shadow)
         for (let i = 0; i < n; i++) {
           const qi = prog(t, tl.number + i * .04, .35); if (qi <= 0) continue;
           const x0 = c.width * i / n, w = c.width / n + 1, off = (1 - outBack(qi, 1.3)) * c.height;
