@@ -5267,3 +5267,20 @@ RESUME HERE:
   1. OPEN-ITEMS §BE 2 (Navy & Gold with an orange phone, 4 degrees out),
      3 (the lit patches under rule 103's chroma: through house_themes.mjs),
      4 (the cash icon at 4:5), 5 (the light card's sticker).
+## 2026-11-13 — the Type Lab: 182 new display faces for review (DESIGN-LAW 140; claude/youthful-cray-en1m2i)
+
+Asked: unique faces that pop, in many design languages, not the usual shelf;
+lookalikes where a face is licensed; then integrate them.
+
+Done:
+  - 271 candidates named, 262 taken (licence read from each family's record),
+    182 kept after reading each as a claim, a price and a number.
+  - A review page with picks that copy out as text. Nothing wired into the
+    product: the owner picks first (rule 140).
+
+Found:
+  - The last review's verdicts lived in one browser and were lost. A review
+    tool's record is the text that comes back, not what the page remembers.
+  - A contact sheet that renders is not a contact sheet of the faces: the
+    first one was all fallback serif (a page with no origin cannot load a
+    local stylesheet). Ask `document.fonts.check` before looking.
