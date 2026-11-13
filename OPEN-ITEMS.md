@@ -3248,3 +3248,60 @@ Open:
    waits on a CDN the sandbox blocks) and three upload-a-video steps of
    `ad_library_check.mjs`, which fail the same way on untouched `main`. Run
    both on the Mac before a deploy.
+
+## BD. 2026-11-12 — accounts: a forgotten password, a confirmed address, one address, one support contact
+
+Branch `claude/accounts` (not on `main`). Closes §BB items 1 and 5.
+
+Built:
+- **Forgot password? and confirming an address** (`netlify/lib/accountmail.mjs`,
+  `netlify/lib/mail.mjs`; the sign-in dialog in `app.js` and `index.html`, and
+  `account.js`'s for the pages without the studio). A reset link is signed,
+  works once for an hour, ends every other sign-in of the account and
+  confirms its address; a confirmation link works a week. Mail is Resend's
+  HTTP API: off, and saying so plainly, until `RESEND_API_KEY` and `MAIL_FROM`
+  are set. With mail on, a new account's free-plan AI credits and community
+  publishing wait for its confirmed address (`CONFIRM_GATE=off` lifts that).
+  `node scripts/accounts_check.mjs` (83 checks, a headless browser included).
+- **One address**: `SITE_ORIGIN` in `netlify/lib/site.mjs`, now
+  `https://buybackad-finished-copy.netlify.app`; every canonical, Open Graph and
+  structured-data link, the sitemap and robots.txt name it
+  (`node scripts/site_address.mjs`, `--check`). terms.html and privacy.html
+  are held for `claude/one-legal` (it rewrites the lines just above their
+  canonical); the hold lapses by itself once that lands, and `--check` then
+  asks for the script to be run.
+- **One support contact**: support@reselling.us on the landing's Work with us
+  cards and footer and on About, in place of the shop's buying line and
+  hello@buyback.ad (which cannot receive mail). The (562) 999-4994 inside ad
+  designs and the brand kit's placeholder is a sample and stays.
+
+Open, the owner's:
+1. **Email sender.** A Resend account; verify reselling.us there (it adds DNS
+   records at Namecheap on a `send.` subdomain plus a DKIM record, beside the
+   forwarding MX, which stays); then on the buybackad-finished-copy Netlify
+   project set `RESEND_API_KEY` (secret) and `MAIL_FROM`
+   (`BUYBACK.AD by Reselling.US <accounts@reselling.us>`), and redeploy.
+   The same key works as SMTP for Reselling.US (`RESALE_SMTP_HOST=smtp.resend.com`,
+   user `resend`). The privacy policy should name Resend among the companies
+   used once it sends.
+2. **support@reselling.us** as a forwarding alias in Namecheap (reselling.us →
+   Mail settings → Email forwarding). Until it exists, mail to it bounces.
+3. **buyback.ad**: register it; then in Netlify move buyback.ad and
+   www.buyback.ad (and studio.scans.ad) from the buybackad-graphics-studio
+   project, where they are attached, to buybackad-finished-copy; set
+   `SITE_ORIGIN` to `https://buyback.ad`, run `scripts/site_address.mjs`, and
+   update `SITE_URL` on the project if it is set. Accounts stay (same project,
+   same store); each browser signs in once on the new address.
+4. **The old project** (`buybackad-graphics-studio.netlify.app`): proposed,
+   redirect, not delete. It has its own accounts store (its `/api/me` answers);
+   a domain-level 301 to the live address keeps old links and search results
+   working, and deleting the project later loses nothing if nobody signed up
+   there. The rule, inert on the live project, for netlify.toml when the owner
+   says so (the `deploy` job then puts it on the old project):
+   `from = "https://buybackad-graphics-studio.netlify.app/*"`,
+   `to = "https://buybackad-finished-copy.netlify.app/:splat"`, `status = 301`,
+   `force = true`. The workflow's "What went live" step reads the old address
+   and would need the live one.
+5. **Google sign-in**, when it is switched on: the CSP's `style-src` has no
+   `https://accounts.google.com`, so Google's own stylesheet for its button is
+   refused (found by the account check's browser half).

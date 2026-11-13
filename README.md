@@ -46,7 +46,9 @@ redeploy. `.env.example` is the local copy for `netlify dev`.
 | `STRIPE_SECRET` | **switches billing on.** The only Stripe setting needed: the prices, the products and the webhook make themselves (below). Until it is set, Go Pro says "Checkout is not open yet" and nothing is charged |
 | `STRIPE_PUBLISHABLE_KEY` | optional, and the one to set with `STRIPE_SECRET`: `pk_test_…` with a test secret, `pk_live_…` with a live one. With it, checkout happens **on the site**: Stripe's payment form (card, Apple Pay, Google Pay, Link, whatever the Stripe dashboard's Payment methods switch on) opens inside the site's own dialog (`checkout-embed.js`, Stripe Embedded Checkout) and a card pays without leaving the page. Its look follows the Stripe dashboard's Settings → Branding (colours, font, corners). Without it, or with a key of the other mode, checkout is Stripe's hosted page |
 | `STRIPE_WEBHOOK_SECRET`, `PRICE_<KEY>`, `SITE_URL` | optional. A webhook you made by hand (otherwise the site registers its own); a price you made by hand (`PRICE_PRO_MONTH`, `PRICE_BUSINESS_YEAR`, `PRICE_CREDITS100`…; the old `PRICE_PRO` is `PRICE_PRO_MONTH`); the site's own https origin, where Stripe sends people back and events (defaults to Netlify's `URL`) |
-| `GOOGLE_CLIENT_ID` | optional; shows the Google sign-in button |
+| `GOOGLE_CLIENT_ID` | optional; shows the Google sign-in button. Signing in with Google also confirms the address |
+| `RESEND_API_KEY`, `MAIL_FROM` | **switch account email on** (`netlify/lib/mail.mjs`): the link to confirm a new account's address, Forgot password?'s link, and the note that a password changed. `RESEND_API_KEY` is a key from resend.com (mark it secret); `MAIL_FROM` is the sender on a domain verified in Resend, e.g. `BUYBACK.AD by Reselling.US <accounts@reselling.us>`. Until both are set, `GET /api/health` says `mail:false`, Forgot password? tells the customer to write to support@reselling.us, a new account is asked nothing and nothing is held back. Optional: `MAIL_REPLY_TO` (default support@reselling.us), `MAIL_OFF=1` (stop sending, key kept). An operator sees what is missing at `GET /api/admin/mail`; the quickest real test is Forgot password? with your own address |
+| `CONFIRM_GATE` | optional. With mail on, an account made since waits for its confirmed address before it spends the free plan's own AI credits or publishes to the community (an operator, an older account, a paid plan or bought credits never wait). `off` lets everything through and still sends the link |
 | `LIBRARY_KEYS`, `LIBRARY_DAILY` | the partner library API, below |
 
 Stripe, once (owner, 2026-10-08: "make it live we can use stripe"):
@@ -127,7 +129,16 @@ costs at most $0.22 a month (`plan_economics.mjs` prints it).
 
 ## Notes
 - Test first with Stripe **test keys** + card 4242 4242 4242 4242.
-- No email verification / password reset in this MVP — add before wide launch.
+- Accounts can confirm their address and reset a forgotten password by email
+  (2026-11-12, `netlify/lib/accountmail.mjs`), once `RESEND_API_KEY` and
+  `MAIL_FROM` are set (above). The links are signed, not stored: a reset link
+  works once, for an hour, and ends every other sign-in of the account; a
+  confirmation link works for a week. `node scripts/accounts_check.mjs`
+  walks it all, in a browser too.
+- The site's one address and support address are `SITE_ORIGIN` and
+  `SUPPORT_EMAIL` in `netlify/lib/site.mjs`. Every canonical link, the sitemap
+  and robots.txt follow it: change it, then `node scripts/site_address.mjs`
+  (and `--check`).
 - The money side, measured against the market and the model's price:
   `docs/SAAS-AUDIT-2026-10-05.md`.
 

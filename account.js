@@ -15,6 +15,9 @@
      api(path, body?, opts?)   fetch the backend as the account (JSON back)
      token(), signedIn(), demo, me() → { email, plan, role } | null
      signup(email, pass), login(email, pass), signout()
+     forgot(email)             a link to set a new password, by email
+                               (netlify/lib/accountmail.mjs); the link opens
+                               index.html, where app.js sets the password
      openAuth({ message, mode: 'up' | 'in', next })   the dialog
      onChange(fn)              after a sign-in or sign-out
    ═══════════════════════════════════════════════════════ */
@@ -86,6 +89,8 @@
   async function signup(email, password){ return took(await api('/auth/signup', { email: clean(email), password })); }
   async function login(email, password){ return took(await api('/auth/login', { email: clean(email), password })); }
   function signout(){ jset(TOKEN, null); state.me = null; state.meFor = null; tell(); }
+  async function forgot(email){ return api('/auth/forgot', { email: clean(email) }); }
+  const SUPPORT = 'support@reselling.us';
 
   /* ---------- the dialog ---------- */
   const CSS = `
@@ -121,8 +126,9 @@
       <div class="acct-tabs" role="tablist"><button type="button" role="tab" id="acct-tab-up" aria-selected="true">Create free account</button><button type="button" role="tab" id="acct-tab-in" aria-selected="false">Sign in</button></div>
       <form id="acct-form" novalidate>
         <label for="acct-email">Email</label><input type="email" id="acct-email" autocomplete="email" placeholder="you@example.com">
-        <label for="acct-pass">Password</label><input type="password" id="acct-pass" autocomplete="new-password" placeholder="At least 8 characters">
+        <div id="acct-pass-row"><label for="acct-pass">Password</label><input type="password" id="acct-pass" autocomplete="new-password" placeholder="At least 8 characters"></div>
         <div class="acct-hint" id="acct-hint">No card needed. Your account works on every device.</div>
+        <button type="button" id="acct-forgot" hidden style="background:none;border:0;padding:8px 0 0;color:var(--accent,#2b56f5);font:600 12.5px/1.4 Satoshi,system-ui,sans-serif;cursor:pointer;text-decoration:underline">Forgot password?</button>
         <div class="acct-err" id="acct-err" role="alert"></div>
         <div class="acct-row"><button type="button" id="acct-cancel">Cancel</button><button type="submit" class="primary" id="acct-go">Create account</button></div>
       </form>
@@ -133,24 +139,49 @@
     m.querySelector('#acct-tab-up').onclick = () => setMode('up');
     m.querySelector('#acct-tab-in').onclick = () => setMode('in');
     m.querySelector('#acct-cancel').onclick = close;
+    m.querySelector('#acct-forgot').onclick = () => setMode('reset');
     m.querySelector('#acct-form').onsubmit = e => { e.preventDefault(); submit(); };
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.classList.contains('show')) close(); });
   }
+  /* 'up' create, 'in' sign in, 'reset' a forgotten password: the email only,
+     and the link the email carries opens index.html to set the new one */
   function setMode(m){
     mode = m;
     const q = id => overlay.querySelector('#' + id);
     q('acct-tab-up').setAttribute('aria-selected', m === 'up' ? 'true' : 'false');
-    q('acct-tab-in').setAttribute('aria-selected', m === 'in' ? 'true' : 'false');
-    q('acct-go').textContent = m === 'up' ? 'Create account' : 'Sign in';
+    q('acct-tab-in').setAttribute('aria-selected', m !== 'up' ? 'true' : 'false');
+    q('acct-go').textContent = m === 'up' ? 'Create account' : m === 'reset' ? 'Send the link' : 'Sign in';
+    q('acct-go').hidden = false;
+    q('acct-pass-row').hidden = m === 'reset';
+    q('acct-forgot').hidden = m !== 'in' || DEMO;
     q('acct-pass').autocomplete = m === 'up' ? 'new-password' : 'current-password';
-    q('acct-hint').textContent = m === 'up' ? 'No card needed. Your account works on every device.' : 'The email and password you signed up with.';
+    q('acct-hint').textContent = m === 'up' ? 'No card needed. Your account works on every device.'
+      : m === 'reset' ? 'Type the email you signed up with. We will send a link to set a new password.'
+      : 'The email and password you signed up with.';
     q('acct-err').textContent = '';
+    if (!DEMO) q('acct-note').hidden = true;
+  }
+  function note(text, withSupport){
+    const n = overlay.querySelector('#acct-note');
+    n.textContent = text;
+    if (withSupport){
+      const a = el('a', null, SUPPORT); a.href = 'mailto:' + SUPPORT;
+      n.append(a, ' from the address you signed up with and we will get you back in.');
+    }
+    n.hidden = false;
   }
   async function submit(){
     const q = id => overlay.querySelector('#' + id);
     const email = clean(q('acct-email').value), pass = q('acct-pass').value, err = q('acct-err');
     err.textContent = '';
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent = 'Enter a valid email address'; q('acct-email').focus(); return; }
+    if (mode === 'reset'){
+      q('acct-go').disabled = true;
+      try { const j = await forgot(email); note(j.message || 'If an account uses that address, a link is on its way.'); q('acct-go').hidden = true; }
+      catch (e){ if (e.status === 503 && /cannot email/i.test(e.message)) { note('This site cannot email a reset link yet. Write to ', true); q('acct-go').hidden = true; } else err.textContent = explain(e); }
+      q('acct-go').disabled = false;
+      return;
+    }
     if (pass.length < 8){ err.textContent = 'Password needs at least 8 characters'; q('acct-pass').focus(); return; }
     q('acct-go').disabled = true;
     try {
@@ -185,6 +216,6 @@
     setTimeout(() => { try { q('acct-email').focus(); } catch (e){} }, 60);
   }
 
-  window.pgfxAccount = { api, API, demo: DEMO, token, signedIn, me, signup, login, signout, openAuth, close, onChange: fn => { state.listeners.push(fn); }, seen: () => jget(SEEN, false) };
+  window.pgfxAccount = { api, API, demo: DEMO, token, signedIn, me, signup, login, signout, forgot, openAuth, close, onChange: fn => { state.listeners.push(fn); }, seen: () => jget(SEEN, false) };
   if (signedIn() && !demoToken()) jset(SEEN, true);
 })();

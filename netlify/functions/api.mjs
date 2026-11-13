@@ -33,8 +33,13 @@
  *   GET  /api/plans              public. The plans, the packs and what an AI
  *                                background costs in credits now.
  *   GET  /api/health             public. One probe after a deploy: accounts
- *                                (JWT_SECRET), store, ai, google and billing as
- *                                booleans, the store's verdict; never a value.
+ *                                (JWT_SECRET), store, ai, google, billing and
+ *                                mail as booleans, the store's verdict; never a
+ *                                value.
+ *   POST /api/auth/forgot, /auth/reset, /auth/confirm, /auth/confirm/send
+ *                                a forgotten password and a confirmed address
+ *                                (netlify/lib/accountmail.mjs), sent by email
+ *                                (netlify/lib/mail.mjs) once mail is set up.
  *   /api/checkout, /checkout/confirm, /billing/change, /portal,
  *   /stripe-webhook, /admin/billing   Stripe (netlify/lib/billing.mjs).
  *
@@ -52,7 +57,9 @@
  * (optional: the webhook registers itself), PRICE_<KEY> (optional: a price
  * made by hand; PRICE_PRO is PRICE_PRO_MONTH), SITE_URL, LIBRARY_KEYS
  * (name:key pairs), LIBRARY_DAILY, ADLIB_DAILY, ADLIB_MAX_FREE, ADLIB_MAX_PRO,
- * ADLIB_MAX_BUSINESS, ADLIB_MAX_ADMIN. RL_USER_DAILY, RL_PRO_DAILY and
+ * ADLIB_MAX_BUSINESS, ADLIB_MAX_ADMIN, RESEND_API_KEY and MAIL_FROM (account
+ * email: mail.mjs; MAIL_REPLY_TO, MAIL_OFF optional), CONFIRM_GATE=off (an
+ * unconfirmed address holds nothing back). RL_USER_DAILY, RL_PRO_DAILY and
  * RL_GLOBAL_DAILY (the old daily AI caps) are retired: credits replace them.
  */
 import { getStore } from '@netlify/blobs';
@@ -65,6 +72,9 @@ import {
   ensurePaymentDomain, paymentDomainKey,
 } from '../lib/billing.mjs';
 import { bggenRoute, generateImage, loadRecipe, dataUrlOf } from '../lib/bggen.mjs';
+import { accountMailRoute, sendConfirm } from '../lib/accountmail.mjs';
+import { mailOn, mailState, mailOffReason } from '../lib/mail.mjs';
+import { SUPPORT_EMAIL } from '../lib/site.mjs';
 
 export const config = { path: '/api/*' };
 
@@ -82,8 +92,9 @@ async function pbkdf2(pass, salt) {
   return hex(bits);
 }
 async function makeToken(email, env) {
-  const exp = Date.now() + 30 * 86400000;
-  const body = b64u(enc.encode(JSON.stringify({ email, exp })));
+  const iat = Date.now();
+  const exp = iat + 30 * 86400000;
+  const body = b64u(enc.encode(JSON.stringify({ email, exp, iat })));
   return body + '.' + b64u(await hmac(env.JWT_SECRET, body));
 }
 async function readToken(req, env) {
@@ -93,7 +104,17 @@ async function readToken(req, env) {
   const [body, sig] = t.split('.');
   if (b64u(await hmac(env.JWT_SECRET, body)) !== sig) return null;
   const data = JSON.parse(atob(body.replace(/-/g, '+').replace(/_/g, '/')));
-  return data.exp > Date.now() ? data.email : null;
+  if (!(data.exp > Date.now())) return null;
+  /* a password set with a reset link (accountmail.mjs) ends every sign-in made
+     before it: a stolen session does not outlive the reset. A token from
+     before 2026-11-12 has no iat and ends at the account's first reset. */
+  const user = await getUser(data.email);
+  if (user && user.tokensAfter && !((data.iat || 0) >= user.tokensAfter)) return null;
+  return data.email;
+}
+async function hashPassword(pass) {
+  const salt = hex(crypto.getRandomValues(new Uint8Array(16)));
+  return { salt, hash: await pbkdf2(pass, salt) };
 }
 const isoWeek = () => { const d = new Date(); const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day);
@@ -115,12 +136,24 @@ const formKey = (env) => {
 const OWNER_EMAILS = ['myleskcb@gmail.com'];
 const adminEmails = (env) => [...OWNER_EMAILS, ...String(env.ADMIN_EMAILS || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean)];
 const roleFor = (email, env) => (adminEmails(env).includes(email) ? 'admin' : 'user');
+/* An address not yet confirmed holds back only what a throwaway account could
+   abuse: the free plan's AI credits (real model spend, bggen.mjs) and
+   publishing a background to the public community list. Only while mail is
+   set up (a link that cannot arrive must not hold anything back), only for an
+   account made since mail was (emailVerified false; older accounts have no
+   field and are not asked), never for an operator. CONFIRM_GATE=off lets
+   everything through and still sends the link. */
+const needsConfirm = (u, env) => !!u && u.emailVerified === false && mailOn(env)
+  && !/^(0|off|false|no)$/i.test(String(env.CONFIRM_GATE || '').trim()) && roleFor(u.email, env) !== 'admin';
 /* An operator (ADMIN_EMAILS) has every feature of every plan whatever plan it
    is billed on: no download cap, watermark or size limit (/export), video,
    AI not charged (bggen.mjs), the biggest library (adlibrary.mjs). `plan` stays
    the billed one, so checkout can still be tried; credits say unlimited. */
 const publicUser = (u, env) => ({
   email: u.email, plan: planId(u.plan), exports: u.exports, role: roleFor(u.email, env),
+  // true confirmed, false asked and not yet, null never asked (made before mail, or mail is off)
+  verified: u.emailVerified === true ? true : u.emailVerified === false ? false : null,
+  mustConfirm: needsConfirm(u, env) || undefined,
   credits: roleFor(u.email, env) === 'admin' ? { ...creditState(u), unlimited: true } : creditState(u),
   sub: u.sub && u.sub.id ? { plan: u.sub.plan, interval: u.sub.interval, status: u.sub.status, periodEnd: u.sub.periodEnd, cancelAt: u.sub.cancelAt } : null,
 });
@@ -180,9 +213,24 @@ async function bumpBy(key, n, cap) {
 
 const BG_FILE_RE = /^dl_[a-z]+_[A-Za-z]+_[a-z]+\.jpg$/; // Designer Library names only
 
-export default async (req) => {
+/* the caller's address for a day count, kept as a short hash, never as given */
+async function ipKey(req, context) {
+  const raw = (context && context.ip) || req.headers.get('x-nf-client-connection-ip')
+    || String(req.headers.get('x-forwarded-for') || '').split(',')[0].trim() || 'unknown';
+  return hex(await crypto.subtle.digest('SHA-256', enc.encode('ip:' + raw))).slice(0, 16);
+}
+
+export default async (req, context) => {
   const env = process.env;
   const url = new URL(req.url);
+  /* an email is sent after the answer when the platform lets the function
+     finish it (context.waitUntil); otherwise it is awaited. Either way a send
+     that fails is logged, never the request's failure. */
+  const later = async (promise) => {
+    const safe = Promise.resolve(promise).catch((e) => console.warn('after the answer:', e && e.message));
+    if (context && typeof context.waitUntil === 'function') { context.waitUntil(safe); return; }
+    await safe;
+  };
   const p = url.pathname.replace(/^\/api/, '').replace(/\/$/, '') || '/';
   if (req.method === 'OPTIONS') return json({});
   try {
@@ -226,7 +274,7 @@ export default async (req) => {
     if (p === '/health') {
       let store = 'ok';
       try { await users().get('u:health@probe.invalid'); } catch (e) { store = 'error: ' + String((e && e.message) || e).slice(0, 160); }
-      return json({ ok: store === 'ok' && !!env.JWT_SECRET, accounts: !!env.JWT_SECRET, store, ai: !!(env.GEMINI_KEY || env.FAL_KEY), google: !!env.GOOGLE_CLIENT_ID, billing: billingOn(env) });
+      return json({ ok: store === 'ok' && !!env.JWT_SECRET, accounts: !!env.JWT_SECRET, store, ai: !!(env.GEMINI_KEY || env.FAL_KEY), google: !!env.GOOGLE_CLIENT_ID, billing: billingOn(env), mail: mailOn(env) });
     }
     if (!env.JWT_SECRET) return json({ error: 'Backend not configured (JWT_SECRET missing)' }, 500);
 
@@ -239,6 +287,8 @@ export default async (req) => {
       getUser, putUser,
       freshUser: (u) => freshUser(u, env),
       isAdmin: (em) => roleFor(em, env) === 'admin',
+      // the free plan's own credits wait for a confirmed address (needsConfirm)
+      confirmFirst: (u) => needsConfirm(u, env) && planId(u.plan) === 'free' && !((u.creditsBought || 0) > 0),
       bumpBy,
       bg: bgStore(),
       gen: genStore(),
@@ -246,16 +296,42 @@ export default async (req) => {
     });
     if (bg) return bg;
 
+    /* a forgotten password and a confirmed address (accountmail.mjs). Links
+       go to the address that was asked: the account lives in this project's
+       store, under this project's JWT_SECRET, and Netlify answers only its
+       own domains. */
+    const am = await accountMailRoute(req, url, p, env, {
+      json, getUser, putUser,
+      makeToken: (em) => makeToken(em, env),
+      readToken: (r) => readToken(r, env),
+      publicUser: (u) => publicUser(u, env),
+      hashPassword,
+      bump: async (key, cap) => {
+        try { return await bumpCounter(key, cap); }
+        catch (e) { console.warn('account mail: a day count failed, letting it through', e); return true; }
+      },
+      later, origin: url.origin, ip: () => ipKey(req, context),
+    });
+    if (am) return am;
+
     if (p === '/auth/signup' && req.method === 'POST') {
       const { email, password } = await req.json();
       const em = String(email || '').trim().toLowerCase();
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return json({ error: 'Invalid email' }, 400);
       if (!password || password.length < 8) return json({ error: 'Password needs at least 8 characters' }, 400);
       if (await getUser(em)) return json({ error: 'An account with that email already exists' }, 409);
-      const salt = hex(crypto.getRandomValues(new Uint8Array(16)));
-      const user = { email: em, salt, hash: await pbkdf2(password, salt), plan: 'free', exports: { period: '', count: 0 }, created: Date.now() };
+      const user = { email: em, ...(await hashPassword(password)), plan: 'free', exports: { period: '', count: 0 }, created: Date.now() };
+      /* with mail set up a new address is asked to confirm (accountmail.mjs);
+         the account works at once either way. The link goes out after the
+         answer, at most 20 from one caller a day, so signing up strangers'
+         addresses cannot turn the sender into a spam source. */
+      const confirm = mailOn(env);
+      if (confirm) user.emailVerified = false;
       await putUser(user);
-      return json({ token: await makeToken(em, env), user: publicUser(user, env) });
+      if (confirm && (await bumpCounter('signup-mail:' + (await ipKey(req, context)) + ':' + isoDay(), 20).catch(() => true))) {
+        await later(sendConfirm(user, env, url.origin));
+      }
+      return json({ token: await makeToken(em, env), user: publicUser(user, env), confirm: confirm ? 'sending' : null });
     }
 
     if (p === '/auth/login' && req.method === 'POST') {
@@ -271,7 +347,9 @@ export default async (req) => {
     // Which auth methods the frontend should render. Google appears only when
     // GOOGLE_CLIENT_ID is configured in the Netlify env.
     if (p === '/auth/config') {
-      return json({ google: !!env.GOOGLE_CLIENT_ID, googleClientId: env.GOOGLE_CLIENT_ID || '' });
+      /* mail: whether Forgot password? can send a link, or must point to
+         support instead; support: the one address customers write to */
+      return json({ google: !!env.GOOGLE_CLIENT_ID, googleClientId: env.GOOGLE_CLIENT_ID || '', mail: mailOn(env), support: SUPPORT_EMAIL });
     }
 
     // Google Sign-In: the browser sends the GIS ID token; we verify it against
@@ -290,7 +368,11 @@ export default async (req) => {
       if (!em) return json({ error: 'Google returned no email' }, 401);
       let user = await getUser(em);
       if (!user) {
-        user = { email: em, provider: 'google', plan: 'free', exports: { period: '', count: 0 }, created: Date.now(), name: info.name || '' };
+        user = { email: em, provider: 'google', plan: 'free', exports: { period: '', count: 0 }, created: Date.now(), name: info.name || '', emailVerified: true, verifiedAt: Date.now() };
+        await putUser(user);
+      } else if (user.emailVerified !== true) {
+        // Google checked the address (email_verified above): that confirms it
+        user.emailVerified = true; user.verifiedAt = Date.now();
         await putUser(user);
       }
       return json({ token: await makeToken(em, env), user: publicUser(user, env) });
@@ -353,6 +435,16 @@ export default async (req) => {
       return json({ ok: true, filename, url: '/api/bg/' + filename });
     }
 
+    /* For operators: can the site send account email, and if not, what is
+       missing (names only, never a value). The quickest real test is Forgot
+       password? with your own address. */
+    if (p === '/admin/mail') {
+      const em = await readToken(req, env);
+      if (!em || roleFor(em, env) !== 'admin') return json({ error: 'Not authorized' }, 403);
+      const s = mailState(env);
+      return json({ on: s.on, provider: s.provider, from: s.from || null, replyTo: s.replyTo, missing: s.missing, off: s.off, say: s.on ? 'Account email is on.' : mailOffReason(env), confirmGate: s.on && !/^(0|off|false|no)$/i.test(String(env.CONFIRM_GATE || '').trim()) });
+    }
+
     if (p === '/admin/bg-status') {
       const em = await readToken(req, env);
       if (!em || roleFor(em, env) !== 'admin') return json({ error: 'Not authorized' }, 403);
@@ -376,6 +468,7 @@ export default async (req) => {
     if (p === '/community/publish' && req.method === 'POST') {
       const em = await readToken(req, env);
       if (!em) return json({ error: 'Sign in first' }, 401);
+      if (needsConfirm(await getUser(em), env)) return json({ error: 'Confirm your email to publish to the community: the link is in your inbox, or send it again from your account menu.', needs: 'confirm' }, 403);
       const { name, thumb, data } = await req.json();
       if (!thumb || !data || String(data).length > 2500000) return json({ error: 'Invalid image (max ~2MB)' }, 400);
       if (!(await bumpCounter('pub:' + em + ':' + isoDay(), 5))) return json({ error: 'Daily publish limit reached (5)' }, 429);

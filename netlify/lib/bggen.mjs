@@ -643,7 +643,7 @@ async function pruneImages(store, em, ids) {
 // ---------- the routes ----------
 /**
  * deps: { json, readToken(req), getUser(em), putUser(u), freshUser(u),
- * isAdmin(em), bumpBy(key, n, cap) (the day's ceilings), bg (the published-
+ * isAdmin(em), confirmFirst(user) (an unconfirmed free account), bumpBy(key, n, cap) (the day's ceilings), bg (the published-
  * backgrounds store: the override), gen (the generated-pictures store),
  * fetchJson(url), fetch }
  */
@@ -763,6 +763,11 @@ export async function bggenRoute(req, url, p, env, deps) {
   let spent = null;
   if (!admin) {
     await deps.freshUser(user);
+    /* a free account whose address is not confirmed yet (api.mjs needsConfirm):
+       the plan's own credits are model spend a throwaway address could farm */
+    if (deps.confirmFirst && deps.confirmFirst(user)) {
+      return json({ error: 'Confirm your email to use your free AI credits: the link is in your inbox (check spam), or send it again from your account menu. Nothing was charged.', needs: 'confirm', credits: balanceOf(user, false) }, 403);
+    }
     spent = spendCredits(user, total);
     if (!spent) {
       const c = creditState(user);
