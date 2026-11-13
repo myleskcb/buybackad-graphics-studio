@@ -784,6 +784,10 @@ export const SOUND_NAMES = {
 
 export const FLAGS = { flash: 0.6, shine: 0.5, rgb_hit: 0.3, speed_lines: 0.35, sparkles: 0.35 };
 
+// the phones an ad opens with: among the regular models and the Pro Maxes the picker opens on
+// (allPhones shows the rest). The video maker and the studio's full ad both start here.
+export const DEFAULT_PHONES = ["18-pro-max-burgundy", "17-pro-max-cosmic-orange", "18-pro-max-glacier", "16-pink"];
+
 export const DEFAULT_STYLE = {
   phones: [], headline: "WE BUY PHONES", tag: "", number: "", number_label: "",
   seed: 1, aspect: "1:1", duration: 6, fps: 30,

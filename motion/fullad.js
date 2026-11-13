@@ -15,10 +15,11 @@
 // keeps small or leaves out.
 import { Ad, inkSprite, splitLines, trim, canvas, lum, prog, outBack, rng, clamp, contrastOf, fontCss, applyCase, labelFont, burstFontFor,
   headlineLines, numberSprite, perksSprite, pointsOf, randomize, harmonise, formatNumber, oklchOf } from "./engine.js";
-import { FONTS, FINE_FACES, PALETTES, DEFAULT_STYLE } from "./catalog.js";
+import { FONTS, FINE_FACES, PALETTES, DEFAULT_STYLE, TYPE_VOICES } from "./catalog.js";
 import { drawChevrons } from "./decor.js";
 import { placeAccents, timeAccents } from "./accents.js";
 import { HOUSE_COLOURS, LINES } from "./house-colours.js";
+import { FULL_VOICES } from "./full-voices.js";
 
 // Proportions of the frame's width. 1080 x .052 = 56px, x .044 = 48px, x .032 = 35px.
 // edge: nothing nearer the frame's edge than 38px; gap: no two stacked blocks nearer than 22px.
@@ -292,6 +293,29 @@ export const CHEVRON_STEP = [.7, .85, 1];
  *  the double outline, one accent word, the number in a pill, and everything in the maker that
  *  puts small words or stray marks on the picture held off. */
 export const HOUSE = { font: "chivo", text_fx: "double_outline", case: "brand", color_mode: "accent_word", number_style: "pill", text_pos: "top-center" };
+/* THE TYPE PAIRS A FULL AD MAY WEAR (rule 141). The house style is one face; the owner's pairs
+   (TYPE_VOICES, the photo ads' FONT_PAIRS, the Type Lab's picks among them) are offered on it
+   where the full ad still passes its own checks in them. A display face too fine or too busy for
+   the double outline (FINE_FACES) is never offered: the full ad's headline is always outlined.
+   full-voices.js holds the rest, measured: scripts/full_type_check.mjs draws every pair in every
+   size and writes the ones that pass (never edit it by hand). */
+/** Whether a face can spell the small i of iPHONE: a caps-only face draws its capital for it. Read
+ *  off the glyphs (the photo ads' faceGlyphs asks the same of a card's face): the two differ by more
+ *  than an eighth of what either covers. The face must be loaded; until it is, nothing is remembered. */
+const _smallI = new Map();
+export function spellsSmallI(fontKey) {
+  if (_smallI.has(fontKey)) return _smallI.get(fontKey);
+  if (!FONTS[fontKey]) return true;
+  const N = 150, c = canvas(N, N), x = c.getContext("2d", { willReadFrequently: true });
+  const ink = ch => { x.clearRect(0, 0, N, N); x.font = fontCss(fontKey, 100); x.textBaseline = "alphabetic"; x.fillStyle = "#000"; x.fillText(ch, 30, 115); return x.getImageData(0, 0, N, N).data; };
+  const a = ink("i"), b = ink("I"); let d = 0, n = 0;
+  for (let k = 3; k < a.length; k += 4) { const A = a[k] > 90, B = b[k] > 90; if (A || B) n++; if (A !== B) d++; }
+  const ok = n > 0 && d / n > .125;
+  let loaded = true; try { loaded = document.fonts.check(fontCss(fontKey, 100)); } catch (e) { /* asked anyway */ }
+  if (loaded) _smallI.set(fontKey, ok);
+  return ok;
+}
+export const fullVoiceOk = (k, any = false) => !!k && !!TYPE_VOICES[k] && !FINE_FACES.has(TYPE_VOICES[k].display) && (any || !FULL_VOICES.length || FULL_VOICES.includes(k));
 export const QUIET = { decor: [], urgency: "none", overlay: "none", accents: 0, board: "none", number_pos: "bottom-center", number_format: "parens",
   camera: "still", shake: 0, sparkles: false, text_in: "slide", pose: "flat", end_face: "back", phone_idle: "breathe", grade: "none", depth: "none",
   text_scale: 1, number_scale: 1, tracking: 0, skew: 0, hook: "none", season: "none", phone_finish: "standard", transition: "none", ...HOUSE };
@@ -503,7 +527,10 @@ export class FullAd extends Ad {
    *  built (so no field of this class exists yet: everything is read from this.st). */
   _layoutType() {
     const st = this.st, W = this.W, H = this.H, p = this.p, ph = this.pHead;
-    const U = Math.min(W, H), ar = W / H, wide = ar >= 1.3, tall = ar < .7;
+    // wide: the product beside the words, from 3:2 up (16:9 is 1.78). It was 1.3 until 2026-11-13, when the
+    // studio's full ad first drew a 4:3 (1.33, a size the video maker has not): the side-by-side
+    // layout left every line's blocks too close there; laid out upright, all 35 lines hold.
+    const U = Math.min(W, H), ar = W / H, wide = ar >= 1.5, tall = ar < .7;
     const e = U * FULL.edge, g = U * FULL.gap;
     // A story is shown under the app's own bars: the account's name across the top, the reply box and the
     // button across the bottom. Meta asks for about 14% clear at the top and 20% at the bottom of a 9:16
@@ -511,10 +538,19 @@ export class FullAd extends Ad {
     const eyT = tall ? H * .125 : e, eyB = tall ? H * .17 : e;
     // the column the words stand in; on a wide frame the product has the right of it
     const cx0 = e, cx1 = wide ? W * .56 : W - e, colW = cx1 - cx0, mid = (cx0 + cx1) / 2;
-    const font = LEGIBLE.has((FONTS[st.font] || [])[3]) ? st.font : "franklin";
+    // A TYPE PAIR ON THE FULL AD (rule 141; fullStyle sets full_pair). One of the owner's pairs
+    // (TYPE_VOICES, the photo ads' FONT_PAIRS): its display face letters the headline, the number
+    // and the sticker; its reading face everything that is read at a small size, the claim, the
+    // line, the call to action, the selling points, the towns and the website. With no pair picked
+    // the house's one face does all of it, as before.
+    const pair = st.full_pair ? TYPE_VOICES[st.type_pair] || null : null;
+    const font = pair ? pair.label : LEGIBLE.has((FONTS[st.font] || [])[3]) ? st.font : "franklin";
     const [fam, fwt] = FONTS[font] || FONTS.franklin;
     const ink = ph.ink, fx = lum(ink) < .5 ? "flat" : "shadow";
-    const upper = t => applyCase(t, "brand");                 // one spelling on the card: the headline's
+    // one spelling on the card: the headline's. A caps-only display face (Bungee, Bahiana, Barrio,
+    // Silkscreen) draws a capital for the small i, so its headline reads IPHONE; the lines under it
+    // then say IPHONE too, and not iPHONE beside it (the review's fault 2, back with the pairs).
+    const upper = t => applyCase(t, pair && !spellsSmallI(st.font) ? "upper" : "brand");
     const paint = (line, px) => trim(inkSprite(line, [...line].map(() => ink), font, px, .02, fx, ph).c);
     /* A line of body type in the fewest rows that fit: one; two, broken at a separator
        ("A • B • C") or between words; three, one item a row. Smaller only when no break
@@ -543,7 +579,7 @@ export class FullAd extends Ad {
     let claim = null;
     if (st.feed_claim) {
       const fill = p.plate || p.accent, inkc = p.plate_ink || "#ffffff", text = st.feed_claim.toUpperCase();
-      const [cf, cw] = FONTS[st.font] || FONTS.franklin;
+      const [cf, cw] = FONTS[pair ? pair.label : st.font] || FONTS.franklin;
       const pmin = Math.floor(U * FULL.claimMin);
       for (let px = Math.round(U * FULL.claim); ; px = Math.max(pmin, Math.floor(px * .94))) {
         const row = footRow(text, px, inkc, cf, cw), h = Math.round(px * 1.7), w = Math.round(row.width + px * 1.5);
@@ -559,7 +595,7 @@ export class FullAd extends Ad {
     if (st.number_label && !labB) F.left.push("call to action");
     // the number: its pill a fixed share of the column, the chevrons either side of it
     const numText = formatNumber(st.number, st.number_format) || "YOUR NUMBER";
-    let numFont = st.number_font === "same" ? st.font : st.number_font; if (FINE_FACES.has(numFont) || !FONTS[numFont]) numFont = "oswald";
+    let numFont = st.number_font === "same" ? st.font : st.number_font; if (FINE_FACES.has(numFont) || !FONTS[numFont]) numFont = pair ? pair.label : "oswald";
     const numFor = z => { const n = numberPill(numText, z, numFont, p); return { ...n, text: numText, label: null }; };
     let nz = U * .09, num = numFor(nz);
     nz *= Math.min(colW * FULL.pill / num.w, U * FULL.number / nz); num = numFor(nz);
@@ -969,8 +1005,12 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const have = (st.phones || []).slice(0, most);
   const idx = Object.fromEntries(phoneIndex.map(m => [m.id, m]));
   const bold = subject ? [] : have.map(id => (idx[id] || {}).body).filter(b => b && b.C >= BOLD_C).map(b => b.h);
-  const first = one(pairsFor(st.subject, st.headline, bold)), key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, ...picked } = pick;
-  const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...picked };
+  const first = one(pairsFor(st.subject, st.headline, bold)), key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, type_pair: _t, type_any: _a, ...picked } = pick;
+  // the type: the house's one face, or one of the owner's pairs when one is picked (pick.type_pair, a
+  // TYPE_VOICES key that FULL_VOICES holds). Carried in the look, after QUIET, so it is the face drawn.
+  const voice = fullVoiceOk(pick.type_pair, pick.type_any) ? TYPE_VOICES[pick.type_pair] : null;   // type_any: the check that writes the list tries every pair
+  const type = voice ? { type_pair: pick.type_pair, font: voice.display, number_font: voice.numberRead ? voice.label : "same", full_pair: true } : { full_pair: false };
+  const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...type, ...picked };
   const area = (st.area || "").trim();
   // What the customer left empty is filled from the lists, each line chosen so that it does not
   // repeat a promise the lines before it already make (the customer's own words are never changed:

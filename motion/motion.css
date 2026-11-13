@@ -196,6 +196,10 @@ a.mo-btn{display:inline-flex;align-items:center;text-decoration:none}
   background: linear-gradient(135deg, var(--c1, #fff) 0 55%, var(--c2, #ddd) 55% 100%); font-size: 12.5px; font-weight: 700; color: inherit; }
 .mo-colours button[data-colour=""] { width: auto; padding: 0 12px; border-radius: 999px; background: none; }
 .mo-colours button[aria-checked="true"] { outline: 3px solid #1d4ed8; outline-offset: 2px; }
+/* the full ad's type pairs: the owner's pairs it holds in (motion/full-voices.js) */
+.mo-voices { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.mo-voices button { font: inherit; font-size: 13.5px; font-weight: 600; padding: 7px 12px; border-radius: 999px; border: 1.5px solid rgba(20, 20, 20, .28); background: none; color: inherit; cursor: pointer; }
+.mo-voices button[aria-checked="true"] { border-color: #1d4ed8; background: rgba(29, 78, 216, .1); color: #1d4ed8; }
 /* an ad about something other than phones: what only a phone ad uses is put away */
 [data-subject="other"] .mo-phone-only { display: none !important; }
 #f-subject { flex: 1; min-width: 0; }

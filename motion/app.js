@@ -1,8 +1,9 @@
 // Phone video ad maker: the page. Engine in engine.js, sound in audio.js, export in export.js.
 
-import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES } from "./catalog.js";
+import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES, DEFAULT_PHONES } from "./catalog.js";
 import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf, lotInto } from "./engine.js";
-import { FullAd, fullStyle, fullPreflight, fullStill, loadSubjectSet, COLOURWAYS, COLOUR_OF } from "./fullad.js";
+import { FullAd, fullStyle, fullPreflight, fullStill, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk } from "./fullad.js";
+import { FULL_VOICES } from "./full-voices.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
@@ -20,8 +21,6 @@ const VH = () => window.VideoHelp || { retry: async fn => fn(0), waitVisible: as
   show: () => {}, check: async () => null, share: null, save: null, canShareFiles: () => false, safetyNet: () => {}, inApp: false };
 VH().safetyNet();
 const PREVIEW_MAX = 720;
-// the picker opens on the regular models and the Pro Maxes (allPhones shows the rest), so the defaults are among them
-const DEFAULT_PHONES = ["18-pro-max-burgundy", "17-pro-max-cosmic-orange", "18-pro-max-glacier", "16-pink"];
 
 const state = {
   style: { ...DEFAULT_STYLE, ...CLASSIC, phones: DEFAULT_PHONES.slice() },
@@ -58,7 +57,9 @@ async function ensureSubject(st) {
   Object.assign(state.assets.phones, got.assets); subjects.loaded[k] = got.ids;
 }
 const fullOf = st => {
-  const S = state.full ? subjectOf(st) : null, pick = st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {};
+  // what was picked by hand for the full ad: its colours, and its type pair (one of the owner's pairs the
+  // full ad holds in, motion/full-voices.js; none picked is the house face)
+  const S = state.full ? subjectOf(st) : null, pick = { ...(st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {}), ...(fullVoiceOk(st.full_type) ? { type_pair: st.full_type } : {}) };
   if (!S) return fullStyle({ ...st, subject: "" }, st.seed, state.index, pick, state.locked);
   const ids = S.sets.length ? subjects.loaded[S.key + "|" + ((st.subject_set | 0) % S.sets.length)] || [] : [];
   return fullStyle({ ...st, phones: ids.length ? ids : ["none"] }, st.seed, state.index, pick, state.locked);
@@ -134,6 +135,29 @@ function restore() {
   } catch (e) { /* none */ }
   delete state.style.full;                           // the switch is the page's, never a saved look's
   const q = new URLSearchParams(location.search);
+  /* THE SAME AD, FROM THE STUDIO (full-ad-studio.js, DESIGN-LAW 141). "Make the video of this ad" on
+     Easy Mode's full ad leaves what was set there (the line, the words, the colours, the type, the
+     look's number) under pgfx_full_handoff and opens this page with ?from=studio. Read once, within
+     ten minutes of being left; what the customer has here otherwise stays theirs. */
+  if (q.get("from") === "studio") {
+    try {
+      const h = JSON.parse(localStorage.getItem("pgfx_full_handoff") || "null"); localStorage.removeItem("pgfx_full_handoff");
+      if (h && Date.now() - (h.at || 0) < 600000) {
+        const s = state.style;
+        if (h.subject && h.subject !== "iphone") { s.subject = h.subject; s.subject_set = h.subject_set | 0; } else { delete s.subject; delete s.subject_set; }
+        s.headline = String(h.headline || s.headline); s.tag = String(h.tag || ""); s.points = h.points == null ? null : String(h.points);
+        for (const k of ["feed_claim", "feed_burst", "feed_where", "biz", "site", "number_label"]) { if (h[k]) s[k] = String(h[k]); else delete s[k]; }
+        if (h.number) s.number = String(h.number);
+        if (h.seed) s.seed = h.seed | 0;
+        if (h.full_palette && COLOURWAYS.includes(h.full_palette)) s.full_palette = h.full_palette; else delete s.full_palette;
+        if (fullVoiceOk(h.full_type)) s.full_type = h.full_type; else delete s.full_type;
+        if (ASPECTS[h.aspect]) s.aspect = h.aspect;
+        ["headline", "tag", "points"].forEach(k => state.locked.add(k));
+        state.full = true;
+      }
+    } catch (e) { /* the maker opens on its own look */ }
+    try { history.replaceState(null, "", location.pathname); } catch (e) { /* fine */ }
+  }
   if (q.get("full") === "1") state.full = true; else if (q.get("full") === "0") state.full = false;
   if (q.get("look")) state.style.seed = parseInt(q.get("look"), 10) || state.style.seed;
   // a look picked in the Look Book (looks.html): its vibe, ground or phone set, from its seed
@@ -331,6 +355,7 @@ function syncFull(ad) {
   clearTimeout(preTimer);
   if (!ad || !ad.full) { note.textContent = ""; box.hidden = true; return; }
   document.querySelectorAll("#full-colours [data-colour]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.colour === (state.style.full_palette || "") || (!state.style.full_palette && b.dataset.colour === ""))));
+  { const on = fullVoiceOk(state.style.full_type) ? state.style.full_type : ""; document.querySelectorAll("#full-voices [data-voice]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.voice === on))); }
   box.hidden = false; $("full-checks-sum").textContent = "checking…"; $("full-checks-sum").className = "mo-score";
   const id = ++preId;
   preTimer = setTimeout(() => {
@@ -366,6 +391,14 @@ async function preflightGate(st) {
 function buildPanel() {
   $("full-colours").innerHTML = `<button role="radio" data-colour="" aria-checked="true" title="The colours change with New look">Any</button>`
     + COLOURWAYS.map(k => { const c = COLOUR_OF[k]; return `<button role="radio" data-colour="${k}" aria-checked="false" title="${c.name}" aria-label="${c.name}" style="--c1:${c.colors.ground};--c2:${c.colors.accent}"></button>`; }).join("");
+  $("full-voices").innerHTML = `<button role="radio" data-voice="" aria-checked="true" title="Chivo, the full ad's own face">House</button>`
+    + FULL_VOICES.filter(k => fullVoiceOk(k)).map(k => `<button role="radio" data-voice="${k}" aria-checked="false" title="${FONTS[TYPE_VOICES[k].display][0]} + ${FONTS[TYPE_VOICES[k].label][0]}">${TYPE_VOICES[k].name}</button>`).join("");
+  $("full-voices").addEventListener("click", e => {
+    const b = e.target.closest("[data-voice]"); if (!b) return;
+    pushHistory();
+    if (b.dataset.voice) state.style.full_type = b.dataset.voice; else delete state.style.full_type;
+    save(); rebuild(); renderGallery(true);
+  });
   $("f-subject").addEventListener("change", e => {
     // words typed a moment ago are still waiting on their pause: keep them (the fields are filled again below)
     if ($("f-number").value.trim()) state.style.number = $("f-number").value;

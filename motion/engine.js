@@ -1800,7 +1800,9 @@ const PHONE_TURN = 14 * Math.PI / 180;     // a flat photo carries a gentle turn
 
 // ------------------------------------------------------------ type
 
-export const FONT_FILES_BASE = "../assets/fonts/";
+// Beside the engine, whichever page draws with it: "../assets/fonts/" was read against the page,
+// which is right from /motion/ and wrong from the studio's own page (full-ad-studio.js, 2026-11-13).
+export const FONT_FILES_BASE = new URL("../assets/fonts/", import.meta.url).href;
 
 export async function loadFonts(names) {
   const want = [...new Set(names)].filter(n => FONTS[n]);
@@ -4388,8 +4390,10 @@ function randomChar(t, j) {
 
 // ------------------------------------------------------------ assets
 
-export async function loadPhones(base = "./phones/") {
+export async function loadPhones(base = "./phones/", only = null) {
   const idx = await (await fetch(base + "index.json")).json();
+  // only: the ids wanted, for a page that draws a few phones and not the picker (the studio's full ad)
+  if (only) { const want = new Set(only); idx.phones = idx.phones.filter(m => want.has(m.id)); }
   // never a photo that failed its check (ok: false). A painted back (repaint) stays: each is
   // a model Apple made in a finish it was sold in, built from a real back and Apple's own
   // straight-on camera where no straight photo of it exists (scripts/bake_extra_phones.py),
