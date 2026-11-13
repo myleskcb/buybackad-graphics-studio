@@ -254,14 +254,76 @@ export const CANDIDATES = [
   ['Ruslan Display', 'wild'],
 ];
 
+/* THE SECOND BATCH (2026-11-13). The owner, after picking 27: "any others
+   suggested based off that … similar ones? compared one selected to another
+   similar? how about other ends of design spectrum?". Two kinds of group:
+   `refs` groups open with the faces the owner picked and then show new faces
+   close to them (`near` names the closest pick); the rest are the ends of the
+   spectrum the picks did not touch. Apache 2.0 faces are taken here as well as
+   OFL (both allow commercial use, self-hosting and modification). */
+export const GROUPS2 = {
+  n_chunky:  { title: 'Like your chunky, friendly picks', refs: ['Cherry Bomb One', 'DynaPuff', 'Galindo', 'Boogaloo'] },
+  n_hand:    { title: 'Like your marker and hand picks', refs: ['Gochi Hand', 'Caveat Brush', 'Barrio'] },
+  n_street:  { title: 'Like your spray and protest picks', refs: ['Rubik Spray Paint', 'Protest Revolution', 'Protest Riot'] },
+  n_poster:  { title: 'Like your tall poster picks', refs: ['Stick No Bills', 'Bahiana', 'Londrina Solid', 'Truculenta'] },
+  n_italic:  { title: 'Like your heavy italic picks', refs: ['Kanit', 'Fugaz One'], italic: true },
+  n_pixel:   { title: 'Like your pixel and terminal picks', refs: ['Silkscreen', 'VT323', 'Workbench'] },
+  n_slab:    { title: 'Like your slab, varsity and gothic picks', refs: ['Ranchers', 'Tourney', 'Zilla Slab Highlight', 'Fruktur'] },
+  n_tech:    { title: 'Like your neon, tech and dimensional picks', refs: ['Tilt Neon', 'Michroma', 'Rampart One'] },
+  o_luxe:    { title: 'Other end: luxury serif' },
+  o_modern:  { title: 'Other end: clean and modern' },
+  o_script:  { title: 'Other end: formal script' },
+  o_deco:    { title: 'Other end: deco and vintage' },
+  o_stark:   { title: 'Other end: stark and technical' },
+};
+const b2 = (lang, rows) => rows.map(([family, near, opts]) => [family, lang, null, { ...(opts || {}), batch: 2, near: near || undefined }]);
+export const BATCH2 = [
+  ...b2('n_chunky', [['Chewy', 'Boogaloo'], ['Slackey', 'Galindo'], ['Mogra', 'Galindo'], ['Bubblegum Sans', 'Boogaloo'], ['Nerko One', 'Boogaloo'], ['Rum Raisin', 'Boogaloo'],
+    ['Chelsea Market', 'Galindo'], ['McLaren', 'Galindo'], ['Irish Grover', 'Cherry Bomb One'], ['Fontdiner Swanky', 'Cherry Bomb One'], ['Cherry Cream Soda', 'Cherry Bomb One'],
+    ['Hanalei Fill', 'Cherry Bomb One'], ['Emilys Candy', 'DynaPuff'], ['Mouse Memoirs', 'Boogaloo'], ['Salsa', 'Boogaloo'], ['Comic Relief', 'DynaPuff', { w: [700] }],
+    ['Lilita One', 'DynaPuff'], ['Baloo Bhai 2', 'DynaPuff']]),
+  ...b2('n_hand', [['Rancho', 'Caveat Brush'], ['Schoolbell', 'Gochi Hand'], ['Unkempt', 'Gochi Hand', { w: [700] }], ['Walter Turncoat', 'Gochi Hand'], ['Crafty Girls', 'Gochi Hand'],
+    ['Coming Soon', 'Gochi Hand'], ['Sunshiney', 'Gochi Hand'], ['Playpen Sans', 'Gochi Hand'], ['Delicious Handrawn', 'Caveat Brush'], ['Kavivanar', 'Caveat Brush'],
+    ['Itim', 'Gochi Hand'], ['Mali', 'Gochi Hand', { w: [700] }], ['Pangolin', 'Gochi Hand'], ['Short Stack', 'Gochi Hand'], ['Neucha', 'Caveat Brush'], ['Swanky and Moo Moo', 'Gochi Hand'],
+    ['Just Me Again Down Here', 'Barrio'], ['Love Ya Like A Sister', 'Barrio'], ['Kranky', 'Barrio'], ['Fredericka the Great', 'Barrio'], ['Ruge Boogie', 'Caveat Brush']]),
+  ...b2('n_street', [['Rubik Distressed', 'Rubik Spray Paint'], ['Rubik Glitch', 'Rubik Spray Paint'], 
+    ['Averia Gruesa Libre', 'Protest Riot'], ['Rock Salt', 'Protest Revolution'], ['Covered By Your Grace', 'Protest Riot'],
+    ]),
+  ...b2('n_poster', [['Special Gothic Condensed One', 'Truculenta'], ['Special Gothic Expanded One', 'Londrina Solid'], ['Smokum', 'Bahiana'], ['Six Caps', 'Bahiana'],
+    ['League Gothic', 'Truculenta'], ['Antonio', 'Truculenta'], ['Stardos Stencil', 'Stick No Bills', { w: [700] }], ['Saira Stencil One', 'Stick No Bills'], ['Allerta Stencil', 'Stick No Bills'],
+    ['Sirin Stencil', 'Stick No Bills'], ['Kdam Thmor Pro', 'Londrina Solid'], ['Asset', 'Londrina Solid']]),
+  ...b2('n_italic', [['Prompt', 'Kanit', { w: [900], ital: true }], ['Rubik', 'Kanit', { ital: true }], ['Nunito', 'Fugaz One', { ital: true, as: 'Nunito Black' }], ['Chivo', 'Kanit', { ital: true, as: 'Chivo Black' }],
+    ['Sofia Sans Extra Condensed', 'Kanit', { ital: true, as: 'Sofia Sans XCond Black' }], ['Saira', 'Kanit', { ital: true }], ['Barlow', 'Kanit', { w: [900], ital: true }],
+    ['K2D', 'Kanit', { w: [800], ital: true }], ['Exo', 'Kanit', { ital: true }], ['Racing Sans One', 'Fugaz One'], ['Work Sans', 'Kanit', { ital: true }], ['Bai Jamjuree', 'Fugaz One', { w: [700], ital: true }]]),
+  ...b2('n_pixel', [['Bitcount Grid Double', 'Workbench'], ['Bitcount Prop Single', 'Silkscreen'], ['Bitcount Single', 'Silkscreen'], ['Geo', 'VT323'], ['Share Tech Mono', 'VT323'],
+    ['Jersey 20', 'VT323'], ['Courier Prime', 'VT323', { w: [700] }], ['Sono', 'VT323']]),
+  ...b2('n_slab', [['Graduate', 'Tourney'], ['Black Ops One', 'Tourney'], 
+    ['Coustard', 'Ranchers', { w: [900] }], ['Oldenburg', 'Ranchers'], ['Trochut', 'Zilla Slab Highlight', { w: [700] }], ['Grenze Gotisch', 'Fruktur'],
+    ['New Rocker', 'Fruktur'], ['Germania One', 'Fruktur'], ['Plaster', 'Tourney']]),
+  ...b2('n_tech', [['Monoton', 'Tilt Neon'], 
+    ['Vast Shadow', 'Rampart One'], ['Syncopate', 'Michroma', { w: [700] }], ['Orbitron', 'Michroma'], ['Unica One', 'Michroma']]),
+  ...b2('o_luxe', [['Noto Serif Display', null, { ital: true }], ['Playfair Display', null, { ital: true }], ['Instrument Serif', null, { ital: true, as: 'Instrument Serif Italic' }], ['Bodoni Moda', null, { ital: true }],
+    ['Marcellus'], ['Forum'], ['Castoro Titling'], ['Gilda Display'], ['Bona Nova SC', null, { w: [700] }], ['Petrona'], ['Roboto Serif', null, { wdth: true }], ['Cinzel'], ['Fraunces']]),
+  ...b2('o_modern', [['Geist'], ['Plus Jakarta Sans'], ['Urbanist'], ['Red Hat Display'], ['Wix Madefor Display'], ['Inter Tight'], ['Montserrat Alternates', null, { w: [900] }], ['Julius Sans One'],
+    ['Josefin Sans'], ['Raleway'], ['Outfit'], ['Space Grotesk'], ['Syne']]),
+  ...b2('o_script', [['Pinyon Script'], ['Allura'], ['Petit Formal Script'], ['Imperial Script'], ['Birthstone Bounce', null, { w: [500] }], ['Great Vibes'], ['Tangerine', null, { w: [700] }], ]),
+  ...b2('o_deco', [['Poiret One'], ['Marcellus SC'], ['Federant'], ['Aubrey'], ['Text Me One'], ['Cinzel Decorative', null, { w: [900] }], ]),
+  ...b2('o_stark', [['Geist Mono'], ['Reddit Mono'], ['Sometype Mono'], ['Space Mono', null, { w: [700] }], ['Major Mono Display'], ['Xanh Mono'], ['Archivo Black'], ['Anton']]),
+];
+
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36';
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const get = async (url, as) => { const r = await fetch(url, { headers: { 'user-agent': UA } }); if (!r.ok) throw new Error(r.status + ' ' + url); return as === 'buf' ? Buffer.from(await r.arrayBuffer()) : r.text(); };
 
 async function one([family, lang, like, opts = {}]) {
   /* the licence, from the family's own record in google/fonts */
-  const meta = await get('https://raw.githubusercontent.com/google/fonts/main/ofl/' + family.toLowerCase().replace(/ /g, '') + '/METADATA.pb');
-  if (!/license:\s*"OFL"/.test(meta)) throw new Error('not OFL');
+  const dirName = family.toLowerCase().replace(/ /g, '');
+  let meta = null, lic = null;
+  for (const [d, l, id] of [['ofl', 'OFL', 'OFL-1.1']].concat(opts.batch === 2 ? [['apache', 'APACHE2', 'Apache-2.0']] : [])) {
+    const m = await get('https://raw.githubusercontent.com/google/fonts/main/' + d + '/' + dirName + '/METADATA.pb').catch(() => null);
+    if (m && new RegExp('license:\\s*"' + l + '"').test(m)) { meta = m; lic = [d, id]; break; }
+  }
+  if (!meta) throw new Error('no open licence on record');
   const designer = (/designer:\s*"([^"]+)"/.exec(meta) || [])[1] || '';
   const axes = {}; for (const m of meta.matchAll(/axes\s*\{\s*tag:\s*"(\w+)"\s*min_value:\s*([\d.-]+)\s*max_value:\s*([\d.-]+)/g)) axes[m[1]] = [+m[2], +m[3]];
   const statics = [...new Set([...meta.matchAll(/fonts\s*\{[^}]*?style:\s*"normal"[^}]*?weight:\s*(\d+)/g)].map(m => +m[1]))].sort((a, b) => a - b);
@@ -286,11 +348,27 @@ async function one([family, lang, like, opts = {}]) {
     css.push(`@font-face{font-family:'${name}';src:url('${file}') format('woff2');font-weight:${Array.isArray(w) ? w.join(' ') : w};${stretch}font-style:${it ? 'italic' : 'normal'};font-display:swap}`);
     files.push({ file, weight: Array.isArray(w) ? w : w, italic: !!it, kb: Math.round(statSync(DIR + file).size / 1024) });
   }
-  return { name, family, language: lang, like: like || null, designer, licence: 'OFL-1.1', source: 'google/fonts ofl/' + family.toLowerCase().replace(/ /g, ''),
+  return { name, family, language: lang, like: like || null, designer, licence: lic[1], source: 'google/fonts ' + lic[0] + '/' + dirName,
+           batch: opts.batch, near: opts.near, wdth: !!(opts.wdth && axes.wdth) || undefined,
            variable, axes: variable ? axes : undefined, files, css };
 }
 
-if (import.meta.url === 'file://' + process.argv[1]) {
+if (import.meta.url === 'file://' + process.argv[1] && process.argv.includes('--batch2')) {
+  /* the second batch only: the first review's record (faces, verdicts) stands */
+  const out = [], failed = [];
+  for (let i = 0; i < BATCH2.length; i += 8)
+    await Promise.all(BATCH2.slice(i, i + 8).map(c => one(c).then(r => out.push(r), e => failed.push(c[0] + ': ' + e.message))));
+  const nm = c => (c[3] && c[3].as) || c[0];
+  out.sort((a, b) => BATCH2.findIndex(c => nm(c) === a.name) - BATCH2.findIndex(c => nm(c) === b.name));
+  const lab = JSON.parse(readFileSync(DIR + '../../font-lab.json', 'utf8'));
+  lab.groups2 = GROUPS2;
+  lab.faces2 = out.map(({ css, ...f }) => f);
+  writeFileSync(DIR + '../../font-lab.json', JSON.stringify(lab, null, 1) + '\n');
+  const old = readFileSync(DIR + 'lab.css', 'utf8').split('\n').filter(l => l && !out.some(f => f.css.includes(l)));
+  writeFileSync(DIR + 'lab.css', old.concat(out.flatMap(f => f.css)).join('\n') + '\n');
+  console.log(out.length + ' faces, ' + (out.reduce((s, f) => s + f.files.reduce((t, x) => t + x.kb, 0), 0) / 1024).toFixed(1) + ' MB');
+  if (failed.length) console.log('NOT TAKEN (' + failed.length + '):\n  ' + failed.join('\n  '));
+} else if (import.meta.url === 'file://' + process.argv[1]) {
   const out = [], failed = [];
   for (let i = 0; i < CANDIDATES.length; i += 8) {
     await Promise.all(CANDIDATES.slice(i, i + 8).map(c => one(c).then(r => out.push(r), e => failed.push(c[0] + ': ' + e.message))));
