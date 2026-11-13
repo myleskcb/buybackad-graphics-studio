@@ -5,6 +5,7 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /pick.html
+Disallow: /approve.html
 Disallow: /library.html
 Disallow: /phonegfx-studio.html
 Disallow: /admin-ads/

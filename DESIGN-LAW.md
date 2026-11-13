@@ -5602,3 +5602,109 @@ a towns line or a website.
   which the full ad now draws. `?noretire=1` shows them; nothing is deleted.
 
 Not done here: OPEN-ITEMS §BC.
+
+## 138. The pre-flight: an ad is measured on its own delivered picture before it goes out
+
+Added 2026-11-12. The owner: "is there anything we can do to add another layer
+of intelligence another layer of self validating or auditing before it's
+generated or in the generating process/design process?", "how do these ads
+never have mistakes".
+
+Rule 87 has every generation measured before it is produced. For the full ad
+that measure was the layout reading its own numbers (`fullBlockers`), and a
+layout's numbers are what it meant to draw. The review of the same day found
+three faults those numbers passed (a number's brackets 4px from its pill's
+edge, ticks under the number on a light ground, a headline's outline in the
+margin).
+
+- **`fullPreflight(ad, frame)`** (`motion/fullad.js`) draws nothing and trusts
+  nothing: it reads the picture as delivered. Nothing within 17px of the edge
+  (of a 1080 short side); every line against the pixels actually behind its
+  letters, 4.5:1 for the small lines and 3:1 for the headline and number; each
+  product against the ground behind it, 1.25:1; the headline and number 20px
+  and 16px tall in a feed's small preview; the picture's weight compressed (how
+  busy it is) within a quarter of the busiest ad the layout draws today; the
+  layout's own findings; and the words.
+- **`fullWords(st)`**: no promise twice (two lines sharing a word's stem),
+  nothing that needs proof ("#1", "best", "highest", "fastest", "guaranteed"),
+  no "up to" price, a website that reads as one, a number that is one, and a
+  name: an ad that says nowhere who is buying is told so.
+- **Letters' soft edges are not ground.** The first cut failed readable lines:
+  a letter's edge is a blend of ink and ground, and a pill's box holds its round
+  ends. The ring round the letters is left out and a pill is read on its
+  straight middle (docs/THEME-AUDIT.md's first correction, met again).
+- **A finding is "fix" or "note".** A fix stops a photo, a video and a library
+  save until the customer chooses Go back and fix it or Download it anyway
+  (`preflightGate`). A note is said under the preview. Both in the customer's
+  words (rule 113). New look takes only looks that pass.
+- **A check that cannot run never stands between a customer and their ad**: an
+  error in the pre-flight lets the download through and is logged.
+- **Checked**: `scripts/full_ad_check.mjs` runs it on all 256 ads (none with a
+  fix on ordinary words) and presses the gate on the page.
+
+The review that prompted it, with its thirteen faults and the five patterns
+under them, is docs/FULL-AD-REVIEW-2026-11-12.md. Not done here: OPEN-ITEMS §BD.
+
+## 139. A full ad's colours: no see-through accent, a metal in its own colour, the product counted
+
+Added 2026-11-12. The owner, of the full ad in the twelve pairs (rule 137):
+"the theming is much better", "but still needs tweaks". The twelve pairs drawn
+on one ad, everything else held, one sheet per product (iPhone, MacBook, gold,
+silver, coins, car, Pokémon, the owner's default phones), looked at cell by cell
+and measured in OKLCH. Three faults, each in every pair it could reach.
+
+- **An accent is never faded by opacity.** The chevrons stepped toward the
+  number in opacity (.32, .6, 1), set that morning so a photo would stop
+  catching whichever chevron the clock had lit (docs/FULL-AD-REVIEW-2026-11-12.md
+  item 7; that intent is kept). A see-through colour is that colour mixed
+  into whatever is under it, in sRGB: gold over navy drew `#504b3a` (C .028,
+  khaki grey), orange over navy a brown, gold over purple a rose-brown at hue
+  25 (a third family on a two-family card), gold over green an olive. Rule
+  103 keeps an accent at C .12 and up and a warm hue over its muddy floor; an
+  opacity step breaks both on every dark pair with a warm accent. Step a
+  repeated mark in size and weight (`CHEVRON_STEP`: 70, 85, 100%, each a step
+  from its neighbour in proportion to their size), never in opacity.
+- **A word that names a colour is drawn in it, or is not accented.** The
+  accent goes to the goods (rule 137), so on a gold or silver ad it paints the
+  metal's name: WE BUY GOLD drew GOLD in cyan, green, red or blue on seven of
+  the twelve pairs, and SILVER was gold, orange or yellow on seven. Gold is
+  hue 65 to 110 at C .1 and up (rule 103's named band: Red & Yellow's `#e5b800`
+  is gold, Navy & Orange's `#ff7a00` is not); silver is a cool hue (180 to
+  285) or no hue. `accentWord` passes over a colour word the accent is not
+  (WE BUY GOLD on Black & Red accents BUY), and a seeded ad on a line the
+  library's `AFFINITY` restricts (gold, silver, test strips, Pokémon) draws
+  its pair from those that suit it, written into `house-colours.js` as each
+  pair's `suits` by `build_house_colours.mjs`, never typed. The photo ads hold
+  the same line (`pgHuePlan` keeps gold among a card's two families when its
+  headline says GOLD).
+- **The product counts toward the two families** (rule 95). The owner's
+  default set stands a Cosmic Orange 17 Pro Max in the middle, and the seed
+  drew any pair under it; an orange phone on Midnight & Cyan or Blue & Green
+  is a third colour. A phone counts when its picture is a colour: measured
+  from the picture at load (`bodyColour`, the middle 80% of its opaque pixels
+  by lightness; the index's `metal` is the frame and undersays the back), C
+  .07 and up, which is six finishes ((PRODUCT)RED, Cosmic Orange,
+  Ultramarine, Yellow, Pink, the 13's Blue). A seeded ad draws from the pairs
+  that keep it to two families (hues within 30 degrees are one, as
+  `pgHuePlan` counts them; a neutral ground is none); phones that are two
+  colours by themselves may also stand on a neutral ground.
+- **A pair picked by hand is never narrowed**, and an ad that brings none of
+  these (any other line, neutral phones, no colour word) draws exactly the pair
+  its seed drew before: the same list, one draw.
+
+Measured after: over 300 seeds, gold draws only its five gold pairs, silver
+Midnight & Cyan and Silver & Blue, Pokémon never a neutral ground; the default
+phones Navy & Orange, Teal & Orange, Red & Yellow, the three blacks and Silver
+& Blue; neutral phones all twelve, as before.
+
+**Checked** by `scripts/full_colour_check.mjs` (about a minute, exit 1 on a
+failure): every chevron in every pair reaches the accent on the delivered
+picture, colour words on all twelve pairs, 900 seeded ads on the restricted
+lines, 1,440 seeded ads with bold phones (and every phone set still draws two
+pairs or more), and 600 ads that must draw the pair they drew before. Each of
+the three faults, put back by hand, fails it. Run it with `full_ad_check`
+before a commit that touches the full ad's colours, `accentWord`, `pairsFor`,
+the chevrons, `house-colours.js` or `loadPhones`.
+
+Not done here (OPEN-ITEMS §BE): the lit patch of each ground is under rule
+103's ground chroma, because so are some of the themes' own grounds.

@@ -5170,3 +5170,100 @@ RESUME HERE:
      again, run the checks and put it there.
   1. §BC 2 to 4: which photo generation goes next, the full ad in Easy Mode's
      picker, and whether iPhones LA's weekly batch moves to FullAd.
+
+## 2026-11-12 — live; every design looked at; an ad that checks itself (DESIGN-LAW 138)
+
+Asked: go live; another layer of self-checking before an ad is made; "can we
+have you yourself Claude on it every design"; competitor ads: what we miss,
+what to leave out, what catches the eye.
+
+Done: `main` moved; ten ads reviewed at full size, thirteen faults fixed at
+their source; `fullPreflight` and `fullWords`; a business name on the ad; the
+competitor pass written down.
+
+Found:
+  - Looking beats measuring for what nobody thought to measure: ticks under the
+    number, brackets low in the pill, a handshake photograph beside flat type.
+    Then turn what was seen into a measure so it cannot come back.
+  - The first cut of a new measure is wrong in the old way. The contrast check
+    counted letters' soft edges as ground and failed readable lines, the very
+    error THEME-AUDIT recorded in September. Read the old corrections first.
+  - A deploy that says success may have deployed nothing: the job passed with
+    "Nothing to do without the secrets". Read the job's steps, not its tick.
+  - A sheet of thumbnails hides what one picture at full size shows. Review at
+    the size it is posted.
+  - Research that could not open a page says so in its first line, or it reads
+    as more than it is.
+
+RESUME HERE:
+  0. OPEN-ITEMS §BD 1: this round is not on `main`. Ask, then put it there.
+  1. §BD 3: the owner's decisions from the research, one at a time.
+
+## 2026-11-12 — the full ad's colours, tweaked (DESIGN-LAW 139; claude/admiring-hamilton-6bbehw)
+
+Asked: "work diligently. while I sleep"; then "the theming is much better", "but
+still needs tweaks". No tweak named, so the session took the last theming work
+(the full ad in the twelve proven pairs, rule 137) and looked for what was off.
+
+Started from `main` (9dddf354) and merged the three branches ahead of it first:
+friendly-heisenberg (the full ad reviewed by eye, the pre-flight, pushed a
+minute before this session started), festive-ramanujan (six step styles),
+wizardly-keller (the approval page). One conflict (OPEN-ITEMS, both kept).
+Every page loaded with no errors; full_ad_check all clear on the merge.
+
+Method: the twelve pairs drawn on the same ad, everything else held (words,
+seed, products, layout), one sheet per product: iPhone, MacBook, gold, silver,
+coins, car, Pokémon, the owner's default phones. Holding everything but the
+colour is what made the faults visible; on a shuffled sheet each one looked
+like a one-off.
+
+Found, and fixed where each starts (rule 139):
+  - The chevrons faded by opacity: gold over navy is `#504b3a`, C .028. An
+    opacity step on an accent is a new colour, mixed in sRGB, under rule 103's
+    floor. Now stepped in size.
+  - GOLD painted cyan, green, red or blue on 7 of 12 pairs; SILVER gold, orange
+    or yellow on 7. The accent goes to the goods, so it paints the metal's name.
+    accentWord passes over a colour word the accent is not; seeded gold, silver,
+    strips and Pokémon ads use the library's own AFFINITY table.
+  - The owner's default phones put an orange 17 Pro Max in the middle, and the
+    seed drew any pair under it. A bold phone now counts toward the card's two
+    colour families; colours measured from the pictures at load.
+
+Learned:
+  - **Measure the blend, not the paint** (rule 34, again). The palette was
+    clean; what reached the screen was the accent at 32% over the ground.
+  - **A field named for a colour may describe a different part.** The phone
+    index's `metal` is the frame: Teal reads C .041 by its picture, and the
+    Cosmic Orange back is C .155. Measure the picture.
+  - **The library already had the answer** (AFFINITY in refresh_palettes.mjs,
+    pgHuePlan's "gold on a card that says GOLD"). The full ad was built beside
+    it and never read it. Before writing a rule, grep for the photo ads' one.
+  - **A narrowing rule can funnel.** The first cut sent pink, ultramarine and
+    teal phones to Silver & Blue on 300 of 300 seeds: New look would never
+    change colour. Count the draws over many seeds, not one.
+  - **Checks without a server.** This session could not start
+    `python3 -m http.server` (the permission layer refused it) and cdnjs is
+    blocked. `scripts/pw_local.cjs` is Playwright answering
+    127.0.0.1:8931 from disk in-process, fabric from FABRIC_JS; pass it as
+    PLAYWRIGHT_MODULE. A check that calls `route.fetch()` (the CSP injectors)
+    goes to the network past other routes, so the module answers fetch() and
+    continue() for the repo too.
+
+Checked (on the final code): full_ad_check all clear (256 ads and the page),
+quick_ad_check and buylist_check all passed under the production CSP,
+social_studio_check, listing_check, audience_check and motion_cta_audit all
+clear; theme_law, audit_theme_grammar, theme_cohesion_audit and cvd_audit pass
+(31/31 themes under all three colour-vision simulations); every page loads with
+no errors. New: scripts/full_colour_check.mjs, all clear, and failing on each of
+the three faults when it is put back (a check that has only ever passed proves
+little). The chevron geometry moved into chevronMarks() for it: 24 renders
+pixel-identical before and after the move.
+
+Not on `main`: this branch only (the session may push nowhere else).
+
+RESUME HERE:
+  0. Ask the owner to look at the before/after sheet, then merge this branch to
+     `main` (it carries three other branches too), run the checks, deploy.
+  1. OPEN-ITEMS §BE 2 (Navy & Gold with an orange phone, 4 degrees out),
+     3 (the lit patches under rule 103's chroma: through house_themes.mjs),
+     4 (the cash icon at 4:5), 5 (the light card's sticker).

@@ -14,11 +14,11 @@
 // reuses the engine's painter, placement and collision passes and changes only what the maker
 // keeps small or leaves out.
 import { Ad, inkSprite, splitLines, trim, canvas, lum, prog, outBack, rng, clamp, contrastOf, fontCss, applyCase, labelFont, burstFontFor,
-  headlineLines, numberSprite, perksSprite, pointsOf, randomize, harmonise } from "./engine.js";
-import { FONTS, PALETTES, DEFAULT_STYLE } from "./catalog.js";
+  headlineLines, numberSprite, perksSprite, pointsOf, randomize, harmonise, formatNumber, oklchOf } from "./engine.js";
+import { FONTS, FINE_FACES, PALETTES, DEFAULT_STYLE } from "./catalog.js";
 import { drawChevrons } from "./decor.js";
 import { placeAccents, timeAccents } from "./accents.js";
-import { HOUSE_COLOURS } from "./house-colours.js";
+import { HOUSE_COLOURS, LINES } from "./house-colours.js";
 
 // Proportions of the frame's width. 1080 x .052 = 56px, x .044 = 48px, x .032 = 35px.
 // edge: nothing nearer the frame's edge than 38px; gap: no two stacked blocks nearer than 22px.
@@ -285,11 +285,13 @@ export const FULL = {
   burst: .112, burstMin: .08,       // the sticker's radius
   icon: .085, iconMin: .055,
 };
+/** The chevrons' size and weight, farthest from the number first (_chevrons: never their opacity). */
+export const CHEVRON_STEP = [.7, .85, 1];
 
 /** The house style (tools/feed-stills/render.mjs HOUSE and QUIET, 2026-11-03): one face, capitals,
  *  the double outline, one accent word, the number in a pill, and everything in the maker that
  *  puts small words or stray marks on the picture held off. */
-export const HOUSE = { font: "chivo", text_fx: "double_outline", case: "upper", color_mode: "accent_word", number_style: "pill", text_pos: "top-center" };
+export const HOUSE = { font: "chivo", text_fx: "double_outline", case: "brand", color_mode: "accent_word", number_style: "pill", text_pos: "top-center" };
 export const QUIET = { decor: [], urgency: "none", overlay: "none", accents: 0, board: "none", number_pos: "bottom-center", number_format: "parens",
   camera: "still", shake: 0, sparkles: false, text_in: "slide", pose: "flat", end_face: "back", phone_idle: "breathe", grade: "none", depth: "none",
   text_scale: 1, number_scale: 1, tracking: 0, skew: 0, hook: "none", season: "none", phone_finish: "standard", transition: "none", ...HOUSE };
@@ -300,9 +302,16 @@ export const QUIET = { decor: [], urgency: "none", overlay: "none", accents: 0, 
    feed stills keep their own list (tools/feed-stills/render.mjs). */
 export const COLOURWAYS = HOUSE_COLOURS.map(c => c.key);
 export const COLOUR_OF = Object.fromEntries(HOUSE_COLOURS.map(c => [c.key, c]));
-export const GROUNDS = ["radial", "spotlight", "studio_sweep", "tonal", "spot_floor", "linear"];
+/* Grounds with nothing drawn in them. The review of 2026-11-12 found the others' features under
+   the content: the edges of spot_floor's cone ran behind the chips and through the chevrons, and
+   studio_sweep's floor line stood as a row of ticks under the number. The depth comes from the
+   light the layout puts behind the product, where it knows the product is. */
+export const GROUNDS = ["radial", "tonal", "linear"];
 export const ARRANGEMENTS = ["lineup", "fan", "showcase", "podium", "wings"];
-export const ICONS = ["cash", "money", "deal", "local", "trust"];
+/* One icon, where a size has room for one: the fan of banknotes. The review of 2026-11-12: the
+   handshake is a photograph of two suits (clip art beside flat type), the red pin repeats the
+   footer's pin, and pin and shield each bring a third colour onto a two-colour card. */
+export const ICONS = ["cash"];
 /** What an ad says when its maker has typed nothing: claims any buyer can stand behind (no "#1",
  *  "best" or "fastest", which need proof; DESIGN-LAW's honest-claims rule). */
 export const FULL_WORDS = {
@@ -310,8 +319,81 @@ export const FULL_WORDS = {
   line: ["ALL MODELS WANTED", "NEW, USED OR CRACKED", "ANY CARRIER • ANY CONDITION"],
   points: ["FREE QUOTE, CASH SAME DAY, NO FEES", "QUOTE BY TEXT, PAID TODAY, WE MEET YOU", "TEXT US NOW, TOP DOLLAR, ANY CONDITION"],
   label: ["CALL OR TEXT", "TEXT US NOW", "GET YOUR OFFER"],
-  burst: ["CASH!", "FAST CASH", "TOP $$$", "PAID TODAY"],
+  burst: ["CASH!", "FAST CASH", "TOP $$$", "PAID TODAY", "SAME DAY", "EASY SALE"],
+  burst_es: ["PAGO HOY", "PAGO YA", "FÁCIL"],
 };
+
+/* ONE PROMISE, ONCE. The review of 2026-11-12 found the same promise three times on one square:
+   "CASH TODAY" in the claim, "CASH PAID" in a chip, "PAID TODAY" on the sticker. Two lines share a
+   promise when they share a word's stem (four letters and up, its first five), the test the
+   iPhones LA generator uses (tools/feed-stills/generate.mjs). */
+const stems = s => new Set(String(s || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/[^A-Z0-9$]+/).filter(w => w.length >= 4 || w === "$$$").map(w => w.slice(0, 5)));
+export const sharesWord = (a, b) => { const B = stems(b); return [...stems(a)].some(w => B.has(w)); };
+
+/* A WORD THAT NAMES A COLOUR IS DRAWN IN IT, OR NOT ACCENTED (rule 139). The accent goes to the
+   goods, so on a gold or silver ad it paints the metal's own name: before this, WE BUY GOLD drew
+   GOLD in cyan, green, red or blue on seven of the twelve pairs, and WE BUY SILVER drew SILVER in
+   gold, orange or yellow on seven. Gold is the gold-and-yellow band of rule 103's namedBand (hue
+   65 to 110, C .1 and up: Red & Yellow's #e5b800 is gold, Navy & Orange's #ff7a00 is not); silver
+   is a cool colour (hue 180 to 285: cyan, blue) or no colour at all. (The photo ads hold the same
+   line: pgHuePlan keeps gold among a card's two families when its headline says GOLD.) */
+const COLOUR_WORD = { GOLD: "gold", GOLDEN: "gold", ORO: "gold", SILVER: "silver", PLATA: "silver" };
+export function wordAgrees(word, hex) {
+  const named = COLOUR_WORD[String(word || "").toUpperCase().replace(/[^A-ZÁÉÍÓÚÑ]/g, "")];
+  if (!named || !hex) return true;
+  const { C, h } = oklchOf(hex);
+  return named === "gold" ? C >= .1 && h >= 65 && h < 110 : C < .04 || (h >= 180 && h < 285);
+}
+
+/** Which word of the headline wears the accent: the goods, else the money, else the verb, else the
+ *  last word. ("UPGRADING? SELL YOUR OLD ONE" accented ONE, the one word that says nothing.) Given
+ *  the accent's colour, a word naming another colour is passed over: WE BUY GOLD on Black & Red
+ *  accents BUY, and GOLD stays in the ink. */
+const GOODS = /^(I?PHONES?|IPADS?|IMACS?|MACBOOKS?|WATCH(ES)?|GALAXY|PIXEL|FOLDABLES?|TABLETS?|CONSOLES?|SWITCH|CONTROLLERS?|LAPTOPS?|HEADSETS?|HANDHELDS?|PCS?|HEADPHONES|EARBUDS|SPEAKERS?|MONITORS?|SSDS?|CHROMEBOOKS?|GLASSES|SMARTWATCH(ES)?|GOLD|SILVER|COINS?|CARS?|TRUCKS?|STRIPS|CARDS?|CAMERAS?|DRONES?|CELULAR(ES)?|TEL[EÉ]FONOS?|ORO|PLATA|MONEDAS?|CARROS?)$/;
+const MONEY = /^(CASH|PAID|MONEY|DOLLAR|EFECTIVO|DINERO)$/, VERB = /^(SELL|BUY|TRADE|VENDE|COMPRAMOS)$/;
+export function accentWord(headline, accent) {
+  const ws = String(headline || "").toUpperCase().split(/\s+/).map(w => w.replace(/[^A-ZÁÉÍÓÚÑ0-9]/g, ""));
+  const ok = i => wordAgrees(ws[i], accent);
+  for (const re of [GOODS, MONEY, VERB]) { for (let i = ws.length - 1; i >= 0; i--) if (re.test(ws[i]) && ok(i)) return i; }
+  for (let i = ws.length - 1; i >= 0; i--) if (ws[i] && ok(i)) return i;
+  return ws.length - 1;
+}
+
+/* TWO COLOUR FAMILIES TO A CARD, THE PRODUCT COUNTED (rule 139). The owner's default set stands
+   a Cosmic Orange 17 Pro Max in the middle, and the seed drew any of the twelve pairs under it: an
+   orange phone on Midnight & Cyan, Blue & Green or Purple & Gold is a third colour. A phone counts
+   when its picture is a colour (meta.body, measured at load: C .07 and up, the six bold finishes);
+   hues within 30 degrees are one family (the photo ads' pgHuePlan), a neutral ground (C under .04)
+   none. The seed draws from the pairs that keep the card to two; where the phones alone are two
+   (a pink and an ultramarine), from those that add the fewest and from the neutral grounds. */
+export const BOLD_C = .07, FAMILY_GAP = 30;
+const hueGap = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+export function familyCount(hues) { const f = []; for (const h of hues) if (!f.some(x => hueGap(x, h) <= FAMILY_GAP)) f.push(h); return f.length; }
+const pairHues = c => [c.colors.ground, c.colors.accent].map(oklchOf).filter(k => k.C >= .04).map(k => k.h);
+
+/** The pairs a seeded ad may be drawn in: those that suit its line (house-colours.js suits, from
+ *  the library's AFFINITY); when its headline names a colour, those whose accent is that colour,
+ *  so the accent can paint it; and of those, the ones that keep it to two colour families with the
+ *  bold phones on it (phoneHues: the body hues of the phones it shows). All twelve, in their order,
+ *  for any other ad: a seed that drew a pair before draws the same one. A pair picked by hand is
+ *  never narrowed (fullStyle). */
+export function pairsFor(subject, headline, phoneHues = []) {
+  let keys = LINES.includes(subject) ? HOUSE_COLOURS.filter(c => (c.suits || []).includes(subject)).map(c => c.key) : COLOURWAYS;
+  const named = String(headline || "").toUpperCase().split(/\s+/).filter(w => COLOUR_WORD[w.replace(/[^A-ZÁÉÍÓÚÑ]/g, "")]);
+  if (named.length) {
+    const agree = keys.filter(k => named.some(w => wordAgrees(w, COLOUR_OF[k].colors.accent)));
+    if (agree.length) keys = agree;
+  }
+  if (phoneHues.length && keys.length) {
+    const n = Object.fromEntries(keys.map(k => [k, familyCount([...pairHues(COLOUR_OF[k]), ...phoneHues])]));
+    const best = Math.max(2, Math.min(...Object.values(n))), many = familyCount(phoneHues) >= 2;
+    // phones that are two colours by themselves stand on a neutral ground too (black, silver): it adds
+    // only its accent, where every coloured ground would add a family (and pink, ultramarine and teal
+    // 16s drew Silver & Blue on every seed)
+    keys = keys.filter(k => n[k] <= best || (many && oklchOf(COLOUR_OF[k].colors.ground).C < .04));
+  }
+  return keys.length ? keys : COLOURWAYS;
+}
 
 /** A map pin, drawn (an emoji pin is a different picture on every device, and none on some). */
 function pin(x, cx, cy, h, fill, dot) {
@@ -333,6 +415,24 @@ function footRow(text, px, color, family, weight, pinFill) {
   return c;
 }
 
+/** The number on its pill, the figures centred in it by their own ink. The engine's pill is set
+ *  from the face's ascent, so the brackets of "(562)", which hang under the baseline, came within
+ *  4px of its lower edge while 22px stood clear above (review, 2026-11-12; DESIGN-LAW 58: copy is
+ *  never touched by a plate's edge). Returns the sprite, the margin its shadow takes round the
+ *  pill, and the pill's own size. */
+function numberPill(text, size, font, p) {
+  const col = contrastOf(p.plate_ink, p.plate) >= 3.5 ? p.plate_ink : (lum(p.plate) > .5 ? "#111111" : "#ffffff");
+  const P = { ...p, ink: col, accent: col };
+  const ink = trim(inkSprite(text, [...text].map(() => col), font, size, 0, "flat", P, 0).c);
+  const padX = size * .5, padY = Math.max(size * .17, ink.height * .19), w = Math.ceil(ink.width + padX * 2), h = Math.ceil(ink.height + padY * 2);
+  const sk = Math.max(.2, size / 96), m = Math.ceil(16 * sk);
+  const c = canvas(w + m * 2, h + m * 2), x = c.getContext("2d");
+  x.save(); x.shadowColor = "rgba(0,0,0,.32)"; x.shadowBlur = 11 * sk; x.shadowOffsetY = 4 * sk;
+  x.beginPath(); x.roundRect(m, m, w, h, h / 2); x.fillStyle = p.plate; x.fill(); x.restore();
+  x.drawImage(ink, m + (w - ink.width) / 2, m + (h - ink.height) / 2);
+  return { c, pad: m, w, h, inkH: ink.height };
+}
+
 const stackRows = (rows, gap) => {
   const c = canvas(Math.max(...rows.map(r => r.width)), Math.ceil(rows.reduce((h, r) => h + r.height, 0) + gap * (rows.length - 1)));
   let y = 0; for (const r of rows) { c.getContext("2d").drawImage(r, (c.width - r.width) / 2, y); y += r.height + gap; }
@@ -342,7 +442,20 @@ const stackRows = (rows, gap) => {
 export class FullAd extends Ad {
   constructor(style, assets, width, height) {
     super(style, assets, width, height, { plan: false });   // laid out at this size by the rules below, never from the plain engine's plan
+    this._productLight();
     this._evenGround();
+  }
+
+  /** A light behind the product, in the colourway's own lighter tone, painted into the ground once.
+   *  The review of 2026-11-12: a deep-blue phone on charcoal, a black tablet on navy and a dark
+   *  laptop on indigo stood in the dark. The layout knows where the product is; a ground does not. */
+  _productLight() {
+    const G = this.full && this.full.group; if (!G) return;
+    const x = this.bg.getContext("2d"), cx = (G[0] + G[2]) / 2, cy = (G[1] + G[3]) / 2, rx = (G[2] - G[0]) * .8, ry = (G[3] - G[1]) * .74;
+    const [r, g, b] = [1, 3, 5].map(i => parseInt(this.p.light.slice(i, i + 2), 16)), up = v => Math.round(v + (255 - v) * .35), c = a => `rgba(${up(r)},${up(g)},${up(b)},${a})`;
+    x.save(); x.translate(cx, cy); x.scale(rx, ry);
+    const gl = x.createRadialGradient(0, 0, 0, 0, 0, 1); gl.addColorStop(0, c(.6)); gl.addColorStop(.55, c(.22)); gl.addColorStop(1, c(0));
+    x.fillStyle = gl; x.fillRect(-1, -1, 2, 2); x.restore();
   }
 
   /** The small lines stand on the ground itself, and a ground has a lit patch or a floor: dark ink
@@ -391,13 +504,17 @@ export class FullAd extends Ad {
   _layoutType() {
     const st = this.st, W = this.W, H = this.H, p = this.p, ph = this.pHead;
     const U = Math.min(W, H), ar = W / H, wide = ar >= 1.3, tall = ar < .7;
-    const e = U * FULL.edge, g = U * FULL.gap, ey = tall ? H * .055 : e;    // a story stays clear of the app's bars
+    const e = U * FULL.edge, g = U * FULL.gap;
+    // A story is shown under the app's own bars: the account's name across the top, the reply box and the
+    // button across the bottom. Meta asks for about 14% clear at the top and 20% at the bottom of a 9:16
+    // (250 and 340px of 1920); the ground runs under them, the ad stands between.
+    const eyT = tall ? H * .125 : e, eyB = tall ? H * .17 : e;
     // the column the words stand in; on a wide frame the product has the right of it
     const cx0 = e, cx1 = wide ? W * .56 : W - e, colW = cx1 - cx0, mid = (cx0 + cx1) / 2;
     const font = LEGIBLE.has((FONTS[st.font] || [])[3]) ? st.font : "franklin";
     const [fam, fwt] = FONTS[font] || FONTS.franklin;
     const ink = ph.ink, fx = lum(ink) < .5 ? "flat" : "shadow";
-    const upper = t => t.toUpperCase().replace(/\bIPHONE/g, "iPHONE").replace(/\bIPAD/g, "iPAD");
+    const upper = t => applyCase(t, "brand");                 // one spelling on the card: the headline's
     const paint = (line, px) => trim(inkSprite(line, [...line].map(() => ink), font, px, .02, fx, ph).c);
     /* A line of body type in the fewest rows that fit: one; two, broken at a separator
        ("A • B • C") or between words; three, one item a row. Smaller only when no break
@@ -441,10 +558,12 @@ export class FullAd extends Ad {
     const labB = body(st.number_label, U * FULL.label, U * FULL.labelMin, 1);
     if (st.number_label && !labB) F.left.push("call to action");
     // the number: its pill a fixed share of the column, the chevrons either side of it
-    const numFor = z => { const n = numberSprite({ ...st, number_label: "" }, p, z, null); return { ...n, label: null }; };
+    const numText = formatNumber(st.number, st.number_format) || "YOUR NUMBER";
+    let numFont = st.number_font === "same" ? st.font : st.number_font; if (FINE_FACES.has(numFont) || !FONTS[numFont]) numFont = "oswald";
+    const numFor = z => { const n = numberPill(numText, z, numFont, p); return { ...n, text: numText, label: null }; };
     let nz = U * .09, num = numFor(nz);
-    nz *= Math.min(colW * FULL.pill / num.c.width, U * FULL.number / nz); num = numFor(nz);
-    for (let k = 0; k < 4 && num.c.width > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.c.width; num = numFor(nz); }
+    nz *= Math.min(colW * FULL.pill / num.w, U * FULL.number / nz); num = numFor(nz);
+    for (let k = 0; k < 4 && num.w > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.w; num = numFor(nz); }
     if (labB) num = { ...num, label: labB.c };
     // the footer: the towns after a pin, over the website
     const where = (st.feed_where || "").replace(/^\s*\p{Extended_Pictographic}️?\s*/u, "").trim().toUpperCase(), site = (st.feed_site || "").trim();
@@ -454,7 +573,7 @@ export class FullAd extends Ad {
       const pmin = Math.floor(U * FULL.footMin);
       for (let px = Math.round(U * FULL.foot); ; px = Math.max(pmin, Math.floor(px * .94))) {
         const rows = [where && footRow(where, px, ink, lf, lw, this.hot), site && footRow(site, px, ink, lf, lw)].filter(Boolean);
-        if (rows.every(r => r.width <= colW)) { foot = { c: rows.length === 1 ? rows[0] : stackRows(rows, Math.round(U * .006)), px }; break; }
+        if (rows.every(r => r.width <= colW)) { foot = { c: trim(rows.length === 1 ? rows[0] : stackRows(rows, Math.round(U * .006))), px }; break; }   // trimmed: a gap is measured to its letters
         if (px <= pmin) break;
       }
       if (!foot) F.left.push("footer");
@@ -479,7 +598,9 @@ export class FullAd extends Ad {
         const lk = size.toFixed(2) + "|" + best.n;
         lines = (this._lineCache ||= new Map()).get(lk) || this._lineCache.set(lk, headlineLines(st, ph, size, best.n)).get(lk);
         lineH = lines[0].asc * .98 + gapOf(size); blockH = lineH * (lines.length - 1) + lines[0].asc;
-        const widest = Math.max(...lines.map(L => L.inkW));
+        // the letters and the outline round them stay inside the column: a headline as wide as the column
+        // put its outline 17px from the frame's edge, in the margin (found by the pre-flight on the picture)
+        const widest = Math.max(...lines.map(L => L.inkW)) + size * .34;
         if (widest <= colW && blockH <= maxH * 1.02) break;
         size *= Math.min(.97, colW / widest, maxH * 1.02 / blockH);
       }
@@ -487,23 +608,20 @@ export class FullAd extends Ad {
     };
     const hasChips = pointsOf(st).length > 0, hasPhones = this.phones.length > 0;
     // the gaps between one block and the next, in units of g; the room left over stretches them all alike
-    const gClaim = 1.15, gBand = 1.4, gLab = .8, gFoot = 1.25;
+    const gClaim = 1.15, gBand = 1.4, gLab = .8, gFoot = 1.1;
     // the line under the headline clears the outline that hangs under its letters
     const tagGap = hd => Math.max(g * .9, hd.size * .24);
     const fixedOf = hd => (claim ? claim.c.height + g * gClaim : 0) + hd.blockH + (tagB ? tagB.c.height + tagGap(hd) : 0) + g * gBand * 2
-      + (labB ? labB.c.height + g * gLab : 0) + num.c.height + (foot ? foot.c.height + g * gFoot : 0);
-    // the product's band: what the words must leave it (a wide frame keeps only the chips there)
-    const bandMin = wide ? (hasChips ? U * .075 : 0) : H * (!hasPhones && !hasChips ? 0 : !hasPhones ? .1 : tall ? .42 : ar < .9 ? .36 : .215);
-    let headMax = H * (wide ? .36 : tall ? .18 : ar < .9 ? .22 : .3), hd = headAt(headMax), band = H - 2 * ey - fixedOf(hd);
-    for (let k = 0; k < 14 && band < bandMin && hd.size > U * .072; k++) { headMax *= .93; hd = headAt(headMax); band = H - 2 * ey - fixedOf(hd); }
-    band = Math.max(0, band);
+      + (labB ? labB.c.height + g * gLab : 0) + num.h + (foot ? foot.c.height + g * gFoot : 0);
 
     /* ---- the band: selling points | the product | the sticker and the icon ----
        Sized before it is placed: the band takes the height its contents reach, and the room
-       left over goes to the gaps. Two shapes are tried, and the one that shows the product
-       larger is kept: the points beside the product (a low band), or across the top of it. */
+       left over goes to the gaps. Three shapes are tried, and the one that shows the product
+       largest is kept: the points beside the product (a low band), across the top of it, or
+       (a tall frame) in a stack with the sticker beside them and the product under both. */
     const items = pointsOf(st), face = labelFont(st);
-    const phoneCap = H * (wide ? .8 : tall ? .4 : .46);
+    const Hu = H - eyT - eyB;                                 // the height the ad stands in (a story's, between the app's bars)
+    const phoneCap = wide ? H * .8 : Hu * (tall ? .52 : .49);
     const reach = q => { const a = q.angle * Math.PI / 180; return [q.size * (q.w * Math.abs(Math.cos(a)) + q.h * Math.abs(Math.sin(a))) / 2, q.size * (q.h * Math.abs(Math.cos(a)) + q.w * Math.abs(Math.sin(a))) / 2]; };
     // The engine spreads a set across its stage: a video's phones have the frame to themselves.
     // Here they stand shoulder to shoulder on one floor, in the engine's left-to-right order:
@@ -574,10 +692,10 @@ export class FullAd extends Ad {
       }
       return beside;
     };
-    const shape = (mode) => {
+    const shape = (mode, band) => {
       if (wide) {
         const chips = items.length ? chipsFor([[items.length, true], [items.length, false], [2, true], [2, false]], colW, band, "c") : null;
-        return { mode: "wide", chips, sub: subject(W - e - W * .59, H - 2 * ey), need: chips ? chips.q.h : 0 };
+        return { mode: "wide", chips, sub: subject(W - e - W * .59, H - 2 * e), need: chips ? chips.q.h : 0 };
       }
       if (mode === "side") {
         const chips = items.length && band > U * .05 ? chipsFor(hasPhones ? [[items.length, false], [2, false]] : [[items.length, true], [items.length, false], [2, false]], hasPhones ? colW * .47 : colW, band, hasPhones ? "l" : "c") : null;
@@ -597,18 +715,42 @@ export class FullAd extends Ad {
       const sub = subject(colW, band - (chips ? chips.q.h + g * 1.4 : 0));
       return { mode, chips, sub, need: (chips ? chips.q.h + (sub.h ? g * 1.4 : 0) : 0) + sub.h };
     };
-    // the shape that shows the product largest; a sticker is worth a quarter of the product's size, an icon a twentieth
-    const worth = T => T ? T.sub.k * (1 + (T.sub.rb || T.rb ? .25 : 0) + (T.sub.ri ? .05 : 0)) * (T.chips || !items.length ? 1 : .7) : -1;
-    let S = shape("side");
-    if (!wide && hasPhones) for (const m of ["stack", "tall"]) { const T = shape(m); if (worth(T) > worth(S) * 1.03) S = T; }
+    // the shape that shows the product largest; a sticker is worth a quarter of the product's size, an icon a
+    // twentieth, and larger points break a tie (a stack of them at 43px against a strip at 33px)
+    const worth = T => T ? T.sub.k * (1 + (T.sub.rb || T.rb ? .25 : 0) + (T.sub.ri ? .05 : 0)) * (T.chips ? (T.chips.fs / (U * FULL.chip)) ** .35 : items.length ? .7 : 1) : -1;
+    const bestShape = band => { let S = shape("side", band); if (!wide && hasPhones) for (const m of ["stack", "tall"]) { const T = shape(m, band); if (worth(T) > worth(S) * 1.03) S = T; } return S; };
+
+    /* ---- the headline gives way only while the product is held back by the band's height ----
+       The band is owed a share of the frame (bandMin), but only a product that can use it: a
+       laptop or a car is as wide as the column long before it is that tall, and the review of
+       2026-11-12 found "CASH FOR MACBOOKS" set at 70px to keep room no laptop could fill. */
+    const bandMin = wide ? (hasChips ? U * .075 : 0) : Hu * (!hasPhones && !hasChips ? 0 : !hasPhones ? .1 : tall ? .45 : ar < .9 ? .38 : .23);
+    // what the band's contents would take of the share they are owed: all of it for phones, less for a wide picture
+    const wantBand = Math.min(bandMin, bestShape(bandMin).need || bandMin);
+    const bandOf = h => Math.max(0, Hu - fixedOf(h));
+    let headMax = wide ? H * .36 : Hu * (tall ? .26 : ar < .9 ? .235 : .32), hd = headAt(headMax), band = bandOf(hd);
+    for (let k = 0; k < 14 && band < wantBand - 1 && hd.size > U * .072; k++) { headMax *= .93; hd = headAt(headMax); band = bandOf(hd); }
+    let S = bestShape(band);
+    // and room the band's contents cannot use goes back to the headline, while it makes the headline larger
+    // (a headline as wide as the column gains nothing) and costs the product nothing
+    for (let k = 0; k < 8 && band - S.need > g * 2.5; k++) {
+      const h2 = headAt(headMax * 1.07); if (h2.size <= hd.size * 1.01) break;
+      const raw = Hu - fixedOf(h2), S2 = bestShape(Math.max(0, raw));
+      // never at the cost of the points (an ad with no picture grew its headline until they fell out
+      // and the footer left the frame: full_ad_check, sealed SSDs on a wide frame)
+      if (raw < S2.need - 1 || worth(S2) < worth(S) * .985 || !!S2.chips !== !!S.chips || (S.chips && S2.chips.fs < S.chips.fs * .98)) break;
+      headMax *= 1.07; hd = h2; band = raw; S = S2;
+    }
+    // and whatever the words, the stack stays inside the frame: the headline goes on giving way
+    for (let k = 0; k < 12 && Hu - fixedOf(hd) < S.need - 1 && hd.size > U * .05; k++) { headMax *= .93; hd = headAt(headMax); band = bandOf(hd); S = bestShape(band); }
     const chips = S.chips, sub = S.sub, side = S.mode === "side";
-    if (globalThis.FULL_DEBUG) console.log('DBG', JSON.stringify({ W, H, band: Math.round(band), colW: Math.round(colW), gw: Math.round(gw), gh: Math.round(gh), n: this.phones.length, mode: S.mode, k: +sub.k.toFixed(3), rb: Math.round(sub.rb), ri: Math.round(sub.ri), subW: Math.round(sub.w), subH: Math.round(sub.h), chipsW: chips ? Math.round(chips.q.w) : 0, chipsH: chips ? Math.round(chips.q.h) : 0, head: Math.round(hd.size) }));
+    if (globalThis.FULL_DEBUG) console.log('DBG', JSON.stringify({ W, H, band: Math.round(band), need: Math.round(S.need), colW: Math.round(colW), gw: Math.round(gw), gh: Math.round(gh), n: this.phones.length, mode: S.mode, k: +sub.k.toFixed(3), rb: Math.round(sub.rb), ri: Math.round(sub.ri), chips: chips ? Math.round(chips.fs) : 0, head: Math.round(hd.size) }));
     if (items.length && !chips) F.left.push("selling points");
     // the band takes what its contents reach; what is over is shared: each gap grows by the same step, the rest above and below
     const need = Math.min(band, S.need), spare = Math.max(0, band - need);
     const nStretch = 1 + (claim ? 1 : 0) + (tagB ? 1 : 0) + (labB ? 1 : 0) + (foot ? 1 : 0);
     const stretch = Math.min(g * 1.3, spare / (nStretch + 1.5)), bandH = need, pad = (spare - stretch * nStretch) / 2;
-    let y = ey + Math.max(0, pad);
+    let y = eyT + Math.max(0, pad);
     const R = F.rects, put = (name, c, cx = mid) => { const r = [cx - c.width / 2, y, cx + c.width / 2, y + c.height]; R[name] = r; y += c.height; return r; };
     if (claim) { const r = put("claim", claim.c); claim.x = r[0]; claim.y = r[1]; y += g * gClaim + stretch; }
     const y0 = y, xs = hd.lines.map(L => mid - L.inkW / 2);
@@ -621,7 +763,8 @@ export class FullAd extends Ad {
     const bandTop = y, bandBot = y + bandH; y = bandBot + g * gBand + stretch * .5;
     let labXY = null;
     if (labB) { const r = put("call to action", labB.c); labXY = [r[0], r[1]]; y += g * gLab + stretch; }
-    const nr = put("number", num.c), nxy = [nr[0], nr[1]];
+    // the pill is what is spaced and measured; its sprite carries the shadow's margin round it
+    const nr = R.number = [mid - num.w / 2, y, mid + num.w / 2, y + num.h], nxy = [nr[0] - num.pad, nr[1] - num.pad]; y += num.h;
     let footXY = null;
     if (foot) { y += g * gFoot + stretch; const r = put("footer", foot.c); footXY = [r[0], r[1]]; }
     F.band = [cx0, bandTop, cx1, bandBot]; F.mode = S.mode;
@@ -698,16 +841,6 @@ export class FullAd extends Ad {
     ctx.globalAlpha = 1; ctx.drawImage(this.bg, 0, 0);
     this._drawRays(ctx, t);
     if (this.liveGround) this._drawLiveGround(ctx, t);
-    // a light behind the product, in the colourway's own lighter tone: a black tablet on a navy
-    // ground, or a dark laptop on indigo, stood in the dark without it
-    const G = this.full && this.full.group;
-    if (G) {
-      const cx = (G[0] + G[2]) / 2, cy = (G[1] + G[3]) / 2, rx = (G[2] - G[0]) * .78, ry = (G[3] - G[1]) * .72, k = Math.min(1, Math.max(0, (t - .05) / .5));
-      ctx.save(); ctx.translate(cx, cy); ctx.scale(rx, ry);
-      const gl = ctx.createRadialGradient(0, 0, 0, 0, 0, 1), [r, g, b] = [1, 3, 5].map(i => parseInt(this.p.light.slice(i, i + 2), 16)), up = v => Math.round(v + (255 - v) * .35);
-      gl.addColorStop(0, `rgba(${up(r)},${up(g)},${up(b)},${.62 * k})`); gl.addColorStop(.55, `rgba(${up(r)},${up(g)},${up(b)},${.22 * k})`); gl.addColorStop(1, `rgba(${up(r)},${up(g)},${up(b)},0)`);
-      ctx.fillStyle = gl; ctx.fillRect(-1, -1, 2, 2); ctx.restore();
-    }
     this.drawOrder.forEach((i, n) => {
       const q = this.phones[i], p = prog(t, .12 + n * .14, .6); if (p <= 0) return;
       const w = q.w * q.size, h = q.h * q.size, rise = (1 - (1 - (1 - p) ** 3)) * H * .05;
@@ -741,8 +874,14 @@ export class FullAd extends Ad {
     this.burst = null;
     if (F.burst) {
       const ph = this.pHead, fill = ph.ink, inkc = contrastOf(fill, this.p.ground) >= 3 ? this.p.ground : (lum(fill) > .5 ? "#111111" : "#ffffff");
-      this.burst = { ...F.burst, fill, ink: inkc, text: st.feed_burst || (st.lang === "es" ? "¡EFECTIVO!" : "CASH!"), t0: this.tl.hit + .12, font: burstFontFor(st) };
+      this.burst = { ...F.burst, fill, ink: inkc, text: st.feed_burst || (st.lang === "es" ? "PAGO HOY" : "CASH!"), t0: this.tl.hit + .12, font: burstFontFor(st) };
       this.cues.burst = this.burst.t0;
+      // the size its words come out at (decor.js drawStarburst: two rows for two words, shrunk until the widest fits)
+      const text = applyCase(this.burst.text, "upper"), ws = text.split(" "), rows = ws.length > 1 && text.length > 6 ? [ws.slice(0, Math.ceil(ws.length / 2)).join(" "), ws.slice(Math.ceil(ws.length / 2)).join(" ")] : [text];
+      const m = canvas(4, 4).getContext("2d"); let fs = F.burst.R * (rows.length > 1 ? .42 : .5);
+      m.font = fontCss(this.burst.font, fs);
+      while (Math.max(...rows.map(l => m.measureText(l).width)) > F.burst.R * 1.3 && fs > 6) { fs *= .92; m.font = fontCss(this.burst.font, fs); }
+      F.px.sticker = Math.round(fs);
     }
     // one 3D icon in its slot (the engine resolves the artwork; the slot is this layout's)
     this.accents = [];
@@ -773,8 +912,42 @@ export class FullAd extends Ad {
       const q = prog(t, this.tl.number + .15, .35);
       if (q > 0) { ctx.save(); ctx.globalAlpha = q; ctx.drawImage(this.site, this.pos.site[0], this.pos.site[1] + (1 - q) * U * .02); ctx.restore(); }
     }
-    if (this.fullChevrons) drawChevrons(ctx, this.numBox, this.fullChevrons * 2, this.hot, t, this.tl.number + .3, this.W, "sides");
+    this._chevrons(ctx, t);
   }
+
+  /** Three chevrons either side of the number, larger the nearer they stand to it, a glow
+   *  running inward along them. (The engine's own light one of three by the clock, so a photo
+   *  caught whichever was lit: the outer one on one ad, the middle one on the next.)
+   *  Every chevron is the pair's accent at full strength. They first stepped toward the number
+   *  in opacity (.32, .6, 1), and a see-through accent is the accent mixed into the ground in
+   *  sRGB: gold over navy drew #504b3a (OKLCH C .028, khaki-grey), orange over navy a brown,
+   *  gold over purple a rose-brown (hue 25, a third family), lime-gold over green an olive. Rule
+   *  103: an accent keeps C .12 or more, and a warm hue is never drawn under its muddy floor. So
+   *  the step is in size and weight, which no ground can turn into a third colour (rule 139). */
+  _chevrons(ctx, t) {
+    const marks = chevronMarks(this); if (!marks.length) return;
+    const q = prog(t, this.tl.number + .3, .3); if (q <= 0) return;
+    const sz = this.fullChevrons, pulse = Math.floor(t * 5) % 3;
+    ctx.save(); ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = this.hot; ctx.shadowColor = this.hot; ctx.globalAlpha = q;
+    for (const m of marks) {                                // i 0 is the farthest from the number
+      ctx.lineWidth = m.width;
+      ctx.shadowBlur = m.i === 2 ? sz * .6 : m.i === pulse ? sz * .35 : 0;
+      ctx.beginPath(); ctx.moveTo(m.lx - m.ax, m.cy - m.ay); ctx.lineTo(m.lx, m.cy); ctx.lineTo(m.lx - m.ax, m.cy + m.ay); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(m.rx + m.ax, m.cy - m.ay); ctx.lineTo(m.rx, m.cy); ctx.lineTo(m.rx + m.ax, m.cy + m.ay); ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+/** Where the full ad's chevrons stand: for each of the three (i 0 the farthest from the number), the
+ *  left and right tips (lx, rx), the middle line (cy), the arms' reach (ax, ay) and the stroke. Each
+ *  tip .6 of the size off the pill, then a step of .9 of the two neighbours' mean size, so a smaller
+ *  chevron stands nearer its neighbour. The painter and full_colour_check.mjs both read it. */
+export function chevronMarks(ad) {
+  const sz = ad.fullChevrons; if (!sz || !ad.numBox) return [];
+  const [x0, y0, x1, y1] = ad.numBox, cy = (y0 + y1) / 2, K = CHEVRON_STEP;
+  const tip = [sz * (.6 + .9 * ((K[2] + K[1]) / 2 + (K[1] + K[0]) / 2)), sz * (.6 + .9 * (K[2] + K[1]) / 2), sz * .6];
+  return K.map((k, i) => ({ i, k, lx: x0 - tip[i], rx: x1 + tip[i], cy, ax: sz * .35 * k, ay: sz * .45 * k, width: Math.max(2, sz * .28 * k) }));
 }
 
 /** The style a full ad is drawn with: the customer's words and phones, the house style locked,
@@ -784,32 +957,45 @@ export class FullAd extends Ad {
 export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const r = rng((seed >>> 0) * 7 + 11), one = a => a[Math.floor(r() * a.length) % a.length];
   const es = st.lang === "es";
-  // the colours: one of the twelve by the seed, or the one picked; carried as the palette's own
-  // colours (the engine's pal() lays st.colors over the palette named), so the catalogue is not touched
-  const first = one(COLOURWAYS), key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, ...picked } = pick;
-  const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...picked };
-  const area = (st.area || "").trim();
-  const words = {
-    feed_claim: st.feed_claim ?? one(FULL_WORDS.claim),
-    feed_line: st.feed_line ?? (st.tag || one(FULL_WORDS.line)),
-    // the maker's own points for these words where it has them (its field shows those), else the list's
-    points: st.points ?? (pointsOf(st).length ? pointsOf(st).join(", ") : one(FULL_WORDS.points)),
-    number_label: st.number_label || (es ? "LLAMA O MANDA TEXTO" : FULL_WORDS.label[0]),
-    feed_where: st.feed_where ?? (area ? area.toUpperCase() : ""),
-    // the website as a sentence, so it reads as an address (owner, 2026-11-03: "that way they know it's a URL")
-    feed_site: st.feed_site ?? (st.site ? (es ? "Visítanos en " : "Visit our website at ") + String(st.site).trim() : ""),
-    feed_burst: st.feed_burst ?? (es ? "¡EFECTIVO!" : one(FULL_WORDS.burst)),
-  };
+  // the colours: one of the twelve by the seed (of those that suit the line and any colour its
+  // headline names: pairsFor), or the one picked; carried as the palette's own colours (the
+  // engine's pal() lays st.colors over the palette named), so the catalogue is not touched
   // fewer phones, larger (five on a square full of large words shrank to a strip): two where the
   // product shares its row with the selling points (a square, a wide frame), three where it has the width
-  // (a subject from the offer family brings its own set of one or two pictures: all of it)
+  // (a subject from the offer family brings its own set of one or two pictures: all of it). The bold
+  // ones among them have a say in the colours (pairsFor).
   const subject = !!st.subject && st.subject !== "iphone";
   const most = subject ? 4 : st.aspect === "4:5" || st.aspect === "9:16" ? 3 : 2;
   const have = (st.phones || []).slice(0, most);
+  const idx = Object.fromEntries(phoneIndex.map(m => [m.id, m]));
+  const bold = subject ? [] : have.map(id => (idx[id] || {}).body).filter(b => b && b.C >= BOLD_C).map(b => b.h);
+  const first = one(pairsFor(st.subject, st.headline, bold)), key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, ...picked } = pick;
+  const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...picked };
+  const area = (st.area || "").trim();
+  // What the customer left empty is filled from the lists, each line chosen so that it does not
+  // repeat a promise the lines before it already make (the customer's own words are never changed:
+  // fullWords() says where they repeat). The order is the order they are read in.
+  const fresh = (list, said) => { const start = Math.floor(r() * list.length); for (let i = 0; i < list.length; i++) { const w = list[(start + i) % list.length]; if (!said.some(x => sharesWord(w, x))) return w; } return list[start]; };
+  const line = st.feed_line ?? (st.tag || one(FULL_WORDS.line));
+  const points = st.points ?? (pointsOf(st).length ? pointsOf(st).join(", ") : fresh(FULL_WORDS.points, [st.headline, line]));
+  const label = st.number_label || (es ? "LLAMA O MANDA TEXTO" : FULL_WORDS.label[0]);
+  // who is buying: a business name, where one is given, takes the badge (the first thing read). An ad
+  // with no name on it is the pattern of the buyers nobody trusts (competitor research, 2026-11-12:
+  // the brand is what carries the eye to the rest of an ad; "top dollar" is on every sign in the trade)
+  const biz = String(st.biz || "").trim();
+  const claim = st.feed_claim ?? (biz ? biz.toUpperCase() : fresh(FULL_WORDS.claim, [st.headline, line, points]));
+  const burst = st.feed_burst ?? fresh(es ? FULL_WORDS.burst_es : FULL_WORDS.burst, [st.headline, line, points, claim, label]);
+  const words = {
+    feed_claim: claim, feed_line: line, points, number_label: label,
+    feed_where: st.feed_where ?? (area ? area.toUpperCase() : ""),
+    // the website as a sentence, so it reads as an address (owner, 2026-11-03: "that way they know it's a URL")
+    feed_site: st.feed_site ?? (st.site ? (es ? "Visítanos en " : "Visit our website at ") + String(st.site).trim() : ""),
+    feed_burst: burst,
+    accent_word: accentWord(st.headline, look.colors.accent),
+  };
   const base = { ...DEFAULT_STYLE, ...st, ...QUIET, ...look, ...words, phones: have, full: true, seed };
   const locked = new Set([...keep, ...Object.keys(QUIET), ...Object.keys(look), ...Object.keys(words), "phones", "headline", "tag", "number", "aspect", "duration", "lang", "lang_mode", "area", "full", "accent_word", "strike_text", "hook_text"]);
   const pool = have.length || subject ? [] : phoneIndex.map(m => m.id);   // another product never borrows iPhones
-  const idx = Object.fromEntries(phoneIndex.map(m => [m.id, m]));
   const out = harmonise(randomize(base, seed, locked, pool, false), locked, idx);
   // the voice-over's lines are about phones: an ad for anything else plays its music alone
   const quiet = subject ? { voice: "off", vo_clip: "", vo_text: "" } : {};
@@ -831,7 +1017,7 @@ export function fullBlockers(ad) {
     if (dx < 0 && dy < 0) out.push(`${names[i]} and ${names[j]} overlap`);
     else if (Math.max(dx, dy) < gap) out.push(`${names[i]} and ${names[j]} ${Math.round(Math.max(dx, dy) / U * 1080)}px apart`);
   }
-  const floor = { headline: .064, number: .07, line: FULL.tagMin, cta: FULL.labelMin, footer: FULL.footMin, claim: FULL.claimMin, chips: FULL.chipMin };
+  const floor = { headline: .064, number: .07, line: FULL.tagMin, cta: FULL.labelMin, footer: FULL.footMin, claim: FULL.claimMin, chips: FULL.chipMin, sticker: .026 };
   for (const [k, v] of Object.entries(F.px)) if (v && v < U * floor[k] - 1) out.push(`${k} set at ${Math.round(v / U * 1080)}px, under its floor`);
   if (ad.phones.length) { const gph = F.group ? (F.group[3] - F.group[1]) / H : 0; if (gph < (F.wide ? .3 : .15)) out.push(`product ${Math.round(gph * 100)}% of the height`); }
   return out;
@@ -859,4 +1045,177 @@ export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cu
   }));
   for (const { file } of set) ids.push("sub-" + file);
   return { ids, assets };
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════
+   THE PRE-FLIGHT (2026-11-12): the ad checks itself before it goes out
+
+   Owner: "is there anything we can do to add another layer of intelligence another layer of self
+   validating or auditing before it's generated or in the generating process", and "how do these
+   ads never have mistakes always look perfect".
+
+   The layout above is its own first check (fullBlockers reads the layout's numbers). A layout's
+   numbers are what it meant to draw. This reads what it drew: the delivered picture, pixel by
+   pixel, with none of the layout's code in the measuring, plus the words as words. The house
+   rule it serves is DESIGN-LAW 87 (every generation is measured before it is produced) and the
+   brief's warning under it: a check that shares the mistake it is checking for passes it.
+
+   On the picture (frame: the ad as delivered; ad.bg: its ground alone):
+     edge        nothing drawn nearer the frame's edge than 1.6% of the short side (17px of 1080)
+     reads       every line against the pixels actually behind its letters: 4.5:1 for the small
+                 lines, 3:1 for the headline and the number (a product, a sticker or a glow under
+                 a line counts, because it is in the picture)
+     product     the product stands off the ground behind it: 1.25:1 at the middle of each
+     feed        the headline and the number are still letters on a feed's small preview (the
+                 picture at a quarter of its size): 20px and 16px tall at least
+   On the words:
+     once        no promise made twice (two lines sharing a word's stem)
+     proof       no claim that needs proof ("#1", "best", "highest", "fastest", "guaranteed"),
+                 and no "up to" price, which buyers read as the usual one (FTC, 2012)
+     address     the website reads as an address; the number is a number
+   And the layout's own (fullBlockers): margins, gaps, floors, the product's share.
+
+   Each finding is { code, level, say }: level "fix" stops a download until the customer says
+   go on; "note" is said and does not stop it. say is in the customer's words (rule 113). */
+const PF = { edge: .016, small: 4.5, large: 3, product: 1.25, thumbHead: 20, thumbNum: 16, calm: .32 };   // calm: JPEG bytes a pixel at 540 (see fullPreflight); the 120 phone ads of full_ad_check weigh .105 to .243   // edge: 17px of 1080; a shadow's fringe on a light ground reaches 21
+const PROOF = /(^|[^A-Z0-9])(#\s?1|NO\.?\s?1|NUMBER ONE|BEST|HIGHEST|FASTEST|GUARANTEED?|MOST MONEY|LOWEST|UNBEATABLE)([^A-Z0-9]|$)/i;
+
+/** The words alone: what repeats, what needs proof, what will not read as what it is. */
+export function fullWords(st) {
+  const out = [], say = (code, level, s) => out.push({ code, level, say: s });
+  const parts = [["headline", st.headline], ["line under the headline", st.feed_line], ["claim", st.feed_claim], ["selling points", st.points], ["sticker", st.feed_burst]].filter(p => p[1]);
+  // a promise made twice: the claim, the points and the sticker against each other (the headline and its
+  // line name the goods, and may share the goods' name with anything)
+  const promises = parts.filter(p => ["claim", "selling points", "sticker"].includes(p[0]));
+  for (let i = 0; i < promises.length; i++) for (let j = i + 1; j < promises.length; j++) {
+    const A = stems(promises[i][1]), shared = [...stems(promises[j][1])].filter(w => A.has(w));
+    if (shared.length) say("once", "note", `The ${promises[i][0]} and the ${promises[j][0]} both say ${shared[0]}. Say it once and use the other for something new.`);
+  }
+  for (const [name, text] of parts) {
+    const m = PROOF.exec(String(text)); if (m) say("proof", "note", `"${m[2].trim().toUpperCase()}" in the ${name} is a claim you may be asked to prove. "Top dollar" or "fair offer" says it without the risk.`);
+    if (/\bUP TO\s*\$?\d/i.test(String(text))) say("proof", "note", `"Up to" a price in the ${name} is read as the usual price. Name what you pay for one model, or leave the price out.`);
+  }
+  const site = String(st.site || st.feed_site || "").trim();
+  if (site && !/[a-z0-9-]+\.[a-z]{2,}/i.test(site)) say("address", "note", "The website does not look like an address. Write it as it is typed, like www.yourshop.com.");
+  if (!site && !String(st.biz || "").trim()) say("identity", "note", "Nothing on the ad says who is buying. Add your business name: a named buyer is the one people trust.");
+  const digits = String(st.number || "").replace(/\D/g, "");
+  if (!digits) say("address", "fix", "There is no phone number on the ad.");
+  else if (!(digits.length === 10 || (digits.length === 11 && digits[0] === "1") || (String(st.number).trim()[0] === "+" && digits.length >= 8))) say("address", "note", `The phone number has ${digits.length} digits. A US number has 10.`);
+  const pts = String(st.points || "").split(",").map(s => s.trim()).filter(Boolean);
+  if (pts.some(p => p.length > 18)) say("once", "note", "A selling point is long. Three or four short words read best in a chip.");
+  return out;
+}
+
+/** The delivered picture, measured. frame: a canvas holding the ad as drawn at ad.W x ad.H, every
+ *  block landed. Returns { ok, checks: [{ id, ok, value }], findings: [{ code, level, say }] }. */
+export function fullPreflight(ad, frame) {
+  const F = ad.full, R = F.rects, W = ad.W, H = ad.H, U = F.U, st = ad.st;
+  const findings = [], checks = [], say = (code, level, s) => findings.push({ code, level, say: s });
+  const px = frame.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, W, H).data;
+  const bg = ad.bg.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, W, H).data;
+  const lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
+  const Lat = (d, q) => .2126 * lin(d[q]) + .7152 * lin(d[q + 1]) + .0722 * lin(d[q + 2]);
+  const Lhex = h => { const [r, g, b] = [1, 3, 5].map(i => lin(parseInt(h.slice(i, i + 2), 16))); return .2126 * r + .7152 * g + .0722 * b; };
+  const cr = (a, b) => (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
+  const drawn = q => Math.abs(px[q] - bg[q]) + Math.abs(px[q + 1] - bg[q + 1]) + Math.abs(px[q + 2] - bg[q + 2]) > 96;   // a letter, a plate, a product: not a glow
+
+  // edge: the box of everything drawn, against the frame
+  let x0 = W, y0 = H, x1 = -1, y1 = -1;
+  for (let y = 0; y < H; y += 2) for (let x = 0; x < W; x += 2) if (drawn((y * W + x) * 4)) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  const near = x1 < 0 ? U : Math.min(x0, y0, W - 1 - x1, H - 1 - y1), edgeOk = near >= U * PF.edge;
+  checks.push({ id: "edge", ok: edgeOk, value: `${Math.round(near / U * 1080)}px from the edge` });
+  if (!edgeOk) say("edge", "fix", "Something on the ad runs to the edge of the picture and may be cut off when it is posted.");
+
+  /* reads: inside a block's box, the pixels of its ink's colour are its letters; what stands behind
+     them is every pixel that is not a letter NOR within a few pixels of one. That ring matters: a
+     letter's soft edge is a blend of ink and ground, and counted as ground it reads 1:1 however
+     clear the type is (docs/THEME-AUDIT.md, correction 1: the first cut of this check failed
+     readable lines on exactly that, 2026-11-12). The ground's worst tenth (its brightest under
+     light ink, its darkest under dark) must still give the ratio. */
+  const reads = (r, inkHex) => {
+    const bx0 = Math.max(0, r[0] | 0), by0 = Math.max(0, r[1] | 0), bw = Math.min(W, Math.ceil(r[2])) - bx0, bh = Math.min(H, Math.ceil(r[3])) - by0;
+    if (bw < 6 || bh < 6) return 99;
+    const Li = Lhex(inkHex), light = Li >= .18, n = bw * bh, Lm = new Float32Array(n), isInk = new Uint8Array(n);
+    for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) { const L = Lat(px, ((by0 + y) * W + bx0 + x) * 4), i = y * bw + x; Lm[i] = L; if (cr(L, Li) < 1.6) isInk[i] = 1; }
+    // the ring round the letters: grown by d pixels, across then down
+    const d = Math.max(2, Math.round(U * .0045)), row = new Uint8Array(n), ring = new Uint8Array(n);
+    for (let y = 0; y < bh; y++) { let run = -1e9; for (let x = 0; x < bw; x++) { if (isInk[y * bw + x]) run = x; if (x - run <= d) row[y * bw + x] = 1; } run = 1e9; for (let x = bw - 1; x >= 0; x--) { if (isInk[y * bw + x]) run = x; if (run - x <= d) row[y * bw + x] = 1; } }
+    for (let x = 0; x < bw; x++) { let run = -1e9; for (let y = 0; y < bh; y++) { if (row[y * bw + x]) run = y; if (y - run <= d) ring[y * bw + x] = 1; } run = 1e9; for (let y = bh - 1; y >= 0; y--) { if (row[y * bw + x]) run = y; if (run - y <= d) ring[y * bw + x] = 1; } }
+    const Ls = []; for (let i = 0; i < n; i += 2) if (!ring[i]) Ls.push(Lm[i]);
+    if (Ls.length < 24) return 99;                          // letters fill the box: nothing behind them to measure
+    Ls.sort((a, b) => a - b);
+    return cr(Li, Ls[Math.min(Ls.length - 1, Math.floor(Ls.length * (light ? .9 : .1)))]);
+  };
+  // a pill's box holds its round ends, where the ground shows: the words are measured on the pill's straight middle
+  const inPill = r => { const h = r[3] - r[1]; return [r[0] + h * .5, r[1] + h * .14, r[2] - h * .5, r[3] - h * .14]; };
+  const ink = ad.pHead.ink, plateInk = contrastOf(ad.p.plate_ink, ad.p.plate) >= 3.5 ? ad.p.plate_ink : (lum(ad.p.plate) > .5 ? "#111111" : "#ffffff");
+  const lines = [["line", "the line under the headline", ink, PF.small], ["call to action", "the line over the number", ink, PF.small], ["footer", "the towns and website", ink, PF.small],
+    ["number", "the phone number", plateInk, PF.large], ["claim", "the claim", ad.claim ? ad.claim.ink : plateInk, PF.small]];
+  let worst = 99, worstName = "";
+  for (const [key, name, col, need] of lines) {
+    let r = R[key]; if (!r) continue;
+    if (key === "number") r = inPill(r);
+    if (key === "claim") r = inPill([ad.claim.x, ad.claim.y, ad.claim.x + ad.claim.c.width, ad.claim.y + ad.claim.c.height]);
+    const got = reads(r, col);
+    if (got < worst) { worst = got; worstName = name; }
+    if (got < need) say("reads", got < need * .8 ? "fix" : "note", `${name[0].toUpperCase() + name.slice(1)} is hard to read against what is behind it. Try another colour, or New look.`);
+  }
+  checks.push({ id: "reads", ok: !findings.some(f => f.code === "reads"), value: worst > 90 ? "every line clear" : `${worst.toFixed(1)}:1 at the least (${worstName})` });
+
+  // product: the middle of each product against the ground behind it
+  if (F.group && ad.phones.length) {
+    let low = 99;
+    for (const q of ad.phones) {
+      const cx = q.home[0] | 0, cy = q.home[1] | 0, s = Math.max(4, Math.round(Math.min(q.w, q.h) * q.size * .12)), P = [], G = [];
+      for (let y = cy - s; y <= cy + s; y += 2) for (let x = cx - s; x <= cx + s; x += 2) { if (x < 0 || y < 0 || x >= W || y >= H) continue; const o = (y * W + x) * 4; P.push(Lat(px, o)); G.push(Lat(bg, o)); }
+      if (!P.length) continue;
+      const mid = a => { a.sort((u, v) => u - v); return a[a.length >> 1]; };
+      low = Math.min(low, cr(mid(P), mid(G)));
+    }
+    const pOk = low >= PF.product;
+    checks.push({ id: "product", ok: pOk, value: low > 90 ? "clear" : `${low.toFixed(2)}:1 against the ground` });
+    if (!pOk) say("product", "note", "One of the products is close to the background's colour and may be hard to see. Try another colour for the ad.");
+  }
+
+  // feed: the letters' height on a small preview (the picture at a quarter of its size)
+  const k = 270 / U, hPx = Math.round((F.px.headline || 0) * .72 * k), nPx = Math.round((ad.num && ad.num.inkH ? ad.num.inkH : (F.px.number || 0) * .72) * k);
+  const feedOk = hPx >= PF.thumbHead && nPx >= PF.thumbNum;
+  checks.push({ id: "feed", ok: feedOk, value: `headline ${hPx}px and number ${nPx}px tall in a feed preview` });
+  if (hPx < PF.thumbHead) say("feed", "note", "The headline is long, so it is set small: it may not read in a feed's small preview. A shorter headline is set larger.");
+  if (nPx < PF.thumbNum) say("feed", "note", "The phone number is small in a feed's preview.");
+
+  /* calm: how busy the picture is, by what it weighs compressed. Dense detail is the measured thing that
+     costs an ad attention in a feed, and compressed size is how the eye-tracking work measured it
+     (competitor research, 2026-11-12). The bar is set over what this layout draws today (full_ad_check
+     prints the spread), so it catches the day a ground, an effect or an icon makes the ad busier. */
+  // weighed at one size (540 on the short side), whatever size the picture is: a small picture weighs more a pixel
+  let bpp = 0;
+  try { const k = 540 / U, sw = Math.round(W * k), sh = Math.round(H * k), sc = canvas(sw, sh); sc.getContext("2d").drawImage(frame, 0, 0, sw, sh); bpp = sc.toDataURL("image/jpeg", .8).length * .75 / (sw * sh); }
+  catch (e) { /* a canvas that cannot be read is not measured */ }
+  checks.push({ id: "calm", ok: !bpp || bpp <= PF.calm, value: bpp ? `${(bpp * 100).toFixed(1)} of ${(PF.calm * 100).toFixed(0)} allowed` : "not measured", bpp });
+  if (bpp > PF.calm) say("calm", "note", "The picture is busy. A plainer look reads faster in a feed: try New look.");
+
+  // the layout's own findings, and the words
+  const lay = fullBlockers(ad), soft = /^(product \d+% of the height|headline set at)/;
+  checks.push({ id: "layout", ok: !lay.some(w => !soft.test(w)), value: lay.length ? lay[0] : "every block in its place" });
+  for (const w of lay) {
+    if (/^headline set at/.test(w)) continue;                                     // said by the feed check
+    if (/^product \d+%/.test(w)) say("layout", "note", "The product is small on this size. A shorter headline, or the Feed 4:5 size, gives it more room.");
+    else if (/left out/.test(w)) say("layout", "fix", /selling points/.test(w) ? "The selling points did not fit. Use shorter ones, or a shorter headline." : `The ${w.split(" left out")[0].replace("line", "line under the headline").replace("footer", "towns and website")} did not fit at a readable size. Shorten it.`);
+    else if (/sticker set at/.test(w)) say("layout", "note", "The sticker's words are long, so they are set small. One or two short words read best.");
+    else say("layout", "fix", "Two parts of the ad are too close together or outside the margin. Shorter words will fix it.");
+  }
+  const words = fullWords(st);
+  checks.push({ id: "words", ok: !words.length, value: words.length ? words[0].say : "no promise twice, nothing that needs proof" });
+  findings.push(...words);
+  const seen = new Set(), uniq = findings.filter(f => !seen.has(f.say) && seen.add(f.say));
+  return { ok: !uniq.some(f => f.level === "fix"), clean: !uniq.length, checks, findings: uniq };
+}
+
+/** The ad drawn as it will be delivered (every block landed), for the pre-flight and for a photo. */
+export function fullStill(ad) {
+  const c = canvas(ad.W, ad.H), st = ad.st;
+  const t = Math.max(isFinite(ad.tl.number) ? ad.tl.number + 1.2 : 0, (ad.tLanded || 0) + .6, (ad.tOutro != null ? ad.tOutro : st.duration) - .4);
+  ad.still = null; ad.frame(c.getContext("2d"), t, { subsFly: 4, subsMove: 2 }, 1 / 30);
+  return c;
 }

@@ -13,7 +13,9 @@
      spacing      two blocks overlap or stand nearer than the gap, or a block is inside the margin;
      positioning  the words are off their axis (every block's middle on the column's middle);
      eye-catchers an ad with ordinary words has no sticker and no chevrons;
-     contrast     a line added to the ground reads under 3.5:1 on the ground drawn under it.
+     contrast     a line added to the ground reads under 3.5:1 on the ground drawn under it;
+     pre-flight   the ad's own pre-flight (fullPreflight: the delivered picture measured pixel by
+                  pixel, and the words) finds something to fix on an ad with ordinary words.
 
    "Ordinary words" are the lengths the maker's own lists hold. Longer ones (a 44-letter headline,
    three long towns) may cost the product its size or set the headline small; the page says so to
@@ -92,18 +94,16 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
         const worst = Ls[Math.min(Ls.length - 1, Math.floor(Ls.length * (light ? .9 : .1)))], L = lumOf(ink);
         contrast[b] = +((Math.max(L, worst) + .05) / (Math.min(L, worst) + .05)).toFixed(2);
       }
-      rows.push({ name, aspect, seed, palette: st.palette, phones: st.phones.length, why, missing, offAxis, contrast, m });
-      if (wantSheet && s === 0) {
-        const c = E.canvas(ad.W, ad.H), t = Math.max(isFinite(ad.tl.number) ? ad.tl.number + 1.2 : 0, (ad.tLanded || 0) + .6, (ad.tOutro != null ? ad.tOutro : st.duration) - .4);
-        ad.still = null; ad.frame(c.getContext('2d'), t, { subsFly: 8, subsMove: 4 }, 1 / 30);
-        sheet.push([`${name} ${aspect}`, c.toDataURL('image/jpeg', .88), ad.W, ad.H]);
-      }
+      // the ad's own pre-flight, on the picture as delivered
+      const c = F.fullStill(ad), pre = F.fullPreflight(ad, c);
+      rows.push({ name, aspect, seed, palette: st.full_colour, phones: st.phones.length, why, missing, offAxis, contrast, m, bpp: (pre.checks.find(x => x.id === 'calm') || {}).bpp || 0, pre: { ok: pre.ok, failed: pre.checks.filter(x => !x.ok).map(x => x.id + ': ' + x.value), findings: pre.findings } });
+      if (wantSheet && s === 0) sheet.push([`${name} ${aspect}`, c.toDataURL('image/jpeg', .88), ad.W, ad.H]);
     }
     return { rows, sheet };
   }, { WORDS, ASPECTS, SEEDS, wantSheet: !!SHEET });
   if (errors.length) fail('page errors while drawing: ' + errors.slice(0, 3).join(' | '));
 
-  const hard = /overlap|px apart|inside the margin|left out|touch/;
+  const hard = /overlap|px apart|inside the margin|left out|touch/, preNotes = {};
   for (const r of out.rows) {
     const id = `${r.name} ${r.aspect} seed ${r.seed} (${r.palette}, ${r.phones} phone${r.phones === 1 ? '' : 's'})`;
     const lenient = LENIENT.has(r.name);
@@ -116,6 +116,8 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
     if (r.offAxis.length) fail(`${id}: off the axis: ${r.offAxis.join(', ')}`);
     for (const [b, c] of Object.entries(r.contrast)) if (c < 3.5) fail(`${id}: ${b} reads ${c}:1 on its ground`);
     if (!lenient && r.phones && !r.m.sticker && !r.m.chevrons) fail(`${id}: no sticker and no chevrons`);
+    for (const f of r.pre.findings) { if (f.level === 'fix' && !lenient) fail(`${id}: pre-flight: ${f.say}`); else preNotes[f.code] = (preNotes[f.code] || 0) + 1; }
+    for (const c of r.pre.failed) if (!lenient && /^(edge|reads)/.test(c)) fail(`${id}: pre-flight check ${c}`);
   }
   // what the set came to, by size
   const med = a => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.floor(s.length / 2)] : 0; };
@@ -125,6 +127,8 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
     console.log(`  ${a.padEnd(5)} headline ${med(rs.map(r => r.m.px.headline))}px  number ${med(rs.map(r => r.m.px.number))}px  smallest line ${Math.min(...rs.map(r => r.m.smallest))}px  product ${Math.round(med(wp.map(r => r.m.product)) * 100)}% of the height  sticker ${wp.filter(r => r.m.sticker).length}/${wp.length}  icon ${wp.filter(r => r.m.icon).length}/${wp.length}  chevrons ${rs.filter(r => r.m.chevrons).length}/${rs.length}  frame covered ${Math.round(med(rs.map(r => r.m.fill)) * 100)}%`);
   }
   if (notes.length) console.log(`  said to the customer, not failed (long words): ${notes.length}, e.g. ${notes[0]}`);
+  { const b = out.rows.map(r => r.bpp).filter(Boolean).sort((x, y) => x - y); if (b.length) console.log(`  how busy (JPEG bytes a pixel x100): least ${(b[0] * 100).toFixed(1)}, middle ${(b[b.length >> 1] * 100).toFixed(1)}, most ${(b[b.length - 1] * 100).toFixed(1)}`); }
+  console.log(`  pre-flight on the delivered picture: ${out.rows.filter(r => r.pre.ok).length}/${out.rows.length} with nothing to fix; notes said: ${Object.entries(preNotes).map(([k, n]) => k + ' ' + n).join(', ') || 'none'}`);
   if (SHEET && out.sheet.length) {
     mkdirSync(SHEET, { recursive: true });
     const url = await page.evaluate(async (items) => {
@@ -167,10 +171,9 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
       await E.loadFonts([...E.fontsFor(st), 'franklin']);
       const [W0, H0] = E.ASPECTS[aspect], k = 1080 / Math.min(W0, H0);
       const ad = new F.FullAd(st, assets, Math.round(W0 * k), Math.round(H0 * k));
-      rows.push({ key: S.key, aspect, pictures: got.ids.length, drawn: ad.phones.length, why: F.fullBlockers(ad), m: F.fullMeasure(ad), voice: st.voice });
+      const c = F.fullStill(ad), pre = F.fullPreflight(ad, c);
+      rows.push({ key: S.key, aspect, pictures: got.ids.length, drawn: ad.phones.length, why: F.fullBlockers(ad), m: F.fullMeasure(ad), voice: st.voice, fixes: pre.findings.filter(f => f.level === 'fix').map(f => f.say), failed: pre.checks.filter(x => !x.ok && /^(edge|reads)$/.test(x.id)).map(x => x.id + ': ' + x.value) });
       if (wantSheet && aspect === '1:1') {
-        const c = E.canvas(ad.W, ad.H), t = Math.max(isFinite(ad.tl.number) ? ad.tl.number + 1.2 : 0, (ad.tOutro != null ? ad.tOutro : st.duration) - .4);
-        ad.still = null; ad.frame(c.getContext('2d'), t, { subsFly: 8, subsMove: 4 }, 1 / 30);
         const small = E.canvas(360, 360); small.getContext('2d').drawImage(c, 0, 0, 360, 360);
         sheet.push([S.key, small.toDataURL('image/jpeg', .86), 360, 360]);
       }
@@ -187,6 +190,8 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
     if (r.pictures !== r.drawn) fail(`${id}: ${r.pictures} pictures, ${r.drawn} drawn`);
     if (r.voice !== 'off') fail(`${id}: a phone voice-over on an ad that is not about phones`);
     for (const w of r.why) { if (soft.test(w)) softN++; else fail(`${id}: ${w}`); }
+    for (const f of r.fixes) fail(`${id}: pre-flight: ${f}`);
+    for (const c of r.failed) fail(`${id}: pre-flight check ${c}`);
     if (r.pictures && !r.m.sticker && !r.m.chevrons) fail(`${id}: no sticker and no chevrons`);
   }
   const med = a => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.floor(s.length / 2)] : 0; };
@@ -224,7 +229,7 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
   ok(await shown('f-claim') && await shown('f-towns') && await shown('f-site') && await shown('f-burst') && await shown('full-colours'), 'its fields are shown: claim, towns, website, sticker, colours');
   ok(!(await page.evaluate(() => [...document.querySelectorAll('#design select[data-key="palette"], #design select[data-key="text_fx"], #flags')].some(e => e.getClientRects().length))), 'the looks it does not use are put away');
   ok(await page.evaluate(() => !!document.querySelector('#design select[data-key="audience"]') && document.querySelector('#design select[data-key="audience"]').getClientRects().length > 0), 'who the ad is for stays');
-  await page.fill('#f-number', '(562) 999-4994'); await page.fill('#f-headline', 'SELL YOUR IPHONE'); await page.fill('#f-towns', 'Long Beach • Lakewood • Downey'); await page.fill('#f-site', 'www.YourShop.com');
+  await page.fill('#f-number', '(562) 999-4994'); await page.fill('#f-headline', 'SELL YOUR IPHONE'); await page.fill('#f-towns', 'Long Beach • Lakewood • Downey'); await page.fill('#f-site', 'www.YourShop.com'); await page.fill('#f-biz', 'Your Shop');
   await page.waitForTimeout(1500);
   ok((await page.textContent('#full-note')).trim() === '', 'ordinary words fit: the page has nothing to say (' + JSON.stringify((await page.textContent('#full-note')).trim()) + ')');
   // the photo: the full ad at 1440, by the button a customer presses
@@ -232,6 +237,16 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
   const file = dl.suggestedFilename(), path = await dl.path();
   const dim = await page.evaluate(async (b64) => { const img = new Image(); await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = 'data:image/jpeg;base64,' + b64; }); return [img.naturalWidth, img.naturalHeight]; }, (await import('node:fs')).readFileSync(path).toString('base64'));
   ok(/-photo-\d+x\d+\.jpg$/.test(file) && Math.min(...dim) >= 1080, `Download JPG saves the full ad (${file}, ${dim.join('x')})`);
+  // the pre-flight on the page: its panel reports, and an ad with something to fix is stopped until the customer says go on
+  await page.waitForFunction(() => /\d+ of \d+/.test(document.getElementById('full-checks-sum').textContent), null, { timeout: 15000 }).catch(() => {});
+  const sum = await page.textContent('#full-checks-sum');
+  ok(/^(\d+) of \1$/.test(sum.trim()), `Checked before it goes out: every check passes on ordinary words (${sum.trim()})`);
+  await page.fill('#f-points', 'WE WILL TEST AND WEIGH EVERYTHING IN FRONT OF YOU, PAID THE SAME DAY IN CASH, NO FEES OF ANY KIND AT ALL'); await page.waitForTimeout(1800);
+  await page.click('#download-jpg');
+  const stopped = await page.waitForFunction(() => /Check this ad before it goes out/.test(document.body.textContent), null, { timeout: 20000 }).then(() => true).catch(() => false);
+  ok(stopped, 'selling points too long to fit: the download stops and says what to fix');
+  if (stopped) { await page.getByRole('button', { name: 'Go back and fix it' }).click(); await page.waitForTimeout(400); }
+  await page.fill('#f-points', 'FREE QUOTE, CASH SAME DAY, NO FEES'); await page.waitForTimeout(1500);
   // a long headline: the page says what it cost
   await page.fill('#f-headline', 'TURN YOUR OLD CRACKED IPHONE INTO CASH TODAY RIGHT NOW'); await page.waitForTimeout(1500);
   const said = (await page.textContent('#full-note')).trim();

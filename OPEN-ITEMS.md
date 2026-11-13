@@ -3248,3 +3248,153 @@ Open:
    waits on a CDN the sandbox blocks) and three upload-a-video steps of
    `ad_library_check.mjs`, which fail the same way on untouched `main`. Run
    both on the Mac before a deploy.
+
+## Ad approvals. 2026-11-11: one page to mark an ad commercial worthy, hero worthy, or denied
+
+The owner: "make sure we have an approval page for the commercial worthy ads
+and hero worthy". There was none on the site: the hero picker opens only from
+a checkout (`tools/hero-picker/`, 404'd at the edge), `pick.html` is good/bad
+over an older set, and nothing recorded "commercial worthy" at all.
+
+Done:
+- `approve.html` (`approve.js`, `approve.css`), served, noindex. Every live
+  card of `assets/showcase/index.json` (366 today, the wall's own `scIsLive`
+  test, the hero picker's order) with three marks: **Commercial**, **Hero**,
+  **No**. Commercial and Hero are separate, a card may carry both; No clears
+  them. Tabs To review / All / Commercial worthy / Hero worthy / Denied,
+  category chips, search by name or SKU, keys C H X on a focused card. Hero
+  ads keep the order they were picked in (the number on the card).
+- The marks are written to the browser on every tap, and for a signed-in
+  operator to the server (`GET|PUT /api/admin/approvals`, store
+  `pgfx-approvals`, newest copy wins), so a phone and a Mac agree.
+- **Export lists** gives `assets/commercial-picks.json` (new, empty today)
+  and `assets/hero-picks.json` in the shape the wall reads. A first visit
+  starts from those two files: 12 of the 17 hero picks on file are live
+  cards and show as hero worthy; the other 5 are held cards the wall
+  already skips.
+- Check: `node scripts/approve_check.mjs` (the route as the real function
+  with a stand-in store, the page's files, the noindex lines). In Chromium at
+  1440 and 390: marks, order numbers, tabs, search, export, a reload keeping
+  the marks, the signed-in save against a mocked API; no page errors, no
+  sideways scroll.
+
+Open:
+1. **The landing does not read the server copy.** A Hero mark reaches the
+   wall when the exported `hero-picks.json` is committed and deployed, as
+   with the hero picker before. Reading `/api` on every landing visit was
+   not added unasked.
+2. **Nothing consumes `commercial-picks.json` yet.** It is the owner's list;
+   what a commercial worthy ad earns (first in the gallery, the only cards
+   iPhones LA auto-posts, the cards made into video ads) is the owner's call.
+3. **Photo ads only.** The video ads are drawn in the browser by `/motion`;
+   their review (stars, favourites) is still `/admin-ads/`.
+4. Not exercised against production: this session's network cannot reach
+   Netlify. The server save needs `JWT_SECRET`, as every account feature.
+
+## BD. 2026-11-12 — live; the review by eye; the pre-flight; competitors (DESIGN-LAW 138)
+
+(claude/friendly-heisenberg-868z63. `main` moved to 9dddf354 on the owner's "go live".)
+
+Done:
+- **`main` is §BC's work.** GitHub's deploy run moved buybackad-finished-copy's
+  branch (it builds itself). The direct deploy to buybackad-graphics-studio was
+  **skipped: NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID are not set** on the
+  repository. Set them and re-run "Deploy main to Netlify", or deploy from the Mac.
+- **Reviewed by eye**: thirteen faults in ten ads, fixed where each starts
+  (docs/FULL-AD-REVIEW-2026-11-12.md).
+- **The pre-flight** (rule 138) on the page, before every download, in the check.
+- **A business name** on the ad (the badge), from the competitor pass.
+- **Competitor and evidence research**: docs/COMPETITOR-RESEARCH-2026-11-12.md.
+
+Open:
+1. **This round is on the branch, not on `main`** (everything after 9dddf354).
+2. **The research saw no competitor picture**: every image host is blocked from
+   the cloud container. Thirty minutes by hand (its section 2.5), or those hosts
+   allowed in the environment, closes it.
+3. **For the owner to decide, from the research**: an OfferUp-safe export (no
+   number, no website, little text); the website line off the picture; three
+   claims instead of six; the sticker off by default; an owner-entered price
+   line and proof chip; a "data wiped" chip; a real photograph in the product's
+   place. Each cuts against something the owner asked for by name (the website
+   on 2026-11-03, "maximize elements" and "eye catchy elements" on 2026-11-11),
+   so none was changed.
+4. **"Text a photo, get a price"** (research) is rule 136's opposite: for phones
+   the named first step is TEXT YOUR IMEI.
+5. **Claude on every customer's ad** is not built: the pre-flight is the
+   automatic part. A model looking at each ad needs the backend to call one per
+   ad (cost and seconds each); the weekly iPhones LA batch already has a session
+   look at its sheet. Offer it as a paid "second opinion" only if wanted.
+6. **Any look** has none of this: the pre-flight and the review are the full ad's.
+
+## BE. 2026-11-12 — the full ad's colours, tweaked (DESIGN-LAW 139)
+
+(claude/admiring-hamilton-6bbehw, from `main` at 9dddf354, with
+claude/friendly-heisenberg-868z63 (the full ad reviewed by eye, the pre-flight),
+claude/festive-ramanujan-vhcayy (six step styles) and
+claude/wizardly-keller-abkuc4 (the approval page) merged in first.)
+
+The owner: "the theming is much better", "but still needs tweaks". No tweak was
+named, so the twelve pairs were drawn on the same ad, everything else held, one
+sheet per product, and every cell looked at and measured in OKLCH.
+
+Done (rule 139):
+- **The chevrons are the accent at full strength**, stepped in size, not
+  opacity. The opacity step drew khaki, brown, rose-brown and olive on every
+  dark pair with a warm accent. The review's fix it replaces (§BD, item 7 of
+  docs/FULL-AD-REVIEW-2026-11-12.md: always larger toward the number, never
+  lit by the clock) still holds.
+- **GOLD and SILVER are drawn in their own colour or not accented**, and a
+  seeded gold, silver, test strip or Pokémon ad draws its pair from the
+  library's own `AFFINITY` (now each pair's `suits` in `house-colours.js`).
+- **A bold phone counts toward the two colour families**: the owner's default
+  set (an orange 17 Pro Max in the middle) no longer lands on Midnight & Cyan,
+  Blue & Green or Green & Gold. Phone colours are measured from the pictures
+  at load (`bodyColour`).
+- `scripts/full_colour_check.mjs` holds all three (chevrons read off the
+  delivered pixels; words, lines and phones over 3,000 drawn styles; 600 ads
+  that must draw the pair they drew before). Each fault put back fails it.
+- Checks: full_ad_check, quick_ad_check, buylist_check, social_studio_check,
+  listing_check, audience_check and motion_cta_audit all clear on the final
+  code; theme_law, audit_theme_grammar, theme_cohesion_audit and cvd_audit
+  pass; every page loads with no errors.
+
+Open:
+1. **Not on `main`.** Pushed to its branch; merging is the owner's word.
+2. **Navy & Gold and Purple & Gold with an orange phone** are excluded by 4
+   degrees: gold is hue 81, the Cosmic Orange body 47, and the law's family gap
+   is 30 (`pgHuePlan`). By eye both look fine (analogous warms). If the owner
+   wants them back, widen `FAMILY_GAP` to 35 in `motion/fullad.js` and say so in
+   rule 139; Green & Gold comes back with them.
+3. **The lit patch of each ground is under rule 103's ground chroma** (the
+   pair's `light`, its lighter stop mixed a fifth toward white in sRGB: navy
+   C .091, green .083, teal .053 where 0.14 is asked at that luminance). Not
+   changed: some themes' own grounds are under it too (Teal & Orange's ground
+   is C .049), and those are the studio's themes, solved by the colour builder.
+   Lifting the lights in OKLCH would make the grounds bluer, greener and redder;
+   that is the owner's call, and it should go through `house_themes.mjs`.
+4. **The cash icon at 4:5** (the photo of a fan of banknotes, about 55px) stands
+   alone under the sticker and reads as a stray mark at feed size. It was chosen
+   on 2026-11-12 over the handshake, the pin and the shield; the next look at
+   it is the layout's, not the colours'.
+5. **The sticker on Silver & Blue is a dark navy star** (the card's ink, as the
+   white star is on the dark pairs). Consistent by rule 137; whether a light
+   card's sticker should take the accent instead is the owner's call.
+6. ~~`hotColour()` can fall back to colours outside the pair~~ (yellow, pink,
+   green, cyan) when an accent is too close to its ground in luminance. All
+   twelve give their own accent; `build_house_colours.mjs` now refuses a pair
+   that would not (done the same day).
+7. **iPhones LA's weekly batch** still draws its own sixteen colourways
+   (`tools/feed-stills`), untouched here (§BC 4).
+8. **The engine's own chevrons fade by opacity too** (`motion/decor.js`
+   `drawChevrons`: the two unlit of three at .35, a running light). Every plain
+   video look ("Any look") and iPhones LA's feed stills draw them, so a warm
+   accent's unlit chevrons are the same khaki and brown as the full ad's were.
+   Not changed: the feed's ads are the owner's approved set (§BC 4), and the
+   running light is an animation the owner may want as it is. The rule 139
+   fix, if wanted: unlit at full colour without the glow and at the full ad's
+   `CHEVRON_STEP` sizes, lit with the glow.
+9. **Not re-run here**: `steps_rhythm_audit.mjs` and `step_number_audit.mjs`
+   for the merged step styles (their harness is puppeteer-core against a
+   server on 8899). The step-styles session ran `audit_card.mjs` and `pgCheck`
+   in four sizes on the cards it changed; run the two on the Mac before a
+   deploy.

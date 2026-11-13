@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ad approvals | Graphics Studio by BUYBACK.AD</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#14161c">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="approve.css">
+</head>
+<body>
+<header class="ap-top">
+  <div class="ap-row">
+    <h1>Ad approvals</h1>
+    <p class="ap-counts" aria-live="polite">
+      <span class="k-com"><b id="n-com">0</b> commercial worthy</span>
+      <span class="k-hero"><b id="n-hero">0</b> hero worthy</span>
+      <span class="k-no"><b id="n-no">0</b> denied</span>
+      <span><b id="n-todo">0</b> to review</span>
+    </p>
+    <span class="ap-sync" id="sync" role="status"></span>
+    <button type="button" class="ap-btn" id="signin" hidden>Sign in to sync</button>
+    <button type="button" class="ap-btn go" id="export">Export lists</button>
+  </div>
+  <div class="ap-row">
+    <div class="ap-tabs" id="tabs" role="tablist" aria-label="Which ads to show"></div>
+    <input type="search" id="q" placeholder="Search: gold, iphone, STP-NN01…" aria-label="Search ads">
+  </div>
+  <div class="ap-chips" id="chips" aria-label="Category"></div>
+</header>
+
+<main>
+  <p class="ap-hint">Every ad the site offers, strongest first. Mark each one <b class="k-com">Commercial</b> (good enough to run as an ad), <b class="k-hero">Hero</b> (good enough for the shop window on the landing page), both, or <b class="k-no">No</b>. With a card in focus the keys are <kbd>C</kbd>, <kbd>H</kbd> and <kbd>X</kbd>. Hero ads keep the order you pick them in.</p>
+  <p class="ap-count" id="count"></p>
+  <div class="ap-grid" id="grid"></div>
+  <button type="button" class="ap-btn ap-more" id="more" hidden>Show more</button>
+</main>
+
+<dialog class="ap-out" id="out" aria-labelledby="out-h">
+  <h2 id="out-h">Export lists</h2>
+  <p>These are the two files the site reads. Download them into <code>assets/</code> in the repository, or copy the text and send it back.</p>
+  <textarea id="txt" readonly aria-label="The approved lists"></textarea>
+  <div class="ap-acts">
+    <button type="button" class="ap-btn" id="close">Close</button>
+    <button type="button" class="ap-btn" id="dl-com">Download commercial-picks.json</button>
+    <button type="button" class="ap-btn" id="dl-hero">Download hero-picks.json</button>
+    <button type="button" class="ap-btn go" id="copy">Copy</button>
+  </div>
+</dialog>
+
+<script src="config.js"></script>
+<script src="account.js"></script>
+<script src="approve.js"></script>
+</body>
+</html>

@@ -610,6 +610,20 @@ produced." DESIGN-LAW rule 87. In practice:
   painters: `node scripts/full_ad_check.mjs`, then `quick_ad_check.mjs` and
   `buylist_check.mjs`. Retired templates are `template-retired.js` (by hand;
   `?noretire=1` shows them).
+- **The full ad's colours** (rule 139, 2026-11-12): never fade an accent by
+  opacity (a see-through gold over navy is khaki); a word naming a colour
+  (GOLD, SILVER, ORO, PLATA) is accented only by that colour (`accentWord`);
+  a seeded ad's pair comes from `pairsFor`: the pairs that suit its line
+  (each pair's `suits`, written from refresh_palettes.mjs `AFFINITY` by
+  `build_house_colours.mjs`) and that keep it to two colour families with
+  its bold phones (`meta.body`, measured from each picture by `loadPhones`).
+  A hand-picked pair is never narrowed. Check: `node
+  scripts/full_colour_check.mjs`, with `full_ad_check.mjs`.
+- **Browser checks without a server or cdnjs** (2026-11-12): a cloud session
+  may be refused `python3 -m http.server`. Pass
+  `PLAYWRIGHT_MODULE=$PWD/scripts/pw_local.cjs` (and `FABRIC_JS=…` for the
+  studio's pages) to any check that reads that variable: it answers
+  127.0.0.1:8931 from disk in-process.
 - **After any merge, load every page** (2026-11-11): a merge git calls clean
   left `motion/app.js` declaring one name twice, and the video maker dead.
 - **The record of what is still inconsistent** is docs/COHESION-AUDIT.md.
