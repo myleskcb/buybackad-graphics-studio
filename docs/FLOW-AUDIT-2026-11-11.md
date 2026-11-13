@@ -209,6 +209,12 @@ reselling.us is a hosting note: a Cloudflare Worker to serve it at
 The studio's two real integrations are with iPhones LA (the library API and
 the outbox feed, behind a key) and SCANS.AD (prints and tracked QR).
 
+**Update, 2026-11-12: the connection is built** (branch `claude/studio-link` on
+both repos): Reselling.US opens the studio with a one-time code and what to
+make, the shop's name, phone and city fill the brand kit, and finished ads come
+back with their tag file. `docs/RESELLING-CONNECTION.md` has it. Steps 3 to 5
+below are still open; billing across the two is the owner's call.
+
 **Where the sockets already are**, cheapest first:
 
 1. **A link each way.** reselling.us's page gets "Make your We Buy ads" and
