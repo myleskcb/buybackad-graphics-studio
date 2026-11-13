@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Privacy Policy | Graphics Studio by BUYBACK.AD</title>
-<meta name="description" content="What Graphics Studio stores, what stays in your browser, every case where something leaves your device, the services we use, and your rights.">
+<title>Privacy Policy | BUYBACK.AD Graphics Studio and Reselling.US</title>
+<meta name="description" content="What BUYBACK.AD Graphics Studio and Reselling.US keep, what stays in your browser, the companies we use, and how to see, export or delete your data.">
 <link rel="canonical" href="https://buybackad-graphics-studio.netlify.app/privacy.html">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="pages.css">
@@ -20,90 +20,101 @@
   </nav>
 </header>
 <main id="main">
-  <h1>Privacy Policy</h1>
-  <p class="note">Effective July 2026, updated 12 October 2026. BUYBACK.AD (&ldquo;we&rdquo;, &ldquo;us&rdquo;) runs Graphics Studio and is responsible for the personal data described here.</p>
+<!-- One text for Reselling.US and BUYBACK.AD Graphics Studio (owner, 2026-11-12: one company, iPhones LA LLC, runs both). The same words are in the other product's resale-app resale/static/privacy.html; change both together and bump netlify/lib/billing.mjs TERMS_VERSION and resale-app's resale/legal.py TERMS_VERSION. -->
+<h1>Privacy Policy</h1>
+<p class="note">Version 2026-11-12 · Reselling.US and BUYBACK.AD Graphics Studio · iPhones LA LLC (&ldquo;we&rdquo;, &ldquo;us&rdquo;) is responsible for the personal data described here.</p>
 
-  <p><strong>The short version.</strong> Most of what you make stays in your browser. We keep your account, your plan and your usage counts, and Stripe keeps your payment details. We do not sell your data, share it for advertising, or run ad trackers.</p>
+<p><strong>The short version.</strong> One company makes both products, and this one policy covers both. We keep what each product needs to work: your account, your plan, and in Reselling.US the records you keep there. Most of what you make in the Studio stays in your browser. Stripe keeps your payment details. We do not sell your data, share it for advertising, run ad trackers, or use your figures to price anything for anyone else.</p>
 
-  <h2>What stays in your browser</h2>
-  <p>Your drafts, saved templates, brand kit (phone number, website, business name), your area (ZIP or city), the photos you upload and your export history are stored in your browser on your device. They are not sent to us. Clearing your browser&rsquo;s site data removes them.</p>
-  <p>Your area is looked up in the browser against a list of US ZIP codes and cities that ships with the site. If you press &ldquo;Locate me&rdquo;, your browser asks your permission and the position is matched against the same list on your device; it is not sent to us.</p>
+<h2 id="reselling">What Reselling.US keeps</h2>
+<ul class="tidy">
+  <li>Your account: email, name, a hash of your password (never the password itself), when you confirmed your email and when you last signed in. A code we email you is kept only as a scrambled copy, for an hour.</li>
+  <li>Your shop: its name, time zone and settings, the contact details you choose to show buyers (phone, WhatsApp, Instagram, city), and your Sickw API key if you save one, stored encrypted.</li>
+  <li>What you record: devices, their IMEIs and serials, costs, prices, sales, expenses, receipts, invoices, notes, and the IMEI reports you run.</li>
+  <li>Photos you add, with the location and camera details taken out before they are kept.</li>
+  <li>On plans that have them: your buyers&rsquo; names, phone numbers and Instagram usernames, which you add and can delete; your team members&rsquo; emails; and, for your shop&rsquo;s own site, the sell requests, orders and payments it takes and counts of its visits and quotes.</li>
+  <li>Sign-in attempts, kept for a day, to stop password guessing.</li>
+  <li>If you subscribe or buy checks: your Stripe customer reference, your subscription&rsquo;s status, plan and renewal date, and the version of the Terms you agreed to and when.</li>
+  <li>If you ask us to build your website: your name, shop, email, phone if you give one, city and your answers, used only to write back about it.</li>
+</ul>
 
-  <h2>What we store</h2>
-  <p>If you create an account: your email, a salted password hash (or, if you sign in with Google, the email Google confirms and the name on that Google account), when the account was created, your plan, how many exports you have used this week or month, and, if you subscribe, your Stripe customer reference. We also keep your AI credits (how many of the month&rsquo;s you have used, and how many you have bought), daily counters of how many backgrounds you published, and the references of the Stripe payments that bought credits, so the limits work and a payment is never counted twice. The AI backgrounds you generate are kept on our server, your newest 48, so the studio can load them for you; older ones are deleted. We do not store the ads you download.</p>
-  <p>When you buy a plan or credits we also keep the reference of your checkout, your subscription&rsquo;s status, plan and renewal date, and a record that you agreed to the Terms of Service: the version and the time. The same record is kept with the payment at Stripe.</p>
+<h2 id="studio">What the Studio keeps, and what stays in your browser</h2>
+<ul class="tidy">
+  <li>In your browser only, never sent to us: your drafts, saved templates, brand kit (phone number, website, business name), your area (ZIP or city), the photos you upload and your export history. Your area is matched against a list of US ZIP codes and cities that ships with the site; if you press &ldquo;Locate me&rdquo;, your browser asks first and the position is matched on your device.</li>
+  <li>On our server, if you create an account: your email, a salted password hash (or, if you sign in with Google, the email Google confirms and the name on that Google account), when the account was created, your plan, how many downloads you have used this week or month, your AI credits used and bought, daily counters of the backgrounds you published, and your Stripe references, so the limits work and a payment is never counted twice.</li>
+  <li>The AI backgrounds you generate, your newest 48, so the Studio can load them for you; older ones are deleted. Ads you save to your library are kept until you remove them. We do not keep the ads you only download.</li>
+  <li>If you buy a plan or credits: your checkout reference, your subscription&rsquo;s status, plan and renewal date, and the version of the Terms you agreed to and when.</li>
+</ul>
 
-  <h2>When something leaves your device</h2>
-  <ul class="tidy">
-    <li><strong>Publishing to the community gallery.</strong> Only if you choose to share a background. It becomes public to other users of the studio, with the part of your email before the @ shown as the author.</li>
-    <li><strong>AI backgrounds.</strong> If you generate a background, the words you type are reduced to a few keywords and sent, with our own prompt and the choices you made (style, colours, size), to an image-generation provider (fal.ai or Google&rsquo;s Gemini). Products you pick are sent as our own product photographs. Your account email is not sent to them.</li>
-    <li><strong>A shop link.</strong> If a shop gives you a connect link (for example iPhones.LA&rsquo;s Auto-post page), the ads you download are also sent to that shop&rsquo;s picture library, with a list of the words and product pictures on the ad so the shop can write the listing. A phone number may be on the picture; ads that show a website, QR code, street address, social handle or watermark are not sent, and the studio tells you when that happens. The link only exists if you open one.</li>
-    <li><strong>Printing and posting through SCANS.AD.</strong> Only for accounts that are also SCANS.AD members, and only when you choose &ldquo;Order prints + posting&rdquo;: the ad image, its name and size are handed to the SCANS.AD site in a new browser tab.</li>
-    <li><strong>The video maker.</strong> Videos are made on your device and nothing is uploaded. It reads the area from your brand kit in this browser.</li>
-    <li><strong>Fonts, code libraries and hosting.</strong> The site is hosted on Netlify. The drawing library comes from cdnjs (Cloudflare); the font picker and the site&rsquo;s Look menu load fonts from Google Fonts; HEIC photo conversion and QR codes load a small library from jsDelivr or unpkg when you use them; if Google sign-in is offered, its button loads from accounts.google.com. Like any website request, these services see your IP address.</li>
-  </ul>
+<h2 id="leaves">When something leaves your account</h2>
+<ul class="tidy">
+  <li><strong>Pages you share.</strong> Anyone you send a device&rsquo;s link, your shop page, your quote site or your store sees that page: photos, price, details and how to reach you. Never its cost, your notes or its IMEI. Stop sharing and the page is gone.</li>
+  <li><strong>IMEI checks.</strong> Sickw receives the IMEI or serial of each check you run.</li>
+  <li><strong>Messages you send.</strong> A WhatsApp, text or Instagram message the app writes opens on your own phone; it goes through that app, not through us. Follow-up emails on your quotes and invoices go out only if you switch them on.</li>
+  <li><strong>Google Sheets.</strong> If you give us a Google Sheets link to import or to read a price sheet, we read that sheet from Google.</li>
+  <li><strong>AI backgrounds.</strong> In the Studio, the words you type are reduced to a few keywords and sent, with our own prompt and the choices you made (style, colours, size), to an image provider (fal.ai or Google&rsquo;s Gemini). Products you pick are sent as our own product photographs. Your email is not sent to them.</li>
+  <li><strong>The community gallery.</strong> Only if you choose to share a background. It becomes public to other users of the Studio, with the part of your email before the @ shown as the author.</li>
+  <li><strong>A shop connection.</strong> If you open the Studio from a shop&rsquo;s connect link, the shop&rsquo;s name, phone number and area may fill in your brand kit, and the ads you download or save are also sent to that shop&rsquo;s picture library with a list of the words and product pictures on them. Ads that show a website, QR code, street address, social handle or watermark are not sent, and the Studio tells you when that happens. The connection exists only if you open one.</li>
+  <li><strong>Printing and posting through SCANS.AD.</strong> Only for Studio accounts that are also SCANS.AD members, and only when you choose &ldquo;Order prints + posting&rdquo;: the ad image, its name and size are handed to the SCANS.AD site in a new browser tab.</li>
+  <li><strong>Reading listings near you.</strong> Where a plan includes it, public marketplace listings are read for your shop. What a listing says (its words, photos, price and place) may be shared between the shops that use it so each listing is read once; your offers, prices, lists and decisions never are.</li>
+</ul>
 
-  <h2>Payments</h2>
-  <p>Payments are handled by Stripe. The payment form at checkout is Stripe&rsquo;s, shown inside our page: your card details go straight to Stripe and we never see or store your card number. Stripe also receives your email, and the billing name, address and tax ID you choose to give for your invoices. We keep only your Stripe customer reference and the records above, so your subscription can be managed. Stripe uses its own cookies in its payment form to prevent fraud; see <a href="https://stripe.com/privacy">Stripe&rsquo;s privacy policy</a>.</p>
+<h2 id="processors">The companies we use</h2>
+<p>These companies process data for us, only to run the Services:</p>
+<ul class="tidy">
+  <li><strong>Render</strong> (United States) hosts Reselling.US and its database: your account, shop and records.</li>
+  <li><strong>Netlify</strong> (United States) hosts the Studio, runs its server code and stores its account records, saved ads and generated backgrounds.</li>
+  <li><strong>Cloudflare</strong> sits in front of reselling.us and delivers some code libraries the Studio loads (cdnjs). Like any website request, it sees your IP address.</li>
+  <li><strong>Stripe</strong> handles payments, subscriptions, invoices and receipts. It receives your email, payment details, and the billing name, address and tax ID you choose to give. Your card details go straight to Stripe; we never see or store your card number. Stripe&rsquo;s payment form sets its own cookies to prevent fraud.</li>
+  <li><strong>Sickw</strong> answers IMEI and serial checks. It receives the IMEI or serial.</li>
+  <li><strong>fal.ai and Google</strong> make AI images (keywords, your style and format choices, our product photographs; no email). Google also provides Google sign-in on the Studio if you use it, Google Sheets if you link a sheet, and Google Fonts.</li>
+  <li><strong>jsDelivr and unpkg</strong> deliver code libraries the Studio loads when you use the features that need them. They see your IP address.</li>
+  <li><strong>Our email provider</strong> sends sign-in codes, password resets, and the emails you switch on.</li>
+</ul>
 
-  <h2 id="subprocessors">The services we use</h2>
-  <p>These companies process data for us, only to run the Service:</p>
-  <table>
-    <tr><th>Service</th><th>What it does for us</th><th>What it receives</th></tr>
-    <tr><td>Netlify</td><td>Hosts the site, runs our server code and stores account records and generated backgrounds (United States)</td><td>Account and usage records, generated backgrounds, IP addresses in request logs</td></tr>
-    <tr><td>Stripe</td><td>Payments, subscriptions, invoices and receipts</td><td>Email, payment details, billing name, address and tax ID, the plan or pack bought</td></tr>
-    <tr><td>fal.ai</td><td>AI image generation (first choice)</td><td>Keywords, your style and format choices, our product photographs; no email or account details</td></tr>
-    <tr><td>Google</td><td>AI image generation (Gemini, the fallback), Google sign-in if you use it, Google Fonts</td><td>The same as fal.ai for generation; your Google sign-in token if you use it; IP address for fonts</td></tr>
-    <tr><td>Cloudflare (cdnjs), jsDelivr, unpkg</td><td>Deliver code libraries the studio loads</td><td>IP address, like any website request</td></tr>
-  </table>
-  <p>iPhones.LA and SCANS.AD receive data only when you use their links, as described above.</p>
+<h2 id="why">Why we use it</h2>
+<p>We use your data to provide the Services you signed up for, to take payment and keep the records the law requires, to prevent abuse and keep the Services secure, and to answer you when you contact us. Where the GDPR or a similar law applies, our legal bases are performing our contract with you, our legitimate interest in running and securing the Services, and complying with legal obligations.</p>
 
-  <h2>Why we use it</h2>
-  <p>We use your data to provide the Service you signed up for (your account, your plan, your downloads and credits), to take payment and keep the records the law requires, to prevent abuse and keep the Service secure, and to answer you when you contact us. Where the GDPR or a similar law applies, our legal bases are performing our contract with you, our legitimate interest in running and securing the Service, and complying with legal obligations.</p>
+<h2 id="not">What we do not do</h2>
+<p>We do not sell your data, share it for cross-context behavioural advertising, run third-party advertising trackers, or read the ads you make. We do not use your content, your records or your prompts to train AI models. Your costs, prices, sales and buyers are never shown to anyone else or used to price anything for anyone else, our own shop included.</p>
 
-  <h2>What we do not do</h2>
-  <p>We do not sell your data, share it for cross-context behavioural advertising, run third-party advertising trackers, or read the ads you make. We do not use your content or your prompts to train AI models.</p>
+<h2 id="cookies">Cookies and browser storage</h2>
+<p>Reselling.US uses one cookie to keep you signed in; the Studio keeps you signed in with your browser&rsquo;s storage. Both keep small settings, like light or dark, in your browser. We do not use advertising or analytics cookies.</p>
 
-  <h2>Cookies and local storage</h2>
-  <p>The studio uses your browser&rsquo;s local storage to keep you signed in and to save your work on your device. We do not use advertising or analytics cookies. Stripe&rsquo;s payment form sets its own cookies for fraud prevention when you check out.</p>
+<h2 id="keep">How long we keep it</h2>
+<ul class="tidy">
+  <li>Account and shop records: while the account exists. Deleting an account deletes its records, photos, reports, usage counts and generated backgrounds.</li>
+  <li>Payment and tax records: Stripe keeps them, and we keep the references to them, as long as tax and accounting law requires, even after an account is deleted.</li>
+  <li>Generated backgrounds: your newest 48. Community publishes: until you or we remove them.</li>
+</ul>
 
-  <h2>How long we keep it</h2>
-  <ul class="tidy">
-    <li>Account records: while your account exists. When you delete your account, we delete its record, its usage counts and its generated backgrounds.</li>
-    <li>Payment and tax records: Stripe keeps them, and we keep the references to them, for as long as tax and accounting law requires, even after an account is deleted.</li>
-    <li>Generated backgrounds: your newest 48; older ones are deleted as new ones are made.</li>
-    <li>Community publishes: until you or we remove them.</li>
-  </ul>
+<h2 id="security">Security</h2>
+<p>Passwords are stored only as salted hashes, saved keys are encrypted, the sites are served over HTTPS, sign-in uses signed tokens, and payment details are held by Stripe, not us. No system is perfectly secure; if we learn of a breach that affects your data, we will tell you as the law requires.</p>
 
-  <h2>Security</h2>
-  <p>Passwords are stored only as salted hashes (PBKDF2), the site is served over HTTPS, sign-in uses signed tokens, and payment details are held by Stripe, not us. No system is perfectly secure; if we learn of a breach that affects your data, we will tell you as the law requires.</p>
+<h2 id="rights">Your rights</h2>
+<p>You can ask to see, correct, export or delete the personal data we hold about you, or object to how we use it. Reselling.US exports and deletes from Settings. Your plan, card and invoices can be managed yourself in Manage billing. <strong>California residents</strong> have the right to know what personal information we collect and how we use it, to delete it, to correct it, and not to be treated differently for using these rights. We do not sell or share personal information, and we do not use or disclose sensitive personal information beyond what the Services need. You may use an authorized agent; we may ask to verify the request. If you are in the EU or UK you may also complain to your data protection authority.</p>
 
-  <h2>Your rights</h2>
-  <p>You can ask to see, correct, export or delete the personal data we hold about you, or object to how we use it. Your plan, card and invoices can be managed yourself in Plan &amp; billing, then Manage billing.</p>
-  <p><strong>California residents</strong> have the right to know what personal information we collect and how we use it, to delete it, to correct it, and not to be treated differently for using these rights. We do not sell or share personal information, and we do not use or disclose sensitive personal information beyond what the Service needs. You may use an authorized agent; we may ask to verify the request.</p>
-  <p>If you are in the EU or UK you may also complain to your data protection authority.</p>
+<h2 id="delete">Deleting your data</h2>
+<p>Delete a Reselling.US account from Settings. To delete a Studio account, or both accounts at once, email <a href="mailto:support@reselling.us">support@reselling.us</a> from your account email. Cancel any paid plan first in Manage billing. Community publishes can be removed on request the same way.</p>
 
-  <h2>Deleting your data</h2>
-  <p>To delete your account, email <a href="mailto:hello@buyback.ad">hello@buyback.ad</a> from your account email, or text (562) 999-4994 with your account email. Cancel any paid plan first in Manage billing. Community publishes can be removed on request the same way.</p>
+<h2 id="children">Children</h2>
+<p>The Services are for businesses and are not directed to anyone under 18. We do not knowingly collect data from children.</p>
 
-  <h2>Children</h2>
-  <p>The Service is for businesses and is not directed to anyone under 18. We do not knowingly collect data from children.</p>
+<h2 id="where">Where your data is</h2>
+<p>We and the companies above process data in the United States. If you use the Services from elsewhere, your data is transferred to the United States.</p>
 
-  <h2>Where your data is</h2>
-  <p>We and the services above process data in the United States. If you use the Service from elsewhere, your data is transferred to the United States.</p>
+<h2 id="changes">Changes</h2>
+<p>We update this policy when what we do changes; the version at the top says which one this is. For a change that matters, we will tell you in the product or by email before it applies.</p>
 
-  <h2>Changes</h2>
-  <p>We update this policy when what we do changes; the date at the top says when. For a change that matters, we will tell you in the Service or by email before it applies.</p>
-
-  <h2>Contact</h2>
-  <p>Privacy questions and requests: email <a href="mailto:hello@buyback.ad">hello@buyback.ad</a> or text (562) 999-4994.</p>
+<h2 id="contact">Contact</h2>
+<p>Privacy questions and requests, for either product: email <a href="mailto:support@reselling.us">support@reselling.us</a>. iPhones LA LLC, Long Beach, California.</p>
 </main>
 <footer class="bottom">
   <a href="index.html">Graphics Studio</a>
   <a href="about.html">About</a>
   <a href="terms.html">Terms</a>
   <a href="privacy.html">Privacy</a>
-  <span>&copy; 2026 BUYBACK.AD</span>
+  <span>&copy; 2026 iPhones LA LLC &middot; From the makers of <a href="https://reselling.us">Reselling.US</a></span>
 </footer>
 </body>
 </html>
