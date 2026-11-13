@@ -6021,7 +6021,6 @@ const FONT_PAIRS = [
   { key: 'pixel',     name: 'Pixel',     display: ['Silkscreen', 700], support: ['Sora', 700, 500] },
   { key: 'terminal',  name: 'Terminal',  display: ['VT323', 400], support: ['Sora', 700, 500] },
   { key: 'scanline',  name: 'Scanline',  display: ['Workbench', 400], support: ['Sora', 700, 500] },
-  { key: 'shadow',    name: 'Shadow',    display: ['Londrina Shadow', 400], support: ['Nunito', 700, 700] },
   { key: 'depth',     name: 'Depth',     display: ['Rampart One', 400], support: ['Manrope', 700, 500] },
 ];
 /* WHAT A FACE CAN SPELL (the variant board, 2026-09-29). The owner writes the
@@ -20838,7 +20837,7 @@ function tsBindProps(){
      instead, Unbounded's number grew its plate off the card's edge. */
 const TYPE_VOICES = FONT_PAIRS;
 /* and the Type Lab voices whose figures are textured, hollow or blackletter */
-const VOICE_NUM_SUPPORT = new Set(['marker', 'stencil', 'pixel', 'tall', 'highlight', 'gothic', 'barrio', 'spray', 'protest', 'scanline', 'shadow', 'depth']);
+const VOICE_NUM_SUPPORT = new Set(['marker', 'stencil', 'pixel', 'tall', 'highlight', 'gothic', 'barrio', 'spray', 'protest', 'scanline', 'depth']);
 const VOICE_DISPLAY = { headline: 1, price: 1 }, VOICE_LABEL = { cta: 1, sub: 1, badges: 1, offer: 1 }, VOICE_LINE = { info: 1, website: 1, items: 1 };
 function voiceByKey(k){ return k ? TYPE_VOICES.find(v => v.key === k) || null : null; }
 /* the face a line takes in a voice: [family, weight], or null (its own) */

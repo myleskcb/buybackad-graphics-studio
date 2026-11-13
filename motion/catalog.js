@@ -169,7 +169,6 @@ export const TYPE_VOICES = {
   pixel:    { name: "Pixel",     display: "silkscreen",         label: "sora", numberRead: true },
   terminal: { name: "Terminal",  display: "vt323",              label: "sora" },
   scanline: { name: "Scanline",  display: "workbench",          label: "sora", numberRead: true },
-  shadow:   { name: "Shadow",    display: "londrina-shadow",    label: "nunito", numberRead: true },
   depth:    { name: "Depth",     display: "rampart",            label: "manrope", numberRead: true },
 };
 /* Every face a look, a vibe, a theme or a sign may still name, to the voice that
@@ -186,7 +185,7 @@ export const VOICE_OF_FONT = {
   "instrument-sans": "grotesk", "instrument-serif": "luxe", "nunito": "pop", "sniglet": "pop", "special-elite": "serif",
   "jetbrains": "tech", "cabin-sketch": "marker", "kalam": "comic",
   "schibsted-800": "grotesk", "schibsted-700": "grotesk", "satoshi-700": "modern", "chivo-700": "grotesk", "franklin-700": "grotesk",
-  "michroma": "circuit", "stick-no-bills": "flyer", "bahiana": "tall", "londrina-solid": "cutout", "truculenta": "press", "kanit-italic": "speed", "fugaz": "rush", "zilla-highlight": "highlight", "ranchers": "ranch", "tourney": "varsity", "fruktur": "gothic", "caveat-brush": "brush", "gochi": "note", "barrio": "barrio", "spray-paint": "spray", "cherry-bomb": "cherry", "dynapuff": "puff", "boogaloo": "boogie", "galindo": "toon", "protest-revolution": "protest", "protest-riot": "riot", "tilt-neon": "neon", "silkscreen": "pixel", "vt323": "terminal", "workbench": "scanline", "londrina-shadow": "shadow", "rampart": "depth",
+  "michroma": "circuit", "stick-no-bills": "flyer", "bahiana": "tall", "londrina-solid": "cutout", "truculenta": "press", "kanit-italic": "speed", "fugaz": "rush", "zilla-highlight": "highlight", "ranchers": "ranch", "tourney": "varsity", "fruktur": "gothic", "caveat-brush": "brush", "gochi": "note", "barrio": "barrio", "spray-paint": "spray", "cherry-bomb": "cherry", "dynapuff": "puff", "boogaloo": "boogie", "galindo": "toon", "protest-revolution": "protest", "protest-riot": "riot", "tilt-neon": "neon", "silkscreen": "pixel", "vt323": "terminal", "workbench": "scanline", "londrina-shadow": "cutout", "rampart": "depth",
 };
 
 // Faces too fine or too busy to carry an outline or a thin treatment.
