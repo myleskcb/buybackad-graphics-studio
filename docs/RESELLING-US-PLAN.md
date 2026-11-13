@@ -53,7 +53,9 @@ kept at $29 and $250. `plans.py` does not have them.
 1. The sentence that relates them. Proposed: "Graphics Studio by BUYBACK.AD,
    part of Reselling.US", one company responsible for both, the studio still
    usable alone (gold, cars, cards and coin buyers have no phone inventory).
-2. The studio's address: `buyback.ad`, or `studio.reselling.us`. Not
+2. The studio's address. Owner, 2026-11-13: "studio. is our integration
+   portal", so a `studio.` subdomain; which domain it sits on
+   (`studio.reselling.us` or `studio.buyback.ad`) is still to say. Not
    `reselling.us/gfx`: a path mount breaks the library link shape on this
    side and on iPhones.LA's.
 3. What a Reselling.US plan includes from the studio: credits, a studio
@@ -115,6 +117,21 @@ keeps cookies out of it.
 - What the brief carries: model, storage, colour, carrier, grade, asking
   price, the shop's name, phone, city and Instagram. Never cost, notes,
   where it was bought or the IMEI, the same fence as the buyer page.
+- **Signing in from the studio** (owner, 2026-11-13: "on the graphic site we
+  could have a login portal from your reselling.us account. Maybe it says
+  reselling.US customer? Login here"). The studio's sign-in dialog
+  (`account.js`) gets a second button, "Reselling.US customer? Log in here".
+  It sends the person to `https://reselling.us/studio/authorize?return=<the
+  studio>` with a one-time `state`. Reselling.US signs them in if they are
+  not (its own page, its own cookie), shows "Let Graphics Studio use <shop>'s
+  account", and sends them back with the same one-time code as above, which
+  the studio exchanges. The password is only ever typed on reselling.us; the
+  studio never sees it. `return` is checked against the exact list of studio
+  addresses and `state` against the one the studio kept, or a stranger's
+  link could sign a person into the wrong shop. A studio account made this
+  way has the workspace as its identity and no password of its own; a person
+  who already has a studio account with the same email is asked once whether
+  to join the two.
 - Buttons on the Reselling.US side: "Make an ad for this phone" on a device,
   "Make a We Buy ad" on the dashboard, "Story card" (the studio's Story size
   replaces or sits beside `stories.py`'s three looks; owner's call).
@@ -126,8 +143,8 @@ workspace's plan grants (a studio plan level, AI credits a month), and the
 studio reads it once per page load, as it already does for iPhones.LA. The
 studio account joined to the workspace is lifted to that level while the
 token is good. No shared secret, and each product keeps its own Stripe.
-`planFor()` in the function needs one more source besides the account's own
-plan and the operator list.
+The function reads an account's plan as `planId(user.plan)`, with operators
+lifted by `roleFor`; a linked workspace's grant is a third source there.
 
 A team has several people and the studio account has one email. Version 1:
 the workspace's token is the identity, and every member who opens the studio
