@@ -81,6 +81,13 @@
   status = 404
   force = true
 
+# The node tests for reselling-link.js, the same.
+[[redirects]]
+  from = "/tests-reselling-link.mjs"
+  to = "/404.html"
+  status = 404
+  force = true
+
 # 2026-09-22: more of the repo that is not the product, found public on the
 # live site (deploy-notes, spec, tools, the scratch_* folders, the retired
 # Cloudflare worker, the npm lockfiles, the asset-library sqlite). None of it
@@ -222,7 +229,7 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://js.stripe.com https://*.js.stripe.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com 'sha256-WO0lr0IgbboQyQBhHThvV/WHyfu1VNGaXZUDD6/u0lg=' 'sha256-bubzVHZD0MnOl7t0ytieO/ECNP8JaH7nzRk0K1bTDJI=' 'sha256-6i4zgwZrvuCaE147ZwgFXwGuoeGlNwVqIIzglJuI5QY=' 'sha256-OLeV7otPgYpW3r1P1Mjl/LMZBikIIIbTcOb1RQDQCdQ='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' data: blob: https://api.stripe.com https://*.stripe.com https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://iphones.la; frame-src 'self' https://accounts.google.com https://js.stripe.com https://*.js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://*.stripe.network; base-uri 'self'; frame-ancestors 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://js.stripe.com https://*.js.stripe.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com 'sha256-WO0lr0IgbboQyQBhHThvV/WHyfu1VNGaXZUDD6/u0lg=' 'sha256-bubzVHZD0MnOl7t0ytieO/ECNP8JaH7nzRk0K1bTDJI=' 'sha256-6i4zgwZrvuCaE147ZwgFXwGuoeGlNwVqIIzglJuI5QY=' 'sha256-OLeV7otPgYpW3r1P1Mjl/LMZBikIIIbTcOb1RQDQCdQ='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' data: blob: https://api.stripe.com https://*.stripe.com https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://iphones.la https://reselling.us; frame-src 'self' https://accounts.google.com https://js.stripe.com https://*.js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://*.stripe.network; base-uri 'self'; frame-ancestors 'none'"
     X-Content-Type-Options = "nosniff"
 
 [[headers]]

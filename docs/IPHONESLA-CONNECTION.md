@@ -8,6 +8,11 @@ Line numbers are as of those commits; grep the names when they drift.
 
 When anything below changes on either side, update this file in the same change.
 
+The Reselling.US link (`reselling-link.js`, 2026-11-12) is the same shape on
+another shop and reuses this link's picture check and tag file
+(`iplaLink.refusal`, `iplaLink.graphicFor`): change either and run both test
+files. `docs/RESELLING-CONNECTION.md` has it.
+
 ## The connections
 
 | # | Direction | Endpoint | Auth | Owner |
