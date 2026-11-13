@@ -6761,14 +6761,23 @@ const creditsText = (c) => (c.unlimited ? 'unlimited' : fmtN(c.total));
 let aiCost = 1;   // credits an AI background takes now; /api/plans says
 function syncCreditsUI(){
   const c = creditsOf();
+  /* the free plan's own credits wait for a confirmed address (api.mjs
+     needsConfirm, which sets mustConfirm only while mail is set up) */
+  const confirmFirst = !!account && !!account.mustConfirm && planKey(account.plan) === 'free' && !(c && c.bought);
   const line = !account ? 'Sign in to use AI backgrounds. Free accounts get ' + PLANS.free.credits + ' AI credits a month.'
+    : confirmFirst ? 'Confirm your email to use your free AI credits: the link is in your inbox.'
     : c.unlimited ? 'Uses ' + aiCost + ' AI credit' + (aiCost === 1 ? '' : 's') + '. Admin: unlimited, nothing is charged.'
     : 'Uses ' + aiCost + ' AI credit' + (aiCost === 1 ? '' : 's') + '. You have ' + c.total + (c.bought ? ' (' + c.left + ' this month + ' + c.bought + ' bought)' : ' left this month') + '.';
   for (const id of ['bg-credits', 'bggen-credits']){
     const el = $(id); if (!el) continue;
     el.innerHTML = '';
     el.append(line + ' ');
-    if (account && !c.unlimited && c.total < aiCost * 3){
+    if (confirmFirst){
+      const again = document.createElement('button');
+      again.type = 'button'; again.className = 'ai-more'; again.textContent = 'Send it again';
+      again.onclick = resendConfirm;
+      el.append(again);
+    } else if (account && !c.unlimited && c.total < aiCost * 3){
       const more = document.createElement('button');
       more.type = 'button'; more.className = 'ai-more'; more.textContent = 'Get more';
       more.onclick = () => openPlans('AI credits pay for AI backgrounds. Buy a pack, or move to a plan with more each month.');
@@ -6838,6 +6847,7 @@ function syncAcctUI(){
   }
   for (const id of ['lpf-login', 'lpf-signup']){ const el = $(id); if (el) el.style.display = account ? 'none' : ''; }
   const so = $('lpf-signout'); if (so) so.style.display = account ? '' : 'none';
+  for (const id of ['am-confirm', 'lpam-confirm']){ const el = $(id); if (el) el.style.display = account && account.verified === false ? '' : 'none'; }
 }
 function syncQuotaUI(){
   const q = $('ez-quota'); if (!q) return;
@@ -6866,6 +6876,16 @@ function syncQuotaUI(){
 
 // ── auth UI ──
 let authMode = 'in', authNext = null;
+/* /auth/config, once a page: whether Google sign-in is on, whether the site
+   can email a reset link (mail), and where customers write (support). A
+   failed read is tried again next time; mail null means "not known", and the
+   server's own answer to Forgot password? decides. */
+const SUPPORT = 'support@reselling.us';
+let _authCfg = null;
+function authConfig(){
+  if (DEMO) return Promise.resolve({ google: false, mail: false });
+  return (_authCfg = _authCfg || api('/auth/config').catch(() => { _authCfg = null; return { google: false, mail: null }; }));
+}
 // Google Sign-In: renders only when the backend reports GOOGLE_CLIENT_ID.
 // Zero footprint otherwise, no script load, no button, nothing to configure.
 let _gAuthInit = null;
@@ -6873,7 +6893,7 @@ function ensureGoogleAuth(){
   if (DEMO || _gAuthInit) return _gAuthInit;
   _gAuthInit = (async () => {
     try {
-      const cfg = await api('/auth/config');
+      const cfg = await authConfig();
       if (!cfg.google || !cfg.googleClientId) return;
       await new Promise((res, rej) => {
         if (window.google && window.google.accounts) return res();
@@ -6911,6 +6931,8 @@ function openAuth(msg, next){
   $('auth-sub').textContent = msg || 'Sign in to download your ads and track your plan.';
   $('auth-forms').style.display = '';
   $('auth-ok').style.display = 'none';
+  $('auth-reset').style.display = 'none';
+  $('auth-title').style.display = ''; $('auth-sub').style.display = '';
   $('auth-err').textContent = '';
   $('auth-demo-note').style.display = DEMO ? '' : 'none';
   /* a device that has never signed in opens on Create account (owner,
@@ -6926,6 +6948,7 @@ function setAuthMode(m){
   $('auth-tab-up').classList.toggle('active', m === 'up');
   $('auth-go').textContent = m === 'in' ? 'Sign in' : 'Create account';
   $('auth-pass').autocomplete = m === 'in' ? 'current-password' : 'new-password';
+  $('auth-forgot').style.display = m === 'in' && !DEMO ? '' : 'none';   // demo accounts live in this browser: nothing to email
 }
 async function submitAuth(){
   const email = $('auth-email').value.trim().toLowerCase();
@@ -6945,6 +6968,11 @@ async function submitAuth(){
     if (authMode === 'up'){
       $('auth-forms').style.display = 'none';
       $('auth-type').style.display = '';
+      const cf = $('auth-type-confirm');
+      cf.style.display = account && account.verified === false ? '' : 'none';
+      cf.textContent = account && account.mustConfirm
+        ? 'We sent a link to ' + email + '. Confirm your email to use your free AI credits.'
+        : 'We sent a link to ' + email + ' to confirm your email.';
     } else {
       $('auth-overlay').classList.remove('show');
       toast('Welcome back, ' + email.split('@')[0] + '!', 'success');
@@ -6952,6 +6980,99 @@ async function submitAuth(){
     }
   } catch (e){ err.textContent = authErrorText(e); }
   $('auth-go').disabled = false;
+}
+
+/* ── a forgotten password (netlify/lib/accountmail.mjs) ──
+   ask: Forgot password? sends a link to /#reset=<token>; set: that link
+   opened the page, and the new password goes with its token. With no mail
+   on the site the dialog says to write to support instead of pretending. */
+let resetMode = 'ask', resetToken = '';
+function supportLine(el, before){
+  el.textContent = before;
+  const a = document.createElement('a');
+  a.href = 'mailto:' + SUPPORT; a.textContent = SUPPORT;
+  a.style.color = 'var(--accent)';
+  el.append(a, ' from the address you signed up with and we will get you back in.');
+}
+function noMailReset(){
+  $('auth-reset-ask').style.display = 'none';
+  $('auth-reset-go').style.display = 'none';
+  supportLine($('auth-reset-sub'), 'This site cannot email a reset link yet. Write to ');
+}
+async function openReset(mode, token){
+  resetMode = mode; resetToken = token || '';
+  // the reset screen has its own heading: the dialog's welcome steps aside
+  for (const id of ['auth-forms', 'auth-ok', 'auth-type', 'auth-title', 'auth-sub']) $(id).style.display = 'none';
+  $('auth-reset').style.display = '';
+  $('auth-reset-err').textContent = '';
+  const go = $('auth-reset-go');
+  go.style.display = ''; go.disabled = false;
+  go.textContent = mode === 'set' ? 'Save password' : 'Send the link';
+  $('auth-reset-ask').style.display = mode === 'ask' ? '' : 'none';
+  $('auth-reset-set').style.display = mode === 'set' ? '' : 'none';
+  $('auth-reset-title').textContent = mode === 'set' ? 'Set a new password' : 'Reset your password';
+  if (mode === 'set'){
+    $('auth-reset-pass').value = '';
+    $('auth-reset-sub').textContent = 'Choose a new password. Every other device signed in to this account will be signed out.';
+  } else {
+    $('auth-reset-email').value = $('auth-email').value.trim();
+    $('auth-reset-sub').textContent = 'Type the email you signed up with. We will send a link to set a new password.';
+  }
+  $('auth-overlay').classList.add('show');
+  setTimeout(() => { try { $(mode === 'set' ? 'auth-reset-pass' : 'auth-reset-email').focus(); } catch (e){} }, 60);
+  if (mode === 'ask'){ const cfg = await authConfig(); if (cfg && cfg.mail === false && resetMode === 'ask') noMailReset(); }
+}
+async function submitReset(){
+  const err = $('auth-reset-err'), go = $('auth-reset-go');
+  err.textContent = '';
+  if (resetMode === 'sent'){ $('auth-overlay').classList.remove('show'); return; }
+  go.disabled = true;
+  try {
+    if (resetMode === 'set'){
+      const pass = $('auth-reset-pass').value;
+      if (pass.length < 8){ err.textContent = 'Password needs at least 8 characters'; return; }
+      const j = await api('/auth/reset', { token: resetToken, password: pass });
+      resetToken = '';
+      jset('pgfx_token', j.token);
+      await loadAccount();
+      $('auth-overlay').classList.remove('show');
+      toast('Password changed. You are signed in, and every other device was signed out.', 'success');
+    } else {
+      const email = $('auth-reset-email').value.trim().toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent = 'Enter a valid email address'; return; }
+      const j = await api('/auth/forgot', { email });
+      resetMode = 'sent';
+      $('auth-reset-ask').style.display = 'none';
+      $('auth-reset-sub').textContent = j.message || 'If an account uses that address, a link to set a new password is on its way.';
+      go.textContent = 'Done';
+    }
+  } catch (e){
+    if (e.data && e.data.mail === false){ noMailReset(); }
+    else if (e.data && e.data.expired){ await openReset('ask'); $('auth-reset-err').textContent = e.message; }
+    else err.textContent = authErrorText(e);
+  } finally { go.disabled = false; }
+}
+/* The links in account email: /#reset=<token> opens Set a new password,
+   /#confirm=<token> confirms the address. The token leaves the address bar
+   first, so it is not kept in history or passed on with a copied link. */
+async function handleAccountLink(){
+  const m = String(location.hash || '').match(/^#(reset|confirm)=([A-Za-z0-9_.-]+)$/);
+  if (!m) return;
+  history.replaceState(null, '', location.pathname + location.search);
+  if (DEMO) return;
+  if (m[1] === 'reset'){ openReset('set', m[2]); return; }
+  try {
+    await api('/auth/confirm', { token: m[2] });
+    if (getToken()) await loadAccount();
+    toast('Email confirmed. Thank you!', 'success');
+  } catch (e){ toast(authErrorText(e), 'error'); }
+}
+async function resendConfirm(){
+  try {
+    const j = await api('/auth/confirm/send', {});
+    if (j.already){ if (j.user) account = j.user; syncAcctUI(); toast('Your email is already confirmed.', 'success'); return; }
+    toast('We sent a new link to ' + j.to + '. Check spam if it is not there in a few minutes.', 'success');
+  } catch (e){ toast(authErrorText(e), 'error'); }
 }
 
 // ── plans / checkout ──
@@ -7381,6 +7502,7 @@ function bindSaasUI(){
   if (atFree) atFree.onclick = () => finishOnboarding(false);
   if (atPro) atPro.onclick = () => finishOnboarding(true);
   $('am-plans').onclick = () => { menu.classList.remove('open'); openPlans(); };
+  $('am-confirm').onclick = () => { menu.classList.remove('open'); resendConfirm(); };
   $('am-exports').onclick = () => { menu.classList.remove('open'); openHistory(); };
   $('am-admin').onclick = () => { menu.classList.remove('open'); openAdminBg(); };
   $('am-signout').onclick = () => { menu.classList.remove('open'); signOut(); };
@@ -7397,6 +7519,10 @@ function bindSaasUI(){
   $('auth-go').onclick = submitAuth;
   $('auth-pass').addEventListener('keydown', e => { if (e.key === 'Enter') submitAuth(); });
   $('auth-cancel').onclick = () => $('auth-overlay').classList.remove('show');
+  $('auth-forgot').onclick = () => openReset('ask');
+  $('auth-reset-go').onclick = submitReset;
+  $('auth-reset-back').onclick = () => { resetToken = ''; for (const id of ['auth-forms', 'auth-title', 'auth-sub']) $(id).style.display = ''; $('auth-reset').style.display = 'none'; setAuthMode('in'); };
+  for (const id of ['auth-reset-email', 'auth-reset-pass']) $(id).addEventListener('keydown', e => { if (e.key === 'Enter') submitReset(); });
   $('auth-ok-btn').onclick = () => { $('auth-overlay').classList.remove('show'); syncAcctUI(); if (!inStudio()) showEasy(null); if (authNext) authNext(); };
   /* the landing's account chip and its menu, the studio chip's twin */
   const lpMenu = $('lp-acct-menu');
@@ -7408,6 +7534,7 @@ function bindSaasUI(){
   });
   const lpItem = (id, fn) => bindIf(id, () => { lpMenu.classList.remove('open'); fn(); });
   lpItem('lpam-plans', () => openPlans());
+  lpItem('lpam-confirm', () => resendConfirm());
   lpItem('lpam-exports', () => openHistory());
   /* its 📚 Ad library is ad-library.js's, as the studio menu's am-adlib is:
      bound there and shown only to the owner's operator accounts (its BUTTONS) */
@@ -7416,6 +7543,10 @@ function bindSaasUI(){
   $('plans-close').onclick = () => $('page-plans').classList.remove('active');
   $('pay-ok').onclick = () => $('pay-overlay').classList.remove('show');
   loadAccount();
+  handleAccountLink();   // before the checkout return, which clears the address
+  /* a link pasted into a tab where the studio is already open changes only
+     the part after #, which does not load the page again */
+  window.addEventListener('hashchange', handleAccountLink);
   handleCheckoutReturn();
 }
 

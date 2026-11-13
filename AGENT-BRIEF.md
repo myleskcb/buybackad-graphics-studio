@@ -26,7 +26,7 @@ That is the standard every change is held to.
 |---|---|
 | Repo | `myleskcb/buybackad-graphics-studio` |
 | Working copy | `~/Downloads/gfxv23` — see the warning below |
-| Live | https://buybackad-graphics-studio.netlify.app |
+| Live | https://buybackad-finished-copy.netlify.app (`SITE_ORIGIN`, `netlify/lib/site.mjs`; the graphics-studio project below serves a build from before 2026-10-08) |
 | Netlify project | `buybackad-graphics-studio` (CLI is authenticated) |
 | Study program | `docs/` — start at `docs/README.md` |
 
@@ -290,7 +290,8 @@ python3 scripts/cvd_audit.py                                         # exits 1 o
 
 | URL | State |
 |---|---|
-| `buybackad-graphics-studio.netlify.app` | **works — this is the URL to share** |
+| `buybackad-finished-copy.netlify.app` | **works, serves main: this is the URL to share** (2026-11-12) |
+| `buybackad-graphics-studio.netlify.app` | works, but a build from before 2026-10-08 (Pro at $15) with its own accounts; do not share |
 | `studio.scans.ad` | configured in Netlify, **no public DNS** |
 | `buyback.ad` / `www.buyback.ad` | domain alias set, no DNS at all |
 

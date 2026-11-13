@@ -11,8 +11,9 @@
 */
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { SITE_ORIGIN } from '../netlify/lib/site.mjs';
 
-const url = process.argv[2] || 'https://buybackad-graphics-studio.netlify.app/';
+const url = process.argv[2] || SITE_ORIGIN + '/';
 const root = new URL('..', import.meta.url).pathname;
 const html = readFileSync(root + 'index.html', 'utf8');
 

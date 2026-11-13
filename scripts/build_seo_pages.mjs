@@ -27,8 +27,8 @@
 // as a word before "ad" ("a console ad"), when it is not the name itself.
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-
-const SITE = 'https://buybackad-graphics-studio.netlify.app';
+// the site's one address (netlify/lib/site.mjs; scripts/site_address.mjs)
+import { SITE_ORIGIN as SITE } from '../netlify/lib/site.mjs';
 const root = fileURLToPath(new URL('..', import.meta.url));
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

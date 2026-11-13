@@ -67,8 +67,12 @@ netlify deploy --prod                           # ship to production
 Notes:
 - Deploys are CLI-direct from this folder (the GitHub repo
   myleskcb/buybackad-graphics-studio is history, not CD).
-- Live site: https://buybackad-graphics-studio.netlify.app
-  (buyback.ad + www + studio.scans.ad are attached and go live once DNS exists).
+- Live site: https://buybackad-finished-copy.netlify.app, `SITE_ORIGIN` in
+  `netlify/lib/site.mjs`. https://buybackad-graphics-studio.netlify.app is the
+  older project: it serves a build from before 2026-10-08 (Pro at $15) with
+  accounts of its own. buyback.ad + www + studio.scans.ad were attached to
+  that older project; move them to buybackad-finished-copy before any DNS
+  points at them (2026-11-12: buyback.ad is not registered yet).
 
 ## 4. ORCHARD photo engine (local tool)
 
@@ -111,6 +115,6 @@ working directory:
 
 - [ ] http://localhost:4477/backgrounds.html shows 129/129 live
 - [ ] http://localhost:8877 loads, sign-in works, templates show photo backdrops
-- [ ] `curl https://buybackad-graphics-studio.netlify.app/api/health` answers `"accounts":true` and `"store":"ok"` after a deploy. `502` means the function shipped without `npm ci`; `404` means the site shipped without its function; `"accounts":false` means `JWT_SECRET` is not set on that Netlify project. The sign-in dialog says the same thing in those three cases, so a visitor's "cannot log in" names its cause
+- [ ] `curl https://buybackad-finished-copy.netlify.app/api/health` answers `"accounts":true` and `"store":"ok"` after a deploy (and `"mail":true` once `RESEND_API_KEY` and `MAIL_FROM` are set). `502` means the function shipped without `npm ci`; `404` means the site shipped without its function; `"accounts":false` means `JWT_SECRET` is not set on that Netlify project. The sign-in dialog says the same thing in those three cases, so a visitor's "cannot log in" names its cause
 - [ ] `netlify deploy --prod` from graphics-studio succeeds
 - [ ] ORCHARD approve on any slot writes a JPG into apps/graphics-studio/assets/bg
