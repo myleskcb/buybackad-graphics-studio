@@ -4946,7 +4946,7 @@ async function orderPrints(fromEz){
   let png, w, h, name;
   if (fromEz){
     { const PF = FORMATS[ez.format || 'square'] || FORMATS.square, pk = gate.px / Math.min(PF.w, PF.h); w = Math.round(PF.w * pk); h = Math.round(PF.h * pk); } name = ezTpl().name;
-    png = renderEzCanvas(gate.px, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined);
+    png = renderEzCanvas(gate.px, 'png');
   } else {
     const d = exportDims(gate.px); w = d.w; h = d.h; name = currentTplName || 'My ad';
     png = snapshotPng(d.w, 'png');
@@ -6336,7 +6336,12 @@ function applyEzSnapshot(p){
   showEasy(st.tpl || null);
   // selectEzTpl resets chips to the template default, so restore them after
   if (st.chips){ ez.chips = st.chips; syncEzChips(); }
-  ez.bgPicked = st.bgPicked === true;
+  /* an ad saved before rule 141 with no background picked went out on its
+     card's fallback gradient: it reopens as it was posted, with that gradient
+     as the ground picked (ORIG puts the photograph back) */
+  if (st.bgPicked !== true && !ez.bg && tpl && tpl.bg && tpl.bg.type === 'image' && tpl.bg.fallback && !tpl.photoIsDesign && !p.bgData)
+    ez.bg = Object.assign({}, tpl.bg.fallback);
+  ez.bgPicked = true;
   if (p.bgData) setTimeout(() => useEzPhoto(p.bgData, null), 300);
   else schedEzPreview(0);
 }
@@ -6345,7 +6350,7 @@ function resetEzProject(){
   jset('pgfx_ez_state', null);
   ez.vals = {}; ez.chips = null; ez.styles = {}; ez.hidden = {};
   ez.fx = { blur:0, overlay:'none', oc:'#000000', os:45 };
-  ez.bg = null; ez.bgData = null; ez.bgImgObj = null; ez.bgRecId = null; ez.bgPicked = false;
+  ez.bg = null; ez.bgData = null; ez.bgImgObj = null; ez.bgRecId = null; ez.bgPicked = true;
   ez.theme = null;
   showEasy(jget('pgfx_last', 'sell_iphone'));
   schedEzPreview(0);
@@ -7919,7 +7924,7 @@ const BG_PRESETS = [
   {type:'grad', c1:'#f5b700', c2:'#ff8a00', a:135},
 ];
 const EZ_EDIT_ROLES = ['headline','sub','cta','info','user','offer'];
-let ez = { tpl: null, format: jget('pgfx_ez_format', 'square'), vals:{}, chips:null, bg:null, bgPicked:false, custom:'#2563eb', hidden:{}, bgRecId:null, bgData:null, bgImgObj:null, fx:{ blur:0, overlay:'none', oc:'#000000', os:45 }, styles:{}, customPoints: jget('pgfx_custom_points', []) };
+let ez = { tpl: null, format: jget('pgfx_ez_format', 'square'), vals:{}, chips:null, bg:null, bgPicked:true, custom:'#2563eb', hidden:{}, bgRecId:null, bgData:null, bgImgObj:null, fx:{ blur:0, overlay:'none', oc:'#000000', os:45 }, styles:{}, customPoints: jget('pgfx_custom_points', []) };
 let ezBound = false, ezPrevTimer = null;
 
 function ezTpl(){ return TEMPLATES.find(t => t.id === ez.tpl) || TEMPLATES[0]; }
@@ -9767,12 +9772,6 @@ function bindEasyUI(){
   buildEzSizes();
   const pk = $('ez-pack');
   if (pk) pk.onclick = exportCategoryPack;
-  $('nobg-continue').onclick = () => { $('nobg-overlay').classList.remove('show'); ezDownload(true); };
-  $('nobg-select').onclick = () => {
-    $('nobg-overlay').classList.remove('show');
-    $('ez-swatches').scrollIntoView({ behavior:'smooth', block:'center' });
-  };
-  $('nobg-overlay').addEventListener('click', e => { if (e.target.id === 'nobg-overlay') $('nobg-overlay').classList.remove('show'); });
   $('ez-upload-bg').onclick = () => $('ez-upload-bg-file').click();
   $('ez-upload-bg-file').addEventListener('change', async e => {
     const f = e.target.files[0]; if (!f) return;
@@ -9984,7 +9983,7 @@ function selectEzTpl(id){
   }
   ez.tpl = TEMPLATES.some(t => t.id === id) ? id : firstFreeTplId();
   ez.chips = null; // back to this template's default points
-  ez.bgPicked = false; // fresh template → background is a placeholder again
+  ez.bgPicked = true;  // the card's own photograph is its ground (rule 141); it was a grey placeholder until a pick
   ez.shade = 0;        // the gate's shade belongs to one background
   /* ...unless the photograph IS the design (the offer family's photo band):
      then it previews and exports as drawn, like an opened showcase card */
@@ -10182,22 +10181,8 @@ function syncEzSwatches(){
   }
 }
 
-// Greyscale + 20% blur placeholder of a template photo (cached per src).
-const EZ_PLACEHOLDER_ELS = {};
-function placeholderBgImage(src){
-  const el = TPL_BG_ELS[src];
-  if (!el || !el.width) return null;
-  let p = EZ_PLACEHOLDER_ELS[src];
-  if (!p){
-    const cv = document.createElement('canvas');
-    cv.width = el.width; cv.height = el.height;
-    const x = cv.getContext('2d');
-    x.filter = 'grayscale(1) blur(' + Math.max(6, Math.round(el.width * 0.02)) + 'px)';
-    x.drawImage(el, 0, 0, cv.width, cv.height);
-    EZ_PLACEHOLDER_ELS[src] = p = cv;
-  }
-  try { return new fabric.Image(p); } catch (e){ return null; }
-}
+/* (Until 2026-11-13 a greyscale, blurred copy of the template's photograph stood
+   here as a "placeholder" until the visitor picked a background: rule 141.) */
 function renderEzCanvas(px, fmt, q, mode, format, keep){
   /* 2026-09-02: Easy Mode exports in every format the editor has. Layers are
      built straight into the target document (buildLayer takes dw/dh, the same
@@ -10216,23 +10201,30 @@ function renderEzCanvas(px, fmt, q, mode, format, keep){
   const sc = new fabric.StaticCanvas(null, { width:DW, height:DH, renderOnAddRemove:false, enableRetinaScaling:false });
   // solid base first: guarantees no transparent pixels can ever export as black
   sc.setBackgroundColor('#101014', () => {});
-  // Until a background is explicitly picked, the template photo previews as a
-  // greyscale 20%-blur placeholder; exports in that state go out on the
-  // designed base (mode 'export') so a placeholder never ships in an ad.
+  /* THE CARD'S OWN PHOTOGRAPH IS ITS GROUND (rule 141, 2026-11-13). Until that
+     day a template's photograph was a "placeholder" until the visitor picked a
+     background: the strip showed the card on its photograph, the preview
+     showed that photograph grey and blurred, and a download made without a
+     pick went out on the card's fallback gradient with no picture on it at
+     all (the owner's Neon Vault, the first card a new visitor opens: "Where
+     are the assets?"). One card, three pictures. That path dated from the
+     generated studio scenes rule 117 retired; every card now stands on a real
+     photograph of the goods, chosen for its words, and that photograph is the
+     design. So there is one ground for the strip, the preview, the download
+     and the video: the card's photograph, until the visitor picks another.
+     `mode` no longer chooses a ground. A photograph that has not loaded draws
+     the fallback and says so on the scene (sc.pgGroundMissing), so the gate
+     can hold the download rather than let the fallback out unseen. */
   const rawBg = ez.bg || tpl.bg;
   let bgSpec = rawBg;
   let photoOk = false;
   if (!ez.bg && rawBg.type === 'image' && rawBg.src){
-    if (mode === 'export' && !ez.bgPicked){
-      bgSpec = rawBg.fallback || { type:'solid', c:'#101014' };
-    } else {
-      const tbg = ez.bgPicked ? freshBgImage(rawBg.src, ezBlurOn(rawBg.blur), rawBg.grade) : placeholderBgImage(rawBg.src);
-      if (tbg){
-        sc.setBackgroundImage(coverImage(tbg, DW, DH), () => {});
-        if (rawBg.scrim) sc.add(scrimRect(rawBg.scrim, DW, DH, rawBg.scrimColor, rawBg.scrimMode));
-        photoOk = true;
-      } else bgSpec = rawBg.fallback || { type:'solid', c:'#101014' };
-    }
+    const tbg = freshBgImage(rawBg.src, ezBlurOn(rawBg.blur), rawBg.grade);
+    if (tbg){
+      sc.setBackgroundImage(coverImage(tbg, DW, DH), () => {});
+      if (rawBg.scrim) sc.add(scrimRect(rawBg.scrim, DW, DH, rawBg.scrimColor, rawBg.scrimMode));
+      photoOk = true;
+    } else { bgSpec = rawBg.fallback || { type:'solid', c:'#101014' }; sc.pgGroundMissing = rawBg.src; }
   }
   /* a ground or a photograph picked under "More grounds" (ezGroundSpecs) */
   if (!photoOk && ez.bg && ez.bg.type === 'image' && ez.bg.src){
@@ -10397,7 +10389,7 @@ function restoreEzState(){
   if (st.fx) ez.fx = Object.assign(ez.fx, st.fx);
   if (st.hidden) ez.hidden = st.hidden;
   if (st.bg) ez.bg = st.bg; ez.shade = st.shade || 0; ez.shadeTone = st.shadeTone || null;
-  ez.bgPicked = st.bgPicked === true;
+  ez.bgPicked = true;                 // a draft left on the old grey placeholder opens on the card's photograph (rule 141)
   ez.theme = ezThemeByName(st.theme);
   ez.voice = voiceByKey(st.voice) ? st.voice : null;
   if (ez.voice) voiceLoad(voiceByKey(ez.voice)).then(() => { syncVoiceRow(); schedEzPreview(0); });
@@ -10461,14 +10453,14 @@ async function ezDownload(skipBgCheck){
     $('ez-phone').scrollIntoView({ behavior:'smooth', block:'center' });
     return;
   }
-  if (!ez.bg && !ez.bgPicked && skipBgCheck !== true){
-    $('nobg-overlay').classList.add('show');
-    return;
-  }
+  /* the download is the preview (rule 141): no "No background selected" stop,
+     and no second ground. The card's own photograph and pictures are fetched
+     before the gate measures, so a slow connection cannot ship the fallback. */
+  try { await ensureTplAssets(ezTpl()); } catch (e){}
   const gate = await gateExport(ezExportPx());
   if (!gate) return;
-  if (!await pgGate('ez', () => renderEzCanvas(1080, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined, undefined, true))) return;
-  let url = renderEzCanvas(gate.px, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined);
+  if (!await pgGate('ez', () => renderEzCanvas(1080, 'png', undefined, undefined, undefined, true))) return;
+  let url = renderEzCanvas(gate.px, 'png');
   const EF = FORMATS[ez.format || 'square'] || FORMATS.square, ek = gate.px / Math.min(EF.w, EF.h), ew = Math.round(EF.w * ek), eh = Math.round(EF.h * ek);
   if (gate.watermark) url = await applyWatermark(url, ew, eh);      // a story or a wide ad keeps its shape
   try { await recordExport(); }
@@ -13838,8 +13830,8 @@ async function ezDownloadVideo(opts = {}){
   if (!opts.preview && !gate.video){ openPlans(VIDEO_UPSELL); return; }
   /* the very scene the PNG export draws (renderEzCanvas keeps it instead of
      flattening it), so the video's frame 0 IS the still ad */
-  if (!await pgGate('ez', () => renderEzCanvas(1080, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined, undefined, true))) return;
-  const sc = renderEzCanvas(gate.px, 'png', undefined, (!ez.bg && !ez.bgPicked) ? 'export' : undefined, undefined, true);
+  if (!await pgGate('ez', () => renderEzCanvas(1080, 'png', undefined, undefined, undefined, true))) return;
+  const sc = renderEzCanvas(gate.px, 'png', undefined, undefined, undefined, true);
   const docW = sc.width, docH = sc.height, k = Math.min(gate.px, MOTION.maxShort) / Math.min(docW, docH);
   await runVideoExport({ sc, docW, docH, w: Math.round(docW * k), h: Math.round(docH * k), watermark:gate.watermark, photoCap:motionPhotoCap(), actx, name:ezTpl().name, btn:$('ez-video'),
     preview: !!opts.preview, kind: 'ez', px: ezExportPx() });
@@ -17788,8 +17780,6 @@ function productYield(sc, W, H){
   // the photograph a background image was made from, so productYield can find its map
   const _freshBgImage = freshBgImage;
   freshBgImage = function(src){ const im = _freshBgImage.apply(this, arguments); if (im) im.pgSrc = src; return im; };
-  const _placeholderBgImage = placeholderBgImage;
-  placeholderBgImage = function(src){ const im = _placeholderBgImage.apply(this, arguments); if (im) im.pgSrc = src; return im; };
   // with alignPass (after plateAir), so every surface gets the same card
   const _alignPass = alignPass;
   alignPass = function(sc, W, H){
@@ -22485,5 +22475,55 @@ EXTRA_PROPS.push('pgParty');
       if (same) partyPlate(o, o.pgParty); else delete o.pgParty;
     }
     return r;
+  };
+}
+
+/* ── THE PICTURE IS ON THE AD (rule 141, 2026-11-13) ───────────────────────
+   Owner, of a Neon Vault download with no photograph and no product on it:
+   "This isn't really a cohesive ad. How did this come out the engine? How do
+   we avoid this mistake? Where are the assets?"
+
+   It came out because the gate measures what is on a card (every line's
+   contrast, the number, the guides) and had no reading for what is missing
+   from it. The download had dropped the card's photograph (renderEzCanvas,
+   above) and pgCheck answered ok with nothing failed.
+
+   So the gate reads the picture too. r.picture says what the ad shows:
+     ground    'photo' (a photograph), 'drawn' (a drawn ground or wallpaper),
+               'flat' (a colour or a gradient)
+     pictures  the product pictures on it, fully shown (rule 94: not ghosted)
+     missing   the photograph the card stands on, when it could not be drawn
+   and two findings come from it:
+     picture     (fails) the card's own photograph did not arrive, so the
+                 fallback is what would go out. Never downloaded unseen.
+     noPicture   (warns) nothing on the ad shows the goods: a flat ground and
+                 no product picture. That is the visitor's to choose (a colour
+                 is offered under Background), so it does not stop a download;
+                 the checks read it, and no card may OPEN that way
+                 (scripts/ez_download_is_preview.mjs).
+   Wrapped, not spliced (AGENT-BRIEF 1). */
+function pgPictureRead(sc){
+  let objs = []; try { objs = sc.getObjects(); } catch (e){}
+  const bgi = sc.backgroundImage || null;
+  const drawn = src => { try { return typeof isDrawnSrc === 'function' && isDrawnSrc(src); } catch (e){ return false; } };
+  const ground = bgi ? (drawn(bgi.pgSrc) ? 'drawn' : 'photo') : 'flat';
+  const pictures = objs.filter(o => o && o.type === 'image' && o.visible !== false && o.pgRole === 'photo' && !o.pgBgRect && !o.pgPattern
+    && (o.opacity == null || o.opacity >= 0.6)).length;
+  return { ground, pictures, missing: sc.pgGroundMissing || null };
+}
+function pgPictureCheck(sc, r){
+  const p = pgPictureRead(sc);
+  r.picture = p;
+  if (p.missing) r.fails.push({ code: 'picture', line: null, role: 'photo', value: null, need: 1 });
+  else if (p.ground === 'flat' && !p.pictures) r.warns.push({ code: 'noPicture', line: null, role: 'photo', value: 0, need: 1 });
+  r.ok = !r.fails.length;
+}
+{
+  const _pgCheck = pgCheck;
+  pgCheck = function(sc){ const r = _pgCheck.apply(this, arguments); try { pgPictureCheck(sc, r); } catch (e){ console.warn('picture check:', e); } return r; };
+  const _pgExplain = pgExplain;
+  pgExplain = function(f){
+    if (f && f.code === 'picture') return 'the photo behind this design has not loaded yet: go back, wait a moment and download again';
+    return _pgExplain.apply(this, arguments);
   };
 }
