@@ -29,19 +29,30 @@ const spec = f => {
     ? `${fam}:ital,wght@${ws.map(w => '0,' + w).concat(ws.map(w => '1,' + w)).join(';')}`
     : `${fam}:wght@${ws.join(';')}`;
 };
+const B2 = process.argv.includes('--batch2');
 const css = readFileSync(new URL('../assets/fonts/lab/lab.css', import.meta.url), 'utf8');
-const faces = lab.faces.map(f => {
-  const hasWdth = new RegExp(`font-family:'${f.name}';[^}]*font-stretch`).test(css);
+const seenBefore = new Set(readFileSync(new URL('./font_gallery.mjs', import.meta.url), 'utf8').match(/'[A-Z][A-Za-z0-9 ]+'/g).map(x => x.slice(1, -1)));
+const face = (f, o = {}) => {
+  const hasWdth = f.wdth || f.name === 'Truculenta' || (!B2 && new RegExp(`font-family:'${f.name}';[^}]*font-stretch`).test(css));
   const top = f.files[0].weight, weight = Array.isArray(top) ? Math.min(top[1], 900) : Math.max(...f.files.map(x => x.weight));
-  return { n: f.name, g: f.family, l: f.language, k: f.like, d: f.designer, w: weight, i: f.files.some(x => x.italic) ? 1 : 0,
-           x: hasWdth ? f.axes.wdth : null, q: spec({ ...f, hasWdth }) };
-});
+  const lang = o.l || f.language, ital = f.files.some(x => x.italic);
+  return { n: f.name, g: f.family, l: lang, k: f.like, d: f.designer, w: weight,
+           i: ital && (B2 || f.language === 'italic') ? 1 : 0,
+           x: hasWdth && f.axes && f.axes.wdth ? (f.name === 'Truculenta' || f.language === 'compressed' ? f.axes.wdth[0] : f.language === 'wide' ? f.axes.wdth[1] : null) : null,
+           r: o.ref ? 1 : 0, a: f.near || null, s: B2 && !o.ref && !ital && seenBefore.has(f.family) ? 1 : 0,
+           q: spec({ ...f, hasWdth }) };
+};
+const groups = B2 ? Object.fromEntries(Object.entries(lab.groups2).map(([k, g]) => [k, g.title])) : lab.languages;
+const faces = B2
+  ? Object.entries(lab.groups2).flatMap(([k, g]) => (g.refs || []).map(r => face(lab.faces.find(f => f.name === r), { l: k, ref: 1 })).concat(lab.faces2.filter(f => f.language === k).map(f => face(f))))
+  : lab.faces.map(f => face(f));
+const nNew = faces.filter(f => !f.r).length;
 const links = [];
 for (let i = 0; i < faces.length; i += 10)
   links.push(`<link rel="stylesheet" href="https://fonts.googleapis.com/css2?${faces.slice(i, i + 10).map(f => 'family=' + f.q).join('&amp;')}&amp;display=swap">`);
 faces.forEach(f => delete f.q);
 
-const html = `<title>Type Lab</title>
+const html = `<title>${B2 ? 'Type Lab 2' : 'Type Lab'}</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
 ${links.join('\n')}
@@ -80,6 +91,8 @@ h2:first-child{margin-top:0}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:12px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;content-visibility:auto;contain-intrinsic-size:auto 300px}
 .card.yes{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.card.ref{border-style:dashed}
+.yours{flex:none;font:600 12px var(--ui);color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:5px 10px}
 .card.maybe{border-color:var(--maybe);box-shadow:0 0 0 2px var(--maybe)}
 .spec{padding:18px 16px 16px;overflow:hidden;display:flex;flex-direction:column;gap:6px;min-height:170px;justify-content:center}
 .spec .h{font-size:44px;line-height:1.02;overflow-wrap:anywhere}
@@ -103,8 +116,8 @@ h2:first-child{margin-top:0}
 @media (max-width:520px){ .spec .h{font-size:36px} h1{font-size:23px} }
 </style>
 <header><div class="wrap">
-  <h1>Type Lab: ${faces.length} new faces for the ads</h1>
-  <p class="lede">None of these were in the last review and none are in the studio yet. Every one is open-licence (SIL OFL), so it can be used in paid ads, self-hosted and even redrawn. <b>Tap Yes or Maybe</b> on the ones you want, then <b>Copy my picks</b> and send the list back: that list is the record.</p>
+  <h1>${B2 ? 'Type Lab 2: ' + nNew + ' more, beside your picks and from the other end' : 'Type Lab: ' + faces.length + ' new faces for the ads'}</h1>
+  <p class="lede">${B2 ? 'The first groups open with faces you picked (marked <b>Your pick</b>) followed by new faces close to them, so you can compare. The last five groups are the opposite ends: luxury, clean, formal, deco and stark. Every one is open-licence (SIL OFL or Apache 2.0), free for paid ads.' : 'None of these were in the last review and none are in the studio yet. Every one is open-licence (SIL OFL), so it can be used in paid ads, self-hosted and even redrawn.'} <b>Tap Yes or Maybe</b> on the ones you want, then <b>Copy my picks</b> and send the list back: that list is the record.</p>
 </div></header>
 <div class="bar"><div class="wrap">
   <div class="row">
@@ -126,9 +139,9 @@ h2:first-child{margin-top:0}
   <textarea id="out" readonly aria-label="Your picks"></textarea>
 </div></main>
 <script>
-const LANG = ${JSON.stringify(lab.languages)};
+const LANG = ${JSON.stringify(groups)};
 const FACES = ${JSON.stringify(faces)};
-const KEY = 'type-lab-verdicts-v1';
+const KEY = '${B2 ? 'type-lab-2-verdicts-v1' : 'type-lab-verdicts-v1'}';
 let verdict = {}; try { verdict = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(verdict)); } catch (e) {} };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
@@ -139,30 +152,30 @@ function render(){
   const langs = Object.keys(LANG).filter(l => filter === 'all' || filter === 'picked' || l === filter);
   let h = '';
   for (const l of langs){
-    const fs = FACES.filter(f => f.l === l && (filter !== 'picked' || verdict[f.n]));
+    const fs = FACES.filter(f => f.l === l && (filter !== 'picked' || (!f.r && verdict[f.n])));
     if (!fs.length) continue;
-    h += '<h2>' + esc(LANG[l]) + ' · ' + fs.length + '</h2><div class="grid">' + fs.map(f => {
-      const st = "font-family:'" + f.g + "',var(--ui);font-weight:" + f.w + (f.i && l === 'italic' ? ';font-style:italic' : '') + (f.x && l === 'wide' ? ';font-stretch:' + f.x[1] + '%' : '') + (f.x && l === 'compressed' ? ';font-stretch:' + f.x[0] + '%' : '');
+    h += '<h2>' + esc(LANG[l]) + ' · ' + fs.filter(f => !f.r).length + '</h2><div class="grid">' + fs.map(f => {
+      const st = "font-family:'" + f.g + "',var(--ui);font-weight:" + f.w + (f.i ? ';font-style:italic' : '') + (f.x ? ';font-stretch:' + f.x + '%' : '');
       const v = verdict[f.n] || '';
-      return '<article class="card ' + v + '" data-n="' + esc(f.n) + '"><div class="spec" style="' + st + '"><div class="h">' + esc(tx(words.value || 'Sell Your iPhone')) + '</div><div class="p">$1,250 CASH TODAY</div><div class="t">' + esc(tx('(562) 999-4994 · Same-day cash')) + '</div></div>' +
-        '<div class="meta"><div class="who"><div class="nm">' + esc(f.n) + '</div><div class="sub">' + (f.k ? 'In the style of ' + esc(f.k) + ' · ' : '') + esc(f.d) + '</div></div>' +
-        '<div class="pick"><button class="y" aria-pressed="' + (v === 'yes') + '">Yes</button><button class="m" aria-pressed="' + (v === 'maybe') + '">Maybe</button></div></div></article>';
+      return '<article class="card ' + (f.r ? 'ref' : v) + '" data-n="' + esc(f.n) + '"><div class="spec" style="' + st + '"><div class="h">' + esc(tx(words.value || 'Sell Your iPhone')) + '</div><div class="p">$1,250 CASH TODAY</div><div class="t">' + esc(tx('(562) 999-4994 · Same-day cash')) + '</div></div>' +
+        '<div class="meta"><div class="who"><div class="nm">' + esc(f.n) + '</div><div class="sub">' + (f.r ? 'Already in the studio' : (f.a ? 'Closest to ' + esc(f.a) + ' · ' : '') + (f.k ? 'In the style of ' + esc(f.k) + ' · ' : '') + (f.s ? 'Shown in the first review · ' : '') + esc(f.d)) + '</div></div>' +
+        (f.r ? '<span class="yours">Your pick</span>' : '<div class="pick"><button class="y" aria-pressed="' + (v === 'yes') + '">Yes</button><button class="m" aria-pressed="' + (v === 'maybe') + '">Maybe</button></div>') + '</div></article>';
     }).join('') + '</div>';
   }
   wall.innerHTML = h || '<p class="note">Nothing picked yet. Tap Yes or Maybe on a face.</p>';
 }
 function list(){
-  const by = v => FACES.filter(f => verdict[f.n] === v);
+  const by = v => FACES.filter(f => !f.r && verdict[f.n] === v);
   const sec = (title, fs) => fs.length ? title + ' (' + fs.length + ')\\n' + Object.keys(LANG).map(l => { const x = fs.filter(f => f.l === l); return x.length ? '  ' + LANG[l] + ': ' + x.map(f => f.n).join(', ') : ''; }).filter(Boolean).join('\\n') + '\\n' : '';
   return (sec('YES', by('yes')) + sec('MAYBE', by('maybe'))) || 'No picks yet.';
 }
 function tally(){
-  const y = FACES.filter(f => verdict[f.n] === 'yes').length, m = FACES.filter(f => verdict[f.n] === 'maybe').length;
+  const y = FACES.filter(f => !f.r && verdict[f.n] === 'yes').length, m = FACES.filter(f => !f.r && verdict[f.n] === 'maybe').length;
   document.getElementById('tally').textContent = y + ' yes · ' + m + ' maybe';
   document.getElementById('out').value = list();
 }
 function buildChips(){
-  const opts = [['all', 'All', FACES.length], ['picked', 'My picks', null]].concat(Object.keys(LANG).map(l => [l, LANG[l], FACES.filter(f => f.l === l).length]));
+  const opts = [['all', 'All', FACES.filter(f => !f.r).length], ['picked', 'My picks', null]].concat(Object.keys(LANG).map(l => [l, LANG[l].replace(/^Like your /, '').replace(/ picks$/, ''), FACES.filter(f => f.l === l && !f.r).length]));
   chips.innerHTML = opts.map(([k, t, c]) => '<button data-f="' + k + '" aria-pressed="' + (k === filter) + '">' + esc(t) + (c ? '<span class="ct">' + c + '</span>' : '') + '</button>').join('');
 }
 chips.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; filter = b.dataset.f; buildChips(); render(); window.scrollTo({ top: document.querySelector('.bar').offsetTop }); });
@@ -188,4 +201,4 @@ buildChips(); render(); tally();
 </script>
 `;
 writeFileSync(out, html);
-console.log(faces.length + ' faces, ' + (html.length / 1024).toFixed(0) + ' KB -> ' + out);
+console.log(nNew + ' faces, ' + (html.length / 1024).toFixed(0) + ' KB -> ' + out);
