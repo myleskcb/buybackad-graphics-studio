@@ -1,4 +1,4 @@
-{ "built": "2026-09-01", "source": "font gallery review, 151 faces shown",
+{ "built": "2026-09-01", "source": "font gallery review, 151 faces shown; 27 added 2026-11-13 from the Type Lab review of 182 (assets/font-lab.json)",
   "faces": [
   {"name":"Satoshi","role":"grotesque","src":"self-hosted"},
   {"name":"Manrope","role":"grotesque"},{"name":"Sora","role":"grotesque"},{"name":"Chivo","role":"grotesque"},
@@ -20,5 +20,14 @@
   {"name":"Instrument Serif","role":"serif"},{"name":"Cormorant Garamond","role":"serif"},
   {"name":"Zilla Slab","role":"slab"},{"name":"Roboto Slab","role":"slab"},
   {"name":"Nunito","role":"rounded"},{"name":"Sniglet","role":"rounded"},
-  {"name":"JetBrains Mono","role":"numerals"},{"name":"DM Mono","role":"numerals"},{"name":"Audiowide","role":"numerals"}
+  {"name":"JetBrains Mono","role":"numerals"},{"name":"DM Mono","role":"numerals"},{"name":"Audiowide","role":"numerals"},
+  {"name":"Stick No Bills","role":"condensed","added":"2026-11-13"},{"name":"Bahiana","role":"condensed","added":"2026-11-13"},{"name":"Londrina Solid","role":"condensed","added":"2026-11-13"},
+  {"name":"Truculenta","role":"condensed","added":"2026-11-13"},{"name":"Kanit Black Italic","role":"italic","added":"2026-11-13"},{"name":"Fugaz One","role":"italic","added":"2026-11-13"},
+  {"name":"Gochi Hand","role":"handwritten","added":"2026-11-13"},{"name":"Barrio","role":"handwritten","added":"2026-11-13"},{"name":"Caveat Brush","role":"script","added":"2026-11-13"},
+  {"name":"Rubik Spray Paint","role":"graffiti","added":"2026-11-13"},{"name":"Protest Revolution","role":"graffiti","added":"2026-11-13"},{"name":"Protest Riot","role":"graffiti","added":"2026-11-13"},
+  {"name":"Ranchers","role":"retro","added":"2026-11-13"},{"name":"Tourney","role":"retro","added":"2026-11-13"},{"name":"Zilla Slab Highlight","role":"retro","added":"2026-11-13"},
+  {"name":"Londrina Shadow","role":"retro","added":"2026-11-13"},{"name":"Rampart One","role":"retro","added":"2026-11-13"},{"name":"Fruktur","role":"blackletter","added":"2026-11-13"},
+  {"name":"Cherry Bomb One","role":"rounded","added":"2026-11-13"},{"name":"DynaPuff","role":"rounded","added":"2026-11-13"},{"name":"Boogaloo","role":"rounded","added":"2026-11-13"},
+  {"name":"Galindo","role":"rounded","added":"2026-11-13"},{"name":"Michroma","role":"techno","added":"2026-11-13"},{"name":"Tilt Neon","role":"techno","added":"2026-11-13"},
+  {"name":"Silkscreen","role":"techno","added":"2026-11-13"},{"name":"VT323","role":"techno","added":"2026-11-13"},{"name":"Workbench","role":"techno","added":"2026-11-13"}
 ]}

@@ -79,14 +79,44 @@ export const FONTS = {
   "satoshi-700":      ["Satoshi", 700, "satoshi-700.woff2", "geometric"],
   "chivo-700":        ["Chivo", 700, "chivo-700.woff2", "grotesk"],
   "franklin-700":     ["Libre Franklin", 700, "libre-franklin-700.woff2", "grotesk"],
+  // the Type Lab picks (2026-11-13, DESIGN-LAW 138): each the display face of its own pair
+  "michroma":         ["Michroma", 400, "michroma-400.woff2", "wide"],
+  "stick-no-bills":   ["Stick No Bills", 800, "stick-no-bills-var.woff2", "condensed"],
+  "bahiana":          ["Bahiana", 400, "bahiana-400.woff2", "condensed"],
+  "londrina-solid":   ["Londrina Solid", 900, "londrina-solid-900.woff2", "condensed"],
+  "truculenta":       ["Truculenta", 900, "truculenta-cond-var.woff2", "condensed"],
+  "kanit-italic":     ["Kanit Black Italic", 900, "kanit-900i.woff2", "grotesk"],
+  "fugaz":            ["Fugaz One", 400, "fugaz-one-400.woff2", "display"],
+  "zilla-highlight":  ["Zilla Slab Highlight", 700, "zilla-slab-highlight-700.woff2", "slab"],
+  "ranchers":         ["Ranchers", 400, "ranchers-400.woff2", "display"],
+  "tourney":          ["Tourney", 900, "tourney-var.woff2", "display"],
+  "fruktur":          ["Fruktur", 400, "fruktur-400.woff2", "display"],
+  "caveat-brush":     ["Caveat Brush", 400, "caveat-brush-400.woff2", "script"],
+  "gochi":            ["Gochi Hand", 400, "gochi-hand-400.woff2", "script"],
+  "barrio":           ["Barrio", 400, "barrio-400.woff2", "display"],
+  "spray-paint":      ["Rubik Spray Paint", 400, "rubik-spray-paint-400.woff2", "display"],
+  "cherry-bomb":      ["Cherry Bomb One", 400, "cherry-bomb-one-400.woff2", "display"],
+  "dynapuff":         ["DynaPuff", 700, "dynapuff-var.woff2", "display"],
+  "boogaloo":         ["Boogaloo", 400, "boogaloo-400.woff2", "display"],
+  "galindo":          ["Galindo", 400, "galindo-400.woff2", "display"],
+  "protest-revolution":["Protest Revolution", 400, "protest-revolution-400.woff2", "display"],
+  "protest-riot":     ["Protest Riot", 400, "protest-riot-400.woff2", "display"],
+  "tilt-neon":        ["Tilt Neon", 400, "tilt-neon-400.woff2", "display"],
+  "silkscreen":       ["Silkscreen", 700, "silkscreen-700.woff2", "mono"],
+  "vt323":            ["VT323", 400, "vt323-400.woff2", "mono"],
+  "workbench":        ["Workbench", 400, "workbench-400.woff2", "mono"],
+  "londrina-shadow":  ["Londrina Shadow", 400, "londrina-shadow-400.woff2", "display"],
+  "rampart":          ["Rampart One", 400, "rampart-one-400.woff2", "display"],
 };
 
 // the pair cuts are never drawn on their own: the shuffle draws from the faces it always
 // had, so every look number keeps its look (a longer list moved every draw after it)
-export const PAIR_CUTS = new Set(["sofia-xcond-800", "unbounded-800", "schibsted-800", "schibsted-700", "satoshi-700", "chivo-700", "franklin-700"]);
+export const PAIR_CUTS = new Set(["sofia-xcond-800", "unbounded-800", "schibsted-800", "schibsted-700", "satoshi-700", "chivo-700", "franklin-700",
+  "michroma", "stick-no-bills", "bahiana", "londrina-solid", "truculenta", "kanit-italic", "fugaz", "zilla-highlight", "ranchers", "tourney", "fruktur", "caveat-brush", "gochi", "barrio", "spray-paint", "cherry-bomb", "dynapuff", "boogaloo", "galindo", "protest-revolution", "protest-riot", "tilt-neon", "silkscreen", "vt323", "workbench", "londrina-shadow", "rampart"]);
 
 /* THE OWNER'S TYPE PAIRS (DESIGN-LAW 100, carried into the video by 133). The
-   photo ads' FONT_PAIRS in app.js, the same eighteen voices, each a display face
+   photo ads' FONT_PAIRS in app.js, the same voices (eighteen, and the Type Lab's
+   twenty-seven of 2026-11-13), each a display face
    for the headline, the opening line, the number and the marks, and a reading
    face (at its label weight, 700 or more: WEIGHT_FLOOR) for everything read:
    the small line, the label over the number, the selling points, the call to
@@ -113,6 +143,34 @@ export const TYPE_VOICES = {
   stencil: { name: "Stencil", display: "stencil",         label: "barlow-cond", numberRead: true },
   grotesk: { name: "Grotesk", display: "bricolage",       label: "instrument-sans" },
   serif:   { name: "Serif",   display: "young-serif",     label: "manrope" },
+  // the Type Lab picks (2026-11-13)
+  circuit:  { name: "Circuit",   display: "michroma",           label: "sora" },
+  flyer:    { name: "Flyer",     display: "stick-no-bills",     label: "franklin-700" },
+  tall:     { name: "Tall",      display: "bahiana",            label: "barlow-cond", numberRead: true },
+  cutout:   { name: "Cutout",    display: "londrina-solid",     label: "nunito" },
+  press:    { name: "Press",     display: "truculenta",         label: "manrope" },
+  speed:    { name: "Speed",     display: "kanit-italic",       label: "chivo-700" },
+  rush:     { name: "Rush",      display: "fugaz",              label: "instrument-sans" },
+  highlight:{ name: "Highlight", display: "zilla-highlight",    label: "manrope", numberRead: true },
+  ranch:    { name: "Ranch",     display: "ranchers",           label: "nunito" },
+  varsity:  { name: "Varsity",   display: "tourney",            label: "chivo-700" },
+  gothic:   { name: "Gothic",    display: "fruktur",            label: "schibsted-700", numberRead: true },
+  brush:    { name: "Brush",     display: "caveat-brush",       label: "manrope" },
+  note:     { name: "Note",      display: "gochi",              label: "nunito" },
+  barrio:   { name: "Barrio",    display: "barrio",             label: "barlow-cond", numberRead: true },
+  spray:    { name: "Spray",     display: "spray-paint",        label: "manrope", numberRead: true },
+  cherry:   { name: "Cherry",    display: "cherry-bomb",        label: "nunito" },
+  puff:     { name: "Puff",      display: "dynapuff",           label: "nunito" },
+  boogie:   { name: "Boogie",    display: "boogaloo",           label: "instrument-sans" },
+  toon:     { name: "Toon",      display: "galindo",            label: "nunito" },
+  protest:  { name: "Protest",   display: "protest-revolution", label: "franklin-700", numberRead: true },
+  riot:     { name: "Riot",      display: "protest-riot",       label: "franklin-700" },
+  neon:     { name: "Neon",      display: "tilt-neon",          label: "sora" },
+  pixel:    { name: "Pixel",     display: "silkscreen",         label: "sora", numberRead: true },
+  terminal: { name: "Terminal",  display: "vt323",              label: "sora" },
+  scanline: { name: "Scanline",  display: "workbench",          label: "sora", numberRead: true },
+  shadow:   { name: "Shadow",    display: "londrina-shadow",    label: "nunito", numberRead: true },
+  depth:    { name: "Depth",     display: "rampart",            label: "manrope", numberRead: true },
 };
 /* Every face a look, a vibe, a theme or a sign may still name, to the voice that
    speaks closest to it, so a saved look and every shuffle land on a pair. */
@@ -128,10 +186,12 @@ export const VOICE_OF_FONT = {
   "instrument-sans": "grotesk", "instrument-serif": "luxe", "nunito": "pop", "sniglet": "pop", "special-elite": "serif",
   "jetbrains": "tech", "cabin-sketch": "marker", "kalam": "comic",
   "schibsted-800": "grotesk", "schibsted-700": "grotesk", "satoshi-700": "modern", "chivo-700": "grotesk", "franklin-700": "grotesk",
+  "michroma": "circuit", "stick-no-bills": "flyer", "bahiana": "tall", "londrina-solid": "cutout", "truculenta": "press", "kanit-italic": "speed", "fugaz": "rush", "zilla-highlight": "highlight", "ranchers": "ranch", "tourney": "varsity", "fruktur": "gothic", "caveat-brush": "brush", "gochi": "note", "barrio": "barrio", "spray-paint": "spray", "cherry-bomb": "cherry", "dynapuff": "puff", "boogaloo": "boogie", "galindo": "toon", "protest-revolution": "protest", "protest-riot": "riot", "tilt-neon": "neon", "silkscreen": "pixel", "vt323": "terminal", "workbench": "scanline", "londrina-shadow": "shadow", "rampart": "depth",
 };
 
 // Faces too fine or too busy to carry an outline or a thin treatment.
-export const FINE_FACES = new Set(["instrument-serif", "cormorant", "bungee-shade", "rubik-iso", "faster-one", "cabin-sketch", "rubik-dirt"]);
+export const FINE_FACES = new Set(["instrument-serif", "cormorant", "bungee-shade", "rubik-iso", "faster-one", "cabin-sketch", "rubik-dirt",
+  "zilla-highlight", "spray-paint", "workbench", "londrina-shadow", "rampart"]);
 
 // name: ground, light (middle of the ground), ink (headline), accent,
 //       plate (behind boxed type), plate_ink (type on the plate)

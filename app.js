@@ -5937,26 +5937,30 @@ function buildThemeRow(){
    and a render is the same on every machine. Satoshi, approved as well, is a
    house face. The picker lists the rest of its old Google faces under More. */
 const APPROVED_FACES = {
-  condensed:   ['Oswald','Big Shoulders Display','Barlow Condensed','Teko','Saira Condensed','Russo One','Squada One'],
+  condensed:   ['Oswald','Big Shoulders Display','Barlow Condensed','Teko','Saira Condensed','Russo One','Squada One','Stick No Bills','Bahiana','Londrina Solid','Truculenta'],
+  italic:      ['Kanit Black Italic','Fugaz One'],
   grotesque:   ['Manrope','Sora','Chivo','Libre Franklin','Instrument Sans'],
-  handwritten: ['Permanent Marker','Kalam','Patrick Hand','Shadows Into Light','Gloria Hallelujah','Nanum Pen Script','Architects Daughter','Amatic SC','Cabin Sketch'],
-  script:      ['Kaushan Script','Knewave','Bangers'],
-  graffiti:    ['Sedgwick Ave','Sedgwick Ave Display','Rubik Wet Paint','Rubik Marker Hatch','Rubik Dirt','Rubik Iso','Rubik Doodle Shadow','Wallpoet','Faster One','Freckle Face','Nosifer','Creepster','Big Shoulders Stencil Display'],
-  retro:       ['Bungee','Bungee Shade','Rye','Fascinate','Luckiest Guy','Shrikhand','Special Elite','Press Start 2P','Pirata One'],
+  handwritten: ['Permanent Marker','Kalam','Patrick Hand','Shadows Into Light','Gloria Hallelujah','Nanum Pen Script','Architects Daughter','Amatic SC','Cabin Sketch','Gochi Hand','Barrio'],
+  script:      ['Kaushan Script','Knewave','Bangers','Caveat Brush'],
+  graffiti:    ['Sedgwick Ave','Sedgwick Ave Display','Rubik Wet Paint','Rubik Marker Hatch','Rubik Dirt','Rubik Iso','Rubik Doodle Shadow','Wallpoet','Faster One','Freckle Face','Nosifer','Creepster','Big Shoulders Stencil Display','Rubik Spray Paint','Protest Revolution','Protest Riot'],
+  retro:       ['Bungee','Bungee Shade','Rye','Fascinate','Luckiest Guy','Shrikhand','Special Elite','Press Start 2P','Pirata One','Ranchers','Tourney','Zilla Slab Highlight','Londrina Shadow','Rampart One','Fruktur'],
   serif:       ['Instrument Serif','Cormorant Garamond','Zilla Slab','Roboto Slab'],
-  rounded:     ['Nunito','Sniglet'],
+  rounded:     ['Nunito','Sniglet','Cherry Bomb One','DynaPuff','Boogaloo','Galindo'],
+  techno:      ['Michroma','Tilt Neon','Silkscreen','VT323','Workbench'],
   numerals:    ['JetBrains Mono','DM Mono','Audiowide'],
 };
 const FONT_GROUPS = [
   ['House faces', ['Clash Display','Satoshi','Khand','Melodrama','Zodiak']],
   ['Showcase faces', ['Unbounded','Bricolage Grotesque','Sofia Sans Extra Condensed','Schibsted Grotesk','Gloock','Young Serif','Tilt Warp']],
   ['Condensed', APPROVED_FACES.condensed],
+  ['Italic & speed', APPROVED_FACES.italic],
   ['Grotesque', APPROVED_FACES.grotesque],
   ['Handwritten & script', APPROVED_FACES.handwritten.concat(APPROVED_FACES.script)],
   ['Graffiti & stencil', APPROVED_FACES.graffiti],
   ['Retro', APPROVED_FACES.retro],
   ['Serif & slab', APPROVED_FACES.serif],
   ['Rounded & numerals', APPROVED_FACES.rounded.concat(APPROVED_FACES.numerals)],
+  ['Techno & pixel', APPROVED_FACES.techno],
   ['More', ['Alfa Slab One','Abril Fatface','Bakbak One','Black Ops One','Bowlby One SC','Chango','Concert One','Days One','Fjalla One','Francois One','Graduate','Hammersmith One','Lilita One','Monoton','Passion One','Patua One','Paytone One','Racing Sans One','Righteous','Rowdies','Secular One','Sigmar One','Staatliches','Titan One','Ultra','Vast Shadow','Fredoka','Great Vibes','Lobster','Pacifico','Yellowtail','Changa','Exo 2','Inter','Josefin Sans','Kanit','Lato','League Spartan','Plus Jakarta Sans','Poppins','Prompt','Raleway','Rubik','Cinzel','DM Serif Display','Merriweather','Playfair Display']],
   ['System', ['Georgia','Impact','Arial Black']],
 ];
@@ -5991,6 +5995,34 @@ const FONT_PAIRS = [
   { key: 'stencil', name: 'Stencil', display: ['Big Shoulders Stencil Display', 700], support: ['Barlow Condensed', 700, 600] },
   { key: 'grotesk', name: 'Grotesk', display: ['Bricolage Grotesque', 800], support: ['Instrument Sans', 700, 500] },
   { key: 'serif',   name: 'Serif',   display: ['Young Serif', 400], support: ['Manrope', 700, 500] },
+  /* the Type Lab picks (2026-11-13, DESIGN-LAW 138): one voice a face, each with a reading face the house already had */
+  { key: 'circuit',   name: 'Circuit',   display: ['Michroma', 400], support: ['Sora', 700, 500] },
+  { key: 'flyer',     name: 'Flyer',     display: ['Stick No Bills', 800], support: ['Libre Franklin', 700, 500] },
+  { key: 'tall',      name: 'Tall',      display: ['Bahiana', 400], support: ['Barlow Condensed', 700, 600] },
+  { key: 'cutout',    name: 'Cutout',    display: ['Londrina Solid', 900], support: ['Nunito', 700, 700] },
+  { key: 'press',     name: 'Press',     display: ['Truculenta', 900], support: ['Manrope', 700, 500] },
+  { key: 'speed',     name: 'Speed',     display: ['Kanit Black Italic', 900], support: ['Chivo', 700, 500] },
+  { key: 'rush',      name: 'Rush',      display: ['Fugaz One', 400], support: ['Instrument Sans', 700, 500] },
+  { key: 'highlight', name: 'Highlight', display: ['Zilla Slab Highlight', 700], support: ['Manrope', 700, 500] },
+  { key: 'ranch',     name: 'Ranch',     display: ['Ranchers', 400], support: ['Nunito', 700, 700] },
+  { key: 'varsity',   name: 'Varsity',   display: ['Tourney', 900], support: ['Chivo', 700, 500] },
+  { key: 'gothic',    name: 'Gothic',    display: ['Fruktur', 400], support: ['Schibsted Grotesk', 700, 500] },
+  { key: 'brush',     name: 'Brush',     display: ['Caveat Brush', 400], support: ['Manrope', 700, 500] },
+  { key: 'note',      name: 'Note',      display: ['Gochi Hand', 400], support: ['Nunito', 700, 700] },
+  { key: 'barrio',    name: 'Barrio',    display: ['Barrio', 400], support: ['Barlow Condensed', 700, 600] },
+  { key: 'spray',     name: 'Spray',     display: ['Rubik Spray Paint', 400], support: ['Manrope', 700, 500] },
+  { key: 'cherry',    name: 'Cherry',    display: ['Cherry Bomb One', 400], support: ['Nunito', 700, 700] },
+  { key: 'puff',      name: 'Puff',      display: ['DynaPuff', 700], support: ['Nunito', 700, 700] },
+  { key: 'boogie',    name: 'Boogie',    display: ['Boogaloo', 400], support: ['Instrument Sans', 700, 500] },
+  { key: 'toon',      name: 'Toon',      display: ['Galindo', 400], support: ['Nunito', 700, 700] },
+  { key: 'protest',   name: 'Protest',   display: ['Protest Revolution', 400], support: ['Libre Franklin', 700, 500] },
+  { key: 'riot',      name: 'Riot',      display: ['Protest Riot', 400], support: ['Libre Franklin', 700, 500] },
+  { key: 'neon',      name: 'Neon',      display: ['Tilt Neon', 400], support: ['Sora', 700, 500] },
+  { key: 'pixel',     name: 'Pixel',     display: ['Silkscreen', 700], support: ['Sora', 700, 500] },
+  { key: 'terminal',  name: 'Terminal',  display: ['VT323', 400], support: ['Sora', 700, 500] },
+  { key: 'scanline',  name: 'Scanline',  display: ['Workbench', 400], support: ['Sora', 700, 500] },
+  { key: 'shadow',    name: 'Shadow',    display: ['Londrina Shadow', 400], support: ['Nunito', 700, 700] },
+  { key: 'depth',     name: 'Depth',     display: ['Rampart One', 400], support: ['Manrope', 700, 500] },
 ];
 /* WHAT A FACE CAN SPELL (the variant board, 2026-09-29). The owner writes the
    claim "iPHONE"; a caps-only face has no lowercase, so its "i" is a capital
@@ -6057,7 +6089,7 @@ function ensureFont(name){
     link.rel = 'stylesheet';
     /* versioned: /assets/fonts/* is served immutable for a year, and the
        2026-09-27 editions add the offer family's faces, then their flavour faces */
-    link.href = local ? 'assets/fonts/faces.css?v=20260927b'
+    link.href = local ? 'assets/fonts/faces.css?v=20261113a'
       : 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(name).replace(/%20/g, '+') + '&display=swap';
     if (local) _localFacesCss = new Promise(r => { link.addEventListener('load', r); link.addEventListener('error', r); });
     const done = () => {
@@ -20805,7 +20837,8 @@ function tsBindProps(){
      the layout (alignPass) lays the card out in it. Fitted to the card's width
      instead, Unbounded's number grew its plate off the card's edge. */
 const TYPE_VOICES = FONT_PAIRS;
-const VOICE_NUM_SUPPORT = new Set(['marker', 'stencil']);
+/* and the Type Lab voices whose figures are textured, hollow or blackletter */
+const VOICE_NUM_SUPPORT = new Set(['marker', 'stencil', 'pixel', 'tall', 'highlight', 'gothic', 'barrio', 'spray', 'protest', 'scanline', 'shadow', 'depth']);
 const VOICE_DISPLAY = { headline: 1, price: 1 }, VOICE_LABEL = { cta: 1, sub: 1, badges: 1, offer: 1 }, VOICE_LINE = { info: 1, website: 1, items: 1 };
 function voiceByKey(k){ return k ? TYPE_VOICES.find(v => v.key === k) || null : null; }
 /* the face a line takes in a voice: [family, weight], or null (its own) */
