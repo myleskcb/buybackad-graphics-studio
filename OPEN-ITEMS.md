@@ -3248,3 +3248,35 @@ Open:
    waits on a CDN the sandbox blocks) and three upload-a-video steps of
    `ad_library_check.mjs`, which fail the same way on untouched `main`. Run
    both on the Mac before a deploy.
+
+## BD. 2026-11-13 — the Type Lab: 182 new display faces, waiting on the owner's picks (DESIGN-LAW 138)
+
+(claude/youthful-cray-en1m2i.)
+
+The owner: "we only have pretty normal looking fonts … as many unique ones
+that are graphic design friendly … and then we can integrate them into our ads".
+
+Done:
+- 182 OFL faces vendored in `assets/fonts/lab/` (190 files, 4.7 MB), listed in
+  `assets/font-lab.json` by design language, each with the licensed face it
+  stands in for where there is one.
+- The review page (`scripts/build_type_lab_page.mjs`): type any headline, four
+  grounds, caps, Yes / Maybe on each face, one button that copies the picks.
+
+Open:
+1. **The owner's picks.** Nothing is in the picker or a pair until they come
+   back. Record them in `font-lab.json` `verdicts`.
+2. **Integrate the picks**: move the files to `assets/fonts/`, add to
+   `approved-fonts.json`, `engine/fonts.mjs` (`FONT_FILES`), `APPROVED_FACES`
+   in app.js; run `fetch_fonts.mjs` for `faces.css` and bump its `?v=`.
+3. **New pairs** from them in `FONT_PAIRS` and `TYPE_VOICES` (a display face
+   with a reading face already in the house), then `type_voices_check`,
+   `every_card_audit` for each new voice, and the video palette audit.
+   Caps-only faces and weak figures need `faceGlyphs` and `numberRead`.
+4. **Delete the unpicked files** from `assets/fonts/lab/` once the picks are in.
+5. **Not reachable from the build machine** (network policy): Fontshare,
+   Velvetyne, Collletttivo, Open Foundry, The League of Moveable Type. Their
+   open faces (Tanker, Panchang, Chubbo, Boxing, Bagnard, Pilowlava, Karrik,
+   Mazius Display…) would be a second batch if those hosts are allowed.
+6. Colour fonts (Honk, Nabla, Bungee Spice) were left out: fabric and the SVG
+   engine draw one fill per glyph.

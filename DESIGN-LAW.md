@@ -5602,3 +5602,40 @@ a towns line or a website.
   which the full ad now draws. `?noretire=1` shows them; nothing is deleted.
 
 Not done here: OPEN-ITEMS §BC.
+
+## 138. A new face is open-licence, proven per family, and reviewed before it is paired
+
+Added 2026-11-13. The owner: "we only have pretty normal looking fonts. We want
+fonts that pop, that catch, that may not be as readily available … and if they
+are licensed then maybe we can create spinoff or similar versions in that
+styling … as many unique ones that are graphic design friendly, conducive of
+different design languages".
+
+- **The Type Lab** (`assets/font-lab.json`, files in `assets/fonts/lab/`,
+  written by `scripts/fetch_lab_fonts.mjs`): 182 display faces in fifteen
+  design languages (wide, compressed, heavy italic, grotesque, fat soft serif,
+  high-contrast, slab and western, blackletter, sign-painter script, marker,
+  chunky, techno, pixel, deco and inline, experimental). None was in the
+  2026-09-01 gallery of 151, in the picker, or on the shelf rule 9 retired.
+- **The licence is proven, not assumed**: a face is taken only if its own
+  record under `ofl/` in google/fonts says OFL. Nine asked for were under
+  another licence or had no upright cut and were left out. OFL lets us
+  self-host, embed in a paid ad and modify the face.
+- **A licensed face is answered with an open face in its styling, never with
+  its files.** `like` on a lab face names the commercial face it stands in
+  for (Druk Wide, Monument Extended, Cooper Black, Tungsten, Fette Fraktur…).
+  A "spinoff" is made from an OFL face (which may be modified, under a new
+  name) or drawn from nothing; a commercial font's file is never opened,
+  traced, converted or renamed.
+- **Each was read as an ad before it was kept**: the dollar sign, the figures,
+  the number's punctuation and the Spanish accents on the file's character
+  map; then set as a claim, a price and a phone number. 89 were cut (hairline
+  faces, outlines that vanish, textures that do not read, eight with no
+  Spanish).
+- **A lab face is not in the product.** Nothing loads `lab.css`. The owner
+  picks on the Type Lab page (`scripts/build_type_lab_page.mjs`); the picks go
+  into `font-lab.json`'s `verdicts`, the approved ones into
+  `approved-fonts.json`, `engine/fonts.mjs` and `faces.css`, and only then into
+  a pair (rules 70, 100, 133), which every card has to pass (rule 101).
+
+Not done here: OPEN-ITEMS §BD.

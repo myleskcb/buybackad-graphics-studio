@@ -1,0 +1,3848 @@
+{
+ "built": "2026-11-13",
+ "note": "Candidates for the owner's review. A face is in the product only once it is in approved-fonts.json and paired in FONT_PAIRS.",
+ "languages": {
+  "wide": "Wide & extended",
+  "compressed": "Compressed poster",
+  "italic": "Heavy italic & speed",
+  "grotesk": "Grotesques with character",
+  "softserif": "Fat soft serif",
+  "contrast": "High-contrast editorial",
+  "slab": "Slab, varsity & western",
+  "blackletter": "Blackletter & engraved",
+  "script": "Sign-painter script & brush",
+  "hand": "Marker & hand",
+  "chunky": "Chunky & playful",
+  "tech": "Techno & sci-fi",
+  "pixel": "Pixel & terminal",
+  "deco": "Deco, inline & shadow",
+  "wild": "Experimental"
+ },
+ "verdicts": {},
+ "faces": [
+  {
+   "name": "Dela Gothic One",
+   "family": "Dela Gothic One",
+   "language": "wide",
+   "like": "Akira Expanded",
+   "designer": "artakana",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/delagothicone",
+   "variable": false,
+   "files": [
+    {
+     "file": "dela-gothic-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 13
+    }
+   ]
+  },
+  {
+   "name": "Climate Crisis",
+   "family": "Climate Crisis",
+   "language": "wide",
+   "like": "Druk Wide",
+   "designer": "Daniel Coull, Eino Korkala",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/climatecrisis",
+   "variable": false,
+   "files": [
+    {
+     "file": "climate-crisis-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 17
+    }
+   ]
+  },
+  {
+   "name": "Krona One",
+   "family": "Krona One",
+   "language": "wide",
+   "like": "Monument Extended",
+   "designer": "Yvonne Schüttler",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/kronaone",
+   "variable": false,
+   "files": [
+    {
+     "file": "krona-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 10
+    }
+   ]
+  },
+  {
+   "name": "Lexend Zetta",
+   "family": "Lexend Zetta",
+   "language": "wide",
+   "like": "Monument Extended",
+   "designer": "Bonnie Shaver-Troup, Thomas Jockin, Santiago Orozco, Héctor Gómez, Superunion",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/lexendzetta",
+   "variable": true,
+   "axes": {
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "lexend-zetta-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 44
+    }
+   ]
+  },
+  {
+   "name": "Lexend Giga",
+   "family": "Lexend Giga",
+   "language": "wide",
+   "like": null,
+   "designer": "Bonnie Shaver-Troup, Thomas Jockin, Santiago Orozco, Héctor Gómez, Superunion",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/lexendgiga",
+   "variable": true,
+   "axes": {
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "lexend-giga-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 44
+    }
+   ]
+  },
+  {
+   "name": "Michroma",
+   "family": "Michroma",
+   "language": "wide",
+   "like": "Microgramma",
+   "designer": "Vernon Adams",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/michroma",
+   "variable": false,
+   "files": [
+    {
+     "file": "michroma-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 11
+    }
+   ]
+  },
+  {
+   "name": "Zen Dots",
+   "family": "Zen Dots",
+   "language": "wide",
+   "like": null,
+   "designer": "Yoshimichi Ohira",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/zendots",
+   "variable": false,
+   "files": [
+    {
+     "file": "zen-dots-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 9
+    }
+   ]
+  },
+  {
+   "name": "Stalinist One",
+   "family": "Stalinist One",
+   "language": "wide",
+   "like": null,
+   "designer": "Alexey Maslov, Jovanny Lemonad",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/stalinistone",
+   "variable": false,
+   "files": [
+    {
+     "file": "stalinist-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 6
+    }
+   ]
+  },
+  {
+   "name": "Rammetto One",
+   "family": "Rammetto One",
+   "language": "wide",
+   "like": null,
+   "designer": "Vernon Adams",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/rammettoone",
+   "variable": false,
+   "files": [
+    {
+     "file": "rammetto-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 13
+    }
+   ]
+  },
+  {
+   "name": "Gasoek One",
+   "family": "Gasoek One",
+   "language": "wide",
+   "like": null,
+   "designer": "Jiashuo Zhang, JAMO",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/gasoekone",
+   "variable": false,
+   "files": [
+    {
+     "file": "gasoek-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 13
+    }
+   ]
+  },
+  {
+   "name": "Mona Sans",
+   "family": "Mona Sans",
+   "language": "wide",
+   "like": "Obviously Wide",
+   "designer": "Tobias Bjerrome Ahlin, GitHub, Degarism Studio, Sebastian Carewe",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/monasans",
+   "variable": true,
+   "axes": {
+    "wdth": [
+     75,
+     125
+    ],
+    "wght": [
+     200,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "mona-sans-var.woff2",
+     "weight": [
+      200,
+      900
+     ],
+     "italic": false,
+     "kb": 96
+    }
+   ]
+  },
+  {
+   "name": "Hubot Sans",
+   "family": "Hubot Sans",
+   "language": "wide",
+   "like": null,
+   "designer": "Tobias Bjerrome Ahlin, GitHub, Degarism Studio, Sebastian Carewe",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/hubotsans",
+   "variable": true,
+   "axes": {
+    "wdth": [
+     75,
+     125
+    ],
+    "wght": [
+     200,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "hubot-sans-var.woff2",
+     "weight": [
+      200,
+      900
+     ],
+     "italic": false,
+     "kb": 91
+    }
+   ]
+  },
+  {
+   "name": "Encode Sans Expanded",
+   "family": "Encode Sans Expanded",
+   "language": "wide",
+   "like": null,
+   "designer": "Impallari Type, Andres Torresi, Jacques Le Bailly",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/encodesansexpanded",
+   "variable": false,
+   "files": [
+    {
+     "file": "encode-sans-expanded-900.woff2",
+     "weight": 900,
+     "italic": false,
+     "kb": 16
+    }
+   ]
+  },
+  {
+   "name": "Goldman",
+   "family": "Goldman",
+   "language": "wide",
+   "like": null,
+   "designer": "Jaikishan Patel",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/goldman",
+   "variable": false,
+   "files": [
+    {
+     "file": "goldman-700.woff2",
+     "weight": 700,
+     "italic": false,
+     "kb": 11
+    }
+   ]
+  },
+  {
+   "name": "Red Rose",
+   "family": "Red Rose",
+   "language": "wide",
+   "like": null,
+   "designer": "Jaikishan Patel",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/redrose",
+   "variable": true,
+   "axes": {
+    "wght": [
+     300,
+     700
+    ]
+   },
+   "files": [
+    {
+     "file": "red-rose-var.woff2",
+     "weight": [
+      300,
+      700
+     ],
+     "italic": false,
+     "kb": 28
+    }
+   ]
+  },
+  {
+   "name": "Bowlby One",
+   "family": "Bowlby One",
+   "language": "wide",
+   "like": "Impact Wide",
+   "designer": "Vernon Adams",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/bowlbyone",
+   "variable": false,
+   "files": [
+    {
+     "file": "bowlby-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 21
+    }
+   ]
+  },
+  {
+   "name": "Poller One",
+   "family": "Poller One",
+   "language": "wide",
+   "like": null,
+   "designer": "Yvonne Schüttler",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/pollerone",
+   "variable": false,
+   "files": [
+    {
+     "file": "poller-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 10
+    }
+   ]
+  },
+  {
+   "name": "Wendy One",
+   "family": "Wendy One",
+   "language": "wide",
+   "like": null,
+   "designer": "Alejandro Inler",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/wendyone",
+   "variable": false,
+   "files": [
+    {
+     "file": "wendy-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 8
+    }
+   ]
+  },
+  {
+   "name": "Alumni Sans",
+   "family": "Alumni Sans",
+   "language": "compressed",
+   "like": "Tungsten",
+   "designer": "Robert Leuschke",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/alumnisans",
+   "variable": true,
+   "axes": {
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "alumni-sans-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 22
+    }
+   ]
+  },
+  {
+   "name": "Smooch Sans",
+   "family": "Smooch Sans",
+   "language": "compressed",
+   "like": "Druk Condensed",
+   "designer": "Robert Leuschke",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/smoochsans",
+   "variable": true,
+   "axes": {
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "smooch-sans-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 20
+    }
+   ]
+  },
+  {
+   "name": "Anton SC",
+   "family": "Anton SC",
+   "language": "compressed",
+   "like": null,
+   "designer": "Vernon Adams",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/antonsc",
+   "variable": false,
+   "files": [
+    {
+     "file": "anton-sc-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 14
+    }
+   ]
+  },
+  {
+   "name": "Saira Extra Condensed",
+   "family": "Saira Extra Condensed",
+   "language": "compressed",
+   "like": null,
+   "designer": "Omnibus-Type",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/sairaextracondensed",
+   "variable": false,
+   "files": [
+    {
+     "file": "saira-extra-condensed-800.woff2",
+     "weight": 800,
+     "italic": false,
+     "kb": 12
+    },
+    {
+     "file": "saira-extra-condensed-900.woff2",
+     "weight": 900,
+     "italic": false,
+     "kb": 11
+    }
+   ]
+  },
+  {
+   "name": "Fira Sans Extra Condensed",
+   "family": "Fira Sans Extra Condensed",
+   "language": "compressed",
+   "like": "Knockout",
+   "designer": "Carrois Apostrophe",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/firasansextracondensed",
+   "variable": false,
+   "files": [
+    {
+     "file": "fira-sans-extra-condensed-900.woff2",
+     "weight": 900,
+     "italic": false,
+     "kb": 17
+    },
+    {
+     "file": "fira-sans-extra-condensed-900i.woff2",
+     "weight": 900,
+     "italic": true,
+     "kb": 18
+    }
+   ]
+  },
+  {
+   "name": "Pathway Extreme",
+   "family": "Pathway Extreme",
+   "language": "compressed",
+   "like": null,
+   "designer": "Eduardo Tunni",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/pathwayextreme",
+   "variable": true,
+   "axes": {
+    "opsz": [
+     8,
+     144
+    ],
+    "wdth": [
+     75,
+     100
+    ],
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "pathway-extreme-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 57
+    }
+   ]
+  },
+  {
+   "name": "Stick No Bills",
+   "family": "Stick No Bills",
+   "language": "compressed",
+   "like": null,
+   "designer": "Mooniak",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/sticknobills",
+   "variable": true,
+   "axes": {
+    "wght": [
+     200,
+     800
+    ]
+   },
+   "files": [
+    {
+     "file": "stick-no-bills-var.woff2",
+     "weight": [
+      200,
+      800
+     ],
+     "italic": false,
+     "kb": 19
+    }
+   ]
+  },
+  {
+   "name": "Bahiana",
+   "family": "Bahiana",
+   "language": "compressed",
+   "like": null,
+   "designer": "Omnibus-Type",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/bahiana",
+   "variable": false,
+   "files": [
+    {
+     "file": "bahiana-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 10
+    }
+   ]
+  },
+  {
+   "name": "Bahianita",
+   "family": "Bahianita",
+   "language": "compressed",
+   "like": null,
+   "designer": "Omnibus-Type",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/bahianita",
+   "variable": false,
+   "files": [
+    {
+     "file": "bahianita-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 15
+    }
+   ]
+  },
+  {
+   "name": "Londrina Solid",
+   "family": "Londrina Solid",
+   "language": "compressed",
+   "like": null,
+   "designer": "Marcelo Magalhães",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/londrinasolid",
+   "variable": false,
+   "files": [
+    {
+     "file": "londrina-solid-900.woff2",
+     "weight": 900,
+     "italic": false,
+     "kb": 20
+    }
+   ]
+  },
+  {
+   "name": "Big Shoulders Inline Display",
+   "family": "Big Shoulders Inline Display",
+   "language": "compressed",
+   "like": null,
+   "designer": "Patric King",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/bigshouldersinlinedisplay",
+   "variable": true,
+   "axes": {
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "big-shoulders-inline-display-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 93
+    }
+   ]
+  },
+  {
+   "name": "Jockey One",
+   "family": "Jockey One",
+   "language": "compressed",
+   "like": null,
+   "designer": "TypeTogether",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/jockeyone",
+   "variable": false,
+   "files": [
+    {
+     "file": "jockey-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 9
+    }
+   ]
+  },
+  {
+   "name": "Germania One",
+   "family": "Germania One",
+   "language": "compressed",
+   "like": null,
+   "designer": "John Vargas Beltrán",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/germaniaone",
+   "variable": false,
+   "files": [
+    {
+     "file": "germania-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 9
+    }
+   ]
+  },
+  {
+   "name": "Imbue",
+   "family": "Imbue",
+   "language": "compressed",
+   "like": "Ogg Condensed",
+   "designer": "Tyler Finck, ETC",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/imbue",
+   "variable": true,
+   "axes": {
+    "opsz": [
+     10,
+     100
+    ],
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "imbue-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 27
+    }
+   ]
+  },
+  {
+   "name": "Truculenta",
+   "family": "Truculenta",
+   "language": "compressed",
+   "like": null,
+   "designer": "Omnibus-Type",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/truculenta",
+   "variable": true,
+   "axes": {
+    "opsz": [
+     12,
+     72
+    ],
+    "wdth": [
+     75,
+     125
+    ],
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "truculenta-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 144
+    }
+   ]
+  },
+  {
+   "name": "Kanit",
+   "family": "Kanit",
+   "language": "italic",
+   "like": "Sharp Grotesk Italic",
+   "designer": "Cadson Demak",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/kanit",
+   "variable": false,
+   "files": [
+    {
+     "file": "kanit-900.woff2",
+     "weight": 900,
+     "italic": false,
+     "kb": 10
+    },
+    {
+     "file": "kanit-900i.woff2",
+     "weight": 900,
+     "italic": true,
+     "kb": 11
+    }
+   ]
+  },
+  {
+   "name": "Exo 2",
+   "family": "Exo 2",
+   "language": "italic",
+   "like": null,
+   "designer": "Natanael Gama",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/exo2",
+   "variable": true,
+   "axes": {
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "exo-2-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 40
+    },
+    {
+     "file": "exo-2-vari.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": true,
+     "kb": 42
+    }
+   ]
+  },
+  {
+   "name": "Barlow Condensed Black",
+   "family": "Barlow Condensed",
+   "language": "italic",
+   "like": "DIN Condensed Italic",
+   "designer": "Jeremy Tribby",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/barlowcondensed",
+   "variable": false,
+   "files": [
+    {
+     "file": "barlow-condensed-black-900.woff2",
+     "weight": 900,
+     "italic": false,
+     "kb": 14
+    },
+    {
+     "file": "barlow-condensed-black-900i.woff2",
+     "weight": 900,
+     "italic": true,
+     "kb": 15
+    }
+   ]
+  },
+  {
+   "name": "Tomorrow",
+   "family": "Tomorrow",
+   "language": "italic",
+   "like": null,
+   "designer": "Tony de Marco, Monica Rizzolli",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/tomorrow",
+   "variable": false,
+   "files": [
+    {
+     "file": "tomorrow-900.woff2",
+     "weight": 900,
+     "italic": false,
+     "kb": 6
+    },
+    {
+     "file": "tomorrow-900i.woff2",
+     "weight": 900,
+     "italic": true,
+     "kb": 7
+    }
+   ]
+  },
+  {
+   "name": "Changa One",
+   "family": "Changa One",
+   "language": "italic",
+   "like": null,
+   "designer": "Eduardo Tunni",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/changaone",
+   "variable": false,
+   "files": [
+    {
+     "file": "changa-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 8
+    },
+    {
+     "file": "changa-one-400i.woff2",
+     "weight": 400,
+     "italic": true,
+     "kb": 8
+    }
+   ]
+  },
+  {
+   "name": "Fugaz One",
+   "family": "Fugaz One",
+   "language": "italic",
+   "like": null,
+   "designer": "LatinoType",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/fugazone",
+   "variable": false,
+   "files": [
+    {
+     "file": "fugaz-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 11
+    }
+   ]
+  },
+  {
+   "name": "Sarpanch",
+   "family": "Sarpanch",
+   "language": "tech",
+   "like": null,
+   "designer": "Indian Type Foundry",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/sarpanch",
+   "variable": false,
+   "files": [
+    {
+     "file": "sarpanch-900.woff2",
+     "weight": 900,
+     "italic": false,
+     "kb": 7
+    }
+   ]
+  },
+  {
+   "name": "Passero One",
+   "family": "Passero One",
+   "language": "tech",
+   "like": null,
+   "designer": "Viktoriya Grabowska",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/passeroone",
+   "variable": false,
+   "files": [
+    {
+     "file": "passero-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 13
+    }
+   ]
+  },
+  {
+   "name": "Kenia",
+   "family": "Kenia",
+   "language": "wild",
+   "like": null,
+   "designer": "Julia Petretta",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/kenia",
+   "variable": false,
+   "files": [
+    {
+     "file": "kenia-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 10
+    }
+   ]
+  },
+  {
+   "name": "Carter One",
+   "family": "Carter One",
+   "language": "italic",
+   "like": null,
+   "designer": "Vernon Adams",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/carterone",
+   "variable": false,
+   "files": [
+    {
+     "file": "carter-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 26
+    }
+   ]
+  },
+  {
+   "name": "Darker Grotesque",
+   "family": "Darker Grotesque",
+   "language": "grotesk",
+   "like": "Neue Machina",
+   "designer": "Gabriel Lam, ViệtAnh Nguyễn",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/darkergrotesque",
+   "variable": true,
+   "axes": {
+    "wght": [
+     300,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "darker-grotesque-var.woff2",
+     "weight": [
+      300,
+      900
+     ],
+     "italic": false,
+     "kb": 23
+    }
+   ]
+  },
+  {
+   "name": "Epilogue",
+   "family": "Epilogue",
+   "language": "grotesk",
+   "like": "Roobert",
+   "designer": "Tyler Finck, ETC",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/epilogue",
+   "variable": true,
+   "axes": {
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "epilogue-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 35
+    }
+   ]
+  },
+  {
+   "name": "Gabarito",
+   "family": "Gabarito",
+   "language": "grotesk",
+   "like": null,
+   "designer": "Naipe Foundry, Leandro Assis, Álvaro Franca, Felipe Casaprima",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/gabarito",
+   "variable": true,
+   "axes": {
+    "wght": [
+     400,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "gabarito-var.woff2",
+     "weight": [
+      400,
+      900
+     ],
+     "italic": false,
+     "kb": 34
+    }
+   ]
+  },
+  {
+   "name": "Funnel Display",
+   "family": "Funnel Display",
+   "language": "grotesk",
+   "like": null,
+   "designer": "NORD ID, Kristian Möller",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/funneldisplay",
+   "variable": true,
+   "axes": {
+    "wght": [
+     300,
+     800
+    ]
+   },
+   "files": [
+    {
+     "file": "funnel-display-var.woff2",
+     "weight": [
+      300,
+      800
+     ],
+     "italic": false,
+     "kb": 17
+    }
+   ]
+  },
+  {
+   "name": "Parkinsans",
+   "family": "Parkinsans",
+   "language": "grotesk",
+   "like": null,
+   "designer": "Red Stone",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/parkinsans",
+   "variable": true,
+   "axes": {
+    "wght": [
+     300,
+     800
+    ]
+   },
+   "files": [
+    {
+     "file": "parkinsans-var.woff2",
+     "weight": [
+      300,
+      800
+     ],
+     "italic": false,
+     "kb": 28
+    }
+   ]
+  },
+  {
+   "name": "Recursive",
+   "family": "Recursive",
+   "language": "grotesk",
+   "like": null,
+   "designer": "Arrow Type, Stephen Nixon",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/recursive",
+   "variable": true,
+   "axes": {
+    "CASL": [
+     0,
+     1
+    ],
+    "CRSV": [
+     0,
+     1
+    ],
+    "MONO": [
+     0,
+     1
+    ],
+    "slnt": [
+     -15,
+     0
+    ],
+    "wght": [
+     300,
+     1000
+    ]
+   },
+   "files": [
+    {
+     "file": "recursive-var.woff2",
+     "weight": [
+      300,
+      1000
+     ],
+     "italic": false,
+     "kb": 55
+    }
+   ]
+  },
+  {
+   "name": "Anek Latin",
+   "family": "Anek Latin",
+   "language": "grotesk",
+   "like": null,
+   "designer": "Ek Type",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/aneklatin",
+   "variable": true,
+   "axes": {
+    "wdth": [
+     75,
+     125
+    ],
+    "wght": [
+     100,
+     800
+    ]
+   },
+   "files": [
+    {
+     "file": "anek-latin-var.woff2",
+     "weight": [
+      100,
+      800
+     ],
+     "italic": false,
+     "kb": 101
+    }
+   ]
+  },
+  {
+   "name": "Montagu Slab",
+   "family": "Montagu Slab",
+   "language": "grotesk",
+   "like": null,
+   "designer": "Florian Karsten",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/montaguslab",
+   "variable": true,
+   "axes": {
+    "opsz": [
+     16,
+     144
+    ],
+    "wght": [
+     100,
+     700
+    ]
+   },
+   "files": [
+    {
+     "file": "montagu-slab-var.woff2",
+     "weight": [
+      100,
+      700
+     ],
+     "italic": false,
+     "kb": 46
+    }
+   ]
+  },
+  {
+   "name": "Caprasimo",
+   "family": "Caprasimo",
+   "language": "softserif",
+   "like": "Cooper Black",
+   "designer": "The DocRepair Project, Phaedra Charles, Flavia Zimbardi",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/caprasimo",
+   "variable": false,
+   "files": [
+    {
+     "file": "caprasimo-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 20
+    }
+   ]
+  },
+  {
+   "name": "Chonburi",
+   "family": "Chonburi",
+   "language": "softserif",
+   "like": "Windsor",
+   "designer": "Cadson Demak",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/chonburi",
+   "variable": false,
+   "files": [
+    {
+     "file": "chonburi-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 10
+    }
+   ]
+  },
+  {
+   "name": "Calistoga",
+   "family": "Calistoga",
+   "language": "softserif",
+   "like": "Recoleta Black",
+   "designer": "Yvonne Schüttler, Sorkin Type, Eben Sorkin",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/calistoga",
+   "variable": false,
+   "files": [
+    {
+     "file": "calistoga-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 31
+    }
+   ]
+  },
+  {
+   "name": "Rozha One",
+   "family": "Rozha One",
+   "language": "softserif",
+   "like": null,
+   "designer": "Indian Type Foundry",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/rozhaone",
+   "variable": false,
+   "files": [
+    {
+     "file": "rozha-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 10
+    }
+   ]
+  },
+  {
+   "name": "Yeseva One",
+   "family": "Yeseva One",
+   "language": "softserif",
+   "like": null,
+   "designer": "Jovanny Lemonad",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/yesevaone",
+   "variable": false,
+   "files": [
+    {
+     "file": "yeseva-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 11
+    }
+   ]
+  },
+  {
+   "name": "Gravitas One",
+   "family": "Gravitas One",
+   "language": "softserif",
+   "like": "Fat Face",
+   "designer": "Riccardo De Franceschi",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/gravitasone",
+   "variable": false,
+   "files": [
+    {
+     "file": "gravitas-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 13
+    }
+   ]
+  },
+  {
+   "name": "Erica One",
+   "family": "Erica One",
+   "language": "softserif",
+   "like": null,
+   "designer": "Miguel Hernandez",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/ericaone",
+   "variable": false,
+   "files": [
+    {
+     "file": "erica-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 8
+    }
+   ]
+  },
+  {
+   "name": "Lemon",
+   "family": "Lemon",
+   "language": "softserif",
+   "like": null,
+   "designer": "Eduardo Tunni",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/lemon",
+   "variable": false,
+   "files": [
+    {
+     "file": "lemon-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 15
+    }
+   ]
+  },
+  {
+   "name": "Corben",
+   "family": "Corben",
+   "language": "softserif",
+   "like": "Cooper",
+   "designer": "Vernon Adams",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/corben",
+   "variable": false,
+   "files": [
+    {
+     "file": "corben-700.woff2",
+     "weight": 700,
+     "italic": false,
+     "kb": 23
+    }
+   ]
+  },
+  {
+   "name": "Holtwood One SC",
+   "family": "Holtwood One SC",
+   "language": "softserif",
+   "like": null,
+   "designer": "Vernon Adams",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/holtwoodonesc",
+   "variable": false,
+   "files": [
+    {
+     "file": "holtwood-one-sc-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 12
+    }
+   ]
+  },
+  {
+   "name": "Bigshot One",
+   "family": "Bigshot One",
+   "language": "softserif",
+   "like": null,
+   "designer": "Gesine Todt",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/bigshotone",
+   "variable": false,
+   "files": [
+    {
+     "file": "bigshot-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 12
+    }
+   ]
+  },
+  {
+   "name": "Suez One",
+   "family": "Suez One",
+   "language": "softserif",
+   "like": null,
+   "designer": "Michal Sahar",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/suezone",
+   "variable": false,
+   "files": [
+    {
+     "file": "suez-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 14
+    }
+   ]
+  },
+  {
+   "name": "Sansita Swashed",
+   "family": "Sansita Swashed",
+   "language": "softserif",
+   "like": null,
+   "designer": "Omnibus-Type",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/sansitaswashed",
+   "variable": true,
+   "axes": {
+    "wght": [
+     300,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "sansita-swashed-var.woff2",
+     "weight": [
+      300,
+      900
+     ],
+     "italic": false,
+     "kb": 46
+    }
+   ]
+  },
+  {
+   "name": "Elsie Swash Caps",
+   "family": "Elsie Swash Caps",
+   "language": "softserif",
+   "like": null,
+   "designer": "Alejandro Inler",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/elsieswashcaps",
+   "variable": false,
+   "files": [
+    {
+     "file": "elsie-swash-caps-900.woff2",
+     "weight": 900,
+     "italic": false,
+     "kb": 12
+    }
+   ]
+  },
+  {
+   "name": "Sonsie One",
+   "family": "Sonsie One",
+   "language": "softserif",
+   "like": null,
+   "designer": "Riccardo De Franceschi",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/sonsieone",
+   "variable": false,
+   "files": [
+    {
+     "file": "sonsie-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 16
+    }
+   ]
+  },
+  {
+   "name": "Kavoon",
+   "family": "Kavoon",
+   "language": "softserif",
+   "like": null,
+   "designer": "Viktoriya Grabowska",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/kavoon",
+   "variable": false,
+   "files": [
+    {
+     "file": "kavoon-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 17
+    }
+   ]
+  },
+  {
+   "name": "Kalnia",
+   "family": "Kalnia",
+   "language": "contrast",
+   "like": "Didot Display",
+   "designer": "Frida Medrano",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/kalnia",
+   "variable": true,
+   "axes": {
+    "wdth": [
+     100,
+     125
+    ],
+    "wght": [
+     100,
+     700
+    ]
+   },
+   "files": [
+    {
+     "file": "kalnia-var.woff2",
+     "weight": [
+      100,
+      700
+     ],
+     "italic": false,
+     "kb": 46
+    }
+   ]
+  },
+  {
+   "name": "Playfair Display SC",
+   "family": "Playfair Display SC",
+   "language": "contrast",
+   "like": null,
+   "designer": "Claus Eggers Sørensen",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/playfairdisplaysc",
+   "variable": false,
+   "files": [
+    {
+     "file": "playfair-display-sc-900.woff2",
+     "weight": 900,
+     "italic": false,
+     "kb": 18
+    },
+    {
+     "file": "playfair-display-sc-900i.woff2",
+     "weight": 900,
+     "italic": true,
+     "kb": 18
+    }
+   ]
+  },
+  {
+   "name": "Libre Bodoni",
+   "family": "Libre Bodoni",
+   "language": "contrast",
+   "like": "Bodoni Poster",
+   "designer": "Pablo Impallari, Rodrigo Fuenzalida",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/librebodoni",
+   "variable": true,
+   "axes": {
+    "wght": [
+     400,
+     700
+    ]
+   },
+   "files": [
+    {
+     "file": "libre-bodoni-var.woff2",
+     "weight": [
+      400,
+      700
+     ],
+     "italic": false,
+     "kb": 26
+    }
+   ]
+  },
+  {
+   "name": "Cormorant Unicase",
+   "family": "Cormorant Unicase",
+   "language": "contrast",
+   "like": null,
+   "designer": "Christian Thalmann",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/cormorantunicase",
+   "variable": false,
+   "files": [
+    {
+     "file": "cormorant-unicase-700.woff2",
+     "weight": 700,
+     "italic": false,
+     "kb": 20
+    }
+   ]
+  },
+  {
+   "name": "Limelight",
+   "family": "Limelight",
+   "language": "contrast",
+   "like": "Broadway",
+   "designer": "Nicole Fally, Sorkin Type",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/limelight",
+   "variable": false,
+   "files": [
+    {
+     "file": "limelight-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 13
+    }
+   ]
+  },
+  {
+   "name": "Diplomata",
+   "family": "Diplomata",
+   "language": "contrast",
+   "like": null,
+   "designer": "Eduardo Tunni",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/diplomata",
+   "variable": false,
+   "files": [
+    {
+     "file": "diplomata-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 16
+    }
+   ]
+  },
+  {
+   "name": "Besley",
+   "family": "Besley",
+   "language": "contrast",
+   "like": "Clarendon",
+   "designer": "Owen Earl",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/besley",
+   "variable": true,
+   "axes": {
+    "wght": [
+     400,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "besley-var.woff2",
+     "weight": [
+      400,
+      900
+     ],
+     "italic": false,
+     "kb": 36
+    }
+   ]
+  },
+  {
+   "name": "Hepta Slab",
+   "family": "Hepta Slab",
+   "language": "contrast",
+   "like": null,
+   "designer": "Mike LaGattuta",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/heptaslab",
+   "variable": true,
+   "axes": {
+    "wght": [
+     1,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "hepta-slab-var.woff2",
+     "weight": [
+      1,
+      900
+     ],
+     "italic": false,
+     "kb": 69
+    }
+   ]
+  },
+  {
+   "name": "Alumni Sans Collegiate One",
+   "family": "Alumni Sans Collegiate One",
+   "language": "slab",
+   "like": "Varsity",
+   "designer": "Robert Leuschke",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/alumnisanscollegiateone",
+   "variable": false,
+   "files": [
+    {
+     "file": "alumni-sans-collegiate-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 22
+    }
+   ]
+  },
+  {
+   "name": "Sancreek",
+   "family": "Sancreek",
+   "language": "slab",
+   "like": "Wood type",
+   "designer": "Vernon Adams",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/sancreek",
+   "variable": false,
+   "files": [
+    {
+     "file": "sancreek-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 20
+    }
+   ]
+  },
+  {
+   "name": "Ewert",
+   "family": "Ewert",
+   "language": "slab",
+   "like": null,
+   "designer": "Johan Kallas, Mihkel Virkus",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/ewert",
+   "variable": false,
+   "files": [
+    {
+     "file": "ewert-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 13
+    }
+   ]
+  },
+  {
+   "name": "Arbutus",
+   "family": "Arbutus",
+   "language": "slab",
+   "like": null,
+   "designer": "Karolina Lach",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/arbutus",
+   "variable": false,
+   "files": [
+    {
+     "file": "arbutus-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 25
+    }
+   ]
+  },
+  {
+   "name": "Chela One",
+   "family": "Chela One",
+   "language": "slab",
+   "like": null,
+   "designer": "Miguel Hernandez",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/chelaone",
+   "variable": false,
+   "files": [
+    {
+     "file": "chela-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 12
+    }
+   ]
+  },
+  {
+   "name": "Zilla Slab Highlight",
+   "family": "Zilla Slab Highlight",
+   "language": "slab",
+   "like": null,
+   "designer": "Typotheque",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/zillaslabhighlight",
+   "variable": false,
+   "files": [
+    {
+     "file": "zilla-slab-highlight-700.woff2",
+     "weight": 700,
+     "italic": false,
+     "kb": 14
+    }
+   ]
+  },
+  {
+   "name": "Ranchers",
+   "family": "Ranchers",
+   "language": "slab",
+   "like": null,
+   "designer": "Impallari Type",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/ranchers",
+   "variable": false,
+   "files": [
+    {
+     "file": "ranchers-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 17
+    }
+   ]
+  },
+  {
+   "name": "Emblema One",
+   "family": "Emblema One",
+   "language": "slab",
+   "like": null,
+   "designer": "Riccardo De Franceschi",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/emblemaone",
+   "variable": false,
+   "files": [
+    {
+     "file": "emblema-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 12
+    }
+   ]
+  },
+  {
+   "name": "Keania One",
+   "family": "Keania One",
+   "language": "slab",
+   "like": null,
+   "designer": "Julia Petretta",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/keaniaone",
+   "variable": false,
+   "files": [
+    {
+     "file": "keania-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 10
+    }
+   ]
+  },
+  {
+   "name": "Plaster",
+   "family": "Plaster",
+   "language": "slab",
+   "like": null,
+   "designer": "Sorkin Type",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/plaster",
+   "variable": false,
+   "files": [
+    {
+     "file": "plaster-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 8
+    }
+   ]
+  },
+  {
+   "name": "Tourney",
+   "family": "Tourney",
+   "language": "slab",
+   "like": "Athletic inline",
+   "designer": "Tyler Finck, ETC",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/tourney",
+   "variable": true,
+   "axes": {
+    "wdth": [
+     75,
+     125
+    ],
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "tourney-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 23
+    }
+   ]
+  },
+  {
+   "name": "UnifrakturCook",
+   "family": "UnifrakturCook",
+   "language": "blackletter",
+   "like": "Fette Fraktur",
+   "designer": "j. \\'mach\\' wust",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/unifrakturcook",
+   "variable": false,
+   "files": [
+    {
+     "file": "unifrakturcook-700.woff2",
+     "weight": 700,
+     "italic": false,
+     "kb": 17
+    }
+   ]
+  },
+  {
+   "name": "Jacquard 24",
+   "family": "Jacquard 24",
+   "language": "blackletter",
+   "like": null,
+   "designer": "Sarah Cadigan-Fried",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/jacquard24",
+   "variable": false,
+   "files": [
+    {
+     "file": "jacquard-24-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 7
+    }
+   ]
+  },
+  {
+   "name": "Jacquard 12",
+   "family": "Jacquard 12",
+   "language": "blackletter",
+   "like": null,
+   "designer": "Sarah Cadigan-Fried",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/jacquard12",
+   "variable": false,
+   "files": [
+    {
+     "file": "jacquard-12-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 7
+    }
+   ]
+  },
+  {
+   "name": "Texturina",
+   "family": "Texturina",
+   "language": "blackletter",
+   "like": null,
+   "designer": "Guillermo Torres, Omnibus-Type",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/texturina",
+   "variable": true,
+   "axes": {
+    "opsz": [
+     12,
+     72
+    ],
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "texturina-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 50
+    }
+   ]
+  },
+  {
+   "name": "Fruktur",
+   "family": "Fruktur",
+   "language": "blackletter",
+   "like": null,
+   "designer": "Viktoriya Grabowska, Eben Sorkin",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/fruktur",
+   "variable": false,
+   "files": [
+    {
+     "file": "fruktur-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 42
+    }
+   ]
+  },
+  {
+   "name": "Uncial Antiqua",
+   "family": "Uncial Antiqua",
+   "language": "blackletter",
+   "like": null,
+   "designer": "Astigmatic",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/uncialantiqua",
+   "variable": false,
+   "files": [
+    {
+     "file": "uncial-antiqua-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 19
+    }
+   ]
+  },
+  {
+   "name": "Almendra",
+   "family": "Almendra",
+   "language": "blackletter",
+   "like": null,
+   "designer": "Ana Sanfelippo",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/almendra",
+   "variable": false,
+   "files": [
+    {
+     "file": "almendra-700.woff2",
+     "weight": 700,
+     "italic": false,
+     "kb": 11
+    }
+   ]
+  },
+  {
+   "name": "Sriracha",
+   "family": "Sriracha",
+   "language": "script",
+   "like": null,
+   "designer": "Cadson Demak",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/sriracha",
+   "variable": false,
+   "files": [
+    {
+     "file": "sriracha-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 25
+    }
+   ]
+  },
+  {
+   "name": "Damion",
+   "family": "Damion",
+   "language": "script",
+   "like": null,
+   "designer": "Vernon Adams",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/damion",
+   "variable": false,
+   "files": [
+    {
+     "file": "damion-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 18
+    }
+   ]
+  },
+  {
+   "name": "Leckerli One",
+   "family": "Leckerli One",
+   "language": "script",
+   "like": null,
+   "designer": "Gesine Todt",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/leckerlione",
+   "variable": false,
+   "files": [
+    {
+     "file": "leckerli-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 16
+    }
+   ]
+  },
+  {
+   "name": "Oleo Script",
+   "family": "Oleo Script",
+   "language": "script",
+   "like": null,
+   "designer": "soytutype fonts",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/oleoscript",
+   "variable": false,
+   "files": [
+    {
+     "file": "oleo-script-700.woff2",
+     "weight": 700,
+     "italic": false,
+     "kb": 13
+    }
+   ]
+  },
+  {
+   "name": "Oleo Script Swash Caps",
+   "family": "Oleo Script Swash Caps",
+   "language": "script",
+   "like": null,
+   "designer": "soytutype fonts",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/oleoscriptswashcaps",
+   "variable": false,
+   "files": [
+    {
+     "file": "oleo-script-swash-caps-700.woff2",
+     "weight": 700,
+     "italic": false,
+     "kb": 15
+    }
+   ]
+  },
+  {
+   "name": "Playball",
+   "family": "Playball",
+   "language": "script",
+   "like": null,
+   "designer": "Robert Leuschke",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/playball",
+   "variable": false,
+   "files": [
+    {
+     "file": "playball-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 31
+    }
+   ]
+  },
+  {
+   "name": "Pattaya",
+   "family": "Pattaya",
+   "language": "script",
+   "like": null,
+   "designer": "Cadson Demak",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/pattaya",
+   "variable": false,
+   "files": [
+    {
+     "file": "pattaya-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 17
+    }
+   ]
+  },
+  {
+   "name": "Yesteryear",
+   "family": "Yesteryear",
+   "language": "script",
+   "like": null,
+   "designer": "Astigmatic",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/yesteryear",
+   "variable": false,
+   "files": [
+    {
+     "file": "yesteryear-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 22
+    }
+   ]
+  },
+  {
+   "name": "Galada",
+   "family": "Galada",
+   "language": "script",
+   "like": null,
+   "designer": "Black Foundry",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/galada",
+   "variable": false,
+   "files": [
+    {
+     "file": "galada-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 11
+    }
+   ]
+  },
+  {
+   "name": "Berkshire Swash",
+   "family": "Berkshire Swash",
+   "language": "script",
+   "like": null,
+   "designer": "Astigmatic",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/berkshireswash",
+   "variable": false,
+   "files": [
+    {
+     "file": "berkshire-swash-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 17
+    }
+   ]
+  },
+  {
+   "name": "Lily Script One",
+   "family": "Lily Script One",
+   "language": "script",
+   "like": null,
+   "designer": "Julia Petretta",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/lilyscriptone",
+   "variable": false,
+   "files": [
+    {
+     "file": "lily-script-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 13
+    }
+   ]
+  },
+  {
+   "name": "Spicy Rice",
+   "family": "Spicy Rice",
+   "language": "script",
+   "like": null,
+   "designer": "Astigmatic",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/spicyrice",
+   "variable": false,
+   "files": [
+    {
+     "file": "spicy-rice-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 22
+    }
+   ]
+  },
+  {
+   "name": "Caveat Brush",
+   "family": "Caveat Brush",
+   "language": "script",
+   "like": null,
+   "designer": "Impallari Type",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/caveatbrush",
+   "variable": false,
+   "files": [
+    {
+     "file": "caveat-brush-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 51
+    }
+   ]
+  },
+  {
+   "name": "Gochi Hand",
+   "family": "Gochi Hand",
+   "language": "hand",
+   "like": null,
+   "designer": "HT Fonts",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/gochihand",
+   "variable": false,
+   "files": [
+    {
+     "file": "gochi-hand-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 19
+    }
+   ]
+  },
+  {
+   "name": "Finger Paint",
+   "family": "Finger Paint",
+   "language": "hand",
+   "like": null,
+   "designer": "Carrois Apostrophe",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/fingerpaint",
+   "variable": false,
+   "files": [
+    {
+     "file": "finger-paint-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 50
+    }
+   ]
+  },
+  {
+   "name": "Fuzzy Bubbles",
+   "family": "Fuzzy Bubbles",
+   "language": "hand",
+   "like": null,
+   "designer": "Robert Leuschke",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/fuzzybubbles",
+   "variable": false,
+   "files": [
+    {
+     "file": "fuzzy-bubbles-700.woff2",
+     "weight": 700,
+     "italic": false,
+     "kb": 18
+    }
+   ]
+  },
+  {
+   "name": "Shantell Sans",
+   "family": "Shantell Sans",
+   "language": "hand",
+   "like": null,
+   "designer": "Shantell Martin, Arrow Type, Anya Danilova",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/shantellsans",
+   "variable": true,
+   "axes": {
+    "BNCE": [
+     -100,
+     100
+    ],
+    "INFM": [
+     0,
+     100
+    ],
+    "SPAC": [
+     0,
+     100
+    ],
+    "wght": [
+     300,
+     800
+    ]
+   },
+   "files": [
+    {
+     "file": "shantell-sans-var.woff2",
+     "weight": [
+      300,
+      800
+     ],
+     "italic": false,
+     "kb": 78
+    }
+   ]
+  },
+  {
+   "name": "Barriecito",
+   "family": "Barriecito",
+   "language": "hand",
+   "like": null,
+   "designer": "Omnibus-Type",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/barriecito",
+   "variable": false,
+   "files": [
+    {
+     "file": "barriecito-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 36
+    }
+   ]
+  },
+  {
+   "name": "Barrio",
+   "family": "Barrio",
+   "language": "hand",
+   "like": null,
+   "designer": "Omnibus-Type",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/barrio",
+   "variable": false,
+   "files": [
+    {
+     "file": "barrio-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 26
+    }
+   ]
+  },
+  {
+   "name": "Rubik Spray Paint",
+   "family": "Rubik Spray Paint",
+   "language": "hand",
+   "like": null,
+   "designer": "NaN, Luke Prowse",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/rubikspraypaint",
+   "variable": false,
+   "files": [
+    {
+     "file": "rubik-spray-paint-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 117
+    }
+   ]
+  },
+  {
+   "name": "Bagel Fat One",
+   "family": "Bagel Fat One",
+   "language": "chunky",
+   "like": null,
+   "designer": "Kyungwon Kim, JAMO",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/bagelfatone",
+   "variable": false,
+   "files": [
+    {
+     "file": "bagel-fat-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 16
+    }
+   ]
+  },
+  {
+   "name": "Cherry Bomb One",
+   "family": "Cherry Bomb One",
+   "language": "chunky",
+   "like": null,
+   "designer": "Satsuyako",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/cherrybombone",
+   "variable": false,
+   "files": [
+    {
+     "file": "cherry-bomb-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 16
+    }
+   ]
+  },
+  {
+   "name": "Sour Gummy",
+   "family": "Sour Gummy",
+   "language": "chunky",
+   "like": null,
+   "designer": "Stefie Justprince",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/sourgummy",
+   "variable": true,
+   "axes": {
+    "wdth": [
+     100,
+     125
+    ],
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "sour-gummy-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 31
+    }
+   ]
+  },
+  {
+   "name": "DynaPuff",
+   "family": "DynaPuff",
+   "language": "chunky",
+   "like": null,
+   "designer": "Toshi Omagari, Jennifer Daniel",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/dynapuff",
+   "variable": true,
+   "axes": {
+    "wdth": [
+     75,
+     100
+    ],
+    "wght": [
+     400,
+     700
+    ]
+   },
+   "files": [
+    {
+     "file": "dynapuff-var.woff2",
+     "weight": [
+      400,
+      700
+     ],
+     "italic": false,
+     "kb": 37
+    }
+   ]
+  },
+  {
+   "name": "Coiny",
+   "family": "Coiny",
+   "language": "chunky",
+   "like": null,
+   "designer": "Marcelo Magalhães",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/coiny",
+   "variable": false,
+   "files": [
+    {
+     "file": "coiny-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 15
+    }
+   ]
+  },
+  {
+   "name": "Gluten",
+   "family": "Gluten",
+   "language": "chunky",
+   "like": null,
+   "designer": "Tyler Finck, ETC",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/gluten",
+   "variable": true,
+   "axes": {
+    "slnt": [
+     -13,
+     13
+    ],
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "gluten-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 48
+    }
+   ]
+  },
+  {
+   "name": "Grandstander",
+   "family": "Grandstander",
+   "language": "chunky",
+   "like": null,
+   "designer": "Tyler Finck, ETC",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/grandstander",
+   "variable": true,
+   "axes": {
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "grandstander-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 41
+    }
+   ]
+  },
+  {
+   "name": "Boogaloo",
+   "family": "Boogaloo",
+   "language": "chunky",
+   "like": null,
+   "designer": "John Vargas Beltrán",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/boogaloo",
+   "variable": false,
+   "files": [
+    {
+     "file": "boogaloo-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 10
+    }
+   ]
+  },
+  {
+   "name": "Chicle",
+   "family": "Chicle",
+   "language": "chunky",
+   "like": null,
+   "designer": "Sudtipos",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/chicle",
+   "variable": false,
+   "files": [
+    {
+     "file": "chicle-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 14
+    }
+   ]
+  },
+  {
+   "name": "Modak",
+   "family": "Modak",
+   "language": "chunky",
+   "like": null,
+   "designer": "Ek Type",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/modak",
+   "variable": false,
+   "files": [
+    {
+     "file": "modak-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 22
+    }
+   ]
+  },
+  {
+   "name": "Sigmar",
+   "family": "Sigmar",
+   "language": "chunky",
+   "like": null,
+   "designer": "Vernon Adams",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/sigmar",
+   "variable": false,
+   "files": [
+    {
+     "file": "sigmar-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 32
+    }
+   ]
+  },
+  {
+   "name": "Darumadrop One",
+   "family": "Darumadrop One",
+   "language": "chunky",
+   "like": null,
+   "designer": "Maniackers Design",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/darumadropone",
+   "variable": false,
+   "files": [
+    {
+     "file": "darumadrop-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 62
+    }
+   ]
+  },
+  {
+   "name": "Mochiy Pop One",
+   "family": "Mochiy Pop One",
+   "language": "chunky",
+   "like": null,
+   "designer": "FONTDASU",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/mochiypopone",
+   "variable": false,
+   "files": [
+    {
+     "file": "mochiy-pop-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 18
+    }
+   ]
+  },
+  {
+   "name": "Rubik Bubbles",
+   "family": "Rubik Bubbles",
+   "language": "chunky",
+   "like": null,
+   "designer": "NaN, Luke Prowse",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/rubikbubbles",
+   "variable": false,
+   "files": [
+    {
+     "file": "rubik-bubbles-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 40
+    }
+   ]
+  },
+  {
+   "name": "Galindo",
+   "family": "Galindo",
+   "language": "chunky",
+   "like": null,
+   "designer": "Astigmatic",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/galindo",
+   "variable": false,
+   "files": [
+    {
+     "file": "galindo-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 19
+    }
+   ]
+  },
+  {
+   "name": "Skranji",
+   "family": "Skranji",
+   "language": "chunky",
+   "like": null,
+   "designer": "Neapolitan",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/skranji",
+   "variable": false,
+   "files": [
+    {
+     "file": "skranji-700.woff2",
+     "weight": 700,
+     "italic": false,
+     "kb": 66
+    }
+   ]
+  },
+  {
+   "name": "Oi",
+   "family": "Oi",
+   "language": "chunky",
+   "like": null,
+   "designer": "Kostas Bartsokas",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/oi",
+   "variable": false,
+   "files": [
+    {
+     "file": "oi-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 26
+    }
+   ]
+  },
+  {
+   "name": "Ceviche One",
+   "family": "Ceviche One",
+   "language": "chunky",
+   "like": null,
+   "designer": "Miguel Hernandez",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/cevicheone",
+   "variable": false,
+   "files": [
+    {
+     "file": "ceviche-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 14
+    }
+   ]
+  },
+  {
+   "name": "Shojumaru",
+   "family": "Shojumaru",
+   "language": "chunky",
+   "like": null,
+   "designer": "Astigmatic",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/shojumaru",
+   "variable": false,
+   "files": [
+    {
+     "file": "shojumaru-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 24
+    }
+   ]
+  },
+  {
+   "name": "Potta One",
+   "family": "Potta One",
+   "language": "chunky",
+   "like": null,
+   "designer": "Font Zone 108",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/pottaone",
+   "variable": false,
+   "files": [
+    {
+     "file": "potta-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 25
+    }
+   ]
+  },
+  {
+   "name": "Matemasie",
+   "family": "Matemasie",
+   "language": "chunky",
+   "like": null,
+   "designer": "Adam Yeo",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/matemasie",
+   "variable": false,
+   "files": [
+    {
+     "file": "matemasie-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 31
+    }
+   ]
+  },
+  {
+   "name": "Danfo",
+   "family": "Danfo",
+   "language": "chunky",
+   "like": null,
+   "designer": "Afrotype, Seyi Olusanya, Eyiyemi Adegbite, David Udoh, Mirko Velimirović",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/danfo",
+   "variable": false,
+   "files": [
+    {
+     "file": "danfo-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 10
+    }
+   ]
+  },
+  {
+   "name": "Protest Strike",
+   "family": "Protest Strike",
+   "language": "chunky",
+   "like": null,
+   "designer": "Octavio Pardo",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/proteststrike",
+   "variable": false,
+   "files": [
+    {
+     "file": "protest-strike-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 12
+    }
+   ]
+  },
+  {
+   "name": "Protest Guerrilla",
+   "family": "Protest Guerrilla",
+   "language": "chunky",
+   "like": null,
+   "designer": "Octavio Pardo",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/protestguerrilla",
+   "variable": false,
+   "files": [
+    {
+     "file": "protest-guerrilla-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 12
+    }
+   ]
+  },
+  {
+   "name": "Protest Revolution",
+   "family": "Protest Revolution",
+   "language": "chunky",
+   "like": null,
+   "designer": "Octavio Pardo",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/protestrevolution",
+   "variable": false,
+   "files": [
+    {
+     "file": "protest-revolution-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 153
+    }
+   ]
+  },
+  {
+   "name": "Protest Riot",
+   "family": "Protest Riot",
+   "language": "chunky",
+   "like": null,
+   "designer": "Octavio Pardo",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/protestriot",
+   "variable": false,
+   "files": [
+    {
+     "file": "protest-riot-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 18
+    }
+   ]
+  },
+  {
+   "name": "Oxanium",
+   "family": "Oxanium",
+   "language": "tech",
+   "like": null,
+   "designer": "Severin Meyer",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/oxanium",
+   "variable": true,
+   "axes": {
+    "wght": [
+     200,
+     800
+    ]
+   },
+   "files": [
+    {
+     "file": "oxanium-var.woff2",
+     "weight": [
+      200,
+      800
+     ],
+     "italic": false,
+     "kb": 12
+    }
+   ]
+  },
+  {
+   "name": "Tektur",
+   "family": "Tektur",
+   "language": "tech",
+   "like": null,
+   "designer": "Adam Jagosz",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/tektur",
+   "variable": true,
+   "axes": {
+    "wdth": [
+     75,
+     100
+    ],
+    "wght": [
+     400,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "tektur-var.woff2",
+     "weight": [
+      400,
+      900
+     ],
+     "italic": false,
+     "kb": 12
+    }
+   ]
+  },
+  {
+   "name": "Turret Road",
+   "family": "Turret Road",
+   "language": "tech",
+   "like": null,
+   "designer": "Dale Sattler",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/turretroad",
+   "variable": false,
+   "files": [
+    {
+     "file": "turret-road-800.woff2",
+     "weight": 800,
+     "italic": false,
+     "kb": 8
+    }
+   ]
+  },
+  {
+   "name": "Bruno Ace SC",
+   "family": "Bruno Ace SC",
+   "language": "tech",
+   "like": null,
+   "designer": "Astigmatic",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/brunoacesc",
+   "variable": false,
+   "files": [
+    {
+     "file": "bruno-ace-sc-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 11
+    }
+   ]
+  },
+  {
+   "name": "Iceberg",
+   "family": "Iceberg",
+   "language": "tech",
+   "like": null,
+   "designer": "Cyreal",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/iceberg",
+   "variable": false,
+   "files": [
+    {
+     "file": "iceberg-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 6
+    }
+   ]
+  },
+  {
+   "name": "Revalia",
+   "family": "Revalia",
+   "language": "tech",
+   "like": null,
+   "designer": "Johan Kallas, Mihkel Virkus",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/revalia",
+   "variable": false,
+   "files": [
+    {
+     "file": "revalia-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 12
+    }
+   ]
+  },
+  {
+   "name": "Tilt Neon",
+   "family": "Tilt Neon",
+   "language": "tech",
+   "like": null,
+   "designer": "Andy Clymer",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/tiltneon",
+   "variable": false,
+   "files": [
+    {
+     "file": "tilt-neon-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 19
+    }
+   ]
+  },
+  {
+   "name": "Tilt Prism",
+   "family": "Tilt Prism",
+   "language": "tech",
+   "like": null,
+   "designer": "Andy Clymer",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/tiltprism",
+   "variable": false,
+   "files": [
+    {
+     "file": "tilt-prism-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 38
+    }
+   ]
+  },
+  {
+   "name": "Martian Mono",
+   "family": "Martian Mono",
+   "language": "tech",
+   "like": null,
+   "designer": "Roman Shamin, Evil Martians",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/martianmono",
+   "variable": true,
+   "axes": {
+    "wdth": [
+     75,
+     112.5
+    ],
+    "wght": [
+     100,
+     800
+    ]
+   },
+   "files": [
+    {
+     "file": "martian-mono-var.woff2",
+     "weight": [
+      100,
+      800
+     ],
+     "italic": false,
+     "kb": 37
+    }
+   ]
+  },
+  {
+   "name": "Azeret Mono",
+   "family": "Azeret Mono",
+   "language": "tech",
+   "like": null,
+   "designer": "Displaay, Martin Vácha",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/azeretmono",
+   "variable": true,
+   "axes": {
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "azeret-mono-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 26
+    }
+   ]
+  },
+  {
+   "name": "Kode Mono",
+   "family": "Kode Mono",
+   "language": "tech",
+   "like": null,
+   "designer": "Isa Ozler",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/kodemono",
+   "variable": true,
+   "axes": {
+    "ROND": [
+     0,
+     100
+    ],
+    "wdth": [
+     75,
+     125
+    ],
+    "wght": [
+     400,
+     700
+    ]
+   },
+   "files": [
+    {
+     "file": "kode-mono-var.woff2",
+     "weight": [
+      400,
+      700
+     ],
+     "italic": false,
+     "kb": 20
+    }
+   ]
+  },
+  {
+   "name": "Pixelify Sans",
+   "family": "Pixelify Sans",
+   "language": "pixel",
+   "like": null,
+   "designer": "Stefie Justprince",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/pixelifysans",
+   "variable": true,
+   "axes": {
+    "wght": [
+     400,
+     700
+    ]
+   },
+   "files": [
+    {
+     "file": "pixelify-sans-var.woff2",
+     "weight": [
+      400,
+      700
+     ],
+     "italic": false,
+     "kb": 12
+    }
+   ]
+  },
+  {
+   "name": "Silkscreen",
+   "family": "Silkscreen",
+   "language": "pixel",
+   "like": null,
+   "designer": "Jason Kottke",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/silkscreen",
+   "variable": false,
+   "files": [
+    {
+     "file": "silkscreen-700.woff2",
+     "weight": 700,
+     "italic": false,
+     "kb": 3
+    }
+   ]
+  },
+  {
+   "name": "VT323",
+   "family": "VT323",
+   "language": "pixel",
+   "like": null,
+   "designer": "Peter Hull",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/vt323",
+   "variable": false,
+   "files": [
+    {
+     "file": "vt323-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 7
+    }
+   ]
+  },
+  {
+   "name": "Handjet",
+   "family": "Handjet",
+   "language": "pixel",
+   "like": null,
+   "designer": "Rosetta, David Březina",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/handjet",
+   "variable": true,
+   "axes": {
+    "ELGR": [
+     1,
+     2
+    ],
+    "ELSH": [
+     0,
+     16
+    ],
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "handjet-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 7
+    }
+   ]
+  },
+  {
+   "name": "Tiny5",
+   "family": "Tiny5",
+   "language": "pixel",
+   "like": null,
+   "designer": "Stefan Schmidt",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/tiny5",
+   "variable": true,
+   "axes": {
+    "BLED": [
+     0,
+     100
+    ],
+    "JITT": [
+     0,
+     100
+    ],
+    "ROND": [
+     0,
+     100
+    ],
+    "wdth": [
+     50,
+     200
+    ],
+    "wght": [
+     100,
+     900
+    ]
+   },
+   "files": [
+    {
+     "file": "tiny5-var.woff2",
+     "weight": [
+      100,
+      900
+     ],
+     "italic": false,
+     "kb": 4
+    }
+   ]
+  },
+  {
+   "name": "Jersey 10",
+   "family": "Jersey 10",
+   "language": "pixel",
+   "like": null,
+   "designer": "Sarah Cadigan-Fried",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/jersey10",
+   "variable": false,
+   "files": [
+    {
+     "file": "jersey-10-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 5
+    }
+   ]
+  },
+  {
+   "name": "Jersey 25",
+   "family": "Jersey 25",
+   "language": "pixel",
+   "like": null,
+   "designer": "Sarah Cadigan-Fried",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/jersey25",
+   "variable": false,
+   "files": [
+    {
+     "file": "jersey-25-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 6
+    }
+   ]
+  },
+  {
+   "name": "Sixtyfour",
+   "family": "Sixtyfour",
+   "language": "pixel",
+   "like": null,
+   "designer": "Jens Kutílek",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/sixtyfour",
+   "variable": false,
+   "files": [
+    {
+     "file": "sixtyfour-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 3
+    }
+   ]
+  },
+  {
+   "name": "Workbench",
+   "family": "Workbench",
+   "language": "pixel",
+   "like": null,
+   "designer": "Jens Kutílek",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/workbench",
+   "variable": false,
+   "files": [
+    {
+     "file": "workbench-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 3
+    }
+   ]
+  },
+  {
+   "name": "Rubik Broken Fax",
+   "family": "Rubik Broken Fax",
+   "language": "pixel",
+   "like": null,
+   "designer": "NaN, Luke Prowse",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/rubikbrokenfax",
+   "variable": false,
+   "files": [
+    {
+     "file": "rubik-broken-fax-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 73
+    }
+   ]
+  },
+  {
+   "name": "Fascinate Inline",
+   "family": "Fascinate Inline",
+   "language": "deco",
+   "like": null,
+   "designer": "Astigmatic",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/fascinateinline",
+   "variable": false,
+   "files": [
+    {
+     "file": "fascinate-inline-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 18
+    }
+   ]
+  },
+  {
+   "name": "Bungee Inline",
+   "family": "Bungee Inline",
+   "language": "deco",
+   "like": null,
+   "designer": "David Jonathan Ross",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/bungeeinline",
+   "variable": false,
+   "files": [
+    {
+     "file": "bungee-inline-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 20
+    }
+   ]
+  },
+  {
+   "name": "Londrina Shadow",
+   "family": "Londrina Shadow",
+   "language": "deco",
+   "like": null,
+   "designer": "Marcelo Magalhães",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/londrinashadow",
+   "variable": false,
+   "files": [
+    {
+     "file": "londrina-shadow-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 34
+    }
+   ]
+  },
+  {
+   "name": "Zen Tokyo Zoo",
+   "family": "Zen Tokyo Zoo",
+   "language": "deco",
+   "like": null,
+   "designer": "Yoshimichi Ohira",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/zentokyozoo",
+   "variable": false,
+   "files": [
+    {
+     "file": "zen-tokyo-zoo-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 13
+    }
+   ]
+  },
+  {
+   "name": "Train One",
+   "family": "Train One",
+   "language": "deco",
+   "like": null,
+   "designer": "Fontworks Inc.",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/trainone",
+   "variable": false,
+   "files": [
+    {
+     "file": "train-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 32
+    }
+   ]
+  },
+  {
+   "name": "Rampart One",
+   "family": "Rampart One",
+   "language": "deco",
+   "like": null,
+   "designer": "Fontworks Inc.",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/rampartone",
+   "variable": false,
+   "files": [
+    {
+     "file": "rampart-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 38
+    }
+   ]
+  },
+  {
+   "name": "Monofett",
+   "family": "Monofett",
+   "language": "deco",
+   "like": null,
+   "designer": "Vernon Adams",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/monofett",
+   "variable": false,
+   "files": [
+    {
+     "file": "monofett-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 8
+    }
+   ]
+  },
+  {
+   "name": "Alumni Sans Inline One",
+   "family": "Alumni Sans Inline One",
+   "language": "deco",
+   "like": null,
+   "designer": "Robert Leuschke",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/alumnisansinlineone",
+   "variable": false,
+   "files": [
+    {
+     "file": "alumni-sans-inline-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 16
+    }
+   ]
+  },
+  {
+   "name": "Ribeye",
+   "family": "Ribeye",
+   "language": "deco",
+   "like": null,
+   "designer": "Astigmatic",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/ribeye",
+   "variable": false,
+   "files": [
+    {
+     "file": "ribeye-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 26
+    }
+   ]
+  },
+  {
+   "name": "Kumar One",
+   "family": "Kumar One",
+   "language": "deco",
+   "like": null,
+   "designer": "Indian Type Foundry",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/kumarone",
+   "variable": false,
+   "files": [
+    {
+     "file": "kumar-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 6
+    }
+   ]
+  },
+  {
+   "name": "Atomic Age",
+   "family": "Atomic Age",
+   "language": "deco",
+   "like": null,
+   "designer": "James Grieshaber",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/atomicage",
+   "variable": false,
+   "files": [
+    {
+     "file": "atomic-age-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 10
+    }
+   ]
+  },
+  {
+   "name": "Kablammo",
+   "family": "Kablammo",
+   "language": "wild",
+   "like": null,
+   "designer": "Vectro Type Foundry, Travis Kochel, Lizy Gershenzon, Daria Cohen, Ethan Cohen",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/kablammo",
+   "variable": false,
+   "files": [
+    {
+     "file": "kablammo-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 60
+    }
+   ]
+  },
+  {
+   "name": "Moo Lah Lah",
+   "family": "Moo Lah Lah",
+   "language": "wild",
+   "like": null,
+   "designer": "Robert Leuschke",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/moolahlah",
+   "variable": false,
+   "files": [
+    {
+     "file": "moo-lah-lah-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 39
+    }
+   ]
+  },
+  {
+   "name": "Rubik Gemstones",
+   "family": "Rubik Gemstones",
+   "language": "wild",
+   "like": null,
+   "designer": "NaN, Luke Prowse",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/rubikgemstones",
+   "variable": false,
+   "files": [
+    {
+     "file": "rubik-gemstones-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 49
+    }
+   ]
+  },
+  {
+   "name": "Rubik Beastly",
+   "family": "Rubik Beastly",
+   "language": "wild",
+   "like": null,
+   "designer": "NaN, Luke Prowse",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/rubikbeastly",
+   "variable": false,
+   "files": [
+    {
+     "file": "rubik-beastly-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 99
+    }
+   ]
+  },
+  {
+   "name": "Vampiro One",
+   "family": "Vampiro One",
+   "language": "wild",
+   "like": null,
+   "designer": "Riccardo De Franceschi",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/vampiroone",
+   "variable": false,
+   "files": [
+    {
+     "file": "vampiro-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 10
+    }
+   ]
+  },
+  {
+   "name": "Miltonian Tattoo",
+   "family": "Miltonian Tattoo",
+   "language": "wild",
+   "like": null,
+   "designer": "Impallari Type",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/miltoniantattoo",
+   "variable": false,
+   "files": [
+    {
+     "file": "miltonian-tattoo-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 27
+    }
+   ]
+  },
+  {
+   "name": "Trade Winds",
+   "family": "Trade Winds",
+   "language": "wild",
+   "like": null,
+   "designer": "Sideshow",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/tradewinds",
+   "variable": false,
+   "files": [
+    {
+     "file": "trade-winds-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 35
+    }
+   ]
+  },
+  {
+   "name": "Piedra",
+   "family": "Piedra",
+   "language": "wild",
+   "like": null,
+   "designer": "Sudtipos",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/piedra",
+   "variable": false,
+   "files": [
+    {
+     "file": "piedra-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 26
+    }
+   ]
+  },
+  {
+   "name": "Frijole",
+   "family": "Frijole",
+   "language": "wild",
+   "like": null,
+   "designer": "Sideshow",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/frijole",
+   "variable": false,
+   "files": [
+    {
+     "file": "frijole-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 90
+    }
+   ]
+  },
+  {
+   "name": "Gajraj One",
+   "family": "Gajraj One",
+   "language": "wild",
+   "like": null,
+   "designer": "Saurabh Sharma",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/gajrajone",
+   "variable": false,
+   "files": [
+    {
+     "file": "gajraj-one-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 9
+    }
+   ]
+  },
+  {
+   "name": "Ruslan Display",
+   "family": "Ruslan Display",
+   "language": "wild",
+   "like": null,
+   "designer": "Oleg Snarsky, Denis Masharov, Vladimir Rabdu",
+   "licence": "OFL-1.1",
+   "source": "google/fonts ofl/ruslandisplay",
+   "variable": false,
+   "files": [
+    {
+     "file": "ruslan-display-400.woff2",
+     "weight": 400,
+     "italic": false,
+     "kb": 8
+    }
+   ]
+  }
+ ]
+}

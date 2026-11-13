@@ -5170,3 +5170,21 @@ RESUME HERE:
      again, run the checks and put it there.
   1. §BC 2 to 4: which photo generation goes next, the full ad in Easy Mode's
      picker, and whether iPhones LA's weekly batch moves to FullAd.
+
+## 2026-11-13 — the Type Lab: 182 new display faces for review (DESIGN-LAW 138; claude/youthful-cray-en1m2i)
+
+Asked: unique faces that pop, in many design languages, not the usual shelf;
+lookalikes where a face is licensed; then integrate them.
+
+Done:
+  - 271 candidates named, 262 taken (licence read from each family's record),
+    182 kept after reading each as a claim, a price and a number.
+  - A review page with picks that copy out as text. Nothing wired into the
+    product: the owner picks first (rule 138).
+
+Found:
+  - The last review's verdicts lived in one browser and were lost. A review
+    tool's record is the text that comes back, not what the page remembers.
+  - A contact sheet that renders is not a contact sheet of the faces: the
+    first one was all fallback serif (a page with no origin cannot load a
+    local stylesheet). Ask `document.fonts.check` before looking.
