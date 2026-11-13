@@ -39,7 +39,7 @@ const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8899/').replace(/\/?$/, 
 const arg = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : ''; };
 const ALL = process.argv.includes('--all'), FIRST = process.argv.includes('--first'), STRICT = process.argv.includes('--strict');
 const IDS = arg('--ids') ? arg('--ids').split(',').filter(Boolean) : null, JSON_OUT = arg('--json'), SHOTS = arg('--shots');
-const DIFF_MAX = 9;                 // mean difference a channel, of 255, between the preview (a 560 JPEG) and the file (a PNG), both at 48 px
+const DIFF_MAX = 4;                 // mean difference a channel, of 255, between the preview and the file, both brought to 48 px by the same steps: the defect of 2026-11-13 measured 53, a sound card about 1
 
 const open = async browser => {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
@@ -89,8 +89,14 @@ for (let i = 0; i < plan.ids.length; i += 12) {
   if (i && i % 96 === 0) { await ctx.close(); ({ ctx, page, errors } = await open(browser)); }
   const batch = plan.ids.slice(i, i + 12);
   Object.assign(rows, await page.evaluate(async ({ batch, DIFF_MAX, wantShots }) => {
-    const small = url => new Promise(res => { const im = new Image(); im.onload = () => { const c = document.createElement('canvas'); c.width = c.height = 48;
-      const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(im, 0, 0, 48, 48); res(x.getImageData(0, 0, 48, 48).data); }; im.onerror = () => res(null); im.src = url; });
+    const small = async url => { try { const bmp = await createImageBitmap(await (await fetch(url)).blob());
+      /* both pictures to 768 px, then halved four times to 48: each halving averages four pixels,
+         and the two take the same steps, so two sizes of one picture come out alike. (One jump to
+         a thirtieth of the size skips pixels, and pyramids that end on different last steps differ
+         in sharpness: either way the measure read 5 to 7 a channel for one picture at two sizes.) */
+      let c = document.createElement('canvas'); c.width = c.height = 768; let g = c.getContext('2d'); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(bmp, 0, 0, 768, 768);
+      for (let k = 0; k < 4; k++) { const n = document.createElement('canvas'); n.width = n.height = c.width / 2; g = n.getContext('2d', { willReadFrequently: true }); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(c, 0, 0, n.width, n.height); c = n; }
+      return c.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, 48, 48).data; } catch (e) { return null; } };
     const out = {};
     for (const id of batch) {
       const row = { fails: [] };

@@ -628,3 +628,18 @@ produced." DESIGN-LAW rule 87. In practice:
   left `motion/app.js` declaring one name twice, and the video maker dead.
 - **The record of what is still inconsistent** is docs/COHESION-AUDIT.md.
   Read it before touching the classics' passes or the render paths.
+- **The download is the preview, and the first ad is the house ad** (rule 141,
+  2026-11-13): a card's own photograph is its ground in the strip, the
+  preview, the download and the video; `renderEzCanvas`'s `mode` chooses no
+  ground, and there is no placeholder state. The gate reads the picture
+  (`pgPictureCheck`: `picture` fails, `noPicture` warns). The full ad is the
+  first card in Easy Mode and a new visitor's first ad (`full-ad-studio.js`, a
+  module beside `device-walls.js`; never in `TEMPLATES`; `?fullad=0` opens on
+  a template). Its type pairs are `motion/full-voices.js`, written by
+  `full_type_check.mjs --write`, never by hand. Before a commit that touches
+  Easy Mode's render or download, the full ad, its page or the engine's
+  painters: `node scripts/ez_download_is_preview.mjs` (add `--all` for a
+  change to the render) and `node scripts/full_ad_studio_check.mjs`, then
+  `full_type_check.mjs` and `full_ad_check.mjs`. A check that sets a state
+  before it measures (`ez.bgPicked = true` did, in four audits) measures a
+  visitor who may not exist: say which one.

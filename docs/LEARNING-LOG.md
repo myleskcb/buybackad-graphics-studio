@@ -5284,3 +5284,93 @@ Found:
   - A contact sheet that renders is not a contact sheet of the faces: the
     first one was all fallback serif (a page with no origin cannot load a
     local stylesheet). Ask `document.fonts.check` before looking.
+
+## 2026-11-13 — a download with no picture on it; the house ad first in Easy Mode; the type pairs on it (DESIGN-LAW 141; claude/brave-mayer-8bv851)
+
+Asked, of a Neon Vault ad from Easy Mode (a violet gradient, cream words, no
+photograph, no product): how it came out of the engine, how to avoid it, where
+the assets were, how to go above and beyond; then how to integrate the type
+faces and the general design language; "the samples should look good too";
+"make sure the unification from photos and videos is ready".
+
+Done:
+  - Reproduced it to the pixel before reading a line about it: the download
+    drew the card's fallback gradient, the preview a grey copy of its
+    photograph, the strip the photograph itself.
+  - Merged the two branches the answer was scattered across (the full ad's
+    review and pre-flight; the Type Lab's 27 picks), fixed the ground, gave the
+    gate a reading for the picture, put the full ad first in Easy Mode, and the
+    owner's type pairs on the full ad in both makers.
+
+Found:
+  - Every audit that could have caught it forced the good state first. Four
+    scripts set `ez.bgPicked = true` before measuring, so each measured a card
+    no first visitor ever saw. A check's set-up lines are where to look for
+    what it cannot see.
+  - A defect written down three times is not being tracked, it is being
+    described. The pop-up was in the UX audit, the cohesion audit and the flow
+    audit, each time as a finding among many. What moved it was the owner
+    holding the picture.
+  - The gate reads what is on a card. It had nothing to say about a card with
+    nothing on it, and called a 2.66:1 headline a warning. Ask of a gate what
+    it would say about an empty card.
+  - Count before calling it an edge: it was all 96 designer layouts and the
+    first card of 8 categories out of 13, the first ad of every new visitor.
+  - A threshold of my own (a 97px headline) cut two type pairs the house's
+    own measure (the pre-flight's feed reading) kept (Stadium, Tech), and kept
+    five it cut (Serif, Rush, Ranch, Cherry, Neon). A face's size in pixels is
+    its em, not its capitals. Use the measure the product already has before
+    making one.
+  - The measures passed two pairs the eye could not read (blackletter
+    capitals under an outline, thin pixel strokes). Measured, then looked at:
+    both steps, in that order, and the eye's holds written down with the
+    reason so the owner can strike them.
+  - The ruler was wrong three times before it was right. Comparing a preview
+    with its file at 48px: drawImage in one jump read 5 a channel for one
+    picture at two sizes (it skips pixels); createImageBitmap's "high" still
+    read 4; halving each until it was small read 7 (the two ended on different
+    last steps and differed in sharpness). Both to 768, then halved four times,
+    read 0.8. Before believing a difference, measure a picture against itself
+    at the two sizes.
+  - And the better ruler found a real fault the noisy one hid: my check read
+    the preview on a fixed wait, before the number typed had been drawn, and
+    its noise had covered the difference. This log already says to wait on the
+    state, not the clock. The preview is now aria-busy until it is current and
+    says what it shows; the check waits on that.
+  - Local checks run with no Content-Security-Policy, and this product has
+    shipped a feature that was dead in production for that. The new check
+    sends the site's own policy with every page, and was seen to fail (fonts
+    forbidden) before it was trusted to pass.
+  - The full ad loaded nine accent pictures (1.1 MB) to draw one icon. Fine
+    for the maker, which may draw any; a megabyte on a new visitor's first run
+    in the studio. Weigh what a module brings before making it the first run.
+  - The full ad's preview at 720 and its file at 1440 were the same ad a few
+    pixels apart (type is set to the pixel). The preview is now the file's own
+    picture scaled down: the rule being written the same hour applied to the
+    thing being built.
+  - A fake account in demo mode broke the real Download (the export counter
+    had no row to write to): the check stubs the counter, and says so.
+  - The engine's depth, reflection and photo-real finishes are invisible on a
+    square, where the product is 5 to 8% of the frame. Before adding an
+    effect, measure how many pixels it has to show in.
+
+Checked: ez_download_is_preview (every offered card; untouched `main` fails
+its 8 first cards), full_ad_studio_check (the first run, 35 lines in six
+sizes, the choices, the video and its photo, 390 wide, under the site's own
+policy), full_type_check, full_ad_check, full_colour_check, type_voices_check,
+quick_ad_check, buylist_check, listing_check, motion_cta_audit,
+area_dialog_check, the inline scripts' hashes, and every page loaded with no
+error after each merge. Could not run here: verify_csp.mjs (it fetches the
+live site, which a cloud session cannot reach; it fails the same way on
+untouched `main`).
+
+Not on `main`: this branch only (OPEN-ITEMS §BG 1).
+
+RESUME HERE:
+  0. §BG 1 and 2: the owner's word to put it on `main`; merge `main` and
+     claude/youthful-cray-en1m2i in again first (its every-card audit of the new
+     voices may have pushed holds).
+  1. §BG 3: the owner's eye on the 44 type pairs on the full ad
+     (`SHEET=dir node scripts/full_type_check.mjs`).
+  2. §BG 4: the owner's call on opening tall, a solid headline for the dark
+     pairs, and a product-first square.

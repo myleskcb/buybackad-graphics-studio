@@ -80,6 +80,12 @@
 /mac-wallpapers.js
   Cache-Control: public, max-age=0, must-revalidate
 
+/full-ad-studio.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/full-ad-studio.css
+  Cache-Control: public, max-age=0, must-revalidate
+
 # Owner tools that stay reachable by link but should never be in search:
 # the good/bad picker, the asset library and the old single-file build.
 # Mirrors netlify.toml.

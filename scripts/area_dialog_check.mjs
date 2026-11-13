@@ -81,7 +81,7 @@ async function studio(width, setup){
   });
   page.on('pageerror', e => errors.push(width + 'px: ' + e.message));
   page.on('console', m => { if (m.type() === 'error' && /Content Security Policy|Refused to/.test(m.text())) errors.push(width + 'px CSP: ' + m.text().slice(0, 200)); });
-  await page.goto(BASE + '/index.html');
+  await page.goto(BASE + '/index.html?fullad=0');   // the templates' own first run: a new visitor otherwise opens on the full ad (rule 141)
   await page.waitForFunction(() => typeof window.showEasy === 'function' && typeof openAreaDialog === 'function' && window.fabric, null, { timeout: 30000 });
   await page.evaluate(s => { localStorage.setItem('pgfx_area_asked', 'true'); if (s) localStorage.setItem('pgfx_brand', JSON.stringify(s)); showEasy(); }, setup || null);
   await page.waitForTimeout(800);

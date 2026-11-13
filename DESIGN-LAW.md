@@ -5744,3 +5744,118 @@ different design languages".
   a pair (rules 70, 100, 133), which every card has to pass (rule 101).
 
 Not done here: OPEN-ITEMS §BF.
+
+## 141. The download is the preview, the picture is on it, and the first ad is the house ad
+
+Added 2026-11-13. The owner, of a Neon Vault ad downloaded from Easy Mode (a
+flat violet gradient, a cream headline, a cream box with the number, a small
+phone emoji): "This isn't really a cohesive ad. How did this come out the
+engine? How do we avoid this mistake? Where are the assets? … how do we make it
+go above and beyond", "How do we integrate the type faces and how do we
+integrate general design language to fix this?", "I know it's a sample, but
+regardless the samples should look good too", "make sure the unification from
+photos and videos is ready".
+
+**How it came out, traced on the scene** (reproduced to the pixel; the script
+is `scripts/ez_download_is_preview.mjs`):
+
+1. *The photograph was thrown away.* The card stands on a real photograph
+   (`assets/bg-web/phones-iphone-13-pro-1.jpg`). Until a visitor picked a
+   background Easy Mode treated a template's own photograph as a placeholder:
+   the strip showed the card on its photograph, the preview showed it grey and
+   blurred, and Download answered "No background selected … Export without
+   background" and then drew the card's fallback, a two-stop gradient. One
+   card, three pictures. That path dated from the generated studio scenes that
+   rule 117 retired; every card has stood on a real photograph since, and the
+   path outlived its reason. It was written down three times and fixed none
+   (the UX audit of 2026-09-22, the cohesion audit of 2026-09-27, the flow
+   audit of 2026-11-11).
+2. *It was the default, not an edge.* All 96 designer layouts took it; 82 of
+   them carry no product picture, so nothing on the download showed the goods.
+   The first card in 8 of the 13 categories is one of them, and
+   `firstFreeTplId()` is Neon Vault: it was the first ad every new visitor
+   made.
+3. *The design had been normalised away.* The layout is authored as Bungee,
+   hollow letters with a neon stroke and glow, a dark glass frame. By the time
+   the template is registered the load-time passes have made it Clash Display,
+   a cream fill with a dark stroke, and a cream box with a gold stroke: each
+   pass repairs one measured thing, and none answers for the ad.
+4. *A lacking card was decorated, not finished.* The emoji pass found the card
+   sparse (rule 88's amendment) and put a 74px phone beside a 185px headline.
+5. *The gate passed it.* `pgCheck` reads what is on a card. It had no reading
+   for what is missing from one, and it filed the headline's 2.66:1 on the
+   gradient (wanted 4.5) as a warning.
+6. *Every audit shared the mistake.* `motion_audit`, `motion_gallery`,
+   `type_gap_audit` and `every_card_audit` each set `ez.bgPicked = true`
+   before measuring: they measured the one state a first-time customer was
+   never in.
+
+**So:**
+
+- **One ground.** A card's own photograph is its ground in the strip, the
+  preview, the download and the video, until the visitor picks another
+  (`renderEzCanvas`; `mode` no longer chooses a ground). There is no
+  placeholder state and no "No background selected" stop. An ad saved before
+  this rule without a background reopens as it was posted, its fallback as the
+  ground picked; a draft left on the grey placeholder opens on the photograph.
+- **The gate reads the picture** (`pgPictureCheck`, appended to `pgCheck`):
+  `r.picture` is the ground (photo, drawn, flat), the product pictures shown
+  whole, and the photograph that could not be drawn. A photograph that did not
+  arrive fails (`picture`) and is said in the visitor's words; an ad with
+  nothing on it that shows the goods is a warning (`noPicture`): a flat colour
+  is the visitor's to choose, and no card may open that way.
+- **A check takes no step a visitor does not take.**
+  `scripts/ez_download_is_preview.mjs` opens each card as a visitor does, types
+  a number, presses the real Download and compares the file with the preview
+  (both brought to 48px by the same steps; the defect measured 53 a channel of
+  255, a sound card about 1, the limit is 4). On `main` before this rule it
+  fails the 8 first cards;
+  now every offered card passes. A check that forces a state before it
+  measures says which visitor that state belongs to.
+- **The first ad is the house ad** (`full-ad-studio.js`,
+  `full-ad-studio.css`). The full ad (rule 137) is the first card in Easy
+  Mode's strip for every line it draws (`motion/subjects.json`: 35 lines, 13
+  categories) and what a visitor who has never picked a design opens on. It is
+  drawn by the video maker's own class, so the picture downloaded here and the
+  video made of it there are one ad: "Make the video of this ad" opens the
+  maker on the same line, words, number, colours, type and look
+  (`pgfx_full_handoff`, read once); the photo the maker saves of it and the
+  file Easy Mode saved are compared by the check (0.75 a channel of 255). Its
+  preview is the file's own picture, laid out at the size the visitor's plan
+  will download and scaled down; it is `aria-busy` until it is current and
+  says what it shows (its number, line, colours, type and size), so a check
+  waits on that and never on the clock. Its
+  gate is the full ad's pre-flight (rule 138), said in the same dialog. It is
+  never a member of `TEMPLATES`: no pass, audit or table of the photo ads sees
+  it. A template picked from the strip steps it back; `?fullad=0` opens Easy
+  Mode on a template for a check of the templates' own first run.
+- **The owner's type pairs are on the full ad** (`motion/full-voices.js`,
+  written by `scripts/full_type_check.mjs --write`, never by hand). The full
+  ad was one face. A pair is offered on it where the ad still holds: its
+  display face takes the double outline (not a `FINE_FACE`), and in four
+  sizes, on a dark and a light colour pair, in English and Spanish, the full
+  ad's blockers and pre-flight have nothing to fix and, with ordinary words on
+  a square and on 4:5, the headline and the number read in a feed's preview.
+  Then each kept pair is looked at, at the size of a feed's preview, and one
+  the eye cannot read is held with the reason (`BY_EYE` in the script). 29 of
+  44 today. The display face letters the headline, the number and the
+  sticker; the reading face the claim, the line, the selling points, the call
+  to action and the towns. A caps-only display face draws IPHONE, so the lines
+  under it say IPHONE too (`spellsSmallI`, read off the glyphs): one spelling
+  on a card. Easy Mode's full ad and the video maker both offer the row.
+- **The size that shows the product is said where the size is chosen.** A
+  square holds nine blocks and the product is what gives way: over six lines
+  it covers 5 to 8% of a square and 10 to 24% of a Tall 3:4. Easy Mode lays
+  the ad out tall as well and says how much larger the product would stand
+  when it is half again or more; one tap takes that size.
+- **Wide starts at 3:2.** The full ad's side-by-side layout is for 16:9. At
+  4:3, which only the studio draws, it left every line's blocks too close;
+  laid out upright all 35 lines hold (`wide = ar >= 1.5`).
+
+Checks: `ez_download_is_preview.mjs`, `full_ad_studio_check.mjs` (the first
+run, the file, 35 lines in Easy Mode's six sizes, the choices, stepping to a
+template and back, the video and its photo, 390 wide, and every page sent
+under the site's own Content-Security-Policy, as production sends it),
+`full_type_check.mjs`, and `full_ad_check.mjs` as before.
+
+Not done here: OPEN-ITEMS §BG.

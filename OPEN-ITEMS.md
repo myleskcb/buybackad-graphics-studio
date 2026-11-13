@@ -3429,3 +3429,101 @@ Open:
    Mazius Display…) would be a second batch if those hosts are allowed.
 6. Colour fonts (Honk, Nabla, Bungee Spice) were left out: fabric and the SVG
    engine draw one fill per glyph.
+
+## BG. 2026-11-13 — the download is the preview; the house ad first in Easy Mode; the type pairs on it (DESIGN-LAW 141)
+
+(claude/brave-mayer-8bv851, from `main` at 9dddf354, with claude/admiring-hamilton-6bbehw and claude/youthful-cray-en1m2i merged in first.)
+
+The owner, of a Neon Vault download: "This isn't really a cohesive ad. How did
+this come out the engine? How do we avoid this mistake? Where are the assets?",
+"How do we integrate the type faces and how do we integrate general design
+language to fix this?", "the samples should look good too", "make sure the
+unification from photos and videos is ready".
+
+Done:
+- **Traced and reproduced** (rule 141 has the six causes). The download was
+  the card's fallback gradient: the preview's photograph was a placeholder.
+- **Two branches merged**: the full ad's review, pre-flight, colours and step
+  styles (15 commits) and the Type Lab with the owner's 27 picks (3 commits).
+  Both had written a rule 138 and a §BD; the Type Lab's are 140 and §BF here.
+  Every page loaded after; `full_ad_check`, `full_colour_check` and
+  `type_voices_check` all clear.
+- **Easy Mode downloads what it previews.** No placeholder, no "No background
+  selected". All offered cards pass `ez_download_is_preview.mjs`; on untouched
+  `main` it fails the 8 categories' first cards.
+- **The full ad is the first card in Easy Mode** and what a new visitor opens
+  on (`full-ad-studio.js`): 35 lines, six sizes, the twelve pairs, the type
+  pairs, the number, website and area the page already asks for.
+- **The type pairs on the full ad**, in Easy Mode and in the video maker: 29
+  of the 44 hold (`motion/full-voices.js`).
+- **One ad as a picture and as a video**: "Make the video of this ad" opens
+  the maker on the same ad.
+
+Open:
+1. **Not on `main`, not deployed.** The branch is pushed. `main` deploys by
+   itself once the repository secrets are set; putting this there is the
+   owner's word.
+2. **Three sessions' work is on this branch and two others are not.** Merged
+   here: admiring-hamilton (with friendly-heisenberg, festive-ramanujan and
+   wizardly-keller inside it) and youthful-cray. Not merged, on purpose, as
+   they are accounts and not ads: `claude/combined` (accounts, the Reselling.US
+   link, shared terms; 6 commits) and `claude/focused-bell-da4xmh` (a plan
+   document). `claude/youthful-cray-en1m2i` said its every-card audit of the
+   new voices was still running; if it pushes holds, merge them.
+3. **The owner's eye on the type pairs.** The sheet of all 44 on the full ad
+   was looked at once. Held by eye: Gothic (blackletter capitals under the
+   outline do not read) and Terminal (thin strokes). Cut by measure: Bold,
+   Comic, Serif, Rush, Ranch, Cherry and Neon (the headline reads small in a
+   feed's preview on a square), Modern and Circuit (so wide the number falls
+   under its floor), and the four fine faces. Strike or restore a line in
+   `BY_EYE` and run `full_type_check.mjs --write`.
+4. **Above and beyond: what the pictures say.** Drawn for the same words
+   (the sheets are in the session's notes, not the repo):
+   - The engine's depth and photo finishes (reflection, soft floor, the
+     photo-real phones, a turned pose) change nothing that can be seen on a
+     square: the product is 22 to 26% of its height and 5 to 8% of its area.
+     Product scale is the gap to a generated hero picture, not effects.
+   - On Tall 3:4 or Flyer the same ad shows three phones at 37% of the height
+     and 22% of the area, with the cash icon. That, in a Type Lab pair, is the
+     strongest picture the engine draws today. The page now says so where the
+     size is chosen. Whether the full ad should OPEN tall is the owner's call
+     ("primarily 1:1 or 3:4").
+   - A solid, extruded headline (`text_fx: "extrude"`, already in the engine;
+     the pre-flight passes it) is cleaner than the double outline on the dark
+     pairs and heavier than it on the light ones. The double outline is the
+     house style the owner approved; a second headline style for dark pairs
+     only is a choice to show, not to switch on.
+   - A product-first square (the headline capped lower, the sticker over the
+     product's corner, the points in one row) is a second layout rule for the
+     full ad. The owner asked on 2026-11-03 for "the text as large and legible
+     as possible"; the two pull against each other on a square, so it wants
+     the owner's word before it is built.
+5. **The 96 designer layouts are still photograph-and-words** (§BC 2). They
+   now ship their photograph, and Neon Vault with it is still a headline laid
+   over the product. With the full ad first in the strip, retiring them line
+   by line is easier to judge; it is still the owner's call.
+6. **Neon Vault is no longer neon.** Its authored look (hollow neon letters,
+   a glass frame) is rewritten at load by the face and plate passes. Either the
+   name goes or the passes leave a card its authored look; the same is likely
+   true of other designer layouts (not counted).
+7. **The emoji beside a headline** (rule 88) can be 40% of the line's height
+   (74px beside 185px on Neon Vault). The owner asked twice for emoji as a
+   large-format style. A floor of half the line's height, or none, is one line
+   in `pgEmojiPass`; it changes which cards carry one on Apple devices, so it
+   was left for the owner.
+8. **In Easy Mode the full ad has no Save to library and no star** (hidden
+   while it is on). The video maker saves a full ad; the same save here needs
+   the library to take a full ad's state from this page.
+9. **One pop-up still stands before the first ad**: "Where do you buy?" (flow
+   audit finding 3). The other is gone. The full ad names the towns only once
+   an area is set, so the question could wait until the visitor wants them.
+10. **Wide 4:3** holds, with the product small (4 to 12% of the area): it is
+    the one size where the upright layout has width it does not use.
+11. **Checks not run here**: `ez_theme_audit.mjs`, `designer_audit.mjs` and
+    `every_card_audit.mjs` (hours each). The render path's ground changed for
+    every designer layout in its default state: these audits already forced
+    that state (`ez.bgPicked = true`), so their numbers should stand, and
+    `ez_download_is_preview.mjs` read the gate on every offered card as opened
+    (no failure). Run `ez_theme_audit.mjs --quick` on the Mac before a deploy.
+    `landing_check.mjs` and three steps of `ad_library_check.mjs` cannot run
+    in a cloud session (§BC 8).
