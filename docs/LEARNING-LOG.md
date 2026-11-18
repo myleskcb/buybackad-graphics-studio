@@ -5170,3 +5170,39 @@ RESUME HERE:
      again, run the checks and put it there.
   1. §BC 2 to 4: which photo generation goes next, the full ad in Easy Mode's
      picker, and whether iPhones LA's weekly batch moves to FullAd.
+
+## 2026-11-18 — the full ad wears every look; cohesion is the rules (DESIGN-LAW 138; claude/ad-design-variety-cohesion-5a7836)
+
+Asked: the full ads look alike ("colors, outlines on the text, layouts and
+positioning"); bring back the video looks' grounds, patterns, fonts, fills and
+phone arrangements; a photo ad for every video look, completed where it says
+too little; "make sure it's all diverse"; push it.
+
+Done:
+  - Counted first: 24 seeds gave one face, one treatment, one number style,
+    one claim badge, one layout; only colour and words moved. The maker had
+    78 looks the full ad never drew.
+  - The full ad wears the look; its own layout varies by rule; the maker's
+    New look, gallery and panel follow.
+
+Found:
+  - Unifying by locking the look is not cohesion: the ads became one ad. The
+    look can vary freely when what is held is the grammar (elements, floors,
+    one margin, one gap, one alignment, contrast, an eye-catcher).
+  - A video palette's ink is chosen for a big headline with its shadow:
+    small lines on the same ground read 3.1 to 3.5:1. Small type needs its
+    own ink check.
+  - Wide faces (Unbounded, Bungee) set the number under its floor at 70% of
+    the column; let the plate widen, then fall back to the reading face.
+  - Chrome and gold figures are pale: on a light ground they vanish.
+  - Drawn accent marks (a plus, a clock) beside a product read as litter; the
+    3D icons do not.
+  - Each fallback needs a last resort: sticker by the product, then by the
+    number, then the largest free spot; else an ad ships with no eye-catcher.
+
+Checked: full_ad_check all clear (256 ads and the page), quick_ad_check,
+buylist_check; the maker loaded with no console errors, New look and the
+full-ad gallery driven in the browser.
+
+RESUME HERE: OPEN-ITEMS §BD. 1 is the owner's word (main); 2 wants the owner's
+eye on the gallery before the weights move.

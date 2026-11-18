@@ -610,6 +610,12 @@ produced." DESIGN-LAW rule 87. In practice:
   painters: `node scripts/full_ad_check.mjs`, then `quick_ad_check.mjs` and
   `buylist_check.mjs`. Retired templates are `template-retired.js` (by hand;
   `?noretire=1` shows them).
+- **The full ad wears the look** (rule 138, 2026-11-18): `fullStyle(…, { own:
+  true })` keeps the look a style carries; never lock the full ad back to one
+  face, treatment or layout to make it "cohesive": hold the grammar (`QUIET`,
+  the floors, the alignment, contrast) and let `FULL_LAYOUT` and the look vary.
+  A new layout choice goes into `FULL_LAYOUT` with a weight, gets a name in
+  `LAYOUT_NAMES` (motion/app.js), and must pass `full_ad_check`'s spread test.
 - **After any merge, load every page** (2026-11-11): a merge git calls clean
   left `motion/app.js` declaring one name twice, and the video maker dead.
 - **The record of what is still inconsistent** is docs/COHESION-AUDIT.md.

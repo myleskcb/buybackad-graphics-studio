@@ -3248,3 +3248,47 @@ Open:
    waits on a CDN the sandbox blocks) and three upload-a-video steps of
    `ad_library_check.mjs`, which fail the same way on untouched `main`. Run
    both on the Mac before a deploy.
+
+## BD. 2026-11-18 — the full ad wears every look the maker has (DESIGN-LAW 138)
+
+(claude/ad-design-variety-cohesion-5a7836, from 9dddf354.)
+
+The owner: the full ads "look shockingly similar to one another"; "the video ads
+originally.. backgrounds.. patterns.. fonts.. arrangement/assortment of devices
+were really good.. we regressed since we unified"; "for every single video, I
+want a photo ad equivalent.. and if it doesn't meet the requirement, modify or
+fix it"; "make sure it's all diverse".
+
+Done:
+- **The full ad is the photo of a look** (`fullStyle(…, { own: true })`): the
+  maker's 78 looks, 172 palettes, 102 grounds, 19 signs, 18 type pairs, 25
+  treatments, 13 number styles and 16 arrangements, every element added.
+- **Its layout varies by rule** (`FULL_LAYOUT`): alignment, the product high,
+  middle or low, the points' side, five claim badges, three point styles, two
+  calls to action, three footers, three stickers, marks. A Layout section in
+  the maker picks and locks each.
+- **The maker**: New look in the full mode draws a whole look; the full mode's
+  gallery is every shelf of Any look, each look as its full ad; the look's
+  sections (Type, Scene, Number, Phones, Vibe) show in both modes, less what
+  the full ad holds.
+- `full_ad_check` checks the alignment either way and the spread of looks.
+
+Open:
+1. **Not on `main`, not deployed** (with §BC 1). The owner's word.
+2. **The weights are first guesses**: `FULL_LAYOUT`'s and the share of themes
+   (the shuffle's own `vibe` weight). Once the owner has scrolled the full-ad
+   gallery, weight up what they keep and drop what they do not; a look or a
+   layout choice they reject goes to weight 0, not out of the list (every
+   look number keeps its draws).
+3. **iPhones LA's weekly batch** (`tools/feed-stills`) still draws `FeedAd` in
+   its own house style (§BC 4): moving it to the full ad's looks is a change
+   to ads the owner approved. Ask first.
+4. **The photo studio is not touched**: Easy Mode's 313 templates and the
+   library's 362 cards keep their own designs. The full ad lives in the video
+   maker (§BC 2, 3).
+5. **The ad set** ("Make 6 different ads") is still shown under Any look only;
+   under Full ad its six would be full ads (thumb converts them), not yet
+   offered there.
+6. **A square still gives the product about 22% of its height** with every
+   element (§BC 7); a wide frame's product went from 67% to 54% median, the
+   sticker and the icon now standing under it more often.

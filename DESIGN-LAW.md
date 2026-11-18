@@ -5579,6 +5579,8 @@ a towns line or a website.
   the same colours as Easy Mode's themes: `motion/house-colours.js`, made from
   `COLOR_THEMES` by `scripts/build_house_colours.mjs`. Never type a colour
   into it.
+  (Rule 138, 2026-11-18: the full ad now wears its look's palette; the twelve
+  pairs are a pick laid over it, and the house style is no longer forced.)
 - **Every line the library sells**: iPhones are the maker's painted phones;
   any other line (`motion/subjects.json`, made from the offer family's `LINES`
   by `scripts/build_full_subjects.mjs`) brings its approved pictures, its
@@ -5602,3 +5604,90 @@ a towns line or a website.
   which the full ad now draws. `?noretire=1` shows them; nothing is deleted.
 
 Not done here: OPEN-ITEMS §BC.
+
+## 138. The full ad wears every look the maker has; cohesion is the rules, not one look
+
+Added 2026-11-18. The owner, of the full ads (rule 137) beside the earlier
+generations: "they look shockingly similar to one another", "many of the same
+colors.. many of the same schemes.. many of the same assets", "I need text
+variety placements, and more than just copy variety"; then "the video ads
+originally.. those backgrounds those patterns those text those fonts and those
+arrangement/assortment of devices were really good.. we regressed since we
+unified/assimilated the design languages"; then "for every single video, I want
+a photo ad equivalent.. and if it doesn't meet the requirement, modify or fix
+it", naming looks that said only "upgrade your phone, message us now".
+
+Measured first, 24 full ads from 24 seeds (`motion/fullad.js` as of 5c74de28):
+one face (Chivo), one treatment (the double outline), one colour use (the
+accent word), one number style (a pill between chevrons), one claim badge (a
+pill), one layout (centred, the points on the left of the product, the sticker
+on its right), six grounds and twelve colour pairs, eight of them navy, blue or
+black. `HOUSE` and `QUIET` locked every one; only the colours and the words
+moved. The video maker beside it had 78 looks (50 themes, 28 LA and audience
+vibes), 172 palettes, 102 grounds, 19 sign boards, 18 type pairs, 25
+treatments, 13 number styles and 16 phone arrangements, and the full ad drew
+none of them.
+
+- **The full ad is the photo of a look.** `fullStyle(st, seed, …, { own: true })`
+  wears the look the style carries (the maker's own, or a gallery look): its
+  theme, palette, ground or pattern, type pair, treatment, colour use, number
+  style, sign board, icon set and phone arrangement. Without `own` it draws a
+  look from the seed the way New look does (a theme or a vibe about nine times
+  in ten). New look in the full mode is a whole new look, not new colours; the
+  gallery under Full ad shows the same shelves as Any look, every look drawn
+  as its full ad.
+- **A look that says too little is completed, not dropped.** Every element of
+  rule 137 is added in the look's own art direction: the claim, the line
+  under the headline, three selling points, the call to action, the towns, the
+  website, the sticker and the icon (`FULL_WORDS` where the customer typed
+  nothing; its lists now hold seven claims, four sets of points, five calls to
+  action, five sticker words).
+- **What a still cannot hold is brought to the nearest it can** (`QUIET`,
+  `POSE_OK`, `IDLE_OK`, `HOOK_OK`, `GRADE_OK`, `DEPTH_OK`): no urgency pieces,
+  overlays, decor or slant; a still camera (every block stands on the margin);
+  a turntable or wide spin becomes a turned pose; an opening that moves the
+  camera becomes none; a grade other than clean or warm none (it moves every
+  line's contrast); a typed-in headline wipes in (its caret stayed on the
+  still). A sign keeps its face and loses its posts, stakes and lamps.
+- **The layout varies by rule** (`FULL_LAYOUT`, drawn from the look's number on
+  a stream of its own, or picked and locked under Layout in the maker): one
+  alignment, centred or on the left edge (rule 109); the product's band in the
+  middle, high (the headline under it) or low (the number over it); the points
+  left or right of the product (on a wide frame, the product's side); the
+  claim as a pill, a square tab, a ribbon, an outline or a bar; the points as
+  pills, tabs or bare ticks; the call to action as a line or a speech bubble
+  pointing at the number; the towns and website in rows, on one line or on a
+  band; the sticker a starburst, a seal or a rosette, in the ink or the accent;
+  chevrons or none.
+- **What stays fixed is what makes it an ad**, and every layout is held to it:
+  every element; the floors (rule 137's sizes); one margin and one gap; one
+  alignment; every small line on the ground at 4.5:1 (it takes near-black or
+  white where the palette's ink, chosen for a big headline with its shadow,
+  reads under that: teal's read 3.3:1); the number at its floor (a wide face's
+  plate may take 90% of the column, then the figures take the pair's reading
+  face, rule 133) and on a plate where chrome, gold or neon figures would be
+  pale on a light ground (rule 53); an eye-catcher on every ad (where the
+  sticker finds no room by the product it stands by a left-aligned number, or
+  in the largest free spot; the costlier shapes, the bubble and the banded
+  footer, give way before the headline does, rule 116); a sign that would
+  cost the product its band is left off.
+- **The icon is a 3D picture** from the look's set where it has one (cash,
+  money, deal, local, trust), else one of those: the drawn marks (a plus, a
+  clock, a diamond) read as stray marks beside the product (rule 7).
+- **Every read line is set in the type pair's reading face** (rule 133), the
+  headline in its display face; the first cut set them all in the display face.
+- `scripts/full_ad_check.mjs` checks the alignment either way and, new, the
+  spread: within one size, at least 10 looks, 6 type pairs and 8 grounds among
+  30 ads, and no layout choice the same on every ad.
+
+Measured after, on the final code: `full_ad_check` all clear (120 ads of five
+sets of words in four sizes, 136 for the other 34 products, and the page). In
+each size's 30 ads: 13 to 21 looks, 7 to 12 type pairs, 17 to 22 grounds, 10
+to 13 treatments, and both alignments, all three orders, all five claim
+shapes, all three point styles, footers and stickers. Headlines 124 to 153px
+median, numbers 97 to 99px, the smallest line 33px; the product's median
+height 22% of a square, 32% of 4:5, 34% of a story, 54% of a wide frame.
+
+> Supersedes rule 137's "one house style" and its colours: the twelve proven
+> pairs are now a pick laid over the look's own palette ("Colours" in the
+> maker; Any wears the look's).
