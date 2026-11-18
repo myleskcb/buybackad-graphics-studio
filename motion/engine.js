@@ -341,6 +341,25 @@ export function pointsOf(st) {
   return ((COPY[es ? "es" : "en"] || {}).points || []).filter(s => !stems(s).some(w => said.has(w))).slice(0, 3);
 }
 
+/* THE NUMBER SAYS WHAT TO DO WITH IT (2026-11-18). The ad census read 246 looks in the maker's
+   Any look gallery and 214 had no call to action: the maker holds the customer's own label, which
+   is empty until one is typed, and the label pools leave a look without one in a third of draws.
+   A plain look whose label is empty draws its language's first call that repeats no word the
+   headline or the line under it already says (one promise, once); a label typed is drawn as typed.
+   The full ad and FeedAd draw their own (FULL_WORDS.label, the feed card's). */
+const DEFAULT_LABELS = {
+  en: ["CALL OR TEXT", "TEXT US NOW", "CALL NOW"],
+  es: ["LLAMA O MANDA TEXTO", "MÁNDANOS TEXTO", "LLÁMANOS"],
+  both: ["CALL OR TEXT · LLAMA O ESCRIBE", "TEXT US · MÁNDANOS TEXTO"],
+};
+export function defaultLabel(st) {
+  const lang = st.lang === "both" ? "both" : st.lang === "es" || (st.lang !== "en" && SPANISH.test(st.headline || "")) ? "es" : "en";
+  const stems = s => String(s || "").toUpperCase().split(/[^A-ZÁÉÍÓÚÑÜ]+/).filter(w => w.length >= 4).map(w => w.slice(0, 5));
+  const said = new Set(stems(`${st.headline || ""} ${st.tag || ""}`));
+  const list = DEFAULT_LABELS[lang];
+  return list.find(l => !stems(l).some(w => said.has(w))) || list[0];
+}
+
 /** The few pairings that do not work, repaired. Nothing here narrows the look;
  *  it only stops two choices colliding on screen. */
 /* What would drown or contradict the phones' move once landed (phoneIdle): something else
@@ -2162,7 +2181,9 @@ export function headlineLines(st, p, size, nLines) {
 
 /** A speech-bubble badge (TEXT NOW) that points at the number. */
 function ctaBadge(text, size, hot, face = "oswald") {
-  const ink = lum(hot) > .55 ? "#111111" : "#ffffff";
+  // whichever of black and white reads better on the badge (as perksSprite picks): by lightness alone,
+  // white went on a hot pink at 3.5:1, a small line under its 4.5 (the look pre-flight, 2026-11-18)
+  const ink = contrastOf(hot, "#111111") >= contrastOf(hot, "#ffffff") ? "#111111" : "#ffffff";
   const fs = Math.max(12, size * .4);
   const sp = inkSprite(text, text.split("").map(() => ink), face, fs, .05, "flat", { ink, accent: ink, ground: hot, plate: hot, plate_ink: ink }, 0);
   const px = fs * .6, py = fs * .26, w = sp.inkW + px * 2, h = sp.asc * .92 + py * 2, tail = h * .34;
@@ -2544,8 +2565,12 @@ export class Ad {
     // customer previews is what they download. (Audit 2026-10-01: 72 of 200 looks came out
     // with the words, the number or the phones elsewhere in the download.)
     const [cw, ch] = planSize(st.aspect);
-    this.plan = opts.plan === false || (this.W === cw && this.H === ch) ? null : planFor(style, assets);
+    // opts.plan: false to lay out at this size, or a plan already made (another size of a look already drawn)
+    this.plan = opts.plan === false || (this.W === cw && this.H === ch) ? null : opts.plan && typeof opts.plan === "object" ? opts.plan : planFor(style, assets);
     if (this.plan) { Object.assign(st, this.plan.st); }
+    // a plain look's number always says what to do with it: the label typed, else its language's call
+    // (defaultLabel). Only this class: FullAd and FeedAd lay out and word their own.
+    if (this.constructor === Ad && !String(st.number_label || "").trim()) st.number_label = defaultLabel(st);
     this.p = pal(st);
     this.boardDef = BOARDS[st.board] || null;
     this.pHead = this.boardDef ? boardPalette(this.boardDef, this.p) : this.p;
@@ -2583,6 +2608,7 @@ export class Ad {
     this.bgLum = ls.mean; this.bgDark = ls.dark;
     this._scrim();
     this._contrastGuard();
+    if (this.constructor === Ad && !this.plan) this._labelGuard();
     this.still = null;
     this.acc = canvas(this.W, this.H); this.tmp = canvas(this.W, this.H);
   }
@@ -2814,6 +2840,7 @@ export class Ad {
       let nm = numberSprite(st, p, L.nSize * H, ctaOf()); if (L.dropLabel) nm = { ...nm, label: null };
       Object.assign(this, { size: z, lines: ls, lineH: lh, blockH: bh, margin: m, tag: tg, num: nm, pos: this._place(ls, lh, bh, tg, nm, m, z) });
       this._lay = L;
+      if (L.labelFx === "sticker") this._stickerLabel();      // as the plan's own label guard found it (_labelGuard)
       return this._hookText();
     }
     const alts = [st.number_pos, ...["under-headline", "bottom-center", "bottom-right", "bottom-left"].filter(x => x !== st.number_pos)];
@@ -2841,10 +2868,15 @@ export class Ad {
       if (pos.ok) break;
       if (firstFit == null) firstFit = size;
       if (size < firstFit * .8) {
-        // crowded: rather than shrink the type to a whisper, lose the small extras
-        // (the label over the number, then the tag) before anything may overlap
-        if (num.label) { dropLabel = true; continue; }
-        if (tag) { tag = null; st.tag = ""; continue; }
+        // crowded: rather than shrink the type to a whisper, lose the small extras before
+        // anything may overlap. A plain look's label is its call to action, which every ad
+        // carries (2026-11-18): there the tag goes and the label stays. FeedAd, which draws a
+        // label of its own over this layout, still lets the engine's go first.
+        if (this.constructor === Ad) { if (tag) { tag = null; st.tag = ""; continue; } }
+        else {
+          if (num.label) { dropLabel = true; continue; }
+          if (tag) { tag = null; st.tag = ""; continue; }
+        }
         let placed = false;
         for (const room of ["shown", "under", null]) {  // under the phones in full view, then under them at all, then anywhere
           for (const np of alts) { st.number_pos = np; pos = this._place(lines, lineH, blockH, tag, num, m, size); if (pos.num[1] + num.c.height <= H * .985 && pos.oy >= H * .02 && (!room || this._roomUnder(pos, num, size, room === "shown"))) { placed = true; break; } }
@@ -3549,7 +3581,7 @@ export class Ad {
         return hits;
       };
       const best = PL ? (PL.tape ? [PL.tape, 0] : ["", 1]) : ["tr", "tl", "br", "bl"].map(k => [k, score(k)]).sort((a, b) => a[1] - b[1])[0];
-      if (best[1] === 0) { this.tape = { corner: best[0], text: st.cta || (es ? "¡NO ESPERES!" : "DON'T WAIT"), t0: tl.number + .35 }; this.cues.tape = this.tape.t0; }
+      if (best[1] === 0) { this.tape = { corner: best[0], text: st.cta || (es ? "MÁNDANOS TEXTO" : "TEXT US NOW"), t0: tl.number + .35 }; this.cues.tape = this.tape.t0; }
       else st.urgency = "arrows";                          // no clear corner: point at the number instead
     }
     if (st.urgency === "ticker") {
@@ -3616,6 +3648,48 @@ export class Ad {
       this.scrimBoost = (this.scrimBoost || 1) * 1.6;
       this._scrim();
     }
+  }
+
+  /* THE CALL TO ACTION READS (2026-11-18). The label over the number is a small line, and since
+     defaultLabel every plain look has one, wherever its number landed: over a sunburst, a bright
+     patch of a photograph, a phone. Measured as _contrastGuard measures the headline, on the ground
+     and the phones at rest under the scrim, at the label's worst tenth (its brightest under light
+     ink, its darkest under dark); under 4.5:1 the label is drawn as a sticker (inkSprite's
+     "sticker": each letter ringed in a plate colour that contrasts with it), which reads on
+     anything, and the plan keeps the choice, so every size draws the same label. */
+  _labelGuard() {
+    const num = this.num; if (!num || !num.label || num.cta || !this.pos || !this.pos.label) return;
+    const W = this.W, H = this.H, q = 2, w = Math.max(8, Math.round(W / q)), h = Math.max(8, Math.round(H / q));
+    const c = canvas(w, h), x = c.getContext("2d", { willReadFrequently: true });
+    x.save(); x.scale(1 / q, 1 / q); x.drawImage(this.bg, 0, 0);
+    const tEnd = this.st.duration - .1;
+    for (const i of this.drawOrder) { const ph = this.phones[i], s = phoneState(ph, tEnd, this.st, true); if (s) drawPhone(x, ph, ...s, W); }
+    x.restore();
+    if (this.scrimC) x.drawImage(this.scrimC, 0, 0, w, h);
+    const [lx, ly] = this.pos.label, Lc = num.label;
+    const d = x.getImageData(Math.max(0, Math.floor(lx / q)), Math.max(0, Math.floor(ly / q)), Math.max(1, Math.ceil(Lc.width / q)), Math.max(1, Math.ceil(Lc.height / q))).data;
+    const L = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }, Lof = (r, g, b) => .2126 * L(r) + .7152 * L(g) + .0722 * L(b);
+    const Li = Lof(...hexRgb(this.p.ink)), vals = [];
+    for (let k = 0; k < d.length; k += 4) vals.push(Lof(d[k], d[k + 1], d[k + 2]));
+    vals.sort((a, b) => a - b);
+    const Lb = vals[Math.min(vals.length - 1, Math.floor(vals.length * (Li >= .18 ? .9 : .1)))];
+    this.labelBehind = (Math.max(Li, Lb) + .05) / (Math.min(Li, Lb) + .05);
+    if (this.labelBehind >= 4.5) return;
+    this._stickerLabel();
+    this._lay = { ...this._lay, labelFx: "sticker" };
+  }
+
+  /** The label over the number drawn as a sticker, standing where the plain one stood. Its ring is the
+   *  palette's plate where that gives the small line its 4.5:1, else near-black (white under dark ink,
+   *  as inkSprite rings dark letters). */
+  _stickerLabel() {
+    const num = this.num; if (!num || !num.label || num.cta || !this.pos || !this.pos.label) return;
+    const st = this.st, p = this.p, size = ((this._lay && this._lay.nSize) || 0) * this.H, lt = applyCase(st.number_label, "upper");
+    const dark = lum(p.ink) < .5, ring = dark ? "#ffffff" : contrastOf(p.plate, p.ink) >= 4.5 ? p.plate : "#111111";
+    const L0 = num.label, L1 = trim(inkSprite(lt, lt.split("").map(() => p.ink), labelFont(st), Math.max(4, size * .34), .08, "sticker", dark ? p : { ...p, plate: ring }, 0).c);
+    const [lx, ly] = this.pos.label;
+    this.num = { ...num, label: L1, labelRing: ring };
+    this.pos = { ...this.pos, label: [lx + (L0.width - L1.width) / 2, ly + (L0.height - L1.height) / 2] };
   }
 
   _scrim() {

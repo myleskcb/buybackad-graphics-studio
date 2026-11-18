@@ -1,0 +1,309 @@
+{
+  "_doc": "What the full ad stands on (motion/fullad.js; DESIGN-LAW 137, 139; OPEN-ITEMS \u00a7BJ). The owner, 2026-11-18: \"how come none of the videos use a BG?\", \"also only have 1 BG style?!\", \"retire but bg counts.. so combo of assets and bg is best though\", \"with cars people like a good bg or sunset\", \"not low exposure dark images...\". A seed draws one of three kinds of ground: a photograph from its category's pool (graded toward the pair's ground, shaded only where words stand, moving slowly in the video), one of the engine's drawn scenes, or the house's own gradient. The shares below are each kind's part of a seed's draw where the line has that kind; a line with no photograph shares its photo part between the other two. A photograph is drawn only where its own colour keeps the card to two families with the pair the seed drew (rule 139); a hand-picked look or a ground_photo given in the style is never overruled. Photographs come only from the repository's own credited folders: never a dark one (mean relative luminance under .14 or more than 35% of it near black), never cash or money, never outer space for goods that are not about space, never a legible licence plate or a person's face. scripts/build_full_grounds.mjs --measure reads each photograph's brightness and colour into 'photos'; the generator writes motion/full-grounds.js (the site cannot read spec/); --check fails a stale module or a pooled photograph that is missing, unmeasured, dark or uncredited. Pools are by the lines' categories (motion/subjects.json 'cat'); the iPhone line is 'phones'.",
+  "version": "2026-11-18",
+  "shares": {
+    "photo": 0.4,
+    "scene": 0.25,
+    "house": 0.35
+  },
+  "house": [
+    "radial",
+    "tonal",
+    "linear"
+  ],
+  "scenes": [
+    "aurora",
+    "drift",
+    "sky_gradient",
+    "marble_soft",
+    "glow_orbs"
+  ],
+  "limits": {
+    "minL": 0.14,
+    "maxDark": 0.35
+  },
+  "pools": {
+    "phones": [
+      "assets/bg-web/macbook-macbook-on-desk-1.jpg",
+      "assets/bg-web/macbook-macbook-on-desk-2.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-sunset-3.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-1.jpg",
+      "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg"
+    ],
+    "gaming": [
+      "assets/bg-web/rooms-desk-setup-1.jpg",
+      "assets/bg-web/rooms-home-desk-setup-1.jpg",
+      "assets/bg-web/rooms-living-room-console-1.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg"
+    ],
+    "audio": [
+      "assets/bg-web/rooms-desk-setup-1.jpg",
+      "assets/bg-web/macbook-macbook-on-desk-2.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg"
+    ],
+    "computers": [
+      "assets/bg-web/macbook-macbook-on-desk-1.jpg",
+      "assets/bg-web/macbook-macbook-on-desk-2.jpg",
+      "assets/bg-web/rooms-desk-setup-1.jpg",
+      "assets/bg-web/rooms-home-desk-setup-1.jpg"
+    ],
+    "wearables": [
+      "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
+      "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
+      "assets/bg-web/macbook-macbook-on-desk-1.jpg"
+    ],
+    "cameras": [
+      "assets/bg-web/wallpaper-emerald-bay-lake-tahoe-2.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+      "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg"
+    ],
+    "gold": [
+      "assets/bg-web/gold-gold-jewelry-display-1.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg"
+    ],
+    "silver": [
+      "assets/bg-web/coins-coin-collection-album-1.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-1.jpg"
+    ],
+    "coins": [
+      "assets/bg-web/coins-coin-collection-album-1.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg"
+    ],
+    "cars": [
+      "assets/bg-web/wallpaper-golden-gate-bridge-sunset-3.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-1.jpg",
+      "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+      "assets/bg-web/wallpaper-emerald-bay-lake-tahoe-2.jpg"
+    ],
+    "strips": [],
+    "pokemon": [
+      "assets/bg-web/rooms-living-room-console-1.jpg",
+      "assets/bg-web/rooms-desk-setup-1.jpg",
+      "assets/bg-web/rooms-home-desk-setup-1.jpg"
+    ],
+    "sports": [
+      "assets/bg-web/sports-baseball-on-grass-1.jpg",
+      "assets/bg-web/sports-baseball-on-grass-2.jpg",
+      "assets/bg-web/sports-baseball-stadium-night-3.jpg",
+      "assets/bg-web/sports-basketball-on-court-3.jpg"
+    ]
+  },
+  "photos": {
+    "assets/bg-web/macbook-macbook-on-desk-1.jpg": {
+      "w": 1920,
+      "h": 1272,
+      "L": 0.38,
+      "dark": 0.024,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-web/macbook-macbook-on-desk-2.jpg": {
+      "w": 1920,
+      "h": 1153,
+      "L": 0.175,
+      "dark": 0.13,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-web/wallpaper-golden-gate-bridge-sunset-3.jpg": {
+      "w": 2048,
+      "h": 1536,
+      "L": 0.344,
+      "dark": 0.086,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg": {
+      "w": 2048,
+      "h": 897,
+      "L": 0.2,
+      "dark": 0.186,
+      "hue": 270,
+      "C": 0.109,
+      "share": 0.58
+    },
+    "assets/bg-web/wallpaper-lake-tahoe-1.jpg": {
+      "w": 2048,
+      "h": 1084,
+      "L": 0.248,
+      "dark": 0.06,
+      "hue": 268,
+      "C": 0.089,
+      "share": 0.48
+    },
+    "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg": {
+      "w": 2048,
+      "h": 1542,
+      "L": 0.208,
+      "dark": 0.044,
+      "hue": 251,
+      "C": 0.134,
+      "share": 0.34
+    },
+    "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg": {
+      "w": 2048,
+      "h": 1365,
+      "L": 0.285,
+      "dark": 0.076,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg-web/rooms-desk-setup-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.149,
+      "dark": 0.254,
+      "hue": null,
+      "C": 0,
+      "share": 0.1
+    },
+    "assets/bg-web/rooms-home-desk-setup-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.145,
+      "dark": 0.242,
+      "hue": null,
+      "C": 0,
+      "share": 0.09
+    },
+    "assets/bg-web/rooms-living-room-console-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.246,
+      "dark": 0.265,
+      "hue": 77,
+      "C": 0.095,
+      "share": 0.35
+    },
+    "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg": {
+      "w": 2048,
+      "h": 1431,
+      "L": 0.214,
+      "dark": 0.14,
+      "hue": 316,
+      "C": 0.091,
+      "share": 0.32
+    },
+    "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg": {
+      "w": 2048,
+      "h": 1365,
+      "L": 0.204,
+      "dark": 0.085,
+      "hue": 37,
+      "C": 0.096,
+      "share": 0.16
+    },
+    "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg": {
+      "w": 2048,
+      "h": 1365,
+      "L": 0.244,
+      "dark": 0.054,
+      "hue": null,
+      "C": 0,
+      "share": 0.08
+    },
+    "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg": {
+      "w": 2048,
+      "h": 1536,
+      "L": 0.273,
+      "dark": 0.023,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/wallpaper-emerald-bay-lake-tahoe-2.jpg": {
+      "w": 2048,
+      "h": 1365,
+      "L": 0.29,
+      "dark": 0.35,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg": {
+      "w": 2048,
+      "h": 1365,
+      "L": 0.205,
+      "dark": 0.151,
+      "hue": 251,
+      "C": 0.132,
+      "share": 0.46
+    },
+    "assets/bg-web/gold-gold-jewelry-display-1.jpg": {
+      "w": 2048,
+      "h": 1939,
+      "L": 0.196,
+      "dark": 0.186,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg-web/coins-coin-collection-album-1.jpg": {
+      "w": 1920,
+      "h": 1551,
+      "L": 0.333,
+      "dark": 0.034,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/sports-baseball-on-grass-1.jpg": {
+      "w": 2048,
+      "h": 1365,
+      "L": 0.165,
+      "dark": 0.095,
+      "hue": 133,
+      "C": 0.087,
+      "share": 0.35
+    },
+    "assets/bg-web/sports-baseball-on-grass-2.jpg": {
+      "w": 2048,
+      "h": 1152,
+      "L": 0.164,
+      "dark": 0.167,
+      "hue": 134,
+      "C": 0.102,
+      "share": 0.32
+    },
+    "assets/bg-web/sports-baseball-stadium-night-3.jpg": {
+      "w": 2048,
+      "h": 1498,
+      "L": 0.168,
+      "dark": 0.277,
+      "hue": 95,
+      "C": 0.092,
+      "share": 0.15
+    },
+    "assets/bg-web/sports-basketball-on-court-3.jpg": {
+      "w": 2048,
+      "h": 1536,
+      "L": 0.218,
+      "dark": 0.094,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    }
+  }
+}

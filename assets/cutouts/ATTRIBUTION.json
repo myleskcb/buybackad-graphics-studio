@@ -4924,5 +4924,47 @@
     "artist": "Chi Ho Chan from Hong Kong",
     "page": "https://commons.wikimedia.org/wiki/File%3AChinese%20panda%20silver%20coins%20(52282119440).jpg",
     "note": "cut from assets/bg-web/coins2-chinese-panda-coin-2.jpg by scripts/cut_vehicle_photos.py. two Chinese Silver Panda 30 g coins (2017 and 2018) in capsules"
+  },
+  "photo-gaming-steam-deck-dark": {
+    "license": "CC BY-SA 4.0",
+    "artist": "https://wiki.openstreetmap.org/wiki/User:Riiga",
+    "page": "https://commons.wikimedia.org/wiki/File%3AJOSM%20on%20the%20Steam%20Deck.jpg",
+    "note": "cut from assets/bg-web/gaming-steam-deck-2.jpg by scripts/cut_vehicle_photos.py. a Valve Steam Deck; its screen (a map editor with a date) filled dark with one soft sheen, 2026-11-18, for the full ad and offer cards of PC handhelds (OPEN-ITEMS §BI)"
+  },
+  "photo-gaming-pc-tower": {
+    "license": "CC BY 4.0",
+    "artist": "PantheraLeo1359531",
+    "page": "https://commons.wikimedia.org/wiki/File:Gaming-PC_20240426_HOF2520-HDR_RAW-Export.png",
+    "note": "cut from assets/source-web/gamingpc-black-tower.png: a gaming PC tower with three front fans, photographed on a transparent ground; trimmed to its own alpha and a power cable hanging beside it let go; cut 2026-11-18 in a browser canvas (no rembg here): the ground learnt from the frame's border (k-means in Lab), flood-filled from the border within a tolerance, the largest object kept with its holes, edges feathered and de-fringed against the ground colour"
+  },
+  "photo-ssd-samsung-980-pro": {
+    "license": "CC BY-SA 4.0",
+    "artist": "D-Kuru",
+    "page": "https://commons.wikimedia.org/wiki/File:Samsung_980_PRO_PCIe_4.0_NVMe_SSD_1TB-top_PNr%C2%B00915.jpg",
+    "note": "cut from assets/source-web/ssd-samsung-980-pro.jpg: a Samsung 980 PRO NVMe SSD, 1TB; its QR code and part, model, PSID and serial lines filled black; cut 2026-11-18 in a browser canvas (no rembg here): the ground learnt from the frame's border (k-means in Lab), flood-filled from the border within a tolerance, the largest object kept with its holes, edges feathered and de-fringed against the ground colour"
+  },
+  "photo-ssd-wd-black-sn850x": {
+    "license": "CC BY 4.0",
+    "artist": "4300streetcar",
+    "page": "https://commons.wikimedia.org/wiki/File:Western_Digital_SN850X_NVME_solid_state_drive_8TB_front_side.jpg",
+    "note": "cut from assets/source-web/ssd-wd-black-sn850x.jpg: a WD_BLACK SN850X NVMe SSD, 8TB; its barcodes, serial, PSID lines and QR code filled black; cut 2026-11-18 in a browser canvas (no rembg here): the ground learnt from the frame's border (k-means in Lab), flood-filled from the border within a tolerance, the largest object kept with its holes, edges feathered and de-fringed against the ground colour"
+  },
+  "photo-minipc-intel-nuc8": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Laserlicht",
+    "page": "https://commons.wikimedia.org/wiki/File:Intel_NUC8.jpg",
+    "note": "cut from assets/source-web/minipc-intel-nuc8.jpg: an Intel NUC 8 mini PC, three-quarter view; cut 2026-11-18 in a browser canvas (no rembg here): the ground learnt from the frame's border (k-means in Lab), flood-filled from the border within a tolerance, the largest object kept with its holes, edges feathered and de-fringed against the ground colour"
+  },
+  "photo-minipc-minisforum-n40": {
+    "license": "CC0",
+    "artist": "Goovaeh8fot6yugh",
+    "page": "https://commons.wikimedia.org/wiki/File:Minisforum_N40_Mini_PC_from_above.jpg",
+    "note": "cut from assets/source-web/minipc-minisforum-n40.jpg: a Minisforum N40 mini PC, from above; cut 2026-11-18 in a browser canvas (no rembg here): the ground learnt from the frame's border (k-means in Lab), flood-filled from the border within a tolerance, the largest object kept with its holes, edges feathered and de-fringed against the ground colour"
+  },
+  "photo-chromebook-asus-c201": {
+    "license": "CC BY-SA 4.0",
+    "artist": "Per A.J. Andersson",
+    "page": "https://commons.wikimedia.org/wiki/File:ASUS_Chromebook_C201_(PICT6638k).jpg",
+    "note": "cut from assets/source-web/chromebook-asus-c201.jpg: an ASUS Chromebook C201, open; its screen (a web page with photographs of people) filled dark; cut 2026-11-18 in a browser canvas (no rembg here): the ground learnt from the frame's border (k-means in Lab), flood-filled from the border within a tolerance, the largest object kept with its holes, edges feathered and de-fringed against the ground colour"
   }
 }

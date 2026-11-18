@@ -1,5 +1,5 @@
 {
- "_doc": "What a full ad can be about, made from offer-library.js LINES by scripts/build_full_subjects.mjs. Do not edit by hand: change the offer family and run the script.",
+ "_doc": "What a full ad can be about, made from offer-library.js LINES by scripts/build_full_subjects.mjs, and each line's pool (what a full ad nobody picked the picture for draws from, by its seed) from spec/product-demand.json, assets/devices.json and assets/vehicles.json. Do not edit by hand: change those and run the script.",
  "subjects": [
   {
    "key": "iphone",
@@ -50,7 +50,8 @@
       "k": 0.95
      }
     ]
-   ]
+   ],
+   "pool": []
   },
   {
    "key": "ipad",
@@ -87,6 +88,163 @@
       "k": 0.92
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "ipad-front-screen-off",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "ipad-pair-sizes",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "ipad-back-camera",
+       "k": 1
+      },
+      {
+       "file": "ipad-front-screen-off",
+       "k": 0.92
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-pro-13-m5--silver",
+       "k": 1
+      },
+      {
+       "file": "qs-ipad-pro-13-m5--space-black",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-pro-13-m5--silver",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-pro-13-m5--space-black",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-pro-13-m4",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-pro-11-m4--silver",
+       "k": 1
+      },
+      {
+       "file": "qs-ipad-pro-11-m4--space-black",
+       "k": 0.92
+      }
+     ],
+     "w": 2.8
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-13-m4--blue",
+       "k": 1
+      },
+      {
+       "file": "qs-ipad-air-13-m4--purple",
+       "k": 0.92
+      },
+      {
+       "file": "qs-ipad-air-13-m4--space-gray",
+       "k": 0.92
+      }
+     ],
+     "w": 2.8
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-pro-11-m4--silver",
+       "k": 1
+      }
+     ],
+     "w": 2.1
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-pro-11-m4--space-black",
+       "k": 1
+      }
+     ],
+     "w": 2.1
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-13-m4--blue",
+       "k": 1
+      }
+     ],
+     "w": 1.4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-13-m4--purple",
+       "k": 1
+      }
+     ],
+     "w": 1.4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-13-m4--space-gray",
+       "k": 1
+      }
+     ],
+     "w": 1.4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-11-m4--blue",
+       "k": 1
+      }
+     ],
+     "w": 1.4
+    }
    ]
   },
   {
@@ -120,6 +278,176 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-16-m5--silver",
+       "k": 1
+      },
+      {
+       "file": "qs-macbook-pro-16-m5--space-black",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-14-m5--silver",
+       "k": 1
+      },
+      {
+       "file": "qs-macbook-pro-14-m5--space-black",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-16-m5--silver",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-16-m5--space-black",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-14-m5--silver",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-14-m5--space-black",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-15-m5--midnight",
+       "k": 1
+      },
+      {
+       "file": "qs-macbook-air-15-m5--silver",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-air-15-m5--sky-blue",
+       "k": 0.92
+      }
+     ],
+     "w": 3.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-13-m5--midnight",
+       "k": 1
+      },
+      {
+       "file": "qs-macbook-air-13-m5--silver",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-air-13-m5--sky-blue",
+       "k": 0.92
+      }
+     ],
+     "w": 3.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-15-m5--midnight",
+       "k": 1
+      }
+     ],
+     "w": 1.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-15-m5--silver",
+       "k": 1
+      }
+     ],
+     "w": 1.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-15-m5--sky-blue",
+       "k": 1
+      }
+     ],
+     "w": 1.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-13-m5--midnight",
+       "k": 1
+      }
+     ],
+     "w": 1.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-13-m5--silver",
+       "k": 1
+      }
+     ],
+     "w": 1.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-13-m5--sky-blue",
+       "k": 1
+      }
+     ],
+     "w": 1.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-neo-13--blush",
+       "k": 1
+      }
+     ],
+     "w": 1.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-neo-13--citrus",
+       "k": 1
+      }
+     ],
+     "w": 1.2
+    }
    ]
   },
   {
@@ -153,6 +481,189 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "qs-watch-ultra3--titanium-black",
+       "k": 1
+      },
+      {
+       "file": "qs-watch-ultra3--titanium-natural",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-ultra3--titanium-black",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-ultra3--titanium-natural",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s11--aluminum-jet-black",
+       "k": 1
+      },
+      {
+       "file": "qs-watch-s11--aluminum-rose-gold",
+       "k": 0.92
+      },
+      {
+       "file": "qs-watch-s11--aluminum-silver",
+       "k": 0.92
+      }
+     ],
+     "w": 3.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s11--aluminum-jet-black",
+       "k": 1
+      }
+     ],
+     "w": 1.8
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s11--aluminum-rose-gold",
+       "k": 1
+      }
+     ],
+     "w": 1.8
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s11--aluminum-silver",
+       "k": 1
+      }
+     ],
+     "w": 1.8
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-ultra2--titanium-black",
+       "k": 1
+      },
+      {
+       "file": "qs-watch-ultra2--titanium-natural",
+       "k": 0.92
+      }
+     ],
+     "w": 2.8
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s10--aluminum-jet-black",
+       "k": 1
+      },
+      {
+       "file": "qs-watch-s10--aluminum-rose-gold",
+       "k": 0.92
+      },
+      {
+       "file": "qs-watch-s10--aluminum-silver",
+       "k": 0.92
+      }
+     ],
+     "w": 2.8
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-ultra2--titanium-black",
+       "k": 1
+      }
+     ],
+     "w": 2.1
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-ultra2--titanium-natural",
+       "k": 1
+      }
+     ],
+     "w": 2.1
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s10--aluminum-jet-black",
+       "k": 1
+      }
+     ],
+     "w": 1.4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s10--aluminum-rose-gold",
+       "k": 1
+      }
+     ],
+     "w": 1.4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s10--aluminum-silver",
+       "k": 1
+      }
+     ],
+     "w": 1.4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-se3--aluminum-midnight",
+       "k": 1
+      },
+      {
+       "file": "qs-watch-se3--aluminum-starlight",
+       "k": 0.92
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-se3--aluminum-midnight",
+       "k": 1
+      }
+     ],
+     "w": 1.5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-se3--aluminum-starlight",
+       "k": 1
+      }
+     ],
+     "w": 1.5
+    }
    ]
   },
   {
@@ -194,6 +705,88 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "sam-s24-ultra-back",
+       "k": 1
+      },
+      {
+       "file": "sam-s24-ultra-front",
+       "k": 0.88
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "samsung-galaxy-back",
+       "k": 1
+      },
+      {
+       "file": "sam-s24-ultra-back",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s24-ultra-back",
+       "k": 1
+      }
+     ],
+     "w": 14
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s24-ultra-front",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s24-back-violet",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s23-back-green",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "samsung-galaxy-back",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "android-trio",
+       "k": 1
+      }
+     ],
+     "w": 3
+    }
    ]
   },
   {
@@ -231,6 +824,57 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "pix-9-back-green",
+       "k": 1
+      },
+      {
+       "file": "pix-9-back-obsidian",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "pix-trio-lineup",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "pix-9-back-green",
+       "k": 1
+      }
+     ],
+     "w": 12
+    },
+    {
+     "set": [
+      {
+       "file": "pix-9-back-obsidian",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "pix-9-front",
+       "k": 1
+      }
+     ],
+     "w": 6
+    }
    ]
   },
   {
@@ -268,6 +912,75 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "sam-fold-half",
+       "k": 1
+      },
+      {
+       "file": "sam-flip-open",
+       "k": 0.9
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "sam-fold-open-flat",
+       "k": 1
+      }
+     ],
+     "w": 13
+    },
+    {
+     "set": [
+      {
+       "file": "pix-fold-open",
+       "k": 1
+      }
+     ],
+     "w": 11
+    },
+    {
+     "set": [
+      {
+       "file": "sam-fold-half",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "sam-flip-open",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "samsung-fold-open",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "sam-flip-closed",
+       "k": 1
+      }
+     ],
+     "w": 5
+    }
    ]
   },
   {
@@ -289,7 +1002,8 @@
       "k": 1
      }
     ]
-   ]
+   ],
+   "pool": []
   },
   {
    "key": "console",
@@ -310,6 +1024,26 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-gaming-ps5-white",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-xbox-series-x",
+       "k": 1
+      }
+     ],
+     "w": 8
+    }
    ]
   },
   {
@@ -337,6 +1071,71 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch2",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch2-docked",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch-oled",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch-oled-docked",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch-oled-set",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch2-joycon",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch-dock",
+       "k": 1
+      }
+     ],
+     "w": 3
+    }
    ]
   },
   {
@@ -358,6 +1157,26 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-gaming-dualsense-white",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-dualsense-black",
+       "k": 1
+      }
+     ],
+     "w": 9
+    }
    ]
   },
   {
@@ -379,7 +1198,8 @@
       "k": 1
      }
     ]
-   ]
+   ],
+   "pool": []
   },
   {
    "key": "vr",
@@ -400,7 +1220,8 @@
       "k": 1
      }
     ]
-   ]
+   ],
+   "pool": []
   },
   {
    "key": "pchandheld",
@@ -414,7 +1235,25 @@
     "SELL YOUR HANDHELD"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": []
+   "sets": [
+    [
+     {
+      "file": "photo-gaming-steam-deck-dark",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-gaming-steam-deck-dark",
+       "k": 1
+      }
+     ],
+     "w": 13
+    }
+   ]
   },
   {
    "key": "gamingpc",
@@ -428,7 +1267,25 @@
     "SELL YOUR GAMING PC"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": []
+   "sets": [
+    [
+     {
+      "file": "photo-gaming-pc-tower",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-gaming-pc-tower",
+       "k": 1
+      }
+     ],
+     "w": 13
+    }
+   ]
   },
   {
    "key": "headphones",
@@ -449,6 +1306,53 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-max-front",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-max-silver",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-max-blue",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-max-grey",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-max-case",
+       "k": 1
+      }
+     ],
+     "w": 4
+    }
    ]
   },
   {
@@ -482,6 +1386,53 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-pro",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-pro-buds",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-galaxy-buds-cases",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-beats-fit-pro-case",
+       "k": 1
+      }
+     ],
+     "w": 4
+    }
    ]
   },
   {
@@ -496,7 +1447,8 @@
     "SELL YOUR HEADSET"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": []
+   "sets": [],
+   "pool": []
   },
   {
    "key": "speaker",
@@ -517,7 +1469,8 @@
       "k": 1
      }
     ]
-   ]
+   ],
+   "pool": []
   },
   {
    "key": "monitor",
@@ -544,7 +1497,8 @@
       "k": 1
      }
     ]
-   ]
+   ],
+   "pool": []
   },
   {
    "key": "laptop",
@@ -565,7 +1519,8 @@
       "k": 1
      }
     ]
-   ]
+   ],
+   "pool": []
   },
   {
    "key": "ssd",
@@ -579,7 +1534,40 @@
     "SELL YOUR SEALED SSDS"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": []
+   "sets": [
+    [
+     {
+      "file": "photo-ssd-samsung-980-pro",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "photo-ssd-wd-black-sn850x",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-ssd-samsung-980-pro",
+       "k": 1
+      }
+     ],
+     "w": 13
+    },
+    {
+     "set": [
+      {
+       "file": "photo-ssd-wd-black-sn850x",
+       "k": 1
+      }
+     ],
+     "w": 12
+    }
+   ]
   },
   {
    "key": "minipc",
@@ -593,7 +1581,40 @@
     "SELL YOUR MINI PC"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": []
+   "sets": [
+    [
+     {
+      "file": "photo-minipc-intel-nuc8",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "photo-minipc-minisforum-n40",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-minipc-intel-nuc8",
+       "k": 1
+      }
+     ],
+     "w": 12
+    },
+    {
+     "set": [
+      {
+       "file": "photo-minipc-minisforum-n40",
+       "k": 1
+      }
+     ],
+     "w": 11
+    }
+   ]
   },
   {
    "key": "chromebook",
@@ -607,7 +1628,25 @@
     "SELL YOUR SEALED CHROMEBOOK"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": []
+   "sets": [
+    [
+     {
+      "file": "photo-chromebook-asus-c201",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-chromebook-asus-c201",
+       "k": 1
+      }
+     ],
+     "w": 13
+    }
+   ]
   },
   {
    "key": "metaglasses",
@@ -621,7 +1660,25 @@
     "SELL YOUR META GLASSES"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": []
+   "sets": [
+    [
+     {
+      "file": "photo-wear-ray-ban-meta",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-wear-ray-ban-meta",
+       "k": 1
+      }
+     ],
+     "w": 13
+    }
+   ]
   },
   {
    "key": "smartwatch",
@@ -642,7 +1699,8 @@
       "k": 1
      }
     ]
-   ]
+   ],
+   "pool": []
   },
   {
    "key": "gold",
@@ -681,6 +1739,89 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "gold-necklace-single",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-bars-pamp",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-eagle-coins",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-bars-pair",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-krugerrand-springbok",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-bracelet-flat",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "gold-bracelet-cuban",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "gold-jewelry",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "gold-watch-luxury",
+       "k": 1
+      }
+     ],
+     "w": 6
+    }
    ]
   },
   {
@@ -720,6 +1861,62 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "silver-flatware-set",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "silver-candlesticks",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-silver-eagle-obverse",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-silver-maple-stack",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-silver-maple-pile",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-silver-morgan-1886",
+       "k": 1
+      }
+     ],
+     "w": 7
+    }
    ]
   },
   {
@@ -759,6 +1956,44 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-coin-gold-eagle-obverse",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-double-eagle-1849",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-album",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-half-dollar-stacks",
+       "k": 1
+      }
+     ],
+     "w": 6
+    }
    ]
   },
   {
@@ -792,6 +2027,98 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "car-sedan-rear",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "car-suv-side",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "car-damaged-front",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "car-ford-f150-raptor-2026-black",
+       "k": 1
+      }
+     ],
+     "w": 11.2
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tundra-trd-pro-blue",
+       "k": 1
+      }
+     ],
+     "w": 11.2
+    },
+    {
+     "set": [
+      {
+       "file": "car-hyundai-ioniq-9-white",
+       "k": 1
+      }
+     ],
+     "w": 10.4
+    },
+    {
+     "set": [
+      {
+       "file": "car-jeep-wrangler-rubicon-2026-orange",
+       "k": 1
+      }
+     ],
+     "w": 10.4
+    },
+    {
+     "set": [
+      {
+       "file": "car-kia-telluride-grey",
+       "k": 1
+      }
+     ],
+     "w": 10.4
+    },
+    {
+     "set": [
+      {
+       "file": "car-subaru-forester-silver",
+       "k": 1
+      }
+     ],
+     "w": 9.93
+    },
+    {
+     "set": [
+      {
+       "file": "car-tesla-model-y-juniper-grey",
+       "k": 1
+      }
+     ],
+     "w": 9.93
+    }
    ]
   },
   {
@@ -813,6 +2140,17 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "strip-boxes",
+       "k": 1
+      }
+     ],
+     "w": 11
+    }
    ]
   },
   {
@@ -834,6 +2172,26 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "poke-psa-charizard",
+       "k": 1
+      }
+     ],
+     "w": 11
+    },
+    {
+     "set": [
+      {
+       "file": "poke-slabs-trio",
+       "k": 1
+      }
+     ],
+     "w": 8
+    }
    ]
   },
   {
@@ -873,6 +2231,53 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "ph-sports-slabs-fan",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-cards-fan",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-slab",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-box",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "sports-slabs-stack",
+       "k": 1
+      }
+     ],
+     "w": 8
+    }
    ]
   },
   {
@@ -904,6 +2309,80 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-camera-sony-a7r5",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-canon-r5",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-nikon-z8",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-sony-a7iv",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-canon-r6",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-fujifilm-xt5",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-leica-q2",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-sony-a7r-gm",
+       "k": 1
+      }
+     ],
+     "w": 5
+    }
    ]
   },
   {
@@ -925,6 +2404,17 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-camera-dji-mini-4-pro",
+       "k": 1
+      }
+     ],
+     "w": 10
+    }
    ]
   }
  ]

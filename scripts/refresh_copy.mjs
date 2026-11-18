@@ -73,6 +73,37 @@ export const STEP_ONE = [
   [/^Snap photos(,| and) text them over\.( 30 seconds\.)?$/, 'Details or pics, either works.'],
 ];
 
+/* 7. THE ONE LIST (2026-11-18, DESIGN-LAW 143; spec/banned-words.json). The census of every
+ *    offered ad found TEXT A PIC on 12 phone cards (rule 136: a phone ad asks for a text, the
+ *    IMEI, because the buyer's chatbot quotes from what is typed) and ANY CONDITION, with no
+ *    limit, on 9 cards and 9 layouts (research 5.2: it reads as no questions asked). Both came
+ *    back because this file kept writing them (PAIRS, swapWord and the hours line below). A phone
+ *    card now asks TEXT US NOW; every other deck keeps TEXT A PIC, since an IMEI cannot price
+ *    gold, cards or a car. ANY CONDITION becomes the limit each deck can stand behind. */
+export const textAsk = cat => cat === 'phones' ? 'TEXT US NOW' : 'TEXT A PIC';
+const CONDITION = { phones:['CRACKED OK', 'WORN OR CRACKED'], cars:['RUNNING OR NOT', 'HIGH MILES OK', 'LOCAL CAR BUYER'], gold:['BROKEN GOLD OK', 'ANY KARAT'],
+  silver:['WORN OR BROKEN', 'TARNISHED OK'], coins:['WORN OR CLEANED', 'FULL COLLECTIONS'], pokemon:['PLAYED OR MINT', 'SINGLES OR SETS'], sports:['PLAYED OR MINT', 'SINGLES OR SETS'], strips:['SEALED, IN DATE', 'SEALED BOXES'] };
+/* the small line under a tile whose big word was ANY CONDITION ("OLD, WORN OR CRACKED"), so the
+   pair does not say the same thing twice */
+const CONDITION_SMALL = { phones:'SCREEN, BACK OR BATTERY', cars:'TITLE IN HAND', pokemon:'SINGLES OR BINDERS', sports:'SINGLES OR BINDERS',
+  gold:'RINGS, CHAINS, SCRAP', silver:'COINS, BARS, FLATWARE', coins:'SINGLES OR SETS', strips:'UNOPENED BOXES' };
+export const conditionSmall = cat => CONDITION_SMALL[cat] || 'AS IT IS';
+/* a phone card's sentences that asked for a photo, said as a request for the words a quote needs */
+const PHONE_SENTENCES = [[/\bText us a photo of the phone\./i, 'Text us the model and IMEI.'], [/\bSend a picture of what you are selling\./i, 'Tell us the model and IMEI.']];
+/* the deck's limit, the first one the card does not already say (have: its lines, upper-cased) */
+export const conditionWord = (cat, have) => { const list = CONDITION[cat] || ['WORN OR BROKEN']; return list.find(w => !(have && have.has(w))) || list[0]; };
+const LIMITED = /\b(EXCEPT|BUT\s+NOT|NOT\s+(LOCKED|STOLEN|REPORTED|BLACKLISTED)|NO\s+(LOCKED|STOLEN|REPORTED))\b/i;
+export function oneListWords(text, cat, have){
+  const cased = (orig, nt) => orig === orig.toUpperCase() ? nt : (nt.charAt(0) + nt.slice(1).toLowerCase()).replace(/\bok\b/g, 'OK');
+  let t = String(text);
+  if (cat === 'phones'){
+    for (const [re, to] of PHONE_SENTENCES) t = t.replace(re, to);
+    t = t.replace(/\b(TEXT|SEND)\s+(US\s+)?(A\s+)?(PICS?|PHOTOS?|PICTURES?)\b(?!\s+OF\b)/gi, m => cased(m, 'TEXT US NOW'));
+  }
+  if (!LIMITED.test(t)) t = t.replace(/\bANY\s+CONDITION\b/gi, m => { const w = conditionWord(cat, have); if (have) have.add(w); return cased(m, w); });
+  return t;
+}
+
 /* returns { changed: [...] } and rewrites tpl.layers in place */
 export function rewriteCopy(tpl, cat){
   const changed = [];
@@ -132,7 +163,21 @@ export function rewriteCopy(tpl, cat){
     const nt = STEP_ONE.reduce((s, [re, to]) => s.replace(re, to), l.text);
     if (nt !== l.text){ changed.push(l.text + ' -> ' + nt); l.text = nt; }
   });
-  return changed.concat(honestCopy(tpl, cat, have));
+  const more = honestCopy(tpl, cat, have);
+  L.forEach(l => {
+    if (typeof l.text !== 'string') return;
+    const nt = oneListWords(l.text, cat, have);
+    if (nt === l.text) return;
+    more.push(l.text.replace(/\n/g, '/') + ' -> ' + nt.replace(/\n/g, '/'));
+    const tile = /^Tile Big (\d)$/.exec(l.name || ''), wasCondition = /\bANY\s+CONDITION\b/i.test(l.text);
+    l.text = nt;
+    const small = tile && wasCondition && L.find(x => x.name === 'Tile Small ' + tile[1]);
+    if (small && typeof small.text === 'string' && /^OLD, WORN OR CRACKED$/i.test(small.text.trim())){
+      const st = small.text === small.text.toUpperCase() ? conditionSmall(cat) : conditionSmall(cat).charAt(0) + conditionSmall(cat).slice(1).toLowerCase();
+      more.push(small.text + ' -> ' + st); small.text = st;
+    }
+  });
+  return changed.concat(more);
 }
 
 /* 5. THE STUDY SESSION'S COPY RULES (2026-09-24..26, "Teaching the Engine
@@ -241,8 +286,10 @@ export function fixClaims(text){
   return s;
 }
 const PAIRS = [['TEXT A PIC', 'GET A PRICE'], ['FREE QUOTE', 'NO OBLIGATION'], ['NO FEES', 'NOTHING TAKEN OFF'], ['ANY CONDITION', 'OLD, WORN OR CRACKED'], ['LOCAL', 'MEET UP NEARBY']];
+/* the first and fourth pairs in a deck's own words (rule 7 above: oneListWords) */
+const pairsFor = cat => PAIRS.map(([b, s]) => b === 'TEXT A PIC' ? [textAsk(cat), s] : b === 'ANY CONDITION' ? [conditionWord(cat), conditionSmall(cat)] : [b, s]);
 const HOW = {
-  phones: 'Text us a photo of the phone. We send a price, you decide.',
+  phones: 'Text us the model and IMEI. We send a price, you decide.',
   gold: 'Send photos first. We weigh it in front of you and pay the same day.',
   silver: 'Send photos first. We weigh it in front of you and pay the same day.',
   coins: 'Send photos of the collection. We tell you what we see and what we pay.',
@@ -252,14 +299,17 @@ const HOW = {
   sports: 'Send photos of the cards. We make a cash offer, you decide.',
 };
 const STEPS = [['Text a photo', 'Send a picture of what you are selling.'], ['Get a price', 'A cash offer, with no obligation.'], ['Get paid', 'Cash or transfer when we meet.']];
+/* a phone card's first step asks for the words a quote needs (rule 136) */
+const stepsFor = cat => cat === 'phones' ? [['Text us now', 'Tell us the model and IMEI.'], STEPS[1], STEPS[2]] : STEPS;
 export function honestCopy(tpl, cat, have = new Set()){
   const changed = [];
   const L = tpl.layers || [];
   if (!have.size) L.forEach(l => { if (typeof l.text === 'string') l.text.toUpperCase().split(/\n|·|•/).forEach(s => have.add(s.replace(/[✓\s]+/g, ' ').trim())); });
   const set = (l, nt) => { if (nt === l.text) return; changed.push(String(l.text).replace(/\n/g, '/') + ' -> ' + String(nt).replace(/\n/g, '/')); l.text = nt; };
   const byName = n => L.find(l => l.name === n);
-  const freePair = () => { const p = PAIRS.find(([b]) => !have.has(b)) || PAIRS[PAIRS.length - 1]; have.add(p[0]); return p; };
-  const swapWord = () => { const w = BADGE_SWAP.concat(['TEXT A PIC', 'ANY CONDITION']).find(x => !have.has(x)) || 'FREE QUOTE'; have.add(w); return w; };
+  const P = pairsFor(cat);
+  const freePair = () => { const p = P.find(([b]) => !have.has(b)) || P[P.length - 1]; have.add(p[0]); return p; };
+  const swapWord = () => { const w = BADGE_SWAP.concat([textAsk(cat), conditionWord(cat, have)]).find(x => !have.has(x)) || 'FREE QUOTE'; have.add(w); return w; };
   const cased = (orig, nt) => (orig === orig.toUpperCase() ? nt.toUpperCase() : nt);
   /* tiles: a big word over a small line, rewritten as a pair so they still agree */
   for (let i = 1; i <= 4; i++){
@@ -277,8 +327,8 @@ export function honestCopy(tpl, cat, have = new Set()){
     if (l.name === 'Quote Mark' && /^["“”]+$/.test(l.text.trim())) set(l, '');
     else if (l.name === 'Quote') set(l, HOW[cat] || HOW.phones);
     else if (l.name === 'Who' && /·/.test(l.text)) set(l, 'How it works');
-    else if (/^Review Name (\d)$/.test(l.name || '')) set(l, STEPS[+l.name.slice(-1) - 1][0]);
-    else if (/^Review Text (\d)$/.test(l.name || '')) set(l, STEPS[+l.name.slice(-1) - 1][1]);
+    else if (/^Review Name (\d)$/.test(l.name || '')) set(l, stepsFor(cat)[+l.name.slice(-1) - 1][0]);
+    else if (/^Review Text (\d)$/.test(l.name || '')) set(l, stepsFor(cat)[+l.name.slice(-1) - 1][1]);
     else if (l.name === 'Rating Line' && PROOF.test(l.text)) set(l, cased(l.text, 'No fees · no obligation'));
   });
   L.forEach(l => {
@@ -294,7 +344,7 @@ export function honestCopy(tpl, cat, have = new Set()){
     }
     const lines = l.text.split('\n').map(ln => {
       let out = ln;
-      if (HOURS.test(out)) out = cased(out, 'Text a pic · get a price');
+      if (HOURS.test(out)) out = cased(out, (cat === 'phones' ? 'Text us now' : 'Text a pic') + ' · get a price');
       if (PRICE.test(out)){
         const m = /^\s*UP TO \$\s?[\d,.]+\s*K?\s*(.*)$/i.exec(out);
         const rest = m ? m[1].trim().toUpperCase() : '';
