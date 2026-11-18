@@ -371,11 +371,45 @@ function photoSuits(m, pairKey) {
   const hues = [c.colors.accent, c.colors.ground].map(oklchOf).filter(k => k.C >= .04).map(k => k.h);
   return hues.some(h => Math.min(Math.abs(h - m.hue), 360 - Math.abs(h - m.hue)) <= 30);
 }
+/* THE GROUND AND THE PRODUCT LINE UP (the owner, 2026-11-18: "ideally bg and assets line up").
+   Each photograph is tagged (spec/ground-tags.json, read by eye, carried into GROUND_PHOTOS by
+   scripts/build_full_grounds.mjs): a scene, or a photograph of goods with the make and model of a
+   vehicle or a phone. A photograph of goods stands behind an ad only when they are the ad's own: the
+   same make and model of a vehicle or a phone, the same kind of goods otherwise (never a MacBook
+   behind an iPhone, a gold coin behind silver flatware, a Ford behind a RAM). A scene goes with any. */
+const GROUND_KIND = { ipad: ["ipad"], mac: ["mac"], watch: ["watch"], smartwatch: ["watch"], headphones: ["headphones"], headset: ["headphones"], earbuds: ["earbuds"], speaker: ["speaker"],
+  camera: ["camera"], drone: ["drone"], gold: ["gold"], silver: ["silver", "coins"], coins: ["coins"], strips: ["strips"], pokemon: ["pokemon"], sports: ["sports"], metaglasses: ["metaglasses"] };
+const carOf = f => { const m = /^car-([a-z]+)-([a-z0-9]+)/.exec(f || ""); return m ? { make: m[1] === "chevrolet" ? "chevy" : m[1], model: m[2], van: /van|transit|sprinter|promaster/.test(f) } : null; };
+const iphoneOf = id => { const m = /^(\d+e?)((?:-pro|-plus|-mini)?(?:-max)?)(?:-|$)/.exec(id || "") || /iphone-(\d+e?)((?:-pro|-plus|-mini)?(?:-max)?)/.exec(id || ""); return m ? (m[1] + m[2].replace(/-/g, " ")).trim() : ""; };
+/** What an ad shows, as its ground is matched against it: { kind, makes, models, van, files }. */
+export function productFor(subject, have) {
+  const line = subject && subject !== "iphone" ? subject : "iphone";
+  const files = (have || []).filter(Boolean).map(id => String(id).replace(/^sub-/, "").replace(/^recipe:[^/]*\//, ""));
+  if (line === "iphone") return { kind: "iphone", models: files.map(iphoneOf), files };
+  if (line === "car") { const c = files.map(carOf).filter(Boolean); return { kind: "car", makes: c.map(x => x.make), models: c.map(x => x.model), van: c.some(x => x.van), files }; }
+  return { kind: line, files };
+}
+/** Whether a ground photograph's tag agrees with the product (productFor). */
+export function groundFits(t, P) {
+  if (!t || t.never) return false;
+  if (!t.shows || t.shows === "scene" || !P) return true;
+  if (!P.files || !P.files.length) return P.kind === "car" || P.kind === "iphone" ? false : (GROUND_KIND[P.kind] || []).includes(t.subject);
+  if (P.kind === "car") {
+    if (!t.make || !P.makes.length || P.makes.some(m => m !== t.make)) return false;
+    if (t.subject === "car-key") return true;
+    if (t.subject !== "car" || (P.van && t.vehicle !== "van")) return false;
+    if (t.cuts && !P.files.every(f => t.cuts.includes(f))) return false;   // the photograph's own cut-outs only (an E46 is not a G80 M3)
+    return !t.model || P.models.every(m => !m || m === t.model);
+  }
+  if (P.kind === "iphone") return t.subject === "iphone" && !!t.model && P.models.length > 0 && P.models.every(m => m === t.model);
+  return (GROUND_KIND[P.kind] || []).includes(t.subject);
+}
 /** The ground a seed draws for a line and the pair it drew: { background, ground_photo? }, or null
- *  for the house gradient the seed already drew. */
-export function groundFor(subject, seed, pairKey) {
+ *  for the house gradient the seed already drew. product (productFor): only a photograph that agrees
+ *  with it is drawn. */
+export function groundFor(subject, seed, pairKey, product) {
   const cat = !subject || subject === "iphone" ? "phones" : (GROUND_LINE_CAT[subject] || "");
-  const pool = (GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && photoSuits(GROUND_PHOTOS[src], pairKey));
+  const pool = (GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && photoSuits(GROUND_PHOTOS[src], pairKey) && groundFits(GROUND_PHOTOS[src], product));
   const share = { photo: pool.length ? GROUND_SHARES.photo : 0, scene: GROUND_SCENES.length ? GROUND_SHARES.scene : 0, house: GROUND_SHARES.house };
   // the line's own stream: two lines on one seed do not stand on the same kind of ground
   let h = 0x811c9dc5; for (const ch of String(subject || "iphone")) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
@@ -620,6 +654,10 @@ export class FullAd extends Ad {
     if (this.groundImg) return false;
     const W = this.W, H = this.H, m = GROUND_PHOTOS[gp.src] || {};
     this.groundImg = img; this.groundFocus = Array.isArray(gp.focus) ? gp.focus : (m.focus || [.5, .5]);
+    // a scene with a floor (a desk top, a court, a sill: spec/ground-tags.json) is framed so the floor is
+    // the foot of the product band, where the product's own shadow falls (the owner: "bg and assets line up")
+    const shows = gp.shows || m.shows, floor = gp.floor != null ? +gp.floor : m.floor;
+    this.groundFloor = shows === "scene" && floor > 0 && floor < 1 && this.full && this.full.group ? floor : null;
     // the still's moment (fullStill's): the picture pushes in until then, and holds
     this.tHold = Math.max(isFinite(this.tl.number) ? this.tl.number + 1.2 : 0, (this.tLanded || 0) + .6, (this.tOutro != null ? this.tOutro : st.duration) - .4);
     this.groundDrift = ((st.seed | 0) % 2 ? 1 : -1) * .025;
@@ -643,10 +681,22 @@ export class FullAd extends Ad {
   _drawPhoto(ctx, t) {
     const img = this.groundImg, W = this.W, H = this.H, iw = img.naturalWidth, ih = img.naturalHeight;
     const u = clamp(t / Math.max(.5, this.tHold), 0, 1), e = 1 - (1 - u) ** 3;   // eases to rest
-    const k = Math.max(W / iw, H / ih), zoom = 1.02 + .07 * e;
-    const sw = W / (k * zoom), sh = H / (k * zoom);
+    const k = Math.max(W / iw, H / ih);
+    let zoom = 1.02 + .07 * e, sh = H / (k * zoom), sy;
+    if (this.groundFloor != null) {
+      // the floor line onto the product's foot: as close as cover-fit allows, pushing in (to 1.45x at
+      // most) where the photograph is too short above or below its floor to reach it otherwise
+      const fl = this.groundFloor, base = clamp(this.full.group[3], 1, H - 1);
+      const shMax = Math.min(fl * ih * H / base, (1 - fl) * ih * H / (H - base));
+      this.floorReach = shMax > 0 && H / (k * shMax) <= 1.45 + 1e-6;   // false: the photograph cannot bring its floor that far within 1.45x; it comes as close as it can
+      if (shMax > 0 && sh > shMax) { zoom = Math.min(H / (k * shMax), 1.45); sh = H / (k * zoom); }
+      sy = clamp(fl * ih - base * sh / H, 0, Math.max(0, ih - sh));
+      this.floorAt = (fl * ih - sy) * H / sh;   // where the floor line lands on the frame (full_colour_check holds it at the product's foot)
+    }
+    const sw = W / (k * zoom);
     const [fx, fy] = this.groundFocus, dx = this.groundDrift * (1 - e) * iw;
-    const sx = clamp(fx * iw - sw / 2 + dx, 0, Math.max(0, iw - sw)), sy = clamp(fy * ih - sh / 2, 0, Math.max(0, ih - sh));
+    const sx = clamp(fx * iw - sw / 2 + dx, 0, Math.max(0, iw - sw));
+    if (sy == null) sy = clamp(fy * ih - sh / 2, 0, Math.max(0, ih - sh));
     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
   }
 
@@ -1372,7 +1422,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...view, ...type, ...picked };
   // the ground: a photograph given with the ad as given; otherwise the seed's own draw (groundFor), unless one was picked by hand
   if (st.ground_photo && st.ground_photo.src) { look.background = "photo"; look.ground_photo = { ...st.ground_photo }; }
-  else if (!("background" in picked)) { const gd = groundFor(st.subject, seed, key); if (gd) Object.assign(look, gd); else delete look.ground_photo; }
+  else if (!("background" in picked)) { const gd = groundFor(st.subject, seed, key, productFor(st.subject, have)); if (gd) Object.assign(look, gd); else delete look.ground_photo; }
   if (look.ground_photo) loadGroundPhoto(look.ground_photo.src).catch(() => {});
   const area = (st.area || "").trim();
   // What the customer left empty is filled from the lists, each line chosen so that it does not
