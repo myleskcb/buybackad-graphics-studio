@@ -73,12 +73,16 @@ main .wrap { padding-block: 16px 40px }
 .words .t { overflow-wrap: anywhere }
 .words li.b .t { color: var(--bad); font-weight: 600 }
 .more { background: none; border: 0; color: var(--accent); padding: 2px 0; font-size: 12.5px; font-weight: 600; justify-self: start }
-.acts { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 6px; padding: 10px 12px 12px; margin-top: auto }
+.acts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px 12px 12px; margin-top: auto }
 .acts button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--line); background: var(--panel); border-radius: 9px; padding: 7px 6px; font-weight: 600; font-size: 13px }
 .acts button svg { width: 16px; height: 16px; flex: none }
 .acts .yes[aria-pressed="true"] { background: var(--good); border-color: var(--good); color: var(--panel) }
 .acts .no[aria-pressed="true"] { background: var(--bad); border-color: var(--bad); color: var(--panel) }
 .acts .edit.has { border-color: var(--warn); color: var(--warn) }
+.acts .hero[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink) }
+.card.hero-pick .thumb::after { content: "Hero"; position: absolute; left: 8px; bottom: 8px; background: var(--accent); color: var(--accent-ink); font: 700 11.5px/1 var(--body); padding: 5px 8px; border-radius: 999px }
+.btn.hero[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
+.tally .h { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent) }
 .saving { font-size: 11.5px; color: var(--muted); padding: 0 12px 10px; min-height: 1em }
 .pager { display: flex; justify-content: center; padding-top: 18px }
 .pager button { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; padding: 10px 18px; font-weight: 700 }
@@ -127,7 +131,7 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
   <div class="filters">
     <label>Kind <select id="f-gen"><option value="all">Every kind</option></select></label>
     <label>Show <select id="f-show">
-      <option value="all">Every ad</option><option value="todo">Not reviewed yet</option><option value="up">Approved</option><option value="down">Denied</option><option value="note">With a change asked</option>
+      <option value="all">Every ad</option><option value="todo">Not reviewed yet</option><option value="up">Approved</option><option value="down">Denied</option><option value="note">With a change asked</option><option value="hero">Hero picks</option>
     </select></label>
     <label>Order <select id="f-sort"><option value="best">Best first</option><option value="worst">Worst first</option></select></label>
     <label class="chk"><input type="checkbox" id="f-old"> Old or banned words</label>
@@ -157,6 +161,7 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
       <div class="row" style="margin-top:12px">
         <button class="btn yes" id="d-yes" aria-pressed="false">Approve</button>
         <button class="btn no" id="d-no" aria-pressed="false">Deny</button>
+        <button class="btn hero" id="d-hero" aria-pressed="false" title="Pick it for the landing page's hero wall">Hero</button>
       </div>
       <label class="field"><span>What should change?</span>
         <textarea id="d-note" placeholder="Say it the way you'd tell a designer: “Say Samsung Galaxy, not Galaxy”, “brighter sunset ground”, “one accent, not orange and salmon”."></textarea>
@@ -183,6 +188,7 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
   const ICON = {
     up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v11H4V10h3zm0 0 4-7a2 2 0 0 1 3 2l-1 5h5.5a2 2 0 0 1 2 2.4l-1.4 7A2 2 0 0 1 17.2 21H7"/></svg>',
     down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 14V3h3v11h-3zm0 0-4 7a2 2 0 0 1-3-2l1-5H5.5a2 2 0 0 1-2-2.4l1.4-7A2 2 0 0 1 6.8 3H17"/></svg>',
+    hero: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>',
     edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>',
   };
   const GEN = { full: 'Full ad', dl: 'Designer layout', of: 'Offer family', sc: 'Library card', any: 'Any look', feed: 'FeedAd (iPhones LA)' };
@@ -194,7 +200,7 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
   // ---- the decisions: the page's own store, read back by Claude
   const chain = {};
   async function save(r, patch) {
-    const cur = S.dec[r.key] || {}, body = { verdict: cur.verdict || '', note: cur.note || '', picture: cur.picture || '', ...patch, id: r.id, gen: r.gen, cat: r.cat, name: r.name, at: Date.now() };
+    const cur = S.dec[r.key] || {}, body = { verdict: cur.verdict || '', note: cur.note || '', picture: cur.picture || '', hero: !!cur.hero, ...patch, id: r.id, gen: r.gen, cat: r.cat, name: r.name, at: Date.now() };
     S.dec[r.key] = body; paint(r.key, 'Saving…');
     if (!S.db) { paint(r.key, 'Not saved: this view cannot keep decisions.'); return false; }
     const run = async () => { try { await S.db.collection('decisions').doc(r.key).set(body); paint(r.key, 'Saved'); return true; } catch (e) { paint(r.key, e && e.code === 'quota_exceeded' ? 'Not saved: the store is full.' : 'Not saved. Try again.'); return false; } };
@@ -223,7 +229,7 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
     if (f.old) L = L.filter(r => r.banned.length || r.bannedNoName.length);
     if (f.lacks) L = L.filter(r => r.lacks.length);
     if (f.pre) L = L.filter(r => r.pre === 'fails');
-    if (f.show !== 'all') L = L.filter(r => { const d = S.dec[r.key] || {}; return f.show === 'todo' ? !d.verdict && !d.note && !d.picture : f.show === 'note' ? !!(d.note || d.picture) : d.verdict === f.show; });
+    if (f.show !== 'all') L = L.filter(r => { const d = S.dec[r.key] || {}; return f.show === 'todo' ? !d.verdict && !d.note && !d.picture && !d.hero : f.show === 'note' ? !!(d.note || d.picture) : f.show === 'hero' ? !!d.hero : d.verdict === f.show; });
     if (f.q) L = L.filter(r => (r.name + ' ' + r.words.map(w => w.t).join(' ')).toUpperCase().includes(f.q));
     L.sort((a, b) => (f.sort === 'worst' ? b.score - a.score : a.score - b.score) || a.rank - b.rank || a.name.localeCompare(b.name));
     return L;
@@ -235,9 +241,9 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
       .map(([c, t, k]) => `<button type="button" data-cat="${esc(c)}" aria-pressed="${S.cat === c}">${esc(t)}<small class="num">${k}</small></button>`).join('');
   }
   function tally() {
-    const v = Object.values(S.dec), up = v.filter(d => d.verdict === 'up').length, dn = v.filter(d => d.verdict === 'down').length, nt = v.filter(d => d.note || d.picture).length;
-    const done = new Set(Object.entries(S.dec).filter(([, d]) => d.verdict || d.note || d.picture).map(([k]) => k)).size;
-    $('tally').innerHTML = `<span class="g num">${up} approved</span><span class="r num">${dn} denied</span><span class="n num">${nt} with a change</span><span class="num">${S.rows.length - done} to review</span>`;
+    const v = Object.values(S.dec), up = v.filter(d => d.verdict === 'up').length, dn = v.filter(d => d.verdict === 'down').length, nt = v.filter(d => d.note || d.picture).length, hr = v.filter(d => d.hero).length;
+    const done = new Set(Object.entries(S.dec).filter(([, d]) => d.verdict || d.note || d.picture || d.hero).map(([k]) => k)).size;
+    $('tally').innerHTML = `<span class="g num">${up} approved</span><span class="r num">${dn} denied</span><span class="h num">${hr} hero picks</span><span class="n num">${nt} with a change</span><span class="num">${S.rows.length - done} to review</span>`;
   }
   const scoreCls = s => s <= 1 ? '' : s <= 5 ? 'mid' : 'hi';
   const scoreTxt = s => s === 0 ? 'Clean' : 'Score ' + s;
@@ -252,7 +258,7 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
     ].join('');
     const head = r.words.filter(w => /headline|claim/i.test(w.w)).slice(0, 2), rest = r.words;
     const li = w => `<li class="${w.b.length ? 'b' : ''}"><span class="w">${esc(w.w)}</span><span class="t">${esc(w.t)}${w.b.length ? ' · ' + esc(w.b.join(', ')) : ''}</span></li>`;
-    return `<article class="card ${d.verdict || ''}" data-key="${esc(r.key)}">
+    return `<article class="card ${d.verdict || ''}${d.hero ? ' hero-pick' : ''}" data-key="${esc(r.key)}">
       <button class="thumb" type="button" data-act="open" aria-label="Open ${esc(r.name)}">${th ? `<img src="${th}" alt="" loading="lazy">` : ''}
         <span class="rank num">#${r.rank} of ${r.of}</span><span class="score num ${scoreCls(r.score)}">${scoreTxt(r.score)}</span></button>
       <div class="body">
@@ -265,7 +271,8 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
       <div class="acts">
         <button class="yes" type="button" data-act="up" aria-pressed="${d.verdict === 'up'}">${ICON.up}Approve</button>
         <button class="no" type="button" data-act="down" aria-pressed="${d.verdict === 'down'}">${ICON.down}Deny</button>
-        <button class="edit ${d.note || d.picture ? 'has' : ''}" type="button" data-act="open">${ICON.edit}${d.note || d.picture ? 'Change asked' : 'Change…'}</button>
+        <button class="hero" type="button" data-act="hero" aria-pressed="${!!d.hero}" title="Pick it for the landing page's hero wall">${ICON.hero}Hero</button>
+        <button class="edit ${d.note || d.picture ? 'has' : ''}" type="button" data-act="open">${ICON.edit}${d.note || d.picture ? 'Change asked' : 'Change'}</button>
       </div>
       <div class="saving" data-part="state"></div>
     </article>`;
@@ -295,7 +302,7 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
     $('d-meta').textContent = `${GEN[r.gen] || r.gen} · ${r.catName} · #${r.rank} of ${r.of} · ${r.offered}`;
     $('d-chips').innerHTML = [...r.banned.map(b => `<span class="chip bad">${esc(b)}</span>`), ...r.lacks.map(l => `<span class="chip warn">no ${esc(l)}</span>`), ...r.preSays.map(s => `<span class="chip bad">${esc(s)}</span>`)].join('');
     $('d-words').innerHTML = r.words.map(w => `<li class="${w.b.length ? 'b' : ''}"><span class="w">${esc(w.w)}</span><span class="t">${esc(w.t)}${w.b.length ? ' · ' + esc(w.b.join(', ')) : ''}</span></li>`).join('');
-    $('d-note').value = d.note || ''; $('d-yes').setAttribute('aria-pressed', d.verdict === 'up'); $('d-no').setAttribute('aria-pressed', d.verdict === 'down');
+    $('d-note').value = d.note || ''; $('d-yes').setAttribute('aria-pressed', d.verdict === 'up'); $('d-no').setAttribute('aria-pressed', d.verdict === 'down'); $('d-hero').setAttribute('aria-pressed', !!d.hero);
     $('d-sugg-out').hidden = true; $('d-sugg-state').textContent = ''; $('d-state').textContent = 'Saved changes are applied by Claude when you ask.';
     $('d-pic-cat').textContent = '(' + r.catName + ')'; $('d-pic-q').value = '';
     pics();
@@ -346,11 +353,13 @@ Answer as JSON: {"changes":[{"where":"...","now":"...","new":"..."}],"why":"one 
     const b = e.target.closest('[data-act]'); if (!b) return; const el = b.closest('.card'); const r = S.byKey[el.dataset.key]; if (!r) return;
     const a = b.dataset.act, d = S.dec[r.key] || {};
     if (a === 'up' || a === 'down') save(r, { verdict: d.verdict === a ? '' : a });
+    else if (a === 'hero') save(r, { hero: !d.hero, ...(!d.hero && d.verdict === 'down' ? { verdict: '' } : {}) });
     else if (a === 'open') openDlg(r);
     else if (a === 'words') { el.querySelector('[data-part="words"]').innerHTML = r.words.map(w => `<li class="${w.b.length ? 'b' : ''}"><span class="w">${esc(w.w)}</span><span class="t">${esc(w.t)}${w.b.length ? ' · ' + esc(w.b.join(', ')) : ''}</span></li>`).join(''); b.remove(); }
   });
   $('d-yes').addEventListener('click', () => { const on = $('d-yes').getAttribute('aria-pressed') !== 'true'; $('d-yes').setAttribute('aria-pressed', on); if (on) $('d-no').setAttribute('aria-pressed', false); });
   $('d-no').addEventListener('click', () => { const on = $('d-no').getAttribute('aria-pressed') !== 'true'; $('d-no').setAttribute('aria-pressed', on); if (on) $('d-yes').setAttribute('aria-pressed', false); });
+  $('d-hero').addEventListener('click', () => { const on = $('d-hero').getAttribute('aria-pressed') !== 'true'; $('d-hero').setAttribute('aria-pressed', on); if (on) $('d-no').setAttribute('aria-pressed', false); });
   $('d-pics').addEventListener('click', e => { const b = e.target.closest('button[data-pic]'); if (!b) return; S.pick = S.pick === b.dataset.pic ? '' : b.dataset.pic; pics(); });
   $('d-pic-clear').addEventListener('click', () => { S.pick = ''; pics(); });
   let pt = 0; $('d-pic-q').addEventListener('input', () => { clearTimeout(pt); pt = setTimeout(pics, 150); });
@@ -360,7 +369,7 @@ Answer as JSON: {"changes":[{"where":"...","now":"...","new":"..."}],"why":"one 
     const r = S.open; if (!r) return;
     const verdict = $('d-yes').getAttribute('aria-pressed') === 'true' ? 'up' : $('d-no').getAttribute('aria-pressed') === 'true' ? 'down' : '';
     $('d-state').textContent = 'Saving…'; $('d-save').disabled = true;
-    const ok = await save(r, { verdict, note: $('d-note').value.trim(), picture: S.pick || '' });
+    const ok = await save(r, { verdict, note: $('d-note').value.trim(), picture: S.pick || '', hero: $('d-hero').getAttribute('aria-pressed') === 'true' });
     $('d-save').disabled = false;
     if (ok) $('dlg').close(); else $('d-state').textContent = S.db ? 'Not saved. Try again.' : 'This view cannot keep decisions.';
   });

@@ -31,7 +31,7 @@ if (!FILE) { console.error('usage: node scripts/apply_review.mjs --decisions fil
 const raw = JSON.parse(readFileSync(FILE, 'utf8'));
 // accept the store's listing ({docs:[{id, data}]}), an array of bodies, or an object keyed by id
 const docs = Array.isArray(raw) ? raw : Array.isArray(raw.docs) ? raw.docs.map(d => d.data || d) : Object.values(raw);
-const decisions = docs.filter(d => d && d.id).map(d => ({ id: d.id, gen: d.gen, cat: d.cat, name: d.name, verdict: d.verdict || '', note: (d.note || '').trim(), picture: d.picture || '', at: d.at || 0 }));
+const decisions = docs.filter(d => d && d.id).map(d => ({ id: d.id, gen: d.gen, cat: d.cat, name: d.name, verdict: d.verdict || '', hero: !!d.hero, note: (d.note || '').trim(), picture: d.picture || '', at: d.at || 0 }));
 const day = new Date().toISOString().slice(0, 10);
 
 const retire = decisions.filter(d => d.verdict === 'down' && (d.gen === 'dl' || d.gen === 'of'));
@@ -39,6 +39,7 @@ const hold = decisions.filter(d => d.verdict === 'down' && d.gen === 'sc');
 const fixNotRetire = decisions.filter(d => d.verdict === 'down' && !['dl', 'of', 'sc'].includes(d.gen));
 const work = decisions.filter(d => d.note || d.picture);
 const approved = decisions.filter(d => d.verdict === 'up');
+const heroes = decisions.filter(d => d.hero);
 
 console.log(`${decisions.length} decisions: ${approved.length} approved, ${retire.length + hold.length + fixNotRetire.length} denied, ${work.length} with a change asked`);
 const why = d => `owner denied it in the review, ${day}${d.note ? ': ' + d.note.replace(/\s+/g, ' ').slice(0, 120) : ''}`;
@@ -67,7 +68,16 @@ if (hold.length) {
   }
 }
 
-// 3. what is fixed, not retired; and every note or picture
+// 3. the owner's hero picks: a library card goes on the wall's hand list (assets/hero-picks.json picks,
+//    in the order picked); any other ad is listed until the wall can show it
+if (heroes.length) {
+  const p = ROOT + 'assets/hero-picks.json', HP = JSON.parse(readFileSync(p, 'utf8'));
+  const cards = heroes.filter(d => d.gen === 'sc').sort((a, b) => a.at - b.at), fresh = cards.filter(d => !HP.picks.includes(d.id));
+  console.log(`hero picks: ${heroes.length} (${fresh.length} library card${fresh.length === 1 ? '' : 's'} new to the wall's list` + (heroes.length > cards.length ? `; ${heroes.length - cards.length} of other kinds listed: ${heroes.filter(d => d.gen !== 'sc').map(d => d.id).join(', ')}` : '') + ')');
+  if (WRITE && fresh.length) { HP.picks.push(...fresh.map(d => d.id)); const raw = readFileSync(p, 'utf8'), ind = (/^\{\n( +)"/.exec(raw) || [, '  '])[1].length; writeFileSync(p, JSON.stringify(HP, null, ind) + (raw.endsWith('\n') ? '\n' : '')); }
+}
+
+// 4. what is fixed, not retired; and every note or picture
 if (fixNotRetire.length) console.log(`denied, to be fixed rather than retired (${fixNotRetire.length}): ` + fixNotRetire.map(d => `${d.id}${d.note ? ' ("' + d.note.slice(0, 60) + '")' : ''}`).join('; '));
 if (work.length) {
   console.log(`changes asked (${work.length}):`);
