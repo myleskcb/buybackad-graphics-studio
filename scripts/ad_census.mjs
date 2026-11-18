@@ -893,10 +893,13 @@ if (RESCAN) {
   /* the thumbnails live beside the census (they are most of its weight), and come back with it */
   try { const T = JSON.parse(readFileSync(thumbsOf(RESCAN), 'utf8')); C.rows.forEach(r => { if (!r.thumb && T[r.id]) r.thumb = T[r.id]; }); } catch (e) { console.log('no thumbnails beside ' + RESCAN + ': the page is drawn without them'); }
 } else {
+  /* the commit the census ran on, read before it starts (a commit made while it runs is not what
+     it measured), and whether the tree had changes no commit holds */
+  let commit = '', branch = '';
+  try { commit = execSync('git rev-parse --short HEAD', { cwd: ROOT }).toString().trim(); branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: ROOT }).toString().trim();
+    if (execSync('git status --porcelain --untracked-files=no', { cwd: ROOT }).toString().trim()) commit += ' with uncommitted changes'; } catch (e) { }
   const t0 = Date.now();
   const got = await census();
-  let commit = '', branch = '';
-  try { commit = execSync('git rev-parse --short HEAD', { cwd: ROOT }).toString().trim(); branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: ROOT }).toString().trim(); } catch (e) { }
   C = { made: new Date().toISOString(), commit, branch, base: BASE, visitor: VISITOR, required: REQUIRED, minutes: +((Date.now() - t0) / 60000).toFixed(1), notes: got.notes, rawSources: got.sources, rows: got.rows };
 }
 finish(C);

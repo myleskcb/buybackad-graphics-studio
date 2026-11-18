@@ -3545,8 +3545,8 @@ Done:
   `.render/ad-census/` (`census.json`, a sortable and filterable `index.html`
   with a thumbnail a row, `census.thumbs.json`). `--gate`, not wired into any
   deploy. `--rescan` re-scores the last census in a second.
-- The census below, 987 offered ads in 6.9 minutes with two workers, at
-  9466a0bc; none failed to open. Nothing was changed: no ad, template, table,
+- The census below, 987 offered ads in 6.9 minutes with two workers, with
+  the script at 5c61955d; none failed to open. Nothing was changed: no ad, template, table,
   default or retirement. Its page, published for the owner (private to the
   account until shared): https://claude.ai/artifact/XntKpJBBiJTX7bZQR8SLLL
 
