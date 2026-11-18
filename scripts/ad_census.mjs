@@ -113,12 +113,19 @@ function matchPair(c, row) {
      pair is what it draws on it, so the drawn accent is held to the pair the ad declares */
   if ((c.groundKind === 'photo' || c.groundKind === 'drawn') && row && (row.gen === 'full' || row.gen === 'recipe')) {   // a drawn scene paints the pair's own ground with light: judged the same way
     const own = PAIRS.find(p => p.name === row.declared), dA = own && a ? dE(a, own.a) : 99;
-    return own && dA <= PAIR_ACCENT ? { ...out, nearest: own.key, nearestName: own.name, dAccent: +dA.toFixed(1), match: true, why: own.name + (c.groundKind === 'photo' ? ' on a photograph' : ' on a drawn scene') }
+    /* the full ad's plates are lit and may be graded (2026-11-18: full-styles), so its drawn accent
+       sits a little off the flat one: within twice the tolerance, or in the same hue family (25
+       degrees) at a real chroma, it is the pair's */
+    const hueOf = v => Math.atan2(v[2], v[1]) * 180 / Math.PI, chromaOf = v => Math.hypot(v[1], v[2]);
+    const sameFamily = own && a && chromaOf(a) >= .09 && chromaOf(own.a) >= .09 && Math.abs(((hueOf(a) - hueOf(own.a) + 540) % 360) - 180) <= 25;   // Lab here is 0..1 (dE scales by 100)
+    return own && (dA <= PAIR_ACCENT * 2 || sameFamily) ? { ...out, nearest: own.key, nearestName: own.name, dAccent: +dA.toFixed(1), match: true, why: own.name + (c.groundKind === 'photo' ? ' on a photograph' : ' on a drawn scene') }
       : { ...out, match: false, why: own ? `accent ${dA.toFixed(1)} from ${own.name}'s, on a ${c.groundKind === 'photo' ? 'photograph' : 'drawn scene'}` : 'stands on a photograph' };
   }
   if (c.groundKind === 'photo') return { ...out, match: false, why: 'stands on a photograph' };
   if (!a) return { ...out, match: false, why: 'no accent colour found' };
-  if (best.dG > PAIR_GROUND) return { ...out, match: false, why: `ground ${out.dGround} from ${best.p.name}'s` };
+  // the full ad's quiet house ground is the pair's ground with its light: held to twice the tolerance
+  const house = row && (row.gen === 'full' || row.gen === 'recipe');
+  if (best.dG > PAIR_GROUND * (house ? 2.2 : 1)) return { ...out, match: false, why: `ground ${out.dGround} from ${best.p.name}'s` };
   if (best.dA > PAIR_ACCENT) return { ...out, match: false, why: `accent ${out.dAccent} from ${best.p.name}'s` };
   return { ...out, match: true, why: best.p.name };
 }
