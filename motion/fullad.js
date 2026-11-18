@@ -22,6 +22,7 @@ import { HOUSE_COLOURS, LINES } from "./house-colours.js";
 import { FULL_VOICES } from "./full-voices.js";
 import { bannedIn } from "./banned-words.js";
 import { PHONE_WEIGHT, PHONE_REST, PHONE_VIEWS, PHONE_COUNTS, PHONE_LINEUP, pickWeighted } from "./product-demand.js";
+import { GROUND_SHARES, GROUND_SCENES, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS } from "./full-grounds.js";
 
 // Proportions of the frame's width. 1080 x .052 = 56px, x .044 = 48px, x .032 = 35px.
 // edge: nothing nearer the frame's edge than 38px; gap: no two stacked blocks nearer than 22px.
@@ -333,6 +334,57 @@ export const COLOUR_OF = Object.fromEntries(HOUSE_COLOURS.map(c => [c.key, c]));
    studio_sweep's floor line stood as a row of ticks under the number. The depth comes from the
    light the layout puts behind the product, where it knows the product is. */
 export const GROUNDS = ["radial", "tonal", "linear"];
+
+/* WHAT THE AD STANDS ON, BEYOND THE HOUSE GRADIENT (2026-11-18; spec/full-grounds.json, written to
+   motion/full-grounds.js). The owner: "how come none of the videos use a BG?", "also only have 1 BG
+   style?!", "combo of assets and bg is best". A seed now draws a photograph from its line's pool, one
+   of the engine's drawn scenes, or the house gradient, in the table's shares, from a stream of its own:
+   the pair, the arrangement and the words the seed drew do not move. A photograph is drawn only where
+   its own colour keeps the card to two families with the pair the seed drew (rule 139); one given with
+   the ad (ground_photo: { src, focus, scrim, from }, a recipe made from an older card) is drawn as
+   given. FullAd grades it toward the pair's ground, shades it only where words stand, and pushes in on
+   it slowly through the video, holding still from the moment the photo is taken. */
+const GROUND_IMG = new Map();
+export const groundUrl = src => /^(https?:|\/|data:|blob:)/.test(src) ? src : new URL("../" + src, import.meta.url).href;
+/** Load a ground photograph once for the page (a promise of the decoded picture). */
+export function loadGroundPhoto(src) {
+  if (!src) return Promise.resolve(null);
+  let e = GROUND_IMG.get(src);
+  if (!e) {
+    const img = new Image(); img.decoding = "async"; e = { img: null };
+    e.p = new Promise((res, rej) => { img.onload = () => { e.img = img; res(img); }; img.onerror = () => rej(new Error("The background " + src + " did not load.")); });
+    e.p.catch(() => {}); img.src = groundUrl(src); GROUND_IMG.set(src, e);
+  }
+  return e.p;
+}
+const groundImage = src => (GROUND_IMG.get(src) || {}).img || null;
+/** Before a full ad is drawn for keeps (a download, a still for the library): its photograph loaded. */
+export async function fullGroundReady(st) {
+  const src = st && st.background === "photo" && st.ground_photo && st.ground_photo.src;
+  if (src) { try { await loadGroundPhoto(src); } catch (e) { /* drawn on the house gradient */ } }
+}
+/** A photograph whose own colour is strong suits a pair that has its family (hues within 30 degrees,
+ *  as pgHuePlan counts them); one with no strong colour suits every pair. */
+function photoSuits(m, pairKey) {
+  if (!m || !m.C || m.C < .08 || m.hue == null) return true;
+  const c = COLOUR_OF[pairKey]; if (!c) return true;
+  const hues = [c.colors.accent, c.colors.ground].map(oklchOf).filter(k => k.C >= .04).map(k => k.h);
+  return hues.some(h => Math.min(Math.abs(h - m.hue), 360 - Math.abs(h - m.hue)) <= 30);
+}
+/** The ground a seed draws for a line and the pair it drew: { background, ground_photo? }, or null
+ *  for the house gradient the seed already drew. */
+export function groundFor(subject, seed, pairKey) {
+  const cat = !subject || subject === "iphone" ? "phones" : (GROUND_LINE_CAT[subject] || "");
+  const pool = (GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && photoSuits(GROUND_PHOTOS[src], pairKey));
+  const share = { photo: pool.length ? GROUND_SHARES.photo : 0, scene: GROUND_SCENES.length ? GROUND_SHARES.scene : 0, house: GROUND_SHARES.house };
+  // the line's own stream: two lines on one seed do not stand on the same kind of ground
+  let h = 0x811c9dc5; for (const ch of String(subject || "iphone")) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
+  const g = rng(mixSeed((mixSeed(seed >>> 0) ^ h) >>> 0)); g();
+  let u = g() * (share.photo + share.scene + share.house);
+  if ((u -= share.photo) < 0) { const src = pool[Math.floor(g() * pool.length) % pool.length]; return { background: "photo", ground_photo: { src, focus: GROUND_PHOTOS[src].focus || [.5, .5] } }; }
+  if ((u -= share.scene) < 0) return { background: GROUND_SCENES[Math.floor(g() * GROUND_SCENES.length) % GROUND_SCENES.length] };
+  return null;
+}
 export const ARRANGEMENTS = ["lineup", "fan", "showcase", "podium", "wings"];
 /* One icon, where a size has room for one: the fan of banknotes. The review of 2026-11-12: the
    handshake is a photograph of two suits (clip art beside flat type), the red pin repeats the
@@ -486,11 +538,42 @@ const stackRows = (rows, gap) => {
 export class FullAd extends Ad {
   constructor(style, assets, width, height) {
     super(style, assets, width, height, { plan: false });   // laid out at this size by the rules below, never from the plain engine's plan
+    this._photoGround();
+    // a drawn scene that moves (aurora, drift) paints over the ground every frame: what must stay readable
+    // over it (the shade behind the words, the pool behind a screen) is kept in layers drawn after it
+    if (!this.groundImg && this.liveGround && !GROUNDS.includes(this.st.background)) { this.groundEven = {}; this.productOver = canvas(this.W, this.H); }
     this._productLight();
     // a phone that lands face up shows a lock screen in the card's own colours, its glass the one of
     // them that stands farthest off the ground lit behind it (lockScreen, screenBase)
     if (this.st.end_face && this.st.end_face !== "back") this.phones.forEach((q, i) => { if (!(q.meta && q.meta.flat) && !q.screen) q.screen = lockScreen(this.p, (this.st.seed | 0) + i, this.st.lang, screenBase(this.p, this._groundAt(q))); });
+    this._evenProduct();
     this._evenGround();
+  }
+
+  /** A screen that reads like the ground behind it (2026-11-18). A lock screen's glass is chosen to stand
+   *  off the ground (screenBase), and then its own glow can bring its middle back to the ground's tone: on
+   *  a photograph or a drawn scene the first iPhone ad read 1.05:1. Where the screen's middle and the
+   *  ground behind it are within 1.5:1, a pool is laid behind the phone in the pair's own colours, the
+   *  ground's deep shade behind a light screen, its light behind a dark one. The house gradients are left
+   *  as they were. */
+  _evenProduct() {
+    if (GROUNDS.includes(this.st.background)) return;
+    const xs = [this.bg, this.groundOver || this.productOver].filter(Boolean).map(c => c.getContext("2d"));
+    for (const q of this.phones) {
+      if (!q.screen) continue;
+      const sc = q.screen, d = sc.getContext("2d", { willReadFrequently: true }).getImageData((sc.width * .3) | 0, (sc.height * .38) | 0, (sc.width * .4) | 0, (sc.height * .24) | 0).data, Ls = [];
+      for (let i = 0; i < d.length; i += 16) Ls.push(.2126 * lin8(d[i]) + .7152 * lin8(d[i + 1]) + .0722 * lin8(d[i + 2]));
+      Ls.sort((u, v) => u - v);
+      const Lp = Ls[Ls.length >> 1], Lg = this._groundAt(q);
+      if ((Math.max(Lp, Lg) + .05) / (Math.min(Lp, Lg) + .05) >= 1.5) continue;
+      const light = Lp > .16, col = light ? lift(this.p.ground, -.55) : lift(this.p.light, .55);
+      const cx = q.home[0], cy = q.home[1], rx = q.w * q.size * .95, ry = q.h * q.size * .66;
+      for (const x of xs) {
+        x.save(); x.translate(cx, cy); x.scale(rx, ry);
+        const gl = x.createRadialGradient(0, 0, 0, 0, 0, 1); gl.addColorStop(0, rgba(col, .9)); gl.addColorStop(.62, rgba(col, .55)); gl.addColorStop(1, rgba(col, 0));
+        x.fillStyle = gl; x.fillRect(-1, -1, 2, 2); x.restore();
+      }
+    }
   }
 
   /** The ground behind a phone's middle, as the pre-flight reads it: the median relative luminance of
@@ -509,11 +592,85 @@ export class FullAd extends Ad {
    *  laptop on indigo stood in the dark. The layout knows where the product is; a ground does not. */
   _productLight() {
     const G = this.full && this.full.group; if (!G) return;
-    const x = this.bg.getContext("2d"), cx = (G[0] + G[2]) / 2, cy = (G[1] + G[3]) / 2, rx = (G[2] - G[0]) * .8, ry = (G[3] - G[1]) * .74;
+    const cx = (G[0] + G[2]) / 2, cy = (G[1] + G[3]) / 2, rx = (G[2] - G[0]) * .8, ry = (G[3] - G[1]) * .74;
     const [r, g, b] = [1, 3, 5].map(i => parseInt(this.p.light.slice(i, i + 2), 16)), up = v => Math.round(v + (255 - v) * .35), c = a => `rgba(${up(r)},${up(g)},${up(b)},${a})`;
-    x.save(); x.translate(cx, cy); x.scale(rx, ry);
-    const gl = x.createRadialGradient(0, 0, 0, 0, 0, 1); gl.addColorStop(0, c(.6)); gl.addColorStop(.55, c(.22)); gl.addColorStop(1, c(0));
-    x.fillStyle = gl; x.fillRect(-1, -1, 2, 2); x.restore();
+    for (const x of this._groundCtxs()) {            // on a photograph, into its overlay too, which moves with nothing
+      x.save(); x.translate(cx, cy); x.scale(rx, ry);
+      const gl = x.createRadialGradient(0, 0, 0, 0, 0, 1); gl.addColorStop(0, c(.6)); gl.addColorStop(.55, c(.22)); gl.addColorStop(1, c(0));
+      x.fillStyle = gl; x.fillRect(-1, -1, 2, 2); x.restore();
+    }
+  }
+
+  /** The ground's canvases a painter writes into: the ground, and on a photograph its overlay. */
+  _groundCtxs() { return [this.bg, this.groundOver].filter(Boolean).map(c => c.getContext("2d", { willReadFrequently: true })); }
+
+  /** A photograph as the ground (ground_photo, 2026-11-18): cover-fit round its focus, graded toward
+   *  the pair's ground, a vignette in the ground's colour; the overlay (grade, vignette, and the light
+   *  and evening painted after) is kept apart from the picture so the picture can move under it.
+   *  this.bg is the picture as the still shows it (the moment fullStill takes), so the pre-flight
+   *  reads the ground the delivered picture has. A photograph not loaded yet: the house gradient now,
+   *  the photograph as soon as it loads (a preview redraws it; fullGroundReady waits for it). */
+  _photoGround() {
+    const st = this.st, gp = st.background === "photo" && st.ground_photo; if (!gp || !gp.src) return false;
+    const img = groundImage(gp.src);
+    if (!img) {
+      loadGroundPhoto(gp.src).then(() => { if (this._photoGround()) { this._productLight(); this._evenProduct(); this._evenGround(); this.still = null; } }).catch(() => {});
+      return false;
+    }
+    if (this.groundImg) return false;
+    const W = this.W, H = this.H, m = GROUND_PHOTOS[gp.src] || {};
+    this.groundImg = img; this.groundFocus = Array.isArray(gp.focus) ? gp.focus : (m.focus || [.5, .5]);
+    // the still's moment (fullStill's): the picture pushes in until then, and holds
+    this.tHold = Math.max(isFinite(this.tl.number) ? this.tl.number + 1.2 : 0, (this.tLanded || 0) + .6, (this.tOutro != null ? this.tOutro : st.duration) - .4);
+    this.groundDrift = ((st.seed | 0) % 2 ? 1 : -1) * .025;
+    // the grade: the pair's ground over the picture, heavier on a bright picture and a dark pair
+    const darkPair = relLum(this.p.ground) < .2, L = m.L != null ? m.L : .25;
+    const a = gp.scrim != null ? clamp(+gp.scrim, 0, .9) : clamp((darkPair ? .3 : .38) + (L - .2) * .6, .22, .6);
+    const over = canvas(W, H), ox = over.getContext("2d");
+    ox.fillStyle = rgba(this.p.ground, a); ox.fillRect(0, 0, W, H);
+    const D = Math.hypot(W, H), vg = ox.createRadialGradient(W / 2, H / 2, D * .28, W / 2, H / 2, D * .72);
+    vg.addColorStop(0, rgba(this.p.ground, 0)); vg.addColorStop(1, rgba(this.p.ground, darkPair ? .5 : .35));
+    ox.fillStyle = vg; ox.fillRect(0, 0, W, H);
+    this.groundOver = over; this.groundEven = {};   // the evening behind each block of words, kept apart: each comes in with its words
+    const bg = canvas(W, H), bx = bg.getContext("2d");
+    this._drawPhoto(bx, this.tHold); bx.drawImage(over, 0, 0);
+    this.bg = bg; this.liveGround = true; this.still = null;
+    return true;
+  }
+
+  /** The photograph at a moment: a slow push-in round the focus and a little drift across, eased to
+   *  rest at the still's moment (tHold) and held there. */
+  _drawPhoto(ctx, t) {
+    const img = this.groundImg, W = this.W, H = this.H, iw = img.naturalWidth, ih = img.naturalHeight;
+    const u = clamp(t / Math.max(.5, this.tHold), 0, 1), e = 1 - (1 - u) ** 3;   // eases to rest
+    const k = Math.max(W / iw, H / ih), zoom = 1.02 + .07 * e;
+    const sw = W / (k * zoom), sh = H / (k * zoom);
+    const [fx, fy] = this.groundFocus, dx = this.groundDrift * (1 - e) * iw;
+    const sx = clamp(fx * iw - sw / 2 + dx, 0, Math.max(0, iw - sw)), sy = clamp(fy * ih - sh / 2, 0, Math.max(0, ih - sh));
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
+  }
+
+  /** A photograph moves under its overlay every frame; the engine's own live grounds otherwise. */
+  _drawLiveGround(ctx, t) {
+    if (this.groundImg) {
+      this._drawPhoto(ctx, Math.min(t, this.tHold)); ctx.drawImage(this.groundOver, 0, 0);
+      // the shade behind each block fades in as its words do, so no empty panel stands on the picture before them
+      const tl = this.tl, cue = { headline: (tl.text ?? .25) - .15, line: tl.tag ?? tl.text, "call to action": (tl.number ?? 1) - .05, footer: (tl.number ?? 1) + .15 };
+      for (const [name, c] of Object.entries(this.groundEven)) {
+        const a = clamp((t - (isFinite(cue[name]) ? cue[name] : 0)) / .35, 0, 1);
+        if (a > 0) { ctx.save(); ctx.globalAlpha = a; ctx.drawImage(c, 0, 0); ctx.restore(); }
+      }
+      return;
+    }
+    super._drawLiveGround(ctx, t);
+    if (this.productOver) ctx.drawImage(this.productOver, 0, 0);
+    if (this.groundEven) {
+      const tl = this.tl, cue = { headline: (tl.text ?? .25) - .15, line: tl.tag ?? tl.text, "call to action": (tl.number ?? 1) - .05, footer: (tl.number ?? 1) + .15 };
+      for (const [name, c] of Object.entries(this.groundEven)) {
+        const a = clamp((t - (isFinite(cue[name]) ? cue[name] : 0)) / .35, 0, 1);
+        if (a > 0) { ctx.save(); ctx.globalAlpha = a; ctx.drawImage(c, 0, 0); ctx.restore(); }
+      }
+    }
   }
 
   /** The small lines stand on the ground itself, and a ground has a lit patch or a floor: dark ink
@@ -525,22 +682,31 @@ export class FullAd extends Ad {
     const lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
     const L = h => { const [r, g, b] = [1, 3, 5].map(i => lin(parseInt(h.slice(i, i + 2), 16))); return .2126 * r + .7152 * g + .0722 * b; };
     const Li = L(ink), light = Li >= .18;
+    // a photograph or a drawn scene has small bright or dark detail (a keyboard's keys under a line): there
+    // every pixel is read and its worst twentieth counts, as the pre-flight reads the delivered picture
+    const fine = !GROUNDS.includes(this.st.background), step = fine ? 1 : 5, tail = fine ? .05 : .1;
     const reads = r => {
       const x0 = Math.max(0, r[0] | 0), y0 = Math.max(0, r[1] | 0), w = Math.min(W, Math.ceil(r[2])) - x0, h = Math.min(H, Math.ceil(r[3])) - y0;
       if (w < 2 || h < 2) return 99;
       const d = bx.getImageData(x0, y0, w, h).data, Ls = [];
-      for (let i = 0; i < d.length; i += 4 * 5) Ls.push(.2126 * lin(d[i]) + .7152 * lin(d[i + 1]) + .0722 * lin(d[i + 2]));
+      for (let i = 0; i < d.length; i += 4 * step) Ls.push(.2126 * lin(d[i]) + .7152 * lin(d[i + 1]) + .0722 * lin(d[i + 2]));
       Ls.sort((a, b) => a - b);
-      const worst = Ls[Math.min(Ls.length - 1, Math.floor(Ls.length * (light ? .9 : .1)))];
+      const worst = Ls[Math.min(Ls.length - 1, Math.floor(Ls.length * (light ? 1 - tail : tail)))];
       return (Math.max(Li, worst) + .05) / (Math.min(Li, worst) + .05);
     };
     F.evened = [];
-    for (const name of ["line", "call to action", "footer"]) {
+    // the house gradients are the pair's own colours; a photograph or a drawn scene has detail of its own, so the headline is read too
+    const busy = !GROUNDS.includes(this.st.background), m = busy ? 1.15 : 1, targets = [...(busy ? [["headline", 3 * m]] : []), ["line", 4.5 * m], ["call to action", 4.5 * m], ["footer", 4.5 * m]];
+    for (const [name, need] of targets) {
       const r = R[name]; if (!r) continue;
-      for (let a = .55; reads(r) < 4.5 && a <= 1.001; a += .15) {
-        const pad = (r[3] - r[1]) * .5, blur = pad * .9;
-        bx.save(); bx.globalAlpha = a; bx.fillStyle = this.p.ground; bx.shadowColor = this.p.ground; bx.shadowBlur = blur;
-        bx.beginPath(); bx.roundRect(r[0] - pad, r[1] - pad * .5, r[2] - r[0] + pad * 2, r[3] - r[1] + pad, pad); bx.fill(); bx.restore();
+      // on a photograph, into a layer of the block's own as well, which fades in with its words (_drawLiveGround)
+      const xs = [bx, ...(this.groundEven ? [(this.groundEven[name] ||= canvas(W, H)).getContext("2d")] : [])];
+      for (let a = .55; reads(r) < need && a <= 1.001; a += .15) {
+        const pad = (r[3] - r[1]) * (name === "headline" ? .22 : .5), blur = pad * .9;
+        for (const x of xs) {
+          x.save(); x.globalAlpha = a; x.fillStyle = this.p.ground; x.shadowColor = this.p.ground; x.shadowBlur = blur;
+          x.beginPath(); x.roundRect(r[0] - pad, r[1] - pad * .5, r[2] - r[0] + pad * 2, r[3] - r[1] + pad, pad); x.fill(); x.restore();
+        }
         if (!F.evened.includes(name)) F.evened.push(name);
       }
     }
@@ -1187,6 +1353,9 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   let have = drawnSub ? drawnSub.slice(0, most) : pinned ? pinned : !subject && phonesUnpicked(st.phones) && phoneIndex.length ? drawPhones(seed, st.aspect, phoneIndex, most) : picked0;
   const idx = Object.fromEntries(phoneIndex.map(m => [m.id, m]));
   const bold = subject ? [] : have.map(id => (idx[id] || {}).body).filter(b => b && b.C >= BOLD_C).map(b => b.h);
+  // a photograph given with the ad whose colour is strong counts toward the two families, as a bold phone does
+  const given = st.ground_photo && st.ground_photo.src ? GROUND_PHOTOS[st.ground_photo.src] : null;
+  if (given && given.C >= .08 && given.hue != null) bold.push(given.hue);
   const pairs = pairsFor(st.subject, st.headline, bold), first = pairs[(Math.floor(r() * pairs.length) + lineTurn(st.subject, pairs.length)) % pairs.length];
   const key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, type_pair: _t, type_any: _a, ...picked } = pick;
   // the type: the house's one face, or one of the owner's pairs when one is picked (pick.type_pair, a
@@ -1201,6 +1370,10 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const view = subject ? {} : (({ pose, end_face }) => ({ pose, end_face }))(phoneView(seed, have.length, have === picked0));
   if (!subject && have !== picked0 && view.end_face !== "front") have = readableFinishes(have, COLOUR_OF[key].colors, phoneIndex);
   const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...view, ...type, ...picked };
+  // the ground: a photograph given with the ad as given; otherwise the seed's own draw (groundFor), unless one was picked by hand
+  if (st.ground_photo && st.ground_photo.src) { look.background = "photo"; look.ground_photo = { ...st.ground_photo }; }
+  else if (!("background" in picked)) { const gd = groundFor(st.subject, seed, key); if (gd) Object.assign(look, gd); else delete look.ground_photo; }
+  if (look.ground_photo) loadGroundPhoto(look.ground_photo.src).catch(() => {});
   const area = (st.area || "").trim();
   // What the customer left empty is filled from the lists, each line chosen so that it does not
   // repeat a promise the lines before it already make (the customer's own words are never changed:
@@ -1443,7 +1616,17 @@ export function fullPreflight(ad, frame) {
      prints the spread), so it catches the day a ground, an effect or an icon makes the ad busier. */
   // weighed at one size (540 on the short side), whatever size the picture is: a small picture weighs more a pixel
   let bpp = 0;
-  try { const k = 540 / U, sw = Math.round(W * k), sh = Math.round(H * k), sc = canvas(sw, sh); sc.getContext("2d").drawImage(frame, 0, 0, sw, sh); bpp = sc.toDataURL("image/jpeg", .8).length * .75 / (sw * sh); }
+  try {
+    // on a photograph (2026-11-18) the ground's own detail is the owner's choice, not the ad's busyness:
+    // what is weighed is what stands on it, every pixel of the ground laid flat in the pair's ground colour
+    let src = frame;
+    if (ad.groundImg) {
+      const flat = canvas(W, H), fx = flat.getContext("2d"), id = fx.createImageData(W, H), o = id.data, [gr, gg, gb] = [1, 3, 5].map(i => parseInt(ad.p.ground.slice(i, i + 2), 16));
+      for (let q = 0; q < o.length; q += 4) { if (drawn(q)) { o[q] = px[q]; o[q + 1] = px[q + 1]; o[q + 2] = px[q + 2]; } else { o[q] = gr; o[q + 1] = gg; o[q + 2] = gb; } o[q + 3] = 255; }
+      fx.putImageData(id, 0, 0); src = flat;
+    }
+    const k = 540 / U, sw = Math.round(W * k), sh = Math.round(H * k), sc = canvas(sw, sh); sc.getContext("2d").drawImage(src, 0, 0, sw, sh); bpp = sc.toDataURL("image/jpeg", .8).length * .75 / (sw * sh);
+  }
   catch (e) { /* a canvas that cannot be read is not measured */ }
   checks.push({ id: "calm", ok: !bpp || bpp <= PF.calm, value: bpp ? `${(bpp * 100).toFixed(1)} of ${(PF.calm * 100).toFixed(0)} allowed` : "not measured", bpp });
   if (bpp > PF.calm) say("calm", "note", "The picture is busy. A plainer look reads faster in a feed: try New look.");

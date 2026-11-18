@@ -118,6 +118,17 @@ const r = await page.evaluate(async () => {
     const st = F.fullStyle({ ...C.DEFAULT_STYLE, headline: 'WE BUY THEM', subject, aspect: '1:1', phones: ['none'] }, 1, index);
     out.firsts.push({ subject, pair: st.full_colour });
   }
+  // a seed's photograph keeps the card to two colour families (spec/full-grounds.json, 2026-11-18):
+  // one whose own colour is strong stands only beside a pair of its family
+  const G = await import('/motion/full-grounds.js');
+  out.grounds = { photos: 0, strong: 0, off: [] };
+  for (const subject of ['', 'car', 'gold', 'sports', 'laptop', 'camera']) for (let s = 1; s <= 120; s++) {
+    const st = F.fullStyle({ ...C.DEFAULT_STYLE, headline: 'WE BUY THEM', subject, aspect: '1:1', phones: subject ? ['none'] : [] }, s * 977, index);
+    if (st.background !== 'photo') continue; out.grounds.photos++;
+    const m = G.GROUND_PHOTOS[st.ground_photo.src]; if (!m || !(m.C >= .08) || m.hue == null) continue; out.grounds.strong++;
+    const hues = [st.colors.accent, st.colors.ground].map(E.oklchOf).filter(k => k.C >= .04).map(k => k.h);
+    if (!hues.some(h => Math.min(Math.abs(h - m.hue), 360 - Math.abs(h - m.hue)) <= 30)) out.grounds.off.push(`${subject || 'iphone'} ${s}: ${st.ground_photo.src.split('/').pop()} on ${st.full_colour}`);
+  }
   return out;
 });
 if (errors.length) ok(false, 'page errors: ' + errors.slice(0, 3).join(' | '));
@@ -136,6 +147,7 @@ const perSet = {}; for (const p of r.phones) (perSet[p.name] ||= new Set()).add(
 const narrow = Object.entries(perSet).filter(([, s]) => s.size < 2);
 ok(!narrow.length, 'every phone set still draws two pairs or more (New look changes colour): ' + Object.entries(perSet).map(([n, s]) => `${n} ${s.size}`).join(', '));
 ok(r.unchanged.same === r.unchanged.of, `an ad with neutral phones or an unrestricted line draws the pair it drew before: ${r.unchanged.same}/${r.unchanged.of}`);
+ok(r.grounds.photos > 0 && !r.grounds.off.length, `a seed's photograph keeps the card to two colour families: ${r.grounds.photos} photo grounds in 720 seeded ads, ${r.grounds.strong} of strong colour, each beside a pair of its family` + (r.grounds.off.length ? '; ' + r.grounds.off.slice(0, 4).join(', ') : ''));
 const firstBy = {}; for (const f of r.firsts) firstBy[f.pair] = (firstBy[f.pair] || 0) + 1;
 const firstMost = Math.max(0, ...Object.values(firstBy));
 ok(r.firsts.length > 0 && firstMost <= Math.ceil(r.firsts.length / 4), `the first full ads of ${r.firsts.length} unrestricted lines spread over ${Object.keys(firstBy).length} pairs, at most ${firstMost} on one (31 of 35 were Green & Gold before 2026-11-18): ` + Object.entries(firstBy).sort((x, y) => y[1] - x[1]).map(([k, n]) => `${k} ${n}`).join(', '));

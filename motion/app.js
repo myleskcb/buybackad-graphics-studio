@@ -2,7 +2,7 @@
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES, DEFAULT_PHONES } from "./catalog.js";
 import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf, lotInto } from "./engine.js";
-import { FullAd, fullStyle, fullPreflight, fullStill, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk } from "./fullad.js";
+import { FullAd, fullStyle, fullPreflight, fullStill, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk, fullGroundReady } from "./fullad.js";
 import { lookPreflight } from "./look-preflight.js";
 import { FULL_VOICES } from "./full-voices.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
@@ -94,6 +94,9 @@ const fullOf = st => {
   const ids = rids.length ? rids : S.sets.length ? subjects.loaded[S.key + "|" + ((st.subject_set | 0) % S.sets.length)] || [] : [];
   return fullStyle({ ...st, ...extra, phones: ids.length ? ids : ["none"], ...(rids.length ? { subject_set: 1 } : {}) }, st.seed, state.index, pick, state.locked);
 };
+/* fonts, and a full ad's photo ground: a still made before the photo arrives draws the house
+   gradient in its place (fullad.js fullGroundReady) */
+const readyToDraw = st => Promise.all([loadFonts(fontsFor(st)), st && st.full ? fullGroundReady(st).catch(() => null) : null]);
 const settle = (st, locked = state.locked) => state.full ? fullOf(st) : harmonise(st, locked, indexById());
 const AdOf = st => st && st.full ? FullAd : Ad;
 const adFor = (st, w, h) => new (AdOf(st))(st, state.assets, w, h);
@@ -210,7 +213,7 @@ async function rebuild() {
   try {
     if (state.full) await ensureSubject(state.style);
     const st = settle({ ...state.style });
-    await loadFonts(fontsFor(st));
+    await readyToDraw(st);
     if (id !== state.buildId) return;
     const [W, H] = ASPECTS[st.aspect] || ASPECTS["1:1"];
     const k = Math.min(1, PREVIEW_MAX / Math.max(W, H));
@@ -455,7 +458,7 @@ const lookAdFor = (st, short) => { const [W0, H0] = ASPECTS[st.aspect] || ASPECT
  *  customer typed): what the gallery and New look go by when they pass over a look. */
 async function lookPasses(st) {
   if (st.full) return true;
-  try { await loadFonts(fontsFor(st)); return lookPreflight(lookAdFor(st, LOOK_PASS)).lookOk; }
+  try { await readyToDraw(st); return lookPreflight(lookAdFor(st, LOOK_PASS)).lookOk; }
   catch (e) { console.warn("look pre-flight", e); return true; }   // a check that cannot run never hides a look
 }
 const LOOK_CHECK_NAMES = { edge: "Nothing runs off the edge", reads: "Every line reads against what is behind it", feed: "It reads in a feed's small preview",
@@ -500,7 +503,7 @@ async function preflightGate(st) {
       const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"], k = 1080 / Math.min(W0, H0), ad = adFor(st, Math.round(W0 * k), Math.round(H0 * k));
       rep = fullPreflight(ad, fullStill(ad));
     } else {
-      await loadFonts(fontsFor(st));
+      await readyToDraw(st);
       rep = lookPreflight(lookAdFor(st, LOOK_PRE));
     }
   } catch (e) { console.warn("pre-flight", e); return true; }      // a check that cannot run never stands between a customer and their ad
@@ -986,7 +989,7 @@ async function makeAdSet() {
         const st = angleStyle(angle, lang, (Math.random() * 1e9) | 0);
         const fresh = !used.pair.has(st.type_pair) && !used.palette.has(st.palette) && !used.look.has(lookOf(st));
         if (!fresh && tries < 8) continue;           // a repeat only when nothing new turns up
-        await loadFonts(fontsFor(st));
+        await readyToDraw(st);
         const rep = await auditLook(st, state.assets, { size: 120, secs: 3.4, sound: false });
         const ok = id => rep.checks.find(c => c.id === id)?.ok;
         const score = rep.score + (ok("contrast") ? 10 : 0) + (ok("words") && ok("number") ? 10 : 0);
@@ -1027,7 +1030,7 @@ async function shelfThumb(shelf, W, H, k, lock) {
 /** The look, still, as a button that uses it, with its caption under it. lock: using it
  *  keeps its vibe, so New look stays in the shelf it came from. */
 async function thumb(st, w, h, lock) {
-  await loadFonts(fontsFor(st));
+  await readyToDraw(st);
   const ad = adFor(st, w, h);
   const b = document.createElement("button"); b.className = "mo-thumb"; b.title = "Use this look";
   const frame = document.createElement("span"); frame.className = "mo-thumb-img";
@@ -1317,7 +1320,7 @@ async function makeVideo(st, { how = "auto", withSound = true, prog = () => {}, 
   const H = VH();
   let ad = null;
   try {
-    await loadFonts(fontsFor(st));
+    await readyToDraw(st);
     const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
     let scale = 1;
     const even = v => Math.max(2, Math.round(v / 2) * 2);   // H.264 wants even sides
@@ -1386,7 +1389,7 @@ async function download(opts = {}) {
     const gate = await planGate(() => download(opts), "Sign in to download your video. Video downloads come with Pro and Business.");
     if (!gate) return;
     const st = settle({ ...state.style });
-    await loadFonts(fontsFor(st)); if (!await preflightGate(st)) { note("Not saved: the ad is waiting for its fix."); return; }   // every look, full or not, is checked before it goes out
+    await readyToDraw(st); if (!await preflightGate(st)) { note("Not saved: the ad is waiting for its fix."); return; }   // every look, full or not, is checked before it goes out
     const made = await makeVideo(st, { how, withSound, prog, note, tried, watermark: gate.watermark });
     ad = made.ad;
     const { out, soundErr, soundDropped, scale, mp4Failed, W0, H0 } = made;
@@ -1458,7 +1461,7 @@ async function downloadJpg() {
     const gate = await planGate(() => downloadJpg(), "Sign in to download your ad as a photo. Free accounts get 3 downloads a week.", "photo");
     if (!gate) return;
     const st = settle({ ...state.style });
-    await loadFonts(fontsFor(st));
+    await readyToDraw(st);
     if (!await preflightGate(st)) { note("Not saved: the ad is waiting for its fix."); return; }
     const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
     const photo = await makePhoto(st, `${fileStem(st)}-${st.aspect.replace(":", "x")}-${st.seed}.jpg`, Math.min(W0, H0), prog, gate);
@@ -1512,7 +1515,7 @@ async function saveLook(stRaw, btn) {
   const note = t => { $("export-note").textContent = t; };
   const prog = (p, label) => { $("bar").style.width = Math.round(p * 100) + "%"; $("progress-label").textContent = label; };
   const st = stRaw.full ? stRaw : settle({ ...stRaw });
-  await loadFonts(fontsFor(st)); if (!await preflightGate(st)) { if (b) b.disabled = false; $("progress").hidden = true; return null; }
+  await readyToDraw(st); if (!await preflightGate(st)) { if (b) b.disabled = false; $("progress").hidden = true; return null; }
   let item = null;
   try {
     // a save is one of the plan's downloads, made at the plan's size and marks (planGate)
@@ -1767,7 +1770,7 @@ async function downloadBuyList() {
     const gate = await planGate(() => downloadBuyList(), "Sign in to download your buying list. Free accounts get 3 downloads a week.", "photo");
     if (!gate) return;
     const st = settle({ ...state.style });
-    await loadFonts(fontsFor(st));
+    await readyToDraw(st);
     const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["4:5"], short = Math.min(W0, H0);
     const want = Math.min(2160, gate.maxPx || 2160), scale = want / short;
     const card = drawBuyList(st, buyListRows(st), state.assets, { scale });
