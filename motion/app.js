@@ -50,7 +50,32 @@ const state = {
    looks under Any look fly, flip and land phones. */
 const subjects = { list: [], loaded: {} };           // loaded: "key|set" -> the ids of its pictures, once in state.assets
 const subjectOf = st => st.subject && st.subject !== "iphone" ? subjects.list.find(s => s.key === st.subject) || null : null;
+/* FROM THE LIBRARY (motion/recipes.json, DESIGN-LAW 144; the owner, 2026-11-18: "rebuild how we arrived
+   to these ads so every single one can be made a video"). An older ad, read as it opened (its words,
+   its product, its ground photograph, its colours and faces: scripts/build_recipes.mjs), drawn as this
+   full ad: the same recipe Easy Mode's studio opens, so its photo there and its video here are one ad. */
+const recipes = { list: null, byId: {} };
+function loadRecipes() {
+  if (!recipes.list) recipes.list = fetch("./recipes.json").then(r => r.json()).then(j => { const L = j.recipes || []; recipes.byId = Object.fromEntries(L.map(r => [r.id, r])); return L; })
+    .catch(e => { console.warn("recipes:", e); recipes.list = null; return []; });
+  return recipes.list;
+}
+/** The recipe this style draws, while its line is still the one the style is about. */
+const recipeOf = st => { const R = st && st.recipe ? recipes.byId[st.recipe] : null; if (!R) return null; return R.subject === (st.subject && st.subject !== "iphone" ? st.subject : "iphone") ? R : null; };
+async function ensureRecipe(st) {
+  if (!st.recipe) return;
+  await loadRecipes();
+  const R = recipeOf(st); if (!R || !(R.pictures || []).length || subjects.loaded["recipe|" + R.id]) return;
+  const S = subjectOf(st), got = await loadSubjectSet({ key: "recipe:" + R.id, label: S ? S.label : "iPhone", sets: [R.pictures] }, 0, "../assets/cutouts/");
+  Object.assign(state.assets.phones, got.assets); subjects.loaded["recipe|" + R.id] = got.ids;
+}
+/** A recipe's ground photograph, loaded before its first draw (fullad.js loadGroundPhoto, where this copy has it). */
+async function ensureRecipeGround(st) {
+  const R = recipeOf(st); if (!R || !R.ground_photo) return;
+  try { const F = await import("./fullad.js"); if (typeof F.loadGroundPhoto === "function") await F.loadGroundPhoto(R.ground_photo.src); } catch (e) { /* drawn on the house gradient */ }
+}
 async function ensureSubject(st) {
+  await ensureRecipe(st); await ensureRecipeGround(st);
   const S = subjectOf(st); if (!S || !S.sets.length) return;
   const set = (st.subject_set | 0) % S.sets.length, k = S.key + "|" + set;
   if (subjects.loaded[k]) return;
@@ -61,9 +86,13 @@ const fullOf = st => {
   // what was picked by hand for the full ad: its colours, and its type pair (one of the owner's pairs the
   // full ad holds in, motion/full-voices.js; none picked is the house face)
   const S = state.full ? subjectOf(st) : null, pick = { ...(st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {}), ...(fullVoiceOk(st.full_type) ? { type_pair: st.full_type } : {}) };
-  if (!S) return fullStyle({ ...st, subject: "" }, st.seed, state.index, pick, state.locked);
-  const ids = S.sets.length ? subjects.loaded[S.key + "|" + ((st.subject_set | 0) % S.sets.length)] || [] : [];
-  return fullStyle({ ...st, phones: ids.length ? ids : ["none"] }, st.seed, state.index, pick, state.locked);
+  // a recipe brings its own pictures (kept as given: subject_set 1) and its ground photograph
+  const R = state.full ? recipeOf(st) : null, rids = R ? subjects.loaded["recipe|" + R.id] || [] : [], extra = R && R.ground_photo ? { ground_photo: { ...R.ground_photo } } : {};
+  // its claim, unless a claim or a business name was typed: a named buyer takes the badge
+  if (R && R.words && R.words.claim && !st.feed_claim && !String(st.biz || "").trim()) extra.feed_claim = R.words.claim;
+  if (!S) return fullStyle({ ...st, ...extra, subject: "", ...(rids.length ? { phones: rids } : {}) }, st.seed, state.index, pick, state.locked);
+  const ids = rids.length ? rids : S.sets.length ? subjects.loaded[S.key + "|" + ((st.subject_set | 0) % S.sets.length)] || [] : [];
+  return fullStyle({ ...st, ...extra, phones: ids.length ? ids : ["none"], ...(rids.length ? { subject_set: 1 } : {}) }, st.seed, state.index, pick, state.locked);
 };
 const settle = (st, locked = state.locked) => state.full ? fullOf(st) : harmonise(st, locked, indexById());
 const AdOf = st => st && st.full ? FullAd : Ad;
@@ -146,6 +175,7 @@ function restore() {
       if (h && Date.now() - (h.at || 0) < 600000) {
         const s = state.style;
         if (h.subject && h.subject !== "iphone") { s.subject = h.subject; s.subject_set = h.subject_set | 0; } else { delete s.subject; delete s.subject_set; }
+        if (h.recipe) s.recipe = String(h.recipe); else delete s.recipe;   // a library design from the studio: the same recipe
         s.headline = String(h.headline || s.headline); s.tag = String(h.tag || ""); s.points = h.points == null ? null : String(h.points);
         for (const k of ["feed_claim", "feed_burst", "feed_where", "biz", "site", "number_label"]) { if (h[k]) s[k] = String(h[k]); else delete s[k]; }
         if (h.number) s.number = String(h.number);
@@ -334,6 +364,44 @@ function fillSubjects() {
   $("f-subject").innerHTML = `<option value="iphone">iPhones</option>` + groups.map(([g, ss]) => `<optgroup label="${g}">${ss.map(s => `<option value="${s.key}">${s.label}</option>`).join("")}</optgroup>`).join("");
   syncMode();
 }
+/** The library's designs for the category of what the ad is about, as a choice under What you buy. */
+function fillRecipes() {
+  let sel = $("f-recipe");
+  if (!sel) {
+    const after = $("f-subject") && $("f-subject").closest("label"); if (!after) return;
+    const lab = document.createElement("label"); lab.className = "mo-field mo-full-only";
+    lab.innerHTML = `From the library <span class="mo-opt">a library design, drawn as this ad: photo and video</span><select id="f-recipe" aria-label="From the library"><option value="">None</option></select>`;
+    after.insertAdjacentElement("afterend", lab); sel = $("f-recipe");
+    sel.addEventListener("change", () => applyRecipe(sel.value));
+  }
+  if (!recipes.list) { loadRecipes().then(() => { if (Object.keys(recipes.byId).length) fillRecipes(); }); return; }
+  const h = t => String(t == null ? "" : t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const S = subjectOf(state.style), cat = S ? S.cat : "phones", groups = {};
+  for (const r of Object.values(recipes.byId)) if (r.cat === cat) (groups[r.subject] ||= []).push(r);
+  const name = k => k === "iphone" ? "iPhones" : (subjects.list.find(s => s.key === k) || {}).label || k;
+  sel.innerHTML = `<option value="">None: the line's own words and pictures</option>` + Object.entries(groups).map(([k, rs]) => `<optgroup label="${h(name(k))}">${rs.map(r => `<option value="${h(r.id)}">${h(r.label)}</option>`).join("")}</optgroup>`).join("");
+  sel.value = recipeOf(state.style) ? state.style.recipe : "";
+}
+/** Draw a library design as this full ad: its line, its words, its colours and face (picked again by hand any time). */
+async function applyRecipe(id) {
+  await loadRecipes();
+  const R = recipes.byId[id], s = state.style;
+  pushHistory();
+  if (!R) { delete s.recipe; save(); syncMode(); rebuild(); renderGallery(true); return; }
+  s.recipe = R.id;
+  if (R.subject === "iphone") { delete s.subject; delete s.subject_set; } else { s.subject = R.subject; s.subject_set = 0; }
+  const w = R.words || {}, S = subjects.list.find(x => x.key === R.subject), other = R.subject !== "iphone";
+  s.headline = w.headline || (S ? S.heads[0].toUpperCase() : s.headline);
+  s.tag = w.tag || (S && other ? S.models.toUpperCase() : "");
+  s.points = w.points || (S && other ? S.points : null);
+  delete s.feed_claim;                               // the design's claim is drawn unless a business name or a claim is typed (fullOf)
+  for (const [k, v] of [["feed_burst", w.burst], ["number_label", w.label]]) { if (v) s[k] = v; else delete s[k]; }
+  if (R.pair && COLOURWAYS.includes(R.pair)) s.full_palette = R.pair; else delete s.full_palette;
+  if (fullVoiceOk(R.type_pair)) s.full_type = R.type_pair; else delete s.full_type;
+  ["headline", "tag", "points"].forEach(k => state.locked.add(k));
+  state.full = true;
+  save(); syncWords(); syncMode(); rebuild(); renderGallery(true);
+}
 const fileStem = st => { const S = st.full ? subjectOf(st) : null; return "we-buy-" + (S ? S.key : "phones"); };
 
 /** The page in the mode it is in: what only the full ad uses, and what only Any look does. */
@@ -342,6 +410,7 @@ function syncMode() {
   $("main").dataset.subject = state.full && subjectOf(state.style) ? "other" : "phones";
   const sel = $("f-subject"); if (sel && document.activeElement !== sel) sel.value = subjectOf(state.style) ? state.style.subject : "iphone";
   const S = subjectOf(state.style); $("new-picture").hidden = !(S && S.sets.length > 1);
+  try { fillRecipes(); } catch (e) { console.warn("library choice:", e); }
   document.querySelectorAll("#mode [data-full]").forEach(b => b.setAttribute("aria-checked", String((b.dataset.full === "1") === state.full)));
 }
 /* THE PRE-FLIGHT ON THE PAGE (fullad.js fullPreflight, 2026-11-12: "another layer of self
@@ -460,6 +529,7 @@ function buildPanel() {
     if ($("f-number").value.trim()) state.style.number = $("f-number").value;
     for (const [id, key, max] of FULL_FIELDS) { const v = $(id).value.trim().slice(0, max); if (v) state.style[key] = key === "site" ? v : v.toUpperCase(); }
     pushHistory();
+    delete state.style.recipe;                          // a library design belongs to the line it was made for
     const was = subjectOf(state.style), key = e.target.value, S = subjects.list.find(s => s.key === key);
     // the words the last subject brought leave with it; words typed by hand for it stay only if they are not its own
     const own = was ? [was.heads, [was.models.toUpperCase()], [was.points]] : [];

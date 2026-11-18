@@ -57,7 +57,7 @@ const require = createRequire(import.meta.url);
 const arg = (k, d = '') => { const i = process.argv.indexOf(k); return i > 0 && process.argv[i + 1] && !process.argv[i + 1].startsWith('--') ? process.argv[i + 1] : d; };
 const has = k => process.argv.includes(k);
 const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8899/').replace(/\/?$/, '/');
-const GENS = ['full', 'dl', 'of', 'sc', 'any', 'feed'];
+const GENS = ['full', 'recipe', 'dl', 'of', 'sc', 'any', 'feed'];   // recipe: an older ad drawn by the full ad (motion/recipes.json, 2026-11-18)
 const ONLY = arg('--only') ? arg('--only').split(',').filter(g => GENS.includes(g)) : GENS;
 const IDS = arg('--ids') ? new Set(arg('--ids').split(',').filter(Boolean)) : null;
 const LIMIT = +arg('--limit', '0') || 0;
@@ -87,8 +87,8 @@ const ELEMENT_NAMES = { business: 'business name', headline: 'headline', product
    red (8.5 apart, plainly another colour). A ground that is a photograph is no pair's ground,
    whatever its colour. */
 const PAIR_GROUND = 5, PAIR_ACCENT = 5;
-const GEN_NAMES = { full: 'Full ad', dl: 'Designer layout', of: 'Offer family', sc: 'Library card', any: 'Any look', feed: 'FeedAd (iPhones LA)' };
-const ENGINES = { full: 'FullAd', dl: 'fabric template', of: 'fabric template', sc: 'fabric template', any: 'engine Ad', feed: 'FeedAd' };
+const GEN_NAMES = { full: 'Full ad', recipe: 'Library recipe', dl: 'Designer layout', of: 'Offer family', sc: 'Library card', any: 'Any look', feed: 'FeedAd (iPhones LA)' };
+const ENGINES = { full: 'FullAd', recipe: 'FullAd', dl: 'fabric template', of: 'fabric template', sc: 'fabric template', any: 'engine Ad', feed: 'FeedAd' };
 
 const BANNED = JSON.parse(readFileSync(join(ROOT, 'spec/banned-words.json'), 'utf8'));
 /* the twelve pairs, read as data (the file is an ES module for the browser; its rows are JSON) */
@@ -144,13 +144,13 @@ function compose(r) {
   r.lacks = r.error ? ELEMENTS.slice() : ELEMENTS.filter(k => !(r.el && r.el[k]));
   const why = [];
   if (r.error) why.push('did not open: ' + r.error);
-  if (r.gen !== 'full') why.push('off the house engine (' + r.engine + ')');
+  if (r.engine !== 'FullAd') why.push('off the house engine (' + r.engine + ')');
   if (!r.colour.match) why.push('off the twelve pairs (' + r.colour.why + ')');
   if (r.bannedIds.length) why.push('banned: ' + r.bannedIds.join(', '));
   if (r.bannedNoNameIds.length) why.push('banned with no business name typed: ' + r.bannedNoNameIds.join(', '));
   if (r.missing.length) why.push('lacks: ' + r.missing.map(k => ELEMENT_NAMES[k]).join(', '));
   r.gateWhy = why;
-  r.score = 2 * r.missing.length + 2 * (r.bannedIds.length + r.bannedNoNameIds.length) + (r.colour.match ? 0 : 1) + (r.pre && r.pre.ok === false ? 1 : 0) + (r.gen === 'full' ? 0 : 1);
+  r.score = 2 * r.missing.length + 2 * (r.bannedIds.length + r.bannedNoNameIds.length) + (r.colour.match ? 0 : 1) + (r.pre && r.pre.ok === false ? 1 : 0) + (r.engine === 'FullAd' ? 0 : 1);
   return r;
 }
 
@@ -565,8 +565,23 @@ function STUDIO() {
     const S = FullAdStudio.lines().find(s => s.key === key); if (!S) return { error: 'no line ' + key };
     const FA = FullAdStudio.state;
     if (currentCat !== S.cat) setCategory(S.cat);
-    FA.line[S.cat] = S.key; FA.biz = V.biz; FA.seed = seed; FA.pair = ''; FA.voice = ''; FA.words = {}; FA.set = {};   // what a visitor who typed only their name sees first
+    FA.line[S.cat] = S.key; FA.biz = V.biz; FA.seed = seed; FA.pair = ''; FA.voice = ''; FA.words = {}; FA.set = {}; FA.recipe = {};   // what a visitor who typed only their name sees first
     $('ez-phone').value = V.number; $('ez-website').value = V.site;
+    return cz.fullRead();
+  };
+  /* ---- a recipe (motion/recipes.json): an older ad drawn by the full ad, opened as Easy Mode's
+     "From the library" opens it, read as the full ad is read ---- */
+  cz.recipeList = async () => (await FullAdStudio.recipes()).map(r => ({ id: r.id, label: r.label, cat: r.cat, subject: r.subject, from: r.from, gen: r.gen }));
+  cz.recipe = async rid => {
+    const r = await FullAdStudio.useRecipe(rid); if (!r) return { error: 'no recipe ' + rid };
+    const FA = FullAdStudio.state; FA.biz = V.biz; FA.seed = 1;
+    $('ez-phone').value = V.number; $('ez-website').value = V.site;
+    const out = await cz.fullRead();
+    FA.recipe = {};
+    return out;
+  };
+  cz.fullRead = async () => {
+    const M = await import('/motion/fullad.js'), CAT = await import('/motion/catalog.js'), FA = FullAdStudio.state;
     const { ad, st } = await FullAdStudio.build(1080, FORMATS.square);
     const frame = M.fullStill(ad), pre = M.fullPreflight(ad, frame), F = ad.full, R = F.rects, W = ad.W, H = ad.H;
     const up = s => String(s || '').toUpperCase();
@@ -581,7 +596,7 @@ function STUDIO() {
     put('number', st.number);
     if (R.footer) { put('towns', st.feed_where); put('website', st.feed_site); }
     const towns = cz.townsIn(words.filter(w => w.where === 'towns'), cz.towns());
-    const boxes = cz.phoneBoxes(ad), photo = false;
+    const boxes = cz.phoneBoxes(ad), photo = !!st.ground_photo;
     const el = {
       business: !!(R.claim && V.biz && up(st.feed_claim) === up(V.biz)), headline: !!R.headline,
       product: !!(ad.phones.length && F.group), productKind: ad.phones.length ? 'picture' : 'none',
@@ -768,7 +783,7 @@ async function runStudio(browser, jobs, label) {
       if (since >= 70) { await s.ctx.close().catch(() => {}); s = await studioPage(browser); since = 0; }
       since++;
       let r;
-      try { r = await withTimeout(s.page.evaluate(({ run, arg }) => run === 'full' ? __cz.full(arg[0], arg[1]) : run === 'card' ? __cz.card(arg) : __cz.scene(arg, false), { run: j.run, arg: j.arg }), 90000, j.id); }
+      try { r = await withTimeout(s.page.evaluate(({ run, arg }) => run === 'full' ? __cz.full(arg[0], arg[1]) : run === 'recipe' ? __cz.recipe(arg) : run === 'card' ? __cz.card(arg) : __cz.scene(arg, false), { run: j.run, arg: j.arg }), 90000, j.id); }
       catch (e) { r = { error: String(e.message || e).split('\n')[0].slice(0, 140) }; await s.ctx.close().catch(() => {}); s = await studioPage(browser); since = 0; }
       rows.push({ ...j.meta, ...r });
       if (++done % 25 === 0 || done === jobs.length) console.log(`  ${label}: ${done}/${jobs.length} (${((Date.now() - T0) / 60000).toFixed(1)} min)`);
@@ -797,6 +812,8 @@ async function census() {
     notes.templates = { offered: T.list.length, total: T.total, gated: T.gated.length, held: T.held, retired: T.retired, other: T.list.filter(t => t.gen === 'other').map(t => t.id) };
     console.log(`Easy Mode offers ${T.list.length} templates (${T.list.filter(t => t.gen === 'dl').length} designer layouts, ${T.list.filter(t => t.gen === 'of').length} offer family${notes.templates.other.length ? ', ' + notes.templates.other.length + ' other' : ''}); ${T.gated.length} more are gated, ${T.held} held and ${T.retired} retired by table`);
     const jobs = [];
+    const recipeList = ONLY.includes('recipe') && existsSync(join(ROOT, 'motion/recipes.json')) ? JSON.parse(readFileSync(join(ROOT, 'motion/recipes.json'), 'utf8')).recipes : [];   // the file the studio opens them from
+    for (const r of pick(recipeList)) jobs.push({ id: r.id, run: 'recipe', arg: r.id, meta: { id: r.id, gen: 'recipe', name: r.label, cat: r.cat, offered: `From the library (${r.subject}), made from ${r.from}` } });
     for (const l of pick(lines)) for (let v = 1; v <= VARIATIONS; v++) { const id = v === 1 ? l.id : `${l.id}-v${v}`; jobs.push({ id, run: 'full', arg: [l.key, v], meta: { id, gen: 'full', name: l.name + (v === 1 ? ' (full ad)' : ` (full ad, look ${v})`), cat: l.cat, offered: v === 1 ? `Easy Mode, the first card in ${l.cat}; What you buy: ${l.name}` : `the same, after New look ${v - 1} time${v > 2 ? 's' : ''}` } }); };
     for (const g of ['dl', 'of']) if (ONLY.includes(g)) for (const t of pick(T.list.filter(t => t.gen === g))) jobs.push({ id: t.id, run: 'scene', arg: t.id, meta: { id: t.id, gen: g, name: t.name, cat: t.cat, declared: t.pal, offered: `Easy Mode, ${t.cat} no. ${t.order}${t.locked ? ', PRO for a free visitor' : ''}` } });
     for (const c of pick(cards)) jobs.push({ id: c.id, run: 'card', arg: c.id, meta: { id: c.id, gen: 'sc', name: c.name, cat: c.cat, declared: c.theme, offered: 'the library wall (' + c.cat + ')' } });
