@@ -402,9 +402,7 @@ function buildPanel() {
     save(); rebuild(); renderGallery(true);
   });
   $("f-subject").addEventListener("change", e => {
-    // words typed a moment ago are still waiting on their pause: keep them (the fields are filled again below)
-    if ($("f-number").value.trim()) state.style.number = $("f-number").value;
-    for (const [id, key, max] of FULL_FIELDS) { const v = $(id).value.trim().slice(0, max); if (v) state.style[key] = key === "site" ? v : v.toUpperCase(); }
+    landTyping();                                   // words typed a moment ago, still in their pause, first (the boxes are filled again below)
     pushHistory();
     const was = subjectOf(state.style), key = e.target.value, S = subjects.list.find(s => s.key === key);
     // the words the last subject brought leave with it; words typed by hand for it stay only if they are not its own
@@ -578,6 +576,7 @@ function buildPanel() {
   $("shuffle-all").addEventListener("click", () => shuffle(true));
   // Back: the look, and the locks it had (a quick ad or an audience lets locks go)
   $("undo").addEventListener("click", () => {
+    landTyping();                                   // words still in their pause belong to the look Back leaves, as after the pause
     const prev = state.history.pop();
     if (prev) { if (prev.style) { state.style = prev.style; state.locked = new Set(prev.locked); } else state.style = prev; save(); syncWords(); drawPhonePicker(); syncLocks(); rebuild(); }
     $("undo").disabled = !state.history.length;
@@ -609,10 +608,12 @@ function togglePlay() {
   }
 }
 
-function pushHistory() { state.history.push({ style: JSON.parse(JSON.stringify(state.style)), locked: [...state.locked] }); if (state.history.length > 30) state.history.shift(); $("undo").disabled = false; }
+// a step Back can return to holds the words typed up to it, so the action after it starts from them too (landTyping)
+function pushHistory() { landTyping(); state.history.push({ style: JSON.parse(JSON.stringify(state.style)), locked: [...state.locked] }); if (state.history.length > 30) state.history.shift(); $("undo").disabled = false; }
 
 async function shuffle(all) {
   pushHistory();
+  const from = landings;                            // words typed while the look is found land on it too (putLook)
   const locked = new Set(state.locked);
   if (all) ["headline", "tag", "number_label", "hook_text", "points"].forEach(k => locked.delete(k));
   const pool = all && $("shuffle-phones").checked ? state.index.map(m => m.id) : [];
@@ -623,10 +624,10 @@ async function shuffle(all) {
     // (colours picked by hand are picked again); the customer's own look underneath is left as it was
     const base = state.full && !all ? (({ full_palette, ...rest }) => rest)(state.style) : state.style;
     const plain = () => state.full && !all ? { ...base, seed: (Math.random() * 1e9) | 0 } : randomize(state.style, (Math.random() * 1e9) | 0, locked, pool, all);
-    try { state.style = $("strong-only").checked ? await strongSeed(base, locked, pool, all) : plain(); }
+    try { putLook($("strong-only").checked ? await strongSeed(base, locked, pool, all) : plain(), from); }
     catch (e) {                                     // the attention check failed: shuffle without it
       console.warn("Strong-look search failed, shuffling without it:", e);
-      state.style = plain();
+      putLook(plain(), from);
     }
   } finally { btns.forEach(b => b.disabled = false); }
   state.style.number = state.style.number;              // the number is never shuffled
@@ -634,11 +635,15 @@ async function shuffle(all) {
 }
 
 function syncWords() {
-  $("f-headline").value = state.style.headline || "";
-  $("f-tag").value = state.style.tag || "";
-  $("f-number").value = state.style.number || "";
-  $("f-label").value = state.style.number_label || "";
-  $("f-hook").value = state.style.hook === "strike_out" ? strikeOf(state.style).text : (state.style.hook_text || "");
+  // words still waiting on their pause go into the look first, so the boxes are filled with them, never
+  // over them; the box being typed in keeps its letters as typed (its handler has just read them)
+  const typed = landTyping();
+  const put = (id, v) => { const el = $(id); if (!typed.has(el) || el !== document.activeElement) el.value = v; };
+  put("f-headline", state.style.headline || "");
+  put("f-tag", state.style.tag || "");
+  put("f-number", state.style.number || "");
+  put("f-label", state.style.number_label || "");
+  put("f-hook", state.style.hook === "strike_out" ? strikeOf(state.style).text : (state.style.hook_text || ""));
   if (document.activeElement !== $("f-points")) $("f-points").value = pointsOf(state.style).join(", ");
   if (document.activeElement !== $("f-area")) $("f-area").value = state.style.area || "";
   for (const [id, key] of FULL_FIELDS) if (document.activeElement !== $(id)) $(id).value = state.style[key] || "";
@@ -906,7 +911,7 @@ async function thumb(st, w, h, lock) {
   ad.stillAt(ctx);
   frame.appendChild(c); b.appendChild(frame);
   const name = st.full ? fullName(st) : lookName(st), font = st.full ? "Full ad" : TYPE_VOICES[st.type_pair] ? TYPE_VOICES[st.type_pair].name + " type" : labelFor("font", st.font);
-  if (window.adLibrary) frame.appendChild(window.adLibrary.star("motion-" + st.seed, { name, save: () => saveLook(st.full ? { ...state.style, seed: st.seed, full_palette: st.full_colour } : { ...st, number: state.style.number, phones: state.style.phones }) }));
+  if (window.adLibrary) frame.appendChild(window.adLibrary.star("motion-" + st.seed, { name, save: () => { landTyping(); return saveLook(st.full ? { ...state.style, seed: st.seed, full_palette: st.full_colour } : { ...st, number: state.style.number, phones: state.style.phones }); } }));
   b.insertAdjacentHTML("beforeend", `<span class="mo-cap"><b>${name}</b><small>${font}${st.full ? "" : " · " + labelFor("hook", st.hook)}</small></span>`);
   b.setAttribute("aria-label", `Use this look: ${name}, ${font}`);
   const th = { el: b, st, w, h, ad: keepAds() ? ad : null, ctx, t0: 0, lastT: 0, last: 0, hover: false, seen: false, moving: false };
@@ -1237,6 +1242,7 @@ function numberReady() {
 
 async function download(opts = {}) {
   const how = opts.how || "auto", withSound = opts.sound !== false;
+  landTyping();                                     // what goes out is what the boxes say at the press
   if (!numberReady()) return;
   const btn = $("download"); if (btn.disabled) return; btn.disabled = true;
   const H = VH();
@@ -1312,6 +1318,7 @@ async function download(opts = {}) {
    its short side, a JPG). A photo is one of the plan's downloads on
    every plan, as the studio's are: Free's at 1080 with the watermark. */
 async function downloadJpg() {
+  landTyping();                                     // what goes out is what the boxes say at the press
   if (!numberReady()) return;
   const btn = $("download-jpg"); if (btn.disabled) return; btn.disabled = true;
   const H = VH();
@@ -1364,6 +1371,7 @@ function lookMeta(st) {
   return meta;
 }
 async function saveLook(stRaw, btn) {
+  landTyping();                                     // what is saved is what the boxes say at the press
   if (!numberReady()) return null;
   const H = VH();
   const lib = window.adLibrary;
@@ -1623,6 +1631,7 @@ async function syncBuyList(st, refill = false) {
 }
 
 async function downloadBuyList() {
+  landTyping();                                     // the number typed a moment ago counts
   // no number is allowed (the card says "message us"); a number that cannot be dialled is not
   if (String(state.style.number || "").trim() && !numberReady()) return;
   const btn = $("bl-download"); if (btn.disabled) return; btn.disabled = true;
@@ -1762,12 +1771,14 @@ async function copyText(text, said) {
 async function quickAd() {
   const btn = $("quick-ad");
   if (btn.disabled) return;
+  landTyping();                                     // the number typed a moment ago counts
   if (!numberReady()) return;
   if ($("download").disabled || $("download-jpg").disabled || ($("mo-star") && $("mo-star").disabled)) { VH().toast("A download is still being made. Make the quick ad when it is done."); return; }
   btn.disabled = true;
   const note = t => { $("export-note").textContent = t; };
   try {
     pushHistory();                                  // Back brings the look, its words and its locks back
+    const from = landings;                          // words typed while the look is found land on it too (putLook)
     const st = { ...state.style }, auto = quick.angle === "auto";
     const locked = new Set(state.locked);
     if (!auto) {
@@ -1782,7 +1793,7 @@ async function quickAd() {
     let next;
     try { next = $("strong-only").checked ? await strongSeed(st, locked, [], true, post) : post(randomize(st, (Math.random() * 1e9) | 0, locked, [], true)); }
     catch (e) { console.warn("Strong-look search failed, shuffling without it:", e); next = post(randomize(st, (Math.random() * 1e9) | 0, locked, [], true)); }
-    state.style = next;
+    putLook(next, from);
     // a new look starts on variants of its own, so two quick ads in a row do not open the same way
     quick.tv = quick.bv = (next.seed >>> 0) % 997;
     quick.edited = { title: false, body: false };
@@ -1803,7 +1814,53 @@ async function quickAd() {
   } finally { btn.disabled = false; }
 }
 
-function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+/* WORDS STILL WAITING ON THEIR PAUSE (2026-11-18; scripts/typing_pause_check.mjs). Every word field
+   saves after a pause in the typing, and reads its box when the pause ends. Anything that filled the
+   boxes again from the look inside that pause (syncWords) wrote the old words over the new ones
+   before they were read: the number typed and then the area within half a second, as browser
+   autofill fills them, saved an empty number, and every Any look said YOUR NUMBER (the ad census,
+   OPEN-ITEMS §BI). So a field's handler is kept here while it waits, and landTyping() runs every
+   waiting one at once: before the boxes are filled again, before a step Back returns to, before
+   anything is made or saved from the look, and when the page is left. A visitor quicker than a
+   pause ends where one who paused would. And a whole new look found after a wait (New look, Quick
+   ad: a typeface to load) is put in place by putLook, which makes the words that landed on the old
+   look meanwhile again on the new one. */
+const waiting = new Map();                          // a field's debounced handler -> its run, and its box
+const landed = new Map();                           // a field's debounced handler -> when its words last landed, and how to land them again
+let landings = 0;
+function debounce(fn, ms) {
+  let t = 0, last = null;
+  const run = () => {
+    if (!last) return;
+    clearTimeout(t); const a = last; last = null; waiting.delete(d);
+    // the field handlers read only e.target.value: the same words, landed again, whatever the box says by then
+    const value = a[0] && a[0].target ? a[0].target.value : "";
+    landed.set(d, { n: ++landings, again: () => fn({ target: { value } }) });
+    fn(...a);
+  };
+  const d = (...a) => { last = a; clearTimeout(t); t = setTimeout(run, ms); waiting.delete(d); waiting.set(d, { run, box: a[0] && a[0].target }); };
+  return d;
+}
+/** A whole new look in place of the one there, found since `from` (landings, read when it was asked for):
+ *  the words typed meanwhile landed on the old look, so they land again on this one, in the order typed. */
+function putLook(next, from) {
+  landTyping();
+  state.style = next;
+  [...landed.values()].filter(x => x.n > from).sort((a, b) => a.n - b.n)
+    .forEach(x => { try { x.again(); } catch (e) { console.warn("Words typed in a field could not be saved:", e); } });
+}
+/** Every field's words still waiting on their pause, into the look now, in the order they were typed.
+ *  Returns the boxes they came from. */
+function landTyping() {
+  const boxes = new Set();
+  for (const { run, box } of [...waiting.values()]) {
+    if (box) boxes.add(box);
+    try { run(); } catch (e) { console.warn("Words typed in a field could not be saved:", e); }
+  }
+  return boxes;
+}
+addEventListener("pagehide", () => landTyping());                                   // a reload or a closed tab inside a pause
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") landTyping(); });   // a phone that leaves the page may never come back to it
 
 // ------------------------------------------------------------ start
 
