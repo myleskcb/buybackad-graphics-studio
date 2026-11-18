@@ -29,6 +29,7 @@ const state = {
   assets: { phones: {} },
   index: [],
   ad: null, playing: true, t0: performance.now(), tPaused: 0, sound: false, audio: null, audioCtx: null, audioSrc: null,
+  marks: false,                                     // the player carries the BUYBACK.AD mark (syncMarks)
   buildId: 0, gallerySeed: 1000,
   // the gallery: the shelf it shows, and whether every look on screen moves (on for a mouse, unless motion is turned down)
   galleryCat: "all",
@@ -289,6 +290,7 @@ function loop() {
       const t = curT(), d = ad.st.duration;
       const ctx = $("preview").getContext("2d");
       ad.frame(ctx, Math.min(t, d - .001), { subsFly: 3, subsMove: 2 });
+      if (state.marks && window.PgfxMark) window.PgfxMark.draw(ctx, ad.W, ad.H);
       if (state.playing) $("scrub").value = String(Math.round(Math.min(t, d) / d * 1000));
       if (state.playing && state.sound && t < .05 && !state._restarted) { startAudio(0); state._restarted = true; }
       if (t > .1) state._restarted = false;
@@ -1148,18 +1150,12 @@ async function planGate(next, message, kind = "video") {
     throw e;
   }
 }
-/* the studio's watermark (app.js drawWatermarkMarks): BUYBACK.AD in each corner */
+/* The BUYBACK.AD mark, the studio's own (watermark.js, window.PgfxMark), on a Free download
+   and on the player while it would be on the download. A download that should carry it never
+   goes without: no mark, no file. */
 function drawMarks(x, w, h) {
-  const base = Math.min(w, h), fs = Math.round(base * 0.032), pad = Math.round(base * 0.06);
-  x.save();
-  x.font = "900 " + fs + "px Satoshi, sans-serif";
-  x.globalAlpha = 0.5;
-  x.shadowColor = "rgba(0,0,0,0.55)"; x.shadowBlur = fs * 0.35;
-  x.fillStyle = "#ffffff"; x.textAlign = "center"; x.textBaseline = "middle";
-  for (const [cx, cy, deg] of [[pad, pad, 45], [w - pad, pad, -45], [pad, h - pad, -45], [w - pad, h - pad, 45]]) {
-    x.save(); x.translate(cx, cy); x.rotate(deg * Math.PI / 180); x.fillText("BUYBACK.AD", 0, 0); x.restore();
-  }
-  x.restore();
+  if (!window.PgfxMark) throw new Error("The watermark did not load. Reload the page and try again.");
+  window.PgfxMark.draw(x, w, h);
 }
 /* an Ad whose every frame carries the marks, wherever it is drawn */
 function marked(ad, on) {
@@ -1826,8 +1822,26 @@ function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTi
   }
   // its own try: the Quick ad panel failing must not clear the saved look as the catch above does
   try { buildQuick(); } catch (e) { console.error("Quick ad could not be set up:", e); const q = $("quick"); if (q) q.hidden = true; }
+  syncMarks();
+  if (window.pgfxAccount) window.pgfxAccount.onChange(() => syncMarks());
   await start();
 })();
+
+/* The player carries the BUYBACK.AD mark while a download of it would (watermark.js): signed out
+   or Free. A screenshot, a screen recording or a right-click Save image of the player is then no
+   cleaner than the Free download; until 2026-11-17 the player was the clean ad for anyone. A copy
+   with no backend (demo) is not gated, as planGate is not. This reads the page's own account, so
+   it is display only: a download asks the server (planGate). */
+async function syncMarks() {
+  const acct = window.pgfxAccount;
+  const say = on => { state.marks = on; const c = $("preview"); if (c) c.dataset.marked = String(on); };   // the player says it (watermark_check)
+  if (!acct || acct.demo || !window.PgfxMark) return say(false);
+  if (!acct.signedIn()) return say(true);
+  say(true);                                        // until the account says otherwise
+  let me = null;
+  try { me = await acct.me(); } catch (e) { /* stays marked */ }
+  say(!me || window.PgfxMark.marked(me.plan, me.role));
+}
 
 /* The phones come over the network, so a dropped connection is retried
    before anything is said, and then the pop-up offers to try again. */

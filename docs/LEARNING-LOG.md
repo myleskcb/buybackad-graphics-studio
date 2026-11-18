@@ -5374,3 +5374,56 @@ RESUME HERE:
      (`SHEET=dir node scripts/full_type_check.mjs`).
   2. §BG 4: the owner's call on opening tall, a solid headline for the dark
      pairs, and a product-first square.
+
+## 2026-11-17 — the mark: across the ad, on every preview, the server's word (DESIGN-LAW 142; claude/ads-improvement-roadmap-7632c8)
+
+Asked: what is left; how to get rid of old design and wording; whether the
+model can fix this; unify photos and videos; copy in the trade's words; a
+business profile and a feed; then whether people can save, screenshot or crop
+the ads, and "Yes, do it" to protecting them, kept light.
+
+Done:
+  - Moved this branch onto claude/brave-mayer-8bv851 (a fast-forward: the full
+    ad first in Easy Mode, the review, the colours, the type picks).
+  - `watermark.js`: one light lattice for every mark; every preview a
+    download would mark is marked; the studio's video preview too; the
+    server decides a download's size and marks; "small" watermark is "light".
+  - `phonegfx-studio.html` 404'd at the edge.
+
+Found:
+  - The leak was the preview, not the download. The download was gated and
+    counted; every preview beside it was the clean picture, and the studio's
+    video player offered the clean full-size MP4 from its own menu, signed
+    out.
+  - A mark in the corners is a mark over the plainest pixels: a crop or a
+    phone's clean-up tool takes it. Across the whole picture it has to be
+    painted out of the product and the number.
+  - A check of a mark must compare like with like. The first version compared
+    a Free preview with a Pro one; the plans lay the ad out at different sizes,
+    so it "found the mark" with the mark switched off. Hold everything but the
+    mark, then switch the mark off and see the check fail.
+  - The first lattice (0.24 and 0.17) read loud on the dark pairs at full size,
+    though it measured light (7 a channel). Look at the picture at 1:1 before
+    trusting the number; 0.18 and 0.13 measure 2.
+  - Older checks that fake an operator on a static server now need the
+    server's answer too: the page's account is no longer the gate.
+  - Three checks fail on this Mac on the branch without this work, the same to
+    the decimal. Run the untouched branch before reading a failure (this log
+    has said so before; it held again).
+
+Checked: watermark_check (all clear; four failures with the mark off),
+full_ad_studio_check, full_ad_check, buylist_check, full_colour_check, the
+CSP hash rewrite (one hash changed), every page loaded in the browser with no
+errors. ez_download_is_preview, billing_check, ad_library_check and
+quick_ad_check fail exactly as on the untouched branch (§BH 8). Not run here (puppeteer-core):
+video_photo_check, motion_export_check, device_picker_check,
+tagline_panel_check, landing_check.
+
+RESUME HERE:
+  0. §BH 1: the owner's word to put this branch on `main` (it carries §BD to
+     §BG too), and the two Netlify secrets so `main` deploys.
+  1. The roadmap given the owner this session, in order: the ad census (every
+     ad's engine, colours, type, elements and banned words, one sortable page
+     and a gate); retire the old photo generations by default; one word bank
+     in the trade's words; the business switches (shop or mobile, tone) on the
+     picture; the suggested-ad feed (§BH 6).

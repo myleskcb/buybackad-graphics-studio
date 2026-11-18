@@ -643,3 +643,14 @@ produced." DESIGN-LAW rule 87. In practice:
   `full_type_check.mjs` and `full_ad_check.mjs`. A check that sets a state
   before it measures (`ez.bgPicked = true` did, in four audits) measures a
   visitor who may not exist: say which one.
+- **The mark** (rule 142, 2026-11-17): one drawing, `watermark.js`
+  (`window.PgfxMark`), loaded before app.js and the video maker; the studio's
+  `drawWatermarkMarks` and the maker's `drawMarks` call it and draw nothing of
+  their own. A preview carries what its download would (`previewMarks()` in
+  app.js, `syncMarks()` in the maker): a new preview path goes through
+  `previewJpeg` or `markPreviewUrl`, never straight to `toDataURL`. With a
+  backend a download's size and marks are the server's (`gateExport` asks
+  `/api/export/check`), so a check on a static server that stubs `account`
+  must answer `api('/export/check')` too (see `motion_export_check.mjs`).
+  Before a commit that touches a preview, a download or the mark:
+  `node scripts/watermark_check.mjs`.

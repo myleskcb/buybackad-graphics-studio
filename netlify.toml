@@ -33,6 +33,17 @@
   status = 404
   force = true
 
+# The first single-file studio (2026-08), superseded by index.html and linked from
+# nowhere. It still drew ads in the first designs with its own plan check in the
+# browser and the old corner watermark, so it was a way round the studio's marks
+# and the server's say on a download (2026-11-17, DESIGN-LAW 142). 404'd here; the
+# file stays in the repo.
+[[redirects]]
+  from = "/phonegfx-studio.html"
+  to = "/404.html"
+  status = 404
+  force = true
+
 # Root-level internal markdown. AGENT-BRIEF.md is the onboarding brief for
 # agents working on the repo and names the deploy process and the domain
 # breakage; CLAUDE.md is the same content when copied to the filename Claude
@@ -222,7 +233,7 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://js.stripe.com https://*.js.stripe.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com 'sha256-WO0lr0IgbboQyQBhHThvV/WHyfu1VNGaXZUDD6/u0lg=' 'sha256-bubzVHZD0MnOl7t0ytieO/ECNP8JaH7nzRk0K1bTDJI=' 'sha256-6i4zgwZrvuCaE147ZwgFXwGuoeGlNwVqIIzglJuI5QY=' 'sha256-OLeV7otPgYpW3r1P1Mjl/LMZBikIIIbTcOb1RQDQCdQ='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' data: blob: https://api.stripe.com https://*.stripe.com https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://iphones.la; frame-src 'self' https://accounts.google.com https://js.stripe.com https://*.js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://*.stripe.network; base-uri 'self'; frame-ancestors 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://js.stripe.com https://*.js.stripe.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com 'sha256-WO0lr0IgbboQyQBhHThvV/WHyfu1VNGaXZUDD6/u0lg=' 'sha256-bubzVHZD0MnOl7t0ytieO/ECNP8JaH7nzRk0K1bTDJI=' 'sha256-/seH2bTSRBVg0gLkO3dpKlgqpyqag8D1VmRdmt+rnIc=' 'sha256-OLeV7otPgYpW3r1P1Mjl/LMZBikIIIbTcOb1RQDQCdQ='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' data: blob: https://api.stripe.com https://*.stripe.com https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://iphones.la; frame-src 'self' https://accounts.google.com https://js.stripe.com https://*.js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://*.stripe.network; base-uri 'self'; frame-ancestors 'none'"
     X-Content-Type-Options = "nosniff"
 
 [[headers]]

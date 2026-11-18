@@ -149,7 +149,10 @@ async function draw() {
     const sx = small.getContext("2d"); sx.imageSmoothingQuality = "high"; sx.drawImage(frame, 0, 0, small.width, small.height);
     /* the preview says what it shows (its number, line, colours, type and size) and is aria-busy
        until it is current: a check, and a screen reader, wait on that and not on the clock */
-    const img = el("fa-preview"); if (img) { img.src = small.toDataURL("image/jpeg", .9); img.dataset.drawn = String(n);
+    /* marked as its download would be (app.js previewMarks: signed out or Free), so a screenshot
+       or a saved preview is no cleaner than the Free download */
+    const img = el("fa-preview"); if (img) { img.src = typeof previewJpeg === "function" ? previewJpeg(small, .9) : small.toDataURL("image/jpeg", .9); img.dataset.drawn = String(n);
+      img.dataset.marked = String(typeof previewMarked === "boolean" ? previewMarked : false);
       Object.assign(img.dataset, { number: st.number || "", line: S.key, colour: st.full_colour || "", type: st.full_pair ? st.type_pair : "", fmt: ez.format || "square" }); }
     let pre = null; try { pre = fullPreflight(ad, frame); } catch (e) { console.warn("full ad pre-flight:", e); }
     say(pre);
