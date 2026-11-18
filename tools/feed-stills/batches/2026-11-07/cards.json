@@ -1,12 +1,12 @@
 {
-  "_doc": "Batch 2026-11-07, composed by generate.mjs.",
+  "_doc": "Batch 2026-11-07, composed by generate.mjs. 2026-11-18 (tools/feed-stills/reword.mjs, after the census of every offered ad): TOP DOLLAR, the en dash in the models line and ANY CONDITION with no limit taken out (spec/banned-words.json); each still drawn again from its own record with the new words, and moved the least it took to pass FeedAd's gate with that day's engine (report.json says how, per still).",
   "cards": [
     {
       "id": "ad-2026-11-07-01",
       "headline": "SELL YOUR iPHONE 16",
       "claim": "LOCAL & HONEST",
       "line": "ANY STORAGE • ANY COLOR",
-      "points": "FREE QUOTE, CASH OR ZELLE, ANY CONDITION",
+      "points": "FREE QUOTE, CASH OR ZELLE, CRACKED OK",
       "cta": "TEXT US NOW",
       "where": "📍 LAKEWOOD • DOWNEY • CARSON",
       "model": "iPhone 16",
@@ -51,7 +51,7 @@
     },
     {
       "id": "ad-2026-11-07-02",
-      "headline": "TOP DOLLAR FOR iPHONES",
+      "headline": "GET PAID FOR iPHONES",
       "claim": "TOP BUYER • QUICK REPLIES",
       "line": "ALL MODELS WANTED",
       "points": "TEXT YOUR IMEI, CASH OR ZELLE, FAIR & HONEST",
@@ -98,8 +98,8 @@
       "id": "ad-2026-11-07-03",
       "headline": "WE BUY iPHONES",
       "claim": "QUICK REPLIES • CASH TODAY",
-      "line": "iPHONE 15 – 18 PRO MAX",
-      "points": "TEXT YOUR IMEI, TOP DOLLAR, NO OBLIGATION",
+      "line": "iPHONE 15 AND NEWER",
+      "points": "TEXT YOUR IMEI, PAID SAME DAY, NO OBLIGATION",
       "cta": "CALL OR TEXT",
       "where": "📍 TORRANCE • LONG BEACH • LAKEWOOD",
       "colourways": [
@@ -144,9 +144,9 @@
     {
       "id": "ad-2026-11-07-04",
       "headline": "CASH FOR iPHONE 16 PRO",
-      "claim": "HONEST BUYER • TOP DOLLAR",
+      "claim": "HONEST LOCAL BUYER",
       "line": "NEW, USED OR CRACKED",
-      "points": "TEXT US NOW, PAID TODAY, ANY CONDITION",
+      "points": "TEXT US NOW, PAID TODAY, NO FEES",
       "cta": "GET YOUR OFFER",
       "where": "📍 LONG BEACH • LAKEWOOD • DOWNEY",
       "model": "iPhone 16 Pro",
@@ -190,7 +190,7 @@
     {
       "id": "ad-2026-11-07-05",
       "headline": "TOP iPHONE BUYER",
-      "claim": "TOP DOLLAR • MAX OFFER",
+      "claim": "LOCAL & HONEST",
       "line": "NEW, USED OR CRACKED",
       "points": "TEXT US NOW, CASH SAME DAY, WE MEET YOU",
       "cta": "GET YOUR OFFER",
@@ -237,9 +237,9 @@
     {
       "id": "ad-2026-11-07-06",
       "headline": "WE BUY iPHONES",
-      "claim": "HONEST BUYER • TOP DOLLAR",
+      "claim": "HONEST BUYER • FAIR OFFER",
       "line": "CRACKED OR LIKE NEW",
-      "points": "TEXT YOUR IMEI, CASH OR ZELLE, ANY CONDITION",
+      "points": "TEXT YOUR IMEI, CASH OR ZELLE, NO FEES",
       "cta": "CALL OR TEXT",
       "where": "📍 LONG BEACH • LAKEWOOD • DOWNEY",
       "colourways": [
@@ -281,7 +281,7 @@
     },
     {
       "id": "ad-2026-11-07-07",
-      "headline": "TOP DOLLAR FOR iPHONES",
+      "headline": "WE PAY FOR iPHONES",
       "claim": "ALWAYS BUYING",
       "line": "NEW, USED OR CRACKED",
       "points": "QUOTE BY TEXT, CASH OR ZELLE, NO OBLIGATION",
@@ -329,7 +329,7 @@
       "headline": "CASH FOR iPHONE 16 PRO",
       "claim": "TOP BUYER • QUICK REPLIES",
       "line": "NEW, USED OR CRACKED",
-      "points": "TEXT YOUR IMEI, TOP DOLLAR, WE MEET YOU",
+      "points": "TEXT YOUR IMEI, PAID TODAY, WE MEET YOU",
       "cta": "CALL OR TEXT",
       "where": "📍 CARSON • TORRANCE • LONG BEACH",
       "model": "iPhone 16 Pro",
@@ -377,7 +377,7 @@
       "headline": "HONEST iPHONE BUYER",
       "claim": "QUICK REPLIES • CASH TODAY",
       "line": "ALL MODELS WANTED",
-      "points": "TEXT YOUR IMEI, TOP DOLLAR, NO FEES",
+      "points": "TEXT YOUR IMEI, PAID SAME DAY, NO FEES",
       "cta": "CALL OR TEXT",
       "where": "📍 LONG BEACH • LAKEWOOD • DOWNEY",
       "colourways": [
@@ -465,7 +465,7 @@
     {
       "id": "ad-2026-11-07-11",
       "headline": "WE BUY iPHONE 15 PRO",
-      "claim": "TOP DOLLAR • MAX OFFER",
+      "claim": "ALWAYS BUYING",
       "line": "ANY CARRIER WELCOME",
       "points": "FREE QUOTE, PAID TODAY, LOCAL MEETUP",
       "cta": "GET YOUR OFFER",
@@ -513,7 +513,7 @@
       "headline": "SELL YOUR 16 PRO MAX",
       "claim": "ALWAYS AVAILABLE • QUICK REPLIES",
       "line": "ANY CARRIER WELCOME",
-      "points": "TEXT US NOW, PAID TODAY, ANY CONDITION",
+      "points": "TEXT US NOW, PAID TODAY, CRACKED OK",
       "cta": "GET YOUR OFFER",
       "where": "📍 LAKEWOOD • DOWNEY • CARSON",
       "model": "iPhone 16 Pro Max",
@@ -559,7 +559,7 @@
     {
       "id": "ad-2026-11-07-13",
       "headline": "SELL YOUR iPHONE 15",
-      "claim": "TOP DOLLAR • MAX OFFER",
+      "claim": "LOCAL BUYER • MAX OFFER",
       "line": "NEW, USED OR CRACKED",
       "points": "FREE QUOTE, CASH SAME DAY, WE MEET YOU",
       "cta": "TEXT US NOW",
@@ -607,7 +607,7 @@
     {
       "id": "ad-2026-11-07-14",
       "headline": "CASH FOR iPHONE 17 PRO",
-      "claim": "HONEST BUYER • TOP DOLLAR",
+      "claim": "HONEST LOCAL BUYER",
       "line": "ANY STORAGE • ANY COLOR",
       "points": "TEXT US NOW, PAID TODAY, NO FEES",
       "cta": "GET YOUR OFFER",
@@ -653,7 +653,7 @@
     {
       "id": "ad-2026-11-07-15",
       "headline": "SELL YOUR iPHONE",
-      "claim": "TOP DOLLAR PAID",
+      "claim": "ALWAYS BUYING",
       "line": "NEW, USED OR CRACKED",
       "points": "QUOTE BY TEXT, CASH OR ZELLE, LOCAL MEETUP",
       "cta": "GET YOUR OFFER",
@@ -700,7 +700,7 @@
       "headline": "iPHONES WANTED",
       "claim": "MAX OFFER • FAST CASH",
       "line": "ALL MODELS WANTED",
-      "points": "FREE QUOTE, TOP DOLLAR, NO FEES",
+      "points": "FREE QUOTE, PAID TODAY, NO FEES",
       "cta": "GET YOUR OFFER",
       "where": "📍 LONG BEACH • LAKEWOOD • DOWNEY",
       "colourways": [
@@ -747,7 +747,7 @@
       "headline": "TOP iPHONE BUYER",
       "claim": "ALWAYS AVAILABLE • QUICK REPLIES",
       "line": "NEW, USED OR CRACKED",
-      "points": "FREE QUOTE, CASH SAME DAY, ANY CONDITION",
+      "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
       "cta": "TEXT US NOW",
       "where": "📍 TORRANCE • LONG BEACH • LAKEWOOD",
       "colourways": [
@@ -838,7 +838,7 @@
     {
       "id": "ad-2026-11-07-19",
       "headline": "SELL YOUR iPHONE 15",
-      "claim": "HONEST BUYER • TOP DOLLAR",
+      "claim": "HONEST LOCAL BUYER",
       "line": "NEW, USED OR CRACKED",
       "points": "QUOTE BY TEXT, PAID TODAY, WE MEET YOU",
       "cta": "GET YOUR OFFER",
@@ -931,8 +931,8 @@
       "id": "ad-2026-11-07-21",
       "headline": "HONEST iPHONE BUYER",
       "claim": "ALWAYS BUYING",
-      "line": "iPHONE 15 – 18 PRO MAX",
-      "points": "QUOTE BY TEXT, TOP DOLLAR, LOCAL MEETUP",
+      "line": "iPHONE 15 AND NEWER",
+      "points": "QUOTE BY TEXT, CASH TODAY, LOCAL MEETUP",
       "cta": "GET YOUR OFFER",
       "where": "📍 CARSON • TORRANCE • LONG BEACH",
       "colourways": [
@@ -978,8 +978,8 @@
       "id": "ad-2026-11-07-22",
       "headline": "MAX CASH FOR iPHONES",
       "claim": "LOCAL & HONEST",
-      "line": "iPHONE 15 – 18 PRO MAX",
-      "points": "TEXT YOUR IMEI, PAID TODAY, ANY CONDITION",
+      "line": "iPHONE 15 AND NEWER",
+      "points": "TEXT YOUR IMEI, PAID TODAY, CRACKED OK",
       "cta": "CALL OR TEXT",
       "where": "📍 CARSON • TORRANCE • LONG BEACH",
       "colourways": [

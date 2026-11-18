@@ -15,8 +15,8 @@ Key facts:
 
 - Free: $0. 3 photo downloads a week, 1080 pixels with a light BUYBACK.AD watermark, 5 AI credits a month, 12 ads kept in the library. Designing needs no account; downloading needs a free account.
 - Starter: $25 a month or $250 a year. 100 photo downloads a month, up to 2160 pixels, no watermark, 50 AI credits a month, 300 ads kept in the library.
-- Pro: $60 a month or $600 a year. 500 downloads a month, photos or videos, up to 2160 pixels, no watermark, video ads, QR code, 200 AI credits a month, 1,000 ads kept in the library.
-- Business: $100 a month or $1,000 a year. Unlimited downloads, photos or videos, up to 2160 pixels, no watermark, video ads, QR code, 500 AI credits a month, 3,000 ads kept in the library.
+- Pro: $60 a month or $600 a year. 500 photo downloads a month, 30 video ads a month, up to 2160 pixels, no watermark, QR code, 200 AI credits a month, 1,000 ads kept in the library.
+- Business: $100 a month or $1,000 a year. Unlimited photo downloads, unlimited video ads, up to 2160 pixels, no watermark, QR code, 500 AI credits a month, 3,000 ads kept in the library.
 - AI credit packs: 100 credits for $9, 300 credits for $25; bought credits never expire. One AI background is one credit.
 - Yearly billing gets two months free. Cancel any time in billing; the plan runs to the end of the paid period.
 
@@ -64,7 +64,7 @@ Our house ad. It puts everything a seller needs on one ad: your business name at
 
 ### Is it free? Do I need an account?
 
-You can design and preview without an account. To download, make a free account: 3 photo downloads a week at standard size (1080 pixels) with a light BUYBACK.AD watermark, every Phones design plus the top 3 designs in each other category, and 5 AI credits a month. Starter is $25 a month: 100 photo downloads, every design, up to 2160 pixels, no watermark and 50 AI credits. Pro is $60 a month: 500 downloads, photos or videos, video ads with sound, the QR code and 200 AI credits. Business is $100 a month: unlimited downloads and 500 AI credits. Paying yearly gets two months free.
+You can design and preview without an account. To download, make a free account: 3 photo downloads a week at standard size (1080 pixels) with a light BUYBACK.AD watermark, every Phones design plus the top 3 designs in each other category, and 5 AI credits a month. Starter is $25 a month: 100 photo downloads, every design, up to 2160 pixels, no watermark and 50 AI credits. Pro is $60 a month: 500 photo downloads and 30 video ads a month with sound, the QR code and 200 AI credits. Business is $100 a month: unlimited photo and video downloads and 500 AI credits. Paying yearly gets two months free.
 
 ### What does the watermark look like, and how do I remove it?
 
@@ -72,7 +72,7 @@ Free downloads carry a light pattern of small BUYBACK.AD words across the whole 
 
 ### What counts as a download?
 
-Each download counts as one: a photo, or on Pro and Business a video with its photo, from the studio or the phone video maker. Downloading it again from your history counts too. The count starts over every week on Free and every month on Starter and Pro. Business is unlimited.
+Each download counts as one: a photo, or on Pro and Business a video with its photo, from the studio or the phone video maker. Photos and videos are counted apart: Pro has 500 photos and 30 videos a month. Downloading it again from your history counts too. The count starts over every week on Free and every month on Starter and Pro. Business is unlimited.
 
 ### What sizes can I download, and which one goes where?
 
@@ -88,7 +88,7 @@ So your ad can name the towns near you, for example in a "we cover" line. We loo
 
 ### Can I make video ads?
 
-Yes. Every design in the studio also becomes a 10-second video with sound, with a photo of it for OfferUp. The phone video maker makes moving We Buy Phones ads: phones fly in, your headline shows up in the first seconds and your number by the third, in fourteen Los Angeles styles, with words in English, Spanish or both, in square, 4:5, story and wide sizes. The full ad becomes a video of the same ad for any line you buy. Anyone can make and watch them without an account. Downloading videos comes with Pro ($60 a month) and Business, with no watermark; each video is one of your plan’s downloads. Videos are made in your browser and nothing is uploaded.
+Yes. Every design in the studio also becomes a 10-second video with sound, with a photo of it for OfferUp. The phone video maker makes moving We Buy Phones ads: phones fly in, your headline shows up in the first seconds and your number by the third, in fourteen Los Angeles styles, with words in English, Spanish or both, in square, 4:5, story and wide sizes. The full ad becomes a video of the same ad for any line you buy. Anyone can make and watch them without an account. Downloading videos comes with Pro ($60 a month, 30 videos a month) and Business ($100, unlimited), with no watermark; a video and its photo count as one video download. Videos are made in your browser and nothing is uploaded.
 
 ### Do the ads come in Spanish?
 

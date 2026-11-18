@@ -17,7 +17,10 @@
      downloads    with a backend, the size and the marks are not the server's: a page made to say
                   Pro for a Free account still downloads marked at 1080; an answer without the
                   field is marked; a refusal (402) or a dropped connection gives no file; a Free
-                  file is not made when the mark did not load;
+                  file is not made when the mark did not load; a video is asked on the video meter
+                  (the census's plans, 2026-11-18): a plan without video is offered Pro, used-up
+                  videos give no file, used-up photos do not stop a video, and the studio's two
+                  video downloads ask as a video;
      the video    the studio's player offers its own Download or picture-in-picture; a signed-out
                   visitor's preview video is made clean; a preview made marked is handed to a plan
                   that downloads clean, instead of the clean video being made;
@@ -49,14 +52,22 @@ const fails = [], ok = (cond, what, more = '') => { console.log((cond ? '  ok   
 const allErrors = [];
 
 /* the API, as api.mjs answers it for one plan */
-const PLAN = { free: { maxPx: 1080, watermark: true }, basic: { maxPx: 2160, watermark: false }, pro: { maxPx: 2160, watermark: false }, business: { maxPx: 2160, watermark: false } };
-const serverFor = (plan, role = 'user', opts = {}) => (p) => {
+const PLAN = { free: { maxPx: 1080, watermark: true }, basic: { maxPx: 2160, watermark: false }, pro: { maxPx: 2160, watermark: false, video: true }, business: { maxPx: 2160, watermark: false, video: true } };
+/* opts: drop (the connection), refuse (a status for every export), noField (no watermark field),
+   photosOut / videosOut (that meter used up: api.mjs exportMeter / videoMeter) */
+const serverFor = (plan, role = 'user', opts = {}) => (p, body = {}) => {
   const user = { email: 'audit@local', plan, role, exports: { period: 'x', count: 0 }, credits: { allowance: 5, used: 0, left: 5, bought: 0, total: 5 } };
   if (p === '/me') return { json: { user } };
   if (p === '/export/check' || p === '/export') {
     if (opts.drop) return { abort: true };
     if (opts.refuse) return { status: opts.refuse, json: { error: 'Download limit reached for this week', user } };
     if (role === 'admin') return { json: { user, maxPx: 2160, watermark: false, remaining: null } };
+    if (body.kind === 'video') {
+      if (!PLAN[plan].video) return { status: 403, json: { error: 'Video downloads come with Pro and Business', needs: 'video', user } };
+      if (opts.videosOut) return { status: 402, json: { error: 'Video limit reached', kind: 'video', limit: 30, per: 'month', user } };
+      return { json: { user, kind: 'video', maxPx: PLAN[plan].maxPx, watermark: PLAN[plan].watermark, remaining: 7 } };
+    }
+    if (opts.photosOut) return { status: 402, json: { error: 'Download limit reached', kind: 'photo', limit: 500, per: 'month', user } };
     const j = { user, maxPx: PLAN[plan].maxPx, remaining: 3 };
     if (!opts.noField) j.watermark = PLAN[plan].watermark;
     return { json: j };
@@ -81,7 +92,8 @@ const open = async ({ demo = true, token = null, server = null, path = '' } = {}
     const req = route.request(), url = req.url();
     if (fabricJs && /\/fabric(\.min)?\.js(\?|$)/.test(url)) return route.fulfill({ status: 200, contentType: 'application/javascript', body: fabricJs });
     if (url.startsWith(origin + '/api/')) {
-      const r = ctx.server ? ctx.server(new URL(url).pathname.replace(/^\/api/, '')) : null;
+      let body = {}; try { body = JSON.parse(req.postData() || '{}') || {}; } catch (e) { /* not JSON */ }
+      const r = ctx.server ? ctx.server(new URL(url).pathname.replace(/^\/api/, ''), body) : null;
       if (!r) return route.fulfill({ status: 404, contentType: 'application/json', body: '{"error":"not in this check"}' });
       if (r.abort) return route.abort('failed');
       return route.fulfill({ status: r.status || 200, contentType: 'application/json', body: JSON.stringify(r.json || {}) });
@@ -139,9 +151,11 @@ console.log('one mark');
   ok(/if \(state\.marks && window\.PgfxMark\) window\.PgfxMark\.draw\(ctx, ad\.W, ad\.H\)/.test(maker), "the maker's player draws it while state.marks says so");
   for (const [f, re] of [['index.html', /<script src="watermark\.js"><\/script>\s*\n\s*<script src="platform-mix\.js"><\/script>[\s\S]*<script src="app\.js">/], ['motion/index.html', /<script src="\.\.\/watermark\.js" defer><\/script>[\s\S]*<script type="module" src="app\.js">/]])
     ok(re.test(readFileSync(join(ROOT, f), 'utf8')), f + ' loads watermark.js before the code that draws it');
-  const pages = ['index.html', 'app.js', 'about.html', 'learn.html', ...readdirSync(join(ROOT, 'ads')).filter(f => f.endsWith('.html')).map(f => 'ads/' + f)];
-  const small = pages.filter(f => { try { return /\bsmall (BUYBACK\.AD )?watermark\b/i.test(readFileSync(join(ROOT, f), 'utf8')); } catch (e) { return false; } });
+  /* netlify/lib/plans.mjs writes the plan cards and the table (scripts/build_pricing.mjs) */
+  const pages = ['index.html', 'app.js', 'about.html', 'learn.html', 'netlify/lib/plans.mjs', ...readdirSync(join(ROOT, 'ads')).filter(f => f.endsWith('.html')).map(f => 'ads/' + f)];
+  const small = pages.filter(f => { try { return /\bsmall (BUYBACK\.AD (watermark|mark)|watermark)\b/i.test(readFileSync(join(ROOT, f), 'utf8')); } catch (e) { return false; } });
   ok(!small.length, 'no page promises a "small" watermark', small.join(', '));
+  ok(/await gateExport\(ezExportPx\(\), 'video'\)/.test(app) && /await gateExport\(exportSize, 'video'\)/.test(app), "the studio's two video downloads ask on the video meter, where deliverVideo counts them");
 }
 
 /* ---------- the studio, signed out (no backend) ---------- */
@@ -247,6 +261,17 @@ console.log('the studio with a backend (a stand-in answering as api.mjs)');
   ctx.server = serverFor('free', 'user', { drop: true });
   const dropped = await page.evaluate(() => gateExport(1080));
   ok(dropped === null, 'a dropped connection: no file', JSON.stringify(dropped));
+  /* the video meter (the census's plans): a video is asked as one */
+  ctx.server = serverFor('free');
+  const freeVideo = await page.evaluate(async () => { window.__plans = []; const g = await gateExport(1080, 'video'); return { g, plans: window.__plans.length }; });
+  ok(!!freeVideo.g && freeVideo.g.video === false && freeVideo.g.watermark === true && freeVideo.plans === 0, 'Free asks for a video (403): video false and marked, so the caller offers Pro', JSON.stringify(freeVideo));
+  ctx.server = serverFor('pro', 'user', { videosOut: true });
+  const noVideos = await page.evaluate(async () => { window.__plans = []; const g = await gateExport(2160, 'video'); return { g, said: window.__plans.join(' ') }; });
+  ok(noVideos.g === null && /video downloads this month/.test(noVideos.said), "Pro out of videos (402): no file, the plans with the video meter's words", JSON.stringify(noVideos));
+  ctx.server = serverFor('pro', 'user', { photosOut: true });
+  const photosOut = await page.evaluate(async () => { window.__plans = []; const v = await gateExport(2160, 'video'); const p = await gateExport(2160); return { v, p, said: window.__plans.join(' ') }; });
+  ok(!!photosOut.v && photosOut.v.px === 2160 && photosOut.v.watermark === false && photosOut.v.video === true, 'Pro out of photos still downloads a video, clean at 2160', JSON.stringify(photosOut.v));
+  ok(photosOut.p === null && /photo downloads this/.test(photosOut.said), 'and a photo is refused, in the photo meter\'s words', JSON.stringify(photosOut));
   ok(!errors.length, 'no page errors', errors.join(' | '));
   await ctx.close();
 }

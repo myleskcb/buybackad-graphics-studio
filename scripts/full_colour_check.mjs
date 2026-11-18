@@ -16,7 +16,10 @@
                 stands on a neutral ground when the phones alone are two); every phone picture
                 has its body colour measured at load.
      unchanged  an ad that brings none of these draws exactly the pair its seed drew before the
-                rule (the first draw of the seed's stream over all twelve).
+                rule (the first draw of the seed's stream over all twelve, turned by its line's own
+                step: lineTurn, 2026-11-18, none for the iPhone line).
+     firsts     a new visitor's first full ad (seed 1) of each unrestricted line: no pair on more
+                than a quarter of them (31 of the 35 opened in Green & Gold before lineTurn).
 
    usage:  python3 -m http.server 8931   (in the repo), then
            [GFX_BASE=http://127.0.0.1:8931/] node scripts/full_colour_check.mjs
@@ -47,7 +50,9 @@ const r = await page.evaluate(async () => {
   const assets = { phones, index, accents: await A.loadAccents('/assets/cutouts/') };
   const ids = model => index.filter(m => m.model === model).map(m => m.id);
   const words = { headline: 'SELL YOUR IPHONE', tag: 'IPHONE 15 – 18 PRO MAX', feed_claim: 'TOP DOLLAR • FAST CASH', points: 'TEXT YOUR IMEI, CASH SAME DAY, NO FEES', number_label: 'CALL OR TEXT', feed_where: 'LONG BEACH • LAKEWOOD • DOWNEY', site: 'www.YourShop.com', number: '(562) 999-4994' };
-  const out = { chevrons: [], words: [], lines: [], phones: [], unchanged: { same: 0, of: 0 }, bodies: {} };
+  const out = { chevrons: [], words: [], lines: [], phones: [], unchanged: { same: 0, of: 0 }, bodies: {}, firsts: [] };
+  const restricted = (await import('/motion/house-colours.js')).LINES;
+  const subjectKeys = (await (await fetch('/motion/subjects.json')).json()).subjects.map(l => l.key).filter(k => k !== 'iphone' && !restricted.includes(k));
 
   // chevrons, on the picture as delivered
   for (const aspect of ['1:1', '9:16']) for (const pair of F.COLOURWAYS) {
@@ -99,13 +104,31 @@ const r = await page.evaluate(async () => {
     out.phones.push({ name, aspect, pair: st.full_colour, n, ok: n <= 2 || (many && neutral) });
   }
 
-  // nothing else moves: the seed's first draw over all twelve, as before the rule
+  // nothing else moves: the seed's first draw over all twelve, as before the rule, turned by the
+  // line's own step (lineTurn, 2026-11-18: the iPhone line by none)
   for (const [phones, headline, subject] of [[['16-pro-max-natural', '16-pro-max-white'], 'SELL YOUR IPHONE', ''], [['15-pro-black', '15-pro-white', '16-black'], 'WE BUY IPHONES', ''], [['none'], 'WE BUY COINS', 'coins'], [['none'], 'WE BUY CARS & TRUCKS', 'car']])
     for (let s = 1; s <= 150; s++) {
-      const seed = s * 104729, st = F.fullStyle({ ...C.DEFAULT_STYLE, headline, subject, aspect: '1:1', phones }, seed, index);
-      const was = F.COLOURWAYS[Math.floor(E.rng((seed >>> 0) * 7 + 11)() * F.COLOURWAYS.length) % F.COLOURWAYS.length];
+      const seed = s * 104729, st = F.fullStyle({ ...C.DEFAULT_STYLE, headline, subject, aspect: '1:1', phones }, seed, index), n = F.COLOURWAYS.length;
+      const was = F.COLOURWAYS[(Math.floor(E.rng((seed >>> 0) * 7 + 11)() * n) + F.lineTurn(subject, n)) % n];
       out.unchanged.of++; if (st.full_colour === was) out.unchanged.same++;
     }
+  // the first ads of the lines spread over the pairs: a new visitor's first full ad (seed 1) of
+  // every unrestricted line, and no pair on more than a quarter of them
+  for (const subject of subjectKeys) {
+    const st = F.fullStyle({ ...C.DEFAULT_STYLE, headline: 'WE BUY THEM', subject, aspect: '1:1', phones: ['none'] }, 1, index);
+    out.firsts.push({ subject, pair: st.full_colour });
+  }
+  // a seed's photograph keeps the card to two colour families (spec/full-grounds.json, 2026-11-18):
+  // one whose own colour is strong stands only beside a pair of its family
+  const G = await import('/motion/full-grounds.js');
+  out.grounds = { photos: 0, strong: 0, off: [] };
+  for (const subject of ['', 'car', 'gold', 'sports', 'laptop', 'camera']) for (let s = 1; s <= 120; s++) {
+    const st = F.fullStyle({ ...C.DEFAULT_STYLE, headline: 'WE BUY THEM', subject, aspect: '1:1', phones: subject ? ['none'] : [] }, s * 977, index);
+    if (st.background !== 'photo') continue; out.grounds.photos++;
+    const m = G.GROUND_PHOTOS[st.ground_photo.src]; if (!m || !(m.C >= .08) || m.hue == null) continue; out.grounds.strong++;
+    const hues = [st.colors.accent, st.colors.ground].map(E.oklchOf).filter(k => k.C >= .04).map(k => k.h);
+    if (!hues.some(h => Math.min(Math.abs(h - m.hue), 360 - Math.abs(h - m.hue)) <= 30)) out.grounds.off.push(`${subject || 'iphone'} ${s}: ${st.ground_photo.src.split('/').pop()} on ${st.full_colour}`);
+  }
   return out;
 });
 if (errors.length) ok(false, 'page errors: ' + errors.slice(0, 3).join(' | '));
@@ -124,6 +147,10 @@ const perSet = {}; for (const p of r.phones) (perSet[p.name] ||= new Set()).add(
 const narrow = Object.entries(perSet).filter(([, s]) => s.size < 2);
 ok(!narrow.length, 'every phone set still draws two pairs or more (New look changes colour): ' + Object.entries(perSet).map(([n, s]) => `${n} ${s.size}`).join(', '));
 ok(r.unchanged.same === r.unchanged.of, `an ad with neutral phones or an unrestricted line draws the pair it drew before: ${r.unchanged.same}/${r.unchanged.of}`);
+ok(r.grounds.photos > 0 && !r.grounds.off.length, `a seed's photograph keeps the card to two colour families: ${r.grounds.photos} photo grounds in 720 seeded ads, ${r.grounds.strong} of strong colour, each beside a pair of its family` + (r.grounds.off.length ? '; ' + r.grounds.off.slice(0, 4).join(', ') : ''));
+const firstBy = {}; for (const f of r.firsts) firstBy[f.pair] = (firstBy[f.pair] || 0) + 1;
+const firstMost = Math.max(0, ...Object.values(firstBy));
+ok(r.firsts.length > 0 && firstMost <= Math.ceil(r.firsts.length / 4), `the first full ads of ${r.firsts.length} unrestricted lines spread over ${Object.keys(firstBy).length} pairs, at most ${firstMost} on one (31 of 35 were Green & Gold before 2026-11-18): ` + Object.entries(firstBy).sort((x, y) => y[1] - x[1]).map(([k, n]) => `${k} ${n}`).join(', '));
 
 await browser.close();
 console.log(fails.length ? `\n${fails.length} failed` : '\nall clear');

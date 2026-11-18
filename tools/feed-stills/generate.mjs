@@ -16,7 +16,10 @@
    and black), six quiet grounds, five phone arrangements, five icon sets with five idle
    motions, and the video's opening (a third of them cross out what sellers are tired of,
    "NO MORE LOWBALLS"). Every word is a claim the shop already makes: no "#1", "best" or
-   "fastest", which would need proof; a seller is asked for the IMEI, never a picture.
+   "fastest", which would need proof; a seller is asked for the IMEI, never a picture; and no
+   phrase from the one list of banned and old words (spec/banned-words.json: TOP DOLLAR, the
+   dash, ANY CONDITION with no limit), which the run refuses to start with. 2026-11-18: the
+   census of every offered ad found them on 43 of the 51 stills (tools/feed-stills/reword.mjs).
 
    usage:  python3 -m http.server 8931 --bind 127.0.0.1   (repo root), then
            node tools/feed-stills/generate.mjs [--count 24] [--batch 2026-11-07] [--no-video]
@@ -41,22 +44,24 @@ const shuffle = a => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) 
 // heroes: [headline, the model it names or null]
 const HEROES = [
   ['WE BUY iPHONES'], ['SELL YOUR iPHONE'], ['CASH FOR iPHONES'], ['iPHONES WANTED'], ['TOP iPHONE BUYER'],
-  ['HONEST iPHONE BUYER'], ['GET PAID TODAY'], ['TOP DOLLAR FOR iPHONES'], ['ALWAYS BUYING iPHONES'],
+  ['HONEST iPHONE BUYER'], ['GET PAID TODAY'], ['GET PAID FOR iPHONES'], ['WE PAY FOR iPHONES'], ['ALWAYS BUYING iPHONES'],
   ['CRACKED? WE BUY IT'], ['UPGRADING? SELL YOUR OLD ONE'], ['TURN YOUR iPHONE INTO CASH'], ['MAX CASH FOR iPHONES'],
   ['SELL YOUR iPHONE 15', 'iPhone 15'], ['SELL YOUR iPHONE 16', 'iPhone 16'], ['SELL YOUR iPHONE 17', 'iPhone 17'],
   ['CASH FOR iPHONE 17 PRO', 'iPhone 17 Pro'], ['CASH FOR iPHONE 16 PRO', 'iPhone 16 Pro'], ['WE BUY iPHONE 15 PRO', 'iPhone 15 Pro'],
   ['SELL YOUR 18 PRO MAX', 'iPhone 18 Pro Max'], ['SELL YOUR 17 PRO MAX', 'iPhone 17 Pro Max'], ['SELL YOUR 16 PRO MAX', 'iPhone 16 Pro Max'],
 ];
-const CLAIMS = ['TOP DOLLAR • MAX OFFER', 'ALWAYS AVAILABLE • QUICK REPLIES', 'HONEST BUYER • TOP DOLLAR', 'MAX OFFER • FAST CASH',
-  'TOP BUYER • QUICK REPLIES', 'TOP DOLLAR PAID', 'ALWAYS BUYING', 'LOCAL & HONEST', 'TOP DOLLAR • NO LOWBALLS', 'QUICK REPLIES • CASH TODAY'];
+// the claim badge: identity or place (research 2026-11-12 §5.2), never TOP DOLLAR
+const CLAIMS = ['LOCAL BUYER • MAX OFFER', 'ALWAYS AVAILABLE • QUICK REPLIES', 'HONEST BUYER • FAIR OFFER', 'MAX OFFER • FAST CASH',
+  'TOP BUYER • QUICK REPLIES', 'LOCAL BUYER', 'ALWAYS BUYING', 'LOCAL & HONEST', 'LOCAL BUYER • NO LOWBALLS', 'QUICK REPLIES • CASH TODAY'];
 // one row at 56px holds about 24 letters: a line that takes two leaves the chips no room
-const LINES = ['iPHONE 15 – 18 PRO MAX', 'ALL MODELS WANTED', 'NEW, USED OR CRACKED', 'CRACKED OR LIKE NEW', 'TEXT YOUR IMEI → FIRM QUOTE → GET PAID'];
+// the models line without a dash (rule 55): "iPHONE 15 AND NEWER", as §5.2 has it
+const LINES = ['iPHONE 15 AND NEWER', 'ALL MODELS WANTED', 'NEW, USED OR CRACKED', 'CRACKED OR LIKE NEW', 'TEXT YOUR IMEI → FIRM QUOTE → GET PAID'];
 const LINE_OF_MODEL = ['ANY STORAGE • ANY COLOR', 'NEW, USED OR CRACKED', 'ANY CARRIER WELCOME'];
 // the chips: one way to reach us, one about the money, one about trust or ease; 14 letters at
 // most, the length of the chips that found room in the first set
 const HOW = ['TEXT YOUR IMEI', 'QUOTE BY TEXT', 'FREE QUOTE', 'TEXT US NOW'];
-const MONEY = ['CASH SAME DAY', 'PAID TODAY', 'CASH OR ZELLE', 'TOP DOLLAR'];
-const EASE = ['NO FEES', 'WE MEET YOU', 'MAIL-IN OK', 'NO LOWBALLS', 'FAIR & HONEST', 'NO OBLIGATION', 'ANY CONDITION', 'LOCAL MEETUP'];
+const MONEY = ['CASH SAME DAY', 'PAID TODAY', 'CASH OR ZELLE', 'CASH TODAY'];
+const EASE = ['NO FEES', 'WE MEET YOU', 'MAIL-IN OK', 'NO LOWBALLS', 'FAIR & HONEST', 'NO OBLIGATION', 'CRACKED OK', 'LOCAL MEETUP'];
 const CTAS = ['TEXT US NOW', 'CALL OR TEXT', 'GET YOUR OFFER', 'TEXT FOR A QUOTE'];
 const TOWNS = ['LONG BEACH', 'LAKEWOOD', 'DOWNEY', 'CARSON', 'TORRANCE'];
 /* ---------- the looks, inside the house style ---------- */
@@ -68,6 +73,12 @@ const ARRANGEMENTS = ['lineup', 'fan', 'showcase', 'podium', 'wings'];
 const ICONS = ['cash', 'money', 'deal', 'local', 'trust'];
 const IDLES = ['pulse', 'bob', 'float', 'heartbeat', 'breathe'];
 const STRIKES = ['LOWBALLS', 'FAKE OFFERS', 'SHADY BUYERS', 'TIME WASTERS', 'NO-SHOWS', 'THE RUNAROUND', 'SLOW BUYERS', 'ENDLESS TEXTING'];
+
+// the one list of banned and old words: a word above that carries one stops the run before it draws
+const BANNED = JSON.parse(readFileSync(ROOT + 'spec/banned-words.json', 'utf8')).phrases;
+const banned = t => BANNED.filter(p => (!p.only || p.only.includes('phones')) && new RegExp(p.pattern, 'i').test(t) && !(p.unless && new RegExp(p.unless, 'i').test(t)));
+const old = [...HEROES.map(h => h[0]), ...CLAIMS, ...LINES, ...LINE_OF_MODEL, ...HOW, ...MONEY, ...EASE, ...CTAS].flatMap(w => banned(w).map(p => `"${w}" (${p.label})`));
+if (old.length) { console.error('banned or old words in the lists (spec/banned-words.json):\n  ' + old.join('\n  ')); process.exit(1); }
 
 const stems = s => new Set(s.toUpperCase().split(/[^A-Z0-9]+/).filter(w => w.length >= 4).map(w => w.slice(0, 5)));
 const shares = (a, b) => { const B = stems(b); return [...stems(a)].some(w => B.has(w)); };

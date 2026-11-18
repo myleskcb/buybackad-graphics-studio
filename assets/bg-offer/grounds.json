@@ -61,8 +61,8 @@
    "p90": 178
   },
   {
-   "file": "gold-gold-necklace-chain-close-3",
-   "p90": 137
+   "file": "gold-gold-bracelet-4",
+   "p90": 219
   }
  ],
  "silver": [
@@ -81,16 +81,12 @@
  ],
  "cars": [
   {
-   "file": "cars-used-car-dealership-lot-1",
-   "p90": 189
-  },
-  {
    "file": "trucks-pickup-truck-1",
    "p90": 198
   },
   {
-   "file": "cars-classic-car-chrome-grille-1",
-   "p90": 251
+   "file": "dl_cars_stepsFlow_sunset",
+   "p90": 216
   }
  ],
  "iphone": [
@@ -133,36 +129,90 @@
   {
    "file": "rooms-living-room-console-1",
    "p90": 190
-  },
-  {
-   "file": "rooms-gaming-pc-setup-1",
-   "p90": 230
   }
  ],
- "space": [
+ "desk": [
   {
-   "file": "space-earth-from-iss-night-1",
-   "p90": 130
+   "file": "rooms-home-desk-setup-1",
+   "p90": 165
   },
   {
-   "file": "space-earth-from-iss-night-3",
-   "p90": 22
+   "file": "rooms-desk-setup-1",
+   "p90": 199
+  }
+ ],
+ "headphones": [
+  {
+   "file": "audio-airpods-max-2",
+   "p90": 238
   },
   {
-   "file": "space-moon-surface-nasa-4",
-   "p90": 99
+   "file": "audio-bose-quietcomfort-headphones-2",
+   "p90": 255
   },
   {
-   "file": "space-earth-from-iss-night-4",
-   "p90": 99
+   "file": "audio-airpods-max-1",
+   "p90": 253
+  }
+ ],
+ "earbuds": [
+  {
+   "file": "audio-airpods-pro-4",
+   "p90": 216
   },
   {
-   "file": "space-aurora-from-space-3",
-   "p90": 172
+   "file": "audio-samsung-galaxy-buds-3",
+   "p90": 174
   },
   {
-   "file": "space-galaxy-hubble-telescope-1",
-   "p90": 170
+   "file": "audio-beats-fit-pro-1",
+   "p90": 218
+  },
+  {
+   "file": "audio-airpods-4-1",
+   "p90": 216
+  }
+ ],
+ "speaker": [
+  {
+   "file": "audio-sonos-speaker-4",
+   "p90": 207
+  },
+  {
+   "file": "rooms-home-desk-setup-1",
+   "p90": 165
+  }
+ ],
+ "camera": [
+  {
+   "file": "cameras-fujifilm-x-t5-2",
+   "p90": 216
+  },
+  {
+   "file": "cameras-leica-q2-4",
+   "p90": 255
+  }
+ ],
+ "drone": [
+  {
+   "file": "cameras-dji-mini-4-pro-2",
+   "p90": 250
+  }
+ ],
+ "watch": [
+  {
+   "file": "wearables-apple-watch-series-9-4",
+   "p90": 218
+  }
+ ],
+ "glasses": [
+  {
+   "file": "wearables-meta-ray-ban-1",
+   "p90": 194
+  },
+  {
+   "file": "rooms-desk-setup-1",
+   "p90": 199
   }
  ]
 }

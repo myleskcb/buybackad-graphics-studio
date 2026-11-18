@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* THE SITE'S PICTURES ARE REAL ADS (DESIGN-LAW 145).
+/* THE SITE'S PICTURES ARE REAL ADS (DESIGN-LAW 146).
 
    Draws a full ad (motion/fullad.js, rule 137) for every public page through the video maker's own
    engine, with clean words, and writes:
@@ -9,10 +9,11 @@
    so a link to /ads/we-buy-gold.html previews as a gold ad in Green & Gold, not the August card.
 
    The words are the line's own (motion/subjects.json: its headline, models line and points) with a
-   claim and a sticker chosen here, because the full ad's default lists still hold TOP DOLLAR and
-   TOP $$$ (OPEN-ITEMS §BI); every ad is drawn, pre-flighted (fullPreflight) and refused here on a
-   "fix", a dollar sign, a dash or a banned word (scripts/refresh_copy.mjs). The number is the
-   sample number the gallery uses; the pictures are samples and carry no mark (rule 142).
+   claim and a sticker fixed here, so a picture changes only when it is drawn again; every ad is
+   drawn, pre-flighted (fullPreflight) and refused here on a "fix", a dollar sign, a dash, invented
+   proof or a banned word (scripts/refresh_copy.mjs). The number is the sample number the gallery
+   uses; the pictures are samples and carry no mark (rule 142). Draw them again when a line's
+   pictures or words, or the house engine, change.
 
    usage:  node scripts/build_og_cards.mjs [--only name,name]
            GFX_BASE=http://127.0.0.1:8899/ (a server serving this tree), PLAYWRIGHT_MODULE=...

@@ -7,7 +7,7 @@
 // llms.txt and llms-full.txt. So a list cannot name a page that is not built,
 // and no structured data says what the page does not.
 //   node scripts/build_seo_pages.mjs [--date=YYYY-MM-DD]
-// Remade 2026-11-18 in the house look and the trade's words (DESIGN-LAW 145).
+// Remade 2026-11-18 in the house look and the trade's words (DESIGN-LAW 146).
 // Written 2026-09-22 for search: until then the whole site was one page, and a
 // reseller searching "we buy gold flyer template" had nothing to land on.
 //
@@ -374,10 +374,10 @@ const CATS = [
 ];
 
 const COMMON_FAQ = [
-  ['Is it free?', 'You can design without an account. Downloading needs a free account: 3 photo downloads a week at 1080 pixels with a BUYBACK.AD watermark. Starter is $25 a month for 100 photo downloads up to 2160 pixels, no watermark, every design. Pro ($60) adds video ads and 500 downloads a month; Business ($100) is unlimited.'],
+  ['Is it free?', 'You can design without an account. Downloading needs a free account: 3 photo downloads a week at 1080 pixels with a BUYBACK.AD watermark. Starter is $25 a month for 100 photo downloads up to 2160 pixels, no watermark, every design. Pro ($60) adds 30 video ads a month beside 500 photo downloads; Business ($100) is unlimited photos and video.'],
 ];
 
-/* ── THE TRADE'S WORDS (2026-11-18, DESIGN-LAW 145). Each category page's title, description and
+/* ── THE TRADE'S WORDS (2026-11-18, DESIGN-LAW 146). Each category page's title, description and
    h1, in what resellers type ("we buy iPhones ad", "cash for gold flyer", "phone buyback ad
    maker"). A title stays under 60 characters and a description under 160, so a result shows them
    whole; the brand closes every title. The ad is the line's full ad (scripts/build_og_cards.mjs). */
@@ -591,21 +591,23 @@ console.log('wrote', CATS.length, 'pages to ads/');
 /* ── the plans, from PLANS in app.js (display copy), held to the server's table ── */
 function readPlans() {
   const src = readFileSync(root + 'app.js', 'utf8');
-  const m = src.match(/const PLANS = (\{[\s\S]*?\n\});\s*\nconst PACKS = (\{[\s\S]*?\n\});\s*\n\/\* PLANS:END \*\//);
-  if (!m) throw new Error('app.js: PLANS and PACKS between PLANS:BEGIN and PLANS:END were not found');
-  return { PLANS: Function(`return ${m[1]}`)(), PACKS: Function(`return ${m[2]}`)() };
+  const block = (src.match(/\/\* PLANS:BEGIN[\s\S]*?\/\* PLANS:END \*\//) || [''])[0];
+  const lit = (name) => { const m = block.match(new RegExp(`const ${name} = (\\{[\\s\\S]*?\\n\\});`)); if (!m) throw new Error(`app.js: ${name} between PLANS:BEGIN and PLANS:END was not found`); return Function(`return ${m[1]}`)(); };
+  return { PLANS: lit('PLANS'), PACKS: lit('PACKS') };
 }
 const { PLANS, PACKS } = readPlans();
 {
   const server = (await import(root + 'netlify/lib/plans.mjs')).PLANS;
-  for (const [id, p] of Object.entries(PLANS)) for (const k of ['weekly', 'monthly', 'maxPx', 'watermark', 'video', 'credits', 'library']) {
+  for (const [id, p] of Object.entries(PLANS)) for (const k of ['weekly', 'monthly', 'maxPx', 'watermark', 'video', 'videos', 'credits', 'library']) {
     if (!server[id] || JSON.stringify(server[id][k]) !== JSON.stringify(p[k]) || JSON.stringify(server[id].price) !== JSON.stringify(p.price)) throw new Error(`PLANS.${id}.${k}: app.js and netlify/lib/plans.mjs disagree; the JSON-LD would state a price or a limit the server does not charge`);
   }
 }
 const fmtN = (n) => Number(n).toLocaleString('en-US');
+/* photos and videos are counted apart (2026-11-18): videos is video downloads a month, 0 none, null unlimited */
 function planWords(p) {
-  const dl = p.weekly ? `${p.weekly} photo downloads a week` : p.monthly ? `${fmtN(p.monthly)} ${p.video ? 'downloads a month, photos or videos' : 'photo downloads a month'}` : 'Unlimited downloads, photos or videos';
-  return [dl, p.watermark ? `${p.maxPx} pixels with a light BUYBACK.AD watermark` : `up to ${p.maxPx} pixels, no watermark`, p.video ? 'video ads' : null, p.qr ? 'QR code' : null, `${p.credits} AI credits a month`, `${fmtN(p.library)} ads kept in the library`].filter(Boolean).join(', ');
+  const photos = p.weekly ? `${p.weekly} photo downloads a week` : p.monthly ? `${fmtN(p.monthly)} photo downloads a month` : 'Unlimited photo downloads';
+  const videos = !p.video ? null : p.videos == null ? 'unlimited video ads' : `${fmtN(p.videos)} video ads a month`;
+  return [photos, videos, p.watermark ? `${p.maxPx} pixels with a light BUYBACK.AD watermark` : `up to ${p.maxPx} pixels, no watermark`, p.qr ? 'QR code' : null, `${p.credits} AI credits a month`, `${fmtN(p.library)} ads kept in the library`].filter(Boolean).join(', ');
 }
 function offers() {
   const out = [];

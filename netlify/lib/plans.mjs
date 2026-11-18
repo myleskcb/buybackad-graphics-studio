@@ -41,34 +41,79 @@ export const MODEL_COST_USD = {
   'fal-seedream-v4-edit': 0.03,          // fal Seedream v4 edit: the generator's products as reference photos (bggen.mjs)
 };
 
-/** Prices in cents. `weekly`/`monthly` are downloads (null and null on a
- *  paid plan: unlimited); `video` is whether the plan downloads video ads
- *  (studio and video maker; anyone can make and watch one); `credits` are AI
- *  credits a calendar month; `library` is ads kept.
+/** Prices in cents. `weekly`/`monthly` are PHOTO downloads (null and null on
+ *  a paid plan: unlimited); `video` is whether the plan downloads video ads
+ *  (studio and video maker; anyone can make and watch one) and `videos` how
+ *  many a calendar month (0: none, null: unlimited), counted apart from the
+ *  photos; `credits` are AI credits a calendar month; `library` is ads kept.
  *  Owner, 2026-10-09: "3 plans and the 2nd/3rd has the most features $25,
- *  $60, $100/mo", videos from $60, Free kept as a line above them. */
+ *  $60, $100/mo", videos from $60, Free kept as a line above them.
+ *  Owner, 2026-11-18: "so the highest package gets video credits", "videos are
+ *  limited on the 2nd but fully allowed on 3rd". Pro's 30 is a video a day: a
+ *  shop that posts one video ad a day across Marketplace, OfferUp and
+ *  Instagram never meets it, and one that posts several a day is Business's
+ *  customer. A video is made and encoded in the customer's browser, so the
+ *  allowance is the line between the two plans, not a cost we carry
+ *  (HOSTING_USD already counts the library's larger video files). Until this
+ *  date Pro's 500 downloads were "photos or videos" in one count. */
 export const PLANS = {
   free: {
     label: 'Free', price: { month: 0 },
-    weekly: 3, monthly: null, maxPx: 1080, watermark: true, video: false,
+    weekly: 3, monthly: null, maxPx: 1080, watermark: true, video: false, videos: 0,
     credits: 5, library: 12, allDesigns: false, qr: false,
   },
   basic: {   // shown as Starter
     label: 'Starter', price: { month: 2500, year: 25000 },
-    weekly: null, monthly: 100, maxPx: 2160, watermark: false, video: false,
+    weekly: null, monthly: 100, maxPx: 2160, watermark: false, video: false, videos: 0,
     credits: 50, library: 300, allDesigns: true, qr: false,
   },
   pro: {
     label: 'Pro', price: { month: 6000, year: 60000 },
-    weekly: null, monthly: 500, maxPx: 2160, watermark: false, video: true,
+    weekly: null, monthly: 500, maxPx: 2160, watermark: false, video: true, videos: 30,
     credits: 200, library: 1000, allDesigns: true, qr: true,
   },
   business: {
     label: 'Business', price: { month: 10000, year: 100000 },
-    weekly: null, monthly: null, maxPx: 2160, watermark: false, video: true,
+    weekly: null, monthly: null, maxPx: 2160, watermark: false, video: true, videos: null,
     credits: 500, library: 3000, allDesigns: true, qr: true,
   },
 };
+
+/* ── THE FEATURE BREAKDOWN, in the words every page prints ──
+   Owner, 2026-11-18: "rebuild the checkout, pricing tiers.. and feature
+   breakdown". One row a feature, one cell a plan; the landing's #pricing,
+   the plans page (app.js, from its generated copy) and the checkout dialog's
+   list are written from these, by scripts/build_pricing.mjs, so a number is
+   typed once: in PLANS above. */
+const num = (v) => Number(v).toLocaleString('en-US');
+const designs = (p) => (p.allDesigns ? 'Every design in all 13 categories' : 'Every Phones design, plus the top 3 in every other category');
+/** what a plan's video allowance is called, everywhere */
+export const videosText = (p) => (!p.video ? 'No' : p.videos === null ? 'Unlimited' : num(p.videos) + ' a month');
+export function featureRows() {
+  const ids = Object.keys(PLANS);
+  const row = (key, label, cell, note) => ({ key, label, note: note || '', cells: Object.fromEntries(ids.map((id) => [id, cell(PLANS[id], id)])) });
+  return [
+    row('photos', 'Photo downloads', (p) => (p.weekly ? num(p.weekly) + ' a week' : p.monthly ? num(p.monthly) + ' a month' : 'Unlimited')),
+    row('videos', 'Video ads to download', videosText, 'Anyone can make and watch a video ad. Downloading one, with sound and no watermark, comes with Pro and Business.'),
+    row('designs', 'Designs', designs),
+    row('size', 'Largest download', (p) => p.maxPx + ' pixels'),
+    row('watermark', 'Watermark', (p) => (p.watermark ? 'A light BUYBACK.AD mark' : 'None')),
+    row('credits', 'AI credits a month', (p) => num(p.credits)),
+    row('library', 'Ads kept in your library', (p) => num(p.library)),
+    row('qr', 'A QR code on your ad', (p) => (p.qr ? 'Yes' : 'No')),
+  ];
+}
+/** the short list on each plan's card (and the checkout dialog), most telling first */
+export function planBullets(id) {
+  const p = PLANS[id];
+  const credits = num(p.credits) + ' AI credits a month', lib = 'Keep ' + num(p.library) + ' ads in your library';
+  if (id === 'free') return [num(p.weekly) + ' photo downloads a week', designs(p), 'Standard size (' + p.maxPx + ' pixels) with a light BUYBACK.AD watermark', credits];
+  if (id === 'basic') return [num(p.monthly) + ' photo downloads a month', designs(p), 'No watermark, up to double size (' + p.maxPx + ' pixels)', credits, lib];
+  if (id === 'pro') return [num(p.monthly) + ' photo downloads a month', num(p.videos) + ' video ads a month, with sound', 'Everything in Starter', 'Add a QR code people can scan', credits, lib];
+  return ['Unlimited photo downloads', 'Unlimited video ads, with sound', 'Everything in Pro', credits, lib];
+}
+/** who each plan is for, in one line under its name */
+export const PLAN_FOR = { free: 'Try every step, no card', basic: 'Photo ads, every design', pro: 'Photos, and a video a day', business: 'Unlimited photos and video' };
 /** names an account may still carry from before (the first backend's
  *  "starter" was today's Pro) */
 const LEGACY = { starter: 'pro' };

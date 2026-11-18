@@ -73,7 +73,7 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
       const seed = 9001 + n++ * 7919, model = models[n % models.length];
       const ids = index.filter(m => m.model === model).map(m => m.id), count = [3, 2, 1, 3, 2][s % 5];
       const st = F.fullStyle({ ...C.DEFAULT_STYLE, ...words, number: '(562) 999-4994', aspect, phones: ids.slice(0, count) }, seed, index);
-      await E.loadFonts([...E.fontsFor(st), 'franklin']);
+      await F.fullGroundReady(st); await E.loadFonts([...E.fontsFor(st), 'franklin']);   // a photo ground loaded first, as a download waits for it
       const [W0, H0] = E.ASPECTS[aspect], k = 1080 / Math.min(W0, H0);
       const ad = new F.FullAd(st, assets, Math.round(W0 * k), Math.round(H0 * k));
       const why = F.fullBlockers(ad), m = F.fullMeasure(ad), R = ad.full.rects, col = ad.full.col, mid = (col[0] + col[1]) / 2;
@@ -96,10 +96,20 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
       }
       // the ad's own pre-flight, on the picture as delivered
       const c = F.fullStill(ad), pre = F.fullPreflight(ad, c);
-      rows.push({ name, aspect, seed, palette: st.full_colour, phones: st.phones.length, why, missing, offAxis, contrast, m, bpp: (pre.checks.find(x => x.id === 'calm') || {}).bpp || 0, pre: { ok: pre.ok, failed: pre.checks.filter(x => !x.ok).map(x => x.id + ': ' + x.value), findings: pre.findings } });
+      rows.push({ name, aspect, seed, palette: st.full_colour, ground: st.background === 'photo' ? (ad.groundImg ? 'photo' : 'photo not drawn') : ['radial', 'tonal', 'linear'].includes(st.background) ? 'house' : 'scene', phones: st.phones.length, why, missing, offAxis, contrast, m, bpp: (pre.checks.find(x => x.id === 'calm') || {}).bpp || 0, pre: { ok: pre.ok, failed: pre.checks.filter(x => !x.ok).map(x => x.id + ': ' + x.value), findings: pre.findings } });
       if (wantSheet && s === 0) sheet.push([`${name} ${aspect}`, c.toDataURL('image/jpeg', .88), ad.W, ad.H]);
     }
-    return { rows, sheet };
+    /* a photograph given with the ad (ground_photo: the contract the recipes made from older cards use)
+       is drawn, passes the pre-flight, moves under the words in the video and holds still for the photo */
+    const gp = { src: 'assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg', focus: [.5, .5] };
+    const st2 = F.fullStyle({ ...C.DEFAULT_STYLE, ...Object.values(WORDS)[0], number: '(562) 999-4994', aspect: '1:1', ground_photo: gp }, 4242, index);
+    await F.fullGroundReady(st2); await E.loadFonts([...E.fontsFor(st2), 'franklin']);
+    const ad2 = new F.FullAd(st2, assets, 1080, 1080), still2 = F.fullStill(ad2), pre2 = F.fullPreflight(ad2, still2);
+    const corner = c => { const d = c.getContext('2d').getImageData(24, 1020, 60, 36).data; let v = 0; for (let i = 0; i < d.length; i += 4) v += d[i] + d[i + 1] + d[i + 2]; return v / (d.length / 4); };
+    const f0 = E.canvas(1080, 1080); ad2.still = null; ad2.frame(f0.getContext('2d'), 0, { subsFly: 1, subsMove: 1 }, 1 / 30);
+    const fh = E.canvas(1080, 1080); ad2.still = null; ad2.frame(fh.getContext('2d'), ad2.tHold + .1, { subsFly: 1, subsMove: 1 }, 1 / 30);
+    const contract = { bg: st2.background, drawn: !!ad2.groundImg, ok: pre2.ok, findings: pre2.findings.filter(f => f.level === 'fix').map(f => f.say), moved: Math.abs(corner(f0) - corner(still2)) > 3, held: Math.abs(corner(fh) - corner(still2)) < 1.5 };
+    return { rows, sheet, contract };
   }, { WORDS, ASPECTS, SEEDS, wantSheet: !!SHEET });
   if (errors.length) fail('page errors while drawing: ' + errors.slice(0, 3).join(' | '));
 
@@ -128,6 +138,16 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
   }
   if (notes.length) console.log(`  said to the customer, not failed (long words): ${notes.length}, e.g. ${notes[0]}`);
   { const b = out.rows.map(r => r.bpp).filter(Boolean).sort((x, y) => x - y); if (b.length) console.log(`  how busy (JPEG bytes a pixel x100): least ${(b[0] * 100).toFixed(1)}, middle ${(b[b.length >> 1] * 100).toFixed(1)}, most ${(b[b.length - 1] * 100).toFixed(1)}`); }
+  { // the grounds (spec/full-grounds.json, 2026-11-18): every kind drawn, a photograph about its share, every one painted
+    const by = {}; for (const r of out.rows) by[r.ground] = (by[r.ground] || 0) + 1;
+    const n = out.rows.length, photo = (by.photo || 0) / n;
+    console.log(`  grounds: ${Object.entries(by).map(([k, v]) => `${k} ${v}`).join(', ')} of ${n}`);
+    if (by['photo not drawn']) fail(`${by['photo not drawn']} ads drew a photo ground that was never painted`);
+    if (!(photo >= .2 && photo <= .6) || !by.scene || !by.house) fail(`the grounds' shares are off the table: ${JSON.stringify(by)} of ${n}`);
+    const c = out.contract;
+    if (!(c.bg === 'photo' && c.drawn && c.ok && c.moved && c.held)) fail(`a ground_photo given with the ad: ${JSON.stringify(c)}`);
+    else console.log('  ok   a ground_photo given with the ad is drawn, passes its pre-flight, moves in the video and holds still for the photo');
+  }
   console.log(`  pre-flight on the delivered picture: ${out.rows.filter(r => r.pre.ok).length}/${out.rows.length} with nothing to fix; notes said: ${Object.entries(preNotes).map(([k, n]) => k + ' ' + n).join(', ') || 'none'}`);
   if (SHEET && out.sheet.length) {
     mkdirSync(SHEET, { recursive: true });
@@ -168,11 +188,12 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
       const got = await F.loadSubjectSet(S, setN, '/assets/cutouts/'); Object.assign(assets.phones, got.assets);
       const st = F.fullStyle({ ...C.DEFAULT_STYLE, subject: S.key, phones: got.ids.length ? got.ids : ['none'], headline: S.heads[n % S.heads.length].toUpperCase(), tag: S.models.toUpperCase(), points: S.points,
         number: '(562) 999-4994', aspect, feed_where: 'LONG BEACH • LAKEWOOD • DOWNEY', site: 'www.YourShop.com' }, seed, index);
-      await E.loadFonts([...E.fontsFor(st), 'franklin']);
+      await F.fullGroundReady(st); await E.loadFonts([...E.fontsFor(st), 'franklin']);
       const [W0, H0] = E.ASPECTS[aspect], k = 1080 / Math.min(W0, H0);
       const ad = new F.FullAd(st, assets, Math.round(W0 * k), Math.round(H0 * k));
       const c = F.fullStill(ad), pre = F.fullPreflight(ad, c);
-      rows.push({ key: S.key, aspect, pictures: got.ids.length, drawn: ad.phones.length, why: F.fullBlockers(ad), m: F.fullMeasure(ad), voice: st.voice, fixes: pre.findings.filter(f => f.level === 'fix').map(f => f.say), failed: pre.checks.filter(x => !x.ok && /^(edge|reads)$/.test(x.id)).map(x => x.id + ': ' + x.value) });
+      // every picture the ad asks for is drawn (a line's first set is its pool since 2026-11-18: the seed draws one entry of it)
+      rows.push({ key: S.key, aspect, pictures: st.phones.filter(id => id !== 'none').length, drawn: ad.phones.length, why: F.fullBlockers(ad), m: F.fullMeasure(ad), voice: st.voice, fixes: pre.findings.filter(f => f.level === 'fix').map(f => f.say), failed: pre.checks.filter(x => !x.ok && /^(edge|reads)$/.test(x.id)).map(x => x.id + ': ' + x.value) });
       if (wantSheet && aspect === '1:1') {
         const small = E.canvas(360, 360); small.getContext('2d').drawImage(c, 0, 0, 360, 360);
         sheet.push([S.key, small.toDataURL('image/jpeg', .86), 360, 360]);

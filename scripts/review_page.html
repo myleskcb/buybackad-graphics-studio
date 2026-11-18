@@ -1,0 +1,395 @@
+<title>Graphics Studio ad review</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* A review desk: one sticky bar of categories and filters, then the ads as cards, worst or best
+   first; a thumb on every card, a note in a dialog. Semantic green/red are the decisions; the blue
+   accent is only for what you can press. */
+:root {
+  --bg: #f4f5f8; --panel: #ffffff; --ink: #141821; --muted: #5b6372; --line: #dfe3ea; --soft: #eef1f6;
+  --accent: #2f55e8; --accent-ink: #ffffff; --good: #137a45; --good-soft: #e3f4ea; --bad: #b8352b; --bad-soft: #fbe7e4;
+  --warn: #9a5b00; --warn-soft: #fbf0dc; --shadow: 0 1px 2px rgba(20, 24, 33, .06), 0 4px 14px rgba(20, 24, 33, .05);
+  --display: "Space Grotesk", "Inter", system-ui, sans-serif; --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1116; --panel: #171a21; --ink: #eceef3; --muted: #9aa2b0; --line: #2a2f3a; --soft: #1e222b;
+  --accent: #7d97ff; --accent-ink: #0f1116; --good: #4cd38a; --good-soft: #15291f; --bad: #ff7a6e; --bad-soft: #321a18;
+  --warn: #f2ac48; --warn-soft: #2e2414; --shadow: none; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f1116; --panel: #171a21; --ink: #eceef3; --muted: #9aa2b0; --line: #2a2f3a; --soft: #1e222b;
+  --accent: #7d97ff; --accent-ink: #0f1116; --good: #4cd38a; --good-soft: #15291f; --bad: #ff7a6e; --bad-soft: #321a18;
+  --warn: #f2ac48; --warn-soft: #2e2414; --shadow: none; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 14px/1.45 var(--body); margin: 0 }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel) }
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 1480px; margin: 0 auto }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0 }
+button, select, input, textarea { font: inherit; color: inherit }
+button { cursor: pointer }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.num { font-variant-numeric: tabular-nums }
+
+header.top { background: var(--panel); border-bottom: 1px solid var(--line) }
+header.top .wrap { padding-block: 18px 14px; display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: end; justify-content: space-between }
+header.top h1 { font-size: 26px; letter-spacing: -.01em }
+.stamp { color: var(--muted); font-size: 12.5px; margin-top: 4px }
+.tally { display: flex; gap: 8px; flex-wrap: wrap }
+.tally span { background: var(--soft); border-radius: 999px; padding: 4px 11px; font-size: 13px; font-weight: 600 }
+.tally .g { background: var(--good-soft); color: var(--good) } .tally .r { background: var(--bad-soft); color: var(--bad) } .tally .n { background: var(--warn-soft); color: var(--warn) }
+
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line) }
+.bar .wrap { padding-block: 10px; display: grid; gap: 8px }
+.cats { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: thin }
+.cats button { white-space: nowrap; border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 5px 12px; font-weight: 600; font-size: 13px }
+.cats button[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink) }
+.cats small { font-weight: 500; opacity: .7; margin-left: 4px }
+.filters { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center }
+.filters label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted) }
+.filters select, .filters input[type=search] { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; min-width: 0 }
+.filters input[type=search] { width: 220px; max-width: 100% }
+.chk { color: var(--ink) !important }
+
+main .wrap { padding-block: 16px 40px }
+.note { background: var(--warn-soft); color: var(--warn); border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; font-size: 13.5px }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; min-width: 0 }
+.card.up { border-color: var(--good); box-shadow: 0 0 0 1px var(--good) inset }
+.card.down { border-color: var(--bad); box-shadow: 0 0 0 1px var(--bad) inset }
+.thumb { position: relative; aspect-ratio: 1; background: var(--soft); border: 0; padding: 0; display: block; width: 100%; max-width: 100% }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block }
+.rank { position: absolute; top: 8px; left: 8px; background: rgba(15, 17, 22, .78); color: #fff; font: 600 12px/1 var(--body); padding: 5px 8px; border-radius: 999px }
+.score { position: absolute; top: 8px; right: 8px; font: 700 12px/1 var(--body); padding: 5px 8px; border-radius: 999px; background: var(--good-soft); color: var(--good) }
+.score.mid { background: var(--warn-soft); color: var(--warn) } .score.hi { background: var(--bad-soft); color: var(--bad) }
+.body { padding: 11px 12px 4px; display: grid; gap: 6px; min-width: 0 }
+.body h3 { font-size: 15px; line-height: 1.25 }
+.meta { color: var(--muted); font-size: 12.5px }
+.chips { display: flex; flex-wrap: wrap; gap: 5px }
+.chip { font-size: 11.5px; font-weight: 600; border-radius: 6px; padding: 2px 7px; background: var(--soft); color: var(--muted) }
+.chip.bad { background: var(--bad-soft); color: var(--bad) } .chip.warn { background: var(--warn-soft); color: var(--warn) }
+.words { margin: 0; padding: 0; list-style: none; display: grid; gap: 3px; font-size: 12.5px }
+.words li { display: grid; grid-template-columns: 92px 1fr; gap: 8px; min-width: 0 }
+.words .w { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; padding-top: 1px }
+.words .t { overflow-wrap: anywhere }
+.words li.b .t { color: var(--bad); font-weight: 600 }
+.more { background: none; border: 0; color: var(--accent); padding: 2px 0; font-size: 12.5px; font-weight: 600; justify-self: start }
+.acts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px 12px 12px; margin-top: auto }
+.acts button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--line); background: var(--panel); border-radius: 9px; padding: 7px 6px; font-weight: 600; font-size: 13px }
+.acts button svg { width: 16px; height: 16px; flex: none }
+.acts .yes[aria-pressed="true"] { background: var(--good); border-color: var(--good); color: var(--panel) }
+.acts .no[aria-pressed="true"] { background: var(--bad); border-color: var(--bad); color: var(--panel) }
+.acts .edit.has { border-color: var(--warn); color: var(--warn) }
+.acts .hero[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink) }
+.card.hero-pick .thumb::after { content: "Hero"; position: absolute; left: 8px; bottom: 8px; background: var(--accent); color: var(--accent-ink); font: 700 11.5px/1 var(--body); padding: 5px 8px; border-radius: 999px }
+.btn.hero[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
+.tally .h { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent) }
+.saving { font-size: 11.5px; color: var(--muted); padding: 0 12px 10px; min-height: 1em }
+.pager { display: flex; justify-content: center; padding-top: 18px }
+.pager button { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; padding: 10px 18px; font-weight: 700 }
+.empty { text-align: center; color: var(--muted); padding: 50px 10px }
+
+dialog { border: 0; border-radius: 16px; padding: 0; width: min(980px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); background: var(--panel); color: var(--ink) }
+dialog::backdrop { background: rgba(10, 12, 16, .55) }
+.dlg { display: grid; grid-template-columns: minmax(0, 330px) minmax(0, 1fr); max-height: calc(100dvh - 24px) }
+.dlg > section { padding: 18px; overflow: auto; min-width: 0 }
+.dlg .left { background: var(--soft) }
+.dlg .left img { width: 100%; border-radius: 10px; display: block; aspect-ratio: 1; object-fit: cover; background: var(--panel) }
+.dlg h2 { font-size: 20px; margin-bottom: 2px }
+.field { display: grid; gap: 6px; margin-top: 14px }
+.field > span { font-weight: 700; font-size: 13px }
+textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: var(--panel); resize: vertical }
+.pics-top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap }
+.pics-top input { flex: 1; min-width: 140px; border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; background: var(--panel) }
+.pics { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 6px; max-height: 260px; overflow: auto; padding: 2px }
+.pics button { border: 1px solid var(--line); background: var(--panel); border-radius: 9px; padding: 4px; display: grid; gap: 2px; font-size: 10.5px; color: var(--muted); text-align: center; min-width: 0 }
+.pics button img { width: 100%; aspect-ratio: 1; object-fit: contain }
+.pics button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.pics button[aria-pressed="true"] { border: 2px solid var(--accent); color: var(--ink) }
+.sugg { border: 1px dashed var(--line); border-radius: 10px; padding: 10px; font-size: 13px; display: grid; gap: 6px }
+.sugg ul { margin: 0; padding-left: 18px }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center }
+.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 9px; padding: 8px 13px; font-weight: 700 }
+.btn.main { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
+.btn.yes[aria-pressed="true"] { background: var(--good); color: var(--panel); border-color: var(--good) }
+.btn.no[aria-pressed="true"] { background: var(--bad); color: var(--panel); border-color: var(--bad) }
+.foot { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; border-top: 1px solid var(--line); padding: 12px 18px; background: var(--panel) }
+.muted { color: var(--muted) }
+@media (max-width: 720px) { .dlg { grid-template-columns: minmax(0, 1fr) } .dlg .left img { max-width: 240px; margin: 0 auto } .filters input[type=search] { width: 100% } }
+@media (prefers-reduced-motion: no-preference) { .card { transition: border-color .15s, box-shadow .15s } }
+</style>
+
+<header class="top"><div class="wrap">
+  <div>
+    <h1>Ad review</h1>
+    <div class="stamp" id="stamp">Every ad the site offers, by category, best first. Loading the census…</div>
+  </div>
+  <div class="tally" id="tally"><span class="num">…</span></div>
+</div></header>
+
+<div class="bar"><div class="wrap">
+  <nav class="cats" id="cats" aria-label="Categories"></nav>
+  <div class="filters">
+    <label>Kind <select id="f-gen"><option value="all">Every kind</option></select></label>
+    <label>Show <select id="f-show">
+      <option value="all">Every ad</option><option value="todo">Not reviewed yet</option><option value="up">Approved</option><option value="down">Denied</option><option value="note">With a change asked</option><option value="hero">Hero picks</option>
+    </select></label>
+    <label>Order <select id="f-sort"><option value="best">Best first</option><option value="worst">Worst first</option></select></label>
+    <label class="chk"><input type="checkbox" id="f-old"> Old or banned words</label>
+    <label class="chk"><input type="checkbox" id="f-lacks"> Missing something</label>
+    <label class="chk"><input type="checkbox" id="f-pre"> Fails its pre-flight</label>
+    <input type="search" id="f-q" placeholder="Search names and words" aria-label="Search names and words">
+  </div>
+</div></div>
+
+<main><div class="wrap">
+  <div class="note" id="note" hidden></div>
+  <div class="grid" id="grid" aria-live="polite"></div>
+  <div class="empty" id="empty" hidden>No ad matches these filters.</div>
+  <div class="pager"><button id="more" hidden>Show more</button></div>
+</div></main>
+
+<dialog id="dlg" aria-labelledby="d-name">
+  <div class="dlg">
+    <section class="left">
+      <img id="d-img" alt="">
+      <ul class="words" id="d-words" style="margin-top:12px"></ul>
+    </section>
+    <section>
+      <h2 id="d-name">Ad</h2>
+      <div class="meta" id="d-meta"></div>
+      <div class="chips" id="d-chips" style="margin-top:8px"></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn yes" id="d-yes" aria-pressed="false">Approve</button>
+        <button class="btn no" id="d-no" aria-pressed="false">Deny</button>
+        <button class="btn hero" id="d-hero" aria-pressed="false" title="Pick it for the landing page's hero wall">Hero</button>
+      </div>
+      <label class="field"><span>What should change?</span>
+        <textarea id="d-note" placeholder="Say it the way you'd tell a designer: “Say Samsung Galaxy, not Galaxy”, “brighter sunset ground”, “one accent, not orange and salmon”."></textarea>
+      </label>
+      <div class="field" id="d-sugg-wrap" hidden><span>Suggested words</span>
+        <div class="row"><button class="btn" id="d-sugg">Suggest new words for my note</button><span class="muted" id="d-sugg-state"></span></div>
+        <div class="sugg" id="d-sugg-out" hidden></div>
+      </div>
+      <div class="field"><span>Replace the picture <span class="muted" id="d-pic-cat" style="font-weight:500"></span></span>
+        <div class="pics-top"><input type="search" id="d-pic-q" placeholder="Search pictures" aria-label="Search pictures"><button class="btn" id="d-pic-clear">Keep the current picture</button></div>
+        <div class="pics" id="d-pics"><div class="muted">Loading pictures…</div></div>
+      </div>
+    </section>
+  </div>
+  <div class="foot">
+    <span class="muted" id="d-state">Saved changes are applied by Claude when you ask.</span>
+    <div class="row"><button class="btn" id="d-cancel">Close</button><button class="btn main" id="d-save">Save</button></div>
+  </div>
+</dialog>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const ICON = {
+    up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v11H4V10h3zm0 0 4-7a2 2 0 0 1 3 2l-1 5h5.5a2 2 0 0 1 2 2.4l-1.4 7A2 2 0 0 1 17.2 21H7"/></svg>',
+    down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 14V3h3v11h-3zm0 0-4 7a2 2 0 0 1-3-2l1-5H5.5a2 2 0 0 1-2-2.4l1.4-7A2 2 0 0 1 6.8 3H17"/></svg>',
+    hero: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>',
+    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>',
+  };
+  const GEN = { full: 'Full ad', recipe: 'Recipe (house engine)', dl: 'Designer layout', of: 'Offer family', sc: 'Library card', any: 'Any look', feed: 'FeedAd (iPhones LA)' };
+  const PAGE = 48;
+  const S = { rows: [], byKey: {}, thumbs: {}, pics: null, dec: {}, cat: 'all', shown: PAGE, db: null, sample: null, open: null, pick: undefined };
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } };
+
+  // ---- the decisions: the page's own store, read back by Claude
+  const chain = {};
+  async function save(r, patch) {
+    const cur = S.dec[r.key] || {}, body = { verdict: cur.verdict || '', note: cur.note || '', picture: cur.picture || '', hero: !!cur.hero, ...patch, id: r.id, gen: r.gen, cat: r.cat, name: r.name, at: Date.now() };
+    S.dec[r.key] = body; paint(r.key, 'Saving…');
+    if (!S.db) { paint(r.key, 'Not saved: this view cannot keep decisions.'); return false; }
+    const run = async () => { try { await S.db.collection('decisions').doc(r.key).set(body); paint(r.key, 'Saved'); return true; } catch (e) { paint(r.key, e && e.code === 'quota_exceeded' ? 'Not saved: the store is full.' : 'Not saved. Try again.'); return false; } };
+    chain[r.key] = (chain[r.key] || Promise.resolve()).then(run);
+    return chain[r.key];
+  }
+  async function connect() {
+    const claude = window.claude;
+    const db = claude && claude.use ? await claude.use('db') : null;
+    if (!db) { note('Your thumbs and notes cannot be saved in this view. Open the page signed in to claude.ai to keep them.'); return; }
+    S.db = db;
+    let late = setTimeout(() => note('Your saved decisions could not be reached yet. New ones still save.'), 10000);
+    db.collection('decisions').onSnapshot(snap => {
+      if (!snap.metadata.fromCache) { clearTimeout(late); late = 0; note(''); }
+      const next = {}; for (const d of snap.docs) next[d.id] = d.data(); S.dec = next; tally(); render(false);
+    }, e => { clearTimeout(late); note('Saved decisions stopped updating (' + (e && e.code || 'error') + '). Reload the page to reconnect.'); });
+    claude.use('sample').then(s => { S.sample = s; $('d-sugg-wrap').hidden = !s; }).catch(() => {});
+  }
+  function note(t) { $('note').hidden = !t; $('note').textContent = t || ''; }
+
+  // ---- filters and the list
+  const flt = () => ({ gen: $('f-gen').value, show: $('f-show').value, sort: $('f-sort').value, old: $('f-old').checked, lacks: $('f-lacks').checked, pre: $('f-pre').checked, q: $('f-q').value.trim().toUpperCase() });
+  function list() {
+    const f = flt();
+    let L = S.rows.filter(r => (S.cat === 'all' || r.cat === S.cat) && (f.gen === 'all' || r.gen === f.gen));
+    if (f.old) L = L.filter(r => r.banned.length || r.bannedNoName.length);
+    if (f.lacks) L = L.filter(r => r.lacks.length);
+    if (f.pre) L = L.filter(r => r.pre === 'fails');
+    if (f.show !== 'all') L = L.filter(r => { const d = S.dec[r.key] || {}; return f.show === 'todo' ? !d.verdict && !d.note && !d.picture && !d.hero : f.show === 'note' ? !!(d.note || d.picture) : f.show === 'hero' ? !!d.hero : d.verdict === f.show; });
+    if (f.q) L = L.filter(r => (r.name + ' ' + r.words.map(w => w.t).join(' ')).toUpperCase().includes(f.q));
+    L.sort((a, b) => (f.sort === 'worst' ? b.score - a.score : a.score - b.score) || a.rank - b.rank || a.name.localeCompare(b.name));
+    return L;
+  }
+  function cats() {
+    const n = {}; for (const r of S.rows) n[r.cat] = (n[r.cat] || 0) + 1;
+    const order = Object.keys(n).sort((a, b) => n[b] - n[a]);
+    $('cats').innerHTML = [['all', 'Every category', S.rows.length], ...order.map(c => [c, S.names[c] || c, n[c]])]
+      .map(([c, t, k]) => `<button type="button" data-cat="${esc(c)}" aria-pressed="${S.cat === c}">${esc(t)}<small class="num">${k}</small></button>`).join('');
+  }
+  function tally() {
+    const v = Object.values(S.dec), up = v.filter(d => d.verdict === 'up').length, dn = v.filter(d => d.verdict === 'down').length, nt = v.filter(d => d.note || d.picture).length, hr = v.filter(d => d.hero).length;
+    const done = new Set(Object.entries(S.dec).filter(([, d]) => d.verdict || d.note || d.picture || d.hero).map(([k]) => k)).size;
+    $('tally').innerHTML = `<span class="g num">${up} approved</span><span class="r num">${dn} denied</span><span class="h num">${hr} hero picks</span><span class="n num">${nt} with a change</span><span class="num">${S.rows.length - done} to review</span>`;
+  }
+  const scoreCls = s => s <= 1 ? '' : s <= 5 ? 'mid' : 'hi';
+  const scoreTxt = s => s === 0 ? 'Clean' : 'Score ' + s;
+  function card(r) {
+    const d = S.dec[r.key] || {}, th = S.thumbs[r.key];
+    const chips = [
+      ...r.banned.map(b => `<span class="chip bad">${esc(b)}</span>`),
+      ...r.bannedNoName.filter(b => !r.banned.includes(b)).map(b => `<span class="chip bad" title="when no business name is typed">${esc(b)} (no name)</span>`),
+      ...r.lacks.map(l => `<span class="chip warn">no ${esc(l)}</span>`),
+      r.pre === 'fails' ? '<span class="chip bad">fails pre-flight</span>' : '',
+      r.offPair ? '<span class="chip">off the house colours</span>' : '',
+    ].join('');
+    const head = r.words.filter(w => /headline|claim/i.test(w.w)).slice(0, 2), rest = r.words;
+    const li = w => `<li class="${w.b.length ? 'b' : ''}"><span class="w">${esc(w.w)}</span><span class="t">${esc(w.t)}${w.b.length ? ' · ' + esc(w.b.join(', ')) : ''}</span></li>`;
+    return `<article class="card ${d.verdict || ''}${d.hero ? ' hero-pick' : ''}" data-key="${esc(r.key)}">
+      <button class="thumb" type="button" data-act="open" aria-label="Open ${esc(r.name)}">${th ? `<img src="${th}" alt="" loading="lazy">` : ''}
+        <span class="rank num">#${r.rank} of ${r.of}</span><span class="score num ${scoreCls(r.score)}">${scoreTxt(r.score)}</span></button>
+      <div class="body">
+        <h3>${esc(r.name)}</h3>
+        <div class="meta">${esc(GEN[r.gen] || r.gen)} · ${esc(r.catName)}</div>
+        ${chips ? `<div class="chips">${chips}</div>` : ''}
+        <ul class="words" data-part="words">${(head.length ? head : rest.slice(0, 2)).map(li).join('')}</ul>
+        ${rest.length > 2 ? `<button class="more" type="button" data-act="words">All ${rest.length} lines</button>` : ''}
+      </div>
+      <div class="acts">
+        <button class="yes" type="button" data-act="up" aria-pressed="${d.verdict === 'up'}">${ICON.up}Approve</button>
+        <button class="no" type="button" data-act="down" aria-pressed="${d.verdict === 'down'}">${ICON.down}Deny</button>
+        <button class="hero" type="button" data-act="hero" aria-pressed="${!!d.hero}" title="Pick it for the landing page's hero wall">${ICON.hero}Hero</button>
+        <button class="edit ${d.note || d.picture ? 'has' : ''}" type="button" data-act="open">${ICON.edit}${d.note || d.picture ? 'Change asked' : 'Change'}</button>
+      </div>
+      <div class="saving" data-part="state"></div>
+    </article>`;
+  }
+  let lastList = [];
+  function render(reset) {
+    if (reset) S.shown = PAGE;
+    lastList = list();
+    const part = lastList.slice(0, S.shown);
+    $('grid').innerHTML = part.map(card).join('');
+    $('empty').hidden = lastList.length > 0;
+    $('more').hidden = lastList.length <= S.shown;
+    $('more').textContent = `Show ${Math.min(PAGE, lastList.length - S.shown)} more of ${lastList.length - S.shown}`;
+  }
+  function paint(key, state) {
+    const el = document.querySelector(`.card[data-key="${CSS.escape(key)}"]`); if (!el) return;
+    const r = S.byKey[key]; const tmp = document.createElement('div'); tmp.innerHTML = card(r); const fresh = tmp.firstElementChild;
+    el.replaceWith(fresh); if (state) fresh.querySelector('[data-part="state"]').textContent = state;
+    tally();
+  }
+
+  // ---- the dialog
+  function openDlg(r) {
+    S.open = r; const d = S.dec[r.key] || {}; S.pick = d.picture || '';
+    $('d-img').src = S.thumbs[r.key] || ''; $('d-img').alt = r.name;
+    $('d-name').textContent = r.name;
+    $('d-meta').textContent = `${GEN[r.gen] || r.gen} · ${r.catName} · #${r.rank} of ${r.of} · ${r.offered}`;
+    $('d-chips').innerHTML = [...r.banned.map(b => `<span class="chip bad">${esc(b)}</span>`), ...r.lacks.map(l => `<span class="chip warn">no ${esc(l)}</span>`), ...r.preSays.map(s => `<span class="chip bad">${esc(s)}</span>`)].join('');
+    $('d-words').innerHTML = r.words.map(w => `<li class="${w.b.length ? 'b' : ''}"><span class="w">${esc(w.w)}</span><span class="t">${esc(w.t)}${w.b.length ? ' · ' + esc(w.b.join(', ')) : ''}</span></li>`).join('');
+    $('d-note').value = d.note || ''; $('d-yes').setAttribute('aria-pressed', d.verdict === 'up'); $('d-no').setAttribute('aria-pressed', d.verdict === 'down'); $('d-hero').setAttribute('aria-pressed', !!d.hero);
+    $('d-sugg-out').hidden = true; $('d-sugg-state').textContent = ''; $('d-state').textContent = 'Saved changes are applied by Claude when you ask.';
+    $('d-pic-cat').textContent = '(' + r.catName + ')'; $('d-pic-q').value = '';
+    pics();
+    $('dlg').showModal();
+  }
+  async function loadPics() {
+    if (S.pics) return S.pics;
+    try { S.pics = await (await fetch('data/pictures.json')).json(); } catch (e) { S.pics = { thumbs: {}, pictures: {} }; }
+    return S.pics;
+  }
+  async function pics() {
+    const r = S.open; if (!r) return;
+    const P = await loadPics(), q = $('d-pic-q').value.trim().toLowerCase();
+    const L = (P.pictures[r.cat] || []).filter(p => !q || (p.n + ' ' + p.f).toLowerCase().includes(q)).slice(0, 240);
+    $('d-pics').innerHTML = L.length ? L.map(p => `<button type="button" data-pic="${esc(p.f)}" aria-pressed="${S.pick === p.f}" title="${esc(p.n)}"><img src="${P.thumbs[p.f]}" alt=""><span>${esc(p.n)}</span></button>`).join('')
+      : `<div class="muted">No pictures${q ? ' match “' + esc(q) + '”' : ' for this category'}.</div>`;
+  }
+  async function suggest() {
+    const r = S.open; if (!r || !S.sample) return;
+    $('d-sugg').disabled = true; $('d-sugg-state').textContent = 'Asking…';
+    const want = $('d-note').value.trim();
+    const prompt = `You rewrite the words of one local buy-back ad (the business buys used goods for cash). Category: ${r.catName}. Kind: ${GEN[r.gen] || r.gen}.
+The owner's request: ${want || '(none: just remove anything the rules forbid)'}
+The ad's words now, one per line as "where: text":
+${r.words.filter(w => !/number|website/i.test(w.w)).map(w => w.w + ': ' + w.t).join('\n')}
+Rules: never use these phrases: TOP DOLLAR, UP TO $, HIGHEST, BEST PRICE, BEAT ANY OFFER, ANY CONDITION with no limit, ICLOUD LOCKED OK, NO TITLE, TODAY ONLY, HURRY, #1, BEST, FASTEST, GUARANTEED, a dollar figure, star ratings, an en or em dash. A phone ad asks for a text (TEXT US NOW, TEXT YOUR IMEI), never a picture. Say each promise once (no word repeated between the claim, the selling points and the sticker). Keep each line about as long as it is now, in the same case. Change only the lines that need it.
+Answer as JSON: {"changes":[{"where":"...","now":"...","new":"..."}],"why":"one short sentence"}`;
+    try {
+      const out = await S.sample.json(prompt, { modelTier: 'quick' });
+      const ch = (out && out.changes || []).filter(c => c && c.new);
+      $('d-sugg-out').hidden = false;
+      $('d-sugg-out').innerHTML = ch.length ? `<ul>${ch.map(c => `<li><b>${esc(c.where)}</b>: ${esc(c.now)} → <b>${esc(c.new)}</b></li>`).join('')}</ul><div class="muted">${esc(out.why || '')}</div><div><button class="btn" id="d-sugg-use" type="button">Add these to my note</button></div>` : '<div class="muted">No change suggested.</div>';
+      const use = $('d-sugg-use'); if (use) use.onclick = () => { const t = ch.map(c => `${c.where}: “${c.now}” → “${c.new}”`).join('\n'); $('d-note').value = ($('d-note').value.trim() ? $('d-note').value.trim() + '\n' : '') + t; };
+      $('d-sugg-state').textContent = '';
+    } catch (e) {
+      $('d-sugg-state').textContent = e && e.code === 'not_granted' ? 'Suggestions are turned off for this page.' : e && e.code === 'rate_limited' ? 'Too many requests. Try again in a minute.' : 'No suggestion this time.';
+      if (e && e.code === 'not_granted') $('d-sugg-wrap').hidden = true;
+    }
+    $('d-sugg').disabled = false;
+  }
+
+  // ---- events
+  $('cats').addEventListener('click', e => { const b = e.target.closest('button[data-cat]'); if (!b) return; S.cat = b.dataset.cat; store('review-cat', S.cat); cats(); render(true); });
+  ['f-gen', 'f-show', 'f-sort', 'f-old', 'f-lacks', 'f-pre'].forEach(id => $(id).addEventListener('change', () => render(true)));
+  let qt = 0; $('f-q').addEventListener('input', () => { clearTimeout(qt); qt = setTimeout(() => render(true), 180); });
+  $('more').addEventListener('click', () => { S.shown += PAGE; render(false); });
+  $('grid').addEventListener('click', e => {
+    const b = e.target.closest('[data-act]'); if (!b) return; const el = b.closest('.card'); const r = S.byKey[el.dataset.key]; if (!r) return;
+    const a = b.dataset.act, d = S.dec[r.key] || {};
+    if (a === 'up' || a === 'down') save(r, { verdict: d.verdict === a ? '' : a });
+    else if (a === 'hero') save(r, { hero: !d.hero, ...(!d.hero && d.verdict === 'down' ? { verdict: '' } : {}) });
+    else if (a === 'open') openDlg(r);
+    else if (a === 'words') { el.querySelector('[data-part="words"]').innerHTML = r.words.map(w => `<li class="${w.b.length ? 'b' : ''}"><span class="w">${esc(w.w)}</span><span class="t">${esc(w.t)}${w.b.length ? ' · ' + esc(w.b.join(', ')) : ''}</span></li>`).join(''); b.remove(); }
+  });
+  $('d-yes').addEventListener('click', () => { const on = $('d-yes').getAttribute('aria-pressed') !== 'true'; $('d-yes').setAttribute('aria-pressed', on); if (on) $('d-no').setAttribute('aria-pressed', false); });
+  $('d-no').addEventListener('click', () => { const on = $('d-no').getAttribute('aria-pressed') !== 'true'; $('d-no').setAttribute('aria-pressed', on); if (on) $('d-yes').setAttribute('aria-pressed', false); });
+  $('d-hero').addEventListener('click', () => { const on = $('d-hero').getAttribute('aria-pressed') !== 'true'; $('d-hero').setAttribute('aria-pressed', on); if (on) $('d-no').setAttribute('aria-pressed', false); });
+  $('d-pics').addEventListener('click', e => { const b = e.target.closest('button[data-pic]'); if (!b) return; S.pick = S.pick === b.dataset.pic ? '' : b.dataset.pic; pics(); });
+  $('d-pic-clear').addEventListener('click', () => { S.pick = ''; pics(); });
+  let pt = 0; $('d-pic-q').addEventListener('input', () => { clearTimeout(pt); pt = setTimeout(pics, 150); });
+  $('d-sugg').addEventListener('click', suggest);
+  $('d-cancel').addEventListener('click', () => $('dlg').close());
+  $('d-save').addEventListener('click', async () => {
+    const r = S.open; if (!r) return;
+    const verdict = $('d-yes').getAttribute('aria-pressed') === 'true' ? 'up' : $('d-no').getAttribute('aria-pressed') === 'true' ? 'down' : '';
+    $('d-state').textContent = 'Saving…'; $('d-save').disabled = true;
+    const ok = await save(r, { verdict, note: $('d-note').value.trim(), picture: S.pick || '', hero: $('d-hero').getAttribute('aria-pressed') === 'true' });
+    $('d-save').disabled = false;
+    if (ok) $('dlg').close(); else $('d-state').textContent = S.db ? 'Not saved. Try again.' : 'This view cannot keep decisions.';
+  });
+
+  // ---- start
+  async function start() {
+    try {
+      const A = await (await fetch('data/ads.json')).json();
+      S.rows = A.rows; S.names = A.cats; for (const r of S.rows) S.byKey[r.key] = r;
+      const gens = [...new Set(S.rows.map(r => r.gen))];
+      $('f-gen').innerHTML = '<option value="all">Every kind</option>' + gens.map(g => `<option value="${g}">${esc(GEN[g] || g)}</option>`).join('');
+      const made = A.made ? new Date(A.made).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : '';
+      $('stamp').textContent = `${S.rows.length} ads the site offers, read by the census${made ? ' on ' + made : ''}${A.commit ? ' at ' + String(A.commit).slice(0, 8) : ''}. Ranked within each category: “Clean” has nothing to fix; a higher score has more (2 for each missing element or banned phrase).`;
+      const remembered = store('review-cat'); if (remembered && (remembered === 'all' || S.rows.some(r => r.cat === remembered))) S.cat = remembered;
+      cats(); tally(); render(true);
+    } catch (e) { $('stamp').textContent = 'The ads could not be loaded. Reload the page.'; return; }
+    connect();
+    // the thumbnails come in one file a generation; each lands as it arrives
+    fetch('data/thumbs-index.json').then(r => r.json()).then(gens => gens.forEach(g => fetch('data/thumbs-' + g + '.json').then(r => r.json()).then(T => { Object.assign(S.thumbs, T); render(false); }).catch(() => {}))).catch(() => {});
+  }
+  start();
+})();
+</script>

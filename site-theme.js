@@ -1,4 +1,4 @@
-/* The information pages, the category pages and the video maker in the house look (DESIGN-LAW 145).
+/* The information pages, the category pages and the video maker in the house look (DESIGN-LAW 146).
    Light or dark: the visitor's own choice where they made one (the landing's toggle saves it as
    pgfx_theme), else their system's, which pages.css reads by itself. ?pair= and ?face= show a page
    in another of the twelve pairs or the owner's type pairs, for that view only, as on the landing.

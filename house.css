@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   THE HOUSE LOOK ON THE SITE (DESIGN-LAW 145, 2026-11-18).
+   THE HOUSE LOOK ON THE SITE (DESIGN-LAW 146, 2026-11-18).
 
    The owner: "Remake the site UI so it's unified with our latest theming … the full ad, rule 137
    onwards; its twelve colour pairs, rule 139; my type pairs, rules 140 and 141 … I love the video
@@ -259,21 +259,43 @@
 :root[data-site='house'] #page-landing .h-step h3{margin:0;font-size:calc(24px * var(--h-display-k));line-height:1.05;font-weight:var(--h-display-wt);text-transform:uppercase;color:var(--h-ink)}
 :root[data-site='house'] #page-landing .h-step p{margin:0;font:400 16px/1.6 var(--h-body);color:var(--h-ink-2)}
 
-/* the plans */
-:root[data-site='house'] #page-landing .h-plans{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;align-items:stretch}
-:root[data-site='house'] #page-landing .lp-price-card{position:relative;display:flex;flex-direction:column;gap:6px;background:var(--h-panel);border:1px solid var(--h-line);border-radius:22px;padding:24px 22px;box-shadow:none;transform:none;color:var(--h-ink)}
-:root[data-site='house'] #page-landing .lp-price-card.h-hot{border:2px solid var(--h-accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--h-accent) 16%,transparent),var(--h-shadow);background:var(--h-panel-2)}
-:root[data-site='house'] #page-landing .lp-price-card h3{margin:0;font:var(--h-label-wt) 14px/1 var(--h-body);letter-spacing:.09em;text-transform:uppercase;color:var(--h-ink-2)}
-:root[data-site='house'] #page-landing .h-price{font:var(--h-display-wt) calc(46px * var(--h-display-k))/1 var(--h-display);color:var(--h-ink);font-variant-numeric:tabular-nums;margin:6px 0 2px}
-:root[data-site='house'] #page-landing .h-price small{font:700 14px/1 var(--h-body);color:var(--h-dim);margin-left:2px}
-:root[data-site='house'] #page-landing .h-alt{font:500 13.5px/1.45 var(--h-body);color:var(--h-dim)}
-:root[data-site='house'] #page-landing .h-alt b{color:var(--h-ink);font-weight:800}
-:root[data-site='house'] #page-landing .lp-price-card ul{list-style:none;margin:12px 0 18px;padding:0;display:grid;gap:9px;flex:1;align-content:start}
-:root[data-site='house'] #page-landing .lp-price-card li{position:relative;padding-left:26px;font:500 15px/1.45 var(--h-body);color:var(--h-ink-2)}
-:root[data-site='house'] #page-landing .lp-price-card li::before{content:"✓";position:absolute;left:0;top:0;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:var(--h-accent);color:var(--h-on);font:900 11px/1 var(--h-body)}
-:root[data-site='house'] #page-landing .lp-price-card .h-pill,:root[data-site='house'] #page-landing .lp-price-card .h-outline{align-self:stretch}
-:root[data-site='house'] #page-landing .lp-price-card .h-burst{position:absolute;top:-34px;right:-12px;width:96px;height:96px;font-size:13.5px;transform:rotate(8deg)}
-:root[data-site='house'] #page-landing .h-foot{margin:18px 0 0;font:400 15px/1.5 var(--h-body);color:var(--h-dim)}
+/* the plans: the cards and the table scripts/build_pricing.mjs writes from netlify/lib/plans.mjs
+   (its class names, between PRICING:BEGIN and PRICING:END), in the house look */
+:root[data-site='house'] #page-landing #pricing .lp-price-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;align-items:stretch;margin:0}
+:root[data-site='house'] #page-landing #pricing .lp-price-card{position:relative;display:flex;flex-direction:column;gap:6px;background:var(--h-panel);border:1px solid var(--h-line);border-radius:22px;padding:24px 22px;box-shadow:none;transform:none;color:var(--h-ink);-webkit-backdrop-filter:none;backdrop-filter:none}
+:root[data-site='house'] #page-landing #pricing .lp-price-card.hot{border:2px solid var(--h-accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--h-accent) 16%,transparent),var(--h-shadow);background:var(--h-panel-2)}
+:root[data-site='house'] #page-landing #pricing .lp-price-card h3{margin:0;font:var(--h-label-wt) 14px/1 var(--h-body);letter-spacing:.09em;text-transform:uppercase;color:var(--h-ink-2)}
+:root[data-site='house'] #page-landing #pricing .lp-price-for{margin:2px 0 0;font:700 15px/1.35 var(--h-body);color:var(--h-ink)}
+:root[data-site='house'] #page-landing #pricing .lp-price{font:var(--h-display-wt) calc(46px * var(--h-display-k))/1 var(--h-display);color:var(--h-ink);font-variant-numeric:tabular-nums;margin:8px 0 2px;letter-spacing:0}
+:root[data-site='house'] #page-landing #pricing .lp-price small{font:700 14px/1 var(--h-body);color:var(--h-dim);margin-left:2px}
+:root[data-site='house'] #page-landing #pricing .lp-price-alt{font:500 13.5px/1.45 var(--h-body);color:var(--h-dim)}
+:root[data-site='house'] #page-landing #pricing .lp-price-alt b{color:var(--h-ink);font-weight:800}
+:root[data-site='house'] #page-landing #pricing .lp-price-card ul{list-style:none;margin:12px 0 18px;padding:0;display:grid;gap:9px;flex:1;align-content:start}
+:root[data-site='house'] #page-landing #pricing .lp-price-card li{position:relative;padding-left:26px;font:500 15px/1.45 var(--h-body);color:var(--h-ink-2)}
+:root[data-site='house'] #page-landing #pricing .lp-price-card li::before{content:"✓";position:absolute;left:0;top:0;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:var(--h-accent);color:var(--h-on);font:900 11px/1 var(--h-body);border:0;transform:none}
+/* "Most popular" is the starburst; "Unlimited video" the claim badge */
+:root[data-site='house'] #page-landing #pricing .lp-price-tag{position:absolute;top:-34px;right:-12px;left:auto;width:96px;height:96px;display:grid;place-items:center;text-align:center;padding:10px;margin:0;border:0;border-radius:0;
+  background:var(--h-burst);color:var(--h-burst-ink);font:var(--h-display-wt) 13.5px/1.02 var(--h-display);text-transform:uppercase;letter-spacing:.01em;box-shadow:none;transform:rotate(8deg);
+  clip-path:polygon(50% 0,59% 12%,73% 4%,76% 19%,91% 16%,87% 32%,100% 39%,90% 51%,99% 64%,84% 69%,86% 85%,70% 83%,63% 98%,50% 89%,37% 98%,30% 83%,14% 85%,16% 69%,1% 64%,10% 51%,0 39%,13% 32%,9% 16%,24% 19%,27% 4%,41% 12%)}
+:root[data-site='house'] #page-landing #pricing .lp-price-tag.lp-price-tag-video{position:static;align-self:flex-start;width:auto;height:auto;clip-path:none;transform:none;border-radius:999px;padding:8px 13px;margin:0 0 4px;
+  background:var(--h-accent);color:var(--h-on);font:var(--h-label-wt) 12px/1 var(--h-body);letter-spacing:.08em;box-shadow:0 0 20px var(--h-glow)}
+:root[data-site='house'] #page-landing #pricing .lp-price-card .btn{align-self:stretch;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;min-height:46px;padding:13px 18px;
+  font:900 13.5px/1 var(--h-body);text-transform:uppercase;letter-spacing:.05em;box-shadow:none;transform:none;filter:none;cursor:pointer}
+:root[data-site='house'] #page-landing #pricing .lp-price-card .btn-primary{background:var(--h-accent);color:var(--h-on);border:0;box-shadow:0 10px 26px -12px var(--h-glow)}
+:root[data-site='house'] #page-landing #pricing .lp-price-card .btn-outline{background:transparent;color:var(--h-ink);border:2px solid var(--h-line-2)}
+:root[data-site='house'] #page-landing #pricing .lp-price-card .btn-outline:hover{border-color:var(--h-accent);background:color-mix(in srgb,var(--h-accent) 12%,transparent);color:var(--h-ink)}
+/* every plan side by side: a panel, the hot column in the accent */
+:root[data-site='house'] #page-landing #pricing .lp-compare-wrap{margin:26px 0 0;overflow-x:auto;border:1px solid var(--h-line);border-radius:18px;background:var(--h-panel);box-shadow:none}
+:root[data-site='house'] #page-landing #pricing .lp-compare{width:100%;border-collapse:collapse;font:500 14.5px/1.4 var(--h-body);color:var(--h-ink-2);font-variant-numeric:tabular-nums;min-width:640px}
+:root[data-site='house'] #page-landing #pricing .lp-compare caption{caption-side:top;text-align:left;padding:16px 18px 6px;font:var(--h-display-wt) calc(18px * var(--h-display-k))/1.1 var(--h-display);text-transform:uppercase;color:var(--h-ink)}
+:root[data-site='house'] #page-landing #pricing .lp-compare :is(th,td){padding:11px 14px;border:0;border-top:1px solid var(--h-line);text-align:left;vertical-align:top;background:transparent;color:inherit}
+:root[data-site='house'] #page-landing #pricing .lp-compare thead th{font:var(--h-label-wt) 12.5px/1.2 var(--h-body);letter-spacing:.08em;text-transform:uppercase;color:var(--h-dim)}
+:root[data-site='house'] #page-landing #pricing .lp-compare thead th.hot{color:var(--h-accent)}
+:root[data-site='house'] #page-landing #pricing .lp-compare tbody th{font-weight:800;color:var(--h-ink)}
+:root[data-site='house'] #page-landing #pricing .lp-compare small{display:block;color:var(--h-dim);font-size:12.5px}
+:root[data-site='house'] #page-landing #pricing .lp-compare td.yes{color:var(--h-ink);font-weight:800}
+:root[data-site='house'] #page-landing #pricing .lp-compare td.no{color:var(--h-dim)}
+:root[data-site='house'] #page-landing #pricing :is(.lp-compare-notes,.lp-price-foot){margin:14px 0 0;font:400 15px/1.5 var(--h-body);color:var(--h-dim)}
 
 /* the FAQ (build_seo_pages.mjs reads these rows into the FAQPage JSON-LD, word for word) */
 :root[data-site='house'] #page-landing .h-faqs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
@@ -351,7 +373,7 @@
   :root[data-site='house'] #page-landing .h-menu{display:block}
   :root[data-site='house'] #page-landing .h-hero{grid-template-columns:minmax(0,1fr);padding-top:96px;gap:30px}
   :root[data-site='house'] #page-landing .h-ads{width:min(100%,460px)}
-  :root[data-site='house'] #page-landing .h-plans{grid-template-columns:repeat(2,minmax(0,1fr))}
+  :root[data-site='house'] #page-landing #pricing .lp-price-grid{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:30px}
   :root[data-site='house'] #page-landing .h-cards,:root[data-site='house'] #page-landing .h-steps{grid-template-columns:minmax(0,1fr)}
   :root[data-site='house'] #page-landing .h-video{grid-template-columns:minmax(0,1fr)}
 }
@@ -364,7 +386,7 @@
   :root[data-site='house'] #page-landing .h-hero h1{font-size:calc(clamp(34px,10.4vw,46px) * var(--h-display-k))}
   :root[data-site='house'] #page-landing .h-chev::before,:root[data-site='house'] #page-landing .h-chev::after{width:30px;height:21px}
   :root[data-site='house'] #page-landing .h-pill-xl{font-size:15.5px;padding:16px 22px}
-  :root[data-site='house'] #page-landing .h-plans{grid-template-columns:minmax(0,1fr)}
+  :root[data-site='house'] #page-landing #pricing .lp-price-grid{grid-template-columns:minmax(0,1fr)}
   :root[data-site='house'] #page-landing .h-section{padding-top:60px}
   :root[data-site='house'] #page-landing .h-stat{padding:8px 13px}
   :root[data-site='house'] #page-landing .h-stat-lead{flex-basis:100%;border-radius:18px}

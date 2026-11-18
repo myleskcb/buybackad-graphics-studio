@@ -34,6 +34,10 @@ import { loadPhones, loadFonts, fontsFor } from "./motion/engine.js";
 import { DEFAULT_STYLE, DEFAULT_PHONES, TYPE_VOICES, FONTS } from "./motion/catalog.js";
 import { loadAccents, ACCENT_SETS } from "./motion/accents.js";
 import { FullAd, fullStyle, fullPreflight, fullStill, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk } from "./motion/fullad.js";
+import * as FULL from "./motion/fullad.js";
+/* the ground photograph is loaded before an ad is drawn for keeps (fullGroundReady, 2026-11-18); a
+   copy of fullad.js from before it draws no photograph and needs no wait */
+const groundReady = st => (typeof FULL.fullGroundReady === "function" ? FULL.fullGroundReady(st) : Promise.resolve());
 import { FULL_VOICES } from "./motion/full-voices.js";
 
 const KEY = "pgfx_full_studio", HANDOFF = "pgfx_full_handoff";
@@ -52,15 +56,29 @@ const WORD_FIELDS = [
 ];
 
 const saved = (() => { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; } })();
-const FA = Object.assign({ on: false, line: {}, set: {}, seed: 1, pair: "", voice: "", words: {}, biz: "" }, saved || {});
-const live = { holding: false, n: 0, ad: null, subjects: [], thumbs: {}, timer: 0, ready: null, loaded: {} };
+const FA = Object.assign({ on: false, line: {}, set: {}, seed: 1, pair: "", voice: "", words: {}, biz: "", recipe: {} }, saved || {});
+if (!FA.recipe || typeof FA.recipe !== "object") FA.recipe = {};
+const live = { holding: false, n: 0, ad: null, subjects: [], thumbs: {}, timer: 0, ready: null, loaded: {}, recipes: null, byId: {} };
 const assets = { phones: {}, index: [], accents: {} };
-const keep = () => { try { localStorage.setItem(KEY, JSON.stringify({ on: FA.on, line: FA.line, set: FA.set, seed: FA.seed, pair: FA.pair, voice: FA.voice, words: FA.words, biz: FA.biz })); } catch (e) { /* private mode */ } };
+const keep = () => { try { localStorage.setItem(KEY, JSON.stringify({ on: FA.on, line: FA.line, set: FA.set, seed: FA.seed, pair: FA.pair, voice: FA.voice, words: FA.words, biz: FA.biz, recipe: FA.recipe })); } catch (e) { /* private mode */ } };
 
 const el = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const linesOf = cat => live.subjects.filter(s => s.cat === cat);
 const lineNow = () => { const ls = linesOf(currentCat); return ls.find(s => s.key === FA.line[currentCat]) || ls[0] || null; };
+
+/* ---------- from the library: every older ad as a recipe (motion/recipes.json, DESIGN-LAW 144) ----------
+   The owner, 2026-11-18: "rebuild how we arrived to these ads so every single one can be made a
+   video". A library card, a designer layout or an offer card, read as it opened (its words, its
+   product, its ground photograph, its colours and faces: scripts/build_recipes.mjs), drawn by the
+   full ad: a photo here, the same ad as a video in the maker. What the visitor types still wins. */
+function loadRecipes() {
+  if (!live.recipes) live.recipes = fetch(at("./motion/recipes.json")).then(r => r.json()).then(j => { const L = j.recipes || []; live.byId = Object.fromEntries(L.map(r => [r.id, r])); return L; })
+    .catch(e => { console.warn("recipes:", e); live.recipes = null; return []; });
+  return live.recipes;
+}
+/** The recipe on for this category, once the recipes are here, and only while its line is the one shown. */
+const recipeNow = () => { const r = live.byId[FA.recipe[currentCat]]; const S = lineNow(); return r && S && r.subject === S.key ? r : null; };
 
 /* ---------- what the ad is drawn from ---------- */
 
@@ -72,12 +90,17 @@ function ready() {
        more (the maker's nine weigh 1.1 MB), so the icon drawn here is the one the maker draws */
     loadAccents(at("./assets/cutouts/"), ACCENT_SETS.cash.map(i => i.asset).filter(Boolean)).then(a => { assets.accents = a; }),
   ]);
-  const iph = S.key === "iphone", set = S.sets.length ? (FA.set[S.key] | 0) % S.sets.length : 0, k = S.key + "|" + set;
-  if (!live.loaded[k]) live.loaded[k] = (iph
-    ? loadPhones(at("./motion/phones/"), DEFAULT_PHONES).then(({ phones, index }) => { Object.assign(assets.phones, phones); assets.index = index; return DEFAULT_PHONES.filter(id => phones[id]); })
+  const R = recipeNow(), own = !!(R && R.pictures && R.pictures.length);
+  const iph = S.key === "iphone", set = own ? 0 : S.sets.length ? (FA.set[S.key] | 0) % S.sets.length : 0, k = own ? "recipe|" + R.id : S.key + "|" + set;
+  if (!live.loaded[k]) live.loaded[k] = (own
+    ? loadSubjectSet({ key: "recipe:" + R.id, label: S.label, sets: [R.pictures] }, 0, at("./assets/cutouts/")).then(got => { Object.assign(assets.phones, got.assets); return got.ids; })
+    : iph
+    /* every phone the shop buys (1.2 MB), not the default four alone: a full ad nobody picked the phones
+       for draws its set by its seed, the in-demand models most (fullad.js drawPhones, 2026-11-18) */
+    ? loadPhones(at("./motion/phones/")).then(({ phones, index }) => { Object.assign(assets.phones, phones); assets.index = index; return DEFAULT_PHONES.filter(id => phones[id]); })
     : S.sets.length ? loadSubjectSet(S, set, at("./assets/cutouts/")).then(got => { Object.assign(assets.phones, got.assets); return got.ids; }) : Promise.resolve([])
   ).catch(e => { delete live.loaded[k]; throw e; });
-  return Promise.all([live.base, live.loaded[k]]).then(([, ids]) => ({ S, ids, set }));
+  return Promise.all([live.base, live.loaded[k]]).then(([, ids]) => ({ S, ids, set, recipe: own ? R : recipeNow() }));
 }
 
 /** The towns a full ad names: the area's own, as the studio's service-area lines say them. */
@@ -90,29 +113,33 @@ function whereNow() {
 }
 
 /** The style the engine draws: the visitor's words over the line's own, the house style locked. */
-function styleNow(S, ids, set, size) {
-  const iph = S.key === "iphone", w = FA.words[S.key] || {};
+function styleNow(S, ids, set, size, R = recipeNow()) {
+  const iph = S.key === "iphone", w = FA.words[S.key] || {}, rw = (R && R.words) || {}, own = !!(R && R.pictures && R.pictures.length);
   const F = size || FORMATS[ez.format] || FORMATS.square, ar = F.w / F.h;
   const aspect = ar >= 1.3 ? "16:9" : ar <= .62 ? "9:16" : Math.abs(ar - 1) < .02 ? "1:1" : "4:5";
   const up = v => String(v || "").trim().toUpperCase();
   const base = { ...DEFAULT_STYLE, lang: "en",
-    headline: up(w.headline) || S.heads[0].toUpperCase(),
-    tag: up(w.tag) || (iph ? "" : S.models.toUpperCase()),
-    points: up(w.points) || (iph ? null : S.points),
-    number: el("ez-phone").value.trim(), number_label: up(w.label),
+    headline: up(w.headline) || up(rw.headline) || S.heads[0].toUpperCase(),
+    tag: up(w.tag) || up(rw.tag) || (iph ? "" : S.models.toUpperCase()),
+    points: up(w.points) || up(rw.points) || (iph ? null : S.points),
+    number: el("ez-phone").value.trim(), number_label: up(w.label) || up(rw.label),
     site: el("ez-website").value.trim(), biz: String(FA.biz || "").trim(),
-    aspect, seed: FA.seed | 0 || 1, subject: iph ? "" : S.key, subject_set: set, phones: ids.length ? ids.slice() : ["none"] };
+    // a recipe's own pictures are kept as given (subject_set: the full ad draws a line's pool only at 0)
+    aspect, seed: FA.seed | 0 || 1, subject: iph ? "" : S.key, subject_set: own && !iph ? 1 : set, phones: ids.length ? ids.slice() : ["none"] };
+  if (R && R.ground_photo) base.ground_photo = { ...R.ground_photo };
   const where = whereNow(); if (where) base.feed_where = where;
-  if (up(w.claim)) base.feed_claim = up(w.claim);
-  if (up(w.burst)) base.feed_burst = up(w.burst);
-  const pick = { ...(COLOUR_OF[FA.pair] ? { palette: FA.pair } : {}), ...(fullVoiceOk(FA.voice) ? { type_pair: FA.voice } : {}) };
+  // a typed business name takes the badge over a library design's claim (the full ad's own rule); typed words over both
+  if (up(w.claim)) base.feed_claim = up(w.claim); else if (up(rw.claim) && !String(FA.biz || "").trim()) base.feed_claim = up(rw.claim);
+  if (up(w.burst) || up(rw.burst)) base.feed_burst = up(w.burst) || up(rw.burst);
+  const pair = FA.pair || (R && R.pair) || "", voice = fullVoiceOk(FA.voice) ? FA.voice : R && fullVoiceOk(R.type_pair) ? R.type_pair : "";
+  const pick = { ...(COLOUR_OF[pair] ? { palette: pair } : {}), ...(voice ? { type_pair: voice } : {}) };
   return { st: fullStyle(base, base.seed, assets.index, pick), W: F.w, H: F.h };
 }
 
 async function build(px, size) {
-  const { S, ids, set } = await ready();
-  const { st, W, H } = styleNow(S, ids, set, size);
-  await loadFonts([...fontsFor(st), "franklin"]);
+  const { S, ids, set, recipe } = await ready();
+  const { st, W, H } = styleNow(S, ids, set, size, recipe);
+  await Promise.all([loadFonts([...fontsFor(st), "franklin"]), groundReady(st)]);
   const k = px / Math.min(W, H);
   return { ad: new FullAd(st, assets, Math.round(W * k), Math.round(H * k)), st, S };
 }
@@ -200,15 +227,15 @@ function placeholder(c) {
   return "data:image/svg+xml," + encodeURIComponent(svg);
 }
 async function thumb(img, S) {
-  const k = S.key + "|" + (FA.pair || "") + "|" + (FA.voice || "") + "|" + (FA.seed | 0);
+  const k = S.key + "|" + (FA.pair || "") + "|" + (FA.voice || "") + "|" + (FA.seed | 0) + "|" + (FA.recipe[currentCat] || "");
   if (live.thumbs[k]) { img.src = live.thumbs[k]; return; }
   if (!img.getAttribute("src")) img.src = placeholder(COLOUR_OF[FA.pair] || COLOUR_OF[COLOURWAYS[0]]);
   try {
     const got = await ready(); if (got.S !== lineNow()) return;
-    const { st } = styleNow(got.S, got.ids, got.set, FORMATS.square);
+    const { st } = styleNow(got.S, got.ids, got.set, FORMATS.square, got.recipe);
     /* the strip shows a card with the studio's sample number, as every card beside it does */
     const shown = { ...st, number: "(562) 999-4994" };
-    await loadFonts([...fontsFor(shown), "franklin"]);
+    await Promise.all([loadFonts([...fontsFor(shown), "franklin"]), groundReady(shown)]);
     const c = fullStill(new FullAd(shown, assets, 396, 396));
     live.thumbs[k] = c.toDataURL("image/jpeg", .86);
     if (img.isConnected) img.src = live.thumbs[k];
@@ -237,6 +264,18 @@ function mark() {
 
 /* ---------- the form ---------- */
 
+/** The library's designs for this category, grouped by what they buy, as a choice. */
+function libraryField() {
+  if (!live.recipes) loadRecipes().then(() => { if (FA.on) buildForm(); });
+  const L = Object.values(live.byId).filter(r => r.cat === currentCat);
+  if (!L.length) return "";
+  const on = FA.recipe[currentCat] || "", groups = {};
+  for (const r of L) (groups[r.subject] ||= []).push(r);
+  return `<div class="ez-field"><label for="fa-recipe">From the library <span class="fa-opt">a library design drawn as this ad, photo and video</span></label><select id="fa-recipe" class="cat-select"><option value="">None: the line's own words and pictures</option>`
+    + Object.entries(groups).map(([k, rs]) => `<optgroup label="${esc((live.subjects.find(s => s.key === k) || {}).label || k)}">${rs.map(r => `<option value="${esc(r.id)}"${r.id === on ? " selected" : ""}>${esc(r.label)}</option>`).join("")}</optgroup>`).join("")
+    + `</select></div>`;
+}
+
 function buildForm() {
   let f = el("fa-form");
   if (!f) {
@@ -245,11 +284,12 @@ function buildForm() {
     if (after) after.insertAdjacentElement("afterend", f); else el("ez-form-card").appendChild(f);
   }
   const S = lineNow(); if (!S) return;
-  const ls = linesOf(currentCat), w = FA.words[S.key] || {}, voices = FULL_VOICES.filter(k => fullVoiceOk(k));
+  const ls = linesOf(currentCat), w = FA.words[S.key] || {}, voices = FULL_VOICES.filter(k => fullVoiceOk(k)), R = recipeNow(), rw = (R && R.words) || {};
   const field = ([k, label, hint, max]) => `<div class="ez-field"><label for="fa-${k}">${label}${hint ? ` <span class="fa-opt">${esc(hint)}</span>` : ""}</label>
-    <div class="ez-fieldrow"><input id="fa-${k}" data-word="${k}" type="text" maxlength="${max}" value="${esc(w[k] || "")}" placeholder="${k === "headline" ? esc(S.heads[0].toUpperCase()) : k === "tag" && S.key !== "iphone" ? esc(S.models.toUpperCase()) : ""}">${k === "headline" && S.heads.length > 1 ? `<button type="button" class="ez-edit-btn" id="fa-next-head" title="Another headline">&#10227;</button>` : ""}</div></div>`;
+    <div class="ez-fieldrow"><input id="fa-${k}" data-word="${k}" type="text" maxlength="${max}" value="${esc(w[k] || "")}" placeholder="${rw[k] ? esc(rw[k]) : k === "headline" ? esc(S.heads[0].toUpperCase()) : k === "tag" && S.key !== "iphone" ? esc(S.models.toUpperCase()) : ""}">${k === "headline" && S.heads.length > 1 ? `<button type="button" class="ez-edit-btn" id="fa-next-head" title="Another headline">&#10227;</button>` : ""}</div></div>`;
   f.innerHTML =
     (ls.length > 1 ? `<div class="ez-field"><label for="fa-line">What you buy <span class="fa-opt">its pictures and its models line come with it</span></label><select id="fa-line" class="cat-select">${ls.map(s => `<option value="${s.key}"${s === S ? " selected" : ""}>${esc(s.label)}</option>`).join("")}</select></div>` : "")
+    + libraryField()
     + `<div class="ez-field"><label for="fa-biz">Your business name <span class="fa-opt">optional: it takes the badge at the top</span></label><div class="ez-fieldrow"><input id="fa-biz" type="text" maxlength="28" value="${esc(FA.biz || "")}" placeholder="Long Beach Phone Buyers"></div></div>`
     + WORD_FIELDS.map(field).join("")
     + `<div class="ez-field"><label>Colours <span class="fa-opt">the twelve proven pairs</span></label><div class="ez-themes" id="fa-pairs" role="group" aria-label="Colours">
@@ -267,7 +307,13 @@ function buildForm() {
   const words = () => (FA.words[S.key] = FA.words[S.key] || {});
   f.querySelectorAll("input[data-word]").forEach(i => i.addEventListener("input", () => { words()[i.dataset.word] = i.value; keep(); later(); }));
   el("fa-biz").addEventListener("input", e => { FA.biz = e.target.value; keep(); later(); });
-  const sel = el("fa-line"); if (sel) sel.addEventListener("change", () => { FA.line[currentCat] = sel.value; keep(); buildForm(); tile(); later(0); });
+  const sel = el("fa-line"); if (sel) sel.addEventListener("change", () => { FA.line[currentCat] = sel.value; delete FA.recipe[currentCat]; keep(); buildForm(); tile(); later(0); });
+  const rs = el("fa-recipe"); if (rs) rs.addEventListener("change", () => {
+    const r = live.byId[rs.value]; FA.recipe[currentCat] = r ? r.id : "";
+    // the design's own words, colours and face: what was typed for the line before gives way to them
+    if (r) { FA.line[currentCat] = r.subject; FA.words[r.subject] = {}; FA.pair = ""; FA.voice = ""; FA.seed = 1; }
+    keep(); live.thumbs = {}; buildForm(); tile(); later(0);
+  });
   const nh = el("fa-next-head"); if (nh) nh.onclick = () => { const cur = (words().headline || S.heads[0]).toUpperCase(), i = S.heads.findIndex(h => h.toUpperCase() === cur); const next = S.heads[(i + 1) % S.heads.length].toUpperCase(); words().headline = next; el("fa-headline").value = next; keep(); later(0); };
   el("fa-pairs").addEventListener("click", e => { const b = e.target.closest("button[data-pair]"); if (!b) return; FA.pair = b.dataset.pair; keep();
     el("fa-pairs").querySelectorAll("button[data-pair]").forEach(x => { const on = x === b; x.classList.toggle("active", on); x.setAttribute("aria-pressed", on); }); tile(); later(0); });
@@ -327,10 +373,12 @@ async function download() {
  *  set here goes with them (the maker reads it once, motion/app.js restore). */
 function toVideo() {
   const S = lineNow(); if (!S) return;
+  const R = recipeNow(), rw = (R && R.words) || {};
   const w = FA.words[S.key] || {}, up = v => String(v || "").trim().toUpperCase(), F = FORMATS[ez.format] || FORMATS.square, ar = F.w / F.h;
-  const hand = { subject: S.key, subject_set: S.sets.length ? (FA.set[S.key] | 0) % S.sets.length : 0, seed: FA.seed | 0 || 1, full_palette: FA.pair || "", full_type: fullVoiceOk(FA.voice) ? FA.voice : "",
-    headline: up(w.headline) || S.heads[0].toUpperCase(), tag: up(w.tag) || (S.key === "iphone" ? "" : S.models.toUpperCase()), points: up(w.points) || (S.key === "iphone" ? null : S.points),
-    feed_claim: up(w.claim), feed_burst: up(w.burst), number_label: up(w.label), biz: String(FA.biz || "").trim(),
+  const hand = { subject: S.key, subject_set: S.sets.length ? (FA.set[S.key] | 0) % S.sets.length : 0, seed: FA.seed | 0 || 1, full_palette: FA.pair || (R && R.pair) || "", full_type: fullVoiceOk(FA.voice) ? FA.voice : R && fullVoiceOk(R.type_pair) ? R.type_pair : "",
+    recipe: R ? R.id : "",
+    headline: up(w.headline) || up(rw.headline) || S.heads[0].toUpperCase(), tag: up(w.tag) || up(rw.tag) || (S.key === "iphone" ? "" : S.models.toUpperCase()), points: up(w.points) || up(rw.points) || (S.key === "iphone" ? null : S.points),
+    feed_claim: up(w.claim) || (String(FA.biz || "").trim() ? "" : up(rw.claim)), feed_burst: up(w.burst) || up(rw.burst), number_label: up(w.label) || up(rw.label), biz: String(FA.biz || "").trim(),
     number: el("ez-phone").value.trim(), site: el("ez-website").value.trim(), feed_where: whereNow(),
     aspect: ar >= 1.3 ? "16:9" : ar <= .62 ? "9:16" : Math.abs(ar - 1) < .02 ? "1:1" : "4:5", at: Date.now() };
   try { localStorage.setItem(HANDOFF, JSON.stringify(hand)); } catch (e) { /* the maker opens on its own look */ }
@@ -394,7 +442,14 @@ function install() {
   const check = async (px, size) => { const { ad, st } = await build(px || 1080, size); const frame = fullStill(ad), pre = fullPreflight(ad, frame);
     return { ok: pre.ok, fixes: pre.findings.filter(f => f.level === "fix").map(f => f.say), notes: pre.findings.filter(f => f.level === "note").map(f => f.say), W: ad.W, H: ad.H,
       colour: st.full_colour, type: st.full_pair ? st.type_pair : "", headline: st.headline, subject: st.subject || "iphone", pictures: ad.phones.length }; };
-  window.FullAdStudio = { state: FA, enter, leave, draw, build, check, lines: () => live.subjects, isOn: () => FA.on, voices: () => FULL_VOICES.filter(k => fullVoiceOk(k)), pairs: () => COLOURWAYS.slice() };
+  const useRecipe = async id => {
+    await loadRecipes(); const r = live.byId[id]; if (!r) return null;
+    if (currentCat !== r.cat) setCategory(r.cat);
+    FA.recipe[r.cat] = r.id; FA.line[r.cat] = r.subject; FA.words[r.subject] = {}; FA.pair = ""; FA.voice = ""; FA.set = {};
+    return r;
+  };
+  window.FullAdStudio = { state: FA, enter, leave, draw, build, check, lines: () => live.subjects, isOn: () => FA.on, voices: () => FULL_VOICES.filter(k => fullVoiceOk(k)), pairs: () => COLOURWAYS.slice(),
+    recipes: loadRecipes, useRecipe };
   /* Easy Mode may be open already (a module runs after the page's own scripts) */
   if (el("ez-strip") && el("page-easy") && el("page-easy").classList.contains("active")) {
     tile();

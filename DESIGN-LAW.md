@@ -5928,10 +5928,176 @@ dropped connection; the video player's own Download off and a marked preview
 made again clean; no page promising a "small" watermark. With the mark
 switched off it fails four times.
 
-## 145. The site is a full ad, and it says what it makes in the words people search
+## 143. One census of every offered ad: what each is made of, read as a visitor opens it
 
-Added 2026-11-18 (numbered 145: the census took 143 and its fixes 144 on
-their own branch). The owner: "Build out SEO for the BUYBACK.AD site and all
+Added 2026-11-18. (Rule 142, the watermark, was being written the same week
+on claude/ads-improvement-roadmap-7632c8.) The owner, 2026-11-17: old design
+language and old wording keep coming back after being fixed; the photo ads
+have bad colours and odd layouts; the video ads look right but lacked the
+photo ads' information.
+
+Why things come back: the house style is one generation (the full ad, rules
+137 to 141) and five more are offered beside it. The rules are 140-odd and
+the checks about 150, each of one property and each run on the generation it
+was written for. A fix to one generation's defaults leaves the others' as they
+were, a check of one never reads another, and nothing showed, per ad, what it
+is built from. The census is that view.
+
+- **Every offered ad, one row each** (`scripts/ad_census.mjs`): the full ad's
+  35 lines (Easy Mode's first card), the designer layouts and the offer family
+  as Easy Mode's strip offers them, the library cards the wall offers, every
+  look of the video maker's Any look gallery, and iPhones LA's FeedAd batch
+  (not on the site, but posted as ours). "Offered" is the page's own answer,
+  never a list kept in the census: `catTemplates()` (holds, retirements and
+  the gate's `gated` already out), `scIsLive` (the choice holds wrap it: 362
+  of the 366 cards the index's stamps pass), `FullAdStudio.lines()`, the
+  gallery with Show more pressed until it goes, the batches' own reports.
+- **Opened as a visitor opens it** (rule 141): the census types a number, a
+  website and a business name where the page asks for one, and gives an area
+  (San Diego, so a card printing the library's Long Beach towns would show
+  it), and nothing else, so every other word on an ad is the studio's own.
+  The full ad is read twice, with the business name and without it: the field
+  is optional, and without it the claim badge draws its words from the full
+  ad's own list.
+- **What it reads, per ad**: the generation and engine. The ground (the outer
+  band's median) and the accent (the largest saturated hue family that is
+  neither the ground nor a shade of it, outside the product) on the picture
+  as drawn, against the twelve pairs within 5 (OKLab x100: the full ads, in a
+  pair by construction, measure within 3.3 and 0); a photograph is no
+  pair's ground. The type pair or faces. Which of the full ad's elements it
+  carries, read off what was drawn (the full ad's rects, a template's line
+  roles and layer names, the engine's sprites). The product pictures' share of
+  the height and of the area. Every word against one list. The generation's
+  own pre-flight where it has one (fullPreflight, pgCheck, FeedAd's blockers
+  and audit, each made the way its own generation makes it); Any look has none.
+- **One list of words no default ad carries** (`spec/banned-words.json`): the
+  competitor research's 5.2 (UP TO $, TOP DOLLAR, HIGHEST, BEST PRICE, BEAT
+  ANY OFFER, ANY CONDITION with no limit, ICLOUD OK, NO TITLE, TODAY ONLY),
+  rule 138's proof words, rule 55's (a dollar figure, invented proof, a dash)
+  and rule 136's (TEXT A PIC on a phone ad), each row with its source. A
+  phrase is added there, never in a script, and `--rescan` re-scores the last
+  census in under a second. The census also reads the lists each generation
+  draws its defaults from (FULL_WORDS, subjects.json, the video maker's COPY
+  and HEADLINES, the FeedAd cards): an old phrase fixed in one list and left
+  in another is how it came back.
+- **The gate** (`--gate`) exits 1 when an offered ad is off the house engine
+  (anything but FullAd) or the twelve pairs, carries a banned phrase, or lacks
+  a required element: business name, headline, product picture, phone number,
+  call to action, towns (rule 137's; claims and the sticker are counted, not
+  required, as the research cuts both; so is the website). It is not wired
+  into any deploy: on its first run it failed 986 of 987 offered ads, every
+  ad of the older generations and 34 of the 35 full ads. It measures the retirements the owner decides; no older generation
+  could pass it.
+- **A census changes nothing.** Run it before and after a change to any
+  generation's words, colours or defaults, and compare the counts.
+
+Found on its first run (OPEN-ITEMS §BI has the tables): the full ad's own
+defaults say TOP DOLLAR to a visitor who types no business name (33 of
+35) and ANY CONDITION on the iPhone line; only the full ad has a place for a
+business name; its product spans a median 22% of a square's height against
+Any look's 35%; 186 of 362 library cards and 67 of 77 designer layouts show
+no product picture; Any look has no pre-flight and 214 of its 246
+looks no call to action; TEXT A PIC is still on 12 phone cards; and the video
+maker loses a number typed within half a second of the area.
+
+Not done here: OPEN-ITEMS §BI.
+
+## 144. A banned word is stopped where it is written, and every fix carries the check that holds it
+
+Added 2026-11-18. The owner, of the census's findings (rule 143): "FIX IT".
+
+Rule 143 found the old words back because each list was fixed alone: TOP DOLLAR left the
+pre-flight's list on 2026-11-12 and stayed in FULL_WORDS, so 33 of the 35 first full ads said
+it. A phrase is now stopped at every place words are written, from one list:
+
+- **One list, on the site too.** `spec/banned-words.json` (each phrase now with `say`, the
+  sentence a customer who typed it is told, rule 113). The site cannot read `spec/` (netlify.toml
+  404s it), so `scripts/build_banned_words.mjs` writes `motion/banned-words.js` from it (`--check`
+  fails when stale). The full ad's `fullWords` notes a typed phrase; the video maker's look
+  pre-flight reads the same module.
+- **The defaults.** `FULL_WORDS` lost TOP DOLLAR (three claims, a point, the TOP $$$ sticker) and
+  ANY CONDITION (a models line, a point). With no business name typed, a full ad's badge says
+  LOCAL & HONEST, QUICK REPLIES • CASH TODAY, LOCAL BUYER • FAIR OFFERS, FAIR OFFER • NO
+  PRESSURE or HONEST BUYER • PAID TODAY: the research's "identity or place". The designer
+  layouts' decks (app.js `DECKS`): the iPhone models line CRACKED OK • ANY CARRIER, the cars
+  kicker LOCAL CAR BUYER, a phone deck's tile TEXT US NOW (`ask`); the fallbacks and
+  `SELL_POINTS` lost ANY CONDITION.
+- **The library's rewriter** (`scripts/refresh_copy.mjs`, its rule 7, `oneListWords`): a phone
+  card asks TEXT US NOW (rule 136), every other deck keeps TEXT A PIC, since an IMEI cannot price
+  gold, cards or a car; ANY CONDITION becomes the limit each deck can stand behind (CRACKED OK,
+  RUNNING OR NOT, PLAYED OR MINT, SEALED, IN DATE …), the first the card does not already say,
+  and a tile's small line follows so the pair does not say it twice. `PAIRS`, `swapWord` and the
+  hours line no longer write either phrase. Applied to 54 library cards (66 lines) and
+  re-rendered (`rethumb_showcase.mjs`).
+- **iPhones LA's FeedAd**: `tools/feed-stills/generate.mjs` refuses to start when one of its lists
+  carries a banned phrase; the 51 stills were re-worded and redrawn (OPEN-ITEMS §BJ).
+- **`scripts/words_check.mjs`** reads every list ads are written from (FULL_WORDS, the lines, the
+  offer family, the designer decks, the video maker's catalogue, the live library cards, FeedAd's
+  cards, and whether `motion/banned-words.js` is current): 4,345 lines in a second, exit 1 on a
+  phrase. Run before a commit that touches words. Run on FULL_WORDS as it stood before this
+  rule, it fails with seven hits.
+
+The same day, from the census:
+- **Two more lines have a picture**, landed as the ingester lands one (`assets/offer-assets.json`):
+  PC handhelds (a Steam Deck photograph, its screen, a map editor with a date, filled dark) and Meta
+  glasses (Ray-Ban Meta). Their offer cards gain the picture layouts, their full ads a product.
+  Gaming PCs, gaming headsets, SSDs, mini PCs and sealed Chromebooks still have no clean picture
+  in the repository; fetching them is a download, so it waits on the owner.
+- **A line's first full ad turns the seed's pair** (`lineTurn`, rule 139 kept: one draw, the
+  ground, arrangement and words unmoved, a restricted line within its own pairs, the iPhone
+  line not at all): the first ads of 30 unrestricted lines open over 11 pairs, at most 4 on one,
+  where 31 of the 35 opened in Green & Gold. `full_colour_check.mjs` holds it.
+- **Headlines that read**: the gold photograph behind `dl_gold_voltStack_gold` and
+  `dl_gold_gradientWave_gold` darkened (`ground-fix.json` scrim .377 to .46), `trustSeal-nn05-30`
+  repaired, `scriptRetro-jw05-16`'s photograph darkened (scrim .5 to .62); all four pass the gate.
+
+**The review loop.** The owner, the same day: "how do we break down this process so it goes
+smoothly every time". Census (rule 143) → the review page (`scripts/build_review_page.mjs`: every
+offered ad by category, best to worst, a thumb up or down, a note, a picture from the
+category's own cut-outs) → `scripts/apply_review.mjs` (a thumb down retires a template or holds a
+library card; a note is a change made by hand) → `words_check.mjs` and the census again. What
+the owner says twice becomes a rule and a check.
+
+Not done here: OPEN-ITEMS §BJ.
+
+## 145. Every ad is a recipe the house engine draws, as a photo and a video, on a ground that counts
+
+Added 2026-11-18. The owner, at the review page: "rebuild how we arrived to these ads so every
+single one can be made a video or at least audited.. how come none of the videos use a BG?";
+of the older ads, "retire but bg counts.. so combo of assets and bg is best though"; "good info
+good layout poor styling", "lacks any cohesive direction", "also only have 1 BG style?!".
+
+- **One engine.** The full ad (rule 137) draws every ad the site makes. An older ad (library
+  card, designer layout, offer card) is a *recipe* (`motion/recipes.json`, written by
+  `scripts/build_recipes.mjs` from the ads as the studio serves them; `--check`): its words on the
+  full ad's fields (a phrase on the one list dropped, rule 144; the customer's towns, number and
+  site their own), its line, its own cut-outs (the line's pool where it used a flagged render),
+  the make a car card names, its ground photograph, the nearest of the twelve pairs. Easy Mode and
+  the video maker open any recipe from "From the library"; it downloads as a photo and as a video
+  through the same pre-flight. Never add an ad to the site that only one renderer can draw.
+- **A ground is a photograph, a scene or the house gradient.** `ground_photo: { src, focus, scrim,
+  from }` is drawn cover-fit round its focus, tinted toward the pair's ground and shaded only where
+  words stand; in the video it pushes in slowly and rests on the still. A seed draws a photo 40%,
+  a drawn scene 25%, the gradient 35% (`spec/full-grounds.json`), from per-category pools of bright
+  photographs of the category's own world, only those that keep the card to two colour families.
+  Never a dark, low-exposure photo, cash or money, outer space for goods that are not about space,
+  another make's car, a legible licence plate, a person's face, or text.
+- **The product and the ground together** ("combo of assets and bg"): every recipe shows its
+  product where the line has a picture (676 of 679; the three without are gaming headsets, which
+  have no clean photograph yet).
+- **The pre-flight reads the ground as delivered**: the headline is shaded on photo and scene
+  grounds, small lines keep 15% headroom over the ground's worst twentieth, busyness is weighed on
+  what stands on the photo, and a download waits for its photo (`fullGroundReady`).
+- **The audit sees all of it**: the census reads recipes as their own generation and the full ad
+  in several looks a line (`--variations`), and the review page carries them, with the owner's
+  Hero mark for the landing page's wall.
+
+Not done here: OPEN-ITEMS §BJ.
+
+## 146. The site is a full ad, and it says what it makes in the words people search
+
+Added 2026-11-18 (numbered 146: the census took 143, its fixes 144 and the
+house engine's rebuild 145, merged into pull request 14 the same day). The owner: "Build out SEO for the BUYBACK.AD site and all
 its public parts, and remake the site's UI so it's unified with our latest
 theming … the full ad, rule 137 onwards; its twelve colour pairs, rule 139; my
 type pairs, rules 140 and 141. The landing page, plans, FAQ, navigation and
@@ -5967,10 +6133,11 @@ from a face that landed late), the Look Book 46 (0.86).
   video maker's engine, in three pairs and faces, where the wall of library
   cards stood (the gallery under it keeps rule 106's mix); every category page
   shows its own line's ad; every link preview is a full ad on its pair's ground
-  (assets/og/, 1200x630). scripts/build_og_cards.mjs draws them with clean
-  words, because the full ad's default lists still hold TOP DOLLAR and TOP $$$
-  (OPEN-ITEMS §BI), and refuses an ad on a pre-flight fix, a dollar sign, a
-  dash, invented proof or a banned word.
+  (assets/og/, 1200x630). scripts/build_og_cards.mjs draws them with the
+  current house engine (rule 145's grounds included), the line's own words and
+  a claim and sticker fixed in its table, so a picture changes only when it is
+  drawn again, and refuses an ad on a pre-flight fix, a dollar sign, a dash,
+  invented proof or a banned word.
 - **The owner's pairs are a URL away**, never saved: ?face=street (sport,
   block, tech, stadium, modern, grotesk, luxe) sets the whole site in a pair,
   display face for the headlines, prices and stickers and reading face for the

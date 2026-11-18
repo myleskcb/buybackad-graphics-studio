@@ -233,7 +233,7 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://js.stripe.com https://*.js.stripe.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com 'sha256-nd0nXVv+FOKC6thKQlBRu0DrORrTu0TwMuvkp82vqmM=' 'sha256-lS6qh6J0zTyZzExrGEMM2Dd3xX6UwZuc/SuEZwhRZUg=' 'sha256-z7Qtt5anlWvvugvGyHBKMTOXD5UXsWUAJHkRTZKlmOQ=' 'sha256-OLeV7otPgYpW3r1P1Mjl/LMZBikIIIbTcOb1RQDQCdQ='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' data: blob: https://api.stripe.com https://*.stripe.com https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://iphones.la; frame-src 'self' https://accounts.google.com https://js.stripe.com https://*.js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://*.stripe.network; base-uri 'self'; frame-ancestors 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://js.stripe.com https://*.js.stripe.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com 'sha256-YSdhGmLkVh6+jF4kJrsVA/+N3wF6Bh53pbiLbe4aPzk=' 'sha256-/HUHh3s51DW1Fddsh3ESbGYhAUuvKdNSRveXF3he7xg=' 'sha256-uSGfxHCQ/kde0wcGeBOOIS25MDAE8JwH0rXnOSwPaNo=' 'sha256-OLeV7otPgYpW3r1P1Mjl/LMZBikIIIbTcOb1RQDQCdQ='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' data: blob: https://api.stripe.com https://*.stripe.com https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://iphones.la; frame-src 'self' https://accounts.google.com https://js.stripe.com https://*.js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://*.stripe.network; base-uri 'self'; frame-ancestors 'none'"
     X-Content-Type-Options = "nosniff"
 
 [[headers]]
@@ -354,7 +354,7 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
-# Mirrors _headers: the house look (DESIGN-LAW 145) revalidates like the app; the art a redeploy
+# Mirrors _headers: the house look (DESIGN-LAW 146) revalidates like the app; the art a redeploy
 # may replace under the same name is kept a day; the text for search engines and language
 # models an hour; the video maker's audit sheets and the master library are never in search.
 

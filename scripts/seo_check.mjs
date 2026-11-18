@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* WHAT SEARCH ENGINES AND AI ASSISTANTS READ, CHECKED (DESIGN-LAW 145).
+/* WHAT SEARCH ENGINES AND AI ASSISTANTS READ, CHECKED (DESIGN-LAW 146).
 
    Reads the files, no server needed, and fails (exit 1) when a public page:
      - has no title, a title over 62 characters, no description or one over 160, or a dash in either

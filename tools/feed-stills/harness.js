@@ -20,7 +20,7 @@ import { ASPECTS, randomize, loadPhones, loadFonts, fontsFor, canvas, lum } from
 import { DEFAULT_STYLE } from "../../motion/catalog.js";
 import { loadAccents } from "../../motion/accents.js";
 import { auditLook } from "../../motion/audit.js";
-import { FeedAd, FEED, REQUIRED, blockers } from "../../motion/fullad.js";   // the class itself: the video maker draws with it too
+import { FeedAd, FEED, REQUIRED, blockers, phoneBox } from "../../motion/fullad.js";   // the class itself: the video maker draws with it too
 export { FEED };
 
 
@@ -63,6 +63,21 @@ window.FS = {
     const locked = new Set([...Object.keys(lock), ...Object.keys(content), "aspect", "tag"]);
     const pool = lock.phones ? [] : (content.pool || Object.keys(assets.phones));
     const st = randomize(base, seed, locked, pool, false);
+    return checked(st, size, force);
+  },
+  /** A still drawn again from its report's record, as it is: no seed draws anything (randomize
+   *  gives a held type pair its display face, and the pairs changed after the first batches: a
+   *  Chivo still came back in Bricolage). The same checks as look(). reword.mjs, 2026-11-18. */
+  async redraw(style, size = 1080, force = false) {
+    await window.FS.ready();
+    return checked({ ...style, aspect: "1:1", tag: style.feed_line || style.tag || "" }, size, force);
+  },
+};
+
+/** Everything look() checks, on a style already drawn: the plan's blockers, the maker's audit, then
+ *  the picture as delivered. */
+async function checked(st, size, force) {
+  {
     await loadFonts([...fontsFor(st), "franklin"]);
     const plan = new FeedAd(st, assets, 540, 540);
     const why = blockers(plan, st);
@@ -71,6 +86,22 @@ window.FS = {
     for (const c of audit.checks) if (REQUIRED.includes(c.id) && !c.ok) why.push(c.label + ": " + c.value);
     if (why.length && !force) return { ok: false, why, style: st };
     const { c, ad, t } = await still(st, size);
+    // the picture delivered is laid out at its own size (FeedAd draws from no plan), and the checks
+    // above read the 540 one: every block must stand where that plan put it. 2026-11-18: a still
+    // whose 540 plan passed came out at 1080 with its headline under the phones and the call to
+    // action over the models line, and nothing here caught it
+    const where = a => {
+      const S = a.W, o = { headline: a.pos.outer[1] / S, number: a.pos.num[1] / S };
+      if (a.claim) o.claim = a.claim.y / S;
+      if (a.perks) o["selling points"] = a.perks.y / S;
+      if (a.phones.length) o.phones = phoneBox(a)[1] / S;
+      return o;
+    };
+    const wp = where(plan), wd = where(ad);
+    for (const k of new Set([...Object.keys(wp), ...Object.keys(wd)])) {
+      const d = k in wp && k in wd ? Math.abs(wp[k] - wd[k]) : 1;
+      if (d > .04) why.push(`the ${k} stands ${k in wp && k in wd ? Math.round(d * 100) + "% of the frame from" : "apart from"} where the checked plan put it`);
+    }
     // Everything below is measured on the picture that is delivered (1080, at the photo's own
     // moment), drawn twice more: without the lines this file adds, and without them and the
     // phones. A smaller copy is not the same picture: for some entrances (rain) the phones of a
@@ -140,7 +171,10 @@ window.FS = {
     px.smallest = Math.min(...Object.values(px).filter(Boolean));
     return { ok: !why.length, why, url: c.toDataURL("image/jpeg", .9), t, px, contrast, phonesDrawn: +drawn.toFixed(2), phoneInk: [pl, pt, pr, pb], subjectFit: +ad.subjectFit.toFixed(2),
       audit: audit.checks.map(c => ({ id: c.id, ok: c.ok, value: c.value })), style: st };
-  },
+  }
+}
+
+Object.assign(window.FS, {
   /** The same ad as a video: every setting as the still had it (report.json's style), drawn
    *  by the engine's own MP4 exporter (motion/export.js), its music without a voice. */
   async video(style, size = 1080) {
@@ -169,4 +203,4 @@ window.FS = {
     }
     return c.toDataURL("image/jpeg", .86);
   },
-};
+});
