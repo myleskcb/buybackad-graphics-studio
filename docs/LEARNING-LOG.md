@@ -5375,6 +5375,161 @@ RESUME HERE:
   2. §BG 4: the owner's call on opening tall, a solid headline for the dark
      pairs, and a product-first square.
 
+## 2026-11-17 — the mark: across the ad, on every preview, the server's word (DESIGN-LAW 142; claude/ads-improvement-roadmap-7632c8)
+
+Asked: what is left; how to get rid of old design and wording; whether the
+model can fix this; unify photos and videos; copy in the trade's words; a
+business profile and a feed; then whether people can save, screenshot or crop
+the ads, and "Yes, do it" to protecting them, kept light.
+
+Done:
+  - Moved this branch onto claude/brave-mayer-8bv851 (a fast-forward: the full
+    ad first in Easy Mode, the review, the colours, the type picks).
+  - `watermark.js`: one light lattice for every mark; every preview a
+    download would mark is marked; the studio's video preview too; the
+    server decides a download's size and marks; "small" watermark is "light".
+  - `phonegfx-studio.html` 404'd at the edge.
+
+Found:
+  - The leak was the preview, not the download. The download was gated and
+    counted; every preview beside it was the clean picture, and the studio's
+    video player offered the clean full-size MP4 from its own menu, signed
+    out.
+  - A mark in the corners is a mark over the plainest pixels: a crop or a
+    phone's clean-up tool takes it. Across the whole picture it has to be
+    painted out of the product and the number.
+  - A check of a mark must compare like with like. The first version compared
+    a Free preview with a Pro one; the plans lay the ad out at different sizes,
+    so it "found the mark" with the mark switched off. Hold everything but the
+    mark, then switch the mark off and see the check fail.
+  - The first lattice (0.24 and 0.17) read loud on the dark pairs at full size,
+    though it measured light (7 a channel). Look at the picture at 1:1 before
+    trusting the number; 0.18 and 0.13 measure 2.
+  - Older checks that fake an operator on a static server now need the
+    server's answer too: the page's account is no longer the gate.
+  - Three checks fail on this Mac on the branch without this work, the same to
+    the decimal. Run the untouched branch before reading a failure (this log
+    has said so before; it held again).
+
+Checked: watermark_check (all clear; four failures with the mark off),
+full_ad_studio_check, full_ad_check, buylist_check, full_colour_check, the
+CSP hash rewrite (one hash changed), every page loaded in the browser with no
+errors. ez_download_is_preview, billing_check, ad_library_check and
+quick_ad_check fail exactly as on the untouched branch (§BH 8). Not run here (puppeteer-core):
+video_photo_check, motion_export_check, device_picker_check,
+tagline_panel_check, landing_check.
+
+RESUME HERE:
+  0. §BH 1: the owner's word to put this branch on `main` (it carries §BD to
+     §BG too), and the two Netlify secrets so `main` deploys.
+  1. The roadmap given the owner this session, in order: the ad census (every
+     ad's engine, colours, type, elements and banned words, one sortable page
+     and a gate); retire the old photo generations by default; one word bank
+     in the trade's words; the business switches (shop or mobile, tone) on the
+     picture; the suggested-ad feed (§BH 6).
+
+## 2026-11-18 — words typed inside a field's pause, kept (claude/sad-pike-c4b427)
+
+Asked, from the census session (OPEN-ITEMS §BI 10, on
+claude/xenodochial-mccarthy-7bea6d): fix the video maker's race that loses the
+visitor's phone number. The census typed the number and then the area within
+half a second, and every Any look drew YOUR NUMBER. Look for the same fault
+across the maker's fields, not only those two.
+
+Found:
+  - The cause was a read made late, not two handlers out of order. Each word
+    field's handler reads its box when its pause ends (`e.target.value`, 280,
+    400 or 500 ms after the last key), and syncWords fills every box from the
+    saved look, so any refill inside a pause hands the waiting handler the old
+    words. The area's own handler refills (so the city in the words follows
+    the field): a number typed under 100 ms before the area was read back as
+    the old, empty one. Browser autofill fills the area (address-level2), the
+    business name and the number at once. What a person typing rarely does is
+    the first thing a browser does.
+  - It was the mechanism, not the pair. The new check, run on the code before
+    the fix (a clean checkout of 4cb43f38): 18 failures in 9 of its 10 cases.
+    The number went behind the area, behind autofill, behind ↻ Another
+    headline and behind New look; a headline behind an area typed 200 ms
+    before it; Download photo pressed inside the pause said "Type your phone
+    number first" over a number in its box (and, read from the code, not
+    measured: a corrected number would have gone out as the old one); a
+    reload inside the pause kept nothing.
+  - The maker already had one guard against this fault: What you buy copied
+    the number and the full ad's boxes into the look before its refill (this
+    log, 2026-11-11). It fixed the instance that was seen and left every other
+    refill open. A fault met in one control is a fault of the mechanism: fix
+    it there, and test the controls it was not seen in.
+  - A rarer second path: New look and Quick ad put a whole new look in place
+    after a search, and the search waits on any typeface it has to load. Words
+    whose pause ran out meanwhile had landed on the look being replaced and
+    went with it, the area and its city too.
+  - Two cases passed on the broken code before they were right, and the check
+    caught both only because it reads in the page how far apart its moves
+    really were. Playwright's fill waited out New look's search (the page was
+    busy), so the number came after the refill: that case types in the press's
+    own task now. And the slow-typeface case slowed the network, which the
+    browser never asked when a server sends no no-store (it had the faces
+    cached): under python's http.server the search took 240 ms and the case
+    said it had tested nothing. The wait is put on FontFace.load in the page
+    instead. A race check that does not measure its own timing is a check of
+    the machine.
+  - With the page's typefaces let go, the full ad fails its pre-flight on all
+    eight tries and strongSeed reads `best.st` with `best` null; the callers'
+    catch draws a plain, unchecked look ("Strong-look search failed"). Nothing
+    breaks, but "New looks must pass" is skipped without a word. Not fixed
+    here.
+  - quick_ad_check hung in one of its five runs here, at its third quick ad
+    (no download in 60 s, the buttons still off), and in the one run of
+    untouched 4cb43f38 at the same line: older than this change, and
+    intermittent. Three more runs set to log the page when it hangs did not
+    hang. The pre-flight's "Check this ad" pop-up waiting for a click would
+    look exactly like this; that is a guess, not a finding.
+  - The site's policy blocks the inline script of phonegfx-studio.html (the
+    old internal page), the same on 4cb43f38. Not looked into.
+
+Done (motion/app.js):
+  - debounce() keeps each field's waiting handler, and landTyping() runs every
+    waiting one at once, in the order typed: first thing in syncWords (the box
+    being typed in keeps its letters), in pushHistory and Back (a step holds
+    what was typed, so a quick visitor ends where one who paused would), in
+    every download and save path (what goes out is what the boxes say at the
+    press), and on pagehide and a hidden page.
+  - putLook(next, from): New look and Quick ad put the found look in place and
+    land again on it the words that landed during the search, in order; the
+    area's again too, so the city follows into the new words.
+  - What you buy's hand-written guard is now landTyping(). The area's handler
+    is unchanged, and its city still follows the field (case 4, with the
+    number typed just before the area).
+
+Checked: scripts/typing_pause_check.mjs (new; 10 cases and the pages) passes
+on this tree, under its own server and under python's, and on a trial merge
+with claude/ads-improvement-roadmap-7632c8; its case 8 fails all four of its
+lines with putLook taken out of shuffle. quick_ad_check 47 passed (see above);
+buylist_check all passed; full_ad_check all clear; the site's 15 pages loaded
+under its own policy with no page error, on this tree and on the trial merge
+(the one violation above).
+
+Not on `main`: this branch only, cut from claude/brave-mayer-8bv851
+(4cb43f38), which is not on `main` either. git merge-tree found no conflict in
+code with claude/ads-improvement-roadmap-7632c8,
+claude/xenodochial-mccarthy-7bea6d or `main`. The first two append to this log
+too, so their entries and this one meet at its end: keep all three.
+
+RESUME HERE:
+  0. The owner's word to merge it (with or after claude/brave-mayer-8bv851, its
+     base). When it meets the census branch, mark OPEN-ITEMS §BI 10 fixed; the
+     census's "one field at a time" wait can then go.
+  1. strongSeed's null `best`, its own change.
+
+## 2026-11-18 — the number fix folded into pull request 14 (claude/ads-improvement-roadmap-7632c8)
+
+The owner's word: claude/sad-pike-c4b427 is merged into this branch, so
+https://github.com/myleskcb/buybackad-graphics-studio/pull/14 carries it with
+the watermark and the stack under it. Only this log clashed; motion/app.js
+merged on its own. The entry above's RESUME HERE 0 is done up to the merge to
+`main`; marking OPEN-ITEMS §BI 10 fixed still waits on the census branch
+(claude/xenodochial-mccarthy-7bea6d), which is not in this one.
+
 ## 2026-11-18 — the ad census: what every offered ad is made of (DESIGN-LAW 143; claude/xenodochial-mccarthy-7bea6d)
 
 Asked (by the session on claude/ads-improvement-roadmap-7632c8, for the
@@ -5539,3 +5694,50 @@ Learned:
 RESUME HERE: the census of every generation is at .render/ad-census (the review page from it);
 the owner audits recipes there, then says whether the older renderings retire; the hero picks;
 then the contact block and the picture picker in the makers.
+
+## 2026-11-18 — the census folded into pull request 14 (claude/ads-improvement-roadmap-7632c8)
+
+The owner's word: claude/xenodochial-mccarthy-7bea6d (rules 143 to 145, OPEN-ITEMS §BI
+and §BJ: the census, its findings fixed, every ad a recipe the house engine draws on
+photo grounds, and the plans with a video meter of their own) is merged into this
+branch, so https://github.com/myleskcb/buybackad-graphics-studio/pull/14 carries it
+with the watermark and the number fix. It was cut before the watermark, so the two
+met in code, not only in the notes:
+
+- The notes (DESIGN-LAW, OPEN-ITEMS, AGENT-BRIEF, this log): both kept, 142 before 143.
+  §BI 10, the lost number, is marked fixed: the fix came in with this branch.
+- `gateExport`, put together by hand. The server still decides a download's size and
+  marks (rule 142); the census's video meter rides on it. `gateExport(px, 'video')`
+  asks `/api/export/check` with `kind: 'video'`, which the census's server already
+  keeps apart; a 402 says which meter ran out; a 403 for a plan without video gives
+  `video: false`, so the caller offers Pro as it did. The demo keeps the census's
+  meters in the page. Taking the census's side as it stood would have handed the
+  decision back to the page (a Free account made to say Pro, clean at 2160).
+- The studio's two video downloads (`ezDownloadVideo`, `editorDownloadVideo`) asked
+  without a kind, so they were gated on the photo meter and counted on the video one
+  (`deliverVideo`). They ask as a video now.
+- The plan cards and the FAQ are the census's (PLAN_BULLETS from `netlify/lib/plans.mjs`
+  by `scripts/build_pricing.mjs`; photos and videos counted apart), with the light
+  watermark: plans.mjs said "a small BUYBACK.AD mark", so the table did too. The FAQ
+  block's CSP hash is rewritten. `watermark_check.mjs` now reads plans.mjs for the
+  word, and its stand-in server keeps both meters: Free asking for a video, Pro out of
+  videos, Pro out of photos still downloading a video. Without the kind, two of those
+  fail.
+
+Checked on the merged tree: watermark (extended), typing_pause, full_ad,
+full_ad_studio, full_colour, buylist, words, look_preflight, quick_ad,
+ez_download_is_preview, retired_grounds, type_voices and approve all pass; the last
+two failures of the list in §BH 8 are gone (quick_ad, ez_download_is_preview's gold
+pair). billing_check passes 155 of 156: the one left is "fabric is not defined",
+because the check refuses every request off the page's own server unless FABRIC_JS
+names a local fabric.min.js; ad_library_check stops on the same missing fabric
+(TYPE_VOICES). landing_check and library_handoff_check need puppeteer-core, not
+installed here.
+
+RESUME HERE:
+  0. The owner's word to merge pull request 14 into `main`, and the two Netlify secrets
+     for the deploy to run.
+  1. The SEO session (claude/zen-dijkstra-7b5a2e) builds on this branch: it should
+     merge it again before it builds, as it now holds the census's FAQ and plans.
+  2. billing_check and ad_library_check with FABRIC_JS set, on a machine that has a
+     local fabric.min.js (npm has fabric 5.3.0; cdnjs serves 5.3.1).

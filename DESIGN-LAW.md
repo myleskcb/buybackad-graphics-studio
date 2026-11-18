@@ -5860,6 +5860,74 @@ under the site's own Content-Security-Policy, as production sends it),
 
 Not done here: OPEN-ITEMS §BG.
 
+## 142. The mark: light, across the whole ad, on every preview its download would carry
+
+Added 2026-11-17. The owner: "Can people just download the ad through their
+browser or natively or screenshot the ad and crop it what protections we have
+in place and what can we do?", then "Yes, do it" to the mark across the
+middle, every preview marked, and the server's word on a download; then "But
+we don't want the content to be unreadable or not fun to look at we want the
+gallery/feed to look clean and cohesive".
+
+**What was open, traced:**
+
+1. *Every preview was the clean ad.* Easy Mode's preview (560), the full
+   ad's (900), the editor's export preview (540) and the video maker's player
+   (720) were the clean picture, saved by a right-click or a long press with no
+   account. The studio's Create video was made clean at the download's full
+   size, for anyone, and its player offered its own Download.
+2. *The mark came off with a crop.* Four words in the corners at half
+   strength, over the plainest part of the picture: a crop, or a phone's
+   clean-up tool, took them off in seconds.
+3. *The page decided.* A download's size and marks came from `account.plan`,
+   which anyone can change in the browser; the server only counted. A Free
+   account so changed downloaded a clean 2160.
+
+**So:**
+
+- **One mark** (`watermark.js`, `window.PgfxMark`): a light lattice of small
+  BUYBACK.AD words across the whole picture, a light word over a dark one a
+  pixel apart, so it shows on dark and light grounds and the ad reads through
+  it. Measured on the picture's short side, so a preview and its download
+  carry the same pattern. The studio (`drawWatermarkMarks`) and the video
+  maker (`drawMarks`) draw this one, never their own. Light means it moves the
+  picture by about 2 of 255 a channel on average (the check's ceiling is 14);
+  across means every ninth of a marked picture carries it.
+- **A preview carries what its download would.** Signed out or Free, marked; a
+  paid plan or an operator, clean (`previewMarks()` in app.js; `syncMarks()`
+  in the video maker; `PgfxMark.marked(plan, role)` decides both). A preview
+  drawn under one answer is drawn again when the account changes. The studio's
+  Create video is made with the same answer, and a marked one is made again
+  clean, with its sound, when a plan that downloads clean asks for the MP4.
+  The player's own Download, picture-in-picture and Save video are off. A copy
+  with no backend (demo) marks nothing in the maker, as its downloads are not
+  gated.
+- **The server decides a download.** With a backend, `gateExport` asks
+  `/api/export/check` (which counts nothing) for the size and the marks before
+  the file is drawn; the page's plan is display only. An answer without the
+  field is marked; a refusal or a dropped connection makes no file. A Free
+  file whose mark did not load is refused, never made clean.
+- **What stays clean:** the gallery's sample cards and the strip's
+  thumbnails, which carry the sample number (562) 999-4994 and are small. The
+  owner wants the gallery "clean and cohesive", and a sample is not the
+  customer's ad.
+- **What this is not:** a lock. The ad is drawn in the visitor's browser, so
+  someone who reads the code can still draw it clean. The mark makes a
+  screenshot, a saved preview or a crop no better than the Free download; only
+  drawing paid files on the server closes the rest (OPEN-ITEMS §BH).
+
+The first single-file studio (`phonegfx-studio.html`), linked from nowhere and
+drawing the first designs with its own corner mark and its own plan check, is
+404'd at the edge (netlify.toml); the file stays.
+
+Checked by `scripts/watermark_check.mjs`: one mark; every ninth of the full
+ad's, a template's, the editor's and the maker's preview marked signed out,
+and light; clean for paid plans and drawn again on a change of account; the
+server's size and marks over a page made to say Pro; no file on a refusal or a
+dropped connection; the video player's own Download off and a marked preview
+made again clean; no page promising a "small" watermark. With the mark
+switched off it fails four times.
+
 ## 143. One census of every offered ad: what each is made of, read as a visitor opens it
 
 Added 2026-11-18. (Rule 142, the watermark, was being written the same week

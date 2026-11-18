@@ -4889,7 +4889,7 @@ function pickerCard(thumb, name, tag, onUse, onDel, locked){
 let exportSize = 1440;   // requested SHORT side; plan caps clamp it in gateExport
 function openExport(){
   canvas.discardActiveObject(); canvas.renderAll();
-  $('export-preview').src = snapshotPng(540, 'jpeg', 0.85);
+  markPreviewUrl(snapshotPng(540, 'jpeg', 0.85)).then(u => { $('export-preview').src = u; });   // marked as the download would be
   syncFormatUI();
   $('export-overlay').classList.add('show');
 }
@@ -6644,8 +6644,8 @@ const PACKS = {
   credits100: {"label":"100 AI credits","credits":100,"price":900},
   credits300: {"label":"300 AI credits","credits":300,"price":2500},
 };
-const PLAN_ROWS = [{"key":"photos","label":"Photo downloads","note":"","cells":{"free":"3 a week","basic":"100 a month","pro":"500 a month","business":"Unlimited"}},{"key":"videos","label":"Video ads to download","note":"Anyone can make and watch a video ad. Downloading one, with sound and no watermark, comes with Pro and Business.","cells":{"free":"No","basic":"No","pro":"30 a month","business":"Unlimited"}},{"key":"designs","label":"Designs","note":"","cells":{"free":"Every Phones design, plus the top 3 in every other category","basic":"Every design in all 13 categories","pro":"Every design in all 13 categories","business":"Every design in all 13 categories"}},{"key":"size","label":"Largest download","note":"","cells":{"free":"1080 pixels","basic":"2160 pixels","pro":"2160 pixels","business":"2160 pixels"}},{"key":"watermark","label":"Watermark","note":"","cells":{"free":"A small BUYBACK.AD mark","basic":"None","pro":"None","business":"None"}},{"key":"credits","label":"AI credits a month","note":"","cells":{"free":"5","basic":"50","pro":"200","business":"500"}},{"key":"library","label":"Ads kept in your library","note":"","cells":{"free":"12","basic":"300","pro":"1,000","business":"3,000"}},{"key":"qr","label":"A QR code on your ad","note":"","cells":{"free":"No","basic":"No","pro":"Yes","business":"Yes"}}];
-const PLAN_BULLETS = {"free":["3 photo downloads a week","Every Phones design, plus the top 3 in every other category","Standard size (1080 pixels) with a small BUYBACK.AD watermark","5 AI credits a month"],"basic":["100 photo downloads a month","Every design in all 13 categories","No watermark, up to double size (2160 pixels)","50 AI credits a month","Keep 300 ads in your library"],"pro":["500 photo downloads a month","30 video ads a month, with sound","Everything in Starter","Add a QR code people can scan","200 AI credits a month","Keep 1,000 ads in your library"],"business":["Unlimited photo downloads","Unlimited video ads, with sound","Everything in Pro","500 AI credits a month","Keep 3,000 ads in your library"]};
+const PLAN_ROWS = [{"key":"photos","label":"Photo downloads","note":"","cells":{"free":"3 a week","basic":"100 a month","pro":"500 a month","business":"Unlimited"}},{"key":"videos","label":"Video ads to download","note":"Anyone can make and watch a video ad. Downloading one, with sound and no watermark, comes with Pro and Business.","cells":{"free":"No","basic":"No","pro":"30 a month","business":"Unlimited"}},{"key":"designs","label":"Designs","note":"","cells":{"free":"Every Phones design, plus the top 3 in every other category","basic":"Every design in all 13 categories","pro":"Every design in all 13 categories","business":"Every design in all 13 categories"}},{"key":"size","label":"Largest download","note":"","cells":{"free":"1080 pixels","basic":"2160 pixels","pro":"2160 pixels","business":"2160 pixels"}},{"key":"watermark","label":"Watermark","note":"","cells":{"free":"A light BUYBACK.AD mark","basic":"None","pro":"None","business":"None"}},{"key":"credits","label":"AI credits a month","note":"","cells":{"free":"5","basic":"50","pro":"200","business":"500"}},{"key":"library","label":"Ads kept in your library","note":"","cells":{"free":"12","basic":"300","pro":"1,000","business":"3,000"}},{"key":"qr","label":"A QR code on your ad","note":"","cells":{"free":"No","basic":"No","pro":"Yes","business":"Yes"}}];
+const PLAN_BULLETS = {"free":["3 photo downloads a week","Every Phones design, plus the top 3 in every other category","Standard size (1080 pixels) with a light BUYBACK.AD watermark","5 AI credits a month"],"basic":["100 photo downloads a month","Every design in all 13 categories","No watermark, up to double size (2160 pixels)","50 AI credits a month","Keep 300 ads in your library"],"pro":["500 photo downloads a month","30 video ads a month, with sound","Everything in Starter","Add a QR code people can scan","200 AI credits a month","Keep 1,000 ads in your library"],"business":["Unlimited photo downloads","Unlimited video ads, with sound","Everything in Pro","500 AI credits a month","Keep 3,000 ads in your library"]};
 const PLAN_FOR = {"free":"Try every step, no card","basic":"Photo ads, every design","pro":"Photos, and a video a day","business":"Unlimited photos and video"};
 /* PLANS:END */
 const usd = (cents) => '$' + (cents / 100).toLocaleString('en-US', { minimumFractionDigits: cents % 100 ? 2 : 0, maximumFractionDigits: 2 });
@@ -6855,6 +6855,7 @@ function videosRemaining(){
 function signOut(){ jset('pgfx_token', null); account = null; syncAcctUI(); toast('Signed out'); }
 
 function syncAcctUI(){
+  refreshPreviewMarks();
   const chip = $('acct-chip'); if (!chip) return;
   if (account){
     $('acct-label').textContent = account.email.split('@')[0];
@@ -6904,6 +6905,7 @@ function syncAcctUI(){
   const so = $('lpf-signout'); if (so) so.style.display = account ? '' : 'none';
 }
 function syncQuotaUI(){
+  refreshPreviewMarks();                    // the server's account may not be the plan this page thought
   const q = $('ez-quota'); if (!q) return;
   if (!account){ q.innerHTML = 'Free plan: 3 downloads a week, standard size. <span class="up" id="quota-plans">See plans</span>'; }
   else {
@@ -7372,44 +7374,106 @@ async function recordExport(kind){   // kind 'video' for a video download (Pro a
 /* video downloads come with Pro and Business; anyone can make and watch one */
 const videoAllowed = () => isAdmin() || !!planOf().video;
 const VIDEO_UPSELL = 'Video ads come with Pro (' + usd(PLANS.pro.price.month) + ' a month, ' + videosWord(PLANS.pro) + ') and Business (' + usd(PLANS.business.price.month) + ', ' + videosWord(PLANS.business).toLowerCase() + '): 10-second videos with sound and no watermark, ready for Reels, Stories and OfferUp.';
-/* kind 'video' for a video download: it is counted on the video meter (Pro's 30 a month), so
-   used-up photos do not stop a video, and used-up videos do not stop a photo (2026-11-18) */
+/* The plan's say on a download: its size, its marks, whether one is left.
+   With a backend, that is the server's answer (/api/export/check, which
+   counts nothing), not this page's copy of the plan. Until 2026-11-17 it was
+   account.plan, which anyone can change in the browser, and a Free account so
+   changed downloaded a clean 2160. The count is /api/export (recordExport),
+   once the file is made. A copy with no backend (demo) answers from its own
+   plan table, as it always has.
+   kind 'video' for a video download: it is asked and counted on the video
+   meter (Pro's 30 a month), so used-up photos do not stop a video, and
+   used-up videos do not stop a photo (2026-11-18). The server keeps both. */
+const outOfDownloads = () => { const p = planOf(); openPlans("You've used all your " + (p.weekly || p.monthly) + ' ' + p.label + ' photo downloads this ' + (p.weekly ? 'week' : 'month') + ', upgrade to keep posting.'); };
+const outOfVideos = () => { const p = planOf(); openPlans("You've used " + p.label + "'s " + p.videos + ' video downloads this month. They start over on the 1st; Business has unlimited video.'); };
 async function gateExport(pxWanted, kind){
   if (!account) await loadAccount();
   if (!account){
     openAuth('Sign in to download, free accounts get 3 exports a week.');
     return null;
   }
-  if (account.role === 'admin') return { px: pxWanted, watermark: false, video: true }; // operators: full res, no watermark, no caps
-  const p = planOf();
-  if (kind === 'video'){
-    if (p.video && videosRemaining() <= 0){
-      openPlans("You've used " + p.label + "'s " + p.videos + ' video downloads this month. They start over on the 1st; Business has unlimited video.');
-      return null;
+  const video = kind === 'video';
+  if (DEMO){
+    if (account.role === 'admin') return { px: pxWanted, watermark: false, video: true }; // operators: full res, no watermark, no caps
+    const p = planOf();
+    if (video){
+      if (p.video && videosRemaining() <= 0){ outOfVideos(); return null; }
+      return { px: Math.min(pxWanted, p.maxPx), watermark: !!p.watermark, video: !!p.video, videosLeft: videosRemaining() };
     }
-    return { px: Math.min(pxWanted, p.maxPx), watermark: !!p.watermark, video: !!p.video, videosLeft: videosRemaining() };
+    if (exportsRemaining() <= 0){ outOfDownloads(); return null; }
+    return { px: Math.min(pxWanted, p.maxPx), watermark: !!p.watermark, video: !!p.video };
   }
-  if (exportsRemaining() <= 0){
-    openPlans("You've used all your " + (p.weekly || p.monthly) + ' ' + p.label + ' photo downloads this ' + (p.weekly ? 'week' : 'month') + ', upgrade to keep posting.');
+  let g;
+  try { g = await api('/export/check', video ? { kind: 'video' } : {}); }
+  catch (e){
+    if (e.data && e.data.user){ account = e.data.user; syncQuotaUI(); }
+    if (e.status === 402){ if (video || (e.data && e.data.kind === 'video')) outOfVideos(); else outOfDownloads(); return null; }
+    /* a plan without video: the caller offers Pro, as it does when the demo's plan says video: false */
+    if (e.status === 403 && e.data && e.data.needs === 'video') return { px: Math.min(pxWanted, 1080), watermark: true, video: false };
+    if (signedOutBy(e)){ account = null; jset('pgfx_token', null); syncAcctUI(); openAuth('Your sign-in ran out. Sign in again to download.'); return null; }
+    toast('The download could not be checked (' + e.message + '). Check the connection and try again.', 'error');
     return null;
   }
-  return { px: Math.min(pxWanted, p.maxPx), watermark: !!p.watermark, video: !!p.video };
+  if (g.user){ account = g.user; syncQuotaUI(); }
+  const operator = !!(g.user && g.user.role === 'admin');   // full res, no marks, no caps: the server says so
+  const out = { px: operator ? pxWanted : Math.min(pxWanted, g.maxPx || 1080), watermark: g.watermark !== false, video: operator || !!planOf().video };
+  if (video) out.videosLeft = g.remaining === undefined ? null : g.remaining;
+  return out;
 }
 function applyWatermark(dataUrl, w, h){
   h = h || w;
-  return new Promise(res => {
+  return new Promise((res, rej) => {
     const im = new Image();
     im.onload = () => {
       const cv = document.createElement('canvas');
       cv.width = w; cv.height = h;
       const x = cv.getContext('2d');
       x.drawImage(im, 0, 0, w, h);
-      drawWatermarkMarks(x, w, h);          // the same marks every video frame carries (Satoshi, vendored)
+      try { drawWatermarkMarks(x, w, h); }   // the same marks every video frame carries (Satoshi, vendored)
+      catch (e){ toast(e.message, 'error'); rej(e); return; }
       res(cv.toDataURL('image/png'));
     };
     im.onerror = () => res(dataUrl);
     im.src = dataUrl;
   });
+}
+
+/* Every preview carries what its download would (watermark.js): signed out
+   or Free, the mark; a paid plan or an operator, none. A screenshot, or a
+   preview saved with a right-click or a long press, is then no cleaner than
+   the Free download. Until 2026-11-17 every preview was clean (the Easy Mode
+   preview 560, the full ad's 900, the studio's video a full-size MP4 the
+   player itself offered to download). This reads the page's own account, so
+   it is display only: a download asks the server (gateExport). The
+   gallery's sample cards, with the sample number, stay clean (owner: the
+   gallery should "look clean and cohesive"). */
+function previewMarks(){
+  if (!window.PgfxMark) return false;
+  if (!account) return true;
+  return account.role !== 'admin' && !!planOf().watermark;
+}
+var previewMarked = null;                   // the answer the previews on screen were drawn under (var: read before this line runs)
+/* a preview's canvas out as a JPEG, marked when previewMarks says so */
+function previewJpeg(c, q){
+  previewMarked = previewMarks();
+  if (previewMarked) drawWatermarkMarks(c.getContext('2d'), c.width, c.height);
+  return c.toDataURL('image/jpeg', q || 0.85);
+}
+/* a preview already made as a picture (renderEzCanvas, snapshotPng): marked, or as it was */
+function markPreviewUrl(url){
+  if (!previewMarks()){ previewMarked = false; return Promise.resolve(url); }
+  return new Promise(res => {
+    const im = new Image();
+    im.onload = () => { const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight; c.getContext('2d').drawImage(im, 0, 0); res(previewJpeg(c, 0.85)); };
+    im.onerror = () => res(url);
+    im.src = url;
+  });
+}
+/* signed in, out, or onto another plan: the previews drawn under the old answer are drawn again */
+function refreshPreviewMarks(){
+  if (previewMarked == null || previewMarked === previewMarks()) return;
+  try { const im = $('ez-preview'); if (im && im.getAttribute('src')) schedEzPreview(0); } catch (e){}
+  try { if (window.FullAdStudio && FullAdStudio.isOn()) FullAdStudio.draw(); } catch (e){}
 }
 
 let _saasBound = false;
@@ -10454,7 +10518,11 @@ function restoreEzState(){
 function schedEzPreview(delay){
   persistEzState();
   clearTimeout(ezPrevTimer);
-  ezPrevTimer = setTimeout(() => { $('ez-preview').src = renderEzCanvas(560, 'jpeg'); }, delay === 0 ? 0 : 250);
+  ezPrevTimer = setTimeout(() => {
+    const url = renderEzCanvas(560, 'jpeg'), n = schedEzPreview.seq = (schedEzPreview.seq || 0) + 1;
+    if (!previewMarks()){ previewMarked = false; $('ez-preview').src = url; return; }   // unmarked: at once, as it always was
+    markPreviewUrl(url).then(u => { if (n === schedEzPreview.seq) $('ez-preview').src = u; });   // the latest preview wins
+  }, delay === 0 ? 0 : 250);
 }
 
 // One-click category pack: renders every unlocked template in the current
@@ -13515,23 +13583,13 @@ function motionSound(rate){
   return ac.startRendering();
 }
 
-/* The four corner marks, shared by the PNG watermark and every video frame so
-   the two cannot drift apart. Satoshi 900 is vendored; the old "DM Sans" was
-   not, so every free export had been silently set in a fallback face. */
+/* The BUYBACK.AD mark, shared by the PNG watermark, every video frame and
+   every marked preview so they cannot drift apart: one drawing, in
+   watermark.js (window.PgfxMark), which the video maker draws too. Until
+   2026-11-17 it was four words in the corners, which a crop took off. */
 function drawWatermarkMarks(x, w, h){
-  const base = Math.min(w, h);
-  const fs = Math.round(base * 0.032);
-  x.save();
-  x.font = '900 ' + fs + 'px Satoshi, sans-serif';
-  x.globalAlpha = 0.5;
-  x.shadowColor = 'rgba(0,0,0,0.55)'; x.shadowBlur = fs * 0.35;
-  x.fillStyle = '#ffffff';
-  const pad = Math.round(base * 0.06), t = 'BUYBACK.AD';
-  x.textAlign = 'center'; x.textBaseline = 'middle';
-  [[pad, pad, 45], [w - pad, pad, -45], [pad, h - pad, -45], [w - pad, h - pad, 45]].forEach(([cx, cy, deg]) => {
-    x.save(); x.translate(cx, cy); x.rotate(deg * Math.PI / 180); x.fillText(t, 0, 0); x.restore();
-  });
-  x.restore();
+  if (!window.PgfxMark) throw new Error('The watermark did not load. Reload the page and try again.');   // no mark, no file
+  PgfxMark.draw(x, w, h);
 }
 
 /* H.264 MP4 first: Instagram and TikTok reject WebM on upload. Chrome 126+
@@ -13795,6 +13853,11 @@ function previewVideo(o, v, then){
   const vid = document.createElement('video');
   vid.src = v.url || (v.url = URL.createObjectURL(v.blob));
   vid.loop = true; vid.controls = true; vid.playsInline = true; vid.setAttribute('playsinline', '');
+  /* the player's own Download, picture-in-picture and right-click Save video are off: the
+     buttons below are the way out, counted and at the plan's marks (2026-11-17: the player
+     handed a signed-out visitor the clean, full-size MP4) */
+  vid.setAttribute('controlslist', 'nodownload noremoteplayback'); vid.disablePictureInPicture = true;
+  vid.addEventListener('contextmenu', e => e.preventDefault());
   vid.style.aspectRatio = v.w + ' / ' + v.h;
   const said = document.createElement('p'); said.className = 'vh-said'; said.setAttribute('role', 'status'); said.setAttribute('aria-live', 'polite');
   said.textContent = v.w + '×' + v.h + ', ' + MOTION.dur + ' seconds' + (v.ext === 'mp4' ? '' : ', WebM') + '. Nothing is downloaded until you choose.';
@@ -13816,10 +13879,15 @@ function previewVideo(o, v, then){
   };
   const actions = {
     mp4: async b => {
-      const g = await gate('Sign in to download your video. Video downloads come with Pro and Business.', 'mp4'); if (!g) return;
-      if (!g.video){ VH.close(); openPlans(VIDEO_UPSELL); return; }
+      const actx = o.watermark && motionSoundOn() ? motionAudioContext() : null;   // inside the click, for a video made again below
+      const g = await gate('Sign in to download your video. Video downloads come with Pro and Business.', 'mp4');
+      if (!g || !g.video){ if (actx) try { actx.close(); } catch (e){} if (g){ VH.close(); openPlans(VIDEO_UPSELL); } return; }
       // no plan downloads video with the marks today; one that does gets a video made with them
-      if (g.watermark){ VH.close(); lastVideo = null; return runVideoExport(Object.assign({}, o, { preview: false, watermark: true, actx: null })); }
+      if (g.watermark){ if (actx) try { actx.close(); } catch (e){} VH.close(); lastVideo = null; return runVideoExport(Object.assign({}, o, { preview: false, watermark: true, actx: null })); }
+      /* the preview was made with the marks (signed out or Free when it was made) and this plan
+         downloads it clean: the clean video is made now, with its sound, and counted as it goes */
+      if (o.watermark){ VH.close(); lastVideo = null; return runVideoExport(Object.assign({}, o, { preview: false, watermark: false, actx })); }
+      if (actx) try { actx.close(); } catch (e){}
       b.textContent = 'Choosing the photo…';
       let photo = null, photoErr = null;
       try { photo = await photoFor(false, motionPhotoCap()); }
@@ -13963,7 +14031,7 @@ async function ezDownloadVideo(opts = {}){
     return;
   }
   if (!motionMime(!!actx) && typeof VideoEncoder !== 'function'){ videoTrouble({ w: 1080, h: 1080, actx, btn: $('ez-video') }, new Error('this browser cannot record video')); return; }
-  const gate = opts.preview ? { px: ezExportPx(), watermark: false } : await gateExport(ezExportPx());
+  const gate = opts.preview ? { px: ezExportPx(), watermark: previewMarks() } : await gateExport(ezExportPx(), 'video');   // the preview carries what the download would
   if (!gate) return;
   if (!opts.preview && !gate.video){ openPlans(VIDEO_UPSELL); return; }
   /* the very scene the PNG export draws (renderEzCanvas keeps it instead of
@@ -13978,7 +14046,7 @@ async function editorDownloadVideo(opts = {}){
   const actx = motionSoundOn() ? motionAudioContext() : null;
   if (!canvas) return;
   if (!motionMime(!!actx) && typeof VideoEncoder !== 'function'){ videoTrouble({ w: 1080, h: 1080, actx, btn: $('ex-video') }, new Error('this browser cannot record video')); return; }
-  const gate = opts.preview ? { px: exportSize, watermark: false } : await gateExport(exportSize);
+  const gate = opts.preview ? { px: exportSize, watermark: previewMarks() } : await gateExport(exportSize, 'video');   // the preview carries what the download would
   if (!gate) return;
   if (!opts.preview && !gate.video){ openPlans(VIDEO_UPSELL); return; }
   const d = exportDims(Math.min(gate.px, MOTION.maxShort));
@@ -16136,10 +16204,11 @@ function ezPatDragBind(){
       raf = 0; if (!d) return;
       ezTagSync();
       const sc = d.sc;
-      if (!sc){ img.src = renderEzCanvas(560, 'jpeg'); return; }
+      const n = schedEzPreview.seq = (schedEzPreview.seq || 0) + 1;    // a preview still being marked lands under this one
+      if (!sc){ markPreviewUrl(renderEzCanvas(560, 'jpeg')).then(u => { if (n === schedEzPreview.seq) img.src = u; }); return; }
       sc.getObjects().forEach(o => { if (o.fill && o.fill.pgSlide){ o.fill.pgSlide(ez.tag.patX, ez.tag.patY, o); o.dirty = true; } });
       sc.renderAll();
-      img.src = sc.toDataURL({ format: 'jpeg', quality: 0.85, multiplier: 560 / Math.min(sc.width, sc.height) });
+      img.src = previewJpeg(sc.toCanvasElement(560 / Math.min(sc.width, sc.height)), 0.85);   // marked as the preview is (previewMarks)
     });
   });
   const end = () => {

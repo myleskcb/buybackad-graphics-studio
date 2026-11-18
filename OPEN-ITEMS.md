@@ -3528,6 +3528,82 @@ Open:
     `landing_check.mjs` and three steps of `ad_library_check.mjs` cannot run
     in a cloud session (§BC 8).
 
+## BH. 2026-11-17 — the mark across the ad, every preview marked, the server's word on a download (DESIGN-LAW 142)
+
+(claude/ads-improvement-roadmap-7632c8, from `main` at 9dddf354, moved onto
+claude/brave-mayer-8bv851 first (a fast-forward), so it carries §BD to §BG.)
+
+The owner: "Can people just download the ad through their browser or natively
+or screenshot the ad and crop it what protections we have in place and what can
+we do?", then "Yes, do it" to the mark across the middle, every preview marked,
+and the server's word on a download; then "But we don't want the content to be
+unreadable or not fun to look at we want the gallery/feed to look clean and
+cohesive and it could be built around your reseller profile/business profile".
+
+Found first: every preview was the clean ad (Easy Mode 560, the full ad 900,
+the editor's export preview 540, the maker's player 720); the studio's Create
+video was a clean full-size MP4 for anyone, whose player offered its own
+Download; the Free mark was four corner words a crop took off; and a
+download's size and marks came from `account.plan`, which the browser can
+change.
+
+Done:
+- **One mark** (`watermark.js`): a light lattice of small BUYBACK.AD words
+  across the whole picture, two tones, so it shows on dark and light grounds.
+  The studio and the video maker draw it and nothing of their own.
+- **Every preview a download would mark is marked** (signed out, Free), drawn
+  again when the account changes; paid plans and operators see them clean.
+  The studio's Create video is made the same way, and made again clean (with
+  its sound) when a plan that downloads clean asks for the MP4; the player's
+  own Download, picture-in-picture and Save video are off.
+- **The server decides a download** (`gateExport` asks `/api/export/check`):
+  a page made to say Pro still downloads Free's 1080, marked. No answer, a
+  refusal or a dropped connection makes no file; a Free file whose mark did not
+  load is refused.
+- "a small BUYBACK.AD watermark" is "a light" one on the plans and in the FAQ
+  (the FAQ block's hash in `_headers` and `netlify.toml` rewritten).
+- `phonegfx-studio.html`, the first single-file studio, linked from nowhere and
+  drawing the first designs with the corner mark and its own plan check, is
+  404'd at the edge (netlify.toml); the file stays.
+- `scripts/watermark_check.mjs` (fails four times with the mark off).
+  `motion_export_check.mjs` and `video_photo_check.mjs` now answer
+  `api('/export/check')` for their stub account, since a static server has
+  none.
+
+Open:
+1. **Not on `main`, not deployed.** This branch also carries everything of
+   §BD to §BG that `main` lacks. The deploy step still skips: NETLIFY_AUTH_TOKEN
+   and NETLIFY_SITE_ID are not set on the repository (§BD).
+2. **It is not a lock.** The ad is drawn in the visitor's browser, so someone
+   who reads the code can still draw it clean. Drawing paid files on the
+   server closes that; it needs the engine in a headless browser per download
+   (time and cost each). Worth it only if clean copies turn up.
+3. **A record of every download** (the account, the time, the number and
+   business name printed on the ad, a picture fingerprint), so an ad found
+   online can be traced to the account that made it: not built. The number on
+   the ad is already the quickest trace.
+4. **Still clean on purpose:** the landing wall's samples and Easy Mode's strip
+   (the sample number), and the video maker's gallery thumbnails (320 px, the
+   visitor's own words). The owner wants the gallery "clean and cohesive".
+5. **The editor's live canvas is not marked**, only its export preview: a
+   screenshot of the editor while designing is clean. A light overlay there is
+   one CSS layer, if wanted.
+6. **The suggested-ad feed built around a business profile** (the owner, the
+   same day) is not built: categories, a shop or mobile-only switch, a tone, and
+   the feed's tiles drawn with the mark until download.
+7. **Not run on this Mac:** `video_photo_check`, `motion_export_check`,
+   `device_picker_check`, `tagline_panel_check` and `landing_check` import
+   puppeteer-core, which is not installed here.
+8. **Failing the same way on the branch without this work** (seen on this
+   Mac): `ez_download_is_preview` fails dl_gold_voltStack_gold and
+   dl_gold_gradientWave_gold (6.14 and 7.09 a channel, gate legib:Headline);
+   `billing_check`'s browser part waits for the account dialog on the maker's
+   Download, which now asks for the number first; `ad_library_check`'s browser
+   part stops on 'TYPE_VOICES' before initialization (seen the same when
+   fabric does not load and app.js stops partway); `quick_ad_check` times out
+   on its third quick ad (a photo after the video, line 115), as on the branch
+   without this work.
+
 ## BI. 2026-11-18 — the ad census: what every offered ad is made of (DESIGN-LAW 143)
 
 (claude/xenodochial-mccarthy-7bea6d, started from claude/brave-mayer-8bv851 at
@@ -3659,6 +3735,10 @@ Found (none fixed here; each is the owner's call or its own change):
     browser autofill, which fills both at once, is not. Found when the
     census's first run read every Any look with YOUR NUMBER on it. The
     2026-11-11 log met the same fault in another pair of fields.
+    **Fixed 2026-11-18** (claude/sad-pike-c4b427, in pull request 14 with this
+    census): every word still waiting on its pause lands before the boxes are
+    filled again (`landTyping()`), held by `scripts/typing_pause_check.mjs`.
+    The census's one-field-at-a-time wait for it can go.
 11. **No ad prints the library's Long Beach towns to a visitor elsewhere**:
     every card that carries a towns line (47 library cards) took the
     visitor's.

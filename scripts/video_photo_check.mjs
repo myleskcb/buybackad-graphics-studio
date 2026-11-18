@@ -227,7 +227,10 @@ if (ONLY !== 'studio'){
 if (ONLY !== 'motion'){
   const page = await openPage('index.html');
   await new Promise(res => setTimeout(res, 6000));
-  await page.evaluate(() => { loadAccount = async () => account; recordExport = async () => true; });   // no backend on a static server
+  await page.evaluate(() => { loadAccount = async () => account; recordExport = async () => true;   // no backend on a static server
+    /* gateExport asks the server for a download's size and marks (2026-11-17); a static server has none, so the stub account's answer is given here, as api.mjs gives it */
+    if (!window.__apiStubbed){ const _api = api; window.__apiStubbed = true; api = async (path, body) => { if (path !== '/export/check') return _api(path, body); const admin = !!account && account.role === 'admin', p = PLANS[planKey(account && account.plan)]; return { user: account, maxPx: admin ? 2160 : p.maxPx, watermark: !admin && !!p.watermark, remaining: null }; }; }
+  });
   const runs = [
     { where: 'easy square operator', fmt: 'square', acct: { role: 'admin', plan: 'pro' }, short: 1440 },
     { where: 'easy story pro', fmt: 'story', acct: { plan: 'pro' }, short: 1440 },

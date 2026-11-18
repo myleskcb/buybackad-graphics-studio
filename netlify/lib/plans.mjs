@@ -97,7 +97,7 @@ export function featureRows() {
     row('videos', 'Video ads to download', videosText, 'Anyone can make and watch a video ad. Downloading one, with sound and no watermark, comes with Pro and Business.'),
     row('designs', 'Designs', designs),
     row('size', 'Largest download', (p) => p.maxPx + ' pixels'),
-    row('watermark', 'Watermark', (p) => (p.watermark ? 'A small BUYBACK.AD mark' : 'None')),
+    row('watermark', 'Watermark', (p) => (p.watermark ? 'A light BUYBACK.AD mark' : 'None')),
     row('credits', 'AI credits a month', (p) => num(p.credits)),
     row('library', 'Ads kept in your library', (p) => num(p.library)),
     row('qr', 'A QR code on your ad', (p) => (p.qr ? 'Yes' : 'No')),
@@ -107,7 +107,7 @@ export function featureRows() {
 export function planBullets(id) {
   const p = PLANS[id];
   const credits = num(p.credits) + ' AI credits a month', lib = 'Keep ' + num(p.library) + ' ads in your library';
-  if (id === 'free') return [num(p.weekly) + ' photo downloads a week', designs(p), 'Standard size (' + p.maxPx + ' pixels) with a small BUYBACK.AD watermark', credits];
+  if (id === 'free') return [num(p.weekly) + ' photo downloads a week', designs(p), 'Standard size (' + p.maxPx + ' pixels) with a light BUYBACK.AD watermark', credits];
   if (id === 'basic') return [num(p.monthly) + ' photo downloads a month', designs(p), 'No watermark, up to double size (' + p.maxPx + ' pixels)', credits, lib];
   if (id === 'pro') return [num(p.monthly) + ' photo downloads a month', num(p.videos) + ' video ads a month, with sound', 'Everything in Starter', 'Add a QR code people can scan', credits, lib];
   return ['Unlimited photo downloads', 'Unlimited video ads, with sound', 'Everything in Pro', credits, lib];
