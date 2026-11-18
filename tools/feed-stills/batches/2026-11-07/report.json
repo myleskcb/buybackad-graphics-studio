@@ -6,7 +6,7 @@
   "before": null,
   "after": {
    "headline": 122,
-   "number": 98,
+   "number": 95,
    "smallest": 45,
    "minSmallest": 45
   },
@@ -39,7 +39,7 @@
     "16-ultramarine",
     "16-white"
    ],
-   "subjectFit": 0.47,
+   "subjectFit": 0.48,
    "px": {
     "headline": 122,
     "number": 98,
@@ -49,9 +49,9 @@
     "smallest": 45
    },
    "contrast": {
-    "service line": 13.6,
-    "call to action": 9.46,
-    "footer": 16.69
+    "service line": 13.27,
+    "call to action": 9.61,
+    "footer": 16.73
    },
    "phonesDrawn": 0.16,
    "before": null,
@@ -142,7 +142,7 @@
     "vo_clip": "",
     "vo_text": "We buy iPhones. Text us your IMEI.",
     "vo_lang": "en",
-    "points": "FREE QUOTE, CASH OR ZELLE, ANY CONDITION",
+    "points": "FREE QUOTE, CASH OR ZELLE, CRACKED OK",
     "strike_text": "NO-SHOWS",
     "type_pair": "grotesk",
     "accents": 0,
@@ -165,13 +165,22 @@
      "GET A PRICE",
      "ALL MODELS"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "points": [
+      "FREE QUOTE, CASH OR ZELLE, ANY CONDITION",
+      "FREE QUOTE, CASH OR ZELLE, CRACKED OK"
+     ]
+    }
    }
   },
   {
    "id": "ad-2026-11-07-02",
    "ok": true,
    "seed": 7105,
-   "headline": "TOP DOLLAR FOR iPHONES",
+   "headline": "GET PAID FOR iPHONES",
    "line": "ALL MODELS WANTED",
    "cta": "CALL OR TEXT",
    "look": {
@@ -188,21 +197,21 @@
     "18-pro-burgundy",
     "18-pro-black"
    ],
-   "subjectFit": 0.48,
+   "subjectFit": 0.53,
    "px": {
-    "headline": 122,
-    "number": 98,
+    "headline": 117,
+    "number": 94,
     "service": 56,
     "cta": 48,
     "website": 45,
     "smallest": 45
    },
    "contrast": {
-    "service line": 16.1,
-    "call to action": 13.39,
+    "service line": 16.29,
+    "call to action": 13.2,
     "footer": 17.58
    },
-   "phonesDrawn": 0.15,
+   "phonesDrawn": 0.16,
    "before": null,
    "skipped": {
     "same phones as another card": 6,
@@ -213,7 +222,7 @@
      "18-pro-burgundy",
      "18-pro-black"
     ],
-    "headline": "TOP DOLLAR FOR iPHONES",
+    "headline": "GET PAID FOR iPHONES",
     "tag": "ALL MODELS WANTED",
     "number": "(562) 999-4994",
     "number_label": "CALL OR TEXT",
@@ -231,7 +240,7 @@
     "accent_word": -1,
     "text_in": "slide",
     "text_pos": "top-center",
-    "text_scale": 0.75,
+    "text_scale": 0.72,
     "number_style": "pill",
     "number_format": "parens",
     "number_pos": "bottom-center",
@@ -314,6 +323,21 @@
      "SE HABLA ESPAÑOL",
      "ALL MODELS"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "headline": [
+      "TOP DOLLAR FOR iPHONES",
+      "GET PAID FOR iPHONES"
+     ]
+    },
+    "moved": {
+     "from": [
+      "phones drawn 9% of the height"
+     ],
+     "to": "headline scale 0.75 → 0.72"
+    }
    }
   },
   {
@@ -321,7 +345,7 @@
    "ok": true,
    "seed": 7199,
    "headline": "WE BUY iPHONES",
-   "line": "iPHONE 15 – 18 PRO MAX",
+   "line": "iPHONE 15 AND NEWER",
    "cta": "CALL OR TEXT",
    "look": {
     "font": "chivo",
@@ -337,9 +361,9 @@
     "17-pro-max-cosmic-orange",
     "17-pro-max-silver"
    ],
-   "subjectFit": 0.39,
+   "subjectFit": 0.45,
    "px": {
-    "headline": 138,
+    "headline": 126,
     "number": 102,
     "service": 56,
     "cta": 48,
@@ -347,11 +371,11 @@
     "smallest": 45
    },
    "contrast": {
-    "service line": 13.92,
-    "call to action": 11.17,
-    "footer": 15.86
+    "service line": 13.94,
+    "call to action": 11,
+    "footer": 15.78
    },
-   "phonesDrawn": 0.11,
+   "phonesDrawn": 0.13,
    "before": null,
    "skipped": {
     "words touch the phones; headline and number overlap; headline and call to action overlap; headline and phones overlap": 1,
@@ -364,7 +388,7 @@
      "17-pro-max-silver"
     ],
     "headline": "WE BUY iPHONES",
-    "tag": "iPHONE 15 – 18 PRO MAX",
+    "tag": "iPHONE 15 AND NEWER",
     "number": "(562) 999-4994",
     "number_label": "CALL OR TEXT",
     "seed": 7199,
@@ -381,7 +405,7 @@
     "accent_word": -1,
     "text_in": "slide",
     "text_pos": "top-center",
-    "text_scale": 0.85,
+    "text_scale": 0.78,
     "number_style": "pill",
     "number_format": "parens",
     "number_pos": "bottom-center",
@@ -441,7 +465,7 @@
     "vo_clip": "",
     "vo_text": "Old phone, new money. Text us your IMEI and cash out.",
     "vo_lang": "en",
-    "points": "TEXT YOUR IMEI, TOP DOLLAR, NO OBLIGATION",
+    "points": "TEXT YOUR IMEI, PAID SAME DAY, NO OBLIGATION",
     "strike_text": "SHADY BUYERS",
     "type_pair": "grotesk",
     "accents": 1,
@@ -449,7 +473,7 @@
     "accent_kind": "asset",
     "accent_in": "pop",
     "accent_idle": "bob",
-    "feed_line": "iPHONE 15 – 18 PRO MAX",
+    "feed_line": "iPHONE 15 AND NEWER",
     "feed_site": "Visit our website at www.iPhones.LA",
     "feed_where": "📍 TORRANCE • LONG BEACH • LAKEWOOD",
     "feed_claim": "QUICK REPLIES • CASH TODAY",
@@ -464,6 +488,25 @@
      "LOCAL TO LA",
      "SE HABLA ESPAÑOL"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "line": [
+      "iPHONE 15 – 18 PRO MAX",
+      "iPHONE 15 AND NEWER"
+     ],
+     "points": [
+      "TEXT YOUR IMEI, TOP DOLLAR, NO OBLIGATION",
+      "TEXT YOUR IMEI, PAID SAME DAY, NO OBLIGATION"
+     ]
+    },
+    "moved": {
+     "from": [
+      "phones drawn 11% of the height"
+     ],
+     "to": "headline scale 0.85 → 0.78"
+    }
    }
   },
   {
@@ -487,7 +530,7 @@
     "16-pro-desert",
     "16-pro-natural"
    ],
-   "subjectFit": 0.54,
+   "subjectFit": 0.58,
    "px": {
     "headline": 105,
     "number": 85,
@@ -497,11 +540,11 @@
     "smallest": 45
    },
    "contrast": {
-    "service line": 17.76,
+    "service line": 17.58,
     "call to action": 14.74,
-    "footer": 18.73
+    "footer": 18.58
    },
-   "phonesDrawn": 0.19,
+   "phonesDrawn": 0.18,
    "before": null,
    "skipped": {
     "selling points found no room": 1
@@ -589,7 +632,7 @@
     "vo_clip": "",
     "vo_text": "Selling your iPhone? Get our cash offer first.",
     "vo_lang": "en",
-    "points": "TEXT US NOW, PAID TODAY, ANY CONDITION",
+    "points": "TEXT US NOW, PAID TODAY, NO FEES",
     "strike_text": "",
     "type_pair": "grotesk",
     "accents": 1,
@@ -600,7 +643,7 @@
     "feed_line": "NEW, USED OR CRACKED",
     "feed_site": "Visit our website at www.iPhones.LA",
     "feed_where": "📍 LONG BEACH • LAKEWOOD • DOWNEY",
-    "feed_claim": "HONEST BUYER • TOP DOLLAR",
+    "feed_claim": "HONEST LOCAL BUYER",
     "accent_out": "fly_out",
     "urgent": "SELL IT WHILE IT'S WORTH MORE",
     "stamp_text": "LOCAL",
@@ -612,6 +655,19 @@
      "GET A PRICE",
      "LOCAL TO LA"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "claim": [
+      "HONEST BUYER • TOP DOLLAR",
+      "HONEST LOCAL BUYER"
+     ],
+     "points": [
+      "TEXT US NOW, PAID TODAY, ANY CONDITION",
+      "TEXT US NOW, PAID TODAY, NO FEES"
+     ]
+    }
    }
   },
   {
@@ -635,21 +691,21 @@
     "16-white-as-lavender",
     "16-white-as-sage"
    ],
-   "subjectFit": 0.39,
+   "subjectFit": 0.46,
    "px": {
-    "headline": 138,
-    "number": 102,
+    "headline": 128,
+    "number": 95,
     "service": 56,
     "cta": 48,
     "website": 45,
     "smallest": 45
    },
    "contrast": {
-    "service line": 11.84,
-    "call to action": 10.43,
-    "footer": 13.2
+    "service line": 11.86,
+    "call to action": 10.16,
+    "footer": 13.07
    },
-   "phonesDrawn": 0.11,
+   "phonesDrawn": 0.14,
    "before": null,
    "skipped": {
     "same phones as another card": 1
@@ -748,7 +804,7 @@
     "feed_line": "NEW, USED OR CRACKED",
     "feed_site": "Visit our website at www.iPhones.LA",
     "feed_where": "📍 DOWNEY • CARSON • TORRANCE",
-    "feed_claim": "TOP DOLLAR • MAX OFFER",
+    "feed_claim": "LOCAL & HONEST",
     "accent_out": "shrink",
     "urgent": "IT LOSES VALUE EVERY MONTH",
     "stamp_text": "CASH PAID",
@@ -760,6 +816,15 @@
      "IT LOSES VALUE EVERY MONTH",
      "SE HABLA ESPAÑOL"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "claim": [
+      "TOP DOLLAR • MAX OFFER",
+      "LOCAL & HONEST"
+     ]
+    }
    }
   },
   {
@@ -784,10 +849,10 @@
     "16-pro-max-natural",
     "16-pro-max-black"
    ],
-   "subjectFit": 0.41,
+   "subjectFit": 0.47,
    "px": {
-    "headline": 138,
-    "number": 102,
+    "headline": 122,
+    "number": 98,
     "service": 56,
     "cta": 48,
     "website": 45,
@@ -795,10 +860,10 @@
    },
    "contrast": {
     "service line": 17.4,
-    "call to action": 16.48,
+    "call to action": 16.29,
     "footer": 18.1
    },
-   "phonesDrawn": 0.11,
+   "phonesDrawn": 0.15,
    "before": null,
    "skipped": {},
    "style": {
@@ -825,7 +890,7 @@
     "accent_word": -1,
     "text_in": "slide",
     "text_pos": "top-center",
-    "text_scale": 0.85,
+    "text_scale": 0.75,
     "number_style": "pill",
     "number_format": "parens",
     "number_pos": "bottom-center",
@@ -885,7 +950,7 @@
     "vo_clip": "",
     "vo_text": "We buy iPhones. Text us your IMEI.",
     "vo_lang": "en",
-    "points": "TEXT YOUR IMEI, CASH OR ZELLE, ANY CONDITION",
+    "points": "TEXT YOUR IMEI, CASH OR ZELLE, NO FEES",
     "strike_text": "",
     "type_pair": "grotesk",
     "accents": 1,
@@ -896,7 +961,7 @@
     "feed_line": "CRACKED OR LIKE NEW",
     "feed_site": "Visit our website at www.iPhones.LA",
     "feed_where": "📍 LONG BEACH • LAKEWOOD • DOWNEY",
-    "feed_claim": "HONEST BUYER • TOP DOLLAR",
+    "feed_claim": "HONEST BUYER • FAIR OFFER",
     "accent_out": "none",
     "urgent": "NEW IPHONES ARE OUT. OLD ONES DROP.",
     "stamp_text": "LOCAL",
@@ -908,13 +973,32 @@
      "LOCAL TO LA",
      "IT LOSES VALUE EVERY MONTH"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "claim": [
+      "HONEST BUYER • TOP DOLLAR",
+      "HONEST BUYER • FAIR OFFER"
+     ],
+     "points": [
+      "TEXT YOUR IMEI, CASH OR ZELLE, ANY CONDITION",
+      "TEXT YOUR IMEI, CASH OR ZELLE, NO FEES"
+     ]
+    },
+    "moved": {
+     "from": [
+      "phones drawn 11% of the height"
+     ],
+     "to": "headline scale 0.85 → 0.75"
+    }
    }
   },
   {
    "id": "ad-2026-11-07-07",
    "ok": true,
    "seed": 7585,
-   "headline": "TOP DOLLAR FOR iPHONES",
+   "headline": "WE PAY FOR iPHONES",
    "line": "NEW, USED OR CRACKED",
    "cta": "GET YOUR OFFER",
    "look": {
@@ -941,9 +1025,9 @@
     "smallest": 45
    },
    "contrast": {
-    "service line": 14.55,
-    "call to action": 11.22,
-    "footer": 17.46
+    "service line": 14.34,
+    "call to action": 11.38,
+    "footer": 17.56
    },
    "phonesDrawn": 0.14,
    "before": null,
@@ -956,7 +1040,7 @@
      "16-pro-desert",
      "16-pro-white"
     ],
-    "headline": "TOP DOLLAR FOR iPHONES",
+    "headline": "WE PAY FOR iPHONES",
     "tag": "NEW, USED OR CRACKED",
     "number": "(562) 999-4994",
     "number_label": "GET YOUR OFFER",
@@ -1057,6 +1141,15 @@
      "TEXT YOUR IMEI",
      "IT LOSES VALUE EVERY MONTH"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "headline": [
+      "TOP DOLLAR FOR iPHONES",
+      "WE PAY FOR iPHONES"
+     ]
+    }
    }
   },
   {
@@ -1080,7 +1173,7 @@
     "16-pro-white",
     "16-pro-black"
    ],
-   "subjectFit": 0.62,
+   "subjectFit": 0.64,
    "px": {
     "headline": 105,
     "number": 85,
@@ -1090,9 +1183,9 @@
     "smallest": 45
    },
    "contrast": {
-    "service line": 16.33,
+    "service line": 16.34,
     "call to action": 16.65,
-    "footer": 16.97
+    "footer": 17.07
    },
    "phonesDrawn": 0.21,
    "before": null,
@@ -1186,7 +1279,7 @@
     "vo_clip": "",
     "vo_text": "New iPhone under the tree? Sell us the old one.",
     "vo_lang": "en",
-    "points": "TEXT YOUR IMEI, TOP DOLLAR, WE MEET YOU",
+    "points": "TEXT YOUR IMEI, PAID TODAY, WE MEET YOU",
     "strike_text": "SLOW BUYERS",
     "type_pair": "grotesk",
     "accents": 1,
@@ -1209,6 +1302,15 @@
      "CASH",
      "CALL OR TEXT"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "points": [
+      "TEXT YOUR IMEI, TOP DOLLAR, WE MEET YOU",
+      "TEXT YOUR IMEI, PAID TODAY, WE MEET YOU"
+     ]
+    }
    }
   },
   {
@@ -1232,7 +1334,7 @@
     "17e-soft-pink",
     "17e-black"
    ],
-   "subjectFit": 0.57,
+   "subjectFit": 0.61,
    "px": {
     "headline": 105,
     "number": 85,
@@ -1242,11 +1344,11 @@
     "smallest": 45
    },
    "contrast": {
-    "service line": 10.18,
-    "call to action": 8.96,
-    "footer": 11.52
+    "service line": 10.06,
+    "call to action": 8.87,
+    "footer": 11.47
    },
-   "phonesDrawn": 0.21,
+   "phonesDrawn": 0.2,
    "before": null,
    "skipped": {
     "selling points found no room": 1
@@ -1334,7 +1436,7 @@
     "vo_clip": "",
     "vo_text": "One text, one quote. That's it.",
     "vo_lang": "en",
-    "points": "TEXT YOUR IMEI, TOP DOLLAR, NO FEES",
+    "points": "TEXT YOUR IMEI, PAID SAME DAY, NO FEES",
     "strike_text": "",
     "type_pair": "grotesk",
     "accents": 0,
@@ -1357,6 +1459,15 @@
      "TEXT YOUR IMEI",
      "SE HABLA ESPAÑOL"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "points": [
+      "TEXT YOUR IMEI, TOP DOLLAR, NO FEES",
+      "TEXT YOUR IMEI, PAID SAME DAY, NO FEES"
+     ]
+    }
    }
   },
   {
@@ -1534,7 +1645,7 @@
     "15-pro-blue",
     "15-pro-black"
    ],
-   "subjectFit": 0.57,
+   "subjectFit": 0.58,
    "px": {
     "headline": 105,
     "number": 85,
@@ -1544,9 +1655,9 @@
     "smallest": 45
    },
    "contrast": {
-    "service line": 15.35,
-    "call to action": 14.46,
-    "footer": 18.84
+    "service line": 15.19,
+    "call to action": 14.52,
+    "footer": 18.82
    },
    "phonesDrawn": 0.19,
    "before": null,
@@ -1653,7 +1764,7 @@
     "feed_line": "ANY CARRIER WELCOME",
     "feed_site": "Visit our website at www.iPhones.LA",
     "feed_where": "📍 LAKEWOOD • DOWNEY • CARSON",
-    "feed_claim": "TOP DOLLAR • MAX OFFER",
+    "feed_claim": "ALWAYS BUYING",
     "accent_out": "shrink",
     "urgent": "SELL IT WHILE IT'S WORTH MORE",
     "stamp_text": "CASH",
@@ -1665,6 +1776,15 @@
      "GET A PRICE",
      "CASH"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "claim": [
+      "TOP DOLLAR • MAX OFFER",
+      "ALWAYS BUYING"
+     ]
+    }
    }
   },
   {
@@ -1688,7 +1808,7 @@
     "16-pro-max-natural",
     "16-pro-max-black"
    ],
-   "subjectFit": 0.48,
+   "subjectFit": 0.49,
    "px": {
     "headline": 122,
     "number": 98,
@@ -1698,9 +1818,9 @@
     "smallest": 45
    },
    "contrast": {
-    "service line": 11.61,
-    "call to action": 11.03,
-    "footer": 15.73
+    "service line": 11.53,
+    "call to action": 10.89,
+    "footer": 15.65
    },
    "phonesDrawn": 0.16,
    "before": null,
@@ -1790,7 +1910,7 @@
     "vo_clip": "",
     "vo_text": "Upgraded to the new Pro? We buy last year's.",
     "vo_lang": "en",
-    "points": "TEXT US NOW, PAID TODAY, ANY CONDITION",
+    "points": "TEXT US NOW, PAID TODAY, CRACKED OK",
     "strike_text": "LOWBALLS",
     "type_pair": "grotesk",
     "accents": 1,
@@ -1813,6 +1933,15 @@
      "GET A PRICE",
      "TEXT YOUR IMEI"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "points": [
+      "TEXT US NOW, PAID TODAY, ANY CONDITION",
+      "TEXT US NOW, PAID TODAY, CRACKED OK"
+     ]
+    }
    }
   },
   {
@@ -1836,7 +1965,7 @@
     "15-pink",
     "15-blue"
    ],
-   "subjectFit": 0.45,
+   "subjectFit": 0.46,
    "px": {
     "headline": 122,
     "number": 98,
@@ -1846,11 +1975,11 @@
     "smallest": 45
    },
    "contrast": {
-    "service line": 14.43,
-    "call to action": 12.93,
-    "footer": 15.37
+    "service line": 14.27,
+    "call to action": 12.85,
+    "footer": 15.36
    },
-   "phonesDrawn": 0.15,
+   "phonesDrawn": 0.14,
    "before": null,
    "skipped": {
     "same phones as another card": 1
@@ -1949,7 +2078,7 @@
     "feed_line": "NEW, USED OR CRACKED",
     "feed_site": "Visit our website at www.iPhones.LA",
     "feed_where": "📍 LAKEWOOD • DOWNEY • CARSON",
-    "feed_claim": "TOP DOLLAR • MAX OFFER",
+    "feed_claim": "LOCAL BUYER • MAX OFFER",
     "accent_out": "fly_out",
     "urgent": "NEW IPHONES ARE OUT. OLD ONES DROP.",
     "stamp_text": "CASH",
@@ -1961,6 +2090,15 @@
      "SE HABLA ESPAÑOL",
      "CASH"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "claim": [
+      "TOP DOLLAR • MAX OFFER",
+      "LOCAL BUYER • MAX OFFER"
+     ]
+    }
    }
   },
   {
@@ -1985,21 +2123,21 @@
     "17-pro-cosmic-orange",
     "17-pro-silver"
    ],
-   "subjectFit": 0.56,
+   "subjectFit": 0.55,
    "px": {
-    "headline": 105,
-    "number": 85,
+    "headline": 108,
+    "number": 87,
     "service": 56,
     "cta": 48,
     "website": 45,
     "smallest": 45
    },
    "contrast": {
-    "service line": 14.84,
-    "call to action": 12.2,
-    "footer": 17.84
+    "service line": 14.83,
+    "call to action": 11.71,
+    "footer": 17.57
    },
-   "phonesDrawn": 0.21,
+   "phonesDrawn": 0.19,
    "before": null,
    "skipped": {
     "same phones as another card": 27,
@@ -2032,7 +2170,7 @@
     "accent_word": -1,
     "text_in": "slide",
     "text_pos": "top-center",
-    "text_scale": 0.75,
+    "text_scale": 0.72,
     "number_style": "pill",
     "number_format": "parens",
     "number_pos": "bottom-center",
@@ -2103,7 +2241,7 @@
     "feed_line": "ANY STORAGE • ANY COLOR",
     "feed_site": "Visit our website at www.iPhones.LA",
     "feed_where": "📍 DOWNEY • CARSON • TORRANCE",
-    "feed_claim": "HONEST BUYER • TOP DOLLAR",
+    "feed_claim": "HONEST LOCAL BUYER",
     "accent_out": "drop_out",
     "urgent": "SELL IT WHILE IT'S WORTH MORE",
     "stamp_text": "CASH",
@@ -2115,6 +2253,23 @@
      "IT LOSES VALUE EVERY MONTH",
      "ALL MODELS"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "claim": [
+      "HONEST BUYER • TOP DOLLAR",
+      "HONEST LOCAL BUYER"
+     ]
+    },
+    "moved": {
+     "from": [
+      "service line contrast 1.5:1",
+      "call to action contrast 1.0:1",
+      "phones as drawn reach the headline"
+     ],
+     "to": "headline scale 0.75 → 0.72"
+    }
    }
   },
   {
@@ -2138,9 +2293,9 @@
     "18-pro-max-burgundy",
     "18-pro-max-silver"
    ],
-   "subjectFit": 0.38,
+   "subjectFit": 0.42,
    "px": {
-    "headline": 138,
+    "headline": 126,
     "number": 102,
     "service": 56,
     "cta": 48,
@@ -2148,11 +2303,11 @@
     "smallest": 45
    },
    "contrast": {
-    "service line": 12.52,
-    "call to action": 9.92,
-    "footer": 14.63
+    "service line": 12.57,
+    "call to action": 9.73,
+    "footer": 14.52
    },
-   "phonesDrawn": 0.11,
+   "phonesDrawn": 0.13,
    "before": null,
    "skipped": {
     "same phones as another card": 3
@@ -2180,7 +2335,7 @@
     "accent_word": -1,
     "text_in": "slide",
     "text_pos": "top-center",
-    "text_scale": 0.85,
+    "text_scale": 0.78,
     "number_style": "pill",
     "number_format": "parens",
     "number_pos": "bottom-center",
@@ -2251,7 +2406,7 @@
     "feed_line": "NEW, USED OR CRACKED",
     "feed_site": "Visit our website at www.iPhones.LA",
     "feed_where": "📍 CARSON • TORRANCE • LONG BEACH",
-    "feed_claim": "TOP DOLLAR PAID",
+    "feed_claim": "ALWAYS BUYING",
     "accent_out": "spin_out",
     "urgent": "SELL IT WHILE IT'S WORTH MORE",
     "stamp_text": "CASH",
@@ -2263,6 +2418,21 @@
      "TEXT YOUR IMEI",
      "CALL OR TEXT"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "claim": [
+      "TOP DOLLAR PAID",
+      "ALWAYS BUYING"
+     ]
+    },
+    "moved": {
+     "from": [
+      "phones drawn 11% of the height"
+     ],
+     "to": "headline scale 0.85 → 0.78"
+    }
    }
   },
   {
@@ -2286,9 +2456,9 @@
     "16-white-as-sage",
     "16-white-as-mist-blue"
    ],
-   "subjectFit": 0.39,
+   "subjectFit": 0.45,
    "px": {
-    "headline": 138,
+    "headline": 126,
     "number": 102,
     "service": 56,
     "cta": 48,
@@ -2296,11 +2466,11 @@
     "smallest": 45
    },
    "contrast": {
-    "service line": 13.78,
-    "call to action": 11.18,
-    "footer": 15.87
+    "service line": 13.94,
+    "call to action": 10.98,
+    "footer": 15.7
    },
-   "phonesDrawn": 0.11,
+   "phonesDrawn": 0.13,
    "before": null,
    "skipped": {
     "same phones as another card": 24,
@@ -2331,7 +2501,7 @@
     "accent_word": -1,
     "text_in": "slide",
     "text_pos": "top-center",
-    "text_scale": 0.85,
+    "text_scale": 0.78,
     "number_style": "pill",
     "number_format": "parens",
     "number_pos": "bottom-center",
@@ -2391,7 +2561,7 @@
     "vo_clip": "",
     "vo_text": "New work phone? Sell us the old one.",
     "vo_lang": "en",
-    "points": "FREE QUOTE, TOP DOLLAR, NO FEES",
+    "points": "FREE QUOTE, PAID TODAY, NO FEES",
     "strike_text": "LOWBALLS",
     "type_pair": "grotesk",
     "accents": 1,
@@ -2414,6 +2584,21 @@
      "IT LOSES VALUE EVERY MONTH",
      "CALL OR TEXT"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "points": [
+      "FREE QUOTE, TOP DOLLAR, NO FEES",
+      "FREE QUOTE, PAID TODAY, NO FEES"
+     ]
+    },
+    "moved": {
+     "from": [
+      "phones drawn 11% of the height"
+     ],
+     "to": "headline scale 0.85 → 0.78"
+    }
    }
   },
   {
@@ -2427,7 +2612,7 @@
     "font": "chivo",
     "number_style": "pill",
     "palette": "emerald",
-    "background": "radial",
+    "background": "spot_floor",
     "arrangement": "wings",
     "board": "none",
     "text_fx": "double_outline",
@@ -2437,21 +2622,21 @@
     "17-pro-max-deep-blue",
     "17-pro-max-silver"
    ],
-   "subjectFit": 0.37,
+   "subjectFit": 0.43,
    "px": {
-    "headline": 138,
-    "number": 102,
+    "headline": 128,
+    "number": 103,
     "service": 56,
     "cta": 48,
     "website": 45,
     "smallest": 45
    },
    "contrast": {
-    "service line": 5.21,
-    "call to action": 4.35,
-    "footer": 5.82
+    "service line": 8.99,
+    "call to action": 6.54,
+    "footer": 11
    },
-   "phonesDrawn": 0.11,
+   "phonesDrawn": 0.13,
    "before": null,
    "skipped": {
     "same phones as another card": 4,
@@ -2494,7 +2679,7 @@
     "phone_finish": "standard",
     "phone_idle": "breathe",
     "phone_scale": 1,
-    "background": "radial",
+    "background": "spot_floor",
     "palette": "emerald",
     "scrim": -1,
     "camera": "still",
@@ -2540,7 +2725,7 @@
     "vo_clip": "",
     "vo_text": "We buy iPhones. Text us your IMEI.",
     "vo_lang": "en",
-    "points": "FREE QUOTE, CASH SAME DAY, ANY CONDITION",
+    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
     "strike_text": "",
     "type_pair": "grotesk",
     "accents": 1,
@@ -2563,6 +2748,21 @@
      "CASH",
      "LOCAL TO LA"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "points": [
+      "FREE QUOTE, CASH SAME DAY, ANY CONDITION",
+      "FREE QUOTE, CASH SAME DAY, NO FEES"
+     ]
+    },
+    "moved": {
+     "from": [
+      "Headline stands out (3:1 or more): 2.7:1"
+     ],
+     "to": "ground radial → spot_floor"
+    }
    }
   },
   {
@@ -2744,11 +2944,11 @@
     "smallest": 45
    },
    "contrast": {
-    "service line": 10.03,
-    "call to action": 9.44,
-    "footer": 14.27
+    "service line": 9.96,
+    "call to action": 9.37,
+    "footer": 14.21
    },
-   "phonesDrawn": 0.15,
+   "phonesDrawn": 0.14,
    "before": null,
    "skipped": {
     "same phones as another card": 2
@@ -2847,7 +3047,7 @@
     "feed_line": "NEW, USED OR CRACKED",
     "feed_site": "Visit our website at www.iPhones.LA",
     "feed_where": "📍 LONG BEACH • LAKEWOOD • DOWNEY",
-    "feed_claim": "HONEST BUYER • TOP DOLLAR",
+    "feed_claim": "HONEST LOCAL BUYER",
     "accent_out": "blur_out",
     "urgent": "IT LOSES VALUE EVERY MONTH",
     "stamp_text": "CASH",
@@ -2859,6 +3059,15 @@
      "GET A PRICE",
      "CASH"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "claim": [
+      "HONEST BUYER • TOP DOLLAR",
+      "HONEST LOCAL BUYER"
+     ]
+    }
    }
   },
   {
@@ -3017,7 +3226,7 @@
    "ok": true,
    "seed": 8948,
    "headline": "HONEST iPHONE BUYER",
-   "line": "iPHONE 15 – 18 PRO MAX",
+   "line": "iPHONE 15 AND NEWER",
    "cta": "GET YOUR OFFER",
    "look": {
     "font": "chivo",
@@ -3033,7 +3242,7 @@
     "16-pro-natural",
     "16-pro-white"
    ],
-   "subjectFit": 0.6,
+   "subjectFit": 0.52,
    "px": {
     "headline": 113,
     "number": 91,
@@ -3043,9 +3252,9 @@
     "smallest": 45
    },
    "contrast": {
-    "service line": 14.76,
-    "call to action": 11.42,
-    "footer": 16.23
+    "service line": 14.66,
+    "call to action": 11.35,
+    "footer": 16.16
    },
    "phonesDrawn": 0.18,
    "before": null,
@@ -3056,7 +3265,7 @@
      "16-pro-white"
     ],
     "headline": "HONEST iPHONE BUYER",
-    "tag": "iPHONE 15 – 18 PRO MAX",
+    "tag": "iPHONE 15 AND NEWER",
     "number": "(562) 999-4994",
     "number_label": "GET YOUR OFFER",
     "seed": 8948,
@@ -3133,7 +3342,7 @@
     "vo_clip": "",
     "vo_text": "We buy iPhones. Text us your IMEI.",
     "vo_lang": "en",
-    "points": "QUOTE BY TEXT, TOP DOLLAR, LOCAL MEETUP",
+    "points": "QUOTE BY TEXT, CASH TODAY, LOCAL MEETUP",
     "strike_text": "ENDLESS TEXTING",
     "type_pair": "grotesk",
     "accents": 1,
@@ -3141,7 +3350,7 @@
     "accent_kind": "asset",
     "accent_in": "pop",
     "accent_idle": "heartbeat",
-    "feed_line": "iPHONE 15 – 18 PRO MAX",
+    "feed_line": "iPHONE 15 AND NEWER",
     "feed_site": "Visit our website at www.iPhones.LA",
     "feed_where": "📍 CARSON • TORRANCE • LONG BEACH",
     "feed_claim": "ALWAYS BUYING",
@@ -3156,6 +3365,19 @@
      "IT LOSES VALUE EVERY MONTH",
      "CASH"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "line": [
+      "iPHONE 15 – 18 PRO MAX",
+      "iPHONE 15 AND NEWER"
+     ],
+     "points": [
+      "QUOTE BY TEXT, TOP DOLLAR, LOCAL MEETUP",
+      "QUOTE BY TEXT, CASH TODAY, LOCAL MEETUP"
+     ]
+    }
    }
   },
   {
@@ -3163,7 +3385,7 @@
    "ok": true,
    "seed": 9039,
    "headline": "MAX CASH FOR iPHONES",
-   "line": "iPHONE 15 – 18 PRO MAX",
+   "line": "iPHONE 15 AND NEWER",
    "cta": "CALL OR TEXT",
    "look": {
     "font": "chivo",
@@ -3179,7 +3401,7 @@
     "16-ultramarine",
     "16-white"
    ],
-   "subjectFit": 0.5,
+   "subjectFit": 0.51,
    "px": {
     "headline": 122,
     "number": 98,
@@ -3190,10 +3412,10 @@
    },
    "contrast": {
     "service line": 15.72,
-    "call to action": 15.52,
-    "footer": 18.42
+    "call to action": 15.33,
+    "footer": 18.26
    },
-   "phonesDrawn": 0.15,
+   "phonesDrawn": 0.14,
    "before": null,
    "skipped": {
     "same phones as another card": 1
@@ -3204,7 +3426,7 @@
      "16-white"
     ],
     "headline": "MAX CASH FOR iPHONES",
-    "tag": "iPHONE 15 – 18 PRO MAX",
+    "tag": "iPHONE 15 AND NEWER",
     "number": "(562) 999-4994",
     "number_label": "CALL OR TEXT",
     "seed": 9039,
@@ -3281,7 +3503,7 @@
     "vo_clip": "",
     "vo_text": "New iPhone under the tree? Sell us the old one.",
     "vo_lang": "en",
-    "points": "TEXT YOUR IMEI, PAID TODAY, ANY CONDITION",
+    "points": "TEXT YOUR IMEI, PAID TODAY, CRACKED OK",
     "strike_text": "LOWBALLS",
     "type_pair": "grotesk",
     "accents": 1,
@@ -3289,7 +3511,7 @@
     "accent_kind": "asset",
     "accent_in": "pop",
     "accent_idle": "pulse",
-    "feed_line": "iPHONE 15 – 18 PRO MAX",
+    "feed_line": "iPHONE 15 AND NEWER",
     "feed_site": "Visit our website at www.iPhones.LA",
     "feed_where": "📍 CARSON • TORRANCE • LONG BEACH",
     "feed_claim": "LOCAL & HONEST",
@@ -3304,6 +3526,19 @@
      "TEXT YOUR IMEI",
      "IT LOSES VALUE EVERY MONTH"
     ]
+   },
+   "reworded": {
+    "on": "2026-11-18",
+    "words": {
+     "line": [
+      "iPHONE 15 – 18 PRO MAX",
+      "iPHONE 15 AND NEWER"
+     ],
+     "points": [
+      "TEXT YOUR IMEI, PAID TODAY, ANY CONDITION",
+      "TEXT YOUR IMEI, PAID TODAY, CRACKED OK"
+     ]
+    }
    }
   },
   {
@@ -3616,5 +3851,6 @@
     ]
    }
   }
- ]
+ ],
+ "reworded": "2026-11-18T18:40:51.184Z"
 }

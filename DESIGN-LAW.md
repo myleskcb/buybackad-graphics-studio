@@ -5933,3 +5933,61 @@ looks no call to action; TEXT A PIC is still on 12 phone cards; and the video
 maker loses a number typed within half a second of the area.
 
 Not done here: OPEN-ITEMS §BI.
+
+## 144. A banned word is stopped where it is written, and every fix carries the check that holds it
+
+Added 2026-11-18. The owner, of the census's findings (rule 143): "FIX IT".
+
+Rule 143 found the old words back because each list was fixed alone: TOP DOLLAR left the
+pre-flight's list on 2026-11-12 and stayed in FULL_WORDS, so 33 of the 35 first full ads said
+it. A phrase is now stopped at every place words are written, from one list:
+
+- **One list, on the site too.** `spec/banned-words.json` (each phrase now with `say`, the
+  sentence a customer who typed it is told, rule 113). The site cannot read `spec/` (netlify.toml
+  404s it), so `scripts/build_banned_words.mjs` writes `motion/banned-words.js` from it (`--check`
+  fails when stale). The full ad's `fullWords` notes a typed phrase; the video maker's look
+  pre-flight reads the same module.
+- **The defaults.** `FULL_WORDS` lost TOP DOLLAR (three claims, a point, the TOP $$$ sticker) and
+  ANY CONDITION (a models line, a point). With no business name typed, a full ad's badge says
+  LOCAL & HONEST, QUICK REPLIES • CASH TODAY, LOCAL BUYER • FAIR OFFERS, FAIR OFFER • NO
+  PRESSURE or HONEST BUYER • PAID TODAY: the research's "identity or place". The designer
+  layouts' decks (app.js `DECKS`): the iPhone models line CRACKED OK • ANY CARRIER, the cars
+  kicker LOCAL CAR BUYER, a phone deck's tile TEXT US NOW (`ask`); the fallbacks and
+  `SELL_POINTS` lost ANY CONDITION.
+- **The library's rewriter** (`scripts/refresh_copy.mjs`, its rule 7, `oneListWords`): a phone
+  card asks TEXT US NOW (rule 136), every other deck keeps TEXT A PIC, since an IMEI cannot price
+  gold, cards or a car; ANY CONDITION becomes the limit each deck can stand behind (CRACKED OK,
+  RUNNING OR NOT, PLAYED OR MINT, SEALED, IN DATE …), the first the card does not already say,
+  and a tile's small line follows so the pair does not say it twice. `PAIRS`, `swapWord` and the
+  hours line no longer write either phrase. Applied to 54 library cards (66 lines) and
+  re-rendered (`rethumb_showcase.mjs`).
+- **iPhones LA's FeedAd**: `tools/feed-stills/generate.mjs` refuses to start when one of its lists
+  carries a banned phrase; the 51 stills were re-worded and redrawn (OPEN-ITEMS §BJ).
+- **`scripts/words_check.mjs`** reads every list ads are written from (FULL_WORDS, the lines, the
+  offer family, the designer decks, the video maker's catalogue, the live library cards, FeedAd's
+  cards, and whether `motion/banned-words.js` is current): 4,345 lines in a second, exit 1 on a
+  phrase. Run before a commit that touches words. Run on FULL_WORDS as it stood before this
+  rule, it fails with seven hits.
+
+The same day, from the census:
+- **Two more lines have a picture**, landed as the ingester lands one (`assets/offer-assets.json`):
+  PC handhelds (a Steam Deck photograph, its screen, a map editor with a date, filled dark) and Meta
+  glasses (Ray-Ban Meta). Their offer cards gain the picture layouts, their full ads a product.
+  Gaming PCs, gaming headsets, SSDs, mini PCs and sealed Chromebooks still have no clean picture
+  in the repository; fetching them is a download, so it waits on the owner.
+- **A line's first full ad turns the seed's pair** (`lineTurn`, rule 139 kept: one draw, the
+  ground, arrangement and words unmoved, a restricted line within its own pairs, the iPhone
+  line not at all): the first ads of 30 unrestricted lines open over 11 pairs, at most 4 on one,
+  where 31 of the 35 opened in Green & Gold. `full_colour_check.mjs` holds it.
+- **Headlines that read**: the gold photograph behind `dl_gold_voltStack_gold` and
+  `dl_gold_gradientWave_gold` darkened (`ground-fix.json` scrim .377 to .46), `trustSeal-nn05-30`
+  repaired, `scriptRetro-jw05-16`'s photograph darkened (scrim .5 to .62); all four pass the gate.
+
+**The review loop.** The owner, the same day: "how do we break down this process so it goes
+smoothly every time". Census (rule 143) → the review page (`scripts/build_review_page.mjs`: every
+offered ad by category, best to worst, a thumb up or down, a note, a picture from the
+category's own cut-outs) → `scripts/apply_review.mjs` (a thumb down retires a template or holds a
+library card; a note is a change made by hand) → `words_check.mjs` and the census again. What
+the owner says twice becomes a rule and a check.
+
+Not done here: OPEN-ITEMS §BJ.

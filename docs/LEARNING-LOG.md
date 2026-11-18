@@ -5448,3 +5448,67 @@ RESUME HERE: §BI. The owner's word on the retirements and the words (§BI
 open 2 and 3), then run `node scripts/ad_census.mjs` again and compare its
 counts with the table in §BI; wire `--gate` into the deploy only when the full
 ad passes it.
+
+## 2026-11-18 — the census's findings fixed, the owner's notes, and the review loop (DESIGN-LAW 144; claude/xenodochial-mccarthy-7bea6d)
+
+Asked: the owner, of the census's findings (§BI): "FIX IT". Then, from the live landing page, a
+run of notes (OPEN-ITEMS §BJ keeps every one in the owner's words): a ranked review page with
+thumbs and a pop-up note; endless product variety led by the in-demand models; brand-named
+captions; centred 70–80% of the time; dated gold fonts; the MacBook and trucks cards; bright car
+grounds; an @handle and several calls to action; every photo ad as a varied video; the checkout,
+the tiers and the feature breakdown; and "how do we break down this process so it goes smoothly
+every time".
+
+Studied: where each old word is written (FULL_WORDS, app.js DECKS and the layouts' fallbacks,
+the library's baked records and the rewriter that refreshes them, FeedAd's generator), what the
+site can read (netlify.toml 404s spec/), how a library card's line is measured (pgCheck on the
+card as opened, after its look recolours it), and how the maker's Quick ad locks its phones.
+
+Changed (this session and four helper forks in the same worktree, each owning its files):
+the one list on the site (motion/banned-words.js), FULL_WORDS, DECKS, the rewriter's rule 7
+(54 library cards re-worded and re-rendered), scripts/words_check.mjs; two product photographs
+(the Steam Deck's screen darkened), lineTurn, four headlines made legible; FeedAd's 51 stills
+(helper); Any look's call to action and pre-flight (helper); the full ad's product drawn from
+weighted pools with every view (helper); the hero wall's seven notes (helper); pricing: Pro's
+30 videos a month on their own meter, Business unlimited, the breakdown built from one table
+(helper; the video maker's plan wording followed);
+the review page and its applier; DESIGN-LAW 144, OPEN-ITEMS §BJ.
+
+Rejected:
+  - Holding the 253 cards with no product picture in one pass: whether an older card goes is the
+    owner's thumb on the review page, card by card.
+  - Fetching photographs for gaming PCs, headsets, SSDs, mini PCs and Chromebooks unasked: a
+    download is the owner's word.
+  - The Mac mini front for mini PCs: the owner's own asset review rejected it as featureless.
+  - Overwriting photo-gaming-steam-deck.webp: the darkened screen is a new file beside it.
+
+Learned:
+  - A fix comes back from the generator, not the list. TEXT A PIC and ANY CONDITION were
+    re-written by refresh_copy.mjs's own PAIRS, swapWord and hours line every refresh; fixing the
+    cards alone would have lasted until the next one. Fix where the words are written, then add
+    the check that reads every such place (words_check.mjs: a second, not seven minutes).
+  - A rule that rewrites a phrase by pattern must be read back change by change before anything
+    is re-rendered: "Text us a photo of the phone." became "Text us now of the phone." on four
+    cards in the first pass. Sentences get their own rewrite; a tile's small line moves with its
+    big word; a limit already on the card is not said twice (RUNNING OR NOT beside "Running or
+    not").
+  - A library card's line is drawn in its look's colours when it opens, so editing the record's
+    fill changed nothing the gate measured; the photograph's scrim did.
+  - Product variety met the Quick ad's promise: Quick ad locked "phones" in a local set the full
+    ad never saw, so each quick ad drew new phones and its listing a new model and price. The
+    phones on screen are now pinned for quick ads (pin_phones) and New look clears the pin.
+  - quick_ad_check failed for two reasons at once: helpers running browsers in parallel slowed it
+    into timeouts, and the lead model changed. Re-run alone after the pin, it passes.
+  - A new ground photograph can carry a real licence plate: the Challenger's stood legible behind
+    a card's words. Look at every new ground at full size.
+  - Several forks in one worktree worked with one rule: each owns named files, none commits, and
+    one long-lived static server (preview_start, port 8931) serves every check.
+
+Checked: words_check (4,345 lines, clean; it fails the old FULL_WORDS with 7 hits),
+full_ad_check, full_colour_check (with the new first-ad spread test), quick_ad_check,
+buylist_check, look_preflight_check, the generated files' --check, the library legibility audit on
+every changed card, the studio pre-flight on the changed layouts and cards.
+
+RESUME HERE: the census again after the last helper; the review page published; then the
+contact block, the picture picker in the makers, the video's variety (§BJ Open 3), the five
+pictureless lines (a download, the owner's word), and the owner's thumbs (apply_review.mjs).

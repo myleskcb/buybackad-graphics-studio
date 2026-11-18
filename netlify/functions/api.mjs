@@ -122,7 +122,7 @@ const roleFor = (email, env) => (adminEmails(env).includes(email) ? 'admin' : 'u
    AI not charged (bggen.mjs), the biggest library (adlibrary.mjs). `plan` stays
    the billed one, so checkout can still be tried; credits say unlimited. */
 const publicUser = (u, env) => ({
-  email: u.email, plan: planId(u.plan), exports: u.exports, role: roleFor(u.email, env),
+  email: u.email, plan: planId(u.plan), exports: u.exports, videos: u.videos || { period: '', count: 0 }, role: roleFor(u.email, env),
   credits: roleFor(u.email, env) === 'admin' ? { ...creditState(u), unlimited: true } : creditState(u),
   sub: u.sub && u.sub.id ? { plan: u.sub.plan, interval: u.sub.interval, status: u.sub.status, periodEnd: u.sub.periodEnd, cancelAt: u.sub.cancelAt } : null,
 });
@@ -133,6 +133,15 @@ function exportMeter(user) {
   const period = plan.weekly ? isoWeek() : isoMonth();
   if (!user.exports || user.exports.period !== period) user.exports = { period, count: 0 };
   return { plan, cap, period, per: plan.weekly ? 'week' : 'month', remaining: cap === null ? null : Math.max(0, cap - user.exports.count) };
+}
+/* the video meter, apart from the photos (plans.mjs `videos`, 2026-11-18): a
+   calendar month's video downloads; null is unlimited (Business) */
+function videoMeter(user) {
+  const plan = PLANS[planId(user.plan)];
+  const cap = plan.videos === undefined ? null : plan.videos;
+  const period = isoMonth();
+  if (!user.videos || user.videos.period !== period) user.videos = { period, count: 0 };
+  return { plan, cap, period, per: 'month', remaining: cap === null ? null : Math.max(0, cap - user.videos.count) };
 }
 /* a paid account whose period ran out is read from Stripe again (billing.mjs) */
 async function freshUser(user, env) {
@@ -311,7 +320,10 @@ export default async (req) => {
     /* One download, photo or video, from the studio or the video maker:
        /export counts it, /export/check says what the plan allows without
        counting (the video maker asks before it spends a minute making the
-       video, and counts once the file is made). */
+       video, and counts once the file is made). A video (with the photo of
+       it that rides along) is counted on the plan's video meter, a photo on
+       its photo meter: Pro has 500 photos and 30 videos a month, Business
+       both unlimited (plans.mjs, 2026-11-18). */
     if ((p === '/export' || p === '/export/check') && req.method === 'POST') {
       const em = await readToken(req, env);
       if (!em) return json({ error: 'Not signed in' }, 401);
@@ -324,9 +336,18 @@ export default async (req) => {
       if (kind === 'video' && !videoOk(user.plan)) {
         return json({ error: 'Video downloads come with Pro and Business', needs: 'video', user: publicUser(user, env) }, 403);
       }
+      if (kind === 'video') {
+        const v = videoMeter(user);
+        if (v.cap !== null && v.remaining <= 0) {
+          return json({ error: 'Video limit reached: ' + v.plan.label + "'s " + v.cap + ' video downloads this month. They start over on the 1st, and Business has unlimited video',
+            kind: 'video', limit: v.cap, per: 'month', user: publicUser(user, env) }, 402);
+        }
+        if (p === '/export') { user.videos.count++; await putUser(user); }
+        return json({ user: publicUser(user, env), kind: 'video', maxPx: v.plan.maxPx, watermark: v.plan.watermark, remaining: v.cap === null ? null : v.cap - user.videos.count });
+      }
       const m = exportMeter(user);
       if (m.cap !== null && m.remaining <= 0) {
-        return json({ error: 'Download limit reached for this ' + m.per, limit: m.cap, per: m.per, user: publicUser(user, env) }, 402);
+        return json({ error: 'Download limit reached: ' + m.plan.label + "'s " + m.cap + ' photo downloads this ' + m.per, kind: 'photo', limit: m.cap, per: m.per, user: publicUser(user, env) }, 402);
       }
       if (p === '/export') { user.exports.count++; await putUser(user); }
       return json({ user: publicUser(user, env), maxPx: m.plan.maxPx, watermark: m.plan.watermark, remaining: m.cap === null ? null : m.cap - user.exports.count });

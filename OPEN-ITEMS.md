@@ -3694,3 +3694,115 @@ Open:
    square), a theme or a type voice picked by hand, the Designer (advanced
    editor), and the ad set and Quick ad in the video maker. Each is a reading
    to add when a fix touches it.
+
+## BJ. 2026-11-18 — the census's findings fixed, and the owner's review notes (DESIGN-LAW 144)
+
+(claude/xenodochial-mccarthy-7bea6d, on top of §BI.) The owner, of §BI's findings: "FIX IT".
+Then, looking at the live landing page and the census, a run of notes, each kept here in the
+owner's words with where it stands. Status words: **done** (on this branch, checked), **helper**
+(done by a helper fork on this branch; see its line), **open** (not started), **owner** (waits on
+the owner's word).
+
+The census's findings (§BI, Found):
+1. **done** — TOP DOLLAR and ANY CONDITION out of the full ad's defaults; the list on the site;
+   fullWords notes a typed phrase; `scripts/words_check.mjs` (rule 144).
+2. **done, part** — pictures for PC handhelds and Meta glasses. **owner**: gaming PCs, gaming
+   headsets, SSDs, mini PCs and sealed Chromebooks have no clean picture in the repository; free
+   photographs (Wikimedia Commons, as `scripts/cut_vehicle_photos.py` cut the cars) need a
+   download the owner has not yet allowed. Only the full ad has a place for a business name;
+   the older generations' cards without a product picture (186 library cards, 67 designer
+   layouts) are the owner's thumbs on the review page, not a mass hold.
+3. **done** — TEXT A PIC on phone cards and ANY CONDITION across the library and the layouts,
+   and the rewriter that kept writing them (refresh_copy.mjs rule 7).
+4. **helper** — iPhones LA's FeedAd: 51 stills re-worded and redrawn, all pass FeedAd's own gate
+   (43 carried a banned phrase, 7 failed it); the generator refuses a banned list; a new check
+   in `harness.js` refuses a still whose 1080 picture strays from the layout it checked. The
+   pictures already posted are the old ones: reposting is the owner's call. The batch's videos
+   are not re-rendered.
+5. **helper** — Any look: a call to action on all 246 looks (214 had none: `engine.js`
+   `defaultLabel`), and a pre-flight (`motion/look-preflight.js` `lookPreflight`, checked by
+   `scripts/look_preflight_check.mjs`) in front of every download, video and save; the gallery
+   and New look skip a look its own pre-flight would stop. DON'T WAIT and ¡NO ESPERES! left the
+   video maker's words and joined the list's pressure phrases.
+6. **done** — the two gold designer layouts and two library cards that failed headline
+   legibility pass the gate.
+7. **done** — the first full ads spread over 11 pairs (`lineTurn`).
+8. **done elsewhere** — the video maker's lost number: session "Video maker: number lost when
+   area typed right after", branch `claude/sad-pike-c4b427` (291b8ed6, 31c634f5), not merged.
+
+The owner's notes the same day (the review notes):
+- "I want to see the entire library categorized and ranked best to worst (just for me the admin)
+  so I can audit poor language or write quick changes with pop up prompt and thumbs up and down
+  to approve or deny" — **done**: `scripts/build_review_page.mjs` → the review page (an
+  Artifact; its store keeps each decision) → `scripts/apply_review.mjs`.
+- "when you want to change the element there should be a drop down of car assets we have",
+  "usually vectors and pngs", "same goes for phone or other categories.. you can click the asset
+  or replace asset" — **done** on the review page (each category's approved cut-outs); **open**
+  in the ad maker itself (Easy Mode's phone picker, made for every category).
+- "why are the same elements being used on the hero... same phones.. or same ipad
+  arrangements.. we need infinite but prioritized by recent popular and expensive models", "not
+  just front and back", "any possible style.. side profile... front with lock screens.. backs..
+  diagonal.. multi.. or just 1", "all colors too ..", "but obviously the most will be the hot
+  in demand models", "the heros barely have any variety.." — **done** (helper): when nobody
+  picked the product, the full ad draws it by the seed from weighted pools
+  (`spec/product-demand.json`, written to `motion/product-demand.js` by
+  `scripts/build_product_demand.mjs`; the weights are judgement by launch year and price tier,
+  dated, for the owner to adjust): the five newest Pro and Pro Max models are 72% of phones over
+  1,200 draws, 73 of 89 finishes appear, views back 34%, turned 20%, front with a lock screen
+  22%, front turned 10%, side 8%, mixed 6%; one to three phones; every other line draws from a
+  pool of up to 12 pictures. A quick ad keeps the phones on screen (`pin_phones`), so its listing
+  keeps its model and price. **owner**: no 18 Pro Max in black, 18 Pro in silver, 17 in white or
+  black, 15 in black or yellow, and no iPhone Air; front views are drawn, not photographed.
+- "your old Google your old Samsung", "it's clearly missing a word and it could fit on the first
+  line easily" — **done** (helper): "Your old Google / Pixel is cash.", "Sell your Google Pixel.";
+  Galaxy reads "Sell your old Samsung.": "Your old Samsung Galaxy is cash." fits one layout only
+  at the headline's size. **owner**: whether Samsung alone is right.
+- "most of the time we want it centered... like 70-80% of the time sometimes aligned left and
+  rarely aligned right" — **done** (helper): the wall picks ~75% centred, at most 20% left, none
+  right; the offer family went from 34 to 125 centred cards of 225; Studio row, Split and Photo
+  band stay left (centring Studio row makes it Centre). The full ad is always centred (rule 137).
+- "audit the font use.. the gold ones look like old people fonts..." — **done** (helper): the
+  offer family's gold, silver and coin faces (Rye, Cormorant, Gloock) are Clash Display, Big
+  Shoulders, Unbounded and Sofia; 26 library cards left Gloock, Young Serif and Instrument Serif;
+  13 serif pairs on the gold designer layouts became the house faces.
+- "sell you macbook with the view of the keyboard on the site hero is a little band and loacks
+  details particularly around the middle" — **done** (helper): `scriptRetro-nn04-20` carries a
+  MacBook Air photograph in the middle, in a modern face.
+- "all of the CTA still look a little too common and similar" — **done** (helper): the wall
+  shows at most two cards of a layout family (12 families on 18 cards), so the number and call
+  to action styles vary. **owner**: 9 of the 12 hand picks in `hero-picks.json` are Steps Flow.
+- the trucks card, "a little bland / vague", "more vibrant or neon.. or draw from a less pastel
+  pallete", "orange and salmon looks a little funny", "how about we pick one", "Maybe classic
+  cars is an option?" — **done** (helper): `stepsFlow-nn01-20` reads SELL YOUR CLASSIC / CAR
+  OR TRUCK, ANY YEAR in one vivid orange; three sibling cards lost "CARS, TRUCKS, VANS".
+- "audit all of the color schemes.. with cars people like a good bg or sunset", "not low
+  exposure dark images..." — **done** (helper): the 9 darkest car cards stand on bright
+  photographs of what they name, shaded behind the words only; the Challenger's licence plate,
+  legible behind a card's words, is blurred in the photograph. **owner**: the Sprinters card keeps
+  its dark ground (no Sprinter photograph in the repository); three right-aligned Pokémon cards
+  stay in the library, off the wall.
+- "what if you wanted to put an @ instead", "a social handle", "maybe it specifies platform as
+  well?", "you could also have multiple CTA?", "check box ? if wanted" — **open**: the contact
+  block (number, website, an @handle with its platform, one or more calls to action by
+  checkbox), in the full ad and the makers.
+- "how do these ads relate to the video ads.. aren't all photo ads supposed to be made into a
+  video", "every photo ad can have enough variety of animations and styles..." — the full ad is
+  a photo and a video of one ad (rule 137); the older generations are photos only. **open**:
+  more variety of motion and style in the full ad's video.
+- "how to we break down this process so it goes smoothly every time" — **done**: the review loop
+  (rule 144).
+- "also rebuild the checkout, pricing tiers.. and feature breakdown", "so the highest package
+  gets video credits", "atleast 2 paid tiers or maybe 3 and which case videos are limited on the
+  2nd but fully allowed on 3rd?" — **done** (helper): Free (3 a week, watermarked, no video, 5
+  credits), Starter $25 (100 photos a month, no video, 50), Pro $60 (500 photos, 30 videos a
+  month on their own meter, enforced in /export, 200), Business $100 (unlimited photos and video,
+  500), yearly at ten months; `scripts/build_pricing.mjs` writes the landing's cards and
+  comparison table and app.js's PLANS block from `netlify/lib/plans.mjs`; checkout offers Stripe's
+  hosted page when the embedded form fails to open. **owner**: Pro's 30 videos a month; the
+  Terms' plan paragraph and its version (TERMS_VERSION 2026-11-18); card lines like "Photos, and a
+  video a day". Nothing is live until deployed.
+
+Open:
+1. **Not on `main`**, and the census gate still waits on the owner's retirements (§BI Open 2).
+2. **The five pictureless lines** (finding 2): a download, the owner's word.
+3. **The contact block, the picture picker in the makers, the video's variety** (above).

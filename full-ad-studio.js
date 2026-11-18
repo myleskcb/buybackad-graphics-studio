@@ -74,7 +74,9 @@ function ready() {
   ]);
   const iph = S.key === "iphone", set = S.sets.length ? (FA.set[S.key] | 0) % S.sets.length : 0, k = S.key + "|" + set;
   if (!live.loaded[k]) live.loaded[k] = (iph
-    ? loadPhones(at("./motion/phones/"), DEFAULT_PHONES).then(({ phones, index }) => { Object.assign(assets.phones, phones); assets.index = index; return DEFAULT_PHONES.filter(id => phones[id]); })
+    /* every phone the shop buys (1.2 MB), not the default four alone: a full ad nobody picked the phones
+       for draws its set by its seed, the in-demand models most (fullad.js drawPhones, 2026-11-18) */
+    ? loadPhones(at("./motion/phones/")).then(({ phones, index }) => { Object.assign(assets.phones, phones); assets.index = index; return DEFAULT_PHONES.filter(id => phones[id]); })
     : S.sets.length ? loadSubjectSet(S, set, at("./assets/cutouts/")).then(got => { Object.assign(assets.phones, got.assets); return got.ids; }) : Promise.resolve([])
   ).catch(e => { delete live.loaded[k]; throw e; });
   return Promise.all([live.base, live.loaded[k]]).then(([, ids]) => ({ S, ids, set }));

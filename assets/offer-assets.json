@@ -1,6 +1,32 @@
 {
- "size": {},
- "sets": {},
+ "size": {
+  "photo-gaming-steam-deck-dark": [
+   1814,
+   746
+  ],
+  "photo-wear-ray-ban-meta": [
+   1803,
+   949
+  ]
+ },
+ "sets": {
+  "pchandheld": [
+   [
+    [
+     "photo-gaming-steam-deck-dark",
+     1
+    ]
+   ]
+  ],
+  "metaglasses": [
+   [
+    [
+     "photo-wear-ray-ban-meta",
+     1
+    ]
+   ]
+  ]
+ },
  "replaces": {},
  "grounds": {}
 }

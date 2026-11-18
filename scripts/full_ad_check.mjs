@@ -172,7 +172,8 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
       const [W0, H0] = E.ASPECTS[aspect], k = 1080 / Math.min(W0, H0);
       const ad = new F.FullAd(st, assets, Math.round(W0 * k), Math.round(H0 * k));
       const c = F.fullStill(ad), pre = F.fullPreflight(ad, c);
-      rows.push({ key: S.key, aspect, pictures: got.ids.length, drawn: ad.phones.length, why: F.fullBlockers(ad), m: F.fullMeasure(ad), voice: st.voice, fixes: pre.findings.filter(f => f.level === 'fix').map(f => f.say), failed: pre.checks.filter(x => !x.ok && /^(edge|reads)$/.test(x.id)).map(x => x.id + ': ' + x.value) });
+      // every picture the ad asks for is drawn (a line's first set is its pool since 2026-11-18: the seed draws one entry of it)
+      rows.push({ key: S.key, aspect, pictures: st.phones.filter(id => id !== 'none').length, drawn: ad.phones.length, why: F.fullBlockers(ad), m: F.fullMeasure(ad), voice: st.voice, fixes: pre.findings.filter(f => f.level === 'fix').map(f => f.say), failed: pre.checks.filter(x => !x.ok && /^(edge|reads)$/.test(x.id)).map(x => x.id + ': ' + x.value) });
       if (wantSheet && aspect === '1:1') {
         const small = E.canvas(360, 360); small.getContext('2d').drawImage(c, 0, 0, 360, 360);
         sheet.push([S.key, small.toDataURL('image/jpeg', .86), 360, 360]);

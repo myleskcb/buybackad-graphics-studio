@@ -15,11 +15,13 @@
 // keeps small or leaves out.
 import { Ad, inkSprite, splitLines, trim, canvas, lum, prog, outBack, rng, clamp, contrastOf, fontCss, applyCase, labelFont, burstFontFor,
   headlineLines, numberSprite, perksSprite, pointsOf, randomize, harmonise, formatNumber, oklchOf } from "./engine.js";
-import { FONTS, FINE_FACES, PALETTES, DEFAULT_STYLE, TYPE_VOICES } from "./catalog.js";
+import { FONTS, FINE_FACES, PALETTES, DEFAULT_STYLE, TYPE_VOICES, DEFAULT_PHONES } from "./catalog.js";
 import { drawChevrons } from "./decor.js";
 import { placeAccents, timeAccents } from "./accents.js";
 import { HOUSE_COLOURS, LINES } from "./house-colours.js";
 import { FULL_VOICES } from "./full-voices.js";
+import { bannedIn } from "./banned-words.js";
+import { PHONE_WEIGHT, PHONE_REST, PHONE_VIEWS, PHONE_COUNTS, PHONE_LINEUP, pickWeighted } from "./product-demand.js";
 
 // Proportions of the frame's width. 1080 x .052 = 56px, x .044 = 48px, x .032 = 35px.
 // edge: nothing nearer the frame's edge than 38px; gap: no two stacked blocks nearer than 22px.
@@ -337,13 +339,17 @@ export const ARRANGEMENTS = ["lineup", "fan", "showcase", "podium", "wings"];
    footer's pin, and pin and shield each bring a third colour onto a two-colour card. */
 export const ICONS = ["cash"];
 /** What an ad says when its maker has typed nothing: claims any buyer can stand behind (no "#1",
- *  "best" or "fastest", which need proof; DESIGN-LAW's honest-claims rule). */
+ *  "best" or "fastest", which need proof; DESIGN-LAW's honest-claims rule), and none of the one
+ *  list's banned phrases (spec/banned-words.json, rule 143; scripts/words_check.mjs fails a commit
+ *  that puts one back). The claim is read first and, with no business name typed, is the badge:
+ *  the research's verdict on TOP DOLLAR there was "replace with identity or place" (2026-11-12),
+ *  and until 2026-11-18 it still stood on 33 of the 35 first full ads (OPEN-ITEMS §BI). */
 export const FULL_WORDS = {
-  claim: ["TOP DOLLAR • FAST CASH", "HONEST BUYER • TOP DOLLAR", "QUICK REPLIES • CASH TODAY", "LOCAL & HONEST", "TOP DOLLAR PAID"],
-  line: ["ALL MODELS WANTED", "NEW, USED OR CRACKED", "ANY CARRIER • ANY CONDITION"],
-  points: ["FREE QUOTE, CASH SAME DAY, NO FEES", "QUOTE BY TEXT, PAID TODAY, WE MEET YOU", "TEXT US NOW, TOP DOLLAR, ANY CONDITION"],
+  claim: ["LOCAL & HONEST", "QUICK REPLIES • CASH TODAY", "LOCAL BUYER • FAIR OFFERS", "FAIR OFFER • NO PRESSURE", "HONEST BUYER • PAID TODAY"],
+  line: ["ALL MODELS WANTED", "NEW, USED OR CRACKED", "ANY CARRIER • CRACKED OK"],
+  points: ["FREE QUOTE, CASH SAME DAY, NO FEES", "QUOTE BY TEXT, PAID TODAY, WE MEET YOU", "TEXT US NOW, FAIR OFFER, NO HASSLE"],
   label: ["CALL OR TEXT", "TEXT US NOW", "GET YOUR OFFER"],
-  burst: ["CASH!", "FAST CASH", "TOP $$$", "PAID TODAY", "SAME DAY", "EASY SALE"],
+  burst: ["CASH!", "FAST CASH", "NO FEES", "PAID TODAY", "SAME DAY", "EASY SALE"],
   burst_es: ["PAGO HOY", "PAGO YA", "FÁCIL"],
 };
 
@@ -401,6 +407,20 @@ const pairHues = c => [c.colors.ground, c.colors.accent].map(oklchOf).filter(k =
  *  bold phones on it (phoneHues: the body hues of the phones it shows). All twelve, in their order,
  *  for any other ad: a seed that drew a pair before draws the same one. A pair picked by hand is
  *  never narrowed (fullStyle). */
+/** WHICH PAIR A LINE'S FIRST AD OPENS IN (2026-11-18). Seed 1 is every new visitor's first full
+ *  ad, and a seed's first draw is the same number whatever the line: 31 of the 35 lines opened in
+ *  Green & Gold (OPEN-ITEMS §BI, found 12). Each line turns that draw by a step of its own (its key,
+ *  hashed and spread over the list), so the first ads of the lines spread over the pairs; the
+ *  iPhone line turns by none and opens as before. Still one draw from the seed's stream, so the
+ *  ground, the arrangement and the words a seed drew do not move, and a restricted line (gold,
+ *  silver, test strips, Pokémon: pairsFor) turns within the pairs that suit it. */
+export function lineTurn(subject, n) {
+  if (!subject || subject === "iphone" || !(n > 1)) return 0;
+  let h = 0x811c9dc5;
+  for (const ch of String(subject)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
+  return Math.floor((Math.imul(h, 2654435761) >>> 0) / 2 ** 32 * n);
+}
+
 export function pairsFor(subject, headline, phoneHues = []) {
   let keys = LINES.includes(subject) ? HOUSE_COLOURS.filter(c => (c.suits || []).includes(subject)).map(c => c.key) : COLOURWAYS;
   const named = String(headline || "").toUpperCase().split(/\s+/).filter(w => COLOUR_WORD[w.replace(/[^A-ZÁÉÍÓÚÑ]/g, "")]);
@@ -467,7 +487,21 @@ export class FullAd extends Ad {
   constructor(style, assets, width, height) {
     super(style, assets, width, height, { plan: false });   // laid out at this size by the rules below, never from the plain engine's plan
     this._productLight();
+    // a phone that lands face up shows a lock screen in the card's own colours, its glass the one of
+    // them that stands farthest off the ground lit behind it (lockScreen, screenBase)
+    if (this.st.end_face && this.st.end_face !== "back") this.phones.forEach((q, i) => { if (!(q.meta && q.meta.flat) && !q.screen) q.screen = lockScreen(this.p, (this.st.seed | 0) + i, this.st.lang, screenBase(this.p, this._groundAt(q))); });
     this._evenGround();
+  }
+
+  /** The ground behind a phone's middle, as the pre-flight reads it: the median relative luminance of
+   *  the lit ground over the patch at its centre. */
+  _groundAt(q) {
+    const W = this.W, H = this.H, cx = q.home[0] | 0, cy = q.home[1] | 0, s = Math.max(4, Math.round(Math.min(q.w, q.h) * q.size * .12));
+    const x0 = Math.max(0, cx - s), y0 = Math.max(0, cy - s), w = Math.min(W, cx + s + 1) - x0, h = Math.min(H, cy + s + 1) - y0;
+    if (w <= 0 || h <= 0) return relLum(this.p.ground);
+    const d = this.bg.getContext("2d", { willReadFrequently: true }).getImageData(x0, y0, w, h).data, L = [];
+    for (let i = 0; i < d.length; i += 8) L.push(.2126 * lin8(d[i]) + .7152 * lin8(d[i + 1]) + .0722 * lin8(d[i + 2]));
+    L.sort((u, v) => u - v); return L[L.length >> 1];
   }
 
   /** A light behind the product, in the colourway's own lighter tone, painted into the ground once.
@@ -986,6 +1020,146 @@ export function chevronMarks(ad) {
   return K.map((k, i) => ({ i, k, lx: x0 - tip[i], rx: x1 + tip[i], cy, ax: sz * .35 * k, ay: sz * .45 * k, width: Math.max(2, sz * .28 * k) }));
 }
 
+/* ══════════════════════════════════════════════════════════════════════════════════════════
+   THE PRODUCT NOBODY PICKED (2026-11-18). The owner: "why are the same elements being used on the
+   hero... same phones.. or same ipad arrangements.. we need infinite but prioritized by recent
+   popular and expensive models", "not just front and back", "any possible style.. side profile...
+   front with lock screens.. backs.. diagonal.. multi.. or just 1", "all colors too", "but obviously
+   the most will be the hot in demand models". Until then a full ad nobody picked the product for
+   showed the maker's four default phones, or a line's first set of pictures, on every seed.
+
+   Now the seed draws it, from streams of its own (the colours, the ground and the words a seed drew
+   do not move): for the iPhone line, how many phones (PHONE_COUNTS for the frame), which models by
+   their demand (PHONE_WEIGHT: spec/product-demand.json, through motion/product-demand.js), in any
+   finish, one model in several finishes PHONE_LINEUP of the time; and how they stand (PHONE_VIEWS:
+   back, turned a third of the way, front with a lock screen, side on, or fronts and backs mixed),
+   drawn by the engine itself, which turns every phone it has. For every other line, one entry of
+   its pool (motion/subjects.json, by scripts/build_full_subjects.mjs from the same table): the
+   offer family's own sets, the line's Apple models in every finish, the pictures the table names.
+   A customer's own pick is never changed: phones chosen in Phones (anything but the default four)
+   and a picture chosen with Picture (a set other than the first) stay as chosen.
+   ══════════════════════════════════════════════════════════════════════════════════════════ */
+const sameIds = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
+/* a seed's own stream for each of these, mixed first: mulberry32 started from seeds a step apart gives
+   early numbers that move together (the first twelve seeds all turned their phones the same way) */
+const mixSeed = s => { s = Math.imul((s >>> 0) ^ 0x9e3779b9, 0x85ebca6b); s ^= s >>> 13; s = Math.imul(s, 0xc2b2ae35); return (s ^ (s >>> 16)) >>> 0; };
+/** True when nobody picked the phones: none, or the maker's own default four. */
+export function phonesUnpicked(phones) {
+  const ids = (phones || []).filter(id => id && id !== "none");
+  return !ids.length || sameIds(ids, DEFAULT_PHONES);
+}
+/** A set of phones for a seed, from the phones on hand (index), the in-demand models most. */
+export function drawPhones(seed, aspect, index, most = 3) {
+  const r = rng(mixSeed((seed >>> 0) * 131 + 977));
+  const byModel = new Map();
+  for (const m of index || []) if (m.ok !== false) { if (!byModel.has(m.model)) byModel.set(m.model, []); byModel.get(m.model).push(m.id); }
+  if (!byModel.size) return [];
+  const models = [...byModel.keys()].sort().map(k => [k, PHONE_WEIGHT[k] ?? PHONE_REST]);
+  const n = Math.max(1, Math.min(most, pickWeighted(r(), PHONE_COUNTS[aspect] || PHONE_COUNTS["1:1"]) || 1));
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const first = pickWeighted(r(), models), finishes = shuffle(byModel.get(first).slice());
+  // one model in several of its finishes, as a shop window shows a line-up
+  if (n > 1 && r() < PHONE_LINEUP && finishes.length >= n) return finishes.slice(0, n);
+  // or a range: other models, each in one of its finishes, the dearest in the middle
+  const out = [finishes[0]], used = new Set([first]);
+  while (out.length < n) {
+    const left = models.filter(([k]) => !used.has(k)); if (!left.length) break;
+    const k = pickWeighted(r(), left); used.add(k); out.push(shuffle(byModel.get(k).slice())[0]);
+  }
+  if (out.length === 3) out.splice(1, 0, out.shift());
+  return out;
+}
+const VIEW_OF = { back: ["flat", "back"], back_turned: ["edge", "back"], front: ["flat", "front"], front_turned: ["edge", "front"], profile: ["profile", "back"], mixed: ["flat", "mixed"] };
+/** How a set of n phones stands, for a seed: { view, pose, end_face } (the engine's own pose and end_face).
+ *  backs: phones the customer picked show the finish they picked, so only the views that show a back. */
+export function phoneView(seed, n = 1, backs = false) {
+  const r = rng(mixSeed((seed >>> 0) * 173 + 59));
+  const v = pickWeighted(r(), PHONE_VIEWS.filter(([k]) => (k !== "mixed" || n > 1) && (!backs || VIEW_OF[k][1] === "back"))) || "back";
+  const [pose, end_face] = VIEW_OF[v] || VIEW_OF.back, side = r() < .5 ? "left" : "right";
+  return { view: v, pose: pose === "edge" ? "edge_" + side : pose === "profile" ? "profile_" + side : "flat", end_face };
+}
+/** A drawn set's phones, each in a finish that stands off the ground lit behind it: one under 1.6:1 there (by
+ *  its measured lightness) gives way to the same model in a neutral finish that reads, else to the most wanted
+ *  model in one; a neutral finish adds no colour family to the card (rule 139). */
+export function readableFinishes(ids, colors, index) {
+  // the ground at the product's middle as FullAd lights it (_productLight: the light tone, a third of the
+  // way to white, at .6 over the ground), and a body's luminance from its measured lightness (OKLab L cubed)
+  const mix = (u, v, t) => "#" + [1, 3, 5].map(i => Math.round((parseInt(u.slice(i, i + 2), 16) || 0) * (1 - t) + (parseInt(v.slice(i, i + 2), 16) || 0) * t).toString(16).padStart(2, "0")).join("");
+  // a phone at the side of a set stands where the light has faded (.22 at half its reach), so the ground is
+  // read both lit (.6) and at the side (.25), and a finish must stand off both
+  const lit = t => relLum(mix(colors.ground, lift(colors.light || colors.ground, .35), t)), gA = lit(.6), gB = lit(.25);
+  const cr = b => ids.length > 1 ? Math.min(ratio(b.L ** 3, gA), ratio(b.L ** 3, gB)) : ratio(b.L ** 3, gA);   // one phone alone stands in the middle of the light
+  const byId = Object.fromEntries((index || []).map(m => [m.id, m])), NEED = 1.6, taken = new Set(ids);
+  const neutral = o => o.body && o.body.C < BOLD_C && !taken.has(o.id);
+  return ids.map(id => {
+    const m = byId[id], b = m && m.body; if (!b || cr(b) >= NEED) return id;
+    // the same model in a neutral finish that reads; else the most wanted model that has one; else the best of what there is
+    const same = (index || []).filter(o => o.model === m.model && neutral(o)).sort((p, q) => cr(q.body) - cr(p.body))[0];
+    const other = (index || []).filter(o => neutral(o) && cr(o.body) >= NEED).sort((p, q) => (PHONE_WEIGHT[q.model] ?? PHONE_REST) - (PHONE_WEIGHT[p.model] ?? PHONE_REST) || cr(q.body) - cr(p.body))[0];
+    const pick = same && cr(same.body) >= NEED ? same : other || (same && cr(same.body) > cr(b) ? same : null);
+    if (!pick) return id;
+    taken.delete(id); taken.add(pick.id); return pick.id;
+  });
+}
+/* each line's pool, as loadSubjectSet loaded it: [{ ids, w }] */
+const POOLS = new Map();
+/** One entry of a line's pool for a seed, of the pictures loaded (null when its pool is not loaded). */
+export function subjectDraw(key, seed, loaded) {
+  const P = POOLS.get(key); if (!P) return null;
+  const have = new Set(loaded || []), list = P.filter(e => e.ids.every(id => have.has(id))).map(e => [e.ids, e.w]);
+  return list.length ? pickWeighted(rng(mixSeed((seed >>> 0) * 197 + 31))(), list) : null;
+}
+/* A LOCK SCREEN for a phone that lands face up (the owner's "front with lock screens"). The engine
+   draws a front with a black screen unless it is given one. This one is drawn, not loaded, so a
+   photo taken on the first frame has it: the pair's own ground and accent as the wallpaper (no third
+   colour family on the card, rule 95), the time and the date in white over a darker top, and the
+   two buttons and the bar a lock screen keeps at its foot. */
+const LOCK_DAY = { en: "Tuesday, September 9", es: "martes, 9 de septiembre" };
+const rgba = (hex, a) => { const h = String(hex || "#000000"); const [r, g, b] = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) || 0); return `rgba(${r},${g},${b},${a})`; };
+const lin8 = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
+const relLum = hex => { const h = String(hex || "#000000"); return .2126 * lin8(parseInt(h.slice(1, 3), 16) || 0) + .7152 * lin8(parseInt(h.slice(3, 5), 16) || 0) + .0722 * lin8(parseInt(h.slice(5, 7), 16) || 0); };
+const ratio = (a, b) => (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
+const lift = (hex, k) => { const h = String(hex || "#000000"); return "#" + [1, 3, 5].map(i => { const v = parseInt(h.slice(i, i + 2), 16) || 0; return Math.round(k >= 0 ? v + (255 - v) * k : v * (1 + k)).toString(16).padStart(2, "0"); }).join(""); };
+/** The colour a lock screen's glass is filled with: of the card's own (its accent, lighter or as it is,
+ *  its light tone, its ground in deep shade), the one farthest from the ground lit behind the phone. */
+export function screenBase(p, groundY) {
+  const a = p.accent || p.plate || "#ffffff", l = p.light || a, g = p.ground || "#101418";
+  // the accent first (a lit, coloured screen), then lighter tones, then the ground's deep shade: the first
+  // that stands 1.8:1 off the ground, else whichever stands farthest
+  const cand = [a, lift(a, .35), lift(l, .45), lift(g, -.6)].map(c => [c, ratio(relLum(c), groundY)]);
+  return (cand.find(([, k]) => k >= 1.8) || cand.sort((u, v) => v[1] - u[1])[0])[0];
+}
+export function lockScreen(p, seed = 1, lang = "en", base = null) {
+  const w = 330, h = 716, c = canvas(w, h), x = c.getContext("2d"), r = rng(mixSeed((seed >>> 0) * 53 + 7));
+  const g = p.ground || "#101418", a = base || p.accent || p.plate || "#ffffff", l = p.light || g;
+  // the accent fills the glass, so the face of the phone stands off the card's ground as its back
+  // does (the pre-flight reads the middle of each product against the ground: a dark screen on a
+  // dark card read 1.1:1), the ground's own colour only in its depth and its curves
+  const v = x.createLinearGradient(0, 0, 0, h); v.addColorStop(0, rgba(g, 1)); v.addColorStop(.3, rgba(a, 1)); v.addColorStop(1, rgba(a, 1));
+  x.fillStyle = v; x.fillRect(0, 0, w, h);
+  const glow = (cx, cy, rad, col, al) => { const gr = x.createRadialGradient(cx, cy, 0, cx, cy, rad); gr.addColorStop(0, rgba(col, al)); gr.addColorStop(1, rgba(col, 0)); x.fillStyle = gr; x.fillRect(0, 0, w, h); };
+  glow(w * (.25 + .5 * r()), h * (.55 + .15 * r()), h * .5, l, .45);
+  x.save(); x.globalAlpha = .22; x.strokeStyle = g; x.lineWidth = w * .07;
+  const left = r() < .5;
+  for (let i = 0; i < 3; i++) { x.beginPath(); x.arc(left ? -w * .3 : w * 1.3, h * (.62 + .12 * i), w * (.8 + .22 * i), 0, Math.PI * 2); x.stroke(); }
+  x.restore();
+  const top = x.createLinearGradient(0, 0, 0, h * .46); top.addColorStop(0, "rgba(0,0,0,.45)"); top.addColorStop(1, "rgba(0,0,0,0)");
+  x.fillStyle = top; x.fillRect(0, 0, w, h * .46);
+  x.textAlign = "center"; x.textBaseline = "alphabetic"; x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = w * .02;
+  x.fillStyle = "rgba(255,255,255,.9)"; x.font = `600 ${Math.round(w * .056)}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
+  x.fillText(LOCK_DAY[lang] || LOCK_DAY.en, w / 2, h * .17);
+  x.fillStyle = "#ffffff"; x.font = `700 ${Math.round(w * .27)}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
+  x.fillText("9:41", w / 2, h * .325);
+  x.shadowBlur = 0;
+  for (const bx of [w * .17, w * .83]) { x.beginPath(); x.arc(bx, h * .905, w * .075, 0, Math.PI * 2); x.fillStyle = "rgba(0,0,0,.34)"; x.fill(); }
+  x.fillStyle = "rgba(255,255,255,.86)";
+  x.fillRect(w * .17 - w * .013, h * .888, w * .026, h * .034);
+  x.fillRect(w * .83 - w * .032, h * .894, w * .064, h * .024);
+  x.beginPath(); x.arc(w * .83, h * .906, w * .013, 0, Math.PI * 2); x.fillStyle = "rgba(0,0,0,.55)"; x.fill();
+  x.fillStyle = "rgba(255,255,255,.92)"; x.beginPath(); if (x.roundRect) x.roundRect(w * .33, h * .972, w * .34, h * .008, h * .004); else x.rect(w * .33, h * .972, w * .34, h * .008); x.fill();
+  return c;
+}
+
 /** The style a full ad is drawn with: the customer's words and phones, the house style locked,
  *  and one colourway, ground, arrangement and icon for the seed (or the ones picked). Every
  *  element gets its words: what the customer left empty is filled from FULL_WORDS. keep: what
@@ -1002,15 +1176,31 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   // ones among them have a say in the colours (pairsFor).
   const subject = !!st.subject && st.subject !== "iphone";
   const most = subject ? 4 : st.aspect === "4:5" || st.aspect === "9:16" ? 3 : 2;
-  const have = (st.phones || []).slice(0, most);
+  // the product: the customer's own pick as picked; when nobody picked it, a set drawn by the seed
+  // from the line's pool or the shop's phones, the in-demand models most (drawPhones, subjectDraw)
+  const picked0 = (st.phones || []).slice(0, most);
+  const drawnSub = subject && !(st.subject_set | 0) ? subjectDraw(st.subject, seed, st.phones || []) : null;
+  // a Quick ad keeps the phones of the ad it follows (pin_phones, set by the maker's quickAd): its
+  // listing is about those phones and their price, so only the look changes; New look or a phone
+  // picked by hand clears the pin. They still turn and stand as a drawn set does.
+  const pinned = !subject && phonesUnpicked(st.phones) && Array.isArray(st.pin_phones) && st.pin_phones.length ? st.pin_phones.slice(0, most) : null;
+  let have = drawnSub ? drawnSub.slice(0, most) : pinned ? pinned : !subject && phonesUnpicked(st.phones) && phoneIndex.length ? drawPhones(seed, st.aspect, phoneIndex, most) : picked0;
   const idx = Object.fromEntries(phoneIndex.map(m => [m.id, m]));
   const bold = subject ? [] : have.map(id => (idx[id] || {}).body).filter(b => b && b.C >= BOLD_C).map(b => b.h);
-  const first = one(pairsFor(st.subject, st.headline, bold)), key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, type_pair: _t, type_any: _a, ...picked } = pick;
+  const pairs = pairsFor(st.subject, st.headline, bold), first = pairs[(Math.floor(r() * pairs.length) + lineTurn(st.subject, pairs.length)) % pairs.length];
+  const key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, type_pair: _t, type_any: _a, ...picked } = pick;
   // the type: the house's one face, or one of the owner's pairs when one is picked (pick.type_pair, a
   // TYPE_VOICES key that FULL_VOICES holds). Carried in the look, after QUIET, so it is the face drawn.
   const voice = fullVoiceOk(pick.type_pair, pick.type_any) ? TYPE_VOICES[pick.type_pair] : null;   // type_any: the check that writes the list tries every pair
   const type = voice ? { type_pair: pick.type_pair, font: voice.display, number_font: voice.numberRead ? voice.label : "same", full_pair: true } : { full_pair: false };
-  const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...type, ...picked };
+  // how the phones stand: back, turned, front with a lock screen, side on, or fronts and backs mixed
+  // (phoneView; a subject's own pictures are drawn as they are)
+  // a drawn phone (never a picked one) that would stand dark on a dark card, or light on a light one,
+  // is shown in another of its finishes that reads, a neutral one (no new colour family, rule 139)
+  // (a phone that lands face up shows its lock screen, whose glass is chosen against the ground: FullAd)
+  const view = subject ? {} : (({ pose, end_face }) => ({ pose, end_face }))(phoneView(seed, have.length, have === picked0));
+  if (!subject && have !== picked0 && view.end_face !== "front") have = readableFinishes(have, COLOUR_OF[key].colors, phoneIndex);
+  const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...view, ...type, ...picked };
   const area = (st.area || "").trim();
   // What the customer left empty is filled from the lists, each line chosen so that it does not
   // repeat a promise the lines before it already make (the customer's own words are never changed:
@@ -1075,15 +1265,24 @@ export function fullMeasure(ad) {
 /** A subject's set of pictures (motion/subjects.json, from the offer family) as the engine's
  *  assets: { ids, assets }. Each is marked flat, so FullAd draws it as it is. */
 export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cutouts/") {
-  const sets = subject.sets || [];
-  if (!sets.length) return { ids: [], assets: {} };
-  const set = sets[((setIndex % sets.length) + sets.length) % sets.length], assets = {}, ids = [];
-  await Promise.all(set.map(async ({ file, k }) => {
+  const sets = subject.sets || [], pool = subject.pool || [];
+  // the first set is the line's pool when it has one: the whole pool is loaded, once, and each seed
+  // draws one entry of it (subjectDraw); a set picked with Picture is that set alone
+  const auto = !(setIndex | 0) && pool.length > 0;
+  if (!sets.length && !auto) return { ids: [], assets: {} };
+  const set = auto ? pool.flatMap(e => e.set) : sets[((setIndex % sets.length) + sets.length) % sets.length], assets = {}, ids = [];
+  // a picture's id carries its size beside the first when that is not 1: one file may stand alone in one entry and second in another
+  const idOf = ({ file, k }) => "sub-" + file + (k && k !== 1 ? "@" + k : "");
+  const imgs = new Map();
+  await Promise.all([...new Set(set.map(p => p.file))].map(async file => {
     const img = await new Promise((res, rej) => { const i = new Image(); i.decoding = "async"; i.onload = () => res(i); i.onerror = () => rej(new Error("The picture " + file + " did not load.")); i.src = base + file + ".webp"; });
-    const id = "sub-" + file;
-    assets[id] = { img, meta: { id, model: subject.label, finish: "", w: img.naturalWidth, h: img.naturalHeight, metal: "#888888", flat: true, k: k || 1 } };
+    imgs.set(file, img);
   }));
-  for (const { file } of set) ids.push("sub-" + file);
+  for (const p of set) {
+    const id = idOf(p), img = imgs.get(p.file);
+    if (!assets[id]) { assets[id] = { img, meta: { id, model: subject.label, finish: "", w: img.naturalWidth, h: img.naturalHeight, metal: "#888888", flat: true, k: p.k || 1 } }; ids.push(id); }
+  }
+  if (auto) POOLS.set(subject.key, pool.map(e => ({ ids: e.set.map(idOf), w: e.w })));
   return { ids, assets };
 }
 
@@ -1131,9 +1330,16 @@ export function fullWords(st) {
     const A = stems(promises[i][1]), shared = [...stems(promises[j][1])].filter(w => A.has(w));
     if (shared.length) say("once", "note", `The ${promises[i][0]} and the ${promises[j][0]} both say ${shared[0]}. Say it once and use the other for something new.`);
   }
+  // the one list of words no ad of ours says (spec/banned-words.json, rule 143, through
+  // motion/banned-words.js): what PROOF and "up to" already say is not said twice. A phone ad is
+  // one with no other subject (the iPhone line) or one the maker marks so (subject_cat).
+  const cat = st.subject_cat || (!st.subject || st.subject === "iphone" ? "phones" : "");
+  const SAID_ABOVE = new Set(["up-to-price", "highest", "number-one", "best", "superlative", "guaranteed"]);
+  const told = new Set();
   for (const [name, text] of parts) {
-    const m = PROOF.exec(String(text)); if (m) say("proof", "note", `"${m[2].trim().toUpperCase()}" in the ${name} is a claim you may be asked to prove. "Top dollar" or "fair offer" says it without the risk.`);
+    const m = PROOF.exec(String(text)); if (m) say("proof", "note", `"${m[2].trim().toUpperCase()}" in the ${name} is a claim you may be asked to prove. "Fair offer" or "cash today" says it without the risk.`);
     if (/\bUP TO\s*\$?\d/i.test(String(text))) say("proof", "note", `"Up to" a price in the ${name} is read as the usual price. Name what you pay for one model, or leave the price out.`);
+    for (const b of bannedIn(text, cat)) if (!SAID_ABOVE.has(b.id) && !told.has(b.id)) { told.add(b.id); say("words", "note", `${b.say} (In the ${name}.)`); }
   }
   const site = String(st.site || st.feed_site || "").trim();
   if (site && !/[a-z0-9-]+\.[a-z]{2,}/i.test(site)) say("address", "note", "The website does not look like an address. Write it as it is typed, like www.yourshop.com.");
@@ -1172,11 +1378,18 @@ export function fullPreflight(ad, frame) {
      clear the type is (docs/THEME-AUDIT.md, correction 1: the first cut of this check failed
      readable lines on exactly that, 2026-11-12). The ground's worst tenth (its brightest under
      light ink, its darkest under dark) must still give the ratio. */
-  const reads = (r, inkHex) => {
+  // markHex: a mark the line carries in another colour (the footer's pin, in the accent) is the line's own,
+  // not what stands behind it: its pixels are set aside with the letters (2026-11-18: a cyan pin read as
+  // the ground under white towns, 2.8:1, and stopped a quarter of the quick ads on the cool pairs)
+  const reads = (r, inkHex, markHex) => {
     const bx0 = Math.max(0, r[0] | 0), by0 = Math.max(0, r[1] | 0), bw = Math.min(W, Math.ceil(r[2])) - bx0, bh = Math.min(H, Math.ceil(r[3])) - by0;
     if (bw < 6 || bh < 6) return 99;
     const Li = Lhex(inkHex), light = Li >= .18, n = bw * bh, Lm = new Float32Array(n), isInk = new Uint8Array(n);
-    for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) { const L = Lat(px, ((by0 + y) * W + bx0 + x) * 4), i = y * bw + x; Lm[i] = L; if (cr(L, Li) < 1.6) isInk[i] = 1; }
+    const mk = markHex ? [1, 3, 5].map(i => parseInt(markHex.slice(i, i + 2), 16)) : null;
+    for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) {
+      const o = ((by0 + y) * W + bx0 + x) * 4, L = Lat(px, o), i = y * bw + x; Lm[i] = L;
+      if (cr(L, Li) < 1.6 || (mk && Math.abs(px[o] - mk[0]) + Math.abs(px[o + 1] - mk[1]) + Math.abs(px[o + 2] - mk[2]) < 90)) isInk[i] = 1;
+    }
     // the ring round the letters: grown by d pixels, across then down
     const d = Math.max(2, Math.round(U * .0045)), row = new Uint8Array(n), ring = new Uint8Array(n);
     for (let y = 0; y < bh; y++) { let run = -1e9; for (let x = 0; x < bw; x++) { if (isInk[y * bw + x]) run = x; if (x - run <= d) row[y * bw + x] = 1; } run = 1e9; for (let x = bw - 1; x >= 0; x--) { if (isInk[y * bw + x]) run = x; if (run - x <= d) row[y * bw + x] = 1; } }
@@ -1196,7 +1409,7 @@ export function fullPreflight(ad, frame) {
     let r = R[key]; if (!r) continue;
     if (key === "number") r = inPill(r);
     if (key === "claim") r = inPill([ad.claim.x, ad.claim.y, ad.claim.x + ad.claim.c.width, ad.claim.y + ad.claim.c.height]);
-    const got = reads(r, col);
+    const got = reads(r, col, key === "footer" ? ad.hot : null);
     if (got < worst) { worst = got; worstName = name; }
     if (got < need) say("reads", got < need * .8 ? "fix" : "note", `${name[0].toUpperCase() + name.slice(1)} is hard to read against what is behind it. Try another colour, or New look.`);
   }

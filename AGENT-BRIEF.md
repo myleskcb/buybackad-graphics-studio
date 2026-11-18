@@ -658,3 +658,12 @@ produced." DESIGN-LAW rule 87. In practice:
   every ad of the older generations and 34 of the 35 full ads today,
   so it is not wired into any deploy; that waits on the owner's retirements
   and words (OPEN-ITEMS §BI).
+- **Words are stopped where they are written** (rule 144, 2026-11-18): run
+  `node scripts/words_check.mjs` before a commit that touches any ad's words
+  (FULL_WORDS, the lines, app.js DECKS, the video maker's catalogue, library
+  cards, FeedAd cards); a phrase goes into `spec/banned-words.json`, never
+  into one generator's list, and `node scripts/build_banned_words.mjs`
+  writes the copy the site reads (`motion/banned-words.js`; spec/ is not
+  served). The owner reviews ads on the review page
+  (`scripts/build_review_page.mjs` from the census); their thumbs and notes
+  are applied with `scripts/apply_review.mjs` (OPEN-ITEMS §BJ).

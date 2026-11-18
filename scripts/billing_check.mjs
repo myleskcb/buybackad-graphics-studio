@@ -11,7 +11,8 @@
       prices it, and then costs ceil(price / CREDIT_USD); the free tier's day
       ceiling holds; operators are not charged.
    2. Downloads. /export/check never counts; /export counts; Free stops at 3
-      a week with 402.
+      a week with 402; Pro's videos are counted apart and stop at the month's
+      allowance with 402 while photos still go; Business's are unlimited.
    3. Stripe off: checkout says so (503), nothing else changes.
    4. Stripe on with only STRIPE_SECRET: the first checkout makes the product,
       the price under its lookup key and the webhook (secret kept); the next
@@ -311,6 +312,23 @@ const setUser = (u) => store.get('pgfx-users').set('u:' + u.email, JSON.stringif
   ok(sv.status === 403 && userBlob('freevideo@x.example').exports.count === 0, 'Starter does not download videos, and nothing is counted');
   const sp = await hit('POST', '/export/check', {}, (await hit('POST', '/auth/login', { email: 'freevideo@x.example', password: 'a-long-password' })).json.token);
   ok(sp.status === 200 && sp.json.remaining === 100 && sp.json.watermark === false && sp.json.maxPx === 2160, 'Starter: 100 photos a month, no watermark, 2160');
+  /* Pro's videos are a monthly allowance of their own (plans.mjs videos, 2026-11-18): a video is
+     counted on it and not on the photos; at the allowance a video is 402, a photo still goes */
+  const pt = await signup('provideo@x.example');
+  const pu = userBlob('provideo@x.example'); pu.plan = 'pro'; setUser(pu);
+  const cap = plans.PLANS.pro.videos;
+  const vc = await hit('POST', '/export/check', { kind: 'video' }, pt);
+  ok(vc.status === 200 && vc.json.kind === 'video' && vc.json.remaining === cap, `Pro: /export/check for a video says ${cap} left (${vc.json.remaining})`);
+  for (let i = 0; i < cap; i++) await hit('POST', '/export', { kind: 'video' }, pt);
+  const over = await hit('POST', '/export', { kind: 'video' }, pt);
+  ok(over.status === 402 && over.json.kind === 'video' && over.json.limit === cap && /Business has unlimited video/.test(over.json.error) && userBlob('provideo@x.example').videos.count === cap,
+    `Pro stops at ${cap} videos a month with 402, says Business is unlimited (${over.status} ${over.json && over.json.error})`);
+  ok(userBlob('provideo@x.example').exports.count === 0 && (await hit('POST', '/export/check', {}, pt)).json.remaining === plans.PLANS.pro.monthly,
+    'Pro: videos are not counted on the photos, and a photo still goes at the video allowance');
+  ok((await hit('GET', '/me', undefined, pt)).json.user.videos.count === cap, '/me carries the video count for the browser to say what is left');
+  const bu = userBlob('provideo@x.example'); bu.plan = 'business'; setUser(bu);
+  const bv = await hit('POST', '/export/check', { kind: 'video' }, pt);
+  ok(bv.status === 200 && bv.json.remaining === null, 'Business: videos unlimited, whatever was counted on Pro');
 }
 
 /* ---------- 3. Stripe off ---------- */
@@ -676,10 +694,11 @@ async function browserPart() {
       const pr = await page.evaluate(() => {
         const sec = document.getElementById('pricing');
         sec.scrollIntoView();
-        return { cards: [...sec.querySelectorAll('.lp-price-card h3')].map((h) => h.textContent), free: !!sec.querySelector('.lp-price-card:first-child.lp-price-free'), text: sec.innerText, over: document.documentElement.scrollWidth - innerWidth };
+        return { cards: [...sec.querySelectorAll('.lp-price-card h3')].map((h) => h.textContent), free: !!sec.querySelector('.lp-price-card:first-child.lp-price-free'), text: sec.innerText, over: document.documentElement.scrollWidth - innerWidth, rows: sec.querySelectorAll('table.lp-compare tbody tr').length };
       });
       ok(pr.cards.join() === 'Free,Starter,Pro,Business' && pr.free, `landing ${w}: Free first, left of the three plans (${pr.cards.join()})`);
-      ok(/photos or videos/.test(pr.text) && /\$1,000 a year/.test(pr.text) && /Unlimited downloads/.test(pr.text) && /AI credits/.test(pr.text) && /100 credits are \$9/.test(pr.text), `landing ${w}: videos, yearly price and credits on the cards`);
+      ok(/30 video ads a month/.test(pr.text) && /Unlimited video ads/.test(pr.text) && /\$1,000 a year/.test(pr.text) && /Unlimited photo downloads/.test(pr.text) && /AI credits/.test(pr.text) && /100 credits are \$9/.test(pr.text), `landing ${w}: videos (Pro's a month, Business's unlimited), yearly price and credits on the cards`);
+      ok(pr.rows >= 9 && /Video ads to download/.test(pr.text), `landing ${w}: the table compares every plan (${pr.rows} rows)`);
       ok(/you save \$50/.test(pr.text) && /you save \$120/.test(pr.text) && /you save \$200/.test(pr.text), `landing ${w}: each paid card says what yearly saves`);
       ok(pr.over <= 0, `landing ${w}: no sideways scroll (${pr.over}px)`);
       if (process.env.SHOT_DIR) { await page.waitForTimeout(600); await page.locator('#pricing').screenshot({ path: join(process.env.SHOT_DIR, 'landing-pricing-' + w + '.png') }); }
@@ -699,6 +718,9 @@ async function browserPart() {
       ok(/Or \$250 a year: you save \$50/.test(m.per) && /Or \$600 a year: you save \$120/.test(m.per) && /Or \$1,000 a year: you save \$200/.test(m.per), `plans ${w}: monthly cards say what yearly saves (${m.per})`);
       ok(/Secure checkout/.test(m.trust) && /Cancel any time/.test(m.trust) && !/What customers say/.test(m.trust), `plans ${w}: what you can count on, at the bottom; no reviews until there are real ones`);
       ok(!/opens soon/.test(m.note), `plans ${w}: billing is on, no "opens soon" note`);
+      const cmp = await page.evaluate(() => ({ rows: document.querySelectorAll('#plans-grid .plans-compare table tbody tr').length, video: ((document.querySelector('#plans-grid .plans-compare') || {}).innerText || '').includes('Video ads to download'),
+        tag: (document.querySelector('#plans-grid .plan-tag-video') || {}).textContent || '' }));
+      ok(cmp.rows >= 9 && cmp.video && cmp.tag === 'Unlimited video', `plans ${w}: the same table under the cards, Business tagged Unlimited video (${JSON.stringify(cmp)})`);
       await shot(page, 'plans-month-' + w);
       await page.click('.plans-toggle button:nth-child(2)');
       const y = await page.evaluate(() => [...document.querySelectorAll('#plans-grid .plan-card .plan-price')].map((p) => p.textContent).join('|'));
@@ -848,7 +870,7 @@ async function browserPart() {
       await page.waitForSelector('#acct-overlay.show', { timeout: 15000 }).catch(() => {});
       ok(await page.$('#acct-overlay.show') !== null, 'video maker: a signed-out Download asks for an account first');
       const vt = await signup('videos@x.example');
-      await page.evaluate((t) => { localStorage.setItem('pgfx_token', JSON.stringify(t)); document.getElementById('acct-overlay').classList.remove('show'); }, vt);
+      await page.evaluate((t) => { localStorage.setItem('pgfx_token', JSON.stringify(t)); const o = document.getElementById('acct-overlay'); if (o) o.classList.remove('show'); }, vt);
       await page.click('#download');
       await page.waitForFunction(() => /Video downloads come with Pro and Business/.test(document.body.innerText), null, { timeout: 30000 }).catch(() => {});
       ok(/Video downloads come with Pro and Business/.test(await page.evaluate(() => document.body.innerText)) && userBlob('videos@x.example').exports.count === 0,
@@ -864,7 +886,7 @@ async function browserPart() {
         return page.$eval('#export-note', (n) => n.textContent);
       };
       const note = await dl();
-      ok(/Saved we-buy-phones/.test(note) && userBlob('videos@x.example').exports.count === 1, 'video maker: a Pro download is made and counted once (' + note.slice(0, 120) + ')');
+      ok(/Saved we-buy-phones/.test(note) && (userBlob('videos@x.example').videos || {}).count === 1 && userBlob('videos@x.example').exports.count === 0, 'video maker: a Pro download is made and counted once, on the video meter (' + note.slice(0, 120) + ')');
       ok(/1080×1080/.test(note) && /\(1440×1440, the moment/.test(note), 'video maker: Pro gets a 1080 video and a 1440 photo (' + note.slice(0, 200) + ')');
       const isPhoto = (d) => /\.(png|jpe?g)$/.test(d.suggestedFilename());   // a JPG since 2026-10-11 (DESIGN-LAW 108, 110)
       const proPng = files.find(isPhoto);
@@ -887,7 +909,7 @@ async function browserPart() {
         ok(diff.sizes.join() === '1440,1440' && diff.corner < 2, 'video maker: Pro\'s photo carries no marks, the same pixels as an operator\'s (' + JSON.stringify(diff) + ')');
       }
       await page.evaluate((t) => { localStorage.setItem('pgfx_token', JSON.stringify(t)); }, vt);
-      const lim = userBlob('videos@x.example'); lim.exports.count = 500; setUser(lim);
+      const lim = userBlob('videos@x.example'), d = new Date(); lim.videos = { period: d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'), count: plans.PLANS.pro.videos }; setUser(lim);
       await page.evaluate(() => window.VideoHelp && VideoHelp.close());
       await page.click('#download');
       await page.waitForFunction(() => /used this plan's downloads/.test(document.body.innerText), null, { timeout: 30000 }).catch(() => {});

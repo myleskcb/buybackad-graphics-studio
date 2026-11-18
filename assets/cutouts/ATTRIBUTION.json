@@ -4924,5 +4924,11 @@
     "artist": "Chi Ho Chan from Hong Kong",
     "page": "https://commons.wikimedia.org/wiki/File%3AChinese%20panda%20silver%20coins%20(52282119440).jpg",
     "note": "cut from assets/bg-web/coins2-chinese-panda-coin-2.jpg by scripts/cut_vehicle_photos.py. two Chinese Silver Panda 30 g coins (2017 and 2018) in capsules"
+  },
+  "photo-gaming-steam-deck-dark": {
+    "license": "CC BY-SA 4.0",
+    "artist": "https://wiki.openstreetmap.org/wiki/User:Riiga",
+    "page": "https://commons.wikimedia.org/wiki/File%3AJOSM%20on%20the%20Steam%20Deck.jpg",
+    "note": "cut from assets/bg-web/gaming-steam-deck-2.jpg by scripts/cut_vehicle_photos.py. a Valve Steam Deck; its screen (a map editor with a date) filled dark with one soft sheen, 2026-11-18, for the full ad and offer cards of PC handhelds (OPEN-ITEMS §BI)"
   }
 }

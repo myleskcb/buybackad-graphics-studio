@@ -25,7 +25,8 @@
      product     the product pictures' share of the height and of the area
      words       every banned or old phrase on it (spec/banned-words.json, one list)
      pre-flight  the verdict of the generation's own check, where it has one: fullPreflight for
-                 the full ad, pgCheck for the photo ads, blockers() for FeedAd; Any look has none
+                 the full ad, pgCheck for the photo ads, blockers() for FeedAd, lookPreflight for
+                Any look (motion/look-preflight.js, from 2026-11-18; before it, Any look had none)
 
    The visitor (VISITOR) types a number, a website and a business name where the page asks for
    one, and gives an area. The census types nothing else, so every other word it finds is the
@@ -60,6 +61,9 @@ const GENS = ['full', 'dl', 'of', 'sc', 'any', 'feed'];
 const ONLY = arg('--only') ? arg('--only').split(',').filter(g => GENS.includes(g)) : GENS;
 const IDS = arg('--ids') ? new Set(arg('--ids').split(',').filter(Boolean)) : null;
 const LIMIT = +arg('--limit', '0') || 0;
+/* --variations N: the full ad read N times a line, seeds 1..N (New look's first N looks), not only
+   the first ad a visitor sees: the owner, 2026-11-18, "we need all the variations" */
+const VARIATIONS = Math.max(1, Math.min(24, +arg('--variations', '1') || 1));
 const WORKERS = Math.max(1, Math.min(4, +arg('--workers', '2') || 2));
 const JSON_OUT = arg('--json', join(ROOT, '.render/ad-census/census.json'));
 const HTML_OUT = arg('--html', join(ROOT, '.render/ad-census/index.html'));
@@ -556,12 +560,12 @@ function STUDIO() {
   };
   /* ---- the full ad, Easy Mode's first card: the class the page draws it with, at its download size ---- */
   cz.fullLines = () => FullAdStudio.lines().map(s => ({ id: 'full-' + s.key, key: s.key, name: s.label, cat: s.cat, group: s.group || '' }));
-  cz.full = async key => {
+  cz.full = async (key, seed = 1) => {
     const M = await import('/motion/fullad.js'), CAT = await import('/motion/catalog.js');
     const S = FullAdStudio.lines().find(s => s.key === key); if (!S) return { error: 'no line ' + key };
     const FA = FullAdStudio.state;
     if (currentCat !== S.cat) setCategory(S.cat);
-    FA.line[S.cat] = S.key; FA.biz = V.biz; FA.seed = 1; FA.pair = ''; FA.voice = ''; FA.words = {}; FA.set = {};   // what a visitor who typed only their name sees first
+    FA.line[S.cat] = S.key; FA.biz = V.biz; FA.seed = seed; FA.pair = ''; FA.voice = ''; FA.words = {}; FA.set = {};   // what a visitor who typed only their name sees first
     $('ez-phone').value = V.number; $('ez-website').value = V.site;
     const { ad, st } = await FullAdStudio.build(1080, FORMATS.square);
     const frame = M.fullStill(ad), pre = M.fullPreflight(ad, frame), F = ad.full, R = F.rects, W = ad.W, H = ad.H;
@@ -633,7 +637,7 @@ function MOTION() {
     return true;
   };
   cz.looks = async (limit) => {
-    const CAT = await import('/motion/catalog.js'), ENG = await import('/motion/engine.js');
+    const CAT = await import('/motion/catalog.js'), ENG = await import('/motion/engine.js'), LP = await import('/motion/look-preflight.js');
     const shown = [...document.querySelectorAll('#gallery .mo-thumb')];
     const byCanvas = new Map(window.__looks.map(x => [x.c, x.ad]));
     const out = [];
@@ -666,8 +670,17 @@ function MOTION() {
       const type = { pair: voice ? voice.name + ' pair' : '', display: face(st.font), support: voice ? face(voice.label) : '', number: face(st.number_font === 'same' ? st.font : st.number_font) };
       const data = cnv.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, big.W, big.H).data;
       const cap = b.querySelector('.mo-cap'), name = cap ? (cap.querySelector('b') || {}).textContent : '';
+      /* the look's own pre-flight (motion/look-preflight.js, 2026-11-18), as the page's download gate
+         reads it: the same plan drawn at 540 on its short side */
+      let pre = null;
+      try {
+        const k = 540 / Math.min(big.W, big.H), w = Math.round(big.W * k), h = Math.round(big.H * k);
+        const rep = LP.lookPreflight(new ENG.Ad(big.plan ? big.plan.st : st, big.assets, w, h, big.plan ? { plan: big.plan } : {}));
+        pre = { kind: 'lookPreflight', ok: !!rep.ok, fixes: rep.findings.filter(f => f.level === 'fix').length, notes: rep.findings.filter(f => f.level === 'note').length,
+          says: rep.findings.map(f => (f.level === 'fix' ? 'fix: ' : 'note: ') + f.say), checks: rep.checks.map(c => [c.id, !!c.ok, String(c.value)]) };
+      } catch (e) { pre = { kind: 'lookPreflight', error: String(e && e.message || e).slice(0, 160) }; }
       out.push({ id: 'any-' + st.seed, name: (name || 'look') + ' (seed ' + st.seed + ')', shelf: (grp ? grp + ': ' : '') + shelf, cat: 'phones', words, el, type,
-        colours: cz.colours(data, big.W, big.H, boxes, false), declared: st.palette + (st.vibe && st.vibe !== 'none' ? ' · ' + st.vibe : '') + ' · ' + st.background, product: cz.share(boxes, big.W, big.H), thumb: cz.thumb(cnv), pre: null });
+        colours: cz.colours(data, big.W, big.H, boxes, false), declared: st.palette + (st.vibe && st.vibe !== 'none' ? ' · ' + st.vibe : '') + ' · ' + st.background, product: cz.share(boxes, big.W, big.H), thumb: cz.thumb(cnv), pre });
       await new Promise(r => setTimeout(r, 0));
     }
     return { looks: out, drawn: shown.length };
@@ -755,7 +768,7 @@ async function runStudio(browser, jobs, label) {
       if (since >= 70) { await s.ctx.close().catch(() => {}); s = await studioPage(browser); since = 0; }
       since++;
       let r;
-      try { r = await withTimeout(s.page.evaluate(({ run, arg }) => run === 'full' ? __cz.full(arg) : run === 'card' ? __cz.card(arg) : __cz.scene(arg, false), { run: j.run, arg: j.arg }), 90000, j.id); }
+      try { r = await withTimeout(s.page.evaluate(({ run, arg }) => run === 'full' ? __cz.full(arg[0], arg[1]) : run === 'card' ? __cz.card(arg) : __cz.scene(arg, false), { run: j.run, arg: j.arg }), 90000, j.id); }
       catch (e) { r = { error: String(e.message || e).split('\n')[0].slice(0, 140) }; await s.ctx.close().catch(() => {}); s = await studioPage(browser); since = 0; }
       rows.push({ ...j.meta, ...r });
       if (++done % 25 === 0 || done === jobs.length) console.log(`  ${label}: ${done}/${jobs.length} (${((Date.now() - T0) / 60000).toFixed(1)} min)`);
@@ -784,7 +797,7 @@ async function census() {
     notes.templates = { offered: T.list.length, total: T.total, gated: T.gated.length, held: T.held, retired: T.retired, other: T.list.filter(t => t.gen === 'other').map(t => t.id) };
     console.log(`Easy Mode offers ${T.list.length} templates (${T.list.filter(t => t.gen === 'dl').length} designer layouts, ${T.list.filter(t => t.gen === 'of').length} offer family${notes.templates.other.length ? ', ' + notes.templates.other.length + ' other' : ''}); ${T.gated.length} more are gated, ${T.held} held and ${T.retired} retired by table`);
     const jobs = [];
-    for (const l of pick(lines)) jobs.push({ id: l.id, run: 'full', arg: l.key, meta: { id: l.id, gen: 'full', name: l.name + ' (full ad)', cat: l.cat, offered: `Easy Mode, the first card in ${l.cat}; What you buy: ${l.name}` } });
+    for (const l of pick(lines)) for (let v = 1; v <= VARIATIONS; v++) { const id = v === 1 ? l.id : `${l.id}-v${v}`; jobs.push({ id, run: 'full', arg: [l.key, v], meta: { id, gen: 'full', name: l.name + (v === 1 ? ' (full ad)' : ` (full ad, look ${v})`), cat: l.cat, offered: v === 1 ? `Easy Mode, the first card in ${l.cat}; What you buy: ${l.name}` : `the same, after New look ${v - 1} time${v > 2 ? 's' : ''}` } }); };
     for (const g of ['dl', 'of']) if (ONLY.includes(g)) for (const t of pick(T.list.filter(t => t.gen === g))) jobs.push({ id: t.id, run: 'scene', arg: t.id, meta: { id: t.id, gen: g, name: t.name, cat: t.cat, declared: t.pal, offered: `Easy Mode, ${t.cat} no. ${t.order}${t.locked ? ', PRO for a free visitor' : ''}` } });
     for (const c of pick(cards)) jobs.push({ id: c.id, run: 'card', arg: c.id, meta: { id: c.id, gen: 'sc', name: c.name, cat: c.cat, declared: c.theme, offered: 'the library wall (' + c.cat + ')' } });
     if (jobs.length) { console.log(`the studio: ${jobs.length} ads, ${WORKERS} at a time`); rows.push(...await runStudio(browser, jobs, 'studio')); }

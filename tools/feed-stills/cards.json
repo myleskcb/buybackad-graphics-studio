@@ -1,19 +1,19 @@
 {
-  "_doc": "The 32 iPhone cards of the Designer Library (assets/library-ads/), as iPhones LA picked them on 2026-11-03, with the words each feed still carries. Every claim below is one the library's own cards already make (same-day payment, any condition, any carrier, we meet you locally, no fees, free quote, firm quote by text, cash or transfer, the five towns, iPhone 15 to 18 Pro Max); nothing new is promised. A seller is asked for the IMEI or serial, never a picture (the owner, 2026-11-03: the shop's chatbot quotes from what is typed, 'pics is less ideal since we don't analyze photos as much'). 'line' replaces the card's small middle line (20 of the 32 carried 'iPhone 18 Pro Max • 18 Pro • 17 • 16 • 15', a model list that says nothing about how the service works) and is set at body size; 'cta' sits over the number. Each card also carries, after the owner's brief of 2026-11-03 ('we need all elements.. locations.. selling points.. hero.. sub title... cta.. watermark.. ideally device models we buy', 'something towards the top makes a bold claim'): 'claim' (the badge at the top: top dollar, max offer, always available, quick replies, honest buyer, top buyer; no '#1' or 'best', which would need proof), 'line' (now the models bought, or a steps card's steps), 'points' (three selling points, drawn by the engine as chips with their own check mark: an emoji inside a chip is split letter by letter, so the icons are the engine's accents and the pin in 'where'; mail-in is included because the shop sends prepaid labels) and 'where' (the towns over the website).",
+  "_doc": "The 32 iPhone cards of the Designer Library (assets/library-ads/), as iPhones LA picked them on 2026-11-03, with the words each feed still carries. Every claim below is one the library's own cards already make (same-day payment, any condition, any carrier, we meet you locally, no fees, free quote, firm quote by text, cash or transfer, the five towns, iPhone 15 to 18 Pro Max); nothing new is promised. A seller is asked for the IMEI or serial, never a picture (the owner, 2026-11-03: the shop's chatbot quotes from what is typed, 'pics is less ideal since we don't analyze photos as much'). 'line' replaces the card's small middle line (20 of the 32 carried 'iPhone 18 Pro Max • 18 Pro • 17 • 16 • 15', a model list that says nothing about how the service works) and is set at body size; 'cta' sits over the number. Each card also carries, after the owner's brief of 2026-11-03 ('we need all elements.. locations.. selling points.. hero.. sub title... cta.. watermark.. ideally device models we buy', 'something towards the top makes a bold claim'): 'claim' (the badge at the top: top dollar, max offer, always available, quick replies, honest buyer, top buyer; no '#1' or 'best', which would need proof), 'line' (now the models bought, or a steps card's steps), 'points' (three selling points, drawn by the engine as chips with their own check mark: an emoji inside a chip is split letter by letter, so the icons are the engine's accents and the pin in 'where'; mail-in is included because the shop sends prepaid labels) and 'where' (the towns over the website). 2026-11-18 (tools/feed-stills/reword.mjs, after the census of every offered ad): TOP DOLLAR, the en dash in the models line and ANY CONDITION with no limit taken out (spec/banned-words.json); each still drawn again from its own record with the new words, and moved the least it took to pass FeedAd's gate with that day's engine (report.json says how, per still).",
   "cards": [
     {
       "id": "checklistHero-cd06-15",
       "headline": "SELL YOUR iPHONE",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "TEXT US NOW",
-      "claim": "TOP DOLLAR • MAX OFFER",
+      "claim": "LOCAL BUYER • MAX OFFER",
       "points": "TEXT YOUR IMEI, CASH SAME DAY, NO FEES",
       "where": "📍 LONG BEACH • LAKEWOOD • DOWNEY"
     },
     {
       "id": "trustSeal-cd10-15",
       "headline": "YOUR LOCAL iPHONE BUYER",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "CALL OR TEXT",
       "claim": "ALWAYS AVAILABLE • QUICK REPLIES",
       "points": "TEXT US NOW, WE MEET YOU, PAID TODAY",
@@ -24,50 +24,50 @@
       "headline": "CASH IN 3 STEPS",
       "line": "TEXT YOUR IMEI → FIRM QUOTE → GET PAID",
       "cta": "STEP 1: TEXT",
-      "claim": "HONEST BUYER • TOP DOLLAR",
+      "claim": "HONEST BUYER • FAIR OFFER",
       "points": "CASH SAME DAY, NO FEES, WE MEET YOU",
       "where": "📍 LONG BEACH • LAKEWOOD • DOWNEY"
     },
     {
       "id": "bubblePop-du07-15",
       "headline": "SELL YOUR iPHONE",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "TEXT US NOW",
       "claim": "MAX OFFER • FAST CASH",
-      "points": "TEXT YOUR IMEI, CASH OR TRANSFER, LOCAL MEETUP",
+      "points": "TEXT YOUR IMEI, PAID TODAY, LOCAL MEETUP",
       "where": "📍 CARSON • TORRANCE • LONG BEACH"
     },
     {
       "id": "bubblePop-io03-15",
       "headline": "WE BUY iPHONES",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "GET YOUR OFFER",
       "claim": "TOP BUYER • QUICK REPLIES",
-      "points": "TOP DOLLAR, FAIR & HONEST, FAST REPLIES",
+      "points": "CASH TODAY, FAIR & HONEST, FAST REPLIES",
       "where": "📍 LONG BEACH • LAKEWOOD • DOWNEY"
     },
     {
       "id": "slabPoster-pp04-15",
       "headline": "SELL YOUR iPHONE",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "CALL OR TEXT",
-      "claim": "TOP DOLLAR PAID",
+      "claim": "LOCAL BUYER",
       "points": "TEXT YOUR IMEI, CASH SAME DAY, NO FEES",
       "where": "📍 CARSON • TORRANCE • LONG BEACH"
     },
     {
       "id": "scriptRetro-ck03-15",
       "headline": "SELL YOUR iPHONE",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "TEXT US NOW",
-      "claim": "TOP DOLLAR • MAX OFFER",
+      "claim": "LOCAL BUYER • MAX OFFER",
       "points": "TEXT US NOW, WE MEET YOU, PAID TODAY",
       "where": "📍 LONG BEACH • LAKEWOOD • DOWNEY"
     },
     {
       "id": "hudTech-jw05-15",
       "headline": "SELL YOUR iPHONE",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "GET YOUR OFFER",
       "claim": "ALWAYS AVAILABLE • QUICK REPLIES",
       "points": "QUOTE BY TEXT, NO LOWBALLS, MAIL-IN OK",
@@ -78,7 +78,7 @@
       "headline": "SELL YOUR iPHONE & iPAD",
       "line": "ALL iPHONE & iPAD MODELS",
       "cta": "CALL OR TEXT",
-      "claim": "HONEST BUYER • TOP DOLLAR",
+      "claim": "HONEST BUYER • FAIR OFFER",
       "points": "IMEI OR SERIAL, CASH OR TRANSFER, LOCAL MEETUP",
       "where": "📍 LONG BEACH • LAKEWOOD • DOWNEY"
     },
@@ -88,7 +88,7 @@
       "line": "ALL iPHONE & iPAD MODELS",
       "cta": "CALL OR TEXT",
       "claim": "MAX OFFER • FAST CASH",
-      "points": "TOP DOLLAR, FAIR & HONEST, FAST REPLIES",
+      "points": "PAID TODAY, FAIR & HONEST, FAST REPLIES",
       "where": "📍 CARSON • TORRANCE • LONG BEACH"
     },
     {
@@ -105,16 +105,16 @@
       "headline": "SELL YOUR iPHONE & iPAD",
       "line": "ALL iPHONE & iPAD MODELS",
       "cta": "TEXT US NOW",
-      "claim": "TOP DOLLAR PAID",
+      "claim": "LOCAL BUYER",
       "points": "TEXT US NOW, WE MEET YOU, PAID TODAY",
       "where": "📍 CARSON • TORRANCE • LONG BEACH"
     },
     {
       "id": "neonNight-nn04-20",
       "headline": "WE BUY iPHONES PAID SAME DAY",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "CALL OR TEXT",
-      "claim": "TOP DOLLAR • MAX OFFER",
+      "claim": "LOCAL BUYER • MAX OFFER",
       "points": "QUOTE BY TEXT, NO LOWBALLS, MAIL-IN OK",
       "where": "📍 LONG BEACH • LAKEWOOD • DOWNEY"
     },
@@ -132,8 +132,8 @@
       "headline": "SELL YOUR iPHONE & iPAD",
       "line": "ALL iPHONE & iPAD MODELS",
       "cta": "TEXT US NOW",
-      "claim": "HONEST BUYER • TOP DOLLAR",
-      "points": "TOP DOLLAR, FAIR & HONEST, FAST REPLIES",
+      "claim": "ALWAYS BUYING",
+      "points": "CASH TODAY, FAIR & HONEST, FAST REPLIES",
       "where": "📍 LONG BEACH • LAKEWOOD • DOWNEY"
     },
     {
@@ -148,7 +148,7 @@
     {
       "id": "hudTech-ca07-20",
       "headline": "SELL YOUR iPHONE",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "GET YOUR OFFER",
       "claim": "TOP BUYER • QUICK REPLIES",
       "points": "TEXT US NOW, WE MEET YOU, PAID TODAY",
@@ -159,7 +159,7 @@
       "headline": "SELL YOUR iPHONE & iPAD",
       "line": "ALL iPHONE & iPAD MODELS",
       "cta": "CALL OR TEXT",
-      "claim": "TOP DOLLAR PAID",
+      "claim": "LOCAL BUYER",
       "points": "QUOTE BY TEXT, NO LOWBALLS, MAIL-IN OK",
       "where": "📍 CARSON • TORRANCE • LONG BEACH"
     },
@@ -168,32 +168,32 @@
       "headline": "SELL YOUR iPHONE & iPAD",
       "line": "ALL iPHONE & iPAD MODELS",
       "cta": "TEXT US NOW",
-      "claim": "TOP DOLLAR • MAX OFFER",
+      "claim": "ALWAYS BUYING",
       "points": "IMEI OR SERIAL, CASH OR TRANSFER, LOCAL MEETUP",
       "where": "📍 LONG BEACH • LAKEWOOD • DOWNEY"
     },
     {
       "id": "glassCard-nn01-20",
       "headline": "SELL YOUR iPHONE",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "GET YOUR OFFER",
       "claim": "ALWAYS AVAILABLE • QUICK REPLIES",
-      "points": "TOP DOLLAR, FAIR & HONEST, FAST REPLIES",
+      "points": "CASH TODAY, FAIR & HONEST, FAST REPLIES",
       "where": "📍 CARSON • TORRANCE • LONG BEACH"
     },
     {
       "id": "checklistHero-jw10-30",
       "headline": "WE BUY iPHONES",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "TEXT US NOW",
-      "claim": "HONEST BUYER • TOP DOLLAR",
+      "claim": "HONEST BUYER • FAIR OFFER",
       "points": "TEXT YOUR IMEI, CASH SAME DAY, NO FEES",
       "where": "📍 LONG BEACH • LAKEWOOD • DOWNEY"
     },
     {
       "id": "checklistHero-jw05-30",
       "headline": "SELL YOUR iPHONE",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "GET YOUR OFFER",
       "claim": "MAX OFFER • FAST CASH",
       "points": "TEXT US NOW, WE MEET YOU, PAID TODAY",
@@ -202,7 +202,7 @@
     {
       "id": "trustSeal-du07-30",
       "headline": "YOUR LOCAL iPHONE BUYER",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "CALL OR TEXT",
       "claim": "TOP BUYER • QUICK REPLIES",
       "points": "QUOTE BY TEXT, NO LOWBALLS, MAIL-IN OK",
@@ -213,17 +213,17 @@
       "headline": "FAST CASH FOR iPHONES",
       "line": "TEXT YOUR IMEI → FIRM QUOTE → GET PAID",
       "cta": "STEP 1: TEXT",
-      "claim": "TOP DOLLAR PAID",
+      "claim": "LOCAL BUYER",
       "points": "CASH SAME DAY, NO FEES, WE MEET YOU",
       "where": "📍 CARSON • TORRANCE • LONG BEACH"
     },
     {
       "id": "stepsFlow-nn05-30",
       "headline": "TOP iPHONE BUYER",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "TEXT US NOW",
-      "claim": "TOP DOLLAR • MAX OFFER",
-      "points": "TOP DOLLAR, FAIR & HONEST, FAST REPLIES",
+      "claim": "ALWAYS BUYING",
+      "points": "CASH TODAY, FAIR & HONEST, FAST REPLIES",
       "where": "📍 LONG BEACH • LAKEWOOD • DOWNEY"
     },
     {
@@ -240,14 +240,14 @@
       "headline": "SELL YOUR iPHONE & iPAD",
       "line": "ALL iPHONE & iPAD MODELS",
       "cta": "TEXT US NOW",
-      "claim": "HONEST BUYER • TOP DOLLAR",
+      "claim": "HONEST BUYER • FAIR OFFER",
       "points": "TEXT US NOW, WE MEET YOU, PAID TODAY",
       "where": "📍 LONG BEACH • LAKEWOOD • DOWNEY"
     },
     {
       "id": "hudTech-du01-30",
       "headline": "SELL YOUR iPHONE",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "GET YOUR OFFER",
       "claim": "MAX OFFER • FAST CASH",
       "points": "QUOTE BY TEXT, NO LOWBALLS, MAIL-IN OK",
@@ -265,25 +265,25 @@
     {
       "id": "ticketStub-nn06-35",
       "headline": "SELL YOUR iPHONE",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "TEXT US NOW",
-      "claim": "TOP DOLLAR PAID",
-      "points": "TOP DOLLAR, FAIR & HONEST, FAST REPLIES",
+      "claim": "LOCAL BUYER",
+      "points": "CASH TODAY, FAIR & HONEST, FAST REPLIES",
       "where": "📍 CARSON • TORRANCE • LONG BEACH"
     },
     {
       "id": "bandKnockout-ck07-35",
       "headline": "SELL YOUR iPHONE",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "GET YOUR OFFER",
-      "claim": "TOP DOLLAR • MAX OFFER",
+      "claim": "LOCAL & HONEST",
       "points": "TEXT YOUR IMEI, CASH SAME DAY, NO FEES",
       "where": "📍 LONG BEACH • LAKEWOOD • DOWNEY"
     },
     {
       "id": "glassCard-ca03-35",
       "headline": "SELL YOUR iPHONE",
-      "line": "iPHONE 15 – 18 PRO MAX",
+      "line": "iPHONE 15 AND NEWER",
       "cta": "CALL OR TEXT",
       "claim": "ALWAYS AVAILABLE • QUICK REPLIES",
       "points": "TEXT US NOW, WE MEET YOU, PAID TODAY",
