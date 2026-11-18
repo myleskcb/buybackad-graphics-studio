@@ -37,8 +37,9 @@
    Nothing answering at GFX_BASE: the script serves the repo there itself. A server that answers
    with another tree's app.js is refused: it would census someone else's branch.
    Writes .render/ad-census/census.json and .render/ad-census/index.html unless told otherwise
-   (.render/ is ignored). --rescan re-reads a census JSON and only re-matches words, colours and
-   elements (no browser), for a change to spec/banned-words.json or the thresholds below.
+   (.render/ is ignored), and the thumbnails beside the JSON (census.thumbs.json). --rescan
+   re-reads a census and only re-matches words, colours and elements (no browser, seconds), for a
+   change to spec/banned-words.json, REQUIRED or the thresholds below.
    --gate exits 1 when an offered ad is off the house engine or the twelve pairs, carries a
    banned phrase, or lacks a REQUIRED element, and prints the counts. It is not wired into any
    deploy (2026-11-18): today it fails nearly every ad that is not the full ad, which is the
@@ -159,7 +160,8 @@ function summarise(rows) {
       withBanned: rs.filter(r => r.bannedIds.length).length, bannedBy,
       lacking: rs.filter(r => r.missing.length).length, missingBy,
       preflight: pre.length ? { measured: pre.length, fail: pre.filter(r => !r.pre.ok).length } : null,
-      productMedianH: sh.length ? +sh[sh.length >> 1].toFixed(3) : null, gateFail: rs.filter(r => r.gateWhy.length).length };
+      productMedianH: sh.length ? +sh[sh.length >> 1].toFixed(3) : null, gateFail: rs.filter(r => r.gateWhy.length).length,
+      foreignTowns: rs.filter(r => r.el && r.el.foreignTowns && r.el.foreignTowns.length).length };
   }
   return by;
 }
@@ -171,7 +173,7 @@ function page(census) {
     ground: r.colours ? r.colours.ground : '', accent: r.colours ? r.colours.accent : '', groundKind: r.colours ? r.colours.groundKind : '', declared: r.declared || '',
     pair: r.colour.nearestName || '', pairMatch: !!r.colour.match, pairWhy: r.colour.why || '', dG: r.colour.dGround, dA: r.colour.dAccent,
     type: r.type ? (r.type.pair || 'own faces') : '', faces: r.type ? [r.type.display, r.type.support, r.type.number].filter(Boolean).filter((f, i, a) => a.indexOf(f) === i).join(' / ') : '',
-    el: r.el || {}, lacks: r.lacks, missing: r.missing,
+    el: r.el || {}, lacks: r.lacks, missing: r.missing, foreign: (r.el && r.el.foreignTowns) || [],
     h: r.product ? r.product.h : null, a: r.product ? r.product.area : null, productKind: r.el ? r.el.productKind || '' : '',
     banned: r.banned.map(b => ({ id: b.id, label: b.label, match: b.match, where: b.where })), bannedIds: r.bannedIds,
     pre: r.pre || null, words: (r.words || []).map(w => [w.where, w.text]), error: r.error || '', score: r.score, gateWhy: r.gateWhy,
@@ -179,19 +181,26 @@ function page(census) {
   const data = JSON.stringify({ made: census.made, commit: census.commit, branch: census.branch, visitor: census.visitor, required: REQUIRED, elements: ELEMENTS, elementNames: ELEMENT_NAMES,
     summary: census.summary, rows, phrases: BANNED.phrases.map(p => ({ id: p.id, label: p.label, why: p.why, source: p.source })), sources: census.sources || [], calibration: census.calibration || null,
     pairs: PAIRS.map(p => ({ key: p.key, name: p.name, ground: p.ground, accent: p.accent })) }).replace(/</g, '\\u003c');
-  return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ad census</title>
-<meta name="description" content="Every ad the studio offers, opened as a visitor opens it, and what it is made of: generation, colours, type, elements, product share, banned words and pre-flight.">
+  /* One self-contained page, the Type Lab page's way (build_type_lab_page.mjs): no document
+     wrapper, so it publishes as an artifact as it is and opens from disk the same. */
+  return `<title>Graphics Studio ad census</title>
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap">
 <style>
-:root{--bg:#f6f5f1;--panel:#ffffff;--ink:#1b1c1f;--soft:#5d6068;--line:#dedbd2;--chip:#efede6;--good:#17803d;--goodbg:#e4f4e8;--bad:#b42318;--badbg:#fbe7e4;--warn:#9a6300;--warnbg:#fbf0d9;--accent:#1d4ed8;--accentbg:#e3eafc;--shadow:0 1px 2px rgba(0,0,0,.06)}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121316;--panel:#1b1d21;--ink:#eceae4;--soft:#a2a5ad;--line:#2e3137;--chip:#25282d;--good:#5ad17f;--goodbg:#173322;--bad:#ff8a7a;--badbg:#3a1d1a;--warn:#f2c14e;--warnbg:#3a2e12;--accent:#8fb0ff;--accentbg:#1f2a44;--shadow:none}}
-:root[data-theme="dark"]{--bg:#121316;--panel:#1b1d21;--ink:#eceae4;--soft:#a2a5ad;--line:#2e3137;--chip:#25282d;--good:#5ad17f;--goodbg:#173322;--bad:#ff8a7a;--badbg:#3a1d1a;--warn:#f2c14e;--warnbg:#3a2e12;--accent:#8fb0ff;--accentbg:#1f2a44;--shadow:none}
+/* layout: a summary over a sortable sheet, one row an ad; quiet chrome so the ads' own colours are the loudest thing.
+   paper and ink of a proof sheet; the semantic chips (good, bad, warn) carry the state */
+:root{--bg:#f4f3ef;--panel:#ffffff;--ink:#1b1c1f;--soft:#5b5e66;--line:#dcd9d0;--chip:#ecebe5;--good:#17803d;--goodbg:#e2f3e6;--bad:#b42318;--badbg:#fbe5e2;--warn:#8a5a00;--warnbg:#faefd6;--accent:#1d4ed8;--shadow:0 1px 2px rgba(20,20,30,.06);
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--display:"Space Grotesk","Inter",system-ui,sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121316;--panel:#1b1d21;--ink:#eceae4;--soft:#a3a6ae;--line:#30333a;--chip:#25282d;--good:#5ad17f;--goodbg:#173322;--bad:#ff8a7a;--badbg:#3a1d1a;--warn:#f2c14e;--warnbg:#3a2e12;--accent:#8fb0ff;--shadow:none;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121316;--panel:#1b1d21;--ink:#eceae4;--soft:#a3a6ae;--line:#30333a;--chip:#25282d;--good:#5ad17f;--goodbg:#173322;--bad:#ff8a7a;--badbg:#3a1d1a;--warn:#f2c14e;--warnbg:#3a2e12;--accent:#8fb0ff;--shadow:none;color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-main{max-width:1440px;margin:0 auto;padding:24px 16px 64px}
-h1{font-size:28px;margin:0 0 4px;letter-spacing:-.01em}
-h2{font-size:18px;margin:28px 0 10px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 var(--body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+main{max-width:1440px;margin:0 auto;padding-block:24px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font:700 30px/1.15 var(--display);margin:0 0 6px;letter-spacing:-.01em;text-wrap:balance}
+h2{font:700 19px/1.3 var(--display);margin:30px 0 10px;text-wrap:balance}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,th.sort:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 p{margin:6px 0}
 .sub{color:var(--soft);max-width:900px}
 .meta{color:var(--soft);font-size:13px}
@@ -207,7 +216,7 @@ th.on.up::after{content:" \\2191"}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .sum tr{cursor:pointer}
 .sum tr:hover td{background:var(--chip)}
-.controls{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:12px;position:sticky;top:0;z-index:2;margin:14px 0}
+.controls{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:12px;position:sticky;top:env(safe-area-inset-top,0px);z-index:2;margin:14px 0}
 .controls label{font-size:13px;color:var(--soft);display:flex;align-items:center;gap:6px}
 input[type=search],select{font:inherit;font-size:14px;padding:6px 9px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);min-width:0}
 input[type=search]{width:220px;max-width:100%}
@@ -236,9 +245,9 @@ details li{overflow-wrap:anywhere}
 .legend b{color:var(--ink)}
 .notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
 .notes .panel{padding:12px 14px;font-size:13.5px}
-@media (max-width:700px){h1{font-size:23px}.ads img{width:64px;height:64px}.count{margin-left:0}}
-</style></head>
-<body><main>
+@media (max-width:700px){h1{font-size:24px}.ads img{width:64px;height:64px}.count{margin-left:0}}
+</style>
+<main>
 <h1>Ad census</h1>
 <p class="sub">Every ad the studio offers, opened the way a visitor opens it, and what each is made of: its generation and engine, its colours against the twelve proven pairs, its type, which of the full ad's elements it carries, how much of it the product fills, any banned or old wording, and its own pre-flight's verdict.</p>
 <p class="meta" id="meta"></p>
@@ -275,9 +284,11 @@ details li{overflow-wrap:anywhere}
   $('sum').innerHTML = '<thead><tr><th>Generation</th><th>Engine</th><th class="num">Ads</th><th class="num">Off the house engine</th><th class="num">Off the twelve pairs</th><th class="num">On a photograph</th><th class="num">Banned words</th><th class="num">Lacks a required element</th><th class="num">Pre-flight fails</th><th class="num">Product, median height</th><th class="num">Fail the gate</th></tr></thead><tbody>' +
     gens.map(function (g) { var s = S[g]; return '<tr data-gen="' + g + '"><td><b>' + esc(s.name) + '</b>' + (s.errors ? ' <span class="tag bad">' + s.errors + ' did not open</span>' : '') + '</td><td>' + esc(s.engine) + '</td><td class="num">' + s.ads + '</td>' + cell(s.offEngine, 0, 1) + cell(s.offColours, 0, 1) + cell(s.onPhoto, 0, 0) + cell(s.withBanned, 0, 1) + cell(s.lacking, 0, 1) +
       (s.preflight ? cell(s.preflight.fail, s.preflight.measured, 1) : '<td class="num small">none</td>') + '<td class="num">' + pct(s.productMedianH) + '</td>' + cell(s.gateFail, 0, 1) + '</tr>'; }).join('') + '</tbody>';
-  $('sum').addEventListener('click', function (e) { var tr = e.target.closest('tr[data-gen]'); if (!tr) return; on = {}; on[tr.dataset.gen] = true; syncGens(); draw(); $('controls').scrollIntoView({ behavior: 'smooth' }); });
+  var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  $('sum').addEventListener('click', function (e) { var tr = e.target.closest('tr[data-gen]'); if (!tr) return; on = {}; on[tr.dataset.gen] = true; syncGens(); draw(); $('controls').scrollIntoView({ behavior: calm ? 'auto' : 'smooth' }); });
   var lacks = gens.map(function (g) { var s = S[g], l = D.elements.filter(function (k) { return s.missingBy[k]; }); return '<b>' + esc(s.name) + '</b>: ' + (l.length ? l.map(function (k) { return D.elementNames[k] + ' ' + s.missingBy[k]; }).join(', ') : 'nothing'); });
-  $('legend').innerHTML = 'Elements lacking, by generation. ' + lacks.join('. ') + '.' + (D.calibration ? ' Pair match: ground within ' + D.calibration.groundMax + ' and accent within ' + D.calibration.accentMax + ' (OKLab, x100) of a pair\\'s own; on the full ads, which are drawn in a pair by construction, the measured ground was at most ' + D.calibration.fullGround + ' and the accent at most ' + D.calibration.fullAccent + ' from their declared pair.' : '');
+  var foreign = gens.filter(function (g) { return S[g].foreignTowns; }).map(function (g) { return S[g].name + ' ' + S[g].foreignTowns; });
+  $('legend').innerHTML = 'Elements lacking, by generation. ' + lacks.join('. ') + '.' + (foreign.length ? ' Ads that print the library\\'s Long Beach towns to a visitor in ' + esc(V.town) + ': ' + foreign.join(', ') + '.' : '') + (D.calibration ? ' Pair match: ground within ' + D.calibration.groundMax + ' and accent within ' + D.calibration.accentMax + ' (OKLab, x100) of a pair\\'s own; on the full ads, which are drawn in a pair by construction, the measured ground was at most ' + D.calibration.fullGround + ' and the accent at most ' + D.calibration.fullAccent + ' from their declared pair.' : '');
   var worst = R.slice().sort(function (a, b) { return b.score - a.score || a.gen.localeCompare(b.gen); }).slice(0, 25);
   $('worst').innerHTML = worst.map(function (r) { return '<li><b>' + esc(r.name) + '</b> <span class="small">' + esc(r.genName) + ' · ' + esc(r.id) + '</span>: ' + esc(r.gateWhy.join('; ')) + '</li>'; }).join('');
   $('sources').innerHTML = (D.sources || []).map(function (s) { return '<div class="panel"><b>' + esc(s.name) + '</b><p class="small">' + esc(s.file) + '</p>' + (s.found.length ? '<ul>' + s.found.map(function (f) { return '<li><span class="tag bad">' + esc(f.label) + '</span> ' + esc(f.text) + '</li>'; }).join('') + '</ul>' : '<p><span class="tag good">nothing banned</span></p>') + '</div>'; }).join('') || '<p class="small">Not measured in this run.</p>';
@@ -301,9 +312,12 @@ details li{overflow-wrap:anywhere}
     { k: 'pre', t: 'Pre-flight', s: function (r) { return r.pre ? (r.pre.ok ? 0 : 100) + (r.pre.fixes || 0) * 10 + (r.pre.notes || 0) : -1; } },
     { k: 'score', t: 'Score', s: function (r) { return r.score; }, num: 1 }];
   var sortK = 'score', up = false;
-  function head() { $('ads').innerHTML = '<thead><tr>' + COLS.map(function (c) { return '<th class="' + (c.s ? 'sort' : '') + (c.num ? ' num' : '') + (sortK === c.k ? ' on' + (up ? ' up' : '') : '') + '" data-k="' + c.k + '">' + c.t + '</th>'; }).join('') + '</tr></thead><tbody></tbody>'; }
-  $('ads').addEventListener('click', function (e) { var th = e.target.closest('th.sort'); if (!th) return; if (sortK === th.dataset.k) up = !up; else { sortK = th.dataset.k; up = sortK === 'name' || sortK === 'gen' || sortK === 'type'; } draw(); });
-  function els(r) { return D.elements.map(function (k) { var has = !!r.el[k], req = D.required.indexOf(k) >= 0; var label = D.elementNames[k] + (k === 'product' && r.productKind && r.productKind !== 'picture' ? ' (' + r.productKind + ')' : ''); return '<span class="tag ' + (has ? 'good' : req ? 'miss' : 'off') + '">' + esc(label) + '</span>'; }).join(''); }
+  function head() { $('ads').innerHTML = '<thead><tr>' + COLS.map(function (c) { return '<th class="' + (c.s ? 'sort' : '') + (c.num ? ' num' : '') + (sortK === c.k ? ' on' + (up ? ' up' : '') : '') + '" data-k="' + c.k + '"' + (c.s ? ' tabindex="0" aria-sort="' + (sortK === c.k ? (up ? 'ascending' : 'descending') : 'none') + '"' : '') + '>' + c.t + '</th>'; }).join('') + '</tr></thead><tbody></tbody>'; }
+  function sortBy(th) { var k = th.dataset.k; if (sortK === k) up = !up; else { sortK = k; up = k === 'name' || k === 'gen' || k === 'type'; } draw(); var again = $('ads').querySelector('th[data-k="' + k + '"]'); if (again) again.focus(); }
+  $('ads').addEventListener('click', function (e) { var th = e.target.closest('th.sort'); if (th) sortBy(th); });
+  $('ads').addEventListener('keydown', function (e) { var th = e.target.closest('th.sort'); if (th && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); sortBy(th); } });
+  function els(r) { return D.elements.map(function (k) { var has = !!r.el[k], req = D.required.indexOf(k) >= 0; var label = D.elementNames[k] + (k === 'product' && r.productKind && r.productKind !== 'picture' ? ' (' + r.productKind + ')' : ''); return '<span class="tag ' + (has ? 'good' : req ? 'miss' : 'off') + '">' + esc(label) + '</span>'; }).join('') +
+    (r.foreign.length ? '<div><span class="tag bad" title="the visitor is in ' + esc(V.town) + '">prints ' + esc(r.foreign.join(', ')) + '</span></div>' : ''); }
   function row(r) {
     var pre = !r.pre ? '<span class="small">none</span>' : '<span class="tag ' + (r.pre.ok ? 'good' : 'bad') + '">' + (r.pre.ok ? 'passes' : 'fails') + '</span>' + (r.pre.fixes ? ' <span class="tag bad">' + r.pre.fixes + ' to fix</span>' : '') + (r.pre.notes ? ' <span class="tag warn">' + r.pre.notes + ' notes</span>' : '') + (r.pre.says && r.pre.says.length ? '<details><summary>what it says</summary><ul>' + r.pre.says.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul></details>' : '');
     var words = r.words.length ? '<details><summary>' + r.words.length + ' lines</summary><ul>' + r.words.map(function (w) { return '<li><span class="small">' + esc(w[0]) + ':</span> ' + esc(w[1]) + '</li>'; }).join('') + '</ul></details>' : '';
@@ -342,7 +356,6 @@ details li{overflow-wrap:anywhere}
   draw();
 })();
 </script>
-</body></html>
 `;
 }
 
@@ -572,9 +585,13 @@ function STUDIO() {
   };
   /** The words the generations write when the visitor writes none: the lists themselves. */
   cz.sources = async () => {
-    const M = await import('/motion/fullad.js'), subjects = FullAdStudio.lines();
+    const M = await import('/motion/fullad.js'), CAT = await import('/motion/catalog.js'), subjects = FullAdStudio.lines();
+    const strings = (o, where, out = []) => { if (typeof o === 'string') out.push({ where, text: o }); else if (Array.isArray(o)) o.forEach(x => strings(x, where, out)); else if (o && typeof o === 'object') Object.entries(o).forEach(([k, v]) => strings(v, where ? where + ' ' + k : k, out)); return out; };
+    let feedCards = []; try { const j = await fetch('/tools/feed-stills/cards.json').then(r => r.json()); feedCards = j.cards || j; } catch (e) { }
     const out = [{ name: 'The full ad\'s default words (FULL_WORDS)', file: 'motion/fullad.js', lines: Object.entries(M.FULL_WORDS).flatMap(([k, v]) => v.map(t => ({ where: k, text: t }))) },
-      { name: 'The full ad\'s 35 lines: headlines, models, points', file: 'motion/subjects.json (from offer-library.js LINES)', lines: subjects.flatMap(s => [...(s.heads || []).map(h => ({ where: s.key + ' headline', text: h })), { where: s.key + ' models', text: s.models || '' }, ...(Array.isArray(s.points) ? s.points : String(s.points || '').split(',')).map(p => ({ where: s.key + ' point', text: p }))]) }];
+      { name: 'The full ad\'s 35 lines: headlines, models, points', file: 'motion/subjects.json (from offer-library.js LINES)', lines: subjects.flatMap(s => [...(s.heads || []).map(h => ({ where: s.key + ' headline', text: h })), { where: s.key + ' models', text: s.models || '' }, ...(Array.isArray(s.points) ? s.points : String(s.points || '').split(',')).map(p => ({ where: s.key + ' point', text: p }))]) },
+      { name: 'The video maker\'s words (COPY and HEADLINES), which Any look draws from', file: 'motion/catalog.js', lines: [...strings(CAT.COPY, ''), ...strings(CAT.HEADLINES, 'headline')] },
+      { name: 'iPhones LA\'s FeedAd cards: the words each still carries', file: 'tools/feed-stills/cards.json', lines: feedCards.flatMap(c => ['claim', 'headline', 'line', 'points', 'cta', 'where'].filter(k => c[k]).map(k => ({ where: (c.id || '') + ' ' + k, text: String(c[k]) }))) }];
     return out;
   };
 }
@@ -828,7 +845,7 @@ function report(c) {
   for (const [g, s] of Object.entries(S)) {
     const miss = ELEMENTS.filter(k => s.missingBy[k]).map(k => `${ELEMENT_NAMES[k]} ${s.missingBy[k]}`).join(', ');
     const ban = Object.entries(s.bannedBy).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(', ');
-    console.log(`  ${s.name}: lacks ${miss || 'nothing'}${ban ? '; banned ' + ban : ''}`);
+    console.log(`  ${s.name}: lacks ${miss || 'nothing'}${ban ? '; banned ' + ban : ''}${s.foreignTowns ? '; prints Long Beach towns to a San Diego visitor ' + s.foreignTowns : ''}`);
   }
   if (c.calibration) console.log(`calibration: the ${c.calibration.full} full ads measure within ${c.calibration.fullGround} (ground) and ${c.calibration.fullAccent} (accent) of their own pair; ${c.calibration.fullNearestOwn} of them have it as the nearest`);
   for (const s of c.sources) console.log(`source: ${s.name}: ${s.found.length ? s.found.map(f => f.label + ' (' + f.text + ')').slice(0, 8).join('; ') : 'nothing banned'}`);
@@ -836,10 +853,13 @@ function report(c) {
   c.rows.slice().sort((a, b) => b.score - a.score).slice(0, 15).forEach(r => console.log(`  ${String(r.score).padStart(2)} ${r.genName.padEnd(20)} ${r.id}: ${r.gateWhy.join('; ')}`));
 }
 
+const thumbsOf = f => f.replace(/\.json$/, '') + '.thumbs.json';
 let C;
 if (RESCAN) {
   C = JSON.parse(readFileSync(RESCAN, 'utf8'));
   C.rawSources = C.rawSources || [];
+  /* the thumbnails live beside the census (they are most of its weight), and come back with it */
+  try { const T = JSON.parse(readFileSync(thumbsOf(RESCAN), 'utf8')); C.rows.forEach(r => { if (!r.thumb && T[r.id]) r.thumb = T[r.id]; }); } catch (e) { console.log('no thumbnails beside ' + RESCAN + ': the page is drawn without them'); }
 } else {
   const t0 = Date.now();
   const got = await census();
@@ -852,7 +872,8 @@ report(C);
 mkdirSync(dirname(HTML_OUT), { recursive: true }); mkdirSync(dirname(JSON_OUT), { recursive: true });
 writeFileSync(HTML_OUT, page(C));
 const slim = { ...C, rows: C.rows.map(({ thumb, ...r }) => r) };
-writeFileSync(JSON_OUT, JSON.stringify(has('--json-thumbs') ? C : slim, null, 1));
+writeFileSync(JSON_OUT, JSON.stringify(slim, null, 1));
+writeFileSync(thumbsOf(JSON_OUT), JSON.stringify(Object.fromEntries(C.rows.filter(r => r.thumb).map(r => [r.id, r.thumb]))));
 console.log(`\nwrote ${JSON_OUT} and ${HTML_OUT}${C.minutes ? ` (${C.minutes} minutes)` : ''}`);
 if (GATE) {
   const bad = C.rows.filter(r => r.gateWhy.length);

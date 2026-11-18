@@ -643,3 +643,17 @@ produced." DESIGN-LAW rule 87. In practice:
   `full_type_check.mjs` and `full_ad_check.mjs`. A check that sets a state
   before it measures (`ez.bgPicked = true` did, in four audits) measures a
   visitor who may not exist: say which one.
+- **The census of every offered ad** (rule 143, 2026-11-18): `node
+  scripts/ad_census.mjs` opens every ad the site offers the way a visitor
+  does (Easy Mode's strip, the library wall, the full ad's 35 lines, the
+  video maker's Any look gallery, iPhones LA's FeedAd batch) and writes what
+  each is made of to `.render/ad-census/` (a JSON and a sortable page with a
+  thumbnail a row): generation, engine, colours against the twelve pairs,
+  type, elements, product share, banned words, pre-flight. Banned and old
+  wording is one list, `spec/banned-words.json`: add a phrase there, never in
+  a script, and re-score the last census with `--rescan` (seconds, no
+  browser). Run it before and after a change to any generation's words,
+  colours or defaults and compare the counts: a fix to one generation leaves
+  the others as they were, which is how old words came back. `--gate` fails
+  every generation but the full ad today, so it is not wired into any deploy;
+  that waits on the owner's retirements.
