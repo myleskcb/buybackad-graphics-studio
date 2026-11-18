@@ -81,6 +81,7 @@ export const GROUND_VERSION = ${JSON.stringify(spec.version)};
 export const GROUND_SHARES = ${JSON.stringify(spec.shares)};
 export const GROUND_HOUSE = ${JSON.stringify(spec.house)};
 export const GROUND_SCENES = ${JSON.stringify(spec.scenes)};
+export const GROUND_GRADIENTS = ${JSON.stringify(spec.gradients || [])};
 export const GROUND_POOLS = ${JSON.stringify(spec.pools)};
 export const GROUND_LINE_CAT = ${JSON.stringify(lineCat)};
 export const GROUND_PHOTOS = ${JSON.stringify(photos)};

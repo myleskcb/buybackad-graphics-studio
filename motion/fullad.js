@@ -23,7 +23,7 @@ import { HOUSE_COLOURS, LINES } from "./house-colours.js";
 import { FULL_VOICES } from "./full-voices.js";
 import { bannedIn } from "./banned-words.js";
 import { PHONE_WEIGHT, PHONE_REST, PHONE_VIEWS, PHONE_COUNTS, PHONE_LINEUP, pickWeighted } from "./product-demand.js";
-import { GROUND_SHARES, GROUND_SCENES, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS } from "./full-grounds.js";
+import { GROUND_SHARES, GROUND_SCENES, GROUND_GRADIENTS, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS } from "./full-grounds.js";
 
 // Proportions of the frame's width. 1080 x .052 = 56px, x .044 = 48px, x .032 = 35px.
 // edge: nothing nearer the frame's edge than 38px; gap: no two stacked blocks nearer than 22px.
@@ -411,13 +411,15 @@ export function groundFits(t, P) {
 export function groundFor(subject, seed, pairKey, product) {
   const cat = !subject || subject === "iphone" ? "phones" : (GROUND_LINE_CAT[subject] || "");
   const pool = (GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && photoSuits(GROUND_PHOTOS[src], pairKey) && groundFits(GROUND_PHOTOS[src], product));
-  const share = { photo: pool.length ? GROUND_SHARES.photo : 0, scene: GROUND_SCENES.length ? GROUND_SHARES.scene : 0, house: GROUND_SHARES.house };
+  const share = { photo: pool.length ? GROUND_SHARES.photo : 0, scene: GROUND_SCENES.length ? GROUND_SHARES.scene : 0, gradient: GROUND_GRADIENTS.length ? (GROUND_SHARES.gradient || 0) : 0, house: GROUND_SHARES.house };
   // the line's own stream: two lines on one seed do not stand on the same kind of ground
   let h = 0x811c9dc5; for (const ch of String(subject || "iphone")) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
   const g = rng(mixSeed((mixSeed(seed >>> 0) ^ h) >>> 0)); g();
-  let u = g() * (share.photo + share.scene + share.house);
+  let u = g() * (share.photo + share.scene + share.gradient + share.house);
   if ((u -= share.photo) < 0) { const src = pool[Math.floor(g() * pool.length) % pool.length]; return { background: "photo", ground_photo: { src, focus: GROUND_PHOTOS[src].focus || [.5, .5] } }; }
   if ((u -= share.scene) < 0) return { background: GROUND_SCENES[Math.floor(g() * GROUND_SCENES.length) % GROUND_SCENES.length] };
+  // a vivid gradient in the pair's own two families (decor.js pairGradientGround; the owner: "Also don't see any gradients really?")
+  if ((u -= share.gradient) < 0) return { background: GROUND_GRADIENTS[Math.floor(g() * GROUND_GRADIENTS.length) % GROUND_GRADIENTS.length] };
   return null;
 }
 export const ARRANGEMENTS = ["lineup", "fan", "showcase", "podium", "wings"];
@@ -1359,11 +1361,19 @@ export function readableFinishes(ids, colors, index) {
 }
 /* each line's pool, as loadSubjectSet loaded it: [{ ids, w }] */
 const POOLS = new Map();
-/** One entry of a line's pool for a seed, of the pictures loaded (null when its pool is not loaded). */
+/** The entry of a pool a seed draws (its index), over the whole pool by its weights: what a maker
+ *  loads before it draws that seed, so a line's pool is never loaded whole (cars run to 12 MB). */
+export function poolEntryFor(pool, seed) {
+  const list = (pool || []).map((e, i) => [i, e.w]);
+  return list.length ? pickWeighted(rng(mixSeed((seed >>> 0) * 197 + 31))(), list) : -1;
+}
+/** One entry of a line's pool for a seed: the one poolEntryFor names, when its pictures are loaded
+ *  (null otherwise: the maker loads it first). With the whole pool loaded, as the checks load it,
+ *  this is the draw it always was. */
 export function subjectDraw(key, seed, loaded) {
-  const P = POOLS.get(key); if (!P) return null;
-  const have = new Set(loaded || []), list = P.filter(e => e.ids.every(id => have.has(id))).map(e => [e.ids, e.w]);
-  return list.length ? pickWeighted(rng(mixSeed((seed >>> 0) * 197 + 31))(), list) : null;
+  const P = POOLS.get(key); if (!P || !P.length) return null;
+  const e = P[poolEntryFor(P, seed)], have = new Set(loaded || []);
+  return e && e.ids.every(id => have.has(id)) ? e.ids : null;
 }
 /* A LOCK SCREEN for a phone that lands face up (the owner's "front with lock screens"). The engine
    draws a front with a black screen unless it is given one. This one is drawn, not loaded, so a
@@ -1541,13 +1551,16 @@ export function fullMeasure(ad) {
 
 /** A subject's set of pictures (motion/subjects.json, from the offer family) as the engine's
  *  assets: { ids, assets }. Each is marked flat, so FullAd draws it as it is. */
-export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cutouts/") {
+export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cutouts/", opts = {}) {
   const sets = subject.sets || [], pool = subject.pool || [];
-  // the first set is the line's pool when it has one: the whole pool is loaded, once, and each seed
-  // draws one entry of it (subjectDraw); a set picked with Picture is that set alone
+  // the first set is the line's pool when it has one, and each seed draws one entry of it
+  // (subjectDraw). Given the seed (opts.seed), only the entry it draws is loaded (poolEntryFor): a
+  // pool 3-5x the size it was (2026-11-18) is pictures nobody sees. Without a seed the whole pool
+  // is loaded, as the checks want it. A set picked with Picture is that set alone.
   const auto = !(setIndex | 0) && pool.length > 0;
   if (!sets.length && !auto) return { ids: [], assets: {} };
-  const set = auto ? pool.flatMap(e => e.set) : sets[((setIndex % sets.length) + sets.length) % sets.length], assets = {}, ids = [];
+  const one = auto && Number.isFinite(+opts.seed) && opts.seed !== null && opts.seed !== undefined ? poolEntryFor(pool, +opts.seed) : -1;
+  const set = auto ? (one >= 0 ? pool[one].set : pool.flatMap(e => e.set)) : sets[((setIndex % sets.length) + sets.length) % sets.length], assets = {}, ids = [];
   // a picture's id carries its size beside the first when that is not 1: one file may stand alone in one entry and second in another
   const idOf = ({ file, k }) => "sub-" + file + (k && k !== 1 ? "@" + k : "");
   const imgs = new Map();

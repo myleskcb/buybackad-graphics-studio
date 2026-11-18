@@ -33,7 +33,7 @@
 import { loadPhones, loadFonts, fontsFor } from "./motion/engine.js";
 import { DEFAULT_STYLE, DEFAULT_PHONES, TYPE_VOICES, FONTS } from "./motion/catalog.js";
 import { loadAccents, ACCENT_SETS } from "./motion/accents.js";
-import { FullAd, fullStyle, fullPreflight, fullStill, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk } from "./motion/fullad.js";
+import { FullAd, fullStyle, fullPreflight, fullStill, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk, poolEntryFor } from "./motion/fullad.js";
 import * as FULL from "./motion/fullad.js";
 /* the ground photograph is loaded before an ad is drawn for keeps (fullGroundReady, 2026-11-18); a
    copy of fullad.js from before it draws no photograph and needs no wait */
@@ -91,14 +91,16 @@ function ready() {
     loadAccents(at("./assets/cutouts/"), ACCENT_SETS.cash.map(i => i.asset).filter(Boolean)).then(a => { assets.accents = a; }),
   ]);
   const R = recipeNow(), own = !!(R && R.pictures && R.pictures.length);
-  const iph = S.key === "iphone", set = own ? 0 : S.sets.length ? (FA.set[S.key] | 0) % S.sets.length : 0, k = own ? "recipe|" + R.id : S.key + "|" + set;
+  // a line's pool: only the entry this seed draws is loaded (fullad.js poolEntryFor), so the key names it
+  const iph = S.key === "iphone", set = own ? 0 : S.sets.length ? (FA.set[S.key] | 0) % S.sets.length : 0, seed = FA.seed | 0 || 1;
+  const ent = !own && !iph && !set && (S.pool || []).length ? poolEntryFor(S.pool, seed) : -1, k = own ? "recipe|" + R.id : S.key + "|" + set + (ent >= 0 ? "|e" + ent : "");
   if (!live.loaded[k]) live.loaded[k] = (own
     ? loadSubjectSet({ key: "recipe:" + R.id, label: S.label, sets: [R.pictures] }, 0, at("./assets/cutouts/")).then(got => { Object.assign(assets.phones, got.assets); return got.ids; })
     : iph
     /* every phone the shop buys (1.2 MB), not the default four alone: a full ad nobody picked the phones
        for draws its set by its seed, the in-demand models most (fullad.js drawPhones, 2026-11-18) */
     ? loadPhones(at("./motion/phones/")).then(({ phones, index }) => { Object.assign(assets.phones, phones); assets.index = index; return DEFAULT_PHONES.filter(id => phones[id]); })
-    : S.sets.length ? loadSubjectSet(S, set, at("./assets/cutouts/")).then(got => { Object.assign(assets.phones, got.assets); return got.ids; }) : Promise.resolve([])
+    : S.sets.length ? loadSubjectSet(S, set, at("./assets/cutouts/"), ent >= 0 ? { seed } : {}).then(got => { Object.assign(assets.phones, got.assets); return got.ids; }) : Promise.resolve([])
   ).catch(e => { delete live.loaded[k]; throw e; });
   return Promise.all([live.base, live.loaded[k]]).then(([, ids]) => ({ S, ids, set, recipe: own ? R : recipeNow() }));
 }
