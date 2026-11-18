@@ -5467,3 +5467,109 @@ RESUME HERE:
      base). When it meets the census branch, mark OPEN-ITEMS §BI 10 fixed; the
      census's "one field at a time" wait can then go.
   1. strongSeed's null `best`, its own change.
+
+## 2026-11-18 — Quick ad's hang, and New look's search that could come back empty (claude/strongseed-preflight)
+
+Asked, from the session that fixed the typing race (claude/sad-pike-c4b427, this branch's base):
+find what quick_ad_check's hang at a quick ad really is (loop it until it hangs, log the open
+pop-up, the note and the console when it does); decide what strongSeed returns when nothing
+passes. New look and Quick ad must never hand the customer an unchecked ad without saying so.
+
+Found:
+  - The hang was the pre-flight disagreeing with itself, not the empty search. Looped two at a
+    time, quick_ad_check hung in 2 runs of 2 (one at its first quick ad, one at its third). Both
+    times all eight tries had passed the search's pre-flight, read at 360 wide; strongSeed
+    returned the best scorer and threw nothing; the download's gate read the same ad at 1080,
+    found "The towns and website is hard to read against what is behind it", and its "Check
+    this ad before it goes out" pop-up waited for a click the check never gives. The panel under
+    the preview, read at 720, said 5 of 7 with nothing to fix. One ad, three sizes, two answers.
+  - And the 1080 answer was the wrong one. Looked at, every failing footer was white letters on
+    a dark ground, plain to read. The footer is one sprite: a map pin in the accent, then the
+    towns. The pre-flight's "reads" takes the letters by their ink's colour and calls the rest of
+    the box, past a ring round the letters, what stands behind them; the orange pin was about two
+    fifths of that "behind", and its brightest tenth. Of 60 New looks with a town, at 1080: 13
+    stopped (3.3 to 3.5:1, every one teal or navy with orange) and 21 noted; at 360 and 720, none:
+    the ring round the pin's white dot covered most of the pin there. With the footer's own
+    pixels set aside, the footer read 7.5 to 15:1 on all 60, the same at all three sizes. So the
+    gate was stopping readable ads, and the search, asking at another size, could not see it
+    coming. Easy Mode's full ad reads at the file's size, and with one town in the visitor's area
+    12 of its 36 downloads tried (four of the twelve pairs, three looks each: navy and orange,
+    midnight and cyan, blue and green, teal and orange) were stopped for it, and 9 more noted.
+    With three towns, none: the pin is a smaller share of a longer line. Its check sets no area,
+    so it never drew the pin. After the change: none either way.
+  - The empty search is real and common, and its cause was not the typefaces (this log's last
+    entry): it is the empty phone number. "There is no phone number on the ad" is a fix, every
+    try shares it, all eight were skipped, best was null and it threw: every New look and Quick
+    ad by a visitor who had not typed a number yet drew a plain, unchecked look, and only the
+    console said so. typing_pause_check's case 8 types the number during the search, so its
+    tries had none; with the faces let go and a number in place, all eight passed.
+  - No full ad can be strong: the attention check's "First frame shows something" (15% of the
+    frame) failed on every full-ad try logged here (72 of 72): the full ad opens on its bare
+    ground and builds. So in full mode the search always runs all eight and returns the best
+    scorer; "New looks must pass" means "the best of eight" there. Not changed: the owner's
+    call (RESUME HERE 1).
+  - The 1080 reading costs 41 to 77 ms a look on this Mac (360: 5 to 12 ms). Read in score
+    order after the attention audit, it is read about once a search.
+
+Done:
+  - motion/fullad.js fullPreflight: the footer's sprite's own pixels are the footer's, never
+    what stands behind its letters (reads takes an own(x, y)). 80 New looks after: no fix at
+    360, 720 or 1080, and each look's worst line the same at all three.
+  - motion/app.js: deliveredPreflight(st), the full ad at 1080 read by its pre-flight, is what
+    the gate reads and what the search reads. strongSeed returns { st, fixes }: the first strong
+    try that passes, else the best scorer that passes, else the closest with what it needs. What
+    only the words can fix (fullWords: no number yet) is not held against a look; the panel and
+    Download say it. New look puts the closest in place and says "No new look passed its checks,
+    so this is the closest" and what it needs; Quick ad goes on to the download's gate, which
+    reads it again, says what it needs and asks, as for the Download buttons. When the search
+    cannot run at all, both say the look was not checked (UNCHECKED).
+  - scripts/quick_ad_check.mjs: the pre-flight's pop-up in the way of a download fails that
+    quick ad, is said and is answered (Go back), never waited on; a wait that runs out prints the
+    open pop-up, the note, the buttons that are off, the pre-flight's reading and the last of the
+    console. typing_pause_check case 8's comment is corrected.
+  - AGENT-BRIEF, rule 137's paragraph: what a full ad needs is read by deliveredPreflight.
+
+Rejected:
+  - The search reading at 1080 and nothing else. It would have agreed with the gate by refusing
+    every teal or navy and orange look with a town: two of the twelve pairs gone from New look
+    without a word, and the gate still stopping readable ads.
+  - Holding the missing number against every try, and saying so: New look would have said "no
+    new look passed" on every press by a visitor exploring looks before typing a number.
+  - Stopping Quick ad before its download when nothing passes. The gate already says what is
+    needed and offers "Download it anyway"; a second message would say it twice.
+  - The guess that the look drawn after the catch failed the gate: the search never threw in
+    the hangs. And this log's "with the page's typefaces let go" as why all eight failed.
+
+Checked: quick_ad_check 10 runs of 10, two at a time, 47 ok each, about 20 s a run (the hung
+runs took 124 and 130 s; before the change 2 of 2 hung); full_ad_check all clear; buylist_check
+all passed; typing_pause_check all passed (case 8's search 1730 ms, both pauses ran out in it);
+full_colour_check all clear; full_ad_studio_check all clear. Probes, not in the repo: 80 New looks
+read at 360, 720 and 1080 after the change, no fix at any size; Easy Mode's full ad in every pair,
+three looks each, one town, before and after (12 stopped, then none); the two new messages made to
+happen in the page (words no look can hold; a search that cannot run); Quick ad with such words
+(the gate asks; Go back leaves "Not saved: the ad is waiting for its fix").
+Two checks fail here exactly as they do with the base branch's fullad.js served in this one's
+place, so not from this change: full_type_check (on this Mac it cuts Flyer, Stick No Bills, its
+headline set at 107px reading small in a feed's preview, where full-voices.js keeps it; the kept
+and cut lists are identical either way) and ez_download_is_preview (dl_gold_voltStack_gold and
+dl_gold_gradientWave_gold, legib:Headline, as the ad census found on this Mac at 26fb5dd0).
+The site's 15 pages (the landing twice, with ?demo=1) under its own policy: no page error. Three
+CSP violations, each a page's own inline script, in files and a policy this branch leaves alone:
+phonegfx-studio.html (seen before), motion/audit-sweep.html and motion/views-sheet.html.
+
+Not on `main`: this branch only, cut from claude/sad-pike-c4b427, itself cut from
+claude/brave-mayer-8bv851; neither is on `main`. git merge-tree finds no conflict in code with
+`main`, claude/ads-improvement-roadmap-7632c8 or claude/xenodochial-mccarthy-7bea6d; where they
+append to this log too, the entries meet at its end: keep all.
+
+RESUME HERE:
+  0. The owner's word to merge it, with or after claude/sad-pike-c4b427 and
+     claude/brave-mayer-8bv851 (its base).
+  1. The owner's call on the full ad's first frame: no full ad passes the attention check's "First
+     frame shows something", so New look and Quick ad in full mode take the best of eight by score.
+     Either the full ad's first frame shows something, or its search asks a question of its own.
+  2. The panel under the preview still reads the pre-flight at the preview's size (720), the gate
+     and the search at 1080. After this change none of 80 looks had a fix at either; reading the
+     panel at 1080 too would draw the ad at 1080 on every change.
+  3. On this Mac full_type_check cuts Flyer and ez_download_is_preview fails the two gold designer
+     layouts, as on the base; neither looked into here.
