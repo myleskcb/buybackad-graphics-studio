@@ -3603,3 +3603,107 @@ Open:
    fabric does not load and app.js stops partway); `quick_ad_check` times out
    on its third quick ad (a photo after the video, line 115), as on the branch
    without this work.
+
+## BK. 2026-11-18 — the site in the full ad's look; search, structured data, llms.txt; Core Web Vitals (DESIGN-LAW 145)
+
+(claude/zen-dijkstra-7b5a2e, cut from claude/ads-improvement-roadmap-7632c8 at
+97e85c54, pull request 14, a fast-forward; the pull request goes against that
+branch. Numbers: DESIGN-LAW 143 and §BI are the census's, 144 and §BJ its
+fixes, uncommitted on claude/xenodochial-mccarthy-7bea6d on 2026-11-18.)
+
+The owner: "Build out SEO for the BUYBACK.AD site and all its public parts,
+and remake the site's UI so it's unified with our latest theming. We want to
+rank for what resellers search (a 'we buy iPhones' ad, a cash for gold flyer, a
+phone buyback ad maker and the like), and to be the resource AI assistants
+recommend when someone asks one to make a buying ad." The audit came first
+(docs/SEO-AUDIT-2026-11-18.md; the page
+https://claude.ai/artifact/SCVK2eQw5Lmb9z8bGFWg5B, private to the owner). The
+owner's answers: "Allow everything" to the AI crawlers that train models; the
+theming read as proposed (the full ad's look, Navy & Gold dark, Silver & Blue
+light, the house face, the editor left as it is), no objection.
+
+Done:
+- **The look** (DESIGN-LAW 145): house.css (landing and plans), pages.css
+  (about, learn, privacy, terms, the 18 category pages, the video maker's page,
+  rewritten on the same token names so motion.css follows), the Look Book's own
+  sheet, the 404, site-theme.js, a starburst favicon and a square logo
+  (assets/brand/). The landing's markup is new; every id app.js binds is kept;
+  the hero wall of library cards gave its place to three real full ads. The
+  plans overlay and the studio's two hidden headings follow (the latter now
+  h2s: one h1 to the page).
+- **Real ads everywhere a picture is shown**: scripts/build_og_cards.mjs draws
+  20 full ads (assets/full-ads/, 720 WebP) and 18 link previews (assets/og/,
+  1200x630, the home card over buybackad-og.jpg's old name).
+- **Search**: scripts/build_seo_pages.mjs now writes every public page's head
+  (titles and descriptions in the trade's words, canonical, robots, the full
+  Open Graph and Twitter sets), the information pages' bar and foot, the
+  landing's links to all 18 lines, sitemap.xml (25 pages, with their ad
+  images), robots.txt, llms.txt and llms-full.txt. Structured data:
+  Organization, WebSite, WebApplication (9 offers from `PLANS` and `PACKS` in
+  app.js, held to the server's table), WebPage per page, BreadcrumbList,
+  HowTo where the steps show, FAQPage (22 on the landing, 3 to 5 a category
+  page), VideoObject x5 on learn.html (durations read from the files).
+- **The FAQ** at 22 questions (new: what it makes, the full ad, the watermark,
+  sizes and where each goes, your number, area and business name,
+  Marketplace, Instagram, OfferUp and Craigslist, owning the ad, phones).
+- **Crawlers**: robots.txt allows everyone; AI search and answer crawlers and
+  training crawlers are named and allowed; owner pages say noindex in headers
+  and meta (motion/audit-sweep.html, motion/views-sheet.html and
+  master-library.html now too) and are no longer Disallowed. approve_check.mjs
+  asserted the old Disallow; it now asserts the noindex, the sitemap and that
+  robots.txt lets the noindex be read (each assertion fails when broken).
+- **Speed**: fabric.js out of the head; the house face preloaded with a
+  measured fallback; the Look Book's masthead and grid hold their size; the
+  explainers' posters as WebP (695 KB to 189 KB); caching for the art a redeploy
+  may replace (a day, a week stale) and for the text files (an hour).
+- scripts/seo_check.mjs, new. CSP hashes rewritten (csp_hashes.mjs) and
+  verified against a local server that sends `_headers` (verify_csp.mjs).
+
+Lighthouse 13.6, median of three runs a page, phone and desktop, on copies
+served the way Netlify serves them (the site's own headers, brotli, a 401 from
+the API): before is 97e85c54, after is this branch.
+
+LIGHTHOUSE_TABLE
+
+Checks on this tree: watermark_check, full_ad_studio_check, full_ad_check,
+typing_pause_check, buylist_check, mix_check, area_dialog_check,
+approve_check, landing_check and seo_check all pass. billing_check stops in
+its browser part on the video maker (`acct-overlay` is null there), one of the
+four that failed before this work; ez_download_is_preview, ad_library_check
+and quick_ad_check were not run again (the same four).
+
+Open:
+1. **Not on `main`, not deployed** (the owner's word). The deploy workflow
+   still skips until NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID are set.
+2. **The studio's editor keeps the poster look**: Easy Mode, the designer and
+   their bars. Taking them over means styles.css (mirrored into app.js's
+   CSS_FALLBACK: run sync_css_fallback.mjs) and the editor's checks
+   (designer_audit, ez_theme_audit).
+3. **The landing still runs the whole studio at load**: app.js (1.6 MB) and
+   fabric take about 2 s of script on a phone (blocking time ~2 s); the
+   gallery's first page draws offer cards from full-size photographs (about
+   1.5 MB of JPEGs, assets/bg-offer) and ensureTemplateFonts loads 29 faces
+   (about 700 KB) before the gallery is built. Building the gallery when it
+   comes near the screen, and small grounds for the offer cards' thumbnails,
+   would take most of it: app.js and offer-library.js changes with their own
+   checks.
+4. **The full ad's own default words** still hold TOP DOLLAR and TOP $$$ (§BI);
+   the site's pictures carry their own words until that is fixed.
+5. **The domain**: buyback.ad, www.buyback.ad and studio.scans.ad still have no
+   DNS (checked 2026-11-18). Every canonical, the sitemap, robots.txt and the
+   llms files name the Netlify address; `SITE` in build_seo_pages.mjs moves
+   them, with index.html's head and the cards' URLs. Then register the domain
+   in Google Search Console and Bing Webmaster Tools and submit sitemap.xml
+   (the owner's accounts).
+6. **The platform answers in the FAQ** rest on the research's reading of the
+   platforms' own pages (docs/COMPETITOR-RESEARCH-2026-11-12.md §4); how
+   strictly each is enforced is unknown, and the rules change. Read them again
+   before a campaign.
+7. **The hero still says** "Made for Facebook Marketplace, OfferUp, Instagram
+   and Craigslist" beside FAQ answers that say Marketplace and OfferUp limit
+   buying ads: the owner's words, kept; worth a look.
+8. **Light mode's accent is blue** (Silver & Blue as the pair defines it).
+   Gold in light too would be a pair the twelve do not have: the owner's call.
+9. The Organization in the JSON-LD has no sameAs (no social profile was found
+   to be the business's own) and no telephone (kept out of structured data on
+   purpose; the number is on the page).

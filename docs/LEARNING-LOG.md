@@ -5529,3 +5529,60 @@ the watermark and the stack under it. Only this log clashed; motion/app.js
 merged on its own. The entry above's RESUME HERE 0 is done up to the merge to
 `main`; marking OPEN-ITEMS §BI 10 fixed still waits on the census branch
 (claude/xenodochial-mccarthy-7bea6d), which is not in this one.
+
+## 2026-11-18 — the site in the full ad's look, and what search engines and assistants read (claude/zen-dijkstra-7b5a2e)
+
+Asked: SEO for every public page, structured data that is true, a fuller FAQ,
+llms.txt and a crawler policy, Core Web Vitals with Lighthouse before and
+after, and the site's UI remade in the house design language (the full ad,
+rules 137 to 141), audit first. Built on pull request 14's branch. DESIGN-LAW
+145, OPEN-ITEMS §BK, the audit in docs/SEO-AUDIT-2026-11-18.md.
+
+What was learned:
+
+- **A check can be wrong in the other direction.** approve_check asserted that
+  robots.txt names approve.html. A Disallow does not keep a page out of search:
+  a crawler kept out never reads the page's noindex and can still list the
+  address from a link. The check now asserts the noindex (headers and meta),
+  the sitemap and that robots.txt lets the noindex be read.
+- **Test a new check by breaking the thing, and check the break.** The first
+  test of seo_check's FAQ comparison passed, and the check was right: the sed
+  changed the phrase on both lines, the visible answer and its JSON-LD. Changed
+  on the visible line only, it failed as it should. The HowTo comparison read
+  only each step's text, so a renamed step passed; it reads the names too now.
+- **Lighthouse's attribution is not the cause; the trace is.** The Look Book
+  scored 0.83 on desktop with `main` named and no cause, and its filmstrip was
+  steady. The LayoutShift events' impacted nodes showed the footer, visible
+  under an empty grid at first paint, pushed off the screen when the grid
+  filled: one shift, large because the distance ran off the screen. On phones
+  the same page shifted 0.84 for another reason: its tab row was filled by the
+  script after the first paint and wrapped to three rows. Both fixed in the
+  page (the tabs written in the HTML, the grid holding a screen until it fills),
+  0 and 0.004 after.
+- **A late face moves the page.** The video maker's 0.40 was Satoshi landing
+  after the first paint and rewrapping its header. The house face is preloaded
+  and backed by Arial measured to it (size-adjust 105.2%, ascent 89.4%, descent
+  23.8%, read off canvas measureText): 0.02 after.
+- **The biggest single win was a script tag.** fabric.js loaded in the landing's
+  head held its first paint 4.5 s on a phone; at the head of the studio's
+  scripts, in the same order, the first paint fell from 5.8 s to 1.4 s.
+- **Judge a double outline at full size.** At phone width, downscaled to JPEG,
+  the outer ring read as a drop shadow; at 3x it was centred. What did need
+  changing was the tracking: tight letters let the outer rings run together.
+- **JSON-LD is data, not script**, so the policy never blocks it; the repo
+  hashes index.html's anyway (csp_hashes.mjs reads every inline block there).
+  The other pages' JSON-LD needs no hash.
+
+Done: see OPEN-ITEMS §BK. Lighthouse before and after is in §BK and in the
+audit doc.
+
+Not on `main`: this branch only (the pull request goes against
+claude/ads-improvement-roadmap-7632c8).
+
+RESUME HERE:
+  0. The owner's word on the pull request.
+  1. The studio's editor in the house look (OPEN-ITEMS §BK 2), its own session.
+  2. The landing's gallery built when it comes near the screen, and small
+     grounds for the offer cards (§BK 3): the rest of the blocking time.
+  3. The day buyback.ad answers: `SITE` in build_seo_pages.mjs, then Search
+     Console and Bing with the sitemap.

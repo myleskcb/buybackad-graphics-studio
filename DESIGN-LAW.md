@@ -5927,3 +5927,90 @@ server's size and marks over a page made to say Pro; no file on a refusal or a
 dropped connection; the video player's own Download off and a marked preview
 made again clean; no page promising a "small" watermark. With the mark
 switched off it fails four times.
+
+## 145. The site is a full ad, and it says what it makes in the words people search
+
+Added 2026-11-18 (numbered 145: the census took 143 and its fixes 144 on
+their own branch). The owner: "Build out SEO for the BUYBACK.AD site and all
+its public parts, and remake the site's UI so it's unified with our latest
+theming … the full ad, rule 137 onwards; its twelve colour pairs, rule 139; my
+type pairs, rules 140 and 141. The landing page, plans, FAQ, navigation and
+footer should look like the same product as the ads and the video maker; I
+love the video maker's colours and designs." Then, of the crawlers that train
+AI models: "Allow everything".
+
+Measured first (docs/SEO-AUDIT-2026-11-18.md): the site wore rule 98's paper
+and ink, Clash Display and Satoshi (in none of the owner's pairs) and four
+signal colours, while every ad it makes wears a pair's deep ground, one accent,
+the house face in capitals with the double outline, chips, a starburst and a
+pill between chevrons. A phone set to dark opened the landing light; the
+information pages, the category pages and the video maker had no dark at all.
+Every link preview was the August violet card with no ad on it. No title held
+"flyer", "cash for" or "video ad", and "cash for gold" was on no page. The
+landing had three h1s and no main landmark, and on a phone its bar had no
+links. Lighthouse on a phone: the landing 31, the video maker 51 (a 0.40 jump
+from a face that landed late), the Look Book 46 (0.86).
+
+- **The site is drawn like a full ad** (house.css for the landing and the
+  plans; pages.css for the information pages, the category pages and the video
+  maker; the Look Book's own sheet). Navy & Gold in dark and Silver & Blue, the
+  twelve pairs' one light pair, in light; the visitor's system decides until
+  they choose, and the choice (the landing's toggle, `pgfx_theme`) is read on
+  every page by site-theme.js. Each section opens with the claim badge and its
+  glow; the hero's headline and the closing call are set in capitals with the
+  double outline (the letters, a ring of the ground, a ring of the accent: the
+  outer ring is a copy of the words behind them, never a text shadow); selling
+  points are chips with ticks; what is new or most bought wears the starburst;
+  every main call to action is a pill between chevrons stepped in size, never
+  in opacity (rule 139); places follow a pin. One accent to a pair, as on an ad.
+- **The pictures are real ads.** The hero shows three full ads drawn by the
+  video maker's engine, in three pairs and faces, where the wall of library
+  cards stood (the gallery under it keeps rule 106's mix); every category page
+  shows its own line's ad; every link preview is a full ad on its pair's ground
+  (assets/og/, 1200x630). scripts/build_og_cards.mjs draws them with clean
+  words, because the full ad's default lists still hold TOP DOLLAR and TOP $$$
+  (OPEN-ITEMS §BI), and refuses an ad on a pre-flight fix, a dollar sign, a
+  dash, invented proof or a banned word.
+- **The owner's pairs are a URL away**, never saved: ?face=street (sport,
+  block, tech, stadium, modern, grotesk, luxe) sets the whole site in a pair,
+  display face for the headlines, prices and stickers and reading face for the
+  rest (rule 141's roles); ?pair= shows it in any of the eleven dark pairs. The
+  default is the full ad's own face, as an ad with no pair picked. The studio's
+  editor (Easy Mode, the designer) keeps rule 98's poster look until it is
+  taken over (OPEN-ITEMS §BK).
+- **One table writes what search engines and assistants read**
+  (scripts/build_seo_pages.mjs): each page's title and description in the
+  trade's words, its canonical, the full Open Graph and Twitter sets, the
+  information pages' bar and foot, the landing's links to every line, the
+  sitemap, robots.txt, llms.txt and llms-full.txt. Structured data says only
+  what is true: Organization, WebSite, WebApplication with its offers read from
+  `PLANS` in app.js and held to netlify/lib/plans.mjs, FAQPage made from the
+  visible FAQ word for word, HowTo only where the steps are on the page,
+  VideoObject for the five explainers. Never a rating, a review or a count of
+  customers (rule 55).
+- **The FAQ answers what buyers ask before they pay** (22 questions): what it
+  makes and for which lines, which size goes where, what the watermark looks
+  like, video, Spanish, your own number, area and business name, Marketplace,
+  Instagram, OfferUp and Craigslist rules (from the research's reading of the
+  platforms' own pages, with the advice to read them again), who owns the ad,
+  phones.
+- **Every crawler is welcome**, search and AI, answer and training (the
+  owner's call). The owner's pages say noindex in their own headers and meta
+  and are not Disallowed, so the noindex is read; only /api/ is.
+- **Fast as drawn**: fabric.js left the head (the landing's first paint on a
+  phone, 5.8 s to 1.4 s); the hero's ads are sized, the first with a high
+  priority; the house face is preloaded, with a fallback measured to it (Arial
+  at 105.2%, ascent 89.4%, descent 23.8%) so a face that lands late moves
+  nothing; the Look Book's tabs are in the page and its grid holds a screen
+  until it fills; the explainers' posters are 680-pixel WebP; art a redeploy
+  may replace is cached a day.
+- **Checked** by scripts/seo_check.mjs (exit 1; each failure was put in by
+  hand and caught): titles and descriptions (length, dashes, one to a page),
+  canonicals, every preview tag and its image, one h1, alt on every image,
+  JSON-LD that parses, the FAQ and the HowTo against the page, no rating or
+  count, the sitemap against noindex, robots.txt, llms.txt's links. Run
+  build_seo_pages.mjs, then seo_check.mjs, then csp_hashes.mjs (the landing's
+  JSON-LD is hashed with its scripts) before a commit that touches a public
+  page's words, the FAQ, `PLANS` or a category.
+
+Not done here: OPEN-ITEMS §BK.
