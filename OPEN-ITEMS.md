@@ -3802,7 +3802,25 @@ The owner's notes the same day (the review notes):
   Terms' plan paragraph and its version (TERMS_VERSION 2026-11-18); card lines like "Photos, and a
   video a day". Nothing is live until deployed.
 
+The rebuild (DESIGN-LAW 145), the owner's "rebuild how we arrived to these ads so every single
+one can be made a video or at least audited", "how come none of the videos use a BG?":
+- **done** — every older ad a recipe the house engine draws as a photo and a video (679; 676 pass
+  the pre-flight, 676 show a product, 644 stand on a photo; the 14 that name a car make show it);
+  opened from "From the library" in Easy Mode and the video maker.
+- **done** — photo grounds in the full ad, photo and video (40% photo, 25% scene, 35% gradient by
+  the seed; per-category pools, nothing dark, no cash, no space, no plates or faces).
+- **done** — the offer family on the twelve pairs and bright grounds of its own world; the owner's
+  photographs (free licence, Wikimedia Commons, the owner's yes) for gaming PCs, SSDs, mini PCs and
+  Chromebooks; four legible licence plates blurred behind library cards.
+- **owner** — gaming headsets and monitors still have no clean photograph; the Chromebook photo is
+  an open laptop on a line whose words say "sealed, new in the box"; a "WE BUY HONDAS" card about
+  motorcycles draws a Honda SUV; Pokémon recipes still lean on one Charizard photograph and navy
+  pairs; whether the 679 older renderings retire now that each has a recipe.
+
 Open:
 1. **Not on `main`**, and the census gate still waits on the owner's retirements (§BI Open 2).
-2. **The five pictureless lines** (finding 2): a download, the owner's word.
-3. **The contact block, the picture picker in the makers, the video's variety** (above).
+2. **Gaming headsets and monitors** have no clean photograph.
+3. **The contact block (an @handle and its platform, several calls to action by checkbox) and the
+   picture picker in the makers** (above).
+4. **The older renderings**: retire them (`scripts/retire_older_ads.mjs`, or all of them) once the
+   owner has audited the recipes on the review page; then the hero picks.

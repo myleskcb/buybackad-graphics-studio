@@ -667,3 +667,8 @@ produced." DESIGN-LAW rule 87. In practice:
   served). The owner reviews ads on the review page
   (`scripts/build_review_page.mjs` from the census); their thumbs and notes
   are applied with `scripts/apply_review.mjs` (OPEN-ITEMS §BJ).
+- **Every ad is a recipe the full ad draws** (rule 145): an older ad's words, pictures and
+  ground live in `motion/recipes.json` (`node scripts/build_recipes.mjs`, `--check`), opened from
+  "From the library"; photo grounds come from `spec/full-grounds.json`
+  (`scripts/build_full_grounds.mjs`). A new ad design goes in as a recipe or a full-ad option,
+  never as a renderer of its own, so it is a photo and a video and the census reads it.

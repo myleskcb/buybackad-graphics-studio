@@ -5991,3 +5991,37 @@ library card; a note is a change made by hand) → `words_check.mjs` and the cen
 the owner says twice becomes a rule and a check.
 
 Not done here: OPEN-ITEMS §BJ.
+
+## 145. Every ad is a recipe the house engine draws, as a photo and a video, on a ground that counts
+
+Added 2026-11-18. The owner, at the review page: "rebuild how we arrived to these ads so every
+single one can be made a video or at least audited.. how come none of the videos use a BG?";
+of the older ads, "retire but bg counts.. so combo of assets and bg is best though"; "good info
+good layout poor styling", "lacks any cohesive direction", "also only have 1 BG style?!".
+
+- **One engine.** The full ad (rule 137) draws every ad the site makes. An older ad (library
+  card, designer layout, offer card) is a *recipe* (`motion/recipes.json`, written by
+  `scripts/build_recipes.mjs` from the ads as the studio serves them; `--check`): its words on the
+  full ad's fields (a phrase on the one list dropped, rule 144; the customer's towns, number and
+  site their own), its line, its own cut-outs (the line's pool where it used a flagged render),
+  the make a car card names, its ground photograph, the nearest of the twelve pairs. Easy Mode and
+  the video maker open any recipe from "From the library"; it downloads as a photo and as a video
+  through the same pre-flight. Never add an ad to the site that only one renderer can draw.
+- **A ground is a photograph, a scene or the house gradient.** `ground_photo: { src, focus, scrim,
+  from }` is drawn cover-fit round its focus, tinted toward the pair's ground and shaded only where
+  words stand; in the video it pushes in slowly and rests on the still. A seed draws a photo 40%,
+  a drawn scene 25%, the gradient 35% (`spec/full-grounds.json`), from per-category pools of bright
+  photographs of the category's own world, only those that keep the card to two colour families.
+  Never a dark, low-exposure photo, cash or money, outer space for goods that are not about space,
+  another make's car, a legible licence plate, a person's face, or text.
+- **The product and the ground together** ("combo of assets and bg"): every recipe shows its
+  product where the line has a picture (676 of 679; the three without are gaming headsets, which
+  have no clean photograph yet).
+- **The pre-flight reads the ground as delivered**: the headline is shaded on photo and scene
+  grounds, small lines keep 15% headroom over the ground's worst twentieth, busyness is weighed on
+  what stands on the photo, and a download waits for its photo (`fullGroundReady`).
+- **The audit sees all of it**: the census reads recipes as their own generation and the full ad
+  in several looks a line (`--variations`), and the review page carries them, with the owner's
+  Hero mark for the landing page's wall.
+
+Not done here: OPEN-ITEMS §BJ.

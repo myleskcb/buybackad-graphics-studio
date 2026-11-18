@@ -5512,3 +5512,30 @@ every changed card, the studio pre-flight on the changed layouts and cards.
 RESUME HERE: the census again after the last helper; the review page published; then the
 contact block, the picture picker in the makers, the video's variety (§BJ Open 3), the five
 pictureless lines (a download, the owner's word), and the owner's thumbs (apply_review.mjs).
+
+## 2026-11-18 (later) — the rebuild: every ad a recipe, photo grounds in the video (DESIGN-LAW 145)
+
+Asked: "rebuild how we arrived to these ads so every single one can be made a video or at least
+audited.. how come none of the videos use a BG?", after the review page showed the older ads
+generic, near-copies in a row, one background style a category, and cars of the wrong make.
+
+Changed (four helper forks, each owning its files, this session integrating): photo grounds in
+FullAd with motion in the video; 679 recipes from the older ads; the offer family restyled; six
+free-licence product photographs; four licence plates blurred; the billing check's stale video
+maker steps; the maker's example claim; form hints in words_check.
+
+Learned:
+  - Two renderers made two kinds of ad: fabric templates (photos, never videos) and the engine
+    (videos, never photographs behind them). Every complaint of the afternoon (no video of a
+    photo ad, no photo in a video, no cohesive direction) came from that split; a recipe the one
+    engine draws closes it.
+  - A background photograph carries things a template never checked: licence plates (four),
+    another dealer's sign and number, people on a screen, cash. Every ground in a pool is looked
+    at full size before it is used.
+  - A check that fails for a reason nobody reads becomes noise: billing_check's video maker steps
+    had failed since a number became required (b7c74a1e); the screenshot named it in one look.
+  - An example in a form is a suggestion: the maker's empty claim field suggested TOP DOLLAR.
+
+RESUME HERE: the census of every generation is at .render/ad-census (the review page from it);
+the owner audits recipes there, then says whether the older renderings retire; the hero picks;
+then the contact block and the picture picker in the makers.
