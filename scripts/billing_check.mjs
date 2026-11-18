@@ -866,6 +866,9 @@ async function browserPart() {
       const page = await newPage(1280);
       await page.goto(BASE + '/motion/');
       await page.waitForFunction(() => document.getElementById('loading').hidden && window.pgfxAccount, null, { timeout: 120000 });
+      // a download needs a number on the ad first (numberReady, b7c74a1e): type one, let it save
+      await page.fill('#f-number', '(562) 999-4994');
+      await page.waitForFunction(() => { try { return /562/.test(JSON.stringify(JSON.parse(localStorage.getItem('pgfx_motion_v1') || '{}'))); } catch (e) { return false; } }, null, { timeout: 10000 }).catch(() => {});
       await page.click('#download');
       await page.waitForSelector('#acct-overlay.show', { timeout: 15000 }).catch(() => {});
       ok(await page.$('#acct-overlay.show') !== null, 'video maker: a signed-out Download asks for an account first');

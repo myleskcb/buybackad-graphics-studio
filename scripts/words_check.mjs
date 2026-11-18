@@ -73,6 +73,9 @@ for (const c of JSON.parse(read('assets/showcase/index.json')).filter(live)) {
   for (const l of rec.tpl.layers || []) if (typeof l.text === 'string' && l.text.trim()) scan('library cards', c.cat, l.text, c.id + ' ' + l.name);
 }
 
+// the hints the forms show a customer (an example claim is a suggestion too)
+for (const f of ['index.html', 'motion/index.html']) if (existsSync(ROOT + f)) for (const m of read(f).matchAll(/placeholder="([^"]*)"/g)) { const w = m[1].replace(/&bull;/g, '•').replace(/&amp;/g, '&'); if (isWords(w)) scan(f + ' placeholders', 'phones', w, 'placeholder'); }
+
 // iPhones LA's FeedAd cards
 const feeds = ['tools/feed-stills/cards.json', ...(existsSync(ROOT + 'tools/feed-stills/batches') ? readdirSync(ROOT + 'tools/feed-stills/batches').map(b => `tools/feed-stills/batches/${b}/cards.json`) : [])].filter(p => existsSync(ROOT + p));
 const cardsOf = j => Array.isArray(j) ? j : Array.isArray(j.cards) ? j.cards : Object.values(j).filter(v => v && typeof v === 'object');
