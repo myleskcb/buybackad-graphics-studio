@@ -14,7 +14,7 @@
 // reuses the engine's painter, placement and collision passes and changes only what the maker
 // keeps small or leaves out.
 import { Ad, inkSprite, splitLines, trim, canvas, lum, prog, outBack, rng, clamp, contrastOf, fontCss, applyCase, labelFont, burstFontFor,
-  headlineLines, numberSprite, perksSprite, pointsOf, randomize, harmonise } from "./engine.js";
+  headlineLines, numberSprite, perksSprite, pointsOf, randomize, harmonise, pal } from "./engine.js";
 import { FONTS, PALETTES, DEFAULT_STYLE } from "./catalog.js";
 import { drawChevrons } from "./decor.js";
 import { placeAccents, timeAccents } from "./accents.js";
@@ -243,34 +243,45 @@ export function phoneBox(ad) {
 
 
 /* ══════════════════════════════════════════════════════════════════════════════════════════
-   THE FULL AD, LAID OUT BY RULE (2026-11-11)
+   THE FULL AD, LAID OUT BY RULE (2026-11-11), IN EVERY LOOK THE VIDEO MAKER HAS (2026-11-18)
 
    FeedAd above takes the engine's own placement and nudges it, and the tool that drives it
    tries seed after seed (up to 120) until a look passes every check. That suits a batch made
    overnight; it cannot serve a customer typing their own headline, who needs the ad to fit the
-   first time, in every format. FullAd places every block itself, top to bottom:
-
-       claim badge
-       HEADLINE (as large as the width and its share of the height allow)
-       the line under it (the models bought)
-       selling points | the product | a sticker and an icon
-       the call to action
-       ‹‹‹ the number ›››
-       the towns
-       the website
+   first time, in every format. FullAd places every block itself.
 
    The owner's four words for it (2026-11-11): "maximize elements.. sizing.. spacing..
    positioning", and "eye catchy elements".
-   - elements: every block above is drawn when its words are given, and fullStyle() gives
-     every one a default, so no ad goes out bare;
+   - elements: the claim, the headline, the line under it, the selling points, the product, a
+     sticker and an icon, the call to action, the number, the towns and the website are drawn
+     when their words are given, and fullStyle() gives every one a default, so no ad goes out
+     bare;
    - sizing: each block takes the largest size its room allows (the headline the full width,
      the product the whole height of its band), and nothing is set under the body sizes below;
    - spacing: one margin, one gap, and the room left over shared equally between the blocks;
-   - positioning: one axis for the words, and the middle band split into columns that never
-     leave a third of the frame empty;
-   - eye-catchers: the glowing claim, the accent word, a starburst sticker beside the product,
-     chevrons at the number, and one 3D icon where the format has the room. None lands on a
-     word or a phone, and the two-colour rule holds: the sticker wears the card's own ink.
+   - positioning: one alignment to a card (centred, or every block on the column's left edge:
+     DESIGN-LAW 109), and the middle band split into columns that never leave a third empty;
+   - eye-catchers: the claim, the accent word, a sticker beside the product, marks at the
+     number, one icon where the format has the room. None lands on a word or a phone.
+
+   Then (owner, 2026-11-18): "they look shockingly similar to one another", "many of the same
+   colors.. schemes.. assets", "I need text variety placements"; "the video ads originally..
+   those backgrounds those patterns those text those fonts and those arrangement/assortment of
+   devices were really good.. we regressed since we unified"; "for every single video, I want a
+   photo ad equivalent.. and if it doesn't meet the requirement, modify or fix it". The first
+   cut locked one face (Chivo), one treatment (the double outline), one claim pill, one chip
+   column, one number pill and twelve colour pairs over six grounds onto every ad, so 24 ads
+   came out as one ad in 24 colours. Now:
+   - the full ad wears the look it is the photo of: the video maker's 78 looks (its 50 themes
+     and its LA and audience vibes), each with its own palette, ground or pattern, type pair,
+     treatment, colour use, number style, sign board, accents and phone arrangement. A look
+     that says too little ("UPGRADE YOUR PHONE / MESSAGE US NOW") gets every missing element
+     from fullStyle(), in its own art direction;
+   - its own layout varies by rule (FULL_LAYOUT): the alignment, the order of the blocks (the
+     product in the middle, high, or low), which side the points stand, the claim's shape, the
+     chips', the call to action's, the footer's and the sticker's, and the marks at the number.
+   What stays fixed is what makes it an ad: every element, the sizes' floors, the margin, the
+   gap, one alignment, and every line reading on what is drawn under it.
 
    Sizes are shares of U, the frame's short side (so a wide frame is not set as if it were
    1920 tall): 1080 x .052 = 56px. */
@@ -281,36 +292,68 @@ export const FULL = {
   label: .044, labelMin: .036,
   foot: .032, footMin: .027,
   chip: .042, chipMin: .03,
-  number: .125, pill: .7,           // the number's glyphs at most 12.5% of U; its pill 70% of the column, the chevrons take the rest
+  number: .125, pill: .7,           // the number's glyphs at most 12.5% of U; its plate 70% of the column, the chevrons take the rest
   burst: .112, burstMin: .08,       // the sticker's radius
   icon: .085, iconMin: .055,
 };
 
-/** The house style (tools/feed-stills/render.mjs HOUSE and QUIET, 2026-11-03): one face, capitals,
- *  the double outline, one accent word, the number in a pill, and everything in the maker that
- *  puts small words or stray marks on the picture held off. */
+/* The full ad's own ways of laying a card out, each one drawn from the look's number with the
+   weights given (or picked), and saved with the look. Every one is a grammar the photo ads
+   already speak: a left-aligned card (rule 109), a product above its headline, a number high
+   under the headline, square tabs and ribbons as well as pills, bare ticks as well as chips. */
+export const FULL_LAYOUT = {
+  full_align: { center: 3, left: 2 },                       // one alignment to a card
+  full_order: { classic: 3, hero_low: 2, number_high: 2 },  // the product's band: middle, high (the headline under it), low (the number over it)
+  full_side: { left: 1, right: 1 },                         // where the selling points stand by the product (a wide frame: where the product stands)
+  full_claim: { pill: 2, tab: 2, ribbon: 2, outline: 1, bar: 2 },
+  full_chips: { pill: 2, tab: 2, bare: 1 },
+  full_cta: { line: 2, bubble: 1 },                         // the call to action as a line, or in a speech bubble pointing at the number
+  full_foot: { rows: 2, line: 2, band: 1 },                 // the towns over the website, on one line, or on a band
+  full_sticker: { burst: 2, seal: 2, rosette: 1 },
+  full_pop: { ink: 1, accent: 1 },                          // the sticker in the card's ink or its accent (two colour families, rule 95)
+  full_mark: { chevrons: 2, none: 1 },                      // chevrons either side of the number (a centred card only)
+};
+
+/** The house style of the first cut (tools/feed-stills/render.mjs HOUSE, 2026-11-03), kept for a
+ *  caller that wants it by name; the full ad no longer forces it. */
 export const HOUSE = { font: "chivo", text_fx: "double_outline", case: "upper", color_mode: "accent_word", number_style: "pill", text_pos: "top-center" };
-export const QUIET = { decor: [], urgency: "none", overlay: "none", accents: 0, board: "none", number_pos: "bottom-center", number_format: "parens",
-  camera: "still", shake: 0, sparkles: false, text_in: "slide", pose: "flat", end_face: "back", phone_idle: "breathe", grade: "none", depth: "none",
-  text_scale: 1, number_scale: 1, tracking: 0, skew: 0, hook: "none", season: "none", phone_finish: "standard", transition: "none", ...HOUSE };
-/* The full ad's colours are the photo ads' twelve proven pairs (DESIGN-LAW 123: one colour
-   vocabulary), by the same names and the same colours as Easy Mode's themes: house-colours.js is
-   made from app.js COLOR_THEMES by scripts/build_house_colours.mjs. (It first drew from sixteen of
-   the video maker's own palettes, so "Navy & Gold" was two navies and two golds.) The iPhones LA
-   feed stills keep their own list (tools/feed-stills/render.mjs). */
+/** What the full ad holds whatever the look: nothing that puts small words or stray marks on the
+ *  picture, a still camera (every block stands on the margin, which a push-in would crop), and the
+ *  words and the number where the layout puts them. */
+export const QUIET = { decor: [], urgency: "none", overlay: "none", accents: 0, camera: "still", shake: 0, sparkles: false,
+  text_scale: 1, number_scale: 1, skew: 0, text_pos: "top-center", number_pos: "bottom-center" };
+/* A look's moving parts that a still cannot hold are brought to the nearest that it can. */
+const POSE_OK = new Set(["flat", "edge_left", "edge_right"]);          // a turntable or a wide spin is caught mid-turn in a photo
+const IDLE_OK = new Set(["breathe", "float", "pulse", "still"]);
+const HOOK_OK = new Set(["none", "hook_line", "word_beat", "strike_out", "cold_open", "flash_cut"]);   // openings that do not move the camera
+const GRADE_OK = new Set(["none", "clean", "warm"]);                  // a grade over the whole frame moves every line's measured contrast
+const DEPTH_OK = new Set(["none", "soft_floor", "reflection"]);
+/** The signs a headline may stand on in a full ad: every sign the maker has. A sign's posts,
+ *  stakes and lamps are left off (they would reach down into the product's band or up into the
+ *  claim's): the sign hangs in its place like a sign in a window. */
+export const FULL_BOARDS = new Set(["freeway", "freeway_blue", "poster", "bandit_yellow", "bandit_white", "flyer", "neon_box", "marquee", "store_sign",
+  "price_tag", "chalkboard", "receipt", "wanted_poster", "sticky_note", "speech_bubble", "ticket_stub", "led_panel", "lightbox", "postcard"]);
+// how far a sign reaches past its face, in headline sizes (the bubble's tail, the postcard's stamp, the freeway's EXIT tab)
+const BOARD_REACH = { speech_bubble: { b: .78 }, postcard: { t: .45, r: .3 }, freeway: { t: .32 }, freeway_blue: { t: .32 } };
+
+/* The colours a customer can pick by hand: the photo ads' twelve proven pairs (DESIGN-LAW 123: one
+   colour vocabulary), by the same names and colours as Easy Mode's themes (house-colours.js, made
+   from app.js COLOR_THEMES by scripts/build_house_colours.mjs). Left on Any, the ad wears its
+   look's own palette. */
 export const COLOURWAYS = HOUSE_COLOURS.map(c => c.key);
 export const COLOUR_OF = Object.fromEntries(HOUSE_COLOURS.map(c => [c.key, c]));
-export const GROUNDS = ["radial", "spotlight", "studio_sweep", "tonal", "spot_floor", "linear"];
-export const ARRANGEMENTS = ["lineup", "fan", "showcase", "podium", "wings"];
+/** The icon's sets: the ones with a 3D picture (accents.js ACCENT_ASSETS). A look whose own set
+ *  has none (sparkles, a plus, a clock) draws one of these: a drawn mark beside the product read
+ *  as a stray mark on the sheet (2026-11-18; rule 7). */
 export const ICONS = ["cash", "money", "deal", "local", "trust"];
 /** What an ad says when its maker has typed nothing: claims any buyer can stand behind (no "#1",
  *  "best" or "fastest", which need proof; DESIGN-LAW's honest-claims rule). */
 export const FULL_WORDS = {
-  claim: ["TOP DOLLAR • FAST CASH", "HONEST BUYER • TOP DOLLAR", "QUICK REPLIES • CASH TODAY", "LOCAL & HONEST", "TOP DOLLAR PAID"],
+  claim: ["TOP DOLLAR • FAST CASH", "HONEST BUYER • TOP DOLLAR", "QUICK REPLIES • CASH TODAY", "LOCAL & HONEST", "TOP DOLLAR PAID", "FAIR OFFERS • NO HASSLE", "CASH IN HAND • LOCAL"],
   line: ["ALL MODELS WANTED", "NEW, USED OR CRACKED", "ANY CARRIER • ANY CONDITION"],
-  points: ["FREE QUOTE, CASH SAME DAY, NO FEES", "QUOTE BY TEXT, PAID TODAY, WE MEET YOU", "TEXT US NOW, TOP DOLLAR, ANY CONDITION"],
-  label: ["CALL OR TEXT", "TEXT US NOW", "GET YOUR OFFER"],
-  burst: ["CASH!", "FAST CASH", "TOP $$$", "PAID TODAY"],
+  points: ["FREE QUOTE, CASH SAME DAY, NO FEES", "QUOTE BY TEXT, PAID TODAY, WE MEET YOU", "TEXT US NOW, TOP DOLLAR, ANY CONDITION", "FAIR PRICE, CASH IN HAND, LOCAL MEETUP"],
+  label: ["CALL OR TEXT", "TEXT US NOW", "GET YOUR OFFER", "TEXT FOR A QUOTE", "CALL OR TEXT NOW"],
+  burst: ["CASH!", "FAST CASH", "TOP $$$", "PAID TODAY", "TOP DOLLAR"],
 };
 
 /** A map pin, drawn (an emoji pin is a different picture on every device, and none on some). */
@@ -333,11 +376,77 @@ function footRow(text, px, color, family, weight, pinFill) {
   return c;
 }
 
-const stackRows = (rows, gap) => {
+const stackRows = (rows, gap, left = false) => {
   const c = canvas(Math.max(...rows.map(r => r.width)), Math.ceil(rows.reduce((h, r) => h + r.height, 0) + gap * (rows.length - 1)));
-  let y = 0; for (const r of rows) { c.getContext("2d").drawImage(r, (c.width - r.width) / 2, y); y += r.height + gap; }
+  let y = 0; for (const r of rows) { c.getContext("2d").drawImage(r, left ? 0 : (c.width - r.width) / 2, y); y += r.height + gap; }
   return c;
 };
+
+/** The claim on its badge: a pill, a square tab, a ribbon with notched ends, an outline (where
+ *  its colour reads on the ground), or a bar the column's width. null when it does not fit. */
+function claimBadge(shape, text, px, fill, ink, ground, face, maxW, left) {
+  const [fam, wt] = FONTS[face] || FONTS.franklin;
+  const outline = shape === "outline" && contrastOf(fill, ground) >= 3;
+  const kind = shape === "outline" && !outline ? "pill" : shape;
+  const row = footRow(text, px, outline ? fill : ink, fam, wt);
+  const h = Math.round(px * 1.7), notch = kind === "ribbon" ? Math.round(h * .32) : 0;
+  const w = kind === "bar" ? Math.floor(maxW) : Math.round(row.width + px * 1.5 + notch * 2);
+  if (w > maxW + .5 || row.width + px * 1.3 > maxW) return null;
+  const c = canvas(w, h), x = c.getContext("2d");
+  x.fillStyle = fill; x.strokeStyle = fill; x.beginPath();
+  if (kind === "ribbon") { x.moveTo(0, 0); x.lineTo(w, 0); x.lineTo(w - notch, h / 2); x.lineTo(w, h); x.lineTo(0, h); x.lineTo(notch, h / 2); x.closePath(); x.fill(); }
+  else if (outline) { const lw = Math.max(2, px * .1); x.lineWidth = lw; x.roundRect(lw / 2, lw / 2, w - lw, h - lw, (h - lw) / 2); x.stroke(); }
+  else { x.roundRect(0, 0, w, h, kind === "pill" ? h / 2 : kind === "bar" ? h * .12 : h * .16); x.fill(); }
+  x.drawImage(row, kind === "bar" && left ? px * .75 : (w - row.width) / 2, (h - row.height) / 2);
+  return { c, fill, ink: outline ? fill : ink, px, kind };
+}
+
+/** The call to action in a speech bubble in the CTA's colour, its tail pointing down at the number. */
+function bubbleBadge(text, px, hot, face, left) {
+  const ink = contrastOf(hot, "#111111") >= contrastOf(hot, "#ffffff") ? "#111111" : "#ffffff";
+  const [fam, wt] = FONTS[face] || FONTS.franklin;
+  const row = footRow(text, px, ink, fam, wt);
+  const h = Math.round(px * 1.62), tail = Math.round(h * .34), w = Math.round(row.width + px * 1.5);
+  const c = canvas(w, h + tail), x = c.getContext("2d"), tx = left ? Math.min(w / 2, h * .95) : w / 2;
+  x.fillStyle = hot; x.beginPath(); x.roundRect(0, 0, w, h, h / 2); x.fill();
+  x.beginPath(); x.moveTo(tx - tail * .8, h - 1); x.lineTo(tx, h + tail); x.lineTo(tx + tail * .8, h - 1); x.closePath(); x.fill();
+  x.drawImage(row, (w - row.width) / 2, (h - row.height) / 2);
+  return c;
+}
+
+/** A round sticker: a seal (a dashed ring inside) or a rosette (a scalloped edge), lettered like
+ *  the starburst, popping in on the hit and rocking a little after. */
+function drawSeal(ctx, S, t) {
+  const q = prog(t, S.t0, .35); if (q <= 0) return;
+  const sc = Math.max(.01, outBack(q, 2.2)), rot = (S.rot + Math.sin((t - S.t0) * 2.2) * 3) * Math.PI / 180, R = S.R;
+  ctx.save(); ctx.translate(S.x, S.y); ctx.rotate(rot); ctx.scale(sc, sc);
+  ctx.beginPath();
+  if (S.kind === "rosette") { const n = 16, k = 256; for (let i = 0; i <= k; i++) { const a = i / k * Math.PI * 2, rr = R * (.92 + .08 * Math.cos(a * n)); ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } }
+  else ctx.arc(0, 0, R, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.shadowColor = "rgba(0,0,0,.35)"; ctx.shadowBlur = R * .15; ctx.shadowOffsetY = R * .05; ctx.fillStyle = S.fill; ctx.fill();
+  ctx.shadowColor = "transparent"; ctx.lineWidth = R * .045; ctx.strokeStyle = S.ink;
+  if (S.kind === "seal") ctx.setLineDash([R * .1, R * .07]);
+  ctx.beginPath(); ctx.arc(0, 0, R * .8, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+  const words = S.text.split(" "), lines = words.length > 1 && S.text.length > 6 ? [words.slice(0, Math.ceil(words.length / 2)).join(" "), words.slice(Math.ceil(words.length / 2)).join(" ")] : [S.text];
+  let fs = R * (lines.length > 1 ? .4 : .48);
+  ctx.font = fontCss(S.font, fs);
+  while (Math.max(...lines.map(l => ctx.measureText(l).width)) > R * 1.22 && fs > 6) { fs *= .92; ctx.font = fontCss(S.font, fs); }
+  ctx.fillStyle = S.ink; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  lines.forEach((l, i) => ctx.fillText(l, 0, (i - (lines.length - 1) / 2) * fs * 1.02));
+  ctx.restore();
+}
+
+/** The layout choices a style carries, made consistent with each other and the frame. */
+export function layoutOf(st, wide) {
+  const of = (k, d) => FULL_LAYOUT[k][st[k]] != null ? st[k] : d;
+  const L = { align: of("full_align", "center"), order: of("full_order", "classic"), side: of("full_side", "left"), claim: of("full_claim", "pill"),
+    chips: of("full_chips", "pill"), cta: of("full_cta", "line"), foot: of("full_foot", "rows"), sticker: of("full_sticker", "burst"),
+    pop: of("full_pop", "ink"), mark: of("full_mark", "chevrons") };
+  // a left-aligned card keeps everything on its left edge: the points by the product on the left, no marks either side of the number
+  if (L.align === "left") { if (!wide) L.side = "left"; L.mark = "none"; }
+  return L;
+}
 
 export class FullAd extends Ad {
   constructor(style, assets, width, height) {
@@ -345,12 +454,13 @@ export class FullAd extends Ad {
     this._evenGround();
   }
 
-  /** The small lines stand on the ground itself, and a ground has a lit patch or a floor: dark ink
-   *  on the cream colourway's grey floor read 2.65:1 (full_ad_check, 2026-11-11). Where a line
-   *  reads under 4.5:1 on the ground drawn under it, that stretch of ground is evened toward the
-   *  colourway's own ground colour, soft at its edges: the ink was chosen against that colour. */
+  /** The small lines stand on the ground itself, and a ground has a lit patch, a floor or a
+   *  pattern: dark ink on the cream colourway's grey floor read 2.65:1 (full_ad_check,
+   *  2026-11-11). Where a line reads under 4.5:1 on the ground drawn under it, that stretch of
+   *  ground is evened toward the palette's own ground colour, soft at its edges: the ink was
+   *  chosen against that colour. */
   _evenGround() {
-    const F = this.full, R = F.rects, W = this.W, H = this.H, ink = this.pHead.ink, bx = this.bg.getContext("2d", { willReadFrequently: true });
+    const F = this.full, R = F.rects, W = this.W, H = this.H, ink = F.ink || this.p.ink, bx = this.bg.getContext("2d", { willReadFrequently: true });
     const lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
     const L = h => { const [r, g, b] = [1, 3, 5].map(i => lin(parseInt(h.slice(i, i + 2), 16))); return .2126 * r + .7152 * g + .0722 * b; };
     const Li = L(ink), light = Li >= .18;
@@ -364,10 +474,10 @@ export class FullAd extends Ad {
       return (Math.max(Li, worst) + .05) / (Math.min(Li, worst) + .05);
     };
     F.evened = [];
-    for (const name of ["line", "call to action", "footer"]) {
+    for (const name of F.onGround) {
       const r = R[name]; if (!r) continue;
       for (let a = .55; reads(r) < 4.5 && a <= 1.001; a += .15) {
-        const pad = (r[3] - r[1]) * .5, blur = pad * .9;
+        const pad = Math.min(r[3] - r[1], Math.min(W, H) * .06) * .5, blur = pad * .9;
         bx.save(); bx.globalAlpha = a; bx.fillStyle = this.p.ground; bx.shadowColor = this.p.ground; bx.shadowBlur = blur;
         bx.beginPath(); bx.roundRect(r[0] - pad, r[1] - pad * .5, r[2] - r[0] + pad * 2, r[3] - r[1] + pad, pad); bx.fill(); bx.restore();
         if (!F.evened.includes(name)) F.evened.push(name);
@@ -389,20 +499,35 @@ export class FullAd extends Ad {
   /** Every block, sized and placed. Called by the engine's constructor after the phones are
    *  built (so no field of this class exists yet: everything is read from this.st). */
   _layoutType() {
-    const st = this.st, W = this.W, H = this.H, p = this.p, ph = this.pHead;
+    const st = this.st, W = this.W, H = this.H, p = this.p;
     const U = Math.min(W, H), ar = W / H, wide = ar >= 1.3, tall = ar < .7;
     const e = U * FULL.edge, g = U * FULL.gap, ey = tall ? H * .055 : e;    // a story stays clear of the app's bars
-    // the column the words stand in; on a wide frame the product has the right of it
-    const cx0 = e, cx1 = wide ? W * .56 : W - e, colW = cx1 - cx0, mid = (cx0 + cx1) / 2;
-    const font = LEGIBLE.has((FONTS[st.font] || [])[3]) ? st.font : "franklin";
-    const [fam, fwt] = FONTS[font] || FONTS.franklin;
-    const ink = ph.ink, fx = lum(ink) < .5 ? "flat" : "shadow";
+    const Lay = layoutOf(st, wide), left = Lay.align === "left";
+    // the column the words stand in; on a wide frame the product has one side of the frame
+    const flip = wide && Lay.side === "left";
+    const cx0 = flip ? W * .44 : e, cx1 = wide && !flip ? W * .56 : W - e, colW = cx1 - cx0, mid = (cx0 + cx1) / 2;
+    const xAt = w => left ? cx0 : mid - w / 2;
+    // every read line in the type pair's reading face (DESIGN-LAW 133), the headline in its display face
+    const face = FONTS[labelFont(st)] ? labelFont(st) : "franklin", [fam, fwt] = FONTS[face];
+    // a sign under the headline (a theme's price tag, chalkboard, receipt...): the headline and its
+    // line take the sign's colours, every other line the ground's
+    let B = null, ph = p, reach = null, bw0 = 0, bh0 = 0;
+    const setSign = b => {
+      B = b; ph = b ? this.pHead : p; reach = { l: 0, r: 0, t: 0, b: 0, ...(b ? BOARD_REACH[st.board] || {} : {}) };
+      bw0 = b ? 2 * b.pad + reach.l + reach.r : 0; bh0 = b ? 1.6 * b.pad + (b.tabs || 0) + reach.t + reach.b : 0;
+    };
+    setSign(this.boardDef && FULL_BOARDS.has(st.board) ? this.boardDef : null);
+    // the small lines' ink: the palette's, where it reads 4.5:1 on its ground; else whichever of near-black and
+    // white reads best (a video palette's ink is chosen for a big headline with its shadow: teal's read 3.3:1 small)
+    const bodyInk = [p.ink, "#ffffff", "#111111"].reduce((a, c) => contrastOf(a, p.ground) >= 4.5 || contrastOf(a, p.ground) >= contrastOf(c, p.ground) ? a : c);
+    const pg = bodyInk === p.ink ? p : { ...p, ink: bodyInk };
     const upper = t => t.toUpperCase().replace(/\bIPHONE/g, "iPHONE").replace(/\bIPAD/g, "iPAD");
-    const paint = (line, px) => trim(inkSprite(line, [...line].map(() => ink), font, px, .02, fx, ph).c);
+    const fxOf = ink => lum(ink) < .5 ? "flat" : "shadow";
+    const paint = (line, px, P) => trim(inkSprite(line, [...line].map(() => P.ink), face, px, .02, fxOf(P.ink), P).c);
     /* A line of body type in the fewest rows that fit: one; two, broken at a separator
        ("A • B • C") or between words; three, one item a row. Smaller only when no break
        fits, and never under its floor: then it is left out and fullBlockers says so. */
-    const body = (text, px0, pxMin, maxRows = 2) => {
+    const body = (text, px0, pxMin, maxRows = 2, maxW = colW, P = pg) => {
       if (!text) return null;
       const up = upper(text), items = up.split(/ (?:•|→) /), arrow = up.includes("→");
       const join = (a, b) => items.slice(a, b).join(arrow ? " → " : " • ") + (arrow && b < items.length ? " →" : "");
@@ -412,8 +537,8 @@ export class FullAd extends Ad {
       if (items.length === 3) tries.push(items.map((t, i) => t + (arrow && i < 2 ? " →" : "")));
       for (let px = px0; px >= pxMin - .01; px = Math.max(pxMin, px * .94)) {
         for (let n = 1; n <= maxRows; n++) {
-          const fits = tries.filter(t => t.length === n).map(t => t.map(l => paint(l, px))).filter(r => Math.max(...r.map(x => x.width)) <= colW);
-          if (fits.length) { const rows = fits.sort((a, b) => Math.max(...a.map(x => x.width)) - Math.max(...b.map(x => x.width)))[0]; return { c: rows.length === 1 ? rows[0] : stackRows(rows, Math.ceil(px * .28)), px, rows: rows.length }; }
+          const fits = tries.filter(t => t.length === n).map(t => t.map(l => paint(l, px, P))).filter(r => Math.max(...r.map(x => x.width)) <= maxW);
+          if (fits.length) { const rows = fits.sort((a, b) => Math.max(...a.map(x => x.width)) - Math.max(...b.map(x => x.width)))[0]; return { c: rows.length === 1 ? rows[0] : stackRows(rows, Math.ceil(px * .28), left), px, rows: rows.length }; }
         }
         if (px <= pxMin) break;
       }
@@ -421,40 +546,71 @@ export class FullAd extends Ad {
     };
 
     /* ---- the blocks that do not depend on the headline ---- */
-    const F = this.full = { U, e, g, wide, tall, col: [cx0, cx1], rects: {}, px: {}, left: [] };
-    // the claim, in a badge
+    const F = this.full = { U, e, g, wide, tall, col: [cx0, cx1], rects: {}, px: {}, left: [], layout: Lay, onGround: [], board: "", ink: bodyInk };
+    // the claim, on its badge
     let claim = null;
     if (st.feed_claim) {
-      const fill = p.plate || p.accent, inkc = p.plate_ink || "#ffffff", text = st.feed_claim.toUpperCase();
-      const [cf, cw] = FONTS[st.font] || FONTS.franklin;
-      const pmin = Math.floor(U * FULL.claimMin);
+      const fill = p.plate || p.accent, inkc = p.plate_ink || "#ffffff", text = st.feed_claim.toUpperCase(), pmin = Math.floor(U * FULL.claimMin);
       for (let px = Math.round(U * FULL.claim); ; px = Math.max(pmin, Math.floor(px * .94))) {
-        const row = footRow(text, px, inkc, cf, cw), h = Math.round(px * 1.7), w = Math.round(row.width + px * 1.5);
-        if (w <= colW) { const c = canvas(w, h), x = c.getContext("2d"); x.fillStyle = fill; x.beginPath(); x.roundRect(0, 0, w, h, h / 2); x.fill(); x.drawImage(row, (w - row.width) / 2, (h - row.height) / 2); claim = { c, fill, ink: inkc, px }; break; }
-        if (px <= pmin) break;
+        claim = claimBadge(Lay.claim, text, px, fill, inkc, p.ground, face, colW, left);
+        if (claim || px <= pmin) break;
       }
       if (!claim) F.left.push("claim");
     }
     const line = st.feed_line != null ? st.feed_line : st.tag;
-    const tagB = body(line, U * FULL.tag, U * FULL.tagMin, 2);
-    if (line && !tagB) F.left.push("line");
-    const labB = body(st.number_label, U * FULL.label, U * FULL.labelMin, 1);
-    if (st.number_label && !labB) F.left.push("call to action");
-    // the number: its pill a fixed share of the column, the chevrons either side of it
-    const numFor = z => { const n = numberSprite({ ...st, number_label: "" }, p, z, null); return { ...n, label: null }; };
-    let nz = U * .09, num = numFor(nz);
-    nz *= Math.min(colW * FULL.pill / num.c.width, U * FULL.number / nz); num = numFor(nz);
-    for (let k = 0; k < 4 && num.c.width > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.c.width; num = numFor(nz); }
+    let tagB = null;
+    // the call to action: a line over the number, or a speech bubble pointing at it
+    let labB = null;
+    if (st.number_label) {
+      if (Lay.cta === "bubble") {
+        const pmin = U * FULL.labelMin;
+        for (let px = U * FULL.label; px >= pmin - .01; px = Math.max(pmin, px * .94)) {
+          const c = bubbleBadge(upper(st.number_label), Math.round(px), this.hot, face, left);
+          if (c.width <= colW) { labB = { c, px, bubble: true }; break; }
+          if (px <= pmin) break;
+        }
+      }
+      if (!labB) labB = body(st.number_label, U * FULL.label, U * FULL.labelMin, 1);
+      if (!labB) F.left.push("call to action");
+    }
+    // the number: its plate a fixed share of the column, the chevrons either side of it
+    const numFor = (z, nf) => { const n = numberSprite({ ...st, number_label: "", ...(nf ? { number_font: nf } : {}) }, p, z, null); return { ...n, label: null }; };
+    const fitNum = (share, nf) => {
+      let z = U * .09, n = numFor(z, nf);
+      z *= Math.min(colW * share / n.c.width, U * FULL.number / z); n = numFor(z, nf);
+      for (let k = 0; k < 4 && n.c.width > colW * share * 1.01; k++) { z *= colW * share / n.c.width; n = numFor(z, nf); }
+      return [z, n];
+    };
+    // a wide face sets wide figures: the plate may take more of the column (the chevrons then give way),
+    // and failing that the figures take the pair's reading face, as Marker's and Stencil's do (rule 133)
+    let [nz, num] = fitNum(FULL.pill);
+    if (nz < U * .078) [nz, num] = fitNum(.9);
+    if (nz < U * .078 && face !== (st.number_font === "same" ? st.font : st.number_font)) { [nz, num] = fitNum(.9, face); st.number_font = face; }
     if (labB) num = { ...num, label: labB.c };
-    // the footer: the towns after a pin, over the website
+    // whether the chevrons will have their room either side of the number: where they will not, the
+    // sticker by the product may cost the product more of its size (the ad keeps an eye-catcher)
+    const marksFit = Lay.mark === "chevrons" && !left && (colW - num.c.width) / 2 >= num.c.height * .42 * 2.9;
+    const giveUp = marksFit ? .84 : .7;
+    // the footer: the towns after a pin and the website, in rows, on one line, or on a band
     const where = (st.feed_where || "").replace(/^\s*\p{Extended_Pictographic}️?\s*/u, "").trim().toUpperCase(), site = (st.feed_site || "").trim();
     let foot = null;
     if (where || site) {
-      const [lf, lw] = FONTS[font] || FONTS.franklin;
-      const pmin = Math.floor(U * FULL.footMin);
+      const band = Lay.foot === "band" && p.plate && p.plate_ink && contrastOf(p.plate_ink, p.plate) >= 4.5;
+      const fInk = band ? p.plate_ink : bodyInk, fPin = band ? p.plate_ink : this.hot, pmin = Math.floor(U * FULL.footMin);
       for (let px = Math.round(U * FULL.foot); ; px = Math.max(pmin, Math.floor(px * .94))) {
-        const rows = [where && footRow(where, px, ink, lf, lw, this.hot), site && footRow(site, px, ink, lf, lw)].filter(Boolean);
-        if (rows.every(r => r.width <= colW)) { foot = { c: rows.length === 1 ? rows[0] : stackRows(rows, Math.round(U * .006)), px }; break; }
+        const padX = band ? px * .8 : 0, padY = band ? px * .42 : 0, room = colW - padX * 2;
+        let c = null;
+        if (Lay.foot === "line" && where && site) { const one = footRow(where + "  •  " + site, px, fInk, fam, fwt, fPin); if (one.width <= room) c = one; }
+        if (!c) {
+          const rows = [where && footRow(where, px, fInk, fam, fwt, fPin), site && footRow(site, px, fInk, fam, fwt)].filter(Boolean);
+          if (rows.every(r => r.width <= room)) c = rows.length === 1 ? rows[0] : stackRows(rows, Math.round(U * .006), left);
+        }
+        if (c && band) {
+          const b = canvas(Math.ceil(c.width + padX * 2), Math.ceil(c.height + padY * 2)), x = b.getContext("2d");
+          x.fillStyle = p.plate; x.beginPath(); x.roundRect(0, 0, b.width, b.height, Math.min(b.height / 2, px * .6)); x.fill();
+          x.drawImage(c, padX, padY); c = b;
+        }
+        if (c) { foot = { c, px, band }; break; }
         if (px <= pmin) break;
       }
       if (!foot) F.left.push("footer");
@@ -462,54 +618,99 @@ export class FullAd extends Ad {
 
     /* ---- the headline: the largest that leaves the product its band ---- */
     const text = applyCase(st.headline, st.case), words = text.split(/\s+/).length;
-    const gapOf = z => z * (["box", "sticker", "highlighter", "cutout", "double_outline", "glass"].includes(st.text_fx) ? .14 : .02);
+    const onPlate = ["box", "sticker", "highlighter", "cutout", "double_outline", "glass"].includes(st.text_fx);
+    const gapOf = z => z * (onPlate ? .14 : .02);
     const mc = canvas(4, 4).getContext("2d");
-    const headAt = (maxH) => {
+    // a sign's padding and reach, per unit of headline size
+    const headAt = (maxH, maxW = colW) => {
       // how many lines: whichever lets the type be biggest in the room it has (the engine's own rule)
       const ref = U * .1; mc.font = fontCss(st.font, ref);
       let best = null;
       for (const n of [...new Set([1, 2, 3].map(k => Math.min(words, k)))]) {
         const ls = splitLines(text, n), wid = Math.max(...ls.map(l => mc.measureText(l).width + (st.tracking || 0) * ref * l.length)) * 1.06;   // the outline's width
         const hgt = ref * (.82 * (.98 * (ls.length - 1) + 1) + .14 * (ls.length - 1));
-        const s = ref * Math.min(colW / wid, maxH / hgt);
+        const s = ref * Math.min(maxW / (wid + bw0 * ref), maxH / (hgt + bh0 * ref));
         if (!best || s > best.s * 1.04) best = { n, s };
       }
       let size = Math.min(best.s, U * .2 * (st.text_scale || 1)), lines, lineH, blockH;
       for (let k = 0; k < 8; k++) {
-        const lk = size.toFixed(2) + "|" + best.n;
+        const lk = size.toFixed(2) + "|" + best.n + "|" + (B ? 1 : 0);
         lines = (this._lineCache ||= new Map()).get(lk) || this._lineCache.set(lk, headlineLines(st, ph, size, best.n)).get(lk);
         lineH = lines[0].asc * .98 + gapOf(size); blockH = lineH * (lines.length - 1) + lines[0].asc;
-        const widest = Math.max(...lines.map(L => L.inkW));
-        if (widest <= colW && blockH <= maxH * 1.02) break;
-        size *= Math.min(.97, colW / widest, maxH * 1.02 / blockH);
+        const widest = Math.max(...lines.map(L => L.inkW)) + bw0 * size, tallest = blockH + bh0 * size;
+        if (widest <= maxW && tallest <= maxH * 1.02) break;
+        size *= Math.min(.97, maxW / widest, maxH * 1.02 / tallest);
       }
       return { size, lines, lineH, blockH, n: best.n };
     };
+    // the line under the headline clears the outline that hangs under its letters (on a sign, the sign's own air)
+    const tagGap = hd => B ? Math.max(g * .6, hd.size * .16) : Math.max(g * .9, hd.size * .24);
+    // the headline's block: its letters, its line, and the sign under both (with the sign's reach past its face)
+    const signOf = hd => {
+      if (!B) return null;
+      const padX = B.pad * hd.size, padY = B.pad * .8 * hd.size, tabs = (B.tabs || 0) * hd.size;
+      const innerW = Math.max(...hd.lines.map(L => L.inkW), tagB ? tagB.c.width : 0), w = innerW + padX * 2;
+      const h = padY * 2 + hd.blockH + (tagB ? tagGap(hd) + tagB.c.height : 0) + tabs;
+      const tip = st.board === "price_tag" ? (h - tabs) * .42 : 0, tilt = w * .035;
+      const ext = { l: tip + reach.l * hd.size, r: reach.r * hd.size, t: reach.t * hd.size + tilt, b: reach.b * hd.size + tilt };
+      return { padX, padY, tabs, innerW, w, h, ext, full: [w + ext.l + ext.r, h + ext.t + ext.b] };
+    };
+    const headH = hd => { const S = signOf(hd); return S ? S.full[1] : hd.blockH + (tagB ? tagB.c.height + tagGap(hd) : 0); };
     const hasChips = pointsOf(st).length > 0, hasPhones = this.phones.length > 0;
-    // the gaps between one block and the next, in units of g; the room left over stretches them all alike
-    const gClaim = 1.15, gBand = 1.4, gLab = .8, gFoot = 1.25;
-    // the line under the headline clears the outline that hangs under its letters
-    const tagGap = hd => Math.max(g * .9, hd.size * .24);
-    const fixedOf = hd => (claim ? claim.c.height + g * gClaim : 0) + hd.blockH + (tagB ? tagB.c.height + tagGap(hd) : 0) + g * gBand * 2
-      + (labB ? labB.c.height + g * gLab : 0) + num.c.height + (foot ? foot.c.height + g * gFoot : 0);
+
+    /* ---- the order of the blocks, top to bottom, and the gap before each ---- */
+    const seq = [];
+    if (claim) seq.push("claim");
+    const cta = [...(labB ? ["call to action"] : []), "number"];
+    if (Lay.order === "hero_low") seq.push("band", "headline", ...cta);
+    else if (Lay.order === "number_high") seq.push("headline", ...cta, "band");
+    else seq.push("headline", "band", ...cta);
+    if (foot) seq.push("footer");
+    // the gaps between one block and the next, in units of g; the room left over stretches them all alike (a band's half as much)
+    const gapIn = (a, b) => a === "band" || b === "band" ? [1.4, .5] : a === "call to action" ? [labB && labB.bubble ? .45 : .8, 1] : b === "footer" ? [1.25, 1] : a === "claim" ? [1.15, 1] : [1.4, 1];
+    const sizeOf = (name, hd) => ({ claim: claim && claim.c.height, headline: headH(hd), "call to action": labB && labB.c.height, number: num.c.height, footer: foot && foot.c.height })[name] || 0;
+    const fixedOf = hd => seq.reduce((s, n, i) => s + sizeOf(n, hd) + (i ? g * gapIn(seq[i - 1], n)[0] : 0), 0);
     // the product's band: what the words must leave it (a wide frame keeps only the chips there)
     const bandMin = wide ? (hasChips ? U * .075 : 0) : H * (!hasPhones && !hasChips ? 0 : !hasPhones ? .1 : tall ? .42 : ar < .9 ? .36 : .215);
-    let headMax = H * (wide ? .36 : tall ? .18 : ar < .9 ? .22 : .3), hd = headAt(headMax), band = H - 2 * ey - fixedOf(hd);
-    for (let k = 0; k < 14 && band < bandMin && hd.size > U * .072; k++) { headMax *= .93; hd = headAt(headMax); band = H - 2 * ey - fixedOf(hd); }
+    let headMax, headW, hd, band;
+    const sizeAll = () => {
+      tagB = body(line, U * FULL.tag, U * FULL.tagMin, 2, B ? colW * .8 : colW, B ? ph : pg);
+      headMax = H * (wide ? .36 : tall ? .18 : ar < .9 ? .22 : .3) * (B ? 1.15 : 1); headW = colW; hd = headAt(headMax, headW);
+      // a sign's tip and tilt are known once the headline is: narrow the room until the whole sign fits
+      for (let k = 0; k < 5 && B; k++) { const S = signOf(hd); if (S.full[0] <= colW + .5) break; headW -= S.full[0] - colW + 2; hd = headAt(headMax, headW); }
+      band = H - 2 * ey - fixedOf(hd);
+      for (let k = 0; k < 22 && band < bandMin && hd.size > U * .072; k++) { headMax *= .93; hd = headAt(headMax, headW); band = H - 2 * ey - fixedOf(hd); }
+      // the line, re-set narrower where the sign it stands on is narrower than the room it was first set for
+      if (B && tagB) {
+        const S = signOf(hd), inner = colW - S.ext.l - S.ext.r - S.padX * 2;
+        if (tagB.c.width > inner) { tagB = body(line, U * FULL.tag, U * FULL.tagMin, 2, inner, ph); band = H - 2 * ey - fixedOf(hd); }
+      }
+    };
+    sizeAll();
+    // a sign that would cost the product its band, or its line, is left off: the headline stands on the ground
+    if (B && (band < bandMin * .95 || (line && !tagB) || signOf(hd).full[0] > colW + .5)) { setSign(null); sizeAll(); }
+    // short of the product's band, the costlier shapes give way before the headline does (rule 116:
+    // the hero stays a hero): the bubble becomes a line, a footer on a band or in rows one line
+    if (band < bandMin * .95) {
+      const cheaper = st.full_cta === "bubble" && labB ? { full_cta: "line" } : st.full_foot === "band" ? { full_foot: "line" } : st.full_foot === "rows" && where && site ? { full_foot: "line" } : null;
+      if (cheaper) { Object.assign(st, cheaper); return this._layoutType(); }
+    }
+    if (line && !tagB) F.left.push("line");
     band = Math.max(0, band);
 
     /* ---- the band: selling points | the product | the sticker and the icon ----
        Sized before it is placed: the band takes the height its contents reach, and the room
        left over goes to the gaps. Two shapes are tried, and the one that shows the product
        larger is kept: the points beside the product (a low band), or across the top of it. */
-    const items = pointsOf(st), face = labelFont(st);
+    const items = pointsOf(st), chipFace = face;
     const phoneCap = H * (wide ? .8 : tall ? .4 : .46);
-    const reach = q => { const a = q.angle * Math.PI / 180; return [q.size * (q.w * Math.abs(Math.cos(a)) + q.h * Math.abs(Math.sin(a))) / 2, q.size * (q.h * Math.abs(Math.cos(a)) + q.w * Math.abs(Math.sin(a))) / 2]; };
+    const reachOf = q => { const a = q.angle * Math.PI / 180; return [q.size * (q.w * Math.abs(Math.cos(a)) + q.h * Math.abs(Math.sin(a))) / 2, q.size * (q.h * Math.abs(Math.cos(a)) + q.w * Math.abs(Math.sin(a))) / 2]; };
     // The engine spreads a set across its stage: a video's phones have the frame to themselves.
     // Here they stand shoulder to shoulder on one floor, in the engine's left-to-right order:
-    // the arrangement keeps its character (a line, a fan, a shop window, a podium, wings) at
-    // the spacing below, in phone widths. A leaning neighbour may tuck a little behind the
-    // middle phone from the side, never from above (the set's house rules, 2026-10-02).
+    // the arrangement keeps its character (a line, a fan, a shop window, a podium, wings, a
+    // hand of cards, a crown...) at the spacing below, in phone widths. A leaning neighbour may
+    // tuck a little behind the middle phone from the side, never from above (the set's house
+    // rules, 2026-10-02).
     const flat = this.phones.some(q => q.meta && q.meta.flat);
     if (hasPhones && flat) {
       // a product's own pictures (a subject from the offer family): side by side as they are, the
@@ -521,28 +722,41 @@ export class FullAd extends Ad {
     } else if (hasPhones) {
       const ps = [...this.phones].sort((a, b) => a.home[0] - b.home[0]), n = ps.length;
       const PW = Math.max(...ps.map(q => q.w)), PH = Math.max(...ps.map(q => q.h));
+      // [x in phone widths, y in phone heights, tilt in degrees, scale], for the phone o places from the middle
       const spot = ({
         fan: (o, k) => [o * (n === 2 ? 1.2 : 1.02), k * .03, o * 8, 1],
         showcase: (o, k) => [o * (n === 2 ? 1.12 : .93), 0, 0, n === 2 ? 1 : k ? .86 : 1.08],
         podium: (o, k) => [o * 1.04, 0, 0, n === 2 ? 1 : 1.06 - .15 * k],
         wings: (o, k) => [o * (n === 2 ? 1.22 : 1.1), k * .02, -o * 7, 1],
+        hand: (o, k) => [o * (n === 2 ? .95 : .78), k * .05, o * 13, 1],
+        burst: (o, k) => [o * (n === 2 ? 1.05 : .9), k * .06, o * 17, 1],
+        fanfare: (o, k) => [o * (n === 2 ? 1.1 : .96), k * .045, o * 11, 1],
+        tilt_row: (o) => [o * 1.16, 0, 6, 1],
+        lean_in: (o, k) => [o * (n === 2 ? 1.14 : 1.04), 0, -o * 4, k ? .95 : 1],
+        rise: (o) => [o * 1.12, -o * .07, 0, 1],
+        crown: (o, k) => [o * (n === 2 ? 1.12 : .98), k * .07, -o * 5, n === 2 ? 1 : k ? .9 : 1.1],
+        headliner: (o, k) => [o * (n === 2 ? 1.1 : .96), 0, 0, n === 2 ? (o < 0 ? 1.08 : .84) : k ? .8 : 1.14],
+        spotlight: (o, k) => [o * (n === 2 ? 1.14 : 1.02), 0, 0, n === 2 ? 1 : k ? .78 : 1.1],
+        gallery: (o) => [o * 1.3, 0, 0, 1],
+        tents: (o, k, i) => [o * 1.1, 0, i % 2 ? 7 : -7, 1],
       })[st.arrangement] || ((o) => [o * 1.14, 0, 0, 1]);
       ps.forEach((q, i) => {
-        const o = i - (n - 1) / 2, k = Math.abs(o), [x, yy, ang, sc] = spot(o, k);
+        const o = i - (n - 1) / 2, k = Math.abs(o), [x, yy, ang, sc] = spot(o, k, i);
         q.angle = ang; q.size = sc;
         q.home = [x * PW, yy * PH + (PH - q.h * sc) / 2];           // every foot on the tallest's floor
       });
       // the middle in front: outer phones are drawn (and land) first
       this.drawOrder = this.phones.map((_, i) => i).sort((a, b) => Math.abs(ps.indexOf(this.phones[b]) - (n - 1) / 2) - Math.abs(ps.indexOf(this.phones[a]) - (n - 1) / 2));
     }
-    const bb = this.phones.map(q => { const [hw, hh] = reach(q); return [q.home[0] - hw, q.home[1] - hh, q.home[0] + hw, q.home[1] + hh]; });
+    const bb = this.phones.map(q => { const [hw, hh] = reachOf(q); return [q.home[0] - hw, q.home[1] - hh, q.home[0] + hw, q.home[1] + hh]; });
     const G = hasPhones ? [Math.min(...bb.map(b => b[0])), Math.min(...bb.map(b => b[1])), Math.max(...bb.map(b => b[2])), Math.max(...bb.map(b => b[3]))] : [0, 0, 1, 1];
     const gw = G[2] - G[0], gh = G[3] - G[1], gx = g * 1.6;
+    const chipLook = Lay.chips === "bare" ? { shape: "bare", ink: bodyInk, ground: p.ground } : { shape: Lay.chips };
     const chipsFor = (shapes, maxW, maxH, align) => {
       for (const [n, row] of shapes) {
         if (n > items.length || n < 1) continue;
         for (let fs = U * FULL.chip; ; fs = Math.max(U * FULL.chipMin, fs * .95)) {
-          const key = `${n}|${row}|${align}|${fs.toFixed(2)}`, q = (this._chipCache ||= new Map()).get(key) || this._chipCache.set(key, perksSprite(items.slice(0, n), fs, this.hot, align, row, face)).get(key);
+          const key = `${n}|${row}|${align}|${Lay.chips}|${fs.toFixed(2)}`, q = (this._chipCache ||= new Map()).get(key) || this._chipCache.set(key, perksSprite(items.slice(0, n), fs, this.hot, align, row, chipFace, chipLook)).get(key);
           if (q.w <= maxW && q.h <= maxH) return { q, fs, n, row };
           if (fs <= U * FULL.chipMin) break;
         }
@@ -558,29 +772,30 @@ export class FullAd extends Ad {
       let k = kMax, rb = 0, ri = 0;
       if (sticker) for (let q = U * FULL.burst; q >= U * FULL.burstMin - .01; q -= U * .004) {
         const rr = Math.min(q, bh * .5), kk = Math.min(kMax, (bw - gx * .8 - rr * 2) / gw);
-        if (rr >= U * FULL.burstMin - .01 && kk >= kMax * .84) { k = kk; rb = rr; break; }
+        if (rr >= U * FULL.burstMin - .01 && kk >= kMax * giveUp) { k = kk; rb = rr; break; }
       }
       // the icon under the sticker, as large as the box's height leaves it
       if (rb && wantIcon) { const r2 = Math.min(U * FULL.icon, rb * .9, (bh - rb * 2 - g * 1.5) / 2); if (r2 >= U * FULL.iconMin) ri = r2; }
       const colH = rb ? rb * 2 + (ri ? g * 1.5 + ri * 2 : 0) : 0;
       const beside = { k, rb, ri, w: gw * k + (rb ? gx * .8 + rb * 2 : 0), h: Math.max(gh * k, colH), colH };
-      // a tall box (a wide frame's right column): the sticker and the icon in a row under the product
+      // a tall box (a wide frame's product column): the sticker and the icon in a row under the product
       if (sticker && !rb) {
         const rr = Math.min(U * FULL.burst, bw * .24), kk = Math.min(kMax, (bh - g * 1.6 - rr * 2) / gh);
-        if (rr >= U * FULL.burstMin && kk >= kMax * .8) {
+        if (rr >= U * FULL.burstMin && kk >= kMax * Math.min(.8, giveUp)) {
           const r2 = wantIcon ? Math.min(U * FULL.icon, rr * .9) : 0, rowW = rr * 2 + (r2 ? gx + r2 * 2 : 0);
           return { k: kk, rb: rr, ri: rowW <= bw ? r2 : 0, w: Math.max(gw * kk, rowW <= bw ? rowW : rr * 2), h: gh * kk + g * 1.6 + rr * 2, colH: 0, below: true };
         }
       }
       return beside;
     };
+    const chipAlign = left ? "l" : "c";
     const shape = (mode) => {
       if (wide) {
-        const chips = items.length ? chipsFor([[items.length, true], [items.length, false], [2, true], [2, false]], colW, band, "c") : null;
+        const chips = items.length ? chipsFor([[items.length, true], [items.length, false], [2, true], [2, false]], colW, band, chipAlign) : null;
         return { mode: "wide", chips, sub: subject(W - e - W * .59, H - 2 * ey), need: chips ? chips.q.h : 0 };
       }
       if (mode === "side") {
-        const chips = items.length && band > U * .05 ? chipsFor(hasPhones ? [[items.length, false], [2, false]] : [[items.length, true], [items.length, false], [2, false]], hasPhones ? colW * .47 : colW, band, hasPhones ? "l" : "c") : null;
+        const chips = items.length && band > U * .05 ? chipsFor(hasPhones ? [[items.length, false], [2, false]] : [[items.length, true], [items.length, false], [2, false]], hasPhones ? colW * .47 : colW, band, hasPhones ? "l" : chipAlign) : null;
         const sub = subject(colW - (chips ? chips.q.w + gx : 0), band);
         return { mode, chips, sub, need: Math.max(chips ? chips.q.h : 0, sub.h) };
       }
@@ -593,61 +808,92 @@ export class FullAd extends Ad {
         const topH = Math.max(chips.q.h, rb * 2), sub = subject(colW, band - topH - g * 1.4, false);
         return { mode, chips, sub, rb, topH, need: topH + (sub.h ? g * 1.4 : 0) + sub.h };
       }
-      const chips = items.length && band > U * .05 ? chipsFor([[items.length, true], [items.length, false], [2, true]], colW, band * .36, "c") : null;
+      const chips = items.length && band > U * .05 ? chipsFor([[items.length, true], [items.length, false], [2, true]], colW, band * .36, chipAlign) : null;
       const sub = subject(colW, band - (chips ? chips.q.h + g * 1.4 : 0));
       return { mode, chips, sub, need: (chips ? chips.q.h + (sub.h ? g * 1.4 : 0) : 0) + sub.h };
     };
     // the shape that shows the product largest; a sticker is worth a quarter of the product's size, an icon a twentieth
-    const worth = T => T ? T.sub.k * (1 + (T.sub.rb || T.rb ? .25 : 0) + (T.sub.ri ? .05 : 0)) * (T.chips || !items.length ? 1 : .7) : -1;
+    // where no chevrons will be drawn, a shape without the sticker leaves the ad with no eye-catcher: worth much less
+    const worth = T => T ? T.sub.k * (1 + (T.sub.rb || T.rb ? .25 : 0) + (T.sub.ri ? .05 : 0)) * (T.chips || !items.length ? 1 : .7) * (T.sub.rb || T.rb || marksFit || left ? 1 : .6) : -1;
     let S = shape("side");
     if (!wide && hasPhones) for (const m of ["stack", "tall"]) { const T = shape(m); if (worth(T) > worth(S) * 1.03) S = T; }
     const chips = S.chips, sub = S.sub, side = S.mode === "side";
-    if (globalThis.FULL_DEBUG) console.log('DBG', JSON.stringify({ W, H, band: Math.round(band), colW: Math.round(colW), gw: Math.round(gw), gh: Math.round(gh), n: this.phones.length, mode: S.mode, k: +sub.k.toFixed(3), rb: Math.round(sub.rb), ri: Math.round(sub.ri), subW: Math.round(sub.w), subH: Math.round(sub.h), chipsW: chips ? Math.round(chips.q.w) : 0, chipsH: chips ? Math.round(chips.q.h) : 0, head: Math.round(hd.size) }));
     if (items.length && !chips) F.left.push("selling points");
+
+    /* ---- every block down the frame, in the layout's order ---- */
     // the band takes what its contents reach; what is over is shared: each gap grows by the same step, the rest above and below
     const need = Math.min(band, S.need), spare = Math.max(0, band - need);
-    const nStretch = 1 + (claim ? 1 : 0) + (tagB ? 1 : 0) + (labB ? 1 : 0) + (foot ? 1 : 0);
-    const stretch = Math.min(g * 1.3, spare / (nStretch + 1.5)), bandH = need, pad = (spare - stretch * nStretch) / 2;
+    const weights = seq.slice(1).reduce((s, n, i) => s + gapIn(seq[i], n)[1], 0);
+    const stretch = Math.min(g * 1.3, spare / (weights + 1.5)), bandH = need, pad = (spare - stretch * weights) / 2;
     let y = ey + Math.max(0, pad);
-    const R = F.rects, put = (name, c, cx = mid) => { const r = [cx - c.width / 2, y, cx + c.width / 2, y + c.height]; R[name] = r; y += c.height; return r; };
-    if (claim) { const r = put("claim", claim.c); claim.x = r[0]; claim.y = r[1]; y += g * gClaim + stretch; }
-    const y0 = y, xs = hd.lines.map(L => mid - L.inkW / 2);
-    const block = [Math.min(...xs), y0, Math.max(...hd.lines.map((L, i) => xs[i] + L.inkW)), y0 + hd.blockH];
-    R.headline = block.slice(); y += hd.blockH;
-    let tagXY = null;
-    if (tagB) { y += tagGap(hd) + stretch; const r = put("line", tagB.c); tagXY = [r[0], r[1]]; }
-    const outer = [Math.min(block[0], tagXY ? tagXY[0] : W), block[1], Math.max(block[2], tagXY ? tagXY[0] + tagB.c.width : 0), y];
-    y += g * gBand + stretch * .5;
-    const bandTop = y, bandBot = y + bandH; y = bandBot + g * gBand + stretch * .5;
-    let labXY = null;
-    if (labB) { const r = put("call to action", labB.c); labXY = [r[0], r[1]]; y += g * gLab + stretch; }
-    const nr = put("number", num.c), nxy = [nr[0], nr[1]];
-    let footXY = null;
-    if (foot) { y += g * gFoot + stretch; const r = put("footer", foot.c); footXY = [r[0], r[1]]; }
-    F.band = [cx0, bandTop, cx1, bandBot]; F.mode = S.mode;
+    const R = F.rects;
+    let tagXY = null, labXY = null, nxy = null, footXY = null, bandTop = 0, bandBot = 0, xs = [], y0 = 0, block = null, outer = null, boardRect = null;
+    seq.forEach((name, i) => {
+      if (i) { const [gg, w] = gapIn(seq[i - 1], name); y += g * gg + stretch * w; }
+      if (name === "claim") {
+        const x = Lay.claim === "bar" ? cx0 : xAt(claim.c.width); claim.x = x; claim.y = y;
+        R.claim = [x, y, x + claim.c.width, y + claim.c.height]; y += claim.c.height;
+      } else if (name === "headline") {
+        const Sg = signOf(hd);
+        if (Sg) {
+          // the sign: its face at (bx, by), the headline and its line on it
+          const bx = (left ? cx0 + Sg.ext.l : mid - Sg.full[0] / 2 + Sg.ext.l), by = y + Sg.ext.t;
+          boardRect = [bx, by, bx + Sg.w, by + Sg.h];
+          y0 = by + Sg.padY;
+          xs = hd.lines.map(L => left ? bx + Sg.padX : bx + Sg.padX + (Sg.innerW - L.inkW) / 2);
+          block = [Math.min(...xs), y0, Math.max(...hd.lines.map((L, j) => xs[j] + L.inkW)), y0 + hd.blockH];
+          if (tagB) tagXY = [left ? bx + Sg.padX : bx + (Sg.w - tagB.c.width) / 2, y0 + hd.blockH + tagGap(hd)];
+          outer = boardRect.slice();
+          R.headline = [bx - Sg.ext.l, y, bx + Sg.w + Sg.ext.r, y + Sg.full[1]];
+          y += Sg.full[1];
+        } else {
+          y0 = y; xs = hd.lines.map(L => left ? cx0 : mid - L.inkW / 2);
+          block = [Math.min(...xs), y0, Math.max(...hd.lines.map((L, j) => xs[j] + L.inkW)), y0 + hd.blockH];
+          R.headline = block.slice(); y += hd.blockH;
+          if (tagB) { y += tagGap(hd); const x = xAt(tagB.c.width); tagXY = [x, y]; R.line = [x, y, x + tagB.c.width, y + tagB.c.height]; y += tagB.c.height; F.onGround.push("line"); }
+          outer = [Math.min(block[0], tagXY ? tagXY[0] : W), block[1], Math.max(block[2], tagXY ? tagXY[0] + tagB.c.width : 0), y];
+        }
+      } else if (name === "band") {
+        bandTop = y; bandBot = y + bandH; y = bandBot;
+      } else if (name === "call to action") {
+        const x = xAt(labB.c.width); labXY = [x, y]; R["call to action"] = [x, y, x + labB.c.width, y + labB.c.height]; y += labB.c.height;
+        if (!labB.bubble) F.onGround.push("call to action");
+      } else if (name === "number") {
+        const x = xAt(num.c.width); nxy = [x, y]; R.number = [x, y, x + num.c.width, y + num.c.height]; y += num.c.height;
+        if (!["pill", "box", "ticket", "tag", "stacked", "sticker"].includes(st.number_style)) F.onGround.push("number");   // figures on the ground itself
+      } else if (name === "footer") {
+        const x = xAt(foot.c.width); footXY = [x, y]; R.footer = [x, y, x + foot.c.width, y + foot.c.height]; y += foot.c.height;
+        if (!foot.band) F.onGround.push("footer");
+      }
+    });
+    if (labB && labB.bubble && labXY && nxy && !left) labXY[0] = nxy[0] + (num.c.width - labB.c.width) / 2;   // the bubble's tail over the number's middle
+    F.band = [cx0, bandTop, cx1, bandBot]; F.mode = S.mode; F.order = seq.slice();
 
     // where the row of the product and its eye-catchers stands: [x0, x1] and its middle line
     let rowX0, rowX1, rowCy;
+    const mirror = Lay.side === "right" && !wide;          // [sticker][product] [points], the mirror of [points] [product][sticker]
     if (wide) {
-      if (chips) { chips.x = mid - chips.q.w / 2; chips.y = bandTop + (bandH - chips.q.h) / 2; }
-      rowX0 = W * .59; rowX1 = W - e; rowCy = H / 2;
+      if (chips) { chips.x = xAt(chips.q.w); chips.y = bandTop + (bandH - chips.q.h) / 2; }
+      [rowX0, rowX1] = flip ? [e, W * .41] : [W * .59, W - e]; rowCy = H / 2;
     } else if (side) {
-      // the points and the product's row centred together across the column
-      const total = (chips ? chips.q.w + (sub.w ? gx : 0) : 0) + sub.w, x0 = cx0 + (colW - total) / 2;
-      if (chips) { chips.x = x0; chips.y = bandTop + (bandH - chips.q.h) / 2; }
-      rowX0 = x0 + (chips ? chips.q.w + gx : 0); rowX1 = rowX0 + sub.w; rowCy = bandTop + bandH / 2;
+      // the points and the product's row together across the column (from its left edge on a left-aligned card)
+      const total = (chips ? chips.q.w + (sub.w ? gx : 0) : 0) + sub.w, x0 = left ? cx0 : cx0 + (colW - total) / 2;
+      if (mirror) { rowX0 = x0; rowX1 = x0 + sub.w; if (chips) { chips.x = rowX1 + (sub.w ? gx : 0); chips.y = bandTop + (bandH - chips.q.h) / 2; } }
+      else { if (chips) { chips.x = x0; chips.y = bandTop + (bandH - chips.q.h) / 2; } rowX0 = x0 + (chips ? chips.q.w + gx : 0); rowX1 = rowX0 + sub.w; }
+      rowCy = bandTop + bandH / 2;
     } else if (S.mode === "tall") {
-      const rowW = chips.q.w + gx + S.rb * 2, x0 = mid - rowW / 2;
-      chips.x = x0; chips.y = bandTop + (S.topH - chips.q.h) / 2;
-      F.burst = { x: x0 + chips.q.w + gx + S.rb, y: bandTop + S.topH / 2, R: S.rb };
+      const rowW = chips.q.w + gx + S.rb * 2, x0 = left ? cx0 : mid - rowW / 2;
+      if (mirror) { F.burst = { x: x0 + S.rb, y: bandTop + S.topH / 2, R: S.rb }; chips.x = x0 + S.rb * 2 + gx; }
+      else { chips.x = x0; F.burst = { x: x0 + chips.q.w + gx + S.rb, y: bandTop + S.topH / 2, R: S.rb }; }
+      chips.y = bandTop + (S.topH - chips.q.h) / 2;
       const top = bandTop + S.topH + g * 1.4;
       rowX0 = cx0; rowX1 = cx1; rowCy = top + (bandBot - top) / 2;
     } else {
-      if (chips) { chips.x = mid - chips.q.w / 2; chips.y = bandTop; }
+      if (chips) { chips.x = xAt(chips.q.w); chips.y = bandTop; }
       const top = bandTop + (chips ? chips.q.h + g * 1.4 : 0);
       rowX0 = cx0; rowX1 = cx1; rowCy = top + (bandBot - top) / 2;
     }
-    if (chips) R["selling points"] = [chips.x, chips.y, chips.x + chips.q.w, chips.y + chips.q.h];
+    if (chips) { R["selling points"] = [chips.x, chips.y, chips.x + chips.q.w, chips.y + chips.q.h]; if (Lay.chips === "bare") F.onGround.push("selling points"); }
     F.chips = chips;
 
     /* ---- the product at its size; the sticker and the icon beside it ---- */
@@ -655,7 +901,8 @@ export class FullAd extends Ad {
     else R.sticker = [F.burst.x - F.burst.R, F.burst.y - F.burst.R, F.burst.x + F.burst.R, F.burst.y + F.burst.R];
     F.iconSlot = null; F.subjectFit = hasPhones ? sub.k : 1; F.group = null;
     if (hasPhones && sub.k > 0) {
-      const k = sub.k, x0 = rowX0 + (rowX1 - rowX0 - sub.w) / 2, gcx = x0 + gw * k / 2, ocx = (G[0] + G[2]) / 2, ocy = (G[1] + G[3]) / 2;
+      const k = sub.k, x0 = rowX0 + (rowX1 - rowX0 - sub.w) / 2, sl = mirror && sub.rb && !sub.below ? sub.rb * 2 + gx * .8 : 0;
+      const gcx = x0 + sl + gw * k / 2, ocx = (G[0] + G[2]) / 2, ocy = (G[1] + G[3]) / 2;
       for (const q of this.phones) { q.home = [gcx + (q.home[0] - ocx) * k, rowCy + (q.home[1] - ocy) * k]; q.size *= k; }
       this.stageC = [gcx, rowCy]; this.stageSpan = [gcx - gw * k / 2, gcx + gw * k / 2];
       F.group = [gcx - gw * k / 2, rowCy - gh * k / 2, gcx + gw * k / 2, rowCy + gh * k / 2];
@@ -670,16 +917,45 @@ export class FullAd extends Ad {
         F.burst = { x: bx, y: by, R: rb }; R.sticker = [bx - rb, by - rb, bx + rb, by + rb];
         if (ri) { const ix = bx + rb + gx + ri; F.iconSlot = { x: ix, y: by, R: ri }; R.icon = [ix - ri, by - ri, ix + ri, by + ri]; }
       } else if (sub.rb) {
-        const rb = sub.rb, ri = sub.ri, bx = x0 + gw * k + gx * .8 + rb, by = rowCy - sub.colH / 2 + rb;
+        const rb = sub.rb, ri = sub.ri, bx = mirror ? x0 + rb : x0 + gw * k + gx * .8 + rb, by = rowCy - sub.colH / 2 + rb;
         F.burst = { x: bx, y: by, R: rb };
         R.sticker = [bx - rb, by - rb, bx + rb, by + rb];
         if (ri) { const iy = by + rb + g * 1.5 + ri; F.iconSlot = { x: bx, y: iy, R: ri }; R.icon = [bx - ri, iy - ri, bx + ri, iy + ri]; }
       }
     }
 
+    /* ---- an eye-catcher always: a sticker that found no room by the product stands to the right of a
+       left-aligned number, in the room its plate leaves; a centred card gets its chevrons back ---- */
+    F.marks = Lay.mark === "chevrons";
+    if (!F.burst && wantBurst) {
+      if (left && nxy) {
+        // about as tall as the number's plate, so it keeps clear of the blocks above and below (checked)
+        const room = cx1 - (nxy[0] + num.c.width) - gx, r = Math.min(U * FULL.burst, room / 2, num.c.height / 2 + g * .5);
+        const cyN = nxy[1] + num.c.height / 2, box = [cx1 - r * 2, cyN - r, cx1, cyN + r];
+        const clear = Object.entries(R).every(([n, q]) => n === "number" || Math.max(box[0] - q[2], q[0] - box[2], box[1] - q[3], q[1] - box[3]) >= U * FULL.gap * .72);
+        if (r >= U * .05 && clear && box[1] >= e && box[3] <= H - e) { F.burst = { x: cx1 - r, y: cyN, R: r }; R.sticker = box; }
+      } else if (!left) F.marks = true;
+      // last: the largest free spot on the frame, clear of every block by the gap (a small tilted sticker is
+      // decoration, not layout: rule 109), nearest the product
+      if (!F.burst && !(F.marks && marksFit)) {
+        const clearOf = b => Object.values(R).every(q => Math.max(b[0] - q[2], q[0] - b[2], b[1] - q[3], q[1] - b[3]) >= U * FULL.gap * .72);
+        const aim = F.group ? [(F.group[0] + F.group[2]) / 2, (F.group[1] + F.group[3]) / 2] : [W / 2, H / 2], step = U * .012;
+        for (let r = U * .09; r >= U * .05 && !F.burst; r -= U * .008) {
+          let best = null;
+          for (let y = e + r; y <= H - e - r; y += step) for (let x = e + r; x <= W - e - r; x += step) {
+            if (!clearOf([x - r, y - r, x + r, y + r])) continue;
+            const d = Math.hypot(x - aim[0], y - aim[1]); if (!best || d < best.d) best = { x, y, d };
+          }
+          if (best) { F.burst = { x: best.x, y: best.y, R: r }; R.sticker = [best.x - r, best.y - r, best.x + r, best.y + r]; }
+        }
+      }
+    }
+
     /* ---- hand the engine its layout ---- */
-    const pos = { ok: true, xs, y0, oy: y0, block, board: null, outer, tag: tagXY, num: nxy, label: labXY, site: footXY };
+    const pos = { ok: true, xs, y0, oy: y0, block, board: boardRect, outer, tag: tagXY, num: nxy, label: labXY, site: footXY };
     Object.assign(this, { size: hd.size, lines: hd.lines, lineH: hd.lineH, blockH: hd.blockH, margin: e, tag: tagB ? tagB.c : null, num, pos });
+    if (!B) { this.boardDef = null; this.pHead = p; this.st.board = "none"; }
+    F.board = B ? st.board : "";
     this.st.tag = tagB ? (line || "") : "";
     this._lay = { size: hd.size / H, bestN: hd.n, nSize: nz / H, dropLabel: !labB };
     this.claim = claim; this.site = foot ? foot.c : null;
@@ -698,7 +974,7 @@ export class FullAd extends Ad {
     ctx.globalAlpha = 1; ctx.drawImage(this.bg, 0, 0);
     this._drawRays(ctx, t);
     if (this.liveGround) this._drawLiveGround(ctx, t);
-    // a light behind the product, in the colourway's own lighter tone: a black tablet on a navy
+    // a light behind the product, in the palette's own lighter tone: a black tablet on a navy
     // ground, or a dark laptop on indigo, stood in the dark without it
     const G = this.full && this.full.group;
     if (G) {
@@ -733,27 +1009,32 @@ export class FullAd extends Ad {
   }
 
   _buildDecor() {
-    const F = this.full, st = this.st, R = F.rects;
+    const F = this.full, st = this.st, R = F.rects, Lay = F.layout;
     this.keepClear = ["claim", "footer", "sticker", "icon"].map(k => R[k]).filter(Boolean);
     super._buildDecor();
-    this.numBox = R.number.slice();                       // the pill alone: the chevrons centre on it, not on the label over it
-    // the sticker, in the card's own ink (two colour families to a card: no third hue for a sticker)
-    this.burst = null;
+    if (this.board) Object.assign(this.board, { posts: null, stakes: false, lamps: false });   // a sign without its posts (FULL_BOARDS)
+    this.numBox = R.number.slice();                       // the number's plate alone: the chevrons centre on it, not on the label over it
+    // the sticker: a starburst, a seal or a rosette, in the card's ink or its accent (two colour
+    // families to a card: the accent is already the claim's and the points' colour)
+    this.burst = null; this.fullSticker = null;
     if (F.burst) {
-      const ph = this.pHead, fill = ph.ink, inkc = contrastOf(fill, this.p.ground) >= 3 ? this.p.ground : (lum(fill) > .5 ? "#111111" : "#ffffff");
-      this.burst = { ...F.burst, fill, ink: inkc, text: st.feed_burst || (st.lang === "es" ? "¡EFECTIVO!" : "CASH!"), t0: this.tl.hit + .12, font: burstFontFor(st) };
-      this.cues.burst = this.burst.t0;
+      const ph = this.p, fill = Lay.pop === "accent" && contrastOf(this.hot, ph.ground) >= 2 ? this.hot : ph.ink;
+      const inkc = contrastOf(fill, ph.ground) >= 3 && contrastOf(fill, ph.ground) >= contrastOf(fill, lum(fill) > .5 ? "#111111" : "#ffffff") * .6 ? ph.ground : (lum(fill) > .5 ? "#111111" : "#ffffff");
+      const S = { ...F.burst, fill, ink: contrastOf(inkc, fill) >= 4.5 ? inkc : (lum(fill) > .5 ? "#111111" : "#ffffff"), text: st.feed_burst || (st.lang === "es" ? "¡EFECTIVO!" : "CASH!"), t0: this.tl.hit + .12, font: burstFontFor(st) };
+      if (Lay.sticker === "burst") this.burst = S;
+      else this.fullSticker = { ...S, kind: Lay.sticker, rot: (st.seed % 2 ? -1 : 1) * (6 + st.seed % 7) };
+      this.cues.burst = S.t0;
     }
-    // one 3D icon in its slot (the engine resolves the artwork; the slot is this layout's)
+    // one 3D icon in its slot, from the look's own set where it has one (ICONS)
     this.accents = [];
     if (F.iconSlot && st.feed_icon !== "") {
-      const a = placeAccents({ ...st, accents: 1, accent_set: st.feed_icon || st.accent_set || "cash", accent_kind: "asset" }, this.W, this.H, [], null, (this.assets || {}).accents, rng(st.seed * 61 + 3), 0, this.stageC)[0];
+      const a = placeAccents({ ...st, accents: 1, accent_set: st.feed_icon || "cash", accent_kind: "asset" }, this.W, this.H, [], null, (this.assets || {}).accents, rng(st.seed * 61 + 3), 0, this.stageC)[0];
       if (a && a.as === "asset") { Object.assign(a, F.iconSlot); this.accents = timeAccents([a], this.tl, this.tOutro); }
       else delete R.icon;
     }
-    // the chevrons either side of the number, where the pill leaves them their room
+    // the chevrons either side of the number, where the plate leaves them their room (a centred card)
     const nb = this.numBox, sz = (nb[3] - nb[1]) * .42;
-    this.fullChevrons = Math.min(nb[0] - F.col[0], F.col[1] - nb[2]) >= sz * 2.9 ? sz : 0;
+    this.fullChevrons = F.marks && Math.min(nb[0] - F.col[0], F.col[1] - nb[2]) >= sz * 2.9 ? sz : 0;
   }
 
   frame(ctx, t, quality, dt) {
@@ -774,27 +1055,27 @@ export class FullAd extends Ad {
       if (q > 0) { ctx.save(); ctx.globalAlpha = q; ctx.drawImage(this.site, this.pos.site[0], this.pos.site[1] + (1 - q) * U * .02); ctx.restore(); }
     }
     if (this.fullChevrons) drawChevrons(ctx, this.numBox, this.fullChevrons * 2, this.hot, t, this.tl.number + .3, this.W, "sides");
+    if (this.fullSticker) drawSeal(ctx, this.fullSticker, t);
   }
 }
 
-/** The style a full ad is drawn with: the customer's words and phones, the house style locked,
- *  and one colourway, ground, arrangement and icon for the seed (or the ones picked). Every
- *  element gets its words: what the customer left empty is filled from FULL_WORDS. keep: what
- *  the customer set by hand elsewhere in the maker (their music, their voice), left as set. */
-export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
+/** The style a full ad is drawn with: the customer's words and phones, every element given its
+ *  words, and the look it is the photo of. own: the style already carries a look (the maker's
+ *  own, or a look from its gallery), worn as it is; otherwise one is drawn from the seed the way
+ *  the maker draws a look: a theme or a vibe most of the time. The full ad's layout (FULL_LAYOUT)
+ *  is drawn from the seed in both cases, or picked. keep: what the customer set by hand
+ *  elsewhere in the maker (their music, their voice), left as set. pick.palette: one of the
+ *  twelve pairs, laid over the look's own colours. */
+export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts = {}) {
   const r = rng((seed >>> 0) * 7 + 11), one = a => a[Math.floor(r() * a.length) % a.length];
   const es = st.lang === "es";
-  // the colours: one of the twelve by the seed, or the one picked; carried as the palette's own
-  // colours (the engine's pal() lays st.colors over the palette named), so the catalogue is not touched
-  const first = one(COLOURWAYS), key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, ...picked } = pick;
-  const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...picked };
   const area = (st.area || "").trim();
   const words = {
     feed_claim: st.feed_claim ?? one(FULL_WORDS.claim),
     feed_line: st.feed_line ?? (st.tag || one(FULL_WORDS.line)),
     // the maker's own points for these words where it has them (its field shows those), else the list's
     points: st.points ?? (pointsOf(st).length ? pointsOf(st).join(", ") : one(FULL_WORDS.points)),
-    number_label: st.number_label || (es ? "LLAMA O MANDA TEXTO" : FULL_WORDS.label[0]),
+    number_label: st.number_label || (es ? "LLAMA O MANDA TEXTO" : one(FULL_WORDS.label)),
     feed_where: st.feed_where ?? (area ? area.toUpperCase() : ""),
     // the website as a sentence, so it reads as an address (owner, 2026-11-03: "that way they know it's a URL")
     feed_site: st.feed_site ?? (st.site ? (es ? "Visítanos en " : "Visit our website at ") + String(st.site).trim() : ""),
@@ -806,14 +1087,36 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const subject = !!st.subject && st.subject !== "iphone";
   const most = subject ? 4 : st.aspect === "4:5" || st.aspect === "9:16" ? 3 : 2;
   const have = (st.phones || []).slice(0, most);
-  const base = { ...DEFAULT_STYLE, ...st, ...QUIET, ...look, ...words, phones: have, full: true, seed };
-  const locked = new Set([...keep, ...Object.keys(QUIET), ...Object.keys(look), ...Object.keys(words), "phones", "headline", "tag", "number", "aspect", "duration", "lang", "lang_mode", "area", "full", "accent_word", "strike_text", "hook_text"]);
+  const held = ["phones", "headline", "tag", "number", "aspect", "duration", "lang", "lang_mode", "area", "full", "accent_word", "strike_text", "hook_text", "subject", "subject_set", "site"];
+  const locked = new Set([...keep, ...Object.keys(words), ...held]);
   const pool = have.length || subject ? [] : phoneIndex.map(m => m.id);   // another product never borrows iPhones
   const idx = Object.fromEntries(phoneIndex.map(m => [m.id, m]));
-  const out = harmonise(randomize(base, seed, locked, pool, false), locked, idx);
+  // the look: the one the style carries, or one drawn from the seed (its theme, palette, ground, faces, treatment, sign...)
+  const base = { ...DEFAULT_STYLE, ...st, ...words, phones: have, seed };
+  const look = opts.own ? harmonise({ ...base }, locked, idx) : randomize(base, seed, locked, pool, false);
+  // the full ad's layout, from its own stream so the look's draws are untouched
+  const rl = rng((seed >>> 0) * 131 + 977), lay = {};
+  for (const [k, w] of Object.entries(FULL_LAYOUT)) lay[k] = pick[k] && w[pick[k]] != null ? pick[k] : rl.weighted(Object.keys(w), w);
+  // what a still holds: the nearest a photo can show of a look's moving parts
+  const hold = { ...QUIET,
+    pose: POSE_OK.has(look.pose) ? look.pose : (seed % 2 ? "edge_left" : "edge_right"),
+    phone_idle: IDLE_OK.has(look.phone_idle) ? look.phone_idle : "float",
+    hook: HOOK_OK.has(look.hook) ? look.hook : "none",
+    grade: GRADE_OK.has(look.grade) ? look.grade : "none",
+    depth: DEPTH_OK.has(look.depth) ? look.depth : look.depth === "dof" ? "soft_floor" : "none",
+    board: FULL_BOARDS.has(look.board) ? look.board : "none",
+    feed_icon: st.feed_icon ?? (ICONS.includes(look.accent_set) ? look.accent_set : one(ICONS)),
+    // a headline typed in leaves its caret on the still
+    text_in: ["typewriter", "scramble"].includes(look.text_in) ? "wipe" : look.text_in };
+  // a pair picked by hand is laid over the look's own colours
+  const key = COLOUR_OF[pick.palette] ? pick.palette : "";
+  const colours = key ? { colors: { ...COLOUR_OF[key].colors }, full_colour: key } : { full_colour: "" };
+  const out = harmonise({ ...look, ...hold, ...lay, ...colours, ...words }, new Set([...locked, ...Object.keys(hold), ...Object.keys(lay)]), idx);
+  // the number reads at a glance (rule 53): chrome, gold and neon figures are pale, and on a light ground they go on a plate
+  if (lum(pal(out).ground) > .4 && ["chrome", "gold", "neon"].includes(out.number_style)) out.number_style = "pill";
   // the voice-over's lines are about phones: an ad for anything else plays its music alone
   const quiet = subject ? { voice: "off", vo_clip: "", vo_text: "" } : {};
-  return { ...out, ...QUIET, ...look, ...words, ...quiet, full: true, phones: subject ? have : (out.phones || []).slice(0, most) };
+  return { ...out, ...QUIET, ...words, ...quiet, full: true, seed, phones: subject ? have : (out.phones || have).slice(0, most) };
 }
 
 /** What would stop this ad going out, in words: a block left out for want of room, a block
@@ -827,7 +1130,9 @@ export function fullBlockers(ad) {
   const names = Object.keys(R), gap = U * FULL.gap * .7;
   for (let i = 0; i < names.length; i++) for (let j = i + 1; j < names.length; j++) {
     const a = R[names[i]], b = R[names[j]], dx = Math.max(a[0] - b[2], b[0] - a[2]), dy = Math.max(a[1] - b[3], b[1] - a[3]);
-    if (names[i] === "headline" && names[j] === "line") { if (dy < U * .006) out.push("headline and line touch"); continue; }
+    if ([names[i], names[j]].sort().join() === "headline,line") { if (dy < U * .006) out.push("headline and line touch"); continue; }
+    // a speech bubble's tail points down at its number
+    if ([names[i], names[j]].sort().join() === "call to action,number" && ad.full.layout.cta === "bubble" && dx < 0 && dy >= 0) continue;
     if (dx < 0 && dy < 0) out.push(`${names[i]} and ${names[j]} overlap`);
     else if (Math.max(dx, dy) < gap) out.push(`${names[i]} and ${names[j]} ${Math.round(Math.max(dx, dy) / U * 1080)}px apart`);
   }
@@ -843,7 +1148,8 @@ export function fullMeasure(ad) {
   const area = Object.values(R).reduce((a, r) => a + Math.max(0, r[2] - r[0]) * Math.max(0, r[3] - r[1]), 0) / (W * H);
   const k = 1080 / U, px = Object.fromEntries(Object.entries(F.px).map(([n, v]) => [n, Math.round(v * k)]));
   const smallest = Math.min(...Object.values(px).filter(Boolean));
-  return { blocks: Object.keys(R), fill: +area.toFixed(3), px, smallest, product: F.group ? +((F.group[3] - F.group[1]) / H).toFixed(3) : 0, sticker: !!F.burst, icon: !!(ad.accents && ad.accents.length), chevrons: !!ad.fullChevrons };
+  return { blocks: Object.keys(R), fill: +area.toFixed(3), px, smallest, product: F.group ? +((F.group[3] - F.group[1]) / H).toFixed(3) : 0,
+    sticker: !!F.burst, icon: !!(ad.accents && ad.accents.length), chevrons: !!ad.fullChevrons, layout: F.layout, board: F.board, order: F.order };
 }
 
 /** A subject's set of pictures (motion/subjects.json, from the offer family) as the engine's

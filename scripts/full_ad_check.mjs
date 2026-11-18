@@ -11,9 +11,12 @@
      sizing       a line is set under its floor (FULL in fullad.js), or the product stands under
                   15% of the height (30% on a wide frame) with ordinary words;
      spacing      two blocks overlap or stand nearer than the gap, or a block is inside the margin;
-     positioning  the words are off their axis (every block's middle on the column's middle);
+     positioning  the card has more than one alignment (every block's middle on the column's middle, or,
+                  on a left-aligned card, every block's left edge on the column's left edge: rule 109);
      eye-catchers an ad with ordinary words has no sticker and no chevrons;
-     contrast     a line added to the ground reads under 3.5:1 on the ground drawn under it.
+     contrast     a line standing on the ground reads under 3.5:1 on the ground drawn under it;
+     variety      (2026-11-18) the looks drawn repeat: fewer than 10 looks, 6 type pairs, 8 grounds or
+                  every layout choice's options among the ads of one size.
 
    "Ordinary words" are the lengths the maker's own lists hold. Longer ones (a 44-letter headline,
    three long towns) may cost the product its size or set the headline small; the page says so to
@@ -76,15 +79,17 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
       const ad = new F.FullAd(st, assets, Math.round(W0 * k), Math.round(H0 * k));
       const why = F.fullBlockers(ad), m = F.fullMeasure(ad), R = ad.full.rects, col = ad.full.col, mid = (col[0] + col[1]) / 2;
       // every block whose words were given is on the picture
-      const want = { claim: st.feed_claim, line: st.feed_line, 'call to action': st.number_label, footer: st.feed_where || st.feed_site, 'selling points': st.points, product: st.phones.length };
+      // the line under the headline stands on the sign when there is one (inside the headline's block)
+      const want = { claim: st.feed_claim, line: st.feed_line && !ad.full.board, 'call to action': st.number_label, footer: st.feed_where || st.feed_site, 'selling points': st.points, product: st.phones.length };
       const missing = Object.entries(want).filter(([b, v]) => v && !R[b]).map(([b]) => b);
-      // one axis: the words' blocks centred on the column
-      const offAxis = ['claim', 'headline', 'line', 'call to action', 'number', 'footer'].filter(b => R[b] && Math.abs((R[b][0] + R[b][2]) / 2 - mid) > ad.W * .004);
+      // one alignment: the words' blocks centred on the column, or all on its left edge (a bar claim spans it)
+      const left = ad.full.layout.align === 'left';
+      const offAxis = ['claim', 'headline', 'line', 'call to action', 'number', 'footer'].filter(b => R[b] && (left ? Math.abs(R[b][0] - col[0]) > ad.W * .004 : Math.abs((R[b][0] + R[b][2]) / 2 - mid) > ad.W * .004));
       // the lines added to the ground, against the ground drawn under them: its brightest tenth
       // under light ink (darkest under dark) must still give 3.5:1
-      const g = ad.bg.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, ad.W, ad.H).data, ink = ad.pHead.ink, light = lumOf(ink) >= .18;
+      const g = ad.bg.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, ad.W, ad.H).data, ink = ad.full.ink || ad.p.ink, light = lumOf(ink) >= .18;
       const contrast = {};
-      for (const b of ['line', 'call to action', 'footer']) {
+      for (const b of ad.full.onGround.filter(n => n !== 'number' && n !== 'selling points')) {
         const r = R[b]; if (!r) continue;
         const Ls = [];
         for (let y = Math.max(0, r[1] | 0); y < Math.min(ad.H, r[3]); y += 3) for (let x = Math.max(0, r[0] | 0); x < Math.min(ad.W, r[2]); x += 3) { const q = (y * ad.W + x) * 4; Ls.push(.2126 * lin(g[q]) + .7152 * lin(g[q + 1]) + .0722 * lin(g[q + 2])); }
@@ -92,7 +97,8 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
         const worst = Ls[Math.min(Ls.length - 1, Math.floor(Ls.length * (light ? .9 : .1)))], L = lumOf(ink);
         contrast[b] = +((Math.max(L, worst) + .05) / (Math.min(L, worst) + .05)).toFixed(2);
       }
-      rows.push({ name, aspect, seed, palette: st.palette, phones: st.phones.length, why, missing, offAxis, contrast, m });
+      rows.push({ name, aspect, seed, palette: st.palette, phones: st.phones.length, why, missing, offAxis, contrast, m,
+        look: { vibe: st.vibe, pair: st.type_pair, ground: st.background, fx: st.text_fx, ...m.layout } });
       if (wantSheet && s === 0) {
         const c = E.canvas(ad.W, ad.H), t = Math.max(isFinite(ad.tl.number) ? ad.tl.number + 1.2 : 0, (ad.tLanded || 0) + .6, (ad.tOutro != null ? ad.tOutro : st.duration) - .4);
         ad.still = null; ad.frame(c.getContext('2d'), t, { subsFly: 8, subsMove: 4 }, 1 / 30);
@@ -125,6 +131,18 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
     console.log(`  ${a.padEnd(5)} headline ${med(rs.map(r => r.m.px.headline))}px  number ${med(rs.map(r => r.m.px.number))}px  smallest line ${Math.min(...rs.map(r => r.m.smallest))}px  product ${Math.round(med(wp.map(r => r.m.product)) * 100)}% of the height  sticker ${wp.filter(r => r.m.sticker).length}/${wp.length}  icon ${wp.filter(r => r.m.icon).length}/${wp.length}  chevrons ${rs.filter(r => r.m.chevrons).length}/${rs.length}  frame covered ${Math.round(med(rs.map(r => r.m.fill)) * 100)}%`);
   }
   if (notes.length) console.log(`  said to the customer, not failed (long words): ${notes.length}, e.g. ${notes[0]}`);
+  // variety (owner, 2026-11-18: "they look shockingly similar to one another"): within one size the
+  // looks, type pairs, grounds and every layout choice spread out
+  for (const a of ASPECTS) {
+    const rs = out.rows.filter(r => r.aspect === a), n = k => new Set(rs.map(r => r.look[k])).size;
+    const spread = { vibe: n('vibe'), pair: n('pair'), ground: n('ground'), fx: n('fx') };
+    const lay = Object.fromEntries(['align', 'order', 'claim', 'chips', 'foot', 'sticker'].map(k => [k, n(k)]));
+    console.log(`  ${a.padEnd(5)} ${rs.length} ads: ${spread.vibe} looks, ${spread.pair} type pairs, ${spread.ground} grounds, ${spread.fx} treatments; layout ${JSON.stringify(lay)}`);
+    if (rs.length >= 20) {
+      if (spread.vibe < 10 || spread.pair < 6 || spread.ground < 8) fail(`${a}: the looks repeat (${JSON.stringify(spread)})`);
+      for (const [k, v] of Object.entries(lay)) if (v < 2) fail(`${a}: every ad has the same ${k}`);
+    }
+  }
   if (SHEET && out.sheet.length) {
     mkdirSync(SHEET, { recursive: true });
     const url = await page.evaluate(async (items) => {
@@ -222,7 +240,8 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
   const shown = id => page.evaluate(i => { const e = document.getElementById(i); return !!e && e.getClientRects().length > 0; }, id);
   ok(await page.evaluate(() => document.getElementById('main').dataset.full) === '1', 'the maker opens on the full ad');
   ok(await shown('f-claim') && await shown('f-towns') && await shown('f-site') && await shown('f-burst') && await shown('full-colours'), 'its fields are shown: claim, towns, website, sticker, colours');
-  ok(!(await page.evaluate(() => [...document.querySelectorAll('#design select[data-key="palette"], #design select[data-key="text_fx"], #flags')].some(e => e.getClientRects().length))), 'the looks it does not use are put away');
+  ok(!(await page.evaluate(() => [...document.querySelectorAll('#design select[data-key="urgency"], #design select[data-key="text_pos"], #design select[data-key="camera"], #flags')].some(e => e.getClientRects().length))), 'what the full ad holds is put away (urgency, positions, camera, extras)');
+  ok(await page.evaluate(() => ['palette', 'text_fx', 'type_pair', 'background', 'arrangement', 'full_align', 'full_order'].every(k => { const e = document.querySelector(`#design select[data-key="${k}"]`); return e && getComputedStyle(e.closest('.mo-set')).display !== 'none' && getComputedStyle(e.closest('details')).display !== 'none'; })), 'the look it wears and its layout are offered (palette, treatment, type, ground, phones, layout)');
   ok(await page.evaluate(() => !!document.querySelector('#design select[data-key="audience"]') && document.querySelector('#design select[data-key="audience"]').getClientRects().length > 0), 'who the ad is for stays');
   await page.fill('#f-number', '(562) 999-4994'); await page.fill('#f-headline', 'SELL YOUR IPHONE'); await page.fill('#f-towns', 'Long Beach • Lakewood • Downey'); await page.fill('#f-site', 'www.YourShop.com');
   await page.waitForTimeout(1500);

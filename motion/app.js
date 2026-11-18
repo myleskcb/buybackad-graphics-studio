@@ -2,7 +2,7 @@
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES } from "./catalog.js";
 import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf, lotInto } from "./engine.js";
-import { FullAd, fullStyle, fullBlockers, loadSubjectSet, COLOURWAYS, COLOUR_OF } from "./fullad.js";
+import { FullAd, fullStyle, fullBlockers, loadSubjectSet, COLOURWAYS, COLOUR_OF, FULL_LAYOUT, QUIET } from "./fullad.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
@@ -40,10 +40,13 @@ const state = {
 
 /* THE FULL AD (owner, 2026-11-11: "I still don't see picture ads that look in line with the
    video ads"; "maximize elements.. sizing.. spacing.. positioning"; "eye catchy elements").
-   One switch over the maker: on, the ad is drawn by FullAd in the house style, with the claim,
-   the towns, the website and the sticker beside the words the maker already had, as a photo
-   and as a video. state.style stays the customer's own look and words underneath, so Any look
-   brings it back as it was. Every path that draws goes through these three. */
+   One switch over the maker: on, the ad is drawn by FullAd, with the claim, the towns, the
+   website and the sticker beside the words the maker already had, as a photo and as a video.
+   Since 2026-11-18 ("for every single video, I want a photo ad equivalent") it is the full ad
+   OF the look on screen: state.style is the look (its theme, palette, ground, type, number,
+   phones), the same in both modes, and the full ad wears it with every element added and its
+   own layout (FULL_LAYOUT) drawn from the look's number, or picked under Layout. Every path
+   that draws goes through these three. */
 /* WHAT THE AD IS ABOUT (motion/subjects.json, made from the offer family's 35 lines). iPhones are
    the maker's own painted phones, picked in Phones; any other line brings its approved pictures
    and its models line, and the full ad draws them in the phones' place. Only the full ad: the
@@ -57,11 +60,15 @@ async function ensureSubject(st) {
   const got = await loadSubjectSet(S, set, "../assets/cutouts/");
   Object.assign(state.assets.phones, got.assets); subjects.loaded[k] = got.ids;
 }
+const FULL_KEYS = Object.keys(FULL_LAYOUT);
 const fullOf = st => {
-  const S = state.full ? subjectOf(st) : null, pick = st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {};
-  if (!S) return fullStyle({ ...st, subject: "" }, st.seed, state.index, pick, state.locked);
+  const S = state.full ? subjectOf(st) : null;
+  // a pair of colours picked by hand, and any layout choice picked by hand (locked), hold; the rest follows the look's number
+  const pick = { ...(st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {}),
+    ...Object.fromEntries(FULL_KEYS.filter(k => state.locked.has(k) && st[k]).map(k => [k, st[k]])) };
+  if (!S) return fullStyle({ ...st, subject: "" }, st.seed, state.index, pick, state.locked, { own: true });
   const ids = S.sets.length ? subjects.loaded[S.key + "|" + ((st.subject_set | 0) % S.sets.length)] || [] : [];
-  return fullStyle({ ...st, phones: ids.length ? ids : ["none"] }, st.seed, state.index, pick, state.locked);
+  return fullStyle({ ...st, phones: ids.length ? ids : ["none"] }, st.seed, state.index, pick, state.locked, { own: true });
 };
 const settle = (st, locked = state.locked) => state.full ? fullOf(st) : harmonise(st, locked, indexById());
 const AdOf = st => st && st.full ? FullAd : Ad;
@@ -235,8 +242,8 @@ async function strongSeed(base, locked, pool, content, post = st => st) {
   let best = null;
   for (let k = 0; k < 8; k++) {
     const seed = (Math.random() * 1e9) | 0;
-    // the full ad's look comes from its number alone: a new look is a new number, the style underneath kept
-    const st = state.full && !content ? { ...base, seed } : post(randomize(base, seed, locked, pool, content));
+    // the full ad wears the look drawn, so a new look is a whole new look in both modes
+    const st = post(randomize(base, seed, locked, pool, content));
     const h = settle({ ...st }, locked);
     await loadFonts(fontsFor(h));
     const rep = await auditLook(h, state.assets, { size: 120, secs: 3.4, sound: false, AdClass: AdOf(h) });
@@ -297,7 +304,20 @@ function stopAudio() { if (state.audioSrc) { try { state.audioSrc.stop(); } catc
 
 // the full ad's fields: [input, key in the style, longest]
 const FULL_FIELDS = [["f-claim", "feed_claim", 44], ["f-towns", "feed_where", 60], ["f-site", "site", 40], ["f-burst", "feed_burst", 14]];
-const fullName = st => (COLOUR_OF[st.full_colour] || {}).name || lookName(st);   // the pair's name, the same as Easy Mode's theme
+const fullName = st => (COLOUR_OF[st.full_colour] || {}).name || lookName(st);   // the pair's name (the same as Easy Mode's theme), else the look's
+// the full ad's layout choices, by name (fullad.js FULL_LAYOUT)
+const LAYOUT_NAMES = {
+  full_align: ["Alignment", { center: "Centred", left: "On the left edge" }],
+  full_order: ["Product", { classic: "In the middle", hero_low: "High, the headline under it", number_high: "Low, the number over it" }],
+  full_side: ["Selling points", { left: "Left of the product", right: "Right of the product" }],
+  full_claim: ["Claim badge", { pill: "Pill", tab: "Square tab", ribbon: "Ribbon", outline: "Outline", bar: "Full-width bar" }],
+  full_chips: ["Point style", { pill: "Pills", tab: "Square tabs", bare: "Ticks, no plates" }],
+  full_cta: ["Call to action", { line: "A line over the number", bubble: "Speech bubble" }],
+  full_foot: ["Towns and website", { rows: "Two rows", line: "One line", band: "On a band" }],
+  full_sticker: ["Sticker", { burst: "Starburst", seal: "Seal", rosette: "Rosette" }],
+  full_pop: ["Sticker colour", { ink: "The ink", accent: "The accent" }],
+  full_mark: ["At the number", { chevrons: "Chevrons", none: "Nothing" }],
+};
 
 /** What the ad can be about, into its picker: iPhones first (the maker's own), then the offer family's lines by group. */
 function fillSubjects() {
@@ -360,11 +380,13 @@ function buildPanel() {
   $("headline-list").innerHTML = [...HEADLINES, ...COPY.es.headlines.filter(h => !h.includes("{"))].map(h => `<option value="${h}">`).join("");
   const design = $("design");
   for (const [title, keys] of GROUPS) {
-    // the full ad keeps who it is for and how it sounds; how it looks is the house style's
-    const sec = document.createElement("details"); sec.className = "mo-sec" + (title === "Audience and voice" ? " mo-phone-only" : title === "Sound" ? "" : " mo-any-only"); sec.open = ["Audience and voice", "Type", "Scene", "Vibe and urgency"].includes(title);
+    // the full ad wears the look, so its sections are in both modes; the accents (the full ad places its own
+    // icon) and every setting the full ad holds (QUIET in fullad.js: the urgency, the slant, the positions,
+    // the camera, the overlays) only under Any look
+    const sec = document.createElement("details"); sec.className = "mo-sec" + (title === "Audience and voice" ? " mo-phone-only" : title === "Accents" ? " mo-any-only" : ""); sec.open = ["Audience and voice", "Type", "Scene", "Vibe and urgency"].includes(title);
     sec.innerHTML = `<summary>${title}</summary>`;
     for (const k of keys) {
-      const row = document.createElement("div"); row.className = "mo-set";
+      const row = document.createElement("div"); row.className = "mo-set" + (k in QUIET ? " mo-any-only" : "");
       const opts = [...new Set(OPTIONS[k])].filter(v => !(SOUND_ALIASES[k] && SOUND_ALIASES[k][v]));   // a retired sound is not offered
       row.innerHTML = `<label>${LABELS[k] || k}<select data-key="${k}">${opts.map(v => `<option value="${v}">${labelFor(k, v)}</option>`).join("")}</select></label>
         <button class="mo-lock" data-lock="${k}" aria-pressed="false" title="Lock: keep this when shuffling">&#128275;</button>`;
@@ -377,9 +399,21 @@ function buildPanel() {
     }
     design.appendChild(sec);
   }
+  // the full ad's own layout, each choice lockable like any other
+  {
+    const sec = document.createElement("details"); sec.className = "mo-sec mo-full-only"; sec.open = true;
+    sec.innerHTML = `<summary>Layout</summary><p class="mo-note">Drawn with the look; pick one to keep it.</p>`;
+    for (const k of FULL_KEYS) {
+      const [label, names] = LAYOUT_NAMES[k], row = document.createElement("div"); row.className = "mo-set";
+      row.innerHTML = `<label>${label}<select data-key="${k}">${Object.keys(FULL_LAYOUT[k]).map(v => `<option value="${v}">${names[v] || v}</option>`).join("")}</select></label>
+        <button class="mo-lock" data-lock="${k}" aria-pressed="false" title="Lock: keep this when shuffling">&#128275;</button>`;
+      sec.appendChild(row);
+    }
+    design.appendChild(sec);
+  }
   design.addEventListener("change", e => {
     const k = e.target.dataset.key; if (!k) return;
-    const raw = e.target.value, sample = OPTIONS[k][0];
+    const raw = e.target.value, sample = (OPTIONS[k] || [""])[0];
     pushHistory();
     state.style[k] = typeof sample === "number" ? Number(raw) : raw;
     state.locked.add(k);                            // what you choose by hand stays put
@@ -551,10 +585,10 @@ async function shuffle(all) {
   if (pool.length) locked.delete("phones"); else locked.add("phones");
   const btns = [$("shuffle-look"), $("shuffle-all")]; btns.forEach(b => b.disabled = true);
   try {
-    // the full ad's look is its number: New look gives it another, and lets the colours change with it
-    // (colours picked by hand are picked again); the customer's own look underneath is left as it was
+    // the full ad wears the look: New look gives it a whole new one (its theme, ground, type, number
+    // style, phones and layout), and lets the colours change with it (a pair picked by hand is picked again)
     const base = state.full && !all ? (({ full_palette, ...rest }) => rest)(state.style) : state.style;
-    const plain = () => state.full && !all ? { ...base, seed: (Math.random() * 1e9) | 0 } : randomize(state.style, (Math.random() * 1e9) | 0, locked, pool, all);
+    const plain = () => randomize(base, (Math.random() * 1e9) | 0, locked, pool, all);
     try { state.style = $("strong-only").checked ? await strongSeed(base, locked, pool, all) : plain(); }
     catch (e) {                                     // the attention check failed: shuffle without it
       console.warn("Strong-look search failed, shuffling without it:", e);
@@ -828,7 +862,10 @@ async function shelfThumb(shelf, W, H, k, lock) {
 
 /** The look, still, as a button that uses it, with its caption under it. lock: using it
  *  keeps its vibe, so New look stays in the shelf it came from. */
-async function thumb(st, w, h, lock) {
+async function thumb(look, w, h, lock) {
+  // the full ad of this look in the full mode (its words, its claim, its towns...), the look itself under Any look
+  if (state.full) await ensureSubject(look);
+  const st = state.full ? fullOf(look) : look;
   await loadFonts(fontsFor(st));
   const ad = adFor(st, w, h);
   const b = document.createElement("button"); b.className = "mo-thumb"; b.title = "Use this look";
@@ -837,8 +874,8 @@ async function thumb(st, w, h, lock) {
   const ctx = c.getContext("2d");
   ad.stillAt(ctx);
   frame.appendChild(c); b.appendChild(frame);
-  const name = st.full ? fullName(st) : lookName(st), font = st.full ? "Full ad" : TYPE_VOICES[st.type_pair] ? TYPE_VOICES[st.type_pair].name + " type" : labelFor("font", st.font);
-  if (window.adLibrary) frame.appendChild(window.adLibrary.star("motion-" + st.seed, { name, save: () => saveLook(st.full ? { ...state.style, seed: st.seed, full_palette: st.full_colour } : { ...st, number: state.style.number, phones: state.style.phones }) }));
+  const name = st.full ? fullName(st) : lookName(st), font = (TYPE_VOICES[st.type_pair] ? TYPE_VOICES[st.type_pair].name + " type" : labelFor("font", st.font)) + (st.full ? " · Full ad" : "");
+  if (window.adLibrary) frame.appendChild(window.adLibrary.star("motion-" + st.seed, { name, save: () => saveLook({ ...look, number: state.style.number, phones: state.style.phones }) }));
   b.insertAdjacentHTML("beforeend", `<span class="mo-cap"><b>${name}</b><small>${font}${st.full ? "" : " · " + labelFor("hook", st.hook)}</small></span>`);
   b.setAttribute("aria-label", `Use this look: ${name}, ${font}`);
   const th = { el: b, st, w, h, ad: keepAds() ? ad : null, ctx, t0: 0, lastT: 0, last: 0, hover: false, seen: false, moving: false };
@@ -848,8 +885,7 @@ async function thumb(st, w, h, lock) {
   b.addEventListener("focus", () => hover(true)); b.addEventListener("blur", () => hover(false));
   b.addEventListener("click", () => {
     pushHistory();
-    if (st.full) { state.style = { ...state.style, seed: st.seed, full_palette: st.full_colour }; save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }   // a full ad's look is its number and its colours
-    state.style = { ...st, number: state.style.number, phones: state.style.phones };
+    state.style = { ...look, number: state.style.number, phones: state.style.phones };   // the look (a full ad wears it as drawn here)
     if (lock) { state.locked.add("vibe"); VIBE_AXES.forEach(a => state.locked.delete(a)); }   // New look stays in the shelf browsed
     save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" });
   });
@@ -935,15 +971,14 @@ function thumbLoop(now) {
   requestAnimationFrame(thumbLoop);
 }
 
-const FULL_MAX = 48;                                  // the full ad's gallery: this many looks of it, at most
-const galleryDone = () => state.full ? state.galleryShown >= FULL_MAX : (state.galleryCat || "all") === "all" ? state.galleryShelf >= SHELVES.length : state.galleryShown >= SHELF_MAX;
+// the same shelves in both modes: under Full ad each look is drawn as its full ad (owner, 2026-11-18: "for every single video, I want a photo ad equivalent")
+const galleryDone = () => (state.galleryCat || "all") === "all" ? state.galleryShelf >= SHELVES.length : state.galleryShown >= SHELF_MAX;
 const nearEnd = () => { const e = $("gallery-end"); return e && e.getBoundingClientRect().top < innerHeight + 600; };
 
 /** The button under the gallery says how many the next batch adds, and goes at the end. */
 function syncMore() {
   const b = $("more"), row = state.galleryRow || 4;
-  const next = state.full ? Math.min(12, FULL_MAX - state.galleryShown)
-    : (state.galleryCat || "all") === "all" ? Math.min(SHELVES.length - state.galleryShelf, Math.ceil(GALLERY_PAGE / row)) * row
+  const next = (state.galleryCat || "all") === "all" ? Math.min(SHELVES.length - state.galleryShelf, Math.ceil(GALLERY_PAGE / row)) * row
     : Math.min(GALLERY_PAGE, SHELF_MAX - state.galleryShown);
   b.hidden = galleryDone(); b.disabled = false; b.textContent = `Show ${next} more`;
 }
@@ -972,21 +1007,7 @@ async function renderGallery(reset) {
   const shown = () => { $("looks-count").textContent = `${thumbs.length} shown`; };
   let made = 0;
   try {
-    if (state.full) {
-      // the full ad's gallery: this ad in other colours and arrangements, one look a number
-      let grid = g.querySelector(".mo-gallery");
-      if (!grid) { grid = document.createElement("div"); grid.className = "mo-gallery"; g.appendChild(grid); }
-      for (let i = 0; i < 12 && state.galleryShown < FULL_MAX; i++) {
-        const base = (({ full_palette, ...rest }) => rest)(state.style), seed = state.gallerySeed++;
-        let b = null;
-        try { await ensureSubject(base); b = await thumb(fullOf({ ...base, seed }), Math.round(W * k), Math.round(H * k), false); }
-        catch (e) { console.warn("Full ad look " + seed + " skipped:", e); }
-        if (!live()) return;
-        if (b) { grid.appendChild(b); made++; shown(); }
-        state.galleryShown++;
-        await new Promise(r => setTimeout(r, 0));
-      }
-    } else if (cat === "all") {
+    if (cat === "all") {
       while (made < GALLERY_PAGE && state.galleryShelf < SHELVES.length) {
         const shelf = SHELVES[state.galleryShelf++];
         if (shelf.group !== state.galleryGroup) { state.galleryGroup = shelf.group; g.insertAdjacentHTML("beforeend", `<h3 class="mo-shelf-grp">${shelf.group}</h3>`); }
