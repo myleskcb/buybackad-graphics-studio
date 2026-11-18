@@ -134,6 +134,8 @@ function compose(r) {
   r.colour = r.colours ? matchPair(r.colours) : { match: false, why: 'not measured' };
   r.banned = r.error ? [] : bannedIn(r.words, r.cat);
   r.bannedIds = [...new Set(r.banned.map(b => b.id))];
+  r.bannedNoName = r.error || !r.wordsNoName ? [] : bannedIn(r.wordsNoName, r.cat);
+  r.bannedNoNameIds = [...new Set(r.bannedNoName.map(b => b.id))].filter(id => !r.bannedIds.includes(id));
   r.missing = r.error ? REQUIRED.slice() : REQUIRED.filter(k => !(r.el && r.el[k]));
   r.lacks = r.error ? ELEMENTS.slice() : ELEMENTS.filter(k => !(r.el && r.el[k]));
   const why = [];
@@ -141,9 +143,10 @@ function compose(r) {
   if (r.gen !== 'full') why.push('off the house engine (' + r.engine + ')');
   if (!r.colour.match) why.push('off the twelve pairs (' + r.colour.why + ')');
   if (r.bannedIds.length) why.push('banned: ' + r.bannedIds.join(', '));
+  if (r.bannedNoNameIds.length) why.push('banned with no business name typed: ' + r.bannedNoNameIds.join(', '));
   if (r.missing.length) why.push('lacks: ' + r.missing.map(k => ELEMENT_NAMES[k]).join(', '));
   r.gateWhy = why;
-  r.score = 2 * r.missing.length + 2 * r.bannedIds.length + (r.colour.match ? 0 : 1) + (r.pre && r.pre.ok === false ? 1 : 0) + (r.gen === 'full' ? 0 : 1);
+  r.score = 2 * r.missing.length + 2 * (r.bannedIds.length + r.bannedNoNameIds.length) + (r.colour.match ? 0 : 1) + (r.pre && r.pre.ok === false ? 1 : 0) + (r.gen === 'full' ? 0 : 1);
   return r;
 }
 
@@ -152,12 +155,13 @@ function summarise(rows) {
   for (const g of GENS) {
     const rs = rows.filter(r => r.gen === g); if (!rs.length) continue;
     const missingBy = Object.fromEntries(ELEMENTS.map(k => [k, rs.filter(r => r.lacks.includes(k)).length]));
-    const bannedBy = {}; rs.forEach(r => r.bannedIds.forEach(id => { bannedBy[id] = (bannedBy[id] || 0) + 1; }));
+    const bannedBy = {}; rs.forEach(r => [...new Set([...r.bannedIds, ...r.bannedNoNameIds])].forEach(id => { bannedBy[id] = (bannedBy[id] || 0) + 1; }));
     const pre = rs.filter(r => r.pre && r.pre.ok != null);
     const sh = rs.map(r => r.product && r.product.h).filter(v => v > 0).sort((a, b) => a - b);
     by[g] = { name: GEN_NAMES[g], engine: ENGINES[g], ads: rs.length, errors: rs.filter(r => r.error).length,
       offEngine: g === 'full' ? 0 : rs.length, offColours: rs.filter(r => !r.colour.match).length, onPhoto: rs.filter(r => r.colours && r.colours.groundKind === 'photo').length,
-      withBanned: rs.filter(r => r.bannedIds.length).length, bannedBy,
+      withBanned: rs.filter(r => r.bannedIds.length || r.bannedNoNameIds.length).length, bannedBy,
+      withBannedNoName: rs.some(r => r.wordsNoName) ? rs.filter(r => r.bannedNoName.length).length : null,
       lacking: rs.filter(r => r.missing.length).length, missingBy,
       preflight: pre.length ? { measured: pre.length, fail: pre.filter(r => !r.pre.ok).length } : null,
       productMedianH: sh.length ? +sh[sh.length >> 1].toFixed(3) : null, gateFail: rs.filter(r => r.gateWhy.length).length,
@@ -175,7 +179,8 @@ function page(census) {
     type: r.type ? (r.type.pair || 'own faces') : '', faces: r.type ? [r.type.display, r.type.support, r.type.number].filter(Boolean).filter((f, i, a) => a.indexOf(f) === i).join(' / ') : '',
     el: r.el || {}, lacks: r.lacks, missing: r.missing, foreign: (r.el && r.el.foreignTowns) || [],
     h: r.product ? r.product.h : null, a: r.product ? r.product.area : null, productKind: r.el ? r.el.productKind || '' : '',
-    banned: r.banned.map(b => ({ id: b.id, label: b.label, match: b.match, where: b.where })), bannedIds: r.bannedIds,
+    banned: r.banned.map(b => ({ id: b.id, label: b.label, match: b.match, where: b.where })), bannedIds: [...new Set([...r.bannedIds, ...r.bannedNoNameIds])],
+    bannedNoName: (r.bannedNoName || []).filter(b => r.bannedNoNameIds.includes(b.id)).map(b => ({ id: b.id, match: b.match, where: b.where })),
     pre: r.pre || null, words: (r.words || []).map(w => [w.where, w.text]), error: r.error || '', score: r.score, gateWhy: r.gateWhy,
   }));
   const data = JSON.stringify({ made: census.made, commit: census.commit, branch: census.branch, visitor: census.visitor, required: REQUIRED, elements: ELEMENTS, elementNames: ELEMENT_NAMES,
@@ -330,7 +335,8 @@ details li{overflow-wrap:anywhere}
       '<td>' + esc(r.type) + '<div class="small">' + esc(r.faces) + '</div></td>' +
       '<td>' + els(r) + '</td>' +
       '<td class="num">' + (r.h == null ? '<span class="small">' + esc(r.productKind || 'none') + '</span>' : pct(r.h) + ' high<div class="small">' + pct(r.a) + ' of the area</div>') + '</td>' +
-      '<td>' + (r.banned.length ? r.banned.map(function (b) { return '<span class="tag bad" title="' + esc(b.where) + '">' + esc(b.match) + '</span>'; }).join('') : '<span class="tag good">none</span>') + words + '</td>' +
+      '<td>' + (r.banned.length ? r.banned.map(function (b) { return '<span class="tag bad" title="' + esc(b.where) + '">' + esc(b.match) + '</span>'; }).join('') : r.bannedNoName.length ? '' : '<span class="tag good">none</span>') +
+        (r.bannedNoName.length ? '<div class="small">with no business name typed:</div>' + r.bannedNoName.map(function (b) { return '<span class="tag bad" title="' + esc(b.where) + '">' + esc(b.match) + '</span>'; }).join('') : '') + words + '</td>' +
       '<td>' + pre + '</td>' +
       '<td class="num">' + r.score + '</td></tr>';
   }
@@ -520,7 +526,7 @@ function STUDIO() {
     const read = cz.readScene(sc, t), cnv = sc.lowerCanvasEl, W = cnv.width, H = cnv.height;
     const data = cnv.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, W, H).data;
     const out = { words: read.words, el: read.el, type: read.type, colours: cz.colours(data, W, H, read.products, read.photo), product: cz.share(read.products, W, H), thumb: cz.thumb(cnv),
-      pre: r && !r.error ? { kind: 'pgCheck', ok: !!r.ok, fixes: r.fails.length, notes: r.warns.length, says: r.fails.map(f => { try { return pgExplain(f); } catch (e) { return f.code; } }).concat(r.warns.map(f => 'warning: ' + f.code + (f.line ? ' (' + f.line + ')' : ''))), picture: r.picture || null } : { kind: 'pgCheck', error: r && r.error } };
+      pre: r && !r.error ? { kind: 'pgCheck', ok: !!r.ok, fixes: r.fails.length, notes: r.warns.length, says: r.fails.map(f => { let t = f.code; try { t = pgExplain(f); } catch (e) { } return t + (f.value != null ? ' (' + f.value + (f.need != null ? ', needs ' + f.need : '') + ')' : ''); }).concat(r.warns.map(f => 'warning: ' + f.code + (f.line ? ' (' + f.line + (f.value != null ? ' ' + f.value : '') + ')' : ''))), picture: r.picture || null } : { kind: 'pgCheck', error: r && r.error } };
     sc.dispose();
     return out;
   };
@@ -575,12 +581,25 @@ function STUDIO() {
       claims: !!(R['selling points'] || (R.claim && up(st.feed_claim) !== up(V.biz))), sticker: !!R.sticker, website: !!(R.footer && st.feed_site),
       left: F.left.slice(),
     };
+    /* the same ad for a visitor who leaves the business name empty, as most will (it is optional):
+       the claim badge then draws from the full ad's own list, and the sticker's word is chosen
+       against the claim, so both can change */
+    let wordsNoName = [];
+    FA.biz = '';
+    try {
+      const b2 = await FullAdStudio.build(1080, FORMATS.square), s2 = b2.st, R2 = b2.ad.full.rects, put2 = (where, text) => { if (text && /[A-Za-z0-9$#]/.test(text)) wordsNoName.push({ where, text: String(text).replace(/\s+/g, ' ').trim() }); };
+      if (R2.claim) put2('claim', s2.feed_claim);
+      if (R2.line) put2('line under it', s2.feed_line || s2.tag);
+      if (R2['selling points']) put2('selling points', s2.points);
+      if (R2.sticker) put2('sticker', s2.feed_burst);
+    } catch (e) { wordsNoName = null; }
+    FA.biz = V.biz;
     const vName = st.full_pair && CAT.TYPE_VOICES[st.type_pair] ? CAT.TYPE_VOICES[st.type_pair].name + ' pair' : 'House face';
     const face = k => (CAT.FONTS[k] || [k])[0];
     const type = { pair: vName, display: face(st.font), support: face(st.full_pair && CAT.TYPE_VOICES[st.type_pair] ? CAT.TYPE_VOICES[st.type_pair].label : 'franklin'), number: face(st.number_font === 'same' ? st.font : st.number_font) };
     const data = frame.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, W, H).data;
     const pairName = (M.COLOUR_OF[st.full_colour] || {}).name || st.full_colour;
-    return { words, el, type, colours: cz.colours(data, W, H, boxes, photo), declared: pairName, declaredKey: st.full_colour, product: cz.share(boxes, W, H), thumb: cz.thumb(frame),
+    return { words, wordsNoName, el, type, colours: cz.colours(data, W, H, boxes, photo), declared: pairName, declaredKey: st.full_colour, product: cz.share(boxes, W, H), thumb: cz.thumb(frame),
       pre: { kind: 'fullPreflight', ok: !!pre.ok, fixes: pre.findings.filter(f => f.level === 'fix').length, notes: pre.findings.filter(f => f.level === 'note').length, says: pre.findings.map(f => (f.level === 'fix' ? 'fix: ' : 'note: ') + f.say) } };
   };
   /** The words the generations write when the visitor writes none: the lists themselves. */
@@ -588,10 +607,10 @@ function STUDIO() {
     const M = await import('/motion/fullad.js'), CAT = await import('/motion/catalog.js'), subjects = FullAdStudio.lines();
     const strings = (o, where, out = []) => { if (typeof o === 'string') out.push({ where, text: o }); else if (Array.isArray(o)) o.forEach(x => strings(x, where, out)); else if (o && typeof o === 'object') Object.entries(o).forEach(([k, v]) => strings(v, where ? where + ' ' + k : k, out)); return out; };
     let feedCards = []; try { const j = await fetch('/tools/feed-stills/cards.json').then(r => r.json()); feedCards = j.cards || j; } catch (e) { }
-    const out = [{ name: 'The full ad\'s default words (FULL_WORDS)', file: 'motion/fullad.js', lines: Object.entries(M.FULL_WORDS).flatMap(([k, v]) => v.map(t => ({ where: k, text: t }))) },
-      { name: 'The full ad\'s 35 lines: headlines, models, points', file: 'motion/subjects.json (from offer-library.js LINES)', lines: subjects.flatMap(s => [...(s.heads || []).map(h => ({ where: s.key + ' headline', text: h })), { where: s.key + ' models', text: s.models || '' }, ...(Array.isArray(s.points) ? s.points : String(s.points || '').split(',')).map(p => ({ where: s.key + ' point', text: p }))]) },
-      { name: 'The video maker\'s words (COPY and HEADLINES), which Any look draws from', file: 'motion/catalog.js', lines: [...strings(CAT.COPY, ''), ...strings(CAT.HEADLINES, 'headline')] },
-      { name: 'iPhones LA\'s FeedAd cards: the words each still carries', file: 'tools/feed-stills/cards.json', lines: feedCards.flatMap(c => ['claim', 'headline', 'line', 'points', 'cta', 'where'].filter(k => c[k]).map(k => ({ where: (c.id || '') + ' ' + k, text: String(c[k]) }))) }];
+    const out = [{ name: 'The full ad\'s default words (FULL_WORDS)', file: 'motion/fullad.js', cat: 'phones', lines: Object.entries(M.FULL_WORDS).flatMap(([k, v]) => v.map(t => ({ where: k, text: t }))) },
+      { name: 'The full ad\'s 35 lines: headlines, models, points', file: 'motion/subjects.json (from offer-library.js LINES)', cat: '', lines: subjects.flatMap(s => [...(s.heads || []).map(h => ({ where: s.key + ' headline', text: h })), { where: s.key + ' models', text: s.models || '' }, ...(Array.isArray(s.points) ? s.points : String(s.points || '').split(',')).map(p => ({ where: s.key + ' point', text: p }))]) },
+      { name: 'The video maker\'s words (COPY and HEADLINES), which Any look draws from', file: 'motion/catalog.js', cat: 'phones', lines: [...strings(CAT.COPY, ''), ...strings(CAT.HEADLINES, 'headline')] },
+      { name: 'iPhones LA\'s FeedAd cards: the words each still carries', file: 'tools/feed-stills/cards.json', cat: 'phones', lines: feedCards.flatMap(c => ['claim', 'headline', 'line', 'points', 'cta', 'where'].filter(k => c[k]).map(k => ({ where: (c.id || '') + ' ' + k, text: String(c[k]) }))) }];
     return out;
   };
 }
@@ -664,7 +683,14 @@ function FEED() {
   cz.feed = async (row, url) => {
     const { eng, M, CAT, assets } = cz._feed, st = row.style;
     await eng.loadFonts([...eng.fontsFor(st), 'franklin']);
-    const ad = new M.FeedAd(st, assets, 1080, 1080), why = M.blockers(ad, st);
+    /* FeedAd's own verdict, made the way its generator makes it (tools/feed-stills/harness.js look()):
+       blockers() on the 540 plan, then the maker's audit's required checks. blockers() read on a
+       1080 layout reports overlaps the delivered picture does not have (its boxes are the plan's) */
+    const AUD = await import('/motion/audit.js');
+    const plan = new M.FeedAd(st, assets, 540, 540), why = M.blockers(plan, st);
+    try { const audit = await AUD.auditLook(st, assets, { AdClass: M.FeedAd, size: 240, secs: 3.4, sound: false }); for (const c of audit.checks) if (M.REQUIRED.includes(c.id) && !c.ok) why.push(c.label + ': ' + c.value); }
+    catch (e) { why.push('the audit did not run: ' + String(e).slice(0, 80)); }
+    const ad = new M.FeedAd(st, assets, 1080, 1080);
     const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => no(new Error('no picture at ' + url)); i.src = url; });
     const cnv = document.createElement('canvas'); cnv.width = img.naturalWidth; cnv.height = img.naturalHeight; cnv.getContext('2d').drawImage(img, 0, 0);
     const k = cnv.width / ad.W;
@@ -683,7 +709,7 @@ function FEED() {
     const type = { pair: voice ? voice.name + ' pair' : '', display: face(st.font), support: voice ? face(voice.label) : '', number: face(st.number_font === 'same' ? st.font : st.number_font) };
     const data = cnv.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, cnv.width, cnv.height).data;
     return { words, el, type, colours: cz.colours(data, cnv.width, cnv.height, boxes, false), declared: st.palette + ' · ' + st.background, product: cz.share(boxes, cnv.width, cnv.height), thumb: cz.thumb(cnv),
-      pre: { kind: 'FeedAd blockers', ok: !why.length && row.ok !== false, fixes: why.length, notes: 0, says: why } };
+      pre: { kind: 'FeedAd blockers and audit', ok: !why.length && row.ok !== false, fixes: why.length, notes: 0, says: why } };
   };
 }
 
@@ -831,7 +857,7 @@ function finish(c) {
   c.rows.forEach(compose);
   c.rows.sort((a, b) => GENS.indexOf(a.gen) - GENS.indexOf(b.gen) || String(a.cat).localeCompare(String(b.cat)) || a.id.localeCompare(b.id));
   c.summary = summarise(c.rows);
-  c.sources = (c.rawSources || []).map(s => ({ name: s.name, file: s.file, found: bannedIn(s.lines, 'phones').map(f => ({ label: f.label, text: f.where + ': ' + f.text })) }));
+  c.sources = (c.rawSources || []).map(s => ({ name: s.name, file: s.file, found: bannedIn(s.lines, s.cat == null ? 'phones' : s.cat).map(f => ({ label: f.label, text: f.where + ': ' + f.text })) }));
   const full = c.rows.filter(r => r.gen === 'full' && r.colours && r.declaredKey);
   const own = full.map(r => { const p = PAIRS.find(x => x.key === r.declaredKey); return p ? { dG: dE(hexLab(r.colours.ground), p.g), dA: r.colours.accent ? dE(hexLab(r.colours.accent), p.a) : 99, nearest: r.colour.nearest === p.key } : null; }).filter(Boolean);
   c.calibration = own.length ? { groundMax: PAIR_GROUND, accentMax: PAIR_ACCENT, fullGround: +Math.max(...own.map(x => x.dG)).toFixed(1), fullAccent: +Math.max(...own.map(x => x.dA)).toFixed(1), fullNearestOwn: own.filter(x => x.nearest).length, full: own.length } : null;
@@ -847,6 +873,7 @@ function report(c) {
     const ban = Object.entries(s.bannedBy).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(', ');
     console.log(`  ${s.name}: lacks ${miss || 'nothing'}${ban ? '; banned ' + ban : ''}${s.foreignTowns ? '; prints Long Beach towns to a San Diego visitor ' + s.foreignTowns : ''}`);
   }
+  for (const s of Object.values(S)) if (s.withBannedNoName != null) console.log(`  ${s.name}, for a visitor who types no business name: ${s.withBannedNoName} of ${s.ads} carry a banned phrase`);
   if (c.calibration) console.log(`calibration: the ${c.calibration.full} full ads measure within ${c.calibration.fullGround} (ground) and ${c.calibration.fullAccent} (accent) of their own pair; ${c.calibration.fullNearestOwn} of them have it as the nearest`);
   for (const s of c.sources) console.log(`source: ${s.name}: ${s.found.length ? s.found.map(f => f.label + ' (' + f.text + ')').slice(0, 8).join('; ') : 'nothing banned'}`);
   console.log('\nworst offenders:');
@@ -878,6 +905,7 @@ console.log(`\nwrote ${JSON_OUT} and ${HTML_OUT}${C.minutes ? ` (${C.minutes} mi
 if (GATE) {
   const bad = C.rows.filter(r => r.gateWhy.length);
   console.log(`\ngate: ${bad.length} of ${C.rows.length} offered ads fail (${Object.values(C.summary).map(s => s.name + ' ' + s.gateFail + ' of ' + s.ads).join(', ')})`);
+  for (const s of Object.values(C.summary)) console.log(`  ${s.name}: off the house engine ${s.offEngine}, off the twelve pairs ${s.offColours}, a banned phrase ${s.withBanned}, a required element missing ${s.lacking}${s.errors ? ', did not open ' + s.errors : ''}`);
   process.exit(bad.length ? 1 : 0);
 }
 process.exit(0);
