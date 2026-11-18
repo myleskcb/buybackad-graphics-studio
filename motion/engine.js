@@ -8,7 +8,8 @@ import { AUDIENCES, GENERAL } from "./audiences.js";
 import { pickVoice, voiceFits } from "./voices.js";
 import { placeAccents, drawAccents, timeAccents } from "./accents.js";
 import { vibeBackground, candidateGround, themeGround, freshGround, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
-  drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse } from "./decor.js";
+  drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse,
+  drawSticker, pairGradientGround, fillGradient } from "./decor.js";
 
 // ------------------------------------------------------------ small tools
 
@@ -2201,7 +2202,7 @@ function ctaBadge(text, size, hot, face = "oswald") {
  *  (the photo ads' stack, DESIGN-LAW 115 and 120: one rhythm down the stack, and the strip
  *  wears the CTA's colour). rows: each chip's slice of the sprite, shadow included, cut on
  *  the middle of the gaps so a chip drawn on its own never repeats a neighbour's shadow. */
-export function perksSprite(items, fs, hot, align, row = false, face = "oswald") {
+export function perksSprite(items, fs, hot, align, row = false, face = "oswald", grad = false) {
   const ink = contrastOf(hot, "#111111") >= contrastOf(hot, "#ffffff") ? "#111111" : "#ffffff";
   const P = { ink, accent: ink, ground: hot, plate: hot, plate_ink: ink };
   const sps = items.map(s => inkSprite(s, s.split("").map(() => ink), face, fs, .04, "flat", P, 0));
@@ -2219,7 +2220,7 @@ export function perksSprite(items, fs, hot, align, row = false, face = "oswald")
     const rx = row ? cx : pad + (align === "r" ? cw - w : align === "c" ? (cw - w) / 2 : 0), ry = row ? pad : pad + i * (h + gap);
     cx += w + gap;
     x.save(); x.shadowColor = "rgba(0,0,0,.32)"; x.shadowBlur = fs * .35; x.shadowOffsetY = fs * .1;
-    rrect(x, rx, ry, w, h, h / 2); x.fillStyle = hot; x.fill(); x.restore();
+    rrect(x, rx, ry, w, h, h / 2); x.fillStyle = grad ? fillGradient(x, 0, ry, 0, ry + h, hot, ink, 4.5) : hot; x.fill(); x.restore();
     const tx = rx + px, ty = ry + h / 2;
     x.save(); x.strokeStyle = ink; x.lineWidth = fs * .14; x.lineCap = "round"; x.lineJoin = "round";
     x.beginPath(); x.moveTo(tx + tick * .04, ty + tick * .02); x.lineTo(tx + tick * .37, ty + tick * .33); x.lineTo(tx + tick * .96, ty - tick * .34); x.stroke(); x.restore();
@@ -2278,7 +2279,7 @@ export function numberSprite(st, p, size, cta) {
     x.translate(6 * sk, 6 * sk);
     x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 14 * sk; x.shadowOffsetY = 6 * sk;
     x.beginPath(); x.moveTo(3 + H * .45, 3); x.lineTo(3 + W, 3); x.lineTo(3 + W, 3 + H); x.lineTo(3 + H * .45, 3 + H); x.lineTo(3, 3 + H / 2); x.closePath();
-    x.fillStyle = p.plate; x.fill(); x.restore();
+    x.fillStyle = st.plate_grad ? fillGradient(x, 0, 3, 0, 3 + H, p.plate, col, 3.5) : p.plate; x.fill(); x.restore();
     x.beginPath(); x.arc(3 + hole, 3 + H / 2, holeR, 0, 7); x.fillStyle = p.ground; x.fill();
     // the figures' ink centred on the plate: baseline at the middle plus half their height
     const base = 3 + H / 2 + (up - down) / 2;
@@ -2288,6 +2289,9 @@ export function numberSprite(st, p, size, cta) {
     const px = size * .45, py = size * .14;
     const W = sp.inkW + px * 2, H = sp.asc * .95 + py * 2;
     const c = canvas(W + 24 * sk, H + 24 * sk), x = c.getContext("2d");
+    // a plate lit from above where the look asks for it (plate_grad, spec/full-styles.json): the same
+    // hue lighter at the top and deeper at the foot, the figures still 3.5:1 on both
+    const plateFill = (y0, y1) => st.plate_grad ? fillGradient(x, 0, y0, 0, y1, p.plate, col, 3.5) : p.plate;
     x.translate(6 * sk, 6 * sk);
     const r = style === "pill" ? H / 2 : size * .1;
     if (style === "outline") {
@@ -2295,7 +2299,7 @@ export function numberSprite(st, p, size, cta) {
     } else {
       x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 14 * sk; x.shadowOffsetY = 6 * sk;
       if (style === "ticket") {
-        rrect(x, 3, 3, W, H, size * .06); x.fillStyle = p.plate; x.fill(); x.restore();
+        rrect(x, 3, 3, W, H, size * .06); x.fillStyle = plateFill(3, 3 + H); x.fill(); x.restore();
         x.globalCompositeOperation = "destination-out";
         [3, 3 + W].forEach(cx => { x.beginPath(); x.arc(cx, 3 + H / 2, H * .18, 0, 7); x.fill(); });
         x.globalCompositeOperation = "source-over";
@@ -2303,10 +2307,10 @@ export function numberSprite(st, p, size, cta) {
         x.beginPath(); x.moveTo(3 + W * .06, 3 + H * .14); x.lineTo(3 + W * .06, 3 + H * .86); x.stroke(); x.setLineDash([]);
       } else if (style === "tag") {
         x.beginPath(); x.moveTo(3 + H * .45, 3); x.lineTo(3 + W, 3); x.lineTo(3 + W, 3 + H); x.lineTo(3 + H * .45, 3 + H); x.lineTo(3, 3 + H / 2); x.closePath();
-        x.fillStyle = p.plate; x.fill(); x.restore();
+        x.fillStyle = plateFill(3, 3 + H); x.fill(); x.restore();
         x.beginPath(); x.arc(3 + H * .45, 3 + H / 2, H * .09, 0, 7); x.fillStyle = p.ground; x.fill();
       } else {
-        rrect(x, 3, 3, W, H, r); x.fillStyle = p.plate; x.fill(); x.restore();
+        rrect(x, 3, 3, W, H, r); x.fillStyle = plateFill(3, 3 + H); x.fill(); x.restore();
       }
     }
     x.drawImage(sp.c, 3 + px - sp.pad + (style === "tag" ? H * .2 : 0), 3 + py - sp.pad - sp.asc * .03);
@@ -2359,7 +2363,7 @@ function background(st, p, W, H, sc, r) {
   const [cx, cy] = sc;
   const radial = (k = .75) => { const gr = x.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(W, H) * k); gr.addColorStop(0, l); gr.addColorStop(1, g); return gr; };
   x.fillStyle = g; x.fillRect(0, 0, W, H);
-  if (candidateGround(st.background, x, st, p, W, H, sc, r) || freshGround(st.background, x, st, p, W, H, sc, r) || themeGround(st.background, x, st, p, W, H, sc, r) || vibeBackground(st.background, x, st, p, W, H, sc, r)) {
+  if (pairGradientGround(st.background, x, st, p, W, H, sc, r) || candidateGround(st.background, x, st, p, W, H, sc, r) || freshGround(st.background, x, st, p, W, H, sc, r) || themeGround(st.background, x, st, p, W, H, sc, r) || vibeBackground(st.background, x, st, p, W, H, sc, r)) {
     const vg0 = x.createRadialGradient(cx, cy, Math.hypot(W, H) * .35, cx, cy, Math.hypot(W, H) * .8);
     vg0.addColorStop(0, "rgba(0,0,0,0)"); vg0.addColorStop(1, "rgba(0,0,0,.2)"); x.fillStyle = vg0; x.fillRect(0, 0, W, H);
     if (st.grain) { const nc = noiseTile(256, st.seed, 12); x.globalAlpha = .3; x.fillStyle = x.createPattern(nc, "repeat"); x.fillRect(0, 0, W, H); x.globalAlpha = 1; }
@@ -4268,7 +4272,9 @@ export class Ad {
   /** The starburst, the arrows at the number, the rubber stamp and the caution tape. */
   _urgency(ctx, t) {
     const st = this.st, tl = this.tl;
-    if (this.burst) drawStarburst(ctx, this.burst.x, this.burst.y, this.burst.R, applyCase(this.burst.text, "upper"), this.burst.fill, this.burst.ink, t, this.burst.t0, this.burst.font);
+    // the sticker's shape and fill (spec/full-styles.json: the full ad draws one of seven; a look that names
+    // none keeps the starburst, as Any look always has)
+    if (this.burst) drawSticker(ctx, st.sticker_shape || "starburst", this.burst.x, this.burst.y, this.burst.R, applyCase(this.burst.text, "upper"), this.burst.fill, this.burst.ink, t, this.burst.t0, this.burst.font, !!st.sticker_grad);
     if (this.arrow) drawNeonArrow(ctx, this.arrow.from, this.arrow.to, this.arrow.color, t, this.arrow.t0, this.size);
     if (st.urgency === "arrows" && this.arrowsMode) drawChevrons(ctx, this.numBox, this.size, this.hot, t, tl.number + .3, this.W, this.arrowsMode);
     if (this.stamp) drawStamp(ctx, this.stamp.S, this.stamp.x, this.stamp.y, t, this.stamp.t0);

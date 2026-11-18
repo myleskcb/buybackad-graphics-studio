@@ -16,7 +16,8 @@
 import { Ad, inkSprite, splitLines, trim, canvas, lum, prog, outBack, rng, clamp, contrastOf, fontCss, applyCase, labelFont, burstFontFor,
   headlineLines, numberSprite, perksSprite, pointsOf, randomize, harmonise, formatNumber, oklchOf } from "./engine.js";
 import { FONTS, FINE_FACES, PALETTES, DEFAULT_STYLE, TYPE_VOICES, DEFAULT_PHONES } from "./catalog.js";
-import { drawChevrons } from "./decor.js";
+import { drawChevrons, fillGradient } from "./decor.js";
+import { FULL_STYLES, pickFullStyles } from "./full-styles.js";
 import { placeAccents, timeAccents } from "./accents.js";
 import { HOUSE_COLOURS, LINES } from "./house-colours.js";
 import { FULL_VOICES } from "./full-voices.js";
@@ -550,17 +551,47 @@ function footRow(text, px, color, family, weight, pinFill) {
  *  4px of its lower edge while 22px stood clear above (review, 2026-11-12; DESIGN-LAW 58: copy is
  *  never touched by a plate's edge). Returns the sprite, the margin its shadow takes round the
  *  pill, and the pill's own size. */
-function numberPill(text, size, font, p) {
-  const col = contrastOf(p.plate_ink, p.plate) >= 3.5 ? p.plate_ink : (lum(p.plate) > .5 ? "#111111" : "#ffffff");
+function numberPill(text, size, font, p, style = "pill", grad = false, bare = p.ink) {
+  /* the number's treatment (spec/full-styles.json, 2026-11-18: "all of the CTA still look a little too
+     common and similar"): a pill, a box, a ticket with its notches, a swing tag with its hole, or no
+     plate at all and a bar of the accent under the figures, in the lines' own ink (bare) with their
+     soft shadow; any plate may be lit from above (grad). The figures keep their clear margin on
+     every one (DESIGN-LAW 58). */
+  const plate = style !== "underline";
+  const col = plate ? (contrastOf(p.plate_ink, p.plate) >= 3.5 ? p.plate_ink : (lum(p.plate) > .5 ? "#111111" : "#ffffff")) : bare;
   const P = { ...p, ink: col, accent: col };
-  const ink = trim(inkSprite(text, [...text].map(() => col), font, size, 0, "flat", P, 0).c);
-  const padX = size * .5, padY = Math.max(size * .17, ink.height * .19), w = Math.ceil(ink.width + padX * 2), h = Math.ceil(ink.height + padY * 2);
+  const ink = trim(inkSprite(text, [...text].map(() => col), font, size, 0, plate || lum(col) < .5 ? "flat" : "shadow", P, 0).c);
+  const padX = size * .5, padY = Math.max(size * .17, ink.height * .19), h = Math.ceil(ink.height + padY * 2);
+  const extra = style === "tag" ? h * .55 : style === "ticket" ? h * .3 : 0, w = Math.ceil(ink.width + padX * 2 + extra);
   const sk = Math.max(.2, size / 96), m = Math.ceil(16 * sk);
   const c = canvas(w + m * 2, h + m * 2), x = c.getContext("2d");
+  if (!plate) {
+    const bar = Math.max(4, size * .09); let acc = p.accent; if (Math.abs(lum(acc) - lum(p.ground)) < .15) acc = col;
+    x.drawImage(ink, m + (w - ink.width) / 2, m + (h - ink.height) / 2 - bar * .35);
+    x.beginPath(); x.roundRect(m + (w - ink.width) / 2, m + h - bar * 1.15, ink.width, bar, bar / 2); x.fillStyle = acc; x.fill();
+    return { c, pad: m, w, h, inkH: ink.height, plate: false, bar: acc };   // the bar is the number's own mark: the pre-flight sets it aside
+  }
+  const fill = grad ? fillGradient(x, 0, m, 0, m + h, p.plate, col, 3.5) : p.plate;
   x.save(); x.shadowColor = "rgba(0,0,0,.32)"; x.shadowBlur = 11 * sk; x.shadowOffsetY = 4 * sk;
-  x.beginPath(); x.roundRect(m, m, w, h, h / 2); x.fillStyle = p.plate; x.fill(); x.restore();
-  x.drawImage(ink, m + (w - ink.width) / 2, m + (h - ink.height) / 2);
-  return { c, pad: m, w, h, inkH: ink.height };
+  x.beginPath();
+  if (style === "box") x.roundRect(m, m, w, h, h * .2);
+  else if (style === "ticket") x.roundRect(m, m, w, h, h * .12);
+  else if (style === "tag") {
+    const pt = h * .45, rr = h * .12;
+    x.moveTo(m + pt, m); x.lineTo(m + w - rr, m); x.quadraticCurveTo(m + w, m, m + w, m + rr); x.lineTo(m + w, m + h - rr);
+    x.quadraticCurveTo(m + w, m + h, m + w - rr, m + h); x.lineTo(m + pt, m + h); x.lineTo(m, m + h / 2); x.closePath();
+  } else x.roundRect(m, m, w, h, h / 2);
+  x.fillStyle = fill; x.fill(); x.restore();
+  if (style === "ticket") {
+    x.save(); x.globalCompositeOperation = "destination-out";
+    [m, m + w].forEach(cx => { x.beginPath(); x.arc(cx, m + h / 2, h * .16, 0, 7); x.fill(); }); x.restore();
+    x.setLineDash([h * .07, h * .07]); x.strokeStyle = rgba(col, .55); x.lineWidth = Math.max(1.5, h * .035);
+    x.beginPath(); x.moveTo(m + h * .36, m + h * .2); x.lineTo(m + h * .36, m + h * .8); x.stroke(); x.setLineDash([]);
+  }
+  if (style === "tag") { x.save(); x.globalCompositeOperation = "destination-out"; x.beginPath(); x.arc(m + h * .3, m + h / 2, h * .085, 0, 7); x.fill(); x.restore(); }
+  const shift = style === "tag" ? h * .275 : style === "ticket" ? h * .15 : 0;
+  x.drawImage(ink, m + (w - ink.width) / 2 + shift, m + (h - ink.height) / 2);
+  return { c, pad: m, w, h, inkH: ink.height, plate: true };
 }
 
 const stackRows = (rows, gap) => {
@@ -833,7 +864,7 @@ export class FullAd extends Ad {
       const pmin = Math.floor(U * FULL.claimMin);
       for (let px = Math.round(U * FULL.claim); ; px = Math.max(pmin, Math.floor(px * .94))) {
         const row = footRow(text, px, inkc, cf, cw), h = Math.round(px * 1.7), w = Math.round(row.width + px * 1.5);
-        if (w <= colW) { const c = canvas(w, h), x = c.getContext("2d"); x.fillStyle = fill; x.beginPath(); x.roundRect(0, 0, w, h, h / 2); x.fill(); x.drawImage(row, (w - row.width) / 2, (h - row.height) / 2); claim = { c, fill, ink: inkc, px }; break; }
+        if (w <= colW) { const c = canvas(w, h), x = c.getContext("2d"); x.fillStyle = st.plate_grad ? fillGradient(x, 0, 0, 0, h, fill, inkc, 4.5) : fill; x.beginPath(); x.roundRect(0, 0, w, h, h / 2); x.fill(); x.drawImage(row, (w - row.width) / 2, (h - row.height) / 2); claim = { c, fill, ink: inkc, px }; break; }
         if (px <= pmin) break;
       }
       if (!claim) F.left.push("claim");
@@ -846,10 +877,18 @@ export class FullAd extends Ad {
     // the number: its pill a fixed share of the column, the chevrons either side of it
     const numText = formatNumber(st.number, st.number_format) || "YOUR NUMBER";
     let numFont = st.number_font === "same" ? st.font : st.number_font; if (FINE_FACES.has(numFont) || !FONTS[numFont]) numFont = pair ? pair.label : "oswald";
-    const numFor = z => { const n = numberPill(numText, z, numFont, p); return { ...n, text: numText, label: null }; };
+    const numFor = z => { const n = numberPill(numText, z, numFont, p, st.number_style, !!st.plate_grad, ph.ink); return { ...n, text: numText, label: null }; };
     let nz = U * .09, num = numFor(nz);
     nz *= Math.min(colW * FULL.pill / num.w, U * FULL.number / nz); num = numFor(nz);
     for (let k = 0; k < 4 && num.w > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.w; num = numFor(nz); }
+    // a plate whose shape costs width (the tag's point and hole, the ticket's stub) can set the figures of a
+    // long number in a wide face under their floor (fullBlockers' .07 U; the pixel pair did, 2026-11-18):
+    // that number is drawn on the pill instead, plated as before
+    if ((st.number_style === "tag" || st.number_style === "ticket") && nz < U * .07) {
+      st.number_style = "pill"; nz = U * .09; num = numFor(nz);
+      nz *= Math.min(colW * FULL.pill / num.w, U * FULL.number / nz); num = numFor(nz);
+      for (let k = 0; k < 4 && num.w > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.w; num = numFor(nz); }
+    }
     if (labB) num = { ...num, label: labB.c };
     // the footer: the towns after a pin, over the website
     const where = (st.feed_where || "").replace(/^\s*\p{Extended_Pictographic}️?\s*/u, "").trim().toUpperCase(), site = (st.feed_site || "").trim();
@@ -946,7 +985,7 @@ export class FullAd extends Ad {
       for (const [n, row] of shapes) {
         if (n > items.length || n < 1) continue;
         for (let fs = U * FULL.chip; ; fs = Math.max(U * FULL.chipMin, fs * .95)) {
-          const key = `${n}|${row}|${align}|${fs.toFixed(2)}`, q = (this._chipCache ||= new Map()).get(key) || this._chipCache.set(key, perksSprite(items.slice(0, n), fs, this.hot, align, row, face)).get(key);
+          const key = `${n}|${row}|${align}|${fs.toFixed(2)}`, q = (this._chipCache ||= new Map()).get(key) || this._chipCache.set(key, perksSprite(items.slice(0, n), fs, this.hot, align, row, face, !!this.st.plate_grad)).get(key);
           if (q.w <= maxW && q.h <= maxH) return { q, fs, n, row };
           if (fs <= U * FULL.chipMin) break;
         }
@@ -1051,6 +1090,7 @@ export class FullAd extends Ad {
     if (labB) { const r = put("call to action", labB.c); labXY = [r[0], r[1]]; y += g * gLab + stretch; }
     // the pill is what is spaced and measured; its sprite carries the shadow's margin round it
     const nr = R.number = [mid - num.w / 2, y, mid + num.w / 2, y + num.h], nxy = [nr[0] - num.pad, nr[1] - num.pad]; y += num.h;
+    F.numBar = num.bar || "";                              // a number with no plate: its bar, for the pre-flight
     let footXY = null;
     if (foot) { y += g * gFoot + stretch; const r = put("footer", foot.c); footXY = [r[0], r[1]]; }
     F.band = [cx0, bandTop, cx1, bandBot]; F.mode = S.mode;
@@ -1424,6 +1464,20 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   if (st.ground_photo && st.ground_photo.src) { look.background = "photo"; look.ground_photo = { ...st.ground_photo }; }
   else if (!("background" in picked)) { const gd = groundFor(st.subject, seed, key, productFor(st.subject, have)); if (gd) Object.assign(look, gd); else delete look.ground_photo; }
   if (look.ground_photo) loadGroundPhoto(look.ground_photo.src).catch(() => {});
+  /* THE LOOK'S STYLES (spec/full-styles.json, motion/full-styles.js; the owner, 2026-11-18: "notice how
+     it's all same spiky circle?", "no variety in the text pure outlines?", "don't see any gradients
+     really?"): the sticker's shape and fill, the headline's treatment (and the shade round its words)
+     and entrance, the number's treatment and the plates' fill, drawn on a stream of the seed's own,
+     so the colours, ground, product and words it drew do not move. Where a style was picked by hand
+     (pick, or a key the maker holds, keep, when it is one of the table's own) that one is drawn, and a
+     treatment picked by hand keeps the engine's own shade. They stand after QUIET (HOUSE's treatment,
+     number and entrance are the fallback of a look made before them). */
+  const kept = new Set(keep), own = { sticker_shape: FULL_STYLES.sticker, text_fx: FULL_STYLES.headline, text_in: FULL_STYLES.entrance, number_style: FULL_STYLES.number };
+  const held = k => kept.has(k) && st[k] != null && (!own[k] || own[k].some(e => e.key === st[k]));
+  const styles = pickFullStyles(rng(((seed >>> 0) ^ 0x51ed27f3) * 13 + lineTurn(st.subject, 99991) + 5),
+    { dark: oklchOf(COLOUR_OF[key].colors.ground).L < .56, busy: !GROUNDS.includes(look.background) });
+  if ("text_fx" in picked || held("text_fx")) delete styles.scrim;
+  for (const [k, v] of Object.entries(styles)) if (!(k in picked)) look[k] = held(k) ? st[k] : v;
   const area = (st.area || "").trim();
   // What the customer left empty is filled from the lists, each line chosen so that it does not
   // repeat a promise the lines before it already make (the customer's own words are never changed:
@@ -1625,14 +1679,15 @@ export function fullPreflight(ad, frame) {
   // a pill's box holds its round ends, where the ground shows: the words are measured on the pill's straight middle
   const inPill = r => { const h = r[3] - r[1]; return [r[0] + h * .5, r[1] + h * .14, r[2] - h * .5, r[3] - h * .14]; };
   const ink = ad.pHead.ink, plateInk = contrastOf(ad.p.plate_ink, ad.p.plate) >= 3.5 ? ad.p.plate_ink : (lum(ad.p.plate) > .5 ? "#111111" : "#ffffff");
+  const numInk = ad.st.number_style === "underline" ? ink : plateInk;   // a number with no plate stands on the ground in the ink
   const lines = [["line", "the line under the headline", ink, PF.small], ["call to action", "the line over the number", ink, PF.small], ["footer", "the towns and website", ink, PF.small],
-    ["number", "the phone number", plateInk, PF.large], ["claim", "the claim", ad.claim ? ad.claim.ink : plateInk, PF.small]];
+    ["number", "the phone number", numInk, PF.large], ["claim", "the claim", ad.claim ? ad.claim.ink : plateInk, PF.small]];
   let worst = 99, worstName = "";
   for (const [key, name, col, need] of lines) {
     let r = R[key]; if (!r) continue;
-    if (key === "number") r = inPill(r);
+    if (key === "number" && ad.st.number_style !== "underline") r = inPill(r);
     if (key === "claim") r = inPill([ad.claim.x, ad.claim.y, ad.claim.x + ad.claim.c.width, ad.claim.y + ad.claim.c.height]);
-    const got = reads(r, col, key === "footer" ? ad.hot : null);
+    const got = reads(r, col, key === "footer" ? ad.hot : key === "number" && F.numBar ? F.numBar : null);
     if (got < worst) { worst = got; worstName = name; }
     if (got < need) say("reads", got < need * .8 ? "fix" : "note", `${name[0].toUpperCase() + name.slice(1)} is hard to read against what is behind it. Try another colour, or New look.`);
   }
