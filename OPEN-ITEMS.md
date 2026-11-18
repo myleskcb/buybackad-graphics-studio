@@ -3983,6 +3983,10 @@ the API): before is 97e85c54, after is this branch.
 | /privacy.html | phone | 100 → 100 | 0.8 s → 0.9 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 78 → 49 KB |
 | /privacy.html | desktop | 100 → 100 | 0.2 s → 0.2 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 78 → 44 KB |
 
+On the merged branch (this work with cb6d8321 in it), median of three the same way: the
+landing 65 phone and 94 desktop, the video maker 72 and 78, the Look Book 71 and 90, with
+accessibility 100 on each; the merge cost nothing measurable on the landing.
+
 Checks on this tree (after the merge of cb6d8321): seo_check, approve_check,
 watermark_check, full_ad_studio_check, full_ad_check, typing_pause_check,
 buylist_check, mix_check, area_dialog_check, plan_economics and landing_check
