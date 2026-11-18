@@ -285,17 +285,17 @@
 :root[data-site='house'] #page-landing #pricing .lp-price-card .btn-outline{background:transparent;color:var(--h-ink);border:2px solid var(--h-line-2)}
 :root[data-site='house'] #page-landing #pricing .lp-price-card .btn-outline:hover{border-color:var(--h-accent);background:color-mix(in srgb,var(--h-accent) 12%,transparent);color:var(--h-ink)}
 /* every plan side by side: a panel, the hot column in the accent */
-:root[data-site='house'] #page-landing #pricing .lp-compare-wrap{margin:26px 0 0;overflow-x:auto;border:1px solid var(--h-line);border-radius:18px;background:var(--h-panel);box-shadow:none}
-:root[data-site='house'] #page-landing #pricing .lp-compare{width:100%;border-collapse:collapse;font:500 14.5px/1.4 var(--h-body);color:var(--h-ink-2);font-variant-numeric:tabular-nums;min-width:640px}
-:root[data-site='house'] #page-landing #pricing .lp-compare caption{caption-side:top;text-align:left;padding:16px 18px 6px;font:var(--h-display-wt) calc(18px * var(--h-display-k))/1.1 var(--h-display);text-transform:uppercase;color:var(--h-ink)}
-:root[data-site='house'] #page-landing #pricing .lp-compare :is(th,td){padding:11px 14px;border:0;border-top:1px solid var(--h-line);text-align:left;vertical-align:top;background:transparent;color:inherit}
-:root[data-site='house'] #page-landing #pricing .lp-compare thead th{font:var(--h-label-wt) 12.5px/1.2 var(--h-body);letter-spacing:.08em;text-transform:uppercase;color:var(--h-dim)}
-:root[data-site='house'] #page-landing #pricing .lp-compare thead th.hot{color:var(--h-accent)}
-:root[data-site='house'] #page-landing #pricing .lp-compare tbody th{font-weight:800;color:var(--h-ink)}
-:root[data-site='house'] #page-landing #pricing .lp-compare small{display:block;color:var(--h-dim);font-size:12.5px}
-:root[data-site='house'] #page-landing #pricing .lp-compare td.yes{color:var(--h-ink);font-weight:800}
-:root[data-site='house'] #page-landing #pricing .lp-compare td.no{color:var(--h-dim)}
-:root[data-site='house'] #page-landing #pricing :is(.lp-compare-notes,.lp-price-foot){margin:14px 0 0;font:400 15px/1.5 var(--h-body);color:var(--h-dim)}
+:root[data-site='house'] :is(#page-landing #pricing,#page-plans) .lp-compare-wrap{margin:26px 0 0;overflow-x:auto;border:1px solid var(--h-line);border-radius:18px;background:var(--h-panel);box-shadow:none}
+:root[data-site='house'] :is(#page-landing #pricing,#page-plans) .lp-compare{width:100%;border-collapse:collapse;font:500 14.5px/1.4 var(--h-body);color:var(--h-ink-2);font-variant-numeric:tabular-nums;min-width:640px}
+:root[data-site='house'] :is(#page-landing #pricing,#page-plans) .lp-compare caption{caption-side:top;text-align:left;padding:16px 18px 6px;font:var(--h-display-wt) calc(18px * var(--h-display-k))/1.1 var(--h-display);text-transform:uppercase;color:var(--h-ink)}
+:root[data-site='house'] :is(#page-landing #pricing,#page-plans) .lp-compare :is(th,td){padding:11px 14px;border:0;border-top:1px solid var(--h-line);text-align:left;vertical-align:top;background:transparent;color:inherit}
+:root[data-site='house'] :is(#page-landing #pricing,#page-plans) .lp-compare thead th{font:var(--h-label-wt) 12.5px/1.2 var(--h-body);letter-spacing:.08em;text-transform:uppercase;color:var(--h-dim)}
+:root[data-site='house'] :is(#page-landing #pricing,#page-plans) .lp-compare thead th.hot{color:var(--h-accent)}
+:root[data-site='house'] :is(#page-landing #pricing,#page-plans) .lp-compare tbody th{font-weight:800;color:var(--h-ink)}
+:root[data-site='house'] :is(#page-landing #pricing,#page-plans) .lp-compare small{display:block;color:var(--h-dim);font-size:12.5px}
+:root[data-site='house'] :is(#page-landing #pricing,#page-plans) .lp-compare td.yes{color:var(--h-ink);font-weight:800}
+:root[data-site='house'] :is(#page-landing #pricing,#page-plans) .lp-compare td.no{color:var(--h-dim)}
+:root[data-site='house'] :is(#page-landing #pricing,#page-plans) :is(.lp-compare-notes,.lp-price-foot){margin:14px 0 0;font:400 15px/1.5 var(--h-body);color:var(--h-dim)}
 
 /* the FAQ (build_seo_pages.mjs reads these rows into the FAQPage JSON-LD, word for word) */
 :root[data-site='house'] #page-landing .h-faqs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}

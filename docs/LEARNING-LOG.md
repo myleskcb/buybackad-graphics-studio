@@ -5781,6 +5781,13 @@ What was learned:
 - **Judge a double outline at full size.** At phone width, downscaled to JPEG,
   the outer ring read as a drop shadow; at 3x it was centred. What did need
   changing was the tracking: tight letters let the outer rings run together.
+- **A page-wide style reaches what other scripts draw.** pages.css set every
+  summary as a flex row (for the FAQ's chevron) and every h2 in capitals. The
+  video maker's own Attention check could not wrap and ran 25px off a 390
+  screen (buylist_check), and video-help.js's dialog title came out in
+  capitals, which innerText reports, so billing_check's case-sensitive match
+  failed. Neither showed on the page before the merge brought the checks'
+  newer steps. Both now apply inside the page's own main only.
 - **JSON-LD is data, not script**, so the policy never blocks it; the repo
   hashes index.html's anyway (csp_hashes.mjs reads every inline block there).
   The other pages' JSON-LD needs no hash.

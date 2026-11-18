@@ -3964,14 +3964,36 @@ Lighthouse 13.6, median of three runs a page, phone and desktop, on copies
 served the way Netlify serves them (the site's own headers, brotli, a 401 from
 the API): before is 97e85c54, after is this branch.
 
-LIGHTHOUSE_TABLE
+| page | form | performance | largest paint | blocking | layout shift | a11y/BP/SEO | weight |
+|---|---|---|---|---|---|---|---|
+| / | phone | 31 → 65 | 5.8 s → 1.4 s | 4105 → 2083 ms | 0.00 → 0.00 | 94/100/100 → 100/100/100 | 4440 → 4434 KB |
+| / | desktop | 60 → 94 | 1.1 s → 0.3 s | 1073 → 163 ms | 0.07 → 0.00 | 94/100/100 → 100/100/100 | 4560 → 4477 KB |
+| /motion/ | phone | 51 → 73 | 0.9 s → 0.9 s | 5722 → 1719 ms | 0.40 → 0.02 | 96/100/100 → 100/100/100 | 3023 → 2961 KB |
+| /motion/ | desktop | 71 → 81 | 0.3 s → 0.2 s | 1000 → 439 ms | 0.06 → 0.01 | 96/100/100 → 100/100/100 | 3023 → 2961 KB |
+| /about.html | phone | 100 → 100 | 0.8 s → 0.9 s | 0 → 0 ms | 0.02 → 0.00 | 100/100/100 → 100/100/100 | 78 → 48 KB |
+| /about.html | desktop | 100 → 100 | 0.2 s → 0.2 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 78 → 48 KB |
+| /learn.html | phone | 80 → 98 | 5.4 s → 2.4 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 762 → 238 KB |
+| /learn.html | desktop | 99 → 100 | 1.0 s → 0.5 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 762 → 238 KB |
+| /looks.html | phone | 46 → 75 | 0.7 s → 0.8 s | 5551 → 1333 ms | 0.86 → 0.00 | 100/100/100 → 100/100/100 | 2737 → 2708 KB |
+| /looks.html | desktop | 44 → 95 | 0.2 s → 0.2 s | 2459 → 190 ms | 0.94 → 0.00 | 100/100/100 → 100/100/100 | 3025 → 2995 KB |
+| /ads/we-buy-iphones.html | phone | 100 → 100 | 0.8 s → 0.9 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 175 → 97 KB |
+| /ads/we-buy-iphones.html | desktop | 100 → 100 | 0.2 s → 0.4 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 175 → 97 KB |
+| /ads/we-buy-gold.html | phone | 100 → 100 | 0.8 s → 0.9 s | 0 → 0 ms | 0.01 → 0.00 | 100/100/100 → 100/100/100 | 147 → 105 KB |
+| /ads/we-buy-gold.html | desktop | 100 → 100 | 0.2 s → 0.4 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 147 → 105 KB |
+| /privacy.html | phone | 100 → 100 | 0.8 s → 0.9 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 78 → 49 KB |
+| /privacy.html | desktop | 100 → 100 | 0.2 s → 0.2 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 78 → 44 KB |
 
-Checks on this tree: watermark_check, full_ad_studio_check, full_ad_check,
-typing_pause_check, buylist_check, mix_check, area_dialog_check,
-approve_check, landing_check and seo_check all pass. billing_check stops in
-its browser part on the video maker (`acct-overlay` is null there), one of the
-four that failed before this work; ez_download_is_preview, ad_library_check
-and quick_ad_check were not run again (the same four).
+Checks on this tree (after the merge of cb6d8321): seo_check, approve_check,
+watermark_check, full_ad_studio_check, full_ad_check, typing_pause_check,
+buylist_check, mix_check, area_dialog_check, plan_economics and landing_check
+pass; billing_check 155 passed and 1 failed, its "fabric is not defined" (the
+check aborts the CDN unless FABRIC_JS is set), the same on PR 14's own tree;
+ez_download_is_preview, ad_library_check and quick_ad_check were not run again
+(three of the four that failed before this work). Two of these caught this
+work after the merge: pages.css made every summary a row that could not wrap,
+so the video maker's Attention check ran 25px off a 390 screen (buylist_check),
+and every h2 in capitals, which reached the plan dialog's title, so innerText
+read it in capitals (billing_check). Both are scoped to the page's own main now.
 
 Open:
 1. **Not on `main`, not deployed** (the owner's word). The deploy workflow

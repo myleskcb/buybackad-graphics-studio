@@ -117,7 +117,9 @@ header.top > .btn{margin-left:4px}
 main{max-width:880px;margin:0 auto;padding:12px max(20px,env(safe-area-inset-right,0px)) 72px max(20px,env(safe-area-inset-left,0px))}
 .crumbs{font-size:14px;color:var(--muted);margin:6px 0 18px}
 .crumbs a{color:var(--muted)}
-h1,h2{font-family:var(--display);font-weight:var(--display-wt);text-transform:uppercase;text-wrap:balance}
+/* the page's own headings in the display face's capitals; a dialog's (video-help.js, account.js) keep
+   their own type, and their words as written */
+main h1,main h2{font-family:var(--display);font-weight:var(--display-wt);text-transform:uppercase;text-wrap:balance}
 h1{font-size:calc(clamp(32px,5.8vw,54px) * var(--display-k));line-height:.98;letter-spacing:-.008em;margin:14px 0 16px}
 h2{font-size:calc(clamp(22px,3.2vw,30px) * var(--display-k));line-height:1.08;margin:46px 0 12px}
 h3{font-size:17.5px;font-weight:800;margin:22px 0 6px}
@@ -143,13 +145,17 @@ ul.tidy li{position:relative;padding-left:28px;margin:0}
 ul.tidy li::before{content:"✓";position:absolute;left:0;top:3px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font:900 11px/1 var(--body)}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin:14px 0}
 details{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:0;margin:10px 0}
-summary{cursor:pointer;font-weight:800;color:var(--text);padding:15px 18px;list-style:none;display:flex;gap:12px;align-items:center}
-summary::-webkit-details-marker{display:none}
-summary::after{content:"";flex:none;margin-left:auto;width:20px;height:20px;background:var(--accent);
+/* the information pages' own questions (main > details): a row with the chevron at its end. The video
+   maker's panels keep their own summaries (a flex row there could not wrap at 390). */
+summary{cursor:pointer;font-weight:800;color:var(--text)}
+main > details > summary{padding:15px 18px;list-style:none;display:flex;gap:12px;align-items:center}
+main > details > summary::-webkit-details-marker{display:none}
+main > details > summary::after{content:"";flex:none;margin-left:auto;width:20px;height:20px;background:var(--accent);
   -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M8 5.5 13.5 11 8 16.5' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
   mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M8 5.5 13.5 11 8 16.5' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;transition:transform .2s}
-details[open] summary::after{transform:rotate(90deg)}
-details p{margin:0;padding:0 18px 16px}
+main > details[open] > summary::after{transform:rotate(90deg)}
+main > details > p{margin:0;padding:0 18px 16px}
+details p{margin:10px 0 4px}
 table{border-collapse:collapse;width:100%;margin:10px 0;font-size:15px}
 th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
 th{background:var(--panel);color:var(--text)}
@@ -186,4 +192,4 @@ footer.bottom .copy{flex-basis:100%;max-width:1080px}
 .vid h2{margin:0 0 8px}
 .vid p{margin:0 0 8px}
 @media (max-width:640px){.vid{grid-template-columns:1fr;gap:12px;padding:14px}}
-@media (prefers-reduced-motion:reduce){summary::after{transition:none}}
+@media (prefers-reduced-motion:reduce){main > details > summary::after{transition:none}}
