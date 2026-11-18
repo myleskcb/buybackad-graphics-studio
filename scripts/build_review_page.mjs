@@ -76,8 +76,12 @@ writeFileSync(OUT + '/data/ads.json', JSON.stringify({ made: census.made, commit
 // 2. the census's thumbnails, by the same key
 if (existsSync(thumbsPath)) {
   const T = { ...extraThumbs, ...JSON.parse(readFileSync(thumbsPath, 'utf8')) }, out = {};
-  for (const r of census.rows) if (T[r.id]) out[safeId(r.id)] = T[r.id];
-  writeFileSync(OUT + '/data/thumbs.json', JSON.stringify(out));
+  // one file a generation: the Artifact viewer takes 16 MB a file, and 1,800 thumbnails are more
+  const byGen = {};
+  for (const r of census.rows) if (T[r.id]) (byGen[r.gen] ||= {})[safeId(r.id)] = T[r.id];
+  for (const f of readdirSync(OUT + '/data').filter(f => /^thumbs(-[a-z]+)?\.json$/.test(f))) writeFileSync(OUT + '/data/' + f, '{}');
+  for (const [g, o] of Object.entries(byGen)) writeFileSync(OUT + '/data/thumbs-' + g + '.json', JSON.stringify(o));
+  writeFileSync(OUT + '/data/thumbs-index.json', JSON.stringify(Object.keys(byGen)));
 }
 
 // 3. the pictures each category may use, as 96px thumbnails (a flagged AI render or a rejected
@@ -126,4 +130,4 @@ writeFileSync(OUT + '/data/pictures.json', JSON.stringify({ thumbs, pictures }))
 copyFileSync(new URL('./review_page.html', import.meta.url).pathname, OUT + '/index.html');
 const sz = f => (readFileSync(OUT + '/data/' + f).length / 1e6).toFixed(1) + ' MB';
 console.log(`review page: ${rows.length} ads in ${Object.keys(byCat).length} categories; ${Object.values(pictures).reduce((a, l) => a + l.length, 0)} pictures for ${Object.keys(pictures).length} categories`);
-console.log(`  ${OUT}/index.html, data/ads.json ${sz('ads.json')}, data/thumbs.json ${existsSync(OUT + '/data/thumbs.json') ? sz('thumbs.json') : 'none'}, data/pictures.json ${sz('pictures.json')}`);
+console.log(`  ${OUT}/index.html, data/ads.json ${sz('ads.json')}, ` + readdirSync(OUT + '/data').filter(f => /^thumbs-[a-z]+\.json$/.test(f) && f !== 'thumbs-index.json').map(f => `data/${f} ${sz(f)}`).join(', ') + `, data/pictures.json ${sz('pictures.json')}`);

@@ -103,12 +103,19 @@ const hexLab = h => { const n = parseInt(String(h).slice(1, 7), 16); return toLa
 const dE = (p, q) => 100 * Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]);
 const PAIRS = HOUSE_COLOURS.map(p => ({ key: p.key, name: p.name, ground: p.colors.ground, accent: p.colors.accent, g: hexLab(p.colors.ground), a: hexLab(p.colors.accent) }));
 
-function matchPair(c) {
+function matchPair(c, row) {
   if (!c || !c.ground) return { match: false, why: 'not measured' };
   const g = hexLab(c.ground), a = c.accent ? hexLab(c.accent) : null;
   let best = null;
   for (const p of PAIRS) { const dG = dE(g, p.g), dA = a ? dE(a, p.a) : 99, s = dG + dA; if (!best || s < best.s) best = { p, dG, dA, s }; }
   const out = { nearest: best.p.key, nearestName: best.p.name, dGround: +best.dG.toFixed(1), dAccent: a ? +best.dA.toFixed(1) : null };
+  /* the house engine on a photograph (DESIGN-LAW 145): the ground is the photo by design, and the
+     pair is what it draws on it, so the drawn accent is held to the pair the ad declares */
+  if ((c.groundKind === 'photo' || c.groundKind === 'drawn') && row && (row.gen === 'full' || row.gen === 'recipe')) {   // a drawn scene paints the pair's own ground with light: judged the same way
+    const own = PAIRS.find(p => p.name === row.declared), dA = own && a ? dE(a, own.a) : 99;
+    return own && dA <= PAIR_ACCENT ? { ...out, nearest: own.key, nearestName: own.name, dAccent: +dA.toFixed(1), match: true, why: own.name + (c.groundKind === 'photo' ? ' on a photograph' : ' on a drawn scene') }
+      : { ...out, match: false, why: own ? `accent ${dA.toFixed(1)} from ${own.name}'s, on a ${c.groundKind === 'photo' ? 'photograph' : 'drawn scene'}` : 'stands on a photograph' };
+  }
   if (c.groundKind === 'photo') return { ...out, match: false, why: 'stands on a photograph' };
   if (!a) return { ...out, match: false, why: 'no accent colour found' };
   if (best.dG > PAIR_GROUND) return { ...out, match: false, why: `ground ${out.dGround} from ${best.p.name}'s` };
@@ -135,7 +142,7 @@ function bannedIn(words, cat) {
 /* ------------------------------------------------------------------ a row, composed */
 function compose(r) {
   r.genName = GEN_NAMES[r.gen]; r.engine = ENGINES[r.gen];
-  r.colour = r.colours ? matchPair(r.colours) : { match: false, why: 'not measured' };
+  r.colour = r.colours ? matchPair(r.colours, r) : { match: false, why: 'not measured' };
   r.banned = r.error ? [] : bannedIn(r.words, r.cat);
   r.bannedIds = [...new Set(r.banned.map(b => b.id))];
   r.bannedNoName = r.error || !r.wordsNoName ? [] : bannedIn(r.wordsNoName, r.cat);
