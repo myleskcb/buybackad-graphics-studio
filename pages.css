@@ -6,6 +6,9 @@
    studio's chrome and these pages do not need it. The token names are the old ones (--bg, --panel,
    --text, --accent, --btn …), so the video maker's own rules follow without a rewrite. */
 @font-face{font-family:'BB Chivo';src:url('assets/fonts/chivo-900.woff2') format('woff2');font-weight:100 900;font-display:swap}
+/* the fallback is Arial measured to Chivo (2026-11-18: widths 1.052 at 400, ascent .94, descent .25), so a
+   face that lands late does not move the page (the video maker's 0.37 shift was a late face) */
+@font-face{font-family:'BB Chivo Fallback';src:local('Arial'),local('Helvetica Neue'),local('Helvetica');size-adjust:105.2%;ascent-override:89.4%;descent-override:23.8%;line-gap-override:0%}
 @font-face{font-family:'BB Sofia XC';src:url('assets/fonts/sofia-sans-xcond-var.woff2') format('woff2');font-weight:500 900;font-display:swap}
 @font-face{font-family:'BB Schibsted';src:url('assets/fonts/schibsted-grotesk-var.woff2') format('woff2');font-weight:400 900;font-display:swap}
 @font-face{font-family:'BB Teko';src:url('assets/fonts/teko-700.woff2') format('woff2');font-weight:700;font-display:swap}
@@ -30,7 +33,7 @@
   --text:var(--ink);--text-2:#2c3a57;--muted:#4b5878;
   --accent:var(--hot);--accent-ink:var(--on);--btn:var(--hot);--warn:#8a4b00;--bad:#a3261b;--good:#0f6b3c;
   --glow:color-mix(in srgb,var(--hot) 38%,transparent);
-  --display:'BB Chivo','Arial Black',system-ui,sans-serif;--display-wt:900;--display-k:1;--body:'BB Chivo',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --display:'BB Chivo','BB Chivo Fallback','Arial Black',system-ui,sans-serif;--display-wt:900;--display-k:1;--body:'BB Chivo','BB Chivo Fallback',system-ui,-apple-system,'Segoe UI',sans-serif;
 }
 /* dark: Navy & Gold, by the visitor's system or their choice */
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -93,7 +96,7 @@ header.top{display:flex;align-items:center;gap:10px 22px;max-width:1120px;margin
 .brand .s{font:700 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .brand:hover{color:var(--text)}
 header.top nav{display:flex;gap:4px 18px;align-items:center;flex-wrap:wrap;margin-left:auto}
-header.top nav a{color:var(--text-2);text-decoration:none;font-weight:700;font-size:14.5px;padding:8px 0}
+header.top nav a{color:var(--text-2);text-decoration:none;font-weight:700;font-size:14.5px;padding:8px 0;white-space:nowrap}
 header.top nav a:hover,header.top nav a[aria-current="page"]{color:var(--text);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:6px}
 header.top > .btn{margin-left:4px}
 @media (max-width:760px){
@@ -121,6 +124,7 @@ h3{font-size:17.5px;font-weight:800;margin:22px 0 6px}
 p,li{color:var(--text-2)}
 b,strong{color:var(--text)}
 .lead{font-size:18.5px;color:var(--text)}
+h1 .hot,h2 .hot{color:var(--accent)}
 .ctas{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0 8px}
 .page-hero{display:flex;flex-direction:column;gap:0}
 .page-hero.with-ad{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:30px;align-items:center}

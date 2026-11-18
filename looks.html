@@ -23,79 +23,96 @@
 <meta name="twitter:image:alt" content="Three full ads made with BUYBACK.AD: We Buy iPhones, We Buy Gold, We Buy Cars">
 <script type="application/ld+json" id="ld-page">{"@context":"https://schema.org","@graph":[{"@type":"CollectionPage","@id":"https://buybackad-graphics-studio.netlify.app/looks.html#page","url":"https://buybackad-graphics-studio.netlify.app/looks.html","name":"Look Book: Every We Buy Ad Look | BUYBACK.AD","description":"Every ready-made look in one place: video looks, photo ad designs, backgrounds and phone layouts for We Buy ads. Pick one and it opens in the editor.","isPartOf":{"@id":"https://buybackad-graphics-studio.netlify.app/#site"},"about":{"@id":"https://buybackad-graphics-studio.netlify.app/#app"},"publisher":{"@id":"https://buybackad-graphics-studio.netlify.app/#org"},"inLanguage":"en"}]}</script>
 <!-- /seo -->
+<meta name="theme-color" content="#031b56" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#e2e8f3" media="(prefers-color-scheme: light)">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/chivo-900.woff2" as="font" type="font/woff2" crossorigin>
+<script src="site-theme.js"></script>
 <style>
-/* The Look Book: the poster skin's wall (DESIGN-LAW 98): paper, ink outlines, hard offset
-   shadows, four signal colours with one job each. A sticky masthead of tabs and chips over
-   a grid of pinned prints. */
-@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-600.woff2') format('woff2');font-weight:600;font-display:swap}
-@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-700.woff2') format('woff2');font-weight:700;font-display:swap}
-@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-400.woff2') format('woff2');font-weight:400;font-display:swap}
-@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-500.woff2') format('woff2');font-weight:500;font-display:swap}
+/* The Look Book in the house look (DESIGN-LAW 145, superseding rule 98's paper here): the full ad's
+   language as on the landing. Silver & Blue in light, Navy & Gold in dark (the visitor's system,
+   or their choice on the landing: site-theme.js), the full ad's face, pills and chips. A sticky
+   masthead of tabs and chips over a grid of ads; the tabs' and chips' rows keep their height
+   before looks.js fills them, so nothing below them moves when they arrive. */
+@font-face{font-family:'BB Chivo';src:url('assets/fonts/chivo-900.woff2') format('woff2');font-weight:100 900;font-display:swap}
+/* the fallback is Arial measured to Chivo (2026-11-18: widths 1.052 at 400, ascent .94, descent .25), so a
+   face that lands late does not move the page (the video maker's 0.37 shift was a late face) */
+@font-face{font-family:'BB Chivo Fallback';src:local('Arial'),local('Helvetica Neue'),local('Helvetica');size-adjust:105.2%;ascent-override:89.4%;descent-override:23.8%;line-gap-override:0%}
 :root{
-  --paper:#f2eee4; --card:#fffdf8; --ink:#141414; --ink-2:#3b3833; --dim:#66615a; --line:rgba(20,20,20,.14);
-  --blue:#2b56f5; --blue-ink:#ffffff; --tomato:#ff4a2e; --marigold:#ffc21a; --mint:#12b886;
-  --hard:3px 3px 0 var(--ink); --hard-lg:5px 5px 0 var(--ink); --edge:#141414;
-  --display:'Clash Display','Arial Narrow',system-ui,sans-serif; --body:'Satoshi',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --paper:#e2e8f3; --card:color-mix(in oklab,#e2e8f3 40%,#ffffff); --ink:#111b30; --ink-2:#2c3a57; --dim:#4b5878; --line:color-mix(in srgb,#111b30 16%,transparent);
+  --blue:#1d4ed8; --blue-ink:#ffffff; --tomato:#1d4ed8; --marigold:#1d4ed8; --mint:#1d4ed8; --tag-ink:#ffffff;
+  --hard:0 14px 30px -18px rgba(17,27,48,.5); --hard-lg:0 20px 40px -18px rgba(17,27,48,.6); --edge:color-mix(in srgb,#111b30 22%,transparent);
+  --display:'BB Chivo','BB Chivo Fallback','Arial Black',system-ui,sans-serif; --body:'BB Chivo','BB Chivo Fallback',system-ui,-apple-system,'Segoe UI',sans-serif;
   color-scheme:light;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#1b1a1f;--card:#24232a;--ink:#f4f0e8;--ink-2:#d2ccc0;--dim:#a29c90;--line:rgba(244,240,232,.14);--blue:#6f8cff;--blue-ink:#0b0c14;--hard:3px 3px 0 #000;--hard-lg:5px 5px 0 #000;--edge:#000;color-scheme:dark}}
-:root[data-theme="dark"]{--paper:#1b1a1f;--card:#24232a;--ink:#f4f0e8;--ink-2:#d2ccc0;--dim:#a29c90;--line:rgba(244,240,232,.14);--blue:#6f8cff;--blue-ink:#0b0c14;--hard:3px 3px 0 #000;--hard-lg:5px 5px 0 #000;--edge:#000;color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#031b56;--card:color-mix(in oklab,#031b56 84%,#395185);--ink:#f2f7ff;--ink-2:#cdd8f0;--dim:#a3b3d6;--line:rgba(242,247,255,.16);--blue:#f4b100;--blue-ink:#031b56;--tomato:#f4b100;--marigold:#f4b100;--mint:#f4b100;--tag-ink:#031b56;--hard:0 16px 34px -18px rgba(0,0,0,.75);--hard-lg:0 22px 44px -18px rgba(0,0,0,.8);--edge:rgba(242,247,255,.22);color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#031b56;--card:color-mix(in oklab,#031b56 84%,#395185);--ink:#f2f7ff;--ink-2:#cdd8f0;--dim:#a3b3d6;--line:rgba(242,247,255,.16);--blue:#f4b100;--blue-ink:#031b56;--tomato:#f4b100;--marigold:#f4b100;--mint:#f4b100;--tag-ink:#031b56;--hard:0 16px 34px -18px rgba(0,0,0,.75);--hard-lg:0 22px 44px -18px rgba(0,0,0,.8);--edge:rgba(242,247,255,.22);color-scheme:dark}
 *{box-sizing:border-box}
+/* the grid fills after the first paint: it keeps a screen's height until then, so the footer under it
+   is never seen and pushed away (Lighthouse counted that as a 0.83 shift), and the scrollbar's
+   gutter is kept so its arrival moves nothing */
+html{scrollbar-gutter:stable}
+#out{min-height:100vh}
+#out:not(:empty){min-height:0}
 body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 var(--body)}
 a{color:inherit}
-.wrap{max-width:1400px;margin:0 auto;padding-inline:16px}
-.mast{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:2px solid var(--edge);padding-block:12px}
+.wrap{max-width:1400px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px))}
+.mast{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--edge);padding-block:12px}
 .mast .wrap{display:grid;gap:10px}
 .row{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
 .brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;margin-right:auto}
-.brand b{font:700 28px/1 var(--display);letter-spacing:.01em}
-.brand span{font:500 13px var(--body);color:var(--dim)}
-.back{font:600 14px var(--body);text-decoration:none;border:2px solid var(--edge);background:var(--card);padding:6px 12px;border-radius:8px;box-shadow:var(--hard)}
-.tabs{display:flex;flex-wrap:wrap;gap:8px}
-.tabs button,.chips button{font:600 15px var(--body);color:var(--ink);background:var(--card);border:2px solid var(--edge);border-radius:999px;padding:6px 14px;cursor:pointer}
-.tabs button[aria-pressed="true"]{background:var(--blue);color:var(--blue-ink);box-shadow:var(--hard)}
-.tabs button small{font:500 12px var(--body);opacity:.8;margin-left:4px;font-variant-numeric:tabular-nums}
-.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.brand b{font:900 22px/1 var(--display);text-transform:uppercase;letter-spacing:.005em}
+.brand b em{font-style:normal;color:var(--blue)}
+.brand span{font:700 11.5px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.back{font:800 13px var(--body);text-transform:uppercase;letter-spacing:.04em;text-decoration:none;border:2px solid var(--edge);background:transparent;padding:9px 14px;border-radius:999px}
+.back:hover{border-color:var(--blue)}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;min-height:38px}
+.tabs button,.chips button{font:700 15px var(--body);color:var(--ink);background:transparent;border:2px solid var(--edge);border-radius:999px;padding:6px 14px;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+.tabs button small{display:inline-block;min-width:3ch;font:600 12px var(--body);opacity:.8;margin-left:4px;font-variant-numeric:tabular-nums;text-align:left}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin;min-height:32px}
 .chips button{font-size:13px;padding:4px 11px;border-width:1.5px;white-space:nowrap}
-.chips button[aria-pressed="true"]{background:var(--marigold);color:#141414}
-#q{flex:1 1 220px;min-width:0;font:15px var(--body);color:var(--ink);background:var(--card);border:2px solid var(--edge);border-radius:8px;padding:8px 12px}
-button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--marigold);outline-offset:2px}
-.intro{max-width:70ch;color:var(--ink-2);margin:18px 0 6px}
+.chips button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+#q{flex:1 1 220px;min-width:0;font:16px var(--body);color:var(--ink);background:var(--card);border:2px solid var(--edge);border-radius:999px;padding:8px 16px}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+h1{font:900 clamp(30px,5vw,48px)/1 var(--display);text-transform:uppercase;margin:22px 0 4px}
+h1 em{font-style:normal;color:var(--blue)}
+.intro{max-width:70ch;color:var(--ink-2);margin:8px 0 6px}
 section.grp{margin-top:26px}
-section.grp h2{font:700 24px/1.15 var(--display);margin:0 0 4px;text-wrap:balance}
+section.grp h2{font:900 24px/1.15 var(--display);text-transform:uppercase;margin:0 0 4px;text-wrap:balance}
 section.grp p{margin:0 0 12px;color:var(--dim);font-size:14px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px}
 .look{display:grid;gap:6px;text-decoration:none;min-width:0}
-.pic{position:relative;aspect-ratio:4/5;background:var(--card);border:2px solid var(--edge);border-radius:10px;overflow:hidden;box-shadow:var(--hard);transition:transform .12s,box-shadow .12s}
+.pic{position:relative;aspect-ratio:4/5;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--hard);transition:transform .12s,box-shadow .12s}
 .pic.sq{aspect-ratio:1}
-.look:hover .pic{transform:translate(-2px,-2px);box-shadow:var(--hard-lg)}
+.look:hover .pic{transform:translateY(-2px);box-shadow:var(--hard-lg);border-color:var(--blue)}
 .pic img,.pic canvas{width:100%;height:100%;object-fit:cover;display:block}
 .pic .wait{position:absolute;inset:0;display:grid;place-items:center;font:500 12px var(--body);color:var(--dim)}
-.tag{display:inline-block;vertical-align:1px;font:700 10px/1 var(--display);font-style:normal;letter-spacing:.06em;text-transform:uppercase;padding:3px 5px;border-radius:4px;border:1.5px solid #141414;color:#141414;margin-right:4px}
-.tag.v{background:var(--tomato)} .tag.i{background:var(--mint)} .tag.b{background:var(--marigold)} .tag.l{background:#fffdf8}
+.tag{display:inline-block;vertical-align:1px;font:800 10px/1 var(--body);font-style:normal;letter-spacing:.06em;text-transform:uppercase;padding:3px 6px;border-radius:999px;color:var(--tag-ink);margin-right:4px;background:var(--blue)}
+.tag.l{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--edge)}
 .cap{display:grid;gap:1px;min-width:0}
-.cap b{font:600 14px/1.25 var(--body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cap span{font-size:12px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.more{margin:14px 0 0;font:600 14px var(--body);color:var(--blue-ink);background:var(--blue);border:2px solid var(--edge);border-radius:8px;padding:8px 16px;box-shadow:var(--hard);cursor:pointer}
+.cap b{font:700 14px/1.25 var(--body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cap span{font-size:12.5px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.more{margin:14px 0 0;font:900 13px var(--body);text-transform:uppercase;letter-spacing:.05em;color:var(--blue-ink);background:var(--blue);border:0;border-radius:999px;padding:11px 20px;cursor:pointer}
 .empty{color:var(--dim);margin-top:30px}
-footer{margin:48px 0 24px;color:var(--dim);font-size:13px}
-@media (max-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.brand b{font-size:23px}.mast{position:static}}
+footer{margin:48px 0 24px;color:var(--dim);font-size:13.5px}
+@media (max-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.brand b{font-size:19px}.brand span{display:none}.mast{position:static}}
 @media (prefers-reduced-motion:reduce){.pic{transition:none}}
 </style></head><body>
 <header class="mast"><div class="wrap">
   <div class="row">
-    <a class="brand" href="./"><b>Look Book</b><span>Graphics Studio by BUYBACK.AD</span></a>
+    <a class="brand" href="./" aria-label="BUYBACK.AD home"><b>BUYBACK<em>.AD</em></b><span>Look Book</span></a>
     <a class="back" href="motion/">Video maker</a>
     <a class="back" href="./">Image studio</a>
   </div>
   <div class="row">
-    <div class="tabs" role="group" aria-label="What to show" id="tabs"></div>
+    <div class="tabs" role="group" aria-label="What to show" id="tabs"><button aria-pressed="true" data-t="all">All<small></small></button><button aria-pressed="false" data-t="video">Video looks<small></small></button><button aria-pressed="false" data-t="image">Image ads<small></small></button><button aria-pressed="false" data-t="ground">Backgrounds<small></small></button><button aria-pressed="false" data-t="layout">Phone layouts<small></small></button></div>
     <input id="q" type="search" placeholder="Search looks, themes, categories" aria-label="Search the Look Book">
   </div>
-  <div class="chips" role="group" aria-label="Narrow it down" id="chips"></div>
+  <div class="chips" role="group" aria-label="Narrow it down" id="chips"><button aria-pressed="true" data-g="">All groups</button></div>
 </div></header>
 <main class="wrap">
+  <h1>Look <em>Book</em></h1>
   <p class="intro" id="intro">Every ready-made look in one place. Pick one and it opens in the editor with your number and phones, ready to change and download.</p>
   <div id="out"></div>
   <p class="empty" id="empty" hidden>Nothing matches that search. Try a shorter word, or pick All.</p>

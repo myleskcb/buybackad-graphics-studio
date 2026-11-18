@@ -81,10 +81,10 @@
   /* THE HOUSE LOOK (DESIGN-LAW 145): the public pages in the full ad's language. data-pair is the
      dark pair (one of the twelve; light is always Silver & Blue), data-face one of the owner's type
      pairs (house is the full ad's own face). Both by URL for a look, never saved: ?pair=green_gold,
-     ?face=street. ?site=poster shows the landing in rule 98's poster look. */
+     ?face=street. data-site scopes house.css; the studio's editor keeps rule 98's poster look. */
   var P = ['navy_gold','navy_orange','midnight_cyan','blue_green','green_gold','purple_gold','teal_orange','red_yellow','black_gold','black_red','black_green'];
   var FC = ['house','street','sport','block','tech','stadium','modern','grotesk','luxe'];
-  d.setAttribute('data-site', q.site === 'poster' ? 'poster' : 'house');
+  d.setAttribute('data-site', 'house');
   d.setAttribute('data-pair', P.indexOf(q.pair) >= 0 ? q.pair : 'navy_gold');
   d.setAttribute('data-face', FC.indexOf(q.face) >= 0 ? q.face : 'house');
   /* the counter finish (styles.css, 2026-10-16), shown by ?finish=counter */
@@ -132,7 +132,7 @@
      pair's ground with its lit patch, a glowing claim badge, the headline in capitals with the
      double outline, a models line, chips with ticks, a starburst, the call to action in a pill
      between chevrons, a pin before the places. Styled by house.css, every rule under
-     :root[data-site='house'] #page-landing; ?site=poster shows the poster look of rule 98.
+     :root[data-site='house'] #page-landing, so the studio's own pages keep rule 98's poster look.
      Every id app.js binds is kept (lp-logo, lp-cta-main, lp-cta-bottom, lp-open-studio …). -->
 <div id="page-landing">
   <header class="h-nav">

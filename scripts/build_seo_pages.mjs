@@ -407,6 +407,7 @@ const { readFileSync, existsSync, statSync } = await import('node:fs');
 const titleOf = (c) => `${(SEO[c.id] || {}).t || strip(c.title)} | ${BRAND}`;
 const descOf = (c) => (SEO[c.id] || {}).d || c.desc;
 const h1Of = (c) => (SEO[c.id] || {}).h1 || c.h1.replace(/ ad templates$/, ' ads and flyers');
+const nameOf = (c) => strip(h1Of(c)).replace(/["\u201c\u201d]/g, '');
 const adOf = (c) => existsSync(root + `assets/full-ads/${c.slug}.webp`) ? c.slug : '';
 const ogOf = (c) => existsSync(root + `assets/og/${c.slug}.jpg`) ? `${SITE}/assets/og/${c.slug}.jpg` : `${SITE}/assets/og/buybackad-og.jpg`;
 for (const c of CATS) {
@@ -513,8 +514,8 @@ function page(c) {
   const faq = [...c.faq, ...COMMON_FAQ];
   const parent = c.parent && byId[c.parent];
   const crumbs = [{ name: BRAND, item: SITE + '/' }];
-  if (parent) crumbs.push({ name: strip(h1Of(parent)), item: `${SITE}/ads/${parent.slug}.html` });
-  crumbs.push({ name: strip(h1Of(c)), item: url });
+  if (parent) crumbs.push({ name: nameOf(parent), item: `${SITE}/ads/${parent.slug}.html` });
+  crumbs.push({ name: nameOf(c), item: url });
   const steps = stepsOf(c), ad = adOf(c), title = titleOf(c), desc = descOf(c);
   const ld = { '@context': 'https://schema.org', '@graph': [
     webPage(url, title, desc, { breadcrumb: { '@id': url + '#crumbs' }, ...(ad ? { primaryImageOfPage: { '@id': url + '#ad' } } : {}) }),
@@ -546,7 +547,7 @@ ${seoHead({ title, desc, url, image: ogOf(c), imageAlt: ad ? adAlt(c) : 'BUYBACK
 <body>
 ${nav('../')}
 <main id="main">
-  <div class="crumbs"><a href="../index.html">${BRAND}</a> &rsaquo; ${parent ? `<a href="${parent.slug}.html">${esc(strip(h1Of(parent)))}</a> &rsaquo; ` : ''}${esc(strip(h1Of(c)))}</div>
+  <div class="crumbs"><a href="../index.html">${BRAND}</a> &rsaquo; ${parent ? `<a href="${parent.slug}.html">${esc(nameOf(parent))}</a> &rsaquo; ` : ''}${esc(nameOf(c))}</div>
   <div class="page-hero${ad ? ' with-ad' : ''}">
   <div class="page-hero-copy">
   <span class="badge">${esc(strip(c.title).replace(/ ad templates$/, ' ads'))}</span>
@@ -562,7 +563,7 @@ ${nav('../')}
   </div>
 ${kids.length ? `
   <h2>${esc(c.subsTitle || `More ${c.name} ads`)}</h2>
-  <ul class="tidy">${kids.map((k) => `<li><a href="${k.slug}.html">${esc(strip(h1Of(k)))}</a></li>`).join('\n    ')}</ul>
+  <ul class="tidy">${kids.map((k) => `<li><a href="${k.slug}.html">${esc(nameOf(k))}</a></li>`).join('\n    ')}</ul>
 ` : ''}
   <h2>How it works</h2>
   <ol class="steps">${steps.map(([n, t]) => `\n    <li><strong>${n}.</strong> ${t}</li>`).join('')}
@@ -633,7 +634,7 @@ let landingSteps = [], landingFaq = [];
   const f = root + 'index.html';
   let html = readFileSync(f, 'utf8');
   html = fill(html, 'ad-templates', '\n          ' + catList('', { grp: 'lpf-grp', subs: 'lpf-subs' }, '          '));
-  html = fill(html, 'ad-links', '\n      ' + CATS.map((c) => `<li><a href="ads/${c.slug}.html">${esc(strip(h1Of(c)).replace(/^"|"(?= )/g, ''))}</a></li>`).join('\n      '));
+  html = fill(html, 'ad-links', '\n      ' + CATS.map((c) => `<li><a href="ads/${c.slug}.html">${esc(nameOf(c))}</a></li>`).join('\n      '));
   /* the FAQ, rebuilt from the visible rows so the two cannot disagree (structured data that
      says something the page does not is against Google's rules, and a lie besides). Edit the
      <details class="lp-faq"> rows, then run this script. */
@@ -768,8 +769,8 @@ Sitemap: ${SITE}/sitemap.xml
 const planLine = (p) => p.price.month
   ? `- ${p.label}: $${p.price.month / 100} a month or $${fmtN(p.price.year / 100)} a year. ${planWords(p)[0].toUpperCase() + planWords(p).slice(1)}.`
   : `- ${p.label}: $0. ${planWords(p)[0].toUpperCase() + planWords(p).slice(1)}. Designing needs no account; downloading needs a free account.`;
-const lines = CATS.filter((c) => !c.soon).map((c) => `- [${strip(h1Of(c)).replace(/^"|"(?= )/g, '')}](${SITE}/ads/${c.slug}.html): ${descOf(c)}`);
-const soon = CATS.filter((c) => c.soon).map((c) => `- [${strip(h1Of(c)).replace(/^"|"(?= )/g, '')}](${SITE}/ads/${c.slug}.html): ${descOf(c)}`);
+const lines = CATS.filter((c) => !c.soon).map((c) => `- [${nameOf(c)}](${SITE}/ads/${c.slug}.html): ${descOf(c)}`);
+const soon = CATS.filter((c) => c.soon).map((c) => `- [${nameOf(c)}](${SITE}/ads/${c.slug}.html): ${descOf(c)}`);
 const llms = `# BUYBACK.AD
 
 > BUYBACK.AD (Graphics Studio by BUYBACK.AD) is a web app that makes "We Buy" ads for people who buy goods from the public and resell them: phone buyers, repair shops, gold, silver and coin buyers, car buyers, card shops and diabetic test strip buyers. You pick a design, type your phone number and your area, and download a post-ready photo ad, a printable flyer or a short video ad. It runs in a web browser on a phone or a computer, with nothing to install, and is free to start.

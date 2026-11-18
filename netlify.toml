@@ -233,7 +233,7 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://js.stripe.com https://*.js.stripe.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com 'sha256-nd0nXVv+FOKC6thKQlBRu0DrORrTu0TwMuvkp82vqmM=' 'sha256-cNCMQrTRTYvjkMKLut5o4VxRTvT1qzyVV+TsmAbSu04=' 'sha256-z7Qtt5anlWvvugvGyHBKMTOXD5UXsWUAJHkRTZKlmOQ=' 'sha256-OLeV7otPgYpW3r1P1Mjl/LMZBikIIIbTcOb1RQDQCdQ='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' data: blob: https://api.stripe.com https://*.stripe.com https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://iphones.la; frame-src 'self' https://accounts.google.com https://js.stripe.com https://*.js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://*.stripe.network; base-uri 'self'; frame-ancestors 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://js.stripe.com https://*.js.stripe.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com 'sha256-nd0nXVv+FOKC6thKQlBRu0DrORrTu0TwMuvkp82vqmM=' 'sha256-lS6qh6J0zTyZzExrGEMM2Dd3xX6UwZuc/SuEZwhRZUg=' 'sha256-z7Qtt5anlWvvugvGyHBKMTOXD5UXsWUAJHkRTZKlmOQ=' 'sha256-OLeV7otPgYpW3r1P1Mjl/LMZBikIIIbTcOb1RQDQCdQ='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' data: blob: https://api.stripe.com https://*.stripe.com https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://iphones.la; frame-src 'self' https://accounts.google.com https://js.stripe.com https://*.js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://*.stripe.network; base-uri 'self'; frame-ancestors 'none'"
     X-Content-Type-Options = "nosniff"
 
 [[headers]]
@@ -353,6 +353,107 @@
   for = "/full-ad-studio.css"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+# Mirrors _headers: the house look (DESIGN-LAW 145) revalidates like the app; the art a redeploy
+# may replace under the same name is kept a day; the text for search engines and language
+# models an hour; the video maker's audit sheets and the master library are never in search.
+
+[[headers]]
+  for = "/house.css"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/pages.css"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/site-theme.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/assets/full-ads/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/assets/og/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/assets/brand/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/assets/explainers/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/assets/bg-web/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/assets/bg-offer/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/motion/phones/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/motion/sounds/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/motion/vendor/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/llms.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/llms-full.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/motion/audit-sweep.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/motion/views-sheet.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/master-library.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
 
 # Owner tools that stay reachable by link but should never be in search:
 # the good/bad picker, the asset library and the old single-file build.

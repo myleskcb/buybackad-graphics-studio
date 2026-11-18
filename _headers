@@ -1,5 +1,5 @@
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://js.stripe.com https://*.js.stripe.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com 'sha256-nd0nXVv+FOKC6thKQlBRu0DrORrTu0TwMuvkp82vqmM=' 'sha256-cNCMQrTRTYvjkMKLut5o4VxRTvT1qzyVV+TsmAbSu04=' 'sha256-z7Qtt5anlWvvugvGyHBKMTOXD5UXsWUAJHkRTZKlmOQ=' 'sha256-OLeV7otPgYpW3r1P1Mjl/LMZBikIIIbTcOb1RQDQCdQ='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' data: blob: https://api.stripe.com https://*.stripe.com https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://iphones.la; frame-src 'self' https://accounts.google.com https://js.stripe.com https://*.js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://*.stripe.network; base-uri 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://js.stripe.com https://*.js.stripe.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com 'sha256-nd0nXVv+FOKC6thKQlBRu0DrORrTu0TwMuvkp82vqmM=' 'sha256-lS6qh6J0zTyZzExrGEMM2Dd3xX6UwZuc/SuEZwhRZUg=' 'sha256-z7Qtt5anlWvvugvGyHBKMTOXD5UXsWUAJHkRTZKlmOQ=' 'sha256-OLeV7otPgYpW3r1P1Mjl/LMZBikIIIbTcOb1RQDQCdQ='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' data: blob: https://api.stripe.com https://*.stripe.com https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://iphones.la; frame-src 'self' https://accounts.google.com https://js.stripe.com https://*.js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://*.stripe.network; base-uri 'self'; frame-ancestors 'none'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
@@ -85,6 +85,73 @@
 
 /full-ad-studio.css
   Cache-Control: public, max-age=0, must-revalidate
+
+# The house look (DESIGN-LAW 145): its sheets and theme script carry no version in their names,
+# so they revalidate like the app.
+/house.css
+  Cache-Control: public, max-age=0, must-revalidate
+
+/pages.css
+  Cache-Control: public, max-age=0, must-revalidate
+
+/site-theme.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Art that a redeploy may replace under the same name (2026-11-18): the real ads the pages and
+# link previews show (scripts/build_og_cards.mjs), the brand files, the explainer videos and their
+# posters, the photographs behind the ads and the video maker's phones and sounds. They revalidated
+# on every visit; now a day, served stale for a week while a newer copy is fetched.
+/assets/full-ads/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/assets/og/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/assets/brand/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/assets/explainers/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/assets/bg-web/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/assets/bg-offer/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/motion/phones/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/motion/sounds/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/motion/vendor/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+# For search engines and language models: plain text, an hour (scripts/build_seo_pages.mjs).
+/llms.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600
+
+/llms-full.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600
+
+/robots.txt
+  Cache-Control: public, max-age=3600
+
+/sitemap.xml
+  Cache-Control: public, max-age=3600
+
+# The video maker's two audit sheets and the master library are owner tools: never in search.
+/motion/audit-sweep.html
+  X-Robots-Tag: noindex, nofollow
+
+/motion/views-sheet.html
+  X-Robots-Tag: noindex, nofollow
+
+/master-library.html
+  X-Robots-Tag: noindex, nofollow
 
 # Owner tools that stay reachable by link but should never be in search:
 # the good/bad picker, the asset library and the old single-file build.

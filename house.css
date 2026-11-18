@@ -22,11 +22,14 @@
 
    Its own file, like full-ad-studio.css: styles.css is mirrored into app.js (CSS_FALLBACK), and
    every rule here is scoped to :root[data-site='house'] and the landing or plans page, so the
-   studio's editor keeps the poster look (rule 98) and ?site=poster shows the landing in it.
+   studio's editor keeps the poster look (rule 98) until it is taken over (OPEN-ITEMS §BK).
    pages.css carries the same tokens for the information pages and the video maker.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 @font-face{font-family:'BB Chivo';src:url('assets/fonts/chivo-900.woff2') format('woff2');font-weight:100 900;font-display:swap}
+/* the fallback is Arial measured to Chivo (2026-11-18: widths 1.052 at 400, ascent .94, descent .25), so a
+   face that lands late does not move the page (the video maker's 0.37 shift was a late face) */
+@font-face{font-family:'BB Chivo Fallback';src:local('Arial'),local('Helvetica Neue'),local('Helvetica');size-adjust:105.2%;ascent-override:89.4%;descent-override:23.8%;line-gap-override:0%}
 @font-face{font-family:'BB Sofia XC';src:url('assets/fonts/sofia-sans-xcond-var.woff2') format('woff2');font-weight:500 900;font-display:swap}
 @font-face{font-family:'BB Schibsted';src:url('assets/fonts/schibsted-grotesk-var.woff2') format('woff2');font-weight:400 900;font-display:swap}
 @font-face{font-family:'BB Teko';src:url('assets/fonts/teko-700.woff2') format('woff2');font-weight:700;font-display:swap}
@@ -53,8 +56,8 @@
   --h-glow:color-mix(in srgb,var(--h-accent) 40%,transparent);
   --h-burst:#111b30; --h-burst-ink:#ffffff;
   --h-shadow:0 22px 44px -26px rgba(17,27,48,.55);
-  --h-display:'BB Chivo','Arial Black',system-ui,sans-serif; --h-display-wt:900; --h-display-k:1; --h-display-ls:-.012em;
-  --h-body:'BB Chivo',system-ui,-apple-system,'Segoe UI',sans-serif; --h-label-wt:800;
+  --h-display:'BB Chivo','BB Chivo Fallback','Arial Black',system-ui,sans-serif; --h-display-wt:900; --h-display-k:1; --h-display-ls:-.012em;
+  --h-body:'BB Chivo','BB Chivo Fallback',system-ui,-apple-system,'Segoe UI',sans-serif; --h-label-wt:800;
 }
 /* dark: Navy & Gold, and the other ten dark pairs by ?pair= (ground, lit patch, ink, accent, ink on it) */
 :root[data-site='house'][data-theme='dark']{
