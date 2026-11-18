@@ -606,10 +606,13 @@ produced." DESIGN-LAW rule 87. In practice:
   `build_full_subjects.mjs`): never edit either file by hand. Every draw in
   the maker goes through `settle()` and `adFor()` in `motion/app.js`; a new
   path that calls `harmonise` or `new Ad` directly draws the wrong ad in full
-  mode. Before a commit that touches it, the maker's page or the engine's
-  painters: `node scripts/full_ad_check.mjs`, then `quick_ad_check.mjs` and
-  `buylist_check.mjs`. Retired templates are `template-retired.js` (by hand;
-  `?noretire=1` shows them).
+  mode. What a full ad needs before it goes out is read by
+  `deliveredPreflight()` (1080 on the short side), by the download's gate and
+  by the search for a new look alike: read at 360, the search passed looks the
+  gate then stopped (2026-11-18). Before a commit that touches it, the
+  maker's page or the engine's painters: `node scripts/full_ad_check.mjs`,
+  then `quick_ad_check.mjs` and `buylist_check.mjs`. Retired templates are
+  `template-retired.js` (by hand; `?noretire=1` shows them).
 - **The full ad's colours** (rule 139, 2026-11-12): never fade an accent by
   opacity (a see-through gold over navy is khaki); a word naming a colour
   (GOLD, SILVER, ORO, PLATA) is accented only by that colour (`accentWord`);

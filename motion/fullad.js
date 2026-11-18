@@ -1171,12 +1171,14 @@ export function fullPreflight(ad, frame) {
      letter's soft edge is a blend of ink and ground, and counted as ground it reads 1:1 however
      clear the type is (docs/THEME-AUDIT.md, correction 1: the first cut of this check failed
      readable lines on exactly that, 2026-11-12). The ground's worst tenth (its brightest under
-     light ink, its darkest under dark) must still give the ratio. */
-  const reads = (r, inkHex) => {
+     light ink, its darkest under dark) must still give the ratio.
+     own(x, y), where given, names more of the block's own pixels: what the block itself draws
+     beside its letters is the block, and never what stands behind them (the footer's pin, below). */
+  const reads = (r, inkHex, own) => {
     const bx0 = Math.max(0, r[0] | 0), by0 = Math.max(0, r[1] | 0), bw = Math.min(W, Math.ceil(r[2])) - bx0, bh = Math.min(H, Math.ceil(r[3])) - by0;
     if (bw < 6 || bh < 6) return 99;
     const Li = Lhex(inkHex), light = Li >= .18, n = bw * bh, Lm = new Float32Array(n), isInk = new Uint8Array(n);
-    for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) { const L = Lat(px, ((by0 + y) * W + bx0 + x) * 4), i = y * bw + x; Lm[i] = L; if (cr(L, Li) < 1.6) isInk[i] = 1; }
+    for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) { const L = Lat(px, ((by0 + y) * W + bx0 + x) * 4), i = y * bw + x; Lm[i] = L; if (cr(L, Li) < 1.6 || (own && own(bx0 + x, by0 + y))) isInk[i] = 1; }
     // the ring round the letters: grown by d pixels, across then down
     const d = Math.max(2, Math.round(U * .0045)), row = new Uint8Array(n), ring = new Uint8Array(n);
     for (let y = 0; y < bh; y++) { let run = -1e9; for (let x = 0; x < bw; x++) { if (isInk[y * bw + x]) run = x; if (x - run <= d) row[y * bw + x] = 1; } run = 1e9; for (let x = bw - 1; x >= 0; x--) { if (isInk[y * bw + x]) run = x; if (run - x <= d) row[y * bw + x] = 1; } }
@@ -1191,12 +1193,26 @@ export function fullPreflight(ad, frame) {
   const ink = ad.pHead.ink, plateInk = contrastOf(ad.p.plate_ink, ad.p.plate) >= 3.5 ? ad.p.plate_ink : (lum(ad.p.plate) > .5 ? "#111111" : "#ffffff");
   const lines = [["line", "the line under the headline", ink, PF.small], ["call to action", "the line over the number", ink, PF.small], ["footer", "the towns and website", ink, PF.small],
     ["number", "the phone number", plateInk, PF.large], ["claim", "the claim", ad.claim ? ad.claim.ink : plateInk, PF.small]];
+  /* The footer's map pin is drawn in the accent before the towns, in the footer's own sprite (footRow):
+     it is the footer, not its ground. Counted as ground it was about two fifths of what the measure called
+     "behind" at 1080, and its brightest tenth: a white footer on navy, plain to read, measured 3.4:1, and
+     of 60 new looks with a town 13 were stopped at the download for it (every one teal or navy with
+     orange) and 21 more were given a note. At 360 and 720 the ring round the pin's white dot covered
+     most of it, so the same ads passed there: the video maker's search for a new look (360) passed what
+     its download (1080) then stopped, and Quick ad waited on the pop-up (2026-11-18). Every pixel the
+     footer's sprite draws is the footer's own; so set aside, the footer reads 7.5 to 15:1 on those 60, the
+     same at all three sizes. */
+  const footOwn = (() => {
+    const c = ad.site, r = R.footer; if (!c || !r) return null;
+    const a = c.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, c.width, c.height).data, ox = Math.round(r[0]), oy = Math.round(r[1]);
+    return (x, y) => { const sx = x - ox, sy = y - oy; return sx >= 0 && sy >= 0 && sx < c.width && sy < c.height && a[(sy * c.width + sx) * 4 + 3] > 8; };
+  })();
   let worst = 99, worstName = "";
   for (const [key, name, col, need] of lines) {
     let r = R[key]; if (!r) continue;
     if (key === "number") r = inPill(r);
     if (key === "claim") r = inPill([ad.claim.x, ad.claim.y, ad.claim.x + ad.claim.c.width, ad.claim.y + ad.claim.c.height]);
-    const got = reads(r, col);
+    const got = reads(r, col, key === "footer" ? footOwn : null);
     if (got < worst) { worst = got; worstName = name; }
     if (got < need) say("reads", got < need * .8 ? "fix" : "note", `${name[0].toUpperCase() + name.slice(1)} is hard to read against what is behind it. Try another colour, or New look.`);
   }
