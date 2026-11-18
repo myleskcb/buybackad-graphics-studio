@@ -1267,8 +1267,25 @@
     "SELL YOUR GAMING PC"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [],
-   "pool": []
+   "sets": [
+    [
+     {
+      "file": "photo-gaming-pc-tower",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-gaming-pc-tower",
+       "k": 1
+      }
+     ],
+     "w": 13
+    }
+   ]
   },
   {
    "key": "headphones",
@@ -1517,8 +1534,40 @@
     "SELL YOUR SEALED SSDS"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [],
-   "pool": []
+   "sets": [
+    [
+     {
+      "file": "photo-ssd-samsung-980-pro",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "photo-ssd-wd-black-sn850x",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-ssd-samsung-980-pro",
+       "k": 1
+      }
+     ],
+     "w": 13
+    },
+    {
+     "set": [
+      {
+       "file": "photo-ssd-wd-black-sn850x",
+       "k": 1
+      }
+     ],
+     "w": 12
+    }
+   ]
   },
   {
    "key": "minipc",
@@ -1532,8 +1581,40 @@
     "SELL YOUR MINI PC"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [],
-   "pool": []
+   "sets": [
+    [
+     {
+      "file": "photo-minipc-intel-nuc8",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "photo-minipc-minisforum-n40",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-minipc-intel-nuc8",
+       "k": 1
+      }
+     ],
+     "w": 12
+    },
+    {
+     "set": [
+      {
+       "file": "photo-minipc-minisforum-n40",
+       "k": 1
+      }
+     ],
+     "w": 11
+    }
+   ]
   },
   {
    "key": "chromebook",
@@ -1547,8 +1628,25 @@
     "SELL YOUR SEALED CHROMEBOOK"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [],
-   "pool": []
+   "sets": [
+    [
+     {
+      "file": "photo-chromebook-asus-c201",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-chromebook-asus-c201",
+       "k": 1
+      }
+     ],
+     "w": 13
+    }
+   ]
   },
   {
    "key": "metaglasses",
