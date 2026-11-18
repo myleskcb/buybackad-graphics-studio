@@ -1,7 +1,13 @@
-// Builds the category pages in ads/ (ads/we-buy-<category>.html), and the
-// "Ad templates" lists in index.html's and about.html's footers from the same
-// table, so a list cannot name a page that is not built.
-//   node scripts/build_seo_pages.mjs
+// Builds the category pages in ads/ (ads/we-buy-<category>.html), and from the
+// same tables everything search engines and AI assistants read on the site:
+// the "Ad templates" lists and the in-page links to every line on the landing,
+// the landing's structured data (Organization, WebSite, WebApplication with
+// offers from PLANS in app.js, HowTo, FAQPage from the visible FAQ), the heads,
+// bars and footers of the information pages (INFO), sitemap.xml, robots.txt,
+// llms.txt and llms-full.txt. So a list cannot name a page that is not built,
+// and no structured data says what the page does not.
+//   node scripts/build_seo_pages.mjs [--date=YYYY-MM-DD]
+// Remade 2026-11-18 in the house look and the trade's words (DESIGN-LAW 145).
 // Written 2026-09-22 for search: until then the whole site was one page, and a
 // reseller searching "we buy gold flyer template" had nothing to land on.
 //
@@ -371,16 +377,54 @@ const COMMON_FAQ = [
   ['Is it free?', 'You can design without an account. Downloading needs a free account: 3 photo downloads a week at 1080 pixels with a BUYBACK.AD watermark. Starter is $25 a month for 100 photo downloads up to 2160 pixels, no watermark, every design. Pro ($60) adds video ads and 500 downloads a month; Business ($100) is unlimited.'],
 ];
 
-const nav = (up) => `<a class="skip" href="#main">Skip to content</a>
+/* ── THE TRADE'S WORDS (2026-11-18, DESIGN-LAW 145). Each category page's title, description and
+   h1, in what resellers type ("we buy iPhones ad", "cash for gold flyer", "phone buyback ad
+   maker"). A title stays under 60 characters and a description under 160, so a result shows them
+   whole; the brand closes every title. The ad is the line's full ad (scripts/build_og_cards.mjs). */
+const SEO = {
+  apple:     { t: 'We Buy Apple Ads: iPhone, iPad and MacBook Flyers', d: 'Make a We Buy Apple ad or flyer for iPhones, iPads, MacBooks, Apple Watch and AirPods. Add your number and area, download, post. Free to start.' },
+  iphone:    { t: 'We Buy iPhones Ad and Flyer Maker', d: 'Make a We Buy iPhones ad or flyer in a minute. Add your number and area, download a post for Marketplace, Instagram or OfferUp. Every iPhone design is free.' },
+  ipad:      { t: 'We Buy iPads Ad and Flyer Maker', d: 'Make a We Buy iPads ad or flyer for iPad, iPad mini, iPad Air and iPad Pro. Add your number and area, download, post. Every iPad design is free.' },
+  mac:       { t: 'We Buy MacBooks Ad and Flyer Maker', d: 'Make a We Buy MacBooks ad or flyer for MacBook Air and MacBook Pro. Add your number and area, download, post. Every MacBook design is free.' },
+  watch:     { t: 'We Buy Apple Watch Ad and Flyer Maker', d: 'Make a We Buy Apple Watch ad or flyer for Series, SE and Ultra. Add your number and area, download, post. Every Apple Watch design is free.' },
+  airpods:   { t: 'We Buy AirPods Ad and Flyer Maker', d: 'Make a We Buy AirPods ad or flyer for AirPods, AirPods Pro and AirPods Max. Add your number and area, download, post. Free to start.' },
+  phones:    { t: 'Phone Buyback Ad Maker: We Buy Phones Flyers', h1: '&ldquo;We Buy Phones&rdquo; ads and cash for phones flyers', d: 'Make a phone buyback ad or cash for phones flyer for iPhone, Galaxy and Pixel. Add your number and area, download, post. Every phone design is free.' },
+  consoles:  { t: 'We Buy Consoles Ad Maker: PS5, Xbox and Switch', d: 'Make a We Buy Consoles ad or flyer for PS5, Xbox and Nintendo Switch. Add your number and area, download, post. Free to start.' },
+  computers: { t: 'We Buy Computers and Laptops Ad Maker', d: 'Make a We Buy Computers ad or flyer for laptops, monitors, mini PCs and SSDs. Add your number and area, download, post. Free to start.' },
+  gold:      { t: 'Cash for Gold Flyer and We Buy Gold Ad Maker', h1: '&ldquo;We Buy Gold&rdquo; ads and cash for gold flyers', d: 'Make a cash for gold flyer or We Buy Gold ad for scrap gold and jewelry. Add your number and area, download, post. Free to start.' },
+  silver:    { t: 'We Buy Silver Ad and Cash for Silver Flyer', h1: '&ldquo;We Buy Silver&rdquo; ads and cash for silver flyers', d: 'Make a cash for silver flyer or We Buy Silver ad for coins, bars, silverware and jewelry. Add your number and area, download, post. Free to start.' },
+  coins:     { t: 'We Buy Coins Ad and Coin Buyer Flyer Maker', d: 'Make a We Buy Coins ad or coin buyer flyer for old coins, silver dollars and collections. Add your number and area, download, post. Free to start.' },
+  cars:      { t: 'We Buy Cars Ad Maker: Cash for Cars Flyers', h1: '&ldquo;We Buy Cars&rdquo; ads and cash for cars flyers', d: 'Make a cash for cars flyer or We Buy Cars ad for used, junk and damaged cars and trucks. Add your number and area, download, post. Free to start.' },
+  pokemon:   { t: 'We Buy Pokémon Cards Ad and Flyer Maker', d: 'Make a We Buy Pokémon Cards ad or flyer for singles, slabs and sealed boxes. Add your number and area, download, post. Free to start.' },
+  sports:    { t: 'We Buy Sports Cards Ad and Flyer Maker', d: 'Make a We Buy Sports Cards ad or flyer for rookies, autos, slabs and sealed wax. Add your number and area, download, post. Free to start.' },
+  strips:    { t: 'We Buy Test Strips Ad and Flyer Maker', d: 'Make a We Buy Test Strips ad or flyer for sealed, unexpired diabetic test strips. Add your number and area, download, post. Free to start.' },
+  sneakers:  { t: 'We Buy Sneakers Ad and Flyer Maker', d: 'Make a We Buy Sneakers ad or flyer today with your own photo of the pairs you buy. Add your number and area, download, post. Free to start.' },
+  retro:     { t: 'We Buy Retro Games Ad and Flyer Maker', d: 'Make a We Buy Retro Games ad or flyer today with your own photo of the games you buy. Add your number and area, download, post. Free to start.' },
+};
+const BRAND = 'BUYBACK.AD', APP = 'BUYBACK.AD Graphics Studio';
+const TODAY = (process.argv.find((a) => a.startsWith('--date=')) || '').slice(7) || new Date().toISOString().slice(0, 10);
+const { readFileSync, existsSync, statSync } = await import('node:fs');
+const titleOf = (c) => `${(SEO[c.id] || {}).t || strip(c.title)} | ${BRAND}`;
+const descOf = (c) => (SEO[c.id] || {}).d || c.desc;
+const h1Of = (c) => (SEO[c.id] || {}).h1 || c.h1.replace(/ ad templates$/, ' ads and flyers');
+const adOf = (c) => existsSync(root + `assets/full-ads/${c.slug}.webp`) ? c.slug : '';
+const ogOf = (c) => existsSync(root + `assets/og/${c.slug}.jpg`) ? `${SITE}/assets/og/${c.slug}.jpg` : `${SITE}/assets/og/buybackad-og.jpg`;
+for (const c of CATS) {
+  const t = titleOf(c), d = descOf(c);
+  if (t.length > 62) throw new Error(`${c.id}: title is ${t.length} characters`);
+  if (d.length > 160) throw new Error(`${c.id}: description is ${d.length} characters`);
+  if (/[–—]/.test(t + d)) throw new Error(`${c.id}: a dash in the title or description (rule 55)`);
+}
+
+/* the bar and the foot of every information page (pages.css), the house look */
+const NAV = [['index.html#lp-templates', 'Templates'], ['motion/', 'Video ads'], ['looks.html', 'Look Book'], ['index.html#pricing', 'Pricing'], ['about.html', 'About']];
+const nav = (up, here = '') => `<a class="skip" href="#main">Skip to content</a>
 <header class="top">
-  <a class="brand" href="${up}index.html">GRAPHICS <em>STUDIO</em></a>
+  <a class="brand" href="${up}index.html" aria-label="BUYBACK.AD home"><span class="w">BUYBACK<em>.AD</em></span><span class="s">Graphics Studio</span></a>
   <nav aria-label="Site">
-    <a href="${up}index.html#lp-templates">Templates</a>
-    <a href="${up}motion/">Video ads</a>
-    <a href="${up}index.html#pricing">Pricing</a>
-    <a href="${up}about.html">About</a>
-    <a class="btn" href="${up}index.html">Make my ad</a>
+    ${NAV.map(([h, t]) => `<a href="${up}${h}"${h === here ? ' aria-current="page"' : ''}>${t}</a>`).join('\n    ')}
   </nav>
+  <a class="btn" href="${up}index.html">Make my ad</a>
 </header>`;
 
 const byId = Object.fromEntries(CATS.map((c) => [c.id, c]));
@@ -393,8 +437,7 @@ const gallery = (c) => c.catLabel || c.name;
 
 /* the "Ad templates" list: each top line in its own group, its sub-lines in
    one wrapping row under it, so a list set in columns never parts a line from
-   its sub-lines (the pages' footers, about.html's and index.html's; each page
-   names its own classes) */
+   its sub-lines (the pages' footers and index.html's; each page names its own classes) */
 const catList = (up, { grp, subs }, pad = '    ') => top.map((c) => {
   const kids = subsOf(c);
   const a = `<a href="${up}ads/${c.slug}.html">${esc(label(c))}</a>`;
@@ -403,84 +446,126 @@ const catList = (up, { grp, subs }, pad = '    ') => top.map((c) => {
 }).join(`\n${pad}`);
 
 const footer = (up) => `<footer class="bottom">
+  <div class="foot-brand"><span class="w">BUYBACK<em>.AD</em></span><span class="s">We Buy ads, flyers and video ads for resellers.</span></div>
   <div class="cats">${catList(up, { grp: 'cat-grp', subs: 'cat-sub' })}</div>
-  <a href="${up}index.html">Graphics Studio</a>
-  <a href="${up}motion/">Phone video ads</a>
-  <a href="${up}about.html">About</a>
-  <a href="${up}index.html#pricing">Pricing</a>
-  <a href="${up}index.html#faq">FAQ</a>
-  <a href="${up}terms.html">Terms</a>
-  <a href="${up}privacy.html">Privacy</a>
-  <span>&copy; 2026 BUYBACK.AD</span>
+  <nav class="foot-links" aria-label="More">
+    <a href="${up}index.html">Make an ad</a>
+    <a href="${up}motion/">Video ads</a>
+    <a href="${up}looks.html">Look Book</a>
+    <a href="${up}learn.html">How it works</a>
+    <a href="${up}about.html">About</a>
+    <a href="${up}index.html#pricing">Pricing</a>
+    <a href="${up}index.html#faq">FAQ</a>
+    <a href="${up}terms.html">Terms</a>
+    <a href="${up}privacy.html">Privacy</a>
+    <a href="${up}llms.txt">llms.txt</a>
+  </nav>
+  <span class="copy">&copy; 2026 BUYBACK.AD</span>
 </footer>`;
+
+/* the three steps a category page shows: the same words in the list and in its HowTo */
+function stepsOf(c) {
+  const gal = esc(gallery(c));
+  return c.soon ? [
+    ['Pick a design', `${c.cat ? `Open the ${gal} designs` : 'Open the gallery'} and click one. A design without a product picture in front works best.`],
+    ['Make it yours', `Upload your own photo of the ${esc(c.name)} as the background (iPhone HEIC photos work), then type your headline, your phone number and your ZIP or city.`],
+    ['Download and post', `Choose a size (square for feeds, 9:16 for stories, 8.5&times;11 for print) and download. ${esc(c.free)}`],
+  ] : [
+    ['Pick a design', `Open the ${gal} designs and click one. It opens in the studio with its colours, product picture and copy already in place.`],
+    ['Type your details', 'Your phone number, website if you have one, and your ZIP or city. Save them once in your brand kit and every design fills them in.'],
+    ['Download and post', `Choose a size (square for feeds, 9:16 for stories, 8.5&times;11 for print) and download. ${esc(c.free)}`],
+  ];
+}
+const howTo = (name, steps, url) => ({ '@type': 'HowTo', '@id': url + '#how', name, totalTime: 'PT1M',
+  step: steps.map(([n, t], i) => ({ '@type': 'HowToStep', position: i + 1, name: strip(n), text: strip(t) })) });
+
+/* one head for every page: title, description, canonical, the full preview card */
+function seoHead({ title, desc, url, image, imageAlt, ogTitle, ogDesc, type = 'website', robots = 'index, follow, max-image-preview:large', ld }) {
+  return `<title>${esc(title)}</title>
+<meta name="description" content="${esc(desc)}">
+<link rel="canonical" href="${url}">
+<meta name="robots" content="${robots}">
+<meta property="og:type" content="${type}">
+<meta property="og:site_name" content="${BRAND}">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="${esc(ogTitle || title.replace(/ \| BUYBACK\.AD$/, ''))}">
+<meta property="og:description" content="${esc(ogDesc || desc)}">
+<meta property="og:url" content="${url}">
+<meta property="og:image" content="${image}">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${esc(imageAlt)}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${esc(ogTitle || title.replace(/ \| BUYBACK\.AD$/, ''))}">
+<meta name="twitter:description" content="${esc(ogDesc || desc)}">
+<meta name="twitter:image" content="${image}">
+<meta name="twitter:image:alt" content="${esc(imageAlt)}">
+${ld ? `<script type="application/ld+json" id="ld-page">${JSON.stringify(ld)}</script>\n` : ''}`;
+}
+const ORG = { '@id': SITE + '/#org' }, WEBSITE = { '@id': SITE + '/#site' }, APPREF = { '@id': SITE + '/#app' };
+const webPage = (url, name, desc, extra = {}) => ({ '@type': 'WebPage', '@id': url + '#page', url, name, description: desc, isPartOf: WEBSITE, about: APPREF, publisher: ORG, inLanguage: 'en', ...extra });
+
+const adAlt = (c) => `A full ad made with BUYBACK.AD: ${strip(c.title).replace(/ ad templates$/, '').toUpperCase()}, with the number in a pill and the towns after a pin`;
 
 function page(c) {
   const url = `${SITE}/ads/${c.slug}.html`;
   const faq = [...c.faq, ...COMMON_FAQ];
   const parent = c.parent && byId[c.parent];
-  const crumbs = [{ name: 'Graphics Studio', item: SITE + '/' }];
-  if (parent) crumbs.push({ name: strip(parent.title), item: `${SITE}/ads/${parent.slug}.html` });
-  crumbs.push({ name: strip(c.title), item: url });
-  const ld = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      { '@type': 'BreadcrumbList', itemListElement: crumbs.map((x, i) => ({ '@type': 'ListItem', position: i + 1, name: x.name, item: x.item })) },
-      { '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
-    ],
-  };
-  const title = `${strip(c.title)} | Graphics Studio by BUYBACK.AD`;
+  const crumbs = [{ name: BRAND, item: SITE + '/' }];
+  if (parent) crumbs.push({ name: strip(h1Of(parent)), item: `${SITE}/ads/${parent.slug}.html` });
+  crumbs.push({ name: strip(h1Of(c)), item: url });
+  const steps = stepsOf(c), ad = adOf(c), title = titleOf(c), desc = descOf(c);
+  const ld = { '@context': 'https://schema.org', '@graph': [
+    webPage(url, title, desc, { breadcrumb: { '@id': url + '#crumbs' }, ...(ad ? { primaryImageOfPage: { '@id': url + '#ad' } } : {}) }),
+    ...(ad ? [{ '@type': 'ImageObject', '@id': url + '#ad', url: `${SITE}/assets/full-ads/${ad}.webp`, contentUrl: `${SITE}/assets/full-ads/${ad}.webp`, width: 720, height: 720, caption: adAlt(c) }] : []),
+    { '@type': 'BreadcrumbList', '@id': url + '#crumbs', itemListElement: crumbs.map((x, i) => ({ '@type': 'ListItem', position: i + 1, name: x.name, item: x.item })) },
+    howTo(`How to make ${an(strip(c.title).replace(/ ad templates$/, ''))} ad`, steps, url),
+    { '@type': 'FAQPage', '@id': url + '#faq', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
+  ] };
   const cat = c.cat || c.id;
   const kids = subsOf(c);
-  const pick = c.soon
-    ? (c.cat ? `../index.html?cat=${cat}` : '../index.html#lp-templates')
-    : `../index.html?cat=${cat}`;
-  const cta = c.soon
-    ? (c.cat ? `Start from a ${gallery(c)} design` : 'Browse the designs')
-    : `See the ${gallery(c)} designs`;
-  const steps = c.soon ? `
-    <li><strong>Pick a design.</strong> ${c.cat ? `Open the ${esc(gallery(c))} designs` : 'Open the gallery'} and click one. A design without a product picture in front works best.</li>
-    <li><strong>Make it yours.</strong> Upload your own photo of the ${esc(c.name)} as the background (iPhone HEIC photos work), then type your headline, your phone number and your ZIP or city.</li>
-    <li><strong>Download and post.</strong> Choose a size (square for feeds, 9:16 for stories, 8.5&times;11 for print) and download. ${esc(c.free)}</li>` : `
-    <li><strong>Pick a design.</strong> Open the ${esc(gallery(c))} designs and click one. It opens in the studio with its colours, product picture and copy already in place.</li>
-    <li><strong>Type your details.</strong> Your phone number, website if you have one, and your ZIP or city. Save them once in your brand kit and every design fills them in.</li>
-    <li><strong>Download and post.</strong> Choose a size (square for feeds, 9:16 for stories, 8.5&times;11 for print) and download. ${esc(c.free)}</li>`;
+  const pick = c.soon ? (c.cat ? `../index.html?cat=${cat}` : '../index.html#lp-templates') : `../index.html?cat=${cat}`;
+  const cta = c.soon ? (c.cat ? `Start from a ${gallery(c)} design` : 'Browse the designs') : `See the ${gallery(c)} designs`;
+  const art = ad
+    ? `<figure class="ad-art"><img src="../assets/full-ads/${ad}.webp" width="720" height="720" fetchpriority="high" alt="${esc(adAlt(c))}"><figcaption>A full ad for this line, made in the studio. Yours carries your number and your towns.</figcaption></figure>`
+    : (c.art.length ? `<div class="hero-art">${c.art.map((a) => `<img src="../assets/cutouts/${a}.webp" alt="" loading="lazy" width="400" height="400">`).join('')}</div>` : '');
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- Generated by scripts/build_seo_pages.mjs. Edit there, not here. -->
-<title>${esc(title)}</title>
-<meta name="description" content="${esc(c.desc)}">
-<link rel="canonical" href="${url}">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Graphics Studio by BUYBACK.AD">
-<meta property="og:title" content="${esc(strip(c.title))}">
-<meta property="og:description" content="${esc(c.desc)}">
-<meta property="og:url" content="${url}">
-<meta property="og:image" content="${SITE}/assets/og/buybackad-og.jpg">
-<meta name="twitter:card" content="summary_large_image">
+${seoHead({ title, desc, url, image: ogOf(c), imageAlt: ad ? adAlt(c) : 'BUYBACK.AD: We Buy ads and flyers, ready in a minute' })}<meta name="theme-color" content="#031b56" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#e2e8f3" media="(prefers-color-scheme: light)">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/chivo-900.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../pages.css">
-<script type="application/ld+json">${JSON.stringify(ld)}</script>
+<script src="../site-theme.js"></script>
 </head>
 <body>
 ${nav('../')}
 <main id="main">
-  <div class="crumbs"><a href="../index.html">Graphics Studio</a> &rsaquo; ${parent ? `<a href="${parent.slug}.html">${esc(strip(parent.title))}</a> &rsaquo; ` : ''}${esc(strip(c.title))}</div>
-  <h1>${c.h1}</h1>
-  <p class="lead">Graphics Studio makes buyback ads for ${esc(c.who)}. Pick a design, type your phone number and area, and download an image ready for Facebook Marketplace, OfferUp, Craigslist, Instagram or a printed flyer.</p>
-  ${c.soon ? `<p class="card"><strong>${esc(one(c)[0].toUpperCase() + one(c).slice(1))} designs are on the way.</strong> Until they are in the studio, you can make ${an(esc(one(c)))} ad today from ${c.cat ? `a ${esc(gallery(c))} design` : 'any design'} with your own photo.</p>\n  ` : ''}<div class="ctas">
+  <div class="crumbs"><a href="../index.html">${BRAND}</a> &rsaquo; ${parent ? `<a href="${parent.slug}.html">${esc(strip(h1Of(parent)))}</a> &rsaquo; ` : ''}${esc(strip(h1Of(c)))}</div>
+  <div class="page-hero${ad ? ' with-ad' : ''}">
+  <div class="page-hero-copy">
+  <span class="badge">${esc(strip(c.title).replace(/ ad templates$/, ' ads'))}</span>
+  <h1>${h1Of(c)}</h1>
+  <p class="lead">BUYBACK.AD makes buyback ads for ${esc(c.who)}. Pick a design, type your phone number and area, and download an image ready for Facebook Marketplace, OfferUp, Craigslist, Instagram or a printed flyer.</p>
+  ${c.soon ? `<p class="card"><strong>${esc(one(c)[0].toUpperCase() + one(c).slice(1))} designs are on the way.</strong> Until they are in the studio, you can make ${an(esc(one(c)))} ad today from ${c.cat ? `a ${esc(gallery(c))} design` : 'any design'} with your own photo as the background. This page will link to the ${esc(one(c))} designs when they are ready.</p>\n  ` : ''}<div class="ctas">
     <a class="btn" href="${pick}">${esc(cta)}</a>
     ${['apple', 'iphone', 'phones'].includes(c.id) ? '<a class="btn ghost" href="../motion/">Make a phone video ad</a>' : ''}
     <a class="btn ghost" href="../index.html#pricing">Pricing</a>
   </div>
-  ${c.art.length ? `<div class="hero-art">${c.art.map((a) => `<img src="../assets/cutouts/${a}.webp" alt="" loading="lazy" width="400" height="400">`).join('')}</div>\n` : ''}${kids.length ? `
+  </div>
+  ${art}
+  </div>
+${kids.length ? `
   <h2>${esc(c.subsTitle || `More ${c.name} ads`)}</h2>
-  <ul class="tidy">${kids.map((k) => `<li><a href="${k.slug}.html">${esc(strip(k.title))}</a></li>`).join('\n    ')}</ul>
+  <ul class="tidy">${kids.map((k) => `<li><a href="${k.slug}.html">${esc(strip(h1Of(k)))}</a></li>`).join('\n    ')}</ul>
 ` : ''}
   <h2>How it works</h2>
-  <ol class="steps">${steps}
+  <ol class="steps">${steps.map(([n, t]) => `\n    <li><strong>${n}.</strong> ${t}</li>`).join('')}
   </ol>
 
   <h2>What to put on ${an(esc(one(c)))} buyback ad</h2>
@@ -502,60 +587,244 @@ mkdirSync(root + 'ads', { recursive: true });
 for (const c of CATS) writeFileSync(root + `ads/${c.slug}.html`, page(c));
 console.log('wrote', CATS.length, 'pages to ads/');
 
-// The "Ad templates" lists in index.html's footer and about.html's, from the
-// same table as the pages, between their <!-- ad-templates --> markers.
+/* ── the plans, from PLANS in app.js (display copy), held to the server's table ── */
+function readPlans() {
+  const src = readFileSync(root + 'app.js', 'utf8');
+  const m = src.match(/const PLANS = (\{[\s\S]*?\n\});\s*\nconst PACKS = (\{[\s\S]*?\n\});\s*\n\/\* PLANS:END \*\//);
+  if (!m) throw new Error('app.js: PLANS and PACKS between PLANS:BEGIN and PLANS:END were not found');
+  return { PLANS: Function(`return ${m[1]}`)(), PACKS: Function(`return ${m[2]}`)() };
+}
+const { PLANS, PACKS } = readPlans();
 {
-  const { readFileSync } = await import('node:fs');
-  const fill = (file, list) => {
-    const f = root + file;
-    const html = readFileSync(f, 'utf8');
-    const re = /(<!-- ad-templates[^>]*-->)[\s\S]*?(\s*<!-- \/ad-templates -->)/;
-    if (!re.test(html)) throw new Error(file + ': no <!-- ad-templates --> markers');
-    writeFileSync(f, html.replace(re, (m, a, b) => a + list + b));
-  };
-  fill('index.html', '\n          ' + catList('', { grp: 'lpf-grp', subs: 'lpf-subs' }, '          '));
-  fill('about.html', '\n    ' + catList('', { grp: 'cat-grp', subs: 'cat-sub' }));
-  console.log('footer lists:', top.length, 'lines,', CATS.length - top.length, 'sub-lines');
+  const server = (await import(root + 'netlify/lib/plans.mjs')).PLANS;
+  for (const [id, p] of Object.entries(PLANS)) for (const k of ['weekly', 'monthly', 'maxPx', 'watermark', 'video', 'credits', 'library']) {
+    if (!server[id] || JSON.stringify(server[id][k]) !== JSON.stringify(p[k]) || JSON.stringify(server[id].price) !== JSON.stringify(p.price)) throw new Error(`PLANS.${id}.${k}: app.js and netlify/lib/plans.mjs disagree; the JSON-LD would state a price or a limit the server does not charge`);
+  }
+}
+const fmtN = (n) => Number(n).toLocaleString('en-US');
+function planWords(p) {
+  const dl = p.weekly ? `${p.weekly} photo downloads a week` : p.monthly ? `${fmtN(p.monthly)} ${p.video ? 'downloads a month, photos or videos' : 'photo downloads a month'}` : 'Unlimited downloads, photos or videos';
+  return [dl, p.watermark ? `${p.maxPx} pixels with a light BUYBACK.AD watermark` : `up to ${p.maxPx} pixels, no watermark`, p.video ? 'video ads' : null, p.qr ? 'QR code' : null, `${p.credits} AI credits a month`, `${fmtN(p.library)} ads kept in the library`].filter(Boolean).join(', ');
+}
+function offers() {
+  const out = [];
+  for (const p of Object.values(PLANS)) {
+    const base = { '@type': 'Offer', priceCurrency: 'USD', availability: 'https://schema.org/InStock', url: SITE + '/#pricing', description: planWords(p) };
+    if (!p.price.month) { out.push({ ...base, name: p.label, price: '0' }); continue; }
+    for (const [iv, cents, dur, unit] of [['monthly', p.price.month, 'P1M', 'MON'], ['yearly', p.price.year, 'P1Y', 'ANN']]) {
+      if (!cents) continue;
+      const price = String(cents / 100);
+      out.push({ ...base, name: `${p.label}, ${iv}`, price, priceSpecification: { '@type': 'UnitPriceSpecification', price, priceCurrency: 'USD', billingDuration: dur, referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: unit } } });
+    }
+  }
+  for (const k of Object.values(PACKS)) out.push({ '@type': 'Offer', name: k.label, price: String(k.price / 100), priceCurrency: 'USD', availability: 'https://schema.org/InStock', url: SITE + '/#pricing', description: `${k.credits} AI credits, bought once, never expire` });
+  return out;
 }
 
-// index.html's FAQPage JSON-LD, rebuilt from the visible FAQ so the two cannot
-// disagree (structured data that says something the page does not is against
-// Google's rules and is a lie besides). Edit the <details class="lp-faq"> rows,
-// then run this script.
+/* ── index.html: the in-page links to every line, the footer's list, the site's graph, the FAQ ── */
+const decode = (t) => strip(t).replace(/&#39;/g, "'").replace(/&ntilde;/g, 'ñ').replace(/&bull;/g, '•').replace(/\s+/g, ' ').trim();
+const fill = (html, name, list) => {
+  const re = new RegExp(`(<!-- ${name}[^>]*-->)[\\s\\S]*?(\\s*<!-- \\/${name} -->)`);
+  if (!re.test(html)) throw new Error(`no <!-- ${name} --> markers`);
+  return html.replace(re, (m, a, b) => a + list + b);
+};
+let landingSteps = [], landingFaq = [];
 {
-  const { readFileSync } = await import('node:fs');
   const f = root + 'index.html';
   let html = readFileSync(f, 'utf8');
-  const decode = (t) => strip(t).replace(/&#39;/g, "'").replace(/\s+/g, ' ').trim();
-  const qa = [...html.matchAll(/<details class="lp-faq"><summary>([\s\S]*?)<\/summary><p>([\s\S]*?)<\/p><\/details>/g)]
-    .map((m) => ({ '@type': 'Question', name: decode(m[1]), acceptedAnswer: { '@type': 'Answer', text: decode(m[2]) } }));
-  const block = `<script type="application/ld+json" id="ld-faq">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: qa })}</script>`;
-  /* every ld-faq block, not the first: a second, stale copy ("twelve colour
-     sets") sat beside the rebuilt one, two FAQPage graphs, one of them false
-     (the SEO audit, 2026-11-03). The first is replaced, the rest removed. */
+  html = fill(html, 'ad-templates', '\n          ' + catList('', { grp: 'lpf-grp', subs: 'lpf-subs' }, '          '));
+  html = fill(html, 'ad-links', '\n      ' + CATS.map((c) => `<li><a href="ads/${c.slug}.html">${esc(strip(h1Of(c)).replace(/^"|"(?= )/g, ''))}</a></li>`).join('\n      '));
+  /* the FAQ, rebuilt from the visible rows so the two cannot disagree (structured data that
+     says something the page does not is against Google's rules, and a lie besides). Edit the
+     <details class="lp-faq"> rows, then run this script. */
+  landingFaq = [...html.matchAll(/<details class="lp-faq"><summary>([\s\S]*?)<\/summary><p>([\s\S]*?)<\/p><\/details>/g)].map((m) => [decode(m[1]), decode(m[2])]);
+  const qa = landingFaq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } }));
+  const faqBlock = `<script type="application/ld+json" id="ld-faq">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', '@id': SITE + '/#faq', mainEntity: qa })}</script>`;
   const re = /\s*<script type="application\/ld\+json" id="ld-faq">[\s\S]*?<\/script>/g;
   let first = true;
-  html = re.test(html) ? html.replace(re, (m) => { const lead = m.match(/^\s*/)[0]; if (!first) return ''; first = false; return lead + block; })
-    : html.replace('</head>', block + '\n</head>');
-  /* the Offers in the site's JSON-LD, from the table the server charges by
-     (netlify/lib/plans.mjs). They said Pro was $15 a month, the price of
-     August, while the page sold $25, $60 and $100: Google shows the
-     structured price, so a searcher was told a fifth of the real one. */
-  const { PLANS } = await import(root + 'netlify/lib/plans.mjs');
-  const fmt = (n) => Number(n).toLocaleString('en-US');
-  const offerFor = (id) => {
-    const p = PLANS[id], usd = String(p.price.month / 100);
-    const dl = p.weekly ? p.weekly + ' downloads a week' : p.monthly ? fmt(p.monthly) + ' downloads a month' : 'Unlimited downloads';
-    const description = [dl, 'up to ' + p.maxPx + ' pixels', p.watermark ? 'with a watermark' : 'no watermark', p.video ? 'video ads' : null, p.credits + ' AI credits a month'].filter(Boolean).join(', ');
-    const o = { '@type': 'Offer', name: p.label, price: usd, priceCurrency: 'USD', description };
-    if (p.price.month) o.priceSpecification = { '@type': 'UnitPriceSpecification', price: usd, priceCurrency: 'USD', unitCode: 'MON', referenceQuantity: { '@type': 'QuantitativeValue', value: '1', unitCode: 'MON' } };
-    return o;
-  };
-  const offers = Object.keys(PLANS).map(offerFor).map((o) => JSON.stringify(o)).join(',\n');
-  const graphRe = /(\{"@type":"Offer"[\s\S]*?)(\]\}\s*\n\]\}\s*\n<\/script>)/;
-  if (graphRe.test(html)) html = html.replace(graphRe, (m, _old, tail) => offers + tail);
-  else console.warn('index.html: the Offer list was not found; prices not rewritten');
+  html = re.test(html) ? html.replace(re, (m) => { const lead = m.match(/^\s*/)[0]; if (!first) return ''; first = false; return lead + faqBlock; }) : html.replace('</head>', faqBlock + '\n</head>');
+  /* the three steps the landing shows, read off the page */
+  landingSteps = [...html.matchAll(/<li class="h-step">\s*<h3>([\s\S]*?)<\/h3>\s*<p>([\s\S]*?)<\/p>/g)].map((m) => [m[1], m[2]]);
+  if (landingSteps.length !== 3) throw new Error('index.html: the three steps (li.h-step) were not found');
+  const site = { '@context': 'https://schema.org', '@graph': [
+    { '@type': 'Organization', '@id': SITE + '/#org', name: BRAND, url: SITE + '/', logo: { '@type': 'ImageObject', url: SITE + '/assets/brand/buybackad-logo.png', width: 512, height: 512 },
+      description: 'BUYBACK.AD makes We Buy ads, flyers and video ads for people who buy phones, gold, silver, coins, cars, cards and other goods from the public and resell them.' },
+    { '@type': 'WebSite', '@id': SITE + '/#site', name: BRAND, alternateName: 'Graphics Studio by BUYBACK.AD', url: SITE + '/', publisher: ORG, inLanguage: 'en' },
+    { '@type': 'WebApplication', '@id': SITE + '/#app', name: APP, alternateName: ['Graphics Studio by BUYBACK.AD', 'BUYBACK.AD'], url: SITE + '/',
+      applicationCategory: 'DesignApplication', applicationSubCategory: 'Ad and flyer maker', operatingSystem: 'Any, in a web browser', browserRequirements: 'A current web browser with JavaScript',
+      isAccessibleForFree: true, inLanguage: ['en', 'es'], publisher: ORG, screenshot: SITE + '/assets/og/buybackad-og.jpg',
+      description: 'A web app for buyback resellers. Pick a We Buy design for iPhones, phones, gold, silver, coins, cars, Pokémon cards, sports cards, test strips and more, add your phone number and area, and download a post-ready photo ad, printable flyer or video ad. The number is set big enough to read in a feed preview.',
+      featureList: ['We Buy ad designs for 13 kinds of goods', 'The full ad: business name, headline, models, selling points, product, number and towns on one ad', 'Sizes: Square, Story 9:16, Tall 3:4, Wide 16:9, Wide 4:3, Flyer 8.5x11', 'Video ads in English, Spanish or both', 'Your number, area and business name filled in on every design', '31 colour sets', 'AI backgrounds'],
+      offers: offers() },
+    { '@type': 'WebPage', '@id': SITE + '/#page', url: SITE + '/', name: 'We Buy Ad and Flyer Maker for Resellers', isPartOf: WEBSITE, about: APPREF, publisher: ORG, inLanguage: 'en', primaryImageOfPage: { '@type': 'ImageObject', url: SITE + '/assets/og/buybackad-og.jpg', width: 1200, height: 630 } },
+    howTo('How to make a We Buy ad with BUYBACK.AD', landingSteps, SITE + '/'),
+  ] };
+  html = html.replace(/<script type="application\/ld\+json" id="ld-site">[\s\S]*?<\/script>/, `<script type="application/ld+json" id="ld-site">${JSON.stringify(site)}</script>`);
   writeFileSync(f, html);
-  console.log('index.html FAQPage:', qa.length, 'questions; Offers:', Object.keys(PLANS).length);
+  console.log('index.html: FAQPage', qa.length, 'questions; offers', site['@graph'][2].offers.length, '; HowTo', landingSteps.length, 'steps; links to', CATS.length, 'lines');
 }
+
+/* ── the information pages: one head each (INFO), the shared bar and foot ── */
+function mp4Seconds(file) {
+  const b = readFileSync(file); const i = b.indexOf('mvhd');
+  if (i < 0) return 0;
+  const v = b[i + 4], ts = v === 1 ? b.readUInt32BE(i + 24) : b.readUInt32BE(i + 16), dur = v === 1 ? Number(b.readBigUInt64BE(i + 28)) : b.readUInt32BE(i + 20);
+  return Math.round(dur / ts);
+}
+const gitDate = (rel) => { try { return execSync(`git log --diff-filter=A --format=%cs -1 -- "${rel}"`, { cwd: root }).toString().trim() || TODAY; } catch { return TODAY; } };
+const { execSync } = await import('node:child_process');
+function learnVideos(html) {
+  return [...html.matchAll(/<section class="vid" id="([^"]+)">\s*<video[^>]*poster="([^"]+)"[^>]*src="([^"]+)"[^>]*><\/video>\s*<div>\s*<h2>([\s\S]*?)<\/h2>\s*<p>([\s\S]*?)<\/p>/g)].map((m) => {
+    const secs = mp4Seconds(root + m[3]);
+    return { '@type': 'VideoObject', '@id': `${SITE}/learn.html#${m[1]}`, name: decode(m[4]).replace(/^\d+\.\s*/, ''), description: decode(m[5]),
+      thumbnailUrl: `${SITE}/${m[2]}`, contentUrl: `${SITE}/${m[3]}`, embedUrl: `${SITE}/learn.html#${m[1]}`, uploadDate: gitDate(m[3]), duration: `PT${secs}S`, publisher: ORG, inLanguage: 'en' };
+  });
+}
+const INFO = [
+  { file: 'about.html', up: '', here: 'about.html', path: '/about.html', title: 'About BUYBACK.AD: the We Buy Ad Maker for Resellers', desc: 'What BUYBACK.AD is, who it is for, how it works, what is free, what each plan adds and what happens to your data. We Buy ads and flyers in your browser.', og: 'buybackad-og', type: 'AboutPage' },
+  { file: 'learn.html', up: '', here: '', path: '/learn.html', title: 'How BUYBACK.AD Works: Five Short Videos', desc: 'Five short videos: what BUYBACK.AD is, how to make a We Buy ad in about a minute, how to look like the real business, AI or ready-made, and what it costs.', og: 'buybackad-og', type: 'WebPage', videos: true },
+  { file: 'looks.html', up: '', here: 'looks.html', path: '/looks.html', title: 'Look Book: Every We Buy Ad Look | BUYBACK.AD', desc: 'Every ready-made look in one place: video looks, photo ad designs, backgrounds and phone layouts for We Buy ads. Pick one and it opens in the editor.', og: 'buybackad-og', type: 'CollectionPage', bare: true },
+  { file: 'privacy.html', up: '', here: '', path: '/privacy.html', title: 'Privacy Policy | BUYBACK.AD', desc: 'What BUYBACK.AD stores, what stays in your browser, every case where something leaves your device, the services we use, and your rights.', og: 'buybackad-og', type: 'WebPage' },
+  { file: 'terms.html', up: '', here: '', path: '/terms.html', title: 'Terms of Service | BUYBACK.AD', desc: 'The terms for using BUYBACK.AD: plans, automatic renewal and cancellation, refunds, AI credits, AI-made content, acceptable use and liability.', og: 'buybackad-og', type: 'WebPage' },
+  { file: 'motion/index.html', up: '../', here: 'motion/', path: '/motion/', title: 'We Buy Phones Video Ad Maker, Free to Try | BUYBACK.AD', ogTitle: 'We Buy Phones video ads, made in your browser', desc: 'Make a We Buy Phones video ad in your browser. Your headline and number land in seconds, with music, in English or Spanish. Download an MP4 with its photo.', og: 'video-ad-maker', type: 'WebPage', bare: true, alt: 'A full ad in Midnight and Cyan: SELL YOUR IPHONE, the video maker\'s house ad' },
+];
+for (const p of INFO) {
+  const f = root + p.file;
+  let html = readFileSync(f, 'utf8');
+  const url = SITE + p.path;
+  if (p.title.length > 62 || p.desc.length > 160 || /[–—]/.test(p.title + p.desc)) throw new Error(`${p.file}: title or description too long, or a dash`);
+  const graph = [{ ...webPage(url, p.title, p.desc), '@type': p.type }];
+  if (p.videos) graph[0].video = learnVideos(html);
+  if (p.file === 'motion/index.html') graph.push({ '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: BRAND, item: SITE + '/' }, { '@type': 'ListItem', position: 2, name: 'Video ads', item: url }] });
+  const head = seoHead({ title: p.title, desc: p.desc, url, image: `${SITE}/assets/og/${p.og}.jpg`, imageAlt: p.alt || 'Three full ads made with BUYBACK.AD: We Buy iPhones, We Buy Gold, We Buy Cars', ogTitle: p.ogTitle, ld: { '@context': 'https://schema.org', '@graph': graph } });
+  html = fill(html, 'seo', '\n' + head.trimEnd());
+  if (!p.bare) {
+    html = fill(html, 'site-nav', '\n' + nav(p.up, p.here));
+    html = fill(html, 'site-footer', '\n' + footer(p.up));
+  }
+  writeFileSync(f, html);
+  if (p.videos) console.log(`${p.file}: ${graph[0].video.length} VideoObjects (${graph[0].video.map((v) => v.duration).join(', ')})`);
+}
+console.log('information pages:', INFO.map((p) => p.file).join(', '));
+
+/* ── sitemap.xml, robots.txt, llms.txt and llms-full.txt ── */
+const PAGES = [
+  ['/', 'assets/og/buybackad-og.jpg'], ['/motion/', 'assets/og/video-ad-maker.jpg'], ['/learn.html'], ['/about.html'], ['/looks.html'],
+  ...CATS.map((c) => [`/ads/${c.slug}.html`, adOf(c) ? `assets/full-ads/${c.slug}.webp` : '']),
+  ['/privacy.html'], ['/terms.html'],
+];
+writeFileSync(root + 'sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
+<!-- Written by scripts/build_seo_pages.mjs. Every public, indexable page and nothing else: the
+     owner's tools (approve, pick, library, master-library, social, admin-ads, the video maker's
+     sheets) and the retired phonegfx-studio.html stay out, and say noindex themselves. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${PAGES.map(([p, img]) => `  <url><loc>${SITE}${p}</loc><lastmod>${TODAY}</lastmod>${img ? `<image:image><image:loc>${SITE}/${img}</image:loc></image:image>` : ''}</url>`).join('\n')}
+</urlset>
+`);
+writeFileSync(root + 'robots.txt', `# BUYBACK.AD (Graphics Studio). Written by scripts/build_seo_pages.mjs; edit there.
+# The site is served from the Netlify address until buyback.ad answers (no DNS, checked 2026-11-18).
+#
+# Every crawler is welcome, search and AI alike. The owner's call, 2026-11-18: AI search and answer
+# crawlers, and the crawlers that collect pages to train AI models, are all allowed. A plain summary
+# for language models is at /llms.txt, the long one at /llms-full.txt.
+#
+# The owner's tools (approve.html, pick.html, library.html, master-library.html, /social/,
+# /admin-ads/, the video maker's audit sheets) and the retired phonegfx-studio.html are not
+# disallowed here on purpose: each says noindex in its own headers, and a crawler that is kept out
+# never reads that, so a blocked page can still be listed from a link. /api/ has no pages.
+
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# AI search and answer crawlers: allowed
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: DuckAssistBot
+User-agent: MistralAI-User
+Allow: /
+Disallow: /api/
+
+# AI training crawlers: allowed (the owner's call, 2026-11-18)
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: Meta-ExternalAgent
+User-agent: Amazonbot
+User-agent: Bytespider
+User-agent: cohere-training-data-crawler
+Allow: /
+Disallow: /api/
+
+Sitemap: ${SITE}/sitemap.xml
+`);
+
+const planLine = (p) => p.price.month
+  ? `- ${p.label}: $${p.price.month / 100} a month or $${fmtN(p.price.year / 100)} a year. ${planWords(p)[0].toUpperCase() + planWords(p).slice(1)}.`
+  : `- ${p.label}: $0. ${planWords(p)[0].toUpperCase() + planWords(p).slice(1)}. Designing needs no account; downloading needs a free account.`;
+const lines = CATS.filter((c) => !c.soon).map((c) => `- [${strip(h1Of(c)).replace(/^"|"(?= )/g, '')}](${SITE}/ads/${c.slug}.html): ${descOf(c)}`);
+const soon = CATS.filter((c) => c.soon).map((c) => `- [${strip(h1Of(c)).replace(/^"|"(?= )/g, '')}](${SITE}/ads/${c.slug}.html): ${descOf(c)}`);
+const llms = `# BUYBACK.AD
+
+> BUYBACK.AD (Graphics Studio by BUYBACK.AD) is a web app that makes "We Buy" ads for people who buy goods from the public and resell them: phone buyers, repair shops, gold, silver and coin buyers, car buyers, card shops and diabetic test strip buyers. You pick a design, type your phone number and your area, and download a post-ready photo ad, a printable flyer or a short video ad. It runs in a web browser on a phone or a computer, with nothing to install, and is free to start.
+
+Key facts:
+
+- What it makes: photo ads and flyers in six sizes (Square, Story 9:16, Tall 3:4, Wide 16:9, Wide 4:3, Flyer 8.5x11), video ads (MP4, with a photo of the ad for OfferUp), and the full ad, its house ad: a business name, headline, models line, three selling points, the product, the phone number and the towns on one ad, as a photo or a video, for 35 product lines.
+- What it is for: 13 kinds of goods: phones and devices (iPhone, iPad, MacBook, Apple Watch, Galaxy, Pixel), gold and jewelry, silver, rare coins, cars and trucks, diabetic supplies, Pokémon cards, sports cards, gaming and consoles, headphones and audio, computers and parts, wearables and smart glasses, and cameras and drones.
+- Where the ads go: Facebook (Pages, groups and paid ads), Instagram, OfferUp, Craigslist, Nextdoor and print. Each site has its own rules for buying ads; the FAQ sums them up and the customer posts the ad themselves.
+- Languages: the video maker writes its words in English, Spanish or both; the photo designs are written in English and take any words typed in any language.
+- Every design is checked before it is offered: the headline, the number and the button must stand out from what is behind them, and the number must read in a small feed preview. No design states invented reviews, ratings, years in business or prices.
+- The customer owns the ads they make. Drafts, saved details and uploaded photos stay in the customer's browser.
+
+## Plans
+
+${Object.values(PLANS).map(planLine).join('\n')}
+- AI credit packs: ${Object.values(PACKS).map((k) => `${k.credits} credits for $${k.price / 100}`).join(', ')}; bought credits never expire. One AI background is one credit.
+- Yearly billing gets two months free. Cancel any time in billing; the plan runs to the end of the paid period.
+
+## Make an ad
+
+- [Make an ad](${SITE}/): the studio, the design library and the plans
+- [Video ad maker](${SITE}/motion/): We Buy Phones video ads and the full ad as a video
+- [Look Book](${SITE}/looks.html): every ready-made look in one place
+- [How it works](${SITE}/learn.html): five short videos
+- [Plans and pricing](${SITE}/#pricing)
+- [FAQ](${SITE}/#faq)
+
+## Ads for each line
+
+${lines.join('\n')}
+
+## Optional
+
+${soon.join('\n')}
+- [About BUYBACK.AD](${SITE}/about.html): who it is for, how it works, what it does not do, and your data
+- [Full text for language models](${SITE}/llms-full.txt): this summary with the whole FAQ
+- [Terms of Service](${SITE}/terms.html)
+- [Privacy Policy](${SITE}/privacy.html)
+`;
+writeFileSync(root + 'llms.txt', llms);
+writeFileSync(root + 'llms-full.txt', llms.replace(/\n## Optional[\s\S]*$/, '') + `
+## Frequently asked questions
+
+${landingFaq.map(([q, a]) => `### ${q}\n\n${a}`).join('\n\n')}
+
+## How to make a We Buy ad
+
+${landingSteps.map(([n, t], i) => `${i + 1}. ${decode(n)}: ${decode(t)}`).join('\n')}
+
+## Links
+
+- [About BUYBACK.AD](${SITE}/about.html)
+- [Terms of Service](${SITE}/terms.html)
+- [Privacy Policy](${SITE}/privacy.html)
+`);
+console.log(`sitemap.xml: ${PAGES.length} pages; robots.txt; llms.txt (${llms.length} characters), llms-full.txt (${landingFaq.length} questions)`);
 export { CATS, nav, footer, SITE };
