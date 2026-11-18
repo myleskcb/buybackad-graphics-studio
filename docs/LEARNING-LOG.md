@@ -5374,3 +5374,77 @@ RESUME HERE:
      (`SHEET=dir node scripts/full_type_check.mjs`).
   2. §BG 4: the owner's call on opening tall, a solid headline for the dark
      pairs, and a product-first square.
+
+## 2026-11-18 — the ad census: what every offered ad is made of (DESIGN-LAW 143; claude/xenodochial-mccarthy-7bea6d)
+
+Asked (by the session on claude/ads-improvement-roadmap-7632c8, for the
+owner's "old design language and old wording keep coming back after being
+fixed"): one script and one page that show, for every ad the site offers,
+what it is made of, and a gate mode not yet wired in. Report only.
+
+Studied: how each generation is offered and drawn (Easy Mode's strip and
+`renderEzCanvas`, the wall's `scIsLive` and `scRegister`, `FullAdStudio`, the
+video maker's gallery and `stillAt`, FeedAd's reports and its generator's
+gate), and the research's 5.2 for the words.
+
+Measured: 987 offered ads in 6.9 minutes: 35 full ads, 77
+designer layouts, 216 offer family, 362 library cards, 246 Any looks, 51
+FeedAd stills. The gate fails 986: every ad of the older generations, and
+34 of the 35 full ads (seven lines with no picture, the rest their own default
+words, which say TOP DOLLAR to a visitor who types no business name). The
+tables are in OPEN-ITEMS §BI; the page is
+https://claude.ai/artifact/XntKpJBBiJTX7bZQR8SLLL (private until shared).
+
+Changed: scripts/ad_census.mjs and spec/banned-words.json (new); DESIGN-LAW
+143; AGENT-BRIEF; OPEN-ITEMS §BI. No ad, template, table or default.
+
+Rejected:
+  - Redrawing each Any look at 1080 to measure it larger. An engine look is
+    laid out by a plan made from the style it was given; an Ad made again
+    from the style it drew (the plan merged into it) lays out afresh, and
+    came out 5 to 65 a channel off the gallery's own picture. The look is read
+    as the gallery drew it.
+  - Reading FeedAd's `blockers()` on a 1080 layout: it reported a headline
+    over the number on stills whose pictures show none. Its generator reads it
+    on the 540 plan, with the maker's audit after; so does the census now.
+  - A pair match within 11 (OKLab x100): it called FeedAd's orange on carbon
+    Black & Red's red (8.5 apart). Calibrated on the full ads, which are in a
+    pair by construction (ground within 3.3, accent exact), and held to 5.
+  - Counting a website as a business name (the pre-flight accepts either for
+    "who is buying"; the research asks for the name), requiring claims or the
+    sticker (the research cuts both), and wiring the gate into a deploy.
+
+Learned:
+  - The first full run read every Any look with YOUR NUMBER on it. The census
+    had typed the number and then the area, and the video maker's area field
+    (400 ms) refills the form before the number's own handler (500 ms) reads
+    it: the number is lost. Browser autofill does the same. It is the
+    2026-11-11 entry's fault again ("a debounced field loses what was typed
+    when another control refills the form inside its pause") in another pair
+    of fields: the pattern is general, so the fix should be (§BI 10).
+  - Count with the page's own predicate. The index file's stamps pass 366
+    library cards; the page's `scIsLive`, wrapped by the choice holds, offers
+    362. A script that re-implements a predicate counts another product.
+  - A visitor profile is a choice, and one is not enough. With a business
+    name typed the full ad looked clean; with none (the field is optional,
+    so most visitors) its badge says TOP DOLLAR PAID. The census reads both.
+  - Old words come back from a second list. TOP DOLLAR and ANY CONDITION were
+    left out of the pre-flight's proof list and the research on the same day
+    and stayed in FULL_WORDS, which draws the house ad's defaults. One list,
+    read by everything, or a fix lands in one place only.
+  - Before believing a check, run the check that already exists on the same
+    cards. The census's two failing gold layouts fail
+    `ez_download_is_preview.mjs` here too, at the very commit that recorded
+    them passing: the disagreement is between machines, not between checks.
+
+Checked: the census itself (every generation on small runs, then twice in
+full; the page at 1440 and 390, light and dark, no sideways scroll, its
+script parsed); `--gate` exits 1 with failures and 0 without the flag;
+`--rescan` re-scores in under a second; `ez_download_is_preview.mjs` on the
+cards the census saw fail, on this branch and at 26fb5dd0. No product file
+was changed, so the product's own checks were not re-run.
+
+RESUME HERE: §BI. The owner's word on the retirements and the words (§BI
+open 2 and 3), then run `node scripts/ad_census.mjs` again and compare its
+counts with the table in §BI; wire `--gate` into the deploy only when the full
+ad passes it.

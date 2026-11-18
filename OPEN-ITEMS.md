@@ -3527,3 +3527,170 @@ Open:
     (no failure). Run `ez_theme_audit.mjs --quick` on the Mac before a deploy.
     `landing_check.mjs` and three steps of `ad_library_check.mjs` cannot run
     in a cloud session (§BC 8).
+
+## BI. 2026-11-18 — the ad census: what every offered ad is made of (DESIGN-LAW 143)
+
+(claude/xenodochial-mccarthy-7bea6d, started from claude/brave-mayer-8bv851 at
+4cb43f38, the ad work not yet on `main`; for the session on
+claude/ads-improvement-roadmap-7632c8, whose watermark work, uncommitted when
+this was written, holds rule 142 and §BH.)
+
+The owner, 2026-11-17: old design language and old wording keep coming back
+after being fixed; the photo ads have bad colours and odd layouts; the video
+ads look right but lacked the photo ads' information.
+
+Done:
+- `scripts/ad_census.mjs` and `spec/banned-words.json` (rule 143): every ad
+  the site offers, opened as a visitor opens it, one row each, in
+  `.render/ad-census/` (`census.json`, a sortable and filterable `index.html`
+  with a thumbnail a row, `census.thumbs.json`). `--gate`, not wired into any
+  deploy. `--rescan` re-scores the last census in a second.
+- The census below, 987 offered ads in 6.9 minutes with two workers, at
+  9466a0bc; none failed to open. Nothing was changed: no ad, template, table,
+  default or retirement. Its page, published for the owner (private to the
+  account until shared): https://claude.ai/artifact/XntKpJBBiJTX7bZQR8SLLL
+
+| generation | engine | ads | off the twelve pairs | with a banned phrase | lacks a required element | pre-flight fails | product, median share of height / area | fails the gate |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Full ad | FullAd | 35 | 0 | 34 | 7 | 0 of 35 | 22% / 5% | 34 |
+| Designer layout | fabric template | 77 | 77 | 9 | 77 | 2 of 77 | 25% / 8% | 77 |
+| Offer family | fabric template | 216 | 216 | 0 | 216 | 0 of 216 | 27% / 8% | 216 |
+| Library card | fabric template | 362 | 362 | 20 | 362 | 2 of 362 | 19% / 4% | 362 |
+| Any look | engine Ad | 246 | 240 | 0 | 246 | has none | 35% / 21% | 246 |
+| FeedAd (iPhones LA) | FeedAd | 51 | 47 | 43 | 51 | 7 of 51 | 14% / 2% | 51 |
+| all | | 987 | 942 | 106 | 959 | | | 986 |
+
+What each generation lacks (ads of each):
+
+| lacks | Full ad | Designer layout | Offer family | Library card | Any look | FeedAd (iPhones LA) |
+|---|---:|---:|---:|---:|---:|---:|
+| business name (required) | 0 | 77 | 216 | 362 | 246 | 51 |
+| headline (required) | 0 | 0 | 0 | 0 | 0 | 0 |
+| product picture (required) | 7 | 67 | 21 | 186 | 0 | 0 |
+| phone number (required) | 0 | 0 | 0 | 0 | 0 | 0 |
+| call to action (required) | 0 | 35 | 0 | 143 | 214 | 0 |
+| towns (required) | 0 | 77 | 216 | 315 | 246 | 0 |
+| claims | 0 | 9 | 160 | 111 | 38 | 0 |
+| sticker | 13 | 70 | 216 | 350 | 224 | 51 |
+| website | 0 | 11 | 0 | 3 | 246 | 0 |
+
+Banned or old words (ads carrying each):
+
+- TOP DOLLAR: 64 (Full ad 33, FeedAd (iPhones LA) 31)
+- ANY CONDITION (no limit): 25 (Full ad 1, Designer layout 9, Library card 9, FeedAd (iPhones LA) 6)
+- an en or em dash: 21 (FeedAd (iPhones LA) 21)
+- TEXT A PIC (phone ads): 12 (Library card 12)
+- the full ad, read again with no business name typed: 34 of 35 carry a banned phrase
+
+Worst offenders (2 a missing required element, 2 a banned phrase, 1 each for
+off the pairs, a failing pre-flight and an engine that is not the full ad):
+
+- 14: Library card, Teal & Orange · Trust Seal (`trustSeal-du06-35`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: text-a-pic, any-condition; lacks: business name, product picture, call to action, towns
+- 12: Designer layout, Neon Garage (`dl_cars_neonNight_sunset`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: any-condition; lacks: business name, product picture, call to action, towns
+- 12: Designer layout, Junker Poster (`dl_cars_slabPoster_mono`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: any-condition; lacks: business name, product picture, call to action, towns
+- 12: Designer layout, Runner Wanted (`dl_cars_wantedFrame_paper`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: any-condition; lacks: business name, product picture, call to action, towns
+- 12: Library card, Teal & Orange · Arc Crown (`arcCrown-cd01-20`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: text-a-pic; lacks: business name, product picture, call to action, towns
+- 12: Library card, Navy & Orange · Trust Seal (`trustSeal-cd10-15`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: text-a-pic; lacks: business name, product picture, call to action, towns
+- 12: Library card, Black & Green · Trust Seal (`trustSeal-du07-30`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: text-a-pic; lacks: business name, product picture, call to action, towns
+- 12: Library card, Red & Yellow · Trust Seal (`trustSeal-jw07-16`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: text-a-pic; lacks: business name, product picture, call to action, towns
+- 10: Designer layout, Boulevard Arc (`dl_cars_arcCrown_sunset`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); lacks: business name, product picture, call to action, towns
+- 10: Designer layout, Lot Split (`dl_cars_duoSplit_crimson`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: any-condition; lacks: business name, call to action, towns
+- 10: Designer layout, Showroom Glass (`dl_cars_glassCard_ocean`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: any-condition; lacks: business name, product picture, towns
+- 10: Designer layout, Dash HUD (`dl_cars_hudTech_crimson`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: any-condition; lacks: business name, product picture, towns
+
+Found (none fixed here; each is the owner's call or its own change):
+1. **The house ad says TOP DOLLAR by default.** The full ad's own word lists
+   (`motion/fullad.js` FULL_WORDS) carry TOP DOLLAR in three of five claims,
+   in one points list and as the TOP $$$ sticker, and ANY CONDITION in a
+   models line and a points list. A visitor who types a business name gets it
+   in the badge; one who does not (the field is optional) gets the list's
+   claim, and 34 of the 35 full ads then carry a banned phrase: TOP DOLLAR
+   PAID on 27 badges and TOP DOLLAR • FAST CASH on 6. The iPhone line says ANY
+   CARRIER • ANY CONDITION for every visitor (its models line comes from
+   FULL_WORDS.line at seed 1). The one offered ad that passes the gate is the
+   full ad for coins, whose claim drew LOCAL & HONEST. The research left both phrases
+   out on 2026-11-12 and the pre-flight's own proof list (rule 138) was
+   written the same day without them, so the fix landed in one list and the
+   phrase stayed in the other.
+2. **The full ad fails the gate on seven lines for want of a picture**: gaming
+   PCs, PC handhelds, headsets, SSDs, mini PCs, Chromebooks and Meta glasses
+   are drawn with words alone (§BC 6). 13 of the 35 carry no sticker: those
+   seven (the sticker stands beside the product) and six whose square the
+   layout found no room on (camera, car, controller, Switch, VR, foldable).
+3. **Only the full ad can carry a business name.** No template, library card,
+   Any look or FeedAd still has a place for one (FeedAd names iPhones LA in its
+   website line alone).
+4. **The product is small on the house ad.** On a square its pictures span a
+   median 22% of the height and 5% of the area, against Any look's 35% and 21%
+   and the offer family's 27% and 8% (§BG 4: a product-first square, or opening
+   tall, is the owner's call). FeedAd's stills are smaller still: 14% and 2%.
+5. **186 of the 362 library cards and 67 of the 77 designer layouts show no
+   product picture**: the goods are only in the photograph behind them, if at
+   all.
+6. **Any look has no pre-flight**, and its looks carry the least of the photo
+   ads' information: 214 of 246 no call to action, none the towns or a
+   business name, 240 off the twelve pairs (its palettes are its own
+   vocabulary, §AO).
+7. **TEXT A PIC is still on 12 phone library cards** (rule 136; §AZ 7, open
+   since 2026-11-03), and ANY CONDITION, with no limit, is a kicker, a point
+   or a tile on 9 designer layouts and 9 library cards.
+8. **iPhones LA's FeedAd batches** carry TOP DOLLAR on 31 of 51 stills and the
+   models line iPHONE 15 – 18 PRO MAX with an en dash on 21 (rule 55 bars the
+   dash in customer copy); the words are in `tools/feed-stills/cards.json`.
+   With today's engine, 7 of the 51 no longer pass FeedAd's own gate, read
+   the way its generator reads it: three headlines under 3:1, three sets of
+   selling points with no room, and `glassCard-nn01-20`'s headline over its
+   number. The pictures posted are the JPGs made then; a video drawn again
+   from a batch's report would differ. Those ads are the owner's approved set (§BC 4).
+9. **Two gold designer layouts fail the gate's headline legibility as opened**,
+   `dl_gold_voltStack_gold` (the first card in Gold) and
+   `dl_gold_gradientWave_gold`, and two library cards
+   (`trustSeal-nn05-30`, `scriptRetro-jw05-16`). On this Mac
+   `ez_download_is_preview.mjs` fails the two layouts too (the gate shades
+   them at download, so the file differs from the preview by 6 and 7 a
+   channel), and it fails them at 26fb5dd0, the commit whose rule 141 says
+   every offered card passed. That session ran in a cloud container on a
+   local copy of fabric; the difference is the machine or the renderer, and
+   is not known.
+10. **The video maker loses a typed number when the area follows within half a
+    second.** Both fields are debounced (the number 500 ms, the area 400 ms)
+    and the area's handler refills the form (`syncWords`) before the number's
+    own reads it, so the number goes back to empty. A person typing is slower;
+    browser autofill, which fills both at once, is not. Found when the
+    census's first run read every Any look with YOUR NUMBER on it. The
+    2026-11-11 log met the same fault in another pair of fields.
+11. **No ad prints the library's Long Beach towns to a visitor elsewhere**:
+    every card that carries a towns line (47 library cards) took the
+    visitor's.
+12. **31 of the 35 full ads open in the same pair, Green & Gold.** A new
+    visitor's first full ad is seed 1, and seed 1 draws the same place in
+    the list of pairs for every line the list does not narrow (gold, silver,
+    test strips and Pokémon have their own, rule 139). New look moves on from
+    it. One look for every first ad may be what the owner wants (the research
+    asks for one thing that stays the same across posts) or not; it is
+    measured here, not judged.
+
+Open:
+1. **Not on `main`.** This branch carries claude/brave-mayer-8bv851's 25
+   commits, which are not on `main` either, and the census on top. Putting
+   either there is the owner's word.
+2. **The gate waits on the retirements and the words.** It fails 986 of 987
+   offered ads today: every ad of the older generations, and 34 of the 35 full
+   ads (seven for want of a picture, the rest for their own default words).
+   Wire it into a deploy once the owner has said which generations go and the
+   full ad passes it (found 1 and 2).
+3. **The words, the owner's call**: FULL_WORDS' TOP DOLLAR and ANY CONDITION,
+   the 12 TEXT A PIC cards, the 18 ANY CONDITION kickers, points and tiles,
+   and FeedAd's
+   TOP DOLLAR and dash. Each is one line in its list; the census shows each
+   ad that changes.
+4. **The video maker's number and area** (item 10): `syncWords` could leave a
+   field with an edit still pending alone. A change to the maker's page:
+   run `quick_ad_check.mjs` and `buylist_check.mjs` with it.
+5. **The two gold layouts** (item 9): measure the headline's contrast on the
+   Mac and in a container side by side before choosing between a darker
+   shade and a hold.
+6. **What the census does not read**: the size a visitor picks (it reads the
+   square), a theme or a type voice picked by hand, the Designer (advanced
+   editor), and the ad set and Quick ad in the video maker. Each is a reading
+   to add when a fix touches it.

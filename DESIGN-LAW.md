@@ -5859,3 +5859,77 @@ under the site's own Content-Security-Policy, as production sends it),
 `full_type_check.mjs`, and `full_ad_check.mjs` as before.
 
 Not done here: OPEN-ITEMS §BG.
+
+## 143. One census of every offered ad: what each is made of, read as a visitor opens it
+
+Added 2026-11-18. (Rule 142, the watermark, was being written the same week
+on claude/ads-improvement-roadmap-7632c8.) The owner, 2026-11-17: old design
+language and old wording keep coming back after being fixed; the photo ads
+have bad colours and odd layouts; the video ads look right but lacked the
+photo ads' information.
+
+Why things come back: the house style is one generation (the full ad, rules
+137 to 141) and five more are offered beside it. The rules are 140-odd and
+the checks about 150, each of one property and each run on the generation it
+was written for. A fix to one generation's defaults leaves the others' as they
+were, a check of one never reads another, and nothing showed, per ad, what it
+is built from. The census is that view.
+
+- **Every offered ad, one row each** (`scripts/ad_census.mjs`): the full ad's
+  35 lines (Easy Mode's first card), the designer layouts and the offer family
+  as Easy Mode's strip offers them, the library cards the wall offers, every
+  look of the video maker's Any look gallery, and iPhones LA's FeedAd batch
+  (not on the site, but posted as ours). "Offered" is the page's own answer,
+  never a list kept in the census: `catTemplates()` (holds, retirements and
+  the gate's `gated` already out), `scIsLive` (the choice holds wrap it: 362
+  of the 366 cards the index's stamps pass), `FullAdStudio.lines()`, the
+  gallery with Show more pressed until it goes, the batches' own reports.
+- **Opened as a visitor opens it** (rule 141): the census types a number, a
+  website and a business name where the page asks for one, and gives an area
+  (San Diego, so a card printing the library's Long Beach towns would show
+  it), and nothing else, so every other word on an ad is the studio's own.
+  The full ad is read twice, with the business name and without it: the field
+  is optional, and without it the claim badge draws its words from the full
+  ad's own list.
+- **What it reads, per ad**: the generation and engine. The ground (the outer
+  band's median) and the accent (the largest saturated hue family that is
+  neither the ground nor a shade of it, outside the product) on the picture
+  as drawn, against the twelve pairs within 5 (OKLab x100: the full ads, in a
+  pair by construction, measure within 3.3 and 0); a photograph is no
+  pair's ground. The type pair or faces. Which of the full ad's elements it
+  carries, read off what was drawn (the full ad's rects, a template's line
+  roles and layer names, the engine's sprites). The product pictures' share of
+  the height and of the area. Every word against one list. The generation's
+  own pre-flight where it has one (fullPreflight, pgCheck, FeedAd's blockers
+  and audit, each made the way its own generation makes it); Any look has none.
+- **One list of words no default ad carries** (`spec/banned-words.json`): the
+  competitor research's 5.2 (UP TO $, TOP DOLLAR, HIGHEST, BEST PRICE, BEAT
+  ANY OFFER, ANY CONDITION with no limit, ICLOUD OK, NO TITLE, TODAY ONLY),
+  rule 138's proof words, rule 55's (a dollar figure, invented proof, a dash)
+  and rule 136's (TEXT A PIC on a phone ad), each row with its source. A
+  phrase is added there, never in a script, and `--rescan` re-scores the last
+  census in under a second. The census also reads the lists each generation
+  draws its defaults from (FULL_WORDS, subjects.json, the video maker's COPY
+  and HEADLINES, the FeedAd cards): an old phrase fixed in one list and left
+  in another is how it came back.
+- **The gate** (`--gate`) exits 1 when an offered ad is off the house engine
+  (anything but FullAd) or the twelve pairs, carries a banned phrase, or lacks
+  a required element: business name, headline, product picture, phone number,
+  call to action, towns (rule 137's; claims and the sticker are counted, not
+  required, as the research cuts both; so is the website). It is not wired
+  into any deploy: on its first run it failed 986 of 987 offered ads, every
+  ad of the older generations and 34 of the 35 full ads. It measures the retirements the owner decides; no older generation
+  could pass it.
+- **A census changes nothing.** Run it before and after a change to any
+  generation's words, colours or defaults, and compare the counts.
+
+Found on its first run (OPEN-ITEMS §BI has the tables): the full ad's own
+defaults say TOP DOLLAR to a visitor who types no business name (33 of
+35) and ANY CONDITION on the iPhone line; only the full ad has a place for a
+business name; its product spans a median 22% of a square's height against
+Any look's 35%; 186 of 362 library cards and 67 of 77 designer layouts show
+no product picture; Any look has no pre-flight and 214 of its 246
+looks no call to action; TEXT A PIC is still on 12 phone cards; and the video
+maker loses a number typed within half a second of the area.
+
+Not done here: OPEN-ITEMS §BI.

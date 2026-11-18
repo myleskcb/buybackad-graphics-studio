@@ -655,5 +655,6 @@ produced." DESIGN-LAW rule 87. In practice:
   browser). Run it before and after a change to any generation's words,
   colours or defaults and compare the counts: a fix to one generation leaves
   the others as they were, which is how old words came back. `--gate` fails
-  every generation but the full ad today, so it is not wired into any deploy;
-  that waits on the owner's retirements.
+  every ad of the older generations and 34 of the 35 full ads today,
+  so it is not wired into any deploy; that waits on the owner's retirements
+  and words (OPEN-ITEMS §BI).

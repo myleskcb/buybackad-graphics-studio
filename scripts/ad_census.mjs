@@ -78,8 +78,8 @@ const ELEMENT_NAMES = { business: 'business name', headline: 'headline', product
 /* A pair is matched when the measured ground and accent are both near its own (OKLab distance x
    100; 2 is about the smallest difference the eye sees). Calibrated on the full ads, every one of
    which is drawn in a pair by construction (the census prints the "calibration" each run): on
-   2026-11-18 their ground measured within 2.2 of the pair's and their accent exactly it, so a
-   match is held to about twice that. At 11, FeedAd's orange on carbon passed as Black & Red's
+   2026-11-18 all 35 measured their ground within 3.3 of their pair's and their accent exactly
+   it, so a match is held to 5. At 11, FeedAd's orange on carbon passed as Black & Red's
    red (8.5 apart, plainly another colour). A ground that is a photograph is no pair's ground,
    whatever its colour. */
 const PAIR_GROUND = 5, PAIR_ACCENT = 5;
@@ -294,7 +294,8 @@ details li{overflow-wrap:anywhere}
   $('sum').addEventListener('click', function (e) { var tr = e.target.closest('tr[data-gen]'); if (!tr) return; on = {}; on[tr.dataset.gen] = true; syncGens(); draw(); $('controls').scrollIntoView({ behavior: calm ? 'auto' : 'smooth' }); });
   var lacks = gens.map(function (g) { var s = S[g], l = D.elements.filter(function (k) { return s.missingBy[k]; }); return '<b>' + esc(s.name) + '</b>: ' + (l.length ? l.map(function (k) { return D.elementNames[k] + ' ' + s.missingBy[k]; }).join(', ') : 'nothing'); });
   var foreign = gens.filter(function (g) { return S[g].foreignTowns; }).map(function (g) { return S[g].name + ' ' + S[g].foreignTowns; });
-  $('legend').innerHTML = 'Elements lacking, by generation. ' + lacks.join('. ') + '.' + (foreign.length ? ' Ads that print the library\\'s Long Beach towns to a visitor in ' + esc(V.town) + ': ' + foreign.join(', ') + '.' : '') + (D.calibration ? ' Pair match: ground within ' + D.calibration.groundMax + ' and accent within ' + D.calibration.accentMax + ' (OKLab, x100) of a pair\\'s own; on the full ads, which are drawn in a pair by construction, the measured ground was at most ' + D.calibration.fullGround + ' and the accent at most ' + D.calibration.fullAccent + ' from their declared pair.' : '');
+  var noName = gens.filter(function (g) { return S[g].withBannedNoName != null; }).map(function (g) { return S[g].name + ': ' + S[g].withBannedNoName + ' of ' + S[g].ads; });
+  $('legend').innerHTML = 'Elements lacking, by generation. ' + lacks.join('. ') + '.' + (noName.length ? ' The full ad is read twice, as the visitor typed it and with no business name (the field is optional, and the claim badge then draws its own words); its banned words count either reading. With no name typed, ' + noName.join(', ') + ' carry a banned phrase.' : '') + (foreign.length ? ' Ads that print the library\\'s Long Beach towns to a visitor in ' + esc(V.town) + ': ' + foreign.join(', ') + '.' : '') + (D.calibration ? ' Pair match: ground within ' + D.calibration.groundMax + ' and accent within ' + D.calibration.accentMax + ' (OKLab, x100) of a pair\\'s own; on the full ads, which are drawn in a pair by construction, the measured ground was at most ' + D.calibration.fullGround + ' and the accent at most ' + D.calibration.fullAccent + ' from their declared pair.' : '');
   var worst = R.slice().sort(function (a, b) { return b.score - a.score || a.gen.localeCompare(b.gen); }).slice(0, 25);
   $('worst').innerHTML = worst.map(function (r) { return '<li><b>' + esc(r.name) + '</b> <span class="small">' + esc(r.genName) + ' · ' + esc(r.id) + '</span>: ' + esc(r.gateWhy.join('; ')) + '</li>'; }).join('');
   var li = function (f) { return '<li><span class="tag bad">' + esc(f.label) + '</span> ' + esc(f.text) + '</li>'; };
