@@ -180,6 +180,8 @@ for (const f of CUTS) { const m = /^car-([a-z]+)-/.exec(f); if (m && usable(f)) 
 for (const k of Object.keys(CAR_CUTS)) CAR_CUTS[k].sort((x, y) => (/-rear$/.test(x) - /-rear$/.test(y)) || x.localeCompare(y));   // a front or side view before a rear one
 const makeOfFile = f => { const s = String(f || '').toLowerCase(); for (const k of Object.keys(MAKES)) if (new RegExp(`(^|[-/_])${k}([-_.]|$)`).test(s) || (k === 'chevy' && /chevrolet|silverado/.test(s)) || (k === 'dodge' && /challenger|charger/.test(s)) || (k === 'toyota' && /tacoma|camry|tundra|prius/.test(s)) || (k === 'honda' && /civic|accord/.test(s)) || (k === 'ford' && /f150|f-150|mustang|bronco/.test(s))) return k; return ''; };
 const VEHICLE = /car|truck|suv|van|jeep|pickup|sedan|coupe|grille|wheel|dash|motorcycle|bike|vehicle|lamborghini|porsche|ferrari|bmw|lexus|dodge|honda|toyota|ford|chevy|nissan|tesla|audi|mercedes/i;
+const VANS = /\bSPRINTERS?\b|\bTRANSITS?\b|\bPRO ?MASTERS?\b|\bWORK VANS?\b|\bCARGO VANS?\b|\bVANS\b/;
+const VAN_CUTS = readdirSync(ROOT + 'assets/cutouts').filter(f => /^car-.*(van|transit|sprinter|promaster)/.test(f) && f.endsWith('.webp')).map(f => f.replace(/\.webp$/, '')).filter(f => usable(f));
 const hash = s => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; };
 function picturesOf(ad, subject, headline, claim, notes) {
   const own = ad.layers.map(l => (/assets\/cutouts\/([^/?#]+)\.webp/.exec(l.src || '') || [])[1]).filter(Boolean);
@@ -197,6 +199,12 @@ function picturesOf(ad, subject, headline, claim, notes) {
       if (ofMake.length) pics = ofMake;
       else if (pool.length) { const front = pool.filter(f => !/-rear$/.test(f)), from = front.length ? front : pool; pics = [from[hash(ad.id) % from.length]]; notes.push(`a ${make}${model ? ' ' + model : ''} picture in place of ${own.length ? own.join(', ') : 'none'}`); }
       else { pics = []; notes.push(`no ${make} cut-out: the line's own pool`); }
+    } else if (VANS.test(headline + ' ' + claim)) {
+      /* a card about work vans (SPRINTER, TRANSIT, PROMASTER, VANS) shows a van, never an SUV or a
+         sedan (the owner, 2026-11-18, of the wrong cars on the library: "wrong cars") */
+      const vans = pics.filter(f => /van|transit|sprinter|promaster/.test(f));
+      if (vans.length) pics = vans;
+      else if (VAN_CUTS.length) { const front = VAN_CUTS.filter(f => !/-rear$/.test(f)), from = front.length ? front : VAN_CUTS; pics = [from[hash(ad.id) % from.length]]; notes.push(`a van picture in place of ${own.length ? own.join(', ') : 'none'}`); make = 'van'; }
     }
   }
   return { pictures: pics.slice(0, 2).map(file => ({ file, k: 1 })), make };
@@ -206,7 +214,7 @@ function groundOf(ad, cat, make, notes) {
   const s = g.src.toLowerCase();
   if (/money|cash|dollar|bills/.test(s)) { notes.push('cash ground left out'); return null; }
   if (/space-|nebula|hubble|moon|starfield|aurora|earth-from-iss|orion|galaxy-/.test(s)) { notes.push('outer-space ground left out'); return null; }
-  if (make && VEHICLE.test(s.split('/').pop()) && makeOfFile(s) !== make) { notes.push(`ground showed another car (${s.split('/').pop()})`); return null; }
+  if (make && VEHICLE.test(s.split('/').pop()) && makeOfFile(s) !== make && !(make === 'van' && /van|transit|sprinter|promaster/.test(s.split('/').pop()))) { notes.push(`ground showed another car (${s.split('/').pop()})`); return null; }
   const f = Array.isArray(g.focus) ? g.focus : g.focus && typeof g.focus === 'object' ? [g.focus.x, g.focus.y] : [.5, .5];
   const scrim = Math.round(Math.min(.7, Math.max(.25, typeof g.scrim === 'number' ? g.scrim : .4)) * 100) / 100;
   return { src: g.src.replace(/^\/+/, ''), focus: f.map(v => Math.round((+v || .5) * 100) / 100), scrim, from: ad.id };
@@ -221,7 +229,7 @@ for (const ad of all) {
   const words = wordsOf(ad, ad.cat, dropped);
   const subject = subjectOf(ad, words.headline || '');
   const S = SUB[subject]; if (!S) continue;
-  const { pictures, make } = picturesOf(ad, subject, words.headline || '', words.claim || '', notes);
+  const { pictures, make } = picturesOf(ad, subject, words.headline || '', [words.claim, words.line].filter(Boolean).join(' '), notes);   // the line under it names models too (TRANSIT • SPRINTER • PROMASTER)
   const ground_photo = groundOf(ad, ad.cat, make, notes);
   // colours as the ad wore them: the library's own theme and ink; a template's ground and its headline's accent
   const heads = ad.layers.filter(l => l.role === 'headline');

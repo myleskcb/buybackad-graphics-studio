@@ -11870,7 +11870,7 @@
    },
    "pictures": [
     {
-     "file": "car-suv-side",
+     "file": "car-ram-promaster-grey",
      "k": 1
     }
    ],
@@ -11884,7 +11884,11 @@
     "from": "arcCrown-ca03-35"
    },
    "pair": "navy_gold",
-   "type_pair": ""
+   "type_pair": "",
+   "make": "van",
+   "notes": [
+    "a van picture in place of car-suv-side"
+   ]
   },
   {
    "id": "r-arcCrown-jw03-15",
@@ -12082,21 +12086,18 @@
    },
    "pictures": [
     {
-     "file": "car-suv-side",
+     "file": "car-ford-transit-connect-white",
      "k": 1
     }
    ],
-   "ground_photo": {
-    "src": "assets/bg/dl_cars_duoSplit_crimson.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "bubblePop-du02-30"
-   },
+   "ground_photo": null,
    "pair": "blue_green",
-   "type_pair": ""
+   "type_pair": "",
+   "make": "van",
+   "notes": [
+    "a van picture in place of car-suv-side",
+    "ground showed another car (dl_cars_duosplit_crimson.jpg)"
+   ]
   },
   {
    "id": "r-checklistHero-ca05-35",
@@ -12686,7 +12687,7 @@
    },
    "pictures": [
     {
-     "file": "car-suv-side",
+     "file": "car-ram-promaster-grey",
      "k": 1
     }
    ],
@@ -12700,7 +12701,11 @@
     "from": "scriptRetro-su02-25"
    },
    "pair": "teal_orange",
-   "type_pair": "stadium"
+   "type_pair": "stadium",
+   "make": "van",
+   "notes": [
+    "a van picture in place of car-suv-side"
+   ]
   },
   {
    "id": "r-slabPoster-cd10-30",
@@ -12934,7 +12939,12 @@
     "claim": "AS-IS",
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
-   "pictures": [],
+   "pictures": [
+    {
+     "file": "car-ford-transit-courier-white",
+     "k": 1
+    }
+   ],
    "ground_photo": {
     "src": "assets/bg-web/vans-ford-transit-van-3.jpg",
     "focus": [
@@ -12945,7 +12955,11 @@
     "from": "trustSeal-cd06-26"
    },
    "pair": "navy_orange",
-   "type_pair": ""
+   "type_pair": "",
+   "make": "van",
+   "notes": [
+    "a van picture in place of none"
+   ]
   },
   {
    "id": "r-trustSeal-nn05-30",
@@ -12962,7 +12976,7 @@
    },
    "pictures": [
     {
-     "file": "car-suv-side",
+     "file": "car-ford-transit-connect-white",
      "k": 1
     }
    ],
@@ -12976,7 +12990,11 @@
     "from": "trustSeal-nn05-30"
    },
    "pair": "midnight_cyan",
-   "type_pair": ""
+   "type_pair": "",
+   "make": "van",
+   "notes": [
+    "a van picture in place of car-suv-side"
+   ]
   },
   {
    "id": "r-trustSeal-pp06-35",

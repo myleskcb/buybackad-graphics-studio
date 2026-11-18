@@ -11778,13 +11778,17 @@ function scSku(c){
 }
 function scLoadPicks(){
   if (SHOWCASE.picks) return Promise.resolve(SHOWCASE.picks);
-  return fetch('assets/hero-picks.json', { cache:'no-cache' })
+  /* the house ads among the picks (a recipe, "r-...", or a look of the full ad, "full-<line>[-v<n>]",
+     DESIGN-LAW 145) have no baked thumbnail: scripts/build_hero_stills.mjs draws one each and lists
+     them in assets/hero/index.json, read here beside the picks */
+  const house = fetch('assets/hero/index.json', { cache:'no-cache' }).then(r => r.ok ? r.json() : null).then(j => (SHOWCASE.house = (j && j.items) || {})).catch(() => (SHOWCASE.house = {}));
+  return Promise.all([house, fetch('assets/hero-picks.json', { cache:'no-cache' })
     .then(r => r.ok ? r.json() : null)
     .then(j => {
       SHOWCASE.never = (j && Array.isArray(j.never)) ? j.never.map(k => String(k).trim().toUpperCase()) : [];
       return (SHOWCASE.picks = (j && Array.isArray(j.picks)) ? j.picks : []);
     })
-    .catch(() => (SHOWCASE.picks = []));
+    .catch(() => (SHOWCASE.picks = []))]).then(([, picks]) => picks);
 }
 /* KEPT OFF THE WALL. The owner, 2026-11-11, of the iPad "Studio list" offer
    card on the home page: "This ad I'm not very proud of and I wouldn't put
@@ -11806,10 +11810,33 @@ function scPickedCards(cards){
   cards.forEach(c => { byId[c.id] = c; bySku[scSku(c)] = c; });
   const out = [];
   want.forEach(k => {
+    const h = (SHOWCASE.house || {})[k];
+    if (h){ out.push(scHouseItem(k, h)); return; }
     const c = byId[k] || bySku[String(k).trim().toUpperCase()];
-    if (c && out.indexOf(c) === -1) out.push(c);
+    if (c && out.indexOf(c) === -1){ out.push(c); return; }
+    const t = typeof TEMPLATES !== 'undefined' && /^(of|dl)_/.test(String(k)) ? TEMPLATES.find(x => x.id === k && !x.gated) : null;
+    if (t && !out.some(x => x.classic === t)) out.push({ classic:t });
   });
   return out;
+}
+/* a hand-picked house ad as a wall item: its own still, its line's place in the platform mix, a
+   family of its own (the owner picked it: the wall's two-of-a-layout cap is not for it), centred
+   as the full ad always is */
+function scHouseItem(id, h){
+  const subject = typeof PLATFORM_MIX !== 'undefined' ? PLATFORM_MIX.templateSubject({ line: h.line, cat: h.cat, layers: [] }) : h.cat;
+  return { house: { id, ...h }, id, name: h.name, cat: h.cat, subject, thumb: h.thumb, theme: h.pair, layout: 'house:' + id, align: 'center', product: null, chroma: 1, imagery: 'product' };   // product null: the picture rule does not drop a hand pick
+}
+/* a house ad opened from the wall: Easy Mode's full ad, on that recipe, or that line and look */
+function openHouseAd(h){
+  showEasy();
+  const FS = window.FullAdStudio; if (!FS) return;
+  Promise.resolve(h.kind === 'recipe' ? FS.useRecipe(h.id) : null).then(() => {
+    if (h.kind !== 'recipe'){
+      if (currentCat !== h.cat) setCategory(h.cat);
+      const FA = FS.state; FA.line[h.cat] = h.line; FA.recipe[h.cat] = ''; FA.seed = h.seed || 1; FA.pair = ''; FA.voice = ''; FA.set = {};
+    } else FS.state.seed = 1;
+    FS.enter();
+  });
 }
 /* THE ONE "LIVE" PREDICATE: not condemned, with imagery, with colour. The
    scripts import the same test from scripts/_showcase_harness.mjs (live()). */
@@ -12118,7 +12145,7 @@ function scBuildWall(cards){
       }
       d.title = c.name;
       d.innerHTML = `<img src="${assetUrl(c.thumb)}" alt="${escHtml(c.name)} template" loading="${k < 3 ? 'eager' : 'lazy'}" decoding="async">`;   // the wall is the shop window: tilted 448px thumbs, no guard needed
-      d.onclick = () => openShowcase(c.id);
+      d.onclick = () => c.house ? openHouseAd(c.house) : openShowcase(c.id);
       col.appendChild(d);
     });
   });
