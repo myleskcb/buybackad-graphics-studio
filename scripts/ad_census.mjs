@@ -248,7 +248,8 @@ details li{overflow-wrap:anywhere}
 .worst li{margin:4px 0}
 .legend{font-size:13px;color:var(--soft);max-width:1000px}
 .legend b{color:var(--ink)}
-.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;align-items:start}
+.notes ul{margin:6px 0 0;padding-left:18px}
 .notes .panel{padding:12px 14px;font-size:13.5px}
 @media (max-width:700px){h1{font-size:24px}.ads img{width:64px;height:64px}.count{margin-left:0}}
 </style>
@@ -296,7 +297,9 @@ details li{overflow-wrap:anywhere}
   $('legend').innerHTML = 'Elements lacking, by generation. ' + lacks.join('. ') + '.' + (foreign.length ? ' Ads that print the library\\'s Long Beach towns to a visitor in ' + esc(V.town) + ': ' + foreign.join(', ') + '.' : '') + (D.calibration ? ' Pair match: ground within ' + D.calibration.groundMax + ' and accent within ' + D.calibration.accentMax + ' (OKLab, x100) of a pair\\'s own; on the full ads, which are drawn in a pair by construction, the measured ground was at most ' + D.calibration.fullGround + ' and the accent at most ' + D.calibration.fullAccent + ' from their declared pair.' : '');
   var worst = R.slice().sort(function (a, b) { return b.score - a.score || a.gen.localeCompare(b.gen); }).slice(0, 25);
   $('worst').innerHTML = worst.map(function (r) { return '<li><b>' + esc(r.name) + '</b> <span class="small">' + esc(r.genName) + ' · ' + esc(r.id) + '</span>: ' + esc(r.gateWhy.join('; ')) + '</li>'; }).join('');
-  $('sources').innerHTML = (D.sources || []).map(function (s) { return '<div class="panel"><b>' + esc(s.name) + '</b><p class="small">' + esc(s.file) + '</p>' + (s.found.length ? '<ul>' + s.found.map(function (f) { return '<li><span class="tag bad">' + esc(f.label) + '</span> ' + esc(f.text) + '</li>'; }).join('') + '</ul>' : '<p><span class="tag good">nothing banned</span></p>') + '</div>'; }).join('') || '<p class="small">Not measured in this run.</p>';
+  var li = function (f) { return '<li><span class="tag bad">' + esc(f.label) + '</span> ' + esc(f.text) + '</li>'; };
+  $('sources').innerHTML = (D.sources || []).map(function (s) { return '<div class="panel"><b>' + esc(s.name) + '</b><p class="small">' + esc(s.file) + '</p>' +
+    (s.found.length ? '<ul>' + s.found.slice(0, 6).map(li).join('') + '</ul>' + (s.found.length > 6 ? '<details><summary>' + (s.found.length - 6) + ' more</summary><ul>' + s.found.slice(6).map(li).join('') + '</ul></details>' : '') : '<p><span class="tag good">nothing banned</span></p>') + '</div>'; }).join('') || '<p class="small">Not measured in this run.</p>';
   // the controls
   var on = {}; gens.forEach(function (g) { on[g] = true; });
   function syncGens() { $('gens').innerHTML = gens.map(function (g) { return '<button type="button" class="gen" data-gen="' + g + '" aria-pressed="' + !!on[g] + '">' + esc(S[g].name) + ' ' + S[g].ads + '</button>'; }).join(''); }
@@ -646,7 +649,8 @@ function MOTION() {
       const words = [], put = (where, text) => { if (text && /[A-Za-z0-9$#]/.test(String(text))) words.push({ where, text: String(text).replace(/\s+/g, ' ').trim() }); };
       put('headline', st.headline);
       if (big.tag && st.tag) put('line under it', st.tag);
-      if (big.num && big.num.label) put('call to action', st.number_label);
+      /* the label over the number, or the pulsing badge that stands for it (urgency pulse_cta: engine.js ctaOf) */
+      if (big.num && big.num.label) put('call to action', big.num.cta ? (st.cta || (st.lang === 'es' ? '¡MÁNDANOS TEXTO!' : 'TEXT NOW')) : st.number_label);
       put('number', big.num && big.num.text ? big.num.text : st.number);
       if (big.perks) put('selling points', ENG.pointsOf(st).join(', '));
       if (big.burst) put('sticker', big.burst.text);
