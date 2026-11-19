@@ -773,7 +773,13 @@
     const _sync = syncEzSwatches;
     syncEzSwatches = function(){ const r = _sync.apply(this, arguments); try { syncRow(); } catch (e){} return r; };
   }
-  buildRow();
+  /* the row is built when Easy Mode first opens (DESIGN-LAW 147): it paints a swatch of every
+     wallpaper, about 70ms of a phone's CPU at load, for a panel the landing never shows. Easy Mode
+     opens only through showEasy; the row goes in after the file input, as it did at load */
+  if (typeof showEasy === 'function'){
+    const _showEasy = showEasy;
+    showEasy = function(){ try { buildRow(); } catch (e){ console.warn('GraphicsStudio: the laptop screen row:', e); } return _showEasy.apply(this, arguments); };
+  } else buildRow();
   if (photoOf(ST.key)) loadPhoto(photoOf(ST.key)).then(el => { if (el) schedEzPreview(0); });    // a photograph chosen last visit
   if (typeof bgList === 'function') bgList().then(all => { const r = (all || []).find(x => x.id === OWN_ID);
     if (r && typeof r.data === 'string' && /^data:image\//.test(r.data)) useOwn(r.data, false); }).catch(() => {});

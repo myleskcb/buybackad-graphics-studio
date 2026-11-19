@@ -10,7 +10,11 @@
  * every lazy thumbnail has been asked for.
  *
  *   node scripts/landing_check.mjs [base=http://localhost:8899/] [out.json]
- * exits 1 on an error, a 404 or overflow.
+ * exits 1 on an error, a 404 or overflow; and (DESIGN-LAW 147) when the landing
+ * draws a card on the page at load or after the scroll (an offer card's still
+ * is missing or out of date: node scripts/build_offer_stills.mjs), builds the
+ * gallery before it comes near, or asks for an offer ground, a product cut-out
+ * or a template face at load.
  */
 import puppeteer from 'puppeteer-core';
 import { writeFileSync } from 'node:fs';
@@ -39,6 +43,19 @@ for (const [label, w, h, mobile] of [['phone-390', 390, 844, true], ['desktop-14
   const t0 = Date.now();
   await p.goto(BASE, { waitUntil:'networkidle2', timeout:90000 });
   const loadMs = Date.now() - t0, firstBytes = bytes, firstReqs = reqs.size;
+  /* WHAT THE LANDING DRAWS AT LOAD (DESIGN-LAW 147): nothing on a canvas. The wall's offer cards are
+     their stills (scripts/build_offer_stills.mjs; a still out of date is drawn on the page and shows
+     here as a data: picture), the gallery is not built until it comes near, and no offer ground,
+     product cut-out or template face is asked for. Measured 2026-11-19: drawing them was about 2 s of
+     a phone's 3.3 s of blocking time, and 2.9 MB */
+  const firstUrls = [...urls.values()];
+  const lean = await p.evaluate(() => ({
+    drawn: [...document.querySelectorAll('#hero-wall .wall-card img, #lp-tpl-grid img')].filter(i => (i.getAttribute('src') || '').startsWith('data:')).length,
+    stills: [...document.querySelectorAll('#hero-wall .wall-card img')].filter(i => /assets\/offer-stills\//.test(i.getAttribute('src') || '')).length,
+    grid: document.querySelectorAll('#lp-tpl-grid .tpl-card').length,
+    near: document.getElementById('lp-templates').getBoundingClientRect().top < innerHeight * 2.25,
+  }));
+  const heavyAtLoad = firstUrls.filter(u => /\/assets\/(bg-offer|cutouts)\/|\/assets\/fonts\/faces\.css/.test(u)).map(u => u.replace(BASE, ''));
   const over = await p.evaluate(() => {
     const W = document.documentElement.clientWidth, out = [];
     document.querySelectorAll('body *').forEach(el => { const r = el.getBoundingClientRect();
@@ -51,6 +68,8 @@ for (const [label, w, h, mobile] of [['phone-390', 390, 844, true], ['desktop-14
   /* scroll the whole page so every lazy image is requested */
   await p.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 600){ window.scrollTo(0, y); await new Promise(r => setTimeout(r, 120)); } });
   await new Promise(r => setTimeout(r, 2500));
+  const leanAfter = await p.evaluate(() => ({ grid: document.querySelectorAll('#lp-tpl-grid .tpl-card').length,
+    drawn: [...document.querySelectorAll('#lp-tpl-grid img')].filter(i => (i.getAttribute('src') || '').startsWith('data:')).length }));
   const list = [...reqs.values()];
   const own = r => !OFFLINE || String(r.url || '').startsWith(new URL(BASE).origin);
   const errs = list.filter(r => (r.failed || (r.status >= 400)) && own(r));
@@ -65,7 +84,12 @@ for (const [label, w, h, mobile] of [['phone-390', 390, 844, true], ['desktop-14
   console.log('  failed/4xx ' + errs.length + (errs.length ? ': ' + errs.slice(0, 5).map(r => (r.status || r.failed) + ' ' + r.url).join(', ') : ''));
   console.log('  console errors ' + cons.length + (cons.length ? ': ' + cons.slice(0, 3).join(' | ') : '') + ' · page errors ' + perr.length);
   console.log('  overflow: scrollWidth ' + over.scrollW + ' vs ' + over.W + (over.offenders.length ? ' · ' + over.offenders.join(', ') : ''));
-  if (errs.length || perr.length || over.scrollW > over.W + 1) bad++;
+  const leanBad = lean.drawn || (lean.grid && !lean.near) || heavyAtLoad.length || !leanAfter.grid || leanAfter.drawn;
+  report[label].atLoad = { drawnOnPage:lean.drawn, wallStills:lean.stills, galleryCards:lean.grid, groundsCutoutsFaces:heavyAtLoad, galleryAfterScroll:leanAfter.grid, drawnAfterScroll:leanAfter.drawn };
+  console.log('  at load (rule 147): ' + lean.drawn + ' cards drawn on the page, ' + lean.stills + ' wall stills, gallery ' + (lean.grid ? lean.grid + ' cards' + (lean.near ? ' (it is near)' : ' (built before it came near)') : 'not built')
+    + ', grounds, cut-outs and template faces asked for: ' + (heavyAtLoad.length ? heavyAtLoad.slice(0, 4).join(', ') : 'none')
+    + ' · after the scroll: gallery ' + leanAfter.grid + ' cards, ' + leanAfter.drawn + ' drawn on the page' + (leanBad ? '  FAIL (a still missing or out of date: node scripts/build_offer_stills.mjs)' : ''));
+  if (errs.length || perr.length || over.scrollW > over.W + 1 || leanBad) bad++;
   await p.close();
 }
 await b.close();

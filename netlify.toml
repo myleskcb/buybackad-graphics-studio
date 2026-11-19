@@ -378,6 +378,12 @@
   [headers.values]
     Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
 
+# the offer cards' landing stills (scripts/build_offer_stills.mjs, DESIGN-LAW 147)
+[[headers]]
+  for = "/assets/offer-stills/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
 [[headers]]
   for = "/assets/og/*"
   [headers.values]

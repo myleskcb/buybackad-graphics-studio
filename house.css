@@ -260,6 +260,8 @@
 :root[data-site='house'] #page-landing #lp-chips .chip .n{background:transparent;color:inherit;opacity:.75}
 :root[data-site='house'] #page-landing #lp-templates .tpl-card{border-radius:14px;box-shadow:0 14px 30px -18px rgba(0,0,0,.6);border:1px solid var(--h-line)}
 :root[data-site='house'] #page-landing #lp-templates .tpl-count{color:var(--h-ink-2)}
+/* the gallery is built as it comes near (app.js scGridWhenNear, DESIGN-LAW 147): until then it holds a screen, less than its first page anywhere, so a page restored or linked to it does not jump when it fills */
+#lp-tpl-grid:empty{min-height:100vh}
 :root[data-site='house'] #page-landing #lp-templates .tpl-more-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;margin-top:26px}
 
 /* video */
