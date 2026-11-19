@@ -4221,3 +4221,21 @@ Open:
 5. **The video section's frame** is a still of a full ad; the engine is on the page, so it could
    play the ad itself when the section scrolls into view.
 6. **The studio** (Easy Mode, the editor) keeps its own chrome; a session of its own is on it.
+
+Then, the same day (the owner, relayed: "see not the new 2000", then "Both (~2,650)"; and "organize
+it as we said with the subcategories revealed after you select one of the main ones"):
+- **The library holds 2,405 ads**: the 665 rebuilt designs, 1,330 more looks of them (every design two
+  more, each passing the pre-flight in a pair of its own), 246 line full ads (41 lines, six seeds
+  each) and 164 video looks (`scripts/build_library_looks.mjs`, `--check`; 37 MB of 400px webp).
+  The ~2,650 asked for counted 246 video looks; the video maker's gallery now draws four a shelf at
+  its 720px width (main's reselling.us look), 164 in all, and the library takes what it offers.
+- **The video maker opens a gallery look by link** (`motion/app.js`: `?shelf=<id>&look=<seed>`), as
+  its shelf drew it, on the visitor's own words and number.
+- **The chips**: the main categories first, an arrow on the seven with lines, a row of lines with
+  counts under the chosen one; "Offer cards" only while more than one is left; the review page's
+  categories carry the arrows too (`scripts/review_page.html`). The studio's own category picker is a
+  menu, and the full ad's line picker is already grouped by the same lines.
+
+Open:
+7. **Push**: nothing of this is pushed; the owner's OK first.
+8. **The published review page** gets its arrows at its next build (`build_review_page.mjs`).

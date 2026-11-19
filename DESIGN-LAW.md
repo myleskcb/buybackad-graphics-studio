@@ -6506,3 +6506,18 @@ family skin (`?skin=poster` keeps the old page; the studio is not touched).
   styles any `.flow` row, the `ul.lp-lines` index, and a hero wall with no stage around it.
 - **Checked** by eye at 1440, 1024 and 375, dark and light; no sideways scroll; the
   pricing, category-page and CSP checks unchanged; words_check clear.
+- **The library holds every new look** (the owner, of the live library's "All 665": "see not the
+  new 2000"; asked what it should hold, "Both (~2,650)"). Beside each rebuilt design's first look it
+  shows two more of its looks, every line's own full ad and the video maker's Any look gallery
+  (`assets/library-looks/`, `scripts/build_library_looks.mjs`): 2,405 ads on 2026-11-19. A second
+  or third look is the design on the seeds after its own, as New look walks them, taken only when it
+  passes the full ad's pre-flight in a pair the design does not wear yet; a line's full ad is its
+  first six passing seeds; a video look is the gallery's own (four a shelf at the gallery's width,
+  164). Each opens where it is made: the design on that look's seed, the full ad on that line and
+  seed, the video maker on that look (`motion/?full=0&shelf=<id>&look=<seed>`, drawn as its shelf
+  draws it). The wall and the editor's library keep to the designs.
+- **Categories open into their lines** (the owner: "the subcategories revealed after you select one
+  of the main ones would show a drop down arrow if there's sub categories.. so there's no guessing").
+  Only the main categories show at first; one with more than one line carries an arrow, and choosing
+  it opens a row of its lines with their counts, in the owner's order (`motion/subjects.json`); one of
+  a single line has no arrow. The review page's categories carry the same arrows.

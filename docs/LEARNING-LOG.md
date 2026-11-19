@@ -6286,3 +6286,20 @@ category has subcategories). None of this is live until the owner merges into `m
   library captions for that reason; under the picture they can stay.
 - **Two sessions on one page.** Pull request 15 restructured the same landing on the same day.
   The sheet was made to style both markups, and the overlap is written down for the merge.
+
+## 2026-11-19 — the library holds every new look, and its categories open into lines (claude/xenodochial-mccarthy-7bea6d)
+
+- **"The new 2000" was the review page's count, not the library's.** The census read 2,019 to 2,045
+  ads: the old cards, the rebuilt recipes, the full ads and the video looks together. The library had
+  one rebuilt ad per retired card, the same 665 as the live site. Asked, the owner chose both more
+  looks of each design and the video maker's ads.
+- **A second look should be one a visitor can reach.** The library's extra looks are the seeds New
+  look walks to, kept only when they pass the download's own pre-flight in a pair the design does not
+  wear yet, so a card opens to exactly the ad it shows.
+- **A gallery look is its shelf plus its seed, on the visitor's words.** A seed alone redraws the words
+  too, so the video maker learned a shelf link (`?shelf=&look=`).
+- **A gallery's width sets its size.** The video maker's "All" gallery fills one row a shelf; at its
+  720px column that is four, so 164 looks, where the census, before the restyle, read six a shelf.
+- **New items beside an old list, not inside it.** The wall and the editor read the shelf; adding
+  1,740 looks to it would have changed the wall the hero session is curating. A second list (scLib)
+  kept the change to the library.

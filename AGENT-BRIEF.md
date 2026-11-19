@@ -708,4 +708,10 @@ produced." DESIGN-LAW rule 87. In practice:
   layout of its own per section; `pages.css` ends in the same look for the other pages. Change the
   landing's look there, not in `styles.css`; a new section reuses `.lp-section-head`, `.flow` or a
   band rather than a new card. Motion fails visible: never start the hero from hidden.
+- **The library's other looks** (rule 158): `assets/library-looks/` holds two more looks of every rebuilt
+  design, every line's own full ad and the video maker's gallery looks (`node scripts/build_library_looks.mjs`
+  with `GFX_BASE`, `--check`; `--all` after the engine, the recipes or the video maker's looks change).
+  app.js reads them beside the recipe stills for the landing's library only (scLoadMore, scLib); the
+  wall and the editor's library keep to the designs. A category's chips open into its lines
+  (scSubChips), in `motion/subjects.json`'s order.
 
