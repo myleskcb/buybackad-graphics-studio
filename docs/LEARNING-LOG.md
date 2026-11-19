@@ -5982,3 +5982,28 @@ Found:
 
 RESUME HERE: OPEN-ITEMS §BK. Then the owner's new styles: four LA, four beach and island, four of
 hand-made, Apple-style, commercial studio and avant-garde grounds.
+
+## 2026-11-18 — the house's own styles, and a ZIP code for Your area (DESIGN-LAW 151, 152; claude/full-ad-looks-layout)
+
+Asked: more of our own styles ("GTA or LA", "beach and island", "colorful", "hand generated / apple
+style / commercial style / avant garde"); a ZIP code with the towns nearby to pick; "mix and both?"
+
+Done:
+  - Twelve themes painted in code (style-grounds.js), three signs; 72 full ads through the pre-flight.
+  - geo.js reads the studio's own ZIP and place data; the towns chips; the language row renamed.
+
+Found:
+  - "GTA style" is a setting, not a property: draw LA's light and streets, never a game's logo,
+    lettering, characters or screens (rule 151). The same for "Apple style".
+  - A ground's colour can be read as a mark by the pre-flight's edge check: the engine's shade over a
+    bright stripe at the frame's edge. Lay a video look's shade into its ground.
+  - Leaves at the sides of a frame run behind its small lines: corners only.
+  - Screen-blend colour fields on a dark ground, or they go muddy.
+  - The studio's own town scoring puts the big city first (Long Beach got LOS ANGELES and ANAHEIM);
+    for a buyer's towns line, the neighbours first.
+  - A check that cycles through a list (vibes) samples other looks when the list grows: a failure it
+    then shows may be older than the change. Run the same look on the untouched code before fixing.
+  - A video look's small line may repeat its call to action: check the words against each other.
+
+RESUME HERE: OPEN-ITEMS §BM. The owner's eye on the twelve; then PR #14, the xenodochial branch and
+this branch land in that order.

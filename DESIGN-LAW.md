@@ -6439,3 +6439,53 @@ this rule, on `main`'s house style) none and 24 layouts. Nearest-neighbour diffe
   what the ad drew.
 
 Measured after: see OPEN-ITEMS §BK.
+
+## 151. The house paints its own styles: LA, the coast, and the studio's art, never a copy of a game or a brand
+
+Added 2026-11-18. The owner: "those custom made bgs we're not bad at all like the fwy signs or the
+palms"; "can we make more of our own custom styles?", "what about some GTA or LA style?", "or more
+beach and island style?", "colorful of course? we could make a hand generated / apple style /
+commercial style / avant garde backgrounds". The video maker had 50 themes and 14 LA looks; none
+tropical or island, and its art grounds were gradients, meshes and patterns.
+
+- **Twelve new themes in two families** (`motion/themes.js`; grounds and signs painted in
+  `motion/style-grounds.js`, handed on by `decor.js` `themeGround` and `themeBoard`):
+  - LA & coast: Golden hour freeway (a sky going gold over an overpass, palms), Night drive (a
+    boulevard of streetlights to the horizon, their light on the wet road), Boulevard billboard (a
+    new roadside billboard holds the headline), Skyline poster (downtown and palms under a big sky),
+    Tiki bar (bamboo, a new carved plank sign), Surf shop (sunset stripes out of a corner, waves),
+    Tropical leaves (monstera and palm fronds in the corners), Cabana stripes (an awning's scallops,
+    the sun).
+  - Art & studio: Hand painted (brush strokes, bristle marks, spatters on paper), Soft glow (fields
+    of colour melting together, light or dark: screen-blended on dark), Studio shoot (a coloured
+    sweep, two gel lights, a pool of light under the product), Avant-garde (a disc, a half moon, a
+    band, a block, a ring and dots in flat colour).
+- **The setting, never the property.** "GTA style" is drawn as LA's own light and streets: the
+  palms, the overpasses, the golden hour, neon, bold slanted lettering. No game's logo, its
+  lettering, its characters, its illustrated panels or its screens' words; no brand's wallpaper or
+  mark ("Apple style" is soft colour and glass, not Apple's art). An ad that reads as someone
+  else's property invites a complaint against the shop that posts it.
+- **Colourful, and still an ad**: every ground keeps its busiest marks toward the edges and the
+  corners and its middle calm; every palette's words read on its ground (the full ad's rule 150
+  fixes hold); the new signs hang without their posts and lamps on the full ad (`FULL_BOARDS`,
+  `BOARD_REACH`). Every one is a video look and, through rule 150, a full ad.
+- Measured: each theme in three seeds, square and story, as its full ad: 72 of 72 pass
+  `fullBlockers` and the pre-flight. Their shelves are "LA & coast" and "Art & studio" in both
+  galleries.
+
+## 152. Your area takes a ZIP code, and offers the towns nearby
+
+Added 2026-11-18. The owner: "and we should put zip code", "you can quick pick the cities
+surrounding if mentioned or you can take the suggested nearby locations / cities commonly
+associated"; and, of the language row, "mix and both? seems contradictory".
+
+- **A ZIP code in Your area** becomes its town (the ad names the town, never the ZIP), from the
+  studio's own data (`assets/geo`, 41,488 ZIP codes and 16,261 places), read by `motion/geo.js` only
+  when someone types or focuses the field. A town's name works too.
+- **The towns nearby** (up to nine, as chips under the field in the full mode): the buyer's own
+  first, then the smaller towns round it, then the big cities (the studio's rule: reviewers live in
+  the suburbs). Tapping one puts it on the full ad's towns line, three at most, the oldest giving
+  way; tapping it again takes it off; Suggested puts back the town and its two best neighbours,
+  which fill the line by themselves while it is empty. 90802 gives LONG BEACH, CARSON, TORRANCE.
+- **The language row says what each does**: English, Español, Bilingual (both on every ad), Varied
+  (some ads in English, some in Spanish, some bilingual). The values are as they were.

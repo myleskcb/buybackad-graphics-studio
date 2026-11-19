@@ -4037,3 +4037,31 @@ Open:
    rule as 147, which this branch's line already uses: renumber it when it lands.
 4. **The recipes** (rule 145) draw the house's own look only: a recipe made from an older card could
    lean to the video look nearest its card, not done.
+
+## BM. 2026-11-18 — the house's own styles, and a ZIP code for Your area (DESIGN-LAW 151, 152)
+
+(claude/full-ad-looks-layout, after §BK.)
+
+Done:
+- Twelve themes, two families (LA & coast, Art & studio), twelve painted grounds, three signs
+  (billboard, tiki plank, surfboard); 72 of 72 full ads clean through the pre-flight.
+- Your area takes a ZIP; the towns nearby as chips; Suggested; the language row renamed.
+- Checked: `full_ad_check`, `full_style_check`, `full_colour_check`, `full_type_check`,
+  `full_ad_studio_check`, `look_preflight_check`, `quick_ad_check`, `buylist_check` (after Surf shop's
+  plate was deepened: its names read 4.4:1), `audience_check`, `type_voices_check`; the maker's ZIP,
+  chips, Suggested and language row driven headless, no page errors.
+
+Open:
+1. **The owner's eye.** Built without seeing them on a phone: which of the twelve to keep, push or
+   drop is the owner's (a theme dropped from `THEMES` leaves nothing behind but its painter).
+2. **Look numbers moved.** Twelve more vibes change which vibe an old look number draws (as the 50
+   themes did when they came); a saved look keeps its own, as it always has.
+3. **The video audits** (`motion_audit.mjs`, `motion_palette_audit.mjs`) need `puppeteer-core`,
+   which this Mac does not have: the new palettes have not been through them.
+5. **`motion_cta_audit` fails one look, and the fault is older than this branch**: Shipping box,
+   4:5, seed 499897, number bottom-right, "stacked": the call to action sits .13 to .155 of the
+   number's size over it (floor .14), the same on the xenodochial branch's own code (a89b25e2). The
+   twelve new vibes changed which looks the audit's 300 seeds draw, and this one came up. The engine's
+   label placement for that look is the fix, not done here.
+4. **The ZIP stays in the maker.** It is not written back to the studio's brand kit (Easy Mode's
+   area dialog has its own), and the towns chips show only in the full mode.
