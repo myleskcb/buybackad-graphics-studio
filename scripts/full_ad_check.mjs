@@ -79,15 +79,21 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
       const ad = new F.FullAd(st, assets, Math.round(W0 * k), Math.round(H0 * k));
       const why = F.fullBlockers(ad), m = F.fullMeasure(ad), R = ad.full.rects, col = ad.full.col, mid = (col[0] + col[1]) / 2;
       // every block whose words were given is on the picture
-      const want = { claim: st.feed_claim, line: st.feed_line, 'call to action': st.number_label, footer: st.feed_where || st.feed_site, 'selling points': st.points, product: st.phones.length };
+      // the line under the headline stands on the sign when there is one (inside the headline's block: rule 150)
+      const want = { claim: st.feed_claim, line: st.feed_line && !ad.full.board, 'call to action': st.number_label, footer: st.feed_where || st.feed_site, 'selling points': st.points, product: st.phones.length };
       const missing = Object.entries(want).filter(([b, v]) => v && !R[b]).map(([b]) => b);
       // one axis: the words' blocks centred on the column
-      const offAxis = ['claim', 'headline', 'line', 'call to action', 'number', 'footer'].filter(b => R[b] && Math.abs((R[b][0] + R[b][2]) / 2 - mid) > ad.W * .004);
+      // one alignment (rule 150): every block's middle on the column's middle, or on a left-aligned card every block's
+      // left edge on the column's (the headline's letters stand in by half their treatment's reach: they are measured
+      // by their row's own box, which starts at the column's edge)
+      const left = ad.full.layout && ad.full.layout.align === 'left';
+      const lead = left && !ad.full.board ? ad.size * (F.FX_REACH[st.text_fx] || .34) / 2 : 0;
+      const offAxis = ['claim', 'headline', 'line', 'call to action', 'number', 'footer'].filter(b => R[b] && (left ? Math.abs(R[b][0] - (b === 'headline' ? lead : 0) - col[0]) > ad.W * .004 : Math.abs((R[b][0] + R[b][2]) / 2 - mid) > ad.W * .004));
       // the lines added to the ground, against the ground drawn under them: its brightest tenth
       // under light ink (darkest under dark) must still give 3.5:1
-      const g = ad.bg.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, ad.W, ad.H).data, ink = ad.pHead.ink, light = lumOf(ink) >= .18;
+      const g = ad.bg.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, ad.W, ad.H).data, ink = ad.full.ink || ad.pHead.ink, light = lumOf(ink) >= .18;
       const contrast = {};
-      for (const b of ['line', 'call to action', 'footer']) {
+      for (const b of ['line', 'call to action', 'footer'].filter(n => (ad.full.onGround || [n]).includes(n))) {   // the lines on the ground itself (not on a sign, a bubble or a band)
         const r = R[b]; if (!r) continue;
         const Ls = [];
         for (let y = Math.max(0, r[1] | 0); y < Math.min(ad.H, r[3]); y += 3) for (let x = Math.max(0, r[0] | 0); x < Math.min(ad.W, r[2]); x += 3) { const q = (y * ad.W + x) * 4; Ls.push(.2126 * lin(g[q]) + .7152 * lin(g[q + 1]) + .0722 * lin(g[q + 2])); }

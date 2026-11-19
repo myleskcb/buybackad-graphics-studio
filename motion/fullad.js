@@ -294,6 +294,71 @@ export const FULL = {
 /** The chevrons' size and weight, farthest from the number first (_chevrons: never their opacity). */
 export const CHEVRON_STEP = [.7, .85, 1];
 
+/* THE FULL AD'S LAYOUT (rule 150, 2026-11-18). The owner: the full ads "look shockingly similar to one
+   another", "I need text variety placements, and more than just copy variety"; rule 146 gave a seed its
+   colours, ground, face and fills, and every ad still stood in one centred stack. Each choice below is a
+   grammar the photo ads already speak, drawn from the seed on a stream of its own (drawLayout: the
+   colours, ground, face, product and words a seed drew do not move), or picked and locked in the maker:
+   - full_align: one alignment to a card, centred or every block on the column's left edge (rule 109);
+   - full_order: the product's band in the middle, high (the headline under it) or low (the number over it);
+   - full_side: the selling points left or right of the product (a wide frame: the product's side);
+   - full_claim: the claim's badge a pill, a square tab, a ribbon with notched ends, or a bar the column's width;
+   - full_chips: the points as pills, square tabs, or bare ticks on the ground;
+   - full_cta: the call to action as a line over the number, or in a speech bubble pointing at it;
+   - full_foot: the towns over the website, on one line, or on a band of the plate's colour.
+   The sticker's shape and fill and the number's mark stay rule 146's and 149's. */
+export const FULL_LAYOUT = {
+  full_align: { center: 3, left: 2 },
+  full_order: { classic: 3, hero_low: 2, number_high: 2 },
+  full_side: { left: 1, right: 1 },
+  full_claim: { pill: 3, tab: 2, ribbon: 2, bar: 2 },
+  full_chips: { pill: 3, tab: 2, bare: 1 },
+  full_cta: { line: 3, bubble: 1 },
+  full_foot: { rows: 2, line: 2, band: 1 },
+};
+/** A seed's layout (or the choices picked), on a stream of its own. */
+export function drawLayout(seed, pick = {}) {
+  const r = rng(((seed >>> 0) ^ 0x2545f491) * 37 + 9), out = {};
+  for (const [k, w] of Object.entries(FULL_LAYOUT)) { const v = r.weighted(Object.keys(w), w); out[k] = pick[k] != null && w[pick[k]] != null ? pick[k] : v; }
+  return out;
+}
+/** The layout a style carries, made consistent with itself and the frame (a style made before rule 150 is the centred stack). */
+export function layoutOf(st, wide) {
+  const of = (k, d) => FULL_LAYOUT[k][st[k]] != null ? st[k] : d;
+  const L = { align: of("full_align", "center"), order: of("full_order", "classic"), side: of("full_side", "left"), claim: of("full_claim", "pill"),
+    chips: of("full_chips", "pill"), cta: of("full_cta", "line"), foot: of("full_foot", "rows") };
+  if (L.align === "left" && !wide) L.side = "left";        // a left-aligned card keeps its points on its left edge
+  return L;
+}
+/* THE SIGNS A HEADLINE MAY STAND ON (rule 150): a video look's sign board (the freeway sign, the swap meet
+   poster, the price tag, the chalkboard, the LED panel...), its face round the headline and its line. A
+   sign's posts, stakes and lamps are left off: they would reach down into the product's band or up into the
+   claim's. BOARD_REACH: how far a sign reaches past its face, in headline sizes. */
+export const FULL_BOARDS = new Set(["freeway", "freeway_blue", "poster", "bandit_yellow", "bandit_white", "flyer", "neon_box", "marquee", "store_sign",
+  "price_tag", "chalkboard", "receipt", "wanted_poster", "sticky_note", "speech_bubble", "ticket_stub", "led_panel", "lightbox", "postcard"]);
+const BOARD_REACH = { speech_bubble: { b: .78 }, postcard: { t: .45, r: .3 }, freeway: { t: .32 }, freeway_blue: { t: .32 } };
+/** The claim's badge as a path: a pill, a square tab, a ribbon with notched ends, or a bar. */
+function claimPath(x, kind, w, h, lw) {
+  const a = lw / 2, W = w - lw, H = h - lw, notch = kind === "ribbon" ? H * .32 : 0;
+  x.beginPath();
+  if (kind === "ribbon") { x.moveTo(a, a); x.lineTo(a + W, a); x.lineTo(a + W - notch, a + H / 2); x.lineTo(a + W, a + H); x.lineTo(a, a + H); x.lineTo(a + notch, a + H / 2); x.closePath(); }
+  else x.roundRect(a, a, W, H, kind === "pill" ? H / 2 : H * (kind === "bar" ? .12 : .16));
+}
+/** The call to action in a speech bubble of the call to action's colour, its tail pointing down at the number. */
+function bubbleBadge(text, px, hot, family, weight, left) {
+  const ink = contrastOf(hot, "#111111") >= contrastOf(hot, "#ffffff") ? "#111111" : "#ffffff";
+  const row = footRow(text, px, ink, family, weight);
+  const h = Math.round(px * 1.62), tail = Math.round(h * .34), w = Math.round(row.width + px * 1.5);
+  const c = canvas(w, h + tail), x = c.getContext("2d"), tx = left ? Math.min(w / 2, h * .95) : w / 2;
+  x.fillStyle = hot; x.beginPath(); x.roundRect(0, 0, w, h, h / 2); x.fill();
+  x.beginPath(); x.moveTo(tx - tail * .8, h - 1); x.lineTo(tx, h + tail); x.lineTo(tx + tail * .8, h - 1); x.closePath(); x.fill();
+  x.drawImage(row, (w - row.width) / 2, (h - row.height) / 2);
+  return c;
+}
+/** The small lines' ink: the palette's where it reads 4.5:1 on its ground, else whichever of near-black and
+ *  white reads best (a video look's palette is chosen for a big headline with its shadow: teal's read 3.3:1). */
+export const bodyInkOf = p => [p.ink, "#ffffff", "#111111"].reduce((a, c) => contrastOf(a, p.ground) >= 4.5 || contrastOf(a, p.ground) >= contrastOf(c, p.ground) ? a : c);
+
 /** The house style (tools/feed-stills/render.mjs HOUSE and QUIET, 2026-11-03): one face, capitals,
  *  the double outline, one accent word, the number in a pill, and everything in the maker that
  *  puts small words or stray marks on the picture held off. */
@@ -669,15 +734,18 @@ function plateBody(x, mode, fill, plate, ink, x0, y0, x1, y1, h, edge) {
   fillTexture(x, mode, plate, ink, x0, y0, x1, y1);
 }
 
-const stackRows = (rows, gap) => {
+const stackRows = (rows, gap, left = false) => {
   const c = canvas(Math.max(...rows.map(r => r.width)), Math.ceil(rows.reduce((h, r) => h + r.height, 0) + gap * (rows.length - 1)));
-  let y = 0; for (const r of rows) { c.getContext("2d").drawImage(r, (c.width - r.width) / 2, y); y += r.height + gap; }
+  let y = 0; for (const r of rows) { c.getContext("2d").drawImage(r, left ? 0 : (c.width - r.width) / 2, y); y += r.height + gap; }
   return c;
 };
 
 export class FullAd extends Ad {
   constructor(style, assets, width, height) {
     super(style, assets, width, height, { plan: false });   // laid out at this size by the rules below, never from the plain engine's plan
+    // a video look's rays (rule 150) are laid into the ground once, at rest: drawn over it every frame, they ran
+    // over the shade the small lines are given (_evenGround) and reached the frame's edges in the pre-flight
+    if (["rays", "sunburst"].includes(this.st.background) && !this.groundImg) { super._drawRays(this.bg.getContext("2d"), 0); this._raysAtRest = true; }
     this._photoGround();
     // a drawn scene that moves (aurora, drift) paints over the ground every frame: what must stay readable
     // over it (the shade behind the words, the pool behind a screen) is kept in layers drawn after it
@@ -693,6 +761,8 @@ export class FullAd extends Ad {
     this._evenProduct();
     this._evenGround();
   }
+
+  _drawRays(ctx, t) { if (!this._raysAtRest) super._drawRays(ctx, t); }
 
   /** A screen that reads like the ground behind it (2026-11-18). A lock screen's glass is chosen to stand
    *  off the ground (screenBase), and then its own glow can bring its middle back to the ground's tone: on
@@ -838,10 +908,13 @@ export class FullAd extends Ad {
    *  reads under 4.5:1 on the ground drawn under it, that stretch of ground is evened toward the
    *  colourway's own ground colour, soft at its edges: the ink was chosen against that colour. */
   _evenGround() {
-    const F = this.full, R = F.rects, W = this.W, H = this.H, ink = this.pHead.ink, bx = this.bg.getContext("2d", { willReadFrequently: true });
+    const F = this.full, R = F.rects, W = this.W, H = this.H, bx = this.bg.getContext("2d", { willReadFrequently: true });
     const lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
     const L = h => { const [r, g, b] = [1, 3, 5].map(i => lin(parseInt(h.slice(i, i + 2), 16))); return .2126 * r + .7152 * g + .0722 * b; };
-    const Li = L(ink), light = Li >= .18;
+    // each line's own ink: the headline's, and the small lines' on the ground (F.ink, rule 150: near-black or
+    // white where a video look's palette ink reads under 4.5:1 small)
+    let Li = 0, light = false;
+    const inkOf = name => { Li = L(name === "headline" ? this.pHead.ink : F.ink || this.p.ink); light = Li >= .18; };
     // a photograph or a drawn scene has small bright or dark detail (a keyboard's keys under a line): there
     // every pixel is read and its worst twentieth counts, as the pre-flight reads the delivered picture
     const fine = !GROUNDS.includes(this.st.background), step = fine ? 1 : 5, tail = fine ? .05 : .1;
@@ -856,9 +929,12 @@ export class FullAd extends Ad {
     };
     F.evened = [];
     // the house gradients are the pair's own colours; a photograph or a drawn scene has detail of its own, so the headline is read too
-    const busy = !GROUNDS.includes(this.st.background), m = busy ? 1.15 : 1, targets = [...(busy ? [["headline", 3 * m]] : []), ["line", 4.5 * m], ["call to action", 4.5 * m], ["footer", 4.5 * m]];
+    // the lines that stand on the ground itself (F.onGround: not on a sign, a speech bubble or a band; bare ticks too)
+    const busy = !GROUNDS.includes(this.st.background), m = busy ? 1.15 : 1;
+    const targets = [...(busy && !F.board ? [["headline", 3 * m]] : []), ...(F.onGround || ["line", "call to action", "footer"]).map(n => [n, 4.5 * m])];
     for (const [name, need] of targets) {
       const r = R[name]; if (!r) continue;
+      inkOf(name);
       // on a photograph, into a layer of the block's own as well, which fades in with its words (_drawLiveGround)
       const xs = [bx, ...(this.groundEven ? [(this.groundEven[name] ||= canvas(W, H)).getContext("2d")] : [])];
       for (let a = .55; reads(r) < need && a <= 1.001; a += .15) {
@@ -886,7 +962,7 @@ export class FullAd extends Ad {
   /** Every block, sized and placed. Called by the engine's constructor after the phones are
    *  built (so no field of this class exists yet: everything is read from this.st). */
   _layoutType() {
-    const st = this.st, W = this.W, H = this.H, p = this.p, ph = this.pHead;
+    const st = this.st, W = this.W, H = this.H, p = this.p;
     // wide: the product beside the words, from 3:2 up (16:9 is 1.78). It was 1.3 until 2026-11-13, when the
     // studio's full ad first drew a 4:3 (1.33, a size the video maker has not): the side-by-side
     // layout left every line's blocks too close there; laid out upright, all 35 lines hold.
@@ -896,8 +972,11 @@ export class FullAd extends Ad {
     // button across the bottom. Meta asks for about 14% clear at the top and 20% at the bottom of a 9:16
     // (250 and 340px of 1920); the ground runs under them, the ad stands between.
     const eyT = tall ? H * .125 : e, eyB = tall ? H * .17 : e;
-    // the column the words stand in; on a wide frame the product has the right of it
-    const cx0 = e, cx1 = wide ? W * .56 : W - e, colW = cx1 - cx0, mid = (cx0 + cx1) / 2;
+    // the layout (rule 150): one alignment, the blocks' order, the points' side, the shapes of the claim, the
+    // points, the call to action and the footer. On a wide frame the product has one side of the frame.
+    const Lay = layoutOf(st, wide), left = Lay.align === "left", flip = wide && Lay.side === "left";
+    const cx0 = flip ? W * .44 : e, cx1 = wide && !flip ? W * .56 : W - e, colW = cx1 - cx0, mid = (cx0 + cx1) / 2;
+    const xAt = w => left ? cx0 : mid - w / 2;
     // A TYPE PAIR ON THE FULL AD (rule 141; fullStyle sets full_pair). One of the owner's pairs
     // (TYPE_VOICES, the photo ads' FONT_PAIRS): its display face letters the headline, the number
     // and the sticker; its reading face everything that is read at a small size, the claim, the
@@ -906,16 +985,26 @@ export class FullAd extends Ad {
     const pair = st.full_pair ? TYPE_VOICES[st.type_pair] || null : null;
     const font = pair ? pair.label : LEGIBLE.has((FONTS[st.font] || [])[3]) ? st.font : "franklin";
     const [fam, fwt] = FONTS[font] || FONTS.franklin;
-    const ink = ph.ink, fx = lum(ink) < .5 ? "flat" : "shadow";
+    // a sign under the headline (a video look's: rule 150): the headline and its line take the sign's colours
+    // (pHead), every other line the ground's; a sign that would cost the product its band is left off (below)
+    let B = null, ph = p, reach = null, bw0 = 0, bh0 = 0;
+    const setSign = b => {
+      B = b; ph = b ? this.pHead : p; reach = { l: 0, r: 0, t: 0, b: 0, ...(b ? BOARD_REACH[st.board] || {} : {}) };
+      bw0 = b ? 2 * b.pad + reach.l + reach.r : 0; bh0 = b ? 1.6 * b.pad + (b.tabs || 0) + reach.t + reach.b : 0;
+    };
+    setSign(this.boardDef && FULL_BOARDS.has(st.board) ? this.boardDef : null);
+    // the small lines' ink on the ground (bodyInkOf: the palette's own where it reads 4.5:1, as every pair's does)
+    const gInk = bodyInkOf(p), pg = gInk === p.ink ? p : { ...p, ink: gInk };
+    const fxOf = c => lum(c) < .5 ? "flat" : "shadow";
     // one spelling on the card: the headline's. A caps-only display face (Bungee, Bahiana, Barrio,
     // Silkscreen) draws a capital for the small i, so its headline reads IPHONE; the lines under it
     // then say IPHONE too, and not iPHONE beside it (the review's fault 2, back with the pairs).
     const upper = t => applyCase(t, pair && !spellsSmallI(st.font) ? "upper" : "brand");
-    const paint = (line, px) => trim(inkSprite(line, [...line].map(() => ink), font, px, .02, fx, ph).c);
+    const paint = (line, px, P) => trim(inkSprite(line, [...line].map(() => P.ink), font, px, .02, fxOf(P.ink), P).c);
     /* A line of body type in the fewest rows that fit: one; two, broken at a separator
        ("A • B • C") or between words; three, one item a row. Smaller only when no break
        fits, and never under its floor: then it is left out and fullBlockers says so. */
-    const body = (text, px0, pxMin, maxRows = 2) => {
+    const body = (text, px0, pxMin, maxRows = 2, maxW = colW, P = pg) => {
       if (!text) return null;
       const up = upper(text), items = up.split(/ (?:•|→) /), arrow = up.includes("→");
       const join = (a, b) => items.slice(a, b).join(arrow ? " → " : " • ") + (arrow && b < items.length ? " →" : "");
@@ -925,8 +1014,8 @@ export class FullAd extends Ad {
       if (items.length === 3) tries.push(items.map((t, i) => t + (arrow && i < 2 ? " →" : "")));
       for (let px = px0; px >= pxMin - .01; px = Math.max(pxMin, px * .94)) {
         for (let n = 1; n <= maxRows; n++) {
-          const fits = tries.filter(t => t.length === n).map(t => t.map(l => paint(l, px))).filter(r => Math.max(...r.map(x => x.width)) <= colW);
-          if (fits.length) { const rows = fits.sort((a, b) => Math.max(...a.map(x => x.width)) - Math.max(...b.map(x => x.width)))[0]; return { c: rows.length === 1 ? rows[0] : stackRows(rows, Math.ceil(px * .28)), px, rows: rows.length }; }
+          const fits = tries.filter(t => t.length === n).map(t => t.map(l => paint(l, px, P))).filter(r => Math.max(...r.map(x => x.width)) <= maxW);
+          if (fits.length) { const rows = fits.sort((a, b) => Math.max(...a.map(x => x.width)) - Math.max(...b.map(x => x.width)))[0]; return { c: rows.length === 1 ? rows[0] : stackRows(rows, Math.ceil(px * .28), left), px, rows: rows.length }; }
         }
         if (px <= pxMin) break;
       }
@@ -934,38 +1023,52 @@ export class FullAd extends Ad {
     };
 
     /* ---- the blocks that do not depend on the headline ---- */
-    const F = this.full = { U, e, g, wide, tall, col: [cx0, cx1], rects: {}, px: {}, left: [] };
-    // the claim, in a badge
+    const F = this.full = { U, e, g, wide, tall, col: [cx0, cx1], rects: {}, px: {}, left: [], layout: Lay, onGround: [], board: "", ink: gInk };
+    // the claim, on its badge (a pill, a square tab, a ribbon, a bar the column's width)
     let claim = null;
     if (st.feed_claim) {
       // its badge wears the plates' fill (rule 146); glass or an edge alone carries the words in the lines' ink
       const mode = st.plate_fill || (st.plate_grad ? "gradient" : "solid"), open = mode === "glass" || mode === "outline";
-      const fill = p.plate || p.accent, inkc = open ? ph.ink : p.plate_ink || "#ffffff", text = st.feed_claim.toUpperCase();
+      const fill = p.plate || p.accent, text = st.feed_claim.toUpperCase();
+      // a video look's plate ink may sit close to its plate (rule 150): then near-black or white, whichever reads
+      const inkc = open ? gInk : contrastOf(p.plate_ink || "#ffffff", fill) >= 4.5 ? p.plate_ink || "#ffffff" : contrastOf(fill, "#111111") >= contrastOf(fill, "#ffffff") ? "#111111" : "#ffffff";
       const [cf, cw] = FONTS[pair ? pair.label : st.font] || FONTS.franklin;
-      const pmin = Math.floor(U * FULL.claimMin);
+      const pmin = Math.floor(U * FULL.claimMin), kind = Lay.claim;
       for (let px = Math.round(U * FULL.claim); ; px = Math.max(pmin, Math.floor(px * .94))) {
-        const row = footRow(text, px, inkc, cf, cw), h = Math.round(px * 1.7), w = Math.round(row.width + px * 1.5);
-        if (w <= colW) {
+        const row = footRow(text, px, inkc, cf, cw), h = Math.round(px * 1.7), notch = kind === "ribbon" ? Math.round(h * .32) : 0;
+        const w = kind === "bar" ? Math.floor(colW) : Math.round(row.width + px * 1.5 + notch * 2);
+        if (w <= colW && row.width + px * 1.3 <= colW) {
           const c = canvas(w, h), x = c.getContext("2d"), lw = open ? Math.max(2, h * .07) : 0;
-          x.save(); x.beginPath(); x.roundRect(lw / 2, lw / 2, w - lw, h - lw, (h - lw) / 2);
+          x.save(); claimPath(x, kind, w, h, lw);
           plateBody(x, mode, mode === "gradient" ? fillGradient(x, 0, 0, 0, h, fill, inkc, 4.5) : fill, fill, inkc, 0, 0, w, h, h, p.hot || p.accent);
           // glass or an edge alone glows in nothing: a glow of the plate's colour round words standing on the ground
           // is a halo of their own colour, and they stop reading (the claim read 1.9:1, full_ad_check, 2026-11-18)
-          x.drawImage(row, (w - row.width) / 2, (h - row.height) / 2); claim = { c, fill, ink: inkc, px, glow: !open }; break;
+          x.drawImage(row, kind === "bar" && left ? px * .75 : (w - row.width) / 2, (h - row.height) / 2); claim = { c, fill, ink: inkc, px, glow: !open && kind !== "bar" && !left, kind }; break;
         }
         if (px <= pmin) break;
       }
       if (!claim) F.left.push("claim");
     }
     const line = st.feed_line != null ? st.feed_line : st.tag;
-    const tagB = body(line, U * FULL.tag, U * FULL.tagMin, 2);
-    if (line && !tagB) F.left.push("line");
-    const labB = body(st.number_label, U * FULL.label, U * FULL.labelMin, 1);
-    if (st.number_label && !labB) F.left.push("call to action");
+    let tagB = null;
+    // the call to action: a line over the number, or a speech bubble pointing down at it
+    let labB = null;
+    if (st.number_label) {
+      if (Lay.cta === "bubble") {
+        const pmin = U * FULL.labelMin;
+        for (let px = U * FULL.label; px >= pmin - .01; px = Math.max(pmin, px * .94)) {
+          const c = bubbleBadge(upper(st.number_label), Math.round(px), this.hot, fam, fwt, left);
+          if (c.width <= colW) { labB = { c, px, bubble: true }; break; }
+          if (px <= pmin) break;
+        }
+      }
+      if (!labB) labB = body(st.number_label, U * FULL.label, U * FULL.labelMin, 1);
+      if (!labB) F.left.push("call to action");
+    }
     // the number: its pill a fixed share of the column, the chevrons either side of it
     const numText = formatNumber(st.number, st.number_format) || "YOUR NUMBER";
     let numFont = st.number_font === "same" ? st.font : st.number_font; if (FINE_FACES.has(numFont) || !FONTS[numFont]) numFont = pair ? pair.label : "oswald";
-    const numFor = z => { const n = numberPill(numText, z, numFont, p, st.number_style, st.plate_fill || !!st.plate_grad, ph.ink); return { ...n, text: numText, label: null }; };
+    const numFor = z => { const n = numberPill(numText, z, numFont, p, st.number_style, st.plate_fill || !!st.plate_grad, gInk); return { ...n, text: numText, label: null }; };
     let nz = U * .09, num = numFor(nz);
     nz *= Math.min(colW * FULL.pill / num.w, U * FULL.number / nz); num = numFor(nz);
     for (let k = 0; k < 4 && num.w > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.w; num = numFor(nz); }
@@ -986,15 +1089,27 @@ export class FullAd extends Ad {
       for (let k = 0; k < 4 && num.w > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.w; num = numFor(nz); }
     }
     if (labB) num = { ...num, label: labB.c };
-    // the footer: the towns after a pin, over the website
+    // the footer: the towns after a pin and the website, in rows, on one line, or on a band of the plate's colour
     const where = (st.feed_where || "").replace(/^\s*\p{Extended_Pictographic}️?\s*/u, "").trim().toUpperCase(), site = (st.feed_site || "").trim();
     let foot = null;
     if (where || site) {
       const [lf, lw] = FONTS[font] || FONTS.franklin;
-      const pmin = Math.floor(U * FULL.footMin);
+      const band = Lay.foot === "band" && p.plate && p.plate_ink && contrastOf(p.plate_ink, p.plate) >= 4.5;
+      const fInk = band ? p.plate_ink : gInk, fPin = band ? p.plate_ink : this.hot, pmin = Math.floor(U * FULL.footMin);
       for (let px = Math.round(U * FULL.foot); ; px = Math.max(pmin, Math.floor(px * .94))) {
-        const rows = [where && footRow(where, px, ink, lf, lw, this.hot), site && footRow(site, px, ink, lf, lw)].filter(Boolean);
-        if (rows.every(r => r.width <= colW)) { foot = { c: trim(rows.length === 1 ? rows[0] : stackRows(rows, Math.round(U * .006))), px }; break; }   // trimmed: a gap is measured to its letters
+        const padX = band ? px * .8 : 0, padY = band ? px * .42 : 0, room = colW - padX * 2;
+        let c = null;
+        if (Lay.foot === "line" && where && site) { const one = trim(footRow(where + "  •  " + site, px, fInk, lf, lw, fPin)); if (one.width <= room) c = one; }
+        if (!c) {
+          const rows = [where && footRow(where, px, fInk, lf, lw, fPin), site && footRow(site, px, fInk, lf, lw)].filter(Boolean);
+          if (rows.every(r => r.width <= room)) c = trim(rows.length === 1 ? rows[0] : stackRows(rows, Math.round(U * .006), left));   // trimmed: a gap is measured to its letters
+        }
+        if (c && band) {
+          const b = canvas(Math.ceil(c.width + padX * 2), Math.ceil(c.height + padY * 2)), x = b.getContext("2d");
+          x.fillStyle = p.plate; x.beginPath(); x.roundRect(0, 0, b.width, b.height, Math.min(b.height / 2, px * .6)); x.fill();
+          x.drawImage(c, padX, padY); c = b;
+        }
+        if (c) { foot = { c, px, band }; break; }
         if (px <= pmin) break;
       }
       if (!foot) F.left.push("footer");
@@ -1004,42 +1119,65 @@ export class FullAd extends Ad {
     const text = applyCase(st.headline, st.case), words = text.split(/\s+/).length;
     const gapOf = z => z * (["box", "sticker", "highlighter", "cutout", "double_outline", "glass"].includes(st.text_fx) ? .14 : .02);
     const mc = canvas(4, 4).getContext("2d");
-    const headAt = (maxH) => {
-      // how many lines: whichever lets the type be biggest in the room it has (the engine's own rule)
+    const headAt = (maxH, maxW = colW) => {
+      // how many lines: whichever lets the type be biggest in the room it has (the engine's own rule); a sign's
+      // padding and reach count, per unit of the headline's size (bw0, bh0)
       const ref = U * .1; mc.font = fontCss(st.font, ref);
       let best = null;
       for (const n of [...new Set([1, 2, 3].map(k => Math.min(words, k)))]) {
         const ls = splitLines(text, n), wid = Math.max(...ls.map(l => mc.measureText(l).width + (st.tracking || 0) * ref * l.length)) * 1.06;   // the outline's width
         const hgt = ref * (.82 * (.98 * (ls.length - 1) + 1) + .14 * (ls.length - 1));
-        const s = ref * Math.min(colW / wid, maxH / hgt);
+        const s = ref * Math.min(maxW / (wid + bw0 * ref), maxH / (hgt + bh0 * ref));
         if (!best || s > best.s * 1.04) best = { n, s };
       }
       let size = Math.min(best.s, U * .2 * (st.text_scale || 1)), lines, lineH, blockH;
       for (let k = 0; k < 8; k++) {
-        const lk = size.toFixed(2) + "|" + best.n;
+        const lk = size.toFixed(2) + "|" + best.n + "|" + (B ? 1 : 0);
         lines = (this._lineCache ||= new Map()).get(lk) || this._lineCache.set(lk, headlineLines(st, ph, size, best.n)).get(lk);
         lineH = lines[0].asc * .98 + gapOf(size); blockH = lineH * (lines.length - 1) + lines[0].asc;
         // the letters and the outline round them stay inside the column: a headline as wide as the column
         // put its outline 17px from the frame's edge, in the margin (found by the pre-flight on the picture).
         // A treatment that reaches further takes its own room (FX_REACH): a long shadow falls a third of the
         // size to one side and ran 13px from the frame (full_ad_check, toyota 9:16, 2026-11-18)
-        const widest = Math.max(...lines.map(L => L.inkW)) + size * (FX_REACH[st.text_fx] || .34);
-        if (widest <= colW && blockH <= maxH * 1.02) break;
-        size *= Math.min(.97, colW / widest, maxH * 1.02 / blockH);
+        const widest = Math.max(...lines.map(L => L.inkW)) + size * (B ? bw0 : FX_REACH[st.text_fx] || .34), tallest = blockH + bh0 * size;
+        if (widest <= maxW && tallest <= maxH * 1.02) break;
+        size *= Math.min(.97, maxW / widest, maxH * 1.02 / tallest);
       }
       return { size, lines, lineH, blockH, n: best.n };
     };
     const hasChips = pointsOf(st).length > 0, hasPhones = this.phones.length > 0;
-    // the gaps between one block and the next, in units of g; the room left over stretches them all alike
-    const gClaim = 1.15, gBand = 1.4, gLab = .8, gFoot = 1.1;
     // a headline on a plate of its own (a box, letters cut out of one, a pane of glass, a marker's bar: rule 146)
-    // has the plate standing a fifth of its size over its capitals: the claim above it keeps clear of that too
+    // has the plate standing a fifth of its size over its capitals: the block above it keeps clear of that too
     // (a cut-out plate met the claim's badge and the claim read 1.9:1, full_ad_check, 2026-11-18)
-    const overClaim = hd => ["box", "cutout", "glass", "highlighter"].includes(st.text_fx) ? hd.size * .16 : 0;
-    // the line under the headline clears the outline that hangs under its letters
-    const tagGap = hd => Math.max(g * .9, hd.size * .24);
-    const fixedOf = hd => (claim ? claim.c.height + g * gClaim + overClaim(hd) : 0) + hd.blockH + (tagB ? tagB.c.height + tagGap(hd) : 0) + g * gBand * 2
-      + (labB ? labB.c.height + g * gLab : 0) + num.h + (foot ? foot.c.height + g * gFoot : 0);
+    const overClaim = hd => !B && ["box", "cutout", "glass", "highlighter"].includes(st.text_fx) ? hd.size * .16 : 0;
+    // the line under the headline clears the outline that hangs under its letters (on a sign, the sign's own air)
+    const tagGap = hd => B ? Math.max(g * .6, hd.size * .16) : Math.max(g * .9, hd.size * .24);
+    // the headline's block: its letters, its line, and the sign under both, with the sign's reach past its face
+    const signOf = hd => {
+      if (!B) return null;
+      const padX = B.pad * hd.size, padY = B.pad * .8 * hd.size, tabs = (B.tabs || 0) * hd.size;
+      const innerW = Math.max(...hd.lines.map(L => L.inkW), tagB ? tagB.c.width : 0), w = innerW + padX * 2;
+      const h = padY * 2 + hd.blockH + (tagB ? tagGap(hd) + tagB.c.height : 0) + tabs;
+      const tip = st.board === "price_tag" ? (h - tabs) * .42 : 0, tilt = w * .035;
+      const ext = { l: tip + reach.l * hd.size, r: reach.r * hd.size, t: reach.t * hd.size + tilt, b: reach.b * hd.size + tilt };
+      return { padX, padY, tabs, innerW, w, h, ext, full: [w + ext.l + ext.r, h + ext.t + ext.b] };
+    };
+    const headH = hd => { const S = signOf(hd); return S ? S.full[1] : hd.blockH + (tagB ? tagB.c.height + tagGap(hd) : 0); };
+
+    /* ---- the order of the blocks, top to bottom, and the gap before each, in units of g (rule 150) ----
+       The product's band in the middle (the classic stack), high (the headline under it) or low (the
+       number over it); the room left over stretches every gap alike (a gap beside the band half as much). */
+    const seq = [];
+    if (claim) seq.push("claim");
+    const ctaSeq = [...(labB ? ["call to action"] : []), "number"];
+    if (Lay.order === "hero_low") seq.push("band", "headline", ...ctaSeq);
+    else if (Lay.order === "number_high") seq.push("headline", ...ctaSeq, "band");
+    else seq.push("headline", "band", ...ctaSeq);
+    if (foot) seq.push("footer");
+    const gClaim = 1.15, gBand = 1.4, gLab = .8, gFoot = 1.1;
+    const gapIn = (a, b) => a === "band" || b === "band" ? [gBand, .5] : a === "call to action" ? [labB && labB.bubble ? .45 : gLab, 1] : b === "footer" ? [gFoot, 1] : a === "claim" ? [gClaim, 1] : [gBand, 1];
+    const sizeOf = (name, hd) => ({ claim: claim && claim.c.height, headline: headH(hd), "call to action": labB && labB.c.height, number: num.h, footer: foot && foot.c.height })[name] || 0;
+    const fixedOf = hd => seq.reduce((s, n, i) => s + sizeOf(n, hd) + (i ? g * gapIn(seq[i - 1], n)[0] + (n === "headline" ? overClaim(hd) : 0) : 0), 0);
 
     /* ---- the band: selling points | the product | the sticker and the icon ----
        Sized before it is placed: the band takes the height its contents reach, and the room
@@ -1049,12 +1187,13 @@ export class FullAd extends Ad {
     const items = pointsOf(st), face = labelFont(st);
     const Hu = H - eyT - eyB;                                 // the height the ad stands in (a story's, between the app's bars)
     const phoneCap = wide ? H * .8 : Hu * (tall ? .52 : .49);
-    const reach = q => { const a = q.angle * Math.PI / 180; return [q.size * (q.w * Math.abs(Math.cos(a)) + q.h * Math.abs(Math.sin(a))) / 2, q.size * (q.h * Math.abs(Math.cos(a)) + q.w * Math.abs(Math.sin(a))) / 2]; };
+    const reachOf = q => { const a = q.angle * Math.PI / 180; return [q.size * (q.w * Math.abs(Math.cos(a)) + q.h * Math.abs(Math.sin(a))) / 2, q.size * (q.h * Math.abs(Math.cos(a)) + q.w * Math.abs(Math.sin(a))) / 2]; };
     // The engine spreads a set across its stage: a video's phones have the frame to themselves.
     // Here they stand shoulder to shoulder on one floor, in the engine's left-to-right order:
-    // the arrangement keeps its character (a line, a fan, a shop window, a podium, wings) at
-    // the spacing below, in phone widths. A leaning neighbour may tuck a little behind the
-    // middle phone from the side, never from above (the set's house rules, 2026-10-02).
+    // the arrangement keeps its character (a line, a fan, a shop window, a podium, wings, a hand of
+    // cards, a crown...: every one the video maker has, rule 150) at the spacing below, in phone
+    // widths. A leaning neighbour may tuck a little behind the middle phone from the side, never from
+    // above (the set's house rules, 2026-10-02).
     const flat = this.phones.some(q => q.meta && q.meta.flat);
     if (hasPhones && flat) {
       // a product's own pictures (a subject from the offer family): side by side as they are, the
@@ -1066,28 +1205,43 @@ export class FullAd extends Ad {
     } else if (hasPhones) {
       const ps = [...this.phones].sort((a, b) => a.home[0] - b.home[0]), n = ps.length;
       const PW = Math.max(...ps.map(q => q.w)), PH = Math.max(...ps.map(q => q.h));
+      // [x in phone widths, y in phone heights, tilt in degrees, scale], for the phone o places from the middle
       const spot = ({
         fan: (o, k) => [o * (n === 2 ? 1.2 : 1.02), k * .03, o * 8, 1],
         showcase: (o, k) => [o * (n === 2 ? 1.12 : .93), 0, 0, n === 2 ? 1 : k ? .86 : 1.08],
         podium: (o, k) => [o * 1.04, 0, 0, n === 2 ? 1 : 1.06 - .15 * k],
         wings: (o, k) => [o * (n === 2 ? 1.22 : 1.1), k * .02, -o * 7, 1],
+        hand: (o, k) => [o * (n === 2 ? .95 : .78), k * .05, o * 13, 1],
+        burst: (o, k) => [o * (n === 2 ? 1.05 : .9), k * .06, o * 17, 1],
+        fanfare: (o, k) => [o * (n === 2 ? 1.1 : .96), k * .045, o * 11, 1],
+        tilt_row: (o) => [o * 1.16, 0, 6, 1],
+        lean_in: (o, k) => [o * (n === 2 ? 1.14 : 1.04), 0, -o * 4, k ? .95 : 1],
+        rise: (o) => [o * 1.12, -o * .07, 0, 1],
+        crown: (o, k) => [o * (n === 2 ? 1.12 : .98), k * .07, -o * 5, n === 2 ? 1 : k ? .9 : 1.1],
+        headliner: (o, k) => [o * (n === 2 ? 1.1 : .96), 0, 0, n === 2 ? (o < 0 ? 1.08 : .84) : k ? .8 : 1.14],
+        spotlight: (o, k) => [o * (n === 2 ? 1.14 : 1.02), 0, 0, n === 2 ? 1 : k ? .78 : 1.1],
+        gallery: (o) => [o * 1.3, 0, 0, 1],
+        tents: (o, k, i) => [o * 1.1, 0, i % 2 ? 7 : -7, 1],
       })[st.arrangement] || ((o) => [o * 1.14, 0, 0, 1]);
       ps.forEach((q, i) => {
-        const o = i - (n - 1) / 2, k = Math.abs(o), [x, yy, ang, sc] = spot(o, k);
+        const o = i - (n - 1) / 2, k = Math.abs(o), [x, yy, ang, sc] = spot(o, k, i);
         q.angle = ang; q.size = sc;
         q.home = [x * PW, yy * PH + (PH - q.h * sc) / 2];           // every foot on the tallest's floor
       });
       // the middle in front: outer phones are drawn (and land) first
       this.drawOrder = this.phones.map((_, i) => i).sort((a, b) => Math.abs(ps.indexOf(this.phones[b]) - (n - 1) / 2) - Math.abs(ps.indexOf(this.phones[a]) - (n - 1) / 2));
     }
-    const bb = this.phones.map(q => { const [hw, hh] = reach(q); return [q.home[0] - hw, q.home[1] - hh, q.home[0] + hw, q.home[1] + hh]; });
+    const bb = this.phones.map(q => { const [hw, hh] = reachOf(q); return [q.home[0] - hw, q.home[1] - hh, q.home[0] + hw, q.home[1] + hh]; });
     const G = hasPhones ? [Math.min(...bb.map(b => b[0])), Math.min(...bb.map(b => b[1])), Math.max(...bb.map(b => b[2])), Math.max(...bb.map(b => b[3]))] : [0, 0, 1, 1];
     const gw = G[2] - G[0], gh = G[3] - G[1], gx = g * 1.6;
+    // the points as pills, square tabs or bare ticks on the ground (in the small lines' ink, the ground evened under them)
+    const chipLook = Lay.chips === "bare" ? { shape: "bare", ink: gInk, ground: p.ground } : { shape: Lay.chips };
+    const chipAlign = left ? "l" : "c";
     const chipsFor = (shapes, maxW, maxH, align) => {
       for (const [n, row] of shapes) {
         if (n > items.length || n < 1) continue;
         for (let fs = U * FULL.chip; ; fs = Math.max(U * FULL.chipMin, fs * .95)) {
-          const key = `${n}|${row}|${align}|${fs.toFixed(2)}`, q = (this._chipCache ||= new Map()).get(key) || this._chipCache.set(key, perksSprite(items.slice(0, n), fs, this.hot, align, row, face, !!this.st.plate_grad)).get(key);
+          const key = `${n}|${row}|${align}|${Lay.chips}|${fs.toFixed(2)}`, q = (this._chipCache ||= new Map()).get(key) || this._chipCache.set(key, perksSprite(items.slice(0, n), fs, this.hot, align, row, face, !!this.st.plate_grad, chipLook)).get(key);
           if (q.w <= maxW && q.h <= maxH) return { q, fs, n, row };
           if (fs <= U * FULL.chipMin) break;
         }
@@ -1109,7 +1263,7 @@ export class FullAd extends Ad {
       if (rb && wantIcon) { const r2 = Math.min(U * FULL.icon, rb * .9, (bh - rb * 2 - g * 1.5) / 2); if (r2 >= U * FULL.iconMin) ri = r2; }
       const colH = rb ? rb * 2 + (ri ? g * 1.5 + ri * 2 : 0) : 0;
       const beside = { k, rb, ri, w: gw * k + (rb ? gx * .8 + rb * 2 : 0), h: Math.max(gh * k, colH), colH };
-      // a tall box (a wide frame's right column): the sticker and the icon in a row under the product
+      // a tall box (a wide frame's product column): the sticker and the icon in a row under the product
       if (sticker && !rb) {
         const rr = Math.min(U * FULL.burst, bw * .24), kk = Math.min(kMax, (bh - g * 1.6 - rr * 2) / gh);
         if (rr >= U * FULL.burstMin && kk >= kMax * .8) {
@@ -1121,11 +1275,11 @@ export class FullAd extends Ad {
     };
     const shape = (mode, band) => {
       if (wide) {
-        const chips = items.length ? chipsFor([[items.length, true], [items.length, false], [2, true], [2, false]], colW, band, "c") : null;
+        const chips = items.length ? chipsFor([[items.length, true], [items.length, false], [2, true], [2, false]], colW, band, chipAlign) : null;
         return { mode: "wide", chips, sub: subject(W - e - W * .59, H - 2 * e), need: chips ? chips.q.h : 0 };
       }
       if (mode === "side") {
-        const chips = items.length && band > U * .05 ? chipsFor(hasPhones ? [[items.length, false], [2, false]] : [[items.length, true], [items.length, false], [2, false]], hasPhones ? colW * .47 : colW, band, hasPhones ? "l" : "c") : null;
+        const chips = items.length && band > U * .05 ? chipsFor(hasPhones ? [[items.length, false], [2, false]] : [[items.length, true], [items.length, false], [2, false]], hasPhones ? colW * .47 : colW, band, hasPhones ? "l" : chipAlign) : null;
         const sub = subject(colW - (chips ? chips.q.w + gx : 0), band);
         return { mode, chips, sub, need: Math.max(chips ? chips.q.h : 0, sub.h) };
       }
@@ -1138,7 +1292,7 @@ export class FullAd extends Ad {
         const topH = Math.max(chips.q.h, rb * 2), sub = subject(colW, band - topH - g * 1.4, false);
         return { mode, chips, sub, rb, topH, need: topH + (sub.h ? g * 1.4 : 0) + sub.h };
       }
-      const chips = items.length && band > U * .05 ? chipsFor([[items.length, true], [items.length, false], [2, true]], colW, band * .36, "c") : null;
+      const chips = items.length && band > U * .05 ? chipsFor([[items.length, true], [items.length, false], [2, true]], colW, band * .36, chipAlign) : null;
       const sub = subject(colW, band - (chips ? chips.q.h + g * 1.4 : 0));
       return { mode, chips, sub, need: (chips ? chips.q.h + (sub.h ? g * 1.4 : 0) : 0) + sub.h };
     };
@@ -1155,70 +1309,133 @@ export class FullAd extends Ad {
     // what the band's contents would take of the share they are owed: all of it for phones, less for a wide picture
     const wantBand = Math.min(bandMin, bestShape(bandMin).need || bandMin);
     const bandOf = h => Math.max(0, Hu - fixedOf(h));
-    let headMax = wide ? H * .36 : Hu * (tall ? .26 : ar < .9 ? .235 : .32), hd = headAt(headMax), band = bandOf(hd);
-    for (let k = 0; k < 14 && band < wantBand - 1 && hd.size > U * .072; k++) { headMax *= .93; hd = headAt(headMax); band = bandOf(hd); }
-    let S = bestShape(band);
-    // and room the band's contents cannot use goes back to the headline, while it makes the headline larger
-    // (a headline as wide as the column gains nothing) and costs the product nothing
-    for (let k = 0; k < 8 && band - S.need > g * 2.5; k++) {
-      const h2 = headAt(headMax * 1.07); if (h2.size <= hd.size * 1.01) break;
-      const raw = Hu - fixedOf(h2), S2 = bestShape(Math.max(0, raw));
-      // never at the cost of the points (an ad with no picture grew its headline until they fell out
-      // and the footer left the frame: full_ad_check, sealed SSDs on a wide frame)
-      if (raw < S2.need - 1 || worth(S2) < worth(S) * .985 || !!S2.chips !== !!S.chips || (S.chips && S2.chips.fs < S.chips.fs * .98)) break;
-      headMax *= 1.07; hd = h2; band = raw; S = S2;
+    let headMax, headW, hd, band, S;
+    const sizeAll = () => {
+      tagB = body(line, U * FULL.tag, U * FULL.tagMin, 2, B ? colW * .8 : colW, B ? ph : pg);
+      headMax = (wide ? H * .36 : Hu * (tall ? .26 : ar < .9 ? .235 : .32)) * (B ? 1.15 : 1); headW = colW; hd = headAt(headMax, headW);
+      // a sign's tip and tilt are known once the headline is: narrow the room until the whole sign fits
+      for (let k = 0; k < 5 && B; k++) { const Sg = signOf(hd); if (Sg.full[0] <= colW + .5) break; headW -= Sg.full[0] - colW + 2; hd = headAt(headMax, headW); }
+      if (B && tagB) {   // the line, re-set narrower where its sign is narrower than the room it was first set for
+        const Sg = signOf(hd), inner = colW - Sg.ext.l - Sg.ext.r - Sg.padX * 2;
+        if (tagB.c.width > inner) tagB = body(line, U * FULL.tag, U * FULL.tagMin, 2, inner, ph);
+      }
+      band = bandOf(hd);
+      for (let k = 0; k < 14 && band < wantBand - 1 && hd.size > U * .072; k++) { headMax *= .93; hd = headAt(headMax, headW); band = bandOf(hd); }
+      S = bestShape(band);
+      // and room the band's contents cannot use goes back to the headline, while it makes the headline larger
+      // (a headline as wide as the column gains nothing) and costs the product nothing
+      for (let k = 0; k < 8 && band - S.need > g * 2.5; k++) {
+        const h2 = headAt(headMax * 1.07, headW); if (h2.size <= hd.size * 1.01) break;
+        const raw = Hu - fixedOf(h2), S2 = bestShape(Math.max(0, raw));
+        // never at the cost of the points (an ad with no picture grew its headline until they fell out
+        // and the footer left the frame: full_ad_check, sealed SSDs on a wide frame)
+        if (raw < S2.need - 1 || worth(S2) < worth(S) * .985 || !!S2.chips !== !!S.chips || (S.chips && S2.chips.fs < S.chips.fs * .98)) break;
+        headMax *= 1.07; hd = h2; band = raw; S = S2;
+      }
+      // and whatever the words, the stack stays inside the frame: the headline goes on giving way
+      for (let k = 0; k < 12 && Hu - fixedOf(hd) < S.need - 1 && hd.size > U * .05; k++) { headMax *= .93; hd = headAt(headMax, headW); band = bandOf(hd); S = bestShape(band); }
+    };
+    sizeAll();
+    // a sign that would cost the product its band, or its line, or that will not fit the column, is left off:
+    // the headline stands on the ground
+    if (B && (band < wantBand * .95 - 1 || (line && !tagB) || signOf(hd).full[0] > colW + .5 || Hu - fixedOf(hd) < S.need - 1)) { setSign(null); sizeAll(); }
+    // short of the product's band, with the points left out, or with the headline under what reads in a feed's preview (the pre-flight's
+    // 20px at a quarter of the size: 111px of 1080), the costlier shapes give way before the headline does
+    // (rule 116: the hero stays a hero): the bubble becomes a line, a footer on a band or in rows one line
+    if ((band < wantBand * .95 - 1 && hd.size < U * .1) || hd.size < U * PF.thumbHead / (.72 * 270) || (hasChips && !S.chips)) {   // or the points would be left out
+      const cheaper = Lay.cta === "bubble" && labB ? { full_cta: "line" } : Lay.foot === "band" ? { full_foot: "line" } : Lay.foot === "rows" && where && site ? { full_foot: "line" } : null;
+      if (cheaper && !this._cheaper) { this._cheaper = true; Object.assign(st, cheaper); try { return this._layoutType(); } finally { this._cheaper = false; } }
     }
-    // and whatever the words, the stack stays inside the frame: the headline goes on giving way
-    for (let k = 0; k < 12 && Hu - fixedOf(hd) < S.need - 1 && hd.size > U * .05; k++) { headMax *= .93; hd = headAt(headMax); band = bandOf(hd); S = bestShape(band); }
+    if (line && !tagB) F.left.push("line");
     const chips = S.chips, sub = S.sub, side = S.mode === "side";
-    if (globalThis.FULL_DEBUG) console.log('DBG', JSON.stringify({ W, H, band: Math.round(band), need: Math.round(S.need), colW: Math.round(colW), gw: Math.round(gw), gh: Math.round(gh), n: this.phones.length, mode: S.mode, k: +sub.k.toFixed(3), rb: Math.round(sub.rb), ri: Math.round(sub.ri), chips: chips ? Math.round(chips.fs) : 0, head: Math.round(hd.size) }));
+    if (globalThis.FULL_DEBUG) console.log('DBG', JSON.stringify({ W, H, band: Math.round(band), need: Math.round(S.need), colW: Math.round(colW), gw: Math.round(gw), gh: Math.round(gh), n: this.phones.length, mode: S.mode, k: +sub.k.toFixed(3), rb: Math.round(sub.rb), ri: Math.round(sub.ri), chips: chips ? Math.round(chips.fs) : 0, head: Math.round(hd.size), sign: B ? st.board : "" }));
     if (items.length && !chips) F.left.push("selling points");
+
+    /* ---- every block down the frame, in the layout's order ---- */
     // the band takes what its contents reach; what is over is shared: each gap grows by the same step, the rest above and below
     const need = Math.min(band, S.need), spare = Math.max(0, band - need);
-    const nStretch = 1 + (claim ? 1 : 0) + (tagB ? 1 : 0) + (labB ? 1 : 0) + (foot ? 1 : 0);
-    const stretch = Math.min(g * 1.3, spare / (nStretch + 1.5)), bandH = need, pad = (spare - stretch * nStretch) / 2;
+    const inner = tagB && !B ? 1 : 0;                       // the step between the headline and its line grows too
+    const weights = seq.slice(1).reduce((s, n, i) => s + gapIn(seq[i], n)[1], 0) + inner;
+    const stretch = Math.min(g * 1.3, spare / (weights + 1.5)), bandH = need, pad = (spare - stretch * weights) / 2;
     let y = eyT + Math.max(0, pad);
-    const R = F.rects, put = (name, c, cx = mid) => { const r = [cx - c.width / 2, y, cx + c.width / 2, y + c.height]; R[name] = r; y += c.height; return r; };
-    if (claim) { const r = put("claim", claim.c); claim.x = r[0]; claim.y = r[1]; y += g * gClaim + overClaim(hd) + stretch; }
-    const y0 = y, xs = hd.lines.map(L => mid - L.inkW / 2);
-    const block = [Math.min(...xs), y0, Math.max(...hd.lines.map((L, i) => xs[i] + L.inkW)), y0 + hd.blockH];
-    R.headline = block.slice(); y += hd.blockH;
-    let tagXY = null;
-    if (tagB) { y += tagGap(hd) + stretch; const r = put("line", tagB.c); tagXY = [r[0], r[1]]; }
-    const outer = [Math.min(block[0], tagXY ? tagXY[0] : W), block[1], Math.max(block[2], tagXY ? tagXY[0] + tagB.c.width : 0), y];
-    y += g * gBand + stretch * .5;
-    const bandTop = y, bandBot = y + bandH; y = bandBot + g * gBand + stretch * .5;
-    let labXY = null;
-    if (labB) { const r = put("call to action", labB.c); labXY = [r[0], r[1]]; y += g * gLab + stretch; }
-    // the pill is what is spaced and measured; its sprite carries the shadow's margin round it
-    const nr = R.number = [mid - num.w / 2, y, mid + num.w / 2, y + num.h], nxy = [nr[0] - num.pad, nr[1] - num.pad]; y += num.h;
+    const R = F.rects;
+    let tagXY = null, labXY = null, nxy = null, footXY = null, bandTop = 0, bandBot = 0, xs = [], y0 = 0, block = null, outer = null, boardRect = null;
+    seq.forEach((name, i) => {
+      if (i) { const [gg, w] = gapIn(seq[i - 1], name); y += g * gg + stretch * w + (name === "headline" ? overClaim(hd) : 0); }
+      if (name === "claim") {
+        const x = Lay.claim === "bar" ? cx0 : xAt(claim.c.width); claim.x = x; claim.y = y;
+        R.claim = [x, y, x + claim.c.width, y + claim.c.height]; y += claim.c.height;
+      } else if (name === "headline") {
+        const Sg = signOf(hd);
+        if (Sg) {
+          // the sign: its face at (bx, by), the headline and its line on it
+          const bx = left ? cx0 + Sg.ext.l : mid - Sg.full[0] / 2 + Sg.ext.l, by = y + Sg.ext.t;
+          boardRect = [bx, by, bx + Sg.w, by + Sg.h];
+          y0 = by + Sg.padY;
+          xs = hd.lines.map(L => left ? bx + Sg.padX : bx + Sg.padX + (Sg.innerW - L.inkW) / 2);
+          block = [Math.min(...xs), y0, Math.max(...hd.lines.map((L, j) => xs[j] + L.inkW)), y0 + hd.blockH];
+          if (tagB) tagXY = [left ? bx + Sg.padX : bx + (Sg.w - tagB.c.width) / 2, y0 + hd.blockH + tagGap(hd)];
+          outer = boardRect.slice();
+          R.headline = [bx - Sg.ext.l, y, bx + Sg.w + Sg.ext.r, y + Sg.full[1]];
+          y += Sg.full[1];
+        } else {
+          // on the left edge the letters stand in by half their treatment's reach (an outline, a box, a long shadow
+          // reaches past them: headAt kept that room), so the treatment, not the letters, meets the margin
+          const lead = left ? hd.size * (FX_REACH[st.text_fx] || .34) / 2 : 0;
+          y0 = y; xs = hd.lines.map(L => left ? cx0 + lead : mid - L.inkW / 2);
+          block = [Math.min(...xs), y0, Math.max(...hd.lines.map((L, j) => xs[j] + L.inkW)), y0 + hd.blockH];
+          R.headline = block.slice(); y += hd.blockH;
+          if (tagB) {
+            y += tagGap(hd) + stretch * inner; const x = xAt(tagB.c.width); tagXY = [x, y];
+            R.line = [x, y, x + tagB.c.width, y + tagB.c.height]; y += tagB.c.height; F.onGround.push("line");
+          }
+          outer = [Math.min(block[0], tagXY ? tagXY[0] : W), block[1], Math.max(block[2], tagXY ? tagXY[0] + tagB.c.width : 0), y];
+        }
+      } else if (name === "band") {
+        bandTop = y; bandBot = y + bandH; y = bandBot;
+      } else if (name === "call to action") {
+        const x = xAt(labB.c.width); labXY = [x, y]; R["call to action"] = [x, y, x + labB.c.width, y + labB.c.height]; y += labB.c.height;
+        if (!labB.bubble) F.onGround.push("call to action");
+        else F.cta = { ink: contrastOf(this.hot, "#111111") >= contrastOf(this.hot, "#ffffff") ? "#111111" : "#ffffff", h: Math.round(labB.px * 1.62) };
+      } else if (name === "number") {
+        // the pill is what is spaced and measured; its sprite carries the shadow's margin round it
+        const x = xAt(num.w); R.number = [x, y, x + num.w, y + num.h]; nxy = [x - num.pad, y - num.pad]; y += num.h;
+      } else if (name === "footer") {
+        const x = xAt(foot.c.width); footXY = [x, y]; R.footer = [x, y, x + foot.c.width, y + foot.c.height]; y += foot.c.height;
+        if (!foot.band) F.onGround.push("footer"); else F.footBand = { ink: p.plate_ink };
+      }
+    });
+    // the bubble's tail over the number's middle on a centred card
+    if (labB && labB.bubble && labXY && !left) { labXY[0] = R.number[0] + (num.w - labB.c.width) / 2; R["call to action"] = [labXY[0], labXY[1], labXY[0] + labB.c.width, labXY[1] + labB.c.height]; }
     F.numBar = num.bar || "";                              // a number with no plate: its bar, for the pre-flight
-    let footXY = null;
-    if (foot) { y += g * gFoot + stretch; const r = put("footer", foot.c); footXY = [r[0], r[1]]; }
-    F.band = [cx0, bandTop, cx1, bandBot]; F.mode = S.mode;
+    F.band = [cx0, bandTop, cx1, bandBot]; F.mode = S.mode; F.order = seq.slice(); F.board = B ? st.board : "";
+    if (B) F.onBoard = ["headline", ...(tagB ? ["line"] : [])];
 
     // where the row of the product and its eye-catchers stands: [x0, x1] and its middle line
     let rowX0, rowX1, rowCy;
+    const mirror = Lay.side === "right" && !wide;          // [sticker][product] [points], the mirror of [points] [product][sticker]
     if (wide) {
-      if (chips) { chips.x = mid - chips.q.w / 2; chips.y = bandTop + (bandH - chips.q.h) / 2; }
-      rowX0 = W * .59; rowX1 = W - e; rowCy = H / 2;
+      if (chips) { chips.x = xAt(chips.q.w); chips.y = bandTop + (bandH - chips.q.h) / 2; }
+      [rowX0, rowX1] = flip ? [e, W * .41] : [W * .59, W - e]; rowCy = H / 2;
     } else if (side) {
-      // the points and the product's row centred together across the column
-      const total = (chips ? chips.q.w + (sub.w ? gx : 0) : 0) + sub.w, x0 = cx0 + (colW - total) / 2;
-      if (chips) { chips.x = x0; chips.y = bandTop + (bandH - chips.q.h) / 2; }
-      rowX0 = x0 + (chips ? chips.q.w + gx : 0); rowX1 = rowX0 + sub.w; rowCy = bandTop + bandH / 2;
+      // the points and the product's row together across the column (from its left edge on a left-aligned card)
+      const total = (chips ? chips.q.w + (sub.w ? gx : 0) : 0) + sub.w, x0 = left ? cx0 : cx0 + (colW - total) / 2;
+      if (mirror) { rowX0 = x0; rowX1 = x0 + sub.w; if (chips) { chips.x = rowX1 + (sub.w ? gx : 0); chips.y = bandTop + (bandH - chips.q.h) / 2; } }
+      else { if (chips) { chips.x = x0; chips.y = bandTop + (bandH - chips.q.h) / 2; } rowX0 = x0 + (chips ? chips.q.w + gx : 0); rowX1 = rowX0 + sub.w; }
+      rowCy = bandTop + bandH / 2;
     } else if (S.mode === "tall") {
-      const rowW = chips.q.w + gx + S.rb * 2, x0 = mid - rowW / 2;
-      chips.x = x0; chips.y = bandTop + (S.topH - chips.q.h) / 2;
-      F.burst = { x: x0 + chips.q.w + gx + S.rb, y: bandTop + S.topH / 2, R: S.rb };
+      const rowW = chips.q.w + gx + S.rb * 2, x0 = left ? cx0 : mid - rowW / 2;
+      if (mirror) { F.burst = { x: x0 + S.rb, y: bandTop + S.topH / 2, R: S.rb }; chips.x = x0 + S.rb * 2 + gx; }
+      else { chips.x = x0; F.burst = { x: x0 + chips.q.w + gx + S.rb, y: bandTop + S.topH / 2, R: S.rb }; }
+      chips.y = bandTop + (S.topH - chips.q.h) / 2;
       const top = bandTop + S.topH + g * 1.4;
       rowX0 = cx0; rowX1 = cx1; rowCy = top + (bandBot - top) / 2;
     } else {
-      if (chips) { chips.x = mid - chips.q.w / 2; chips.y = bandTop; }
+      if (chips) { chips.x = xAt(chips.q.w); chips.y = bandTop; }
       const top = bandTop + (chips ? chips.q.h + g * 1.4 : 0);
       rowX0 = cx0; rowX1 = cx1; rowCy = top + (bandBot - top) / 2;
     }
-    if (chips) R["selling points"] = [chips.x, chips.y, chips.x + chips.q.w, chips.y + chips.q.h];
+    if (chips) { R["selling points"] = [chips.x, chips.y, chips.x + chips.q.w, chips.y + chips.q.h]; if (Lay.chips === "bare") F.onGround.push("selling points"); }
     F.chips = chips;
 
     /* ---- the product at its size; the sticker and the icon beside it ---- */
@@ -1226,7 +1443,8 @@ export class FullAd extends Ad {
     else R.sticker = [F.burst.x - F.burst.R, F.burst.y - F.burst.R, F.burst.x + F.burst.R, F.burst.y + F.burst.R];
     F.iconSlot = null; F.subjectFit = hasPhones ? sub.k : 1; F.group = null;
     if (hasPhones && sub.k > 0) {
-      const k = sub.k, x0 = rowX0 + (rowX1 - rowX0 - sub.w) / 2, gcx = x0 + gw * k / 2, ocx = (G[0] + G[2]) / 2, ocy = (G[1] + G[3]) / 2;
+      const k = sub.k, x0 = rowX0 + (rowX1 - rowX0 - sub.w) / 2, sl = mirror && sub.rb && !sub.below ? sub.rb * 2 + gx * .8 : 0;
+      const gcx = x0 + sl + gw * k / 2, ocx = (G[0] + G[2]) / 2, ocy = (G[1] + G[3]) / 2;
       for (const q of this.phones) { q.home = [gcx + (q.home[0] - ocx) * k, rowCy + (q.home[1] - ocy) * k]; q.size *= k; }
       this.stageC = [gcx, rowCy]; this.stageSpan = [gcx - gw * k / 2, gcx + gw * k / 2];
       F.group = [gcx - gw * k / 2, rowCy - gh * k / 2, gcx + gw * k / 2, rowCy + gh * k / 2];
@@ -1241,7 +1459,7 @@ export class FullAd extends Ad {
         F.burst = { x: bx, y: by, R: rb }; R.sticker = [bx - rb, by - rb, bx + rb, by + rb];
         if (ri) { const ix = bx + rb + gx + ri; F.iconSlot = { x: ix, y: by, R: ri }; R.icon = [ix - ri, by - ri, ix + ri, by + ri]; }
       } else if (sub.rb) {
-        const rb = sub.rb, ri = sub.ri, bx = x0 + gw * k + gx * .8 + rb, by = rowCy - sub.colH / 2 + rb;
+        const rb = sub.rb, ri = sub.ri, bx = mirror ? x0 + rb : x0 + gw * k + gx * .8 + rb, by = rowCy - sub.colH / 2 + rb;
         F.burst = { x: bx, y: by, R: rb };
         R.sticker = [bx - rb, by - rb, bx + rb, by + rb];
         if (ri) { const iy = by + rb + g * 1.5 + ri; F.iconSlot = { x: bx, y: iy, R: ri }; R.icon = [bx - ri, iy - ri, bx + ri, iy + ri]; }
@@ -1249,8 +1467,9 @@ export class FullAd extends Ad {
     }
 
     /* ---- hand the engine its layout ---- */
-    const pos = { ok: true, xs, y0, oy: y0, block, board: null, outer, tag: tagXY, num: nxy, label: labXY, site: footXY };
+    const pos = { ok: true, xs, y0, oy: y0, block, board: boardRect, outer, tag: tagXY, num: nxy, label: labXY, site: footXY };
     Object.assign(this, { size: hd.size, lines: hd.lines, lineH: hd.lineH, blockH: hd.blockH, margin: e, tag: tagB ? tagB.c : null, num, pos });
+    if (!B) { this.boardDef = null; this.pHead = p; this.st.board = "none"; }
     this.st.tag = tagB ? (line || "") : "";
     this._lay = { size: hd.size / H, bestN: hd.n, nSize: nz / H, dropLabel: !labB };
     this.claim = claim; this.site = foot ? foot.c : null;
@@ -1297,6 +1516,7 @@ export class FullAd extends Ad {
     const F = this.full, st = this.st, R = F.rects;
     this.keepClear = ["claim", "footer", "sticker", "icon"].map(k => R[k]).filter(Boolean);
     super._buildDecor();
+    if (this.board) Object.assign(this.board, { posts: null, stakes: false, lamps: false });   // a sign hangs in its place (FULL_BOARDS)
     this.numBox = R.number.slice();                       // the pill alone: the chevrons centre on it, not on the label over it
     // the sticker, in the card's own ink (two colour families to a card: no third hue for a sticker)
     this.burst = null;
@@ -1322,7 +1542,10 @@ export class FullAd extends Ad {
     const nb = this.numBox, sz = (nb[3] - nb[1]) * .42;
     // a tall number keeps its chevrons a little smaller where the room either side is short: a narrow seeded
     // face (rule 146) sets its figures taller, and the chevrons sized to them no longer fit (2026-11-18)
-    const room = Math.min(nb[0] - F.col[0], F.col[1] - nb[2]), fit = Math.min(sz, room / 2.9);
+    // a left-aligned card (rule 150) has room only on the number's right: its mark stands there, pointing back
+    const leftCard = !!F.layout && F.layout.align === "left";
+    this.markSide = leftCard ? 1 : -1;
+    const room = leftCard ? F.col[1] - nb[2] : Math.min(nb[0] - F.col[0], F.col[1] - nb[2]), fit = Math.min(sz, room / 2.9);
     /* THE CALL TO ACTION'S MARK (st.cta_mark, spec/full-styles.json; the owner, 2026-11-18: "every single
        one has the same arrows pointing to the CTA ... some without arrows some with more direct pointing
        arrows maybe some with a phone or text icon"). Each takes the room either side of the pill it needs
@@ -1330,10 +1553,11 @@ export class FullAd extends Ad {
        where it keeps .7 of its size; none is drawn only beside a sticker (an ad keeps one thing that
        catches the eye), else one arrow. A mark that does not fit gives way to the chevrons, then to none. */
     let mark = st.cta_mark || "chevrons";
+    if (leftCard) mark = { chevrons: "arrow", arrows: "arrow", phone_text: "phone" }[mark] || mark;   // the two-sided marks, one-sided
     if (mark === "none" && !F.burst) mark = "arrow";
     const need = { chevrons: 2.9, arrow: 2.7, arrows: 2.7, curved: 2.8, phone: 2.2, message: 2.2, phone_text: 2.2 };
     const size = m => Math.min(sz, room / (need[m] || 2.9)), fits = m => m === "none" || size(m) >= sz * .7;
-    if (!fits(mark)) mark = fits("chevrons") ? "chevrons" : "none";
+    if (!fits(mark)) mark = !leftCard && fits("chevrons") ? "chevrons" : leftCard && fits("arrow") ? "arrow" : "none";
     this.ctaMark = mark;
     this.markSize = mark === "none" ? 0 : size(mark);
     this.fullChevrons = mark === "chevrons" && fit >= sz * .7 ? fit : 0;
@@ -1348,7 +1572,7 @@ export class FullAd extends Ad {
       if (q > 0) {
         const s = .7 + .3 * outBack(q), cx = C.x + C.c.width / 2, cy = C.y + C.c.height / 2, glow = .5 + .5 * Math.sin(t * Math.PI * 2 / 1.6);
         ctx.save(); ctx.globalAlpha = Math.min(1, q * 2); ctx.translate(cx, cy); ctx.scale(s, s);
-        if (C.glow !== false) { ctx.shadowColor = C.fill; ctx.shadowBlur = U * (.012 + .018 * glow); }
+        if (C.glow !== false) { ctx.shadowColor = C.fill; ctx.shadowBlur = Math.max(0, Math.min(U * (.012 + .018 * glow), C.y - U * .022)); }
         ctx.drawImage(C.c, -C.c.width / 2, -C.c.height / 2); ctx.restore();
       }
     }
@@ -1370,6 +1594,7 @@ export class FullAd extends Ad {
     if (kind === "none" || !this.markSize || !this.numBox) return;
     const t0 = this.tl.number + .3, q = prog(t, t0, .35); if (q <= 0) return;
     const [x0, y0, x1, y1] = this.numBox, cy = (y0 + y1) / 2, sz = this.markSize, hot = this.hot;
+    const S = this.markSide || -1, edge = S < 0 ? x0 : x1;   // the side it stands: the number's left (as ever), or its right (a left-aligned card)
     const ink = contrastOf(this.p.plate_ink, hot) >= 3 ? this.p.plate_ink : (lum(hot) > .5 ? "#111111" : "#ffffff");
     const beat = Math.max(0, t - t0 - .35), still = !!this._still;   // the photo: every mark at rest
     ctx.save(); ctx.globalAlpha = q; ctx.fillStyle = hot; ctx.strokeStyle = hot; ctx.lineCap = "round"; ctx.lineJoin = "round";
@@ -1382,11 +1607,11 @@ export class FullAd extends Ad {
     };
     if (kind === "arrow" || kind === "arrows") {
       const push = still ? 0 : sz * .17 * Math.max(0, Math.sin(beat * Math.PI * 2 / 1.1)) ** 2;   // a push toward the number on a beat
-      arrow(x0 - sz * .5 + push, 1);
-      if (kind === "arrows") arrow(x1 + sz * .5 - push, -1);
+      arrow(edge + S * (sz * .5 - push), -S);
+      if (kind === "arrows" && S < 0) arrow(x1 + sz * .5 - push, -1);
     } else if (kind === "curved") {
       // a hand-drawn swoop from above and to the left, into the number's side, drawn in, then still
-      const sx = x0 - sz * 2.45, sy0 = y0 - sz * .85, cx1 = x0 - sz * 2.7, cy1 = cy + sz * .75, ex = x0 - sz * .38, ey = cy;
+      const sx = edge + S * sz * 2.45, sy0 = y0 - sz * .85, cx1 = edge + S * sz * 2.7, cy1 = cy + sz * .75, ex = edge + S * sz * .38, ey = cy;
       const drawn = prog(t, t0, .55);
       ctx.lineWidth = sz * .24;
       const L = sz * 4.2; ctx.setLineDash([L, L]); ctx.lineDashOffset = L * (1 - drawn);
@@ -1416,9 +1641,9 @@ export class FullAd extends Ad {
         for (let i = 0; i < 3; i++) { ctx.save(); ctx.globalAlpha = q * (still ? 1 : .35 + .65 * Math.max(0, Math.sin(beat * Math.PI * 2 * 1.5 - i * .9))); ctx.fillStyle = ink; ctx.beginPath(); ctx.arc((i - 1) * bw * .24, 0, bh * .11, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
         ctx.restore();
       };
-      if (kind === "phone" || kind === "phone_text") phoneAt(x0 - gap - ri);
-      if (kind === "message") messageAt(x0 - gap - ri * 1.05);
-      if (kind === "phone_text") messageAt(x1 + gap + ri * 1.05);
+      if (kind === "phone" || kind === "phone_text") phoneAt(edge + S * (gap + ri));
+      if (kind === "message") messageAt(edge + S * (gap + ri * 1.05));
+      if (kind === "phone_text" && S < 0) messageAt(x1 + gap + ri * 1.05);
     }
     ctx.restore();
   }
@@ -1733,7 +1958,31 @@ export function lockScreen(p, seed = 1, lang = "en", base = null, opts = {}) {
  *  and one colourway, ground, arrangement and icon for the seed (or the ones picked). Every
  *  element gets its words: what the customer left empty is filled from FULL_WORDS. keep: what
  *  the customer set by hand elsewhere in the maker (their music, their voice), left as set. */
-export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
+/* A VIDEO LOOK ON THE FULL AD (rule 150, 2026-11-18). The owner: "for every single video, I want a photo ad
+   equivalent.. and if it doesn't meet the requirement, modify or fix it"; "the video ads originally.. those
+   backgrounds those patterns those text those fonts and those arrangement/assortment of devices were really
+   good". A full ad may wear one of the video maker's 78 looks (its 50 themes and its vibes): the look's
+   palette, ground or pattern, type pair, treatment, colour use, number style, sign and arrangement, with every
+   element the full ad adds. opts.look: "own" wears the look the style carries (the maker's look on screen, a
+   look from its gallery); "seed" draws one from the seed as New look does; "mix" draws one for VIDEO_SHARE of
+   seeds and the house's own look for the rest; none (every check, every recipe) the house's own, as before. */
+export const VIDEO_SHARE = .35;
+// a video look's number style, as the nearest the full ad's number draws (pill, box, ticket, tag, or a bar under bare figures)
+const NUMBER_OF = { pill: "pill", box: "box", ticket: "ticket", tag: "tag", underline: "underline", plain: "underline", outline: "box", stacked: "box",
+  sticker: "pill", neon: "pill", chrome: "pill", gold: "pill", split: "pill" };
+// a ground that moves every frame, as the nearest that holds still: the shade the small lines need is laid on
+// the ground once (_evenGround), and a moving ground ran over it (a sunburst's rays under the line, 2026-11-18)
+const STILL_GROUND = { sunburst: "rays", aurora: "mesh", drift: "bokeh" };   // the rays are then laid into the ground at rest (FullAd)
+export function videoLookFor(st, seed, mode) {
+  if (mode === "own") return st;
+  if (mode === "seed" || (mode === "mix" && rng(((seed >>> 0) ^ 0x7f4a7c15) * 53 + 3)() < VIDEO_SHARE)) {
+    const held = new Set(["phones", "headline", "tag", "number", "aspect", "duration", "lang", "lang_mode", "area", "number_label", "points", "hook_text", "strike_text", "subject", "subject_set"]);
+    return harmonise(randomize({ ...DEFAULT_STYLE, ...st }, seed, held, [], false), held);
+  }
+  return null;
+}
+
+export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts = {}) {
   const r = rng((seed >>> 0) * 7 + 11), one = a => a[Math.floor(r() * a.length) % a.length];
   const es = st.lang === "es";
   // the colours: one of the pairs by the seed, the look first (drawPair) (of those that suit the line and any colour its
@@ -1821,6 +2070,41 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
     { dark: lum(own2.ink) > lum(own2.ground), busy: !painted, lean });
   if ("text_fx" in picked || held("text_fx")) delete styles.scrim;
   for (const [k, v] of Object.entries(styles)) if (!(k in picked)) look[k] = held(k) ? st[k] : v;
+  // a video look (videoLookFor): its own art direction over the house's draw; the full ad's sticker, its fills and
+  // the number's mark stay the seed's
+  const vid = opts.look ? videoLookFor(st, seed, opts.look) : null;
+  if (vid && PALETTES[vid.palette]) {
+    // its plate's words read on its plate (a video palette's plate ink is chosen for a big sign, and sat 2:1 on a small one)
+    const colors = { ...PALETTES[vid.palette], ...(vid.colors || {}) };
+    if (colors.plate && contrastOf(colors.plate_ink || "#ffffff", colors.plate) < 4.5) colors.plate_ink = contrastOf(colors.plate, "#111111") >= contrastOf(colors.plate, "#ffffff") ? "#111111" : "#ffffff";
+    // and its words read on its ground: white letters on a mid orange or teal (3:1) sent the engine for a heavy shade
+    // behind them, which reached the frame's edges and sank the small lines under it. Such a palette's words take
+    // near-black or white, whichever reads, as the house's two-colour pairs do (Black on Orange)
+    let cm = vid.color_mode;
+    if (contrastOf(colors.ink, colors.ground) < 4.5) {
+      colors.ink = contrastOf(colors.ground, "#111111") >= contrastOf(colors.ground, "#ffffff") ? "#111111" : "#ffffff";
+      if (contrastOf(colors.accent, colors.ground) < 3) cm = "mono";   // an accent word that would be lost on the ground goes with the rest
+    }
+    Object.assign(look, { palette: vid.palette, colors, full_colour: "", vibe: vid.vibe || "none", full_look: true,
+      background: STILL_GROUND[vid.background] || vid.background, text_fx: vid.text_fx, color_mode: cm, case: vid.case === "title" ? "title" : "brand",
+      // the shade round the headline the house's table gives its treatment (the engine's own reached the frame's edges)
+      scrim: (FULL_STYLES.headline.find(e => e.key === vid.text_fx) || {}).scrim ?? 0,
+      number_style: NUMBER_OF[vid.number_style] || "pill", board: FULL_BOARDS.has(vid.board) ? vid.board : "none",
+      ...(["typewriter", "scramble"].includes(vid.text_in) ? {} : { text_in: vid.text_in }) });
+    if (!("arrangement" in picked) && vid.arrangement) look.arrangement = vid.arrangement;
+    // a video look's ground is never one of the house's plain painted ones: what the style table keeps to those
+    // ("where": "plain": a pane of glass, an edge alone, bare figures over a bar) goes on a plate here (a sunset
+    // sky runs light under the number, asphalt and a spotlight's falloff are busy: the figures stopped reading)
+    if (["glass", "outline"].includes(look.plate_fill)) { look.plate_fill = "solid"; look.plate_grad = false; }
+    if (look.number_style === "underline" && !("number_style" in picked)) look.number_style = "pill";
+    delete look.ground_photo;
+    if (!fullVoiceOk(pick.type_pair, pick.type_any) && fullVoiceOk(vid.type_pair, true)) {
+      const v = TYPE_VOICES[vid.type_pair];
+      Object.assign(look, { type_pair: vid.type_pair, font: v.display, number_font: v.numberRead ? v.label : "same", full_pair: true });
+    }
+  } else look.full_look = false;
+  // the layout (rule 150), on a stream of its own: what the seed drew above does not move
+  Object.assign(look, drawLayout(seed, pick));
   const area = (st.area || "").trim();
   // What the customer left empty is filled from the lists, each line chosen so that it does not
   // repeat a promise the lines before it already make (the customer's own words are never changed:
@@ -1864,6 +2148,8 @@ export function fullBlockers(ad) {
   for (let i = 0; i < names.length; i++) for (let j = i + 1; j < names.length; j++) {
     const a = R[names[i]], b = R[names[j]], dx = Math.max(a[0] - b[2], b[0] - a[2]), dy = Math.max(a[1] - b[3], b[1] - a[3]);
     if (names[i] === "headline" && names[j] === "line") { if (dy < U * .006) out.push("headline and line touch"); continue; }
+    // a speech bubble's tail points down at its number (rule 150)
+    if ([names[i], names[j]].sort().join() === "call to action,number" && F.layout && F.layout.cta === "bubble" && dx < 0 && dy >= 0) continue;
     if (dx < 0 && dy < 0) out.push(`${names[i]} and ${names[j]} overlap`);
     else if (Math.max(dx, dy) < gap) out.push(`${names[i]} and ${names[j]} ${Math.round(Math.max(dx, dy) / U * 1080)}px apart`);
   }
@@ -1879,7 +2165,8 @@ export function fullMeasure(ad) {
   const area = Object.values(R).reduce((a, r) => a + Math.max(0, r[2] - r[0]) * Math.max(0, r[3] - r[1]), 0) / (W * H);
   const k = 1080 / U, px = Object.fromEntries(Object.entries(F.px).map(([n, v]) => [n, Math.round(v * k)]));
   const smallest = Math.min(...Object.values(px).filter(Boolean));
-  return { blocks: Object.keys(R), fill: +area.toFixed(3), px, smallest, product: F.group ? +((F.group[3] - F.group[1]) / H).toFixed(3) : 0, sticker: !!F.burst, icon: !!(ad.accents && ad.accents.length), chevrons: !!ad.fullChevrons && (ad.ctaMark || "chevrons") === "chevrons", cta_mark: ad.ctaMark || "chevrons", mark: !!ad.ctaMark && ad.ctaMark !== "none" && !!(ad.markSize || ad.fullChevrons) };
+  return { blocks: Object.keys(R), fill: +area.toFixed(3), px, smallest, product: F.group ? +((F.group[3] - F.group[1]) / H).toFixed(3) : 0, sticker: !!F.burst, icon: !!(ad.accents && ad.accents.length), chevrons: !!ad.fullChevrons && (ad.ctaMark || "chevrons") === "chevrons", cta_mark: ad.ctaMark || "chevrons", mark: !!ad.ctaMark && ad.ctaMark !== "none" && !!(ad.markSize || ad.fullChevrons),
+    layout: F.layout, board: F.board || "", order: F.order };
 }
 
 /** A subject's set of pictures (motion/subjects.json, from the offer family) as the engine's
@@ -2027,12 +2314,17 @@ export function fullPreflight(ad, frame) {
   const ink = ad.pHead.ink, plateInk = contrastOf(ad.p.plate_ink, ad.p.plate) >= 3.5 ? ad.p.plate_ink : (lum(ad.p.plate) > .5 ? "#111111" : "#ffffff");
   // a number with no plate, or on a pane of glass or inside an edge alone (rule 146), stands on the ground in the ink
   const numInk = ad.st.number_style === "underline" || ["glass", "outline"].includes(ad.st.plate_fill) ? ink : plateInk;
-  const lines = [["line", "the line under the headline", ink, PF.small], ["call to action", "the line over the number", ink, PF.small], ["footer", "the towns and website", ink, PF.small],
+  // each small line in its own ink (rule 150): on the ground the small lines' (F.ink), on a sign the sign's, in a
+  // speech bubble or on a band that plate's; a bubble and a band are read on their straight middles, as a pill is
+  const gk = F.ink || ink, onSign = !!F.board;
+  const lines = [["line", "the line under the headline", onSign ? ink : gk, PF.small], ["call to action", "the line over the number", F.cta ? F.cta.ink : gk, PF.small], ["footer", "the towns and website", F.footBand ? F.footBand.ink : gk, PF.small],
     ["number", "the phone number", numInk, PF.large], ["claim", "the claim", ad.claim ? ad.claim.ink : plateInk, PF.small]];
   let worst = 99, worstName = "";
   for (const [key, name, col, need] of lines) {
     let r = R[key]; if (!r) continue;
     if (key === "number" && ad.st.number_style !== "underline") r = inPill(r);
+    if (key === "call to action" && F.cta) r = inPill([r[0], r[1], r[2], r[1] + F.cta.h]);
+    if (key === "footer" && F.footBand) r = inPill(r);
     if (key === "claim") r = inPill([ad.claim.x, ad.claim.y, ad.claim.x + ad.claim.c.width, ad.claim.y + ad.claim.c.height]);
     const got = reads(r, col, key === "footer" ? ad.hot : key === "number" && F.numBar ? F.numBar : null);
     if (got < worst) { worst = got; worstName = name; }
