@@ -10125,6 +10125,10 @@ function attachStripArrows(strip){
 function buildEzStrip(){
   const strip = $('ez-strip');
   if (!strip) return;
+  /* not before the studio has been opened (rule 147): the classics gate and the choice holds call
+     this when their fetch lands, and on the landing that built Easy Mode's hidden strip, 65 cards,
+     the first eight drawn on a canvas, or not, as the network decided. showEasy builds it on the way in */
+  if (!_tplAssetsWarmed) return;
   strip.innerHTML = '';
   /* the first eight are on screen and render now; the rest wait for their
      turn in ensureThumbs() (lazyThumb). Rendered all at once, a category's
