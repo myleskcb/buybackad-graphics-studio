@@ -1371,8 +1371,11 @@
 
 <!-- Font preloader: forces the canvas faces to load before the first
      render. fabric caches glyph widths, so a face that lands late
-     poisons every measurement taken before it (clipped tails). -->
-<div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden">
+     poisons every measurement taken before it (clipped tails).
+     Hidden (display:none loads nothing) until the studio opens: app.js
+     ensureTemplateFonts shows it and waits for each face at its weight
+     before the studio keeps a thumbnail (DESIGN-LAW 159). -->
+<div id="font-warmer" hidden aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden">
   <span style="font-family:'Clash Display';font-weight:500">a</span>
   <span style="font-family:'Clash Display';font-weight:600">a</span>
   <span style="font-family:'Clash Display';font-weight:700">a</span>
