@@ -34,7 +34,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-const SITE = 'https://buybackad-graphics-studio.netlify.app';
+const SITE = 'https://webuy.ad';
 const root = fileURLToPath(new URL('..', import.meta.url));
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -401,10 +401,11 @@ const SEO = {
   sneakers:  { t: 'We Buy Sneakers Ad and Flyer Maker', d: 'Make a We Buy Sneakers ad or flyer today with your own photo of the pairs you buy. Add your number and area, download, post. Free to start.' },
   retro:     { t: 'We Buy Retro Games Ad and Flyer Maker', d: 'Make a We Buy Retro Games ad or flyer today with your own photo of the games you buy. Add your number and area, download, post. Free to start.' },
 };
-/* the name (the owner's rename, 2026-11-18: "the concept was finally rebranded webuy.ad"), its
-   wordmark with the .AD in the accent, and the name it had before, kept as an alternate name so
-   search engines and assistants join the two */
-const BRAND = 'WEBUY.AD', APP = 'WEBUY.AD Graphics Studio', MARK = 'WEBUY<em>.AD</em>', FORMER = 'BUYBACK.AD', DOMAIN = 'webuy.ad';
+/* the name (DESIGN-LAW 148, the owner's wordmark): the product and the site are WeBuy.AD, written
+   WeBuy<em>.AD</em> in the bar; BUYBACK.AD stays the business that runs it, the copyright line and
+   the party to the terms. The share card and the W icon are main's (tools/brand/make.sh). */
+const BRAND = 'WeBuy.AD', APP = 'WeBuy.AD', MARK = 'WeBuy<em>.AD</em>', BUSINESS = 'BUYBACK.AD', DOMAIN = 'webuy.ad';
+const SHARE = SITE + '/assets/brand/share-card.jpg', SHARE_ALT = 'WeBuy.AD: buyback ads that make strangers text you first, beside four real We Buy ads';
 const TODAY = (process.argv.find((a) => a.startsWith('--date=')) || '').slice(7) || new Date().toISOString().slice(0, 10);
 const { readFileSync, existsSync, statSync } = await import('node:fs');
 const titleOf = (c) => `${(SEO[c.id] || {}).t || strip(c.title)} | ${BRAND}`;
@@ -412,7 +413,7 @@ const descOf = (c) => (SEO[c.id] || {}).d || c.desc;
 const h1Of = (c) => (SEO[c.id] || {}).h1 || c.h1.replace(/ ad templates$/, ' ads and flyers');
 const nameOf = (c) => strip(h1Of(c)).replace(/["\u201c\u201d]/g, '');
 const adOf = (c) => existsSync(root + `assets/full-ads/${c.slug}.webp`) ? c.slug : '';
-const ogOf = (c) => existsSync(root + `assets/og/${c.slug}.jpg`) ? `${SITE}/assets/og/${c.slug}.jpg` : `${SITE}/assets/og/home.jpg`;
+const ogOf = (c) => existsSync(root + `assets/og/${c.slug}.jpg`) ? `${SITE}/assets/og/${c.slug}.jpg` : SHARE;
 for (const c of CATS) {
   const t = titleOf(c), d = descOf(c);
   if (t.length > 62) throw new Error(`${c.id}: title is ${t.length} characters`);
@@ -420,15 +421,16 @@ for (const c of CATS) {
   if (/[–—]/.test(t + d)) throw new Error(`${c.id}: a dash in the title or description (rule 55)`);
 }
 
-/* the bar and the foot of every information page (pages.css), the house look */
+/* the bar and the foot of every information page (pages.css): main's markup and look (rule 147),
+   with the Look Book in the bar and How it works and llms.txt in the foot for the links search reads */
 const NAV = [['index.html#lp-templates', 'Templates'], ['motion/', 'Video ads'], ['looks.html', 'Look Book'], ['index.html#pricing', 'Pricing'], ['about.html', 'About']];
 const nav = (up, here = '') => `<a class="skip" href="#main">Skip to content</a>
 <header class="top">
-  <a class="brand" href="${up}index.html" aria-label="${BRAND} home"><span class="w">${MARK}</span><span class="s">Graphics Studio</span></a>
+  <a class="brand" href="${up}index.html">${MARK}</a>
   <nav aria-label="Site">
     ${NAV.map(([h, t]) => `<a href="${up}${h}"${h === here ? ' aria-current="page"' : ''}>${t}</a>`).join('\n    ')}
+    <a class="btn" href="${up}index.html">Make my ad</a>
   </nav>
-  <a class="btn" href="${up}index.html">Make my ad</a>
 </header>`;
 
 const byId = Object.fromEntries(CATS.map((c) => [c.id, c]));
@@ -450,21 +452,18 @@ const catList = (up, { grp, subs }, pad = '    ') => top.map((c) => {
 }).join(`\n${pad}`);
 
 const footer = (up) => `<footer class="bottom">
-  <div class="foot-brand"><span class="w">${MARK}</span><span class="s">We Buy ads, flyers and video ads for resellers.</span></div>
   <div class="cats">${catList(up, { grp: 'cat-grp', subs: 'cat-sub' })}</div>
-  <nav class="foot-links" aria-label="More">
-    <a href="${up}index.html">Make an ad</a>
-    <a href="${up}motion/">Video ads</a>
-    <a href="${up}looks.html">Look Book</a>
-    <a href="${up}learn.html">How it works</a>
-    <a href="${up}about.html">About</a>
-    <a href="${up}index.html#pricing">Pricing</a>
-    <a href="${up}index.html#faq">FAQ</a>
-    <a href="${up}terms.html">Terms</a>
-    <a href="${up}privacy.html">Privacy</a>
-    <a href="${up}llms.txt">llms.txt</a>
-  </nav>
-  <span class="copy">&copy; 2026 ${BRAND}</span>
+  <a href="${up}index.html">${BRAND}</a>
+  <a href="${up}motion/">Phone video ads</a>
+  <a href="${up}looks.html">Look Book</a>
+  <a href="${up}learn.html">How it works</a>
+  <a href="${up}about.html">About</a>
+  <a href="${up}index.html#pricing">Pricing</a>
+  <a href="${up}index.html#faq">FAQ</a>
+  <a href="${up}terms.html">Terms</a>
+  <a href="${up}privacy.html">Privacy</a>
+  <a href="${up}llms.txt">llms.txt</a>
+  <span>&copy; 2026 ${BUSINESS}</span>
 </footer>`;
 
 /* the three steps a category page shows: the same words in the list and in its HowTo */
@@ -492,7 +491,7 @@ function seoHead({ title, desc, url, image, imageAlt, ogTitle, ogDesc, type = 'w
 <meta property="og:type" content="${type}">
 <meta property="og:site_name" content="${BRAND}">
 <meta property="og:locale" content="en_US">
-<meta property="og:title" content="${esc(ogTitle || title.replace(/ \| WEBUY\.AD$/, ''))}">
+<meta property="og:title" content="${esc(ogTitle || title.replace(/ \| WeBuy\.AD$/, ''))}">
 <meta property="og:description" content="${esc(ogDesc || desc)}">
 <meta property="og:url" content="${url}">
 <meta property="og:image" content="${image}">
@@ -501,7 +500,7 @@ function seoHead({ title, desc, url, image, imageAlt, ogTitle, ogDesc, type = 'w
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="${esc(imageAlt)}">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${esc(ogTitle || title.replace(/ \| WEBUY\.AD$/, ''))}">
+<meta name="twitter:title" content="${esc(ogTitle || title.replace(/ \| WeBuy\.AD$/, ''))}">
 <meta name="twitter:description" content="${esc(ogDesc || desc)}">
 <meta name="twitter:image" content="${image}">
 <meta name="twitter:image:alt" content="${esc(imageAlt)}">
@@ -510,7 +509,7 @@ ${ld ? `<script type="application/ld+json" id="ld-page">${JSON.stringify(ld)}</s
 const ORG = { '@id': SITE + '/#org' }, WEBSITE = { '@id': SITE + '/#site' }, APPREF = { '@id': SITE + '/#app' };
 const webPage = (url, name, desc, extra = {}) => ({ '@type': 'WebPage', '@id': url + '#page', url, name, description: desc, isPartOf: WEBSITE, about: APPREF, publisher: ORG, inLanguage: 'en', ...extra });
 
-const adAlt = (c) => `A full ad made with WEBUY.AD: ${strip(c.title).replace(/ ad templates$/, '').toUpperCase()}, with the number in a pill and the towns after a pin`;
+const adAlt = (c) => `A full ad made with ${BRAND}: ${strip(c.title).replace(/ ad templates$/, '').toUpperCase()}, with the number in a pill and the towns after a pin`;
 
 function page(c) {
   const url = `${SITE}/ads/${c.slug}.html`;
@@ -532,7 +531,7 @@ function page(c) {
   const pick = c.soon ? (c.cat ? `../index.html?cat=${cat}` : '../index.html#lp-templates') : `../index.html?cat=${cat}`;
   const cta = c.soon ? (c.cat ? `Start from a ${gallery(c)} design` : 'Browse the designs') : `See the ${gallery(c)} designs`;
   const art = ad
-    ? `<figure class="ad-art"><img src="../assets/full-ads/${ad}.webp" width="720" height="720" fetchpriority="high" alt="${esc(adAlt(c))}"><figcaption>A full ad for this line, made in the studio. Yours carries your number and your towns.</figcaption></figure>`
+    ? `<figure class="ad-art"><img src="../assets/full-ads/${ad}.webp" width="720" height="720" alt="${esc(adAlt(c))}"><figcaption>A full ad for this line, made in the studio. Yours carries your number and your towns.</figcaption></figure>`
     : (c.art.length ? `<div class="hero-art">${c.art.map((a) => `<img src="../assets/cutouts/${a}.webp" alt="" loading="lazy" width="400" height="400">`).join('')}</div>` : '');
   return `<!DOCTYPE html>
 <html lang="en">
@@ -540,30 +539,24 @@ function page(c) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- Generated by scripts/build_seo_pages.mjs. Edit there, not here. -->
-${seoHead({ title, desc, url, image: ogOf(c), imageAlt: ad ? adAlt(c) : 'WEBUY.AD: We Buy ads and flyers, ready in a minute' })}<meta name="theme-color" content="#031b56" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#e2e8f3" media="(prefers-color-scheme: light)">
-<link rel="icon" href="../favicon.svg" type="image/svg+xml">
-<link rel="preload" href="../assets/fonts/chivo-900.woff2" as="font" type="font/woff2" crossorigin>
+${seoHead({ title, desc, url, image: ogOf(c), imageAlt: ogOf(c) === SHARE ? SHARE_ALT : adAlt(c) })}<meta name="theme-color" content="#070d1c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2f4f8" media="(prefers-color-scheme: light)">
+<link rel="icon" href="../assets/brand/icon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="../assets/brand/icon-180.png">
 <link rel="stylesheet" href="../pages.css">
-<script src="../site-theme.js"></script>
 </head>
 <body>
 ${nav('../')}
 <main id="main">
   <div class="crumbs"><a href="../index.html">${BRAND}</a> &rsaquo; ${parent ? `<a href="${parent.slug}.html">${esc(nameOf(parent))}</a> &rsaquo; ` : ''}${esc(nameOf(c))}</div>
-  <div class="page-hero${ad ? ' with-ad' : ''}">
-  <div class="page-hero-copy">
-  <span class="badge">${esc(strip(c.title).replace(/ ad templates$/, ' ads'))}</span>
   <h1>${h1Of(c)}</h1>
-  <p class="lead">WEBUY.AD makes buyback ads for ${esc(c.who)}. Pick a design, type your phone number and area, and download an image ready for Facebook Marketplace, OfferUp, Craigslist, Instagram or a printed flyer.</p>
+  <p class="lead">${BRAND} makes buyback ads for ${esc(c.who)}. Pick a design, type your phone number and area, and download an image ready for Facebook Marketplace, OfferUp, Craigslist, Instagram or a printed flyer.</p>
   ${c.soon ? `<p class="card"><strong>${esc(one(c)[0].toUpperCase() + one(c).slice(1))} designs are on the way.</strong> Until they are in the studio, you can make ${an(esc(one(c)))} ad today from ${c.cat ? `a ${esc(gallery(c))} design` : 'any design'} with your own photo as the background. This page will link to the ${esc(one(c))} designs when they are ready.</p>\n  ` : ''}<div class="ctas">
     <a class="btn" href="${pick}">${esc(cta)}</a>
     ${['apple', 'iphone', 'phones'].includes(c.id) ? '<a class="btn ghost" href="../motion/">Make a phone video ad</a>' : ''}
     <a class="btn ghost" href="../index.html#pricing">Pricing</a>
   </div>
-  </div>
   ${art}
-  </div>
 ${kids.length ? `
   <h2>${esc(c.subsTitle || `More ${c.name} ads`)}</h2>
   <ul class="tidy">${kids.map((k) => `<li><a href="${k.slug}.html">${esc(nameOf(k))}</a></li>`).join('\n    ')}</ul>
@@ -650,19 +643,22 @@ let landingSteps = [], landingFaq = [];
   let first = true;
   html = re.test(html) ? html.replace(re, (m) => { const lead = m.match(/^\s*/)[0]; if (!first) return ''; first = false; return lead + faqBlock; }) : html.replace('</head>', faqBlock + '\n</head>');
   /* the three steps the landing shows, read off the page */
-  landingSteps = [...html.matchAll(/<li class="h-step">\s*<h3>([\s\S]*?)<\/h3>\s*<p>([\s\S]*?)<\/p>/g)].map((m) => [m[1], m[2]]);
-  if (landingSteps.length !== 3) throw new Error('index.html: the three steps (li.h-step) were not found');
+  /* only #lp-how's: the partners section below wears the same blocks for other things */
+  const how = (html.match(/<section class="lp-section" id="lp-how">[\s\S]*?<\/section>/) || [''])[0];
+  landingSteps = [...how.matchAll(/<div class="flow-step">\s*<div class="fs-num">[^<]*<\/div>\s*<h3>([\s\S]*?)<\/h3>\s*<p>([\s\S]*?)<\/p>/g)].map((m) => [m[1], m[2]]);
+  if (landingSteps.length !== 3) throw new Error('index.html: the three steps (div.flow-step in #lp-how) were not found');
   const site = { '@context': 'https://schema.org', '@graph': [
-    { '@type': 'Organization', '@id': SITE + '/#org', name: BRAND, alternateName: FORMER, url: SITE + '/', logo: { '@type': 'ImageObject', url: SITE + '/assets/brand/webuyad-logo.png', width: 512, height: 512 },
-      description: BRAND + ' makes We Buy ads, flyers and video ads for people who buy phones, gold, silver, coins, cars, cards and other goods from the public and resell them.' },
-    { '@type': 'WebSite', '@id': SITE + '/#site', name: BRAND, alternateName: [DOMAIN, 'Graphics Studio by ' + BRAND, FORMER], url: SITE + '/', publisher: ORG, inLanguage: 'en' },
-    { '@type': 'WebApplication', '@id': SITE + '/#app', name: APP, alternateName: ['Graphics Studio by ' + BRAND, BRAND, FORMER], url: SITE + '/',
+    { '@type': 'Organization', '@id': SITE + '/#org', name: BUSINESS, url: SITE + '/', logo: { '@type': 'ImageObject', url: SITE + '/assets/brand/icon-512.png', width: 512, height: 512 },
+      brand: { '@type': 'Brand', name: BRAND, logo: SITE + '/assets/brand/icon-512.png' },
+      description: BUSINESS + ' runs ' + BRAND + ', which makes We Buy ads, flyers and video ads for people who buy phones, gold, silver, coins, cars, cards and other goods from the public and resell them.' },
+    { '@type': 'WebSite', '@id': SITE + '/#site', name: BRAND, alternateName: DOMAIN, url: SITE + '/', publisher: ORG, inLanguage: 'en' },
+    { '@type': 'WebApplication', '@id': SITE + '/#app', name: APP, url: SITE + '/',
       applicationCategory: 'DesignApplication', applicationSubCategory: 'Ad and flyer maker', operatingSystem: 'Any, in a web browser', browserRequirements: 'A current web browser with JavaScript',
-      isAccessibleForFree: true, inLanguage: ['en', 'es'], publisher: ORG, screenshot: SITE + '/assets/og/home.jpg',
+      isAccessibleForFree: true, inLanguage: ['en', 'es'], publisher: ORG, screenshot: SHARE,
       description: 'A web app for buyback resellers. Pick a We Buy design for iPhones, phones, gold, silver, coins, cars, Pokémon cards, sports cards, test strips and more, add your phone number and area, and download a post-ready photo ad, printable flyer or video ad. The number is set big enough to read in a feed preview.',
       featureList: ['We Buy ad designs for 13 kinds of goods', 'The full ad: business name, headline, models, selling points, product, number and towns on one ad', 'Sizes: Square, Story 9:16, Tall 3:4, Wide 16:9, Wide 4:3, Flyer 8.5x11', 'Video ads in English, Spanish or both', 'Your number, area and business name filled in on every design', '31 colour sets', 'AI backgrounds'],
       offers: offers() },
-    { '@type': 'WebPage', '@id': SITE + '/#page', url: SITE + '/', name: 'We Buy Ad and Flyer Maker for Resellers', isPartOf: WEBSITE, about: APPREF, publisher: ORG, inLanguage: 'en', primaryImageOfPage: { '@type': 'ImageObject', url: SITE + '/assets/og/home.jpg', width: 1200, height: 630 } },
+    { '@type': 'WebPage', '@id': SITE + '/#page', url: SITE + '/', name: 'We Buy Ad and Flyer Maker for Resellers', isPartOf: WEBSITE, about: APPREF, publisher: ORG, inLanguage: 'en', primaryImageOfPage: { '@type': 'ImageObject', url: SHARE, width: 1200, height: 630 } },
     howTo('How to make a We Buy ad with ' + BRAND, landingSteps, SITE + '/'),
   ] };
   html = html.replace(/<script type="application\/ld\+json" id="ld-site">[\s\S]*?<\/script>/, `<script type="application/ld+json" id="ld-site">${JSON.stringify(site)}</script>`);
@@ -687,12 +683,12 @@ function learnVideos(html) {
   });
 }
 const INFO = [
-  { file: 'about.html', up: '', here: 'about.html', path: '/about.html', title: 'About WEBUY.AD: the We Buy Ad Maker for Resellers', desc: 'What WEBUY.AD is, who it is for, how it works, what is free, what each plan adds and what happens to your data. We Buy ads and flyers in your browser.', og: 'home', type: 'AboutPage' },
-  { file: 'learn.html', up: '', here: '', path: '/learn.html', title: 'How WEBUY.AD Works: Five Short Videos', desc: 'Five short videos: what WEBUY.AD is, how to make a We Buy ad in about a minute, how to look like the real business, AI or ready-made, and what it costs.', og: 'home', type: 'WebPage', videos: true },
-  { file: 'looks.html', up: '', here: 'looks.html', path: '/looks.html', title: 'Look Book: Every We Buy Ad Look | WEBUY.AD', desc: 'Every ready-made look in one place: video looks, photo ad designs, backgrounds and phone layouts for We Buy ads. Pick one and it opens in the editor.', og: 'home', type: 'CollectionPage', bare: true },
-  { file: 'privacy.html', up: '', here: '', path: '/privacy.html', title: 'Privacy Policy | WEBUY.AD', desc: 'What WEBUY.AD stores, what stays in your browser, every case where something leaves your device, the services we use, and your rights.', og: 'home', type: 'WebPage' },
-  { file: 'terms.html', up: '', here: '', path: '/terms.html', title: 'Terms of Service | WEBUY.AD', desc: 'The terms for using WEBUY.AD: plans, automatic renewal and cancellation, refunds, AI credits, AI-made content, acceptable use and liability.', og: 'home', type: 'WebPage' },
-  { file: 'motion/index.html', up: '../', here: 'motion/', path: '/motion/', title: 'We Buy Phones Video Ad Maker, Free to Try | WEBUY.AD', ogTitle: 'We Buy Phones video ads, made in your browser', desc: 'Make a We Buy Phones video ad in your browser. Your headline and number land in seconds, with music, in English or Spanish. Download an MP4 with its photo.', og: 'video-ad-maker', type: 'WebPage', bare: true, alt: 'A full ad in Midnight and Cyan: SELL YOUR IPHONE, the video maker\'s house ad' },
+  { file: 'about.html', up: '', here: 'about.html', path: '/about.html', title: 'About WeBuy.AD: the We Buy Ad Maker for Resellers', desc: 'What WeBuy.AD is, who it is for, how it works, what is free, what each plan adds and what happens to your data. We Buy ads and flyers in your browser.', og: 'home', type: 'AboutPage' },
+  { file: 'learn.html', up: '', here: '', path: '/learn.html', title: 'How WeBuy.AD Works: Five Short Videos', desc: 'Five short videos: what WeBuy.AD is, how to make a We Buy ad in about a minute, how to look like the real business, AI or ready-made, and what it costs.', og: 'home', type: 'WebPage', videos: true },
+  { file: 'looks.html', up: '', here: 'looks.html', path: '/looks.html', title: 'Look Book: Every We Buy Ad Look | WeBuy.AD', desc: 'Every ready-made look in one place: video looks, photo ad designs, backgrounds and phone layouts for We Buy ads. Pick one and it opens in the editor.', og: 'home', type: 'CollectionPage', bare: true },
+  { file: 'privacy.html', up: '', here: '', path: '/privacy.html', title: 'Privacy Policy | WeBuy.AD', desc: 'What WeBuy.AD stores, what stays in your browser, every case where something leaves your device, the services we use, and your rights.', og: 'home', type: 'WebPage' },
+  { file: 'terms.html', up: '', here: '', path: '/terms.html', title: 'Terms of Service | WeBuy.AD', desc: 'The terms for using WeBuy.AD: plans, automatic renewal and cancellation, refunds, AI credits, AI-made content, acceptable use and liability.', og: 'home', type: 'WebPage' },
+  { file: 'motion/index.html', up: '../', here: 'motion/', path: '/motion/', title: 'We Buy Phones Video Ad Maker, Free to Try | WeBuy.AD', ogTitle: 'We Buy Phones video ads, made in your browser', desc: 'Make a We Buy Phones video ad in your browser. Your headline and number land in seconds, with music, in English or Spanish. Download an MP4 with its photo.', og: 'video-ad-maker', type: 'WebPage', bare: true, alt: 'A full ad in Midnight and Cyan: SELL YOUR IPHONE, the video maker\'s house ad' },
 ];
 for (const p of INFO) {
   const f = root + p.file;
@@ -702,7 +698,7 @@ for (const p of INFO) {
   const graph = [{ ...webPage(url, p.title, p.desc), '@type': p.type }];
   if (p.videos) graph[0].video = learnVideos(html);
   if (p.file === 'motion/index.html') graph.push({ '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: BRAND, item: SITE + '/' }, { '@type': 'ListItem', position: 2, name: 'Video ads', item: url }] });
-  const head = seoHead({ title: p.title, desc: p.desc, url, image: `${SITE}/assets/og/${p.og}.jpg`, imageAlt: p.alt || 'Three full ads made with WEBUY.AD: We Buy iPhones, We Buy Gold, We Buy Cars', ogTitle: p.ogTitle, ld: { '@context': 'https://schema.org', '@graph': graph } });
+  const head = seoHead({ title: p.title, desc: p.desc, url, image: p.og && p.og !== 'home' ? `${SITE}/assets/og/${p.og}.jpg` : SHARE, imageAlt: p.og && p.og !== 'home' ? p.alt : SHARE_ALT, ogTitle: p.ogTitle, ld: { '@context': 'https://schema.org', '@graph': graph } });
   html = fill(html, 'seo', '\n' + head.trimEnd());
   if (!p.bare) {
     html = fill(html, 'site-nav', '\n' + nav(p.up, p.here));
@@ -715,7 +711,7 @@ console.log('information pages:', INFO.map((p) => p.file).join(', '));
 
 /* ── sitemap.xml, robots.txt, llms.txt and llms-full.txt ── */
 const PAGES = [
-  ['/', 'assets/og/home.jpg'], ['/motion/', 'assets/og/video-ad-maker.jpg'], ['/learn.html'], ['/about.html'], ['/looks.html'],
+  ['/', 'assets/brand/share-card.jpg'], ['/motion/', 'assets/og/video-ad-maker.jpg'], ['/learn.html'], ['/about.html'], ['/looks.html'],
   ...CATS.map((c) => [`/ads/${c.slug}.html`, adOf(c) ? `assets/full-ads/${c.slug}.webp` : '']),
   ['/privacy.html'], ['/terms.html'],
 ];
@@ -727,8 +723,7 @@ writeFileSync(root + 'sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 ${PAGES.map(([p, img]) => `  <url><loc>${SITE}${p}</loc><lastmod>${TODAY}</lastmod>${img ? `<image:image><image:loc>${SITE}/${img}</image:loc></image:image>` : ''}</url>`).join('\n')}
 </urlset>
 `);
-writeFileSync(root + 'robots.txt', `# ${BRAND} (Graphics Studio, formerly ${FORMER}). Written by scripts/build_seo_pages.mjs; edit there.
-# The site is served from the Netlify address until ${DOMAIN} answers with it (the registrar's parking page, checked 2026-11-19).
+writeFileSync(root + 'robots.txt', `# ${BRAND}, the We Buy ad maker that ${BUSINESS} runs, at ${SITE}. Written by scripts/build_seo_pages.mjs; edit there.
 #
 # Every crawler is welcome, search and AI alike. The owner's call, 2026-11-18: AI search and answer
 # crawlers, and the crawlers that collect pages to train AI models, are all allowed. A plain summary
@@ -778,7 +773,7 @@ const lines = CATS.filter((c) => !c.soon).map((c) => `- [${nameOf(c)}](${SITE}/a
 const soon = CATS.filter((c) => c.soon).map((c) => `- [${nameOf(c)}](${SITE}/ads/${c.slug}.html): ${descOf(c)}`);
 const llms = `# ${BRAND}
 
-> ${BRAND} (Graphics Studio, formerly ${FORMER}) is a web app that makes "We Buy" ads for people who buy goods from the public and resell them: phone buyers, repair shops, gold, silver and coin buyers, car buyers, card shops and diabetic test strip buyers. You pick a design, type your phone number and your area, and download a post-ready photo ad, a printable flyer or a short video ad. It runs in a web browser on a phone or a computer, with nothing to install, and is free to start.
+> ${BRAND}, run by ${BUSINESS}, is a web app that makes "We Buy" ads for people who buy goods from the public and resell them: phone buyers, repair shops, gold, silver and coin buyers, car buyers, card shops and diabetic test strip buyers. You pick a design, type your phone number and your area, and download a post-ready photo ad, a printable flyer or a short video ad. It runs in a web browser on a phone or a computer, with nothing to install, and is free to start.
 
 Key facts:
 
@@ -811,7 +806,7 @@ ${lines.join('\n')}
 ## Optional
 
 ${soon.join('\n')}
-- [About WEBUY.AD](${SITE}/about.html): who it is for, how it works, what it does not do, and your data
+- [About WeBuy.AD](${SITE}/about.html): who it is for, how it works, what it does not do, and your data
 - [Full text for language models](${SITE}/llms-full.txt): this summary with the whole FAQ
 - [Terms of Service](${SITE}/terms.html)
 - [Privacy Policy](${SITE}/privacy.html)
@@ -828,7 +823,7 @@ ${landingSteps.map(([n, t], i) => `${i + 1}. ${decode(n)}: ${decode(t)}`).join('
 
 ## Links
 
-- [About WEBUY.AD](${SITE}/about.html)
+- [About WeBuy.AD](${SITE}/about.html)
 - [Terms of Service](${SITE}/terms.html)
 - [Privacy Policy](${SITE}/privacy.html)
 `);

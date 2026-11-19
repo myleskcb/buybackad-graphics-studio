@@ -1,6 +1,6 @@
 'use strict';
 /* ═══════════════════════════════════════════════════════
-   The BUYBACK.AD mark: one drawing for every picture that carries it. That
+   The WeBuy.AD mark: one drawing for every picture that carries it. That
    is a Free download (photo or video), and every preview a download would
    mark: signed out or Free, the Easy Mode and full ad previews, the editor's
    export preview, the studio's Create video and the video maker's player.
@@ -27,7 +27,7 @@
    Loaded before app.js (index.html) and the video maker (motion/index.html).
    ═══════════════════════════════════════════════════════ */
 (() => {
-  const WORD = 'BUYBACK.AD';
+  const WORD = 'WeBuy.AD';   // the product's name (DESIGN-LAW 148); BUYBACK.AD is the business behind it
   const PLANS = ['free'];
   const SIZE = 0.03;              // the word's height, of the short side
   const ANGLE = -22;              // degrees

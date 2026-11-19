@@ -17,7 +17,7 @@ PROJECT
 Graphics Studio by BUYBACK.AD — a browser ad builder for phone buyers and
 resellers. Working copy: ~/Downloads/gfxv23. Repo:
 myleskcb/buybackad-graphics-studio. Live at
-https://buybackad-graphics-studio.netlify.app.
+https://webuy.ad (the buybackad-finished-copy project).
 
 This is a paid product ($15/mo Pro), not a toy. Hold every change to that
 standard.

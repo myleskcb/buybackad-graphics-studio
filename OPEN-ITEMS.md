@@ -3912,12 +3912,18 @@ Open:
    mix decides which lines the wall shows. Van cards now draw a van (Transit, ProMaster) where
    they had drawn an SUV.
 
-## BK. 2026-11-18 — the site in the full ad's look; search, structured data, llms.txt; Core Web Vitals (DESIGN-LAW 146)
+## BK. 2026-11-18 — search, structured data, llms.txt and speed for every public page; the look, then main's (DESIGN-LAW 146)
 
 (claude/zen-dijkstra-7b5a2e, cut from claude/ads-improvement-roadmap-7632c8 at
 97e85c54, pull request 14, a fast-forward; the pull request goes against that
 branch. Its newer head, cb6d8321 (the census and the house engine's rebuild:
 DESIGN-LAW 143 to 145, §BI and §BJ), was merged in before the pull request.)
+
+**Since 2026-11-19 the site follows main** (the owner: "Follow main"; item 12): main's
+reselling.us look and the name WeBuy.AD (DESIGN-LAW 147 and 148, §BL and §BM) replaced the
+full ad's look this section first describes. What is below about house.css, the pairs and
+faces a URL away, the starburst and the double outline is history; the search, structured
+data, llms files, FAQ, links and speed work stand.
 
 The owner: "Build out SEO for the BUYBACK.AD site and all its public parts,
 and remake the site's UI so it's unified with our latest theming. We want to
@@ -4010,10 +4016,9 @@ read it in capitals (billing_check). Both are scoped to the page's own main now.
 Open:
 1. **Not on `main`, not deployed** (the owner's word). The deploy workflow
    still skips until NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID are set.
-2. **The studio's editor keeps the poster look**: Easy Mode, the designer and
-   their bars. Taking them over means styles.css (mirrored into app.js's
-   CSS_FALLBACK: run sync_css_fallback.mjs) and the editor's checks
-   (designer_audit, ez_theme_audit).
+2. **The studio's editor wears main's look** (rule 147's `family` skin, the default since
+   2026-11-19), not this section's. The session started for "the studio's editor in the house
+   look" was asked to hold and ask the owner before restyling.
 3. **The landing still runs the whole studio at load**: app.js (1.6 MB) and
    fabric take about 2 s of script on a phone (blocking time ~2 s); the
    gallery's first page draws offer cards from full-size photographs (about
@@ -4025,18 +4030,11 @@ Open:
 4. **The site's pictures are drawn once**: run scripts/build_og_cards.mjs again
    when a line's pictures, its words or the house engine change (the merge of
    cb6d8321 brought rule 145's photo grounds into them).
-5. **The domain**: buyback.ad, www.buyback.ad and studio.scans.ad still have no
-   DNS (checked 2026-11-18). Every canonical, the sitemap, robots.txt and the
-   llms files name the Netlify address; `SITE` in build_seo_pages.mjs moves
-   them, with index.html's head and the cards' URLs. Then register the domain
-   in Google Search Console and Bing Webmaster Tools and submit sitemap.xml
-   (the owner's accounts). The owner, later on 2026-11-18: the concept is
-   rebranded **webuy.ad**, and that domain is bought (buyback.ad was never
-   registered). The site is renamed (item 11). On 2026-11-19 webuy.ad answers
-   with Namecheap's parking page and its mail goes to Namecheap's forwarding:
-   `SITE` moves to https://webuy.ad only once it answers with this site (a
-   custom domain in Netlify, its DNS pointed there), then build_seo_pages.mjs,
-   seo_check.mjs and csp_hashes.mjs, then Search Console and Bing.
+5. **The domain is webuy.ad, and it is live** (main's 11aa4151; Netlify answers it). Every
+   canonical, the sitemap, robots.txt and the llms files name https://webuy.ad (`SITE` in
+   build_seo_pages.mjs, `SITE` in seo_check.mjs). Left for the owner's accounts: register
+   webuy.ad in Google Search Console and Bing Webmaster Tools and submit sitemap.xml; and a
+   "hello" forward in Namecheap's email forwarding for webuy.ad (item 11).
 6. **The platform answers in the FAQ** rest on the research's reading of the
    platforms' own pages (docs/COMPETITOR-RESEARCH-2026-11-12.md §4); how
    strictly each is enforced is unknown, and the rules change. Read them again
@@ -4044,46 +4042,218 @@ Open:
 7. **The hero still says** "Made for Facebook Marketplace, OfferUp, Instagram
    and Craigslist" beside FAQ answers that say Marketplace and OfferUp limit
    buying ads: the owner's words, kept; worth a look.
-8. **Light mode's accent is blue** (Silver & Blue as the pair defines it).
-   Gold in light too would be a pair the twelve do not have: the owner's call.
-9. The Organization in the JSON-LD has no sameAs (no social profile was found
-   to be the business's own) and no telephone (kept out of structured data on
+8. ~~Light mode's accent is blue~~: gone with the full ad's look (item 12).
+9. The Organization in the JSON-LD (BUYBACK.AD, its brand WeBuy.AD) has no sameAs (no social
+   profile was found to be the business's own) and no telephone (kept out of structured data on
    purpose; the number is on the page).
-10. **The hero wall is the owner's again** (done, 2026-11-18): pull request 14
-   moved to 9d895833 (the census's variety work), whose wall takes the owner's
-   recipe and full-ad picks. This branch had put three full ads where
-   `#hero-wall` stood, so merged as it was, the picks would have shown nowhere
-   (git saw no clash: app.js changed on one side, index.html on the other).
-   The wall is back inside `.h-ads` with its three `.wall-col`s, over the three
-   full ads, which stand until it holds a card (`:has(.wall-card)`). An empty
-   `assets/hero/index.json`, in the shape build_hero_stills.mjs writes, ends
-   the 404 the landing logged on every visit before the first house pick
-   (the script writes nothing while there is none). Checked at 390 and 1440,
-   light and dark: 36 cards, no sideways scroll, no console error, a card
-   opens Easy Mode. Lighthouse in the learning log.
-11. **The site is WEBUY.AD** (done, 2026-11-19, on the owner's "Yes, rename the
-   site"): every public page's bar, foot, titles, descriptions, structured
-   data, FAQ, the llms files and robots.txt, the about, privacy and terms
-   text, the Look Book, the video maker's page, the 404, the two owner pages,
-   the favicon's title, the logo (assets/brand/webuyad-logo.png) and all 18
-   link previews (the home card now assets/og/home.jpg; the 20 ads redrawn
-   with the current engine on the way, each through the builder's checks).
-   The plan cards' watermark words come from netlify/lib/plans.mjs, now "a
-   light watermark" (build_pricing.mjs rewrote both copies). Rule 146's
-   paragraph on the name says where it lives. Not renamed here:
-   - **the watermark itself** (watermark.js `WORD`, rule 142) and the locked
-     cards' "PRO · BUYBACK.AD" pattern (styles.css, mirrored into app.js by
-     scripts/sync_css_fallback.mjs): every Free preview and download still
-     says BUYBACK.AD, the video maker's preview included;
-   - the five explainer videos on learn.html ("by BUYBACK.AD" is drawn into
-     them: tools/explainers/videos.js, then a new render);
-   - names that are not words on a page and would break things if moved: the
-     partner library's API (`buybackad-library`, iPhones.LA's integration),
-     app.js's hand-off message types, the Netlify project names.
-   - **The contact address** was hello@buyback.ad on the privacy and terms
-     pages, a domain never registered, so it never received mail and anyone
-     could have claimed it. It is now hello@webuy.ad, which works once a
-     "hello" forward is set in Namecheap's email forwarding for webuy.ad.
-   - The terms keep "Version 2026-11-18": the consent recorded with each
-     purchase names that version (`TERMS_VERSION`, netlify/lib/billing.mjs);
-     a new version moves both.
+10. **The hero wall is the owner's again** (done, 2026-11-18): pull request 14's wall takes the
+   owner's recipe and full-ad picks; this branch had put three full ads where `#hero-wall`
+   stood, and put the wall back over them (git saw no clash: app.js changed on one side,
+   index.html on the other). Since item 12 the landing is main's, wall and all, so the house
+   frame and the three ads are gone; the empty `assets/hero/index.json` stays (the landing
+   asked for it and logged a 404 on every visit before the first house pick).
+11. **The name is WeBuy.AD; BUYBACK.AD is the business** (main's rule 148, which this branch
+   follows since item 12; its own rename to "WEBUY.AD" the same night, d1dfc9a6, gave way).
+   What this branch adds to main's: the generator, the cards and the checks speak the name
+   (`BRAND`, `MARK`, `BUSINESS`, `DOMAIN`); the watermark's word is `WeBuy.AD` in
+   watermark.js, pull request 14's mark, which main's older corner marks gave way to; page
+   words describe the watermark without a name.
+   - **The contact address**: the privacy and terms pages gave hello@buyback.ad (on main and
+     on the live site too). buyback.ad was never registered, so it never took mail and anyone
+     could have bought the domain and received privacy requests and legal notices. Here it is
+     hello@webuy.ad; webuy.ad's mail already goes to Namecheap's forwarding, so it works once a
+     "hello" forward is set. The privacy policy says "updated 19 November 2026".
+   - The terms keep "Version 2026-11-18" and BUYBACK.AD as the party: the consent recorded with
+     each purchase names that version (`TERMS_VERSION`, netlify/lib/billing.mjs), and the party
+     is the owner's legal call (rule 148).
+   - Not renamed: the five explainer videos on learn.html say "by BUYBACK.AD" in their frames
+     (tools/explainers/videos.js, then a new render); the partner library's API names, app.js's
+     hand-off message types and the Netlify project names are addresses, not words, and stay.
+12. **The site follows main** (2026-11-19, the owner: "Follow main"). Main had moved to 163c0fd0
+   in another session: webuy.ad live, the studio and the public pages in reselling.us's look,
+   the name WeBuy.AD. This branch took it in with a merge, over pull request 14:
+   - **Pull request 14 against main** (eight clashes): pull request 14's plan cards (plans.mjs
+     planBullets) and its watermark (watermark.js, the mark across the whole ad) win over
+     main's older planFeats and corner marks, with the word WeBuy.AD; main's rules 138 and 139
+     are 147 and 148, its §BD and §BE are §BL and §BM, touching only the lines main added.
+   - **The pages are main's**: the landing, the information pages, the Look Book, the video
+     maker's page, pages.css, the 404, the favicon and the icons. On them, this branch's search
+     layer again: the head's words and the full preview cards, the site's graph and the FAQ's,
+     one h1 (Easy Mode's and the plans' headings are h2s, styled as their h1s; the Look Book's
+     masthead title is its h1), a main landmark, the 22 questions, "What it makes" with a link
+     to every line, fabric.js out of the head, WebP posters, the Look Book's held layout, the
+     generated bar and foot in main's markup with the Look Book, How it works and llms.txt.
+   - **Gone**: house.css, site-theme.js, the full-ad hero and its three ads, the home card
+     and the WEBUY.AD logo (main's share card and W icon serve), the pairs and faces a URL
+     away. The category cards are redrawn in the share card's look.
+   - Measured after: the learning log.
+## BL. 2026-11-18 — webuy.ad, the site's new address
+
+(Numbered §BD and §BE on main, 2026-11-18 and 19; renumbered §BL and §BM when they met pull
+request 14's §BD to §BJ and §BK. Their rules, 138 and 139 there, are 147 and 148.)
+
+(claude/webuy-ad-new-site-url-f0be40, from `main` at 9dddf354.)
+
+The owner: "webuy.ad launch new site URL". The name was registered at
+Namecheap at 03:38 UTC on 2026-11-19 (whois), a few hours before the ask; it
+answered Namecheap's parking page (`A 162.255.119.247`, `www CNAME
+parkingpage.namecheap.com`), and Netlify answered "Not Found" for it, so no
+project had it. **Do not call it live until `dig +short webuy.ad` answers
+`75.2.60.5` and `https://webuy.ad/api/health` answers `"ok":true`.**
+`studio.scans.ad` was reported live for a whole session before anyone looked
+(HANDOFF.md).
+
+The project it belongs on is `buybackad-finished-copy` (team myleskcb2): it
+serves `main`, with accounts, billing and AI backgrounds on.
+`buybackad-graphics-studio` is a build from before 2026-10-08.
+
+Done (this branch):
+- **Every page's own address is `https://webuy.ad`**: the canonical, og:url,
+  og:image and JSON-LD of index, about, learn, motion, terms, privacy and the
+  18 category pages in `ads/` (rebuilt by `scripts/build_seo_pages.mjs`, whose
+  `SITE` is now webuy.ad; the rebuild was checked to be byte for byte before
+  the change), `sitemap.xml`, `robots.txt`. index.html's JSON-LD hash is
+  rewritten in the CSP of `netlify.toml` and `_headers` (`csp_hashes.mjs`).
+- **The Stripe webhook follows the site's address.** It was registered once
+  per mode and kept; on a new primary domain Netlify's `URL` changes, the old
+  endpoint stays at the netlify.app address, and Stripe does not follow a
+  redirect. `ensureWebhook` now moves it when the configured address
+  (`SITE_URL` or Netlify's `URL`, never a request's own host) differs from the
+  stored one, deletes the old endpoint (its id is the one this site kept), and
+  keeps the old secret so events already on their way still verify.
+  `billing_check.mjs`: 108 passed; the two new checks fail on the old code.
+  The payment method domain (Apple Pay, Google Pay, Link) was already per
+  host, so webuy.ad registers itself on the first checkout there.
+- **The deploy workflow's live check** reads webuy.ad, and until it answers,
+  the netlify.app address with a warning that says why; its curls follow
+  redirects.
+- The partner library docs and examples, the iPhones LA connection notes, the
+  CSP check's default, the tracks builder's user agent, the retired worker's
+  origin, README, AGENT-BRIEF, SETUP, OPERATIONS and docs/README name
+  webuy.ad. History (the learning log, the audits, HANDOFF) is left as it was.
+
+Done in the owner's accounts, 2026-11-19 UTC, in the owner's Chrome with
+the owner signed in (the Netlify login myleskcb@gmail.com sees only team KCB;
+`buybackad-finished-copy` needs the myleskcb2@gmail.com login):
+- Steps 1 and 2 below. Netlify: `webuy.ad` primary, `www.webuy.ad` redirects
+  to it, external DNS. Namecheap: the `@` URL redirect deleted, the `www`
+  CNAME changed to `buybackad-finished-copy.netlify.app.`, `A @ 75.2.60.5`
+  added; the mail forwarding SPF record left. Namecheap's nameservers, 1.1.1.1
+  and 8.8.8.8 all answered `75.2.60.5` within a minute, and
+  `curl --resolve webuy.ad:80:75.2.60.5 http://webuy.ad/api/health` answered
+  `"ok":true`.
+- Step 4: `SITE_URL` is not set on the project (its variables are
+  ADMIN_EMAILS, FAL_KEY, JWT_SECRET, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET),
+  so Netlify's `URL` becomes `https://webuy.ad` from the next deploy.
+- Step 3, the certificate: the first try failed. Netlify asks Let's Encrypt
+  the moment a domain is added, which was while the parking records still
+  answered. Order it right next time: put the DNS in first, then add the
+  domain in Netlify. Netlify's own retry got it a few minutes later: Let's
+  Encrypt, `webuy.ad` and `www.webuy.ad`, valid to 2027-02-17 (it renews
+  itself). Checked 07:42 UTC: `https://webuy.ad/api/health` answers
+  `"ok":true` from 75.2.60.5; `www` and `http://` answer 301 to
+  `https://webuy.ad/`.
+- **webuy.ad is live**, serving `main` as it was before this branch: the
+  pages still name the netlify.app address as canonical until step 5.
+- The netlify.app address does **not** redirect to the primary domain (it
+  answers 200), so the webhook at the old address keeps working until the
+  first checkout after step 5 moves it.
+
+The steps, in order:
+1. **Netlify** (team myleskcb2 → `buybackad-finished-copy` → Domain
+   management → Add a domain): `webuy.ad`, and `www.webuy.ad` when it offers
+   it; make `webuy.ad` the primary domain. Keep the DNS at Namecheap: do not
+   switch to Netlify DNS unless the nameservers at Namecheap move too (that
+   mismatch is why `studio.scans.ad` and `buyback.ad` never resolved,
+   OPERATIONS.md).
+2. **Namecheap** (Domain List → webuy.ad → Manage → Advanced DNS): delete the
+   parking records (the `www` CNAME to parkingpage.namecheap.com and the `@`
+   URL redirect), then add `A  @  75.2.60.5` and
+   `CNAME  www  buybackad-finished-copy.netlify.app.`. Leave the mail (MX)
+   records.
+3. Wait for `dig +short webuy.ad` to answer `75.2.60.5`, then Netlify →
+   Domain management → HTTPS → Verify DNS configuration; the certificate
+   follows (minutes, at most about an hour).
+4. **`SITE_URL`** on `buybackad-finished-copy`: unset it, or set it to
+   `https://webuy.ad`. A netlify.app value keeps Checkout's return and the
+   webhook on the old address.
+5. **Merge this branch into `main`** only after step 3: the canonical links
+   then point at a site that answers, not at a parking page. The push deploys.
+6. As an operator, Plan & billing → **Set up prices, webhook and wallets
+   now** (or wait for the first checkout): the webhook moves to webuy.ad and
+   webuy.ad is registered for the wallets.
+7. **iPhones LA** (IPHONESLA-CONNECTION.md, "Owed by the owner" 1): on
+   Render, `GFX_STUDIO_URL=https://webuy.ad/` and webuy.ad in
+   `GFX_STUDIO_ORIGINS`; in iphoneslainv, `https://webuy.ad` in
+   `STUDIO_SITES` (`app/buyback_ad_feed.py`). Until then the studio on
+   webuy.ad cannot connect to iPhones LA.
+
+Open:
+1. **The name on the site is still BUYBACK.AD** ("Graphics Studio by
+   BUYBACK.AD", the watermark, the logo, the explainer videos). Whether the
+   wordmark becomes WEBUY.AD is the owner's call; nothing was renamed.
+2. **The contact address bounces.** Terms and privacy give
+   `hello@buyback.ad`, and `buyback.ad` has no DNS at all (no A, no MX).
+   webuy.ad has Namecheap's mail forwarding records: a `hello` forward made
+   there, then the two pages changed to `hello@webuy.ad`, would fix it.
+3. **Sign-ins do not carry over.** A browser signed in on a netlify.app
+   address keeps its token and brand kit there (localStorage is per
+   address); on webuy.ad the customer signs in again. Accounts are on the
+   server and are the same.
+4. The explainer videos' end card prints the address once one resolves
+   (`tools/explainers/videos.js`, `URL_LINE`): render them again with
+   `--url webuy.ad` after step 3.
+5. Billing on the live project answered **test mode** on 2026-11-18: a
+   launch on the new address takes no money until the live keys are in.
+6. Search: add webuy.ad in Google Search Console and submit
+   `https://webuy.ad/sitemap.xml`.
+
+## BM. 2026-11-19 — the reselling.us look: colour first (DESIGN-LAW 147)
+
+The owner, once webuy.ad was live: "logos branding webkit", "all aspects need
+to finish and it needs to have similar or matching styling to reselling.us",
+"or color scheming at first?". Colour first, as asked.
+
+Done:
+- **The `family` skin** (`styles.css`, the default): reselling.us's own
+  colours from its `/static/app.css`, dark and light, its flat pill buttons,
+  its one-glow field; light or dark follows the device until the toggle is
+  used. The poster look is `?skin=poster`.
+- The same colours in `pages.css` (about, learn, terms, privacy, the 18
+  category pages, the video maker), the Look Book, the ad library page and
+  the 404. The owner tools (`pick.html`, `library.html`, `social/`,
+  `admin-ads/`, `phonegfx-studio.html`) are as they were.
+- Checked by eye at 1280 and 390, dark and light: the landing, Easy Mode,
+  the advanced editor, about, the Look Book, the video maker; no sideways
+  scroll at 390; contrast measured (rule 147).
+
+Then, the same day (DESIGN-LAW 148), the owner chose "WeBuy.AD":
+- **Type**: the system face for headlines and text, the default (`system`).
+- **The wordmark** `WeBuy.AD` in Inter Tight 750 on every page's header; the
+  face vendored from reselling.us with its OFL text.
+- **The icon, the favicon and the share card**, drawn by
+  `tools/brand/make.sh` from HTML, as reselling.us draws its own; every page
+  points at `assets/brand/`. `scripts/render_og.mjs` is marked superseded.
+- **The name**: page titles, JSON-LD, the headers and footers, the welcome
+  line, the watermark on free exports, the locked-design pattern, the
+  billing portal's line. The kicker and section labels in sentence case.
+- Checked by eye at 1280 and 390, dark and light: the landing, a category
+  page, the 404, the Look Book; no sideways scroll; the CSS copy in app.js
+  and the CSP hashes rewritten.
+
+Open:
+1. **The terms and privacy policy** still make the agreement with BUYBACK.AD
+   and call the Service "Graphics Studio": renaming the party is the owner's
+   legal call, with a new `TERMS_VERSION` (checkout records the version).
+2. **The explainer videos** (`assets/explainers/*.mp4`) end on "Graphics
+   Studio by BUYBACK.AD" in the poster look: render them again
+   (`tools/explainers`) with the new end card and `--url webuy.ad`.
+3. **The Stripe billing portal** keeps the line it was made with
+   ("Graphics Studio by BUYBACK.AD: …"): `ensurePortalConfig` makes a
+   configuration once and stores it, so the new line reaches Stripe only
+   when that configuration is made again.
+4. The partner library API still names itself "BUYBACK.AD library"
+   (`netlify/lib/library.mjs`), left so a partner's code that reads it does
+   not change under it.
+5. The owner tools (`pick.html`, `library.html`, `social/`, `admin-ads/`,
+   `phonegfx-studio.html`) keep the old look and name.

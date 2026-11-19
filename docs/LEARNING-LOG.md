@@ -6030,6 +6030,84 @@ Still the owner's, from that session: no full ad passes the attention check's
 the best of eight by score; and the full ad's panel still reads at the preview's
 720 where the gate and the search read 1080.
 
+## 2026-11-18 — webuy.ad, the site's new address (claude/webuy-ad-new-site-url-f0be40)
+
+Asked: "webuy.ad launch new site URL".
+
+Done:
+  - Every page's own address, the sitemap, robots, the category page
+    generator and the CSP hash for index.html's JSON-LD now say webuy.ad.
+  - The Stripe webhook moves with the site's address; the deploy workflow's
+    live check reads webuy.ad, falling back to the netlify.app address with a
+    warning until the domain answers.
+  - OPEN-ITEMS §BD: the seven owner steps, in order (Netlify, Namecheap, the
+    certificate, SITE_URL, the merge, the webhook, iPhones LA).
+
+Found:
+  - The domain was registered a few hours before the ask and still answered
+    Namecheap's parking page. A Host-header probe against Netlify's load
+    balancer (`curl --resolve webuy.ad:80:75.2.60.5`) tells whether any
+    project has claimed a name before its DNS is in.
+  - A setting kept "once" goes stale when the thing it names moves: the
+    webhook was stored once per mode with its URL and never compared again.
+    Store what a value was made for, and compare it on read.
+  - The category pages are generated. Proving the generator rebuilds the
+    committed files byte for byte before changing it makes the rebuild after
+    the change safe to trust.
+  - Changing an address inside an inline JSON-LD block changes a CSP hash;
+    `csp_hashes.mjs` has to run after it.
+  - The legal pages' contact address is on a domain with no DNS.
+
+  - Netlify asks Let's Encrypt for a certificate the moment a domain is
+    added. Added before the DNS moved, it asked while the parking records
+    still answered and failed; its own retry got it a few minutes later.
+    DNS first, then the domain.
+  - A primary domain does not make the netlify.app address redirect: it
+    still answers 200.
+  - Two Netlify logins: myleskcb@gmail.com sees team KCB only;
+    buybackad-finished-copy is under myleskcb2@gmail.com.
+
+Checked: billing_check (108 passed; the two new checks fail on the old
+billing.mjs), the live-check step run locally against today's sites, the SEO
+generator rebuilt, CSP hashes rewritten.
+
+RESUME HERE:
+  0. webuy.ad is live (HTTPS, 2026-11-19 UTC). OPEN-ITEMS §BD: merge this
+     branch (step 5), then steps 6 and 7.
+  1. §BD open 1: the wordmark, BUYBACK.AD or WEBUY.AD, is the owner's call.
+
+## 2026-11-19 — WeBuy.AD in reselling.us's look (DESIGN-LAW 138, 139 on main; 147 and 148 here)
+
+Asked: "logos branding webkit", "all aspects need to finish and it needs to
+have similar or matching styling to reselling.us", "or color scheming at
+first?", then the wordmark "WeBuy.AD".
+
+Done: the family skin (reselling.us's colours, live first), then the system
+type, the WeBuy.AD wordmark in Inter Tight, the W. icon and the share card
+drawn from HTML, the name across the site with BUYBACK.AD kept as the business.
+
+Found:
+  - reselling.us's live look is not its design-system repo: the repo says
+    violet (resale. tokens), the site serves navy and blue. Read the colours
+    off the live sheet, not the repo.
+  - reselling.us keeps a brand kit as HTML drawn by headless Chrome
+    (resale-app docs/brand/source). Copying its recipe, not its pictures,
+    makes a sibling that matches by construction.
+  - A local static server's caches hide a CSS change: the page at / kept the
+    old theme stamp after /index.html was refreshed. Fetch every changed
+    file with cache: 'reload' before believing a screenshot.
+  - The pane's screenshots draw #3d8bff as violet; computed values are the
+    truth. reselling.us's own button showed the same.
+  - A brand rename has a legal edge: the terms are an agreement with a named
+    party and a recorded version. Rename the product, not the party, without
+    the owner.
+
+RESUME HERE:
+  0. OPEN-ITEMS §BE "Open": the terms' party and version, the explainer
+     videos' end card, the Stripe portal's line.
+  1. §BD: the webhook move after the first checkout, iPhones LA's allowlist,
+     the contact address, live Stripe keys.
+
 ## 2026-11-19 — the site renamed WEBUY.AD (claude/zen-dijkstra-7b5a2e)
 
 The owner, 2026-11-18: "Ok the concept was finally rebranded webuy.ad", "bought the
@@ -6077,3 +6155,48 @@ RESUME HERE:
   2. A "hello" forward for webuy.ad in Namecheap; then webuy.ad connected to Netlify,
      `SITE` moved, Search Console and Bing (§BK 5).
   3. The studio's editor in the house look (§BK 2); the landing's load (§BK 3).
+
+## 2026-11-19 (later) — the site follows main: the search layer on main's look and WeBuy.AD (claude/zen-dijkstra-7b5a2e)
+
+The owner asked for the watermark to say the new name ("Yes, do it here"). Main had moved
+an hour before, in another session (11aa4151, f4cbfdab, 163c0fd0): webuy.ad live, the studio
+and the public pages in reselling.us's look (its DESIGN-LAW 138) and the name WeBuy.AD, with
+BUYBACK.AD kept as the business (its 139). That met this branch's full-ad look and its own
+rename to "WEBUY.AD" of the same hour. Asked which the site should follow: "Follow main".
+
+Done, as a merge of main over pull request 14:
+- Pull request 14 against main clashed in eight places. Its plan cards (plans.mjs
+  planBullets) and its watermark (watermark.js, across the whole ad) won over main's older
+  planFeats and corner marks, with the word WeBuy.AD. Main's rules 138 and 139 are 147 and 148
+  here, its §BD and §BE are §BL and §BM; only the lines main added were renumbered, since pull
+  request 14's 138 to 145 are cited all over its code.
+- Every page is main's again (the landing, the information pages, the Look Book, the video
+  maker's page, pages.css, the 404, the favicon and the icons), with this branch's search
+  layer put back on it: the head's words and preview cards, the site's graph and the FAQ's,
+  one h1, a main landmark, the 22 questions, "What it makes" with a link to every line, the
+  generated bar and foot in main's markup, fabric.js out of the head, WebP posters, the Look
+  Book's held layout. The generator writes main's markup now; the category cards are drawn in
+  the share card's look; the landing and the information pages preview as main's share card.
+- Gone: house.css, site-theme.js, the full-ad hero and its three ads, the home card, the
+  WEBUY.AD logo, the pairs and faces a URL away.
+- The contact address hello@buyback.ad (main's, and the live site's) is hello@webuy.ad: the
+  domain buyback.ad was never registered.
+
+Measured after the landing's next changes (the owner's critique of the header and hero, relayed
+the same night): the next entry.
+
+Found on the way: another session's static server held port 8933 and served its own
+worktree, so a drawing run here took that tree's card template; nothing said so. A local
+server for a check gets a port of its own, and its working folder is read back before a run.
+
+Learned: when two sessions change the same pages under one owner the same night, the newer
+word wins, and the rest is to keep what does not depend on the look (words, links,
+structured data, speed) and put it back on the winner's pages, not to merge the two looks.
+
+RESUME HERE:
+  0. The owner's word on pull request 15 (it now carries main's three commits over pull
+     request 14; merged into pull request 14 first, then pull request 14 into main, the
+     resolutions are made once).
+  1. A "hello" forward for webuy.ad in Namecheap; webuy.ad in Search Console and Bing with
+     the sitemap; the five explainer videos still say "by BUYBACK.AD" (OPEN-ITEMS §BK 11).
+  2. The landing's load (§BK 3); the session "Landing load" was asked which base to use.

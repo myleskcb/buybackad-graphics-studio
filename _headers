@@ -1,5 +1,5 @@
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://js.stripe.com https://*.js.stripe.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com 'sha256-ybWll35wWJsMHPukpoy46PpE6Fwl1q7z0Zfc2022tp8=' 'sha256-/HUHh3s51DW1Fddsh3ESbGYhAUuvKdNSRveXF3he7xg=' 'sha256-d9VWh6m59VQ/OgZPcbljQr1YsZxvCEJzGbxuZPqye3s=' 'sha256-OLeV7otPgYpW3r1P1Mjl/LMZBikIIIbTcOb1RQDQCdQ='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' data: blob: https://api.stripe.com https://*.stripe.com https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://iphones.la; frame-src 'self' https://accounts.google.com https://js.stripe.com https://*.js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://*.stripe.network; base-uri 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://js.stripe.com https://*.js.stripe.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com 'sha256-uOk9pF16O+CQ7OuCnaOXazbPLZK8Vq3FkjOuJEUPCyU=' 'sha256-qocH3I843yJfCZbBjj44O07G2Wc8PSqvJsbOL6reTHg=' 'sha256-7L+D/tAVRpTncDNXmb7eJ6A1LccQiJLWBYVL6yVVPCY=' 'sha256-OLeV7otPgYpW3r1P1Mjl/LMZBikIIIbTcOb1RQDQCdQ='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' data: blob: https://api.stripe.com https://*.stripe.com https://*.workers.dev https://cdn.jsdelivr.net https://unpkg.com https://accounts.google.com https://iphones.la; frame-src 'self' https://accounts.google.com https://js.stripe.com https://*.js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://*.stripe.network; base-uri 'self'; frame-ancestors 'none'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
@@ -86,15 +86,8 @@
 /full-ad-studio.css
   Cache-Control: public, max-age=0, must-revalidate
 
-# The house look (DESIGN-LAW 146): its sheets and theme script carry no version in their names,
-# so they revalidate like the app.
-/house.css
-  Cache-Control: public, max-age=0, must-revalidate
-
+# The information pages' sheet carries no version in its name, so it revalidates like the app.
 /pages.css
-  Cache-Control: public, max-age=0, must-revalidate
-
-/site-theme.js
   Cache-Control: public, max-age=0, must-revalidate
 
 # Art that a redeploy may replace under the same name (2026-11-18): the real ads the pages and

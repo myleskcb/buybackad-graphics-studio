@@ -1,5 +1,4 @@
-# WEBUY.AD (Graphics Studio, formerly BUYBACK.AD). Written by scripts/build_seo_pages.mjs; edit there.
-# The site is served from the Netlify address until webuy.ad answers with it (the registrar's parking page, checked 2026-11-19).
+# WeBuy.AD, the We Buy ad maker that BUYBACK.AD runs, at https://webuy.ad. Written by scripts/build_seo_pages.mjs; edit there.
 #
 # Every crawler is welcome, search and AI alike. The owner's call, 2026-11-18: AI search and answer
 # crawlers, and the crawlers that collect pages to train AI models, are all allowed. A plain summary
@@ -39,4 +38,4 @@ User-agent: cohere-training-data-crawler
 Allow: /
 Disallow: /api/
 
-Sitemap: https://buybackad-graphics-studio.netlify.app/sitemap.xml
+Sitemap: https://webuy.ad/sitemap.xml

@@ -30,7 +30,7 @@ const state = {
   assets: { phones: {} },
   index: [],
   ad: null, playing: true, t0: performance.now(), tPaused: 0, sound: false, audio: null, audioCtx: null, audioSrc: null,
-  marks: false,                                     // the player carries the BUYBACK.AD mark (syncMarks)
+  marks: false,                                     // the player carries the WeBuy.AD mark (syncMarks)
   buildId: 0, gallerySeed: 1000,
   // the gallery: the shelf it shows, and whether every look on screen moves (on for a mouse, unless motion is turned down)
   galleryCat: "all",
@@ -1326,7 +1326,7 @@ async function planGate(next, message, kind = "video") {
     throw e;
   }
 }
-/* The BUYBACK.AD mark, the studio's own (watermark.js, window.PgfxMark), on a Free download
+/* The WeBuy.AD mark, the studio's own (watermark.js, window.PgfxMark), on a Free download
    and on the player while it would be on the download. A download that should carry it never
    goes without: no mark, no file. */
 function drawMarks(x, w, h) {
@@ -2063,7 +2063,7 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
   await start();
 })();
 
-/* The player carries the BUYBACK.AD mark while a download of it would (watermark.js): signed out
+/* The player carries the WeBuy.AD mark while a download of it would (watermark.js): signed out
    or Free. A screenshot, a screen recording or a right-click Save image of the player is then no
    cleaner than the Free download; until 2026-11-17 the player was the clean ad for anyone. A copy
    with no backend (demo) is not gated, as planGate is not. This reads the page's own account, so

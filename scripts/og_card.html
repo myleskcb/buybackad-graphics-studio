@@ -1,67 +1,57 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8">
-<!-- The link-preview card (1200x630) every public page shares, drawn around a real full ad
-     (DESIGN-LAW 146). scripts/build_og_cards.mjs opens this page, calls paint(cfg) and takes the
-     screenshot. The look is the full ad's: the pair's ground with its lit patch, the house face in
-     capitals with the double outline, one accent, chips with ticks. -->
-<style>
-@font-face{font-family:'Chivo';src:url('../assets/fonts/chivo-900.woff2') format('woff2');font-weight:100 900;font-display:block}
-:root{--ground:#031b56;--lit:#395185;--ink:#f2f7ff;--accent:#f4b100;--on:#031b56}
-*{box-sizing:border-box;margin:0}
-html,body{width:1200px;height:630px;overflow:hidden}
-body{background:radial-gradient(70% 95% at 78% 50%,var(--lit) 0%,transparent 70%),var(--ground);color:var(--ink);font-family:'Chivo',Arial Black,sans-serif;position:relative}
-.copy{position:absolute;left:64px;top:56px;width:530px;display:flex;flex-direction:column;gap:18px}
-.mark{font-weight:900;font-size:30px;letter-spacing:.01em}.mark em{font-style:normal;color:var(--accent)}
-.badge{align-self:flex-start;background:var(--accent);color:var(--on);font-weight:900;font-size:19px;letter-spacing:.07em;text-transform:uppercase;padding:10px 18px;border-radius:999px;box-shadow:0 0 28px color-mix(in srgb,var(--accent) 55%,transparent)}
-.title{isolation:isolate;font-weight:900;text-transform:uppercase;line-height:.98;letter-spacing:-.005em}
-.dbl{display:block;position:relative;color:var(--ink);-webkit-text-stroke:.075em var(--ground);paint-order:stroke fill}
-.dbl em{font-style:normal;color:var(--accent)}
-.dbl::before{content:attr(data-t);position:absolute;inset:0;z-index:-1;color:var(--accent);-webkit-text-stroke:.19em var(--accent)}
-.sub{font-weight:700;font-size:26px;line-height:1.25;max-width:520px}
-.chips{display:flex;flex-wrap:wrap;gap:10px}
-.chips span{background:var(--accent);color:var(--on);font-weight:900;font-size:18px;text-transform:uppercase;padding:9px 15px;border-radius:999px}
-.chips span::before{content:"\2713  "}
-.ads{position:absolute;right:60px;top:50%;transform:translateY(-50%)}
-.ads img{display:block;border-radius:18px;box-shadow:0 26px 60px -22px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.08)}
-.one img{width:480px;height:480px}
-.fan{width:480px;height:540px}
-.fan img{position:absolute;width:276px;height:345px}
-.fan img:nth-child(1){left:0;top:110px;transform:rotate(-7deg)}
-.fan img:nth-child(2){left:204px;top:120px;transform:rotate(7deg)}
-.fan img:nth-child(3){left:92px;top:36px;z-index:2;width:296px;height:370px}
-</style></head>
-<body>
-<div class="copy">
-  <div class="mark">WEBUY<em>.AD</em></div>
-  <div class="badge" id="badge"></div>
-  <div class="title" id="title"></div>
-  <div class="sub" id="sub"></div>
-  <div class="chips" id="chips"></div>
+<!-- A page's link preview (og:image), 1200 x 630, drawn by scripts/build_og_cards.mjs through
+     window.paint(): main's share card (tools/brand/share-card.html, DESIGN-LAW 147 and 148) with the
+     page's own kicker and title and the page's own ad in place of the home page's four. The home
+     page and the information pages use the share card itself (assets/brand/share-card.jpg). -->
+<html><head><meta charset="utf-8"><style>
+@font-face { font-family: "Inter Tight"; src: url("../assets/fonts/inter-tight-latin.woff2") format("woff2"); font-weight: 500 800; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { width: 1200px; height: 630px; overflow: hidden; position: relative; color: #f4f7ff;
+  font-family: -apple-system, "SF Pro Display", "Helvetica Neue", Arial, sans-serif; background: #070d1c; }
+.glow-a, .glow-b { position: absolute; border-radius: 50%; }
+.glow-a { width: 900px; height: 900px; right: -320px; top: -420px; background: radial-gradient(closest-side, rgba(61, 139, 255, 0.34), rgba(61, 139, 255, 0) 70%); }
+.glow-b { width: 760px; height: 760px; left: -280px; bottom: -480px; background: radial-gradient(closest-side, rgba(47, 213, 143, 0.22), rgba(47, 213, 143, 0) 70%); }
+.left { position: absolute; left: 72px; top: 64px; width: 590px; }
+.wordmark { font: 750 44px/1 "Inter Tight", sans-serif; letter-spacing: -0.04em; }
+.wordmark span { color: #3d8bff; }
+.kicker { display: inline-flex; align-items: center; gap: 12px; margin-top: 52px; padding: 9px 18px 9px 14px; border-radius: 99px; background: rgba(61, 139, 255, 0.16); color: #a9cbff; font-size: 17.5px; font-weight: 600; white-space: nowrap; }
+.kicker i { width: 11px; height: 11px; border-radius: 50%; background: #2fd58f; box-shadow: 0 0 0 5px rgba(47, 213, 143, 0.22); }
+h1 { margin: 24px 0 0; font-size: 66px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.02; }
+h1 span { color: #2fd58f; }
+.foot { position: absolute; left: 72px; bottom: 56px; font-size: 25px; color: #a3aec6; font-weight: 500; }
+.foot b { color: #f4f7ff; font-weight: 700; }
+.ads { position: absolute; right: 70px; top: 76px; width: 450px; height: 470px; display: grid; place-items: center; transform: rotate(-4deg); }
+.ads img { display: block; width: 100%; height: auto; border-radius: 22px; border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.7); }
+.ads.two { grid-template-columns: 1fr 1fr; gap: 18px; }
+.ads.two img:nth-child(2n) { transform: translateY(46px); }
+</style></head><body>
+<div class="glow-a"></div><div class="glow-b"></div>
+<div class="left">
+  <div class="wordmark">WeBuy<span>.AD</span></div>
+  <div class="kicker"><i></i><span id="kicker"></span></div>
+  <h1 id="title"></h1>
 </div>
+<div class="foot"><b>webuy.ad</b> · Free to design</div>
 <div class="ads" id="ads"></div>
 <script>
+const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]);
+/* cfg: { badge, title ("{...}" marks the phrase in mint), ads: [data URLs] }; the builder's colour
+   fields are the ad's own pair and are not used here: the card wears the site's colours */
 window.paint = async (c) => {
-  const r = document.documentElement.style;
-  for (const k of ['ground', 'lit', 'ink', 'accent', 'on']) if (c[k]) r.setProperty('--' + k, c[k]);
-  document.getElementById('badge').textContent = c.badge || '';
+  document.getElementById('kicker').textContent = c.badge || '';
   const t = document.getElementById('title');
-  const plain = c.title.replace(/[{}]/g, '');
-  t.innerHTML = '<span class="dbl"></span>';
-  const s = t.firstChild; s.dataset.t = plain;
-  s.innerHTML = c.title.replace(/[&<>]/g, x => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[x])).replace(/\{([^}]*)\}/g, '<em>$1</em>');
-  t.style.fontSize = (c.size || 70) + 'px';
-  document.getElementById('sub').textContent = c.sub || '';
-  document.getElementById('chips').innerHTML = (c.chips || []).map(x => '<span>' + x + '</span>').join('');
-  const ads = document.getElementById('ads');
-  ads.className = 'ads ' + (c.ads.length > 1 ? 'fan' : 'one');
-  ads.innerHTML = c.ads.map((u, i) => '<img alt="" src="' + u + '">').join('');
-  await Promise.all([...ads.images || ads.querySelectorAll('img')].map(i => i.decode().catch(() => {})));
+  t.innerHTML = esc(c.title).replace(/\{([^}]*)\}/g, '<span>$1</span>');
+  const box = document.getElementById('ads');
+  box.className = 'ads' + ((c.ads || []).length > 1 ? ' two' : '');
+  box.innerHTML = (c.ads || []).slice(0, 4).map((u) => `<img src="${u}" alt="">`).join('');
+  await Promise.all([...box.querySelectorAll('img')].map((i) => i.decode().catch(() => {})));
   await document.fonts.ready;
-  // the title never runs past its column: step the size down until it fits three lines
-  // the outer ring stands .19em past the letters, so the widest line is measured with it
-  let size = c.size || 70;
-  const widest = () => { const rg = document.createRange(); rg.selectNodeContents(s); return Math.max(...[...rg.getClientRects()].map(r => r.right)) + size * .19; };
-  while ((widest() > 64 + 530 || t.getBoundingClientRect().height > size * 0.98 * 3 + 4) && size > 40) { size -= 2; t.style.fontSize = size + 'px'; }
+  /* the title never runs past its column or three lines: step the size down until it fits */
+  let size = 66;
+  t.style.fontSize = size + 'px';
+  const tooWide = () => t.scrollWidth > t.clientWidth + 1;
+  while ((tooWide() || t.getBoundingClientRect().height > size * 1.02 * 3 + 4) && size > 44) { size -= 2; t.style.fontSize = size + 'px'; }
   return { size };
 };
 </script>

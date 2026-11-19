@@ -26,7 +26,7 @@ That is the standard every change is held to.
 |---|---|
 | Repo | `myleskcb/buybackad-graphics-studio` |
 | Working copy | `~/Downloads/gfxv23` — see the warning below |
-| Live | https://buybackad-graphics-studio.netlify.app |
+| Live | **https://webuy.ad** (from 2026-11-19 UTC; DNS at Namecheap, certificate by Netlify), the `buybackad-finished-copy` project's primary domain; also https://buybackad-finished-copy.netlify.app (OPEN-ITEMS §BL) |
 | Netlify project | `buybackad-graphics-studio` (CLI is authenticated) |
 | Study program | `docs/` — start at `docs/README.md` |
 
@@ -290,7 +290,9 @@ python3 scripts/cvd_audit.py                                         # exits 1 o
 
 | URL | State |
 |---|---|
-| `buybackad-graphics-studio.netlify.app` | **works — this is the URL to share** |
+| `webuy.ad` / `www.webuy.ad` | **works — the site's address** (live 2026-11-19 UTC; `A @ 75.2.60.5` and `CNAME www buybackad-finished-copy.netlify.app.` at Namecheap; `www` redirects to the bare name) |
+| `buybackad-finished-copy.netlify.app` | works; `main` (the netlify.app address of the project webuy.ad points at) |
+| `buybackad-graphics-studio.netlify.app` | works, but a build from before 2026-10-08 (FLOW-AUDIT 2026-11-11) |
 | `studio.scans.ad` | configured in Netlify, **no public DNS** |
 | `buyback.ad` / `www.buyback.ad` | domain alias set, no DNS at all |
 
@@ -576,20 +578,19 @@ produced." DESIGN-LAW rule 87. In practice:
   alone. `node scripts/hero_headline.mjs --live` reports any live card under
   it; with `--write` it grows them, gated. Look at every card on a
   before-and-after before you show it.
-- **The site's own look and what search engines read** (rule 146,
-  2026-11-18): the public pages wear the full ad's look (house.css for the
-  landing and plans, pages.css for the information pages and the video maker,
-  the Look Book's own sheet); the studio's editor still wears rule 98's
-  poster. scripts/build_seo_pages.mjs writes every public page's head, the
-  structured data (offers from `PLANS`), the sitemap, robots.txt and the llms
-  files from its tables; build_og_cards.mjs draws the real ads the pages and
-  link previews show. Edit the tables, run both, then `seo_check.mjs` and
-  `csp_hashes.mjs`; never hand-edit a generated head or the FAQ's JSON-LD.
-  The hero is the owner's wall of hand picks (`#hero-wall`, app.js
-  scBuildWall): a remake of the landing keeps it and its three `.wall-col`s.
-  The name (WEBUY.AD, formerly BUYBACK.AD) is `BRAND`/`MARK`/`FORMER`/`DOMAIN` in
-  build_seo_pages.mjs and the cards' mark in build_og_cards.mjs; describe the
-  watermark without a name until watermark.js's `WORD` changes.
+- **What search engines read, on main's look** (rule 146, 2026-11-18; the look is
+  rules 147 and 148 since 2026-11-19, "Follow main"): the public pages and the studio
+  wear reselling.us's look and the name WeBuy.AD (BUYBACK.AD is the business: the
+  copyright and the terms' party). scripts/build_seo_pages.mjs writes every public
+  page's head, the information pages' bar and foot in main's markup, the structured
+  data (offers from `PLANS`), the sitemap, robots.txt and the llms files, with the name
+  in `BRAND`/`MARK`/`BUSINESS`/`DOMAIN`; build_og_cards.mjs draws each category page's
+  ad and its link preview in the share card's look (scripts/og_card.html), and the
+  landing and the information pages use main's share card. Edit the tables, run both,
+  then `seo_check.mjs` and `csp_hashes.mjs`; never hand-edit a generated head or the
+  FAQ's JSON-LD. The hero is the owner's wall of hand picks (`#hero-wall`, app.js
+  scBuildWall): a remake of the landing keeps it. Describe the watermark without a
+  name; watermark.js's `WORD` is the name.
 - **The scripts:** a script that rewrites a showcase record passes its
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the

@@ -4,9 +4,12 @@
    Draws a full ad (motion/fullad.js, rule 137) for every public page through the video maker's own
    engine, with clean words, and writes:
      assets/full-ads/<name>.webp    the ad itself, 720 on the short side, shown on the page
-     assets/og/<file>.jpg           the page's link preview, 1200x630: the ad on its pair's ground,
-                                    with the page's title (scripts/og_card.html)
-   so a link to /ads/we-buy-gold.html previews as a gold ad in Green & Gold, not the August card.
+     assets/og/<file>.jpg           the page's link preview, 1200x630, in main's share card's look
+                                    (rules 147, 148): the wordmark, the page's kicker and title, its
+                                    own ad (scripts/og_card.html)
+   so a link to /ads/we-buy-gold.html previews as a gold ad. The home page and the information pages
+   use main's share card (assets/brand/share-card.jpg, tools/brand/make.sh), and the logo the
+   site's structured data names is main's W icon (assets/brand/icon-512.png).
 
    The words are the line's own (motion/subjects.json: its headline, models line and points) with a
    claim and a sticker fixed here, so a picture changes only when it is drawn again; every ad is
@@ -35,9 +38,6 @@ const CLAIM = 'LOCAL BUYER', TOWNS = 'LONG BEACH • LAKEWOOD • DOWNEY', NUMBE
    owner's full-ad pairs (full-voices.js), or none for the house face. burst: a sticker that shares no
    word with the points (fullWords would call it a promise said twice). */
 const ADS = {
-  'hero-iphone':      { subject: 'iphone', set: 0, pair: 'navy_gold', aspect: '4:5', headline: 'WE BUY IPHONES', tag: 'IPHONE 11 AND NEWER, EVERY SIZE', burst: 'EASY SALE' },
-  'hero-gold':        { subject: 'gold', set: 0, pair: 'green_gold', voice: 'luxe', aspect: '4:5', burst: 'CASH!' },
-  'hero-car':         { subject: 'car', set: 0, pair: 'black_red', voice: 'street', aspect: '4:5', burst: 'EASY SALE' },
   'video-iphone':     { subject: 'iphone', set: 2, pair: 'midnight_cyan', voice: 'stadium', aspect: '1:1', headline: 'SELL YOUR IPHONE', tag: 'IPHONE 11 AND NEWER, EVERY SIZE', burst: 'EASY SALE' },
   'we-buy-apple':     { subject: 'iphone', set: 0, pair: 'teal_orange', voice: 'sport', headline: 'WE BUY APPLE', tag: 'IPHONE, IPAD, MACBOOK AND APPLE WATCH', burst: 'EASY SALE' },
   'we-buy-iphones':   { subject: 'iphone', set: 1, pair: 'navy_gold', burst: 'EASY SALE' },
@@ -58,7 +58,6 @@ const ADS = {
 };
 /* the cards: file name, the ads on it (one, or three in a fan), and its words. {} marks the accent. */
 const CARDS = [
-  { file: 'home', ads: ['hero-iphone', 'hero-gold', 'hero-car'], badge: 'The We Buy ad maker', title: 'We Buy ads and {flyers}, ready in a minute', sub: 'Phones, gold, silver, coins, cars and cards. Your number, big.', chips: ['Photo or video', 'Free to start'] },
   { file: 'video-ad-maker', ads: ['video-iphone'], badge: 'Video ads', title: 'We Buy Phones {video} ads', sub: 'Your headline and number land in seconds, with music. English or Spanish.', chips: ['MP4', 'Made in your browser'] },
   { file: 'we-buy-apple', ads: ['we-buy-apple'], badge: 'We Buy Apple ads', title: 'iPhone, iPad and {MacBook} buying ads', sub: 'Every Apple line, your number and your towns.' },
   { file: 'we-buy-iphones', ads: ['we-buy-iphones'], badge: 'We Buy iPhones ads', title: 'Your {iPhone} buying ad, ready to post', sub: 'Flyers and posts for Marketplace, Instagram and OfferUp.' },
@@ -132,21 +131,6 @@ for (const c of CARDS) {
   });
   await card.screenshot({ path: root + `assets/og/${c.file}.jpg`, type: 'jpeg', quality: 84 });
   console.log(`card ${c.file}.jpg (title ${res.size}px)`);
-}
-/* the logo the Organization in the site's JSON-LD points at (512 square, as Google asks): the
-   favicon's starburst with its chevrons over the wordmark, Navy & Gold */
-if (!pick || pick.has('logo')) {
-  mkdirSync(root + 'assets/brand', { recursive: true });
-  const logo = await browser.newPage({ viewport: { width: 512, height: 512 }, deviceScaleFactor: 1 });
-  const svg = (await import('node:fs')).readFileSync(root + 'favicon.svg', 'utf8').replace(/<rect[^>]*fill="#031b56"\/>/, '');
-  await logo.goto(BASE + 'scripts/og_card.html', { waitUntil: 'load' });   // same origin, so the face loads
-  await logo.setContent(`<style>@font-face{font-family:C;src:url('${BASE}assets/fonts/chivo-900.woff2') format('woff2');font-weight:100 900}
-    html,body{margin:0;width:512px;height:512px;background:#031b56;display:grid;place-items:center;font-family:C}
-    .m{display:grid;justify-items:center;gap:18px}.m svg{width:250px;height:250px}.w{font-weight:900;font-size:66px;letter-spacing:.005em;color:#f2f7ff}.w em{font-style:normal;color:#f4b100}</style>
-    <div class="m">${svg}<div class="w">WEBUY<em>.AD</em></div></div>`, { waitUntil: 'load' });
-  await logo.evaluate(() => document.fonts.ready);
-  await logo.screenshot({ path: root + 'assets/brand/webuyad-logo.png', type: 'png' });
-  console.log('logo assets/brand/webuyad-logo.png');
 }
 if (errors.length) { console.log('page errors:', errors.slice(0, 3).join(' | ')); bad++; }
 await browser.close();
