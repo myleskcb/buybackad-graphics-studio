@@ -12,6 +12,10 @@
 //  - one room reverb under everything, and the music ducks under the hits;
 //  - every ad is levelled to the same loudness (-16 LUFS, peaks under -1 dBFS), so no
 //    look is louder than the next and nothing clips.
+// And a trailer, not a game (owner, 2026-11-18: "like I'm playing mario kart ... I need like
+// trailer commercial professional"; DESIGN-LAW 147): no bell runs on the shine or the end
+// card, no cork pop on the sticker, and the horns, whistles, anvils, mallets and famous tunes
+// only where someone picks them (catalog.js WEIGHTS).
 // Real instruments (music.js, 2026-10-01) play in that same bed: thirteen grooves of
 // their own (reggaeton to bossa nova, and eleven more offered by hand since 2026-10-02)
 // beside the six scored kits, a famous public-domain tune over any of them, and recorded
@@ -295,13 +299,16 @@ function compose(ad, ctx, voDur, rec) {
     }
     default: S.pop(tl.number + .05, .15, bell1);
   }
-  if (st.shine || st.sparkles) S.sparkle(tl.shine, .045, tonic);
+  // Trailer, not a game (DESIGN-LAW 147, 2026-11-18): the phones' shine is silent (it was a
+  // rising four-bell run, a game's power-up), the sticker lands with a soft thump (it was a cork
+  // pop just after the headline hit), and the end card comes in on a soft whoosh (it was two
+  // bells rising a fifth)
   const cues = ad.cues || {};
   if (cues.board != null) { S.tock(cues.board, .1, 0); S.thump(cues.board + .04, .12, 0); }
-  if (cues.burst != null) S.pop(cues.burst, .1, bell2);
+  if (cues.burst != null) S.thump(cues.burst, .1, 0);
   if (cues.stamp != null) { S.thump(cues.stamp + .2, .32, 0); S.tock(cues.stamp + .2, .08, 0); }
   if (cues.tape != null) S.swish(cues.tape, .38, false, .3, .08);
-  if (ad.tOutro != null) { S.bell(ad.tOutro, bell1, .08); S.bell(ad.tOutro + .09, bell2, .07); }
+  if (ad.tOutro != null) S.swish(ad.tOutro - .35, .4, true, 0, .08);
 
   // ---- the bed: a real recording in place of the music made here, or a scored kit or a
   // groove of its own (music.js) with a tune over either. Music that cannot be laid out
@@ -603,9 +610,6 @@ function synth(ctx, noise, r, bus, rec) {
     },
     key(t, gain) {
       const n = noiseSrc(t, .02), g = ctx.createGain(); env(g, t, .001, gain, .012); n.connect(filt("bandpass", 2200, 1.5)).connect(g); out(g, 0, .05);
-    },
-    sparkle(t, gain, tonic) {
-      [0, 4, 7, 12].forEach((iv, i) => { const f = hz(tonic % 12 + 84 + iv); if (f < 2700) S.bell(t + i * .05, f, gain); });
     },
     // ---------------------------------------------------------------- instruments
     kick(t, gain) {

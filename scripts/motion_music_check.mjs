@@ -26,6 +26,12 @@
       saved with a retired piece plays its stand-in; the maker offers none of them; and a
       confetti look renders with the popper heard over its number (its soundtrack there
       unlike the same look's with the plain pop).
+   7. A trailer, not a game (owner, 2026-11-18: "like I'm playing mario kart ... I need like
+      trailer commercial professional"; DESIGN-LAW 147): 1000 shuffles and 300 full ads play no
+      opening sound, no anvil, whip, gong or orchestra hit, no bell, mallet, whistle or cork
+      number sound (the popper only under confetti), no famous tune, no mallet lead and not
+      the circus march or the whistle groove; the maker still offers every one of them by
+      hand; and the phones' shine adds nothing to a soundtrack (it was a rising bell run).
 
    usage: npx http-server -p 8899 -s .   (or python3 -m http.server 8899)
           CHROME=/path/to/chrome node scripts/motion_music_check.mjs
@@ -263,6 +269,50 @@ const strip = m => m.error ? m : { lufs: m.lufs, peak: m.peak };
   console.log(`  the maker offers ${offered.track.length} recordings and ${offered.melody.length} tunes, ${shown.length} of them retired; the popper ${offered.number_sfx.includes('confetti') ? 'is' : 'is not'} a number sound`);
   expect(!shown.length, `the maker offers retired pieces: ${shown.join(', ')}`);
   expect(offered.number_sfx.includes('confetti'), 'the maker does not offer the party popper');
+  expect(!perr.length, `the maker logged errors: ${perr.join(' | ')}`);
+}
+
+// 7. a trailer, not a game
+const GAME = {
+  accent: ['air_horn', 'siren', 'whistle', 'gong', 'windchimes', 'bell_tree', 'vibraslap', 'sleigh_bells'],
+  hit: ['anvil', 'whip', 'gong', 'orchestra'],
+  number_sfx: ['pop', 'chime', 'register', 'shave_haircut', 'bells', 'triangle', 'glock_run', 'harp_gliss', 'whistle', 'text_ding', 'phone_buzz'],
+  lead: ['marimba', 'xylophone', 'glock', 'kalimba'],
+  sound_kit: ['march', 'baile_funk'],
+};
+{
+  const { res, errors } = await inPage(async GAME => {
+    const { E, C, look, sound, same } = window.__mc, F = await import('./fullad.js');
+    const game = (st, s) => {
+      const out = Object.entries(GAME).filter(([k, vs]) => vs.includes(st[k]) && !(k === 'lead' && st.melody === 'none')).map(([k]) => `${s}: ${k} ${st[k]}`);
+      if (st.melody !== 'none') out.push(`${s}: tune ${st.melody}`);
+      if (st.number_sfx === 'confetti' && st.overlay !== 'confetti') out.push(`${s}: popper without confetti`);
+      return out;
+    };
+    const hits = [];
+    for (let s = 1; s <= 1000; s++) hits.push(...game(look(s), s));
+    for (let s = 1; s <= 300; s++) hits.push(...game(F.fullStyle(E.randomize({ ...C.DEFAULT_STYLE, number: '(323) 555-0199' }, s, new Set(), [], true), s, [], {}, []), `full ${s}`));
+    // the shine, heard alone: no music, no recording, no voice
+    const st = look(921, { sound_kit: 'none', track: 'none', voice: 'off', shine: true, sparkles: true }, ['sound_kit', 'track', 'voice', 'shine', 'sparkles']);
+    const on = await sound(st), off = await sound({ ...st, shine: false, sparkles: false });
+    return { hits, shine: on.buf && off.buf ? same(on.buf, off.buf) : null };
+  }, GAME);
+  console.log('7. a trailer, not a game');
+  console.log(`  1000 shuffles and 300 full ads: ${res.hits.length} game-like sounds; the shine adds ${res.shine == null ? '?' : res.shine.toExponential(1)} to a soundtrack`);
+  expect(!res.hits.length, `shuffles play game-like sounds: ${res.hits.slice(0, 6).join('; ')}`);
+  expect(res.shine != null && res.shine < 1e-3, `the shine is heard (the soundtracks with and without it ${res.shine} apart)`);
+  expect(!errors.length, `the trailer page logged errors: ${errors.join(' | ')}`);
+  const p = await browser.newPage(), perr = [];
+  p.on('pageerror', e => perr.push(String(e).slice(0, 300)));
+  await p.goto(BASE + 'motion/index.html', { waitUntil: 'load', timeout: 120000 });
+  await p.waitForFunction(() => document.querySelector('#loading') && document.querySelector('#loading').hidden, { timeout: 120000 });
+  const offered = await p.evaluate(keys => Object.fromEntries(keys.map(k => [k, [...document.querySelectorAll(`select[data-key=${k}] option`)].map(o => o.value)])), [...Object.keys(GAME), 'melody']);
+  await p.close();
+  const want = { ...GAME, accent: ['air_horn', 'siren', 'whistle', 'vibraslap'], number_sfx: ['chime', 'glock_run', 'shave_haircut', 'whistle'],
+    melody: ['mountain_king', 'cucaracha', 'bumblebee', 'entertainer'] };
+  const missing = Object.entries(want).flatMap(([k, vs]) => vs.filter(v => !offered[k] || !offered[k].includes(v)).map(v => `${k} ${v}`));
+  console.log(`  the maker offers them by hand: ${missing.length ? 'missing ' + missing.join(', ') : 'all of them'}`);
+  expect(!missing.length, `the maker no longer offers: ${missing.join(', ')}`);
   expect(!perr.length, `the maker logged errors: ${perr.join(' | ')}`);
 }
 

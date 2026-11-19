@@ -3248,3 +3248,39 @@ Open:
    waits on a CDN the sandbox blocks) and three upload-a-video steps of
    `ad_library_check.mjs`, which fail the same way on untouched `main`. Run
    both on the Mac before a deploy.
+
+## BL. 2026-11-18 — the video ads sound like a trailer, not a game (DESIGN-LAW 147)
+
+(claude/video-music-sfx-audit-3691d1, from 9dddf354.)
+
+The owner, of the video ads' music and sound effects: "funny and cheerful but
+not always professional", "like I'm playing mario kart", "I need like trailer
+commercial professional".
+
+Done:
+- **The audit**: over 2000 shuffles, 98.8% of looks played at least one
+  game-like sound (3.1 on average): opening horns, sirens and whistles, bell
+  and mallet number sounds, a bell run on the shine, two bells on the end
+  card, cartoon hits, famous tunes on a xylophone or kalimba.
+- **By hand only**, each still in the maker's menus (`byHand` in
+  `motion/catalog.js`); a look that drew anything else keeps it. No bells on
+  the shine, the sticker or the end card (`motion/audio.js`).
+- **After**: 95.1% of shuffles and 100% of full ads play no game-like sound;
+  the 4.9% left are the confetti looks' popper and bells (rule 129).
+- `scripts/motion_music_check.mjs` part 7. Its substance (part 7, 30
+  shuffled soundtracks, six full ads, every game sound by hand, the maker's
+  menus) was run in the browser pane: `puppeteer-core` is not installed on
+  this machine, so the script itself has not run.
+
+Open:
+1. **Sounds made for a trailer.** A braam for the headline, a low tick and
+   boom for the number, and a trailer bed (a pulse, drums, risers): the
+   maker has none, and its cinematic kit is a pad, toms and a shaker, drawn
+   in 2% of shuffles. Built without ears, the owner judges the first renders.
+2. **The big-band jazz.** Air Force and Navy jazz plays in 51% of shuffles,
+   there by the owner's "modern jazz and funk first" (2026-10-04). Whether it
+   stays the main music is the owner's call.
+3. **The number sound leans on the bill counter** (40%; whoosh and bell 37%,
+   typing 18%): keeping every other look's sound fixed gave the bells' share
+   to their neighbours in the list. A trailer number sound (1) evens it.
+4. **Not pushed, not on `main`.**

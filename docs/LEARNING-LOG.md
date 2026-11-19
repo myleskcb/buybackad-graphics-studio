@@ -5170,3 +5170,32 @@ RESUME HERE:
      again, run the checks and put it there.
   1. §BC 2 to 4: which photo generation goes next, the full ad in Easy Mode's
      picker, and whether iPhones LA's weekly batch moves to FullAd.
+
+## 2026-11-18 — the video ads sound like a trailer, not a game (DESIGN-LAW 147; claude/video-music-sfx-audit-3691d1)
+
+Asked: audit the music and sound effects on the videos: "funny and cheerful
+but not always professional", "like I'm playing mario kart", "I need like
+trailer commercial professional". Then (through the open-prompts session):
+the shuffle's odds, the jazz kept, checks, a commit, no push.
+
+Done: the game sounds by hand only, the shine silent, the sticker and the end
+card without bells. 98.8% of shuffles played a game-like sound; 4.9% do now,
+all of them confetti looks (rule 129).
+
+Found:
+  - Zeroing an option's weight reshuffles its whole axis: the hit moved on
+    71% of looks though 36% had a cartoon hit. A weighted draw reads its
+    options in order, so give a removed option's share to its neighbours and
+    every other look keeps what it drew (`byHand`).
+  - The game feel was mostly the effects, not the music: rising bells (the
+    shine, the end card, the number) on most looks, before any tune.
+  - Rule numbers are claimed on other branches before they reach `main`:
+    grep every branch and worktree for the next number, then again before
+    the commit (138 to 146 were taken while this was written).
+
+Checked: in the browser pane, 1000 shuffles and 300 full ads with no game
+sound, the shine adding 1.5e-7 to a soundtrack, 30 shuffled soundtracks and
+six full ads at -16 LUFS (within 0.11) and peaks at or under -1 dBFS, every
+game sound by hand still played, the maker loading with no error and
+offering all of them; audience_check. Not run: motion_music_check and
+motion_sound_check (no puppeteer-core here), full_ad_check (no playwright).

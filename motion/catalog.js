@@ -594,6 +594,25 @@ for (const g of THEME_GROUNDS) if (!OPTIONS.background.includes(g)) OPTIONS.back
 export const THEME_REVIEW = { approved: Object.keys(THEMES), rejected: [] };
 for (const id of THEME_REVIEW.approved) if (THEMES[id]) { VIBES[id] = THEMES[id]; if (!OPTIONS.vibe.includes(id)) OPTIONS.vibe.push(id); }
 
+/** An axis's weights with the options in `gone` drawn by no shuffle (still offered by hand).
+ *  Each run of them in the list gives its share to the options either side of it, half each,
+ *  or all of it to the one side where the run is at an end. A weighted draw reads its options
+ *  in order (engine.js rng), so every look number that drew anything else draws exactly what
+ *  it drew; only the looks that landed on a gone option move, to a neighbour. */
+function byHand(k, w, gone) {
+  const list = OPTIONS[k], ws = list.map(o => o in w ? w[o] : 1), out = { ...w };
+  const idle = i => gone.includes(list[i]) || !ws[i];
+  for (let i = 0; i < list.length; i++) {
+    if (!idle(i)) continue;
+    let j = i, share = 0;
+    for (; j < list.length && idle(j); j++) if (gone.includes(list[j])) { share += ws[j]; out[list[j]] = 0; }
+    const L = i > 0 ? list[i - 1] : null, R = j < list.length ? list[j] : null;
+    for (const [o, part] of [[L, R ? .5 : 1], [R, L ? .5 : 1]]) if (o && share) out[o] = (o in out ? out[o] : 1) + share * part;
+    i = j;
+  }
+  return out;
+}
+
 // The BACK is what makes a model recognisable: every drawn cut ends on the backs,
 // and most show the fronts only as they flash past. Type that ENTERS FROM THE
 // LEFT is drawn three times as often as the rest.
@@ -627,19 +646,33 @@ export const WEIGHTS = {
   // keeps its kit, tune and instrument (a recording, drawn late, may play in their place).
   // One number here puts any of them in the shuffle, and changes the kit, tune or
   // instrument of the looks that land on it.
-  sound_kit: { uplift: 3, house: 2, hiphop: 2, lofi: 1, minimal: 2, cinematic: 2, none: .5,
-    pop: 0, rnb: 0, motown: 0, gospel: 0, classical: 0, synthwave: 0, gfunk: 0, future_bass: 0, deep_house: 0, trance: 0, nu_disco: 0 },
+  // Trailer, not a game (owner, 2026-11-18: "funny and cheerful but not always professional",
+  // "like I'm playing mario kart", "I need like trailer commercial professional"; DESIGN-LAW
+  // 147): the cartoon and game sounds below are offered by hand only (byHand), and a look
+  // number that drew any other sound keeps it.
+  // The circus march and the groove with a referee's whistle on the bar, by hand.
+  sound_kit: byHand("sound_kit", { uplift: 3, house: 2, hiphop: 2, lofi: 1, minimal: 2, cinematic: 2, none: .5,
+    pop: 0, rnb: 0, motown: 0, gospel: 0, classical: 0, synthwave: 0, gfunk: 0, future_bass: 0, deep_house: 0, trance: 0, nu_disco: 0 }, ["march", "baile_funk"]),
+  // the cartoon hits by hand: the anvil, the whip crack, the gong, the 90s orchestra hit
+  hit: byHand("hit", {}, ["anvil", "whip", "gong", "orchestra"]),
   // a message ding or a phone buzzing only by hand: a viewer takes them for a real phone near
   // them (owner, 2026-10-11, of the pop that sounded like a voice memo starting: "I actually
-  // looked around ... it was that confusing"); the popper only where confetti falls
-  number_sfx: { pop: 2, chime: 2, register: 1, whoosh_ding: 1, ticks: 1, text_ding: 0, phone_buzz: 0, confetti: 0 },
-  // a holiday tune never in an ordinary ad (the two older ones, Carol of the Bells and the
-  // Toccata, keep their weight so the draw is unchanged, and harmonise plays a classic instead)
-  melody: { none: 5, prelude_c: 0, minuet_g: 0, mozart40: 0, spring: 0, moonlight: 0, gymnopedie: 0, oh_susanna: 0,
-    jingle_bells: 0, joy_to_world: 0, we_wish: 0, dies_irae: 0, funeral_march: 0 },
-  lead: { supersaw: 0, synth_pluck: 0, synth_brass: 0, fm_bell: 0, gfunk_lead: 0,
-    guitar: 0, upright: 0, clav: 0, harmonica: 0, strumstick: 0, balafon: 0, organ_b3: 0, strings: 0, acid: 0 },
-  accent: { none: 7, sleigh_bells: 0 },
+  // looked around ... it was that confusing"); the popper only where confetti falls. The
+  // bells, the mallets, the whistle, the cork and "shave and a haircut" by hand (2026-11-18):
+  // a rising chime or a glockenspiel run is a game's pickup sound
+  number_sfx: byHand("number_sfx", { pop: 2, chime: 2, register: 1, whoosh_ding: 1, ticks: 1, text_ding: 0, phone_buzz: 0, confetti: 0 },
+    ["pop", "chime", "register", "shave_haircut", "bells", "triangle", "glock_run", "harp_gliss", "whistle"]),
+  // No famous tune in a shuffle (2026-11-18): over a groove they were the cartoon half of the
+  // music, Cucaracha and the Bumblebee as often as Mozart. A holiday ad still plays its own
+  // (lateWeights), and the drum-free classical groove, by hand, its classic (harmonise).
+  melody: byHand("melody", { none: 5, prelude_c: 0, minuet_g: 0, mozart40: 0, spring: 0, moonlight: 0, gymnopedie: 0, oh_susanna: 0,
+    jingle_bells: 0, joy_to_world: 0, we_wish: 0, dies_irae: 0, funeral_march: 0 }, OPTIONS.melody.filter(m => m !== "none")),
+  // the mallets by hand: a tune picked by hand is drawn a piano, a sax, a harp, not a xylophone
+  lead: byHand("lead", { supersaw: 0, synth_pluck: 0, synth_brass: 0, fm_bell: 0, gfunk_lead: 0,
+    guitar: 0, upright: 0, clav: 0, harmonica: 0, strumstick: 0, balafon: 0, organ_b3: 0, strings: 0, acid: 0 }, ["marimba", "xylophone", "glock", "kalimba"]),
+  // no opening sound in a shuffle: the air horn, the siren and the referee's whistle were a race
+  // starting; a holiday ad still draws its own (lateWeights)
+  accent: byHand("accent", { none: 7, sleigh_bells: 0 }, ["air_horn", "siren", "whistle", "gong", "windchimes", "bell_tree", "vibraslap"]),
   tone: { studio: 2 },
   // Most shuffles play a real recording, the modern jazz and funk most of all (owner,
   // 2026-10-04: "less cliché music: modern jazz and funk first, the warhorses only by hand"):
@@ -734,7 +767,7 @@ export const DEFAULT_STYLE = {
   number_scale: 1, arrangement: "lineup", entry: "fly_spin", end_face: "back", front_glimpse: "spin", pose: "flat", phone_finish: "standard",
   phone_idle: "spin", phone_scale: 1, background: "radial", palette: "sand", scrim: -1, camera: "push_in", shake: 1,
   flash: true, shine: true, rgb_hit: false, speed_lines: false, sparkles: false, grain: true,
-  sound_kit: "uplift", bpm: 112, hit: "impact", number_sfx: "pop", music_volume: 0.5, glare: 1,
+  sound_kit: "uplift", bpm: 112, hit: "impact", number_sfx: "whoosh_ding", music_volume: 0.5, glare: 1,
   melody: "none", lead: "piano", accent: "none", season: "none", tone: "studio", track: "none",
   overlay: "none", bigword: "CASH", hook: "hook_line", hook_text: "",
   vibe: "none", board: "none", decor: [], urgency: "none", cta: "", lang_mode: "mix", lang: "en", area: "",

@@ -5602,3 +5602,55 @@ a towns line or a website.
   which the full ad now draws. `?noretire=1` shows them; nothing is deleted.
 
 Not done here: OPEN-ITEMS §BC.
+
+## 147. A video ad sounds like a trailer, not a game
+
+Added 2026-11-18. The owner, of the video ads' music and sound effects:
+"funny and cheerful but not always professional ... like I'm playing mario
+kart ... I need like trailer commercial professional". Drawn over 2000
+shuffles before this, 98.8% of looks played at least one game-like sound,
+3.1 on average: an opening air horn, siren, referee's whistle or vibraslap
+(51%), a bell, mallet, whistle or cork number sound (72%), a rising bell run
+when the phones shine (68%), two bells rising a fifth on the end card (57%),
+an anvil, whip, gong or orchestra hit (36%), and a famous tune played by the
+maker (27%: La Cucaracha and the Flight of the Bumblebee as often as Mozart,
+often on a xylophone or a kalimba).
+
+**By hand only** (`byHand` in `motion/catalog.js` WEIGHTS; every one still
+in the maker's menus): every opening sound; the anvil, whip, gong and
+orchestra hits; the pop, two bells, cash register, "shave and a haircut",
+tubular bell, triangle, glockenspiel run, harp sweep and whistle number
+sounds; every famous tune; the marimba, xylophone, glockenspiel and kalimba
+leads; the circus march and the groove with a whistle on the bar. A holiday
+ad still plays its own tunes and opening sound, and the drum-free classical
+groove its classic.
+
+**A look number keeps what it drew.** A weighted draw reads its options in
+order, so each run of options taken out of the shuffle gives its share to
+the options either side of it; only the looks that drew a game sound move,
+to a neighbour. Against the commit before, over 2000 shuffles: the hit moved
+on 720 (exactly the 36% that drew a cartoon hit), the real recording on
+none.
+
+**No bells on the shine, the sticker or the end card.** The phones' shine is silent (it was a
+rising four-bell run), the full ad's sticker lands on a soft thump (it was a
+cork pop 0.12 s after the headline hit), the end card comes in on a soft
+whoosh (it was two bells), and the default number sound, and the one a look
+falls back to when its confetti is taken off, is the whoosh and bell (it was
+the pop).
+
+**After**, over the same 2000 shuffles: 95.1% play no game-like sound, and
+the full ad 100% of 2000. The 4.9% left are the confetti looks, whose party
+popper and falling bells rule 129 asked for. The number sound is now the
+bill counter (40%), the whoosh and bell (37%) or soft typing (18%); the hit
+the timpani (22%), a cymbal swell or crash (19% each), the sub drop (13%),
+the low hit, the reverse cymbal or the riser (8 to 9% each).
+
+**Checked** by `scripts/motion_music_check.mjs` part 7: 1000 shuffles and
+300 full ads play none of the sounds above, the maker still offers each of
+them, and the shine adds nothing to a soundtrack.
+
+Not done here: sounds made for a trailer (a braam, a low tick and boom for
+the number, a trailer bed with a pulse, drums and risers), and whether the
+Air Force and Navy big-band jazz (51% of shuffles, there by the owner's
+"modern jazz and funk first" of 2026-10-04) stays the main music.

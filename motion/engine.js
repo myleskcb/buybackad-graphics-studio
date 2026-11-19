@@ -411,7 +411,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   // confetti"): a party popper as the number lands, when the confetti starts; never without it
   if (!locked.has("number_sfx")) {
     if (st.overlay === "confetti") st.number_sfx = "confetti";
-    else if (st.number_sfx === "confetti") st.number_sfx = st.number_in === "type" ? "ticks" : "pop";
+    else if (st.number_sfx === "confetti") st.number_sfx = st.number_in === "type" ? "ticks" : "whoosh_ding";   // a cork pop is a game's (DESIGN-LAW 147)
   }
   if (!["hook_line", "word_beat", "strike_out"].includes(st.hook) && ["typewriter", "scramble", "drop_letters", "spin_letters"].includes(st.text_in) && !locked.has("text_in"))
     st.text_in = ["slide", "skew_slide", "slam", "wipe"][st.seed % 4];
@@ -485,7 +485,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (!locked.has("accent") && st.accent === "sleigh_bells" && st.season !== "christmas") st.accent = "none";
   if (st.sound_kit === "none" && !locked.has("melody")) st.melody = "none";
   if (["bumblebee", "turkish_march", "fur_elise", "entertainer", "mountain_king"].includes(st.melody) && st.lead === "organ" && !locked.has("lead"))
-    st.lead = ["piano", "marimba", "xylophone", "harpsichord"][st.seed % 4];
+    st.lead = ["piano", "harp", "epiano", "harpsichord"][st.seed % 4];   // no mallets (DESIGN-LAW 147)
   // a take that no longer fits (a shorter ad, another language, a bank that arrived late) is picked again, the same way every time
   if (!voiceFits(st)) pickVoice(st, rng(st.seed * 53 + 7), locked);
   return st;
