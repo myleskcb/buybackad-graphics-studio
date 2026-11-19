@@ -606,11 +606,12 @@ produced." DESIGN-LAW rule 87. In practice:
   `build_full_subjects.mjs`): never edit either file by hand. Every draw in
   the maker goes through `settle()` and `adFor()` in `motion/app.js`; a new
   path that calls `harmonise` or `new Ad` directly draws the wrong ad in full
-  mode. What a full ad needs before it goes out is read by
-  `deliveredPreflight()` (1080 on the short side), by the download's gate and
-  by the search for a new look alike: read at 360, the search passed looks the
-  gate then stopped (2026-11-18). Before a commit that touches it, the
-  maker's page or the engine's painters: `node scripts/full_ad_check.mjs`,
+  mode. What an ad needs before it goes out is read by `deliveredPreflight()`
+  (a full ad at 1080 on the short side, an Any look at 540), by the
+  download's gate and by the search for a new look alike: read at 360, the
+  search passed looks the gate then stopped (2026-11-18). Before a commit
+  that touches it, the maker's page or the engine's painters: `node
+  scripts/full_ad_check.mjs`,
   then `quick_ad_check.mjs` and `buylist_check.mjs`. Retired templates are
   `template-retired.js` (by hand; `?noretire=1` shows them).
 - **The full ad's colours** (rule 139, 2026-11-12): never fade an accent by
@@ -646,3 +647,44 @@ produced." DESIGN-LAW rule 87. In practice:
   `full_type_check.mjs` and `full_ad_check.mjs`. A check that sets a state
   before it measures (`ez.bgPicked = true` did, in four audits) measures a
   visitor who may not exist: say which one.
+- **The mark** (rule 142, 2026-11-17): one drawing, `watermark.js`
+  (`window.PgfxMark`), loaded before app.js and the video maker; the studio's
+  `drawWatermarkMarks` and the maker's `drawMarks` call it and draw nothing of
+  their own. A preview carries what its download would (`previewMarks()` in
+  app.js, `syncMarks()` in the maker): a new preview path goes through
+  `previewJpeg` or `markPreviewUrl`, never straight to `toDataURL`. With a
+  backend a download's size and marks are the server's (`gateExport(px, kind)`
+  asks `/api/export/check`; a video passes `kind: 'video'` and is asked and
+  counted on the video meter), so a check on a static server that stubs `account`
+  must answer `api('/export/check')` too (see `motion_export_check.mjs`).
+  Before a commit that touches a preview, a download or the mark:
+  `node scripts/watermark_check.mjs`.
+- **The census of every offered ad** (rule 143, 2026-11-18): `node
+  scripts/ad_census.mjs` opens every ad the site offers the way a visitor
+  does (Easy Mode's strip, the library wall, the full ad's 35 lines, the
+  video maker's Any look gallery, iPhones LA's FeedAd batch) and writes what
+  each is made of to `.render/ad-census/` (a JSON and a sortable page with a
+  thumbnail a row): generation, engine, colours against the twelve pairs,
+  type, elements, product share, banned words, pre-flight. Banned and old
+  wording is one list, `spec/banned-words.json`: add a phrase there, never in
+  a script, and re-score the last census with `--rescan` (seconds, no
+  browser). Run it before and after a change to any generation's words,
+  colours or defaults and compare the counts: a fix to one generation leaves
+  the others as they were, which is how old words came back. `--gate` fails
+  every ad of the older generations and 34 of the 35 full ads today,
+  so it is not wired into any deploy; that waits on the owner's retirements
+  and words (OPEN-ITEMS §BI).
+- **Words are stopped where they are written** (rule 144, 2026-11-18): run
+  `node scripts/words_check.mjs` before a commit that touches any ad's words
+  (FULL_WORDS, the lines, app.js DECKS, the video maker's catalogue, library
+  cards, FeedAd cards); a phrase goes into `spec/banned-words.json`, never
+  into one generator's list, and `node scripts/build_banned_words.mjs`
+  writes the copy the site reads (`motion/banned-words.js`; spec/ is not
+  served). The owner reviews ads on the review page
+  (`scripts/build_review_page.mjs` from the census); their thumbs and notes
+  are applied with `scripts/apply_review.mjs` (OPEN-ITEMS §BJ).
+- **Every ad is a recipe the full ad draws** (rule 145): an older ad's words, pictures and
+  ground live in `motion/recipes.json` (`node scripts/build_recipes.mjs`, `--check`), opened from
+  "From the library"; photo grounds come from `spec/full-grounds.json`
+  (`scripts/build_full_grounds.mjs`). A new ad design goes in as a recipe or a full-ad option,
+  never as a renderer of its own, so it is a photo and a video and the census reads it.

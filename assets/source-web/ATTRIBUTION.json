@@ -1,0 +1,89 @@
+{
+ "_about": "Product photographs from Wikimedia Commons, downloaded 2026-11-18 with the owner's approval for lines that had no clean picture (OPEN-ITEMS §BJ). Each is the source of a cut-out in assets/cutouts (credited in its ATTRIBUTION.json); identifying labels and screen content were filled before saving.",
+ "files": [
+  {
+   "file": "gamingpc-black-tower.png",
+   "cat": "gaming",
+   "query": "gaming PC RGB tower",
+   "title": "File:Gaming-PC 20240426 HOF2520-HDR RAW-Export.png",
+   "artist": "PantheraLeo1359531",
+   "license": "CC BY 4.0",
+   "usage": "Creative Commons Attribution 4.0",
+   "credit": "Own work",
+   "page": "https://commons.wikimedia.org/wiki/File:Gaming-PC_20240426_HOF2520-HDR_RAW-Export.png",
+   "width": 4047,
+   "height": 6327,
+   "note": "downloaded 2026-11-18 with the owner's approval, kept at 1920px on its long side for the cut-out assets/cutouts/photo-gaming-pc-tower.webp; a gaming PC tower with three front fans, photographed on a transparent ground; trimmed to its own alpha and a power cable hanging beside it let go"
+  },
+  {
+   "file": "ssd-samsung-980-pro.jpg",
+   "cat": "computers",
+   "query": "NVMe SSD",
+   "title": "File:Samsung 980 PRO PCIe 4.0 NVMe SSD 1TB-top PNr°0915.jpg",
+   "artist": "D-Kuru",
+   "license": "CC BY-SA 4.0",
+   "usage": "Creative Commons Attribution-Share Alike 4.0",
+   "credit": "Own work",
+   "page": "https://commons.wikimedia.org/wiki/File:Samsung_980_PRO_PCIe_4.0_NVMe_SSD_1TB-top_PNr%C2%B00915.jpg",
+   "width": 3691,
+   "height": 1318,
+   "note": "downloaded 2026-11-18 with the owner's approval, kept at 1920px on its long side for the cut-out assets/cutouts/photo-ssd-samsung-980-pro.webp; a Samsung 980 PRO NVMe SSD, 1TB; its QR code and part, model, PSID and serial lines filled black"
+  },
+  {
+   "file": "ssd-wd-black-sn850x.jpg",
+   "cat": "computers",
+   "query": "NVMe SSD",
+   "title": "File:Western Digital SN850X NVME solid state drive 8TB front side.jpg",
+   "artist": "4300streetcar",
+   "license": "CC BY 4.0",
+   "usage": "Creative Commons Attribution 4.0",
+   "credit": "Own work",
+   "page": "https://commons.wikimedia.org/wiki/File:Western_Digital_SN850X_NVME_solid_state_drive_8TB_front_side.jpg",
+   "width": 6024,
+   "height": 3388,
+   "note": "downloaded 2026-11-18 with the owner's approval, kept at 1920px on its long side for the cut-out assets/cutouts/photo-ssd-wd-black-sn850x.webp; a WD_BLACK SN850X NVMe SSD, 8TB; its barcodes, serial, PSID lines and QR code filled black"
+  },
+  {
+   "file": "minipc-intel-nuc8.jpg",
+   "cat": "computers",
+   "query": "Intel NUC",
+   "title": "File:Intel NUC8.jpg",
+   "artist": "Laserlicht",
+   "license": "CC BY-SA 4.0",
+   "usage": "Creative Commons Attribution-Share Alike 4.0",
+   "credit": "Own work",
+   "page": "https://commons.wikimedia.org/wiki/File:Intel_NUC8.jpg",
+   "width": 5079,
+   "height": 3349,
+   "note": "downloaded 2026-11-18 with the owner's approval, kept at 1920px on its long side for the cut-out assets/cutouts/photo-minipc-intel-nuc8.webp; an Intel NUC 8 mini PC, three-quarter view"
+  },
+  {
+   "file": "minipc-minisforum-n40.jpg",
+   "cat": "computers",
+   "query": "Minisforum",
+   "title": "File:Minisforum N40 Mini PC from above.jpg",
+   "artist": "Goovaeh8fot6yugh",
+   "license": "CC0",
+   "usage": "Creative Commons Zero, Public Domain Dedication",
+   "credit": "Own work",
+   "page": "https://commons.wikimedia.org/wiki/File:Minisforum_N40_Mini_PC_from_above.jpg",
+   "width": 4592,
+   "height": 3448,
+   "note": "downloaded 2026-11-18 with the owner's approval, kept at 1920px on its long side for the cut-out assets/cutouts/photo-minipc-minisforum-n40.webp; a Minisforum N40 mini PC, from above"
+  },
+  {
+   "file": "chromebook-asus-c201.jpg",
+   "cat": "computers",
+   "query": "ASUS Chromebook",
+   "title": "File:ASUS Chromebook C201 (PICT6638k).jpg",
+   "artist": "Per A.J. Andersson",
+   "license": "CC BY-SA 4.0",
+   "usage": "Creative Commons Attribution-Share Alike 4.0",
+   "credit": "Own work",
+   "page": "https://commons.wikimedia.org/wiki/File:ASUS_Chromebook_C201_(PICT6638k).jpg",
+   "width": 1867,
+   "height": 1920,
+   "note": "downloaded 2026-11-18 with the owner's approval, kept at 1920px on its long side for the cut-out assets/cutouts/photo-chromebook-asus-c201.webp; an ASUS Chromebook C201, open; its screen (a web page with photographs of people) filled dark"
+  }
+ ]
+}

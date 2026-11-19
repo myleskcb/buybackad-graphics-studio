@@ -5375,6 +5375,59 @@ RESUME HERE:
   2. §BG 4: the owner's call on opening tall, a solid headline for the dark
      pairs, and a product-first square.
 
+## 2026-11-17 — the mark: across the ad, on every preview, the server's word (DESIGN-LAW 142; claude/ads-improvement-roadmap-7632c8)
+
+Asked: what is left; how to get rid of old design and wording; whether the
+model can fix this; unify photos and videos; copy in the trade's words; a
+business profile and a feed; then whether people can save, screenshot or crop
+the ads, and "Yes, do it" to protecting them, kept light.
+
+Done:
+  - Moved this branch onto claude/brave-mayer-8bv851 (a fast-forward: the full
+    ad first in Easy Mode, the review, the colours, the type picks).
+  - `watermark.js`: one light lattice for every mark; every preview a
+    download would mark is marked; the studio's video preview too; the
+    server decides a download's size and marks; "small" watermark is "light".
+  - `phonegfx-studio.html` 404'd at the edge.
+
+Found:
+  - The leak was the preview, not the download. The download was gated and
+    counted; every preview beside it was the clean picture, and the studio's
+    video player offered the clean full-size MP4 from its own menu, signed
+    out.
+  - A mark in the corners is a mark over the plainest pixels: a crop or a
+    phone's clean-up tool takes it. Across the whole picture it has to be
+    painted out of the product and the number.
+  - A check of a mark must compare like with like. The first version compared
+    a Free preview with a Pro one; the plans lay the ad out at different sizes,
+    so it "found the mark" with the mark switched off. Hold everything but the
+    mark, then switch the mark off and see the check fail.
+  - The first lattice (0.24 and 0.17) read loud on the dark pairs at full size,
+    though it measured light (7 a channel). Look at the picture at 1:1 before
+    trusting the number; 0.18 and 0.13 measure 2.
+  - Older checks that fake an operator on a static server now need the
+    server's answer too: the page's account is no longer the gate.
+  - Three checks fail on this Mac on the branch without this work, the same to
+    the decimal. Run the untouched branch before reading a failure (this log
+    has said so before; it held again).
+
+Checked: watermark_check (all clear; four failures with the mark off),
+full_ad_studio_check, full_ad_check, buylist_check, full_colour_check, the
+CSP hash rewrite (one hash changed), every page loaded in the browser with no
+errors. ez_download_is_preview, billing_check, ad_library_check and
+quick_ad_check fail exactly as on the untouched branch (§BH 8). Not run here (puppeteer-core):
+video_photo_check, motion_export_check, device_picker_check,
+tagline_panel_check, landing_check.
+
+RESUME HERE:
+  0. §BH 1: the owner's word to put this branch on `main` (it carries §BD to
+     §BG too), and the two Netlify secrets so `main` deploys.
+  1. The roadmap given the owner this session, in order: the ad census (every
+     ad's engine, colours, type, elements and banned words, one sortable page
+     and a gate); retire the old photo generations by default; one word bank
+     in the trade's words; the business switches (shop or mobile, tone) on the
+     picture; the suggested-ad feed (§BH 6).
+
 ## 2026-11-18 — words typed inside a field's pause, kept (claude/sad-pike-c4b427)
 
 Asked, from the census session (OPEN-ITEMS §BI 10, on
@@ -5468,6 +5521,239 @@ RESUME HERE:
      census's "one field at a time" wait can then go.
   1. strongSeed's null `best`, its own change.
 
+## 2026-11-18 — the number fix folded into pull request 14 (claude/ads-improvement-roadmap-7632c8)
+
+The owner's word: claude/sad-pike-c4b427 is merged into this branch, so
+https://github.com/myleskcb/buybackad-graphics-studio/pull/14 carries it with
+the watermark and the stack under it. Only this log clashed; motion/app.js
+merged on its own. The entry above's RESUME HERE 0 is done up to the merge to
+`main`; marking OPEN-ITEMS §BI 10 fixed still waits on the census branch
+(claude/xenodochial-mccarthy-7bea6d), which is not in this one.
+
+## 2026-11-18 — the ad census: what every offered ad is made of (DESIGN-LAW 143; claude/xenodochial-mccarthy-7bea6d)
+
+Asked (by the session on claude/ads-improvement-roadmap-7632c8, for the
+owner's "old design language and old wording keep coming back after being
+fixed"): one script and one page that show, for every ad the site offers,
+what it is made of, and a gate mode not yet wired in. Report only.
+
+Studied: how each generation is offered and drawn (Easy Mode's strip and
+`renderEzCanvas`, the wall's `scIsLive` and `scRegister`, `FullAdStudio`, the
+video maker's gallery and `stillAt`, FeedAd's reports and its generator's
+gate), and the research's 5.2 for the words.
+
+Measured: 987 offered ads in 6.9 minutes: 35 full ads, 77
+designer layouts, 216 offer family, 362 library cards, 246 Any looks, 51
+FeedAd stills. The gate fails 986: every ad of the older generations, and
+34 of the 35 full ads (seven lines with no picture, the rest their own default
+words, which say TOP DOLLAR to a visitor who types no business name). The
+tables are in OPEN-ITEMS §BI; the page is
+https://claude.ai/artifact/XntKpJBBiJTX7bZQR8SLLL (private until shared).
+
+Changed: scripts/ad_census.mjs and spec/banned-words.json (new); DESIGN-LAW
+143; AGENT-BRIEF; OPEN-ITEMS §BI. No ad, template, table or default.
+
+Rejected:
+  - Redrawing each Any look at 1080 to measure it larger. An engine look is
+    laid out by a plan made from the style it was given; an Ad made again
+    from the style it drew (the plan merged into it) lays out afresh, and
+    came out 5 to 65 a channel off the gallery's own picture. The look is read
+    as the gallery drew it.
+  - Reading FeedAd's `blockers()` on a 1080 layout: it reported a headline
+    over the number on stills whose pictures show none. Its generator reads it
+    on the 540 plan, with the maker's audit after; so does the census now.
+  - A pair match within 11 (OKLab x100): it called FeedAd's orange on carbon
+    Black & Red's red (8.5 apart). Calibrated on the full ads, which are in a
+    pair by construction (ground within 3.3, accent exact), and held to 5.
+  - Counting a website as a business name (the pre-flight accepts either for
+    "who is buying"; the research asks for the name), requiring claims or the
+    sticker (the research cuts both), and wiring the gate into a deploy.
+
+Learned:
+  - The first full run read every Any look with YOUR NUMBER on it. The census
+    had typed the number and then the area, and the video maker's area field
+    (400 ms) refills the form before the number's own handler (500 ms) reads
+    it: the number is lost. Browser autofill does the same. It is the
+    2026-11-11 entry's fault again ("a debounced field loses what was typed
+    when another control refills the form inside its pause") in another pair
+    of fields: the pattern is general, so the fix should be (§BI 10).
+  - Count with the page's own predicate. The index file's stamps pass 366
+    library cards; the page's `scIsLive`, wrapped by the choice holds, offers
+    362. A script that re-implements a predicate counts another product.
+  - A visitor profile is a choice, and one is not enough. With a business
+    name typed the full ad looked clean; with none (the field is optional,
+    so most visitors) its badge says TOP DOLLAR PAID. The census reads both.
+  - Old words come back from a second list. TOP DOLLAR and ANY CONDITION were
+    left out of the pre-flight's proof list and the research on the same day
+    and stayed in FULL_WORDS, which draws the house ad's defaults. One list,
+    read by everything, or a fix lands in one place only.
+  - Before believing a check, run the check that already exists on the same
+    cards. The census's two failing gold layouts fail
+    `ez_download_is_preview.mjs` here too, at the very commit that recorded
+    them passing: the disagreement is between machines, not between checks.
+
+Checked: the census itself (every generation on small runs, then twice in
+full; the page at 1440 and 390, light and dark, no sideways scroll, its
+script parsed); `--gate` exits 1 with failures and 0 without the flag;
+`--rescan` re-scores in under a second; `ez_download_is_preview.mjs` on the
+cards the census saw fail, on this branch and at 26fb5dd0. No product file
+was changed, so the product's own checks were not re-run.
+
+RESUME HERE: §BI. The owner's word on the retirements and the words (§BI
+open 2 and 3), then run `node scripts/ad_census.mjs` again and compare its
+counts with the table in §BI; wire `--gate` into the deploy only when the full
+ad passes it.
+
+## 2026-11-18 — the census's findings fixed, the owner's notes, and the review loop (DESIGN-LAW 144; claude/xenodochial-mccarthy-7bea6d)
+
+Asked: the owner, of the census's findings (§BI): "FIX IT". Then, from the live landing page, a
+run of notes (OPEN-ITEMS §BJ keeps every one in the owner's words): a ranked review page with
+thumbs and a pop-up note; endless product variety led by the in-demand models; brand-named
+captions; centred 70–80% of the time; dated gold fonts; the MacBook and trucks cards; bright car
+grounds; an @handle and several calls to action; every photo ad as a varied video; the checkout,
+the tiers and the feature breakdown; and "how do we break down this process so it goes smoothly
+every time".
+
+Studied: where each old word is written (FULL_WORDS, app.js DECKS and the layouts' fallbacks,
+the library's baked records and the rewriter that refreshes them, FeedAd's generator), what the
+site can read (netlify.toml 404s spec/), how a library card's line is measured (pgCheck on the
+card as opened, after its look recolours it), and how the maker's Quick ad locks its phones.
+
+Changed (this session and four helper forks in the same worktree, each owning its files):
+the one list on the site (motion/banned-words.js), FULL_WORDS, DECKS, the rewriter's rule 7
+(54 library cards re-worded and re-rendered), scripts/words_check.mjs; two product photographs
+(the Steam Deck's screen darkened), lineTurn, four headlines made legible; FeedAd's 51 stills
+(helper); Any look's call to action and pre-flight (helper); the full ad's product drawn from
+weighted pools with every view (helper); the hero wall's seven notes (helper); pricing: Pro's
+30 videos a month on their own meter, Business unlimited, the breakdown built from one table
+(helper; the video maker's plan wording followed);
+the review page and its applier; DESIGN-LAW 144, OPEN-ITEMS §BJ.
+
+Rejected:
+  - Holding the 253 cards with no product picture in one pass: whether an older card goes is the
+    owner's thumb on the review page, card by card.
+  - Fetching photographs for gaming PCs, headsets, SSDs, mini PCs and Chromebooks unasked: a
+    download is the owner's word.
+  - The Mac mini front for mini PCs: the owner's own asset review rejected it as featureless.
+  - Overwriting photo-gaming-steam-deck.webp: the darkened screen is a new file beside it.
+
+Learned:
+  - A fix comes back from the generator, not the list. TEXT A PIC and ANY CONDITION were
+    re-written by refresh_copy.mjs's own PAIRS, swapWord and hours line every refresh; fixing the
+    cards alone would have lasted until the next one. Fix where the words are written, then add
+    the check that reads every such place (words_check.mjs: a second, not seven minutes).
+  - A rule that rewrites a phrase by pattern must be read back change by change before anything
+    is re-rendered: "Text us a photo of the phone." became "Text us now of the phone." on four
+    cards in the first pass. Sentences get their own rewrite; a tile's small line moves with its
+    big word; a limit already on the card is not said twice (RUNNING OR NOT beside "Running or
+    not").
+  - A library card's line is drawn in its look's colours when it opens, so editing the record's
+    fill changed nothing the gate measured; the photograph's scrim did.
+  - Product variety met the Quick ad's promise: Quick ad locked "phones" in a local set the full
+    ad never saw, so each quick ad drew new phones and its listing a new model and price. The
+    phones on screen are now pinned for quick ads (pin_phones) and New look clears the pin.
+  - quick_ad_check failed for two reasons at once: helpers running browsers in parallel slowed it
+    into timeouts, and the lead model changed. Re-run alone after the pin, it passes.
+  - A new ground photograph can carry a real licence plate: the Challenger's stood legible behind
+    a card's words. Look at every new ground at full size.
+  - Several forks in one worktree worked with one rule: each owns named files, none commits, and
+    one long-lived static server (preview_start, port 8931) serves every check.
+
+Checked: words_check (4,345 lines, clean; it fails the old FULL_WORDS with 7 hits),
+full_ad_check, full_colour_check (with the new first-ad spread test), quick_ad_check,
+buylist_check, look_preflight_check, the generated files' --check, the library legibility audit on
+every changed card, the studio pre-flight on the changed layouts and cards.
+
+RESUME HERE: the census again after the last helper; the review page published; then the
+contact block, the picture picker in the makers, the video's variety (§BJ Open 3), the five
+pictureless lines (a download, the owner's word), and the owner's thumbs (apply_review.mjs).
+
+## 2026-11-18 (later) — the rebuild: every ad a recipe, photo grounds in the video (DESIGN-LAW 145)
+
+Asked: "rebuild how we arrived to these ads so every single one can be made a video or at least
+audited.. how come none of the videos use a BG?", after the review page showed the older ads
+generic, near-copies in a row, one background style a category, and cars of the wrong make.
+
+Changed (four helper forks, each owning its files, this session integrating): photo grounds in
+FullAd with motion in the video; 679 recipes from the older ads; the offer family restyled; six
+free-licence product photographs; four licence plates blurred; the billing check's stale video
+maker steps; the maker's example claim; form hints in words_check.
+
+Learned:
+  - Two renderers made two kinds of ad: fabric templates (photos, never videos) and the engine
+    (videos, never photographs behind them). Every complaint of the afternoon (no video of a
+    photo ad, no photo in a video, no cohesive direction) came from that split; a recipe the one
+    engine draws closes it.
+  - A background photograph carries things a template never checked: licence plates (four),
+    another dealer's sign and number, people on a screen, cash. Every ground in a pool is looked
+    at full size before it is used.
+  - A check that fails for a reason nobody reads becomes noise: billing_check's video maker steps
+    had failed since a number became required (b7c74a1e); the screenshot named it in one look.
+  - An example in a form is a suggestion: the maker's empty claim field suggested TOP DOLLAR.
+
+RESUME HERE: the census of every generation is at .render/ad-census (the review page from it);
+the owner audits recipes there, then says whether the older renderings retire; the hero picks;
+then the contact block and the picture picker in the makers.
+
+## 2026-11-18 — the census folded into pull request 14 (claude/ads-improvement-roadmap-7632c8)
+
+The owner's word: claude/xenodochial-mccarthy-7bea6d (rules 143 to 145, OPEN-ITEMS §BI
+and §BJ: the census, its findings fixed, every ad a recipe the house engine draws on
+photo grounds, and the plans with a video meter of their own) is merged into this
+branch, so https://github.com/myleskcb/buybackad-graphics-studio/pull/14 carries it
+with the watermark and the number fix. It was cut before the watermark, so the two
+met in code, not only in the notes:
+
+- The notes (DESIGN-LAW, OPEN-ITEMS, AGENT-BRIEF, this log): both kept, 142 before 143.
+  §BI 10, the lost number, is marked fixed: the fix came in with this branch.
+- `gateExport`, put together by hand. The server still decides a download's size and
+  marks (rule 142); the census's video meter rides on it. `gateExport(px, 'video')`
+  asks `/api/export/check` with `kind: 'video'`, which the census's server already
+  keeps apart; a 402 says which meter ran out; a 403 for a plan without video gives
+  `video: false`, so the caller offers Pro as it did. The demo keeps the census's
+  meters in the page. Taking the census's side as it stood would have handed the
+  decision back to the page (a Free account made to say Pro, clean at 2160).
+- The studio's two video downloads (`ezDownloadVideo`, `editorDownloadVideo`) asked
+  without a kind, so they were gated on the photo meter and counted on the video one
+  (`deliverVideo`). They ask as a video now.
+- The plan cards and the FAQ are the census's (PLAN_BULLETS from `netlify/lib/plans.mjs`
+  by `scripts/build_pricing.mjs`; photos and videos counted apart), with the light
+  watermark: plans.mjs said "a small BUYBACK.AD mark", so the table did too. The FAQ
+  block's CSP hash is rewritten. `watermark_check.mjs` now reads plans.mjs for the
+  word, and its stand-in server keeps both meters: Free asking for a video, Pro out of
+  videos, Pro out of photos still downloading a video. Without the kind, two of those
+  fail.
+
+Checked on the merged tree: watermark (extended), typing_pause, full_ad,
+full_ad_studio, full_colour, buylist, words, look_preflight, quick_ad,
+ez_download_is_preview, retired_grounds, type_voices and approve all pass; the last
+two failures of the list in §BH 8 are gone (quick_ad, ez_download_is_preview's gold
+pair). billing_check passes 155 of 156: the one left is "fabric is not defined",
+because the check refuses every request off the page's own server unless FABRIC_JS
+names a local fabric.min.js; ad_library_check stops on the same missing fabric
+(TYPE_VOICES). landing_check and library_handoff_check need puppeteer-core, not
+installed here.
+
+RESUME HERE:
+  0. The owner's word to merge pull request 14 into `main`, and the two Netlify secrets
+     for the deploy to run.
+  1. The SEO session (claude/zen-dijkstra-7b5a2e) builds on this branch: it should
+     merge it again before it builds, as it now holds the census's FAQ and plans.
+  2. billing_check and ad_library_check with FABRIC_JS set, on a machine that has a
+     local fabric.min.js (npm has fabric 5.3.0; cdnjs serves 5.3.1).
+
+## 2026-11-18 (later) — the census's variety work folded into pull request 14 (claude/ads-improvement-roadmap-7632c8)
+
+The owner's word again: claude/xenodochial-mccarthy-7bea6d as pushed (27487bfb) is
+merged here. It had merged this branch first, so nothing clashed and the tree is the
+census's own: the hero wall's recipe and full-ad picks, cars as ten identified lines,
+grounds matched to the product, stickers, headlines, entrances and numbers that vary
+by the seed, pair gradients, and pools that load only the picture a seed draws.
+Not in it: 5f0e6ba8 (the pickup cards on the Trucks line, no unidentified car, no
+open laptop on the sealed Chromebook line), committed in the census session but not
+pushed; fold it in once it is. Pull request 15 (the site's look and SEO) is cut from
+cb6d8321, so it meets this in OPEN-ITEMS.md, where both added to the end.
+
 ## 2026-11-18 — Quick ad's hang, and New look's search that could come back empty (claude/strongseed-preflight)
 
 Asked, from the session that fixed the typing race (claude/sad-pike-c4b427, this branch's base):
@@ -5515,6 +5801,8 @@ Done:
   - motion/fullad.js fullPreflight: the footer's sprite's own pixels are the footer's, never
     what stands behind its letters (reads takes an own(x, y)). 80 New looks after: no fix at
     360, 720 or 1080, and each look's worst line the same at all three.
+    (At the merge with pull request 14 the census's rule for the same pin, by its colour, was kept
+    in its place: the next entry.)
   - motion/app.js: deliveredPreflight(st), the full ad at 1080 read by its pre-flight, is what
     the gate reads and what the search reads. strongSeed returns { st, fixes }: the first strong
     try that passes, else the best scorer that passes, else the closest with what it needs. What
@@ -5573,3 +5861,47 @@ RESUME HERE:
      panel at 1080 too would draw the ad at 1080 on every change.
   3. On this Mac full_type_check cuts Flyer and ez_download_is_preview fails the two gold designer
      layouts, as on the base; neither looked into here.
+
+## 2026-11-18 (later) — the quick-ad fix merged with pull request 14 (claude/strongseed-preflight)
+
+Asked, by the session that holds pull request 14, for the owner: merge its branch
+(claude/ads-improvement-roadmap-7632c8 at 9d895833: the watermark, the number fix, the census and the
+rebuild of every ad) into this one, keep both sides, and run its checks.
+
+Found:
+  - The census session met the same pin the same day (a cyan pin under white towns, 2.8:1) and set
+    it aside by its colour: fullPreflight's markHex takes a pixel within 90 of the pin's colour, over
+    R+G+B, as the footer's own, and does the same for the bar under an underline number. This branch
+    had set it aside by the footer sprite's own pixels. Read both ways on 150 looks of the merged
+    maker (49 on photographs, the rest on eleven other grounds): with neither, 41 footers would be
+    stopped; with either, none; the two differ by more than half a point on 2, neither near the bar;
+    and the colour rule took no pixel of the ground behind the letters on any of the 150. Kept the
+    census's rule, one rule for the pin and the bar; the sprite rule is gone, and fullad.js is pull
+    request 14's. (The sprite would not do for the bar anyway: an underline number's sprite holds its
+    figures' outline too, and setting that aside would read the figures without what helps them.)
+  - The census had given Any look its own pre-flight (look-preflight.js, read at 540) and made the
+    gate, the gallery and New look read it at that one size: the rule this branch had made for the
+    full ad, met from the other side. Its New look still read a full ad at 360, where the gate reads
+    1080, and skipped a plain look on lookOk before the attention audit.
+  - Merged: deliveredPreflight reads a full ad at 1080 and a plain look at 540, each after its fonts
+    and photo ground are in (readyToDraw, as the gate's callers wait for them), and it is what the
+    gate and strongSeed read. strongSeed sets aside what only the words can fix: fullWords for a full
+    ad, and for a plain look what lookOk leaves out (look-preflight.js now exports LOOK_CODES). Kept
+    from the branch: the watermark (state.marks, syncMarks, PgfxMark drawn after ad.frame in the
+    player), landTyping, ensureSubject before a seed is judged, pin_phones.
+
+Checked on the merge, against a server of this tree (8899 serves the roadmap's worktree here, so
+these ran on a port of their own): words_check, look_preflight_check, full_ad_check,
+full_ad_studio_check, watermark_check, typing_pause_check, quick_ad_check, buylist_check and
+ez_download_is_preview all pass (the last now passes the two gold layouts it failed on this Mac
+before the rebuild); quick_ad_check again ten times, two at a time: 10 of 10, 47 ok each; the
+site's 15 pages under its own policy: no page error (the three inline-script lines of the entry
+before, in files this merge leaves alone). Probes on the merged maker: New look with no number (no throw, the panel says
+the number); three quick ads (no pop-up); words no look can hold (New look says so, Quick ad's gate
+asks); a search that cannot run (said); Any look's New look with and without a number (5 of 5, and
+4 of 5 with the number said on the panel, no toast).
+
+RESUME HERE:
+  0. The roadmap session folds this into pull request 14 and checks it again.
+  1. The owner's call on the full ad's first frame (the entry before this one, RESUME HERE 1).
+  2. The full ad's panel still reads at the preview's size (720), the gate and the search at 1080.

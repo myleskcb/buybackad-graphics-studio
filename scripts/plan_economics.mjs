@@ -10,12 +10,16 @@
    2. Every paid model in MODEL_COST_USD: what one call costs in credits and
       what is left of a credit's price on each plan (a model dearer than a
       credit costs more credits, never a loss).
-   3. The copies agree with the table that is enforced: PLANS and PACKS in
-      app.js (between PLANS:BEGIN and PLANS:END), and the numbers the landing,
-      the about page and the terms print.
+   3. The copies agree with the table that is enforced: app.js's PLANS:BEGIN
+      block and the landing's PRICING:BEGIN block are the ones
+      scripts/build_pricing.mjs writes from it today (--check), PLANS and PACKS
+      in app.js match it key by key, and the about page, the terms and the
+      landing's FAQ print its numbers. Pro's videos are a monthly allowance and
+      Business's unlimited (owner, 2026-11-18).
 
    usage:  node scripts/plan_economics.mjs        exits non-zero on any failure */
 import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 
@@ -45,11 +49,13 @@ for (const [m, usd] of Object.entries(P.MODEL_COST_USD)) {
 }
 
 /* 3. the copies */
+try { execFileSync(process.execPath, [join(ROOT, 'scripts/build_pricing.mjs'), '--check'], { stdio: 'pipe' }); ok(true, 'build_pricing is current'); }
+catch (e) { ok(false, String(e.stderr || e.stdout || e).trim().split('\n')[0]); }
 const appjs = readFileSync(join(ROOT, 'app.js'), 'utf8');
 const block = (appjs.match(/\/\* PLANS:BEGIN[\s\S]*?\*\/([\s\S]*?)\/\* PLANS:END \*\//) || [])[1];
 if (ok(block, 'app.js: no PLANS:BEGIN ... PLANS:END block')) {
   const { PLANS, PACKS } = new Function(block + '; return { PLANS, PACKS };')();
-  const KEYS = ['label', 'price', 'weekly', 'monthly', 'maxPx', 'watermark', 'video', 'qr', 'credits', 'library'];
+  const KEYS = ['label', 'price', 'weekly', 'monthly', 'maxPx', 'watermark', 'video', 'videos', 'qr', 'credits', 'library'];
   ok(Object.keys(PLANS).join() === Object.keys(P.PLANS).join(), `app.js plans ${Object.keys(PLANS)} are not ${Object.keys(P.PLANS)}`);
   for (const id of Object.keys(P.PLANS)) {
     for (const k of KEYS) ok(JSON.stringify(PLANS[id] && PLANS[id][k]) === JSON.stringify(P.PLANS[id][k]), `app.js ${id}.${k} is ${JSON.stringify(PLANS[id] && PLANS[id][k])}, plans.mjs says ${JSON.stringify(P.PLANS[id][k])}`);
@@ -61,20 +67,22 @@ const n = (v) => Number(v).toLocaleString('en-US');
 const st = P.PLANS.basic, pro = P.PLANS.pro, biz = P.PLANS.business, free = P.PLANS.free, c100 = P.PACKS.credits100;
 const pages = {
   'index.html': [
-    `${free.weekly} photo downloads a week`, `${st.monthly} photo downloads a month`, `${pro.monthly} downloads a month: photos or videos`, 'Unlimited downloads: photos or videos',
+    `${free.weekly} photo downloads a week`, `${st.monthly} photo downloads a month`, `${pro.monthly} photo downloads a month`, `${pro.videos} video ads a month`, 'Unlimited photo downloads', 'Unlimited video ads',
+    `Pro is ${usd(pro.price.month)} a month: ${pro.monthly} photo downloads and ${pro.videos} video ads a month`, `Pro has ${pro.monthly} photos and ${pro.videos} videos a month`, `Video ads: ${pro.videos} a month on Pro, unlimited on Business`,
     `${usd(st.price.month)}<small>/mo</small>`, `${usd(pro.price.month)}<small>/mo</small>`, `${usd(biz.price.month)}<small>/mo</small>`,
     `or ${usd(st.price.year)} a year`, `or ${usd(pro.price.year)} a year`, `or $${n(biz.price.year / 100)} a year`,
     `${free.credits} AI credits a month`, `${st.credits} AI credits a month`, `${pro.credits} AI credits a month`, `${biz.credits} AI credits a month`,
     `Keep ${st.library} ads in your library`, `Keep ${n(pro.library)} ads in your library`, `Keep ${n(biz.library)} ads in your library`,
     `${c100.credits} credits are ${usd(c100.price)}`,
   ],
-  'about.html': [`Starter, ${usd(st.price.month)} a month`, `Pro, ${usd(pro.price.month)} a month`, `Business, ${usd(biz.price.month)} a month`, `<td>${pro.monthly} a month, photos or videos</td>`,
+  'about.html': [`Starter, ${usd(st.price.month)} a month`, `Pro, ${usd(pro.price.month)} a month`, `Business, ${usd(biz.price.month)} a month`, `<td>${pro.monthly} a month</td>`, `<td>Download ${pro.videos} a month, no watermark</td>`, `downloading videos comes with Pro, ${pro.videos} a month, and Business, unlimited`,
     `<td>${free.credits}</td><td>${st.credits}</td><td>${pro.credits}</td><td>${biz.credits}</td>`, `<td>${free.library}</td><td>${st.library}</td><td>${n(pro.library)}</td><td>${n(biz.library)}</td>`],
   'terms.html': [`(${usd(st.price.month)}/month or ${usd(st.price.year)}/year)`, `(${usd(pro.price.month)}/month or ${usd(pro.price.year)}/year)`, `(${usd(biz.price.month)}/month or $${n(biz.price.year / 100)}/year)`,
-    `${st.monthly} photo downloads per month`, `${pro.monthly} downloads per month`, `${biz.credits} AI credits per month`],
+    `${st.monthly} photo downloads per month`, `${pro.monthly} photo downloads per month and ${pro.videos} video ad downloads per month`, 'unlimited photo and video downloads', `${biz.credits} AI credits per month`],
 };
 // the video plans are the ones the pages say download video
 ok(!free.video && !st.video && pro.video && biz.video, 'plans.mjs: video should be Pro and Business only, as the pages say');
+ok(free.videos === 0 && st.videos === 0 && Number.isInteger(pro.videos) && pro.videos > 0 && biz.videos === null, 'plans.mjs: videos are none on Free and Starter, a monthly number on Pro, unlimited (null) on Business');
 for (const [f, wants] of Object.entries(pages)) {
   const html = readFileSync(join(ROOT, f), 'utf8');
   for (const w of wants) ok(html.includes(w), `${f} does not say "${w}"`);

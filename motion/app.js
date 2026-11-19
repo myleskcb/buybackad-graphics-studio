@@ -2,7 +2,8 @@
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES, DEFAULT_PHONES } from "./catalog.js";
 import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf, lotInto } from "./engine.js";
-import { FullAd, fullStyle, fullPreflight, fullStill, fullWords, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk } from "./fullad.js";
+import { FullAd, fullStyle, fullPreflight, fullStill, fullWords, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk, fullGroundReady, poolEntryFor } from "./fullad.js";
+import { lookPreflight, LOOK_CODES } from "./look-preflight.js";
 import { FULL_VOICES } from "./full-voices.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
@@ -29,6 +30,7 @@ const state = {
   assets: { phones: {} },
   index: [],
   ad: null, playing: true, t0: performance.now(), tPaused: 0, sound: false, audio: null, audioCtx: null, audioSrc: null,
+  marks: false,                                     // the player carries the BUYBACK.AD mark (syncMarks)
   buildId: 0, gallerySeed: 1000,
   // the gallery: the shelf it shows, and whether every look on screen moves (on for a mouse, unless motion is turned down)
   galleryCat: "all",
@@ -49,21 +51,56 @@ const state = {
    looks under Any look fly, flip and land phones. */
 const subjects = { list: [], loaded: {} };           // loaded: "key|set" -> the ids of its pictures, once in state.assets
 const subjectOf = st => st.subject && st.subject !== "iphone" ? subjects.list.find(s => s.key === st.subject) || null : null;
+/* FROM THE LIBRARY (motion/recipes.json, DESIGN-LAW 144; the owner, 2026-11-18: "rebuild how we arrived
+   to these ads so every single one can be made a video"). An older ad, read as it opened (its words,
+   its product, its ground photograph, its colours and faces: scripts/build_recipes.mjs), drawn as this
+   full ad: the same recipe Easy Mode's studio opens, so its photo there and its video here are one ad. */
+const recipes = { list: null, byId: {} };
+function loadRecipes() {
+  if (!recipes.list) recipes.list = fetch("./recipes.json").then(r => r.json()).then(j => { const L = j.recipes || []; recipes.byId = Object.fromEntries(L.map(r => [r.id, r])); return L; })
+    .catch(e => { console.warn("recipes:", e); recipes.list = null; return []; });
+  return recipes.list;
+}
+/** The recipe this style draws, while its line is still the one the style is about. */
+const recipeOf = st => { const R = st && st.recipe ? recipes.byId[st.recipe] : null; if (!R) return null; return R.subject === (st.subject && st.subject !== "iphone" ? st.subject : "iphone") ? R : null; };
+async function ensureRecipe(st) {
+  if (!st.recipe) return;
+  await loadRecipes();
+  const R = recipeOf(st); if (!R || !(R.pictures || []).length || subjects.loaded["recipe|" + R.id]) return;
+  const S = subjectOf(st), got = await loadSubjectSet({ key: "recipe:" + R.id, label: S ? S.label : "iPhone", sets: [R.pictures] }, 0, "../assets/cutouts/");
+  Object.assign(state.assets.phones, got.assets); subjects.loaded["recipe|" + R.id] = got.ids;
+}
+/** A recipe's ground photograph, loaded before its first draw (fullad.js loadGroundPhoto, where this copy has it). */
+async function ensureRecipeGround(st) {
+  const R = recipeOf(st); if (!R || !R.ground_photo) return;
+  try { const F = await import("./fullad.js"); if (typeof F.loadGroundPhoto === "function") await F.loadGroundPhoto(R.ground_photo.src); } catch (e) { /* drawn on the house gradient */ }
+}
+/* what is loaded for a style's line: its set, or of its pool the entry its seed draws (fullad.js
+   poolEntryFor), so only the pictures an ad shows are fetched */
+const subjectKey = (S, st) => { const set = (st.subject_set | 0) % S.sets.length, ent = !set && (S.pool || []).length ? poolEntryFor(S.pool, st.seed >>> 0) : -1; return { set, ent, k: S.key + "|" + set + (ent >= 0 ? "|e" + ent : "") }; };
 async function ensureSubject(st) {
+  await ensureRecipe(st); await ensureRecipeGround(st);
   const S = subjectOf(st); if (!S || !S.sets.length) return;
-  const set = (st.subject_set | 0) % S.sets.length, k = S.key + "|" + set;
+  const { set, ent, k } = subjectKey(S, st);
   if (subjects.loaded[k]) return;
-  const got = await loadSubjectSet(S, set, "../assets/cutouts/");
+  const got = await loadSubjectSet(S, set, "../assets/cutouts/", ent >= 0 ? { seed: st.seed >>> 0 } : {});
   Object.assign(state.assets.phones, got.assets); subjects.loaded[k] = got.ids;
 }
 const fullOf = st => {
   // what was picked by hand for the full ad: its colours, and its type pair (one of the owner's pairs the
   // full ad holds in, motion/full-voices.js; none picked is the house face)
   const S = state.full ? subjectOf(st) : null, pick = { ...(st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {}), ...(fullVoiceOk(st.full_type) ? { type_pair: st.full_type } : {}) };
-  if (!S) return fullStyle({ ...st, subject: "" }, st.seed, state.index, pick, state.locked);
-  const ids = S.sets.length ? subjects.loaded[S.key + "|" + ((st.subject_set | 0) % S.sets.length)] || [] : [];
-  return fullStyle({ ...st, phones: ids.length ? ids : ["none"] }, st.seed, state.index, pick, state.locked);
+  // a recipe brings its own pictures (kept as given: subject_set 1) and its ground photograph
+  const R = state.full ? recipeOf(st) : null, rids = R ? subjects.loaded["recipe|" + R.id] || [] : [], extra = R && R.ground_photo ? { ground_photo: { ...R.ground_photo } } : {};
+  // its claim, unless a claim or a business name was typed: a named buyer takes the badge
+  if (R && R.words && R.words.claim && !st.feed_claim && !String(st.biz || "").trim()) extra.feed_claim = R.words.claim;
+  if (!S) return fullStyle({ ...st, ...extra, subject: "", ...(rids.length ? { phones: rids } : {}) }, st.seed, state.index, pick, state.locked);
+  const ids = rids.length ? rids : S.sets.length ? subjects.loaded[subjectKey(S, st).k] || [] : [];
+  return fullStyle({ ...st, ...extra, phones: ids.length ? ids : ["none"], ...(rids.length ? { subject_set: 1 } : {}) }, st.seed, state.index, pick, state.locked);
 };
+/* fonts, and a full ad's photo ground: a still made before the photo arrives draws the house
+   gradient in its place (fullad.js fullGroundReady) */
+const readyToDraw = st => Promise.all([loadFonts(fontsFor(st)), st && st.full ? fullGroundReady(st).catch(() => null) : null]);
 const settle = (st, locked = state.locked) => state.full ? fullOf(st) : harmonise(st, locked, indexById());
 const AdOf = st => st && st.full ? FullAd : Ad;
 const adFor = (st, w, h) => new (AdOf(st))(st, state.assets, w, h);
@@ -145,6 +182,7 @@ function restore() {
       if (h && Date.now() - (h.at || 0) < 600000) {
         const s = state.style;
         if (h.subject && h.subject !== "iphone") { s.subject = h.subject; s.subject_set = h.subject_set | 0; } else { delete s.subject; delete s.subject_set; }
+        if (h.recipe) s.recipe = String(h.recipe); else delete s.recipe;   // a library design from the studio: the same recipe
         s.headline = String(h.headline || s.headline); s.tag = String(h.tag || ""); s.points = h.points == null ? null : String(h.points);
         for (const k of ["feed_claim", "feed_burst", "feed_where", "biz", "site", "number_label"]) { if (h[k]) s[k] = String(h[k]); else delete s[k]; }
         if (h.number) s.number = String(h.number);
@@ -179,7 +217,7 @@ async function rebuild() {
   try {
     if (state.full) await ensureSubject(state.style);
     const st = settle({ ...state.style });
-    await loadFonts(fontsFor(st));
+    await readyToDraw(st);
     if (id !== state.buildId) return;
     const [W, H] = ASPECTS[st.aspect] || ASPECTS["1:1"];
     const k = Math.min(1, PREVIEW_MAX / Math.max(W, H));
@@ -192,6 +230,7 @@ async function rebuild() {
     if (state.sound) startAudio(0);
     syncPanel(st);
     syncFull(ad);
+    syncLook(ad, st);
     writeListing(st);
     $("loading").hidden = true;
     scheduleAudit(st);
@@ -255,43 +294,43 @@ function showAudit(rep) {
 }
 
 /* A NEW LOOK THAT PASSES (New look, Quick ad; "New looks must pass"). A look is strong when it scores 90+
-   and passes what decides a scroll; of up to eight tries the first strong one, else the best scorer. A full
-   ad must also pass its pre-flight, read as the download's gate reads it (deliveredPreflight): the search
-   read it at 360 and the gate at 1080, the two disagreed on about one look in five (the footer's pin,
-   fullPreflight), and Quick ad stopped on the gate's pop-up with the look the search had picked
-   (scripts/quick_ad_check.mjs hung there, 2026-11-18). What only the words can fix (no phone number yet)
-   is no look's fault: it is left to the panel and to Download, which say it, and not held against a look;
-   held against all eight, it left the search with nothing and it threw (every New look by a visitor who had
-   not typed a number). When none of the eight passes, the closest comes back with what it needs
-   (`fixes`), and the caller says so: a new look is never a failing one handed over without a word.
-   Returns { st, fixes }, fixes empty when the look passes. */
+   and passes what decides a scroll; of up to eight tries the first strong one, else the best scorer. It
+   must also pass its pre-flight as the download's gate reads it (deliveredPreflight: a full ad at 1080, a
+   plain look at 540). The search had read the full ad at 360 and the gate at 1080, the two disagreed on
+   about one look in five (the footer's pin, fullPreflight), and Quick ad stopped on the gate's pop-up with
+   the look the search had picked (scripts/quick_ad_check.mjs hung there, 2026-11-18). What only the words
+   can fix (no phone number yet) is no look's fault: it is left to the panel and to Download, which say it,
+   and not held against a look (a plain look's lookOk asks the same); held against all eight, it left the
+   search with nothing and it threw (every New look by a visitor who had not typed a number). When none of
+   the eight passes, the closest comes back with what it needs (`fixes`), and the caller says so: a new look
+   is never a failing one handed over without a word. Returns { st, fixes }, fixes empty when it passes. */
 async function strongSeed(base, locked, pool, content, post = st => st) {
   const tried = [];
   // what this look needs before it goes out: the gate's own reading, less what the words alone need
-  const fixesOf = c => {
+  const fixesOf = async c => {
     if (c.fixes) return c.fixes;
-    if (!c.h.full) return (c.fixes = []);
-    let rep; try { rep = deliveredPreflight(c.h); } catch (e) { console.warn("pre-flight", e); return (c.fixes = []); }   // as at the gate: a check that cannot run stops nothing
-    const words = new Set(fullWords(c.h).filter(f => f.level === "fix").map(f => f.say));
-    return (c.fixes = rep.findings.filter(f => f.level === "fix" && !words.has(f.say)));
+    let rep; try { rep = await deliveredPreflight(c.h); } catch (e) { console.warn("pre-flight", e); return (c.fixes = []); }   // as at the gate: a check that cannot run stops nothing
+    const words = c.h.full ? new Set(fullWords(c.h).filter(f => f.level === "fix").map(f => f.say)) : null;
+    return (c.fixes = rep.findings.filter(f => f.level === "fix" && (words ? !words.has(f.say) : LOOK_CODES.has(f.code))));
   };
   for (let k = 0; k < 8; k++) {
     const seed = (Math.random() * 1e9) | 0;
     // the full ad's look comes from its number alone: a new look is a new number, the style underneath kept
     const st = state.full && !content ? { ...base, seed } : post(randomize(base, seed, locked, pool, content));
+    if (state.full) await ensureSubject(st);           // the picture this seed draws, before it is judged
     const h = settle({ ...st }, locked);
     await loadFonts(fontsFor(h));
     const rep = await auditLook(h, state.assets, { size: 120, secs: 3.4, sound: false, AdClass: AdOf(h) });
     const ok = id => rep.checks.find(c => c.id === id)?.ok;
     const c = { st, h, score: rep.score };
-    if (rep.score >= 90 && ok("frame0") && ok("words") && ok("number") && ok("contrast") && !fixesOf(c).length) return { st, fixes: [] };
+    if (rep.score >= 90 && ok("frame0") && ok("words") && ok("number") && ok("contrast") && !(await fixesOf(c)).length) return { st, fixes: [] };
     tried.push(c);
   }
   // none strong: the best scorer that passes, read in that order so that usually one is read
   tried.sort((a, b) => b.score - a.score);
-  const pass = tried.find(c => !fixesOf(c).length);
-  if (pass) return { st: pass.st, fixes: [] };
-  const near = tried.slice().sort((a, b) => fixesOf(a).length - fixesOf(b).length || b.score - a.score)[0];
+  for (const c of tried) if (!(await fixesOf(c)).length) return { st: c.st, fixes: [] };
+  // none passes (every try has been read by now): the closest, and what it needs
+  const near = tried.slice().sort((a, b) => a.fixes.length - b.fixes.length || b.score - a.score)[0];
   return { st: near.st, fixes: near.fixes };
 }
 /** Said when the search for a new look could not run, and a look went out of it unchecked. */
@@ -314,6 +353,7 @@ function loop() {
       const t = curT(), d = ad.st.duration;
       const ctx = $("preview").getContext("2d");
       ad.frame(ctx, Math.min(t, d - .001), { subsFly: 3, subsMove: 2 });
+      if (state.marks && window.PgfxMark) window.PgfxMark.draw(ctx, ad.W, ad.H);
       if (state.playing) $("scrub").value = String(Math.round(Math.min(t, d) / d * 1000));
       if (state.playing && state.sound && t < .05 && !state._restarted) { startAudio(0); state._restarted = true; }
       if (t > .1) state._restarted = false;
@@ -356,6 +396,44 @@ function fillSubjects() {
   $("f-subject").innerHTML = `<option value="iphone">iPhones</option>` + groups.map(([g, ss]) => `<optgroup label="${g}">${ss.map(s => `<option value="${s.key}">${s.label}</option>`).join("")}</optgroup>`).join("");
   syncMode();
 }
+/** The library's designs for the category of what the ad is about, as a choice under What you buy. */
+function fillRecipes() {
+  let sel = $("f-recipe");
+  if (!sel) {
+    const after = $("f-subject") && $("f-subject").closest("label"); if (!after) return;
+    const lab = document.createElement("label"); lab.className = "mo-field mo-full-only";
+    lab.innerHTML = `From the library <span class="mo-opt">a library design, drawn as this ad: photo and video</span><select id="f-recipe" aria-label="From the library"><option value="">None</option></select>`;
+    after.insertAdjacentElement("afterend", lab); sel = $("f-recipe");
+    sel.addEventListener("change", () => applyRecipe(sel.value));
+  }
+  if (!recipes.list) { loadRecipes().then(() => { if (Object.keys(recipes.byId).length) fillRecipes(); }); return; }
+  const h = t => String(t == null ? "" : t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const S = subjectOf(state.style), cat = S ? S.cat : "phones", groups = {};
+  for (const r of Object.values(recipes.byId)) if (r.cat === cat) (groups[r.subject] ||= []).push(r);
+  const name = k => k === "iphone" ? "iPhones" : (subjects.list.find(s => s.key === k) || {}).label || k;
+  sel.innerHTML = `<option value="">None: the line's own words and pictures</option>` + Object.entries(groups).map(([k, rs]) => `<optgroup label="${h(name(k))}">${rs.map(r => `<option value="${h(r.id)}">${h(r.label)}</option>`).join("")}</optgroup>`).join("");
+  sel.value = recipeOf(state.style) ? state.style.recipe : "";
+}
+/** Draw a library design as this full ad: its line, its words, its colours and face (picked again by hand any time). */
+async function applyRecipe(id) {
+  await loadRecipes();
+  const R = recipes.byId[id], s = state.style;
+  pushHistory();
+  if (!R) { delete s.recipe; save(); syncMode(); rebuild(); renderGallery(true); return; }
+  s.recipe = R.id;
+  if (R.subject === "iphone") { delete s.subject; delete s.subject_set; } else { s.subject = R.subject; s.subject_set = 0; }
+  const w = R.words || {}, S = subjects.list.find(x => x.key === R.subject), other = R.subject !== "iphone";
+  s.headline = w.headline || (S ? S.heads[0].toUpperCase() : s.headline);
+  s.tag = w.tag || (S && other ? S.models.toUpperCase() : "");
+  s.points = w.points || (S && other ? S.points : null);
+  delete s.feed_claim;                               // the design's claim is drawn unless a business name or a claim is typed (fullOf)
+  for (const [k, v] of [["feed_burst", w.burst], ["number_label", w.label]]) { if (v) s[k] = v; else delete s[k]; }
+  if (R.pair && COLOURWAYS.includes(R.pair)) s.full_palette = R.pair; else delete s.full_palette;
+  if (fullVoiceOk(R.type_pair)) s.full_type = R.type_pair; else delete s.full_type;
+  ["headline", "tag", "points"].forEach(k => state.locked.add(k));
+  state.full = true;
+  save(); syncWords(); syncMode(); rebuild(); renderGallery(true);
+}
 const fileStem = st => { const S = st.full ? subjectOf(st) : null; return "we-buy-" + (S ? S.key : "phones"); };
 
 /** The page in the mode it is in: what only the full ad uses, and what only Any look does. */
@@ -364,6 +442,7 @@ function syncMode() {
   $("main").dataset.subject = state.full && subjectOf(state.style) ? "other" : "phones";
   const sel = $("f-subject"); if (sel && document.activeElement !== sel) sel.value = subjectOf(state.style) ? state.style.subject : "iphone";
   const S = subjectOf(state.style); $("new-picture").hidden = !(S && S.sets.length > 1);
+  try { fillRecipes(); } catch (e) { console.warn("library choice:", e); }
   document.querySelectorAll("#mode [data-full]").forEach(b => b.setAttribute("aria-checked", String((b.dataset.full === "1") === state.full)));
 }
 /* THE PRE-FLIGHT ON THE PAGE (fullad.js fullPreflight, 2026-11-12: "another layer of self
@@ -395,20 +474,71 @@ function syncFull(ad) {
   }, 320);
 }
 
-/** The full ad as it goes out (1080 on its short side, every block landed), read by its own pre-flight: what
- *  the gate below reads before a download, and what the search for a new look (strongSeed) reads, so that a
- *  look the search picks is never one the gate then stops. */
-function deliveredPreflight(st) {
+/** An ad as it goes out, read by its own pre-flight: a full ad at 1080 on its short side, every block landed
+ *  (fullPreflight), and a plain look at 540 (lookPreflight, below), each after its fonts and photo ground are
+ *  in (readyToDraw). What the gate reads before a download and what the search for a new look (strongSeed)
+ *  reads, so that a look the search picks is never one the gate then stops. */
+async function deliveredPreflight(st) {
+  await readyToDraw(st);
+  if (!st.full) return lookPreflight(lookAdFor(st, LOOK_PRE));
   const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"], k = 1080 / Math.min(W0, H0), ad = adFor(st, Math.round(W0 * k), Math.round(H0 * k));
   return fullPreflight(ad, fullStill(ad));
 }
 
-/** Before a full ad is made into a file: measured once more at the size it is delivered at. Clear, it goes
- *  out. With something to fix, the customer is told what, and chooses to go back or to download it as it is. */
+/* THE PRE-FLIGHT FOR A LOOK (look-preflight.js, 2026-11-18: the ad census found the full ad checked
+   before it goes out and Any look's looks not checked at all). A plain look is measured on its own
+   delivered picture: nothing off the edge, every line readable on what is behind it, the headline
+   and number big enough for a feed's preview, a call to action over the number, and the words.
+   It is read at 540 on the short side: every size draws the same plan, and the picture is a
+   quarter of a 1080's pixels to read. The gallery and New look read it at the same size as the
+   download does, so a look they offer is one the download lets through. */
+const LOOK_PRE = 540, LOOK_PASS = LOOK_PRE;
+const lookAdFor = (st, short) => { const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"], k = short / Math.min(W0, H0); return adFor(st, Math.round(W0 * k), Math.round(H0 * k)); };
+/** Whether a plain look passes its pre-flight on what the look decides (not the words or number the
+ *  customer typed): what the gallery and New look go by when they pass over a look. */
+async function lookPasses(st) {
+  if (st.full) return true;
+  try { await readyToDraw(st); return lookPreflight(lookAdFor(st, LOOK_PASS)).lookOk; }
+  catch (e) { console.warn("look pre-flight", e); return true; }   // a check that cannot run never hides a look
+}
+const LOOK_CHECK_NAMES = { edge: "Nothing runs off the edge", reads: "Every line reads against what is behind it", feed: "It reads in a feed's small preview",
+  cta: "The number says what to do with it", words: "The words: nothing from the list we leave out" };
+let lookTimer = 0, lookId = 0;
+function lookChecksBox() {
+  let box = $("look-checks");
+  if (!box) {
+    const after = $("full-note") || $("full-checks"); if (!after) return null;
+    after.insertAdjacentHTML("afterend", `<details class="mo-attn mo-any-only" id="look-checks" hidden><summary><b>Checked before it goes out</b> <span class="mo-score" id="look-checks-sum">&hellip;</span> <span class="mo-attn-hint">measured on the picture itself</span></summary><ul class="mo-attn-list" id="look-checks-list"></ul><p class="mo-note">Every time the look changes it is drawn once more as it will be saved, and that picture is measured: nothing off the edge, every line readable against what is behind it, the headline and number readable in a feed's small preview, a call to action over the number, and the words.</p></details><p class="mo-note mo-any-only mo-full-note" id="look-note" aria-live="polite"></p>`);
+    box = $("look-checks");
+  }
+  return box;
+}
+/** The look's pre-flight under the preview. st: the look as the page settled it, the style a download
+ *  settles too, so what is said here is what the download's gate will find. */
+function syncLook(ad, st) {
+  const box = lookChecksBox(), note = $("look-note"); if (!box || !note) return;
+  clearTimeout(lookTimer);
+  if (!ad || ad.full || !st) { note.textContent = ""; box.hidden = true; return; }
+  box.hidden = false; $("look-checks-sum").textContent = "checking…"; $("look-checks-sum").className = "mo-score";
+  const id = ++lookId;
+  lookTimer = setTimeout(() => {
+    if (id !== lookId || state.ad !== ad) return;
+    let rep; try { rep = lookPreflight(lookAdFor(st, LOOK_PRE)); } catch (e) { console.warn("look pre-flight", e); return; }
+    if (id !== lookId || state.ad !== ad) return;
+    state.lookPreflight = { ad, rep };
+    const passed = rep.checks.filter(c => c.ok).length, fixes = rep.findings.filter(f => f.level === "fix");
+    $("look-checks-sum").textContent = `${passed} of ${rep.checks.length}`; $("look-checks-sum").className = "mo-score " + (fixes.length ? "bad" : passed === rep.checks.length ? "good" : "ok");
+    $("look-checks-list").innerHTML = rep.checks.map(c => `<li><i>${c.ok ? "✅" : "⚠️"}</i><span>${LOOK_CHECK_NAMES[c.id] || c.id}: <b>${String(c.value).replace(/</g, "&lt;")}</b></span></li>`).join("");
+    note.textContent = [...fixes, ...rep.findings.filter(f => f.level !== "fix")].slice(0, 3).map(f => f.say).join(" ");
+    note.classList.toggle("mo-full-fix", fixes.length > 0);
+  }, 320);
+}
+
+/** Before an ad is made into a file: measured once more as it is delivered. Clear, it goes out. With
+ *  something to fix, the customer is told what, and chooses to go back or to download it as it is. */
 async function preflightGate(st) {
-  if (!st.full) return true;
   let rep;
-  try { rep = deliveredPreflight(st); }
+  try { rep = await deliveredPreflight(st); }
   catch (e) { console.warn("pre-flight", e); return true; }      // a check that cannot run never stands between a customer and their ad
   const fixes = rep.findings.filter(f => f.level === "fix");
   if (!fixes.length) return true;
@@ -433,6 +563,7 @@ function buildPanel() {
   $("f-subject").addEventListener("change", e => {
     landTyping();                                   // words typed a moment ago, still in their pause, first (the boxes are filled again below)
     pushHistory();
+    delete state.style.recipe;                          // a library design belongs to the line it was made for
     const was = subjectOf(state.style), key = e.target.value, S = subjects.list.find(s => s.key === key);
     // the words the last subject brought leave with it; words typed by hand for it stay only if they are not its own
     const own = was ? [was.heads, [was.models.toUpperCase()], [was.points]] : [];
@@ -574,6 +705,7 @@ function buildPanel() {
       if (list.length > Math.max(1, lot)) list.splice(i, 1);
       else if (lot > 1) { VH().toast(`A wholesale ad shows a lot, so it keeps at least ${lot} phones. Pick another phone first, or another audience.`); return; }
     } else { if (list.length >= 6) list.shift(); list.push(id); }
+    delete state.style.pin_phones;                      // phones picked by hand are the customer's own
     save(); drawPhonePicker(true); rebuild();
   });
   $("all-phones").addEventListener("change", e => { state.allPhones = e.target.checked; save(); drawPhonePicker(); });
@@ -665,6 +797,7 @@ async function shuffle(all) {
     else if (found.unchecked) VH().toast(UNCHECKED, { ms: 12000 });
   } finally { btns.forEach(b => b.disabled = false); }
   state.style.number = state.style.number;              // the number is never shuffled
+  delete state.style.pin_phones;                        // New look draws its own phones again (a quick ad pins them)
   save(); syncWords(); drawPhonePicker(); rebuild();
 }
 
@@ -899,7 +1032,7 @@ async function makeAdSet() {
         const st = angleStyle(angle, lang, (Math.random() * 1e9) | 0);
         const fresh = !used.pair.has(st.type_pair) && !used.palette.has(st.palette) && !used.look.has(lookOf(st));
         if (!fresh && tries < 8) continue;           // a repeat only when nothing new turns up
-        await loadFonts(fontsFor(st));
+        await readyToDraw(st);
         const rep = await auditLook(st, state.assets, { size: 120, secs: 3.4, sound: false });
         const ok = id => rep.checks.find(c => c.id === id)?.ok;
         const score = rep.score + (ok("contrast") ? 10 : 0) + (ok("words") && ok("number") ? 10 : 0);
@@ -925,9 +1058,13 @@ const lookName = st => st.vibe && st.vibe !== "none" && VIBES[st.vibe] ? VIBES[s
 /** One shelf's next look as a thumbnail. A look that will not draw is skipped for the
  *  next seed, so a bad look leaves a gap at most, never a stopped gallery. */
 async function shelfThumb(shelf, W, H, k, lock) {
-  for (let tries = 0; tries < 2; tries++) {
+  for (let tries = 0; tries < 3; tries++) {
     const seed = state.gallerySeed++;
-    try { return await thumb(shelfStyle(shelf, seed), Math.round(W * k), Math.round(H * k), lock); }
+    try {
+      const st = shelfStyle(shelf, seed);
+      if (!await lookPasses(st)) continue;           // a look its own pre-flight would stop is passed over
+      return await thumb(st, Math.round(W * k), Math.round(H * k), lock);
+    }
     catch (e) { console.warn("Gallery look " + seed + " skipped:", e); }
   }
   return null;
@@ -936,7 +1073,7 @@ async function shelfThumb(shelf, W, H, k, lock) {
 /** The look, still, as a button that uses it, with its caption under it. lock: using it
  *  keeps its vibe, so New look stays in the shelf it came from. */
 async function thumb(st, w, h, lock) {
-  await loadFonts(fontsFor(st));
+  await readyToDraw(st);
   const ad = adFor(st, w, h);
   const b = document.createElement("button"); b.className = "mo-thumb"; b.title = "Use this look";
   const frame = document.createElement("span"); frame.className = "mo-thumb-img";
@@ -1086,7 +1223,7 @@ async function renderGallery(reset) {
       for (let i = 0; i < 12 && state.galleryShown < FULL_MAX; i++) {
         const base = (({ full_palette, ...rest }) => rest)(state.style), seed = state.gallerySeed++;
         let b = null;
-        try { await ensureSubject(base); b = await thumb(fullOf({ ...base, seed }), Math.round(W * k), Math.round(H * k), false); }
+        try { await ensureSubject({ ...base, seed }); b = await thumb(fullOf({ ...base, seed }), Math.round(W * k), Math.round(H * k), false); }
         catch (e) { console.warn("Full ad look " + seed + " skipped:", e); }
         if (!live()) return;
         if (b) { grid.appendChild(b); made++; shown(); }
@@ -1167,13 +1304,13 @@ async function planGate(next, message, kind = "video") {
   const plans = { label: "See plans", primary: true, run: () => { location.href = "../?plans=1"; } };
   const upsell = () => VH().show({
     title: "Video downloads come with Pro and Business",
-    message: "Make and watch as many videos as you like here. Downloading them, with sound and no watermark, comes with Pro ($60 a month, 500 downloads) and Business ($100, unlimited).",
+    message: "Make and watch as many videos as you like here. Downloading them, with sound and no watermark, comes with Pro ($60 a month, 30 videos a month) and Business ($100, unlimited video).",
     actions: [plans],
   });
   const limit = (e) => VH().show({
     title: "You've used this plan's downloads", message: (e && e.message ? e.message + ". " : "") +
-      (kind === "video" ? "" : "Starter has 100 downloads a month, ") +
-      "Pro has 500 downloads a month, photos or videos; Business is unlimited. You can still make and watch videos here.",
+      (kind === "video" ? "Pro downloads 30 videos a month; Business has unlimited video. " : "Starter has 100 photo downloads a month, Pro 500; Business is unlimited. ") +
+      "You can still make and watch videos here.",
     actions: [plans],
   });
   const refused = (e) => { if (e.status === 403) { upsell(); return true; } if (e.status === 402) { limit(e); return true; } return false; };
@@ -1189,18 +1326,12 @@ async function planGate(next, message, kind = "video") {
     throw e;
   }
 }
-/* the studio's watermark (app.js drawWatermarkMarks): BUYBACK.AD in each corner */
+/* The BUYBACK.AD mark, the studio's own (watermark.js, window.PgfxMark), on a Free download
+   and on the player while it would be on the download. A download that should carry it never
+   goes without: no mark, no file. */
 function drawMarks(x, w, h) {
-  const base = Math.min(w, h), fs = Math.round(base * 0.032), pad = Math.round(base * 0.06);
-  x.save();
-  x.font = "900 " + fs + "px Satoshi, sans-serif";
-  x.globalAlpha = 0.5;
-  x.shadowColor = "rgba(0,0,0,0.55)"; x.shadowBlur = fs * 0.35;
-  x.fillStyle = "#ffffff"; x.textAlign = "center"; x.textBaseline = "middle";
-  for (const [cx, cy, deg] of [[pad, pad, 45], [w - pad, pad, -45], [pad, h - pad, -45], [w - pad, h - pad, 45]]) {
-    x.save(); x.translate(cx, cy); x.rotate(deg * Math.PI / 180); x.fillText("BUYBACK.AD", 0, 0); x.restore();
-  }
-  x.restore();
+  if (!window.PgfxMark) throw new Error("The watermark did not load. Reload the page and try again.");
+  window.PgfxMark.draw(x, w, h);
 }
 /* an Ad whose every frame carries the marks, wherever it is drawn */
 function marked(ad, on) {
@@ -1226,7 +1357,7 @@ async function makeVideo(st, { how = "auto", withSound = true, prog = () => {}, 
   const H = VH();
   let ad = null;
   try {
-    await loadFonts(fontsFor(st));
+    await readyToDraw(st);
     const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
     let scale = 1;
     const even = v => Math.max(2, Math.round(v / 2) * 2);   // H.264 wants even sides
@@ -1296,7 +1427,7 @@ async function download(opts = {}) {
     const gate = await planGate(() => download(opts), "Sign in to download your video. Video downloads come with Pro and Business.");
     if (!gate) return;
     const st = settle({ ...state.style });
-    if (st.full) { await loadFonts(fontsFor(st)); if (!await preflightGate(st)) { note("Not saved: the ad is waiting for its fix."); return; } }
+    await readyToDraw(st); if (!await preflightGate(st)) { note("Not saved: the ad is waiting for its fix."); return; }   // every look, full or not, is checked before it goes out
     const made = await makeVideo(st, { how, withSound, prog, note, tried, watermark: gate.watermark });
     ad = made.ad;
     const { out, soundErr, soundDropped, scale, mp4Failed, W0, H0 } = made;
@@ -1369,7 +1500,7 @@ async function downloadJpg() {
     const gate = await planGate(() => downloadJpg(), "Sign in to download your ad as a photo. Free accounts get 3 downloads a week.", "photo");
     if (!gate) return;
     const st = settle({ ...state.style });
-    await loadFonts(fontsFor(st));
+    await readyToDraw(st);
     if (!await preflightGate(st)) { note("Not saved: the ad is waiting for its fix."); return; }
     const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"];
     const photo = await makePhoto(st, `${fileStem(st)}-${st.aspect.replace(":", "x")}-${st.seed}.jpg`, Math.min(W0, H0), prog, gate);
@@ -1424,7 +1555,7 @@ async function saveLook(stRaw, btn) {
   const note = t => { $("export-note").textContent = t; };
   const prog = (p, label) => { $("bar").style.width = Math.round(p * 100) + "%"; $("progress-label").textContent = label; };
   const st = stRaw.full ? stRaw : settle({ ...stRaw });
-  if (st.full) { await loadFonts(fontsFor(st)); if (!await preflightGate(st)) { if (b) b.disabled = false; $("progress").hidden = true; return null; } }
+  await readyToDraw(st); if (!await preflightGate(st)) { if (b) b.disabled = false; $("progress").hidden = true; return null; }
   let item = null;
   try {
     // a save is one of the plan's downloads, made at the plan's size and marks (planGate)
@@ -1680,7 +1811,7 @@ async function downloadBuyList() {
     const gate = await planGate(() => downloadBuyList(), "Sign in to download your buying list. Free accounts get 3 downloads a week.", "photo");
     if (!gate) return;
     const st = settle({ ...state.style });
-    await loadFonts(fontsFor(st));
+    await readyToDraw(st);
     const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["4:5"], short = Math.min(W0, H0);
     const want = Math.min(2160, gate.maxPx || 2160), scale = want / short;
     const card = drawBuyList(st, buyListRows(st), state.assets, { scale });
@@ -1827,6 +1958,9 @@ async function quickAd() {
       state.locked.add("audience"); locked.add("audience");
     }
     locked.add("phones");
+    // the full ad draws its phones by the seed when none were picked (fullad.js drawPhones): a quick
+    // ad keeps the ones on the ad it follows, so its listing's model and price stay (pin_phones)
+    if (state.full && !(st.pin_phones && st.pin_phones.length)) { try { const shown = (settle({ ...state.style }).phones || []).filter(id => id && id !== "none"); if (shown.length) st.pin_phones = shown; } catch (e) { /* the next ad draws its own */ } }
     note(auto ? "Making a new look…" : `Making a new look for the ${ANGLES[quick.angle].label} angle…`);
     // a look's vibe brings lines of its own ("NEXT EXIT: ..."); a quick ad for an angle says the angle's
     const post = auto ? (x => x) : angleWords;
@@ -1924,8 +2058,26 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
   }
   // its own try: the Quick ad panel failing must not clear the saved look as the catch above does
   try { buildQuick(); } catch (e) { console.error("Quick ad could not be set up:", e); const q = $("quick"); if (q) q.hidden = true; }
+  syncMarks();
+  if (window.pgfxAccount) window.pgfxAccount.onChange(() => syncMarks());
   await start();
 })();
+
+/* The player carries the BUYBACK.AD mark while a download of it would (watermark.js): signed out
+   or Free. A screenshot, a screen recording or a right-click Save image of the player is then no
+   cleaner than the Free download; until 2026-11-17 the player was the clean ad for anyone. A copy
+   with no backend (demo) is not gated, as planGate is not. This reads the page's own account, so
+   it is display only: a download asks the server (planGate). */
+async function syncMarks() {
+  const acct = window.pgfxAccount;
+  const say = on => { state.marks = on; const c = $("preview"); if (c) c.dataset.marked = String(on); };   // the player says it (watermark_check)
+  if (!acct || acct.demo || !window.PgfxMark) return say(false);
+  if (!acct.signedIn()) return say(true);
+  say(true);                                        // until the account says otherwise
+  let me = null;
+  try { me = await acct.me(); } catch (e) { /* stays marked */ }
+  say(!me || window.PgfxMark.marked(me.plan, me.role));
+}
 
 /* The phones come over the network, so a dropped connection is retried
    before anything is said, and then the pop-up offers to try again. */

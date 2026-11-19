@@ -799,7 +799,7 @@ const TEMPLATES = [
   /* exposed for scripts/theme_lab.mjs: the lab composes real ads and must use
      the real copy, not a paraphrase of it. */
   const DECKS = {
-    phones:  { k:'LOCAL BUYER', h1:'SELL YOUR', h2:'iPHONE', alt2:'iPHONES', items:'iPhone • iPad • MacBook • Samsung', sub:'SAME-DAY PAYMENT\nANY CONDITION • ANY CARRIER\nWE MEET YOU LOCALLY', cta:'GET YOUR OFFER', price:'CASH PAID TODAY', big:'CASH', badges:['NO FEES','FREE QUOTE','LOCAL'],
+    phones:  { k:'LOCAL BUYER', h1:'SELL YOUR', h2:'iPHONE', alt2:'iPHONES', items:'iPhone • iPad • MacBook • Samsung', sub:'SAME-DAY PAYMENT\nCRACKED OK • ANY CARRIER\nWE MEET YOU LOCALLY', cta:'GET YOUR OFFER', price:'CASH PAID TODAY', big:'CASH', badges:['NO FEES','FREE QUOTE','LOCAL'], ask:'TEXT US NOW',
                scene:'extreme macro of iPhone Pro camera arrays layered in a fan, shallow depth of field bokeh' },
     gold:    { k:'LOCAL GOLD BUYER', h1:'CASH FOR', h2:'GOLD', alt2:'YOUR GOLD', items:'Rings • Chains • Earrings • Broken Gold', sub:'TESTED AND WEIGHED IN FRONT OF YOU\nWRITTEN OFFER BEFORE YOU DECIDE\nESTATES HANDLED DISCREETLY', cta:'GET A FREE QUOTE', price:'PAID AT CURRENT MARKET RATES', big:'CASH', badges:['NO FEES','FREE QUOTE','PRIVATE'],
                scene:'molten-look gold chains and rings piled on dark velvet, warm rim lighting, macro bokeh' },
@@ -807,7 +807,7 @@ const TEMPLATES = [
                scene:'stacked silver bars and coins with cool studio reflections, dark slate background, shallow focus' },
     coins:   { k:'COLLECTIONS WANTED', h1:'WE BUY', h2:'COINS', alt2:'COLLECTIONS', items:'Old coins • Silver dollars • Full collections', sub:'SINGLE PIECES OR ENTIRE COLLECTIONS\nFREE APPRAISAL BEFORE YOU DECIDE\nNO FEES, NO OBLIGATION', cta:'REQUEST AN APPRAISAL', price:'PAID ON THE SPOT', big:'CASH', badges:['NO FEES','FREE QUOTE','DISCREET'],
                scene:'antique silver dollars and gold coins scattered on aged leather, warm candle-like light, macro' },
-    cars:    { k:'ANY CONDITION', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • High miles • Any make', sub:'CASH IN HAND WHEN WE MEET\nBRING THE TITLE AND THE KEYS\nAN OFFER BEFORE YOU DECIDE', cta:'GET A CASH OFFER', price:'CASH ON THE SPOT', big:'CASH', badges:['AS-IS','SAME DAY','NO FEES'],
+    cars:    { k:'LOCAL CAR BUYER', h1:'WE BUY', h2:'CARS', alt2:'YOUR CAR', items:'Running or not • High miles • Any make', sub:'CASH IN HAND WHEN WE MEET\nBRING THE TITLE AND THE KEYS\nAN OFFER BEFORE YOU DECIDE', cta:'GET A CASH OFFER', price:'CASH ON THE SPOT', big:'CASH', badges:['AS-IS','SAME DAY','NO FEES'],
                scene:'dramatic low-angle of a car silhouette at dusk, city bokeh lights, moody cinematic haze' },
     strips:  { k:'SEALED BOXES ONLY', h1:'CASH FOR', h2:'TEST STRIPS', alt2:'DIABETIC SUPPLIES', items:'Test strips • Sealed boxes • Any brand', sub:'SEALED, IN-DATE BOXES ONLY\nWE MEET YOU LOCALLY\nPAID THE SAME DAY WE MEET', cta:'GET YOUR OFFER', price:'PAID SAME DAY', big:'CASH', badges:['DISCREET','FAST','FAIR'],
                scene:'clean pharmacy-style flat lay of sealed medical boxes, soft teal gradient light, gentle blur' },
@@ -909,7 +909,7 @@ const TEMPLATES = [
         t('Headline 1', 'headline', 'upper', C.h1 || 'CASH FOR', { left:CX, top:62, originX:'center', fontFamily:T.d, fontSize:123, fill:ink, fontWeight:'700', stroke:edge, strokeWidth:9, shadow:hard('rgba(0,0,0,0.45)', 7) }),
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:168, originX:'center', fontFamily:T.d, fontSize:233, fill:P.a1, fontWeight:'700', stroke:ink, strokeWidth:15, shadow:hard('rgba(0,0,0,0.5)', 12) }),
         rg('Claim Plate', { left:96, top:512, width:888, height:118, rx:16, fill:hexToRgba(P.deep,0.82), shadow:hard('rgba(0,0,0,0.28)', 6) }),
-        t('Claim 1', 'info', 'upper', C.badges ? C.badges.join(' • ') : 'ANY CONDITION ANY CARRIER', { left:CX, top:534, originX:'center', fontFamily:'Khand', fontSize:41, fill:P.a2, fontWeight:'700', charSpacing:30 }),
+        t('Claim 1', 'info', 'upper', C.badges ? C.badges.join(' • ') : 'FREE QUOTE • NO FEES', { left:CX, top:534, originX:'center', fontFamily:'Khand', fontSize:41, fill:P.a2, fontWeight:'700', charSpacing:30 }),
         t('Claim 2', 'info', 'upper', C.sub || 'CASH PAID TODAY', { left:CX, top:578, originX:'center', fontFamily:'Khand', fontSize:41, fill:'#ffffff', fontWeight:'700', charSpacing:30 }),
         t('Area 1', 'info', 'upper', C.a1 || 'IE', { left:CX-268, top:672, originX:'center', fontFamily:T.d, fontSize:98, fill:'#2fbf4f', fontWeight:'700', stroke:ink, strokeWidth:7 }),
         t('Arrow 1', 'deco', 'none', '↓', { left:CX-134, top:686, originX:'center', fontFamily:'Satoshi', fontSize:78, fill:'#e8362c', fontWeight:'900' }),
@@ -936,7 +936,7 @@ const TEMPLATES = [
         cut('Product', C.cut || 'cash-stack', { left:1032, top:398, originX:'right', w:505, shadow:sh('rgba(0,0,0,0.5)', 40, 0, 22) }),
         ...row(1, 452, (C.badges && C.badges[0]) || 'CASH PAID',   (C.subs && C.subs[0]) || 'Paid in cash, same day'),
         ...row(2, 572, (C.badges && C.badges[1]) || 'FAST & EASY',  (C.subs && C.subs[1]) || 'Text photos, get an offer'),
-        ...row(3, 692, (C.badges && C.badges[2]) || ['ANY CONDITION', 'NO FEES', 'FREE QUOTE'].find(w => !(C.badges || []).concat(C.subs || []).some(x => String(x).toUpperCase() === w)),(C.subs && C.subs[2]) || 'No appointment needed'),
+        ...row(3, 692, (C.badges && C.badges[2]) || ['WE MEET YOU', 'NO FEES', 'FREE QUOTE'].find(w => !(C.badges || []).concat(C.subs || []).some(x => String(x).toUpperCase() === w)),(C.subs && C.subs[2]) || 'No appointment needed'),
         rg('Phone Plate', { left:54, top:836, width:940, height:132, rx:22, fill:P.a1, shadow:hard('rgba(0,0,0,0.4)', 9) }),
         t('CTA', 'cta', 'upper', C.cta || 'CALL OR TEXT', { left:CX, top:856, originX:'center', fontFamily:'Khand', fontSize:36, fill:onAccent(P), fontWeight:'700', charSpacing:60 }),
         t('Phone Number', 'phone', 'none', '(562) 999-4994', { left:CX, top:892, originX:'center', fontFamily:T.d, fontSize:82, fill:onAccent(P), fontWeight:'700' }),
@@ -1051,7 +1051,7 @@ const TEMPLATES = [
     // #14: badge strip on top, hero in the middle, banner across the bottom.
     streetTopStrip: (P, T, C) => {
       const ink='#ffffff';
-      const b = C.badges || ['ANY CONDITION','ANY MODEL','SAME DAY'];
+      const b = C.badges || ['FREE QUOTE','ANY MODEL','SAME DAY'];
       return [
         rg('Top Strip', { left:0, top:0, width:W, height:96, fill:P.deep }),
         t('Strip 1', 'badges', 'upper', b[0], { left:180, top:30, originX:'center', fontFamily:'Khand', fontSize:34, fill:hexToRgba(P.ink || "#ffffff", 0.92), fontWeight:'700', charSpacing:18 }),
@@ -1099,7 +1099,7 @@ const TEMPLATES = [
           t('Row Label '+(i+1), 'info', 'upper', txt, { left:midX+92, top:y+4, fontFamily:'Khand', fontSize:36, fill:ink, fontWeight:'700', charSpacing:10, stroke:P.deep, strokeWidth:3 }),
         ];
       };
-      const pts = C.points || ['ANY CONDITION','ANY MODEL','PAID IN CASH','SAME DAY'];
+      const pts = C.points || ['FREE QUOTE','ANY MODEL','PAID IN CASH','SAME DAY'];
       return [
         rg('Split Panel', { left:midX, top:0, width:W-midX, height:W, fill:'rgba(10,12,18,0.55)' }),
         rg('Split Rule', { left:midX-3, top:0, width:6, height:W, fill:P.a1 }),
@@ -1182,7 +1182,7 @@ const TEMPLATES = [
         t('Headline 2', 'headline', 'upper', C.h2, { left:CX, top:262, originX:'center', fontFamily:'Clash Display', fontSize:158, grad:{ c1:P.a1, c2:P.a2, a:100 }, shadow:sh(P.glow, 26) }),
         t('Headline 3', 'headline', 'upper', 'BUYER', { left:CX, top:424, originX:'center', fontFamily:'Satoshi', fontSize:44, fill:'rgba(255,255,255,0.85)', fontWeight:'900', charSpacing:300 }),
         ...tile(1, 84, 512, C.big || 'CASH NOW', 'PAID TODAY'),
-        ...tile(2, 554, 512, 'TEXT A PIC', 'GET A PRICE'),
+        ...tile(2, 554, 512, C.ask || 'TEXT A PIC', 'GET A PRICE'),   // a phone deck asks for a text (rule 136); gold, cards and cars for a photo
         ...tile(3, 84, 682, 'FREE QUOTE', 'NO OBLIGATION'),
         ...tile(4, 554, 682, 'SAME DAY', 'CASH OR TRANSFER'),
         t('Items', 'info', 'upper', C.items, { left:CX, top:860, originX:'center', fontFamily:'Satoshi', fontSize:26, fill:'rgba(255,255,255,0.7)', charSpacing:50 }),
@@ -1437,14 +1437,17 @@ const TEMPLATES = [
       ['agencyGrid','mono','staat','Agency Mono',1], ['priceAnchor','volt','passion','Price Point'], ['lowerThird','ocean','right','Broadcast'],
       ['reviewProof','ocean','playfair','Seller Proof',1], ['trustSeal','mono','cinzel','Trust Seal'], ['stepsFlow','volt','russo','Three Steps'],
     ],
+    /* gold in modern faces (owner, 2026-11-18: "the gold ones look like old people fonts"): the
+       serif voices (cinzel and abril, Melodrama; playfair, slab and pacifico, Zodiak; vast) become
+       Clash Display, Satoshi and Khand, the house's own */
     gold: [
-      ['karatSeal','gold','cinzel','24K Seal',1], ['editorialLux','gold','playfair','Estate Serif',1], ['voltStack','gold','slab','Bullion Stack'],
-      ['bandKnockout','paper','staat','Ledger Band'], ['glassCard','gold','abril','Gilt Glass'], ['ticketStub','gold','slab','Assay Ticket'],
-      ['wantedFrame','paper','vast','Gold Rush Frame'], ['arcCrown','gold','cinzel','Crown Karat'], ['slabPoster','paper','ultra','Broadsheet Gold'],
-      ['checklistHero','gold','lilita','Scale Checklist'], ['diagonalRush','crimson','rowdies','Vault Rush'], ['scriptRetro','gold','pacifico','Golden Script'],
-      ['gradientWave','gold','abril','Molten Wave'], ['duoSplit','gold','right','Karat Split'],
-      ['agencyGrid','gold','cinzel','Atelier Grid'], ['priceAnchor','gold','abril','Spot Price',1], ['lowerThird','gold','staat','Gold Standard'],
-      ['reviewProof','gold','playfair','Golden Reviews',1], ['trustSeal','gold','cinzel','Assured Gold'], ['stepsFlow','gold','staat','Easy Gold'],
+      ['karatSeal','gold','passion','24K Seal',1], ['editorialLux','gold','titan','Estate Serif',1], ['voltStack','gold','russo','Bullion Stack'],
+      ['bandKnockout','paper','staat','Ledger Band'], ['glassCard','gold','rowdies','Gilt Glass'], ['ticketStub','gold','russo','Assay Ticket'],
+      ['wantedFrame','paper','staat','Gold Rush Frame'], ['arcCrown','gold','passion','Crown Karat'], ['slabPoster','paper','ultra','Broadsheet Gold'],
+      ['checklistHero','gold','lilita','Scale Checklist'], ['diagonalRush','crimson','rowdies','Vault Rush'], ['scriptRetro','gold','shrik','Golden Script'],
+      ['gradientWave','gold','rowdies','Molten Wave'], ['duoSplit','gold','right','Karat Split'],
+      ['agencyGrid','gold','passion','Atelier Grid'], ['priceAnchor','gold','rowdies','Spot Price',1], ['lowerThird','gold','staat','Gold Standard'],
+      ['reviewProof','gold','titan','Golden Reviews',1], ['trustSeal','gold','passion','Assured Gold'], ['stepsFlow','gold','staat','Easy Gold'],
     ],
     silver: [
       ['slabPoster','mono','ultra','Sterling Slab',1], ['editorialLux','arctic','playfair','Assay Serif'], ['voltStack','mono','slab','Bar Stack'],
@@ -1952,7 +1955,7 @@ TEMPLATES.forEach(t => {
   });
 });
 
-const SELL_POINTS = ['QUICK','FAST','EASY','SAFE','NO FEES','HASSLE FREE','SAME DAY','CASH PAID','ANY CONDITION','FREE QUOTE','NO GAMES','CALL NOW'];
+const SELL_POINTS = ['QUICK','FAST','EASY','SAFE','NO FEES','HASSLE FREE','SAME DAY','CASH PAID','WE MEET YOU','FREE QUOTE','NO GAMES','CALL NOW'];
 const EMOJIS = ['📱','💰','💵','✅','✔️','👉','🔥','⭐','📲','🤝'];
 
 // ---------- gradient helper (CSS-angle semantics) ----------
@@ -4886,7 +4889,7 @@ function pickerCard(thumb, name, tag, onUse, onDel, locked){
 let exportSize = 1440;   // requested SHORT side; plan caps clamp it in gateExport
 function openExport(){
   canvas.discardActiveObject(); canvas.renderAll();
-  $('export-preview').src = snapshotPng(540, 'jpeg', 0.85);
+  markPreviewUrl(snapshotPng(540, 'jpeg', 0.85)).then(u => { $('export-preview').src = u; });   // marked as the download would be
   syncFormatUI();
   $('export-overlay').classList.add('show');
 }
@@ -6623,36 +6626,48 @@ function refreshPlanFeats(){
 const API_BASE = (window.PGFX_API || '').replace(/\/$/, '');
 const DEMO = !API_BASE;
 /* PLANS:BEGIN. The browser's copy of netlify/lib/plans.mjs, display only
-   (the function enforces its own); scripts/plan_economics.mjs fails when the
-   numbers here and there differ. Prices in cents; weekly/monthly are
-   downloads (null and null: unlimited); credits are AI credits a month; library is
-   ads kept; video is whether the plan downloads video ads. Owner,
-   2026-10-08: plans that cover videos, are built on what each thing costs,
-   and charge paid AI in credits; 2026-10-09: three paid plans, $25 / $60 /
-   $100, videos from $60, Free as a line above them. */
+   (the function enforces its own), WRITTEN by scripts/build_pricing.mjs: change
+   plans.mjs and run it (scripts/plan_economics.mjs fails while this is stale).
+   Prices in cents; weekly/monthly are photo downloads (null and null:
+   unlimited); videos are video downloads a month, counted apart (0: none,
+   null: unlimited); credits are AI credits a month; library is ads kept.
+   PLAN_ROWS is the feature breakdown, PLAN_BULLETS each card's list, PLAN_FOR
+   each plan's line. Owner, 2026-10-09: $25 / $60 / $100, Free beside them;
+   2026-11-18: Pro's videos limited, Business's unlimited. */
 const PLANS = {
-  free:     { label:'Free', price:{ month:0 }, weekly:3, monthly:null, maxPx:1080, watermark:true, video:false, credits:5, library:12, qr:false },
-  basic:    { label:'Starter', price:{ month:2500, year:25000 }, weekly:null, monthly:100, maxPx:2160, watermark:false, video:false, credits:50, library:300, qr:false },
-  pro:      { label:'Pro', price:{ month:6000, year:60000 }, weekly:null, monthly:500, maxPx:2160, watermark:false, video:true, credits:200, library:1000, qr:true, hot:true },
-  business: { label:'Business', price:{ month:10000, year:100000 }, weekly:null, monthly:null, maxPx:2160, watermark:false, video:true, credits:500, library:3000, qr:true },
+  free: {"label":"Free","price":{"month":0},"weekly":3,"monthly":null,"maxPx":1080,"watermark":true,"video":false,"videos":0,"credits":5,"library":12,"allDesigns":false,"qr":false},
+  basic: {"label":"Starter","price":{"month":2500,"year":25000},"weekly":null,"monthly":100,"maxPx":2160,"watermark":false,"video":false,"videos":0,"credits":50,"library":300,"allDesigns":true,"qr":false},
+  pro: {"label":"Pro","price":{"month":6000,"year":60000},"weekly":null,"monthly":500,"maxPx":2160,"watermark":false,"video":true,"videos":30,"credits":200,"library":1000,"allDesigns":true,"qr":true,"hot":true},
+  business: {"label":"Business","price":{"month":10000,"year":100000},"weekly":null,"monthly":null,"maxPx":2160,"watermark":false,"video":true,"videos":null,"credits":500,"library":3000,"allDesigns":true,"qr":true},
 };
 const PACKS = {
-  credits100: { label:'100 AI credits', credits:100, price:900 },
-  credits300: { label:'300 AI credits', credits:300, price:2500 },
+  credits100: {"label":"100 AI credits","credits":100,"price":900},
+  credits300: {"label":"300 AI credits","credits":300,"price":2500},
 };
+const PLAN_ROWS = [{"key":"photos","label":"Photo downloads","note":"","cells":{"free":"3 a week","basic":"100 a month","pro":"500 a month","business":"Unlimited"}},{"key":"videos","label":"Video ads to download","note":"Anyone can make and watch a video ad. Downloading one, with sound and no watermark, comes with Pro and Business.","cells":{"free":"No","basic":"No","pro":"30 a month","business":"Unlimited"}},{"key":"designs","label":"Designs","note":"","cells":{"free":"Every Phones design, plus the top 3 in every other category","basic":"Every design in all 13 categories","pro":"Every design in all 13 categories","business":"Every design in all 13 categories"}},{"key":"size","label":"Largest download","note":"","cells":{"free":"1080 pixels","basic":"2160 pixels","pro":"2160 pixels","business":"2160 pixels"}},{"key":"watermark","label":"Watermark","note":"","cells":{"free":"A light BUYBACK.AD mark","basic":"None","pro":"None","business":"None"}},{"key":"credits","label":"AI credits a month","note":"","cells":{"free":"5","basic":"50","pro":"200","business":"500"}},{"key":"library","label":"Ads kept in your library","note":"","cells":{"free":"12","basic":"300","pro":"1,000","business":"3,000"}},{"key":"qr","label":"A QR code on your ad","note":"","cells":{"free":"No","basic":"No","pro":"Yes","business":"Yes"}}];
+const PLAN_BULLETS = {"free":["3 photo downloads a week","Every Phones design, plus the top 3 in every other category","Standard size (1080 pixels) with a light BUYBACK.AD watermark","5 AI credits a month"],"basic":["100 photo downloads a month","Every design in all 13 categories","No watermark, up to double size (2160 pixels)","50 AI credits a month","Keep 300 ads in your library"],"pro":["500 photo downloads a month","30 video ads a month, with sound","Everything in Starter","Add a QR code people can scan","200 AI credits a month","Keep 1,000 ads in your library"],"business":["Unlimited photo downloads","Unlimited video ads, with sound","Everything in Pro","500 AI credits a month","Keep 3,000 ads in your library"]};
+const PLAN_FOR = {"free":"Try every step, no card","basic":"Photo ads, every design","pro":"Photos, and a video a day","business":"Unlimited photos and video"};
 /* PLANS:END */
 const usd = (cents) => '$' + (cents / 100).toLocaleString('en-US', { minimumFractionDigits: cents % 100 ? 2 : 0, maximumFractionDigits: 2 });
 const fmtN = (n) => Number(n).toLocaleString('en-US');
-/* what each card says, worked out from the numbers so the two never drift */
-function planFeats(id){
-  const p = PLANS[id];
-  const what = p.video ? ': photos or videos' : '';
-  const dl = p.weekly ? p.weekly + ' photo downloads a week' : p.monthly ? fmtN(p.monthly) + (p.video ? ' downloads a month' : ' photo downloads a month') : 'Unlimited downloads';
-  const credits = p.credits + ' AI credits a month', lib = 'Keep ' + fmtN(p.library) + ' ads in your library';
-  if (id === 'free') return [dl, FEAT_FREE_TPL, 'Standard size (' + p.maxPx + ' pixels) with a small BUYBACK.AD watermark', credits];
-  if (id === 'basic') return [dl, FEAT_PRO_TPL, 'No watermark, up to double size (' + p.maxPx + ' pixels)', credits, lib];
-  if (id === 'pro') return [dl + what, 'Everything in Starter', 'Video ads with sound, no watermark', 'Add a QR code people can scan', credits, lib];
-  return [dl + what, 'Everything in Pro', credits, lib];
+/* what each card says: the table's own list (plans.mjs planBullets, written into PLAN_BULLETS by
+   scripts/build_pricing.mjs), so the cards here, the landing's and the checkout dialog's agree */
+function planFeats(id){ return (PLAN_BULLETS[id] || []).slice(); }
+/* a plan's video downloads, in words: "No", "30 a month", "Unlimited" */
+const videosWord = (p) => (!p.video ? 'No' : p.videos === null || p.videos === undefined ? 'Unlimited' : fmtN(p.videos) + ' a month');
+/* the table that compares every plan, under the cards (the landing prints the same rows) */
+function plansCompare(){
+  const ids = Object.keys(PLANS), esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[c]);
+  const cell = (v) => '<td' + (v === 'Yes' ? ' class="yes"' : v === 'No' ? ' class="no"' : '') + '>' + esc(v) + '</td>';
+  const price = (id) => { const p = PLANS[id]; return !p.price.month ? '<td>' + usd(0) + '</td>' : '<td>' + usd(p.price.month) + ' a month' + (p.price.year ? '<small>or ' + usd(p.price.year) + ' a year</small>' : '') + '</td>'; };
+  const w = document.createElement('div');
+  w.className = 'plans-compare';
+  w.innerHTML = '<div class="lp-compare-wrap" role="region" aria-label="Every plan compared" tabindex="0"><table class="lp-compare"><caption>Every plan, side by side</caption>' +
+    '<thead><tr><th scope="col">What you get</th>' + ids.map((id) => '<th scope="col"' + (PLANS[id].hot ? ' class="hot"' : '') + '>' + esc(PLANS[id].label) + '</th>').join('') + '</tr></thead><tbody>' +
+    '<tr><th scope="row">Price</th>' + ids.map(price).join('') + '</tr>' +
+    PLAN_ROWS.map((r) => '<tr><th scope="row">' + esc(r.label) + '</th>' + ids.map((id) => cell(r.cells[id])).join('') + '</tr>').join('') +
+    '</tbody></table></div><p class="lp-compare-notes">' + PLAN_ROWS.filter((r) => r.note).map((r) => esc(r.note)).join(' ') + '</p>';
+  return w;
 }
 /* what paying yearly saves on a plan, in cents, from its two prices */
 const yearSaving = (p) => (p.price.year ? p.price.month * 12 - p.price.year : 0);
@@ -6743,7 +6758,7 @@ function demoMe(){
   if (!t || !t.startsWith('demo:')) return null;
   const email = t.slice(5);
   const u = demoUsers()[email];
-  return u ? { email, plan: u.plan, exports: u.exports } : null;
+  return u ? { email, plan: u.plan, exports: u.exports, videos: u.videos } : null;
 }
 function demoSave(email, patch){
   const users = demoUsers();
@@ -6825,9 +6840,22 @@ function exportsRemaining(){
   const cap = p.weekly || p.monthly;
   return cap === null || cap === undefined ? Infinity : Math.max(0, cap - exportsUsed());
 }
+/* the video meter, apart from the photos (plans.mjs videos, 2026-11-18): this month's video
+   downloads; Infinity on an unlimited plan (Business, operators), 0 on a plan without video */
+function videosUsed(){
+  if (!account) return 0;
+  return (account.videos && account.videos.period === isoMonth()) ? account.videos.count : 0;
+}
+function videosRemaining(){
+  if (isAdmin()) return Infinity;
+  const p = planOf();
+  if (!p.video) return 0;
+  return p.videos === null || p.videos === undefined ? Infinity : Math.max(0, p.videos - videosUsed());
+}
 function signOut(){ jset('pgfx_token', null); account = null; syncAcctUI(); toast('Signed out'); }
 
 function syncAcctUI(){
+  refreshPreviewMarks();
   const chip = $('acct-chip'); if (!chip) return;
   if (account){
     $('acct-label').textContent = account.email.split('@')[0];
@@ -6877,15 +6905,24 @@ function syncAcctUI(){
   const so = $('lpf-signout'); if (so) so.style.display = account ? '' : 'none';
 }
 function syncQuotaUI(){
+  refreshPreviewMarks();                    // the server's account may not be the plan this page thought
   const q = $('ez-quota'); if (!q) return;
   if (!account){ q.innerHTML = 'Free plan: 3 downloads a week, standard size. <span class="up" id="quota-plans">See plans</span>'; }
   else {
     const p = planOf(), rem = exportsRemaining();
     if (isAdmin()) q.innerHTML = '<b>Admin</b>: every feature of every plan · unlimited downloads, photos and videos, up to ' + p.maxPx + ' pixels, no watermark · <b>unlimited</b> AI credits';
-    else if (rem === Infinity) q.innerHTML = '<b>' + p.label + '</b>: unlimited downloads, up to ' + p.maxPx + ' pixels · <b>' + creditsText(creditsOf()) + '</b> AI credits';
-    else q.innerHTML = '<b>' + rem + '</b> of ' + (p.weekly || p.monthly) + ' downloads left this ' + (p.weekly ? 'week' : 'month') +
-      ' · <b>' + creditsText(creditsOf()) + '</b> AI credits' +
-      (!isPro() ? ' · standard size with watermark. <span class="up" id="quota-plans">Upgrade</span>' : '');
+    else if (rem === Infinity) q.innerHTML = '<b>' + p.label + '</b>: unlimited photo and video downloads, up to ' + p.maxPx + ' pixels · <b>' + creditsText(creditsOf()) + '</b> AI credits';
+    else {
+      /* a plan with a video allowance says what is left of it beside the photos, and says it
+         plainly near the end (owner, 2026-11-18: videos limited on Pro, unlimited on Business) */
+      const vr = videosRemaining(), vcap = p.videos;
+      const vids = p.video && Number.isFinite(vr)
+        ? ' · <b' + (vr <= 5 ? ' class="low"' : '') + '>' + vr + '</b> of ' + vcap + ' video downloads left' + (vr <= 5 ? '. <span class="up" id="quota-plans">Business has unlimited video</span>' : '')
+        : '';
+      q.innerHTML = '<b>' + rem + '</b> of ' + (p.weekly || p.monthly) + ' photo downloads left this ' + (p.weekly ? 'week' : 'month') + vids +
+        ' · <b>' + creditsText(creditsOf()) + '</b> AI credits' +
+        (!isPro() ? ' · standard size with watermark. <span class="up" id="quota-plans">Upgrade</span>' : '');
+    }
   }
   syncCreditsUI();
   const up = $('quota-plans');
@@ -7005,7 +7042,7 @@ async function loadPlanInfo(){
 }
 function openPlans(msg){
   buildPlansGrid();
-  $('plans-sub').textContent = msg || 'Every design and no watermark on every paid plan; video ads from Pro. Pay monthly or yearly, cancel any time.';
+  $('plans-sub').textContent = msg || 'Every design and no watermark on every paid plan. Video ads: ' + videosWord(PLANS.pro) + ' on Pro, ' + videosWord(PLANS.business).toLowerCase() + ' on Business. Pay monthly or yearly, cancel any time.';
   $('plans-demo-note').style.display = DEMO ? '' : 'none';
   $('page-plans').classList.add('active');
   loadPlanInfo().then(() => buildPlansGrid());
@@ -7049,6 +7086,7 @@ function buildPlansGrid(){
   const fc = document.createElement('div');
   fc.className = 'plan-card plan-free';
   fc.innerHTML = `<div class="plan-name">Free</div>
+    <div class="plan-for">${PLAN_FOR.free || ''}</div>
     <div class="plan-price">${usd(0)}<small> forever</small></div>
     <div class="plan-per">No card needed</div>
     <ul class="plan-feats">${PLANS.free.feats.map(f => '<li>' + f + '</li>').join('')}</ul>`;
@@ -7076,13 +7114,19 @@ function buildPlansGrid(){
       : 'Billed monthly' + (save ? '<span class="plan-save-alt">Or ' + usd(p.price.year) + ' a year: <b>you save ' + usd(save) + '</b></span>' : '');
     const card = document.createElement('div');
     card.className = 'plan-card' + (p.hot ? ' hot' : '');
-    card.innerHTML = (p.hot ? '<div class="plan-tag">Most popular</div>' : '') + `<div class="plan-name">${p.label}</div>
+    /* Pro is the most popular; a plan with unlimited video says so on its tag (Business) */
+    const tag = p.hot ? '<div class="plan-tag">Most popular</div>' : p.video && (p.videos === null || p.videos === undefined) ? '<div class="plan-tag plan-tag-video">Unlimited video</div>' : '';
+    card.innerHTML = tag + `<div class="plan-name">${p.label}</div>
+      <div class="plan-for">${PLAN_FOR[id] || ''}</div>
       <div class="plan-price">${usd(cents)}<small> ${yearly ? '/year' : '/month'}</small></div>
       <div class="plan-per">${per}</div>
       <ul class="plan-feats">${p.feats.map(f => '<li>' + f + '</li>').join('')}</ul>`;
     let btn;
     if (isCur){
       card.insertAdjacentHTML('beforeend', '<div class="plan-current">✓ Your current plan</div>');
+      /* what is used of it this month (2026-11-18: photos and videos counted apart) */
+      const use = [p.monthly ? fmtN(exportsUsed()) + ' of ' + fmtN(p.monthly) + ' photos' : '', p.video && Number.isFinite(p.videos) && p.videos !== null ? videosUsed() + ' of ' + p.videos + ' videos' : ''].filter(Boolean);
+      if (use.length && !isAdmin()) card.insertAdjacentHTML('beforeend', '<div class="plan-per plan-usage">This month: ' + use.join(', ') + ' used</div>');
       if (!DEMO){
         btn = document.createElement('button');
         btn.className = 'plan-btn ghost'; btn.style.marginTop = '10px'; btn.textContent = 'Manage billing / cancel';
@@ -7100,6 +7144,7 @@ function buildPlansGrid(){
     cards.appendChild(card);
   });
   g.appendChild(cards);
+  g.appendChild(plansCompare());
   /* AI credit packs. Owner, 2026-10-11: "explain what they do and what they
      can access so we understand what we're buying". What a credit makes, what
      it does not pay for, and how it is counted, all from bggen.mjs and
@@ -7275,7 +7320,7 @@ function showPayResult(ok, planId, kind){
     ? (credits ? 'You have ' + (c ? c.total : 'more') + ' AI credits now. Bought credits never expire.'
       : pending
         ? 'Your plan is switching on. It usually takes a few seconds; if your account still says Free in a minute, reload the page.'
-        : 'You are now on ' + (PLANS[planId] ? PLANS[planId].label : 'your new plan') + ': every design, no watermark, full size' + (PLANS[planId] && PLANS[planId].video ? ', video ads' : '') + ' and ' + (PLANS[planId] ? PLANS[planId].credits : '') + ' AI credits a month.')
+        : 'You are now on ' + (PLANS[planId] ? PLANS[planId].label : 'your new plan') + ': every design, no watermark, full size' + (PLANS[planId] && PLANS[planId].video ? ', video ads (' + videosWord(PLANS[planId]).toLowerCase() + ')' : '') + ' and ' + (PLANS[planId] ? PLANS[planId].credits : '') + ' AI credits a month.')
     : 'No charge was made. You are still on your previous plan.';
   $('pay-overlay').classList.add('show');
 }
@@ -7313,11 +7358,12 @@ async function finishCheckout(sid){
 // ── export gate + watermark ──
 async function recordExport(kind){   // kind 'video' for a video download (Pro and Business)
   if (DEMO){
-    const p = planOf(), per = currentPeriod(p);
-    const ex = (account.exports && account.exports.period === per) ? account.exports : { period: per, count: 0 };
+    /* a video is counted on the video meter, a photo on the photos', as the function does */
+    const p = planOf(), video = kind === 'video', per = video ? isoMonth() : currentPeriod(p), key = video ? 'videos' : 'exports';
+    const ex = (account[key] && account[key].period === per) ? account[key] : { period: per, count: 0 };
     ex.period = per; ex.count++;
-    demoSave(account.email, { exports: ex });
-    account.exports = ex;
+    demoSave(account.email, { [key]: ex });
+    account[key] = ex;
     syncQuotaUI();
     return true;
   }
@@ -7327,36 +7373,107 @@ async function recordExport(kind){   // kind 'video' for a video download (Pro a
 }
 /* video downloads come with Pro and Business; anyone can make and watch one */
 const videoAllowed = () => isAdmin() || !!planOf().video;
-const VIDEO_UPSELL = 'Video ads come with Pro ($60 a month) and Business: 10-second videos with sound and no watermark, ready for Reels, Stories and OfferUp.';
-async function gateExport(pxWanted){
+const VIDEO_UPSELL = 'Video ads come with Pro (' + usd(PLANS.pro.price.month) + ' a month, ' + videosWord(PLANS.pro) + ') and Business (' + usd(PLANS.business.price.month) + ', ' + videosWord(PLANS.business).toLowerCase() + '): 10-second videos with sound and no watermark, ready for Reels, Stories and OfferUp.';
+/* The plan's say on a download: its size, its marks, whether one is left.
+   With a backend, that is the server's answer (/api/export/check, which
+   counts nothing), not this page's copy of the plan. Until 2026-11-17 it was
+   account.plan, which anyone can change in the browser, and a Free account so
+   changed downloaded a clean 2160. The count is /api/export (recordExport),
+   once the file is made. A copy with no backend (demo) answers from its own
+   plan table, as it always has.
+   kind 'video' for a video download: it is asked and counted on the video
+   meter (Pro's 30 a month), so used-up photos do not stop a video, and
+   used-up videos do not stop a photo (2026-11-18). The server keeps both. */
+const outOfDownloads = () => { const p = planOf(); openPlans("You've used all your " + (p.weekly || p.monthly) + ' ' + p.label + ' photo downloads this ' + (p.weekly ? 'week' : 'month') + ', upgrade to keep posting.'); };
+const outOfVideos = () => { const p = planOf(); openPlans("You've used " + p.label + "'s " + p.videos + ' video downloads this month. They start over on the 1st; Business has unlimited video.'); };
+async function gateExport(pxWanted, kind){
   if (!account) await loadAccount();
   if (!account){
     openAuth('Sign in to download, free accounts get 3 exports a week.');
     return null;
   }
-  if (account.role === 'admin') return { px: pxWanted, watermark: false, video: true }; // operators: full res, no watermark, no caps
-  const p = planOf();
-  if (exportsRemaining() <= 0){
-    openPlans("You've used all your " + (p.weekly || p.monthly) + ' ' + p.label + ' downloads this ' + (p.weekly ? 'week' : 'month') + ', upgrade to keep posting.');
+  const video = kind === 'video';
+  if (DEMO){
+    if (account.role === 'admin') return { px: pxWanted, watermark: false, video: true }; // operators: full res, no watermark, no caps
+    const p = planOf();
+    if (video){
+      if (p.video && videosRemaining() <= 0){ outOfVideos(); return null; }
+      return { px: Math.min(pxWanted, p.maxPx), watermark: !!p.watermark, video: !!p.video, videosLeft: videosRemaining() };
+    }
+    if (exportsRemaining() <= 0){ outOfDownloads(); return null; }
+    return { px: Math.min(pxWanted, p.maxPx), watermark: !!p.watermark, video: !!p.video };
+  }
+  let g;
+  try { g = await api('/export/check', video ? { kind: 'video' } : {}); }
+  catch (e){
+    if (e.data && e.data.user){ account = e.data.user; syncQuotaUI(); }
+    if (e.status === 402){ if (video || (e.data && e.data.kind === 'video')) outOfVideos(); else outOfDownloads(); return null; }
+    /* a plan without video: the caller offers Pro, as it does when the demo's plan says video: false */
+    if (e.status === 403 && e.data && e.data.needs === 'video') return { px: Math.min(pxWanted, 1080), watermark: true, video: false };
+    if (signedOutBy(e)){ account = null; jset('pgfx_token', null); syncAcctUI(); openAuth('Your sign-in ran out. Sign in again to download.'); return null; }
+    toast('The download could not be checked (' + e.message + '). Check the connection and try again.', 'error');
     return null;
   }
-  return { px: Math.min(pxWanted, p.maxPx), watermark: !!p.watermark, video: !!p.video };
+  if (g.user){ account = g.user; syncQuotaUI(); }
+  const operator = !!(g.user && g.user.role === 'admin');   // full res, no marks, no caps: the server says so
+  const out = { px: operator ? pxWanted : Math.min(pxWanted, g.maxPx || 1080), watermark: g.watermark !== false, video: operator || !!planOf().video };
+  if (video) out.videosLeft = g.remaining === undefined ? null : g.remaining;
+  return out;
 }
 function applyWatermark(dataUrl, w, h){
   h = h || w;
-  return new Promise(res => {
+  return new Promise((res, rej) => {
     const im = new Image();
     im.onload = () => {
       const cv = document.createElement('canvas');
       cv.width = w; cv.height = h;
       const x = cv.getContext('2d');
       x.drawImage(im, 0, 0, w, h);
-      drawWatermarkMarks(x, w, h);          // the same marks every video frame carries (Satoshi, vendored)
+      try { drawWatermarkMarks(x, w, h); }   // the same marks every video frame carries (Satoshi, vendored)
+      catch (e){ toast(e.message, 'error'); rej(e); return; }
       res(cv.toDataURL('image/png'));
     };
     im.onerror = () => res(dataUrl);
     im.src = dataUrl;
   });
+}
+
+/* Every preview carries what its download would (watermark.js): signed out
+   or Free, the mark; a paid plan or an operator, none. A screenshot, or a
+   preview saved with a right-click or a long press, is then no cleaner than
+   the Free download. Until 2026-11-17 every preview was clean (the Easy Mode
+   preview 560, the full ad's 900, the studio's video a full-size MP4 the
+   player itself offered to download). This reads the page's own account, so
+   it is display only: a download asks the server (gateExport). The
+   gallery's sample cards, with the sample number, stay clean (owner: the
+   gallery should "look clean and cohesive"). */
+function previewMarks(){
+  if (!window.PgfxMark) return false;
+  if (!account) return true;
+  return account.role !== 'admin' && !!planOf().watermark;
+}
+var previewMarked = null;                   // the answer the previews on screen were drawn under (var: read before this line runs)
+/* a preview's canvas out as a JPEG, marked when previewMarks says so */
+function previewJpeg(c, q){
+  previewMarked = previewMarks();
+  if (previewMarked) drawWatermarkMarks(c.getContext('2d'), c.width, c.height);
+  return c.toDataURL('image/jpeg', q || 0.85);
+}
+/* a preview already made as a picture (renderEzCanvas, snapshotPng): marked, or as it was */
+function markPreviewUrl(url){
+  if (!previewMarks()){ previewMarked = false; return Promise.resolve(url); }
+  return new Promise(res => {
+    const im = new Image();
+    im.onload = () => { const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight; c.getContext('2d').drawImage(im, 0, 0); res(previewJpeg(c, 0.85)); };
+    im.onerror = () => res(url);
+    im.src = url;
+  });
+}
+/* signed in, out, or onto another plan: the previews drawn under the old answer are drawn again */
+function refreshPreviewMarks(){
+  if (previewMarked == null || previewMarked === previewMarks()) return;
+  try { const im = $('ez-preview'); if (im && im.getAttribute('src')) schedEzPreview(0); } catch (e){}
+  try { if (window.FullAdStudio && FullAdStudio.isOn()) FullAdStudio.draw(); } catch (e){}
 }
 
 let _saasBound = false;
@@ -9875,7 +9992,11 @@ function bindEasyUI(){
 
   bindSaasUI();
   bindNavExtras();
-  document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => b.dataset.goto === 'plans' ? openPlans() : showEasy(null));
+  /* a paid plan's button on the landing (data-plan, scripts/build_pricing.mjs) opens that plan's
+     checkout for a signed-in visitor; signed out, the plans page, which asks for the account first */
+  document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => b.dataset.goto === 'plans'
+    ? (b.dataset.plan && PLANS[b.dataset.plan] && account ? startCheckout({ plan: b.dataset.plan, interval: 'month' }) : openPlans())
+    : showEasy(null));
   bindTxtPop();
   buildThemeRow();
   buildVoiceRow();                                   // the type pairs (rule 100)
@@ -10397,7 +10518,11 @@ function restoreEzState(){
 function schedEzPreview(delay){
   persistEzState();
   clearTimeout(ezPrevTimer);
-  ezPrevTimer = setTimeout(() => { $('ez-preview').src = renderEzCanvas(560, 'jpeg'); }, delay === 0 ? 0 : 250);
+  ezPrevTimer = setTimeout(() => {
+    const url = renderEzCanvas(560, 'jpeg'), n = schedEzPreview.seq = (schedEzPreview.seq || 0) + 1;
+    if (!previewMarks()){ previewMarked = false; $('ez-preview').src = url; return; }   // unmarked: at once, as it always was
+    markPreviewUrl(url).then(u => { if (n === schedEzPreview.seq) $('ez-preview').src = u; });   // the latest preview wins
+  }, delay === 0 ? 0 : 250);
 }
 
 // One-click category pack: renders every unlocked template in the current
@@ -11721,13 +11846,17 @@ function scSku(c){
 }
 function scLoadPicks(){
   if (SHOWCASE.picks) return Promise.resolve(SHOWCASE.picks);
-  return fetch('assets/hero-picks.json', { cache:'no-cache' })
+  /* the house ads among the picks (a recipe, "r-...", or a look of the full ad, "full-<line>[-v<n>]",
+     DESIGN-LAW 145) have no baked thumbnail: scripts/build_hero_stills.mjs draws one each and lists
+     them in assets/hero/index.json, read here beside the picks */
+  const house = fetch('assets/hero/index.json', { cache:'no-cache' }).then(r => r.ok ? r.json() : null).then(j => (SHOWCASE.house = (j && j.items) || {})).catch(() => (SHOWCASE.house = {}));
+  return Promise.all([house, fetch('assets/hero-picks.json', { cache:'no-cache' })
     .then(r => r.ok ? r.json() : null)
     .then(j => {
       SHOWCASE.never = (j && Array.isArray(j.never)) ? j.never.map(k => String(k).trim().toUpperCase()) : [];
       return (SHOWCASE.picks = (j && Array.isArray(j.picks)) ? j.picks : []);
     })
-    .catch(() => (SHOWCASE.picks = []));
+    .catch(() => (SHOWCASE.picks = []))]).then(([, picks]) => picks);
 }
 /* KEPT OFF THE WALL. The owner, 2026-11-11, of the iPad "Studio list" offer
    card on the home page: "This ad I'm not very proud of and I wouldn't put
@@ -11749,10 +11878,33 @@ function scPickedCards(cards){
   cards.forEach(c => { byId[c.id] = c; bySku[scSku(c)] = c; });
   const out = [];
   want.forEach(k => {
+    const h = (SHOWCASE.house || {})[k];
+    if (h){ out.push(scHouseItem(k, h)); return; }
     const c = byId[k] || bySku[String(k).trim().toUpperCase()];
-    if (c && out.indexOf(c) === -1) out.push(c);
+    if (c && out.indexOf(c) === -1){ out.push(c); return; }
+    const t = typeof TEMPLATES !== 'undefined' && /^(of|dl)_/.test(String(k)) ? TEMPLATES.find(x => x.id === k && !x.gated) : null;
+    if (t && !out.some(x => x.classic === t)) out.push({ classic:t });
   });
   return out;
+}
+/* a hand-picked house ad as a wall item: its own still, its line's place in the platform mix, a
+   family of its own (the owner picked it: the wall's two-of-a-layout cap is not for it), centred
+   as the full ad always is */
+function scHouseItem(id, h){
+  const subject = typeof PLATFORM_MIX !== 'undefined' ? PLATFORM_MIX.templateSubject({ line: h.line, cat: h.cat, layers: [] }) : h.cat;
+  return { house: { id, ...h }, id, name: h.name, cat: h.cat, subject, thumb: h.thumb, theme: h.pair, layout: 'house:' + id, align: 'center', product: null, chroma: 1, imagery: 'product' };   // product null: the picture rule does not drop a hand pick
+}
+/* a house ad opened from the wall: Easy Mode's full ad, on that recipe, or that line and look */
+function openHouseAd(h){
+  showEasy();
+  const FS = window.FullAdStudio; if (!FS) return;
+  Promise.resolve(h.kind === 'recipe' ? FS.useRecipe(h.id) : null).then(() => {
+    if (h.kind !== 'recipe'){
+      if (currentCat !== h.cat) setCategory(h.cat);
+      const FA = FS.state; FA.line[h.cat] = h.line; FA.recipe[h.cat] = ''; FA.seed = h.seed || 1; FA.pair = ''; FA.voice = ''; FA.set = {};
+    } else FS.state.seed = 1;
+    FS.enter();
+  });
 }
 /* THE ONE "LIVE" PREDICATE: not condemned, with imagery, with colour. The
    scripts import the same test from scripts/_showcase_harness.mjs (live()). */
@@ -11901,6 +12053,54 @@ function scMix(list, limit){
   if (typeof PLATFORM_MIX === 'undefined') return typeof limit === 'number' ? list.slice(0, limit) : list;
   return PLATFORM_MIX.order(list, scSubject, limit);
 }
+/* THE WALL'S VARIETY (owner, 2026-11-18, of the landing's wall: "the heros barely have any
+   variety..", "all of the CTA still look a little too common and similar", and "most of the time
+   we want it centered... like 70-80% of the time sometimes aligned left and rarely aligned right.
+   that's awkward looking."). Seven of the hand picks were Steps Flow cards and three offer cards
+   were the same Studio row, each with its number on the same band. The mix still decides which
+   line every slot is for (PLATFORM_MIX, its shares untouched); within a line the wall now takes
+   the first card that keeps it varied: at most two cards of one layout family (a library layout,
+   or an offer layout across every line), one product picture once, and about three in four
+   centred, at most one in five left, none right. A line with nothing that fits relaxes the
+   rules in that order (the picture, the alignment, the family) rather than leave a slot empty. */
+const WALL_FAMILY_MAX = 2, WALL_LEFT = 0.2, WALL_RIGHT = 0;
+function scWallFamily(it){ return it.classic ? 'of:' + (it.classic.layout || it.classic.id) : (it.layout || it.id); }
+function scWallProduct(it){
+  if (!it.classic) return it.product || null;
+  const l = (it.classic.layers || []).find(x => x && x.role === 'photo' && x.props && x.props.src);
+  return l ? String(l.props.src).split('/').pop() : null;
+}
+function scWallAlign(it){
+  if (!it.classic) return it.align || 'center';                          // the index's own, from the card's headline
+  const h = (it.classic.layers || []).find(x => x && x.role === 'headline' && x.props);
+  if (!h) return 'center';
+  const ox = h.props.originX || 'left';
+  return ox === 'center' ? 'center' : ox === 'right' ? 'right' : (h.props.left || 0) < TPL_W * 0.25 ? 'left' : 'center';
+}
+function scWallVariety(order, want){
+  const subj = it => scSubject(it) || '', slots = order.slice(0, want).map(subj), queues = {};
+  order.forEach(it => { (queues[subj(it)] = queues[subj(it)] || []).push(it); });
+  const fam = {}, prods = new Set(), al = { left:0, right:0 };
+  const most = { left: Math.round(want * WALL_LEFT), right: Math.round(want * WALL_RIGHT) };
+  const fits = (it, level) => {
+    const a = scWallAlign(it), p = scWallProduct(it);
+    if (level >= 1 && (fam[scWallFamily(it)] || 0) >= WALL_FAMILY_MAX) return false;
+    if (level >= 2 && (a === 'left' || a === 'right') && al[a] >= most[a]) return false;
+    if (level >= 3 && p && prods.has(p)) return false;
+    return true;
+  };
+  return slots.map(s => {
+    const q = queues[s] || [];
+    let i = -1;
+    for (let level = 3; level >= 0 && i < 0; level--) i = q.findIndex(it => fits(it, level));
+    if (i < 0) return null;
+    const it = q.splice(i, 1)[0], a = scWallAlign(it), p = scWallProduct(it);
+    fam[scWallFamily(it)] = (fam[scWallFamily(it)] || 0) + 1;
+    if (a === 'left' || a === 'right') al[a]++;
+    if (p) prods.add(p);
+    return it;
+  }).filter(Boolean);
+}
 function scBuildWall(cards){
   const wall = $('hero-wall');
   if (!wall) return;
@@ -11951,7 +12151,13 @@ function scBuildWall(cards){
     const free = list => list.filter(c => !scLocked(c)).concat(list.filter(c => scLocked(c)));
     const offers = varietyOrder(scOfferPool().filter(t => !scOffWall(t)));
     const offerItems = offers.filter(t => !tplLocked(t)).concat(offers.filter(t => tplLocked(t))).map(t => ({ classic:t }));
-    picks = scMix(chosenByHand.concat(free(fresh), free(again), offerItems), want);
+    /* and, behind the vivid ones, the rest of the library's clean cards that show a product: the
+       wall's alignment odds need centred cards for the Apple lines, where the vivid set is thin and
+       every offer card but Centre and Floating sets its words on the left (2026-11-18) */
+    const rest = cards.filter(c => c.imagery === 'product' && !(c.blur >= 15) && typeof c.chroma === 'number' && c.chroma >= 0.06
+      && !(c.school && c.school.warn && c.school.warn.length) && chosenByHand.indexOf(c) === -1 && vivid.indexOf(c) === -1)
+      .sort((a, b) => b.chroma - a.chroma);
+    picks = scWallVariety(scMix(chosenByHand.concat(free(fresh), free(again), free(rest), offerItems)), want);
   } else {
     const buckets = {};
     vivid.forEach(c => { const b = Math.floor(((c.hue || 0) % 360) / 60); (buckets[b] = buckets[b] || []).push(c); });
@@ -12007,7 +12213,7 @@ function scBuildWall(cards){
       }
       d.title = c.name;
       d.innerHTML = `<img src="${assetUrl(c.thumb)}" alt="${escHtml(c.name)} template" loading="${k < 3 ? 'eager' : 'lazy'}" decoding="async">`;   // the wall is the shop window: tilted 448px thumbs, no guard needed
-      d.onclick = () => openShowcase(c.id);
+      d.onclick = () => c.house ? openHouseAd(c.house) : openShowcase(c.id);
       col.appendChild(d);
     });
   });
@@ -13377,23 +13583,13 @@ function motionSound(rate){
   return ac.startRendering();
 }
 
-/* The four corner marks, shared by the PNG watermark and every video frame so
-   the two cannot drift apart. Satoshi 900 is vendored; the old "DM Sans" was
-   not, so every free export had been silently set in a fallback face. */
+/* The BUYBACK.AD mark, shared by the PNG watermark, every video frame and
+   every marked preview so they cannot drift apart: one drawing, in
+   watermark.js (window.PgfxMark), which the video maker draws too. Until
+   2026-11-17 it was four words in the corners, which a crop took off. */
 function drawWatermarkMarks(x, w, h){
-  const base = Math.min(w, h);
-  const fs = Math.round(base * 0.032);
-  x.save();
-  x.font = '900 ' + fs + 'px Satoshi, sans-serif';
-  x.globalAlpha = 0.5;
-  x.shadowColor = 'rgba(0,0,0,0.55)'; x.shadowBlur = fs * 0.35;
-  x.fillStyle = '#ffffff';
-  const pad = Math.round(base * 0.06), t = 'BUYBACK.AD';
-  x.textAlign = 'center'; x.textBaseline = 'middle';
-  [[pad, pad, 45], [w - pad, pad, -45], [pad, h - pad, -45], [w - pad, h - pad, 45]].forEach(([cx, cy, deg]) => {
-    x.save(); x.translate(cx, cy); x.rotate(deg * Math.PI / 180); x.fillText(t, 0, 0); x.restore();
-  });
-  x.restore();
+  if (!window.PgfxMark) throw new Error('The watermark did not load. Reload the page and try again.');   // no mark, no file
+  PgfxMark.draw(x, w, h);
 }
 
 /* H.264 MP4 first: Instagram and TikTok reject WebM on upload. Chrome 126+
@@ -13657,6 +13853,11 @@ function previewVideo(o, v, then){
   const vid = document.createElement('video');
   vid.src = v.url || (v.url = URL.createObjectURL(v.blob));
   vid.loop = true; vid.controls = true; vid.playsInline = true; vid.setAttribute('playsinline', '');
+  /* the player's own Download, picture-in-picture and right-click Save video are off: the
+     buttons below are the way out, counted and at the plan's marks (2026-11-17: the player
+     handed a signed-out visitor the clean, full-size MP4) */
+  vid.setAttribute('controlslist', 'nodownload noremoteplayback'); vid.disablePictureInPicture = true;
+  vid.addEventListener('contextmenu', e => e.preventDefault());
   vid.style.aspectRatio = v.w + ' / ' + v.h;
   const said = document.createElement('p'); said.className = 'vh-said'; said.setAttribute('role', 'status'); said.setAttribute('aria-live', 'polite');
   said.textContent = v.w + '×' + v.h + ', ' + MOTION.dur + ' seconds' + (v.ext === 'mp4' ? '' : ', WebM') + '. Nothing is downloaded until you choose.';
@@ -13667,7 +13868,7 @@ function previewVideo(o, v, then){
   const gate = async (msg, what) => {
     if (!account) await loadAccount();
     if (!account){ VH.close(); openAuth(msg, again(what)); return null; }
-    const g = await gateExport(o.px);
+    const g = await gateExport(o.px, what === 'jpg' ? 'photo' : 'video');   // a video and its library save count on the video meter
     if (!g) VH.close();                                    // out of downloads: the plans page, under this pop-up
     return g;
   };
@@ -13678,10 +13879,15 @@ function previewVideo(o, v, then){
   };
   const actions = {
     mp4: async b => {
-      const g = await gate('Sign in to download your video. Video downloads come with Pro and Business.', 'mp4'); if (!g) return;
-      if (!g.video){ VH.close(); openPlans(VIDEO_UPSELL); return; }
+      const actx = o.watermark && motionSoundOn() ? motionAudioContext() : null;   // inside the click, for a video made again below
+      const g = await gate('Sign in to download your video. Video downloads come with Pro and Business.', 'mp4');
+      if (!g || !g.video){ if (actx) try { actx.close(); } catch (e){} if (g){ VH.close(); openPlans(VIDEO_UPSELL); } return; }
       // no plan downloads video with the marks today; one that does gets a video made with them
-      if (g.watermark){ VH.close(); lastVideo = null; return runVideoExport(Object.assign({}, o, { preview: false, watermark: true, actx: null })); }
+      if (g.watermark){ if (actx) try { actx.close(); } catch (e){} VH.close(); lastVideo = null; return runVideoExport(Object.assign({}, o, { preview: false, watermark: true, actx: null })); }
+      /* the preview was made with the marks (signed out or Free when it was made) and this plan
+         downloads it clean: the clean video is made now, with its sound, and counted as it goes */
+      if (o.watermark){ VH.close(); lastVideo = null; return runVideoExport(Object.assign({}, o, { preview: false, watermark: false, actx })); }
+      if (actx) try { actx.close(); } catch (e){}
       b.textContent = 'Choosing the photo…';
       let photo = null, photoErr = null;
       try { photo = await photoFor(false, motionPhotoCap()); }
@@ -13825,7 +14031,7 @@ async function ezDownloadVideo(opts = {}){
     return;
   }
   if (!motionMime(!!actx) && typeof VideoEncoder !== 'function'){ videoTrouble({ w: 1080, h: 1080, actx, btn: $('ez-video') }, new Error('this browser cannot record video')); return; }
-  const gate = opts.preview ? { px: ezExportPx(), watermark: false } : await gateExport(ezExportPx());
+  const gate = opts.preview ? { px: ezExportPx(), watermark: previewMarks() } : await gateExport(ezExportPx(), 'video');   // the preview carries what the download would
   if (!gate) return;
   if (!opts.preview && !gate.video){ openPlans(VIDEO_UPSELL); return; }
   /* the very scene the PNG export draws (renderEzCanvas keeps it instead of
@@ -13840,7 +14046,7 @@ async function editorDownloadVideo(opts = {}){
   const actx = motionSoundOn() ? motionAudioContext() : null;
   if (!canvas) return;
   if (!motionMime(!!actx) && typeof VideoEncoder !== 'function'){ videoTrouble({ w: 1080, h: 1080, actx, btn: $('ex-video') }, new Error('this browser cannot record video')); return; }
-  const gate = opts.preview ? { px: exportSize, watermark: false } : await gateExport(exportSize);
+  const gate = opts.preview ? { px: exportSize, watermark: previewMarks() } : await gateExport(exportSize, 'video');   // the preview carries what the download would
   if (!gate) return;
   if (!opts.preview && !gate.video){ openPlans(VIDEO_UPSELL); return; }
   const d = exportDims(Math.min(gate.px, MOTION.maxShort));
@@ -15998,10 +16204,11 @@ function ezPatDragBind(){
       raf = 0; if (!d) return;
       ezTagSync();
       const sc = d.sc;
-      if (!sc){ img.src = renderEzCanvas(560, 'jpeg'); return; }
+      const n = schedEzPreview.seq = (schedEzPreview.seq || 0) + 1;    // a preview still being marked lands under this one
+      if (!sc){ markPreviewUrl(renderEzCanvas(560, 'jpeg')).then(u => { if (n === schedEzPreview.seq) img.src = u; }); return; }
       sc.getObjects().forEach(o => { if (o.fill && o.fill.pgSlide){ o.fill.pgSlide(ez.tag.patX, ez.tag.patY, o); o.dirty = true; } });
       sc.renderAll();
-      img.src = sc.toDataURL({ format: 'jpeg', quality: 0.85, multiplier: 560 / Math.min(sc.width, sc.height) });
+      img.src = previewJpeg(sc.toCanvasElement(560 / Math.min(sc.width, sc.height)), 0.85);   // marked as the preview is (previewMarks)
     });
   });
   const end = () => {
