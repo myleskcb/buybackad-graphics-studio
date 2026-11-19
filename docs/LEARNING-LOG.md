@@ -5966,7 +5966,7 @@ RESUME HERE:
      branch (step 5), then steps 6 and 7.
   1. §BL open 1: the wordmark, BUYBACK.AD or WEBUY.AD, is the owner's call.
 
-## 2026-11-19 — WeBuy.AD in reselling.us's look (DESIGN-LAW 147, 148)
+## 2026-11-19 — WeBuy.AD in reselling.us's look (DESIGN-LAW 152, 153)
 
 Asked: "logos branding webkit", "all aspects need to finish and it needs to
 have similar or matching styling to reselling.us", "or color scheming at
@@ -5992,9 +5992,17 @@ Found:
     party and a recorded version. Rename the product, not the party, without
     the owner.
 
+  - The explainer videos had been silent after 8 seconds since they were
+    made: the tracks are 12-second clips and the render started 4 s in. A
+    probe of each file's audio stream length against its picture would have
+    caught it the day it shipped; run one after any render.
+  - DESIGN-LAW numbers are claimed on branches long before they reach main:
+    138 and 139 were taken on eight branches. Grep every branch and worktree
+    (`git show <branch>:DESIGN-LAW.md`) before numbering a rule.
+
 RESUME HERE:
-  0. OPEN-ITEMS §BM "Open": the terms' party and version, the explainer
-     videos' end card, the Stripe portal's line.
+  0. OPEN-ITEMS §BM "Open": the terms' party and version, the Stripe
+     portal's line. The explainers are done.
   1. §BL: the webhook move after the first checkout, iPhones LA's allowlist,
      the contact address, live Stripe keys.
 
@@ -6005,14 +6013,15 @@ Auto-fix: GitHub said pull request 14 conflicted with `main`, which had taken th
 (webuy.ad as the site's address; the reselling.us look; the name WeBuy.AD). Merged here:
 
 - **The numbers.** `main` had numbered its two rules 138 and 139 and its open items BD and BE,
-  which this branch already held (138 to 145, BD to BJ). Main's became rules 147 and 148 and
-  open items BL and BM, as pull request 15 numbers them (after its 146 and BK; the census
-  branch's 146 to 149 move when it lands), and the lines main added that cite them say so. Each carries a line saying what it was numbered.
-- **The name** (rule 148): "WeBuy.AD wherever the product or the site is named, the watermark
+  which this branch already held (138 to 145, BD to BJ). Main then renumbered its own rules
+  152 and 153 (5dfd1b7b, the same day), and this branch follows it; its open items keep the
+  letters BL and BM here, since BD and BE are this branch's, and the lines main added that
+  cite them say so.
+- **The name** (rule 153): "WeBuy.AD wherever the product or the site is named, the watermark
   on free exports included". So the lattice keeps this branch's drawing (rule 142) and draws
   the new name (`watermark.js` WORD), and this branch's own words for it follow: the plan
   cards and table (`netlify/lib/plans.mjs`, rebuilt by `build_pricing.mjs`), the FAQ, the
-  approval page's title and the code's comments. BUYBACK.AD stays where rule 148 keeps it:
+  approval page's title and the code's comments. BUYBACK.AD stays where rule 153 keeps it:
   the copyright line, and the terms and privacy policy.
 - **The rest** of each side merged on its own: main's look, wordmark, icon, share card and
   address; this branch's engine, census, watermark and fixes. The CSP's inline hashes are
