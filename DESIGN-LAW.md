@@ -6269,6 +6269,23 @@ The rule:
   - `scripts/full_look_sheet.mjs --recipes`: a sheet of the rebuilt recipes beside the same
     recipes before.
 
+**2026-11-18, the old cards retired.** Asked whether to retire the old static library cards and
+offer cards now that each has a rebuilt version, the owner said "Retire them".
+
+- **What was retired:** 366 library cards were held (`assets/showcase/holds.json`) and 299 offer
+  templates retired (`template-retired.js`), each with "rebuilt as r-..." for its reason, by
+  `scripts/retire_older_ads.mjs --rebuilt`. The 77 designer layouts stay. Nothing is deleted:
+  deleting a row brings a card back.
+- **What stands in their place:** the rebuilt ad. `app.js` `scLoadShelf` gives the landing's
+  library grid, its wall, the editor's library and a card's `?card=` link the live cards plus the
+  rebuilt ad of every retired one. Each rebuilt ad shows its still
+  (`scripts/build_recipe_stills.mjs`, `assets/recipe-stills/`, 665) and opens in Easy Mode's full ad
+  on its own seed. `scLoadIndex` stays the library cards alone, as the scripts read it.
+- **The hero wall:** its picks that were library cards point at their rebuilt recipes.
+- **The recipes do not move when their cards retire:** `build_recipes.mjs` reads each card from
+  its index, and the templates with `?noretire=1`, keeping those retired because they were rebuilt
+  and leaving out any other retirement.
+
 Not done here: OPEN-ITEMS §BJ 9.
 
 ## 148. A face-up iPhone wears an iOS lock screen, laid out as iOS lays one out

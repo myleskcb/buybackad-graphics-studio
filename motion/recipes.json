@@ -1,8 +1,8 @@
 {
  "_doc": "Every older ad the studio offers (library cards, designer layouts, offer cards), read as it opens and written as a recipe the full ad draws as a photo and a video: its words (the one list and the proof words left out), its line, its product cut-outs (a named car make shown as that make), its ground photograph, the nearest of the twelve pairs and its face pair where the full ad holds it (both for the record). Rebuilt 2026-11-18 (the owner: \"take them as inspiration but rebuild them all\"): each is drawn on a seed of its own (seed) and leans toward what its card took after (look: its family and colourway; hint: spec/recipe-looks.json), never locked to it; its own pictures only where its words name the product or its line has no pool. Made by scripts/build_recipes.mjs; never edit by hand. DESIGN-LAW 144, 145, OPEN-ITEMS §BJ.",
- "count": 738,
+ "count": 742,
  "by": {
-  "library": 362,
+  "library": 366,
   "layouts": 77,
   "offer": 299
  },
@@ -13973,6 +13973,63 @@
    "type_pair": "luxe"
   },
   {
+   "id": "r-reviewProof-ca07-20",
+   "from": "reviewProof-ca07-20",
+   "gen": "sc",
+   "cat": "gold",
+   "subject": "gold",
+   "label": "Review Proof (library card)",
+   "seed": 365,
+   "look": {
+    "family": "reviewProof"
+   },
+   "hint": {
+    "ground": [
+     "pat_paper",
+     "house"
+    ],
+    "face": [
+     "note",
+     "grotesk",
+     "luxe"
+    ],
+    "headline": [
+     "box",
+     "highlighter"
+    ],
+    "sticker": [
+     "seal",
+     "badge",
+     "stamp"
+    ],
+    "number": [
+     "pill",
+     "underline"
+    ],
+    "tone": "light"
+   },
+   "words": {
+    "headline": "GOLD JEWELRY BUYER",
+    "claim": "✓ NO FEES • ✓ DISCREET • ✓ PRIVATE",
+    "points": "NO FEES, DISCREET, PRIVATE",
+    "label": "GET A FREE QUOTE"
+   },
+   "pictures": [],
+   "ground_photo": {
+    "src": "assets/bg-web/gold-gold-jewelry-rings-3.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.42,
+    "from": "reviewProof-ca07-20",
+    "shows": "product",
+    "subject": "gold"
+   },
+   "pair": "purple_gold",
+   "type_pair": ""
+  },
+  {
    "id": "r-scriptRetro-nn01-30",
    "from": "scriptRetro-nn01-30",
    "gen": "sc",
@@ -17853,12 +17910,70 @@
    ]
   },
   {
+   "id": "r-trustSeal-jw10-31",
+   "from": "trustSeal-jw10-31",
+   "gen": "sc",
+   "cat": "silver",
+   "subject": "silver",
+   "label": "Trust Seal 3 (library card)",
+   "seed": 82485,
+   "look": {
+    "family": "trustSeal"
+   },
+   "hint": {
+    "ground": [
+     "pair_radial",
+     "pair_arch",
+     "house"
+    ],
+    "face": [
+     "luxe",
+     "varsity",
+     "grotesk"
+    ],
+    "headline": [
+     "foil",
+     "inline"
+    ],
+    "sticker": [
+     "seal",
+     "badge"
+    ],
+    "fill": [
+     "foil"
+    ]
+   },
+   "words": {
+    "headline": "YOUR LOCAL SILVER BUYER",
+    "tag": "STERLING • .925 • SILVERWARE • ANTIQUES • TIFFANY & CO",
+    "claim": "FAST CASH",
+    "points": "CASH, TEXT A PIC, FREE QUOTE"
+   },
+   "pictures": [],
+   "ground_photo": {
+    "src": "assets/bg-web/silver-silver-cutlery-2.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.25,
+    "from": "trustSeal-jw10-31",
+    "shows": "product",
+    "subject": "silver"
+   },
+   "pair": "black_gold",
+   "type_pair": "",
+   "notes": [
+    "its picture (silver-flatware-set) left to the line's pool"
+   ]
+  },
+  {
    "id": "r-trustSeal-nn04-20",
    "from": "trustSeal-nn04-20",
    "gen": "sc",
    "cat": "silver",
    "subject": "silver",
-   "label": "Trust Seal 3 (library card)",
+   "label": "Trust Seal 4 (library card)",
    "seed": 99439,
    "look": {
     "family": "trustSeal"
@@ -21393,7 +21508,7 @@
    "gen": "sc",
    "cat": "coins",
    "subject": "coins",
-   "label": "Trust Seal (library card)",
+   "label": "Trust Seal 1 (library card)",
    "seed": 41384,
    "look": {
     "family": "trustSeal"
@@ -21441,6 +21556,55 @@
    },
    "pair": "black_green",
    "type_pair": ""
+  },
+  {
+   "id": "r-trustSeal-jw10-30",
+   "from": "trustSeal-jw10-30",
+   "gen": "sc",
+   "cat": "coins",
+   "subject": "coins",
+   "label": "Trust Seal 2 (library card)",
+   "seed": 61616,
+   "look": {
+    "family": "trustSeal"
+   },
+   "hint": {
+    "ground": [
+     "pair_radial",
+     "pair_arch",
+     "house"
+    ],
+    "face": [
+     "grotesk",
+     "luxe",
+     "varsity"
+    ],
+    "headline": [
+     "foil",
+     "inline"
+    ],
+    "sticker": [
+     "seal",
+     "badge"
+    ],
+    "fill": [
+     "foil"
+    ]
+   },
+   "words": {
+    "headline": "YOUR LOCAL COINS BUYER",
+    "tag": "GRAILS • MORGANS • PEACE DOLLARS • KEY DATES • JUNK SILVER",
+    "claim": "JUNK SILVER TOO",
+    "points": "TEXT A PIC, FREE QUOTE, NO FEES"
+   },
+   "pictures": [],
+   "ground_photo": null,
+   "pair": "navy_gold",
+   "type_pair": "grotesk",
+   "notes": [
+    "left out 1 flagged or rejected picture",
+    "cash ground left out"
+   ]
   },
   {
    "id": "r-voltStack-du05-15",
@@ -30300,6 +30464,63 @@
    },
    "pair": "green_gold",
    "type_pair": "warp"
+  },
+  {
+   "id": "r-reviewProof-gl02-20",
+   "from": "reviewProof-gl02-20",
+   "gen": "sc",
+   "cat": "strips",
+   "subject": "strips",
+   "label": "Review Proof (library card)",
+   "seed": 309,
+   "look": {
+    "family": "reviewProof"
+   },
+   "hint": {
+    "ground": [
+     "pat_paper",
+     "house"
+    ],
+    "face": [
+     "note",
+     "grotesk",
+     "luxe"
+    ],
+    "headline": [
+     "box",
+     "highlighter"
+    ],
+    "sticker": [
+     "seal",
+     "badge",
+     "stamp"
+    ],
+    "number": [
+     "pill",
+     "underline"
+    ],
+    "tone": "light"
+   },
+   "words": {
+    "headline": "TEST STRIPS BUYER",
+    "claim": "✓ DISCREET • ✓ FAST • ✓ FAIR",
+    "points": "DISCREET, FAST, FAIR",
+    "label": "GET YOUR OFFER"
+   },
+   "pictures": [],
+   "ground_photo": {
+    "src": "assets/bg-web/strips-contour-next-test-strips-1.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.49,
+    "from": "reviewProof-gl02-20",
+    "shows": "product",
+    "subject": "strips"
+   },
+   "pair": "green_gold",
+   "type_pair": ""
   },
   {
    "id": "r-scriptRetro-ik05-30",

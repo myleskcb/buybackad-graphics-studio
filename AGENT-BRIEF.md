@@ -688,3 +688,7 @@ produced." DESIGN-LAW rule 87. In practice:
   (`spec/recipe-looks.json`, `motion/recipe-lean.js`) toward its family's idea and colourway.
   Never lock a recipe to its card's pair, face, photograph or picture; the product is the line's
   pool unless the words name it.
+- **The old library and offer cards are retired** (the owner, 2026-11-18). The landing shows each
+  card's rebuilt ad from `assets/recipe-stills/` (`node scripts/build_recipe_stills.mjs`, `--check`)
+  through `scLoadShelf`; `scLoadIndex` is the library cards alone. Rebuild the stills when the
+  recipes or the engine change (`--all`).

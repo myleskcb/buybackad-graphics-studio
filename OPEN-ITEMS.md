@@ -3967,9 +3967,12 @@ Open:
      Flyer left the 29 vetted faces: 28 remain.
 
    **open**:
-   - **owner**: retire the older renderings (the 362 library cards' and 300 offer cards' fabric
-     versions) now that their recipes stand in for them (`scripts/retire_older_ads.mjs`).
-   - **owner**: re-pick the hero wall from the rebuilt recipes on the review page.
+   - The older renderings are retired (the owner: "Retire them"): 366 library cards held, 299 offer
+     templates retired, each "rebuilt as r-...". The landing, the editor's library and a card's link
+     show the rebuilt ad in its place (`scLoadShelf`, `assets/recipe-stills/`). The designer layouts
+     stay.
+   - **owner**: re-pick the hero wall from the rebuilt recipes on the review page; the wall's old
+     picks point at their rebuilt recipes meanwhile.
    - **owner**: a VR headset and a gaming laptop photograph, so their cards show the product.
 10. **The iPhone lock screens, and the call to action's marks** (DESIGN-LAW 148, 149) — **done**:
     lock screens laid out as iOS lays them out (a status bar in iOS's measures, four layouts:

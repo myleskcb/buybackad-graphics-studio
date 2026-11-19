@@ -11884,7 +11884,8 @@ function scLoadPicks(){
   /* the house ads among the picks (a recipe, "r-...", or a look of the full ad, "full-<line>[-v<n>]",
      DESIGN-LAW 145) have no baked thumbnail: scripts/build_hero_stills.mjs draws one each and lists
      them in assets/hero/index.json, read here beside the picks */
-  const house = fetch('assets/hero/index.json', { cache:'no-cache' }).then(r => r.ok ? r.json() : null).then(j => (SHOWCASE.house = (j && j.items) || {})).catch(() => (SHOWCASE.house = {}));
+  const house = Promise.all([fetch('assets/hero/index.json', { cache:'no-cache' }).then(r => r.ok ? r.json() : null).catch(() => null), scLoadRebuilt()])
+    .then(([j, rebuilt]) => (SHOWCASE.house = { ...Object.fromEntries(Object.entries(rebuilt || {}).map(([k, h]) => [k, { ...h, kind: 'recipe' }])), ...((j && j.items) || {}) }));
   return Promise.all([house, fetch('assets/hero-picks.json', { cache:'no-cache' })
     .then(r => r.ok ? r.json() : null)
     .then(j => {
@@ -11929,6 +11930,19 @@ function scHouseItem(id, h){
   const subject = typeof PLATFORM_MIX !== 'undefined' ? PLATFORM_MIX.templateSubject({ line: h.line, cat: h.cat, layers: [] }) : h.cat;
   return { house: { id, ...h }, id, name: h.name, cat: h.cat, subject, thumb: h.thumb, theme: h.pair, layout: 'house:' + id, align: 'center', product: null, chroma: 1, imagery: 'product' };   // product null: the picture rule does not drop a hand pick
 }
+/* the stills of the rebuilt library and offer ads (assets/recipe-stills/index.json), once */
+function scLoadRebuilt(){
+  if (SHOWCASE._rebuilt) return SHOWCASE._rebuilt;
+  return (SHOWCASE._rebuilt = fetch('assets/recipe-stills/index.json', { cache:'no-cache' })
+    .then(r => r.ok ? r.json() : null).then(j => (SHOWCASE.rebuilt = (j && j.items) || {})).catch(() => (SHOWCASE.rebuilt = {})));
+}
+/* a rebuilt ad as a library card: a house item (scHouseItem) named and grouped as its card was, by its
+   card's family (glassCard reads "Glass Card") and the pair it is drawn in */
+function scRebuiltCard(id, h){
+  const fam = String(h.family || '').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, ch => ch.toUpperCase()) || 'House ad';
+  // its layout is its card's family, so the wall's two-of-a-layout cap keeps two cards of one family apart
+  return Object.assign(scHouseItem(id, { ...h, kind: 'recipe' }), { family: fam, theme: h.pairName || h.pair || 'House', accent: h.accent || '', layout: 'rebuilt:' + (h.family || id), rebuilt: true });
+}
 /* a house ad opened from the wall: Easy Mode's full ad, on that recipe, or that line and look */
 function openHouseAd(h){
   showEasy();
@@ -11970,6 +11984,25 @@ function scLoadIndex(){
     })
     .catch(() => (SHOWCASE.cards = []));
   return SHOWCASE._p;
+}
+/* THE SHELF: the live library cards, and the rebuilt ad of every retired one (the owner, 2026-11-18,
+   asked to retire the old static library and offer cards now that each has a rebuilt version: "Retire
+   them"; DESIGN-LAW 147). A recipe made from a card that is no longer offered (held, or a retired offer
+   template) stands where the card stood: its still (scripts/build_recipe_stills.mjs), its line, its
+   card's family, its pair, opened in Easy Mode's full ad on its own seed (openHouseAd). The landing, the
+   editor's library and a card's link read the shelf; scLoadIndex stays the library cards alone, as the
+   scripts read it. */
+function scLoadShelf(){
+  if (SHOWCASE.shelf) return Promise.resolve(SHOWCASE.shelf);
+  return (SHOWCASE._shelf = SHOWCASE._shelf || Promise.all([scLoadIndex(), scLoadRebuilt()]).then(([cards, items]) => {
+    const live = new Set(cards.map(c => c.id)), extra = [];
+    const offered = id => /^of_/.test(id) && typeof TEMPLATES !== 'undefined' && TEMPLATES.some(t => t.id === id && !t.gated);
+    for (const [id, h] of Object.entries(items || {})) {
+      if (live.has(h.from) || offered(h.from)) continue;
+      const c = scRebuiltCard(id, h); extra.push(c); SHOWCASE.byId[id] = c; (SHOWCASE.rebuiltOf = SHOWCASE.rebuiltOf || {})[h.from] = id;
+    }
+    return (SHOWCASE.shelf = cards.concat(extra));
+  }).catch(() => (SHOWCASE.shelf = SHOWCASE.cards || [])));
 }
 /* Strongest first — the owner's approval count for this layout+palette pair
    across every reviewed set, then the card's own edge density — and then
@@ -12365,7 +12398,8 @@ function scOffers(){
   return pool.filter(t => !tplLocked(t)).concat(pool.filter(t => tplLocked(t)));
 }
 function scStudioCat(cat){
-  if (SHOWCASE.cards && SHOWCASE.cards.some(c => c.cat === cat)) return [];
+  const shelf = SHOWCASE.shelf || SHOWCASE.cards;
+  if (shelf && shelf.some(c => c.cat === cat)) return [];
   const pool = orderedCatList(cat);
   return pool.filter(t => !tplLocked(t)).concat(pool.filter(t => tplLocked(t)));
 }
@@ -12395,7 +12429,7 @@ function scCard(c){
     ${locked ? '<div class="pro-guard"></div><div class="tpl-lockpill">🔒 PRO</div>' : ''}
     <div class="tpl-use">${locked ? 'Unlock with Pro →' : 'Use template →'}</div>
     <div class="tpl-meta"><span class="tpl-name">${escHtml(c.name)}</span><span class="tpl-tag">${escHtml(c.family)}</span></div>`;
-  const go = () => openShowcase(c.id);
+  const go = () => c.house ? openHouseAd(c.house) : openShowcase(c.id);   // a rebuilt ad opens in the full ad
   card.onclick = go;
   card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } };
   return card;
@@ -12422,7 +12456,8 @@ function scClassicCard(t){
 }
 function scRenderGrid(reset){
   const grid = $('lp-tpl-grid');
-  if (!grid || !SHOWCASE.cards) return;
+  const shelf = SHOWCASE.shelf || SHOWCASE.cards;
+  if (!grid || !shelf) return;
   const f = SHOWCASE.filter;
   if (reset !== false){
     SHOWCASE.shown = 0;
@@ -12434,7 +12469,7 @@ function scRenderGrid(reset){
     } else if (f.cat !== 'all' && scStudioCat(f.cat).length){
       SHOWCASE.list = scStudioCat(f.cat).map(t => ({ classic:t }));
     } else {
-      const sub = SHOWCASE.cards.filter(c => (f.cat === 'all' || c.cat === f.cat) && (f.fam === 'all' || c.theme === f.fam));
+      const sub = shelf.filter(c => (f.cat === 'all' || c.cat === f.cat) && (f.fam === 'all' || c.theme === f.fam));
       /* the platform's mix (scMix): the offer cards of the same category join
          the showcase's, because consoles, VR, Samsung and Pixel exist only as
          offer cards; a palette filter is the showcase's own and keeps to it.
@@ -12522,7 +12557,7 @@ async function scRegister(id){
   return tid;
 }
 function buildLandingV2(){
-  Promise.all([scLoadIndex(), scLoadPicks()]).then(([cards]) => {
+  Promise.all([scLoadShelf(), scLoadPicks()]).then(([cards]) => {
     if (!cards.length){ warmTemplateAssets(); buildLandingV1(); return; }
     if (SHOWCASE.built){
       /* refreshPhotoThumb() re-calls buildLanding() as each old backdrop
@@ -20625,12 +20660,12 @@ function edSync(){
 /* ── the library in the Templates tab: the cards the landing page leads with ── */
 async function edBuildLibrary(){
   const grid = $('ed-lib-grid'); if (!grid) return;
-  const cards = await scLoadIndex();
+  const cards = await scLoadShelf();
   const list = cards.filter(c => c.cat === currentCat);
   grid.innerHTML = '';
   const n = $('ed-lib-count'); if (n) n.textContent = list.length ? list.length + ' designs' : '';
   list.slice(0, 80).forEach(c => {
-    const el = miniTplCard(assetUrl(c.thumb), (scLocked(c) ? '🔒 ' : '') + c.name, () => edOpenShowcase(c.id));
+    const el = miniTplCard(assetUrl(c.thumb), (scLocked(c) ? '🔒 ' : '') + c.name, () => c.house ? openHouseAd(c.house) : edOpenShowcase(c.id));
     const im = el.querySelector('img'); if (im){ im.loading = 'lazy'; im.decoding = 'async'; }
     if (scLocked(c)) el.classList.add('locked');
     if ('sc-' + c.id === currentTplId) el.classList.add('current');
@@ -22169,8 +22204,14 @@ function pgStepNumCentre(sc){
   if (!id) return;
   try { const u = new URL(location.href); u.searchParams.delete('card'); history.replaceState(history.state, '', u.pathname + u.search + u.hash); } catch (e){}
   if (!/^[A-Za-z0-9_-]{3,100}$/.test(id)) return;
-  const go = () => scLoadIndex()
-    .then(() => { if (SHOWCASE.byId[id]) return openShowcase(id); toast('That design is not in the library any more', 'error'); })
+  const go = () => scLoadShelf()
+    .then(() => {
+      const c = SHOWCASE.byId[id], re = SHOWCASE.byId[(SHOWCASE.rebuiltOf || {})[id]];
+      if (c && c.house) return openHouseAd(c.house);
+      if (c) return openShowcase(id);
+      if (re && re.house) return openHouseAd(re.house);   // a retired card's link opens its rebuilt ad
+      toast('That design is not in the library any more', 'error');
+    })
     .catch(e => console.warn('GraphicsStudio: the card link could not open', id, e));
   if (document.readyState === 'complete') setTimeout(go, 0); else window.addEventListener('load', () => setTimeout(go, 0), { once: true });
 })();

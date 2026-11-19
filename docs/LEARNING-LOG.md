@@ -5911,3 +5911,26 @@ Learned:
   - The pale pink call-to-action card was #fff0f9, chroma .02, under any plate threshold. A tint that
     nothing else wears is still the colour the owner sees, so the call to action's plate counts from
     .018.
+
+## 2026-11-18 — the old library and offer cards retired, the rebuilt ads in their place (claude/xenodochial-mccarthy-7bea6d)
+
+Asked: "Retire them" (the old static library cards and offer cards, now that each has a rebuilt
+version).
+
+Changed:
+  - `retire_older_ads.mjs --rebuilt` held 366 library cards and retired 299 offer templates, each
+    "rebuilt as r-...".
+  - `build_recipe_stills.mjs` drew the 665 rebuilt ads.
+  - `app.js` `scLoadShelf` puts them where the cards were: the library grid, the wall, the editor's
+    library, a card's link.
+  - The hero picks point at their recipes.
+  - `build_recipes.mjs` reads the retired-by-rebuild cards and templates from their source, so the
+    recipes hold still.
+
+Learned:
+  - Retiring a source must not retire what was built from it. The recipe builder read its cards
+    through the landing's loader, so a rebuild after the retirement would have dropped 661 recipes.
+  - The landing falls back to its first layout when no library card is live. The shelf keeps it on
+    the library, now made of rebuilt ads.
+  - 4 live library cards (two Review Proof, two Trust Seal) had never been read into recipes. Reading
+    the cards from the index instead of the page found them.

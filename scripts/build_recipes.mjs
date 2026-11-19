@@ -75,16 +75,27 @@ const rejected = new Set([].concat(grid.rejected || []).map(x => typeof x === 's
 const CUTS = new Set(readdirSync(ROOT + 'assets/cutouts').filter(f => f.endsWith('.webp')).map(f => f.slice(0, -5)));
 const usable = f => CUTS.has(f) && !flags[f] && !rejected.has(f);
 
-/* ---------------------------------------------------------------- the ads, as the studio offers them */
+/* ---------------------------------------------------------------- the ads, as the studio offers them
+   ...and those retired because they were rebuilt (the owner, 2026-11-18, "Retire them": a library card
+   held, or an offer template retired, with "rebuilt as r-..." for its reason): a recipe is made from its
+   card whether the card is still offered or stands retired behind its rebuild, so the recipes do not
+   move when their cards retire. Any other retirement or hold still leaves a card out. */
+const vm = await import('node:vm');
+const RETIRED = (() => { const box = { window: {} }; try { vm.runInNewContext(read('template-retired.js'), box); } catch (e) { /* none */ } return box.window.TEMPLATE_RETIRED || {}; })();
+const rebuiltNote = why => /^rebuilt as r-/.test(String(why || ''));
+const notOffered = Object.keys(RETIRED).filter(id => !rebuiltNote(RETIRED[id]));
+const HELD_REBUILT = new Set((JSON.parse(read('assets/showcase/holds.json')).holds || []).filter(h => rebuiltNote(h.why)).map(h => h.id));
+const { live: cardLive } = await import(new URL('./_showcase_harness.mjs', import.meta.url).href);
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const browser = await chromium.launch();
 let got;
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-  await page.goto(BASE, { waitUntil: 'load', timeout: 120000 });
+  await page.goto(BASE + '?noretire=1', { waitUntil: 'load', timeout: 120000 });   // the retired ones too: notOffered leaves out all but the rebuilt
   await page.waitForFunction(() => typeof TEMPLATES !== 'undefined' && TEMPLATES.length > 100 && typeof catTemplates === 'function' && typeof scLoadIndex === 'function' && typeof setCategory === 'function', null, { timeout: 120000 });
-  got = await page.evaluate(async () => {
+  got = await page.evaluate(async notOffered => {
+    const skip = new Set(notOffered);
     const slim = t => ({
       id: t.id, name: t.name, cat: t.cat, line: t.line || '', look: t.look || '', pal: t.pal || '', faces: t.faces || null, palette: t.palette || null,
       bg: t.bg ? { type: t.bg.type, src: t.bg.src || '', scrim: t.bg.scrim, focus: t.bg.focus || t.bg.pos || null, c1: t.bg.fallback && t.bg.fallback.c1 } : null,
@@ -92,11 +103,13 @@ try {
         fill: l.props && typeof l.props.fill === 'string' ? l.props.fill : '', grad: l.props && l.props.grad ? l.props.grad.c1 : '', font: l.props && l.props.fontFamily || '' })),
     });
     const cats = [...new Set(TEMPLATES.filter(t => !t.showcase).map(t => t.cat))], out = [], seen = new Set(), keep = currentCat;
-    for (const c of cats) { try { setCategory(c); catTemplates().filter(t => !t.showcase && /^(dl|of)_/.test(t.id)).forEach(t => { if (!seen.has(t.id)) { seen.add(t.id); out.push(slim(t)); } }); } catch (e) { /* a category that will not open */ } }
+    for (const c of cats) { try { setCategory(c); catTemplates().filter(t => !t.showcase && /^(dl|of)_/.test(t.id) && !skip.has(t.id)).forEach(t => { if (!seen.has(t.id)) { seen.add(t.id); out.push(slim(t)); } }); } catch (e) { /* a category that will not open */ } }
     try { setCategory(keep); } catch (e) { /* as it was */ }
-    const cards = await scLoadIndex();
-    return { templates: out, cards: cards.map(c => ({ id: c.id, name: c.name, cat: c.cat, theme: c.theme || '', faces: c.faces || null, c1: c.c1 || '', accent: c.accent || '' })) };
-  });
+    return { templates: out };
+  }, notOffered);
+  // the library cards from their index: the live ones, and the ones held because they were rebuilt
+  const index = JSON.parse(read('assets/showcase/index.json'));
+  got.cards = index.filter(c => cardLive(c) || HELD_REBUILT.has(c.id)).map(c => ({ id: c.id, name: c.name, cat: c.cat, theme: c.theme || '', faces: c.faces || null, c1: c.c1 || '', accent: c.accent || '' }));
 } finally { await browser.close(); }
 for (const c of got.cards) {
   const rec = JSON.parse(read('assets/showcase/tpl/' + c.id + '.json')).tpl;
