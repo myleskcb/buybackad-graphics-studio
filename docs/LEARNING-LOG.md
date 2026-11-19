@@ -5817,3 +5817,49 @@ Not in it: 5f0e6ba8 (the pickup cards on the Trucks line, no unidentified car, n
 open laptop on the sealed Chromebook line), committed in the census session but not
 pushed; fold it in once it is. Pull request 15 (the site's look and SEO) is cut from
 cb6d8321, so it meets this in OPEN-ITEMS.md, where both added to the end.
+
+## 2026-11-18 (later) — pull request 14's variety work merged into the site's look; the owner's hero wall back (claude/zen-dijkstra-7b5a2e)
+
+Asked by the roadmap session: merge 9d895833 (the census's variety work), keep both
+sides of the two notes clashes, run seo_check again, confirm the inline-script hashes,
+push. Done in c5ccb24f: §BJ's fifth open item stays before §BK, this log keeps date
+order, and the SEO pages, the plans block and the hashes rebuild unchanged.
+seo_check passes; verify_csp, against a server that sends `_headers`, permits every
+inline script.
+
+Found: a clash git could not see. 71b75e50 made the hero wall (`#hero-wall`, app.js
+scBuildWall) take the owner's recipe and full-ad picks, on the owner's word ("I will
+hand select the best hero ones for variety of colors, styles, designs, copy"). This
+branch had put three full ads where the wall stood, and scBuildWall returns when the
+wall is missing, so the merged landing would have shown none of the picks: app.js
+changed on one side and index.html on the other, and neither file clashed. Fixed:
+the wall is back inside `.h-ads`, in the house frame, over the three full ads, which
+stand with their starburst until it holds a card (`:has(.wall-card)`). An empty
+assets/hero/index.json, in the shape build_hero_stills.mjs writes, ends the 404 the
+landing logged on every visit before the first house pick.
+
+Lighthouse, median of three, served as Netlify serves it: the landing 62 on a phone
+and 82 on a desktop with the wall, against 65 and 94 with the three ads alone (31 and
+60 before this branch). The wall is the owner's choice, and it costs: about 0.7 MB (its
+36 cards), blocking time 2.10 to 2.68 s on a phone and 165 to 302 ms on a desktop while
+app.js builds it and draws its offer cards, and a later visual finish (speed index 7.1
+to 9.3 s, 1.6 to 2.4 s). The largest paint is still the hero's paragraph (1.5 s, 0.3 s),
+layout shift 0, accessibility, best practices and SEO 100; the video maker is unchanged
+(71 and 77). The cut belongs in app.js: offer cards on the wall from drawn stills, as
+build_hero_stills.mjs does for house picks, and the wall built when the page is idle.
+
+Learned: a merge can undo a feature without a single conflicted line, when one side
+removes an element and the other builds on it. Before pushing a merge, list the ids
+the incoming app.js reads (`$('…')`, getElementById) and check each one is still in
+the merged markup.
+
+RESUME HERE:
+  0. The owner's word on pull request 15, and on the rename to webuy.ad (OPEN-ITEMS
+     §BK 5). The site's names come from build_seo_pages.mjs, the bar and foot, and
+     build_og_cards.mjs (the logo and the link previews); the app, the watermark and
+     the billing names reach further than this branch.
+  1. The studio's editor in the house look (§BK 2), its own session.
+  2. The landing's gallery built when it comes near the screen, and small grounds
+     for the offer cards (§BK 3): the rest of the blocking time.
+  3. The day webuy.ad answers: `SITE` in build_seo_pages.mjs, then Search Console
+     and Bing with the sitemap.

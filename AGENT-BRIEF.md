@@ -585,6 +585,8 @@ produced." DESIGN-LAW rule 87. In practice:
   files from its tables; build_og_cards.mjs draws the real ads the pages and
   link previews show. Edit the tables, run both, then `seo_check.mjs` and
   `csp_hashes.mjs`; never hand-edit a generated head or the FAQ's JSON-LD.
+  The hero is the owner's wall of hand picks (`#hero-wall`, app.js
+  scBuildWall): a remake of the landing keeps it and its three `.wall-col`s.
 - **The scripts:** a script that rewrites a showcase record passes its
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the

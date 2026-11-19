@@ -193,6 +193,22 @@
 :root[data-site='house'] #page-landing .h-ad-2{left:0;top:20%;transform:rotate(-7deg)}
 :root[data-site='house'] #page-landing .h-ad-3{right:0;top:22%;transform:rotate(7deg)}
 :root[data-site='house'] #page-landing .h-ads .h-burst{position:absolute;right:2%;top:0;z-index:3;width:110px;height:110px;font-size:15.5px;transform:rotate(-9deg)}
+/* the hero wall (the owner's hand picks: assets/hero-picks.json and assets/hero/, built by app.js
+   scBuildWall) in the house frame: three columns over the full ads, shown once a card is in it;
+   until then, or if it is never built, the three full ads stand. Straight, not tilted: a turned
+   box would reach past a phone's edge. */
+:root[data-site='house'] #page-landing .h-ads .hero-wall{position:absolute;inset:0;z-index:2;height:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;overflow:hidden;transform:none;
+  opacity:0;visibility:hidden;transition:opacity .45s ease,visibility 0s linear .45s;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 8%,#000 92%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0,#000 8%,#000 92%,transparent 100%)}
+:root[data-site='house'] #page-landing .h-ads:has(.wall-card) .hero-wall{opacity:1;visibility:visible;transition:opacity .45s ease}
+:root[data-site='house'] #page-landing .h-ads .h-ad{transition:opacity .45s ease,visibility 0s linear .45s}
+:root[data-site='house'] #page-landing .h-ads:has(.wall-card) .h-ad{opacity:0;visibility:hidden}
+/* the burst names the full ads; over the owner's library picks it would be a label they do not wear */
+:root[data-site='house'] #page-landing .h-ads .h-burst{transition:opacity .45s ease,visibility 0s linear .45s}
+:root[data-site='house'] #page-landing .h-ads:has(.wall-card) .h-burst{opacity:0;visibility:hidden}
+:root[data-site='house'] #page-landing .hero-wall .wall-col{gap:12px}
+:root[data-site='house'] #page-landing .hero-wall .wall-card,:root[data-site='house'] #page-landing .hero-wall .wall-card:nth-child(n){border:0;border-radius:14px;transform:none;background:var(--h-panel);box-shadow:var(--h-shadow),0 0 0 1px var(--h-line)}
+:root[data-site='house'] #page-landing .hero-wall .wall-card:hover{transform:scale(1.04);box-shadow:var(--h-shadow),0 0 0 2px var(--h-accent);z-index:2}
 
 /* the numbers, as pills */
 :root[data-site='house'] #page-landing .h-stats{max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;gap:10px;padding:8px max(20px,env(safe-area-inset-right,0px)) 26px max(20px,env(safe-area-inset-left,0px));border:0}
@@ -391,6 +407,8 @@
   :root[data-site='house'] #page-landing .h-stat{padding:8px 13px}
   :root[data-site='house'] #page-landing .h-stat-lead{flex-basis:100%;border-radius:18px}
   :root[data-site='house'] #page-landing .h-ads .h-burst{width:88px;height:88px;font-size:12.5px}
+  :root[data-site='house'] #page-landing .h-ads .hero-wall,:root[data-site='house'] #page-landing .hero-wall .wall-col{gap:8px}
+  :root[data-site='house'] #page-landing .hero-wall .wall-card,:root[data-site='house'] #page-landing .hero-wall .wall-card:nth-child(n){border-radius:10px}
 }
 @media (max-width:380px){
   :root[data-site='house'] #page-landing .h-split .h-caret{display:none}

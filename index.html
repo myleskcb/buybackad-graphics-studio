@@ -198,6 +198,13 @@
       <img class="h-ad h-ad-1" src="assets/full-ads/hero-iphone.webp" width="720" height="900" fetchpriority="high" decoding="async" alt="A full ad in Navy and Gold: WE BUY IPHONES, iPhone 11 and newer, free quote, cash same day, no fees, and the number in a gold pill">
       <img class="h-ad h-ad-2" src="assets/full-ads/hero-gold.webp" width="720" height="900" decoding="async" alt="A full ad in Green and Gold: WE BUY GOLD, rings, chains, coins and broken gold">
       <img class="h-ad h-ad-3" src="assets/full-ads/hero-car.webp" width="720" height="900" decoding="async" alt="A full ad in Black and Red: WE BUY CARS AND TRUCKS, running or not">
+      <!-- the hero wall: the owner's hand picks (assets/hero-picks.json, assets/hero/), built by app.js
+           scBuildWall; it fades in over the three full ads once it holds a card, and they stand if it never does -->
+      <div class="hero-wall" id="hero-wall">
+        <div class="wall-col" data-dir="up"></div>
+        <div class="wall-col" data-dir="down"></div>
+        <div class="wall-col" data-dir="up"></div>
+      </div>
       <span class="h-burst" aria-hidden="true">New:<br>the full<br>ad</span>
     </div>
   </section>

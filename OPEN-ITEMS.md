@@ -3936,7 +3936,8 @@ Done:
   rewritten on the same token names so motion.css follows), the Look Book's own
   sheet, the 404, site-theme.js, a starburst favicon and a square logo
   (assets/brand/). The landing's markup is new; every id app.js binds is kept;
-  the hero wall of library cards gave its place to three real full ads. The
+  the hero is the owner's wall of hand picks in the house frame, over three
+  real full ads that stand until it is built (item 10). The
   plans overlay and the studio's two hidden headings follow (the latter now
   h2s: one h1 to the page).
 - **Real ads everywhere a picture is shown**: scripts/build_og_cards.mjs draws
@@ -4029,7 +4030,11 @@ Open:
    llms files name the Netlify address; `SITE` in build_seo_pages.mjs moves
    them, with index.html's head and the cards' URLs. Then register the domain
    in Google Search Console and Bing Webmaster Tools and submit sitemap.xml
-   (the owner's accounts).
+   (the owner's accounts). The owner, later on 2026-11-18: the concept is
+   rebranded **webuy.ad**, and that domain is bought. The site still says
+   BUYBACK.AD (the bar and foot, titles, structured data, the llms files, the
+   logo and every link preview); the rename waits on the owner's word, and
+   `SITE` moves to webuy.ad only once it answers.
 6. **The platform answers in the FAQ** rest on the research's reading of the
    platforms' own pages (docs/COMPETITOR-RESEARCH-2026-11-12.md §4); how
    strictly each is enforced is unknown, and the rules change. Read them again
@@ -4042,3 +4047,15 @@ Open:
 9. The Organization in the JSON-LD has no sameAs (no social profile was found
    to be the business's own) and no telephone (kept out of structured data on
    purpose; the number is on the page).
+10. **The hero wall is the owner's again** (done, 2026-11-18): pull request 14
+   moved to 9d895833 (the census's variety work), whose wall takes the owner's
+   recipe and full-ad picks. This branch had put three full ads where
+   `#hero-wall` stood, so merged as it was, the picks would have shown nowhere
+   (git saw no clash: app.js changed on one side, index.html on the other).
+   The wall is back inside `.h-ads` with its three `.wall-col`s, over the three
+   full ads, which stand until it holds a card (`:has(.wall-card)`). An empty
+   `assets/hero/index.json`, in the shape build_hero_stills.mjs writes, ends
+   the 404 the landing logged on every visit before the first house pick
+   (the script writes nothing while there is none). Checked at 390 and 1440,
+   light and dark: 36 cards, no sideways scroll, no console error, a card
+   opens Easy Mode. Lighthouse in the learning log.

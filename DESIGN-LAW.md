@@ -6129,9 +6129,18 @@ from a face that landed late), the Look Book 46 (0.86).
   points are chips with ticks; what is new or most bought wears the starburst;
   every main call to action is a pill between chevrons stepped in size, never
   in opacity (rule 139); places follow a pin. One accent to a pair, as on an ad.
-- **The pictures are real ads.** The hero shows three full ads drawn by the
-  video maker's engine, in three pairs and faces, where the wall of library
-  cards stood (the gallery under it keeps rule 106's mix); every category page
+- **The pictures are real ads.** The hero is the owner's wall: the hand picks
+  of assets/hero-picks.json (library cards, offers, and the recipes and
+  full-ad looks whose stills scripts/build_hero_stills.mjs draws into
+  assets/hero/), built by app.js into three moving columns, here in the house
+  frame (rounded cards on the pair's panel, faded top and bottom, straight so
+  nothing reaches past a phone's edge). Until it holds a card, and if it never
+  does, three full ads drawn by the video maker's engine, in three pairs and
+  faces, stand in its place with the starburst that names them; the wall fades
+  in over them. The owner chooses what the hero shows ("I will hand select the
+  best hero ones for variety of colors, styles, designs, copy"), so a remake of
+  the landing keeps `#hero-wall` and its three `.wall-col`s. The gallery under
+  it keeps rule 106's mix; every category page
   shows its own line's ad; every link preview is a full ad on its pair's ground
   (assets/og/, 1200x630). scripts/build_og_cards.mjs draws them with the
   current house engine (rule 145's grounds included), the line's own words and
