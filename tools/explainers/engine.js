@@ -16,16 +16,25 @@
   const back = t => { const c = 1.55, c3 = c + 1; return 1 + c3 * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
   const pr = (t, s, d) => clamp((t - s) / d);
   const el = (tag, cls, html, style) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; if (style) Object.assign(e.style, style); return e; };
-  /* [[words]] take the marigold highlighter, {{words}} the white one (on a coloured ground) */
+  /* [[words]] are the deal colour, mint on navy and green on light, {{words}} white
+     over a mint underline (on a blue ground): the site's highlight (DESIGN-LAW 152) */
   const fmt = s => String(s).replace(/\[\[(.+?)\]\]/g, '<mark>$1</mark>').replace(/\{\{(.+?)\}\}/g, '<mark class="w">$1</mark>').replace(/\n/g, '<br>');
-  const C = { ink: '#141414', paper: '#f2eee4', panel: '#fffdf8', blue: '#2b56f5', tomato: '#ff4a2e', gold: '#ffc21a', mint: '#12b886' };
+  /* WeBuy.AD's colours (DESIGN-LAW 152): reselling.us's navy and light grey grounds, its
+     text-safe blue, mint for the deal, and a red that holds white words. The names are the
+     poster set's, so videos.js reads as before; gold is the mint now. */
+  const C = { ink: '#070d1c', paper: '#f2f4f8', panel: '#ffffff', blue: '#0a5fe0', tomato: '#e0352f', gold: '#2fd58f', mint: '#2fd58f' };
+  const GROUND = {
+    [C.ink]: 'radial-gradient(95% 60% at 86% -12%, rgba(61,139,255,.34), transparent 62%), radial-gradient(70% 50% at -10% 112%, rgba(47,213,143,.14), transparent 70%), linear-gradient(#0d1a36, #070d1c 62%)',
+    [C.blue]: 'radial-gradient(95% 60% at 86% -12%, rgba(255,255,255,.20), transparent 62%), linear-gradient(#0a5fe0, #0849ad)',
+    [C.paper]: 'radial-gradient(95% 60% at 86% -12%, rgba(10,108,255,.12), transparent 62%), linear-gradient(#e6edf9, #f2f4f8 62%)',
+  };
 
   class Scene {
     constructor(dur, bg) {
       this.dur = dur; this.bg = bg || C.paper;
       this.dark = [C.ink, C.blue].includes(this.bg);
       this.root = el('div', 'scene' + (this.dark ? ' dark' : ''));
-      this.root.style.background = this.bg;
+      this.root.style.background = GROUND[this.bg] || this.bg;
       this.items = []; this.fns = []; this.fits = [];
     }
     /* o: x y w h (stage pixels), rot, at (seconds into the scene), dur, fx
@@ -104,6 +113,7 @@
     else cur.root.style.clipPath = 'none';
     cur.update(local);
     stage().classList.toggle('dark', cur.dark && !(prev && local < WIPE * .6));
+    stage().classList.toggle('blue', cur.bg === C.blue && !(prev && local < WIPE * .6));   // the wordmark's .AD reads on the blue ground
     document.querySelector('#bar b').style.width = (t / v.total * 100).toFixed(2) + '%';
     return v.total;
   }

@@ -24,7 +24,7 @@ const list = k => {
   }
   return L.map(({ key, share, where, scrim }) => ({ key, share, ...(where ? { where } : {}), ...(scrim != null ? { scrim: +scrim } : {}) }));
 };
-// the fills (2026-11-18, rule 146): a list each, the keys the painters know (decor.js fillTexture, drawSticker; fullad.js numberPill)
+// the fills (2026-11-18, rule 154): a list each, the keys the painters know (decor.js fillTexture, drawSticker; fullad.js numberPill)
 const FILLS = { sticker_fill: ['solid', 'gradient', 'stripes', 'dots', 'foil', 'outline'], plate_fill: ['solid', 'gradient', 'stripes', 'dots', 'foil', 'glass', 'outline'] };
 for (const [k, known] of Object.entries(FILLS)) for (const e of list(k)) if (!known.includes(e.key)) throw new Error(`spec/full-styles.json: ${k} ${e.key} is not one the painters draw (${known.join(', ')})`);
 // the call to action's mark (2026-11-18): the keys FullAd._ctaMark draws

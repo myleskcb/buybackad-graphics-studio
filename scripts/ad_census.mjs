@@ -112,7 +112,7 @@ function matchPair(c, row) {
   /* the house engine on a photograph (DESIGN-LAW 145): the ground is the photo by design, and the
      pair is what it draws on it, so the drawn accent is held to the pair the ad declares */
   // a drawn scene paints the pair's own ground with light, and the house's patterns and hard-edged gradients
-  // paint it in its own tones (2026-11-18, rule 146: "textured" by the edge band's spread): judged the same way
+  // paint it in its own tones (2026-11-18, rule 154: "textured" by the edge band's spread): judged the same way
   if ((c.groundKind === 'photo' || c.groundKind === 'drawn' || c.groundKind === 'textured') && row && (row.gen === 'full' || row.gen === 'recipe')) {
     const own = PAIRS.find(p => p.name === row.declared), dA = own && a ? dE(a, own.a) : 99;
     /* the full ad's plates are lit and may be graded (2026-11-18: full-styles), so its drawn accent
@@ -120,7 +120,7 @@ function matchPair(c, row) {
        degrees) at a real chroma, it is the pair's */
     const hueOf = v => Math.atan2(v[2], v[1]) * 180 / Math.PI, chromaOf = v => Math.hypot(v[1], v[2]);
     const sameFamily = own && a && chromaOf(a) >= .09 && chromaOf(own.a) >= .09 && Math.abs(((hueOf(a) - hueOf(own.a) + 540) % 360) - 180) <= 25;   // Lab here is 0..1 (dE scales by 100)
-    /* a two-colour pair (rule 146: White on Pink, Black on Lime) has no accent but its words' white or black,
+    /* a two-colour pair (rule 154: White on Pink, Black on Lime) has no accent but its words' white or black,
        which no saturated pixel can show: it is the pair where its ground is the pair's own (or the pair's
        ground is laid under a photograph) */
     const twoColour = own && chromaOf(own.a) < .04 && (c.groundKind === 'photo' || dE(g, own.g) <= PAIR_GROUND * 2.2);

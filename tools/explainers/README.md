@@ -1,6 +1,6 @@
 # Explainer videos
 
-Five short video ads for Graphics Studio itself (the owner, 2026-11-11: videos
+Five short video ads for WeBuy.AD itself (the owner, 2026-11-11: videos
 that "explain all the functions and how to make ads on our platform", for
 "people who don't even understand the platform", with the AI comparison and
 the price, and "make it seem like a no-brainer"). Square 1080, 30 frames a
@@ -45,10 +45,16 @@ renders them all (`--only <id>` for one; about half a minute each). It needs
 Chromium through Playwright (`PLAYWRIGHT_MODULE=/path/to/playwright` when it is
 not on the module path) and ffmpeg with libx264.
 
-`--url studio.example.com` prints the site's address on the end card. None is
-printed now: `buyback.ad` and `studio.scans.ad` have no DNS yet
-(`docs/OPERATIONS.md`), and an ad must not send people to an address that does
-not answer.
+The end card prints the site's address, `webuy.ad`, which answers since
+2026-11-19 (OPEN-ITEMS §BL); `--url other.example` prints another and
+`--url none` the plain line instead. An ad must not send people to an address
+that does not answer.
+
+The look is the site's (DESIGN-LAW 152, 153, 2026-11-19): reselling.us's navy,
+light grey and blue grounds, mint for the highlighted words, flat cards, the
+system face, and the WeBuy.AD wordmark and W. icon on the end card and in the
+corner. The screens are taken in the site's dark mode (`shots.mjs`,
+`SHOTS_SCHEME=light` for the other).
 
 ## What the videos may say
 
@@ -61,8 +67,15 @@ the number typed in the walkthrough is a 555-01xx one. No customer results,
 no reviews, no rival's product: the "typed over a photo" post and the AI
 "tries" are drawn as plain shapes, never passed off as anyone's work (rule 55).
 
-The music is from `motion/sounds/tracks` (US military band recordings, public
-domain; `index.json` there has each source).
+The music is from `motion/sounds/tracks` (public-domain recordings; `index.json`
+there has each source): orchestral since 2026-11-19 (New World, Vivaldi's
+Winter, Mozart 40), not the big-band jazz, since the owner wants the video
+ads to sound like a trailer or a commercial. Each track is a 12-second clip:
+it plays from its start and repeats under a 1.2 s crossfade to the end of the
+picture. Before 2026-11-19 the render started 4 s into the clip and every
+video went silent after 8 s. The video maker's own trailer bed
+(`motion/music.js`, branch `claude/video-music-sfx-audit-3691d1`) is drawn
+live and is not a file yet; once it is, it is the better bed here.
 
 ## Not done
 

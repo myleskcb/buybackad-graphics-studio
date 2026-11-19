@@ -415,7 +415,7 @@ export function groundFor(subject, seed, pairKey, product, lean = null) {
   const cat = !subject || subject === "iphone" ? "phones" : (GROUND_LINE_CAT[subject] || "");
   const pool = (GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && photoSuits(GROUND_PHOTOS[src], pairKey) && groundFits(GROUND_PHOTOS[src], product));
   // the drawn scenes are night skies, auroras and glows made for light words: under dark words (a light pair,
-  // a lime or aqua ground: rule 146) their deep tones turn grey and the shade behind the words runs to the
+  // a lime or aqua ground: rule 154) their deep tones turn grey and the shade behind the words runs to the
   // frame's edge (full_ad_check, 2026-11-18), so those pairs stand on the other kinds
   const pc = COLOUR_OF[pairKey], darkWords = !!pc && lum(pc.colors.ink) < lum(pc.colors.ground);
   const share = { photo: pool.length ? GROUND_SHARES.photo : 0, scene: GROUND_SCENES.length && !darkWords ? GROUND_SHARES.scene : 0, gradient: GROUND_GRADIENTS.length ? (GROUND_SHARES.gradient || 0) : 0,
@@ -441,7 +441,7 @@ export function groundFor(subject, seed, pairKey, product, lean = null) {
   if ((u -= share.scene) < 0) return { background: GROUND_SCENES[Math.floor(g() * GROUND_SCENES.length) % GROUND_SCENES.length] };
   // a vivid gradient in the pair's own two families (decor.js pairGradientGround; the owner: "Also don't see any gradients really?")
   if ((u -= share.gradient) < 0) return { background: GROUND_GRADIENTS[Math.floor(g() * GROUND_GRADIENTS.length) % GROUND_GRADIENTS.length] };
-  // a tone-on-tone pattern or texture in the pair's own ground colour (decor.js fullPatternGround; rule 146)
+  // a tone-on-tone pattern or texture in the pair's own ground colour (decor.js fullPatternGround; rule 154)
   if ((u -= share.pattern) < 0) return { background: GROUND_PATTERNS[Math.floor(g() * GROUND_PATTERNS.length) % GROUND_PATTERNS.length] };
   return null;
 }
@@ -555,7 +555,7 @@ export function pairsFor(subject, headline, phoneHues = []) {
   return keys.length ? keys : COLOURWAYS;
 }
 
-/** THE LOOK FIRST, THEN THE PAIR (2026-11-18, rule 146). Eleven of the twelve proven pairs were a
+/** THE LOOK FIRST, THEN THE PAIR (2026-11-18, rule 154). Eleven of the twelve proven pairs were a
  *  navy, black or deep ground under a warm accent, so a page of seeded ads read as one look "with
  *  5% variety or difference" (the owner). The pairs are now every colour theme (house-colours.js),
  *  each with its look (light, vivid or dark), and a seed's one draw u picks the look first, a third
@@ -607,7 +607,7 @@ function numberPill(text, size, font, p, style = "pill", grad = false, bare = p.
      plate at all and a bar of the accent under the figures, in the lines' own ink (bare) with their
      soft shadow; any plate may be lit from above (grad). The figures keep their clear margin on
      every one (DESIGN-LAW 58). */
-  /* the plate's fill (2026-11-18, rule 146): grad true or "gradient" (lit from above), "stripes", "dots",
+  /* the plate's fill (2026-11-18, rule 154): grad true or "gradient" (lit from above), "stripes", "dots",
      "foil" (decor.js fillTexture: the plate's own hue moved away from its figures), or "glass" (a frosted
      pane) and "outline" (its edge alone in the accent), which leave the ground to show through and so
      carry the figures in the lines' own ink (bare), as the underlined number does */
@@ -650,7 +650,7 @@ function numberPill(text, size, font, p, style = "pill", grad = false, bare = p.
 }
 
 /** A plate's body on the path just drawn, inside the caller's save() (its shadow set), which this
- *  restores (2026-11-18, rule 146): flat or lit from above (fill), with stripes, dots or a foil's sheen
+ *  restores (2026-11-18, rule 154): flat or lit from above (fill), with stripes, dots or a foil's sheen
  *  laid over it without the shadow (decor.js fillTexture); or a pane of glass, smoked under light words
  *  and frosted under dark ones, so it only ever moves the ground away from them; or its edge alone in
  *  the accent. Glass and the edge leave the ground to show: their words are the lines' own ink. */
@@ -938,7 +938,7 @@ export class FullAd extends Ad {
     // the claim, in a badge
     let claim = null;
     if (st.feed_claim) {
-      // its badge wears the plates' fill (rule 146); glass or an edge alone carries the words in the lines' ink
+      // its badge wears the plates' fill (rule 154); glass or an edge alone carries the words in the lines' ink
       const mode = st.plate_fill || (st.plate_grad ? "gradient" : "solid"), open = mode === "glass" || mode === "outline";
       const fill = p.plate || p.accent, inkc = open ? ph.ink : p.plate_ink || "#ffffff", text = st.feed_claim.toUpperCase();
       const [cf, cw] = FONTS[pair ? pair.label : st.font] || FONTS.franklin;
@@ -977,7 +977,7 @@ export class FullAd extends Ad {
       nz *= Math.min(colW * FULL.pill / num.w, U * FULL.number / nz); num = numFor(nz);
       for (let k = 0; k < 4 && num.w > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.w; num = numFor(nz); }
     }
-    // a seeded face whose figures run wide (rule 146: Galindo, the toon pair's) can still set a long number
+    // a seeded face whose figures run wide (rule 154: Galindo, the toon pair's) can still set a long number
     // under its floor in a narrow column (a tablet's 4:5, 73px, 2026-11-18): the number takes the house's own
     // condensed figures, the face that the floor was measured in
     if (nz < U * .07 && numFont !== "oswald") {
@@ -1032,7 +1032,7 @@ export class FullAd extends Ad {
     const hasChips = pointsOf(st).length > 0, hasPhones = this.phones.length > 0;
     // the gaps between one block and the next, in units of g; the room left over stretches them all alike
     const gClaim = 1.15, gBand = 1.4, gLab = .8, gFoot = 1.1;
-    // a headline on a plate of its own (a box, letters cut out of one, a pane of glass, a marker's bar: rule 146)
+    // a headline on a plate of its own (a box, letters cut out of one, a pane of glass, a marker's bar: rule 154)
     // has the plate standing a fifth of its size over its capitals: the claim above it keeps clear of that too
     // (a cut-out plate met the claim's badge and the claim read 1.9:1, full_ad_check, 2026-11-18)
     const overClaim = hd => ["box", "cutout", "glass", "highlighter"].includes(st.text_fx) ? hd.size * .16 : 0;
@@ -1321,7 +1321,7 @@ export class FullAd extends Ad {
     // the chevrons either side of the number, where the pill leaves them their room
     const nb = this.numBox, sz = (nb[3] - nb[1]) * .42;
     // a tall number keeps its chevrons a little smaller where the room either side is short: a narrow seeded
-    // face (rule 146) sets its figures taller, and the chevrons sized to them no longer fit (2026-11-18)
+    // face (rule 154) sets its figures taller, and the chevrons sized to them no longer fit (2026-11-18)
     const room = Math.min(nb[0] - F.col[0], F.col[1] - nb[2]), fit = Math.min(sz, room / 2.9);
     /* THE CALL TO ACTION'S MARK (st.cta_mark, spec/full-styles.json; the owner, 2026-11-18: "every single
        one has the same arrows pointing to the CTA ... some without arrows some with more direct pointing
@@ -1772,7 +1772,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, type_pair: _t, type_any: _a, ...picked } = pick;
   // the type: the house's one face, or one of the owner's pairs when one is picked (pick.type_pair, a
   // TYPE_VOICES key that FULL_VOICES holds). Carried in the look, after QUIET, so it is the face drawn.
-  /* THE FACE A SEED DRAWS (2026-11-18, rule 146): every seeded full ad was set in the one house face,
+  /* THE FACE A SEED DRAWS (2026-11-18, rule 154): every seeded full ad was set in the one house face,
      so a page of them read as one ad "with 5% variety or difference" (the owner). A seed nobody styled
      now draws one of the owner's vetted pairs (FULL_VOICES: proven in every size, on a dark and a
      light pair, in English and Spanish, rule 141), the house face about a quarter of the time, on a
@@ -1815,7 +1815,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const held = k => kept.has(k) && st[k] != null && (!own[k] || own[k].some(e => e.key === st[k]));
   // dark: the words are lighter than the ground (a vivid ground under white words is dark here); busy: a
   // photograph or a drawn scene, not one of the house's own painted grounds (its gradients and its
-  // tone-on-tone patterns are the pair's own colours, solved for the words: rule 146)
+  // tone-on-tone patterns are the pair's own colours, solved for the words: rule 154)
   const own2 = COLOUR_OF[key].colors, painted = [...GROUNDS, ...GROUND_GRADIENTS, ...GROUND_PATTERNS].includes(look.background);
   const styles = pickFullStyles(rng(((seed >>> 0) ^ 0x51ed27f3) * 13 + lineTurn(st.subject, 99991) + 5),
     { dark: lum(own2.ink) > lum(own2.ground), busy: !painted, lean });
@@ -2025,7 +2025,7 @@ export function fullPreflight(ad, frame) {
   // a pill's box holds its round ends, where the ground shows: the words are measured on the pill's straight middle
   const inPill = r => { const h = r[3] - r[1]; return [r[0] + h * .5, r[1] + h * .14, r[2] - h * .5, r[3] - h * .14]; };
   const ink = ad.pHead.ink, plateInk = contrastOf(ad.p.plate_ink, ad.p.plate) >= 3.5 ? ad.p.plate_ink : (lum(ad.p.plate) > .5 ? "#111111" : "#ffffff");
-  // a number with no plate, or on a pane of glass or inside an edge alone (rule 146), stands on the ground in the ink
+  // a number with no plate, or on a pane of glass or inside an edge alone (rule 154), stands on the ground in the ink
   const numInk = ad.st.number_style === "underline" || ["glass", "outline"].includes(ad.st.plate_fill) ? ink : plateInk;
   const lines = [["line", "the line under the headline", ink, PF.small], ["call to action", "the line over the number", ink, PF.small], ["footer", "the towns and website", ink, PF.small],
     ["number", "the phone number", numInk, PF.large], ["claim", "the claim", ad.claim ? ad.claim.ink : plateInk, PF.small]];

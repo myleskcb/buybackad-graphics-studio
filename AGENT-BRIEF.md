@@ -690,7 +690,7 @@ produced." DESIGN-LAW rule 87. In practice:
   "From the library"; photo grounds come from `spec/full-grounds.json`
   (`scripts/build_full_grounds.mjs`). A new ad design goes in as a recipe or a full-ad option,
   never as a renderer of its own, so it is a photo and a video and the census reads it.
-- **A recipe takes after its card, never copies it** (rule 149): its own seed, and a lean
+- **A recipe takes after its card, never copies it** (rule 155): its own seed, and a lean
   (`spec/recipe-looks.json`, `motion/recipe-lean.js`) toward its family's idea and colourway.
   Never lock a recipe to its card's pair, face, photograph or picture; the product is the line's
   pool unless the words name it.
@@ -701,10 +701,11 @@ produced." DESIGN-LAW rule 87. In practice:
 - **The partner library serves the rebuilt library ads** (`assets/rebuilt-ads/`,
   `node scripts/render_rebuilt_ads.mjs --stale` after the recipes or the engine change;
   `library_api_check` fails while one is stale).
-- **The landing is built to a brief** (rule 152; the owner: "make it look like a custom built site
+- **The landing is built to a brief** (rule 158; the owner: "make it look like a custom built site
   with a large web design budget"): `landing.css`, scoped to the landing under the family skin, keeps
-  rule 147's colours and rule 148's wordmark and sets one type scale, banded grounds (paper for the
+  rule 152's colours and rule 153's wordmark and sets one type scale, banded grounds (paper for the
   library, a stage for the video, the blue for the last call), numbered labels on hairlines and a
   layout of its own per section; `pages.css` ends in the same look for the other pages. Change the
   landing's look there, not in `styles.css`; a new section reuses `.lp-section-head`, `.flow` or a
   band rather than a new card. Motion fails visible: never start the hero from hidden.
+

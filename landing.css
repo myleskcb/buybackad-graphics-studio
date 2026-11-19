@@ -7,7 +7,7 @@
    label, a big left headline, a paragraph, then a grid of the same dark
    rounded cards, on one navy from the top of the page to the bottom.
 
-   This sheet keeps the family's colours and wordmark (rules 147 and 148:
+   This sheet keeps the family's colours and wordmark (rules 152 and 153:
    navy, one blue for the action, mint for the deal, WeBuy.AD in Inter
    Tight) and rebuilds what stands on them:
      - one type scale with a real display size, set tight;
@@ -138,7 +138,7 @@
   line-height:.95;letter-spacing:-.048em;word-spacing:0;
   margin:30px 0 30px;text-wrap:balance;
 }
-/* the deal on a line of its own: three lines, the last one mint (rule 147) */
+/* the deal on a line of its own: three lines, the last one mint (rule 152) */
 [data-skin=family] #page-landing .hero h1 em{display:block;color:var(--deal-text)}
 [data-skin=family] #page-landing .hero p{font-size:clamp(17px,1.32vw,19px);line-height:1.6;color:var(--text-2);max-width:31em;margin:0}
 [data-skin=family] #page-landing .hero-ctas{gap:12px;margin-top:40px;align-items:center}

@@ -554,7 +554,7 @@ async function preflightGate(st) {
 function buildPanel() {
   $("full-colours").innerHTML = `<button role="radio" data-colour="" aria-checked="true" title="The colours change with New look">Any</button>`
     + COLOURWAYS.map(k => { const c = COLOUR_OF[k]; return `<button role="radio" data-colour="${k}" aria-checked="false" title="${c.name}" aria-label="${c.name}" style="--c1:${c.colors.ground};--c2:${c.colors.accent}"></button>`; }).join("");
-  // Any: New look picks the face too (fullStyle, rule 146); House: Chivo, the full ad's own face
+  // Any: New look picks the face too (fullStyle, rule 154); House: Chivo, the full ad's own face
   $("full-voices").innerHTML = `<button role="radio" data-voice="" aria-checked="true" title="The face changes with New look">Any</button><button role="radio" data-voice="house" aria-checked="false" title="Chivo, the full ad's own face">House</button>`
     + FULL_VOICES.filter(k => fullVoiceOk(k)).map(k => `<button role="radio" data-voice="${k}" aria-checked="false" title="${FONTS[TYPE_VOICES[k].display][0]} + ${FONTS[TYPE_VOICES[k].label][0]}">${TYPE_VOICES[k].name}</button>`).join("");
   $("full-voices").addEventListener("click", e => {

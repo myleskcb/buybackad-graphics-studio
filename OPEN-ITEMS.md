@@ -3931,7 +3931,7 @@ Open:
    saved look on an old key draws the new line; their offer cards stay as they were, ids and all).
    **owner**: a clean Mac mini photograph, a ROG Ally and a Legion Go, and a gaming laptop (the one
    there was rejected); no VR headset picture passed either. Each download waits on the owner's OK.
-8. **The look system** (DESIGN-LAW 146; the owner: "still not enough colors, gradients, pattern
+8. **The look system** (DESIGN-LAW 154; the owner: "still not enough colors, gradients, pattern
    fill, or other ways instead of colors", "a lot of these are the same thing with 5% variety or
    difference"). **helper**, done:
    - 54 pairs (15 light, 11 vivid, 28 dark), drawn look first;
@@ -3951,7 +3951,7 @@ Open:
      keys;
    - **owner**: whether gold lines, which keep to their eight gold pairs and one vivid one, may
      stand on a light ground (no gold reads on cream at 4.5:1 without going mustard, rule 103).
-9. **The library cards, the offer family and the designer layouts, rebuilt** (DESIGN-LAW 149;
+9. **The library cards, the offer family and the designer layouts, rebuilt** (DESIGN-LAW 155;
    the owner: "Library card ones are not great.. I would take them as inspiration but rebuild them
    all", "Offer family needs a rebuild also", "the heros all look so simialr").
    - **done**: every recipe draws on a seed of its own and leans toward its card's family and
@@ -3978,7 +3978,7 @@ Open:
    - **owner**: whether the 299 rebuilt offer cards join the partner feed (it only ever carried
      library cards); about 60 MB more.
    - **owner**: a VR headset and a gaming laptop photograph, so their cards show the product.
-10. **The iPhone lock screens, and the call to action's marks** (DESIGN-LAW 150, 151) — **done**:
+10. **The iPhone lock screens, and the call to action's marks** (DESIGN-LAW 156, 157) — **done**:
     lock screens laid out as iOS lays them out (a status bar in iOS's measures, four layouts:
     classic, widgets, iOS 26's tall Glass clock, iOS 27's compact one; four clean wallpapers in the
     screen's own colour); eight marks at the number, each moving its own way.
@@ -4121,7 +4121,7 @@ Open:
 6. Search: add webuy.ad in Google Search Console and submit
    `https://webuy.ad/sitemap.xml`.
 
-## BM. 2026-11-19 — the reselling.us look: colour first (DESIGN-LAW 147)
+## BM. 2026-11-19 — the reselling.us look: colour first (DESIGN-LAW 152)
 
 The owner, once webuy.ad was live: "logos branding webkit", "all aspects need
 to finish and it needs to have similar or matching styling to reselling.us",
@@ -4138,9 +4138,9 @@ Done:
   `admin-ads/`, `phonegfx-studio.html`) are as they were.
 - Checked by eye at 1280 and 390, dark and light: the landing, Easy Mode,
   the advanced editor, about, the Look Book, the video maker; no sideways
-  scroll at 390; contrast measured (rule 147).
+  scroll at 390; contrast measured (rule 152).
 
-Then, the same day (DESIGN-LAW 148), the owner chose "WeBuy.AD":
+Then, the same day (DESIGN-LAW 153), the owner chose "WeBuy.AD":
 - **Type**: the system face for headlines and text, the default (`system`).
 - **The wordmark** `WeBuy.AD` in Inter Tight 750 on every page's header; the
   face vendored from reselling.us with its OFL text.
@@ -4158,9 +4158,15 @@ Open:
 1. **The terms and privacy policy** still make the agreement with BUYBACK.AD
    and call the Service "Graphics Studio": renaming the party is the owner's
    legal call, with a new `TERMS_VERSION` (checkout records the version).
-2. **The explainer videos** (`assets/explainers/*.mp4`) end on "Graphics
-   Studio by BUYBACK.AD" in the poster look: render them again
-   (`tools/explainers`) with the new end card and `--url webuy.ad`.
+2. ~~The explainer videos~~ **Done the same day**: all five rendered again in
+   the WeBuy.AD look (the stage, the W. icon and wordmark on the end card,
+   `webuy.ad` under the button, the studio's screens taken again in its dark
+   mode), with orchestral music in place of the big-band jazz. Found on the
+   way: every explainer had gone silent after 8 s (a 12-second clip started
+   4 s in); the clip now repeats under a crossfade for the whole video
+   (measured: -21 to -25 dB from start to end in all five). The trailer bed
+   of `claude/video-music-sfx-audit-3691d1` is drawn live in the maker and
+   is not a file yet; it would be the better bed once it is.
 3. **The Stripe billing portal** keeps the line it was made with
    ("Graphics Studio by BUYBACK.AD: …"): `ensurePortalConfig` makes a
    configuration once and stores it, so the new line reaches Stripe only
@@ -4171,7 +4177,7 @@ Open:
 5. The owner tools (`pick.html`, `library.html`, `social/`, `admin-ads/`,
    `phonegfx-studio.html`) keep the old look and name.
 
-## BN. 2026-11-19 — the landing built to a brief (DESIGN-LAW 152)
+## BN. 2026-11-19 — the landing built to a brief (DESIGN-LAW 158)
 
 The owner, looking at the landing: "looks so vibe coded and basic UI we need to fix and make it
 look like a custom built site with a large web design budget". Done on
@@ -4189,7 +4195,7 @@ look like a custom built site with a large web design budget". Done on
 - **`index.html`**: the library before the colour sets; the hero's lede, three proof points
   and a "made for" row; the wall inside a stage with the text over it; the video's frame and
   timeline; a drawing for each step; the footer's wordmark. The kicker and the headline are
-  unchanged, word for word (the share card draws them, rule 148).
+  unchanged, word for word (the share card draws them, rule 153).
 - **`app.js`**: the colour sets drawn as small ads in their own colours (until today 54 sets
   drew one bar and three of `undefined`: a rebuilt ad carries no `c1`, `ink` or
   `support`); a library caption names the colour set, not the layout twice.
@@ -4207,8 +4213,8 @@ Open:
    branch's in `index.html` (the hero, the sections, the footer) and in `app.js`
    (`scBuildFamilies`, `scCard`). Which landing the site keeps is the owner's call, then one
    merge.
-3. **Rule numbers**: pull request 14 numbers main's two rules 147 and 148, pull request 15
-   numbers them 152 and 153, and this branch's own rule is 152. One renumbering at the merge.
+3. **Rule numbers**: settled with pull request 14 at 815ebea2 (main's rules 152 and 153, the
+   census's 154 to 157); this branch's landing rule is 158. Pull request 15 still numbers its own.
 4. **`assets/hero/index.json`** is asked for on every landing load and does not exist (the
    hero's full-ad stills, app.js, the hero wall's picks): a 404 the landing check counts. The
    hero wall's own session has it.

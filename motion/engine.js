@@ -2506,7 +2506,7 @@ function background(st, p, W, H, sc, r) {
     }
     // one hue from its shadow to its light, the way a lit studio wall falls off: depth without colour travel
     case "tonal": case "aurora": case "drift": {
-      // on the full ad's light pairs (rule 146) the deep end is a tone of the ground itself: black mixed into
+      // on the full ad's light pairs (rule 154) the deep end is a tone of the ground itself: black mixed into
       // cream or white is a grey top that dark words read 2.6:1 on (full_ad_check, 2026-11-18)
       const gr = x.createLinearGradient(0, 0, 0, H), lightG = st.full && lum(g) > .45;
       gr.addColorStop(0, lightG ? okTone(g, -.07) : shade(g, -.28)); gr.addColorStop(.55, g); gr.addColorStop(1, lightG ? okTone(g, -.035) : shade(g, -.12)); x.fillStyle = gr; x.fillRect(0, 0, W, H);
@@ -2517,7 +2517,7 @@ function background(st, p, W, H, sc, r) {
     default: x.fillStyle = radial(); x.fillRect(0, 0, W, H);
   }
   sceneryOver(x, st, p, W, H, r);
-  // vignette: on the full ad's light pairs a deeper tone of the ground itself, never black (rule 146)
+  // vignette: on the full ad's light pairs a deeper tone of the ground itself, never black (rule 154)
   const vg = x.createRadialGradient(cx, cy, Math.hypot(W, H) * .3, cx, cy, Math.hypot(W, H) * .75);
   if (st.full && lum(g) > .45) { const t = okTone(g, -.08); vg.addColorStop(0, rgba(t, 0)); vg.addColorStop(1, rgba(t, .6)); }
   else { vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,.28)"); }

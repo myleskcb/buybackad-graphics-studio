@@ -147,10 +147,10 @@ const r = await page.evaluate(async () => {
   out.onPhoto = onPhoto.map(q => q.key + ' ' + q.seed);
 
   const OTHER = ['story', 'flyer', 'landscape', 'four3', 'three4'], BY_EDGE = [{ key: 'galaxy', i: 0, seed: 1 }, { key: 'jdm', i: 0, seed: 1 }], edgeBase = {};
-  // busy: a photograph or a drawn scene (the house's own painted grounds, its gradients and patterns, are plain: rule 146)
+  // busy: a photograph or a drawn scene (the house's own painted grounds, its gradients and patterns, are plain: rule 154)
   const painted = bg => F.GROUNDS.includes(bg) || D.PAIR_GRADIENTS.includes(bg) || D.FULL_PATTERNS.includes(bg);
   for (const q of BY_EDGE) for (const size of OTHER) { const d0 = await lineAd(q, {}, size); edgeBase[q.key + ' ' + size] = { pair: d0.st.full_colour, busy: !painted(d0.st.background) }; }
-  /* every shape flat, then every other fill (rule 146) on a shape in turn; every number treatment on a flat plate,
+  /* every shape flat, then every other fill (rule 154) on a shape in turn; every number treatment on a flat plate,
      then every other plate fill on a plate in turn (the number's and the claim's badge both wear it); every
      gradient and every pattern ground (spec/full-grounds.json) */
   const fillOn = (fills, keys, k) => fills.filter(f => f.key !== 'solid').map((f, i) => ({ f, on: keys[i % keys.length] }));
@@ -190,7 +190,7 @@ const r = await page.evaluate(async () => {
       }
       // Easy Mode's other five sizes: on two pairs, and on two lines on their own drawn grounds, where the
       // sticker's room can stand by the frame's edge (a ribbon's tails ran into the margin there, 2026-11-18)
-      // (a dark, a light, a vivid ground under white words and one under black words: 2026-11-18, rule 146)
+      // (a dark, a light, a vivid ground under white words and one under black words: 2026-11-18, rule 154)
       for (const pair of ['navy_orange', 'silver_blue', 'white_on_pink', 'black_on_lime']) {
         if (_where === 'dark' && !darkOf(pair)) continue;
         for (const size of OTHER) {
@@ -204,7 +204,7 @@ const r = await page.evaluate(async () => {
         const d = await lineAd(q, force, size);
         out.options.push({ kind, label, pair: q.key + ' ' + q.seed, aspect: size, ok: !d.fixes.length, fixes: d.fixes, sticker: !!d.ad.burst });
       }
-      // on the house's own textured grounds too (rule 146): a dot screen and a hard split, under light words and dark
+      // on the house's own textured grounds too (rule 154): a dot screen and a hard split, under light words and dark
       if (kind !== 'ground') for (const pair of ['black_gold', 'cream_red', 'white_on_teal']) for (const background of ['pat_halftone', 'pair_split', 'pat_memphis']) {
         if (_where === 'dark' && !darkOf(pair)) continue;
         const d = await draw(pair, 'square', { ...force, background });

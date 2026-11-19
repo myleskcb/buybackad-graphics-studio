@@ -9,7 +9,7 @@
       again since makes it stale: run render_library_ads.mjs --stale). Each
       carries its three dates (created, updated, rendered: ISO 8601 UTC, in
       order), and the JPEG's EXIF says the same (_jpeg_exif.mjs).
-      The rebuilt ads (2026-11-18, DESIGN-LAW 149: the owner retired the old
+      The rebuilt ads (2026-11-18, DESIGN-LAW 155: the owner retired the old
       library cards, "Retire them", and asked for their rebuilt ads in this
       feed, "Do it here"): every rebuilt library ad whose card the site no
       longer offers has a render (assets/rebuilt-ads/,

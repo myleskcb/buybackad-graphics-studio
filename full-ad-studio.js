@@ -8,7 +8,7 @@
 
    The house design language is the full ad (motion/fullad.js, rule 137): a claim, a headline with
    one accent word, the models, the product's own pictures, the selling points, a sticker, the
-   number in its pill, the towns and the website, in one of the colour themes as a pair (rule 146). Until
+   number in its pill, the towns and the website, in one of the colour themes as a pair (rule 154). Until
    today it lived only in the video maker; the page where a picture customer starts had no way to
    it (OPEN-ITEMS §BC 3), and the first card that page handed a new visitor was a photograph with
    words on it.
@@ -142,7 +142,7 @@ function styleNow(S, ids, set, size, R = recipeNow()) {
   // a typed business name takes the badge over a library design's claim (the full ad's own rule); typed words over both
   if (up(w.claim)) base.feed_claim = up(w.claim); else if (up(rw.claim) && !String(FA.biz || "").trim()) base.feed_claim = up(rw.claim);
   if (up(w.burst) || up(rw.burst)) base.feed_burst = up(w.burst) || up(rw.burst);
-  // the face: one picked, the house face ("house"), or none, and the seed draws one (fullStyle, rule 146). A
+  // the face: one picked, the house face ("house"), or none, and the seed draws one (fullStyle, rule 154). A
   // recipe's card pair and face are leans (its hint), never kept as picked: only a pick by hand is
   const pair = FA.pair || "", voice = FA.voice === "house" ? "house" : fullVoiceOk(FA.voice) ? FA.voice : "";
   const pick = { ...(COLOUR_OF[pair] ? { palette: pair } : {}), ...(voice ? { type_pair: voice } : {}) };
