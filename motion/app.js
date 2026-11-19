@@ -2,7 +2,7 @@
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES, DEFAULT_PHONES } from "./catalog.js";
 import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf, lotInto } from "./engine.js";
-import { FullAd, fullStyle, fullPreflight, fullStill, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk, fullGroundReady } from "./fullad.js";
+import { FullAd, fullStyle, fullPreflight, fullStill, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk, fullGroundReady, poolEntryFor } from "./fullad.js";
 import { lookPreflight } from "./look-preflight.js";
 import { FULL_VOICES } from "./full-voices.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
@@ -75,12 +75,15 @@ async function ensureRecipeGround(st) {
   const R = recipeOf(st); if (!R || !R.ground_photo) return;
   try { const F = await import("./fullad.js"); if (typeof F.loadGroundPhoto === "function") await F.loadGroundPhoto(R.ground_photo.src); } catch (e) { /* drawn on the house gradient */ }
 }
+/* what is loaded for a style's line: its set, or of its pool the entry its seed draws (fullad.js
+   poolEntryFor), so only the pictures an ad shows are fetched */
+const subjectKey = (S, st) => { const set = (st.subject_set | 0) % S.sets.length, ent = !set && (S.pool || []).length ? poolEntryFor(S.pool, st.seed >>> 0) : -1; return { set, ent, k: S.key + "|" + set + (ent >= 0 ? "|e" + ent : "") }; };
 async function ensureSubject(st) {
   await ensureRecipe(st); await ensureRecipeGround(st);
   const S = subjectOf(st); if (!S || !S.sets.length) return;
-  const set = (st.subject_set | 0) % S.sets.length, k = S.key + "|" + set;
+  const { set, ent, k } = subjectKey(S, st);
   if (subjects.loaded[k]) return;
-  const got = await loadSubjectSet(S, set, "../assets/cutouts/");
+  const got = await loadSubjectSet(S, set, "../assets/cutouts/", ent >= 0 ? { seed: st.seed >>> 0 } : {});
   Object.assign(state.assets.phones, got.assets); subjects.loaded[k] = got.ids;
 }
 const fullOf = st => {
@@ -92,7 +95,7 @@ const fullOf = st => {
   // its claim, unless a claim or a business name was typed: a named buyer takes the badge
   if (R && R.words && R.words.claim && !st.feed_claim && !String(st.biz || "").trim()) extra.feed_claim = R.words.claim;
   if (!S) return fullStyle({ ...st, ...extra, subject: "", ...(rids.length ? { phones: rids } : {}) }, st.seed, state.index, pick, state.locked);
-  const ids = rids.length ? rids : S.sets.length ? subjects.loaded[S.key + "|" + ((st.subject_set | 0) % S.sets.length)] || [] : [];
+  const ids = rids.length ? rids : S.sets.length ? subjects.loaded[subjectKey(S, st).k] || [] : [];
   return fullStyle({ ...st, ...extra, phones: ids.length ? ids : ["none"], ...(rids.length ? { subject_set: 1 } : {}) }, st.seed, state.index, pick, state.locked);
 };
 /* fonts, and a full ad's photo ground: a still made before the photo arrives draws the house
@@ -297,6 +300,7 @@ async function strongSeed(base, locked, pool, content, post = st => st) {
     const seed = (Math.random() * 1e9) | 0;
     // the full ad's look comes from its number alone: a new look is a new number, the style underneath kept
     const st = state.full && !content ? { ...base, seed } : post(randomize(base, seed, locked, pool, content));
+    if (state.full) await ensureSubject(st);           // the picture this seed draws, before it is judged
     const h = settle({ ...st }, locked);
     await loadFonts(fontsFor(h));
     if (h.full) { try { const a = adFor(h, 360, Math.round(360 * (ASPECTS[h.aspect] || [1, 1])[1] / (ASPECTS[h.aspect] || [1, 1])[0])); if (!fullPreflight(a, fullStill(a)).ok) continue; } catch (e) { /* the audit below decides */ } }
@@ -1187,7 +1191,7 @@ async function renderGallery(reset) {
       for (let i = 0; i < 12 && state.galleryShown < FULL_MAX; i++) {
         const base = (({ full_palette, ...rest }) => rest)(state.style), seed = state.gallerySeed++;
         let b = null;
-        try { await ensureSubject(base); b = await thumb(fullOf({ ...base, seed }), Math.round(W * k), Math.round(H * k), false); }
+        try { await ensureSubject({ ...base, seed }); b = await thumb(fullOf({ ...base, seed }), Math.round(W * k), Math.round(H * k), false); }
         catch (e) { console.warn("Full ad look " + seed + " skipped:", e); }
         if (!live()) return;
         if (b) { grid.appendChild(b); made++; shown(); }

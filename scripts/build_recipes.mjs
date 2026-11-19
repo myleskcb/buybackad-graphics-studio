@@ -180,6 +180,8 @@ for (const f of CUTS) { const m = /^car-([a-z]+)-/.exec(f); if (m && usable(f)) 
 for (const k of Object.keys(CAR_CUTS)) CAR_CUTS[k].sort((x, y) => (/-rear$/.test(x) - /-rear$/.test(y)) || x.localeCompare(y));   // a front or side view before a rear one
 const makeOfFile = f => { const s = String(f || '').toLowerCase(); for (const k of Object.keys(MAKES)) if (new RegExp(`(^|[-/_])${k}([-_.]|$)`).test(s) || (k === 'chevy' && /chevrolet|silverado/.test(s)) || (k === 'dodge' && /challenger|charger/.test(s)) || (k === 'toyota' && /tacoma|camry|tundra|prius/.test(s)) || (k === 'honda' && /civic|accord/.test(s)) || (k === 'ford' && /f150|f-150|mustang|bronco/.test(s))) return k; return ''; };
 const VEHICLE = /car|truck|suv|van|jeep|pickup|sedan|coupe|grille|wheel|dash|motorcycle|bike|vehicle|lamborghini|porsche|ferrari|bmw|lexus|dodge|honda|toyota|ford|chevy|nissan|tesla|audi|mercedes/i;
+const VANS = /\bSPRINTERS?\b|\bTRANSITS?\b|\bPRO ?MASTERS?\b|\bWORK VANS?\b|\bCARGO VANS?\b|\bVANS\b/;
+const VAN_CUTS = readdirSync(ROOT + 'assets/cutouts').filter(f => /^car-.*(van|transit|sprinter|promaster)/.test(f) && f.endsWith('.webp')).map(f => f.replace(/\.webp$/, '')).filter(f => usable(f));
 const hash = s => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; };
 function picturesOf(ad, subject, headline, claim, notes) {
   const own = ad.layers.map(l => (/assets\/cutouts\/([^/?#]+)\.webp/.exec(l.src || '') || [])[1]).filter(Boolean);
@@ -197,6 +199,12 @@ function picturesOf(ad, subject, headline, claim, notes) {
       if (ofMake.length) pics = ofMake;
       else if (pool.length) { const front = pool.filter(f => !/-rear$/.test(f)), from = front.length ? front : pool; pics = [from[hash(ad.id) % from.length]]; notes.push(`a ${make}${model ? ' ' + model : ''} picture in place of ${own.length ? own.join(', ') : 'none'}`); }
       else { pics = []; notes.push(`no ${make} cut-out: the line's own pool`); }
+    } else if (VANS.test(headline + ' ' + claim)) {
+      /* a card about work vans (SPRINTER, TRANSIT, PROMASTER, VANS) shows a van, never an SUV or a
+         sedan (the owner, 2026-11-18, of the wrong cars on the library: "wrong cars") */
+      const vans = pics.filter(f => /van|transit|sprinter|promaster/.test(f));
+      if (vans.length) pics = vans;
+      else if (VAN_CUTS.length) { const front = VAN_CUTS.filter(f => !/-rear$/.test(f)), from = front.length ? front : VAN_CUTS; pics = [from[hash(ad.id) % from.length]]; notes.push(`a van picture in place of ${own.length ? own.join(', ') : 'none'}`); make = 'van'; }
     }
   }
   return { pictures: pics.slice(0, 2).map(file => ({ file, k: 1 })), make };
@@ -206,10 +214,78 @@ function groundOf(ad, cat, make, notes) {
   const s = g.src.toLowerCase();
   if (/money|cash|dollar|bills/.test(s)) { notes.push('cash ground left out'); return null; }
   if (/space-|nebula|hubble|moon|starfield|aurora|earth-from-iss|orion|galaxy-/.test(s)) { notes.push('outer-space ground left out'); return null; }
-  if (make && VEHICLE.test(s.split('/').pop()) && makeOfFile(s) !== make) { notes.push(`ground showed another car (${s.split('/').pop()})`); return null; }
   const f = Array.isArray(g.focus) ? g.focus : g.focus && typeof g.focus === 'object' ? [g.focus.x, g.focus.y] : [.5, .5];
   const scrim = Math.round(Math.min(.7, Math.max(.25, typeof g.scrim === 'number' ? g.scrim : .4)) * 100) / 100;
   return { src: g.src.replace(/^\/+/, ''), focus: f.map(v => Math.round((+v || .5) * 100) / 100), scrim, from: ad.id };
+}
+
+/* ---------------------------------------------------------------- the ground and the product line up
+   The owner, 2026-11-18: "ideally bg and assets line up". Each ground photograph is tagged in
+   spec/ground-tags.json (read by eye): a scene (a world the product stands in) or a photograph of
+   goods (what, and the make and model of a vehicle or a phone), and where a scene has a floor. A
+   card keeps its ground when it is a scene, or shows the recipe's own product (the same make and
+   model of a vehicle or a phone, the same kind of goods otherwise). Else, where the card's words
+   leave the product free, the product follows the photograph (the cut-out of the van or the phone
+   the photograph shows); else the ground is a photograph of the recipe's product, or a scene of its
+   category, or none (the engine draws one). Never two different products on one ad. */
+const TAGS = JSON.parse(read('spec/ground-tags.json')).tags;
+const tagOf = src => { const s = String(src || '').split('|').pop().replace(/^\/+/, ''); return TAGS[s.startsWith('assets/') ? s : 'assets/' + s] || TAGS[s] || null; };
+const KIND = { ipad: ['ipad'], mac: ['mac'], watch: ['watch'], smartwatch: ['watch'], headphones: ['headphones'], headset: ['headphones'], earbuds: ['earbuds'], speaker: ['speaker'],
+  camera: ['camera'], drone: ['drone'], gold: ['gold'], silver: ['silver', 'coins'], coins: ['coins'], strips: ['strips'], pokemon: ['pokemon'], sports: ['sports'], metaglasses: ['metaglasses'] };
+const carMake = f => { const m = /^car-([a-z]+)-/.exec(f || ''); return m ? (m[1] === 'chevrolet' ? 'chevy' : m[1]) : ''; };
+const carModel = f => { const m = /^car-[a-z]+-([a-z0-9]+)/.exec(f || ''); return m ? m[1].replace(/^f150$/, 'f150') : ''; };
+const isVan = f => /van|transit|sprinter|promaster/.test(f || '');
+const phoneModel = f => { const m = /iphone-(\d+e?)((?:-pro|-plus|-mini)?(?:-max)?)/.exec(f || '') || /^view-(\d+e?)()-/.exec(f || ''); return m ? (m[1] + m[2].replace(/-/g, ' ')).trim() : ''; };
+const PHONE_CUTS = [...CUTS].filter(f => usable(f) && phoneModel(f) && !/^view-/.test(f)).sort();
+function productOf(subject, pictures, make) {
+  const files = pictures.map(p => p.file);
+  if (subject === 'car') return { kind: 'car', make: carMake(files[0]) || (make && make !== 'van' ? make : ''), model: carModel(files[0]), van: make === 'van' || files.some(isVan), named: make, pinned: files.length > 0, files };
+  if (subject === 'iphone') return { kind: 'iphone', model: files.length ? phoneModel(files[0]) : '' };
+  return { kind: subject };
+}
+function fits(t, P) {
+  if (!t || t.never) return false;
+  if (t.shows === 'scene') return true;
+  if (P.kind === 'car') {
+    // a car the full ad draws by seed can be any make: only a picture of the recipe's own stands on a car photograph
+    if (!P.pinned) return false;
+    if (t.subject === 'car-key') return !!t.make && t.make === P.make;
+    if (t.subject !== 'car' || !t.make || t.make !== P.make || (P.van && t.vehicle !== 'van')) return false;
+    // a photograph that lists its cut-outs (one model name over different cars: an E46 and a G80 M3) takes only those
+    if (t.cuts && !P.files.every(f => t.cuts.includes(f))) return false;
+    return !t.model || !P.model || t.model === P.model;
+  }
+  if (P.kind === 'iphone') return t.subject === 'iphone' && !!t.model && !!P.model && t.model === P.model;
+  return (KIND[P.kind] || []).includes(t.subject);
+}
+const say = t => t.subject === 'car' ? `a ${[t.make, t.model].filter(Boolean).join(' ') || 'car of no stated make'}` : t.subject === 'iphone' ? `an iPhone ${t.model || ''}`.trim() : t.subject;
+function lineUp(ad, cat, subject, pictures, make, gp, words, notes) {
+  const out = (g, pics = pictures) => { if (g) { const t = tagOf(g.src); g.shows = t.shows; if (t.subject) g.subject = t.subject; if (t.make) g.make = t.make; if (t.model) g.model = t.model; if (t.vehicle) g.vehicle = t.vehicle; if (t.floor != null) g.floor = t.floor; } return { ground_photo: g, pictures: pics }; };
+  if (!gp) return out(null);
+  const t = tagOf(gp.src);
+  if (!t) { notes.push('ground not in spec/ground-tags.json: left out'); return out(null); }
+  if (t.never) { notes.push(`ground left out: ${t.never}`); return out(null); }
+  let P = productOf(subject, pictures, make);
+  if (fits(t, P)) return out(gp);
+  // the product follows the photograph where the words leave it free
+  if (P.kind === 'car' && t.subject === 'car' && t.make && (!P.named || P.named === t.make || (P.named === 'van' && t.vehicle === 'van'))) {
+    const cuts = t.cuts ? t.cuts.filter(usable) : (CAR_CUTS[t.make] || []).filter(f => (!t.model || carModel(f) === t.model) && (t.vehicle !== 'van' || isVan(f)));
+    if (cuts.length) { notes.push(`the picture follows the ground: ${say(t)}`); return out(gp, [{ file: cuts[hash(ad.id) % cuts.length], k: 1 }]); }
+  }
+  if (P.kind === 'iphone' && t.subject === 'iphone' && t.model) {
+    const cuts = PHONE_CUTS.filter(f => phoneModel(f) === t.model);
+    if (cuts.length) { notes.push(`the picture follows the ground: ${say(t)}`); return out(gp, [{ file: cuts[hash(ad.id) % cuts.length], k: 1 }]); }
+  }
+  // a photograph of the recipe's own product
+  if (P.kind !== 'iphone' || P.model) {
+    const same = Object.keys(TAGS).filter(k => TAGS[k].shows === 'product' && fits(TAGS[k], P) && !/\|/.test(k)).sort();
+    if (same.length) { notes.push(`ground swapped: it showed ${say(t)}`); return out({ src: same[hash(ad.id) % same.length], focus: [.5, .5], scrim: gp.scrim, from: gp.from }); }
+  }
+  // a scene of the category
+  const scenes = Object.keys(TAGS).filter(k => TAGS[k].shows === 'scene' && !TAGS[k].never && (TAGS[k].suits || []).includes(cat)).sort();
+  if (scenes.length) { notes.push(`ground swapped for a scene: it showed ${say(t)}`); return out({ src: scenes[hash(ad.id) % scenes.length], focus: [.5, .5], scrim: gp.scrim, from: gp.from }); }
+  notes.push(`ground left out: it showed ${say(t)}`);
+  return out(null);
 }
 
 /* ---------------------------------------------------------------- the recipes */
@@ -221,8 +297,9 @@ for (const ad of all) {
   const words = wordsOf(ad, ad.cat, dropped);
   const subject = subjectOf(ad, words.headline || '');
   const S = SUB[subject]; if (!S) continue;
-  const { pictures, make } = picturesOf(ad, subject, words.headline || '', words.claim || '', notes);
-  const ground_photo = groundOf(ad, ad.cat, make, notes);
+  const { pictures, make } = picturesOf(ad, subject, words.headline || '', [words.claim, words.line].filter(Boolean).join(' '), notes);   // the line under it names models too (TRANSIT • SPRINTER • PROMASTER)
+  const lined = lineUp(ad, S.cat, subject, pictures, make, groundOf(ad, ad.cat, make, notes), words, notes);
+  const ground_photo = lined.ground_photo; pictures.splice(0, pictures.length, ...lined.pictures);
   // colours as the ad wore them: the library's own theme and ink; a template's ground and its headline's accent
   const heads = ad.layers.filter(l => l.role === 'headline');
   const accent = ad.accent || (heads.map(l => l.grad || l.fill).find(c => /^#[0-9a-f]{6}$/i.test(c) && !neutral(c))) || (ad.palette && (ad.palette.accent || ad.palette.a1)) || '';
@@ -239,6 +316,8 @@ const json = JSON.stringify({
   _doc: 'Every older ad the studio offers (library cards, designer layouts, offer cards), read as it opens and written as a recipe the full ad draws as a photo and a video: its words (the one list and the proof words left out), its line, its product cut-outs (a named car make shown as that make), its ground photograph, the nearest of the twelve pairs and its face pair where the full ad holds it. Made by scripts/build_recipes.mjs; never edit by hand. DESIGN-LAW 144, OPEN-ITEMS §BJ.',
   count: recipes.length, by: { library: count('sc'), layouts: count('dl'), offer: count('of') }, recipes,
 }, null, 1) + '\n';
+const untagged = recipes.filter(r => r.ground_photo && !tagOf(r.ground_photo.src)).map(r => r.id);
+if (untagged.length) { console.error('grounds missing from spec/ground-tags.json: ' + untagged.slice(0, 8).join(', ')); process.exit(1); }
 if (CHECK) {
   const now = existsSync(OUT) ? readFileSync(OUT, 'utf8') : '';
   if (now !== json) { console.error(`motion/recipes.json is stale (${recipes.length} recipes from the studio as it serves now): run node scripts/build_recipes.mjs`); process.exit(1); }

@@ -112,6 +112,29 @@ const r = await page.evaluate(async () => {
       const was = F.COLOURWAYS[(Math.floor(E.rng((seed >>> 0) * 7 + 11)() * n) + F.lineTurn(subject, n)) % n];
       out.unchanged.of++; if (st.full_colour === was) out.unchanged.same++;
     }
+  // the ground and the product line up (2026-11-18, "ideally bg and assets line up"): every photograph a
+  // seed draws agrees with the product the seed drew (groundFits), and on a scene with a floor the floor
+  // line lands at the foot of the product band
+  out.lineup = { photos: 0, bad: [], floors: [] };
+  const GR = await import('/motion/full-grounds.js');
+  for (const subject of ['', 'car', 'gold', 'silver', 'coins', 'laptop', 'minipc', 'gamingpc', 'headphones', 'pokemon', 'sports', 'camera', 'console']) for (let s = 1; s <= 60; s++) {
+    const st = F.fullStyle({ ...C.DEFAULT_STYLE, headline: 'WE BUY THEM', subject, aspect: '1:1', phones: subject ? ['none'] : [] }, s * 7919, index);
+    if (!st.ground_photo) continue;
+    out.lineup.photos++;
+    const t = GR.GROUND_PHOTOS[st.ground_photo.src], P = F.productFor(subject, st.phones);
+    if (!F.groundFits(t, P)) out.lineup.bad.push(`${subject || 'iphone'} seed ${s * 7919}: ${st.ground_photo.src.split('/').pop()} beside ${(st.phones || []).slice(0, 2).join(', ')}`);
+  }
+  // each scene with a floor, under a set of phones in each size: the floor line at the product's foot
+  const floorScenes = Object.entries(GR.GROUND_PHOTOS).filter(([, t]) => t.shows === 'scene' && t.floor != null).map(([src, t]) => ({ src, floor: t.floor }))
+    .concat([{ src: 'assets/bg/dl_sports_trustSeal_crimson.jpg', floor: .78 }]);
+  for (const g of floorScenes) for (const aspect of ['1:1', '4:5', '9:16']) {
+    const st = F.fullStyle({ ...C.DEFAULT_STYLE, headline: 'WE BUY IPHONES', aspect, phones: ids('iPhone 16 Pro').slice(0, 2), ground_photo: { src: g.src, focus: [.5, .5], shows: 'scene', floor: g.floor } }, 4242, index);
+    await F.loadGroundPhoto(g.src).catch(() => null);
+    await E.loadFonts([...E.fontsFor(st), 'franklin']);
+    const [W0, H0] = E.ASPECTS[aspect], k = 1080 / Math.min(W0, H0);
+    const ad = new F.FullAd(st, assets, Math.round(W0 * k), Math.round(H0 * k)), G = ad.full && ad.full.group;
+    out.lineup.floors.push({ subject: aspect, src: g.src.split('/').pop(), reach: ad.floorReach !== false, off: G && ad.floorAt != null ? Math.abs(ad.floorAt - G[3]) / ad.H : 1 });
+  }
   // the first ads of the lines spread over the pairs: a new visitor's first full ad (seed 1) of
   // every unrestricted line, and no pair on more than a quarter of them
   for (const subject of subjectKeys) {
@@ -148,6 +171,9 @@ const narrow = Object.entries(perSet).filter(([, s]) => s.size < 2);
 ok(!narrow.length, 'every phone set still draws two pairs or more (New look changes colour): ' + Object.entries(perSet).map(([n, s]) => `${n} ${s.size}`).join(', '));
 ok(r.unchanged.same === r.unchanged.of, `an ad with neutral phones or an unrestricted line draws the pair it drew before: ${r.unchanged.same}/${r.unchanged.of}`);
 ok(r.grounds.photos > 0 && !r.grounds.off.length, `a seed's photograph keeps the card to two colour families: ${r.grounds.photos} photo grounds in 720 seeded ads, ${r.grounds.strong} of strong colour, each beside a pair of its family` + (r.grounds.off.length ? '; ' + r.grounds.off.slice(0, 4).join(', ') : ''));
+ok(r.lineup.photos > 0 && !r.lineup.bad.length, `every photograph a seed draws agrees with its product (spec/ground-tags.json): ${r.lineup.photos} photo grounds` + (r.lineup.bad.length ? '; ' + r.lineup.bad.slice(0, 4).join('; ') : ''));
+const reach = r.lineup.floors.filter(f => f.reach), short = r.lineup.floors.filter(f => !f.reach), floorBad = reach.filter(f => f.off > .03);
+ok(reach.length > 0 && !floorBad.length, `a scene's floor lands at the product's foot: ${reach.length} ads, the farthest ${Math.max(0, ...reach.map(f => f.off)).toFixed(3)} of the height (at most .03)` + (short.length ? `; ${short.length} where the photograph's floor sits too low to reach within 1.45x come as close as they can (${short.map(f => f.subject + ' ' + f.src).join(', ')})` : '') + (floorBad.length ? '; ' + floorBad.slice(0, 3).map(f => `${f.subject} on ${f.src} ${f.off.toFixed(3)}`).join(', ') : ''));
 const firstBy = {}; for (const f of r.firsts) firstBy[f.pair] = (firstBy[f.pair] || 0) + 1;
 const firstMost = Math.max(0, ...Object.values(firstBy));
 ok(r.firsts.length > 0 && firstMost <= Math.ceil(r.firsts.length / 4), `the first full ads of ${r.firsts.length} unrestricted lines spread over ${Object.keys(firstBy).length} pairs, at most ${firstMost} on one (31 of 35 were Green & Gold before 2026-11-18): ` + Object.entries(firstBy).sort((x, y) => y[1] - x[1]).map(([k, n]) => `${k} ${n}`).join(', '));

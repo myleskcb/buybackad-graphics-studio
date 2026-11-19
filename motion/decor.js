@@ -9,7 +9,7 @@
 // urgency is only ever TRUE urgency (phones lose value; "text now" is an
 // invitation) and never a deadline, a countdown or a price that is about to move.
 
-import { canvas, rrect, rng, lerp, clamp, prog, outCubic, outBack, outBounce, outQuint, lum, mix, rgba, fontCss, noiseTile } from "./engine.js";
+import { canvas, rrect, rng, lerp, clamp, prog, outCubic, outBack, outBounce, outQuint, lum, mix, rgba, fontCss, noiseTile, contrastOf, oklchOf } from "./engine.js";
 
 const TAU = Math.PI * 2;
 // A loop that draws as many random values as the frame has pixels takes its own stream,
@@ -1671,4 +1671,186 @@ export function freshGround(kind, x, st, p, W, H, sc, r) {
     }
   }
   return false;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════
+   THE FULL AD'S STYLES (2026-11-18; spec/full-styles.json, motion/full-styles.js)
+
+   The owner, of the full ads and the recipes they draw: "notice how it's all same spiky circle?",
+   "and there's no variety in the text pure outlines?", "Also don't see any gradients really?".
+   A seed now draws a sticker shape, a headline treatment, an entrance and a number treatment from
+   one table; these are the sticker shapes, the gradient a plate may wear, and the two-colour
+   gradient grounds, every one in the card's own two colour families (rules 95 and 139).
+   ══════════════════════════════════════════════════════════════════════════════════════════ */
+
+/** OKLCH to sRGB hex, the chroma eased down until the colour is in gamut. */
+export function okHex(L, C, h) {
+  for (let c = Math.max(0, C); c >= 0; c -= .004) {
+    const a = c * Math.cos(h * Math.PI / 180), b = c * Math.sin(h * Math.PI / 180);
+    const l = (L + .3963377774 * a + .2158037573 * b) ** 3, m = (L - .1055613458 * a - .0638541728 * b) ** 3, s = (L - .0894841775 * a - 1.291485548 * b) ** 3;
+    const rgb = [4.0767416621 * l - 3.3077115913 * m + .2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - .3413193965 * s, -.0041960863 * l - .7034186147 * m + 1.707614701 * s];
+    if (rgb.every(v => v >= -.001 && v <= 1.001)) {
+      const f = v => { v = Math.min(1, Math.max(0, v)); return Math.round(255 * (v <= .0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - .055)); };
+      return "#" + rgb.map(v => f(v).toString(16).padStart(2, "0")).join("");
+    }
+  }
+  const g = Math.round(255 * Math.min(1, Math.max(0, L)));
+  return "#" + [g, g, g].map(v => v.toString(16).padStart(2, "0")).join("");
+}
+/** The same colour, lighter or deeper by dL of OKLCH lightness: its hue and chroma kept. */
+export function toneOf(hex, dL) { const k = oklchOf(hex); return okHex(Math.min(.985, Math.max(.04, k.L + dL)), k.C, k.h); }
+
+/** The two ends of a fill lit from above, [top, foot], never harder to read on than the flat fill (the
+ *  roadmap, 2026-11-18: "a gradient plate keeps the contrast the solid plate had"): the fill's own
+ *  colour at one end, the same hue moved away from its ink at the other, so under light ink the foot
+ *  deepens and over dark ink the top lifts, and every point of it gives the ink at least the flat
+ *  fill's contrast. A fill at the end of the scale, which cannot move away, stays flat (top = foot). */
+export function gradientEnds(fill, ink) {
+  const lightInk = lum(ink) > lum(fill), flat = contrastOf(ink, fill);
+  for (const d of [.14, .1, .06]) {
+    const top = lightInk ? fill : toneOf(fill, d), foot = lightInk ? toneOf(fill, -d) : fill, moved = lightInk ? foot : top;
+    if (moved !== fill && contrastOf(ink, moved) >= flat + .05) return [top, foot];
+  }
+  return [fill, fill];
+}
+/** A fill lit from above (gradientEnds) as a canvas gradient from (x0, y0) to (x1, y1); the flat fill
+ *  where it cannot bend, or where the ink would read under minCr (or under the flat fill's own) on it. */
+export function fillGradient(ctx, x0, y0, x1, y1, fill, ink, minCr = 3) {
+  const [top, foot] = gradientEnds(fill, ink);
+  if (top === foot || Math.min(contrastOf(ink, top), contrastOf(ink, foot)) < Math.min(minCr, contrastOf(ink, fill))) return fill;
+  const g = ctx.createLinearGradient(x0, y0, x1, y1); g.addColorStop(0, top); g.addColorStop(1, foot); return g;
+}
+
+/** The sticker's shapes, beside the starburst (drawStarburst, which Any look keeps). */
+export const STICKER_SHAPES = ["starburst", "seal", "badge", "ribbon", "tag", "stamp", "pill"];
+const STICKER_TILT = { starburst: -12, seal: -8, badge: -6, ribbon: -4, tag: -12, stamp: -9, pill: -10 };
+/** The room each shape leaves its words, as a share of R: [width, height]. Every shape stands inside the
+ *  circle of radius R the layout gave the starburst, tilted or not (its farthest corner within .99 R): a
+ *  ribbon whose tails reached 1.14 R ran into the frame's margin where the room sits by the edge
+ *  (galaxy, switch, jdm in Easy Mode's tall and wide sizes, 2026-11-18). */
+const STICKER_BOX = { starburst: [1.3, 1.15], seal: [1.28, 1.08], badge: [1.34, 1.1], ribbon: [1.16, .54], tag: [1.2, .76], stamp: [1.32, .52], pill: [1.52, .6] };
+
+/** One sticker, centred on (cx, cy) inside a circle of radius R: its shape, its fill (flat or lit
+ *  from above when grad), its ink, its words fitted to the shape's own room; it pops in at t0 and
+ *  sways a little, as the starburst does. */
+export function drawSticker(ctx, shape, cx, cy, R, text, fill, ink, t, t0, fontName, grad = false) {
+  shape = STICKER_SHAPES.includes(shape) ? shape : "starburst";
+  if (shape === "starburst" && !grad) return drawStarburst(ctx, cx, cy, R, text, fill, ink, t, t0, fontName);
+  const q = prog(t, t0, .35); if (q <= 0) return;
+  const sc = Math.max(.01, outBack(q, 2.6)), rot = (STICKER_TILT[shape] + Math.sin((t - t0) * 2.4) * 4) * Math.PI / 180;
+  ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot); ctx.scale(sc, sc);
+  const paint = (y0, y1, f = fill) => grad ? fillGradient(ctx, 0, y0, 0, y1, f, ink, 3) : f;
+  const shadow = () => { ctx.shadowColor = "rgba(0,0,0,.35)"; ctx.shadowBlur = R * .15; ctx.shadowOffsetY = R * .05; };
+  const flat = () => { ctx.shadowColor = "transparent"; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; };
+  const ring = (rr, w) => { ctx.beginPath(); ctx.arc(0, 0, rr, 0, TAU); ctx.lineWidth = w; ctx.strokeStyle = ink; ctx.stroke(); };
+  switch (shape) {
+    case "starburst": {
+      const n = 18; ctx.beginPath();
+      for (let i = 0; i < n * 2; i++) { const a = i / (n * 2) * TAU, rr = i % 2 ? R * .78 : R; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+      ctx.closePath(); shadow(); ctx.fillStyle = paint(-R, R); ctx.fill(); flat(); ctx.lineWidth = R * .05; ctx.strokeStyle = ink; ctx.stroke(); break;
+    }
+    case "seal": {   // a scalloped seal, a thin ring inside its edge
+      const n = 22; ctx.beginPath();
+      for (let i = 0; i <= 180; i++) { const a = i / 180 * TAU, rr = R * (.93 + .07 * Math.cos(n * a)); ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+      ctx.closePath(); shadow(); ctx.fillStyle = paint(-R, R); ctx.fill(); flat(); ring(R * .79, R * .035); break;
+    }
+    case "badge": {  // a round badge with a ring
+      ctx.beginPath(); ctx.arc(0, 0, R * .97, 0, TAU); shadow(); ctx.fillStyle = paint(-R, R); ctx.fill(); flat();
+      ring(R * .86, R * .05); ring(R * .97, R * .02); break;
+    }
+    case "ribbon": { // a banner with folded, notched tails behind it
+      const bw = R * 1.408, bh = R * .74, tw = R * .42, th = R * .56, dy = R * .06, tail = toneOf(fill, -.12);   // the tails' far corners at .99 R
+      [-1, 1].forEach(sd => {
+        const x0 = sd * (bw / 2 - tw * .35), x1 = sd * (bw / 2 + tw * .55);
+        ctx.beginPath(); ctx.moveTo(x0, -th / 2 + dy); ctx.lineTo(x1, -th / 2 + dy); ctx.lineTo(x1 - sd * tw * .32, dy); ctx.lineTo(x1, th / 2 + dy); ctx.lineTo(x0, th / 2 + dy); ctx.closePath();
+        shadow(); ctx.fillStyle = tail; ctx.fill(); flat();
+      });
+      rrect(ctx, -bw / 2, -bh / 2, bw, bh, R * .06); shadow(); ctx.fillStyle = paint(-bh / 2, bh / 2); ctx.fill(); flat();
+      ctx.lineWidth = R * .025; ctx.strokeStyle = ink; rrect(ctx, -bw / 2 + R * .07, -bh / 2 + R * .07, bw - R * .14, bh - R * .14, R * .04); ctx.stroke(); break;
+    }
+    case "tag": {    // a price tag, its point to the left and a punched hole
+      const tw = R * 1.8, th = R * 1, x0 = -tw / 2, pt = th * .42;   // its rounded corners at .99 R
+      ctx.beginPath(); ctx.moveTo(x0 + pt, -th / 2); ctx.lineTo(tw / 2 - R * .08, -th / 2); ctx.quadraticCurveTo(tw / 2, -th / 2, tw / 2, -th / 2 + R * .08);
+      ctx.lineTo(tw / 2, th / 2 - R * .08); ctx.quadraticCurveTo(tw / 2, th / 2, tw / 2 - R * .08, th / 2); ctx.lineTo(x0 + pt, th / 2); ctx.lineTo(x0, 0); ctx.closePath();
+      shadow(); ctx.fillStyle = paint(-th / 2, th / 2); ctx.fill(); flat();
+      ctx.save(); ctx.globalCompositeOperation = "destination-out"; ctx.beginPath(); ctx.arc(x0 + pt * .62, 0, R * .09, 0, TAU); ctx.fill(); ctx.restore();
+      ctx.beginPath(); ctx.arc(x0 + pt * .62, 0, R * .13, 0, TAU); ctx.lineWidth = R * .025; ctx.strokeStyle = ink; ctx.stroke();
+      ctx.translate(R * .12, 0); break;   // the words sit right of the hole
+    }
+    case "stamp": {  // a rubber stamp's plate: a double rule inside its edge
+      const sw = R * 1.76, sh = R * .92;   // its corners at .99 R
+      rrect(ctx, -sw / 2, -sh / 2, sw, sh, R * .07); shadow(); ctx.fillStyle = paint(-sh / 2, sh / 2); ctx.fill(); flat();
+      ctx.strokeStyle = ink; ctx.lineWidth = R * .05; rrect(ctx, -sw / 2 + R * .08, -sh / 2 + R * .08, sw - R * .16, sh - R * .16, R * .05); ctx.stroke();
+      ctx.lineWidth = R * .022; rrect(ctx, -sw / 2 + R * .17, -sh / 2 + R * .17, sw - R * .34, sh - R * .34, R * .03); ctx.stroke(); break;
+    }
+    case "pill": {   // a tilted pill label, a hairline inside its edge
+      const pw = R * 1.92, ph = R * .8;
+      rrect(ctx, -pw / 2, -ph / 2, pw, ph, ph / 2); shadow(); ctx.fillStyle = paint(-ph / 2, ph / 2); ctx.fill(); flat();
+      ctx.lineWidth = R * .03; ctx.strokeStyle = ink; rrect(ctx, -pw / 2 + R * .07, -ph / 2 + R * .07, pw - R * .14, ph - R * .14, (ph - R * .14) / 2); ctx.stroke(); break;
+    }
+  }
+  // the words: one row where the shape is wide, two where it is round and the words long
+  const [bwk, bhk] = STICKER_BOX[shape], bw = R * bwk, bh = R * bhk, wide = bwk / bhk > 1.6;
+  const ws = text.split(" "), lines = !wide && ws.length > 1 && text.length > 6 ? [ws.slice(0, Math.ceil(ws.length / 2)).join(" "), ws.slice(Math.ceil(ws.length / 2)).join(" ")] : [text];
+  let fs = Math.min(R * (lines.length > 1 ? .42 : .5), bh / lines.length * .86);
+  ctx.font = fontCss(fontName, fs);
+  while (Math.max(...lines.map(l => ctx.measureText(l).width)) > bw && fs > 6) { fs *= .93; ctx.font = fontCss(fontName, fs); }
+  ctx.fillStyle = ink; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  lines.forEach((l, i) => ctx.fillText(l, 0, (i - (lines.length - 1) / 2) * fs * 1.02));
+  ctx.restore();
+}
+
+/** The grounds of two colours (owner: "Also don't see any gradients really?"): the pair's ground and
+ *  its accent's hue at a lightness the words already read on (a dark ground's accent lifted a little,
+ *  a warm one out of its muddy floor, rule 103), as a linear sweep, a radial glow behind the product
+ *  or a soft mesh of blobs. Two families only: the ground's and the accent's. Keys: pair_linear,
+ *  pair_radial, pair_mesh. Returns false for any other kind (the engine's background() asks each
+ *  painter in turn). */
+export const PAIR_GRADIENTS = ["pair_linear", "pair_radial", "pair_mesh"];
+export function pairGradientColours(p) {
+  const G = oklchOf(p.ground), A = oklchOf(p.accent), dark = G.L < .56, warm = A.h >= 25 && A.h < 115;
+  const L2 = dark ? Math.min(.5, Math.max(G.L + .07, warm ? .42 : .3)) : Math.min(.93, Math.max(.6, G.L - .06));
+  const hot = okHex(L2, Math.min(.17, Math.max(.1, A.C)), A.h);
+  const deep = okHex(dark ? Math.max(.1, G.L - .08) : Math.min(.975, G.L + .03), G.C, G.h);
+  return { hot, deep, dark };
+}
+export function pairGradientGround(kind, x, st, p, W, H, sc, r) {
+  if (!PAIR_GRADIENTS.includes(kind)) return false;
+  /* Painted as a field from the ground (0) to the accent (1), each pixel's colour taken in OKLCH
+     along deep → ground → a quiet middle → hot: the ground's hue fades out before the accent's comes
+     in, so no pixel is a third hue (an sRGB blend of navy and orange passes through brown, of blue
+     and green through cyan). Drawn at 128 across and scaled up smooth. */
+  const { hot, deep } = pairGradientColours(p), G = oklchOf(p.ground), Hh = oklchOf(hot), Dd = oklchOf(deep);
+  const [cx, cy] = sc || [W / 2, H * .6];
+  let field;
+  if (kind === "pair_linear") {
+    const a = (r ? r.uniform(.12, .38) : .25) * Math.PI, dx = Math.cos(a), dy = Math.sin(a) * H / W, n = Math.hypot(dx, dy);
+    field = (u, v) => .5 + ((u - .5) * dx + (v - .5) * dy) / n / 1.15;
+  } else if (kind === "pair_radial") {
+    const ux = cx / W, uy = cy / H, k = Math.max(1, H / W);
+    field = (u, v) => 1 - Math.min(1, Math.hypot(u - ux, (v - uy) * k) / .62) - (v < .42 ? (.42 - v) * .9 : 0);
+  } else {
+    const blobs = Array.from({ length: 4 }, (_, i) => ({ u: r ? r() * .9 + .05 : (i * .37 + .1) % 1, v: r ? r() * .9 + .05 : (i * .61 + .2) % 1, rad: r ? r.uniform(.28, .45) : .36, w: i % 2 ? -.45 : .62 }));
+    field = (u, v) => .42 + blobs.reduce((t, b) => t + b.w * Math.exp(-((u - b.u) ** 2 + ((v - b.v) * H / W) ** 2) / (b.rad * b.rad)), 0);
+  }
+  const midL = (G.L + Hh.L) / 2, n = 128, m = Math.max(2, Math.round(n * H / W)), c = canvas(n, m), cx2 = c.getContext("2d"), id = cx2.createImageData(n, m);
+  const toRgb = (L, C, h) => {
+    const a = C * Math.cos(h * Math.PI / 180), b = C * Math.sin(h * Math.PI / 180);
+    const l = (L + .3963377774 * a + .2158037573 * b) ** 3, mm = (L - .1055613458 * a - .0638541728 * b) ** 3, ss = (L - .0894841775 * a - 1.291485548 * b) ** 3;
+    return [4.0767416621 * l - 3.3077115913 * mm + .2309699292 * ss, -1.2684380046 * l + 2.6097574011 * mm - .3413193965 * ss, -.0041960863 * l - .7034186147 * mm + 1.707614701 * ss]
+      .map(v => { v = Math.min(1, Math.max(0, v)); return Math.round(255 * (v <= .0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - .055)); });
+  };
+  for (let j = 0; j < m; j++) for (let i = 0; i < n; i++) {
+    const t = Math.min(1, Math.max(0, field((i + .5) / n, (j + .5) / m)));
+    let L, C, h;
+    if (t < .35) { const k = t / .35; L = lerp(Dd.L, G.L, k); C = lerp(Dd.C, G.C, k); h = G.h; }
+    else if (t < .55) { const k = (t - .35) / .2; L = lerp(G.L, midL, k); C = G.C * (1 - k); h = G.h; }
+    else { const k = (t - .55) / .45; L = lerp(midL, Hh.L, k); C = Hh.C * k; h = Hh.h; }
+    const [R, Gr, B] = toRgb(L, C, h), o = (j * n + i) * 4;
+    id.data[o] = R; id.data[o + 1] = Gr; id.data[o + 2] = B; id.data[o + 3] = 255;
+  }
+  cx2.putImageData(id, 0, 0);
+  x.save(); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = "high"; x.drawImage(c, 0, 0, W, H); x.restore();
+  return true;
 }

@@ -14,7 +14,7 @@
    usage:  node scripts/build_full_subjects.mjs            # rewrite motion/subjects.json
            node scripts/build_full_subjects.mjs --check    # exit 1 if it is stale or a picture is missing */
 import vm from 'node:vm';
-import { readFileSync, writeFileSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, statSync, readdirSync } from 'node:fs';
 
 const ROOT = new URL('../', import.meta.url).pathname, OUT = ROOT + 'motion/subjects.json';
 const win = {};
@@ -37,9 +37,13 @@ const NAMES = {
   metaglasses: ['META GLASSES', 'META GLASSES'], smartwatch: ['SMARTWATCHES', 'SMARTWATCH'],
   gold: ['GOLD', 'GOLD'], silver: ['SILVER', 'SILVER'], coins: ['COINS', 'COINS'], car: ['CARS & TRUCKS', 'CAR'], strips: ['TEST STRIPS', 'TEST STRIPS'],
   pokemon: ['POKÉMON CARDS', 'POKÉMON CARDS'], sports: ['SPORTS CARDS', 'SPORTS CARDS'], camera: ['CAMERAS', 'CAMERA'], drone: ['DRONES', 'DRONE'],
+  // the car lines (2026-11-18)
+  classic: ['CLASSIC CARS', 'CLASSIC CAR'], jdm: ['JDM CARS', 'JDM CAR'], trucks: ['TRUCKS', 'TRUCK'], toyota: ['TOYOTAS', 'TOYOTA'], honda: ['HONDAS', 'HONDA'],
+  bmw: ['BMWS', 'BMW'], mercedes: ['MERCEDES & AMG', 'MERCEDES'], vans: ['WORK VANS', 'WORK VAN'], semis: ['SEMI TRUCKS', 'SEMI TRUCK'],
 };
 // the three points a buyer of anything can stand behind; a line's own checks follow where they are short enough for a chip
-const POINTS = { car: 'FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU', gold: 'TESTED FREE, PAID TODAY, NO FEES', silver: 'TESTED FREE, PAID TODAY, NO FEES',
+const CAR_POINTS = 'FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU';
+const POINTS = { car: CAR_POINTS, classic: CAR_POINTS, jdm: CAR_POINTS, trucks: CAR_POINTS, toyota: CAR_POINTS, honda: CAR_POINTS, bmw: CAR_POINTS, mercedes: CAR_POINTS, vans: CAR_POINTS, semis: CAR_POINTS, gold: 'TESTED FREE, PAID TODAY, NO FEES', silver: 'TESTED FREE, PAID TODAY, NO FEES',
   coins: 'FREE QUOTE, PAID TODAY, NO FEES', pokemon: 'FREE QUOTE, PAID TODAY, SINGLES OR SETS', sports: 'FREE QUOTE, PAID TODAY, SINGLES OR SETS', strips: 'SEALED BOXES, PAID TODAY, NO FEES' };
 const GROUPS = { phones: 'Phones and Apple', gaming: 'Gaming', audio: 'Audio', computers: 'Computers', wearables: 'Wearables', cameras: 'Cameras', gold: 'Gold, silver and coins', silver: 'Gold, silver and coins',
   coins: 'Gold, silver and coins', cars: 'Cars', strips: 'Test strips', pokemon: 'Cards', sports: 'Cards' };
@@ -65,13 +69,15 @@ if (missing.length) { console.error('pictures missing:\n  ' + missing.join('\n  
    shows another product: the offer family's own sets, the line's Apple models in every finish
    (assets/devices.json), the pictures spec/product-demand.json names, and for cars the recent and
    common vehicles of assets/vehicles.json. Weighted by that table; a picture the owner rejected,
-   a mislabelled one or one flagged as a fake render or a crop is never in it. What a page loads for
-   one line is kept small (maxPictures, maxBytes): the pool is loaded whole, once, when the line is. */
+   a mislabelled one or one flagged as a fake render or a crop is never in it. Each entry is a set of
+   its own, so a page can load the one entry a seed draws (2026-11-18, pools 3 to 5 times larger: cap,
+   maxPictures and maxBytes bound a line; the full ad loads an entry when it is drawn). */
 const DEMAND = JSON.parse(readFileSync(ROOT + 'spec/product-demand.json', 'utf8')).lines;
 const GRID = JSON.parse(readFileSync(ROOT + 'assets/approved-assets.json', 'utf8'))['asset-grid-v1'];
 const FLAGS = JSON.parse(readFileSync(ROOT + 'assets/cutout-flags.json', 'utf8'));
 const DEVICES = JSON.parse(readFileSync(ROOT + 'assets/devices.json', 'utf8')).models;
 const VEHICLES = JSON.parse(readFileSync(ROOT + 'assets/vehicles.json', 'utf8'));
+const CUT_IDS = readdirSync(ROOT + 'assets/cutouts').filter(f => f.endsWith('.webp')).map(f => f.slice(0, -5)).sort();
 const barred = new Set([...(GRID.rejected || []), ...Object.keys(GRID.verifiedBad || {}), ...Object.keys(FLAGS).filter(k => !k.startsWith('_'))]);
 const fileOf = f => `${ROOT}assets/cutouts/${f}.webp`;
 const bytesOf = f => { try { return statSync(fileOf(f)).size; } catch (e) { return 0; } };
@@ -81,12 +87,14 @@ for (const S of subjects) {
   const C = DEMAND[S.key]; if (!C) { S.pool = []; continue; }
   const cand = [];                                   // [{ set, w }], best first
   const offerW = C.offers ?? 1;
-  // the offer family's own sets are always in (the line's look so far), drawn at their weight among the rest
-  S.sets.forEach(set => { if (set.every(p => !barred.has(p.file))) cand.push({ set, w: offerW, rank: Infinity }); });
+  // the offer family's own sets are always in (the line's look so far), drawn at their weight among the rest;
+  // on a car line only sets of identified vehicles (assets/vehicles.json names make and model: the owner,
+  // 2026-11-18, "unidentified cars skip we need to know what it is with confidence")
+  S.sets.forEach(set => { if (set.every(p => !barred.has(p.file)) && !(C.cars && set.some(p => !VEHICLES[p.file]))) cand.push({ set, w: offerW, rank: Infinity }); });
   if (C.devices) {
     for (const [key, w] of C.models || []) {
       const m = DEVICES[key]; if (!m || m.line !== C.devices) { dropped.push(`${S.key}: ${key} (not a ${C.devices} model in assets/devices.json)`); continue; }
-      const cols = Object.values(m.colours || {}).map(c => c.slug).filter(f => usable(f, S.key)).slice(0, 3);
+      const cols = Object.values(m.colours || {}).map(c => c.slug).filter(f => usable(f, S.key)).slice(0, C.colours || 3);   // every finish where the table says so (colours)
       const files = cols.length ? cols : (m.art && !/^qs-sheet/.test(m.art) && usable(m.art, S.key) ? [m.art] : []);
       if (!files.length) continue;
       // one model: each finish alone, and (two finishes or more) the finishes side by side, as Apple's own line-up shows them
@@ -96,13 +104,36 @@ for (const S of subjects) {
     }
   }
   for (const [f, w] of C.pictures || []) if (usable(f, S.key)) cand.push({ set: [{ file: f, k: 1 }], w, rank: w });
+  // every approved cut-out whose id the line's pattern names (match, less exclude), at matchWeight: how a
+  // line's pool grows past the pictures named one by one (the owner, 2026-11-18: "like 3-5x the pool")
+  if (C.match) {
+    const re = new RegExp(C.match), ex = C.exclude ? new RegExp(C.exclude) : null, named = new Set((C.pictures || []).map(([f]) => f));
+    for (const f of CUT_IDS) if (re.test(f) && !(ex && ex.test(f)) && !named.has(f) && !barred.has(f)) cand.push({ set: [{ file: f, k: 1 }], w: C.matchWeight ?? 2, rank: C.matchWeight ?? 2 });
+  }
+  /* THE CAR LINES' VEHICLES (assets/vehicles.json: identified ones only). brands, a models pattern and
+     vintage ("only", "never" by default, "any") say which; class, body and view weigh them; popular weighs
+     the models that sell (the owner: "more standard cars"; iSeeCars 2025: the Camry California's most
+     popular used car, the F-150, Silverado and Ram 1500 the country's); perModel keeps up to that many
+     colours of one model ("each car in different colors"), perBrand that many models of one make. */
   if (C.cars) {
     const K = C.cars, now = new Date().getFullYear();
-    const rows = Object.entries(VEHICLES).filter(([id, v]) => !barred.has(id) && existsSync(fileOf(id)) && (v.year_to || v.year_from || 0) >= K.from && (K.body[v.body] ?? 1) > 0 && !v.vintage)
-      .map(([id, v]) => ({ id, v, w: (K.class[v.class] ?? .5) * (K.body[v.body] ?? 1) * (K.view[v.view] ?? .5) * (1 + ((v.year_to || v.year_from) - K.from) / Math.max(1, now - K.from)) }))
+    const pop = (K.popular || []).map(([re, w]) => [new RegExp(re, 'i'), w]), modelRe = K.models ? new RegExp(K.models, 'i') : null;
+    const fits = v => (!K.brands || K.brands.some(b => v.brand === b || v.brand.startsWith(b))) && (!modelRe || modelRe.test(v.model))
+      && (K.vintage === 'only' ? !!v.vintage : K.vintage === 'any' ? true : !v.vintage) && (K.body[v.body] ?? 1) > 0 && (!K.from || (v.year_to || v.year_from || 0) >= K.from);
+    const rows = Object.entries(VEHICLES).filter(([id, v]) => !barred.has(id) && existsSync(fileOf(id)) && fits(v))
+      .map(([id, v]) => { const p = pop.find(([re]) => re.test(v.model)), recency = K.from ? 1 + ((v.year_to || v.year_from || K.from) - K.from) / Math.max(1, now - K.from) : 1;
+        return { id, v, w: (K.class[v.class] ?? .5) * (K.body[v.body] ?? 1) * (K.view[v.view] ?? .5) * recency * (p ? p[1] : 1) }; })
       .sort((a, b) => b.w - a.w || a.id.localeCompare(b.id));
-    const perBrand = {};
-    for (const r of rows) { if ((perBrand[r.v.brand] = (perBrand[r.v.brand] || 0) + 1) > 1) continue; cand.push({ set: [{ file: r.id, k: 1 }], w: +(r.w * 4).toFixed(2), rank: r.w * 4 }); }
+    const perBrand = {}, perModel = {}, blocked = new Set();
+    for (const r of rows) {
+      const mk = r.v.brand + '|' + r.v.model;
+      if (blocked.has(mk)) continue;
+      if (!perModel[mk] && (perBrand[r.v.brand] || 0) >= (K.perBrand ?? 99)) { blocked.add(mk); continue; }
+      if ((perModel[mk] || 0) >= (K.perModel ?? 3)) continue;
+      if (!perModel[mk]) perBrand[r.v.brand] = (perBrand[r.v.brand] || 0) + 1;
+      perModel[mk] = (perModel[mk] || 0) + 1;
+      cand.push({ set: [{ file: r.id, k: 1 }], w: +(r.w * 4).toFixed(2), rank: r.w * 4 });
+    }
   }
   // what one line loads: the best entries first, until the pictures or the bytes run out
   cand.sort((a, b) => b.rank - a.rank || b.w - a.w);
@@ -113,7 +144,7 @@ for (const S of subjects) {
     if (same.has(sig)) { same.get(sig).w = +(same.get(sig).w + e.w).toFixed(3); continue; }   // one set named twice (an offer set and a listed picture): one entry, both weights
     const add = e.set.map(p => p.file).filter(f => !files.has(f));
     const more = add.reduce((n, f) => n + bytesOf(f), 0);
-    if (files.size + add.length > (DEMAND.maxPictures || 12) || bytes + more > (DEMAND.maxBytes || 2.6e6)) continue;
+    if (files.size + add.length > (C.cap || DEMAND.maxPictures || 12) || bytes + more > (C.maxBytes || DEMAND.maxBytes || 2.6e6)) continue;
     add.forEach(f => files.add(f)); bytes += more;
     const entry = { set: e.set, w: +e.w.toFixed(3) }; pool.push(entry); same.set(sig, entry);
   }

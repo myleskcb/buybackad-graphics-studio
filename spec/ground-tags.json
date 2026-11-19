@@ -1,0 +1,1307 @@
+{
+ "_doc": "What each ground photograph shows, read by eye on contact sheets (2026-11-18), so the ground and the product line up (the owner: \"ideally bg and assets line up\"; DESIGN-LAW 145). shows: 'scene' (a world the product stands in: a landscape, a desk, a field, a texture; suits: the categories it fits) or 'product' (it shows goods itself: subject is the line or kind it shows, make and model where it is a vehicle or a phone, vehicle: pickup or van). floor: where a surface the product can stand on meets the eye, 0 to 1 of the photograph's height; FullAd frames a scene so this line is the foot of the product band. never: a reason the photograph is not used at all. The full ad's pools (scripts/build_full_grounds.mjs) and the recipes (scripts/build_recipes.mjs) read this table; each --check fails a ground it does not tag. A car photograph may list cuts: the cut-outs that are that very car (a model name can span generations or bodies: an E46 and a G80 M3, a Transit Connect and a Courier); only those stand on it.",
+ "version": "2026-11-18",
+ "tags": {
+  "assets/bg-offer/apple-macbook-air-m2-1.jpg": {
+   "shows": "product",
+   "subject": "mac",
+   "model": "macbook air"
+  },
+  "assets/bg-offer/audio-airpods-4-1.jpg": {
+   "shows": "product",
+   "subject": "earbuds"
+  },
+  "assets/bg-offer/audio-airpods-max-1.jpg": {
+   "shows": "product",
+   "subject": "headphones"
+  },
+  "assets/bg-offer/audio-airpods-max-2.jpg": {
+   "shows": "product",
+   "subject": "headphones"
+  },
+  "assets/bg-offer/audio-airpods-pro-4.jpg": {
+   "shows": "product",
+   "subject": "earbuds"
+  },
+  "assets/bg-offer/audio-beats-fit-pro-1.jpg": {
+   "shows": "product",
+   "subject": "earbuds"
+  },
+  "assets/bg-offer/audio-bose-quietcomfort-headphones-2.jpg": {
+   "shows": "product",
+   "subject": "headphones"
+  },
+  "assets/bg-offer/audio-sonos-speaker-4.jpg": {
+   "shows": "product",
+   "subject": "speaker"
+  },
+  "assets/bg-offer/cameras-dji-mini-4-pro-2.jpg": {
+   "shows": "product",
+   "subject": "drone"
+  },
+  "assets/bg-offer/cameras-fujifilm-x-t5-2.jpg": {
+   "shows": "product",
+   "subject": "camera"
+  },
+  "assets/bg-offer/cameras-leica-q2-4.jpg": {
+   "shows": "product",
+   "subject": "camera"
+  },
+  "assets/bg-offer/coins-american-gold-eagle-coin-1.jpg": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/bg-offer/coins-coin-collection-album-1.jpg": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/bg-offer/dl_cars_stepsFlow_sunset.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "",
+   "note": "a close crop of a car's door"
+  },
+  "assets/bg-offer/dl_sports_agencyGrid_mono.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg-offer/dl_sports_arcCrown_crimson.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg-offer/dl_sports_glassCard_mono.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg-offer/gold-gold-bracelet-2.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-offer/gold-gold-bracelet-4.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-offer/gold-gold-jewelry-rings-3.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-offer/macbook-macbook-pro-16-inch-2.jpg": {
+   "shows": "product",
+   "subject": "mac"
+  },
+  "assets/bg-offer/macbook-macbook-pro-m3-1.jpg": {
+   "shows": "product",
+   "subject": "mac"
+  },
+  "assets/bg-offer/phones-apple-iphone-15-1.jpg": {
+   "shows": "product",
+   "subject": "iphone",
+   "model": "15"
+  },
+  "assets/bg-offer/phones-iphone-14-pro-1.jpg": {
+   "shows": "product",
+   "subject": "iphone",
+   "model": "14 pro"
+  },
+  "assets/bg-offer/phones-iphone-15-pro-back-camera-1.jpg": {
+   "shows": "product",
+   "subject": "iphone",
+   "model": "15 pro"
+  },
+  "assets/bg-offer/pokemon-charizard-card-1.jpg": {
+   "shows": "product",
+   "subject": "pokemon"
+  },
+  "assets/bg-offer/pokemon-charizard-card-2.jpg": {
+   "shows": "product",
+   "subject": "pokemon"
+  },
+  "assets/bg-offer/rooms-desk-setup-1.jpg": {
+   "shows": "scene",
+   "suits": [
+    "computers",
+    "gaming",
+    "audio",
+    "phones",
+    "wearables",
+    "cameras",
+    "pokemon"
+   ],
+   "floor": 0.72
+  },
+  "assets/bg-offer/rooms-home-desk-setup-1.jpg": {
+   "shows": "scene",
+   "suits": [
+    "computers",
+    "gaming",
+    "audio",
+    "phones",
+    "wearables",
+    "cameras",
+    "pokemon"
+   ],
+   "floor": 0.62
+  },
+  "assets/bg-offer/rooms-living-room-console-1.jpg": {
+   "shows": "scene",
+   "suits": [
+    "gaming",
+    "pokemon",
+    "audio"
+   ],
+   "floor": 0.86
+  },
+  "assets/bg-offer/silver-silver-cutlery-1.jpg": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/bg-offer/silver-silver-jewelry-rings-2.jpg": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/bg-offer/silver-silverware-set-1.jpg": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/bg-offer/strips-blood-glucose-meter-1.jpg": {
+   "shows": "product",
+   "subject": "strips"
+  },
+  "assets/bg-offer/strips-blood-glucose-test-strips-2.jpg": {
+   "shows": "product",
+   "subject": "strips"
+  },
+  "assets/bg-offer/strips-contour-next-test-strips-2.jpg": {
+   "shows": "product",
+   "subject": "strips"
+  },
+  "assets/bg-offer/trucks-pickup-truck-1.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "chevy",
+   "model": "pickup",
+   "vehicle": "pickup",
+   "note": "a 1950s Chevrolet Task Force pickup (the plate reads 56 CHEVY), a classic: no modern Chevy cut-out matches it"
+  },
+  "assets/bg-offer/wearables-apple-watch-series-9-4.jpg": {
+   "shows": "product",
+   "subject": "watch"
+  },
+  "assets/bg-offer/wearables-meta-ray-ban-1.jpg": {
+   "shows": "product",
+   "subject": "metaglasses"
+  },
+  "assets/bg-web/bikes-harley-davidson-motorcycle-1.jpg": {
+   "shows": "product",
+   "subject": "motorcycle",
+   "make": "harley"
+  },
+  "assets/bg-web/cars-bmw-key-1.jpg": {
+   "shows": "product",
+   "subject": "car-key",
+   "make": "bmw"
+  },
+  "assets/bg-web/cars-bmw-key-2.jpg": {
+   "shows": "product",
+   "subject": "car-key",
+   "make": "bmw"
+  },
+  "assets/bg-web/cars-bmw-key-3.jpg": {
+   "shows": "product",
+   "subject": "car-key",
+   "make": "bmw"
+  },
+  "assets/bg-web/cars-car-interior-steering-wheel-dashboard-1.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "",
+   "note": "a classic car's interior"
+  },
+  "assets/bg-web/cars-car-interior-steering-wheel-dashboard-2.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "",
+   "note": "a car's interior"
+  },
+  "assets/bg-web/cars-car-key-fob-1.jpg": {
+   "shows": "product",
+   "subject": "car-key",
+   "make": "bmw"
+  },
+  "assets/bg-web/cars-classic-car-chrome-grille-1.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "",
+   "note": "a classic car of no stated make"
+  },
+  "assets/bg-web/cars-classic-car-chrome-grille-2.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "",
+   "note": "a classic car of no stated make"
+  },
+  "assets/bg-web/cars-classic-car-chrome-grille-3.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "",
+   "note": "a classic car of no stated make"
+  },
+  "assets/bg-web/cars-sports-car-front-night-1.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "",
+   "note": "a sports car of no stated make"
+  },
+  "assets/bg-web/cars-sports-car-front-night-2.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "",
+   "note": "several cars before a palace at night"
+  },
+  "assets/bg-web/cars-used-car-dealership-lot-1.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "",
+   "never": "another dealer's sign and number on the lot"
+  },
+  "assets/bg-web/coins-american-gold-eagle-coin-3.jpg": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/bg-web/coins-coin-collection-album-1.jpg": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/bg-web/coins-coin-hoard-1.jpg": {
+   "shows": "product",
+   "subject": "coins",
+   "never": "too dark (the ground pools' measure, 2026-11-18)"
+  },
+  "assets/bg-web/coins-old-coins-2.jpg": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/bg-web/colours-jeep-wrangler-red-1.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "jeep",
+   "model": "wrangler"
+  },
+  "assets/bg-web/colours-toyota-tacoma-red-1.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "toyota",
+   "model": "tacoma",
+   "vehicle": "pickup"
+  },
+  "assets/bg-web/gold-gold-bracelet-2.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-web/gold-gold-bracelet-3.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-web/gold-gold-bullion-bar-2.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-web/gold-gold-bullion-bars-2.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-web/gold-gold-bullion-bars-3.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-web/gold-gold-coins-1.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-web/gold-gold-coins-2.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-web/gold-gold-coins-3.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-web/gold-gold-jewelry-display-1.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-web/gold-gold-jewelry-rings-3.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-web/gold-gold-necklace-chain-close-3.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-web/gold-gold-ring-wedding-band-1.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-web/gold-gold-ring-wedding-band-2.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-web/gold-gold-ring-wedding-band-3.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-web/gold-gold-watch-1.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-web/gold-rolex-watch-3.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-web/macbook-macbook-air-2.jpg": {
+   "shows": "product",
+   "subject": "mac"
+  },
+  "assets/bg-web/macbook-macbook-air-3.jpg": {
+   "shows": "product",
+   "subject": "mac"
+  },
+  "assets/bg-web/macbook-macbook-on-desk-1.jpg": {
+   "shows": "product",
+   "subject": "mac"
+  },
+  "assets/bg-web/macbook-macbook-on-desk-2.jpg": {
+   "shows": "product",
+   "subject": "mac"
+  },
+  "assets/bg-web/macbook-macbook-pro-m3-4.jpg": {
+   "shows": "product",
+   "subject": "mac"
+  },
+  "assets/bg-web/phones-apple-iphone-15-1.jpg": {
+   "shows": "product",
+   "subject": "iphone",
+   "model": "15"
+  },
+  "assets/bg-web/phones-apple-iphone-15-2.jpg": {
+   "shows": "product",
+   "subject": "iphone",
+   "model": "15"
+  },
+  "assets/bg-web/phones-iphone-13-pro-1.jpg": {
+   "shows": "product",
+   "subject": "iphone",
+   "model": "13 pro"
+  },
+  "assets/bg-web/phones-iphone-13-pro-2.jpg": {
+   "shows": "product",
+   "subject": "iphone",
+   "model": "13 pro"
+  },
+  "assets/bg-web/phones-iphone-13-pro-3.jpg": {
+   "shows": "product",
+   "subject": "iphone",
+   "model": "13 pro"
+  },
+  "assets/bg-web/phones-iphone-14-pro-1.jpg": {
+   "shows": "product",
+   "subject": "iphone",
+   "model": "14 pro"
+  },
+  "assets/bg-web/phones-iphone-14-pro-2.jpg": {
+   "shows": "product",
+   "subject": "iphone",
+   "model": "14 pro"
+  },
+  "assets/bg-web/phones-iphone-14-pro-3.jpg": {
+   "shows": "product",
+   "subject": "iphone",
+   "model": "14 pro"
+  },
+  "assets/bg-web/phones-iphone-15-pro-back-camera-1.jpg": {
+   "shows": "product",
+   "subject": "iphone",
+   "model": "15 pro"
+  },
+  "assets/bg-web/phones-iphone-16-pro-1.jpg": {
+   "shows": "product",
+   "subject": "iphone",
+   "model": "16 pro"
+  },
+  "assets/bg-web/pokemon-charizard-card-1.jpg": {
+   "shows": "product",
+   "subject": "pokemon"
+  },
+  "assets/bg-web/pokemon-charizard-card-2.jpg": {
+   "shows": "product",
+   "subject": "pokemon"
+  },
+  "assets/bg-web/popular-bmw-m3-3.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "bmw",
+   "model": "m3",
+   "cuts": [
+    "car-bmw-m3-blue"
+   ],
+   "note": "an F80 M3 in blue: the E46 CSL and the G80 cut-outs are other cars"
+  },
+  "assets/bg-web/popular-bmw-m3-competition-g80-1.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "bmw",
+   "model": "m3",
+   "cuts": [
+    "car-bmw-m3-competition-green"
+   ],
+   "note": "a G80 M3 Competition in green: the E46 CSL and the F80 cut-outs are other cars"
+  },
+  "assets/bg-web/popular-honda-civic-type-r-fl5-1.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "honda",
+   "model": "civic",
+   "cuts": [
+    "car-honda-civic-type-r-fl5-white"
+   ],
+   "note": "an FL5 Civic Type R in white"
+  },
+  "assets/bg-web/popular2-dodge-challenger-1.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "dodge",
+   "model": "challenger",
+   "cuts": [
+    "car-dodge-challenger-1972-lime"
+   ],
+   "note": "a 1972 Challenger in lime: no modern Challenger stands on it"
+  },
+  "assets/bg-web/popular2-lamborghini-aventador-2.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "lamborghini",
+   "model": "aventador"
+  },
+  "assets/bg-web/rooms-desk-setup-1.jpg": {
+   "shows": "scene",
+   "suits": [
+    "computers",
+    "gaming",
+    "audio",
+    "phones",
+    "wearables",
+    "cameras",
+    "pokemon"
+   ],
+   "floor": 0.72
+  },
+  "assets/bg-web/rooms-home-desk-setup-1.jpg": {
+   "shows": "scene",
+   "suits": [
+    "computers",
+    "gaming",
+    "audio",
+    "phones",
+    "wearables",
+    "cameras",
+    "pokemon"
+   ],
+   "floor": 0.62
+  },
+  "assets/bg-web/rooms-living-room-console-1.jpg": {
+   "shows": "scene",
+   "suits": [
+    "gaming",
+    "pokemon",
+    "audio"
+   ],
+   "floor": 0.86
+  },
+  "assets/bg-web/silver-silver-bullion-bars-3.jpg": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/bg-web/silver-silver-cutlery-1.jpg": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/bg-web/silver-silver-cutlery-2.jpg": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/bg-web/silver-silver-jewelry-rings-2.jpg": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/bg-web/silver-silver-necklace-chain-1.jpg": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/bg-web/silver-silver-tea-set-5.jpg": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/bg-web/silver-silverware-set-1.jpg": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/bg-web/silver-silverware-set-3.jpg": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/bg-web/sports-baseball-and-glove-1.jpg": {
+   "shows": "scene",
+   "suits": [
+    "sports"
+   ]
+  },
+  "assets/bg-web/sports-baseball-and-glove-2.jpg": {
+   "shows": "scene",
+   "suits": [
+    "sports"
+   ]
+  },
+  "assets/bg-web/sports-baseball-and-glove-3.jpg": {
+   "shows": "scene",
+   "suits": [
+    "sports"
+   ]
+  },
+  "assets/bg-web/sports-baseball-on-grass-1.jpg": {
+   "shows": "scene",
+   "suits": [
+    "sports"
+   ]
+  },
+  "assets/bg-web/sports-baseball-on-grass-2.jpg": {
+   "shows": "scene",
+   "suits": [
+    "sports"
+   ]
+  },
+  "assets/bg-web/sports-baseball-stadium-night-2.jpg": {
+   "shows": "scene",
+   "suits": [
+    "sports"
+   ],
+   "never": "too dark (the ground pools' measure, 2026-11-18)"
+  },
+  "assets/bg-web/sports-baseball-stadium-night-3.jpg": {
+   "shows": "scene",
+   "suits": [
+    "sports"
+   ],
+   "floor": 0.7
+  },
+  "assets/bg-web/sports-basketball-on-court-3.jpg": {
+   "shows": "scene",
+   "suits": [
+    "sports"
+   ],
+   "floor": 0.75
+  },
+  "assets/bg-web/strips-blood-glucose-meter-1.jpg": {
+   "shows": "product",
+   "subject": "strips"
+  },
+  "assets/bg-web/strips-blood-glucose-meter-4.jpg": {
+   "shows": "product",
+   "subject": "strips"
+  },
+  "assets/bg-web/strips-blood-glucose-test-strips-2.jpg": {
+   "shows": "product",
+   "subject": "strips"
+  },
+  "assets/bg-web/strips-blood-glucose-test-strips-3.jpg": {
+   "shows": "product",
+   "subject": "strips"
+  },
+  "assets/bg-web/strips-contour-next-test-strips-1.jpg": {
+   "shows": "product",
+   "subject": "strips"
+  },
+  "assets/bg-web/strips-contour-next-test-strips-2.jpg": {
+   "shows": "product",
+   "subject": "strips"
+  },
+  "assets/bg-web/strips-contour-next-test-strips-3.jpg": {
+   "shows": "product",
+   "subject": "strips"
+  },
+  "assets/bg-web/strips-freestyle-libre-3.jpg": {
+   "shows": "product",
+   "subject": "strips"
+  },
+  "assets/bg-web/strips-freestyle-libre-4.jpg": {
+   "shows": "product",
+   "subject": "strips"
+  },
+  "assets/bg-web/strips-glucose-meter-test-strip-2.jpg": {
+   "shows": "product",
+   "subject": "strips"
+  },
+  "assets/bg-web/trucks-chevrolet-silverado-pickup-1.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "chevy",
+   "model": "silverado",
+   "vehicle": "pickup"
+  },
+  "assets/bg-web/trucks-chevrolet-silverado-pickup-3.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "chevy",
+   "model": "silverado",
+   "vehicle": "pickup"
+  },
+  "assets/bg-web/trucks-ford-f-150-1.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "ford",
+   "model": "f150",
+   "vehicle": "pickup"
+  },
+  "assets/bg-web/trucks-ford-f-150-2.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "ford",
+   "model": "f150",
+   "vehicle": "pickup"
+  },
+  "assets/bg-web/trucks-pickup-truck-1.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "chevy",
+   "model": "pickup",
+   "vehicle": "pickup",
+   "note": "a 1950s Chevrolet Task Force pickup (the plate reads 56 CHEVY), a classic: no modern Chevy cut-out matches it"
+  },
+  "assets/bg-web/trucks-pickup-truck-3.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "fargo",
+   "model": "pickup",
+   "vehicle": "pickup",
+   "note": "a 1950s Fargo pickup (the badge reads FARGO; tagged chevy before 2026-11-18 by mistake), a classic"
+  },
+  "assets/bg-web/trucks-pickup-truck-bed-1.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "",
+   "vehicle": "pickup"
+  },
+  "assets/bg-web/vans-cargo-van-1.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "",
+   "vehicle": "van"
+  },
+  "assets/bg-web/vans-ford-transit-van-1.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "ford",
+   "model": "transit",
+   "vehicle": "van",
+   "cuts": [
+    "car-ford-transit-connect-white"
+   ],
+   "note": "a Transit Connect (the compact van), not the Transit Custom or Courier"
+  },
+  "assets/bg-web/vans-ford-transit-van-2.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "ford",
+   "model": "transit",
+   "vehicle": "van",
+   "cuts": [
+    "car-ford-transit-connect-white"
+   ],
+   "note": "a Transit Connect (the compact van), not the Transit Custom or Courier"
+  },
+  "assets/bg-web/vans-ford-transit-van-3.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "ford",
+   "model": "transit",
+   "vehicle": "van",
+   "cuts": [
+    "car-ford-transit-courier-white"
+   ],
+   "note": "a Transit Courier (the smallest van), not the Connect or Custom"
+  },
+  "assets/bg-web/wallpaper-emerald-bay-lake-tahoe-2.jpg": {
+   "shows": "scene",
+   "suits": [
+    "phones",
+    "gaming",
+    "audio",
+    "computers",
+    "wearables",
+    "cameras",
+    "cars",
+    "gold",
+    "silver",
+    "coins",
+    "pokemon",
+    "sports",
+    "strips"
+   ]
+  },
+  "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg": {
+   "shows": "scene",
+   "suits": [
+    "phones",
+    "gaming",
+    "audio",
+    "computers",
+    "wearables",
+    "cameras",
+    "cars",
+    "gold",
+    "silver",
+    "coins",
+    "pokemon",
+    "sports",
+    "strips"
+   ]
+  },
+  "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg": {
+   "shows": "scene",
+   "suits": [
+    "phones",
+    "gaming",
+    "audio",
+    "computers",
+    "wearables",
+    "cameras",
+    "cars",
+    "gold",
+    "silver",
+    "coins",
+    "pokemon",
+    "sports",
+    "strips"
+   ]
+  },
+  "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg": {
+   "shows": "scene",
+   "suits": [
+    "phones",
+    "gaming",
+    "audio",
+    "computers",
+    "wearables",
+    "cameras",
+    "cars",
+    "gold",
+    "silver",
+    "coins",
+    "pokemon",
+    "sports",
+    "strips"
+   ]
+  },
+  "assets/bg-web/wallpaper-golden-gate-bridge-sunset-3.jpg": {
+   "shows": "scene",
+   "suits": [
+    "phones",
+    "gaming",
+    "audio",
+    "computers",
+    "wearables",
+    "cameras",
+    "cars",
+    "gold",
+    "silver",
+    "coins",
+    "pokemon",
+    "sports",
+    "strips"
+   ]
+  },
+  "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg": {
+   "shows": "scene",
+   "suits": [
+    "phones",
+    "gaming",
+    "audio",
+    "computers",
+    "wearables",
+    "cameras",
+    "cars",
+    "gold",
+    "silver",
+    "coins",
+    "pokemon",
+    "sports",
+    "strips"
+   ]
+  },
+  "assets/bg-web/wallpaper-lake-tahoe-1.jpg": {
+   "shows": "scene",
+   "suits": [
+    "phones",
+    "gaming",
+    "audio",
+    "computers",
+    "wearables",
+    "cameras",
+    "cars",
+    "gold",
+    "silver",
+    "coins",
+    "pokemon",
+    "sports",
+    "strips"
+   ]
+  },
+  "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg": {
+   "shows": "scene",
+   "suits": [
+    "phones",
+    "gaming",
+    "audio",
+    "computers",
+    "wearables",
+    "cameras",
+    "cars",
+    "gold",
+    "silver",
+    "coins",
+    "pokemon",
+    "sports",
+    "strips"
+   ]
+  },
+  "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg": {
+   "shows": "scene",
+   "suits": [
+    "phones",
+    "gaming",
+    "audio",
+    "computers",
+    "wearables",
+    "cameras",
+    "cars",
+    "gold",
+    "silver",
+    "coins",
+    "pokemon",
+    "sports",
+    "strips"
+   ]
+  },
+  "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg": {
+   "shows": "scene",
+   "suits": [
+    "phones",
+    "gaming",
+    "audio",
+    "computers",
+    "wearables",
+    "cameras",
+    "cars",
+    "gold",
+    "silver",
+    "coins",
+    "pokemon",
+    "sports",
+    "strips"
+   ]
+  },
+  "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg": {
+   "shows": "scene",
+   "suits": [
+    "phones",
+    "gaming",
+    "audio",
+    "computers",
+    "wearables",
+    "cameras",
+    "cars",
+    "gold",
+    "silver",
+    "coins",
+    "pokemon",
+    "sports",
+    "strips"
+   ]
+  },
+  "assets/bg/dl_cars_reviewProof_mono.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "",
+   "note": "a row of cars on a lot"
+  },
+  "assets/bg/dl_cars_stepsFlow_sunset.jpg": {
+   "shows": "product",
+   "subject": "car",
+   "make": "",
+   "note": "a close crop of a car's door"
+  },
+  "assets/bg/dl_coins_agencyGrid_paper.jpg": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/bg/dl_coins_reviewProof_paper.jpg": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/bg/dl_coins_scriptRetro_paper.jpg": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/bg/dl_coins_slabPoster_gold.jpg": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/bg/dl_coins_ticketStub_paper.jpg": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/bg/dl_coins_trustSeal_gold.jpg": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/bg/dl_coins_voltStack_royal.jpg": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/bg/dl_coins_wantedFrame_paper.jpg": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/bg/dl_gold_arcCrown_gold.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg/dl_gold_duoSplit_gold.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg/dl_gold_gradientWave_gold.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg/dl_gold_karatSeal_gold.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg/dl_gold_priceAnchor_gold.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg/dl_pokemon_agencyGrid_royal.jpg": {
+   "shows": "product",
+   "subject": "pokemon"
+  },
+  "assets/bg/dl_pokemon_neonNight_royal.jpg": {
+   "shows": "product",
+   "subject": "pokemon"
+  },
+  "assets/bg/dl_silver_arcCrown_mono.jpg": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/bg/dl_silver_bandKnockout_mono.jpg": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/bg/dl_silver_checklistHero_ocean.jpg": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/bg/dl_silver_diagonalRush_mono.jpg": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/bg/dl_silver_glassCard_ocean.jpg": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/bg/dl_sports_agencyGrid_mono.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg/dl_sports_bandKnockout_emerald.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg/dl_sports_checklistHero_crimson.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg/dl_sports_duoSplit_mono.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg/dl_sports_glassCard_mono.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg/dl_sports_gradientWave_crimson.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg/dl_sports_hudTech_emerald.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg/dl_sports_neonNight_emerald.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg/dl_sports_priceAnchor_crimson.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg/dl_sports_reviewProof_paper.jpg": {
+   "shows": "scene",
+   "suits": [
+    "sports"
+   ]
+  },
+  "assets/bg/dl_sports_scriptRetro_paper.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg/dl_sports_stepsFlow_emerald.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg/dl_sports_ticketStub_crimson.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg/dl_sports_trustSeal_crimson.jpg": {
+   "shows": "scene",
+   "suits": [
+    "sports"
+   ],
+   "floor": 0.78
+  },
+  "assets/bg/dl_sports_voltStack_crimson.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg/dl_sports_wantedFrame_paper.jpg": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/bg/dl_strips_gradientWave_emerald.jpg": {
+   "shows": "product",
+   "subject": "strips"
+  },
+  "assets/bg/dl_strips_hudTech_ocean.jpg": {
+   "shows": "product",
+   "subject": "strips",
+   "never": "boxes on a bed of cash (research 5.2)"
+  },
+  "assets/bg/dl_strips_priceAnchor_emerald.jpg": {
+   "shows": "product",
+   "subject": "strips",
+   "never": "boxes on a bed of cash (research 5.2)"
+  },
+  "assets/bg/dl_strips_ticketStub_emerald.jpg": {
+   "shows": "product",
+   "subject": "strips",
+   "never": "boxes on a bed of cash (research 5.2)"
+  },
+  "assets/scenes/scene-flat-ipads.jpg": {
+   "shows": "product",
+   "subject": "ipad"
+  },
+  "assets/scenes/scene-flat-iphones.jpg": {
+   "shows": "product",
+   "subject": "iphone",
+   "model": ""
+  },
+  "assets/scenes/scene-grad-mac-gold.jpg": {
+   "shows": "product",
+   "subject": "mac"
+  },
+  "assets/scenes/scene-own-macbook-open.jpg": {
+   "shows": "product",
+   "subject": "mac"
+  },
+  "assets/scenes/scene-own-macbook-stack.jpg": {
+   "shows": "product",
+   "subject": "mac"
+  },
+  "assets/scenes/scene-studio-amber-ipad.jpg": {
+   "shows": "product",
+   "subject": "ipad",
+   "floor": 0.6
+  },
+  "assets/scenes/scene-studio-green-trio.jpg": {
+   "shows": "product",
+   "subject": "iphone",
+   "model": "",
+   "floor": 0.6
+  },
+  "assets/scenes/scene-studio-rose-pair.jpg": {
+   "shows": "product",
+   "subject": "iphone",
+   "model": "",
+   "floor": 0.6
+  },
+  "assets/scenes/scene-studio-teal-watch.jpg": {
+   "shows": "product",
+   "subject": "watch",
+   "floor": 0.62
+  },
+  "assets/showcase/bg/abs_halftone_jw07_3.webp": {
+   "shows": "scene",
+   "suits": [
+    "phones",
+    "gaming",
+    "audio",
+    "computers",
+    "wearables",
+    "cameras",
+    "cars",
+    "gold",
+    "silver",
+    "coins",
+    "pokemon",
+    "sports",
+    "strips"
+   ]
+  },
+  "assets/showcase/bg/abs_paperTex_du06_3.webp": {
+   "shows": "scene",
+   "suits": [
+    "phones",
+    "gaming",
+    "audio",
+    "computers",
+    "wearables",
+    "cameras",
+    "cars",
+    "gold",
+    "silver",
+    "coins",
+    "pokemon",
+    "sports",
+    "strips"
+   ]
+  },
+  "assets/showcase/bg/abs_shadowcast_io08_3.webp": {
+   "shows": "scene",
+   "suits": [
+    "phones",
+    "gaming",
+    "audio",
+    "computers",
+    "wearables",
+    "cameras",
+    "cars",
+    "gold",
+    "silver",
+    "coins",
+    "pokemon",
+    "sports",
+    "strips"
+   ]
+  },
+  "assets/showcase/bg/abs_velvet_ck01_3.webp": {
+   "shows": "scene",
+   "suits": [
+    "phones",
+    "gaming",
+    "audio",
+    "computers",
+    "wearables",
+    "cameras",
+    "cars",
+    "gold",
+    "silver",
+    "coins",
+    "pokemon",
+    "sports",
+    "strips"
+   ]
+  },
+  "assets/showcase/bg/dg_cast_cd06_sports_2.webp": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/showcase/bg/dg_cast_cd06_sports_4.webp": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/showcase/bg/dg_cast_gl03_sports_3.webp": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/showcase/bg/dg_cast_gl07_sports_0.webp": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/showcase/bg/dg_cast_jw09_sports_5.webp": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/showcase/bg/dg_cast_nn06_sports_1.webp": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/showcase/bg/dg_cast_su01_sports_0.webp": {
+   "shows": "product",
+   "subject": "sports"
+  },
+  "assets/showcase/bg/dg_tile_ck02_phones_3.webp": {
+   "shows": "product",
+   "subject": "apple-mix",
+   "note": "tiles of iPhones, iPads and MacBooks"
+  },
+  "assets/showcase/bg/dg_tile_du03_coins_2.webp": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/showcase/bg/dg_tile_du03_silver_5.webp": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/showcase/bg/dg_tile_du04_silver_2.webp": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/showcase/bg/dg_tile_du07_cars_2.webp": {
+   "shows": "product",
+   "subject": "car",
+   "make": "",
+   "note": "tiles of cars, keys and parts of many makes"
+  },
+  "assets/showcase/bg/dg_tile_du10_phones_3.webp": {
+   "shows": "product",
+   "subject": "apple-mix",
+   "note": "tiles of iPhones, iPads and MacBooks"
+  },
+  "assets/showcase/bg/dg_tile_ik07_silver_2.webp": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/showcase/bg/dg_tile_jw04_silver_0.webp": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/showcase/bg/dg_tile_jw06_coins_3.webp": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/showcase/bg/dg_tile_jw06_silver_0.webp": {
+   "shows": "product",
+   "subject": "silver"
+  },
+  "assets/showcase/bg/dg_tile_jw08_phones_5.webp": {
+   "shows": "product",
+   "subject": "apple-mix",
+   "note": "tiles of iPhones, iPads and MacBooks"
+  },
+  "assets/showcase/bg/dg_tile_jw08_silver_3.webp": {
+   "shows": "product",
+   "subject": "silver"
+  }
+ }
+}
