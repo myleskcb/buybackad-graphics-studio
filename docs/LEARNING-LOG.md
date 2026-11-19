@@ -6237,3 +6237,21 @@ Auto-fix: GitHub said pull request 14 conflicted with `main`, which had taken th
 Not this branch's to settle: pull request 15 (the site's own look) meets main's reselling.us
 look, and its session has asked the owner which way it goes.
 
+## 2026-11-19 — the landing built to a brief (claude/xenodochial-mccarthy-7bea6d)
+
+- **"Vibe coded" was the repetition, not the colours.** Every section was one template (a
+  dotted pill, a big left headline, a paragraph, a grid of identical dark cards) on one navy.
+  The colours the owner had just chosen stayed; the variety went into layout, grounds and type.
+- **A band that keeps its ground in both themes re-declares the tokens inside itself** (`--text`,
+  `--hairline`, `--accent`, ...). Everything already written against those tokens, chips,
+  buttons, captions, takes the band's colours without one more rule.
+- **Fail visible, again.** An entrance that starts at opacity 0 leaves the hero blank wherever
+  timers do not run (a background tab, a headless capture), as the old hero's comment warned.
+  The hero now moves without fading; only scroll-tied reveals fade, and only small blocks.
+- **A swatch that reads fields off a card breaks when the cards change shape.** The colour sets
+  read `c1`, `ink`, `support` off every card; the rebuilt ads carry a pair key instead, so 54
+  sets drew `background:undefined`. The colours now come from the engine that draws the ads.
+- **A caption over an ad hides its number; under it, it never does.** styles.css had hidden the
+  library captions for that reason; under the picture they can stay.
+- **Two sessions on one page.** Pull request 15 restructured the same landing on the same day.
+  The sheet was made to style both markups, and the overlap is written down for the merge.

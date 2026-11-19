@@ -701,3 +701,10 @@ produced." DESIGN-LAW rule 87. In practice:
 - **The partner library serves the rebuilt library ads** (`assets/rebuilt-ads/`,
   `node scripts/render_rebuilt_ads.mjs --stale` after the recipes or the engine change;
   `library_api_check` fails while one is stale).
+- **The landing is built to a brief** (rule 152; the owner: "make it look like a custom built site
+  with a large web design budget"): `landing.css`, scoped to the landing under the family skin, keeps
+  rule 147's colours and rule 148's wordmark and sets one type scale, banded grounds (paper for the
+  library, a stage for the video, the blue for the last call), numbered labels on hairlines and a
+  layout of its own per section; `pages.css` ends in the same look for the other pages. Change the
+  landing's look there, not in `styles.css`; a new section reuses `.lp-section-head`, `.flow` or a
+  band rather than a new card. Motion fails visible: never start the hero from hidden.

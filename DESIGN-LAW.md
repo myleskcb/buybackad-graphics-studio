@@ -6444,3 +6444,61 @@ or text icon that doesn't need to be the only animated element".
     shares over 600 seeds;
   - `full_ad_check` counts any mark as the number's eye-catcher;
   - `full_colour_check` reads the chevrons' colour on the chevrons themselves.
+
+## 152. The landing is built to a brief: one type scale, a rhythm of grounds, and a layout of its own for each section
+
+Added 2026-11-19. The owner, looking at the landing: "looks so vibe coded and basic UI we need
+to fix and make it look like a custom built site with a large web design budget". The page had
+one template, repeated: a dotted pill label, a big left headline, a paragraph, a grid of the
+same dark rounded cards, on one navy from the top of the page to the bottom. What read as
+"vibe coded" was the repetition, not the colours, so the colours stay (rule 147: navy, one blue
+for the action, mint for the deal; rule 148: WeBuy.AD in Inter Tight, the system face for
+words) and what stands on them is rebuilt, in `landing.css`, scoped to the landing under the
+family skin (`?skin=poster` keeps the old page; the studio is not touched).
+
+- **One type scale**: the hero 46 to 90px, section headlines 38 to 74px, both 700 and set
+  tight (-0.045em), balanced; text 17px at a 1.6 measure. The hero sets in three lines, the
+  deal on its own line in mint.
+- **A rhythm of grounds**, each band re-declaring the family's tokens inside itself, so what
+  sits in it (chips, buttons, captions) takes the band's colours with no rule of its own:
+  the hero on the field; the library on **paper**, light in both themes, so the ads read as
+  prints; the video on a deeper **stage**; the last call on the **blue** (#0b5ce6, 5.7:1 under
+  white words at any size); the footer dark in both themes, under a wordmark as wide as the
+  page.
+- **Section labels numbered** on a hairline (01, 02, ... in the blue), sentence case as rule
+  148 asks, in place of the dotted pills. The hero's kicker keeps rule 148's pill.
+- **A layout of its own for each section**: a split head (the headline left, its words
+  right); the library as a gallery with a caption under each ad (its name and its colour
+  set); the colour sets as one mosaic of small ads, each drawn in its own colours; the video
+  on a stage with its first three seconds as a timeline; the workflow as a sequence with a
+  drawn picture of each step; the plans as one table; the FAQ beside a heading that holds
+  still; work with us as three columns on hairlines.
+- **Hairlines, not boxes**: a box is drawn only where it frames something (the plan table,
+  a drawn step, the video frame). Steps, answers and partner columns stand on hairlines.
+- **The hero's wall is one plane** in a deliberate perspective (three columns of real ads,
+  turned away from the reader) instead of a loose tilt, with a picture of what the headline
+  promises over it: a stranger's text arriving. Which ads stand on the wall is the hero
+  wall's own work (its picks), not this rule's.
+- **The colour sets are drawn, not listed**: each set is a small ad in its own ground, ink,
+  accent and plate, read from the card that shows it best, or for a rebuilt ad from the
+  engine (`motion/fullad.js` `COLOUR_OF`). Until this day the swatches read `c1`, `ink` and
+  `support` off every card, which a rebuilt ad does not carry, so 54 sets drew one bar and
+  three of `undefined`. The studio's colour themes are now the same 54 sets, so the second
+  grid that listed them again is not shown.
+- **Motion fails visible**: the hero settles in by movement alone, never from hidden, so a
+  page whose timers do not run (a background tab, the share card's headless capture) still
+  shows its words; lower down a heading or a small block rises as it scrolls into view,
+  where the browser ties the motion to the scroll; a tall grid is left still.
+  `prefers-reduced-motion` stops all of it.
+- **Every pair holds 4.5:1**, measured: the paper's second text #4a566d on #f5f7fa 6.9:1 and
+  its small print 5.1:1; white on the last call's blue 5.7:1, its paragraph (white at 94%)
+  5.2:1; the stage's small print 6.7:1. Rule 147's own exceptions (the blue button's white
+  label, the light headline's mint) stand as that rule measured them.
+- **The other pages** (`pages.css`: about, learn, terms, privacy, the master library and the
+  category pages) take the same bar, scale, hairline sections, FAQ rows and footer, in a
+  block appended to that sheet.
+- **A branch that restructures the landing** (pull request 15 adds a "what it makes" list
+  and a "why it gets texts" row, and drops the colour sets) gets the same look: the sheet
+  styles any `.flow` row, the `ul.lp-lines` index, and a hero wall with no stage around it.
+- **Checked** by eye at 1440, 1024 and 375, dark and light; no sideways scroll; the
+  pricing, category-page and CSP checks unchanged; words_check clear.

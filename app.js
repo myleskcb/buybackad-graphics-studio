@@ -12294,6 +12294,10 @@ function scBuildWall(cards){
    filters the gallery to that palette. */
 /* how vivid one colour is: max minus min channel (HSV saturation times value) */
 function scColourVivid(h){ const [r, g, b] = scHexRgb(h); return (Math.max(r, g, b) - Math.min(r, g, b)) / 255; }
+/* the word a colour set's small ad buys: the markets in turn, so the mosaic reads as every
+   market's colours rather than 54 phone ads (the card that shows most sets best is a phone's) */
+const FAM_WORDS = ['iPhones', 'gold', 'cars', 'cards', 'silver', 'coins', 'laptops', 'watches', 'games', 'Pixels', 'cameras', 'strips'];
+function famPaint(b, c){ const s = b.querySelector('.fam-art'); if (s) for (const k in c) if (c[k]) s.style.setProperty('--' + k, c[k]); }
 function scBuildFamilies(cards){
   const grid = $('fam-grid');
   if (!grid) return;
@@ -12310,16 +12314,24 @@ function scBuildFamilies(cards){
     return { theme: t, n: list.length, chroma, rep, family: rep.family };
   }).sort((x, y) => y.chroma - x.chroma);
   grid.innerHTML = '';
-  pals.forEach(p => {
+  /* each set drawn as a small ad in its own colours (DESIGN-LAW, "The landing is built to a brief"). A card of the old
+     library carries its colours (c1, ink, accent); a rebuilt ad names its pair, whose colours
+     the engine holds (motion/fullad.js COLOUR_OF), read in below. Until 2026-11-19 the swatch
+     read c1, ink and support off every card, and a rebuilt ad has none of them: 54 sets drew
+     one bar each and three of "undefined". */
+  const needPair = [];
+  pals.forEach((p, ix) => {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'fam-card';
     b.dataset.fam = p.theme;
     b.title = p.theme + ' · ' + p.family + ' · ' + p.n + ' cards';
-    const sw = [p.rep.c1, p.rep.ink, p.rep.accent, p.rep.support];
-    b.innerHTML = `<div class="fam-sw">${sw.map(h => `<i style="background:${h}"></i>`).join('')}</div>
+    const r = p.rep;
+    b.innerHTML = `<span class="fam-art" aria-hidden="true"><b>We buy<em>${FAM_WORDS[ix % FAM_WORDS.length]}</em></b><i>999-4994</i></span>
       <div class="fam-name">${escHtml(p.theme)}</div>
-      <div class="fam-meta">${p.n} card${p.n === 1 ? '' : 's'}</div>`;
+      <div class="fam-meta">${p.n} design${p.n === 1 ? '' : 's'}</div>`;
+    if (r.c1) famPaint(b, { g: r.c1, i: r.ink, a: r.accent, p: r.accent, pi: r.c1 });
+    else if (r.house && r.house.pair) needPair.push([b, r.house.pair]);
     b.onclick = () => {
       SHOWCASE.filter.fam = SHOWCASE.filter.fam === p.theme ? 'all' : p.theme;
       scSyncFilters();
@@ -12329,6 +12341,12 @@ function scBuildFamilies(cards){
     };
     grid.appendChild(b);
   });
+  if (needPair.length) import('./motion/fullad.js').then(M => {
+    for (const [b, k] of needPair){
+      const c = M.COLOUR_OF && M.COLOUR_OF[k] && M.COLOUR_OF[k].colors;
+      if (c) famPaint(b, { g: c.ground, i: c.ink, a: c.accent, p: c.plate, pi: c.plate_ink });
+    }
+  }).catch(() => {});
   const n = $('lp-pal-count'); if (n) n.textContent = String(COLOR_THEMES.length);
   const n2 = $('lp-stat-pal'); if (n2) n2.textContent = String(COLOR_THEMES.length);
   const n3 = $('lp-lib-count'); if (n3) n3.textContent = String(pals.length);
@@ -12428,7 +12446,7 @@ function scCard(c){
     <div class="tpl-veil"></div>
     ${locked ? '<div class="pro-guard"></div><div class="tpl-lockpill">🔒 PRO</div>' : ''}
     <div class="tpl-use">${locked ? 'Unlock with Pro →' : 'Use template →'}</div>
-    <div class="tpl-meta"><span class="tpl-name">${escHtml(c.name)}</span><span class="tpl-tag">${escHtml(c.family)}</span></div>`;
+    <div class="tpl-meta"><span class="tpl-name">${escHtml(c.name)}</span><span class="tpl-tag">${escHtml(c.theme || c.family || '')}</span></div>`;
   const go = () => c.house ? openHouseAd(c.house) : openShowcase(c.id);   // a rebuilt ad opens in the full ad
   card.onclick = go;
   card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } };

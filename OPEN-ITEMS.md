@@ -4170,3 +4170,48 @@ Open:
    not change under it.
 5. The owner tools (`pick.html`, `library.html`, `social/`, `admin-ads/`,
    `phonegfx-studio.html`) keep the old look and name.
+
+## BN. 2026-11-19 — the landing built to a brief (DESIGN-LAW 152)
+
+The owner, looking at the landing: "looks so vibe coded and basic UI we need to fix and make it
+look like a custom built site with a large web design budget". Done on
+`claude/xenodochial-mccarthy-7bea6d`, not pushed:
+
+- **`landing.css`** (new, scoped to the landing under the family skin): one type scale, the
+  hero in three lines with the deal in mint on its own; the figures as a band on hairlines;
+  sections numbered on a hairline with a split head; the library on paper, a gallery with each
+  ad's name and colour set under it; the colour sets as one mosaic of small ads in their own
+  colours; the video on a stage with a framed full ad and its first three seconds as a
+  timeline; the workflow as a sequence with a drawing of each step; the plans as one table;
+  the FAQ beside a heading that holds still; the last call on the blue; the footer dark under
+  a wordmark as wide as the page. The hero's wall is one plane in perspective, with a
+  stranger's text arriving over it.
+- **`index.html`**: the library before the colour sets; the hero's lede, three proof points
+  and a "made for" row; the wall inside a stage with the text over it; the video's frame and
+  timeline; a drawing for each step; the footer's wordmark. The kicker and the headline are
+  unchanged, word for word (the share card draws them, rule 148).
+- **`app.js`**: the colour sets drawn as small ads in their own colours (until today 54 sets
+  drew one bar and three of `undefined`: a rebuilt ad carries no `c1`, `ink` or
+  `support`); a library caption names the colour set, not the layout twice.
+- **`pages.css`**: the same bar, scale, hairline sections, FAQ rows and dark footer for the
+  other pages, appended.
+- Checked by eye at 1440, 1024 and 375, dark and light, and on pull request 15's own landing
+  markup; no sideways scroll; `build_pricing`, `build_seo_pages` and `csp_hashes` checks
+  unchanged; `words_check` clear.
+
+Open:
+1. **The owner's look at it**: the screenshots went to the owner; nothing is pushed.
+2. **Pull request 15 restructured the same landing** (2908f8e7: "The landing on one column and
+   one scale; the colour sets out", a "what it makes" list and a "why it gets texts" row).
+   `landing.css` styles that markup too (checked on a copy of it); the markup itself meets this
+   branch's in `index.html` (the hero, the sections, the footer) and in `app.js`
+   (`scBuildFamilies`, `scCard`). Which landing the site keeps is the owner's call, then one
+   merge.
+3. **Rule numbers**: pull request 14 numbers main's two rules 147 and 148, pull request 15
+   numbers them 152 and 153, and this branch's own rule is 152. One renumbering at the merge.
+4. **`assets/hero/index.json`** is asked for on every landing load and does not exist (the
+   hero's full-ad stills, app.js, the hero wall's picks): a 404 the landing check counts. The
+   hero wall's own session has it.
+5. **The video section's frame** is a still of a full ad; the engine is on the page, so it could
+   play the ad itself when the section scrolls into view.
+6. **The studio** (Easy Mode, the editor) keeps its own chrome; a session of its own is on it.
