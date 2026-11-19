@@ -44,7 +44,7 @@
  * a re-render is never served stale), its 448px thumbnail, and studio_url,
  * which opens it in the studio (?card=<id>).
  *
- * THE REBUILT ADS (2026-11-18, DESIGN-LAW 147). The owner retired the old
+ * THE REBUILT ADS (2026-11-18, DESIGN-LAW 155). The owner retired the old
  * static library cards ("Retire them") now that each has a rebuilt version,
  * a recipe the full ad draws; then, of this feed: render them "so the partner
  * library feed serves them" ("Do it here"). A card no longer offered whose

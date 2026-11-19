@@ -9,7 +9,7 @@ a browser. Standard library only (Pillow only to make an ad smaller than
 
 Configure with two environment variables:
 
-    BUYBACKAD_LIBRARY_URL   https://buybackad-graphics-studio.netlify.app
+    BUYBACKAD_LIBRARY_URL   https://webuy.ad
     BUYBACKAD_LIBRARY_KEY   bbl_...   (the key BUYBACK.AD's owner set in LIBRARY_KEYS)
 
     lib = BuybackadLibrary.from_env()
@@ -31,7 +31,7 @@ The ad library's public link (BuybackadFeed) is the other way in: the ads
 saved in the BUYBACK.AD studio, and which of them are due to post. It needs no
 key (the link is the access) and is what autopost_worker.py reads:
 
-    BUYBACKAD_FEED_URL   https://buybackad-graphics-studio.netlify.app/master-library.html?feed=fd_...
+    BUYBACKAD_FEED_URL   https://webuy.ad/master-library.html?feed=fd_...
                          (the link the studio's Library shows; the /api/ads/feed/fd_... address works too)
 
     feed = BuybackadFeed.from_env()
@@ -66,7 +66,7 @@ class LibraryError(Exception):
 class BuybackadLibrary:
     def __init__(self, base_url: str, key: str, timeout: float = 15.0, cache_seconds: float = 300.0):
         if not base_url or not base_url.startswith(("https://", "http://")):
-            raise ValueError("base_url must be the BUYBACK.AD site, e.g. https://buybackad-graphics-studio.netlify.app")
+            raise ValueError("base_url must be the BUYBACK.AD site, e.g. https://webuy.ad")
         if not key or len(key) < 32:
             raise ValueError("key must be the library key (32 characters or more)")
         self.base = base_url.rstrip("/") + "/api/library/v1"
@@ -226,7 +226,7 @@ class BuybackadFeed:
             m = u.path.rstrip("/").split("/")
             feed = m[-1].replace(".json", "").replace(".rss", "") if len(m) > 1 and m[-2] == "feed" else ""
         if u.scheme not in ("https", "http") or not u.netloc or not feed.startswith("fd_") or len(feed) != 27:
-            raise ValueError("feed_url must be the ad library link, e.g. https://buybackad-graphics-studio.netlify.app/master-library.html?feed=fd_...")
+            raise ValueError("feed_url must be the ad library link, e.g. https://webuy.ad/master-library.html?feed=fd_...")
         self.site = urllib.parse.SplitResult(u.scheme, u.netloc, "", "", "")
         self.url = f"{u.scheme}://{u.netloc}/api/ads/feed/{feed}"
         self.timeout = timeout

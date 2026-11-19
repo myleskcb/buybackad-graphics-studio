@@ -12,7 +12,7 @@
 // Every ground is drawn in its palette's colours (themes.js THEME_PALETTES: sky, sil, sun, lamp, paint,
 // blobs, gels, shapes, leaves, stripes where a ground needs more than the six roles), keeps the busiest
 // of what it draws toward the frame's edges and corners, and leaves its middle calm, where the words
-// and the product stand; the full ad evens the ground under a small line where it must (rule 150).
+// and the product stand; the full ad evens the ground under a small line where it must (rule 158).
 import { canvas, rgba, mix, lum, noiseTile } from "./engine.js";
 
 const TAU = Math.PI * 2;

@@ -1,3 +1,5 @@
+// SUPERSEDED 2026-11-19: the link preview is assets/brand/share-card.jpg, drawn by
+// tools/brand/make.sh in the WeBuy.AD look (DESIGN-LAW rule 153). Kept for history.
 // Renders scripts/og_card.html to assets/og/buybackad-og.jpg (1200x630), the
 // image every link preview shows. Serve the repo first:
 //   python3 -m http.server 8899   then   node scripts/render_og.mjs [port]

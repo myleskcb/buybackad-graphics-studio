@@ -59,8 +59,8 @@ const res = await page.evaluate(async ({ wantSheet }) => {
   const out = {}, sheet = [];
   const draw = (key, words, aspect, palette, seed) => {
     // measured as the list was made: under the house treatment and number (the double outline, the pill), so a
-    // face's verdict does not turn with the treatment its seed happens to draw (rule 146 made those seeded)
-    const st = F.fullStyle({ ...C.DEFAULT_STYLE, ...words, number: '(562) 999-4994', aspect, phones: C.DEFAULT_PHONES.slice() }, seed, index, { palette, text_fx: 'double_outline', number_style: 'pill', ...(key ? { type_pair: key, type_any: true } : { type_pair: 'house' }) });   // '' is the house face: a seed nobody styled now draws a face (rule 146)
+    // face's verdict does not turn with the treatment its seed happens to draw (rule 154 made those seeded)
+    const st = F.fullStyle({ ...C.DEFAULT_STYLE, ...words, number: '(562) 999-4994', aspect, phones: C.DEFAULT_PHONES.slice() }, seed, index, { palette, text_fx: 'double_outline', number_style: 'pill', ...(key ? { type_pair: key, type_any: true } : { type_pair: 'house' }) });   // '' is the house face: a seed nobody styled now draws a face (rule 154)
     return st;
   };
   const keys = ['', ...Object.keys(C.TYPE_VOICES)];

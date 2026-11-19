@@ -3208,6 +3208,9 @@ look was swept 30 times on its own until what failed in it was out.
 
 ## 98. The studio's chrome is a print shop's: paper, ink and four signal colours
 
+*Superseded as the house look on 2026-11-19 by rule 152; the poster skin
+stays one URL away (`?skin=poster`).*
+
 Added 2026-10-01 (numbered 98: the video rule took 97 on main first);
 supersedes rule 96's look. The owner, a day after graphite
 and one blue: "Blue is all right, but … we need something very cohesive and
@@ -5860,7 +5863,7 @@ under the site's own Content-Security-Policy, as production sends it),
 
 **2026-11-18, measured as written.** `full_type_check` named its pairs `navy-gold` and
 `silver-blue`, but the keys are underscored, so two dark pairs stood in for "a dark and a light
-pair". Once rule 146 made the headline treatment a seed's draw, each face was also judged under
+pair". Once rule 154 made the headline treatment a seed's draw, each face was also judged under
 whatever treatment its sixteen seeds drew, so the list turned with the seeds. It now measures
 each face on Navy & Gold and Silver & Blue, under the house's double outline and pill. Measured
 so, Flyer (Stick No Bills) set its headline at 107px on the light pair, a pixel under the feed's
@@ -6145,7 +6148,78 @@ good layout poor styling", "lacks any cohesive direction", "also only have 1 BG 
 
 Not done here: OPEN-ITEMS §BJ.
 
-## 146. A seed draws a different ad, not the same one 5% off: every colour theme, the look first, a face, a ground of five kinds, a fill
+## 152. The studio's chrome is reselling.us's: navy, one blue, and mint for the deal
+
+*Numbered 152, not 138: rules 138 to 151 were already taken on other branches
+(grepped every branch and worktree on 2026-11-19); 153 follows it.*
+
+Added 2026-11-19, the day webuy.ad went live (OPEN-ITEMS §BL); supersedes rule
+98's look. The owner: "it needs to have similar or matching styling to
+reselling.us", "or color scheming at first?". The studio is sold beside
+reselling.us, so it wears that site's colours, read off its own sheet
+(`/static/app.css`), not reinvented: the `family` skin in `styles.css`, the
+default since this day.
+
+- **Ground**: deep navy #070d1c, panels #101a30, lifted #17233e, hairlines
+  #1d2945 and #2b3959; text #f4f7ff, #a3aec6 for ledes, #8a96b0 for small
+  print. Light: #f2f4f8, white panels, text #0a1224.
+- **One blue** for the action, the link and the focus ring: #3d8bff (light:
+  #0a5fe0, reselling.us's own accent-text, chosen over its #0a6cff because it
+  holds 4.5:1 both as words on the ground and under white words).
+- **Mint is the deal**: the headline's second phrase, cash and done (#2fd58f,
+  words #4be3a3; light #0b8659). Never a button, never a background.
+- **Flat pills**: the primary button is the blue, no gradient, no glow; the
+  second is a white veil (rgba(255,255,255,.08)). Panels are flat navy on
+  hairlines, 22px corners, no offset shadow.
+- **The field** is one blue glow at the top right over a navy fall to the
+  ground in 420px, painted on the page; no bokeh, vignette or grain.
+- **Light or dark follows the device**, as reselling.us does, until the
+  visitor uses the toggle. The information pages (`pages.css`), the Look
+  Book, the ad library page and the 404 carry the same colours.
+- **Measured 2026-11-19**: every text pair holds 4.5:1 except white on the
+  dark-mode blue button, 3.31:1, which is reselling.us's own button and was
+  kept to match (its labels are 14 to 17px semibold, so it holds only the
+  large-text bar); and the light headline's green phrase, 4.17:1, which is
+  50px and up, where 3:1 is the bar.
+- **Then the type, the wordmark and the pictures**: rule 153, the same day.
+
+## 153. The name is WeBuy.AD, written and drawn the way Reselling.US is
+
+Added 2026-11-19, after rule 152's colours. The owner chose the wordmark
+"WeBuy.AD". Every rule below is reselling.us's own (its `docs/brand/source/`
+and `/static/app.css`), applied to the new name, so the two read as one family.
+
+- **The wordmark**: `WeBuy` and `.AD` in Inter Tight 750, -0.035em (-0.04em
+  at display size), the `.AD` in the blue (#3d8bff; #0a5fe0 on light). No
+  mark beside it in a header; 22px, 21px on a phone, where it now stays (the
+  poster hid it there). The face is reselling.us's own file, OFL, in
+  `assets/fonts/`, and sets the wordmark and nothing else.
+- **The type**: headlines and text in the system face (SF Pro on an Apple
+  device), headlines 700 and tight (-0.04em on the hero, -0.03em on h1 and
+  h2): the `system` type, the default. Ads keep their own faces.
+- **Sentence case** for the kicker (a blue-tinted pill with a mint dot) and the
+  landing's section labels. The editor's small labels keep their capitals.
+- **The icon**: a white W in Inter Tight 800 with the period in mint, on the
+  navy with the blue glow (`tools/brand/icon.html`), as Reselling.US's R.
+  `assets/brand/icon-{32,180,192,512,1024}.png`; `favicon.svg` carries it for
+  anything that asks for that file by name.
+- **The share card** (og:image, `assets/brand/share-card.jpg`, 1200 x 630,
+  under 300 KB): the wordmark, the home page's own kicker and headline, word
+  for word, and four real ads from its wall. All of it is drawn by
+  `sh tools/brand/make.sh` with headless Chrome; draw it again after the
+  kicker or the headline changes.
+- **The name in words**: "WeBuy.AD" wherever the product or the site is named,
+  the watermark on free exports included. **BUYBACK.AD stays the business**:
+  the copyright lines, and the terms and privacy policy, whose agreement is
+  with BUYBACK.AD (only their header, title and home link changed). Renaming
+  the party to an agreement is the owner's legal call, with a new terms
+  version (`TERMS_VERSION`).
+
+## 154. A seed draws a different ad, not the same one 5% off: every colour theme, the look first, a face, a ground of five kinds, a fill
+
+(The census branch numbered its four rules 146 to 149; folded into pull request 14 on 2026-11-19 they
+became 154 to 157, since 146 is pull request 15's and main had taken 152 and 153 after finding
+138 to 151 in use. Its own citations followed.)
 
 Added 2026-11-18. It widens rules 123, 137 and 139. The owner, of the full ads: "still not
 enough colors, gradients, pattern fill, or other ways instead of colors", and "a lot of these
@@ -6213,7 +6287,7 @@ pairs of ads match. Both sheets are in `.render/` (`--tag before`, `--tag after`
 
 Not done here: OPEN-ITEMS §BJ 7.
 
-## 147. A recipe takes after its card, and is never a copy of it
+## 155. A recipe takes after its card, and is never a copy of it
 
 Added 2026-11-18. The owner, of the library cards and the offer family drawn as recipes (rule
 145): "Library card ones are not great.. I would take them as inspiration but rebuild them all",
@@ -6304,7 +6378,7 @@ offer cards now that each has a rebuilt version, the owner said "Retire them".
 
 Not done here: OPEN-ITEMS §BJ 9.
 
-## 148. A face-up iPhone wears an iOS lock screen, laid out as iOS lays one out
+## 156. A face-up iPhone wears an iOS lock screen, laid out as iOS lays one out
 
 Added 2026-11-18. The owner: "audit the iPhone backgrounds to look clean good... and actual iOS";
 then "We just need to readjust the status bar size and positioning slightly", and "What are the
@@ -6341,7 +6415,7 @@ The rule (`fullad.js` `lockScreen`, drawn, never loaded, so a photo on the first
   licensed for mock-ups of software on its platforms. A screenshot's layers are not pulled into an
   ad.
 
-## 149. The call to action wears one of several marks, each moving its own way
+## 157. The call to action wears one of several marks, each moving its own way
 
 Added 2026-11-18. The owner: "Although I said, have one assimilated design language, I didn't mean
 one style ... every single one has the same arrows pointing to the CTA and I would love to have
@@ -6375,19 +6449,19 @@ or text icon that doesn't need to be the only animated element".
   - `full_ad_check` counts any mark as the number's eye-catcher;
   - `full_colour_check` reads the chevrons' colour on the chevrons themselves.
 
-## 150. The full ad varies its layout by rule, and may wear any look the video maker has
+## 158. The full ad varies its layout by rule, and may wear any look the video maker has
 
-Added 2026-11-18. It widens rules 137, 146 and 149. The owner, of the full ads: "they look
+Added 2026-11-18. It widens rules 137, 154 and 157. The owner, of the full ads: "they look
 shockingly similar to one another", "I need text variety placements, and more than just copy
 variety"; "the video ads originally.. those backgrounds those patterns those text those fonts and
 those arrangement/assortment of devices were really good.. we regressed since we unified"; "for
 every single video, I want a photo ad equivalent.. and if it doesn't meet the requirement,
-modify or fix it". Rule 146 gave a seed its colours, ground, face and fills; every ad still stood
+modify or fix it". Rule 154 gave a seed its colours, ground, face and fills; every ad still stood
 in one centred stack (claim pill, headline, points left of the product, sticker right, call to
 action, number, footer), and none wore the video maker's 78 looks or its 19 signs.
 
 Measured first, on the same 24 seeds, words and iPhones (each branch's own code, its own still):
-`main` had 20 pairs of ads alike in colour and layout at once; rule 146's branch none in a square
+`main` had 20 pairs of ads alike in colour and layout at once; rule 154's branch none in a square
 but 16 in a story, and one layout in 24; the full ad with a layout of its own (an earlier cut of
 this rule, on `main`'s house style) none and 24 layouts. Nearest-neighbour difference in layout
 (where the picture is busy, 24 x 24): .08, .18 and .27.
@@ -6406,7 +6480,7 @@ this rule, on `main`'s house style) none and 24 layouts. Nearest-neighbour diffe
   - The points as pills, square tabs or bare ticks on the ground (`perksSprite`'s `look.shape`).
   - The call to action as a line, or in a speech bubble pointing down at the number.
   - The towns and website in rows, on one line, or on a band of the plate's colour.
-  - Rule 146's sticker shapes and fills and rule 149's marks stay as they are. On a left-aligned
+  - Rule 154's sticker shapes and fills and rule 157's marks stay as they are. On a left-aligned
     card the number has room only on its right: its mark stands there and points back (the
     chevrons and the two arrows become one arrow, the phone and bubble pair the phone).
 - **What gives way, in order**, when the band or the headline is short (the headline under what
@@ -6438,9 +6512,9 @@ this rule, on `main`'s house style) none and 24 layouts. Nearest-neighbour diffe
   wears that look; New look lets the seed decide; Layout picks and locks each choice, and shows
   what the ad drew.
 
-Measured after: see OPEN-ITEMS §BK.
+Measured after: see OPEN-ITEMS §BN.
 
-## 151. The house paints its own styles: LA, the coast, and the studio's art, never a copy of a game or a brand
+## 159. The house paints its own styles: LA, the coast, and the studio's art, never a copy of a game or a brand
 
 Added 2026-11-18. The owner: "those custom made bgs we're not bad at all like the fwy signs or the
 palms"; "can we make more of our own custom styles?", "what about some GTA or LA style?", "or more
@@ -6466,14 +6540,14 @@ tropical or island, and its art grounds were gradients, meshes and patterns.
   mark ("Apple style" is soft colour and glass, not Apple's art). An ad that reads as someone
   else's property invites a complaint against the shop that posts it.
 - **Colourful, and still an ad**: every ground keeps its busiest marks toward the edges and the
-  corners and its middle calm; every palette's words read on its ground (the full ad's rule 150
+  corners and its middle calm; every palette's words read on its ground (the full ad's rule 158
   fixes hold); the new signs hang without their posts and lamps on the full ad (`FULL_BOARDS`,
-  `BOARD_REACH`). Every one is a video look and, through rule 150, a full ad.
+  `BOARD_REACH`). Every one is a video look and, through rule 158, a full ad.
 - Measured: each theme in three seeds, square and story, as its full ad: 72 of 72 pass
   `fullBlockers` and the pre-flight. Their shelves are "LA & coast" and "Art & studio" in both
   galleries.
 
-## 152. Your area takes a ZIP code, and offers the towns nearby
+## 160. Your area takes a ZIP code, and offers the towns nearby
 
 Added 2026-11-18. The owner: "and we should put zip code", "you can quick pick the cities
 surrounding if mentioned or you can take the suggested nearby locations / cities commonly

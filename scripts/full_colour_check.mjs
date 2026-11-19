@@ -34,7 +34,7 @@ const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8931/').replace(/\/?$/, 
 const fails = [];
 const ok = (cond, what) => { console.log((cond ? '  ok   ' : '  FAIL ') + what); if (!cond) fails.push(what); };
 
-// 0. the pairs' file is the studio's colour themes (every group, rule 146), with their looks and suits
+// 0. the pairs' file is the studio's colour themes (every group, rule 154), with their looks and suits
 try { execFileSync(process.execPath, [new URL('./build_house_colours.mjs', import.meta.url).pathname, '--check'], { stdio: 'pipe' }); ok(true, 'motion/house-colours.js is in step with the studio\'s colour themes and AFFINITY'); }
 catch (e) { ok(false, 'motion/house-colours.js: ' + String(e.stderr || e.stdout || e).trim().split('\n')[0]); }
 
@@ -105,7 +105,7 @@ const r = await page.evaluate(async () => {
   }
 
   // nothing else moves: the seed's first draw over every pair, the look first and then the pair within it
-  // (drawPair, rule 146), turned by the line's own step (lineTurn, 2026-11-18: the iPhone line by none)
+  // (drawPair, rule 154), turned by the line's own step (lineTurn, 2026-11-18: the iPhone line by none)
   out.looks = {};
   for (const [phones, headline, subject] of [[['16-pro-max-natural', '16-pro-max-white'], 'SELL YOUR IPHONE', ''], [['15-pro-black', '15-pro-white', '16-black'], 'WE BUY IPHONES', ''], [['none'], 'WE BUY COINS', 'coins'], [['none'], 'WE BUY CARS & TRUCKS', 'car']])
     for (let s = 1; s <= 150; s++) {
@@ -113,7 +113,7 @@ const r = await page.evaluate(async () => {
       const was = F.drawPair(F.COLOURWAYS, E.rng((seed >>> 0) * 7 + 11)(), subject);
       out.unchanged.of++; if (st.full_colour === was) out.unchanged.same++;
     }
-  // the looks balance (rule 146): 300 seeds of an unrestricted line, about a third light, vivid and dark, no pair over 6%
+  // the looks balance (rule 154): 300 seeds of an unrestricted line, about a third light, vivid and dark, no pair over 6%
   { const look = {}, pair = {};
     for (let s = 1; s <= 300; s++) { const st = F.fullStyle({ ...C.DEFAULT_STYLE, headline: 'WE BUY CARS & TRUCKS', subject: 'car', aspect: '1:1', phones: ['none'] }, s * 7907, index); const L = F.COLOUR_OF[st.full_colour].look; look[L] = (look[L] || 0) + 1; pair[st.full_colour] = (pair[st.full_colour] || 0) + 1; }
     out.looks = { look, most: Object.entries(pair).sort((a, b) => b[1] - a[1])[0], pairs: Object.keys(pair).length }; }

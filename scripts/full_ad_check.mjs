@@ -79,11 +79,11 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
       const ad = new F.FullAd(st, assets, Math.round(W0 * k), Math.round(H0 * k));
       const why = F.fullBlockers(ad), m = F.fullMeasure(ad), R = ad.full.rects, col = ad.full.col, mid = (col[0] + col[1]) / 2;
       // every block whose words were given is on the picture
-      // the line under the headline stands on the sign when there is one (inside the headline's block: rule 150)
+      // the line under the headline stands on the sign when there is one (inside the headline's block: rule 158)
       const want = { claim: st.feed_claim, line: st.feed_line && !ad.full.board, 'call to action': st.number_label, footer: st.feed_where || st.feed_site, 'selling points': st.points, product: st.phones.length };
       const missing = Object.entries(want).filter(([b, v]) => v && !R[b]).map(([b]) => b);
       // one axis: the words' blocks centred on the column
-      // one alignment (rule 150): every block's middle on the column's middle, or on a left-aligned card every block's
+      // one alignment (rule 158): every block's middle on the column's middle, or on a left-aligned card every block's
       // left edge on the column's (the headline's letters stand in by half their treatment's reach: they are measured
       // by their row's own box, which starts at the column's edge)
       const left = ad.full.layout && ad.full.layout.align === 'left';

@@ -130,7 +130,7 @@ console.log('a visitor who has never picked a design');
   /* ---------- 2. choices ---------- */
   console.log('colours and type');
   const pairs = await page.evaluate(() => FullAdStudio.pairs()), voices = await page.evaluate(() => FullAdStudio.voices());
-  // every colour theme (rule 146: the proven pairs, the two- and three-colour themes, the light and neon pairs)
+  // every colour theme (rule 154: the proven pairs, the two- and three-colour themes, the light and neon pairs)
   const themes = await page.evaluate(() => COLOR_THEMES.filter(t => ['Proven pairs', 'Two colours', 'Three colours', 'Light pairs', 'Neon pairs'].includes(t.group)).length);
   ok(pairs.length === themes && pairs.length >= 40, `every colour theme is offered as a pair (${pairs.length})`, String(pairs.length));
   ok(voices.length >= 20, `the owner's type pairs are offered (${voices.length})`, String(voices.length));

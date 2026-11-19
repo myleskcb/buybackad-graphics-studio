@@ -17,7 +17,7 @@
    why, and deleting the row brings the ad back. The review page shows what is retired.
 
    --rebuilt retires, instead, every library card and every offer card whose rebuilt recipe exists
-   (motion/recipes.json, DESIGN-LAW 147): the owner, 2026-11-18, asked whether to retire the old static
+   (motion/recipes.json, DESIGN-LAW 155): the owner, 2026-11-18, asked whether to retire the old static
    library and offer cards now that each has a rebuilt version, "Retire them". The landing shows each
    rebuilt ad in its card's place (app.js scLoadIndex, assets/recipe-stills/). Designer layouts stay.
 

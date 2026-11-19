@@ -294,8 +294,8 @@ export const FULL = {
 /** The chevrons' size and weight, farthest from the number first (_chevrons: never their opacity). */
 export const CHEVRON_STEP = [.7, .85, 1];
 
-/* THE FULL AD'S LAYOUT (rule 150, 2026-11-18). The owner: the full ads "look shockingly similar to one
-   another", "I need text variety placements, and more than just copy variety"; rule 146 gave a seed its
+/* THE FULL AD'S LAYOUT (rule 158, 2026-11-18). The owner: the full ads "look shockingly similar to one
+   another", "I need text variety placements, and more than just copy variety"; rule 154 gave a seed its
    colours, ground, face and fills, and every ad still stood in one centred stack. Each choice below is a
    grammar the photo ads already speak, drawn from the seed on a stream of its own (drawLayout: the
    colours, ground, face, product and words a seed drew do not move), or picked and locked in the maker:
@@ -306,7 +306,7 @@ export const CHEVRON_STEP = [.7, .85, 1];
    - full_chips: the points as pills, square tabs, or bare ticks on the ground;
    - full_cta: the call to action as a line over the number, or in a speech bubble pointing at it;
    - full_foot: the towns over the website, on one line, or on a band of the plate's colour.
-   The sticker's shape and fill and the number's mark stay rule 146's and 149's. */
+   The sticker's shape and fill and the number's mark stay rule 154's and 157's. */
 export const FULL_LAYOUT = {
   full_align: { center: 3, left: 2 },
   full_order: { classic: 3, hero_low: 2, number_high: 2 },
@@ -322,7 +322,7 @@ export function drawLayout(seed, pick = {}) {
   for (const [k, w] of Object.entries(FULL_LAYOUT)) { const v = r.weighted(Object.keys(w), w); out[k] = pick[k] != null && w[pick[k]] != null ? pick[k] : v; }
   return out;
 }
-/** The layout a style carries, made consistent with itself and the frame (a style made before rule 150 is the centred stack). */
+/** The layout a style carries, made consistent with itself and the frame (a style made before rule 158 is the centred stack). */
 export function layoutOf(st, wide) {
   const of = (k, d) => FULL_LAYOUT[k][st[k]] != null ? st[k] : d;
   const L = { align: of("full_align", "center"), order: of("full_order", "classic"), side: of("full_side", "left"), claim: of("full_claim", "pill"),
@@ -330,7 +330,7 @@ export function layoutOf(st, wide) {
   if (L.align === "left" && !wide) L.side = "left";        // a left-aligned card keeps its points on its left edge
   return L;
 }
-/* THE SIGNS A HEADLINE MAY STAND ON (rule 150): a video look's sign board (the freeway sign, the swap meet
+/* THE SIGNS A HEADLINE MAY STAND ON (rule 158): a video look's sign board (the freeway sign, the swap meet
    poster, the price tag, the chalkboard, the LED panel...), its face round the headline and its line. A
    sign's posts, stakes and lamps are left off: they would reach down into the product's band or up into the
    claim's. BOARD_REACH: how far a sign reaches past its face, in headline sizes. */
@@ -482,7 +482,7 @@ export function groundFor(subject, seed, pairKey, product, lean = null) {
   const cat = !subject || subject === "iphone" ? "phones" : (GROUND_LINE_CAT[subject] || "");
   const pool = (GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && photoSuits(GROUND_PHOTOS[src], pairKey) && groundFits(GROUND_PHOTOS[src], product));
   // the drawn scenes are night skies, auroras and glows made for light words: under dark words (a light pair,
-  // a lime or aqua ground: rule 146) their deep tones turn grey and the shade behind the words runs to the
+  // a lime or aqua ground: rule 154) their deep tones turn grey and the shade behind the words runs to the
   // frame's edge (full_ad_check, 2026-11-18), so those pairs stand on the other kinds
   const pc = COLOUR_OF[pairKey], darkWords = !!pc && lum(pc.colors.ink) < lum(pc.colors.ground);
   const share = { photo: pool.length ? GROUND_SHARES.photo : 0, scene: GROUND_SCENES.length && !darkWords ? GROUND_SHARES.scene : 0, gradient: GROUND_GRADIENTS.length ? (GROUND_SHARES.gradient || 0) : 0,
@@ -508,7 +508,7 @@ export function groundFor(subject, seed, pairKey, product, lean = null) {
   if ((u -= share.scene) < 0) return { background: GROUND_SCENES[Math.floor(g() * GROUND_SCENES.length) % GROUND_SCENES.length] };
   // a vivid gradient in the pair's own two families (decor.js pairGradientGround; the owner: "Also don't see any gradients really?")
   if ((u -= share.gradient) < 0) return { background: GROUND_GRADIENTS[Math.floor(g() * GROUND_GRADIENTS.length) % GROUND_GRADIENTS.length] };
-  // a tone-on-tone pattern or texture in the pair's own ground colour (decor.js fullPatternGround; rule 146)
+  // a tone-on-tone pattern or texture in the pair's own ground colour (decor.js fullPatternGround; rule 154)
   if ((u -= share.pattern) < 0) return { background: GROUND_PATTERNS[Math.floor(g() * GROUND_PATTERNS.length) % GROUND_PATTERNS.length] };
   return null;
 }
@@ -622,7 +622,7 @@ export function pairsFor(subject, headline, phoneHues = []) {
   return keys.length ? keys : COLOURWAYS;
 }
 
-/** THE LOOK FIRST, THEN THE PAIR (2026-11-18, rule 146). Eleven of the twelve proven pairs were a
+/** THE LOOK FIRST, THEN THE PAIR (2026-11-18, rule 154). Eleven of the twelve proven pairs were a
  *  navy, black or deep ground under a warm accent, so a page of seeded ads read as one look "with
  *  5% variety or difference" (the owner). The pairs are now every colour theme (house-colours.js),
  *  each with its look (light, vivid or dark), and a seed's one draw u picks the look first, a third
@@ -674,7 +674,7 @@ function numberPill(text, size, font, p, style = "pill", grad = false, bare = p.
      plate at all and a bar of the accent under the figures, in the lines' own ink (bare) with their
      soft shadow; any plate may be lit from above (grad). The figures keep their clear margin on
      every one (DESIGN-LAW 58). */
-  /* the plate's fill (2026-11-18, rule 146): grad true or "gradient" (lit from above), "stripes", "dots",
+  /* the plate's fill (2026-11-18, rule 154): grad true or "gradient" (lit from above), "stripes", "dots",
      "foil" (decor.js fillTexture: the plate's own hue moved away from its figures), or "glass" (a frosted
      pane) and "outline" (its edge alone in the accent), which leave the ground to show through and so
      carry the figures in the lines' own ink (bare), as the underlined number does */
@@ -717,7 +717,7 @@ function numberPill(text, size, font, p, style = "pill", grad = false, bare = p.
 }
 
 /** A plate's body on the path just drawn, inside the caller's save() (its shadow set), which this
- *  restores (2026-11-18, rule 146): flat or lit from above (fill), with stripes, dots or a foil's sheen
+ *  restores (2026-11-18, rule 154): flat or lit from above (fill), with stripes, dots or a foil's sheen
  *  laid over it without the shadow (decor.js fillTexture); or a pane of glass, smoked under light words
  *  and frosted under dark ones, so it only ever moves the ground away from them; or its edge alone in
  *  the accent. Glass and the edge leave the ground to show: their words are the lines' own ink. */
@@ -745,7 +745,7 @@ const stackRows = (rows, gap, left = false) => {
 export class FullAd extends Ad {
   constructor(style, assets, width, height) {
     super(style, assets, width, height, { plan: false });   // laid out at this size by the rules below, never from the plain engine's plan
-    // a video look's rays (rule 150) are laid into the ground once, at rest: drawn over it every frame, they ran
+    // a video look's rays (rule 158) are laid into the ground once, at rest: drawn over it every frame, they ran
     // over the shade the small lines are given (_evenGround) and reached the frame's edges in the pre-flight
     if (["rays", "sunburst"].includes(this.st.background) && !this.groundImg) { super._drawRays(this.bg.getContext("2d"), 0); this._raysAtRest = true; }
     // and a video look's shade round its words is laid into its ground once too: it is the ground's shading, as a
@@ -916,7 +916,7 @@ export class FullAd extends Ad {
     const F = this.full, R = F.rects, W = this.W, H = this.H, bx = this.bg.getContext("2d", { willReadFrequently: true });
     const lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
     const L = h => { const [r, g, b] = [1, 3, 5].map(i => lin(parseInt(h.slice(i, i + 2), 16))); return .2126 * r + .7152 * g + .0722 * b; };
-    // each line's own ink: the headline's, and the small lines' on the ground (F.ink, rule 150: near-black or
+    // each line's own ink: the headline's, and the small lines' on the ground (F.ink, rule 158: near-black or
     // white where a video look's palette ink reads under 4.5:1 small)
     let Li = 0, light = false;
     const inkOf = name => { Li = L(name === "headline" ? this.pHead.ink : F.ink || this.p.ink); light = Li >= .18; };
@@ -977,7 +977,7 @@ export class FullAd extends Ad {
     // button across the bottom. Meta asks for about 14% clear at the top and 20% at the bottom of a 9:16
     // (250 and 340px of 1920); the ground runs under them, the ad stands between.
     const eyT = tall ? H * .125 : e, eyB = tall ? H * .17 : e;
-    // the layout (rule 150): one alignment, the blocks' order, the points' side, the shapes of the claim, the
+    // the layout (rule 158): one alignment, the blocks' order, the points' side, the shapes of the claim, the
     // points, the call to action and the footer. On a wide frame the product has one side of the frame.
     const Lay = layoutOf(st, wide), left = Lay.align === "left", flip = wide && Lay.side === "left";
     const cx0 = flip ? W * .44 : e, cx1 = wide && !flip ? W * .56 : W - e, colW = cx1 - cx0, mid = (cx0 + cx1) / 2;
@@ -990,7 +990,7 @@ export class FullAd extends Ad {
     const pair = st.full_pair ? TYPE_VOICES[st.type_pair] || null : null;
     const font = pair ? pair.label : LEGIBLE.has((FONTS[st.font] || [])[3]) ? st.font : "franklin";
     const [fam, fwt] = FONTS[font] || FONTS.franklin;
-    // a sign under the headline (a video look's: rule 150): the headline and its line take the sign's colours
+    // a sign under the headline (a video look's: rule 158): the headline and its line take the sign's colours
     // (pHead), every other line the ground's; a sign that would cost the product its band is left off (below)
     let B = null, ph = p, reach = null, bw0 = 0, bh0 = 0;
     const setSign = b => {
@@ -1032,10 +1032,10 @@ export class FullAd extends Ad {
     // the claim, on its badge (a pill, a square tab, a ribbon, a bar the column's width)
     let claim = null;
     if (st.feed_claim) {
-      // its badge wears the plates' fill (rule 146); glass or an edge alone carries the words in the lines' ink
+      // its badge wears the plates' fill (rule 154); glass or an edge alone carries the words in the lines' ink
       const mode = st.plate_fill || (st.plate_grad ? "gradient" : "solid"), open = mode === "glass" || mode === "outline";
       const fill = p.plate || p.accent, text = st.feed_claim.toUpperCase();
-      // a video look's plate ink may sit close to its plate (rule 150): then near-black or white, whichever reads
+      // a video look's plate ink may sit close to its plate (rule 158): then near-black or white, whichever reads
       const inkc = open ? gInk : contrastOf(p.plate_ink || "#ffffff", fill) >= 4.5 ? p.plate_ink || "#ffffff" : contrastOf(fill, "#111111") >= contrastOf(fill, "#ffffff") ? "#111111" : "#ffffff";
       const [cf, cw] = FONTS[pair ? pair.label : st.font] || FONTS.franklin;
       const pmin = Math.floor(U * FULL.claimMin), kind = Lay.claim;
@@ -1085,7 +1085,7 @@ export class FullAd extends Ad {
       nz *= Math.min(colW * FULL.pill / num.w, U * FULL.number / nz); num = numFor(nz);
       for (let k = 0; k < 4 && num.w > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.w; num = numFor(nz); }
     }
-    // a seeded face whose figures run wide (rule 146: Galindo, the toon pair's) can still set a long number
+    // a seeded face whose figures run wide (rule 154: Galindo, the toon pair's) can still set a long number
     // under its floor in a narrow column (a tablet's 4:5, 73px, 2026-11-18): the number takes the house's own
     // condensed figures, the face that the floor was measured in
     if (nz < U * .07 && numFont !== "oswald") {
@@ -1151,7 +1151,7 @@ export class FullAd extends Ad {
       return { size, lines, lineH, blockH, n: best.n };
     };
     const hasChips = pointsOf(st).length > 0, hasPhones = this.phones.length > 0;
-    // a headline on a plate of its own (a box, letters cut out of one, a pane of glass, a marker's bar: rule 146)
+    // a headline on a plate of its own (a box, letters cut out of one, a pane of glass, a marker's bar: rule 154)
     // has the plate standing a fifth of its size over its capitals: the block above it keeps clear of that too
     // (a cut-out plate met the claim's badge and the claim read 1.9:1, full_ad_check, 2026-11-18)
     const overClaim = hd => !B && ["box", "cutout", "glass", "highlighter"].includes(st.text_fx) ? hd.size * .16 : 0;
@@ -1169,7 +1169,7 @@ export class FullAd extends Ad {
     };
     const headH = hd => { const S = signOf(hd); return S ? S.full[1] : hd.blockH + (tagB ? tagB.c.height + tagGap(hd) : 0); };
 
-    /* ---- the order of the blocks, top to bottom, and the gap before each, in units of g (rule 150) ----
+    /* ---- the order of the blocks, top to bottom, and the gap before each, in units of g (rule 158) ----
        The product's band in the middle (the classic stack), high (the headline under it) or low (the
        number over it); the room left over stretches every gap alike (a gap beside the band half as much). */
     const seq = [];
@@ -1196,7 +1196,7 @@ export class FullAd extends Ad {
     // The engine spreads a set across its stage: a video's phones have the frame to themselves.
     // Here they stand shoulder to shoulder on one floor, in the engine's left-to-right order:
     // the arrangement keeps its character (a line, a fan, a shop window, a podium, wings, a hand of
-    // cards, a crown...: every one the video maker has, rule 150) at the spacing below, in phone
+    // cards, a crown...: every one the video maker has, rule 158) at the spacing below, in phone
     // widths. A leaning neighbour may tuck a little behind the middle phone from the side, never from
     // above (the set's house rules, 2026-10-02).
     const flat = this.phones.some(q => q.meta && q.meta.flat);
@@ -1546,8 +1546,8 @@ export class FullAd extends Ad {
     // the chevrons either side of the number, where the pill leaves them their room
     const nb = this.numBox, sz = (nb[3] - nb[1]) * .42;
     // a tall number keeps its chevrons a little smaller where the room either side is short: a narrow seeded
-    // face (rule 146) sets its figures taller, and the chevrons sized to them no longer fit (2026-11-18)
-    // a left-aligned card (rule 150) has room only on the number's right: its mark stands there, pointing back
+    // face (rule 154) sets its figures taller, and the chevrons sized to them no longer fit (2026-11-18)
+    // a left-aligned card (rule 158) has room only on the number's right: its mark stands there, pointing back
     const leftCard = !!F.layout && F.layout.align === "left";
     this.markSide = leftCard ? 1 : -1;
     const room = leftCard ? F.col[1] - nb[2] : Math.min(nb[0] - F.col[0], F.col[1] - nb[2]), fit = Math.min(sz, room / 2.9);
@@ -1963,7 +1963,7 @@ export function lockScreen(p, seed = 1, lang = "en", base = null, opts = {}) {
  *  and one colourway, ground, arrangement and icon for the seed (or the ones picked). Every
  *  element gets its words: what the customer left empty is filled from FULL_WORDS. keep: what
  *  the customer set by hand elsewhere in the maker (their music, their voice), left as set. */
-/* A VIDEO LOOK ON THE FULL AD (rule 150, 2026-11-18). The owner: "for every single video, I want a photo ad
+/* A VIDEO LOOK ON THE FULL AD (rule 158, 2026-11-18). The owner: "for every single video, I want a photo ad
    equivalent.. and if it doesn't meet the requirement, modify or fix it"; "the video ads originally.. those
    backgrounds those patterns those text those fonts and those arrangement/assortment of devices were really
    good". A full ad may wear one of the video maker's 78 looks (its 50 themes and its vibes): the look's
@@ -2026,7 +2026,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   const key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, type_pair: _t, type_any: _a, ...picked } = pick;
   // the type: the house's one face, or one of the owner's pairs when one is picked (pick.type_pair, a
   // TYPE_VOICES key that FULL_VOICES holds). Carried in the look, after QUIET, so it is the face drawn.
-  /* THE FACE A SEED DRAWS (2026-11-18, rule 146): every seeded full ad was set in the one house face,
+  /* THE FACE A SEED DRAWS (2026-11-18, rule 154): every seeded full ad was set in the one house face,
      so a page of them read as one ad "with 5% variety or difference" (the owner). A seed nobody styled
      now draws one of the owner's vetted pairs (FULL_VOICES: proven in every size, on a dark and a
      light pair, in English and Spanish, rule 141), the house face about a quarter of the time, on a
@@ -2069,7 +2069,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   const held = k => kept.has(k) && st[k] != null && (!own[k] || own[k].some(e => e.key === st[k]));
   // dark: the words are lighter than the ground (a vivid ground under white words is dark here); busy: a
   // photograph or a drawn scene, not one of the house's own painted grounds (its gradients and its
-  // tone-on-tone patterns are the pair's own colours, solved for the words: rule 146)
+  // tone-on-tone patterns are the pair's own colours, solved for the words: rule 154)
   const own2 = COLOUR_OF[key].colors, painted = [...GROUNDS, ...GROUND_GRADIENTS, ...GROUND_PATTERNS].includes(look.background);
   const styles = pickFullStyles(rng(((seed >>> 0) ^ 0x51ed27f3) * 13 + lineTurn(st.subject, 99991) + 5),
     { dark: lum(own2.ink) > lum(own2.ground), busy: !painted, lean });
@@ -2108,7 +2108,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
       Object.assign(look, { type_pair: vid.type_pair, font: v.display, number_font: v.numberRead ? v.label : "same", full_pair: true });
     }
   } else look.full_look = false;
-  // the layout (rule 150), on a stream of its own: what the seed drew above does not move
+  // the layout (rule 158), on a stream of its own: what the seed drew above does not move
   Object.assign(look, drawLayout(seed, pick));
   const area = (st.area || "").trim();
   // What the customer left empty is filled from the lists, each line chosen so that it does not
@@ -2117,7 +2117,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   const fresh = (list, said) => { const start = Math.floor(r() * list.length); for (let i = 0; i < list.length; i++) { const w = list[(start + i) % list.length]; if (!said.some(x => sharesWord(w, x))) return w; } return list[start]; };
   const label = st.number_label || (es ? "LLAMA O MANDA TEXTO" : FULL_WORDS.label[0]);
   // a look's small line that says what the call to action says (a video look's tag CALL OR TEXT over its CALL OR
-  // TEXT, rule 150) gives way to one from the list: the ad never says one thing twice
+  // TEXT, rule 158) gives way to one from the list: the ad never says one thing twice
   const line = st.feed_line ?? (st.tag && !sharesWord(st.tag, label) ? st.tag : st.tag ? fresh(FULL_WORDS.line, [st.headline, label]) : one(FULL_WORDS.line));
   const points = st.points ?? (pointsOf(st).length ? pointsOf(st).join(", ") : fresh(FULL_WORDS.points, [st.headline, line]));
   // who is buying: a business name, where one is given, takes the badge (the first thing read). An ad
@@ -2155,7 +2155,7 @@ export function fullBlockers(ad) {
   for (let i = 0; i < names.length; i++) for (let j = i + 1; j < names.length; j++) {
     const a = R[names[i]], b = R[names[j]], dx = Math.max(a[0] - b[2], b[0] - a[2]), dy = Math.max(a[1] - b[3], b[1] - a[3]);
     if (names[i] === "headline" && names[j] === "line") { if (dy < U * .006) out.push("headline and line touch"); continue; }
-    // a speech bubble's tail points down at its number (rule 150)
+    // a speech bubble's tail points down at its number (rule 158)
     if ([names[i], names[j]].sort().join() === "call to action,number" && F.layout && F.layout.cta === "bubble" && dx < 0 && dy >= 0) continue;
     if (dx < 0 && dy < 0) out.push(`${names[i]} and ${names[j]} overlap`);
     else if (Math.max(dx, dy) < gap) out.push(`${names[i]} and ${names[j]} ${Math.round(Math.max(dx, dy) / U * 1080)}px apart`);
@@ -2319,9 +2319,9 @@ export function fullPreflight(ad, frame) {
   // a pill's box holds its round ends, where the ground shows: the words are measured on the pill's straight middle
   const inPill = r => { const h = r[3] - r[1]; return [r[0] + h * .5, r[1] + h * .14, r[2] - h * .5, r[3] - h * .14]; };
   const ink = ad.pHead.ink, plateInk = contrastOf(ad.p.plate_ink, ad.p.plate) >= 3.5 ? ad.p.plate_ink : (lum(ad.p.plate) > .5 ? "#111111" : "#ffffff");
-  // a number with no plate, or on a pane of glass or inside an edge alone (rule 146), stands on the ground in the ink
+  // a number with no plate, or on a pane of glass or inside an edge alone (rule 154), stands on the ground in the ink
   const numInk = ad.st.number_style === "underline" || ["glass", "outline"].includes(ad.st.plate_fill) ? ink : plateInk;
-  // each small line in its own ink (rule 150): on the ground the small lines' (F.ink), on a sign the sign's, in a
+  // each small line in its own ink (rule 158): on the ground the small lines' (F.ink), on a sign the sign's, in a
   // speech bubble or on a band that plate's; a bubble and a band are read on their straight middles, as a pill is
   const gk = F.ink || ink, onSign = !!F.board;
   const lines = [["line", "the line under the headline", onSign ? ink : gk, PF.small], ["call to action", "the line over the number", F.cta ? F.cta.ink : gk, PF.small], ["footer", "the towns and website", F.footBand ? F.footBand.ink : gk, PF.small],

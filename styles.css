@@ -55,6 +55,10 @@
 @font-face{font-family:'Khand';src:url('assets/fonts/khand-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
 @font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}
 @font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
+/* Inter Tight carries the WeBuy.AD wordmark and nothing else, as it carries
+   Reselling.US's (DESIGN-LAW rule 153). SIL OFL 1.1, the licence beside it in
+   assets/fonts/InterTight-OFL.txt; the file is reselling.us's own. */
+@font-face{font-family:'Inter Tight';src:url('assets/fonts/inter-tight-latin.woff2') format('woff2');font-weight:500 800;font-style:normal;font-display:swap}
 
 /* DARK IS THE DEFAULT, matching the CRM. `data-theme` is stamped on <html>
    before first paint by the inline script in index.html, so there is no white
@@ -1960,6 +1964,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 /* ── type pairings. Overrides any skin's face, so Paper + Unbounded is
    possible. Google faces are loaded by the stamp script when picked. ── */
 :root[data-type='clash']{--display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+:root[data-type='system']{--display:-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;--ui:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
 :root[data-type='serif']{--display:'Zodiak',Georgia,'Times New Roman',serif}
 :root[data-type='melodrama']{--display:'Melodrama',Georgia,serif}
 :root[data-type='khand']{--display:'Khand','Satoshi',sans-serif}
@@ -1996,14 +2001,14 @@ input[type=range]{width:100%;accent-color:var(--accent)}
    the whole card, a lock in the middle, and thumbnails that are 448px at
    most. The pattern is an SVG data URI so it is text, not a blur. ── */
 .pro-guard{position:absolute;inset:0;pointer-events:none;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><text x='0' y='60' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text><text x='-60' y='150' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text></svg>");
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><text x='0' y='60' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · WeBuy.AD</text><text x='-60' y='150' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · WeBuy.AD</text></svg>");
   background-size:220px 220px;mix-blend-mode:overlay;opacity:.9}
 .pro-guard::after{content:'🔒';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;
   background:rgba(0,0,0,.62);border:1px solid rgba(255,255,255,.35);display:grid;place-items:center;font-size:22px;box-shadow:0 8px 24px -8px rgba(0,0,0,.7)}
 .wall-card .pro-guard::after{width:40px;height:40px;font-size:16px}
 .ez-tpl.locked{position:relative}
 .ez-tpl.locked::after{content:'';position:absolute;top:0;left:0;right:0;height:132px;pointer-events:none;border-radius:var(--r-lg);
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>");
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · WeBuy.AD</text></svg>");
   background-size:120px 120px;mix-blend-mode:overlay}
 @media (max-width:480px){.ez-tpl.locked::after{height:104px}}
 .flow-step .btn{margin-top:16px}
@@ -2011,7 +2016,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 /* locked mini cards in the editor's left panel and its picker */
 .mini-tpl.locked{position:relative}
 .mini-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>");
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · WeBuy.AD</text></svg>");
   background-size:120px 120px;mix-blend-mode:overlay}
 
 /* MOBILE WIDTH. The studio's two cards are grid items, and a grid item's
@@ -2875,3 +2880,170 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-theme='dark'][data-finish='counter'] .flow-step{box-shadow:none;border-top-color:var(--text)}
 :root[data-theme='dark'][data-finish='counter'] .cb-start.on{box-shadow:0 0 0 2px var(--text)}
 .bggen-op{color:var(--text-dim);font-size:.92em}
+
+/* ═════════════════════════════════════════════════════════════════
+   FAMILY — THE HOUSE LOOK, 2026-11-19 (DESIGN-LAW rule 152).
+   The owner, with webuy.ad live: "it needs to have similar or matching
+   styling to reselling.us", colour first. Every value below is read off
+   reselling.us's own sheet (/static/app.css, 2026-11-19), mapped onto the
+   studio's tokens, so the studio reads as the same family:
+     ground   deep navy #070d1c, panels #101a30, lifted #17233e
+     accent   blue #3d8bff (light: #0a5fe0, reselling.us's own accent-text,
+              which holds 4.5:1 as words and under white words)
+     deal     mint #2fd58f: the highlight phrase, cash and done
+     buttons  flat pills, no gradient, no glow; the second one a white veil
+     field    one blue glow at the top right over a navy fall, no bokeh
+   Like reselling.us it follows the device's light or dark setting until the
+   visitor picks one with the toggle. The poster look (rule 98) stays one URL
+   away (?skin=poster). */
+:root[data-theme][data-skin='family']{
+  color-scheme:dark;
+  --field:#070d1c;
+  --ground-2:#0d1a36;
+  --glow:rgba(56,124,255,.28);
+  --wash-a:rgba(0,0,0,0);--wash-b:rgba(0,0,0,0);--wash-c:rgba(0,0,0,0);
+  --glass-bg:rgba(16,26,48,.72);
+  --glass-bg-strong:rgba(16,26,48,.92);
+  --glass-edge:rgba(255,255,255,.08);
+  --glass-blur:blur(24px) saturate(160%);
+  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+  --glass-shadow-lift:0 12px 32px rgba(0,0,0,.5);
+  --surface-solid:#101a30;
+  --surface-raise:#17233e;
+  --surface-sunk:rgba(255,255,255,.05);
+  --surface3:#1d2945;
+  --chip-fill:rgba(255,255,255,.08);
+  --chip-fill-hover:rgba(255,255,255,.14);
+  --text:#f4f7ff;
+  --text-2:#a3aec6;
+  --text-dim:#8a96b0;
+  --hairline:#1d2945;
+  --hairline-strong:#2b3959;
+  --accent:#3d8bff;
+  --accent-hover:#5a9cff;
+  --accent-ink:#ffffff;
+  --accent-wash:rgba(61,139,255,.14);
+  --accent-deep:#2f7af0;
+  --accent-soft:#d3e4ff;
+  --accent-text:#7db1ff;
+  --accent-rgb:61,139,255;
+  --accent2-rgb:47,213,143;
+  --ring:#7db1ff;--ring-rgb:125,177,255;
+  --deal:#2fd58f;
+  --deal-text:#4be3a3;
+  --deal-tint:#0b2a24;
+  --good:#2fd58f;
+  --warn:#ffb340;
+  --danger:#ff6b6b;
+  --ai:var(--accent);
+  --brand-1:#3d8bff;
+  --brand-2:#2fd58f;
+  --brand-rgb:61,139,255;
+  --r-lg:22px;
+  --r-md:12px;
+  --r-sm:8px;
+  --lift-1:0 1px 2px rgba(0,0,0,.35);
+  --lift-2:0 12px 32px -18px rgba(0,0,0,.6);
+  --lift-3:0 12px 32px rgba(0,0,0,.5);
+  --glow-accent:0 0 0 0 transparent;
+  --stage-1:#0d1a36;
+  --stage-2:#070d1c;
+  --stage-dot:rgba(255,255,255,.04);
+  --scrim:rgba(3,6,14,.72);
+  --bokeh-a:0;
+}
+:root[data-theme='light'][data-skin='family']{
+  color-scheme:light;
+  --field:#f2f4f8;
+  --ground-2:#e6edf9;
+  --glow:rgba(10,108,255,.12);
+  --glass-bg:rgba(255,255,255,.72);
+  --glass-bg-strong:rgba(255,255,255,.94);
+  --glass-edge:rgba(12,20,40,.07);
+  --glass-blur:blur(24px) saturate(140%);
+  --glass-shadow:0 1px 2px rgba(20,30,60,.04),0 12px 32px -18px rgba(20,30,60,.16);
+  --glass-shadow-lift:0 8px 24px rgba(20,30,60,.14);
+  --surface-solid:#ffffff;
+  --surface-raise:#eef1f6;
+  --surface-sunk:rgba(10,18,36,.05);
+  --surface3:#e8ecf3;
+  --chip-fill:rgba(10,18,36,.06);
+  --chip-fill-hover:rgba(10,18,36,.10);
+  --text:#0a1224;
+  --text-2:#4e5970;
+  --text-dim:#616c83;
+  --hairline:#e3e7ef;
+  --hairline-strong:#d2d8e3;
+  --accent:#0a5fe0;
+  --accent-hover:#0059d6;
+  --accent-ink:#ffffff;
+  --accent-wash:rgba(10,95,224,.10);
+  --accent-deep:#0849ad;
+  --accent-soft:#e6effe;
+  --accent-text:#0a5fe0;
+  --accent-rgb:10,95,224;
+  --accent2-rgb:14,159,106;
+  --ring:#0a6cff;--ring-rgb:10,108,255;
+  --deal:#0e9f6a;
+  --deal-text:#0b8659;
+  --deal-tint:#e2f5ed;
+  --good:#0b8659;
+  --warn:#8a5200;
+  --danger:#b42a25;
+  --brand-1:#0a5fe0;
+  --brand-2:#0e9f6a;
+  --brand-rgb:10,95,224;
+  --lift-1:0 1px 2px rgba(20,30,60,.04);
+  --lift-2:0 1px 2px rgba(20,30,60,.04),0 12px 32px -18px rgba(20,30,60,.16);
+  --lift-3:0 8px 24px rgba(20,30,60,.14);
+  --stage-1:#e6edf9;
+  --stage-2:#dfe5f0;
+  --stage-dot:rgba(10,18,36,.06);
+  --scrim:rgba(20,30,60,.42);
+}
+/* the field: reselling.us's one glow over a navy fall, painted on the page
+   (it scrolls with it), and no bokeh, vignette or grain */
+:root[data-skin='family'] body::before,
+:root[data-skin='family'] body::after{display:none}
+:root[data-skin='family'] body{
+  background:
+    radial-gradient(120% 55% at 85% -12%,var(--glow),transparent 60%) no-repeat,
+    linear-gradient(var(--ground-2),var(--field) 420px) no-repeat,
+    var(--field);
+}
+:root[data-skin='family'] ::selection{background:var(--accent-wash);color:var(--text)}
+:root[data-skin='family'] :focus-visible{outline-color:var(--ring)}
+/* buttons: flat pills, the second one a veil */
+:root[data-skin='family'] .btn-primary{background:var(--accent);color:var(--accent-ink);box-shadow:none}
+:root[data-skin='family'] .btn-primary:hover{background:var(--accent-hover);filter:none}
+:root[data-skin='family'] .btn-outline{background:var(--chip-fill);color:var(--text);border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+:root[data-skin='family'] .btn-outline:hover{background:var(--chip-fill-hover)}
+:root[data-skin='family'] .btn-ghost{color:var(--accent-text)}
+/* the headline's second phrase in mint, as "Sell it faster." is there */
+:root[data-skin='family'] .hero h1 em{color:var(--deal-text);background:none;padding:0}
+
+/* ═════════════════════════════════════════════════════════════════
+   THE WEBUY.AD TYPE AND WORDMARK, 2026-11-19 (DESIGN-LAW rule 153).
+   reselling.us sets its headlines and text in the system face (SF Pro on an
+   Apple device), headlines bold and tight, and its wordmark in Inter Tight
+   750 with the domain's ending in the blue: Reselling.US. The studio is
+   WeBuy.AD the same way. The `system` type is the default; the ads keep
+   their own faces. */
+:root[data-type='system'] .hero h1{font-weight:700;letter-spacing:-.04em;line-height:1.02}
+:root[data-type='system'] h1,:root[data-type='system'] h2{letter-spacing:-.03em}
+:root[data-skin='family'] .logo{font-family:'Inter Tight',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-weight:750;font-size:22px;letter-spacing:-.035em;gap:0}
+:root[data-skin='family'] .logo .logo-mark{display:none}
+:root[data-skin='family'] .logo em{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--accent)}
+:root[data-skin='family'] .auth-brand .logo-mark{background:url('assets/brand/icon-192.png') center/cover;color:transparent;box-shadow:none;border-radius:14px}
+@media (max-width:640px){
+  :root[data-skin='family'] .logo,:root[data-skin='family'] .lp-nav .logo{font-size:21px;gap:0}
+}
+
+/* The kicker and the section labels in sentence case, as reselling.us writes them:
+   its kicker is a blue-tinted pill with a mint dot, its labels plain words. The
+   editor's own small labels keep their capitals; they are a tool's, not a page's. */
+:root[data-skin='family'] .hero-eyebrow{text-transform:none;letter-spacing:0;font-size:14px;font-weight:600;color:var(--accent-text);background:var(--accent-wash);border:0;padding:7px 15px 7px 12px}
+:root[data-skin='family'] .hero-eyebrow::before{content:'';flex:none;width:9px;height:9px;border-radius:50%;background:var(--deal);box-shadow:0 0 0 4px rgba(var(--accent2-rgb),.22)}
+:root[data-skin='family'] .lp-kicker,:root[data-skin='family'] .co-kicker{text-transform:none;letter-spacing:0;font-size:14px;font-weight:600}
+:root[data-skin='family'] .lp-kicker{color:var(--accent-text)}
+:root[data-skin='family'] .lp-kicker::before{background:var(--deal)}

@@ -1737,7 +1737,7 @@ const STICKER_BOX = { starburst: [1.3, 1.15], seal: [1.28, 1.08], badge: [1.34, 
  *  sways a little, as the starburst does. */
 export function drawSticker(ctx, shape, cx, cy, R, text, fill, ink, t, t0, fontName, grad = false) {
   shape = STICKER_SHAPES.includes(shape) ? shape : "starburst";
-  // the fill (2026-11-18, rule 146): flat, lit from above (grad true or "gradient"), striped, dotted, a
+  // the fill (2026-11-18, rule 154): flat, lit from above (grad true or "gradient"), striped, dotted, a
   // foil's sheen (fillTexture), or the outline alone: no plate, so its edge, its rings and its words are
   // all in the fill, the card's own ink, which reads on the ground
   const mode = grad === true ? "gradient" : typeof grad === "string" && grad ? grad : "solid", line = mode === "outline";
@@ -1819,7 +1819,7 @@ export function drawSticker(ctx, shape, cx, cy, R, text, fill, ink, t, t0, fontN
  *  or a soft mesh of blobs. Two families only: the ground's and the accent's. Keys: pair_linear,
  *  pair_radial, pair_mesh. Returns false for any other kind (the engine's background() asks each
  *  painter in turn). */
-/* 2026-11-18 (rule 146; the owner: "still not enough colors, gradients, pattern fill, or other ways
+/* 2026-11-18 (rule 154; the owner: "still not enough colors, gradients, pattern fill, or other ways
    instead of colors"): five more fields beside the sweep, the glow and the mesh. A conic sweep round
    the product, a sky that burns low behind it (sunset), a hard two-tone diagonal (split), a duotone
    glow from two corners (corner), and a tall arch of the accent's colour blocked in behind the
@@ -1921,7 +1921,7 @@ export function pairGradientGround(kind, x, st, p, W, H, sc, r) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════════════════════
-   THE FULL AD'S PATTERNS AND TEXTURES (2026-11-18, rule 146). The owner: "still not enough colors,
+   THE FULL AD'S PATTERNS AND TEXTURES (2026-11-18, rule 154). The owner: "still not enough colors,
    gradients, pattern fill, or other ways instead of colors". The engine's own patterned grounds
    (dots, stripes, checker, halftone...) were kept off the full ad (rule 137's review, 2026-11-12):
    drawn in the light or the accent at a strength made for a bare phone video, their features ran
@@ -2071,7 +2071,7 @@ export function fullPatternGround(kind, x, st, p, W, H, sc, r) {
   return true;
 }
 
-/* THE FILLS OF THE STICKER, THE PLATES AND THE BADGE (2026-11-18, rule 146): beside the flat colour
+/* THE FILLS OF THE STICKER, THE PLATES AND THE BADGE (2026-11-18, rule 154): beside the flat colour
    and the light from above (fillGradient), stripes, a dot screen and a pressed foil's sheen. Each is
    the fill's own hue moved away from the ink it carries, so every point of it reads at least as well
    as the flat fill (gradientEnds' rule); laid on the path the caller has just filled, clipped to it. */

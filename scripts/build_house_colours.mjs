@@ -7,7 +7,7 @@
    first drew from sixteen of those. So "Navy & Gold" on a photo ad and on a full ad were two
    different navies and two different golds.
 
-   2026-11-18 (rule 146): every group of COLOR_THEMES, not the twelve proven pairs alone. Eleven of
+   2026-11-18 (rule 154): every group of COLOR_THEMES, not the twelve proven pairs alone. Eleven of
    the twelve are a navy, black or deep ground under a warm accent, and a page of seeded full ads
    read as one look (the owner: "a lot of these are the same thing with 5% variety or difference",
    "still not enough colors"). The full ad now draws the two-colour and three-colour themes and the

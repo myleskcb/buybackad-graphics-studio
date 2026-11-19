@@ -81,7 +81,7 @@ them; it built connection 5 instead.
 
 | Side | Name | Default | Effect |
 |---|---|---|---|
-| iPLA | `GFX_STUDIO_URL` | `https://buybackad-graphics-studio.netlify.app/` | where Open the studio sends people; the default CORS origin |
+| iPLA | `GFX_STUDIO_URL` | `https://buybackad-graphics-studio.netlify.app/` (should be `https://webuy.ad/` from 2026-11-18) | where Open the studio sends people; the default CORS origin |
 | iPLA | `GFX_STUDIO_ORIGINS` | that URL's origin | the exact CORS origins (a comma list; `*` and `--` deploy previews are dropped) |
 | iPLA | `BUYBACKAD_FEED_URL` | unset | the library link until the studio sends one |
 | iPLA | `BUYBACKAD_FEED_MINUTES` / `BUYBACKAD_FEED_LIMIT` | 10 / 5 | read cadence (0 turns it off); ads per read (1 to 25) |
@@ -127,6 +127,11 @@ Owed by the owner:
    `GFX_STUDIO_URL`'s origin unless `GFX_STUDIO_ORIGINS` lists more. Set on
    Render (iPLA's service): `GFX_STUDIO_ORIGINS=https://buybackad-graphics-studio.netlify.app,https://buybackad-finished-copy.netlify.app`
    (add `https://studio.scans.ad` and `https://buyback.ad` once they resolve).
+   **2026-11-19 UTC: the studio's address is `https://webuy.ad`** (live). Until iPLA
+   lists it, the studio on webuy.ad cannot connect: put it first in
+   `GFX_STUDIO_ORIGINS`, set `GFX_STUDIO_URL=https://webuy.ad/` on Render,
+   and add `https://webuy.ad` to `STUDIO_SITES` in `app/buyback_ad_feed.py`
+   so its library link is accepted.
 2. **The phone number on WE BUY pictures.** The studio puts the number large on
    them; iPLA keeps its own number-bearing cards out of its WE BUY library
    because OfferUp takes them down (`ad_designer.py`,

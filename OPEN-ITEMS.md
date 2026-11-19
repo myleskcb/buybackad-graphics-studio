@@ -3931,7 +3931,7 @@ Open:
    saved look on an old key draws the new line; their offer cards stay as they were, ids and all).
    **owner**: a clean Mac mini photograph, a ROG Ally and a Legion Go, and a gaming laptop (the one
    there was rejected); no VR headset picture passed either. Each download waits on the owner's OK.
-8. **The look system** (DESIGN-LAW 146; the owner: "still not enough colors, gradients, pattern
+8. **The look system** (DESIGN-LAW 154; the owner: "still not enough colors, gradients, pattern
    fill, or other ways instead of colors", "a lot of these are the same thing with 5% variety or
    difference"). **helper**, done:
    - 54 pairs (15 light, 11 vivid, 28 dark), drawn look first;
@@ -3951,7 +3951,7 @@ Open:
      keys;
    - **owner**: whether gold lines, which keep to their eight gold pairs and one vivid one, may
      stand on a light ground (no gold reads on cream at 4.5:1 without going mustard, rule 103).
-9. **The library cards, the offer family and the designer layouts, rebuilt** (DESIGN-LAW 147;
+9. **The library cards, the offer family and the designer layouts, rebuilt** (DESIGN-LAW 155;
    the owner: "Library card ones are not great.. I would take them as inspiration but rebuild them
    all", "Offer family needs a rebuild also", "the heros all look so simialr").
    - **done**: every recipe draws on a seed of its own and leans toward its card's family and
@@ -3978,7 +3978,7 @@ Open:
    - **owner**: whether the 299 rebuilt offer cards join the partner feed (it only ever carried
      library cards); about 60 MB more.
    - **owner**: a VR headset and a gaming laptop photograph, so their cards show the product.
-10. **The iPhone lock screens, and the call to action's marks** (DESIGN-LAW 148, 149) — **done**:
+10. **The iPhone lock screens, and the call to action's marks** (DESIGN-LAW 156, 157) — **done**:
     lock screens laid out as iOS lays them out (a status bar in iOS's measures, four layouts:
     classic, widgets, iOS 26's tall Glass clock, iOS 27's compact one; four clean wallpapers in the
     screen's own colour); eight marks at the number, each moving its own way.
@@ -4001,21 +4001,197 @@ Open:
     - Precision on the worst 40, by eye: 33 clearly real, 7 borderline, none plainly wrong.
     - **owner**: keep or send back each basket ad on the review page (Audit basket filter).
 
-## BK. 2026-11-18 — the full ad's layout varies, and it may wear any video look (DESIGN-LAW 150)
+## BL. 2026-11-18 — webuy.ad, the site's new address
+
+(BD on `main` until pull request 14 met it on 2026-11-19; BE became BM the same way.)
+
+(claude/webuy-ad-new-site-url-f0be40, from `main` at 9dddf354.)
+
+The owner: "webuy.ad launch new site URL". The name was registered at
+Namecheap at 03:38 UTC on 2026-11-19 (whois), a few hours before the ask; it
+answered Namecheap's parking page (`A 162.255.119.247`, `www CNAME
+parkingpage.namecheap.com`), and Netlify answered "Not Found" for it, so no
+project had it. **Do not call it live until `dig +short webuy.ad` answers
+`75.2.60.5` and `https://webuy.ad/api/health` answers `"ok":true`.**
+`studio.scans.ad` was reported live for a whole session before anyone looked
+(HANDOFF.md).
+
+The project it belongs on is `buybackad-finished-copy` (team myleskcb2): it
+serves `main`, with accounts, billing and AI backgrounds on.
+`buybackad-graphics-studio` is a build from before 2026-10-08.
+
+Done (this branch):
+- **Every page's own address is `https://webuy.ad`**: the canonical, og:url,
+  og:image and JSON-LD of index, about, learn, motion, terms, privacy and the
+  18 category pages in `ads/` (rebuilt by `scripts/build_seo_pages.mjs`, whose
+  `SITE` is now webuy.ad; the rebuild was checked to be byte for byte before
+  the change), `sitemap.xml`, `robots.txt`. index.html's JSON-LD hash is
+  rewritten in the CSP of `netlify.toml` and `_headers` (`csp_hashes.mjs`).
+- **The Stripe webhook follows the site's address.** It was registered once
+  per mode and kept; on a new primary domain Netlify's `URL` changes, the old
+  endpoint stays at the netlify.app address, and Stripe does not follow a
+  redirect. `ensureWebhook` now moves it when the configured address
+  (`SITE_URL` or Netlify's `URL`, never a request's own host) differs from the
+  stored one, deletes the old endpoint (its id is the one this site kept), and
+  keeps the old secret so events already on their way still verify.
+  `billing_check.mjs`: 108 passed; the two new checks fail on the old code.
+  The payment method domain (Apple Pay, Google Pay, Link) was already per
+  host, so webuy.ad registers itself on the first checkout there.
+- **The deploy workflow's live check** reads webuy.ad, and until it answers,
+  the netlify.app address with a warning that says why; its curls follow
+  redirects.
+- The partner library docs and examples, the iPhones LA connection notes, the
+  CSP check's default, the tracks builder's user agent, the retired worker's
+  origin, README, AGENT-BRIEF, SETUP, OPERATIONS and docs/README name
+  webuy.ad. History (the learning log, the audits, HANDOFF) is left as it was.
+
+Done in the owner's accounts, 2026-11-19 UTC, in the owner's Chrome with
+the owner signed in (the Netlify login myleskcb@gmail.com sees only team KCB;
+`buybackad-finished-copy` needs the myleskcb2@gmail.com login):
+- Steps 1 and 2 below. Netlify: `webuy.ad` primary, `www.webuy.ad` redirects
+  to it, external DNS. Namecheap: the `@` URL redirect deleted, the `www`
+  CNAME changed to `buybackad-finished-copy.netlify.app.`, `A @ 75.2.60.5`
+  added; the mail forwarding SPF record left. Namecheap's nameservers, 1.1.1.1
+  and 8.8.8.8 all answered `75.2.60.5` within a minute, and
+  `curl --resolve webuy.ad:80:75.2.60.5 http://webuy.ad/api/health` answered
+  `"ok":true`.
+- Step 4: `SITE_URL` is not set on the project (its variables are
+  ADMIN_EMAILS, FAL_KEY, JWT_SECRET, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET),
+  so Netlify's `URL` becomes `https://webuy.ad` from the next deploy.
+- Step 3, the certificate: the first try failed. Netlify asks Let's Encrypt
+  the moment a domain is added, which was while the parking records still
+  answered. Order it right next time: put the DNS in first, then add the
+  domain in Netlify. Netlify's own retry got it a few minutes later: Let's
+  Encrypt, `webuy.ad` and `www.webuy.ad`, valid to 2027-02-17 (it renews
+  itself). Checked 07:42 UTC: `https://webuy.ad/api/health` answers
+  `"ok":true` from 75.2.60.5; `www` and `http://` answer 301 to
+  `https://webuy.ad/`.
+- **webuy.ad is live**, serving `main` as it was before this branch: the
+  pages still name the netlify.app address as canonical until step 5.
+- The netlify.app address does **not** redirect to the primary domain (it
+  answers 200), so the webhook at the old address keeps working until the
+  first checkout after step 5 moves it.
+
+The steps, in order:
+1. **Netlify** (team myleskcb2 → `buybackad-finished-copy` → Domain
+   management → Add a domain): `webuy.ad`, and `www.webuy.ad` when it offers
+   it; make `webuy.ad` the primary domain. Keep the DNS at Namecheap: do not
+   switch to Netlify DNS unless the nameservers at Namecheap move too (that
+   mismatch is why `studio.scans.ad` and `buyback.ad` never resolved,
+   OPERATIONS.md).
+2. **Namecheap** (Domain List → webuy.ad → Manage → Advanced DNS): delete the
+   parking records (the `www` CNAME to parkingpage.namecheap.com and the `@`
+   URL redirect), then add `A  @  75.2.60.5` and
+   `CNAME  www  buybackad-finished-copy.netlify.app.`. Leave the mail (MX)
+   records.
+3. Wait for `dig +short webuy.ad` to answer `75.2.60.5`, then Netlify →
+   Domain management → HTTPS → Verify DNS configuration; the certificate
+   follows (minutes, at most about an hour).
+4. **`SITE_URL`** on `buybackad-finished-copy`: unset it, or set it to
+   `https://webuy.ad`. A netlify.app value keeps Checkout's return and the
+   webhook on the old address.
+5. **Merge this branch into `main`** only after step 3: the canonical links
+   then point at a site that answers, not at a parking page. The push deploys.
+6. As an operator, Plan & billing → **Set up prices, webhook and wallets
+   now** (or wait for the first checkout): the webhook moves to webuy.ad and
+   webuy.ad is registered for the wallets.
+7. **iPhones LA** (IPHONESLA-CONNECTION.md, "Owed by the owner" 1): on
+   Render, `GFX_STUDIO_URL=https://webuy.ad/` and webuy.ad in
+   `GFX_STUDIO_ORIGINS`; in iphoneslainv, `https://webuy.ad` in
+   `STUDIO_SITES` (`app/buyback_ad_feed.py`). Until then the studio on
+   webuy.ad cannot connect to iPhones LA.
+
+Open:
+1. **The name on the site is still BUYBACK.AD** ("Graphics Studio by
+   BUYBACK.AD", the watermark, the logo, the explainer videos). Whether the
+   wordmark becomes WEBUY.AD is the owner's call; nothing was renamed.
+2. **The contact address bounces.** Terms and privacy give
+   `hello@buyback.ad`, and `buyback.ad` has no DNS at all (no A, no MX).
+   webuy.ad has Namecheap's mail forwarding records: a `hello` forward made
+   there, then the two pages changed to `hello@webuy.ad`, would fix it.
+3. **Sign-ins do not carry over.** A browser signed in on a netlify.app
+   address keeps its token and brand kit there (localStorage is per
+   address); on webuy.ad the customer signs in again. Accounts are on the
+   server and are the same.
+4. The explainer videos' end card prints the address once one resolves
+   (`tools/explainers/videos.js`, `URL_LINE`): render them again with
+   `--url webuy.ad` after step 3.
+5. Billing on the live project answered **test mode** on 2026-11-18: a
+   launch on the new address takes no money until the live keys are in.
+6. Search: add webuy.ad in Google Search Console and submit
+   `https://webuy.ad/sitemap.xml`.
+
+## BM. 2026-11-19 — the reselling.us look: colour first (DESIGN-LAW 152)
+
+The owner, once webuy.ad was live: "logos branding webkit", "all aspects need
+to finish and it needs to have similar or matching styling to reselling.us",
+"or color scheming at first?". Colour first, as asked.
+
+Done:
+- **The `family` skin** (`styles.css`, the default): reselling.us's own
+  colours from its `/static/app.css`, dark and light, its flat pill buttons,
+  its one-glow field; light or dark follows the device until the toggle is
+  used. The poster look is `?skin=poster`.
+- The same colours in `pages.css` (about, learn, terms, privacy, the 18
+  category pages, the video maker), the Look Book, the ad library page and
+  the 404. The owner tools (`pick.html`, `library.html`, `social/`,
+  `admin-ads/`, `phonegfx-studio.html`) are as they were.
+- Checked by eye at 1280 and 390, dark and light: the landing, Easy Mode,
+  the advanced editor, about, the Look Book, the video maker; no sideways
+  scroll at 390; contrast measured (rule 152).
+
+Then, the same day (DESIGN-LAW 153), the owner chose "WeBuy.AD":
+- **Type**: the system face for headlines and text, the default (`system`).
+- **The wordmark** `WeBuy.AD` in Inter Tight 750 on every page's header; the
+  face vendored from reselling.us with its OFL text.
+- **The icon, the favicon and the share card**, drawn by
+  `tools/brand/make.sh` from HTML, as reselling.us draws its own; every page
+  points at `assets/brand/`. `scripts/render_og.mjs` is marked superseded.
+- **The name**: page titles, JSON-LD, the headers and footers, the welcome
+  line, the watermark on free exports, the locked-design pattern, the
+  billing portal's line. The kicker and section labels in sentence case.
+- Checked by eye at 1280 and 390, dark and light: the landing, a category
+  page, the 404, the Look Book; no sideways scroll; the CSS copy in app.js
+  and the CSP hashes rewritten.
+
+Open:
+1. **The terms and privacy policy** still make the agreement with BUYBACK.AD
+   and call the Service "Graphics Studio": renaming the party is the owner's
+   legal call, with a new `TERMS_VERSION` (checkout records the version).
+2. ~~The explainer videos~~ **Done the same day**: all five rendered again in
+   the WeBuy.AD look (the stage, the W. icon and wordmark on the end card,
+   `webuy.ad` under the button, the studio's screens taken again in its dark
+   mode), with orchestral music in place of the big-band jazz. Found on the
+   way: every explainer had gone silent after 8 s (a 12-second clip started
+   4 s in); the clip now repeats under a crossfade for the whole video
+   (measured: -21 to -25 dB from start to end in all five). The trailer bed
+   of `claude/video-music-sfx-audit-3691d1` is drawn live in the maker and
+   is not a file yet; it would be the better bed once it is.
+3. **The Stripe billing portal** keeps the line it was made with
+   ("Graphics Studio by BUYBACK.AD: …"): `ensurePortalConfig` makes a
+   configuration once and stores it, so the new line reaches Stripe only
+   when that configuration is made again.
+4. The partner library API still names itself "BUYBACK.AD library"
+   (`netlify/lib/library.mjs`), left so a partner's code that reads it does
+   not change under it.
+5. The owner tools (`pick.html`, `library.html`, `social/`, `admin-ads/`,
+   `phonegfx-studio.html`) keep the old look and name.
+
+## BN. 2026-11-18 — the full ad's layout varies, and it may wear any video look (DESIGN-LAW 158)
 
 (claude/full-ad-looks-layout, from claude/xenodochial-mccarthy-7bea6d at a89b25e2. It replaces PR #16,
-claude/ad-design-variety-cohesion-5a7836, which made the same changes on `main`'s full ad before rule 146.)
+claude/ad-design-variety-cohesion-5a7836, which made the same changes on `main`'s full ad before rule 154.)
 
 The owner: the full ads "look shockingly similar to one another"; "I need text variety placements";
 "the video ads originally.. backgrounds.. patterns.. fonts.. arrangement/assortment of devices were
 really good"; "for every single video, I want a photo ad equivalent"; then, comparing the two branches,
-"rebuild it" on top of rule 146's.
+"rebuild it" on top of rule 154's.
 
 Done:
 - **The layout** (`FULL_LAYOUT`): alignment, the product's band middle, high or low, the points' side,
-  four claim badges, three point styles, two calls to action, three footers. Rule 146's stickers and
-  fills and rule 149's marks kept; a left-aligned card's mark stands on the number's right.
-- **Video looks on the full ad** (`fullStyle(…, { look })`), signs included, with the fixes rule 150
+  four claim badges, three point styles, two calls to action, three footers. Rule 154's stickers and
+  fills and rule 157's marks kept; a left-aligned card's mark stands on the number's right.
+- **Video looks on the full ad** (`fullStyle(…, { look })`), signs included, with the fixes rule 158
   lists so each passes the pre-flight.
 - **The maker**: Any look to Full ad wears the look; the full gallery's shelves; New look's mix; Layout.
 - Measured: every one of 192 full ads (house looks and video looks, 24 in each of four sizes) passes
@@ -4023,24 +4199,25 @@ Done:
   `full_ad_studio_check`, `look_preflight_check`, `quick_ad_check` and `buylist_check` all clear, and
   `full_style_check` after one fix (a wide frame's points fell out under the bubble and the band).
 - Measured on the comparison's 24 seeds (the same words and iPhones; nearest neighbour on the picture):
-  layout difference .26 in a square and .15 to .16 in a story (rule 146's branch .18 and .12, `main`
+  layout difference .26 in a square and .15 to .16 in a story (rule 154's branch .18 and .12, `main`
   .08 and .10); pairs of ads alike in colour and layout at once 0 in a square and 1 to 3 in a story
-  (rule 146's 0 and 16, `main`'s 20 and 10); 22 to 23 layouts in 24 ads (rule 146's one). With the
+  (rule 154's 0 and 16, `main`'s 20 and 10); 22 to 23 layouts in 24 ads (rule 154's one). With the
   maker's mix (a third of New looks a video look) 15 grounds and 15 treatments in 24.
 
 Open:
-1. **Not on `main`.** It sits on the xenodochial branch, which sits on PR #14: those land first, then
-   this. PR #16 is superseded and can be closed once this is up.
+1. **Not on `main`.** It sits on PR #14's branch (claude/ads-improvement-roadmap-7632c8), which now
+   holds the xenodochial branch: #14 lands first, then this. PR #16 is superseded and can be closed once this is up.
 2. **The weights are first guesses**: `FULL_LAYOUT`'s, and `VIDEO_SHARE` (35% of New looks wear a
    video look). The owner likes the LA looks (the freeway sign, the palms): their share may go up.
-3. **Rule numbers**: this is 150; the sound branch (claude/video-music-sfx-audit-3691d1) wrote its
-   rule as 147, which this branch's line already uses: renumber it when it lands.
+3. **Rule numbers**: these are 158 to 160, after PR #14's renumbering (the xenodochial branch's
+   146 to 149 are 154 to 157 there). The sound branch (claude/video-music-sfx-audit-3691d1) wrote its
+   rule as 147: check it against the merged list when it lands.
 4. **The recipes** (rule 145) draw the house's own look only: a recipe made from an older card could
    lean to the video look nearest its card, not done.
 
-## BM. 2026-11-18 — the house's own styles, and a ZIP code for Your area (DESIGN-LAW 151, 152)
+## BO. 2026-11-18 — the house's own styles, and a ZIP code for Your area (DESIGN-LAW 159, 160)
 
-(claude/full-ad-looks-layout, after §BK.)
+(claude/full-ad-looks-layout, after §BN.)
 
 Done:
 - Twelve themes, two families (LA & coast, Art & studio), twelve painted grounds, three signs
