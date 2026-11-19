@@ -4186,17 +4186,27 @@ Open:
    hero's text link on the column's edge. The colour sets, their links and their count left the
    landing; "Why it gets texts" and the video ads took their place. Before (main as live) and after,
    at 390 and 1440, light and dark: docs/seo-2026-11-18/hero-before-*.jpg and hero-after-*.jpg.
-14. **The wordmark and the icon wait on the owner's pick** among three directions, each a wordmark
-   and an icon made together (a tag, a message bubble, a sticker), shown in the header at desktop
-   and phone width, dark and light, and as the icon at 512, 180, 32 and 16:
-   https://claude.ai/artifact/FPgpT73Y32XWEBN7tr2DQq (the drawing:
-   the session's scratchpad, brand/directions.html). Once picked: the icon beside the wordmark in
-   the bar (the owner asked for one), favicon.svg and assets/brand/icon-{32,180,192,512,1024}.png,
-   the share card's and the cards' wordmark, the information pages' and the Look Book's brand, and
-   rule 153's text.
+14. **The wordmark and the icon** (done, 2026-11-19, DESIGN-LAW 161). Three directions were drawn,
+   each a wordmark and an icon made together (a tag, a message bubble, a sticker), shown in the
+   header at desktop and phone width, dark and light, and as the icon at 512, 180, 32 and 16:
+   https://claude.ai/artifact/FPgpT73Y32XWEBN7tr2DQq. The owner picked the message bubble ("Text me
+   (2)"). It is now in every bar and foot with the icon beside the wordmark, and in favicon.svg,
+   assets/brand/icon-{32,180,192,512,1024}.png, the wordmark pictures, the share card and the 17
+   link previews. Rule 153's wordmark and icon give way to it. Before and after:
+   docs/seo-2026-11-18/mark-*.jpg.
 15. **The explainers' WebP posters** (done, 2026-11-19): main drew the five explainers again in the
    WeBuy.AD look (5dfd1b7b); with pull request 14 at 815ebea2 merged here, the WebP posters are
    drawn again from main's new JPEGs (680 wide, 20 to 68 KB).
+16. **The explainers wear rule 153's wordmark.** The five explainer videos carry "WeBuy.AD" in
+   Inter Tight in a corner (`#bug`: tools/explainers/stage.html and stage.css) and on their end card
+   (tools/explainers/videos.js, with the icon). The next time they are drawn, both should be rule
+   161's icon and wordmark, and the posters drawn again. Not done here: they are main's videos, with
+   their music, and a render is its own job.
+17. **Rule numbers collide across branches.** `claude/full-ad-looks-layout` renumbered its rules to
+   158, 159 and 160 when it merged pull request 14's branch (74de8569). It had not seen this
+   branch's 158 (the landing's column, 2908f8e7) or pull request 17's 159 (the landing draws
+   nothing, 53daca53), both taken earlier. Whichever of them merges later takes the next free
+   numbers. This branch's mark is 161, above all of them.
 
 ## BL. 2026-11-18 — webuy.ad, the site's new address
 

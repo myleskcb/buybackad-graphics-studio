@@ -6508,7 +6508,7 @@ colour system (vibrant and neon pairs and trios, no pattern fills, one multi-col
 most), the VR headset recipe, and the library's chips (main categories, a dropdown arrow where a
 category has subcategories). None of this is live until the owner merges into `main`.
 
-## 2026-11-19 (latest) — pull request 14 at 815ebea2 merged here; the landing measured (claude/zen-dijkstra-7b5a2e)
+## 2026-11-19 — pull request 14 at 815ebea2 merged here; the landing measured (claude/zen-dijkstra-7b5a2e)
 
 Pull request 14 had taken main's 5dfd1b7b (the explainers in the WeBuy.AD look, main's rules as
 152 and 153) and folded in the census's rebuild (its rules as 154 to 157). This branch had moved
@@ -6539,7 +6539,7 @@ headings became h3s (they had followed the sections' h2s as h4s) and its line li
 24px targets. What is left is main's own choice in rule 152: white on the dark-mode blue
 button, 3.31:1, kept to match reselling.us (the large-text bar).
 
-RESUME HERE:
+RESUME HERE (superseded by the entry below):
   0. The owner's pick among the three directions for the mark (OPEN-ITEMS §BK 14), and the
      owner's word on pull request 15.
   1. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5).
@@ -6603,9 +6603,70 @@ What was learned:
 Checks: seo_check, mix_check, landing_check (now with rule 159's assertions), watermark_check,
 full_ad_studio_check, mac_wallpapers_check, build_offer_stills.mjs --check; verify_csp.
 
-RESUME HERE:
+RESUME HERE (superseded by the entry below):
   0. The owner's word on this pull request, after pull request 15's.
   1. Draw the stills again whenever a card, a face, a ground or a render pass changes
      (build_offer_stills.mjs, then --check; landing_check fails on a stale one it sees).
   2. The owner's call on starting the template faces before the studio opens (§BO 3).
   3. The rest of the blocking time is app.js's own evaluation (§BO 5).
+
+---
+
+## 2026-11-19 (latest) — the mark is a message bubble: the owner's pick, everywhere it is drawn (claude/zen-dijkstra-7b5a2e)
+
+Studied:
+  The owner picked the second of three directions: "Text me (2)". Before drawing it everywhere,
+  every place the mark is drawn was listed: four logos in index.html (bar, foot, Easy Mode, the
+  editor), the generator's bar for the information and category pages, the video maker's own bar,
+  the Look Book's masthead, the saved-ads library, favicon.svg, five icon PNGs (the sign-in dialog
+  shows icon-192), two wordmark PNGs, the share card and the 17 link previews.
+
+Measured:
+  - The mark in every bar, each theme: Sora 700 at 22px, the icon at 28px, the ink, blue and mint
+    the page's own. The Look Book's is 15px and 18px beside its title.
+  - Faces: every page now loads sora-700.woff2 (25 KB) for the wordmark, and none loads Inter
+    Tight (45 KB) any more.
+  - Checks on the final tree: landing, area dialog, quick ad, full ad studio (every page under the
+    CSP), watermark, buy list, approve, pricing in step and SEO all pass; build_seo_pages and the
+    CSP hashes have nothing new to write.
+
+Changed:
+  - DESIGN-LAW 161 (the mark), and rules 153 and 158 point to it.
+  - `build_og_cards.mjs --keep-ads`: the previews painted around the pages' ads as they are.
+  - OPEN-ITEMS §BK 14 done; §BK 16 (the explainers still wear the old wordmark) and §BK 17 (rule
+    numbers collide across branches).
+  - The video maker's bar and foot now sit on its page's column (1240px): its mark was 80px in
+    from its headline.
+  - The 404's title lost its dash (rule 55).
+
+Found:
+  - **A shared word in a page's own style sheet beat the mark.** The Look Book's `.brand span`
+    (0,1,1) outranked `.wb-word` (0,1,0), so its wordmark fell back to the system face at weight
+    500 in the dim colour, and "AD" shrank to 13px. Nothing failed and the page looked nearly
+    right. A computed-style sweep of every page found it: the face, weight, size and colours of
+    each visible `.wb-word`. The rule is now `.brand>span`, which matches what it was written for.
+  - **The video maker's bar is written by hand** (`bare: true` in build_seo_pages.mjs, for its
+    Library link), so the generator's MARK never reached it. Grep for the old markup
+    (`WeBuy<em>.AD</em>`) after any change to the mark.
+  - **Drawing the previews again drew the pages' ads again.** build_og_cards.mjs draws each
+    category page's ad before it paints its preview. Since pull request 14's engine (rule 154's
+    seeds), the same recipe draws a different look: gold went from its green ground to a photo
+    ground. The owner asked for the mark, not new ads, so the builder now takes `--keep-ads`, which
+    paints the cards around assets/full-ads as committed. The 17 previews changed in their mark
+    alone.
+  - **160 was taken while it was planned.** `claude/full-ad-looks-layout` renumbered to 158, 159
+    and 160 at 11:39 (74de8569), over this branch's 158 and pull request 17's 159. The mark took
+    161. Check every branch and worktree for the number just before writing a rule, not when
+    planning it.
+
+Rejected:
+  - Drawing the five explainers again for their corner bug and end card: main's videos, with music
+    and posters, are a render of their own (§BK 16).
+  - Taking Inter Tight out: the family skin's .logo rule still names it, and no page downloads it.
+
+RESUME HERE:
+  0. The owner's word on pull request 15.
+  1. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5).
+  2. The landing's load (§BK 3): what is left is app.js at load.
+  3. The explainers in rule 161's mark (§BK 16), and the rule numbers when the branches meet
+     (§BK 17).

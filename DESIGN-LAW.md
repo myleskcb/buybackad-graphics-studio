@@ -6266,7 +6266,8 @@ Added 2026-11-19, after rule 152's colours. The owner chose the wordmark
 "WeBuy.AD". Every rule below is reselling.us's own (its `docs/brand/source/`
 and `/static/app.css`), applied to the new name, so the two read as one family.
 
-- **The wordmark**: `WeBuy` and `.AD` in Inter Tight 750, -0.035em (-0.04em
+- **The wordmark** (since 2026-11-19 rule 161's, in Sora with the bubble icon beside it; this was
+  the first): `WeBuy` and `.AD` in Inter Tight 750, -0.035em (-0.04em
   at display size), the `.AD` in the blue (#3d8bff; #0a5fe0 on light). No
   mark beside it in a header; 22px, 21px on a phone, where it now stays (the
   poster hid it there). The face is reselling.us's own file, OFL, in
@@ -6276,7 +6277,8 @@ and `/static/app.css`), applied to the new name, so the two read as one family.
   h2): the `system` type, the default. Ads keep their own faces.
 - **Sentence case** for the kicker (a blue-tinted pill with a mint dot) and the
   landing's section labels. The editor's small labels keep their capitals.
-- **The icon**: a white W in Inter Tight 800 with the period in mint, on the
+- **The icon** (since 2026-11-19 rule 161's message bubble; this was the first): a white W in
+  Inter Tight 800 with the period in mint, on the
   navy with the blue glow (`tools/brand/icon.html`), as Reselling.US's R.
   `assets/brand/icon-{32,180,192,512,1024}.png`; `favicon.svg` carries it for
   anything that asks for that file by name.
@@ -6638,3 +6640,55 @@ the landing there was Easy Mode's hidden strip, rebuilt by the gates when their 
 still waited for the template faces; with this rule, 104 ms, and a phone's Lighthouse 82 to 98.
 
 Not done here: OPEN-ITEMS §BO.
+
+  a message bubble, a sticker: https://claude.ai/artifact/FPgpT73Y32XWEBN7tr2DQq). The owner picked
+  the message bubble: rule 161.
+
+## 161. The mark is a message bubble: WeBuy.AD in Sora, and its period is the unread dot
+
+Added 2026-11-19. (Numbered 161: 158 is pull request 15's landing and 159 pull request 17's, and
+the full ad's layouts branch, `claude/full-ad-looks-layout`, took 158 to 160 for its own at its
+last merge; 161 was free on every branch and worktree.) The owner, of rule 153's wordmark: "the
+WeBuy.AD type face and logo is not great", "also what about an icon?". Three directions were drawn,
+each a wordmark and an icon made together: a tag, a message bubble and a sticker
+(https://claude.ai/artifact/FPgpT73Y32XWEBN7tr2DQq). The owner picked the second: "Text me (2)".
+
+- **The idea** is the home page's promise: strangers text you first. The icon is a message bubble
+  with a W in it and a mint dot on its shoulder, like an unread text. In the wordmark, that dot is
+  the period.
+- **The icon** is drawn on a 100 unit grid, and cropped to `9 9 82 82` beside the wordmark:
+  - the bubble in the blue, its tail at the lower left;
+  - the W a white stroke 7.5 units wide with mitred corners, drawn rather than set, so it is the
+    same at every size and shows before any face loads;
+  - the dot in mint, ringed in the colour of the ground behind it, so it sits on the bubble's
+    corner.
+  As the app icon it sits on rule 153's navy tile with the blue glow (`tools/brand/icon.html`).
+- **The wordmark**: "WeBuy" in Sora 700, -0.045em, in the text colour; the period a mint dot a
+  quarter of an em across; "AD" in the blue. Sora is already a house face (OFL,
+  `assets/fonts/sora-700.woff2`, 25 KB; the landing preloads it). The markup keeps a real "."
+  (hidden), so the name reads, copies and is spoken as WeBuy.AD. Inter Tight sets nothing now, and
+  no page downloads it.
+- **Its colours are tokens**: `--wb-blue` (the accent: #3d8bff on dark, #0a5fe0 on light),
+  `--wb-mint` (#2fd58f on dark, #0e9f6a on light), `--wb-ring` (the ground) and `--wb-ink` (the
+  text). styles.css's family skin, pages.css and the Look Book set them, so the mark is the same
+  on every page.
+- **Its sizes**: the icon 28px and the word 22px, 10px apart, in every bar and foot; on a phone's
+  landing 26px, 20px and 8px. The Look Book's masthead carries it at 18px and 15px beside its own
+  title. The studio's other skins keep their own mark: the icon shows on the family skin only.
+- **Where it is**:
+  - the landing's bar and foot, and Easy Mode's and the editor's bars;
+  - the information pages and the category pages (`MARK` in `scripts/build_seo_pages.mjs`);
+  - the video maker, whose bar is its own (`motion/index.html`), now on its page's column;
+  - the Look Book and the saved-ads library;
+  - `favicon.svg` and `assets/brand/icon-{32,180,192,512,1024}.png` (the sign-in dialog shows
+    icon-192), and `wordmark-on-{dark,light}.png`;
+  - the share card and the 17 link previews (`scripts/og_card.html`).
+
+  `sh tools/brand/make.sh` draws the icons, the wordmarks and the share card;
+  `node scripts/build_og_cards.mjs --keep-ads` paints the previews around the pages' own ads, so a
+  change to the mark never redraws an ad.
+- **Not yet**: the five explainer videos' corner bug and end card (`tools/explainers/`) still wear
+  rule 153's wordmark until they are drawn again (OPEN-ITEMS §BK 16).
+- **Rule 153 stands otherwise**: its colours, the type of headlines and text, sentence case, the
+  name in words, and BUYBACK.AD as the business. Only its wordmark and its icon give way to this
+  rule.
