@@ -53,7 +53,8 @@ for (const id of house) {
       meta = { kind: 'recipe', cat: r.cat, line: r.subject, seed: 1, name: r.label || id, from: r.from || '' };
     } else {
       const m = /^full-(.+?)(?:-v(\d+))?$/.exec(id), key = m && m[1], seed = m && m[2] ? +m[2] : 1;
-      const S = FS.lines().find(s => s.key === key); if (!S) return { error: 'no line ' + key };
+      // a pick of a line that folded into another (the owner's lines, 2026-11-18) is drawn on that line
+      const S = FS.lines().find(s => s.key === ((FS.aliases ? FS.aliases() : {})[key] || key)); if (!S) return { error: 'no line ' + key };
       if (currentCat !== S.cat) setCategory(S.cat);
       FA.line[S.cat] = S.key; FA.recipe[S.cat] = ''; FA.seed = seed; FA.pair = ''; FA.voice = ''; FA.words = {}; FA.set = {}; FA.biz = '';
       meta = { kind: 'full', cat: S.cat, line: S.key, seed, name: S.label + (seed > 1 ? ` (full ad, look ${seed})` : ' (full ad)') };

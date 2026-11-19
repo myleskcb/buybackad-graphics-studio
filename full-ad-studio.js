@@ -14,7 +14,7 @@
    words on it.
 
    This module puts it there. It is the first card in Easy Mode's strip for every line the full
-   ad draws (motion/subjects.json: 35 lines in 13 categories), and the card a visitor who has
+   ad draws (motion/subjects.json: 41 lines in 13 categories), and the card a visitor who has
    never picked a design opens on. It is drawn by the video maker's own class, so the picture a
    customer downloads here and the video they make of it there are one ad:
 
@@ -65,7 +65,8 @@ const keep = () => { try { localStorage.setItem(KEY, JSON.stringify({ on: FA.on,
 const el = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const linesOf = cat => live.subjects.filter(s => s.cat === cat);
-const lineNow = () => { const ls = linesOf(currentCat); return ls.find(s => s.key === FA.line[currentCat]) || ls[0] || null; };
+// a line folded into another (the owner's lines, 2026-11-18: the Switch into Handhelds, Android tablets into Androids) is that line
+const lineNow = () => { const ls = linesOf(currentCat), k = FA.line[currentCat]; return ls.find(s => s.key === ((live.aliases || {})[k] || k)) || ls[0] || null; };
 
 /* ---------- from the library: every older ad as a recipe (motion/recipes.json, DESIGN-LAW 144) ----------
    The owner, 2026-11-18: "rebuild how we arrived to these ads so every single one can be made a
@@ -450,7 +451,7 @@ function install() {
     FA.recipe[r.cat] = r.id; FA.line[r.cat] = r.subject; FA.words[r.subject] = {}; FA.pair = ""; FA.voice = ""; FA.set = {};
     return r;
   };
-  window.FullAdStudio = { state: FA, enter, leave, draw, build, check, lines: () => live.subjects, isOn: () => FA.on, voices: () => FULL_VOICES.filter(k => fullVoiceOk(k)), pairs: () => COLOURWAYS.slice(),
+  window.FullAdStudio = { state: FA, enter, leave, draw, build, check, lines: () => live.subjects, aliases: () => live.aliases || {}, isOn: () => FA.on, voices: () => FULL_VOICES.filter(k => fullVoiceOk(k)), pairs: () => COLOURWAYS.slice(),
     recipes: loadRecipes, useRecipe };
   /* Easy Mode may be open already (a module runs after the page's own scripts) */
   if (el("ez-strip") && el("page-easy") && el("page-easy").classList.contains("active")) {
@@ -460,5 +461,5 @@ function install() {
   window.dispatchEvent(new Event("full-ad-ready"));
 }
 
-fetch(at("./motion/subjects.json")).then(r => r.json()).then(j => { live.subjects = j.subjects || []; install(); })
+fetch(at("./motion/subjects.json")).then(r => r.json()).then(j => { live.subjects = j.subjects || []; live.aliases = j.aliases || {}; install(); })
   .catch(e => console.warn("full ad in Easy Mode: not loaded", e));

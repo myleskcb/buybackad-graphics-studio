@@ -5741,3 +5741,23 @@ RESUME HERE:
      merge it again before it builds, as it now holds the census's FAQ and plans.
   2. billing_check and ad_library_check with FABRIC_JS set, on a machine that has a
      local fabric.min.js (npm has fabric 5.3.0; cdnjs serves 5.3.1).
+
+## 2026-11-18 — the owner's lines: Phones and Apple, and Gaming (claude/xenodochial-mccarthy-7bea6d, a helper)
+
+Asked: "and technically categories would be iPhones, iPads, Macbooks, Macs, Androids (all), Pixel,
+Samsung, or foldables", "Gaming would be Consoles, Computers, and Handhelds".
+
+Changed: offer-library.js LINES is still the one source. Two lines added last (Macs, Androids,
+cards:false: the house engine draws them, no fabric card), five folded into others (alias), Apple
+Watch moved to Wearables (lookCat keeps its cards' looks), labels and models lines in the owner's
+words; scripts/build_full_subjects.mjs writes the menus in the owner's order (MENU) and the aliases;
+the studio, the video maker and the hero stills read a folded key as its new line; the recipes
+follow; the review page lists a category's lines.
+
+Learned:
+  - An offer card's id and look turn with its line's place in LINES (li) and the faces of its
+    category: a line added anywhere but last, or a category moved, re-rolls the cards after it.
+    Compared the 300 offer cards before and after (ids, faces, colours, layers): only the names,
+    Apple Watch's category and three models lines changed.
+  - The models line is the full ad's tag: "PS5, XBOX SERIES X AND S, SWITCH ..." broke after
+    "X AND", so the line names fewer things.

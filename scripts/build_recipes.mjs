@@ -156,7 +156,12 @@ function wordsOf(ad, cat, dropped) {
 }
 
 /* ---------------------------------------------------------------- the line, the pictures, the ground */
-const PHONE_LINES = [[/\bIPADS?\b/i, 'ipad'], [/\bMACBOOKS?\b|\bIMACS?\b|\bMACS?\b/i, 'mac'], [/\bWATCH(ES)?\b/i, 'watch'], [/\bGALAXY\b|\bSAMSUNG/i, 'galaxy'], [/\bPIXELS?\b|\bGOOGLE\b/i, 'pixel'], [/\bFOLD|\bFLIP\b/i, 'foldable']];
+/* the owner's lines (2026-11-18): "iPhones, iPads, Macbooks, Macs, Androids (all), Pixel, Samsung, or
+   foldables": an iMac, a Mac mini or a Mac Studio goes to Macs, a card that says Android to Androids */
+const PHONE_LINES = [[/\bIPADS?\b/i, 'ipad'], [/\bIMACS?\b|\bMAC ?MINIS?\b|\bMAC STUDIOS?\b/i, 'macdesk'], [/\bMACBOOKS?\b|\bMACS?\b/i, 'mac'], [/\bWATCH(ES)?\b/i, 'watch'], [/\bANDROIDS?\b/i, 'android'],
+  [/\bGALAXY\b|\bSAMSUNG/i, 'galaxy'], [/\bPIXELS?\b|\bGOOGLE\b/i, 'pixel'], [/\bFOLD|\bFLIP\b/i, 'foldable']];
+// a line folded into another (offer-library.js alias: the Switch into Handhelds, Android tablets into Androids ...)
+const ALIAS = JSON.parse(read('motion/subjects.json')).aliases || {};
 const CAT_LINE = { gold: 'gold', silver: 'silver', coins: 'coins', cars: 'car', strips: 'strips', pokemon: 'pokemon', sports: 'sports' };
 /* a car card goes to the car line its words name (2026-11-18: the cars category became lines, and
    a card listing F-150 • SILVERADO • RAM • TACOMA drew a sedan from the general line's pool) */
@@ -172,6 +177,7 @@ const carLineOf = text => { for (const [re, k] of CAR_LINES) if (SUB[k] && re.te
 const CAR_SUBJECTS = new Set(['car', ...CAR_LINES.map(([, k]) => k)]);
 function subjectOf(ad, headline, allWords = headline) {
   if (ad.line && SUB[ad.line]) return ad.line;
+  if (ad.line && SUB[ALIAS[ad.line]]) return ALIAS[ad.line];
   if (ad.cat === 'cars') return carLineOf(allWords);   // a car card's models line names its goods; a phone card goes by its headline
   if (CAT_LINE[ad.cat]) return CAT_LINE[ad.cat];
   if (ad.cat === 'phones') { for (const [re, k] of PHONE_LINES) if (re.test(headline)) return k; return 'iphone'; }

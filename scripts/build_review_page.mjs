@@ -46,7 +46,28 @@ mkdirSync(OUT + '/data', { recursive: true });
 const CAT_NAMES = { phones: 'Phones & Apple', gaming: 'Gaming', audio: 'Audio', computers: 'Computers', wearables: 'Wearables', cameras: 'Cameras',
   gold: 'Gold', silver: 'Silver', coins: 'Coins', cars: 'Cars', strips: 'Test strips', pokemon: 'Pokémon', sports: 'Sports cards' };
 const GEN_ORDER = ['full', 'dl', 'of', 'sc', 'any', 'feed'];
-const EL_NAMES = { business: 'business name', headline: 'headline', product: 'product picture', number: 'phone number', cta: 'call to action', towns: 'towns', claims: 'claims', sticker: 'sticker', website: 'website' };
+/* THE LINES WITHIN A CATEGORY (the owner, 2026-11-18: "and technically categories would be iPhones, iPads,
+   Macbooks, Macs, Androids (all), Pixel, Samsung, or foldables", "Gaming would be Consoles, Computers, and
+   Handhelds"). Each ad carries the line it sells: a full ad its own, a recipe its subject, an older card
+   the subject of the recipe made from it (scripts/build_recipes.mjs), an offer card its line, the
+   iPhone-only generations iPhones; a line folded into another is that line (motion/subjects.json
+   aliases), and the ad stands under its line's category (an Apple Watch card under Wearables). The page
+   lists a category's lines in the menus' order. */
+const SJ = JSON.parse(readFileSync(ROOT + 'motion/subjects.json', 'utf8')), ALIAS = SJ.aliases || {};
+const SUBK = Object.fromEntries(SJ.subjects.map(s => [s.key, s]));
+const REC = Object.fromEntries((JSON.parse(readFileSync(ROOT + 'motion/recipes.json', 'utf8')).recipes || []).map(r => [r.id, r]));
+const lineOf = r => {
+  let k = r.gen === 'full' ? (/^full-(.+?)(?:-v\d+)?$/.exec(r.id) || [])[1] || ''
+    : r.gen === 'recipe' ? (REC[r.id] || {}).subject || ''
+    : REC['r-' + r.id] ? REC['r-' + r.id].subject
+    : r.gen === 'of' ? (/^of_([a-z0-9]+)_/.exec(r.id) || [])[1] || ''
+    : r.gen === 'any' || r.gen === 'feed' ? 'iphone' : '';
+  k = ALIAS[k] || k;
+  return SUBK[k] ? k : '';
+};
+const LINES_OF = {};
+for (const s of SJ.subjects) (LINES_OF[s.cat] ||= []).push([s.key, s.key === 'iphone' ? 'iPhones' : s.label]);
+const EL_NAMES ={ business: 'business name', headline: 'headline', product: 'product picture', number: 'phone number', cta: 'call to action', towns: 'towns', claims: 'claims', sticker: 'sticker', website: 'website' };
 const safeId = id => String(id).replace(/[^A-Za-z0-9_.~:@+-]/g, '_').slice(0, 180);
 
 // 1. the ads, ranked within their category: the census's score, lower is better (0: nothing to fix)
@@ -56,8 +77,9 @@ const rows = census.rows.filter(r => !r.error).map(r => {
     for (const e of PHRASES) { if (e.only && !e.only.includes(r.cat)) continue; const m = e.re.exec(up); if (m && !(e.unlessRe && e.unlessRe.test(up))) hits.push(e.label); }
     return { w: w.where, t, b: hits };
   });
+  const line = lineOf(r), cat = line ? SUBK[line].cat : r.cat;
   return {
-    id: r.id, key: safeId(r.id), gen: r.gen, genName: r.genName, name: r.name, cat: r.cat, catName: CAT_NAMES[r.cat] || r.cat, offered: r.offered || '',
+    id: r.id, key: safeId(r.id), gen: r.gen, genName: r.genName, name: r.name, cat, catName: CAT_NAMES[cat] || cat, line, lineName: line ? (line === 'iphone' ? 'iPhones' : SUBK[line].label) : '', offered: r.offered || '',
     score: r.score, words, banned: [...new Set((r.banned || []).map(b => b.label))], bannedNoName: [...new Set((r.bannedNoName || []).map(b => b.label))],
     lacks: (r.missing || []).map(k => EL_NAMES[k] || k), why: r.gateWhy || [],
     pair: r.colour && r.colour.match ? r.colour.name || r.colour.pair || 'a house pair' : '', offPair: !!(r.colour && !r.colour.match),
@@ -71,7 +93,7 @@ for (const list of Object.values(byCat)) {
   list.sort((a, b) => a.score - b.score || GEN_ORDER.indexOf(a.gen) - GEN_ORDER.indexOf(b.gen) || a.name.localeCompare(b.name));
   list.forEach((r, i) => { r.rank = i + 1; r.of = list.length; });
 }
-writeFileSync(OUT + '/data/ads.json', JSON.stringify({ made: census.made, commit: census.commit, version: LIST.version, cats: CAT_NAMES, rows }));
+writeFileSync(OUT + '/data/ads.json', JSON.stringify({ made: census.made, commit: census.commit, version: LIST.version, cats: CAT_NAMES, lines: LINES_OF, rows }));
 
 // 2. the census's thumbnails, by the same key
 if (existsSync(thumbsPath)) {

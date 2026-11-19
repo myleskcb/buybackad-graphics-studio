@@ -3919,3 +3919,15 @@ Open:
    named-brand type cards again and its full ad has words alone until a sealed box is
    photographed. **owner**: the downloads (a sealed Chromebook box, a Sprinter, a Kenworth, a gaming
    headset, a monitor) and whether the older static versions retire.
+7. **The owner's lines** (2026-11-18: "and technically categories would be iPhones, iPads, Macbooks,
+   Macs, Androids (all), Pixel, Samsung, or foldables", "Gaming would be Consoles, Computers, and
+   Handhelds") — **done**: the full ad's What you buy, the video maker's picker and the review page
+   (a row of lines under a category) list exactly those, in that order. Macs (iMac in seven colours,
+   Mac Studio) and Androids of every brand (Samsung, Pixel, the foldables, the Pixel Tablet, two
+   unbranded Android sets) are new lines; the iMacs left MacBooks, the unbranded Androids left
+   Samsung. Apple Watch went to Wearables (first there), its seven offer cards with it in the looks
+   they were audited in. Android tablets, the Switch, controllers, VR headsets and gaming laptops
+   folded into Androids, Handhelds, Consoles and Computers (`aliases` in motion/subjects.json: a
+   saved look on an old key draws the new line; their offer cards stay as they were, ids and all).
+   **owner**: a clean Mac mini photograph, a ROG Ally and a Legion Go, and a gaming laptop (the one
+   there was rejected); no VR headset picture passed either. Each download waits on the owner's OK.

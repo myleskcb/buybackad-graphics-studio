@@ -49,7 +49,7 @@ const state = {
    the maker's own painted phones, picked in Phones; any other line brings its approved pictures
    and its models line, and the full ad draws them in the phones' place. Only the full ad: the
    looks under Any look fly, flip and land phones. */
-const subjects = { list: [], loaded: {} };           // loaded: "key|set" -> the ids of its pictures, once in state.assets
+const subjects = { list: [], loaded: {}, alias: {} };   // loaded: "key|set" -> the ids of its pictures, once in state.assets; alias: a line folded into another (the owner's lines, 2026-11-18) -> that line
 const subjectOf = st => st.subject && st.subject !== "iphone" ? subjects.list.find(s => s.key === st.subject) || null : null;
 /* FROM THE LIBRARY (motion/recipes.json, DESIGN-LAW 144; the owner, 2026-11-18: "rebuild how we arrived
    to these ads so every single one can be made a video"). An older ad, read as it opened (its words,
@@ -2066,7 +2066,9 @@ async function start() {
   state.assets.phones = phones; state.index = index;
   state.assets.accents = await loadAccents("../assets/cutouts/");
   // what else an ad can be about; without the list the maker is iPhones only, as it was
-  try { subjects.list = (await (await fetch("./subjects.json", { cache: "no-cache" })).json()).subjects || []; } catch (e) { console.warn("The list of other products did not load:", e); subjects.list = []; }
+  try { const j = await (await fetch("./subjects.json", { cache: "no-cache" })).json(); subjects.list = j.subjects || []; subjects.alias = j.aliases || {}; } catch (e) { console.warn("The list of other products did not load:", e); subjects.list = []; }
+  // a look saved on a line that folded into another (the Switch into Handhelds, Android tablets into Androids: the owner, 2026-11-18) draws that line
+  if (subjects.alias[state.style.subject]) { state.style.subject = subjects.alias[state.style.subject]; state.style.subject_set = 0; }
   if (!subjectOf(state.style)) { delete state.style.subject; delete state.style.subject_set; }
   fillSubjects();
   state.style.phones = state.style.phones.filter(id => phones[id]);
