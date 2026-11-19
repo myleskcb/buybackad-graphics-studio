@@ -3208,6 +3208,9 @@ look was swept 30 times on its own until what failed in it was out.
 
 ## 98. The studio's chrome is a print shop's: paper, ink and four signal colours
 
+*Superseded as the house look on 2026-11-19 by rule 138; the poster skin
+stays one URL away (`?skin=poster`).*
+
 Added 2026-10-01 (numbered 98: the video rule took 97 on main first);
 supersedes rule 96's look. The owner, a day after graphite
 and one blue: "Blue is all right, but … we need something very cohesive and
@@ -5602,3 +5605,38 @@ a towns line or a website.
   which the full ad now draws. `?noretire=1` shows them; nothing is deleted.
 
 Not done here: OPEN-ITEMS §BC.
+
+## 138. The studio's chrome is reselling.us's: navy, one blue, and mint for the deal
+
+Added 2026-11-19, the day webuy.ad went live (OPEN-ITEMS §BD); supersedes rule
+98's look. The owner: "it needs to have similar or matching styling to
+reselling.us", "or color scheming at first?". The studio is sold beside
+reselling.us, so it wears that site's colours, read off its own sheet
+(`/static/app.css`), not reinvented: the `family` skin in `styles.css`, the
+default since this day.
+
+- **Ground**: deep navy #070d1c, panels #101a30, lifted #17233e, hairlines
+  #1d2945 and #2b3959; text #f4f7ff, #a3aec6 for ledes, #8a96b0 for small
+  print. Light: #f2f4f8, white panels, text #0a1224.
+- **One blue** for the action, the link and the focus ring: #3d8bff (light:
+  #0a5fe0, reselling.us's own accent-text, chosen over its #0a6cff because it
+  holds 4.5:1 both as words on the ground and under white words).
+- **Mint is the deal**: the headline's second phrase, cash and done (#2fd58f,
+  words #4be3a3; light #0b8659). Never a button, never a background.
+- **Flat pills**: the primary button is the blue, no gradient, no glow; the
+  second is a white veil (rgba(255,255,255,.08)). Panels are flat navy on
+  hairlines, 22px corners, no offset shadow.
+- **The field** is one blue glow at the top right over a navy fall to the
+  ground in 420px, painted on the page; no bokeh, vignette or grain.
+- **Light or dark follows the device**, as reselling.us does, until the
+  visitor uses the toggle. The information pages (`pages.css`), the Look
+  Book, the ad library page and the 404 carry the same colours.
+- **Measured 2026-11-19**: every text pair holds 4.5:1 except white on the
+  dark-mode blue button, 3.31:1, which is reselling.us's own button and was
+  kept to match (its labels are 14 to 17px semibold, so it holds only the
+  large-text bar); and the light headline's green phrase, 4.17:1, which is
+  50px and up, where 3:1 is the bar.
+- **Not yet**: the type (Clash Display and Satoshi; reselling.us sets the
+  system face, with Inter Tight for its wordmark), the wordmark and the logo
+  mark, the share card and the icons. The owner's order was colour first.
+

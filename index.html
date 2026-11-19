@@ -35,8 +35,8 @@
 {"@type":"Offer","name":"Business","price":"100","priceCurrency":"USD","description":"Unlimited downloads, up to 2160 pixels, no watermark, video ads, 500 AI credits a month","priceSpecification":{"@type":"UnitPriceSpecification","price":"100","priceCurrency":"USD","unitCode":"MON","referenceQuantity":{"@type":"QuantitativeValue","value":"1","unitCode":"MON"}}}]}
 ]}
 </script>
-<meta name="theme-color" content="#1b1a1f" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#f2eee4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#070d1c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2f4f8" media="(prefers-color-scheme: light)">
 <script>
 /* Stamp the LOOK on <html> BEFORE first paint, so there is no flash of the
    wrong ground. Four axes, all CSS custom properties in styles.css:
@@ -55,7 +55,7 @@
    has them. */
 (function(){
   var d = document.documentElement, q = {};
-  var S = ['poster','graphite','night','slate','obsidian','forest','ember','paper','cream'];
+  var S = ['family','poster','graphite','night','slate','obsidian','forest','ember','paper','cream'];
   var A = ['orchid','violet','blue','sky','cyan','teal','mint','lime','gold','amber','orange','coral','rose'];
   var T = ['clash','unbounded','syne','grotesk','manrope','khand','serif','melodrama'];
   var LIGHT = { poster:1, paper:1, cream:1 };
@@ -67,11 +67,12 @@
   try {
     if (!theme) theme = localStorage.getItem('pgfx_theme') || '';
   } catch(e){}
-  if (S.indexOf(skin) < 0) skin = 'poster';
+  if (S.indexOf(skin) < 0) skin = 'family';
   if (A.indexOf(accent) < 0) accent = 'blue';
   if (T.indexOf(type) < 0) type = 'clash';
-  if (fromUrl.skin && !fromUrl.theme) theme = LIGHT[skin] ? 'light' : 'dark';
-  if (theme !== 'light' && theme !== 'dark') theme = LIGHT[skin] ? 'light' : 'dark';
+  if (fromUrl.skin && !fromUrl.theme && skin !== 'family') theme = LIGHT[skin] ? 'light' : 'dark';
+  /* family follows the device, as reselling.us does */
+  if (theme !== 'light' && theme !== 'dark') theme = skin === 'family' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : LIGHT[skin] ? 'light' : 'dark';
   try {
     if (fromUrl.theme) localStorage.setItem('pgfx_theme', theme);
   } catch(e){}

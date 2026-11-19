@@ -3366,3 +3366,34 @@ Open:
    launch on the new address takes no money until the live keys are in.
 6. Search: add webuy.ad in Google Search Console and submit
    `https://webuy.ad/sitemap.xml`.
+
+## BE. 2026-11-19 — the reselling.us look: colour first (DESIGN-LAW 138)
+
+The owner, once webuy.ad was live: "logos branding webkit", "all aspects need
+to finish and it needs to have similar or matching styling to reselling.us",
+"or color scheming at first?". Colour first, as asked.
+
+Done:
+- **The `family` skin** (`styles.css`, the default): reselling.us's own
+  colours from its `/static/app.css`, dark and light, its flat pill buttons,
+  its one-glow field; light or dark follows the device until the toggle is
+  used. The poster look is `?skin=poster`.
+- The same colours in `pages.css` (about, learn, terms, privacy, the 18
+  category pages, the video maker), the Look Book, the ad library page and
+  the 404. The owner tools (`pick.html`, `library.html`, `social/`,
+  `admin-ads/`, `phonegfx-studio.html`) are as they were.
+- Checked by eye at 1280 and 390, dark and light: the landing, Easy Mode,
+  the advanced editor, about, the Look Book, the video maker; no sideways
+  scroll at 390; contrast measured (rule 138).
+
+Open, in the owner's order:
+1. **Type**: reselling.us sets the system face (SF Pro) for headlines and
+   text and Inter Tight 750 for its wordmark; the studio still sets Clash
+   Display and Satoshi.
+2. **The wordmark and the mark**: "GRAPHICS STUDIO" and the four-colour
+   square. reselling.us writes `Reselling` with `.US` in the blue; the
+   matching form for the new name is the owner's call (WeBuy.AD?).
+3. The favicon, the share card (`assets/og/`), the page titles ("Graphics
+   Studio by BUYBACK.AD") and the explainer videos' end card.
+4. Words in capitals with wide tracking (the kicker, the section labels):
+   reselling.us writes sentence case.
