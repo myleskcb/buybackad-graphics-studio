@@ -4021,7 +4021,9 @@ Open:
    (about 700 KB) before the gallery is built. Building the gallery when it
    comes near the screen, and small grounds for the offer cards' thumbnails,
    would take most of it: app.js and offer-library.js changes with their own
-   checks.
+   checks. Done 2026-11-19 (§BL, DESIGN-LAW 147): the offer cards are stills
+   the engine drew, the gallery is built as it comes near, the faces come with
+   the studio; on a phone 61 to 93, blocking time to about 0.3 s.
 4. **The site's pictures are drawn once**: run scripts/build_og_cards.mjs again
    when a line's pictures, its words or the house engine change (the merge of
    cb6d8321 brought rule 145's photo grounds into them).
@@ -4087,3 +4089,90 @@ Open:
    - The terms keep "Version 2026-11-18": the consent recorded with each
      purchase names that version (`TERMS_VERSION`, netlify/lib/billing.mjs);
      a new version moves both.
+
+## BL. 2026-11-19 — the landing draws nothing at load: offer cards as stills, the gallery when it is near, the faces with the studio (DESIGN-LAW 147)
+
+(claude/landing-blocking-time-a7bade, cut from claude/zen-dijkstra-7b5a2e at d1dfc9a6, pull
+request 15; the pull request goes against that branch.)
+
+Asked by pull request 15's session (§BK 3): "cut the landing's remaining phone blocking time
+(about 2 s in Lighthouse, performance 65) without changing what any card looks like": build the
+gallery when it comes near, give the offer cards' thumbnails small grounds, load the template
+faces when the studio opens, keep the hidden font warmer's purpose and rule 106's mix.
+
+Measured first (rule 147 has the profile): 1.95 of the 2.25 s the landing's main thread worked
+was the landing drawing offer cards on a canvas (the wall's eleven, each twice, and the
+gallery's ten), each after its 1080-pixel ground, cut-outs and faces.
+
+Done:
+- **Offer cards as stills**: scripts/build_offer_stills.mjs (new) draws all 304 offer cards with
+  the studio's engine, in the landing, at 448 and 320, into assets/offer-stills/ (608 JPEGs,
+  16.7 MB, and index.json with each card's signature). The wall (scBuildWall) and the gallery
+  (scClassicCard) show a still while its card is the one it was drawn from (scStillSig) and draw
+  a changed card live, after the faces. "Small grounds" taken as the brief's first example:
+  pre-drawn cards, which take the canvas drawing off the landing too, not only the photographs.
+- **The gallery when it is near** (scGridWhenNear): within a screen and a quarter, or at once
+  by a chip, a colour set or Show more; the empty grid holds a screen (house.css). Chips and
+  colour sets are still built at load (cheap, and they keep the section's top still).
+- **The faces with the studio** (tplFacesIn, facesLanded): the boot no longer waits for
+  ensureTemplateFonts; the faces, the offer family's included, and the hidden warmer's (now
+  `hidden` in index.html until then) are asked for when the studio opens. No thumbnail is kept
+  before them; Easy Mode's strip shows placeholders and is drawn again when they land, the
+  preview too, and the designer's words are measured again.
+- **Nothing built on the landing for the studio**: Easy Mode's strip waits for the studio (the
+  gates rebuilt it, hidden, at load), the studio's category is drawn ahead only once the studio
+  is open, and mac-wallpapers.js's laptop screen row is built when Easy Mode first opens.
+- **Done once**: hexLum remembers each colour; offer-library.js each line's character sum; the
+  Offer cards chip counts without ordering. Every template's data compared before and after:
+  400 templates, the same digest.
+- landing_check.mjs asserts it (fails on the tree before this work, and with one still made
+  stale by hand); _headers and netlify.toml cache /assets/offer-stills/* a day, a week stale.
+
+Lighthouse 13.6, median of three runs a form, before and after run in turn (before, after,
+before ...) on copies served the way Netlify serves them (the site's `_headers`, brotli at
+quality 11, a 401 from the API); before is d1dfc9a6, after is this branch. Other sessions were
+using the machine, so the numbers move (below the table).
+
+| page | form | performance | largest paint | blocking | layout shift | speed index | a11y/BP/SEO | weight | requests |
+|---|---|---|---|---|---|---|---|---|---|
+| / | phone | 61 → 93 | 1.4 s → 1.4 s | 7343 → 321 ms | 0.00 → 0.00 | 9.1 s → 1.4 s | 100/100/100 → 100/100/100 | 4529 → 1717 KB | 171 → 85 |
+| / | desktop | 65 → 100 | 0.3 s → 0.3 s | 1319 → 22 ms | 0.00 → 0.00 | 2.5 s → 0.6 s | 100/100/100 → 100/100/100 | 4589 → 1710 KB | 172 → 81 |
+
+The before tree's blocking time is what moved with the machine: 3.3 s and 238 ms in the first set
+(62 and 87), 4.5 s and 350 ms in a second set run in turn, 7.3 s and 1.3 s in this one; the
+after tree's stayed between 287 and 340 ms on a phone and 12 and 28 ms on a desktop. The largest
+paint is the hero's words in every run, before and after.
+
+Every card compared before and after, pixel by pixel (the scripts stayed out of the repo): the wall's 36
+cards and the gallery's first page, at 390 and 1440, 104 in all, the same card in every slot:
+84 the same pixels, 18 within drawing noise (Floating and Detailed cards, at most 1.08 a
+channel on average, no pixel more than 32 apart), and 2 different: the wall's second copy of
+VR headsets · Split, which the old landing drew in a fallback serif (rule 147, "Found on the
+way") and the still shows as designed, as the first copy already did. Easy Mode's strip, opened
+from the landing and settled: every card the same card, the offer cards the same bytes, the
+library cards within 1.5 a channel (speckle in the photographs).
+
+Checks on this tree: seo_check, mix_check (the wall's 18 and the first page's 16 as before),
+landing_check, watermark_check, full_ad_studio_check, mac_wallpapers_check and
+build_offer_stills.mjs --check pass; verify_csp against a server that sends `_headers` permits
+every inline script (no inline script changed; csp_hashes.mjs changes nothing).
+
+Open:
+1. **Not on `main`, not deployed** (the owner's word).
+2. **Draw the stills again** when a card, a face, a ground, a cut-out or a render pass changes:
+   `GFX_BASE=http://127.0.0.1:8899/ node scripts/build_offer_stills.mjs`, then `--check`. Until
+   then a changed card is drawn live (right, but slower: landing_check fails when it is one the
+   landing shows at load or on the gallery's first page).
+3. **The studio's first seconds**: the strip shows placeholders until the template faces are in
+   (up to five seconds on a slow phone; before, they had come with the landing). Whether to start
+   them sooner (on the first tap on a studio button, or once the landing is idle) is the owner's
+   call; either costs a visitor who never opens the studio the faces' 0.7 MB.
+4. **Found, not changed**: tuneFallbacks tunes the offer cards' fallback grounds only when
+   assets/contrast-fix.json lands after offer-library.js has run (102 of the 304 cards, by the
+   network), and the classics gate and the choice holds set `gated` whenever their fetch lands,
+   so a card they hold can reach the wall or the gallery's first page when they land after the
+   landing is built. Neither is in a still.
+5. **What is left of the blocking time** (at a phone's CPU, 4x): evaluating app.js (about
+   440 ms, one task: 1.6 MB of templates and passes), offer-library.js's 304 cards (94 ms),
+   tuneFallbacks (117 ms), the wall and the chips. fabric.js must load before app.js, which
+   patches its prototypes as it loads.

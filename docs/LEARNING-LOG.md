@@ -6077,3 +6077,55 @@ RESUME HERE:
   2. A "hello" forward for webuy.ad in Namecheap; then webuy.ad connected to Netlify,
      `SITE` moved, Search Console and Bing (§BK 5).
   3. The studio's editor in the house look (§BK 2); the landing's load (§BK 3).
+
+## 2026-11-19 — the landing draws nothing at load (claude/landing-blocking-time-a7bade)
+
+Asked by pull request 15's session: cut the landing's remaining phone blocking time without
+changing what any card looks like (OPEN-ITEMS §BK 3). DESIGN-LAW 147, OPEN-ITEMS §BL. In the
+final runs, before and after in turn: phone 61 to 93, desktop 65 to 100, 4.5 MB to 1.7 MB
+(§BL has the table).
+
+What was learned:
+
+- **The profile names the cost; the network log names only what it fetched.** The brief started
+  from bytes (1.5 MB of grounds, 0.7 MB of faces). A CPU profile of the load said 1.95 of the
+  2.25 s the main thread worked was renderThumb, the landing drawing offer cards. Taking the
+  bytes alone (smaller grounds) would have left the drawing, and nearly all the blocking time.
+- **A picture the engine draws can be its own cache, if the cache knows its card.** The stills
+  are the canvas's own JPEG, drawn in the landing by the same calls, so 436 of 608 came out the
+  same bytes as the old landing's drawing. The signature is over the card as data, so a card
+  edited in offer-library.js is drawn live instead of shown stale, without anyone remembering to
+  run anything; a change in the drawing code is what --check is for.
+- **A signature over data must leave out what the network decides.** The first build's
+  signatures matched a fresh server only: its first answers are slow (brotli at quality 11, made
+  on the first request), so assets/contrast-fix.json landed before offer-library.js ran; on a warm
+  server it lands after, and tuneFallbacks rewrites 102 offer cards' fallback grounds. Found by
+  checking on a cold server and a warm one in turn, then diffing the cards' JSON (and `gated`, set
+  by the gates, on one card the same way). Test a cache key on the slowest load and the fastest.
+- **`document.fonts.check()` is true for a face nothing has declared yet.** It answers "would
+  drawing now need a font that is not loaded", and a family with no @font-face needs none. The
+  landing drew the wall's second copy of VR headsets · Split in a serif because its first copy had
+  asked for the faces before faces.css arrived. A face counts as in when a FontFace for it is
+  declared and loaded (the stills script checks both).
+- **Two drawings of the same card are not always the same bytes.** The Floating and Detailed
+  layouts came out up to 1.08 a channel apart between runs (most of it in the small cut-outs,
+  where Chrome scales a large picture down). A check compares pictures with a measured tolerance,
+  and a redraw keeps a still within it, or every run would rewrite 172 files for nothing.
+- **Work the landing did for the studio was the next cost.** With the drawing gone, the trace
+  showed the studio's own preparation: hexLum's thousands of identical answers in tuneFallbacks,
+  offer-library.js summing the same lines at every size, the laptop screen swatches, and the
+  gates rebuilding Easy Mode's hidden strip when their fetch landed. Each was done once, or when
+  the studio opens; every template's data was compared before and after (one digest).
+- **A busy machine moves Lighthouse a lot.** One before run on a phone measured 12 s of blocking
+  time, and one desktop before run 62 against 91 a minute earlier, with other sessions running
+  checks. Run the two copies in turn (before, after, before) and say so.
+
+Checks: seo_check, mix_check, landing_check (now with rule 147's assertions), watermark_check,
+full_ad_studio_check, mac_wallpapers_check, build_offer_stills.mjs --check; verify_csp.
+
+RESUME HERE:
+  0. The owner's word on this pull request, after pull request 15's.
+  1. Draw the stills again whenever a card, a face, a ground or a render pass changes
+     (build_offer_stills.mjs, then --check; landing_check fails on a stale one it sees).
+  2. The owner's call on starting the template faces before the studio opens (§BL 3).
+  3. The rest of the blocking time is app.js's own evaluation (§BL 5).
