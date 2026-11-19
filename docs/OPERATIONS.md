@@ -6,7 +6,9 @@ State verified 2026-08-28.
 
 | URL | Status | Notes |
 |---|---|---|
-| **https://buybackad-graphics-studio.netlify.app** | **200 — use this** | Netlify default. Always works. **Phone-accessible.** |
+| **https://webuy.ad** | **200 — use this** | The site's address: `buybackad-finished-copy`'s primary domain, `main`. DNS at Namecheap (`A @ 75.2.60.5`, `CNAME www buybackad-finished-copy.netlify.app.`), Let's Encrypt certificate by Netlify. Live 2026-11-19 UTC (OPEN-ITEMS §BL) |
+| https://buybackad-finished-copy.netlify.app | 200 | The same project's Netlify address |
+| https://buybackad-graphics-studio.netlify.app | 200, stale | The older project: a build from before 2026-10-08 (FLOW-AUDIT 2026-11-11) |
 | https://studio.scans.ad | DNS fails | Configured in Netlify, not resolvable. See below. |
 | https://buyback.ad | DNS fails | Domain alias set, no DNS at all |
 | https://scans.ad | 200 | The sibling product, resolves fine |
@@ -47,6 +49,7 @@ to the Netlify site.** A subdomain avoids fighting another app's router, and it
 is one DNS record instead of a proxy rule that has to be maintained.
 
 Until a domain decision is made, the netlify.app URL is the phone URL.
+(2026-11-18: the decision is webuy.ad, OPEN-ITEMS §BL.)
 
 ## Deploying
 

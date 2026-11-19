@@ -3208,6 +3208,9 @@ look was swept 30 times on its own until what failed in it was out.
 
 ## 98. The studio's chrome is a print shop's: paper, ink and four signal colours
 
+*Superseded as the house look on 2026-11-19 by rule 147; the poster skin
+stays one URL away (`?skin=poster`).*
+
 Added 2026-10-01 (numbered 98: the video rule took 97 on main first);
 supersedes rule 96's look. The owner, a day after graphite
 and one blue: "Blue is all right, but … we need something very cohesive and
@@ -6093,3 +6096,71 @@ good layout poor styling", "lacks any cohesive direction", "also only have 1 BG 
   Hero mark for the landing page's wall.
 
 Not done here: OPEN-ITEMS §BJ.
+
+## 147. The studio's chrome is reselling.us's: navy, one blue, and mint for the deal
+
+(Numbered 138 on `main` until pull request 14 met it on 2026-11-19, where 138 to 145 were
+taken; 139 became 148 the same way, as pull request 15 numbers them. Citations of either in main's own files were renumbered.)
+
+Added 2026-11-19, the day webuy.ad went live (OPEN-ITEMS §BL); supersedes rule
+98's look. The owner: "it needs to have similar or matching styling to
+reselling.us", "or color scheming at first?". The studio is sold beside
+reselling.us, so it wears that site's colours, read off its own sheet
+(`/static/app.css`), not reinvented: the `family` skin in `styles.css`, the
+default since this day.
+
+- **Ground**: deep navy #070d1c, panels #101a30, lifted #17233e, hairlines
+  #1d2945 and #2b3959; text #f4f7ff, #a3aec6 for ledes, #8a96b0 for small
+  print. Light: #f2f4f8, white panels, text #0a1224.
+- **One blue** for the action, the link and the focus ring: #3d8bff (light:
+  #0a5fe0, reselling.us's own accent-text, chosen over its #0a6cff because it
+  holds 4.5:1 both as words on the ground and under white words).
+- **Mint is the deal**: the headline's second phrase, cash and done (#2fd58f,
+  words #4be3a3; light #0b8659). Never a button, never a background.
+- **Flat pills**: the primary button is the blue, no gradient, no glow; the
+  second is a white veil (rgba(255,255,255,.08)). Panels are flat navy on
+  hairlines, 22px corners, no offset shadow.
+- **The field** is one blue glow at the top right over a navy fall to the
+  ground in 420px, painted on the page; no bokeh, vignette or grain.
+- **Light or dark follows the device**, as reselling.us does, until the
+  visitor uses the toggle. The information pages (`pages.css`), the Look
+  Book, the ad library page and the 404 carry the same colours.
+- **Measured 2026-11-19**: every text pair holds 4.5:1 except white on the
+  dark-mode blue button, 3.31:1, which is reselling.us's own button and was
+  kept to match (its labels are 14 to 17px semibold, so it holds only the
+  large-text bar); and the light headline's green phrase, 4.17:1, which is
+  50px and up, where 3:1 is the bar.
+- **Then the type, the wordmark and the pictures**: rule 148, the same day.
+
+## 148. The name is WeBuy.AD, written and drawn the way Reselling.US is
+
+Added 2026-11-19, after rule 147's colours. The owner chose the wordmark
+"WeBuy.AD". Every rule below is reselling.us's own (its `docs/brand/source/`
+and `/static/app.css`), applied to the new name, so the two read as one family.
+
+- **The wordmark**: `WeBuy` and `.AD` in Inter Tight 750, -0.035em (-0.04em
+  at display size), the `.AD` in the blue (#3d8bff; #0a5fe0 on light). No
+  mark beside it in a header; 22px, 21px on a phone, where it now stays (the
+  poster hid it there). The face is reselling.us's own file, OFL, in
+  `assets/fonts/`, and sets the wordmark and nothing else.
+- **The type**: headlines and text in the system face (SF Pro on an Apple
+  device), headlines 700 and tight (-0.04em on the hero, -0.03em on h1 and
+  h2): the `system` type, the default. Ads keep their own faces.
+- **Sentence case** for the kicker (a blue-tinted pill with a mint dot) and the
+  landing's section labels. The editor's small labels keep their capitals.
+- **The icon**: a white W in Inter Tight 800 with the period in mint, on the
+  navy with the blue glow (`tools/brand/icon.html`), as Reselling.US's R.
+  `assets/brand/icon-{32,180,192,512,1024}.png`; `favicon.svg` carries it for
+  anything that asks for that file by name.
+- **The share card** (og:image, `assets/brand/share-card.jpg`, 1200 x 630,
+  under 300 KB): the wordmark, the home page's own kicker and headline, word
+  for word, and four real ads from its wall. All of it is drawn by
+  `sh tools/brand/make.sh` with headless Chrome; draw it again after the
+  kicker or the headline changes.
+- **The name in words**: "WeBuy.AD" wherever the product or the site is named,
+  the watermark on free exports included. **BUYBACK.AD stays the business**:
+  the copyright lines, and the terms and privacy policy, whose agreement is
+  with BUYBACK.AD (only their header, title and home link changed). Renaming
+  the party to an agreement is the owner's legal call, with a new terms
+  version (`TERMS_VERSION`).
+

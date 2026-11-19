@@ -26,7 +26,7 @@ That is the standard every change is held to.
 |---|---|
 | Repo | `myleskcb/buybackad-graphics-studio` |
 | Working copy | `~/Downloads/gfxv23` — see the warning below |
-| Live | https://buybackad-graphics-studio.netlify.app |
+| Live | **https://webuy.ad** (from 2026-11-19 UTC; DNS at Namecheap, certificate by Netlify), the `buybackad-finished-copy` project's primary domain; also https://buybackad-finished-copy.netlify.app (OPEN-ITEMS §BL) |
 | Netlify project | `buybackad-graphics-studio` (CLI is authenticated) |
 | Study program | `docs/` — start at `docs/README.md` |
 
@@ -290,7 +290,9 @@ python3 scripts/cvd_audit.py                                         # exits 1 o
 
 | URL | State |
 |---|---|
-| `buybackad-graphics-studio.netlify.app` | **works — this is the URL to share** |
+| `webuy.ad` / `www.webuy.ad` | **works — the site's address** (live 2026-11-19 UTC; `A @ 75.2.60.5` and `CNAME www buybackad-finished-copy.netlify.app.` at Namecheap; `www` redirects to the bare name) |
+| `buybackad-finished-copy.netlify.app` | works; `main` (the netlify.app address of the project webuy.ad points at) |
+| `buybackad-graphics-studio.netlify.app` | works, but a build from before 2026-10-08 (FLOW-AUDIT 2026-11-11) |
 | `studio.scans.ad` | configured in Netlify, **no public DNS** |
 | `buyback.ad` / `www.buyback.ad` | domain alias set, no DNS at all |
 
