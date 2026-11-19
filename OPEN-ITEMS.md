@@ -4192,9 +4192,9 @@ Open:
    the bar (the owner asked for one), favicon.svg and assets/brand/icon-{32,180,192,512,1024}.png,
    the share card's and the cards' wordmark, the information pages' and the Look Book's brand, and
    rule 153's text.
-15. **The explainers' WebP posters**: main drew the five explainers again in the WeBuy.AD look
-   (5dfd1b7b). This branch's learn.html points at WebP posters of the old look until main, or pull
-   request 14 with it, is merged here; then make them again from main's new JPEGs.
+15. **The explainers' WebP posters** (done, 2026-11-19): main drew the five explainers again in the
+   WeBuy.AD look (5dfd1b7b); with pull request 14 at 815ebea2 merged here, the WebP posters are
+   drawn again from main's new JPEGs (680 wide, 20 to 68 KB).
 
 ## BL. 2026-11-18 — webuy.ad, the site's new address
 
