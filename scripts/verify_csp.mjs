@@ -12,7 +12,7 @@
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 
-const url = process.argv[2] || 'https://buybackad-graphics-studio.netlify.app/';
+const url = process.argv[2] || 'https://webuy.ad/';
 const root = new URL('..', import.meta.url).pathname;
 const html = readFileSync(root + 'index.html', 'utf8');
 

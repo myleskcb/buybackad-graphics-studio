@@ -28,7 +28,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-const SITE = 'https://buybackad-graphics-studio.netlify.app';
+const SITE = 'https://webuy.ad';
 const root = fileURLToPath(new URL('..', import.meta.url));
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

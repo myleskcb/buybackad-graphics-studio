@@ -209,26 +209,38 @@ export async function syncSub(user, env) {
 const whKey = (mode) => 'stripe:whsec:' + mode;
 
 /** Registers the webhook endpoint (once per mode) unless one is configured.
- *  Never for a draft deploy's address, which dies with the draft. */
+ *  Never for a draft deploy's address, which dies with the draft.
+ *  When the site's own address moves (a new primary domain, webuy.ad on
+ *  2026-11-18, makes Netlify's URL the new one), the endpoint moves with it:
+ *  Stripe does not follow a redirect, so events sent to the old address
+ *  would fail once the old host answers 301. Only the site's configured
+ *  address (SITE_URL or Netlify's URL) moves it, never the address a request
+ *  happened to arrive on, so visitors on two hosts cannot swap it back and
+ *  forth. The old secret is kept for events already on their way. */
 export async function ensureWebhook(env, store, origin) {
   if (env.STRIPE_WEBHOOK_SECRET) return { ok: true, source: 'env' };
   const mode = stripeMode(env);
-  const have = await store.get(whKey(mode));
-  if (have) { try { return Object.assign({ ok: true, source: 'stored' }, { url: JSON.parse(have).url }); } catch (e) { /* remake it */ } }
+  let have = null;
+  try { const raw = await store.get(whKey(mode)); if (raw) have = JSON.parse(raw); } catch (e) { /* remake it */ }
+  const fixed = !!(env.SITE_URL || env.URL);
   const site = String(env.SITE_URL || env.URL || origin || '').replace(/\/$/, '');
   let host = '';
   try { host = new URL(site).hostname; } catch (e) { /* no address */ }
-  if (!/^https:\/\//.test(site) || !host || host.includes('--') || /^(localhost|127\.)/.test(host)) {
-    return { ok: false, reason: 'no production https address to send events to (set SITE_URL)' };
-  }
-  const url = site + '/api/stripe-webhook';
+  const production = /^https:\/\//.test(site) && host && !host.includes('--') && !/^(localhost|127\.)/.test(host);
+  const url = production ? site + '/api/stripe-webhook' : '';
+  if (have && have.secret && (!url || !fixed || have.url === url)) return { ok: true, source: 'stored', url: have.url };
+  if (!url) return { ok: false, reason: 'no production https address to send events to (set SITE_URL)' };
   const list = await stripe(env, 'GET', '/webhook_endpoints', { limit: 100 });
   for (const w of list.data || []) if (w.url === url) await stripe(env, 'DELETE', '/webhook_endpoints/' + w.id);   // its secret is not ours to read
   const w = await stripe(env, 'POST', '/webhook_endpoints', {
     url, enabled_events: WEBHOOK_EVENTS, description: 'Graphics Studio: plans and AI credits (registered by the site)',
   });
-  await store.set(whKey(mode), JSON.stringify({ id: w.id, secret: w.secret, url, ts: Date.now() }));
-  return { ok: true, source: 'created', url };
+  const moved = !!(have && have.secret);
+  await store.set(whKey(mode), JSON.stringify({ id: w.id, secret: w.secret, url, ts: Date.now(), prev: moved ? have.secret : undefined }));
+  /* the endpoint at the old address was registered by this site (its id is
+     the one kept here), so it goes; one already gone is no matter */
+  if (moved && have.id && have.id !== w.id) await stripe(env, 'DELETE', '/webhook_endpoints/' + have.id).catch(() => {});
+  return moved ? { ok: true, source: 'moved', url, from: have.url } : { ok: true, source: 'created', url };
 }
 
 /* ---------- the payment method domain ---------- */
@@ -272,7 +284,7 @@ const same = (a, b) => { if (a.length !== b.length) return false; let d = 0; for
 export async function verifyEvent(env, store, payload, header) {
   const secrets = [env.STRIPE_WEBHOOK_SECRET];
   for (const mode of ['live', 'test']) {
-    try { const raw = await store.get(whKey(mode)); if (raw) secrets.push(JSON.parse(raw).secret); } catch (e) { /* none */ }
+    try { const raw = await store.get(whKey(mode)); if (raw) { const h = JSON.parse(raw); secrets.push(h.secret, h.prev); } } catch (e) { /* none */ }
   }
   const t = (String(header || '').match(/(?:^|,)t=(\d+)/) || [])[1];
   const sigs = [...String(header || '').matchAll(/(?:^|,)v1=([0-9a-f]+)/g)].map((m) => m[1]);

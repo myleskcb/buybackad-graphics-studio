@@ -5170,3 +5170,49 @@ RESUME HERE:
      again, run the checks and put it there.
   1. §BC 2 to 4: which photo generation goes next, the full ad in Easy Mode's
      picker, and whether iPhones LA's weekly batch moves to FullAd.
+
+## 2026-11-18 — webuy.ad, the site's new address (claude/webuy-ad-new-site-url-f0be40)
+
+Asked: "webuy.ad launch new site URL".
+
+Done:
+  - Every page's own address, the sitemap, robots, the category page
+    generator and the CSP hash for index.html's JSON-LD now say webuy.ad.
+  - The Stripe webhook moves with the site's address; the deploy workflow's
+    live check reads webuy.ad, falling back to the netlify.app address with a
+    warning until the domain answers.
+  - OPEN-ITEMS §BD: the seven owner steps, in order (Netlify, Namecheap, the
+    certificate, SITE_URL, the merge, the webhook, iPhones LA).
+
+Found:
+  - The domain was registered a few hours before the ask and still answered
+    Namecheap's parking page. A Host-header probe against Netlify's load
+    balancer (`curl --resolve webuy.ad:80:75.2.60.5`) tells whether any
+    project has claimed a name before its DNS is in.
+  - A setting kept "once" goes stale when the thing it names moves: the
+    webhook was stored once per mode with its URL and never compared again.
+    Store what a value was made for, and compare it on read.
+  - The category pages are generated. Proving the generator rebuilds the
+    committed files byte for byte before changing it makes the rebuild after
+    the change safe to trust.
+  - Changing an address inside an inline JSON-LD block changes a CSP hash;
+    `csp_hashes.mjs` has to run after it.
+  - The legal pages' contact address is on a domain with no DNS.
+
+  - Netlify asks Let's Encrypt for a certificate the moment a domain is
+    added. Added before the DNS moved, it asked while the parking records
+    still answered and failed; its own retry got it a few minutes later.
+    DNS first, then the domain.
+  - A primary domain does not make the netlify.app address redirect: it
+    still answers 200.
+  - Two Netlify logins: myleskcb@gmail.com sees team KCB only;
+    buybackad-finished-copy is under myleskcb2@gmail.com.
+
+Checked: billing_check (108 passed; the two new checks fail on the old
+billing.mjs), the live-check step run locally against today's sites, the SEO
+generator rebuilt, CSP hashes rewritten.
+
+RESUME HERE:
+  0. webuy.ad is live (HTTPS, 2026-11-19 UTC). OPEN-ITEMS §BD: merge this
+     branch (step 5), then steps 6 and 7.
+  1. §BD open 1: the wordmark, BUYBACK.AD or WEBUY.AD, is the owner's call.

@@ -4,7 +4,7 @@ Standard library only. It is the shape to copy
 into iPhones LA's own app (Flask, FastAPI, Django: README.md has the first
 two), not something to run in production as it is.
 
-    BUYBACKAD_LIBRARY_URL=https://buybackad-graphics-studio.netlify.app \
+    BUYBACKAD_LIBRARY_URL=https://webuy.ad \
     BUYBACKAD_LIBRARY_KEY=bbl_... \
     python3 example_server.py 8896
 

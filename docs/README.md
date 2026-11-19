@@ -12,7 +12,8 @@ post-ready graphic for Facebook Marketplace, OfferUp, Instagram or Craigslist.
 
 - Repo: `myleskcb/buybackad-graphics-studio`
 - Working copy: `~/Downloads/gfxv23` (see MIGRATION note in OPERATIONS.md)
-- Live: https://buybackad-graphics-studio.netlify.app
+- Live: https://webuy.ad (the `buybackad-finished-copy` project, also at
+  https://buybackad-finished-copy.netlify.app; OPEN-ITEMS §BD)
 - Netlify project: `buybackad-graphics-studio`
 
 ## The document map
