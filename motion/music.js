@@ -293,6 +293,9 @@ export const KITS = {
   deep_house: { prog: "lush", keys: ["synth_pluck", "epiano", "organ_b3"] },
   trance: { prog: "minor", keys: ["supersaw", "pad"] },
   nu_disco: { prog: "minor", keys: ["synth_brass", "synth_pluck", "funk_guitar", "clav"] },
+  // 2026-11-19 (owner: "I need like trailer commercial professional"; DESIGN-LAW 150): a trailer's
+  // bed, low strings over a pulsing synth bass, drums like taiko, a clock ticking until the hit
+  trailer: { prog: "minor", keys: ["strings", "pad"] },
 };
 
 /** The key, chords and tune of one look, laid on its beat grid. key: the pitch class the
@@ -587,6 +590,30 @@ export function groove(M, kit, A, start, total) {
           if (on("..x..x....x..x..", i)) stab(t, s16 * 1.5, .14, 66);
           if (i % 4 === 2) S.hit(t, "tamb", .12, -.3);
           break;
+        case "trailer": {
+          // Until the headline hit: a low drone, the strings and a clock ticking, all under the
+          // bed's closed filter (audio.js). On the hit the pulse and the drums come in: the pulse
+          // sixteenths on the chord's root, accented three, three, two (one of two figures, by
+          // the key); a bass drum and timpani on the bar line and the "and" of three, a tom on
+          // the "and" of two, a light snare on three; a tom run ends every second bar, a
+          // reverse cymbal leads into every fourth, and a crash opens it.
+          const post = t >= A.hit - 1e-3, phrase = bar % 4;
+          const acc = keyPc % 2 ? "x..x..x.x..x..x." : "x..x..x...x..x..";
+          // levels measured on a phone's terms (2026-11-19): the sub held back, the strings in the mids
+          if (i === 0) { stab(t, b * 3.9, post ? .2 : .22, 60); M.bass(t, bass(t), b * 3.9, post ? .08 : .17); }
+          if (!post && i % 2 === 0) { M.tock(t, i % 4 ? .022 : .034, .1); M.key(t, i % 4 ? .03 : .045); }
+          if (post) {
+            const m = bassNote(keyPc, A.chordAt(t + 1e-4)) + 12 + (i === 14 && B ? 12 : 0);
+            M.note(t, "synth_bass", m, s16 * .7, on(acc, i) ? .3 : .13);
+            if (i === 0) { M.hit(t, "bass_drum", .55); M.hit(t, "timpani", .45); M.kick(t, .42); if (phrase === 0) M.hit(t, "crash", .2); }
+            if (i === 6) { M.hit(t, "tom_lo", .35); M.tom(t, .25); }
+            if (i === 8) M.hit(t, "snare", .12);
+            if (i === 10) { M.hit(t, "bass_drum", .4); M.hit(t, "timpani", .3); }
+            if (B && i >= 12) M.hit(t, i % 2 ? "tom_hi" : "tom_lo", .22 + (i - 12) * .05);
+            if (phrase === 3 && i === 12) M.reverseCymbal(t, t + b, .05);
+          }
+          break;
+        }
         case "classical": {                               // no drums: a broken-chord accompaniment
           const c = chordTones(t, 52), pat = [0, 2, 1, 2];
           M.note(t, K, c[pat[i % 4] % c.length], s16 * 1.6, .14);

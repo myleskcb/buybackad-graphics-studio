@@ -489,12 +489,15 @@ export const OPTIONS = {
   // kits it always drew, so a look number keeps its kit
   sound_kit: ["uplift", "house", "hiphop", "lofi", "minimal", "cinematic",
     "reggaeton", "jersey_club", "drill", "phonk", "baile_funk", "amapiano", "cumbia", "disco", "uk_garage", "swing", "epic", "march", "bossa",
-    "pop", "rnb", "motown", "gospel", "classical", "synthwave", "gfunk", "future_bass", "deep_house", "trance", "nu_disco", "none"],
-  hit: ["impact", "riser", "cymbal", "bass_drop", "gong", "timpani", "whip", "anvil", "crash", "swell", "orchestra"],
+    "pop", "rnb", "motown", "gospel", "classical", "synthwave", "gfunk", "future_bass", "deep_house", "trance", "nu_disco", "none",
+    // 2026-11-19 (DESIGN-LAW 150): a trailer's pulse, drums and low strings, last so every earlier look draws as it did
+    "trailer"],
+  // braam (2026-11-19): a trailer's brass blast, last for the same reason
+  hit: ["impact", "riser", "cymbal", "bass_drop", "gong", "timpani", "whip", "anvil", "crash", "swell", "orchestra", "braam"],
   // confetti: the party popper an ad with falling confetti plays as its number lands (engine.js
-  // harmonise), last so every earlier look draws as it did
+  // harmonise), last so every earlier look draws as it did; then a trailer's two (2026-11-19)
   number_sfx: ["pop", "chime", "register", "whoosh_ding", "ticks", "shave_haircut", "cash_counter", "text_ding", "phone_buzz",
-    "bells", "triangle", "glock_run", "harp_gliss", "whistle", "confetti"],
+    "bells", "triangle", "glock_run", "harp_gliss", "whistle", "confetti", "tick_boom", "whoosh_boom"],
   // a famous public-domain tune over the groove (music.js), and what plays it; the holiday
   // tunes (SEASON_TUNES) play only in an ad set to their holiday
   melody: ["none", "mountain_king", "fur_elise", "beethoven5", "ode_to_joy", "saints", "ballgame", "cucaracha", "toccata",
@@ -594,25 +597,6 @@ for (const g of THEME_GROUNDS) if (!OPTIONS.background.includes(g)) OPTIONS.back
 export const THEME_REVIEW = { approved: Object.keys(THEMES), rejected: [] };
 for (const id of THEME_REVIEW.approved) if (THEMES[id]) { VIBES[id] = THEMES[id]; if (!OPTIONS.vibe.includes(id)) OPTIONS.vibe.push(id); }
 
-/** An axis's weights with the options in `gone` drawn by no shuffle (still offered by hand).
- *  Each run of them in the list gives its share to the options either side of it, half each,
- *  or all of it to the one side where the run is at an end. A weighted draw reads its options
- *  in order (engine.js rng), so every look number that drew anything else draws exactly what
- *  it drew; only the looks that landed on a gone option move, to a neighbour. */
-function byHand(k, w, gone) {
-  const list = OPTIONS[k], ws = list.map(o => o in w ? w[o] : 1), out = { ...w };
-  const idle = i => gone.includes(list[i]) || !ws[i];
-  for (let i = 0; i < list.length; i++) {
-    if (!idle(i)) continue;
-    let j = i, share = 0;
-    for (; j < list.length && idle(j); j++) if (gone.includes(list[j])) { share += ws[j]; out[list[j]] = 0; }
-    const L = i > 0 ? list[i - 1] : null, R = j < list.length ? list[j] : null;
-    for (const [o, part] of [[L, R ? .5 : 1], [R, L ? .5 : 1]]) if (o && share) out[o] = (o in out ? out[o] : 1) + share * part;
-    i = j;
-  }
-  return out;
-}
-
 // The BACK is what makes a model recognisable: every drawn cut ends on the backs,
 // and most show the fronts only as they flash past. Type that ENTERS FROM THE
 // LEFT is drawn three times as often as the rest.
@@ -646,38 +630,29 @@ export const WEIGHTS = {
   // keeps its kit, tune and instrument (a recording, drawn late, may play in their place).
   // One number here puts any of them in the shuffle, and changes the kit, tune or
   // instrument of the looks that land on it.
-  // Trailer, not a game (owner, 2026-11-18: "funny and cheerful but not always professional",
-  // "like I'm playing mario kart", "I need like trailer commercial professional"; DESIGN-LAW
-  // 147): the cartoon and game sounds below are offered by hand only (byHand), and a look
-  // number that drew any other sound keeps it.
-  // The circus march and the groove with a referee's whistle on the bar, by hand.
-  sound_kit: byHand("sound_kit", { uplift: 3, house: 2, hiphop: 2, lofi: 1, minimal: 2, cinematic: 2, none: .5,
-    pop: 0, rnb: 0, motown: 0, gospel: 0, classical: 0, synthwave: 0, gfunk: 0, future_bass: 0, deep_house: 0, trance: 0, nu_disco: 0 }, ["march", "baile_funk"]),
-  // the cartoon hits by hand: the anvil, the whip crack, the gong, the 90s orchestra hit
-  hit: byHand("hit", {}, ["anvil", "whip", "gong", "orchestra"]),
+  // Trailer, not a game (DESIGN-LAW 150): the cartoon and game sounds keep their weight here,
+  // so every look number draws what it always drew, and a shuffle that lands on one plays a
+  // stand-in instead (STAND_INS, below). The trailer's own sounds (2026-11-19) weigh nothing
+  // here: they come in as stand-ins.
+  sound_kit: { uplift: 3, house: 2, hiphop: 2, lofi: 1, minimal: 2, cinematic: 2, none: .5,
+    pop: 0, rnb: 0, motown: 0, gospel: 0, classical: 0, synthwave: 0, gfunk: 0, future_bass: 0, deep_house: 0, trance: 0, nu_disco: 0, trailer: 0 },
+  hit: { braam: 0 },
   // a message ding or a phone buzzing only by hand: a viewer takes them for a real phone near
   // them (owner, 2026-10-11, of the pop that sounded like a voice memo starting: "I actually
-  // looked around ... it was that confusing"); the popper only where confetti falls. The
-  // bells, the mallets, the whistle, the cork and "shave and a haircut" by hand (2026-11-18):
-  // a rising chime or a glockenspiel run is a game's pickup sound
-  number_sfx: byHand("number_sfx", { pop: 2, chime: 2, register: 1, whoosh_ding: 1, ticks: 1, text_ding: 0, phone_buzz: 0, confetti: 0 },
-    ["pop", "chime", "register", "shave_haircut", "bells", "triangle", "glock_run", "harp_gliss", "whistle"]),
-  // No famous tune in a shuffle (2026-11-18): over a groove they were the cartoon half of the
-  // music, Cucaracha and the Bumblebee as often as Mozart. A holiday ad still plays its own
-  // (lateWeights), and the drum-free classical groove, by hand, its classic (harmonise).
-  melody: byHand("melody", { none: 5, prelude_c: 0, minuet_g: 0, mozart40: 0, spring: 0, moonlight: 0, gymnopedie: 0, oh_susanna: 0,
-    jingle_bells: 0, joy_to_world: 0, we_wish: 0, dies_irae: 0, funeral_march: 0 }, OPTIONS.melody.filter(m => m !== "none")),
-  // the mallets by hand: a tune picked by hand is drawn a piano, a sax, a harp, not a xylophone
-  lead: byHand("lead", { supersaw: 0, synth_pluck: 0, synth_brass: 0, fm_bell: 0, gfunk_lead: 0,
-    guitar: 0, upright: 0, clav: 0, harmonica: 0, strumstick: 0, balafon: 0, organ_b3: 0, strings: 0, acid: 0 }, ["marimba", "xylophone", "glock", "kalimba"]),
-  // no opening sound in a shuffle: the air horn, the siren and the referee's whistle were a race
-  // starting; a holiday ad still draws its own (lateWeights)
-  accent: byHand("accent", { none: 7, sleigh_bells: 0 }, ["air_horn", "siren", "whistle", "gong", "windchimes", "bell_tree", "vibraslap"]),
+  // looked around ... it was that confusing"); the popper only where confetti falls
+  number_sfx: { pop: 2, chime: 2, register: 1, whoosh_ding: 1, ticks: 1, text_ding: 0, phone_buzz: 0, confetti: 0, tick_boom: 0, whoosh_boom: 0 },
+  // a holiday tune never in an ordinary ad (the two older ones, Carol of the Bells and the
+  // Toccata, keep their weight so the draw is unchanged, and harmonise plays a classic instead)
+  melody: { none: 5, prelude_c: 0, minuet_g: 0, mozart40: 0, spring: 0, moonlight: 0, gymnopedie: 0, oh_susanna: 0,
+    jingle_bells: 0, joy_to_world: 0, we_wish: 0, dies_irae: 0, funeral_march: 0 },
+  lead: { supersaw: 0, synth_pluck: 0, synth_brass: 0, fm_bell: 0, gfunk_lead: 0,
+    guitar: 0, upright: 0, clav: 0, harmonica: 0, strumstick: 0, balafon: 0, organ_b3: 0, strings: 0, acid: 0 },
+  accent: { none: 7, sleigh_bells: 0 },
   tone: { studio: 2 },
-  // Most shuffles play a real recording, the modern jazz and funk most of all (owner,
-  // 2026-10-04: "less cliché music: modern jazz and funk first, the warhorses only by hand"):
-  // the pieces everyone has heard in a cartoon only by hand, a holiday's only in a holiday
-  // ad, the user's own only when they add one.
+  // The real recordings as drawn since 2026-10-04 (owner: "less cliché music: modern jazz and
+  // funk first, the warhorses only by hand"): the pieces everyone has heard in a cartoon only
+  // by hand, a holiday's only in a holiday ad, the user's own only when they add one. Since
+  // 2026-11-19 the jazz is a stand-in's (STAND_INS): a trailer's bed, or the look's own music.
   track: { none: 10, upload: 0, ...Object.fromEntries(TRACKS.map(t => [t.id,
     ["gladiators", "can_can", "william_tell", "mountain_king"].includes(t.id) || ["christmas", "halloween"].includes(t.kind) ? 0
       : t.kind === "jazz" ? 2.5 : t.id === "fur_elise" ? .4 : 1])) },
@@ -708,7 +683,8 @@ export const CLASSICAL_TUNES = ["prelude_c", "minuet_g", "mozart40", "spring", "
 export const KIT_BPM = { reggaeton: [88, 100], jersey_club: [136, 144], drill: [138, 146], phonk: [124, 136], baile_funk: [126, 132],
   amapiano: [110, 115], cumbia: [90, 100], disco: [116, 124], uk_garage: [130, 134], swing: [140, 168], epic: [88, 108], march: [112, 126], bossa: [120, 136],
   pop: [100, 122], rnb: [68, 80], motown: [100, 120], gospel: [88, 104], classical: [72, 100],
-  synthwave: [100, 118], gfunk: [88, 98], future_bass: [140, 152], deep_house: [118, 124], trance: [134, 140], nu_disco: [112, 122] };
+  synthwave: [100, 118], gfunk: [88, 98], future_bass: [140, 152], deep_house: [118, 124], trance: [134, 140], nu_disco: [112, 122],
+  trailer: [100, 112] };
 
 // Sounds retired in the commercial pass (owner, 2026-09-30) play as the nearest one
 // still offered, so a saved or locked look keeps working.
@@ -726,17 +702,47 @@ export const SOUND_ALIASES = {
   melody: { moonlight: "ode_to_joy", gymnopedie: "entertainer", fur_elise: "eine_kleine", greensleeves: "spring" },
 };
 
+// A trailer, not a game (owner, 2026-11-18: "funny and cheerful but not always professional",
+// "like I'm playing mario kart", "I need like trailer commercial professional"; 2026-11-19, of
+// building a trailer's sounds, dropping the jazz and evening the number sound: "best suggestion
+// works"; DESIGN-LAW 150). A shuffle that lands on a sound in `gone` plays one drawn from `to`
+// (engine.js standIns, on a stream of its own): every look number that drew anything else keeps
+// it, and the stand-ins share out as set here, not as the options happen to sit in the list.
+// Every sound in `gone` is still offered by hand, and a holiday ad keeps its own tunes and
+// opening sound.
+const JAZZ = TRACKS.filter(t => t.kind === "jazz").map(t => t.id);
+export const STAND_INS = {
+  // the circus march, and the groove with a referee's whistle on the bar
+  sound_kit: { gone: ["march", "baile_funk"], to: { trailer: 1 } },
+  // the anvil, the whip crack, the gong, the 90s orchestra hit
+  hit: { gone: ["anvil", "whip", "gong", "orchestra"], to: { braam: 2, impact: 1, bass_drop: 1 } },
+  // the bells, the mallets, the whistle, the cork, "shave and a haircut": a game's pickup sounds
+  number_sfx: { gone: ["pop", "chime", "register", "shave_haircut", "bells", "triangle", "glock_run", "harp_gliss", "whistle"],
+    to: { tick_boom: 2, whoosh_boom: 2, ticks: 1 } },
+  // every famous tune: over a groove they were the cartoon half of the music
+  melody: { gone: OPTIONS.melody.filter(m => m !== "none"), to: { none: 1 } },
+  // the mallets, for a tune picked by hand
+  lead: { gone: ["marimba", "xylophone", "glock", "kalimba"], to: { piano: 1, epiano: 1, harp: 1 } },
+  // every opening sound: the air horn, the siren and the whistle were a race starting
+  accent: { gone: OPTIONS.accent.filter(a => a !== "none"), to: { none: 1 } },
+  // the big-band jazz, and the retired pieces that play it: the music made here, two times in
+  // three a trailer's bed (standIns), else the look's own groove
+  track: { gone: TRACKS.filter(t => JAZZ.includes(t.id) || JAZZ.includes(SOUND_ALIASES.track[t.id])).map(t => t.id), to: { none: 1 },
+    kit: { trailer: 2, own: 1 } },
+};
+
 // The panel's names for the sounds; any other shows as its own words ("reggaeton": Reggaeton).
 export const SOUND_NAMES = {
   sound_kit: { uplift: "Uplifting pop", house: "Deep house", hiphop: "Hip-hop", lofi: "Lo-fi", minimal: "Minimal pulse", cinematic: "Cinematic",
     jersey_club: "Jersey club", baile_funk: "Baile funk", uk_garage: "UK garage", swing: "Swing jazz", epic: "Epic drums", march: "March / circus",
     bossa: "Bossa nova", pop: "Radio pop", rnb: "R&B slow jam", motown: "Motown soul", classical: "Classical (no drums)",
     synthwave: "Synthwave (80s)", gfunk: "G-funk (West Coast)", future_bass: "Future bass", deep_house: "Deep house, synth bass",
-    nu_disco: "Nu-disco", none: "No music" },
-  hit: { impact: "Low hit", riser: "Swell into a hit", cymbal: "Reverse cymbal", bass_drop: "Sub drop", swell: "Cymbal swell", orchestra: "Orchestra hit" },
+    nu_disco: "Nu-disco", none: "No music", trailer: "Trailer: pulse, drums, low strings" },
+  hit: { impact: "Low hit", riser: "Swell into a hit", cymbal: "Reverse cymbal", bass_drop: "Sub drop", swell: "Cymbal swell", orchestra: "Orchestra hit", braam: "Braam (trailer brass)" },
   number_sfx: { pop: "Pop", confetti: "Party popper and confetti", chime: "Two bells", register: "Cash register", whoosh_ding: "Whoosh and bell", ticks: "Soft typing",
     shave_haircut: "Shave and a haircut", cash_counter: "Bill counter", text_ding: "Message ding", phone_buzz: "Phone buzz",
-    bells: "Tubular bell", glock_run: "Glockenspiel run", harp_gliss: "Harp sweep", whistle: "Referee whistle" },
+    bells: "Tubular bell", glock_run: "Glockenspiel run", harp_gliss: "Harp sweep", whistle: "Referee whistle",
+    tick_boom: "Clock ticks and a low hit", whoosh_boom: "Whoosh into a low hit" },
   melody: { none: "None", mountain_king: "In the Hall of the Mountain King (Grieg)", fur_elise: "Für Elise (Beethoven)", beethoven5: "Symphony No. 5 (Beethoven)",
     ode_to_joy: "Ode to Joy (Beethoven)", saints: "When the Saints Go Marching In", ballgame: "Take Me Out to the Ball Game (1908)",
     cucaracha: "La Cucaracha", toccata: "Toccata in D minor, Bach (Halloween)", turkish_march: "Turkish March (Mozart)", eine_kleine: "Eine kleine Nachtmusik (Mozart)",
@@ -767,7 +773,7 @@ export const DEFAULT_STYLE = {
   number_scale: 1, arrangement: "lineup", entry: "fly_spin", end_face: "back", front_glimpse: "spin", pose: "flat", phone_finish: "standard",
   phone_idle: "spin", phone_scale: 1, background: "radial", palette: "sand", scrim: -1, camera: "push_in", shake: 1,
   flash: true, shine: true, rgb_hit: false, speed_lines: false, sparkles: false, grain: true,
-  sound_kit: "uplift", bpm: 112, hit: "impact", number_sfx: "whoosh_ding", music_volume: 0.5, glare: 1,
+  sound_kit: "uplift", bpm: 112, hit: "impact", number_sfx: "whoosh_boom", music_volume: 0.5, glare: 1,
   melody: "none", lead: "piano", accent: "none", season: "none", tone: "studio", track: "none",
   overlay: "none", bigword: "CASH", hook: "hook_line", hook_text: "",
   vibe: "none", board: "none", decor: [], urgency: "none", cta: "", lang_mode: "mix", lang: "en", area: "",

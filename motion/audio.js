@@ -13,9 +13,10 @@
 //  - every ad is levelled to the same loudness (-16 LUFS, peaks under -1 dBFS), so no
 //    look is louder than the next and nothing clips.
 // And a trailer, not a game (owner, 2026-11-18: "like I'm playing mario kart ... I need like
-// trailer commercial professional"; DESIGN-LAW 147): no bell runs on the shine or the end
+// trailer commercial professional"; DESIGN-LAW 150): no bell runs on the shine or the end
 // card, no cork pop on the sticker, and the horns, whistles, anvils, mallets and famous tunes
-// only where someone picks them (catalog.js WEIGHTS).
+// only where someone picks them (catalog.js STAND_INS). Its own sounds (2026-11-19): the
+// braam, two number sounds that land on a low hit, and a trailer's bed (music.js).
 // Real instruments (music.js, 2026-10-01) play in that same bed: thirteen grooves of
 // their own (reggaeton to bossa nova, and eleven more offered by hand since 2026-10-02)
 // beside the six scored kits, a famous public-domain tune over any of them, and recorded
@@ -258,6 +259,8 @@ function compose(ad, ctx, voDur, rec) {
       [root, root + 12, root + (minor ? 15 : 16), root + 19, root + 24].forEach(m => S.note(hit, "organ", m, .45, .3));
       boom(hit, .4); break;
     }
+    // a trailer's braam (2026-11-19, DESIGN-LAW 150): a swell into a low brass blast over the low hit
+    case "braam": S.swell(hit - 1.1, hit, .16); S.braam(hit, .5, 36 + A.keyPc); boom(hit, .7); break;
     default: S.swish(tl.text - .45, .5, true, -.3, .11); boom(hit, .9);
   }
   if (ad.lines.length > 1) S.thump(tl.lines[1] + .3, .12, 0);
@@ -269,10 +272,15 @@ function compose(ad, ctx, voDur, rec) {
   switch (st.number_in === "type" && numKind !== "confetti" ? "ticks" : numKind) {
     case "ticks": { const k = Math.min(n, 12), step = Math.min(.06, .7 / k);
       for (let i = 0; i < k; i++) S.key(tl.number + i * step, .09 * (.8 + .4 * r()));
-      S.pop(tl.number + k * step + .02, .13, bell1); break; }
+      S.thump(tl.number + k * step + .02, .3, 0); break; }        // it ended on a cork pop until 2026-11-19
     case "register": S.register(tl.number + .05, .32, bell1); break;
     case "chime": S.bell(tl.number + .05, bell1, .15); S.bell(tl.number + .15, bell2, .13); break;
     case "whoosh_ding": S.swish(tl.number - .25, .35, true, .3, .09); S.bell(tl.number + .12, bell2, .15); break;
+    // a trailer's (2026-11-19, DESIGN-LAW 150): a clock's three dry ticks into the number, then a
+    // low hit on it; or a whoosh rising into the low hit. The music steps back under the hit,
+    // which sits under the headline's (measured: the headline's -8 to -9 dB, these -15).
+    case "tick_boom": [-.42, -.28, -.14].forEach((d, i) => { S.key(tl.number + d, .1 + i * .02); S.tock(tl.number + d, .035 + i * .01, .15); }); boom(tl.number, .24); break;
+    case "whoosh_boom": S.swish(tl.number - .42, .45, true, .2, .11); boom(tl.number + .02, .24); break;
     // played and recorded (music.js), in the bed's key
     case "shave_haircut": {                          // "shave and a haircut... two bits"
       const inst = st.melody !== "none" && st.lead && st.lead !== "synth" ? st.lead : "xylophone", top = (LEADS[inst] || LEADS.xylophone).center;
@@ -299,7 +307,7 @@ function compose(ad, ctx, voDur, rec) {
     }
     default: S.pop(tl.number + .05, .15, bell1);
   }
-  // Trailer, not a game (DESIGN-LAW 147, 2026-11-18): the phones' shine is silent (it was a
+  // Trailer, not a game (DESIGN-LAW 150, 2026-11-18): the phones' shine is silent (it was a
   // rising four-bell run, a game's power-up), the sticker lands with a soft thump (it was a cork
   // pop just after the headline hit), and the end card comes in on a soft whoosh (it was two
   // bells rising a fifth)
@@ -550,6 +558,21 @@ function synth(ctx, noise, r, bus, rec) {
       const kn = osc("sine", t, .2, 260); kn.frequency.exponentialRampToValueAtTime(170, T0(t) + .1);
       const gk = ctx.createGain(); env(gk, t, .002, gain * .3, .14); kn.connect(gk); out(gk, 0, .3);
       const n = noiseSrc(t, .12), gn = ctx.createGain(); env(gn, t, .002, gain * .3, .07); n.connect(filt("lowpass", 2500)).connect(gn); out(gn, 0, .4);
+    },
+    /** A trailer's braam: a low brass blast, the root, its fifth and its octave on detuned
+     *  sawtooths, driven, the filter flaring open and closing as it dies (under 1.5 kHz). */
+    braam(t, gain, root) {
+      if (t < -.02) return;
+      t = T0(t);
+      const pre = ctx.createGain(), ws = ctx.createWaveShaper(), lp = filt("lowpass", 180, 2.2), g = ctx.createGain();
+      pre.gain.value = .5; ws.curve = curve(2.4);
+      lp.frequency.setValueAtTime(180, t); lp.frequency.exponentialRampToValueAtTime(1500, t + .07); lp.frequency.exponentialRampToValueAtTime(300, t + 1.7);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + .035); g.gain.exponentialRampToValueAtTime(gain * .5, t + .35);
+      g.gain.exponentialRampToValueAtTime(gain * .18, t + 1.1); g.gain.exponentialRampToValueAtTime(.0003, t + 2.2); g.gain.linearRampToValueAtTime(0, t + 2.25);
+      for (const [iv, lvl] of [[0, .5], [7, .3], [12, .35]]) for (const c of [-9, 0, 9]) {
+        const o = osc("sawtooth", t, 2.3, hz(root + iv)), og = ctx.createGain(); o.detune.value = c; og.gain.value = lvl / 3; o.connect(og).connect(pre);
+      }
+      pre.connect(ws).connect(lp).connect(g); out(g, 0, .45);
     },
     subDrop(t, gain) {
       const o = osc("sine", t, 1.6, 96); o.frequency.exponentialRampToValueAtTime(36, t + .9);

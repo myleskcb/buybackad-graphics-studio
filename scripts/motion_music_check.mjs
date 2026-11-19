@@ -18,7 +18,8 @@
       that holiday's tunes, and both render.
    4. What is offered by hand: each groove added on 2026-10-02 and -03, a tune on
       each lead added then (and the warm synth lead), and each mix tone, render.
-   5. 30 shuffled looks render (about two in three draw a recording).
+   5. 30 shuffled looks render (about one in seven draws a recording since 2026-11-19, when the
+      jazz left the shuffle: part 7).
    6. No sad music, and confetti is heard (owner, 2026-10-11: a confetti ad played the
       Moonlight Sonata, with a pop over its number that sounded like a voice memo starting):
       1000 shuffles never play a retired piece (catalog.js SOUND_ALIASES, track and melody)
@@ -27,11 +28,15 @@
       confetti look renders with the popper heard over its number (its soundtrack there
       unlike the same look's with the plain pop).
    7. A trailer, not a game (owner, 2026-11-18: "like I'm playing mario kart ... I need like
-      trailer commercial professional"; DESIGN-LAW 147): 1000 shuffles and 300 full ads play no
+      trailer commercial professional"; DESIGN-LAW 150): 1000 shuffles and 300 full ads play no
       opening sound, no anvil, whip, gong or orchestra hit, no bell, mallet, whistle or cork
       number sound (the popper only under confetti), no famous tune, no mallet lead and not
-      the circus march or the whistle groove; the maker still offers every one of them by
-      hand; and the phones' shine adds nothing to a soundtrack (it was a rising bell run).
+      the circus march or the whistle groove, and no big-band jazz (2026-11-19: "best
+      suggestion works"); at least a quarter play the trailer's bed; the maker still offers
+      every one of them by hand, and the trailer's own sounds; the phones' shine adds nothing
+      to a soundtrack (it was a rising bell run); and the trailer's bed, the braam and the
+      two trailer number sounds render levelled, each number hit at least 3 dB under the
+      headline's (measured 2026-11-19: the headline's -9, the number's -15).
 
    usage: npx http-server -p 8899 -s .   (or python3 -m http.server 8899)
           CHROME=/path/to/chrome node scripts/motion_music_check.mjs
@@ -289,27 +294,47 @@ const GAME = {
       if (st.number_sfx === 'confetti' && st.overlay !== 'confetti') out.push(`${s}: popper without confetti`);
       return out;
     };
+    GAME.track = C.STAND_INS.track.gone;
     const hits = [];
-    for (let s = 1; s <= 1000; s++) hits.push(...game(look(s), s));
+    let trailer = 0;
+    for (let s = 1; s <= 1000; s++) { const st = look(s); hits.push(...game(st, s)); if (st.sound_kit === 'trailer' && st.track === 'none') trailer++; }
     for (let s = 1; s <= 300; s++) hits.push(...game(F.fullStyle(E.randomize({ ...C.DEFAULT_STYLE, number: '(323) 555-0199' }, s, new Set(), [], true), s, [], {}, []), `full ${s}`));
     // the shine, heard alone: no music, no recording, no voice
     const st = look(921, { sound_kit: 'none', track: 'none', voice: 'off', shine: true, sparkles: true }, ['sound_kit', 'track', 'voice', 'shine', 'sparkles']);
     const on = await sound(st), off = await sound({ ...st, shine: false, sparkles: false });
-    return { hits, shine: on.buf && off.buf ? same(on.buf, off.buf) : null };
+    // the trailer's own: its bed under the braam, and each trailer number sound, on a ten-second ad
+    const loud = (buf, t0, t1) => { const d = buf.getChannelData(0), e = buf.getChannelData(1), w = 2205; let best = 0;
+      for (let i = Math.max(0, Math.round(t0 * 44100)); i + w < Math.min(d.length, Math.round(t1 * 44100)); i += 441) { let q = 0; for (let j = 0; j < w; j++) q += (d[i + j] ** 2 + e[i + j] ** 2) / 2; best = Math.max(best, q / w); }
+      return 10 * Math.log10(best + 1e-12); };
+    const made = [];
+    for (const number_sfx of ['tick_boom', 'whoosh_boom']) {
+      const over = { sound_kit: 'trailer', track: 'none', voice: 'off', hit: 'braam', number_sfx, number_in: 'pop', overlay: 'none', duration: 10 };
+      const t = look(931, over, Object.keys(over)), m = await sound(t);
+      made.push({ name: `trailer bed, braam, ${number_sfx}`, m: m.error ? m : { lufs: m.lufs, peak: m.peak },
+        hit: m.buf ? loud(m.buf, m.hit - .05, m.hit + .45) : null, num: m.buf ? loud(m.buf, Math.max(m.hit + .5, m.number - .5), m.number + .45) : null });
+    }
+    return { hits, trailer, made, shine: on.buf && off.buf ? same(on.buf, off.buf) : null };
   }, GAME);
   console.log('7. a trailer, not a game');
-  console.log(`  1000 shuffles and 300 full ads: ${res.hits.length} game-like sounds; the shine adds ${res.shine == null ? '?' : res.shine.toExponential(1)} to a soundtrack`);
+  console.log(`  1000 shuffles and 300 full ads: ${res.hits.length} game-like sounds; ${res.trailer} of the 1000 play the trailer's bed; the shine adds ${res.shine == null ? '?' : res.shine.toExponential(1)} to a soundtrack`);
   expect(!res.hits.length, `shuffles play game-like sounds: ${res.hits.slice(0, 6).join('; ')}`);
+  expect(res.trailer >= 250, `only ${res.trailer} of 1000 shuffles play the trailer's bed`);
+  for (const r of res.made) {
+    console.log('  ' + judge(r.name, r.m) + (r.hit != null ? `; headline ${r.hit.toFixed(1)} dB, number ${r.num.toFixed(1)} dB` : ''));
+    expect(r.hit != null && r.num < r.hit - 3, `${r.name}: the number's hit (${r.num}) is not 3 dB under the headline's (${r.hit})`);
+  }
   expect(res.shine != null && res.shine < 1e-3, `the shine is heard (the soundtracks with and without it ${res.shine} apart)`);
   expect(!errors.length, `the trailer page logged errors: ${errors.join(' | ')}`);
   const p = await browser.newPage(), perr = [];
   p.on('pageerror', e => perr.push(String(e).slice(0, 300)));
   await p.goto(BASE + 'motion/index.html', { waitUntil: 'load', timeout: 120000 });
   await p.waitForFunction(() => document.querySelector('#loading') && document.querySelector('#loading').hidden, { timeout: 120000 });
-  const offered = await p.evaluate(keys => Object.fromEntries(keys.map(k => [k, [...document.querySelectorAll(`select[data-key=${k}] option`)].map(o => o.value)])), [...Object.keys(GAME), 'melody']);
+  const offered = await p.evaluate(keys => Object.fromEntries(keys.map(k => [k, [...document.querySelectorAll(`select[data-key=${k}] option`)].map(o => o.value)])), [...Object.keys(GAME), 'melody', 'track']);
   await p.close();
-  const want = { ...GAME, accent: ['air_horn', 'siren', 'whistle', 'vibraslap'], number_sfx: ['chime', 'glock_run', 'shave_haircut', 'whistle'],
-    melody: ['mountain_king', 'cucaracha', 'bumblebee', 'entertainer'] };
+  const { TRACKS } = await import('../motion/catalog.js');
+  const want = { ...GAME, accent: ['air_horn', 'siren', 'whistle', 'vibraslap'], number_sfx: ['chime', 'glock_run', 'shave_haircut', 'whistle', 'tick_boom', 'whoosh_boom'],
+    melody: ['mountain_king', 'cucaracha', 'bumblebee', 'entertainer'], hit: [...GAME.hit, 'braam'], sound_kit: [...GAME.sound_kit, 'trailer'],
+    track: TRACKS.filter(t => t.kind === 'jazz').map(t => t.id) };
   const missing = Object.entries(want).flatMap(([k, vs]) => vs.filter(v => !offered[k] || !offered[k].includes(v)).map(v => `${k} ${v}`));
   console.log(`  the maker offers them by hand: ${missing.length ? 'missing ' + missing.join(', ') : 'all of them'}`);
   expect(!missing.length, `the maker no longer offers: ${missing.join(', ')}`);

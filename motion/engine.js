@@ -3,7 +3,7 @@
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
   NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES, THEME_GROUNDS, SOUND_ALIASES, LATE_OPTIONS, KEPT_OPTIONS, KIT_BPM,
-  SEASON_TUNES, SEASON_ACCENTS, SEASON_TRACKS, CLASSICAL_TUNES, TRACKS, TYPE_VOICES, VOICE_OF_FONT } from "./catalog.js";
+  SEASON_TUNES, SEASON_ACCENTS, SEASON_TRACKS, CLASSICAL_TUNES, TRACKS, TYPE_VOICES, VOICE_OF_FONT, STAND_INS } from "./catalog.js";
 import { AUDIENCES, GENERAL } from "./audiences.js";
 import { pickVoice, voiceFits } from "./voices.js";
 import { placeAccents, drawAccents, timeAccents } from "./accents.js";
@@ -124,7 +124,23 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   voiceInto(out, r, locked);
   if (!locked.has("phones") && phonesPool.length > 5) out.phones = pickPhones(phonesPool, r.pick([3, 3, 5, 5, 4]), r);
   lotInto(out, rng(seed * 3121 + 7), locked);
+  standIns(out, rng(seed * 4517 + 61), locked);
   return harmonise(out, locked);
+}
+
+/** A trailer, not a game (catalog.js STAND_INS, DESIGN-LAW 150): a sound a shuffle may no
+ *  longer play gives way to a stand-in, drawn from a stream of its own (every axis takes its
+ *  draws whether or not it needs them, so one axis never moves another's). After the audience
+ *  and the vibe, which may set the music. A holiday's own tunes and opening sound stay. */
+function standIns(out, r, locked) {
+  const own = { melody: SEASON_TUNES[out.season] || [], accent: SEASON_ACCENTS[out.season] || [] };
+  for (const [k, S] of Object.entries(STAND_INS)) {
+    const pick = r.weighted(Object.keys(S.to), S.to), kit = S.kit ? r.weighted(Object.keys(S.kit), S.kit) : null;
+    if (locked.has(k) || !S.gone.includes(out[k]) || (own[k] || []).includes(out[k])) continue;
+    out[k] = pick;
+    if (kit && kit !== "own" && !locked.has("sound_kit") && out.sound_kit !== "none") out.sound_kit = kit;
+  }
+  return out;
 }
 
 /** The weights a late sound option is drawn with. An ad set to a holiday by hand draws
@@ -411,7 +427,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   // confetti"): a party popper as the number lands, when the confetti starts; never without it
   if (!locked.has("number_sfx")) {
     if (st.overlay === "confetti") st.number_sfx = "confetti";
-    else if (st.number_sfx === "confetti") st.number_sfx = st.number_in === "type" ? "ticks" : "whoosh_ding";   // a cork pop is a game's (DESIGN-LAW 147)
+    else if (st.number_sfx === "confetti") st.number_sfx = st.number_in === "type" ? "ticks" : "whoosh_boom";   // a cork pop is a game's (DESIGN-LAW 150)
   }
   if (!["hook_line", "word_beat", "strike_out"].includes(st.hook) && ["typewriter", "scramble", "drop_letters", "spin_letters"].includes(st.text_in) && !locked.has("text_in"))
     st.text_in = ["slide", "skew_slide", "slam", "wipe"][st.seed % 4];
@@ -485,7 +501,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (!locked.has("accent") && st.accent === "sleigh_bells" && st.season !== "christmas") st.accent = "none";
   if (st.sound_kit === "none" && !locked.has("melody")) st.melody = "none";
   if (["bumblebee", "turkish_march", "fur_elise", "entertainer", "mountain_king"].includes(st.melody) && st.lead === "organ" && !locked.has("lead"))
-    st.lead = ["piano", "harp", "epiano", "harpsichord"][st.seed % 4];   // no mallets (DESIGN-LAW 147)
+    st.lead = ["piano", "harp", "epiano", "harpsichord"][st.seed % 4];   // no mallets (DESIGN-LAW 150)
   // a take that no longer fits (a shorter ad, another language, a bank that arrived late) is picked again, the same way every time
   if (!voiceFits(st)) pickVoice(st, rng(st.seed * 53 + 7), locked);
   return st;

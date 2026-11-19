@@ -5603,54 +5603,90 @@ a towns line or a website.
 
 Not done here: OPEN-ITEMS §BC.
 
-## 147. A video ad sounds like a trailer, not a game
+## 150. A video ad sounds like a trailer, not a game
 
-Added 2026-11-18. The owner, of the video ads' music and sound effects:
-"funny and cheerful but not always professional ... like I'm playing mario
-kart ... I need like trailer commercial professional". Drawn over 2000
-shuffles before this, 98.8% of looks played at least one game-like sound,
-3.1 on average: an opening air horn, siren, referee's whistle or vibraslap
-(51%), a bell, mallet, whistle or cork number sound (72%), a rising bell run
-when the phones shine (68%), two bells rising a fifth on the end card (57%),
-an anvil, whip, gong or orchestra hit (36%), and a famous tune played by the
-maker (27%: La Cucaracha and the Flight of the Bumblebee as often as Mozart,
-often on a xylophone or a kalimba).
+Added 2026-11-18, built out 2026-11-19. The owner, of the video ads' music
+and sound effects: "funny and cheerful but not always professional ... like
+I'm playing mario kart ... I need like trailer commercial professional".
+Then, offered a trailer's own sounds, the jazz out of the shuffle and the
+number sound evened: "1-3 best suggestion works", "I trust you".
 
-**By hand only** (`byHand` in `motion/catalog.js` WEIGHTS; every one still
-in the maker's menus): every opening sound; the anvil, whip, gong and
-orchestra hits; the pop, two bells, cash register, "shave and a haircut",
-tubular bell, triangle, glockenspiel run, harp sweep and whistle number
-sounds; every famous tune; the marimba, xylophone, glockenspiel and kalimba
-leads; the circus march and the groove with a whistle on the bar. A holiday
-ad still plays its own tunes and opening sound, and the drum-free classical
-groove its classic.
+Drawn over 2000 shuffles before this, 98.8% of looks played at least one
+game-like sound, 3.1 on average: an opening air horn, siren, referee's
+whistle or vibraslap (51%), a bell, mallet, whistle or cork number sound
+(72%), a rising bell run when the phones shine (68%), two bells rising a
+fifth on the end card (57%), an anvil, whip, gong or orchestra hit (36%), a
+famous tune played by the maker (27%: La Cucaracha and the Flight of the
+Bumblebee as often as Mozart, often on a xylophone or a kalimba). Half
+played the Air Force and Navy big-band jazz (51%).
 
-**A look number keeps what it drew.** A weighted draw reads its options in
-order, so each run of options taken out of the shuffle gives its share to
-the options either side of it; only the looks that drew a game sound move,
-to a neighbour. Against the commit before, over 2000 shuffles: the hit moved
-on 720 (exactly the 36% that drew a cartoon hit), the real recording on
-none.
+**Stand-ins, not weights** (`STAND_INS` in `motion/catalog.js`, `standIns`
+in `motion/engine.js`). The catalog's weights are as they were, so every
+look number draws what it always drew; one that lands on a sound a shuffle
+may no longer play takes a stand-in, drawn from a stream of its own. Every
+sound below is still in the maker's menus, and a holiday ad keeps its own
+tunes and opening sound.
 
-**No bells on the shine, the sticker or the end card.** The phones' shine is silent (it was a
-rising four-bell run), the full ad's sticker lands on a soft thump (it was a
-cork pop 0.12 s after the headline hit), the end card comes in on a soft
-whoosh (it was two bells), and the default number sound, and the one a look
-falls back to when its confetti is taken off, is the whoosh and bell (it was
-the pop).
+| Out of the shuffle | Stand-in |
+|---|---|
+| every opening sound | none |
+| the anvil, whip, gong and orchestra hits | the braam 2, the low hit 1, the sub drop 1 |
+| the pop, two bells, register, "shave and a haircut", tubular bell, triangle, glockenspiel run, harp sweep, whistle | clock ticks and a low hit 2, whoosh into a low hit 2, soft typing 1 |
+| every famous tune | none |
+| the marimba, xylophone, glockenspiel, kalimba (a tune by hand) | piano, electric piano, harp |
+| the circus march, the groove with a whistle on the bar | the trailer's bed |
+| the big-band jazz, and the retired pieces that play it | the music made here: the trailer's bed two times in three, else the look's own |
 
-**After**, over the same 2000 shuffles: 95.1% play no game-like sound, and
-the full ad 100% of 2000. The 4.9% left are the confetti looks, whose party
-popper and falling bells rule 129 asked for. The number sound is now the
-bill counter (40%), the whoosh and bell (37%) or soft typing (18%); the hit
-the timpani (22%), a cymbal swell or crash (19% each), the sub drop (13%),
-the low hit, the reverse cymbal or the riser (8 to 9% each).
+A first pass gave each removed sound's share to its neighbours in the list,
+which kept the draw but not the balance (the bill counter rose to 40% of
+number sounds); the stand-ins put each sound where it is wanted.
+
+**A trailer's own sounds** (`motion/audio.js`, `motion/music.js`), each by
+hand too:
+- **The braam** (headline hit): a swell into a low brass blast, the key's
+  root, fifth and octave between C2 and B2 on detuned sawtooths, driven, its
+  filter flaring to 1.5 kHz and closing as it dies, over the low hit.
+- **Clock ticks and a low hit**, **whoosh into a low hit** (number sounds):
+  three dry ticks, or a rising whoosh, into the low hit on the number; the
+  music steps back under it. Soft typing now ends on a thump, not a pop.
+- **The trailer's bed** (music, 100 to 112 bpm, minor): until the headline
+  hit a low drone, strings and a clock ticking under the closed filter; on
+  the hit, sixteenths on a synth bass accented three, three, two, bass drum
+  and timpani on the bar line and the "and" of three, a tom on the "and" of
+  two, a tom run every second bar, a reverse cymbal into every fourth.
+
+**No bells on the shine, the sticker or the end card.** The phones' shine is
+silent (it was a rising four-bell run), the full ad's sticker lands on a
+soft thump (a cork pop), the end card comes in on a soft whoosh (two bells),
+and the default number sound is the whoosh into a low hit.
+
+**Measured** (2026-11-19, a ten-second look, levelled to -16 LUFS; the
+loudest 50 ms): the headline hits -6 to -9 dB (the braam -8.3, the low hit
+-7.9), the trailer number hits -15, the whoosh and bell -19. After the hit
+the trailer's bed against the house groove: sub (under 120 Hz) +2.2 dB,
+low-mid -0.6, mid -1.0, high -0.2, so a phone, which plays little under
+120 Hz, hears it as full as the rest. A first cut was 3.7 dB lower in the
+mids and 3.5 dB heavier in the sub; the drone and kick came down and the
+strings up. Before the hit it sits about 6 dB under the house groove's
+opening: a trailer's quiet before the hit.
+
+**After**, over the same 2000 shuffles: 95.1% play no game-like sound and no
+jazz, and the full ad 100% of 2000. The 4.9% left are the confetti looks,
+whose popper and falling bells rule 129 asked for. The trailer's bed plays
+in 36% of shuffles, the music made here in 86%, a recording (Morning Mood,
+the New World finale, Vivaldi's Winter, Mozart's 40th) in 14%. Headline
+hits: the low hit 19%, the sub drop 18%, the braam 17%, the rest 8 to 10%
+each. Number sounds: soft typing 28%, the two trailer sounds 27% each, the
+whoosh and bell 7%, the bill counter 6%. Against the commit before any of
+this (9dddf354), no look moved off a sound a shuffle still plays.
 
 **Checked** by `scripts/motion_music_check.mjs` part 7: 1000 shuffles and
-300 full ads play none of the sounds above, the maker still offers each of
-them, and the shine adds nothing to a soundtrack.
+300 full ads play none of the sounds above and no jazz, at least a quarter
+play the trailer's bed, the maker offers every one of them and the trailer's
+own, the shine adds nothing, and the trailer's bed, the braam and both
+trailer number sounds render levelled with the number's hit at least 3 dB
+under the headline's.
 
-Not done here: sounds made for a trailer (a braam, a low tick and boom for
-the number, a trailer bed with a pulse, drums and risers), and whether the
-Air Force and Navy big-band jazz (51% of shuffles, there by the owner's
-"modern jazz and funk first" of 2026-10-04) stays the main music.
+Not done here: every new sound was built and balanced by measure, not by
+ear; the owner hears the first ones. The pre-hit quiet and the second hit on
+the number are the two choices most likely to want a change.

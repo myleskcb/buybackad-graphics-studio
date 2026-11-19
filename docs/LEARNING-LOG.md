@@ -5171,31 +5171,40 @@ RESUME HERE:
   1. §BC 2 to 4: which photo generation goes next, the full ad in Easy Mode's
      picker, and whether iPhones LA's weekly batch moves to FullAd.
 
-## 2026-11-18 — the video ads sound like a trailer, not a game (DESIGN-LAW 147; claude/video-music-sfx-audit-3691d1)
+## 2026-11-18 and -19 — the video ads sound like a trailer, not a game (DESIGN-LAW 150; claude/video-music-sfx-audit-3691d1)
 
 Asked: audit the music and sound effects on the videos: "funny and cheerful
 but not always professional", "like I'm playing mario kart", "I need like
-trailer commercial professional". Then (through the open-prompts session):
-the shuffle's odds, the jazz kept, checks, a commit, no push.
+trailer commercial professional". Then the shuffle's odds, the jazz kept
+(through the open-prompts session); then "1-3 best suggestion works": a
+trailer's own sounds, the jazz out, the number sound evened.
 
-Done: the game sounds by hand only, the shine silent, the sticker and the end
-card without bells. 98.8% of shuffles played a game-like sound; 4.9% do now,
-all of them confetti looks (rule 129).
+Done: stand-ins for every game sound and the jazz; the braam, two number
+sounds on a low hit, a trailer's bed; no bells on the shine, the sticker or
+the end card. 98.8% of shuffles played a game-like sound; 4.9% do now, all
+confetti looks (rule 129). The trailer's bed plays in 36%.
 
 Found:
   - Zeroing an option's weight reshuffles its whole axis: the hit moved on
-    71% of looks though 36% had a cartoon hit. A weighted draw reads its
-    options in order, so give a removed option's share to its neighbours and
-    every other look keeps what it drew (`byHand`).
+    71% of looks though 36% had a cartoon hit. Handing a removed option's
+    share to its neighbours keeps the draw but skews the balance (the bill
+    counter rose to 40%). A stand-in drawn on a stream of its own keeps both.
   - The game feel was mostly the effects, not the music: rising bells (the
     shine, the end card, the number) on most looks, before any tune.
-  - Rule numbers are claimed on other branches before they reach `main`:
-    grep every branch and worktree for the next number, then again before
-    the commit (138 to 146 were taken while this was written).
+  - A trailer bed balanced on studio terms is a sub bed on a phone: the
+    first cut had 3.5 dB more under 120 Hz and 3.7 dB less in the mids than
+    the house groove. Measure the bands against a bed already approved.
+  - A second low hit on the number at the headline's level reads as two
+    headlines: measured -11.5 against -9.5, set to -15.
+  - Rule numbers and open-item letters are claimed on other branches before
+    they reach `main`: grep every branch and worktree, then again before the
+    commit (138 to 146 were taken while this was written; so was port 8899,
+    by another session's server, and 8901, by CapCut).
 
 Checked: in the browser pane, 1000 shuffles and 300 full ads with no game
-sound, the shine adding 1.5e-7 to a soundtrack, 30 shuffled soundtracks and
-six full ads at -16 LUFS (within 0.11) and peaks at or under -1 dBFS, every
-game sound by hand still played, the maker loading with no error and
-offering all of them; audience_check. Not run: motion_music_check and
-motion_sound_check (no puppeteer-core here), full_ad_check (no playwright).
+sound and no jazz; the shine adding 1.8e-7; 30 shuffled soundtracks, eight
+trailer beds, six full ads and every sound by hand at -16 LUFS (within 0.15)
+with peaks at or under -1 dBFS; the bands and levels above; the maker
+loading with no error and offering every sound; audience_check. Not run:
+motion_music_check and motion_sound_check (no puppeteer-core here),
+full_ad_check (no playwright).
