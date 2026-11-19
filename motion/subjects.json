@@ -506,6 +506,17 @@
      }
     ]
    ],
+   "variants": [
+    {
+     "match": "macbook-neo",
+     "heads": [
+      "SELL YOUR MACBOOK NEO",
+      "WE BUY MACBOOK NEO",
+      "CASH FOR YOUR MACBOOK NEO"
+     ],
+     "models": "MacBook Neo, every colour"
+    }
+   ],
    "pool": [
     {
      "set": [
@@ -686,27 +697,6 @@
     {
      "set": [
       {
-       "file": "qs-macbook-neo-13--blush",
-       "k": 1
-      },
-      {
-       "file": "qs-macbook-neo-13--citrus",
-       "k": 0.92
-      },
-      {
-       "file": "qs-macbook-neo-13--indigo",
-       "k": 0.92
-      },
-      {
-       "file": "qs-macbook-neo-13--silver",
-       "k": 0.92
-      }
-     ],
-     "w": 2.4
-    },
-    {
-     "set": [
-      {
        "file": "qs-macbook-pro-16--silver",
        "k": 1
       },
@@ -791,42 +781,6 @@
       }
      ],
      "w": 1.2
-    },
-    {
-     "set": [
-      {
-       "file": "qs-macbook-neo-13--blush",
-       "k": 1
-      }
-     ],
-     "w": 0.9
-    },
-    {
-     "set": [
-      {
-       "file": "qs-macbook-neo-13--citrus",
-       "k": 1
-      }
-     ],
-     "w": 0.9
-    },
-    {
-     "set": [
-      {
-       "file": "qs-macbook-neo-13--indigo",
-       "k": 1
-      }
-     ],
-     "w": 0.9
-    },
-    {
-     "set": [
-      {
-       "file": "qs-macbook-neo-13--silver",
-       "k": 1
-      }
-     ],
-     "w": 0.9
     },
     {
      "set": [
@@ -967,6 +921,63 @@
       }
      ],
      "w": 0.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-neo-13--blush",
+       "k": 1
+      },
+      {
+       "file": "qs-macbook-neo-13--citrus",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-neo-13--indigo",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-neo-13--silver",
+       "k": 0.92
+      }
+     ],
+     "w": 1.4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-neo-13--blush",
+       "k": 1
+      }
+     ],
+     "w": 0.525
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-neo-13--citrus",
+       "k": 1
+      }
+     ],
+     "w": 0.525
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-neo-13--indigo",
+       "k": 1
+      }
+     ],
+     "w": 0.525
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-neo-13--silver",
+       "k": 1
+      }
+     ],
+     "w": 0.525
     }
    ]
   },
@@ -1128,6 +1139,15 @@
     {
      "set": [
       {
+       "file": "qs-sheet-macstudio-2025",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
        "file": "qs-imac-24-m1--blue",
        "k": 1
       },
@@ -1211,6 +1231,32 @@
     {
      "set": [
       {
+       "file": "qs-imac-24-m4--blue",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m4--pink",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--blue",
+       "k": 1
+      },
+      {
+       "file": "photo-mac-studio-angle",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
        "file": "qs-family-imac--blue",
        "k": 1
       }
@@ -1222,6 +1268,49 @@
       {
        "file": "qs-device-imac",
        "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--green",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m4--yellow",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m4--orange",
+       "k": 0.92
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--purple",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m4--silver",
+       "k": 0.92
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-sheet-macstudio-2025",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m4--silver",
+       "k": 0.92
       }
      ],
      "w": 3

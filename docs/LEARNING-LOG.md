@@ -5845,3 +5845,36 @@ RESUME HERE:
   1. Photographs that need the owner's OK to download: a VR headset, a gaming laptop, a Mac mini,
      a ROG Ally, a Legion Go, a sealed Chromebook box, a Sprinter, a Kenworth, a gaming headset,
      a monitor.
+
+## 2026-11-18 — iOS lock screens, the call to action's marks, MacBooks and Macs (claude/xenodochial-mccarthy-7bea6d)
+
+Asked:
+  - "audit the iPhone backgrounds to look clean good... and actual iOS"; "readjust the status bar
+    size and positioning slightly"; "What are the other iOS lock screen layouts?"
+  - "every single one has the same arrows pointing to the CTA"
+  - "a really old MacBook that we don't even buy"; "don't see any of these ads talk about the MacBook
+    Neo"; "macs ... need more in the category"
+
+Changed:
+  - lockScreen (rule 148): the status bar in iOS's own points, four layouts, four wallpapers in
+    one colour family, and the clock's ink from the wallpaper.
+  - cta_mark (rule 149): eight marks with their own motion; the checks count any mark.
+  - Six pre-M1 MacBook pictures flagged "old model"; the Neo at about 5% with its own words; Macs
+    gain sets of several products (the subjects builder takes a `sets` field).
+
+Learned:
+  - A lock screen reads as iOS by its measures more than by its art. The status bar's place beside
+    the island, the clock's size and the glass buttons carried it.
+  - The wallpaper can be any clean tone of one colour: darkening a warm hue is where it went
+    wrong.
+  - An Intel-era picture flagged in October still showed on a static library card. Flags keep a
+    picture out of what is generated, not out of the old static cards: those go only when the owner
+    retires them.
+  - A check can depend on a hard-coded server (motion_phone_check on port 8765): give it its
+    server, never skip it quietly.
+
+RESUME HERE:
+  0. The owner's call: retire the old static library cards and offer cards.
+  1. Merge the audit basket (a helper's branch), re-run the census, republish the review page.
+  2. Downloads waiting on an OK: M4 Mac mini, Mac Pro, Studio Display, VR headset, gaming laptop,
+     ROG Ally, Legion Go, a sealed Chromebook box, Sprinter, Kenworth, gaming headset, monitor.

@@ -12,7 +12,8 @@
                   15% of the height (30% on a wide frame) with ordinary words;
      spacing      two blocks overlap or stand nearer than the gap, or a block is inside the margin;
      positioning  the words are off their axis (every block's middle on the column's middle);
-     eye-catchers an ad with ordinary words has no sticker and no chevrons;
+     eye-catchers an ad with ordinary words has no sticker and no mark at the number (the chevrons, an
+                arrow or an icon: cta_mark);
      contrast     a line added to the ground reads under 3.5:1 on the ground drawn under it;
      pre-flight   the ad's own pre-flight (fullPreflight: the delivered picture measured pixel by
                   pixel, and the words) finds something to fix on an ad with ordinary words.
@@ -125,7 +126,7 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
     }
     if (r.offAxis.length) fail(`${id}: off the axis: ${r.offAxis.join(', ')}`);
     for (const [b, c] of Object.entries(r.contrast)) if (c < 3.5) fail(`${id}: ${b} reads ${c}:1 on its ground`);
-    if (!lenient && r.phones && !r.m.sticker && !r.m.chevrons) fail(`${id}: no sticker and no chevrons`);
+    if (!lenient && r.phones && !r.m.sticker && !r.m.mark) fail(`${id}: no sticker and no mark at the number`);   // a mark: the chevrons, an arrow, an icon (cta_mark, 2026-11-18)
     for (const f of r.pre.findings) { if (f.level === 'fix' && !lenient) fail(`${id}: pre-flight: ${f.say}`); else preNotes[f.code] = (preNotes[f.code] || 0) + 1; }
     for (const c of r.pre.failed) if (!lenient && /^(edge|reads)/.test(c)) fail(`${id}: pre-flight check ${c}`);
   }
@@ -134,7 +135,7 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
   console.log(`drew ${out.rows.length} full ads: ${Object.keys(WORDS).length} sets of words x ${ASPECTS.length} sizes x ${SEEDS} looks`);
   for (const a of ASPECTS) {
     const rs = out.rows.filter(r => r.aspect === a && !LENIENT.has(r.name)), wp = rs.filter(r => r.phones);
-    console.log(`  ${a.padEnd(5)} headline ${med(rs.map(r => r.m.px.headline))}px  number ${med(rs.map(r => r.m.px.number))}px  smallest line ${Math.min(...rs.map(r => r.m.smallest))}px  product ${Math.round(med(wp.map(r => r.m.product)) * 100)}% of the height  sticker ${wp.filter(r => r.m.sticker).length}/${wp.length}  icon ${wp.filter(r => r.m.icon).length}/${wp.length}  chevrons ${rs.filter(r => r.m.chevrons).length}/${rs.length}  frame covered ${Math.round(med(rs.map(r => r.m.fill)) * 100)}%`);
+    console.log(`  ${a.padEnd(5)} headline ${med(rs.map(r => r.m.px.headline))}px  number ${med(rs.map(r => r.m.px.number))}px  smallest line ${Math.min(...rs.map(r => r.m.smallest))}px  product ${Math.round(med(wp.map(r => r.m.product)) * 100)}% of the height  sticker ${wp.filter(r => r.m.sticker).length}/${wp.length}  icon ${wp.filter(r => r.m.icon).length}/${wp.length}  mark ${rs.filter(r => r.m.mark).length}/${rs.length} (chevrons ${rs.filter(r => r.m.chevrons).length})  frame covered ${Math.round(med(rs.map(r => r.m.fill)) * 100)}%`);
   }
   if (notes.length) console.log(`  said to the customer, not failed (long words): ${notes.length}, e.g. ${notes[0]}`);
   { const b = out.rows.map(r => r.bpp).filter(Boolean).sort((x, y) => x - y); if (b.length) console.log(`  how busy (JPEG bytes a pixel x100): least ${(b[0] * 100).toFixed(1)}, middle ${(b[b.length >> 1] * 100).toFixed(1)}, most ${(b[b.length - 1] * 100).toFixed(1)}`); }
@@ -213,7 +214,7 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
     for (const w of r.why) { if (soft.test(w)) softN++; else fail(`${id}: ${w}`); }
     for (const f of r.fixes) fail(`${id}: pre-flight: ${f}`);
     for (const c of r.failed) fail(`${id}: pre-flight check ${c}`);
-    if (r.pictures && !r.m.sticker && !r.m.chevrons) fail(`${id}: no sticker and no chevrons`);
+    if (r.pictures && !r.m.sticker && !r.m.mark) fail(`${id}: no sticker and no mark at the number`);
   }
   const med = a => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.floor(s.length / 2)] : 0; };
   const wp = out.rows.filter(r => r.pictures);

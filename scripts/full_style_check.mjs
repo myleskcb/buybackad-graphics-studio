@@ -65,7 +65,7 @@ const r = await page.evaluate(async () => {
     if ((row.scrim != null ? row.scrim : null) !== (p.scrim != null ? p.scrim : null)) tally.scrimWrong = (tally.scrimWrong || 0) + 1;
     // the same stream on a photograph or a drawn scene: a "plain" row (the plate-less number) is never drawn there
     const pb = S.pickFullStyles(E.rng(s * 7919 + 13), { dark, busy: true });
-    for (const [field, list] of [['sticker_shape', T.sticker], ['sticker_fill', T.sticker_fill], ['text_fx', T.headline], ['text_in', T.entrance], ['number_style', T.number], ['plate_fill', T.plate_fill]]) if ((list.find(e => e.key === pb[field]) || {}).where === 'plain') tally.plainOnBusy = (tally.plainOnBusy || 0) + 1;
+    for (const [field, list] of [['sticker_shape', T.sticker], ['sticker_fill', T.sticker_fill], ['text_fx', T.headline], ['text_in', T.entrance], ['number_style', T.number], ['plate_fill', T.plate_fill], ['cta_mark', T.cta_mark]]) if ((list.find(e => e.key === pb[field]) || {}).where === 'plain') tally.plainOnBusy = (tally.plainOnBusy || 0) + 1;
   }
   // a textured fill (stripes, dots, foil: decor.js fillTexture) moves the fill's own hue away from its ink, so it never
   // reads worse than the flat fill: every tone it can draw, on every pair's plate, accent and sticker, against their inks
@@ -161,6 +161,8 @@ const r = await page.evaluate(async () => {
     ['headline', T.headline.map(e => ({ text_fx: e.key, ...(e.scrim != null ? { scrim: e.scrim } : {}), _where: e.where || '' }))],
     ['number', [...T.number.map(e => ({ number_style: e.key, plate_fill: 'solid', plate_grad: false, _where: e.where || '' })),
       ...fillOn(T.plate_fill, T.number.filter(e => !e.where).map(e => e.key)).map(({ f, on }) => ({ number_style: on, plate_fill: f.key, plate_grad: f.key === 'gradient' || f.key === 'foil', _where: f.where || '' }))]],
+    // the call to action's mark (2026-11-18): each, in every pair and size, through the pre-flight
+    ['cta', T.cta_mark.map(e => ({ cta_mark: e.key, _where: e.where || '' }))],
     ['ground', [...D.PAIR_GRADIENTS, ...D.FULL_PATTERNS].map(k => ({ background: k }))],
   ];
   for (const [kind, opts] of KINDS) {
@@ -247,7 +249,7 @@ const shareOk = (field, list, dark) => {
   return bad;
 };
 const SPEC = JSON.parse((await import('node:fs')).readFileSync(new URL('../spec/full-styles.json', import.meta.url), 'utf8'));
-for (const [field, list] of [['sticker_shape', SPEC.sticker], ['sticker_fill', SPEC.sticker_fill], ['text_fx', SPEC.headline], ['text_in', SPEC.entrance], ['number_style', SPEC.number], ['plate_fill', SPEC.plate_fill]]) {
+for (const [field, list] of [['sticker_shape', SPEC.sticker], ['sticker_fill', SPEC.sticker_fill], ['text_fx', SPEC.headline], ['text_in', SPEC.entrance], ['number_style', SPEC.number], ['cta_mark', SPEC.cta_mark], ['plate_fill', SPEC.plate_fill]]) {
   const bad = shareOk(field, list);
   ok(!bad.length, `600 seeds draw every ${field} near its share` + (bad.length ? ': ' + bad.join(', ') : ''));
 }

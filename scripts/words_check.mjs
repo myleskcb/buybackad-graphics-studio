@@ -47,7 +47,7 @@ const FULL_WORDS = Function('return ' + fw[1])();
 for (const [k, list] of Object.entries(FULL_WORDS)) for (const w of list) scan('full ad FULL_WORDS', 'phones', w, k);
 
 // the lines: the full ad's table, and the offer family it is made from
-for (const s of JSON.parse(read('motion/subjects.json')).subjects) for (const w of strings([s.heads, s.models, s.points])) scan('motion/subjects.json', s.cat, w, s.key);
+for (const s of JSON.parse(read('motion/subjects.json')).subjects) for (const w of strings([s.heads, s.models, s.points, ...(s.variants || []).map(v => [v.heads, v.models])])) scan('motion/subjects.json', s.cat, w, s.key);
 const win = {};
 try { const box = { window: {} }; vm.runInNewContext(read('offer-assets.js'), box); win.OFFER_ASSETS = box.window.OFFER_ASSETS; } catch (e) { /* none */ }
 vm.runInNewContext(read('offer-library.js'), { window: win, TEMPLATES: [], CUTOUT_EXT: '.webp', console, Math, JSON, Object, Array, String, Number });

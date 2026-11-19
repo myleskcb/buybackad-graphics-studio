@@ -56,7 +56,7 @@ const r = await page.evaluate(async () => {
 
   // chevrons, on the picture as delivered
   for (const aspect of ['1:1', '9:16']) for (const pair of F.COLOURWAYS) {
-    const st = F.fullStyle({ ...C.DEFAULT_STYLE, ...words, aspect, phones: ids('iPhone 16 Pro').slice(0, 2) }, 4242, index, { palette: pair });
+    const st = F.fullStyle({ ...C.DEFAULT_STYLE, ...words, aspect, phones: ids('iPhone 16 Pro').slice(0, 2) }, 4242, index, { palette: pair, cta_mark: 'chevrons' });   // the chevrons themselves (one mark of several since 2026-11-18)
     await E.loadFonts([...E.fontsFor(st), 'franklin']);
     const [W0, H0] = E.ASPECTS[aspect], k = 1080 / Math.min(W0, H0);
     const ad = new F.FullAd(st, assets, Math.round(W0 * k), Math.round(H0 * k));

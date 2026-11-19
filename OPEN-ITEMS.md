@@ -3971,3 +3971,17 @@ Open:
      versions) now that their recipes stand in for them (`scripts/retire_older_ads.mjs`).
    - **owner**: re-pick the hero wall from the rebuilt recipes on the review page.
    - **owner**: a VR headset and a gaming laptop photograph, so their cards show the product.
+10. **The iPhone lock screens, and the call to action's marks** (DESIGN-LAW 148, 149) — **done**:
+    lock screens laid out as iOS lays them out (a status bar in iOS's measures, four layouts:
+    classic, widgets, iOS 26's tall Glass clock, iOS 27's compact one; four clean wallpapers in the
+    screen's own colour); eight marks at the number, each moving its own way.
+11. **MacBooks and Macs** (the owner: "a really old MacBook that we don't even buy", "don't see any of
+    these ads talk about the MacBook Neo", "macs ... need more in the category") — **done**:
+    - six pre-M1 MacBook pictures are flagged "old model" in `assets/cutout-flags.json`;
+    - the MacBook Neo is drawn about one MacBook ad in twenty, and those ads name it (a word variant
+      in `motion/subjects.json`);
+    - Macs gain the Mac Studio's front and sets of several (iMacs in two or three colours, an iMac
+      beside a Mac Studio).
+
+    **owner**: a clean M4 Mac mini, a Mac Pro or a Studio Display photograph; each download waits on
+    an OK.

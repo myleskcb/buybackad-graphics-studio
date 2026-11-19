@@ -57,6 +57,12 @@ const GROUPS = { phones: 'Phones and Apple', gaming: 'Gaming', audio: 'Audio', c
 const MENU = { phones: ['iphone', 'ipad', 'mac', 'macdesk', 'android', 'pixel', 'galaxy', 'foldable'], gaming: ['console', 'gamingpc', 'pchandheld'], wearables: ['watch', 'smartwatch', 'metaglasses'] };
 
 const missing = [], subjects = [], aliases = {};
+/* WORDS THAT FOLLOW THE PRODUCT DRAWN (the owner, 2026-11-18, of the MacBook Neo: "don't see any of these ads
+   talk about the MacBook Neo. It's not really as popular in MacBook Air Pro covers about 95% of all the
+   MacBooks but there's a small group of those that some people may or may not target"). Where a seed draws a
+   line's entry whose pictures match, its ad says these words, unless the customer typed their own: the
+   Neo is drawn about one ad in twenty (spec/product-demand.json), and those ads name it. */
+const VARIANTS = { mac: [{ match: 'macbook-neo', heads: ['SELL YOUR MACBOOK NEO', 'WE BUY MACBOOK NEO', 'CASH FOR YOUR MACBOOK NEO'], models: 'MacBook Neo, every colour' }] };
 for (const l of LINES) {
   if (l.alias) { aliases[l.key] = l.alias; continue; }
   const nm = NAMES[l.key];
@@ -68,7 +74,7 @@ for (const l of LINES) {
   const points = POINTS[l.key] || 'FREE QUOTE, CASH SAME DAY, NO FEES';
   // a chip holds about sixteen letters at a readable size beside the product (full_ad_check: a 23-letter one found no room)
   for (const c of points.split(', ')) if (c.length > 16) { console.error(`the point "${c}" for ${l.key} is over 16 letters`); process.exit(2); }
-  subjects.push({ key: l.key, cat: l.cat, group: GROUPS[l.cat] || 'More', label: l.label, models: l.models, heads, points, sets });
+  subjects.push({ key: l.key, cat: l.cat, group: GROUPS[l.cat] || 'More', label: l.label, models: l.models, heads, points, sets, ...(VARIANTS[l.key] ? { variants: VARIANTS[l.key] } : {}) });
 }
 if (missing.length) { console.error('pictures missing:\n  ' + missing.join('\n  ')); process.exit(1); }
 for (const [k, to] of Object.entries(aliases)) if (!subjects.some(s => s.key === to)) { console.error(`the line "${k}" folds into "${to}", which is no line`); process.exit(2); }
@@ -120,6 +126,9 @@ for (const S of subjects) {
     }
   }
   for (const [f, w] of C.pictures || []) if (usable(f, S.key)) cand.push({ set: [{ file: f, k: 1 }], w, rank: w });
+  // sets the table names, several products on one ad (the owner, 2026-11-18, of Macs: "need more in the
+  // category"): an iMac beside a Mac Studio, iMacs in two or three colours; drawn as one entry at its weight
+  for (const [files, w] of C.sets || []) if (files.length && files.every(f => usable(f, S.key))) cand.push({ set: files.map((f, i) => ({ file: f, k: i ? .92 : 1 })), w, rank: w });
   // every approved cut-out whose id the line's pattern names (match, less exclude), at matchWeight: how a
   // line's pool grows past the pictures named one by one (the owner, 2026-11-18: "like 3-5x the pool")
   if (C.match) {

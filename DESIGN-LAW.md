@@ -6227,3 +6227,74 @@ The rule:
     recipes before.
 
 Not done here: OPEN-ITEMS §BJ 9.
+
+## 148. A face-up iPhone wears an iOS lock screen, laid out as iOS lays one out
+
+Added 2026-11-18. The owner: "audit the iPhone backgrounds to look clean good... and actual iOS";
+then "We just need to readjust the status bar size and positioning slightly", and "What are the
+other iOS lock screen layouts? Don't somehow have widgets what about some that are closer to the
+iOS 26 or 27"; of the clock that is white on a deep wallpaper and dark on a light one, "I like that
+you're doing the black-and-white so we have some variety".
+
+The audit found a flat fill crossed by three see-through rings under a dark band (on yellow, the
+band went olive, rule 103), a small, low clock, no status bar, and flat discs with boxes for glyphs.
+
+The rule (`fullad.js` `lockScreen`, drawn, never loaded, so a photo on the first frame has it):
+
+- **The status bar** is drawn in iOS's own measures (a point of its 393-point screen): signal,
+  Wi-Fi and battery, 72 points of them, ending 34 points in from the edge, level with the island's
+  middle. Beside a notch they are a touch smaller and lower, in the space before the glass's round
+  corner.
+- **The date over a large clock**, in the system face (SF on an Apple device, Helvetica Neue
+  elsewhere). The flashlight and the camera sit in glass circles at the foot, over the home bar.
+- **One layout for an ad's phones** (`LOCK_LAYOUTS`):
+  - classic;
+  - widgets, a row of four under the clock (iOS 16 on);
+  - tall, iOS 26's Glass clock stretched to fill the top, its widgets at the foot;
+  - compact, iOS 27's small clock in the top row beside two widgets.
+
+  Widgets (weather, a battery ring, an alarm, the day) are tinted one colour, as iOS tints them.
+- **One wallpaper for an ad's phones** (`LOCK_WALLS`: a glow, a gradient, waves, ripples), in tones
+  of the screen's own colour only (`screenBase`: one of the card's two families; two families
+  blended in sRGB would draw a third, rule 139). A warm hue only lightens (rule 103). A white,
+  grey or black screen takes a pale tint of the ground's hue, never a warm one, which goes olive on
+  grey.
+- **The ink is the wallpaper's**: white on all but a near-white wallpaper, and a deep tone of it
+  there.
+- **Never an image of Apple's**: the wallpapers are Apple's artwork, and its face and symbols are
+  licensed for mock-ups of software on its platforms. A screenshot's layers are not pulled into an
+  ad.
+
+## 149. The call to action wears one of several marks, each moving its own way
+
+Added 2026-11-18. The owner: "Although I said, have one assimilated design language, I didn't mean
+one style ... every single one has the same arrows pointing to the CTA and I would love to have
+more variety ... some without arrows some with more direct pointing arrows maybe some with a phone
+or text icon that doesn't need to be the only animated element".
+
+- **The marks**, a seed's draw (`spec/full-styles.json` `cta_mark`, the last draw of the style
+  stream, so a seed's other styles do not move):
+  - the chevrons (26%);
+  - none (14%);
+  - one direct arrow (16%), or two pointing in (12%);
+  - a hand-drawn curved arrow (10%);
+  - a phone (12%), a message bubble (6%), or both (4%).
+- **None only beside a sticker**: an ad keeps one thing that catches the eye, and draws one arrow
+  where it has no sticker.
+- **Sizing**: each mark takes the room either side of the number's pill it needs, at .7 of its size
+  at least. A mark that does not fit gives way to the chevrons, then to none.
+- **Colour**: every mark is the pair's accent (`hot`, rule 139), its glyph in the ink that reads on
+  it.
+- **In the video**:
+  - the chevrons' glow runs inward;
+  - the arrows push toward the number on a beat;
+  - the curved arrow draws itself in;
+  - the phone rings (a shake and a ripple);
+  - the bubble bounces while its dots type.
+
+  On the photo every mark is at rest (`fullStill`).
+- **Checked**:
+  - `full_style_check` draws every mark in every pair and size through the pre-flight, and its
+    shares over 600 seeds;
+  - `full_ad_check` counts any mark as the number's eye-catcher;
+  - `full_colour_check` reads the chevrons' colour on the chevrons themselves.

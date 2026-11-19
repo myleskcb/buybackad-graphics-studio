@@ -123,9 +123,11 @@ function styleNow(S, ids, set, size, R = recipeNow()) {
   const F = size || FORMATS[ez.format] || FORMATS.square, ar = F.w / F.h;
   const aspect = ar >= 1.3 ? "16:9" : ar <= .62 ? "9:16" : Math.abs(ar - 1) < .02 ? "1:1" : "4:5";
   const up = v => String(v || "").trim().toUpperCase();
+  // words that follow the product the seed drew (a MacBook Neo is named as one: motion/subjects.json variants)
+  const V = !own && !R ? (S.variants || []).find(v => ids.some(id => new RegExp(v.match).test(id))) : null;
   const base = { ...DEFAULT_STYLE, lang: "en",
-    headline: up(w.headline) || up(rw.headline) || S.heads[0].toUpperCase(),
-    tag: up(w.tag) || up(rw.tag) || (iph ? "" : S.models.toUpperCase()),
+    headline: up(w.headline) || up(rw.headline) || (V ? V.heads[0] : S.heads[0]).toUpperCase(),
+    tag: up(w.tag) || up(rw.tag) || (iph ? "" : (V ? V.models : S.models).toUpperCase()),
     points: up(w.points) || up(rw.points) || (iph ? null : S.points),
     number: el("ez-phone").value.trim(), number_label: up(w.label) || up(rw.label),
     site: el("ez-website").value.trim(), biz: String(FA.biz || "").trim(),
