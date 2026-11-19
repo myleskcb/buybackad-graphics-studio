@@ -773,7 +773,7 @@
     const _sync = syncEzSwatches;
     syncEzSwatches = function(){ const r = _sync.apply(this, arguments); try { syncRow(); } catch (e){} return r; };
   }
-  /* the row is built when Easy Mode first opens (DESIGN-LAW 147): it paints a swatch of every
+  /* the row is built when Easy Mode first opens (DESIGN-LAW 159): it paints a swatch of every
      wallpaper, about 70ms of a phone's CPU at load, for a panel the landing never shows. Easy Mode
      opens only through showEasy; the row goes in after the file input, as it did at load */
   if (typeof showEasy === 'function'){

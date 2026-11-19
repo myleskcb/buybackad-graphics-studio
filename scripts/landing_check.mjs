@@ -10,7 +10,7 @@
  * every lazy thumbnail has been asked for.
  *
  *   node scripts/landing_check.mjs [base=http://localhost:8899/] [out.json]
- * exits 1 on an error, a 404 or overflow; and (DESIGN-LAW 147) when the landing
+ * exits 1 on an error, a 404 or overflow; and (DESIGN-LAW 159) when the landing
  * draws a card on the page at load or after the scroll (an offer card's still
  * is missing or out of date: node scripts/build_offer_stills.mjs), builds the
  * gallery before it comes near, or asks for an offer ground, a product cut-out
@@ -43,7 +43,7 @@ for (const [label, w, h, mobile] of [['phone-390', 390, 844, true], ['desktop-14
   const t0 = Date.now();
   await p.goto(BASE, { waitUntil:'networkidle2', timeout:90000 });
   const loadMs = Date.now() - t0, firstBytes = bytes, firstReqs = reqs.size;
-  /* WHAT THE LANDING DRAWS AT LOAD (DESIGN-LAW 147): nothing on a canvas. The wall's offer cards are
+  /* WHAT THE LANDING DRAWS AT LOAD (DESIGN-LAW 159): nothing on a canvas. The wall's offer cards are
      their stills (scripts/build_offer_stills.mjs; a still out of date is drawn on the page and shows
      here as a data: picture), the gallery is not built until it comes near, and no offer ground,
      product cut-out or template face is asked for. Measured 2026-11-19: drawing them was about 2 s of
@@ -86,7 +86,7 @@ for (const [label, w, h, mobile] of [['phone-390', 390, 844, true], ['desktop-14
   console.log('  overflow: scrollWidth ' + over.scrollW + ' vs ' + over.W + (over.offenders.length ? ' · ' + over.offenders.join(', ') : ''));
   const leanBad = lean.drawn || (lean.grid && !lean.near) || heavyAtLoad.length || !leanAfter.grid || leanAfter.drawn;
   report[label].atLoad = { drawnOnPage:lean.drawn, wallStills:lean.stills, galleryCards:lean.grid, groundsCutoutsFaces:heavyAtLoad, galleryAfterScroll:leanAfter.grid, drawnAfterScroll:leanAfter.drawn };
-  console.log('  at load (rule 147): ' + lean.drawn + ' cards drawn on the page, ' + lean.stills + ' wall stills, gallery ' + (lean.grid ? lean.grid + ' cards' + (lean.near ? ' (it is near)' : ' (built before it came near)') : 'not built')
+  console.log('  at load (rule 159): ' + lean.drawn + ' cards drawn on the page, ' + lean.stills + ' wall stills, gallery ' + (lean.grid ? lean.grid + ' cards' + (lean.near ? ' (it is near)' : ' (built before it came near)') : 'not built')
     + ', grounds, cut-outs and template faces asked for: ' + (heavyAtLoad.length ? heavyAtLoad.slice(0, 4).join(', ') : 'none')
     + ' · after the scroll: gallery ' + leanAfter.grid + ' cards, ' + leanAfter.drawn + ' drawn on the page' + (leanBad ? '  FAIL (a still missing or out of date: node scripts/build_offer_stills.mjs)' : ''));
   if (errs.length || perr.length || over.scrollW > over.W + 1 || leanBad) bad++;

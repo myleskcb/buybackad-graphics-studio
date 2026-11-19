@@ -6030,6 +6030,84 @@ Still the owner's, from that session: no full ad passes the attention check's
 the best of eight by score; and the full ad's panel still reads at the preview's
 720 where the gate and the search read 1080.
 
+## 2026-11-18 — webuy.ad, the site's new address (claude/webuy-ad-new-site-url-f0be40)
+
+Asked: "webuy.ad launch new site URL".
+
+Done:
+  - Every page's own address, the sitemap, robots, the category page
+    generator and the CSP hash for index.html's JSON-LD now say webuy.ad.
+  - The Stripe webhook moves with the site's address; the deploy workflow's
+    live check reads webuy.ad, falling back to the netlify.app address with a
+    warning until the domain answers.
+  - OPEN-ITEMS §BL: the seven owner steps, in order (Netlify, Namecheap, the
+    certificate, SITE_URL, the merge, the webhook, iPhones LA).
+
+Found:
+  - The domain was registered a few hours before the ask and still answered
+    Namecheap's parking page. A Host-header probe against Netlify's load
+    balancer (`curl --resolve webuy.ad:80:75.2.60.5`) tells whether any
+    project has claimed a name before its DNS is in.
+  - A setting kept "once" goes stale when the thing it names moves: the
+    webhook was stored once per mode with its URL and never compared again.
+    Store what a value was made for, and compare it on read.
+  - The category pages are generated. Proving the generator rebuilds the
+    committed files byte for byte before changing it makes the rebuild after
+    the change safe to trust.
+  - Changing an address inside an inline JSON-LD block changes a CSP hash;
+    `csp_hashes.mjs` has to run after it.
+  - The legal pages' contact address is on a domain with no DNS.
+
+  - Netlify asks Let's Encrypt for a certificate the moment a domain is
+    added. Added before the DNS moved, it asked while the parking records
+    still answered and failed; its own retry got it a few minutes later.
+    DNS first, then the domain.
+  - A primary domain does not make the netlify.app address redirect: it
+    still answers 200.
+  - Two Netlify logins: myleskcb@gmail.com sees team KCB only;
+    buybackad-finished-copy is under myleskcb2@gmail.com.
+
+Checked: billing_check (108 passed; the two new checks fail on the old
+billing.mjs), the live-check step run locally against today's sites, the SEO
+generator rebuilt, CSP hashes rewritten.
+
+RESUME HERE:
+  0. webuy.ad is live (HTTPS, 2026-11-19 UTC). OPEN-ITEMS §BL: merge this
+     branch (step 5), then steps 6 and 7.
+  1. §BL open 1: the wordmark, BUYBACK.AD or WEBUY.AD, is the owner's call.
+
+## 2026-11-19 — WeBuy.AD in reselling.us's look (DESIGN-LAW 147, 148)
+
+Asked: "logos branding webkit", "all aspects need to finish and it needs to
+have similar or matching styling to reselling.us", "or color scheming at
+first?", then the wordmark "WeBuy.AD".
+
+Done: the family skin (reselling.us's colours, live first), then the system
+type, the WeBuy.AD wordmark in Inter Tight, the W. icon and the share card
+drawn from HTML, the name across the site with BUYBACK.AD kept as the business.
+
+Found:
+  - reselling.us's live look is not its design-system repo: the repo says
+    violet (resale. tokens), the site serves navy and blue. Read the colours
+    off the live sheet, not the repo.
+  - reselling.us keeps a brand kit as HTML drawn by headless Chrome
+    (resale-app docs/brand/source). Copying its recipe, not its pictures,
+    makes a sibling that matches by construction.
+  - A local static server's caches hide a CSS change: the page at / kept the
+    old theme stamp after /index.html was refreshed. Fetch every changed
+    file with cache: 'reload' before believing a screenshot.
+  - The pane's screenshots draw #3d8bff as violet; computed values are the
+    truth. reselling.us's own button showed the same.
+  - A brand rename has a legal edge: the terms are an agreement with a named
+    party and a recorded version. Rename the product, not the party, without
+    the owner.
+
+RESUME HERE:
+  0. OPEN-ITEMS §BM "Open": the terms' party and version, the explainer
+     videos' end card, the Stripe portal's line.
+  1. §BL: the webhook move after the first checkout, iPhones LA's allowlist,
+     the contact address, live Stripe keys.
+
 ## 2026-11-19 — the site renamed WEBUY.AD (claude/zen-dijkstra-7b5a2e)
 
 The owner, 2026-11-18: "Ok the concept was finally rebranded webuy.ad", "bought the
@@ -6078,12 +6156,118 @@ RESUME HERE:
      `SITE` moved, Search Console and Bing (§BK 5).
   3. The studio's editor in the house look (§BK 2); the landing's load (§BK 3).
 
+## 2026-11-19 — main (webuy.ad, the reselling.us look, WeBuy.AD) merged into pull request 14 (claude/ads-improvement-roadmap-7632c8)
+
+Auto-fix: GitHub said pull request 14 conflicted with `main`, which had taken three commits
+(webuy.ad as the site's address; the reselling.us look; the name WeBuy.AD). Merged here:
+
+- **The numbers.** `main` had numbered its two rules 138 and 139 and its open items BD and BE,
+  which this branch already held (138 to 145, BD to BJ). Main's became rules 147 and 148 and
+  open items BL and BM, as pull request 15 numbers them (after its 146 and BK; the census
+  branch's 146 to 149 move when it lands), and the lines main added that cite them say so. Each carries a line saying what it was numbered.
+- **The name** (rule 148): "WeBuy.AD wherever the product or the site is named, the watermark
+  on free exports included". So the lattice keeps this branch's drawing (rule 142) and draws
+  the new name (`watermark.js` WORD), and this branch's own words for it follow: the plan
+  cards and table (`netlify/lib/plans.mjs`, rebuilt by `build_pricing.mjs`), the FAQ, the
+  approval page's title and the code's comments. BUYBACK.AD stays where rule 148 keeps it:
+  the copyright line, and the terms and privacy policy.
+- **The rest** of each side merged on its own: main's look, wordmark, icon, share card and
+  address; this branch's engine, census, watermark and fixes. The CSP's inline hashes are
+  rewritten for the merged index.html; `watermark_check.mjs` now reads "small" next to either
+  name.
+
+Not this branch's to settle: pull request 15 (the site's own look) meets main's reselling.us
+look, and its session has asked the owner which way it goes.
+
+## 2026-11-19 (later) — the site follows main: the search layer on main's look and WeBuy.AD (claude/zen-dijkstra-7b5a2e)
+
+The owner asked for the watermark to say the new name ("Yes, do it here"). Main had moved
+an hour before, in another session (11aa4151, f4cbfdab, 163c0fd0): webuy.ad live, the studio
+and the public pages in reselling.us's look (its DESIGN-LAW 138) and the name WeBuy.AD, with
+BUYBACK.AD kept as the business (its 139). That met this branch's full-ad look and its own
+rename to "WEBUY.AD" of the same hour. Asked which the site should follow: "Follow main".
+
+Done, as a merge of main over pull request 14:
+- Pull request 14 against main clashed in eight places. Its plan cards (plans.mjs
+  planBullets) and its watermark (watermark.js, across the whole ad) won over main's older
+  planFeats and corner marks, with the word WeBuy.AD. Main's rules 138 and 139 are 147 and 148
+  here, its §BD and §BE are §BL and §BM; only the lines main added were renumbered, since pull
+  request 14's 138 to 145 are cited all over its code.
+- Every page is main's again (the landing, the information pages, the Look Book, the video
+  maker's page, pages.css, the 404, the favicon and the icons), with this branch's search
+  layer put back on it: the head's words and preview cards, the site's graph and the FAQ's,
+  one h1, a main landmark, the 22 questions, "What it makes" with a link to every line, the
+  generated bar and foot in main's markup, fabric.js out of the head, WebP posters, the Look
+  Book's held layout. The generator writes main's markup now; the category cards are drawn in
+  the share card's look; the landing and the information pages preview as main's share card.
+- Gone: house.css, site-theme.js, the full-ad hero and its three ads, the home card, the
+  WEBUY.AD logo, the pairs and faces a URL away.
+- The contact address hello@buyback.ad (main's, and the live site's) is hello@webuy.ad: the
+  domain buyback.ad was never registered.
+
+Measured after the landing's next changes (the owner's critique of the header and hero, relayed
+the same night): the next entry.
+
+Found on the way: another session's static server held port 8933 and served its own
+worktree, so a drawing run here took that tree's card template; nothing said so. A local
+server for a check gets a port of its own, and its working folder is read back before a run.
+
+Learned: when two sessions change the same pages under one owner the same night, the newer
+word wins, and the rest is to keep what does not depend on the look (words, links,
+structured data, speed) and put it back on the winner's pages, not to merge the two looks.
+
+RESUME HERE:
+  0. The owner's word on pull request 15 (it now carries main's three commits over pull
+     request 14; merged into pull request 14 first, then pull request 14 into main, the
+     resolutions are made once).
+  1. A "hello" forward for webuy.ad in Namecheap; webuy.ad in Search Console and Bing with
+     the sitemap; the five explainer videos still say "by BUYBACK.AD" (OPEN-ITEMS §BK 11).
+  2. The landing's load (§BK 3); the session "Landing load" was asked which base to use.
+
+## 2026-11-19 (later still) — the landing's column and rhythm; three directions for the mark (claude/zen-dijkstra-7b5a2e)
+
+The owner, through the roadmap session, of main's header and hero as live: "looks sloppy
+vibecoded... the alignment is not that of someone who makes graphic designs", "the margins and
+spacing", "the WeBuy.AD type face and logo is not great", "also what about an icon?"; and of the
+colour sets: "really really old copy ... wasting precious scroll space looking at color combos".
+
+Measured first, on main as live: the bar's side padding was clamp(16px, 4vw, 40px) across the full
+width while the hero sat in a centred 1200px box with clamp(16px, 5vw, 48px), so the wordmark and
+the hero never shared an edge (12px against 20px on a phone); the hero's copy was centred in a box
+86% of the window tall, so its gap under the bar changed with the window; the eyebrow wrapped at
+every width but the widest, with its dot centred on two lines; the text link among the buttons kept
+a button's 30px side padding.
+
+Done (DESIGN-LAW 158): one column and gutter for everything on the landing, a 4px spacing scale,
+the hero a fixed step under the bar, a one-line eyebrow measured at 320, 360 and 390 (the long one
+cut at 390; "For phone, gold and car buyers" fits 320 with 30px to spare), the share card drawn
+again with it (rule 153 asks for the home page's words, word for word). The colour sets are gone;
+"Why it gets texts" and the video ads are where they were. Three directions for the wordmark and its
+icon, drawn and shown on a page for the owner to pick; nothing changes until then.
+
+Numbers: main renumbered its two rules 152 and 153 (5dfd1b7b, "every branch and worktree
+grepped"), and pull request 14 is folding the census's four in as 154 to 157, keeping 146 for this
+branch. This branch follows: main's rules are 152 and 153 here too, the landing's rule is 158, and
+every citation changed is a line main or pull request 14 changed the same way, so the next merges
+meet themselves.
+
+Learned: the measure caught a second bug the eyes missed. A long unbreakable eyebrow widened the
+hero's grid column past the screen, because a grid item's minimum width is its content; the fix,
+`min-width:0`, belongs on any column that holds a line set not to wrap.
+
+RESUME HERE:
+  0. The owner's pick among the three directions for the mark (OPEN-ITEMS §BK 14), and the
+     owner's word on pull request 15.
+  1. Pull request 14 once it is pushed with main's 5dfd1b7b and the census at 154 to 157: merge
+     it here, and make the explainers' WebP posters again (§BK 15).
+  2. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5).
+
 ## 2026-11-19 — the landing draws nothing at load (claude/landing-blocking-time-a7bade)
 
 Asked by pull request 15's session: cut the landing's remaining phone blocking time without
-changing what any card looks like (OPEN-ITEMS §BK 3). DESIGN-LAW 147, OPEN-ITEMS §BL. In the
+changing what any card looks like (OPEN-ITEMS §BK 3). DESIGN-LAW 159, OPEN-ITEMS §BO. In the
 final runs, before and after in turn: phone 61 to 93, desktop 65 to 100, 4.5 MB to 1.7 MB
-(§BL has the table).
+(§BO has the table).
 
 What was learned:
 
@@ -6120,12 +6304,12 @@ What was learned:
   time, and one desktop before run 62 against 91 a minute earlier, with other sessions running
   checks. Run the two copies in turn (before, after, before) and say so.
 
-Checks: seo_check, mix_check, landing_check (now with rule 147's assertions), watermark_check,
+Checks: seo_check, mix_check, landing_check (now with rule 159's assertions), watermark_check,
 full_ad_studio_check, mac_wallpapers_check, build_offer_stills.mjs --check; verify_csp.
 
 RESUME HERE:
   0. The owner's word on this pull request, after pull request 15's.
   1. Draw the stills again whenever a card, a face, a ground or a render pass changes
      (build_offer_stills.mjs, then --check; landing_check fails on a stale one it sees).
-  2. The owner's call on starting the template faces before the studio opens (§BL 3).
-  3. The rest of the blocking time is app.js's own evaluation (§BL 5).
+  2. The owner's call on starting the template faces before the studio opens (§BO 3).
+  3. The rest of the blocking time is app.js's own evaluation (§BO 5).

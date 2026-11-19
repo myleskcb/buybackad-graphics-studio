@@ -18,7 +18,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const SITE = 'https://buybackad-graphics-studio.netlify.app';
+const SITE = 'https://webuy.ad';
 const ads = readFileSync(root + 'sitemap.xml', 'utf8');
 const PUBLIC = ['index.html', 'motion/index.html', 'about.html', 'learn.html', 'looks.html', 'privacy.html', 'terms.html',
   ...[...readFileSync(root + 'scripts/build_seo_pages.mjs', 'utf8').matchAll(/slug: '(we-buy-[a-z-]+)'/g)].map((m) => `ads/${m[1]}.html`)];
@@ -81,10 +81,10 @@ for (const f of NOINDEX) {
 }
 const robots = readFileSync(root + 'robots.txt', 'utf8');
 for (const line of robots.split('\n')) { const m = line.match(/^Disallow:\s*(\S+)/); if (m && m[1] !== '/api/') fail('robots.txt', `Disallow: ${m[1]} (a public page, or a page whose noindex would go unread)`); }
-if (!/Sitemap: https:\/\/buybackad-graphics-studio\.netlify\.app\/sitemap\.xml/.test(robots)) fail('robots.txt', 'no Sitemap line');
+if (!/Sitemap: https:\/\/webuy\.ad\/sitemap\.xml/.test(robots)) fail('robots.txt', 'no Sitemap line');
 for (const t of ['llms.txt', 'llms-full.txt']) {
   const s = readFileSync(root + t, 'utf8');
-  if (!/^# WEBUY\.AD\n\n> /.test(s)) fail(t, 'not in the llmstxt.org shape (an H1, then a blockquote summary)');
+  if (!/^# WeBuy\.AD\n\n> /.test(s)) fail(t, 'not in the llmstxt.org shape (an H1, then a blockquote summary)');
   for (const m of s.matchAll(/\]\((https:\/\/[^)]+)\)/g)) {
     const path = m[1].replace(SITE + '/', '').replace(/#.*$/, '') || 'index.html';
     const file = path.endsWith('/') ? path + 'index.html' : path;

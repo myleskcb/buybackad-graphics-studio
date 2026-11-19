@@ -56,12 +56,13 @@ The browser never sees the key.
 1. **Make a key** (anywhere):
    `python3 -c "import secrets; print('bbl_' + secrets.token_urlsafe(32))"`
 2. **BUYBACK.AD's Netlify project** (the one iPhones LA will call,
-   `buybackad-graphics-studio` unless you say otherwise): Site configuration →
+   `buybackad-finished-copy`, whose domain is webuy.ad, unless you say
+   otherwise): Site configuration →
    Environment variables → add `LIBRARY_KEYS` = `iphonesla:<the key>`
    (scope: Functions), then deploy `main`. Optional: `LIBRARY_DAILY`
    (requests a day per key, 20000 by default).
 3. **iPhones LA's server**: `BUYBACKAD_LIBRARY_URL` =
-   `https://buybackad-graphics-studio.netlify.app` and
+   `https://webuy.ad` and
    `BUYBACKAD_LIBRARY_KEY` = the same key. Never in the front end, never in
    git.
 
@@ -72,7 +73,7 @@ Check it from a terminal:
 
 ```
 curl -s -H "Authorization: Bearer $BUYBACKAD_LIBRARY_KEY" \
-  https://buybackad-graphics-studio.netlify.app/api/library/v1 | python3 -m json.tool
+  https://webuy.ad/api/library/v1 | python3 -m json.tool
 ```
 
 ## The contract: `GET /api/library/v1/...`
@@ -341,7 +342,7 @@ BUYBACK.AD studio ──save──▶ the ad library ──public link──▶ 
 ### Getting the link (the owner, once)
 
 In the studio, sign in, open **📚 Library** and press **Copy link**. It looks
-like `https://buybackad-graphics-studio.netlify.app/master-library.html?feed=fd_...`.
+like `https://webuy.ad/master-library.html?feed=fd_...`.
 Opening it shows the library as a page. On iPhones LA's server, set it as
 `BUYBACKAD_FEED_URL`. It needs no key: the link itself is the access, and it
 shows these ads and nothing else. **Reset link** in the same dialog makes a
@@ -360,14 +361,15 @@ POST https://iphones.la/api/buy-ads/studio/library
 Authorization: Bearer <the studio token, as for /studio/images>
 Content-Type: application/json
 
-{ "feed_url": "https://buybackad-graphics-studio.netlify.app/master-library.html?feed=fd_…",
-  "site": "https://buybackad-graphics-studio.netlify.app" }
+{ "feed_url": "https://webuy.ad/master-library.html?feed=fd_…",
+  "site": "https://webuy.ad" }
 ```
 
 iPhones LA's side of it:
 - Accept it with the same token check and CORS as `/studio/images`.
-- Accept only a `site` that is a BUYBACK.AD site: `https://buybackad-graphics-studio.netlify.app`,
-  `https://buybackad-finished-copy.netlify.app`, `https://studio.scans.ad`.
+- Accept only a `site` that is a BUYBACK.AD site: `https://webuy.ad` (the address from
+  2026-11-18), `https://buybackad-finished-copy.netlify.app`,
+  `https://buybackad-graphics-studio.netlify.app`, `https://studio.scans.ad`.
   The `feed_url` must be exactly `site + /master-library.html?feed=fd_` plus
   24 characters of `[A-Za-z0-9_-]`. Anything else is a 400.
 - Store it in the shop database as the feed the worker reads; the newest one
@@ -464,7 +466,7 @@ takes ads into review, and `--post` without `--approved` is refused. The
 slots posted and the ads taken in live in one small JSON file.
 
 ```
-BUYBACKAD_FEED_URL=https://buybackad-graphics-studio.netlify.app/master-library.html?feed=fd_... \
+BUYBACKAD_FEED_URL=https://webuy.ad/master-library.html?feed=fd_... \
 python3 autopost_worker.py --once --state var/buybackad-autopost.json \
   --intake myapp.review:take_in_ad --approved myapp.review:is_approved --post myapp.autopost:post_we_buy_ad
 ```

@@ -30,7 +30,7 @@ caps the posts a run.
 
 Run it every 10 to 15 minutes from cron or the app's scheduler:
 
-    BUYBACKAD_FEED_URL=https://buybackad-graphics-studio.netlify.app/master-library.html?feed=fd_... \
+    BUYBACKAD_FEED_URL=https://webuy.ad/master-library.html?feed=fd_... \
     python3 autopost_worker.py --once --state var/buybackad-autopost.json \
       --intake myapp.review:take_in_ad --approved myapp.review:is_approved --post myapp.autopost:post_we_buy_ad
 

@@ -119,14 +119,26 @@ jobs:
       # legal pages and the CSP that lets Stripe's form load. Public answers
       # only (no secret is read or printed). It warns instead of failing, so
       # main stays green while a setting is being changed in Netlify.
+      # The site's address is webuy.ad (2026-11-18); until the domain reaches
+      # the project, the check reads the netlify.app address and says so.
+      # Every curl follows redirects: a project with a primary domain can
+      # answer its netlify.app address with a 301 to it.
       - name: Check the live site
         env:
-          SITE: https://buybackad-finished-copy.netlify.app
+          DOMAIN: https://webuy.ad
+          COPY: https://buybackad-finished-copy.netlify.app
         run: |
           sleep 45
+          SITE=$DOMAIN
+          domain=''
+          if curl -fsSL --max-time 20 "$DOMAIN/api/health" | jq -e '.ok == true' >/dev/null 2>&1; then
+            domain="reaches the site"
+          else
+            SITE=$COPY
+          fi
           plans=''
           for i in $(seq 1 16); do
-            plans=$(curl -fsS --max-time 20 "$SITE/api/plans" || true)
+            plans=$(curl -fsSL --max-time 20 "$SITE/api/plans" || true)
             # the first answer with these fields is a deploy of this code
             echo "$plans" | jq -e 'has("embedded")' >/dev/null 2>&1 && break
             sleep 15
@@ -134,6 +146,8 @@ jobs:
           row() { echo "| $1 | $2 |" >> "$GITHUB_STEP_SUMMARY"; echo "$1: $2"; }
           warn() { echo "::warning title=$1::$2"; row "$1" "⚠️ $2"; }
           { echo "### $SITE"; echo; echo "| Check | Result |"; echo "|---|---|"; } >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "$domain" ]; then row "$DOMAIN" "$domain"
+          else warn "$DOMAIN" "does not reach the site yet: the custom domain in Netlify, or the DNS at Namecheap (OPEN-ITEMS §BL); checked $COPY instead"; fi
           if ! echo "$plans" | jq -e . >/dev/null 2>&1; then
             warn "API" "/api/plans did not answer JSON"
           else
@@ -145,8 +159,8 @@ jobs:
             else warn "AI backgrounds" "off: FAL_KEY (or GEMINI_KEY) is not set on the Netlify project, or its model has no price"; fi
           fi
           for page in terms.html privacy.html checkout-embed.js; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$SITE/$page")
+            code=$(curl -sL -o /dev/null -w '%{http_code}' --max-time 20 "$SITE/$page")
             if [ "$code" = "200" ]; then row "/$page" "200"; else warn "/$page" "answered $code"; fi
           done
-          if curl -sSI --max-time 20 "$SITE/" | grep -i '^content-security-policy:' | grep -q 'js.stripe.com'; then row "CSP" "allows Stripe's form"
+          if curl -sSIL --max-time 20 "$SITE/" | grep -i '^content-security-policy:' | grep -q 'js.stripe.com'; then row "CSP" "allows Stripe's form"
           else warn "CSP" "the page's Content-Security-Policy does not allow js.stripe.com"; fi

@@ -1,6 +1,6 @@
-# WEBUY.AD
+# WeBuy.AD
 
-> WEBUY.AD (Graphics Studio, formerly BUYBACK.AD) is a web app that makes "We Buy" ads for people who buy goods from the public and resell them: phone buyers, repair shops, gold, silver and coin buyers, car buyers, card shops and diabetic test strip buyers. You pick a design, type your phone number and your area, and download a post-ready photo ad, a printable flyer or a short video ad. It runs in a web browser on a phone or a computer, with nothing to install, and is free to start.
+> WeBuy.AD, run by BUYBACK.AD, is a web app that makes "We Buy" ads for people who buy goods from the public and resell them: phone buyers, repair shops, gold, silver and coin buyers, car buyers, card shops and diabetic test strip buyers. You pick a design, type your phone number and your area, and download a post-ready photo ad, a printable flyer or a short video ad. It runs in a web browser on a phone or a computer, with nothing to install, and is free to start.
 
 Key facts:
 
@@ -22,37 +22,37 @@ Key facts:
 
 ## Make an ad
 
-- [Make an ad](https://buybackad-graphics-studio.netlify.app/): the studio, the design library and the plans
-- [Video ad maker](https://buybackad-graphics-studio.netlify.app/motion/): We Buy Phones video ads and the full ad as a video
-- [Look Book](https://buybackad-graphics-studio.netlify.app/looks.html): every ready-made look in one place
-- [How it works](https://buybackad-graphics-studio.netlify.app/learn.html): five short videos
-- [Plans and pricing](https://buybackad-graphics-studio.netlify.app/#pricing)
-- [FAQ](https://buybackad-graphics-studio.netlify.app/#faq)
+- [Make an ad](https://webuy.ad/): the studio, the design library and the plans
+- [Video ad maker](https://webuy.ad/motion/): We Buy Phones video ads and the full ad as a video
+- [Look Book](https://webuy.ad/looks.html): every ready-made look in one place
+- [How it works](https://webuy.ad/learn.html): five short videos
+- [Plans and pricing](https://webuy.ad/#pricing)
+- [FAQ](https://webuy.ad/#faq)
 
 ## Ads for each line
 
-- [We Buy Apple ads and flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-apple.html): Make a We Buy Apple ad or flyer for iPhones, iPads, MacBooks, Apple Watch and AirPods. Add your number and area, download, post. Free to start.
-- [We Buy iPhones ads and flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-iphones.html): Make a We Buy iPhones ad or flyer in a minute. Add your number and area, download a post for Marketplace, Instagram or OfferUp. Every iPhone design is free.
-- [We Buy iPads ads and flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-ipads.html): Make a We Buy iPads ad or flyer for iPad, iPad mini, iPad Air and iPad Pro. Add your number and area, download, post. Every iPad design is free.
-- [We Buy MacBooks ads and flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-macbooks.html): Make a We Buy MacBooks ad or flyer for MacBook Air and MacBook Pro. Add your number and area, download, post. Every MacBook design is free.
-- [We Buy Apple Watch ads and flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-apple-watch.html): Make a We Buy Apple Watch ad or flyer for Series, SE and Ultra. Add your number and area, download, post. Every Apple Watch design is free.
-- [We Buy AirPods ads and flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-airpods.html): Make a We Buy AirPods ad or flyer for AirPods, AirPods Pro and AirPods Max. Add your number and area, download, post. Free to start.
-- [We Buy Phones ads and cash for phones flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-phones.html): Make a phone buyback ad or cash for phones flyer for iPhone, Galaxy and Pixel. Add your number and area, download, post. Every phone design is free.
-- [We Buy Consoles ads and flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-consoles.html): Make a We Buy Consoles ad or flyer for PS5, Xbox and Nintendo Switch. Add your number and area, download, post. Free to start.
-- [We Buy Computers ads and flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-computers.html): Make a We Buy Computers ad or flyer for laptops, monitors, mini PCs and SSDs. Add your number and area, download, post. Free to start.
-- [We Buy Gold ads and cash for gold flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-gold.html): Make a cash for gold flyer or We Buy Gold ad for scrap gold and jewelry. Add your number and area, download, post. Free to start.
-- [We Buy Silver ads and cash for silver flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-silver.html): Make a cash for silver flyer or We Buy Silver ad for coins, bars, silverware and jewelry. Add your number and area, download, post. Free to start.
-- [We Buy Coins ads and flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-coins.html): Make a We Buy Coins ad or coin buyer flyer for old coins, silver dollars and collections. Add your number and area, download, post. Free to start.
-- [We Buy Cars ads and cash for cars flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-cars.html): Make a cash for cars flyer or We Buy Cars ad for used, junk and damaged cars and trucks. Add your number and area, download, post. Free to start.
-- [We Buy Pokémon Cards ads and flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-pokemon-cards.html): Make a We Buy Pokémon Cards ad or flyer for singles, slabs and sealed boxes. Add your number and area, download, post. Free to start.
-- [We Buy Sports Cards ads and flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-sports-cards.html): Make a We Buy Sports Cards ad or flyer for rookies, autos, slabs and sealed wax. Add your number and area, download, post. Free to start.
-- [We Buy Test Strips ads and flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-test-strips.html): Make a We Buy Test Strips ad or flyer for sealed, unexpired diabetic test strips. Add your number and area, download, post. Free to start.
+- [We Buy Apple ads and flyers](https://webuy.ad/ads/we-buy-apple.html): Make a We Buy Apple ad or flyer for iPhones, iPads, MacBooks, Apple Watch and AirPods. Add your number and area, download, post. Free to start.
+- [We Buy iPhones ads and flyers](https://webuy.ad/ads/we-buy-iphones.html): Make a We Buy iPhones ad or flyer in a minute. Add your number and area, download a post for Marketplace, Instagram or OfferUp. Every iPhone design is free.
+- [We Buy iPads ads and flyers](https://webuy.ad/ads/we-buy-ipads.html): Make a We Buy iPads ad or flyer for iPad, iPad mini, iPad Air and iPad Pro. Add your number and area, download, post. Every iPad design is free.
+- [We Buy MacBooks ads and flyers](https://webuy.ad/ads/we-buy-macbooks.html): Make a We Buy MacBooks ad or flyer for MacBook Air and MacBook Pro. Add your number and area, download, post. Every MacBook design is free.
+- [We Buy Apple Watch ads and flyers](https://webuy.ad/ads/we-buy-apple-watch.html): Make a We Buy Apple Watch ad or flyer for Series, SE and Ultra. Add your number and area, download, post. Every Apple Watch design is free.
+- [We Buy AirPods ads and flyers](https://webuy.ad/ads/we-buy-airpods.html): Make a We Buy AirPods ad or flyer for AirPods, AirPods Pro and AirPods Max. Add your number and area, download, post. Free to start.
+- [We Buy Phones ads and cash for phones flyers](https://webuy.ad/ads/we-buy-phones.html): Make a phone buyback ad or cash for phones flyer for iPhone, Galaxy and Pixel. Add your number and area, download, post. Every phone design is free.
+- [We Buy Consoles ads and flyers](https://webuy.ad/ads/we-buy-consoles.html): Make a We Buy Consoles ad or flyer for PS5, Xbox and Nintendo Switch. Add your number and area, download, post. Free to start.
+- [We Buy Computers ads and flyers](https://webuy.ad/ads/we-buy-computers.html): Make a We Buy Computers ad or flyer for laptops, monitors, mini PCs and SSDs. Add your number and area, download, post. Free to start.
+- [We Buy Gold ads and cash for gold flyers](https://webuy.ad/ads/we-buy-gold.html): Make a cash for gold flyer or We Buy Gold ad for scrap gold and jewelry. Add your number and area, download, post. Free to start.
+- [We Buy Silver ads and cash for silver flyers](https://webuy.ad/ads/we-buy-silver.html): Make a cash for silver flyer or We Buy Silver ad for coins, bars, silverware and jewelry. Add your number and area, download, post. Free to start.
+- [We Buy Coins ads and flyers](https://webuy.ad/ads/we-buy-coins.html): Make a We Buy Coins ad or coin buyer flyer for old coins, silver dollars and collections. Add your number and area, download, post. Free to start.
+- [We Buy Cars ads and cash for cars flyers](https://webuy.ad/ads/we-buy-cars.html): Make a cash for cars flyer or We Buy Cars ad for used, junk and damaged cars and trucks. Add your number and area, download, post. Free to start.
+- [We Buy Pokémon Cards ads and flyers](https://webuy.ad/ads/we-buy-pokemon-cards.html): Make a We Buy Pokémon Cards ad or flyer for singles, slabs and sealed boxes. Add your number and area, download, post. Free to start.
+- [We Buy Sports Cards ads and flyers](https://webuy.ad/ads/we-buy-sports-cards.html): Make a We Buy Sports Cards ad or flyer for rookies, autos, slabs and sealed wax. Add your number and area, download, post. Free to start.
+- [We Buy Test Strips ads and flyers](https://webuy.ad/ads/we-buy-test-strips.html): Make a We Buy Test Strips ad or flyer for sealed, unexpired diabetic test strips. Add your number and area, download, post. Free to start.
 
 ## Optional
 
-- [We Buy Sneakers ads and flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-sneakers.html): Make a We Buy Sneakers ad or flyer today with your own photo of the pairs you buy. Add your number and area, download, post. Free to start.
-- [We Buy Retro Games ads and flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-retro-games.html): Make a We Buy Retro Games ad or flyer today with your own photo of the games you buy. Add your number and area, download, post. Free to start.
-- [About WEBUY.AD](https://buybackad-graphics-studio.netlify.app/about.html): who it is for, how it works, what it does not do, and your data
-- [Full text for language models](https://buybackad-graphics-studio.netlify.app/llms-full.txt): this summary with the whole FAQ
-- [Terms of Service](https://buybackad-graphics-studio.netlify.app/terms.html)
-- [Privacy Policy](https://buybackad-graphics-studio.netlify.app/privacy.html)
+- [We Buy Sneakers ads and flyers](https://webuy.ad/ads/we-buy-sneakers.html): Make a We Buy Sneakers ad or flyer today with your own photo of the pairs you buy. Add your number and area, download, post. Free to start.
+- [We Buy Retro Games ads and flyers](https://webuy.ad/ads/we-buy-retro-games.html): Make a We Buy Retro Games ad or flyer today with your own photo of the games you buy. Add your number and area, download, post. Free to start.
+- [About WeBuy.AD](https://webuy.ad/about.html): who it is for, how it works, what it does not do, and your data
+- [Full text for language models](https://webuy.ad/llms-full.txt): this summary with the whole FAQ
+- [Terms of Service](https://webuy.ad/terms.html)
+- [Privacy Policy](https://webuy.ad/privacy.html)

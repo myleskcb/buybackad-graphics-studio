@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* THE OFFER CARDS' LANDING STILLS (DESIGN-LAW 147; OPEN-ITEMS §BL).
+/* THE OFFER CARDS' LANDING STILLS (DESIGN-LAW 159; OPEN-ITEMS §BO).
 
    The landing drew every offer card it showed on a canvas as it loaded: eleven on the hero wall at
    448 pixels and ten on the gallery's first page at 320, each after its own photograph (1080-pixel
@@ -148,7 +148,7 @@ if (!CHECK && info.sig){
   /* a still of a card that is gone is removed with its line */
   if (!ONLY.length) for (const f of readdirSync(dir)) { const m = f.match(/^(.+)-(448|320)\.jpg$/); if (m && !all[m[1]]) unlinkSync(dir + f); }
   writeFileSync(indexFile, JSON.stringify({
-    about: 'The offer cards as the landing shows them, drawn by scripts/build_offer_stills.mjs (DESIGN-LAW 147). A still is shown only while its card has this signature (app.js scStillSig).',
+    about: 'The offer cards as the landing shows them, drawn by scripts/build_offer_stills.mjs (DESIGN-LAW 159). A still is shown only while its card has this signature (app.js scStillSig).',
     drawn: new Date().toISOString().slice(0, 10), engine: rev, rev: info.rev, sizes: SIZES, items: all,
   }, null, 0).replace(/,"items":/, ',\n"items":').replace(/("of_[^"]+":"[^"]+",?)/g, '\n$1') + '\n');
 }

@@ -1,107 +1,101 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <!-- seo: written by scripts/build_seo_pages.mjs (INFO); edit there -->
-<title>Look Book: Every We Buy Ad Look | WEBUY.AD</title>
+<title>Look Book: Every We Buy Ad Look | WeBuy.AD</title>
 <meta name="description" content="Every ready-made look in one place: video looks, photo ad designs, backgrounds and phone layouts for We Buy ads. Pick one and it opens in the editor.">
-<link rel="canonical" href="https://buybackad-graphics-studio.netlify.app/looks.html">
+<link rel="canonical" href="https://webuy.ad/looks.html">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="WEBUY.AD">
+<meta property="og:site_name" content="WeBuy.AD">
 <meta property="og:locale" content="en_US">
 <meta property="og:title" content="Look Book: Every We Buy Ad Look">
 <meta property="og:description" content="Every ready-made look in one place: video looks, photo ad designs, backgrounds and phone layouts for We Buy ads. Pick one and it opens in the editor.">
-<meta property="og:url" content="https://buybackad-graphics-studio.netlify.app/looks.html">
-<meta property="og:image" content="https://buybackad-graphics-studio.netlify.app/assets/og/home.jpg">
+<meta property="og:url" content="https://webuy.ad/looks.html">
+<meta property="og:image" content="https://webuy.ad/assets/brand/share-card.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Three full ads made with WEBUY.AD: We Buy iPhones, We Buy Gold, We Buy Cars">
+<meta property="og:image:alt" content="WeBuy.AD: buyback ads that make strangers text you first, beside four real We Buy ads">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Look Book: Every We Buy Ad Look">
 <meta name="twitter:description" content="Every ready-made look in one place: video looks, photo ad designs, backgrounds and phone layouts for We Buy ads. Pick one and it opens in the editor.">
-<meta name="twitter:image" content="https://buybackad-graphics-studio.netlify.app/assets/og/home.jpg">
-<meta name="twitter:image:alt" content="Three full ads made with WEBUY.AD: We Buy iPhones, We Buy Gold, We Buy Cars">
-<script type="application/ld+json" id="ld-page">{"@context":"https://schema.org","@graph":[{"@type":"CollectionPage","@id":"https://buybackad-graphics-studio.netlify.app/looks.html#page","url":"https://buybackad-graphics-studio.netlify.app/looks.html","name":"Look Book: Every We Buy Ad Look | WEBUY.AD","description":"Every ready-made look in one place: video looks, photo ad designs, backgrounds and phone layouts for We Buy ads. Pick one and it opens in the editor.","isPartOf":{"@id":"https://buybackad-graphics-studio.netlify.app/#site"},"about":{"@id":"https://buybackad-graphics-studio.netlify.app/#app"},"publisher":{"@id":"https://buybackad-graphics-studio.netlify.app/#org"},"inLanguage":"en"}]}</script>
+<meta name="twitter:image" content="https://webuy.ad/assets/brand/share-card.jpg">
+<meta name="twitter:image:alt" content="WeBuy.AD: buyback ads that make strangers text you first, beside four real We Buy ads">
+<script type="application/ld+json" id="ld-page">{"@context":"https://schema.org","@graph":[{"@type":"CollectionPage","@id":"https://webuy.ad/looks.html#page","url":"https://webuy.ad/looks.html","name":"Look Book: Every We Buy Ad Look | WeBuy.AD","description":"Every ready-made look in one place: video looks, photo ad designs, backgrounds and phone layouts for We Buy ads. Pick one and it opens in the editor.","isPartOf":{"@id":"https://webuy.ad/#site"},"about":{"@id":"https://webuy.ad/#app"},"publisher":{"@id":"https://webuy.ad/#org"},"inLanguage":"en"}]}</script>
 <!-- /seo -->
-<meta name="theme-color" content="#031b56" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#e2e8f3" media="(prefers-color-scheme: light)">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="preload" href="assets/fonts/chivo-900.woff2" as="font" type="font/woff2" crossorigin>
-<script src="site-theme.js"></script>
+<link rel="icon" href="assets/brand/icon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/brand/icon-180.png">
 <style>
-/* The Look Book in the house look (DESIGN-LAW 146, superseding rule 98's paper here): the full ad's
-   language as on the landing. Silver & Blue in light, Navy & Gold in dark (the visitor's system,
-   or their choice on the landing: site-theme.js), the full ad's face, pills and chips. A sticky
-   masthead of tabs and chips over a grid of ads; the tabs' and chips' rows keep their height
-   before looks.js fills them, so nothing below them moves when they arrive. */
-@font-face{font-family:'BB Chivo';src:url('assets/fonts/chivo-900.woff2') format('woff2');font-weight:100 900;font-display:swap}
-/* the fallback is Arial measured to Chivo (2026-11-18: widths 1.052 at 400, ascent .94, descent .25), so a
-   face that lands late does not move the page (the video maker's 0.37 shift was a late face) */
-@font-face{font-family:'BB Chivo Fallback';src:local('Arial'),local('Helvetica Neue'),local('Helvetica');size-adjust:105.2%;ascent-override:89.4%;descent-override:23.8%;line-gap-override:0%}
+/* The Look Book in the house look (DESIGN-LAW rule 152, 2026-11-19): reselling.us's
+   navy and blue with a mint deal colour, flat cards on hairlines, dark unless the device
+   (or the studio's toggle) asks for light. A sticky masthead of tabs and chips over a
+   grid of looks. */
+@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-600.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-700.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-400.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Satoshi';src:url('assets/fonts/satoshi-500.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'Inter Tight';src:url('assets/fonts/inter-tight-latin.woff2') format('woff2');font-weight:500 800;font-display:swap}
 :root{
-  --paper:#e2e8f3; --card:color-mix(in oklab,#e2e8f3 40%,#ffffff); --ink:#111b30; --ink-2:#2c3a57; --dim:#4b5878; --line:color-mix(in srgb,#111b30 16%,transparent);
-  --blue:#1d4ed8; --blue-ink:#ffffff; --tomato:#1d4ed8; --marigold:#1d4ed8; --mint:#1d4ed8; --tag-ink:#ffffff;
-  --hard:0 14px 30px -18px rgba(17,27,48,.5); --hard-lg:0 20px 40px -18px rgba(17,27,48,.6); --edge:color-mix(in srgb,#111b30 22%,transparent);
-  --display:'BB Chivo','BB Chivo Fallback','Arial Black',system-ui,sans-serif; --body:'BB Chivo','BB Chivo Fallback',system-ui,-apple-system,'Segoe UI',sans-serif;
-  color-scheme:light;
+  --paper:#070d1c; --paper-2:#0d1a36; --glow:rgba(56,124,255,.28); --card:#101a30; --ink:#f4f7ff; --ink-2:#a3aec6; --dim:#8a96b0; --line:#1d2945;
+  --blue:#3d8bff; --blue-hover:#5a9cff; --blue-ink:#ffffff; --veil:rgba(255,255,255,.08); --mint:#2fd58f; --ring:#7db1ff;
+  --hard:none; --hard-lg:0 12px 32px rgba(0,0,0,.5); --edge:#2b3959;
+  --display:-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,'Segoe UI',sans-serif; --body:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,'Segoe UI',sans-serif; --brand:'Inter Tight',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  color-scheme:dark;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#031b56;--card:color-mix(in oklab,#031b56 84%,#395185);--ink:#f2f7ff;--ink-2:#cdd8f0;--dim:#a3b3d6;--line:rgba(242,247,255,.16);--blue:#f4b100;--blue-ink:#031b56;--tomato:#f4b100;--marigold:#f4b100;--mint:#f4b100;--tag-ink:#031b56;--hard:0 16px 34px -18px rgba(0,0,0,.75);--hard-lg:0 22px 44px -18px rgba(0,0,0,.8);--edge:rgba(242,247,255,.22);color-scheme:dark}}
-:root[data-theme="dark"]{--paper:#031b56;--card:color-mix(in oklab,#031b56 84%,#395185);--ink:#f2f7ff;--ink-2:#cdd8f0;--dim:#a3b3d6;--line:rgba(242,247,255,.16);--blue:#f4b100;--blue-ink:#031b56;--tomato:#f4b100;--marigold:#f4b100;--mint:#f4b100;--tag-ink:#031b56;--hard:0 16px 34px -18px rgba(0,0,0,.75);--hard-lg:0 22px 44px -18px rgba(0,0,0,.8);--edge:rgba(242,247,255,.22);color-scheme:dark}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--paper:#f2f4f8;--paper-2:#e6edf9;--glow:rgba(10,108,255,.12);--card:#ffffff;--ink:#0a1224;--ink-2:#4e5970;--dim:#616c83;--line:#e3e7ef;--blue:#0a5fe0;--blue-hover:#0059d6;--veil:rgba(10,18,36,.06);--mint:#0e9f6a;--ring:#0a6cff;--hard-lg:0 8px 24px rgba(20,30,60,.14);--edge:#d2d8e3;color-scheme:light}}
+:root[data-theme="light"]{--paper:#f2f4f8;--paper-2:#e6edf9;--glow:rgba(10,108,255,.12);--card:#ffffff;--ink:#0a1224;--ink-2:#4e5970;--dim:#616c83;--line:#e3e7ef;--blue:#0a5fe0;--blue-hover:#0059d6;--veil:rgba(10,18,36,.06);--mint:#0e9f6a;--ring:#0a6cff;--hard-lg:0 8px 24px rgba(20,30,60,.14);--edge:#d2d8e3;color-scheme:light}
 *{box-sizing:border-box}
-/* the grid fills after the first paint: it keeps a screen's height until then, so the footer under it
-   is never seen and pushed away (Lighthouse counted that as a 0.83 shift), and the scrollbar's
-   gutter is kept so its arrival moves nothing */
-html{scrollbar-gutter:stable}
-#out{min-height:100vh}
-#out:not(:empty){min-height:0}
-body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 var(--body)}
+body{margin:0;background:radial-gradient(120% 55% at 85% -12%,var(--glow),transparent 60%) no-repeat,linear-gradient(var(--paper-2),var(--paper) 420px) no-repeat,var(--paper);color:var(--ink);font:16px/1.5 var(--body)}
 a{color:inherit}
-.wrap{max-width:1400px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px))}
-.mast{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--edge);padding-block:12px}
+.wrap{max-width:1400px;margin:0 auto;padding-inline:16px}
+.mast{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--line);padding-block:12px}
 .mast .wrap{display:grid;gap:10px}
 .row{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
 .brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;margin-right:auto}
-.brand b{font:900 22px/1 var(--display);text-transform:uppercase;letter-spacing:.005em}
-.brand b em{font-style:normal;color:var(--blue)}
-.brand span{font:700 11.5px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
-.back{font:800 13px var(--body);text-transform:uppercase;letter-spacing:.04em;text-decoration:none;border:2px solid var(--edge);background:transparent;padding:9px 14px;border-radius:999px}
-.back:hover{border-color:var(--blue)}
+.brand b,.brand h1{font:700 28px/1 var(--display);letter-spacing:-.035em;margin:0}
+.brand i{font:750 15px/1 var(--brand);font-style:normal;letter-spacing:-.035em;color:var(--ink)}.brand i em{font-style:normal;color:var(--blue)}
+.brand span{font:500 13px var(--body);color:var(--dim)}
+.back{font:600 14px var(--body);text-decoration:none;border:0;background:var(--veil);padding:7px 14px;border-radius:999px}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;min-height:38px}
-.tabs button,.chips button{font:700 15px var(--body);color:var(--ink);background:transparent;border:2px solid var(--edge);border-radius:999px;padding:6px 14px;cursor:pointer}
-.tabs button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
-.tabs button small{display:inline-block;min-width:3ch;font:600 12px var(--body);opacity:.8;margin-left:4px;font-variant-numeric:tabular-nums;text-align:left}
+.tabs button,.chips button{font:600 15px var(--body);color:var(--ink);background:var(--veil);border:0;border-radius:999px;padding:7px 15px;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--blue);color:var(--blue-ink)}
+.tabs button small{font:500 12px var(--body);opacity:.8;margin-left:4px;font-variant-numeric:tabular-nums}
 .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin;min-height:32px}
-.chips button{font-size:13px;padding:4px 11px;border-width:1.5px;white-space:nowrap}
-.chips button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
-#q{flex:1 1 220px;min-width:0;font:16px var(--body);color:var(--ink);background:var(--card);border:2px solid var(--edge);border-radius:999px;padding:8px 16px}
-button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
-h1{font:900 clamp(30px,5vw,48px)/1 var(--display);text-transform:uppercase;margin:22px 0 4px}
-h1 em{font-style:normal;color:var(--blue)}
-.intro{max-width:70ch;color:var(--ink-2);margin:8px 0 6px}
+.chips button{font-size:13px;padding:5px 12px;white-space:nowrap}
+.chips button[aria-pressed="true"]{background:var(--blue);color:var(--blue-ink)}
+#q{flex:1 1 220px;min-width:0;font:15px var(--body);color:var(--ink);background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:8px 12px}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.intro{max-width:70ch;color:var(--ink-2);margin:18px 0 6px}
 section.grp{margin-top:26px}
-section.grp h2{font:900 24px/1.15 var(--display);text-transform:uppercase;margin:0 0 4px;text-wrap:balance}
+section.grp h2{font:700 24px/1.15 var(--display);margin:0 0 4px;text-wrap:balance}
 section.grp p{margin:0 0 12px;color:var(--dim);font-size:14px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px}
 .look{display:grid;gap:6px;text-decoration:none;min-width:0}
-.pic{position:relative;aspect-ratio:4/5;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--hard);transition:transform .12s,box-shadow .12s}
+.pic{position:relative;aspect-ratio:4/5;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:transform .12s,box-shadow .12s}
 .pic.sq{aspect-ratio:1}
-.look:hover .pic{transform:translateY(-2px);box-shadow:var(--hard-lg);border-color:var(--blue)}
+.look:hover .pic{transform:translateY(-2px);box-shadow:var(--hard-lg)}
 .pic img,.pic canvas{width:100%;height:100%;object-fit:cover;display:block}
 .pic .wait{position:absolute;inset:0;display:grid;place-items:center;font:500 12px var(--body);color:var(--dim)}
-.tag{display:inline-block;vertical-align:1px;font:800 10px/1 var(--body);font-style:normal;letter-spacing:.06em;text-transform:uppercase;padding:3px 6px;border-radius:999px;color:var(--tag-ink);margin-right:4px;background:var(--blue)}
-.tag.l{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--edge)}
+.tag{display:inline-block;vertical-align:1px;font:700 10px/1 var(--display);font-style:normal;letter-spacing:.06em;text-transform:uppercase;padding:3px 5px;border-radius:4px;border:1.5px solid #141414;color:#141414;margin-right:4px}
+.tag.v{background:#3d8bff;color:#fff;border-color:transparent} .tag.i{background:#2fd58f;color:#06231a;border-color:transparent} .tag.b{background:#ffd970;color:#553a03;border-color:transparent} .tag.l{background:#f4f7ff;color:#0a1224;border-color:transparent}
 .cap{display:grid;gap:1px;min-width:0}
-.cap b{font:700 14px/1.25 var(--body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cap span{font-size:12.5px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.more{margin:14px 0 0;font:900 13px var(--body);text-transform:uppercase;letter-spacing:.05em;color:var(--blue-ink);background:var(--blue);border:0;border-radius:999px;padding:11px 20px;cursor:pointer}
+.cap b{font:600 14px/1.25 var(--body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cap span{font-size:12px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.more{margin:14px 0 0;font:600 14px var(--body);color:var(--blue-ink);background:var(--blue);border:0;border-radius:999px;padding:9px 18px;cursor:pointer}
+.more:hover{background:var(--blue-hover)}
 .empty{color:var(--dim);margin-top:30px}
-footer{margin:48px 0 24px;color:var(--dim);font-size:13.5px}
-@media (max-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.brand b{font-size:19px}.brand span{display:none}.mast{position:static}}
+footer{margin:48px 0 24px;color:var(--dim);font-size:13px}
+@media (max-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.brand b,.brand h1{font-size:23px}.mast{position:static}}
 @media (prefers-reduced-motion:reduce){.pic{transition:none}}
+/* layout shift: the page keeps its shape while the script fills it (DESIGN-LAW 146) */
+html{scrollbar-gutter:stable}
+#out{min-height:100vh}
+#out:not(:empty){min-height:0}
+.tabs button small{min-width:3ch;display:inline-block}
 </style></head><body>
 <header class="mast"><div class="wrap">
   <div class="row">
-    <a class="brand" href="./" aria-label="WEBUY.AD home"><b>WEBUY<em>.AD</em></b><span>Look Book</span></a>
+    <a class="brand" href="./"><h1>Look Book</h1><i>WeBuy<em>.AD</em></i></a>
     <a class="back" href="motion/">Video maker</a>
     <a class="back" href="./">Image studio</a>
   </div>
@@ -112,7 +106,6 @@ footer{margin:48px 0 24px;color:var(--dim);font-size:13.5px}
   <div class="chips" role="group" aria-label="Narrow it down" id="chips"><button aria-pressed="true" data-g="">All groups</button></div>
 </div></header>
 <main class="wrap">
-  <h1>Look <em>Book</em></h1>
   <p class="intro" id="intro">Every ready-made look in one place. Pick one and it opens in the editor with your number and phones, ready to change and download.</p>
   <div id="out"></div>
   <p class="empty" id="empty" hidden>Nothing matches that search. Try a shorter word, or pick All.</p>

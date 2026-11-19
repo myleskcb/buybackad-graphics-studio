@@ -495,7 +495,7 @@
   /* ── fitting a headline at build time (no font is loaded yet): a width
      estimate per character class, scaled by the face's own em, with a margin */
   const cw = ch => /[iljtfr.,:;'!|]/.test(ch) ? 0.34 : /[mwMW@]/.test(ch) ? 0.9 : /[A-Z]/.test(ch) ? 0.7 : /[0-9]/.test(ch) ? 0.6 : ch === ' ' ? 0.28 : ch === '?' ? 0.5 : 0.54;
-  /* a line's sum is remembered by its words (DESIGN-LAW 147): fitHead tries every break at every
+  /* a line's sum is remembered by its words (DESIGN-LAW 159): fitHead tries every break at every
      size, so the same few lines were summed again thousands of times, most of this file's 227ms
      at load on a phone's CPU. The same sum in the same order, so every card is set as before */
   const sums = new Map();
