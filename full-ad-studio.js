@@ -91,12 +91,14 @@ function ready() {
        more (the maker's nine weigh 1.1 MB), so the icon drawn here is the one the maker draws */
     loadAccents(at("./assets/cutouts/"), ACCENT_SETS.cash.map(i => i.asset).filter(Boolean)).then(a => { assets.accents = a; }),
   ]);
-  const R = recipeNow(), own = !!(R && R.pictures && R.pictures.length);
+  // a recipe's own pictures; or none at all where its words name goods its line has no picture of (words_only)
+  const R = recipeNow(), own = !!(R && R.pictures && R.pictures.length), bare = !own && !!(R && R.words_only);
   // a line's pool: only the entry this seed draws is loaded (fullad.js poolEntryFor), so the key names it
   const iph = S.key === "iphone", set = own ? 0 : S.sets.length ? (FA.set[S.key] | 0) % S.sets.length : 0, seed = FA.seed | 0 || 1;
-  const ent = !own && !iph && !set && (S.pool || []).length ? poolEntryFor(S.pool, seed) : -1, k = own ? "recipe|" + R.id : S.key + "|" + set + (ent >= 0 ? "|e" + ent : "");
+  const ent = !own && !bare && !iph && !set && (S.pool || []).length ? poolEntryFor(S.pool, seed) : -1, k = own ? "recipe|" + R.id : bare ? "bare" : S.key + "|" + set + (ent >= 0 ? "|e" + ent : "");
   if (!live.loaded[k]) live.loaded[k] = (own
     ? loadSubjectSet({ key: "recipe:" + R.id, label: S.label, sets: [R.pictures] }, 0, at("./assets/cutouts/")).then(got => { Object.assign(assets.phones, got.assets); return got.ids; })
+    : bare ? Promise.resolve([])
     : iph
     /* every phone the shop buys (1.2 MB), not the default four alone: a full ad nobody picked the phones
        for draws its set by its seed, the in-demand models most (fullad.js drawPhones, 2026-11-18) */
@@ -128,7 +130,7 @@ function styleNow(S, ids, set, size, R = recipeNow()) {
     number: el("ez-phone").value.trim(), number_label: up(w.label) || up(rw.label),
     site: el("ez-website").value.trim(), biz: String(FA.biz || "").trim(),
     // a recipe's own pictures are kept as given (subject_set: the full ad draws a line's pool only at 0)
-    aspect, seed: FA.seed | 0 || 1, subject: iph ? "" : S.key, subject_set: own && !iph ? 1 : set, phones: ids.length ? ids.slice() : ["none"] };
+    aspect, seed: FA.seed | 0 || 1, subject: iph ? "" : S.key, subject_set: (own || (R && R.words_only)) && !iph ? 1 : set, phones: ids.length ? ids.slice() : ["none"] };
   // a library design is a lean, not a lock (the rebuild, 2026-11-18: "take them as inspiration but rebuild
   // them all"): its photograph is a ground it may stand on where it fits the product drawn, its family and
   // colourway what its seed leans toward (fullad.js fullStyle)

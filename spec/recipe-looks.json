@@ -24,13 +24,13 @@
     "scriptRetro": { "face": [ "retro", "brush", "marker", "barrio", "boogie" ], "sticker": [ "starburst", "stamp" ], "headline": [ "long_shadow", "pop_stack", "extrude" ], "ground": [ "pat_halftone", "pat_rays", "pat_riso", "photo" ], "fill": [ "foil", "stripes" ] },
     "slabPoster": { "face": [ "block", "stencil", "press", "tall", "protest", "riot" ], "headline": [ "block3d", "hard_shadow", "stamped" ], "ground": [ "pat_paper", "pat_grain", "pat_riso", "house", "photo" ] },
     "stepsFlow": { "face": [ "grotesk", "sport", "block" ], "number": [ "pill", "box" ], "ground": [ "pair_linear", "pair_corner", "house" ] },
-    "ticketStub": { "number": [ "ticket" ], "sticker": [ "tag", "stamp" ], "face": [ "press", "stencil", "flyer", "retro" ], "ground": [ "pat_paper", "pat_grain", "photo" ], "fill": [ "dots", "solid" ] },
+    "ticketStub": { "number": [ "ticket" ], "sticker": [ "tag", "stamp" ], "face": [ "press", "stencil", "retro" ], "ground": [ "pat_paper", "pat_grain", "photo" ], "fill": [ "dots", "solid" ] },
     "trustSeal": { "sticker": [ "seal", "badge" ], "face": [ "luxe", "varsity", "grotesk" ], "headline": [ "foil", "inline" ], "ground": [ "pair_radial", "pair_arch", "house" ], "fill": [ "foil" ] },
     "voltStack": { "headline": [ "highlighter", "box", "pop_stack" ], "face": [ "sport", "speed", "squad", "street" ], "ground": [ "pat_stripes", "pat_zigzag", "pair_split" ], "fill": [ "stripes" ], "tone": "vivid", "hue": 118 },
     "priceAnchor": { "number": [ "box", "ticket" ], "face": [ "block", "sport", "stadium" ], "headline": [ "block3d", "box" ], "ground": [ "house", "pair_linear" ] },
     "agencyGrid": { "face": [ "grotesk", "tech", "block" ], "ground": [ "pat_grid", "pat_checks" ], "number": [ "box", "underline" ] },
     "duoSplit": { "ground": [ "pair_split" ], "face": [ "block", "street", "tall" ] },
-    "wantedFrame": { "face": [ "stencil", "press", "flyer", "luxe" ], "sticker": [ "stamp", "seal" ], "headline": [ "stamped", "inline" ], "ground": [ "pat_paper", "pat_grain" ], "tone": "light", "hue": 75, "neutral": true },
+    "wantedFrame": { "face": [ "stencil", "press", "luxe" ], "sticker": [ "stamp", "seal" ], "headline": [ "stamped", "inline" ], "ground": [ "pat_paper", "pat_grain" ], "tone": "light", "hue": 75, "neutral": true },
     "karatSeal": { "sticker": [ "seal", "badge" ], "face": [ "luxe", "varsity" ], "headline": [ "foil", "inline" ], "ground": [ "pair_radial", "pair_arch" ], "fill": [ "foil" ] }
   },
   "layouts": {

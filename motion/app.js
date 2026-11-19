@@ -95,8 +95,9 @@ const fullOf = st => {
   // its claim, unless a claim or a business name was typed: a named buyer takes the badge
   if (R && R.words && R.words.claim && !st.feed_claim && !String(st.biz || "").trim()) extra.feed_claim = R.words.claim;
   if (!S) return fullStyle({ ...st, ...extra, subject: "", ...(rids.length ? { phones: rids } : {}) }, st.seed, state.index, pick, state.locked);
-  const ids = rids.length ? rids : S.sets.length ? subjects.loaded[subjectKey(S, st).k] || [] : [];
-  return fullStyle({ ...st, ...extra, phones: ids.length ? ids : ["none"], ...(rids.length ? { subject_set: 1 } : {}) }, st.seed, state.index, pick, state.locked);
+  // a recipe whose words name goods its line has no picture of stands on its words alone (words_only)
+  const bare = !!(R && R.words_only && !rids.length), ids = rids.length ? rids : bare ? [] : S.sets.length ? subjects.loaded[subjectKey(S, st).k] || [] : [];
+  return fullStyle({ ...st, ...extra, phones: ids.length ? ids : ["none"], ...(rids.length || bare ? { subject_set: 1 } : {}) }, st.seed, state.index, pick, state.locked);
 };
 /* fonts, and a full ad's photo ground: a still made before the photo arrives draws the house
    gradient in its place (fullad.js fullGroundReady) */

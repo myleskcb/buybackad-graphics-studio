@@ -260,7 +260,8 @@ function groundOf(ad, cat, make, notes) {
   if (/space-|nebula|hubble|moon|starfield|aurora|earth-from-iss|orion|galaxy-/.test(s)) { notes.push('outer-space ground left out'); return null; }
   const f = Array.isArray(g.focus) ? g.focus : g.focus && typeof g.focus === 'object' ? [g.focus.x, g.focus.y] : [.5, .5];
   const scrim = Math.round(Math.min(.7, Math.max(.25, typeof g.scrim === 'number' ? g.scrim : .4)) * 100) / 100;
-  return { src: g.src.replace(/^\/+/, ''), focus: f.map(v => Math.round((+v || .5) * 100) / 100), scrim, from: ad.id };
+  // a card's overlay over its photograph (overlay:dots/dark|assets/...) is the card's own pattern, not a file: the photograph is what it stood on
+  return { src: g.src.split('|').pop().replace(/^\/+/, ''), focus: f.map(v => Math.round((+v || .5) * 100) / 100), scrim, from: ad.id };
 }
 
 /* ---------------------------------------------------------------- the ground and the product line up
@@ -332,6 +333,28 @@ function lineUp(ad, cat, subject, pictures, make, gp, words, notes) {
   return out(null);
 }
 
+/* ---------------------------------------------------------------- one kind of goods inside a broader line
+   A card about one kind of goods on a line that holds several (the owner's lines, 2026-11-18: controllers
+   and VR headsets folded into Consoles, gaming laptops into Computers, the Switch into Handhelds, Android
+   tablets into Androids) shows that kind: its own picture of it, or an entry of the line's pool that is
+   one, or none, and its words stand alone; never another product (a PS5 under "SPARE CONTROLLERS?", a
+   tower under "GAMING LAPTOP?": the rebuild's first sheet). The kind is the card's own folded line, or
+   what its headline names. [kind, what a headline says, what a picture's file is called] */
+const KINDS = [
+  ['controller', /\bCONTROLLERS?\b|\bDUALSENSE\b|\bJOY-?CONS?\b/, /controller|dualsense|joy-?con/i],
+  ['vr', /\bVR\b|\bQUESTS?\b|\bVISION PRO\b/, /(^|-)vr(-|$)|quest|vision-pro/i],
+  ['laptop', /\bLAPTOPS?\b/, /laptop/i],
+  ['handheld', /\bSTEAM DECKS?\b|\bROG ALLY\b|\bLEGION GO\b|\bHANDHELDS?\b/, /steam-?deck|rog-?ally|legion-?go|handheld/i],
+  ['switch', /\bSWITCH(ES)?\b/, /switch/i],
+  ['tablet', /\bTABLETS?\b|\bGALAXY TAB\b/, /tablet|galaxy-tab/i],
+  ['console', /\bCONSOLES?\b|\bPS5\b|\bXBOX\b|\bPLAYSTATION\b/, /ps5|xbox|playstation|dock|oled-set|console/i],
+];
+const FOLD_KIND = { controller: 'controller', vr: 'vr', gamelaptop: 'laptop', switch: 'switch', tablet: 'tablet' };
+const BROAD = new Set(Object.values(ALIAS));
+const KIND_TURN = {};
+const MODEL_FILES = [[/\bPS5\b|\bPLAYSTATION\b/, /ps5|playstation/i], [/\bXBOX\b/, /xbox/i], [/\bSWITCH\b/, /switch/i], [/\bSTEAM DECKS?\b/, /steam-?deck/i], [/\bQUESTS?\b/, /quest/i]];
+const kindOf = (ad, subject, headline) => !BROAD.has(subject) ? '' : FOLD_KIND[ad.line] || ((KINDS.find(([, words]) => words.test(headline)) || [])[0] || '');
+
 /* ---------------------------------------------------------------- what it takes after (the rebuild)
    A library card's family is its id's first word (glassCard-du08-15); a designer layout's and an
    offer card's are in theirs, with the colourway after (dl_cars_neonNight_sunset, of_iphone_band_sun:
@@ -349,7 +372,9 @@ function hintOf(gen, family, colourway, voice) {
   const C = gen === 'sc' ? null : LOOKS.colourways[colourway] || null;
   const h = {};
   for (const k of LEANS) if (F[k] && F[k].length) h[k] = F[k].slice();
-  if (voice) h.face = [voice, ...(h.face || []).filter(v => v !== voice)];
+  // its card's face, among its family's: never an offer card's, which its family set by line (all the
+  // gaming lines in one face), the owner's "their own set of rules", not a choice of the card's
+  if (voice && gen !== 'of') h.face = [voice, ...(h.face || []).filter(v => v !== voice)];
   const colour = C || (['tone', 'hue', 'neutral'].some(k => k in F) ? F : null);
   if (colour) for (const k of ['tone', 'hue', 'neutral']) if (k in colour) h[k] = colour[k];
   return h;
@@ -390,16 +415,29 @@ for (const ad of all) {
   const ground = ad.c1 || (ad.bg && ad.bg.c1) || (ad.palette && (ad.palette.bg || ad.palette.ground)) || '';
   const pair = pairOf(ad.theme, ground, accent, subject);
   const display = ad.faces ? (Array.isArray(ad.faces) ? ad.faces[0] : ad.faces.display) : (heads[0] && heads[0].font) || '';
+  // one kind of goods inside a broader line: its own picture of it, an entry of the pool that is one, or its words alone
+  const kind = kindOf(ad, subject, words.headline || ''); let words_only = false, keep = !!make;
+  if (kind) {
+    const file = KINDS.find(k => k[0] === kind)[2], mine = pictures.filter(p => file.test(p.file));
+    let fits = (S.pool || []).filter(e => (e.set || []).length && e.set.every(x => file.test(x.file)));
+    // a model its headline names, where the pool has it (PS5 OR XBOX? shows a PS5 or an Xbox, not a Switch)
+    const named = MODEL_FILES.filter(([w]) => w.test(words.headline || '')).map(([, f]) => f), nf = fits.filter(e => e.set.every(x => named.some(f => f.test(x.file))));
+    if (named.length && nf.length) fits = nf;
+    if (mine.length) { pictures.splice(0, pictures.length, ...mine); keep = true; }
+    // in turn, so a line's cards of one kind show all its pictures of it
+    else if (fits.length) { const n = (KIND_TURN[subject + '|' + kind] = (KIND_TURN[subject + '|' + kind] || 0) + 1) - 1, e = fits[n % fits.length]; pictures.splice(0, pictures.length, ...e.set.map(x => ({ file: x.file, k: x.k || 1 }))); keep = true; notes.push(`a ${kind} from the line's pool: its words name one`); }
+    else { pictures.length = 0; words_only = true; notes.push(`no ${kind} picture on the line: its words alone`); }
+  }
   // the product (the owner: "the heros all look so simialr"): the card's own only where its words name
-  // it (a make, a model, a van) or its line has no pool; else the seed draws from the line's pool
-  if (pictures.length && !make && (subject === 'iphone' || (S.pool || []).length)) {
+  // it (a make, a model, a van, a kind of goods) or its line has no pool; else the seed draws from the line's pool
+  if (pictures.length && !keep && (subject === 'iphone' || (S.pool || []).length)) {
     notes.push(`its picture${pictures.length > 1 ? 's' : ''} (${pictures.map(p => p.file).join(', ')}) left to the line's pool`);
     pictures.length = 0;
   }
   const { family, colourway } = lineageOf(ad), type_pair = voiceOf(display);
   recipes.push({ id: 'r-' + ad.id, from: ad.id, gen: ad.gen, cat: S.cat, subject, label: `${ad.name} (${GEN[ad.gen]})`,
     seed: 2 + hash('recipe:' + ad.id) % 99991, look: { family, ...(colourway ? { colourway } : {}) }, hint: hintOf(ad.gen, family, colourway, type_pair),
-    words, pictures, ground_photo, pair, type_pair, ...(make ? { make } : {}), ...(dropped.length ? { dropped } : {}), ...(notes.length ? { notes } : {}) });
+    words, pictures, ...(words_only ? { words_only } : {}), ground_photo, pair, type_pair, ...(make ? { make } : {}), ...(dropped.length ? { dropped } : {}), ...(notes.length ? { notes } : {}) });
 }
 {
   // every colourway a layout or an offer card names is in the table (a new one leans nowhere unseen)
@@ -410,6 +448,13 @@ for (const ad of all) {
 }
 const ORDER = SUBJECTS.map(s => s.key);
 recipes.sort((a, b) => ORDER.indexOf(a.subject) - ORDER.indexOf(b.subject) || ['sc', 'dl', 'of'].indexOf(a.gen) - ['sc', 'dl', 'of'].indexOf(b.gen) || a.id.localeCompare(b.id));
+/* a library card's name led with its theme, one of the twelve dark pairs it no longer draws in (rule 147):
+   it is called by its family's name, numbered within its line where the line has more than one */
+{
+  const fam = r => r.label.replace(/ \(library card\)$/, '').split(' · ').pop(), count = {}, seen = {};
+  for (const r of recipes) if (r.gen === 'sc') count[r.subject + '|' + fam(r)] = (count[r.subject + '|' + fam(r)] || 0) + 1;
+  for (const r of recipes) if (r.gen === 'sc') { const f = fam(r), k = r.subject + '|' + f, n = seen[k] = (seen[k] || 0) + 1; r.label = `${f}${count[k] > 1 ? ' ' + n : ''} (library card)`; }
+}
 const count = k => recipes.filter(r => r.gen === k).length;
 const json = JSON.stringify({
   _doc: 'Every older ad the studio offers (library cards, designer layouts, offer cards), read as it opens and written as a recipe the full ad draws as a photo and a video: its words (the one list and the proof words left out), its line, its product cut-outs (a named car make shown as that make), its ground photograph, the nearest of the twelve pairs and its face pair where the full ad holds it (both for the record). Rebuilt 2026-11-18 (the owner: "take them as inspiration but rebuild them all"): each is drawn on a seed of its own (seed) and leans toward what its card took after (look: its family and colourway; hint: spec/recipe-looks.json), never locked to it; its own pictures only where its words name the product or its line has no pool. Made by scripts/build_recipes.mjs; never edit by hand. DESIGN-LAW 144, 145, OPEN-ITEMS §BJ.',

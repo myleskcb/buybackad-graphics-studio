@@ -43,12 +43,19 @@ function pickOne(list, r, ok = () => true) {
  *  fill. dark: the words are lighter than the ground (a "dark" row is drawn only there, a "light"
  *  row only under dark words); busy: the ground is a photograph or a drawn scene (a "plain" row is
  *  drawn only on the house's own painted grounds: its gradients and its patterns). sticker_grad and
- *  plate_grad say whether the fill is lit from above, for the painters that know only that. */
-export function pickFullStyles(r, { dark = true, busy = false } = {}) {
+ *  plate_grad say whether the fill is lit from above, for the painters that know only that.
+ *  lean: a rebuilt recipe's (motion/recipe-lean.js; the owner, 2026-11-18: "take them as inspiration
+ *  but rebuild them all"): { hint, pick(options, wanted, key) }, where pick draws, on a stream of its
+ *  own, one of the options this ad may draw that its card stood for, or null; the seed's own draws are
+ *  made first and in the same order either way, so an ad with no lean draws what it drew before. */
+export function pickFullStyles(r, { dark = true, busy = false, lean = null } = {}) {
   const where = e => !e.where || (e.where === "dark" ? dark : e.where === "light" ? !dark : e.where === "plain" ? !busy : true);
-  const sticker_shape = pickOne(FULL_STYLES.sticker, r, where), sticker_fill = pickOne(FULL_STYLES.sticker_fill, r, where);
-  const text_fx = pickOne(FULL_STYLES.headline, r, where), row = FULL_STYLES.headline.find(e => e.key === text_fx) || {};
-  const text_in = pickOne(FULL_STYLES.entrance, r, where), number_style = pickOne(FULL_STYLES.number, r, where), plate_fill = pickOne(FULL_STYLES.plate_fill, r, where);
+  const H = lean && lean.hint || {}, toward = (got, list, want, key) => (lean && lean.pick(list.filter(where).map(e => e.key), want, key)) || got;
+  const sticker_shape = toward(pickOne(FULL_STYLES.sticker, r, where), FULL_STYLES.sticker, H.sticker, "sticker");
+  const sticker_fill = toward(pickOne(FULL_STYLES.sticker_fill, r, where), FULL_STYLES.sticker_fill, H.fill, "fill");
+  const text_fx = toward(pickOne(FULL_STYLES.headline, r, where), FULL_STYLES.headline, H.headline, "headline"), row = FULL_STYLES.headline.find(e => e.key === text_fx) || {};
+  const text_in = pickOne(FULL_STYLES.entrance, r, where), number_style = toward(pickOne(FULL_STYLES.number, r, where), FULL_STYLES.number, H.number, "number");
+  const plate_fill = toward(pickOne(FULL_STYLES.plate_fill, r, where), FULL_STYLES.plate_fill, H.fill, "fill");
   return {
     sticker_shape, sticker_fill, sticker_grad: sticker_fill === "gradient", text_fx, ...(row.scrim != null ? { scrim: row.scrim } : {}),
     text_in, number_style, plate_fill, plate_grad: plate_fill === "gradient" || plate_fill === "foil",

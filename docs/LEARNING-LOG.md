@@ -5798,3 +5798,50 @@ Learned:
     Apple Watch's category and three models lines changed.
   - The models line is the full ad's tag: "PS5, XBOX SERIES X AND S, SWITCH ..." broke after
     "X AND", so the line names fewer things.
+
+## 2026-11-18 — the library cards and the offer family, rebuilt from their cards (claude/xenodochial-mccarthy-7bea6d)
+
+Asked: "Library card ones are not great.. I would take them as inspiration but rebuild them all",
+"Offer family needs a rebuild also", "they're alright at best and seem to follow their own set of
+rules ? things like the heros all look so simialr"; and with them "still not enough colors,
+gradients, pattern fill, or other ways instead of colors", "a lot of these are the same thing with
+5% variety or difference" (the look system, rule 146, a helper), and the owner's lines (a helper).
+
+Changed:
+  - Recipes carry a seed of their own and a hint (spec/recipe-looks.json, rule 147).
+  - fullStyle, pickFullStyles and groundFor lean toward the hint on a stream of their own
+    (motion/recipe-lean.js).
+  - The cards' photographs are measured, so a dim one is passed over.
+  - The product is the line's pool unless the words name it. A kind of goods inside a broader line
+    shows that kind, or the words stand alone.
+  - scripts/full_look_sheet.mjs --recipes draws the rebuilt recipes beside their last census
+    drawing.
+
+Learned:
+  - The sameness was three locks, not too few options. Every recipe was on seed 1, so every style
+    draw was one per line. Every recipe was on its card's pair, and the nearest of twelve dark
+    pairs turned a yellow card into Black & Red. Every recipe was on its card's picture.
+  - Folding lines (controllers into Consoles, gaming laptops into Computers) moves a card's
+    product with it. A card's words must keep choosing its picture after a regrouping.
+  - A lean from a generation's own rule re-imports its sameness. Every gaming offer card wore one
+    face because its family set faces by line, so the offer cards no longer lean to their face.
+  - A card background with an overlay (`overlay:dots/dark|photo.jpg`) was never a loadable file.
+    Those 19 recipes had been falling back to the house gradient silently.
+  - A headline treatment that reaches past its letters needs its own room when the headline is
+    fitted. A long shadow falls a third of the type size to one side, so a full-width headline put
+    it 13px from the frame. The fit allowed only an outline's 0.17 a side. The fix gives each
+    treatment its reach (`fullad.js` `FX_REACH`).
+  - A check's own inputs need checking. `full_type_check` asked for `navy-gold` and
+    `silver-blue` (the keys are underscored), so it measured two dark pairs. Once treatments
+    were seeded, its list also turned with the seeds. Measured as written, one face, Flyer, sets a
+    pixel under the feed's floor on a light pair and left the list (28).
+  - The census reads a pair by finding its accent. A two-colour pair's accent is its ink, and a
+    glass or outline fill shows little accent, so 13 rebuilt recipes read "off pair" on scenes and
+    photographs. By eye they were on their pairs.
+
+RESUME HERE:
+  0. The owner's OK to push; the owner's call on retiring the older renderings and on re-picking
+     the hero wall from the rebuilt recipes (the review page, republished with their census).
+  1. Photographs that need the owner's OK to download: a VR headset, a gaming laptop, a Mac mini,
+     a ROG Ally, a Legion Go, a sealed Chromebook box, a Sprinter, a Kenworth, a gaming headset,
+     a monitor.

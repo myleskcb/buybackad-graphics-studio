@@ -3951,3 +3951,23 @@ Open:
      keys;
    - **owner**: whether gold lines, which keep to their eight gold pairs and one vivid one, may
      stand on a light ground (no gold reads on cream at 4.5:1 without going mustard, rule 103).
+9. **The library cards, the offer family and the designer layouts, rebuilt** (DESIGN-LAW 147;
+   the owner: "Library card ones are not great.. I would take them as inspiration but rebuild them
+   all", "Offer family needs a rebuild also", "the heros all look so simialr").
+   - **done**: every recipe draws on a seed of its own and leans toward its card's family and
+     colourway, never locked to its card's pair, face, photograph or picture.
+   - 617 of 738 draw their product from the line's pool by their seed.
+   - 107 show a picture their words name: 65 a car make, 21 a kind of goods from the pool, and
+     21 their own picture, on a line with no pool.
+   - 14 (VR headsets, gaming laptops) stand on their words alone.
+   - A sheet of 48 went from one dark look, one face and one chip style to 28 pairs, 21 faces and
+     22 grounds, with no near twins.
+
+   - The type check now measures a dark and a light pair under the house outline (rule 141).
+     Flyer left the 29 vetted faces: 28 remain.
+
+   **open**:
+   - **owner**: retire the older renderings (the 362 library cards' and 300 offer cards' fabric
+     versions) now that their recipes stand in for them (`scripts/retire_older_ads.mjs`).
+   - **owner**: re-pick the hero wall from the rebuilt recipes on the review page.
+   - **owner**: a VR headset and a gaming laptop photograph, so their cards show the product.

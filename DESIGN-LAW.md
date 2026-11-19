@@ -5858,6 +5858,14 @@ template and back, the video and its photo, 390 wide, and every page sent
 under the site's own Content-Security-Policy, as production sends it),
 `full_type_check.mjs`, and `full_ad_check.mjs` as before.
 
+**2026-11-18, measured as written.** `full_type_check` named its pairs `navy-gold` and
+`silver-blue`, but the keys are underscored, so two dark pairs stood in for "a dark and a light
+pair". Once rule 146 made the headline treatment a seed's draw, each face was also judged under
+whatever treatment its sixteen seeds drew, so the list turned with the seeds. It now measures
+each face on Navy & Gold and Silver & Blue, under the house's double outline and pill. Measured
+so, Flyer (Stick No Bills) set its headline at 107px on the light pair, a pixel under the feed's
+floor, and left the list: 28 pairs.
+
 Not done here: OPEN-ITEMS §BG.
 
 ## 142. The mark: light, across the whole ad, on every preview its download would carry
@@ -6161,3 +6169,61 @@ pairs of ads match. Both sheets are in `.render/` (`--tag before`, `--tag after`
     judged by the ground it declares).
 
 Not done here: OPEN-ITEMS §BJ 7.
+
+## 147. A recipe takes after its card, and is never a copy of it
+
+Added 2026-11-18. The owner, of the library cards and the offer family drawn as recipes (rule
+145): "Library card ones are not great.. I would take them as inspiration but rebuild them all",
+"Offer family needs a rebuild also", "they're alright at best and seem to follow their own set of
+rules ? things like the heros all look so simialr".
+
+Measured on the recipes as they were drawn:
+- Every recipe opened on seed 1, so all the cards of a line drew one sticker, one treatment, one
+  number and one arrangement.
+- Every recipe was locked to its card's pair, the nearest of the twelve dark ones. An offer card in
+  sun (yellow) drew Black & Red.
+- Every recipe was locked to its card's photograph and its card's picture, so a line's heroes
+  repeated.
+
+The rule:
+- **A seed of its own.** A recipe's look is the draw of its seed (its id, hashed: `seed` in
+  `motion/recipes.json`). Easy Mode, the video maker, the hero wall, the hero stills and the census
+  all open it there. New look moves on from it.
+- **What it takes after is a lean, never a lock** (`spec/recipe-looks.json`, written into each
+  recipe's `hint` by `scripts/build_recipes.mjs`).
+  - Its family's idea: a library card's or a layout's family (glassCard, ticketStub, neonNight,
+    checklistHero ...), or an offer card's layout (band, split, float ...). It leans to the
+    faces, grounds (a kind or a key), treatments, stickers, numbers, fills and arrangements that
+    family stood for.
+  - Its colourway (sun, blush, cobalt, crimson ...), as a tone (light, vivid, dark) and a hue. A
+    library card's own theme was one of the twelve dark pairs the owner called generic, so its
+    colour leans only where its family has one.
+  - Its card's face, among its family's faces; never an offer card's, which its family set by
+    line.
+  - `fullStyle` draws from the hint by the table's share (`lean`), on a stream of its own
+    (`motion/recipe-lean.js`). Otherwise it draws as for any ad, so two cards of one family are two
+    different ads. An ad with no hint draws what it drew before.
+  - A pair, a face or a ground picked by hand is kept as picked.
+- **Its card's photograph is a ground it may stand on**, and the photograph still counts (the
+  owner: "retire but bg counts"). It is drawn only where it is measured and not dim
+  (`scripts/build_full_grounds.mjs --measure` measures the cards' photographs as it measures the
+  pools), fits the product the seed drew, and keeps the card to two families. A card's overlay
+  over its photograph (`overlay:dots/dark|...`) was never a file: the photograph is kept.
+- **The product is the line's, drawn by the seed**, as on any full ad of the line: the in-demand
+  models first, so the heroes stop repeating. A card keeps its own picture only where its words
+  name the product: a make, a model, a van, or one kind of goods inside a broader line.
+  - A controller card on Consoles shows a controller.
+  - A Switch card on Handhelds shows a Switch.
+  - PS5 OR XBOX? shows a PS5 or an Xbox.
+  - These are taken from the line's pool in turn, or from the card's own picture.
+  - Where the line has no picture of that kind (VR headsets, gaming laptops), the ad stands on its
+    words alone (`words_only`), never beside another product.
+- **Checked by:**
+  - `build_recipes --check`: every name the table leans to is one the engine draws, and every
+    colourway a layout or an offer card names is in the table.
+  - `build_full_grounds --check`: every card's photograph is measured.
+  - The census: every recipe through the pre-flight on its own seed.
+  - `scripts/full_look_sheet.mjs --recipes`: a sheet of the rebuilt recipes beside the same
+    recipes before.
+
+Not done here: OPEN-ITEMS §BJ 9.

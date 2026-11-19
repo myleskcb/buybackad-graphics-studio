@@ -684,3 +684,7 @@ produced." DESIGN-LAW rule 87. In practice:
   "From the library"; photo grounds come from `spec/full-grounds.json`
   (`scripts/build_full_grounds.mjs`). A new ad design goes in as a recipe or a full-ad option,
   never as a renderer of its own, so it is a photo and a video and the census reads it.
+- **A recipe takes after its card, never copies it** (rule 147): its own seed, and a lean
+  (`spec/recipe-looks.json`, `motion/recipe-lean.js`) toward its family's idea and colourway.
+  Never lock a recipe to its card's pair, face, photograph or picture; the product is the line's
+  pool unless the words name it.

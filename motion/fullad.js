@@ -24,6 +24,7 @@ import { FULL_VOICES } from "./full-voices.js";
 import { bannedIn } from "./banned-words.js";
 import { PHONE_WEIGHT, PHONE_REST, PHONE_VIEWS, PHONE_COUNTS, PHONE_LINEUP, pickWeighted } from "./product-demand.js";
 import { GROUND_SHARES, GROUND_SCENES, GROUND_GRADIENTS, GROUND_PATTERNS, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS } from "./full-grounds.js";
+import { leanStream, leanPick, pairAnswers } from "./recipe-lean.js";
 
 // Proportions of the frame's width. 1080 x .052 = 56px, x .044 = 48px, x .032 = 35px.
 // edge: nothing nearer the frame's edge than 38px; gap: no two stacked blocks nearer than 22px.
@@ -410,7 +411,7 @@ export function groundFits(t, P) {
 /** The ground a seed draws for a line and the pair it drew: { background, ground_photo? }, or null
  *  for the house gradient the seed already drew. product (productFor): only a photograph that agrees
  *  with it is drawn. */
-export function groundFor(subject, seed, pairKey, product) {
+export function groundFor(subject, seed, pairKey, product, lean = null) {
   const cat = !subject || subject === "iphone" ? "phones" : (GROUND_LINE_CAT[subject] || "");
   const pool = (GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && photoSuits(GROUND_PHOTOS[src], pairKey) && groundFits(GROUND_PHOTOS[src], product));
   // the drawn scenes are night skies, auroras and glows made for light words: under dark words (a light pair,
@@ -419,6 +420,19 @@ export function groundFor(subject, seed, pairKey, product) {
   const pc = COLOUR_OF[pairKey], darkWords = !!pc && lum(pc.colors.ink) < lum(pc.colors.ground);
   const share = { photo: pool.length ? GROUND_SHARES.photo : 0, scene: GROUND_SCENES.length && !darkWords ? GROUND_SHARES.scene : 0, gradient: GROUND_GRADIENTS.length ? (GROUND_SHARES.gradient || 0) : 0,
     pattern: GROUND_PATTERNS.length ? (GROUND_SHARES.pattern || 0) : 0, house: GROUND_SHARES.house };
+  /* a rebuilt recipe's lean (motion/recipe-lean.js; the owner, 2026-11-18: "take them as inspiration but
+     rebuild them all", "retire but bg counts"): a kind of ground or one ground its card stood for, of
+     those this ad may stand on; for a photograph, the one its card stood on where that is measured, not
+     dim, fits the product drawn and keeps the card to two families, else one of the line's */
+  if (lean && lean.want && lean.want.length) {
+    const p0 = lean.photo && lean.photo.src, m0 = p0 ? GROUND_PHOTOS[p0] : null;
+    const own = m0 && !m0.dim && groundFits({ ...m0, ...lean.photo }, product) && photoSuits(m0, pairKey) ? { src: p0, focus: lean.photo.focus || m0.focus || [.5, .5] } : null;   // the engine's own shade, for this pair (its card's was for its card)
+    const can = [...(own || pool.length ? ["photo"] : []), ...(share.scene ? ["scene", ...GROUND_SCENES] : []), ...(share.gradient ? ["gradient", ...GROUND_GRADIENTS] : []),
+      ...(share.pattern ? ["pattern", ...GROUND_PATTERNS] : []), "house", ...GROUNDS];
+    const got = lean.pick(can, lean.want, "ground"), of = L => L[Math.floor(lean.r() * L.length) % L.length];
+    if (got === "photo") { if (own) return { background: "photo", ground_photo: own }; const src = of(pool); return { background: "photo", ground_photo: { src, focus: GROUND_PHOTOS[src].focus || [.5, .5] } }; }
+    if (got) return { background: got === "scene" ? of(GROUND_SCENES) : got === "gradient" ? of(GROUND_GRADIENTS) : got === "pattern" ? of(GROUND_PATTERNS) : got === "house" ? of(GROUNDS) : got };
+  }
   // the line's own stream: two lines on one seed do not stand on the same kind of ground
   let h = 0x811c9dc5; for (const ch of String(subject || "iphone")) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
   const g = rng(mixSeed((mixSeed(seed >>> 0) ^ h) >>> 0)); g();
@@ -432,6 +446,10 @@ export function groundFor(subject, seed, pairKey, product) {
   return null;
 }
 export const ARRANGEMENTS = ["lineup", "fan", "showcase", "podium", "wings"];
+/** How far past its letters a headline treatment reaches, in its size, counting both sides (the letters
+ *  are centred on the column): an outline's .17 a side by default; a long shadow's .35 to one side; a
+ *  plate's own margin (box .22, glass .2 and its blur, a cut-out plate .18); a 3-D block's depth and blur. */
+export const FX_REACH = { long_shadow: .72, box: .46, glass: .44, cutout: .38, block3d: .4 };
 /* One icon, where a size has room for one: the fan of banknotes. The review of 2026-11-12: the
    handshake is a photograph of two suits (clip art beside flat type), the red pin repeats the
    footer's pin, and pin and shield each bring a third colour onto a two-colour card. */
@@ -998,8 +1016,10 @@ export class FullAd extends Ad {
         lines = (this._lineCache ||= new Map()).get(lk) || this._lineCache.set(lk, headlineLines(st, ph, size, best.n)).get(lk);
         lineH = lines[0].asc * .98 + gapOf(size); blockH = lineH * (lines.length - 1) + lines[0].asc;
         // the letters and the outline round them stay inside the column: a headline as wide as the column
-        // put its outline 17px from the frame's edge, in the margin (found by the pre-flight on the picture)
-        const widest = Math.max(...lines.map(L => L.inkW)) + size * .34;
+        // put its outline 17px from the frame's edge, in the margin (found by the pre-flight on the picture).
+        // A treatment that reaches further takes its own room (FX_REACH): a long shadow falls a third of the
+        // size to one side and ran 13px from the frame (full_ad_check, toyota 9:16, 2026-11-18)
+        const widest = Math.max(...lines.map(L => L.inkW)) + size * (FX_REACH[st.text_fx] || .34);
         if (widest <= colW && blockH <= maxH * 1.02) break;
         size *= Math.min(.97, colW / widest, maxH * 1.02 / blockH);
       }
@@ -1535,7 +1555,16 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   // a photograph given with the ad whose colour is strong counts toward the two families, as a bold phone does
   const given = st.ground_photo && st.ground_photo.src ? GROUND_PHOTOS[st.ground_photo.src] : null;
   if (given && given.C >= .08 && given.hue != null) bold.push(given.hue);
-  const pairs = pairsFor(st.subject, st.headline, bold), first = drawPair(pairs, r(), st.subject);
+  /* A REBUILT RECIPE'S LEAN (motion/recipe-lean.js, spec/recipe-looks.json; the owner, 2026-11-18, of the
+     library cards and the offer family: "take them as inspiration but rebuild them all"): st.hint names
+     what its card stood for, and hint.lean how often its seed draws from it; on a stream of its own, so
+     the seed's other draws, and every ad with no hint, are what they were. */
+  const H = st.hint && typeof st.hint === "object" && st.hint.lean ? st.hint : null, lr = H ? leanStream(seed) : null;
+  const lean = H ? { hint: H, r: lr, pick: (options, want, k) => leanPick(lr, H.lean[k], options, want) } : null;
+  const pairs = pairsFor(st.subject, st.headline, bold);
+  let first = drawPair(pairs, r(), st.subject);
+  // its colourway: a pair of its tone and hue (or a neutral ground), of those that suit the line and its words
+  if (lean && (H.tone || H.hue != null || H.neutral)) first = lean.pick(pairs, pairs.filter(k => pairAnswers(COLOUR_OF[k], H)), "colour") || first;
   const key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, type_pair: _t, type_any: _a, ...picked } = pick;
   // the type: the house's one face, or one of the owner's pairs when one is picked (pick.type_pair, a
   // TYPE_VOICES key that FULL_VOICES holds). Carried in the look, after QUIET, so it is the face drawn.
@@ -1550,6 +1579,8 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
     const faces = FULL_VOICES.filter(k => fullVoiceOk(k)), vr = rng(((seed >>> 0) ^ 0x6a09e667) * 31 + lineTurn(st.subject, 7919) + 17);
     if (faces.length && vr() >= HOUSE_FACE) vk = faces[Math.floor(vr() * faces.length) % faces.length];
   }
+  // a rebuilt recipe leans to its card's face, then to its family's faces (never over a face picked by hand)
+  if (lean && !fullVoiceOk(pick.type_pair, pick.type_any) && pick.type_pair !== "house") vk = lean.pick(FULL_VOICES.filter(k => fullVoiceOk(k)), H.face, "face") || vk;
   const voice = vk ? TYPE_VOICES[vk] : null;
   const type = voice ? { type_pair: vk, font: voice.display, number_font: voice.numberRead ? voice.label : "same", full_pair: true } : { full_pair: false };
   // how the phones stand: back, turned, front with a lock screen, side on, or fronts and backs mixed
@@ -1560,9 +1591,13 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const view = subject ? {} : (({ pose, end_face }) => ({ pose, end_face }))(phoneView(seed, have.length, have === picked0));
   if (!subject && have !== picked0 && view.end_face !== "front") have = readableFinishes(have, COLOUR_OF[key].colors, phoneIndex);
   const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...view, ...type, ...picked };
+  if (lean && !("arrangement" in picked)) look.arrangement = lean.pick(ARRANGEMENTS, H.arrangement, "arrangement") || look.arrangement;
   // the ground: a photograph given with the ad as given; otherwise the seed's own draw (groundFor), unless one was picked by hand
   if (st.ground_photo && st.ground_photo.src) { look.background = "photo"; look.ground_photo = { ...st.ground_photo }; }
-  else if (!("background" in picked)) { const gd = groundFor(st.subject, seed, key, productFor(st.subject, have)); if (gd) Object.assign(look, gd); else delete look.ground_photo; }
+  else if (!("background" in picked)) {
+    const gd = groundFor(st.subject, seed, key, productFor(st.subject, have), lean && H.ground ? { want: H.ground, photo: st.ground_hint || null, r: lr, pick: lean.pick } : null);
+    if (gd) Object.assign(look, gd); else delete look.ground_photo;
+  }
   if (look.ground_photo) loadGroundPhoto(look.ground_photo.src).catch(() => {});
   /* THE LOOK'S STYLES (spec/full-styles.json, motion/full-styles.js; the owner, 2026-11-18: "notice how
      it's all same spiky circle?", "no variety in the text pure outlines?", "don't see any gradients
@@ -1579,7 +1614,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   // tone-on-tone patterns are the pair's own colours, solved for the words: rule 146)
   const own2 = COLOUR_OF[key].colors, painted = [...GROUNDS, ...GROUND_GRADIENTS, ...GROUND_PATTERNS].includes(look.background);
   const styles = pickFullStyles(rng(((seed >>> 0) ^ 0x51ed27f3) * 13 + lineTurn(st.subject, 99991) + 5),
-    { dark: lum(own2.ink) > lum(own2.ground), busy: !painted });
+    { dark: lum(own2.ink) > lum(own2.ground), busy: !painted, lean });
   if ("text_fx" in picked || held("text_fx")) delete styles.scrim;
   for (const [k, v] of Object.entries(styles)) if (!(k in picked)) look[k] = held(k) ? st[k] : v;
   const area = (st.area || "").trim();

@@ -9,9 +9,15 @@
    pictures, shrunk to 12 by 12 and compared in OKLab, are closer than a viewer can tell apart at a
    glance (mean ΔE under .055): the measure of "the same thing with 5% difference".
 
-   usage:  GFX_BASE=http://127.0.0.1:8941/ node scripts/full_look_sheet.mjs [--n 48] [--tag after] [--px 420]
+   --recipes draws the rebuilt recipes instead (motion/recipes.json; the owner, 2026-11-18, of the
+   library cards and the offer family: "take them as inspiration but rebuild them all"): a spread of
+   one recipe a family and generation in turn, each as Easy Mode opens it (FullAdStudio.useRecipe: its
+   own seed, its card's lean), and beside it a sheet of the same recipes as the census last drew them
+   (.render/ad-review/data/thumbs-recipe.json, where it is), the before.
+
+   usage:  GFX_BASE=http://127.0.0.1:8941/ node scripts/full_look_sheet.mjs [--n 48] [--tag after] [--px 420] [--recipes [--only <id regex>]]
    writes  .render/full-look-sheet-<tag>.jpg and .render/full-look-sheet-<tag>.json */
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
 const ROOT = new URL('../', import.meta.url).pathname, OUT = ROOT + '.render/';
@@ -35,14 +41,27 @@ await page.evaluate(async () => {
   $('ez-phone').value = '(562) 999-4994'; $('ez-website').value = '';
 });
 
-const jobs = Array.from({ length: N }, (_, i) => ({ line: LINES[i % LINES.length], seed: 1 + Math.floor(i / LINES.length) * 7 + (i % 5), size: SIZES[(i + Math.floor(i / LINES.length)) % SIZES.length] }));
+const RECIPES = process.argv.includes('--recipes');
+let jobs = Array.from({ length: N }, (_, i) => ({ line: LINES[i % LINES.length], seed: 1 + Math.floor(i / LINES.length) * 7 + (i % 5), size: SIZES[(i + Math.floor(i / LINES.length)) % SIZES.length] }));
+if (RECIPES) {
+  // one recipe of each generation and family in turn (a library card's family is its id's first word; a
+  // layout's and an offer card's are in theirs), the lines spread within a family
+  const only = arg('--only', ''), all = JSON.parse(readFileSync(ROOT + 'motion/recipes.json', 'utf8')).recipes.filter(r => !only || new RegExp(only).test(r.id)), groups = {};   // --only: recipes whose id matches
+  for (const r of all) (groups[r.gen + ':' + ((r.look && r.look.family) || '')] ||= []).push(r);
+  const keys = Object.keys(groups).sort(), picked = [];
+  for (let round = 0; picked.length < N && round < 60; round++) for (const k of keys) { const g = groups[k], r = g[(round + k.length) % g.length]; if (picked.length < N && !picked.includes(r)) picked.push(r); }
+  jobs = picked.map((r, i) => ({ recipe: r.id, gen: r.gen, family: (r.look && r.look.family) || '', line: r.subject, seed: r.seed, size: SIZES[i % SIZES.length] }));
+}
 const cells = [];
 for (const job of jobs) {
   const got = await page.evaluate(async ({ job, PX }) => {
     const M = await import('/motion/fullad.js'), FS = window.FullAdStudio, FA = FS.state;
-    const S = FS.lines().find(s => s.key === job.line); if (!S) return { error: 'no line ' + job.line };
-    if (currentCat !== S.cat) setCategory(S.cat);
-    FA.line[S.cat] = S.key; FA.recipe[S.cat] = ''; FA.seed = job.seed; FA.pair = ''; FA.voice = ''; FA.words = {}; FA.set = {}; FA.biz = '';
+    if (job.recipe) { const r = await FS.useRecipe(job.recipe); if (!r) return { error: 'no recipe ' + job.recipe }; FA.biz = ''; }
+    else {
+      const S = FS.lines().find(s => s.key === job.line); if (!S) return { error: 'no line ' + job.line };
+      if (currentCat !== S.cat) setCategory(S.cat);
+      FA.line[S.cat] = S.key; FA.recipe[S.cat] = ''; FA.seed = job.seed; FA.pair = ''; FA.voice = ''; FA.words = {}; FA.set = {}; FA.biz = '';
+    }
     const { ad, st } = await FS.build(PX, FORMATS[job.size]);
     const frame = M.fullStill(ad), k = Math.min(1, 300 / Math.max(frame.width, frame.height));
     const c = document.createElement('canvas'); c.width = Math.round(frame.width * k); c.height = Math.round(frame.height * k);
@@ -78,18 +97,37 @@ const COLS = 8, CW = 300, CH = 340, rows = Math.ceil(cells.length / COLS);
 const sheet = await page.evaluate(async ({ cells, COLS, CW, CH, rows, TAG }) => {
   const c = document.createElement('canvas'); c.width = COLS * CW; c.height = rows * CH + 40;
   const g = c.getContext('2d'); g.fillStyle = '#e9e9ec'; g.fillRect(0, 0, c.width, c.height);
-  g.fillStyle = '#111'; g.font = 'bold 22px sans-serif'; g.fillText(`Seeded full ads, ${TAG}: ${cells.length} (line · seed · size · pair · ground · face)`, 12, 28);
+  g.fillStyle = '#111'; g.font = 'bold 22px sans-serif'; g.fillText(cells[0] && cells[0].recipe ? `Rebuilt recipes, ${TAG}: ${cells.length} (family · gen · line · pair · ground · face)` : `Seeded full ads, ${TAG}: ${cells.length} (line · seed · size · pair · ground · face)`, 12, 28);
   for (let i = 0; i < cells.length; i++) {
     const e = cells[i], img = await new Promise(res => { const im = new Image(); im.onload = () => res(im); im.src = e.jpg; });
     const x = (i % COLS) * CW, y = 40 + Math.floor(i / COLS) * CH;
     g.drawImage(img, x + (CW - e.w) / 2, y + 6 + (300 - e.h) / 2);
     g.fillStyle = '#222'; g.font = '12px sans-serif';
-    g.fillText(`${e.line} · ${e.seed} · ${e.size} · ${e.pair}`.slice(0, 46), x + 6, y + 318);
+    g.fillText((e.recipe ? `${e.family} · ${e.gen} · ${e.line} · ${e.pair}` : `${e.line} · ${e.seed} · ${e.size} · ${e.pair}`).slice(0, 46), x + 6, y + 318);
     g.fillText(`${e.ground}${e.photo ? ' ' + e.photo.slice(0, 18) : ''} · ${e.face}`.slice(0, 46), x + 6, y + 333);
   }
   return c.toDataURL('image/jpeg', .84);
 }, { cells, COLS, CW, CH, rows, TAG });
+// the before: the same recipes as the census last drew them, where it has them
+let before = null;
+const TH = ROOT + '.render/ad-review/data/thumbs-recipe.json';
+if (RECIPES && existsSync(TH)) {
+  const T = JSON.parse(readFileSync(TH, 'utf8')), have = cells.filter(e => T[e.recipe]);
+  if (have.length) before = await page.evaluate(async ({ list, COLS, CW, CH }) => {
+    const rows = Math.ceil(list.length / COLS), c = document.createElement('canvas'); c.width = COLS * CW; c.height = rows * CH + 40;
+    const g = c.getContext('2d'); g.fillStyle = '#e9e9ec'; g.fillRect(0, 0, c.width, c.height);
+    g.fillStyle = '#111'; g.font = 'bold 22px sans-serif'; g.fillText(`The same recipes before the rebuild (the census's last drawing): ${list.length}`, 12, 28);
+    for (let i = 0; i < list.length; i++) {
+      const img = await new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = list[i].src; }); if (!img) continue;
+      const k = Math.min(1, 300 / Math.max(img.width, img.height)), w = img.width * k, h = img.height * k, x = (i % COLS) * CW, y = 40 + Math.floor(i / COLS) * CH;
+      g.drawImage(img, x + (CW - w) / 2, y + 6 + (300 - h) / 2, w, h);
+      g.fillStyle = '#222'; g.font = '12px sans-serif'; g.fillText(list[i].cap.slice(0, 46), x + 6, y + 318);
+    }
+    return c.toDataURL('image/jpeg', .84);
+  }, { list: have.map(e => ({ src: T[e.recipe], cap: `${e.family} · ${e.gen} · ${e.line}` })), COLS, CW, CH });
+}
 await browser.close();
+if (before) { writeFileSync(OUT + `full-look-sheet-${TAG}-before.jpg`, Buffer.from(before.split(',')[1], 'base64')); console.log('wrote .render/full-look-sheet-' + TAG + '-before.jpg'); }
 
 // the spread
 const count = k => { const m = {}; for (const e of cells) m[e[k]] = (m[e[k]] || 0) + 1; return m; };

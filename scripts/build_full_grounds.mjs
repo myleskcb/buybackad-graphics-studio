@@ -23,6 +23,12 @@ const ROOT = new URL('../', import.meta.url).pathname, SRC = ROOT + 'spec/full-g
 const spec = JSON.parse(readFileSync(SRC, 'utf8'));
 const subjects = JSON.parse(readFileSync(ROOT + 'motion/subjects.json', 'utf8')).subjects;
 const pooled = [...new Set(Object.values(spec.pools).flat())];
+/* the cards' own photographs (motion/recipes.json, the rebuild of 2026-11-18): a rebuilt recipe may stand
+   on the photograph its card stood on, where that fits the product its seed drew and is not dim (the
+   owner: "not low exposure dark images..."); measured here as the pools are, and marked dim where under
+   the limits (fullad.js groundFor passes over a dim one), never pooled for other ads */
+const RECIPES = existsSync(ROOT + 'motion/recipes.json') ? JSON.parse(readFileSync(ROOT + 'motion/recipes.json', 'utf8')).recipes || [] : [];
+const carded = [...new Set(RECIPES.filter(r => r.ground_photo && r.ground_photo.src).map(r => r.ground_photo.src))].filter(f => !pooled.includes(f)).sort();
 
 if (process.argv.includes('--measure')) {
   const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8931/').replace(/\/?$/, '/');
@@ -55,7 +61,7 @@ if (process.argv.includes('--measure')) {
         hue: strong ? Math.round((Math.atan2(sy, sx) * 180 / Math.PI + 360) % 360) : null, C: strong ? +Cs[Cs.length >> 1].toFixed(3) : 0, share: +(Cs.length / n).toFixed(2) };
     }
     return out;
-  }, { files: pooled, base: BASE });
+  }, { files: [...pooled, ...carded], base: BASE });
   await b.close();
   for (const [f, m] of Object.entries(got)) spec.photos[f] = { ...(spec.photos[f] || {}), ...m };
   writeFileSync(SRC, JSON.stringify(spec, null, 2) + '\n');
@@ -70,8 +76,10 @@ const lineCat = Object.fromEntries(subjects.map(s => [s.key, s.cat]));
    and frames a scene so its floor is the product's foot */
 const TAGS = existsSync(ROOT + 'spec/ground-tags.json') ? JSON.parse(readFileSync(ROOT + 'spec/ground-tags.json', 'utf8')).tags : {};
 const TAG_KEYS = ['shows', 'subject', 'make', 'model', 'vehicle', 'floor', 'never', 'cuts'];
-const photos = Object.fromEntries(pooled.filter(f => spec.photos[f] && !spec.photos[f].error).map(f => {
-  const m = spec.photos[f], t = TAGS[f] || {}; return [f, { focus: m.focus || [.5, .5], L: m.L, hue: m.hue, C: m.C, w: m.w, h: m.h, ...Object.fromEntries(TAG_KEYS.filter(k => t[k] != null && t[k] !== '').map(k => [k, t[k]])) }];
+const dim = m => m.L < spec.limits.minL || m.dark > spec.limits.maxDark;
+const photos = Object.fromEntries([...pooled, ...carded].filter(f => spec.photos[f] && !spec.photos[f].error).map(f => {
+  const m = spec.photos[f], t = TAGS[f] || {}, card = !pooled.includes(f);
+  return [f, { focus: m.focus || [.5, .5], L: m.L, hue: m.hue, C: m.C, w: m.w, h: m.h, ...Object.fromEntries(TAG_KEYS.filter(k => t[k] != null && t[k] !== '').map(k => [k, t[k]])), ...(card ? { card: true } : {}), ...(card && dim(m) ? { dim: true } : {}) }];
 }));
 const untagged = pooled.filter(f => !TAGS[f]);
 const text = `/* MADE FROM spec/full-grounds.json BY scripts/build_full_grounds.mjs (version ${spec.version}).
@@ -100,6 +108,7 @@ if (process.argv.includes('--check')) {
     const A = credit[dir]; if (!A) return false;
     return Array.isArray(A) ? A.some(r => r && r.file === base) : !!(A[base] || A[base.replace(/\.[a-z]+$/i, '')]);
   };
+  for (const f of carded) { const m = spec.photos[f]; if (!m || (m.L == null && !m.error)) bad.push(`${f}: a card's photograph, not measured (run --measure)`); }
   for (const f of pooled) {
     const m = spec.photos[f];
     if (!existsSync(ROOT + f)) bad.push(`${f}: missing`);
@@ -113,7 +122,7 @@ if (process.argv.includes('--check')) {
   const noPool = subjects.filter(s => !(s.cat in spec.pools)).map(s => s.key);
   if (noPool.length) bad.push('lines whose category has no pool entry: ' + noPool.join(', '));
   if (bad.length) { console.error(bad.join('\n')); process.exit(1); }
-  console.log(`motion/full-grounds.js is current: ${pooled.length} photographs in ${Object.keys(spec.pools).length} pools, ${spec.scenes.length} scenes, ${(spec.gradients || []).length} gradients, ${(spec.patterns || []).length} patterns, version ${spec.version}`);
+  console.log(`motion/full-grounds.js is current: ${carded.length} cards' own photographs (${carded.filter(f => spec.photos[f] && spec.photos[f].L != null && dim(spec.photos[f])).length} dim), ${pooled.length} photographs in ${Object.keys(spec.pools).length} pools, ${spec.scenes.length} scenes, ${(spec.gradients || []).length} gradients, ${(spec.patterns || []).length} patterns, version ${spec.version}`);
 } else {
   writeFileSync(OUT, text);
   console.log(`wrote motion/full-grounds.js: ${Object.keys(photos).length} photographs, ${spec.scenes.length} scenes, shares ${JSON.stringify(spec.shares)}`);
