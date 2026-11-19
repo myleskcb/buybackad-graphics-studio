@@ -64,9 +64,16 @@ if (process.argv.includes('--measure')) {
 
 // the line's pool: its category (motion/subjects.json), the iPhone line's 'phones'
 const lineCat = Object.fromEntries(subjects.map(s => [s.key, s.cat]));
+/* what each photograph shows (spec/ground-tags.json, read by eye: "ideally bg and assets line up",
+   2026-11-18): a scene or a photograph of goods, the make and model of a vehicle or a phone, and the
+   floor a scene's product stands on; fullad.js draws a photograph only beside a product it shows,
+   and frames a scene so its floor is the product's foot */
+const TAGS = existsSync(ROOT + 'spec/ground-tags.json') ? JSON.parse(readFileSync(ROOT + 'spec/ground-tags.json', 'utf8')).tags : {};
+const TAG_KEYS = ['shows', 'subject', 'make', 'model', 'vehicle', 'floor', 'never', 'cuts'];
 const photos = Object.fromEntries(pooled.filter(f => spec.photos[f] && !spec.photos[f].error).map(f => {
-  const m = spec.photos[f]; return [f, { focus: m.focus || [.5, .5], L: m.L, hue: m.hue, C: m.C, w: m.w, h: m.h }];
+  const m = spec.photos[f], t = TAGS[f] || {}; return [f, { focus: m.focus || [.5, .5], L: m.L, hue: m.hue, C: m.C, w: m.w, h: m.h, ...Object.fromEntries(TAG_KEYS.filter(k => t[k] != null && t[k] !== '').map(k => [k, t[k]])) }];
 }));
+const untagged = pooled.filter(f => !TAGS[f]);
 const text = `/* MADE FROM spec/full-grounds.json BY scripts/build_full_grounds.mjs (version ${spec.version}).
    Never type into it: change the table, then run the script. What the full ad stands on: the shares of
    a seed's draw, the drawn scenes, and each category's photographs with their measured colour. */
@@ -74,6 +81,7 @@ export const GROUND_VERSION = ${JSON.stringify(spec.version)};
 export const GROUND_SHARES = ${JSON.stringify(spec.shares)};
 export const GROUND_HOUSE = ${JSON.stringify(spec.house)};
 export const GROUND_SCENES = ${JSON.stringify(spec.scenes)};
+export const GROUND_GRADIENTS = ${JSON.stringify(spec.gradients || [])};
 export const GROUND_POOLS = ${JSON.stringify(spec.pools)};
 export const GROUND_LINE_CAT = ${JSON.stringify(lineCat)};
 export const GROUND_PHOTOS = ${JSON.stringify(photos)};
@@ -83,6 +91,7 @@ if (process.argv.includes('--check')) {
   const bad = [];
   const now = existsSync(OUT) ? readFileSync(OUT, 'utf8') : '';
   if (now !== text) bad.push('motion/full-grounds.js is stale: run node scripts/build_full_grounds.mjs');
+  for (const f of untagged) bad.push(`${f} is pooled but not tagged in spec/ground-tags.json (what it shows, its floor)`);
   const credit = {};
   const credited = f => {
     const dir = f.slice(0, f.lastIndexOf('/')), base = f.slice(f.lastIndexOf('/') + 1);

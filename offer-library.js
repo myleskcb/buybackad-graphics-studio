@@ -225,6 +225,8 @@
     'ip-group-colour-lineup':[1752,1042], 'ipad-front-screen-off':[1323,1593], 'macbook-open-angle':[1764,1276], 'mac-half-open-glow':[1720,1499],
     'watch-pair-bands':[863,1226], 'buds-pair-loose':[1286,1517], 'silver-candlesticks':[1314,1640], 'strip-boxes':[444,418],
     'poke-psa-charizard':[369,610], 'ph-sports-slabs-fan':[1414,1350], 'ph-sports-cards-fan':[1342,1138], 'ph-sports-slab':[727,1207], 'ph-sports-box':[1312,832], };
+  /* the car lines' pictures (2026-11-18): identified vehicles only (assets/vehicles.json names make and model) */
+  Object.assign(SIZE, { 'car-toyota-camry-silver':[1835,704], 'car-honda-civic-white':[1787,889], 'car-toyota-rav4-white':[1684,881], 'car-tesla-model-y-blue':[1833,844], 'car-toyota-tacoma-trd-black':[1798,1195], 'car-honda-accord-white':[1845,1196], 'car-chevy-camaro-1969-silver':[1892,751], 'car-ford-bronco-1st-gen-cream':[1676,873], 'car-chevy-corvette-c1-blue':[1842,771], 'car-chevy-silverado-red':[1784,776], 'car-porsche-356-blue':[1658,673], 'car-jeep-wagoneer-classic-red':[1825,999], 'car-honda-civic-type-r-fl5-white':[1621,916], 'car-nissan-skyline-gtr-r34-blue':[1759,957], 'car-toyota-gr-supra-2026-red':[1579,763], 'car-nissan-gtr-r35-white':[1646,835], 'car-toyota-gr86-blue':[1823,843], 'car-honda-s2000-silver':[1793,819], 'car-chevy-silverado-zr2-red':[1675,1194], 'car-ford-f150-raptor-2026-black':[1902,1189], 'car-ford-f150-lightning-black':[1715,843], 'car-toyota-tacoma-orange':[1818,954], 'car-toyota-highlander-silver':[1562,691], 'car-toyota-prius-2026-grey':[1571,859], 'car-toyota-gr-corolla-black':[1656,984], 'car-honda-hrv-beige':[1780,969], 'car-bmw-x3-black':[1794,1145], 'car-bmw-m3-blue':[1784,923], 'car-bmw-ix3-2026-white':[1817,858], 'car-bmw-m4-convertible-black':[1808,851], 'car-mercedes-c-class-all-terrain-white':[1732,1118], 'car-mercedes-glc-blue':[1786,818], 'car-mercedes-amg-g63-2025-black':[1620,1186], 'car-mercedes-amg-gle63-silver':[1806,1023], 'car-mercedes-s-class-black':[1792,765], 'car-ford-transit-connect-white':[1829,1065], 'car-ram-promaster-grey':[1858,1145], 'car-ldv-maxus-van-white':[1804,1052], 'car-freightliner-cascadia-blue':[1725,1268], 'car-peterbilt-389-white':[1859,1300] });
 
   /* ── THE STEPS, in the owner's words. What to send changes per line; the
      meeting and the pay do not. "Nearby" rather than the owner's "In Long
@@ -364,7 +366,7 @@
     { key:'car', cat:'cars', label:'Cars and trucks', models:'Cars, trucks and SUVs, running or not',
       heads:['Car sitting in the driveway? Sell it.', 'Your old car is cash.', 'Running or not, we buy it.'],
       ask:'Year, make, model and miles', meet:'Where the car is, checked with you', paid:'Cash, at the car', check:['Title in hand helps', 'Running or not', 'Keys if you have them'],
-      sets:[[['car-sedan-rear', 1]], [['car-suv-side', 1]], [['car-damaged-front', 1]]] },
+      sets:[[['car-toyota-camry-silver', 1]], [['car-honda-civic-white', 1]], [['car-toyota-rav4-white', 1]], [['car-tesla-model-y-blue', 1]], [['car-toyota-tacoma-trd-black', 1]], [['car-honda-accord-white', 1]]] },
     { key:'strips', cat:'strips', label:'Test strips', models:'Sealed, unexpired test strip boxes',
       heads:['Extra test strips? Sell them.', 'Sealed boxes? Get cash.', 'Unused test strips are cash.'],
       ask:'Brand, count and expiry date', check:['Sealed and unexpired only', 'All the major brands', NOSHIP],
@@ -386,6 +388,47 @@
       heads:['Drone grounded? Get cash.', 'Your old drone is cash.'],
       ask:'Model, batteries and controller', check:['Bring the controller', 'Every battery you have', NOSHIP],
       sets:[[['drone-folded', 1]]] },
+    /* THE CAR LINES (owner, 2026-11-18: "JDM could be a category, classics, trucks, toyotas, hondas, bmw,
+       mercedes / amg, work vans, semi trucks, sprinters..", "unidentified cars skip we need to know what it is
+       with confidence.. and if it's classic goes in the classic category"). Every picture is one
+       assets/vehicles.json names; a classic is one it marks vintage. There is no Sprinter photograph yet:
+       the Work vans line names it in its words and shows a Transit, a ProMaster or another identified van. */
+    { key:'classic', cat:'cars', label:'Classic cars', models:'Classic and vintage cars, running or restored',
+      heads:['Classic in the garage? Sell it.', 'Your classic car is cash.', 'Vintage car? Get an offer.'],
+      ask:'Year, make, model and photos', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Running or not, say so', 'Original or restored'],
+      sets:[[['car-chevy-camaro-1969-silver', 1]], [['car-ford-bronco-1st-gen-cream', 1]], [['car-chevy-corvette-c1-blue', 1]], [['car-chevy-silverado-red', 1]], [['car-porsche-356-blue', 1]], [['car-jeep-wagoneer-classic-red', 1]]] },
+    { key:'jdm', cat:'cars', label:'JDM cars', models:'Supra, GT-R, Type R, GR86, S2000 and more',
+      heads:['JDM car to sell? We buy it.', 'Your JDM build is cash.', 'Supra, GT-R or Type R? Get an offer.'],
+      ask:'Year, model, mods and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['List the mods', 'Title in hand helps', 'Keys and spares'],
+      sets:[[['car-honda-civic-type-r-fl5-white', 1]], [['car-nissan-skyline-gtr-r34-blue', 1]], [['car-toyota-gr-supra-2026-red', 1]], [['car-nissan-gtr-r35-white', 1]], [['car-toyota-gr86-blue', 1]], [['car-honda-s2000-silver', 1]]] },
+    { key:'trucks', cat:'cars', label:'Trucks', models:'F-150, Silverado, Ram, Tacoma, Tundra and more',
+      heads:['Truck in the driveway? Sell it.', 'Your old truck is cash.', 'Running or not, we buy trucks.'],
+      ask:'Year, make, model and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Running or not', 'Keys if you have them'],
+      sets:[[['car-chevy-silverado-zr2-red', 1]], [['car-ford-f150-raptor-2026-black', 1]], [['car-toyota-tacoma-trd-black', 1]], [['car-ford-f150-lightning-black', 1]], [['car-toyota-tacoma-orange', 1]]] },
+    { key:'toyota', cat:'cars', label:'Toyota', models:'Camry, Corolla, RAV4, Tacoma, Tundra, Highlander',
+      heads:['Selling your Toyota? We buy it.', 'Your old Toyota is cash.', 'Camry, RAV4 or Tacoma? Get an offer.'],
+      ask:'Year, model and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Running or not', 'Keys if you have them'],
+      sets:[[['car-toyota-camry-silver', 1]], [['car-toyota-rav4-white', 1]], [['car-toyota-tacoma-trd-black', 1]], [['car-toyota-highlander-silver', 1]], [['car-toyota-prius-2026-grey', 1]], [['car-toyota-gr-corolla-black', 1]]] },
+    { key:'honda', cat:'cars', label:'Honda', models:'Civic, Accord, CR-V, HR-V and more',
+      heads:['Selling your Honda? We buy it.', 'Your old Honda is cash.', 'Civic, Accord or CR-V? Get an offer.'],
+      ask:'Year, model and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Running or not', 'Keys if you have them'],
+      sets:[[['car-honda-civic-white', 1]], [['car-honda-accord-white', 1]], [['car-honda-civic-type-r-fl5-white', 1]], [['car-honda-hrv-beige', 1]]] },
+    { key:'bmw', cat:'cars', label:'BMW', models:'3 Series, 5 Series, X3, X5 and M cars',
+      heads:['Selling your BMW? We buy it.', 'Your BMW is cash.', 'X3, X5 or M3? Get an offer.'],
+      ask:'Year, model and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Service records help', 'Keys if you have them'],
+      sets:[[['car-bmw-x3-black', 1]], [['car-bmw-m3-blue', 1]], [['car-bmw-ix3-2026-white', 1]], [['car-bmw-m4-convertible-black', 1]]] },
+    { key:'mercedes', cat:'cars', label:'Mercedes / AMG', models:'C-Class, GLC, G-Class, AMG and more',
+      heads:['Selling your Mercedes? We buy it.', 'Your Mercedes is cash.', 'AMG or G-Class? Get an offer.'],
+      ask:'Year, model and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Service records help', 'Keys if you have them'],
+      sets:[[['car-mercedes-c-class-all-terrain-white', 1]], [['car-mercedes-glc-blue', 1]], [['car-mercedes-amg-g63-2025-black', 1]], [['car-mercedes-amg-gle63-silver', 1]], [['car-mercedes-s-class-black', 1]]] },
+    { key:'vans', cat:'cars', label:'Work vans', models:'Sprinter, Transit, ProMaster and cargo vans',
+      heads:['Work van to sell? We buy it.', 'Your old work van is cash.', 'Sprinter or Transit? Get an offer.'],
+      ask:'Year, model and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Racks and shelving too', 'High miles OK'],
+      sets:[[['car-ford-transit-connect-white', 1]], [['car-ram-promaster-grey', 1]], [['car-ldv-maxus-van-white', 1]]] },
+    { key:'semis', cat:'cars', label:'Semi trucks', models:'Freightliner, Peterbilt, Kenworth and more',
+      heads:['Semi truck to sell? We buy it.', 'Your old semi is cash.', 'Day cab or sleeper? Get an offer.'],
+      ask:'Year, make, model and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Running or not', 'Paperwork ready'],
+      sets:[[['car-freightliner-cascadia-blue', 1]], [['car-peterbilt-389-white', 1]]] },
   ];
 
   /* ── THE PHOTOGRAPHS. The owner, 2026-09-27: "the gray sections should have a
@@ -407,6 +450,9 @@
        '56 Chevy and the studio's own sunset scene; out went the lot (another dealer's sign and phone number on its wall) and the
        black classic at a show (median 70, people behind it) */
     cars: [{ file:'trucks-pickup-truck-1', p90:198 }, { file:'dl_cars_stepsFlow_sunset', p90:216 }],
+    /* the car lines (2026-11-18): the sunset scene alone, so no other car stands behind a line's own (the owner:
+       "ideally bg and assets line up"); Classic cars keeps the '56 Chevy beside it */
+    carScene: [{ file:'dl_cars_stepsFlow_sunset', p90:216 }],
     iphone: [{ file:'phones-iphone-15-pro-back-camera-1', p90:166 }, { file:'phones-iphone-14-pro-1', p90:118 }, { file:'phones-apple-iphone-15-1', p90:181 }],
     /* 2026-10-11, the owner of the 11-inch Air on a desk: "this MacBook in the background is old design language ... We don't buy
        so it's misrepresenting". The line buys M1 and newer: a 16-inch M4 Pro and an M2 Air stand in for that Air and for a keyboard
@@ -439,6 +485,7 @@
   // 2026-11-18: the gaming PC setup left them, the darkest room (half its pixels under 49 of 255: "not low exposure dark images")
   const GROUND_OF = { iphone:'iphone', ipad:'iphone', mac:'mac', gold:'gold', silver:'silver', coins:'coins', car:'cars',
     strips:'strips', pokemon:'pokemon', sports:'sports', gaming:'gaming', headset:'gaming', monitor:'gaming',
+    classic:'cars', jdm:'carScene', trucks:'carScene', toyota:'carScene', honda:'carScene', bmw:'carScene', mercedes:'carScene', vans:'carScene', semis:'carScene',
     watch:'watch', galaxy:'desk', pixel:'desk', foldable:'desk', tablet:'desk', headphones:'headphones', earbuds:'earbuds', speaker:'speaker',
     laptop:'desk', ssd:'desk', minipc:'desk', chromebook:'desk', metaglasses:'glasses', smartwatch:'desk', camera:'camera', drone:'drone' };
   /* white on black-shaded pixels of luminance v: v * (1 - a) <= 118 is 4.5:1;

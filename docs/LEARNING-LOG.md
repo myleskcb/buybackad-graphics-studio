@@ -5805,3 +5805,15 @@ RESUME HERE:
      grounds for the offer cards (§BK 3): the rest of the blocking time.
   3. The day buyback.ad answers: `SITE` in build_seo_pages.mjs, then Search
      Console and Bing with the sitemap.
+
+## 2026-11-18 (later) — the census's variety work folded into pull request 14 (claude/ads-improvement-roadmap-7632c8)
+
+The owner's word again: claude/xenodochial-mccarthy-7bea6d as pushed (27487bfb) is
+merged here. It had merged this branch first, so nothing clashed and the tree is the
+census's own: the hero wall's recipe and full-ad picks, cars as ten identified lines,
+grounds matched to the product, stickers, headlines, entrances and numbers that vary
+by the seed, pair gradients, and pools that load only the picture a seed draws.
+Not in it: 5f0e6ba8 (the pickup cards on the Trucks line, no unidentified car, no
+open laptop on the sealed Chromebook line), committed in the census session but not
+pushed; fold it in once it is. Pull request 15 (the site's look and SEO) is cut from
+cb6d8321, so it meets this in OPEN-ITEMS.md, where both added to the end.

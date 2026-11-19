@@ -3904,6 +3904,13 @@ Open:
    picture picker in the makers** (above).
 4. **The older renderings**: retire them (`scripts/retire_older_ads.mjs`, or all of them) once the
    owner has audited the recipes on the review page; then the hero picks.
+5. **The hero wall takes house ads** (done, 2026-11-18): a recipe or a full-ad look the owner marks
+   Hero goes on `assets/hero-picks.json` (`apply_review.mjs`), `scripts/build_hero_stills.mjs` draws
+   its still into `assets/hero/` (`--check` fails a pick without one), and the wall shows it and
+   opens it in Easy Mode's full ad. A pick on a line the platform mix does not weigh (foldables,
+   gaming PCs, headsets, monitors, SSDs and the like) still never takes a wall slot: the owner's
+   mix decides which lines the wall shows. Van cards now draw a van (Transit, ProMaster) where
+   they had drawn an SUV.
 
 ## BK. 2026-11-18 — the site in the full ad's look; search, structured data, llms.txt; Core Web Vitals (DESIGN-LAW 146)
 

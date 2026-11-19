@@ -16,13 +16,14 @@
 import { Ad, inkSprite, splitLines, trim, canvas, lum, prog, outBack, rng, clamp, contrastOf, fontCss, applyCase, labelFont, burstFontFor,
   headlineLines, numberSprite, perksSprite, pointsOf, randomize, harmonise, formatNumber, oklchOf } from "./engine.js";
 import { FONTS, FINE_FACES, PALETTES, DEFAULT_STYLE, TYPE_VOICES, DEFAULT_PHONES } from "./catalog.js";
-import { drawChevrons } from "./decor.js";
+import { drawChevrons, fillGradient } from "./decor.js";
+import { FULL_STYLES, pickFullStyles } from "./full-styles.js";
 import { placeAccents, timeAccents } from "./accents.js";
 import { HOUSE_COLOURS, LINES } from "./house-colours.js";
 import { FULL_VOICES } from "./full-voices.js";
 import { bannedIn } from "./banned-words.js";
 import { PHONE_WEIGHT, PHONE_REST, PHONE_VIEWS, PHONE_COUNTS, PHONE_LINEUP, pickWeighted } from "./product-demand.js";
-import { GROUND_SHARES, GROUND_SCENES, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS } from "./full-grounds.js";
+import { GROUND_SHARES, GROUND_SCENES, GROUND_GRADIENTS, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS } from "./full-grounds.js";
 
 // Proportions of the frame's width. 1080 x .052 = 56px, x .044 = 48px, x .032 = 35px.
 // edge: nothing nearer the frame's edge than 38px; gap: no two stacked blocks nearer than 22px.
@@ -371,18 +372,54 @@ function photoSuits(m, pairKey) {
   const hues = [c.colors.accent, c.colors.ground].map(oklchOf).filter(k => k.C >= .04).map(k => k.h);
   return hues.some(h => Math.min(Math.abs(h - m.hue), 360 - Math.abs(h - m.hue)) <= 30);
 }
+/* THE GROUND AND THE PRODUCT LINE UP (the owner, 2026-11-18: "ideally bg and assets line up").
+   Each photograph is tagged (spec/ground-tags.json, read by eye, carried into GROUND_PHOTOS by
+   scripts/build_full_grounds.mjs): a scene, or a photograph of goods with the make and model of a
+   vehicle or a phone. A photograph of goods stands behind an ad only when they are the ad's own: the
+   same make and model of a vehicle or a phone, the same kind of goods otherwise (never a MacBook
+   behind an iPhone, a gold coin behind silver flatware, a Ford behind a RAM). A scene goes with any. */
+const GROUND_KIND = { ipad: ["ipad"], mac: ["mac"], watch: ["watch"], smartwatch: ["watch"], headphones: ["headphones"], headset: ["headphones"], earbuds: ["earbuds"], speaker: ["speaker"],
+  camera: ["camera"], drone: ["drone"], gold: ["gold"], silver: ["silver", "coins"], coins: ["coins"], strips: ["strips"], pokemon: ["pokemon"], sports: ["sports"], metaglasses: ["metaglasses"] };
+const carOf = f => { const m = /^car-([a-z]+)-([a-z0-9]+)/.exec(f || ""); return m ? { make: m[1] === "chevrolet" ? "chevy" : m[1], model: m[2], van: /van|transit|sprinter|promaster/.test(f) } : null; };
+const iphoneOf = id => { const m = /^(\d+e?)((?:-pro|-plus|-mini)?(?:-max)?)(?:-|$)/.exec(id || "") || /iphone-(\d+e?)((?:-pro|-plus|-mini)?(?:-max)?)/.exec(id || ""); return m ? (m[1] + m[2].replace(/-/g, " ")).trim() : ""; };
+/** What an ad shows, as its ground is matched against it: { kind, makes, models, van, files }. */
+export function productFor(subject, have) {
+  const line = subject && subject !== "iphone" ? subject : "iphone";
+  const files = (have || []).filter(Boolean).map(id => String(id).replace(/^sub-/, "").replace(/^recipe:[^/]*\//, ""));
+  if (line === "iphone") return { kind: "iphone", models: files.map(iphoneOf), files };
+  if (line === "car") { const c = files.map(carOf).filter(Boolean); return { kind: "car", makes: c.map(x => x.make), models: c.map(x => x.model), van: c.some(x => x.van), files }; }
+  return { kind: line, files };
+}
+/** Whether a ground photograph's tag agrees with the product (productFor). */
+export function groundFits(t, P) {
+  if (!t || t.never) return false;
+  if (!t.shows || t.shows === "scene" || !P) return true;
+  if (!P.files || !P.files.length) return P.kind === "car" || P.kind === "iphone" ? false : (GROUND_KIND[P.kind] || []).includes(t.subject);
+  if (P.kind === "car") {
+    if (!t.make || !P.makes.length || P.makes.some(m => m !== t.make)) return false;
+    if (t.subject === "car-key") return true;
+    if (t.subject !== "car" || (P.van && t.vehicle !== "van")) return false;
+    if (t.cuts && !P.files.every(f => t.cuts.includes(f))) return false;   // the photograph's own cut-outs only (an E46 is not a G80 M3)
+    return !t.model || P.models.every(m => !m || m === t.model);
+  }
+  if (P.kind === "iphone") return t.subject === "iphone" && !!t.model && P.models.length > 0 && P.models.every(m => m === t.model);
+  return (GROUND_KIND[P.kind] || []).includes(t.subject);
+}
 /** The ground a seed draws for a line and the pair it drew: { background, ground_photo? }, or null
- *  for the house gradient the seed already drew. */
-export function groundFor(subject, seed, pairKey) {
+ *  for the house gradient the seed already drew. product (productFor): only a photograph that agrees
+ *  with it is drawn. */
+export function groundFor(subject, seed, pairKey, product) {
   const cat = !subject || subject === "iphone" ? "phones" : (GROUND_LINE_CAT[subject] || "");
-  const pool = (GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && photoSuits(GROUND_PHOTOS[src], pairKey));
-  const share = { photo: pool.length ? GROUND_SHARES.photo : 0, scene: GROUND_SCENES.length ? GROUND_SHARES.scene : 0, house: GROUND_SHARES.house };
+  const pool = (GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && photoSuits(GROUND_PHOTOS[src], pairKey) && groundFits(GROUND_PHOTOS[src], product));
+  const share = { photo: pool.length ? GROUND_SHARES.photo : 0, scene: GROUND_SCENES.length ? GROUND_SHARES.scene : 0, gradient: GROUND_GRADIENTS.length ? (GROUND_SHARES.gradient || 0) : 0, house: GROUND_SHARES.house };
   // the line's own stream: two lines on one seed do not stand on the same kind of ground
   let h = 0x811c9dc5; for (const ch of String(subject || "iphone")) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
   const g = rng(mixSeed((mixSeed(seed >>> 0) ^ h) >>> 0)); g();
-  let u = g() * (share.photo + share.scene + share.house);
+  let u = g() * (share.photo + share.scene + share.gradient + share.house);
   if ((u -= share.photo) < 0) { const src = pool[Math.floor(g() * pool.length) % pool.length]; return { background: "photo", ground_photo: { src, focus: GROUND_PHOTOS[src].focus || [.5, .5] } }; }
   if ((u -= share.scene) < 0) return { background: GROUND_SCENES[Math.floor(g() * GROUND_SCENES.length) % GROUND_SCENES.length] };
+  // a vivid gradient in the pair's own two families (decor.js pairGradientGround; the owner: "Also don't see any gradients really?")
+  if ((u -= share.gradient) < 0) return { background: GROUND_GRADIENTS[Math.floor(g() * GROUND_GRADIENTS.length) % GROUND_GRADIENTS.length] };
   return null;
 }
 export const ARRANGEMENTS = ["lineup", "fan", "showcase", "podium", "wings"];
@@ -516,17 +553,47 @@ function footRow(text, px, color, family, weight, pinFill) {
  *  4px of its lower edge while 22px stood clear above (review, 2026-11-12; DESIGN-LAW 58: copy is
  *  never touched by a plate's edge). Returns the sprite, the margin its shadow takes round the
  *  pill, and the pill's own size. */
-function numberPill(text, size, font, p) {
-  const col = contrastOf(p.plate_ink, p.plate) >= 3.5 ? p.plate_ink : (lum(p.plate) > .5 ? "#111111" : "#ffffff");
+function numberPill(text, size, font, p, style = "pill", grad = false, bare = p.ink) {
+  /* the number's treatment (spec/full-styles.json, 2026-11-18: "all of the CTA still look a little too
+     common and similar"): a pill, a box, a ticket with its notches, a swing tag with its hole, or no
+     plate at all and a bar of the accent under the figures, in the lines' own ink (bare) with their
+     soft shadow; any plate may be lit from above (grad). The figures keep their clear margin on
+     every one (DESIGN-LAW 58). */
+  const plate = style !== "underline";
+  const col = plate ? (contrastOf(p.plate_ink, p.plate) >= 3.5 ? p.plate_ink : (lum(p.plate) > .5 ? "#111111" : "#ffffff")) : bare;
   const P = { ...p, ink: col, accent: col };
-  const ink = trim(inkSprite(text, [...text].map(() => col), font, size, 0, "flat", P, 0).c);
-  const padX = size * .5, padY = Math.max(size * .17, ink.height * .19), w = Math.ceil(ink.width + padX * 2), h = Math.ceil(ink.height + padY * 2);
+  const ink = trim(inkSprite(text, [...text].map(() => col), font, size, 0, plate || lum(col) < .5 ? "flat" : "shadow", P, 0).c);
+  const padX = size * .5, padY = Math.max(size * .17, ink.height * .19), h = Math.ceil(ink.height + padY * 2);
+  const extra = style === "tag" ? h * .55 : style === "ticket" ? h * .3 : 0, w = Math.ceil(ink.width + padX * 2 + extra);
   const sk = Math.max(.2, size / 96), m = Math.ceil(16 * sk);
   const c = canvas(w + m * 2, h + m * 2), x = c.getContext("2d");
+  if (!plate) {
+    const bar = Math.max(4, size * .09); let acc = p.accent; if (Math.abs(lum(acc) - lum(p.ground)) < .15) acc = col;
+    x.drawImage(ink, m + (w - ink.width) / 2, m + (h - ink.height) / 2 - bar * .35);
+    x.beginPath(); x.roundRect(m + (w - ink.width) / 2, m + h - bar * 1.15, ink.width, bar, bar / 2); x.fillStyle = acc; x.fill();
+    return { c, pad: m, w, h, inkH: ink.height, plate: false, bar: acc };   // the bar is the number's own mark: the pre-flight sets it aside
+  }
+  const fill = grad ? fillGradient(x, 0, m, 0, m + h, p.plate, col, 3.5) : p.plate;
   x.save(); x.shadowColor = "rgba(0,0,0,.32)"; x.shadowBlur = 11 * sk; x.shadowOffsetY = 4 * sk;
-  x.beginPath(); x.roundRect(m, m, w, h, h / 2); x.fillStyle = p.plate; x.fill(); x.restore();
-  x.drawImage(ink, m + (w - ink.width) / 2, m + (h - ink.height) / 2);
-  return { c, pad: m, w, h, inkH: ink.height };
+  x.beginPath();
+  if (style === "box") x.roundRect(m, m, w, h, h * .2);
+  else if (style === "ticket") x.roundRect(m, m, w, h, h * .12);
+  else if (style === "tag") {
+    const pt = h * .45, rr = h * .12;
+    x.moveTo(m + pt, m); x.lineTo(m + w - rr, m); x.quadraticCurveTo(m + w, m, m + w, m + rr); x.lineTo(m + w, m + h - rr);
+    x.quadraticCurveTo(m + w, m + h, m + w - rr, m + h); x.lineTo(m + pt, m + h); x.lineTo(m, m + h / 2); x.closePath();
+  } else x.roundRect(m, m, w, h, h / 2);
+  x.fillStyle = fill; x.fill(); x.restore();
+  if (style === "ticket") {
+    x.save(); x.globalCompositeOperation = "destination-out";
+    [m, m + w].forEach(cx => { x.beginPath(); x.arc(cx, m + h / 2, h * .16, 0, 7); x.fill(); }); x.restore();
+    x.setLineDash([h * .07, h * .07]); x.strokeStyle = rgba(col, .55); x.lineWidth = Math.max(1.5, h * .035);
+    x.beginPath(); x.moveTo(m + h * .36, m + h * .2); x.lineTo(m + h * .36, m + h * .8); x.stroke(); x.setLineDash([]);
+  }
+  if (style === "tag") { x.save(); x.globalCompositeOperation = "destination-out"; x.beginPath(); x.arc(m + h * .3, m + h / 2, h * .085, 0, 7); x.fill(); x.restore(); }
+  const shift = style === "tag" ? h * .275 : style === "ticket" ? h * .15 : 0;
+  x.drawImage(ink, m + (w - ink.width) / 2 + shift, m + (h - ink.height) / 2);
+  return { c, pad: m, w, h, inkH: ink.height, plate: true };
 }
 
 const stackRows = (rows, gap) => {
@@ -620,6 +687,10 @@ export class FullAd extends Ad {
     if (this.groundImg) return false;
     const W = this.W, H = this.H, m = GROUND_PHOTOS[gp.src] || {};
     this.groundImg = img; this.groundFocus = Array.isArray(gp.focus) ? gp.focus : (m.focus || [.5, .5]);
+    // a scene with a floor (a desk top, a court, a sill: spec/ground-tags.json) is framed so the floor is
+    // the foot of the product band, where the product's own shadow falls (the owner: "bg and assets line up")
+    const shows = gp.shows || m.shows, floor = gp.floor != null ? +gp.floor : m.floor;
+    this.groundFloor = shows === "scene" && floor > 0 && floor < 1 && this.full && this.full.group ? floor : null;
     // the still's moment (fullStill's): the picture pushes in until then, and holds
     this.tHold = Math.max(isFinite(this.tl.number) ? this.tl.number + 1.2 : 0, (this.tLanded || 0) + .6, (this.tOutro != null ? this.tOutro : st.duration) - .4);
     this.groundDrift = ((st.seed | 0) % 2 ? 1 : -1) * .025;
@@ -643,10 +714,22 @@ export class FullAd extends Ad {
   _drawPhoto(ctx, t) {
     const img = this.groundImg, W = this.W, H = this.H, iw = img.naturalWidth, ih = img.naturalHeight;
     const u = clamp(t / Math.max(.5, this.tHold), 0, 1), e = 1 - (1 - u) ** 3;   // eases to rest
-    const k = Math.max(W / iw, H / ih), zoom = 1.02 + .07 * e;
-    const sw = W / (k * zoom), sh = H / (k * zoom);
+    const k = Math.max(W / iw, H / ih);
+    let zoom = 1.02 + .07 * e, sh = H / (k * zoom), sy;
+    if (this.groundFloor != null) {
+      // the floor line onto the product's foot: as close as cover-fit allows, pushing in (to 1.45x at
+      // most) where the photograph is too short above or below its floor to reach it otherwise
+      const fl = this.groundFloor, base = clamp(this.full.group[3], 1, H - 1);
+      const shMax = Math.min(fl * ih * H / base, (1 - fl) * ih * H / (H - base));
+      this.floorReach = shMax > 0 && H / (k * shMax) <= 1.45 + 1e-6;   // false: the photograph cannot bring its floor that far within 1.45x; it comes as close as it can
+      if (shMax > 0 && sh > shMax) { zoom = Math.min(H / (k * shMax), 1.45); sh = H / (k * zoom); }
+      sy = clamp(fl * ih - base * sh / H, 0, Math.max(0, ih - sh));
+      this.floorAt = (fl * ih - sy) * H / sh;   // where the floor line lands on the frame (full_colour_check holds it at the product's foot)
+    }
+    const sw = W / (k * zoom);
     const [fx, fy] = this.groundFocus, dx = this.groundDrift * (1 - e) * iw;
-    const sx = clamp(fx * iw - sw / 2 + dx, 0, Math.max(0, iw - sw)), sy = clamp(fy * ih - sh / 2, 0, Math.max(0, ih - sh));
+    const sx = clamp(fx * iw - sw / 2 + dx, 0, Math.max(0, iw - sw));
+    if (sy == null) sy = clamp(fy * ih - sh / 2, 0, Math.max(0, ih - sh));
     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
   }
 
@@ -783,7 +866,7 @@ export class FullAd extends Ad {
       const pmin = Math.floor(U * FULL.claimMin);
       for (let px = Math.round(U * FULL.claim); ; px = Math.max(pmin, Math.floor(px * .94))) {
         const row = footRow(text, px, inkc, cf, cw), h = Math.round(px * 1.7), w = Math.round(row.width + px * 1.5);
-        if (w <= colW) { const c = canvas(w, h), x = c.getContext("2d"); x.fillStyle = fill; x.beginPath(); x.roundRect(0, 0, w, h, h / 2); x.fill(); x.drawImage(row, (w - row.width) / 2, (h - row.height) / 2); claim = { c, fill, ink: inkc, px }; break; }
+        if (w <= colW) { const c = canvas(w, h), x = c.getContext("2d"); x.fillStyle = st.plate_grad ? fillGradient(x, 0, 0, 0, h, fill, inkc, 4.5) : fill; x.beginPath(); x.roundRect(0, 0, w, h, h / 2); x.fill(); x.drawImage(row, (w - row.width) / 2, (h - row.height) / 2); claim = { c, fill, ink: inkc, px }; break; }
         if (px <= pmin) break;
       }
       if (!claim) F.left.push("claim");
@@ -796,10 +879,18 @@ export class FullAd extends Ad {
     // the number: its pill a fixed share of the column, the chevrons either side of it
     const numText = formatNumber(st.number, st.number_format) || "YOUR NUMBER";
     let numFont = st.number_font === "same" ? st.font : st.number_font; if (FINE_FACES.has(numFont) || !FONTS[numFont]) numFont = pair ? pair.label : "oswald";
-    const numFor = z => { const n = numberPill(numText, z, numFont, p); return { ...n, text: numText, label: null }; };
+    const numFor = z => { const n = numberPill(numText, z, numFont, p, st.number_style, !!st.plate_grad, ph.ink); return { ...n, text: numText, label: null }; };
     let nz = U * .09, num = numFor(nz);
     nz *= Math.min(colW * FULL.pill / num.w, U * FULL.number / nz); num = numFor(nz);
     for (let k = 0; k < 4 && num.w > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.w; num = numFor(nz); }
+    // a plate whose shape costs width (the tag's point and hole, the ticket's stub) can set the figures of a
+    // long number in a wide face under their floor (fullBlockers' .07 U; the pixel pair did, 2026-11-18):
+    // that number is drawn on the pill instead, plated as before
+    if ((st.number_style === "tag" || st.number_style === "ticket") && nz < U * .07) {
+      st.number_style = "pill"; nz = U * .09; num = numFor(nz);
+      nz *= Math.min(colW * FULL.pill / num.w, U * FULL.number / nz); num = numFor(nz);
+      for (let k = 0; k < 4 && num.w > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.w; num = numFor(nz); }
+    }
     if (labB) num = { ...num, label: labB.c };
     // the footer: the towns after a pin, over the website
     const where = (st.feed_where || "").replace(/^\s*\p{Extended_Pictographic}️?\s*/u, "").trim().toUpperCase(), site = (st.feed_site || "").trim();
@@ -896,7 +987,7 @@ export class FullAd extends Ad {
       for (const [n, row] of shapes) {
         if (n > items.length || n < 1) continue;
         for (let fs = U * FULL.chip; ; fs = Math.max(U * FULL.chipMin, fs * .95)) {
-          const key = `${n}|${row}|${align}|${fs.toFixed(2)}`, q = (this._chipCache ||= new Map()).get(key) || this._chipCache.set(key, perksSprite(items.slice(0, n), fs, this.hot, align, row, face)).get(key);
+          const key = `${n}|${row}|${align}|${fs.toFixed(2)}`, q = (this._chipCache ||= new Map()).get(key) || this._chipCache.set(key, perksSprite(items.slice(0, n), fs, this.hot, align, row, face, !!this.st.plate_grad)).get(key);
           if (q.w <= maxW && q.h <= maxH) return { q, fs, n, row };
           if (fs <= U * FULL.chipMin) break;
         }
@@ -1001,6 +1092,7 @@ export class FullAd extends Ad {
     if (labB) { const r = put("call to action", labB.c); labXY = [r[0], r[1]]; y += g * gLab + stretch; }
     // the pill is what is spaced and measured; its sprite carries the shadow's margin round it
     const nr = R.number = [mid - num.w / 2, y, mid + num.w / 2, y + num.h], nxy = [nr[0] - num.pad, nr[1] - num.pad]; y += num.h;
+    F.numBar = num.bar || "";                              // a number with no plate: its bar, for the pre-flight
     let footXY = null;
     if (foot) { y += g * gFoot + stretch; const r = put("footer", foot.c); footXY = [r[0], r[1]]; }
     F.band = [cx0, bandTop, cx1, bandBot]; F.mode = S.mode;
@@ -1269,11 +1361,19 @@ export function readableFinishes(ids, colors, index) {
 }
 /* each line's pool, as loadSubjectSet loaded it: [{ ids, w }] */
 const POOLS = new Map();
-/** One entry of a line's pool for a seed, of the pictures loaded (null when its pool is not loaded). */
+/** The entry of a pool a seed draws (its index), over the whole pool by its weights: what a maker
+ *  loads before it draws that seed, so a line's pool is never loaded whole (cars run to 12 MB). */
+export function poolEntryFor(pool, seed) {
+  const list = (pool || []).map((e, i) => [i, e.w]);
+  return list.length ? pickWeighted(rng(mixSeed((seed >>> 0) * 197 + 31))(), list) : -1;
+}
+/** One entry of a line's pool for a seed: the one poolEntryFor names, when its pictures are loaded
+ *  (null otherwise: the maker loads it first). With the whole pool loaded, as the checks load it,
+ *  this is the draw it always was. */
 export function subjectDraw(key, seed, loaded) {
-  const P = POOLS.get(key); if (!P) return null;
-  const have = new Set(loaded || []), list = P.filter(e => e.ids.every(id => have.has(id))).map(e => [e.ids, e.w]);
-  return list.length ? pickWeighted(rng(mixSeed((seed >>> 0) * 197 + 31))(), list) : null;
+  const P = POOLS.get(key); if (!P || !P.length) return null;
+  const e = P[poolEntryFor(P, seed)], have = new Set(loaded || []);
+  return e && e.ids.every(id => have.has(id)) ? e.ids : null;
 }
 /* A LOCK SCREEN for a phone that lands face up (the owner's "front with lock screens"). The engine
    draws a front with a black screen unless it is given one. This one is drawn, not loaded, so a
@@ -1372,8 +1472,22 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...view, ...type, ...picked };
   // the ground: a photograph given with the ad as given; otherwise the seed's own draw (groundFor), unless one was picked by hand
   if (st.ground_photo && st.ground_photo.src) { look.background = "photo"; look.ground_photo = { ...st.ground_photo }; }
-  else if (!("background" in picked)) { const gd = groundFor(st.subject, seed, key); if (gd) Object.assign(look, gd); else delete look.ground_photo; }
+  else if (!("background" in picked)) { const gd = groundFor(st.subject, seed, key, productFor(st.subject, have)); if (gd) Object.assign(look, gd); else delete look.ground_photo; }
   if (look.ground_photo) loadGroundPhoto(look.ground_photo.src).catch(() => {});
+  /* THE LOOK'S STYLES (spec/full-styles.json, motion/full-styles.js; the owner, 2026-11-18: "notice how
+     it's all same spiky circle?", "no variety in the text pure outlines?", "don't see any gradients
+     really?"): the sticker's shape and fill, the headline's treatment (and the shade round its words)
+     and entrance, the number's treatment and the plates' fill, drawn on a stream of the seed's own,
+     so the colours, ground, product and words it drew do not move. Where a style was picked by hand
+     (pick, or a key the maker holds, keep, when it is one of the table's own) that one is drawn, and a
+     treatment picked by hand keeps the engine's own shade. They stand after QUIET (HOUSE's treatment,
+     number and entrance are the fallback of a look made before them). */
+  const kept = new Set(keep), own = { sticker_shape: FULL_STYLES.sticker, text_fx: FULL_STYLES.headline, text_in: FULL_STYLES.entrance, number_style: FULL_STYLES.number };
+  const held = k => kept.has(k) && st[k] != null && (!own[k] || own[k].some(e => e.key === st[k]));
+  const styles = pickFullStyles(rng(((seed >>> 0) ^ 0x51ed27f3) * 13 + lineTurn(st.subject, 99991) + 5),
+    { dark: oklchOf(COLOUR_OF[key].colors.ground).L < .56, busy: !GROUNDS.includes(look.background) });
+  if ("text_fx" in picked || held("text_fx")) delete styles.scrim;
+  for (const [k, v] of Object.entries(styles)) if (!(k in picked)) look[k] = held(k) ? st[k] : v;
   const area = (st.area || "").trim();
   // What the customer left empty is filled from the lists, each line chosen so that it does not
   // repeat a promise the lines before it already make (the customer's own words are never changed:
@@ -1437,13 +1551,16 @@ export function fullMeasure(ad) {
 
 /** A subject's set of pictures (motion/subjects.json, from the offer family) as the engine's
  *  assets: { ids, assets }. Each is marked flat, so FullAd draws it as it is. */
-export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cutouts/") {
+export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cutouts/", opts = {}) {
   const sets = subject.sets || [], pool = subject.pool || [];
-  // the first set is the line's pool when it has one: the whole pool is loaded, once, and each seed
-  // draws one entry of it (subjectDraw); a set picked with Picture is that set alone
+  // the first set is the line's pool when it has one, and each seed draws one entry of it
+  // (subjectDraw). Given the seed (opts.seed), only the entry it draws is loaded (poolEntryFor): a
+  // pool 3-5x the size it was (2026-11-18) is pictures nobody sees. Without a seed the whole pool
+  // is loaded, as the checks want it. A set picked with Picture is that set alone.
   const auto = !(setIndex | 0) && pool.length > 0;
   if (!sets.length && !auto) return { ids: [], assets: {} };
-  const set = auto ? pool.flatMap(e => e.set) : sets[((setIndex % sets.length) + sets.length) % sets.length], assets = {}, ids = [];
+  const one = auto && Number.isFinite(+opts.seed) && opts.seed !== null && opts.seed !== undefined ? poolEntryFor(pool, +opts.seed) : -1;
+  const set = auto ? (one >= 0 ? pool[one].set : pool.flatMap(e => e.set)) : sets[((setIndex % sets.length) + sets.length) % sets.length], assets = {}, ids = [];
   // a picture's id carries its size beside the first when that is not 1: one file may stand alone in one entry and second in another
   const idOf = ({ file, k }) => "sub-" + file + (k && k !== 1 ? "@" + k : "");
   const imgs = new Map();
@@ -1575,14 +1692,15 @@ export function fullPreflight(ad, frame) {
   // a pill's box holds its round ends, where the ground shows: the words are measured on the pill's straight middle
   const inPill = r => { const h = r[3] - r[1]; return [r[0] + h * .5, r[1] + h * .14, r[2] - h * .5, r[3] - h * .14]; };
   const ink = ad.pHead.ink, plateInk = contrastOf(ad.p.plate_ink, ad.p.plate) >= 3.5 ? ad.p.plate_ink : (lum(ad.p.plate) > .5 ? "#111111" : "#ffffff");
+  const numInk = ad.st.number_style === "underline" ? ink : plateInk;   // a number with no plate stands on the ground in the ink
   const lines = [["line", "the line under the headline", ink, PF.small], ["call to action", "the line over the number", ink, PF.small], ["footer", "the towns and website", ink, PF.small],
-    ["number", "the phone number", plateInk, PF.large], ["claim", "the claim", ad.claim ? ad.claim.ink : plateInk, PF.small]];
+    ["number", "the phone number", numInk, PF.large], ["claim", "the claim", ad.claim ? ad.claim.ink : plateInk, PF.small]];
   let worst = 99, worstName = "";
   for (const [key, name, col, need] of lines) {
     let r = R[key]; if (!r) continue;
-    if (key === "number") r = inPill(r);
+    if (key === "number" && ad.st.number_style !== "underline") r = inPill(r);
     if (key === "claim") r = inPill([ad.claim.x, ad.claim.y, ad.claim.x + ad.claim.c.width, ad.claim.y + ad.claim.c.height]);
-    const got = reads(r, col, key === "footer" ? ad.hot : null);
+    const got = reads(r, col, key === "footer" ? ad.hot : key === "number" && F.numBar ? F.numBar : null);
     if (got < worst) { worst = got; worstName = name; }
     if (got < need) say("reads", got < need * .8 ? "fix" : "note", `${name[0].toUpperCase() + name.slice(1)} is hard to read against what is behind it. Try another colour, or New look.`);
   }

@@ -72,8 +72,12 @@ if (hold.length) {
 //    in the order picked); any other ad is listed until the wall can show it
 if (heroes.length) {
   const p = ROOT + 'assets/hero-picks.json', HP = JSON.parse(readFileSync(p, 'utf8'));
-  const cards = heroes.filter(d => d.gen === 'sc').sort((a, b) => a.at - b.at), fresh = cards.filter(d => !HP.picks.includes(d.id));
-  console.log(`hero picks: ${heroes.length} (${fresh.length} library card${fresh.length === 1 ? '' : 's'} new to the wall's list` + (heroes.length > cards.length ? `; ${heroes.length - cards.length} of other kinds listed: ${heroes.filter(d => d.gen !== 'sc').map(d => d.id).join(', ')}` : '') + ')');
+  // the wall shows library cards, offer and designer templates, recipes and full-ad looks (the last
+  // two from stills: scripts/build_hero_stills.mjs); a video maker look or a FeedAd still is listed
+  const WALL = ['sc', 'of', 'dl', 'recipe', 'full'];
+  const cards = heroes.filter(d => WALL.includes(d.gen)).sort((a, b) => a.at - b.at), fresh = cards.filter(d => !HP.picks.includes(d.id));
+  console.log(`hero picks: ${heroes.length} (${fresh.length} new to the wall's list` + (heroes.length > cards.length ? `; ${heroes.length - cards.length} the wall cannot show, listed: ${heroes.filter(d => !WALL.includes(d.gen)).map(d => d.id).join(', ')}` : '') + ')');
+  if (fresh.some(d => d.gen === 'recipe' || d.gen === 'full')) console.log('  then draw their stills: GFX_BASE=http://127.0.0.1:8931/ node scripts/build_hero_stills.mjs');
   if (WRITE && fresh.length) { HP.picks.push(...fresh.map(d => d.id)); const raw = readFileSync(p, 'utf8'), ind = (/^\{\n( +)"/.exec(raw) || [, '  '])[1].length; writeFileSync(p, JSON.stringify(HP, null, ind) + (raw.endsWith('\n') ? '\n' : '')); }
 }
 
