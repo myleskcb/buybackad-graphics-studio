@@ -18,11 +18,14 @@
    uses; the pictures are samples and carry no mark (rule 142). Draw them again when a line's
    pictures or words, or the house engine, change.
 
-   usage:  node scripts/build_og_cards.mjs [--only name,name]
+   usage:  node scripts/build_og_cards.mjs [--only name,name] [--keep-ads]
            GFX_BASE=http://127.0.0.1:8899/ (a server serving this tree), PLAYWRIGHT_MODULE=...
+   --keep-ads paints the cards around the ads already in assets/full-ads and draws only the ads that
+   are missing: for a change to the card alone, such as the wordmark (rule 161), so the pages' ads
+   stay as they were drawn. The house engine draws a recipe differently once it changes (rule 154).
    Exits 1 if an ad fails its checks; nothing is written for it. */
 import { createRequire } from 'node:module';
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { BANNED, PRICE, DASH, PROOF } from './refresh_copy.mjs';
 
@@ -32,6 +35,7 @@ const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8899/').replace(/\/?$/, 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const only = (process.argv.find(a => a.startsWith('--only=')) || '').slice(7) || (process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] : '');
 const pick = only ? new Set(only.split(',')) : null;
+const keepAds = process.argv.includes('--keep-ads');
 
 const CLAIM = 'LOCAL BUYER', TOWNS = 'LONG BEACH • LAKEWOOD • DOWNEY', NUMBER = '(562) 999-4994';
 /* the ads. pair: one of the twelve that suits the line (house-colours.js suits); voice: one of the
@@ -90,6 +94,13 @@ mkdirSync(root + 'assets/full-ads', { recursive: true });
 mkdirSync(root + 'assets/og', { recursive: true });
 for (const [name, a] of Object.entries(ADS)) {
   if (!wantAd(name)) continue;
+  const kept = root + `assets/full-ads/${name}.webp`;
+  if (keepAds && existsSync(kept)) {
+    /* the card's colours are the site's (og_card.html), so the kept picture is all a card needs */
+    drawn[name] = { png: 'data:image/webp;base64,' + readFileSync(kept).toString('base64'), colors: {} };
+    console.log(`${name.padEnd(22)} kept: assets/full-ads/${name}.webp`);
+    continue;
+  }
   const out = await page.evaluate(async ({ a, CLAIM, TOWNS, NUMBER }) => {
     const E = await import('/motion/engine.js'), C = await import('/motion/catalog.js'), A = await import('/motion/accents.js'), F = await import('/motion/fullad.js');
     const { phones, index } = await E.loadPhones('/motion/phones/');

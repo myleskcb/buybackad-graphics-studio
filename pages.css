@@ -19,6 +19,18 @@ a:focus-visible,.btn:focus-visible{outline:3px solid var(--accent);outline-offse
 header.top{display:flex;align-items:center;gap:18px;max-width:1080px;margin:0 auto;padding:16px 20px;flex-wrap:wrap}
 .brand{font:750 22px/1 'Inter Tight',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;letter-spacing:-.035em;color:var(--text);text-decoration:none}
 .brand em{font-style:normal;color:var(--btn)}
+/* the mark (DESIGN-LAW 161): the bubble icon beside the Sora wordmark */
+@font-face{font-family:'WeBuy Sora';src:url('assets/fonts/sora-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
+:root{--wb-blue:var(--btn);--wb-mint:#2fd58f;--wb-ring:var(--bg);--wb-ink:var(--text)}
+@media (prefers-color-scheme:light){:root{--wb-mint:#0e9f6a}}
+.brand{display:inline-flex;align-items:center;gap:10px}
+.wb-icon{display:block;flex:none;width:28px;height:28px}
+.wb-icon .wb-b{fill:var(--wb-blue,#3d8bff)}
+.wb-icon .wb-w{fill:none;stroke:#fff;stroke-width:7.5;stroke-linejoin:miter;stroke-linecap:butt}
+.wb-icon .wb-d{fill:var(--wb-mint,#2fd58f);stroke:var(--wb-ring,#070d1c);stroke-width:4.5}
+.wb-word{font:700 22px/1 'WeBuy Sora',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;letter-spacing:-.045em;color:var(--wb-ink,currentColor);white-space:nowrap}
+.wb-word .wb-dot{display:inline-block;width:.25em;height:.25em;margin:0 .06em 0 .09em;border-radius:50%;background:var(--wb-mint,#2fd58f);color:transparent;overflow:hidden;line-height:.25em;vertical-align:.02em}
+.wb-word .wb-ad{color:var(--wb-blue,#3d8bff)}
 header.top nav{display:flex;gap:18px;margin-left:auto;align-items:center;flex-wrap:wrap}
 header.top nav a{color:var(--text-2);text-decoration:none;font-weight:700;font-size:14.5px}
 header.top nav a:hover,header.top nav a[aria-current="page"]{color:var(--text)}

@@ -402,9 +402,11 @@ const SEO = {
   retro:     { t: 'We Buy Retro Games Ad and Flyer Maker', d: 'Make a We Buy Retro Games ad or flyer today with your own photo of the games you buy. Add your number and area, download, post. Free to start.' },
 };
 /* the name (DESIGN-LAW 148, the owner's wordmark): the product and the site are WeBuy.AD, written
-   WeBuy<em>.AD</em> in the bar; BUYBACK.AD stays the business that runs it, the copyright line and
+   as the bubble mark in the bar (rule 161); BUYBACK.AD stays the business that runs it, the copyright line and
    the party to the terms. The share card and the W icon are main's (tools/brand/make.sh). */
-const BRAND = 'WeBuy.AD', APP = 'WeBuy.AD', MARK = 'WeBuy<em>.AD</em>', BUSINESS = 'BUYBACK.AD', DOMAIN = 'webuy.ad';
+const BRAND = 'WeBuy.AD', APP = 'WeBuy.AD', BUSINESS = 'BUYBACK.AD', DOMAIN = 'webuy.ad';
+/* the mark (DESIGN-LAW 161): the bubble icon and the Sora wordmark, the same markup as index.html's */
+const MARK = '<svg class="wb-icon" viewBox="9 9 82 82" aria-hidden="true" focusable="false"><path class="wb-b" d="M25 18H75Q86 18 86 29V61Q86 72 75 72H46L29 85Q26 87.5 26 84V72H25Q14 72 14 61V29Q14 18 25 18Z"/><path class="wb-w" d="M30 33L37.5 58L50 36L62.5 58L70 33"/><circle class="wb-d" cx="81" cy="21" r="10"/></svg><span class="wb-word">WeBuy<span class="wb-dot">.</span><span class="wb-ad">AD</span></span>';
 const SHARE = SITE + '/assets/brand/share-card.jpg', SHARE_ALT = 'WeBuy.AD: buyback ads that make strangers text you first, beside four real We Buy ads';
 const TODAY = (process.argv.find((a) => a.startsWith('--date=')) || '').slice(7) || new Date().toISOString().slice(0, 10);
 const { readFileSync, existsSync, statSync } = await import('node:fs');

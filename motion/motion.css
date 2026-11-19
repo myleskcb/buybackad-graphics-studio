@@ -1,5 +1,7 @@
 /* Phone video ad maker. Rides on pages.css (tokens, header, footer). */
 .mo-main{max-width:1240px;padding-top:6px}
+/* the bar and the foot share the maker's column, so the mark sits over the headline (DESIGN-LAW 158) */
+.mo header.top,.mo footer.bottom{max-width:1240px}
 .mo-head h1{margin:6px 0 8px}
 .mo-sub{max-width:760px;margin:0 0 18px;color:var(--text-2)}
 .mo-count{color:var(--muted);font-size:14px;display:block;margin-top:4px}

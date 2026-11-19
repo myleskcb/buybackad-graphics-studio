@@ -1,14 +1,14 @@
 <!doctype html>
-<!-- The WeBuy.AD app icon, drawn at 1024 px by tools/brand/make.sh. Reselling.US's
-     icon in WeBuy.AD's letter (DESIGN-LAW rule 153): the navy ground with the
-     blue glow, a white W in Inter Tight, and the period in mint, money made. -->
+<!-- The WeBuy.AD app icon, drawn at 1024 px by tools/brand/make.sh (DESIGN-LAW 161, the owner's pick
+     of 2026-11-19, "Text me"): a W in a message bubble with a mint unread dot, on the navy tile
+     with the blue glow. The W is drawn, not set, so every size and favicon.svg match. -->
 <html><head><meta charset="utf-8"><style>
-@font-face { font-family: "Inter Tight"; src: url("../../assets/fonts/inter-tight-latin.woff2") format("woff2"); font-weight: 500 800; }
 html, body { margin: 0; width: 1024px; height: 1024px; background: transparent; }
-.icon { width: 1024px; height: 1024px; position: relative; overflow: hidden;
-  background: radial-gradient(90% 70% at 78% 8%, rgba(61,139,255,.55), transparent 62%), linear-gradient(160deg, #11244a, #070d1c 70%); }
-.w { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-53%); text-align: center;
-  font: 800 600px/1 "Inter Tight", sans-serif; letter-spacing: -0.06em; color: #f4f7ff; margin-left: -66px; }
-.dot { position: absolute; width: 120px; height: 120px; border-radius: 50%; background: #2fd58f; left: 702px; top: 592px;
-  box-shadow: 0 0 80px rgba(47,213,143,.45); }
-</style></head><body><div class="icon"><div class="w">W</div><div class="dot"></div></div></body></html>
+svg { display: block; width: 1024px; height: 1024px; }
+</style></head><body>
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="g" cx="82%" cy="12%" r="78%"><stop offset="0" stop-color="#1e3c7a"/><stop offset=".55" stop-color="#0c1a38"/><stop offset="1" stop-color="#070d1c"/></radialGradient></defs>
+<rect width="100" height="100" fill="url(#g)"/>
+<path d="M25 18H75Q86 18 86 29V61Q86 72 75 72H46L29 85Q26 87.5 26 84V72H25Q14 72 14 61V29Q14 18 25 18Z" fill="#3d8bff"/>
+<path d="M30 33L37.5 58L50 36L62.5 58L70 33" fill="none" stroke="#fff" stroke-width="7.5" stroke-linejoin="miter"/>
+<circle cx="81" cy="21" r="10" fill="#2fd58f" stroke="#0c1a38" stroke-width="4.5"/></svg>
+</body></html>
