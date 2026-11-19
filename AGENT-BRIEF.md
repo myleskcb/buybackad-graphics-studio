@@ -587,6 +587,9 @@ produced." DESIGN-LAW rule 87. In practice:
   `csp_hashes.mjs`; never hand-edit a generated head or the FAQ's JSON-LD.
   The hero is the owner's wall of hand picks (`#hero-wall`, app.js
   scBuildWall): a remake of the landing keeps it and its three `.wall-col`s.
+  The name (WEBUY.AD, formerly BUYBACK.AD) is `BRAND`/`MARK`/`FORMER`/`DOMAIN` in
+  build_seo_pages.mjs and the cards' mark in build_og_cards.mjs; describe the
+  watermark without a name until watermark.js's `WORD` changes.
 - **The scripts:** a script that rewrites a showcase record passes its
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the

@@ -1,6 +1,6 @@
-# BUYBACK.AD
+# WEBUY.AD
 
-> BUYBACK.AD (Graphics Studio by BUYBACK.AD) is a web app that makes "We Buy" ads for people who buy goods from the public and resell them: phone buyers, repair shops, gold, silver and coin buyers, car buyers, card shops and diabetic test strip buyers. You pick a design, type your phone number and your area, and download a post-ready photo ad, a printable flyer or a short video ad. It runs in a web browser on a phone or a computer, with nothing to install, and is free to start.
+> WEBUY.AD (Graphics Studio, formerly BUYBACK.AD) is a web app that makes "We Buy" ads for people who buy goods from the public and resell them: phone buyers, repair shops, gold, silver and coin buyers, car buyers, card shops and diabetic test strip buyers. You pick a design, type your phone number and your area, and download a post-ready photo ad, a printable flyer or a short video ad. It runs in a web browser on a phone or a computer, with nothing to install, and is free to start.
 
 Key facts:
 
@@ -13,7 +13,7 @@ Key facts:
 
 ## Plans
 
-- Free: $0. 3 photo downloads a week, 1080 pixels with a light BUYBACK.AD watermark, 5 AI credits a month, 12 ads kept in the library. Designing needs no account; downloading needs a free account.
+- Free: $0. 3 photo downloads a week, 1080 pixels with a light watermark, 5 AI credits a month, 12 ads kept in the library. Designing needs no account; downloading needs a free account.
 - Starter: $25 a month or $250 a year. 100 photo downloads a month, up to 2160 pixels, no watermark, 50 AI credits a month, 300 ads kept in the library.
 - Pro: $60 a month or $600 a year. 500 photo downloads a month, 30 video ads a month, up to 2160 pixels, no watermark, QR code, 200 AI credits a month, 1,000 ads kept in the library.
 - Business: $100 a month or $1,000 a year. Unlimited photo downloads, unlimited video ads, up to 2160 pixels, no watermark, QR code, 500 AI credits a month, 3,000 ads kept in the library.
@@ -50,7 +50,7 @@ Key facts:
 
 ## Frequently asked questions
 
-### What does BUYBACK.AD make?
+### What does WEBUY.AD make?
 
 Ready-to-post We Buy ads for people who buy from the public and resell: photo ads, printable flyers and short video ads. You pick a design, type your phone number and area, and download. It runs in your web browser on a phone or a computer, with nothing to install.
 
@@ -64,11 +64,11 @@ Our house ad. It puts everything a seller needs on one ad: your business name at
 
 ### Is it free? Do I need an account?
 
-You can design and preview without an account. To download, make a free account: 3 photo downloads a week at standard size (1080 pixels) with a light BUYBACK.AD watermark, every Phones design plus the top 3 designs in each other category, and 5 AI credits a month. Starter is $25 a month: 100 photo downloads, every design, up to 2160 pixels, no watermark and 50 AI credits. Pro is $60 a month: 500 photo downloads and 30 video ads a month with sound, the QR code and 200 AI credits. Business is $100 a month: unlimited photo and video downloads and 500 AI credits. Paying yearly gets two months free.
+You can design and preview without an account. To download, make a free account: 3 photo downloads a week at standard size (1080 pixels) with a light watermark, every Phones design plus the top 3 designs in each other category, and 5 AI credits a month. Starter is $25 a month: 100 photo downloads, every design, up to 2160 pixels, no watermark and 50 AI credits. Pro is $60 a month: 500 photo downloads and 30 video ads a month with sound, the QR code and 200 AI credits. Business is $100 a month: unlimited photo and video downloads and 500 AI credits. Paying yearly gets two months free.
 
 ### What does the watermark look like, and how do I remove it?
 
-Free downloads carry a light pattern of small BUYBACK.AD words across the whole ad. It is faint, so your ad still reads through it, and it covers the whole picture, so cropping does not remove it. The preview carries the same pattern as the download. Starter, Pro and Business download with no watermark.
+Free downloads carry a light pattern of small words across the whole ad. It is faint, so your ad still reads through it, and it covers the whole picture, so cropping does not remove it. The preview carries the same pattern as the download. Starter, Pro and Business download with no watermark.
 
 ### What counts as a download?
 
@@ -146,6 +146,6 @@ Go to the plans page and tap Manage billing. It opens Stripe, where you can canc
 
 ## Links
 
-- [About BUYBACK.AD](https://buybackad-graphics-studio.netlify.app/about.html)
+- [About WEBUY.AD](https://buybackad-graphics-studio.netlify.app/about.html)
 - [Terms of Service](https://buybackad-graphics-studio.netlify.app/terms.html)
 - [Privacy Policy](https://buybackad-graphics-studio.netlify.app/privacy.html)

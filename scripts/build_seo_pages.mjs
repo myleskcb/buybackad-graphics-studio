@@ -55,7 +55,7 @@ const CATS = [
       'Your phone number, big enough to read on a phone screen, and your area.',
     ],
     faq: [
-      ['Are the Apple templates free?', 'The iPhone, iPad, MacBook and Apple Watch designs are in the Phones & Devices category, and every design there is on the free plan. AirPods designs are in Headphones & Audio, where the top 3 are free. The free plan gives you 3 photo downloads a week at 1080 pixels with a BUYBACK.AD watermark; a paid plan removes the watermark and raises the limit.'],
+      ['Are the Apple templates free?', 'The iPhone, iPad, MacBook and Apple Watch designs are in the Phones & Devices category, and every design there is on the free plan. AirPods designs are in Headphones & Audio, where the top 3 are free. The free plan gives you 3 photo downloads a week at 1080 pixels with a light watermark; a paid plan removes the watermark and raises the limit.'],
       ['Can I name Apple on my ad?', 'Naming the devices you buy, like iPhone or MacBook, tells sellers what you take. Do not add the Apple logo or make the ad look as if it comes from Apple.'],
     ],
     free: 'Every iPhone, iPad, MacBook and Apple Watch design is on the free plan.',
@@ -74,7 +74,7 @@ const CATS = [
       'How you pay, your phone number and your area.',
     ],
     faq: [
-      ['Are the iPhone templates free?', 'Yes. The iPhone designs are in the Phones & Devices category, and every design there is on the free plan. The free plan gives you 3 photo downloads a week at 1080 pixels with a BUYBACK.AD watermark; a paid plan removes the watermark and raises the limit.'],
+      ['Are the iPhone templates free?', 'Yes. The iPhone designs are in the Phones & Devices category, and every design there is on the free plan. The free plan gives you 3 photo downloads a week at 1080 pixels with a light watermark; a paid plan removes the watermark and raises the limit.'],
       ['Can I show a price on the ad?', 'You can type any headline or line of text you like. If you print a price, make sure it is one you will pay, because the ad is yours and so is the promise.'],
     ],
     free: 'Every iPhone design is on the free plan.',
@@ -168,7 +168,7 @@ const CATS = [
       'Your phone number, big enough to read on a phone screen, and your area.',
     ],
     faq: [
-      ['Are the phone templates free?', 'Yes. Every design in the Phones category is included on the free plan. The free plan gives you 3 photo downloads a week at 1080 pixels with a BUYBACK.AD watermark; a paid plan removes the watermark and raises the limit.'],
+      ['Are the phone templates free?', 'Yes. Every design in the Phones category is included on the free plan. The free plan gives you 3 photo downloads a week at 1080 pixels with a light watermark; a paid plan removes the watermark and raises the limit.'],
       ['Can I show a price on the ad?', 'You can type any headline or line of text you like. If you print a price, make sure it is one you will pay, because the ad is yours and so is the promise.'],
     ],
     free: 'Every Phones design is on the free plan.',
@@ -374,7 +374,7 @@ const CATS = [
 ];
 
 const COMMON_FAQ = [
-  ['Is it free?', 'You can design without an account. Downloading needs a free account: 3 photo downloads a week at 1080 pixels with a BUYBACK.AD watermark. Starter is $25 a month for 100 photo downloads up to 2160 pixels, no watermark, every design. Pro ($60) adds 30 video ads a month beside 500 photo downloads; Business ($100) is unlimited photos and video.'],
+  ['Is it free?', 'You can design without an account. Downloading needs a free account: 3 photo downloads a week at 1080 pixels with a light watermark. Starter is $25 a month for 100 photo downloads up to 2160 pixels, no watermark, every design. Pro ($60) adds 30 video ads a month beside 500 photo downloads; Business ($100) is unlimited photos and video.'],
 ];
 
 /* ── THE TRADE'S WORDS (2026-11-18, DESIGN-LAW 146). Each category page's title, description and
@@ -401,7 +401,10 @@ const SEO = {
   sneakers:  { t: 'We Buy Sneakers Ad and Flyer Maker', d: 'Make a We Buy Sneakers ad or flyer today with your own photo of the pairs you buy. Add your number and area, download, post. Free to start.' },
   retro:     { t: 'We Buy Retro Games Ad and Flyer Maker', d: 'Make a We Buy Retro Games ad or flyer today with your own photo of the games you buy. Add your number and area, download, post. Free to start.' },
 };
-const BRAND = 'BUYBACK.AD', APP = 'BUYBACK.AD Graphics Studio';
+/* the name (the owner's rename, 2026-11-18: "the concept was finally rebranded webuy.ad"), its
+   wordmark with the .AD in the accent, and the name it had before, kept as an alternate name so
+   search engines and assistants join the two */
+const BRAND = 'WEBUY.AD', APP = 'WEBUY.AD Graphics Studio', MARK = 'WEBUY<em>.AD</em>', FORMER = 'BUYBACK.AD', DOMAIN = 'webuy.ad';
 const TODAY = (process.argv.find((a) => a.startsWith('--date=')) || '').slice(7) || new Date().toISOString().slice(0, 10);
 const { readFileSync, existsSync, statSync } = await import('node:fs');
 const titleOf = (c) => `${(SEO[c.id] || {}).t || strip(c.title)} | ${BRAND}`;
@@ -409,7 +412,7 @@ const descOf = (c) => (SEO[c.id] || {}).d || c.desc;
 const h1Of = (c) => (SEO[c.id] || {}).h1 || c.h1.replace(/ ad templates$/, ' ads and flyers');
 const nameOf = (c) => strip(h1Of(c)).replace(/["\u201c\u201d]/g, '');
 const adOf = (c) => existsSync(root + `assets/full-ads/${c.slug}.webp`) ? c.slug : '';
-const ogOf = (c) => existsSync(root + `assets/og/${c.slug}.jpg`) ? `${SITE}/assets/og/${c.slug}.jpg` : `${SITE}/assets/og/buybackad-og.jpg`;
+const ogOf = (c) => existsSync(root + `assets/og/${c.slug}.jpg`) ? `${SITE}/assets/og/${c.slug}.jpg` : `${SITE}/assets/og/home.jpg`;
 for (const c of CATS) {
   const t = titleOf(c), d = descOf(c);
   if (t.length > 62) throw new Error(`${c.id}: title is ${t.length} characters`);
@@ -421,7 +424,7 @@ for (const c of CATS) {
 const NAV = [['index.html#lp-templates', 'Templates'], ['motion/', 'Video ads'], ['looks.html', 'Look Book'], ['index.html#pricing', 'Pricing'], ['about.html', 'About']];
 const nav = (up, here = '') => `<a class="skip" href="#main">Skip to content</a>
 <header class="top">
-  <a class="brand" href="${up}index.html" aria-label="BUYBACK.AD home"><span class="w">BUYBACK<em>.AD</em></span><span class="s">Graphics Studio</span></a>
+  <a class="brand" href="${up}index.html" aria-label="${BRAND} home"><span class="w">${MARK}</span><span class="s">Graphics Studio</span></a>
   <nav aria-label="Site">
     ${NAV.map(([h, t]) => `<a href="${up}${h}"${h === here ? ' aria-current="page"' : ''}>${t}</a>`).join('\n    ')}
   </nav>
@@ -447,7 +450,7 @@ const catList = (up, { grp, subs }, pad = '    ') => top.map((c) => {
 }).join(`\n${pad}`);
 
 const footer = (up) => `<footer class="bottom">
-  <div class="foot-brand"><span class="w">BUYBACK<em>.AD</em></span><span class="s">We Buy ads, flyers and video ads for resellers.</span></div>
+  <div class="foot-brand"><span class="w">${MARK}</span><span class="s">We Buy ads, flyers and video ads for resellers.</span></div>
   <div class="cats">${catList(up, { grp: 'cat-grp', subs: 'cat-sub' })}</div>
   <nav class="foot-links" aria-label="More">
     <a href="${up}index.html">Make an ad</a>
@@ -461,7 +464,7 @@ const footer = (up) => `<footer class="bottom">
     <a href="${up}privacy.html">Privacy</a>
     <a href="${up}llms.txt">llms.txt</a>
   </nav>
-  <span class="copy">&copy; 2026 BUYBACK.AD</span>
+  <span class="copy">&copy; 2026 ${BRAND}</span>
 </footer>`;
 
 /* the three steps a category page shows: the same words in the list and in its HowTo */
@@ -489,7 +492,7 @@ function seoHead({ title, desc, url, image, imageAlt, ogTitle, ogDesc, type = 'w
 <meta property="og:type" content="${type}">
 <meta property="og:site_name" content="${BRAND}">
 <meta property="og:locale" content="en_US">
-<meta property="og:title" content="${esc(ogTitle || title.replace(/ \| BUYBACK\.AD$/, ''))}">
+<meta property="og:title" content="${esc(ogTitle || title.replace(/ \| WEBUY\.AD$/, ''))}">
 <meta property="og:description" content="${esc(ogDesc || desc)}">
 <meta property="og:url" content="${url}">
 <meta property="og:image" content="${image}">
@@ -498,7 +501,7 @@ function seoHead({ title, desc, url, image, imageAlt, ogTitle, ogDesc, type = 'w
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="${esc(imageAlt)}">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${esc(ogTitle || title.replace(/ \| BUYBACK\.AD$/, ''))}">
+<meta name="twitter:title" content="${esc(ogTitle || title.replace(/ \| WEBUY\.AD$/, ''))}">
 <meta name="twitter:description" content="${esc(ogDesc || desc)}">
 <meta name="twitter:image" content="${image}">
 <meta name="twitter:image:alt" content="${esc(imageAlt)}">
@@ -507,7 +510,7 @@ ${ld ? `<script type="application/ld+json" id="ld-page">${JSON.stringify(ld)}</s
 const ORG = { '@id': SITE + '/#org' }, WEBSITE = { '@id': SITE + '/#site' }, APPREF = { '@id': SITE + '/#app' };
 const webPage = (url, name, desc, extra = {}) => ({ '@type': 'WebPage', '@id': url + '#page', url, name, description: desc, isPartOf: WEBSITE, about: APPREF, publisher: ORG, inLanguage: 'en', ...extra });
 
-const adAlt = (c) => `A full ad made with BUYBACK.AD: ${strip(c.title).replace(/ ad templates$/, '').toUpperCase()}, with the number in a pill and the towns after a pin`;
+const adAlt = (c) => `A full ad made with WEBUY.AD: ${strip(c.title).replace(/ ad templates$/, '').toUpperCase()}, with the number in a pill and the towns after a pin`;
 
 function page(c) {
   const url = `${SITE}/ads/${c.slug}.html`;
@@ -537,7 +540,7 @@ function page(c) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- Generated by scripts/build_seo_pages.mjs. Edit there, not here. -->
-${seoHead({ title, desc, url, image: ogOf(c), imageAlt: ad ? adAlt(c) : 'BUYBACK.AD: We Buy ads and flyers, ready in a minute' })}<meta name="theme-color" content="#031b56" media="(prefers-color-scheme: dark)">
+${seoHead({ title, desc, url, image: ogOf(c), imageAlt: ad ? adAlt(c) : 'WEBUY.AD: We Buy ads and flyers, ready in a minute' })}<meta name="theme-color" content="#031b56" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#e2e8f3" media="(prefers-color-scheme: light)">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="preload" href="../assets/fonts/chivo-900.woff2" as="font" type="font/woff2" crossorigin>
@@ -552,7 +555,7 @@ ${nav('../')}
   <div class="page-hero-copy">
   <span class="badge">${esc(strip(c.title).replace(/ ad templates$/, ' ads'))}</span>
   <h1>${h1Of(c)}</h1>
-  <p class="lead">BUYBACK.AD makes buyback ads for ${esc(c.who)}. Pick a design, type your phone number and area, and download an image ready for Facebook Marketplace, OfferUp, Craigslist, Instagram or a printed flyer.</p>
+  <p class="lead">WEBUY.AD makes buyback ads for ${esc(c.who)}. Pick a design, type your phone number and area, and download an image ready for Facebook Marketplace, OfferUp, Craigslist, Instagram or a printed flyer.</p>
   ${c.soon ? `<p class="card"><strong>${esc(one(c)[0].toUpperCase() + one(c).slice(1))} designs are on the way.</strong> Until they are in the studio, you can make ${an(esc(one(c)))} ad today from ${c.cat ? `a ${esc(gallery(c))} design` : 'any design'} with your own photo as the background. This page will link to the ${esc(one(c))} designs when they are ready.</p>\n  ` : ''}<div class="ctas">
     <a class="btn" href="${pick}">${esc(cta)}</a>
     ${['apple', 'iphone', 'phones'].includes(c.id) ? '<a class="btn ghost" href="../motion/">Make a phone video ad</a>' : ''}
@@ -607,7 +610,7 @@ const fmtN = (n) => Number(n).toLocaleString('en-US');
 function planWords(p) {
   const photos = p.weekly ? `${p.weekly} photo downloads a week` : p.monthly ? `${fmtN(p.monthly)} photo downloads a month` : 'Unlimited photo downloads';
   const videos = !p.video ? null : p.videos == null ? 'unlimited video ads' : `${fmtN(p.videos)} video ads a month`;
-  return [photos, videos, p.watermark ? `${p.maxPx} pixels with a light BUYBACK.AD watermark` : `up to ${p.maxPx} pixels, no watermark`, p.qr ? 'QR code' : null, `${p.credits} AI credits a month`, `${fmtN(p.library)} ads kept in the library`].filter(Boolean).join(', ');
+  return [photos, videos, p.watermark ? `${p.maxPx} pixels with a light watermark` : `up to ${p.maxPx} pixels, no watermark`, p.qr ? 'QR code' : null, `${p.credits} AI credits a month`, `${fmtN(p.library)} ads kept in the library`].filter(Boolean).join(', ');
 }
 function offers() {
   const out = [];
@@ -650,17 +653,17 @@ let landingSteps = [], landingFaq = [];
   landingSteps = [...html.matchAll(/<li class="h-step">\s*<h3>([\s\S]*?)<\/h3>\s*<p>([\s\S]*?)<\/p>/g)].map((m) => [m[1], m[2]]);
   if (landingSteps.length !== 3) throw new Error('index.html: the three steps (li.h-step) were not found');
   const site = { '@context': 'https://schema.org', '@graph': [
-    { '@type': 'Organization', '@id': SITE + '/#org', name: BRAND, url: SITE + '/', logo: { '@type': 'ImageObject', url: SITE + '/assets/brand/buybackad-logo.png', width: 512, height: 512 },
-      description: 'BUYBACK.AD makes We Buy ads, flyers and video ads for people who buy phones, gold, silver, coins, cars, cards and other goods from the public and resell them.' },
-    { '@type': 'WebSite', '@id': SITE + '/#site', name: BRAND, alternateName: 'Graphics Studio by BUYBACK.AD', url: SITE + '/', publisher: ORG, inLanguage: 'en' },
-    { '@type': 'WebApplication', '@id': SITE + '/#app', name: APP, alternateName: ['Graphics Studio by BUYBACK.AD', 'BUYBACK.AD'], url: SITE + '/',
+    { '@type': 'Organization', '@id': SITE + '/#org', name: BRAND, alternateName: FORMER, url: SITE + '/', logo: { '@type': 'ImageObject', url: SITE + '/assets/brand/webuyad-logo.png', width: 512, height: 512 },
+      description: BRAND + ' makes We Buy ads, flyers and video ads for people who buy phones, gold, silver, coins, cars, cards and other goods from the public and resell them.' },
+    { '@type': 'WebSite', '@id': SITE + '/#site', name: BRAND, alternateName: [DOMAIN, 'Graphics Studio by ' + BRAND, FORMER], url: SITE + '/', publisher: ORG, inLanguage: 'en' },
+    { '@type': 'WebApplication', '@id': SITE + '/#app', name: APP, alternateName: ['Graphics Studio by ' + BRAND, BRAND, FORMER], url: SITE + '/',
       applicationCategory: 'DesignApplication', applicationSubCategory: 'Ad and flyer maker', operatingSystem: 'Any, in a web browser', browserRequirements: 'A current web browser with JavaScript',
-      isAccessibleForFree: true, inLanguage: ['en', 'es'], publisher: ORG, screenshot: SITE + '/assets/og/buybackad-og.jpg',
+      isAccessibleForFree: true, inLanguage: ['en', 'es'], publisher: ORG, screenshot: SITE + '/assets/og/home.jpg',
       description: 'A web app for buyback resellers. Pick a We Buy design for iPhones, phones, gold, silver, coins, cars, Pokémon cards, sports cards, test strips and more, add your phone number and area, and download a post-ready photo ad, printable flyer or video ad. The number is set big enough to read in a feed preview.',
       featureList: ['We Buy ad designs for 13 kinds of goods', 'The full ad: business name, headline, models, selling points, product, number and towns on one ad', 'Sizes: Square, Story 9:16, Tall 3:4, Wide 16:9, Wide 4:3, Flyer 8.5x11', 'Video ads in English, Spanish or both', 'Your number, area and business name filled in on every design', '31 colour sets', 'AI backgrounds'],
       offers: offers() },
-    { '@type': 'WebPage', '@id': SITE + '/#page', url: SITE + '/', name: 'We Buy Ad and Flyer Maker for Resellers', isPartOf: WEBSITE, about: APPREF, publisher: ORG, inLanguage: 'en', primaryImageOfPage: { '@type': 'ImageObject', url: SITE + '/assets/og/buybackad-og.jpg', width: 1200, height: 630 } },
-    howTo('How to make a We Buy ad with BUYBACK.AD', landingSteps, SITE + '/'),
+    { '@type': 'WebPage', '@id': SITE + '/#page', url: SITE + '/', name: 'We Buy Ad and Flyer Maker for Resellers', isPartOf: WEBSITE, about: APPREF, publisher: ORG, inLanguage: 'en', primaryImageOfPage: { '@type': 'ImageObject', url: SITE + '/assets/og/home.jpg', width: 1200, height: 630 } },
+    howTo('How to make a We Buy ad with ' + BRAND, landingSteps, SITE + '/'),
   ] };
   html = html.replace(/<script type="application\/ld\+json" id="ld-site">[\s\S]*?<\/script>/, `<script type="application/ld+json" id="ld-site">${JSON.stringify(site)}</script>`);
   writeFileSync(f, html);
@@ -684,12 +687,12 @@ function learnVideos(html) {
   });
 }
 const INFO = [
-  { file: 'about.html', up: '', here: 'about.html', path: '/about.html', title: 'About BUYBACK.AD: the We Buy Ad Maker for Resellers', desc: 'What BUYBACK.AD is, who it is for, how it works, what is free, what each plan adds and what happens to your data. We Buy ads and flyers in your browser.', og: 'buybackad-og', type: 'AboutPage' },
-  { file: 'learn.html', up: '', here: '', path: '/learn.html', title: 'How BUYBACK.AD Works: Five Short Videos', desc: 'Five short videos: what BUYBACK.AD is, how to make a We Buy ad in about a minute, how to look like the real business, AI or ready-made, and what it costs.', og: 'buybackad-og', type: 'WebPage', videos: true },
-  { file: 'looks.html', up: '', here: 'looks.html', path: '/looks.html', title: 'Look Book: Every We Buy Ad Look | BUYBACK.AD', desc: 'Every ready-made look in one place: video looks, photo ad designs, backgrounds and phone layouts for We Buy ads. Pick one and it opens in the editor.', og: 'buybackad-og', type: 'CollectionPage', bare: true },
-  { file: 'privacy.html', up: '', here: '', path: '/privacy.html', title: 'Privacy Policy | BUYBACK.AD', desc: 'What BUYBACK.AD stores, what stays in your browser, every case where something leaves your device, the services we use, and your rights.', og: 'buybackad-og', type: 'WebPage' },
-  { file: 'terms.html', up: '', here: '', path: '/terms.html', title: 'Terms of Service | BUYBACK.AD', desc: 'The terms for using BUYBACK.AD: plans, automatic renewal and cancellation, refunds, AI credits, AI-made content, acceptable use and liability.', og: 'buybackad-og', type: 'WebPage' },
-  { file: 'motion/index.html', up: '../', here: 'motion/', path: '/motion/', title: 'We Buy Phones Video Ad Maker, Free to Try | BUYBACK.AD', ogTitle: 'We Buy Phones video ads, made in your browser', desc: 'Make a We Buy Phones video ad in your browser. Your headline and number land in seconds, with music, in English or Spanish. Download an MP4 with its photo.', og: 'video-ad-maker', type: 'WebPage', bare: true, alt: 'A full ad in Midnight and Cyan: SELL YOUR IPHONE, the video maker\'s house ad' },
+  { file: 'about.html', up: '', here: 'about.html', path: '/about.html', title: 'About WEBUY.AD: the We Buy Ad Maker for Resellers', desc: 'What WEBUY.AD is, who it is for, how it works, what is free, what each plan adds and what happens to your data. We Buy ads and flyers in your browser.', og: 'home', type: 'AboutPage' },
+  { file: 'learn.html', up: '', here: '', path: '/learn.html', title: 'How WEBUY.AD Works: Five Short Videos', desc: 'Five short videos: what WEBUY.AD is, how to make a We Buy ad in about a minute, how to look like the real business, AI or ready-made, and what it costs.', og: 'home', type: 'WebPage', videos: true },
+  { file: 'looks.html', up: '', here: 'looks.html', path: '/looks.html', title: 'Look Book: Every We Buy Ad Look | WEBUY.AD', desc: 'Every ready-made look in one place: video looks, photo ad designs, backgrounds and phone layouts for We Buy ads. Pick one and it opens in the editor.', og: 'home', type: 'CollectionPage', bare: true },
+  { file: 'privacy.html', up: '', here: '', path: '/privacy.html', title: 'Privacy Policy | WEBUY.AD', desc: 'What WEBUY.AD stores, what stays in your browser, every case where something leaves your device, the services we use, and your rights.', og: 'home', type: 'WebPage' },
+  { file: 'terms.html', up: '', here: '', path: '/terms.html', title: 'Terms of Service | WEBUY.AD', desc: 'The terms for using WEBUY.AD: plans, automatic renewal and cancellation, refunds, AI credits, AI-made content, acceptable use and liability.', og: 'home', type: 'WebPage' },
+  { file: 'motion/index.html', up: '../', here: 'motion/', path: '/motion/', title: 'We Buy Phones Video Ad Maker, Free to Try | WEBUY.AD', ogTitle: 'We Buy Phones video ads, made in your browser', desc: 'Make a We Buy Phones video ad in your browser. Your headline and number land in seconds, with music, in English or Spanish. Download an MP4 with its photo.', og: 'video-ad-maker', type: 'WebPage', bare: true, alt: 'A full ad in Midnight and Cyan: SELL YOUR IPHONE, the video maker\'s house ad' },
 ];
 for (const p of INFO) {
   const f = root + p.file;
@@ -699,7 +702,7 @@ for (const p of INFO) {
   const graph = [{ ...webPage(url, p.title, p.desc), '@type': p.type }];
   if (p.videos) graph[0].video = learnVideos(html);
   if (p.file === 'motion/index.html') graph.push({ '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: BRAND, item: SITE + '/' }, { '@type': 'ListItem', position: 2, name: 'Video ads', item: url }] });
-  const head = seoHead({ title: p.title, desc: p.desc, url, image: `${SITE}/assets/og/${p.og}.jpg`, imageAlt: p.alt || 'Three full ads made with BUYBACK.AD: We Buy iPhones, We Buy Gold, We Buy Cars', ogTitle: p.ogTitle, ld: { '@context': 'https://schema.org', '@graph': graph } });
+  const head = seoHead({ title: p.title, desc: p.desc, url, image: `${SITE}/assets/og/${p.og}.jpg`, imageAlt: p.alt || 'Three full ads made with WEBUY.AD: We Buy iPhones, We Buy Gold, We Buy Cars', ogTitle: p.ogTitle, ld: { '@context': 'https://schema.org', '@graph': graph } });
   html = fill(html, 'seo', '\n' + head.trimEnd());
   if (!p.bare) {
     html = fill(html, 'site-nav', '\n' + nav(p.up, p.here));
@@ -712,7 +715,7 @@ console.log('information pages:', INFO.map((p) => p.file).join(', '));
 
 /* ── sitemap.xml, robots.txt, llms.txt and llms-full.txt ── */
 const PAGES = [
-  ['/', 'assets/og/buybackad-og.jpg'], ['/motion/', 'assets/og/video-ad-maker.jpg'], ['/learn.html'], ['/about.html'], ['/looks.html'],
+  ['/', 'assets/og/home.jpg'], ['/motion/', 'assets/og/video-ad-maker.jpg'], ['/learn.html'], ['/about.html'], ['/looks.html'],
   ...CATS.map((c) => [`/ads/${c.slug}.html`, adOf(c) ? `assets/full-ads/${c.slug}.webp` : '']),
   ['/privacy.html'], ['/terms.html'],
 ];
@@ -724,8 +727,8 @@ writeFileSync(root + 'sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 ${PAGES.map(([p, img]) => `  <url><loc>${SITE}${p}</loc><lastmod>${TODAY}</lastmod>${img ? `<image:image><image:loc>${SITE}/${img}</image:loc></image:image>` : ''}</url>`).join('\n')}
 </urlset>
 `);
-writeFileSync(root + 'robots.txt', `# BUYBACK.AD (Graphics Studio). Written by scripts/build_seo_pages.mjs; edit there.
-# The site is served from the Netlify address until buyback.ad answers (no DNS, checked 2026-11-18).
+writeFileSync(root + 'robots.txt', `# ${BRAND} (Graphics Studio, formerly ${FORMER}). Written by scripts/build_seo_pages.mjs; edit there.
+# The site is served from the Netlify address until ${DOMAIN} answers with it (the registrar's parking page, checked 2026-11-19).
 #
 # Every crawler is welcome, search and AI alike. The owner's call, 2026-11-18: AI search and answer
 # crawlers, and the crawlers that collect pages to train AI models, are all allowed. A plain summary
@@ -773,9 +776,9 @@ const planLine = (p) => p.price.month
   : `- ${p.label}: $0. ${planWords(p)[0].toUpperCase() + planWords(p).slice(1)}. Designing needs no account; downloading needs a free account.`;
 const lines = CATS.filter((c) => !c.soon).map((c) => `- [${nameOf(c)}](${SITE}/ads/${c.slug}.html): ${descOf(c)}`);
 const soon = CATS.filter((c) => c.soon).map((c) => `- [${nameOf(c)}](${SITE}/ads/${c.slug}.html): ${descOf(c)}`);
-const llms = `# BUYBACK.AD
+const llms = `# ${BRAND}
 
-> BUYBACK.AD (Graphics Studio by BUYBACK.AD) is a web app that makes "We Buy" ads for people who buy goods from the public and resell them: phone buyers, repair shops, gold, silver and coin buyers, car buyers, card shops and diabetic test strip buyers. You pick a design, type your phone number and your area, and download a post-ready photo ad, a printable flyer or a short video ad. It runs in a web browser on a phone or a computer, with nothing to install, and is free to start.
+> ${BRAND} (Graphics Studio, formerly ${FORMER}) is a web app that makes "We Buy" ads for people who buy goods from the public and resell them: phone buyers, repair shops, gold, silver and coin buyers, car buyers, card shops and diabetic test strip buyers. You pick a design, type your phone number and your area, and download a post-ready photo ad, a printable flyer or a short video ad. It runs in a web browser on a phone or a computer, with nothing to install, and is free to start.
 
 Key facts:
 
@@ -808,7 +811,7 @@ ${lines.join('\n')}
 ## Optional
 
 ${soon.join('\n')}
-- [About BUYBACK.AD](${SITE}/about.html): who it is for, how it works, what it does not do, and your data
+- [About WEBUY.AD](${SITE}/about.html): who it is for, how it works, what it does not do, and your data
 - [Full text for language models](${SITE}/llms-full.txt): this summary with the whole FAQ
 - [Terms of Service](${SITE}/terms.html)
 - [Privacy Policy](${SITE}/privacy.html)
@@ -825,7 +828,7 @@ ${landingSteps.map(([n, t], i) => `${i + 1}. ${decode(n)}: ${decode(t)}`).join('
 
 ## Links
 
-- [About BUYBACK.AD](${SITE}/about.html)
+- [About WEBUY.AD](${SITE}/about.html)
 - [Terms of Service](${SITE}/terms.html)
 - [Privacy Policy](${SITE}/privacy.html)
 `);

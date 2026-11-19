@@ -6029,3 +6029,51 @@ Still the owner's, from that session: no full ad passes the attention check's
 "first frame shows something" (0 of 72), so in full mode New look and Quick ad take
 the best of eight by score; and the full ad's panel still reads at the preview's
 720 where the gate and the search read 1080.
+
+## 2026-11-19 — the site renamed WEBUY.AD (claude/zen-dijkstra-7b5a2e)
+
+The owner, 2026-11-18: "Ok the concept was finally rebranded webuy.ad", "bought the
+domain"; asked whether to rename the site's pages in pull request 15: "Yes, rename the
+site". Done: the name lives in one place per tool (`BRAND`, `MARK`, `FORMER`, `DOMAIN` in
+build_seo_pages.mjs; the cards' mark and the logo in build_og_cards.mjs), and every
+public page, the structured data, the FAQ, the llms files, robots.txt, the legal pages,
+the Look Book, the video maker's page, the 404, the two owner pages, the favicon's
+title, the logo and the 18 link previews say WEBUY.AD. The old name stays only as an
+alternate name in the structured data and "formerly BUYBACK.AD" once on the about,
+privacy and terms pages, robots.txt and the llms files, so search engines and
+assistants join the two. The home card and the logo moved to names that outlive a
+rename (assets/og/home.jpg, assets/brand/webuyad-logo.png); the old two are gone, and
+nothing pointed at them. Redrawing the previews redrew the 20 ads with the current
+engine (the census's variety: stickers, headline treatments and car pictures differ);
+all passed the builder's checks and read cleanly at full size.
+
+Found:
+- The privacy and terms pages gave hello@buyback.ad for privacy requests and legal
+  notices. buyback.ad was never registered (the domain session found it), so the
+  address never took mail, and anyone could have bought the domain and received them.
+  Now hello@webuy.ad: webuy.ad's mail already goes to Namecheap's forwarding, so it
+  works once a "hello" forward is set there.
+- The terms' version is recorded with every purchase (`TERMS_VERSION = '2026-11-18'`,
+  netlify/lib/billing.mjs), so the name change keeps "Version 2026-11-18"; a new
+  version must move both.
+- The watermark (watermark.js `WORD`, rule 142) still says BUYBACK.AD on every Free
+  preview and download, the video maker's preview included, and so do the locked
+  cards' PRO pattern (styles.css) and the five explainer videos. Page words now describe
+  the watermark without its name ("a light watermark"), plans.mjs's two included, so
+  they are true before and after the mark changes.
+
+Checks: seo_check, the CSP hashes (rewritten: the landing's JSON-LD changed),
+verify_csp against the served policy, and the page checks in OPEN-ITEMS §BK 11.
+
+Learned: a rename has three kinds of name in it. Words on a page change. Names that
+are addresses (a partner API path, a message type, a project name) stay, or something
+breaks. And words that describe another thing's name (the watermark's word) follow that
+thing, so write them without the name until it moves too.
+
+RESUME HERE:
+  0. The owner's word on pull request 15.
+  1. The watermark's word, the PRO pattern and the explainer videos to WEBUY.AD
+     (rule 142's code; OPEN-ITEMS §BK 11).
+  2. A "hello" forward for webuy.ad in Namecheap; then webuy.ad connected to Netlify,
+     `SITE` moved, Search Console and Bing (§BK 5).
+  3. The studio's editor in the house look (§BK 2); the landing's load (§BK 3).

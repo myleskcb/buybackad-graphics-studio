@@ -1,6 +1,6 @@
-# BUYBACK.AD
+# WEBUY.AD
 
-> BUYBACK.AD (Graphics Studio by BUYBACK.AD) is a web app that makes "We Buy" ads for people who buy goods from the public and resell them: phone buyers, repair shops, gold, silver and coin buyers, car buyers, card shops and diabetic test strip buyers. You pick a design, type your phone number and your area, and download a post-ready photo ad, a printable flyer or a short video ad. It runs in a web browser on a phone or a computer, with nothing to install, and is free to start.
+> WEBUY.AD (Graphics Studio, formerly BUYBACK.AD) is a web app that makes "We Buy" ads for people who buy goods from the public and resell them: phone buyers, repair shops, gold, silver and coin buyers, car buyers, card shops and diabetic test strip buyers. You pick a design, type your phone number and your area, and download a post-ready photo ad, a printable flyer or a short video ad. It runs in a web browser on a phone or a computer, with nothing to install, and is free to start.
 
 Key facts:
 
@@ -13,7 +13,7 @@ Key facts:
 
 ## Plans
 
-- Free: $0. 3 photo downloads a week, 1080 pixels with a light BUYBACK.AD watermark, 5 AI credits a month, 12 ads kept in the library. Designing needs no account; downloading needs a free account.
+- Free: $0. 3 photo downloads a week, 1080 pixels with a light watermark, 5 AI credits a month, 12 ads kept in the library. Designing needs no account; downloading needs a free account.
 - Starter: $25 a month or $250 a year. 100 photo downloads a month, up to 2160 pixels, no watermark, 50 AI credits a month, 300 ads kept in the library.
 - Pro: $60 a month or $600 a year. 500 photo downloads a month, 30 video ads a month, up to 2160 pixels, no watermark, QR code, 200 AI credits a month, 1,000 ads kept in the library.
 - Business: $100 a month or $1,000 a year. Unlimited photo downloads, unlimited video ads, up to 2160 pixels, no watermark, QR code, 500 AI credits a month, 3,000 ads kept in the library.
@@ -52,7 +52,7 @@ Key facts:
 
 - [We Buy Sneakers ads and flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-sneakers.html): Make a We Buy Sneakers ad or flyer today with your own photo of the pairs you buy. Add your number and area, download, post. Free to start.
 - [We Buy Retro Games ads and flyers](https://buybackad-graphics-studio.netlify.app/ads/we-buy-retro-games.html): Make a We Buy Retro Games ad or flyer today with your own photo of the games you buy. Add your number and area, download, post. Free to start.
-- [About BUYBACK.AD](https://buybackad-graphics-studio.netlify.app/about.html): who it is for, how it works, what it does not do, and your data
+- [About WEBUY.AD](https://buybackad-graphics-studio.netlify.app/about.html): who it is for, how it works, what it does not do, and your data
 - [Full text for language models](https://buybackad-graphics-studio.netlify.app/llms-full.txt): this summary with the whole FAQ
 - [Terms of Service](https://buybackad-graphics-studio.netlify.app/terms.html)
 - [Privacy Policy](https://buybackad-graphics-studio.netlify.app/privacy.html)

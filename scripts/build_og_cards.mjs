@@ -58,7 +58,7 @@ const ADS = {
 };
 /* the cards: file name, the ads on it (one, or three in a fan), and its words. {} marks the accent. */
 const CARDS = [
-  { file: 'buybackad-og', ads: ['hero-iphone', 'hero-gold', 'hero-car'], badge: 'The We Buy ad maker', title: 'We Buy ads and {flyers}, ready in a minute', sub: 'Phones, gold, silver, coins, cars and cards. Your number, big.', chips: ['Photo or video', 'Free to start'] },
+  { file: 'home', ads: ['hero-iphone', 'hero-gold', 'hero-car'], badge: 'The We Buy ad maker', title: 'We Buy ads and {flyers}, ready in a minute', sub: 'Phones, gold, silver, coins, cars and cards. Your number, big.', chips: ['Photo or video', 'Free to start'] },
   { file: 'video-ad-maker', ads: ['video-iphone'], badge: 'Video ads', title: 'We Buy Phones {video} ads', sub: 'Your headline and number land in seconds, with music. English or Spanish.', chips: ['MP4', 'Made in your browser'] },
   { file: 'we-buy-apple', ads: ['we-buy-apple'], badge: 'We Buy Apple ads', title: 'iPhone, iPad and {MacBook} buying ads', sub: 'Every Apple line, your number and your towns.' },
   { file: 'we-buy-iphones', ads: ['we-buy-iphones'], badge: 'We Buy iPhones ads', title: 'Your {iPhone} buying ad, ready to post', sub: 'Flyers and posts for Marketplace, Instagram and OfferUp.' },
@@ -143,10 +143,10 @@ if (!pick || pick.has('logo')) {
   await logo.setContent(`<style>@font-face{font-family:C;src:url('${BASE}assets/fonts/chivo-900.woff2') format('woff2');font-weight:100 900}
     html,body{margin:0;width:512px;height:512px;background:#031b56;display:grid;place-items:center;font-family:C}
     .m{display:grid;justify-items:center;gap:18px}.m svg{width:250px;height:250px}.w{font-weight:900;font-size:66px;letter-spacing:.005em;color:#f2f7ff}.w em{font-style:normal;color:#f4b100}</style>
-    <div class="m">${svg}<div class="w">BUYBACK<em>.AD</em></div></div>`, { waitUntil: 'load' });
+    <div class="m">${svg}<div class="w">WEBUY<em>.AD</em></div></div>`, { waitUntil: 'load' });
   await logo.evaluate(() => document.fonts.ready);
-  await logo.screenshot({ path: root + 'assets/brand/buybackad-logo.png', type: 'png' });
-  console.log('logo assets/brand/buybackad-logo.png');
+  await logo.screenshot({ path: root + 'assets/brand/webuyad-logo.png', type: 'png' });
+  console.log('logo assets/brand/webuyad-logo.png');
 }
 if (errors.length) { console.log('page errors:', errors.slice(0, 3).join(' | ')); bad++; }
 await browser.close();

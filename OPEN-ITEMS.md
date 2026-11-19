@@ -4031,10 +4031,12 @@ Open:
    them, with index.html's head and the cards' URLs. Then register the domain
    in Google Search Console and Bing Webmaster Tools and submit sitemap.xml
    (the owner's accounts). The owner, later on 2026-11-18: the concept is
-   rebranded **webuy.ad**, and that domain is bought. The site still says
-   BUYBACK.AD (the bar and foot, titles, structured data, the llms files, the
-   logo and every link preview); the rename waits on the owner's word, and
-   `SITE` moves to webuy.ad only once it answers.
+   rebranded **webuy.ad**, and that domain is bought (buyback.ad was never
+   registered). The site is renamed (item 11). On 2026-11-19 webuy.ad answers
+   with Namecheap's parking page and its mail goes to Namecheap's forwarding:
+   `SITE` moves to https://webuy.ad only once it answers with this site (a
+   custom domain in Netlify, its DNS pointed there), then build_seo_pages.mjs,
+   seo_check.mjs and csp_hashes.mjs, then Search Console and Bing.
 6. **The platform answers in the FAQ** rest on the research's reading of the
    platforms' own pages (docs/COMPETITOR-RESEARCH-2026-11-12.md §4); how
    strictly each is enforced is unknown, and the rules change. Read them again
@@ -4059,3 +4061,29 @@ Open:
    (the script writes nothing while there is none). Checked at 390 and 1440,
    light and dark: 36 cards, no sideways scroll, no console error, a card
    opens Easy Mode. Lighthouse in the learning log.
+11. **The site is WEBUY.AD** (done, 2026-11-19, on the owner's "Yes, rename the
+   site"): every public page's bar, foot, titles, descriptions, structured
+   data, FAQ, the llms files and robots.txt, the about, privacy and terms
+   text, the Look Book, the video maker's page, the 404, the two owner pages,
+   the favicon's title, the logo (assets/brand/webuyad-logo.png) and all 18
+   link previews (the home card now assets/og/home.jpg; the 20 ads redrawn
+   with the current engine on the way, each through the builder's checks).
+   The plan cards' watermark words come from netlify/lib/plans.mjs, now "a
+   light watermark" (build_pricing.mjs rewrote both copies). Rule 146's
+   paragraph on the name says where it lives. Not renamed here:
+   - **the watermark itself** (watermark.js `WORD`, rule 142) and the locked
+     cards' "PRO · BUYBACK.AD" pattern (styles.css, mirrored into app.js by
+     scripts/sync_css_fallback.mjs): every Free preview and download still
+     says BUYBACK.AD, the video maker's preview included;
+   - the five explainer videos on learn.html ("by BUYBACK.AD" is drawn into
+     them: tools/explainers/videos.js, then a new render);
+   - names that are not words on a page and would break things if moved: the
+     partner library's API (`buybackad-library`, iPhones.LA's integration),
+     app.js's hand-off message types, the Netlify project names.
+   - **The contact address** was hello@buyback.ad on the privacy and terms
+     pages, a domain never registered, so it never received mail and anyone
+     could have claimed it. It is now hello@webuy.ad, which works once a
+     "hello" forward is set in Namecheap's email forwarding for webuy.ad.
+   - The terms keep "Version 2026-11-18": the consent recorded with each
+     purchase names that version (`TERMS_VERSION`, netlify/lib/billing.mjs);
+     a new version moves both.

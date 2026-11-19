@@ -84,7 +84,7 @@ for (const line of robots.split('\n')) { const m = line.match(/^Disallow:\s*(\S+
 if (!/Sitemap: https:\/\/buybackad-graphics-studio\.netlify\.app\/sitemap\.xml/.test(robots)) fail('robots.txt', 'no Sitemap line');
 for (const t of ['llms.txt', 'llms-full.txt']) {
   const s = readFileSync(root + t, 'utf8');
-  if (!/^# BUYBACK\.AD\n\n> /.test(s)) fail(t, 'not in the llmstxt.org shape (an H1, then a blockquote summary)');
+  if (!/^# WEBUY\.AD\n\n> /.test(s)) fail(t, 'not in the llmstxt.org shape (an H1, then a blockquote summary)');
   for (const m of s.matchAll(/\]\((https:\/\/[^)]+)\)/g)) {
     const path = m[1].replace(SITE + '/', '').replace(/#.*$/, '') || 'index.html';
     const file = path.endsWith('/') ? path + 'index.html' : path;

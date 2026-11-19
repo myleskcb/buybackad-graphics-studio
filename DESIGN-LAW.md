@@ -6188,5 +6188,17 @@ from a face that landed late), the Look Book 46 (0.86).
   build_seo_pages.mjs, then seo_check.mjs, then csp_hashes.mjs (the landing's
   JSON-LD is hashed with its scripts) before a commit that touches a public
   page's words, the FAQ, `PLANS` or a category.
+- **The name is WEBUY.AD** (the owner, 2026-11-18: "the concept was finally
+  rebranded webuy.ad", and the domain is bought). It lives in one place per
+  tool: `BRAND`, `MARK` (the wordmark, its .AD in the accent), `FORMER` and
+  `DOMAIN` in build_seo_pages.mjs; the cards' `.mark` (scripts/og_card.html)
+  and the logo's wordmark in build_og_cards.mjs. The old name, BUYBACK.AD,
+  stays where it helps people and machines join the two and nowhere else: the
+  alternate names in the structured data, and "formerly BUYBACK.AD" once on the
+  about page, in the privacy policy and terms, robots.txt and the llms files.
+  Page words describe the watermark without the name it carries ("a light
+  watermark"), so they stay true before and after watermark.js changes its
+  word. Pictures are named for what they are, not for the brand (the home
+  card is assets/og/home.jpg), so the next rename moves no URL.
 
 Not done here: OPEN-ITEMS §BK.
