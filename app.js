@@ -11902,7 +11902,7 @@ function openHouseAd(h){
     if (h.kind !== 'recipe'){
       if (currentCat !== h.cat) setCategory(h.cat);
       const FA = FS.state; FA.line[h.cat] = h.line; FA.recipe[h.cat] = ''; FA.seed = h.seed || 1; FA.pair = ''; FA.voice = ''; FA.set = {};
-    } else FS.state.seed = 1;
+    }   // a recipe opens on its own seed (FullAdStudio.useRecipe)
     FS.enter();
   });
 }

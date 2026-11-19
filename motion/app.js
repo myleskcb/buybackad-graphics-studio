@@ -57,7 +57,7 @@ const subjectOf = st => st.subject && st.subject !== "iphone" ? subjects.list.fi
    full ad: the same recipe Easy Mode's studio opens, so its photo there and its video here are one ad. */
 const recipes = { list: null, byId: {} };
 function loadRecipes() {
-  if (!recipes.list) recipes.list = fetch("./recipes.json").then(r => r.json()).then(j => { const L = j.recipes || []; recipes.byId = Object.fromEntries(L.map(r => [r.id, r])); return L; })
+  if (!recipes.list) recipes.list = fetch("./recipes.json").then(r => r.json()).then(j => { const L = j.recipes || []; if (j.lean) L.forEach(r => { if (r.hint) r.hint.lean = j.lean; }); recipes.byId = Object.fromEntries(L.map(r => [r.id, r])); return L; })
     .catch(e => { console.warn("recipes:", e); recipes.list = null; return []; });
   return recipes.list;
 }
@@ -91,7 +91,7 @@ const fullOf = st => {
   // full ad holds in, motion/full-voices.js; none picked is the house face)
   const S = state.full ? subjectOf(st) : null, pick = { ...(st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {}), ...(fullVoiceOk(st.full_type) ? { type_pair: st.full_type } : {}) };
   // a recipe brings its own pictures (kept as given: subject_set 1) and its ground photograph
-  const R = state.full ? recipeOf(st) : null, rids = R ? subjects.loaded["recipe|" + R.id] || [] : [], extra = R && R.ground_photo ? { ground_photo: { ...R.ground_photo } } : {};
+  const R = state.full ? recipeOf(st) : null, rids = R ? subjects.loaded["recipe|" + R.id] || [] : [], extra = { ...(R && R.ground_photo ? { ground_hint: { ...R.ground_photo } } : {}), ...(R && R.hint ? { hint: R.hint } : {}) };   // leans, not locks (the rebuild, 2026-11-18)
   // its claim, unless a claim or a business name was typed: a named buyer takes the badge
   if (R && R.words && R.words.claim && !st.feed_claim && !String(st.biz || "").trim()) extra.feed_claim = R.words.claim;
   if (!S) return fullStyle({ ...st, ...extra, subject: "", ...(rids.length ? { phones: rids } : {}) }, st.seed, state.index, pick, state.locked);
@@ -405,8 +405,9 @@ async function applyRecipe(id) {
   s.points = w.points || (S && other ? S.points : null);
   delete s.feed_claim;                               // the design's claim is drawn unless a business name or a claim is typed (fullOf)
   for (const [k, v] of [["feed_burst", w.burst], ["number_label", w.label]]) { if (v) s[k] = v; else delete s[k]; }
-  if (R.pair && COLOURWAYS.includes(R.pair)) s.full_palette = R.pair; else delete s.full_palette;
-  if (fullVoiceOk(R.type_pair)) s.full_type = R.type_pair; else delete s.full_type;
+  // its look is its own seed's, leaning toward its card (fullOf passes the hint), never the card's pair or face
+  // locked (the rebuild, 2026-11-18: "take them as inspiration but rebuild them all")
+  delete s.full_palette; delete s.full_type; if (R.seed) s.seed = R.seed | 0;
   ["headline", "tag", "points"].forEach(k => state.locked.add(k));
   state.full = true;
   save(); syncWords(); syncMode(); rebuild(); renderGallery(true);

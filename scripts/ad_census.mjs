@@ -588,7 +588,7 @@ function STUDIO() {
   cz.recipeList = async () => (await FullAdStudio.recipes()).map(r => ({ id: r.id, label: r.label, cat: r.cat, subject: r.subject, from: r.from, gen: r.gen }));
   cz.recipe = async rid => {
     const r = await FullAdStudio.useRecipe(rid); if (!r) return { error: 'no recipe ' + rid };
-    const FA = FullAdStudio.state; FA.biz = V.biz; FA.seed = 1;
+    const FA = FullAdStudio.state; FA.biz = V.biz;   // on its own seed (useRecipe: the rebuild, 2026-11-18)
     $('ez-phone').value = V.number; $('ez-website').value = V.site;
     const out = await cz.fullRead();
     FA.recipe = {};

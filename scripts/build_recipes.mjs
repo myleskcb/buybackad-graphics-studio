@@ -28,7 +28,26 @@
                    outer space for goods that are not about space, or a car of another make than
                    the one it names (the research and the owner: rule 144)
      pair          its theme where that is one of the twelve, else the nearest of them in OKLab
+                   (kept for the record: the look leans by hint, below)
      type_pair     the face pair it wore where the full ad holds it (motion/full-voices.js)
+
+   THE REBUILD (the owner, 2026-11-18, of the library cards and the offer family drawn this way:
+   "Library card ones are not great.. I would take them as inspiration but rebuild them all",
+   "Offer family needs a rebuild also", "they're alright at best and seem to follow their own set of
+   rules ? things like the heros all look so simialr"). Every recipe was drawn on seed 1, so all the
+   cards of a line drew one sticker, one treatment, one number and one arrangement, in their card's
+   pair (one of twelve dark ones), on their card's photograph, with their card's picture. Now:
+     seed          a seed of its own (its id, hashed): its look is the seed's draw
+     look          what it takes after: its family (the card's idea: glassCard, ticketStub, an offer
+                   card's layout: band, split ...) and its colourway (sun, blush, cobalt ...)
+     hint          that, as a lean (spec/recipe-looks.json): the faces, grounds, treatments,
+                   stickers, numbers, fills, arrangements and the tone and hue its seed leans toward;
+                   fullad.js fullStyle draws from them by the table's share, else from everything. Its
+                   card's face is the first face it leans to; its photograph (ground_photo) is a
+                   ground it may stand on where the photograph fits the product it shows
+     pictures      its own only where its words name the product (a make, a model, a van) or its line
+                   has no pool; else none, and the line's pool draws by the seed, the in-demand
+                   models first
 
    usage:  GFX_BASE=http://127.0.0.1:8931/ node scripts/build_recipes.mjs           # rewrite motion/recipes.json
            GFX_BASE=http://127.0.0.1:8931/ node scripts/build_recipes.mjs --check   # exit 1 if it is stale
@@ -45,6 +64,9 @@ const { bannedIn } = await import(new URL('../motion/banned-words.js', import.me
 const { HOUSE_COLOURS } = await import(new URL('../motion/house-colours.js', import.meta.url).href);
 const { FONTS, TYPE_VOICES } = await import(new URL('../motion/catalog.js', import.meta.url).href);
 const { FULL_VOICES } = await import(new URL('../motion/full-voices.js', import.meta.url).href);
+const { FULL_STYLES } = await import(new URL('../motion/full-styles.js', import.meta.url).href);
+const GROUNDS_M = await import(new URL('../motion/full-grounds.js', import.meta.url).href);
+const LOOKS = JSON.parse(read('spec/recipe-looks.json'));
 const SUBJECTS = JSON.parse(read('motion/subjects.json')).subjects;
 const SUB = Object.fromEntries(SUBJECTS.map(s => [s.key, s]));
 const flags = JSON.parse(read('assets/cutout-flags.json'));
@@ -310,6 +332,46 @@ function lineUp(ad, cat, subject, pictures, make, gp, words, notes) {
   return out(null);
 }
 
+/* ---------------------------------------------------------------- what it takes after (the rebuild)
+   A library card's family is its id's first word (glassCard-du08-15); a designer layout's and an
+   offer card's are in theirs, with the colourway after (dl_cars_neonNight_sunset, of_iphone_band_sun:
+   an offer card's family is its layout). spec/recipe-looks.json says what each leans toward. */
+function lineageOf(ad) {
+  if (ad.gen === 'sc') return { family: String(ad.id).split('-')[0], colourway: '' };
+  const m = /^(?:dl|of)_[a-z0-9]+_([A-Za-z]+)_([a-z]+)$/.exec(ad.id);
+  return m ? { family: m[1], colourway: m[2] } : { family: '', colourway: '' };
+}
+const LEANS = ['ground', 'face', 'headline', 'sticker', 'number', 'fill', 'arrangement'];
+function hintOf(gen, family, colourway, voice) {
+  const F = (gen === 'of' ? LOOKS.layouts[family] : LOOKS.families[family]) || {};
+  // a library card's theme was one of the twelve dark pairs (the sameness the owner named): its colour
+  // leans only where its family has one; a layout's or an offer card's colourway is its own
+  const C = gen === 'sc' ? null : LOOKS.colourways[colourway] || null;
+  const h = {};
+  for (const k of LEANS) if (F[k] && F[k].length) h[k] = F[k].slice();
+  if (voice) h.face = [voice, ...(h.face || []).filter(v => v !== voice)];
+  const colour = C || (['tone', 'hue', 'neutral'].some(k => k in F) ? F : null);
+  if (colour) for (const k of ['tone', 'hue', 'neutral']) if (k in colour) h[k] = colour[k];
+  return h;
+}
+/* every name the table leans to is one the engine draws: a face the full ad holds, a style of
+   spec/full-styles.json, a ground kind or a ground by its key, an arrangement */
+const KNOWN = {
+  face: new Set(FULL_VOICES),
+  headline: new Set((FULL_STYLES.headline || []).map(e => e.key)), sticker: new Set((FULL_STYLES.sticker || []).map(e => e.key)),
+  number: new Set((FULL_STYLES.number || []).map(e => e.key)),
+  // a fill leans the plates' and the sticker's (spec/full-styles.json plate_fill, sticker_fill)
+  fill: FULL_STYLES.plate_fill || FULL_STYLES.sticker_fill ? new Set([...(FULL_STYLES.plate_fill || []), ...(FULL_STYLES.sticker_fill || [])].map(e => e.key)) : null,
+  ground: new Set(['photo', 'scene', 'gradient', 'pattern', 'house', ...(GROUNDS_M.GROUND_HOUSE || []), ...(GROUNDS_M.GROUND_SCENES || []), ...(GROUNDS_M.GROUND_GRADIENTS || []), ...(GROUNDS_M.GROUND_PATTERNS || [])]),
+  arrangement: new Set(['lineup', 'fan', 'showcase', 'podium', 'wings']),
+};
+{
+  const bad = [];
+  for (const [where, table] of [['families', LOOKS.families], ['layouts', LOOKS.layouts]]) for (const [name, row] of Object.entries(table))
+    for (const k of LEANS) for (const v of row[k] || []) if (KNOWN[k] && !KNOWN[k].has(v)) bad.push(`${where}.${name}.${k}: ${v}`);
+  if (bad.length) { console.error('spec/recipe-looks.json leans to names the engine does not draw:\n  ' + bad.join('\n  ')); process.exit(1); }
+}
+
 /* ---------------------------------------------------------------- the recipes */
 const GEN = { sc: 'library card', dl: 'designer layout', of: 'offer card' };
 const all = [...got.templates.map(t => ({ ...t, gen: /^dl_/.test(t.id) ? 'dl' : 'of' })), ...got.cards.map(c => ({ ...c, gen: 'sc' }))];
@@ -328,15 +390,32 @@ for (const ad of all) {
   const ground = ad.c1 || (ad.bg && ad.bg.c1) || (ad.palette && (ad.palette.bg || ad.palette.ground)) || '';
   const pair = pairOf(ad.theme, ground, accent, subject);
   const display = ad.faces ? (Array.isArray(ad.faces) ? ad.faces[0] : ad.faces.display) : (heads[0] && heads[0].font) || '';
+  // the product (the owner: "the heros all look so simialr"): the card's own only where its words name
+  // it (a make, a model, a van) or its line has no pool; else the seed draws from the line's pool
+  if (pictures.length && !make && (subject === 'iphone' || (S.pool || []).length)) {
+    notes.push(`its picture${pictures.length > 1 ? 's' : ''} (${pictures.map(p => p.file).join(', ')}) left to the line's pool`);
+    pictures.length = 0;
+  }
+  const { family, colourway } = lineageOf(ad), type_pair = voiceOf(display);
   recipes.push({ id: 'r-' + ad.id, from: ad.id, gen: ad.gen, cat: S.cat, subject, label: `${ad.name} (${GEN[ad.gen]})`,
-    words, pictures, ground_photo, pair, type_pair: voiceOf(display), ...(make ? { make } : {}), ...(dropped.length ? { dropped } : {}), ...(notes.length ? { notes } : {}) });
+    seed: 2 + hash('recipe:' + ad.id) % 99991, look: { family, ...(colourway ? { colourway } : {}) }, hint: hintOf(ad.gen, family, colourway, type_pair),
+    words, pictures, ground_photo, pair, type_pair, ...(make ? { make } : {}), ...(dropped.length ? { dropped } : {}), ...(notes.length ? { notes } : {}) });
+}
+{
+  // every colourway a layout or an offer card names is in the table (a new one leans nowhere unseen)
+  const unknown = [...new Set(recipes.filter(r => r.gen !== 'sc' && r.look.colourway && !LOOKS.colourways[r.look.colourway]).map(r => r.look.colourway))];
+  if (unknown.length) { console.error('colourways missing from spec/recipe-looks.json: ' + unknown.join(', ')); process.exit(1); }
+  const loose = [...new Set(recipes.filter(r => !(r.gen === 'of' ? LOOKS.layouts : LOOKS.families)[r.look.family]).map(r => r.gen + ':' + r.look.family))];
+  if (loose.length) console.log('families with no lean in spec/recipe-looks.json (their look is the seed\'s alone): ' + loose.join(', '));
 }
 const ORDER = SUBJECTS.map(s => s.key);
 recipes.sort((a, b) => ORDER.indexOf(a.subject) - ORDER.indexOf(b.subject) || ['sc', 'dl', 'of'].indexOf(a.gen) - ['sc', 'dl', 'of'].indexOf(b.gen) || a.id.localeCompare(b.id));
 const count = k => recipes.filter(r => r.gen === k).length;
 const json = JSON.stringify({
-  _doc: 'Every older ad the studio offers (library cards, designer layouts, offer cards), read as it opens and written as a recipe the full ad draws as a photo and a video: its words (the one list and the proof words left out), its line, its product cut-outs (a named car make shown as that make), its ground photograph, the nearest of the twelve pairs and its face pair where the full ad holds it. Made by scripts/build_recipes.mjs; never edit by hand. DESIGN-LAW 144, OPEN-ITEMS §BJ.',
-  count: recipes.length, by: { library: count('sc'), layouts: count('dl'), offer: count('of') }, recipes,
+  _doc: 'Every older ad the studio offers (library cards, designer layouts, offer cards), read as it opens and written as a recipe the full ad draws as a photo and a video: its words (the one list and the proof words left out), its line, its product cut-outs (a named car make shown as that make), its ground photograph, the nearest of the twelve pairs and its face pair where the full ad holds it (both for the record). Rebuilt 2026-11-18 (the owner: "take them as inspiration but rebuild them all"): each is drawn on a seed of its own (seed) and leans toward what its card took after (look: its family and colourway; hint: spec/recipe-looks.json), never locked to it; its own pictures only where its words name the product or its line has no pool. Made by scripts/build_recipes.mjs; never edit by hand. DESIGN-LAW 144, 145, OPEN-ITEMS §BJ.',
+  count: recipes.length, by: { library: count('sc'), layouts: count('dl'), offer: count('of') },
+  lean: LOOKS.lean,   // how often a recipe's seed draws from its hint (spec/recipe-looks.json; whoever loads this attaches it to each hint)
+  recipes,
 }, null, 1) + '\n';
 const untagged = recipes.filter(r => r.ground_photo && !tagOf(r.ground_photo.src)).map(r => r.id);
 if (untagged.length) { console.error('grounds missing from spec/ground-tags.json: ' + untagged.slice(0, 8).join(', ')); process.exit(1); }

@@ -74,7 +74,7 @@ const lineNow = () => { const ls = linesOf(currentCat), k = FA.line[currentCat];
    product, its ground photograph, its colours and faces: scripts/build_recipes.mjs), drawn by the
    full ad: a photo here, the same ad as a video in the maker. What the visitor types still wins. */
 function loadRecipes() {
-  if (!live.recipes) live.recipes = fetch(at("./motion/recipes.json")).then(r => r.json()).then(j => { const L = j.recipes || []; live.byId = Object.fromEntries(L.map(r => [r.id, r])); return L; })
+  if (!live.recipes) live.recipes = fetch(at("./motion/recipes.json")).then(r => r.json()).then(j => { const L = j.recipes || []; if (j.lean) L.forEach(r => { if (r.hint) r.hint.lean = j.lean; }); live.byId = Object.fromEntries(L.map(r => [r.id, r])); return L; })
     .catch(e => { console.warn("recipes:", e); live.recipes = null; return []; });
   return live.recipes;
 }
@@ -129,12 +129,16 @@ function styleNow(S, ids, set, size, R = recipeNow()) {
     site: el("ez-website").value.trim(), biz: String(FA.biz || "").trim(),
     // a recipe's own pictures are kept as given (subject_set: the full ad draws a line's pool only at 0)
     aspect, seed: FA.seed | 0 || 1, subject: iph ? "" : S.key, subject_set: own && !iph ? 1 : set, phones: ids.length ? ids.slice() : ["none"] };
-  if (R && R.ground_photo) base.ground_photo = { ...R.ground_photo };
+  // a library design is a lean, not a lock (the rebuild, 2026-11-18: "take them as inspiration but rebuild
+  // them all"): its photograph is a ground it may stand on where it fits the product drawn, its family and
+  // colourway what its seed leans toward (fullad.js fullStyle)
+  if (R && R.ground_photo) base.ground_hint = { ...R.ground_photo };
+  if (R && R.hint) base.hint = R.hint;
   const where = whereNow(); if (where) base.feed_where = where;
   // a typed business name takes the badge over a library design's claim (the full ad's own rule); typed words over both
   if (up(w.claim)) base.feed_claim = up(w.claim); else if (up(rw.claim) && !String(FA.biz || "").trim()) base.feed_claim = up(rw.claim);
   if (up(w.burst) || up(rw.burst)) base.feed_burst = up(w.burst) || up(rw.burst);
-  const pair = FA.pair || (R && R.pair) || "", voice = fullVoiceOk(FA.voice) ? FA.voice : R && fullVoiceOk(R.type_pair) ? R.type_pair : "";
+  const pair = FA.pair || "", voice = fullVoiceOk(FA.voice) ? FA.voice : "";   // only a pick by hand is kept as picked
   const pick = { ...(COLOUR_OF[pair] ? { palette: pair } : {}), ...(voice ? { type_pair: voice } : {}) };
   return { st: fullStyle(base, base.seed, assets.index, pick), W: F.w, H: F.h };
 }
@@ -314,7 +318,7 @@ function buildForm() {
   const rs = el("fa-recipe"); if (rs) rs.addEventListener("change", () => {
     const r = live.byId[rs.value]; FA.recipe[currentCat] = r ? r.id : "";
     // the design's own words, colours and face: what was typed for the line before gives way to them
-    if (r) { FA.line[currentCat] = r.subject; FA.words[r.subject] = {}; FA.pair = ""; FA.voice = ""; FA.seed = 1; }
+    if (r) { FA.line[currentCat] = r.subject; FA.words[r.subject] = {}; FA.pair = ""; FA.voice = ""; FA.seed = r.seed || 1; }
     keep(); live.thumbs = {}; buildForm(); tile(); later(0);
   });
   const nh = el("fa-next-head"); if (nh) nh.onclick = () => { const cur = (words().headline || S.heads[0]).toUpperCase(), i = S.heads.findIndex(h => h.toUpperCase() === cur); const next = S.heads[(i + 1) % S.heads.length].toUpperCase(); words().headline = next; el("fa-headline").value = next; keep(); later(0); };
@@ -378,7 +382,7 @@ function toVideo() {
   const S = lineNow(); if (!S) return;
   const R = recipeNow(), rw = (R && R.words) || {};
   const w = FA.words[S.key] || {}, up = v => String(v || "").trim().toUpperCase(), F = FORMATS[ez.format] || FORMATS.square, ar = F.w / F.h;
-  const hand = { subject: S.key, subject_set: S.sets.length ? (FA.set[S.key] | 0) % S.sets.length : 0, seed: FA.seed | 0 || 1, full_palette: FA.pair || (R && R.pair) || "", full_type: fullVoiceOk(FA.voice) ? FA.voice : R && fullVoiceOk(R.type_pair) ? R.type_pair : "",
+  const hand = { subject: S.key, subject_set: S.sets.length ? (FA.set[S.key] | 0) % S.sets.length : 0, seed: FA.seed | 0 || 1, full_palette: FA.pair || "", full_type: fullVoiceOk(FA.voice) ? FA.voice : "",
     recipe: R ? R.id : "",
     headline: up(w.headline) || up(rw.headline) || S.heads[0].toUpperCase(), tag: up(w.tag) || up(rw.tag) || (S.key === "iphone" ? "" : S.models.toUpperCase()), points: up(w.points) || up(rw.points) || (S.key === "iphone" ? null : S.points),
     feed_claim: up(w.claim) || (String(FA.biz || "").trim() ? "" : up(rw.claim)), feed_burst: up(w.burst) || up(rw.burst), number_label: up(w.label) || up(rw.label), biz: String(FA.biz || "").trim(),
@@ -449,6 +453,7 @@ function install() {
     await loadRecipes(); const r = live.byId[id]; if (!r) return null;
     if (currentCat !== r.cat) setCategory(r.cat);
     FA.recipe[r.cat] = r.id; FA.line[r.cat] = r.subject; FA.words[r.subject] = {}; FA.pair = ""; FA.voice = ""; FA.set = {};
+    FA.seed = r.seed || 1;   // its own look: a recipe opens on its own seed (New look moves on from it)
     return r;
   };
   window.FullAdStudio = { state: FA, enter, leave, draw, build, check, lines: () => live.subjects, aliases: () => live.aliases || {}, isOn: () => FA.on, voices: () => FULL_VOICES.filter(k => fullVoiceOk(k)), pairs: () => COLOURWAYS.slice(),

@@ -49,8 +49,8 @@ for (const id of house) {
     let meta;
     if (id.startsWith('r-')) {
       const r = await FS.useRecipe(id); if (!r) return { error: 'no recipe ' + id };
-      FA.seed = 1; FA.biz = '';
-      meta = { kind: 'recipe', cat: r.cat, line: r.subject, seed: 1, name: r.label || id, from: r.from || '' };
+      FA.biz = '';   // on its own seed (useRecipe sets it: the rebuild, 2026-11-18)
+      meta = { kind: 'recipe', cat: r.cat, line: r.subject, seed: FA.seed, name: r.label || id, from: r.from || '' };
     } else {
       const m = /^full-(.+?)(?:-v(\d+))?$/.exec(id), key = m && m[1], seed = m && m[2] ? +m[2] : 1;
       // a pick of a line that folded into another (the owner's lines, 2026-11-18) is drawn on that line
