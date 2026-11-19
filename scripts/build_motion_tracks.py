@@ -27,7 +27,7 @@ FF = sys.argv[1]
 OUT = os.path.join(os.path.dirname(__file__), "..", "motion", "sounds", "tracks")
 CACHE = os.environ.get("TRACK_CACHE", "/tmp/track-cache")
 SR, CLIP = 44100, 12.0
-UA = {"User-Agent": "GraphicsStudio-track-builder/1.0 (https://buybackad-graphics-studio.netlify.app)"}
+UA = {"User-Agent": "GraphicsStudio-track-builder/1.0 (https://webuy.ad)"}
 
 # id: (title shown, kind, Commons file, how to pick the section, licence basis)
 #   section: ("start",) the opening; ("loud", a, b) the strongest stretch between a and b seconds

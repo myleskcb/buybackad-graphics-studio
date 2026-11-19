@@ -28,7 +28,7 @@ assert.equal(imported.aspect, "9:16");
 assert.equal(imported.headline.length, 60);
 assert.equal(imported.photo, undefined);
 const config = readFileSync(new URL("../social/config.js", import.meta.url), "utf8");
-for (const [host, preview] of [["localhost", true], ["127.0.0.1", true], ["buybackad-graphics-studio.netlify.app", false], ["localhost.evil.invalid", false]]) {
+for (const [host, preview] of [["localhost", true], ["127.0.0.1", true], ["webuy.ad", false], ["buybackad-finished-copy.netlify.app", false], ["localhost.evil.invalid", false]]) {
   const c = { window: {}, location: { hostname: host, search: "?preview=1", href: `https://${host}/social/?preview=1` }, URL, URLSearchParams };
   vm.runInNewContext(config, c);
   assert.equal(c.window.IPLA_SOCIAL_PREVIEW, preview);

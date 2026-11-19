@@ -574,6 +574,39 @@ let csPro;
   env.SITE_URL = was;
 }
 
+/* the site moves to a new address (webuy.ad, 2026-11-18): the webhook moves
+   with it, since Stripe does not follow the old host's redirect */
+{
+  const was = env.SITE_URL;
+  const hook = () => JSON.parse(store.get('pgfx-users').get('stripe:whsec:live'));
+  const buy = () => hit('POST', '/checkout', { consent: true, pack: 'credits100' }, buyer);
+  env.SITE_URL = 'https://studio.example';
+  await buy();
+  const before = hook();
+  ok(before.url === 'https://studio.example/api/stripe-webhook', 'the live webhook is at the site\'s address');
+  env.SITE_URL = 'https://new.example';
+  await buy();
+  const after = hook();
+  ok(after.url === 'https://new.example/api/stripe-webhook' && after.prev === before.secret && after.secret !== before.secret,
+    'a new site address moves the webhook there, and the old secret is kept for events on their way');
+  ok(!S.hooks.has(before.id) && S.hooks.has(after.id) && [...S.hooks.values()].filter((h) => h.mode === 'live').length === 1,
+    'the endpoint at the old address is removed: one live endpoint');
+  const sign = (secret) => { const payload = JSON.stringify({ type: 'invoice.created', data: { object: {} } }), ts = Math.floor(Date.now() / 1000);
+    return [payload, { 'Stripe-Signature': 't=' + ts + ',v1=' + createHmac('sha256', secret).update(ts + '.' + payload).digest('hex') }]; };
+  const [p0, h0] = sign(before.secret), [p1, h1] = sign(after.secret);
+  ok((await hit('POST', '/stripe-webhook', p0, null, h0)).status === 200, 'an event signed with the old secret is still accepted');
+  ok((await hit('POST', '/stripe-webhook', p1, null, h1)).status === 200, 'an event signed with the new secret is accepted');
+  await buy();
+  ok(hook().id === after.id, 'the same address again registers nothing new');
+  delete env.SITE_URL;   // no configured address: the request's own (studio.example here) never moves it
+  await buy();
+  ok(hook().id === after.id, 'the address a request came in on does not move the webhook');
+  env.SITE_URL = 'https://studio--draft.netlify.app';
+  await buy();
+  ok(hook().id === after.id, 'a draft deploy address does not move the webhook');
+  env.SITE_URL = was;
+}
+
 /* operators */
 {
   const boss = await signup('boss2@studio.example');

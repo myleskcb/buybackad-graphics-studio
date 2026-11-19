@@ -4,40 +4,48 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
-    <title>Not found — Graphics Studio</title>
+    <title>Not found — WeBuy.AD</title>
     <style>
       /* Deliberately dependency-free: a 404 that waits on app.js or a webfont
-         is a 404 that shows a blank page first. Colours are the house field and
-         accent (paper, ink and the action blue: the site's house look), hardcoded for the same reason. */
+         is a 404 that shows a blank page first. Colours are the house look's
+         (reselling.us's navy, blue and mint, DESIGN-LAW rule 147), hardcoded
+         for the same reason; light when the device asks for it. */
       html, body { height: 100%; margin: 0; }
       body {
-        background: #f2eee4;
-        color: #141414;
+        background: radial-gradient(120% 55% at 85% -12%, rgba(56,124,255,.28), transparent 60%) no-repeat, linear-gradient(#0d1a36, #070d1c 420px) no-repeat, #070d1c;
+        color: #f4f7ff;
         font: 500 15px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         display: grid;
         place-items: center;
         text-align: center;
         padding: 24px;
       }
-      .code { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: #66615a; }
+      .code { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: #8a96b0; }
       h1 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; margin: 10px 0 8px; }
-      p { color: #3b3833; margin: 0 0 22px; }
+      p { color: #a3aec6; margin: 0 0 22px; }
       a {
         display: inline-block; text-decoration: none;
-        background: #2b56f5;
-        color: #ffffff; border: 2px solid #141414; box-shadow: 3px 3px 0 #141414; font-weight: 650;
+        background: #3d8bff;
+        color: #ffffff; font-weight: 600;
         padding: 12px 22px; border-radius: 999px;
       }
-      a.plain { background: none; border: none; box-shadow: none; color: #2b56f5; padding: 0; text-decoration: underline; font-weight: 600; }
+      a:hover { background: #5a9cff; }
+      a.plain { background: none; color: #7db1ff; padding: 0; text-decoration: underline; font-weight: 600; }
+      @media (prefers-color-scheme: light) {
+        body { background: radial-gradient(120% 55% at 85% -12%, rgba(10,108,255,.12), transparent 60%) no-repeat, linear-gradient(#e6edf9, #f2f4f8 420px) no-repeat, #f2f4f8; color: #0a1224; }
+        .code { color: #616c83; } p { color: #4e5970; }
+        a { background: #0a5fe0; } a:hover { background: #0059d6; } a.plain { background: none; color: #0a5fe0; }
+      }
     </style>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/assets/brand/icon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/brand/icon-180.png">
   </head>
   <body>
     <main>
       <div class="code">404</div>
       <h1>That page isn't here</h1>
       <p>The link may be old, or the page may have moved.</p>
-      <a href="/">Back to Graphics Studio</a>
+      <a href="/">Back to WeBuy.AD</a>
       <nav style="margin-top:18px;font-size:14px"><a class="plain" href="/#lp-templates">Templates</a> &middot; <a class="plain" href="/about.html">About</a> &middot; <a class="plain" href="/#faq">FAQ</a></nav>
     </main>
   </body>

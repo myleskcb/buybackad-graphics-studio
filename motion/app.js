@@ -2,8 +2,8 @@
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES, DEFAULT_PHONES } from "./catalog.js";
 import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf, lotInto } from "./engine.js";
-import { FullAd, fullStyle, fullPreflight, fullStill, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk, fullGroundReady, poolEntryFor } from "./fullad.js";
-import { lookPreflight } from "./look-preflight.js";
+import { FullAd, fullStyle, fullPreflight, fullStill, fullWords, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk, fullGroundReady, poolEntryFor } from "./fullad.js";
+import { lookPreflight, LOOK_CODES } from "./look-preflight.js";
 import { FULL_VOICES } from "./full-voices.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
@@ -30,7 +30,7 @@ const state = {
   assets: { phones: {} },
   index: [],
   ad: null, playing: true, t0: performance.now(), tPaused: 0, sound: false, audio: null, audioCtx: null, audioSrc: null,
-  marks: false,                                     // the player carries the BUYBACK.AD mark (syncMarks)
+  marks: false,                                     // the player carries the WeBuy.AD mark (syncMarks)
   buildId: 0, gallerySeed: 1000,
   // the gallery: the shelf it shows, and whether every look on screen moves (on for a mouse, unless motion is turned down)
   galleryCat: "all",
@@ -294,9 +294,26 @@ function showAudit(rep) {
   $("attn-list").innerHTML = rep.checks.map(c => `<li><i>${c.ok ? "✅" : "⚠️"}</i><span>${c.label}: <b>${c.value}</b></span></li>`).join("");
 }
 
-/** A look is strong when it scores 90+ and passes what decides a scroll. */
+/* A NEW LOOK THAT PASSES (New look, Quick ad; "New looks must pass"). A look is strong when it scores 90+
+   and passes what decides a scroll; of up to eight tries the first strong one, else the best scorer. It
+   must also pass its pre-flight as the download's gate reads it (deliveredPreflight: a full ad at 1080, a
+   plain look at 540). The search had read the full ad at 360 and the gate at 1080, the two disagreed on
+   about one look in five (the footer's pin, fullPreflight), and Quick ad stopped on the gate's pop-up with
+   the look the search had picked (scripts/quick_ad_check.mjs hung there, 2026-11-18). What only the words
+   can fix (no phone number yet) is no look's fault: it is left to the panel and to Download, which say it,
+   and not held against a look (a plain look's lookOk asks the same); held against all eight, it left the
+   search with nothing and it threw (every New look by a visitor who had not typed a number). When none of
+   the eight passes, the closest comes back with what it needs (`fixes`), and the caller says so: a new look
+   is never a failing one handed over without a word. Returns { st, fixes }, fixes empty when it passes. */
 async function strongSeed(base, locked, pool, content, post = st => st) {
-  let best = null;
+  const tried = [];
+  // what this look needs before it goes out: the gate's own reading, less what the words alone need
+  const fixesOf = async c => {
+    if (c.fixes) return c.fixes;
+    let rep; try { rep = await deliveredPreflight(c.h); } catch (e) { console.warn("pre-flight", e); return (c.fixes = []); }   // as at the gate: a check that cannot run stops nothing
+    const words = c.h.full ? new Set(fullWords(c.h).filter(f => f.level === "fix").map(f => f.say)) : null;
+    return (c.fixes = rep.findings.filter(f => f.level === "fix" && (words ? !words.has(f.say) : LOOK_CODES.has(f.code))));
+  };
   for (let k = 0; k < 8; k++) {
     const seed = (Math.random() * 1e9) | 0;
     // the full ad's look comes from its number alone: a new look is a new number, the style underneath kept
@@ -304,15 +321,21 @@ async function strongSeed(base, locked, pool, content, post = st => st) {
     if (state.full) await ensureSubject(st);           // the picture this seed draws, before it is judged
     const h = settle({ ...st }, locked);
     await loadFonts(fontsFor(h));
-    if (h.full) { try { const a = adFor(h, 360, Math.round(360 * (ASPECTS[h.aspect] || [1, 1])[1] / (ASPECTS[h.aspect] || [1, 1])[0])); if (!fullPreflight(a, fullStill(a)).ok) continue; } catch (e) { /* the audit below decides */ } }
-    else if (!await lookPasses(h)) continue;
     const rep = await auditLook(h, state.assets, { size: 120, secs: 3.4, sound: false, AdClass: AdOf(h) });
     const ok = id => rep.checks.find(c => c.id === id)?.ok;
-    if (!best || rep.score > best.score) best = { st, score: rep.score };
-    if (rep.score >= 90 && ok("frame0") && ok("words") && ok("number") && ok("contrast")) return st;
+    const c = { st, h, score: rep.score };
+    if (rep.score >= 90 && ok("frame0") && ok("words") && ok("number") && ok("contrast") && !(await fixesOf(c)).length) return { st, fixes: [] };
+    tried.push(c);
   }
-  return best.st;
+  // none strong: the best scorer that passes, read in that order so that usually one is read
+  tried.sort((a, b) => b.score - a.score);
+  for (const c of tried) if (!(await fixesOf(c)).length) return { st: c.st, fixes: [] };
+  // none passes (every try has been read by now): the closest, and what it needs
+  const near = tried.slice().sort((a, b) => a.fixes.length - b.fixes.length || b.score - a.score)[0];
+  return { st: near.st, fixes: near.fixes };
 }
+/** Said when the search for a new look could not run, and a look went out of it unchecked. */
+const UNCHECKED = "New looks could not be checked just now, so this one was not. Look it over before you post it.";
 
 function indexById() { const o = {}; state.index.forEach(m => { o[m.id] = m; }); Object.values(state.assets.phones).forEach(a => { o[a.meta.id] = a.meta; }); return o; }
 
@@ -453,6 +476,17 @@ function syncFull(ad) {
   }, 320);
 }
 
+/** An ad as it goes out, read by its own pre-flight: a full ad at 1080 on its short side, every block landed
+ *  (fullPreflight), and a plain look at 540 (lookPreflight, below), each after its fonts and photo ground are
+ *  in (readyToDraw). What the gate reads before a download and what the search for a new look (strongSeed)
+ *  reads, so that a look the search picks is never one the gate then stops. */
+async function deliveredPreflight(st) {
+  await readyToDraw(st);
+  if (!st.full) return lookPreflight(lookAdFor(st, LOOK_PRE));
+  const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"], k = 1080 / Math.min(W0, H0), ad = adFor(st, Math.round(W0 * k), Math.round(H0 * k));
+  return fullPreflight(ad, fullStill(ad));
+}
+
 /* THE PRE-FLIGHT FOR A LOOK (look-preflight.js, 2026-11-18: the ad census found the full ad checked
    before it goes out and Any look's looks not checked at all). A plain look is measured on its own
    delivered picture: nothing off the edge, every line readable on what is behind it, the headline
@@ -506,15 +540,8 @@ function syncLook(ad, st) {
  *  something to fix, the customer is told what, and chooses to go back or to download it as it is. */
 async function preflightGate(st) {
   let rep;
-  try {
-    if (st.full) {
-      const [W0, H0] = ASPECTS[st.aspect] || ASPECTS["1:1"], k = 1080 / Math.min(W0, H0), ad = adFor(st, Math.round(W0 * k), Math.round(H0 * k));
-      rep = fullPreflight(ad, fullStill(ad));
-    } else {
-      await readyToDraw(st);
-      rep = lookPreflight(lookAdFor(st, LOOK_PRE));
-    }
-  } catch (e) { console.warn("pre-flight", e); return true; }      // a check that cannot run never stands between a customer and their ad
+  try { rep = await deliveredPreflight(st); }
+  catch (e) { console.warn("pre-flight", e); return true; }      // a check that cannot run never stands between a customer and their ad
   const fixes = rep.findings.filter(f => f.level === "fix");
   if (!fixes.length) return true;
   return new Promise(resolve => {
@@ -761,11 +788,16 @@ async function shuffle(all) {
     // (colours picked by hand are picked again); the customer's own look underneath is left as it was
     const base = state.full && !all ? (({ full_palette, ...rest }) => rest)(state.style) : state.style;
     const plain = () => state.full && !all ? { ...base, seed: (Math.random() * 1e9) | 0 } : randomize(state.style, (Math.random() * 1e9) | 0, locked, pool, all);
-    try { putLook($("strong-only").checked ? await strongSeed(base, locked, pool, all) : plain(), from); }
-    catch (e) {                                     // the attention check failed: shuffle without it
+    let found;
+    try { found = $("strong-only").checked ? await strongSeed(base, locked, pool, all) : { st: plain(), fixes: [] }; }
+    catch (e) {                                     // the search could not run: a look without it, and the customer told so
       console.warn("Strong-look search failed, shuffling without it:", e);
-      putLook(plain(), from);
+      found = { st: plain(), fixes: [], unchecked: true };
     }
+    putLook(found.st, from);
+    // none of the tries passed (words too long for any look, say): the closest, and what it needs, in the pre-flight's own words
+    if (found.fixes.length) VH().toast("No new look passed its checks, so this is the closest. " + found.fixes.map(f => f.say).join(" "), { ms: 12000 });
+    else if (found.unchecked) VH().toast(UNCHECKED, { ms: 12000 });
   } finally { btns.forEach(b => b.disabled = false); }
   state.style.number = state.style.number;              // the number is never shuffled
   delete state.style.pin_phones;                        // New look draws its own phones again (a quick ad pins them)
@@ -1297,7 +1329,7 @@ async function planGate(next, message, kind = "video") {
     throw e;
   }
 }
-/* The BUYBACK.AD mark, the studio's own (watermark.js, window.PgfxMark), on a Free download
+/* The WeBuy.AD mark, the studio's own (watermark.js, window.PgfxMark), on a Free download
    and on the player while it would be on the download. A download that should carry it never
    goes without: no mark, no file. */
 function drawMarks(x, w, h) {
@@ -1935,9 +1967,14 @@ async function quickAd() {
     note(auto ? "Making a new look…" : `Making a new look for the ${ANGLES[quick.angle].label} angle…`);
     // a look's vibe brings lines of its own ("NEXT EXIT: ..."); a quick ad for an angle says the angle's
     const post = auto ? (x => x) : angleWords;
+    // a look none of whose tries passed comes back the closest, with what it needs: the download's gate below
+    // reads it again, says what it needs and asks, as it does for the Download buttons
     let next;
-    try { next = $("strong-only").checked ? await strongSeed(st, locked, [], true, post) : post(randomize(st, (Math.random() * 1e9) | 0, locked, [], true)); }
-    catch (e) { console.warn("Strong-look search failed, shuffling without it:", e); next = post(randomize(st, (Math.random() * 1e9) | 0, locked, [], true)); }
+    try { next = $("strong-only").checked ? (await strongSeed(st, locked, [], true, post)).st : post(randomize(st, (Math.random() * 1e9) | 0, locked, [], true)); }
+    catch (e) {
+      console.warn("Strong-look search failed, shuffling without it:", e); next = post(randomize(st, (Math.random() * 1e9) | 0, locked, [], true));
+      VH().toast(UNCHECKED, { ms: 12000 });
+    }
     putLook(next, from);
     // a new look starts on variants of its own, so two quick ads in a row do not open the same way
     quick.tv = quick.bv = (next.seed >>> 0) % 997;
@@ -2029,7 +2066,7 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
   await start();
 })();
 
-/* The player carries the BUYBACK.AD mark while a download of it would (watermark.js): signed out
+/* The player carries the WeBuy.AD mark while a download of it would (watermark.js): signed out
    or Free. A screenshot, a screen recording or a right-click Save image of the player is then no
    cleaner than the Free download; until 2026-11-17 the player was the clean ad for anyone. A copy
    with no backend (demo) is not gated, as planGate is not. This reads the page's own account, so

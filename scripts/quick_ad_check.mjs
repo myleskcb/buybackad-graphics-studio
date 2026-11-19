@@ -7,7 +7,8 @@
      2. Wholesale buyer + Photo: Make quick ad gives the ad the wholesale
         audience's words, downloads a JPG, and the title and description are
         rewritten for it (wholesale words, the pictured models, the area);
-     3. Sell direct + Video: the same, with the video and its photo;
+     3. Sell direct + Video: the same, with the video and its photo (in 2 and 3, the pre-flight's
+        "Check this ad before it goes out" in the way of a download fails it, and is answered);
      4. a hand edit that names no buying fails the checks on the page;
      5. ↻ gives another title; Copy puts the listing on the clipboard; Save
         as a text file downloads it;
@@ -54,6 +55,25 @@ await ctx.route('**/*', async route => {
 const page = await ctx.newPage();
 const errors = [];
 page.on('pageerror', e => errors.push(String(e)));
+// the page's console, kept so that a wait that runs out can say what the page said meanwhile (stuck, below)
+const T0 = Date.now(), said = [];
+page.on('console', m => { said.push(`${((Date.now() - T0) / 1000).toFixed(1)} s ${m.type()}: ${m.text().slice(0, 600)}`); if (said.length > 300) said.shift(); });
+/** What the page shows when a wait runs out: the pop-up open on it, the note under the buttons, the
+ *  buttons that are off, the pre-flight's reading, and the last of the console. A check that hangs
+ *  says what it hung on (it hung at a quick ad's download, 2026-11-18, and said nothing). */
+async function stuck(what) {
+  const s = await page.evaluate(() => {
+    const t = id => { const e = document.getElementById(id); return e ? e.textContent.replace(/\s+/g, ' ').trim() : null; };
+    const box = document.querySelector('.vh-back .vh');
+    return { dialog: box ? box.innerText.replace(/\s+/g, ' ').trim() : 'none', note: t('export-note'), progress: t('progress-label'),
+      off: ['quick-ad', 'download', 'download-jpg', 'mo-star', 'shuffle-look'].filter(id => { const e = document.getElementById(id); return e && e.disabled; }).join(', ') || 'none',
+      preflight: `${t('full-checks-sum')}: ${t('full-note')}` };
+  }).catch(e => ({ error: String(e) }));
+  console.log(`  STUCK ${what}`);
+  for (const [k, v] of Object.entries(s)) console.log(`    ${k}: ${v}`);
+  console.log('    console (last 40):');
+  for (const l of said.slice(-40)) console.log('      ' + l);
+}
 await page.goto(BASE + 'motion/', { waitUntil: 'load', timeout: 120000 });
 await page.waitForFunction(() => document.getElementById('loading').hidden, null, { timeout: 120000 });
 await page.waitForFunction(() => document.getElementById('qa-title').value.length > 0, null, { timeout: 30000 });
@@ -82,15 +102,25 @@ ok(/Written from the ad: iPhone/.test(L.read) && /Long Beach/.test(L.read), 'it 
 const quickAd = async (angle, kind, expect) => {
   await page.click(`#qa-angles [data-angle="${angle}"]`);
   await page.click(`#qa-kind [data-kind="${kind}"]`);
-  const files = [];
-  const got = new Promise(res => {
-    const want = kind === 'video' ? 2 : 1;
-    page.on('download', async d => { files.push(d.suggestedFilename()); if (files.length >= want) res(); });
-  });
+  const files = [], want = kind === 'video' ? 2 : 1;
+  page.on('download', d => { files.push(d.suggestedFilename()); });
   const t0 = Date.now();
   await page.click('#quick-ad');
-  await Promise.race([got, new Promise(r => setTimeout(r, kind === 'video' ? 180000 : 60000))]);
-  await page.waitForFunction(() => !document.getElementById('quick-ad').disabled && !document.getElementById('download').disabled, null, { timeout: 60000 });
+  /* the files; or the pre-flight's pop-up before a download ("Check this ad before it goes out"), which waits for
+     a click: said, failed and answered (Go back and fix it), never waited on. It stood here unanswered for two
+     minutes at a time, and the run ended with a timeout that said nothing of it (2026-11-18). */
+  let popup = '';
+  for (const end = t0 + (kind === 'video' ? 180000 : 60000); files.length < want && !popup && Date.now() < end;) {
+    await page.waitForTimeout(250);
+    popup = await page.evaluate(() => { const b = document.querySelector('.vh-back .vh'); return b && /before it goes out/.test(b.textContent) ? b.innerText.replace(/\s+/g, ' ').trim() : ''; });
+  }
+  if (popup) {
+    ok(false, `${angle}: the pre-flight stopped the ${kind}: ${popup}`);
+    await stuck(`at the pre-flight's pop-up after ${angle}/${kind}`);
+    await page.click('.vh-back .vh-acts button.p');
+  }
+  await page.waitForFunction(() => !document.getElementById('quick-ad').disabled && !document.getElementById('download').disabled, null, { timeout: 60000 })
+    .catch(async e => { await stuck(`after ${angle}/${kind}: the buttons did not come back (${files.length} files)`); throw e; });
   const L2 = await listing();
   console.log(`${angle}/${kind} in ${((Date.now() - t0) / 1000).toFixed(1)} s: files ${JSON.stringify(files)}; headline ${JSON.stringify(L2.headline)}; title ${JSON.stringify(L2.title)} (${L2.title.length}); description ${L2.body.length}`);
   ok(kind === 'video' ? files.some(f => /\.(mp4|webm)$/.test(f)) && files.some(f => /\.jpg$/.test(f)) : files.some(f => /\.jpg$/.test(f)), `${angle}: the ${kind} downloaded`);

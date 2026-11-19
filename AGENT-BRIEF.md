@@ -26,7 +26,7 @@ That is the standard every change is held to.
 |---|---|
 | Repo | `myleskcb/buybackad-graphics-studio` |
 | Working copy | `~/Downloads/gfxv23` — see the warning below |
-| Live | https://buybackad-graphics-studio.netlify.app |
+| Live | **https://webuy.ad** (from 2026-11-19 UTC; DNS at Namecheap, certificate by Netlify), the `buybackad-finished-copy` project's primary domain; also https://buybackad-finished-copy.netlify.app (OPEN-ITEMS §BL) |
 | Netlify project | `buybackad-graphics-studio` (CLI is authenticated) |
 | Study program | `docs/` — start at `docs/README.md` |
 
@@ -290,7 +290,9 @@ python3 scripts/cvd_audit.py                                         # exits 1 o
 
 | URL | State |
 |---|---|
-| `buybackad-graphics-studio.netlify.app` | **works — this is the URL to share** |
+| `webuy.ad` / `www.webuy.ad` | **works — the site's address** (live 2026-11-19 UTC; `A @ 75.2.60.5` and `CNAME www buybackad-finished-copy.netlify.app.` at Namecheap; `www` redirects to the bare name) |
+| `buybackad-finished-copy.netlify.app` | works; `main` (the netlify.app address of the project webuy.ad points at) |
+| `buybackad-graphics-studio.netlify.app` | works, but a build from before 2026-10-08 (FLOW-AUDIT 2026-11-11) |
 | `studio.scans.ad` | configured in Netlify, **no public DNS** |
 | `buyback.ad` / `www.buyback.ad` | domain alias set, no DNS at all |
 
@@ -606,10 +608,14 @@ produced." DESIGN-LAW rule 87. In practice:
   `build_full_subjects.mjs`): never edit either file by hand. Every draw in
   the maker goes through `settle()` and `adFor()` in `motion/app.js`; a new
   path that calls `harmonise` or `new Ad` directly draws the wrong ad in full
-  mode. Before a commit that touches it, the maker's page or the engine's
-  painters: `node scripts/full_ad_check.mjs`, then `quick_ad_check.mjs` and
-  `buylist_check.mjs`. Retired templates are `template-retired.js` (by hand;
-  `?noretire=1` shows them).
+  mode. What an ad needs before it goes out is read by `deliveredPreflight()`
+  (a full ad at 1080 on the short side, an Any look at 540), by the
+  download's gate and by the search for a new look alike: read at 360, the
+  search passed looks the gate then stopped (2026-11-18). Before a commit
+  that touches it, the maker's page or the engine's painters: `node
+  scripts/full_ad_check.mjs`,
+  then `quick_ad_check.mjs` and `buylist_check.mjs`. Retired templates are
+  `template-retired.js` (by hand; `?noretire=1` shows them).
 - **The full ad's colours** (rule 139, 2026-11-12): never fade an accent by
   opacity (a see-through gold over navy is khaki); a word naming a colour
   (GOLD, SILVER, ORO, PLATA) is accented only by that colour (`accentWord`);

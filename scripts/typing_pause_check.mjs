@@ -231,10 +231,11 @@ const CASES = [
     await typePaused(page, 'f-headline', 'we buy iphones in long beach', 'headline', 'WE BUY IPHONES IN LONG BEACH');
     /* a slow connection: every typeface the search asks for takes 900 ms to load (the page's own are
        let go first, so it asks again), and the search waits for it, so the fields' pauses run out
-       while it looks and their words land on the look it is about to replace. (With its faces let
-       go the full ad fails its pre-flight on every try, and New look falls back to a plain draw,
-       strongSeed's catch in shuffle; either way a whole new look replaces the old one after the
-       wait, which is what this case is about. Without putLook it fails all four below.) */
+       while it looks and their words land on the look it is about to replace. (The number is typed
+       at the press, so no try has one: the search sets that aside, as only the words can fix it, and
+       finds a look; before 2026-11-18 it held it against every try, threw, and New look fell back to a
+       plain draw. Either way a whole new look replaces the old one after the wait, which is what this
+       case is about. Without putLook it fails all four below.) */
     const busy = await page.evaluate(([n, a]) => {
       window.__slowFonts = 900; document.fonts.clear();
       document.getElementById('shuffle-look').click(); __type('f-number', n); __type('f-area', a);

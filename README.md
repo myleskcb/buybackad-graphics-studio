@@ -21,7 +21,8 @@ Blobs (store `pgfx-users`). The Cloudflare Worker at `worker.js` is the
 retired first version: not deployed, 404'd at the edge, kept for history.
 
 **Two Netlify projects, two sets of settings.** `buybackad-finished-copy`
-(the one presented, https://buybackad-finished-copy.netlify.app) is linked
+(the one presented: https://webuy.ad, live 2026-11-19 UTC, also at
+https://buybackad-finished-copy.netlify.app; OPEN-ITEMS §BL) is linked
 to this repo but builds from the branch `claude/fervent-pascal-w6mthe`, not
 `main`; the `sync-finished-copy` job in `.github/workflows/deploy.yml` moves
 that branch to `main` on every push, so a push to `main` is live there in
@@ -45,7 +46,7 @@ redeploy. `.env.example` is the local copy for `netlify dev`.
 | `AI_FREE_DAILY_CREDITS` / `AI_DAILY_CREDITS` | site-wide ceilings a day: the free tier's AI credits (default 100, about $4) and everyone's (default 2000, a runaway guard). `RL_USER_DAILY`, `RL_PRO_DAILY` and `RL_GLOBAL_DAILY` are retired: credits replace them |
 | `STRIPE_SECRET` | **switches billing on.** The only Stripe setting needed: the prices, the products and the webhook make themselves (below). Until it is set, Go Pro says "Checkout is not open yet" and nothing is charged |
 | `STRIPE_PUBLISHABLE_KEY` | optional, and the one to set with `STRIPE_SECRET`: `pk_test_…` with a test secret, `pk_live_…` with a live one. With it, checkout happens **on the site**: Stripe's payment form (card, Apple Pay, Google Pay, Link, whatever the Stripe dashboard's Payment methods switch on) opens inside the site's own dialog (`checkout-embed.js`, Stripe Embedded Checkout) and a card pays without leaving the page. Its look follows the Stripe dashboard's Settings → Branding (colours, font, corners). Without it, or with a key of the other mode, checkout is Stripe's hosted page |
-| `STRIPE_WEBHOOK_SECRET`, `PRICE_<KEY>`, `SITE_URL` | optional. A webhook you made by hand (otherwise the site registers its own); a price you made by hand (`PRICE_PRO_MONTH`, `PRICE_BUSINESS_YEAR`, `PRICE_CREDITS100`…; the old `PRICE_PRO` is `PRICE_PRO_MONTH`); the site's own https origin, where Stripe sends people back and events (defaults to Netlify's `URL`) |
+| `STRIPE_WEBHOOK_SECRET`, `PRICE_<KEY>`, `SITE_URL` | optional. A webhook you made by hand (otherwise the site registers its own); a price you made by hand (`PRICE_PRO_MONTH`, `PRICE_BUSINESS_YEAR`, `PRICE_CREDITS100`…; the old `PRICE_PRO` is `PRICE_PRO_MONTH`); the site's own https origin, where Stripe sends people back and events (defaults to Netlify's `URL`, which is the primary domain, `https://webuy.ad`, once it is set). Leave it unset, or make it `https://webuy.ad`: a netlify.app value keeps Checkout and the webhook on the old address. When the address changes, the next checkout moves the webhook to it (`ensureWebhook`) |
 | `GOOGLE_CLIENT_ID` | optional; shows the Google sign-in button |
 | `LIBRARY_KEYS`, `LIBRARY_DAILY` | the partner library API, below |
 

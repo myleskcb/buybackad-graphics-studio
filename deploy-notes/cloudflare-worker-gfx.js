@@ -13,7 +13,7 @@
  * relative-path (assets/…), and config.js derives its API base from
  * location.pathname, so it runs unmodified from a sub-path.
  */
-const ORIGIN = 'https://buybackad-graphics-studio.netlify.app';
+const ORIGIN = 'https://webuy.ad';
 const MOUNT  = '/gfx';
 
 export default {

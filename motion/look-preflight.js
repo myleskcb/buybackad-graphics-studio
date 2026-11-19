@@ -38,7 +38,7 @@ import { bannedIn } from "./banned-words.js";
 // diff: how far a pixel must change (R+G+B) to be the part's, its shadow, outline and plate included;
 // solid: to be the part itself and not the faint reach of its shadow (fullPreflight's 96)
 const PF = { edge: .016, small: 4.5, large: 3, thumbHead: 20, thumbNum: 16, diff: 40, solid: 96 };
-const LOOK_CODES = new Set(["edge", "reads", "feed", "cta"]);
+export const LOOK_CODES = new Set(["edge", "reads", "feed", "cta"]);   // what a look decides (lookOk); strongSeed in app.js judges a new look by these too
 
 const lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
 const ratio = (a, b) => (Math.max(a, b) + .05) / (Math.min(a, b) + .05);

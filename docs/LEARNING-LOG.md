@@ -5878,6 +5878,7 @@ RESUME HERE:
   1. Merge the audit basket (a helper's branch), re-run the census, republish the review page.
   2. Downloads waiting on an OK: M4 Mac mini, Mac Pro, Studio Display, VR headset, gaming laptop,
      ROG Ally, Legion Go, a sealed Chromebook box, Sprinter, Kenworth, gaming headset, monitor.
+
 ## 2026-11-18 — the audit basket: the census sees composition (claude/xenodochial-mccarthy-7bea6d, a helper)
 
 Asked: "Can you detect this? Do you see what I see without hearing my opinion would you have found this
@@ -5935,6 +5936,230 @@ Learned:
   - 4 live library cards (two Review Proof, two Trust Seal) had never been read into recipes. Reading
     the cards from the index instead of the page found them.
 
+## 2026-11-18 (later) — the census's variety work folded into pull request 14 (claude/ads-improvement-roadmap-7632c8)
+
+The owner's word again: claude/xenodochial-mccarthy-7bea6d as pushed (27487bfb) is
+merged here. It had merged this branch first, so nothing clashed and the tree is the
+census's own: the hero wall's recipe and full-ad picks, cars as ten identified lines,
+grounds matched to the product, stickers, headlines, entrances and numbers that vary
+by the seed, pair gradients, and pools that load only the picture a seed draws.
+Not in it: 5f0e6ba8 (the pickup cards on the Trucks line, no unidentified car, no
+open laptop on the sealed Chromebook line), committed in the census session but not
+pushed; fold it in once it is. Pull request 15 (the site's look and SEO) is cut from
+cb6d8321, so it meets this in OPEN-ITEMS.md, where both added to the end.
+
+## 2026-11-18 — Quick ad's hang, and New look's search that could come back empty (claude/strongseed-preflight)
+
+Asked, from the session that fixed the typing race (claude/sad-pike-c4b427, this branch's base):
+find what quick_ad_check's hang at a quick ad really is (loop it until it hangs, log the open
+pop-up, the note and the console when it does); decide what strongSeed returns when nothing
+passes. New look and Quick ad must never hand the customer an unchecked ad without saying so.
+
+Found:
+  - The hang was the pre-flight disagreeing with itself, not the empty search. Looped two at a
+    time, quick_ad_check hung in 2 runs of 2 (one at its first quick ad, one at its third). Both
+    times all eight tries had passed the search's pre-flight, read at 360 wide; strongSeed
+    returned the best scorer and threw nothing; the download's gate read the same ad at 1080,
+    found "The towns and website is hard to read against what is behind it", and its "Check
+    this ad before it goes out" pop-up waited for a click the check never gives. The panel under
+    the preview, read at 720, said 5 of 7 with nothing to fix. One ad, three sizes, two answers.
+  - And the 1080 answer was the wrong one. Looked at, every failing footer was white letters on
+    a dark ground, plain to read. The footer is one sprite: a map pin in the accent, then the
+    towns. The pre-flight's "reads" takes the letters by their ink's colour and calls the rest of
+    the box, past a ring round the letters, what stands behind them; the orange pin was about two
+    fifths of that "behind", and its brightest tenth. Of 60 New looks with a town, at 1080: 13
+    stopped (3.3 to 3.5:1, every one teal or navy with orange) and 21 noted; at 360 and 720, none:
+    the ring round the pin's white dot covered most of the pin there. With the footer's own
+    pixels set aside, the footer read 7.5 to 15:1 on all 60, the same at all three sizes. So the
+    gate was stopping readable ads, and the search, asking at another size, could not see it
+    coming. Easy Mode's full ad reads at the file's size, and with one town in the visitor's area
+    12 of its 36 downloads tried (four of the twelve pairs, three looks each: navy and orange,
+    midnight and cyan, blue and green, teal and orange) were stopped for it, and 9 more noted.
+    With three towns, none: the pin is a smaller share of a longer line. Its check sets no area,
+    so it never drew the pin. After the change: none either way.
+  - The empty search is real and common, and its cause was not the typefaces (this log's last
+    entry): it is the empty phone number. "There is no phone number on the ad" is a fix, every
+    try shares it, all eight were skipped, best was null and it threw: every New look and Quick
+    ad by a visitor who had not typed a number yet drew a plain, unchecked look, and only the
+    console said so. typing_pause_check's case 8 types the number during the search, so its
+    tries had none; with the faces let go and a number in place, all eight passed.
+  - No full ad can be strong: the attention check's "First frame shows something" (15% of the
+    frame) failed on every full-ad try logged here (72 of 72): the full ad opens on its bare
+    ground and builds. So in full mode the search always runs all eight and returns the best
+    scorer; "New looks must pass" means "the best of eight" there. Not changed: the owner's
+    call (RESUME HERE 1).
+  - The 1080 reading costs 41 to 77 ms a look on this Mac (360: 5 to 12 ms). Read in score
+    order after the attention audit, it is read about once a search.
+
+Done:
+  - motion/fullad.js fullPreflight: the footer's sprite's own pixels are the footer's, never
+    what stands behind its letters (reads takes an own(x, y)). 80 New looks after: no fix at
+    360, 720 or 1080, and each look's worst line the same at all three.
+    (At the merge with pull request 14 the census's rule for the same pin, by its colour, was kept
+    in its place: the next entry.)
+  - motion/app.js: deliveredPreflight(st), the full ad at 1080 read by its pre-flight, is what
+    the gate reads and what the search reads. strongSeed returns { st, fixes }: the first strong
+    try that passes, else the best scorer that passes, else the closest with what it needs. What
+    only the words can fix (fullWords: no number yet) is not held against a look; the panel and
+    Download say it. New look puts the closest in place and says "No new look passed its checks,
+    so this is the closest" and what it needs; Quick ad goes on to the download's gate, which
+    reads it again, says what it needs and asks, as for the Download buttons. When the search
+    cannot run at all, both say the look was not checked (UNCHECKED).
+  - scripts/quick_ad_check.mjs: the pre-flight's pop-up in the way of a download fails that
+    quick ad, is said and is answered (Go back), never waited on; a wait that runs out prints the
+    open pop-up, the note, the buttons that are off, the pre-flight's reading and the last of the
+    console. typing_pause_check case 8's comment is corrected.
+  - AGENT-BRIEF, rule 137's paragraph: what a full ad needs is read by deliveredPreflight.
+
+Rejected:
+  - The search reading at 1080 and nothing else. It would have agreed with the gate by refusing
+    every teal or navy and orange look with a town: two of the twelve pairs gone from New look
+    without a word, and the gate still stopping readable ads.
+  - Holding the missing number against every try, and saying so: New look would have said "no
+    new look passed" on every press by a visitor exploring looks before typing a number.
+  - Stopping Quick ad before its download when nothing passes. The gate already says what is
+    needed and offers "Download it anyway"; a second message would say it twice.
+  - The guess that the look drawn after the catch failed the gate: the search never threw in
+    the hangs. And this log's "with the page's typefaces let go" as why all eight failed.
+
+Checked: quick_ad_check 10 runs of 10, two at a time, 47 ok each, about 20 s a run (the hung
+runs took 124 and 130 s; before the change 2 of 2 hung); full_ad_check all clear; buylist_check
+all passed; typing_pause_check all passed (case 8's search 1730 ms, both pauses ran out in it);
+full_colour_check all clear; full_ad_studio_check all clear. Probes, not in the repo: 80 New looks
+read at 360, 720 and 1080 after the change, no fix at any size; Easy Mode's full ad in every pair,
+three looks each, one town, before and after (12 stopped, then none); the two new messages made to
+happen in the page (words no look can hold; a search that cannot run); Quick ad with such words
+(the gate asks; Go back leaves "Not saved: the ad is waiting for its fix").
+Two checks fail here exactly as they do with the base branch's fullad.js served in this one's
+place, so not from this change: full_type_check (on this Mac it cuts Flyer, Stick No Bills, its
+headline set at 107px reading small in a feed's preview, where full-voices.js keeps it; the kept
+and cut lists are identical either way) and ez_download_is_preview (dl_gold_voltStack_gold and
+dl_gold_gradientWave_gold, legib:Headline, as the ad census found on this Mac at 26fb5dd0).
+The site's 15 pages (the landing twice, with ?demo=1) under its own policy: no page error. Three
+CSP violations, each a page's own inline script, in files and a policy this branch leaves alone:
+phonegfx-studio.html (seen before), motion/audit-sweep.html and motion/views-sheet.html.
+
+Not on `main`: this branch only, cut from claude/sad-pike-c4b427, itself cut from
+claude/brave-mayer-8bv851; neither is on `main`. git merge-tree finds no conflict in code with
+`main`, claude/ads-improvement-roadmap-7632c8 or claude/xenodochial-mccarthy-7bea6d; where they
+append to this log too, the entries meet at its end: keep all.
+
+RESUME HERE:
+  0. The owner's word to merge it, with or after claude/sad-pike-c4b427 and
+     claude/brave-mayer-8bv851 (its base).
+  1. The owner's call on the full ad's first frame: no full ad passes the attention check's "First
+     frame shows something", so New look and Quick ad in full mode take the best of eight by score.
+     Either the full ad's first frame shows something, or its search asks a question of its own.
+  2. The panel under the preview still reads the pre-flight at the preview's size (720), the gate
+     and the search at 1080. After this change none of 80 looks had a fix at either; reading the
+     panel at 1080 too would draw the ad at 1080 on every change.
+  3. On this Mac full_type_check cuts Flyer and ez_download_is_preview fails the two gold designer
+     layouts, as on the base; neither looked into here.
+
+## 2026-11-18 (later) — the quick-ad fix merged with pull request 14 (claude/strongseed-preflight)
+
+Asked, by the session that holds pull request 14, for the owner: merge its branch
+(claude/ads-improvement-roadmap-7632c8 at 9d895833: the watermark, the number fix, the census and the
+rebuild of every ad) into this one, keep both sides, and run its checks.
+
+Found:
+  - The census session met the same pin the same day (a cyan pin under white towns, 2.8:1) and set
+    it aside by its colour: fullPreflight's markHex takes a pixel within 90 of the pin's colour, over
+    R+G+B, as the footer's own, and does the same for the bar under an underline number. This branch
+    had set it aside by the footer sprite's own pixels. Read both ways on 150 looks of the merged
+    maker (49 on photographs, the rest on eleven other grounds): with neither, 41 footers would be
+    stopped; with either, none; the two differ by more than half a point on 2, neither near the bar;
+    and the colour rule took no pixel of the ground behind the letters on any of the 150. Kept the
+    census's rule, one rule for the pin and the bar; the sprite rule is gone, and fullad.js is pull
+    request 14's. (The sprite would not do for the bar anyway: an underline number's sprite holds its
+    figures' outline too, and setting that aside would read the figures without what helps them.)
+  - The census had given Any look its own pre-flight (look-preflight.js, read at 540) and made the
+    gate, the gallery and New look read it at that one size: the rule this branch had made for the
+    full ad, met from the other side. Its New look still read a full ad at 360, where the gate reads
+    1080, and skipped a plain look on lookOk before the attention audit.
+  - Merged: deliveredPreflight reads a full ad at 1080 and a plain look at 540, each after its fonts
+    and photo ground are in (readyToDraw, as the gate's callers wait for them), and it is what the
+    gate and strongSeed read. strongSeed sets aside what only the words can fix: fullWords for a full
+    ad, and for a plain look what lookOk leaves out (look-preflight.js now exports LOOK_CODES). Kept
+    from the branch: the watermark (state.marks, syncMarks, PgfxMark drawn after ad.frame in the
+    player), landTyping, ensureSubject before a seed is judged, pin_phones.
+
+Checked on the merge, against a server of this tree (8899 serves the roadmap's worktree here, so
+these ran on a port of their own): words_check, look_preflight_check, full_ad_check,
+full_ad_studio_check, watermark_check, typing_pause_check, quick_ad_check, buylist_check and
+ez_download_is_preview all pass (the last now passes the two gold layouts it failed on this Mac
+before the rebuild); quick_ad_check again ten times, two at a time: 10 of 10, 47 ok each; the
+site's 15 pages under its own policy: no page error (the three inline-script lines of the entry
+before, in files this merge leaves alone). Probes on the merged maker: New look with no number (no throw, the panel says
+the number); three quick ads (no pop-up); words no look can hold (New look says so, Quick ad's gate
+asks); a search that cannot run (said); Any look's New look with and without a number (5 of 5, and
+4 of 5 with the number said on the panel, no toast).
+
+RESUME HERE:
+  0. The roadmap session folds this into pull request 14 and checks it again.
+  1. The owner's call on the full ad's first frame (the entry before this one, RESUME HERE 1).
+  2. The full ad's panel still reads at the preview's size (720), the gate and the search at 1080.
+
+## 2026-11-18 (later) — the strongSeed fix folded into pull request 14 (claude/ads-improvement-roadmap-7632c8)
+
+The owner's word: claude/strongseed-preflight (d45b252f, 846ad194, and d6c04ff6, its
+merge of this branch at 9d895833) is merged here. Its session merged this branch
+first and resolved the clashes itself, so nothing clashed and the tree is its own:
+the gate and the search for a new look read the same pre-flight
+(`deliveredPreflight`: a full ad at 1080, a plain look at 540), a New look none of
+whose tries pass comes back the closest with what it needs, and the census's pin
+rule (by colour) now covers the footer's pin and the underline number's bar.
+Still the owner's, from that session: no full ad passes the attention check's
+"first frame shows something" (0 of 72), so in full mode New look and Quick ad take
+the best of eight by score; and the full ad's panel still reads at the preview's
+720 where the gate and the search read 1080.
+
+## 2026-11-18 — webuy.ad, the site's new address (claude/webuy-ad-new-site-url-f0be40)
+
+Asked: "webuy.ad launch new site URL".
+
+Done:
+  - Every page's own address, the sitemap, robots, the category page
+    generator and the CSP hash for index.html's JSON-LD now say webuy.ad.
+  - The Stripe webhook moves with the site's address; the deploy workflow's
+    live check reads webuy.ad, falling back to the netlify.app address with a
+    warning until the domain answers.
+  - OPEN-ITEMS §BL: the seven owner steps, in order (Netlify, Namecheap, the
+    certificate, SITE_URL, the merge, the webhook, iPhones LA).
+
+Found:
+  - The domain was registered a few hours before the ask and still answered
+    Namecheap's parking page. A Host-header probe against Netlify's load
+    balancer (`curl --resolve webuy.ad:80:75.2.60.5`) tells whether any
+    project has claimed a name before its DNS is in.
+  - A setting kept "once" goes stale when the thing it names moves: the
+    webhook was stored once per mode with its URL and never compared again.
+    Store what a value was made for, and compare it on read.
+  - The category pages are generated. Proving the generator rebuilds the
+    committed files byte for byte before changing it makes the rebuild after
+    the change safe to trust.
+  - Changing an address inside an inline JSON-LD block changes a CSP hash;
+    `csp_hashes.mjs` has to run after it.
+  - The legal pages' contact address is on a domain with no DNS.
+
+  - Netlify asks Let's Encrypt for a certificate the moment a domain is
+    added. Added before the DNS moved, it asked while the parking records
+    still answered and failed; its own retry got it a few minutes later.
+    DNS first, then the domain.
+  - A primary domain does not make the netlify.app address redirect: it
+    still answers 200.
+  - Two Netlify logins: myleskcb@gmail.com sees team KCB only;
+    buybackad-finished-copy is under myleskcb2@gmail.com.
+
+Checked: billing_check (108 passed; the two new checks fail on the old
+billing.mjs), the live-check step run locally against today's sites, the SEO
+generator rebuilt, CSP hashes rewritten.
+
+RESUME HERE:
+  0. webuy.ad is live (HTTPS, 2026-11-19 UTC). OPEN-ITEMS §BL: merge this
+     branch (step 5), then steps 6 and 7.
+  1. §BL open 1: the wordmark, BUYBACK.AD or WEBUY.AD, is the owner's call.
+
 ## 2026-11-19 — the partner library serves the rebuilt ads (claude/xenodochial-mccarthy-7bea6d)
 
 Asked: render the rebuilt ads at full size so the partner library feed serves them ("Do it here").
@@ -5955,3 +6180,60 @@ Learned:
   - The local puppeteer stand-in lacked `$$eval`, `select` and `type`. They were added to it
     (ignored `node_modules`), so library_handoff_check runs here now. Its one skip is a Python test
     that needs Pillow.
+
+## 2026-11-19 — WeBuy.AD in reselling.us's look (DESIGN-LAW 147, 148)
+
+Asked: "logos branding webkit", "all aspects need to finish and it needs to
+have similar or matching styling to reselling.us", "or color scheming at
+first?", then the wordmark "WeBuy.AD".
+
+Done: the family skin (reselling.us's colours, live first), then the system
+type, the WeBuy.AD wordmark in Inter Tight, the W. icon and the share card
+drawn from HTML, the name across the site with BUYBACK.AD kept as the business.
+
+Found:
+  - reselling.us's live look is not its design-system repo: the repo says
+    violet (resale. tokens), the site serves navy and blue. Read the colours
+    off the live sheet, not the repo.
+  - reselling.us keeps a brand kit as HTML drawn by headless Chrome
+    (resale-app docs/brand/source). Copying its recipe, not its pictures,
+    makes a sibling that matches by construction.
+  - A local static server's caches hide a CSS change: the page at / kept the
+    old theme stamp after /index.html was refreshed. Fetch every changed
+    file with cache: 'reload' before believing a screenshot.
+  - The pane's screenshots draw #3d8bff as violet; computed values are the
+    truth. reselling.us's own button showed the same.
+  - A brand rename has a legal edge: the terms are an agreement with a named
+    party and a recorded version. Rename the product, not the party, without
+    the owner.
+
+RESUME HERE:
+  0. OPEN-ITEMS §BM "Open": the terms' party and version, the explainer
+     videos' end card, the Stripe portal's line.
+  1. §BL: the webhook move after the first checkout, iPhones LA's allowlist,
+     the contact address, live Stripe keys.
+
+
+## 2026-11-19 — main (webuy.ad, the reselling.us look, WeBuy.AD) merged into pull request 14 (claude/ads-improvement-roadmap-7632c8)
+
+Auto-fix: GitHub said pull request 14 conflicted with `main`, which had taken three commits
+(webuy.ad as the site's address; the reselling.us look; the name WeBuy.AD). Merged here:
+
+- **The numbers.** `main` had numbered its two rules 138 and 139 and its open items BD and BE,
+  which this branch already held (138 to 145, BD to BJ). Main's became rules 147 and 148 and
+  open items BL and BM, as pull request 15 numbers them (after its 146 and BK; the census
+  branch's 146 to 149 move when it lands), and the lines main added that cite them say so. Each carries a line saying what it was numbered.
+- **The name** (rule 148): "WeBuy.AD wherever the product or the site is named, the watermark
+  on free exports included". So the lattice keeps this branch's drawing (rule 142) and draws
+  the new name (`watermark.js` WORD), and this branch's own words for it follow: the plan
+  cards and table (`netlify/lib/plans.mjs`, rebuilt by `build_pricing.mjs`), the FAQ, the
+  approval page's title and the code's comments. BUYBACK.AD stays where rule 148 keeps it:
+  the copyright line, and the terms and privacy policy.
+- **The rest** of each side merged on its own: main's look, wordmark, icon, share card and
+  address; this branch's engine, census, watermark and fixes. The CSP's inline hashes are
+  rewritten for the merged index.html; `watermark_check.mjs` now reads "small" next to either
+  name.
+
+Not this branch's to settle: pull request 15 (the site's own look) meets main's reselling.us
+look, and its session has asked the owner which way it goes.
+

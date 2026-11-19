@@ -1,0 +1,41 @@
+<!doctype html>
+<!-- The picture a link to webuy.ad previews as (og:image), 1200 x 630, made by
+     tools/brand/make.sh into assets/brand/share-card.jpg. Reselling.US's card in
+     WeBuy.AD's words: the home page's own kicker and headline, and four real ads
+     from the home page's wall (assets/showcase). -->
+<html><head><meta charset="utf-8"><style>
+@font-face { font-family: "Inter Tight"; src: url("../../assets/fonts/inter-tight-latin.woff2") format("woff2"); font-weight: 500 800; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { width: 1200px; height: 630px; overflow: hidden; position: relative; color: #f4f7ff;
+  font-family: -apple-system, "SF Pro Display", "Helvetica Neue", Arial, sans-serif; background: #070d1c; }
+.glow-a, .glow-b { position: absolute; border-radius: 50%; }
+.glow-a { width: 900px; height: 900px; right: -320px; top: -420px; background: radial-gradient(closest-side, rgba(61, 139, 255, 0.34), rgba(61, 139, 255, 0) 70%); }
+.glow-b { width: 760px; height: 760px; left: -280px; bottom: -480px; background: radial-gradient(closest-side, rgba(47, 213, 143, 0.22), rgba(47, 213, 143, 0) 70%); }
+.left { position: absolute; left: 72px; top: 64px; width: 580px; }
+.wordmark { font: 750 44px/1 "Inter Tight", sans-serif; letter-spacing: -0.04em; }
+.wordmark span { color: #3d8bff; }
+.kicker { display: inline-flex; align-items: center; gap: 12px; margin-top: 52px; padding: 9px 18px 9px 14px; border-radius: 99px; background: rgba(61, 139, 255, 0.16); color: #a9cbff; font-size: 17.5px; font-weight: 600; white-space: nowrap; }
+.kicker i { width: 11px; height: 11px; border-radius: 50%; background: #2fd58f; box-shadow: 0 0 0 5px rgba(47, 213, 143, 0.22); }
+h1 { margin: 24px 0 0; font-size: 66px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.02; }
+h1 span { color: #2fd58f; }
+.foot { position: absolute; left: 72px; bottom: 56px; font-size: 25px; color: #a3aec6; font-weight: 500; }
+.foot b { color: #f4f7ff; font-weight: 700; }
+.wall { position: absolute; right: 56px; top: 58px; width: 470px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; transform: rotate(-4deg); }
+.wall img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; border-radius: 22px; border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.7); }
+.wall img:nth-child(2n) { transform: translateY(46px); }
+</style></head><body>
+<div class="glow-a"></div><div class="glow-b"></div>
+<div class="left">
+  <div class="wordmark">WeBuy<span>.AD</span></div>
+  <div class="kicker"><i></i>For phone buyers, gold buyers and every reseller in between</div>
+  <h1>Buyback ads that make strangers <span>text you first.</span></h1>
+</div>
+<div class="foot"><b>webuy.ad</b> · Free to design</div>
+<div class="wall">
+  <img src="../../assets/showcase/scriptRetro-nn04-20.webp" alt="">
+  <img src="../../assets/showcase/slabPoster-jw01-20.webp" alt="">
+  <img src="../../assets/showcase/checklistHero-nn01-20.webp" alt="">
+  <img src="../../assets/showcase/bubblePop-nn04-20.webp" alt="">
+</div>
+</body></html>
