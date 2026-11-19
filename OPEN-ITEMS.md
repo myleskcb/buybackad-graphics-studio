@@ -3971,3 +3971,11 @@ Open:
      versions) now that their recipes stand in for them (`scripts/retire_older_ads.mjs`).
    - **owner**: re-pick the hero wall from the rebuilt recipes on the review page.
    - **owner**: a VR headset and a gaming laptop photograph, so their cards show the product.
+10. **The audit basket** (DESIGN-LAW 143; the owner: "Can you detect this? ... put them in an audit
+    basket"). **done**: the census reads what the eye sees: a product off its axis, a box with little in
+    it, a colour outside its pair, words in unrelated colours, a model the line does not buy.
+    - The basket holds 89 of 2,019 ads: 86 library cards, 2 designer layouts and 1 offer card. No
+      full ad, rebuilt recipe, Any look or FeedAd is in it.
+    - The owner's three are caught by what they named.
+    - Precision on the worst 40, by eye: 33 clearly real, 7 borderline, none plainly wrong.
+    - **owner**: keep or send back each basket ad on the review page (Audit basket filter).

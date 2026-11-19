@@ -5845,3 +5845,37 @@ RESUME HERE:
   1. Photographs that need the owner's OK to download: a VR headset, a gaming laptop, a Mac mini,
      a ROG Ally, a Legion Go, a sealed Chromebook box, a Sprinter, a Kenworth, a gaming headset,
      a monitor.
+
+## 2026-11-18 — the audit basket: the census sees composition (claude/xenodochial-mccarthy-7bea6d, a helper)
+
+Asked: "Can you detect this? Do you see what I see without hearing my opinion would you have found this
+amongst all of the ads can we audit for the worst ones and anything similar to this in confusion? We can
+put them in an audit basket and if I think it's good enough, we'll keep it otherwise we will audit and
+rebuild or try to fix". It was said of three MacBook library cards the census ranked mid-table.
+
+Changed:
+  - scripts/ad_census.mjs records each ad's layout and turns it into findings (`confusionOf`, `CONFUSE`):
+    a product off its axis, a box with little in it, a colour outside its pair, words in unrelated
+    colours, a model the line does not buy.
+  - The findings sink a row's score.
+  - The review page has an Audit basket filter, worst first, with each finding on the card and in full
+    in the dialog.
+  - Basket: 89 of 2,019 ads, all older static cards (86 library cards, 2 designer layouts, 1 offer card).
+    Precision on the worst 40 by eye: 33 clearly real, 7 borderline, none plainly wrong.
+
+Learned:
+  - The first cut put 543 ads in the basket. Most were a deliberate design read as a fault: a
+    two-column offer card read as an off-centre product, an offer card's navy panel as a third colour,
+    a sunset scene as random colours, a full ad's product beside its sticker as off-axis, and a
+    three-colour pair's navy ink as outside the pair. Each was fixed by reading the layout as a
+    designer would: the block beside the product, a card's own two colours, the pair's ink.
+  - A fabric text's `textAlign` is its alignment inside its own box. A one-line headline says "left"
+    wherever it stands, so the words' axis is read from where the lines sit. A box as wide as the
+    column is the exception: there the property says where the words are.
+  - What the owner calls "a box with little in it" can hold a picture: a tiny laptop inside a dark
+    band made it look full to a coverage count. A picture under a quarter of the plate is a small one.
+  - A teal-blue and a navy-teal are one "blue" to the eye, and a very dark colour reads as near black.
+    Families are 30 degrees or one name, and a deep colour needs chroma .08 to count.
+  - The pale pink call-to-action card was #fff0f9, chroma .02, under any plate threshold. A tint that
+    nothing else wears is still the colour the owner sees, so the call to action's plate counts from
+    .018.

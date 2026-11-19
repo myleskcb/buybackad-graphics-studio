@@ -85,6 +85,8 @@ const rows = census.rows.filter(r => !r.error).map(r => {
     pair: r.colour && r.colour.match ? r.colour.name || r.colour.pair || 'a house pair' : '', offPair: !!(r.colour && !r.colour.match),
     pre: r.pre ? (r.pre.ok === false ? 'fails' : r.pre.ok === true ? 'passes' : 'none') : 'none', preSays: (r.pre && r.pre.says || []).filter(s => !/^warning/.test(s)).slice(0, 3),
     product: r.product ? Math.round((r.product.h || 0) * 100) : 0,
+    // the audit basket (the census's confusion reading): what the eye sees, worst first by severity
+    confusion: (r.confusion || []).map(f => ({ c: f.code, s: f.severity, t: f.say })), basket: !!(r.confusion && r.confusion.length), bs: r.basketScore || 0,
   };
 });
 const byCat = {};
@@ -151,5 +153,5 @@ writeFileSync(OUT + '/data/pictures.json', JSON.stringify({ thumbs, pictures }))
 // 4. the page
 copyFileSync(new URL('./review_page.html', import.meta.url).pathname, OUT + '/index.html');
 const sz = f => (readFileSync(OUT + '/data/' + f).length / 1e6).toFixed(1) + ' MB';
-console.log(`review page: ${rows.length} ads in ${Object.keys(byCat).length} categories; ${Object.values(pictures).reduce((a, l) => a + l.length, 0)} pictures for ${Object.keys(pictures).length} categories`);
+console.log(`review page: ${rows.length} ads in ${Object.keys(byCat).length} categories (${rows.filter(r => r.basket).length} in the audit basket); ${Object.values(pictures).reduce((a, l) => a + l.length, 0)} pictures for ${Object.keys(pictures).length} categories`);
 console.log(`  ${OUT}/index.html, data/ads.json ${sz('ads.json')}, ` + readdirSync(OUT + '/data').filter(f => /^thumbs-[a-z]+\.json$/.test(f) && f !== 'thumbs-index.json').map(f => `data/${f} ${sz(f)}`).join(', ') + `, data/pictures.json ${sz('pictures.json')}`);

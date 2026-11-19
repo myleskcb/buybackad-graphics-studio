@@ -6008,6 +6008,49 @@ no product picture; Any look has no pre-flight and 214 of its 246
 looks no call to action; TEXT A PIC is still on 12 phone cards; and the video
 maker loses a number typed within half a second of the area.
 
+**2026-11-18, what the eye sees: the audit basket.** The owner pointed at three library cards the census
+had ranked mid-table (#279 to #287 of 585, score 6):
+- a dark band across the middle holding only the models line ("a very strange center box that doesn't
+  have enough information");
+- an old MacBook the line does not buy;
+- a laptop off the centre of centred words, with "the colors ... a little bit random with the pink CTA and
+  the white informational text".
+
+Then: "Can you detect this? Do you see what I see without hearing my opinion ... can we audit for the
+worst ones and anything similar to this in confusion? We can put them in an audit basket".
+
+The census read words, elements, contrast and pairs, not the composition. It now also reads each ad's
+layout: its lines' boxes, sizes and inks; its plates and their fills; its product's boxes and cut-outs;
+and its picture's colours by hue family. From these it makes five findings (`confusionOf`, thresholds
+in `CONFUSE`):
+- **The product off its axis.** Its centre is over 10% of the width from the axis its centred words
+  are set on (over 20% is severe). A two-column layout is meant and is left alone.
+- **A box with little in it.** A plate, band or panel over 6% of the frame whose words and pictures
+  cover under 15% of it, or that holds one line under 52px and at most a small picture.
+- **A colour outside its pair.** A designed colour (a plate of 2% of the frame, or a line's ink) of a
+  family the declared pair does not have. A family is within 30 degrees or of one name, and a deep
+  colour counts only at chroma .08. On a ground the engine drew, a hue family over 2% of the picture
+  counts too.
+- **Words in unrelated colours.** Three ink families, or the call to action's plate in a colour
+  nothing else wears (a tint counts).
+- **A model the line does not buy.** A cut-out flagged "old model" in `assets/cutout-flags.json`.
+
+A row with any finding is in the audit basket. Its severities add to its score, so it sinks in the
+review page's ranking. The page lists the basket worst first, and the owner keeps an ad (Approve) or
+sends it back for a rebuild or a fix (Deny with a note, or Change).
+
+All three of the owner's cards are caught by the finding they named. Measured on every offered ad:
+- **By generation:** Full ad 0 of 246, Library recipe 0 of 738, Designer layout 2 of 77, Offer family 1 of 299, Library card 86 of 362, Any look 0 of 246, FeedAd (iPhones LA) 0 of 51.
+- **By finding:** empty-box 55, lone-cta 22, off-pair-colour 14, off-axis 4, old-product 2.
+- **Precision:** of the worst 40, looked at by eye, 33 are clearly real and 7 borderline (a strap
+  ribbon with one rate line, a pale tinted call-to-action pill, a teal between blue and green). None
+  is plainly wrong.
+- **Where:** every one is an older static card. The full ads and the rebuilt recipes read clean.
+  The old-product finding read the "old model" flags from the working copy that adds them
+  (`CENSUS_FLAGS`).
+
+`--rescan` re-reads them in seconds. `CENSUS_FLAGS` reads the flags from another tree's file.
+
 Not done here: OPEN-ITEMS §BI.
 
 ## 144. A banned word is stopped where it is written, and every fix carries the check that holds it
