@@ -6507,3 +6507,40 @@ choice (best of the best, no theme twice, bright looks like the video ads, few d
 colour system (vibrant and neon pairs and trios, no pattern fills, one multi-colour gradient at
 most), the VR headset recipe, and the library's chips (main categories, a dropdown arrow where a
 category has subcategories). None of this is live until the owner merges into `main`.
+
+## 2026-11-19 (latest) — pull request 14 at 815ebea2 merged here; the landing measured (claude/zen-dijkstra-7b5a2e)
+
+Pull request 14 had taken main's 5dfd1b7b (the explainers in the WeBuy.AD look, main's rules as
+152 and 153) and folded in the census's rebuild (its rules as 154 to 157). This branch had moved
+to 152 and 153 already, so only DESIGN-LAW, the log and app.js's copy of styles.css met; the
+explainers' WebP posters were drawn again from main's new JPEGs. All sixteen checks pass on the
+merged tree (landing, approve, watermark, plan economics, pricing, full ad studio with the CSP,
+area dialog, quick ad, buy list, mix, full style, full colour, full ad, typing pause, hero
+stills, SEO).
+
+Lighthouse, median of three, served as Netlify serves it; before is main as live (163c0fd0),
+after is this branch with pull request 14 in it:
+
+| page | form | performance | largest paint | blocking | layout shift | weight |
+|---|---|---|---|---|---|---|
+| / | phone | 32 → 80 | 5.7 s → 1.4 to 1.8 s | 2757 → 736 to 792 ms | 0 → 0 | 4424 → 1852 KB |
+| / | desktop | 72 → 94 to 96 | 1.2 s → 1.1 s | 415 → 83 to 134 ms | 0 → 0 | 4544 → 2132 KB |
+| /looks.html | phone | 49 → 72 | 0.6 s → 0.6 s | 1831 → 2170 ms | 0.83 → 0 | 2714 → 2731 KB |
+| /looks.html | desktop | 46 → 72 | 0.2 s → 0.2 s | 1402 → 868 ms | 0.90 → 0.004 | 3001 → 3019 KB |
+| /ads/we-buy-gold.html | both | 100 → 100 | | 0 → 0 | 0.005 → 0 | 125 → 104 KB |
+| /motion/ | phone, desktop | 70 → 70, 71 → 73 | 0.9 s, 0.3 s | 3800 → 4252, 850 → 812 ms | 0.02, 0.08 → 0.05 | 3004 → 3631 KB |
+
+The landing's weight is less than half: fabric.js out of the head, the colour sets and their
+builder gone, and the census's rebuild retiring the old cards. The video maker's weight is the
+census's (its pools); nothing of this branch's touches it.
+
+Accessibility on the landing, 90 before: 91 after the merge, then 96 once the foot's column
+headings became h3s (they had followed the sections' h2s as h4s) and its line links became
+24px targets. What is left is main's own choice in rule 152: white on the dark-mode blue
+button, 3.31:1, kept to match reselling.us (the large-text bar).
+
+RESUME HERE:
+  0. The owner's pick among the three directions for the mark (OPEN-ITEMS §BK 14), and the
+     owner's word on pull request 15.
+  1. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5).
+  2. The landing's load (§BK 3): what is left is app.js at load.

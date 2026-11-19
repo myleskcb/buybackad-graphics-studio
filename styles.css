@@ -1119,7 +1119,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .lp-footer-big{display:block;padding:46px clamp(16px,4vw,40px) 28px}
 .lpf-cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px;max-width:1100px;margin:0 auto}
 .lpf-brand p{color:var(--text-dim);font-size:13px;margin-top:10px;max-width:260px}
-.lpf-col h4{font:700 10.5px/1 var(--ui);letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px}
+.lpf-col h4,.lpf-col h3{font:700 10.5px/1 var(--ui);letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px}
 .lpf-col a{display:block;color:var(--text-2);text-decoration:none;font-size:13.5px;padding:5px 0}
 .lpf-col a:hover{color:var(--accent)}
 .lpf-base{max-width:1100px;margin:30px auto 0;padding-top:18px;border-top:1px solid var(--hairline);color:var(--text-dim);font-size:12px}
@@ -2462,7 +2462,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='poster'] .lp-faq summary{font-size:17px}
 :root[data-skin='poster'] .lp-faq p{font-size:16px;line-height:1.65;color:var(--text-2)}
 :root[data-skin='poster'] .lp-cta-inner p{font-size:17px}
-:root[data-skin='poster'] .lpf-col h4{font-size:12.5px;color:var(--text-2)}
+:root[data-skin='poster'] .lpf-col h4,:root[data-skin='poster'] .lpf-col h3{font-size:12.5px;color:var(--text-2)}
 :root[data-skin='poster'] .lpf-col a{font-size:15px}
 :root[data-skin='poster'] .lpf-brand p{font-size:15px;color:var(--text-2)}
 :root[data-skin='poster'] .lpf-base{font-size:13.5px;color:var(--text-2)}
@@ -3085,3 +3085,5 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='family'] .hero-eyebrow{padding:var(--s2) var(--s3);gap:var(--s2);line-height:20px;max-width:100%}
 :root[data-skin='family'] .hero-eyebrow>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-skin='family'] .hero-eyebrow::before{width:8px;height:8px;box-shadow:0 0 0 3px rgba(var(--accent2-rgb),.3)}
+/* the foot: its headings follow the page's h2s (h3), and a line's links are targets a thumb can take (24px) */
+.lpf-col .lpf-subs a{display:inline-block;min-height:24px;padding:4px 0;line-height:16px}
