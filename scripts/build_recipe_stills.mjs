@@ -14,7 +14,8 @@
 
    usage:  GFX_BASE=http://127.0.0.1:8931/ node scripts/build_recipe_stills.mjs          draw what is missing or stale
            node scripts/build_recipe_stills.mjs --check   exit 1 if a recipe has no still, or a still no recipe
-           --all   draw every one again (after the engine or the recipes change) */
+           --all   draw every one again (after the engine or the recipes change)
+           --ids a,b   draw those again (after a change to the engine that only some of them draw) */
 import { readFileSync, writeFileSync, existsSync, mkdirSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
@@ -26,7 +27,9 @@ const recipes = JSON.parse(readFileSync(ROOT + 'motion/recipes.json', 'utf8')).r
 const index = existsSync(DIR + 'index.json') ? JSON.parse(readFileSync(DIR + 'index.json', 'utf8')) : { items: {} };
 // a still is stale when its recipe's seed, words or line moved (the recipe a still was drawn from, by these)
 const stamp = r => JSON.stringify([r.seed, r.subject, r.words, r.pictures, r.words_only || false, r.label]);
-const want = recipes.filter(r => process.argv.includes('--all') || !index.items[r.id] || index.items[r.id].stamp !== stamp(r) || !existsSync(DIR + r.id + '.webp'));
+// --ids a,b: those again, besides any missing or stale (a change to the engine that only some grounds draw)
+const ids0 = (i => i > 0 ? new Set(process.argv[i + 1].split(',')) : null)(process.argv.indexOf('--ids'));
+const want = recipes.filter(r => process.argv.includes('--all') || (ids0 && ids0.has(r.id)) || !index.items[r.id] || index.items[r.id].stamp !== stamp(r) || !existsSync(DIR + r.id + '.webp'));
 
 if (process.argv.includes('--check')) {
   const ids = new Set(recipes.map(r => r.id)), orphan = Object.keys(index.items).filter(id => !ids.has(id));
@@ -57,7 +60,10 @@ for (const r of want) {
     const g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(frame, 0, 0, SIZE, SIZE);
     // the colour the library's palette families group it by: its pair, as the full ad drew it
     const pair = st.full_colour || '', P = (await import('/motion/house-colours.js')).HOUSE_COLOURS.find(c => c.key === pair);
-    return { pair, pairName: P ? P.name : '', accent: st.colors ? st.colors.accent : '', webp: c.toDataURL('image/webp', .76) };
+    // what the wall's own check reads (scripts/hero_wall_check.mjs): the pair's look, the kind of ground, the headline
+    const bg = String(st.background || ''), { GROUND_SCENES } = await import('/motion/full-grounds.js');
+    const ground = bg === 'photo' ? 'photo' : /^pair_/.test(bg) ? 'gradient' : /^pat_/.test(bg) ? 'pattern' : GROUND_SCENES.includes(bg) ? 'scene' : 'house';
+    return { pair, pairName: P ? P.name : '', look: P ? P.look : '', accent: st.colors ? st.colors.accent : '', background: bg, ground, headline: String(st.headline || ''), webp: c.toDataURL('image/webp', .76) };
   }, { id: r.id, SIZE });
   if (got.error) { console.log(`  ${r.id}: ${got.error}`); continue; }
   writeFileSync(DIR + r.id + '.webp', Buffer.from(got.webp.split(',')[1], 'base64'));

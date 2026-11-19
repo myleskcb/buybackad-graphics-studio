@@ -4000,6 +4000,37 @@ Open:
     - The owner's three are caught by what they named.
     - Precision on the worst 40, by eye: 33 clearly real, 7 borderline, none plainly wrong.
     - **owner**: keep or send back each basket ad on the review page (Audit basket filter).
+13. **The hero wall, the colours and the VR headsets** (DESIGN-LAW 145, 146, 149; the owner, of
+    webuy.ad's wall: "this hero is majorly lacking still", "too many similar or matching color
+    schemes", "no pattern fills and only 1 gradient multi color", asked, "Show more of them").
+    **done on `claude/zealous-dewdney-386bf8`**:
+    - No twin pairs in a seed's draw.
+    - Vivid 44%, light 36%, dark 20%.
+    - Gradients turn hue, and patterns read.
+    - Dark colourways lean to their hue.
+    - An ad with no product never stands on a photograph.
+    - Eighteen hand picks on the wall (9 full ads, 9 rebuilt), held by `hero_wall_check.mjs`.
+    - Every still and full-size rebuilt ad drawn again.
+    - **owner**: approve the wall (shown as one image, 2026-11-19) or name the tiles to swap.
+    - **owner**: a real VR headset photograph (a Meta Quest 3), the one in the repository being a
+      render. It waits for a word on the download. The seven VR ads stand on their words alone
+      until then, off the wall.
+    - Seen, not changed: the Pokémon and sports-card tiles' graded-slab pictures read pale at the
+      wall's size.
+14. **Vibrant pairs and trios, proposed** (the owner: "ideally we relearn color theory and ad design
+    to maximize all of the color pairs, trios, etc.. that work and keep a viewer captivated.. means
+    vibrant or neon colors often times or really good contrasts"). **proposed, not live**:
+    - 10 new schemes, each on its own ground, from colour theory (violet and yellow, blue and
+      orange, lime and purple, cyan and magenta, mint and red...).
+    - 3 of the neon-on-black pairs at full neon.
+    - Every one passes the studio's contrast floors, and none duplicates a pair the studio has.
+    - The colours and the reason for each are in `docs/colour-proposals-2026-11-19.json`.
+    - Shown to the owner on the iPhone and the cars full ad, 2026-11-19.
+    - **owner**: which to adopt, and which current pairs they replace. The candidates are the dark,
+      muted ones, such as Navy & Orange, Midnight & Cyan, Blue & Green, Teal & Orange and White on
+      Navy.
+    - Adopting one is a row in app.js `COLOR_THEMES` and `node scripts/build_house_colours.mjs`.
+      Then draw the stills again, and the wall and its check.
 
 ## BL. 2026-11-18 — webuy.ad, the site's new address
 

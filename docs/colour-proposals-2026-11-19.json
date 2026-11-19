@@ -1,0 +1,215 @@
+{
+ "_doc": "PROPOSED, NOT LIVE (2026-11-19). The owner: \"ideally we relearn color theory and ad design to maximize all of the color pairs, trios, etc.. that work and keep a viewer captivated.. means vibrant or neon colors often times or really good contrasts\"; the roadmap: the owner sees the proposed pairs and trios on real ads before they replace the current ones. Ten new schemes on ten different grounds (complementary, split-complementary and analogous pairs at the most chroma sRGB holds at their lightness), and three of the studio's neon-on-black pairs at full neon. Each passes the floors scripts/build_house_colours.mjs holds every theme to (the words 4.5:1 on the ground and its lit middle, the plate's words 4.5:1, the accent 3:1 on the ground and .3 off it in gamma luminance), and none is within CIEDE2000 14 of another or of a pair the studio has (but the three it would replace). Shown to the owner on the iPhone and the cars full ad. To adopt one: a row in app.js COLOR_THEMES (its group, bg, ink, accent), then node scripts/build_house_colours.mjs.",
+ "version": "2026-11-19",
+ "status": "proposed",
+ "proposals": [
+  {
+   "name": "Yellow on Violet",
+   "group": "Two colours",
+   "why": "complementary: violet and yellow, the most contrast two hues give",
+   "look": "vivid",
+   "words_contrast": 6,
+   "colors": {
+    "ground": "#6e02e1",
+    "light": "#8830e6",
+    "ink": "#ffe64b",
+    "accent": "#ffe64b",
+    "plate": "#ffe64b",
+    "plate_ink": "#6e02e1",
+    "hot": "#ffe64b"
+   }
+  },
+  {
+   "name": "Electric Blue, White & Orange",
+   "group": "Three colours",
+   "why": "complementary: blue and orange at full chroma",
+   "look": "vivid",
+   "words_contrast": 7.5,
+   "colors": {
+    "ground": "#0137ee",
+    "light": "#345ff1",
+    "ink": "#ffffff",
+    "accent": "#fe9730",
+    "plate": "#fe9730",
+    "plate_ink": "#0d0d10",
+    "hot": "#fe9730"
+   }
+  },
+  {
+   "name": "Hot Pink, Black & Cobalt",
+   "group": "Three colours",
+   "why": "a neon ground, its cool counter in the plates",
+   "look": "vivid",
+   "words_contrast": 7.4,
+   "colors": {
+    "ground": "#fe6dae",
+    "light": "#fe6dae",
+    "ink": "#0d0d10",
+    "accent": "#0d13b3",
+    "plate": "#0d13b3",
+    "plate_ink": "#ffffff",
+    "hot": "#0d13b3"
+   }
+  },
+  {
+   "name": "Neon Lime, Black & Purple",
+   "group": "Three colours",
+   "why": "complementary: lime and purple",
+   "look": "vivid",
+   "words_contrast": 16.1,
+   "colors": {
+    "ground": "#b6ff57",
+    "light": "#b6ff57",
+    "ink": "#0d0d10",
+    "accent": "#6e02ae",
+    "plate": "#6e02ae",
+    "plate_ink": "#ffffff",
+    "hot": "#6e02ae"
+   }
+  },
+  {
+   "name": "Cyan, Black & Magenta",
+   "group": "Three colours",
+   "why": "two of print's three inks",
+   "look": "vivid",
+   "words_contrast": 13.4,
+   "colors": {
+    "ground": "#0aeeee",
+    "light": "#0aeeee",
+    "ink": "#0d0d10",
+    "accent": "#a80269",
+    "plate": "#a80269",
+    "plate_ink": "#ffffff",
+    "hot": "#a80269"
+   }
+  },
+  {
+   "name": "Orange, Black & Cobalt",
+   "group": "Three colours",
+   "why": "complementary: orange and blue",
+   "look": "vivid",
+   "words_contrast": 7.6,
+   "colors": {
+    "ground": "#fe7f10",
+    "light": "#fe7f10",
+    "ink": "#0d0d10",
+    "accent": "#172fe2",
+    "plate": "#172fe2",
+    "plate_ink": "#ffffff",
+    "hot": "#172fe2"
+   }
+  },
+  {
+   "name": "Red, White & Yellow",
+   "group": "Three colours",
+   "why": "analogous warm: the colours of a sale",
+   "look": "vivid",
+   "words_contrast": 5.2,
+   "colors": {
+    "ground": "#db0118",
+    "light": "#e12a3d",
+    "ink": "#ffffff",
+    "accent": "#ffe64b",
+    "plate": "#ffe64b",
+    "plate_ink": "#0d0d10",
+    "hot": "#ffe64b"
+   }
+  },
+  {
+   "name": "Magenta, White & Neon Lime",
+   "group": "Three colours",
+   "why": "complementary neon: magenta and lime",
+   "look": "vivid",
+   "words_contrast": 5.5,
+   "colors": {
+    "ground": "#c80484",
+    "light": "#d2319a",
+    "ink": "#ffffff",
+    "accent": "#b6ff57",
+    "plate": "#b6ff57",
+    "plate_ink": "#0d0d10",
+    "hot": "#b6ff57"
+   }
+  },
+  {
+   "name": "Yellow, Black & Magenta",
+   "group": "Three colours",
+   "why": "a bright ground, a hot accent",
+   "look": "vivid",
+   "words_contrast": 15.4,
+   "colors": {
+    "ground": "#ffe64b",
+    "light": "#ffe64b",
+    "ink": "#0d0d10",
+    "accent": "#a80269",
+    "plate": "#a80269",
+    "plate_ink": "#ffffff",
+    "hot": "#a80269"
+   }
+  },
+  {
+   "name": "Mint, Black & Red",
+   "group": "Three colours",
+   "why": "complementary: mint and red",
+   "look": "vivid",
+   "words_contrast": 14.4,
+   "colors": {
+    "ground": "#70f6b5",
+    "light": "#70f6b5",
+    "ink": "#0d0d10",
+    "accent": "#db0118",
+    "plate": "#db0118",
+    "plate_ink": "#ffffff",
+    "hot": "#db0118"
+   }
+  },
+  {
+   "name": "Black, White & Neon Lime",
+   "group": "Neon pairs",
+   "why": "replaces Black & Lime (#8bd737): the lime at full neon",
+   "look": "dark",
+   "words_contrast": 19.4,
+   "colors": {
+    "ground": "#0d0d10",
+    "light": "#3d3d40",
+    "ink": "#ffffff",
+    "accent": "#b6ff57",
+    "plate": "#b6ff57",
+    "plate_ink": "#0d0d10",
+    "hot": "#b6ff57"
+   }
+  },
+  {
+   "name": "Hot Pink on Black",
+   "group": "Neon pairs",
+   "why": "replaces Black & Pink: the words in the neon too",
+   "look": "dark",
+   "words_contrast": 7.4,
+   "colors": {
+    "ground": "#0d0d10",
+    "light": "#343436",
+    "ink": "#fe6dae",
+    "accent": "#fe6dae",
+    "plate": "#fe6dae",
+    "plate_ink": "#0d0d10",
+    "hot": "#fe6dae"
+   }
+  },
+  {
+   "name": "Cyan on Black",
+   "group": "Neon pairs",
+   "why": "replaces Black & Cyan: the words in the neon too",
+   "look": "dark",
+   "words_contrast": 11.6,
+   "colors": {
+    "ground": "#0d0d10",
+    "light": "#3d3d40",
+    "ink": "#13dcf6",
+    "accent": "#13dcf6",
+    "plate": "#13dcf6",
+    "plate_ink": "#0d0d10",
+    "hot": "#13dcf6"
+   }
+  }
+ ]
+}

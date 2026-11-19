@@ -11,7 +11,8 @@
    number and Long Beach, as the library's renders carried them, the website line "Visit our website
    at www.iPhones.LA" and a seller asked for the IMEI, never a picture (_library_finish.mjs, the
    owner, 2026-11-03), into assets/rebuilt-ads/<recipe id>.jpg, with the dates in its EXIF as the
-   library's renders have them (_jpeg_exif.mjs). Its own folder: render_library_ads.mjs prunes what
+   library's renders have them (_jpeg_exif.mjs), the software named WeBuy.AD, the product's name (DESIGN-LAW
+   148; BUYBACK.AD stays the business). Its own folder: render_library_ads.mjs prunes what
    is not a live card from its own.
 
    assets/rebuilt-ads/index.json records each render: its size, its file's sha1 (the API's links
@@ -83,7 +84,7 @@ if (todo.length) {
     if (got.error || !/^data:image\/jpeg;base64,/.test(got.jpg || '')) { failed.push(r.id + ': ' + (got.error || 'no picture')); continue; }
     const dates = { created: rebuiltAt, updated: rebuiltAt, rendered: nowIso() };
     const title = r.label.replace(/ \((library card)\)$/, '');
-    const buf = exifStamp(Buffer.from(got.jpg.split(',')[1], 'base64'), { title, software: 'BUYBACK.AD Graphics Studio', created: dates.created, updated: dates.updated, uploaded: dates.rendered });
+    const buf = exifStamp(Buffer.from(got.jpg.split(',')[1], 'base64'), { title, software: 'WeBuy.AD', created: dates.created, updated: dates.updated, uploaded: dates.rendered });
     writeFileSync(OUT + r.id + '.jpg', buf);
     items[r.id] = { w: got.w, h: got.h, bytes: buf.length, sha1: sha1(buf), stamp: stampOf(r), from: r.from, title, rendered: dates.rendered, created: dates.created, updated: dates.updated };
     if (++n % 25 === 0) process.stdout.write(`${n} `);

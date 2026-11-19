@@ -17,7 +17,8 @@
                the picture as delivered: an option passes where its ads have no fix
      seeds     24 seeds as drawn (iPhone, cars, gold, Pokémon, computers) pass the pre-flight;
                their contact sheet is seeds.jpg
-     families  a gradient ground's colours are the pair's ground and accent families, no third
+     families  a gradient ground's colours are the pair's ground and accent families, or the hues on the way
+               from the ground's to its far end's (2026-11-19: a gradient turns hue), no third
      entrance  each entrance moves (frames before the hold differ) and comes to rest on the still
    Contact sheets of every option go to SHEETS (default .render/full-styles/).
 
@@ -182,8 +183,13 @@ const r = await page.evaluate(async () => {
           // the ground's own colours, read off the painted ground canvas: hues within 30 degrees of the ground's or the accent's
           const g = d.ad.bg, x = g.getContext('2d', { willReadFrequently: true }), px = x.getImageData(0, 0, g.width, g.height).data;
           const G = E.oklchOf(F.COLOUR_OF[pair].colors.ground), Ac = E.oklchOf(F.COLOUR_OF[pair].colors.accent);
+          /* a gradient turns from the ground's hue into its far end's along the shorter way (2026-11-19, decor.js; the owner:
+             "only 1 gradient multi color", "Show more of them"): a hue on the way is its own, any other is a third family */
+          const far = D.PAIR_GRADIENTS.includes(o.background) ? E.oklchOf(D.pairGradientColours(F.COLOUR_OF[pair].colors).hot) : null;
+          const turn = far && G.C >= .04 && far.C >= .04 ? (((far.h - G.h) % 360) + 540) % 360 - 180 : null;
+          const onWay = h => { if (turn == null || Math.abs(turn) > 150) return false; const d = (((h - G.h) % 360) + 540) % 360 - 180; return turn >= 0 ? d >= -30 && d <= turn + 30 : d <= 30 && d >= turn - 30; };
           let n = 0, third = 0;
-          for (let i = 0; i < px.length; i += 4 * 97) { const [L, a, b] = E.oklabOf(px[i], px[i + 1], px[i + 2]), C2 = Math.hypot(a, b); if (C2 < .05) continue; n++; const h = (Math.atan2(b, a) * 180 / Math.PI + 360) % 360, dh = q => Math.min(Math.abs(h - q), 360 - Math.abs(h - q)); if (!((G.C >= .04 && dh(G.h) <= 30) || dh(Ac.h) <= 30)) third++; }
+          for (let i = 0; i < px.length; i += 4 * 97) { const [L, a, b] = E.oklabOf(px[i], px[i + 1], px[i + 2]), C2 = Math.hypot(a, b); if (C2 < .05) continue; n++; const h = (Math.atan2(b, a) * 180 / Math.PI + 360) % 360, dh = q => Math.min(Math.abs(h - q), 360 - Math.abs(h - q)); if (!((G.C >= .04 && dh(G.h) <= 30) || dh(Ac.h) <= 30 || (far && far.C >= .04 && dh(far.h) <= 30) || onWay(h))) third++; }
           out.families.push({ label, pair, third: n ? +(third / n).toFixed(3) : 0 });
         }
         out.options.push(row); cells.push({ t: thumb(d.c), ok: row.ok, label: label.slice(0, 18) + ' ' + pair.split('_').map(w => w[0]).join('') });
@@ -273,7 +279,7 @@ ok(r.seeds.every(q => q.ok), `the ${r.seeds.length} seeds as drawn (iPhone, cars
 const noSticker = r.options.filter(o => o.kind === 'sticker' && !o.sticker).length;
 ok(true, `the sticker found its room on ${r.options.filter(o => o.kind === 'sticker').length - noSticker} of ${r.options.filter(o => o.kind === 'sticker').length} sticker ads (the layout leaves none on some sizes)`);
 for (const f of r.families) if (f.third > .05) ok(false, `${f.label} on ${f.pair}: ${(f.third * 100).toFixed(1)}% of its coloured pixels are a third family`);
-ok(r.families.every(f => f.third <= .05), `the gradient grounds keep to the pair's two families: ${r.families.length} grounds, the worst ${(Math.max(...r.families.map(f => f.third)) * 100).toFixed(1)}% outside them`);
+ok(r.families.every(f => f.third <= .05), `the gradient grounds keep to the pair's two families and the hues on the way between them: ${r.families.length} grounds, the worst ${(Math.max(...r.families.map(f => f.third)) * 100).toFixed(1)}% outside them`);
 for (const e of r.entrances) ok(e.moved > 1.5 && e.restDiff < 1, `entrance ${e.key}: moves (${e.moved}) and rests on the still (${e.restDiff})`);
 
 for (const [k, url] of Object.entries(r.sheets)) writeFileSync(SHEETS + k + '.jpg', Buffer.from(url.split(',')[1], 'base64'));

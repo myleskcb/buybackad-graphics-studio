@@ -698,6 +698,16 @@ produced." DESIGN-LAW rule 87. In practice:
   card's rebuilt ad from `assets/recipe-stills/` (`node scripts/build_recipe_stills.mjs`, `--check`)
   through `scLoadShelf`; `scLoadIndex` is the library cards alone. Rebuild the stills when the
   recipes or the engine change (`--all`).
+- **The hero wall is chosen, not filled** (rules 145 and 146, the owner, 2026-11-19). Every slot is
+  a hand pick in `assets/hero-picks.json`, a rebuilt ad or one of the full ad's own looks
+  (`full-<line>-v<seed>`, drawn by `node scripts/build_hero_stills.mjs`).
+  `node scripts/hero_wall_check.mjs` reads the landing's wall and holds it to:
+  - no pair, headline or family twice;
+  - three dark tiles at most, never touching;
+  - patterns and gradients shown, full ads included;
+  - a product in every tile.
+  A seed never draws a twin pair, and draws a dark look least (`LOOK_SHARE`). After an engine
+  change, draw the recipe stills, the hero stills and the rebuilt ads again.
 - **The partner library serves the rebuilt library ads** (`assets/rebuilt-ads/`,
   `node scripts/render_rebuilt_ads.mjs --stale` after the recipes or the engine change;
   `library_api_check` fails while one is stale).

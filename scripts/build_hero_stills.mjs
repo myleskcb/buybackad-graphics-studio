@@ -66,7 +66,11 @@ for (const id of house.filter(id => !own(id))) {
     const frame = M.fullStill(ad), c = document.createElement('canvas'); c.width = c.height = 448;
     const g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(frame, 0, 0, 448, 448);
     const product = (ad.phones || [])[0] || '';
-    return { ...meta, pair: st.full_colour || '', product: String(product), webp: c.toDataURL('image/webp', 0.78) };
+    // what the wall's own check reads (scripts/hero_wall_check.mjs): the pair and its look, the kind of ground, the headline
+    const pair = st.full_colour || '', P = (await import('/motion/house-colours.js')).HOUSE_COLOURS.find(c => c.key === pair);
+    const bg = String(st.background || ''), { GROUND_SCENES } = await import('/motion/full-grounds.js');
+    const ground = bg === 'photo' ? 'photo' : /^pair_/.test(bg) ? 'gradient' : /^pat_/.test(bg) ? 'pattern' : GROUND_SCENES.includes(bg) ? 'scene' : 'house';
+    return { ...meta, pair, pairName: P ? P.name : '', look: P ? P.look : '', background: bg, ground, headline: String(st.headline || ''), product: String(product), webp: c.toDataURL('image/webp', 0.78) };
   }, id);
   if (got.error) { console.log(`  ${id}: ${got.error}`); continue; }
   writeFileSync(DIR + id + '.webp', Buffer.from(got.webp.split(',')[1], 'base64'));
