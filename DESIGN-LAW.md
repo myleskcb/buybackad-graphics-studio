@@ -5603,90 +5603,126 @@ a towns line or a website.
 
 Not done here: OPEN-ITEMS §BC.
 
-## 150. A video ad sounds like a trailer, not a game
+## 154. A video ad sounds like a trailer, not a game
 
 Added 2026-11-18, built out 2026-11-19. The owner, of the video ads' music
 and sound effects: "funny and cheerful but not always professional ... like
 I'm playing mario kart ... I need like trailer commercial professional".
-Then, offered a trailer's own sounds, the jazz out of the shuffle and the
-number sound evened: "1-3 best suggestion works", "I trust you".
+Then, of a trailer's own sounds, the jazz out of the shuffle and the number
+sound evened: "1-3 best suggestion works", "I trust you". Having heard them:
+"Sounds right", "they're good but take out the weirder instruments and
+openers.. pick the top ones", "most popular and make more tunes, songs, or
+chimes we can use.. also how about other genres other then lofi?", "make
+sure multiple songs / tunes can play over each other". Asked, the owner
+chose layers in one key and original hooks.
 
 Drawn over 2000 shuffles before this, 98.8% of looks played at least one
 game-like sound, 3.1 on average: an opening air horn, siren, referee's
 whistle or vibraslap (51%), a bell, mallet, whistle or cork number sound
 (72%), a rising bell run when the phones shine (68%), two bells rising a
 fifth on the end card (57%), an anvil, whip, gong or orchestra hit (36%), a
-famous tune played by the maker (27%: La Cucaracha and the Flight of the
-Bumblebee as often as Mozart, often on a xylophone or a kalimba). Half
-played the Air Force and Navy big-band jazz (51%).
+famous tune played by the maker (27%, often on a xylophone or a kalimba).
+Half played the Air Force and Navy big-band jazz (51%).
 
 **Stand-ins, not weights** (`STAND_INS` in `motion/catalog.js`, `standIns`
 in `motion/engine.js`). The catalog's weights are as they were, so every
 look number draws what it always drew; one that lands on a sound a shuffle
-may no longer play takes a stand-in, drawn from a stream of its own. Every
-sound below is still in the maker's menus, and a holiday ad keeps its own
-tunes and opening sound.
+may no longer play takes a stand-in, drawn from a stream of its own. A
+holiday ad keeps its own tunes and opening sound.
 
 | Out of the shuffle | Stand-in |
 |---|---|
 | every opening sound | none |
 | the anvil, whip, gong and orchestra hits | the braam 2, the low hit 1, the sub drop 1 |
-| the pop, two bells, register, "shave and a haircut", tubular bell, triangle, glockenspiel run, harp sweep, whistle | clock ticks and a low hit 2, whoosh into a low hit 2, soft typing 1 |
-| every famous tune | none |
-| the marimba, xylophone, glockenspiel, kalimba (a tune by hand) | piano, electric piano, harp |
+| the bell, mallet, whistle and cork number sounds | ticks and a low hit 2, whoosh into a low hit 2, soft typing 1, each chime .5 |
+| every famous tune | none 3, an original hook 2 (one of eight) |
+| the marimba, xylophone, glockenspiel, kalimba | piano, electric piano, harp |
 | the circus march, the groove with a whistle on the bar | the trailer's bed |
-| the big-band jazz, and the retired pieces that play it | the music made here: the trailer's bed two times in three, else the look's own |
+| lo-fi | lo-fi 1, R&B 1, radio pop 1 |
+| the big-band jazz, and the retired pieces that play it | the trailer's bed 2; radio pop .5, deep house .4, R&B .3, future bass .3, reggaeton .2, synthwave .2, nu-disco .1 |
 
 A first pass gave each removed sound's share to its neighbours in the list,
 which kept the draw but not the balance (the bill counter rose to 40% of
 number sounds); the stand-ins put each sound where it is wanted.
 
-**A trailer's own sounds** (`motion/audio.js`, `motion/music.js`), each by
-hand too:
-- **The braam** (headline hit): a swell into a low brass blast, the key's
-  root, fifth and octave between C2 and B2 on detuned sawtooths, driven, its
-  filter flaring to 1.5 kHz and closing as it dies, over the low hit.
-- **Clock ticks and a low hit**, **whoosh into a low hit** (number sounds):
-  three dry ticks, or a rising whoosh, into the low hit on the number; the
-  music steps back under it. Soft typing now ends on a thump, not a pop.
-- **The trailer's bed** (music, 100 to 112 bpm, minor): until the headline
-  hit a low drone, strings and a clock ticking under the closed filter; on
-  the hit, sixteenths on a synth bass accented three, three, two, bass drum
-  and timpani on the bar line and the "and" of three, a tom on the "and" of
-  two, a tom run every second bar, a reverse cymbal into every fourth.
+**The most popular kept, the weirder retired** (`SOUND_ALIASES`): the maker
+no longer offers them, a saved look plays the stand-in named, and a shuffle
+never leaves one in place (`RETIRED_AXES`).
+- Opening sounds: the air horn, siren, referee's whistle, vibraslap and bell
+  tree. Kept: none, the braam, the gong, wind chimes, sleigh bells
+  (Christmas).
+- Instruments for a tune: marimba, xylophone, glockenspiel, kalimba,
+  balafon, strumstick, harmonica, clavinet, harpsichord, both organs, the
+  upright piano, the acid, G-funk, FM bell and pluck synths. Kept: piano,
+  electric piano, vibraphone, tenor sax, harp, warm synth, supersaw, synth
+  brass, nylon guitar, string section.
+- Headline hits: the whip (to the sub drop), the anvil (the low hit), the
+  orchestra hit (the braam).
+- Number sounds: the pop, two bells, "shave and a haircut", tubular bell,
+  triangle, glockenspiel run, harp sweep, whistle, message ding and phone
+  buzz, each to the nearest trailer sound or chime.
 
-**No bells on the shine, the sticker or the end card.** The phones' shine is
-silent (it was a rising four-bell run), the full ad's sticker lands on a
-soft thump (a cork pop), the end card comes in on a soft whoosh (two bells),
-and the default number sound is the whoosh into a low hit.
+The music styles are not trimmed: the circus march and the rest stay
+offered by hand.
 
-**Measured** (2026-11-19, a ten-second look, levelled to -16 LUFS; the
-loudest 50 ms): the headline hits -6 to -9 dB (the braam -8.3, the low hit
--7.9), the trailer number hits -15, the whoosh and bell -19. After the hit
-the trailer's bed against the house groove: sub (under 120 Hz) +2.2 dB,
-low-mid -0.6, mid -1.0, high -0.2, so a phone, which plays little under
-120 Hz, hears it as full as the rest. A first cut was 3.7 dB lower in the
-mids and 3.5 dB heavier in the sub; the drone and kick came down and the
-strings up. Before the hit it sits about 6 dB under the house groove's
-opening: a trailer's quiet before the hit.
+**A trailer's own sounds** (`motion/audio.js`, `motion/music.js`):
+- **The braam** (a headline hit, and an opening sound): a swell into a low
+  brass blast, the key's root, fifth and octave between C2 and B2 on detuned
+  sawtooths, driven, its filter flaring to 1.5 kHz and closing as it dies.
+  As an opening sound it is gone by a voiceover's first word.
+- **Clock ticks and a low hit**, **whoosh into a low hit** (number sounds).
+  Soft typing ends on a thump, not a pop.
+- **The trailer's bed** (100 to 112 bpm, minor): a drone, strings and a
+  clock until the hit; then sixteenths on a synth bass accented three,
+  three, two, bass drum and timpani, toms, a reverse cymbal into every
+  fourth bar.
+
+**Chimes** (in the bed's key, each on a soft low hit, nothing pitched above
+about 1.2 kHz): a piano chord, a three-note logo on electric piano, a string
+swell, a brass stab. Each is a number sound and an **end chime** (`sting`, a
+new menu, drawn last of everything so no other draw moves): half the looks
+with an end card close on one.
+
+**Original hooks** (`HOOKS` in music.js; `HOOK_MODE`, `HOOK_PAIR` in the
+catalog): Lift, Skyline, Golden, Bright (major), Night drive, Rise, Street,
+Pulse (minor), four bars each, written for these ads and checked against the
+famous openings they could echo (two drafts began as "Happy Birthday" and
+"Mary Had a Little Lamb" and were rewritten). A shuffled hook plays its twin
+of the other mode over a bed in that mode (`KIT_MODE`); one picked by hand
+plays as picked.
+
+**Layers in one key.** The music made here, a hook, the hits, the number's
+sound and the end chime already share one key and tempo. Over a real
+recording or the user's own track, that key is the one it is heard in
+(`recordingKey`: a Goertzel bank, E2 to B5, on the first 20 s, against the
+Krumhansl-Kessler profiles; null under r .5, where the seed's key plays).
+Of six recordings of known key it reads all six (the four a shuffle plays:
+Morning Mood E, the New World finale E minor, Vivaldi's Winter F minor,
+Mozart's 40th G minor; and the Moonlight, the William Tell finale); the
+Mountain King and Für Elise read a fifth above (both by hand only). Before
+this, every cue over a recording was in a key drawn from the seed. Drums
+under a recording were tried and left out: locked to its measured tempo from
+the hit they held two seconds, then drifted off its beat.
+
+**Measured** (2026-11-19, ten-second looks levelled to -16 LUFS; the loudest
+50 ms): the headline hits -6 to -9.5 dB (the braam -8.3), the trailer number
+sounds and chimes -12.6 to -15.2 (at least 4 dB under), end chimes -13.2 to
+-15; the whoosh and bell -19. After the hit the trailer's bed against the
+house groove: sub +2.2 dB, low-mid -0.6, mid -1.0, high -0.2 (a first cut
+was 3.7 dB lower in the mids and 3.5 dB heavier in the sub).
 
 **After**, over the same 2000 shuffles: 95.1% play no game-like sound and no
-jazz, and the full ad 100% of 2000. The 4.9% left are the confetti looks,
-whose popper and falling bells rule 129 asked for. The trailer's bed plays
-in 36% of shuffles, the music made here in 86%, a recording (Morning Mood,
-the New World finale, Vivaldi's Winter, Mozart's 40th) in 14%. Headline
-hits: the low hit 19%, the sub drop 18%, the braam 17%, the rest 8 to 10%
-each. Number sounds: soft typing 28%, the two trailer sounds 27% each, the
-whoosh and bell 7%, the bill counter 6%. Against the commit before any of
-this (9dddf354), no look moved off a sound a shuffle still plays.
+jazz, and the full ad 100% of 2000 (the 4.9% left are rule 129's confetti).
+Genres in 1000 shuffles: 23; the trailer's bed 26%, house 9%, radio pop 8%,
+R&B 6%, hip-hop 6%, minimal and uplifting pop 5.5% each, deep house 5%,
+future bass 3%, synthwave and reggaeton 2.5% each, lo-fi 2% (was 5.5%). An
+original hook over 25%; the music made here in 86%, a recording in 14%.
+Against the commit before any of this (9dddf354), no look moved off a sound
+a shuffle still plays.
 
-**Checked** by `scripts/motion_music_check.mjs` part 7: 1000 shuffles and
-300 full ads play none of the sounds above and no jazz, at least a quarter
-play the trailer's bed, the maker offers every one of them and the trailer's
-own, the shine adds nothing, and the trailer's bed, the braam and both
-trailer number sounds render levelled with the number's hit at least 3 dB
-under the headline's.
+**Checked** by `scripts/motion_music_check.mjs` part 7 (its head lists
+every measure), and the owner heard the trailer's bed, the braam and the
+ticks before the rest was built.
 
-Not done here: every new sound was built and balanced by measure, not by
-ear; the owner hears the first ones. The pre-hit quiet and the second hit on
-the number are the two choices most likely to want a change.
+Not done here: the chimes, the hooks and the genres in the shuffle were
+built and balanced by measure; the owner hears them next.

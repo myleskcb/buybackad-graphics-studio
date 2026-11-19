@@ -249,6 +249,46 @@ Object.assign(TUNES, {
 TUNES.carol_bells.season = "christmas";
 TUNES.toccata.season = "halloween";
 
+// Original hooks (owner, 2026-11-19: "make more tunes, songs, or chimes we can use"; "original
+// hooks", DESIGN-LAW 154): short melodies written for these ads, so nothing is a cartoon's tune and
+// nothing is anyone else's. Each was checked against the famous openings it could echo (two first
+// drafts began as "Happy Birthday" and "Mary Had a Little Lamb", and were rewritten). Every one
+// is four bars in common time, its chords under it, in the bed's key like any tune; `pair`: the
+// hook of the other mode a look plays when its bed is in that mode (engine.js harmonise).
+const HOOKS = {
+  lift: { mode: "major", tempo: [100, 124], pair: "night_drive",
+    notes: [[4, .5], [7, .5], [9, .75], [7, .25], [4, .5], [2, .5], [4, 1],  [4, .5], [7, .5], [9, .5], [12, 1], [11, .5], [9, 1],
+      [4, .5], [7, .5], [9, .75], [7, .25], [4, .5], [2, .5], [4, 1],  [4, .5], [7, .5], [9, .5], [7, .5], [4, .5], [2, .5], [0, 1]],
+    chords: [[0, "M", 4], [5, "M", 4], [9, "m", 4], [7, "M", 2], [0, "M", 2]] },
+  skyline: { mode: "major", tempo: [110, 130], pair: "rise",
+    notes: [[0, 1], [4, 1], [7, 1.5], [9, .5],  [7, 2], [4, 1], [2, 1],  [0, 1], [4, 1], [7, 1.5], [12, .5],  [12, 1], [9, 1], [7, 2]],
+    chords: [[0, "M", 4], [7, "M", 4], [9, "m", 4], [5, "M", 4]] },
+  golden: { mode: "major", tempo: [88, 104], pair: "street",
+    notes: [[2, .5], [4, .5], [11, .75], [9, .25], [7, 1], [null, 1],  [9, .5], [11, .5], [14, .75], [12, .25], [11, 1], [9, 1],
+      [2, .5], [4, .5], [11, .75], [9, .25], [7, 1], [null, 1],  [9, .5], [7, .5], [4, .5], [2, .5], [0, 2]],
+    chords: [[0, "M7", 4], [9, "m7", 4], [2, "m7", 2], [7, "7", 2], [0, "M7", 4]] },
+  bright_pluck: { mode: "major", tempo: [118, 128], fast: true, pair: "pulse_hook",
+    notes: [[12, .5], [11, .25], [12, .25], [7, .5], [4, .5], [9, .5], [7, .5], [4, 1],  [5, .5], [4, .25], [5, .25], [9, .5], [12, .5], [11, .5], [9, .5], [7, 1]],
+    chords: [[0, "M", 4], [5, "M", 2], [7, "M", 2]] },
+  night_drive: { mode: "minor", tempo: [90, 110], pair: "lift",
+    notes: [[0, .5], [3, .5], [7, 1], [5, .5], [3, .5], [2, 1],  [0, .5], [3, .5], [7, .5], [10, 1.5], [8, 1],
+      [7, .5], [5, .5], [3, 1], [2, .5], [3, .5], [5, 1],  [3, 1], [2, 1], [0, 2]],
+    chords: [[0, "m", 4], [8, "M", 4], [3, "M", 4], [10, "M", 2], [0, "m", 2]] },
+  rise: { mode: "minor", tempo: [80, 100], pair: "skyline",
+    notes: [[0, 1], [7, 1], [8, 1.5], [7, .5],  [5, 1], [3, 1], [2, 2],  [0, 1], [7, 1], [8, 1], [10, 1],  [12, 3], [null, 1]],
+    chords: [[0, "m", 4], [10, "M", 4], [8, "M", 4], [8, "M", 2], [10, "M", 2]] },
+  street: { mode: "minor", tempo: [85, 100], pair: "golden",
+    notes: [[7, .75], [7, .25], [8, .5], [7, .5], [3, 1], [null, 1],  [7, .75], [7, .25], [8, .5], [10, .5], [12, .5], [10, .5], [8, 1],
+      [7, .75], [7, .25], [8, .5], [7, .5], [3, 1], [null, 1],  [5, .5], [7, .5], [8, 1], [7, .5], [5, .5], [3, 1]],
+    chords: [[0, "m", 4], [8, "M", 4], [0, "m", 4], [5, "m", 4]] },
+  pulse_hook: { mode: "minor", tempo: [120, 140], fast: true, pair: "bright_pluck",
+    notes: [[0, .25], [0, .25], [12, .5], [10, .5], [7, .5], [0, .25], [0, .25], [12, .5], [15, .5], [14, .5],
+      [0, .25], [0, .25], [12, .5], [10, .5], [7, .5], [8, 1], [7, 1]],
+    chords: [[0, "m", 4], [8, "M", 2], [7, "M", 2]] },
+};
+for (const [id, h] of Object.entries(HOOKS)) TUNES[id] = { ...h, original: true };
+export const HOOK_IDS = Object.keys(HOOKS);
+
 export const SHAVE = [[0, 1], [-5, .5], [-5, .5], [-3, 1], [-5, 1], [null, 1], [-1, 1], [0, 1]];
 
 const QUAL = { M: [0, 4, 7], m: [0, 3, 7], "7": [0, 4, 7, 10], m7: [0, 3, 7, 10], M7: [0, 4, 7, 11], m9: [0, 3, 7, 10, 14], M9: [0, 4, 7, 11, 14] };
@@ -293,7 +333,7 @@ export const KITS = {
   deep_house: { prog: "lush", keys: ["synth_pluck", "epiano", "organ_b3"] },
   trance: { prog: "minor", keys: ["supersaw", "pad"] },
   nu_disco: { prog: "minor", keys: ["synth_brass", "synth_pluck", "funk_guitar", "clav"] },
-  // 2026-11-19 (owner: "I need like trailer commercial professional"; DESIGN-LAW 150): a trailer's
+  // 2026-11-19 (owner: "I need like trailer commercial professional"; DESIGN-LAW 154): a trailer's
   // bed, low strings over a pulsing synth bass, drums like taiko, a clock ticking until the hit
   trailer: { prog: "minor", keys: ["strings", "pad"] },
 };

@@ -3249,38 +3249,42 @@ Open:
    `ad_library_check.mjs`, which fail the same way on untouched `main`. Run
    both on the Mac before a deploy.
 
-## BL. 2026-11-18 — the video ads sound like a trailer, not a game (DESIGN-LAW 150)
+## BO. 2026-11-18 — the video ads sound like a trailer, not a game (DESIGN-LAW 154)
 
 (claude/video-music-sfx-audit-3691d1, from 9dddf354.)
 
-The owner, of the video ads' music and sound effects: "funny and cheerful but
-not always professional", "like I'm playing mario kart", "I need like trailer
-commercial professional"; then, of building a trailer's sounds, taking the
-jazz out of the shuffle and evening the number sound: "1-3 best suggestion
-works", "I trust you".
+The owner: "funny and cheerful but not always professional", "like I'm
+playing mario kart", "I need like trailer commercial professional"; "1-3
+best suggestion works"; having heard it, "Sounds right", "take out the
+weirder instruments and openers.. pick the top ones", "most popular and make
+more tunes, songs, or chimes", "other genres other then lofi", "make sure
+multiple songs / tunes can play over each other" (asked: layers in one key,
+original hooks).
 
 Done:
-- **The audit**: over 2000 shuffles, 98.8% of looks played at least one
-  game-like sound (3.1 on average), and 51% played big-band jazz.
-- **Stand-ins** (`STAND_INS`, `standIns`): a shuffle that lands on a game
-  sound or the jazz plays a stand-in; every other look keeps what it drew
-  (checked against 9dddf354). Each is still offered by hand.
-- **A trailer's own sounds**: the braam, clock ticks and a low hit, a whoosh
-  into a low hit, and a trailer's bed. No bells on the shine, the sticker or
-  the end card.
-- **After**: 95.1% of shuffles and 100% of full ads play no game-like sound
-  and no jazz (the 4.9% left are rule 129's confetti); the trailer's bed in
-  36%; the bill counter back to 6% of number sounds.
+- **The audit**: 98.8% of 2000 shuffles played a game-like sound; 51% jazz.
+- **Stand-ins** for every game sound, the jazz and two in three lo-fi looks;
+  every other look keeps what it drew (checked against 9dddf354).
+- **The menus trimmed** to the most popular: five opening sounds, ten
+  instruments, nine hits, eleven number sounds; the rest retired.
+- **A trailer's own**: the braam (hit and opener), two number sounds on a
+  low hit, the trailer's bed. **Four chimes** (number sound and a new End
+  chime menu). **Eight original hooks**, matched to their bed's mode.
+- **Genres**: 23 in 1000 shuffles, lo-fi 2%. **Layers in one key**: over a
+  recording or the user's own track, its key (six of six known keys read).
 - `scripts/motion_music_check.mjs` part 7. Its substance was run in the
   browser pane: `puppeteer-core` is not installed on this machine, so the
   script itself has not run.
 
 Open:
-1. **Heard by no one yet.** Every new sound was built and balanced by
-   measure. The owner listens first: in the video maker, Music "Trailer",
-   Headline hit "Braam", Number sound "Clock ticks and a low hit". Most
-   likely to want a change: the quiet before the hit, the second hit on the
-   number.
-2. **The explainer videos** (`tools/explainers`, the How it works page) still
-   play Small Note Boogaloo: they explain, they do not sell, and were left.
-3. **Not pushed, not on `main`.**
+1. **The owner hears the chimes, the hooks and the genres.** In the video
+   maker: End chime, Number sound "Chime: ...", Famous tune "Original: ...",
+   and a few shuffles for the genres.
+2. **The music styles are not trimmed**: 31 are offered by hand (the circus
+   march, baile funk, jersey club and the rest). Trimming them is the
+   owner's call.
+3. **Drums under a recording** drifted off its beat and were left out. They
+   would need a beat tracker that follows the recording, not one tempo.
+4. **The explainer videos** (`tools/explainers`) still play Small Note
+   Boogaloo: they explain, they do not sell, and were left.
+5. **Not pushed, not on `main`.**

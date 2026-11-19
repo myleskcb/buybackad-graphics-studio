@@ -28,15 +28,18 @@
       confetti look renders with the popper heard over its number (its soundtrack there
       unlike the same look's with the plain pop).
    7. A trailer, not a game (owner, 2026-11-18: "like I'm playing mario kart ... I need like
-      trailer commercial professional"; DESIGN-LAW 150): 1000 shuffles and 300 full ads play no
-      opening sound, no anvil, whip, gong or orchestra hit, no bell, mallet, whistle or cork
-      number sound (the popper only under confetti), no famous tune, no mallet lead and not
-      the circus march or the whistle groove, and no big-band jazz (2026-11-19: "best
-      suggestion works"); at least a quarter play the trailer's bed; the maker still offers
-      every one of them by hand, and the trailer's own sounds; the phones' shine adds nothing
-      to a soundtrack (it was a rising bell run); and the trailer's bed, the braam and the
-      two trailer number sounds render levelled, each number hit at least 3 dB under the
-      headline's (measured 2026-11-19: the headline's -9, the number's -15).
+      trailer commercial professional"; 2026-11-19: "pick the top ones", "most popular", "other
+      genres other then lofi", "more tunes, songs, or chimes", layers in one key; DESIGN-LAW
+      154): 1000 shuffles and 300 full ads play no opening sound, no cartoon hit, no bell,
+      mallet, whistle or cork number sound (the popper only under confetti), no famous tune, no
+      mallet lead, not the circus march or the whistle groove, no big-band jazz and no retired
+      sound; an original hook only in its bed's mode; the trailer's bed in at least 180, twelve
+      genres or more, lo-fi in under 40, an original hook over at least 150; the shine adds
+      nothing; the trailer's bed, the braam, the trailer number sounds, every chime on the
+      number and on the end card, a hook over six popular genres and four recordings with
+      chimes over them render levelled, the number's sound at least 3 dB under the headline's
+      hit; six recordings of known key are heard in it; and the maker offers the most popular
+      sounds and none it retired.
 
    usage: npx http-server -p 8899 -s .   (or python3 -m http.server 8899)
           CHROME=/path/to/chrome node scripts/motion_music_check.mjs
@@ -279,7 +282,7 @@ const strip = m => m.error ? m : { lufs: m.lufs, peak: m.peak };
 
 // 7. a trailer, not a game
 const GAME = {
-  accent: ['air_horn', 'siren', 'whistle', 'gong', 'windchimes', 'bell_tree', 'vibraslap', 'sleigh_bells'],
+  accent: ['air_horn', 'siren', 'whistle', 'gong', 'windchimes', 'bell_tree', 'vibraslap', 'sleigh_bells', 'braam'],
   hit: ['anvil', 'whip', 'gong', 'orchestra'],
   number_sfx: ['pop', 'chime', 'register', 'shave_haircut', 'bells', 'triangle', 'glock_run', 'harp_gliss', 'whistle', 'text_ding', 'phone_buzz'],
   lead: ['marimba', 'xylophone', 'glock', 'kalimba'],
@@ -287,57 +290,91 @@ const GAME = {
 };
 {
   const { res, errors } = await inPage(async GAME => {
-    const { E, C, look, sound, same } = window.__mc, F = await import('./fullad.js');
+    const { E, C, A, look, sound, same } = window.__mc, F = await import('./fullad.js');
+    GAME.track = C.STAND_INS.track.flatMap(r => r.gone);
+    const retired = st => C.RETIRED_AXES.filter(k => C.SOUND_ALIASES[k] && C.SOUND_ALIASES[k][st[k]]).map(k => `${k} ${st[k]}`);
     const game = (st, s) => {
       const out = Object.entries(GAME).filter(([k, vs]) => vs.includes(st[k]) && !(k === 'lead' && st.melody === 'none')).map(([k]) => `${s}: ${k} ${st[k]}`);
-      if (st.melody !== 'none') out.push(`${s}: tune ${st.melody}`);
+      if (st.melody !== 'none' && !C.HOOK_MODE[st.melody]) out.push(`${s}: famous tune ${st.melody}`);
+      const bed = C.KIT_MODE[st.sound_kit];
+      if (C.HOOK_MODE[st.melody] && bed && bed !== C.HOOK_MODE[st.melody]) out.push(`${s}: a ${C.HOOK_MODE[st.melody]} hook over a ${bed} bed`);
       if (st.number_sfx === 'confetti' && st.overlay !== 'confetti') out.push(`${s}: popper without confetti`);
+      for (const x of retired(st)) out.push(`${s}: retired ${x}`);
       return out;
     };
-    GAME.track = C.STAND_INS.track.gone;
-    const hits = [];
-    let trailer = 0;
-    for (let s = 1; s <= 1000; s++) { const st = look(s); hits.push(...game(st, s)); if (st.sound_kit === 'trailer' && st.track === 'none') trailer++; }
+    const hits = [], kits = {};
+    let hooks = 0;
+    for (let s = 1; s <= 1000; s++) {
+      const st = look(s); hits.push(...game(st, s));
+      if (st.track === 'none') kits[st.sound_kit] = (kits[st.sound_kit] || 0) + 1;
+      if (C.HOOK_MODE[st.melody] && st.track === 'none') hooks++;
+    }
     for (let s = 1; s <= 300; s++) hits.push(...game(F.fullStyle(E.randomize({ ...C.DEFAULT_STYLE, number: '(323) 555-0199' }, s, new Set(), [], true), s, [], {}, []), `full ${s}`));
     // the shine, heard alone: no music, no recording, no voice
     const st = look(921, { sound_kit: 'none', track: 'none', voice: 'off', shine: true, sparkles: true }, ['sound_kit', 'track', 'voice', 'shine', 'sparkles']);
     const on = await sound(st), off = await sound({ ...st, shine: false, sparkles: false });
-    // the trailer's own: its bed under the braam, and each trailer number sound, on a ten-second ad
+    // the trailer's own and the chimes, on a ten-second ad: the number's sound under the headline's hit
     const loud = (buf, t0, t1) => { const d = buf.getChannelData(0), e = buf.getChannelData(1), w = 2205; let best = 0;
       for (let i = Math.max(0, Math.round(t0 * 44100)); i + w < Math.min(d.length, Math.round(t1 * 44100)); i += 441) { let q = 0; for (let j = 0; j < w; j++) q += (d[i + j] ** 2 + e[i + j] ** 2) / 2; best = Math.max(best, q / w); }
       return 10 * Math.log10(best + 1e-12); };
     const made = [];
-    for (const number_sfx of ['tick_boom', 'whoosh_boom']) {
-      const over = { sound_kit: 'trailer', track: 'none', voice: 'off', hit: 'braam', number_sfx, number_in: 'pop', overlay: 'none', duration: 10 };
+    for (const [number_sfx, sting, melody] of [['tick_boom', 'none', 'none'], ['whoosh_boom', 'chime_logo', 'rise'], ['chime_piano', 'chime_piano', 'night_drive'],
+      ['chime_logo', 'chime_strings', 'street'], ['chime_strings', 'chime_brass', 'pulse_hook'], ['chime_brass', 'none', 'none']]) {
+      const over = { sound_kit: 'trailer', track: 'none', voice: 'off', hit: 'braam', number_sfx, sting, melody, outro: 'end_card', number_in: 'pop', overlay: 'none', duration: 10 };
       const t = look(931, over, Object.keys(over)), m = await sound(t);
-      made.push({ name: `trailer bed, braam, ${number_sfx}`, m: m.error ? m : { lufs: m.lufs, peak: m.peak },
+      made.push({ name: `trailer bed, braam, ${number_sfx}, ${melody}, end ${sting}`, m: m.error ? m : { lufs: m.lufs, peak: m.peak },
         hit: m.buf ? loud(m.buf, m.hit - .05, m.hit + .45) : null, num: m.buf ? loud(m.buf, Math.max(m.hit + .5, m.number - .5), m.number + .45) : null });
     }
-    return { hits, trailer, made, shine: on.buf && off.buf ? same(on.buf, off.buf) : null };
+    // a hook over each popular genre, and a recording under drums (its beat measured clearly)
+    for (const [kit, melody] of [['pop', 'lift'], ['rnb', 'golden'], ['deep_house', 'bright_pluck'], ['future_bass', 'skyline'], ['reggaeton', 'street'], ['synthwave', 'night_drive']]) {
+      const over = { sound_kit: kit, track: 'none', melody }, t = look(940, over, Object.keys(over)), m = await sound(t);
+      made.push({ name: `${kit} with ${t.melody}`, m: m.error ? m : { lufs: m.lufs, peak: m.peak } });
+    }
+    // over a recording the chimes and the number play in the key it is heard in (A.recordingKey)
+    for (const track of ['morning_mood', 'new_world', 'vivaldi_winter', 'mozart40']) {
+      const over = { track, sound_kit: 'house', number_sfx: 'chime_logo', sting: 'chime_piano', outro: 'end_card', duration: 10 }, t = look(950, over, Object.keys(over)), m = await sound(t);
+      made.push({ name: `${track} with chimes in its key`, m: m.error ? m : { lufs: m.lufs, peak: m.peak } });
+    }
+    // the keys it hears in the recordings whose keys are known (four a shuffle plays, two more)
+    const KNOWN = { morning_mood: [4, false], new_world: [4, true], vivaldi_winter: [5, true], mozart40: [7, true], moonlight: [1, true], william_tell: [4, false] };
+    const keyed = [];
+    for (const [id, [pc, minor]] of Object.entries(KNOWN)) { const buf = await (await import('./music.js')).sampleBuffer('tracks/' + id), h = buf && A.recordingKey(buf); keyed.push({ id, ok: !!h && h.pc === pc && h.minor === minor, h }); }
+    return { hits, kits, hooks, made, keyed, shine: on.buf && off.buf ? same(on.buf, off.buf) : null };
   }, GAME);
   console.log('7. a trailer, not a game');
-  console.log(`  1000 shuffles and 300 full ads: ${res.hits.length} game-like sounds; ${res.trailer} of the 1000 play the trailer's bed; the shine adds ${res.shine == null ? '?' : res.shine.toExponential(1)} to a soundtrack`);
-  expect(!res.hits.length, `shuffles play game-like sounds: ${res.hits.slice(0, 6).join('; ')}`);
-  expect(res.trailer >= 250, `only ${res.trailer} of 1000 shuffles play the trailer's bed`);
+  const made = Object.values(res.kits).reduce((a, n) => a + n, 0), trailer = res.kits.trailer || 0;
+  console.log(`  1000 shuffles and 300 full ads: ${res.hits.length} game-like or retired sounds; of the 1000, ${trailer} play the trailer's bed, ${Object.keys(res.kits).length} genres in all, an original hook over ${res.hooks}, lo-fi ${res.kits.lofi || 0}; the shine adds ${res.shine == null ? '?' : res.shine.toExponential(1)}`);
+  expect(!res.hits.length, `shuffles play game-like or retired sounds: ${res.hits.slice(0, 6).join('; ')}`);
+  expect(trailer >= 180, `only ${trailer} of 1000 shuffles play the trailer's bed`);
+  expect(Object.keys(res.kits).length >= 12, `only ${Object.keys(res.kits).length} genres in 1000 shuffles`);
+  expect((res.kits.lofi || 0) < 40, `lo-fi in ${res.kits.lofi} of 1000 shuffles`);
+  expect(res.hooks >= 150, `an original hook over only ${res.hooks} of 1000 shuffles`);
   for (const r of res.made) {
     console.log('  ' + judge(r.name, r.m) + (r.hit != null ? `; headline ${r.hit.toFixed(1)} dB, number ${r.num.toFixed(1)} dB` : ''));
-    expect(r.hit != null && r.num < r.hit - 3, `${r.name}: the number's hit (${r.num}) is not 3 dB under the headline's (${r.hit})`);
+    if (r.hit != null) expect(r.num < r.hit - 3, `${r.name}: the number's sound (${r.num}) is not 3 dB under the headline's hit (${r.hit})`);
   }
+  console.log(`  keys heard: ${res.keyed.map(k => `${k.id} ${k.ok ? 'right' : 'WRONG'}`).join(', ')}`);
+  expect(res.keyed.every(k => k.ok), `a recording heard in the wrong key: ${res.keyed.filter(k => !k.ok).map(k => k.id + ' ' + JSON.stringify(k.h)).join('; ')}`);
   expect(res.shine != null && res.shine < 1e-3, `the shine is heard (the soundtracks with and without it ${res.shine} apart)`);
   expect(!errors.length, `the trailer page logged errors: ${errors.join(' | ')}`);
+  // the maker: the most popular offered, the weirder retired (2026-11-19)
   const p = await browser.newPage(), perr = [];
   p.on('pageerror', e => perr.push(String(e).slice(0, 300)));
   await p.goto(BASE + 'motion/index.html', { waitUntil: 'load', timeout: 120000 });
   await p.waitForFunction(() => document.querySelector('#loading') && document.querySelector('#loading').hidden, { timeout: 120000 });
-  const offered = await p.evaluate(keys => Object.fromEntries(keys.map(k => [k, [...document.querySelectorAll(`select[data-key=${k}] option`)].map(o => o.value)])), [...Object.keys(GAME), 'melody', 'track']);
+  const keys = ['accent', 'hit', 'number_sfx', 'lead', 'melody', 'sound_kit', 'track', 'sting'];
+  const offered = await p.evaluate(keys => Object.fromEntries(keys.map(k => [k, [...document.querySelectorAll(`select[data-key=${k}] option`)].map(o => o.value)])), keys);
   await p.close();
-  const { TRACKS } = await import('../motion/catalog.js');
-  const want = { ...GAME, accent: ['air_horn', 'siren', 'whistle', 'vibraslap'], number_sfx: ['chime', 'glock_run', 'shave_haircut', 'whistle', 'tick_boom', 'whoosh_boom'],
-    melody: ['mountain_king', 'cucaracha', 'bumblebee', 'entertainer'], hit: [...GAME.hit, 'braam'], sound_kit: [...GAME.sound_kit, 'trailer'],
-    track: TRACKS.filter(t => t.kind === 'jazz').map(t => t.id) };
+  const { TRACKS, SOUND_ALIASES, RETIRED_AXES, HOOK_MODE } = await import('../motion/catalog.js');
+  const want = { accent: ['none', 'braam', 'gong', 'windchimes', 'sleigh_bells'], hit: ['impact', 'bass_drop', 'braam', 'gong'],
+    number_sfx: ['whoosh_boom', 'tick_boom', 'ticks', 'chime_piano', 'chime_logo', 'chime_strings', 'chime_brass', 'confetti'],
+    lead: ['piano', 'epiano', 'strings', 'harp', 'guitar', 'sax', 'vibes', 'synth', 'synth_brass', 'supersaw'], melody: Object.keys(HOOK_MODE),
+    sound_kit: ['trailer', 'march'], track: TRACKS.filter(t => t.kind === 'jazz').map(t => t.id), sting: ['none', 'chime_piano', 'chime_logo', 'chime_strings', 'chime_brass'] };
   const missing = Object.entries(want).flatMap(([k, vs]) => vs.filter(v => !offered[k] || !offered[k].includes(v)).map(v => `${k} ${v}`));
-  console.log(`  the maker offers them by hand: ${missing.length ? 'missing ' + missing.join(', ') : 'all of them'}`);
+  const shown = RETIRED_AXES.flatMap(k => offered[k].filter(v => SOUND_ALIASES[k][v]).map(v => `${k} ${v}`));
+  console.log(`  the maker: ${offered.accent.length} opening sounds, ${offered.lead.length} instruments, ${offered.number_sfx.length} number sounds, ${offered.hit.length} hits, ${offered.sting.length} end chimes; ${missing.length ? 'missing ' + missing.join(', ') : 'every kept one offered'}; ${shown.length ? 'RETIRED SHOWN ' + shown.join(', ') : 'no retired one shown'}`);
   expect(!missing.length, `the maker no longer offers: ${missing.join(', ')}`);
+  expect(!shown.length, `the maker offers retired sounds: ${shown.join(', ')}`);
   expect(!perr.length, `the maker logged errors: ${perr.join(' | ')}`);
 }
 

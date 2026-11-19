@@ -5171,18 +5171,20 @@ RESUME HERE:
   1. §BC 2 to 4: which photo generation goes next, the full ad in Easy Mode's
      picker, and whether iPhones LA's weekly batch moves to FullAd.
 
-## 2026-11-18 and -19 — the video ads sound like a trailer, not a game (DESIGN-LAW 150; claude/video-music-sfx-audit-3691d1)
+## 2026-11-18 and -19 — the video ads sound like a trailer, not a game (DESIGN-LAW 154; claude/video-music-sfx-audit-3691d1)
 
-Asked: audit the music and sound effects on the videos: "funny and cheerful
-but not always professional", "like I'm playing mario kart", "I need like
-trailer commercial professional". Then the shuffle's odds, the jazz kept
-(through the open-prompts session); then "1-3 best suggestion works": a
-trailer's own sounds, the jazz out, the number sound evened.
+Asked: audit the music and sound effects ("like I'm playing mario kart ...
+I need like trailer commercial professional"); then the shuffle's odds; then
+"1-3 best suggestion works" (a trailer's sounds, the jazz out, the number
+sound evened); heard: "Sounds right"; then the weirder instruments and
+openers out, the most popular kept, more tunes and chimes, other genres than
+lo-fi, layers that play over each other (asked: in one key; original hooks).
 
-Done: stand-ins for every game sound and the jazz; the braam, two number
-sounds on a low hit, a trailer's bed; no bells on the shine, the sticker or
-the end card. 98.8% of shuffles played a game-like sound; 4.9% do now, all
-confetti looks (rule 129). The trailer's bed plays in 36%.
+Done: stand-ins for every game sound, the jazz and most lo-fi; the menus
+trimmed; the braam, two number sounds on a low hit, a trailer's bed; four
+chimes and an End chime menu; eight original hooks matched to their bed's
+mode; 23 genres in the shuffle; over a recording, its key. 98.8% of shuffles
+played a game-like sound; 4.9% do now, all confetti looks (rule 129).
 
 Found:
   - Zeroing an option's weight reshuffles its whole axis: the hit moved on
@@ -5195,16 +5197,26 @@ Found:
     first cut had 3.5 dB more under 120 Hz and 3.7 dB less in the mids than
     the house groove. Measure the bands against a bed already approved.
   - A second low hit on the number at the headline's level reads as two
-    headlines: measured -11.5 against -9.5, set to -15.
+    headlines: measured -11.5 against -9.5, set 4 to 6 dB under.
+  - Two of eight first-draft hooks began as famous tunes ("Happy Birthday",
+    "Mary Had a Little Lamb"): check every new melody's opening contour
+    against the famous ones before it ships.
+  - A key reader that is right on real recordings (six of six known) is
+    wrong on the maker's own beds over short windows (9 of 24): its job is
+    the recordings; the maker's own key is known, never read.
+  - Drums locked to a recording's measured tempo drift within seconds: a
+    tempo is an estimate, a live performance moves. Layer what cannot drift.
   - Rule numbers and open-item letters are claimed on other branches before
     they reach `main`: grep every branch and worktree, then again before the
-    commit (138 to 146 were taken while this was written; so was port 8899,
+    commit (138 to 153 were taken while this was written, and open items to BN; so was port 8899,
     by another session's server, and 8901, by CapCut).
 
 Checked: in the browser pane, 1000 shuffles and 300 full ads with no game
-sound and no jazz; the shine adding 1.8e-7; 30 shuffled soundtracks, eight
-trailer beds, six full ads and every sound by hand at -16 LUFS (within 0.15)
-with peaks at or under -1 dBFS; the bands and levels above; the maker
-loading with no error and offering every sound; audience_check. Not run:
+or retired sound and no jazz; 23 genres; the shine adding 1.8e-7; 30
+shuffled soundtracks, eight trailer beds, six trailer looks with every chime
+and hook, hooks over six genres, four recordings with chimes in their key,
+six full ads and every sound by hand at -16 LUFS (within 0.27) with peaks at
+or under -1 dBFS; the levels and bands above; the maker loading with no
+error and showing only the kept sounds; audience_check. Not run:
 motion_music_check and motion_sound_check (no puppeteer-core here),
 full_ad_check (no playwright).
