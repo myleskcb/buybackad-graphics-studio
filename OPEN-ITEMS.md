@@ -3277,9 +3277,8 @@ Done:
   script itself has not run.
 
 Open:
-1. **The owner hears the chimes, the hooks and the genres.** In the video
-   maker: End chime, Number sound "Chime: ...", Famous tune "Original: ...",
-   and a few shuffles for the genres.
+1. **Heard and approved** (2026-11-19): the trailer's sounds, then the
+   chimes, the hooks and the genres: "Sounds right", both times.
 2. **The music styles are not trimmed**: 31 are offered by hand (the circus
    march, baile funk, jersey club and the rest). Trimming them is the
    owner's call.

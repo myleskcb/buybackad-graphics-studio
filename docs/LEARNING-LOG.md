@@ -5178,7 +5178,8 @@ I need like trailer commercial professional"); then the shuffle's odds; then
 "1-3 best suggestion works" (a trailer's sounds, the jazz out, the number
 sound evened); heard: "Sounds right"; then the weirder instruments and
 openers out, the most popular kept, more tunes and chimes, other genres than
-lo-fi, layers that play over each other (asked: in one key; original hooks).
+lo-fi, layers that play over each other (asked: in one key; original hooks);
+heard again: "Sounds right".
 
 Done: stand-ins for every game sound, the jazz and most lo-fi; the menus
 trimmed; the braam, two number sounds on a low hit, a trailer's bed; four

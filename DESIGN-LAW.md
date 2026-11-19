@@ -5724,5 +5724,6 @@ a shuffle still plays.
 every measure), and the owner heard the trailer's bed, the braam and the
 ticks before the rest was built.
 
-Not done here: the chimes, the hooks and the genres in the shuffle were
-built and balanced by measure; the owner hears them next.
+Heard by the owner (2026-11-19), the chimes, the hooks and the genres in the
+shuffle: "Sounds right". Every sound here was built and balanced by measure
+first; the owner's ear is the last check.
