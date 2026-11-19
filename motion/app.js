@@ -89,7 +89,7 @@ async function ensureSubject(st) {
 const fullOf = st => {
   // what was picked by hand for the full ad: its colours, and its type pair (one of the owner's pairs the
   // full ad holds in, motion/full-voices.js; none picked is the house face)
-  const S = state.full ? subjectOf(st) : null, pick = { ...(st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {}), ...(fullVoiceOk(st.full_type) ? { type_pair: st.full_type } : {}) };
+  const S = state.full ? subjectOf(st) : null, pick = { ...(st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {}), ...(fullVoiceOk(st.full_type) || st.full_type === "house" ? { type_pair: st.full_type } : {}) };
   // a recipe brings its own pictures (kept as given: subject_set 1) and its ground photograph
   const R = state.full ? recipeOf(st) : null, rids = R ? subjects.loaded["recipe|" + R.id] || [] : [], extra = { ...(R && R.ground_photo ? { ground_hint: { ...R.ground_photo } } : {}), ...(R && R.hint ? { hint: R.hint } : {}) };   // leans, not locks (the rebuild, 2026-11-18)
   // its claim, unless a claim or a business name was typed: a named buyer takes the badge
@@ -188,7 +188,7 @@ function restore() {
         if (h.number) s.number = String(h.number);
         if (h.seed) s.seed = h.seed | 0;
         if (h.full_palette && COLOURWAYS.includes(h.full_palette)) s.full_palette = h.full_palette; else delete s.full_palette;
-        if (fullVoiceOk(h.full_type)) s.full_type = h.full_type; else delete s.full_type;
+        if (fullVoiceOk(h.full_type) || h.full_type === "house") s.full_type = h.full_type; else delete s.full_type;
         if (ASPECTS[h.aspect]) s.aspect = h.aspect;
         ["headline", "tag", "points"].forEach(k => state.locked.add(k));
         state.full = true;
@@ -437,7 +437,7 @@ function syncFull(ad) {
   clearTimeout(preTimer);
   if (!ad || !ad.full) { note.textContent = ""; box.hidden = true; return; }
   document.querySelectorAll("#full-colours [data-colour]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.colour === (state.style.full_palette || "") || (!state.style.full_palette && b.dataset.colour === ""))));
-  { const on = fullVoiceOk(state.style.full_type) ? state.style.full_type : ""; document.querySelectorAll("#full-voices [data-voice]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.voice === on))); }
+  { const on = fullVoiceOk(state.style.full_type) || state.style.full_type === "house" ? state.style.full_type : ""; document.querySelectorAll("#full-voices [data-voice]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.voice === on))); }
   box.hidden = false; $("full-checks-sum").textContent = "checking…"; $("full-checks-sum").className = "mo-score";
   const id = ++preId;
   preTimer = setTimeout(() => {
@@ -526,7 +526,8 @@ async function preflightGate(st) {
 function buildPanel() {
   $("full-colours").innerHTML = `<button role="radio" data-colour="" aria-checked="true" title="The colours change with New look">Any</button>`
     + COLOURWAYS.map(k => { const c = COLOUR_OF[k]; return `<button role="radio" data-colour="${k}" aria-checked="false" title="${c.name}" aria-label="${c.name}" style="--c1:${c.colors.ground};--c2:${c.colors.accent}"></button>`; }).join("");
-  $("full-voices").innerHTML = `<button role="radio" data-voice="" aria-checked="true" title="Chivo, the full ad's own face">House</button>`
+  // Any: New look picks the face too (fullStyle, rule 146); House: Chivo, the full ad's own face
+  $("full-voices").innerHTML = `<button role="radio" data-voice="" aria-checked="true" title="The face changes with New look">Any</button><button role="radio" data-voice="house" aria-checked="false" title="Chivo, the full ad's own face">House</button>`
     + FULL_VOICES.filter(k => fullVoiceOk(k)).map(k => `<button role="radio" data-voice="${k}" aria-checked="false" title="${FONTS[TYPE_VOICES[k].display][0]} + ${FONTS[TYPE_VOICES[k].label][0]}">${TYPE_VOICES[k].name}</button>`).join("");
   $("full-voices").addEventListener("click", e => {
     const b = e.target.closest("[data-voice]"); if (!b) return;

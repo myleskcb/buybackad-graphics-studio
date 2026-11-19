@@ -96,7 +96,7 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
       }
       // the ad's own pre-flight, on the picture as delivered
       const c = F.fullStill(ad), pre = F.fullPreflight(ad, c);
-      rows.push({ name, aspect, seed, palette: st.full_colour, ground: st.background === 'photo' ? (ad.groundImg ? 'photo' : 'photo not drawn') : ['radial', 'tonal', 'linear'].includes(st.background) ? 'house' : 'scene', phones: st.phones.length, why, missing, offAxis, contrast, m, bpp: (pre.checks.find(x => x.id === 'calm') || {}).bpp || 0, pre: { ok: pre.ok, failed: pre.checks.filter(x => !x.ok).map(x => x.id + ': ' + x.value), findings: pre.findings } });
+      rows.push({ name, aspect, seed, palette: st.full_colour, ground: st.background === 'photo' ? (ad.groundImg ? 'photo' : 'photo not drawn') : ['radial', 'tonal', 'linear'].includes(st.background) ? 'house' : /^pair_/.test(st.background) ? 'gradient' : /^pat_/.test(st.background) ? 'pattern' : 'scene', phones: st.phones.length, why, missing, offAxis, contrast, m, bpp: (pre.checks.find(x => x.id === 'calm') || {}).bpp || 0, pre: { ok: pre.ok, failed: pre.checks.filter(x => !x.ok).map(x => x.id + ': ' + x.value), findings: pre.findings } });
       if (wantSheet && s === 0) sheet.push([`${name} ${aspect}`, c.toDataURL('image/jpeg', .88), ad.W, ad.H]);
     }
     /* a photograph given with the ad (ground_photo: the contract the recipes made from older cards use)
@@ -143,7 +143,7 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
     const n = out.rows.length, photo = (by.photo || 0) / n;
     console.log(`  grounds: ${Object.entries(by).map(([k, v]) => `${k} ${v}`).join(', ')} of ${n}`);
     if (by['photo not drawn']) fail(`${by['photo not drawn']} ads drew a photo ground that was never painted`);
-    if (!(photo >= .2 && photo <= .6) || !by.scene || !by.house) fail(`the grounds' shares are off the table: ${JSON.stringify(by)} of ${n}`);
+    if (!(photo >= .15 && photo <= .6) || !by.scene || !by.house || !by.gradient || !by.pattern) fail(`the grounds' shares are off the table: ${JSON.stringify(by)} of ${n}`);
     const c = out.contract;
     if (!(c.bg === 'photo' && c.drawn && c.ok && c.moved && c.held)) fail(`a ground_photo given with the ad: ${JSON.stringify(c)}`);
     else console.log('  ok   a ground_photo given with the ad is drawn, passes its pre-flight, moves in the video and holds still for the photo');

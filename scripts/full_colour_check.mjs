@@ -34,8 +34,8 @@ const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8931/').replace(/\/?$/, 
 const fails = [];
 const ok = (cond, what) => { console.log((cond ? '  ok   ' : '  FAIL ') + what); if (!cond) fails.push(what); };
 
-// 0. the pairs' file is the studio's twelve, with their suits
-try { execFileSync(process.execPath, [new URL('./build_house_colours.mjs', import.meta.url).pathname, '--check'], { stdio: 'pipe' }); ok(true, 'motion/house-colours.js is in step with the studio\'s twelve pairs and AFFINITY'); }
+// 0. the pairs' file is the studio's colour themes (every group, rule 146), with their looks and suits
+try { execFileSync(process.execPath, [new URL('./build_house_colours.mjs', import.meta.url).pathname, '--check'], { stdio: 'pipe' }); ok(true, 'motion/house-colours.js is in step with the studio\'s colour themes and AFFINITY'); }
 catch (e) { ok(false, 'motion/house-colours.js: ' + String(e.stderr || e.stdout || e).trim().split('\n')[0]); }
 
 const browser = await chromium.launch();
@@ -104,14 +104,19 @@ const r = await page.evaluate(async () => {
     out.phones.push({ name, aspect, pair: st.full_colour, n, ok: n <= 2 || (many && neutral) });
   }
 
-  // nothing else moves: the seed's first draw over all twelve, as before the rule, turned by the
-  // line's own step (lineTurn, 2026-11-18: the iPhone line by none)
+  // nothing else moves: the seed's first draw over every pair, the look first and then the pair within it
+  // (drawPair, rule 146), turned by the line's own step (lineTurn, 2026-11-18: the iPhone line by none)
+  out.looks = {};
   for (const [phones, headline, subject] of [[['16-pro-max-natural', '16-pro-max-white'], 'SELL YOUR IPHONE', ''], [['15-pro-black', '15-pro-white', '16-black'], 'WE BUY IPHONES', ''], [['none'], 'WE BUY COINS', 'coins'], [['none'], 'WE BUY CARS & TRUCKS', 'car']])
     for (let s = 1; s <= 150; s++) {
-      const seed = s * 104729, st = F.fullStyle({ ...C.DEFAULT_STYLE, headline, subject, aspect: '1:1', phones }, seed, index), n = F.COLOURWAYS.length;
-      const was = F.COLOURWAYS[(Math.floor(E.rng((seed >>> 0) * 7 + 11)() * n) + F.lineTurn(subject, n)) % n];
+      const seed = s * 104729, st = F.fullStyle({ ...C.DEFAULT_STYLE, headline, subject, aspect: '1:1', phones }, seed, index);
+      const was = F.drawPair(F.COLOURWAYS, E.rng((seed >>> 0) * 7 + 11)(), subject);
       out.unchanged.of++; if (st.full_colour === was) out.unchanged.same++;
     }
+  // the looks balance (rule 146): 300 seeds of an unrestricted line, about a third light, vivid and dark, no pair over 6%
+  { const look = {}, pair = {};
+    for (let s = 1; s <= 300; s++) { const st = F.fullStyle({ ...C.DEFAULT_STYLE, headline: 'WE BUY CARS & TRUCKS', subject: 'car', aspect: '1:1', phones: ['none'] }, s * 7907, index); const L = F.COLOUR_OF[st.full_colour].look; look[L] = (look[L] || 0) + 1; pair[st.full_colour] = (pair[st.full_colour] || 0) + 1; }
+    out.looks = { look, most: Object.entries(pair).sort((a, b) => b[1] - a[1])[0], pairs: Object.keys(pair).length }; }
   // the ground and the product line up (2026-11-18, "ideally bg and assets line up"): every photograph a
   // seed draws agrees with the product the seed drew (groundFits), and on a scene with a floor the floor
   // line lands at the foot of the product band
@@ -169,7 +174,10 @@ ok(!phoneBad.length, `a seeded ad with bold phones keeps to two colour families:
 const perSet = {}; for (const p of r.phones) (perSet[p.name] ||= new Set()).add(p.pair);
 const narrow = Object.entries(perSet).filter(([, s]) => s.size < 2);
 ok(!narrow.length, 'every phone set still draws two pairs or more (New look changes colour): ' + Object.entries(perSet).map(([n, s]) => `${n} ${s.size}`).join(', '));
-ok(r.unchanged.same === r.unchanged.of, `an ad with neutral phones or an unrestricted line draws the pair it drew before: ${r.unchanged.same}/${r.unchanged.of}`);
+ok(r.unchanged.same === r.unchanged.of, `an ad with neutral phones or an unrestricted line draws the pair its seed's first draw gives (the look, then the pair): ${r.unchanged.same}/${r.unchanged.of}`);
+{ const L = r.looks.look, n = Object.values(L).reduce((a, b) => a + b, 0), share = k => (L[k] || 0) / n;
+  ok(['light', 'vivid', 'dark'].every(k => Math.abs(share(k) - 1 / 3) <= .08) && r.looks.most[1] / n <= .06,
+    `300 seeds of an unrestricted line draw the looks near a third each (light ${L.light || 0}, vivid ${L.vivid || 0}, dark ${L.dark || 0}) over ${r.looks.pairs} pairs, none over 6% (the most, ${r.looks.most[0]}, ${r.looks.most[1]})`); }
 ok(r.grounds.photos > 0 && !r.grounds.off.length, `a seed's photograph keeps the card to two colour families: ${r.grounds.photos} photo grounds in 720 seeded ads, ${r.grounds.strong} of strong colour, each beside a pair of its family` + (r.grounds.off.length ? '; ' + r.grounds.off.slice(0, 4).join(', ') : ''));
 ok(r.lineup.photos > 0 && !r.lineup.bad.length, `every photograph a seed draws agrees with its product (spec/ground-tags.json): ${r.lineup.photos} photo grounds` + (r.lineup.bad.length ? '; ' + r.lineup.bad.slice(0, 4).join('; ') : ''));
 const reach = r.lineup.floors.filter(f => f.reach), short = r.lineup.floors.filter(f => !f.reach), floorBad = reach.filter(f => f.off > .03);

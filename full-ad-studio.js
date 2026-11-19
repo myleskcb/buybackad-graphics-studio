@@ -8,7 +8,7 @@
 
    The house design language is the full ad (motion/fullad.js, rule 137): a claim, a headline with
    one accent word, the models, the product's own pictures, the selling points, a sticker, the
-   number in its pill, the towns and the website, in one of the twelve proven colour pairs. Until
+   number in its pill, the towns and the website, in one of the colour themes as a pair (rule 146). Until
    today it lived only in the video maker; the page where a picture customer starts had no way to
    it (OPEN-ITEMS §BC 3), and the first card that page handed a new visitor was a photograph with
    words on it.
@@ -138,7 +138,9 @@ function styleNow(S, ids, set, size, R = recipeNow()) {
   // a typed business name takes the badge over a library design's claim (the full ad's own rule); typed words over both
   if (up(w.claim)) base.feed_claim = up(w.claim); else if (up(rw.claim) && !String(FA.biz || "").trim()) base.feed_claim = up(rw.claim);
   if (up(w.burst) || up(rw.burst)) base.feed_burst = up(w.burst) || up(rw.burst);
-  const pair = FA.pair || "", voice = fullVoiceOk(FA.voice) ? FA.voice : "";   // only a pick by hand is kept as picked
+  // the face: one picked, the house face ("house"), or none, and the seed draws one (fullStyle, rule 146). A
+  // recipe's card pair and face are leans (its hint), never kept as picked: only a pick by hand is
+  const pair = FA.pair || "", voice = FA.voice === "house" ? "house" : fullVoiceOk(FA.voice) ? FA.voice : "";
   const pick = { ...(COLOUR_OF[pair] ? { palette: pair } : {}), ...(voice ? { type_pair: voice } : {}) };
   return { st: fullStyle(base, base.seed, assets.index, pick), W: F.w, H: F.h };
 }
@@ -299,12 +301,13 @@ function buildForm() {
     + libraryField()
     + `<div class="ez-field"><label for="fa-biz">Your business name <span class="fa-opt">optional: it takes the badge at the top</span></label><div class="ez-fieldrow"><input id="fa-biz" type="text" maxlength="28" value="${esc(FA.biz || "")}" placeholder="Long Beach Phone Buyers"></div></div>`
     + WORD_FIELDS.map(field).join("")
-    + `<div class="ez-field"><label>Colours <span class="fa-opt">the twelve proven pairs</span></label><div class="ez-themes" id="fa-pairs" role="group" aria-label="Colours">
+    + `<div class="ez-field"><label>Colours <span class="fa-opt">${COLOURWAYS.length} pairs, light, vivid and dark</span></label><div class="ez-themes" id="fa-pairs" role="group" aria-label="Colours">
         <button type="button" class="fa-any${FA.pair ? "" : " active"}" data-pair="" aria-pressed="${FA.pair ? "false" : "true"}" title="New look picks a pair that suits what you buy">Any</button>`
         + COLOURWAYS.map(k => { const c = COLOUR_OF[k], on = FA.pair === k; return `<button type="button" class="ez-theme${on ? " active" : ""}" data-pair="${k}" aria-pressed="${on}" title="${esc(c.name)}" aria-label="${esc(c.name)}"><span style="background:${c.colors.ground}"></span><span style="background:${c.colors.accent}"></span></button>`; }).join("")
     + `</div></div>`
     + `<div class="ez-field"><label>Typeface <span class="fa-opt">a headline face and a reading face</span></label><div class="ez-fxrow fa-voices" id="fa-voices" role="group" aria-label="Typeface">
-        <button type="button" data-voice="" class="${fullVoiceOk(FA.voice) ? "" : "active"}" title="Chivo, the house face">House</button>`
+        <button type="button" data-voice="" class="${fullVoiceOk(FA.voice) || FA.voice === "house" ? "" : "active"}" title="New look picks a face from these">Any</button>
+        <button type="button" data-voice="house" class="${FA.voice === "house" ? "active" : ""}" title="Chivo, the house face">House</button>`
         + voices.map(k => `<button type="button" data-voice="${k}" class="${FA.voice === k ? "active" : ""}" title="${esc(FONTS[TYPE_VOICES[k].display][0] + " + " + FONTS[TYPE_VOICES[k].label][0])}">${esc(TYPE_VOICES[k].name)}</button>`).join("")
     + `</div></div>`
     + `<div class="ez-field fa-actions"><div class="ez-fxrow"><button type="button" id="fa-shuffle" title="Another arrangement, and another colour pair unless you picked one">&#127922; New look</button>`
@@ -382,7 +385,7 @@ function toVideo() {
   const S = lineNow(); if (!S) return;
   const R = recipeNow(), rw = (R && R.words) || {};
   const w = FA.words[S.key] || {}, up = v => String(v || "").trim().toUpperCase(), F = FORMATS[ez.format] || FORMATS.square, ar = F.w / F.h;
-  const hand = { subject: S.key, subject_set: S.sets.length ? (FA.set[S.key] | 0) % S.sets.length : 0, seed: FA.seed | 0 || 1, full_palette: FA.pair || "", full_type: fullVoiceOk(FA.voice) ? FA.voice : "",
+  const hand = { subject: S.key, subject_set: S.sets.length ? (FA.set[S.key] | 0) % S.sets.length : 0, seed: FA.seed | 0 || 1, full_palette: FA.pair || "", full_type: FA.voice === "house" ? "house" : fullVoiceOk(FA.voice) ? FA.voice : "",
     recipe: R ? R.id : "",
     headline: up(w.headline) || up(rw.headline) || S.heads[0].toUpperCase(), tag: up(w.tag) || up(rw.tag) || (S.key === "iphone" ? "" : S.models.toUpperCase()), points: up(w.points) || up(rw.points) || (S.key === "iphone" ? null : S.points),
     feed_claim: up(w.claim) || (String(FA.biz || "").trim() ? "" : up(rw.claim)), feed_burst: up(w.burst) || up(rw.burst), number_label: up(w.label) || up(rw.label), biz: String(FA.biz || "").trim(),
