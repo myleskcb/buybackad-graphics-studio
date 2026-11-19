@@ -3985,3 +3985,11 @@ Open:
 
     **owner**: a clean M4 Mac mini, a Mac Pro or a Studio Display photograph; each download waits on
     an OK.
+12. **The audit basket** (DESIGN-LAW 143; the owner: "Can you detect this? ... put them in an audit
+    basket"). **done**: the census reads what the eye sees: a product off its axis, a box with little in
+    it, a colour outside its pair, words in unrelated colours, a model the line does not buy.
+    - The basket holds 89 of 2,019 ads: 86 library cards, 2 designer layouts and 1 offer card. No
+      full ad, rebuilt recipe, Any look or FeedAd is in it.
+    - The owner's three are caught by what they named.
+    - Precision on the worst 40, by eye: 33 clearly real, 7 borderline, none plainly wrong.
+    - **owner**: keep or send back each basket ad on the review page (Audit basket filter).
