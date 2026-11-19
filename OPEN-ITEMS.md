@@ -3951,7 +3951,7 @@ Open:
      keys;
    - **owner**: whether gold lines, which keep to their eight gold pairs and one vivid one, may
      stand on a light ground (no gold reads on cream at 4.5:1 without going mustard, rule 103).
-9. **The library cards, the offer family and the designer layouts, rebuilt** (DESIGN-LAW 147;
+9. **The library cards, the offer family and the designer layouts, rebuilt** (DESIGN-LAW 149;
    the owner: "Library card ones are not great.. I would take them as inspiration but rebuild them
    all", "Offer family needs a rebuild also", "the heros all look so simialr").
    - **done**: every recipe draws on a seed of its own and leans toward its card's family and
@@ -3978,7 +3978,7 @@ Open:
    - **owner**: whether the 299 rebuilt offer cards join the partner feed (it only ever carried
      library cards); about 60 MB more.
    - **owner**: a VR headset and a gaming laptop photograph, so their cards show the product.
-10. **The iPhone lock screens, and the call to action's marks** (DESIGN-LAW 148, 149) — **done**:
+10. **The iPhone lock screens, and the call to action's marks** (DESIGN-LAW 150, 151) — **done**:
     lock screens laid out as iOS lays them out (a status bar in iOS's measures, four layouts:
     classic, widgets, iOS 26's tall Glass clock, iOS 27's compact one; four clean wallpapers in the
     screen's own colour); eight marks at the number, each moving its own way.

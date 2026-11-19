@@ -463,7 +463,7 @@ for (const ad of all) {
 }
 const ORDER = SUBJECTS.map(s => s.key);
 recipes.sort((a, b) => ORDER.indexOf(a.subject) - ORDER.indexOf(b.subject) || ['sc', 'dl', 'of'].indexOf(a.gen) - ['sc', 'dl', 'of'].indexOf(b.gen) || a.id.localeCompare(b.id));
-/* a library card's name led with its theme, one of the twelve dark pairs it no longer draws in (rule 147):
+/* a library card's name led with its theme, one of the twelve dark pairs it no longer draws in (rule 149):
    it is called by its family's name, numbered within its line where the line has more than one */
 {
   const fam = r => r.label.replace(/ \(library card\)$/, '').split(' · ').pop(), count = {}, seen = {};

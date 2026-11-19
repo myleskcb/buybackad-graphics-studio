@@ -11987,7 +11987,7 @@ function scLoadIndex(){
 }
 /* THE SHELF: the live library cards, and the rebuilt ad of every retired one (the owner, 2026-11-18,
    asked to retire the old static library and offer cards now that each has a rebuilt version: "Retire
-   them"; DESIGN-LAW 147). A recipe made from a card that is no longer offered (held, or a retired offer
+   them"; DESIGN-LAW 149). A recipe made from a card that is no longer offered (held, or a retired offer
    template) stands where the card stood: its still (scripts/build_recipe_stills.mjs), its line, its
    card's family, its pair, opened in Easy Mode's full ad on its own seed (openHouseAd). The landing, the
    editor's library and a card's link read the shelf; scLoadIndex stays the library cards alone, as the

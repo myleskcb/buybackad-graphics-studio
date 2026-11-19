@@ -5808,7 +5808,7 @@ gradients, pattern fill, or other ways instead of colors", "a lot of these are t
 5% variety or difference" (the look system, rule 146, a helper), and the owner's lines (a helper).
 
 Changed:
-  - Recipes carry a seed of their own and a hint (spec/recipe-looks.json, rule 147).
+  - Recipes carry a seed of their own and a hint (spec/recipe-looks.json, rule 149).
   - fullStyle, pickFullStyles and groundFor lean toward the hint on a stream of their own
     (motion/recipe-lean.js).
   - The cards' photographs are measured, so a dim one is passed over.
@@ -5856,9 +5856,9 @@ Asked:
     Neo"; "macs ... need more in the category"
 
 Changed:
-  - lockScreen (rule 148): the status bar in iOS's own points, four layouts, four wallpapers in
+  - lockScreen (rule 150): the status bar in iOS's own points, four layouts, four wallpapers in
     one colour family, and the clock's ink from the wallpaper.
-  - cta_mark (rule 149): eight marks with their own motion; the checks count any mark.
+  - cta_mark (rule 151): eight marks with their own motion; the checks count any mark.
   - Six pre-M1 MacBook pictures flagged "old model"; the Neo at about 5% with its own words; Macs
     gain sets of several products (the subjects builder takes a `sets` field).
 

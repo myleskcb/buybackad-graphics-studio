@@ -274,7 +274,7 @@
   [headers.values]
     Cache-Control = "public, max-age=2592000, stale-while-revalidate=86400"
 
-# the rebuilt library ads at full size (rule 147): linked the same way, with ?v=<sha1>
+# the rebuilt library ads at full size (rule 149): linked the same way, with ?v=<sha1>
 [[headers]]
   for = "/assets/rebuilt-ads/*"
   [headers.values]

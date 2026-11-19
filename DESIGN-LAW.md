@@ -6213,7 +6213,7 @@ pairs of ads match. Both sheets are in `.render/` (`--tag before`, `--tag after`
 
 Not done here: OPEN-ITEMS §BJ 7.
 
-## 147. A recipe takes after its card, and is never a copy of it
+## 149. A recipe takes after its card, and is never a copy of it
 
 Added 2026-11-18. The owner, of the library cards and the offer family drawn as recipes (rule
 145): "Library card ones are not great.. I would take them as inspiration but rebuild them all",
@@ -6304,7 +6304,7 @@ offer cards now that each has a rebuilt version, the owner said "Retire them".
 
 Not done here: OPEN-ITEMS §BJ 9.
 
-## 148. A face-up iPhone wears an iOS lock screen, laid out as iOS lays one out
+## 150. A face-up iPhone wears an iOS lock screen, laid out as iOS lays one out
 
 Added 2026-11-18. The owner: "audit the iPhone backgrounds to look clean good... and actual iOS";
 then "We just need to readjust the status bar size and positioning slightly", and "What are the
@@ -6341,7 +6341,7 @@ The rule (`fullad.js` `lockScreen`, drawn, never loaded, so a photo on the first
   licensed for mock-ups of software on its platforms. A screenshot's layers are not pulled into an
   ad.
 
-## 149. The call to action wears one of several marks, each moving its own way
+## 151. The call to action wears one of several marks, each moving its own way
 
 Added 2026-11-18. The owner: "Although I said, have one assimilated design language, I didn't mean
 one style ... every single one has the same arrows pointing to the CTA and I would love to have

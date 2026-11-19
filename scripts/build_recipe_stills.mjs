@@ -2,7 +2,7 @@
 /* THE LIBRARY'S REBUILT ADS, AS THE LANDING SHOWS THEM: assets/recipe-stills/.
 
    The owner, 2026-11-18, asked whether to retire the old static library cards and offer cards now
-   that each has a rebuilt version (motion/recipes.json, DESIGN-LAW 147): "Retire them". The
+   that each has a rebuilt version (motion/recipes.json, DESIGN-LAW 149): "Retire them". The
    landing's library grid and its wall were built from the library cards' baked thumbnails and the
    offer cards' templates; the rebuilt ads have no thumbnail of their own. This draws one for each
    recipe made from a library card or an offer card, through Easy Mode's own full ad on the
