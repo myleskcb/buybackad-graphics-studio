@@ -16,7 +16,7 @@
                  Any look gallery), feed (iPhones LA's FeedAd batch, tools/feed-stills: not on
                  the site, drawn by the same engine file and posted by iPhones LA)
      engine      FullAd, a fabric template, the video engine's Ad, FeedAd
-     colours     the ground and the accent measured on the picture, the nearest of the twelve
+     colours     the ground and the accent measured on the picture, the nearest of the house pairs
                  proven pairs (motion/house-colours.js) and whether it is that pair; and the
                  palette the ad says it is in
      type        its type pair, or its faces
@@ -41,7 +41,7 @@
    (.render/ is ignored), and the thumbnails beside the JSON (census.thumbs.json). --rescan
    re-reads a census and only re-matches words, colours and elements (no browser, seconds), for a
    change to spec/banned-words.json, REQUIRED or the thresholds below.
-   --gate exits 1 when an offered ad is off the house engine or the twelve pairs, carries a
+   --gate exits 1 when an offered ad is off the house engine or the house pairs, carries a
    banned phrase, or lacks a REQUIRED element, and prints the counts. It is not wired into any
    deploy (2026-11-18): today it fails nearly every ad that is not the full ad, which is the
    finding. A full run takes about half an hour with two workers. */
@@ -91,7 +91,7 @@ const GEN_NAMES = { full: 'Full ad', recipe: 'Library recipe', dl: 'Designer lay
 const ENGINES = { full: 'FullAd', recipe: 'FullAd', dl: 'fabric template', of: 'fabric template', sc: 'fabric template', any: 'engine Ad', feed: 'FeedAd' };
 
 const BANNED = JSON.parse(readFileSync(join(ROOT, 'spec/banned-words.json'), 'utf8'));
-/* the twelve pairs, read as data (the file is an ES module for the browser; its rows are JSON) */
+/* the house pairs, read as data (the file is an ES module for the browser; its rows are JSON) */
 const HOUSE_COLOURS = JSON.parse(readFileSync(join(ROOT, 'motion/house-colours.js'), 'utf8').match(/HOUSE_COLOURS\s*=\s*(\[[\s\S]*?\]);/)[1].replace(/,\s*\]$/, ']'));
 
 /* ------------------------------------------------------------------ colour, in Node too */
@@ -101,7 +101,7 @@ const toLab = (r, g, b) => { const R = lin(r), G = lin(g), B = lin(b);
   return [.2104542553 * l + .793617785 * m - .0040720468 * s, 1.9779984951 * l - 2.428592205 * m + .4505937099 * s, .0259040371 * l + .7827717662 * m - .808675766 * s]; };
 const hexLab = h => { const n = parseInt(String(h).slice(1, 7), 16); return toLab(n >> 16, (n >> 8) & 255, n & 255); };
 const dE = (p, q) => 100 * Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]);
-const PAIRS = HOUSE_COLOURS.map(p => ({ key: p.key, name: p.name, ground: p.colors.ground, accent: p.colors.accent, g: hexLab(p.colors.ground), a: hexLab(p.colors.accent) }));
+const PAIRS = HOUSE_COLOURS.map(p => ({ key: p.key, name: p.name, ground: p.colors.ground, accent: p.colors.accent, g: hexLab(p.colors.ground), a: hexLab(p.colors.accent), i: hexLab(p.colors.ink || '#ffffff') }));   // i: its ink, a third colour of a three-colour pair (Red, White & Blue)
 
 function matchPair(c, row) {
   if (!c || !c.ground) return { match: false, why: 'not measured' };
@@ -111,15 +111,27 @@ function matchPair(c, row) {
   const out = { nearest: best.p.key, nearestName: best.p.name, dGround: +best.dG.toFixed(1), dAccent: a ? +best.dA.toFixed(1) : null };
   /* the house engine on a photograph (DESIGN-LAW 145): the ground is the photo by design, and the
      pair is what it draws on it, so the drawn accent is held to the pair the ad declares */
-  if ((c.groundKind === 'photo' || c.groundKind === 'drawn') && row && (row.gen === 'full' || row.gen === 'recipe')) {   // a drawn scene paints the pair's own ground with light: judged the same way
+  // a drawn scene paints the pair's own ground with light, and the house's patterns and hard-edged gradients
+  // paint it in its own tones (2026-11-18, rule 154: "textured" by the edge band's spread): judged the same way
+  if ((c.groundKind === 'photo' || c.groundKind === 'drawn' || c.groundKind === 'textured') && row && (row.gen === 'full' || row.gen === 'recipe')) {
     const own = PAIRS.find(p => p.name === row.declared), dA = own && a ? dE(a, own.a) : 99;
     /* the full ad's plates are lit and may be graded (2026-11-18: full-styles), so its drawn accent
        sits a little off the flat one: within twice the tolerance, or in the same hue family (25
        degrees) at a real chroma, it is the pair's */
     const hueOf = v => Math.atan2(v[2], v[1]) * 180 / Math.PI, chromaOf = v => Math.hypot(v[1], v[2]);
     const sameFamily = own && a && chromaOf(a) >= .09 && chromaOf(own.a) >= .09 && Math.abs(((hueOf(a) - hueOf(own.a) + 540) % 360) - 180) <= 25;   // Lab here is 0..1 (dE scales by 100)
-    return own && (dA <= PAIR_ACCENT * 2 || sameFamily) ? { ...out, nearest: own.key, nearestName: own.name, dAccent: +dA.toFixed(1), match: true, why: own.name + (c.groundKind === 'photo' ? ' on a photograph' : ' on a drawn scene') }
-      : { ...out, match: false, why: own ? `accent ${dA.toFixed(1)} from ${own.name}'s, on a ${c.groundKind === 'photo' ? 'photograph' : 'drawn scene'}` : 'stands on a photograph' };
+    /* a two-colour pair (rule 154: White on Pink, Black on Lime) has no accent but its words' white or black,
+       which no saturated pixel can show: it is the pair where its ground is the pair's own (or the pair's
+       ground is laid under a photograph) */
+    const twoColour = own && chromaOf(own.a) < .04 && (c.groundKind === 'photo' || dE(g, own.g) <= PAIR_GROUND * 2.2);
+    if (twoColour) return { ...out, nearest: own.key, nearestName: own.name, match: true, why: own.name + ' (two colours)' };
+    /* a light pair whose accent is a deeper tone of its own ground's family (Mint & Green, Lavender & Violet,
+       Blush & Magenta) or under the measure's chroma (Sand & Teal's teal, C .08): the measure sets every such
+       pixel aside as a shade of the ground, so where it finds no accent at all the pair is judged by its ground */
+    const shadeOfGround = own && !a && (chromaOf(own.a) < .09 || (chromaOf(own.g) >= .04 && Math.abs(((hueOf(own.a) - hueOf(own.g) + 540) % 360) - 180) <= 25));
+    if (shadeOfGround && (c.groundKind === 'photo' || dE(g, own.g) <= PAIR_GROUND * 2.2)) return { ...out, nearest: own.key, nearestName: own.name, match: true, why: own.name + ' (its accent a tone of its ground)' };
+    return own && (dA <= PAIR_ACCENT * 2 || sameFamily) ? { ...out, nearest: own.key, nearestName: own.name, dAccent: +dA.toFixed(1), match: true, why: own.name + (c.groundKind === 'photo' ? ' on a photograph' : c.groundKind === 'textured' ? ' on a patterned ground' : ' on a drawn scene') }
+      : { ...out, match: false, why: own ? `accent ${dA.toFixed(1)} from ${own.name}'s, on a ${c.groundKind === 'photo' ? 'photograph' : c.groundKind === 'textured' ? 'patterned ground' : 'drawn scene'}` : 'stands on a photograph' };
   }
   if (c.groundKind === 'photo') return { ...out, match: false, why: 'stands on a photograph' };
   if (!a) return { ...out, match: false, why: 'no accent colour found' };
@@ -146,6 +158,149 @@ function bannedIn(words, cat) {
   return found;
 }
 
+/* ------------------------------------------------------------------ confusion: what the eye sees
+   The owner, 2026-11-18, of three library cards the census had ranked mid-table: a dark band across
+   the middle holding only the models line ("a very strange center box that doesn't have enough
+   information"), an old MacBook the line does not buy, and a laptop off the centre line of centred
+   words with "the colors ... a little bit random with the pink CTA and the white informational text";
+   then "Can you detect this? Do you see what I see without hearing my opinion ... can we audit for the
+   worst ones and anything similar to this in confusion? We can put them in an audit basket". The
+   census read words, elements, contrast and pairs, not the composition. These read the layout each
+   row carries (its lines' boxes, sizes and inks, its plates and their fills, its product's boxes and
+   cut-outs, the colours of its picture by hue family) and say what is wrong in the owner's words.
+   Each finding is { code, severity, say }; a row with any is in the audit basket, and its severities
+   are added to its score, so the worst sink in the review page's ranking. --rescan re-reads them from
+   a census in seconds (thresholds below). */
+const CONFUSE = {
+  offAxis: .1, offAxisBad: .2,          // the product's centre off the words' axis, in the frame's width
+  boxMin: .06, boxMax: .7, boxCover: .15, smallLine: 52,   // a plate of this share of the frame whose words and pictures cover under this share of it, or one line under 52px
+  plateShare: .02, plateC: .035, inkC: .06, family: 30,   // a designed colour: a plate of 2% of the frame at chroma .035, or a line's ink at .06; one family within 30 degrees or of one name
+  darkL: .35, darkC: .08,               // a colour this deep reads as near black (a navy-teal ribbon) unless its chroma is this high
+  tintC: .018,                          // the call to action's plate: a tint this strong is a colour (a pale pink card)
+  smallPic: .25,                        // a picture covering under this share of a plate is a small one
+  heroMin: .02,                         // a product picture of this share of the frame is the ad's hero (a smaller one is an icon)
+  panelA: .75,                          // a plate is a panel at this opacity, or coloured at half of it (a photo's shade or scrim is neither)
+  inkShare: .005,                       // a family of words' colour counts at this share of the frame
+  pixelShare: .02,                      // a colour family on a drawn ground (not a photograph) over 2% of the picture outside the product
+};
+/* an old model (assets/cutout-flags.json, a flag whose reason begins "old model"): a product the line
+   does not buy (the owner: "a really old MacBook that we don't even buy so that's gonna attract the wrong
+   type of clients"). CENSUS_FLAGS reads the flags from another tree's file (a branch's working copy) */
+const FLAGS = (() => { try { return JSON.parse(readFileSync(process.env.CENSUS_FLAGS || join(ROOT, 'assets/cutout-flags.json'), 'utf8')); } catch (e) { return {}; } })();
+const OLD = Object.fromEntries(Object.entries(FLAGS).map(([f, why]) => [f, String(typeof why === 'string' ? why : (why && (why.reason || why.why)) || '')]).filter(([, why]) => /^old model\b/i.test(why)));
+const parseColour = c => {
+  const t = String(c || '').trim().toLowerCase();
+  if (!t || t === 'transparent' || t === 'none') return null;
+  let m = /^#([0-9a-f]{3,8})$/.exec(t);
+  if (m) { let h = m[1]; if (h.length <= 4) h = [...h].map(x => x + x).join(''); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16), h.length >= 8 ? parseInt(h.slice(6, 8), 16) / 255 : 1]; }
+  m = /^rgba?\(([^)]+)\)$/.exec(t);
+  if (m) { const v = m[1].split(/[\s,/]+/).filter(Boolean).map(Number); return [v[0], v[1], v[2], v.length > 3 ? v[3] : 1]; }
+  return { white: [255, 255, 255, 1], black: [0, 0, 0, 1] }[t] || null;
+};
+const labC = p => Math.hypot(p[1], p[2]), labH = p => (Math.atan2(p[2], p[1]) * 180 / Math.PI + 360) % 360;
+const hueGap = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+// the hue families by name, in OKLCH degrees (a pale pink plate is pink, a crimson red, a gold yellow)
+const HUE_NAMES = [[20, 'pink'], [45, 'red'], [70, 'orange'], [115, 'yellow'], [170, 'green'], [225, 'cyan'], [285, 'blue'], [325, 'purple'], [345, 'magenta'], [361, 'pink']];
+const hueName = (h, L = .6) => L > .8 && h >= 300 ? 'pink' : HUE_NAMES.find(([top]) => h < top)[1];   // a pale tint of magenta or purple reads as pink
+const cap = t => t[0].toUpperCase() + t.slice(1);
+function confusionOf(r) {
+  const L = r.layout; if (!L || r.error) return [];
+  const out = [], W = L.W, H = L.H, A = W * H;
+  const add = (code, severity, say) => out.push({ code, severity, say });
+  const area = b => Math.max(0, b[2] - b[0]) * Math.max(0, b[3] - b[1]);
+  const inter = (a, b) => [Math.max(a[0], b[0]), Math.max(a[1], b[1]), Math.min(a[2], b[2]), Math.min(a[3], b[3])];
+  const cx = b => (b[0] + b[2]) / 2, cy = b => (b[1] + b[3]) / 2, inside = (b, x, y) => x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3];
+  const union = bs => [Math.min(...bs.map(b => b[0])), Math.min(...bs.map(b => b[1])), Math.max(...bs.map(b => b[2])), Math.max(...bs.map(b => b[3]))];
+  const words = L.words || [], prods = (L.product || []).filter(b => area(b) > A * .004), heroes = prods.filter(b => area(b) >= A * CONFUSE.heroMin);
+  /* 1. the product off the axis its words are set on (a centred headline: its box's middle). A layout of
+     two columns is meant: the product clear of the headline's width, or a block of words standing
+     beside it at its own height */
+  const heads = words.filter(w => w.role === 'headline');
+  const alignOf = ls => {
+    const b = union(ls.map(w => w.box)), c = cx(b) / W;
+    // a text box as wide as the column sets its words by its own alignment (a two-line headline flush left in a full-width box)
+    if (ls.every(w => (w.box[2] - w.box[0]) >= W * .7 && (w.align === 'left' || w.align === 'right' || w.align === 'justify')) && ls.every(w => w.align === ls[0].align)) return ls[0].align === 'right' ? 'right' : 'left';
+    if (Math.abs(c - .5) < .06) return 'center';
+    if (ls.length > 1 && ls.every(w => Math.abs(w.box[0] - ls[0].box[0]) < W * .02)) return 'left';
+    if (ls.length > 1 && ls.every(w => Math.abs(w.box[2] - ls[0].box[2]) < W * .02)) return 'right';
+    if (ls.length === 1 && b[0] < W * .12 && c < .45) return 'left';
+    if (ls.length === 1 && b[2] > W * .88 && c > .55) return 'right';
+    return 'center';                    // centred in a column of its own: its axis is that column's
+  };
+  const head = L.head || (heads.length ? { box: union(heads.map(w => w.box)), align: alignOf(heads) } : null);
+  // where the words' layout is not known (a video look, a FeedAd: no word boxes), a product beside them cannot be told from a stray one
+  // the hero picture (an icon in a corner is decoration), standing in the stack between the headline and the number
+  const num = words.find(w => w.role === 'phone' || w.role === 'number');
+  if (head && heroes.length && (!head.align || head.align === 'center') && words.length && cy(union(heroes)) > head.box[3] && (!num || cy(union(heroes)) < num.box[1])) {
+    const pb = union(heroes), axis = cx(head.box), off = Math.abs(cx(pb) - axis) / W;
+    const shared = Math.max(0, Math.min(pb[2], head.box[2]) - Math.max(pb[0], head.box[0])) / Math.max(1, Math.min(pb[2] - pb[0], head.box[2] - head.box[0]));
+    const clear = b => b[2] <= pb[0] + W * .01 || b[0] >= pb[2] - W * .01;
+    const side = [...words.filter(w => w.role !== 'headline').map(w => w.box), ...(L.plates || []).filter(p => area(p.box) / A >= .03 && area(p.box) / A <= .5).map(p => p.box)]
+      .filter(b => clear(b) && b[3] > pb[1] && b[1] < pb[3]);
+    const beside = side.length > 0 && Math.min(pb[3], Math.max(...side.map(b => b[3]))) - Math.max(pb[1], Math.min(...side.map(b => b[1]))) >= .4 * (pb[3] - pb[1]);
+    if (off > CONFUSE.offAxis && shared > .2 && !beside) add('off-axis', off > CONFUSE.offAxisBad ? 3 : 2, `The product stands ${Math.round(off * 100)}% of the width off the centre line its words are set on.`);
+  }
+  /* 2. a plate, band or panel with little in it: its words and pictures cover under a sixth of it, or it
+     holds one small line and nothing else */
+  for (const p of L.plates || []) {
+    const pa = area(p.box) / A; if (pa < CONFUSE.boxMin || pa > CONFUSE.boxMax || (p.opacity != null && p.opacity < .5)) continue;
+    const solid = p.fills.map(parseColour).filter(c => c && (c[3] >= CONFUSE.panelA || (c[3] >= .5 && labC(toLab(c[0], c[1], c[2])) >= CONFUSE.plateC))); if (!solid.length) continue;
+    const ws = words.filter(w => inside(p.box, cx(w.box), cy(w.box))), ps = prods.filter(b => inside(p.box, cx(b), cy(b)));
+    const pin = area(p.box), text = ws.reduce((t, w) => t + area(inter(w.box, p.box)), 0) / pin, pic = ps.reduce((t, b) => t + area(inter(b, p.box)), 0) / pin, cover = text + pic;
+    const lone = ws.length === 1 && ws[0].px > 0 && ws[0].px < CONFUSE.smallLine && pic < CONFUSE.smallPic;
+    const wide = (p.box[2] - p.box[0]) / W >= .7 && (p.box[3] - p.box[1]) / H <= .35, shape = wide ? 'band' : 'panel';
+    if (cover < CONFUSE.boxCover || lone) add('empty-box', 2, `A ${shape} over ${Math.round(pa * 100)}% of the ad holds ${ws.length ? (lone || ws.length === 1 ? 'only "' + ws[0].text + '"' : ws.length + ' short lines') : 'no words'}${ps.length ? ' and a small picture' : ''}: too little to be there.`);
+  }
+  /* 3 and 4. colours: what the designer set (plates of real size, the lines' inks) or, on a ground the
+     engine drew, what the picture shows, against the pair it says it is in: its declared pair where it
+     names a house pair, else the ground and the accent measured on it */
+  const pair = PAIRS.find(p => p.name === r.declared || p.key === r.declaredKey);
+  const allowed = [];
+  const allow = (lab, min = .04) => { if (lab && labC(lab) >= min) allowed.push(labH(lab)); };
+  if (pair) { allow(pair.g); allow(pair.a); allow(pair.i); }
+  if (r.colours && r.colours.ground) allow(hexLab(r.colours.ground));
+  if (!pair && r.colours && r.colours.accent) allow(hexLab(r.colours.accent));
+  const same = (a, b) => hueGap(a, b) <= CONFUSE.family || hueName(a) === hueName(b);
+  const counts = (q, min) => labC(q) >= (q[0] < CONFUSE.darkL ? Math.max(min, CONFUSE.darkC) : min);
+  // an ad that names no house pair keeps its own two colours: the two families its designed plates cover most of the ad in
+  if (!pair) {
+    const byFam = [], put = (h, a) => { const e = byFam.find(x => same(x.h, h)); if (e) e.a += a; else byFam.push({ h, a }); };
+    for (const p of L.plates || []) { const pa = area(p.box) / A; if (pa < CONFUSE.plateShare || pa > CONFUSE.boxMax) continue;
+      for (const f of p.fills) { const c = parseColour(f); if (!c || c[3] < .5) continue; const q = toLab(c[0], c[1], c[2]); if (counts(q, CONFUSE.plateC)) put(labH(q), pa); } }
+    for (const w of words) { const c = parseColour(w.ink); if (!c || c[3] < .5) continue; const q = toLab(c[0], c[1], c[2]); if (counts(q, CONFUSE.inkC)) put(labH(q), area(w.box) / A); }
+    byFam.sort((a, b) => b.a - a.a).slice(0, 2).forEach(e => allowed.push(e.h));
+  }
+  const near = h => allowed.some(a => same(a, h));
+  const pairName = pair ? pair.name : 'its own two colours';
+  const designed = [];
+  for (const p of L.plates || []) {
+    const pa = area(p.box) / A; if (pa < CONFUSE.plateShare || pa > CONFUSE.boxMax) continue;
+    for (const f of p.fills) { const c = parseColour(f); if (!c || c[3] < .5) continue; const q = toLab(c[0], c[1], c[2]); if (counts(q, CONFUSE.plateC)) designed.push({ kind: 'plate', hue: labH(q), L: q[0], share: pa, box: p.box }); }
+  }
+  for (const w of words) { const c = parseColour(w.ink); if (!c || c[3] < .5) continue; const q = toLab(c[0], c[1], c[2]); if (counts(q, CONFUSE.inkC)) designed.push({ kind: 'text', role: w.role, hue: labH(q), L: q[0], share: area(w.box) / A, text: w.text }); }
+  const fam = list => { const g = []; for (const d of list) { const f = g.find(x => same(x.hue, d.hue)); if (f) f.items.push(d); else g.push({ hue: d.hue, items: [d] }); } return g; };
+  const nameOf = f => hueName(f.hue, f.items[0].L) + ' ' + [...new Set(f.items.map(d => d.kind === 'plate' ? 'plates' : 'words'))].join(' and ');
+  // words count where their colour covers real area together (a short coloured line is an accent, not a colour)
+  const real = f => f.items.some(d => d.kind === 'plate') || f.items.reduce((t, d) => t + d.share, 0) >= CONFUSE.inkShare;
+  for (const f of fam(designed.filter(d => !near(d.hue))).filter(real)) add('off-pair-colour', 2, `${cap(nameOf(f))} on an ad in ${pairName}: a colour outside its pair.`);
+  if ((r.gen === 'full' || r.gen === 'recipe') && !L.photo && L.families) for (const f of L.families.filter(f => f.share >= CONFUSE.pixelShare && !allowed.some(a => hueGap(a, f.h) <= CONFUSE.family + 15))) add('off-pair-colour', 1, `${cap(hueName(f.h))} over ${Math.round(f.share * 100)}% of the picture, outside ${pairName}.`);
+  const inks = fam(designed.filter(d => d.kind === 'text')).filter(real);
+  if (inks.length >= 3) add('mixed-inks', 1, `Its words are set in ${inks.length} colours (${inks.map(f => hueName(f.hue)).join(', ')}): they read as unrelated.`);
+  // the call to action's plate: the plate behind the phone number, in a colour nothing else on the ad wears
+  const phone = words.find(w => w.role === 'phone');
+  if (phone) {
+    const behind = (L.plates || []).filter(p => inside(p.box, cx(phone.box), cy(phone.box)) && area(p.box) < A * CONFUSE.boxMax).sort((a, b) => area(a.box) - area(b.box))[0];
+    const c = behind && behind.fills.map(parseColour).find(c => c && c[3] >= .5), q = c && toLab(c[0], c[1], c[2]);
+    if (q && counts(q, CONFUSE.tintC)) {
+      const h = labH(q), others = designed.filter(d => !(d.kind === 'plate' && d.box === behind.box) && same(d.hue, h));
+      if (!others.length && !near(h)) add('lone-cta', 2, `The call to action's plate is ${labC(q) < CONFUSE.plateC ? 'a tint of ' : ''}${hueName(h, q[0])}, a colour nothing else on the ad wears.`);
+    }
+  }
+  // 5. a product the line does not buy
+  for (const f of [...new Set(L.pictures || [])]) if (OLD[f]) add('old-product', 3, `It shows ${OLD[f].replace(/^old model:\s*/i, '').split(/\s*[(;]/)[0].replace(/[.,:]\s*$/, '')} (${f}): a model the line does not buy.`);
+  return out;
+}
+
 /* ------------------------------------------------------------------ a row, composed */
 function compose(r) {
   r.genName = GEN_NAMES[r.gen]; r.engine = ENGINES[r.gen];
@@ -159,12 +314,14 @@ function compose(r) {
   const why = [];
   if (r.error) why.push('did not open: ' + r.error);
   if (r.engine !== 'FullAd') why.push('off the house engine (' + r.engine + ')');
-  if (!r.colour.match) why.push('off the twelve pairs (' + r.colour.why + ')');
+  if (!r.colour.match) why.push('off the house pairs (' + r.colour.why + ')');
   if (r.bannedIds.length) why.push('banned: ' + r.bannedIds.join(', '));
   if (r.bannedNoNameIds.length) why.push('banned with no business name typed: ' + r.bannedNoNameIds.join(', '));
   if (r.missing.length) why.push('lacks: ' + r.missing.map(k => ELEMENT_NAMES[k]).join(', '));
   r.gateWhy = why;
-  r.score = 2 * r.missing.length + 2 * (r.bannedIds.length + r.bannedNoNameIds.length) + (r.colour.match ? 0 : 1) + (r.pre && r.pre.ok === false ? 1 : 0) + (r.engine === 'FullAd' ? 0 : 1);
+  // the audit basket: what the eye sees (confusionOf); its severities sink the row in the ranking
+  r.confusion = confusionOf(r); r.basket = r.confusion.length > 0; r.basketScore = r.confusion.reduce((t, f) => t + f.severity, 0);
+  r.score = 2 * r.missing.length + 2 * (r.bannedIds.length + r.bannedNoNameIds.length) + (r.colour.match ? 0 : 1) + (r.pre && r.pre.ok === false ? 1 : 0) + (r.engine === 'FullAd' ? 0 : 1) + r.basketScore;
   return r;
 }
 
@@ -183,6 +340,7 @@ function summarise(rows) {
       lacking: rs.filter(r => r.missing.length).length, missingBy,
       preflight: pre.length ? { measured: pre.length, fail: pre.filter(r => !r.pre.ok).length } : null,
       productMedianH: sh.length ? +sh[sh.length >> 1].toFixed(3) : null, gateFail: rs.filter(r => r.gateWhy.length).length,
+      basket: rs.filter(r => r.basket).length, basketBy: rs.reduce((m, r) => { for (const c of new Set((r.confusion || []).map(f => f.code))) m[c] = (m[c] || 0) + 1; return m; }, {}),
       foreignTowns: rs.filter(r => r.el && r.el.foreignTowns && r.el.foreignTowns.length).length };
   }
   return by;
@@ -199,7 +357,7 @@ function page(census) {
     h: r.product ? r.product.h : null, a: r.product ? r.product.area : null, productKind: r.el ? r.el.productKind || '' : '',
     banned: r.banned.map(b => ({ id: b.id, label: b.label, match: b.match, where: b.where })), bannedIds: [...new Set([...r.bannedIds, ...r.bannedNoNameIds])],
     bannedNoName: (r.bannedNoName || []).filter(b => r.bannedNoNameIds.includes(b.id)).map(b => ({ id: b.id, match: b.match, where: b.where })),
-    pre: r.pre || null, words: (r.words || []).map(w => [w.where, w.text]), error: r.error || '', score: r.score, gateWhy: r.gateWhy,
+    pre: r.pre || null, words: (r.words || []).map(w => [w.where, w.text]), error: r.error || '', score: r.score, gateWhy: r.gateWhy.concat((r.confusion || []).map(f => f.say)),
   }));
   const data = JSON.stringify({ made: census.made, commit: census.commit, branch: census.branch, visitor: census.visitor, required: REQUIRED, elements: ELEMENTS, elementNames: ELEMENT_NAMES,
     summary: census.summary, rows, phrases: BANNED.phrases.map(p => ({ id: p.id, label: p.label, why: p.why, source: p.source })), sources: census.sources || [], calibration: census.calibration || null,
@@ -273,7 +431,7 @@ details li{overflow-wrap:anywhere}
 </style>
 <main>
 <h1>Ad census</h1>
-<p class="sub">Every ad the studio offers, opened the way a visitor opens it, and what each is made of: its generation and engine, its colours against the twelve proven pairs, its type, which of the full ad's elements it carries, how much of it the product fills, any banned or old wording, and its own pre-flight's verdict.</p>
+<p class="sub">Every ad the studio offers, opened the way a visitor opens it, and what each is made of: its generation and engine, its colours against the house pairs, its type, which of the full ad's elements it carries, how much of it the product fills, any banned or old wording, and its own pre-flight's verdict.</p>
 <p class="meta" id="meta"></p>
 <h2>By generation</h2>
 <div class="panel scroll"><table class="sum" id="sum"></table></div>
@@ -288,7 +446,7 @@ details li{overflow-wrap:anywhere}
   <label>Search <input type="search" id="q" placeholder="name, id or words"></label>
   <label>Lacks <select id="lack"><option value="">anything or nothing</option><option value="*">any required element</option></select></label>
   <label>Words <select id="ban"><option value="">any</option><option value="*">any banned phrase</option></select></label>
-  <label><input type="checkbox" id="offpair"> off the twelve pairs</label>
+  <label><input type="checkbox" id="offpair"> off the house pairs</label>
   <label><input type="checkbox" id="prefail"> pre-flight fails</label>
   <span class="count" id="count"></span>
 </div>
@@ -305,7 +463,7 @@ details li{overflow-wrap:anywhere}
   $('meta').innerHTML = 'Made ' + esc(D.made.slice(0, 16).replace('T', ' ')) + ' UTC on ' + esc(D.branch) + ' at ' + esc(D.commit) + '. The visitor typed ' + esc(V.number) + ', ' + esc(V.site) + ' and the business name ' + esc(V.biz) + ' where the page asks for one, and gave the area ' + esc(V.zip) + ' (' + esc(V.town) + '). Every other word on an ad is the studio\\'s own. Required of every ad: ' + D.required.map(function (k) { return D.elementNames[k]; }).join(', ') + '.';
   var gens = Object.keys(D.summary), S = D.summary;
   var cell = function (n, of, bad) { return '<td class="num">' + (n == null ? '' : '<span class="tag ' + (n === 0 ? 'good' : bad ? 'bad' : '') + '">' + n + (of ? ' of ' + of : '') + '</span>') + '</td>'; };
-  $('sum').innerHTML = '<thead><tr><th>Generation</th><th>Engine</th><th class="num">Ads</th><th class="num">Off the house engine</th><th class="num">Off the twelve pairs</th><th class="num">On a photograph</th><th class="num">Banned words</th><th class="num">Lacks a required element</th><th class="num">Pre-flight fails</th><th class="num">Product, median height</th><th class="num">Fail the gate</th></tr></thead><tbody>' +
+  $('sum').innerHTML = '<thead><tr><th>Generation</th><th>Engine</th><th class="num">Ads</th><th class="num">Off the house engine</th><th class="num">Off the house pairs</th><th class="num">On a photograph</th><th class="num">Banned words</th><th class="num">Lacks a required element</th><th class="num">Pre-flight fails</th><th class="num">Product, median height</th><th class="num">Fail the gate</th></tr></thead><tbody>' +
     gens.map(function (g) { var s = S[g]; return '<tr data-gen="' + g + '"><td><b>' + esc(s.name) + '</b>' + (s.errors ? ' <span class="tag bad">' + s.errors + ' did not open</span>' : '') + '</td><td>' + esc(s.engine) + '</td><td class="num">' + s.ads + '</td>' + cell(s.offEngine, 0, 1) + cell(s.offColours, 0, 1) + cell(s.onPhoto, 0, 0) + cell(s.withBanned, 0, 1) + cell(s.lacking, 0, 1) +
       (s.preflight ? cell(s.preflight.fail, s.preflight.measured, 1) : '<td class="num small">none</td>') + '<td class="num">' + pct(s.productMedianH) + '</td>' + cell(s.gateFail, 0, 1) + '</tr>'; }).join('') + '</tbody>';
   var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -459,6 +617,19 @@ function SHARED(V) {
       if (best >= 0) { const px = [...bins[(best + 23) % 24], ...bins[best], ...bins[(best + 1) % 24]]; share = px.length / Math.max(1, body.length); if (share >= .003) accent = fromLab(medLab(px)); }
       return { ground: fromLab(g), groundSpread: +spread.toFixed(1), groundKind: photo ? 'photo' : spread > 12 ? 'textured' : 'drawn', accent, accentShare: +share.toFixed(4) };
     },
+    /** The colours a picture shows, by hue family (twelve of 30 degrees): each family's share of the
+     *  pixels outside the product pictures that carry real colour (OKLCH chroma .08 and up). The
+     *  census's confusion reading (2026-11-18) weighs them against the ad's pair. */
+    families(data, W, H, products = []) {
+      const step = Math.max(1, Math.round(Math.min(W, H) / 220));
+      const inProduct = (x, y) => products.some(b => x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3]);
+      const bins = new Array(12).fill(0); let n = 0;
+      for (let y = 0; y < H; y += step) for (let x = 0; x < W; x += step) {
+        if (inProduct(x, y)) continue; n++;
+        const i = (y * W + x) * 4, p = toLab(data[i], data[i + 1], data[i + 2]); if (C(p) >= .08) bins[Math.floor(Hue(p) / 30) % 12]++;
+      }
+      return bins.map((c, k) => ({ h: k * 30 + 15, share: +(c / Math.max(1, n)).toFixed(4) })).filter(f => f.share >= .004);
+    },
     /** The product pictures' share: the height they span, and the area their boxes cover (their
      *  union, on a grid of 4px). */
     share(boxes, W, H) {
@@ -504,7 +675,8 @@ function STUDIO() {
     const on = b => b[2] > 1 && b[3] > 1 && b[0] < W - 1 && b[1] < H - 1 && (b[2] - b[0]) * (b[3] - b[1]) > 9;
     const words = [];
     const add = (o, text, font, size, owner) => { if (!/[A-Za-z0-9$#]/.test(text || '')) return; const b = box(owner || o); if (!on(b)) return;
-      words.push({ where: (o.name || (owner && owner.name) || o.pgRole || 'line').replace(/\s*\d+$/, ''), role: o.pgRole || (owner && owner.pgRole) || '', name: String(o.name || (owner && owner.name) || '').replace(/\s*\d+$/, ''), text: String(text).replace(/\s+/g, ' ').trim(), font: fam(font), px: Math.round((size || 0) * k), b }); };
+      words.push({ where: (o.name || (owner && owner.name) || o.pgRole || 'line').replace(/\s*\d+$/, ''), role: o.pgRole || (owner && owner.pgRole) || '', name: String(o.name || (owner && owner.name) || '').replace(/\s*\d+$/, ''), text: String(text).replace(/\s+/g, ' ').trim(), font: fam(font), px: Math.round((size || 0) * k), b,
+        ink: typeof o.fill === 'string' ? o.fill : (o.pgCurved && o.pgCurved.style && typeof o.pgCurved.style.fill === 'string' ? o.pgCurved.style.fill : ''), align: o.textAlign || (owner && owner.textAlign) || '' }); };
     for (const o of sc.getObjects()) {
       if (!vis(o)) continue;
       if (o.type === 'group' && o.pgCurved && typeof o.pgCurved.text === 'string') add(o, o.pgCurved.text, (o.pgCurved.style || {}).fontFamily, ((o.pgCurved.style || {}).fontSize || o.height || 0) * (o.scaleY || 1));
@@ -528,7 +700,24 @@ function STUDIO() {
     const display = heads.length ? heads[0].font : '', support = (Object.entries(count).sort((a, b) => b[1] - a[1])[0] || [''])[0], number = (role('phone')[0] || {}).font || '';
     const pair = (typeof FONT_PAIRS !== 'undefined' ? FONT_PAIRS : []).find(p => p.display[0] === display && p.support[0] === support);
     const type = { pair: pair ? pair.name + ' pair' : '', display, support, number, headPx: heads.length ? heads[0].px : 0 };
-    return { words: words.map(w => ({ where: w.where, text: w.text })), el, type, products, photo, W, H };
+    /* the layout, as the census's confusion reading wants it (2026-11-18: the owner, "can we audit for the
+       worst ones and anything similar to this in confusion?"): each line's box, size, ink and alignment;
+       every plate, band or panel with a fill (a rect, or a group that is a rect and its words), and the
+       cut-outs the card shows */
+    const fills = f => typeof f === 'string' ? [f] : f && Array.isArray(f.colorStops) ? f.colorStops.map(c => c.color).filter(Boolean) : [];
+    const plates = [];
+    for (const o of sc.getObjects()) {
+      if (!vis(o) || o.pgBgRect) continue;
+      if (o.type === 'rect') { const b = box(o); if (on(b) && fills(o.fill).length) plates.push({ box: b, fills: fills(o.fill), opacity: o.opacity == null ? 1 : o.opacity, name: String(o.name || '') }); }
+      else if (o.type === 'group') {
+        const r0 = (o._objects || []).find(c => c.type === 'rect' && (c.width || 0) * (c.scaleX || 1) >= (o.width || 0) * .8 && fills(c.fill).length);
+        if (r0) { const b = box(o); if (on(b)) plates.push({ box: b, fills: fills(r0.fill), opacity: (o.opacity == null ? 1 : o.opacity) * (r0.opacity == null ? 1 : r0.opacity), name: String(o.name || r0.name || '') }); }
+      }
+    }
+    const srcOf = o => { try { return (o.getSrc ? o.getSrc() : '') || (o._element && o._element.src) || ''; } catch (e) { return ''; } };
+    const pictures = sc.getObjects().filter(o => vis(o) && o.type === 'image' && o.pgRole === 'photo' && !o.pgBgRect && !o.pgPattern).map(o => (/assets\/cutouts\/([^/?#]+)\.webp/.exec(srcOf(o)) || [])[1]).filter(Boolean);
+    const geo = { W, H, words: words.map(w => ({ role: w.role, text: w.text.slice(0, 60), box: w.b.map(v => Math.round(v)), px: w.px, ink: w.ink, align: w.align })), plates: plates.map(p => ({ ...p, box: p.box.map(v => Math.round(v)) })), pictures };
+    return { words: words.map(w => ({ where: w.where, text: w.text })), el, type, products, photo, W, H, geo };
   };
   /** One template, opened the way a visitor opens it, drawn as its download, read and measured. */
   cz.scene = async (id, showcase) => {
@@ -547,7 +736,9 @@ function STUDIO() {
     sc.renderAll();
     const read = cz.readScene(sc, t), cnv = sc.lowerCanvasEl, W = cnv.width, H = cnv.height;
     const data = cnv.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, W, H).data;
-    const out = { words: read.words, el: read.el, type: read.type, colours: cz.colours(data, W, H, read.products, read.photo), product: cz.share(read.products, W, H), thumb: cz.thumb(cnv),
+    const sx = W / read.W, sy = H / read.H, scale = b => [b[0] * sx, b[1] * sy, b[2] * sx, b[3] * sy];
+    const layout = { ...read.geo, W, H, words: read.geo.words.map(w => ({ ...w, box: scale(w.box) })), plates: read.geo.plates.map(p => ({ ...p, box: scale(p.box) })), product: read.products.map(scale), families: cz.families(data, W, H, read.products.map(scale)), photo: read.photo };
+    const out = { words: read.words, el: read.el, type: read.type, colours: cz.colours(data, W, H, read.products, read.photo), product: cz.share(read.products, W, H), thumb: cz.thumb(cnv), layout,
       pre: r && !r.error ? { kind: 'pgCheck', ok: !!r.ok, fixes: r.fails.length, notes: r.warns.length, says: r.fails.map(f => { let t = f.code; try { t = pgExplain(f); } catch (e) { } return t + (f.value != null ? ' (' + f.value + (f.need != null ? ', needs ' + f.need : '') + ')' : ''); }).concat(r.warns.map(f => 'warning: ' + f.code + (f.line ? ' (' + f.line + (f.value != null ? ' ' + f.value : '') + ')' : ''))), picture: r.picture || null } : { kind: 'pgCheck', error: r && r.error } };
     sc.dispose();
     return out;
@@ -588,7 +779,7 @@ function STUDIO() {
   cz.recipeList = async () => (await FullAdStudio.recipes()).map(r => ({ id: r.id, label: r.label, cat: r.cat, subject: r.subject, from: r.from, gen: r.gen }));
   cz.recipe = async rid => {
     const r = await FullAdStudio.useRecipe(rid); if (!r) return { error: 'no recipe ' + rid };
-    const FA = FullAdStudio.state; FA.biz = V.biz; FA.seed = 1;
+    const FA = FullAdStudio.state; FA.biz = V.biz;   // on its own seed (useRecipe: the rebuild, 2026-11-18)
     $('ez-phone').value = V.number; $('ez-website').value = V.site;
     const out = await cz.fullRead();
     FA.recipe = {};
@@ -636,7 +827,12 @@ function STUDIO() {
     const type = { pair: vName, display: face(st.font), support: face(st.full_pair && CAT.TYPE_VOICES[st.type_pair] ? CAT.TYPE_VOICES[st.type_pair].label : 'franklin'), number: face(st.number_font === 'same' ? st.font : st.number_font) };
     const data = frame.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, W, H).data;
     const pairName = (M.COLOUR_OF[st.full_colour] || {}).name || st.full_colour;
-    return { words, wordsNoName, el, type, colours: cz.colours(data, W, H, boxes, photo), declared: pairName, declaredKey: st.full_colour, product: cz.share(boxes, W, H), thumb: cz.thumb(frame),
+    // the layout (the confusion reading): the full ad sets its words on one axis, centred (rule 137)
+    const pics = (ad.phones || []).map(q => String((q.meta && q.meta.id) || q.id || '').replace(/^sub-/, '').replace(/^recipe:[^/]*\//, '')).filter(Boolean);
+    const layout = { W, H, engine: true, head: R.headline ? { box: R.headline, align: 'center' } : null, product: boxes,
+      words: Object.entries(R).filter(([k]) => k !== 'product').map(([k, b]) => ({ role: k === 'headline' ? 'headline' : k, text: '', box: b, px: 0, ink: '', align: 'center' })),
+      plates: [], pictures: pics.length ? pics : (st.phones || []).map(id => String(id).replace(/^sub-/, '')).filter(id => id !== 'none'), families: cz.families(data, W, H, boxes), photo };
+    return { words, wordsNoName, el, type, colours: cz.colours(data, W, H, boxes, photo), declared: pairName, declaredKey: st.full_colour, product: cz.share(boxes, W, H), thumb: cz.thumb(frame), layout,
       pre: { kind: 'fullPreflight', ok: !!pre.ok, fixes: pre.findings.filter(f => f.level === 'fix').length, notes: pre.findings.filter(f => f.level === 'note').length, says: pre.findings.map(f => (f.level === 'fix' ? 'fix: ' : 'note: ') + f.say) } };
   };
   /** The words the generations write when the visitor writes none: the lists themselves. */
@@ -708,8 +904,11 @@ function MOTION() {
         pre = { kind: 'lookPreflight', ok: !!rep.ok, fixes: rep.findings.filter(f => f.level === 'fix').length, notes: rep.findings.filter(f => f.level === 'note').length,
           says: rep.findings.map(f => (f.level === 'fix' ? 'fix: ' : 'note: ') + f.say), checks: rep.checks.map(c => [c.id, !!c.ok, String(c.value)]) };
       } catch (e) { pre = { kind: 'lookPreflight', error: String(e && e.message || e).slice(0, 160) }; }
+      const align = /left/.test(st.text_pos || '') ? 'left' : /right/.test(st.text_pos || '') ? 'right' : 'center';
+      const layout = { W: big.W, H: big.H, engine: true, head: big.pos && big.pos.outer ? { box: big.pos.outer.slice(0, 4), align } : null, product: boxes, words: [], plates: [],
+        pictures: (st.phones || []).map(String), families: cz.families(data, big.W, big.H, boxes), photo: false };
       out.push({ id: 'any-' + st.seed, name: (name || 'look') + ' (seed ' + st.seed + ')', shelf: (grp ? grp + ': ' : '') + shelf, cat: 'phones', words, el, type,
-        colours: cz.colours(data, big.W, big.H, boxes, false), declared: st.palette + (st.vibe && st.vibe !== 'none' ? ' · ' + st.vibe : '') + ' · ' + st.background, product: cz.share(boxes, big.W, big.H), thumb: cz.thumb(cnv), pre });
+        colours: cz.colours(data, big.W, big.H, boxes, false), declared: st.palette + (st.vibe && st.vibe !== 'none' ? ' · ' + st.vibe : '') + ' · ' + st.background, product: cz.share(boxes, big.W, big.H), thumb: cz.thumb(cnv), pre, layout });
       await new Promise(r => setTimeout(r, 0));
     }
     return { looks: out, drawn: shown.length };
@@ -755,7 +954,9 @@ function FEED() {
     const face = f => (CAT.FONTS[f] || [f])[0], voice = CAT.TYPE_VOICES[st.type_pair];
     const type = { pair: voice ? voice.name + ' pair' : '', display: face(st.font), support: voice ? face(voice.label) : '', number: face(st.number_font === 'same' ? st.font : st.number_font) };
     const data = cnv.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, cnv.width, cnv.height).data;
-    return { words, el, type, colours: cz.colours(data, cnv.width, cnv.height, boxes, false), declared: st.palette + ' · ' + st.background, product: cz.share(boxes, cnv.width, cnv.height), thumb: cz.thumb(cnv),
+    const layout = { W: cnv.width, H: cnv.height, engine: true, head: ad.pos && ad.pos.outer ? { box: ad.pos.outer.slice(0, 4).map(v => v * k), align: 'center' } : null, product: boxes, words: [], plates: [],
+      pictures: (st.phones || []).map(String), families: cz.families(data, cnv.width, cnv.height, boxes), photo: false };
+    return { words, el, type, colours: cz.colours(data, cnv.width, cnv.height, boxes, false), declared: st.palette + ' · ' + st.background, product: cz.share(boxes, cnv.width, cnv.height), thumb: cz.thumb(cnv), layout,
       pre: { kind: 'FeedAd blockers and audit', ok: !why.length && row.ok !== false, fixes: why.length, notes: 0, says: why } };
   };
 }
@@ -915,7 +1116,7 @@ function finish(c) {
 
 function report(c) {
   const S = c.summary;
-  console.log('\nby generation (ads; off the house engine; off the twelve pairs; with banned words; lacking a required element; pre-flight fails):');
+  console.log('\nby generation (ads; off the house engine; off the house pairs; with banned words; lacking a required element; pre-flight fails):');
   for (const [g, s] of Object.entries(S)) console.log(`  ${s.name.padEnd(20)} ${String(s.ads).padStart(4)}   engine ${String(s.offEngine).padStart(4)}   pairs ${String(s.offColours).padStart(4)}   banned ${String(s.withBanned).padStart(4)}   lacking ${String(s.lacking).padStart(4)}   pre-flight ${s.preflight ? s.preflight.fail + ' of ' + s.preflight.measured : 'none'}${s.errors ? '   did not open ' + s.errors : ''}`);
   for (const [g, s] of Object.entries(S)) {
     const miss = ELEMENTS.filter(k => s.missingBy[k]).map(k => `${ELEMENT_NAMES[k]} ${s.missingBy[k]}`).join(', ');
@@ -923,10 +1124,12 @@ function report(c) {
     console.log(`  ${s.name}: lacks ${miss || 'nothing'}${ban ? '; banned ' + ban : ''}${s.foreignTowns ? '; prints Long Beach towns to a San Diego visitor ' + s.foreignTowns : ''}`);
   }
   for (const s of Object.values(S)) if (s.withBannedNoName != null) console.log(`  ${s.name}, for a visitor who types no business name: ${s.withBannedNoName} of ${s.ads} carry a banned phrase`);
+  console.log('audit basket (what the eye sees: confusionOf):');
+  for (const s of Object.values(S)) console.log(`  ${s.name.padEnd(20)} ${String(s.basket).padStart(4)} of ${s.ads}${Object.keys(s.basketBy).length ? ': ' + Object.entries(s.basketBy).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(', ') : ''}`);
   if (c.calibration) console.log(`calibration: the ${c.calibration.full} full ads measure within ${c.calibration.fullGround} (ground) and ${c.calibration.fullAccent} (accent) of their own pair; ${c.calibration.fullNearestOwn} of them have it as the nearest`);
   for (const s of c.sources) console.log(`source: ${s.name}: ${s.found.length ? s.found.map(f => f.label + ' (' + f.text + ')').slice(0, 8).join('; ') : 'nothing banned'}`);
   console.log('\nworst offenders:');
-  c.rows.slice().sort((a, b) => b.score - a.score).slice(0, 15).forEach(r => console.log(`  ${String(r.score).padStart(2)} ${r.genName.padEnd(20)} ${r.id}: ${r.gateWhy.join('; ')}`));
+  c.rows.slice().sort((a, b) => b.score - a.score).slice(0, 15).forEach(r => console.log(`  ${String(r.score).padStart(2)} ${r.genName.padEnd(20)} ${r.id}: ${r.gateWhy.concat((r.confusion || []).map(f => f.say)).join('; ')}`));
 }
 
 const thumbsOf = f => f.replace(/\.json$/, '') + '.thumbs.json';
@@ -957,7 +1160,7 @@ console.log(`\nwrote ${JSON_OUT} and ${HTML_OUT}${C.minutes ? ` (${C.minutes} mi
 if (GATE) {
   const bad = C.rows.filter(r => r.gateWhy.length);
   console.log(`\ngate: ${bad.length} of ${C.rows.length} offered ads fail (${Object.values(C.summary).map(s => s.name + ' ' + s.gateFail + ' of ' + s.ads).join(', ')})`);
-  for (const s of Object.values(C.summary)) console.log(`  ${s.name}: off the house engine ${s.offEngine}, off the twelve pairs ${s.offColours}, a banned phrase ${s.withBanned}, a required element missing ${s.lacking}${s.errors ? ', did not open ' + s.errors : ''}`);
+  for (const s of Object.values(C.summary)) console.log(`  ${s.name}: off the house engine ${s.offEngine}, off the house pairs ${s.offColours}, a banned phrase ${s.withBanned}, a required element missing ${s.lacking}${s.errors ? ', did not open ' + s.errors : ''}`);
   process.exit(bad.length ? 1 : 0);
 }
 process.exit(0);

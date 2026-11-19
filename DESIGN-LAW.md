@@ -5861,6 +5861,14 @@ template and back, the video and its photo, 390 wide, and every page sent
 under the site's own Content-Security-Policy, as production sends it),
 `full_type_check.mjs`, and `full_ad_check.mjs` as before.
 
+**2026-11-18, measured as written.** `full_type_check` named its pairs `navy-gold` and
+`silver-blue`, but the keys are underscored, so two dark pairs stood in for "a dark and a light
+pair". Once rule 154 made the headline treatment a seed's draw, each face was also judged under
+whatever treatment its sixteen seeds drew, so the list turned with the seeds. It now measures
+each face on Navy & Gold and Silver & Blue, under the house's double outline and pill. Measured
+so, Flyer (Stick No Bills) set its headline at 107px on the light pair, a pixel under the feed's
+floor, and left the list: 28 pairs.
+
 Not done here: OPEN-ITEMS §BG.
 
 ## 142. The mark: light, across the whole ad, on every preview its download would carry
@@ -6002,6 +6010,49 @@ Any look's 35%; 186 of 362 library cards and 67 of 77 designer layouts show
 no product picture; Any look has no pre-flight and 214 of its 246
 looks no call to action; TEXT A PIC is still on 12 phone cards; and the video
 maker loses a number typed within half a second of the area.
+
+**2026-11-18, what the eye sees: the audit basket.** The owner pointed at three library cards the census
+had ranked mid-table (#279 to #287 of 585, score 6):
+- a dark band across the middle holding only the models line ("a very strange center box that doesn't
+  have enough information");
+- an old MacBook the line does not buy;
+- a laptop off the centre of centred words, with "the colors ... a little bit random with the pink CTA and
+  the white informational text".
+
+Then: "Can you detect this? Do you see what I see without hearing my opinion ... can we audit for the
+worst ones and anything similar to this in confusion? We can put them in an audit basket".
+
+The census read words, elements, contrast and pairs, not the composition. It now also reads each ad's
+layout: its lines' boxes, sizes and inks; its plates and their fills; its product's boxes and cut-outs;
+and its picture's colours by hue family. From these it makes five findings (`confusionOf`, thresholds
+in `CONFUSE`):
+- **The product off its axis.** Its centre is over 10% of the width from the axis its centred words
+  are set on (over 20% is severe). A two-column layout is meant and is left alone.
+- **A box with little in it.** A plate, band or panel over 6% of the frame whose words and pictures
+  cover under 15% of it, or that holds one line under 52px and at most a small picture.
+- **A colour outside its pair.** A designed colour (a plate of 2% of the frame, or a line's ink) of a
+  family the declared pair does not have. A family is within 30 degrees or of one name, and a deep
+  colour counts only at chroma .08. On a ground the engine drew, a hue family over 2% of the picture
+  counts too.
+- **Words in unrelated colours.** Three ink families, or the call to action's plate in a colour
+  nothing else wears (a tint counts).
+- **A model the line does not buy.** A cut-out flagged "old model" in `assets/cutout-flags.json`.
+
+A row with any finding is in the audit basket. Its severities add to its score, so it sinks in the
+review page's ranking. The page lists the basket worst first, and the owner keeps an ad (Approve) or
+sends it back for a rebuild or a fix (Deny with a note, or Change).
+
+All three of the owner's cards are caught by the finding they named. Measured on every offered ad:
+- **By generation:** Full ad 0 of 246, Library recipe 0 of 738, Designer layout 2 of 77, Offer family 1 of 299, Library card 86 of 362, Any look 0 of 246, FeedAd (iPhones LA) 0 of 51.
+- **By finding:** empty-box 55, lone-cta 22, off-pair-colour 14, off-axis 4, old-product 2.
+- **Precision:** of the worst 40, looked at by eye, 33 are clearly real and 7 borderline (a strap
+  ribbon with one rate line, a pale tinted call-to-action pill, a teal between blue and green). None
+  is plainly wrong.
+- **Where:** every one is an older static card. The full ads and the rebuilt recipes read clean.
+  The old-product finding read the "old model" flags from the working copy that adds them
+  (`CENSUS_FLAGS`).
+
+`--rescan` re-reads them in seconds. `CENSUS_FLAGS` reads the flags from another tree's file.
 
 Not done here: OPEN-ITEMS §BI.
 
@@ -6163,4 +6214,238 @@ and `/static/app.css`), applied to the new name, so the two read as one family.
   with BUYBACK.AD (only their header, title and home link changed). Renaming
   the party to an agreement is the owner's legal call, with a new terms
   version (`TERMS_VERSION`).
+
+## 154. A seed draws a different ad, not the same one 5% off: every colour theme, the look first, a face, a ground of five kinds, a fill
+
+(The census branch numbered its four rules 146 to 149; folded into pull request 14 on 2026-11-19 they
+became 154 to 157, since 146 is pull request 15's and main had taken 152 and 153 after finding
+138 to 151 in use. Its own citations followed.)
+
+Added 2026-11-18. It widens rules 123, 137 and 139. The owner, of the full ads: "still not
+enough colors, gradients, pattern fill, or other ways instead of colors", and "a lot of these
+are the same thing with 5% variety or difference". A sheet of 48 seeded full ads
+(`scripts/full_look_sheet.mjs`) had 41 on a dark ground, 12 pairs and one face. 11 of the 12
+proven pairs are a navy, black or deep ground under a warm accent. Of the 1,128 pairs of ads on
+it, 249 matched on look, kind of ground and face. After this rule the same sheet draws 32 pairs,
+21 faces and 20 grounds; looks are 16 light, 13 vivid, 11 dark and 8 photos read as grey; 9
+pairs of ads match. Both sheets are in `.render/` (`--tag before`, `--tag after`).
+
+- **Every colour theme is a pair.** The full ad draws the twelve proven pairs and also the two-
+  and three-colour themes, the new light pairs and the new neon pairs: 54 in all (15 light, 11
+  vivid, 28 dark). They live in `COLOR_THEMES` (app.js), so Easy Mode offers them too (rule 123:
+  one vocabulary). Each is solved in OKLCH and passes `theme_law.mjs` and
+  `build_house_colours.mjs`. A vivid ground cannot carry a third colour that reads 4.5:1 on it
+  and still stands 1.7:1 off white words, so the vivid grounds are two-colour themes (White on
+  Pink, Black on Lime). The words' floor on the ground is 4.5:1, the floor rule 138's pre-flight
+  holds on the delivered picture. 7:1 only a navy or black ground can give. Each pair names its
+  `look` and its `hot` colour, the accent, which the engine's `hotColour()` takes as given. Its
+  stock yellow or pink had been a third colour on every light pair.
+- **The look first, then the pair** (`drawPair`). One draw of the seed picks light, vivid or
+  dark: a third each, or in proportion where a restricted line holds fewer than four pairs of a
+  look (gold has one vivid pair). The same draw then picks the pair within the look. The line's
+  step turns the draw before either is read, so the first ads of the lines spread over the looks
+  too. Over 300 seeds: light 98–100, vivid 100–108, dark 94–104, no pair over 5.3%.
+- **A face by the seed.** A seed nobody styled draws one of the 29 vetted pairs (`FULL_VOICES`).
+  It keeps the house face a quarter of the time (`HOUSE_FACE`), on a stream of its own. A face
+  picked by hand is kept. "House" in both makers keeps Chivo; "Any" lets New look pick. A number
+  whose face sets it under its floor takes the condensed house figures (oswald). Chevrons shrink
+  to fit, down to 70%, beside a tall number.
+- **Five kinds of ground** (`spec/full-grounds.json`): photo .3, gradient .22, pattern .22,
+  house .14, scene .12.
+  - Gradients: eight of the pair's own (`pair_linear`, `pair_radial`, `pair_mesh`, `pair_conic`,
+    `pair_sunset`, `pair_split`, `pair_corner`, `pair_arch`), along one OKLCH path. A warm accent
+    that would be under its muddy floor at a depth light words read on (gold at .42 is olive),
+    and a two-colour pair's white or black, make the far end a tone of the ground instead.
+  - Patterns and textures (`decor.js` `FULL_PATTERNS`): `pat_halftone`, `pat_stripes`,
+    `pat_checks`, `pat_grid`, `pat_waves`, `pat_zigzag`, `pat_rays`, `pat_rings`, `pat_topo`,
+    `pat_polka`, `pat_gingham`, `pat_memphis`, `pat_grain`, `pat_paper`, `pat_riso`. Every mark
+    is one tone of the ground's own colour, a small step in OKLCH lightness away from the words
+    (`patternTone`). The marks thin to a third behind the product, and nothing moves in the video.
+  - The drawn scenes stand only under light words. On a light pair their deep tones go grey, and
+    the shade behind the words reached the frame's edge.
+  - On the full ad's light pairs, the house grounds deepen in a tone of the ground, never black.
+- **Fills that are not a colour** (`spec/full-styles.json`).
+  - The sticker draws a `sticker_fill`: `solid`, `gradient`, `stripes`, `dots`, `foil` or
+    `outline`.
+  - The number's plate and the claim's badge draw a `plate_fill`: `solid`, `gradient`,
+    `stripes`, `dots`, `foil`, `glass` or `outline`. `glass` and `outline` go only on the house's
+    own painted grounds. They carry their words in the lines' own ink and never glow.
+  - Stripes, dots and foil are the fill's hue moved away from its ink (`decor.js`
+    `fillTexture`), so none reads worse than the flat fill.
+  - The headline draws from 17 treatments. Nine are new: `foil`, `glass`, `block3d`,
+    `long_shadow`, `pop_stack`, `inline`, `cutout` (plain grounds only), `stamped` and `box`.
+    A claim over a plated headline keeps clear of the plate.
+- **Checked** by:
+  - `full_colour_check` (the look balance and the line-turned first ads);
+  - `full_style_check` (every fill, treatment, gradient and pattern in every pair and size, on
+    photographs and on three textured grounds, through the pre-flight; every textured fill at
+    least the flat fill's contrast);
+  - `full_ad_check` (all five kinds of ground drawn);
+  - `full_ad_studio_check` (every theme offered);
+  - the census (a two-colour pair, and a light pair whose accent is a tone of its own ground,
+    judged by the ground it declares).
+
+Not done here: OPEN-ITEMS §BJ 7.
+
+## 155. A recipe takes after its card, and is never a copy of it
+
+Added 2026-11-18. The owner, of the library cards and the offer family drawn as recipes (rule
+145): "Library card ones are not great.. I would take them as inspiration but rebuild them all",
+"Offer family needs a rebuild also", "they're alright at best and seem to follow their own set of
+rules ? things like the heros all look so simialr".
+
+Measured on the recipes as they were drawn:
+- Every recipe opened on seed 1, so all the cards of a line drew one sticker, one treatment, one
+  number and one arrangement.
+- Every recipe was locked to its card's pair, the nearest of the twelve dark ones. An offer card in
+  sun (yellow) drew Black & Red.
+- Every recipe was locked to its card's photograph and its card's picture, so a line's heroes
+  repeated.
+
+The rule:
+- **A seed of its own.** A recipe's look is the draw of its seed (its id, hashed: `seed` in
+  `motion/recipes.json`). Easy Mode, the video maker, the hero wall, the hero stills and the census
+  all open it there. New look moves on from it.
+- **What it takes after is a lean, never a lock** (`spec/recipe-looks.json`, written into each
+  recipe's `hint` by `scripts/build_recipes.mjs`).
+  - Its family's idea: a library card's or a layout's family (glassCard, ticketStub, neonNight,
+    checklistHero ...), or an offer card's layout (band, split, float ...). It leans to the
+    faces, grounds (a kind or a key), treatments, stickers, numbers, fills and arrangements that
+    family stood for.
+  - Its colourway (sun, blush, cobalt, crimson ...), as a tone (light, vivid, dark) and a hue. A
+    library card's own theme was one of the twelve dark pairs the owner called generic, so its
+    colour leans only where its family has one.
+  - Its card's face, among its family's faces; never an offer card's, which its family set by
+    line.
+  - `fullStyle` draws from the hint by the table's share (`lean`), on a stream of its own
+    (`motion/recipe-lean.js`). Otherwise it draws as for any ad, so two cards of one family are two
+    different ads. An ad with no hint draws what it drew before.
+  - A pair, a face or a ground picked by hand is kept as picked.
+- **Its card's photograph is a ground it may stand on**, and the photograph still counts (the
+  owner: "retire but bg counts"). It is drawn only where it is measured and not dim
+  (`scripts/build_full_grounds.mjs --measure` measures the cards' photographs as it measures the
+  pools), fits the product the seed drew, and keeps the card to two families. A card's overlay
+  over its photograph (`overlay:dots/dark|...`) was never a file: the photograph is kept.
+- **The product is the line's, drawn by the seed**, as on any full ad of the line: the in-demand
+  models first, so the heroes stop repeating. A card keeps its own picture only where its words
+  name the product: a make, a model, a van, or one kind of goods inside a broader line.
+  - A controller card on Consoles shows a controller.
+  - A Switch card on Handhelds shows a Switch.
+  - PS5 OR XBOX? shows a PS5 or an Xbox.
+  - These are taken from the line's pool in turn, or from the card's own picture.
+  - Where the line has no picture of that kind (VR headsets, gaming laptops), the ad stands on its
+    words alone (`words_only`), never beside another product.
+- **Checked by:**
+  - `build_recipes --check`: every name the table leans to is one the engine draws, and every
+    colourway a layout or an offer card names is in the table.
+  - `build_full_grounds --check`: every card's photograph is measured.
+  - The census: every recipe through the pre-flight on its own seed.
+  - `scripts/full_look_sheet.mjs --recipes`: a sheet of the rebuilt recipes beside the same
+    recipes before.
+
+**2026-11-18, the old cards retired.** Asked whether to retire the old static library cards and
+offer cards now that each has a rebuilt version, the owner said "Retire them".
+
+- **What was retired:** 366 library cards were held (`assets/showcase/holds.json`) and 299 offer
+  templates retired (`template-retired.js`), each with "rebuilt as r-..." for its reason, by
+  `scripts/retire_older_ads.mjs --rebuilt`. The 77 designer layouts stay. Nothing is deleted:
+  deleting a row brings a card back.
+- **What stands in their place:** the rebuilt ad. `app.js` `scLoadShelf` gives the landing's
+  library grid, its wall, the editor's library and a card's `?card=` link the live cards plus the
+  rebuilt ad of every retired one. Each rebuilt ad shows its still
+  (`scripts/build_recipe_stills.mjs`, `assets/recipe-stills/`, 665) and opens in Easy Mode's full ad
+  on its own seed. `scLoadIndex` stays the library cards alone, as the scripts read it.
+- **The hero wall:** its picks that were library cards point at their rebuilt recipes.
+- **The recipes do not move when their cards retire:** `build_recipes.mjs` reads each card from
+  its index, and the templates with `?noretire=1`, keeping those retired because they were rebuilt
+  and leaving out any other retirement.
+- **The partner library serves the rebuilt ads** (rule 111; the owner, of rendering the rebuilt ads
+  "so the partner library feed serves them": "Do it here").
+  - `scripts/render_rebuilt_ads.mjs` renders the rebuilt ad of every library card at 1080 through
+    Easy Mode's full ad, as iPhones LA's copy. The copy carries the number, Long Beach and the
+    website line. A phone's ad asks for the IMEI, a Mac's or a watch's for the serial; other goods
+    keep their own words.
+  - The renders go to `assets/rebuilt-ads/`, with EXIF dates and an index whose stamp
+    (`_rebuilt.mjs`) marks one stale when its recipe moves.
+  - `netlify/lib/library.mjs` offers each as `r-<card id>`, with `rebuilt_from`.
+  - The retired cards' own renders were pruned by `render_library_ads.mjs`, as it prunes any card
+    no longer offered.
+  - Checked by `library_api_check` (every rebuilt render present, fresh and dated; the feed the
+    live cards plus the rebuilt ads) and `library_handoff_check` (a partner's pick is the render,
+    byte for byte).
+- **A models line is cut where its list breaks**, never mid-word ("ROLEX • CAR" was CARTIER cut at
+  sixty letters).
+
+Not done here: OPEN-ITEMS §BJ 9.
+
+## 156. A face-up iPhone wears an iOS lock screen, laid out as iOS lays one out
+
+Added 2026-11-18. The owner: "audit the iPhone backgrounds to look clean good... and actual iOS";
+then "We just need to readjust the status bar size and positioning slightly", and "What are the
+other iOS lock screen layouts? Don't somehow have widgets what about some that are closer to the
+iOS 26 or 27"; of the clock that is white on a deep wallpaper and dark on a light one, "I like that
+you're doing the black-and-white so we have some variety".
+
+The audit found a flat fill crossed by three see-through rings under a dark band (on yellow, the
+band went olive, rule 103), a small, low clock, no status bar, and flat discs with boxes for glyphs.
+
+The rule (`fullad.js` `lockScreen`, drawn, never loaded, so a photo on the first frame has it):
+
+- **The status bar** is drawn in iOS's own measures (a point of its 393-point screen): signal,
+  Wi-Fi and battery, 72 points of them, ending 34 points in from the edge, level with the island's
+  middle. Beside a notch they are a touch smaller and lower, in the space before the glass's round
+  corner.
+- **The date over a large clock**, in the system face (SF on an Apple device, Helvetica Neue
+  elsewhere). The flashlight and the camera sit in glass circles at the foot, over the home bar.
+- **One layout for an ad's phones** (`LOCK_LAYOUTS`):
+  - classic;
+  - widgets, a row of four under the clock (iOS 16 on);
+  - tall, iOS 26's Glass clock stretched to fill the top, its widgets at the foot;
+  - compact, iOS 27's small clock in the top row beside two widgets.
+
+  Widgets (weather, a battery ring, an alarm, the day) are tinted one colour, as iOS tints them.
+- **One wallpaper for an ad's phones** (`LOCK_WALLS`: a glow, a gradient, waves, ripples), in tones
+  of the screen's own colour only (`screenBase`: one of the card's two families; two families
+  blended in sRGB would draw a third, rule 139). A warm hue only lightens (rule 103). A white,
+  grey or black screen takes a pale tint of the ground's hue, never a warm one, which goes olive on
+  grey.
+- **The ink is the wallpaper's**: white on all but a near-white wallpaper, and a deep tone of it
+  there.
+- **Never an image of Apple's**: the wallpapers are Apple's artwork, and its face and symbols are
+  licensed for mock-ups of software on its platforms. A screenshot's layers are not pulled into an
+  ad.
+
+## 157. The call to action wears one of several marks, each moving its own way
+
+Added 2026-11-18. The owner: "Although I said, have one assimilated design language, I didn't mean
+one style ... every single one has the same arrows pointing to the CTA and I would love to have
+more variety ... some without arrows some with more direct pointing arrows maybe some with a phone
+or text icon that doesn't need to be the only animated element".
+
+- **The marks**, a seed's draw (`spec/full-styles.json` `cta_mark`, the last draw of the style
+  stream, so a seed's other styles do not move):
+  - the chevrons (26%);
+  - none (14%);
+  - one direct arrow (16%), or two pointing in (12%);
+  - a hand-drawn curved arrow (10%);
+  - a phone (12%), a message bubble (6%), or both (4%).
+- **None only beside a sticker**: an ad keeps one thing that catches the eye, and draws one arrow
+  where it has no sticker.
+- **Sizing**: each mark takes the room either side of the number's pill it needs, at .7 of its size
+  at least. A mark that does not fit gives way to the chevrons, then to none.
+- **Colour**: every mark is the pair's accent (`hot`, rule 139), its glyph in the ink that reads on
+  it.
+- **In the video**:
+  - the chevrons' glow runs inward;
+  - the arrows push toward the number on a beat;
+  - the curved arrow draws itself in;
+  - the phone rings (a shake and a ripple);
+  - the bubble bounces while its dots type.
+
+  On the photo every mark is at rest (`fullStill`).
+- **Checked**:
+  - `full_style_check` draws every mark in every pair and size through the pre-flight, and its
+    shares over 600 seeds;
+  - `full_ad_check` counts any mark as the number's eye-catcher;
+  - `full_colour_check` reads the chevrons' colour on the chevrons themselves.
 

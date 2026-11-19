@@ -3911,6 +3911,95 @@ Open:
    gaming PCs, headsets, monitors, SSDs and the like) still never takes a wall slot: the owner's
    mix decides which lines the wall shows. Van cards now draw a van (Transit, ProMaster) where
    they had drawn an SUV.
+6. **Two product-and-words mismatches fixed** (2026-11-18, "finish all prompts open"): an older
+   car card goes to the car line its words name (a card listing F-150 • SILVERADO • RAM • TACOMA
+   is on Trucks and draws a Silverado; 33 cards moved: Trucks 8, Toyota 8, Work vans 6, BMW 5,
+   Honda 4, Classics 2), and no recipe shows a car the photo catalogue does not name (16 did).
+   The sealed Chromebook line no longer shows the open-laptop photograph: its offer cards are the
+   named-brand type cards again and its full ad has words alone until a sealed box is
+   photographed. **owner**: the downloads (a sealed Chromebook box, a Sprinter, a Kenworth, a gaming
+   headset, a monitor) and whether the older static versions retire.
+7. **The owner's lines** (2026-11-18: "and technically categories would be iPhones, iPads, Macbooks,
+   Macs, Androids (all), Pixel, Samsung, or foldables", "Gaming would be Consoles, Computers, and
+   Handhelds") — **done**: the full ad's What you buy, the video maker's picker and the review page
+   (a row of lines under a category) list exactly those, in that order. Macs (iMac in seven colours,
+   Mac Studio) and Androids of every brand (Samsung, Pixel, the foldables, the Pixel Tablet, two
+   unbranded Android sets) are new lines; the iMacs left MacBooks, the unbranded Androids left
+   Samsung. Apple Watch went to Wearables (first there), its seven offer cards with it in the looks
+   they were audited in. Android tablets, the Switch, controllers, VR headsets and gaming laptops
+   folded into Androids, Handhelds, Consoles and Computers (`aliases` in motion/subjects.json: a
+   saved look on an old key draws the new line; their offer cards stay as they were, ids and all).
+   **owner**: a clean Mac mini photograph, a ROG Ally and a Legion Go, and a gaming laptop (the one
+   there was rejected); no VR headset picture passed either. Each download waits on the owner's OK.
+8. **The look system** (DESIGN-LAW 154; the owner: "still not enough colors, gradients, pattern
+   fill, or other ways instead of colors", "a lot of these are the same thing with 5% variety or
+   difference"). **helper**, done:
+   - 54 pairs (15 light, 11 vivid, 28 dark), drawn look first;
+   - a face by the seed (the house face a quarter of the time);
+   - eight gradients and fifteen tone-on-tone patterns and textures;
+   - stripe, dot, foil, glass and outline fills on the sticker, the number's plate and the
+     claim's badge;
+   - nine more headline treatments.
+
+   A sheet of 48 seeded ads went from 41 dark grounds, 12 pairs and one face to 32 pairs and 21
+   faces. Pairs of ads matching on look, kind of ground and face went from 249 to 9 of 1,128.
+
+   **open**:
+   - the recipes take their pair from the nearest of the twelve (`motion/recipes.json` is stale
+     until rebuilt: the nearest pair of many cards changes);
+   - the recipes' rebuild ("take them as inspiration") should hand their family's look to these
+     keys;
+   - **owner**: whether gold lines, which keep to their eight gold pairs and one vivid one, may
+     stand on a light ground (no gold reads on cream at 4.5:1 without going mustard, rule 103).
+9. **The library cards, the offer family and the designer layouts, rebuilt** (DESIGN-LAW 155;
+   the owner: "Library card ones are not great.. I would take them as inspiration but rebuild them
+   all", "Offer family needs a rebuild also", "the heros all look so simialr").
+   - **done**: every recipe draws on a seed of its own and leans toward its card's family and
+     colourway, never locked to its card's pair, face, photograph or picture.
+   - 617 of 738 draw their product from the line's pool by their seed.
+   - 107 show a picture their words name: 65 a car make, 21 a kind of goods from the pool, and
+     21 their own picture, on a line with no pool.
+   - 14 (VR headsets, gaming laptops) stand on their words alone.
+   - A sheet of 48 went from one dark look, one face and one chip style to 28 pairs, 21 faces and
+     22 grounds, with no near twins.
+
+   - The type check now measures a dark and a light pair under the house outline (rule 141).
+     Flyer left the 29 vetted faces: 28 remain.
+
+   **open**:
+   - The older renderings are retired (the owner: "Retire them"): 366 library cards held, 299 offer
+     templates retired, each "rebuilt as r-...". The landing, the editor's library and a card's link
+     show the rebuilt ad in its place (`scLoadShelf`, `assets/recipe-stills/`). The designer layouts
+     stay.
+   - The partner library (iPhones LA's feed) serves the 366 rebuilt library ads, rendered at full
+     size (`assets/rebuilt-ads/`, 77 MB); the retired cards' renders are pruned.
+   - **owner**: re-pick the hero wall from the rebuilt recipes on the review page; the wall's old
+     picks point at their rebuilt recipes meanwhile.
+   - **owner**: whether the 299 rebuilt offer cards join the partner feed (it only ever carried
+     library cards); about 60 MB more.
+   - **owner**: a VR headset and a gaming laptop photograph, so their cards show the product.
+10. **The iPhone lock screens, and the call to action's marks** (DESIGN-LAW 156, 157) — **done**:
+    lock screens laid out as iOS lays them out (a status bar in iOS's measures, four layouts:
+    classic, widgets, iOS 26's tall Glass clock, iOS 27's compact one; four clean wallpapers in the
+    screen's own colour); eight marks at the number, each moving its own way.
+11. **MacBooks and Macs** (the owner: "a really old MacBook that we don't even buy", "don't see any of
+    these ads talk about the MacBook Neo", "macs ... need more in the category") — **done**:
+    - six pre-M1 MacBook pictures are flagged "old model" in `assets/cutout-flags.json`;
+    - the MacBook Neo is drawn about one MacBook ad in twenty, and those ads name it (a word variant
+      in `motion/subjects.json`);
+    - Macs gain the Mac Studio's front and sets of several (iMacs in two or three colours, an iMac
+      beside a Mac Studio).
+
+    **owner**: a clean M4 Mac mini, a Mac Pro or a Studio Display photograph; each download waits on
+    an OK.
+12. **The audit basket** (DESIGN-LAW 143; the owner: "Can you detect this? ... put them in an audit
+    basket"). **done**: the census reads what the eye sees: a product off its axis, a box with little in
+    it, a colour outside its pair, words in unrelated colours, a model the line does not buy.
+    - The basket holds 89 of 2,019 ads: 86 library cards, 2 designer layouts and 1 offer card. No
+      full ad, rebuilt recipe, Any look or FeedAd is in it.
+    - The owner's three are caught by what they named.
+    - Precision on the worst 40, by eye: 33 clearly real, 7 borderline, none plainly wrong.
+    - **owner**: keep or send back each basket ad on the review page (Audit basket filter).
 
 ## BL. 2026-11-18 — webuy.ad, the site's new address
 
@@ -4087,3 +4176,4 @@ Open:
    not change under it.
 5. The owner tools (`pick.html`, `library.html`, `social/`, `admin-ads/`,
    `phonegfx-studio.html`) keep the old look and name.
+

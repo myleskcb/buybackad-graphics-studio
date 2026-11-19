@@ -44,9 +44,20 @@
  * a re-render is never served stale), its 448px thumbnail, and studio_url,
  * which opens it in the studio (?card=<id>).
  *
+ * THE REBUILT ADS (2026-11-18, DESIGN-LAW 155). The owner retired the old
+ * static library cards ("Retire them") now that each has a rebuilt version,
+ * a recipe the full ad draws; then, of this feed: render them "so the partner
+ * library feed serves them" ("Do it here"). A card no longer offered whose
+ * rebuilt ad has a full-size render (assets/rebuilt-ads/,
+ * scripts/render_rebuilt_ads.mjs: Easy Mode's own full ad at 1080, as iPhones
+ * LA's copy) is offered as that ad: its id the recipe's (r-<card id>), its
+ * still (assets/recipe-stills/) as the thumbnail, studio_url opening it in the
+ * full ad (?card=<recipe id>), `rebuilt_from` naming the card it replaces.
+ *
  * What it describes is read from the same deploy over HTTP and kept five
- * minutes (assets/showcase/index.json, assets/library-ads/index.json), so
- * every link it hands out is a file that deploy serves. The images are static
+ * minutes (assets/showcase/index.json, assets/library-ads/index.json,
+ * assets/recipe-stills/index.json, assets/rebuilt-ads/index.json), so every
+ * link it hands out is a file that deploy serves. The images are static
  * files, cached at the edge; the key gates the catalogue.
  *
  * The router answers null for any path outside /library, so api.mjs goes on.
@@ -102,9 +113,11 @@ const live = (c) => !!c && !c.defect && c.imagery !== 'none' && !(typeof c.chrom
 /** the site's library and its renders, read from this deploy and kept TTL_MS */
 async function load(origin, fetchJson, now) {
   if (cache && cache.origin === origin && now - cache.at < TTL_MS) return cache.data;
-  const [cards, renders] = await Promise.all([
+  const [cards, renders, stills, rebuilt] = await Promise.all([
     fetchJson(origin + '/assets/showcase/index.json'),
     fetchJson(origin + '/assets/library-ads/index.json'),
+    fetchJson(origin + '/assets/recipe-stills/index.json').catch(() => null),
+    fetchJson(origin + '/assets/rebuilt-ads/index.json').catch(() => null),
   ]);
   const abs = (u) => new URL(u, origin + '/').href;
   const made = (renders && renders.items) || {};
@@ -125,7 +138,23 @@ async function load(origin, fetchJson, now) {
       _n: words([c.cat, c.subject].join(' ')), _d: words([c.name, c.layout].join(' ')),
     };
   });
-  const version = 'ads' + ads.length + '-' + String((renders && renders.built) || '').replace(/\D/g, '').slice(0, 14);
+  // the rebuilt ad of every library card no longer offered, where it has a render
+  const offered = new Set(ads.map((a) => a.id)), byId = new Map((Array.isArray(cards) ? cards : []).map((c) => [c.id, c]));
+  const st = (stills && stills.items) || {}, rr = (rebuilt && rebuilt.items) || {};
+  for (const [id, r] of Object.entries(rr)) {
+    const h = st[id]; if (!h || !ID_RE.test(id) || offered.has(h.from) || live(byId.get(h.from))) continue;
+    const fam = String(h.family || '').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, (ch) => ch.toUpperCase());
+    ads.push({
+      id, title: r.title || h.name || id, category: h.cat || null, theme: h.pairName || h.pair || null, layout: fam || null, subject: h.line || null,
+      image: { url: abs('assets/rebuilt-ads/' + id + '.jpg') + '?v=' + String(r.sha1 || '').slice(0, 12), width: r.w, height: r.h, bytes: r.bytes, format: 'jpg' },
+      thumb: { url: abs(h.thumb), width: 400, height: 400 },
+      studio_url: origin + '/?card=' + encodeURIComponent(id),
+      created: r.created || null, updated: r.updated || null, uploaded: r.rendered || null, rebuilt_from: h.from || null,
+      _s: words([id, r.title, h.name, h.cat, h.pairName, fam, h.line, h.from].join(' ')),
+      _n: words([h.cat, h.line].join(' ')), _d: words([r.title || h.name, fam].join(' ')),
+    });
+  }
+  const version = 'ads' + ads.length + '-' + String((renders && renders.built) || '').replace(/\D/g, '').slice(0, 14) + (rebuilt && rebuilt.built ? '-' + String(rebuilt.built).replace(/\D/g, '').slice(0, 14) : '');
   const newest = (k) => ads.reduce((m, x) => (x[k] && (!m || x[k] > m) ? x[k] : m), null);
   const latest = { created: newest('created'), updated: newest('updated'), uploaded: newest('uploaded') };
   cache = { origin, at: now, data: { ads, version, latest } };

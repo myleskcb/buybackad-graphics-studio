@@ -44,6 +44,8 @@ header.top h1 { font-size: 26px; letter-spacing: -.01em }
 .cats button { white-space: nowrap; border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 5px 12px; font-weight: 600; font-size: 13px }
 .cats button[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink) }
 .cats small { font-weight: 500; opacity: .7; margin-left: 4px }
+.cats.lines { margin-top: 6px }
+.cats.lines button { font-size: 12px; padding: 4px 10px; font-weight: 500 }
 .filters { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center }
 .filters label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted) }
 .filters select, .filters input[type=search] { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; min-width: 0 }
@@ -128,6 +130,7 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
 
 <div class="bar"><div class="wrap">
   <nav class="cats" id="cats" aria-label="Categories"></nav>
+  <nav class="cats lines" id="lines" aria-label="Lines in this category" hidden></nav>
   <div class="filters">
     <label>Kind <select id="f-gen"><option value="all">Every kind</option></select></label>
     <label>Show <select id="f-show">
@@ -137,6 +140,7 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
     <label class="chk"><input type="checkbox" id="f-old"> Old or banned words</label>
     <label class="chk"><input type="checkbox" id="f-lacks"> Missing something</label>
     <label class="chk"><input type="checkbox" id="f-pre"> Fails its pre-flight</label>
+    <label class="chk basket" title="What the eye sees: a product off the words' centre line, a box with little in it, a colour outside the pair, words in unrelated colours, a model the line does not buy. Keep one with Approve; ask for a rebuild or a fix with Deny and a note, or Change."><input type="checkbox" id="f-basket"> <span id="f-basket-l">Audit basket</span></label>
     <input type="search" id="f-q" placeholder="Search names and words" aria-label="Search names and words">
   </div>
 </div></div>
@@ -193,7 +197,7 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
   };
   const GEN = { full: 'Full ad', recipe: 'Recipe (house engine)', dl: 'Designer layout', of: 'Offer family', sc: 'Library card', any: 'Any look', feed: 'FeedAd (iPhones LA)' };
   const PAGE = 48;
-  const S = { rows: [], byKey: {}, thumbs: {}, pics: null, dec: {}, cat: 'all', shown: PAGE, db: null, sample: null, open: null, pick: undefined };
+  const S = { rows: [], byKey: {}, thumbs: {}, pics: null, dec: {}, cat: 'all', line: 'all', lines: {}, shown: PAGE, db: null, sample: null, open: null, pick: undefined };
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } };
 
@@ -222,16 +226,19 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
   function note(t) { $('note').hidden = !t; $('note').textContent = t || ''; }
 
   // ---- filters and the list
-  const flt = () => ({ gen: $('f-gen').value, show: $('f-show').value, sort: $('f-sort').value, old: $('f-old').checked, lacks: $('f-lacks').checked, pre: $('f-pre').checked, q: $('f-q').value.trim().toUpperCase() });
+  const flt = () => ({ gen: $('f-gen').value, show: $('f-show').value, sort: $('f-sort').value, old: $('f-old').checked, lacks: $('f-lacks').checked, pre: $('f-pre').checked, basket: $('f-basket').checked, q: $('f-q').value.trim().toUpperCase() });
   function list() {
     const f = flt();
-    let L = S.rows.filter(r => (S.cat === 'all' || r.cat === S.cat) && (f.gen === 'all' || r.gen === f.gen));
+    let L = S.rows.filter(r => (S.cat === 'all' || r.cat === S.cat) && (S.cat === 'all' || S.line === 'all' || r.line === S.line) && (f.gen === 'all' || r.gen === f.gen));
     if (f.old) L = L.filter(r => r.banned.length || r.bannedNoName.length);
     if (f.lacks) L = L.filter(r => r.lacks.length);
     if (f.pre) L = L.filter(r => r.pre === 'fails');
+    if (f.basket) L = L.filter(r => r.basket);
     if (f.show !== 'all') L = L.filter(r => { const d = S.dec[r.key] || {}; return f.show === 'todo' ? !d.verdict && !d.note && !d.picture && !d.hero : f.show === 'note' ? !!(d.note || d.picture) : f.show === 'hero' ? !!d.hero : d.verdict === f.show; });
     if (f.q) L = L.filter(r => (r.name + ' ' + r.words.map(w => w.t).join(' ')).toUpperCase().includes(f.q));
-    L.sort((a, b) => (f.sort === 'worst' ? b.score - a.score : a.score - b.score) || a.rank - b.rank || a.name.localeCompare(b.name));
+    // the audit basket lists the worst first, by its findings' severity (the census's confusion reading)
+    if (f.basket) L.sort((a, b) => b.bs - a.bs || b.score - a.score || a.name.localeCompare(b.name));
+    else L.sort((a, b) => (f.sort === 'worst' ? b.score - a.score : a.score - b.score) || a.rank - b.rank || a.name.localeCompare(b.name));
     return L;
   }
   function cats() {
@@ -239,6 +246,12 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
     const order = Object.keys(n).sort((a, b) => n[b] - n[a]);
     $('cats').innerHTML = [['all', 'Every category', S.rows.length], ...order.map(c => [c, S.names[c] || c, n[c]])]
       .map(([c, t, k]) => `<button type="button" data-cat="${esc(c)}" aria-pressed="${S.cat === c}">${esc(t)}<small class="num">${k}</small></button>`).join('');
+    // the category's lines, in the menus' order (the owner, 2026-11-18: "iPhones, iPads, Macbooks, Macs, Androids (all), Pixel, Samsung, or foldables")
+    const m = {}; for (const r of S.rows) if (r.cat === S.cat && r.line) m[r.line] = (m[r.line] || 0) + 1;
+    const ls = (S.lines[S.cat] || []).filter(([k]) => m[k]);
+    $('lines').hidden = S.cat === 'all' || ls.length < 2;
+    $('lines').innerHTML = $('lines').hidden ? '' : [['all', 'Every line', n[S.cat]], ...ls.map(([k, t]) => [k, t, m[k]])]
+      .map(([k, t, c]) => `<button type="button" data-line="${esc(k)}" aria-pressed="${S.line === k}">${esc(t)}<small class="num">${c}</small></button>`).join('');
   }
   function tally() {
     const v = Object.values(S.dec), up = v.filter(d => d.verdict === 'up').length, dn = v.filter(d => d.verdict === 'down').length, nt = v.filter(d => d.note || d.picture).length, hr = v.filter(d => d.hero).length;
@@ -246,10 +259,13 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
     $('tally').innerHTML = `<span class="g num">${up} approved</span><span class="r num">${dn} denied</span><span class="h num">${hr} hero picks</span><span class="n num">${nt} with a change</span><span class="num">${S.rows.length - done} to review</span>`;
   }
   const scoreCls = s => s <= 1 ? '' : s <= 5 ? 'mid' : 'hi';
+  // the audit basket's findings, by name on a card (their sentence on hover and in the dialog)
+  const BASKET = { 'off-axis': 'product off centre', 'empty-box': 'box with little in it', 'off-pair-colour': 'colour outside its pair', 'mixed-inks': 'words in unrelated colours', 'lone-cta': 'odd CTA colour', 'old-product': 'old model' };
   const scoreTxt = s => s === 0 ? 'Clean' : 'Score ' + s;
   function card(r) {
     const d = S.dec[r.key] || {}, th = S.thumbs[r.key];
     const chips = [
+      ...(r.confusion || []).map(f => `<span class="chip ${f.s >= 3 ? 'bad' : 'warn'}" title="${esc(f.t)}">${esc(BASKET[f.c] || f.c)}</span>`),
       ...r.banned.map(b => `<span class="chip bad">${esc(b)}</span>`),
       ...r.bannedNoName.filter(b => !r.banned.includes(b)).map(b => `<span class="chip bad" title="when no business name is typed">${esc(b)} (no name)</span>`),
       ...r.lacks.map(l => `<span class="chip warn">no ${esc(l)}</span>`),
@@ -263,7 +279,7 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
         <span class="rank num">#${r.rank} of ${r.of}</span><span class="score num ${scoreCls(r.score)}">${scoreTxt(r.score)}</span></button>
       <div class="body">
         <h3>${esc(r.name)}</h3>
-        <div class="meta">${esc(GEN[r.gen] || r.gen)} · ${esc(r.catName)}</div>
+        <div class="meta">${esc(GEN[r.gen] || r.gen)} · ${esc(r.catName)}${r.lineName ? ' › ' + esc(r.lineName) : ''}</div>
         ${chips ? `<div class="chips">${chips}</div>` : ''}
         <ul class="words" data-part="words">${(head.length ? head : rest.slice(0, 2)).map(li).join('')}</ul>
         ${rest.length > 2 ? `<button class="more" type="button" data-act="words">All ${rest.length} lines</button>` : ''}
@@ -280,6 +296,8 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
   let lastList = [];
   function render(reset) {
     if (reset) S.shown = PAGE;
+    const g = $('f-gen').value, inBasket = S.rows.filter(r => r.basket && (S.cat === 'all' || r.cat === S.cat) && (S.cat === 'all' || S.line === 'all' || r.line === S.line) && (g === 'all' || r.gen === g)).length;
+    $('f-basket-l').textContent = `Audit basket (${inBasket})`;
     lastList = list();
     const part = lastList.slice(0, S.shown);
     $('grid').innerHTML = part.map(card).join('');
@@ -299,8 +317,8 @@ textarea { width: 100%; min-height: 104px; border: 1px solid var(--line); border
     S.open = r; const d = S.dec[r.key] || {}; S.pick = d.picture || '';
     $('d-img').src = S.thumbs[r.key] || ''; $('d-img').alt = r.name;
     $('d-name').textContent = r.name;
-    $('d-meta').textContent = `${GEN[r.gen] || r.gen} · ${r.catName} · #${r.rank} of ${r.of} · ${r.offered}`;
-    $('d-chips').innerHTML = [...r.banned.map(b => `<span class="chip bad">${esc(b)}</span>`), ...r.lacks.map(l => `<span class="chip warn">no ${esc(l)}</span>`), ...r.preSays.map(s => `<span class="chip bad">${esc(s)}</span>`)].join('');
+    $('d-meta').textContent = `${GEN[r.gen] || r.gen} · ${r.catName}${r.lineName ? ' › ' + r.lineName : ''} · #${r.rank} of ${r.of} · ${r.offered}`;
+    $('d-chips').innerHTML = [...(r.confusion || []).map(f => `<span class="chip ${f.s >= 3 ? 'bad' : 'warn'}">${esc(f.t)}</span>`), ...r.banned.map(b => `<span class="chip bad">${esc(b)}</span>`), ...r.lacks.map(l => `<span class="chip warn">no ${esc(l)}</span>`), ...r.preSays.map(s => `<span class="chip bad">${esc(s)}</span>`)].join('');
     $('d-words').innerHTML = r.words.map(w => `<li class="${w.b.length ? 'b' : ''}"><span class="w">${esc(w.w)}</span><span class="t">${esc(w.t)}${w.b.length ? ' · ' + esc(w.b.join(', ')) : ''}</span></li>`).join('');
     $('d-note').value = d.note || ''; $('d-yes').setAttribute('aria-pressed', d.verdict === 'up'); $('d-no').setAttribute('aria-pressed', d.verdict === 'down'); $('d-hero').setAttribute('aria-pressed', !!d.hero);
     $('d-sugg-out').hidden = true; $('d-sugg-state').textContent = ''; $('d-state').textContent = 'Saved changes are applied by Claude when you ask.';
@@ -345,8 +363,9 @@ Answer as JSON: {"changes":[{"where":"...","now":"...","new":"..."}],"why":"one 
   }
 
   // ---- events
-  $('cats').addEventListener('click', e => { const b = e.target.closest('button[data-cat]'); if (!b) return; S.cat = b.dataset.cat; store('review-cat', S.cat); cats(); render(true); });
-  ['f-gen', 'f-show', 'f-sort', 'f-old', 'f-lacks', 'f-pre'].forEach(id => $(id).addEventListener('change', () => render(true)));
+  $('cats').addEventListener('click', e => { const b = e.target.closest('button[data-cat]'); if (!b) return; S.cat = b.dataset.cat; S.line = 'all'; store('review-cat', S.cat); store('review-line', S.line); cats(); render(true); });
+  $('lines').addEventListener('click', e => { const b = e.target.closest('button[data-line]'); if (!b) return; S.line = b.dataset.line; store('review-line', S.line); cats(); render(true); });
+  ['f-gen', 'f-show', 'f-sort', 'f-old', 'f-lacks', 'f-pre', 'f-basket'].forEach(id => $(id).addEventListener('change', () => render(true)));
   let qt = 0; $('f-q').addEventListener('input', () => { clearTimeout(qt); qt = setTimeout(() => render(true), 180); });
   $('more').addEventListener('click', () => { S.shown += PAGE; render(false); });
   $('grid').addEventListener('click', e => {
@@ -378,12 +397,13 @@ Answer as JSON: {"changes":[{"where":"...","now":"...","new":"..."}],"why":"one 
   async function start() {
     try {
       const A = await (await fetch('data/ads.json')).json();
-      S.rows = A.rows; S.names = A.cats; for (const r of S.rows) S.byKey[r.key] = r;
+      S.rows = A.rows; S.names = A.cats; S.lines = A.lines || {}; for (const r of S.rows) S.byKey[r.key] = r;
       const gens = [...new Set(S.rows.map(r => r.gen))];
       $('f-gen').innerHTML = '<option value="all">Every kind</option>' + gens.map(g => `<option value="${g}">${esc(GEN[g] || g)}</option>`).join('');
       const made = A.made ? new Date(A.made).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : '';
       $('stamp').textContent = `${S.rows.length} ads the site offers, read by the census${made ? ' on ' + made : ''}${A.commit ? ' at ' + String(A.commit).slice(0, 8) : ''}. Ranked within each category: “Clean” has nothing to fix; a higher score has more (2 for each missing element or banned phrase).`;
       const remembered = store('review-cat'); if (remembered && (remembered === 'all' || S.rows.some(r => r.cat === remembered))) S.cat = remembered;
+      const line = store('review-line'); if (line && S.rows.some(r => r.cat === S.cat && r.line === line)) S.line = line;
       cats(); tally(); render(true);
     } catch (e) { $('stamp').textContent = 'The ads could not be loaded. Reload the page.'; return; }
     connect();

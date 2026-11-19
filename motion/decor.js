@@ -1736,57 +1736,68 @@ const STICKER_BOX = { starburst: [1.3, 1.15], seal: [1.28, 1.08], badge: [1.34, 
  *  sways a little, as the starburst does. */
 export function drawSticker(ctx, shape, cx, cy, R, text, fill, ink, t, t0, fontName, grad = false) {
   shape = STICKER_SHAPES.includes(shape) ? shape : "starburst";
-  if (shape === "starburst" && !grad) return drawStarburst(ctx, cx, cy, R, text, fill, ink, t, t0, fontName);
+  // the fill (2026-11-18, rule 154): flat, lit from above (grad true or "gradient"), striped, dotted, a
+  // foil's sheen (fillTexture), or the outline alone: no plate, so its edge, its rings and its words are
+  // all in the fill, the card's own ink, which reads on the ground
+  const mode = grad === true ? "gradient" : typeof grad === "string" && grad ? grad : "solid", line = mode === "outline";
+  if (shape === "starburst" && mode === "solid") return drawStarburst(ctx, cx, cy, R, text, fill, ink, t, t0, fontName);
   const q = prog(t, t0, .35); if (q <= 0) return;
   const sc = Math.max(.01, outBack(q, 2.6)), rot = (STICKER_TILT[shape] + Math.sin((t - t0) * 2.4) * 4) * Math.PI / 180;
   ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot); ctx.scale(sc, sc);
-  const paint = (y0, y1, f = fill) => grad ? fillGradient(ctx, 0, y0, 0, y1, f, ink, 3) : f;
-  const shadow = () => { ctx.shadowColor = "rgba(0,0,0,.35)"; ctx.shadowBlur = R * .15; ctx.shadowOffsetY = R * .05; };
+  if (line) ink = fill;
+  const paint = (y0, y1, f = fill) => mode === "gradient" ? fillGradient(ctx, 0, y0, 0, y1, f, ink, 3) : f;
+  const shadow = () => { ctx.shadowColor = line ? "rgba(0,0,0,.28)" : "rgba(0,0,0,.35)"; ctx.shadowBlur = R * (line ? .06 : .15); ctx.shadowOffsetY = R * (line ? .02 : .05); };
   const flat = () => { ctx.shadowColor = "transparent"; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; };
+  // the shape's body on the path just drawn: filled and textured, or its edge alone
+  const body = (y0, y1, f = fill) => {
+    if (line) { ctx.lineWidth = R * .075; ctx.strokeStyle = f; ctx.stroke(); flat(); return; }
+    ctx.fillStyle = paint(y0, y1, f); ctx.fill(); flat(); fillTexture(ctx, mode, f, ink, -R * 1.1, y0, R * 1.1, y1);
+  };
   const ring = (rr, w) => { ctx.beginPath(); ctx.arc(0, 0, rr, 0, TAU); ctx.lineWidth = w; ctx.strokeStyle = ink; ctx.stroke(); };
   switch (shape) {
     case "starburst": {
       const n = 18; ctx.beginPath();
       for (let i = 0; i < n * 2; i++) { const a = i / (n * 2) * TAU, rr = i % 2 ? R * .78 : R; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
-      ctx.closePath(); shadow(); ctx.fillStyle = paint(-R, R); ctx.fill(); flat(); ctx.lineWidth = R * .05; ctx.strokeStyle = ink; ctx.stroke(); break;
+      ctx.closePath(); shadow(); body(-R, R); flat(); if (!line) { ctx.lineWidth = R * .05; ctx.strokeStyle = ink; ctx.stroke(); } break;
     }
     case "seal": {   // a scalloped seal, a thin ring inside its edge
       const n = 22; ctx.beginPath();
       for (let i = 0; i <= 180; i++) { const a = i / 180 * TAU, rr = R * (.93 + .07 * Math.cos(n * a)); ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
-      ctx.closePath(); shadow(); ctx.fillStyle = paint(-R, R); ctx.fill(); flat(); ring(R * .79, R * .035); break;
+      ctx.closePath(); shadow(); body(-R, R); ring(R * .79, R * .035); break;
     }
     case "badge": {  // a round badge with a ring
-      ctx.beginPath(); ctx.arc(0, 0, R * .97, 0, TAU); shadow(); ctx.fillStyle = paint(-R, R); ctx.fill(); flat();
-      ring(R * .86, R * .05); ring(R * .97, R * .02); break;
+      ctx.beginPath(); ctx.arc(0, 0, R * .97, 0, TAU); shadow(); body(-R, R);
+      ring(R * .86, R * .05); if (!line) ring(R * .97, R * .02); break;
     }
     case "ribbon": { // a banner with folded, notched tails behind it
       const bw = R * 1.408, bh = R * .74, tw = R * .42, th = R * .56, dy = R * .06, tail = toneOf(fill, -.12);   // the tails' far corners at .99 R
-      [-1, 1].forEach(sd => {
+      // (an outline alone is the banner without its folded tails: their edges would cross behind its words)
+      if (!line) [-1, 1].forEach(sd => {
         const x0 = sd * (bw / 2 - tw * .35), x1 = sd * (bw / 2 + tw * .55);
         ctx.beginPath(); ctx.moveTo(x0, -th / 2 + dy); ctx.lineTo(x1, -th / 2 + dy); ctx.lineTo(x1 - sd * tw * .32, dy); ctx.lineTo(x1, th / 2 + dy); ctx.lineTo(x0, th / 2 + dy); ctx.closePath();
         shadow(); ctx.fillStyle = tail; ctx.fill(); flat();
       });
-      rrect(ctx, -bw / 2, -bh / 2, bw, bh, R * .06); shadow(); ctx.fillStyle = paint(-bh / 2, bh / 2); ctx.fill(); flat();
+      rrect(ctx, -bw / 2, -bh / 2, bw, bh, R * .06); shadow(); body(-bh / 2, bh / 2);
       ctx.lineWidth = R * .025; ctx.strokeStyle = ink; rrect(ctx, -bw / 2 + R * .07, -bh / 2 + R * .07, bw - R * .14, bh - R * .14, R * .04); ctx.stroke(); break;
     }
     case "tag": {    // a price tag, its point to the left and a punched hole
       const tw = R * 1.8, th = R * 1, x0 = -tw / 2, pt = th * .42;   // its rounded corners at .99 R
       ctx.beginPath(); ctx.moveTo(x0 + pt, -th / 2); ctx.lineTo(tw / 2 - R * .08, -th / 2); ctx.quadraticCurveTo(tw / 2, -th / 2, tw / 2, -th / 2 + R * .08);
       ctx.lineTo(tw / 2, th / 2 - R * .08); ctx.quadraticCurveTo(tw / 2, th / 2, tw / 2 - R * .08, th / 2); ctx.lineTo(x0 + pt, th / 2); ctx.lineTo(x0, 0); ctx.closePath();
-      shadow(); ctx.fillStyle = paint(-th / 2, th / 2); ctx.fill(); flat();
-      ctx.save(); ctx.globalCompositeOperation = "destination-out"; ctx.beginPath(); ctx.arc(x0 + pt * .62, 0, R * .09, 0, TAU); ctx.fill(); ctx.restore();
+      shadow(); body(-th / 2, th / 2);
+      if (!line) { ctx.save(); ctx.globalCompositeOperation = "destination-out"; ctx.beginPath(); ctx.arc(x0 + pt * .62, 0, R * .09, 0, TAU); ctx.fill(); ctx.restore(); }
       ctx.beginPath(); ctx.arc(x0 + pt * .62, 0, R * .13, 0, TAU); ctx.lineWidth = R * .025; ctx.strokeStyle = ink; ctx.stroke();
       ctx.translate(R * .12, 0); break;   // the words sit right of the hole
     }
     case "stamp": {  // a rubber stamp's plate: a double rule inside its edge
       const sw = R * 1.76, sh = R * .92;   // its corners at .99 R
-      rrect(ctx, -sw / 2, -sh / 2, sw, sh, R * .07); shadow(); ctx.fillStyle = paint(-sh / 2, sh / 2); ctx.fill(); flat();
+      rrect(ctx, -sw / 2, -sh / 2, sw, sh, R * .07); shadow(); body(-sh / 2, sh / 2);
       ctx.strokeStyle = ink; ctx.lineWidth = R * .05; rrect(ctx, -sw / 2 + R * .08, -sh / 2 + R * .08, sw - R * .16, sh - R * .16, R * .05); ctx.stroke();
       ctx.lineWidth = R * .022; rrect(ctx, -sw / 2 + R * .17, -sh / 2 + R * .17, sw - R * .34, sh - R * .34, R * .03); ctx.stroke(); break;
     }
     case "pill": {   // a tilted pill label, a hairline inside its edge
       const pw = R * 1.92, ph = R * .8;
-      rrect(ctx, -pw / 2, -ph / 2, pw, ph, ph / 2); shadow(); ctx.fillStyle = paint(-ph / 2, ph / 2); ctx.fill(); flat();
+      rrect(ctx, -pw / 2, -ph / 2, pw, ph, ph / 2); shadow(); body(-ph / 2, ph / 2);
       ctx.lineWidth = R * .03; ctx.strokeStyle = ink; rrect(ctx, -pw / 2 + R * .07, -ph / 2 + R * .07, pw - R * .14, ph - R * .14, (ph - R * .14) / 2); ctx.stroke(); break;
     }
   }
@@ -1807,34 +1818,86 @@ export function drawSticker(ctx, shape, cx, cy, R, text, fill, ink, t, t0, fontN
  *  or a soft mesh of blobs. Two families only: the ground's and the accent's. Keys: pair_linear,
  *  pair_radial, pair_mesh. Returns false for any other kind (the engine's background() asks each
  *  painter in turn). */
-export const PAIR_GRADIENTS = ["pair_linear", "pair_radial", "pair_mesh"];
+/* 2026-11-18 (rule 154; the owner: "still not enough colors, gradients, pattern fill, or other ways
+   instead of colors"): five more fields beside the sweep, the glow and the mesh. A conic sweep round
+   the product, a sky that burns low behind it (sunset), a hard two-tone diagonal (split), a duotone
+   glow from two corners (corner), and a tall arch of the accent's colour blocked in behind the
+   product (arch). The same two colours, along the same OKLCH path, so a field can be hard-edged and
+   still never draw a third hue or a tone the words do not read on. */
+export const PAIR_GRADIENTS = ["pair_linear", "pair_radial", "pair_mesh", "pair_conic", "pair_sunset", "pair_split", "pair_corner", "pair_arch"];
 export function pairGradientColours(p) {
-  const G = oklchOf(p.ground), A = oklchOf(p.accent), dark = G.L < .56, warm = A.h >= 25 && A.h < 115;
+  // a ground is "dark" for this where its words are lighter than it: a vivid ground under white words
+  // (White on Pink, L .52) keeps its far end darker, never lighter, than the words read on
+  const G = oklchOf(p.ground), A = oklchOf(p.accent), dark = p.ink ? lum(p.ink) > lum(p.ground) : G.L < .56, warm = A.h >= 25 && A.h < 115;
   const L2 = dark ? Math.min(.5, Math.max(G.L + .07, warm ? .42 : .3)) : Math.min(.93, Math.max(.6, G.L - .06));
-  const hot = okHex(L2, Math.min(.17, Math.max(.1, A.C)), A.h);
+  const hot0 = okHex(L2, Math.min(.17, Math.max(.1, A.C)), A.h), Hy = oklchOf(hot0);
+  /* a tone of the ground alone where the accent cannot be the far end: a two-colour pair's accent is its
+     words' white or black (no hue to go to), and a warm accent at a depth light words still read on is
+     under its muddy floor (rule 103: gold at OKLCH .42 is olive, orange is rust; the owner, of the
+     conic sweep on Navy & Orange it drew, would see brown). A deep ground lifts toward its own lighter
+     tone, a mid one (White on Pink) deepens, a light one lifts. */
+  const floor = h => h >= 35 && h < 45 ? .12 : h >= 45 && h < 65 ? .2 : h >= 65 && h < 105 ? .33 : h >= 105 && h < 120 ? .3 : h >= 120 && h < 140 ? .22 : 0;
+  const relY = h => { const [r, g, b] = [1, 3, 5].map(k => { const v = parseInt(h.slice(k, k + 2), 16) / 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }); return .2126 * r + .7152 * g + .0722 * b; };
+  if (A.C < .04 || relY(hot0) < floor(Hy.h)) {
+    const hot = okHex(dark ? (G.L < .4 ? Math.min(.5, G.L + .15) : Math.max(.12, G.L - .15)) : Math.min(.975, G.L + .07), G.C, G.h);
+    const deep = okHex(dark ? Math.max(.1, G.L - .07) : Math.min(.975, G.L + .03), G.C, G.h);
+    return { hot, deep, dark, tonal: true };
+  }
+  const hot = hot0;
   const deep = okHex(dark ? Math.max(.1, G.L - .08) : Math.min(.975, G.L + .03), G.C, G.h);
   return { hot, deep, dark };
 }
+const smooth01 = (e0, e1, x) => { const t = clamp((x - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); };
 export function pairGradientGround(kind, x, st, p, W, H, sc, r) {
   if (!PAIR_GRADIENTS.includes(kind)) return false;
   /* Painted as a field from the ground (0) to the accent (1), each pixel's colour taken in OKLCH
      along deep → ground → a quiet middle → hot: the ground's hue fades out before the accent's comes
      in, so no pixel is a third hue (an sRGB blend of navy and orange passes through brown, of blue
      and green through cyan). Drawn at 128 across and scaled up smooth. */
-  const { hot, deep } = pairGradientColours(p), G = oklchOf(p.ground), Hh = oklchOf(hot), Dd = oklchOf(deep);
+  const { hot, deep, tonal } = pairGradientColours(p), G = oklchOf(p.ground), Hh = oklchOf(hot), Dd = oklchOf(deep);
   const [cx, cy] = sc || [W / 2, H * .6];
+  const ux = cx / W, uy = cy / H, asp = H / W;
+  // the hard-edged fields are drawn finer, so their edge is a line and not a blur scaled up from 128
+  const hard = kind === "pair_split" || kind === "pair_arch", n = hard ? Math.min(540, Math.round(W / 2)) : 128, e = 1.4 / n;
   let field;
   if (kind === "pair_linear") {
     const a = (r ? r.uniform(.12, .38) : .25) * Math.PI, dx = Math.cos(a), dy = Math.sin(a) * H / W, n = Math.hypot(dx, dy);
     field = (u, v) => .5 + ((u - .5) * dx + (v - .5) * dy) / n / 1.15;
   } else if (kind === "pair_radial") {
-    const ux = cx / W, uy = cy / H, k = Math.max(1, H / W);
+    const k = Math.max(1, H / W);
     field = (u, v) => 1 - Math.min(1, Math.hypot(u - ux, (v - uy) * k) / .62) - (v < .42 ? (.42 - v) * .9 : 0);
+  } else if (kind === "pair_conic") {
+    // a sweep round the product: the angle from its middle, the accent's side turned by the seed
+    const a0 = (r ? r() : .3) * TAU;
+    field = (u, v) => { const th = Math.atan2((v - uy) * asp, u - ux), d = Math.min(1, Math.hypot(u - ux, (v - uy) * asp) / .9); return .5 + .44 * Math.cos(th - a0) * (.55 + .45 * d); };
+  } else if (kind === "pair_sunset") {
+    // deep at the top, the ground's own colour through the middle, the accent's burning low on a horizon
+    // just under the product, and the floor below it falling back to the ground
+    const hv = clamp(uy + .1, .55, .82), su = r ? r.uniform(-.12, .12) : 0;
+    field = (u, v) => {
+      const sky = v < hv ? .04 + .9 * (v / hv) ** 2.3 : .94 - .6 * ((v - hv) / (1 - hv)) ** .8;
+      return sky + .22 * Math.exp(-(((u - ux - su) ** 2) + ((v - hv) * asp) ** 2) / .03);
+    };
+  } else if (kind === "pair_split") {
+    // two tones meeting on a hard diagonal through the product's middle
+    const a = (r ? r.uniform(.95, 1.3) : 1.1) * (r && r() < .5 ? -1 : 1), sa = Math.sin(a), ca = Math.cos(a);
+    field = (u, v) => .2 + .6 * smooth01(-e, e, (u - ux) * sa * -1 + (v - uy) * asp * ca);
+  } else if (kind === "pair_corner") {
+    // a duotone: the accent's glow from one corner, the ground's deep shade from the opposite one
+    const tl = r ? r() < .5 : true, [ax, ay, bx, by] = tl ? [0, 0, 1, 1] : [1, 0, 0, 1];
+    field = (u, v) => .44 + .62 * Math.exp(-((u - ax) ** 2 + ((v - ay) * asp) ** 2) / .32) - .44 * Math.exp(-((u - bx) ** 2 + ((v - by) * asp) ** 2) / .26);
+  } else if (kind === "pair_arch") {
+    // a tall arch of the accent's colour blocked in behind the product, standing on the frame's foot
+    const R = W > H ? .19 : .3, top = clamp(uy * asp - .32 + R, R + .04, asp);   // in units of the width: the arch's round top .32 over the product's middle
+    field = (u, v) => {
+      const X = u - ux, Y = v * asp, sd = Y >= top ? Math.abs(X) - R : Math.hypot(X, Y - top) - R;
+      return .24 + .56 * (1 - smooth01(-e, e, sd));
+    };
   } else {
     const blobs = Array.from({ length: 4 }, (_, i) => ({ u: r ? r() * .9 + .05 : (i * .37 + .1) % 1, v: r ? r() * .9 + .05 : (i * .61 + .2) % 1, rad: r ? r.uniform(.28, .45) : .36, w: i % 2 ? -.45 : .62 }));
     field = (u, v) => .42 + blobs.reduce((t, b) => t + b.w * Math.exp(-((u - b.u) ** 2 + ((v - b.v) * H / W) ** 2) / (b.rad * b.rad)), 0);
   }
-  const midL = (G.L + Hh.L) / 2, n = 128, m = Math.max(2, Math.round(n * H / W)), c = canvas(n, m), cx2 = c.getContext("2d"), id = cx2.createImageData(n, m);
+  const midL = (G.L + Hh.L) / 2, m = Math.max(2, Math.round(n * H / W)), c = canvas(n, m), cx2 = c.getContext("2d"), id = cx2.createImageData(n, m);
   const toRgb = (L, C, h) => {
     const a = C * Math.cos(h * Math.PI / 180), b = C * Math.sin(h * Math.PI / 180);
     const l = (L + .3963377774 * a + .2158037573 * b) ** 3, mm = (L - .1055613458 * a - .0638541728 * b) ** 3, ss = (L - .0894841775 * a - 1.291485548 * b) ** 3;
@@ -1844,7 +1907,8 @@ export function pairGradientGround(kind, x, st, p, W, H, sc, r) {
   for (let j = 0; j < m; j++) for (let i = 0; i < n; i++) {
     const t = Math.min(1, Math.max(0, field((i + .5) / n, (j + .5) / m)));
     let L, C, h;
-    if (t < .35) { const k = t / .35; L = lerp(Dd.L, G.L, k); C = lerp(Dd.C, G.C, k); h = G.h; }
+    if (tonal) { h = G.h; C = G.C; L = t < .35 ? lerp(Dd.L, G.L, t / .35) : lerp(G.L, Hh.L, (t - .35) / .65); }   // one hue: no grey middle to pass through
+    else if (t < .35) { const k = t / .35; L = lerp(Dd.L, G.L, k); C = lerp(Dd.C, G.C, k); h = G.h; }
     else if (t < .55) { const k = (t - .35) / .2; L = lerp(G.L, midL, k); C = G.C * (1 - k); h = G.h; }
     else { const k = (t - .55) / .45; L = lerp(midL, Hh.L, k); C = Hh.C * k; h = Hh.h; }
     const [R, Gr, B] = toRgb(L, C, h), o = (j * n + i) * 4;
@@ -1853,4 +1917,187 @@ export function pairGradientGround(kind, x, st, p, W, H, sc, r) {
   cx2.putImageData(id, 0, 0);
   x.save(); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = "high"; x.drawImage(c, 0, 0, W, H); x.restore();
   return true;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════════
+   THE FULL AD'S PATTERNS AND TEXTURES (2026-11-18, rule 154). The owner: "still not enough colors,
+   gradients, pattern fill, or other ways instead of colors". The engine's own patterned grounds
+   (dots, stripes, checker, halftone...) were kept off the full ad (rule 137's review, 2026-11-12):
+   drawn in the light or the accent at a strength made for a bare phone video, their features ran
+   under the chips and through the chevrons. These are made for an ad full of words: every mark is
+   one tone of the ground's own colour (tone-on-tone, one colour family), a small step in OKLCH
+   lightness, away from the words' ink, or toward the middle of the scale only where the words keep
+   7:1 on it either way, so no line reads worse on a mark than on the ground; and the marks thin out
+   behind the product, which stands on a quiet middle. Still in the video (drawn once).
+   ═══════════════════════════════════════════════════════════════════════════════════════════════ */
+export const FULL_PATTERNS = ["pat_halftone", "pat_stripes", "pat_checks", "pat_grid", "pat_waves", "pat_zigzag", "pat_rays", "pat_rings",
+  "pat_topo", "pat_polka", "pat_gingham", "pat_memphis", "pat_grain", "pat_paper", "pat_riso"];
+/** The tone a pattern's marks take on this pair: the ground's own hue and chroma, dL lighter or deeper. */
+export function patternTone(p, dL = .06) {
+  const G = oklchOf(p.ground), ink = p.ink || (G.L < .56 ? "#ffffff" : "#111111");
+  const up = okHex(Math.min(.985, G.L + dL), G.C, G.h), down = okHex(Math.max(.05, G.L - dL), G.C, G.h);
+  const cu = contrastOf(ink, up), cd = contrastOf(ink, down);
+  if (cu >= 7 && cd >= 7) return G.L < .5 ? up : down;
+  return cu >= cd ? up : down;
+}
+const hexRgb = h => [1, 3, 5].map(k => parseInt(h.slice(k, k + 2), 16));
+export function fullPatternGround(kind, x, st, p, W, H, sc, r) {
+  if (!FULL_PATTERNS.includes(kind)) return false;
+  r = fork(r || rng(7));
+  const U = Math.min(W, H), [cx, cy] = sc || [W / 2, H * .58], D = Math.hypot(W, H);
+  // the ground, lit a little behind the product in its own lighter tone
+  x.fillStyle = p.ground; x.fillRect(0, 0, W, H);
+  const lit = x.createRadialGradient(cx, cy, 0, cx, cy, D * .6);
+  lit.addColorStop(0, rgba(p.light || p.ground, .55)); lit.addColorStop(1, rgba(p.light || p.ground, 0)); x.fillStyle = lit; x.fillRect(0, 0, W, H);
+  // the marks, on a layer of their own: thinned behind the product, then laid on the ground
+  const step = { pat_grain: .1, pat_paper: .05, pat_riso: .07, pat_topo: .06, pat_grid: .05, pat_waves: .055 }[kind] || .055;
+  const tone = patternTone(p, step), [tr, tg, tb] = hexRgb(tone), c = canvas(W, H), m = c.getContext("2d");
+  m.fillStyle = tone; m.strokeStyle = tone; m.lineCap = "round"; m.lineJoin = "round";
+  const speckle = (n, alpha) => {   // a tile of single grains in the tone
+    const t = canvas(n, n), tx = t.getContext("2d"), id = tx.createImageData(n, n);
+    for (let i = 0; i < n * n; i++) { const o = i * 4; id.data[o] = tr; id.data[o + 1] = tg; id.data[o + 2] = tb; id.data[o + 3] = alpha(); }
+    tx.putImageData(id, 0, 0); return t;
+  };
+  switch (kind) {
+    case "pat_halftone": {   // a dot screen at 45 degrees, the dots growing toward one corner
+      const s = U * .03, a = Math.PI / 4, corner = r() < .5 ? [0, 0] : [W, 0];
+      m.save(); m.translate(W / 2, H / 2); m.rotate(a);
+      for (let yy = -D / 2; yy < D / 2; yy += s) for (let xx = -D / 2; xx < D / 2; xx += s) {
+        const gx = W / 2 + xx * Math.cos(a) - yy * Math.sin(a), gy = H / 2 + xx * Math.sin(a) + yy * Math.cos(a);
+        const k = 1 - Math.hypot(gx - corner[0], gy - corner[1]) / D, rad = s * .46 * clamp(k * 1.25 - .1, .06, 1);
+        m.beginPath(); m.arc(xx, yy, rad, 0, TAU); m.fill();
+      }
+      m.restore(); break;
+    }
+    case "pat_stripes": {    // broad diagonal stripes
+      const w = U * .034, dir = r() < .5 ? 1 : -1;
+      m.save(); m.translate(W / 2, H / 2); m.rotate(dir * Math.PI / 4);
+      for (let s = -D; s < D; s += w * 2) m.fillRect(s, -D, w, D * 2);
+      m.restore(); break;
+    }
+    case "pat_checks": {     // a checkerboard, big enough to read as a floor and not as noise
+      const q = U / (r() < .5 ? 9 : 12);
+      for (let yy = 0, j = 0; yy < H; yy += q, j++) for (let xx = 0, i = 0; xx < W; xx += q, i++) if ((i + j) % 2) m.fillRect(xx, yy, q, q);
+      break;
+    }
+    case "pat_grid": {       // graph paper: a fine grid, every fifth line heavier
+      const q = U * .045;
+      for (let i = 0, xx = (W / 2) % q; xx < W; xx += q, i++) { m.lineWidth = Math.max(1, U * (i % 5 ? .0022 : .005)); m.beginPath(); m.moveTo(xx, 0); m.lineTo(xx, H); m.stroke(); }
+      for (let j = 0, yy = (H / 2) % q; yy < H; yy += q, j++) { m.lineWidth = Math.max(1, U * (j % 5 ? .0022 : .005)); m.beginPath(); m.moveTo(0, yy); m.lineTo(W, yy); m.stroke(); }
+      break;
+    }
+    case "pat_waves": {      // thin parallel waves across the frame
+      const q = U * .042, amp = U * .011, wl = U * .17, ph = r() * TAU; m.lineWidth = Math.max(1.5, U * .0055);
+      for (let yy = -q; yy < H + q; yy += q) { m.beginPath(); for (let xx = 0; xx <= W; xx += U * .01) m.lineTo(xx, yy + Math.sin(xx / wl * TAU + ph + yy * .013) * amp); m.stroke(); }
+      break;
+    }
+    case "pat_zigzag": {     // rows of chevrons
+      const q = U * .06, w = U * .045; m.lineWidth = Math.max(2, U * .008);
+      for (let yy = 0; yy < H + q; yy += q) { m.beginPath(); for (let xx = -w, i = 0; xx <= W + w; xx += w, i++) m.lineTo(xx, yy + (i % 2 ? w * .5 : 0)); m.stroke(); }
+      break;
+    }
+    case "pat_rays": {       // a sunburst from behind the product
+      const n = 28, off = r() * TAU / n;
+      for (let i = 0; i < n; i += 2) { const a0 = off + i / n * TAU, a1 = off + (i + 1) / n * TAU; m.beginPath(); m.moveTo(cx, cy); m.lineTo(cx + Math.cos(a0) * D, cy + Math.sin(a0) * D); m.lineTo(cx + Math.cos(a1) * D, cy + Math.sin(a1) * D); m.closePath(); m.fill(); }
+      break;
+    }
+    case "pat_rings": {      // rings round the product
+      const q = U * .052; m.lineWidth = U * .013;
+      for (let rad = q; rad < D; rad += q) { m.beginPath(); m.arc(cx, cy, rad, 0, TAU); m.stroke(); }
+      break;
+    }
+    case "pat_topo": {       // a contour map: the lines of a smooth field of a few hills from the seed
+      const n = Math.min(480, Math.round(W / 2)), mm = Math.max(2, Math.round(n * H / W)), hills = Array.from({ length: 6 }, () => ({ u: r(), v: r(), s: r.uniform(.12, .32), w: r.uniform(-1, 1) }));
+      const f = (u, v) => hills.reduce((t, h) => t + h.w * Math.exp(-((u - h.u) ** 2 + ((v - h.v) * H / W) ** 2) / (h.s * h.s)), 0) * 9;
+      const band = new Int16Array(n * mm); for (let j = 0; j < mm; j++) for (let i = 0; i < n; i++) band[j * n + i] = Math.floor(f(i / n, j / mm));
+      const t = canvas(n, mm), tx = t.getContext("2d"), id = tx.createImageData(n, mm);
+      for (let j = 0; j < mm - 1; j++) for (let i = 0; i < n - 1; i++) { const b = band[j * n + i]; if (b !== band[j * n + i + 1] || b !== band[(j + 1) * n + i]) { const o = (j * n + i) * 4; id.data[o] = tr; id.data[o + 1] = tg; id.data[o + 2] = tb; id.data[o + 3] = 255; } }
+      tx.putImageData(id, 0, 0); m.imageSmoothingEnabled = true; m.imageSmoothingQuality = "high"; m.drawImage(t, 0, 0, W, H); m.drawImage(t, W / n * .5, H / mm * .5, W, H);
+      break;
+    }
+    case "pat_polka": {      // big polka dots in offset rows
+      const q = U * .15, rad = U * .038;
+      for (let yy = 0, j = 0; yy < H + q; yy += q * .866, j++) for (let xx = (j % 2) * q / 2; xx < W + q; xx += q) { m.beginPath(); m.arc(xx, yy, rad, 0, TAU); m.fill(); }
+      break;
+    }
+    case "pat_gingham": {    // a gingham check: bands both ways, the crossings a step deeper
+      const q = U * .12, b = q / 2; m.globalAlpha = .6;
+      for (let xx = 0; xx < W; xx += q) m.fillRect(xx, 0, b, H);
+      for (let yy = 0; yy < H; yy += q) m.fillRect(0, yy, W, b);
+      m.globalAlpha = 1; break;
+    }
+    case "pat_memphis": {    // a scatter of paper shapes: triangles, squiggles, rings and crosses
+      const n = Math.round(W * H / (U * U) * 26);
+      for (let i = 0; i < n; i++) {
+        const px = r() * W, py = r() * H, s = U * r.uniform(.018, .04), a = r() * TAU, k = Math.floor(r() * 4);
+        m.save(); m.translate(px, py); m.rotate(a); m.lineWidth = Math.max(2, U * .007);
+        if (k === 0) { m.beginPath(); m.moveTo(0, -s); m.lineTo(s * .87, s * .5); m.lineTo(-s * .87, s * .5); m.closePath(); m.fill(); }
+        else if (k === 1) { m.beginPath(); for (let t = 0; t <= 1.001; t += .1) m.lineTo((t - .5) * s * 2.4, Math.sin(t * TAU * 1.5) * s * .35); m.stroke(); }
+        else if (k === 2) { m.beginPath(); m.arc(0, 0, s * .6, 0, TAU); m.stroke(); }
+        else { m.fillRect(-s * .7, -s * .14, s * 1.4, s * .28); m.fillRect(-s * .14, -s * .7, s * .28, s * 1.4); }
+        m.restore();
+      }
+      break;
+    }
+    case "pat_grain": {      // film grain over the soft light
+      m.fillStyle = m.createPattern(speckle(256, () => Math.round(r() ** 2.2 * 255)), "repeat"); m.fillRect(0, 0, W, H);
+      break;
+    }
+    case "pat_paper": {      // paper: a soft cloudy fibre and a scatter of short fibres
+      const n = 64, t = canvas(n, Math.max(2, Math.round(n * H / W))), tx = t.getContext("2d"), id = tx.createImageData(t.width, t.height);
+      for (let i = 0; i < t.width * t.height; i++) { const o = i * 4; id.data[o] = tr; id.data[o + 1] = tg; id.data[o + 2] = tb; id.data[o + 3] = Math.round(r() * 150); }
+      tx.putImageData(id, 0, 0); m.imageSmoothingEnabled = true; m.imageSmoothingQuality = "high"; m.drawImage(t, 0, 0, W, H);
+      m.lineWidth = Math.max(1, U * .0018);
+      for (let i = 0; i < 240; i++) { const px = r() * W, py = r() * H, a = r() * TAU, l = U * r.uniform(.01, .05); m.beginPath(); m.moveTo(px, py); m.quadraticCurveTo(px + Math.cos(a + .6) * l * .5, py + Math.sin(a + .6) * l * .5, px + Math.cos(a) * l, py + Math.sin(a) * l); m.stroke(); }
+      break;
+    }
+    case "pat_riso": {       // a risograph print: a coarse dot screen a hair off register, and its grain
+      const s = U * .022, off = U * .004;
+      for (let yy = 0, j = 0; yy < H + s; yy += s, j++) for (let xx = (j % 2) * s / 2; xx < W + s; xx += s) {
+        const k = .5 + .5 * Math.sin(xx / W * 3.1 + yy / H * 2.3 + 1.7), rad = s * .42 * (.25 + .75 * k);
+        m.beginPath(); m.arc(xx + off, yy - off, rad, 0, TAU); m.fill();
+      }
+      m.fillStyle = m.createPattern(speckle(128, () => r() < .18 ? 200 : 0), "repeat"); m.fillRect(0, 0, W, H);
+      break;
+    }
+  }
+  // thinned behind the product: the middle keeps a third of the marks, the frame's edges all of them
+  m.globalCompositeOperation = "destination-in";
+  const fade = m.createRadialGradient(cx, cy, U * .08, cx, cy, Math.max(W, H) * .62);
+  fade.addColorStop(0, "rgba(0,0,0,.32)"); fade.addColorStop(.55, "rgba(0,0,0,.8)"); fade.addColorStop(1, "rgba(0,0,0,1)");
+  m.fillStyle = fade; m.fillRect(0, 0, W, H); m.globalCompositeOperation = "source-over";
+  x.drawImage(c, 0, 0);
+  return true;
+}
+
+/* THE FILLS OF THE STICKER, THE PLATES AND THE BADGE (2026-11-18, rule 154): beside the flat colour
+   and the light from above (fillGradient), stripes, a dot screen and a pressed foil's sheen. Each is
+   the fill's own hue moved away from the ink it carries, so every point of it reads at least as well
+   as the flat fill (gradientEnds' rule); laid on the path the caller has just filled, clipped to it. */
+export const FILL_TEXTURES = ["stripes", "dots", "foil"];
+/** A texture's tone: the fill moved d away from its ink; the fill itself where it cannot move further
+ *  (a white plate under dark figures: OKLCH tops out at .985, a grey that read 4% worse, 2026-11-18). */
+export function textureTone(fill, ink, d) {
+  const t = toneOf(fill, lum(ink) > lum(fill) ? -d : d);
+  return contrastOf(ink, t) >= contrastOf(ink, fill) ? t : fill;
+}
+export function fillTexture(ctx, mode, fill, ink, x0, y0, x1, y1) {
+  if (!FILL_TEXTURES.includes(mode)) return;
+  const w = x1 - x0, h = y1 - y0, u = Math.max(4, Math.min(w, h));
+  const away = d => textureTone(fill, ink, d);
+  ctx.save(); ctx.clip();
+  if (mode === "stripes") {
+    ctx.fillStyle = away(.09); const sw = u * .16, D = Math.hypot(w, h);
+    ctx.translate(x0 + w / 2, y0 + h / 2); ctx.rotate(-Math.PI / 4);
+    for (let s = -D; s < D; s += sw * 2) ctx.fillRect(s, -D, sw, D * 2);
+  } else if (mode === "dots") {
+    ctx.fillStyle = away(.1); const s = u * .2;
+    for (let yy = y0, j = 0; yy < y1 + s; yy += s * .87, j++) for (let xx = x0 + (j % 2) * s / 2; xx < x1 + s; xx += s) { ctx.beginPath(); ctx.arc(xx, yy, s * .2, 0, TAU); ctx.fill(); }
+  } else {
+    // foil: a sheen across it in two bands, one wide and one narrow, the way light catches pressed metal
+    const g = ctx.createLinearGradient(x0, y0, x1, y1);
+    [[0, fill], [.22, away(.16)], [.36, fill], [.58, fill], [.68, away(.1)], [.76, fill], [1, away(.05)]].forEach(([o, c2]) => g.addColorStop(o, c2));
+    ctx.fillStyle = g; ctx.fillRect(x0, y0, w, h);
+  }
+  ctx.restore();
 }

@@ -29,9 +29,9 @@ if (!LINES || !LINES.length) { console.error('offer-library.js gave no lines'); 
    in "SELL YOUR ..."] */
 const NAMES = {
   iphone: ['iPHONES', 'iPHONE'], ipad: ['iPADS', 'iPAD'], mac: ['MACBOOKS', 'MACBOOK'], watch: ['APPLE WATCHES', 'APPLE WATCH'],
-  galaxy: ['GALAXY PHONES', 'GALAXY'], pixel: ['PIXEL PHONES', 'PIXEL'], foldable: ['FOLDABLES', 'FOLD OR FLIP'], tablet: ['TABLETS', 'TABLET'],
-  console: ['CONSOLES', 'CONSOLE'], switch: ['NINTENDO SWITCH', 'SWITCH'], controller: ['CONTROLLERS', 'CONTROLLERS'], gamelaptop: ['GAMING LAPTOPS', 'GAMING LAPTOP'],
-  vr: ['VR HEADSETS', 'VR HEADSET'], pchandheld: ['PC HANDHELDS', 'HANDHELD'], gamingpc: ['GAMING PCS', 'GAMING PC'],
+  galaxy: ['SAMSUNG PHONES', 'SAMSUNG'], pixel: ['PIXEL PHONES', 'PIXEL'], foldable: ['FOLDABLES', 'FOLD OR FLIP'],
+  macdesk: ['MACS', 'MAC'], android: ['ANDROIDS', 'ANDROID'],   // the owner's lines (2026-11-18): the desktop Macs, and Androids of every brand
+  console: ['CONSOLES', 'CONSOLE'], pchandheld: ['GAMING HANDHELDS', 'HANDHELD'], gamingpc: ['GAMING COMPUTERS', 'GAMING PC'],
   headphones: ['HEADPHONES', 'HEADPHONES'], earbuds: ['EARBUDS', 'EARBUDS'], headset: ['GAMING HEADSETS', 'HEADSET'], speaker: ['SPEAKERS', 'SPEAKER'],
   monitor: ['MONITORS', 'MONITOR'], laptop: ['LAPTOPS', 'LAPTOP'], ssd: ['SEALED SSDS', 'SEALED SSDS'], minipc: ['MINI PCS', 'MINI PC'], chromebook: ['SEALED CHROMEBOOKS', 'SEALED CHROMEBOOK'],
   metaglasses: ['META GLASSES', 'META GLASSES'], smartwatch: ['SMARTWATCHES', 'SMARTWATCH'],
@@ -45,11 +45,26 @@ const NAMES = {
 const CAR_POINTS = 'FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU';
 const POINTS = { car: CAR_POINTS, classic: CAR_POINTS, jdm: CAR_POINTS, trucks: CAR_POINTS, toyota: CAR_POINTS, honda: CAR_POINTS, bmw: CAR_POINTS, mercedes: CAR_POINTS, vans: CAR_POINTS, semis: CAR_POINTS, gold: 'TESTED FREE, PAID TODAY, NO FEES', silver: 'TESTED FREE, PAID TODAY, NO FEES',
   coins: 'FREE QUOTE, PAID TODAY, NO FEES', pokemon: 'FREE QUOTE, PAID TODAY, SINGLES OR SETS', sports: 'FREE QUOTE, PAID TODAY, SINGLES OR SETS', strips: 'SEALED BOXES, PAID TODAY, NO FEES' };
-const GROUPS = { phones: 'Phones and Apple', gaming: 'Gaming', audio: 'Audio', computers: 'Computers', wearables: 'Wearables', cameras: 'Cameras', gold: 'Gold, silver and coins', silver: 'Gold, silver and coins',
-  coins: 'Gold, silver and coins', cars: 'Cars', strips: 'Test strips', pokemon: 'Cards', sports: 'Cards' };
+// in the order the menus list them (the video maker's groups, a category's lines in Easy Mode)
+const GROUPS = { phones: 'Phones and Apple', gaming: 'Gaming', audio: 'Audio', computers: 'Computers', wearables: 'Wearables', gold: 'Gold, silver and coins', silver: 'Gold, silver and coins',
+  coins: 'Gold, silver and coins', cars: 'Cars', strips: 'Test strips', pokemon: 'Cards', sports: 'Cards', cameras: 'Cameras' };
+/* THE OWNER'S LINES, IN THE OWNER'S ORDER (2026-11-18): "and technically categories would be iPhones,
+   iPads, Macbooks, Macs, Androids (all), Pixel, Samsung, or foldables", "Gaming would be Consoles,
+   Computers, and Handhelds". Apple Watch went to Wearables, first there as the one most bought. A
+   category's lines are listed in this order, the rest after it in the offer family's; a line folded
+   into another (offer-library.js alias: Android tablets, the Switch, controllers, VR headsets, gaming
+   laptops) is in no menu, and a look that picked it draws the line it folded into (aliases). */
+const MENU = { phones: ['iphone', 'ipad', 'mac', 'macdesk', 'android', 'pixel', 'galaxy', 'foldable'], gaming: ['console', 'gamingpc', 'pchandheld'], wearables: ['watch', 'smartwatch', 'metaglasses'] };
 
-const missing = [], subjects = [];
+const missing = [], subjects = [], aliases = {};
+/* WORDS THAT FOLLOW THE PRODUCT DRAWN (the owner, 2026-11-18, of the MacBook Neo: "don't see any of these ads
+   talk about the MacBook Neo. It's not really as popular in MacBook Air Pro covers about 95% of all the
+   MacBooks but there's a small group of those that some people may or may not target"). Where a seed draws a
+   line's entry whose pictures match, its ad says these words, unless the customer typed their own: the
+   Neo is drawn about one ad in twenty (spec/product-demand.json), and those ads name it. */
+const VARIANTS = { mac: [{ match: 'macbook-neo', heads: ['SELL YOUR MACBOOK NEO', 'WE BUY MACBOOK NEO', 'CASH FOR YOUR MACBOOK NEO'], models: 'MacBook Neo, every colour' }] };
 for (const l of LINES) {
+  if (l.alias) { aliases[l.key] = l.alias; continue; }
   const nm = NAMES[l.key];
   if (!nm) { console.error(`no headline name for the line "${l.key}": add it to NAMES`); process.exit(2); }
   // every set of pictures the offer cards use for the line, in their order; a set is one or two pictures [file, its size beside the first]
@@ -59,9 +74,16 @@ for (const l of LINES) {
   const points = POINTS[l.key] || 'FREE QUOTE, CASH SAME DAY, NO FEES';
   // a chip holds about sixteen letters at a readable size beside the product (full_ad_check: a 23-letter one found no room)
   for (const c of points.split(', ')) if (c.length > 16) { console.error(`the point "${c}" for ${l.key} is over 16 letters`); process.exit(2); }
-  subjects.push({ key: l.key, cat: l.cat, group: GROUPS[l.cat] || 'More', label: l.label, models: l.models, heads, points, sets });
+  subjects.push({ key: l.key, cat: l.cat, group: GROUPS[l.cat] || 'More', label: l.label, models: l.models, heads, points, sets, ...(VARIANTS[l.key] ? { variants: VARIANTS[l.key] } : {}) });
 }
 if (missing.length) { console.error('pictures missing:\n  ' + missing.join('\n  ')); process.exit(1); }
+for (const [k, to] of Object.entries(aliases)) if (!subjects.some(s => s.key === to)) { console.error(`the line "${k}" folds into "${to}", which is no line`); process.exit(2); }
+for (const [cat, keys] of Object.entries(MENU)) for (const k of keys) { const s = subjects.find(x => x.key === k); if (!s || s.cat !== cat) { console.error(`MENU lists "${k}" under ${cat}, where there is no such line`); process.exit(2); } }
+{ // the menus' order: the categories in GROUPS's order, the owner's lines first in the owner's order
+  const catAt = Object.keys(GROUPS), at = new Map(subjects.map((s, i) => [s, i]));
+  const rank = s => [catAt.indexOf(s.cat) < 0 ? catAt.length : catAt.indexOf(s.cat), (MENU[s.cat] || []).includes(s.key) ? MENU[s.cat].indexOf(s.key) : 100 + at.get(s)];
+  subjects.sort((a, b) => { const x = rank(a), y = rank(b); return x[0] - y[0] || x[1] - y[1]; });
+}
 
 /* EVERY LINE'S POOL (2026-11-18). The owner: "we need infinite but prioritized by recent popular and
    expensive models", "all colors too", "multi.. or just 1". A full ad nobody picked the picture for
@@ -104,6 +126,9 @@ for (const S of subjects) {
     }
   }
   for (const [f, w] of C.pictures || []) if (usable(f, S.key)) cand.push({ set: [{ file: f, k: 1 }], w, rank: w });
+  // sets the table names, several products on one ad (the owner, 2026-11-18, of Macs: "need more in the
+  // category"): an iMac beside a Mac Studio, iMacs in two or three colours; drawn as one entry at its weight
+  for (const [files, w] of C.sets || []) if (files.length && files.every(f => usable(f, S.key))) cand.push({ set: files.map((f, i) => ({ file: f, k: i ? .92 : 1 })), w, rank: w });
   // every approved cut-out whose id the line's pattern names (match, less exclude), at matchWeight: how a
   // line's pool grows past the pictures named one by one (the owner, 2026-11-18: "like 3-5x the pool")
   if (C.match) {
@@ -151,7 +176,7 @@ for (const S of subjects) {
   S.pool = pool;
 }
 
-const json = JSON.stringify({ _doc: 'What a full ad can be about, made from offer-library.js LINES by scripts/build_full_subjects.mjs, and each line\'s pool (what a full ad nobody picked the picture for draws from, by its seed) from spec/product-demand.json, assets/devices.json and assets/vehicles.json. Do not edit by hand: change those and run the script.', subjects }, null, 1) + '\n';
+const json = JSON.stringify({ _doc: 'What a full ad can be about, made from offer-library.js LINES by scripts/build_full_subjects.mjs, and each line\'s pool (what a full ad nobody picked the picture for draws from, by its seed) from spec/product-demand.json, assets/devices.json and assets/vehicles.json. Do not edit by hand: change those and run the script. aliases: a line folded into another (the owner\'s lines, 2026-11-18), which a look that picked it now draws.', aliases, subjects }, null, 1) + '\n';
 if (process.argv.includes('--check')) {
   const have = existsSync(OUT) ? readFileSync(OUT, 'utf8') : '';
   if (have !== json) { console.error('motion/subjects.json is stale: run node scripts/build_full_subjects.mjs'); process.exit(1); }

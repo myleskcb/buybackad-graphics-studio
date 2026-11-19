@@ -690,3 +690,14 @@ produced." DESIGN-LAW rule 87. In practice:
   "From the library"; photo grounds come from `spec/full-grounds.json`
   (`scripts/build_full_grounds.mjs`). A new ad design goes in as a recipe or a full-ad option,
   never as a renderer of its own, so it is a photo and a video and the census reads it.
+- **A recipe takes after its card, never copies it** (rule 155): its own seed, and a lean
+  (`spec/recipe-looks.json`, `motion/recipe-lean.js`) toward its family's idea and colourway.
+  Never lock a recipe to its card's pair, face, photograph or picture; the product is the line's
+  pool unless the words name it.
+- **The old library and offer cards are retired** (the owner, 2026-11-18). The landing shows each
+  card's rebuilt ad from `assets/recipe-stills/` (`node scripts/build_recipe_stills.mjs`, `--check`)
+  through `scLoadShelf`; `scLoadIndex` is the library cards alone. Rebuild the stills when the
+  recipes or the engine change (`--all`).
+- **The partner library serves the rebuilt library ads** (`assets/rebuilt-ads/`,
+  `node scripts/render_rebuilt_ads.mjs --stale` after the recipes or the engine change;
+  `library_api_check` fails while one is stale).
