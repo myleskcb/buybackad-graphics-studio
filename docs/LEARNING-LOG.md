@@ -6223,3 +6223,41 @@ RESUME HERE:
   1. A "hello" forward for webuy.ad in Namecheap; webuy.ad in Search Console and Bing with
      the sitemap; the five explainer videos still say "by BUYBACK.AD" (OPEN-ITEMS §BK 11).
   2. The landing's load (§BK 3); the session "Landing load" was asked which base to use.
+
+## 2026-11-19 (later still) — the landing's column and rhythm; three directions for the mark (claude/zen-dijkstra-7b5a2e)
+
+The owner, through the roadmap session, of main's header and hero as live: "looks sloppy
+vibecoded... the alignment is not that of someone who makes graphic designs", "the margins and
+spacing", "the WeBuy.AD type face and logo is not great", "also what about an icon?"; and of the
+colour sets: "really really old copy ... wasting precious scroll space looking at color combos".
+
+Measured first, on main as live: the bar's side padding was clamp(16px, 4vw, 40px) across the full
+width while the hero sat in a centred 1200px box with clamp(16px, 5vw, 48px), so the wordmark and
+the hero never shared an edge (12px against 20px on a phone); the hero's copy was centred in a box
+86% of the window tall, so its gap under the bar changed with the window; the eyebrow wrapped at
+every width but the widest, with its dot centred on two lines; the text link among the buttons kept
+a button's 30px side padding.
+
+Done (DESIGN-LAW 158): one column and gutter for everything on the landing, a 4px spacing scale,
+the hero a fixed step under the bar, a one-line eyebrow measured at 320, 360 and 390 (the long one
+cut at 390; "For phone, gold and car buyers" fits 320 with 30px to spare), the share card drawn
+again with it (rule 153 asks for the home page's words, word for word). The colour sets are gone;
+"Why it gets texts" and the video ads are where they were. Three directions for the wordmark and its
+icon, drawn and shown on a page for the owner to pick; nothing changes until then.
+
+Numbers: main renumbered its two rules 152 and 153 (5dfd1b7b, "every branch and worktree
+grepped"), and pull request 14 is folding the census's four in as 154 to 157, keeping 146 for this
+branch. This branch follows: main's rules are 152 and 153 here too, the landing's rule is 158, and
+every citation changed is a line main or pull request 14 changed the same way, so the next merges
+meet themselves.
+
+Learned: the measure caught a second bug the eyes missed. A long unbreakable eyebrow widened the
+hero's grid column past the screen, because a grid item's minimum width is its content; the fix,
+`min-width:0`, belongs on any column that holds a line set not to wrap.
+
+RESUME HERE:
+  0. The owner's pick among the three directions for the mark (OPEN-ITEMS §BK 14), and the
+     owner's word on pull request 15.
+  1. Pull request 14 once it is pushed with main's 5dfd1b7b and the census at 154 to 157: merge
+     it here, and make the explainers' WebP posters again (§BK 15).
+  2. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5).

@@ -579,7 +579,7 @@ produced." DESIGN-LAW rule 87. In practice:
   it; with `--write` it grows them, gated. Look at every card on a
   before-and-after before you show it.
 - **What search engines read, on main's look** (rule 146, 2026-11-18; the look is
-  rules 147 and 148 since 2026-11-19, "Follow main"): the public pages and the studio
+  rules 152 and 153 since 2026-11-19, "Follow main"): the public pages and the studio
   wear reselling.us's look and the name WeBuy.AD (BUYBACK.AD is the business: the
   copyright and the terms' party). scripts/build_seo_pages.mjs writes every public
   page's head, the information pages' bar and foot in main's markup, the structured
@@ -591,6 +591,8 @@ produced." DESIGN-LAW rule 87. In practice:
   FAQ's JSON-LD. The hero is the owner's wall of hand picks (`#hero-wall`, app.js
   scBuildWall): a remake of the landing keeps it. Describe the watermark without a
   name; watermark.js's `WORD` is the name.
+  The landing is one column on one scale (rule 158: `--col`, `--gutter`, `--s1` to `--s9` at
+  the end of styles.css): a new section takes them, never a padding or a gap of its own.
 - **The scripts:** a script that rewrites a showcase record passes its
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the

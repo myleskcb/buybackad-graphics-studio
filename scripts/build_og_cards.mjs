@@ -5,7 +5,7 @@
    engine, with clean words, and writes:
      assets/full-ads/<name>.webp    the ad itself, 720 on the short side, shown on the page
      assets/og/<file>.jpg           the page's link preview, 1200x630, in main's share card's look
-                                    (rules 147, 148): the wordmark, the page's kicker and title, its
+                                    (rules 152, 153): the wordmark, the page's kicker and title, its
                                     own ad (scripts/og_card.html)
    so a link to /ads/we-buy-gold.html previews as a gold ad. The home page and the information pages
    use main's share card (assets/brand/share-card.jpg, tools/brand/make.sh), and the logo the

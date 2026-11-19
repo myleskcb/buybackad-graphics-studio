@@ -56,7 +56,7 @@
 @font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}
 @font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
 /* Inter Tight carries the WeBuy.AD wordmark and nothing else, as it carries
-   Reselling.US's (DESIGN-LAW rule 148). SIL OFL 1.1, the licence beside it in
+   Reselling.US's (DESIGN-LAW rule 153). SIL OFL 1.1, the licence beside it in
    assets/fonts/InterTight-OFL.txt; the file is reselling.us's own. */
 @font-face{font-family:'Inter Tight';src:url('assets/fonts/inter-tight-latin.woff2') format('woff2');font-weight:500 800;font-style:normal;font-display:swap}
 
@@ -2886,7 +2886,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .bggen-op{color:var(--text-dim);font-size:.92em}
 
 /* ═════════════════════════════════════════════════════════════════
-   FAMILY — THE HOUSE LOOK, 2026-11-19 (DESIGN-LAW rule 147).
+   FAMILY — THE HOUSE LOOK, 2026-11-19 (DESIGN-LAW rule 152).
    The owner, with webuy.ad live: "it needs to have similar or matching
    styling to reselling.us", colour first. Every value below is read off
    reselling.us's own sheet (/static/app.css, 2026-11-19), mapped onto the
@@ -3027,7 +3027,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='family'] .hero h1 em{color:var(--deal-text);background:none;padding:0}
 
 /* ═════════════════════════════════════════════════════════════════
-   THE WEBUY.AD TYPE AND WORDMARK, 2026-11-19 (DESIGN-LAW rule 148).
+   THE WEBUY.AD TYPE AND WORDMARK, 2026-11-19 (DESIGN-LAW rule 153).
    reselling.us sets its headlines and text in the system face (SF Pro on an
    Apple device), headlines bold and tight, and its wordmark in Inter Tight
    750 with the domain's ending in the blue: Reselling.US. The studio is
@@ -3051,3 +3051,37 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='family'] .lp-kicker,:root[data-skin='family'] .co-kicker{text-transform:none;letter-spacing:0;font-size:14px;font-weight:600}
 :root[data-skin='family'] .lp-kicker{color:var(--accent-text)}
 :root[data-skin='family'] .lp-kicker::before{background:var(--deal)}
+
+/* ── THE LANDING'S COLUMN AND RHYTHM (DESIGN-LAW 158, 2026-11-19) ─────────────────────────
+   The owner, of the header and the hero: "looks sloppy vibecoded... the alignment is not that
+   of someone who makes graphic designs", "the margins and spacing". One content column for the
+   bar, the hero, the stats, every section, the closing call and the foot: the same width and
+   the same gutter, so every left edge lines up under the wordmark. One spacing scale, 4 and its
+   multiples, for every gap. The hero's copy sits a fixed step under the bar, not centred in a
+   box as tall as the window. The eyebrow is one line at every width. */
+:root{--col:1200px;--gutter:clamp(16px,4vw,40px);--bar:64px;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;--s9:80px}
+.lp-nav{height:var(--bar);padding:0 max(var(--gutter),calc((100% - var(--col)) / 2 + var(--gutter)));gap:var(--s2)}
+.hero,.hero-v2{max-width:var(--col);padding:calc(var(--bar) + var(--s8)) var(--gutter) var(--s8);gap:var(--s7);min-height:0;align-items:start}
+.hero-copy{min-width:0}   /* a grid column must never grow to fit an unbreakable line */
+.hero-eyebrow{margin-bottom:var(--s5)}
+.hero h1{margin-bottom:var(--s5)}
+.hero-copy p{margin:0 0 var(--s6)}
+.hero-ctas{gap:var(--s3)}
+.hero-ctas .btn-ghost{padding-left:0;padding-right:0}
+.hero-note{margin-top:var(--s4)}
+.lp-stats{max-width:var(--col);padding:var(--s5) var(--gutter) 0;gap:var(--s2) var(--s6)}
+.lp-section{max-width:var(--col);padding:var(--s9) var(--gutter)}
+.lp-section-head{margin-bottom:var(--s6)}
+.lp-cta{max-width:var(--col);padding:0 var(--gutter)}
+.lp-footer-big{padding:var(--s7) var(--gutter) var(--s6)}
+.lpf-cols{max-width:calc(var(--col) - 2 * var(--gutter))}
+@media(max-width:900px){
+  .hero,.hero-v2{padding-top:calc(var(--bar) + var(--s6));padding-bottom:var(--s7);gap:var(--s6)}
+  .lp-section{padding-top:var(--s8);padding-bottom:var(--s8)}
+}
+@media(max-width:640px){.lp-nav{padding:0 var(--gutter);gap:var(--s1)}}
+/* the eyebrow: one line, its dot on that line with a crisp ring, its padding on the scale */
+:root[data-skin='family'] .hero-eyebrow{padding:var(--s2) var(--s3);gap:var(--s2);line-height:20px;max-width:100%}
+:root[data-skin='family'] .hero-eyebrow>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-skin='family'] .hero-eyebrow::before{width:8px;height:8px;box-shadow:0 0 0 3px rgba(var(--accent2-rgb),.3)}

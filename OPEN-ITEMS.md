@@ -3920,7 +3920,7 @@ branch. Its newer head, cb6d8321 (the census and the house engine's rebuild:
 DESIGN-LAW 143 to 145, §BI and §BJ), was merged in before the pull request.)
 
 **Since 2026-11-19 the site follows main** (the owner: "Follow main"; item 12): main's
-reselling.us look and the name WeBuy.AD (DESIGN-LAW 147 and 148, §BL and §BM) replaced the
+reselling.us look and the name WeBuy.AD (DESIGN-LAW 152 and 153, §BL and §BM) replaced the
 full ad's look this section first describes. What is below about house.css, the pairs and
 faces a URL away, the starburst and the double outline is history; the search, structured
 data, llms files, FAQ, links and speed work stand.
@@ -4016,7 +4016,7 @@ read it in capitals (billing_check). Both are scoped to the page's own main now.
 Open:
 1. **Not on `main`, not deployed** (the owner's word). The deploy workflow
    still skips until NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID are set.
-2. **The studio's editor wears main's look** (rule 147's `family` skin, the default since
+2. **The studio's editor wears main's look** (rule 152's `family` skin, the default since
    2026-11-19), not this section's. The session started for "the studio's editor in the house
    look" was asked to hold and ask the owner before restyling.
 3. **The landing still runs the whole studio at load**: app.js (1.6 MB) and
@@ -4052,7 +4052,7 @@ Open:
    index.html on the other). Since item 12 the landing is main's, wall and all, so the house
    frame and the three ads are gone; the empty `assets/hero/index.json` stays (the landing
    asked for it and logged a 404 on every visit before the first house pick).
-11. **The name is WeBuy.AD; BUYBACK.AD is the business** (main's rule 148, which this branch
+11. **The name is WeBuy.AD; BUYBACK.AD is the business** (main's rule 153, which this branch
    follows since item 12; its own rename to "WEBUY.AD" the same night, d1dfc9a6, gave way).
    What this branch adds to main's: the generator, the cards and the checks speak the name
    (`BRAND`, `MARK`, `BUSINESS`, `DOMAIN`); the watermark's word is `WeBuy.AD` in
@@ -4065,7 +4065,7 @@ Open:
      "hello" forward is set. The privacy policy says "updated 19 November 2026".
    - The terms keep "Version 2026-11-18" and BUYBACK.AD as the party: the consent recorded with
      each purchase names that version (`TERMS_VERSION`, netlify/lib/billing.mjs), and the party
-     is the owner's legal call (rule 148).
+     is the owner's legal call (rule 153).
    - Not renamed: the five explainer videos on learn.html say "by BUYBACK.AD" in their frames
      (tools/explainers/videos.js, then a new render); the partner library's API names, app.js's
      hand-off message types and the Netlify project names are addresses, not words, and stay.
@@ -4075,7 +4075,8 @@ Open:
    - **Pull request 14 against main** (eight clashes): pull request 14's plan cards (plans.mjs
      planBullets) and its watermark (watermark.js, the mark across the whole ad) win over
      main's older planFeats and corner marks, with the word WeBuy.AD; main's rules 138 and 139
-     are 147 and 148, its §BD and §BE are §BL and §BM, touching only the lines main added.
+     are 152 and 153 (main's own numbers since 5dfd1b7b; 147 and 148 here at first), its §BD and
+     §BE are §BL and §BM, touching only the lines main added.
    - **The pages are main's**: the landing, the information pages, the Look Book, the video
      maker's page, pages.css, the 404, the favicon and the icons. On them, this branch's search
      layer again: the head's words and the full preview cards, the site's graph and the FAQ's,
@@ -4087,6 +4088,24 @@ Open:
      and the WEBUY.AD logo (main's share card and W icon serve), the pairs and faces a URL
      away. The category cards are redrawn in the share card's look.
    - Measured after: the learning log.
+13. **The landing's column and rhythm** (done, 2026-11-19, DESIGN-LAW 158), on the owner's critique
+   of main's header and hero: one column and gutter for the bar, hero, stats, sections, closing call
+   and foot; one spacing scale in 4px steps; the hero's copy a fixed step under the bar; the
+   eyebrow one line ("For phone, gold and car buyers", the share card drawn again with it); the
+   hero's text link on the column's edge. The colour sets, their links and their count left the
+   landing; "Why it gets texts" and the video ads took their place. Before (main as live) and after,
+   at 390 and 1440, light and dark: docs/seo-2026-11-18/hero-before-*.jpg and hero-after-*.jpg.
+14. **The wordmark and the icon wait on the owner's pick** among three directions, each a wordmark
+   and an icon made together (a tag, a message bubble, a sticker), shown in the header at desktop
+   and phone width, dark and light, and as the icon at 512, 180, 32 and 16:
+   https://claude.ai/artifact/FPgpT73Y32XWEBN7tr2DQq (the drawing:
+   the session's scratchpad, brand/directions.html). Once picked: the icon beside the wordmark in
+   the bar (the owner asked for one), favicon.svg and assets/brand/icon-{32,180,192,512,1024}.png,
+   the share card's and the cards' wordmark, the information pages' and the Look Book's brand, and
+   rule 153's text.
+15. **The explainers' WebP posters**: main drew the five explainers again in the WeBuy.AD look
+   (5dfd1b7b). This branch's learn.html points at WebP posters of the old look until main, or pull
+   request 14 with it, is merged here; then make them again from main's new JPEGs.
 
 ## BL. 2026-11-18 — webuy.ad, the site's new address
 
@@ -4208,7 +4227,7 @@ Open:
 6. Search: add webuy.ad in Google Search Console and submit
    `https://webuy.ad/sitemap.xml`.
 
-## BM. 2026-11-19 — the reselling.us look: colour first (DESIGN-LAW 147)
+## BM. 2026-11-19 — the reselling.us look: colour first (DESIGN-LAW 152)
 
 The owner, once webuy.ad was live: "logos branding webkit", "all aspects need
 to finish and it needs to have similar or matching styling to reselling.us",
@@ -4225,9 +4244,9 @@ Done:
   `admin-ads/`, `phonegfx-studio.html`) are as they were.
 - Checked by eye at 1280 and 390, dark and light: the landing, Easy Mode,
   the advanced editor, about, the Look Book, the video maker; no sideways
-  scroll at 390; contrast measured (rule 147).
+  scroll at 390; contrast measured (rule 152).
 
-Then, the same day (DESIGN-LAW 148), the owner chose "WeBuy.AD":
+Then, the same day (DESIGN-LAW 153), the owner chose "WeBuy.AD":
 - **Type**: the system face for headlines and text, the default (`system`).
 - **The wordmark** `WeBuy.AD` in Inter Tight 750 on every page's header; the
   face vendored from reselling.us with its OFL text.

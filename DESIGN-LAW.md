@@ -6105,7 +6105,7 @@ rewritten 2026-11-19, when the site took main's look. The owner: "Build out
 SEO for the BUYBACK.AD site and all its public parts, and remake the site's UI
 so it's unified with our latest theming"; of the crawlers that train AI
 models, "Allow everything"; and when main's reselling.us look and the name
-WeBuy.AD (rules 147 and 148, made in another session the same night) met the
+WeBuy.AD (rules 152 and 153, made in another session the same night) met the
 look this rule had first put on the public pages, the full ad's: "Follow main".
 
 Measured first (docs/SEO-AUDIT-2026-11-18.md): every link preview was the
@@ -6116,13 +6116,13 @@ nothing on the video maker or the information pages; the FAQ stopped at 13
 questions; robots.txt said nothing to AI crawlers and there was no llms.txt.
 Lighthouse on a phone: the landing 31, the video maker 51, the Look Book 46.
 
-- **The look is main's** (rules 147 and 148): reselling.us's navy, one blue and
+- **The look is main's** (rules 152 and 153): reselling.us's navy, one blue and
   mint, the WeBuy.AD wordmark, the system face. The full ad's look this rule
   first wore (house.css, a pair and a face a URL away, site-theme.js) is gone;
   the pictures of ads keep their own pairs and faces, as every ad does.
 - **The name**: WeBuy.AD for the product and the site, written
   `WeBuy<em>.AD</em>`; BUYBACK.AD is the business, in the copyright lines and as
-  the party to the terms (rule 148). One place per tool: `BRAND`, `MARK`,
+  the party to the terms (rule 153). One place per tool: `BRAND`, `MARK`,
   `BUSINESS` and `DOMAIN` in scripts/build_seo_pages.mjs, the wordmark in
   scripts/og_card.html. Page words describe the watermark without the name it
   carries ("a light watermark"), true whatever watermark.js's `WORD` says.
@@ -6175,10 +6175,10 @@ Lighthouse on a phone: the landing 31, the video maker 51, the Look Book 46.
 
 Not done here: OPEN-ITEMS §BK.
 
-## 147. The studio's chrome is reselling.us's: navy, one blue, and mint for the deal
+## 152. The studio's chrome is reselling.us's: navy, one blue, and mint for the deal
 
-(Numbered 138 on `main` until pull request 14 met it on 2026-11-19, where 138 to 145 were
-taken; 139 became 148 the same way, as pull request 15 numbers them. Citations of either in main's own files were renumbered.)
+*Numbered 152, not 138: rules 138 to 151 were already taken on other branches
+(grepped every branch and worktree on 2026-11-19); 153 follows it.*
 
 Added 2026-11-19, the day webuy.ad went live (OPEN-ITEMS §BL); supersedes rule
 98's look. The owner: "it needs to have similar or matching styling to
@@ -6208,11 +6208,11 @@ default since this day.
   kept to match (its labels are 14 to 17px semibold, so it holds only the
   large-text bar); and the light headline's green phrase, 4.17:1, which is
   50px and up, where 3:1 is the bar.
-- **Then the type, the wordmark and the pictures**: rule 148, the same day.
+- **Then the type, the wordmark and the pictures**: rule 153, the same day.
 
-## 148. The name is WeBuy.AD, written and drawn the way Reselling.US is
+## 153. The name is WeBuy.AD, written and drawn the way Reselling.US is
 
-Added 2026-11-19, after rule 147's colours. The owner chose the wordmark
+Added 2026-11-19, after rule 152's colours. The owner chose the wordmark
 "WeBuy.AD". Every rule below is reselling.us's own (its `docs/brand/source/`
 and `/static/app.css`), applied to the new name, so the two read as one family.
 
@@ -6242,3 +6242,34 @@ and `/static/app.css`), applied to the new name, so the two read as one family.
   the party to an agreement is the owner's legal call, with a new terms
   version (`TERMS_VERSION`).
 
+## 158. The landing reads as one column on one scale, and its eyebrow is one line
+
+Added 2026-11-19. (Numbered 158: 146 is pull request 15's, 152 and 153 are main's and 154 to 157
+the census's; nothing at or above 158 was taken on any branch or worktree.) The owner, of the
+landing's header and hero, main's look as it is live on webuy.ad: "looks sloppy vibecoded... and
+the alignment is not that of someone who makes graphic designs", "the margins and spacing"; and of
+the colour sets: "I'm pretty sure these colors are really really old copy and we could market our
+product way better then wasting precious scroll space looking at color combos.."
+
+- **One column.** The bar, the hero, the stats, every section, the closing call and the foot share
+  one width (`--col`, 1200px) and one gutter (`--gutter`, 16 to 40px). The bar's padding follows
+  the column, so on a wide screen the wordmark sits over the hero's left edge and the bar's right
+  end meets the column's. Nothing on the landing sets a side padding of its own.
+- **One scale**, 4 and its multiples (`--s1` to `--s9`: 4, 8, 12, 16, 24, 32, 48, 64, 80). The
+  hero's copy sits a fixed step under the bar (64px; 32px on a phone), not centred in a box as tall
+  as the window. Eyebrow to headline 24, headline to lede 24, lede to buttons 32, buttons to the
+  note 16; sections 80 apart (64 on a phone).
+- **The eyebrow is one line**: "For phone, gold and car buyers", measured to fit a 320px screen
+  with room to spare. Its dot sits on that line, with a crisp ring. A longer line is cut, never
+  wrapped, and the hero's column never grows to fit it (`min-width:0`). The share card says it
+  word for word (rule 153), so the card was drawn again with it.
+- **Every text edge is the column's.** A text link among the hero's buttons has no side padding,
+  so "Make a video ad" starts where the buttons do when it wraps.
+- **The landing sells what it makes.** The colour sets, their link in the bar and the foot, and
+  their count left it. In their place "Why it gets texts" (the number, one message, a real
+  business: what the studio does, never a claim of results), then the video ads. The order: what
+  it makes, why it gets texts, video ads, the library, how it works, pricing, questions, work with
+  us.
+- **The wordmark and the icon**: three directions were drawn for the owner to choose from (a tag,
+  a message bubble, a sticker: https://claude.ai/artifact/FPgpT73Y32XWEBN7tr2DQq). Until the owner
+  picks, the mark stays rule 153's.
