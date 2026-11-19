@@ -49,7 +49,7 @@ const CATS = [
       'Your phone number, big enough to read on a phone screen, and your area.',
     ],
     faq: [
-      ['Are the Apple templates free?', 'The iPhone, iPad, MacBook and Apple Watch designs are in the Phones & Devices category, and every design there is on the free plan. AirPods designs are in Headphones & Audio, where the top 3 are free. The free plan gives you 3 photo downloads a week at 1080 pixels with a BUYBACK.AD watermark; a paid plan removes the watermark and raises the limit.'],
+      ['Are the Apple templates free?', 'The iPhone, iPad, MacBook and Apple Watch designs are in the Phones & Devices category, and every design there is on the free plan. AirPods designs are in Headphones & Audio, where the top 3 are free. The free plan gives you 3 photo downloads a week at 1080 pixels with a WeBuy.AD watermark; a paid plan removes the watermark and raises the limit.'],
       ['Can I name Apple on my ad?', 'Naming the devices you buy, like iPhone or MacBook, tells sellers what you take. Do not add the Apple logo or make the ad look as if it comes from Apple.'],
     ],
     free: 'Every iPhone, iPad, MacBook and Apple Watch design is on the free plan.',
@@ -68,7 +68,7 @@ const CATS = [
       'How you pay, your phone number and your area.',
     ],
     faq: [
-      ['Are the iPhone templates free?', 'Yes. The iPhone designs are in the Phones & Devices category, and every design there is on the free plan. The free plan gives you 3 photo downloads a week at 1080 pixels with a BUYBACK.AD watermark; a paid plan removes the watermark and raises the limit.'],
+      ['Are the iPhone templates free?', 'Yes. The iPhone designs are in the Phones & Devices category, and every design there is on the free plan. The free plan gives you 3 photo downloads a week at 1080 pixels with a WeBuy.AD watermark; a paid plan removes the watermark and raises the limit.'],
       ['Can I show a price on the ad?', 'You can type any headline or line of text you like. If you print a price, make sure it is one you will pay, because the ad is yours and so is the promise.'],
     ],
     free: 'Every iPhone design is on the free plan.',
@@ -162,7 +162,7 @@ const CATS = [
       'Your phone number, big enough to read on a phone screen, and your area.',
     ],
     faq: [
-      ['Are the phone templates free?', 'Yes. Every design in the Phones category is included on the free plan. The free plan gives you 3 photo downloads a week at 1080 pixels with a BUYBACK.AD watermark; a paid plan removes the watermark and raises the limit.'],
+      ['Are the phone templates free?', 'Yes. Every design in the Phones category is included on the free plan. The free plan gives you 3 photo downloads a week at 1080 pixels with a WeBuy.AD watermark; a paid plan removes the watermark and raises the limit.'],
       ['Can I show a price on the ad?', 'You can type any headline or line of text you like. If you print a price, make sure it is one you will pay, because the ad is yours and so is the promise.'],
     ],
     free: 'Every Phones design is on the free plan.',
@@ -368,12 +368,12 @@ const CATS = [
 ];
 
 const COMMON_FAQ = [
-  ['Is it free?', 'You can design without an account. Downloading needs a free account: 3 photo downloads a week at 1080 pixels with a BUYBACK.AD watermark. Starter is $25 a month for 100 photo downloads up to 2160 pixels, no watermark, every design. Pro ($60) adds video ads and 500 downloads a month; Business ($100) is unlimited.'],
+  ['Is it free?', 'You can design without an account. Downloading needs a free account: 3 photo downloads a week at 1080 pixels with a WeBuy.AD watermark. Starter is $25 a month for 100 photo downloads up to 2160 pixels, no watermark, every design. Pro ($60) adds video ads and 500 downloads a month; Business ($100) is unlimited.'],
 ];
 
 const nav = (up) => `<a class="skip" href="#main">Skip to content</a>
 <header class="top">
-  <a class="brand" href="${up}index.html">GRAPHICS <em>STUDIO</em></a>
+  <a class="brand" href="${up}index.html">WeBuy<em>.AD</em></a>
   <nav aria-label="Site">
     <a href="${up}index.html#lp-templates">Templates</a>
     <a href="${up}motion/">Video ads</a>
@@ -404,7 +404,7 @@ const catList = (up, { grp, subs }, pad = '    ') => top.map((c) => {
 
 const footer = (up) => `<footer class="bottom">
   <div class="cats">${catList(up, { grp: 'cat-grp', subs: 'cat-sub' })}</div>
-  <a href="${up}index.html">Graphics Studio</a>
+  <a href="${up}index.html">WeBuy.AD</a>
   <a href="${up}motion/">Phone video ads</a>
   <a href="${up}about.html">About</a>
   <a href="${up}index.html#pricing">Pricing</a>
@@ -418,7 +418,7 @@ function page(c) {
   const url = `${SITE}/ads/${c.slug}.html`;
   const faq = [...c.faq, ...COMMON_FAQ];
   const parent = c.parent && byId[c.parent];
-  const crumbs = [{ name: 'Graphics Studio', item: SITE + '/' }];
+  const crumbs = [{ name: 'WeBuy.AD', item: SITE + '/' }];
   if (parent) crumbs.push({ name: strip(parent.title), item: `${SITE}/ads/${parent.slug}.html` });
   crumbs.push({ name: strip(c.title), item: url });
   const ld = {
@@ -428,7 +428,7 @@ function page(c) {
       { '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
     ],
   };
-  const title = `${strip(c.title)} | Graphics Studio by BUYBACK.AD`;
+  const title = `${strip(c.title)} | WeBuy.AD`;
   const cat = c.cat || c.id;
   const kids = subsOf(c);
   const pick = c.soon
@@ -454,22 +454,23 @@ function page(c) {
 <meta name="description" content="${esc(c.desc)}">
 <link rel="canonical" href="${url}">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Graphics Studio by BUYBACK.AD">
+<meta property="og:site_name" content="WeBuy.AD">
 <meta property="og:title" content="${esc(strip(c.title))}">
 <meta property="og:description" content="${esc(c.desc)}">
 <meta property="og:url" content="${url}">
-<meta property="og:image" content="${SITE}/assets/og/buybackad-og.jpg">
+<meta property="og:image" content="${SITE}/assets/brand/share-card.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../assets/brand/icon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="../assets/brand/icon-180.png">
 <link rel="stylesheet" href="../pages.css">
 <script type="application/ld+json">${JSON.stringify(ld)}</script>
 </head>
 <body>
 ${nav('../')}
 <main id="main">
-  <div class="crumbs"><a href="../index.html">Graphics Studio</a> &rsaquo; ${parent ? `<a href="${parent.slug}.html">${esc(strip(parent.title))}</a> &rsaquo; ` : ''}${esc(strip(c.title))}</div>
+  <div class="crumbs"><a href="../index.html">WeBuy.AD</a> &rsaquo; ${parent ? `<a href="${parent.slug}.html">${esc(strip(parent.title))}</a> &rsaquo; ` : ''}${esc(strip(c.title))}</div>
   <h1>${c.h1}</h1>
-  <p class="lead">Graphics Studio makes buyback ads for ${esc(c.who)}. Pick a design, type your phone number and area, and download an image ready for Facebook Marketplace, OfferUp, Craigslist, Instagram or a printed flyer.</p>
+  <p class="lead">WeBuy.AD makes buyback ads for ${esc(c.who)}. Pick a design, type your phone number and area, and download an image ready for Facebook Marketplace, OfferUp, Craigslist, Instagram or a printed flyer.</p>
   ${c.soon ? `<p class="card"><strong>${esc(one(c)[0].toUpperCase() + one(c).slice(1))} designs are on the way.</strong> Until they are in the studio, you can make ${an(esc(one(c)))} ad today from ${c.cat ? `a ${esc(gallery(c))} design` : 'any design'} with your own photo.</p>\n  ` : ''}<div class="ctas">
     <a class="btn" href="${pick}">${esc(cta)}</a>
     ${['apple', 'iphone', 'phones'].includes(c.id) ? '<a class="btn ghost" href="../motion/">Make a phone video ad</a>' : ''}

@@ -5216,3 +5216,36 @@ RESUME HERE:
   0. webuy.ad is live (HTTPS, 2026-11-19 UTC). OPEN-ITEMS §BD: merge this
      branch (step 5), then steps 6 and 7.
   1. §BD open 1: the wordmark, BUYBACK.AD or WEBUY.AD, is the owner's call.
+
+## 2026-11-19 — WeBuy.AD in reselling.us's look (DESIGN-LAW 138, 139)
+
+Asked: "logos branding webkit", "all aspects need to finish and it needs to
+have similar or matching styling to reselling.us", "or color scheming at
+first?", then the wordmark "WeBuy.AD".
+
+Done: the family skin (reselling.us's colours, live first), then the system
+type, the WeBuy.AD wordmark in Inter Tight, the W. icon and the share card
+drawn from HTML, the name across the site with BUYBACK.AD kept as the business.
+
+Found:
+  - reselling.us's live look is not its design-system repo: the repo says
+    violet (resale. tokens), the site serves navy and blue. Read the colours
+    off the live sheet, not the repo.
+  - reselling.us keeps a brand kit as HTML drawn by headless Chrome
+    (resale-app docs/brand/source). Copying its recipe, not its pictures,
+    makes a sibling that matches by construction.
+  - A local static server's caches hide a CSS change: the page at / kept the
+    old theme stamp after /index.html was refreshed. Fetch every changed
+    file with cache: 'reload' before believing a screenshot.
+  - The pane's screenshots draw #3d8bff as violet; computed values are the
+    truth. reselling.us's own button showed the same.
+  - A brand rename has a legal edge: the terms are an agreement with a named
+    party and a recorded version. Rename the product, not the party, without
+    the owner.
+
+RESUME HERE:
+  0. OPEN-ITEMS §BE "Open": the terms' party and version, the explainer
+     videos' end card, the Stripe portal's line.
+  1. §BD: the webhook move after the first checkout, iPhones LA's allowlist,
+     the contact address, live Stripe keys.
+

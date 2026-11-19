@@ -55,6 +55,10 @@
 @font-face{font-family:'Khand';src:url('assets/fonts/khand-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
 @font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}
 @font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
+/* Inter Tight carries the WeBuy.AD wordmark and nothing else, as it carries
+   Reselling.US's (DESIGN-LAW rule 139). SIL OFL 1.1, the licence beside it in
+   assets/fonts/InterTight-OFL.txt; the file is reselling.us's own. */
+@font-face{font-family:'Inter Tight';src:url('assets/fonts/inter-tight-latin.woff2') format('woff2');font-weight:500 800;font-style:normal;font-display:swap}
 
 /* DARK IS THE DEFAULT, matching the CRM. `data-theme` is stamped on <html>
    before first paint by the inline script in index.html, so there is no white
@@ -1936,6 +1940,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 /* ── type pairings. Overrides any skin's face, so Paper + Unbounded is
    possible. Google faces are loaded by the stamp script when picked. ── */
 :root[data-type='clash']{--display:'Clash Display','Satoshi',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--ui:'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+:root[data-type='system']{--display:-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;--ui:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
 :root[data-type='serif']{--display:'Zodiak',Georgia,'Times New Roman',serif}
 :root[data-type='melodrama']{--display:'Melodrama',Georgia,serif}
 :root[data-type='khand']{--display:'Khand','Satoshi',sans-serif}
@@ -1972,14 +1977,14 @@ input[type=range]{width:100%;accent-color:var(--accent)}
    the whole card, a lock in the middle, and thumbnails that are 448px at
    most. The pattern is an SVG data URI so it is text, not a blur. ── */
 .pro-guard{position:absolute;inset:0;pointer-events:none;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><text x='0' y='60' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text><text x='-60' y='150' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · BUYBACK.AD</text></svg>");
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><text x='0' y='60' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · WeBuy.AD</text><text x='-60' y='150' transform='rotate(-30 110 110)' font-family='Helvetica,Arial,sans-serif' font-size='22' font-weight='800' letter-spacing='4' fill='rgba(255,255,255,.28)'>PRO · WeBuy.AD</text></svg>");
   background-size:220px 220px;mix-blend-mode:overlay;opacity:.9}
 .pro-guard::after{content:'🔒';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;
   background:rgba(0,0,0,.62);border:1px solid rgba(255,255,255,.35);display:grid;place-items:center;font-size:22px;box-shadow:0 8px 24px -8px rgba(0,0,0,.7)}
 .wall-card .pro-guard::after{width:40px;height:40px;font-size:16px}
 .ez-tpl.locked{position:relative}
 .ez-tpl.locked::after{content:'';position:absolute;top:0;left:0;right:0;height:132px;pointer-events:none;border-radius:var(--r-lg);
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>");
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · WeBuy.AD</text></svg>");
   background-size:120px 120px;mix-blend-mode:overlay}
 @media (max-width:480px){.ez-tpl.locked::after{height:104px}}
 .flow-step .btn{margin-top:16px}
@@ -1987,7 +1992,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 /* locked mini cards in the editor's left panel and its picker */
 .mini-tpl.locked{position:relative}
 .mini-tpl.locked::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · BUYBACK.AD</text></svg>");
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='0' y='40' transform='rotate(-30 60 60)' font-family='Helvetica,Arial,sans-serif' font-size='13' font-weight='800' letter-spacing='2' fill='rgba(255,255,255,.34)'>PRO · WeBuy.AD</text></svg>");
   background-size:120px 120px;mix-blend-mode:overlay}
 
 /* MOBILE WIDTH. The studio's two cards are grid items, and a grid item's
@@ -2992,3 +2997,29 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='family'] .btn-ghost{color:var(--accent-text)}
 /* the headline's second phrase in mint, as "Sell it faster." is there */
 :root[data-skin='family'] .hero h1 em{color:var(--deal-text);background:none;padding:0}
+
+/* ═════════════════════════════════════════════════════════════════
+   THE WEBUY.AD TYPE AND WORDMARK, 2026-11-19 (DESIGN-LAW rule 139).
+   reselling.us sets its headlines and text in the system face (SF Pro on an
+   Apple device), headlines bold and tight, and its wordmark in Inter Tight
+   750 with the domain's ending in the blue: Reselling.US. The studio is
+   WeBuy.AD the same way. The `system` type is the default; the ads keep
+   their own faces. */
+:root[data-type='system'] .hero h1{font-weight:700;letter-spacing:-.04em;line-height:1.02}
+:root[data-type='system'] h1,:root[data-type='system'] h2{letter-spacing:-.03em}
+:root[data-skin='family'] .logo{font-family:'Inter Tight',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-weight:750;font-size:22px;letter-spacing:-.035em;gap:0}
+:root[data-skin='family'] .logo .logo-mark{display:none}
+:root[data-skin='family'] .logo em{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--accent)}
+:root[data-skin='family'] .auth-brand .logo-mark{background:url('assets/brand/icon-192.png') center/cover;color:transparent;box-shadow:none;border-radius:14px}
+@media (max-width:640px){
+  :root[data-skin='family'] .logo,:root[data-skin='family'] .lp-nav .logo{font-size:21px;gap:0}
+}
+
+/* The kicker and the section labels in sentence case, as reselling.us writes them:
+   its kicker is a blue-tinted pill with a mint dot, its labels plain words. The
+   editor's own small labels keep their capitals; they are a tool's, not a page's. */
+:root[data-skin='family'] .hero-eyebrow{text-transform:none;letter-spacing:0;font-size:14px;font-weight:600;color:var(--accent-text);background:var(--accent-wash);border:0;padding:7px 15px 7px 12px}
+:root[data-skin='family'] .hero-eyebrow::before{content:'';flex:none;width:9px;height:9px;border-radius:50%;background:var(--deal);box-shadow:0 0 0 4px rgba(var(--accent2-rgb),.22)}
+:root[data-skin='family'] .lp-kicker,:root[data-skin='family'] .co-kicker{text-transform:none;letter-spacing:0;font-size:14px;font-weight:600}
+:root[data-skin='family'] .lp-kicker{color:var(--accent-text)}
+:root[data-skin='family'] .lp-kicker::before{background:var(--deal)}

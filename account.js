@@ -117,7 +117,7 @@
     overlay.id = 'acct-overlay';
     overlay.setAttribute('role', 'dialog'); overlay.setAttribute('aria-modal', 'true'); overlay.setAttribute('aria-label', 'Your account');
     const m = el('div', 'acct-modal');
-    m.innerHTML = `<h3>Welcome to BUYBACK.AD</h3><p class="acct-sub" id="acct-sub"></p>
+    m.innerHTML = `<h3>Welcome to WeBuy.AD</h3><p class="acct-sub" id="acct-sub"></p>
       <div class="acct-tabs" role="tablist"><button type="button" role="tab" id="acct-tab-up" aria-selected="true">Create free account</button><button type="button" role="tab" id="acct-tab-in" aria-selected="false">Sign in</button></div>
       <form id="acct-form" novalidate>
         <label for="acct-email">Email</label><input type="email" id="acct-email" autocomplete="email" placeholder="you@example.com">

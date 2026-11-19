@@ -312,7 +312,7 @@ export async function ensurePortalConfig(env, store, site) {
   if (have) { try { return JSON.parse(have).id; } catch (e) { /* remake it */ } }
   const c = await stripe(env, 'POST', '/billing_portal/configurations', {
     business_profile: {
-      headline: 'Graphics Studio by BUYBACK.AD: your plan, card and invoices',
+      headline: 'WeBuy.AD: your plan, card and invoices',
       privacy_policy_url: site + '/privacy.html',
       terms_of_service_url: site + '/terms.html',
     },

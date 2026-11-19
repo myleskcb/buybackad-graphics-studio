@@ -3386,14 +3386,33 @@ Done:
   the advanced editor, about, the Look Book, the video maker; no sideways
   scroll at 390; contrast measured (rule 138).
 
-Open, in the owner's order:
-1. **Type**: reselling.us sets the system face (SF Pro) for headlines and
-   text and Inter Tight 750 for its wordmark; the studio still sets Clash
-   Display and Satoshi.
-2. **The wordmark and the mark**: "GRAPHICS STUDIO" and the four-colour
-   square. reselling.us writes `Reselling` with `.US` in the blue; the
-   matching form for the new name is the owner's call (WeBuy.AD?).
-3. The favicon, the share card (`assets/og/`), the page titles ("Graphics
-   Studio by BUYBACK.AD") and the explainer videos' end card.
-4. Words in capitals with wide tracking (the kicker, the section labels):
-   reselling.us writes sentence case.
+Then, the same day (DESIGN-LAW 139), the owner chose "WeBuy.AD":
+- **Type**: the system face for headlines and text, the default (`system`).
+- **The wordmark** `WeBuy.AD` in Inter Tight 750 on every page's header; the
+  face vendored from reselling.us with its OFL text.
+- **The icon, the favicon and the share card**, drawn by
+  `tools/brand/make.sh` from HTML, as reselling.us draws its own; every page
+  points at `assets/brand/`. `scripts/render_og.mjs` is marked superseded.
+- **The name**: page titles, JSON-LD, the headers and footers, the welcome
+  line, the watermark on free exports, the locked-design pattern, the
+  billing portal's line. The kicker and section labels in sentence case.
+- Checked by eye at 1280 and 390, dark and light: the landing, a category
+  page, the 404, the Look Book; no sideways scroll; the CSS copy in app.js
+  and the CSP hashes rewritten.
+
+Open:
+1. **The terms and privacy policy** still make the agreement with BUYBACK.AD
+   and call the Service "Graphics Studio": renaming the party is the owner's
+   legal call, with a new `TERMS_VERSION` (checkout records the version).
+2. **The explainer videos** (`assets/explainers/*.mp4`) end on "Graphics
+   Studio by BUYBACK.AD" in the poster look: render them again
+   (`tools/explainers`) with the new end card and `--url webuy.ad`.
+3. **The Stripe billing portal** keeps the line it was made with
+   ("Graphics Studio by BUYBACK.AD: …"): `ensurePortalConfig` makes a
+   configuration once and stores it, so the new line reaches Stripe only
+   when that configuration is made again.
+4. The partner library API still names itself "BUYBACK.AD library"
+   (`netlify/lib/library.mjs`), left so a partner's code that reads it does
+   not change under it.
+5. The owner tools (`pick.html`, `library.html`, `social/`, `admin-ads/`,
+   `phonegfx-studio.html`) keep the old look and name.

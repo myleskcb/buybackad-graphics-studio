@@ -5636,7 +5636,37 @@ default since this day.
   kept to match (its labels are 14 to 17px semibold, so it holds only the
   large-text bar); and the light headline's green phrase, 4.17:1, which is
   50px and up, where 3:1 is the bar.
-- **Not yet**: the type (Clash Display and Satoshi; reselling.us sets the
-  system face, with Inter Tight for its wordmark), the wordmark and the logo
-  mark, the share card and the icons. The owner's order was colour first.
+- **Then the type, the wordmark and the pictures**: rule 139, the same day.
+
+## 139. The name is WeBuy.AD, written and drawn the way Reselling.US is
+
+Added 2026-11-19, after rule 138's colours. The owner chose the wordmark
+"WeBuy.AD". Every rule below is reselling.us's own (its `docs/brand/source/`
+and `/static/app.css`), applied to the new name, so the two read as one family.
+
+- **The wordmark**: `WeBuy` and `.AD` in Inter Tight 750, -0.035em (-0.04em
+  at display size), the `.AD` in the blue (#3d8bff; #0a5fe0 on light). No
+  mark beside it in a header; 22px, 21px on a phone, where it now stays (the
+  poster hid it there). The face is reselling.us's own file, OFL, in
+  `assets/fonts/`, and sets the wordmark and nothing else.
+- **The type**: headlines and text in the system face (SF Pro on an Apple
+  device), headlines 700 and tight (-0.04em on the hero, -0.03em on h1 and
+  h2): the `system` type, the default. Ads keep their own faces.
+- **Sentence case** for the kicker (a blue-tinted pill with a mint dot) and the
+  landing's section labels. The editor's small labels keep their capitals.
+- **The icon**: a white W in Inter Tight 800 with the period in mint, on the
+  navy with the blue glow (`tools/brand/icon.html`), as Reselling.US's R.
+  `assets/brand/icon-{32,180,192,512,1024}.png`; `favicon.svg` carries it for
+  anything that asks for that file by name.
+- **The share card** (og:image, `assets/brand/share-card.jpg`, 1200 x 630,
+  under 300 KB): the wordmark, the home page's own kicker and headline, word
+  for word, and four real ads from its wall. All of it is drawn by
+  `sh tools/brand/make.sh` with headless Chrome; draw it again after the
+  kicker or the headline changes.
+- **The name in words**: "WeBuy.AD" wherever the product or the site is named,
+  the watermark on free exports included. **BUYBACK.AD stays the business**:
+  the copyright lines, and the terms and privacy policy, whose agreement is
+  with BUYBACK.AD (only their header, title and home link changed). Renaming
+  the party to an agreement is the owner's legal call, with a new terms
+  version (`TERMS_VERSION`).
 

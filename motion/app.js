@@ -1082,7 +1082,7 @@ async function planGate(next, message, kind = "video") {
     throw e;
   }
 }
-/* the studio's watermark (app.js drawWatermarkMarks): BUYBACK.AD in each corner */
+/* the studio's watermark (app.js drawWatermarkMarks): WeBuy.AD in each corner */
 function drawMarks(x, w, h) {
   const base = Math.min(w, h), fs = Math.round(base * 0.032), pad = Math.round(base * 0.06);
   x.save();
@@ -1091,7 +1091,7 @@ function drawMarks(x, w, h) {
   x.shadowColor = "rgba(0,0,0,0.55)"; x.shadowBlur = fs * 0.35;
   x.fillStyle = "#ffffff"; x.textAlign = "center"; x.textBaseline = "middle";
   for (const [cx, cy, deg] of [[pad, pad, 45], [w - pad, pad, -45], [pad, h - pad, -45], [w - pad, h - pad, 45]]) {
-    x.save(); x.translate(cx, cy); x.rotate(deg * Math.PI / 180); x.fillText("BUYBACK.AD", 0, 0); x.restore();
+    x.save(); x.translate(cx, cy); x.rotate(deg * Math.PI / 180); x.fillText("WeBuy.AD", 0, 0); x.restore();
   }
   x.restore();
 }

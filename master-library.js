@@ -136,7 +136,7 @@
     box.appendChild(el('b', '', isOwner ? 'Your public link' : 'For iPhones LA'));
     const p1 = el('p', '', isOwner
       ? 'Give this page to iPhones LA. Anyone with it sees these ads and nothing else. Reset it in the studio (📚 Library) to stop the old one.'
-      : 'Every ad saved in Graphics Studio, picture and video. Each is offered daily for 7 days from when it was saved, then retires. iPhones LA reads one of these and reviews and posts the ads there:');
+      : 'Every ad saved in WeBuy.AD, picture and video. Each is offered daily for 7 days from when it was saved, then retires. iPhones LA reads one of these and reviews and posts the ads there:');
     box.appendChild(p1);
     const rows = isOwner ? [['This page', lib.links.page], ['JSON feed', lib.links.json], ['RSS', lib.links.rss]] : [['JSON feed', lib.links.json], ['RSS', lib.links.rss]];
     rows.forEach(([label, url]) => {
@@ -178,10 +178,10 @@
       return null;
     }
     if (feed){
-      document.title = (lib.name || 'Ad library') + ' | Graphics Studio by BUYBACK.AD';
+      document.title = (lib.name || 'Ad library') + ' | WeBuy.AD';
       $('ml-title').textContent = lib.name || 'Ad library';
       $('ml-crumb').textContent = lib.name || 'Ad library';
-      $('ml-lead').textContent = 'WE BUY ads saved in Graphics Studio, at full size. Each one downloads as a JPEG ready to post.';
+      $('ml-lead').textContent = 'WE BUY ads saved in WeBuy.AD, at full size. Each one downloads as a JPEG ready to post.';
     }
     feedBox(lib, !feed);
     if (!lib.items.length){ say(feed ? 'This library has no ads yet.' : 'Nothing saved yet. Download an ad in the studio and press "Save to library".', feed ? null : ['index.html', 'Open the studio']); return lib; }
