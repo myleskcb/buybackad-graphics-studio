@@ -158,8 +158,21 @@ function wordsOf(ad, cat, dropped) {
 /* ---------------------------------------------------------------- the line, the pictures, the ground */
 const PHONE_LINES = [[/\bIPADS?\b/i, 'ipad'], [/\bMACBOOKS?\b|\bIMACS?\b|\bMACS?\b/i, 'mac'], [/\bWATCH(ES)?\b/i, 'watch'], [/\bGALAXY\b|\bSAMSUNG/i, 'galaxy'], [/\bPIXELS?\b|\bGOOGLE\b/i, 'pixel'], [/\bFOLD|\bFLIP\b/i, 'foldable']];
 const CAT_LINE = { gold: 'gold', silver: 'silver', coins: 'coins', cars: 'car', strips: 'strips', pokemon: 'pokemon', sports: 'sports' };
-function subjectOf(ad, headline) {
+/* a car card goes to the car line its words name (2026-11-18: the cars category became lines, and
+   a card listing F-150 • SILVERADO • RAM • TACOMA drew a sedan from the general line's pool) */
+const CAR_LINES = [
+  [/\bSEMIS?\b|\b18[- ]WHEELERS?\b|\bBIG RIGS?\b|\bKENWORTHS?\b|\bPETERBILTS?\b|\bFREIGHTLINERS?\b/i, 'semis'],
+  [/\bSPRINTERS?\b|\bTRANSITS?\b|\bPRO ?MASTERS?\b|\bWORK VANS?\b|\bCARGO VANS?\b|\bVANS\b/i, 'vans'],
+  [/\bCLASSICS?\b|\bVINTAGE\b|\bMUSCLE CARS?\b|\bHOT RODS?\b/i, 'classic'],
+  [/\bJDM\b|\bSUPRAS?\b|\bGT-?RS?\b|\bSKYLINES?\b|\bWRX\b|\bRX-?7S?\b|\bMIATAS?\b|\bTYPE R\b|\bS2000\b|\bNSX\b/i, 'jdm'],
+  [/\bF-?150S?\b|\bSILVERADOS?\b|\bRAMS?\b|\bTACOMAS?\b|\bTUNDRAS?\b|\bSIERRAS?\b|\bPICKUPS?\b/i, 'trucks'],
+  [/\bTOYOTAS?\b/i, 'toyota'], [/\bHONDAS?\b/i, 'honda'], [/\bBMWS?\b/i, 'bmw'], [/\bMERCEDES\b|\bBENZ\b|\bAMG\b/i, 'mercedes'],
+];
+const carLineOf = text => { for (const [re, k] of CAR_LINES) if (SUB[k] && re.test(text)) return k; if (/\bTRUCKS?\b/i.test(text) && !/\bCARS?\b|\bSUVS?\b/i.test(text) && SUB.trucks) return 'trucks'; return 'car'; };
+const CAR_SUBJECTS = new Set(['car', ...CAR_LINES.map(([, k]) => k)]);
+function subjectOf(ad, headline, allWords = headline) {
   if (ad.line && SUB[ad.line]) return ad.line;
+  if (ad.cat === 'cars') return carLineOf(allWords);   // a car card's models line names its goods; a phone card goes by its headline
   if (CAT_LINE[ad.cat]) return CAT_LINE[ad.cat];
   if (ad.cat === 'phones') { for (const [re, k] of PHONE_LINES) if (re.test(headline)) return k; return 'iphone'; }
   const first = SUBJECTS.find(s => s.cat === ad.cat); return first ? first.key : 'iphone';
@@ -182,13 +195,16 @@ const makeOfFile = f => { const s = String(f || '').toLowerCase(); for (const k 
 const VEHICLE = /car|truck|suv|van|jeep|pickup|sedan|coupe|grille|wheel|dash|motorcycle|bike|vehicle|lamborghini|porsche|ferrari|bmw|lexus|dodge|honda|toyota|ford|chevy|nissan|tesla|audi|mercedes/i;
 const VANS = /\bSPRINTERS?\b|\bTRANSITS?\b|\bPRO ?MASTERS?\b|\bWORK VANS?\b|\bCARGO VANS?\b|\bVANS\b/;
 const VAN_CUTS = readdirSync(ROOT + 'assets/cutouts').filter(f => /^car-.*(van|transit|sprinter|promaster)/.test(f) && f.endsWith('.webp')).map(f => f.replace(/\.webp$/, '')).filter(f => usable(f));
+const VEHICLES = JSON.parse(readFileSync(ROOT + 'assets/vehicles.json', 'utf8'));
 const hash = s => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; };
 function picturesOf(ad, subject, headline, claim, notes) {
   const own = ad.layers.map(l => (/assets\/cutouts\/([^/?#]+)\.webp/.exec(l.src || '') || [])[1]).filter(Boolean);
   let pics = own.filter(usable);
   if (own.length > pics.length) notes.push(`left out ${own.length - pics.length} flagged or rejected picture${own.length - pics.length > 1 ? 's' : ''}`);
   let make = '';
-  if (subject === 'car') {
+  // a car the photo catalogue does not name is never shown (the owner: "unidentified cars skip")
+  if (CAR_SUBJECTS.has(subject)) { const known = pics.filter(f => !/^car-/.test(f) || VEHICLES[f]); if (known.length < pics.length) notes.push(`left out ${pics.length - known.length} unidentified car picture${pics.length - known.length > 1 ? 's' : ''}`); pics = known; }
+  if (CAR_SUBJECTS.has(subject)) {
     const named = Object.keys(MAKES).filter(k => MAKES[k].test(headline + ' ' + claim));
     if (named.length) {
       make = named[0];
@@ -295,9 +311,9 @@ const recipes = [];
 for (const ad of all) {
   const dropped = [], notes = [];
   const words = wordsOf(ad, ad.cat, dropped);
-  const subject = subjectOf(ad, words.headline || '');
+  const subject = subjectOf(ad, words.headline || '', [words.headline, words.tag, words.claim, words.points].filter(Boolean).join(' '));
   const S = SUB[subject]; if (!S) continue;
-  const { pictures, make } = picturesOf(ad, subject, words.headline || '', [words.claim, words.line].filter(Boolean).join(' '), notes);   // the line under it names models too (TRANSIT • SPRINTER • PROMASTER)
+  const { pictures, make } = picturesOf(ad, subject, words.headline || '', [words.claim, words.tag].filter(Boolean).join(' '), notes);   // the line under it names models too (TRANSIT • SPRINTER • PROMASTER)
   const lined = lineUp(ad, S.cat, subject, pictures, make, groundOf(ad, ad.cat, make, notes), words, notes);
   const ground_photo = lined.ground_photo; pictures.splice(0, pictures.length, ...lined.pictures);
   // colours as the ad wore them: the library's own theme and ink; a template's ground and its headline's accent

@@ -1,10 +1,10 @@
 {
  "_doc": "Every older ad the studio offers (library cards, designer layouts, offer cards), read as it opens and written as a recipe the full ad draws as a photo and a video: its words (the one list and the proof words left out), its line, its product cut-outs (a named car make shown as that make), its ground photograph, the nearest of the twelve pairs and its face pair where the full ad holds it. Made by scripts/build_recipes.mjs; never edit by hand. DESIGN-LAW 144, OPEN-ITEMS §BJ.",
- "count": 742,
+ "count": 738,
  "by": {
   "library": 362,
   "layouts": 77,
-  "offer": 303
+  "offer": 299
  },
  "recipes": [
   {
@@ -7364,23 +7364,18 @@
    "type_pair": "block"
   },
   {
-   "id": "r-of_chromebook_band_blush",
-   "from": "of_chromebook_band_blush",
+   "id": "r-of_chromebook_band_signal",
+   "from": "of_chromebook_band_signal",
    "gen": "of",
    "cat": "computers",
    "subject": "chromebook",
    "label": "Chromebooks, sealed · Photo band (offer card)",
    "words": {
-    "headline": "NEW IN THE BOX? GET CASH",
+    "headline": "SEALED CHROMEBOOKS? WE BUY THEM",
     "tag": "SEALED CHROMEBOOKS, NEW IN THE BOX",
     "label": "CALL OR TEXT"
    },
-   "pictures": [
-    {
-     "file": "photo-chromebook-asus-c201",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/bg-offer/rooms-desk-setup-1.jpg",
     "focus": [
@@ -7388,95 +7383,26 @@
      0.5
     ],
     "scrim": 0.4,
-    "from": "of_chromebook_band_blush",
+    "from": "of_chromebook_band_signal",
     "shows": "scene",
     "floor": 0.72
-   },
-   "pair": "blue_green",
-   "type_pair": "block"
-  },
-  {
-   "id": "r-of_chromebook_center_sky",
-   "from": "of_chromebook_center_sky",
-   "gen": "of",
-   "cat": "computers",
-   "subject": "chromebook",
-   "label": "Chromebooks, sealed · Centre (offer card)",
-   "words": {
-    "headline": "NEW IN THE BOX? GET CASH",
-    "tag": "SEALED CHROMEBOOKS, NEW IN THE BOX",
-    "label": "CALL OR TEXT"
-   },
-   "pictures": [
-    {
-     "file": "photo-chromebook-asus-c201",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-offer/rooms-desk-setup-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_chromebook_center_sky",
-    "shows": "scene",
-    "floor": 0.72
-   },
-   "pair": "blue_green",
-   "type_pair": "arcade"
-  },
-  {
-   "id": "r-of_chromebook_float_slate",
-   "from": "of_chromebook_float_slate",
-   "gen": "of",
-   "cat": "computers",
-   "subject": "chromebook",
-   "label": "Chromebooks, sealed · Floating (offer card)",
-   "words": {
-    "headline": "NEW IN THE BOX? GET CASH",
-    "tag": "SEALED CHROMEBOOKS, NEW IN THE BOX",
-    "label": "CALL OR TEXT"
-   },
-   "pictures": [
-    {
-     "file": "photo-chromebook-asus-c201",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-offer/rooms-home-desk-setup-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_chromebook_float_slate",
-    "shows": "scene",
-    "floor": 0.62
    },
    "pair": "midnight_cyan",
    "type_pair": "squad"
   },
   {
-   "id": "r-of_chromebook_info_bone",
-   "from": "of_chromebook_info_bone",
+   "id": "r-of_chromebook_type_midnight",
+   "from": "of_chromebook_type_midnight",
    "gen": "of",
    "cat": "computers",
    "subject": "chromebook",
-   "label": "Chromebooks, sealed · Detailed (offer card)",
+   "label": "Chromebooks, sealed · Type (offer card)",
    "words": {
-    "headline": "NEW IN THE BOX? GET CASH",
+    "headline": "SEALED CHROMEBOOKS? WE BUY THEM",
     "tag": "SEALED CHROMEBOOKS, NEW IN THE BOX",
     "label": "CALL OR TEXT"
    },
-   "pictures": [
-    {
-     "file": "photo-chromebook-asus-c201",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/bg-offer/rooms-desk-setup-1.jpg",
     "focus": [
@@ -7484,108 +7410,39 @@
      0.5
     ],
     "scrim": 0.4,
-    "from": "of_chromebook_info_bone",
+    "from": "of_chromebook_type_midnight",
     "shows": "scene",
     "floor": 0.72
-   },
-   "pair": "midnight_cyan",
-   "type_pair": "arcade"
-  },
-  {
-   "id": "r-of_chromebook_list_graphite",
-   "from": "of_chromebook_list_graphite",
-   "gen": "of",
-   "cat": "computers",
-   "subject": "chromebook",
-   "label": "Chromebooks, sealed · Studio list (offer card)",
-   "words": {
-    "headline": "NEW IN THE BOX? GET CASH",
-    "tag": "SEALED CHROMEBOOKS, NEW IN THE BOX",
-    "label": "CALL OR TEXT"
-   },
-   "pictures": [
-    {
-     "file": "photo-chromebook-asus-c201",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-offer/rooms-home-desk-setup-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_chromebook_list_graphite",
-    "shows": "scene",
-    "floor": 0.62
-   },
-   "pair": "midnight_cyan",
-   "type_pair": "squad"
-  },
-  {
-   "id": "r-of_chromebook_row_forest",
-   "from": "of_chromebook_row_forest",
-   "gen": "of",
-   "cat": "computers",
-   "subject": "chromebook",
-   "label": "Chromebooks, sealed · Studio row (offer card)",
-   "words": {
-    "headline": "NEW IN THE BOX? GET CASH",
-    "tag": "SEALED CHROMEBOOKS, NEW IN THE BOX",
-    "label": "CALL OR TEXT"
-   },
-   "pictures": [
-    {
-     "file": "photo-chromebook-asus-c201",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-offer/rooms-desk-setup-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_chromebook_row_forest",
-    "shows": "scene",
-    "floor": 0.72
-   },
-   "pair": "blue_green",
-   "type_pair": "arcade"
-  },
-  {
-   "id": "r-of_chromebook_split_ink",
-   "from": "of_chromebook_split_ink",
-   "gen": "of",
-   "cat": "computers",
-   "subject": "chromebook",
-   "label": "Chromebooks, sealed · Split (offer card)",
-   "words": {
-    "headline": "NEW IN THE BOX? GET CASH",
-    "tag": "SEALED CHROMEBOOKS, NEW IN THE BOX",
-    "label": "CALL OR TEXT"
-   },
-   "pictures": [
-    {
-     "file": "photo-chromebook-asus-c201",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-offer/rooms-home-desk-setup-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_chromebook_split_ink",
-    "shows": "scene",
-    "floor": 0.62
    },
    "pair": "midnight_cyan",
    "type_pair": ""
+  },
+  {
+   "id": "r-of_chromebook_typeCenter_graphite",
+   "from": "of_chromebook_typeCenter_graphite",
+   "gen": "of",
+   "cat": "computers",
+   "subject": "chromebook",
+   "label": "Chromebooks, sealed · Type, centred (offer card)",
+   "words": {
+    "headline": "NEW IN THE BOX? GET CASH",
+    "tag": "SEALED CHROMEBOOKS, NEW IN THE BOX",
+    "label": "CALL OR TEXT"
+   },
+   "pictures": [],
+   "ground_photo": {
+    "src": "assets/bg-offer/rooms-home-desk-setup-1.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.4,
+    "from": "of_chromebook_typeCenter_graphite",
+    "shows": "scene",
+    "floor": 0.62
+   },
+   "pair": "midnight_cyan",
+   "type_pair": "squad"
   },
   {
    "id": "r-of_metaglasses_band_lime",
@@ -12829,73 +12686,6 @@
    ]
   },
   {
-   "id": "r-arcCrown-ca03-35",
-   "from": "arcCrown-ca03-35",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Navy & Gold · Arc Crown (library card)",
-   "words": {
-    "headline": "WE BUY SPRINTERS",
-    "tag": "TRANSIT • SPRINTER • PROMASTER"
-   },
-   "pictures": [
-    {
-     "file": "car-ford-transit-connect-white",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/vans-ford-transit-van-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.56,
-    "from": "arcCrown-ca03-35",
-    "shows": "product",
-    "subject": "car",
-    "make": "ford",
-    "model": "transit",
-    "vehicle": "van"
-   },
-   "pair": "navy_gold",
-   "type_pair": "",
-   "make": "van",
-   "notes": [
-    "a van picture in place of car-suv-side",
-    "the picture follows the ground: a ford transit"
-   ]
-  },
-  {
-   "id": "r-arcCrown-jw03-15",
-   "from": "arcCrown-jw03-15",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Green & Gold · Arc Crown (library card)",
-   "words": {
-    "headline": "WE BUY CARS CASH ON THE SPOT",
-    "tag": "F-150 • SILVERADO • RAM • TACOMA"
-   },
-   "pictures": [],
-   "ground_photo": {
-    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.44,
-    "from": "arcCrown-jw03-15",
-    "shows": "scene"
-   },
-   "pair": "green_gold",
-   "type_pair": "",
-   "notes": [
-    "ground swapped for a scene: it showed a chevy pickup"
-   ]
-  },
-  {
    "id": "r-bandKnockout-ck04-35",
    "from": "bandKnockout-ck04-35",
    "gen": "sc",
@@ -12907,12 +12697,7 @@
     "points": "AS-IS, SAME DAY, NO FEES",
     "label": "GET A CASH OFFER"
    },
-   "pictures": [
-    {
-     "file": "car-wheel-tyre",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
@@ -12926,45 +12711,8 @@
    "pair": "teal_orange",
    "type_pair": "",
    "notes": [
+    "left out 1 unidentified car picture",
     "ground swapped for a scene: it showed a car of no stated make"
-   ]
-  },
-  {
-   "id": "r-bandKnockout-jw10-30",
-   "from": "bandKnockout-jw10-30",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Red & Yellow · Band Knockout (library card)",
-   "words": {
-    "headline": "WE BUY HONDAS",
-    "points": "AS-IS, SAME DAY, NO FEES",
-    "label": "GET A CASH OFFER"
-   },
-   "pictures": [
-    {
-     "file": "car-honda-civic-type-r-fl5-white",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/popular-honda-civic-type-r-fl5-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "bandKnockout-jw10-30",
-    "shows": "product",
-    "subject": "car",
-    "make": "honda",
-    "model": "civic"
-   },
-   "pair": "red_yellow",
-   "type_pair": "luxe",
-   "make": "honda",
-   "notes": [
-    "a honda picture in place of car-motorcycle-side"
    ]
   },
   {
@@ -13002,46 +12750,8 @@
    "pair": "black_gold",
    "type_pair": "",
    "notes": [
+    "left out 1 unidentified car picture",
     "the picture follows the ground: a ford f150"
-   ]
-  },
-  {
-   "id": "r-bubblePop-cd04-30",
-   "from": "bubblePop-cd04-30",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Navy & Gold · Bubble Pop (library card)",
-   "words": {
-    "headline": "WE BUY BMWS",
-    "burst": "FREE QUOTE",
-    "label": "GET YOUR OFFER"
-   },
-   "pictures": [
-    {
-     "file": "car-bmw-m3-competition-green",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/popular-bmw-m3-competition-g80-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "bubblePop-cd04-30",
-    "shows": "product",
-    "subject": "car",
-    "make": "bmw",
-    "model": "m3"
-   },
-   "pair": "navy_gold",
-   "type_pair": "stadium",
-   "make": "bmw",
-   "notes": [
-    "a bmw picture in place of car-sedan-rear",
-    "the picture follows the ground: a bmw m3"
    ]
   },
   {
@@ -13078,72 +12788,8 @@
    "pair": "navy_orange",
    "type_pair": "",
    "notes": [
+    "left out 1 unidentified car picture",
     "the picture follows the ground: a lamborghini aventador"
-   ]
-  },
-  {
-   "id": "r-bubblePop-du02-30",
-   "from": "bubblePop-du02-30",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Blue & Green · Bubble Pop (library card)",
-   "words": {
-    "headline": "WE BUY SPRINTERS",
-    "burst": "SAME DAY",
-    "label": "GET YOUR OFFER"
-   },
-   "pictures": [
-    {
-     "file": "car-ford-transit-connect-white",
-     "k": 1
-    }
-   ],
-   "ground_photo": null,
-   "pair": "blue_green",
-   "type_pair": "",
-   "make": "van",
-   "notes": [
-    "a van picture in place of car-suv-side",
-    "ground not in spec/ground-tags.json: left out"
-   ]
-  },
-  {
-   "id": "r-checklistHero-ca05-35",
-   "from": "checklistHero-ca05-35",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Teal & Orange · Checklist Hero (library card)",
-   "words": {
-    "headline": "WE BUY BMWS",
-    "label": "GET A CASH OFFER"
-   },
-   "pictures": [
-    {
-     "file": "car-bmw-m3-blue",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/popular-bmw-m3-3.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "checklistHero-ca05-35",
-    "shows": "product",
-    "subject": "car",
-    "make": "bmw",
-    "model": "m3"
-   },
-   "pair": "teal_orange",
-   "type_pair": "",
-   "make": "bmw",
-   "notes": [
-    "a bmw picture in place of car-engine-bay",
-    "the picture follows the ground: a bmw m3"
    ]
   },
   {
@@ -13158,12 +12804,7 @@
     "claim": "AS-IS SAME DAY NO FEES",
     "label": "GET A CASH OFFER"
    },
-   "pictures": [
-    {
-     "file": "car-engine-bay",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
     "focus": [
@@ -13177,6 +12818,7 @@
    "pair": "silver_blue",
    "type_pair": "",
    "notes": [
+    "left out 1 unidentified car picture",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -13192,12 +12834,7 @@
     "claim": "AS-IS SAME DAY NO FEES",
     "label": "GET A CASH OFFER"
    },
-   "pictures": [
-    {
-     "file": "car-suv-side",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
     "focus": [
@@ -13211,6 +12848,7 @@
    "pair": "midnight_cyan",
    "type_pair": "",
    "notes": [
+    "left out 1 unidentified car picture",
     "ground swapped for a scene: it showed a chevy pickup"
    ]
   },
@@ -13227,16 +12865,12 @@
     "claim": "RUNNING OR NOT",
     "label": "GET A CASH OFFER"
    },
-   "pictures": [
-    {
-     "file": "car-sedan-rear",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": null,
    "pair": "blue_green",
    "type_pair": "",
    "notes": [
+    "left out 1 unidentified car picture",
     "cash ground left out"
    ]
   },
@@ -13253,42 +12887,12 @@
     "claim": "HIGH MILES OK",
     "label": "GET A CASH OFFER"
    },
-   "pictures": [
-    {
-     "file": "car-sedan-rear",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": null,
    "pair": "green_gold",
    "type_pair": "warp",
    "notes": [
-    "cash ground left out"
-   ]
-  },
-  {
-   "id": "r-glassCard-du08-15",
-   "from": "glassCard-du08-15",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Teal & Orange · Glass Card (library card)",
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "TRANSIT • SPRINTER • PROMASTER",
-    "claim": "AS-IS",
-    "label": "GET A CASH OFFER"
-   },
-   "pictures": [
-    {
-     "file": "car-wheel-tyre",
-     "k": 1
-    }
-   ],
-   "ground_photo": null,
-   "pair": "teal_orange",
-   "type_pair": "",
-   "notes": [
+    "left out 1 unidentified car picture",
     "cash ground left out"
    ]
   },
@@ -13329,88 +12933,9 @@
    "type_pair": "",
    "make": "chevy",
    "notes": [
+    "left out 1 unidentified car picture",
     "a chevy picture in place of car-sedan-rear",
     "the picture follows the ground: a chevy silverado"
-   ]
-  },
-  {
-   "id": "r-gradientWave-cd04-25",
-   "from": "gradientWave-cd04-25",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Black & Gold · Gradient Wave (library card)",
-   "words": {
-    "headline": "WE BUY TACOMAS",
-    "tag": "F-150 • SILVERADO • RAM • TACOMA • TUNDRA",
-    "claim": "AS-IS SAME DAY NO FEES",
-    "label": "CALL OR TEXT NOW"
-   },
-   "pictures": [
-    {
-     "file": "car-toyota-tacoma-trd-offroad-black",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/colours-toyota-tacoma-red-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "gradientWave-cd04-25",
-    "shows": "product",
-    "subject": "car",
-    "make": "toyota",
-    "model": "tacoma",
-    "vehicle": "pickup"
-   },
-   "pair": "black_gold",
-   "type_pair": "",
-   "make": "toyota",
-   "notes": [
-    "a toyota tacoma picture in place of car-suv-side",
-    "ground swapped: it showed a chevy silverado"
-   ]
-  },
-  {
-   "id": "r-gradientWave-du07-20",
-   "from": "gradientWave-du07-20",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Navy & Orange · Gradient Wave (library card)",
-   "words": {
-    "headline": "WE BUY BMWS",
-    "tag": "3 SERIES • 5 SERIES • X3 • X5 • M SERIES",
-    "claim": "AS-IS SAME DAY NO FEES",
-    "label": "CALL OR TEXT NOW"
-   },
-   "pictures": [
-    {
-     "file": "car-bmw-x7-white",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/cars-bmw-key-3.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.49,
-    "from": "gradientWave-du07-20",
-    "shows": "product",
-    "subject": "car-key",
-    "make": "bmw"
-   },
-   "pair": "navy_orange",
-   "type_pair": "",
-   "make": "bmw",
-   "notes": [
-    "a bmw picture in place of none",
-    "ground swapped: it showed a car of no stated make"
    ]
   },
   {
@@ -13448,99 +12973,8 @@
    "pair": "midnight_cyan",
    "type_pair": "",
    "notes": [
+    "left out 1 unidentified car picture",
     "the picture follows the ground: a jeep wrangler"
-   ]
-  },
-  {
-   "id": "r-hudTech-cd04-20",
-   "from": "hudTech-cd04-20",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Green & Gold · HUD Tech (library card)",
-   "words": {
-    "headline": "WE BUY MOTORCYCLES",
-    "tag": "HARLEY HONDA · YAMAHA",
-    "claim": "FAST CASH",
-    "label": "TEXT US NOW"
-   },
-   "pictures": [
-    {
-     "file": "car-motorcycle-side",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.27,
-    "from": "hudTech-cd04-20",
-    "shows": "scene"
-   },
-   "pair": "green_gold",
-   "type_pair": "",
-   "notes": [
-    "ground swapped for a scene: it showed motorcycle"
-   ]
-  },
-  {
-   "id": "r-hudTech-io03-20",
-   "from": "hudTech-io03-20",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Purple & Gold · HUD Tech (library card)",
-   "words": {
-    "headline": "WE BUY HONDAS",
-    "tag": "HARLEY HONDA · YAMAHA",
-    "claim": "FAST CASH",
-    "label": "GET A CASH OFFER"
-   },
-   "pictures": [
-    {
-     "file": "car-honda-passport-white",
-     "k": 1
-    }
-   ],
-   "ground_photo": null,
-   "pair": "purple_gold",
-   "type_pair": "stadium",
-   "make": "honda",
-   "notes": [
-    "a honda picture in place of car-motorcycle-side",
-    "ground not in spec/ground-tags.json: left out"
-   ]
-  },
-  {
-   "id": "r-neonNight-du05-26",
-   "from": "neonNight-du05-26",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Black & Green · Neon Night (library card)",
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "F-150 • SILVERADO • RAM • TACOMA",
-    "claim": "THE DEALER OFFERED PENNIES?"
-   },
-   "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.57,
-    "from": "neonNight-du05-26",
-    "shows": "scene"
-   },
-   "pair": "black_green",
-   "type_pair": "warp",
-   "notes": [
-    "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
   {
@@ -13555,12 +12989,7 @@
     "tag": "RX • ES • IS • GX • NX",
     "claim": "RUNNING OR NOT"
    },
-   "pictures": [
-    {
-     "file": "car-suv-side",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
     "focus": [
@@ -13574,41 +13003,8 @@
    "pair": "silver_blue",
    "type_pair": "",
    "notes": [
+    "left out 1 unidentified car picture",
     "ground swapped for a scene: it showed a car of no stated make"
-   ]
-  },
-  {
-   "id": "r-neonNight-du08-15",
-   "from": "neonNight-du08-15",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Navy & Gold · Neon Night (library card)",
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "F-150 • SILVERADO • RAM • TACOMA",
-    "claim": "NO FEES"
-   },
-   "pictures": [
-    {
-     "file": "car-suv-side",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "neonNight-du08-15",
-    "shows": "scene"
-   },
-   "pair": "navy_gold",
-   "type_pair": "stadium",
-   "notes": [
-    "ground swapped for a scene: it showed a chevy pickup"
    ]
   },
   {
@@ -13643,6 +13039,7 @@
    "type_pair": "",
    "make": "lexus",
    "notes": [
+    "left out 1 unidentified car picture",
     "a lexus picture in place of car-engine-bay",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
@@ -13747,107 +13144,8 @@
    "pair": "blue_green",
    "type_pair": "",
    "notes": [
+    "left out 1 unidentified car picture",
     "the picture follows the ground: a dodge challenger"
-   ]
-  },
-  {
-   "id": "r-scriptRetro-pa01-30",
-   "from": "scriptRetro-pa01-30",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Black & Green · Script Retro (library card)",
-   "words": {
-    "headline": "WE BUY HONDAS",
-    "tag": "TITLE IN HAND • RUNNING OR NOT",
-    "label": "GET A FREE QUOTE"
-   },
-   "pictures": [
-    {
-     "file": "car-honda-hrv-beige",
-     "k": 1
-    }
-   ],
-   "ground_photo": null,
-   "pair": "black_green",
-   "type_pair": "warp",
-   "make": "honda",
-   "notes": [
-    "a honda picture in place of car-sedan-rear",
-    "ground not in spec/ground-tags.json: left out"
-   ]
-  },
-  {
-   "id": "r-scriptRetro-su02-25",
-   "from": "scriptRetro-su02-25",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Teal & Orange · Script Retro (library card)",
-   "words": {
-    "headline": "WE BUY SPRINTERS",
-    "tag": "TRANSIT • SPRINTER • PROMASTER",
-    "label": "REQUEST AN APPRAISAL"
-   },
-   "pictures": [
-    {
-     "file": "car-ram-promaster-grey",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.49,
-    "from": "scriptRetro-su02-25",
-    "shows": "scene"
-   },
-   "pair": "teal_orange",
-   "type_pair": "stadium",
-   "make": "van",
-   "notes": [
-    "a van picture in place of car-suv-side",
-    "ground swapped for a scene: it showed a car of no stated make"
-   ]
-  },
-  {
-   "id": "r-slabPoster-cd10-30",
-   "from": "slabPoster-cd10-30",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Midnight & Cyan · Slab Poster (library card)",
-   "words": {
-    "headline": "WE BUY TRUCKS CASH ON THE SPOT",
-    "claim": "GOT A LOWBALL OFFER?"
-   },
-   "pictures": [
-    {
-     "file": "car-chevy-silverado-zr2-red",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/trucks-chevrolet-silverado-pickup-3.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.39,
-    "from": "slabPoster-cd10-30",
-    "shows": "product",
-    "subject": "car",
-    "make": "chevy",
-    "model": "silverado",
-    "vehicle": "pickup"
-   },
-   "pair": "midnight_cyan",
-   "type_pair": "stadium",
-   "notes": [
-    "the picture follows the ground: a chevy silverado"
    ]
   },
   {
@@ -13861,12 +13159,7 @@
     "headline": "WE BUY CARS",
     "claim": "CAR BUYER"
    },
-   "pictures": [
-    {
-     "file": "car-sedan-rear",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
     "focus": [
@@ -13880,72 +13173,7 @@
    "pair": "green_gold",
    "type_pair": "",
    "notes": [
-    "ground swapped for a scene: it showed car-key"
-   ]
-  },
-  {
-   "id": "r-stepsFlow-cd05-35",
-   "from": "stepsFlow-cd05-35",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Purple & Gold · Steps Flow (library card)",
-   "words": {
-    "headline": "SELL YOUR TRUCKS PICKUPS AND WORK TRUCKS",
-    "claim": "IN 3 STEPS"
-   },
-   "pictures": [
-    {
-     "file": "car-suv-side",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "stepsFlow-cd05-35",
-    "shows": "scene"
-   },
-   "pair": "purple_gold",
-   "type_pair": "warp",
-   "notes": [
-    "ground swapped for a scene: it showed a car of no stated make"
-   ]
-  },
-  {
-   "id": "r-stepsFlow-du05-20",
-   "from": "stepsFlow-du05-20",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Black & Green · Steps Flow (library card)",
-   "words": {
-    "headline": "SELL YOUR CARS SEDANS, SUVS, CLASSICS",
-    "claim": "IN 3 STEPS"
-   },
-   "pictures": [
-    {
-     "file": "car-front",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "stepsFlow-du05-20",
-    "shows": "scene"
-   },
-   "pair": "black_green",
-   "type_pair": "",
-   "notes": [
+    "left out 1 unidentified car picture",
     "ground swapped for a scene: it showed car-key"
    ]
   },
@@ -13960,12 +13188,7 @@
     "headline": "CASH IN 3 STEPS",
     "claim": "CAR BUYER"
    },
-   "pictures": [
-    {
-     "file": "car-sedan-rear",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
     "focus": [
@@ -13979,68 +13202,8 @@
    "pair": "red_yellow",
    "type_pair": "",
    "notes": [
+    "left out 1 unidentified car picture",
     "ground swapped for a scene: it showed a car of no stated make"
-   ]
-  },
-  {
-   "id": "r-stepsFlow-jw03-30",
-   "from": "stepsFlow-jw03-30",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Black & Gold · Steps Flow (library card)",
-   "words": {
-    "headline": "SELL YOUR TRUCKS PICKUPS AND WORK TRUCKS",
-    "claim": "IN 3 STEPS"
-   },
-   "pictures": [
-    {
-     "file": "car-suv-side",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.26,
-    "from": "stepsFlow-jw03-30",
-    "shows": "scene"
-   },
-   "pair": "black_gold",
-   "type_pair": "stadium",
-   "notes": [
-    "ground swapped for a scene: it showed a fargo pickup"
-   ]
-  },
-  {
-   "id": "r-stepsFlow-nn01-20",
-   "from": "stepsFlow-nn01-20",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Navy & Orange · Steps Flow (library card)",
-   "words": {
-    "headline": "SELL YOUR CLASSIC CAR OR TRUCK, ANY YEAR",
-    "claim": "IN 3 STEPS"
-   },
-   "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "stepsFlow-nn01-20",
-    "shows": "scene"
-   },
-   "pair": "navy_orange",
-   "type_pair": "",
-   "notes": [
-    "ground swapped for a scene: it showed a chevy pickup"
    ]
   },
   {
@@ -14074,86 +13237,6 @@
    ]
   },
   {
-   "id": "r-trustSeal-cd06-26",
-   "from": "trustSeal-cd06-26",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Navy & Orange · Trust Seal (library card)",
-   "words": {
-    "headline": "YOUR LOCAL WORK VANS BUYER",
-    "tag": "TRANSIT • SPRINTER • PROMASTER • EXPRESS • NV",
-    "claim": "AS-IS",
-    "points": "TEXT A PIC, FREE QUOTE, NO FEES"
-   },
-   "pictures": [
-    {
-     "file": "car-ford-transit-courier-white",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/vans-ford-transit-van-3.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.69,
-    "from": "trustSeal-cd06-26",
-    "shows": "product",
-    "subject": "car",
-    "make": "ford",
-    "model": "transit",
-    "vehicle": "van"
-   },
-   "pair": "navy_orange",
-   "type_pair": "",
-   "make": "van",
-   "notes": [
-    "a van picture in place of none"
-   ]
-  },
-  {
-   "id": "r-trustSeal-nn05-30",
-   "from": "trustSeal-nn05-30",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Midnight & Cyan · Trust Seal (library card)",
-   "words": {
-    "headline": "YOUR LOCAL WORK VANS BUYER",
-    "tag": "TRANSIT • SPRINTER • PROMASTER • EXPRESS • NV",
-    "claim": "AS-IS",
-    "points": "TEXT A PIC, FREE QUOTE, NO FEES"
-   },
-   "pictures": [
-    {
-     "file": "car-ford-transit-connect-white",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/vans-ford-transit-van-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "trustSeal-nn05-30",
-    "shows": "product",
-    "subject": "car",
-    "make": "ford",
-    "model": "transit",
-    "vehicle": "van"
-   },
-   "pair": "midnight_cyan",
-   "type_pair": "",
-   "make": "van",
-   "notes": [
-    "a van picture in place of car-suv-side"
-   ]
-  },
-  {
    "id": "r-trustSeal-pp06-35",
    "from": "trustSeal-pp06-35",
    "gen": "sc",
@@ -14179,84 +13262,6 @@
    "notes": [
     "a jeep picture in place of none",
     "ground not in spec/ground-tags.json: left out"
-   ]
-  },
-  {
-   "id": "r-trustSeal-su02-20",
-   "from": "trustSeal-su02-20",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Green & Gold · Trust Seal (library card)",
-   "words": {
-    "headline": "YOUR LOCAL BMWS BUYER",
-    "tag": "3 SERIES • 5 SERIES • X3 • X5 • M SERIES",
-    "claim": "NO FEES",
-    "points": "TEXT A PIC, FREE QUOTE, RUNNING OR NOT"
-   },
-   "pictures": [
-    {
-     "file": "car-bmw-m3-blue",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/cars-bmw-key-3.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.6,
-    "from": "trustSeal-su02-20",
-    "shows": "product",
-    "subject": "car-key",
-    "make": "bmw"
-   },
-   "pair": "green_gold",
-   "type_pair": "",
-   "make": "bmw",
-   "notes": [
-    "a bmw picture in place of car-suv-side",
-    "ground swapped: it showed a chevy pickup"
-   ]
-  },
-  {
-   "id": "r-voltStack-du01-20",
-   "from": "voltStack-du01-20",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Purple & Gold · Volt Stack (library card)",
-   "words": {
-    "headline": "WE BUY BMWS",
-    "claim": "ONLINE NOW",
-    "points": "AS-IS, SAME DAY, NO FEES",
-    "label": "CALL OR TEXT NOW"
-   },
-   "pictures": [
-    {
-     "file": "car-bmw-m3-blue",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/cars-bmw-key-3.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.41,
-    "from": "voltStack-du01-20",
-    "shows": "product",
-    "subject": "car-key",
-    "make": "bmw"
-   },
-   "pair": "purple_gold",
-   "type_pair": "",
-   "make": "bmw",
-   "notes": [
-    "a bmw picture in place of car-suv-side",
-    "ground swapped: it showed a car of no stated make"
    ]
   },
   {
@@ -14287,104 +13292,6 @@
    "type_pair": "",
    "notes": [
     "ground swapped for a scene: it showed car-key"
-   ]
-  },
-  {
-   "id": "r-voltStack-su02-30",
-   "from": "voltStack-su02-30",
-   "gen": "sc",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Navy & Orange · Volt Stack (library card)",
-   "words": {
-    "headline": "WE BUY TACOMAS",
-    "claim": "ONLINE NOW",
-    "points": "AS-IS, SAME DAY, NO FEES",
-    "label": "CALL OR TEXT NOW"
-   },
-   "pictures": [
-    {
-     "file": "car-toyota-tacoma-trd-black",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/colours-toyota-tacoma-red-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "voltStack-su02-30",
-    "shows": "product",
-    "subject": "car",
-    "make": "toyota",
-    "model": "tacoma",
-    "vehicle": "pickup"
-   },
-   "pair": "navy_orange",
-   "type_pair": "",
-   "make": "toyota",
-   "notes": [
-    "a toyota tacoma picture in place of none"
-   ]
-  },
-  {
-   "id": "r-dl_cars_agencyGrid_mono",
-   "from": "dl_cars_agencyGrid_mono",
-   "gen": "dl",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Showroom Grid (designer layout)",
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
-    "claim": "LOCAL CAR BUYER",
-    "label": "GET A CASH OFFER"
-   },
-   "pictures": [
-    {
-     "file": "car-ford-f150-raptor-2026-black",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/trucks-ford-f-150-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.33,
-    "from": "dl_cars_agencyGrid_mono",
-    "shows": "product",
-    "subject": "car",
-    "make": "ford",
-    "model": "f150",
-    "vehicle": "pickup"
-   },
-   "pair": "black_gold",
-   "type_pair": "",
-   "notes": [
-    "the picture follows the ground: a ford f150"
-   ]
-  },
-  {
-   "id": "r-dl_cars_arcCrown_sunset",
-   "from": "dl_cars_arcCrown_sunset",
-   "gen": "dl",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Boulevard Arc (designer layout)",
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT"
-   },
-   "pictures": [],
-   "ground_photo": null,
-   "pair": "black_gold",
-   "type_pair": "",
-   "notes": [
-    "ground left out: another dealer's sign and number on the lot"
    ]
   },
   {
@@ -14428,12 +13335,7 @@
     "claim": "AS-IS SAME DAY NO FEES",
     "label": "GET A CASH OFFER"
    },
-   "pictures": [
-    {
-     "file": "car-sedan-rear",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
@@ -14447,6 +13349,7 @@
    "pair": "black_green",
    "type_pair": "",
    "notes": [
+    "left out 1 unidentified car picture",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -14461,12 +13364,7 @@
     "headline": "WE BUY CARS",
     "claim": "CASH ON THE SPOT"
    },
-   "pictures": [
-    {
-     "file": "car-title-docs",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/bg-web/wallpaper-emerald-bay-lake-tahoe-2.jpg",
     "focus": [
@@ -14480,134 +13378,7 @@
    "pair": "black_red",
    "type_pair": "",
    "notes": [
-    "ground swapped for a scene: it showed a car of no stated make"
-   ]
-  },
-  {
-   "id": "r-dl_cars_glassCard_ocean",
-   "from": "dl_cars_glassCard_ocean",
-   "gen": "dl",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Showroom Glass (designer layout)",
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
-    "claim": "LOCAL CAR BUYER",
-    "label": "GET A CASH OFFER"
-   },
-   "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_cars_glassCard_ocean",
-    "shows": "scene"
-   },
-   "pair": "black_gold",
-   "type_pair": "",
-   "notes": [
-    "ground swapped for a scene: it showed a car of no stated make"
-   ]
-  },
-  {
-   "id": "r-dl_cars_gradientWave_crimson",
-   "from": "dl_cars_gradientWave_crimson",
-   "gen": "dl",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Redline Wave (designer layout)",
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
-    "claim": "AS-IS SAME DAY NO FEES",
-    "label": "GET A CASH OFFER"
-   },
-   "pictures": [
-    {
-     "file": "car-chevy-silverado-zr2-red",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/trucks-chevrolet-silverado-pickup-3.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_cars_gradientWave_crimson",
-    "shows": "product",
-    "subject": "car",
-    "make": "chevy",
-    "model": "silverado",
-    "vehicle": "pickup"
-   },
-   "pair": "black_gold",
-   "type_pair": "",
-   "notes": [
-    "the picture follows the ground: a chevy silverado"
-   ]
-  },
-  {
-   "id": "r-dl_cars_hudTech_crimson",
-   "from": "dl_cars_hudTech_crimson",
-   "gen": "dl",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Dash HUD (designer layout)",
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
-    "claim": "LOCAL CAR BUYER",
-    "label": "GET A CASH OFFER"
-   },
-   "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_cars_hudTech_crimson",
-    "shows": "scene"
-   },
-   "pair": "black_gold",
-   "type_pair": "",
-   "notes": [
-    "ground swapped for a scene: it showed a car of no stated make"
-   ]
-  },
-  {
-   "id": "r-dl_cars_neonNight_sunset",
-   "from": "dl_cars_neonNight_sunset",
-   "gen": "dl",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Neon Garage (designer layout)",
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
-    "claim": "LOCAL CAR BUYER"
-   },
-   "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_cars_neonNight_sunset",
-    "shows": "scene"
-   },
-   "pair": "blue_green",
-   "type_pair": "",
-   "notes": [
+    "left out 1 unidentified car picture",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -14677,36 +13448,6 @@
    ]
   },
   {
-   "id": "r-dl_cars_ticketStub_mono",
-   "from": "dl_cars_ticketStub_mono",
-   "gen": "dl",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Pink Slip (designer layout)",
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
-    "claim": "CASH ON THE SPOT",
-    "label": "GET A CASH OFFER"
-   },
-   "pictures": [],
-   "ground_photo": {
-    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_cars_ticketStub_mono",
-    "shows": "scene"
-   },
-   "pair": "black_gold",
-   "type_pair": "",
-   "notes": [
-    "ground swapped for a scene: it showed a car of no stated make"
-   ]
-  },
-  {
    "id": "r-dl_cars_voltStack_ocean",
    "from": "dl_cars_voltStack_ocean",
    "gen": "dl",
@@ -14734,44 +13475,6 @@
    "type_pair": "",
    "notes": [
     "ground swapped for a scene: it showed car-key"
-   ]
-  },
-  {
-   "id": "r-dl_cars_wantedFrame_paper",
-   "from": "dl_cars_wantedFrame_paper",
-   "gen": "dl",
-   "cat": "cars",
-   "subject": "car",
-   "label": "Runner Wanted (designer layout)",
-   "words": {
-    "headline": "WANTED CARS",
-    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
-    "claim": "LOCAL CAR BUYER"
-   },
-   "pictures": [
-    {
-     "file": "car-chevy-silverado-zr2-red",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/bg-web/trucks-chevrolet-silverado-pickup-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_cars_wantedFrame_paper",
-    "shows": "product",
-    "subject": "car",
-    "make": "chevy",
-    "model": "silverado",
-    "vehicle": "pickup"
-   },
-   "pair": "black_gold",
-   "type_pair": "",
-   "notes": [
-    "the picture follows the ground: a chevy silverado"
    ]
   },
   {
@@ -20129,6 +18832,63 @@
    ]
   },
   {
+   "id": "r-stepsFlow-du05-20",
+   "from": "stepsFlow-du05-20",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "classic",
+   "label": "Black & Green · Steps Flow (library card)",
+   "words": {
+    "headline": "SELL YOUR CARS SEDANS, SUVS, CLASSICS",
+    "claim": "IN 3 STEPS"
+   },
+   "pictures": [],
+   "ground_photo": {
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.25,
+    "from": "stepsFlow-du05-20",
+    "shows": "scene"
+   },
+   "pair": "black_green",
+   "type_pair": "",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "ground swapped for a scene: it showed car-key"
+   ]
+  },
+  {
+   "id": "r-stepsFlow-nn01-20",
+   "from": "stepsFlow-nn01-20",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "classic",
+   "label": "Navy & Orange · Steps Flow (library card)",
+   "words": {
+    "headline": "SELL YOUR CLASSIC CAR OR TRUCK, ANY YEAR",
+    "claim": "IN 3 STEPS"
+   },
+   "pictures": [],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.4,
+    "from": "stepsFlow-nn01-20",
+    "shows": "scene"
+   },
+   "pair": "navy_orange",
+   "type_pair": "",
+   "notes": [
+    "ground swapped for a scene: it showed a chevy pickup"
+   ]
+  },
+  {
    "id": "r-of_classic_band_sand",
    "from": "of_classic_band_sand",
    "gen": "of",
@@ -20606,6 +19366,275 @@
    ]
   },
   {
+   "id": "r-arcCrown-jw03-15",
+   "from": "arcCrown-jw03-15",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "trucks",
+   "label": "Green & Gold · Arc Crown (library card)",
+   "words": {
+    "headline": "WE BUY CARS CASH ON THE SPOT",
+    "tag": "F-150 • SILVERADO • RAM • TACOMA"
+   },
+   "pictures": [
+    {
+     "file": "car-chevy-silverado-red",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.44,
+    "from": "arcCrown-jw03-15",
+    "shows": "scene"
+   },
+   "pair": "green_gold",
+   "type_pair": "",
+   "make": "chevy",
+   "notes": [
+    "a chevy silverado picture in place of none",
+    "ground swapped for a scene: it showed a chevy pickup"
+   ]
+  },
+  {
+   "id": "r-gradientWave-cd04-25",
+   "from": "gradientWave-cd04-25",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "trucks",
+   "label": "Black & Gold · Gradient Wave (library card)",
+   "words": {
+    "headline": "WE BUY TACOMAS",
+    "tag": "F-150 • SILVERADO • RAM • TACOMA • TUNDRA",
+    "claim": "AS-IS SAME DAY NO FEES",
+    "label": "CALL OR TEXT NOW"
+   },
+   "pictures": [
+    {
+     "file": "car-chevy-silverado-red",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.25,
+    "from": "gradientWave-cd04-25",
+    "shows": "scene"
+   },
+   "pair": "black_gold",
+   "type_pair": "",
+   "make": "chevy",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a chevy silverado picture in place of car-suv-side",
+    "ground swapped for a scene: it showed a chevy silverado"
+   ]
+  },
+  {
+   "id": "r-neonNight-du05-26",
+   "from": "neonNight-du05-26",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "trucks",
+   "label": "Black & Green · Neon Night (library card)",
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "F-150 • SILVERADO • RAM • TACOMA",
+    "claim": "THE DEALER OFFERED PENNIES?"
+   },
+   "pictures": [
+    {
+     "file": "car-chevy-silverado-zr2-red",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.57,
+    "from": "neonNight-du05-26",
+    "shows": "scene"
+   },
+   "pair": "black_green",
+   "type_pair": "warp",
+   "make": "chevy",
+   "notes": [
+    "a chevy silverado picture in place of none",
+    "ground swapped for a scene: it showed a car of no stated make"
+   ]
+  },
+  {
+   "id": "r-neonNight-du08-15",
+   "from": "neonNight-du08-15",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "trucks",
+   "label": "Navy & Gold · Neon Night (library card)",
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "F-150 • SILVERADO • RAM • TACOMA",
+    "claim": "NO FEES"
+   },
+   "pictures": [
+    {
+     "file": "car-chevy-silverado-red",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.5,
+    "from": "neonNight-du08-15",
+    "shows": "scene"
+   },
+   "pair": "navy_gold",
+   "type_pair": "stadium",
+   "make": "chevy",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a chevy silverado picture in place of car-suv-side",
+    "ground swapped for a scene: it showed a chevy pickup"
+   ]
+  },
+  {
+   "id": "r-slabPoster-cd10-30",
+   "from": "slabPoster-cd10-30",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "trucks",
+   "label": "Midnight & Cyan · Slab Poster (library card)",
+   "words": {
+    "headline": "WE BUY TRUCKS CASH ON THE SPOT",
+    "claim": "GOT A LOWBALL OFFER?"
+   },
+   "pictures": [],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.39,
+    "from": "slabPoster-cd10-30",
+    "shows": "scene"
+   },
+   "pair": "midnight_cyan",
+   "type_pair": "stadium",
+   "notes": [
+    "ground swapped for a scene: it showed a chevy silverado"
+   ]
+  },
+  {
+   "id": "r-stepsFlow-cd05-35",
+   "from": "stepsFlow-cd05-35",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "trucks",
+   "label": "Purple & Gold · Steps Flow (library card)",
+   "words": {
+    "headline": "SELL YOUR TRUCKS PICKUPS AND WORK TRUCKS",
+    "claim": "IN 3 STEPS"
+   },
+   "pictures": [],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.5,
+    "from": "stepsFlow-cd05-35",
+    "shows": "scene"
+   },
+   "pair": "purple_gold",
+   "type_pair": "warp",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "ground swapped for a scene: it showed a car of no stated make"
+   ]
+  },
+  {
+   "id": "r-stepsFlow-jw03-30",
+   "from": "stepsFlow-jw03-30",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "trucks",
+   "label": "Black & Gold · Steps Flow (library card)",
+   "words": {
+    "headline": "SELL YOUR TRUCKS PICKUPS AND WORK TRUCKS",
+    "claim": "IN 3 STEPS"
+   },
+   "pictures": [],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.26,
+    "from": "stepsFlow-jw03-30",
+    "shows": "scene"
+   },
+   "pair": "black_gold",
+   "type_pair": "stadium",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "ground swapped for a scene: it showed a fargo pickup"
+   ]
+  },
+  {
+   "id": "r-voltStack-su02-30",
+   "from": "voltStack-su02-30",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "trucks",
+   "label": "Navy & Orange · Volt Stack (library card)",
+   "words": {
+    "headline": "WE BUY TACOMAS",
+    "claim": "ONLINE NOW",
+    "points": "AS-IS, SAME DAY, NO FEES",
+    "label": "CALL OR TEXT NOW"
+   },
+   "pictures": [
+    {
+     "file": "car-toyota-tacoma-trd-black",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.5,
+    "from": "voltStack-su02-30",
+    "shows": "scene"
+   },
+   "pair": "navy_orange",
+   "type_pair": "",
+   "make": "toyota",
+   "notes": [
+    "a toyota tacoma picture in place of none",
+    "ground swapped for a scene: it showed a toyota tacoma"
+   ]
+  },
+  {
    "id": "r-of_trucks_band_sun",
    "from": "of_trucks_band_sun",
    "gen": "of",
@@ -20619,7 +19648,7 @@
    },
    "pictures": [
     {
-     "file": "car-ford-f150-lightning-black",
+     "file": "car-chevy-silverado-red",
      "k": 1
     }
    ],
@@ -20635,7 +19664,9 @@
    },
    "pair": "black_red",
    "type_pair": "",
+   "make": "chevy",
    "notes": [
+    "a chevy silverado picture in place of car-ford-f150-lightning-black",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -20653,7 +19684,7 @@
    },
    "pictures": [
     {
-     "file": "car-toyota-tacoma-orange",
+     "file": "car-chevy-silverado-red",
      "k": 1
     }
    ],
@@ -20669,7 +19700,9 @@
    },
    "pair": "midnight_cyan",
    "type_pair": "sport",
+   "make": "chevy",
    "notes": [
+    "a chevy silverado picture in place of car-toyota-tacoma-orange",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -20703,6 +19736,7 @@
    },
    "pair": "midnight_cyan",
    "type_pair": "",
+   "make": "chevy",
    "notes": [
     "ground swapped for a scene: it showed a car of no stated make"
    ]
@@ -20721,7 +19755,7 @@
    },
    "pictures": [
     {
-     "file": "car-ford-f150-raptor-2026-black",
+     "file": "car-chevy-silverado-zr2-red",
      "k": 1
     }
    ],
@@ -20737,7 +19771,9 @@
    },
    "pair": "midnight_cyan",
    "type_pair": "block",
+   "make": "chevy",
    "notes": [
+    "a chevy silverado picture in place of car-ford-f150-raptor-2026-black",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -20755,7 +19791,7 @@
    },
    "pictures": [
     {
-     "file": "car-ford-f150-raptor-2026-black",
+     "file": "car-chevy-silverado-red",
      "k": 1
     }
    ],
@@ -20771,7 +19807,9 @@
    },
    "pair": "midnight_cyan",
    "type_pair": "block",
+   "make": "chevy",
    "notes": [
+    "a chevy silverado picture in place of car-ford-f150-raptor-2026-black",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -20789,7 +19827,7 @@
    },
    "pictures": [
     {
-     "file": "car-ford-f150-raptor-2026-black",
+     "file": "car-chevy-silverado-zr2-red",
      "k": 1
     }
    ],
@@ -20805,7 +19843,9 @@
    },
    "pair": "black_red",
    "type_pair": "",
+   "make": "chevy",
    "notes": [
+    "a chevy silverado picture in place of car-ford-f150-raptor-2026-black",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -20823,7 +19863,7 @@
    },
    "pictures": [
     {
-     "file": "car-toyota-tacoma-orange",
+     "file": "car-chevy-silverado-zr2-red",
      "k": 1
     }
    ],
@@ -20839,8 +19879,294 @@
    },
    "pair": "black_red",
    "type_pair": "sport",
+   "make": "chevy",
    "notes": [
+    "a chevy silverado picture in place of car-toyota-tacoma-orange",
     "ground swapped for a scene: it showed a car of no stated make"
+   ]
+  },
+  {
+   "id": "r-dl_cars_agencyGrid_mono",
+   "from": "dl_cars_agencyGrid_mono",
+   "gen": "dl",
+   "cat": "cars",
+   "subject": "toyota",
+   "label": "Showroom Grid (designer layout)",
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
+    "claim": "LOCAL CAR BUYER",
+    "label": "GET A CASH OFFER"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-s2000-silver",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-golden-gate-bridge-sunset-3.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.33,
+    "from": "dl_cars_agencyGrid_mono",
+    "shows": "scene"
+   },
+   "pair": "black_gold",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a honda picture in place of car-sedan-rear",
+    "ground swapped for a scene: it showed a ford f150"
+   ]
+  },
+  {
+   "id": "r-dl_cars_arcCrown_sunset",
+   "from": "dl_cars_arcCrown_sunset",
+   "gen": "dl",
+   "cat": "cars",
+   "subject": "toyota",
+   "label": "Boulevard Arc (designer layout)",
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-pilot-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": null,
+   "pair": "black_gold",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "a honda picture in place of none",
+    "ground left out: another dealer's sign and number on the lot"
+   ]
+  },
+  {
+   "id": "r-dl_cars_glassCard_ocean",
+   "from": "dl_cars_glassCard_ocean",
+   "gen": "dl",
+   "cat": "cars",
+   "subject": "toyota",
+   "label": "Showroom Glass (designer layout)",
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
+    "claim": "LOCAL CAR BUYER",
+    "label": "GET A CASH OFFER"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-civic-type-r-fl5-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.25,
+    "from": "dl_cars_glassCard_ocean",
+    "shows": "scene"
+   },
+   "pair": "black_gold",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "a honda picture in place of none",
+    "ground swapped for a scene: it showed a car of no stated make"
+   ]
+  },
+  {
+   "id": "r-dl_cars_gradientWave_crimson",
+   "from": "dl_cars_gradientWave_crimson",
+   "gen": "dl",
+   "cat": "cars",
+   "subject": "toyota",
+   "label": "Redline Wave (designer layout)",
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
+    "claim": "AS-IS SAME DAY NO FEES",
+    "label": "GET A CASH OFFER"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-civic-type-r-fl5-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.25,
+    "from": "dl_cars_gradientWave_crimson",
+    "shows": "scene"
+   },
+   "pair": "black_gold",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "a honda picture in place of none",
+    "ground swapped for a scene: it showed a chevy silverado"
+   ]
+  },
+  {
+   "id": "r-dl_cars_hudTech_crimson",
+   "from": "dl_cars_hudTech_crimson",
+   "gen": "dl",
+   "cat": "cars",
+   "subject": "toyota",
+   "label": "Dash HUD (designer layout)",
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
+    "claim": "LOCAL CAR BUYER",
+    "label": "GET A CASH OFFER"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-passport-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.25,
+    "from": "dl_cars_hudTech_crimson",
+    "shows": "scene"
+   },
+   "pair": "black_gold",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "a honda picture in place of none",
+    "ground swapped for a scene: it showed a car of no stated make"
+   ]
+  },
+  {
+   "id": "r-dl_cars_neonNight_sunset",
+   "from": "dl_cars_neonNight_sunset",
+   "gen": "dl",
+   "cat": "cars",
+   "subject": "toyota",
+   "label": "Neon Garage (designer layout)",
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
+    "claim": "LOCAL CAR BUYER"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-passport-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.25,
+    "from": "dl_cars_neonNight_sunset",
+    "shows": "scene"
+   },
+   "pair": "blue_green",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "a honda picture in place of none",
+    "ground swapped for a scene: it showed a car of no stated make"
+   ]
+  },
+  {
+   "id": "r-dl_cars_ticketStub_mono",
+   "from": "dl_cars_ticketStub_mono",
+   "gen": "dl",
+   "cat": "cars",
+   "subject": "toyota",
+   "label": "Pink Slip (designer layout)",
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
+    "claim": "CASH ON THE SPOT",
+    "label": "GET A CASH OFFER"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-civic-type-r-blue",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.25,
+    "from": "dl_cars_ticketStub_mono",
+    "shows": "scene"
+   },
+   "pair": "black_gold",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "a honda picture in place of none",
+    "ground swapped for a scene: it showed a car of no stated make"
+   ]
+  },
+  {
+   "id": "r-dl_cars_wantedFrame_paper",
+   "from": "dl_cars_wantedFrame_paper",
+   "gen": "dl",
+   "cat": "cars",
+   "subject": "toyota",
+   "label": "Runner Wanted (designer layout)",
+   "words": {
+    "headline": "WANTED CARS",
+    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
+    "claim": "LOCAL CAR BUYER"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-accord-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.25,
+    "from": "dl_cars_wantedFrame_paper",
+    "shows": "scene"
+   },
+   "pair": "black_gold",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "a honda picture in place of none",
+    "ground swapped for a scene: it showed a chevy silverado"
    ]
   },
   {
@@ -20857,7 +20183,7 @@
    },
    "pictures": [
     {
-     "file": "car-toyota-highlander-silver",
+     "file": "car-toyota-tacoma-trd-offroad-black",
      "k": 1
     }
    ],
@@ -20873,7 +20199,9 @@
    },
    "pair": "teal_orange",
    "type_pair": "block",
+   "make": "toyota",
    "notes": [
+    "a toyota tacoma picture in place of car-toyota-highlander-silver",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -20891,7 +20219,7 @@
    },
    "pictures": [
     {
-     "file": "car-toyota-camry-silver",
+     "file": "car-toyota-tacoma-orange",
      "k": 1
     }
    ],
@@ -20907,7 +20235,9 @@
    },
    "pair": "black_red",
    "type_pair": "",
+   "make": "toyota",
    "notes": [
+    "a toyota tacoma picture in place of car-toyota-camry-silver",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -20925,7 +20255,7 @@
    },
    "pictures": [
     {
-     "file": "car-toyota-camry-silver",
+     "file": "car-toyota-tacoma-trd-offroad-black",
      "k": 1
     }
    ],
@@ -20941,7 +20271,9 @@
    },
    "pair": "midnight_cyan",
    "type_pair": "block",
+   "make": "toyota",
    "notes": [
+    "a toyota tacoma picture in place of car-toyota-camry-silver",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -20959,7 +20291,7 @@
    },
    "pictures": [
     {
-     "file": "car-toyota-camry-silver",
+     "file": "car-toyota-tacoma-trd-black",
      "k": 1
     }
    ],
@@ -20975,7 +20307,9 @@
    },
    "pair": "teal_orange",
    "type_pair": "sport",
+   "make": "toyota",
    "notes": [
+    "a toyota tacoma picture in place of car-toyota-camry-silver",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -20993,7 +20327,7 @@
    },
    "pictures": [
     {
-     "file": "car-toyota-rav4-white",
+     "file": "car-toyota-tacoma-trd-black",
      "k": 1
     }
    ],
@@ -21009,7 +20343,9 @@
    },
    "pair": "black_red",
    "type_pair": "sport",
+   "make": "toyota",
    "notes": [
+    "a toyota tacoma picture in place of car-toyota-rav4-white",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -21027,7 +20363,7 @@
    },
    "pictures": [
     {
-     "file": "car-toyota-camry-silver",
+     "file": "car-toyota-tacoma-trd-black",
      "k": 1
     }
    ],
@@ -21043,7 +20379,9 @@
    },
    "pair": "black_red",
    "type_pair": "",
+   "make": "toyota",
    "notes": [
+    "a toyota tacoma picture in place of car-toyota-camry-silver",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -21061,7 +20399,7 @@
    },
    "pictures": [
     {
-     "file": "car-toyota-prius-2026-grey",
+     "file": "car-toyota-tacoma-trd-offroad-black",
      "k": 1
     }
    ],
@@ -21077,8 +20415,142 @@
    },
    "pair": "teal_orange",
    "type_pair": "",
+   "make": "toyota",
    "notes": [
+    "a toyota tacoma picture in place of car-toyota-prius-2026-grey",
     "ground swapped for a scene: it showed a car of no stated make"
+   ]
+  },
+  {
+   "id": "r-bandKnockout-jw10-30",
+   "from": "bandKnockout-jw10-30",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "honda",
+   "label": "Red & Yellow · Band Knockout (library card)",
+   "words": {
+    "headline": "WE BUY HONDAS",
+    "points": "AS-IS, SAME DAY, NO FEES",
+    "label": "GET A CASH OFFER"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-civic-type-r-fl5-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.5,
+    "from": "bandKnockout-jw10-30",
+    "shows": "scene"
+   },
+   "pair": "red_yellow",
+   "type_pair": "luxe",
+   "make": "honda",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a honda picture in place of car-motorcycle-side",
+    "ground swapped for a scene: it showed a honda civic"
+   ]
+  },
+  {
+   "id": "r-hudTech-cd04-20",
+   "from": "hudTech-cd04-20",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "honda",
+   "label": "Green & Gold · HUD Tech (library card)",
+   "words": {
+    "headline": "WE BUY MOTORCYCLES",
+    "tag": "HARLEY HONDA · YAMAHA",
+    "claim": "FAST CASH",
+    "label": "TEXT US NOW"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-s2000-silver",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.27,
+    "from": "hudTech-cd04-20",
+    "shows": "scene"
+   },
+   "pair": "green_gold",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a honda picture in place of car-motorcycle-side",
+    "ground swapped for a scene: it showed motorcycle"
+   ]
+  },
+  {
+   "id": "r-hudTech-io03-20",
+   "from": "hudTech-io03-20",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "honda",
+   "label": "Purple & Gold · HUD Tech (library card)",
+   "words": {
+    "headline": "WE BUY HONDAS",
+    "tag": "HARLEY HONDA · YAMAHA",
+    "claim": "FAST CASH",
+    "label": "GET A CASH OFFER"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-passport-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": null,
+   "pair": "purple_gold",
+   "type_pair": "stadium",
+   "make": "honda",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a honda picture in place of car-motorcycle-side",
+    "ground not in spec/ground-tags.json: left out"
+   ]
+  },
+  {
+   "id": "r-scriptRetro-pa01-30",
+   "from": "scriptRetro-pa01-30",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "honda",
+   "label": "Black & Green · Script Retro (library card)",
+   "words": {
+    "headline": "WE BUY HONDAS",
+    "tag": "TITLE IN HAND • RUNNING OR NOT",
+    "label": "GET A FREE QUOTE"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-hrv-beige",
+     "k": 1
+    }
+   ],
+   "ground_photo": null,
+   "pair": "black_green",
+   "type_pair": "warp",
+   "make": "honda",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a honda picture in place of car-sedan-rear",
+    "ground not in spec/ground-tags.json: left out"
    ]
   },
   {
@@ -21111,6 +20583,7 @@
    },
    "pair": "teal_orange",
    "type_pair": "block",
+   "make": "honda",
    "notes": [
     "ground swapped for a scene: it showed a car of no stated make"
    ]
@@ -21145,6 +20618,7 @@
    },
    "pair": "midnight_cyan",
    "type_pair": "",
+   "make": "honda",
    "notes": [
     "ground swapped for a scene: it showed a car of no stated make"
    ]
@@ -21163,7 +20637,7 @@
    },
    "pictures": [
     {
-     "file": "car-honda-accord-white",
+     "file": "car-honda-civic-white",
      "k": 1
     }
    ],
@@ -21179,7 +20653,9 @@
    },
    "pair": "midnight_cyan",
    "type_pair": "block",
+   "make": "honda",
    "notes": [
+    "a honda civic picture in place of car-honda-accord-white",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -21197,7 +20673,7 @@
    },
    "pictures": [
     {
-     "file": "car-honda-hrv-beige",
+     "file": "car-honda-civic-type-r-blue",
      "k": 1
     }
    ],
@@ -21213,7 +20689,9 @@
    },
    "pair": "black_red",
    "type_pair": "",
+   "make": "honda",
    "notes": [
+    "a honda civic picture in place of car-honda-hrv-beige",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -21231,7 +20709,7 @@
    },
    "pictures": [
     {
-     "file": "car-honda-hrv-beige",
+     "file": "car-honda-civic-white",
      "k": 1
     }
    ],
@@ -21247,7 +20725,9 @@
    },
    "pair": "black_red",
    "type_pair": "",
+   "make": "honda",
    "notes": [
+    "a honda civic picture in place of car-honda-hrv-beige",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -21281,6 +20761,7 @@
    },
    "pair": "teal_orange",
    "type_pair": "block",
+   "make": "honda",
    "notes": [
     "ground swapped for a scene: it showed a car of no stated make"
    ]
@@ -21315,7 +20796,194 @@
    },
    "pair": "black_red",
    "type_pair": "",
+   "make": "honda",
    "notes": [
+    "ground swapped for a scene: it showed a car of no stated make"
+   ]
+  },
+  {
+   "id": "r-bubblePop-cd04-30",
+   "from": "bubblePop-cd04-30",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "bmw",
+   "label": "Navy & Gold · Bubble Pop (library card)",
+   "words": {
+    "headline": "WE BUY BMWS",
+    "burst": "FREE QUOTE",
+    "label": "GET YOUR OFFER"
+   },
+   "pictures": [
+    {
+     "file": "car-bmw-3-0-csl-beige",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.5,
+    "from": "bubblePop-cd04-30",
+    "shows": "scene"
+   },
+   "pair": "navy_gold",
+   "type_pair": "stadium",
+   "make": "bmw",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a bmw picture in place of car-sedan-rear",
+    "ground swapped for a scene: it showed a bmw m3"
+   ]
+  },
+  {
+   "id": "r-checklistHero-ca05-35",
+   "from": "checklistHero-ca05-35",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "bmw",
+   "label": "Teal & Orange · Checklist Hero (library card)",
+   "words": {
+    "headline": "WE BUY BMWS",
+    "label": "GET A CASH OFFER"
+   },
+   "pictures": [
+    {
+     "file": "car-bmw-x7-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.5,
+    "from": "checklistHero-ca05-35",
+    "shows": "scene"
+   },
+   "pair": "teal_orange",
+   "type_pair": "",
+   "make": "bmw",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a bmw picture in place of car-engine-bay",
+    "ground swapped for a scene: it showed a bmw m3"
+   ]
+  },
+  {
+   "id": "r-gradientWave-du07-20",
+   "from": "gradientWave-du07-20",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "bmw",
+   "label": "Navy & Orange · Gradient Wave (library card)",
+   "words": {
+    "headline": "WE BUY BMWS",
+    "tag": "3 SERIES • 5 SERIES • X3 • X5 • M SERIES",
+    "claim": "AS-IS SAME DAY NO FEES",
+    "label": "CALL OR TEXT NOW"
+   },
+   "pictures": [
+    {
+     "file": "car-bmw-x7-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.49,
+    "from": "gradientWave-du07-20",
+    "shows": "scene"
+   },
+   "pair": "navy_orange",
+   "type_pair": "",
+   "make": "bmw",
+   "notes": [
+    "a bmw picture in place of none",
+    "ground swapped for a scene: it showed a car of no stated make"
+   ]
+  },
+  {
+   "id": "r-trustSeal-su02-20",
+   "from": "trustSeal-su02-20",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "bmw",
+   "label": "Green & Gold · Trust Seal (library card)",
+   "words": {
+    "headline": "YOUR LOCAL BMWS BUYER",
+    "tag": "3 SERIES • 5 SERIES • X3 • X5 • M SERIES",
+    "claim": "NO FEES",
+    "points": "TEXT A PIC, FREE QUOTE, RUNNING OR NOT"
+   },
+   "pictures": [
+    {
+     "file": "car-bmw-m3-blue",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.6,
+    "from": "trustSeal-su02-20",
+    "shows": "scene"
+   },
+   "pair": "green_gold",
+   "type_pair": "",
+   "make": "bmw",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a bmw picture in place of car-suv-side",
+    "ground swapped for a scene: it showed a chevy pickup"
+   ]
+  },
+  {
+   "id": "r-voltStack-du01-20",
+   "from": "voltStack-du01-20",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "bmw",
+   "label": "Purple & Gold · Volt Stack (library card)",
+   "words": {
+    "headline": "WE BUY BMWS",
+    "claim": "ONLINE NOW",
+    "points": "AS-IS, SAME DAY, NO FEES",
+    "label": "CALL OR TEXT NOW"
+   },
+   "pictures": [
+    {
+     "file": "car-bmw-m3-blue",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.41,
+    "from": "voltStack-du01-20",
+    "shows": "scene"
+   },
+   "pair": "purple_gold",
+   "type_pair": "",
+   "make": "bmw",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a bmw picture in place of car-suv-side",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -21383,6 +21051,7 @@
    },
    "pair": "black_red",
    "type_pair": "",
+   "make": "bmw",
    "notes": [
     "ground swapped for a scene: it showed a car of no stated make"
    ]
@@ -21451,6 +21120,7 @@
    },
    "pair": "black_red",
    "type_pair": "",
+   "make": "bmw",
    "notes": [
     "ground swapped for a scene: it showed a car of no stated make"
    ]
@@ -21485,6 +21155,7 @@
    },
    "pair": "black_red",
    "type_pair": "",
+   "make": "bmw",
    "notes": [
     "ground swapped for a scene: it showed a car of no stated make"
    ]
@@ -21519,6 +21190,7 @@
    },
    "pair": "black_red",
    "type_pair": "sport",
+   "make": "bmw",
    "notes": [
     "ground swapped for a scene: it showed a car of no stated make"
    ]
@@ -21553,6 +21225,7 @@
    },
    "pair": "teal_orange",
    "type_pair": "block",
+   "make": "bmw",
    "notes": [
     "ground swapped for a scene: it showed a car of no stated make"
    ]
@@ -21587,6 +21260,7 @@
    },
    "pair": "midnight_cyan",
    "type_pair": "",
+   "make": "mercedes",
    "notes": [
     "ground swapped for a scene: it showed a car of no stated make"
    ]
@@ -21621,6 +21295,7 @@
    },
    "pair": "teal_orange",
    "type_pair": "block",
+   "make": "mercedes",
    "notes": [
     "ground swapped for a scene: it showed a car of no stated make"
    ]
@@ -21655,6 +21330,7 @@
    },
    "pair": "teal_orange",
    "type_pair": "",
+   "make": "mercedes",
    "notes": [
     "ground swapped for a scene: it showed a car of no stated make"
    ]
@@ -21689,6 +21365,7 @@
    },
    "pair": "black_red",
    "type_pair": "block",
+   "make": "mercedes",
    "notes": [
     "ground swapped for a scene: it showed a car of no stated make"
    ]
@@ -21723,6 +21400,7 @@
    },
    "pair": "teal_orange",
    "type_pair": "",
+   "make": "mercedes",
    "notes": [
     "ground swapped for a scene: it showed a car of no stated make"
    ]
@@ -21757,6 +21435,7 @@
    },
    "pair": "midnight_cyan",
    "type_pair": "",
+   "make": "mercedes",
    "notes": [
     "ground swapped for a scene: it showed a car of no stated make"
    ]
@@ -21791,8 +21470,214 @@
    },
    "pair": "midnight_cyan",
    "type_pair": "sport",
+   "make": "mercedes",
    "notes": [
     "ground swapped for a scene: it showed a car of no stated make"
+   ]
+  },
+  {
+   "id": "r-arcCrown-ca03-35",
+   "from": "arcCrown-ca03-35",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "vans",
+   "label": "Navy & Gold · Arc Crown (library card)",
+   "words": {
+    "headline": "WE BUY SPRINTERS",
+    "tag": "TRANSIT • SPRINTER • PROMASTER"
+   },
+   "pictures": [
+    {
+     "file": "car-ram-promaster-grey",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.56,
+    "from": "arcCrown-ca03-35",
+    "shows": "scene"
+   },
+   "pair": "navy_gold",
+   "type_pair": "",
+   "make": "van",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a van picture in place of car-suv-side",
+    "ground swapped for a scene: it showed a ford transit"
+   ]
+  },
+  {
+   "id": "r-bubblePop-du02-30",
+   "from": "bubblePop-du02-30",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "vans",
+   "label": "Blue & Green · Bubble Pop (library card)",
+   "words": {
+    "headline": "WE BUY SPRINTERS",
+    "burst": "SAME DAY",
+    "label": "GET YOUR OFFER"
+   },
+   "pictures": [
+    {
+     "file": "car-ford-transit-connect-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": null,
+   "pair": "blue_green",
+   "type_pair": "",
+   "make": "van",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a van picture in place of car-suv-side",
+    "ground not in spec/ground-tags.json: left out"
+   ]
+  },
+  {
+   "id": "r-glassCard-du08-15",
+   "from": "glassCard-du08-15",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "vans",
+   "label": "Teal & Orange · Glass Card (library card)",
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "TRANSIT • SPRINTER • PROMASTER",
+    "claim": "AS-IS",
+    "label": "GET A CASH OFFER"
+   },
+   "pictures": [
+    {
+     "file": "car-ford-transit-connect-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": null,
+   "pair": "teal_orange",
+   "type_pair": "",
+   "make": "van",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a van picture in place of car-wheel-tyre",
+    "cash ground left out"
+   ]
+  },
+  {
+   "id": "r-scriptRetro-su02-25",
+   "from": "scriptRetro-su02-25",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "vans",
+   "label": "Teal & Orange · Script Retro (library card)",
+   "words": {
+    "headline": "WE BUY SPRINTERS",
+    "tag": "TRANSIT • SPRINTER • PROMASTER",
+    "label": "REQUEST AN APPRAISAL"
+   },
+   "pictures": [
+    {
+     "file": "car-ram-promaster-grey",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.49,
+    "from": "scriptRetro-su02-25",
+    "shows": "scene"
+   },
+   "pair": "teal_orange",
+   "type_pair": "stadium",
+   "make": "van",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a van picture in place of car-suv-side",
+    "ground swapped for a scene: it showed a car of no stated make"
+   ]
+  },
+  {
+   "id": "r-trustSeal-cd06-26",
+   "from": "trustSeal-cd06-26",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "vans",
+   "label": "Navy & Orange · Trust Seal (library card)",
+   "words": {
+    "headline": "YOUR LOCAL WORK VANS BUYER",
+    "tag": "TRANSIT • SPRINTER • PROMASTER • EXPRESS • NV",
+    "claim": "AS-IS",
+    "points": "TEXT A PIC, FREE QUOTE, NO FEES"
+   },
+   "pictures": [
+    {
+     "file": "car-ford-transit-courier-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.69,
+    "from": "trustSeal-cd06-26",
+    "shows": "scene"
+   },
+   "pair": "navy_orange",
+   "type_pair": "",
+   "make": "van",
+   "notes": [
+    "a van picture in place of none",
+    "ground swapped for a scene: it showed a ford transit"
+   ]
+  },
+  {
+   "id": "r-trustSeal-nn05-30",
+   "from": "trustSeal-nn05-30",
+   "gen": "sc",
+   "cat": "cars",
+   "subject": "vans",
+   "label": "Midnight & Cyan · Trust Seal (library card)",
+   "words": {
+    "headline": "YOUR LOCAL WORK VANS BUYER",
+    "tag": "TRANSIT • SPRINTER • PROMASTER • EXPRESS • NV",
+    "claim": "AS-IS",
+    "points": "TEXT A PIC, FREE QUOTE, NO FEES"
+   },
+   "pictures": [
+    {
+     "file": "car-ford-transit-connect-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.25,
+    "from": "trustSeal-nn05-30",
+    "shows": "scene"
+   },
+   "pair": "midnight_cyan",
+   "type_pair": "",
+   "make": "van",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a van picture in place of car-suv-side",
+    "ground swapped for a scene: it showed a ford transit"
    ]
   },
   {

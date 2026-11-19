@@ -2473,25 +2473,8 @@
     "SELL YOUR SEALED CHROMEBOOK"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "photo-chromebook-asus-c201",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "photo-chromebook-asus-c201",
-       "k": 1
-      }
-     ],
-     "w": 13
-    }
-   ]
+   "sets": [],
+   "pool": []
   },
   {
    "key": "metaglasses",

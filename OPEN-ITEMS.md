@@ -3911,3 +3911,11 @@ Open:
    gaming PCs, headsets, monitors, SSDs and the like) still never takes a wall slot: the owner's
    mix decides which lines the wall shows. Van cards now draw a van (Transit, ProMaster) where
    they had drawn an SUV.
+6. **Two product-and-words mismatches fixed** (2026-11-18, "finish all prompts open"): an older
+   car card goes to the car line its words name (a card listing F-150 • SILVERADO • RAM • TACOMA
+   is on Trucks and draws a Silverado; 33 cards moved: Trucks 8, Toyota 8, Work vans 6, BMW 5,
+   Honda 4, Classics 2), and no recipe shows a car the photo catalogue does not name (16 did).
+   The sealed Chromebook line no longer shows the open-laptop photograph: its offer cards are the
+   named-brand type cards again and its full ad has words alone until a sealed box is
+   photographed. **owner**: the downloads (a sealed Chromebook box, a Sprinter, a Kenworth, a gaming
+   headset, a monitor) and whether the older static versions retire.
