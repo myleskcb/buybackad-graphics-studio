@@ -1,11 +1,12 @@
 {
-  "_doc": "What the full ad stands on (motion/fullad.js; DESIGN-LAW 137, 139; OPEN-ITEMS §BJ). The owner, 2026-11-18: \"how come none of the videos use a BG?\", \"also only have 1 BG style?!\", \"retire but bg counts.. so combo of assets and bg is best though\", \"with cars people like a good bg or sunset\", \"not low exposure dark images...\". A seed draws one of three kinds of ground: a photograph from its category's pool (graded toward the pair's ground, shaded only where words stand, moving slowly in the video), one of the engine's drawn scenes, or the house's own gradient. The shares below are each kind's part of a seed's draw where the line has that kind; a line with no photograph shares its photo part between the other two. A photograph is drawn only where its own colour keeps the card to two families with the pair the seed drew (rule 139); a hand-picked look or a ground_photo given in the style is never overruled. Photographs come only from the repository's own credited folders: never a dark one (mean relative luminance under .14 or more than 35% of it near black), never cash or money, never outer space for goods that are not about space, never a legible licence plate or a person's face. scripts/build_full_grounds.mjs --measure reads each photograph's brightness and colour into 'photos'; the generator writes motion/full-grounds.js (the site cannot read spec/); --check fails a stale module or a pooled photograph that is missing, unmeasured, dark or uncredited. Pools are by the lines' categories (motion/subjects.json 'cat'); the iPhone line is 'phones'.",
+  "_doc": "What the full ad stands on (motion/fullad.js; DESIGN-LAW 137, 139; OPEN-ITEMS §BJ). The owner, 2026-11-18: \"how come none of the videos use a BG?\", \"also only have 1 BG style?!\", \"retire but bg counts.. so combo of assets and bg is best though\", \"with cars people like a good bg or sunset\", \"not low exposure dark images...\". A seed draws one of three kinds of ground: a photograph from its category's pool (graded toward the pair's ground, shaded only where words stand, moving slowly in the video), one of the engine's drawn scenes, or the house's own gradient. The shares below are each kind's part of a seed's draw where the line has that kind; a line with no photograph shares its photo part between the other two. A photograph is drawn only where its own colour keeps the card to two families with the pair the seed drew (rule 139); a hand-picked look or a ground_photo given in the style is never overruled. Photographs come only from the repository's own credited folders: never a dark one (mean relative luminance under .14 or more than 35% of it near black), never cash or money, never outer space for goods that are not about space, never a legible licence plate or a person's face. scripts/build_full_grounds.mjs --measure reads each photograph's brightness and colour into 'photos'; the generator writes motion/full-grounds.js (the site cannot read spec/); --check fails a stale module or a pooled photograph that is missing, unmeasured, dark or uncredited. Pools are by the lines' categories (motion/subjects.json 'cat'); the iPhone line is 'phones'. 2026-11-18 (rule 154; the owner: \"still not enough colors, gradients, pattern fill, or other ways instead of colors\", \"a lot of these are the same thing with 5% variety or difference\"): a fifth kind, the house patterns and textures (pattern: tone-on-tone marks in the ground’s own colour, motion/decor.js FULL_PATTERNS), and five more of the pair’s own gradients (a conic sweep, a sunset, a hard diagonal split, a two-corner duotone, an arch blocked in behind the product). The photograph keeps the largest share.",
   "version": "2026-11-18",
   "shares": {
-    "photo": 0.35,
-    "scene": 0.2,
-    "gradient": 0.25,
-    "house": 0.2
+    "photo": 0.3,
+    "scene": 0.12,
+    "gradient": 0.22,
+    "pattern": 0.22,
+    "house": 0.14
   },
   "house": [
     "radial",
@@ -305,11 +306,1419 @@
       "hue": null,
       "C": 0,
       "share": 0.01
+    },
+    "assets/bg-offer/apple-macbook-air-m2-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.347,
+      "dark": 0.138,
+      "hue": 322,
+      "C": 0.099,
+      "share": 0.43
+    },
+    "assets/bg-offer/audio-airpods-4-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.508,
+      "dark": 0.014,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/audio-airpods-max-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.652,
+      "dark": 0.024,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/audio-airpods-max-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.578,
+      "dark": 0.064,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/audio-airpods-pro-4.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.331,
+      "dark": 0.024,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/audio-beats-fit-pro-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.36,
+      "dark": 0.048,
+      "hue": 79,
+      "C": 0.109,
+      "share": 0.38
+    },
+    "assets/bg-offer/audio-bose-quietcomfort-headphones-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.683,
+      "dark": 0.082,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/audio-sonos-speaker-4.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.306,
+      "dark": 0.072,
+      "hue": 69,
+      "C": 0.086,
+      "share": 0.21
+    },
+    "assets/bg-offer/cameras-dji-mini-4-pro-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.817,
+      "dark": 0.013,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/cameras-fujifilm-x-t5-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.29,
+      "dark": 0.2,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/cameras-leica-q2-4.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.412,
+      "dark": 0.272,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/coins-american-gold-eagle-coin-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.389,
+      "dark": 0.245,
+      "hue": 88,
+      "C": 0.101,
+      "share": 0.32
+    },
+    "assets/bg-offer/coins-coin-collection-album-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.285,
+      "dark": 0.046,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/dl_sports_agencyGrid_mono.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.126,
+      "dark": 0.296,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/dl_sports_arcCrown_crimson.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.223,
+      "dark": 0.197,
+      "hue": 59,
+      "C": 0.089,
+      "share": 0.16
+    },
+    "assets/bg-offer/dl_sports_glassCard_mono.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.224,
+      "dark": 0.244,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/gold-gold-bracelet-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.344,
+      "dark": 0.001,
+      "hue": null,
+      "C": 0,
+      "share": 0.09
+    },
+    "assets/bg-offer/gold-gold-bracelet-4.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.564,
+      "dark": 0,
+      "hue": 83,
+      "C": 0.097,
+      "share": 0.15
+    },
+    "assets/bg-offer/gold-gold-jewelry-rings-3.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.53,
+      "dark": 0.075,
+      "hue": 10,
+      "C": 0.116,
+      "share": 0.18
+    },
+    "assets/bg-offer/macbook-macbook-pro-16-inch-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.279,
+      "dark": 0.167,
+      "hue": 259,
+      "C": 0.159,
+      "share": 0.15
+    },
+    "assets/bg-offer/macbook-macbook-pro-m3-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.263,
+      "dark": 0.347,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/bg-offer/phones-apple-iphone-15-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.285,
+      "dark": 0.029,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/phones-iphone-14-pro-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.12,
+      "dark": 0.162,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/phones-iphone-15-pro-back-camera-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.124,
+      "dark": 0.065,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/bg-offer/pokemon-charizard-card-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.344,
+      "dark": 0.063,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-offer/pokemon-charizard-card-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.397,
+      "dark": 0.172,
+      "hue": null,
+      "C": 0,
+      "share": 0.1
+    },
+    "assets/bg-offer/rooms-desk-setup-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.159,
+      "dark": 0.249,
+      "hue": null,
+      "C": 0,
+      "share": 0.1
+    },
+    "assets/bg-offer/rooms-home-desk-setup-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.155,
+      "dark": 0.278,
+      "hue": null,
+      "C": 0,
+      "share": 0.11
+    },
+    "assets/bg-offer/rooms-living-room-console-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.204,
+      "dark": 0.345,
+      "hue": 80,
+      "C": 0.084,
+      "share": 0.26
+    },
+    "assets/bg-offer/silver-silver-cutlery-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.138,
+      "dark": 0.361,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/silver-silver-jewelry-rings-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.234,
+      "dark": 0.266,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/silver-silverware-set-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.164,
+      "dark": 0.146,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/strips-blood-glucose-meter-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.34,
+      "dark": 0.129,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/bg-offer/strips-blood-glucose-test-strips-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.596,
+      "dark": 0.104,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-offer/strips-contour-next-test-strips-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.326,
+      "dark": 0.061,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-offer/wearables-apple-watch-series-9-4.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.468,
+      "dark": 0.138,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/wearables-meta-ray-ban-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.265,
+      "dark": 0.163,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/coins-american-gold-eagle-coin-3.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.191,
+      "dark": 0.055,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-web/coins-old-coins-2.jpg": {
+      "w": 2048,
+      "h": 1152,
+      "L": 0.592,
+      "dark": 0.073,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/colours-jeep-wrangler-red-1.jpg": {
+      "w": 1920,
+      "h": 1281,
+      "L": 0.306,
+      "dark": 0.111,
+      "hue": 38,
+      "C": 0.131,
+      "share": 0.19
+    },
+    "assets/bg-web/colours-toyota-tacoma-red-1.jpg": {
+      "w": 1920,
+      "h": 1281,
+      "L": 0.279,
+      "dark": 0.111,
+      "hue": null,
+      "C": 0,
+      "share": 0.14
+    },
+    "assets/bg-web/gold-gold-bracelet-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.353,
+      "dark": 0.001,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-web/gold-gold-bracelet-3.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.362,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-web/gold-gold-bullion-bar-2.jpg": {
+      "w": 1920,
+      "h": 1160,
+      "L": 0.732,
+      "dark": 0.004,
+      "hue": 84,
+      "C": 0.132,
+      "share": 0.36
+    },
+    "assets/bg-web/gold-gold-bullion-bars-2.jpg": {
+      "w": 2048,
+      "h": 1399,
+      "L": 0.147,
+      "dark": 0.252,
+      "hue": null,
+      "C": 0,
+      "share": 0.14
+    },
+    "assets/bg-web/gold-gold-bullion-bars-3.jpg": {
+      "w": 2048,
+      "h": 1365,
+      "L": 0.284,
+      "dark": 0.016,
+      "hue": 223,
+      "C": 0.099,
+      "share": 0.78
+    },
+    "assets/bg-web/gold-gold-jewelry-rings-3.jpg": {
+      "w": 1920,
+      "h": 1531,
+      "L": 0.58,
+      "dark": 0.058,
+      "hue": 9,
+      "C": 0.115,
+      "share": 0.16
+    },
+    "assets/bg-web/gold-gold-necklace-chain-close-3.jpg": {
+      "w": 1920,
+      "h": 1599,
+      "L": 0.035,
+      "dark": 0.826,
+      "hue": null,
+      "C": 0,
+      "share": 0.12
+    },
+    "assets/bg-web/gold-gold-ring-wedding-band-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.242,
+      "dark": 0.157,
+      "hue": null,
+      "C": 0,
+      "share": 0.09
+    },
+    "assets/bg-web/gold-gold-ring-wedding-band-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.342,
+      "dark": 0.101,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/gold-gold-ring-wedding-band-3.jpg": {
+      "w": 1920,
+      "h": 1620,
+      "L": 0.243,
+      "dark": 0.007,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/gold-gold-watch-1.jpg": {
+      "w": 1920,
+      "h": 1278,
+      "L": 0.08,
+      "dark": 0.776,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/bg-web/gold-rolex-watch-3.jpg": {
+      "w": 1920,
+      "h": 1920,
+      "L": 0.124,
+      "dark": 0.168,
+      "hue": null,
+      "C": 0,
+      "share": 0.09
+    },
+    "assets/bg-web/macbook-macbook-air-2.jpg": {
+      "w": 1920,
+      "h": 1081,
+      "L": 0.023,
+      "dark": 0.881,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/macbook-macbook-pro-m3-4.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.016,
+      "dark": 0.899,
+      "hue": 261,
+      "C": 0.112,
+      "share": 0.45
+    },
+    "assets/bg-web/phones-apple-iphone-15-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.285,
+      "dark": 0.028,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/phones-apple-iphone-15-2.jpg": {
+      "w": 1920,
+      "h": 1442,
+      "L": 0.38,
+      "dark": 0.024,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/phones-iphone-13-pro-1.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.151,
+      "dark": 0.283,
+      "hue": 18,
+      "C": 0.132,
+      "share": 0.81
+    },
+    "assets/bg-web/phones-iphone-13-pro-2.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.156,
+      "dark": 0.279,
+      "hue": 20,
+      "C": 0.132,
+      "share": 0.81
+    },
+    "assets/bg-web/phones-iphone-13-pro-3.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.149,
+      "dark": 0.254,
+      "hue": 30,
+      "C": 0.157,
+      "share": 0.66
+    },
+    "assets/bg-web/phones-iphone-14-pro-1.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.091,
+      "dark": 0.373,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/phones-iphone-14-pro-2.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.491,
+      "dark": 0.049,
+      "hue": null,
+      "C": 0,
+      "share": 0.11
+    },
+    "assets/bg-web/phones-iphone-14-pro-3.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.532,
+      "dark": 0.006,
+      "hue": null,
+      "C": 0,
+      "share": 0.08
+    },
+    "assets/bg-web/phones-iphone-15-pro-back-camera-1.jpg": {
+      "w": 1920,
+      "h": 1356,
+      "L": 0.148,
+      "dark": 0.046,
+      "hue": null,
+      "C": 0,
+      "share": 0.09
+    },
+    "assets/bg-web/phones-iphone-16-pro-1.jpg": {
+      "w": 1920,
+      "h": 1441,
+      "L": 0.304,
+      "dark": 0.042,
+      "hue": null,
+      "C": 0,
+      "share": 0.07
+    },
+    "assets/bg-web/pokemon-charizard-card-1.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.301,
+      "dark": 0.113,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/bg-web/pokemon-charizard-card-2.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.386,
+      "dark": 0.173,
+      "hue": null,
+      "C": 0,
+      "share": 0.07
+    },
+    "assets/bg-web/popular2-dodge-challenger-1.jpg": {
+      "w": 1920,
+      "h": 1251,
+      "L": 0.381,
+      "dark": 0.087,
+      "hue": null,
+      "C": 0,
+      "share": 0.09
+    },
+    "assets/bg-web/popular2-lamborghini-aventador-2.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.295,
+      "dark": 0.127,
+      "hue": 43,
+      "C": 0.138,
+      "share": 0.41
+    },
+    "assets/bg-web/silver-silver-bullion-bars-3.jpg": {
+      "w": 2048,
+      "h": 2048,
+      "L": 0.147,
+      "dark": 0.228,
+      "hue": 66,
+      "C": 0.101,
+      "share": 0.56
+    },
+    "assets/bg-web/silver-silver-cutlery-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.112,
+      "dark": 0.427,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/silver-silver-cutlery-2.jpg": {
+      "w": 1920,
+      "h": 925,
+      "L": 0.067,
+      "dark": 0.57,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/silver-silver-jewelry-rings-2.jpg": {
+      "w": 1920,
+      "h": 1442,
+      "L": 0.219,
+      "dark": 0.271,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/silver-silver-necklace-chain-1.jpg": {
+      "w": 1920,
+      "h": 1457,
+      "L": 0.199,
+      "dark": 0.148,
+      "hue": 58,
+      "C": 0.096,
+      "share": 0.3
+    },
+    "assets/bg-web/silver-silver-tea-set-5.jpg": {
+      "w": 1694,
+      "h": 1680,
+      "L": 0.183,
+      "dark": 0.074,
+      "hue": 75,
+      "C": 0.105,
+      "share": 0.18
+    },
+    "assets/bg-web/silver-silverware-set-1.jpg": {
+      "w": 1600,
+      "h": 1512,
+      "L": 0.178,
+      "dark": 0.159,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/silver-silverware-set-3.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.309,
+      "dark": 0.001,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/sports-baseball-and-glove-1.jpg": {
+      "w": 2048,
+      "h": 1536,
+      "L": 0.308,
+      "dark": 0.178,
+      "hue": 256,
+      "C": 0.143,
+      "share": 0.34
+    },
+    "assets/bg-web/sports-baseball-and-glove-2.jpg": {
+      "w": 2048,
+      "h": 1519,
+      "L": 0.317,
+      "dark": 0.046,
+      "hue": 44,
+      "C": 0.123,
+      "share": 0.54
+    },
+    "assets/bg-web/sports-baseball-and-glove-3.jpg": {
+      "w": 2048,
+      "h": 1536,
+      "L": 0.112,
+      "dark": 0.579,
+      "hue": 60,
+      "C": 0.11,
+      "share": 0.35
+    },
+    "assets/bg-web/strips-blood-glucose-meter-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.354,
+      "dark": 0.098,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/bg-web/strips-blood-glucose-meter-4.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.407,
+      "dark": 0.079,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-web/strips-blood-glucose-test-strips-3.jpg": {
+      "w": 1920,
+      "h": 1920,
+      "L": 0.531,
+      "dark": 0.08,
+      "hue": null,
+      "C": 0,
+      "share": 0.07
+    },
+    "assets/bg-web/strips-contour-next-test-strips-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.418,
+      "dark": 0.078,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/bg-web/strips-contour-next-test-strips-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.329,
+      "dark": 0.044,
+      "hue": null,
+      "C": 0,
+      "share": 0.05
+    },
+    "assets/bg-web/strips-contour-next-test-strips-3.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.401,
+      "dark": 0.02,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/strips-freestyle-libre-3.jpg": {
+      "w": 1920,
+      "h": 1446,
+      "L": 0.358,
+      "dark": 0.005,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/strips-freestyle-libre-4.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.159,
+      "dark": 0.312,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg-web/strips-glucose-meter-test-strip-2.jpg": {
+      "w": 1920,
+      "h": 1432,
+      "L": 0.152,
+      "dark": 0.597,
+      "hue": null,
+      "C": 0,
+      "share": 0.05
+    },
+    "assets/bg-web/trucks-chevrolet-silverado-pickup-3.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.174,
+      "dark": 0.184,
+      "hue": 115,
+      "C": 0.098,
+      "share": 0.17
+    },
+    "assets/bg-web/trucks-ford-f-150-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.393,
+      "dark": 0.062,
+      "hue": 74,
+      "C": 0.099,
+      "share": 0.16
+    },
+    "assets/bg/dl_coins_agencyGrid_paper.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.265,
+      "dark": 0.167,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg/dl_coins_reviewProof_paper.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.396,
+      "dark": 0.095,
+      "hue": null,
+      "C": 0,
+      "share": 0.05
+    },
+    "assets/bg/dl_coins_scriptRetro_paper.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.233,
+      "dark": 0.147,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_coins_slabPoster_gold.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.28,
+      "dark": 0.181,
+      "hue": null,
+      "C": 0,
+      "share": 0.07
+    },
+    "assets/bg/dl_coins_ticketStub_paper.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.266,
+      "dark": 0.149,
+      "hue": null,
+      "C": 0,
+      "share": 0.05
+    },
+    "assets/bg/dl_coins_trustSeal_gold.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.497,
+      "dark": 0.111,
+      "hue": 67,
+      "C": 0.103,
+      "share": 0.45
+    },
+    "assets/bg/dl_coins_voltStack_royal.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.102,
+      "dark": 0.485,
+      "hue": null,
+      "C": 0,
+      "share": 0.09
+    },
+    "assets/bg/dl_coins_wantedFrame_paper.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.144,
+      "dark": 0.338,
+      "hue": null,
+      "C": 0,
+      "share": 0.13
+    },
+    "assets/bg/dl_gold_arcCrown_gold.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.295,
+      "dark": 0.16,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/bg/dl_gold_duoSplit_gold.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.182,
+      "dark": 0.398,
+      "hue": 67,
+      "C": 0.09,
+      "share": 0.24
+    },
+    "assets/bg/dl_gold_gradientWave_gold.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.112,
+      "dark": 0.355,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg/dl_gold_karatSeal_gold.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.182,
+      "dark": 0.398,
+      "hue": 67,
+      "C": 0.09,
+      "share": 0.24
+    },
+    "assets/bg/dl_gold_priceAnchor_gold.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.164,
+      "dark": 0.316,
+      "hue": 47,
+      "C": 0.092,
+      "share": 0.28
+    },
+    "assets/bg/dl_pokemon_agencyGrid_royal.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.102,
+      "dark": 0.448,
+      "hue": 40,
+      "C": 0.096,
+      "share": 0.33
+    },
+    "assets/bg/dl_pokemon_neonNight_royal.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.266,
+      "dark": 0.264,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg/dl_silver_arcCrown_mono.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.133,
+      "dark": 0.222,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_silver_bandKnockout_mono.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.18,
+      "dark": 0.294,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_silver_checklistHero_ocean.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.075,
+      "dark": 0.419,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_silver_diagonalRush_mono.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.111,
+      "dark": 0.373,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_silver_glassCard_ocean.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.424,
+      "dark": 0.064,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_agencyGrid_mono.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_bandKnockout_emerald.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_checklistHero_crimson.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_duoSplit_mono.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_glassCard_mono.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.228,
+      "dark": 0.241,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_gradientWave_crimson.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_hudTech_emerald.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_neonNight_emerald.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_priceAnchor_crimson.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_reviewProof_paper.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.44,
+      "dark": 0.06,
+      "hue": null,
+      "C": 0,
+      "share": 0.12
+    },
+    "assets/bg/dl_sports_scriptRetro_paper.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_stepsFlow_emerald.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.418,
+      "dark": 0.129,
+      "hue": 118,
+      "C": 0.108,
+      "share": 0.34
+    },
+    "assets/bg/dl_sports_ticketStub_crimson.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.225,
+      "dark": 0.263,
+      "hue": 69,
+      "C": 0.095,
+      "share": 0.16
+    },
+    "assets/bg/dl_sports_trustSeal_crimson.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.444,
+      "dark": 0.159,
+      "hue": 30,
+      "C": 0.092,
+      "share": 0.19
+    },
+    "assets/bg/dl_sports_voltStack_crimson.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.249,
+      "dark": 0.15,
+      "hue": null,
+      "C": 0,
+      "share": 0.07
+    },
+    "assets/bg/dl_sports_wantedFrame_paper.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.228,
+      "dark": 0.195,
+      "hue": 59,
+      "C": 0.09,
+      "share": 0.17
+    },
+    "assets/bg/dl_strips_gradientWave_emerald.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.33,
+      "dark": 0.138,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/scenes/scene-flat-ipads.jpg": {
+      "w": 1600,
+      "h": 1350,
+      "L": 0.333,
+      "dark": 0.164,
+      "hue": null,
+      "C": 0,
+      "share": 0.09
+    },
+    "assets/scenes/scene-grad-mac-gold.jpg": {
+      "w": 1600,
+      "h": 1350,
+      "L": 0.323,
+      "dark": 0.093,
+      "hue": 334,
+      "C": 0.158,
+      "share": 0.67
+    },
+    "assets/scenes/scene-own-macbook-open.jpg": {
+      "w": 2048,
+      "h": 1536,
+      "L": 0.238,
+      "dark": 0.184,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/scenes/scene-own-macbook-stack.jpg": {
+      "w": 2048,
+      "h": 1536,
+      "L": 0.135,
+      "dark": 0.352,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/scenes/scene-studio-amber-ipad.jpg": {
+      "w": 1600,
+      "h": 1350,
+      "L": 0.177,
+      "dark": 0.313,
+      "hue": 77,
+      "C": 0.093,
+      "share": 0.26
+    },
+    "assets/scenes/scene-studio-teal-watch.jpg": {
+      "w": 1600,
+      "h": 1350,
+      "L": 0.207,
+      "dark": 0.285,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/showcase/bg/abs_halftone_jw07_3.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.066,
+      "dark": 0,
+      "hue": 157,
+      "C": 0.088,
+      "share": 0.84
+    },
+    "assets/showcase/bg/abs_paperTex_du06_3.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.515,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/abs_shadowcast_io08_3.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.478,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/abs_velvet_ck01_3.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.028,
+      "dark": 0.544,
+      "hue": 345,
+      "C": 0.088,
+      "share": 0.99
+    },
+    "assets/showcase/bg/dg_cast_cd06_sports_2.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.15,
+      "dark": 0.045,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/showcase/bg/dg_cast_cd06_sports_4.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.15,
+      "dark": 0.045,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/showcase/bg/dg_cast_gl03_sports_3.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.173,
+      "dark": 0.032,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_cast_gl07_sports_0.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.173,
+      "dark": 0.033,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_cast_jw09_sports_5.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.043,
+      "dark": 0.447,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/showcase/bg/dg_cast_nn06_sports_1.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.026,
+      "dark": 0.731,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_cast_su01_sports_0.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.182,
+      "dark": 0.031,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_tile_du03_coins_2.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.677,
+      "dark": 0.01,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/showcase/bg/dg_tile_du03_silver_5.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.721,
+      "dark": 0.003,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_tile_du04_silver_2.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.721,
+      "dark": 0.003,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_tile_ik07_silver_2.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.731,
+      "dark": 0.003,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_tile_jw04_silver_0.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.721,
+      "dark": 0.003,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_tile_jw06_coins_3.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.681,
+      "dark": 0.006,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/showcase/bg/dg_tile_jw06_silver_0.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.722,
+      "dark": 0.003,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_tile_jw08_silver_3.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.722,
+      "dark": 0.003,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/strips-blood-glucose-test-strips-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.639,
+      "dark": 0.084,
+      "hue": null,
+      "C": 0,
+      "share": 0.05
     }
   },
   "gradients": [
     "pair_linear",
     "pair_radial",
-    "pair_mesh"
+    "pair_mesh",
+    "pair_conic",
+    "pair_sunset",
+    "pair_split",
+    "pair_corner",
+    "pair_arch"
+  ],
+  "patterns": [
+    "pat_halftone",
+    "pat_stripes",
+    "pat_checks",
+    "pat_grid",
+    "pat_waves",
+    "pat_zigzag",
+    "pat_rays",
+    "pat_rings",
+    "pat_topo",
+    "pat_polka",
+    "pat_gingham",
+    "pat_memphis",
+    "pat_grain",
+    "pat_paper",
+    "pat_riso"
   ]
 }

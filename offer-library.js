@@ -227,6 +227,8 @@
     'poke-psa-charizard':[369,610], 'ph-sports-slabs-fan':[1414,1350], 'ph-sports-cards-fan':[1342,1138], 'ph-sports-slab':[727,1207], 'ph-sports-box':[1312,832], };
   /* the car lines' pictures (2026-11-18): identified vehicles only (assets/vehicles.json names make and model) */
   Object.assign(SIZE, { 'car-toyota-camry-silver':[1835,704], 'car-honda-civic-white':[1787,889], 'car-toyota-rav4-white':[1684,881], 'car-tesla-model-y-blue':[1833,844], 'car-toyota-tacoma-trd-black':[1798,1195], 'car-honda-accord-white':[1845,1196], 'car-chevy-camaro-1969-silver':[1892,751], 'car-ford-bronco-1st-gen-cream':[1676,873], 'car-chevy-corvette-c1-blue':[1842,771], 'car-chevy-silverado-red':[1784,776], 'car-porsche-356-blue':[1658,673], 'car-jeep-wagoneer-classic-red':[1825,999], 'car-honda-civic-type-r-fl5-white':[1621,916], 'car-nissan-skyline-gtr-r34-blue':[1759,957], 'car-toyota-gr-supra-2026-red':[1579,763], 'car-nissan-gtr-r35-white':[1646,835], 'car-toyota-gr86-blue':[1823,843], 'car-honda-s2000-silver':[1793,819], 'car-chevy-silverado-zr2-red':[1675,1194], 'car-ford-f150-raptor-2026-black':[1902,1189], 'car-ford-f150-lightning-black':[1715,843], 'car-toyota-tacoma-orange':[1818,954], 'car-toyota-highlander-silver':[1562,691], 'car-toyota-prius-2026-grey':[1571,859], 'car-toyota-gr-corolla-black':[1656,984], 'car-honda-hrv-beige':[1780,969], 'car-bmw-x3-black':[1794,1145], 'car-bmw-m3-blue':[1784,923], 'car-bmw-ix3-2026-white':[1817,858], 'car-bmw-m4-convertible-black':[1808,851], 'car-mercedes-c-class-all-terrain-white':[1732,1118], 'car-mercedes-glc-blue':[1786,818], 'car-mercedes-amg-g63-2025-black':[1620,1186], 'car-mercedes-amg-gle63-silver':[1806,1023], 'car-mercedes-s-class-black':[1792,765], 'car-ford-transit-connect-white':[1829,1065], 'car-ram-promaster-grey':[1858,1145], 'car-ldv-maxus-van-white':[1804,1052], 'car-freightliner-cascadia-blue':[1725,1268], 'car-peterbilt-389-white':[1859,1300] });
+  /* the desktop Macs' and the Androids' pictures (2026-11-18, the owner's lines) */
+  Object.assign(SIZE, { 'qs-imac-24-m4--blue':[446,376], 'qs-imac-24-m4--silver':[446,376], 'qs-imac-24-m4--purple':[446,376], 'photo-mac-studio-angle':[1295,1059], 'android-trio':[1936,1548] });
 
   /* ── THE STEPS, in the owner's words. What to send changes per line; the
      meeting and the pay do not. "Nearby" rather than the owner's "In Long
@@ -238,31 +240,36 @@
      heads = headlines, each naming only what its pictures show or the kind of
      thing they show; ask = what to send; check = the list layout's ticks
      (process, not promises); sets = product pictures, rotated per card;
-     ledger = the model names a type-only card sets as its picture. */
+     ledger = the model names a type-only card sets as its picture; alias = the
+     line a full ad of this one draws now (the owner's lines, 2026-11-18: the
+     menus leave it out, its cards stay); lookCat = the category whose colours
+     and faces its cards were made in, where the line moved (Apple Watch to
+     Wearables: its cards keep the looks they were audited in); cards:false =
+     a line only the full ad draws. */
   const NOSHIP = 'No shipping, no labels';
   const LINES = [
     // Phones & Devices
-    { key:'iphone', cat:'phones', label:'iPhone', models:'iPhone 11 and newer, every size',
+    { key:'iphone', cat:'phones', label:'iPhones', models:'iPhone 11 and newer, every size',
       heads:['Your old iPhone, cash in hand.', 'Spare iPhone? Spare cash.', 'Upgraded? Sell the old iPhone.', 'Two iPhones, one pocket?', 'Your old iPhone is cash.'],
       ask:'Model, storage and carrier', check:['Cracked screens too', 'Unlocked or on a carrier', NOSHIP],
       sets:[[['ip-group-colour-lineup', 1]], [['iphone-15-pro-back-white', 1], ['iphone-15-pro-back-blue', 0.97]], [['iphone-17-pro-back-silver', 1], ['iphone-15-pro-back-white', 0.94]], [['iphone-17-pro-back-black', 1], ['iphone-15-pro-back-gold', 0.95]]] },
-    { key:'ipad', cat:'phones', label:'iPad', models:'iPad, iPad mini, iPad Air and iPad Pro',
+    { key:'ipad', cat:'phones', label:'iPads', models:'iPad, iPad mini, iPad Air and iPad Pro',
       heads:['Old iPad. New money.', 'iPad in a drawer? Sell it.', 'Upgraded? Sell the old iPad.'],
       ask:'Model, size and storage', check:['Cracked screens too', 'Wi-Fi or cellular', NOSHIP],
       sets:[[['ipad-front-screen-off', 1]], [['ipad-pair-sizes', 1]], [['ipad-back-camera', 1], ['ipad-front-screen-off', 0.92]]] },
-    { key:'mac', cat:'phones', label:'MacBook', models:'MacBook Air and MacBook Pro, M1 and newer',
+    { key:'mac', cat:'phones', label:'MacBooks', models:'MacBook Air and MacBook Pro, M1 and newer',
       heads:['Old MacBook. New money.', 'MacBook in the closet? Sell it.', 'Your old MacBook is cash.'],
       ask:'The year, chip and memory', check:['Bring the charger if you have it', 'Signed out of iCloud', NOSHIP],
       sets:[[['mac-pro-open-front', 1]], [['macbook-open-angle', 1]], [['mac-half-open-glow', 1]]] },
-    { key:'watch', cat:'phones', label:'Apple Watch', models:'Apple Watch Series, SE and Ultra',
+    { key:'watch', cat:'wearables', lookCat:'phones', label:'Apple Watch', models:'Apple Watch Series, SE and Ultra',
       heads:['Your old Apple Watch is cash.', 'New watch? Sell the old one.', 'Apple Watch in a drawer? Sell it.'],
       ask:'Series, size, GPS or cellular', check:['Bring the charger if you have it', 'Unpaired and reset', NOSHIP],
       sets:[[['watch-pair-bands', 1]], [['watch-single-angle', 1]], [['apple-watch-stack-three', 1]]] },
-    { key:'galaxy', cat:'phones', label:'Samsung Galaxy', models:'Galaxy S21 and newer, Ultra too',
+    { key:'galaxy', cat:'phones', label:'Samsung', models:'Galaxy S21 and newer, Ultra too',
       heads:['Sell your old Samsung.', 'Samsung Galaxy? Get cash.', 'Samsung in a drawer? Sell it.'],   // the brand named (owner, 2026-11-18, of "Your old Galaxy is cash.": "your old Google your old Samsung", "it's clearly missing a word"); each fits the layouts at the number's 1.31x
       ask:'Model, storage and carrier', check:['Unlocked or on a carrier', 'Signed out of Google', NOSHIP],
       sets:[[['sam-s24-ultra-back', 1], ['sam-s24-ultra-front', 0.88]], [['samsung-galaxy-back', 1], ['sam-s24-ultra-back', 1]], [['sam-s24-ultra-back', 1]]] },
-    { key:'pixel', cat:'phones', label:'Google Pixel', models:'Pixel 7 and newer, Pro too',
+    { key:'pixel', cat:'phones', label:'Pixel', models:'Pixel 7 and newer, Pro too',
       heads:['Your old Google Pixel is cash.', 'Sell your Google Pixel.', 'Google Pixel? Get cash.'],
       ask:'Model, storage and carrier', check:['Unlocked or on a carrier', 'Signed out of Google', NOSHIP],
       sets:[[['pix-9-back-green', 1], ['pix-9-back-obsidian', 0.92]], [['pix-trio-lineup', 1]], [['pix-9-back-green', 1]]] },
@@ -270,36 +277,36 @@
       heads:['Fold or Flip? We buy both.', 'Your old foldable is cash.', 'Folding phone? Sell it.'],
       ask:'Model, storage and the hinge', check:['Screen protector on or off', 'Signed out of Google', NOSHIP],
       sets:[[['sam-fold-half', 1], ['sam-flip-open', 0.9]], [['sam-fold-open-flat', 1]], [['pix-fold-open', 1]]] },
-    { key:'tablet', cat:'phones', label:'Android tablets', models:'Galaxy Tab and Pixel Tablet',
+    { key:'tablet', cat:'phones', label:'Android tablets', alias:'android', models:'Galaxy Tab and Pixel Tablet',
       heads:['Android tablet? We buy it.', 'Tablet in a drawer? Sell it.'],
       ask:'Model, size and storage', check:['Bring the charger if you have it', 'Signed out of Google', NOSHIP],
       sets:[[['pix-tablet-back', 1]]] },
     // Gaming
-    { key:'console', cat:'gaming', label:'Consoles', models:'PS5, PS5 Pro, Xbox Series X and S',
+    { key:'console', cat:'gaming', label:'Consoles', models:'PS5, Xbox, Switch and controllers',
       heads:['PS5 or Xbox? We buy both.', 'Console in the closet? Sell it.', 'Your old console is cash.'],
       ask:'Model, storage, disc or digital', check:['Bring the controller and cables', 'Signed out of your account', NOSHIP],
       sets:[[['game-console-pair', 1]]] },
-    { key:'switch', cat:'gaming', label:'Nintendo Switch', models:'Switch, Switch OLED and Switch 2',
+    { key:'switch', cat:'gaming', label:'Nintendo Switch', alias:'pchandheld', models:'Switch, Switch OLED and Switch 2',
       heads:['Switch in a drawer? Sell it.', 'Your old Switch is cash.'],
       ask:'Model, and the Joy-Con with it', check:['Bring the dock and charger', 'Signed out of your account', NOSHIP],
       sets:[[['console-handheld-pair', 1]], [['gaming-handheld', 1]]] },
-    { key:'controller', cat:'gaming', label:'Controllers', models:'DualSense, DualSense Edge and Xbox controllers',
+    { key:'controller', cat:'gaming', label:'Controllers', alias:'console', models:'DualSense, DualSense Edge and Xbox controllers',
       heads:['Spare controllers? Get cash.', 'Extra DualSense? Sell it.'],
       ask:'Which ones, and how many', check:['Drift or worn sticks, say so', 'Bring the cables if you have them', NOSHIP],
       sets:[[['controller-pair', 1]]] },
-    { key:'gamelaptop', cat:'gaming', label:'Gaming laptops', models:'Gaming laptops, RTX 30 series and newer',
+    { key:'gamelaptop', cat:'gaming', label:'Gaming laptops', alias:'gamingpc', models:'Gaming laptops, RTX 30 series and newer',
       heads:['Gaming laptop? We buy it.', 'Upgraded your rig? Sell the laptop.'],
       ask:'Model, GPU and memory', check:['Bring the charger', 'Signed out and wiped', NOSHIP],
       sets:[[['laptop-gaming-open', 1]]] },
-    { key:'vr', cat:'gaming', label:'VR headsets', models:'Meta Quest 3, Quest 3S and Quest 2',
+    { key:'vr', cat:'gaming', label:'VR headsets', alias:'console', models:'Meta Quest 3, Quest 3S and Quest 2',
       heads:['Quest in a drawer? Sell it.', 'Your old VR headset is cash.'],
       ask:'Model, storage, controllers', check:['Bring both controllers', 'Signed out of your account', NOSHIP],
       sets:[[['vr-headset', 1]]] },
-    { key:'pchandheld', cat:'gaming', label:'PC handhelds', models:'Steam Deck, ROG Ally, Legion Go and MSI Claw',
+    { key:'pchandheld', cat:'gaming', label:'Handhelds', models:'Steam Deck, ROG Ally, Legion Go and Switch',
       heads:['Steam Deck or ROG Ally? We buy both.', 'PC handheld? Get cash for it.'],
       ask:'Model and storage', check:['Bring the charger', 'Signed out and wiped', NOSHIP],
       ledger:['Steam Deck', 'ROG Ally', 'Legion Go', 'MSI Claw'] },
-    { key:'gamingpc', cat:'gaming', label:'Gaming PCs', models:'Towers with an RTX 30 series card or newer',
+    { key:'gamingpc', cat:'gaming', label:'Computers', models:'Desktops and laptops, RTX 30 series and newer',
       heads:['Gaming PC? We buy the whole rig.', 'Selling your gaming PC?'],
       ask:'The CPU, GPU and memory', check:['Photos of the parts list help', 'Signed out and wiped', NOSHIP],
       ledger:['RTX 50 series', 'RTX 40 series', 'RTX 30 series', 'Ryzen and Core i7'] },
@@ -429,6 +436,23 @@
       heads:['Semi truck to sell? We buy it.', 'Your old semi is cash.', 'Day cab or sleeper? Get an offer.'],
       ask:'Year, make, model and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Running or not', 'Paperwork ready'],
       sets:[[['car-freightliner-cascadia-blue', 1]], [['car-peterbilt-389-white', 1]]] },
+    /* THE OWNER'S LINES (2026-11-18): "and technically categories would be iPhones, iPads, Macbooks, Macs,
+       Androids (all), Pixel, Samsung, or foldables", "Gaming would be Consoles, Computers, and Handhelds".
+       So Apple Watch went to Wearables; Android tablets folded into Androids, the Switch into Handhelds,
+       controllers and VR headsets into Consoles, gaming laptops into Computers (alias: the line a full ad
+       picked under the old key now draws; their offer cards stay as they were). Two lines the offer
+       family had no card for are added here, last, so every card above keeps its look (a card's look and
+       face turn with its line's place in this list): the desktop Macs and Androids of every brand.
+       cards:false: no fabric card is made for them; the house engine draws their ads, photo and video
+       (DESIGN-LAW 145). The menus list the lines in the owner's order (scripts/build_full_subjects.mjs MENU). */
+    { key:'macdesk', cat:'phones', label:'Macs', models:'iMac, Mac mini and Mac Studio, M1 and newer', cards:false,
+      heads:['Old iMac? New money.', 'iMac or Mac Studio? We buy both.', 'Your old Mac is cash.'],
+      ask:'The model, year, chip and memory', check:['Bring the power cord', 'Signed out of iCloud', NOSHIP],
+      sets:[[['qs-imac-24-m4--blue', 1]], [['photo-mac-studio-angle', 1]], [['qs-imac-24-m4--silver', 1], ['qs-imac-24-m4--purple', 0.96]]] },
+    { key:'android', cat:'phones', label:'Androids (all brands)', models:'Samsung, Pixel, Motorola, OnePlus and more', cards:false,
+      heads:['Any Android phone? We buy it.', 'Sell your old Android.', 'Android in a drawer? Sell it.'],
+      ask:'Brand, model and storage', check:['Unlocked or on a carrier', 'Signed out of Google', NOSHIP],
+      sets:[[['sam-s24-ultra-back', 1], ['pix-9-back-obsidian', 0.92]], [['android-trio', 1]], [['sam-fold-half', 1], ['pix-9-back-green', 0.9]]] },
   ];
 
   /* ── THE PHOTOGRAPHS. The owner, 2026-09-27: "the gray sections should have a
@@ -923,9 +947,10 @@
 
   const made = [];
   LINES.forEach((line, li) => {
+    if (line.cards === false) return;   // a line only the full ad draws (Macs, Androids: the owner's lines, 2026-11-18)
     const lays = line.ledger ? ['type', 'typeCenter', 'band'] : ['row', 'list', 'band', 'split', 'center', 'float', 'info'];   // new layouts last: the cards before them keep their rotation
-    const grounds = GROUNDS[GROUND_OF[line.key] || GROUND_OF[line.cat] || 'desk'];
-    const flavor = (FLAVOR[line.cat] || []).map(k => FACE[k]).filter(Boolean);
+    const grounds = GROUNDS[GROUND_OF[line.key] || GROUND_OF[line.lookCat || line.cat] || 'desk'];
+    const flavor = (FLAVOR[line.lookCat || line.cat] || []).map(k => FACE[k]).filter(Boolean);
     lays.forEach((lay, k) => {
       const faceOk = F => (lay === 'split' || lay === 'band') ? F.cond || F.em <= 0.56 : true;
       const pool = flavor.filter(faceOk).length ? flavor.filter(faceOk) : FACES.filter(faceOk);
@@ -941,7 +966,7 @@
         const F = a < 60 ? pool[(li + k * 2 + a) % pool.length] : general[(li * 5 + k * 7 + a) % general.length];
         const head = line.heads[(k + a) % line.heads.length];
         const set = line.sets ? line.sets[(k + a) % line.sets.length] : null;
-        const L = lookFor(look, line.cat);
+        const L = lookFor(look, line.lookCat || line.cat);
         const layers = LAYOUTS[lay](L, F, line, head, set, style, G);
         if (layers) built = { look, F, head, layers, L };
       }

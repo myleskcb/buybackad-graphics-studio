@@ -1,66 +1,67 @@
-/* The explainer videos' stage: the studio's poster look (paper, ink outlines,
-   hard offset shadows, four signal colours, DESIGN-LAW rule 98) on a fixed
-   1080 square. Nothing here animates by itself: engine.js sets every moving
-   property from the time it is asked for, so a frame is the same picture
-   however often it is drawn. */
-@font-face{font-family:'Unbounded';src:url('../../assets/fonts/unbounded-var.woff2') format('woff2');font-weight:200 900}
-@font-face{font-family:'Clash Display';src:url('../../assets/fonts/clash-display-600.woff2') format('woff2');font-weight:600}
-@font-face{font-family:'Clash Display';src:url('../../assets/fonts/clash-display-700.woff2') format('woff2');font-weight:700}
-@font-face{font-family:'Satoshi';src:url('../../assets/fonts/satoshi-500.woff2') format('woff2');font-weight:500}
-@font-face{font-family:'Satoshi';src:url('../../assets/fonts/satoshi-700.woff2') format('woff2');font-weight:700}
-@font-face{font-family:'Satoshi';src:url('../../assets/fonts/satoshi-900.woff2') format('woff2');font-weight:900}
+/* The explainer videos' stage: WeBuy.AD's look (DESIGN-LAW 152, 153), reselling.us's
+   navy and blue with mint for the deal, flat cards on hairlines, the system face for
+   the words and Inter Tight for the wordmark, on a fixed 1080 square. Nothing here
+   animates by itself: engine.js sets every moving property from the time it is asked
+   for, so a frame is the same picture however often it is drawn. */
+@font-face{font-family:'Inter Tight';src:url('../../assets/fonts/inter-tight-latin.woff2') format('woff2');font-weight:500 800}
 @font-face{font-family:'DM Mono';src:url('../../assets/fonts/dm-mono-400.woff2') format('woff2');font-weight:400}
-:root{--ink:#141414;--paper:#f2eee4;--panel:#fffdf8;--blue:#2b56f5;--tomato:#ff4a2e;--gold:#ffc21a;--mint:#12b886}
+:root{--ink:#0a1224;--navy:#070d1c;--paper:#f2f4f8;--panel:#ffffff;--blue:#0a5fe0;--sky:#3d8bff;--mint:#2fd58f;--green:#0b8659;--red:#e0352f;--hair:rgba(10,18,36,.10);
+  --sys:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',Arial,sans-serif;--brand:'Inter Tight',-apple-system,BlinkMacSystemFont,sans-serif}
 *{box-sizing:border-box}
 html,body{margin:0;background:#0b0b0b}
 body.live{display:grid;place-items:center;min-height:100vh}
-#stage{width:1080px;height:1080px;position:relative;overflow:hidden;background:var(--paper);color:var(--ink);font-family:Satoshi,system-ui,sans-serif;transform-origin:0 0}
+#stage{width:1080px;height:1080px;position:relative;overflow:hidden;background:var(--paper);color:var(--ink);font-family:var(--sys);transform-origin:0 0}
 .scene{position:absolute;inset:0;overflow:hidden;display:none}
-.scene.dark{color:var(--paper)}
-.t{font-family:'Unbounded',sans-serif;font-weight:800;line-height:1.1;letter-spacing:-.025em;white-space:nowrap}
-.t.clash{font-family:'Clash Display',sans-serif;font-weight:700;letter-spacing:-.005em;line-height:1.08}
-.t.body{font-family:Satoshi,sans-serif;font-weight:700;letter-spacing:0;line-height:1.28;white-space:normal}
+.scene.dark{color:#f4f7ff}
+.t{font-family:var(--sys);font-weight:800;line-height:1.04;letter-spacing:-.04em;white-space:nowrap}
+.t.clash{font-family:var(--sys);font-weight:700;letter-spacing:-.03em;line-height:1.08}
+.t.brand{font-family:var(--brand);font-weight:750;letter-spacing:-.04em;line-height:1}
+.t.brand mark{color:var(--sky);background:none}
+.t.url{font-weight:700;letter-spacing:-.02em;opacity:.9}
+.t.body{font-family:var(--sys);font-weight:600;letter-spacing:-.01em;line-height:1.28;white-space:normal}
 .t.mono{font-family:'DM Mono',monospace;font-weight:400;letter-spacing:0}
-mark{background:linear-gradient(var(--gold),var(--gold)) no-repeat 0 58%/calc(var(--m,1)*100%) 82%;color:var(--ink);padding:0 .1em;margin:0 -.1em;border-radius:.08em}
-mark.w{background-image:linear-gradient(var(--panel),var(--panel))}
-.card{border:4px solid var(--ink);border-radius:26px;overflow:hidden;box-shadow:10px 10px 0 var(--ink);background:#fff}
+/* the highlight: the deal colour, with a thin bar that draws under it as it comes in */
+mark{background:linear-gradient(currentColor,currentColor) no-repeat 0 96%/calc(var(--m,1)*100%) .07em;color:var(--green);padding:0;margin:0}
+.dark mark{color:#4be3a3}
+mark.w,.dark mark.w{color:#fff;background-image:linear-gradient(var(--mint),var(--mint));background-size:calc(var(--m,1)*100%) .1em}
+.card{border:1px solid var(--hair);border-radius:26px;overflow:hidden;box-shadow:0 30px 60px -28px rgba(10,18,36,.45);background:#fff}
 .card img{display:block;width:100%;height:100%;object-fit:cover}
 .card.top img{object-position:0 0}
-.dark .card,.card.lit{box-shadow:10px 10px 0 var(--gold)}
+.dark .card,.card.lit{border-color:rgba(255,255,255,.14);box-shadow:0 34px 70px -26px rgba(0,0,0,.75)}
 .card.flat{box-shadow:none}
-.chip{font:700 32px/1 Satoshi,sans-serif;padding:14px 26px;border:3px solid var(--ink);border-radius:999px;background:var(--panel);color:var(--ink);box-shadow:5px 5px 0 var(--ink);white-space:nowrap}
-.dark .chip{box-shadow:5px 5px 0 rgba(0,0,0,.55)}
-.box{border:4px solid var(--ink);border-radius:26px;box-shadow:10px 10px 0 var(--ink);background:var(--panel);color:var(--ink)}
-.dark .box{box-shadow:10px 10px 0 rgba(0,0,0,.6)}
-.num{width:84px;height:84px;border-radius:50%;background:var(--gold);border:4px solid var(--ink);display:grid;place-items:center;font:800 40px 'Unbounded',sans-serif;flex:none}
+.chip{font:600 32px/1 var(--sys);letter-spacing:-.01em;padding:15px 28px;border:0;border-radius:999px;background:rgba(10,18,36,.07);color:var(--ink);white-space:nowrap}
+.dark .chip{background:rgba(255,255,255,.12);color:#f4f7ff}
+.box{border:1px solid var(--hair);border-radius:26px;box-shadow:0 1px 2px rgba(20,30,60,.05),0 18px 40px -22px rgba(20,30,60,.3);background:var(--panel);color:var(--ink)}
+.dark .box{background:#101a30;color:#f4f7ff;border-color:rgba(255,255,255,.10);box-shadow:none}
+.num{width:84px;height:84px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font:800 40px var(--sys);flex:none}
 .row{display:flex;align-items:center;gap:28px;padding:0 34px}
-.row b{font:800 44px 'Unbounded',sans-serif;letter-spacing:-.02em}
-.row span{font:700 36px/1.2 Satoshi,sans-serif}
-.tap{border:7px solid var(--blue);border-radius:50%;pointer-events:none}
+.row b{font:800 46px var(--sys);letter-spacing:-.035em}
+.row span{font:600 36px/1.2 var(--sys)}
+.tap{border:7px solid var(--sky);border-radius:50%;pointer-events:none}
 /* the brand mark and the progress line, on every frame */
-#bug{position:absolute;left:44px;top:40px;display:flex;align-items:center;gap:14px;z-index:20;font:700 25px 'Clash Display',sans-serif;letter-spacing:.03em;color:var(--ink)}
-#bug i{width:42px;height:42px;border-radius:11px;border:3px solid var(--ink);background:conic-gradient(var(--tomato) 0 25%,var(--mint) 0 50%,var(--gold) 0 75%,var(--blue) 0);display:block}
+#bug{position:absolute;left:44px;top:38px;display:flex;align-items:center;z-index:20;font:750 34px/1 var(--brand);letter-spacing:-.04em;color:var(--ink)}
 #bug em{font-style:normal;color:var(--blue)}
-#stage.dark #bug{color:var(--paper)}#stage.dark #bug em{color:var(--gold)}#stage.dark #bug i{border-color:var(--paper)}
-#bar{position:absolute;left:0;bottom:0;height:10px;width:100%;background:rgba(20,20,20,.14);z-index:20}
+#stage.dark #bug{color:#f4f7ff}#stage.dark #bug em{color:var(--sky)}
+#stage.blue #bug em{color:#bfdcff}
+#bar{position:absolute;left:0;bottom:0;height:8px;width:100%;background:rgba(10,18,36,.10);z-index:20}
 #bar b{display:block;height:100%;background:var(--blue);width:0}
-#stage.dark #bar{background:rgba(242,238,228,.18)}#stage.dark #bar b{background:var(--gold)}
+#stage.dark #bar{background:rgba(255,255,255,.14)}#stage.dark #bar b{background:var(--mint)}
 /* a plain post, drawn: words typed over a photo in the phone's own font */
 .plain{background:linear-gradient(155deg,#8d8474,#5d564b 55%,#3f3a33);font-family:Arial,Helvetica,sans-serif;color:#ffe94d;position:relative}
 .plain u{position:absolute;left:31%;top:16%;width:38%;height:58%;border-radius:9%;background:linear-gradient(160deg,#2a2a2e,#101013);border:2px solid #47474d;text-decoration:none}
 .plain p{position:absolute;margin:0;left:6%;right:6%;text-align:center;font-weight:700;text-shadow:0 1px 2px #000}
 /* the phone a feed is read on */
-.phone{border:9px solid var(--ink);border-radius:58px;background:#fff;overflow:hidden;box-shadow:12px 12px 0 var(--ink)}
-.phone .bar{height:74px;background:#f1f1f3;border-bottom:2px solid #dedee3;display:flex;align-items:flex-end;padding:0 22px 12px;font:700 25px Satoshi,sans-serif;color:#444}
+.phone{border:9px solid #0a1224;border-radius:58px;background:#fff;overflow:hidden;box-shadow:0 40px 80px -30px rgba(10,18,36,.55)}
+.phone .bar{height:74px;background:#f1f1f3;border-bottom:2px solid #dedee3;display:flex;align-items:flex-end;padding:0 22px 12px;font:600 25px var(--sys);color:#444}
 .feed{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px}
 .feed>div{aspect-ratio:1;border-radius:14px;overflow:hidden;position:relative}
 .feed img{width:100%;height:100%;display:block;object-fit:cover}
-.shim{background:linear-gradient(120deg,#3a3a40,#55555e 45%,#3a3a40 55%,#2c2c31);border:4px solid var(--paper);border-radius:22px;display:grid;place-items:center;color:var(--paper);font:700 30px Satoshi,sans-serif}
-.badge{position:absolute;right:-16px;top:-16px;width:62px;height:62px;border-radius:50%;background:var(--tomato);border:4px solid var(--paper);display:grid;place-items:center;font:900 34px Satoshi,sans-serif;color:#fff}
+.shim{background:linear-gradient(120deg,#3a3a40,#55555e 45%,#3a3a40 55%,#2c2c31);border:4px solid var(--paper);border-radius:22px;display:grid;place-items:center;color:var(--paper);font:600 30px var(--sys)}
+.badge{position:absolute;right:-16px;top:-16px;width:62px;height:62px;border-radius:50%;background:var(--red);border:4px solid #f4f7ff;display:grid;place-items:center;font:800 34px var(--sys);color:#fff}
 .col{padding:30px 34px}
-.col h4{margin:0 0 20px;font:700 38px 'Clash Display',sans-serif}
-.col p{margin:0 0 16px;font:700 32px/1.2 Satoshi,sans-serif;display:flex;gap:14px}
-.col p::before{content:'';flex:none;width:18px;height:18px;border-radius:50%;margin-top:11px;background:var(--tomato)}
+.col h4{margin:0 0 20px;font:800 40px var(--sys);letter-spacing:-.03em}
+.col p{margin:0 0 16px;font:600 32px/1.2 var(--sys);display:flex;gap:14px}
+.col p::before{content:'';flex:none;width:18px;height:18px;border-radius:50%;margin-top:11px;background:var(--red)}
 .col.good p::before{background:var(--mint)}
-.logo{border-radius:36px;border:6px solid var(--ink);background:conic-gradient(var(--tomato) 0 25%,var(--mint) 0 50%,var(--gold) 0 75%,var(--blue) 0);box-shadow:10px 10px 0 var(--ink)}
-.cta{font:700 44px/1 Satoshi,sans-serif;padding:26px 54px;border:4px solid var(--ink);border-radius:999px;background:var(--blue);color:#fff;box-shadow:8px 8px 0 var(--ink);white-space:nowrap}
+.logo{border-radius:36px;background:url('../../assets/brand/icon-512.png') center/cover;box-shadow:0 0 0 1px rgba(255,255,255,.12),0 30px 60px -20px rgba(0,0,0,.7)}
+.cta{font:600 44px/1 var(--sys);letter-spacing:-.01em;padding:28px 54px;border:0;border-radius:999px;background:var(--sky);color:#fff;white-space:nowrap}

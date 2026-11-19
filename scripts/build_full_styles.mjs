@@ -24,7 +24,13 @@ const list = k => {
   }
   return L.map(({ key, share, where, scrim }) => ({ key, share, ...(where ? { where } : {}), ...(scrim != null ? { scrim: +scrim } : {}) }));
 };
-const table = { version: T.version, sticker: list('sticker'), sticker_gradient: +T.sticker_gradient || 0, headline: list('headline'), entrance: list('entrance'), number: list('number'), plate_gradient: +T.plate_gradient || 0 };
+// the fills (2026-11-18, rule 154): a list each, the keys the painters know (decor.js fillTexture, drawSticker; fullad.js numberPill)
+const FILLS = { sticker_fill: ['solid', 'gradient', 'stripes', 'dots', 'foil', 'outline'], plate_fill: ['solid', 'gradient', 'stripes', 'dots', 'foil', 'glass', 'outline'] };
+for (const [k, known] of Object.entries(FILLS)) for (const e of list(k)) if (!known.includes(e.key)) throw new Error(`spec/full-styles.json: ${k} ${e.key} is not one the painters draw (${known.join(', ')})`);
+// the call to action's mark (2026-11-18): the keys FullAd._ctaMark draws
+const MARKS = ['chevrons', 'none', 'arrow', 'arrows', 'curved', 'phone', 'message', 'phone_text'];
+for (const e of list('cta_mark')) if (!MARKS.includes(e.key)) throw new Error(`spec/full-styles.json: cta_mark ${e.key} is not one FullAd draws (${MARKS.join(', ')})`);
+const table = { version: T.version, sticker: list('sticker'), sticker_fill: list('sticker_fill'), headline: list('headline'), entrance: list('entrance'), number: list('number'), plate_fill: list('plate_fill'), cta_mark: list('cta_mark') };
 const text = `/* MADE FROM spec/full-styles.json BY scripts/build_full_styles.mjs (version ${T.version}).
    Never type into it: change the table, then run the script. */
 export const FULL_STYLES = ${JSON.stringify(table, null, 1).replace(/\n\s*/g, ' ')};
@@ -37,18 +43,27 @@ function pickOne(list, r, ok = () => true) {
 }
 /** A seed's styles: the sticker's shape and fill, the headline's treatment (with the shade round
  *  its words where its row holds one: scrim) and entrance, the number's treatment and the plates'
- *  fill. dark: the ground is dark (a "dark" row is drawn only on one, a "light" row only on a light
- *  one); busy: the ground is a photograph or a drawn scene (a "plain" row is drawn only on the
- *  house's own gradients). */
-export function pickFullStyles(r, { dark = true, busy = false } = {}) {
+ *  fill. dark: the words are lighter than the ground (a "dark" row is drawn only there, a "light"
+ *  row only under dark words); busy: the ground is a photograph or a drawn scene (a "plain" row is
+ *  drawn only on the house's own painted grounds: its gradients and its patterns). sticker_grad and
+ *  plate_grad say whether the fill is lit from above, for the painters that know only that.
+ *  lean: a rebuilt recipe's (motion/recipe-lean.js; the owner, 2026-11-18: "take them as inspiration
+ *  but rebuild them all"): { hint, pick(options, wanted, key) }, where pick draws, on a stream of its
+ *  own, one of the options this ad may draw that its card stood for, or null; the seed's own draws are
+ *  made first and in the same order either way, so an ad with no lean draws what it drew before. */
+export function pickFullStyles(r, { dark = true, busy = false, lean = null } = {}) {
   const where = e => !e.where || (e.where === "dark" ? dark : e.where === "light" ? !dark : e.where === "plain" ? !busy : true);
-  const sticker_shape = pickOne(FULL_STYLES.sticker, r, where), sticker_grad = r() < FULL_STYLES.sticker_gradient;
-  const text_fx = pickOne(FULL_STYLES.headline, r, where), row = FULL_STYLES.headline.find(e => e.key === text_fx) || {};
-  return {
-    sticker_shape, sticker_grad, text_fx, ...(row.scrim != null ? { scrim: row.scrim } : {}),
-    text_in: pickOne(FULL_STYLES.entrance, r, where),
-    number_style: pickOne(FULL_STYLES.number, r, where),
-    plate_grad: r() < FULL_STYLES.plate_gradient,
+  const H = lean && lean.hint || {}, toward = (got, list, want, key) => (lean && lean.pick(list.filter(where).map(e => e.key), want, key)) || got;
+  const sticker_shape = toward(pickOne(FULL_STYLES.sticker, r, where), FULL_STYLES.sticker, H.sticker, "sticker");
+  const sticker_fill = toward(pickOne(FULL_STYLES.sticker_fill, r, where), FULL_STYLES.sticker_fill, H.fill, "fill");
+  const text_fx = toward(pickOne(FULL_STYLES.headline, r, where), FULL_STYLES.headline, H.headline, "headline"), row = FULL_STYLES.headline.find(e => e.key === text_fx) || {};
+  const text_in = pickOne(FULL_STYLES.entrance, r, where), number_style = toward(pickOne(FULL_STYLES.number, r, where), FULL_STYLES.number, H.number, "number");
+  const plate_fill = toward(pickOne(FULL_STYLES.plate_fill, r, where), FULL_STYLES.plate_fill, H.fill, "fill");
+  // the call to action's mark, the last draw, so the styles a seed drew before it do not move
+  const cta_mark = pickOne(FULL_STYLES.cta_mark, r, where);
+  return { cta_mark,
+    sticker_shape, sticker_fill, sticker_grad: sticker_fill === "gradient", text_fx, ...(row.scrim != null ? { scrim: row.scrim } : {}),
+    text_in, number_style, plate_fill, plate_grad: plate_fill === "gradient" || plate_fill === "foil",
   };
 }
 `;
@@ -58,5 +73,5 @@ if (process.argv.includes('--check')) {
   console.log(`motion/full-styles.js is current (version ${T.version})`);
 } else {
   writeFileSync(OUT, text);
-  console.log(`wrote motion/full-styles.js: ${table.sticker.length} stickers, ${table.headline.length} headline treatments, ${table.entrance.length} entrances, ${table.number.length} number treatments (version ${T.version})`);
+  console.log(`wrote motion/full-styles.js: ${table.sticker.length} stickers in ${table.sticker_fill.length} fills, ${table.headline.length} headline treatments, ${table.entrance.length} entrances, ${table.number.length} number treatments, ${table.plate_fill.length} plate fills (version ${T.version})`);
 }

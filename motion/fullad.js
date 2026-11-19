@@ -16,14 +16,15 @@
 import { Ad, inkSprite, splitLines, trim, canvas, lum, prog, outBack, rng, clamp, contrastOf, fontCss, applyCase, labelFont, burstFontFor,
   headlineLines, numberSprite, perksSprite, pointsOf, randomize, harmonise, formatNumber, oklchOf } from "./engine.js";
 import { FONTS, FINE_FACES, PALETTES, DEFAULT_STYLE, TYPE_VOICES, DEFAULT_PHONES } from "./catalog.js";
-import { drawChevrons, fillGradient } from "./decor.js";
+import { drawChevrons, fillGradient, fillTexture, okHex } from "./decor.js";
 import { FULL_STYLES, pickFullStyles } from "./full-styles.js";
 import { placeAccents, timeAccents } from "./accents.js";
-import { HOUSE_COLOURS, LINES } from "./house-colours.js";
+import { HOUSE_COLOURS, LINES, PAIR_LOOKS } from "./house-colours.js";
 import { FULL_VOICES } from "./full-voices.js";
 import { bannedIn } from "./banned-words.js";
 import { PHONE_WEIGHT, PHONE_REST, PHONE_VIEWS, PHONE_COUNTS, PHONE_LINEUP, pickWeighted } from "./product-demand.js";
-import { GROUND_SHARES, GROUND_SCENES, GROUND_GRADIENTS, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS } from "./full-grounds.js";
+import { GROUND_SHARES, GROUND_SCENES, GROUND_GRADIENTS, GROUND_PATTERNS, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS } from "./full-grounds.js";
+import { leanStream, leanPick, pairAnswers } from "./recipe-lean.js";
 
 // Proportions of the frame's width. 1080 x .052 = 56px, x .044 = 48px, x .032 = 35px.
 // edge: nothing nearer the frame's edge than 38px; gap: no two stacked blocks nearer than 22px.
@@ -319,11 +320,13 @@ export function spellsSmallI(fontKey) {
   if (loaded) _smallI.set(fontKey, ok);
   return ok;
 }
+/** The share of seeded full ads set in the house face; the rest draw one of the owner's pairs (fullStyle). */
+export const HOUSE_FACE = .25;
 export const fullVoiceOk = (k, any = false) => !!k && !!TYPE_VOICES[k] && !FINE_FACES.has(TYPE_VOICES[k].display) && (any || !FULL_VOICES.length || FULL_VOICES.includes(k));
 export const QUIET = { decor: [], urgency: "none", overlay: "none", accents: 0, board: "none", number_pos: "bottom-center", number_format: "parens",
   camera: "still", shake: 0, sparkles: false, text_in: "slide", pose: "flat", end_face: "back", phone_idle: "breathe", grade: "none", depth: "none",
   text_scale: 1, number_scale: 1, tracking: 0, skew: 0, hook: "none", season: "none", phone_finish: "standard", transition: "none", ...HOUSE };
-/* The full ad's colours are the photo ads' twelve proven pairs (DESIGN-LAW 123: one colour
+/* The full ad's colours are the photo ads' colour themes, every group (DESIGN-LAW 123, 146: one colour
    vocabulary), by the same names and the same colours as Easy Mode's themes: house-colours.js is
    made from app.js COLOR_THEMES by scripts/build_house_colours.mjs. (It first drew from sixteen of
    the video maker's own palettes, so "Navy & Gold" was two navies and two golds.) The iPhones LA
@@ -408,21 +411,45 @@ export function groundFits(t, P) {
 /** The ground a seed draws for a line and the pair it drew: { background, ground_photo? }, or null
  *  for the house gradient the seed already drew. product (productFor): only a photograph that agrees
  *  with it is drawn. */
-export function groundFor(subject, seed, pairKey, product) {
+export function groundFor(subject, seed, pairKey, product, lean = null) {
   const cat = !subject || subject === "iphone" ? "phones" : (GROUND_LINE_CAT[subject] || "");
   const pool = (GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && photoSuits(GROUND_PHOTOS[src], pairKey) && groundFits(GROUND_PHOTOS[src], product));
-  const share = { photo: pool.length ? GROUND_SHARES.photo : 0, scene: GROUND_SCENES.length ? GROUND_SHARES.scene : 0, gradient: GROUND_GRADIENTS.length ? (GROUND_SHARES.gradient || 0) : 0, house: GROUND_SHARES.house };
+  // the drawn scenes are night skies, auroras and glows made for light words: under dark words (a light pair,
+  // a lime or aqua ground: rule 154) their deep tones turn grey and the shade behind the words runs to the
+  // frame's edge (full_ad_check, 2026-11-18), so those pairs stand on the other kinds
+  const pc = COLOUR_OF[pairKey], darkWords = !!pc && lum(pc.colors.ink) < lum(pc.colors.ground);
+  const share = { photo: pool.length ? GROUND_SHARES.photo : 0, scene: GROUND_SCENES.length && !darkWords ? GROUND_SHARES.scene : 0, gradient: GROUND_GRADIENTS.length ? (GROUND_SHARES.gradient || 0) : 0,
+    pattern: GROUND_PATTERNS.length ? (GROUND_SHARES.pattern || 0) : 0, house: GROUND_SHARES.house };
+  /* a rebuilt recipe's lean (motion/recipe-lean.js; the owner, 2026-11-18: "take them as inspiration but
+     rebuild them all", "retire but bg counts"): a kind of ground or one ground its card stood for, of
+     those this ad may stand on; for a photograph, the one its card stood on where that is measured, not
+     dim, fits the product drawn and keeps the card to two families, else one of the line's */
+  if (lean && lean.want && lean.want.length) {
+    const p0 = lean.photo && lean.photo.src, m0 = p0 ? GROUND_PHOTOS[p0] : null;
+    const own = m0 && !m0.dim && groundFits({ ...m0, ...lean.photo }, product) && photoSuits(m0, pairKey) ? { src: p0, focus: lean.photo.focus || m0.focus || [.5, .5] } : null;   // the engine's own shade, for this pair (its card's was for its card)
+    const can = [...(own || pool.length ? ["photo"] : []), ...(share.scene ? ["scene", ...GROUND_SCENES] : []), ...(share.gradient ? ["gradient", ...GROUND_GRADIENTS] : []),
+      ...(share.pattern ? ["pattern", ...GROUND_PATTERNS] : []), "house", ...GROUNDS];
+    const got = lean.pick(can, lean.want, "ground"), of = L => L[Math.floor(lean.r() * L.length) % L.length];
+    if (got === "photo") { if (own) return { background: "photo", ground_photo: own }; const src = of(pool); return { background: "photo", ground_photo: { src, focus: GROUND_PHOTOS[src].focus || [.5, .5] } }; }
+    if (got) return { background: got === "scene" ? of(GROUND_SCENES) : got === "gradient" ? of(GROUND_GRADIENTS) : got === "pattern" ? of(GROUND_PATTERNS) : got === "house" ? of(GROUNDS) : got };
+  }
   // the line's own stream: two lines on one seed do not stand on the same kind of ground
   let h = 0x811c9dc5; for (const ch of String(subject || "iphone")) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
   const g = rng(mixSeed((mixSeed(seed >>> 0) ^ h) >>> 0)); g();
-  let u = g() * (share.photo + share.scene + share.gradient + share.house);
+  let u = g() * (share.photo + share.scene + share.gradient + share.pattern + share.house);
   if ((u -= share.photo) < 0) { const src = pool[Math.floor(g() * pool.length) % pool.length]; return { background: "photo", ground_photo: { src, focus: GROUND_PHOTOS[src].focus || [.5, .5] } }; }
   if ((u -= share.scene) < 0) return { background: GROUND_SCENES[Math.floor(g() * GROUND_SCENES.length) % GROUND_SCENES.length] };
   // a vivid gradient in the pair's own two families (decor.js pairGradientGround; the owner: "Also don't see any gradients really?")
   if ((u -= share.gradient) < 0) return { background: GROUND_GRADIENTS[Math.floor(g() * GROUND_GRADIENTS.length) % GROUND_GRADIENTS.length] };
+  // a tone-on-tone pattern or texture in the pair's own ground colour (decor.js fullPatternGround; rule 154)
+  if ((u -= share.pattern) < 0) return { background: GROUND_PATTERNS[Math.floor(g() * GROUND_PATTERNS.length) % GROUND_PATTERNS.length] };
   return null;
 }
 export const ARRANGEMENTS = ["lineup", "fan", "showcase", "podium", "wings"];
+/** How far past its letters a headline treatment reaches, in its size, counting both sides (the letters
+ *  are centred on the column): an outline's .17 a side by default; a long shadow's .35 to one side; a
+ *  plate's own margin (box .22, glass .2 and its blur, a cut-out plate .18); a 3-D block's depth and blur. */
+export const FX_REACH = { long_shadow: .72, box: .46, glass: .44, cutout: .38, block3d: .4 };
 /* One icon, where a size has room for one: the fan of banknotes. The review of 2026-11-12: the
    handshake is a photograph of two suits (clip art beside flat type), the red pin repeats the
    footer's pin, and pin and shield each bring a third colour onto a two-colour card. */
@@ -493,7 +520,7 @@ const pairHues = c => [c.colors.ground, c.colors.accent].map(oklchOf).filter(k =
 /** The pairs a seeded ad may be drawn in: those that suit its line (house-colours.js suits, from
  *  the library's AFFINITY); when its headline names a colour, those whose accent is that colour,
  *  so the accent can paint it; and of those, the ones that keep it to two colour families with the
- *  bold phones on it (phoneHues: the body hues of the phones it shows). All twelve, in their order,
+ *  bold phones on it (phoneHues: the body hues of the phones it shows). Every pair, in its order,
  *  for any other ad: a seed that drew a pair before draws the same one. A pair picked by hand is
  *  never narrowed (fullStyle). */
 /** WHICH PAIR A LINE'S FIRST AD OPENS IN (2026-11-18). Seed 1 is every new visitor's first full
@@ -528,6 +555,27 @@ export function pairsFor(subject, headline, phoneHues = []) {
   return keys.length ? keys : COLOURWAYS;
 }
 
+/** THE LOOK FIRST, THEN THE PAIR (2026-11-18, rule 154). Eleven of the twelve proven pairs were a
+ *  navy, black or deep ground under a warm accent, so a page of seeded ads read as one look "with
+ *  5% variety or difference" (the owner). The pairs are now every colour theme (house-colours.js),
+ *  each with its look (light, vivid or dark), and a seed's one draw u picks the look first, a third
+ *  each where a look holds four pairs or more (one that holds fewer, a restricted line's, in
+ *  proportion: gold has one vivid pair, which is not a third of gold), then the pair within the look.
+ *  The draw is turned by the line's own step (lineTurn) before either is read, so the first ads of
+ *  the lines (seed 1, one draw for all of them) spread over the looks and the pairs alike; the iPhone
+ *  line turns by none. Still one draw of the seed's stream: the ground, the arrangement and the words
+ *  a seed drew do not move. */
+export function drawPair(keys, u, subject) {
+  const groups = PAIR_LOOKS.map(k => keys.filter(x => (COLOUR_OF[x] || {}).look === k)).filter(l => l.length);
+  const rest = keys.filter(x => !PAIR_LOOKS.includes((COLOUR_OF[x] || {}).look)); if (rest.length) groups.push(rest);
+  if (!groups.length) return keys[0];
+  const w = groups.map(l => Math.min(1, l.length / 4)), sum = w.reduce((a, b) => a + b, 0);
+  let v = ((clamp(u, 0, .999999) + lineTurn(subject, 9973) / 9973) % 1) * sum, i = 0;
+  while (i < groups.length - 1 && v >= w[i]) { v -= w[i]; i++; }
+  const L = groups[i], f = clamp(v / w[i], 0, .999999);
+  return L[Math.floor(f * L.length) % L.length];
+}
+
 /** A map pin, drawn (an emoji pin is a different picture on every device, and none on some). */
 function pin(x, cx, cy, h, fill, dot) {
   const r = h * .34;
@@ -559,10 +607,15 @@ function numberPill(text, size, font, p, style = "pill", grad = false, bare = p.
      plate at all and a bar of the accent under the figures, in the lines' own ink (bare) with their
      soft shadow; any plate may be lit from above (grad). The figures keep their clear margin on
      every one (DESIGN-LAW 58). */
-  const plate = style !== "underline";
-  const col = plate ? (contrastOf(p.plate_ink, p.plate) >= 3.5 ? p.plate_ink : (lum(p.plate) > .5 ? "#111111" : "#ffffff")) : bare;
+  /* the plate's fill (2026-11-18, rule 154): grad true or "gradient" (lit from above), "stripes", "dots",
+     "foil" (decor.js fillTexture: the plate's own hue moved away from its figures), or "glass" (a frosted
+     pane) and "outline" (its edge alone in the accent), which leave the ground to show through and so
+     carry the figures in the lines' own ink (bare), as the underlined number does */
+  const mode = grad === true ? "gradient" : typeof grad === "string" && grad ? grad : "solid";
+  const plate = style !== "underline", open = plate && (mode === "glass" || mode === "outline");
+  const col = plate && !open ? (contrastOf(p.plate_ink, p.plate) >= 3.5 ? p.plate_ink : (lum(p.plate) > .5 ? "#111111" : "#ffffff")) : bare;
   const P = { ...p, ink: col, accent: col };
-  const ink = trim(inkSprite(text, [...text].map(() => col), font, size, 0, plate || lum(col) < .5 ? "flat" : "shadow", P, 0).c);
+  const ink = trim(inkSprite(text, [...text].map(() => col), font, size, 0, (plate && !open) || lum(col) < .5 ? "flat" : "shadow", P, 0).c);
   const padX = size * .5, padY = Math.max(size * .17, ink.height * .19), h = Math.ceil(ink.height + padY * 2);
   const extra = style === "tag" ? h * .55 : style === "ticket" ? h * .3 : 0, w = Math.ceil(ink.width + padX * 2 + extra);
   const sk = Math.max(.2, size / 96), m = Math.ceil(16 * sk);
@@ -573,8 +626,8 @@ function numberPill(text, size, font, p, style = "pill", grad = false, bare = p.
     x.beginPath(); x.roundRect(m + (w - ink.width) / 2, m + h - bar * 1.15, ink.width, bar, bar / 2); x.fillStyle = acc; x.fill();
     return { c, pad: m, w, h, inkH: ink.height, plate: false, bar: acc };   // the bar is the number's own mark: the pre-flight sets it aside
   }
-  const fill = grad ? fillGradient(x, 0, m, 0, m + h, p.plate, col, 3.5) : p.plate;
-  x.save(); x.shadowColor = "rgba(0,0,0,.32)"; x.shadowBlur = 11 * sk; x.shadowOffsetY = 4 * sk;
+  const fill = mode === "gradient" ? fillGradient(x, 0, m, 0, m + h, p.plate, col, 3.5) : p.plate;
+  x.save(); x.shadowColor = open ? "rgba(0,0,0,.18)" : "rgba(0,0,0,.32)"; x.shadowBlur = (open ? 7 : 11) * sk; x.shadowOffsetY = (open ? 2 : 4) * sk;
   x.beginPath();
   if (style === "box") x.roundRect(m, m, w, h, h * .2);
   else if (style === "ticket") x.roundRect(m, m, w, h, h * .12);
@@ -583,7 +636,7 @@ function numberPill(text, size, font, p, style = "pill", grad = false, bare = p.
     x.moveTo(m + pt, m); x.lineTo(m + w - rr, m); x.quadraticCurveTo(m + w, m, m + w, m + rr); x.lineTo(m + w, m + h - rr);
     x.quadraticCurveTo(m + w, m + h, m + w - rr, m + h); x.lineTo(m + pt, m + h); x.lineTo(m, m + h / 2); x.closePath();
   } else x.roundRect(m, m, w, h, h / 2);
-  x.fillStyle = fill; x.fill(); x.restore();
+  plateBody(x, mode, fill, p.plate, col, m, m, m + w, m + h, h, p.hot || p.accent);
   if (style === "ticket") {
     x.save(); x.globalCompositeOperation = "destination-out";
     [m, m + w].forEach(cx => { x.beginPath(); x.arc(cx, m + h / 2, h * .16, 0, 7); x.fill(); }); x.restore();
@@ -594,6 +647,26 @@ function numberPill(text, size, font, p, style = "pill", grad = false, bare = p.
   const shift = style === "tag" ? h * .275 : style === "ticket" ? h * .15 : 0;
   x.drawImage(ink, m + (w - ink.width) / 2 + shift, m + (h - ink.height) / 2);
   return { c, pad: m, w, h, inkH: ink.height, plate: true };
+}
+
+/** A plate's body on the path just drawn, inside the caller's save() (its shadow set), which this
+ *  restores (2026-11-18, rule 154): flat or lit from above (fill), with stripes, dots or a foil's sheen
+ *  laid over it without the shadow (decor.js fillTexture); or a pane of glass, smoked under light words
+ *  and frosted under dark ones, so it only ever moves the ground away from them; or its edge alone in
+ *  the accent. Glass and the edge leave the ground to show: their words are the lines' own ink. */
+function plateBody(x, mode, fill, plate, ink, x0, y0, x1, y1, h, edge) {
+  if (mode === "glass") {
+    const light = lum(ink) > .5;
+    x.fillStyle = light ? "rgba(0,0,0,.24)" : "rgba(255,255,255,.62)"; x.fill(); x.restore();
+    x.save(); x.clip();
+    const hl = x.createLinearGradient(0, y0, 0, y0 + (y1 - y0) * .5); hl.addColorStop(0, "rgba(255,255,255,.16)"); hl.addColorStop(1, "rgba(255,255,255,0)");
+    x.fillStyle = hl; x.fillRect(x0, y0, x1 - x0, y1 - y0); x.restore();
+    x.lineWidth = Math.max(1.5, h * .035); x.strokeStyle = light ? "rgba(255,255,255,.5)" : rgba(ink, .35); x.stroke();
+    return;
+  }
+  if (mode === "outline") { x.lineWidth = Math.max(2, h * .07); x.strokeStyle = edge; x.stroke(); x.restore(); return; }
+  x.fillStyle = fill; x.fill(); x.restore();
+  fillTexture(x, mode, plate, ink, x0, y0, x1, y1);
 }
 
 const stackRows = (rows, gap) => {
@@ -612,7 +685,11 @@ export class FullAd extends Ad {
     this._productLight();
     // a phone that lands face up shows a lock screen in the card's own colours, its glass the one of
     // them that stands farthest off the ground lit behind it (lockScreen, screenBase)
-    if (this.st.end_face && this.st.end_face !== "back") this.phones.forEach((q, i) => { if (!(q.meta && q.meta.flat) && !q.screen) q.screen = lockScreen(this.p, (this.st.seed | 0) + i, this.st.lang, screenBase(this.p, this._groundAt(q))); });
+    if (this.st.end_face && this.st.end_face !== "back") {
+      const wall = LOCK_WALLS[mixSeed((this.st.seed >>> 0) * 31 + 5) % LOCK_WALLS.length];   // one wallpaper for the ad's phones, as a set is shot
+      const layout = LOCK_LAYOUTS[mixSeed((this.st.seed >>> 0) * 17 + 3) % LOCK_LAYOUTS.length];   // and one layout
+      this.phones.forEach((q, i) => { if (!(q.meta && q.meta.flat) && !q.screen) q.screen = lockScreen(this.p, (this.st.seed | 0) + i, this.st.lang, screenBase(this.p, this._groundAt(q)), { wall, layout, notch: !!(q.design && q.design.notch) }); });
+    }
     this._evenProduct();
     this._evenGround();
   }
@@ -861,12 +938,21 @@ export class FullAd extends Ad {
     // the claim, in a badge
     let claim = null;
     if (st.feed_claim) {
-      const fill = p.plate || p.accent, inkc = p.plate_ink || "#ffffff", text = st.feed_claim.toUpperCase();
+      // its badge wears the plates' fill (rule 154); glass or an edge alone carries the words in the lines' ink
+      const mode = st.plate_fill || (st.plate_grad ? "gradient" : "solid"), open = mode === "glass" || mode === "outline";
+      const fill = p.plate || p.accent, inkc = open ? ph.ink : p.plate_ink || "#ffffff", text = st.feed_claim.toUpperCase();
       const [cf, cw] = FONTS[pair ? pair.label : st.font] || FONTS.franklin;
       const pmin = Math.floor(U * FULL.claimMin);
       for (let px = Math.round(U * FULL.claim); ; px = Math.max(pmin, Math.floor(px * .94))) {
         const row = footRow(text, px, inkc, cf, cw), h = Math.round(px * 1.7), w = Math.round(row.width + px * 1.5);
-        if (w <= colW) { const c = canvas(w, h), x = c.getContext("2d"); x.fillStyle = st.plate_grad ? fillGradient(x, 0, 0, 0, h, fill, inkc, 4.5) : fill; x.beginPath(); x.roundRect(0, 0, w, h, h / 2); x.fill(); x.drawImage(row, (w - row.width) / 2, (h - row.height) / 2); claim = { c, fill, ink: inkc, px }; break; }
+        if (w <= colW) {
+          const c = canvas(w, h), x = c.getContext("2d"), lw = open ? Math.max(2, h * .07) : 0;
+          x.save(); x.beginPath(); x.roundRect(lw / 2, lw / 2, w - lw, h - lw, (h - lw) / 2);
+          plateBody(x, mode, mode === "gradient" ? fillGradient(x, 0, 0, 0, h, fill, inkc, 4.5) : fill, fill, inkc, 0, 0, w, h, h, p.hot || p.accent);
+          // glass or an edge alone glows in nothing: a glow of the plate's colour round words standing on the ground
+          // is a halo of their own colour, and they stop reading (the claim read 1.9:1, full_ad_check, 2026-11-18)
+          x.drawImage(row, (w - row.width) / 2, (h - row.height) / 2); claim = { c, fill, ink: inkc, px, glow: !open }; break;
+        }
         if (px <= pmin) break;
       }
       if (!claim) F.left.push("claim");
@@ -879,7 +965,7 @@ export class FullAd extends Ad {
     // the number: its pill a fixed share of the column, the chevrons either side of it
     const numText = formatNumber(st.number, st.number_format) || "YOUR NUMBER";
     let numFont = st.number_font === "same" ? st.font : st.number_font; if (FINE_FACES.has(numFont) || !FONTS[numFont]) numFont = pair ? pair.label : "oswald";
-    const numFor = z => { const n = numberPill(numText, z, numFont, p, st.number_style, !!st.plate_grad, ph.ink); return { ...n, text: numText, label: null }; };
+    const numFor = z => { const n = numberPill(numText, z, numFont, p, st.number_style, st.plate_fill || !!st.plate_grad, ph.ink); return { ...n, text: numText, label: null }; };
     let nz = U * .09, num = numFor(nz);
     nz *= Math.min(colW * FULL.pill / num.w, U * FULL.number / nz); num = numFor(nz);
     for (let k = 0; k < 4 && num.w > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.w; num = numFor(nz); }
@@ -888,6 +974,14 @@ export class FullAd extends Ad {
     // that number is drawn on the pill instead, plated as before
     if ((st.number_style === "tag" || st.number_style === "ticket") && nz < U * .07) {
       st.number_style = "pill"; nz = U * .09; num = numFor(nz);
+      nz *= Math.min(colW * FULL.pill / num.w, U * FULL.number / nz); num = numFor(nz);
+      for (let k = 0; k < 4 && num.w > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.w; num = numFor(nz); }
+    }
+    // a seeded face whose figures run wide (rule 154: Galindo, the toon pair's) can still set a long number
+    // under its floor in a narrow column (a tablet's 4:5, 73px, 2026-11-18): the number takes the house's own
+    // condensed figures, the face that the floor was measured in
+    if (nz < U * .07 && numFont !== "oswald") {
+      numFont = "oswald"; nz = U * .09; num = numFor(nz);
       nz *= Math.min(colW * FULL.pill / num.w, U * FULL.number / nz); num = numFor(nz);
       for (let k = 0; k < 4 && num.w > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.w; num = numFor(nz); }
     }
@@ -926,8 +1020,10 @@ export class FullAd extends Ad {
         lines = (this._lineCache ||= new Map()).get(lk) || this._lineCache.set(lk, headlineLines(st, ph, size, best.n)).get(lk);
         lineH = lines[0].asc * .98 + gapOf(size); blockH = lineH * (lines.length - 1) + lines[0].asc;
         // the letters and the outline round them stay inside the column: a headline as wide as the column
-        // put its outline 17px from the frame's edge, in the margin (found by the pre-flight on the picture)
-        const widest = Math.max(...lines.map(L => L.inkW)) + size * .34;
+        // put its outline 17px from the frame's edge, in the margin (found by the pre-flight on the picture).
+        // A treatment that reaches further takes its own room (FX_REACH): a long shadow falls a third of the
+        // size to one side and ran 13px from the frame (full_ad_check, toyota 9:16, 2026-11-18)
+        const widest = Math.max(...lines.map(L => L.inkW)) + size * (FX_REACH[st.text_fx] || .34);
         if (widest <= colW && blockH <= maxH * 1.02) break;
         size *= Math.min(.97, colW / widest, maxH * 1.02 / blockH);
       }
@@ -936,9 +1032,13 @@ export class FullAd extends Ad {
     const hasChips = pointsOf(st).length > 0, hasPhones = this.phones.length > 0;
     // the gaps between one block and the next, in units of g; the room left over stretches them all alike
     const gClaim = 1.15, gBand = 1.4, gLab = .8, gFoot = 1.1;
+    // a headline on a plate of its own (a box, letters cut out of one, a pane of glass, a marker's bar: rule 154)
+    // has the plate standing a fifth of its size over its capitals: the claim above it keeps clear of that too
+    // (a cut-out plate met the claim's badge and the claim read 1.9:1, full_ad_check, 2026-11-18)
+    const overClaim = hd => ["box", "cutout", "glass", "highlighter"].includes(st.text_fx) ? hd.size * .16 : 0;
     // the line under the headline clears the outline that hangs under its letters
     const tagGap = hd => Math.max(g * .9, hd.size * .24);
-    const fixedOf = hd => (claim ? claim.c.height + g * gClaim : 0) + hd.blockH + (tagB ? tagB.c.height + tagGap(hd) : 0) + g * gBand * 2
+    const fixedOf = hd => (claim ? claim.c.height + g * gClaim + overClaim(hd) : 0) + hd.blockH + (tagB ? tagB.c.height + tagGap(hd) : 0) + g * gBand * 2
       + (labB ? labB.c.height + g * gLab : 0) + num.h + (foot ? foot.c.height + g * gFoot : 0);
 
     /* ---- the band: selling points | the product | the sticker and the icon ----
@@ -1079,7 +1179,7 @@ export class FullAd extends Ad {
     const stretch = Math.min(g * 1.3, spare / (nStretch + 1.5)), bandH = need, pad = (spare - stretch * nStretch) / 2;
     let y = eyT + Math.max(0, pad);
     const R = F.rects, put = (name, c, cx = mid) => { const r = [cx - c.width / 2, y, cx + c.width / 2, y + c.height]; R[name] = r; y += c.height; return r; };
-    if (claim) { const r = put("claim", claim.c); claim.x = r[0]; claim.y = r[1]; y += g * gClaim + stretch; }
+    if (claim) { const r = put("claim", claim.c); claim.x = r[0]; claim.y = r[1]; y += g * gClaim + overClaim(hd) + stretch; }
     const y0 = y, xs = hd.lines.map(L => mid - L.inkW / 2);
     const block = [Math.min(...xs), y0, Math.max(...hd.lines.map((L, i) => xs[i] + L.inkW)), y0 + hd.blockH];
     R.headline = block.slice(); y += hd.blockH;
@@ -1220,7 +1320,23 @@ export class FullAd extends Ad {
     }
     // the chevrons either side of the number, where the pill leaves them their room
     const nb = this.numBox, sz = (nb[3] - nb[1]) * .42;
-    this.fullChevrons = Math.min(nb[0] - F.col[0], F.col[1] - nb[2]) >= sz * 2.9 ? sz : 0;
+    // a tall number keeps its chevrons a little smaller where the room either side is short: a narrow seeded
+    // face (rule 154) sets its figures taller, and the chevrons sized to them no longer fit (2026-11-18)
+    const room = Math.min(nb[0] - F.col[0], F.col[1] - nb[2]), fit = Math.min(sz, room / 2.9);
+    /* THE CALL TO ACTION'S MARK (st.cta_mark, spec/full-styles.json; the owner, 2026-11-18: "every single
+       one has the same arrows pointing to the CTA ... some without arrows some with more direct pointing
+       arrows maybe some with a phone or text icon"). Each takes the room either side of the pill it needs
+       (in the pill's own size: chevrons 2.9, an arrow 2.7, the curved one 2.8, an icon 2.2) and is drawn
+       where it keeps .7 of its size; none is drawn only beside a sticker (an ad keeps one thing that
+       catches the eye), else one arrow. A mark that does not fit gives way to the chevrons, then to none. */
+    let mark = st.cta_mark || "chevrons";
+    if (mark === "none" && !F.burst) mark = "arrow";
+    const need = { chevrons: 2.9, arrow: 2.7, arrows: 2.7, curved: 2.8, phone: 2.2, message: 2.2, phone_text: 2.2 };
+    const size = m => Math.min(sz, room / (need[m] || 2.9)), fits = m => m === "none" || size(m) >= sz * .7;
+    if (!fits(mark)) mark = fits("chevrons") ? "chevrons" : "none";
+    this.ctaMark = mark;
+    this.markSize = mark === "none" ? 0 : size(mark);
+    this.fullChevrons = mark === "chevrons" && fit >= sz * .7 ? fit : 0;
   }
 
   frame(ctx, t, quality, dt) {
@@ -1232,7 +1348,7 @@ export class FullAd extends Ad {
       if (q > 0) {
         const s = .7 + .3 * outBack(q), cx = C.x + C.c.width / 2, cy = C.y + C.c.height / 2, glow = .5 + .5 * Math.sin(t * Math.PI * 2 / 1.6);
         ctx.save(); ctx.globalAlpha = Math.min(1, q * 2); ctx.translate(cx, cy); ctx.scale(s, s);
-        ctx.shadowColor = C.fill; ctx.shadowBlur = U * (.012 + .018 * glow);
+        if (C.glow !== false) { ctx.shadowColor = C.fill; ctx.shadowBlur = U * (.012 + .018 * glow); }
         ctx.drawImage(C.c, -C.c.width / 2, -C.c.height / 2); ctx.restore();
       }
     }
@@ -1240,7 +1356,71 @@ export class FullAd extends Ad {
       const q = prog(t, this.tl.number + .15, .35);
       if (q > 0) { ctx.save(); ctx.globalAlpha = q; ctx.drawImage(this.site, this.pos.site[0], this.pos.site[1] + (1 - q) * U * .02); ctx.restore(); }
     }
-    this._chevrons(ctx, t);
+    this._ctaMark(ctx, t);
+  }
+
+  /** The call to action's mark, drawn and moved its own way (_buildDecor chose it and its size): the
+   *  chevrons' glow running inward; an arrow, or two, pushing toward the number on a beat; the curved
+   *  arrow drawing itself in; the phone ringing (a shake and a ripple), the message bubble bouncing with
+   *  its three dots typing. Every mark in the pair's accent (this.hot, rule 139), its glyph in the ink that
+   *  reads on it. At rest on the photo. */
+  _ctaMark(ctx, t) {
+    const kind = this.ctaMark || "chevrons";
+    if (kind === "chevrons") return this._chevrons(ctx, t);
+    if (kind === "none" || !this.markSize || !this.numBox) return;
+    const t0 = this.tl.number + .3, q = prog(t, t0, .35); if (q <= 0) return;
+    const [x0, y0, x1, y1] = this.numBox, cy = (y0 + y1) / 2, sz = this.markSize, hot = this.hot;
+    const ink = contrastOf(this.p.plate_ink, hot) >= 3 ? this.p.plate_ink : (lum(hot) > .5 ? "#111111" : "#ffffff");
+    const beat = Math.max(0, t - t0 - .35), still = !!this._still;   // the photo: every mark at rest
+    ctx.save(); ctx.globalAlpha = q; ctx.fillStyle = hot; ctx.strokeStyle = hot; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    const arrow = (tip, dir) => {   // a bold arrow, its tip at tip, pointing dir (1 right, -1 left)
+      const len = sz * 2.1, sh = sz * .3, hw = sz * .6, hl = sz * .78;
+      ctx.beginPath();
+      ctx.moveTo(tip, cy); ctx.lineTo(tip - dir * hl, cy - hw); ctx.lineTo(tip - dir * hl, cy - sh / 2); ctx.lineTo(tip - dir * len, cy - sh / 2);
+      ctx.lineTo(tip - dir * len, cy + sh / 2); ctx.lineTo(tip - dir * hl, cy + sh / 2); ctx.lineTo(tip - dir * hl, cy + hw); ctx.closePath();
+      ctx.lineWidth = sz * .1; ctx.fill(); ctx.stroke();
+    };
+    if (kind === "arrow" || kind === "arrows") {
+      const push = still ? 0 : sz * .17 * Math.max(0, Math.sin(beat * Math.PI * 2 / 1.1)) ** 2;   // a push toward the number on a beat
+      arrow(x0 - sz * .5 + push, 1);
+      if (kind === "arrows") arrow(x1 + sz * .5 - push, -1);
+    } else if (kind === "curved") {
+      // a hand-drawn swoop from above and to the left, into the number's side, drawn in, then still
+      const sx = x0 - sz * 2.45, sy0 = y0 - sz * .85, cx1 = x0 - sz * 2.7, cy1 = cy + sz * .75, ex = x0 - sz * .38, ey = cy;
+      const drawn = prog(t, t0, .55);
+      ctx.lineWidth = sz * .24;
+      const L = sz * 4.2; ctx.setLineDash([L, L]); ctx.lineDashOffset = L * (1 - drawn);
+      ctx.beginPath(); ctx.moveTo(sx, sy0); ctx.quadraticCurveTo(cx1, cy1, ex, ey); ctx.stroke(); ctx.setLineDash([]);
+      if (drawn > .92) {   // the open head, along the curve's last direction
+        const a = Math.atan2(ey - cy1, ex - cx1), hl = sz * .6;
+        ctx.beginPath(); ctx.moveTo(ex - Math.cos(a - .55) * hl, ey - Math.sin(a - .55) * hl); ctx.lineTo(ex, ey); ctx.lineTo(ex - Math.cos(a + .55) * hl, ey - Math.sin(a + .55) * hl); ctx.stroke();
+      }
+    } else {
+      const ri = sz * .9, gap = sz * .32;
+      const phoneAt = (cxp) => {
+        // rings in bursts: a shake for .45 s every 1.8 s, a ripple going out from it
+        const ph = beat % 1.8, shake = !still && beat > 0 && ph < .45 ? Math.sin(ph * Math.PI * 2 * 9) * .2 * (1 - ph / .45) : 0;
+        if (!still && beat > 0 && ph < .9) { ctx.save(); ctx.globalAlpha = q * (1 - ph / .9) * .55; ctx.lineWidth = sz * .08; ctx.beginPath(); ctx.arc(cxp, cy, ri * (1 + ph * .7), 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+        ctx.beginPath(); ctx.arc(cxp, cy, ri, 0, Math.PI * 2); ctx.fill();
+        ctx.save(); ctx.translate(cxp, cy); ctx.rotate(shake); const g = ri * 1.15 / 24; ctx.scale(g, g); ctx.translate(-12, -12);
+        ctx.fillStyle = ink; ctx.fill(new Path2D("M5.2 3.4h3.6l1.6 4.6-2.3 1.7c1.2 2.6 3.4 4.8 6 6l1.7-2.3 4.6 1.6v3.6c0 1.1-.9 2-2 2C10.5 20.6 3.4 13.5 3.2 5.4c0-1.1.9-2 2-2z"));
+        ctx.restore();
+      };
+      const messageAt = (cxm) => {
+        // bounces on a beat of 1.4 s, its three dots typing
+        const bounce = still ? 1 : 1 + .09 * Math.max(0, Math.sin(beat * Math.PI * 2 / 1.4)) ** 6;
+        const bw = ri * 2.1, bh = ri * 1.6;
+        ctx.save(); ctx.translate(cxm, cy); ctx.scale(bounce, bounce);
+        ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(-bw / 2, -bh / 2, bw, bh, bh * .45); else ctx.rect(-bw / 2, -bh / 2, bw, bh);
+        ctx.moveTo(-bw * .28, bh * .42); ctx.lineTo(-bw * .42, bh * .72); ctx.lineTo(-bw * .06, bh * .46); ctx.fill();
+        for (let i = 0; i < 3; i++) { ctx.save(); ctx.globalAlpha = q * (still ? 1 : .35 + .65 * Math.max(0, Math.sin(beat * Math.PI * 2 * 1.5 - i * .9))); ctx.fillStyle = ink; ctx.beginPath(); ctx.arc((i - 1) * bw * .24, 0, bh * .11, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+        ctx.restore();
+      };
+      if (kind === "phone" || kind === "phone_text") phoneAt(x0 - gap - ri);
+      if (kind === "message") messageAt(x0 - gap - ri * 1.05);
+      if (kind === "phone_text") messageAt(x1 + gap + ri * 1.05);
+    }
+    ctx.restore();
   }
 
   /** Three chevrons either side of the number, larger the nearer they stand to it, a glow
@@ -1272,7 +1452,7 @@ export class FullAd extends Ad {
  *  tip .6 of the size off the pill, then a step of .9 of the two neighbours' mean size, so a smaller
  *  chevron stands nearer its neighbour. The painter and full_colour_check.mjs both read it. */
 export function chevronMarks(ad) {
-  const sz = ad.fullChevrons; if (!sz || !ad.numBox) return [];
+  const sz = ad.fullChevrons; if (!sz || !ad.numBox || (ad.ctaMark && ad.ctaMark !== "chevrons")) return [];
   const [x0, y0, x1, y1] = ad.numBox, cy = (y0 + y1) / 2, K = CHEVRON_STEP;
   const tip = [sz * (.6 + .9 * ((K[2] + K[1]) / 2 + (K[1] + K[0]) / 2)), sz * (.6 + .9 * (K[2] + K[1]) / 2), sz * .6];
   return K.map((k, i) => ({ i, k, lx: x0 - tip[i], rx: x1 + tip[i], cy, ax: sz * .35 * k, ay: sz * .45 * k, width: Math.max(2, sz * .28 * k) }));
@@ -1375,12 +1555,25 @@ export function subjectDraw(key, seed, loaded) {
   const e = P[poolEntryFor(P, seed)], have = new Set(loaded || []);
   return e && e.ids.every(id => have.has(id)) ? e.ids : null;
 }
-/* A LOCK SCREEN for a phone that lands face up (the owner's "front with lock screens"). The engine
-   draws a front with a black screen unless it is given one. This one is drawn, not loaded, so a
-   photo taken on the first frame has it: the pair's own ground and accent as the wallpaper (no third
-   colour family on the card, rule 95), the time and the date in white over a darker top, and the
-   two buttons and the bar a lock screen keeps at its foot. */
+/* A LOCK SCREEN for a phone that lands face up (the owner's "front with lock screens"; and, 2026-11-18,
+   "audit the iPhone backgrounds to look clean good... and actual iOS"). Drawn, not loaded, so a photo
+   taken on the first frame has it, and laid out as iOS lays out its lock screen: the status bar beside
+   the island or within the notch's shoulders (signal, Wi-Fi, battery), the date over a large clock in
+   the system face (SF on an Apple device, Helvetica Neue elsewhere), the flashlight and the camera in
+   glass circles at the foot, and the home bar. The audit found a flat fill crossed by three see-through
+   rings under a dark band (a yellow screen went olive under it, rule 103), the clock small and low, no
+   status bar, and flat discs with boxes for glyphs.
+   The wallpaper is one of the clean ones a lock screen wears (LOCK_WALLS: a glow, a gradient, waves,
+   ripples), one for the whole ad, in tones of the screen's own colour only (screenBase: one of the card's
+   two families, rule 95; two families blended in sRGB would draw a third, rule 139), never darkened
+   into mud (a warm hue only lightens, rule 103). Its middle stays the screen's own colour, so the face
+   of the phone still stands off the ground (screenBase, _evenProduct). The clock, the date and the
+   glyphs are white on a deep wallpaper and a deep tone of it on a light one, as iOS tints them. */
 const LOCK_DAY = { en: "Tuesday, September 9", es: "martes, 9 de septiembre" };
+const LOCK_FACE = '"SF Pro Display", "SF Pro Text", system-ui, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif';
+export const LOCK_WALLS = ["glow", "gradient", "waves", "ripples"];
+export const LOCK_LAYOUTS = ["classic", "widgets", "tall", "compact"];
+const LOCK_LAYOUTS_SET = LOCK_LAYOUTS;
 const rgba = (hex, a) => { const h = String(hex || "#000000"); const [r, g, b] = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) || 0); return `rgba(${r},${g},${b},${a})`; };
 const lin8 = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
 const relLum = hex => { const h = String(hex || "#000000"); return .2126 * lin8(parseInt(h.slice(1, 3), 16) || 0) + .7152 * lin8(parseInt(h.slice(3, 5), 16) || 0) + .0722 * lin8(parseInt(h.slice(5, 7), 16) || 0); };
@@ -1395,34 +1588,144 @@ export function screenBase(p, groundY) {
   const cand = [a, lift(a, .35), lift(l, .45), lift(g, -.6)].map(c => [c, ratio(relLum(c), groundY)]);
   return (cand.find(([, k]) => k >= 1.8) || cand.sort((u, v) => v[1] - u[1])[0])[0];
 }
-export function lockScreen(p, seed = 1, lang = "en", base = null) {
-  const w = 330, h = 716, c = canvas(w, h), x = c.getContext("2d"), r = rng(mixSeed((seed >>> 0) * 53 + 7));
-  const g = p.ground || "#101418", a = base || p.accent || p.plate || "#ffffff", l = p.light || g;
-  // the accent fills the glass, so the face of the phone stands off the card's ground as its back
-  // does (the pre-flight reads the middle of each product against the ground: a dark screen on a
-  // dark card read 1.1:1), the ground's own colour only in its depth and its curves
-  const v = x.createLinearGradient(0, 0, 0, h); v.addColorStop(0, rgba(g, 1)); v.addColorStop(.3, rgba(a, 1)); v.addColorStop(1, rgba(a, 1));
-  x.fillStyle = v; x.fillRect(0, 0, w, h);
-  const glow = (cx, cy, rad, col, al) => { const gr = x.createRadialGradient(cx, cy, 0, cx, cy, rad); gr.addColorStop(0, rgba(col, al)); gr.addColorStop(1, rgba(col, 0)); x.fillStyle = gr; x.fillRect(0, 0, w, h); };
-  glow(w * (.25 + .5 * r()), h * (.55 + .15 * r()), h * .5, l, .45);
-  x.save(); x.globalAlpha = .22; x.strokeStyle = g; x.lineWidth = w * .07;
-  const left = r() < .5;
-  for (let i = 0; i < 3; i++) { x.beginPath(); x.arc(left ? -w * .3 : w * 1.3, h * (.62 + .12 * i), w * (.8 + .22 * i), 0, Math.PI * 2); x.stroke(); }
-  x.restore();
-  const top = x.createLinearGradient(0, 0, 0, h * .46); top.addColorStop(0, "rgba(0,0,0,.45)"); top.addColorStop(1, "rgba(0,0,0,0)");
-  x.fillStyle = top; x.fillRect(0, 0, w, h * .46);
-  x.textAlign = "center"; x.textBaseline = "alphabetic"; x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = w * .02;
-  x.fillStyle = "rgba(255,255,255,.9)"; x.font = `600 ${Math.round(w * .056)}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
-  x.fillText(LOCK_DAY[lang] || LOCK_DAY.en, w / 2, h * .17);
-  x.fillStyle = "#ffffff"; x.font = `700 ${Math.round(w * .27)}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
-  x.fillText("9:41", w / 2, h * .325);
-  x.shadowBlur = 0;
-  for (const bx of [w * .17, w * .83]) { x.beginPath(); x.arc(bx, h * .905, w * .075, 0, Math.PI * 2); x.fillStyle = "rgba(0,0,0,.34)"; x.fill(); }
-  x.fillStyle = "rgba(255,255,255,.86)";
-  x.fillRect(w * .17 - w * .013, h * .888, w * .026, h * .034);
-  x.fillRect(w * .83 - w * .032, h * .894, w * .064, h * .024);
-  x.beginPath(); x.arc(w * .83, h * .906, w * .013, 0, Math.PI * 2); x.fillStyle = "rgba(0,0,0,.55)"; x.fill();
-  x.fillStyle = "rgba(255,255,255,.92)"; x.beginPath(); if (x.roundRect) x.roundRect(w * .33, h * .972, w * .34, h * .008, h * .004); else x.rect(w * .33, h * .972, w * .34, h * .008); x.fill();
+export function lockScreen(p, seed = 1, lang = "en", base = null, opts = {}) {
+  const w = 330, h = 716, c = canvas(w, h), x = c.getContext("2d", { willReadFrequently: true }), r = rng(mixSeed((seed >>> 0) * 53 + 7));
+  const a = base || p.accent || p.plate || "#ffffff", A = oklchOf(a), G = oklchOf(p.ground || "#101418");
+  const warm = A.C >= .06 && A.h >= 35 && A.h < 118;
+  // a white, grey or black screen takes a pale tint of the ground's own hue in its tones, as few iOS
+  // wallpapers are no colour at all (still the card's two families); never a warm one, which goes olive on grey
+  const tint = A.C < .03 && G.C >= .05 && !(G.h >= 35 && G.h < 118), hue = tint ? G.h : A.h, chroma = tint ? .05 : A.C;
+  // a tone of the screen's own colour: dL in OKLCH lightness (a warm hue darkens a quarter as far), kC its chroma
+  const tone = (dL, kC = 1) => okHex(clamp(A.L + (warm && dL < 0 ? dL * .25 : dL), .1, .97), chroma * kC, hue);
+  const blob = (cx, cy, rad, col, al) => { const gr = x.createRadialGradient(cx, cy, 0, cx, cy, rad); gr.addColorStop(0, rgba(col, al)); gr.addColorStop(1, rgba(col, 0)); x.fillStyle = gr; x.fillRect(0, 0, w, h); };
+  const kind = LOCK_WALLS.includes(opts.wall) ? opts.wall : LOCK_WALLS[Math.floor(r() * LOCK_WALLS.length) % LOCK_WALLS.length];
+  x.fillStyle = a; x.fillRect(0, 0, w, h);
+  if (kind === "gradient") {
+    const v = x.createLinearGradient(0, 0, 0, h); v.addColorStop(0, tone(-.16)); v.addColorStop(.5, a); v.addColorStop(1, tone(.13, .8));
+    x.fillStyle = v; x.fillRect(0, 0, w, h);
+  } else if (kind === "glow") {
+    blob(w * (.15 + .7 * r()), h * (.14 + .12 * r()), h * .55, tone(.17, .75), .9);
+    blob(w * (.25 + .5 * r()), h * (.82 + .1 * r()), h * .48, tone(-.14), .75);
+  } else if (kind === "waves") {
+    // smooth bands across the lower half, each a step lighter, as iOS's flowing wallpapers
+    const flip = r() < .5 ? 1 : -1;
+    blob(w * .5, h * .1, h * .42, tone(.1, .9), .55);
+    for (let i = 0; i < 3; i++) {
+      const y0 = h * (.5 + .14 * i), amp = h * (.045 + .02 * r());
+      x.beginPath(); x.moveTo(0, y0 + amp * flip);
+      x.bezierCurveTo(w * .34, y0 - amp * 1.7 * flip, w * .66, y0 + amp * 1.7 * flip, w, y0 - amp * flip);
+      x.lineTo(w, h); x.lineTo(0, h); x.closePath();
+      x.fillStyle = tone((i + 1) * .055, 1 - i * .1); x.fill();
+    }
+  } else {   // ripples: flat rings of one colour from a lower corner, each a tone lighter
+    const cx = r() < .5 ? -w * .15 : w * 1.15, cy = h * (1.02 + .08 * r());
+    for (let i = 0; i < 4; i++) { x.beginPath(); x.arc(cx, cy, h * (.86 - .18 * i), 0, Math.PI * 2); x.fillStyle = tone(.035 * (i + 1), 1 - i * .06); x.fill(); }
+  }
+  // what the clock, the date and the glyphs stand on: white on a deep wallpaper, a deep tone of it on a light one
+  const lumOf = (x0, y0, x1, y1) => { const d = x.getImageData(x0 | 0, y0 | 0, (x1 - x0) | 0, (y1 - y0) | 0).data; let t = 0, n = 0;
+    for (let q = 0; q < d.length; q += 16) { t += .2126 * lin8(d[q]) + .7152 * lin8(d[q + 1]) + .0722 * lin8(d[q + 2]); n++; } return n ? t / n : 0; };
+  const topY = lumOf(w * .15, h * .02, w * .85, h * .27), footY = lumOf(0, h * .85, w, h * .95);
+  // white as iOS sets it, on all but a near-white wallpaper (gold, orange, a mid blue keep a white clock)
+  const deep = okHex(.27, Math.min(.12, chroma * .7), hue), ink = topY < .68 ? "#ffffff" : deep;
+  // the status bar, in iOS's own measures (u: one point of its 393-point screen): signal, Wi-Fi and battery,
+  // 72 points of them, ending 34 points in from the right edge, level with the island's middle; under a
+  // notch a touch smaller and lower, in the ear between the notch and the glass's round corner (the
+  // owner, 2026-11-18: "readjust the status bar size and positioning slightly")
+  const u = w / 393, k = opts.notch ? .94 : 1, sy = opts.notch ? 24 * u : .0805 * w, ex = (opts.notch ? 356 : 359) * u;
+  x.fillStyle = ink; x.strokeStyle = ink;
+  const rr = (x0, y0, ww, hh, rad) => { x.beginPath(); if (x.roundRect) x.roundRect(x0, y0, ww, hh, rad); else x.rect(x0, y0, ww, hh); };
+  // battery: a 25 x 12 body (its outline faint), its charge inset two points, a cap
+  const bw = 25 * u * k, bh = 12 * u * k, bx = ex - 2.4 * u * k - bw;
+  x.globalAlpha = .4; x.lineWidth = 1.1 * u; rr(bx, sy - bh / 2, bw, bh, 3.8 * u * k); x.stroke();
+  rr(bx + bw + u * k, sy - 2 * u * k, 1.4 * u * k, 4 * u * k, .7 * u); x.fill();
+  x.globalAlpha = 1; rr(bx + 2 * u * k, sy - bh / 2 + 2 * u * k, (bw - 4 * u * k) * .8, bh - 4 * u * k, 2.2 * u * k); x.fill();
+  // Wi-Fi: 16 x 12, three arcs over a dot, six points before the battery
+  const wcx = bx - (6 + 8) * u * k, wy = sy + 5.6 * u * k;
+  x.lineCap = "round"; x.lineWidth = 2.5 * u * k;
+  for (const ra of [3.3, 7.2, 11.1]) { x.beginPath(); x.arc(wcx, wy, ra * u * k, Math.PI * 1.25, Math.PI * 1.75); x.stroke(); }
+  x.beginPath(); x.arc(wcx, wy - .4 * u * k, 1.5 * u * k, 0, Math.PI * 2); x.fill();
+  // signal: four bars, 3 points wide with 1.7 between, rising from 4 to 11, five points before the Wi-Fi
+  const gx = wcx - 8 * u * k - 5 * u * k - 17.1 * u * k;
+  for (let i = 0; i < 4; i++) { const bhh = (4 + 2.35 * i) * u * k; rr(gx + i * 4.7 * u * k, sy + 5.5 * u * k - bhh, 3 * u * k, bhh, .9 * u); x.fill(); }
+  /* THE LAYOUT, one for the ad's phones (LOCK_LAYOUTS; the owner, 2026-11-18: "What are the other iOS lock
+     screen layouts? Don't somehow have widgets what about some that are closer to the iOS 26 or 27"):
+     classic, the date over a large clock; widgets, a row of four under it (iOS 16 on); tall, iOS 26's
+     Glass clock stretched to fill the top, its widgets moved to the foot; compact, iOS 27's small clock
+     in the top row beside two widgets, the wallpaper left open. Widgets are tinted one colour, as iOS
+     tints them, on a vibrant disc of it: weather, a battery ring, an alarm, the calendar's day. */
+  const layout = LOCK_LAYOUTS_SET.includes(opts.layout) ? opts.layout : "classic", es = lang === "es";
+  const footInk = footY < .68 ? "#ffffff" : deep;
+  x.textAlign = "center"; x.textBaseline = "alphabetic";
+  const dateAt = (y, size, col = ink, align = "center", ax = w / 2) => { x.save(); x.textAlign = align; x.fillStyle = col; x.globalAlpha = .9; x.font = `600 ${Math.round(w * size)}px ${LOCK_FACE}`; x.fillText(LOCK_DAY[lang] || LOCK_DAY.en, ax, y); x.restore(); };
+  const clockAt = (cx, y, size, stretch = 1, glass = false, align = "center") => {
+    x.save(); x.textAlign = align; x.font = `700 ${Math.round(w * size)}px ${LOCK_FACE}`;
+    if ("letterSpacing" in x) x.letterSpacing = `${-Math.round(w * size * .02)}px`;
+    x.translate(cx, y); x.scale(1, stretch);
+    if (glass) {   // Liquid Glass: the numerals clear at their foot, brighter at their head, a lit edge round them
+      const g = x.createLinearGradient(0, -w * size * .74, 0, 0); g.addColorStop(0, rgba(ink, .82)); g.addColorStop(1, rgba(ink, .34));
+      x.fillStyle = g; x.fillText("9:41", 0, 0);
+      x.lineWidth = Math.max(1, w * .0045) / stretch; x.strokeStyle = rgba(ink, .9); x.strokeText("9:41", 0, 0);
+    } else { x.fillStyle = ink; x.fillText("9:41", 0, 0); }
+    x.restore();
+  };
+  const widget = (kind, cx, cy, r0, col) => {
+    x.save(); x.beginPath(); x.arc(cx, cy, r0, 0, Math.PI * 2); x.fillStyle = rgba(col, .16); x.fill();
+    x.fillStyle = col; x.strokeStyle = col; x.textAlign = "center"; x.lineCap = "round";
+    if (kind === "battery") {   // a ring, eighty-two percent round, the figure inside
+      x.lineWidth = r0 * .13; x.globalAlpha = .3; x.beginPath(); x.arc(cx, cy, r0 * .72, 0, Math.PI * 2); x.stroke();
+      x.globalAlpha = 1; x.beginPath(); x.arc(cx, cy, r0 * .72, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * .82); x.stroke();
+      x.font = `700 ${Math.round(r0 * .58)}px ${LOCK_FACE}`; x.fillText("82", cx, cy + r0 * .2);
+    } else if (kind === "weather") {   // the sun over the temperature
+      const sx0 = cx, sy0 = cy - r0 * .22, sr = r0 * .2; x.beginPath(); x.arc(sx0, sy0, sr, 0, Math.PI * 2); x.fill();
+      x.lineWidth = r0 * .07; for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; x.beginPath(); x.moveTo(sx0 + Math.cos(a) * sr * 1.45, sy0 + Math.sin(a) * sr * 1.45); x.lineTo(sx0 + Math.cos(a) * sr * 1.9, sy0 + Math.sin(a) * sr * 1.9); x.stroke(); }
+      x.font = `600 ${Math.round(r0 * .44)}px ${LOCK_FACE}`; x.fillText("72°", cx + r0 * .06, cy + r0 * .62);
+    } else if (kind === "alarm") {   // a clock face with its two bells, the time under it
+      const ay = cy - r0 * .2, ar = r0 * .26; x.lineWidth = r0 * .08; x.beginPath(); x.arc(cx, ay, ar, 0, Math.PI * 2); x.stroke();
+      x.beginPath(); x.moveTo(cx, ay); x.lineTo(cx, ay - ar * .55); x.moveTo(cx, ay); x.lineTo(cx + ar * .4, ay); x.stroke();
+      for (const sgn of [-1, 1]) { x.beginPath(); x.arc(cx + sgn * ar * .85, ay - ar * .85, ar * .32, 0, Math.PI * 2); x.fill(); }
+      x.font = `600 ${Math.round(r0 * .38)}px ${LOCK_FACE}`; x.fillText("7:00", cx, cy + r0 * .62);
+    } else {   // the calendar: the day's name over its number
+      x.font = `700 ${Math.round(r0 * .3)}px ${LOCK_FACE}`; x.globalAlpha = .8; x.fillText(es ? "MAR" : "TUE", cx, cy - r0 * .22); x.globalAlpha = 1;
+      x.font = `700 ${Math.round(r0 * .72)}px ${LOCK_FACE}`; x.fillText("9", cx, cy + r0 * .5);
+    }
+    x.restore();
+  };
+  const kinds = ["weather", "battery", "alarm", "calendar"].map(k => [k, r()]).sort((p0, p1) => p0[1] - p1[1]).map(p0 => p0[0]);
+  const row = (y, n, r0, col) => { const gap = r0 * .5, total = n * 2 * r0 + (n - 1) * gap; let cx = w / 2 - total / 2 + r0; for (const k of kinds.slice(0, n)) { widget(k, cx, y, r0, col); cx += 2 * r0 + gap; } };
+  if (layout === "tall") {
+    dateAt(h * .118, .054);
+    clockAt(w / 2, h * .425, .3, 2.1, true);
+    row(h * .795, 3, w * .082, footInk);
+  } else if (layout === "compact") {
+    dateAt(h * .112, .05, ink, "left", w * .085);
+    clockAt(w * .08, h * .19, .17, 1, false, "left");
+    const r0 = w * .07; widget(kinds[0], w * .66, h * .165, r0, ink); widget(kinds[1], w * .84, h * .165, r0, ink);
+  } else {
+    dateAt(h * .134, .056);
+    clockAt(w / 2, h * .262, .285);
+    if (layout === "widgets") row(h * .335, 4, w * .082, ink);
+  }
+  // the flashlight and the camera, in glass circles at the foot: smoked over a light wallpaper, frosted over a deep one
+  const cr = w * .075, cy = h * .905, glass = footY < .1 ? "rgba(255,255,255,.2)" : "rgba(0,0,0,.26)";
+  for (const bxx of [w * .17, w * .83]) { x.beginPath(); x.arc(bxx, cy, cr, 0, Math.PI * 2); x.fillStyle = glass; x.fill(); x.lineWidth = Math.max(1, w * .003); x.strokeStyle = "rgba(255,255,255,.22)"; x.stroke(); }
+  x.fillStyle = "#ffffff";
+  { // the flashlight: a head wider than its body, the switch a dark slot
+    const fx = w * .17, s = cr;
+    x.beginPath(); x.moveTo(fx - s * .27, cy - s * .5); x.lineTo(fx + s * .27, cy - s * .5); x.lineTo(fx + s * .19, cy - s * .2); x.lineTo(fx - s * .19, cy - s * .2); x.closePath(); x.fill();
+    x.beginPath(); if (x.roundRect) x.roundRect(fx - s * .16, cy - s * .24, s * .32, s * .74, s * .07); else x.rect(fx - s * .16, cy - s * .24, s * .32, s * .74); x.fill();
+    x.beginPath(); if (x.roundRect) x.roundRect(fx - s * .05, cy - s * .08, s * .1, s * .2, s * .05); else x.rect(fx - s * .05, cy - s * .08, s * .1, s * .2); x.fillStyle = "rgba(0,0,0,.45)"; x.fill();
+  }
+  x.fillStyle = "#ffffff";
+  { // the camera: a body, its viewfinder bump, its lens
+    const kx = w * .83, s = cr;
+    x.beginPath(); if (x.roundRect) x.roundRect(kx - s * .44, cy - s * .27, s * .88, s * .62, s * .12); else x.rect(kx - s * .44, cy - s * .27, s * .88, s * .62); x.fill();
+    x.beginPath(); if (x.roundRect) x.roundRect(kx - s * .17, cy - s * .38, s * .34, s * .16, s * .05); else x.rect(kx - s * .17, cy - s * .38, s * .34, s * .16); x.fill();
+    x.beginPath(); x.arc(kx, cy + s * .04, s * .19, 0, Math.PI * 2); x.fillStyle = "rgba(0,0,0,.5)"; x.fill();
+    x.beginPath(); x.arc(kx, cy + s * .04, s * .1, 0, Math.PI * 2); x.fillStyle = "#ffffff"; x.fill();
+  }
+  // the home bar
+  x.fillStyle = ink === "#ffffff" ? "rgba(255,255,255,.92)" : rgba(deep, .85);
+  x.beginPath(); if (x.roundRect) x.roundRect(w * .33, h * .972, w * .34, h * .008, h * .004); else x.rect(w * .33, h * .972, w * .34, h * .008); x.fill();
   return c;
 }
 
@@ -1433,7 +1736,7 @@ export function lockScreen(p, seed = 1, lang = "en", base = null) {
 export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const r = rng((seed >>> 0) * 7 + 11), one = a => a[Math.floor(r() * a.length) % a.length];
   const es = st.lang === "es";
-  // the colours: one of the twelve by the seed (of those that suit the line and any colour its
+  // the colours: one of the pairs by the seed, the look first (drawPair) (of those that suit the line and any colour its
   // headline names: pairsFor), or the one picked; carried as the palette's own colours (the
   // engine's pal() lays st.colors over the palette named), so the catalogue is not touched
   // fewer phones, larger (five on a square full of large words shrank to a strip): two where the
@@ -1456,12 +1759,34 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   // a photograph given with the ad whose colour is strong counts toward the two families, as a bold phone does
   const given = st.ground_photo && st.ground_photo.src ? GROUND_PHOTOS[st.ground_photo.src] : null;
   if (given && given.C >= .08 && given.hue != null) bold.push(given.hue);
-  const pairs = pairsFor(st.subject, st.headline, bold), first = pairs[(Math.floor(r() * pairs.length) + lineTurn(st.subject, pairs.length)) % pairs.length];
+  /* A REBUILT RECIPE'S LEAN (motion/recipe-lean.js, spec/recipe-looks.json; the owner, 2026-11-18, of the
+     library cards and the offer family: "take them as inspiration but rebuild them all"): st.hint names
+     what its card stood for, and hint.lean how often its seed draws from it; on a stream of its own, so
+     the seed's other draws, and every ad with no hint, are what they were. */
+  const H = st.hint && typeof st.hint === "object" && st.hint.lean ? st.hint : null, lr = H ? leanStream(seed) : null;
+  const lean = H ? { hint: H, r: lr, pick: (options, want, k) => leanPick(lr, H.lean[k], options, want) } : null;
+  const pairs = pairsFor(st.subject, st.headline, bold);
+  let first = drawPair(pairs, r(), st.subject);
+  // its colourway: a pair of its tone and hue (or a neutral ground), of those that suit the line and its words
+  if (lean && (H.tone || H.hue != null || H.neutral)) first = lean.pick(pairs, pairs.filter(k => pairAnswers(COLOUR_OF[k], H)), "colour") || first;
   const key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, type_pair: _t, type_any: _a, ...picked } = pick;
   // the type: the house's one face, or one of the owner's pairs when one is picked (pick.type_pair, a
   // TYPE_VOICES key that FULL_VOICES holds). Carried in the look, after QUIET, so it is the face drawn.
-  const voice = fullVoiceOk(pick.type_pair, pick.type_any) ? TYPE_VOICES[pick.type_pair] : null;   // type_any: the check that writes the list tries every pair
-  const type = voice ? { type_pair: pick.type_pair, font: voice.display, number_font: voice.numberRead ? voice.label : "same", full_pair: true } : { full_pair: false };
+  /* THE FACE A SEED DRAWS (2026-11-18, rule 154): every seeded full ad was set in the one house face,
+     so a page of them read as one ad "with 5% variety or difference" (the owner). A seed nobody styled
+     now draws one of the owner's vetted pairs (FULL_VOICES: proven in every size, on a dark and a
+     light pair, in English and Spanish, rule 141), the house face about a quarter of the time, on a
+     stream of its own (the colours, ground, product and words it drew do not move). A pair picked by
+     hand is kept; "house" keeps the house face. */
+  let vk = fullVoiceOk(pick.type_pair, pick.type_any) ? pick.type_pair : "";   // type_any: the check that writes the list tries every pair
+  if (!vk && pick.type_pair !== "house") {
+    const faces = FULL_VOICES.filter(k => fullVoiceOk(k)), vr = rng(((seed >>> 0) ^ 0x6a09e667) * 31 + lineTurn(st.subject, 7919) + 17);
+    if (faces.length && vr() >= HOUSE_FACE) vk = faces[Math.floor(vr() * faces.length) % faces.length];
+  }
+  // a rebuilt recipe leans to its card's face, then to its family's faces (never over a face picked by hand)
+  if (lean && !fullVoiceOk(pick.type_pair, pick.type_any) && pick.type_pair !== "house") vk = lean.pick(FULL_VOICES.filter(k => fullVoiceOk(k)), H.face, "face") || vk;
+  const voice = vk ? TYPE_VOICES[vk] : null;
+  const type = voice ? { type_pair: vk, font: voice.display, number_font: voice.numberRead ? voice.label : "same", full_pair: true } : { full_pair: false };
   // how the phones stand: back, turned, front with a lock screen, side on, or fronts and backs mixed
   // (phoneView; a subject's own pictures are drawn as they are)
   // a drawn phone (never a picked one) that would stand dark on a dark card, or light on a light one,
@@ -1470,9 +1795,13 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const view = subject ? {} : (({ pose, end_face }) => ({ pose, end_face }))(phoneView(seed, have.length, have === picked0));
   if (!subject && have !== picked0 && view.end_face !== "front") have = readableFinishes(have, COLOUR_OF[key].colors, phoneIndex);
   const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...view, ...type, ...picked };
+  if (lean && !("arrangement" in picked)) look.arrangement = lean.pick(ARRANGEMENTS, H.arrangement, "arrangement") || look.arrangement;
   // the ground: a photograph given with the ad as given; otherwise the seed's own draw (groundFor), unless one was picked by hand
   if (st.ground_photo && st.ground_photo.src) { look.background = "photo"; look.ground_photo = { ...st.ground_photo }; }
-  else if (!("background" in picked)) { const gd = groundFor(st.subject, seed, key, productFor(st.subject, have)); if (gd) Object.assign(look, gd); else delete look.ground_photo; }
+  else if (!("background" in picked)) {
+    const gd = groundFor(st.subject, seed, key, productFor(st.subject, have), lean && H.ground ? { want: H.ground, photo: st.ground_hint || null, r: lr, pick: lean.pick } : null);
+    if (gd) Object.assign(look, gd); else delete look.ground_photo;
+  }
   if (look.ground_photo) loadGroundPhoto(look.ground_photo.src).catch(() => {});
   /* THE LOOK'S STYLES (spec/full-styles.json, motion/full-styles.js; the owner, 2026-11-18: "notice how
      it's all same spiky circle?", "no variety in the text pure outlines?", "don't see any gradients
@@ -1484,8 +1813,12 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
      number and entrance are the fallback of a look made before them). */
   const kept = new Set(keep), own = { sticker_shape: FULL_STYLES.sticker, text_fx: FULL_STYLES.headline, text_in: FULL_STYLES.entrance, number_style: FULL_STYLES.number };
   const held = k => kept.has(k) && st[k] != null && (!own[k] || own[k].some(e => e.key === st[k]));
+  // dark: the words are lighter than the ground (a vivid ground under white words is dark here); busy: a
+  // photograph or a drawn scene, not one of the house's own painted grounds (its gradients and its
+  // tone-on-tone patterns are the pair's own colours, solved for the words: rule 154)
+  const own2 = COLOUR_OF[key].colors, painted = [...GROUNDS, ...GROUND_GRADIENTS, ...GROUND_PATTERNS].includes(look.background);
   const styles = pickFullStyles(rng(((seed >>> 0) ^ 0x51ed27f3) * 13 + lineTurn(st.subject, 99991) + 5),
-    { dark: oklchOf(COLOUR_OF[key].colors.ground).L < .56, busy: !GROUNDS.includes(look.background) });
+    { dark: lum(own2.ink) > lum(own2.ground), busy: !painted, lean });
   if ("text_fx" in picked || held("text_fx")) delete styles.scrim;
   for (const [k, v] of Object.entries(styles)) if (!(k in picked)) look[k] = held(k) ? st[k] : v;
   const area = (st.area || "").trim();
@@ -1546,7 +1879,7 @@ export function fullMeasure(ad) {
   const area = Object.values(R).reduce((a, r) => a + Math.max(0, r[2] - r[0]) * Math.max(0, r[3] - r[1]), 0) / (W * H);
   const k = 1080 / U, px = Object.fromEntries(Object.entries(F.px).map(([n, v]) => [n, Math.round(v * k)]));
   const smallest = Math.min(...Object.values(px).filter(Boolean));
-  return { blocks: Object.keys(R), fill: +area.toFixed(3), px, smallest, product: F.group ? +((F.group[3] - F.group[1]) / H).toFixed(3) : 0, sticker: !!F.burst, icon: !!(ad.accents && ad.accents.length), chevrons: !!ad.fullChevrons };
+  return { blocks: Object.keys(R), fill: +area.toFixed(3), px, smallest, product: F.group ? +((F.group[3] - F.group[1]) / H).toFixed(3) : 0, sticker: !!F.burst, icon: !!(ad.accents && ad.accents.length), chevrons: !!ad.fullChevrons && (ad.ctaMark || "chevrons") === "chevrons", cta_mark: ad.ctaMark || "chevrons", mark: !!ad.ctaMark && ad.ctaMark !== "none" && !!(ad.markSize || ad.fullChevrons) };
 }
 
 /** A subject's set of pictures (motion/subjects.json, from the offer family) as the engine's
@@ -1692,7 +2025,8 @@ export function fullPreflight(ad, frame) {
   // a pill's box holds its round ends, where the ground shows: the words are measured on the pill's straight middle
   const inPill = r => { const h = r[3] - r[1]; return [r[0] + h * .5, r[1] + h * .14, r[2] - h * .5, r[3] - h * .14]; };
   const ink = ad.pHead.ink, plateInk = contrastOf(ad.p.plate_ink, ad.p.plate) >= 3.5 ? ad.p.plate_ink : (lum(ad.p.plate) > .5 ? "#111111" : "#ffffff");
-  const numInk = ad.st.number_style === "underline" ? ink : plateInk;   // a number with no plate stands on the ground in the ink
+  // a number with no plate, or on a pane of glass or inside an edge alone (rule 154), stands on the ground in the ink
+  const numInk = ad.st.number_style === "underline" || ["glass", "outline"].includes(ad.st.plate_fill) ? ink : plateInk;
   const lines = [["line", "the line under the headline", ink, PF.small], ["call to action", "the line over the number", ink, PF.small], ["footer", "the towns and website", ink, PF.small],
     ["number", "the phone number", numInk, PF.large], ["claim", "the claim", ad.claim ? ad.claim.ink : plateInk, PF.small]];
   let worst = 99, worstName = "";
@@ -1770,6 +2104,7 @@ export function fullPreflight(ad, frame) {
 export function fullStill(ad) {
   const c = canvas(ad.W, ad.H), st = ad.st;
   const t = Math.max(isFinite(ad.tl.number) ? ad.tl.number + 1.2 : 0, (ad.tLanded || 0) + .6, (ad.tOutro != null ? ad.tOutro : st.duration) - .4);
-  ad.still = null; ad.frame(c.getContext("2d"), t, { subsFly: 4, subsMove: 2 }, 1 / 30);
+  ad.still = null; ad._still = true;   // the call to action's mark at rest (_ctaMark)
+  try { ad.frame(c.getContext("2d"), t, { subsFly: 4, subsMove: 2 }, 1 / 30); } finally { ad._still = false; }
   return c;
 }

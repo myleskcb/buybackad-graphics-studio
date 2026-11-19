@@ -54,11 +54,13 @@ const res = await page.evaluate(async ({ wantSheet }) => {
     ordinary: { headline: 'SELL YOUR IPHONE', tag: 'IPHONE 15 – 18 PRO MAX', feed_claim: 'TOP DOLLAR • FAST CASH', points: 'FREE QUOTE, CASH SAME DAY, NO FEES', number_label: 'CALL OR TEXT', feed_where: 'LONG BEACH • LAKEWOOD • DOWNEY', site: 'www.YourShop.com' },
     spanish: { headline: 'COMPRAMOS TU IPHONE', tag: 'TODOS LOS MODELOS', feed_claim: 'COMPRADOR LOCAL • PAGO HOY', points: 'COTIZACIÓN GRATIS, PAGO EN EFECTIVO, SIN COMISIONES', number_label: 'LLAMA O MANDA TEXTO', feed_where: 'LONG BEACH • LAKEWOOD • DOWNEY', site: 'www.TuTienda.com', lang: 'es' },
   };
-  const ASPECTS = ['1:1', '4:5', '9:16', '16:9'], PAIRS = ['navy-gold', 'silver-blue'].filter(k => F.COLOUR_OF[k]);
+  const ASPECTS = ['1:1', '4:5', '9:16', '16:9'], PAIRS = ['navy_gold', 'silver_blue'].filter(k => F.COLOUR_OF[k]);   // a dark pair and a light one (the keys are underscored: 'navy-gold' matched none, and the first two, both dark, stood in)
   const pairs = PAIRS.length === 2 ? PAIRS : F.COLOURWAYS.slice(0, 2);
   const out = {}, sheet = [];
   const draw = (key, words, aspect, palette, seed) => {
-    const st = F.fullStyle({ ...C.DEFAULT_STYLE, ...words, number: '(562) 999-4994', aspect, phones: C.DEFAULT_PHONES.slice() }, seed, index, { palette, ...(key ? { type_pair: key, type_any: true } : {}) });
+    // measured as the list was made: under the house treatment and number (the double outline, the pill), so a
+    // face's verdict does not turn with the treatment its seed happens to draw (rule 154 made those seeded)
+    const st = F.fullStyle({ ...C.DEFAULT_STYLE, ...words, number: '(562) 999-4994', aspect, phones: C.DEFAULT_PHONES.slice() }, seed, index, { palette, text_fx: 'double_outline', number_style: 'pill', ...(key ? { type_pair: key, type_any: true } : { type_pair: 'house' }) });   // '' is the house face: a seed nobody styled now draws a face (rule 154)
     return st;
   };
   const keys = ['', ...Object.keys(C.TYPE_VOICES)];

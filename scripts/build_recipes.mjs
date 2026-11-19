@@ -28,7 +28,26 @@
                    outer space for goods that are not about space, or a car of another make than
                    the one it names (the research and the owner: rule 144)
      pair          its theme where that is one of the twelve, else the nearest of them in OKLab
+                   (kept for the record: the look leans by hint, below)
      type_pair     the face pair it wore where the full ad holds it (motion/full-voices.js)
+
+   THE REBUILD (the owner, 2026-11-18, of the library cards and the offer family drawn this way:
+   "Library card ones are not great.. I would take them as inspiration but rebuild them all",
+   "Offer family needs a rebuild also", "they're alright at best and seem to follow their own set of
+   rules ? things like the heros all look so simialr"). Every recipe was drawn on seed 1, so all the
+   cards of a line drew one sticker, one treatment, one number and one arrangement, in their card's
+   pair (one of twelve dark ones), on their card's photograph, with their card's picture. Now:
+     seed          a seed of its own (its id, hashed): its look is the seed's draw
+     look          what it takes after: its family (the card's idea: glassCard, ticketStub, an offer
+                   card's layout: band, split ...) and its colourway (sun, blush, cobalt ...)
+     hint          that, as a lean (spec/recipe-looks.json): the faces, grounds, treatments,
+                   stickers, numbers, fills, arrangements and the tone and hue its seed leans toward;
+                   fullad.js fullStyle draws from them by the table's share, else from everything. Its
+                   card's face is the first face it leans to; its photograph (ground_photo) is a
+                   ground it may stand on where the photograph fits the product it shows
+     pictures      its own only where its words name the product (a make, a model, a van) or its line
+                   has no pool; else none, and the line's pool draws by the seed, the in-demand
+                   models first
 
    usage:  GFX_BASE=http://127.0.0.1:8931/ node scripts/build_recipes.mjs           # rewrite motion/recipes.json
            GFX_BASE=http://127.0.0.1:8931/ node scripts/build_recipes.mjs --check   # exit 1 if it is stale
@@ -45,6 +64,9 @@ const { bannedIn } = await import(new URL('../motion/banned-words.js', import.me
 const { HOUSE_COLOURS } = await import(new URL('../motion/house-colours.js', import.meta.url).href);
 const { FONTS, TYPE_VOICES } = await import(new URL('../motion/catalog.js', import.meta.url).href);
 const { FULL_VOICES } = await import(new URL('../motion/full-voices.js', import.meta.url).href);
+const { FULL_STYLES } = await import(new URL('../motion/full-styles.js', import.meta.url).href);
+const GROUNDS_M = await import(new URL('../motion/full-grounds.js', import.meta.url).href);
+const LOOKS = JSON.parse(read('spec/recipe-looks.json'));
 const SUBJECTS = JSON.parse(read('motion/subjects.json')).subjects;
 const SUB = Object.fromEntries(SUBJECTS.map(s => [s.key, s]));
 const flags = JSON.parse(read('assets/cutout-flags.json'));
@@ -53,16 +75,27 @@ const rejected = new Set([].concat(grid.rejected || []).map(x => typeof x === 's
 const CUTS = new Set(readdirSync(ROOT + 'assets/cutouts').filter(f => f.endsWith('.webp')).map(f => f.slice(0, -5)));
 const usable = f => CUTS.has(f) && !flags[f] && !rejected.has(f);
 
-/* ---------------------------------------------------------------- the ads, as the studio offers them */
+/* ---------------------------------------------------------------- the ads, as the studio offers them
+   ...and those retired because they were rebuilt (the owner, 2026-11-18, "Retire them": a library card
+   held, or an offer template retired, with "rebuilt as r-..." for its reason): a recipe is made from its
+   card whether the card is still offered or stands retired behind its rebuild, so the recipes do not
+   move when their cards retire. Any other retirement or hold still leaves a card out. */
+const vm = await import('node:vm');
+const RETIRED = (() => { const box = { window: {} }; try { vm.runInNewContext(read('template-retired.js'), box); } catch (e) { /* none */ } return box.window.TEMPLATE_RETIRED || {}; })();
+const rebuiltNote = why => /^rebuilt as r-/.test(String(why || ''));
+const notOffered = Object.keys(RETIRED).filter(id => !rebuiltNote(RETIRED[id]));
+const HELD_REBUILT = new Set((JSON.parse(read('assets/showcase/holds.json')).holds || []).filter(h => rebuiltNote(h.why)).map(h => h.id));
+const { live: cardLive } = await import(new URL('./_showcase_harness.mjs', import.meta.url).href);
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const browser = await chromium.launch();
 let got;
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-  await page.goto(BASE, { waitUntil: 'load', timeout: 120000 });
+  await page.goto(BASE + '?noretire=1', { waitUntil: 'load', timeout: 120000 });   // the retired ones too: notOffered leaves out all but the rebuilt
   await page.waitForFunction(() => typeof TEMPLATES !== 'undefined' && TEMPLATES.length > 100 && typeof catTemplates === 'function' && typeof scLoadIndex === 'function' && typeof setCategory === 'function', null, { timeout: 120000 });
-  got = await page.evaluate(async () => {
+  got = await page.evaluate(async notOffered => {
+    const skip = new Set(notOffered);
     const slim = t => ({
       id: t.id, name: t.name, cat: t.cat, line: t.line || '', look: t.look || '', pal: t.pal || '', faces: t.faces || null, palette: t.palette || null,
       bg: t.bg ? { type: t.bg.type, src: t.bg.src || '', scrim: t.bg.scrim, focus: t.bg.focus || t.bg.pos || null, c1: t.bg.fallback && t.bg.fallback.c1 } : null,
@@ -70,11 +103,13 @@ try {
         fill: l.props && typeof l.props.fill === 'string' ? l.props.fill : '', grad: l.props && l.props.grad ? l.props.grad.c1 : '', font: l.props && l.props.fontFamily || '' })),
     });
     const cats = [...new Set(TEMPLATES.filter(t => !t.showcase).map(t => t.cat))], out = [], seen = new Set(), keep = currentCat;
-    for (const c of cats) { try { setCategory(c); catTemplates().filter(t => !t.showcase && /^(dl|of)_/.test(t.id)).forEach(t => { if (!seen.has(t.id)) { seen.add(t.id); out.push(slim(t)); } }); } catch (e) { /* a category that will not open */ } }
+    for (const c of cats) { try { setCategory(c); catTemplates().filter(t => !t.showcase && /^(dl|of)_/.test(t.id) && !skip.has(t.id)).forEach(t => { if (!seen.has(t.id)) { seen.add(t.id); out.push(slim(t)); } }); } catch (e) { /* a category that will not open */ } }
     try { setCategory(keep); } catch (e) { /* as it was */ }
-    const cards = await scLoadIndex();
-    return { templates: out, cards: cards.map(c => ({ id: c.id, name: c.name, cat: c.cat, theme: c.theme || '', faces: c.faces || null, c1: c.c1 || '', accent: c.accent || '' })) };
-  });
+    return { templates: out };
+  }, notOffered);
+  // the library cards from their index: the live ones, and the ones held because they were rebuilt
+  const index = JSON.parse(read('assets/showcase/index.json'));
+  got.cards = index.filter(c => cardLive(c) || HELD_REBUILT.has(c.id)).map(c => ({ id: c.id, name: c.name, cat: c.cat, theme: c.theme || '', faces: c.faces || null, c1: c.c1 || '', accent: c.accent || '' }));
 } finally { await browser.close(); }
 for (const c of got.cards) {
   const rec = JSON.parse(read('assets/showcase/tpl/' + c.id + '.json')).tpl;
@@ -129,7 +164,9 @@ function wordsOf(ad, cat, dropped) {
   };
   const headline = keep('headline', up(L.filter(l => l.role === 'headline').map(l => l.text).join(' ')));
   let line = L.find(l => LINE_NAMES.test(l.name));
-  const tag = keep('line under it', line ? up(line.text).slice(0, 60) : '');
+  // the line under it, sixty letters at most, cut where its list breaks (cut at sixty, "CARTIER" read "ROLEX • CAR")
+  const fit60 = s => { if (s.length <= 60) return s; const c = s.slice(0, 61), i = Math.max(c.lastIndexOf(' • '), c.lastIndexOf(' · '), c.lastIndexOf(', ')); return (i > 20 ? c.slice(0, i) : c.slice(0, c.lastIndexOf(' '))).trim(); };
+  const tag = keep('line under it', line ? fit60(up(line.text)) : '');
   const kick = L.find(l => CLAIM_NAMES.test(l.name)), badges = L.filter(l => l.role === 'badges').map(l => tidy(l.text));
   let claim = kick ? up(kick.text) : badges.length ? up(badges.join(' • ')) : '';
   claim = claim.replace(/^\/\/\s*|\s*\/\/$/g, '');
@@ -156,10 +193,29 @@ function wordsOf(ad, cat, dropped) {
 }
 
 /* ---------------------------------------------------------------- the line, the pictures, the ground */
-const PHONE_LINES = [[/\bIPADS?\b/i, 'ipad'], [/\bMACBOOKS?\b|\bIMACS?\b|\bMACS?\b/i, 'mac'], [/\bWATCH(ES)?\b/i, 'watch'], [/\bGALAXY\b|\bSAMSUNG/i, 'galaxy'], [/\bPIXELS?\b|\bGOOGLE\b/i, 'pixel'], [/\bFOLD|\bFLIP\b/i, 'foldable']];
+/* the owner's lines (2026-11-18): "iPhones, iPads, Macbooks, Macs, Androids (all), Pixel, Samsung, or
+   foldables": an iMac, a Mac mini or a Mac Studio goes to Macs, a card that says Android to Androids */
+const PHONE_LINES = [[/\bIPADS?\b/i, 'ipad'], [/\bIMACS?\b|\bMAC ?MINIS?\b|\bMAC STUDIOS?\b/i, 'macdesk'], [/\bMACBOOKS?\b|\bMACS?\b/i, 'mac'], [/\bWATCH(ES)?\b/i, 'watch'], [/\bANDROIDS?\b/i, 'android'],
+  [/\bGALAXY\b|\bSAMSUNG/i, 'galaxy'], [/\bPIXELS?\b|\bGOOGLE\b/i, 'pixel'], [/\bFOLD|\bFLIP\b/i, 'foldable']];
+// a line folded into another (offer-library.js alias: the Switch into Handhelds, Android tablets into Androids ...)
+const ALIAS = JSON.parse(read('motion/subjects.json')).aliases || {};
 const CAT_LINE = { gold: 'gold', silver: 'silver', coins: 'coins', cars: 'car', strips: 'strips', pokemon: 'pokemon', sports: 'sports' };
-function subjectOf(ad, headline) {
+/* a car card goes to the car line its words name (2026-11-18: the cars category became lines, and
+   a card listing F-150 • SILVERADO • RAM • TACOMA drew a sedan from the general line's pool) */
+const CAR_LINES = [
+  [/\bSEMIS?\b|\b18[- ]WHEELERS?\b|\bBIG RIGS?\b|\bKENWORTHS?\b|\bPETERBILTS?\b|\bFREIGHTLINERS?\b/i, 'semis'],
+  [/\bSPRINTERS?\b|\bTRANSITS?\b|\bPRO ?MASTERS?\b|\bWORK VANS?\b|\bCARGO VANS?\b|\bVANS\b/i, 'vans'],
+  [/\bCLASSICS?\b|\bVINTAGE\b|\bMUSCLE CARS?\b|\bHOT RODS?\b/i, 'classic'],
+  [/\bJDM\b|\bSUPRAS?\b|\bGT-?RS?\b|\bSKYLINES?\b|\bWRX\b|\bRX-?7S?\b|\bMIATAS?\b|\bTYPE R\b|\bS2000\b|\bNSX\b/i, 'jdm'],
+  [/\bF-?150S?\b|\bSILVERADOS?\b|\bRAMS?\b|\bTACOMAS?\b|\bTUNDRAS?\b|\bSIERRAS?\b|\bPICKUPS?\b/i, 'trucks'],
+  [/\bTOYOTAS?\b/i, 'toyota'], [/\bHONDAS?\b/i, 'honda'], [/\bBMWS?\b/i, 'bmw'], [/\bMERCEDES\b|\bBENZ\b|\bAMG\b/i, 'mercedes'],
+];
+const carLineOf = text => { for (const [re, k] of CAR_LINES) if (SUB[k] && re.test(text)) return k; if (/\bTRUCKS?\b/i.test(text) && !/\bCARS?\b|\bSUVS?\b/i.test(text) && SUB.trucks) return 'trucks'; return 'car'; };
+const CAR_SUBJECTS = new Set(['car', ...CAR_LINES.map(([, k]) => k)]);
+function subjectOf(ad, headline, allWords = headline) {
   if (ad.line && SUB[ad.line]) return ad.line;
+  if (ad.line && SUB[ALIAS[ad.line]]) return ALIAS[ad.line];
+  if (ad.cat === 'cars') return carLineOf(allWords);   // a car card's models line names its goods; a phone card goes by its headline
   if (CAT_LINE[ad.cat]) return CAT_LINE[ad.cat];
   if (ad.cat === 'phones') { for (const [re, k] of PHONE_LINES) if (re.test(headline)) return k; return 'iphone'; }
   const first = SUBJECTS.find(s => s.cat === ad.cat); return first ? first.key : 'iphone';
@@ -182,13 +238,16 @@ const makeOfFile = f => { const s = String(f || '').toLowerCase(); for (const k 
 const VEHICLE = /car|truck|suv|van|jeep|pickup|sedan|coupe|grille|wheel|dash|motorcycle|bike|vehicle|lamborghini|porsche|ferrari|bmw|lexus|dodge|honda|toyota|ford|chevy|nissan|tesla|audi|mercedes/i;
 const VANS = /\bSPRINTERS?\b|\bTRANSITS?\b|\bPRO ?MASTERS?\b|\bWORK VANS?\b|\bCARGO VANS?\b|\bVANS\b/;
 const VAN_CUTS = readdirSync(ROOT + 'assets/cutouts').filter(f => /^car-.*(van|transit|sprinter|promaster)/.test(f) && f.endsWith('.webp')).map(f => f.replace(/\.webp$/, '')).filter(f => usable(f));
+const VEHICLES = JSON.parse(readFileSync(ROOT + 'assets/vehicles.json', 'utf8'));
 const hash = s => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; };
 function picturesOf(ad, subject, headline, claim, notes) {
   const own = ad.layers.map(l => (/assets\/cutouts\/([^/?#]+)\.webp/.exec(l.src || '') || [])[1]).filter(Boolean);
   let pics = own.filter(usable);
   if (own.length > pics.length) notes.push(`left out ${own.length - pics.length} flagged or rejected picture${own.length - pics.length > 1 ? 's' : ''}`);
   let make = '';
-  if (subject === 'car') {
+  // a car the photo catalogue does not name is never shown (the owner: "unidentified cars skip")
+  if (CAR_SUBJECTS.has(subject)) { const known = pics.filter(f => !/^car-/.test(f) || VEHICLES[f]); if (known.length < pics.length) notes.push(`left out ${pics.length - known.length} unidentified car picture${pics.length - known.length > 1 ? 's' : ''}`); pics = known; }
+  if (CAR_SUBJECTS.has(subject)) {
     const named = Object.keys(MAKES).filter(k => MAKES[k].test(headline + ' ' + claim));
     if (named.length) {
       make = named[0];
@@ -216,7 +275,8 @@ function groundOf(ad, cat, make, notes) {
   if (/space-|nebula|hubble|moon|starfield|aurora|earth-from-iss|orion|galaxy-/.test(s)) { notes.push('outer-space ground left out'); return null; }
   const f = Array.isArray(g.focus) ? g.focus : g.focus && typeof g.focus === 'object' ? [g.focus.x, g.focus.y] : [.5, .5];
   const scrim = Math.round(Math.min(.7, Math.max(.25, typeof g.scrim === 'number' ? g.scrim : .4)) * 100) / 100;
-  return { src: g.src.replace(/^\/+/, ''), focus: f.map(v => Math.round((+v || .5) * 100) / 100), scrim, from: ad.id };
+  // a card's overlay over its photograph (overlay:dots/dark|assets/...) is the card's own pattern, not a file: the photograph is what it stood on
+  return { src: g.src.split('|').pop().replace(/^\/+/, ''), focus: f.map(v => Math.round((+v || .5) * 100) / 100), scrim, from: ad.id };
 }
 
 /* ---------------------------------------------------------------- the ground and the product line up
@@ -288,6 +348,70 @@ function lineUp(ad, cat, subject, pictures, make, gp, words, notes) {
   return out(null);
 }
 
+/* ---------------------------------------------------------------- one kind of goods inside a broader line
+   A card about one kind of goods on a line that holds several (the owner's lines, 2026-11-18: controllers
+   and VR headsets folded into Consoles, gaming laptops into Computers, the Switch into Handhelds, Android
+   tablets into Androids) shows that kind: its own picture of it, or an entry of the line's pool that is
+   one, or none, and its words stand alone; never another product (a PS5 under "SPARE CONTROLLERS?", a
+   tower under "GAMING LAPTOP?": the rebuild's first sheet). The kind is the card's own folded line, or
+   what its headline names. [kind, what a headline says, what a picture's file is called] */
+const KINDS = [
+  ['controller', /\bCONTROLLERS?\b|\bDUALSENSE\b|\bJOY-?CONS?\b/, /controller|dualsense|joy-?con/i],
+  ['vr', /\bVR\b|\bQUESTS?\b|\bVISION PRO\b/, /(^|-)vr(-|$)|quest|vision-pro/i],
+  ['laptop', /\bLAPTOPS?\b/, /laptop/i],
+  ['handheld', /\bSTEAM DECKS?\b|\bROG ALLY\b|\bLEGION GO\b|\bHANDHELDS?\b/, /steam-?deck|rog-?ally|legion-?go|handheld/i],
+  ['switch', /\bSWITCH(ES)?\b/, /switch/i],
+  ['tablet', /\bTABLETS?\b|\bGALAXY TAB\b/, /tablet|galaxy-tab/i],
+  ['console', /\bCONSOLES?\b|\bPS5\b|\bXBOX\b|\bPLAYSTATION\b/, /ps5|xbox|playstation|dock|oled-set|console/i],
+];
+const FOLD_KIND = { controller: 'controller', vr: 'vr', gamelaptop: 'laptop', switch: 'switch', tablet: 'tablet' };
+const BROAD = new Set(Object.values(ALIAS));
+const KIND_TURN = {};
+const MODEL_FILES = [[/\bPS5\b|\bPLAYSTATION\b/, /ps5|playstation/i], [/\bXBOX\b/, /xbox/i], [/\bSWITCH\b/, /switch/i], [/\bSTEAM DECKS?\b/, /steam-?deck/i], [/\bQUESTS?\b/, /quest/i]];
+const kindOf = (ad, subject, headline) => !BROAD.has(subject) ? '' : FOLD_KIND[ad.line] || ((KINDS.find(([, words]) => words.test(headline)) || [])[0] || '');
+
+/* ---------------------------------------------------------------- what it takes after (the rebuild)
+   A library card's family is its id's first word (glassCard-du08-15); a designer layout's and an
+   offer card's are in theirs, with the colourway after (dl_cars_neonNight_sunset, of_iphone_band_sun:
+   an offer card's family is its layout). spec/recipe-looks.json says what each leans toward. */
+function lineageOf(ad) {
+  if (ad.gen === 'sc') return { family: String(ad.id).split('-')[0], colourway: '' };
+  const m = /^(?:dl|of)_[a-z0-9]+_([A-Za-z]+)_([a-z]+)$/.exec(ad.id);
+  return m ? { family: m[1], colourway: m[2] } : { family: '', colourway: '' };
+}
+const LEANS = ['ground', 'face', 'headline', 'sticker', 'number', 'fill', 'arrangement'];
+function hintOf(gen, family, colourway, voice) {
+  const F = (gen === 'of' ? LOOKS.layouts[family] : LOOKS.families[family]) || {};
+  // a library card's theme was one of the twelve dark pairs (the sameness the owner named): its colour
+  // leans only where its family has one; a layout's or an offer card's colourway is its own
+  const C = gen === 'sc' ? null : LOOKS.colourways[colourway] || null;
+  const h = {};
+  for (const k of LEANS) if (F[k] && F[k].length) h[k] = F[k].slice();
+  // its card's face, among its family's: never an offer card's, which its family set by line (all the
+  // gaming lines in one face), the owner's "their own set of rules", not a choice of the card's
+  if (voice && gen !== 'of') h.face = [voice, ...(h.face || []).filter(v => v !== voice)];
+  const colour = C || (['tone', 'hue', 'neutral'].some(k => k in F) ? F : null);
+  if (colour) for (const k of ['tone', 'hue', 'neutral']) if (k in colour) h[k] = colour[k];
+  return h;
+}
+/* every name the table leans to is one the engine draws: a face the full ad holds, a style of
+   spec/full-styles.json, a ground kind or a ground by its key, an arrangement */
+const KNOWN = {
+  face: new Set(FULL_VOICES),
+  headline: new Set((FULL_STYLES.headline || []).map(e => e.key)), sticker: new Set((FULL_STYLES.sticker || []).map(e => e.key)),
+  number: new Set((FULL_STYLES.number || []).map(e => e.key)),
+  // a fill leans the plates' and the sticker's (spec/full-styles.json plate_fill, sticker_fill)
+  fill: FULL_STYLES.plate_fill || FULL_STYLES.sticker_fill ? new Set([...(FULL_STYLES.plate_fill || []), ...(FULL_STYLES.sticker_fill || [])].map(e => e.key)) : null,
+  ground: new Set(['photo', 'scene', 'gradient', 'pattern', 'house', ...(GROUNDS_M.GROUND_HOUSE || []), ...(GROUNDS_M.GROUND_SCENES || []), ...(GROUNDS_M.GROUND_GRADIENTS || []), ...(GROUNDS_M.GROUND_PATTERNS || [])]),
+  arrangement: new Set(['lineup', 'fan', 'showcase', 'podium', 'wings']),
+};
+{
+  const bad = [];
+  for (const [where, table] of [['families', LOOKS.families], ['layouts', LOOKS.layouts]]) for (const [name, row] of Object.entries(table))
+    for (const k of LEANS) for (const v of row[k] || []) if (KNOWN[k] && !KNOWN[k].has(v)) bad.push(`${where}.${name}.${k}: ${v}`);
+  if (bad.length) { console.error('spec/recipe-looks.json leans to names the engine does not draw:\n  ' + bad.join('\n  ')); process.exit(1); }
+}
+
 /* ---------------------------------------------------------------- the recipes */
 const GEN = { sc: 'library card', dl: 'designer layout', of: 'offer card' };
 const all = [...got.templates.map(t => ({ ...t, gen: /^dl_/.test(t.id) ? 'dl' : 'of' })), ...got.cards.map(c => ({ ...c, gen: 'sc' }))];
@@ -295,9 +419,9 @@ const recipes = [];
 for (const ad of all) {
   const dropped = [], notes = [];
   const words = wordsOf(ad, ad.cat, dropped);
-  const subject = subjectOf(ad, words.headline || '');
+  const subject = subjectOf(ad, words.headline || '', [words.headline, words.tag, words.claim, words.points].filter(Boolean).join(' '));
   const S = SUB[subject]; if (!S) continue;
-  const { pictures, make } = picturesOf(ad, subject, words.headline || '', [words.claim, words.line].filter(Boolean).join(' '), notes);   // the line under it names models too (TRANSIT • SPRINTER • PROMASTER)
+  const { pictures, make } = picturesOf(ad, subject, words.headline || '', [words.claim, words.tag].filter(Boolean).join(' '), notes);   // the line under it names models too (TRANSIT • SPRINTER • PROMASTER)
   const lined = lineUp(ad, S.cat, subject, pictures, make, groundOf(ad, ad.cat, make, notes), words, notes);
   const ground_photo = lined.ground_photo; pictures.splice(0, pictures.length, ...lined.pictures);
   // colours as the ad wore them: the library's own theme and ink; a template's ground and its headline's accent
@@ -306,15 +430,52 @@ for (const ad of all) {
   const ground = ad.c1 || (ad.bg && ad.bg.c1) || (ad.palette && (ad.palette.bg || ad.palette.ground)) || '';
   const pair = pairOf(ad.theme, ground, accent, subject);
   const display = ad.faces ? (Array.isArray(ad.faces) ? ad.faces[0] : ad.faces.display) : (heads[0] && heads[0].font) || '';
+  // one kind of goods inside a broader line: its own picture of it, an entry of the pool that is one, or its words alone
+  const kind = kindOf(ad, subject, words.headline || ''); let words_only = false, keep = !!make;
+  if (kind) {
+    const file = KINDS.find(k => k[0] === kind)[2], mine = pictures.filter(p => file.test(p.file));
+    let fits = (S.pool || []).filter(e => (e.set || []).length && e.set.every(x => file.test(x.file)));
+    // a model its headline names, where the pool has it (PS5 OR XBOX? shows a PS5 or an Xbox, not a Switch)
+    const named = MODEL_FILES.filter(([w]) => w.test(words.headline || '')).map(([, f]) => f), nf = fits.filter(e => e.set.every(x => named.some(f => f.test(x.file))));
+    if (named.length && nf.length) fits = nf;
+    if (mine.length) { pictures.splice(0, pictures.length, ...mine); keep = true; }
+    // in turn, so a line's cards of one kind show all its pictures of it
+    else if (fits.length) { const n = (KIND_TURN[subject + '|' + kind] = (KIND_TURN[subject + '|' + kind] || 0) + 1) - 1, e = fits[n % fits.length]; pictures.splice(0, pictures.length, ...e.set.map(x => ({ file: x.file, k: x.k || 1 }))); keep = true; notes.push(`a ${kind} from the line's pool: its words name one`); }
+    else { pictures.length = 0; words_only = true; notes.push(`no ${kind} picture on the line: its words alone`); }
+  }
+  // the product (the owner: "the heros all look so simialr"): the card's own only where its words name
+  // it (a make, a model, a van, a kind of goods) or its line has no pool; else the seed draws from the line's pool
+  if (pictures.length && !keep && (subject === 'iphone' || (S.pool || []).length)) {
+    notes.push(`its picture${pictures.length > 1 ? 's' : ''} (${pictures.map(p => p.file).join(', ')}) left to the line's pool`);
+    pictures.length = 0;
+  }
+  const { family, colourway } = lineageOf(ad), type_pair = voiceOf(display);
   recipes.push({ id: 'r-' + ad.id, from: ad.id, gen: ad.gen, cat: S.cat, subject, label: `${ad.name} (${GEN[ad.gen]})`,
-    words, pictures, ground_photo, pair, type_pair: voiceOf(display), ...(make ? { make } : {}), ...(dropped.length ? { dropped } : {}), ...(notes.length ? { notes } : {}) });
+    seed: 2 + hash('recipe:' + ad.id) % 99991, look: { family, ...(colourway ? { colourway } : {}) }, hint: hintOf(ad.gen, family, colourway, type_pair),
+    words, pictures, ...(words_only ? { words_only } : {}), ground_photo, pair, type_pair, ...(make ? { make } : {}), ...(dropped.length ? { dropped } : {}), ...(notes.length ? { notes } : {}) });
+}
+{
+  // every colourway a layout or an offer card names is in the table (a new one leans nowhere unseen)
+  const unknown = [...new Set(recipes.filter(r => r.gen !== 'sc' && r.look.colourway && !LOOKS.colourways[r.look.colourway]).map(r => r.look.colourway))];
+  if (unknown.length) { console.error('colourways missing from spec/recipe-looks.json: ' + unknown.join(', ')); process.exit(1); }
+  const loose = [...new Set(recipes.filter(r => !(r.gen === 'of' ? LOOKS.layouts : LOOKS.families)[r.look.family]).map(r => r.gen + ':' + r.look.family))];
+  if (loose.length) console.log('families with no lean in spec/recipe-looks.json (their look is the seed\'s alone): ' + loose.join(', '));
 }
 const ORDER = SUBJECTS.map(s => s.key);
 recipes.sort((a, b) => ORDER.indexOf(a.subject) - ORDER.indexOf(b.subject) || ['sc', 'dl', 'of'].indexOf(a.gen) - ['sc', 'dl', 'of'].indexOf(b.gen) || a.id.localeCompare(b.id));
+/* a library card's name led with its theme, one of the twelve dark pairs it no longer draws in (rule 155):
+   it is called by its family's name, numbered within its line where the line has more than one */
+{
+  const fam = r => r.label.replace(/ \(library card\)$/, '').split(' · ').pop(), count = {}, seen = {};
+  for (const r of recipes) if (r.gen === 'sc') count[r.subject + '|' + fam(r)] = (count[r.subject + '|' + fam(r)] || 0) + 1;
+  for (const r of recipes) if (r.gen === 'sc') { const f = fam(r), k = r.subject + '|' + f, n = seen[k] = (seen[k] || 0) + 1; r.label = `${f}${count[k] > 1 ? ' ' + n : ''} (library card)`; }
+}
 const count = k => recipes.filter(r => r.gen === k).length;
 const json = JSON.stringify({
-  _doc: 'Every older ad the studio offers (library cards, designer layouts, offer cards), read as it opens and written as a recipe the full ad draws as a photo and a video: its words (the one list and the proof words left out), its line, its product cut-outs (a named car make shown as that make), its ground photograph, the nearest of the twelve pairs and its face pair where the full ad holds it. Made by scripts/build_recipes.mjs; never edit by hand. DESIGN-LAW 144, OPEN-ITEMS §BJ.',
-  count: recipes.length, by: { library: count('sc'), layouts: count('dl'), offer: count('of') }, recipes,
+  _doc: 'Every older ad the studio offers (library cards, designer layouts, offer cards), read as it opens and written as a recipe the full ad draws as a photo and a video: its words (the one list and the proof words left out), its line, its product cut-outs (a named car make shown as that make), its ground photograph, the nearest of the twelve pairs and its face pair where the full ad holds it (both for the record). Rebuilt 2026-11-18 (the owner: "take them as inspiration but rebuild them all"): each is drawn on a seed of its own (seed) and leans toward what its card took after (look: its family and colourway; hint: spec/recipe-looks.json), never locked to it; its own pictures only where its words name the product or its line has no pool. Made by scripts/build_recipes.mjs; never edit by hand. DESIGN-LAW 144, 145, OPEN-ITEMS §BJ.',
+  count: recipes.length, by: { library: count('sc'), layouts: count('dl'), offer: count('of') },
+  lean: LOOKS.lean,   // how often a recipe's seed draws from its hint (spec/recipe-looks.json; whoever loads this attaches it to each hint)
+  recipes,
 }, null, 1) + '\n';
 const untagged = recipes.filter(r => r.ground_photo && !tagOf(r.ground_photo.src)).map(r => r.id);
 if (untagged.length) { console.error('grounds missing from spec/ground-tags.json: ' + untagged.slice(0, 8).join(', ')); process.exit(1); }

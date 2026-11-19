@@ -5695,6 +5695,43 @@ RESUME HERE: the census of every generation is at .render/ad-census (the review 
 the owner audits recipes there, then says whether the older renderings retire; the hero picks;
 then the contact block and the picture picker in the makers.
 
+## 2026-11-18 (later) — the look system: different ads, not the same ad 5% off (DESIGN-LAW 154)
+
+Asked: "still not enough colors, gradients, pattern fill, or other ways instead of colors", "a lot
+of these are the same thing with 5% variety or difference". A helper fork of the session did it,
+on its own worktree branch.
+
+Changed:
+  - 54 colour pairs: every COLOR_THEMES group, plus new light and neon pairs; the vivid
+    grounds are two-colour themes.
+  - A seed picks the look first, then the pair.
+  - A face is drawn by the seed.
+  - Five more of the pair's own gradients, and fifteen tone-on-tone patterns and textures.
+  - Stripe, dot, foil, glass and outline fills on the sticker and the plates.
+  - Nine more of the engine's headline treatments.
+  - scripts/full_look_sheet.mjs: a contact sheet of seeded ads, with their spread measured.
+
+Learned:
+  - The sameness was two numbers: 11 of the 12 pairs are a dark ground under a warm accent, and
+    every seeded ad had one face. Stickers, treatments and plates had been varied already, and
+    the sheet still read as one ad. What tells two ads apart in a feed is the ground's
+    lightness, its kind, and the face. Measure that, not pixel distance: no two ads were near
+    twins by pixels before or after, while 249 pairs of the 1,128 matched on look, ground and
+    face before, and 9 after.
+  - Several checks were built for dark pairs. The engine's loud colour (`hotColour`) took a stock
+    yellow for any dark accent. The house grounds and their vignette mixed black into cream. The
+    drawn scenes went grey under dark words. The claim glowed in its own colour once its plate
+    was glass or an outline. Each showed only when a light or vivid pair reached them, and each
+    is fixed where it starts.
+  - A face changes the layout. A narrow face sets the number taller, and its chevrons no longer
+    fit. A wide face sets a long number under its floor. full_ad_check found both on lines the
+    face check never drew (tablet, drone, metaglasses), and the layout now absorbs them.
+  - A gradient toward a warm accent at a depth white words can read on is brown or olive (rule
+    103's muddy floor). The far end takes a tone of the ground there instead.
+
+RESUME HERE: recipes rebuilt on the 54 pairs (`build_recipes.mjs`; recipes.json is stale until
+then), with each card family's look handed to these keys.
+
 ## 2026-11-18 — the census folded into pull request 14 (claude/ads-improvement-roadmap-7632c8)
 
 The owner's word: claude/xenodochial-mccarthy-7bea6d (rules 143 to 145, OPEN-ITEMS §BI
@@ -6076,7 +6113,7 @@ RESUME HERE:
      branch (step 5), then steps 6 and 7.
   1. §BL open 1: the wordmark, BUYBACK.AD or WEBUY.AD, is the owner's call.
 
-## 2026-11-19 — WeBuy.AD in reselling.us's look (DESIGN-LAW 147, 148)
+## 2026-11-19 — WeBuy.AD in reselling.us's look (DESIGN-LAW 152, 153)
 
 Asked: "logos branding webkit", "all aspects need to finish and it needs to
 have similar or matching styling to reselling.us", "or color scheming at
@@ -6102,9 +6139,17 @@ Found:
     party and a recorded version. Rename the product, not the party, without
     the owner.
 
+  - The explainer videos had been silent after 8 seconds since they were
+    made: the tracks are 12-second clips and the render started 4 s in. A
+    probe of each file's audio stream length against its picture would have
+    caught it the day it shipped; run one after any render.
+  - DESIGN-LAW numbers are claimed on branches long before they reach main:
+    138 and 139 were taken on eight branches. Grep every branch and worktree
+    (`git show <branch>:DESIGN-LAW.md`) before numbering a rule.
+
 RESUME HERE:
-  0. OPEN-ITEMS §BM "Open": the terms' party and version, the explainer
-     videos' end card, the Stripe portal's line.
+  0. OPEN-ITEMS §BM "Open": the terms' party and version, the Stripe
+     portal's line. The explainers are done.
   1. §BL: the webhook move after the first checkout, iPhones LA's allowlist,
      the contact address, live Stripe keys.
 
@@ -6162,14 +6207,15 @@ Auto-fix: GitHub said pull request 14 conflicted with `main`, which had taken th
 (webuy.ad as the site's address; the reselling.us look; the name WeBuy.AD). Merged here:
 
 - **The numbers.** `main` had numbered its two rules 138 and 139 and its open items BD and BE,
-  which this branch already held (138 to 145, BD to BJ). Main's became rules 147 and 148 and
-  open items BL and BM, as pull request 15 numbers them (after its 146 and BK; the census
-  branch's 146 to 149 move when it lands), and the lines main added that cite them say so. Each carries a line saying what it was numbered.
-- **The name** (rule 148): "WeBuy.AD wherever the product or the site is named, the watermark
+  which this branch already held (138 to 145, BD to BJ). Main then renumbered its own rules
+  152 and 153 (5dfd1b7b, the same day), and this branch follows it; its open items keep the
+  letters BL and BM here, since BD and BE are this branch's, and the lines main added that
+  cite them say so.
+- **The name** (rule 153): "WeBuy.AD wherever the product or the site is named, the watermark
   on free exports included". So the lattice keeps this branch's drawing (rule 142) and draws
   the new name (`watermark.js` WORD), and this branch's own words for it follow: the plan
   cards and table (`netlify/lib/plans.mjs`, rebuilt by `build_pricing.mjs`), the FAQ, the
-  approval page's title and the code's comments. BUYBACK.AD stays where rule 148 keeps it:
+  approval page's title and the code's comments. BUYBACK.AD stays where rule 153 keeps it:
   the copyright line, and the terms and privacy policy.
 - **The rest** of each side merged on its own: main's look, wordmark, icon, share card and
   address; this branch's engine, census, watermark and fixes. The CSP's inline hashes are
@@ -6261,3 +6307,203 @@ RESUME HERE:
   1. Pull request 14 once it is pushed with main's 5dfd1b7b and the census at 154 to 157: merge
      it here, and make the explainers' WebP posters again (§BK 15).
   2. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5).
+
+## 2026-11-18 — the owner's lines: Phones and Apple, and Gaming (claude/xenodochial-mccarthy-7bea6d, a helper)
+
+Asked: "and technically categories would be iPhones, iPads, Macbooks, Macs, Androids (all), Pixel,
+Samsung, or foldables", "Gaming would be Consoles, Computers, and Handhelds".
+
+Changed: offer-library.js LINES is still the one source. Two lines added last (Macs, Androids,
+cards:false: the house engine draws them, no fabric card), five folded into others (alias), Apple
+Watch moved to Wearables (lookCat keeps its cards' looks), labels and models lines in the owner's
+words; scripts/build_full_subjects.mjs writes the menus in the owner's order (MENU) and the aliases;
+the studio, the video maker and the hero stills read a folded key as its new line; the recipes
+follow; the review page lists a category's lines.
+
+Learned:
+  - An offer card's id and look turn with its line's place in LINES (li) and the faces of its
+    category: a line added anywhere but last, or a category moved, re-rolls the cards after it.
+    Compared the 300 offer cards before and after (ids, faces, colours, layers): only the names,
+    Apple Watch's category and three models lines changed.
+  - The models line is the full ad's tag: "PS5, XBOX SERIES X AND S, SWITCH ..." broke after
+    "X AND", so the line names fewer things.
+
+## 2026-11-18 — the library cards and the offer family, rebuilt from their cards (claude/xenodochial-mccarthy-7bea6d)
+
+Asked: "Library card ones are not great.. I would take them as inspiration but rebuild them all",
+"Offer family needs a rebuild also", "they're alright at best and seem to follow their own set of
+rules ? things like the heros all look so simialr"; and with them "still not enough colors,
+gradients, pattern fill, or other ways instead of colors", "a lot of these are the same thing with
+5% variety or difference" (the look system, rule 154, a helper), and the owner's lines (a helper).
+
+Changed:
+  - Recipes carry a seed of their own and a hint (spec/recipe-looks.json, rule 155).
+  - fullStyle, pickFullStyles and groundFor lean toward the hint on a stream of their own
+    (motion/recipe-lean.js).
+  - The cards' photographs are measured, so a dim one is passed over.
+  - The product is the line's pool unless the words name it. A kind of goods inside a broader line
+    shows that kind, or the words stand alone.
+  - scripts/full_look_sheet.mjs --recipes draws the rebuilt recipes beside their last census
+    drawing.
+
+Learned:
+  - The sameness was three locks, not too few options. Every recipe was on seed 1, so every style
+    draw was one per line. Every recipe was on its card's pair, and the nearest of twelve dark
+    pairs turned a yellow card into Black & Red. Every recipe was on its card's picture.
+  - Folding lines (controllers into Consoles, gaming laptops into Computers) moves a card's
+    product with it. A card's words must keep choosing its picture after a regrouping.
+  - A lean from a generation's own rule re-imports its sameness. Every gaming offer card wore one
+    face because its family set faces by line, so the offer cards no longer lean to their face.
+  - A card background with an overlay (`overlay:dots/dark|photo.jpg`) was never a loadable file.
+    Those 19 recipes had been falling back to the house gradient silently.
+  - A headline treatment that reaches past its letters needs its own room when the headline is
+    fitted. A long shadow falls a third of the type size to one side, so a full-width headline put
+    it 13px from the frame. The fit allowed only an outline's 0.17 a side. The fix gives each
+    treatment its reach (`fullad.js` `FX_REACH`).
+  - A check's own inputs need checking. `full_type_check` asked for `navy-gold` and
+    `silver-blue` (the keys are underscored), so it measured two dark pairs. Once treatments
+    were seeded, its list also turned with the seeds. Measured as written, one face, Flyer, sets a
+    pixel under the feed's floor on a light pair and left the list (28).
+  - The census reads a pair by finding its accent. A two-colour pair's accent is its ink, and a
+    glass or outline fill shows little accent, so 13 rebuilt recipes read "off pair" on scenes and
+    photographs. By eye they were on their pairs.
+
+RESUME HERE:
+  0. The owner's OK to push; the owner's call on retiring the older renderings and on re-picking
+     the hero wall from the rebuilt recipes (the review page, republished with their census).
+  1. Photographs that need the owner's OK to download: a VR headset, a gaming laptop, a Mac mini,
+     a ROG Ally, a Legion Go, a sealed Chromebook box, a Sprinter, a Kenworth, a gaming headset,
+     a monitor.
+
+## 2026-11-18 — iOS lock screens, the call to action's marks, MacBooks and Macs (claude/xenodochial-mccarthy-7bea6d)
+
+Asked:
+  - "audit the iPhone backgrounds to look clean good... and actual iOS"; "readjust the status bar
+    size and positioning slightly"; "What are the other iOS lock screen layouts?"
+  - "every single one has the same arrows pointing to the CTA"
+  - "a really old MacBook that we don't even buy"; "don't see any of these ads talk about the MacBook
+    Neo"; "macs ... need more in the category"
+
+Changed:
+  - lockScreen (rule 156): the status bar in iOS's own points, four layouts, four wallpapers in
+    one colour family, and the clock's ink from the wallpaper.
+  - cta_mark (rule 157): eight marks with their own motion; the checks count any mark.
+  - Six pre-M1 MacBook pictures flagged "old model"; the Neo at about 5% with its own words; Macs
+    gain sets of several products (the subjects builder takes a `sets` field).
+
+Learned:
+  - A lock screen reads as iOS by its measures more than by its art. The status bar's place beside
+    the island, the clock's size and the glass buttons carried it.
+  - The wallpaper can be any clean tone of one colour: darkening a warm hue is where it went
+    wrong.
+  - An Intel-era picture flagged in October still showed on a static library card. Flags keep a
+    picture out of what is generated, not out of the old static cards: those go only when the owner
+    retires them.
+  - A check can depend on a hard-coded server (motion_phone_check on port 8765): give it its
+    server, never skip it quietly.
+
+RESUME HERE:
+  0. The owner's call: retire the old static library cards and offer cards.
+  1. Merge the audit basket (a helper's branch), re-run the census, republish the review page.
+  2. Downloads waiting on an OK: M4 Mac mini, Mac Pro, Studio Display, VR headset, gaming laptop,
+     ROG Ally, Legion Go, a sealed Chromebook box, Sprinter, Kenworth, gaming headset, monitor.
+## 2026-11-18 — the audit basket: the census sees composition (claude/xenodochial-mccarthy-7bea6d, a helper)
+
+Asked: "Can you detect this? Do you see what I see without hearing my opinion would you have found this
+amongst all of the ads can we audit for the worst ones and anything similar to this in confusion? We can
+put them in an audit basket and if I think it's good enough, we'll keep it otherwise we will audit and
+rebuild or try to fix". It was said of three MacBook library cards the census ranked mid-table.
+
+Changed:
+  - scripts/ad_census.mjs records each ad's layout and turns it into findings (`confusionOf`, `CONFUSE`):
+    a product off its axis, a box with little in it, a colour outside its pair, words in unrelated
+    colours, a model the line does not buy.
+  - The findings sink a row's score.
+  - The review page has an Audit basket filter, worst first, with each finding on the card and in full
+    in the dialog.
+  - Basket: 89 of 2,019 ads, all older static cards (86 library cards, 2 designer layouts, 1 offer card).
+    Precision on the worst 40 by eye: 33 clearly real, 7 borderline, none plainly wrong.
+
+Learned:
+  - The first cut put 543 ads in the basket. Most were a deliberate design read as a fault: a
+    two-column offer card read as an off-centre product, an offer card's navy panel as a third colour,
+    a sunset scene as random colours, a full ad's product beside its sticker as off-axis, and a
+    three-colour pair's navy ink as outside the pair. Each was fixed by reading the layout as a
+    designer would: the block beside the product, a card's own two colours, the pair's ink.
+  - A fabric text's `textAlign` is its alignment inside its own box. A one-line headline says "left"
+    wherever it stands, so the words' axis is read from where the lines sit. A box as wide as the
+    column is the exception: there the property says where the words are.
+  - What the owner calls "a box with little in it" can hold a picture: a tiny laptop inside a dark
+    band made it look full to a coverage count. A picture under a quarter of the plate is a small one.
+  - A teal-blue and a navy-teal are one "blue" to the eye, and a very dark colour reads as near black.
+    Families are 30 degrees or one name, and a deep colour needs chroma .08 to count.
+  - The pale pink call-to-action card was #fff0f9, chroma .02, under any plate threshold. A tint that
+    nothing else wears is still the colour the owner sees, so the call to action's plate counts from
+    .018.
+
+## 2026-11-18 — the old library and offer cards retired, the rebuilt ads in their place (claude/xenodochial-mccarthy-7bea6d)
+
+Asked: "Retire them" (the old static library cards and offer cards, now that each has a rebuilt
+version).
+
+Changed:
+  - `retire_older_ads.mjs --rebuilt` held 366 library cards and retired 299 offer templates, each
+    "rebuilt as r-...".
+  - `build_recipe_stills.mjs` drew the 665 rebuilt ads.
+  - `app.js` `scLoadShelf` puts them where the cards were: the library grid, the wall, the editor's
+    library, a card's link.
+  - The hero picks point at their recipes.
+  - `build_recipes.mjs` reads the retired-by-rebuild cards and templates from their source, so the
+    recipes hold still.
+
+Learned:
+  - Retiring a source must not retire what was built from it. The recipe builder read its cards
+    through the landing's loader, so a rebuild after the retirement would have dropped 661 recipes.
+  - The landing falls back to its first layout when no library card is live. The shelf keeps it on
+    the library, now made of rebuilt ads.
+  - 4 live library cards (two Review Proof, two Trust Seal) had never been read into recipes. Reading
+    the cards from the index instead of the page found them.
+
+## 2026-11-19 — the partner library serves the rebuilt ads (claude/xenodochial-mccarthy-7bea6d)
+
+Asked: render the rebuilt ads at full size so the partner library feed serves them ("Do it here").
+
+Changed:
+  - `scripts/render_rebuilt_ads.mjs` renders the 366 rebuilt library ads as iPhones LA's copy
+    (77 MB, `assets/rebuilt-ads/`).
+  - `netlify/lib/library.mjs` serves them as `r-<card id>` with `rebuilt_from`.
+  - The retired cards' renders were pruned.
+  - `library_api_check` and `library_handoff_check` know the rebuilt ads.
+  - The partner README says what changed.
+  - The recipe builder cuts a models line where its list breaks.
+
+Learned:
+  - The library's IMEI swap ran on every card, so a gold ad said "TEXT IMEI". A seller's number
+    belongs to the goods: the IMEI for a phone, the serial for a Mac or a watch, nothing for gold.
+  - A sixty-letter cut made "CARTIER" read "CAR" on 31 recipes. Cut where the list breaks.
+  - The local puppeteer stand-in lacked `$$eval`, `select` and `type`. They were added to it
+    (ignored `node_modules`), so library_handoff_check runs here now. Its one skip is a Python test
+    that needs Pillow.
+
+
+## 2026-11-19 — the census's rebuild folded into pull request 14 (claude/ads-improvement-roadmap-7632c8)
+
+The owner, looking at webuy.ad's hero wall, offer cards and library: "Fix...the designs.. we're back
+to the old bs still", then "abysmal". webuy.ad serves `main`, and none of the rebuild was on it; its
+newest part (claude/xenodochial-mccarthy-7bea6d at a89b25e2: the owner's lines, the library cards,
+offer family and layouts rebuilt on the new looks, iOS lock screens, the audit basket, and the old
+library and offer cards retired with their rebuilt ads in their place) was not even in this pull
+request.
+
+Merged here, after main's newest commit (152 and 153 for main's rules). The code merged on its own;
+the notes clashed where each side had added to the end. The census's rules 146 to 149 became 154 to
+157 (146 is pull request 15's; main took 152 and 153 after finding 138 to 151 in use), and the
+lines the census added that cite them followed. Its open items continue BJ, so they stand before
+main's BL and BM. `render_rebuilt_ads.mjs` names the software WeBuy.AD, as main's naming rule (153)
+asks; the renders already made keep their old tag until drawn again.
+
+Still the owner's, from the critique sent to the census session the same hour: the hero wall's
+choice (best of the best, no theme twice, bright looks like the video ads, few dark grounds), the
+colour system (vibrant and neon pairs and trios, no pattern fills, one multi-colour gradient at
+most), the VR headset recipe, and the library's chips (main categories, a dropdown arrow where a
+category has subcategories). None of this is live until the owner merges into `main`.

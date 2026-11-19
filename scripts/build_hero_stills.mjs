@@ -22,7 +22,10 @@ const SHOP = { number: '(562) 999-4994', zip: '90802' };   // the library cards'
 const picks = (JSON.parse(readFileSync(ROOT + 'assets/hero-picks.json', 'utf8')).picks || []).map(String);
 const house = picks.filter(id => /^r-|^full-/.test(id));
 const index = existsSync(DIR + 'index.json') ? JSON.parse(readFileSync(DIR + 'index.json', 'utf8')) : { items: {} };
-const missing = house.filter(id => !index.items[id] || !existsSync(DIR + id + '.webp'));
+// a recipe pick whose still the library's rebuilt ads already have (scripts/build_recipe_stills.mjs) needs no second one
+const rebuilt = existsSync(ROOT + 'assets/recipe-stills/index.json') ? JSON.parse(readFileSync(ROOT + 'assets/recipe-stills/index.json', 'utf8')).items || {} : {};
+const own = id => !!rebuilt[id] && existsSync(ROOT + rebuilt[id].thumb);
+const missing = house.filter(id => !own(id) && (!index.items[id] || !existsSync(DIR + id + '.webp')));
 
 if (process.argv.includes('--check')) {
   if (missing.length) { console.error(`hero stills missing for ${missing.length} pick${missing.length > 1 ? 's' : ''}: ${missing.join(', ')}; run node scripts/build_hero_stills.mjs`); process.exit(1); }
@@ -43,17 +46,18 @@ await page.evaluate(async S => {
   $('ez-phone').value = S.number; $('ez-website').value = '';
 }, SHOP);
 
-for (const id of house) {
+for (const id of house.filter(id => !own(id))) {
   const got = await page.evaluate(async id => {
     const M = await import('/motion/fullad.js'), FS = window.FullAdStudio, FA = FS.state;
     let meta;
     if (id.startsWith('r-')) {
       const r = await FS.useRecipe(id); if (!r) return { error: 'no recipe ' + id };
-      FA.seed = 1; FA.biz = '';
-      meta = { kind: 'recipe', cat: r.cat, line: r.subject, seed: 1, name: r.label || id, from: r.from || '' };
+      FA.biz = '';   // on its own seed (useRecipe sets it: the rebuild, 2026-11-18)
+      meta = { kind: 'recipe', cat: r.cat, line: r.subject, seed: FA.seed, name: r.label || id, from: r.from || '' };
     } else {
       const m = /^full-(.+?)(?:-v(\d+))?$/.exec(id), key = m && m[1], seed = m && m[2] ? +m[2] : 1;
-      const S = FS.lines().find(s => s.key === key); if (!S) return { error: 'no line ' + key };
+      // a pick of a line that folded into another (the owner's lines, 2026-11-18) is drawn on that line
+      const S = FS.lines().find(s => s.key === ((FS.aliases ? FS.aliases() : {})[key] || key)); if (!S) return { error: 'no line ' + key };
       if (currentCat !== S.cat) setCategory(S.cat);
       FA.line[S.cat] = S.key; FA.recipe[S.cat] = ''; FA.seed = seed; FA.pair = ''; FA.voice = ''; FA.words = {}; FA.set = {}; FA.biz = '';
       meta = { kind: 'full', cat: S.cat, line: S.key, seed, name: S.label + (seed > 1 ? ` (full ad, look ${seed})` : ' (full ad)') };

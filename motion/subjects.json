@@ -1,11 +1,18 @@
 {
- "_doc": "What a full ad can be about, made from offer-library.js LINES by scripts/build_full_subjects.mjs, and each line's pool (what a full ad nobody picked the picture for draws from, by its seed) from spec/product-demand.json, assets/devices.json and assets/vehicles.json. Do not edit by hand: change those and run the script.",
+ "_doc": "What a full ad can be about, made from offer-library.js LINES by scripts/build_full_subjects.mjs, and each line's pool (what a full ad nobody picked the picture for draws from, by its seed) from spec/product-demand.json, assets/devices.json and assets/vehicles.json. Do not edit by hand: change those and run the script. aliases: a line folded into another (the owner's lines, 2026-11-18), which a look that picked it now draws.",
+ "aliases": {
+  "tablet": "android",
+  "switch": "pchandheld",
+  "controller": "console",
+  "gamelaptop": "gamingpc",
+  "vr": "console"
+ },
  "subjects": [
   {
    "key": "iphone",
    "cat": "phones",
    "group": "Phones and Apple",
-   "label": "iPhone",
+   "label": "iPhones",
    "models": "iPhone 11 and newer, every size",
    "heads": [
     "WE BUY iPHONES",
@@ -57,7 +64,7 @@
    "key": "ipad",
    "cat": "phones",
    "group": "Phones and Apple",
-   "label": "iPad",
+   "label": "iPads",
    "models": "iPad, iPad mini, iPad Air and iPad Pro",
    "heads": [
     "WE BUY iPADS",
@@ -471,7 +478,7 @@
    "key": "mac",
    "cat": "phones",
    "group": "Phones and Apple",
-   "label": "MacBook",
+   "label": "MacBooks",
    "models": "MacBook Air and MacBook Pro, M1 and newer",
    "heads": [
     "WE BUY MACBOOKS",
@@ -498,6 +505,17 @@
       "k": 1
      }
     ]
+   ],
+   "variants": [
+    {
+     "match": "macbook-neo",
+     "heads": [
+      "SELL YOUR MACBOOK NEO",
+      "WE BUY MACBOOK NEO",
+      "CASH FOR YOUR MACBOOK NEO"
+     ],
+     "models": "MacBook Neo, every colour"
+    }
    ],
    "pool": [
     {
@@ -679,27 +697,6 @@
     {
      "set": [
       {
-       "file": "qs-macbook-neo-13--blush",
-       "k": 1
-      },
-      {
-       "file": "qs-macbook-neo-13--citrus",
-       "k": 0.92
-      },
-      {
-       "file": "qs-macbook-neo-13--indigo",
-       "k": 0.92
-      },
-      {
-       "file": "qs-macbook-neo-13--silver",
-       "k": 0.92
-      }
-     ],
-     "w": 2.4
-    },
-    {
-     "set": [
-      {
        "file": "qs-macbook-pro-16--silver",
        "k": 1
       },
@@ -784,42 +781,6 @@
       }
      ],
      "w": 1.2
-    },
-    {
-     "set": [
-      {
-       "file": "qs-macbook-neo-13--blush",
-       "k": 1
-      }
-     ],
-     "w": 0.9
-    },
-    {
-     "set": [
-      {
-       "file": "qs-macbook-neo-13--citrus",
-       "k": 1
-      }
-     ],
-     "w": 0.9
-    },
-    {
-     "set": [
-      {
-       "file": "qs-macbook-neo-13--indigo",
-       "k": 1
-      }
-     ],
-     "w": 0.9
-    },
-    {
-     "set": [
-      {
-       "file": "qs-macbook-neo-13--silver",
-       "k": 1
-      }
-     ],
-     "w": 0.9
     },
     {
      "set": [
@@ -964,188 +925,1471 @@
     {
      "set": [
       {
-       "file": "qs-imac-24-m4--blue",
+       "file": "qs-macbook-neo-13--blush",
        "k": 1
       },
       {
-       "file": "qs-imac-24-m4--green",
+       "file": "qs-macbook-neo-13--citrus",
        "k": 0.92
       },
       {
-       "file": "qs-imac-24-m4--orange",
+       "file": "qs-macbook-neo-13--indigo",
        "k": 0.92
       },
       {
-       "file": "qs-imac-24-m4--pink",
-       "k": 0.92
-      },
-      {
-       "file": "qs-imac-24-m4--purple",
-       "k": 0.92
-      },
-      {
-       "file": "qs-imac-24-m4--silver",
-       "k": 0.92
-      },
-      {
-       "file": "qs-imac-24-m4--yellow",
+       "file": "qs-macbook-neo-13--silver",
        "k": 0.92
       }
      ],
-     "w": 1.6
+     "w": 1.4
     },
     {
      "set": [
       {
-       "file": "qs-imac-24-m4--blue",
+       "file": "qs-macbook-neo-13--blush",
        "k": 1
       }
      ],
-     "w": 0.343
+     "w": 0.525
     },
     {
      "set": [
       {
-       "file": "qs-imac-24-m4--green",
+       "file": "qs-macbook-neo-13--citrus",
        "k": 1
       }
      ],
-     "w": 0.343
+     "w": 0.525
     },
     {
      "set": [
       {
-       "file": "qs-imac-24-m4--orange",
+       "file": "qs-macbook-neo-13--indigo",
        "k": 1
       }
      ],
-     "w": 0.343
+     "w": 0.525
     },
     {
      "set": [
       {
-       "file": "qs-imac-24-m4--pink",
+       "file": "qs-macbook-neo-13--silver",
        "k": 1
       }
      ],
-     "w": 0.343
-    },
-    {
-     "set": [
-      {
-       "file": "qs-imac-24-m4--purple",
-       "k": 1
-      }
-     ],
-     "w": 0.343
-    },
-    {
-     "set": [
-      {
-       "file": "qs-imac-24-m4--silver",
-       "k": 1
-      }
-     ],
-     "w": 0.343
-    },
-    {
-     "set": [
-      {
-       "file": "qs-imac-24-m4--yellow",
-       "k": 1
-      }
-     ],
-     "w": 0.343
-    },
-    {
-     "set": [
-      {
-       "file": "qs-imac-24-m1--blue",
-       "k": 1
-      },
-      {
-       "file": "qs-imac-24-m1--green",
-       "k": 0.92
-      },
-      {
-       "file": "qs-imac-24-m1--orange",
-       "k": 0.92
-      },
-      {
-       "file": "qs-imac-24-m1--pink",
-       "k": 0.92
-      },
-      {
-       "file": "qs-imac-24-m1--purple",
-       "k": 0.92
-      },
-      {
-       "file": "qs-imac-24-m1--yellow",
-       "k": 0.92
-      }
-     ],
-     "w": 0.8
-    },
-    {
-     "set": [
-      {
-       "file": "qs-imac-24-m1--blue",
-       "k": 1
-      }
-     ],
-     "w": 0.2
-    },
-    {
-     "set": [
-      {
-       "file": "qs-imac-24-m1--green",
-       "k": 1
-      }
-     ],
-     "w": 0.2
-    },
-    {
-     "set": [
-      {
-       "file": "qs-imac-24-m1--orange",
-       "k": 1
-      }
-     ],
-     "w": 0.2
-    },
-    {
-     "set": [
-      {
-       "file": "qs-imac-24-m1--pink",
-       "k": 1
-      }
-     ],
-     "w": 0.2
-    },
-    {
-     "set": [
-      {
-       "file": "qs-imac-24-m1--purple",
-       "k": 1
-      }
-     ],
-     "w": 0.2
-    },
-    {
-     "set": [
-      {
-       "file": "qs-imac-24-m1--yellow",
-       "k": 1
-      }
-     ],
-     "w": 0.2
+     "w": 0.525
     }
    ]
   },
   {
-   "key": "watch",
+   "key": "macdesk",
    "cat": "phones",
    "group": "Phones and Apple",
+   "label": "Macs",
+   "models": "iMac, Mac mini and Mac Studio, M1 and newer",
+   "heads": [
+    "WE BUY MACS",
+    "CASH FOR MACS",
+    "SELL YOUR MAC"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "qs-imac-24-m4--blue",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "photo-mac-studio-angle",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "qs-imac-24-m4--silver",
+      "k": 1
+     },
+     {
+      "file": "qs-imac-24-m4--purple",
+      "k": 0.96
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--blue",
+       "k": 1
+      }
+     ],
+     "w": 3.857
+    },
+    {
+     "set": [
+      {
+       "file": "photo-mac-studio-angle",
+       "k": 1
+      }
+     ],
+     "w": 11
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--silver",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m4--purple",
+       "k": 0.96
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--blue",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m4--green",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m4--orange",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m4--pink",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m4--purple",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m4--silver",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m4--yellow",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--green",
+       "k": 1
+      }
+     ],
+     "w": 0.857
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--orange",
+       "k": 1
+      }
+     ],
+     "w": 0.857
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--pink",
+       "k": 1
+      }
+     ],
+     "w": 0.857
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--purple",
+       "k": 1
+      }
+     ],
+     "w": 0.857
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--silver",
+       "k": 1
+      }
+     ],
+     "w": 0.857
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--yellow",
+       "k": 1
+      }
+     ],
+     "w": 0.857
+    },
+    {
+     "set": [
+      {
+       "file": "qs-sheet-macstudio-2025",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m1--blue",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m1--green",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m1--orange",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m1--pink",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m1--purple",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m1--yellow",
+       "k": 0.92
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m1--blue",
+       "k": 1
+      }
+     ],
+     "w": 0.5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m1--green",
+       "k": 1
+      }
+     ],
+     "w": 0.5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m1--orange",
+       "k": 1
+      }
+     ],
+     "w": 0.5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m1--pink",
+       "k": 1
+      }
+     ],
+     "w": 0.5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m1--purple",
+       "k": 1
+      }
+     ],
+     "w": 0.5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m1--yellow",
+       "k": 1
+      }
+     ],
+     "w": 0.5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--blue",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m4--pink",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--blue",
+       "k": 1
+      },
+      {
+       "file": "photo-mac-studio-angle",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-family-imac--blue",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-device-imac",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--green",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m4--yellow",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m4--orange",
+       "k": 0.92
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--purple",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m4--silver",
+       "k": 0.92
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-sheet-macstudio-2025",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m4--silver",
+       "k": 0.92
+      }
+     ],
+     "w": 3
+    }
+   ]
+  },
+  {
+   "key": "android",
+   "cat": "phones",
+   "group": "Phones and Apple",
+   "label": "Androids (all brands)",
+   "models": "Samsung, Pixel, Motorola, OnePlus and more",
+   "heads": [
+    "WE BUY ANDROIDS",
+    "CASH FOR ANDROIDS",
+    "SELL YOUR ANDROID"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "sam-s24-ultra-back",
+      "k": 1
+     },
+     {
+      "file": "pix-9-back-obsidian",
+      "k": 0.92
+     }
+    ],
+    [
+     {
+      "file": "android-trio",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "sam-fold-half",
+      "k": 1
+     },
+     {
+      "file": "pix-9-back-green",
+      "k": 0.9
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "sam-s24-ultra-back",
+       "k": 1
+      },
+      {
+       "file": "pix-9-back-obsidian",
+       "k": 0.92
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "android-trio",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "sam-fold-half",
+       "k": 1
+      },
+      {
+       "file": "pix-9-back-green",
+       "k": 0.9
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s24-ultra-back",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "pix-9-back-obsidian",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s24-ultra-front",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "pix-9-back-green",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "sam-fold-open-flat",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s24-back-violet",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "sam-flip-open",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "pix-fold-open",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "pix-9-front",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "pix-trio-lineup",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s23-back-green",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "android-pair",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "pix-tablet-back",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "sam-flip-closed",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "sam-fold-half",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
+   ]
+  },
+  {
+   "key": "pixel",
+   "cat": "phones",
+   "group": "Phones and Apple",
+   "label": "Pixel",
+   "models": "Pixel 7 and newer, Pro too",
+   "heads": [
+    "WE BUY PIXEL PHONES",
+    "CASH FOR PIXEL PHONES",
+    "SELL YOUR PIXEL"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "pix-9-back-green",
+      "k": 1
+     },
+     {
+      "file": "pix-9-back-obsidian",
+      "k": 0.92
+     }
+    ],
+    [
+     {
+      "file": "pix-trio-lineup",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "pix-9-back-green",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "pix-9-back-green",
+       "k": 1
+      },
+      {
+       "file": "pix-9-back-obsidian",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "pix-trio-lineup",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "pix-9-back-green",
+       "k": 1
+      }
+     ],
+     "w": 12
+    },
+    {
+     "set": [
+      {
+       "file": "pix-9-back-obsidian",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "pix-9-front",
+       "k": 1
+      }
+     ],
+     "w": 6
+    }
+   ]
+  },
+  {
+   "key": "galaxy",
+   "cat": "phones",
+   "group": "Phones and Apple",
+   "label": "Samsung",
+   "models": "Galaxy S21 and newer, Ultra too",
+   "heads": [
+    "WE BUY SAMSUNG PHONES",
+    "CASH FOR SAMSUNG PHONES",
+    "SELL YOUR SAMSUNG"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "sam-s24-ultra-back",
+      "k": 1
+     },
+     {
+      "file": "sam-s24-ultra-front",
+      "k": 0.88
+     }
+    ],
+    [
+     {
+      "file": "samsung-galaxy-back",
+      "k": 1
+     },
+     {
+      "file": "sam-s24-ultra-back",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "sam-s24-ultra-back",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "sam-s24-ultra-back",
+       "k": 1
+      },
+      {
+       "file": "sam-s24-ultra-front",
+       "k": 0.88
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "samsung-galaxy-back",
+       "k": 1
+      },
+      {
+       "file": "sam-s24-ultra-back",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s24-ultra-back",
+       "k": 1
+      }
+     ],
+     "w": 14
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s24-ultra-front",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s24-back-violet",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s23-back-green",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "samsung-galaxy-back",
+       "k": 1
+      }
+     ],
+     "w": 3
+    }
+   ]
+  },
+  {
+   "key": "foldable",
+   "cat": "phones",
+   "group": "Phones and Apple",
+   "label": "Foldables",
+   "models": "Galaxy Z Fold, Z Flip and Pixel Fold",
+   "heads": [
+    "WE BUY FOLDABLES",
+    "CASH FOR FOLDABLES",
+    "SELL YOUR FOLD OR FLIP"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "sam-fold-half",
+      "k": 1
+     },
+     {
+      "file": "sam-flip-open",
+      "k": 0.9
+     }
+    ],
+    [
+     {
+      "file": "sam-fold-open-flat",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "pix-fold-open",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "sam-fold-half",
+       "k": 1
+      },
+      {
+       "file": "sam-flip-open",
+       "k": 0.9
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "sam-fold-open-flat",
+       "k": 1
+      }
+     ],
+     "w": 13
+    },
+    {
+     "set": [
+      {
+       "file": "pix-fold-open",
+       "k": 1
+      }
+     ],
+     "w": 11
+    },
+    {
+     "set": [
+      {
+       "file": "sam-fold-half",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "sam-flip-open",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "samsung-fold-open",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "sam-flip-closed",
+       "k": 1
+      }
+     ],
+     "w": 5
+    }
+   ]
+  },
+  {
+   "key": "console",
+   "cat": "gaming",
+   "group": "Gaming",
+   "label": "Consoles",
+   "models": "PS5, Xbox, Switch and controllers",
+   "heads": [
+    "WE BUY CONSOLES",
+    "CASH FOR CONSOLES",
+    "SELL YOUR CONSOLE"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "game-console-pair",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-gaming-ps5-white",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-xbox-series-x",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch2-docked",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch-oled-docked",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch-oled-set",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-dualsense-white",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-dualsense-black",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch-dock",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
+   ]
+  },
+  {
+   "key": "gamingpc",
+   "cat": "gaming",
+   "group": "Gaming",
+   "label": "Computers",
+   "models": "Desktops and laptops, RTX 30 series and newer",
+   "heads": [
+    "WE BUY GAMING COMPUTERS",
+    "CASH FOR GAMING COMPUTERS",
+    "SELL YOUR GAMING PC"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "photo-gaming-pc-tower",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-gaming-pc-tower",
+       "k": 1
+      }
+     ],
+     "w": 13
+    }
+   ]
+  },
+  {
+   "key": "pchandheld",
+   "cat": "gaming",
+   "group": "Gaming",
+   "label": "Handhelds",
+   "models": "Steam Deck, ROG Ally, Legion Go and Switch",
+   "heads": [
+    "WE BUY GAMING HANDHELDS",
+    "CASH FOR GAMING HANDHELDS",
+    "SELL YOUR HANDHELD"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "photo-gaming-steam-deck-dark",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-gaming-steam-deck-dark",
+       "k": 1
+      }
+     ],
+     "w": 13
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch2",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-steam-deck",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch-oled",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch2-joycon",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
+   ]
+  },
+  {
+   "key": "headphones",
+   "cat": "audio",
+   "group": "Audio",
+   "label": "Headphones",
+   "models": "Bose, Sony, Sennheiser, Beats and AirPods Max",
+   "heads": [
+    "WE BUY HEADPHONES",
+    "CASH FOR HEADPHONES",
+    "SELL YOUR HEADPHONES"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "buds-overear-headphones",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-max-front",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-max-silver",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-max-blue",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-max-grey",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-max-case",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-device-airpods-max",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
+   ]
+  },
+  {
+   "key": "earbuds",
+   "cat": "audio",
+   "group": "Audio",
+   "label": "Earbuds",
+   "models": "AirPods Pro, Galaxy Buds and Pixel Buds",
+   "heads": [
+    "WE BUY EARBUDS",
+    "CASH FOR EARBUDS",
+    "SELL YOUR EARBUDS"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "airpods-case-open",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "buds-pair-loose",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "pix-buds-case",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-pro",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-pro-buds",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-galaxy-buds-cases",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-beats-fit-pro-case",
+       "k": 1
+      }
+     ],
+     "w": 4
+    }
+   ]
+  },
+  {
+   "key": "headset",
+   "cat": "audio",
+   "group": "Audio",
+   "label": "Gaming headsets",
+   "models": "Astro A50 X, Turtle Beach Stealth, SteelSeries Arctis",
+   "heads": [
+    "WE BUY GAMING HEADSETS",
+    "CASH FOR GAMING HEADSETS",
+    "SELL YOUR HEADSET"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [],
+   "pool": []
+  },
+  {
+   "key": "speaker",
+   "cat": "audio",
+   "group": "Audio",
+   "label": "Speakers",
+   "models": "Portable Bluetooth speakers",
+   "heads": [
+    "WE BUY SPEAKERS",
+    "CASH FOR SPEAKERS",
+    "SELL YOUR SPEAKER"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "speaker-portable",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": []
+  },
+  {
+   "key": "monitor",
+   "cat": "computers",
+   "group": "Computers",
+   "label": "Monitors",
+   "models": "Gaming and office monitors, 24 inch and up",
+   "heads": [
+    "WE BUY MONITORS",
+    "CASH FOR MONITORS",
+    "SELL YOUR MONITOR"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "smart-tv-stand",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "tv-flatscreen",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": []
+  },
+  {
+   "key": "laptop",
+   "cat": "computers",
+   "group": "Computers",
+   "label": "Windows laptops",
+   "models": "Windows laptops, recent models",
+   "heads": [
+    "WE BUY LAPTOPS",
+    "CASH FOR LAPTOPS",
+    "SELL YOUR LAPTOP"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "laptop-windows-open",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": []
+  },
+  {
+   "key": "ssd",
+   "cat": "computers",
+   "group": "Computers",
+   "label": "SSDs",
+   "models": "NVMe and SATA, 1TB and up, sealed or used",
+   "heads": [
+    "WE BUY SEALED SSDS",
+    "CASH FOR SEALED SSDS",
+    "SELL YOUR SEALED SSDS"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "photo-ssd-samsung-980-pro",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "photo-ssd-wd-black-sn850x",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-ssd-samsung-980-pro",
+       "k": 1
+      }
+     ],
+     "w": 13
+    },
+    {
+     "set": [
+      {
+       "file": "photo-ssd-wd-black-sn850x",
+       "k": 1
+      }
+     ],
+     "w": 12
+    }
+   ]
+  },
+  {
+   "key": "minipc",
+   "cat": "computers",
+   "group": "Computers",
+   "label": "Mini PCs",
+   "models": "Mac mini, Intel NUC, Beelink and Minisforum",
+   "heads": [
+    "WE BUY MINI PCS",
+    "CASH FOR MINI PCS",
+    "SELL YOUR MINI PC"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "photo-minipc-intel-nuc8",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "photo-minipc-minisforum-n40",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-minipc-intel-nuc8",
+       "k": 1
+      }
+     ],
+     "w": 12
+    },
+    {
+     "set": [
+      {
+       "file": "photo-minipc-minisforum-n40",
+       "k": 1
+      }
+     ],
+     "w": 11
+    }
+   ]
+  },
+  {
+   "key": "chromebook",
+   "cat": "computers",
+   "group": "Computers",
+   "label": "Chromebooks, sealed",
+   "models": "Sealed Chromebooks, new in the box",
+   "heads": [
+    "WE BUY SEALED CHROMEBOOKS",
+    "CASH FOR SEALED CHROMEBOOKS",
+    "SELL YOUR SEALED CHROMEBOOK"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [],
+   "pool": []
+  },
+  {
+   "key": "watch",
+   "cat": "wearables",
+   "group": "Wearables",
    "label": "Apple Watch",
    "models": "Apple Watch Series, SE and Ultra",
    "heads": [
@@ -1503,995 +2747,26 @@
    ]
   },
   {
-   "key": "galaxy",
-   "cat": "phones",
-   "group": "Phones and Apple",
-   "label": "Samsung Galaxy",
-   "models": "Galaxy S21 and newer, Ultra too",
+   "key": "smartwatch",
+   "cat": "wearables",
+   "group": "Wearables",
+   "label": "Smartwatches",
+   "models": "Galaxy Watch, Pixel Watch and more",
    "heads": [
-    "WE BUY GALAXY PHONES",
-    "CASH FOR GALAXY PHONES",
-    "SELL YOUR GALAXY"
+    "WE BUY SMARTWATCHES",
+    "CASH FOR SMARTWATCHES",
+    "SELL YOUR SMARTWATCH"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
      {
-      "file": "sam-s24-ultra-back",
-      "k": 1
-     },
-     {
-      "file": "sam-s24-ultra-front",
-      "k": 0.88
-     }
-    ],
-    [
-     {
-      "file": "samsung-galaxy-back",
-      "k": 1
-     },
-     {
-      "file": "sam-s24-ultra-back",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "sam-s24-ultra-back",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "sam-s24-ultra-back",
-       "k": 1
-      },
-      {
-       "file": "sam-s24-ultra-front",
-       "k": 0.88
-      }
-     ],
-     "w": 4
-    },
-    {
-     "set": [
-      {
-       "file": "samsung-galaxy-back",
-       "k": 1
-      },
-      {
-       "file": "sam-s24-ultra-back",
-       "k": 1
-      }
-     ],
-     "w": 4
-    },
-    {
-     "set": [
-      {
-       "file": "sam-s24-ultra-back",
-       "k": 1
-      }
-     ],
-     "w": 14
-    },
-    {
-     "set": [
-      {
-       "file": "sam-s24-ultra-front",
-       "k": 1
-      }
-     ],
-     "w": 8
-    },
-    {
-     "set": [
-      {
-       "file": "sam-s24-back-violet",
-       "k": 1
-      }
-     ],
-     "w": 6
-    },
-    {
-     "set": [
-      {
-       "file": "sam-s23-back-green",
-       "k": 1
-      }
-     ],
-     "w": 4
-    },
-    {
-     "set": [
-      {
-       "file": "samsung-galaxy-back",
-       "k": 1
-      }
-     ],
-     "w": 3
-    },
-    {
-     "set": [
-      {
-       "file": "android-trio",
-       "k": 1
-      }
-     ],
-     "w": 3
-    }
-   ]
-  },
-  {
-   "key": "pixel",
-   "cat": "phones",
-   "group": "Phones and Apple",
-   "label": "Google Pixel",
-   "models": "Pixel 7 and newer, Pro too",
-   "heads": [
-    "WE BUY PIXEL PHONES",
-    "CASH FOR PIXEL PHONES",
-    "SELL YOUR PIXEL"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "pix-9-back-green",
-      "k": 1
-     },
-     {
-      "file": "pix-9-back-obsidian",
-      "k": 0.92
-     }
-    ],
-    [
-     {
-      "file": "pix-trio-lineup",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "pix-9-back-green",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "pix-9-back-green",
-       "k": 1
-      },
-      {
-       "file": "pix-9-back-obsidian",
-       "k": 0.92
-      }
-     ],
-     "w": 4
-    },
-    {
-     "set": [
-      {
-       "file": "pix-trio-lineup",
-       "k": 1
-      }
-     ],
-     "w": 10
-    },
-    {
-     "set": [
-      {
-       "file": "pix-9-back-green",
-       "k": 1
-      }
-     ],
-     "w": 12
-    },
-    {
-     "set": [
-      {
-       "file": "pix-9-back-obsidian",
-       "k": 1
-      }
-     ],
-     "w": 10
-    },
-    {
-     "set": [
-      {
-       "file": "pix-9-front",
-       "k": 1
-      }
-     ],
-     "w": 6
-    }
-   ]
-  },
-  {
-   "key": "foldable",
-   "cat": "phones",
-   "group": "Phones and Apple",
-   "label": "Foldables",
-   "models": "Galaxy Z Fold, Z Flip and Pixel Fold",
-   "heads": [
-    "WE BUY FOLDABLES",
-    "CASH FOR FOLDABLES",
-    "SELL YOUR FOLD OR FLIP"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "sam-fold-half",
-      "k": 1
-     },
-     {
-      "file": "sam-flip-open",
-      "k": 0.9
-     }
-    ],
-    [
-     {
-      "file": "sam-fold-open-flat",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "pix-fold-open",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "sam-fold-half",
-       "k": 1
-      },
-      {
-       "file": "sam-flip-open",
-       "k": 0.9
-      }
-     ],
-     "w": 4
-    },
-    {
-     "set": [
-      {
-       "file": "sam-fold-open-flat",
-       "k": 1
-      }
-     ],
-     "w": 13
-    },
-    {
-     "set": [
-      {
-       "file": "pix-fold-open",
-       "k": 1
-      }
-     ],
-     "w": 11
-    },
-    {
-     "set": [
-      {
-       "file": "sam-fold-half",
-       "k": 1
-      }
-     ],
-     "w": 8
-    },
-    {
-     "set": [
-      {
-       "file": "sam-flip-open",
-       "k": 1
-      }
-     ],
-     "w": 7
-    },
-    {
-     "set": [
-      {
-       "file": "samsung-fold-open",
-       "k": 1
-      }
-     ],
-     "w": 6
-    },
-    {
-     "set": [
-      {
-       "file": "sam-flip-closed",
-       "k": 1
-      }
-     ],
-     "w": 5
-    }
-   ]
-  },
-  {
-   "key": "tablet",
-   "cat": "phones",
-   "group": "Phones and Apple",
-   "label": "Android tablets",
-   "models": "Galaxy Tab and Pixel Tablet",
-   "heads": [
-    "WE BUY TABLETS",
-    "CASH FOR TABLETS",
-    "SELL YOUR TABLET"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "pix-tablet-back",
+      "file": "sam-watch-pair",
       "k": 1
      }
     ]
    ],
    "pool": []
-  },
-  {
-   "key": "console",
-   "cat": "gaming",
-   "group": "Gaming",
-   "label": "Consoles",
-   "models": "PS5, PS5 Pro, Xbox Series X and S",
-   "heads": [
-    "WE BUY CONSOLES",
-    "CASH FOR CONSOLES",
-    "SELL YOUR CONSOLE"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "game-console-pair",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "photo-gaming-ps5-white",
-       "k": 1
-      }
-     ],
-     "w": 10
-    },
-    {
-     "set": [
-      {
-       "file": "photo-gaming-xbox-series-x",
-       "k": 1
-      }
-     ],
-     "w": 8
-    }
-   ]
-  },
-  {
-   "key": "switch",
-   "cat": "gaming",
-   "group": "Gaming",
-   "label": "Nintendo Switch",
-   "models": "Switch, Switch OLED and Switch 2",
-   "heads": [
-    "WE BUY NINTENDO SWITCH",
-    "CASH FOR NINTENDO SWITCH",
-    "SELL YOUR SWITCH"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "console-handheld-pair",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "gaming-handheld",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "photo-gaming-switch2",
-       "k": 1
-      }
-     ],
-     "w": 10
-    },
-    {
-     "set": [
-      {
-       "file": "photo-gaming-switch2-docked",
-       "k": 1
-      }
-     ],
-     "w": 9
-    },
-    {
-     "set": [
-      {
-       "file": "photo-gaming-switch-oled",
-       "k": 1
-      }
-     ],
-     "w": 7
-    },
-    {
-     "set": [
-      {
-       "file": "photo-gaming-switch-oled-docked",
-       "k": 1
-      }
-     ],
-     "w": 6
-    },
-    {
-     "set": [
-      {
-       "file": "photo-gaming-switch-oled-set",
-       "k": 1
-      }
-     ],
-     "w": 5
-    },
-    {
-     "set": [
-      {
-       "file": "photo-gaming-switch2-joycon",
-       "k": 1
-      }
-     ],
-     "w": 4
-    },
-    {
-     "set": [
-      {
-       "file": "photo-gaming-switch-dock",
-       "k": 1
-      }
-     ],
-     "w": 3
-    }
-   ]
-  },
-  {
-   "key": "controller",
-   "cat": "gaming",
-   "group": "Gaming",
-   "label": "Controllers",
-   "models": "DualSense, DualSense Edge and Xbox controllers",
-   "heads": [
-    "WE BUY CONTROLLERS",
-    "CASH FOR CONTROLLERS",
-    "SELL YOUR CONTROLLERS"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "controller-pair",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "photo-gaming-dualsense-white",
-       "k": 1
-      }
-     ],
-     "w": 9
-    },
-    {
-     "set": [
-      {
-       "file": "photo-gaming-dualsense-black",
-       "k": 1
-      }
-     ],
-     "w": 9
-    }
-   ]
-  },
-  {
-   "key": "gamelaptop",
-   "cat": "gaming",
-   "group": "Gaming",
-   "label": "Gaming laptops",
-   "models": "Gaming laptops, RTX 30 series and newer",
-   "heads": [
-    "WE BUY GAMING LAPTOPS",
-    "CASH FOR GAMING LAPTOPS",
-    "SELL YOUR GAMING LAPTOP"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "laptop-gaming-open",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": []
-  },
-  {
-   "key": "vr",
-   "cat": "gaming",
-   "group": "Gaming",
-   "label": "VR headsets",
-   "models": "Meta Quest 3, Quest 3S and Quest 2",
-   "heads": [
-    "WE BUY VR HEADSETS",
-    "CASH FOR VR HEADSETS",
-    "SELL YOUR VR HEADSET"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "vr-headset",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": []
-  },
-  {
-   "key": "pchandheld",
-   "cat": "gaming",
-   "group": "Gaming",
-   "label": "PC handhelds",
-   "models": "Steam Deck, ROG Ally, Legion Go and MSI Claw",
-   "heads": [
-    "WE BUY PC HANDHELDS",
-    "CASH FOR PC HANDHELDS",
-    "SELL YOUR HANDHELD"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "photo-gaming-steam-deck-dark",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "photo-gaming-steam-deck-dark",
-       "k": 1
-      }
-     ],
-     "w": 13
-    }
-   ]
-  },
-  {
-   "key": "gamingpc",
-   "cat": "gaming",
-   "group": "Gaming",
-   "label": "Gaming PCs",
-   "models": "Towers with an RTX 30 series card or newer",
-   "heads": [
-    "WE BUY GAMING PCS",
-    "CASH FOR GAMING PCS",
-    "SELL YOUR GAMING PC"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "photo-gaming-pc-tower",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "photo-gaming-pc-tower",
-       "k": 1
-      }
-     ],
-     "w": 13
-    }
-   ]
-  },
-  {
-   "key": "headphones",
-   "cat": "audio",
-   "group": "Audio",
-   "label": "Headphones",
-   "models": "Bose, Sony, Sennheiser, Beats and AirPods Max",
-   "heads": [
-    "WE BUY HEADPHONES",
-    "CASH FOR HEADPHONES",
-    "SELL YOUR HEADPHONES"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "buds-overear-headphones",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "photo-audio-airpods-max-front",
-       "k": 1
-      }
-     ],
-     "w": 9
-    },
-    {
-     "set": [
-      {
-       "file": "photo-audio-airpods-max-silver",
-       "k": 1
-      }
-     ],
-     "w": 8
-    },
-    {
-     "set": [
-      {
-       "file": "photo-audio-airpods-max-blue",
-       "k": 1
-      }
-     ],
-     "w": 8
-    },
-    {
-     "set": [
-      {
-       "file": "photo-audio-airpods-max-grey",
-       "k": 1
-      }
-     ],
-     "w": 6
-    },
-    {
-     "set": [
-      {
-       "file": "photo-audio-airpods-max-case",
-       "k": 1
-      }
-     ],
-     "w": 4
-    },
-    {
-     "set": [
-      {
-       "file": "qs-device-airpods-max",
-       "k": 1
-      }
-     ],
-     "w": 2
-    }
-   ]
-  },
-  {
-   "key": "earbuds",
-   "cat": "audio",
-   "group": "Audio",
-   "label": "Earbuds",
-   "models": "AirPods Pro, Galaxy Buds and Pixel Buds",
-   "heads": [
-    "WE BUY EARBUDS",
-    "CASH FOR EARBUDS",
-    "SELL YOUR EARBUDS"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "airpods-case-open",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "buds-pair-loose",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "pix-buds-case",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "photo-audio-airpods-pro",
-       "k": 1
-      }
-     ],
-     "w": 10
-    },
-    {
-     "set": [
-      {
-       "file": "photo-audio-airpods-pro-buds",
-       "k": 1
-      }
-     ],
-     "w": 6
-    },
-    {
-     "set": [
-      {
-       "file": "photo-audio-airpods",
-       "k": 1
-      }
-     ],
-     "w": 6
-    },
-    {
-     "set": [
-      {
-       "file": "photo-audio-galaxy-buds-cases",
-       "k": 1
-      }
-     ],
-     "w": 6
-    },
-    {
-     "set": [
-      {
-       "file": "photo-audio-beats-fit-pro-case",
-       "k": 1
-      }
-     ],
-     "w": 4
-    }
-   ]
-  },
-  {
-   "key": "headset",
-   "cat": "audio",
-   "group": "Audio",
-   "label": "Gaming headsets",
-   "models": "Astro A50 X, Turtle Beach Stealth, SteelSeries Arctis",
-   "heads": [
-    "WE BUY GAMING HEADSETS",
-    "CASH FOR GAMING HEADSETS",
-    "SELL YOUR HEADSET"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [],
-   "pool": []
-  },
-  {
-   "key": "speaker",
-   "cat": "audio",
-   "group": "Audio",
-   "label": "Speakers",
-   "models": "Portable Bluetooth speakers",
-   "heads": [
-    "WE BUY SPEAKERS",
-    "CASH FOR SPEAKERS",
-    "SELL YOUR SPEAKER"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "speaker-portable",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": []
-  },
-  {
-   "key": "monitor",
-   "cat": "computers",
-   "group": "Computers",
-   "label": "Monitors",
-   "models": "Gaming and office monitors, 24 inch and up",
-   "heads": [
-    "WE BUY MONITORS",
-    "CASH FOR MONITORS",
-    "SELL YOUR MONITOR"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "smart-tv-stand",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "tv-flatscreen",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": []
-  },
-  {
-   "key": "laptop",
-   "cat": "computers",
-   "group": "Computers",
-   "label": "Windows laptops",
-   "models": "Windows laptops, recent models",
-   "heads": [
-    "WE BUY LAPTOPS",
-    "CASH FOR LAPTOPS",
-    "SELL YOUR LAPTOP"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "laptop-windows-open",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": []
-  },
-  {
-   "key": "ssd",
-   "cat": "computers",
-   "group": "Computers",
-   "label": "SSDs",
-   "models": "NVMe and SATA, 1TB and up, sealed or used",
-   "heads": [
-    "WE BUY SEALED SSDS",
-    "CASH FOR SEALED SSDS",
-    "SELL YOUR SEALED SSDS"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "photo-ssd-samsung-980-pro",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "photo-ssd-wd-black-sn850x",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "photo-ssd-samsung-980-pro",
-       "k": 1
-      }
-     ],
-     "w": 13
-    },
-    {
-     "set": [
-      {
-       "file": "photo-ssd-wd-black-sn850x",
-       "k": 1
-      }
-     ],
-     "w": 12
-    }
-   ]
-  },
-  {
-   "key": "minipc",
-   "cat": "computers",
-   "group": "Computers",
-   "label": "Mini PCs",
-   "models": "Mac mini, Intel NUC, Beelink and Minisforum",
-   "heads": [
-    "WE BUY MINI PCS",
-    "CASH FOR MINI PCS",
-    "SELL YOUR MINI PC"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "photo-minipc-intel-nuc8",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "photo-minipc-minisforum-n40",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "photo-minipc-intel-nuc8",
-       "k": 1
-      }
-     ],
-     "w": 12
-    },
-    {
-     "set": [
-      {
-       "file": "photo-minipc-minisforum-n40",
-       "k": 1
-      }
-     ],
-     "w": 11
-    }
-   ]
-  },
-  {
-   "key": "chromebook",
-   "cat": "computers",
-   "group": "Computers",
-   "label": "Chromebooks, sealed",
-   "models": "Sealed Chromebooks, new in the box",
-   "heads": [
-    "WE BUY SEALED CHROMEBOOKS",
-    "CASH FOR SEALED CHROMEBOOKS",
-    "SELL YOUR SEALED CHROMEBOOK"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "photo-chromebook-asus-c201",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "photo-chromebook-asus-c201",
-       "k": 1
-      }
-     ],
-     "w": 13
-    }
-   ]
   },
   {
    "key": "metaglasses",
@@ -2524,28 +2799,6 @@
      "w": 13
     }
    ]
-  },
-  {
-   "key": "smartwatch",
-   "cat": "wearables",
-   "group": "Wearables",
-   "label": "Smartwatches",
-   "models": "Galaxy Watch, Pixel Watch and more",
-   "heads": [
-    "WE BUY SMARTWATCHES",
-    "CASH FOR SMARTWATCHES",
-    "SELL YOUR SMARTWATCH"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "sam-watch-pair",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": []
   },
   {
    "key": "gold",
@@ -3692,365 +3945,6 @@
       }
      ],
      "w": 9.29
-    }
-   ]
-  },
-  {
-   "key": "strips",
-   "cat": "strips",
-   "group": "Test strips",
-   "label": "Test strips",
-   "models": "Sealed, unexpired test strip boxes",
-   "heads": [
-    "WE BUY TEST STRIPS",
-    "CASH FOR TEST STRIPS",
-    "SELL YOUR TEST STRIPS"
-   ],
-   "points": "SEALED BOXES, PAID TODAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "strip-boxes",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "strip-boxes",
-       "k": 1
-      }
-     ],
-     "w": 11
-    }
-   ]
-  },
-  {
-   "key": "pokemon",
-   "cat": "pokemon",
-   "group": "Cards",
-   "label": "Pokémon cards",
-   "models": "Singles, slabs, binders and sealed boxes",
-   "heads": [
-    "WE BUY POKÉMON CARDS",
-    "CASH FOR POKÉMON CARDS",
-    "SELL YOUR POKÉMON CARDS"
-   ],
-   "points": "FREE QUOTE, PAID TODAY, SINGLES OR SETS",
-   "sets": [
-    [
-     {
-      "file": "poke-psa-charizard",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "poke-psa-charizard",
-       "k": 1
-      }
-     ],
-     "w": 11
-    },
-    {
-     "set": [
-      {
-       "file": "poke-slabs-trio",
-       "k": 1
-      }
-     ],
-     "w": 8
-    }
-   ]
-  },
-  {
-   "key": "sports",
-   "cat": "sports",
-   "group": "Cards",
-   "label": "Sports cards",
-   "models": "Rookies, autos, slabs and sealed wax",
-   "heads": [
-    "WE BUY SPORTS CARDS",
-    "CASH FOR SPORTS CARDS",
-    "SELL YOUR SPORTS CARDS"
-   ],
-   "points": "FREE QUOTE, PAID TODAY, SINGLES OR SETS",
-   "sets": [
-    [
-     {
-      "file": "ph-sports-slabs-fan",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "ph-sports-cards-fan",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "ph-sports-slab",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "ph-sports-box",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "ph-sports-slabs-fan",
-       "k": 1
-      }
-     ],
-     "w": 5
-    },
-    {
-     "set": [
-      {
-       "file": "ph-sports-cards-fan",
-       "k": 1
-      }
-     ],
-     "w": 5
-    },
-    {
-     "set": [
-      {
-       "file": "ph-sports-slab",
-       "k": 1
-      }
-     ],
-     "w": 5
-    },
-    {
-     "set": [
-      {
-       "file": "ph-sports-box",
-       "k": 1
-      }
-     ],
-     "w": 5
-    },
-    {
-     "set": [
-      {
-       "file": "sports-slabs-stack",
-       "k": 1
-      }
-     ],
-     "w": 8
-    },
-    {
-     "set": [
-      {
-       "file": "ph-sports-card-baseball",
-       "k": 1
-      }
-     ],
-     "w": 2
-    },
-    {
-     "set": [
-      {
-       "file": "ph-sports-card-basketball",
-       "k": 1
-      }
-     ],
-     "w": 2
-    },
-    {
-     "set": [
-      {
-       "file": "ph-sports-card-football",
-       "k": 1
-      }
-     ],
-     "w": 2
-    }
-   ]
-  },
-  {
-   "key": "camera",
-   "cat": "cameras",
-   "group": "Cameras",
-   "label": "Cameras",
-   "models": "Mirrorless and DSLR bodies and lenses",
-   "heads": [
-    "WE BUY CAMERAS",
-    "CASH FOR CAMERAS",
-    "SELL YOUR CAMERA"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "camera-mirrorless",
-      "k": 1
-     },
-     {
-      "file": "camera-dslr-body",
-      "k": 0.95
-     }
-    ],
-    [
-     {
-      "file": "camera-mirrorless",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "photo-camera-sony-a7r5",
-       "k": 1
-      }
-     ],
-     "w": 9
-    },
-    {
-     "set": [
-      {
-       "file": "photo-camera-canon-r5",
-       "k": 1
-      }
-     ],
-     "w": 9
-    },
-    {
-     "set": [
-      {
-       "file": "photo-camera-nikon-z8",
-       "k": 1
-      }
-     ],
-     "w": 9
-    },
-    {
-     "set": [
-      {
-       "file": "photo-camera-sony-a7iv",
-       "k": 1
-      }
-     ],
-     "w": 8
-    },
-    {
-     "set": [
-      {
-       "file": "photo-camera-canon-r6",
-       "k": 1
-      }
-     ],
-     "w": 7
-    },
-    {
-     "set": [
-      {
-       "file": "photo-camera-fujifilm-xt5",
-       "k": 1
-      }
-     ],
-     "w": 7
-    },
-    {
-     "set": [
-      {
-       "file": "photo-camera-leica-q2",
-       "k": 1
-      }
-     ],
-     "w": 6
-    },
-    {
-     "set": [
-      {
-       "file": "photo-camera-sony-a7r-gm",
-       "k": 1
-      }
-     ],
-     "w": 5
-    },
-    {
-     "set": [
-      {
-       "file": "photo-camera-canon-5d2",
-       "k": 1
-      }
-     ],
-     "w": 3
-    },
-    {
-     "set": [
-      {
-       "file": "photo-camera-canon-100mm",
-       "k": 1
-      }
-     ],
-     "w": 2
-    },
-    {
-     "set": [
-      {
-       "file": "photo-camera-sony-a7iv-zoom",
-       "k": 1
-      }
-     ],
-     "w": 2
-    },
-    {
-     "set": [
-      {
-       "file": "photo-camera-sony-a7r-body",
-       "k": 1
-      }
-     ],
-     "w": 2
-    }
-   ]
-  },
-  {
-   "key": "drone",
-   "cat": "cameras",
-   "group": "Cameras",
-   "label": "Drones",
-   "models": "DJI Mini, Air and Mavic",
-   "heads": [
-    "WE BUY DRONES",
-    "CASH FOR DRONES",
-    "SELL YOUR DRONE"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "drone-folded",
-      "k": 1
-     }
-    ]
-   ],
-   "pool": [
-    {
-     "set": [
-      {
-       "file": "photo-camera-dji-mini-4-pro",
-       "k": 1
-      }
-     ],
-     "w": 10
     }
    ]
   },
@@ -5674,6 +5568,365 @@
       }
      ],
      "w": 7
+    }
+   ]
+  },
+  {
+   "key": "strips",
+   "cat": "strips",
+   "group": "Test strips",
+   "label": "Test strips",
+   "models": "Sealed, unexpired test strip boxes",
+   "heads": [
+    "WE BUY TEST STRIPS",
+    "CASH FOR TEST STRIPS",
+    "SELL YOUR TEST STRIPS"
+   ],
+   "points": "SEALED BOXES, PAID TODAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "strip-boxes",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "strip-boxes",
+       "k": 1
+      }
+     ],
+     "w": 11
+    }
+   ]
+  },
+  {
+   "key": "pokemon",
+   "cat": "pokemon",
+   "group": "Cards",
+   "label": "Pokémon cards",
+   "models": "Singles, slabs, binders and sealed boxes",
+   "heads": [
+    "WE BUY POKÉMON CARDS",
+    "CASH FOR POKÉMON CARDS",
+    "SELL YOUR POKÉMON CARDS"
+   ],
+   "points": "FREE QUOTE, PAID TODAY, SINGLES OR SETS",
+   "sets": [
+    [
+     {
+      "file": "poke-psa-charizard",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "poke-psa-charizard",
+       "k": 1
+      }
+     ],
+     "w": 11
+    },
+    {
+     "set": [
+      {
+       "file": "poke-slabs-trio",
+       "k": 1
+      }
+     ],
+     "w": 8
+    }
+   ]
+  },
+  {
+   "key": "sports",
+   "cat": "sports",
+   "group": "Cards",
+   "label": "Sports cards",
+   "models": "Rookies, autos, slabs and sealed wax",
+   "heads": [
+    "WE BUY SPORTS CARDS",
+    "CASH FOR SPORTS CARDS",
+    "SELL YOUR SPORTS CARDS"
+   ],
+   "points": "FREE QUOTE, PAID TODAY, SINGLES OR SETS",
+   "sets": [
+    [
+     {
+      "file": "ph-sports-slabs-fan",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "ph-sports-cards-fan",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "ph-sports-slab",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "ph-sports-box",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "ph-sports-slabs-fan",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-cards-fan",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-slab",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-box",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "sports-slabs-stack",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-card-baseball",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-card-basketball",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-card-football",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
+   ]
+  },
+  {
+   "key": "camera",
+   "cat": "cameras",
+   "group": "Cameras",
+   "label": "Cameras",
+   "models": "Mirrorless and DSLR bodies and lenses",
+   "heads": [
+    "WE BUY CAMERAS",
+    "CASH FOR CAMERAS",
+    "SELL YOUR CAMERA"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "camera-mirrorless",
+      "k": 1
+     },
+     {
+      "file": "camera-dslr-body",
+      "k": 0.95
+     }
+    ],
+    [
+     {
+      "file": "camera-mirrorless",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-camera-sony-a7r5",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-canon-r5",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-nikon-z8",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-sony-a7iv",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-canon-r6",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-fujifilm-xt5",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-leica-q2",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-sony-a7r-gm",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-canon-5d2",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-canon-100mm",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-sony-a7iv-zoom",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-sony-a7r-body",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
+   ]
+  },
+  {
+   "key": "drone",
+   "cat": "cameras",
+   "group": "Cameras",
+   "label": "Drones",
+   "models": "DJI Mini, Air and Mavic",
+   "heads": [
+    "WE BUY DRONES",
+    "CASH FOR DRONES",
+    "SELL YOUR DRONE"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "drone-folded",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-camera-dji-mini-4-pro",
+       "k": 1
+      }
+     ],
+     "w": 10
     }
    ]
   }

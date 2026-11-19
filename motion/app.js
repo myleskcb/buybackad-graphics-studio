@@ -49,7 +49,7 @@ const state = {
    the maker's own painted phones, picked in Phones; any other line brings its approved pictures
    and its models line, and the full ad draws them in the phones' place. Only the full ad: the
    looks under Any look fly, flip and land phones. */
-const subjects = { list: [], loaded: {} };           // loaded: "key|set" -> the ids of its pictures, once in state.assets
+const subjects = { list: [], loaded: {}, alias: {} };   // loaded: "key|set" -> the ids of its pictures, once in state.assets; alias: a line folded into another (the owner's lines, 2026-11-18) -> that line
 const subjectOf = st => st.subject && st.subject !== "iphone" ? subjects.list.find(s => s.key === st.subject) || null : null;
 /* FROM THE LIBRARY (motion/recipes.json, DESIGN-LAW 144; the owner, 2026-11-18: "rebuild how we arrived
    to these ads so every single one can be made a video"). An older ad, read as it opened (its words,
@@ -57,7 +57,7 @@ const subjectOf = st => st.subject && st.subject !== "iphone" ? subjects.list.fi
    full ad: the same recipe Easy Mode's studio opens, so its photo there and its video here are one ad. */
 const recipes = { list: null, byId: {} };
 function loadRecipes() {
-  if (!recipes.list) recipes.list = fetch("./recipes.json").then(r => r.json()).then(j => { const L = j.recipes || []; recipes.byId = Object.fromEntries(L.map(r => [r.id, r])); return L; })
+  if (!recipes.list) recipes.list = fetch("./recipes.json").then(r => r.json()).then(j => { const L = j.recipes || []; if (j.lean) L.forEach(r => { if (r.hint) r.hint.lean = j.lean; }); recipes.byId = Object.fromEntries(L.map(r => [r.id, r])); return L; })
     .catch(e => { console.warn("recipes:", e); recipes.list = null; return []; });
   return recipes.list;
 }
@@ -89,14 +89,15 @@ async function ensureSubject(st) {
 const fullOf = st => {
   // what was picked by hand for the full ad: its colours, and its type pair (one of the owner's pairs the
   // full ad holds in, motion/full-voices.js; none picked is the house face)
-  const S = state.full ? subjectOf(st) : null, pick = { ...(st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {}), ...(fullVoiceOk(st.full_type) ? { type_pair: st.full_type } : {}) };
+  const S = state.full ? subjectOf(st) : null, pick = { ...(st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {}), ...(fullVoiceOk(st.full_type) || st.full_type === "house" ? { type_pair: st.full_type } : {}) };
   // a recipe brings its own pictures (kept as given: subject_set 1) and its ground photograph
-  const R = state.full ? recipeOf(st) : null, rids = R ? subjects.loaded["recipe|" + R.id] || [] : [], extra = R && R.ground_photo ? { ground_photo: { ...R.ground_photo } } : {};
+  const R = state.full ? recipeOf(st) : null, rids = R ? subjects.loaded["recipe|" + R.id] || [] : [], extra = { ...(R && R.ground_photo ? { ground_hint: { ...R.ground_photo } } : {}), ...(R && R.hint ? { hint: R.hint } : {}) };   // leans, not locks (the rebuild, 2026-11-18)
   // its claim, unless a claim or a business name was typed: a named buyer takes the badge
   if (R && R.words && R.words.claim && !st.feed_claim && !String(st.biz || "").trim()) extra.feed_claim = R.words.claim;
   if (!S) return fullStyle({ ...st, ...extra, subject: "", ...(rids.length ? { phones: rids } : {}) }, st.seed, state.index, pick, state.locked);
-  const ids = rids.length ? rids : S.sets.length ? subjects.loaded[subjectKey(S, st).k] || [] : [];
-  return fullStyle({ ...st, ...extra, phones: ids.length ? ids : ["none"], ...(rids.length ? { subject_set: 1 } : {}) }, st.seed, state.index, pick, state.locked);
+  // a recipe whose words name goods its line has no picture of stands on its words alone (words_only)
+  const bare = !!(R && R.words_only && !rids.length), ids = rids.length ? rids : bare ? [] : S.sets.length ? subjects.loaded[subjectKey(S, st).k] || [] : [];
+  return fullStyle({ ...st, ...extra, phones: ids.length ? ids : ["none"], ...(rids.length || bare ? { subject_set: 1 } : {}) }, st.seed, state.index, pick, state.locked);
 };
 /* fonts, and a full ad's photo ground: a still made before the photo arrives draws the house
    gradient in its place (fullad.js fullGroundReady) */
@@ -188,7 +189,7 @@ function restore() {
         if (h.number) s.number = String(h.number);
         if (h.seed) s.seed = h.seed | 0;
         if (h.full_palette && COLOURWAYS.includes(h.full_palette)) s.full_palette = h.full_palette; else delete s.full_palette;
-        if (fullVoiceOk(h.full_type)) s.full_type = h.full_type; else delete s.full_type;
+        if (fullVoiceOk(h.full_type) || h.full_type === "house") s.full_type = h.full_type; else delete s.full_type;
         if (ASPECTS[h.aspect]) s.aspect = h.aspect;
         ["headline", "tag", "points"].forEach(k => state.locked.add(k));
         state.full = true;
@@ -428,8 +429,9 @@ async function applyRecipe(id) {
   s.points = w.points || (S && other ? S.points : null);
   delete s.feed_claim;                               // the design's claim is drawn unless a business name or a claim is typed (fullOf)
   for (const [k, v] of [["feed_burst", w.burst], ["number_label", w.label]]) { if (v) s[k] = v; else delete s[k]; }
-  if (R.pair && COLOURWAYS.includes(R.pair)) s.full_palette = R.pair; else delete s.full_palette;
-  if (fullVoiceOk(R.type_pair)) s.full_type = R.type_pair; else delete s.full_type;
+  // its look is its own seed's, leaning toward its card (fullOf passes the hint), never the card's pair or face
+  // locked (the rebuild, 2026-11-18: "take them as inspiration but rebuild them all")
+  delete s.full_palette; delete s.full_type; if (R.seed) s.seed = R.seed | 0;
   ["headline", "tag", "points"].forEach(k => state.locked.add(k));
   state.full = true;
   save(); syncWords(); syncMode(); rebuild(); renderGallery(true);
@@ -459,7 +461,7 @@ function syncFull(ad) {
   clearTimeout(preTimer);
   if (!ad || !ad.full) { note.textContent = ""; box.hidden = true; return; }
   document.querySelectorAll("#full-colours [data-colour]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.colour === (state.style.full_palette || "") || (!state.style.full_palette && b.dataset.colour === ""))));
-  { const on = fullVoiceOk(state.style.full_type) ? state.style.full_type : ""; document.querySelectorAll("#full-voices [data-voice]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.voice === on))); }
+  { const on = fullVoiceOk(state.style.full_type) || state.style.full_type === "house" ? state.style.full_type : ""; document.querySelectorAll("#full-voices [data-voice]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.voice === on))); }
   box.hidden = false; $("full-checks-sum").textContent = "checking…"; $("full-checks-sum").className = "mo-score";
   const id = ++preId;
   preTimer = setTimeout(() => {
@@ -552,7 +554,8 @@ async function preflightGate(st) {
 function buildPanel() {
   $("full-colours").innerHTML = `<button role="radio" data-colour="" aria-checked="true" title="The colours change with New look">Any</button>`
     + COLOURWAYS.map(k => { const c = COLOUR_OF[k]; return `<button role="radio" data-colour="${k}" aria-checked="false" title="${c.name}" aria-label="${c.name}" style="--c1:${c.colors.ground};--c2:${c.colors.accent}"></button>`; }).join("");
-  $("full-voices").innerHTML = `<button role="radio" data-voice="" aria-checked="true" title="Chivo, the full ad's own face">House</button>`
+  // Any: New look picks the face too (fullStyle, rule 154); House: Chivo, the full ad's own face
+  $("full-voices").innerHTML = `<button role="radio" data-voice="" aria-checked="true" title="The face changes with New look">Any</button><button role="radio" data-voice="house" aria-checked="false" title="Chivo, the full ad's own face">House</button>`
     + FULL_VOICES.filter(k => fullVoiceOk(k)).map(k => `<button role="radio" data-voice="${k}" aria-checked="false" title="${FONTS[TYPE_VOICES[k].display][0]} + ${FONTS[TYPE_VOICES[k].label][0]}">${TYPE_VOICES[k].name}</button>`).join("");
   $("full-voices").addEventListener("click", e => {
     const b = e.target.closest("[data-voice]"); if (!b) return;
@@ -2103,7 +2106,9 @@ async function start() {
   state.assets.phones = phones; state.index = index;
   state.assets.accents = await loadAccents("../assets/cutouts/");
   // what else an ad can be about; without the list the maker is iPhones only, as it was
-  try { subjects.list = (await (await fetch("./subjects.json", { cache: "no-cache" })).json()).subjects || []; } catch (e) { console.warn("The list of other products did not load:", e); subjects.list = []; }
+  try { const j = await (await fetch("./subjects.json", { cache: "no-cache" })).json(); subjects.list = j.subjects || []; subjects.alias = j.aliases || {}; } catch (e) { console.warn("The list of other products did not load:", e); subjects.list = []; }
+  // a look saved on a line that folded into another (the Switch into Handhelds, Android tablets into Androids: the owner, 2026-11-18) draws that line
+  if (subjects.alias[state.style.subject]) { state.style.subject = subjects.alias[state.style.subject]; state.style.subject_set = 0; }
   if (!subjectOf(state.style)) { delete state.style.subject; delete state.style.subject_set; }
   fillSubjects();
   state.style.phones = state.style.phones.filter(id => phones[id]);
