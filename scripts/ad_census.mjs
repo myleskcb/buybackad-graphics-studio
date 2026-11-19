@@ -16,7 +16,7 @@
                  Any look gallery), feed (iPhones LA's FeedAd batch, tools/feed-stills: not on
                  the site, drawn by the same engine file and posted by iPhones LA)
      engine      FullAd, a fabric template, the video engine's Ad, FeedAd
-     colours     the ground and the accent measured on the picture, the nearest of the twelve
+     colours     the ground and the accent measured on the picture, the nearest of the house pairs
                  proven pairs (motion/house-colours.js) and whether it is that pair; and the
                  palette the ad says it is in
      type        its type pair, or its faces
@@ -41,7 +41,7 @@
    (.render/ is ignored), and the thumbnails beside the JSON (census.thumbs.json). --rescan
    re-reads a census and only re-matches words, colours and elements (no browser, seconds), for a
    change to spec/banned-words.json, REQUIRED or the thresholds below.
-   --gate exits 1 when an offered ad is off the house engine or the twelve pairs, carries a
+   --gate exits 1 when an offered ad is off the house engine or the house pairs, carries a
    banned phrase, or lacks a REQUIRED element, and prints the counts. It is not wired into any
    deploy (2026-11-18): today it fails nearly every ad that is not the full ad, which is the
    finding. A full run takes about half an hour with two workers. */
@@ -91,7 +91,7 @@ const GEN_NAMES = { full: 'Full ad', recipe: 'Library recipe', dl: 'Designer lay
 const ENGINES = { full: 'FullAd', recipe: 'FullAd', dl: 'fabric template', of: 'fabric template', sc: 'fabric template', any: 'engine Ad', feed: 'FeedAd' };
 
 const BANNED = JSON.parse(readFileSync(join(ROOT, 'spec/banned-words.json'), 'utf8'));
-/* the twelve pairs, read as data (the file is an ES module for the browser; its rows are JSON) */
+/* the house pairs, read as data (the file is an ES module for the browser; its rows are JSON) */
 const HOUSE_COLOURS = JSON.parse(readFileSync(join(ROOT, 'motion/house-colours.js'), 'utf8').match(/HOUSE_COLOURS\s*=\s*(\[[\s\S]*?\]);/)[1].replace(/,\s*\]$/, ']'));
 
 /* ------------------------------------------------------------------ colour, in Node too */
@@ -111,15 +111,27 @@ function matchPair(c, row) {
   const out = { nearest: best.p.key, nearestName: best.p.name, dGround: +best.dG.toFixed(1), dAccent: a ? +best.dA.toFixed(1) : null };
   /* the house engine on a photograph (DESIGN-LAW 145): the ground is the photo by design, and the
      pair is what it draws on it, so the drawn accent is held to the pair the ad declares */
-  if ((c.groundKind === 'photo' || c.groundKind === 'drawn') && row && (row.gen === 'full' || row.gen === 'recipe')) {   // a drawn scene paints the pair's own ground with light: judged the same way
+  // a drawn scene paints the pair's own ground with light, and the house's patterns and hard-edged gradients
+  // paint it in its own tones (2026-11-18, rule 146: "textured" by the edge band's spread): judged the same way
+  if ((c.groundKind === 'photo' || c.groundKind === 'drawn' || c.groundKind === 'textured') && row && (row.gen === 'full' || row.gen === 'recipe')) {
     const own = PAIRS.find(p => p.name === row.declared), dA = own && a ? dE(a, own.a) : 99;
     /* the full ad's plates are lit and may be graded (2026-11-18: full-styles), so its drawn accent
        sits a little off the flat one: within twice the tolerance, or in the same hue family (25
        degrees) at a real chroma, it is the pair's */
     const hueOf = v => Math.atan2(v[2], v[1]) * 180 / Math.PI, chromaOf = v => Math.hypot(v[1], v[2]);
     const sameFamily = own && a && chromaOf(a) >= .09 && chromaOf(own.a) >= .09 && Math.abs(((hueOf(a) - hueOf(own.a) + 540) % 360) - 180) <= 25;   // Lab here is 0..1 (dE scales by 100)
-    return own && (dA <= PAIR_ACCENT * 2 || sameFamily) ? { ...out, nearest: own.key, nearestName: own.name, dAccent: +dA.toFixed(1), match: true, why: own.name + (c.groundKind === 'photo' ? ' on a photograph' : ' on a drawn scene') }
-      : { ...out, match: false, why: own ? `accent ${dA.toFixed(1)} from ${own.name}'s, on a ${c.groundKind === 'photo' ? 'photograph' : 'drawn scene'}` : 'stands on a photograph' };
+    /* a two-colour pair (rule 146: White on Pink, Black on Lime) has no accent but its words' white or black,
+       which no saturated pixel can show: it is the pair where its ground is the pair's own (or the pair's
+       ground is laid under a photograph) */
+    const twoColour = own && chromaOf(own.a) < .04 && (c.groundKind === 'photo' || dE(g, own.g) <= PAIR_GROUND * 2.2);
+    if (twoColour) return { ...out, nearest: own.key, nearestName: own.name, match: true, why: own.name + ' (two colours)' };
+    /* a light pair whose accent is a deeper tone of its own ground's family (Mint & Green, Lavender & Violet,
+       Blush & Magenta) or under the measure's chroma (Sand & Teal's teal, C .08): the measure sets every such
+       pixel aside as a shade of the ground, so where it finds no accent at all the pair is judged by its ground */
+    const shadeOfGround = own && !a && (chromaOf(own.a) < .09 || (chromaOf(own.g) >= .04 && Math.abs(((hueOf(own.a) - hueOf(own.g) + 540) % 360) - 180) <= 25));
+    if (shadeOfGround && (c.groundKind === 'photo' || dE(g, own.g) <= PAIR_GROUND * 2.2)) return { ...out, nearest: own.key, nearestName: own.name, match: true, why: own.name + ' (its accent a tone of its ground)' };
+    return own && (dA <= PAIR_ACCENT * 2 || sameFamily) ? { ...out, nearest: own.key, nearestName: own.name, dAccent: +dA.toFixed(1), match: true, why: own.name + (c.groundKind === 'photo' ? ' on a photograph' : c.groundKind === 'textured' ? ' on a patterned ground' : ' on a drawn scene') }
+      : { ...out, match: false, why: own ? `accent ${dA.toFixed(1)} from ${own.name}'s, on a ${c.groundKind === 'photo' ? 'photograph' : c.groundKind === 'textured' ? 'patterned ground' : 'drawn scene'}` : 'stands on a photograph' };
   }
   if (c.groundKind === 'photo') return { ...out, match: false, why: 'stands on a photograph' };
   if (!a) return { ...out, match: false, why: 'no accent colour found' };
@@ -159,7 +171,7 @@ function compose(r) {
   const why = [];
   if (r.error) why.push('did not open: ' + r.error);
   if (r.engine !== 'FullAd') why.push('off the house engine (' + r.engine + ')');
-  if (!r.colour.match) why.push('off the twelve pairs (' + r.colour.why + ')');
+  if (!r.colour.match) why.push('off the house pairs (' + r.colour.why + ')');
   if (r.bannedIds.length) why.push('banned: ' + r.bannedIds.join(', '));
   if (r.bannedNoNameIds.length) why.push('banned with no business name typed: ' + r.bannedNoNameIds.join(', '));
   if (r.missing.length) why.push('lacks: ' + r.missing.map(k => ELEMENT_NAMES[k]).join(', '));
@@ -273,7 +285,7 @@ details li{overflow-wrap:anywhere}
 </style>
 <main>
 <h1>Ad census</h1>
-<p class="sub">Every ad the studio offers, opened the way a visitor opens it, and what each is made of: its generation and engine, its colours against the twelve proven pairs, its type, which of the full ad's elements it carries, how much of it the product fills, any banned or old wording, and its own pre-flight's verdict.</p>
+<p class="sub">Every ad the studio offers, opened the way a visitor opens it, and what each is made of: its generation and engine, its colours against the house pairs, its type, which of the full ad's elements it carries, how much of it the product fills, any banned or old wording, and its own pre-flight's verdict.</p>
 <p class="meta" id="meta"></p>
 <h2>By generation</h2>
 <div class="panel scroll"><table class="sum" id="sum"></table></div>
@@ -288,7 +300,7 @@ details li{overflow-wrap:anywhere}
   <label>Search <input type="search" id="q" placeholder="name, id or words"></label>
   <label>Lacks <select id="lack"><option value="">anything or nothing</option><option value="*">any required element</option></select></label>
   <label>Words <select id="ban"><option value="">any</option><option value="*">any banned phrase</option></select></label>
-  <label><input type="checkbox" id="offpair"> off the twelve pairs</label>
+  <label><input type="checkbox" id="offpair"> off the house pairs</label>
   <label><input type="checkbox" id="prefail"> pre-flight fails</label>
   <span class="count" id="count"></span>
 </div>
@@ -305,7 +317,7 @@ details li{overflow-wrap:anywhere}
   $('meta').innerHTML = 'Made ' + esc(D.made.slice(0, 16).replace('T', ' ')) + ' UTC on ' + esc(D.branch) + ' at ' + esc(D.commit) + '. The visitor typed ' + esc(V.number) + ', ' + esc(V.site) + ' and the business name ' + esc(V.biz) + ' where the page asks for one, and gave the area ' + esc(V.zip) + ' (' + esc(V.town) + '). Every other word on an ad is the studio\\'s own. Required of every ad: ' + D.required.map(function (k) { return D.elementNames[k]; }).join(', ') + '.';
   var gens = Object.keys(D.summary), S = D.summary;
   var cell = function (n, of, bad) { return '<td class="num">' + (n == null ? '' : '<span class="tag ' + (n === 0 ? 'good' : bad ? 'bad' : '') + '">' + n + (of ? ' of ' + of : '') + '</span>') + '</td>'; };
-  $('sum').innerHTML = '<thead><tr><th>Generation</th><th>Engine</th><th class="num">Ads</th><th class="num">Off the house engine</th><th class="num">Off the twelve pairs</th><th class="num">On a photograph</th><th class="num">Banned words</th><th class="num">Lacks a required element</th><th class="num">Pre-flight fails</th><th class="num">Product, median height</th><th class="num">Fail the gate</th></tr></thead><tbody>' +
+  $('sum').innerHTML = '<thead><tr><th>Generation</th><th>Engine</th><th class="num">Ads</th><th class="num">Off the house engine</th><th class="num">Off the house pairs</th><th class="num">On a photograph</th><th class="num">Banned words</th><th class="num">Lacks a required element</th><th class="num">Pre-flight fails</th><th class="num">Product, median height</th><th class="num">Fail the gate</th></tr></thead><tbody>' +
     gens.map(function (g) { var s = S[g]; return '<tr data-gen="' + g + '"><td><b>' + esc(s.name) + '</b>' + (s.errors ? ' <span class="tag bad">' + s.errors + ' did not open</span>' : '') + '</td><td>' + esc(s.engine) + '</td><td class="num">' + s.ads + '</td>' + cell(s.offEngine, 0, 1) + cell(s.offColours, 0, 1) + cell(s.onPhoto, 0, 0) + cell(s.withBanned, 0, 1) + cell(s.lacking, 0, 1) +
       (s.preflight ? cell(s.preflight.fail, s.preflight.measured, 1) : '<td class="num small">none</td>') + '<td class="num">' + pct(s.productMedianH) + '</td>' + cell(s.gateFail, 0, 1) + '</tr>'; }).join('') + '</tbody>';
   var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -915,7 +927,7 @@ function finish(c) {
 
 function report(c) {
   const S = c.summary;
-  console.log('\nby generation (ads; off the house engine; off the twelve pairs; with banned words; lacking a required element; pre-flight fails):');
+  console.log('\nby generation (ads; off the house engine; off the house pairs; with banned words; lacking a required element; pre-flight fails):');
   for (const [g, s] of Object.entries(S)) console.log(`  ${s.name.padEnd(20)} ${String(s.ads).padStart(4)}   engine ${String(s.offEngine).padStart(4)}   pairs ${String(s.offColours).padStart(4)}   banned ${String(s.withBanned).padStart(4)}   lacking ${String(s.lacking).padStart(4)}   pre-flight ${s.preflight ? s.preflight.fail + ' of ' + s.preflight.measured : 'none'}${s.errors ? '   did not open ' + s.errors : ''}`);
   for (const [g, s] of Object.entries(S)) {
     const miss = ELEMENTS.filter(k => s.missingBy[k]).map(k => `${ELEMENT_NAMES[k]} ${s.missingBy[k]}`).join(', ');
@@ -957,7 +969,7 @@ console.log(`\nwrote ${JSON_OUT} and ${HTML_OUT}${C.minutes ? ` (${C.minutes} mi
 if (GATE) {
   const bad = C.rows.filter(r => r.gateWhy.length);
   console.log(`\ngate: ${bad.length} of ${C.rows.length} offered ads fail (${Object.values(C.summary).map(s => s.name + ' ' + s.gateFail + ' of ' + s.ads).join(', ')})`);
-  for (const s of Object.values(C.summary)) console.log(`  ${s.name}: off the house engine ${s.offEngine}, off the twelve pairs ${s.offColours}, a banned phrase ${s.withBanned}, a required element missing ${s.lacking}${s.errors ? ', did not open ' + s.errors : ''}`);
+  for (const s of Object.values(C.summary)) console.log(`  ${s.name}: off the house engine ${s.offEngine}, off the house pairs ${s.offColours}, a banned phrase ${s.withBanned}, a required element missing ${s.lacking}${s.errors ? ', did not open ' + s.errors : ''}`);
   process.exit(bad.length ? 1 : 0);
 }
 process.exit(0);

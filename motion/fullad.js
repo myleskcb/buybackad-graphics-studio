@@ -16,14 +16,14 @@
 import { Ad, inkSprite, splitLines, trim, canvas, lum, prog, outBack, rng, clamp, contrastOf, fontCss, applyCase, labelFont, burstFontFor,
   headlineLines, numberSprite, perksSprite, pointsOf, randomize, harmonise, formatNumber, oklchOf } from "./engine.js";
 import { FONTS, FINE_FACES, PALETTES, DEFAULT_STYLE, TYPE_VOICES, DEFAULT_PHONES } from "./catalog.js";
-import { drawChevrons, fillGradient } from "./decor.js";
+import { drawChevrons, fillGradient, fillTexture } from "./decor.js";
 import { FULL_STYLES, pickFullStyles } from "./full-styles.js";
 import { placeAccents, timeAccents } from "./accents.js";
-import { HOUSE_COLOURS, LINES } from "./house-colours.js";
+import { HOUSE_COLOURS, LINES, PAIR_LOOKS } from "./house-colours.js";
 import { FULL_VOICES } from "./full-voices.js";
 import { bannedIn } from "./banned-words.js";
 import { PHONE_WEIGHT, PHONE_REST, PHONE_VIEWS, PHONE_COUNTS, PHONE_LINEUP, pickWeighted } from "./product-demand.js";
-import { GROUND_SHARES, GROUND_SCENES, GROUND_GRADIENTS, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS } from "./full-grounds.js";
+import { GROUND_SHARES, GROUND_SCENES, GROUND_GRADIENTS, GROUND_PATTERNS, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS } from "./full-grounds.js";
 
 // Proportions of the frame's width. 1080 x .052 = 56px, x .044 = 48px, x .032 = 35px.
 // edge: nothing nearer the frame's edge than 38px; gap: no two stacked blocks nearer than 22px.
@@ -319,11 +319,13 @@ export function spellsSmallI(fontKey) {
   if (loaded) _smallI.set(fontKey, ok);
   return ok;
 }
+/** The share of seeded full ads set in the house face; the rest draw one of the owner's pairs (fullStyle). */
+export const HOUSE_FACE = .25;
 export const fullVoiceOk = (k, any = false) => !!k && !!TYPE_VOICES[k] && !FINE_FACES.has(TYPE_VOICES[k].display) && (any || !FULL_VOICES.length || FULL_VOICES.includes(k));
 export const QUIET = { decor: [], urgency: "none", overlay: "none", accents: 0, board: "none", number_pos: "bottom-center", number_format: "parens",
   camera: "still", shake: 0, sparkles: false, text_in: "slide", pose: "flat", end_face: "back", phone_idle: "breathe", grade: "none", depth: "none",
   text_scale: 1, number_scale: 1, tracking: 0, skew: 0, hook: "none", season: "none", phone_finish: "standard", transition: "none", ...HOUSE };
-/* The full ad's colours are the photo ads' twelve proven pairs (DESIGN-LAW 123: one colour
+/* The full ad's colours are the photo ads' colour themes, every group (DESIGN-LAW 123, 146: one colour
    vocabulary), by the same names and the same colours as Easy Mode's themes: house-colours.js is
    made from app.js COLOR_THEMES by scripts/build_house_colours.mjs. (It first drew from sixteen of
    the video maker's own palettes, so "Navy & Gold" was two navies and two golds.) The iPhones LA
@@ -411,15 +413,22 @@ export function groundFits(t, P) {
 export function groundFor(subject, seed, pairKey, product) {
   const cat = !subject || subject === "iphone" ? "phones" : (GROUND_LINE_CAT[subject] || "");
   const pool = (GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && photoSuits(GROUND_PHOTOS[src], pairKey) && groundFits(GROUND_PHOTOS[src], product));
-  const share = { photo: pool.length ? GROUND_SHARES.photo : 0, scene: GROUND_SCENES.length ? GROUND_SHARES.scene : 0, gradient: GROUND_GRADIENTS.length ? (GROUND_SHARES.gradient || 0) : 0, house: GROUND_SHARES.house };
+  // the drawn scenes are night skies, auroras and glows made for light words: under dark words (a light pair,
+  // a lime or aqua ground: rule 146) their deep tones turn grey and the shade behind the words runs to the
+  // frame's edge (full_ad_check, 2026-11-18), so those pairs stand on the other kinds
+  const pc = COLOUR_OF[pairKey], darkWords = !!pc && lum(pc.colors.ink) < lum(pc.colors.ground);
+  const share = { photo: pool.length ? GROUND_SHARES.photo : 0, scene: GROUND_SCENES.length && !darkWords ? GROUND_SHARES.scene : 0, gradient: GROUND_GRADIENTS.length ? (GROUND_SHARES.gradient || 0) : 0,
+    pattern: GROUND_PATTERNS.length ? (GROUND_SHARES.pattern || 0) : 0, house: GROUND_SHARES.house };
   // the line's own stream: two lines on one seed do not stand on the same kind of ground
   let h = 0x811c9dc5; for (const ch of String(subject || "iphone")) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
   const g = rng(mixSeed((mixSeed(seed >>> 0) ^ h) >>> 0)); g();
-  let u = g() * (share.photo + share.scene + share.gradient + share.house);
+  let u = g() * (share.photo + share.scene + share.gradient + share.pattern + share.house);
   if ((u -= share.photo) < 0) { const src = pool[Math.floor(g() * pool.length) % pool.length]; return { background: "photo", ground_photo: { src, focus: GROUND_PHOTOS[src].focus || [.5, .5] } }; }
   if ((u -= share.scene) < 0) return { background: GROUND_SCENES[Math.floor(g() * GROUND_SCENES.length) % GROUND_SCENES.length] };
   // a vivid gradient in the pair's own two families (decor.js pairGradientGround; the owner: "Also don't see any gradients really?")
   if ((u -= share.gradient) < 0) return { background: GROUND_GRADIENTS[Math.floor(g() * GROUND_GRADIENTS.length) % GROUND_GRADIENTS.length] };
+  // a tone-on-tone pattern or texture in the pair's own ground colour (decor.js fullPatternGround; rule 146)
+  if ((u -= share.pattern) < 0) return { background: GROUND_PATTERNS[Math.floor(g() * GROUND_PATTERNS.length) % GROUND_PATTERNS.length] };
   return null;
 }
 export const ARRANGEMENTS = ["lineup", "fan", "showcase", "podium", "wings"];
@@ -493,7 +502,7 @@ const pairHues = c => [c.colors.ground, c.colors.accent].map(oklchOf).filter(k =
 /** The pairs a seeded ad may be drawn in: those that suit its line (house-colours.js suits, from
  *  the library's AFFINITY); when its headline names a colour, those whose accent is that colour,
  *  so the accent can paint it; and of those, the ones that keep it to two colour families with the
- *  bold phones on it (phoneHues: the body hues of the phones it shows). All twelve, in their order,
+ *  bold phones on it (phoneHues: the body hues of the phones it shows). Every pair, in its order,
  *  for any other ad: a seed that drew a pair before draws the same one. A pair picked by hand is
  *  never narrowed (fullStyle). */
 /** WHICH PAIR A LINE'S FIRST AD OPENS IN (2026-11-18). Seed 1 is every new visitor's first full
@@ -528,6 +537,27 @@ export function pairsFor(subject, headline, phoneHues = []) {
   return keys.length ? keys : COLOURWAYS;
 }
 
+/** THE LOOK FIRST, THEN THE PAIR (2026-11-18, rule 146). Eleven of the twelve proven pairs were a
+ *  navy, black or deep ground under a warm accent, so a page of seeded ads read as one look "with
+ *  5% variety or difference" (the owner). The pairs are now every colour theme (house-colours.js),
+ *  each with its look (light, vivid or dark), and a seed's one draw u picks the look first, a third
+ *  each where a look holds four pairs or more (one that holds fewer, a restricted line's, in
+ *  proportion: gold has one vivid pair, which is not a third of gold), then the pair within the look.
+ *  The draw is turned by the line's own step (lineTurn) before either is read, so the first ads of
+ *  the lines (seed 1, one draw for all of them) spread over the looks and the pairs alike; the iPhone
+ *  line turns by none. Still one draw of the seed's stream: the ground, the arrangement and the words
+ *  a seed drew do not move. */
+export function drawPair(keys, u, subject) {
+  const groups = PAIR_LOOKS.map(k => keys.filter(x => (COLOUR_OF[x] || {}).look === k)).filter(l => l.length);
+  const rest = keys.filter(x => !PAIR_LOOKS.includes((COLOUR_OF[x] || {}).look)); if (rest.length) groups.push(rest);
+  if (!groups.length) return keys[0];
+  const w = groups.map(l => Math.min(1, l.length / 4)), sum = w.reduce((a, b) => a + b, 0);
+  let v = ((clamp(u, 0, .999999) + lineTurn(subject, 9973) / 9973) % 1) * sum, i = 0;
+  while (i < groups.length - 1 && v >= w[i]) { v -= w[i]; i++; }
+  const L = groups[i], f = clamp(v / w[i], 0, .999999);
+  return L[Math.floor(f * L.length) % L.length];
+}
+
 /** A map pin, drawn (an emoji pin is a different picture on every device, and none on some). */
 function pin(x, cx, cy, h, fill, dot) {
   const r = h * .34;
@@ -559,10 +589,15 @@ function numberPill(text, size, font, p, style = "pill", grad = false, bare = p.
      plate at all and a bar of the accent under the figures, in the lines' own ink (bare) with their
      soft shadow; any plate may be lit from above (grad). The figures keep their clear margin on
      every one (DESIGN-LAW 58). */
-  const plate = style !== "underline";
-  const col = plate ? (contrastOf(p.plate_ink, p.plate) >= 3.5 ? p.plate_ink : (lum(p.plate) > .5 ? "#111111" : "#ffffff")) : bare;
+  /* the plate's fill (2026-11-18, rule 146): grad true or "gradient" (lit from above), "stripes", "dots",
+     "foil" (decor.js fillTexture: the plate's own hue moved away from its figures), or "glass" (a frosted
+     pane) and "outline" (its edge alone in the accent), which leave the ground to show through and so
+     carry the figures in the lines' own ink (bare), as the underlined number does */
+  const mode = grad === true ? "gradient" : typeof grad === "string" && grad ? grad : "solid";
+  const plate = style !== "underline", open = plate && (mode === "glass" || mode === "outline");
+  const col = plate && !open ? (contrastOf(p.plate_ink, p.plate) >= 3.5 ? p.plate_ink : (lum(p.plate) > .5 ? "#111111" : "#ffffff")) : bare;
   const P = { ...p, ink: col, accent: col };
-  const ink = trim(inkSprite(text, [...text].map(() => col), font, size, 0, plate || lum(col) < .5 ? "flat" : "shadow", P, 0).c);
+  const ink = trim(inkSprite(text, [...text].map(() => col), font, size, 0, (plate && !open) || lum(col) < .5 ? "flat" : "shadow", P, 0).c);
   const padX = size * .5, padY = Math.max(size * .17, ink.height * .19), h = Math.ceil(ink.height + padY * 2);
   const extra = style === "tag" ? h * .55 : style === "ticket" ? h * .3 : 0, w = Math.ceil(ink.width + padX * 2 + extra);
   const sk = Math.max(.2, size / 96), m = Math.ceil(16 * sk);
@@ -573,8 +608,8 @@ function numberPill(text, size, font, p, style = "pill", grad = false, bare = p.
     x.beginPath(); x.roundRect(m + (w - ink.width) / 2, m + h - bar * 1.15, ink.width, bar, bar / 2); x.fillStyle = acc; x.fill();
     return { c, pad: m, w, h, inkH: ink.height, plate: false, bar: acc };   // the bar is the number's own mark: the pre-flight sets it aside
   }
-  const fill = grad ? fillGradient(x, 0, m, 0, m + h, p.plate, col, 3.5) : p.plate;
-  x.save(); x.shadowColor = "rgba(0,0,0,.32)"; x.shadowBlur = 11 * sk; x.shadowOffsetY = 4 * sk;
+  const fill = mode === "gradient" ? fillGradient(x, 0, m, 0, m + h, p.plate, col, 3.5) : p.plate;
+  x.save(); x.shadowColor = open ? "rgba(0,0,0,.18)" : "rgba(0,0,0,.32)"; x.shadowBlur = (open ? 7 : 11) * sk; x.shadowOffsetY = (open ? 2 : 4) * sk;
   x.beginPath();
   if (style === "box") x.roundRect(m, m, w, h, h * .2);
   else if (style === "ticket") x.roundRect(m, m, w, h, h * .12);
@@ -583,7 +618,7 @@ function numberPill(text, size, font, p, style = "pill", grad = false, bare = p.
     x.moveTo(m + pt, m); x.lineTo(m + w - rr, m); x.quadraticCurveTo(m + w, m, m + w, m + rr); x.lineTo(m + w, m + h - rr);
     x.quadraticCurveTo(m + w, m + h, m + w - rr, m + h); x.lineTo(m + pt, m + h); x.lineTo(m, m + h / 2); x.closePath();
   } else x.roundRect(m, m, w, h, h / 2);
-  x.fillStyle = fill; x.fill(); x.restore();
+  plateBody(x, mode, fill, p.plate, col, m, m, m + w, m + h, h, p.hot || p.accent);
   if (style === "ticket") {
     x.save(); x.globalCompositeOperation = "destination-out";
     [m, m + w].forEach(cx => { x.beginPath(); x.arc(cx, m + h / 2, h * .16, 0, 7); x.fill(); }); x.restore();
@@ -594,6 +629,26 @@ function numberPill(text, size, font, p, style = "pill", grad = false, bare = p.
   const shift = style === "tag" ? h * .275 : style === "ticket" ? h * .15 : 0;
   x.drawImage(ink, m + (w - ink.width) / 2 + shift, m + (h - ink.height) / 2);
   return { c, pad: m, w, h, inkH: ink.height, plate: true };
+}
+
+/** A plate's body on the path just drawn, inside the caller's save() (its shadow set), which this
+ *  restores (2026-11-18, rule 146): flat or lit from above (fill), with stripes, dots or a foil's sheen
+ *  laid over it without the shadow (decor.js fillTexture); or a pane of glass, smoked under light words
+ *  and frosted under dark ones, so it only ever moves the ground away from them; or its edge alone in
+ *  the accent. Glass and the edge leave the ground to show: their words are the lines' own ink. */
+function plateBody(x, mode, fill, plate, ink, x0, y0, x1, y1, h, edge) {
+  if (mode === "glass") {
+    const light = lum(ink) > .5;
+    x.fillStyle = light ? "rgba(0,0,0,.24)" : "rgba(255,255,255,.62)"; x.fill(); x.restore();
+    x.save(); x.clip();
+    const hl = x.createLinearGradient(0, y0, 0, y0 + (y1 - y0) * .5); hl.addColorStop(0, "rgba(255,255,255,.16)"); hl.addColorStop(1, "rgba(255,255,255,0)");
+    x.fillStyle = hl; x.fillRect(x0, y0, x1 - x0, y1 - y0); x.restore();
+    x.lineWidth = Math.max(1.5, h * .035); x.strokeStyle = light ? "rgba(255,255,255,.5)" : rgba(ink, .35); x.stroke();
+    return;
+  }
+  if (mode === "outline") { x.lineWidth = Math.max(2, h * .07); x.strokeStyle = edge; x.stroke(); x.restore(); return; }
+  x.fillStyle = fill; x.fill(); x.restore();
+  fillTexture(x, mode, plate, ink, x0, y0, x1, y1);
 }
 
 const stackRows = (rows, gap) => {
@@ -861,12 +916,21 @@ export class FullAd extends Ad {
     // the claim, in a badge
     let claim = null;
     if (st.feed_claim) {
-      const fill = p.plate || p.accent, inkc = p.plate_ink || "#ffffff", text = st.feed_claim.toUpperCase();
+      // its badge wears the plates' fill (rule 146); glass or an edge alone carries the words in the lines' ink
+      const mode = st.plate_fill || (st.plate_grad ? "gradient" : "solid"), open = mode === "glass" || mode === "outline";
+      const fill = p.plate || p.accent, inkc = open ? ph.ink : p.plate_ink || "#ffffff", text = st.feed_claim.toUpperCase();
       const [cf, cw] = FONTS[pair ? pair.label : st.font] || FONTS.franklin;
       const pmin = Math.floor(U * FULL.claimMin);
       for (let px = Math.round(U * FULL.claim); ; px = Math.max(pmin, Math.floor(px * .94))) {
         const row = footRow(text, px, inkc, cf, cw), h = Math.round(px * 1.7), w = Math.round(row.width + px * 1.5);
-        if (w <= colW) { const c = canvas(w, h), x = c.getContext("2d"); x.fillStyle = st.plate_grad ? fillGradient(x, 0, 0, 0, h, fill, inkc, 4.5) : fill; x.beginPath(); x.roundRect(0, 0, w, h, h / 2); x.fill(); x.drawImage(row, (w - row.width) / 2, (h - row.height) / 2); claim = { c, fill, ink: inkc, px }; break; }
+        if (w <= colW) {
+          const c = canvas(w, h), x = c.getContext("2d"), lw = open ? Math.max(2, h * .07) : 0;
+          x.save(); x.beginPath(); x.roundRect(lw / 2, lw / 2, w - lw, h - lw, (h - lw) / 2);
+          plateBody(x, mode, mode === "gradient" ? fillGradient(x, 0, 0, 0, h, fill, inkc, 4.5) : fill, fill, inkc, 0, 0, w, h, h, p.hot || p.accent);
+          // glass or an edge alone glows in nothing: a glow of the plate's colour round words standing on the ground
+          // is a halo of their own colour, and they stop reading (the claim read 1.9:1, full_ad_check, 2026-11-18)
+          x.drawImage(row, (w - row.width) / 2, (h - row.height) / 2); claim = { c, fill, ink: inkc, px, glow: !open }; break;
+        }
         if (px <= pmin) break;
       }
       if (!claim) F.left.push("claim");
@@ -879,7 +943,7 @@ export class FullAd extends Ad {
     // the number: its pill a fixed share of the column, the chevrons either side of it
     const numText = formatNumber(st.number, st.number_format) || "YOUR NUMBER";
     let numFont = st.number_font === "same" ? st.font : st.number_font; if (FINE_FACES.has(numFont) || !FONTS[numFont]) numFont = pair ? pair.label : "oswald";
-    const numFor = z => { const n = numberPill(numText, z, numFont, p, st.number_style, !!st.plate_grad, ph.ink); return { ...n, text: numText, label: null }; };
+    const numFor = z => { const n = numberPill(numText, z, numFont, p, st.number_style, st.plate_fill || !!st.plate_grad, ph.ink); return { ...n, text: numText, label: null }; };
     let nz = U * .09, num = numFor(nz);
     nz *= Math.min(colW * FULL.pill / num.w, U * FULL.number / nz); num = numFor(nz);
     for (let k = 0; k < 4 && num.w > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.w; num = numFor(nz); }
@@ -888,6 +952,14 @@ export class FullAd extends Ad {
     // that number is drawn on the pill instead, plated as before
     if ((st.number_style === "tag" || st.number_style === "ticket") && nz < U * .07) {
       st.number_style = "pill"; nz = U * .09; num = numFor(nz);
+      nz *= Math.min(colW * FULL.pill / num.w, U * FULL.number / nz); num = numFor(nz);
+      for (let k = 0; k < 4 && num.w > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.w; num = numFor(nz); }
+    }
+    // a seeded face whose figures run wide (rule 146: Galindo, the toon pair's) can still set a long number
+    // under its floor in a narrow column (a tablet's 4:5, 73px, 2026-11-18): the number takes the house's own
+    // condensed figures, the face that the floor was measured in
+    if (nz < U * .07 && numFont !== "oswald") {
+      numFont = "oswald"; nz = U * .09; num = numFor(nz);
       nz *= Math.min(colW * FULL.pill / num.w, U * FULL.number / nz); num = numFor(nz);
       for (let k = 0; k < 4 && num.w > colW * FULL.pill * 1.01; k++) { nz *= colW * FULL.pill / num.w; num = numFor(nz); }
     }
@@ -936,9 +1008,13 @@ export class FullAd extends Ad {
     const hasChips = pointsOf(st).length > 0, hasPhones = this.phones.length > 0;
     // the gaps between one block and the next, in units of g; the room left over stretches them all alike
     const gClaim = 1.15, gBand = 1.4, gLab = .8, gFoot = 1.1;
+    // a headline on a plate of its own (a box, letters cut out of one, a pane of glass, a marker's bar: rule 146)
+    // has the plate standing a fifth of its size over its capitals: the claim above it keeps clear of that too
+    // (a cut-out plate met the claim's badge and the claim read 1.9:1, full_ad_check, 2026-11-18)
+    const overClaim = hd => ["box", "cutout", "glass", "highlighter"].includes(st.text_fx) ? hd.size * .16 : 0;
     // the line under the headline clears the outline that hangs under its letters
     const tagGap = hd => Math.max(g * .9, hd.size * .24);
-    const fixedOf = hd => (claim ? claim.c.height + g * gClaim : 0) + hd.blockH + (tagB ? tagB.c.height + tagGap(hd) : 0) + g * gBand * 2
+    const fixedOf = hd => (claim ? claim.c.height + g * gClaim + overClaim(hd) : 0) + hd.blockH + (tagB ? tagB.c.height + tagGap(hd) : 0) + g * gBand * 2
       + (labB ? labB.c.height + g * gLab : 0) + num.h + (foot ? foot.c.height + g * gFoot : 0);
 
     /* ---- the band: selling points | the product | the sticker and the icon ----
@@ -1079,7 +1155,7 @@ export class FullAd extends Ad {
     const stretch = Math.min(g * 1.3, spare / (nStretch + 1.5)), bandH = need, pad = (spare - stretch * nStretch) / 2;
     let y = eyT + Math.max(0, pad);
     const R = F.rects, put = (name, c, cx = mid) => { const r = [cx - c.width / 2, y, cx + c.width / 2, y + c.height]; R[name] = r; y += c.height; return r; };
-    if (claim) { const r = put("claim", claim.c); claim.x = r[0]; claim.y = r[1]; y += g * gClaim + stretch; }
+    if (claim) { const r = put("claim", claim.c); claim.x = r[0]; claim.y = r[1]; y += g * gClaim + overClaim(hd) + stretch; }
     const y0 = y, xs = hd.lines.map(L => mid - L.inkW / 2);
     const block = [Math.min(...xs), y0, Math.max(...hd.lines.map((L, i) => xs[i] + L.inkW)), y0 + hd.blockH];
     R.headline = block.slice(); y += hd.blockH;
@@ -1220,7 +1296,10 @@ export class FullAd extends Ad {
     }
     // the chevrons either side of the number, where the pill leaves them their room
     const nb = this.numBox, sz = (nb[3] - nb[1]) * .42;
-    this.fullChevrons = Math.min(nb[0] - F.col[0], F.col[1] - nb[2]) >= sz * 2.9 ? sz : 0;
+    // a tall number keeps its chevrons a little smaller where the room either side is short: a narrow seeded
+    // face (rule 146) sets its figures taller, and the chevrons sized to them no longer fit (2026-11-18)
+    const room = Math.min(nb[0] - F.col[0], F.col[1] - nb[2]), fit = Math.min(sz, room / 2.9);
+    this.fullChevrons = fit >= sz * .7 ? fit : 0;
   }
 
   frame(ctx, t, quality, dt) {
@@ -1232,7 +1311,7 @@ export class FullAd extends Ad {
       if (q > 0) {
         const s = .7 + .3 * outBack(q), cx = C.x + C.c.width / 2, cy = C.y + C.c.height / 2, glow = .5 + .5 * Math.sin(t * Math.PI * 2 / 1.6);
         ctx.save(); ctx.globalAlpha = Math.min(1, q * 2); ctx.translate(cx, cy); ctx.scale(s, s);
-        ctx.shadowColor = C.fill; ctx.shadowBlur = U * (.012 + .018 * glow);
+        if (C.glow !== false) { ctx.shadowColor = C.fill; ctx.shadowBlur = U * (.012 + .018 * glow); }
         ctx.drawImage(C.c, -C.c.width / 2, -C.c.height / 2); ctx.restore();
       }
     }
@@ -1433,7 +1512,7 @@ export function lockScreen(p, seed = 1, lang = "en", base = null) {
 export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const r = rng((seed >>> 0) * 7 + 11), one = a => a[Math.floor(r() * a.length) % a.length];
   const es = st.lang === "es";
-  // the colours: one of the twelve by the seed (of those that suit the line and any colour its
+  // the colours: one of the pairs by the seed, the look first (drawPair) (of those that suit the line and any colour its
   // headline names: pairsFor), or the one picked; carried as the palette's own colours (the
   // engine's pal() lays st.colors over the palette named), so the catalogue is not touched
   // fewer phones, larger (five on a square full of large words shrank to a strip): two where the
@@ -1456,12 +1535,23 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   // a photograph given with the ad whose colour is strong counts toward the two families, as a bold phone does
   const given = st.ground_photo && st.ground_photo.src ? GROUND_PHOTOS[st.ground_photo.src] : null;
   if (given && given.C >= .08 && given.hue != null) bold.push(given.hue);
-  const pairs = pairsFor(st.subject, st.headline, bold), first = pairs[(Math.floor(r() * pairs.length) + lineTurn(st.subject, pairs.length)) % pairs.length];
+  const pairs = pairsFor(st.subject, st.headline, bold), first = drawPair(pairs, r(), st.subject);
   const key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, type_pair: _t, type_any: _a, ...picked } = pick;
   // the type: the house's one face, or one of the owner's pairs when one is picked (pick.type_pair, a
   // TYPE_VOICES key that FULL_VOICES holds). Carried in the look, after QUIET, so it is the face drawn.
-  const voice = fullVoiceOk(pick.type_pair, pick.type_any) ? TYPE_VOICES[pick.type_pair] : null;   // type_any: the check that writes the list tries every pair
-  const type = voice ? { type_pair: pick.type_pair, font: voice.display, number_font: voice.numberRead ? voice.label : "same", full_pair: true } : { full_pair: false };
+  /* THE FACE A SEED DRAWS (2026-11-18, rule 146): every seeded full ad was set in the one house face,
+     so a page of them read as one ad "with 5% variety or difference" (the owner). A seed nobody styled
+     now draws one of the owner's vetted pairs (FULL_VOICES: proven in every size, on a dark and a
+     light pair, in English and Spanish, rule 141), the house face about a quarter of the time, on a
+     stream of its own (the colours, ground, product and words it drew do not move). A pair picked by
+     hand is kept; "house" keeps the house face. */
+  let vk = fullVoiceOk(pick.type_pair, pick.type_any) ? pick.type_pair : "";   // type_any: the check that writes the list tries every pair
+  if (!vk && pick.type_pair !== "house") {
+    const faces = FULL_VOICES.filter(k => fullVoiceOk(k)), vr = rng(((seed >>> 0) ^ 0x6a09e667) * 31 + lineTurn(st.subject, 7919) + 17);
+    if (faces.length && vr() >= HOUSE_FACE) vk = faces[Math.floor(vr() * faces.length) % faces.length];
+  }
+  const voice = vk ? TYPE_VOICES[vk] : null;
+  const type = voice ? { type_pair: vk, font: voice.display, number_font: voice.numberRead ? voice.label : "same", full_pair: true } : { full_pair: false };
   // how the phones stand: back, turned, front with a lock screen, side on, or fronts and backs mixed
   // (phoneView; a subject's own pictures are drawn as they are)
   // a drawn phone (never a picked one) that would stand dark on a dark card, or light on a light one,
@@ -1484,8 +1574,12 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
      number and entrance are the fallback of a look made before them). */
   const kept = new Set(keep), own = { sticker_shape: FULL_STYLES.sticker, text_fx: FULL_STYLES.headline, text_in: FULL_STYLES.entrance, number_style: FULL_STYLES.number };
   const held = k => kept.has(k) && st[k] != null && (!own[k] || own[k].some(e => e.key === st[k]));
+  // dark: the words are lighter than the ground (a vivid ground under white words is dark here); busy: a
+  // photograph or a drawn scene, not one of the house's own painted grounds (its gradients and its
+  // tone-on-tone patterns are the pair's own colours, solved for the words: rule 146)
+  const own2 = COLOUR_OF[key].colors, painted = [...GROUNDS, ...GROUND_GRADIENTS, ...GROUND_PATTERNS].includes(look.background);
   const styles = pickFullStyles(rng(((seed >>> 0) ^ 0x51ed27f3) * 13 + lineTurn(st.subject, 99991) + 5),
-    { dark: oklchOf(COLOUR_OF[key].colors.ground).L < .56, busy: !GROUNDS.includes(look.background) });
+    { dark: lum(own2.ink) > lum(own2.ground), busy: !painted });
   if ("text_fx" in picked || held("text_fx")) delete styles.scrim;
   for (const [k, v] of Object.entries(styles)) if (!(k in picked)) look[k] = held(k) ? st[k] : v;
   const area = (st.area || "").trim();
@@ -1692,7 +1786,8 @@ export function fullPreflight(ad, frame) {
   // a pill's box holds its round ends, where the ground shows: the words are measured on the pill's straight middle
   const inPill = r => { const h = r[3] - r[1]; return [r[0] + h * .5, r[1] + h * .14, r[2] - h * .5, r[3] - h * .14]; };
   const ink = ad.pHead.ink, plateInk = contrastOf(ad.p.plate_ink, ad.p.plate) >= 3.5 ? ad.p.plate_ink : (lum(ad.p.plate) > .5 ? "#111111" : "#ffffff");
-  const numInk = ad.st.number_style === "underline" ? ink : plateInk;   // a number with no plate stands on the ground in the ink
+  // a number with no plate, or on a pane of glass or inside an edge alone (rule 146), stands on the ground in the ink
+  const numInk = ad.st.number_style === "underline" || ["glass", "outline"].includes(ad.st.plate_fill) ? ink : plateInk;
   const lines = [["line", "the line under the headline", ink, PF.small], ["call to action", "the line over the number", ink, PF.small], ["footer", "the towns and website", ink, PF.small],
     ["number", "the phone number", numInk, PF.large], ["claim", "the claim", ad.claim ? ad.claim.ink : plateInk, PF.small]];
   let worst = 99, worstName = "";

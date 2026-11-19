@@ -10,7 +10,7 @@
      shares    600 seeds through pickFullStyles: every option drawn, each within 6 points of its
                share (a "dark" row only on dark grounds)
      options   every sticker shape (flat and graded), every headline treatment, every number
-               treatment (flat and graded plates) and every gradient ground, on all twelve pairs at
+               treatment (flat and graded plates) and every gradient and pattern ground and every fill, on every pair at
                a square and in Easy Mode's five other sizes on two pairs, on two lines (galaxy,
                jdm: their sticker's room by the frame's edge) in those five sizes on their own
                grounds, and on up to eight lines' own photographs, each through fullPreflight on
@@ -52,7 +52,8 @@ const r = await page.evaluate(async () => {
   const words = { headline: 'SELL YOUR IPHONE', tag: 'IPHONE 15 AND NEWER', feed_claim: 'LOCAL & HONEST', points: 'TEXT YOUR IMEI, CASH SAME DAY, NO FEES', number_label: 'CALL OR TEXT',
     feed_where: 'LONG BEACH • LAKEWOOD • DOWNEY', site: 'www.YourShop.com', number: '(562) 999-4994', feed_burst: 'SAME DAY' };
   const T = S.FULL_STYLES, out = { shares: {}, options: [], families: [], entrances: [], sheets: {} };
-  const darkOf = key => E.oklchOf(F.COLOUR_OF[key].colors.ground).L < .56;
+  // dark: the words are lighter than the ground, as fullStyle reads it (a vivid ground under white words is dark)
+  const darkOf = key => E.lum(F.COLOUR_OF[key].colors.ink) > E.lum(F.COLOUR_OF[key].colors.ground);
 
   // shares: 600 seeds through the picker, half on dark grounds
   const tally = {}; let darkN = 0;
@@ -64,7 +65,20 @@ const r = await page.evaluate(async () => {
     if ((row.scrim != null ? row.scrim : null) !== (p.scrim != null ? p.scrim : null)) tally.scrimWrong = (tally.scrimWrong || 0) + 1;
     // the same stream on a photograph or a drawn scene: a "plain" row (the plate-less number) is never drawn there
     const pb = S.pickFullStyles(E.rng(s * 7919 + 13), { dark, busy: true });
-    for (const [field, list] of [['sticker_shape', T.sticker], ['text_fx', T.headline], ['text_in', T.entrance], ['number_style', T.number]]) if ((list.find(e => e.key === pb[field]) || {}).where === 'plain') tally.plainOnBusy = (tally.plainOnBusy || 0) + 1;
+    for (const [field, list] of [['sticker_shape', T.sticker], ['sticker_fill', T.sticker_fill], ['text_fx', T.headline], ['text_in', T.entrance], ['number_style', T.number], ['plate_fill', T.plate_fill]]) if ((list.find(e => e.key === pb[field]) || {}).where === 'plain') tally.plainOnBusy = (tally.plainOnBusy || 0) + 1;
+  }
+  // a textured fill (stripes, dots, foil: decor.js fillTexture) moves the fill's own hue away from its ink, so it never
+  // reads worse than the flat fill: every tone it can draw, on every pair's plate, accent and sticker, against their inks
+  { let worst = 99, where = '';
+    for (const key of F.COLOURWAYS) {
+      const c = F.COLOUR_OF[key].colors, plateInk = E.contrastOf(c.plate_ink || '#ffffff', c.plate || c.accent) >= 3.5 ? (c.plate_ink || '#ffffff') : (E.lum(c.plate || c.accent) > .5 ? '#111111' : '#ffffff');
+      const stickerInk = E.contrastOf(c.ink, c.ground) >= 3 ? c.ground : (E.lum(c.ink) > .5 ? '#111111' : '#ffffff');
+      for (const [what, fill, ink] of [['plate', c.plate || c.accent, plateInk], ['sticker', c.ink, stickerInk]]) for (const d of [.05, .09, .1, .16]) {
+        const away = D.textureTone(fill, ink, d), k = E.contrastOf(ink, away) / E.contrastOf(ink, fill);
+        if (k < worst) { worst = k; where = `${key} ${what} ${d}`; }
+      }
+    }
+    out.textureContrast = { worst: +worst.toFixed(3), where };
   }
   // a gradient plate keeps the contrast the solid plate had: both ends of every plate, claim, chip and sticker fill, against its ink
   { let worst = 99, where = '';
@@ -133,13 +147,21 @@ const r = await page.evaluate(async () => {
   out.onPhoto = onPhoto.map(q => q.key + ' ' + q.seed);
 
   const OTHER = ['story', 'flyer', 'landscape', 'four3', 'three4'], BY_EDGE = [{ key: 'galaxy', i: 0, seed: 1 }, { key: 'jdm', i: 0, seed: 1 }], edgeBase = {};
-  for (const q of BY_EDGE) for (const size of OTHER) { const d0 = await lineAd(q, {}, size); edgeBase[q.key + ' ' + size] = { pair: d0.st.full_colour, busy: !F.GROUNDS.includes(d0.st.background) }; }
+  // busy: a photograph or a drawn scene (the house's own painted grounds, its gradients and patterns, are plain: rule 146)
+  const painted = bg => F.GROUNDS.includes(bg) || D.PAIR_GRADIENTS.includes(bg) || D.FULL_PATTERNS.includes(bg);
+  for (const q of BY_EDGE) for (const size of OTHER) { const d0 = await lineAd(q, {}, size); edgeBase[q.key + ' ' + size] = { pair: d0.st.full_colour, busy: !painted(d0.st.background) }; }
+  /* every shape flat, then every other fill (rule 146) on a shape in turn; every number treatment on a flat plate,
+     then every other plate fill on a plate in turn (the number's and the claim's badge both wear it); every
+     gradient and every pattern ground (spec/full-grounds.json) */
+  const fillOn = (fills, keys, k) => fills.filter(f => f.key !== 'solid').map((f, i) => ({ f, on: keys[i % keys.length] }));
   const KINDS = [
-    ['sticker', T.sticker.map(e => e.key).flatMap(k => [{ sticker_shape: k, sticker_grad: false }, { sticker_shape: k, sticker_grad: true }])],
+    ['sticker', [...T.sticker.map(e => ({ sticker_shape: e.key, sticker_fill: 'solid', sticker_grad: false })),
+      ...fillOn(T.sticker_fill, T.sticker.map(e => e.key)).map(({ f, on }) => ({ sticker_shape: on, sticker_fill: f.key, sticker_grad: f.key === 'gradient', _where: f.where || '' }))]],
     // a treatment drawn with the shade its row holds (scrim), as the seed draws it
     ['headline', T.headline.map(e => ({ text_fx: e.key, ...(e.scrim != null ? { scrim: e.scrim } : {}), _where: e.where || '' }))],
-    ['number', T.number.flatMap(e => [false, true].map(g => ({ number_style: e.key, plate_grad: g, _where: e.where || '' })))],
-    ['ground', D.PAIR_GRADIENTS.map(k => ({ background: k }))],
+    ['number', [...T.number.map(e => ({ number_style: e.key, plate_fill: 'solid', plate_grad: false, _where: e.where || '' })),
+      ...fillOn(T.plate_fill, T.number.filter(e => !e.where).map(e => e.key)).map(({ f, on }) => ({ number_style: on, plate_fill: f.key, plate_grad: f.key === 'gradient' || f.key === 'foil', _where: f.where || '' }))]],
+    ['ground', [...D.PAIR_GRADIENTS, ...D.FULL_PATTERNS].map(k => ({ background: k }))],
   ];
   for (const [kind, opts] of KINDS) {
     const cells = [];
@@ -166,7 +188,8 @@ const r = await page.evaluate(async () => {
       }
       // Easy Mode's other five sizes: on two pairs, and on two lines on their own drawn grounds, where the
       // sticker's room can stand by the frame's edge (a ribbon's tails ran into the margin there, 2026-11-18)
-      for (const pair of ['navy_orange', 'silver_blue']) {
+      // (a dark, a light, a vivid ground under white words and one under black words: 2026-11-18, rule 146)
+      for (const pair of ['navy_orange', 'silver_blue', 'white_on_pink', 'black_on_lime']) {
         if (_where === 'dark' && !darkOf(pair)) continue;
         for (const size of OTHER) {
           const d = await draw(pair, size, force);
@@ -178,6 +201,12 @@ const r = await page.evaluate(async () => {
         if ((_where === 'dark' && !darkOf(b.pair)) || (_where === 'plain' && b.busy)) continue;
         const d = await lineAd(q, force, size);
         out.options.push({ kind, label, pair: q.key + ' ' + q.seed, aspect: size, ok: !d.fixes.length, fixes: d.fixes, sticker: !!d.ad.burst });
+      }
+      // on the house's own textured grounds too (rule 146): a dot screen and a hard split, under light words and dark
+      if (kind !== 'ground') for (const pair of ['black_gold', 'cream_red', 'white_on_teal']) for (const background of ['pat_halftone', 'pair_split', 'pat_memphis']) {
+        if (_where === 'dark' && !darkOf(pair)) continue;
+        const d = await draw(pair, 'square', { ...force, background });
+        out.options.push({ kind, label, pair: pair + ' ' + background, aspect: 'square', ok: !d.fixes.length, fixes: d.fixes, sticker: !!d.ad.burst });
       }
     }
     out.sheets[kind] = sheetOf(cells, kind === 'headline' ? 12 : 12);
@@ -218,7 +247,7 @@ const shareOk = (field, list, dark) => {
   return bad;
 };
 const SPEC = JSON.parse((await import('node:fs')).readFileSync(new URL('../spec/full-styles.json', import.meta.url), 'utf8'));
-for (const [field, list] of [['sticker_shape', SPEC.sticker], ['text_fx', SPEC.headline], ['text_in', SPEC.entrance], ['number_style', SPEC.number]]) {
+for (const [field, list] of [['sticker_shape', SPEC.sticker], ['sticker_fill', SPEC.sticker_fill], ['text_fx', SPEC.headline], ['text_in', SPEC.entrance], ['number_style', SPEC.number], ['plate_fill', SPEC.plate_fill]]) {
   const bad = shareOk(field, list);
   ok(!bad.length, `600 seeds draw every ${field} near its share` + (bad.length ? ': ' + bad.join(', ') : ''));
 }
@@ -226,7 +255,7 @@ ok(!tally.glowOnLight, 'a "dark" treatment (glow) is never drawn on a light grou
 ok(!tally.scrimWrong, 'each headline treatment comes with the shade its row holds (scrim), and the others with the engine\'s own');
 ok(!tally.plainOnBusy, `a "plain" row (the plate-less number) is never drawn on a photograph or a drawn scene (${tally.plainOnBusy || 0} of 600)`);
 ok(r.gradContrast.worst >= .999, `a gradient fill keeps the contrast its flat fill had, at both ends (the least, ${r.gradContrast.worst} of the flat's, on ${r.gradContrast.where})`);
-ok(Math.abs((tally['sticker_grad:true'] || 0) / N - SPEC.sticker_gradient) < .06 && Math.abs((tally['plate_grad:true'] || 0) / N - SPEC.plate_gradient) < .06, `graded stickers ${(tally['sticker_grad:true'] || 0)} and plates ${(tally['plate_grad:true'] || 0)} of 600, near their shares`);
+ok(r.textureContrast.worst >= .999, `a striped, dotted or foil fill never reads worse than its flat fill (the least, ${r.textureContrast.worst} of the flat's, on ${r.textureContrast.where})`);
 
 // the options: each passes the pre-flight where it is offered
 const byOpt = {};

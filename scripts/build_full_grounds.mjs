@@ -82,6 +82,7 @@ export const GROUND_SHARES = ${JSON.stringify(spec.shares)};
 export const GROUND_HOUSE = ${JSON.stringify(spec.house)};
 export const GROUND_SCENES = ${JSON.stringify(spec.scenes)};
 export const GROUND_GRADIENTS = ${JSON.stringify(spec.gradients || [])};
+export const GROUND_PATTERNS = ${JSON.stringify(spec.patterns || [])};
 export const GROUND_POOLS = ${JSON.stringify(spec.pools)};
 export const GROUND_LINE_CAT = ${JSON.stringify(lineCat)};
 export const GROUND_PHOTOS = ${JSON.stringify(photos)};
@@ -106,10 +107,13 @@ if (process.argv.includes('--check')) {
     else if (m.L < spec.limits.minL || m.dark > spec.limits.maxDark) bad.push(`${f}: too dark (L ${m.L}, ${Math.round(m.dark * 100)}% near black)`);
     if (!credited(f)) bad.push(`${f}: no credit in its folder's ATTRIBUTION.json`);
   }
+  // every gradient and pattern the table names is one the engine paints (motion/decor.js PAIR_GRADIENTS, FULL_PATTERNS)
+  const decor = readFileSync(ROOT + 'motion/decor.js', 'utf8'), listed = name => JSON.parse((new RegExp(`export const ${name} = (\\[[^\\]]*\\])`).exec(decor) || [, '[]'])[1].replace(/\s+/g, ' '));
+  for (const [k, painter] of [['gradients', 'PAIR_GRADIENTS'], ['patterns', 'FULL_PATTERNS']]) { const known = listed(painter); for (const g of spec[k] || []) if (!known.includes(g)) bad.push(`${k}: ${g} is not one motion/decor.js paints (${painter})`); }
   const noPool = subjects.filter(s => !(s.cat in spec.pools)).map(s => s.key);
   if (noPool.length) bad.push('lines whose category has no pool entry: ' + noPool.join(', '));
   if (bad.length) { console.error(bad.join('\n')); process.exit(1); }
-  console.log(`motion/full-grounds.js is current: ${pooled.length} photographs in ${Object.keys(spec.pools).length} pools, ${spec.scenes.length} scenes, version ${spec.version}`);
+  console.log(`motion/full-grounds.js is current: ${pooled.length} photographs in ${Object.keys(spec.pools).length} pools, ${spec.scenes.length} scenes, ${(spec.gradients || []).length} gradients, ${(spec.patterns || []).length} patterns, version ${spec.version}`);
 } else {
   writeFileSync(OUT, text);
   console.log(`wrote motion/full-grounds.js: ${Object.keys(photos).length} photographs, ${spec.scenes.length} scenes, shares ${JSON.stringify(spec.shares)}`);

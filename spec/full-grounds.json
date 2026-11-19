@@ -1,11 +1,12 @@
 {
-  "_doc": "What the full ad stands on (motion/fullad.js; DESIGN-LAW 137, 139; OPEN-ITEMS §BJ). The owner, 2026-11-18: \"how come none of the videos use a BG?\", \"also only have 1 BG style?!\", \"retire but bg counts.. so combo of assets and bg is best though\", \"with cars people like a good bg or sunset\", \"not low exposure dark images...\". A seed draws one of three kinds of ground: a photograph from its category's pool (graded toward the pair's ground, shaded only where words stand, moving slowly in the video), one of the engine's drawn scenes, or the house's own gradient. The shares below are each kind's part of a seed's draw where the line has that kind; a line with no photograph shares its photo part between the other two. A photograph is drawn only where its own colour keeps the card to two families with the pair the seed drew (rule 139); a hand-picked look or a ground_photo given in the style is never overruled. Photographs come only from the repository's own credited folders: never a dark one (mean relative luminance under .14 or more than 35% of it near black), never cash or money, never outer space for goods that are not about space, never a legible licence plate or a person's face. scripts/build_full_grounds.mjs --measure reads each photograph's brightness and colour into 'photos'; the generator writes motion/full-grounds.js (the site cannot read spec/); --check fails a stale module or a pooled photograph that is missing, unmeasured, dark or uncredited. Pools are by the lines' categories (motion/subjects.json 'cat'); the iPhone line is 'phones'.",
+  "_doc": "What the full ad stands on (motion/fullad.js; DESIGN-LAW 137, 139; OPEN-ITEMS §BJ). The owner, 2026-11-18: \"how come none of the videos use a BG?\", \"also only have 1 BG style?!\", \"retire but bg counts.. so combo of assets and bg is best though\", \"with cars people like a good bg or sunset\", \"not low exposure dark images...\". A seed draws one of three kinds of ground: a photograph from its category's pool (graded toward the pair's ground, shaded only where words stand, moving slowly in the video), one of the engine's drawn scenes, or the house's own gradient. The shares below are each kind's part of a seed's draw where the line has that kind; a line with no photograph shares its photo part between the other two. A photograph is drawn only where its own colour keeps the card to two families with the pair the seed drew (rule 139); a hand-picked look or a ground_photo given in the style is never overruled. Photographs come only from the repository's own credited folders: never a dark one (mean relative luminance under .14 or more than 35% of it near black), never cash or money, never outer space for goods that are not about space, never a legible licence plate or a person's face. scripts/build_full_grounds.mjs --measure reads each photograph's brightness and colour into 'photos'; the generator writes motion/full-grounds.js (the site cannot read spec/); --check fails a stale module or a pooled photograph that is missing, unmeasured, dark or uncredited. Pools are by the lines' categories (motion/subjects.json 'cat'); the iPhone line is 'phones'. 2026-11-18 (rule 146; the owner: \"still not enough colors, gradients, pattern fill, or other ways instead of colors\", \"a lot of these are the same thing with 5% variety or difference\"): a fifth kind, the house patterns and textures (pattern: tone-on-tone marks in the ground’s own colour, motion/decor.js FULL_PATTERNS), and five more of the pair’s own gradients (a conic sweep, a sunset, a hard diagonal split, a two-corner duotone, an arch blocked in behind the product). The photograph keeps the largest share.",
   "version": "2026-11-18",
   "shares": {
-    "photo": 0.35,
-    "scene": 0.2,
-    "gradient": 0.25,
-    "house": 0.2
+    "photo": 0.3,
+    "scene": 0.12,
+    "gradient": 0.22,
+    "pattern": 0.22,
+    "house": 0.14
   },
   "house": [
     "radial",
@@ -310,6 +311,28 @@
   "gradients": [
     "pair_linear",
     "pair_radial",
-    "pair_mesh"
+    "pair_mesh",
+    "pair_conic",
+    "pair_sunset",
+    "pair_split",
+    "pair_corner",
+    "pair_arch"
+  ],
+  "patterns": [
+    "pat_halftone",
+    "pat_stripes",
+    "pat_checks",
+    "pat_grid",
+    "pat_waves",
+    "pat_zigzag",
+    "pat_rays",
+    "pat_rings",
+    "pat_topo",
+    "pat_polka",
+    "pat_gingham",
+    "pat_memphis",
+    "pat_grain",
+    "pat_paper",
+    "pat_riso"
   ]
 }

@@ -5805,6 +5805,17 @@ const COLOR_THEMES = [
   { name:'White on Green',   group:'Two colours', family:'Dark', bg:{type:'grad', c1:'#0e7a3e', c2:'#085a2c', a:170}, accent:'#ffffff', ink:'#ffffff' },
   { name:'White on Purple',  group:'Two colours', family:'Dark', bg:{type:'grad', c1:'#5b21b6', c2:'#3f137f', a:170}, accent:'#ffffff', ink:'#ffffff' },
   { name:'Black on Orange',  group:'Two colours', family:'Light', bg:{type:'grad', c1:'#ff7a00', c2:'#f06400', a:170}, accent:'#111214', ink:'#111214' },
+  /* 2026-11-18: the vivid grounds (the owner: "still not enough colors, gradients, pattern fill,
+     or other ways instead of colors"). A vivid mid-tone ground cannot carry a third colour that
+     reads 4.5:1 on it and still stands 1.7:1 off white words, so these are two colours: every word
+     in white or black. Solved in OKLCH and measured by theme_law.mjs and build_house_colours.mjs. */
+  { name:'White on Pink',    group:'Two colours', family:'Dark', bg:{type:'grad', c1:'#d21a77', c2:'#bd0468', a:170}, accent:'#ffffff', ink:'#ffffff' },
+  { name:'White on Teal',    group:'Two colours', family:'Dark', bg:{type:'grad', c1:'#007a78', c2:'#006a68', a:170}, accent:'#ffffff', ink:'#ffffff' },
+  { name:'White on Violet',  group:'Two colours', family:'Dark', bg:{type:'grad', c1:'#702cdb', c2:'#601dc6', a:170}, accent:'#ffffff', ink:'#ffffff' },
+  { name:'Black on Lime',    group:'Two colours', family:'Light', bg:{type:'grad', c1:'#c6fb50', c2:'#aff03c', a:170}, accent:'#111214', ink:'#111214' },
+  { name:'Black on Aqua',    group:'Two colours', family:'Light', bg:{type:'grad', c1:'#53f2f2', c2:'#12e3e3', a:170}, accent:'#111214', ink:'#111214' },
+  { name:'Black on Pink',    group:'Two colours', family:'Light', bg:{type:'grad', c1:'#ffafce', c2:'#f799be', a:170}, accent:'#111214', ink:'#111214' },
+  { name:'Black on Lilac',   group:'Two colours', family:'Light', bg:{type:'grad', c1:'#ceb6fc', c2:'#c0a2f5', a:170}, accent:'#111214', ink:'#111214' },
   { name:'Red, White & Blue',     group:'Three colours', family:'Light', bg:{type:'grad', c1:'#ffffff', c2:'#edf1f7', a:170}, accent:'#c8102e', ink:'#0b1f4d' },
   { name:'Navy, White & Red',     group:'Three colours', family:'Dark', bg:{type:'grad', c1:'#0c2152', c2:'#071437', a:170}, accent:'#ff4b55', ink:'#ffffff' },
   { name:'White, Black & Red',    group:'Three colours', family:'Light', bg:{type:'grad', c1:'#ffffff', c2:'#efeff0', a:170}, accent:'#c8102e', ink:'#111214' },
@@ -5825,6 +5836,28 @@ const COLOR_THEMES = [
   { name:'Black & Red',     group:'Proven pairs', family:'Dark',  bg:{type:'grad', c1:'#202327', c2:'#101316', a:170}, accent:'#fe4344', ink:'#f4f7fb', support:'#e8868a', aka:['Blue Ticket', 'Indigo Cash', 'Blue Deal', 'Red Cash', 'Deep Red', 'Hot Sale', 'Electric Trust'] },
   { name:'Black & Green',   group:'Proven pairs', family:'Dark',  bg:{type:'grad', c1:'#202327', c2:'#101316', a:170}, accent:'#15a34a', ink:'#f4f7fb', support:'#6ac893', aka:['Mint Counter', 'Cash Green'] },
   { name:'Silver & Blue',   group:'Proven pairs', family:'Light',  bg:{type:'grad', c1:'#f3f7ff', c2:'#e2e8f3', a:170}, accent:'#1d4ed8', ink:'#111b30', support:'#36428b', aka:['Blue Market', 'Indigo Trade', 'Violet Payday'] },
+  /* 2026-11-18 (rule 146): eleven of the twelve proven pairs are a navy, black or deep ground
+     under a warm accent, so a page of seeded ads read as one look "with 5% variety or difference"
+     (the owner). Light pairs: a tinted light ground (the offer family's cream, blush, mint, sky,
+     sand, bone and arctic colourways), dark words, one bold colour. Neon pairs: black or a deep
+     colour under one bright colour. Two families each (rule 139); solved in OKLCH, measured by
+     theme_law.mjs and build_house_colours.mjs. */
+  { name:'Cream & Red',        group:'Light pairs', family:'Light', bg:{type:'grad', c1:'#fff6e4', c2:'#fcedd1', a:170}, accent:'#c21725', ink:'#22110b', support:'#90101a' },
+  { name:'Blush & Magenta',    group:'Light pairs', family:'Light', bg:{type:'grad', c1:'#ffe5ed', c2:'#ffd4e0', a:170}, accent:'#bb086f', ink:'#2e0d1e', support:'#8c0452' },
+  { name:'Mint & Green',       group:'Light pairs', family:'Light', bg:{type:'grad', c1:'#ddfcea', c2:'#c6f5da', a:170}, accent:'#007845', ink:'#002215', support:'#005734' },
+  { name:'Sky & Cobalt',       group:'Light pairs', family:'Light', bg:{type:'grad', c1:'#daf2ff', c2:'#c2e7ff', a:170}, accent:'#1f4fcc', ink:'#07183a', support:'#093995' },
+  { name:'Lavender & Violet',  group:'Light pairs', family:'Light', bg:{type:'grad', c1:'#f0eaff', c2:'#e3daff', a:170}, accent:'#682bd0', ink:'#1c103c', support:'#471f98' },
+  { name:'Lemon & Blue',       group:'Light pairs', family:'Light', bg:{type:'grad', c1:'#fefbbc', c2:'#fef290', a:170}, accent:'#1c4cc8', ink:'#0a1936', support:'#08348a' },
+  { name:'Sand & Teal',        group:'Light pairs', family:'Light', bg:{type:'grad', c1:'#f7e9d6', c2:'#f1dabe', a:170}, accent:'#006d6d', ink:'#001f27', support:'#004d51' },
+  { name:'Arctic & Teal',      group:'Light pairs', family:'Light', bg:{type:'grad', c1:'#e9f6fa', c2:'#d7ecf4', a:170}, accent:'#007570', ink:'#001e2d', support:'#005455' },
+  { name:'Bone & Purple',      group:'Light pairs', family:'Light', bg:{type:'grad', c1:'#f3f0e7', c2:'#e9e4d7', a:170}, accent:'#7024ab', ink:'#100f0d', support:'#501d7a' },
+  { name:'White & Pink',       group:'Light pairs', family:'Light', bg:{type:'grad', c1:'#ffffff', c2:'#f7f2f4', a:170}, accent:'#cb0b71', ink:'#130e10', support:'#8e024d' },
+  { name:'Black & Pink',       group:'Neon pairs',  family:'Dark',  bg:{type:'grad', c1:'#1b1a1f', c2:'#0e0d10', a:170}, accent:'#ff35a0', ink:'#ffffff', support:'#ff99c2' },
+  { name:'Black & Lime',       group:'Neon pairs',  family:'Dark',  bg:{type:'grad', c1:'#181c17', c2:'#0b0e0b', a:170}, accent:'#8bd737', ink:'#ffffff', support:'#c6eda7' },
+  { name:'Black & Cyan',       group:'Neon pairs',  family:'Dark',  bg:{type:'grad', c1:'#161b20', c2:'#090e11', a:170}, accent:'#0ec7de', ink:'#ffffff', support:'#a1e5f1' },
+  { name:'Black & Violet',     group:'Neon pairs',  family:'Dark',  bg:{type:'grad', c1:'#1a1a21', c2:'#0d0d11', a:170}, accent:'#ad74ff', ink:'#ffffff', support:'#ceb6fc' },
+  { name:'Plum & Lime',        group:'Neon pairs',  family:'Dark',  bg:{type:'grad', c1:'#481645', c2:'#340b32', a:170}, accent:'#8bd737', ink:'#ffffff', support:'#c6eda7' },
+  { name:'Teal & Pink',        group:'Neon pairs',  family:'Dark',  bg:{type:'grad', c1:'#00393a', c2:'#002929', a:170}, accent:'#fd68a6', ink:'#ffffff', support:'#fbb2cb' },
 ];
 /* Which text is standing on the card's ground, and which is standing on a
    plate of its own? A line on a plate takes its contrast from the plate, not
@@ -5896,6 +5929,8 @@ const THEME_GROUPS = [
   ['Two colours', 'a ground and one colour for every word'],
   ['Three colours', 'a ground, the words and one highlight'],
   ['Proven pairs', 'the library’s palettes: two colours with white or black'],
+  ['Light pairs', 'a light ground, dark words and one bold colour'],
+  ['Neon pairs', 'black or a deep colour and one bright colour'],
 ];
 function themeChips(row, pick){
   THEME_GROUPS.forEach(([g, about]) => {

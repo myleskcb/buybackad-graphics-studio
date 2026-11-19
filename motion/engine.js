@@ -9,7 +9,7 @@ import { pickVoice, voiceFits } from "./voices.js";
 import { placeAccents, drawAccents, timeAccents } from "./accents.js";
 import { vibeBackground, candidateGround, themeGround, freshGround, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
   drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse,
-  drawSticker, pairGradientGround, fillGradient } from "./decor.js";
+  drawSticker, pairGradientGround, fillGradient, fullPatternGround, toneOf as okTone } from "./decor.js";
 
 // ------------------------------------------------------------ small tools
 
@@ -532,6 +532,9 @@ function boardPalette(b, p) {
 
 /** A loud colour that reads on this ground: for badges, tickers, arrows and borders. */
 function hotColour(p) {
+  // a palette that names its loud colour (the full ad's pairs, house-colours.js "hot": the accent) keeps it:
+  // the stock yellow or pink below is a third colour on a light pair whose accent is dark (rule 139)
+  if (p.hot) return p.hot;
   for (const c of [p.accent, "#ffd60a", "#ff2d55", "#30d158", "#00e5ff"]) if (Math.abs(lum(c) - lum(p.ground)) > .3 && lum(c) > .25) return c;
   return lum(p.ground) > .5 ? "#111111" : "#ffd60a";
 }
@@ -2363,9 +2366,16 @@ function background(st, p, W, H, sc, r) {
   const [cx, cy] = sc;
   const radial = (k = .75) => { const gr = x.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(W, H) * k); gr.addColorStop(0, l); gr.addColorStop(1, g); return gr; };
   x.fillStyle = g; x.fillRect(0, 0, W, H);
-  if (pairGradientGround(st.background, x, st, p, W, H, sc, r) || candidateGround(st.background, x, st, p, W, H, sc, r) || freshGround(st.background, x, st, p, W, H, sc, r) || themeGround(st.background, x, st, p, W, H, sc, r) || vibeBackground(st.background, x, st, p, W, H, sc, r)) {
-    const vg0 = x.createRadialGradient(cx, cy, Math.hypot(W, H) * .35, cx, cy, Math.hypot(W, H) * .8);
-    vg0.addColorStop(0, "rgba(0,0,0,0)"); vg0.addColorStop(1, "rgba(0,0,0,.2)"); x.fillStyle = vg0; x.fillRect(0, 0, W, H);
+  // the full ad's tone-on-tone patterns (decor.js FULL_PATTERNS) carry their own light and no black vignette:
+  // on a cream or a mint ground a black edge is a grey stain
+  if (fullPatternGround(st.background, x, st, p, W, H, sc, r)) return c;
+  const pairG = pairGradientGround(st.background, x, st, p, W, H, sc, r);
+  if (pairG || candidateGround(st.background, x, st, p, W, H, sc, r) || freshGround(st.background, x, st, p, W, H, sc, r) || themeGround(st.background, x, st, p, W, H, sc, r) || vibeBackground(st.background, x, st, p, W, H, sc, r)) {
+    // a pair's own gradient on a light ground keeps its edges clean: black at its corners is grey on cream (2026-11-18)
+    if (!(pairG && lum(g) > .45)) {
+      const vg0 = x.createRadialGradient(cx, cy, Math.hypot(W, H) * .35, cx, cy, Math.hypot(W, H) * .8);
+      vg0.addColorStop(0, "rgba(0,0,0,0)"); vg0.addColorStop(1, "rgba(0,0,0,.2)"); x.fillStyle = vg0; x.fillRect(0, 0, W, H);
+    }
     if (st.grain) { const nc = noiseTile(256, st.seed, 12); x.globalAlpha = .3; x.fillStyle = x.createPattern(nc, "repeat"); x.fillRect(0, 0, W, H); x.globalAlpha = 1; }
     return c;
   }
@@ -2496,8 +2506,10 @@ function background(st, p, W, H, sc, r) {
     }
     // one hue from its shadow to its light, the way a lit studio wall falls off: depth without colour travel
     case "tonal": case "aurora": case "drift": {
-      const gr = x.createLinearGradient(0, 0, 0, H);
-      gr.addColorStop(0, shade(g, -.28)); gr.addColorStop(.55, g); gr.addColorStop(1, shade(g, -.12)); x.fillStyle = gr; x.fillRect(0, 0, W, H);
+      // on the full ad's light pairs (rule 146) the deep end is a tone of the ground itself: black mixed into
+      // cream or white is a grey top that dark words read 2.6:1 on (full_ad_check, 2026-11-18)
+      const gr = x.createLinearGradient(0, 0, 0, H), lightG = st.full && lum(g) > .45;
+      gr.addColorStop(0, lightG ? okTone(g, -.07) : shade(g, -.28)); gr.addColorStop(.55, g); gr.addColorStop(1, lightG ? okTone(g, -.035) : shade(g, -.12)); x.fillStyle = gr; x.fillRect(0, 0, W, H);
       const hz = x.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(W, H) * .5);
       hz.addColorStop(0, rgba(l, .75)); hz.addColorStop(1, rgba(l, 0)); x.fillStyle = hz; x.fillRect(0, 0, W, H);
       break;                                                     // aurora and drift move on top of this every frame
@@ -2505,9 +2517,11 @@ function background(st, p, W, H, sc, r) {
     default: x.fillStyle = radial(); x.fillRect(0, 0, W, H);
   }
   sceneryOver(x, st, p, W, H, r);
-  // vignette
+  // vignette: on the full ad's light pairs a deeper tone of the ground itself, never black (rule 146)
   const vg = x.createRadialGradient(cx, cy, Math.hypot(W, H) * .3, cx, cy, Math.hypot(W, H) * .75);
-  vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,.28)"); x.fillStyle = vg; x.fillRect(0, 0, W, H);
+  if (st.full && lum(g) > .45) { const t = okTone(g, -.08); vg.addColorStop(0, rgba(t, 0)); vg.addColorStop(1, rgba(t, .6)); }
+  else { vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,.28)"); }
+  x.fillStyle = vg; x.fillRect(0, 0, W, H);
   if (st.grain) { const nc = noiseTile(256, st.seed, 12); x.globalAlpha = .35; x.fillStyle = x.createPattern(nc, "repeat"); x.fillRect(0, 0, W, H); x.globalAlpha = 1; }
   return c;
 }
@@ -4274,7 +4288,7 @@ export class Ad {
     const st = this.st, tl = this.tl;
     // the sticker's shape and fill (spec/full-styles.json: the full ad draws one of seven; a look that names
     // none keeps the starburst, as Any look always has)
-    if (this.burst) drawSticker(ctx, st.sticker_shape || "starburst", this.burst.x, this.burst.y, this.burst.R, applyCase(this.burst.text, "upper"), this.burst.fill, this.burst.ink, t, this.burst.t0, this.burst.font, !!st.sticker_grad);
+    if (this.burst) drawSticker(ctx, st.sticker_shape || "starburst", this.burst.x, this.burst.y, this.burst.R, applyCase(this.burst.text, "upper"), this.burst.fill, this.burst.ink, t, this.burst.t0, this.burst.font, st.sticker_fill || !!st.sticker_grad);
     if (this.arrow) drawNeonArrow(ctx, this.arrow.from, this.arrow.to, this.arrow.color, t, this.arrow.t0, this.size);
     if (st.urgency === "arrows" && this.arrowsMode) drawChevrons(ctx, this.numBox, this.size, this.hot, t, tl.number + .3, this.W, this.arrowsMode);
     if (this.stamp) drawStamp(ctx, this.stamp.S, this.stamp.x, this.stamp.y, t, this.stamp.t0);

@@ -6093,3 +6093,71 @@ good layout poor styling", "lacks any cohesive direction", "also only have 1 BG 
   Hero mark for the landing page's wall.
 
 Not done here: OPEN-ITEMS §BJ.
+
+## 146. A seed draws a different ad, not the same one 5% off: every colour theme, the look first, a face, a ground of five kinds, a fill
+
+Added 2026-11-18. It widens rules 123, 137 and 139. The owner, of the full ads: "still not
+enough colors, gradients, pattern fill, or other ways instead of colors", and "a lot of these
+are the same thing with 5% variety or difference". A sheet of 48 seeded full ads
+(`scripts/full_look_sheet.mjs`) had 41 on a dark ground, 12 pairs and one face. 11 of the 12
+proven pairs are a navy, black or deep ground under a warm accent. Of the 1,128 pairs of ads on
+it, 249 matched on look, kind of ground and face. After this rule the same sheet draws 32 pairs,
+21 faces and 20 grounds; looks are 16 light, 13 vivid, 11 dark and 8 photos read as grey; 9
+pairs of ads match. Both sheets are in `.render/` (`--tag before`, `--tag after`).
+
+- **Every colour theme is a pair.** The full ad draws the twelve proven pairs and also the two-
+  and three-colour themes, the new light pairs and the new neon pairs: 54 in all (15 light, 11
+  vivid, 28 dark). They live in `COLOR_THEMES` (app.js), so Easy Mode offers them too (rule 123:
+  one vocabulary). Each is solved in OKLCH and passes `theme_law.mjs` and
+  `build_house_colours.mjs`. A vivid ground cannot carry a third colour that reads 4.5:1 on it
+  and still stands 1.7:1 off white words, so the vivid grounds are two-colour themes (White on
+  Pink, Black on Lime). The words' floor on the ground is 4.5:1, the floor rule 138's pre-flight
+  holds on the delivered picture. 7:1 only a navy or black ground can give. Each pair names its
+  `look` and its `hot` colour, the accent, which the engine's `hotColour()` takes as given. Its
+  stock yellow or pink had been a third colour on every light pair.
+- **The look first, then the pair** (`drawPair`). One draw of the seed picks light, vivid or
+  dark: a third each, or in proportion where a restricted line holds fewer than four pairs of a
+  look (gold has one vivid pair). The same draw then picks the pair within the look. The line's
+  step turns the draw before either is read, so the first ads of the lines spread over the looks
+  too. Over 300 seeds: light 98–100, vivid 100–108, dark 94–104, no pair over 5.3%.
+- **A face by the seed.** A seed nobody styled draws one of the 29 vetted pairs (`FULL_VOICES`).
+  It keeps the house face a quarter of the time (`HOUSE_FACE`), on a stream of its own. A face
+  picked by hand is kept. "House" in both makers keeps Chivo; "Any" lets New look pick. A number
+  whose face sets it under its floor takes the condensed house figures (oswald). Chevrons shrink
+  to fit, down to 70%, beside a tall number.
+- **Five kinds of ground** (`spec/full-grounds.json`): photo .3, gradient .22, pattern .22,
+  house .14, scene .12.
+  - Gradients: eight of the pair's own (`pair_linear`, `pair_radial`, `pair_mesh`, `pair_conic`,
+    `pair_sunset`, `pair_split`, `pair_corner`, `pair_arch`), along one OKLCH path. A warm accent
+    that would be under its muddy floor at a depth light words read on (gold at .42 is olive),
+    and a two-colour pair's white or black, make the far end a tone of the ground instead.
+  - Patterns and textures (`decor.js` `FULL_PATTERNS`): `pat_halftone`, `pat_stripes`,
+    `pat_checks`, `pat_grid`, `pat_waves`, `pat_zigzag`, `pat_rays`, `pat_rings`, `pat_topo`,
+    `pat_polka`, `pat_gingham`, `pat_memphis`, `pat_grain`, `pat_paper`, `pat_riso`. Every mark
+    is one tone of the ground's own colour, a small step in OKLCH lightness away from the words
+    (`patternTone`). The marks thin to a third behind the product, and nothing moves in the video.
+  - The drawn scenes stand only under light words. On a light pair their deep tones go grey, and
+    the shade behind the words reached the frame's edge.
+  - On the full ad's light pairs, the house grounds deepen in a tone of the ground, never black.
+- **Fills that are not a colour** (`spec/full-styles.json`).
+  - The sticker draws a `sticker_fill`: `solid`, `gradient`, `stripes`, `dots`, `foil` or
+    `outline`.
+  - The number's plate and the claim's badge draw a `plate_fill`: `solid`, `gradient`,
+    `stripes`, `dots`, `foil`, `glass` or `outline`. `glass` and `outline` go only on the house's
+    own painted grounds. They carry their words in the lines' own ink and never glow.
+  - Stripes, dots and foil are the fill's hue moved away from its ink (`decor.js`
+    `fillTexture`), so none reads worse than the flat fill.
+  - The headline draws from 17 treatments. Nine are new: `foil`, `glass`, `block3d`,
+    `long_shadow`, `pop_stack`, `inline`, `cutout` (plain grounds only), `stamped` and `box`.
+    A claim over a plated headline keeps clear of the plate.
+- **Checked** by:
+  - `full_colour_check` (the look balance and the line-turned first ads);
+  - `full_style_check` (every fill, treatment, gradient and pattern in every pair and size, on
+    photographs and on three textured grounds, through the pre-flight; every textured fill at
+    least the flat fill's contrast);
+  - `full_ad_check` (all five kinds of ground drawn);
+  - `full_ad_studio_check` (every theme offered);
+  - the census (a two-colour pair, and a light pair whose accent is a tone of its own ground,
+    judged by the ground it declares).
+
+Not done here: OPEN-ITEMS §BJ 7.

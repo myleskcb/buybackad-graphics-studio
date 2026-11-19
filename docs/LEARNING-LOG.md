@@ -5695,6 +5695,43 @@ RESUME HERE: the census of every generation is at .render/ad-census (the review 
 the owner audits recipes there, then says whether the older renderings retire; the hero picks;
 then the contact block and the picture picker in the makers.
 
+## 2026-11-18 (later) — the look system: different ads, not the same ad 5% off (DESIGN-LAW 146)
+
+Asked: "still not enough colors, gradients, pattern fill, or other ways instead of colors", "a lot
+of these are the same thing with 5% variety or difference". A helper fork of the session did it,
+on its own worktree branch.
+
+Changed:
+  - 54 colour pairs: every COLOR_THEMES group, plus new light and neon pairs; the vivid
+    grounds are two-colour themes.
+  - A seed picks the look first, then the pair.
+  - A face is drawn by the seed.
+  - Five more of the pair's own gradients, and fifteen tone-on-tone patterns and textures.
+  - Stripe, dot, foil, glass and outline fills on the sticker and the plates.
+  - Nine more of the engine's headline treatments.
+  - scripts/full_look_sheet.mjs: a contact sheet of seeded ads, with their spread measured.
+
+Learned:
+  - The sameness was two numbers: 11 of the 12 pairs are a dark ground under a warm accent, and
+    every seeded ad had one face. Stickers, treatments and plates had been varied already, and
+    the sheet still read as one ad. What tells two ads apart in a feed is the ground's
+    lightness, its kind, and the face. Measure that, not pixel distance: no two ads were near
+    twins by pixels before or after, while 249 pairs of the 1,128 matched on look, ground and
+    face before, and 9 after.
+  - Several checks were built for dark pairs. The engine's loud colour (`hotColour`) took a stock
+    yellow for any dark accent. The house grounds and their vignette mixed black into cream. The
+    drawn scenes went grey under dark words. The claim glowed in its own colour once its plate
+    was glass or an outline. Each showed only when a light or vivid pair reached them, and each
+    is fixed where it starts.
+  - A face changes the layout. A narrow face sets the number taller, and its chevrons no longer
+    fit. A wide face sets a long number under its floor. full_ad_check found both on lines the
+    face check never drew (tablet, drone, metaglasses), and the layout now absorbs them.
+  - A gradient toward a warm accent at a depth white words can read on is brown or olive (rule
+    103's muddy floor). The far end takes a tone of the ground there instead.
+
+RESUME HERE: recipes rebuilt on the 54 pairs (`build_recipes.mjs`; recipes.json is stale until
+then), with each card family's look handed to these keys.
+
 ## 2026-11-18 — the census folded into pull request 14 (claude/ads-improvement-roadmap-7632c8)
 
 The owner's word: claude/xenodochial-mccarthy-7bea6d (rules 143 to 145, OPEN-ITEMS §BI

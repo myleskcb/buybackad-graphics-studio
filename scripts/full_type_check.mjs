@@ -58,7 +58,7 @@ const res = await page.evaluate(async ({ wantSheet }) => {
   const pairs = PAIRS.length === 2 ? PAIRS : F.COLOURWAYS.slice(0, 2);
   const out = {}, sheet = [];
   const draw = (key, words, aspect, palette, seed) => {
-    const st = F.fullStyle({ ...C.DEFAULT_STYLE, ...words, number: '(562) 999-4994', aspect, phones: C.DEFAULT_PHONES.slice() }, seed, index, { palette, ...(key ? { type_pair: key, type_any: true } : {}) });
+    const st = F.fullStyle({ ...C.DEFAULT_STYLE, ...words, number: '(562) 999-4994', aspect, phones: C.DEFAULT_PHONES.slice() }, seed, index, { palette, ...(key ? { type_pair: key, type_any: true } : { type_pair: 'house' }) });   // '' is the house face: a seed nobody styled now draws a face (rule 146)
     return st;
   };
   const keys = ['', ...Object.keys(C.TYPE_VOICES)];

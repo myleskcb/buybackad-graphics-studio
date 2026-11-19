@@ -1,5 +1,5 @@
 {
-  "_doc": "How a full ad (and so every recipe) looks when its maker picked none of these: the sticker's shape and fill, the headline's treatment, its entrance in the video, the number's treatment and the plates' fill. Shares are weights within each list. scripts/build_full_styles.mjs writes motion/full-styles.js from this (never edit that by hand; --check fails when it is stale); motion/fullad.js draws one of each by the seed on a stream of its own, so the colours, ground, product and words a seed drew do not move; a pick made by hand is kept. 'where': dark = only on a dark ground (glow's halo, and the highlighter, whose bar on a light pair with a dark accent would be a third colour); plain = only on the house's own gradients (GROUNDS: radial, tonal, linear), never on a photograph or a drawn scene: the underlined number has no plate behind it, and there the look draws a plated number instead (the roadmap, 2026-11-18). 'scrim': the shade the engine lays round the words (engine _scrim), held at the house's 0.3 where the treatment's own (0.65) would darken a photograph out to the frame's edge (the pre-flight's edge check failed gold and cars on their photographs, 2026-11-18); a treatment picked by hand keeps the engine's own. Every option is drawn in every pair and size by scripts/full_style_check.mjs, and kept only where the delivered picture passes the pre-flight (fullPreflight). The owner, 2026-11-18: \"notice how it's all same spiky circle?\", \"and there's no variety in the text pure outlines?\", \"Also don't see any gradients really?\".",
+  "_doc": "How a full ad (and so every recipe) looks when its maker picked none of these: the sticker's shape and fill, the headline's treatment, its entrance in the video, the number's treatment and the plates' fill. Shares are weights within each list. scripts/build_full_styles.mjs writes motion/full-styles.js from this (never edit that by hand; --check fails when it is stale); motion/fullad.js draws one of each by the seed on a stream of its own, so the colours, ground, product and words a seed drew do not move; a pick made by hand is kept. 'where': dark = only on a dark ground (glow's halo, and the highlighter, whose bar on a light pair with a dark accent would be a third colour); plain = only on the house's own gradients (GROUNDS: radial, tonal, linear), never on a photograph or a drawn scene: the underlined number has no plate behind it, and there the look draws a plated number instead (the roadmap, 2026-11-18). 'scrim': the shade the engine lays round the words (engine _scrim), held at the house's 0.3 where the treatment's own (0.65) would darken a photograph out to the frame's edge (the pre-flight's edge check failed gold and cars on their photographs, 2026-11-18); a treatment picked by hand keeps the engine's own. Every option is drawn in every pair and size by scripts/full_style_check.mjs, and kept only where the delivered picture passes the pre-flight (fullPreflight). The owner, 2026-11-18: \"notice how it's all same spiky circle?\", \"and there's no variety in the text pure outlines?\", \"Also don't see any gradients really?\". Later the same day (rule 146), \"still not enough colors, gradients, pattern fill, or other ways instead of colors\" and \"a lot of these are the same thing with 5% variety or difference\": the sticker and the plates (the number's plate and the claim's badge) each draw a fill, flat, lit from above, striped, dotted, a foil's sheen, or (the plates, on the house's own painted grounds) frosted glass or an outline alone, every one in the fill's own hue moved away from its ink (decor.js fillTexture); and the headline draws from ten more of the engine's treatments that are not a colour: a foil, a pane of glass, a solid block, a long shadow, a print's offset stack, a sign-painter's inline, letters cut out of a plate, a rubber stamp's specks, a box.",
   "version": "2026-11-18",
   "sticker": [
     { "key": "starburst", "share": 16 },
@@ -10,7 +10,14 @@
     { "key": "stamp", "share": 13 },
     { "key": "pill", "share": 15 }
   ],
-  "sticker_gradient": 0.45,
+  "sticker_fill": [
+    { "key": "solid", "share": 28 },
+    { "key": "gradient", "share": 26 },
+    { "key": "stripes", "share": 12 },
+    { "key": "dots", "share": 10 },
+    { "key": "foil", "share": 14 },
+    { "key": "outline", "share": 10 }
+  ],
   "headline": [
     { "key": "double_outline", "share": 20 },
     { "key": "hard_shadow", "share": 14, "scrim": 0.3 },
@@ -19,7 +26,16 @@
     { "key": "gradient", "share": 16, "scrim": 0.3 },
     { "key": "sticker", "share": 10 },
     { "key": "glow", "share": 8, "where": "dark", "scrim": 0.3 },
-    { "key": "outline_shadow", "share": 8, "scrim": 0.3 }
+    { "key": "outline_shadow", "share": 8, "scrim": 0.3 },
+    { "key": "foil", "share": 9, "scrim": 0.3 },
+    { "key": "glass", "share": 8 },
+    { "key": "block3d", "share": 8, "scrim": 0.3 },
+    { "key": "long_shadow", "share": 7, "scrim": 0.3 },
+    { "key": "pop_stack", "share": 8, "scrim": 0.3 },
+    { "key": "inline", "share": 7, "scrim": 0.3 },
+    { "key": "cutout", "share": 6, "where": "plain" },
+    { "key": "stamped", "share": 5, "scrim": 0.3 },
+    { "key": "box", "share": 8 }
   ],
   "entrance": [
     { "key": "slide", "share": 20 },
@@ -36,5 +52,13 @@
     { "key": "tag", "share": 16 },
     { "key": "underline", "share": 18, "where": "plain" }
   ],
-  "plate_gradient": 0.4
+  "plate_fill": [
+    { "key": "solid", "share": 28 },
+    { "key": "gradient", "share": 22 },
+    { "key": "stripes", "share": 10 },
+    { "key": "dots", "share": 8 },
+    { "key": "foil", "share": 14 },
+    { "key": "glass", "share": 9, "where": "plain" },
+    { "key": "outline", "share": 9, "where": "plain" }
+  ]
 }

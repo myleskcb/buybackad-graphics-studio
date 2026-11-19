@@ -3919,3 +3919,23 @@ Open:
    named-brand type cards again and its full ad has words alone until a sealed box is
    photographed. **owner**: the downloads (a sealed Chromebook box, a Sprinter, a Kenworth, a gaming
    headset, a monitor) and whether the older static versions retire.
+7. **The look system** (DESIGN-LAW 146; the owner: "still not enough colors, gradients, pattern
+   fill, or other ways instead of colors", "a lot of these are the same thing with 5% variety or
+   difference"). **helper**, done:
+   - 54 pairs (15 light, 11 vivid, 28 dark), drawn look first;
+   - a face by the seed (the house face a quarter of the time);
+   - eight gradients and fifteen tone-on-tone patterns and textures;
+   - stripe, dot, foil, glass and outline fills on the sticker, the number's plate and the
+     claim's badge;
+   - nine more headline treatments.
+
+   A sheet of 48 seeded ads went from 41 dark grounds, 12 pairs and one face to 32 pairs and 21
+   faces. Pairs of ads matching on look, kind of ground and face went from 249 to 9 of 1,128.
+
+   **open**:
+   - the recipes take their pair from the nearest of the twelve (`motion/recipes.json` is stale
+     until rebuilt: the nearest pair of many cards changes);
+   - the recipes' rebuild ("take them as inspiration") should hand their family's look to these
+     keys;
+   - **owner**: whether gold lines, which keep to their eight gold pairs and one vivid one, may
+     stand on a light ground (no gold reads on cream at 4.5:1 without going mustard, rule 103).
