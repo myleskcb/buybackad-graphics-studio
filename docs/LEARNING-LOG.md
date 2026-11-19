@@ -6265,9 +6265,10 @@ RESUME HERE:
 ## 2026-11-19 — the landing draws nothing at load (claude/landing-blocking-time-a7bade)
 
 Asked by pull request 15's session: cut the landing's remaining phone blocking time without
-changing what any card looks like (OPEN-ITEMS §BK 3). DESIGN-LAW 159, OPEN-ITEMS §BO. In the
-final runs, before and after in turn: phone 61 to 93, desktop 65 to 100, 4.5 MB to 1.7 MB
-(§BO has the table).
+changing what any card looks like (OPEN-ITEMS §BK 3). DESIGN-LAW 159, OPEN-ITEMS §BO. Before
+and after in turn, median of three: on d1dfc9a6 phone 61 to 93 and desktop 65 to 100; merged
+with pull request 15's newer head, on 2908f8e7, phone 59 to 97 and desktop 70 to 100; 4.4 MB
+to 1.5 MB (§BO has the tables).
 
 What was learned:
 
@@ -6303,6 +6304,11 @@ What was learned:
 - **A busy machine moves Lighthouse a lot.** One before run on a phone measured 12 s of blocking
   time, and one desktop before run 62 against 91 a minute earlier, with other sessions running
   checks. Run the two copies in turn (before, after, before) and say so.
+- **A test server that reads `_headers` once serves the old policy after a merge.** Pull request
+  15 moved to 2908f8e7 while this was measured; merged in, its landing changed three inline
+  scripts and their hashes, and the merged landing logged a blocked inline script, because the
+  local server had read `_headers` when it started. verify_csp named the three hashes. Run it
+  after every merge, against a server started (or reading its headers) after the merge.
 
 Checks: seo_check, mix_check, landing_check (now with rule 159's assertions), watermark_check,
 full_ad_studio_check, mac_wallpapers_check, build_offer_stills.mjs --check; verify_csp.

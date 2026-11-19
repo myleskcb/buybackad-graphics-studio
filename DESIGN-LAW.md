@@ -6341,7 +6341,8 @@ Found on the way: the landing drew the second copy of a wall card in a fallback 
 copy had asked for its faces and before assets/fonts/faces.css had arrived, the second copy's
 ensureTplAssets saw them as in and drew it: VR headsets · Split in a serif, its steps on top of
 one another (one card of the 32 drawn on this machine; which card, if any, depends on the
-network). A still is drawn only after each face is seen loaded, and a card the landing draws live
-now waits for every template face.
+network). On the landing as merged at 2908f8e7 it struck other cards too, different ones on each
+load (five on one, one on each of two others: §BO). A still is drawn only after each face is seen
+loaded, and a card the landing draws live now waits for every template face.
 
 Not done here: OPEN-ITEMS §BO.

@@ -4282,7 +4282,10 @@ Open:
 ## BO. 2026-11-19 — the landing draws nothing at load: offer cards as stills, the gallery when it is near, the faces with the studio (DESIGN-LAW 159)
 
 (claude/landing-blocking-time-a7bade, cut from claude/zen-dijkstra-7b5a2e at d1dfc9a6, pull
-request 15; the pull request goes against that branch.)
+request 15, and merged with its newer head 2908f8e7 (main's look, pull request 14, the landing on
+one column) before the pull request, which goes against that branch. First numbered 147 and §BL;
+2908f8e7 had taken §BL and §BM, rules up to 158 were taken across the branches and the editor's
+session claimed §BN, so 159 and §BO.)
 
 Asked by pull request 15's session (§BK 3): "cut the landing's remaining phone blocking time
 (about 2 s in Lighthouse, performance 65) without changing what any card looks like": build the
@@ -4319,18 +4322,30 @@ Done:
 
 Lighthouse 13.6, median of three runs a form, before and after run in turn (before, after,
 before ...) on copies served the way Netlify serves them (the site's `_headers`, brotli at
-quality 11, a 401 from the API); before is d1dfc9a6, after is this branch. Other sessions were
-using the machine, so the numbers move (below the table).
+quality 11, a 401 from the API). On 2908f8e7, the base the pull request goes into, against this
+branch merged with it:
+
+| page | form | performance | largest paint | blocking | layout shift | speed index | a11y/BP/SEO | weight | requests |
+|---|---|---|---|---|---|---|---|---|---|
+| / | phone | 59 → 97 | 2.1 s → 1.5 s | 4400 → 190 ms | 0.00 → 0.00 | 8.2 s → 1.5 s | 91/100/100 → 91/100/100 | 4368 → 1472 KB | 165 → 77 |
+| / | desktop | 70 → 100 | 0.33 s → 0.36 s | 687 → 10 ms | 0.00 → 0.00 | 2.1 s → 0.4 s | 91/100/100 → 91/100/100 | 4487 → 1521 KB | 171 → 78 |
+
+On d1dfc9a6, where this was built, before the merge:
 
 | page | form | performance | largest paint | blocking | layout shift | speed index | a11y/BP/SEO | weight | requests |
 |---|---|---|---|---|---|---|---|---|---|
 | / | phone | 61 → 93 | 1.4 s → 1.4 s | 7343 → 321 ms | 0.00 → 0.00 | 9.1 s → 1.4 s | 100/100/100 → 100/100/100 | 4529 → 1717 KB | 171 → 85 |
 | / | desktop | 65 → 100 | 0.3 s → 0.3 s | 1319 → 22 ms | 0.00 → 0.00 | 2.5 s → 0.6 s | 100/100/100 → 100/100/100 | 4589 → 1710 KB | 172 → 81 |
 
-The before tree's blocking time is what moved with the machine: 3.3 s and 238 ms in the first set
-(62 and 87), 4.5 s and 350 ms in a second set run in turn, 7.3 s and 1.3 s in this one; the
-after tree's stayed between 287 and 340 ms on a phone and 12 and 28 ms on a desktop. The largest
-paint is the hero's words in every run, before and after.
+Other sessions were using the machine, and the before trees' blocking time is what moved with
+it: at d1dfc9a6, 3.3 s and 238 ms in a first set (62 and 87), 4.5 s and 350 ms in a second, 7.3 s
+and 1.3 s in the third; the after trees' stayed between 183 and 340 ms on a phone and 10 and 28
+ms on a desktop. Lighthouse's first paint after the merge is 0.03 s later on a desktop (0.33 to
+0.36 s); the first paint observed in the same runs is earlier (164 to 106 ms on a desktop, 134 to
+about 90 ms on a phone): with less to do, the page now paints after the scripts at the end of the
+body have run, and Lighthouse's model counts them on the paint's path. Accessibility is 91 on
+both trees at 2908f8e7 (contrast on the primary buttons, a heading order, tap targets among the
+line links: the landing as merged, not this work; it was 100 at d1dfc9a6).
 
 Every card compared before and after, pixel by pixel (the scripts stayed out of the repo): the wall's 36
 cards and the gallery's first page, at 390 and 1440, 104 in all, the same card in every slot:
@@ -4339,7 +4354,11 @@ channel on average, no pixel more than 32 apart), and 2 different: the wall's se
 VR headsets · Split, which the old landing drew in a fallback serif (rule 159, "Found on the
 way") and the still shows as designed, as the first copy already did. Easy Mode's strip, opened
 from the landing and settled: every card the same card, the offer cards the same bytes, the
-library cards within 1.5 a channel (speckle in the photographs).
+library cards within 1.5 a channel (speckle in the photographs). On 2908f8e7 the old landing
+drew different cards wrong on each of three loads at 1440 (five on the first: iPhone · Studio
+row, iPhone · Floating, Google Pixel · Studio list, iPhone · Split, iPad · Photo band; then iPad
+· Centre on each of the next two), each a face measured before it was in; every one of them is
+its still in the loads where it was drawn right.
 
 Checks on this tree: seo_check, mix_check (the wall's 18 and the first page's 16 as before),
 landing_check, watermark_check, full_ad_studio_check, mac_wallpapers_check and
