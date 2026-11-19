@@ -36,6 +36,11 @@
 /assets/library-ads/*
   Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
 
+# The rebuilt library ads at full size (rule 147): the API links them with ?v=<sha1>,
+# as it does the renders above.
+/assets/rebuilt-ads/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+
 /assets/geo/*
   Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
 

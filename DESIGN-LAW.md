@@ -6285,6 +6285,22 @@ offer cards now that each has a rebuilt version, the owner said "Retire them".
 - **The recipes do not move when their cards retire:** `build_recipes.mjs` reads each card from
   its index, and the templates with `?noretire=1`, keeping those retired because they were rebuilt
   and leaving out any other retirement.
+- **The partner library serves the rebuilt ads** (rule 111; the owner, of rendering the rebuilt ads
+  "so the partner library feed serves them": "Do it here").
+  - `scripts/render_rebuilt_ads.mjs` renders the rebuilt ad of every library card at 1080 through
+    Easy Mode's full ad, as iPhones LA's copy. The copy carries the number, Long Beach and the
+    website line. A phone's ad asks for the IMEI, a Mac's or a watch's for the serial; other goods
+    keep their own words.
+  - The renders go to `assets/rebuilt-ads/`, with EXIF dates and an index whose stamp
+    (`_rebuilt.mjs`) marks one stale when its recipe moves.
+  - `netlify/lib/library.mjs` offers each as `r-<card id>`, with `rebuilt_from`.
+  - The retired cards' own renders were pruned by `render_library_ads.mjs`, as it prunes any card
+    no longer offered.
+  - Checked by `library_api_check` (every rebuilt render present, fresh and dated; the feed the
+    live cards plus the rebuilt ads) and `library_handoff_check` (a partner's pick is the render,
+    byte for byte).
+- **A models line is cut where its list breaks**, never mid-word ("ROLEX • CAR" was CARTIER cut at
+  sixty letters).
 
 Not done here: OPEN-ITEMS §BJ 9.
 

@@ -5934,3 +5934,24 @@ Learned:
     the library, now made of rebuilt ads.
   - 4 live library cards (two Review Proof, two Trust Seal) had never been read into recipes. Reading
     the cards from the index instead of the page found them.
+
+## 2026-11-19 — the partner library serves the rebuilt ads (claude/xenodochial-mccarthy-7bea6d)
+
+Asked: render the rebuilt ads at full size so the partner library feed serves them ("Do it here").
+
+Changed:
+  - `scripts/render_rebuilt_ads.mjs` renders the 366 rebuilt library ads as iPhones LA's copy
+    (77 MB, `assets/rebuilt-ads/`).
+  - `netlify/lib/library.mjs` serves them as `r-<card id>` with `rebuilt_from`.
+  - The retired cards' renders were pruned.
+  - `library_api_check` and `library_handoff_check` know the rebuilt ads.
+  - The partner README says what changed.
+  - The recipe builder cuts a models line where its list breaks.
+
+Learned:
+  - The library's IMEI swap ran on every card, so a gold ad said "TEXT IMEI". A seller's number
+    belongs to the goods: the IMEI for a phone, the serial for a Mac or a watch, nothing for gold.
+  - A sixty-letter cut made "CARTIER" read "CAR" on 31 recipes. Cut where the list breaks.
+  - The local puppeteer stand-in lacked `$$eval`, `select` and `type`. They were added to it
+    (ignored `node_modules`), so library_handoff_check runs here now. Its one skip is a Python test
+    that needs Pillow.

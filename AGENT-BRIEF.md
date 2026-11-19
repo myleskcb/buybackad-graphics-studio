@@ -692,3 +692,6 @@ produced." DESIGN-LAW rule 87. In practice:
   card's rebuilt ad from `assets/recipe-stills/` (`node scripts/build_recipe_stills.mjs`, `--check`)
   through `scLoadShelf`; `scLoadIndex` is the library cards alone. Rebuild the stills when the
   recipes or the engine change (`--all`).
+- **The partner library serves the rebuilt library ads** (`assets/rebuilt-ads/`,
+  `node scripts/render_rebuilt_ads.mjs --stale` after the recipes or the engine change;
+  `library_api_check` fails while one is stale).

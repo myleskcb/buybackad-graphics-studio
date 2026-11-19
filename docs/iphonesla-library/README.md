@@ -114,6 +114,20 @@ An ad (the real record, 2026-10-04):
   "created": "2026-09-05T06:37:29Z", "updated": "2026-10-02T08:07:47Z", "uploaded": "2026-10-04T07:56:34Z" }
 ```
 
+**The rebuilt ads (2026-11-19).** BUYBACK.AD retired its old static library
+cards and rebuilt each one in its house ad engine. The library now hands out
+the rebuilt ad in each card's place, in the same shape:
+
+- `id` is `r-` and the old card's id: `r-bubblePop-nn05-30` for the card above.
+- `rebuilt_from` names the card it replaces.
+- `image` is under `assets/rebuilt-ads/`, 1080x1080 JPEG as before, with the
+  shop's number, Long Beach and "Visit our website at www.iPhones.LA" on it.
+- `thumb` is 400x400, under `assets/recipe-stills/`.
+- `studio_url` opens it in the studio's full ad.
+- `created` and `updated` are the rebuild.
+
+An old card's id no longer answers: ask for the list again, or add `r-` to it.
+
 `image` is the ad itself, the picture for a listing (`?v=` changes when it is
 re-drawn). `thumb` is the library's preview, for a grid. `studio_url` opens the
 ad in the BUYBACK.AD studio, to change it before downloading (a download from

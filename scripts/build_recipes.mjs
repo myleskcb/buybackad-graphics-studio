@@ -164,7 +164,9 @@ function wordsOf(ad, cat, dropped) {
   };
   const headline = keep('headline', up(L.filter(l => l.role === 'headline').map(l => l.text).join(' ')));
   let line = L.find(l => LINE_NAMES.test(l.name));
-  const tag = keep('line under it', line ? up(line.text).slice(0, 60) : '');
+  // the line under it, sixty letters at most, cut where its list breaks (cut at sixty, "CARTIER" read "ROLEX • CAR")
+  const fit60 = s => { if (s.length <= 60) return s; const c = s.slice(0, 61), i = Math.max(c.lastIndexOf(' • '), c.lastIndexOf(' · '), c.lastIndexOf(', ')); return (i > 20 ? c.slice(0, i) : c.slice(0, c.lastIndexOf(' '))).trim(); };
+  const tag = keep('line under it', line ? fit60(up(line.text)) : '');
   const kick = L.find(l => CLAIM_NAMES.test(l.name)), badges = L.filter(l => l.role === 'badges').map(l => tidy(l.text));
   let claim = kick ? up(kick.text) : badges.length ? up(badges.join(' • ')) : '';
   claim = claim.replace(/^\/\/\s*|\s*\/\/$/g, '');

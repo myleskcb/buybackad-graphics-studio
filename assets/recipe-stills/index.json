@@ -1,6 +1,6 @@
 {
  "about": "Stills of the rebuilt library and offer ads (motion/recipes.json), drawn by scripts/build_recipe_stills.mjs; app.js shows them in the landing library and on the wall in place of the retired cards, and opens each in the full ad.",
- "made": "2026-11-19T07:46:08.057Z",
+ "made": "2026-11-19T09:07:58.708Z",
  "items": {
   "r-bandKnockout-ck07-35": {
    "kind": "recipe",
@@ -4155,7 +4155,7 @@
    "pairName": "Green & Gold",
    "accent": "#f5b200",
    "thumb": "assets/recipe-stills/r-trustSeal-cd01-30.webp",
-   "stamp": "[70095,\"gold\",{\"headline\":\"YOUR LOCAL GOLD JEWELRY BUYER\",\"tag\":\"10K • 14K • 18K • SCRAP & DENTAL • CUBAN LINKS • ROLEX • CAR\",\"claim\":\"GOLD BUYER\",\"points\":\"CASH TODAY, TEXT A PIC, FREE QUOTE\"},[],false,\"Trust Seal 1 (library card)\"]"
+   "stamp": "[70095,\"gold\",{\"headline\":\"YOUR LOCAL GOLD JEWELRY BUYER\",\"tag\":\"10K • 14K • 18K • SCRAP & DENTAL • CUBAN LINKS • ROLEX\",\"claim\":\"GOLD BUYER\",\"points\":\"CASH TODAY, TEXT A PIC, FREE QUOTE\"},[],false,\"Trust Seal 1 (library card)\"]"
   },
   "r-trustSeal-cd02-35": {
    "kind": "recipe",
@@ -4170,7 +4170,7 @@
    "pairName": "Red & Yellow",
    "accent": "#e5b800",
    "thumb": "assets/recipe-stills/r-trustSeal-cd02-35.webp",
-   "stamp": "[86860,\"gold\",{\"headline\":\"YOUR LOCAL GOLD JEWELRY BUYER\",\"tag\":\"10K • 14K • 18K • SCRAP & DENTAL • CUBAN LINKS • ROLEX • CAR\",\"claim\":\"FAIR OFFERS\",\"points\":\"FREE QUOTE, TEXT A PIC, NO FEES\"},[],false,\"Trust Seal 2 (library card)\"]"
+   "stamp": "[86860,\"gold\",{\"headline\":\"YOUR LOCAL GOLD JEWELRY BUYER\",\"tag\":\"10K • 14K • 18K • SCRAP & DENTAL • CUBAN LINKS • ROLEX\",\"claim\":\"FAIR OFFERS\",\"points\":\"FREE QUOTE, TEXT A PIC, NO FEES\"},[],false,\"Trust Seal 2 (library card)\"]"
   },
   "r-trustSeal-du05-15": {
    "kind": "recipe",
@@ -4185,7 +4185,7 @@
    "pairName": "Red & Yellow",
    "accent": "#e5b800",
    "thumb": "assets/recipe-stills/r-trustSeal-du05-15.webp",
-   "stamp": "[4444,\"gold\",{\"headline\":\"YOUR LOCAL GOLD BUYER\",\"tag\":\"10K • 14K • 18K • SCRAP & DENTAL • CUBAN LINKS • ROLEX • CAR\",\"claim\":\"GOLD BUYER\",\"points\":\"CASH NOW, TEXT A PIC, FREE QUOTE\"},[],false,\"Trust Seal 3 (library card)\"]"
+   "stamp": "[4444,\"gold\",{\"headline\":\"YOUR LOCAL GOLD BUYER\",\"tag\":\"10K • 14K • 18K • SCRAP & DENTAL • CUBAN LINKS • ROLEX\",\"claim\":\"GOLD BUYER\",\"points\":\"CASH NOW, TEXT A PIC, FREE QUOTE\"},[],false,\"Trust Seal 3 (library card)\"]"
   },
   "r-voltStack-ck01-15": {
    "kind": "recipe",
@@ -9525,7 +9525,7 @@
    "pairName": "Navy & Gold",
    "accent": "#f4b100",
    "thumb": "assets/recipe-stills/r-trustSeal-du02-20.webp",
-   "stamp": "[56005,\"sports\",{\"headline\":\"YOUR LOCAL SPORTS CARDS & SLABS BUYER\",\"tag\":\"GRAILS WANTED • ROOKIES • AUTOS • PATCHES • NUMBERED /99 • W\",\"claim\":\"FAST CASH\",\"points\":\"TEXT A PIC, FREE QUOTE, NO FEES\"},[],false,\"Trust Seal 2 (library card)\"]"
+   "stamp": "[56005,\"sports\",{\"headline\":\"YOUR LOCAL SPORTS CARDS & SLABS BUYER\",\"tag\":\"GRAILS WANTED • ROOKIES • AUTOS • PATCHES • NUMBERED /99\",\"claim\":\"FAST CASH\",\"points\":\"TEXT A PIC, FREE QUOTE, NO FEES\"},[],false,\"Trust Seal 2 (library card)\"]"
   },
   "r-trustSeal-jw07-15": {
    "kind": "recipe",

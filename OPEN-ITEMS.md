@@ -3971,8 +3971,12 @@ Open:
      templates retired, each "rebuilt as r-...". The landing, the editor's library and a card's link
      show the rebuilt ad in its place (`scLoadShelf`, `assets/recipe-stills/`). The designer layouts
      stay.
+   - The partner library (iPhones LA's feed) serves the 366 rebuilt library ads, rendered at full
+     size (`assets/rebuilt-ads/`, 77 MB); the retired cards' renders are pruned.
    - **owner**: re-pick the hero wall from the rebuilt recipes on the review page; the wall's old
      picks point at their rebuilt recipes meanwhile.
+   - **owner**: whether the 299 rebuilt offer cards join the partner feed (it only ever carried
+     library cards); about 60 MB more.
    - **owner**: a VR headset and a gaming laptop photograph, so their cards show the product.
 10. **The iPhone lock screens, and the call to action's marks** (DESIGN-LAW 148, 149) — **done**:
     lock screens laid out as iOS lays them out (a status bar in iOS's measures, four layouts:
