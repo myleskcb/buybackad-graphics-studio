@@ -519,7 +519,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
 const BOARD_FACE = { freeway: "#006b3f", freeway_blue: "#1d4f9c", poster: null, bandit_yellow: "#ffd21a", bandit_white: "#f6f6f1",
   flyer: "#fbfaf5", neon_box: "#0c0618", marquee: "#fffaf0", store_sign: "plate", price_tag: null, chalkboard: "#24382f",
   receipt: "#fbfbf7", wanted_poster: "#e9d3a6", sticky_note: null, speech_bubble: "#ffffff", ticket_stub: "plate",
-  led_panel: "#0b0b0d", lightbox: "#ffffff", postcard: "#fffdf6" };
+  led_panel: "#0b0b0d", lightbox: "#ffffff", postcard: "#fffdf6", billboard: "#fbf7ee", tiki_plank: "#7a4a22", surfboard: "#fdfbf6" };
 function boardPalette(b, p) {
   let ink = b.ink;
   if (ink === "auto") ink = lum(p.plate) > .55 ? "#111111" : "#ffffff";

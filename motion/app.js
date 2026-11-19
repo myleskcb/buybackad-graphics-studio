@@ -4,6 +4,7 @@ import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYL
 import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf, lotInto } from "./engine.js";
 import { FullAd, fullStyle, fullPreflight, fullStill, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk, fullGroundReady, poolEntryFor, FULL_LAYOUT } from "./fullad.js";
 import { lookPreflight } from "./look-preflight.js";
+import { areaFrom } from "./geo.js";
 import { FULL_VOICES } from "./full-voices.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
@@ -113,7 +114,7 @@ const adFor = (st, w, h) => new (AdOf(st))(st, state.assets, w, h);
 
 const BOARD_NAMES = { none: "No sign", freeway: "Green freeway sign", freeway_blue: "Blue freeway sign", poster: "Swap meet poster",
   bandit_yellow: "Yellow street sign", bandit_white: "White street sign", flyer: "Tear-off flyer", neon_box: "Neon box",
-  marquee: "Theatre marquee", store_sign: "Corner store sign" };
+  marquee: "Theatre marquee", store_sign: "Corner store sign", billboard: "Roadside billboard", tiki_plank: "Tiki bar plank", surfboard: "Surfboard" };
 const URGENCY_NAMES = { none: "None", pulse_cta: "Pulsing TEXT NOW badge", caution_tape: "Caution tape", ticker: "Scrolling ticker",
   stamp: "CASH stamp", arrows: "Arrows at the number", flash_border: "Border flashing on the beat", beat_pump: "Pump on the beat" };
 const VIBE_AXES = ["palette", "background", "font", "type_pair", "text_fx", "number_style", "board", "decor", "skew"];
@@ -682,7 +683,42 @@ function buildPanel() {
     state.style = applyCopy(state.style, (Math.random() * 1e9) | 0, lk, true);
     save(); syncWords(); rebuild();
   });
-  $("f-area").addEventListener("input", debounce(e => {
+  // your area: a ZIP code becomes its town (the ad names the town); a ZIP or a town brings the towns nearby,
+  // to tap for the full ad's towns line, the suggested three filled in while that line is empty
+  const townsOf = () => String(state.style.feed_where || "").split(/\s*(?:•|,)\s*/).map(t => t.trim()).filter(Boolean);
+  const drawTowns = a => {
+    const box = $("area-towns"); state.areaTowns = a || null;
+    if (!a || !a.towns.length) { box.hidden = true; return; }
+    const on = new Set(townsOf().map(t => t.toUpperCase()));
+    $("area-towns-note").textContent = (a.zip ? `${a.zip} is ${a.city}, ${a.st}. ` : "") + "Towns nearby: tap up to 3 for the towns line";
+    $("area-chips").innerHTML = a.towns.map(t => `<button type="button" aria-pressed="${on.has(t.toUpperCase())}" data-town="${t.replace(/"/g, "&quot;")}">${t}</button>`).join("")
+      + `<button type="button" class="mo-link" data-suggest="1">Suggested</button>`;
+    box.hidden = false;
+  };
+  $("area-chips").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b || !state.areaTowns) return;
+    pushHistory();
+    let list = townsOf().map(t => t.toUpperCase());
+    if (b.dataset.suggest) list = state.areaTowns.suggested.map(t => t.toUpperCase());
+    else { const t = b.dataset.town.toUpperCase(); list = list.includes(t) ? list.filter(x => x !== t) : [...list, t].slice(-3); }
+    if (list.length) state.style.feed_where = list.join(" • "); else delete state.style.feed_where;
+    save(); syncWords(); drawTowns(state.areaTowns); rebuild();
+  });
+  const placeArea = async text => {
+    const a = await areaFrom(text).catch(() => null);
+    if (String($("f-area").value).trim() !== text && !(a && a.zip && $("f-area").value === a.city)) return;   // typed on since
+    if (!a) { if (/^\d{5}$/.test(text)) VH().toast("That ZIP code could not be placed. Try your city's name."); drawTowns(null); return; }
+    if (!state.style.feed_where && a.suggested.length) { state.style.feed_where = a.suggested.map(t => t.toUpperCase()).join(" • "); save(); syncWords(); rebuild(); }
+    drawTowns(a);
+    return a;
+  };
+  $("f-area").addEventListener("focus", e => { const v = e.target.value.trim(); if (!state.areaTowns && v.length >= 2) placeArea(v); });
+  $("f-area").addEventListener("input", debounce(async e => {
+    const typed = e.target.value.trim();
+    if (/^\d{5}$/.test(typed)) {                              // a ZIP code: its town is what the ad names
+      const a = await placeArea(typed); if (!a) return;
+      e.target.value = a.city; state.style.zip = a.zip;
+    } else if (typed.length >= 3) placeArea(typed);
     const before = areaOf(state.style);
     state.style.area = e.target.value.slice(0, 30);
     const after = areaOf(state.style);

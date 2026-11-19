@@ -151,17 +151,21 @@
     <aside class="mo-panel" aria-label="Settings">
       <details open class="mo-sec">
         <summary>Words</summary>
-        <div class="mo-field">Language <span class="mo-opt">Mix gives some looks in English, some in Spanish, some in both</span>
+        <div class="mo-field">Language <span class="mo-opt">Bilingual puts English and Spanish on every ad; Varied gives some ads in English, some in Spanish, some bilingual</span>
           <div class="mo-seg" id="langs" role="radiogroup" aria-label="Language">
             <button data-lang="en" role="radio">English</button>
             <button data-lang="es" role="radio">Español</button>
-            <button data-lang="both" role="radio">Both</button>
-            <button data-lang="mix" role="radio">Mix</button>
+            <button data-lang="both" role="radio" title="English and Spanish on every ad">Bilingual</button>
+            <button data-lang="mix" role="radio" title="Some ads in English, some in Spanish, some bilingual">Varied</button>
           </div>
         </div>
-        <label class="mo-field">Your area <span class="mo-opt">the city the ads name, like LA or Long Beach</span>
-          <input id="f-area" maxlength="30" placeholder="LA" autocomplete="address-level2">
+        <label class="mo-field">Your area <span class="mo-opt">your ZIP code or your city, like 90802 or Long Beach</span>
+          <input id="f-area" maxlength="30" placeholder="ZIP code or city" autocomplete="postal-code">
         </label>
+        <div class="mo-field mo-full-only mo-towns" id="area-towns" hidden>
+          <span class="mo-opt" id="area-towns-note">Towns nearby: tap up to 3 for the towns line</span>
+          <div class="mo-vibes" id="area-chips" role="group" aria-label="Towns nearby"></div>
+        </div>
         <label class="mo-field mo-full-only">What you buy <span class="mo-opt">its pictures and its models line come with it</span>
           <span class="mo-row"><select id="f-subject" aria-label="What you buy"><option value="iphone">iPhones</option></select><button class="mo-mini" id="new-picture" type="button" title="Another picture of it" aria-label="Another picture of it" hidden>&#10227;</button></span>
         </label>

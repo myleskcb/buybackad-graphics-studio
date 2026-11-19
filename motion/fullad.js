@@ -335,8 +335,10 @@ export function layoutOf(st, wide) {
    sign's posts, stakes and lamps are left off: they would reach down into the product's band or up into the
    claim's. BOARD_REACH: how far a sign reaches past its face, in headline sizes. */
 export const FULL_BOARDS = new Set(["freeway", "freeway_blue", "poster", "bandit_yellow", "bandit_white", "flyer", "neon_box", "marquee", "store_sign",
-  "price_tag", "chalkboard", "receipt", "wanted_poster", "sticky_note", "speech_bubble", "ticket_stub", "led_panel", "lightbox", "postcard"]);
-const BOARD_REACH = { speech_bubble: { b: .78 }, postcard: { t: .45, r: .3 }, freeway: { t: .32 }, freeway_blue: { t: .32 } };
+  "price_tag", "chalkboard", "receipt", "wanted_poster", "sticky_note", "speech_bubble", "ticket_stub", "led_panel", "lightbox", "postcard",
+  "billboard", "tiki_plank", "surfboard"]);
+const BOARD_REACH = { speech_bubble: { b: .78 }, postcard: { t: .45, r: .3 }, freeway: { t: .32 }, freeway_blue: { t: .32 },
+  billboard: { b: .45, l: .12, r: .12, t: .12 }, tiki_plank: { l: .34, r: .34 }, surfboard: { l: .55, r: .55 } };
 /** The claim's badge as a path: a pill, a square tab, a ribbon with notched ends, or a bar. */
 function claimPath(x, kind, w, h, lw) {
   const a = lw / 2, W = w - lw, H = h - lw, notch = kind === "ribbon" ? H * .32 : 0;
@@ -746,6 +748,9 @@ export class FullAd extends Ad {
     // a video look's rays (rule 150) are laid into the ground once, at rest: drawn over it every frame, they ran
     // over the shade the small lines are given (_evenGround) and reached the frame's edges in the pre-flight
     if (["rays", "sunburst"].includes(this.st.background) && !this.groundImg) { super._drawRays(this.bg.getContext("2d"), 0); this._raysAtRest = true; }
+    // and a video look's shade round its words is laid into its ground once too: it is the ground's shading, as a
+    // photograph's is, not something drawn on it (over a sunset's bright stripes the pre-flight read it as a mark at the edge)
+    if (this.st.full_look && this.scrimC && !this.liveGround) { this.bg.getContext("2d").drawImage(this.scrimC, 0, 0, this.W, this.H); this.scrimC = null; }
     this._photoGround();
     // a drawn scene that moves (aurora, drift) paints over the ground every frame: what must stay readable
     // over it (the shade behind the words, the pool behind a screen) is kept in layers drawn after it
@@ -2110,9 +2115,11 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   // repeat a promise the lines before it already make (the customer's own words are never changed:
   // fullWords() says where they repeat). The order is the order they are read in.
   const fresh = (list, said) => { const start = Math.floor(r() * list.length); for (let i = 0; i < list.length; i++) { const w = list[(start + i) % list.length]; if (!said.some(x => sharesWord(w, x))) return w; } return list[start]; };
-  const line = st.feed_line ?? (st.tag || one(FULL_WORDS.line));
-  const points = st.points ?? (pointsOf(st).length ? pointsOf(st).join(", ") : fresh(FULL_WORDS.points, [st.headline, line]));
   const label = st.number_label || (es ? "LLAMA O MANDA TEXTO" : FULL_WORDS.label[0]);
+  // a look's small line that says what the call to action says (a video look's tag CALL OR TEXT over its CALL OR
+  // TEXT, rule 150) gives way to one from the list: the ad never says one thing twice
+  const line = st.feed_line ?? (st.tag && !sharesWord(st.tag, label) ? st.tag : st.tag ? fresh(FULL_WORDS.line, [st.headline, label]) : one(FULL_WORDS.line));
+  const points = st.points ?? (pointsOf(st).length ? pointsOf(st).join(", ") : fresh(FULL_WORDS.points, [st.headline, line]));
   // who is buying: a business name, where one is given, takes the badge (the first thing read). An ad
   // with no name on it is the pattern of the buyers nobody trusts (competitor research, 2026-11-12:
   // the brand is what carries the eye to the rest of an ad; "top dollar" is on every sign in the trade)
