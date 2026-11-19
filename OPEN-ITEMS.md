@@ -4087,10 +4087,10 @@ Open:
      and the WEBUY.AD logo (main's share card and W icon serve), the pairs and faces a URL
      away. The category cards are redrawn in the share card's look.
    - Measured after: the learning log.
+
 ## BL. 2026-11-18 — webuy.ad, the site's new address
 
-(Numbered §BD and §BE on main, 2026-11-18 and 19; renumbered §BL and §BM when they met pull
-request 14's §BD to §BJ and §BK. Their rules, 138 and 139 there, are 147 and 148.)
+(BD on `main` until pull request 14 met it on 2026-11-19; BE became BM the same way.)
 
 (claude/webuy-ad-new-site-url-f0be40, from `main` at 9dddf354.)
 

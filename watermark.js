@@ -27,7 +27,7 @@
    Loaded before app.js (index.html) and the video maker (motion/index.html).
    ═══════════════════════════════════════════════════════ */
 (() => {
-  const WORD = 'WeBuy.AD';   // the product's name (DESIGN-LAW 148); BUYBACK.AD is the business behind it
+  const WORD = 'WeBuy.AD';                 // the name (main's rule 139, 2026-11-19): was BUYBACK.AD
   const PLANS = ['free'];
   const SIZE = 0.03;              // the word's height, of the short side
   const ANGLE = -22;              // degrees

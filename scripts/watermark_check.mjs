@@ -153,7 +153,7 @@ console.log('one mark');
     ok(re.test(readFileSync(join(ROOT, f), 'utf8')), f + ' loads watermark.js before the code that draws it');
   /* netlify/lib/plans.mjs writes the plan cards and the table (scripts/build_pricing.mjs) */
   const pages = ['index.html', 'app.js', 'about.html', 'learn.html', 'netlify/lib/plans.mjs', ...readdirSync(join(ROOT, 'ads')).filter(f => f.endsWith('.html')).map(f => 'ads/' + f)];
-  const small = pages.filter(f => { try { return /\bsmall (BUYBACK\.AD (watermark|mark)|watermark)\b/i.test(readFileSync(join(ROOT, f), 'utf8')); } catch (e) { return false; } });
+  const small = pages.filter(f => { try { return /\bsmall ((BUYBACK|WeBuy)\.AD (watermark|mark)|watermark)\b/i.test(readFileSync(join(ROOT, f), 'utf8')); } catch (e) { return false; } });
   ok(!small.length, 'no page promises a "small" watermark', small.join(', '));
   ok(/await gateExport\(ezExportPx\(\), 'video'\)/.test(app) && /await gateExport\(exportSize, 'video'\)/.test(app), "the studio's two video downloads ask on the video meter, where deliverVideo counts them");
 }

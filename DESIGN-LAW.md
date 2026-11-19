@@ -3208,7 +3208,7 @@ look was swept 30 times on its own until what failed in it was out.
 
 ## 98. The studio's chrome is a print shop's: paper, ink and four signal colours
 
-*Superseded as the house look on 2026-11-19 by rule 138; the poster skin
+*Superseded as the house look on 2026-11-19 by rule 147; the poster skin
 stays one URL away (`?skin=poster`).*
 
 Added 2026-10-01 (numbered 98: the video rule took 97 on main first);
@@ -6177,9 +6177,8 @@ Not done here: OPEN-ITEMS §BK.
 
 ## 147. The studio's chrome is reselling.us's: navy, one blue, and mint for the deal
 
-(Numbered 138 and 139 on main, 2026-11-19; renumbered 147 and 148 when they met pull request
-14's rules 138 to 145 and rule 146, whose look they replace. OPEN-ITEMS §BD and §BE are §BL
-and §BM here.)
+(Numbered 138 on `main` until pull request 14 met it on 2026-11-19, where 138 to 145 were
+taken; 139 became 148 the same way, as pull request 15 numbers them. Citations of either in main's own files were renumbered.)
 
 Added 2026-11-19, the day webuy.ad went live (OPEN-ITEMS §BL); supersedes rule
 98's look. The owner: "it needs to have similar or matching styling to

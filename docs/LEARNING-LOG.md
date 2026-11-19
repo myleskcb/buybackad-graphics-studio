@@ -6040,7 +6040,7 @@ Done:
   - The Stripe webhook moves with the site's address; the deploy workflow's
     live check reads webuy.ad, falling back to the netlify.app address with a
     warning until the domain answers.
-  - OPEN-ITEMS §BD: the seven owner steps, in order (Netlify, Namecheap, the
+  - OPEN-ITEMS §BL: the seven owner steps, in order (Netlify, Namecheap, the
     certificate, SITE_URL, the merge, the webhook, iPhones LA).
 
 Found:
@@ -6072,11 +6072,11 @@ billing.mjs), the live-check step run locally against today's sites, the SEO
 generator rebuilt, CSP hashes rewritten.
 
 RESUME HERE:
-  0. webuy.ad is live (HTTPS, 2026-11-19 UTC). OPEN-ITEMS §BD: merge this
+  0. webuy.ad is live (HTTPS, 2026-11-19 UTC). OPEN-ITEMS §BL: merge this
      branch (step 5), then steps 6 and 7.
-  1. §BD open 1: the wordmark, BUYBACK.AD or WEBUY.AD, is the owner's call.
+  1. §BL open 1: the wordmark, BUYBACK.AD or WEBUY.AD, is the owner's call.
 
-## 2026-11-19 — WeBuy.AD in reselling.us's look (DESIGN-LAW 138, 139 on main; 147 and 148 here)
+## 2026-11-19 — WeBuy.AD in reselling.us's look (DESIGN-LAW 147, 148)
 
 Asked: "logos branding webkit", "all aspects need to finish and it needs to
 have similar or matching styling to reselling.us", "or color scheming at
@@ -6103,9 +6103,9 @@ Found:
     the owner.
 
 RESUME HERE:
-  0. OPEN-ITEMS §BE "Open": the terms' party and version, the explainer
+  0. OPEN-ITEMS §BM "Open": the terms' party and version, the explainer
      videos' end card, the Stripe portal's line.
-  1. §BD: the webhook move after the first checkout, iPhones LA's allowlist,
+  1. §BL: the webhook move after the first checkout, iPhones LA's allowlist,
      the contact address, live Stripe keys.
 
 ## 2026-11-19 — the site renamed WEBUY.AD (claude/zen-dijkstra-7b5a2e)
@@ -6155,6 +6155,29 @@ RESUME HERE:
   2. A "hello" forward for webuy.ad in Namecheap; then webuy.ad connected to Netlify,
      `SITE` moved, Search Console and Bing (§BK 5).
   3. The studio's editor in the house look (§BK 2); the landing's load (§BK 3).
+
+## 2026-11-19 — main (webuy.ad, the reselling.us look, WeBuy.AD) merged into pull request 14 (claude/ads-improvement-roadmap-7632c8)
+
+Auto-fix: GitHub said pull request 14 conflicted with `main`, which had taken three commits
+(webuy.ad as the site's address; the reselling.us look; the name WeBuy.AD). Merged here:
+
+- **The numbers.** `main` had numbered its two rules 138 and 139 and its open items BD and BE,
+  which this branch already held (138 to 145, BD to BJ). Main's became rules 147 and 148 and
+  open items BL and BM, as pull request 15 numbers them (after its 146 and BK; the census
+  branch's 146 to 149 move when it lands), and the lines main added that cite them say so. Each carries a line saying what it was numbered.
+- **The name** (rule 148): "WeBuy.AD wherever the product or the site is named, the watermark
+  on free exports included". So the lattice keeps this branch's drawing (rule 142) and draws
+  the new name (`watermark.js` WORD), and this branch's own words for it follow: the plan
+  cards and table (`netlify/lib/plans.mjs`, rebuilt by `build_pricing.mjs`), the FAQ, the
+  approval page's title and the code's comments. BUYBACK.AD stays where rule 148 keeps it:
+  the copyright line, and the terms and privacy policy.
+- **The rest** of each side merged on its own: main's look, wordmark, icon, share card and
+  address; this branch's engine, census, watermark and fixes. The CSP's inline hashes are
+  rewritten for the merged index.html; `watermark_check.mjs` now reads "small" next to either
+  name.
+
+Not this branch's to settle: pull request 15 (the site's own look) meets main's reselling.us
+look, and its session has asked the owner which way it goes.
 
 ## 2026-11-19 (later) — the site follows main: the search layer on main's look and WeBuy.AD (claude/zen-dijkstra-7b5a2e)
 
