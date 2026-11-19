@@ -4000,3 +4000,40 @@ Open:
     - The owner's three are caught by what they named.
     - Precision on the worst 40, by eye: 33 clearly real, 7 borderline, none plainly wrong.
     - **owner**: keep or send back each basket ad on the review page (Audit basket filter).
+
+## BK. 2026-11-18 — the full ad's layout varies, and it may wear any video look (DESIGN-LAW 150)
+
+(claude/full-ad-looks-layout, from claude/xenodochial-mccarthy-7bea6d at a89b25e2. It replaces PR #16,
+claude/ad-design-variety-cohesion-5a7836, which made the same changes on `main`'s full ad before rule 146.)
+
+The owner: the full ads "look shockingly similar to one another"; "I need text variety placements";
+"the video ads originally.. backgrounds.. patterns.. fonts.. arrangement/assortment of devices were
+really good"; "for every single video, I want a photo ad equivalent"; then, comparing the two branches,
+"rebuild it" on top of rule 146's.
+
+Done:
+- **The layout** (`FULL_LAYOUT`): alignment, the product's band middle, high or low, the points' side,
+  four claim badges, three point styles, two calls to action, three footers. Rule 146's stickers and
+  fills and rule 149's marks kept; a left-aligned card's mark stands on the number's right.
+- **Video looks on the full ad** (`fullStyle(…, { look })`), signs included, with the fixes rule 150
+  lists so each passes the pre-flight.
+- **The maker**: Any look to Full ad wears the look; the full gallery's shelves; New look's mix; Layout.
+- Measured: every one of 192 full ads (house looks and video looks, 24 in each of four sizes) passes
+  `fullBlockers` and the pre-flight; `full_ad_check`, `full_colour_check`, `full_type_check`,
+  `full_ad_studio_check`, `look_preflight_check`, `quick_ad_check` and `buylist_check` all clear, and
+  `full_style_check` after one fix (a wide frame's points fell out under the bubble and the band).
+- Measured on the comparison's 24 seeds (the same words and iPhones; nearest neighbour on the picture):
+  layout difference .26 in a square and .15 to .16 in a story (rule 146's branch .18 and .12, `main`
+  .08 and .10); pairs of ads alike in colour and layout at once 0 in a square and 1 to 3 in a story
+  (rule 146's 0 and 16, `main`'s 20 and 10); 22 to 23 layouts in 24 ads (rule 146's one). With the
+  maker's mix (a third of New looks a video look) 15 grounds and 15 treatments in 24.
+
+Open:
+1. **Not on `main`.** It sits on the xenodochial branch, which sits on PR #14: those land first, then
+   this. PR #16 is superseded and can be closed once this is up.
+2. **The weights are first guesses**: `FULL_LAYOUT`'s, and `VIDEO_SHARE` (35% of New looks wear a
+   video look). The owner likes the LA looks (the freeway sign, the palms): their share may go up.
+3. **Rule numbers**: this is 150; the sound branch (claude/video-music-sfx-audit-3691d1) wrote its
+   rule as 147, which this branch's line already uses: renumber it when it lands.
+4. **The recipes** (rule 145) draw the house's own look only: a recipe made from an older card could
+   lean to the video look nearest its card, not done.

@@ -598,6 +598,14 @@ produced." DESIGN-LAW rule 87. In practice:
   run out of order (refresh reads git HEAD; import restores the tone grade;
   naturalize then darken; support_highlights before neutral_panels; content
   audit after overlap; curate last).
+- **The full ad's layout and looks** (rule 150, 2026-11-18): `FULL_LAYOUT` varies the layout by
+  the seed (alignment, order, sides, claim, points, call to action, footer) on a stream of its own;
+  `fullStyle(…, { look: "own" | "seed" | "mix" })` lets it wear a video look. Without `look` it is
+  the house's own, so a check or a recipe that calls `fullStyle(st, seed, index)` draws what it
+  drew. Never lock the full ad back to one layout to make it "cohesive": hold the grammar (the
+  elements, floors, margin, gap, one alignment, the pre-flight) and let the layout and look vary.
+  A new layout choice goes into `FULL_LAYOUT` with a weight and a name in `LAYOUT_NAMES`
+  (`motion/app.js`), and must pass the pre-flight on every look.
 - **The full ad** (rule 137, 2026-11-11): `motion/fullad.js` `FullAd` is the
   house-style ad with every element, laid out by rule (never by retrying
   seeds), the video maker's default mode. Its colours are the twelve proven

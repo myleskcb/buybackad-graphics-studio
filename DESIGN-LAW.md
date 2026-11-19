@@ -6374,3 +6374,68 @@ or text icon that doesn't need to be the only animated element".
     shares over 600 seeds;
   - `full_ad_check` counts any mark as the number's eye-catcher;
   - `full_colour_check` reads the chevrons' colour on the chevrons themselves.
+
+## 150. The full ad varies its layout by rule, and may wear any look the video maker has
+
+Added 2026-11-18. It widens rules 137, 146 and 149. The owner, of the full ads: "they look
+shockingly similar to one another", "I need text variety placements, and more than just copy
+variety"; "the video ads originally.. those backgrounds those patterns those text those fonts and
+those arrangement/assortment of devices were really good.. we regressed since we unified"; "for
+every single video, I want a photo ad equivalent.. and if it doesn't meet the requirement,
+modify or fix it". Rule 146 gave a seed its colours, ground, face and fills; every ad still stood
+in one centred stack (claim pill, headline, points left of the product, sticker right, call to
+action, number, footer), and none wore the video maker's 78 looks or its 19 signs.
+
+Measured first, on the same 24 seeds, words and iPhones (each branch's own code, its own still):
+`main` had 20 pairs of ads alike in colour and layout at once; rule 146's branch none in a square
+but 16 in a story, and one layout in 24; the full ad with a layout of its own (an earlier cut of
+this rule, on `main`'s house style) none and 24 layouts. Nearest-neighbour difference in layout
+(where the picture is busy, 24 x 24): .08, .18 and .27.
+
+- **The layout** (`FULL_LAYOUT`, `drawLayout`, `layoutOf`): drawn from the seed on a stream of its
+  own, so the colours, ground, face, product and words a seed drew do not move; or picked and
+  locked under Layout in the maker.
+  - One alignment to a card (rule 109): centred, or every block on the column's left edge. On the
+    left edge the headline's letters stand in by half their treatment's reach (`FX_REACH`), so
+    the outline, box or shadow meets the margin, not the letters.
+  - The product's band in the middle, high (the headline under it) or low (the number over it).
+  - The points left or right of the product, the sticker on its other side; a wide frame puts the
+    product on either side.
+  - The claim's badge a pill, a square tab, a ribbon or a bar the column's width (no glow on a
+    bar or a left-aligned card: it reached the frame's edge).
+  - The points as pills, square tabs or bare ticks on the ground (`perksSprite`'s `look.shape`).
+  - The call to action as a line, or in a speech bubble pointing down at the number.
+  - The towns and website in rows, on one line, or on a band of the plate's colour.
+  - Rule 146's sticker shapes and fills and rule 149's marks stay as they are. On a left-aligned
+    card the number has room only on its right: its mark stands there and points back (the
+    chevrons and the two arrows become one arrow, the phone and bubble pair the phone).
+- **What gives way, in order**, when the band or the headline is short (the headline under what
+  reads in a feed's preview, rule 138's 20px at a quarter size): the speech bubble becomes a line,
+  a banded or two-row footer one line; only then does the headline come down. A sign that would
+  cost the product its band is left off.
+- **A video look** (`videoLookFor`, `fullStyle(…, { look })`): "own" wears the look a style
+  carries, "seed" draws one, "mix" draws one for `VIDEO_SHARE` (35%) of seeds and the house's own
+  look for the rest; without `look` (every check and every recipe) the house's own, as before.
+  The look brings its palette, ground or pattern, type pair, treatment, colour use, number style
+  (to the nearest of the full ad's five), sign and arrangement (all 16 have a place). What makes
+  it a full ad holds: every element, the floors, the pre-flight. Fixed for it:
+  - its words read on its ground: a palette whose ink is under 4.5:1 (white on mid orange or teal)
+    takes near-black or white, and an accent word that would be lost there goes mono; otherwise
+    the engine laid a heavy shade over the headline that sank the small lines and reached the
+    frame's edges;
+  - its plate's words read on its plate (4.5:1);
+  - the shade round its headline is the house table's for its treatment (`scrim`);
+  - a ground that moves holds still (a sunburst's rays laid into the ground once, aurora a mesh,
+    drift bokeh): the shade the small lines get is laid on the ground once;
+  - what the style table keeps to the house's plain grounds (glass, an edge alone, bare figures)
+    goes on a plate: a video ground is never plain;
+  - a sign hangs without its posts, stakes and lamps (`FULL_BOARDS`, `BOARD_REACH`).
+- **The small lines' ink** (`bodyInkOf`): the palette's where it reads 4.5:1, else near-black or
+  white; `_evenGround` and the pre-flight read each line in its own ink and on what it stands on
+  (the ground, a sign, a bubble, a band).
+- **The maker**: from Any look, Full ad is the full ad of the look on screen; the gallery under
+  Full ad shows the house's own looks, then every shelf of Any look as full ads, and tapping one
+  wears that look; New look lets the seed decide; Layout picks and locks each choice, and shows
+  what the ad drew.
+
+Measured after: see OPEN-ITEMS §BK.

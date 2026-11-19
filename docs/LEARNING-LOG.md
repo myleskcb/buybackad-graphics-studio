@@ -5955,3 +5955,30 @@ Learned:
   - The local puppeteer stand-in lacked `$$eval`, `select` and `type`. They were added to it
     (ignored `node_modules`), so library_handoff_check runs here now. Its one skip is a Python test
     that needs Pillow.
+
+## 2026-11-18 — the full ad's layout and the video looks, on rule 146's branch (DESIGN-LAW 150; claude/full-ad-looks-layout)
+
+Asked: compare PR #16 with the xenodochial branch on the same ads, then "rebuild it" on top.
+
+Done:
+  - Drew the same 24 seeds on `main`, PR #16 and xenodochial, each by its own code and still, and
+    measured the pictures (nearest neighbour in colour and in where the picture is busy). The two
+    branches had solved different halves: colour and fill there, look and layout here.
+  - Ported the layout into their `_layoutType` and the video looks into their `fullStyle`, keeping
+    their sticker, fills, marks, grounds, pre-flight and recipes.
+
+Found:
+  - The pre-flight reads every small line in one ink: lines on a sign, a bubble or a band need their own.
+  - A video palette's white words on a mid ground made the engine lay a heavy shade over the headline;
+    the pre-flight saw it reach the edges and the dark small lines sink in it. Fix the ink at the
+    source (near-black or white) and the shade is not needed.
+  - The engine's automatic scrim is wider than the house's table: pass the table's value.
+  - Rays and a sunburst are drawn every frame: lay them into the ground once, at rest.
+  - What a style table keeps to "plain" grounds must be kept off a video look's grounds too.
+  - A left-aligned headline's treatment reaches past its letters: stand the letters in by half the reach.
+  - A costly shape (bubble, band) must give way before the points fall out or the headline fails the
+    feed preview, not only when the product's band is short.
+  - A helper hidden in a pane cannot see scroll: drive galleries that start on view in a headless page.
+
+RESUME HERE: OPEN-ITEMS §BK. Then the owner's new styles: four LA, four beach and island, four of
+hand-made, Apple-style, commercial studio and avant-garde grounds.
