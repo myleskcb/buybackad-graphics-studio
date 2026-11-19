@@ -56,7 +56,7 @@
 @font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}
 @font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
 /* Inter Tight carries the WeBuy.AD wordmark and nothing else, as it carries
-   Reselling.US's (DESIGN-LAW rule 139). SIL OFL 1.1, the licence beside it in
+   Reselling.US's (DESIGN-LAW rule 153). SIL OFL 1.1, the licence beside it in
    assets/fonts/InterTight-OFL.txt; the file is reselling.us's own. */
 @font-face{font-family:'Inter Tight';src:url('assets/fonts/inter-tight-latin.woff2') format('woff2');font-weight:500 800;font-style:normal;font-display:swap}
 
@@ -2858,7 +2858,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .bggen-op{color:var(--text-dim);font-size:.92em}
 
 /* ═════════════════════════════════════════════════════════════════
-   FAMILY — THE HOUSE LOOK, 2026-11-19 (DESIGN-LAW rule 138).
+   FAMILY — THE HOUSE LOOK, 2026-11-19 (DESIGN-LAW rule 152).
    The owner, with webuy.ad live: "it needs to have similar or matching
    styling to reselling.us", colour first. Every value below is read off
    reselling.us's own sheet (/static/app.css, 2026-11-19), mapped onto the
@@ -2999,7 +2999,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='family'] .hero h1 em{color:var(--deal-text);background:none;padding:0}
 
 /* ═════════════════════════════════════════════════════════════════
-   THE WEBUY.AD TYPE AND WORDMARK, 2026-11-19 (DESIGN-LAW rule 139).
+   THE WEBUY.AD TYPE AND WORDMARK, 2026-11-19 (DESIGN-LAW rule 153).
    reselling.us sets its headlines and text in the system face (SF Pro on an
    Apple device), headlines bold and tight, and its wordmark in Inter Tight
    750 with the domain's ending in the blue: Reselling.US. The studio is

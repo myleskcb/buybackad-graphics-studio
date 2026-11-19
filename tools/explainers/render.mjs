@@ -4,7 +4,7 @@
      node tools/explainers/render.mjs       # every video -> assets/explainers/<id>.mp4 + <id>.jpg
      node tools/explainers/render.mjs --only the-math
      node tools/explainers/render.mjs --sheet    # no video: a sheet of frames per video, to look at first
-     node tools/explainers/render.mjs --url studio.example.com   # print the site's address on the end card
+     node tools/explainers/render.mjs --url none     # the end card without the site's address (webuy.ad by default)
 
    Needs Chromium through Playwright (PLAYWRIGHT_MODULE=… when it is not on the
    module path) and ffmpeg with libx264. Each frame is drawn from its time alone
@@ -54,12 +54,22 @@ for (const v of videos) {
   for (let f = 0; f < frames; f++) { const buf = await shot(f / FPS); if (!ff.stdin.write(buf)) await new Promise(r => ff.stdin.once('drain', r)); }
   ff.stdin.end(); await new Promise(r => ff.on('close', r));
   if (ffErr.trim()) console.error(ffErr.trim());
-  const track = path.join(ROOT, 'motion/sounds/tracks', (v.music || 'small_note_boogaloo') + '.mp3');
-  const fade = 1.4;
-  const mux = existsSync(track)
-    ? ['-y', '-loglevel', 'error', '-i', silent, '-ss', '4', '-i', track, '-filter_complex', `[1:a]volume=0.55,afade=t=in:d=0.35,afade=t=out:st=${(total - fade).toFixed(2)}:d=${fade}[a]`,
-       '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '128k', '-t', total.toFixed(3), '-movflags', '+faststart', mp4]
-    : ['-y', '-loglevel', 'error', '-i', silent, '-c', 'copy', '-movflags', '+faststart', mp4];
+  /* The tracks are 12-second clips, and a video runs 19 to 33 seconds: until 2026-11-19 the
+     render started 4 s into the clip and the music stopped 8 s in, the rest silent. The clip
+     now plays from its start and repeats under a crossfade until the picture ends. */
+  const track = path.join(ROOT, 'motion/sounds/tracks', (v.music || 'new_world') + '.mp3');
+  const fade = 1.4, XF = 1.2;
+  let mux = ['-y', '-loglevel', 'error', '-i', silent, '-c', 'copy', '-movflags', '+faststart', mp4];
+  if (existsSync(track)) {
+    const len = Number(spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', track], { encoding: 'utf8' }).stdout) || 12;
+    const n = Math.max(1, Math.ceil((total - len) / (len - XF)) + 1);
+    const ins = []; for (let i = 0; i < n; i++) ins.push('-i', track);
+    let chain = '', last = '1:a';
+    for (let i = 2; i <= n; i++) { chain += `[${last}][${i}:a]acrossfade=d=${XF}:c1=tri:c2=tri[x${i}];`; last = 'x' + i; }
+    chain += `[${last}]atrim=0:${total.toFixed(3)},volume=0.55,afade=t=in:d=0.35,afade=t=out:st=${(total - fade).toFixed(2)}:d=${fade}[a]`;
+    mux = ['-y', '-loglevel', 'error', '-i', silent, ...ins, '-filter_complex', chain,
+      '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '128k', '-t', total.toFixed(3), '-movflags', '+faststart', mp4];
+  }
   const r = spawnSync('ffmpeg', mux, { encoding: 'utf8' }); if (r.status) { console.error(r.stderr); process.exit(1); }
   await page.evaluate(([id, tt]) => { window.EX.seek(id, tt); }, [v.id, v.poster || total * .4]);
   await page.screenshot({ path: jpg, type: 'jpeg', quality: 86 });

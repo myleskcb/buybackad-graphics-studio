@@ -13,7 +13,9 @@ const NUMBER = '310 555 0142';   // a 555-01xx number: reserved for fiction, nob
 
 const proxy = process.env.HTTPS_PROXY && !/localhost|127\.0\.0\.1/.test(BASE) ? { server: process.env.HTTPS_PROXY } : undefined;
 const b = await chromium.launch({ proxy });
-const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 2 });
+// the studio follows the device's light or dark setting (DESIGN-LAW 152): the shots take the
+// dark one, the site's own default and the videos' navy (SHOTS_SCHEME=light for the other)
+const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 2, colorScheme: process.env.SHOTS_SCHEME || 'dark' });
 const p = await ctx.newPage();
 const wait = ms => p.waitForTimeout(ms);
 const jpg = (name, clip) => p.screenshot({ path: path.join(OUT, name + '.jpg'), type: 'jpeg', quality: 90, clip });
@@ -36,7 +38,8 @@ await jpg('step1-strip', await box(['#ez-strip'], 10));
 // a free card with a photograph behind it, so the preview is what downloads
 const cards = p.locator('#ez-strip > *');
 await cards.nth(5).click().catch(() => {}); await wait(2500);
-await p.locator('#ez-form-card').scrollIntoViewIfNeeded(); await wait(400);
+// centred, so the sticky header never sits over the crop
+await p.evaluate(() => document.querySelector('#ez-phone').scrollIntoView({ block: 'center' })); await wait(400);
 await jpg('step2-empty', await box(['#ez-phone'], 46));
 await p.fill('#ez-phone', NUMBER); await wait(2500);
 await jpg('step2-typed', await box(['#ez-phone'], 46));

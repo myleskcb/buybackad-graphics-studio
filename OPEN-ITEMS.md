@@ -3367,7 +3367,7 @@ Open:
 6. Search: add webuy.ad in Google Search Console and submit
    `https://webuy.ad/sitemap.xml`.
 
-## BE. 2026-11-19 — the reselling.us look: colour first (DESIGN-LAW 138)
+## BE. 2026-11-19 — the reselling.us look: colour first (DESIGN-LAW 152)
 
 The owner, once webuy.ad was live: "logos branding webkit", "all aspects need
 to finish and it needs to have similar or matching styling to reselling.us",
@@ -3384,9 +3384,9 @@ Done:
   `admin-ads/`, `phonegfx-studio.html`) are as they were.
 - Checked by eye at 1280 and 390, dark and light: the landing, Easy Mode,
   the advanced editor, about, the Look Book, the video maker; no sideways
-  scroll at 390; contrast measured (rule 138).
+  scroll at 390; contrast measured (rule 152).
 
-Then, the same day (DESIGN-LAW 139), the owner chose "WeBuy.AD":
+Then, the same day (DESIGN-LAW 153), the owner chose "WeBuy.AD":
 - **Type**: the system face for headlines and text, the default (`system`).
 - **The wordmark** `WeBuy.AD` in Inter Tight 750 on every page's header; the
   face vendored from reselling.us with its OFL text.
@@ -3404,9 +3404,15 @@ Open:
 1. **The terms and privacy policy** still make the agreement with BUYBACK.AD
    and call the Service "Graphics Studio": renaming the party is the owner's
    legal call, with a new `TERMS_VERSION` (checkout records the version).
-2. **The explainer videos** (`assets/explainers/*.mp4`) end on "Graphics
-   Studio by BUYBACK.AD" in the poster look: render them again
-   (`tools/explainers`) with the new end card and `--url webuy.ad`.
+2. ~~The explainer videos~~ **Done the same day**: all five rendered again in
+   the WeBuy.AD look (the stage, the W. icon and wordmark on the end card,
+   `webuy.ad` under the button, the studio's screens taken again in its dark
+   mode), with orchestral music in place of the big-band jazz. Found on the
+   way: every explainer had gone silent after 8 s (a 12-second clip started
+   4 s in); the clip now repeats under a crossfade for the whole video
+   (measured: -21 to -25 dB from start to end in all five). The trailer bed
+   of `claude/video-music-sfx-audit-3691d1` is drawn live in the maker and
+   is not a file yet; it would be the better bed once it is.
 3. **The Stripe billing portal** keeps the line it was made with
    ("Graphics Studio by BUYBACK.AD: …"): `ensurePortalConfig` makes a
    configuration once and stores it, so the new line reaches Stripe only

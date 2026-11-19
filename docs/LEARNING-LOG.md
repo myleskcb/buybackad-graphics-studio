@@ -5217,7 +5217,7 @@ RESUME HERE:
      branch (step 5), then steps 6 and 7.
   1. §BD open 1: the wordmark, BUYBACK.AD or WEBUY.AD, is the owner's call.
 
-## 2026-11-19 — WeBuy.AD in reselling.us's look (DESIGN-LAW 138, 139)
+## 2026-11-19 — WeBuy.AD in reselling.us's look (DESIGN-LAW 152, 153)
 
 Asked: "logos branding webkit", "all aspects need to finish and it needs to
 have similar or matching styling to reselling.us", "or color scheming at
@@ -5243,9 +5243,17 @@ Found:
     party and a recorded version. Rename the product, not the party, without
     the owner.
 
+  - The explainer videos had been silent after 8 seconds since they were
+    made: the tracks are 12-second clips and the render started 4 s in. A
+    probe of each file's audio stream length against its picture would have
+    caught it the day it shipped; run one after any render.
+  - DESIGN-LAW numbers are claimed on branches long before they reach main:
+    138 and 139 were taken on eight branches. Grep every branch and worktree
+    (`git show <branch>:DESIGN-LAW.md`) before numbering a rule.
+
 RESUME HERE:
-  0. OPEN-ITEMS §BE "Open": the terms' party and version, the explainer
-     videos' end card, the Stripe portal's line.
+  0. OPEN-ITEMS §BE "Open": the terms' party and version, the Stripe
+     portal's line. The explainers are done.
   1. §BD: the webhook move after the first checkout, iPhones LA's allowlist,
      the contact address, live Stripe keys.
 

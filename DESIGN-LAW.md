@@ -3208,7 +3208,7 @@ look was swept 30 times on its own until what failed in it was out.
 
 ## 98. The studio's chrome is a print shop's: paper, ink and four signal colours
 
-*Superseded as the house look on 2026-11-19 by rule 138; the poster skin
+*Superseded as the house look on 2026-11-19 by rule 152; the poster skin
 stays one URL away (`?skin=poster`).*
 
 Added 2026-10-01 (numbered 98: the video rule took 97 on main first);
@@ -5606,7 +5606,10 @@ a towns line or a website.
 
 Not done here: OPEN-ITEMS §BC.
 
-## 138. The studio's chrome is reselling.us's: navy, one blue, and mint for the deal
+## 152. The studio's chrome is reselling.us's: navy, one blue, and mint for the deal
+
+*Numbered 152, not 138: rules 138 to 151 were already taken on other branches
+(grepped every branch and worktree on 2026-11-19); 153 follows it.*
 
 Added 2026-11-19, the day webuy.ad went live (OPEN-ITEMS §BD); supersedes rule
 98's look. The owner: "it needs to have similar or matching styling to
@@ -5636,11 +5639,11 @@ default since this day.
   kept to match (its labels are 14 to 17px semibold, so it holds only the
   large-text bar); and the light headline's green phrase, 4.17:1, which is
   50px and up, where 3:1 is the bar.
-- **Then the type, the wordmark and the pictures**: rule 139, the same day.
+- **Then the type, the wordmark and the pictures**: rule 153, the same day.
 
-## 139. The name is WeBuy.AD, written and drawn the way Reselling.US is
+## 153. The name is WeBuy.AD, written and drawn the way Reselling.US is
 
-Added 2026-11-19, after rule 138's colours. The owner chose the wordmark
+Added 2026-11-19, after rule 152's colours. The owner chose the wordmark
 "WeBuy.AD". Every rule below is reselling.us's own (its `docs/brand/source/`
 and `/static/app.css`), applied to the new name, so the two read as one family.
 

@@ -1,6 +1,6 @@
 /* Information pages: about.html, ads/*.html, privacy.html, terms.html.
    Small on purpose; the studio's styles.css is 120KB of editor chrome that
-   these pages do not need. Same faces and the house look (DESIGN-LAW rules 138 and 139,
+   these pages do not need. Same faces and the house look (DESIGN-LAW rules 152 and 153,
    2026-11-19): reselling.us's own colours, navy and blue with a mint deal
    colour, dark unless the device asks for light, as reselling.us does. */
 @font-face{font-family:'Clash Display';src:url('assets/fonts/clash-display-600.woff2') format('woff2');font-weight:600;font-display:swap}
