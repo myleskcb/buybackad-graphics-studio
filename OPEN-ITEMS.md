@@ -4334,3 +4334,25 @@ Open:
   like iPhones LA's /studio/images; Pro and Business would carry it.
 - The trailer bed for the explainers, the terms' party, the contact address,
   live Stripe keys (§BD, §BE).
+
+## BR. 2026-11-19 — Sign in with Apple and Google (DESIGN-LAW 164)
+
+The owner: "apple and google sign in ?". Google's sign-in was built but switched off (no
+`GOOGLE_CLIENT_ID`); Apple's did not exist.
+
+Done:
+- `/api/auth/apple` and `netlify/lib/appleid.mjs` (the token checked against Apple's keys);
+  `/api/auth/config` reports Apple too.
+- One pair of buttons in `account.js`, used by the video maker's dialog and the studio's.
+- The CSP lets Apple's script and popup through, and Google's button stylesheet.
+- The privacy policy names Apple alongside Google.
+- `scripts/appleid_check.mjs` and `scripts/social_signin_check.mjs`.
+
+Open:
+1. **owner**: create the Google OAuth client and the Apple Services ID, and put
+   `GOOGLE_CLIENT_ID` and `APPLE_CLIENT_ID` in Netlify (`docs/SIGN-IN-SETUP.md`, step by step).
+2. **owner**: read the privacy policy's new Apple lines before this goes live.
+3. The iPhone app shows neither button. It needs Sign in with Apple natively
+   (`ASAuthorizationAppleIDProvider` in the shell, its identity token sent to `/api/auth/apple`),
+   then `APPLE_BUNDLE_ID` = `ad.webuy.app` in Netlify. Google can follow in the app only alongside
+   Apple (App Store guideline 4.8).
