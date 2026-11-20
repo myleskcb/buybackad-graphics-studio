@@ -6675,9 +6675,21 @@ to look 100% photo accurate to ios 18 26 and 27 backgrounds", "make sure the tim
 card's phone wore the compact layout: a small clock at the left of the top row, drawn from beta write-ups
 of iOS 27. Apple's own guide for iOS 27 does not describe it. Its guide gives the date over the clock,
 centred, a row of widgets if added, and a clock made taller with a more transparent look (iOS 26 on). The
-compact layout is retired (\`LOCK_LAYOUTS\`: classic, widgets, tall). An ad that drew it wears the standard
+compact layout is retired (`LOCK_LAYOUTS`: classic, widgets, tall). An ad that drew it wears the standard
 clock, and the draw is still over four, so no other ad's layout moves. The wallpapers are the owner's call
 (OPEN-ITEMS).
+
+**The wallpapers, drawn as Apple's read (2026-11-19).** The owner chose "Drawn, iOS style" over Apple's own
+images: drawn by the engine to read like the iOS 18, 26 and 27 defaults, tinted in each ad's own colours so
+an ad keeps its two colour families, with no download.
+- **Bloom** (iOS 18): soft, saturated light rising out of a deeper ground.
+- **Glass** (iOS 26 and 27): broad ribbons of Liquid Glass curving across the screen, lit along their upper
+  edge and clearing toward their foot.
+- **Gradient**: the Color collection's.
+- Each carries a photograph's fine grain, and its middle stays the screen's own colour, so the phone's face
+  still stands off the ground (`screenBase`).
+- The flat waves and rings they replace read as drawings. The draw is still over four (glass twice), so an
+  ad's wallpaper kind is kept wherever it was the gradient.
 
 ## 157. The call to action wears one of several marks, each moving its own way
 

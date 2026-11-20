@@ -4369,6 +4369,6 @@ Found and fixed the same day:
 Then (the owner, of a phone on a suggestion card: "we need all devices to look 100% photo accurate to ios
 18 26 and 27 backgrounds", "make sure the time is placed properly"): the compact clock layout is retired
 (rule 156). The time sits where Apple's guide puts it: centred under the date, or the taller Glass clock.
-Open, and the owner's: the wallpapers. They are drawn in the ad's own colours (a glow, a gradient, waves,
-ripples), which keeps an ad to two colour families. Apple's real defaults would bring their own colours,
-are Apple's artwork, and would need a download.
+The owner chose drawn wallpapers in iOS style over Apple's own images (rule 156). They are bloom (iOS
+18), glass (iOS 26 and 27) and gradient, in the ad's own colours, which keeps an ad to two colour families.
+They need no download.

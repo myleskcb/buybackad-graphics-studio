@@ -743,7 +743,7 @@ export class FullAd extends Ad {
     // a phone that lands face up shows a lock screen in the card's own colours, its glass the one of
     // them that stands farthest off the ground lit behind it (lockScreen, screenBase)
     if (this.st.end_face && this.st.end_face !== "back") {
-      const wall = LOCK_WALLS[mixSeed((this.st.seed >>> 0) * 31 + 5) % LOCK_WALLS.length];   // one wallpaper for the ad's phones, as a set is shot
+      const wall = WALL_DRAW[mixSeed((this.st.seed >>> 0) * 31 + 5) % WALL_DRAW.length];   // one wallpaper for the ad's phones, as a set is shot
       // and one layout, drawn over the four it always was so no other ad's moves: one that drew the compact clock
       // (retired 2026-11-19) wears the standard one
       const layout = LOCK_DRAW[mixSeed((this.st.seed >>> 0) * 17 + 3) % LOCK_DRAW.length];
@@ -1630,7 +1630,13 @@ export function subjectDraw(key, seed, loaded) {
    glyphs are white on a deep wallpaper and a deep tone of it on a light one, as iOS tints them. */
 const LOCK_DAY = { en: "Tuesday, September 9", es: "martes, 9 de septiembre" };
 const LOCK_FACE = '"SF Pro Display", "SF Pro Text", system-ui, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif';
-export const LOCK_WALLS = ["glow", "gradient", "waves", "ripples"];
+/* the wallpapers, drawn as Apple's own read (2026-11-19; the owner: "100% photo accurate to ios 18 26 and 27
+   backgrounds", then "Drawn, iOS style" over Apple's own images): bloom, iOS 18's soft light rising out of a
+   deep ground; glass, iOS 26 and 27's ribbons of Liquid Glass lit along their edge; gradient, the Color
+   collection's. Each in the screen's own colour, with a photograph's fine grain. The flat waves and rings they
+   replace read as drawings. WALL_DRAW is the draw over four, as it was (glass twice). */
+export const LOCK_WALLS = ["bloom", "gradient", "glass"];
+const WALL_DRAW = ["bloom", "gradient", "glass", "glass"];
 /* the layouts iOS gives a Lock Screen, as Apple's own guide describes them for iOS 18, 26 and 27 (2026-11-19):
    the date over the clock, centred, with or without a row of widgets under it, and the clock made taller
    with a more transparent look (iOS 26 on). The owner, 2026-11-19, of a phone on a suggestion card: "we need
@@ -1666,26 +1672,42 @@ export function lockScreen(p, seed = 1, lang = "en", base = null, opts = {}) {
   const blob = (cx, cy, rad, col, al) => { const gr = x.createRadialGradient(cx, cy, 0, cx, cy, rad); gr.addColorStop(0, rgba(col, al)); gr.addColorStop(1, rgba(col, 0)); x.fillStyle = gr; x.fillRect(0, 0, w, h); };
   const kind = LOCK_WALLS.includes(opts.wall) ? opts.wall : LOCK_WALLS[Math.floor(r() * LOCK_WALLS.length) % LOCK_WALLS.length];
   x.fillStyle = a; x.fillRect(0, 0, w, h);
-  if (kind === "gradient") {
+  if (kind === "bloom") {
+    // iOS 18's: soft, saturated light rising out of a deeper ground, lit from behind; its middle the screen's own
+    const side = r() < .5 ? -1 : 1;
+    const v = x.createLinearGradient(0, 0, 0, h); v.addColorStop(0, tone(-.14, .9)); v.addColorStop(.55, a); v.addColorStop(1, tone(-.1, 1)); x.fillStyle = v; x.fillRect(0, 0, w, h);
+    x.globalCompositeOperation = "lighter";   // light adds, as light does
+    blob(w * (.5 + .3 * side), h * (.6 + .08 * r()), h * .5, tone(.04, 1.15), .42);
+    blob(w * (.5 - .26 * side), h * (.8 + .06 * r()), h * .38, tone(.1, 1), .34);
+    blob(w * (.5 + .08 * side), h * (.4 + .06 * r()), h * .3, tone(.16, .7), .22);
+    x.globalCompositeOperation = "source-over";
+    const vg = x.createRadialGradient(w / 2, h * .55, h * .25, w / 2, h * .55, h * .78); vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, rgba(tone(-.2, .8), .55)); x.fillStyle = vg; x.fillRect(0, 0, w, h);
+  } else if (kind === "glass") {
+    // iOS 26 and 27's: broad ribbons of glass curving across the screen, lit along their upper edge and
+    // clearing toward their foot, the way Liquid Glass bends the light behind it
+    const v = x.createLinearGradient(0, 0, w, h); v.addColorStop(0, tone(-.1)); v.addColorStop(.5, a); v.addColorStop(1, tone(.05, .9)); x.fillStyle = v; x.fillRect(0, 0, w, h);
+    const flip = r() < .5, X = t => flip ? w - t : t;
+    for (let i = 0; i < 3; i++) {
+      const y0 = h * (.36 + .19 * i + .04 * r()), amp = h * (.09 + .05 * r()), th = h * (.12 + .04 * r());
+      const P = [[X(-w * .12), y0 + amp], [X(w * .34), y0 - amp * 1.25], [X(w * .7), y0 + amp * .85], [X(w * 1.12), y0 - amp * .6]];
+      const edge = () => { x.beginPath(); x.moveTo(P[0][0], P[0][1]); x.bezierCurveTo(P[1][0], P[1][1], P[2][0], P[2][1], P[3][0], P[3][1]); };
+      edge(); x.lineTo(P[3][0], P[3][1] + th); x.bezierCurveTo(P[2][0], P[2][1] + th * 1.15, P[1][0], P[1][1] + th * .9, P[0][0], P[0][1] + th); x.closePath();
+      const gy = x.createLinearGradient(0, y0 - amp * 1.25, 0, y0 + amp + th);
+      gy.addColorStop(0, rgba(tone(.24, .7), .72)); gy.addColorStop(.5, rgba(tone(.1, .9), .38)); gy.addColorStop(1, rgba(tone(-.06), .16));
+      x.fillStyle = gy; x.fill();
+      // the lit edge: a hairline of light along the top, and its softer halo
+      edge(); x.strokeStyle = "rgba(255,255,255,.14)"; x.lineWidth = w * .03; x.stroke();
+      x.strokeStyle = "rgba(255,255,255,.6)"; x.lineWidth = Math.max(1, w * .0055); x.stroke();
+    }
+    blob(w * .5, h * .1, h * .42, tone(.12, .8), .4);   // the light over the clock
+  } else {   // gradient: the Color collection's, deep at the top and clearing below
     const v = x.createLinearGradient(0, 0, 0, h); v.addColorStop(0, tone(-.16)); v.addColorStop(.5, a); v.addColorStop(1, tone(.13, .8));
     x.fillStyle = v; x.fillRect(0, 0, w, h);
-  } else if (kind === "glow") {
-    blob(w * (.15 + .7 * r()), h * (.14 + .12 * r()), h * .55, tone(.17, .75), .9);
-    blob(w * (.25 + .5 * r()), h * (.82 + .1 * r()), h * .48, tone(-.14), .75);
-  } else if (kind === "waves") {
-    // smooth bands across the lower half, each a step lighter, as iOS's flowing wallpapers
-    const flip = r() < .5 ? 1 : -1;
-    blob(w * .5, h * .1, h * .42, tone(.1, .9), .55);
-    for (let i = 0; i < 3; i++) {
-      const y0 = h * (.5 + .14 * i), amp = h * (.045 + .02 * r());
-      x.beginPath(); x.moveTo(0, y0 + amp * flip);
-      x.bezierCurveTo(w * .34, y0 - amp * 1.7 * flip, w * .66, y0 + amp * 1.7 * flip, w, y0 - amp * flip);
-      x.lineTo(w, h); x.lineTo(0, h); x.closePath();
-      x.fillStyle = tone((i + 1) * .055, 1 - i * .1); x.fill();
-    }
-  } else {   // ripples: flat rings of one colour from a lower corner, each a tone lighter
-    const cx = r() < .5 ? -w * .15 : w * 1.15, cy = h * (1.02 + .08 * r());
-    for (let i = 0; i < 4; i++) { x.beginPath(); x.arc(cx, cy, h * (.86 - .18 * i), 0, Math.PI * 2); x.fillStyle = tone(.035 * (i + 1), 1 - i * .06); x.fill(); }
+  }
+  { // a photograph's fine grain: Apple's wallpapers are light, not flat fills
+    const d = x.getImageData(0, 0, w, h), px = d.data; let q0 = Math.imul((seed >>> 0) ^ 0x9e3779b9, 2654435761) >>> 0;
+    for (let i = 0; i < px.length; i += 4) { q0 = (Math.imul(q0, 1664525) + 1013904223) >>> 0; const n = ((q0 >>> 24) - 127.5) * .06; px[i] += n; px[i + 1] += n; px[i + 2] += n; }
+    x.putImageData(d, 0, 0);
   }
   // what the clock, the date and the glyphs stand on: white on a deep wallpaper, a deep tone of it on a light one
   const lumOf = (x0, y0, x1, y1) => { const d = x.getImageData(x0 | 0, y0 | 0, (x1 - x0) | 0, (y1 - y0) | 0).data; let t = 0, n = 0;
