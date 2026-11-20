@@ -4365,3 +4365,10 @@ Found and fixed the same day:
 - **Open.** The stills set in those families still show the fallback face until the next full redraw. That
   redraw waits for the lock-screen work, which changes every face-up phone anyway, and for disk space:
   the disk had 0.2 to 0.5 GB free, and a full redraw stopped partway, so it was put back.
+
+Then (the owner, of a phone on a suggestion card: "we need all devices to look 100% photo accurate to ios
+18 26 and 27 backgrounds", "make sure the time is placed properly"): the compact clock layout is retired
+(rule 156). The time sits where Apple's guide puts it: centred under the date, or the taller Glass clock.
+Open, and the owner's: the wallpapers. They are drawn in the ad's own colours (a glow, a gradient, waves,
+ripples), which keeps an ad to two colour families. Apple's real defaults would bring their own colours,
+are Apple's artwork, and would need a download.

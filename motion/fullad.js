@@ -744,7 +744,9 @@ export class FullAd extends Ad {
     // them that stands farthest off the ground lit behind it (lockScreen, screenBase)
     if (this.st.end_face && this.st.end_face !== "back") {
       const wall = LOCK_WALLS[mixSeed((this.st.seed >>> 0) * 31 + 5) % LOCK_WALLS.length];   // one wallpaper for the ad's phones, as a set is shot
-      const layout = LOCK_LAYOUTS[mixSeed((this.st.seed >>> 0) * 17 + 3) % LOCK_LAYOUTS.length];   // and one layout
+      // and one layout, drawn over the four it always was so no other ad's moves: one that drew the compact clock
+      // (retired 2026-11-19) wears the standard one
+      const layout = LOCK_DRAW[mixSeed((this.st.seed >>> 0) * 17 + 3) % LOCK_DRAW.length];
       this.phones.forEach((q, i) => { if (!(q.meta && q.meta.flat) && !q.screen) q.screen = lockScreen(this.p, (this.st.seed | 0) + i, this.st.lang, screenBase(this.p, this._groundAt(q)), { wall, layout, notch: !!(q.design && q.design.notch) }); });
     }
     this._evenProduct();
@@ -1629,7 +1631,14 @@ export function subjectDraw(key, seed, loaded) {
 const LOCK_DAY = { en: "Tuesday, September 9", es: "martes, 9 de septiembre" };
 const LOCK_FACE = '"SF Pro Display", "SF Pro Text", system-ui, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif';
 export const LOCK_WALLS = ["glow", "gradient", "waves", "ripples"];
-export const LOCK_LAYOUTS = ["classic", "widgets", "tall", "compact"];
+/* the layouts iOS gives a Lock Screen, as Apple's own guide describes them for iOS 18, 26 and 27 (2026-11-19):
+   the date over the clock, centred, with or without a row of widgets under it, and the clock made taller
+   with a more transparent look (iOS 26 on). The owner, 2026-11-19, of a phone on a suggestion card: "we need
+   all devices to look 100% photo accurate to ios 18 26 and 27", "make sure the time is placed properly". The
+   compact clock (small, at the left of the top row) was drawn from beta write-ups of iOS 27, which Apple's
+   guide does not describe; it is retired. LOCK_DRAW is the draw, four as it was, the fourth the standard one. */
+export const LOCK_LAYOUTS = ["classic", "widgets", "tall"];
+const LOCK_DRAW = ["classic", "widgets", "tall", "classic"];
 const LOCK_LAYOUTS_SET = LOCK_LAYOUTS;
 const rgba = (hex, a) => { const h = String(hex || "#000000"); const [r, g, b] = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) || 0); return `rgba(${r},${g},${b},${a})`; };
 const lin8 = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
@@ -1707,8 +1716,7 @@ export function lockScreen(p, seed = 1, lang = "en", base = null, opts = {}) {
   /* THE LAYOUT, one for the ad's phones (LOCK_LAYOUTS; the owner, 2026-11-18: "What are the other iOS lock
      screen layouts? Don't somehow have widgets what about some that are closer to the iOS 26 or 27"):
      classic, the date over a large clock; widgets, a row of four under it (iOS 16 on); tall, iOS 26's
-     Glass clock stretched to fill the top, its widgets moved to the foot; compact, iOS 27's small clock
-     in the top row beside two widgets, the wallpaper left open. Widgets are tinted one colour, as iOS
+     Glass clock stretched to fill the top, its widgets moved to the foot. Widgets are tinted one colour, as iOS
      tints them, on a vibrant disc of it: weather, a battery ring, an alarm, the calendar's day. */
   const layout = LOCK_LAYOUTS_SET.includes(opts.layout) ? opts.layout : "classic", es = lang === "es";
   const footInk = footY < .68 ? "#ffffff" : deep;
@@ -1753,10 +1761,6 @@ export function lockScreen(p, seed = 1, lang = "en", base = null, opts = {}) {
     dateAt(h * .118, .054);
     clockAt(w / 2, h * .425, .3, 2.1, true);
     row(h * .795, 3, w * .082, footInk);
-  } else if (layout === "compact") {
-    dateAt(h * .112, .05, ink, "left", w * .085);
-    clockAt(w * .08, h * .19, .17, 1, false, "left");
-    const r0 = w * .07; widget(kinds[0], w * .66, h * .165, r0, ink); widget(kinds[1], w * .84, h * .165, r0, ink);
   } else {
     dateAt(h * .134, .056);
     clockAt(w / 2, h * .262, .285);

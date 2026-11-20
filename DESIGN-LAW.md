@@ -6670,6 +6670,15 @@ The rule (`fullad.js` `lockScreen`, drawn, never loaded, so a photo on the first
   licensed for mock-ups of software on its platforms. A screenshot's layers are not pulled into an
   ad.
 
+**The time where iOS puts it (2026-11-19).** The owner, of a phone on a suggestion card: "we need all devices
+to look 100% photo accurate to ios 18 26 and 27 backgrounds", "make sure the time is placed properly". The
+card's phone wore the compact layout: a small clock at the left of the top row, drawn from beta write-ups
+of iOS 27. Apple's own guide for iOS 27 does not describe it. Its guide gives the date over the clock,
+centred, a row of widgets if added, and a clock made taller with a more transparent look (iOS 26 on). The
+compact layout is retired (\`LOCK_LAYOUTS\`: classic, widgets, tall). An ad that drew it wears the standard
+clock, and the draw is still over four, so no other ad's layout moves. The wallpapers are the owner's call
+(OPEN-ITEMS).
+
 ## 157. The call to action wears one of several marks, each moving its own way
 
 Added 2026-11-18. The owner: "Although I said, have one assimilated design language, I didn't mean
