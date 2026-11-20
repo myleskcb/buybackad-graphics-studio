@@ -21,9 +21,10 @@
       @netlify/blobs: sign up, save, a video in parts, read the public link
       through it; the library key route and /me still answer as before.
    3. In Chromium, the studio and the page, under the production CSP: an Easy
-      Mode download offers "Save to library" to the owner and to nobody else
-      (2026-11-03: every way into the library is the owner's); the Library
-      button shows for the owner only; saved, it is in the Library dialog, offered daily, and on the
+      Mode download offers "Save to library" to every signed-in account
+      (2026-11-19: "Open it to customers"; the owner's alone from 2026-11-03),
+      and the Library button shows for every account; only the owner's words
+      and cards speak of iPhones LA; saved, it is in the Library dialog, offered daily, and on the
       public link (a free account's watermarked ad held, no switch or schedule
       to set); master-library.html shows the public
       library at ?feed= and the finished designs (every offered card); no
@@ -63,9 +64,13 @@ const ok = (cond, what) => { if (!cond) bad.push(what); return cond; };
 const sha256 = (b) => createHash('sha256').update(b).digest('hex');
 const DAY = 86400000;
 
-/* fixtures: real JPEGs, the library's own renders */
-const renders = readdirSync(join(ROOT, 'assets/library-ads')).filter((f) => f.endsWith('.jpg')).sort();
-const J = renders.slice(0, 4).map((f) => readFileSync(join(ROOT, 'assets/library-ads', f)));
+/* fixtures: real JPEGs, the library's own renders. Since the old cards were retired
+   (DESIGN-LAW 145, the census) those are the rebuilt ads' (assets/rebuilt-ads, 1080
+   square); a tree from before has the old ones in assets/library-ads. */
+const RENDERS = ['assets/rebuilt-ads', 'assets/library-ads'].find((d) => { try { return readdirSync(join(ROOT, d)).some((f) => f.endsWith('.jpg')); } catch (e) { return false; } });
+if (!RENDERS) throw new Error('no library renders to test with (assets/rebuilt-ads or assets/library-ads)');
+const renders = readdirSync(join(ROOT, RENDERS)).filter((f) => f.endsWith('.jpg')).sort();
+const J = renders.slice(0, 4).map((f) => readFileSync(join(ROOT, RENDERS, f)));
 const dataUrl = (b) => 'data:image/jpeg;base64,' + Buffer.from(b).toString('base64');
 const resized = (b, w, h) => {      // the same JPEG, its frame header saying another size
   const c = Buffer.from(b);
@@ -545,25 +550,18 @@ async function browserPart() {
       // the studio may ask for the shop's area on the way in; a person answers it first
       await page.evaluate(() => document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')));
       const ask = page.locator('.adl-ask');
-      await ask.waitFor({ timeout: who.admin ? 10000 : 4000 }).catch(() => {});
+      await ask.waitFor({ timeout: 10000 }).catch(() => {});
       const asked = await ask.isVisible();
-      if (who.admin){
-        if (!ok(asked, 'browser (' + who.email + '): the download offers "Save to library"')) { await page.context().close(); continue; }
-        await ask.getByRole('button', { name: 'Save to library' }).click();
-        await page.waitForFunction(() => !document.querySelector('.adl-ask'), null, { timeout: 20000 });
-      } else {
-        /* the library is the owner's (2026-11-03): a customer's download asks
-           nothing, and no star or save button is on their page. The rest runs
-           on a save made from code, as the History ⭐ makes it */
-        ok(!asked, 'browser (' + who.email + '): a customer\'s download does not offer the owner\'s library');
-        const shown = await page.evaluate(() => [...document.querySelectorAll('.adl-star, .adl-starrow, #ex-star, #ex-star-video, .adl-hist')].filter((e) => e.getClientRects().length).length);
-        ok(shown === 0, 'browser (' + who.email + '): no library star or save button is shown to a customer (' + shown + ')');
-        await page.evaluate(async () => { const r = (await histList())[0]; await window.adLibrary.save({ id: r.id, name: r.name, data: r.data, proj: r.proj }); });
-      }
-      /* the Library button is the owner's (2026-10-11); anyone else's library opens from code */
+      /* every account's download offers the save (2026-11-19: "Open it to customers") */
+      if (!ok(asked, 'browser (' + who.email + '): the download offers "Save to library"')) { await page.context().close(); continue; }
+      await ask.getByRole('button', { name: 'Save to library' }).click();
+      await page.waitForFunction(() => !document.querySelector('.adl-ask'), null, { timeout: 20000 });
+      /* the Library button: every signed-in account's since 2026-11-19 */
+      const shown = await page.evaluate(() => [...document.querySelectorAll('.adl-star, .adl-starrow, #ex-star, #ex-star-video, .adl-hist')].filter((e) => e.getClientRects().length).length);
+      ok(shown > 0, 'browser (' + who.email + '): the library stars and save buttons are shown (' + shown + ')');
       const libBtn = await page.evaluate(() => getComputedStyle(document.getElementById('nav-adlib')).display !== 'none');
-      ok(libBtn === who.admin, 'browser (' + who.email + '): the Library button shows only for the owner (' + libBtn + ')');
-      if (who.admin) await page.click('#nav-adlib'); else await page.evaluate(() => window.adLibrary.open());
+      ok(libBtn, 'browser (' + who.email + '): the Library button shows (' + libBtn + ')');
+      await page.click('#nav-adlib');
       await page.waitForFunction(() => { const i = document.querySelector('#adlib-overlay .adl-grid .adl-card img'); return i && i.complete && i.naturalWidth > 0; }, null, { timeout: 20000 });
       const dlg = await page.evaluate(() => {
         const o = document.getElementById('adlib-overlay');
@@ -577,7 +575,9 @@ async function browserPart() {
       await shot(page, 'dialog-' + (who.admin ? 'operator' : 'free'));
       ok(dlg.controls === 0, 'browser (' + who.email + '): no auto-post switch or schedule on a saved ad (' + dlg.controls + ')');
       if (who.admin) ok(/Offered to iPhones LA daily, day 1 of 7/.test(dlg.sent) && !dlg.held, 'browser: an operator\'s ad is offered daily (' + dlg.sent + ')');
-      else ok(/watermark/.test(dlg.held), 'browser: a free account\'s watermarked ad is held (' + dlg.held + ')');
+      else ok(!dlg.held && !dlg.sent, 'browser: a customer\'s card says nothing of iPhones LA (' + JSON.stringify([dlg.held, dlg.sent]) + ')');
+      const sub = await page.evaluate(() => document.querySelector('#adlib-overlay .modal-sub').textContent);
+      ok(who.admin ? /iPhones LA/.test(sub) : !/iPhones LA/.test(sub) && /any device/.test(sub), 'browser (' + who.email + '): the dialog\'s words are ' + (who.admin ? 'the owner\'s' : 'a customer\'s'));
       const feedUrl = dlg.link.replace(/^https?:\/\/[^/]+/, BASE);
       const pub = await newPage();
       await pub.goto(feedUrl);
@@ -848,8 +848,8 @@ async function browserPart() {
       const page = await newPage();
       await page.goto(BASE + '/motion/');
       await page.waitForFunction(() => document.getElementById('loading').hidden && window.adLibrary && window.pgfxAccount, null, { timeout: 60000 });
-      /* the library is the owner's (2026-11-03): signed out, or a customer,
-         the video maker shows no star and no Save to library */
+      /* signed out, the video maker shows no star and no Save to library; a
+         customer does since 2026-11-19 ("Open it to customers") */
       const starShown = () => page.evaluate(() => [...document.querySelectorAll('#mo-star, .adl-star')].filter((e) => e.getClientRects().length).length);
       ok(await starShown() === 0, 'video maker: signed out, no library star is shown');
       const mtoken = await page.evaluate(async () => (await (await fetch('/api/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'maker@studio.example', password: 'a-long-password' }) })).json()).token);
@@ -857,11 +857,11 @@ async function browserPart() {
       await page.reload();
       await page.waitForFunction(() => document.getElementById('loading').hidden && window.adLibrary && window.pgfxAccount, null, { timeout: 60000 });
       await page.waitForTimeout(1500);
-      ok(await starShown() === 0, 'video maker: a customer sees no library star');
+      ok(await starShown() > 0, 'video maker: a customer sees the library star');
       // the same account as an operator (video, no marks, not counted): the save goes through
       process.env.ADMIN_EMAILS += ',maker@studio.example';
       /* the page learns the role when it loads the account, as an operator's
-         would at sign-in; then the Library buttons (operator only) show */
+         would at sign-in */
       await page.reload();
       await page.waitForFunction(() => document.getElementById('loading').hidden && window.adLibrary && window.pgfxAccount, null, { timeout: 60000 });
       await page.waitForFunction(() => { const b = document.getElementById('mo-adlib'); return b && b.style.display !== 'none'; }, null, { timeout: 20000 }).catch(() => {});
@@ -879,7 +879,7 @@ async function browserPart() {
       const gal = await page.evaluate(() => ({ thumbs: document.querySelectorAll('#gallery .mo-thumb').length, stars: document.querySelectorAll('#gallery .mo-thumb .adl-star').length }));
       ok(gal.thumbs > 0 && gal.stars === gal.thumbs, 'video maker: every look in the gallery carries a star (' + JSON.stringify(gal) + ')');
       await shot(page, 'maker-gallery');
-      /* signed up before it was made an operator, so its Library link is still hidden: the dialog opens from code */
+      /* the dialog opens from code, as the Library link would */
       await page.evaluate(() => window.adLibrary.open());
       await page.waitForSelector('#adlib-overlay.show .adl-card', { timeout: 20000 });
       const mdlg = await page.evaluate(() => { const m = document.querySelector('#adlib-overlay .modal'); return { w: Math.round(m.getBoundingClientRect().width), bare: document.documentElement.classList.contains('adl-bare') }; });

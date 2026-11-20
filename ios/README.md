@@ -54,12 +54,18 @@ A Release build has neither (`release.sh` refuses a binary that does).
 ## Releasing
 
 - Team `9Y5UV74466` (the iPhones LA app's), bundle ID `ad.webuy.app`.
-- **Before the first upload, the owner** (signed in at
+- **Done 2026-11-19** (in the owner's Chrome, signed in as the team): the App
+  ID `ad.webuy.app` ("WeBuy AD", no capabilities) and the App Store Connect
+  app "WeBuy.AD" (Apple ID 6837161499, SKU `webuyad-ios`, English (U.S.),
+  Full Access), free, available in the United States only.
+- Before the first upload, as it was done (signed in at
   https://appstoreconnect.apple.com): Apps, +, New App: iOS, name
   "WeBuy.AD" (a fallback such as "WeBuy.AD Ad Maker" if the name is taken),
   primary language English (U.S.), bundle ID `ad.webuy.app` (register it
   first under Certificates, Identifiers & Profiles, Identifiers, if the list
   does not offer it), SKU `webuyad-ios`. Availability: United States only.
+- Build 1 (1.0.0) was uploaded on 2026-11-19 at 22:28 (App Store Connect:
+  Processing). The next build is 2.
 - Then `ios/release.sh 1 --upload` on this Mac (Xcode signed in to the
   account). Each later build: a higher number.
 - App Privacy answers (App Store Connect): Email Address, Photos or Videos,

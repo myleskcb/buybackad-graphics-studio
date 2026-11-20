@@ -7646,7 +7646,7 @@ function bindSaasUI(){
   lpItem('lpam-plans', () => openPlans());
   lpItem('lpam-exports', () => openHistory());
   /* its 📚 Ad library is ad-library.js's, as the studio menu's am-adlib is:
-     bound there and shown only to the owner's operator accounts (its BUTTONS) */
+     bound there, and shown to every signed-in account since 2026-11-19 (its BUTTONS) */
   lpItem('lpam-signout', () => signOut());
   lpItem('lpam-delete', () => deleteAccount());
   bindIf('am-delete', () => { menu.classList.remove('open'); deleteAccount(); });
@@ -14155,7 +14155,7 @@ function previewVideo(o, v, then){
     catch (e){ console.error('GraphicsStudio motion: ' + what, e); say((VH.isMemory(e) ? 'This device ran out of memory' : 'That did not work') + ': ' + String((e && e.message) || e) + '. Try again.'); }
     finally { b.disabled = false; b.textContent = label; }
   };
-  const lib = isAdmin();   // the ad library is the owner's (ad-library.js owner())
+  const lib = !!account && !DEMO;   // every signed-in account keeps a library (ad-library.js canUse(), 2026-11-19)
   const list = [['mp4', '⬇ Download MP4'], ['jpg', '⬇ Download JPG']].concat(lib ? [['lib', '⭐ Save to library']] : [])
     .map(([what, label]) => ({ label, keepOpen: true, primary: what === 'mp4', id: 'vh-' + what, run: run(what, label) }));
   VH.show({ tone: 'info', wide: true, title: 'Your video',

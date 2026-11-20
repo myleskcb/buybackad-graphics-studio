@@ -925,7 +925,11 @@ async function browserPart() {
       const page = await newPage(1280);
       await page.goto(BASE + '/motion/');
       await page.waitForFunction(() => document.getElementById('loading').hidden && window.pgfxAccount, null, { timeout: 120000 });
-      // a download needs a number on the ad first (numberReady, b7c74a1e): type one, let it save
+      /* a number first: since 2026-11-10 (b7c74a1e) the maker asks for one before any
+         download (numberReady), so the step below meets the account question. The field's
+         section is opened if it is folded, and the number is waited for until it is saved
+         (the field is read after a 500 ms pause, motion/app.js), not for a fixed time */
+      await page.evaluate(() => { const f = document.getElementById('f-number'); const sec = f && f.closest('details'); if (sec) sec.open = true; });
       await page.fill('#f-number', '(562) 999-4994');
       await page.waitForFunction(() => { try { return /562/.test(JSON.stringify(JSON.parse(localStorage.getItem('pgfx_motion_v1') || '{}'))); } catch (e) { return false; } }, null, { timeout: 10000 }).catch(() => {});
       await page.click('#download');
