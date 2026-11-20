@@ -12378,11 +12378,27 @@ function scBuildWall(cards){
         return;
       }
       d.title = c.name;
-      d.innerHTML = `<img src="${assetUrl(c.thumb)}" alt="${escHtml(c.name)} template" loading="${k < 3 ? 'eager' : 'lazy'}" decoding="async">`;   // the wall is the shop window: tilted 448px thumbs, no guard needed
+      /* the first four of each copy at once: a column running down starts on its second copy */
+      d.innerHTML = `<img src="${assetUrl(c.thumb)}" alt="${escHtml(c.name)} template" loading="${k % mine.length < 4 ? 'eager' : 'lazy'}" decoding="async">`;   // the wall is the shop window: tilted 448px thumbs, no guard needed
       d.onclick = () => c.house ? openHouseAd(c.house) : openShowcase(c.id);
       col.appendChild(d);
     });
   });
+  /* the wall comes in whole (owner, 2026-11-20: "the hero however is still rocky"): the stage
+     waits (index.html .wall-wait, landing.css) until the pictures in view are decoded, two and a
+     half seconds at most; then the rest load at once, since a lazy picture clipped by the hero
+     only started loading as it scrolled into sight, and came in blank */
+  const stage = wall.closest('.hero-stage');
+  const imgs = [...wall.querySelectorAll('img')];
+  const first = imgs.filter(im => im.loading !== 'lazy');
+  const reveal = () => {
+    if (stage) stage.classList.remove('wall-wait');
+    imgs.forEach(im => { if (im.loading === 'lazy') { im.fetchPriority = 'low'; im.loading = 'eager'; } });
+  };
+  Promise.race([
+    Promise.all(first.map(im => im.decode ? im.decode().catch(() => {}) : null)),
+    new Promise(r => setTimeout(r, 2500)),
+  ]).then(() => requestAnimationFrame(reveal));
 }
 /* PALETTES, not families. A "family" is how the engine generates colour; a
    palette — ground, ink, accent, support, with a name — is what a person
