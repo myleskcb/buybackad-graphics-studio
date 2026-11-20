@@ -51,7 +51,14 @@ ok(got.denied[0] === 'checklistHero-jw05-30' && got.by === 'boss@studio.example'
 for (const f of ['approve.html', 'approve.js', 'approve.css', 'assets/commercial-picks.json']) ok(readFileSync(ROOT + f, 'utf8').length > 0, f + ' is there');
 ok(!/<script(?![^>]*\bsrc=)/.test(readFileSync(ROOT + 'approve.html', 'utf8')), 'approve.html has no inline script (CSP)');
 for (const f of ['assets/hero-picks.json', 'assets/commercial-picks.json']) ok(Array.isArray(JSON.parse(readFileSync(ROOT + f, 'utf8')).picks), f + ' has a picks list');
-for (const f of ['netlify.toml', '_headers', 'robots.txt']) ok(readFileSync(ROOT + f, 'utf8').includes('/approve.html'), f + ' keeps the page out of search');
+/* out of search the way search engines honour (DESIGN-LAW 146, 2026-11-18): noindex in the page's own
+   headers and its meta tag, out of the sitemap, and NOT Disallowed in robots.txt, because a crawler
+   kept out never reads the noindex and can still list the address from a link */
+ok(/for = "\/approve\.html"\s*\n\s*\[headers\.values\]\s*\n\s*X-Robots-Tag = "noindex/.test(readFileSync(ROOT + 'netlify.toml', 'utf8')), 'netlify.toml sends it with noindex');
+ok(/^\/approve\.html\s*\n\s+X-Robots-Tag: noindex/m.test(readFileSync(ROOT + '_headers', 'utf8')), '_headers sends it with noindex');
+ok(/<meta name="robots" content="noindex/.test(readFileSync(ROOT + 'approve.html', 'utf8')), 'approve.html says noindex itself');
+ok(!readFileSync(ROOT + 'sitemap.xml', 'utf8').includes('approve.html'), 'the sitemap leaves it out');
+ok(!/^Disallow:\s*\/approve\.html/m.test(readFileSync(ROOT + 'robots.txt', 'utf8')), 'robots.txt lets a crawler read its noindex');
 
 rmSync(T, { recursive: true, force: true });
 console.log(bad ? '\n' + bad + ' FAILED' : '\nall passed');

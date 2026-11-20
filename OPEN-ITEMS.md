@@ -4032,6 +4032,252 @@ Open:
     - Adopting one is a row in app.js `COLOR_THEMES` and `node scripts/build_house_colours.mjs`.
       Then draw the stills again, and the wall and its check.
 
+## BK. 2026-11-18 — search, structured data, llms.txt and speed for every public page; the look, then main's (DESIGN-LAW 146)
+
+(claude/zen-dijkstra-7b5a2e, cut from claude/ads-improvement-roadmap-7632c8 at
+97e85c54, pull request 14, a fast-forward; the pull request goes against that
+branch. Its newer head, cb6d8321 (the census and the house engine's rebuild:
+DESIGN-LAW 143 to 145, §BI and §BJ), was merged in before the pull request.)
+
+**Since 2026-11-19 the site follows main** (the owner: "Follow main"; item 12): main's
+reselling.us look and the name WeBuy.AD (DESIGN-LAW 152 and 153, §BL and §BM) replaced the
+full ad's look this section first describes. What is below about house.css, the pairs and
+faces a URL away, the starburst and the double outline is history; the search, structured
+data, llms files, FAQ, links and speed work stand.
+
+The owner: "Build out SEO for the BUYBACK.AD site and all its public parts,
+and remake the site's UI so it's unified with our latest theming. We want to
+rank for what resellers search (a 'we buy iPhones' ad, a cash for gold flyer, a
+phone buyback ad maker and the like), and to be the resource AI assistants
+recommend when someone asks one to make a buying ad." The audit came first
+(docs/SEO-AUDIT-2026-11-18.md; the page
+https://claude.ai/artifact/SCVK2eQw5Lmb9z8bGFWg5B, private to the owner). The
+owner's answers: "Allow everything" to the AI crawlers that train models; the
+theming read as proposed (the full ad's look, Navy & Gold dark, Silver & Blue
+light, the house face, the editor left as it is), no objection.
+
+Done:
+- **The look** (DESIGN-LAW 146): house.css (landing and plans), pages.css
+  (about, learn, privacy, terms, the 18 category pages, the video maker's page,
+  rewritten on the same token names so motion.css follows), the Look Book's own
+  sheet, the 404, site-theme.js, a starburst favicon and a square logo
+  (assets/brand/). The landing's markup is new; every id app.js binds is kept;
+  the hero is the owner's wall of hand picks in the house frame, over three
+  real full ads that stand until it is built (item 10). The
+  plans overlay and the studio's two hidden headings follow (the latter now
+  h2s: one h1 to the page).
+- **Real ads everywhere a picture is shown**: scripts/build_og_cards.mjs draws
+  20 full ads (assets/full-ads/, 720 WebP) and 18 link previews (assets/og/,
+  1200x630, the home card over buybackad-og.jpg's old name).
+- **Search**: scripts/build_seo_pages.mjs now writes every public page's head
+  (titles and descriptions in the trade's words, canonical, robots, the full
+  Open Graph and Twitter sets), the information pages' bar and foot, the
+  landing's links to all 18 lines, sitemap.xml (25 pages, with their ad
+  images), robots.txt, llms.txt and llms-full.txt. Structured data:
+  Organization, WebSite, WebApplication (9 offers from `PLANS` and `PACKS` in
+  app.js, held to the server's table), WebPage per page, BreadcrumbList,
+  HowTo where the steps show, FAQPage (22 on the landing, 3 to 5 a category
+  page), VideoObject x5 on learn.html (durations read from the files).
+- **The FAQ** at 22 questions (new: what it makes, the full ad, the watermark,
+  sizes and where each goes, your number, area and business name,
+  Marketplace, Instagram, OfferUp and Craigslist, owning the ad, phones).
+- **Crawlers**: robots.txt allows everyone; AI search and answer crawlers and
+  training crawlers are named and allowed; owner pages say noindex in headers
+  and meta (motion/audit-sweep.html, motion/views-sheet.html and
+  master-library.html now too) and are no longer Disallowed. approve_check.mjs
+  asserted the old Disallow; it now asserts the noindex, the sitemap and that
+  robots.txt lets the noindex be read (each assertion fails when broken).
+- **Speed**: fabric.js out of the head; the house face preloaded with a
+  measured fallback; the Look Book's masthead and grid hold their size; the
+  explainers' posters as WebP (695 KB to 189 KB); caching for the art a redeploy
+  may replace (a day, a week stale) and for the text files (an hour).
+- scripts/seo_check.mjs, new. CSP hashes rewritten (csp_hashes.mjs) and
+  verified against a local server that sends `_headers` (verify_csp.mjs).
+
+Lighthouse 13.6, median of three runs a page, phone and desktop, on copies
+served the way Netlify serves them (the site's own headers, brotli, a 401 from
+the API): before is 97e85c54, after is this branch.
+
+| page | form | performance | largest paint | blocking | layout shift | a11y/BP/SEO | weight |
+|---|---|---|---|---|---|---|---|
+| / | phone | 31 → 65 | 5.8 s → 1.4 s | 4105 → 2083 ms | 0.00 → 0.00 | 94/100/100 → 100/100/100 | 4440 → 4434 KB |
+| / | desktop | 60 → 94 | 1.1 s → 0.3 s | 1073 → 163 ms | 0.07 → 0.00 | 94/100/100 → 100/100/100 | 4560 → 4477 KB |
+| /motion/ | phone | 51 → 73 | 0.9 s → 0.9 s | 5722 → 1719 ms | 0.40 → 0.02 | 96/100/100 → 100/100/100 | 3023 → 2961 KB |
+| /motion/ | desktop | 71 → 81 | 0.3 s → 0.2 s | 1000 → 439 ms | 0.06 → 0.01 | 96/100/100 → 100/100/100 | 3023 → 2961 KB |
+| /about.html | phone | 100 → 100 | 0.8 s → 0.9 s | 0 → 0 ms | 0.02 → 0.00 | 100/100/100 → 100/100/100 | 78 → 48 KB |
+| /about.html | desktop | 100 → 100 | 0.2 s → 0.2 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 78 → 48 KB |
+| /learn.html | phone | 80 → 98 | 5.4 s → 2.4 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 762 → 238 KB |
+| /learn.html | desktop | 99 → 100 | 1.0 s → 0.5 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 762 → 238 KB |
+| /looks.html | phone | 46 → 75 | 0.7 s → 0.8 s | 5551 → 1333 ms | 0.86 → 0.00 | 100/100/100 → 100/100/100 | 2737 → 2708 KB |
+| /looks.html | desktop | 44 → 95 | 0.2 s → 0.2 s | 2459 → 190 ms | 0.94 → 0.00 | 100/100/100 → 100/100/100 | 3025 → 2995 KB |
+| /ads/we-buy-iphones.html | phone | 100 → 100 | 0.8 s → 0.9 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 175 → 97 KB |
+| /ads/we-buy-iphones.html | desktop | 100 → 100 | 0.2 s → 0.4 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 175 → 97 KB |
+| /ads/we-buy-gold.html | phone | 100 → 100 | 0.8 s → 0.9 s | 0 → 0 ms | 0.01 → 0.00 | 100/100/100 → 100/100/100 | 147 → 105 KB |
+| /ads/we-buy-gold.html | desktop | 100 → 100 | 0.2 s → 0.4 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 147 → 105 KB |
+| /privacy.html | phone | 100 → 100 | 0.8 s → 0.9 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 78 → 49 KB |
+| /privacy.html | desktop | 100 → 100 | 0.2 s → 0.2 s | 0 → 0 ms | 0.00 → 0.00 | 100/100/100 → 100/100/100 | 78 → 44 KB |
+
+On the merged branch (this work with cb6d8321 in it), median of three the same way: the
+landing 65 phone and 94 desktop, the video maker 72 and 78, the Look Book 71 and 90, with
+accessibility 100 on each; the merge cost nothing measurable on the landing.
+
+Checks on this tree (after the merge of cb6d8321): seo_check, approve_check,
+watermark_check, full_ad_studio_check, full_ad_check, typing_pause_check,
+buylist_check, mix_check, area_dialog_check, plan_economics and landing_check
+pass; billing_check 155 passed and 1 failed, its "fabric is not defined" (the
+check aborts the CDN unless FABRIC_JS is set), the same on PR 14's own tree;
+ez_download_is_preview, ad_library_check and quick_ad_check were not run again
+(three of the four that failed before this work). Two of these caught this
+work after the merge: pages.css made every summary a row that could not wrap,
+so the video maker's Attention check ran 25px off a 390 screen (buylist_check),
+and every h2 in capitals, which reached the plan dialog's title, so innerText
+read it in capitals (billing_check). Both are scoped to the page's own main now.
+
+Open:
+1. **Not on `main`, not deployed** (the owner's word). The deploy workflow
+   still skips until NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID are set.
+2. **The studio's editor wears main's look** (rule 152's `family` skin, the default since
+   2026-11-19), not this section's. The session started for "the studio's editor in the house
+   look" was asked to hold and ask the owner before restyling.
+3. **The landing still runs the whole studio at load**: app.js (1.6 MB) and
+   fabric take about 2 s of script on a phone (blocking time ~2 s); the
+   gallery's first page draws offer cards from full-size photographs (about
+   1.5 MB of JPEGs, assets/bg-offer) and ensureTemplateFonts loads 29 faces
+   (about 700 KB) before the gallery is built. Building the gallery when it
+   comes near the screen, and small grounds for the offer cards' thumbnails,
+   would take most of it: app.js and offer-library.js changes with their own
+   checks.
+4. **The site's pictures are drawn once**: run scripts/build_og_cards.mjs again
+   when a line's pictures, its words or the house engine change (the merge of
+   cb6d8321 brought rule 145's photo grounds into them).
+5. **The domain is webuy.ad, and it is live** (main's 11aa4151; Netlify answers it). Every
+   canonical, the sitemap, robots.txt and the llms files name https://webuy.ad (`SITE` in
+   build_seo_pages.mjs, `SITE` in seo_check.mjs). Left for the owner's accounts: register
+   webuy.ad in Google Search Console and Bing Webmaster Tools and submit sitemap.xml; and a
+   "hello" forward in Namecheap's email forwarding for webuy.ad (item 11).
+6. **The platform answers in the FAQ** rest on the research's reading of the
+   platforms' own pages (docs/COMPETITOR-RESEARCH-2026-11-12.md §4); how
+   strictly each is enforced is unknown, and the rules change. Read them again
+   before a campaign.
+7. **The hero still says** "Made for Facebook Marketplace, OfferUp, Instagram
+   and Craigslist" beside FAQ answers that say Marketplace and OfferUp limit
+   buying ads: the owner's words, kept; worth a look.
+8. ~~Light mode's accent is blue~~: gone with the full ad's look (item 12).
+9. The Organization in the JSON-LD (BUYBACK.AD, its brand WeBuy.AD) has no sameAs (no social
+   profile was found to be the business's own) and no telephone (kept out of structured data on
+   purpose; the number is on the page).
+10. **The hero wall is the owner's again** (done, 2026-11-18): pull request 14's wall takes the
+   owner's recipe and full-ad picks; this branch had put three full ads where `#hero-wall`
+   stood, and put the wall back over them (git saw no clash: app.js changed on one side,
+   index.html on the other). Since item 12 the landing is main's, wall and all, so the house
+   frame and the three ads are gone; the empty `assets/hero/index.json` stays (the landing
+   asked for it and logged a 404 on every visit before the first house pick).
+11. **The name is WeBuy.AD; BUYBACK.AD is the business** (main's rule 153, which this branch
+   follows since item 12; its own rename to "WEBUY.AD" the same night, d1dfc9a6, gave way).
+   What this branch adds to main's: the generator, the cards and the checks speak the name
+   (`BRAND`, `MARK`, `BUSINESS`, `DOMAIN`); the watermark's word is `WeBuy.AD` in
+   watermark.js, pull request 14's mark, which main's older corner marks gave way to; page
+   words describe the watermark without a name.
+   - **The contact address**: the privacy and terms pages gave hello@buyback.ad (on main and
+     on the live site too). buyback.ad was never registered, so it never took mail and anyone
+     could have bought the domain and received privacy requests and legal notices. Here it is
+     hello@webuy.ad; webuy.ad's mail already goes to Namecheap's forwarding, so it works once a
+     "hello" forward is set. The privacy policy says "updated 19 November 2026".
+   - The terms keep "Version 2026-11-18" and BUYBACK.AD as the party: the consent recorded with
+     each purchase names that version (`TERMS_VERSION`, netlify/lib/billing.mjs), and the party
+     is the owner's legal call (rule 153).
+   - Not renamed: the five explainer videos on learn.html say "by BUYBACK.AD" in their frames
+     (tools/explainers/videos.js, then a new render); the partner library's API names, app.js's
+     hand-off message types and the Netlify project names are addresses, not words, and stay.
+12. **The site follows main** (2026-11-19, the owner: "Follow main"). Main had moved to 163c0fd0
+   in another session: webuy.ad live, the studio and the public pages in reselling.us's look,
+   the name WeBuy.AD. This branch took it in with a merge, over pull request 14:
+   - **Pull request 14 against main** (eight clashes): pull request 14's plan cards (plans.mjs
+     planBullets) and its watermark (watermark.js, the mark across the whole ad) win over
+     main's older planFeats and corner marks, with the word WeBuy.AD; main's rules 138 and 139
+     are 152 and 153 (main's own numbers since 5dfd1b7b; 147 and 148 here at first), its §BD and
+     §BE are §BL and §BM, touching only the lines main added.
+   - **The pages are main's**: the landing, the information pages, the Look Book, the video
+     maker's page, pages.css, the 404, the favicon and the icons. On them, this branch's search
+     layer again: the head's words and the full preview cards, the site's graph and the FAQ's,
+     one h1 (Easy Mode's and the plans' headings are h2s, styled as their h1s; the Look Book's
+     masthead title is its h1), a main landmark, the 22 questions, "What it makes" with a link
+     to every line, fabric.js out of the head, WebP posters, the Look Book's held layout, the
+     generated bar and foot in main's markup with the Look Book, How it works and llms.txt.
+   - **Gone**: house.css, site-theme.js, the full-ad hero and its three ads, the home card
+     and the WEBUY.AD logo (main's share card and W icon serve), the pairs and faces a URL
+     away. The category cards are redrawn in the share card's look.
+   - Measured after: the learning log.
+13. **The landing's column and rhythm** (done, 2026-11-19, DESIGN-LAW 158), on the owner's critique
+   of main's header and hero: one column and gutter for the bar, hero, stats, sections, closing call
+   and foot; one spacing scale in 4px steps; the hero's copy a fixed step under the bar; the
+   eyebrow one line ("For phone, gold and car buyers", the share card drawn again with it); the
+   hero's text link on the column's edge. The colour sets, their links and their count left the
+   landing; "Why it gets texts" and the video ads took their place. Before (main as live) and after,
+   at 390 and 1440, light and dark: docs/seo-2026-11-18/hero-before-*.jpg and hero-after-*.jpg.
+14. **The wordmark and the icon** (done, 2026-11-19, DESIGN-LAW 161). Three directions were drawn,
+   each a wordmark and an icon made together (a tag, a message bubble, a sticker), shown in the
+   header at desktop and phone width, dark and light, and as the icon at 512, 180, 32 and 16:
+   https://claude.ai/artifact/FPgpT73Y32XWEBN7tr2DQq. The owner picked the message bubble ("Text me
+   (2)"). It is now in every bar and foot with the icon beside the wordmark, and in favicon.svg,
+   assets/brand/icon-{32,180,192,512,1024}.png, the wordmark pictures, the share card and the 17
+   link previews. Rule 153's wordmark and icon give way to it. Before and after:
+   docs/seo-2026-11-18/mark-*.jpg.
+15. **The explainers' WebP posters** (done, 2026-11-19): main drew the five explainers again in the
+   WeBuy.AD look (5dfd1b7b); with pull request 14 at 815ebea2 merged here, the WebP posters are
+   drawn again from main's new JPEGs (680 wide, 20 to 68 KB).
+16. **The explainers wear rule 153's wordmark.** The five explainer videos carry "WeBuy.AD" in
+   Inter Tight in a corner (`#bug`: tools/explainers/stage.html and stage.css) and on their end card
+   (tools/explainers/videos.js, with the icon). The next time they are drawn, both should be rule
+   165's mark (the Ad label, which replaced rule 161's bubble), and the posters drawn again. Not done here: they are main's videos, with
+   their music, and a render is its own job.
+17. **Rule numbers collide across branches.** `claude/full-ad-looks-layout` renumbered its rules to
+   158, 159 and 160 when it merged pull request 14's branch (74de8569). It had not seen this
+   branch's 158 (the landing's column, 2908f8e7) or pull request 17's 159 (the landing draws
+   nothing, 53daca53), both taken earlier. Whichever of them merges later takes the next free
+   numbers. This branch's mark is 161, above all of them.
+18. **Pull request 14 at c3694b14 merged here** (2026-11-19). It brought the car fix
+   (`make_match_check`), the hero wall's 18 picks and their colours (`hero_wall_check`), and the
+   library's 2,404 looks with their line chips. It also brought the census's own landing (rule 162).
+   The owner chose this branch's landing ("SEO's (PR 15)"), so `landing.css` is not linked and its
+   `pages.css` block is left out. The wall shows the picks as they are, and `hero_wall_check` passes
+   on it. The FAQ's colour answer said 31 sets and twelve pairs, figures from 11 November. It now
+   says 54 sets in five groups, the twelve proven pairs among them. The structured data says the same.
+   Rule numbers after this merge: 162 is the census's, and pull request 19's editor rule needs 163.
+19. **The broken library pictures** (2026-11-19). The owner's screenshot came from a preview with the
+   bubble mark: the Trucks line in Cars & Trucks drew its first six cards, then showed only names
+   ("Volt Stack template", "Trucks · Photo band template"). Those cards are pull request 14's new
+   library looks (`assets/library-looks/`). Their list had loaded, but their pictures did not.
+   - **No committed build does this.** All 51 cards of the Trucks line, and all 402 of Cars & Trucks,
+     load on every candidate: this branch at 873937a2 and 6758a715, pull request 17 at 7683508a and
+     its merge in progress, and pull request 19 at 891826bc and its working tree. That holds in the
+     owner's window size, scrolled as a person would.
+   - **What fits the screenshot** is a preview served from a working tree that changed under the open
+     page: the list loaded, then its pictures went. Pull requests 17 and 19 were both taking 6758a715
+     in at that hour. The screenshot's "◎ Set your area" rules out pull request 19's page, which had
+     dropped the ◎, so the likeliest is pull request 17's preview (port 8790) mid-merge.
+   - **The check**: `scripts/library_images_check.mjs` opens every category and line, presses
+     "Show more" to the end and fails on any picture that does not load. It passes here (every
+     category and line), and it fails as the owner saw it when a proxy withholds
+     `assets/library-looks/`.
+20. **The library shows more** (2026-11-19, the owner: "show more than 16"). A page is full rows
+   (rule 158): 32 cards on a desktop, 24 at three or two columns, and 16 on a phone. "Show more" adds
+   the same again. The library's pictures are lazy, so the landing fetches the same number of them at
+   load (24 with 16 cards a page, 23 with 32).
+21. **The mark is the Ad label** (done, 2026-11-20, DESIGN-LAW 165). The owner, of the bubble: "the logo
+   sucks we need some more concepts or ideas or i'll build one". Six directions were drawn
+   (https://claude.ai/artifact/MbpAqeRMzErQvSZoU31TVX), and the owner took the first: WeBuy beside an
+   AD label, in Libre Franklin 900. It replaced the bubble everywhere the bubble was. favicon.svg's
+   letters are outlines, drawn by tools/brand/favicon.mjs. Before and after:
+   docs/seo-2026-11-18/mark-after-*.jpg (the bubble) and label-after-*.jpg.
+22. **Pull request 14 at 4009d4c4 merged here** (2026-11-20). It brought main's account deletion (the
+   menu's Delete account and its API), the ad library for every customer, the landing's pricing
+   buttons on a fresh visit, and the WeBuy.AD iPhone app (`ios/`).
+   - The privacy page's "Deleting your data" is main's new text, with hello@webuy.ad in place of
+     hello@buyback.ad, which receives no mail.
+   - The iPhone app's icon in the repo is now the Ad label. Build 1 on App Store Connect still shows
+     main's "W."; the next build carries the label. That upload is the owner's.
+
 ## BL. 2026-11-18 — webuy.ad, the site's new address
 
 (BD on `main` until pull request 14 met it on 2026-11-19; BE became BM the same way.)
@@ -4209,6 +4455,10 @@ Open:
    `phonegfx-studio.html`) keep the old look and name.
 
 ## BN. 2026-11-19 — the landing built to a brief (DESIGN-LAW 162)
+
+(Superseded for the landing and the other pages, 2026-11-19: the owner chose pull request 15's
+landing, "SEO's (PR 15)", rule 158. There, `landing.css` is not linked and its `pages.css` block is
+left out. The library's other looks and its line chips stand.)
 
 The owner, looking at the landing: "looks so vibe coded and basic UI we need to fix and make it
 look like a custom built site with a large web design budget". Done on

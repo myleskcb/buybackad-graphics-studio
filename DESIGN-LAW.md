@@ -6173,8 +6173,85 @@ CASH" twice, MacBook twice, two red ones side by side, no pattern and no gradien
 
 Not done here: OPEN-ITEMS §BJ.
 
-## 152. The studio's chrome is reselling.us's: navy, one blue, and mint for the deal
+## 146. The site says what it makes in the words people search
 
+Added 2026-11-18 (numbered 146: the census took 143, its fixes 144 and the
+house engine's rebuild 145, merged into pull request 14 the same day);
+rewritten 2026-11-19, when the site took main's look. The owner: "Build out
+SEO for the BUYBACK.AD site and all its public parts, and remake the site's UI
+so it's unified with our latest theming"; of the crawlers that train AI
+models, "Allow everything"; and when main's reselling.us look and the name
+WeBuy.AD (rules 152 and 153, made in another session the same night) met the
+look this rule had first put on the public pages, the full ad's: "Follow main".
+
+Measured first (docs/SEO-AUDIT-2026-11-18.md): every link preview was the
+August card with no ad on it; no title held "flyer", "cash for" or "video ad",
+and "cash for gold" was on no page; the landing had three h1s and no main
+landmark; the structured data had no Organization and monthly offers only, and
+nothing on the video maker or the information pages; the FAQ stopped at 13
+questions; robots.txt said nothing to AI crawlers and there was no llms.txt.
+Lighthouse on a phone: the landing 31, the video maker 51, the Look Book 46.
+
+- **The look is main's** (rules 152 and 153): reselling.us's navy, one blue and
+  mint, the WeBuy.AD wordmark, the system face. The full ad's look this rule
+  first wore (house.css, a pair and a face a URL away, site-theme.js) is gone;
+  the pictures of ads keep their own pairs and faces, as every ad does.
+- **The name**: WeBuy.AD for the product and the site, written
+  `WeBuy<em>.AD</em>`; BUYBACK.AD is the business, in the copyright lines and as
+  the party to the terms (rule 153). One place per tool: `BRAND`, `MARK`,
+  `BUSINESS` and `DOMAIN` in scripts/build_seo_pages.mjs, the wordmark in
+  scripts/og_card.html. Page words describe the watermark without the name it
+  carries ("a light watermark"), true whatever watermark.js's `WORD` says.
+- **One table writes what search engines and assistants read**
+  (scripts/build_seo_pages.mjs): each page's title and description in the
+  trade's words (62 and 160 characters at most, no dash), its canonical on
+  https://webuy.ad, the full Open Graph and Twitter sets, the information
+  pages' bar and foot in main's markup, the landing's "What it makes" links to
+  every line, the sitemap, robots.txt, llms.txt and llms-full.txt. Structured
+  data says only what is true: an Organization (BUYBACK.AD, its brand WeBuy.AD,
+  the W icon), the WebSite and the WebApplication (WeBuy.AD) with offers read
+  from `PLANS` and `PACKS` in app.js and held to netlify/lib/plans.mjs, a
+  WebPage for each page, BreadcrumbList, HowTo only where the steps are on the
+  page (the landing's `#lp-how`, each category page's), FAQPage made from the
+  visible FAQ word for word, VideoObject for the five explainers. Never a
+  rating, a review or a count of customers (rule 55).
+- **The pictures are real ads.** The landing and the information pages preview
+  as main's share card (assets/brand/share-card.jpg); each category page shows
+  its own line's full ad and previews as a card in the share card's look with
+  that ad on it (assets/og/; scripts/build_og_cards.mjs draws both with the
+  current engine and refuses an ad on a pre-flight fix, a dollar sign, a dash,
+  invented proof or a banned word). Pictures are named for what they are, not
+  for the brand. The hero is the owner's wall of hand picks (`#hero-wall`,
+  app.js scBuildWall: "I will hand select the best hero ones for variety of
+  colors, styles, designs, copy"); a remake of the landing keeps it.
+- **The FAQ answers what buyers ask before they pay** (22 questions): what it
+  makes and for which lines, which size goes where, what the watermark looks
+  like, video, Spanish, your own number, area and business name, Marketplace,
+  Instagram, OfferUp and Craigslist rules (from the research's reading of the
+  platforms' own pages, with the advice to read them again), who owns the ad,
+  phones.
+- **Every crawler is welcome**, search and AI, answer and training (the
+  owner's call). The owner's pages say noindex in their own headers and meta
+  and are not Disallowed, so the noindex is read; only /api/ is.
+- **One h1 to a page** and a main landmark: Easy Mode's and the plans page's
+  headings are h2s that look as their h1s did; the Look Book's masthead title
+  is its h1.
+- **Fast as drawn**: fabric.js left the head (it held the landing's first paint
+  back on a phone); the Look Book's tabs are in the page and its grid holds a
+  screen until it fills; the explainers' posters are WebP; art a redeploy may
+  replace is cached a day.
+- **Checked** by scripts/seo_check.mjs (exit 1; each failure was put in by
+  hand and caught): titles and descriptions (length, dashes, one to a page),
+  canonicals, every preview tag and its image, one h1, alt on every image,
+  JSON-LD that parses, the FAQ and the HowTo against the page, no rating or
+  count, the sitemap against noindex, robots.txt, llms.txt's links. Run
+  build_seo_pages.mjs, then seo_check.mjs, then csp_hashes.mjs (the landing's
+  JSON-LD is hashed with its scripts) before a commit that touches a public
+  page's words, the FAQ, `PLANS` or a category.
+
+Not done here: OPEN-ITEMS §BK.
+
+## 152. The studio's chrome is reselling.us's: navy, one blue, and mint for the deal
 *Numbered 152, not 138: rules 138 to 151 were already taken on other branches
 (grepped every branch and worktree on 2026-11-19); 153 follows it.*
 
@@ -6214,7 +6291,8 @@ Added 2026-11-19, after rule 152's colours. The owner chose the wordmark
 "WeBuy.AD". Every rule below is reselling.us's own (its `docs/brand/source/`
 and `/static/app.css`), applied to the new name, so the two read as one family.
 
-- **The wordmark**: `WeBuy` and `.AD` in Inter Tight 750, -0.035em (-0.04em
+- **The wordmark** (since 2026-11-19 rule 161's, in Sora with the bubble icon beside it; this was
+  the first): `WeBuy` and `.AD` in Inter Tight 750, -0.035em (-0.04em
   at display size), the `.AD` in the blue (#3d8bff; #0a5fe0 on light). No
   mark beside it in a header; 22px, 21px on a phone, where it now stays (the
   poster hid it there). The face is reselling.us's own file, OFL, in
@@ -6224,7 +6302,8 @@ and `/static/app.css`), applied to the new name, so the two read as one family.
   h2): the `system` type, the default. Ads keep their own faces.
 - **Sentence case** for the kicker (a blue-tinted pill with a mint dot) and the
   landing's section labels. The editor's small labels keep their capitals.
-- **The icon**: a white W in Inter Tight 800 with the period in mint, on the
+- **The icon** (since 2026-11-19 rule 161's message bubble; this was the first): a white W in
+  Inter Tight 800 with the period in mint, on the
   navy with the blue glow (`tools/brand/icon.html`), as Reselling.US's R.
   `assets/brand/icon-{32,180,192,512,1024}.png`; `favicon.svg` carries it for
   anything that asks for that file by name.
@@ -6555,10 +6634,117 @@ or text icon that doesn't need to be the only animated element".
   - `full_ad_check` counts any mark as the number's eye-catcher;
   - `full_colour_check` reads the chevrons' colour on the chevrons themselves.
 
+## 158. The landing reads as one column on one scale, and its eyebrow is one line
+
+Added 2026-11-19. (Numbered 158: 146 is pull request 15's, 152 and 153 are main's and 154 to 157
+the census's; nothing at or above 158 was taken on any branch or worktree.) The owner, of the
+landing's header and hero, main's look as it is live on webuy.ad: "looks sloppy vibecoded... and
+the alignment is not that of someone who makes graphic designs", "the margins and spacing"; and of
+the colour sets: "I'm pretty sure these colors are really really old copy and we could market our
+product way better then wasting precious scroll space looking at color combos.."
+
+- **One column.** The bar, the hero, the stats, every section, the closing call and the foot share
+  one width (`--col`, 1200px) and one gutter (`--gutter`, 16 to 40px). The bar's padding follows
+  the column, so on a wide screen the wordmark sits over the hero's left edge and the bar's right
+  end meets the column's. Nothing on the landing sets a side padding of its own.
+- **One scale**, 4 and its multiples (`--s1` to `--s9`: 4, 8, 12, 16, 24, 32, 48, 64, 80). The
+  hero's copy sits a fixed step under the bar (64px; 32px on a phone), not centred in a box as tall
+  as the window. Eyebrow to headline 24, headline to lede 24, lede to buttons 32, buttons to the
+  note 16; sections 80 apart (64 on a phone).
+- **The eyebrow is one line**: "For phone, gold and car buyers", measured to fit a 320px screen
+  with room to spare. Its dot sits on that line, with a crisp ring. A longer line is cut, never
+  wrapped, and the hero's column never grows to fit it (`min-width:0`). The share card says it
+  word for word (rule 153), so the card was drawn again with it.
+- **Every text edge is the column's.** A text link among the hero's buttons has no side padding,
+  so "Make a video ad" starts where the buttons do when it wraps.
+- **The owner chose this landing** over the census's (rule 162), on 2026-11-19, asked "Which landing
+  design should lead?": "SEO's (PR 15)". The hero wall's hand picks are the hero wall's own work
+  (`assets/hero-picks.json`, `node scripts/hero_wall_check.mjs`), and this landing shows them as
+  they are.
+- **The library opens in full rows** (the owner, 2026-11-19: "show more than 16"). A page is eight
+  rows of the grid as it is laid out at three columns or more (32 cards on a desktop, 24 at three),
+  24 cards at two columns, and 16 on a phone, where each card is the width of the screen. "Show more"
+  adds the same again. Every card's picture waits until it is scrolled near, so a larger page costs
+  nothing at load.
+- **The landing sells what it makes.** The colour sets, their link in the bar and the foot, and
+  their count left it. In their place "Why it gets texts" (the number, one message, a real
+  business: what the studio does, never a claim of results), then the video ads. The order: what
+  it makes, why it gets texts, video ads, the library, how it works, pricing, questions, work with
+  us.
+- **The wordmark and the icon**: three directions were drawn for the owner to choose from (a tag,
+  a message bubble, a sticker: https://claude.ai/artifact/FPgpT73Y32XWEBN7tr2DQq). The owner picked
+  the message bubble (rule 161), then on 2026-11-20, from six more, the Ad label (rule 165).
+
+## 161. The mark is a message bubble: WeBuy.AD in Sora, and its period is the unread dot
+
+**Superseded by rule 165** (2026-11-20). The owner, of this mark: "the logo sucks we need some more
+concepts or ideas or i'll build one". Of six new directions the owner took the Ad label. What follows
+is the bubble as it was.
+
+Added 2026-11-19. (Numbered 161: 158 is pull request 15's landing and 159 pull request 17's, and
+the full ad's layouts branch, `claude/full-ad-looks-layout`, took 158 to 160 for its own at its
+last merge; 161 was free on every branch and worktree.) The owner, of rule 153's wordmark: "the
+WeBuy.AD type face and logo is not great", "also what about an icon?". Three directions were drawn,
+each a wordmark and an icon made together: a tag, a message bubble and a sticker
+(https://claude.ai/artifact/FPgpT73Y32XWEBN7tr2DQq). The owner picked the second: "Text me (2)".
+
+- **The idea** is the home page's promise: strangers text you first. The icon is a message bubble
+  with a W in it and a mint dot on its shoulder, like an unread text. In the wordmark, that dot is
+  the period.
+- **The icon** is drawn on a 100 unit grid, and cropped to `9 9 82 82` beside the wordmark:
+  - the bubble in the blue, its tail at the lower left;
+  - the W a white stroke 7.5 units wide with mitred corners, drawn rather than set, so it is the
+    same at every size and shows before any face loads;
+  - the dot in mint, ringed in the colour of the ground behind it, so it sits on the bubble's
+    corner.
+  As the app icon it sits on rule 153's navy tile with the blue glow (`tools/brand/icon.html`).
+- **The wordmark**: "WeBuy" in Sora 700, -0.045em, in the text colour; the period a mint dot a
+  quarter of an em across; "AD" in the blue. Sora is already a house face (OFL,
+  `assets/fonts/sora-700.woff2`, 25 KB; the landing preloads it). The markup keeps a real "."
+  (hidden), so the name reads, copies and is spoken as WeBuy.AD. Inter Tight sets nothing now, and
+  no page downloads it.
+- **Its colours are tokens**: `--wb-blue` (the accent: #3d8bff on dark, #0a5fe0 on light),
+  `--wb-mint` (#2fd58f on dark, #0e9f6a on light), `--wb-ring` (the ground) and `--wb-ink` (the
+  text). styles.css's family skin, pages.css and the Look Book set them, so the mark is the same
+  on every page.
+- **Its sizes**: the icon 28px and the word 22px, 10px apart, in every bar and foot; on a phone's
+  landing 26px, 20px and 8px. The Look Book's masthead carries it at 18px and 15px beside its own
+  title. The studio's other skins keep their own mark: the icon shows on the family skin only.
+- **Where it is**:
+  - the landing's bar and foot, and Easy Mode's and the editor's bars;
+  - the information pages and the category pages (`MARK` in `scripts/build_seo_pages.mjs`);
+  - the video maker, whose bar is its own (`motion/index.html`), now on its page's column;
+  - the Look Book and the saved-ads library;
+  - `favicon.svg` and `assets/brand/icon-{32,180,192,512,1024}.png` (the sign-in dialog shows
+    icon-192), and `wordmark-on-{dark,light}.png`;
+  - the share card and the 17 link previews (`scripts/og_card.html`).
+
+  `sh tools/brand/make.sh` draws the icons, the wordmarks and the share card;
+  `node scripts/build_og_cards.mjs --keep-ads` paints the previews around the pages' own ads, so a
+  change to the mark never redraws an ad.
+- **Not yet**: the five explainer videos' corner bug and end card (`tools/explainers/`) still wear
+  rule 153's wordmark until they are drawn again (OPEN-ITEMS §BK 16).
+- **Rule 153 stands otherwise**: its colours, the type of headlines and text, sentence case, the
+  name in words, and BUYBACK.AD as the business. Only its wordmark and its icon give way to this
+  rule.
+
 ## 162. The landing is built to a brief: one type scale, a rhythm of grounds, and a layout of its own for each section
 
 (Rule 158 on the census branch. Folded into pull request 14 on 2026-11-19 it became 162: 158 is pull
 request 15's landing rule, claimed first, and 159 to 161 are taken on other branches.)
+
+**Superseded for the landing and the other pages by rule 158** (2026-11-19). Asked "Which landing
+design should lead?", the owner answered "SEO's (PR 15)". Where pull request 15 meets this branch:
+
+- the landing is rule 158's, with rule 161's mark;
+- `landing.css` stays in the tree but is not linked, so it styles nothing;
+- the block it appended to `pages.css` is left out, so the other pages keep main's look (rule 152)
+  with rule 161's mark;
+- the hero's "New message" card and its "Made for" line stay out unless the owner asks for them.
+
+To bring any of it back, link `landing.css` in `index.html` or restore the block from c3694b14.
+The library's two bullets below (every new look, categories opening into their lines) are not about
+the landing, and they stand.
 
 Added 2026-11-19. The owner, looking at the landing: "looks so vibe coded and basic UI we need
 to fix and make it look like a custom built site with a large web design budget". The page had
@@ -6630,3 +6816,45 @@ family skin (`?skin=poster` keeps the old page; the studio is not touched).
   Only the main categories show at first; one with more than one line carries an arrow, and choosing
   it opens a row of its lines with their counts, in the owner's order (`motion/subjects.json`); one of
   a single line has no arrow. The review page's categories carry the same arrows.
+
+## 165. The mark is the Ad label: WeBuy beside an AD label, in the face of newspaper ads
+
+Added 2026-11-20. (Numbered 165: 158 to 163 are taken across the branches, and
+`claude/sign-in-apple-google` holds 164.) The owner, of rule 161's message bubble: "the logo sucks we
+need some more concepts or ideas or i'll build one". Six directions were drawn, each a wordmark and an
+icon made together: the Ad label, the plate, the sign, chevrons, mint and fast
+(https://claude.ai/artifact/MbpAqeRMzErQvSZoU31TVX). The owner picked the first: "Take 1, the Ad label".
+
+- **The idea**: every platform marks a paid post with a small "Ad" or "Sponsored" label. Ours is the
+  name: "WeBuy", then AD in a blue label. The label is the icon as well. So the part only we own
+  leads, and the mark says "ads" before a word is read.
+- **Why the bubble went**:
+  - it read as a chat app;
+  - its thin W turned into a blob at 16 pixels;
+  - Sora is a tidy startup face, and the ads are loud, heavy and condensed;
+  - ".AD", the part only we own, was its smallest piece.
+- **The wordmark**: "WeBuy" in Libre Franklin 900, the open revival of Franklin Gothic, the face of
+  newspaper ads (OFL, `assets/fonts/libre-franklin-900.woff2`, 29 KB, preloaded on the landing), at
+  -0.035em in the text colour. Then the label:
+  - "AD" in white at 0.78 of the size, on the blue (`--wb-blue`: the accent, #3d8bff on dark, #0a5fe0
+    on light);
+  - 1.02 of its own size tall, its corners a fifth of that, a fifth of an em after "WeBuy".
+  The period is in the text and hidden from the eye, so the name copies and reads aloud as WeBuy.AD.
+- **Sizes**: 24px in every bar and foot, 21px on a phone's landing, 16px beside the Look Book's
+  title. The tokens are `--wb-blue` and `--wb-ink`; rule 161's `--wb-mint` and `--wb-ring` are no
+  longer read.
+- **The icon**: the label alone, white "AD" on the blue, on rule 153's navy tile with the blue glow
+  (`tools/brand/icon.html`). At 32 pixels and under, the label is drawn larger (`?small`), so its
+  letters hold at a browser tab's size. `favicon.svg` is that version with its letters in outlines,
+  because a favicon loads no web font; `node tools/brand/favicon.mjs` draws it from the icon.
+- **Where it is**: where rule 161 was.
+  - The landing's bar and foot, and Easy Mode's and the editor's bars.
+  - The information and category pages (`MARK` in `scripts/build_seo_pages.mjs`), the video maker's
+    own bar, the Look Book and the saved-ads library.
+  - The icons, the wordmark pictures, the share card and the 17 link previews.
+  - The iPhone app's icon (`ios/WeBuyAD/Assets.xcassets/AppIcon.appiconset/AppIcon.png`, the 1024
+    icon flattened as `ios/generate_project.py` does).
+
+  `sh tools/brand/make.sh`, `node tools/brand/favicon.mjs` and `node scripts/build_og_cards.mjs
+  --keep-ads` draw the pictures.
+- **Not yet**: the five explainer videos still wear rule 153's wordmark (OPEN-ITEMS §BK 16).

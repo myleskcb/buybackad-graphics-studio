@@ -5779,6 +5779,70 @@ RESUME HERE:
   2. billing_check and ad_library_check with FABRIC_JS set, on a machine that has a
      local fabric.min.js (npm has fabric 5.3.0; cdnjs serves 5.3.1).
 
+## 2026-11-18 — the site in the full ad's look, and what search engines and assistants read (claude/zen-dijkstra-7b5a2e)
+
+Asked: SEO for every public page, structured data that is true, a fuller FAQ,
+llms.txt and a crawler policy, Core Web Vitals with Lighthouse before and
+after, and the site's UI remade in the house design language (the full ad,
+rules 137 to 141), audit first. Built on pull request 14's branch. DESIGN-LAW
+146, OPEN-ITEMS §BK, the audit in docs/SEO-AUDIT-2026-11-18.md.
+
+What was learned:
+
+- **A check can be wrong in the other direction.** approve_check asserted that
+  robots.txt names approve.html. A Disallow does not keep a page out of search:
+  a crawler kept out never reads the page's noindex and can still list the
+  address from a link. The check now asserts the noindex (headers and meta),
+  the sitemap and that robots.txt lets the noindex be read.
+- **Test a new check by breaking the thing, and check the break.** The first
+  test of seo_check's FAQ comparison passed, and the check was right: the sed
+  changed the phrase on both lines, the visible answer and its JSON-LD. Changed
+  on the visible line only, it failed as it should. The HowTo comparison read
+  only each step's text, so a renamed step passed; it reads the names too now.
+- **Lighthouse's attribution is not the cause; the trace is.** The Look Book
+  scored 0.83 on desktop with `main` named and no cause, and its filmstrip was
+  steady. The LayoutShift events' impacted nodes showed the footer, visible
+  under an empty grid at first paint, pushed off the screen when the grid
+  filled: one shift, large because the distance ran off the screen. On phones
+  the same page shifted 0.84 for another reason: its tab row was filled by the
+  script after the first paint and wrapped to three rows. Both fixed in the
+  page (the tabs written in the HTML, the grid holding a screen until it fills),
+  0 and 0.004 after.
+- **A late face moves the page.** The video maker's 0.40 was Satoshi landing
+  after the first paint and rewrapping its header. The house face is preloaded
+  and backed by Arial measured to it (size-adjust 105.2%, ascent 89.4%, descent
+  23.8%, read off canvas measureText): 0.02 after.
+- **The biggest single win was a script tag.** fabric.js loaded in the landing's
+  head held its first paint 4.5 s on a phone; at the head of the studio's
+  scripts, in the same order, the first paint fell from 5.8 s to 1.4 s.
+- **Judge a double outline at full size.** At phone width, downscaled to JPEG,
+  the outer ring read as a drop shadow; at 3x it was centred. What did need
+  changing was the tracking: tight letters let the outer rings run together.
+- **A page-wide style reaches what other scripts draw.** pages.css set every
+  summary as a flex row (for the FAQ's chevron) and every h2 in capitals. The
+  video maker's own Attention check could not wrap and ran 25px off a 390
+  screen (buylist_check), and video-help.js's dialog title came out in
+  capitals, which innerText reports, so billing_check's case-sensitive match
+  failed. Neither showed on the page before the merge brought the checks'
+  newer steps. Both now apply inside the page's own main only.
+- **JSON-LD is data, not script**, so the policy never blocks it; the repo
+  hashes index.html's anyway (csp_hashes.mjs reads every inline block there).
+  The other pages' JSON-LD needs no hash.
+
+Done: see OPEN-ITEMS §BK. Lighthouse before and after is in §BK and in the
+audit doc.
+
+Not on `main`: this branch only (the pull request goes against
+claude/ads-improvement-roadmap-7632c8).
+
+RESUME HERE:
+  0. The owner's word on the pull request.
+  1. The studio's editor in the house look (OPEN-ITEMS §BK 2), its own session.
+  2. The landing's gallery built when it comes near the screen, and small
+     grounds for the offer cards (§BK 3): the rest of the blocking time.
+  3. The day buyback.ad answers: `SITE` in build_seo_pages.mjs, then Search
+     Console and Bing with the sitemap.
+
 ## 2026-11-18 (later) — the census's variety work folded into pull request 14 (claude/ads-improvement-roadmap-7632c8)
 
 The owner's word again: claude/xenodochial-mccarthy-7bea6d as pushed (27487bfb) is
@@ -5790,6 +5854,52 @@ Not in it: 5f0e6ba8 (the pickup cards on the Trucks line, no unidentified car, n
 open laptop on the sealed Chromebook line), committed in the census session but not
 pushed; fold it in once it is. Pull request 15 (the site's look and SEO) is cut from
 cb6d8321, so it meets this in OPEN-ITEMS.md, where both added to the end.
+
+## 2026-11-18 (later) — pull request 14's variety work merged into the site's look; the owner's hero wall back (claude/zen-dijkstra-7b5a2e)
+
+Asked by the roadmap session: merge 9d895833 (the census's variety work), keep both
+sides of the two notes clashes, run seo_check again, confirm the inline-script hashes,
+push. Done in c5ccb24f: §BJ's fifth open item stays before §BK, this log keeps date
+order, and the SEO pages, the plans block and the hashes rebuild unchanged.
+seo_check passes; verify_csp, against a server that sends `_headers`, permits every
+inline script.
+
+Found: a clash git could not see. 71b75e50 made the hero wall (`#hero-wall`, app.js
+scBuildWall) take the owner's recipe and full-ad picks, on the owner's word ("I will
+hand select the best hero ones for variety of colors, styles, designs, copy"). This
+branch had put three full ads where the wall stood, and scBuildWall returns when the
+wall is missing, so the merged landing would have shown none of the picks: app.js
+changed on one side and index.html on the other, and neither file clashed. Fixed:
+the wall is back inside `.h-ads`, in the house frame, over the three full ads, which
+stand with their starburst until it holds a card (`:has(.wall-card)`). An empty
+assets/hero/index.json, in the shape build_hero_stills.mjs writes, ends the 404 the
+landing logged on every visit before the first house pick.
+
+Lighthouse, median of three, served as Netlify serves it: the landing 62 on a phone
+and 82 on a desktop with the wall, against 65 and 94 with the three ads alone (31 and
+60 before this branch). The wall is the owner's choice, and it costs: about 0.7 MB (its
+36 cards), blocking time 2.10 to 2.68 s on a phone and 165 to 302 ms on a desktop while
+app.js builds it and draws its offer cards, and a later visual finish (speed index 7.1
+to 9.3 s, 1.6 to 2.4 s). The largest paint is still the hero's paragraph (1.5 s, 0.3 s),
+layout shift 0, accessibility, best practices and SEO 100; the video maker is unchanged
+(71 and 77). The cut belongs in app.js: offer cards on the wall from drawn stills, as
+build_hero_stills.mjs does for house picks, and the wall built when the page is idle.
+
+Learned: a merge can undo a feature without a single conflicted line, when one side
+removes an element and the other builds on it. Before pushing a merge, list the ids
+the incoming app.js reads (`$('…')`, getElementById) and check each one is still in
+the merged markup.
+
+RESUME HERE:
+  0. The owner's word on pull request 15, and on the rename to webuy.ad (OPEN-ITEMS
+     §BK 5). The site's names come from build_seo_pages.mjs, the bar and foot, and
+     build_og_cards.mjs (the logo and the link previews); the app, the watermark and
+     the billing names reach further than this branch.
+  1. The studio's editor in the house look (§BK 2), its own session.
+  2. The landing's gallery built when it comes near the screen, and small grounds
+     for the offer cards (§BK 3): the rest of the blocking time.
+  3. The day webuy.ad answers: `SITE` in build_seo_pages.mjs, then Search Console
+     and Bing with the sitemap.
 
 ## 2026-11-18 — Quick ad's hang, and New look's search that could come back empty (claude/strongseed-preflight)
 
@@ -6043,6 +6153,53 @@ RESUME HERE:
   1. §BL: the webhook move after the first checkout, iPhones LA's allowlist,
      the contact address, live Stripe keys.
 
+## 2026-11-19 — the site renamed WEBUY.AD (claude/zen-dijkstra-7b5a2e)
+
+The owner, 2026-11-18: "Ok the concept was finally rebranded webuy.ad", "bought the
+domain"; asked whether to rename the site's pages in pull request 15: "Yes, rename the
+site". Done: the name lives in one place per tool (`BRAND`, `MARK`, `FORMER`, `DOMAIN` in
+build_seo_pages.mjs; the cards' mark and the logo in build_og_cards.mjs), and every
+public page, the structured data, the FAQ, the llms files, robots.txt, the legal pages,
+the Look Book, the video maker's page, the 404, the two owner pages, the favicon's
+title, the logo and the 18 link previews say WEBUY.AD. The old name stays only as an
+alternate name in the structured data and "formerly BUYBACK.AD" once on the about,
+privacy and terms pages, robots.txt and the llms files, so search engines and
+assistants join the two. The home card and the logo moved to names that outlive a
+rename (assets/og/home.jpg, assets/brand/webuyad-logo.png); the old two are gone, and
+nothing pointed at them. Redrawing the previews redrew the 20 ads with the current
+engine (the census's variety: stickers, headline treatments and car pictures differ);
+all passed the builder's checks and read cleanly at full size.
+
+Found:
+- The privacy and terms pages gave hello@buyback.ad for privacy requests and legal
+  notices. buyback.ad was never registered (the domain session found it), so the
+  address never took mail, and anyone could have bought the domain and received them.
+  Now hello@webuy.ad: webuy.ad's mail already goes to Namecheap's forwarding, so it
+  works once a "hello" forward is set there.
+- The terms' version is recorded with every purchase (`TERMS_VERSION = '2026-11-18'`,
+  netlify/lib/billing.mjs), so the name change keeps "Version 2026-11-18"; a new
+  version must move both.
+- The watermark (watermark.js `WORD`, rule 142) still says BUYBACK.AD on every Free
+  preview and download, the video maker's preview included, and so do the locked
+  cards' PRO pattern (styles.css) and the five explainer videos. Page words now describe
+  the watermark without its name ("a light watermark"), plans.mjs's two included, so
+  they are true before and after the mark changes.
+
+Checks: seo_check, the CSP hashes (rewritten: the landing's JSON-LD changed),
+verify_csp against the served policy, and the page checks in OPEN-ITEMS §BK 11.
+
+Learned: a rename has three kinds of name in it. Words on a page change. Names that
+are addresses (a partner API path, a message type, a project name) stay, or something
+breaks. And words that describe another thing's name (the watermark's word) follow that
+thing, so write them without the name until it moves too.
+
+RESUME HERE:
+  0. The owner's word on pull request 15.
+  1. The watermark's word, the PRO pattern and the explainer videos to WEBUY.AD
+     (rule 142's code; OPEN-ITEMS §BK 11).
+  2. A "hello" forward for webuy.ad in Namecheap; then webuy.ad connected to Netlify,
+     `SITE` moved, Search Console and Bing (§BK 5).
+  3. The studio's editor in the house look (§BK 2); the landing's load (§BK 3).
 
 ## 2026-11-19 — main (webuy.ad, the reselling.us look, WeBuy.AD) merged into pull request 14 (claude/ads-improvement-roadmap-7632c8)
 
@@ -6067,6 +6224,89 @@ Auto-fix: GitHub said pull request 14 conflicted with `main`, which had taken th
 
 Not this branch's to settle: pull request 15 (the site's own look) meets main's reselling.us
 look, and its session has asked the owner which way it goes.
+
+## 2026-11-19 (later) — the site follows main: the search layer on main's look and WeBuy.AD (claude/zen-dijkstra-7b5a2e)
+
+The owner asked for the watermark to say the new name ("Yes, do it here"). Main had moved
+an hour before, in another session (11aa4151, f4cbfdab, 163c0fd0): webuy.ad live, the studio
+and the public pages in reselling.us's look (its DESIGN-LAW 138) and the name WeBuy.AD, with
+BUYBACK.AD kept as the business (its 139). That met this branch's full-ad look and its own
+rename to "WEBUY.AD" of the same hour. Asked which the site should follow: "Follow main".
+
+Done, as a merge of main over pull request 14:
+- Pull request 14 against main clashed in eight places. Its plan cards (plans.mjs
+  planBullets) and its watermark (watermark.js, across the whole ad) won over main's older
+  planFeats and corner marks, with the word WeBuy.AD. Main's rules 138 and 139 are 147 and 148
+  here, its §BD and §BE are §BL and §BM; only the lines main added were renumbered, since pull
+  request 14's 138 to 145 are cited all over its code.
+- Every page is main's again (the landing, the information pages, the Look Book, the video
+  maker's page, pages.css, the 404, the favicon and the icons), with this branch's search
+  layer put back on it: the head's words and preview cards, the site's graph and the FAQ's,
+  one h1, a main landmark, the 22 questions, "What it makes" with a link to every line, the
+  generated bar and foot in main's markup, fabric.js out of the head, WebP posters, the Look
+  Book's held layout. The generator writes main's markup now; the category cards are drawn in
+  the share card's look; the landing and the information pages preview as main's share card.
+- Gone: house.css, site-theme.js, the full-ad hero and its three ads, the home card, the
+  WEBUY.AD logo, the pairs and faces a URL away.
+- The contact address hello@buyback.ad (main's, and the live site's) is hello@webuy.ad: the
+  domain buyback.ad was never registered.
+
+Measured after the landing's next changes (the owner's critique of the header and hero, relayed
+the same night): the next entry.
+
+Found on the way: another session's static server held port 8933 and served its own
+worktree, so a drawing run here took that tree's card template; nothing said so. A local
+server for a check gets a port of its own, and its working folder is read back before a run.
+
+Learned: when two sessions change the same pages under one owner the same night, the newer
+word wins, and the rest is to keep what does not depend on the look (words, links,
+structured data, speed) and put it back on the winner's pages, not to merge the two looks.
+
+RESUME HERE:
+  0. The owner's word on pull request 15 (it now carries main's three commits over pull
+     request 14; merged into pull request 14 first, then pull request 14 into main, the
+     resolutions are made once).
+  1. A "hello" forward for webuy.ad in Namecheap; webuy.ad in Search Console and Bing with
+     the sitemap; the five explainer videos still say "by BUYBACK.AD" (OPEN-ITEMS §BK 11).
+  2. The landing's load (§BK 3); the session "Landing load" was asked which base to use.
+
+## 2026-11-19 (later still) — the landing's column and rhythm; three directions for the mark (claude/zen-dijkstra-7b5a2e)
+
+The owner, through the roadmap session, of main's header and hero as live: "looks sloppy
+vibecoded... the alignment is not that of someone who makes graphic designs", "the margins and
+spacing", "the WeBuy.AD type face and logo is not great", "also what about an icon?"; and of the
+colour sets: "really really old copy ... wasting precious scroll space looking at color combos".
+
+Measured first, on main as live: the bar's side padding was clamp(16px, 4vw, 40px) across the full
+width while the hero sat in a centred 1200px box with clamp(16px, 5vw, 48px), so the wordmark and
+the hero never shared an edge (12px against 20px on a phone); the hero's copy was centred in a box
+86% of the window tall, so its gap under the bar changed with the window; the eyebrow wrapped at
+every width but the widest, with its dot centred on two lines; the text link among the buttons kept
+a button's 30px side padding.
+
+Done (DESIGN-LAW 158): one column and gutter for everything on the landing, a 4px spacing scale,
+the hero a fixed step under the bar, a one-line eyebrow measured at 320, 360 and 390 (the long one
+cut at 390; "For phone, gold and car buyers" fits 320 with 30px to spare), the share card drawn
+again with it (rule 153 asks for the home page's words, word for word). The colour sets are gone;
+"Why it gets texts" and the video ads are where they were. Three directions for the wordmark and its
+icon, drawn and shown on a page for the owner to pick; nothing changes until then.
+
+Numbers: main renumbered its two rules 152 and 153 (5dfd1b7b, "every branch and worktree
+grepped"), and pull request 14 is folding the census's four in as 154 to 157, keeping 146 for this
+branch. This branch follows: main's rules are 152 and 153 here too, the landing's rule is 158, and
+every citation changed is a line main or pull request 14 changed the same way, so the next merges
+meet themselves.
+
+Learned: the measure caught a second bug the eyes missed. A long unbreakable eyebrow widened the
+hero's grid column past the screen, because a grid item's minimum width is its content; the fix,
+`min-width:0`, belongs on any column that holds a line set not to wrap.
+
+RESUME HERE:
+  0. The owner's pick among the three directions for the mark (OPEN-ITEMS §BK 14), and the
+     owner's word on pull request 15.
+  1. Pull request 14 once it is pushed with main's 5dfd1b7b and the census at 154 to 157: merge
+     it here, and make the explainers' WebP posters again (§BK 15).
+  2. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5).
 
 ## 2026-11-18 — the owner's lines: Phones and Apple, and Gaming (claude/xenodochial-mccarthy-7bea6d, a helper)
 
@@ -6287,6 +6527,43 @@ category has subcategories). None of this is live until the owner merges into `m
 - **Two sessions on one page.** Pull request 15 restructured the same landing on the same day.
   The sheet was made to style both markups, and the overlap is written down for the merge.
 
+## 2026-11-19 — pull request 14 at 815ebea2 merged here; the landing measured (claude/zen-dijkstra-7b5a2e)
+
+Pull request 14 had taken main's 5dfd1b7b (the explainers in the WeBuy.AD look, main's rules as
+152 and 153) and folded in the census's rebuild (its rules as 154 to 157). This branch had moved
+to 152 and 153 already, so only DESIGN-LAW, the log and app.js's copy of styles.css met; the
+explainers' WebP posters were drawn again from main's new JPEGs. All sixteen checks pass on the
+merged tree (landing, approve, watermark, plan economics, pricing, full ad studio with the CSP,
+area dialog, quick ad, buy list, mix, full style, full colour, full ad, typing pause, hero
+stills, SEO).
+
+Lighthouse, median of three, served as Netlify serves it; before is main as live (163c0fd0),
+after is this branch with pull request 14 in it:
+
+| page | form | performance | largest paint | blocking | layout shift | weight |
+|---|---|---|---|---|---|---|
+| / | phone | 32 → 80 | 5.7 s → 1.4 to 1.8 s | 2757 → 736 to 792 ms | 0 → 0 | 4424 → 1852 KB |
+| / | desktop | 72 → 94 to 96 | 1.2 s → 1.1 s | 415 → 83 to 134 ms | 0 → 0 | 4544 → 2132 KB |
+| /looks.html | phone | 49 → 72 | 0.6 s → 0.6 s | 1831 → 2170 ms | 0.83 → 0 | 2714 → 2731 KB |
+| /looks.html | desktop | 46 → 72 | 0.2 s → 0.2 s | 1402 → 868 ms | 0.90 → 0.004 | 3001 → 3019 KB |
+| /ads/we-buy-gold.html | both | 100 → 100 | | 0 → 0 | 0.005 → 0 | 125 → 104 KB |
+| /motion/ | phone, desktop | 70 → 70, 71 → 73 | 0.9 s, 0.3 s | 3800 → 4252, 850 → 812 ms | 0.02, 0.08 → 0.05 | 3004 → 3631 KB |
+
+The landing's weight is less than half: fabric.js out of the head, the colour sets and their
+builder gone, and the census's rebuild retiring the old cards. The video maker's weight is the
+census's (its pools); nothing of this branch's touches it.
+
+Accessibility on the landing, 90 before: 91 after the merge, then 96 once the foot's column
+headings became h3s (they had followed the sections' h2s as h4s) and its line links became
+24px targets. What is left is main's own choice in rule 152: white on the dark-mode blue
+button, 3.31:1, kept to match reselling.us (the large-text bar).
+
+RESUME HERE (superseded by a later entry):
+  0. The owner's pick among the three directions for the mark (OPEN-ITEMS §BK 14), and the
+     owner's word on pull request 15.
+  1. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5).
+  2. The landing's load (§BK 3): what is left is app.js at load.
+
 ## 2026-11-19 — the library holds every new look, and its categories open into lines (claude/xenodochial-mccarthy-7bea6d)
 
 - **"The new 2000" was the review page's count, not the library's.** The census read 2,019 to 2,045
@@ -6304,6 +6581,64 @@ category has subcategories). None of this is live until the owner merges into `m
   1,740 looks to it would have changed the wall the hero session is curating. A second list (scLib)
   kept the change to the library.
 
+## 2026-11-19 — the mark is a message bubble: the owner's pick, everywhere it is drawn (claude/zen-dijkstra-7b5a2e)
+
+Studied:
+  The owner picked the second of three directions: "Text me (2)". Before drawing it everywhere,
+  every place the mark is drawn was listed: four logos in index.html (bar, foot, Easy Mode, the
+  editor), the generator's bar for the information and category pages, the video maker's own bar,
+  the Look Book's masthead, the saved-ads library, favicon.svg, five icon PNGs (the sign-in dialog
+  shows icon-192), two wordmark PNGs, the share card and the 17 link previews.
+
+Measured:
+  - The mark in every bar, each theme: Sora 700 at 22px, the icon at 28px, the ink, blue and mint
+    the page's own. The Look Book's is 15px and 18px beside its title.
+  - Faces: every page now loads sora-700.woff2 (25 KB) for the wordmark, and none loads Inter
+    Tight (45 KB) any more.
+  - Checks on the final tree: landing, area dialog, quick ad, full ad studio (every page under the
+    CSP), watermark, buy list, approve, pricing in step and SEO all pass; build_seo_pages and the
+    CSP hashes have nothing new to write.
+
+Changed:
+  - DESIGN-LAW 161 (the mark), and rules 153 and 158 point to it.
+  - `build_og_cards.mjs --keep-ads`: the previews painted around the pages' ads as they are.
+  - OPEN-ITEMS §BK 14 done; §BK 16 (the explainers still wear the old wordmark) and §BK 17 (rule
+    numbers collide across branches).
+  - The video maker's bar and foot now sit on its page's column (1240px): its mark was 80px in
+    from its headline.
+  - The 404's title lost its dash (rule 55).
+
+Found:
+  - **A shared word in a page's own style sheet beat the mark.** The Look Book's `.brand span`
+    (0,1,1) outranked `.wb-word` (0,1,0), so its wordmark fell back to the system face at weight
+    500 in the dim colour, and "AD" shrank to 13px. Nothing failed and the page looked nearly
+    right. A computed-style sweep of every page found it: the face, weight, size and colours of
+    each visible `.wb-word`. The rule is now `.brand>span`, which matches what it was written for.
+  - **The video maker's bar is written by hand** (`bare: true` in build_seo_pages.mjs, for its
+    Library link), so the generator's MARK never reached it. Grep for the old markup
+    (`WeBuy<em>.AD</em>`) after any change to the mark.
+  - **Drawing the previews again drew the pages' ads again.** build_og_cards.mjs draws each
+    category page's ad before it paints its preview. Since pull request 14's engine (rule 154's
+    seeds), the same recipe draws a different look: gold went from its green ground to a photo
+    ground. The owner asked for the mark, not new ads, so the builder now takes `--keep-ads`, which
+    paints the cards around assets/full-ads as committed. The 17 previews changed in their mark
+    alone.
+  - **160 was taken while it was planned.** `claude/full-ad-looks-layout` renumbered to 158, 159
+    and 160 at 11:39 (74de8569), over this branch's 158 and pull request 17's 159. The mark took
+    161. Check every branch and worktree for the number just before writing a rule, not when
+    planning it.
+
+Rejected:
+  - Drawing the five explainers again for their corner bug and end card: main's videos, with music
+    and posters, are a render of their own (§BK 16).
+  - Taking Inter Tight out: the family skin's .logo rule still names it, and no page downloads it.
+
+RESUME HERE (superseded by a later entry):
+  0. The owner's word on pull request 15.
+  1. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5).
+  2. The landing's load (§BK 3): what is left is app.js at load.
+  3. The explainers in rule 161's mark (§BK 16), and the rule numbers when the branches meet
+     (§BK 17).
 
 ## 2026-11-19 — the hero wall chosen, brighter colours, no twins, gradients that turn hue (claude/zealous-dewdney-386bf8)
 
@@ -6408,8 +6743,89 @@ Found:
     Release, and release.sh checks) makes a flow testable without a real
     account.
 
-RESUME HERE:
+RESUME HERE (superseded by a later entry):
   0. OPEN-ITEMS §BQ: the web part live, then App Store Connect and the upload.
+
+## 2026-11-19 — pull request 14 at c3694b14 merged here; this landing leads (claude/zen-dijkstra-7b5a2e)
+
+Studied:
+  Pull request 14 had folded in the census's push (c5213e62): the car fix, the hero wall's picks
+  and colours, the library's 2,405 looks, and the census's own landing (rule 162, `landing.css`).
+  Asked "Which landing design should lead?", the owner answered "SEO's (PR 15)". This merge takes
+  everything of pull request 14's except that landing.
+
+Changed:
+  - `index.html` is this branch's: rule 158's landing with rule 161's mark. `landing.css` comes
+    into the tree but is not linked. The block it appended to `pages.css` is left out, because it
+    gave the other pages their own bar, width and an Inter Tight wordmark in the foot. The hero's
+    "New message" card and "Made for" line stay out unless the owner asks for them.
+  - `assets/hero/index.json` is the hero wall's (the full ads' stills); this branch's was empty.
+  - Rule 162 and §BN are marked superseded for the landing and the pages; their library part
+    stands. Rule 158 records the owner's choice.
+  - The FAQ said "31 colour sets" and "the twelve pairs the designs are made in". Both came from
+    11 November, and the studio has had 52, then 54, since then. It now says 54 sets in five groups
+    (19 two-colour, 7 three-colour, 12 proven pairs, 10 light, 6 neon), and the structured data's
+    feature list says 54. The policy hash for the FAQ's JSON-LD changed with it.
+  - The library's paragraph said "or pick a colour set above"; the sets left this landing in rule
+    158, so it now ends "Filter by what you buy."
+
+Measured:
+  - `hero_wall_check` on this landing: 18 hand-picked tiles, every pair and headline once, 1 dark,
+    9 on a pattern, 7 on a gradient, 9 full ads. `make_match_check`: 742 recipes, 41 lines.
+  - The landing loads no `landing.css`, has no console error, and its library reads "Showing 16 of
+    2404".
+
+Found:
+  - **A count in words goes stale when the code moves.** "31 colour sets" was true when it was
+    written and was copied forward twice. Read the count from the code (`COLOR_THEMES` by group)
+    before a sentence states it.
+  - **Rule 162 is now taken twice**: the census's landing (pull request 14) and pull request 19's
+    editor. Pull request 14 merges first, so pull request 19's rule becomes 163.
+
+RESUME HERE (superseded by the entry below):
+  0. The owner's word on pull requests 14, 15, 17 and 19, in that order.
+  1. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5).
+  2. The landing's load (§BK 3): what is left is app.js at load.
+  3. The explainers in rule 161's mark (§BK 16), and the rule numbers when the branches meet
+     (§BK 17).
+
+## 2026-11-19 — the library's broken pictures traced, a check for them, and full rows (claude/zen-dijkstra-7b5a2e)
+
+Studied:
+  The owner's screenshot came from a preview with the bubble mark: the library's Trucks line drew six
+  cards, then showed only names ("Volt Stack template", "Trucks · Photo band template"). Every card
+  past the sixth was one of pull request 14's new library looks (`assets/library-looks/`), and the
+  list naming them had loaded.
+
+Measured:
+  - Each candidate build was served straight from git (a small server reading `git cat-file`), so no
+    working tree could move under it: 873937a2, pull request 17 at 7683508a and pull request 19 at
+    891826bc. With them, this branch's 6758a715, pull request 17's merge in progress (its own
+    preview) and pull request 19's working tree. Cars & Trucks and its Trucks line load in full on
+    every one, in the owner's window size, scrolled as a person would.
+  - The new `library_images_check`: 51 views, every category and line opened to the end, 2,439
+    pictures, all loaded, in 20 seconds. Behind a proxy that withholds `assets/library-looks/`, it
+    fails the way the owner saw.
+  - Library pictures fetched at load at 1440: 24 with 16 cards a page, 23 with 32. They are lazy.
+
+Changed:
+  - `scripts/library_images_check.mjs`.
+  - The library pages by full rows (`scPage`, rule 158): 32 on a desktop, 24 at three or two
+    columns, 16 on a phone.
+
+Found:
+  - **A preview that serves a working tree can break under a merge.** The list loads while the tree
+    has it; the pictures are asked for as the visitor scrolls, after a merge, abort or reset has
+    moved the tree. To judge a build, serve its commit, not a tree another session is changing.
+  - **One glyph can name the build.** The screenshot's "◎ Set your area" was dropped in pull request
+    19, so the page was not 19's.
+
+RESUME HERE (superseded by the entry below):
+  0. The owner's word on pull requests 14, 15, 17 and 19, in that order.
+  1. The brand kit and search presence pull request on this branch (the roadmap session's brief).
+  2. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5).
+  3. The explainers in rule 161's mark (§BK 16), and the rule numbers when the branches meet
+     (§BK 17).
 
 ## 2026-11-19 (night) — main (the iPhone app, the pricing buttons) merged into pull request 14 (claude/ads-improvement-roadmap-7632c8)
 
@@ -6417,3 +6833,62 @@ Auto-fix: main took two commits (the landing's pricing buttons on a fresh visit;
 iPhone, Delete account, payment in Safari). The code merged on its own; only the notes met. Main
 named its open items BF, which this branch gave the Type Lab, and BK to BP are taken on other
 branches, so they are BQ here, with a line saying so.
+
+## 2026-11-20 — the mark is the Ad label: six new directions, and the owner's pick (claude/zen-dijkstra-7b5a2e)
+
+Studied:
+  The owner, of rule 161's bubble: "the logo sucks we need some more concepts or ideas or i'll build
+  one". Before drawing, the bubble was taken apart: it read as a chat app, its thin W was a blob at 16
+  pixels, Sora sounded like a startup rather than the ads, and ".AD" was its smallest piece. Six
+  directions came from the product's own world: the feed's ad label, our ads' plates, a buyer's sign,
+  the arrows round the number, a coin, a fast reply. All of them used faces already in the project.
+  The owner took the first: "Take 1, the Ad label".
+
+Measured:
+  - The mark on all nine pages that carry it, dark and light, read from the computed styles: Libre
+    Franklin 900 at 24px (16px in the Look Book), the label 39 by 19 pixels in the page's own blue,
+    white letters, and the text "WeBuy.AD" for copying and reading aloud.
+  - Checks: landing, SEO, pricing in step, area dialog, quick ad, library images (51 views), hero
+    wall, watermark and full ad studio pass; csp_hashes has nothing to write.
+
+Changed:
+  - DESIGN-LAW 165 (rule 161 superseded, rule 158 records the pick), OPEN-ITEMS §BK 21 (and 16
+    follows the mark), AGENT-BRIEF.
+  - The mark everywhere the bubble was; the icons, the wordmarks, the share card and the 17 link
+    previews drawn again (the pages' ads kept).
+  - `tools/brand/favicon.mjs`: favicon.svg's letters as outlines.
+
+Found:
+  - **A favicon cannot use a web font.** An SVG drawn as an image loads nothing, and an SVG made into
+    an image in the page cannot reach the page's faces either: the first trace drew nothing. The
+    letters are drawn on a canvas in the loaded face instead, traced with marching squares and
+    simplified to 123 points. No font tool was installed, and none was needed.
+  - **A closed outline cannot be simplified from its start.** With the chord's two ends on the same
+    point, every distance is zero and the loop collapses to a line. Split it at its farthest point
+    first.
+
+RESUME HERE (superseded by the entry below):
+  0. The owner's word on pull requests 14, 15, 17 and 19, in that order.
+  1. The brand kit and search presence pull request on this branch (its brief needs rule 165's mark).
+  2. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5).
+  3. The explainers in rule 165's mark (§BK 16), and the rule numbers when the branches meet (§BK 17).
+
+## 2026-11-20 (latest) — pull request 14 at 4009d4c4 merged here: main's iPhone app and account deletion (claude/zen-dijkstra-7b5a2e)
+
+Pull request 14 had taken main in again. Its four clashes with this branch:
+- styles.css: both sides had appended at the same spot (this branch's landing and mark, main's
+  Delete account item). Both are kept.
+- app.js: only its copy of styles.css, so the copy was synced again.
+- privacy.html: main's new "Deleting your data", with hello@webuy.ad. Main still gave
+  hello@buyback.ad, an address with no mail.
+- The log: every entry is kept, in the order written.
+
+The iPhone app takes its icon from the brand kit's icon-1024.png, flattened (the App Store refuses an
+alpha channel), so the repo's icon is now the Ad label; Build 1 on App Store Connect keeps main's
+"W." until the next upload.
+
+RESUME HERE:
+  0. The owner's word on pull requests 14, 15, 17 and 19, in that order.
+  1. The brand kit and search presence pull request on this branch (its brief needs rule 165's mark).
+  2. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5). The iPhone app's next build.
+  3. The explainers in rule 165's mark (§BK 16), and the rule numbers when the branches meet (§BK 17).

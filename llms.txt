@@ -1,0 +1,58 @@
+# WeBuy.AD
+
+> WeBuy.AD, run by BUYBACK.AD, is a web app that makes "We Buy" ads for people who buy goods from the public and resell them: phone buyers, repair shops, gold, silver and coin buyers, car buyers, card shops and diabetic test strip buyers. You pick a design, type your phone number and your area, and download a post-ready photo ad, a printable flyer or a short video ad. It runs in a web browser on a phone or a computer, with nothing to install, and is free to start.
+
+Key facts:
+
+- What it makes: photo ads and flyers in six sizes (Square, Story 9:16, Tall 3:4, Wide 16:9, Wide 4:3, Flyer 8.5x11), video ads (MP4, with a photo of the ad for OfferUp), and the full ad, its house ad: a business name, headline, models line, three selling points, the product, the phone number and the towns on one ad, as a photo or a video, for 35 product lines.
+- What it is for: 13 kinds of goods: phones and devices (iPhone, iPad, MacBook, Apple Watch, Galaxy, Pixel), gold and jewelry, silver, rare coins, cars and trucks, diabetic supplies, Pokémon cards, sports cards, gaming and consoles, headphones and audio, computers and parts, wearables and smart glasses, and cameras and drones.
+- Where the ads go: Facebook (Pages, groups and paid ads), Instagram, OfferUp, Craigslist, Nextdoor and print. Each site has its own rules for buying ads; the FAQ sums them up and the customer posts the ad themselves.
+- Languages: the video maker writes its words in English, Spanish or both; the photo designs are written in English and take any words typed in any language.
+- Every design is checked before it is offered: the headline, the number and the button must stand out from what is behind them, and the number must read in a small feed preview. No design states invented reviews, ratings, years in business or prices.
+- The customer owns the ads they make. Drafts, saved details and uploaded photos stay in the customer's browser.
+
+## Plans
+
+- Free: $0. 3 photo downloads a week, 1080 pixels with a light watermark, 5 AI credits a month, 12 ads kept in the library. Designing needs no account; downloading needs a free account.
+- Starter: $25 a month or $250 a year. 100 photo downloads a month, up to 2160 pixels, no watermark, 50 AI credits a month, 300 ads kept in the library.
+- Pro: $60 a month or $600 a year. 500 photo downloads a month, 30 video ads a month, up to 2160 pixels, no watermark, QR code, 200 AI credits a month, 1,000 ads kept in the library.
+- Business: $100 a month or $1,000 a year. Unlimited photo downloads, unlimited video ads, up to 2160 pixels, no watermark, QR code, 500 AI credits a month, 3,000 ads kept in the library.
+- AI credit packs: 100 credits for $9, 300 credits for $25; bought credits never expire. One AI background is one credit.
+- Yearly billing gets two months free. Cancel any time in billing; the plan runs to the end of the paid period.
+
+## Make an ad
+
+- [Make an ad](https://webuy.ad/): the studio, the design library and the plans
+- [Video ad maker](https://webuy.ad/motion/): We Buy Phones video ads and the full ad as a video
+- [Look Book](https://webuy.ad/looks.html): every ready-made look in one place
+- [How it works](https://webuy.ad/learn.html): five short videos
+- [Plans and pricing](https://webuy.ad/#pricing)
+- [FAQ](https://webuy.ad/#faq)
+
+## Ads for each line
+
+- [We Buy Apple ads and flyers](https://webuy.ad/ads/we-buy-apple.html): Make a We Buy Apple ad or flyer for iPhones, iPads, MacBooks, Apple Watch and AirPods. Add your number and area, download, post. Free to start.
+- [We Buy iPhones ads and flyers](https://webuy.ad/ads/we-buy-iphones.html): Make a We Buy iPhones ad or flyer in a minute. Add your number and area, download a post for Marketplace, Instagram or OfferUp. Every iPhone design is free.
+- [We Buy iPads ads and flyers](https://webuy.ad/ads/we-buy-ipads.html): Make a We Buy iPads ad or flyer for iPad, iPad mini, iPad Air and iPad Pro. Add your number and area, download, post. Every iPad design is free.
+- [We Buy MacBooks ads and flyers](https://webuy.ad/ads/we-buy-macbooks.html): Make a We Buy MacBooks ad or flyer for MacBook Air and MacBook Pro. Add your number and area, download, post. Every MacBook design is free.
+- [We Buy Apple Watch ads and flyers](https://webuy.ad/ads/we-buy-apple-watch.html): Make a We Buy Apple Watch ad or flyer for Series, SE and Ultra. Add your number and area, download, post. Every Apple Watch design is free.
+- [We Buy AirPods ads and flyers](https://webuy.ad/ads/we-buy-airpods.html): Make a We Buy AirPods ad or flyer for AirPods, AirPods Pro and AirPods Max. Add your number and area, download, post. Free to start.
+- [We Buy Phones ads and cash for phones flyers](https://webuy.ad/ads/we-buy-phones.html): Make a phone buyback ad or cash for phones flyer for iPhone, Galaxy and Pixel. Add your number and area, download, post. Every phone design is free.
+- [We Buy Consoles ads and flyers](https://webuy.ad/ads/we-buy-consoles.html): Make a We Buy Consoles ad or flyer for PS5, Xbox and Nintendo Switch. Add your number and area, download, post. Free to start.
+- [We Buy Computers ads and flyers](https://webuy.ad/ads/we-buy-computers.html): Make a We Buy Computers ad or flyer for laptops, monitors, mini PCs and SSDs. Add your number and area, download, post. Free to start.
+- [We Buy Gold ads and cash for gold flyers](https://webuy.ad/ads/we-buy-gold.html): Make a cash for gold flyer or We Buy Gold ad for scrap gold and jewelry. Add your number and area, download, post. Free to start.
+- [We Buy Silver ads and cash for silver flyers](https://webuy.ad/ads/we-buy-silver.html): Make a cash for silver flyer or We Buy Silver ad for coins, bars, silverware and jewelry. Add your number and area, download, post. Free to start.
+- [We Buy Coins ads and flyers](https://webuy.ad/ads/we-buy-coins.html): Make a We Buy Coins ad or coin buyer flyer for old coins, silver dollars and collections. Add your number and area, download, post. Free to start.
+- [We Buy Cars ads and cash for cars flyers](https://webuy.ad/ads/we-buy-cars.html): Make a cash for cars flyer or We Buy Cars ad for used, junk and damaged cars and trucks. Add your number and area, download, post. Free to start.
+- [We Buy Pokémon Cards ads and flyers](https://webuy.ad/ads/we-buy-pokemon-cards.html): Make a We Buy Pokémon Cards ad or flyer for singles, slabs and sealed boxes. Add your number and area, download, post. Free to start.
+- [We Buy Sports Cards ads and flyers](https://webuy.ad/ads/we-buy-sports-cards.html): Make a We Buy Sports Cards ad or flyer for rookies, autos, slabs and sealed wax. Add your number and area, download, post. Free to start.
+- [We Buy Test Strips ads and flyers](https://webuy.ad/ads/we-buy-test-strips.html): Make a We Buy Test Strips ad or flyer for sealed, unexpired diabetic test strips. Add your number and area, download, post. Free to start.
+
+## Optional
+
+- [We Buy Sneakers ads and flyers](https://webuy.ad/ads/we-buy-sneakers.html): Make a We Buy Sneakers ad or flyer today with your own photo of the pairs you buy. Add your number and area, download, post. Free to start.
+- [We Buy Retro Games ads and flyers](https://webuy.ad/ads/we-buy-retro-games.html): Make a We Buy Retro Games ad or flyer today with your own photo of the games you buy. Add your number and area, download, post. Free to start.
+- [About WeBuy.AD](https://webuy.ad/about.html): who it is for, how it works, what it does not do, and your data
+- [Full text for language models](https://webuy.ad/llms-full.txt): this summary with the whole FAQ
+- [Terms of Service](https://webuy.ad/terms.html)
+- [Privacy Policy](https://webuy.ad/privacy.html)

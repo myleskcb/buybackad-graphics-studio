@@ -1,10 +1,10 @@
 <!doctype html>
-<!-- The picture a link to webuy.ad previews as (og:image), 1200 x 630, made by
+<!-- The picture a link to webuy.ad previews as (og:image), with the Ad label (DESIGN-LAW 165), 1200 x 630, made by
      tools/brand/make.sh into assets/brand/share-card.jpg. Reselling.US's card in
      WeBuy.AD's words: the home page's own kicker and headline, and four real ads
      from the home page's wall (assets/showcase). -->
 <html><head><meta charset="utf-8"><style>
-@font-face { font-family: "Inter Tight"; src: url("../../assets/fonts/inter-tight-latin.woff2") format("woff2"); font-weight: 500 800; }
+@font-face { font-family: "WeBuy Franklin"; src: url("../../assets/fonts/libre-franklin-900.woff2") format("woff2"); font-weight: 900; }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body { width: 1200px; height: 630px; overflow: hidden; position: relative; color: #f4f7ff;
@@ -13,8 +13,12 @@ body { width: 1200px; height: 630px; overflow: hidden; position: relative; color
 .glow-a { width: 900px; height: 900px; right: -320px; top: -420px; background: radial-gradient(closest-side, rgba(61, 139, 255, 0.34), rgba(61, 139, 255, 0) 70%); }
 .glow-b { width: 760px; height: 760px; left: -280px; bottom: -480px; background: radial-gradient(closest-side, rgba(47, 213, 143, 0.22), rgba(47, 213, 143, 0) 70%); }
 .left { position: absolute; left: 72px; top: 64px; width: 580px; }
-.wordmark { font: 750 44px/1 "Inter Tight", sans-serif; letter-spacing: -0.04em; }
-.wordmark span { color: #3d8bff; }
+.wordmark { display: flex; align-items: center; }
+.wordmark .wb-word { font-size: 48px; }
+:root { --wb-blue: #3d8bff; --wb-ink: #f4f7ff; }
+.wb-word { display: inline-flex; align-items: center; font: 900 22px/1 "WeBuy Franklin", sans-serif; letter-spacing: -0.035em; color: var(--wb-ink); white-space: nowrap; }
+.wb-word .wb-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.wb-word .wb-ad { display: inline-grid; place-items: center; height: 1.02em; margin-left: .2em; padding: .02em .26em 0; border-radius: .2em; background: var(--wb-blue); color: #fff; font-size: .78em; letter-spacing: .01em; }
 .kicker { display: inline-flex; align-items: center; gap: 12px; margin-top: 52px; padding: 9px 18px 9px 14px; border-radius: 99px; background: rgba(61, 139, 255, 0.16); color: #a9cbff; font-size: 17.5px; font-weight: 600; white-space: nowrap; }
 .kicker i { width: 11px; height: 11px; border-radius: 50%; background: #2fd58f; box-shadow: 0 0 0 5px rgba(47, 213, 143, 0.22); }
 h1 { margin: 24px 0 0; font-size: 66px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.02; }
@@ -27,8 +31,8 @@ h1 span { color: #2fd58f; }
 </style></head><body>
 <div class="glow-a"></div><div class="glow-b"></div>
 <div class="left">
-  <div class="wordmark">WeBuy<span>.AD</span></div>
-  <div class="kicker"><i></i>For phone buyers, gold buyers and every reseller in between</div>
+  <div class="wordmark"><span class="wb-word">WeBuy<span class="wb-sr">.</span><span class="wb-ad">AD</span></span></div>
+  <div class="kicker"><i></i>For phone, gold and car buyers</div>
   <h1>Buyback ads that make strangers <span>text you first.</span></h1>
 </div>
 <div class="foot"><b>webuy.ad</b> · Free to design</div>

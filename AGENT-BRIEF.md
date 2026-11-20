@@ -578,6 +578,27 @@ produced." DESIGN-LAW rule 87. In practice:
   alone. `node scripts/hero_headline.mjs --live` reports any live card under
   it; with `--write` it grows them, gated. Look at every card on a
   before-and-after before you show it.
+- **What search engines read, on main's look** (rule 146, 2026-11-18; the look is
+  rules 152 and 153 since 2026-11-19, "Follow main"): the public pages and the studio
+  wear reselling.us's look and the name WeBuy.AD (BUYBACK.AD is the business: the
+  copyright and the terms' party). scripts/build_seo_pages.mjs writes every public
+  page's head, the information pages' bar and foot in main's markup, the structured
+  data (offers from `PLANS`), the sitemap, robots.txt and the llms files, with the name
+  in `BRAND`/`MARK`/`BUSINESS`/`DOMAIN`; build_og_cards.mjs draws each category page's
+  ad and its link preview in the share card's look (scripts/og_card.html), and the
+  landing and the information pages use main's share card. Edit the tables, run both,
+  then `seo_check.mjs` and `csp_hashes.mjs`; never hand-edit a generated head or the
+  FAQ's JSON-LD. The hero is the owner's wall of hand picks (`#hero-wall`, app.js
+  scBuildWall): a remake of the landing keeps it. Describe the watermark without a
+  name; watermark.js's `WORD` is the name.
+  The landing is one column on one scale (rule 158: `--col`, `--gutter`, `--s1` to `--s9` at
+  the end of styles.css): a new section takes them, never a padding or a gap of its own.
+  The mark is rule 165's (WeBuy beside an AD label, in Libre Franklin 900): `MARK` in
+  build_seo_pages.mjs, and the same markup in index.html's four logos, the video maker's bar
+  (written by hand), the Look Book and master-library.html. Change it in all of them. Then run
+  `sh tools/brand/make.sh`, `node tools/brand/favicon.mjs` (favicon.svg's letters are outlines) and
+  `node scripts/build_og_cards.mjs --keep-ads`. Without `--keep-ads` the builder draws every page's
+  ad again, and since rule 154 the same recipe draws a new look.
 - **The scripts:** a script that rewrites a showcase record passes its
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the
@@ -708,6 +729,10 @@ produced." DESIGN-LAW rule 87. In practice:
   - a product in every tile.
   A seed never draws a twin pair, and draws a dark look least (`LOOK_SHARE`). After an engine
   change, draw the recipe stills, the hero stills and the rebuilt ads again.
+- **Every picture in the landing's library loads**: `node scripts/library_images_check.mjs` opens every
+  category and every line inside it, presses "Show more" to the end and fails on any picture that does
+  not load. Run it after anything that changes the library's lists or its pictures, and after a merge
+  that brings either in. A page of the library is full rows of the grid (`scPage`: 32 on a desktop).
 - **The partner library serves the rebuilt library ads** (`assets/rebuilt-ads/`,
   `node scripts/render_rebuilt_ads.mjs --stale` after the recipes or the engine change;
   `library_api_check` fails while one is stale).
@@ -715,13 +740,10 @@ produced." DESIGN-LAW rule 87. In practice:
   the recipes, the lines' pools or the cut-outs; a make named by its models goes to its line or its own
   cut-out, a model it names built since 2010, a motorcycle shows a motorcycle, a van its words name or
   "work vans" (`build_recipes.mjs`).
-- **The landing is built to a brief** (rule 162; the owner: "make it look like a custom built site
-  with a large web design budget"): `landing.css`, scoped to the landing under the family skin, keeps
-  rule 152's colours and rule 153's wordmark and sets one type scale, banded grounds (paper for the
-  library, a stage for the video, the blue for the last call), numbered labels on hairlines and a
-  layout of its own per section; `pages.css` ends in the same look for the other pages. Change the
-  landing's look there, not in `styles.css`; a new section reuses `.lp-section-head`, `.flow` or a
-  band rather than a new card. Motion fails visible: never start the hero from hidden.
+- **The landing is rule 158's, not rule 162's** (the owner, 2026-11-19, of which landing design leads:
+  "SEO's (PR 15)"). The census's `landing.css` is in the tree but not linked, and its `pages.css`
+  block is left out. The landing's look is styles.css's rule 158 block (`--col`, `--gutter`,
+  `--s1` to `--s9`), and the mark is rule 161's. Don't link `landing.css` unless the owner asks for it.
 - **The library's other looks** (rule 162): `assets/library-looks/` holds two more looks of every rebuilt
   design, every line's own full ad and the video maker's gallery looks (`node scripts/build_library_looks.mjs`
   with `GFX_BASE`, `--check`; `--all` after the engine, the recipes or the video maker's looks change).

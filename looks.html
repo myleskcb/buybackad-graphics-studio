@@ -1,7 +1,28 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Look Book · WeBuy.AD</title>
-<meta name="description" content="Every ready-made look in one place: video looks, image ad designs, backgrounds and phone layouts. Pick one and it opens in the editor.">
+<!-- seo: written by scripts/build_seo_pages.mjs (INFO); edit there -->
+<title>Look Book: Every We Buy Ad Look | WeBuy.AD</title>
+<meta name="description" content="Every ready-made look in one place: video looks, photo ad designs, backgrounds and phone layouts for We Buy ads. Pick one and it opens in the editor.">
+<link rel="canonical" href="https://webuy.ad/looks.html">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WeBuy.AD">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Look Book: Every We Buy Ad Look">
+<meta property="og:description" content="Every ready-made look in one place: video looks, photo ad designs, backgrounds and phone layouts for We Buy ads. Pick one and it opens in the editor.">
+<meta property="og:url" content="https://webuy.ad/looks.html">
+<meta property="og:image" content="https://webuy.ad/assets/brand/share-card.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="WeBuy.AD: buyback ads that make strangers text you first, beside four real We Buy ads">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Look Book: Every We Buy Ad Look">
+<meta name="twitter:description" content="Every ready-made look in one place: video looks, photo ad designs, backgrounds and phone layouts for We Buy ads. Pick one and it opens in the editor.">
+<meta name="twitter:image" content="https://webuy.ad/assets/brand/share-card.jpg">
+<meta name="twitter:image:alt" content="WeBuy.AD: buyback ads that make strangers text you first, beside four real We Buy ads">
+<script type="application/ld+json" id="ld-page">{"@context":"https://schema.org","@graph":[{"@type":"CollectionPage","@id":"https://webuy.ad/looks.html#page","url":"https://webuy.ad/looks.html","name":"Look Book: Every We Buy Ad Look | WeBuy.AD","description":"Every ready-made look in one place: video looks, photo ad designs, backgrounds and phone layouts for We Buy ads. Pick one and it opens in the editor.","isPartOf":{"@id":"https://webuy.ad/#site"},"about":{"@id":"https://webuy.ad/#app"},"publisher":{"@id":"https://webuy.ad/#org"},"inLanguage":"en"}]}</script>
+<!-- /seo -->
 <link rel="icon" href="assets/brand/icon-32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/brand/icon-180.png">
 <style>
@@ -31,15 +52,25 @@ a{color:inherit}
 .mast .wrap{display:grid;gap:10px}
 .row{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
 .brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;margin-right:auto}
-.brand b{font:700 28px/1 var(--display);letter-spacing:-.035em}
-.brand i{font:750 15px/1 var(--brand);font-style:normal;letter-spacing:-.035em;color:var(--ink)}.brand i em{font-style:normal;color:var(--blue)}
-.brand span{font:500 13px var(--body);color:var(--dim)}
+.brand b,.brand h1{font:700 28px/1 var(--display);letter-spacing:-.035em;margin:0}
+.brand i{display:inline-flex;align-items:center;gap:6px;font-style:normal}
+@font-face{font-family:'WeBuy Franklin';src:url('assets/fonts/libre-franklin-900.woff2') format('woff2');font-weight:900;font-style:normal;font-display:swap}
+:root{--wb-blue:var(--blue);--wb-ink:var(--ink)}
+/* THE MARK (DESIGN-LAW 165, 2026-11-20, the owner's pick: "Take 1, the Ad label"). WeBuy beside an
+   AD label, the label every platform puts on a paid post, in Libre Franklin 900, the open revival of the
+   newspaper-ad face. The label is the icon as well. The period is in the text, for copying and reading
+   aloud, and hidden from the eye. */
+.wb-word{display:inline-flex;align-items:center;font:900 24px/1 'WeBuy Franklin','Libre Franklin','Franklin Gothic Medium','Arial Black',system-ui,sans-serif;letter-spacing:-.035em;color:var(--wb-ink,currentColor);white-space:nowrap}
+.wb-word .wb-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.wb-word .wb-ad{display:inline-grid;place-items:center;height:1.02em;margin-left:.2em;padding:.02em .26em 0;border-radius:.2em;background:var(--wb-blue,#3d8bff);color:#fff;font-size:.78em;letter-spacing:.01em}
+.brand i .wb-word{font-size:16px}
+.brand>span{font:500 13px var(--body);color:var(--dim)}
 .back{font:600 14px var(--body);text-decoration:none;border:0;background:var(--veil);padding:7px 14px;border-radius:999px}
-.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;min-height:38px}
 .tabs button,.chips button{font:600 15px var(--body);color:var(--ink);background:var(--veil);border:0;border-radius:999px;padding:7px 15px;cursor:pointer}
 .tabs button[aria-pressed="true"]{background:var(--blue);color:var(--blue-ink)}
 .tabs button small{font:500 12px var(--body);opacity:.8;margin-left:4px;font-variant-numeric:tabular-nums}
-.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin;min-height:32px}
 .chips button{font-size:13px;padding:5px 12px;white-space:nowrap}
 .chips button[aria-pressed="true"]{background:var(--blue);color:var(--blue-ink)}
 #q{flex:1 1 220px;min-width:0;font:15px var(--body);color:var(--ink);background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:8px 12px}
@@ -64,20 +95,25 @@ section.grp p{margin:0 0 12px;color:var(--dim);font-size:14px}
 .more:hover{background:var(--blue-hover)}
 .empty{color:var(--dim);margin-top:30px}
 footer{margin:48px 0 24px;color:var(--dim);font-size:13px}
-@media (max-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.brand b{font-size:23px}.mast{position:static}}
+@media (max-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.brand b,.brand h1{font-size:23px}.mast{position:static}}
 @media (prefers-reduced-motion:reduce){.pic{transition:none}}
+/* layout shift: the page keeps its shape while the script fills it (DESIGN-LAW 146) */
+html{scrollbar-gutter:stable}
+#out{min-height:100vh}
+#out:not(:empty){min-height:0}
+.tabs button small{min-width:3ch;display:inline-block}
 </style></head><body>
 <header class="mast"><div class="wrap">
   <div class="row">
-    <a class="brand" href="./"><b>Look Book</b><i>WeBuy<em>.AD</em></i></a>
+    <a class="brand" href="./"><h1>Look Book</h1><i><span class="wb-word">WeBuy<span class="wb-sr">.</span><span class="wb-ad">AD</span></span></i></a>
     <a class="back" href="motion/">Video maker</a>
     <a class="back" href="./">Image studio</a>
   </div>
   <div class="row">
-    <div class="tabs" role="group" aria-label="What to show" id="tabs"></div>
+    <div class="tabs" role="group" aria-label="What to show" id="tabs"><button aria-pressed="true" data-t="all">All<small></small></button><button aria-pressed="false" data-t="video">Video looks<small></small></button><button aria-pressed="false" data-t="image">Image ads<small></small></button><button aria-pressed="false" data-t="ground">Backgrounds<small></small></button><button aria-pressed="false" data-t="layout">Phone layouts<small></small></button></div>
     <input id="q" type="search" placeholder="Search looks, themes, categories" aria-label="Search the Look Book">
   </div>
-  <div class="chips" role="group" aria-label="Narrow it down" id="chips"></div>
+  <div class="chips" role="group" aria-label="Narrow it down" id="chips"><button aria-pressed="true" data-g="">All groups</button></div>
 </div></header>
 <main class="wrap">
   <p class="intro" id="intro">Every ready-made look in one place. Pick one and it opens in the editor with your number and phones, ready to change and download.</p>

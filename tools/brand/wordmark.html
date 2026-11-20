@@ -1,12 +1,15 @@
 <!doctype html>
-<!-- The WeBuy.AD wordmark on a transparent ground, for any wide spot (Stripe's logo,
-     a partner's page). ?on=dark draws white words for a dark ground. Reselling.US's
-     wordmark, letter for letter in its rules: Inter Tight 750, the ending in the blue. -->
+<!-- The WeBuy.AD mark on a transparent ground, for any wide spot (Stripe's logo, a partner's page):
+     WeBuy beside the AD label, in Libre Franklin 900 (DESIGN-LAW 165). ?on=dark draws white words for
+     a dark ground. -->
 <html><head><meta charset="utf-8"><style>
-@font-face { font-family: "Inter Tight"; src: url("../../assets/fonts/inter-tight-latin.woff2") format("woff2"); font-weight: 500 800; }
+@font-face { font-family: "WeBuy Franklin"; src: url("../../assets/fonts/libre-franklin-900.woff2") format("woff2"); font-weight: 900; }
 html, body { margin: 0; background: transparent; }
-.w { display: inline-block; padding: 40px 56px; font: 750 168px/1 "Inter Tight", sans-serif; letter-spacing: -0.04em; color: #0a1224; white-space: nowrap; }
-.on-dark .w { color: #f4f7ff; }
-.w span { color: #0a5fe0; } .on-dark .w span { color: #3d8bff; }
-</style></head><body><div class="w">WeBuy<span>.AD</span></div>
+:root { --wb-blue: #0a5fe0; --wb-ink: #0a1224; }
+.on-dark { --wb-blue: #3d8bff; --wb-ink: #f4f7ff; }
+.m { display: inline-flex; align-items: center; padding: 44px 48px; }   /* fits make.sh's 1000 x 260 window */
+.wb-word { display: inline-flex; align-items: center; font: 900 140px/1 "WeBuy Franklin", sans-serif; letter-spacing: -0.035em; color: var(--wb-ink); white-space: nowrap; }
+.wb-word .wb-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.wb-word .wb-ad { display: inline-grid; place-items: center; height: 1.02em; margin-left: .2em; padding: .02em .26em 0; border-radius: .2em; background: var(--wb-blue); color: #fff; font-size: .78em; letter-spacing: .01em; }
+</style></head><body><div class="m"><span class="wb-word">WeBuy<span class="wb-sr">.</span><span class="wb-ad">AD</span></span></div>
 <script>if (location.search.includes("on=dark")) document.body.className = "on-dark";</script></body></html>

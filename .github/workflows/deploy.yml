@@ -147,7 +147,7 @@ jobs:
           warn() { echo "::warning title=$1::$2"; row "$1" "⚠️ $2"; }
           { echo "### $SITE"; echo; echo "| Check | Result |"; echo "|---|---|"; } >> "$GITHUB_STEP_SUMMARY"
           if [ -n "$domain" ]; then row "$DOMAIN" "$domain"
-          else warn "$DOMAIN" "does not reach the site yet: the custom domain in Netlify, or the DNS at Namecheap (OPEN-ITEMS §BD); checked $COPY instead"; fi
+          else warn "$DOMAIN" "does not reach the site yet: the custom domain in Netlify, or the DNS at Namecheap (OPEN-ITEMS §BL); checked $COPY instead"; fi
           if ! echo "$plans" | jq -e . >/dev/null 2>&1; then
             warn "API" "/api/plans did not answer JSON"
           else

@@ -1,0 +1,151 @@
+# WeBuy.AD
+
+> WeBuy.AD, run by BUYBACK.AD, is a web app that makes "We Buy" ads for people who buy goods from the public and resell them: phone buyers, repair shops, gold, silver and coin buyers, car buyers, card shops and diabetic test strip buyers. You pick a design, type your phone number and your area, and download a post-ready photo ad, a printable flyer or a short video ad. It runs in a web browser on a phone or a computer, with nothing to install, and is free to start.
+
+Key facts:
+
+- What it makes: photo ads and flyers in six sizes (Square, Story 9:16, Tall 3:4, Wide 16:9, Wide 4:3, Flyer 8.5x11), video ads (MP4, with a photo of the ad for OfferUp), and the full ad, its house ad: a business name, headline, models line, three selling points, the product, the phone number and the towns on one ad, as a photo or a video, for 35 product lines.
+- What it is for: 13 kinds of goods: phones and devices (iPhone, iPad, MacBook, Apple Watch, Galaxy, Pixel), gold and jewelry, silver, rare coins, cars and trucks, diabetic supplies, Pokémon cards, sports cards, gaming and consoles, headphones and audio, computers and parts, wearables and smart glasses, and cameras and drones.
+- Where the ads go: Facebook (Pages, groups and paid ads), Instagram, OfferUp, Craigslist, Nextdoor and print. Each site has its own rules for buying ads; the FAQ sums them up and the customer posts the ad themselves.
+- Languages: the video maker writes its words in English, Spanish or both; the photo designs are written in English and take any words typed in any language.
+- Every design is checked before it is offered: the headline, the number and the button must stand out from what is behind them, and the number must read in a small feed preview. No design states invented reviews, ratings, years in business or prices.
+- The customer owns the ads they make. Drafts, saved details and uploaded photos stay in the customer's browser.
+
+## Plans
+
+- Free: $0. 3 photo downloads a week, 1080 pixels with a light watermark, 5 AI credits a month, 12 ads kept in the library. Designing needs no account; downloading needs a free account.
+- Starter: $25 a month or $250 a year. 100 photo downloads a month, up to 2160 pixels, no watermark, 50 AI credits a month, 300 ads kept in the library.
+- Pro: $60 a month or $600 a year. 500 photo downloads a month, 30 video ads a month, up to 2160 pixels, no watermark, QR code, 200 AI credits a month, 1,000 ads kept in the library.
+- Business: $100 a month or $1,000 a year. Unlimited photo downloads, unlimited video ads, up to 2160 pixels, no watermark, QR code, 500 AI credits a month, 3,000 ads kept in the library.
+- AI credit packs: 100 credits for $9, 300 credits for $25; bought credits never expire. One AI background is one credit.
+- Yearly billing gets two months free. Cancel any time in billing; the plan runs to the end of the paid period.
+
+## Make an ad
+
+- [Make an ad](https://webuy.ad/): the studio, the design library and the plans
+- [Video ad maker](https://webuy.ad/motion/): We Buy Phones video ads and the full ad as a video
+- [Look Book](https://webuy.ad/looks.html): every ready-made look in one place
+- [How it works](https://webuy.ad/learn.html): five short videos
+- [Plans and pricing](https://webuy.ad/#pricing)
+- [FAQ](https://webuy.ad/#faq)
+
+## Ads for each line
+
+- [We Buy Apple ads and flyers](https://webuy.ad/ads/we-buy-apple.html): Make a We Buy Apple ad or flyer for iPhones, iPads, MacBooks, Apple Watch and AirPods. Add your number and area, download, post. Free to start.
+- [We Buy iPhones ads and flyers](https://webuy.ad/ads/we-buy-iphones.html): Make a We Buy iPhones ad or flyer in a minute. Add your number and area, download a post for Marketplace, Instagram or OfferUp. Every iPhone design is free.
+- [We Buy iPads ads and flyers](https://webuy.ad/ads/we-buy-ipads.html): Make a We Buy iPads ad or flyer for iPad, iPad mini, iPad Air and iPad Pro. Add your number and area, download, post. Every iPad design is free.
+- [We Buy MacBooks ads and flyers](https://webuy.ad/ads/we-buy-macbooks.html): Make a We Buy MacBooks ad or flyer for MacBook Air and MacBook Pro. Add your number and area, download, post. Every MacBook design is free.
+- [We Buy Apple Watch ads and flyers](https://webuy.ad/ads/we-buy-apple-watch.html): Make a We Buy Apple Watch ad or flyer for Series, SE and Ultra. Add your number and area, download, post. Every Apple Watch design is free.
+- [We Buy AirPods ads and flyers](https://webuy.ad/ads/we-buy-airpods.html): Make a We Buy AirPods ad or flyer for AirPods, AirPods Pro and AirPods Max. Add your number and area, download, post. Free to start.
+- [We Buy Phones ads and cash for phones flyers](https://webuy.ad/ads/we-buy-phones.html): Make a phone buyback ad or cash for phones flyer for iPhone, Galaxy and Pixel. Add your number and area, download, post. Every phone design is free.
+- [We Buy Consoles ads and flyers](https://webuy.ad/ads/we-buy-consoles.html): Make a We Buy Consoles ad or flyer for PS5, Xbox and Nintendo Switch. Add your number and area, download, post. Free to start.
+- [We Buy Computers ads and flyers](https://webuy.ad/ads/we-buy-computers.html): Make a We Buy Computers ad or flyer for laptops, monitors, mini PCs and SSDs. Add your number and area, download, post. Free to start.
+- [We Buy Gold ads and cash for gold flyers](https://webuy.ad/ads/we-buy-gold.html): Make a cash for gold flyer or We Buy Gold ad for scrap gold and jewelry. Add your number and area, download, post. Free to start.
+- [We Buy Silver ads and cash for silver flyers](https://webuy.ad/ads/we-buy-silver.html): Make a cash for silver flyer or We Buy Silver ad for coins, bars, silverware and jewelry. Add your number and area, download, post. Free to start.
+- [We Buy Coins ads and flyers](https://webuy.ad/ads/we-buy-coins.html): Make a We Buy Coins ad or coin buyer flyer for old coins, silver dollars and collections. Add your number and area, download, post. Free to start.
+- [We Buy Cars ads and cash for cars flyers](https://webuy.ad/ads/we-buy-cars.html): Make a cash for cars flyer or We Buy Cars ad for used, junk and damaged cars and trucks. Add your number and area, download, post. Free to start.
+- [We Buy Pokémon Cards ads and flyers](https://webuy.ad/ads/we-buy-pokemon-cards.html): Make a We Buy Pokémon Cards ad or flyer for singles, slabs and sealed boxes. Add your number and area, download, post. Free to start.
+- [We Buy Sports Cards ads and flyers](https://webuy.ad/ads/we-buy-sports-cards.html): Make a We Buy Sports Cards ad or flyer for rookies, autos, slabs and sealed wax. Add your number and area, download, post. Free to start.
+- [We Buy Test Strips ads and flyers](https://webuy.ad/ads/we-buy-test-strips.html): Make a We Buy Test Strips ad or flyer for sealed, unexpired diabetic test strips. Add your number and area, download, post. Free to start.
+
+## Frequently asked questions
+
+### What does WeBuy.AD make?
+
+Ready-to-post We Buy ads for people who buy from the public and resell: photo ads, printable flyers and short video ads. You pick a design, type your phone number and area, and download. It runs in your web browser on a phone or a computer, with nothing to install.
+
+### What can I make ads for?
+
+Thirteen kinds of things you buy: phones and devices, gold and jewelry, silver, rare coins, cars and trucks, diabetic supplies, Pokémon cards, sports cards, gaming and consoles, headphones and audio, computers and parts, wearables and smart glasses, and cameras and drones. Every design comes with wording written for that market, and every one is checked for readability before it’s shown. Each line has its own page, from iPhones to gold and cars.
+
+### What is the full ad?
+
+Our house ad. It puts everything a seller needs on one ad: your business name at the top, the headline, the models you buy, three selling points, the product, your number between arrows and your towns, each as large as it fits. It is the first design in the studio for every line, and you can download the same ad as a photo or as a video.
+
+### Is it free? Do I need an account?
+
+You can design and preview without an account. To download, make a free account: 3 photo downloads a week at standard size (1080 pixels) with a light watermark, every Phones design plus the top 3 designs in each other category, and 5 AI credits a month. Starter is $25 a month: 100 photo downloads, every design, up to 2160 pixels, no watermark and 50 AI credits. Pro is $60 a month: 500 photo downloads and 30 video ads a month with sound, the QR code and 200 AI credits. Business is $100 a month: unlimited photo and video downloads and 500 AI credits. Paying yearly gets two months free.
+
+### What does the watermark look like, and how do I remove it?
+
+Free downloads carry a light pattern of small words across the whole ad. It is faint, so your ad still reads through it, and it covers the whole picture, so cropping does not remove it. The preview carries the same pattern as the download. Starter, Pro and Business download with no watermark.
+
+### What counts as a download?
+
+Each download counts as one: a photo, or on Pro and Business a video with its photo, from the studio or the phone video maker. Photos and videos are counted apart: Pro has 500 photos and 30 videos a month. Downloading it again from your history counts too. The count starts over every week on Free and every month on Starter and Pro. Business is unlimited.
+
+### What sizes can I download, and which one goes where?
+
+Pick the size before you download. Square works on every feed: Facebook, Marketplace, Instagram, OfferUp, Nextdoor and Craigslist. Story is the tall size for Instagram and Facebook stories, Reels and TikTok. Tall 3:4 suits Pinterest and portrait posts. Wide 16:9 and Wide 4:3 suit link posts, banners and screens. Flyer is letter size (8.5×11) for print. Free downloads are 1080 pixels on the short side; the paid plans go up to 2160. Photos download as PNG files and videos as MP4 files.
+
+### Can I put my own number, area and business name on the ad?
+
+Yes. Type your phone number and it is set big enough to read in a small feed preview. Add your ZIP code or city and the ad can name the towns near you. Add your website and your business name too: on the full ad your name goes in the badge at the top, the first thing people read. Save your details once and every design fills them in.
+
+### Why does it ask for my ZIP code?
+
+So your ad can name the towns near you, for example in a "we cover" line. We look your ZIP up in a list built into the page and save it on your device. You can skip it and set it later.
+
+### Can I make video ads?
+
+Yes. Every design in the studio also becomes a 10-second video with sound, with a photo of it for OfferUp. The phone video maker makes moving We Buy Phones ads: phones fly in, your headline shows up in the first seconds and your number by the third, in fourteen Los Angeles styles, with words in English, Spanish or both, in square, 4:5, story and wide sizes. The full ad becomes a video of the same ad for any line you buy. Anyone can make and watch them without an account. Downloading videos comes with Pro ($60 a month, 30 videos a month) and Business ($100, unlimited), with no watermark; a video and its photo count as one video download. Videos are made in your browser and nothing is uploaded.
+
+### Do the ads come in Spanish?
+
+The video maker writes its words in English, Spanish or both: pick Español or Both under Words. The picture designs are written in English, and you can type your own words in Spanish or any language.
+
+### Can I post a buying ad on Facebook Marketplace?
+
+Facebook’s commerce rules say a Marketplace listing must offer an item for sale, so a listing that only says you are buying can be taken down. Buyers usually post a buying ad on their business Page, in local buy and sell groups whose admins allow it, or as a paid ad. Read Facebook’s current rules before you post. They change, and we cannot promise any site will accept an ad.
+
+### What are Instagram’s rules for ads with words on them?
+
+Instagram has no rule against words, a phone number or a website in a post’s picture, and Meta dropped its old limit on text in ad pictures in 2020. A paid ad must clearly show which business is advertising, so put your business name on it. For the feed use Square, and keep the headline and number in the middle, because the profile grid trims the edges.
+
+### Can I post on OfferUp and Craigslist?
+
+Check each site’s rules first. OfferUp’s posting rules say listing photos should not carry writing, phone numbers or web addresses, except for verified business accounts, and they list wanted ads as not allowed. Craigslist takes buying ads in its wanted section, one post per ad every 48 hours, in one local area.
+
+### Can I use my own photos?
+
+Yes. Upload any photo (iPhone photos included), blur it, darken it, add a pattern, or make a background with AI (sign in first; each one uses an AI credit). Boxes over a photo are see-through grey, never tinted, so your photo keeps its own colours.
+
+### Do I need any design skills?
+
+No. Pick a design, type your phone number, download. Every ready-to-post design is checked before you see it. The number is big enough to read in a tiny feed preview. The headline, number and button stand out from what’s behind them. Each design uses one or two fonts, and none makes up reviews, years in business or prices. Want more control? The advanced editor has layers, fonts, your own photos and six sizes.
+
+### Can I change the colours?
+
+Yes. Every design opens with its colours in place. The colour row in the studio offers 54 colour sets in five groups: two-colour sign looks (yellow on black, white on red), three-colour ones (red, white and blue), the twelve proven pairs the library is made in (Navy & Gold, Midnight & Cyan and the rest), light pairs and neon pairs. A set changes the background, text, bright colour and boxes together, and the outline, 3-D and glow on your headline too. Your ad never ends up half one colour and half another. Build your own set from any colour, and use your own photos too.
+
+### What are AI credits?
+
+AI backgrounds are made by paid AI models, so they use credits: one background is one credit. Free comes with 5 a month, Starter with 50, Pro with 200 and Business with 500, and they refresh each month. If you run out, 100 credits are $9 and 300 are $25, and credits you buy never expire. If a background fails, its credit comes back.
+
+### Do I own the ads I make?
+
+Yes. You own the ads you make and the photos you upload. The designs, fonts and product pictures stay ours, and you may use them through the studio to make your ads. The terms have the details.
+
+### Does it work on my phone?
+
+Yes. It runs in the web browser on iPhone, Android and computers. There is nothing to install, and your drafts save as you go on that device.
+
+### Where are my designs and photos kept?
+
+On your own device. Your drafts, your saved details (number, website, area) and the photos you upload stay in your browser and are not sent to us. For your account we keep your email and your password in scrambled form (or your name from Google, if you use Google sign-in). We also keep your plan and how many downloads, AI credits and gallery posts you have used. A background is only shared if you choose to post it to the community gallery, where it shows the part of your email before the @. The privacy policy has the details.
+
+### How do I cancel?
+
+Go to the plans page and tap Manage billing. It opens Stripe, where you can cancel right away. You keep your plan until the end of the period you paid for. You can switch between Starter, Pro and Business, or monthly and yearly, from the same page; the difference is worked out to the day.
+
+## How to make a We Buy ad
+
+1. Pick a layout: Sixteen hand-made layouts, from a checklist to a ticket stub, each sized for a phone screen and built to stand out in a busy feed. A big headline, a few plain facts and one big number to text.
+2. Pick your colours: Restyle the whole ad in one tap. The text, the bright colour, the boxes and the background all change together, so nothing is left in the old colour.
+3. Type and download: Your number, your city, what you pay for. Save your details once and every design fills itself in. Download in any of six sizes, from a square post to a story or a printed flyer.
+
+## Links
+
+- [About WeBuy.AD](https://webuy.ad/about.html)
+- [Terms of Service](https://webuy.ad/terms.html)
+- [Privacy Policy](https://webuy.ad/privacy.html)
