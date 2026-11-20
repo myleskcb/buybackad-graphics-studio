@@ -3162,6 +3162,15 @@ function buildLayer(l, tplId, dw, dh){
 
 // ---------- thumbnail engine: renders REAL previews from the actual specs ----------
 const THUMBS = {};
+/* THE TEMPLATE FACES COME WITH THE STUDIO (DESIGN-LAW 159, 2026-11-19). They were loaded at boot,
+   before the landing was built (29 faces, about 700 KB on a phone), so that no thumbnail was drawn
+   before them. The landing draws no template now (the offer cards are stills, the gallery waits for
+   the screen), so they are asked for when the studio opens (tplFacesIn, from warmTemplateAssets),
+   and until they are in no thumbnail is kept: getThumb draws without caching, the background pass
+   waits, Easy Mode's strip shows its placeholders, and facesLanded() draws again what is on screen.
+   A card the landing must still draw live (a Classics chip, a still that is out of date) waits for
+   the faces first, as the whole landing did before. */
+let _tplFacesIn = false, _tplFacesP = null;
 function renderThumb(tpl, px, q){                         // q: JPEG quality (0.82); the library's full-size renders take 0.88
   // thumbnails always preview the authored square template, whatever the live doc format
   const sc = new fabric.StaticCanvas(null, { width:TPL_W, height:TPL_H, renderOnAddRemove:false, enableRetinaScaling:false });   // at 1x on every screen, as renderEzCanvas
@@ -3187,8 +3196,11 @@ function getThumb(tplId, px){
   const tpl = TEMPLATES.find(t => t.id === tplId);
   if (!tpl) return '';
   try {
-    THUMBS[tplId] = renderThumb(tpl, px || 320); // cache successes only
-    return THUMBS[tplId];
+    const url = renderThumb(tpl, px || 320);
+    /* cache successes only, and only once the template faces are in: one drawn before them was
+       measured in a fallback and would be kept (rule 159) */
+    if (_tplFacesIn) THUMBS[tplId] = url;
+    return url;
   } catch (err){
     console.error('Thumbnail render failed for', tplId, err);
     return thumbFallback(tpl, px || 320);       // shown, but not cached, retried next time
@@ -3231,8 +3243,11 @@ function ensureThumbs(){
   const step = () => {
     /* the offer family waits for the studio: its cards are drawn on demand on
        the landing (scClassicCard), with their own pictures and faces */
-    const ready = t => _tplAssetsWarmed || t.tag !== 'offer';
-    const want = new Set(catTemplates().map(t => t.id));
+    /* and nothing is drawn before the template faces are in (rule 159); the
+       studio's category is drawn ahead only once the studio has been opened:
+       on the landing it was 30 cards nobody there would see, drawn at load */
+    const ready = t => _tplFacesIn && (_tplAssetsWarmed || t.tag !== 'offer');
+    const want = new Set(_tplAssetsWarmed ? catTemplates().map(t => t.id) : []);
     const waiting = [..._lazyThumbs.keys()].find(id => !THUMBS[id] && !bad.has(id) && TEMPLATES.some(t => t.id === id && ready(t)));   // a card on screen waiting for its picture first
     const next = (waiting && TEMPLATES.find(t => t.id === waiting)) || TEMPLATES.find(t => !THUMBS[t.id] && !bad.has(t.id) && want.has(t.id) && ready(t));
     if (!next){ ensureThumbs._running = false; return; }
@@ -3248,12 +3263,44 @@ function ensureThumbs(){
 function ensureTemplateFonts(all){
   const fams = new Set();
   TEMPLATES.forEach(t => { if (!all && t.tag === 'offer') return; t.layers.forEach(l => { const f = l.props && l.props.fontFamily; if (f) fams.add(f); }); });
+  /* the hidden font warmer (index.html #font-warmer) holds the studio's own faces at the weights
+     its cards set: fabric caches glyph widths, so a face that lands after a measurement poisons it.
+     It waits, hidden, through the landing (rule 159); with the studio it is shown, and each of its
+     faces is asked for at its weight and waited for with the rest */
+  const warm = [];
+  const warmer = all ? document.getElementById('font-warmer') : null;
+  if (warmer){
+    warmer.hidden = false;
+    if (document.fonts && document.fonts.load) warmer.querySelectorAll('span').forEach(s =>
+      warm.push(document.fonts.load((s.style.fontWeight || 400) + ' 24px ' + s.style.fontFamily).catch(() => {})));
+  }
   return Promise.race([
-    Promise.all([...fams].map(f => ensureFont(f))),
+    Promise.all([...fams].map(f => ensureFont(f)).concat(warm)),
     new Promise(res => setTimeout(res, 5000)),   // never hold the page hostage
   ]).then(() => {
     try { if (window.fabric && fabric.util && fabric.util.clearFabricFontCache) fabric.util.clearFabricFontCache(); } catch (e){}
   });
+}
+/* the template faces, asked for once (rule 159): every family a template sets, the offer family's
+   included, and the warmer's; resolves when they are in, or after five seconds as before */
+function tplFacesIn(){
+  if (!_tplFacesP) _tplFacesP = ensureTemplateFonts(true).then(() => { _tplFacesIn = true; });
+  return _tplFacesP;
+}
+/* the faces are in: what the studio drew before them is drawn again. Nothing drawn before was kept
+   (getThumb), so this is what is on screen: Easy Mode's strip and preview, the designer's words
+   measured again, and the rest in turn (ensureThumbs) */
+function facesLanded(){
+  try {
+    if ($('page-easy').classList.contains('active')){ buildEzStrip(); schedEzPreview(0); }
+    if (typeof canvas !== 'undefined' && canvas && $('page-editor').classList.contains('active')){
+      const walk = o => { if (o._objects) o._objects.forEach(walk); if (typeof o.initDimensions === 'function') o.initDimensions(); if (o.setCoords) o.setCoords(); };
+      canvas.getObjects().forEach(walk);
+      canvas.requestRenderAll();
+      if (typeof refreshMyTemplates === 'function') refreshMyTemplates();
+    }
+  } catch (e){ console.warn('GraphicsStudio: drawing again with the faces in:', e); }
+  ensureThumbs();
 }
 
 // ═══════════════ APP STATE ═══════════════
@@ -8836,12 +8883,23 @@ function washGroundLum(t){
   return a * sc + (1 - a) * base;
 }
 function hexLum(c){
-  const h = String(c).replace('#','');
-  if (!/^[0-9a-f]{6}$/i.test(h)) return null;
-  const n = parseInt(h,16);
-  const ch = [(n>>16)&255,(n>>8)&255,n&255].map(v => { v/=255;
-    return v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4); });
-  return 0.2126*ch[0] + 0.7152*ch[1] + 0.0722*ch[2];
+  /* remembered by colour (DESIGN-LAW 159): tuneFallbacks asks for the same few hundred colours
+     thousands of times as it searches each template's ground, twice at load, and this was most
+     of its 355ms on a phone's CPU. The same arithmetic, done once a colour; kept on the
+     function itself, so it is there however early it is first called */
+  const memo = hexLum._m || (hexLum._m = new Map());
+  const key = String(c);
+  if (memo.has(key)) return memo.get(key);
+  const h = key.replace('#','');
+  let lum = null;
+  if (/^[0-9a-f]{6}$/i.test(h)){
+    const n = parseInt(h,16);
+    const ch = [(n>>16)&255,(n>>8)&255,n&255].map(v => { v/=255;
+      return v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4); });
+    lum = 0.2126*ch[0] + 0.7152*ch[1] + 0.0722*ch[2];
+  }
+  memo.set(key, lum);
+  return lum;
 }
 /* Move a colour toward white or black until it clears the target, KEEPING ITS
    HUE. Flattening every failing layer to #ffffff would erase the palette. */
@@ -9942,8 +10000,9 @@ function warmTemplateAssets(){
   _tplAssetsWarmed = true;
   try { preloadTplBgs(); } catch (e){}
   try { preloadCutouts(); } catch (e){}
-  /* the offer family's faces, then its thumbnails drawn again with them */
-  try { ensureTemplateFonts(true).then(() => { TEMPLATES.forEach(t => { if (t.tag === 'offer') delete THUMBS[t.id]; }); ensureThumbs(); }); } catch (e){}
+  /* every template face now, the offer family's with the rest (they came at boot before rule 159),
+     then what was drawn before them drawn again */
+  try { tplFacesIn().then(facesLanded); } catch (e){}
 }
 function showEasy(tplId){
   warmTemplateAssets();
@@ -10150,6 +10209,10 @@ function attachStripArrows(strip){
 function buildEzStrip(){
   const strip = $('ez-strip');
   if (!strip) return;
+  /* not before the studio has been opened (rule 159): the classics gate and the choice holds call
+     this when their fetch lands, and on the landing that built Easy Mode's hidden strip, 65 cards,
+     the first eight drawn on a canvas, or not, as the network decided. showEasy builds it on the way in */
+  if (!_tplAssetsWarmed) return;
   strip.innerHTML = '';
   /* the first eight are on screen and render now; the rest wait for their
      turn in ensureThumbs() (lazyThumb). Rendered all at once, a category's
@@ -10159,7 +10222,9 @@ function buildEzStrip(){
   catTemplates().forEach((t, i) => {
     const b = document.createElement('button');
     b.className = 'ez-tpl'; b.dataset.tpl = t.id;
-    const now = i < 8 || t.id === ez.tpl;
+    /* drawn now only once the template faces are in (rule 159): before, a placeholder,
+       and facesLanded() builds the strip again */
+    const now = _tplFacesIn && (i < 8 || t.id === ez.tpl);
     b.innerHTML = `<img src="${now ? getThumb(t.id, 320) : (THUMBS[t.id] || thumbFallback(t, 160))}" alt="${escHtml(t.name)}">` +
       `<span class="tpl-name">${escHtml(t.name)}</span>`;   // the PRO tag is refreshTplLocks()'s
     if (!now && !THUMBS[t.id]) lazyThumb(b.querySelector('img'), t.id);
@@ -11122,8 +11187,10 @@ function boot(){
   // prefill brand modal
   const b = getBrand();
   if (b){ $('bk-phone').value = b.phone || ''; $('bk-website').value = b.website || ''; $('bk-name').value = b.name || ''; if ($('bk-area')) $('bk-area').value = areaLabel(); }
-  // designer-library faces must be ready before the first thumbnail renders
-  ensureTemplateFonts().then(() => {
+  /* The landing no longer waits for the designer-library faces (rule 159): it draws no
+     template at load (the offer cards are stills, the gallery is built as it comes near), so
+     the faces come with the studio (warmTemplateAssets) or with a card drawn live. */
+  {
     /* Order matters. buildLanding() renders 27 canvas thumbnails synchronously,
        which pegged the main thread for ~3.5s — and because the fetches were
        queued behind it, the first backdrop request did not leave the browser
@@ -11138,7 +11205,7 @@ function boot(){
        render actually needs them. */
     buildLanding();
     try { refreshPlanFeats(); refreshCountCopy(); } catch (e){}   // copy states counts; make them true           // …while the CPU paints fallbacks, upgraded on arrival
-  });
+  }
 }
 
 // wait for fonts so canvas thumbnails render with the real typefaces
@@ -12366,13 +12433,18 @@ function scBuildWall(cards){
       const d = document.createElement('div');
       d.className = 'wall-card';
       if (c.classic){
-        /* an offer card has no baked thumbnail: drawn here once its own
-           picture, photograph and faces are in (only this card's, rule 93) */
+        /* an offer card is its still, drawn by this engine at 448 (build_offer_stills.mjs,
+           rule 159), loaded as the library cards beside it are; a card changed since its still
+           was drawn is drawn here, once the template faces and its own pictures are in */
         const t = c.classic;
         d.title = t.name;
-        d.innerHTML = `<img src="${THUMBS[t.id] || thumbFallback(t, 160)}" alt="${escHtml(t.name)} template" decoding="async">`;
-        const img = d.querySelector('img');
-        ensureTplAssets(t).then(() => { const u = getThumb(t.id, 448); if (u) img.src = u; });
+        const still = scStill(t, 448);
+        if (still) d.innerHTML = `<img src="${still}" alt="${escHtml(t.name)} template" loading="${k < 3 ? 'eager' : 'lazy'}" decoding="async">`;
+        else {
+          d.innerHTML = `<img src="${THUMBS[t.id] || thumbFallback(t, 160)}" alt="${escHtml(t.name)} template" decoding="async">`;
+          const img = d.querySelector('img');
+          tplFacesIn().then(() => ensureTplAssets(t)).then(() => { const u = getThumb(t.id, 448); if (u) img.src = u; });
+        }
         d.onclick = () => showEasy(t.id);
         col.appendChild(d);
         return;
@@ -12516,8 +12588,10 @@ function scBuildChips(cards){
   /* a category the showcase has no cards for yet (the 2026-09-27 ones) shows
      the studio's own templates for it, so its chip is never an empty room */
   CATS.forEach(c => mk(c.id, c.label.replace(/^\S+\s/, ''), counts[c.id] ? counts[c.id] + scOfferPool(c.id).length : scStudioCat(c.id).length));
-  // the offer family was retired into its rebuilt ads (2026-11-18): its chip only while a family is left of it
-  if (scOffers().length > 1) mk('offer', 'Offer cards', scOffers().length);
+  // the offer family was retired into its rebuilt ads (2026-11-18): its chip only while a family is left of it;
+  // scOffers()'s count, without putting every offer card in order to count them (rule 159)
+  const offerN = TEMPLATES.filter(t => t.tag === 'offer').length;
+  if (offerN > 1) mk('offer', 'Offer cards', offerN);
   mk('classics', 'Classics', scClassics().length);
   const more = $('lp-tpl-more');
   if (more && !more.dataset.bound){ more.dataset.bound = '1'; more.onclick = () => scRenderGrid(false); }
@@ -12598,19 +12672,24 @@ function scClassicCard(t){
   card.className = 'tpl-card';
   card.setAttribute('role', 'button');
   card.setAttribute('tabindex', '0');
-  card.innerHTML = `<img src="${THUMBS[t.id] || thumbFallback(t, 160)}" alt="${escHtml(t.name)} template">
+  /* an offer card is its still at 320, drawn by this engine (rule 159) */
+  const still = scStill(t, 320);
+  card.innerHTML = `<img src="${still || THUMBS[t.id] || thumbFallback(t, 160)}" alt="${escHtml(t.name)} template"${still ? ' loading="lazy" decoding="async"' : ''}>
     <div class="tpl-veil"></div>
     ${tplLocked(t) ? '<div class="pro-guard"></div><div class="tpl-lockpill">🔒 PRO</div>' : ''}
     <div class="tpl-use">Use template →</div>
     <div class="tpl-meta"><span class="tpl-name">${escHtml(t.name)}</span><span class="tpl-tag">${escHtml(t.tag || 'classic')}</span></div>`;
-  if (!THUMBS[t.id]){ lazyThumb(card.querySelector('img'), t.id); ensureThumbs(); }   // drawn in its turn, not all at once (rule 93)
   const go = () => showEasy(t.id);
   card.onclick = go;
   card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } };
+  if (still) return card;
+  if (!THUMBS[t.id]){ lazyThumb(card.querySelector('img'), t.id); ensureThumbs(); }   // drawn in its turn, not all at once (rule 93)
   /* The landing does not warm the template library (a phone would pay for
      all of it), so a Studio card is first drawn without its product picture,
      photograph or face. Fetch just this card's, then draw it again. */
-  ensureTplAssets(t).then(n => { const img = card.querySelector('img'); if (n && img) img.src = getThumb(t.id, 320); });
+  /* the template faces first (rule 159: they no longer come at boot), and drawn again whenever
+     there is no picture kept for it yet, not only when something had to be fetched */
+  tplFacesIn().then(() => ensureTplAssets(t)).then(n => { const img = card.querySelector('img'); if (img && (n || !THUMBS[t.id])) img.src = getThumb(t.id, 320); });
   return card;
 }
 /* how many cards a page of the landing's library shows, and "Show more" adds (the owner, 2026-11-19:
@@ -12628,6 +12707,9 @@ function scRenderGrid(reset){
   const shelf = (SHOWCASE.shelf || SHOWCASE.cards) && scLib();   // the designs and their other looks (scLoadMore)
   if (!grid || !shelf) return;
   const f = SHOWCASE.filter;
+  if (!SHOWCASE.gridDrawn) reset = true;      // Show more before the first page (scGridWhenNear) draws the first page
+  SHOWCASE.gridDrawn = true;
+  grid.style.minHeight = '';                  // the screen it held while empty (scGridWhenNear)
   if (reset !== false){
     SHOWCASE.shown = 0;
     grid.innerHTML = '';
@@ -12728,8 +12810,8 @@ async function scRegister(id){
   return tid;
 }
 function buildLandingV2(){
-  Promise.all([scLoadShelf().then(c => scLoadMore().then(() => c)), scLoadPicks()]).then(([cards]) => {
-    if (!cards.length){ warmTemplateAssets(); buildLandingV1(); return; }
+  Promise.all([scLoadShelf(), scLoadPicks(), scLoadStills()]).then(([cards]) => {
+    if (!cards.length){ warmTemplateAssets(); tplFacesIn().then(buildLandingV1); return; }   // it draws templates: after their faces (rule 159)
     if (SHOWCASE.built){
       /* refreshPhotoThumb() re-calls buildLanding() as each old backdrop
          decodes; only the classics view draws from those thumbnails */
@@ -12737,16 +12819,77 @@ function buildLandingV2(){
       return;
     }
     SHOWCASE.built = true;
-    const lib = scLib();   // the wall keeps to the designs; the library, its chips, colours and count take every look
+    /* the wall keeps to the designs, so it is built as soon as they are in; the library's other
+       looks (scLoadMore: 1 MB of index, 1,739 looks) are for the library, its chips, colours and
+       count, which follow them (rule 159: nothing on the landing waits for what it does not show) */
     scBuildWall(cards);
-    scBuildFamilies(lib.filter(c => !c.video));   // a video look wears no colour pair
-    scBuildChips(lib);
-    scSyncFilters();
-    scRenderGrid(true);
-    const n = $('lp-stat-new');
-    if (n) n.textContent = lib.length.toLocaleString('en-US');
+    scLoadMore().then(() => {
+      const lib = scLib();   // the library, its chips, colours and count take every look
+      scBuildFamilies(lib.filter(c => !c.video));   // a video look wears no colour pair
+      scBuildChips(lib);
+      scSyncFilters();
+      scGridWhenNear();
+      const n = $('lp-stat-new');
+      if (n) n.textContent = lib.length.toLocaleString('en-US');
+    });
   });
   window.__PRIORITY_TPL_IDS = [];
+}
+/* THE GALLERY WHEN IT COMES NEAR (DESIGN-LAW 159, 2026-11-19). The gallery is 3,500 pixels down a
+   desktop and 7,000 down a phone, and its first page was built at load: sixteen cards, ten of them
+   offer cards drawn on a canvas. It is built when it comes within a screen and a quarter of the
+   window, or at once by a chip or Show more; a browser without IntersectionObserver
+   builds it at once, as before. The grid holds a screen while it is empty (set here, cleared by
+   scRenderGrid), so a page restored or linked to the gallery does not jump when it fills. */
+function scGridWhenNear(){
+  if (SHOWCASE.gridDrawn) return;
+  const sec = $('lp-templates');
+  if (!sec || typeof IntersectionObserver === 'undefined'){ scRenderGrid(true); return; }
+  const grid = $('lp-tpl-grid');
+  if (grid && !grid.childElementCount) grid.style.minHeight = '100vh';
+  const io = new IntersectionObserver(es => {
+    if (!es.some(e => e.isIntersecting)) return;
+    io.disconnect();
+    if (!SHOWCASE.gridDrawn) scRenderGrid(true);
+  }, { rootMargin: '0px 0px 125% 0px' });
+  io.observe(sec);
+}
+/* THE OFFER CARDS' STILLS (DESIGN-LAW 159, 2026-11-19). The landing drew every offer card it showed
+   on a canvas as it loaded, each after its own 1080-pixel photograph, cut-outs and faces: on a phone,
+   about 2 of its 3.3 seconds of blocking time and 2.9 MB. scripts/build_offer_stills.mjs draws each
+   offer card once with this engine (ensureTplAssets, then renderThumb, as getThumb does) at the sizes
+   the landing shows, 448 on the wall and 320 in the gallery, and writes the canvas's own JPEG. A still
+   is shown only while its card is the card it was drawn from (scStillSig); a card changed since is
+   drawn live, as before. Nothing on these cards depends on the visitor: no area word is on them, the
+   number is the card's own and the landing applies no theme. */
+const OFFER_STILLS = { items: null, _p: null };
+function scLoadStills(){
+  if (OFFER_STILLS.items) return Promise.resolve(OFFER_STILLS.items);
+  if (OFFER_STILLS._p) return OFFER_STILLS._p;
+  OFFER_STILLS._p = fetch('assets/offer-stills/index.json', { cache:'no-cache' })
+    .then(r => r.ok ? r.json() : null)
+    .then(j => (OFFER_STILLS.items = (j && j.items) || {}))
+    .catch(() => (OFFER_STILLS.items = {}));
+  return OFFER_STILLS._p;
+}
+/* the card as data (its words, layout, look, faces, photograph and cut-outs) and the art's revision,
+   hashed (FNV-1a): another word, colour, face or picture in offer-library.js is another signature.
+   A change in the code that draws it is not: build_offer_stills.mjs --check is. Left out, as they
+   differ from one load to the next with the network and are not in the picture (2026-11-19): the
+   ground a card falls back to when its photograph is missing (a still always has its photograph),
+   which tuneFallbacks() rewrites when assets/contrast-fix.json arrives after offer-library.js has
+   run (102 of the 304 cards); and `gated`, set when classics-gate.json or choice-holds.json arrives,
+   which decides whether a card is offered, not how it looks */
+function scStillSig(t){
+  const s = ASSET_REV + '|' + JSON.stringify(Object.assign({}, t, { gated: undefined, bg: t.bg && Object.assign({}, t.bg, { fallback: undefined }) }));
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return (h >>> 0).toString(36);
+}
+function scStill(t, px){
+  const sig = t && OFFER_STILLS.items && OFFER_STILLS.items[t.id];
+  if (!sig || sig !== scStillSig(t)) return '';
+  return 'assets/offer-stills/' + t.id + '-' + px + '.jpg?v=' + sig;
 }
 const buildLandingV1 = buildLanding;
 buildLanding = buildLandingV2;

@@ -6672,6 +6672,92 @@ product way better then wasting precious scroll space looking at color combos.."
   it makes, why it gets texts, video ads, the library, how it works, pricing, questions, work with
   us.
 - **The wordmark and the icon**: three directions were drawn for the owner to choose from (a tag,
+  a message bubble, a sticker: https://claude.ai/artifact/FPgpT73Y32XWEBN7tr2DQq). Until the owner
+  picks, the mark stays rule 153's.
+
+## 159. The landing draws nothing at load: its offer cards are stills of the engine's own drawing, the gallery comes when it is near, the faces come with the studio
+
+Added 2026-11-19 (OPEN-ITEMS §BK 3; asked by pull request 15's session: "cut the landing's
+remaining phone blocking time ... without changing what any card looks like"). Measured first,
+on a copy served the way Netlify serves it (the site's `_headers`, brotli, a 401 from the API),
+Lighthouse 13.6, median of three: the landing scored 62 on a phone, with 3.3 s of blocking time,
+an 8.7 s speed index and 4.5 MB over 171 requests. A profile of the load named the cause: of the
+2.25 s the main thread worked (unthrottled), 1.95 s was renderThumb, the landing drawing offer
+cards on a canvas: eleven on the hero wall at 448 pixels, each of them twice (a column's list
+repeats so it loops), and ten in the gallery's first page at 320, each after its own 1080-pixel
+ground (1.2 MB in all), product cut-outs (1.0 MB) and faces. Behind them, ensureTemplateFonts held
+the whole landing until 29 template faces had loaded (0.7 MB), and the hidden font warmer loaded
+13 more at once (0.27 MB) for a canvas the landing no longer drew.
+
+- **An offer card on the landing is its still.** scripts/build_offer_stills.mjs draws every offer
+  card once, in the landing itself, with the studio's own engine (ensureTplAssets, then
+  renderThumb, the call getThumb makes), after seeing its ground, its cut-outs and every face
+  loaded, at the two sizes the landing shows (448 on the wall, 320 in the gallery), and writes
+  the JPEG the canvas gives, byte for byte, to assets/offer-stills/ with index.json. Nothing on
+  these cards depends on the visitor: no area word is on any of them, the number is the card's
+  own, and the landing applies no theme. A still is shown only while its card is the card it was
+  drawn from (app.js scStillSig: the card as data and ASSET_REV); a card changed since is drawn
+  live, after the faces, as before. The signature leaves out the two fields that change from one
+  load to the next with the network and are not in the picture: the ground a card falls back to
+  without its photograph (tuneFallbacks rewrites it when assets/contrast-fix.json lands after
+  offer-library.js has run) and `gated` (set when the classics gate or the choice holds land).
+- **Draw the stills again** after changing offer-library.js, a face, a ground, a cut-out or the
+  engine's render passes (buildLayer, alignPass, the tagline looks, mac-wallpapers.js's
+  screens): the signature catches a card that changed as data, not a change in the code that
+  draws it. Drawing again rewrites only the stills that changed: two drawings of the same Floating
+  or Detailed card differ by up to 1.08 a channel on average (Chrome scaling a large cut-out
+  down), so a still within that of the new drawing is kept; --check fails on a still missing,
+  stale or not the picture the engine draws now.
+- **The gallery is built when it comes near**: within a screen and a quarter of the window
+  (IntersectionObserver), or at once by a chip or Show more. Until then the grid holds a screen
+  (scGridWhenNear sets it, scRenderGrid clears it), so a page restored or linked to the gallery
+  does not jump. **The wall does not wait for the library**: it keeps to the designs, so it is
+  built as soon as they are in, and the library's other looks (rule 162's scLoadMore, 1 MB of
+  index) load beside it; the library, its chips, colours and the hero's count follow them.
+- **The template faces come with the studio.** Not at boot: tplFacesIn() asks for every face a
+  template sets, the offer family's included, when the studio opens (warmTemplateAssets), and a
+  card the landing must still draw live (a Classics chip, a still out of date) waits for them,
+  as the whole landing did before. Until they are in no thumbnail is kept (getThumb draws without
+  caching), the background pass waits, Easy Mode's strip shows its placeholders, and
+  facesLanded() draws the strip and the preview again and measures the designer's words again.
+  **The hidden font warmer keeps its purpose**: fabric caches glyph widths, so its faces must be
+  in before a canvas measures them. It is hidden (display:none loads nothing) until the studio
+  opens, then shown, and each of its faces is waited for at its weight with the rest.
+- **Nothing is built on the landing for the studio.** Easy Mode's strip is built when the studio
+  is first opened (the classics gate and the choice holds rebuilt it, hidden, when their fetch
+  landed: 65 cards, the first eight drawn on a canvas, or not, as the network decided), the
+  studio's category is drawn ahead only once the studio is open (ensureThumbs), and the laptop
+  screen row paints its wallpaper swatches when Easy Mode first opens (mac-wallpapers.js).
+- **Work done again for the same answer is done once**: hexLum remembers each colour
+  (tuneFallbacks asked for the same few hundred thousands of times, twice at load: 355 to 117 ms
+  at a phone's CPU), offer-library.js remembers each line's character sum (its headline fitting
+  tries every break at every size: 227 to 94 ms), and the Offer cards chip counts its cards
+  without putting 304 of them in order. The same arithmetic in the same order: every template's
+  data was compared before and after (400 templates, the same digest).
+- **Checked** by landing_check.mjs, which fails when the landing draws a card on the page at load
+  or after the scroll, makes any canvas picture at load (a hidden panel's count), builds the
+  gallery before it comes near, or asks for an offer ground, a product cut-out or a template face
+  at load (it fails on the trees before this rule, and with one still made stale by hand); and by
+  build_offer_stills.mjs --check.
+
+Found on the way: the landing drew the second copy of a wall card in a fallback face.
+`document.fonts.check()` answers true for a face no stylesheet declares yet, so once the first
+copy had asked for its faces and before assets/fonts/faces.css had arrived, the second copy's
+ensureTplAssets saw them as in and drew it: VR headsets · Split in a serif, its steps on top of
+one another (one card of the 32 drawn on this machine; which card, if any, depends on the
+network). On the landing as merged at 2908f8e7 it struck other cards too, different ones on each
+load (five on one, one on each of two others: §BO). A still is drawn only after each face is seen
+loaded, and a card the landing draws live now waits for every template face.
+
+Merged before its pull request with pull request 15's newer heads: at 58fe04e6 rule 155 retired
+303 of the 304 offer cards (the shelf shows each one's rebuilt ad as a still), so the landing no
+longer draws them, and the stills cover the one left and any that come back. What still drew on
+the landing there was Easy Mode's hidden strip, rebuilt by the gates when their fetch landed
+(eight thumbnails, 254 of the 492 ms the main thread worked at load, unthrottled), and the boot
+still waited for the template faces; with this rule, 104 ms, and a phone's Lighthouse 82 to 98.
+
+Not done here: OPEN-ITEMS §BO.
+
   a message bubble, a sticker: https://claude.ai/artifact/FPgpT73Y32XWEBN7tr2DQq). The owner picked
   the message bubble (rule 161), then on 2026-11-20, from six more, the Ad label (rule 165).
 

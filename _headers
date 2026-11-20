@@ -102,6 +102,11 @@
 /assets/full-ads/*
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 
+# The offer cards' landing stills (scripts/build_offer_stills.mjs, DESIGN-LAW 159): linked with
+# ?v=<the card's signature>, drawn again under the same name when the engine changes.
+/assets/offer-stills/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
 /assets/og/*
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 
