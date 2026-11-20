@@ -903,6 +903,11 @@ async function browserPart() {
       const page = await newPage(1280);
       await page.goto(BASE + '/motion/');
       await page.waitForFunction(() => document.getElementById('loading').hidden && window.pgfxAccount, null, { timeout: 120000 });
+      /* a number first: since 2026-11-10 (b7c74a1e) the maker asks for one before any
+         download (numberReady), so the step below meets the account question */
+      await page.evaluate(() => { const f = document.getElementById('f-number'); const sec = f && f.closest('details'); if (sec) sec.open = true; });
+      await page.fill('#f-number', '310 555 0142');
+      await page.waitForTimeout(800);   // the field is read after a 500 ms pause (motion/app.js)
       await page.click('#download');
       await page.waitForSelector('#acct-overlay.show', { timeout: 15000 }).catch(() => {});
       ok(await page.$('#acct-overlay.show') !== null, 'video maker: a signed-out Download asks for an account first');

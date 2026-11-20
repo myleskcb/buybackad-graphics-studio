@@ -3474,3 +3474,44 @@ Open:
   like iPhones LA's /studio/images; Pro and Business would carry it.
 - The trailer bed for the explainers, the terms' party, the contact address,
   live Stripe keys (§BD, §BE).
+
+### The paid-customer walkthrough, 2026-11-19
+
+The owner: "anything else we're missing or is it a fully working and editable
+ad / video maker?", then "Yes, run it". No password or card was typed on the
+live site (the owner's to type); signed-in steps ran on a local copy in demo
+mode, the server on the real function code with a stand-in Stripe.
+
+Works:
+- **billing_check: 164 passed** with the browser part (real Chromium, the
+  stand-in Stripe): the landing's plans, the checkout agreement, Pay,
+  "Payment successful" on Pro, the switch to Business, a credit pack, the AI
+  credit hint, the video maker's Free gate and a Pro video with no marks,
+  Delete account. Two fixes to the check: the video maker asks for a number
+  before a download since 2026-11-10 (b7c74a1e), and reads it after 500 ms.
+  Run it with FABRIC_JS (a local fabric.min.js) or the editor errors.
+- Live, signed out: the pricing buttons, the video maker's "Sign in to
+  download your video. Video downloads come with Pro and Business."
+- Local demo, by hand: sign up, a design, the number, a colour set, Download
+  (a 1080 PNG, 1 of the week's 3 counted), the advanced editor (8 text layers,
+  the headline edited), Choose Pro, Delete account.
+- The iPhone app: a photo ad to the share sheet and Photos.
+
+Missing or broken, for the owner:
+1. **No password reset.** No Forgot password link and no endpoint: a customer
+   who forgets the password is locked out of a paid account. It needs an email
+   sender (none is configured: no Resend, Postmark or SendGrid key).
+2. **The library on the plans.** The pricing cards promise "Keep 300 / 1,000 /
+   3,000 ads in your library"; the library has been the owner's alone since
+   2026-10-11 (ad-library.js `owner()`, OWNER_CSS). Open it to customers, or
+   take the line off the plans.
+3. **Saved work is on the device.** The last 12 downloads (reopenable) and the
+   draft live in the browser (IndexedDB `pgfx`, localStorage); nothing follows
+   a customer to another phone or computer.
+4. **Video export in the iPhone app** stalled at 2% "Drawing frames" in the
+   Simulator for four minutes, though the web view has every API it uses
+   (VideoEncoder with H.264, AudioEncoder, MediaRecorder MP4, file sharing,
+   OffscreenCanvas). Try it on a real iPhone with TestFlight build 1.
+5. Stripe in test mode; a real card through the live checkout (the owner, with
+   4242 4242 4242 4242 while in test mode); the contact address; the terms.
+
