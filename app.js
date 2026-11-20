@@ -11849,7 +11849,7 @@ try {
    Everything here is additive and lives BELOW the pass block on purpose: a
    showcase record is already finished, and the passes must not run on it.
    If index.json is missing the old landing (buildLandingV1) takes over. */
-const SHOWCASE = { cards:null, byId:{}, records:{}, filter:{ cat:'all', fam:'all' }, shown:0, PAGE:16, built:false, list:[] };
+const SHOWCASE = { cards:null, byId:{}, records:{}, filter:{ cat:'all', fam:'all', line:'all' }, shown:0, PAGE:16, built:false, list:[] };
 const SC_FAMILIES = [
   /* every family in theme_specs.mjs with a representative swatch, so the
      section says twelve and shows twelve even when a set left one out */
@@ -11945,13 +11945,15 @@ function scRebuiltCard(id, h){
 }
 /* a house ad opened from the wall: Easy Mode's full ad, on that recipe, or that line and look */
 function openHouseAd(h){
+  // a look from the video maker's gallery opens where it is made, as its shelf drew it (motion/app.js ?shelf=&look=)
+  if (h.kind === 'any'){ location.href = 'motion/?full=0' + (h.shelf ? '&shelf=' + encodeURIComponent(h.shelf) : '') + '&look=' + encodeURIComponent(h.seed); return; }
   showEasy();
   const FS = window.FullAdStudio; if (!FS) return;
   Promise.resolve(h.kind === 'recipe' ? FS.useRecipe(h.id) : null).then(() => {
     if (h.kind !== 'recipe'){
       if (currentCat !== h.cat) setCategory(h.cat);
       const FA = FS.state; FA.line[h.cat] = h.line; FA.recipe[h.cat] = ''; FA.seed = h.seed || 1; FA.pair = ''; FA.voice = ''; FA.set = {};
-    }   // a recipe opens on its own seed (FullAdStudio.useRecipe)
+    } else if (h.seed) FS.state.seed = h.seed;   // a recipe opens on its own seed (useRecipe); a design's other look, on that look's
     FS.enter();
   });
 }
@@ -12004,6 +12006,48 @@ function scLoadShelf(){
     return (SHOWCASE.shelf = cards.concat(extra));
   }).catch(() => (SHOWCASE.shelf = SHOWCASE.cards || [])));
 }
+/* THE LIBRARY'S OTHER LOOKS (assets/library-looks/, scripts/build_library_looks.mjs; DESIGN-LAW 162).
+   The owner, 2026-11-19, of the live library's "All 665": "see not the new 2000", then, asked what
+   the new library holds, "Both (~2,650)": two more looks of every rebuilt design, each line's own full
+   ad, and the video maker's Any look gallery, beside each design's first look. They are not on the
+   shelf: the wall and the editor's library keep to the designs; the landing's library, its chips, its
+   colour sets and its count read both (scLib). Loaded after the shelf, which names the designs a look
+   belongs to; with them, every line's own name (motion/subjects.json), for the chips. */
+function scLoadMore(){
+  if (SHOWCASE._more) return SHOWCASE._more;
+  return (SHOWCASE._more = Promise.all([
+    fetch('assets/library-looks/index.json', { cache:'no-cache' }).then(r => r.ok ? r.json() : null).catch(() => null),
+    fetch('motion/subjects.json').then(r => r.ok ? r.json() : null).catch(() => null),
+  ]).then(([j, s]) => {
+    SHOWCASE.lineNames = Object.fromEntries(((s && s.subjects) || []).map(x => [x.key, x.label]));
+    SHOWCASE.lineNames.video = 'Video looks';
+    const more = [];
+    for (const [id, h] of Object.entries((j && j.items) || {})){
+      if (h.kind === 'recipe' && !SHOWCASE.byId[h.base]) continue;   // a look of a design the library does not show
+      more.push(scLookCard(id, h));
+    }
+    return (SHOWCASE.more = more);
+  }).catch(() => (SHOWCASE.more = [])));
+}
+/* one of them as a library card: a design's other look is named and grouped as the design, in the pair
+   it wears, and opens the design on its own seed; a line's full ad opens Easy Mode's full ad on that line
+   and seed; a video look opens in the video maker (openHouseAd) */
+function scLookCard(id, h){
+  let c;
+  if (h.kind === 'recipe'){
+    c = scRebuiltCard(id, h);
+    c.house = { ...c.house, id: h.base, seed: h.seed, look: h.look };
+  } else {
+    c = Object.assign(scHouseItem(id, { ...h, kind: h.kind }), h.kind === 'any'
+      ? { family: 'Video look', theme: 'Video look', layout: 'any:' + (h.name || id), video: true }
+      : { family: 'Full ad', theme: h.pairName || h.pair || 'House', accent: h.accent || '', layout: 'full:' + h.line });
+  }
+  return (SHOWCASE.byId[id] = c);
+}
+/* the landing's library: the designs on the shelf, then their other looks (scLoadMore) */
+function scLib(){ return (SHOWCASE.shelf || SHOWCASE.cards || []).concat(SHOWCASE.more || []); }
+/* a card's line (motion/subjects.json): what a category's sub-chips filter by */
+function scLineOf(c){ return (c && c.house && c.house.line) || ''; }
 /* Strongest first — the owner's approval count for this layout+palette pair
    across every reviewed set, then the card's own edge density — and then
    interleaved so no two neighbours share a category or a family. A straight
@@ -12294,6 +12338,10 @@ function scBuildWall(cards){
    filters the gallery to that palette. */
 /* how vivid one colour is: max minus min channel (HSV saturation times value) */
 function scColourVivid(h){ const [r, g, b] = scHexRgb(h); return (Math.max(r, g, b) - Math.min(r, g, b)) / 255; }
+/* the word a colour set's small ad buys: the markets in turn, so the mosaic reads as every
+   market's colours rather than 54 phone ads (the card that shows most sets best is a phone's) */
+const FAM_WORDS = ['iPhones', 'gold', 'cars', 'cards', 'silver', 'coins', 'laptops', 'watches', 'games', 'Pixels', 'cameras', 'strips'];
+function famPaint(b, c){ const s = b.querySelector('.fam-art'); if (s) for (const k in c) if (c[k]) s.style.setProperty('--' + k, c[k]); }
 function scBuildFamilies(cards){
   const grid = $('fam-grid');
   if (!grid) return;
@@ -12310,16 +12358,24 @@ function scBuildFamilies(cards){
     return { theme: t, n: list.length, chroma, rep, family: rep.family };
   }).sort((x, y) => y.chroma - x.chroma);
   grid.innerHTML = '';
-  pals.forEach(p => {
+  /* each set drawn as a small ad in its own colours (DESIGN-LAW, "The landing is built to a brief"). A card of the old
+     library carries its colours (c1, ink, accent); a rebuilt ad names its pair, whose colours
+     the engine holds (motion/fullad.js COLOUR_OF), read in below. Until 2026-11-19 the swatch
+     read c1, ink and support off every card, and a rebuilt ad has none of them: 54 sets drew
+     one bar each and three of "undefined". */
+  const needPair = [];
+  pals.forEach((p, ix) => {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'fam-card';
     b.dataset.fam = p.theme;
     b.title = p.theme + ' · ' + p.family + ' · ' + p.n + ' cards';
-    const sw = [p.rep.c1, p.rep.ink, p.rep.accent, p.rep.support];
-    b.innerHTML = `<div class="fam-sw">${sw.map(h => `<i style="background:${h}"></i>`).join('')}</div>
+    const r = p.rep;
+    b.innerHTML = `<span class="fam-art" aria-hidden="true"><b>We buy<em>${FAM_WORDS[ix % FAM_WORDS.length]}</em></b><i>999-4994</i></span>
       <div class="fam-name">${escHtml(p.theme)}</div>
-      <div class="fam-meta">${p.n} card${p.n === 1 ? '' : 's'}</div>`;
+      <div class="fam-meta">${p.n} design${p.n === 1 ? '' : 's'}</div>`;
+    if (r.c1) famPaint(b, { g: r.c1, i: r.ink, a: r.accent, p: r.accent, pi: r.c1 });
+    else if (r.house && r.house.pair) needPair.push([b, r.house.pair]);
     b.onclick = () => {
       SHOWCASE.filter.fam = SHOWCASE.filter.fam === p.theme ? 'all' : p.theme;
       scSyncFilters();
@@ -12329,6 +12385,12 @@ function scBuildFamilies(cards){
     };
     grid.appendChild(b);
   });
+  if (needPair.length) import('./motion/fullad.js').then(M => {
+    for (const [b, k] of needPair){
+      const c = M.COLOUR_OF && M.COLOUR_OF[k] && M.COLOUR_OF[k].colors;
+      if (c) famPaint(b, { g: c.ground, i: c.ink, a: c.accent, p: c.plate, pi: c.plate_ink });
+    }
+  }).catch(() => {});
   const n = $('lp-pal-count'); if (n) n.textContent = String(COLOR_THEMES.length);
   const n2 = $('lp-stat-pal'); if (n2) n2.textContent = String(COLOR_THEMES.length);
   const n3 = $('lp-lib-count'); if (n3) n3.textContent = String(pals.length);
@@ -12364,19 +12426,34 @@ function scBuildThemes(){
     });
   });
 }
+/* THE CATEGORIES, AND THE LINES INSIDE THEM (the owner, 2026-11-19: "organize it as we said with the
+   subcategories revealed after you select one of the main ones would show a drop down arrow if there's
+   sub categories.. so there's no guessing"). Only the main categories show at first; one with more than
+   one line (motion/subjects.json: Phones and Apple's iPhones to Foldables, Gaming's Consoles, Computers
+   and Handhelds, the car lines ...) carries an arrow, and choosing it opens a row of its lines, each with
+   its count (scSubChips). A category of one line has no arrow and opens nothing. */
 function scBuildChips(cards){
   const row = $('lp-chips');
   if (!row) return;
-  const counts = {};
-  cards.forEach(c => { counts[c.cat] = (counts[c.cat] || 0) + 1; });
+  const counts = {}, lines = {};
+  cards.forEach(c => {
+    counts[c.cat] = (counts[c.cat] || 0) + 1;
+    const l = scLineOf(c); if (l) (lines[c.cat] = lines[c.cat] || {})[l] = ((lines[c.cat] || {})[l] || 0) + 1;
+  });
+  SHOWCASE.lines = lines;
   row.innerHTML = '';
+  let sub = $('lp-subchips');
+  if (!sub){ sub = document.createElement('div'); sub.id = 'lp-subchips'; sub.className = 'lp-subchips'; sub.hidden = true; row.insertAdjacentElement('afterend', sub); }
   const mk = (id, label, n) => {
+    const opens = !['all', 'offer', 'classics'].includes(id) && Object.keys(lines[id] || {}).length > 1;
     const b = document.createElement('button');
     b.type = 'button';
-    b.className = 'chip';
+    b.className = 'chip' + (opens ? ' opens' : '');
     b.dataset.cat = id;
-    b.innerHTML = escHtml(label) + (n !== undefined ? `<span class="n">${n}</span>` : '');
-    b.onclick = () => { SHOWCASE.filter.cat = id; scSyncFilters(); scRenderGrid(true); };
+    if (opens){ b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-controls', 'lp-subchips'); }
+    b.innerHTML = escHtml(label) + (n !== undefined ? `<span class="n">${n}</span>` : '')
+      + (opens ? '<svg class="caret" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.6 6 7.6 9 4.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '');
+    b.onclick = () => { SHOWCASE.filter.cat = id; SHOWCASE.filter.line = 'all'; scSyncFilters(); scRenderGrid(true); };
     row.appendChild(b);
   };
   /* the counts are what the view shows: showcase cards plus the offer cards
@@ -12385,7 +12462,8 @@ function scBuildChips(cards){
   /* a category the showcase has no cards for yet (the 2026-09-27 ones) shows
      the studio's own templates for it, so its chip is never an empty room */
   CATS.forEach(c => mk(c.id, c.label.replace(/^\S+\s/, ''), counts[c.id] ? counts[c.id] + scOfferPool(c.id).length : scStudioCat(c.id).length));
-  mk('offer', 'Offer cards', scOffers().length);
+  // the offer family was retired into its rebuilt ads (2026-11-18): its chip only while a family is left of it
+  if (scOffers().length > 1) mk('offer', 'Offer cards', scOffers().length);
   mk('classics', 'Classics', scClassics().length);
   const more = $('lp-tpl-more');
   if (more && !more.dataset.bound){ more.dataset.bound = '1'; more.onclick = () => scRenderGrid(false); }
@@ -12404,8 +12482,35 @@ function scStudioCat(cat){
   return pool.filter(t => !tplLocked(t)).concat(pool.filter(t => tplLocked(t)));
 }
 function scSyncFilters(){
-  document.querySelectorAll('#lp-chips .chip').forEach(b => b.classList.toggle('on', b.dataset.cat === SHOWCASE.filter.cat));
+  document.querySelectorAll('#lp-chips .chip').forEach(b => {
+    const on = b.dataset.cat === SHOWCASE.filter.cat;
+    b.classList.toggle('on', on);
+    if (b.classList.contains('opens')) b.setAttribute('aria-expanded', on ? 'true' : 'false');
+  });
+  scSubChips();
   document.querySelectorAll('#fam-grid .fam-card').forEach(b => b.classList.toggle('on', b.dataset.fam === SHOWCASE.filter.fam));
+}
+/* the chosen category's lines, in the owner's order (motion/subjects.json), each with its count; hidden
+   for a category of one line */
+function scSubChips(){
+  const sub = $('lp-subchips'); if (!sub) return;
+  const f = SHOWCASE.filter, ls = (SHOWCASE.lines || {})[f.cat] || {}, keys = Object.keys(ls);
+  if (keys.length < 2){ sub.hidden = true; sub.innerHTML = ''; return; }
+  const order = Object.keys(SHOWCASE.lineNames || {}), rank = k => { const i = order.indexOf(k); return i < 0 ? 999 : i; };
+  keys.sort((a, b) => rank(a) - rank(b));
+  const cat = CATS.find(c => c.id === f.cat), label = cat ? cat.label.replace(/^\S+\s/, '') : '';
+  sub.innerHTML = '';
+  sub.setAttribute('aria-label', label + ': its lines');
+  const mk = (key, text, n) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip sub' + ((f.line || 'all') === key ? ' on' : ''); b.dataset.line = key;
+    b.innerHTML = escHtml(text) + `<span class="n">${n}</span>`;
+    b.onclick = () => { SHOWCASE.filter.line = key; scSyncFilters(); scRenderGrid(true); };
+    sub.appendChild(b);
+  };
+  mk('all', 'All ' + label, keys.reduce((t, k) => t + ls[k], 0));
+  keys.forEach(k => mk(k, (SHOWCASE.lineNames || {})[k] || k, ls[k]));
+  sub.hidden = false;
 }
 /* The best of the old library, kept: the street family and the designer
    layouts on real photographs. The eighteen hand-written classics are not
@@ -12428,7 +12533,7 @@ function scCard(c){
     <div class="tpl-veil"></div>
     ${locked ? '<div class="pro-guard"></div><div class="tpl-lockpill">🔒 PRO</div>' : ''}
     <div class="tpl-use">${locked ? 'Unlock with Pro →' : 'Use template →'}</div>
-    <div class="tpl-meta"><span class="tpl-name">${escHtml(c.name)}</span><span class="tpl-tag">${escHtml(c.family)}</span></div>`;
+    <div class="tpl-meta"><span class="tpl-name">${escHtml(c.name)}</span><span class="tpl-tag">${escHtml(c.theme || c.family || '')}</span></div>`;
   const go = () => c.house ? openHouseAd(c.house) : openShowcase(c.id);   // a rebuilt ad opens in the full ad
   card.onclick = go;
   card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } };
@@ -12456,7 +12561,7 @@ function scClassicCard(t){
 }
 function scRenderGrid(reset){
   const grid = $('lp-tpl-grid');
-  const shelf = SHOWCASE.shelf || SHOWCASE.cards;
+  const shelf = (SHOWCASE.shelf || SHOWCASE.cards) && scLib();   // the designs and their other looks (scLoadMore)
   if (!grid || !shelf) return;
   const f = SHOWCASE.filter;
   if (reset !== false){
@@ -12469,12 +12574,14 @@ function scRenderGrid(reset){
     } else if (f.cat !== 'all' && scStudioCat(f.cat).length){
       SHOWCASE.list = scStudioCat(f.cat).map(t => ({ classic:t }));
     } else {
-      const sub = shelf.filter(c => (f.cat === 'all' || c.cat === f.cat) && (f.fam === 'all' || c.theme === f.fam));
+      const line = f.line && f.line !== 'all' ? f.line : '';
+      const sub = shelf.filter(c => (f.cat === 'all' || c.cat === f.cat) && (f.fam === 'all' || c.theme === f.fam) && (!line || scLineOf(c) === line));
       /* the platform's mix (scMix): the offer cards of the same category join
          the showcase's, because consoles, VR, Samsung and Pixel exist only as
-         offer cards; a palette filter is the showcase's own and keeps to it.
+         offer cards; a palette filter is the showcase's own and keeps to it, and
+         so does a line (an offer card does not say which line it is).
          Unlocked first inside every line (scRankMixed). */
-      const offers = f.fam === 'all' ? scOfferPool(f.cat === 'all' ? null : f.cat) : [];
+      const offers = f.fam === 'all' && !line ? scOfferPool(f.cat === 'all' ? null : f.cat) : [];
       SHOWCASE.list = scMix(scRankMixed(sub, offers));
     }
   }
@@ -12557,7 +12664,7 @@ async function scRegister(id){
   return tid;
 }
 function buildLandingV2(){
-  Promise.all([scLoadShelf(), scLoadPicks()]).then(([cards]) => {
+  Promise.all([scLoadShelf().then(c => scLoadMore().then(() => c)), scLoadPicks()]).then(([cards]) => {
     if (!cards.length){ warmTemplateAssets(); buildLandingV1(); return; }
     if (SHOWCASE.built){
       /* refreshPhotoThumb() re-calls buildLanding() as each old backdrop
@@ -12566,13 +12673,14 @@ function buildLandingV2(){
       return;
     }
     SHOWCASE.built = true;
+    const lib = scLib();   // the wall keeps to the designs; the library, its chips, colours and count take every look
     scBuildWall(cards);
-    scBuildFamilies(cards);
-    scBuildChips(cards);
+    scBuildFamilies(lib.filter(c => !c.video));   // a video look wears no colour pair
+    scBuildChips(lib);
     scSyncFilters();
     scRenderGrid(true);
     const n = $('lp-stat-new');
-    if (n) n.textContent = String(cards.length);
+    if (n) n.textContent = lib.length.toLocaleString('en-US');
   });
   window.__PRIORITY_TPL_IDS = [];
 }
