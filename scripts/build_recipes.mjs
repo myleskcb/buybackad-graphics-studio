@@ -202,13 +202,24 @@ const ALIAS = JSON.parse(read('motion/subjects.json')).aliases || {};
 const CAT_LINE = { gold: 'gold', silver: 'silver', coins: 'coins', cars: 'car', strips: 'strips', pokemon: 'pokemon', sports: 'sports' };
 /* a car card goes to the car line its words name (2026-11-18: the cars category became lines, and
    a card listing F-150 • SILVERADO • RAM • TACOMA drew a sedan from the general line's pool) */
+/* a make its models name without the make (2026-11-19, the owner, through the roadmap session: "WE BUY CARS"
+   over "3 SERIES • 5 SERIES • X3 • X5" stood on a Toyota Tacoma, and over "RX • ES • IS • GX • NX" on a Toyota):
+   BMW's series and X and M models; a run of Lexus's two-letter models, never one "IS" or "ES" alone */
+const BMW_WORDS = /\bBMWS?\b|\b[2-8] SERIES\b|\bX[1-7]\b|\bM[2-8]\b/i;
+const LEXUS_WORDS = /\bLEXUS(ES)?\b|(\b(RX|ES|IS|GX|NX|LX|LS|UX|RC)\b\s*[•·,/]\s*){2,}\b(RX|ES|IS|GX|NX|LX|LS|UX|RC)\b/i;
+/* a motorcycle ad (2026-11-19, the owner, of "MOTORCYCLES BUYER" on a Honda Civic: "A motorcycle ad needs
+   a motorcycle photo and its own words, or it should come out until there is one"): the general line, never
+   the make line its models name (HARLEY HONDA · YAMAHA put two on Hondas, and a Honda car on them) */
+const MOTO = /\bMOTORCYCLES?\b|\bMOTORBIKES?\b|\bHARLEYS?\b|\bDIRT ?BIKES?\b/i;
+const MOTO_TAG = 'HARLEY • HONDA • YAMAHA';   // a motorcycle buyer's models line, as the house's own motorcycle cards wrote it
 const CAR_LINES = [
+  [MOTO, 'car'],
   [/\bSEMIS?\b|\b18[- ]WHEELERS?\b|\bBIG RIGS?\b|\bKENWORTHS?\b|\bPETERBILTS?\b|\bFREIGHTLINERS?\b/i, 'semis'],
   [/\bSPRINTERS?\b|\bTRANSITS?\b|\bPRO ?MASTERS?\b|\bWORK VANS?\b|\bCARGO VANS?\b|\bVANS\b/i, 'vans'],
   [/\bCLASSICS?\b|\bVINTAGE\b|\bMUSCLE CARS?\b|\bHOT RODS?\b/i, 'classic'],
   [/\bJDM\b|\bSUPRAS?\b|\bGT-?RS?\b|\bSKYLINES?\b|\bWRX\b|\bRX-?7S?\b|\bMIATAS?\b|\bTYPE R\b|\bS2000\b|\bNSX\b/i, 'jdm'],
   [/\bF-?150S?\b|\bSILVERADOS?\b|\bRAMS?\b|\bTACOMAS?\b|\bTUNDRAS?\b|\bSIERRAS?\b|\bPICKUPS?\b/i, 'trucks'],
-  [/\bTOYOTAS?\b/i, 'toyota'], [/\bHONDAS?\b/i, 'honda'], [/\bBMWS?\b/i, 'bmw'], [/\bMERCEDES\b|\bBENZ\b|\bAMG\b/i, 'mercedes'],
+  [/\bTOYOTAS?\b/i, 'toyota'], [/\bHONDAS?\b/i, 'honda'], [BMW_WORDS, 'bmw'], [/\bMERCEDES\b|\bBENZ\b|\bAMG\b/i, 'mercedes'],
 ];
 const carLineOf = text => { for (const [re, k] of CAR_LINES) if (SUB[k] && re.test(text)) return k; if (/\bTRUCKS?\b/i.test(text) && !/\bCARS?\b|\bSUVS?\b/i.test(text) && SUB.trucks) return 'trucks'; return 'car'; };
 const CAR_SUBJECTS = new Set(['car', ...CAR_LINES.map(([, k]) => k)]);
@@ -221,8 +232,8 @@ function subjectOf(ad, headline, allWords = headline) {
   const first = SUBJECTS.find(s => s.cat === ad.cat); return first ? first.key : 'iphone';
 }
 const MAKES = { honda: /\bHONDAS?\b|\bCIVICS?\b|\bACCORDS?\b/, chevy: /\bCHEV(Y|YS|IES|ROLETS?)\b|\bSILVERADOS?\b/, ford: /\bFORDS?\b|\bF-?150S?\b|\bMUSTANGS?\b|\bBRONCOS?\b/,
-  toyota: /\bTOYOTAS?\b|\bTACOMAS?\b|\bCAMRYS?\b|\bTUNDRAS?\b|\bPRIUS\b|\bRAV4S?\b/, bmw: /\bBMWS?\b/, nissan: /\bNISSANS?\b/, jeep: /\bJEEPS?\b|\bWRANGLERS?\b/,
-  dodge: /\bDODGES?\b|\bCHALLENGERS?\b|\bCHARGERS?\b/, lexus: /\bLEXUS(ES)?\b/, tesla: /\bTESLAS?\b/, mercedes: /\bMERCEDES\b|\bBENZ\b/, audi: /\bAUDIS?\b/, gmc: /\bGMCS?\b/,
+  toyota: /\bTOYOTAS?\b|\bTACOMAS?\b|\bCAMRYS?\b|\bTUNDRAS?\b|\bPRIUS\b|\bRAV4S?\b/, bmw: BMW_WORDS, nissan: /\bNISSANS?\b/, jeep: /\bJEEPS?\b|\bWRANGLERS?\b/,
+  dodge: /\bDODGES?\b|\bCHALLENGERS?\b|\bCHARGERS?\b/, lexus: LEXUS_WORDS, tesla: /\bTESLAS?\b/, mercedes: /\bMERCEDES\b|\bBENZ\b/, audi: /\bAUDIS?\b/, gmc: /\bGMCS?\b/,
   subaru: /\bSUBARUS?\b/, kia: /\bKIAS?\b/, hyundai: /\bHYUNDAIS?\b/, porsche: /\bPORSCHES?\b/, vw: /\bVWS?\b|\bVOLKSWAGENS?\b/, volvo: /\bVOLVOS?\b/, mazda: /\bMAZDAS?\b/ };
 /* a model the words name: its own cut-out where there is one (WE BUY TACOMAS shows a Tacoma, not any Toyota) */
 const MODELS = [[/\bTACOMAS?\b/, 'toyota', 'tacoma'], [/\bTUNDRAS?\b/, 'toyota', 'tundra'], [/\bCAMRYS?\b/, 'toyota', 'camry'], [/\bCOROLLAS?\b/, 'toyota', 'corolla'], [/\bRAV4S?\b/, 'toyota', 'rav4'],
@@ -230,7 +241,15 @@ const MODELS = [[/\bTACOMAS?\b/, 'toyota', 'tacoma'], [/\bTUNDRAS?\b/, 'toyota',
   [/\bCIVICS?\b/, 'honda', 'civic'], [/\bACCORDS?\b/, 'honda', 'accord'], [/\bCR-?VS?\b/, 'honda', 'crv'], [/\bPILOTS?\b/, 'honda', 'pilot'],
   [/\bSILVERADOS?\b/, 'chevy', 'silverado'], [/\bTAHOES?\b/, 'chevy', 'tahoe'], [/\bCAMAROS?\b/, 'chevy', 'camaro'], [/\bCORVETTES?\b/, 'chevy', 'corvette'],
   [/\bF-?150S?\b/, 'ford', 'f150'], [/\bMUSTANGS?\b/, 'ford', 'mustang'], [/\bBRONCOS?\b/, 'ford', 'bronco'], [/\bRANGERS?\b/, 'ford', 'ranger'],
-  [/\bCHALLENGERS?\b/, 'dodge', 'challenger'], [/\bCHARGERS?\b/, 'dodge', 'charger'], [/\bWRANGLERS?\b/, 'jeep', 'wrangler'], [/\bGLADIATORS?\b/, 'jeep', 'gladiator']];
+  [/\bCHALLENGERS?\b/, 'dodge', 'challenger'], [/\bCHARGERS?\b/, 'dodge', 'charger'], [/\bWRANGLERS?\b/, 'jeep', 'wrangler'], [/\bGLADIATORS?\b/, 'jeep', 'gladiator'],
+  // BMW's own models (2026-11-19: "3 SERIES • 5 SERIES • X3 • X5" drew a 1970s 3.0 CSL)
+  [/\bX3\b/, 'bmw', 'x3'], [/\bX5\b/, 'bmw', 'x5'], [/\bX7\b/, 'bmw', 'x7'], [/\b5 SERIES\b/, 'bmw', '5-series'], [/\bM3\b/, 'bmw', 'm3'], [/\bM4\b/, 'bmw', 'm4']];
+/* a make's picture is a car its buyers sell now, unless the words ask for an old one (2026-11-19; the
+   owner, of an old MacBook: "a really old MacBook that we don't even buy so that's gonna attract the wrong
+   type of clients"): a model built since 2010, unless its words say classic, vintage, muscle or JDM */
+const OLD_WANTED = /\bCLASSICS?\b|\bVINTAGE\b|\bOLD ?SCHOOL\b|\bMUSCLE\b|\bJDM\b|\bANTIQUES?\b/i;
+// built since 2010: ended no earlier, or still built and begun since (the NSX NA1 and the 2002 turbo are listed with no end)
+const recentCar = f => { const v = VEHICLES[f]; return !v || (v.year_to ? v.year_to >= 2010 : !(v.year_from && v.year_from < 2010)); };
 const CAR_CUTS = {};
 for (const f of CUTS) { const m = /^car-([a-z]+)-/.exec(f); if (m && usable(f)) (CAR_CUTS[m[1] === 'chevrolet' ? 'chevy' : m[1]] ||= []).push(f); }
 for (const k of Object.keys(CAR_CUTS)) CAR_CUTS[k].sort((x, y) => (/-rear$/.test(x) - /-rear$/.test(y)) || x.localeCompare(y));   // a front or side view before a rear one
@@ -238,35 +257,61 @@ const makeOfFile = f => { const s = String(f || '').toLowerCase(); for (const k 
 const VEHICLE = /car|truck|suv|van|jeep|pickup|sedan|coupe|grille|wheel|dash|motorcycle|bike|vehicle|lamborghini|porsche|ferrari|bmw|lexus|dodge|honda|toyota|ford|chevy|nissan|tesla|audi|mercedes/i;
 const VANS = /\bSPRINTERS?\b|\bTRANSITS?\b|\bPRO ?MASTERS?\b|\bWORK VANS?\b|\bCARGO VANS?\b|\bVANS\b/;
 const VAN_CUTS = readdirSync(ROOT + 'assets/cutouts').filter(f => /^car-.*(van|transit|sprinter|promaster)/.test(f) && f.endsWith('.webp')).map(f => f.replace(/\.webp$/, '')).filter(f => usable(f));
+// the van models a headline or a models line can name, and the cut-outs of each
+const VAN_MODELS = [[/\bSPRINTERS?\b/, 'sprinter'], [/\bTRANSITS?\b/, 'transit'], [/\bPRO ?MASTERS?\b/, 'promaster']];
+const MOTO_FILE = /harley|motorcycle|motorbike|dirt-?bike/;
 const VEHICLES = JSON.parse(readFileSync(ROOT + 'assets/vehicles.json', 'utf8'));
 const hash = s => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; };
 function picturesOf(ad, subject, headline, claim, notes) {
   const own = ad.layers.map(l => (/assets\/cutouts\/([^/?#]+)\.webp/.exec(l.src || '') || [])[1]).filter(Boolean);
   let pics = own.filter(usable);
   if (own.length > pics.length) notes.push(`left out ${own.length - pics.length} flagged or rejected picture${own.length - pics.length > 1 ? 's' : ''}`);
-  let make = '';
+  let make = '', rename = null;
   // a car the photo catalogue does not name is never shown (the owner: "unidentified cars skip")
   if (CAR_SUBJECTS.has(subject)) { const known = pics.filter(f => !/^car-/.test(f) || VEHICLES[f]); if (known.length < pics.length) notes.push(`left out ${pics.length - known.length} unidentified car picture${pics.length - known.length > 1 ? 's' : ''}`); pics = known; }
+  // a motorcycle ad shows a motorcycle, or nothing and its words alone; never the car a make in its words would pick
+  if (CAR_SUBJECTS.has(subject) && MOTO.test(headline + ' ' + claim)) {
+    const bikes = pics.filter(f => MOTO_FILE.test(f)), cuts = [...CUTS].filter(f => /^car-/.test(f) && MOTO_FILE.test(f) && usable(f) && VEHICLES[f]).sort();
+    if (bikes.length) pics = bikes;
+    else if (cuts.length) { pics = [cuts[hash(ad.id) % cuts.length]]; notes.push(`a motorcycle picture in place of ${own.length ? own.join(', ') : 'none'}`); }
+    else { pics = []; notes.push('no motorcycle cut-out: its words alone'); }
+    return { pictures: pics.slice(0, 2).map(file => ({ file, k: 1 })), make: 'motorcycle', wordsOnly: !pics.length };
+  }
   if (CAR_SUBJECTS.has(subject)) {
     const named = Object.keys(MAKES).filter(k => MAKES[k].test(headline + ' ' + claim));
     if (named.length) {
       make = named[0];
-      const m = MODELS.find(([re, mk]) => mk === make && re.test(headline + ' ' + claim)), model = m ? m[2] : '';
-      const fits = f => makeOfFile(f) === make && (!model || f.includes('-' + model));
-      const ofMake = pics.filter(fits);
-      const list = (CAR_CUTS[make] || []).filter(f => !model || f.includes('-' + model)), pool = list.length ? list : CAR_CUTS[make] || [];
+      // every model of the make its words name: a picture of any of them (a models line of four BMWs is not one X3)
+      const models = MODELS.filter(([re, mk]) => mk === make && re.test(headline + ' ' + claim)).map(m => m[2]), model = models.join('/');
+      const ofModel = f => !models.length || models.some(md => f.includes('-' + md));
+      const now = OLD_WANTED.test(headline + ' ' + claim) ? () => true : recentCar, prefer = l => l.filter(now).length ? l.filter(now) : l;
+      const fits = f => makeOfFile(f) === make && ofModel(f);
+      const ofMake = prefer(pics.filter(fits));
+      const list = prefer((CAR_CUTS[make] || []).filter(ofModel)), pool = list.length ? list : prefer(CAR_CUTS[make] || []);
       if (ofMake.length) pics = ofMake;
       else if (pool.length) { const front = pool.filter(f => !/-rear$/.test(f)), from = front.length ? front : pool; pics = [from[hash(ad.id) % from.length]]; notes.push(`a ${make}${model ? ' ' + model : ''} picture in place of ${own.length ? own.join(', ') : 'none'}`); }
       else { pics = []; notes.push(`no ${make} cut-out: the line's own pool`); }
     } else if (VANS.test(headline + ' ' + claim)) {
       /* a card about work vans (SPRINTER, TRANSIT, PROMASTER, VANS) shows a van, never an SUV or a
          sedan (the owner, 2026-11-18, of the wrong cars on the library: "wrong cars") */
-      const vans = pics.filter(f => /van|transit|sprinter|promaster/.test(f));
-      if (vans.length) pics = vans;
-      else if (VAN_CUTS.length) { const front = VAN_CUTS.filter(f => !/-rear$/.test(f)), from = front.length ? front : VAN_CUTS; pics = [from[hash(ad.id) % from.length]]; notes.push(`a van picture in place of ${own.length ? own.join(', ') : 'none'}`); make = 'van'; }
+      /* and a van its words name, where there is a usable cut-out of it; where there is none (the one Sprinter
+         is flagged), its headline says work vans, so its words name what its picture shows (2026-11-19: "WE BUY
+         SPRINTERS" stood on a Ford Transit Connect) */
+      const T = headline + ' ' + claim, models = VAN_MODELS.filter(([re]) => re.test(T)).map(([, m]) => m);
+      const ofModel = f => !models.length || models.some(m => f.includes(m));
+      const vans = pics.filter(f => /van|transit|sprinter|promaster/.test(f) && ofModel(f));
+      if (vans.length) pics = vans;   // its own van of a named model; the line's pool where nothing pins it
+      else {
+        const cuts = VAN_CUTS.filter(ofModel), all = cuts.length ? cuts : VAN_CUTS;
+        if (all.length) { const front = all.filter(f => !/-rear$/.test(f)), from = front.length ? front : all; pics = [from[hash(ad.id) % from.length]]; notes.push(`a van picture in place of ${own.length ? own.join(', ') : 'none'}`); make = 'van'; }
+        if (models.length && !cuts.length && /\bSPRINTERS?\b|\bTRANSITS?\b|\bPRO ?MASTERS?\b/.test(headline)) {
+          rename = { headline: headline.replace(/\bSPRINTERS\b|\bTRANSITS\b|\bPRO ?MASTERS\b/g, 'WORK VANS').replace(/\bSPRINTER\b|\bTRANSIT\b|\bPRO ?MASTER\b/g, 'WORK VAN') };
+          notes.push(`no ${models.join(' or ')} cut-out: its headline says work vans`);
+        }
+      }
     }
   }
-  return { pictures: pics.slice(0, 2).map(file => ({ file, k: 1 })), make };
+  return { pictures: pics.slice(0, 2).map(file => ({ file, k: 1 })), make, rename };
 }
 function groundOf(ad, cat, make, notes) {
   const g = ad.bg; if (!g || g.type !== 'image' || !/\.(jpe?g|png|webp)(\?|$)/i.test(g.src || '')) return null;
@@ -421,7 +466,9 @@ for (const ad of all) {
   const words = wordsOf(ad, ad.cat, dropped);
   const subject = subjectOf(ad, words.headline || '', [words.headline, words.tag, words.claim, words.points].filter(Boolean).join(' '));
   const S = SUB[subject]; if (!S) continue;
-  const { pictures, make } = picturesOf(ad, subject, words.headline || '', [words.claim, words.tag].filter(Boolean).join(' '), notes);   // the line under it names models too (TRANSIT • SPRINTER • PROMASTER)
+  const { pictures, make, rename, wordsOnly } = picturesOf(ad, subject, words.headline || '', [words.claim, words.tag].filter(Boolean).join(' '), notes);   // the line under it names models too (TRANSIT • SPRINTER • PROMASTER)
+  if (rename) Object.assign(words, rename);
+  if (make === 'motorcycle' && !words.tag) { words.tag = MOTO_TAG; notes.push('a motorcycle models line of its own, not the car line\'s'); }
   const lined = lineUp(ad, S.cat, subject, pictures, make, groundOf(ad, ad.cat, make, notes), words, notes);
   const ground_photo = lined.ground_photo; pictures.splice(0, pictures.length, ...lined.pictures);
   // colours as the ad wore them: the library's own theme and ink; a template's ground and its headline's accent
@@ -431,7 +478,7 @@ for (const ad of all) {
   const pair = pairOf(ad.theme, ground, accent, subject);
   const display = ad.faces ? (Array.isArray(ad.faces) ? ad.faces[0] : ad.faces.display) : (heads[0] && heads[0].font) || '';
   // one kind of goods inside a broader line: its own picture of it, an entry of the pool that is one, or its words alone
-  const kind = kindOf(ad, subject, words.headline || ''); let words_only = false, keep = !!make;
+  const kind = kindOf(ad, subject, words.headline || ''); let words_only = !!wordsOnly, keep = !!make;
   if (kind) {
     const file = KINDS.find(k => k[0] === kind)[2], mine = pictures.filter(p => file.test(p.file));
     let fits = (S.pool || []).filter(e => (e.set || []).length && e.set.every(x => file.test(x.file)));

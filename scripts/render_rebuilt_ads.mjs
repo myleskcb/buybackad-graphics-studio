@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* THE REBUILT LIBRARY ADS AT FULL SIZE, FOR THE PARTNER LIBRARY (DESIGN-LAW rules 111, 147).
+/* THE REBUILT LIBRARY ADS AT FULL SIZE, FOR THE PARTNER LIBRARY (DESIGN-LAW rules 111, 149).
 
    The owner, 2026-11-18, retired the old static library cards ("Retire them") now that each has a
    rebuilt version (motion/recipes.json, drawn by the full ad); then, asked whether to render the
@@ -11,7 +11,8 @@
    number and Long Beach, as the library's renders carried them, the website line "Visit our website
    at www.iPhones.LA" and a seller asked for the IMEI, never a picture (_library_finish.mjs, the
    owner, 2026-11-03), into assets/rebuilt-ads/<recipe id>.jpg, with the dates in its EXIF as the
-   library's renders have them (_jpeg_exif.mjs). Its own folder: render_library_ads.mjs prunes what
+   library's renders have them (_jpeg_exif.mjs), the software named WeBuy.AD, the product's name (DESIGN-LAW
+   148; BUYBACK.AD stays the business). Its own folder: render_library_ads.mjs prunes what
    is not a live card from its own.
 
    assets/rebuilt-ads/index.json records each render: its size, its file's sha1 (the API's links
@@ -96,7 +97,7 @@ for (const id of Object.keys(items)) if (!ids.has(id)) delete items[id];
 for (const f of readdirSync(OUT)) if (f.endsWith('.jpg') && !items[f.slice(0, -4)]) unlinkSync(OUT + f);
 const sorted = Object.fromEntries(Object.keys(items).sort().map(k => [k, items[k]]));
 writeFileSync(INDEX, JSON.stringify({
-  _doc: 'Full-size renders of the rebuilt library ads (motion/recipes.json, the recipes made from library cards), for the library API (rule 111, 147). Made by scripts/render_rebuilt_ads.mjs through Easy Mode\'s full ad at 1080, as iPhones LA\'s copy. stamp is the recipe it was drawn from: a recipe changed since makes the render stale (library_api_check.mjs). Dates, ISO 8601 UTC: created and updated, the rebuild (the last commit of motion/recipes.json); rendered, when the file was drawn.',
+  _doc: 'Full-size renders of the rebuilt library ads (motion/recipes.json, the recipes made from library cards), for the library API (rule 111, 149). Made by scripts/render_rebuilt_ads.mjs through Easy Mode\'s full ad at 1080, as iPhones LA\'s copy. stamp is the recipe it was drawn from: a recipe changed since makes the render stale (library_api_check.mjs). Dates, ISO 8601 UTC: created and updated, the rebuild (the last commit of motion/recipes.json); rendered, when the file was drawn.',
   built: new Date().toISOString(), size: SIZE, quality: QUALITY, items: sorted,
 }, null, 1) + '\n');
 const bytes = Object.values(sorted).reduce((t, x) => t + x.bytes, 0);

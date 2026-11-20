@@ -1839,9 +1839,16 @@ export function pairGradientColours(p) {
   const floor = h => h >= 35 && h < 45 ? .12 : h >= 45 && h < 65 ? .2 : h >= 65 && h < 105 ? .33 : h >= 105 && h < 120 ? .3 : h >= 120 && h < 140 ? .22 : 0;
   const relY = h => { const [r, g, b] = [1, 3, 5].map(k => { const v = parseInt(h.slice(k, k + 2), 16) / 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }); return .2126 * r + .7152 * g + .0722 * b; };
   if (A.C < .04 || relY(hot0) < floor(Hy.h)) {
-    const hot = okHex(dark ? (G.L < .4 ? Math.min(.5, G.L + .15) : Math.max(.12, G.L - .15)) : Math.min(.975, G.L + .07), G.C, G.h);
+    /* 2026-11-19 (the owner, of the home page's wall: "no pattern fills and only 1 gradient multi color", and
+       asked, "Show more of them"): a ground of a colour goes to a neighbour of its own hue, 40 degrees on
+       (pink to coral, teal to blue, navy to violet, violet to magenta), or 40 back where on lands in the
+       yellows and browns (red to crimson, orange to red, sand to peach): two hues, never a muddy one. A black,
+       white or grey ground has no hue to go from, and keeps its one tone. */
+    const Lh = dark ? (G.L < .4 ? Math.min(.5, G.L + .15) : Math.max(.12, G.L - .15)) : Math.min(.975, G.L + .07);
+    const on = (G.h + 40) % 360, ph = on >= 40 && on <= 130 ? (G.h + 320) % 360 : on, partner = G.C >= .04;
+    const hot = partner ? okHex(Lh, Math.max(G.C, .06), ph) : okHex(Lh, G.C, G.h);
     const deep = okHex(dark ? Math.max(.1, G.L - .07) : Math.min(.975, G.L + .03), G.C, G.h);
-    return { hot, deep, dark, tonal: true };
+    return { hot, deep, dark, tonal: !partner, partner };
   }
   const hot = hot0;
   const deep = okHex(dark ? Math.max(.1, G.L - .08) : Math.min(.975, G.L + .03), G.C, G.h);
@@ -1854,7 +1861,16 @@ export function pairGradientGround(kind, x, st, p, W, H, sc, r) {
      along deep → ground → a quiet middle → hot: the ground's hue fades out before the accent's comes
      in, so no pixel is a third hue (an sRGB blend of navy and orange passes through brown, of blue
      and green through cyan). Drawn at 128 across and scaled up smooth. */
-  const { hot, deep, tonal } = pairGradientColours(p), G = oklchOf(p.ground), Hh = oklchOf(hot), Dd = oklchOf(deep);
+  const { hot, deep, tonal, partner, dark } = pairGradientColours(p), G = oklchOf(p.ground), Hh = oklchOf(hot), Dd = oklchOf(deep);
+  /* the ground's hue turns into the far end's along the shorter way round, its colour kept all the way
+     (2026-11-19: "only 1 gradient multi color"): navy into cyan, purple through magenta into gold, red
+     through orange into yellow. Where the two are more than 150 degrees apart, or the ground has no hue,
+     the field passes through a quiet middle as before (a turn that long is a rainbow), and so does a dark
+     one whose way runs through the yellows (70 to 125 degrees): at a depth light words read on they are
+     olive (Teal & Orange would pass from teal through khaki). */
+  const dh = (((Hh.h - G.h) % 360) + 540) % 360 - 180;
+  const olive = dark && Array.from({ length: 19 }, (_, i) => (((G.h + dh * (i + 1) / 20) % 360) + 360) % 360).some(h => h >= 70 && h <= 125);
+  const sweep = partner || (!tonal && G.C >= .04 && Hh.C >= .04 && Math.abs(dh) <= 150 && !olive);
   const [cx, cy] = sc || [W / 2, H * .6];
   const ux = cx / W, uy = cy / H, asp = H / W;
   // the hard-edged fields are drawn finer, so their edge is a line and not a blur scaled up from 128
@@ -1909,6 +1925,8 @@ export function pairGradientGround(kind, x, st, p, W, H, sc, r) {
     let L, C, h;
     if (tonal) { h = G.h; C = G.C; L = t < .35 ? lerp(Dd.L, G.L, t / .35) : lerp(G.L, Hh.L, (t - .35) / .65); }   // one hue: no grey middle to pass through
     else if (t < .35) { const k = t / .35; L = lerp(Dd.L, G.L, k); C = lerp(Dd.C, G.C, k); h = G.h; }
+    // (a hard-edged field, split or arch, is two blocks: the far one in the far end's own hue, never one on the way)
+    else if (sweep) { const k = (t - .35) / .65; L = lerp(G.L, Hh.L, k); C = lerp(G.C, Hh.C, k); h = hard ? (k >= .5 ? Hh.h : G.h) : (G.h + dh * k + 360) % 360; }
     else if (t < .55) { const k = (t - .35) / .2; L = lerp(G.L, midL, k); C = G.C * (1 - k); h = G.h; }
     else { const k = (t - .55) / .45; L = lerp(midL, Hh.L, k); C = Hh.C * k; h = Hh.h; }
     const [R, Gr, B] = toRgb(L, C, h), o = (j * n + i) * 4;
@@ -1950,7 +1968,11 @@ export function fullPatternGround(kind, x, st, p, W, H, sc, r) {
   const lit = x.createRadialGradient(cx, cy, 0, cx, cy, D * .6);
   lit.addColorStop(0, rgba(p.light || p.ground, .55)); lit.addColorStop(1, rgba(p.light || p.ground, 0)); x.fillStyle = lit; x.fillRect(0, 0, W, H);
   // the marks, on a layer of their own: thinned behind the product, then laid on the ground
-  const step = { pat_grain: .1, pat_paper: .05, pat_riso: .07, pat_topo: .06, pat_grid: .05, pat_waves: .055 }[kind] || .055;
+  /* the step from the ground (2026-11-19; the owner, of the home page's wall: "no pattern fills", then "Show
+     more of them"): a step of .05 read as a flat ground at the wall's size, so the marks now stand nearly
+     twice as far off it. patternTone still keeps the words at 7:1 on them where both ways allow it, and
+     otherwise moves them away from the words. */
+  const step = { pat_grain: .1, pat_paper: .06, pat_riso: .1, pat_topo: .09, pat_grid: .08, pat_waves: .085 }[kind] || .095;
   const tone = patternTone(p, step), [tr, tg, tb] = hexRgb(tone), c = canvas(W, H), m = c.getContext("2d");
   m.fillStyle = tone; m.strokeStyle = tone; m.lineCap = "round"; m.lineJoin = "round";
   const speckle = (n, alpha) => {   // a tile of single grains in the tone
