@@ -6613,6 +6613,12 @@ What was learned:
   found what still drew there at load: the gates rebuilding Easy Mode's hidden strip, which this
   work's guard already stopped. landing_check now counts every canvas picture made at load, so a
   hidden panel's drawing fails it as a visible card's does.
+- **A test server is not a preview.** This work's checks ran against a local server of the working
+  tree (port 8790), stopped after each round and started again around each merge. The owner looked
+  at the landing's library on a page from it and saw a line draw six cards and then only names:
+  a page outlives its server, so every picture it had not loaded yet failed and showed its alt
+  text. library_images_check passes on every committed head (51 views, 2,440 pictures). Name the
+  commit to look at, and serve that commit, not a tree that is being merged.
 - **A test server that reads `_headers` once serves the old policy after a merge.** Pull request
   15 moved to 2908f8e7 while this was measured; merged in, its landing changed three inline
   scripts and their hashes, and the merged landing logged a blocked inline script, because the
