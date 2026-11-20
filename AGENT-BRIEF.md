@@ -714,7 +714,9 @@ produced." DESIGN-LAW rule 87. In practice:
 - **An ad shows what its words name** (rule 155): `node scripts/make_match_check.mjs` after any change to
   the recipes, the lines' pools or the cut-outs; a make named by its models goes to its line or its own
   cut-out, a model it names built since 2010, a motorcycle shows a motorcycle, a van its words name or
-  "work vans" (`build_recipes.mjs`).
+  "work vans" (`build_recipes.mjs`). The headline names the make its models line names (WE BUY LEXUS, not
+  WE BUY CARS, over RX • ES • IS), a make the headline names is the picture's, and a make's line carries only
+  that make; the check fails each.
 - **A city's photograph stands only behind its own towns, now and then** (rule 154):
   `node scripts/area_ground_check.mjs` after any change to the grounds, their tags
   (`spec/ground-tags.json`: `place` and `places`, each place's towns and states), the towns an ad is

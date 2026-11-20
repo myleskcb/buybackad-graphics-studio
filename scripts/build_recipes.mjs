@@ -221,7 +221,17 @@ const CAR_LINES = [
   [/\bF-?150S?\b|\bSILVERADOS?\b|\bRAMS?\b|\bTACOMAS?\b|\bTUNDRAS?\b|\bSIERRAS?\b|\bPICKUPS?\b/i, 'trucks'],
   [/\bTOYOTAS?\b/i, 'toyota'], [/\bHONDAS?\b/i, 'honda'], [BMW_WORDS, 'bmw'], [/\bMERCEDES\b|\bBENZ\b|\bAMG\b/i, 'mercedes'],
 ];
-const carLineOf = text => { for (const [re, k] of CAR_LINES) if (SUB[k] && re.test(text)) return k; if (/\bTRUCKS?\b/i.test(text) && !/\bCARS?\b|\bSUVS?\b/i.test(text) && SUB.trucks) return 'trucks'; return 'car'; };
+/* a make's own line is for one make (2026-11-19, the owner, through the roadmap session: "something needs to
+   change"): eight designer layouts whose models line read TOYOTA • HONDA • FORD • CHEVY • BMW stood on the
+   Toyota line under WE BUY CARS, with a Honda in front. A card that names more than one make is the general
+   line's (or a kind's: trucks, vans, classics, JDM), never the first make's */
+const MAKE_LINES = new Set(['toyota', 'honda', 'bmw', 'mercedes']);
+const carLineOf = text => {
+  const many = makesIn(text).length > 1;
+  for (const [re, k] of CAR_LINES) if (SUB[k] && re.test(text) && !(many && MAKE_LINES.has(k))) return k;
+  if (/\bTRUCKS?\b/i.test(text) && !/\bCARS?\b|\bSUVS?\b/i.test(text) && SUB.trucks) return 'trucks';
+  return 'car';
+};
 const CAR_SUBJECTS = new Set(['car', ...CAR_LINES.map(([, k]) => k)]);
 function subjectOf(ad, headline, allWords = headline) {
   if (ad.line && SUB[ad.line]) return ad.line;
@@ -235,6 +245,23 @@ const MAKES = { honda: /\bHONDAS?\b|\bCIVICS?\b|\bACCORDS?\b/, chevy: /\bCHEV(Y|
   toyota: /\bTOYOTAS?\b|\bTACOMAS?\b|\bCAMRYS?\b|\bTUNDRAS?\b|\bPRIUS\b|\bRAV4S?\b/, bmw: BMW_WORDS, nissan: /\bNISSANS?\b/, jeep: /\bJEEPS?\b|\bWRANGLERS?\b/,
   dodge: /\bDODGES?\b|\bCHALLENGERS?\b|\bCHARGERS?\b/, lexus: LEXUS_WORDS, tesla: /\bTESLAS?\b/, mercedes: /\bMERCEDES\b|\bBENZ\b/, audi: /\bAUDIS?\b/, gmc: /\bGMCS?\b/,
   subaru: /\bSUBARUS?\b/, kia: /\bKIAS?\b/, hyundai: /\bHYUNDAIS?\b/, porsche: /\bPORSCHES?\b/, vw: /\bVWS?\b|\bVOLKSWAGENS?\b/, volvo: /\bVOLVOS?\b/, mazda: /\bMAZDAS?\b/ };
+const makesIn = text => { const T = String(text || '').toUpperCase(); return Object.keys(MAKES).filter(k => MAKES[k].test(T)); };
+/* THE HEADLINE NAMES THE MAKE ITS MODELS LINE NAMES (2026-11-19; the owner, through the roadmap session, of WE BUY
+   CARS over 3 SERIES • 5 SERIES • X3 • X5 and over RX • ES • IS • GX • NX: "maybe we say it in the ad we buy BMWs or
+   we buy Toyotas or we buy Tacoma's but something needs to change", "either list Lexus and say we buy Lexus ...").
+   A headline that names cars, trucks or vehicles in general over a models line of one make names that make, as
+   the make lines' own headlines do (WE BUY BMWS, WE BUY LEXUS); one that names no kind of goods at all is left. */
+const MAKE_SAY = { toyota: ['TOYOTA', 'TOYOTAS'], honda: ['HONDA', 'HONDAS'], bmw: ['BMW', 'BMWS'], lexus: ['LEXUS', 'LEXUS'], mercedes: ['MERCEDES', 'MERCEDES'],
+  ford: ['FORD', 'FORDS'], chevy: ['CHEVY', 'CHEVYS'], nissan: ['NISSAN', 'NISSANS'], jeep: ['JEEP', 'JEEPS'], dodge: ['DODGE', 'DODGES'], tesla: ['TESLA', 'TESLAS'],
+  audi: ['AUDI', 'AUDIS'], gmc: ['GMC TRUCK', 'GMC TRUCKS'], subaru: ['SUBARU', 'SUBARUS'], kia: ['KIA', 'KIAS'], hyundai: ['HYUNDAI', 'HYUNDAIS'],
+  porsche: ['PORSCHE', 'PORSCHES'], vw: ['VOLKSWAGEN', 'VOLKSWAGENS'], volvo: ['VOLVO', 'VOLVOS'], mazda: ['MAZDA', 'MAZDAS'] };
+const KIND_MANY = /\bCARS? ?(?:&|AND) ?TRUCKS\b|\bCARS\b|\bTRUCKS\b|\bVEHICLES\b|\bSUVS\b|\bAUTOS\b/i, KIND_ONE = /\bCAR\b|\bTRUCK\b|\bVEHICLE\b|\bSUV\b/i;
+function sayMake(headline, tag) {
+  const inTag = makesIn(tag), H = String(headline || '');
+  if (inTag.length !== 1 || makesIn(H).length || !MAKE_SAY[inTag[0]]) return null;
+  const [one, many] = MAKE_SAY[inTag[0]];
+  return KIND_MANY.test(H) ? H.replace(KIND_MANY, many) : KIND_ONE.test(H) ? H.replace(KIND_ONE, one) : null;
+}
 /* a model the words name: its own cut-out where there is one (WE BUY TACOMAS shows a Tacoma, not any Toyota) */
 const MODELS = [[/\bTACOMAS?\b/, 'toyota', 'tacoma'], [/\bTUNDRAS?\b/, 'toyota', 'tundra'], [/\bCAMRYS?\b/, 'toyota', 'camry'], [/\bCOROLLAS?\b/, 'toyota', 'corolla'], [/\bRAV4S?\b/, 'toyota', 'rav4'],
   [/\b4RUNNERS?\b/, 'toyota', '4runner'], [/\bPRIUS\b/, 'toyota', 'prius'], [/\bSUPRAS?\b/, 'toyota', 'supra'], [/\bHIGHLANDERS?\b/, 'toyota', 'highlander'],
@@ -275,14 +302,26 @@ function picturesOf(ad, subject, headline, claim, notes) {
     if (bikes.length) pics = bikes;
     else if (cuts.length) { pics = [cuts[hash(ad.id) % cuts.length]]; notes.push(`a motorcycle picture in place of ${own.length ? own.join(', ') : 'none'}`); }
     else { pics = []; notes.push('no motorcycle cut-out: its words alone'); }
-    return { pictures: pics.slice(0, 2).map(file => ({ file, k: 1 })), make: 'motorcycle', wordsOnly: !pics.length };
+    // a headline that names a car make over a motorcycle says motorcycles (2026-11-19: WE BUY HONDAS stood on a Harley)
+    const hm = makesIn(headline).filter(k => MAKE_SAY[k]);
+    if (hm.length && !MOTO.test(headline)) {
+      const [one, many] = MAKE_SAY[hm[0]];
+      rename = { headline: headline.replace(new RegExp(`\\b${many}\\b`, 'i'), 'MOTORCYCLES').replace(new RegExp(`\\b${one}\\b`, 'i'), 'MOTORCYCLE') };
+      notes.push(`its headline named ${hm[0]} over a motorcycle: it says motorcycles`);
+    }
+    return { pictures: pics.slice(0, 2).map(file => ({ file, k: 1 })), make: 'motorcycle', wordsOnly: !pics.length, rename };
   }
   if (CAR_SUBJECTS.has(subject)) {
-    const named = Object.keys(MAKES).filter(k => MAKES[k].test(headline + ' ' + claim));
+    /* the make its headline names first (2026-11-19: WE BUY TACOMAS over F-150 • SILVERADO • RAM • TACOMA • TUNDRA
+       stood on a Silverado, the first make of its models line); else the first make its words name */
+    const inHead = Object.keys(MAKES).filter(k => MAKES[k].test(headline));
+    const named = inHead.length ? inHead : Object.keys(MAKES).filter(k => MAKES[k].test(headline + ' ' + claim));
     if (named.length) {
       make = named[0];
-      // every model of the make its words name: a picture of any of them (a models line of four BMWs is not one X3)
-      const models = MODELS.filter(([re, mk]) => mk === make && re.test(headline + ' ' + claim)).map(m => m[2]), model = models.join('/');
+      // every model of the make its words name: a picture of any of them (a models line of four BMWs is not one X3);
+      // the models its headline names, where it names any (WE BUY TACOMAS shows a Tacoma, not a Tundra)
+      const W = MODELS.some(([re, mk]) => mk === make && re.test(headline)) ? headline : headline + ' ' + claim;
+      const models = MODELS.filter(([re, mk]) => mk === make && re.test(W)).map(m => m[2]), model = models.join('/');
       const ofModel = f => !models.length || models.some(md => f.includes('-' + md));
       const now = OLD_WANTED.test(headline + ' ' + claim) ? () => true : recentCar, prefer = l => l.filter(now).length ? l.filter(now) : l;
       const fits = f => makeOfFile(f) === make && ofModel(f);
@@ -297,7 +336,9 @@ function picturesOf(ad, subject, headline, claim, notes) {
       /* and a van its words name, where there is a usable cut-out of it; where there is none (the one Sprinter
          is flagged), its headline says work vans, so its words name what its picture shows (2026-11-19: "WE BUY
          SPRINTERS" stood on a Ford Transit Connect) */
-      const T = headline + ' ' + claim, models = VAN_MODELS.filter(([re]) => re.test(T)).map(([, m]) => m);
+      // the van its headline names first (2026-11-19: WE BUY SPRINTERS over TRANSIT • SPRINTER • PROMASTER stood on a Transit)
+      const T = headline + ' ' + claim, inHead = VAN_MODELS.filter(([re]) => re.test(headline)).map(([, m]) => m);
+      const models = inHead.length ? inHead : VAN_MODELS.filter(([re]) => re.test(T)).map(([, m]) => m);
       const ofModel = f => !models.length || models.some(m => f.includes(m));
       const vans = pics.filter(f => /van|transit|sprinter|promaster/.test(f) && ofModel(f));
       if (vans.length) pics = vans;   // its own van of a named model; the line's pool where nothing pins it
@@ -473,6 +514,8 @@ for (const ad of all) {
   const { pictures, make, rename, wordsOnly } = picturesOf(ad, subject, words.headline || '', [words.claim, words.tag].filter(Boolean).join(' '), notes);   // the line under it names models too (TRANSIT • SPRINTER • PROMASTER)
   if (rename) Object.assign(words, rename);
   if (make === 'motorcycle' && !words.tag) { words.tag = MOTO_TAG; notes.push('a motorcycle models line of its own, not the car line\'s'); }
+  // the headline names the make its models line names (sayMake): WE BUY CARS over RX • ES • IS • GX • NX says WE BUY LEXUS
+  if (CAR_SUBJECTS.has(subject) && make !== 'motorcycle') { const said = sayMake(words.headline, words.tag); if (said) { notes.push(`its headline names the make its models line names: ${said}`); words.headline = said; } }
   const lined = lineUp(ad, S.cat, subject, pictures, make, groundOf(ad, ad.cat, make, notes), words, notes);
   const ground_photo = lined.ground_photo; pictures.splice(0, pictures.length, ...lined.pictures);
   // colours as the ad wore them: the library's own theme and ink; a template's ground and its headline's accent

@@ -4305,3 +4305,29 @@ Open, and the owner's: photographs of the sample's own towns (Long Beach, Los An
 let the library stand on its own city now and then; they are a download and wait on the owner's OK.
 The Bay's towns (Oakland, Berkeley, the Peninsula and Marin count as the Golden Gate's) are the
 owner's to narrow, in `spec/ground-tags.json`.
+
+Then (the owner, through the roadmap session, of the same car cards in an older build: "maybe we say it
+in the ad we buy BMWs ... something needs to change"), rule 155, held by `make_match_check`:
+- a car ad's headline names the make its models line names;
+- the make and model its headline names come before its models line's in the picture;
+- a make's line carries only that make.
+
+16 recipes changed:
+- WE BUY LEXUS (two cards) and WE BUY BMWS;
+- WE BUY MOTORCYCLES over the Harley;
+- WE BUY WORK VANS (two cards; there is no usable Sprinter cut-out);
+- a Tacoma under WE BUY TACOMAS;
+- eight designer layouts off the Toyota line;
+- one offer card's notes.
+
+Drawn again: 7 first looks, 14 other looks and 7 full-size renders.
+
+Open, and the owner's: the drone, VR, Apple Watch and Meta glasses offer cards name their maker in the
+models line, not the headline (DRONE GROUNDED? GET CASH over DJI MINI, AIR AND MAVIC). Should they say it
+too?
+
+Found: on a make's line (Toyota, Honda, BMW, Mercedes) and a kind's (trucks, vans, classics, JDM, semis),
+the recipe builder's ground match (`productOf`) reads the product as the line, not a car. So a card's
+own photograph of its own make is swapped for a scene: a Honda Civic on the Honda line, and two BMW M3s on
+the BMW line. Making it read a car could move pictures on those lines ("the picture follows the ground"),
+so it waits for a look of its own.

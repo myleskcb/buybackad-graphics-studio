@@ -22801,7 +22801,7 @@
     "tone": "light"
    },
    "words": {
-    "headline": "WE BUY CARS",
+    "headline": "WE BUY LEXUS",
     "tag": "RX • ES • IS • GX • NX",
     "claim": "AS-IS SAME DAY NO FEES",
     "label": "TEXT US NOW"
@@ -22828,6 +22828,7 @@
    "notes": [
     "left out 1 unidentified car picture",
     "a lexus picture in place of car-sedan-rear",
+    "its headline names the make its models line names: WE BUY LEXUS",
     "ground swapped for a scene: it showed a jeep wrangler"
    ]
   },
@@ -22932,7 +22933,7 @@
     "tone": "dark"
    },
    "words": {
-    "headline": "WE BUY HONDAS",
+    "headline": "WE BUY MOTORCYCLES",
     "tag": "HARLEY HONDA · YAMAHA",
     "claim": "FAST CASH",
     "label": "GET A CASH OFFER"
@@ -22950,6 +22951,7 @@
    "notes": [
     "left out 1 unidentified car picture",
     "a motorcycle picture in place of car-motorcycle-side",
+    "its headline named honda over a motorcycle: it says motorcycles",
     "ground not in spec/ground-tags.json: left out"
    ]
   },
@@ -22985,7 +22987,7 @@
     "tone": "dark"
    },
    "words": {
-    "headline": "WE BUY CARS & TRUCKS",
+    "headline": "WE BUY LEXUS",
     "tag": "RX • ES • IS • GX • NX",
     "claim": "RUNNING OR NOT"
    },
@@ -23011,6 +23013,7 @@
    "notes": [
     "left out 1 unidentified car picture",
     "a lexus picture in place of car-suv-side",
+    "its headline names the make its models line names: WE BUY LEXUS",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -23549,6 +23552,120 @@
    ]
   },
   {
+   "id": "r-dl_cars_agencyGrid_mono",
+   "from": "dl_cars_agencyGrid_mono",
+   "gen": "dl",
+   "cat": "cars",
+   "subject": "car",
+   "label": "Showroom Grid (designer layout)",
+   "seed": 50579,
+   "look": {
+    "family": "agencyGrid",
+    "colourway": "mono"
+   },
+   "hint": {
+    "ground": [
+     "pat_grid",
+     "pat_checks"
+    ],
+    "face": [
+     "grotesk",
+     "tech",
+     "block"
+    ],
+    "number": [
+     "box",
+     "underline"
+    ],
+    "neutral": true
+   },
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
+    "claim": "LOCAL CAR BUYER",
+    "label": "GET A CASH OFFER"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-hrv-beige",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.33,
+    "from": "dl_cars_agencyGrid_mono",
+    "shows": "scene"
+   },
+   "pair": "black_white_yellow",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "left out 1 unidentified car picture",
+    "a honda picture in place of car-sedan-rear",
+    "ground swapped for a scene: it showed a ford f150"
+   ]
+  },
+  {
+   "id": "r-dl_cars_arcCrown_sunset",
+   "from": "dl_cars_arcCrown_sunset",
+   "gen": "dl",
+   "cat": "cars",
+   "subject": "car",
+   "label": "Boulevard Arc (designer layout)",
+   "seed": 74080,
+   "look": {
+    "family": "arcCrown",
+    "colourway": "sunset"
+   },
+   "hint": {
+    "ground": [
+     "pair_arch",
+     "pair_radial",
+     "photo"
+    ],
+    "face": [
+     "varsity",
+     "stadium",
+     "retro",
+     "luxe"
+    ],
+    "headline": [
+     "inline",
+     "double_outline",
+     "extrude"
+    ],
+    "sticker": [
+     "seal",
+     "badge"
+    ],
+    "tone": "vivid",
+    "hue": 45
+   },
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-civic-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": null,
+   "pair": "yellow_on_black",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "a honda picture in place of none",
+    "ground left out: another dealer's sign and number on the lot"
+   ]
+  },
+  {
    "id": "r-dl_cars_bandKnockout_sunset",
    "from": "dl_cars_bandKnockout_sunset",
    "gen": "dl",
@@ -23711,6 +23828,265 @@
    ]
   },
   {
+   "id": "r-dl_cars_glassCard_ocean",
+   "from": "dl_cars_glassCard_ocean",
+   "gen": "dl",
+   "cat": "cars",
+   "subject": "car",
+   "label": "Showroom Glass (designer layout)",
+   "seed": 9118,
+   "look": {
+    "family": "glassCard",
+    "colourway": "ocean"
+   },
+   "hint": {
+    "ground": [
+     "photo",
+     "pair_mesh",
+     "scene"
+    ],
+    "face": [
+     "grotesk",
+     "warp",
+     "tech"
+    ],
+    "headline": [
+     "glass",
+     "outline_shadow"
+    ],
+    "sticker": [
+     "pill",
+     "badge"
+    ],
+    "fill": [
+     "glass"
+    ],
+    "tone": "vivid",
+    "hue": 215
+   },
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
+    "claim": "LOCAL CAR BUYER",
+    "label": "GET A CASH OFFER"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-hrv-beige",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.25,
+    "from": "dl_cars_glassCard_ocean",
+    "shows": "scene"
+   },
+   "pair": "white_on_black",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "a honda picture in place of none",
+    "ground swapped for a scene: it showed a car of no stated make"
+   ]
+  },
+  {
+   "id": "r-dl_cars_gradientWave_crimson",
+   "from": "dl_cars_gradientWave_crimson",
+   "gen": "dl",
+   "cat": "cars",
+   "subject": "car",
+   "label": "Redline Wave (designer layout)",
+   "seed": 75524,
+   "look": {
+    "family": "gradientWave",
+    "colourway": "crimson"
+   },
+   "hint": {
+    "ground": [
+     "pair_linear",
+     "pair_mesh",
+     "pair_sunset",
+     "pat_waves"
+    ],
+    "face": [
+     "luxe",
+     "grotesk",
+     "warp"
+    ],
+    "headline": [
+     "gradient",
+     "outline_shadow"
+    ],
+    "fill": [
+     "gradient"
+    ],
+    "tone": "vivid",
+    "hue": 25
+   },
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
+    "claim": "AS-IS SAME DAY NO FEES",
+    "label": "GET A CASH OFFER"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-hrv-beige",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.25,
+    "from": "dl_cars_gradientWave_crimson",
+    "shows": "scene"
+   },
+   "pair": "white_on_black",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "a honda picture in place of none",
+    "ground swapped for a scene: it showed a chevy silverado"
+   ]
+  },
+  {
+   "id": "r-dl_cars_hudTech_crimson",
+   "from": "dl_cars_hudTech_crimson",
+   "gen": "dl",
+   "cat": "cars",
+   "subject": "car",
+   "label": "Dash HUD (designer layout)",
+   "seed": 43265,
+   "look": {
+    "family": "hudTech",
+    "colourway": "crimson"
+   },
+   "hint": {
+    "ground": [
+     "pat_grid",
+     "pat_topo",
+     "photo"
+    ],
+    "face": [
+     "tech",
+     "arcade",
+     "pixel",
+     "squad"
+    ],
+    "headline": [
+     "glow",
+     "inline",
+     "outline_shadow"
+    ],
+    "number": [
+     "box",
+     "tag"
+    ],
+    "tone": "vivid",
+    "hue": 25
+   },
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
+    "claim": "LOCAL CAR BUYER",
+    "label": "GET A CASH OFFER"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-hrv-beige",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.25,
+    "from": "dl_cars_hudTech_crimson",
+    "shows": "scene"
+   },
+   "pair": "black_white_yellow",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "a honda picture in place of none",
+    "ground swapped for a scene: it showed a car of no stated make"
+   ]
+  },
+  {
+   "id": "r-dl_cars_neonNight_sunset",
+   "from": "dl_cars_neonNight_sunset",
+   "gen": "dl",
+   "cat": "cars",
+   "subject": "car",
+   "label": "Neon Garage (designer layout)",
+   "seed": 51188,
+   "look": {
+    "family": "neonNight",
+    "colourway": "sunset"
+   },
+   "hint": {
+    "ground": [
+     "glow_orbs",
+     "aurora",
+     "pair_radial",
+     "photo"
+    ],
+    "face": [
+     "warp",
+     "speed",
+     "tech",
+     "street"
+    ],
+    "headline": [
+     "glow",
+     "double_outline",
+     "inline"
+    ],
+    "tone": "vivid",
+    "hue": 45
+   },
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
+    "claim": "LOCAL CAR BUYER"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-pilot-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.25,
+    "from": "dl_cars_neonNight_sunset",
+    "shows": "scene"
+   },
+   "pair": "white_on_violet",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "a honda picture in place of none",
+    "ground swapped for a scene: it showed a car of no stated make"
+   ]
+  },
+  {
    "id": "r-dl_cars_priceAnchor_crimson",
    "from": "dl_cars_priceAnchor_crimson",
    "gen": "dl",
@@ -23826,6 +24202,72 @@
    ]
   },
   {
+   "id": "r-dl_cars_ticketStub_mono",
+   "from": "dl_cars_ticketStub_mono",
+   "gen": "dl",
+   "cat": "cars",
+   "subject": "car",
+   "label": "Pink Slip (designer layout)",
+   "seed": 49429,
+   "look": {
+    "family": "ticketStub",
+    "colourway": "mono"
+   },
+   "hint": {
+    "ground": [
+     "pat_paper",
+     "pat_grain",
+     "photo"
+    ],
+    "face": [
+     "press",
+     "stencil",
+     "retro"
+    ],
+    "sticker": [
+     "tag",
+     "stamp"
+    ],
+    "number": [
+     "ticket"
+    ],
+    "fill": [
+     "dots",
+     "solid"
+    ],
+    "neutral": true
+   },
+   "words": {
+    "headline": "WE BUY CARS",
+    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
+    "claim": "CASH ON THE SPOT",
+    "label": "GET A CASH OFFER"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-accord-2023-white-side",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.25,
+    "from": "dl_cars_ticketStub_mono",
+    "shows": "scene"
+   },
+   "pair": "yellow_on_black",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "a honda picture in place of none",
+    "ground swapped for a scene: it showed a car of no stated make"
+   ]
+  },
+  {
    "id": "r-dl_cars_voltStack_ocean",
    "from": "dl_cars_voltStack_ocean",
    "gen": "dl",
@@ -23881,6 +24323,72 @@
    "type_pair": "",
    "notes": [
     "ground swapped for a scene: it showed car-key"
+   ]
+  },
+  {
+   "id": "r-dl_cars_wantedFrame_paper",
+   "from": "dl_cars_wantedFrame_paper",
+   "gen": "dl",
+   "cat": "cars",
+   "subject": "car",
+   "label": "Runner Wanted (designer layout)",
+   "seed": 23654,
+   "look": {
+    "family": "wantedFrame",
+    "colourway": "paper"
+   },
+   "hint": {
+    "ground": [
+     "pat_paper",
+     "pat_grain"
+    ],
+    "face": [
+     "stencil",
+     "press",
+     "luxe"
+    ],
+    "headline": [
+     "stamped",
+     "inline"
+    ],
+    "sticker": [
+     "stamp",
+     "seal"
+    ],
+    "tone": "light",
+    "hue": 80,
+    "neutral": true
+   },
+   "words": {
+    "headline": "WANTED CARS",
+    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
+    "claim": "LOCAL CAR BUYER"
+   },
+   "pictures": [
+    {
+     "file": "car-honda-civic-type-r-fl5-white",
+     "k": 1
+    }
+   ],
+   "ground_photo": {
+    "src": "assets/bg-web/popular-honda-civic-type-r-fl5-1.jpg",
+    "focus": [
+     0.5,
+     0.5
+    ],
+    "scrim": 0.25,
+    "from": "dl_cars_wantedFrame_paper",
+    "shows": "product",
+    "subject": "car",
+    "make": "honda",
+    "model": "civic"
+   },
+   "pair": "white_on_black",
+   "type_pair": "",
+   "make": "honda",
+   "notes": [
+    "a honda picture in place of none",
+    "ground swapped: it showed a chevy silverado"
    ]
   },
   {
@@ -25079,7 +25587,7 @@
    },
    "pictures": [
     {
-     "file": "car-chevy-silverado-zr2-red",
+     "file": "car-toyota-tacoma-trd-offroad-black",
      "k": 1
     }
    ],
@@ -25095,10 +25603,10 @@
    },
    "pair": "black_gold",
    "type_pair": "",
-   "make": "chevy",
+   "make": "toyota",
    "notes": [
     "left out 1 unidentified car picture",
-    "a chevy silverado picture in place of car-suv-side",
+    "a toyota tacoma picture in place of car-suv-side",
     "ground swapped for a scene: it showed a chevy silverado"
    ]
   },
@@ -25814,508 +26322,6 @@
    "notes": [
     "a chevy silverado picture in place of car-toyota-tacoma-orange",
     "ground swapped for a scene: it showed a car of no stated make"
-   ]
-  },
-  {
-   "id": "r-dl_cars_agencyGrid_mono",
-   "from": "dl_cars_agencyGrid_mono",
-   "gen": "dl",
-   "cat": "cars",
-   "subject": "toyota",
-   "label": "Showroom Grid (designer layout)",
-   "seed": 50579,
-   "look": {
-    "family": "agencyGrid",
-    "colourway": "mono"
-   },
-   "hint": {
-    "ground": [
-     "pat_grid",
-     "pat_checks"
-    ],
-    "face": [
-     "grotesk",
-     "tech",
-     "block"
-    ],
-    "number": [
-     "box",
-     "underline"
-    ],
-    "neutral": true
-   },
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
-    "claim": "LOCAL CAR BUYER",
-    "label": "GET A CASH OFFER"
-   },
-   "pictures": [
-    {
-     "file": "car-honda-hrv-beige",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.33,
-    "from": "dl_cars_agencyGrid_mono",
-    "shows": "scene"
-   },
-   "pair": "black_white_yellow",
-   "type_pair": "",
-   "make": "honda",
-   "notes": [
-    "left out 1 unidentified car picture",
-    "a honda picture in place of car-sedan-rear",
-    "ground swapped for a scene: it showed a ford f150"
-   ]
-  },
-  {
-   "id": "r-dl_cars_arcCrown_sunset",
-   "from": "dl_cars_arcCrown_sunset",
-   "gen": "dl",
-   "cat": "cars",
-   "subject": "toyota",
-   "label": "Boulevard Arc (designer layout)",
-   "seed": 74080,
-   "look": {
-    "family": "arcCrown",
-    "colourway": "sunset"
-   },
-   "hint": {
-    "ground": [
-     "pair_arch",
-     "pair_radial",
-     "photo"
-    ],
-    "face": [
-     "varsity",
-     "stadium",
-     "retro",
-     "luxe"
-    ],
-    "headline": [
-     "inline",
-     "double_outline",
-     "extrude"
-    ],
-    "sticker": [
-     "seal",
-     "badge"
-    ],
-    "tone": "vivid",
-    "hue": 45
-   },
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT"
-   },
-   "pictures": [
-    {
-     "file": "car-honda-civic-white",
-     "k": 1
-    }
-   ],
-   "ground_photo": null,
-   "pair": "yellow_on_black",
-   "type_pair": "",
-   "make": "honda",
-   "notes": [
-    "a honda picture in place of none",
-    "ground left out: another dealer's sign and number on the lot"
-   ]
-  },
-  {
-   "id": "r-dl_cars_glassCard_ocean",
-   "from": "dl_cars_glassCard_ocean",
-   "gen": "dl",
-   "cat": "cars",
-   "subject": "toyota",
-   "label": "Showroom Glass (designer layout)",
-   "seed": 9118,
-   "look": {
-    "family": "glassCard",
-    "colourway": "ocean"
-   },
-   "hint": {
-    "ground": [
-     "photo",
-     "pair_mesh",
-     "scene"
-    ],
-    "face": [
-     "grotesk",
-     "warp",
-     "tech"
-    ],
-    "headline": [
-     "glass",
-     "outline_shadow"
-    ],
-    "sticker": [
-     "pill",
-     "badge"
-    ],
-    "fill": [
-     "glass"
-    ],
-    "tone": "vivid",
-    "hue": 215
-   },
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
-    "claim": "LOCAL CAR BUYER",
-    "label": "GET A CASH OFFER"
-   },
-   "pictures": [
-    {
-     "file": "car-honda-hrv-beige",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_cars_glassCard_ocean",
-    "shows": "scene"
-   },
-   "pair": "white_on_black",
-   "type_pair": "",
-   "make": "honda",
-   "notes": [
-    "a honda picture in place of none",
-    "ground swapped for a scene: it showed a car of no stated make"
-   ]
-  },
-  {
-   "id": "r-dl_cars_gradientWave_crimson",
-   "from": "dl_cars_gradientWave_crimson",
-   "gen": "dl",
-   "cat": "cars",
-   "subject": "toyota",
-   "label": "Redline Wave (designer layout)",
-   "seed": 75524,
-   "look": {
-    "family": "gradientWave",
-    "colourway": "crimson"
-   },
-   "hint": {
-    "ground": [
-     "pair_linear",
-     "pair_mesh",
-     "pair_sunset",
-     "pat_waves"
-    ],
-    "face": [
-     "luxe",
-     "grotesk",
-     "warp"
-    ],
-    "headline": [
-     "gradient",
-     "outline_shadow"
-    ],
-    "fill": [
-     "gradient"
-    ],
-    "tone": "vivid",
-    "hue": 25
-   },
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
-    "claim": "AS-IS SAME DAY NO FEES",
-    "label": "GET A CASH OFFER"
-   },
-   "pictures": [
-    {
-     "file": "car-honda-hrv-beige",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_cars_gradientWave_crimson",
-    "shows": "scene"
-   },
-   "pair": "white_on_black",
-   "type_pair": "",
-   "make": "honda",
-   "notes": [
-    "a honda picture in place of none",
-    "ground swapped for a scene: it showed a chevy silverado"
-   ]
-  },
-  {
-   "id": "r-dl_cars_hudTech_crimson",
-   "from": "dl_cars_hudTech_crimson",
-   "gen": "dl",
-   "cat": "cars",
-   "subject": "toyota",
-   "label": "Dash HUD (designer layout)",
-   "seed": 43265,
-   "look": {
-    "family": "hudTech",
-    "colourway": "crimson"
-   },
-   "hint": {
-    "ground": [
-     "pat_grid",
-     "pat_topo",
-     "photo"
-    ],
-    "face": [
-     "tech",
-     "arcade",
-     "pixel",
-     "squad"
-    ],
-    "headline": [
-     "glow",
-     "inline",
-     "outline_shadow"
-    ],
-    "number": [
-     "box",
-     "tag"
-    ],
-    "tone": "vivid",
-    "hue": 25
-   },
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
-    "claim": "LOCAL CAR BUYER",
-    "label": "GET A CASH OFFER"
-   },
-   "pictures": [
-    {
-     "file": "car-honda-hrv-beige",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_cars_hudTech_crimson",
-    "shows": "scene"
-   },
-   "pair": "black_white_yellow",
-   "type_pair": "",
-   "make": "honda",
-   "notes": [
-    "a honda picture in place of none",
-    "ground swapped for a scene: it showed a car of no stated make"
-   ]
-  },
-  {
-   "id": "r-dl_cars_neonNight_sunset",
-   "from": "dl_cars_neonNight_sunset",
-   "gen": "dl",
-   "cat": "cars",
-   "subject": "toyota",
-   "label": "Neon Garage (designer layout)",
-   "seed": 51188,
-   "look": {
-    "family": "neonNight",
-    "colourway": "sunset"
-   },
-   "hint": {
-    "ground": [
-     "glow_orbs",
-     "aurora",
-     "pair_radial",
-     "photo"
-    ],
-    "face": [
-     "warp",
-     "speed",
-     "tech",
-     "street"
-    ],
-    "headline": [
-     "glow",
-     "double_outline",
-     "inline"
-    ],
-    "tone": "vivid",
-    "hue": 45
-   },
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
-    "claim": "LOCAL CAR BUYER"
-   },
-   "pictures": [
-    {
-     "file": "car-honda-pilot-white",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_cars_neonNight_sunset",
-    "shows": "scene"
-   },
-   "pair": "white_on_violet",
-   "type_pair": "",
-   "make": "honda",
-   "notes": [
-    "a honda picture in place of none",
-    "ground swapped for a scene: it showed a car of no stated make"
-   ]
-  },
-  {
-   "id": "r-dl_cars_ticketStub_mono",
-   "from": "dl_cars_ticketStub_mono",
-   "gen": "dl",
-   "cat": "cars",
-   "subject": "toyota",
-   "label": "Pink Slip (designer layout)",
-   "seed": 49429,
-   "look": {
-    "family": "ticketStub",
-    "colourway": "mono"
-   },
-   "hint": {
-    "ground": [
-     "pat_paper",
-     "pat_grain",
-     "photo"
-    ],
-    "face": [
-     "press",
-     "stencil",
-     "retro"
-    ],
-    "sticker": [
-     "tag",
-     "stamp"
-    ],
-    "number": [
-     "ticket"
-    ],
-    "fill": [
-     "dots",
-     "solid"
-    ],
-    "neutral": true
-   },
-   "words": {
-    "headline": "WE BUY CARS",
-    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
-    "claim": "CASH ON THE SPOT",
-    "label": "GET A CASH OFFER"
-   },
-   "pictures": [
-    {
-     "file": "car-honda-accord-2023-white-side",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_cars_ticketStub_mono",
-    "shows": "scene"
-   },
-   "pair": "yellow_on_black",
-   "type_pair": "",
-   "make": "honda",
-   "notes": [
-    "a honda picture in place of none",
-    "ground swapped for a scene: it showed a car of no stated make"
-   ]
-  },
-  {
-   "id": "r-dl_cars_wantedFrame_paper",
-   "from": "dl_cars_wantedFrame_paper",
-   "gen": "dl",
-   "cat": "cars",
-   "subject": "toyota",
-   "label": "Runner Wanted (designer layout)",
-   "seed": 23654,
-   "look": {
-    "family": "wantedFrame",
-    "colourway": "paper"
-   },
-   "hint": {
-    "ground": [
-     "pat_paper",
-     "pat_grain"
-    ],
-    "face": [
-     "stencil",
-     "press",
-     "luxe"
-    ],
-    "headline": [
-     "stamped",
-     "inline"
-    ],
-    "sticker": [
-     "stamp",
-     "seal"
-    ],
-    "tone": "light",
-    "hue": 80,
-    "neutral": true
-   },
-   "words": {
-    "headline": "WANTED CARS",
-    "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
-    "claim": "LOCAL CAR BUYER"
-   },
-   "pictures": [
-    {
-     "file": "car-honda-civic-type-r-fl5-white",
-     "k": 1
-    }
-   ],
-   "ground_photo": {
-    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_cars_wantedFrame_paper",
-    "shows": "scene"
-   },
-   "pair": "white_on_black",
-   "type_pair": "",
-   "make": "honda",
-   "notes": [
-    "a honda picture in place of none",
-    "ground swapped for a scene: it showed a chevy silverado"
    ]
   },
   {
@@ -27342,7 +27348,7 @@
     ]
    },
    "words": {
-    "headline": "WE BUY CARS",
+    "headline": "WE BUY BMWS",
     "tag": "3 SERIES • 5 SERIES • X3 • X5",
     "claim": "RUNNING OR NOT",
     "label": "GET A CASH OFFER"
@@ -27360,6 +27366,7 @@
    "notes": [
     "left out 1 unidentified car picture",
     "a bmw x3/x5/5-series picture in place of car-sedan-rear",
+    "its headline names the make its models line names: WE BUY BMWS",
     "cash ground left out"
    ]
   },
@@ -27605,7 +27612,7 @@
    "type_pair": "sport",
    "make": "bmw",
    "notes": [
-    "a bmw x3/x5/5-series/m3 picture in place of car-bmw-ix3-2026-white",
+    "a bmw x3/x5/m3 picture in place of car-bmw-ix3-2026-white",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },
@@ -28323,12 +28330,12 @@
     ]
    },
    "words": {
-    "headline": "WE BUY SPRINTERS",
+    "headline": "WE BUY WORK VANS",
     "tag": "TRANSIT • SPRINTER • PROMASTER"
    },
    "pictures": [
     {
-     "file": "car-ford-transit-connect-white",
+     "file": "car-ram-promaster-grey",
      "k": 1
     }
    ],
@@ -28348,6 +28355,7 @@
    "notes": [
     "left out 1 unidentified car picture",
     "a van picture in place of car-suv-side",
+    "no sprinter cut-out: its headline says work vans",
     "ground swapped for a scene: it showed a ford transit"
    ]
   },
@@ -28510,13 +28518,13 @@
     ]
    },
    "words": {
-    "headline": "WE BUY SPRINTERS",
+    "headline": "WE BUY WORK VANS",
     "tag": "TRANSIT • SPRINTER • PROMASTER",
     "label": "REQUEST AN APPRAISAL"
    },
    "pictures": [
     {
-     "file": "car-ford-transit-courier-white",
+     "file": "car-ram-promaster-grey",
      "k": 1
     }
    ],
@@ -28536,6 +28544,7 @@
    "notes": [
     "left out 1 unidentified car picture",
     "a van picture in place of car-suv-side",
+    "no sprinter cut-out: its headline says work vans",
     "ground swapped for a scene: it showed a car of no stated make"
    ]
   },

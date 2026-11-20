@@ -1,6 +1,6 @@
 {
  "about": "The library's other looks (DESIGN-LAW 162): two more looks of every rebuilt design, every line's own full ad and the video maker's Any look gallery, drawn by scripts/build_library_looks.mjs at 400px; app.js shows them in the landing library beside assets/recipe-stills/ and opens each where it is made.",
- "made": "2026-11-20T05:26:51.037Z",
+ "made": "2026-11-20T05:47:31.320Z",
  "size": 400,
  "items": {
   "any-1000": {
@@ -6237,7 +6237,7 @@
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
    "states": "CA",
-   "stamp": "[63558,\"vans\",{\"headline\":\"WE BUY SPRINTERS\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER\"},[{\"file\":\"car-ford-transit-connect-white\",\"k\":1}],false,\"Arc Crown (library card)\",3]",
+   "stamp": "[63558,\"vans\",{\"headline\":\"WE BUY WORK VANS\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER\"},[{\"file\":\"car-ram-promaster-grey\",\"k\":1}],false,\"Arc Crown (library card)\",3]",
    "thumb": "assets/library-looks/r-arcCrown-ca03-35~2.webp"
   },
   "r-arcCrown-ca03-35~3": {
@@ -6258,7 +6258,7 @@
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
    "states": "CA",
-   "stamp": "[63558,\"vans\",{\"headline\":\"WE BUY SPRINTERS\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER\"},[{\"file\":\"car-ford-transit-connect-white\",\"k\":1}],false,\"Arc Crown (library card)\",3]",
+   "stamp": "[63558,\"vans\",{\"headline\":\"WE BUY WORK VANS\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER\"},[{\"file\":\"car-ram-promaster-grey\",\"k\":1}],false,\"Arc Crown (library card)\",3]",
    "thumb": "assets/library-looks/r-arcCrown-ca03-35~3.webp"
   },
   "r-arcCrown-ca07-15~2": {
@@ -11109,7 +11109,7 @@
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
    "states": "CA",
-   "stamp": "[83962,\"bmw\",{\"headline\":\"WE BUY CARS\",\"tag\":\"3 SERIES • 5 SERIES • X3 • X5\",\"claim\":\"RUNNING OR NOT\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-bmw-x3-black\",\"k\":1}],false,\"Glass Card (library card)\",3]",
+   "stamp": "[83962,\"bmw\",{\"headline\":\"WE BUY BMWS\",\"tag\":\"3 SERIES • 5 SERIES • X3 • X5\",\"claim\":\"RUNNING OR NOT\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-bmw-x3-black\",\"k\":1}],false,\"Glass Card (library card)\",3]",
    "thumb": "assets/library-looks/r-glassCard-du02-20~2.webp"
   },
   "r-glassCard-du02-20~3": {
@@ -11130,7 +11130,7 @@
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
    "states": "CA",
-   "stamp": "[83962,\"bmw\",{\"headline\":\"WE BUY CARS\",\"tag\":\"3 SERIES • 5 SERIES • X3 • X5\",\"claim\":\"RUNNING OR NOT\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-bmw-x3-black\",\"k\":1}],false,\"Glass Card (library card)\",3]",
+   "stamp": "[83962,\"bmw\",{\"headline\":\"WE BUY BMWS\",\"tag\":\"3 SERIES • 5 SERIES • X3 • X5\",\"claim\":\"RUNNING OR NOT\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-bmw-x3-black\",\"k\":1}],false,\"Glass Card (library card)\",3]",
    "thumb": "assets/library-looks/r-glassCard-du02-20~3.webp"
   },
   "r-glassCard-du02-30~2": {
@@ -11865,7 +11865,7 @@
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
    "states": "CA",
-   "stamp": "[6782,\"trucks\",{\"headline\":\"WE BUY TACOMAS\",\"tag\":\"F-150 • SILVERADO • RAM • TACOMA • TUNDRA\",\"claim\":\"AS-IS SAME DAY NO FEES\",\"label\":\"CALL OR TEXT NOW\"},[{\"file\":\"car-chevy-silverado-zr2-red\",\"k\":1}],false,\"Gradient Wave (library card)\",3]",
+   "stamp": "[6782,\"trucks\",{\"headline\":\"WE BUY TACOMAS\",\"tag\":\"F-150 • SILVERADO • RAM • TACOMA • TUNDRA\",\"claim\":\"AS-IS SAME DAY NO FEES\",\"label\":\"CALL OR TEXT NOW\"},[{\"file\":\"car-toyota-tacoma-trd-offroad-black\",\"k\":1}],false,\"Gradient Wave (library card)\",3]",
    "thumb": "assets/library-looks/r-gradientWave-cd04-25~2.webp"
   },
   "r-gradientWave-cd04-25~3": {
@@ -11886,7 +11886,7 @@
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
    "states": "CA",
-   "stamp": "[6782,\"trucks\",{\"headline\":\"WE BUY TACOMAS\",\"tag\":\"F-150 • SILVERADO • RAM • TACOMA • TUNDRA\",\"claim\":\"AS-IS SAME DAY NO FEES\",\"label\":\"CALL OR TEXT NOW\"},[{\"file\":\"car-chevy-silverado-zr2-red\",\"k\":1}],false,\"Gradient Wave (library card)\",3]",
+   "stamp": "[6782,\"trucks\",{\"headline\":\"WE BUY TACOMAS\",\"tag\":\"F-150 • SILVERADO • RAM • TACOMA • TUNDRA\",\"claim\":\"AS-IS SAME DAY NO FEES\",\"label\":\"CALL OR TEXT NOW\"},[{\"file\":\"car-toyota-tacoma-trd-offroad-black\",\"k\":1}],false,\"Gradient Wave (library card)\",3]",
    "thumb": "assets/library-looks/r-gradientWave-cd04-25~3.webp"
   },
   "r-gradientWave-cd04-30~2": {
@@ -12369,7 +12369,7 @@
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
    "states": "CA",
-   "stamp": "[29321,\"car\",{\"headline\":\"WE BUY CARS\",\"tag\":\"RX • ES • IS • GX • NX\",\"claim\":\"AS-IS SAME DAY NO FEES\",\"label\":\"TEXT US NOW\"},[{\"file\":\"car-lexus-is-white\",\"k\":1}],false,\"Gradient Wave (library card)\",3]",
+   "stamp": "[29321,\"car\",{\"headline\":\"WE BUY LEXUS\",\"tag\":\"RX • ES • IS • GX • NX\",\"claim\":\"AS-IS SAME DAY NO FEES\",\"label\":\"TEXT US NOW\"},[{\"file\":\"car-lexus-is-white\",\"k\":1}],false,\"Gradient Wave (library card)\",3]",
    "thumb": "assets/library-looks/r-gradientWave-gl04-20~2.webp"
   },
   "r-gradientWave-gl04-20~3": {
@@ -12390,7 +12390,7 @@
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
    "states": "CA",
-   "stamp": "[29321,\"car\",{\"headline\":\"WE BUY CARS\",\"tag\":\"RX • ES • IS • GX • NX\",\"claim\":\"AS-IS SAME DAY NO FEES\",\"label\":\"TEXT US NOW\"},[{\"file\":\"car-lexus-is-white\",\"k\":1}],false,\"Gradient Wave (library card)\",3]",
+   "stamp": "[29321,\"car\",{\"headline\":\"WE BUY LEXUS\",\"tag\":\"RX • ES • IS • GX • NX\",\"claim\":\"AS-IS SAME DAY NO FEES\",\"label\":\"TEXT US NOW\"},[{\"file\":\"car-lexus-is-white\",\"k\":1}],false,\"Gradient Wave (library card)\",3]",
    "thumb": "assets/library-looks/r-gradientWave-gl04-20~3.webp"
   },
   "r-gradientWave-gl07-35~2": {
@@ -13167,7 +13167,7 @@
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
    "states": "CA",
-   "stamp": "[42810,\"car\",{\"headline\":\"WE BUY HONDAS\",\"tag\":\"HARLEY HONDA · YAMAHA\",\"claim\":\"FAST CASH\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-harley-softail-black\",\"k\":1}],false,\"HUD Tech 2 (library card)\",3]",
+   "stamp": "[42810,\"car\",{\"headline\":\"WE BUY MOTORCYCLES\",\"tag\":\"HARLEY HONDA · YAMAHA\",\"claim\":\"FAST CASH\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-harley-softail-black\",\"k\":1}],false,\"HUD Tech 2 (library card)\",3]",
    "thumb": "assets/library-looks/r-hudTech-io03-20~2.webp"
   },
   "r-hudTech-io03-20~3": {
@@ -13188,7 +13188,7 @@
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
    "states": "CA",
-   "stamp": "[42810,\"car\",{\"headline\":\"WE BUY HONDAS\",\"tag\":\"HARLEY HONDA · YAMAHA\",\"claim\":\"FAST CASH\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-harley-softail-black\",\"k\":1}],false,\"HUD Tech 2 (library card)\",3]",
+   "stamp": "[42810,\"car\",{\"headline\":\"WE BUY MOTORCYCLES\",\"tag\":\"HARLEY HONDA · YAMAHA\",\"claim\":\"FAST CASH\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-harley-softail-black\",\"k\":1}],false,\"HUD Tech 2 (library card)\",3]",
    "thumb": "assets/library-looks/r-hudTech-io03-20~3.webp"
   },
   "r-hudTech-jw03-20~2": {
@@ -13839,7 +13839,7 @@
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
    "states": "CA",
-   "stamp": "[47717,\"car\",{\"headline\":\"WE BUY CARS & TRUCKS\",\"tag\":\"RX • ES • IS • GX • NX\",\"claim\":\"RUNNING OR NOT\"},[{\"file\":\"car-lexus-rx-white\",\"k\":1}],false,\"Neon Night 1 (library card)\",3]",
+   "stamp": "[47717,\"car\",{\"headline\":\"WE BUY LEXUS\",\"tag\":\"RX • ES • IS • GX • NX\",\"claim\":\"RUNNING OR NOT\"},[{\"file\":\"car-lexus-rx-white\",\"k\":1}],false,\"Neon Night 1 (library card)\",3]",
    "thumb": "assets/library-looks/r-neonNight-du07-20~2.webp"
   },
   "r-neonNight-du07-20~3": {
@@ -13860,7 +13860,7 @@
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
    "states": "CA",
-   "stamp": "[47717,\"car\",{\"headline\":\"WE BUY CARS & TRUCKS\",\"tag\":\"RX • ES • IS • GX • NX\",\"claim\":\"RUNNING OR NOT\"},[{\"file\":\"car-lexus-rx-white\",\"k\":1}],false,\"Neon Night 1 (library card)\",3]",
+   "stamp": "[47717,\"car\",{\"headline\":\"WE BUY LEXUS\",\"tag\":\"RX • ES • IS • GX • NX\",\"claim\":\"RUNNING OR NOT\"},[{\"file\":\"car-lexus-rx-white\",\"k\":1}],false,\"Neon Night 1 (library card)\",3]",
    "thumb": "assets/library-looks/r-neonNight-du07-20~3.webp"
   },
   "r-neonNight-du07-31~2": {
@@ -28707,7 +28707,7 @@
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
    "states": "CA",
-   "stamp": "[31595,\"vans\",{\"headline\":\"WE BUY SPRINTERS\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER\",\"label\":\"REQUEST AN APPRAISAL\"},[{\"file\":\"car-ford-transit-courier-white\",\"k\":1}],false,\"Script Retro (library card)\",3]",
+   "stamp": "[31595,\"vans\",{\"headline\":\"WE BUY WORK VANS\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER\",\"label\":\"REQUEST AN APPRAISAL\"},[{\"file\":\"car-ram-promaster-grey\",\"k\":1}],false,\"Script Retro (library card)\",3]",
    "thumb": "assets/library-looks/r-scriptRetro-su02-25~2.webp"
   },
   "r-scriptRetro-su02-25~3": {
@@ -28728,7 +28728,7 @@
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
    "states": "CA",
-   "stamp": "[31595,\"vans\",{\"headline\":\"WE BUY SPRINTERS\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER\",\"label\":\"REQUEST AN APPRAISAL\"},[{\"file\":\"car-ford-transit-courier-white\",\"k\":1}],false,\"Script Retro (library card)\",3]",
+   "stamp": "[31595,\"vans\",{\"headline\":\"WE BUY WORK VANS\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER\",\"label\":\"REQUEST AN APPRAISAL\"},[{\"file\":\"car-ram-promaster-grey\",\"k\":1}],false,\"Script Retro (library card)\",3]",
    "thumb": "assets/library-looks/r-scriptRetro-su02-25~3.webp"
   },
   "r-scriptRetro-su02-30~2": {

@@ -6534,6 +6534,37 @@ recipe whose headline or models line names a make or model ... not just cars."
   pool); a list left open ("and more", "and cargo vans") lets the line's pool stand. Phones,
   consoles, computers, audio and cameras are read the same way.
 
+**And its headline names the make (2026-11-19).** The owner, through the roadmap session, of the
+same cards in an older build (WE BUY CARS over 3 SERIES • 5 SERIES • X3 • X5, and over RX • ES • IS • GX
+• NX, on a Tacoma): "maybe we either put a BMW in the photo maybe we say it in the ad we buy BMWs or we
+buy Toyotas or we buy Tacoma's but something needs to change", and "either list Lexus and say we buy
+Lexus or we buy Tacoma's or buy trucks or buy Toyotas Tacoma tundra 4runner".
+- **A headline that names vehicles in general over one make's models names the make**
+  (`build_recipes.mjs` `sayMake`), as the make lines' own headlines do. WE BUY CARS over RX • ES •
+  IS • GX • NX says WE BUY LEXUS (two cards), and over 3 SERIES • 5 SERIES • X3 • X5 it says WE BUY
+  BMWS. A headline that names no goods at all (CASH IN 3 STEPS) is left as it is. Over a models line
+  of several makes, WE BUY CARS or WE BUY TRUCKS stands.
+- **A headline's make is the picture's.** The make and model a headline names come before those of
+  its models line:
+  - WE BUY TACOMAS over F-150 • SILVERADO • RAM • TACOMA • TUNDRA stood on a Silverado; it stands on a
+    Tacoma now;
+  - WE BUY SPRINTERS over TRANSIT • SPRINTER • PROMASTER stood on a Transit; with no usable Sprinter
+    cut-out it says WE BUY WORK VANS (two cards);
+  - WE BUY HONDAS over a Harley says WE BUY MOTORCYCLES.
+- **A make's own line is for one make.** Eight designer layouts whose models line reads TOYOTA • HONDA
+  • FORD • CHEVY • BMW stood on the Toyota line under WE BUY CARS. They are on the general car line now.
+- **Held by `scripts/make_match_check.mjs`.** It still checks the pictures against all of an ad's
+  words. It now also checks:
+  - the headline against the models line and the pictures: a vehicle ad's generic headline over one
+    make's models fails, and a make the headline names must be the picture's and the models line's;
+  - a make line's ads against their line.
+
+  It knows more makes: Audi, Hyundai, Kia, Porsche and Volkswagen, and the motorcycle makes Harley,
+  Yamaha, Kawasaki, Suzuki and Ducati, so HARLEY • HONDA • YAMAHA is three makes. It reads MACS as
+  Apple.
+- **Not applied to devices.** A line of one maker's goods (DJI's drones, Meta's Quest and glasses, the
+  Apple Watch) keeps headlines like DRONE GROUNDED? GET CASH. Its models line names the maker.
+
 ## 156. A face-up iPhone wears an iOS lock screen, laid out as iOS lays one out
 
 Added 2026-11-18. The owner: "audit the iPhone backgrounds to look clean good... and actual iOS";

@@ -6409,3 +6409,19 @@ SEO session (158, pull request 15). Pull request 15 now meets this branch in `in
   has to replay it. The stills' indexes now carry the photograph and the towns it prints.
 - **The engine runs in plain Node** with an `Image` stub. A line given no pictures is "bare" and
   never draws a photograph, so a replay has to give each line its pictures, or it checks nothing.
+
+## 2026-11-19 — the headline names the make (claude/xenodochial-mccarthy-7bea6d)
+
+- **A check that reads all of an ad's words at once misses the headline.** WE BUY TACOMAS over F-150 •
+  SILVERADO • RAM • TACOMA • TUNDRA passed with a Silverado, because the models line names Chevy. The
+  headline is read first, so it is checked on its own: against the pictures, and against the models line.
+- **"The first make named" depends on the order of a table.** The builder took the first make its words
+  named, in its MAKES order: Honda before Chevy before Toyota. So a five-make list filed itself under
+  Toyota and drew a Honda, and a Tacoma headline drew a Silverado. The headline's make comes first now.
+  A make's line takes only an ad that names one make.
+- **A make the check does not know reads as one make.** HARLEY • HONDA • YAMAHA counted as Honda alone,
+  and MAC MINI, INTEL NUC, BEELINK AND MINISFORUM as Apple alone. A list of makes needs every make in it
+  known, or the rule only fires on the ones that are.
+- **A generic headline is a template's tell on cars, not on one maker's goods.** WE BUY CARS over four
+  BMW models reads as a form filled in. DRONE GROUNDED? GET CASH over DJI's models reads as written for
+  them, so the rule stops at vehicles.
