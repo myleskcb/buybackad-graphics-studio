@@ -3501,13 +3501,23 @@ Missing or broken, for the owner:
 1. **No password reset.** No Forgot password link and no endpoint: a customer
    who forgets the password is locked out of a paid account. It needs an email
    sender (none is configured: no Resend, Postmark or SendGrid key).
-2. **The library on the plans.** The pricing cards promise "Keep 300 / 1,000 /
-   3,000 ads in your library"; the library has been the owner's alone since
-   2026-10-11 (ad-library.js `owner()`, OWNER_CSS). Open it to customers, or
-   take the line off the plans.
+2. ~~**The library on the plans.**~~ Done 2026-11-19, the owner: "Open it to
+   customers". Every signed-in account keeps a library (ad-library.js
+   `canUse()`): the Library buttons, the ★ on every ad, Save to library after a
+   download and in the video pop-up, the public link and its JSON and RSS. The
+   server already held each plan's limit (Keep 12 / 300 / 1,000 / 3,000) and
+   kept video for Pro and Business. What is about iPhones LA (the link sent to
+   the shop, "offered daily", "not for iPhones LA") stays with `shop()`: the
+   owner, or a browser connected from iPhones LA → Auto-post. A customer reads
+   "kept with your account: open them on any device, download one again, or
+   share them all with one link". On master-library.html a visitor to someone's
+   link sees "This library as a feed", and only an operator sees the
+   iPhones LA lines (`SHOP`, from /me). ad_library_check: as on main, only the
+   three upload-a-video steps fail; billing_check 164 passed.
 3. **Saved work is on the device.** The last 12 downloads (reopenable) and the
    draft live in the browser (IndexedDB `pgfx`, localStorage); nothing follows
-   a customer to another phone or computer.
+   a customer to another phone or computer, except the ads they save to the
+   library (since item 2).
 4. **Video export in the iPhone app** stalled at 2% "Drawing frames" in the
    Simulator for four minutes, though the web view has every API it uses
    (VideoEncoder with H.264, AudioEncoder, MediaRecorder MP4, file sharing,
