@@ -10875,6 +10875,11 @@ function boot(){
   $('lp-open-studio').onclick = () => showEasy(null);
   $('lp-cta-main').onclick = () => showEasy(null);
   $('lp-cta-bottom').onclick = () => showEasy(null);
+  /* the pricing cards' Start free, Choose Starter, Go Pro and Choose Business. Bound only
+     in bindEasyUI() until 2026-11-19, which boot stopped calling on 2026-09-04 (the
+     backdrops it fetched), so on a fresh visit every one of them did nothing until the
+     studio had been opened once. bindEasyUI() still binds them too: the same handler. */
+  document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => b.dataset.goto === 'plans' ? openPlans() : showEasy(null));
   bindSaasUI();   // the account works from the landing: Sign up free, Log in, the dialog
   /* bindEasyUI() builds the whole Easy Mode panel — background swatches, the
      layer rows, the template strip — and its swatches carry template photos as
