@@ -4246,6 +4246,26 @@ Open:
    on it. The FAQ's colour answer said 31 sets and twelve pairs, figures from 11 November. It now
    says 54 sets in five groups, the twelve proven pairs among them. The structured data says the same.
    Rule numbers after this merge: 162 is the census's, and pull request 19's editor rule needs 163.
+19. **The broken library pictures** (2026-11-19). The owner's screenshot came from a preview with the
+   bubble mark: the Trucks line in Cars & Trucks drew its first six cards, then showed only names
+   ("Volt Stack template", "Trucks · Photo band template"). Those cards are pull request 14's new
+   library looks (`assets/library-looks/`). Their list had loaded, but their pictures did not.
+   - **No committed build does this.** All 51 cards of the Trucks line, and all 402 of Cars & Trucks,
+     load on every candidate: this branch at 873937a2 and 6758a715, pull request 17 at 7683508a and
+     its merge in progress, and pull request 19 at 891826bc and its working tree. That holds in the
+     owner's window size, scrolled as a person would.
+   - **What fits the screenshot** is a preview served from a working tree that changed under the open
+     page: the list loaded, then its pictures went. Pull requests 17 and 19 were both taking 6758a715
+     in at that hour. The screenshot's "◎ Set your area" rules out pull request 19's page, which had
+     dropped the ◎, so the likeliest is pull request 17's preview (port 8790) mid-merge.
+   - **The check**: `scripts/library_images_check.mjs` opens every category and line, presses
+     "Show more" to the end and fails on any picture that does not load. It passes here (every
+     category and line), and it fails as the owner saw it when a proxy withholds
+     `assets/library-looks/`.
+20. **The library shows more** (2026-11-19, the owner: "show more than 16"). A page is full rows
+   (rule 158): 32 cards on a desktop, 24 at three or two columns, and 16 on a phone. "Show more" adds
+   the same again. The library's pictures are lazy, so the landing fetches the same number of them at
+   load (24 with 16 cards a page, 23 with 32).
 
 ## BL. 2026-11-18 — webuy.ad, the site's new address
 

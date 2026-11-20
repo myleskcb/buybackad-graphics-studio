@@ -728,6 +728,10 @@ produced." DESIGN-LAW rule 87. In practice:
   - a product in every tile.
   A seed never draws a twin pair, and draws a dark look least (`LOOK_SHARE`). After an engine
   change, draw the recipe stills, the hero stills and the rebuilt ads again.
+- **Every picture in the landing's library loads**: `node scripts/library_images_check.mjs` opens every
+  category and every line inside it, presses "Show more" to the end and fails on any picture that does
+  not load. Run it after anything that changes the library's lists or its pictures, and after a merge
+  that brings either in. A page of the library is full rows of the grid (`scPage`: 32 on a desktop).
 - **The partner library serves the rebuilt library ads** (`assets/rebuilt-ads/`,
   `node scripts/render_rebuilt_ads.mjs --stale` after the recipes or the engine change;
   `library_api_check` fails while one is stale).

@@ -12638,6 +12638,16 @@ function scClassicCard(t){
   tplFacesIn().then(() => ensureTplAssets(t)).then(n => { const img = card.querySelector('img'); if (img && (n || !THUMBS[t.id])) img.src = getThumb(t.id, 320); });
   return card;
 }
+/* how many cards a page of the landing's library shows, and "Show more" adds (the owner, 2026-11-19:
+   "show more than 16"): full rows of the grid as it is laid out, eight of them at three columns or
+   more (32 on a desktop), 24 at two, and 16 on a phone, where each card is the width of the screen.
+   SHOWCASE.PAGE stands while the grid is not laid out. */
+function scPage(){
+  const g = $('lp-tpl-grid'), t = g ? getComputedStyle(g).gridTemplateColumns : '';
+  const cols = t && t !== 'none' ? t.trim().split(/\s+/).length : 0;
+  if (!cols) return SHOWCASE.PAGE;
+  return cols >= 3 ? cols * 8 : cols === 2 ? 24 : 16;
+}
 function scRenderGrid(reset){
   const grid = $('lp-tpl-grid');
   const shelf = (SHOWCASE.shelf || SHOWCASE.cards) && scLib();   // the designs and their other looks (scLoadMore)
@@ -12667,7 +12677,7 @@ function scRenderGrid(reset){
       SHOWCASE.list = scMix(scRankMixed(sub, offers));
     }
   }
-  const slice = SHOWCASE.list.slice(SHOWCASE.shown, SHOWCASE.shown + SHOWCASE.PAGE);
+  const slice = SHOWCASE.list.slice(SHOWCASE.shown, SHOWCASE.shown + scPage());
   slice.forEach(c => grid.appendChild(c.classic ? scClassicCard(c.classic) : scCard(c)));
   SHOWCASE.shown += slice.length;
   const more = $('lp-tpl-more');
