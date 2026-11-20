@@ -4208,7 +4208,7 @@ Open:
 5. The owner tools (`pick.html`, `library.html`, `social/`, `admin-ads/`,
    `phonegfx-studio.html`) keep the old look and name.
 
-## BN. 2026-11-19 — the landing built to a brief (DESIGN-LAW 158)
+## BN. 2026-11-19 — the landing built to a brief (DESIGN-LAW 162)
 
 The owner, looking at the landing: "looks so vibe coded and basic UI we need to fix and make it
 look like a custom built site with a large web design budget". Done on

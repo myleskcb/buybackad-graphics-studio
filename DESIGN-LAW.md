@@ -6555,7 +6555,10 @@ or text icon that doesn't need to be the only animated element".
   - `full_ad_check` counts any mark as the number's eye-catcher;
   - `full_colour_check` reads the chevrons' colour on the chevrons themselves.
 
-## 158. The landing is built to a brief: one type scale, a rhythm of grounds, and a layout of its own for each section
+## 162. The landing is built to a brief: one type scale, a rhythm of grounds, and a layout of its own for each section
+
+(Rule 158 on the census branch. Folded into pull request 14 on 2026-11-19 it became 162: 158 is pull
+request 15's landing rule, claimed first, and 159 to 161 are taken on other branches.)
 
 Added 2026-11-19. The owner, looking at the landing: "looks so vibe coded and basic UI we need
 to fix and make it look like a custom built site with a large web design budget". The page had

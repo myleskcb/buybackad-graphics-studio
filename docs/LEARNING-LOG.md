@@ -6368,3 +6368,21 @@ Learned:
   words leave the list open ("and more").
 - **Fixing one card renames its neighbours.** Library names are numbered within a line, so the BMW
   ad leaving the car line renumbered two Glass Cards; their stills were drawn again for the name.
+
+## 2026-11-19 (later) — the car fix, the hero wall and the library redraw folded into pull request 14 (claude/ads-improvement-roadmap-7632c8)
+
+The owner's word ("Yes, send them", then "Push it" in the census session): claude/xenodochial-
+mccarthy-7bea6d at c5213e62 is merged here. It had merged this branch at 815ebea2 first, so the
+code met no clash. It brings the car fix (every ad shows the make its words name;
+`scripts/make_match_check.mjs` holds it, for phones, consoles and computers too), the hero wall
+branch (claude/zealous-dewdney-386bf8 at 98eeb651: 18 picks, the twin pairs out of the draw, a
+brighter share, gradients that turn hue, the VR ads off photographs), the library redrawn in
+those colours, and the census's landing redesign.
+
+One number moved: the census called its landing rule 158, which is pull request 15's landing
+rule, claimed first (2908f8e7); 159 to 161 are taken on other branches. Here it is 162, and the
+census's own citations follow.
+
+Open, and the owner's: two sessions have redesigned the landing, the census (162, here) and the
+SEO session (158, pull request 15). Pull request 15 now meets this branch in `index.html`,
+`assets/hero/index.json` and the notes, and which landing leads is the owner's call.

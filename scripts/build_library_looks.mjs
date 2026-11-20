@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* THE LIBRARY'S OTHER LOOKS: assets/library-looks/ (DESIGN-LAW 158, OPEN-ITEMS BN).
+/* THE LIBRARY'S OTHER LOOKS: assets/library-looks/ (DESIGN-LAW 162, OPEN-ITEMS BN).
 
    The owner, 2026-11-19, of the live library's "All 665": "see not the new 2000". The ~2,000 they had
    seen was the review page, which counts every ad the census reads. Asked what the new library should
@@ -65,7 +65,7 @@ mkdirSync(DIR, { recursive: true });
 const require = createRequire(import.meta.url), { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const browser = await chromium.launch();
 const save = () => writeFileSync(INDEX, JSON.stringify({
-  about: 'The library\'s other looks (DESIGN-LAW 158): two more looks of every rebuilt design, every line\'s own full ad and the video maker\'s Any look gallery, drawn by scripts/build_library_looks.mjs at 400px; app.js shows them in the landing library beside assets/recipe-stills/ and opens each where it is made.',
+  about: 'The library\'s other looks (DESIGN-LAW 162): two more looks of every rebuilt design, every line\'s own full ad and the video maker\'s Any look gallery, drawn by scripts/build_library_looks.mjs at 400px; app.js shows them in the landing library beside assets/recipe-stills/ and opens each where it is made.',
   made: new Date().toISOString(), size: SIZE, items: Object.fromEntries(Object.keys(items).sort().map(k => [k, items[k]])),
 }, null, 1) + '\n');
 const put = (id, webp, meta) => { writeFileSync(DIR + id + '.webp', Buffer.from(webp.split(',')[1], 'base64')); items[id] = { ...meta, thumb: 'assets/library-looks/' + id + '.webp' }; };

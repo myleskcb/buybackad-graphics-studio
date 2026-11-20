@@ -12006,7 +12006,7 @@ function scLoadShelf(){
     return (SHOWCASE.shelf = cards.concat(extra));
   }).catch(() => (SHOWCASE.shelf = SHOWCASE.cards || [])));
 }
-/* THE LIBRARY'S OTHER LOOKS (assets/library-looks/, scripts/build_library_looks.mjs; DESIGN-LAW 158).
+/* THE LIBRARY'S OTHER LOOKS (assets/library-looks/, scripts/build_library_looks.mjs; DESIGN-LAW 162).
    The owner, 2026-11-19, of the live library's "All 665": "see not the new 2000", then, asked what
    the new library holds, "Both (~2,650)": two more looks of every rebuilt design, each line's own full
    ad, and the video maker's Any look gallery, beside each design's first look. They are not on the
