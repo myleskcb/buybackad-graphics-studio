@@ -11,7 +11,8 @@
    number and Long Beach, as the library's renders carried them, the website line "Visit our website
    at www.iPhones.LA" and a seller asked for the IMEI, never a picture (_library_finish.mjs, the
    owner, 2026-11-03), into assets/rebuilt-ads/<recipe id>.jpg, with the dates in its EXIF as the
-   library's renders have them (_jpeg_exif.mjs). Its own folder: render_library_ads.mjs prunes what
+   library's renders have them (_jpeg_exif.mjs), the software named WeBuy.AD, the product's name (DESIGN-LAW
+   148; BUYBACK.AD stays the business). Its own folder: render_library_ads.mjs prunes what
    is not a live card from its own.
 
    assets/rebuilt-ads/index.json records each render: its size, its file's sha1 (the API's links

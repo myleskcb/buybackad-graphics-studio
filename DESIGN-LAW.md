@@ -6146,6 +6146,31 @@ good layout poor styling", "lacks any cohesive direction", "also only have 1 BG 
   in several looks a line (`--variations`), and the review page carries them, with the owner's
   Hero mark for the landing page's wall.
 
+**The hero wall, chosen (2026-11-19).** The owner, of the home page's wall: "this hero is majorly
+lacking still", "we need to show off our best of the best... not the same theme twice in 1 hero ..
+with different taglines", "why don't we have any of the video style ads on here that looked happier
+and more vibrant". The wall had been machine-filled: four Steps Flow ads, "SPARE CONTROLLERS? GET
+CASH" twice, MacBook twice, two red ones side by side, no pattern and no gradient.
+- **Eighteen picks fill every slot** the platform's mix gives (`assets/hero-picks.json`):
+  - iPhone 5, Mac 2, iPad 2, consoles 2;
+  - one each for Samsung, Pixel, gold, coins, Pokémon, cars and trading cards.
+  - Nine are the video maker's own full ads (`full-<line>-v<seed>`), chosen by eye from 174 seeds.
+    Nine are rebuilt designs, chosen from the redrawn stills.
+  - The order within a line keeps like colours apart, since the mix decides each slot's line.
+- **The rules, held by `scripts/hero_wall_check.mjs`**, which opens the landing and reads the wall
+  a visitor sees:
+  - every tile a hand pick;
+  - no colour pair, headline or rebuilt family twice;
+  - at most three dark tiles, and no two touching;
+  - three or more on a pattern and three or more on a gradient;
+  - three or more full ads;
+  - a product in every tile (nothing on its words alone).
+  - The wall now: 7 light, 10 vivid, 1 dark (gold), 9 on a pattern, 7 on a gradient, no photograph.
+- **Each still records what the check reads** (`build_recipe_stills.mjs`,
+  `build_hero_stills.mjs`): its pair's look, the kind of ground and the headline.
+- Shown to the owner as one image before anything ships, drawn from the stills in the wall's
+  order.
+
 Not done here: OPEN-ITEMS §BJ.
 
 ## 152. The studio's chrome is reselling.us's: navy, one blue, and mint for the deal
@@ -6285,6 +6310,45 @@ pairs of ads match. Both sheets are in `.render/` (`--tag before`, `--tag after`
   - the census (a two-colour pair, and a light pair whose accent is a tone of its own ground,
     judged by the ground it declares).
 
+**Brighter, and no twins (2026-11-19).** The owner, of the home page's wall: "too many similar or
+matching color schemes", "no pattern fills and only 1 gradient multi color" (asked whether that
+meant fewer or more: "Show more of them"), "these are all so dark and unoptimized colors... why
+don't we have any of the video style ads on here that looked happier and more vibrant".
+- **Twins are never drawn by a seed.** A pair whose ground, accent and words are each within sight
+  of an earlier pair's (CIEDE2000 under 8, 3 and 30) is its twin:
+  - Blue on White (of Silver & Blue);
+  - White, Black & Red (of Red, White & Blue);
+  - Black, White & Red (of Black & Red);
+  - Black, White & Yellow (of Black & Gold);
+  - Blue, White & Yellow (of Navy & Gold).
+  `build_house_colours.mjs` marks them (`twin`); `fullad.js` `DRAWN` leaves them out. Each stays a
+  theme in the studio and is drawn where it is picked by hand.
+- **The looks' shares** (`LOOK_SHARE`): a seed draws a vivid ground most (44%), a light one next
+  (36%) and a dark one least (20%), where each had a third. A restricted line's look that holds
+  fewer than four pairs is scaled down as before.
+- **Gradients turn hue.** A pair gradient goes from the ground's hue into the far end's along the
+  shorter way round, keeping its colour all the way, where the two are 150 degrees apart or less.
+  Navy goes into cyan, purple through magenta into gold, red through orange into yellow. Past 150
+  degrees, or on a ground with no hue, it passes a quiet middle as before. So does a dark ground
+  whose way runs through the yellows (70 to 125 degrees), which go olive at that depth: Teal &
+  Orange would pass through khaki. A ground whose accent
+  has no hue (White on Pink, Black on Lime) goes to a neighbour of its own hue, 40 degrees on, or
+  40 back where on would land in the yellows and browns. A hard-edged field (split, arch) is two
+  blocks, the far one in the far end's own hue: a block on the way read as a third colour (Sand &
+  Teal's arch came out green). `full_style_check` holds a gradient to the pair's two families and
+  the hues on the way between them, never a hue off that way.
+- **Patterns read as patterns.** Their marks stand nearly twice as far off the ground (a step of
+  .095 for the shapes, where .055 read as a flat ground at the wall's size). `patternTone` still
+  keeps the words at 7:1 on them where it can, and otherwise moves them away from the words.
+- **The grounds' shares** (`spec/full-grounds.json`): a photograph .24 (was .3), a scene .1 (was
+  .12), the house's own .12 (was .14), and a gradient and a pattern .27 each (were .22). A
+  photograph is still a quarter of the grounds ("retire but bg counts").
+- Checked by `full_colour_check`: the first draw is modelled with `DRAWN` and `LOOK_SHARE`, and the
+  looks must come out near their shares, no pair over twice a pair's share of the look drawn most.
+  Seen on `scripts/full_look_sheet.mjs` before and after: the same 48 seeds went from 10 hue bands
+  to 12, with orange, lime, pink, yellow, aqua and lilac grounds where tinted lake and bridge
+  photographs stood.
+
 Not done here: OPEN-ITEMS §BJ 7.
 
 ## 155. A recipe takes after its card, and is never a copy of it
@@ -6375,6 +6439,24 @@ offer cards now that each has a rebuilt version, the owner said "Retire them".
     byte for byte).
 - **A models line is cut where its list breaks**, never mid-word ("ROLEX • CAR" was CARTIER cut at
   sixty letters).
+
+**Its card's colour, not its card's darkness (2026-11-19).** The owner, of the home page's wall:
+"these are all so dark and unoptimized colors", and "the VR headset ad clearly wasn't audited or
+ever rebuilt".
+- **A dark colourway leans to its hue**, or to a ground of no colour, in any tone:
+  - the hue for forest, plum, slate, midnight and oxblood;
+  - a ground of no colour for ink and graphite.
+  The darkness was the old card's: 109 recipes leaned dark for it alone, and 40% of the stills were
+  dark. A family whose idea needs a dark ground still leans dark (hudTech, neonNight: a glow).
+- **An ad that shows no product never stands on a photograph** (`productFor` marks it `bare`;
+  `groundFor` draws it no photograph, neither the line's nor its card's). With nothing in front of
+  it, a room or a desk becomes the picture. The VR headsets' words stood on a dim room with a
+  console in it.
+- **The VR headsets** (seven offer-card recipes, on the console line) stand on their words alone.
+  The one VR picture in the repository is a render (`assets/cutout-flags.json`), and a real one
+  waits for the owner's word on a download. They now stand on painted grounds in their own pairs,
+  and stay off the wall, which shows a product in every tile (`hero_wall_check`). The seven gaming
+  headsets are the same.
 
 Not done here: OPEN-ITEMS §BJ 9.
 
