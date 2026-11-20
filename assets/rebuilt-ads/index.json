@@ -1,20 +1,20 @@
 {
  "_doc": "Full-size renders of the rebuilt library ads (motion/recipes.json, the recipes made from library cards), for the library API (rule 111, 149). Made by scripts/render_rebuilt_ads.mjs through Easy Mode's full ad at 1080, as iPhones LA's copy. stamp is the recipe it was drawn from: a recipe changed since makes the render stale (library_api_check.mjs). Dates, ISO 8601 UTC: created and updated, the rebuild (the last commit of motion/recipes.json); rendered, when the file was drawn.",
- "built": "2026-11-20T05:47:35.115Z",
+ "built": "2026-11-20T07:30:11.025Z",
  "size": 1080,
  "quality": 0.88,
  "items": {
   "r-arcCrown-ca03-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 233083,
-   "sha1": "4a3a4d744dc0bce9129964a899809a442c5693a6",
+   "bytes": 232635,
+   "sha1": "9c8eab9aca4f61cd03077f163ea90d85ff55cb0e",
    "stamp": "5205e3805753879ae6f7107072caf57c31c25d87",
    "from": "arcCrown-ca03-35",
    "title": "Arc Crown",
-   "rendered": "2026-11-20T05:47:34Z",
-   "created": "2026-11-20T05:38:05Z",
-   "updated": "2026-11-20T05:38:05Z"
+   "rendered": "2026-11-20T07:29:51Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-arcCrown-ca07-15": {
    "w": 1080,
@@ -379,14 +379,14 @@
   "r-bandKnockout-ck07-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 203592,
-   "sha1": "3538281891914f1a7a755bd2faadbda23b82e31d",
+   "bytes": 205167,
+   "sha1": "c7e2d3c312d1b37bdac04abda37b8df7f0f20111",
    "stamp": "bcf03e9e9dfd9868d958682b52025e3f82b3d492",
    "from": "bandKnockout-ck07-35",
    "title": "Band Knockout",
-   "rendered": "2026-11-20T05:21:24Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-20T07:29:09Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-bandKnockout-du02-30": {
    "w": 1080,
@@ -427,26 +427,26 @@
   "r-bandKnockout-jw05-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 206764,
-   "sha1": "4b8a4eadb06fe44eff52cf9d338593db77d1e9b5",
+   "bytes": 205861,
+   "sha1": "99e7f47d9acacce614e3b040cda89be4084aab85",
    "stamp": "3a278737748d7688f5b9cb7b8c2275c03966d24d",
    "from": "bandKnockout-jw05-15",
    "title": "Band Knockout 2",
-   "rendered": "2026-11-19T12:00:41Z",
-   "created": "2026-11-19T09:16:23Z",
-   "updated": "2026-11-19T09:16:23Z"
+   "rendered": "2026-11-20T07:30:04Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-bandKnockout-jw05-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 223730,
-   "sha1": "96dc0cdbaf0d37a4327f956c74fa5a6fae02cb5a",
+   "bytes": 216536,
+   "sha1": "f823033b3bf9fa4eaf25c6303b1084b14440b2de",
    "stamp": "7e4857ca996f1d6c09d45339d5e384c0c12e1641",
    "from": "bandKnockout-jw05-30",
    "title": "Band Knockout 1",
-   "rendered": "2026-11-19T11:59:54Z",
-   "created": "2026-11-19T09:16:23Z",
-   "updated": "2026-11-19T09:16:23Z"
+   "rendered": "2026-11-20T07:29:29Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-bandKnockout-jw10-20": {
    "w": 1080,
@@ -463,14 +463,14 @@
   "r-bandKnockout-jw10-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 211001,
-   "sha1": "085baa091a2991ba95d65c85af1d06425b4856a3",
+   "bytes": 211021,
+   "sha1": "8336f59e3ad04a1e3d0c4ef83ce58c37355394f3",
    "stamp": "9440435cbe18e77c28cf3bfb42b4808df11b0099",
    "from": "bandKnockout-jw10-30",
    "title": "Band Knockout",
-   "rendered": "2026-11-20T03:30:17Z",
-   "created": "2026-11-19T12:18:28Z",
-   "updated": "2026-11-19T12:18:28Z"
+   "rendered": "2026-11-20T07:29:50Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-bandKnockout-nn01-30": {
    "w": 1080,
@@ -775,14 +775,14 @@
   "r-bubblePop-gl02-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 232174,
-   "sha1": "9abddb5c73c8d00b8725e24998491a990f9fa62d",
+   "bytes": 231268,
+   "sha1": "131c0a82281bc5dcf5d1f42aafd6497eaeef3c48",
    "stamp": "fc240f5793ed064974fe602ff22cf0098d8a84ea",
    "from": "bubblePop-gl02-15",
    "title": "Bubble Pop 4",
-   "rendered": "2026-11-19T12:00:34Z",
-   "created": "2026-11-19T09:16:23Z",
-   "updated": "2026-11-19T09:16:23Z"
+   "rendered": "2026-11-20T07:29:59Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-bubblePop-gl02-20": {
    "w": 1080,
@@ -1039,14 +1039,14 @@
   "r-checklistHero-cd06-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 204364,
-   "sha1": "53ebadac55d4cdf462fa2149ec2dd1d52abfe784",
+   "bytes": 208379,
+   "sha1": "482c3217603c077c7bc11d80af4638cd6e088fd1",
    "stamp": "f132e408693994c8e761a0cd846e191d946012ce",
    "from": "checklistHero-cd06-15",
    "title": "Checklist Hero 1",
-   "rendered": "2026-11-19T11:59:32Z",
-   "created": "2026-11-19T09:16:23Z",
-   "updated": "2026-11-19T09:16:23Z"
+   "rendered": "2026-11-20T07:29:09Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-checklistHero-cd06-16": {
    "w": 1080,
@@ -1291,26 +1291,26 @@
   "r-glassCard-ca03-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 199958,
-   "sha1": "d80c86205efb09fb155b19c0490bbce5298c8753",
+   "bytes": 201943,
+   "sha1": "0d806cfbc68405f2efec0928945edf8bff9bf218",
    "stamp": "cebaebc5d080cf84ee79f1e3efc23d49c2cff32a",
    "from": "glassCard-ca03-35",
    "title": "Glass Card 1",
-   "rendered": "2026-11-20T05:21:25Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-20T07:29:10Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-glassCard-ca05-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 212184,
-   "sha1": "d5e682070fa82b8dec6e16f1f758f8bfc6f58822",
+   "bytes": 211673,
+   "sha1": "5ca8b196febf24ec00cdefd32d8496aa009b0d21",
    "stamp": "cfe538ef189f99d8d2e0e3366d5dc6061bc5eca7",
    "from": "glassCard-ca05-35",
    "title": "Glass Card 1",
-   "rendered": "2026-11-19T12:00:35Z",
-   "created": "2026-11-19T09:16:23Z",
-   "updated": "2026-11-19T09:16:23Z"
+   "rendered": "2026-11-20T07:30:00Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-glassCard-ca07-15": {
    "w": 1080,
@@ -2095,14 +2095,14 @@
   "r-neonNight-cd06-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 233087,
-   "sha1": "e50cdddcffd3d6f682f156274c388f41c8c32c80",
+   "bytes": 234776,
+   "sha1": "d1bf7441367a14aab5c462b574261d78747d8586",
    "stamp": "296a217b9ced660a363b7b8d72b75d986581aa31",
    "from": "neonNight-cd06-30",
    "title": "Neon Night 1",
-   "rendered": "2026-11-19T12:00:09Z",
-   "created": "2026-11-19T09:16:23Z",
-   "updated": "2026-11-19T09:16:23Z"
+   "rendered": "2026-11-20T07:29:41Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-neonNight-ck03-20": {
    "w": 1080,
@@ -2143,14 +2143,14 @@
   "r-neonNight-du05-26": {
    "w": 1080,
    "h": 1080,
-   "bytes": 213482,
-   "sha1": "28036bd34c3faa75f885b3231c98796273329740",
+   "bytes": 214176,
+   "sha1": "2e613fdc5a91af910f327359659aafda7adfdeff",
    "stamp": "95e8f5ecf0d5ea1308aa6d46d8e8f76acdab7cbe",
    "from": "neonNight-du05-26",
    "title": "Neon Night 1",
-   "rendered": "2026-11-20T05:22:11Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-20T07:29:49Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-neonNight-du05-31": {
    "w": 1080,
@@ -2191,14 +2191,14 @@
   "r-neonNight-du07-31": {
    "w": 1080,
    "h": 1080,
-   "bytes": 242205,
-   "sha1": "08b3637237fa8292cae567506b3a5b3703b8f8c4",
+   "bytes": 222861,
+   "sha1": "0214340069165a7dbcdaf1113a279df68cd36404",
    "stamp": "9e6cf02f211ceda2feccf8160b12626d30a3bab0",
    "from": "neonNight-du07-31",
    "title": "Neon Night 2",
-   "rendered": "2026-11-20T05:21:57Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-20T07:29:41Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-neonNight-du08-15": {
    "w": 1080,
@@ -2215,14 +2215,14 @@
   "r-neonNight-du08-16": {
    "w": 1080,
    "h": 1080,
-   "bytes": 221663,
-   "sha1": "fc893172f78e3975538b092a785004aa60ab6609",
+   "bytes": 220434,
+   "sha1": "288d3154bea2a79777727174c540d7d7ed3caed1",
    "stamp": "28a5aadf08a4451a2d05c15133787b55ffd7d03e",
    "from": "neonNight-du08-16",
    "title": "Neon Night 1",
-   "rendered": "2026-11-19T12:00:36Z",
-   "created": "2026-11-19T09:16:23Z",
-   "updated": "2026-11-19T09:16:23Z"
+   "rendered": "2026-11-20T07:30:00Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-neonNight-gl01-35": {
    "w": 1080,
@@ -2251,14 +2251,14 @@
   "r-neonNight-gl04-30": {
    "w": 1080,
    "h": 1080,
-   "bytes": 217239,
-   "sha1": "140abac58c0c5675d84f84c84394d924c7480ad2",
+   "bytes": 211389,
+   "sha1": "4a894bcba0f5451749d7ee52c6ed801a0dcfc9bf",
    "stamp": "71cff133f6be0e3ccc9e3f71833afe4299a7cfe3",
    "from": "neonNight-gl04-30",
    "title": "Neon Night 2",
-   "rendered": "2026-11-19T12:00:36Z",
-   "created": "2026-11-19T09:16:23Z",
-   "updated": "2026-11-19T09:16:23Z"
+   "rendered": "2026-11-20T07:30:00Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-neonNight-ik04-35": {
    "w": 1080,
@@ -2299,14 +2299,14 @@
   "r-neonNight-io01-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 217236,
-   "sha1": "9807b820e1f312e43adc9163d6258c5f94d79b60",
+   "bytes": 216466,
+   "sha1": "9ce57d6046cf3052e5f1876b8e059006f2baaa2e",
    "stamp": "4bc90b366de63722b6b84ac5ed6d940de340d810",
    "from": "neonNight-io01-35",
    "title": "Neon Night 3",
-   "rendered": "2026-11-19T12:00:28Z",
-   "created": "2026-11-19T09:16:23Z",
-   "updated": "2026-11-19T09:16:23Z"
+   "rendered": "2026-11-20T07:29:55Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-neonNight-io08-35": {
    "w": 1080,
@@ -2419,14 +2419,14 @@
   "r-neonNight-nn05-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 185421,
-   "sha1": "2dfbeb88ecfe63e4d5f9a3abd806651dd001ea58",
+   "bytes": 182516,
+   "sha1": "6cfd21f8e141e18d28f0f7f89eb2c1230c7ff907",
    "stamp": "75fc45e544daec520ee95fb866be7d301c7cd09c",
    "from": "neonNight-nn05-15",
    "title": "Neon Night 4",
-   "rendered": "2026-11-19T12:00:46Z",
-   "created": "2026-11-19T09:16:23Z",
-   "updated": "2026-11-19T09:16:23Z"
+   "rendered": "2026-11-20T07:30:08Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-neonNight-su02-30": {
    "w": 1080,
@@ -2611,14 +2611,14 @@
   "r-scriptRetro-ck03-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 191401,
-   "sha1": "e5c61fdd97fe891332802398611c0231ffb18026",
+   "bytes": 193522,
+   "sha1": "3c5912e4aadb55c03b7616a1f4b69a8a1c28921b",
    "stamp": "d7eca5f6924fada12163e05d43dc889577baa025",
    "from": "scriptRetro-ck03-15",
    "title": "Script Retro",
-   "rendered": "2026-11-20T05:21:26Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-20T07:29:11Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-scriptRetro-du01-25": {
    "w": 1080,
@@ -2671,14 +2671,14 @@
   "r-scriptRetro-ik05-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 228781,
-   "sha1": "b4a2668dde4881abf9df2d093d44a7be34d8c094",
+   "bytes": 229105,
+   "sha1": "cd7a1f45a6455edd9a26568a4da3ca1e0515c246",
    "stamp": "2f3dec320b90d6ab6cca667b4d11504fec0e1659",
    "from": "scriptRetro-ik05-20",
    "title": "Script Retro 2",
-   "rendered": "2026-11-19T12:02:00Z",
-   "created": "2026-11-19T09:16:23Z",
-   "updated": "2026-11-19T09:16:23Z"
+   "rendered": "2026-11-20T07:29:42Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-scriptRetro-ik05-30": {
    "w": 1080,
@@ -3427,14 +3427,14 @@
   "r-stepsFlow-jw07-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 210631,
-   "sha1": "51a5ea0922dcd59f27e8d8951c23c7b4ab945ebb",
+   "bytes": 210864,
+   "sha1": "ba87aae443d2806a5437d68987281b31700ec623",
    "stamp": "62682be718e4ed13ed8c5621ff14744d3f7178a6",
    "from": "stepsFlow-jw07-15",
    "title": "Steps Flow 2",
-   "rendered": "2026-11-19T12:02:03Z",
-   "created": "2026-11-19T09:16:23Z",
-   "updated": "2026-11-19T09:16:23Z"
+   "rendered": "2026-11-20T07:29:56Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-stepsFlow-jw07-16": {
    "w": 1080,
@@ -3547,14 +3547,14 @@
   "r-stepsFlow-pa05-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 199607,
-   "sha1": "f956486cbec1cdaf2cc30a58fc332b14b1f3a71e",
+   "bytes": 200549,
+   "sha1": "1e153a98d8f2db2c9a46d2510b2c9918853ed755",
    "stamp": "9a784a4f630f240b5de499e2d4b675aa52c943d7",
    "from": "stepsFlow-pa05-15",
    "title": "Steps Flow 4",
-   "rendered": "2026-11-20T05:21:27Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-20T07:29:11Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-stepsFlow-pp03-35": {
    "w": 1080,
@@ -3571,14 +3571,14 @@
   "r-stepsFlow-pp04-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 222478,
-   "sha1": "1b6e778e1b25813d86908684a9b32fcfa34ba7aa",
+   "bytes": 221634,
+   "sha1": "dea4f521ae2a26cfc7f50ef603f634513d469dde",
    "stamp": "d46852452a8d2792b1e0063ac38b0165fc0ee9c4",
    "from": "stepsFlow-pp04-15",
    "title": "Steps Flow 4",
-   "rendered": "2026-11-19T12:01:58Z",
-   "created": "2026-11-19T09:16:23Z",
-   "updated": "2026-11-19T09:16:23Z"
+   "rendered": "2026-11-20T07:29:34Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-ticketStub-ca07-20": {
    "w": 1080,
@@ -3895,14 +3895,14 @@
   "r-trustSeal-gl02-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 217580,
-   "sha1": "2512528f968d5765a3bba993ba053d82253e3361",
+   "bytes": 217454,
+   "sha1": "fdd1ae482b6a4fa89e97c257e59acdc7181eecd3",
    "stamp": "1a4756b08f23e296aeea3cfb684e932d55dae364",
    "from": "trustSeal-gl02-15",
    "title": "Trust Seal 3",
-   "rendered": "2026-11-19T12:02:04Z",
-   "created": "2026-11-19T09:16:23Z",
-   "updated": "2026-11-19T09:16:23Z"
+   "rendered": "2026-11-20T07:30:03Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-trustSeal-ik05-25": {
    "w": 1080,
@@ -3979,14 +3979,14 @@
   "r-trustSeal-jw10-26": {
    "w": 1080,
    "h": 1080,
-   "bytes": 179467,
-   "sha1": "dd1e2395ffbaa27d3dfff712f250758acecba36c",
+   "bytes": 172324,
+   "sha1": "fbe27f409a30148cab4f469bfa70c161f01d8cc3",
    "stamp": "12a4d6550c58d9fd4533237a7170a57745220ffc",
    "from": "trustSeal-jw10-26",
    "title": "Trust Seal 2",
-   "rendered": "2026-11-20T05:21:34Z",
-   "created": "2026-11-20T03:31:09Z",
-   "updated": "2026-11-20T03:31:09Z"
+   "rendered": "2026-11-20T07:29:18Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-trustSeal-jw10-30": {
    "w": 1080,
@@ -4015,14 +4015,14 @@
   "r-trustSeal-nn04-20": {
    "w": 1080,
    "h": 1080,
-   "bytes": 223784,
-   "sha1": "7d013ffca703136becfa7dc5332c29cf6df9727a",
+   "bytes": 223180,
+   "sha1": "3371c167647b6854202fed675d5a63384c6d750e",
    "stamp": "5e85a99bbe54b3018ae8bdcfdc52f4e4e468dced",
    "from": "trustSeal-nn04-20",
    "title": "Trust Seal 4",
-   "rendered": "2026-11-19T12:01:58Z",
-   "created": "2026-11-19T09:16:23Z",
-   "updated": "2026-11-19T09:16:23Z"
+   "rendered": "2026-11-20T07:29:35Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-trustSeal-nn05-30": {
    "w": 1080,
@@ -4207,14 +4207,14 @@
   "r-voltStack-gl03-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 234998,
-   "sha1": "2060fff4e960e1295455cefcf90a8ee96b1458a4",
+   "bytes": 235903,
+   "sha1": "a3f3715c776bfdd2dd1dc2014df17c7bfde381ce",
    "stamp": "ab455db646746bd7fe87465e02e3192892d92660",
    "from": "voltStack-gl03-35",
    "title": "Volt Stack 1",
-   "rendered": "2026-11-19T12:00:31Z",
-   "created": "2026-11-19T09:16:23Z",
-   "updated": "2026-11-19T09:16:23Z"
+   "rendered": "2026-11-20T07:29:57Z",
+   "created": "2026-11-20T05:49:17Z",
+   "updated": "2026-11-20T05:49:17Z"
   },
   "r-voltStack-gl04-20": {
    "w": 1080,

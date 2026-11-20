@@ -1,6 +1,6 @@
 {
  "about": "Stills of the rebuilt library and offer ads (motion/recipes.json), drawn by scripts/build_recipe_stills.mjs; app.js shows them in the landing library and on the wall in place of the retired cards, and opens each in the full ad.",
- "made": "2026-11-20T05:47:27.484Z",
+ "made": "2026-11-20T07:26:13.089Z",
  "items": {
   "r-bandKnockout-ck07-35": {
    "kind": "recipe",
@@ -11,6 +11,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-ck07-35",
    "gen": "sc",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "red_white_blue",
    "pairName": "Red, White & Blue",
    "look": "light",
@@ -33,6 +38,11 @@
    "family": "bubblePop",
    "from": "bubblePop-du07-15",
    "gen": "sc",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -55,6 +65,11 @@
    "family": "bubblePop",
    "from": "bubblePop-io03-15",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -77,6 +92,11 @@
    "family": "checklistHero",
    "from": "checklistHero-cd06-15",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -99,6 +119,11 @@
    "family": "checklistHero",
    "from": "checklistHero-jw05-30",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -121,6 +146,11 @@
    "family": "checklistHero",
    "from": "checklistHero-jw10-30",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_green",
    "pairName": "Black & Green",
    "look": "dark",
@@ -143,6 +173,11 @@
    "family": "glassCard",
    "from": "glassCard-ca03-35",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -165,6 +200,11 @@
    "family": "glassCard",
    "from": "glassCard-nn01-20",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_green",
    "pairName": "Black & Green",
    "look": "dark",
@@ -187,6 +227,11 @@
    "family": "hudTech",
    "from": "hudTech-ca07-20",
    "gen": "sc",
+   "fams": [
+    "Russo One",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "purple_gold",
    "pairName": "Purple & Gold",
    "look": "dark",
@@ -209,6 +254,11 @@
    "family": "hudTech",
    "from": "hudTech-du01-30",
    "gen": "sc",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -231,6 +281,11 @@
    "family": "hudTech",
    "from": "hudTech-jw05-15",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "midnight_cyan",
    "pairName": "Midnight & Cyan",
    "look": "dark",
@@ -253,6 +308,11 @@
    "family": "neonNight",
    "from": "neonNight-nn04-20",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -275,6 +335,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-ck03-15",
    "gen": "sc",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -297,6 +362,11 @@
    "family": "slabPoster",
    "from": "slabPoster-pp04-15",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -319,6 +389,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-du08-15",
    "gen": "sc",
+   "fams": [
+    "Bahiana",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "blue_green",
    "pairName": "Blue & Green",
    "look": "dark",
@@ -341,6 +416,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-nn01-30",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -363,6 +443,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-nn05-30",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "teal_orange",
    "pairName": "Teal & Orange",
    "look": "dark",
@@ -385,6 +470,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-pa05-15",
    "gen": "sc",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -407,6 +497,11 @@
    "family": "ticketStub",
    "from": "ticketStub-nn06-35",
    "gen": "sc",
+   "fams": [
+    "Big Shoulders Display",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "black_cyan",
    "pairName": "Black & Cyan",
    "look": "dark",
@@ -429,6 +524,11 @@
    "family": "trustSeal",
    "from": "trustSeal-cd10-15",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -451,6 +551,11 @@
    "family": "trustSeal",
    "from": "trustSeal-du07-30",
    "gen": "sc",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -473,6 +578,11 @@
    "family": "band",
    "from": "of_iphone_band_sun",
    "gen": "of",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -495,6 +605,11 @@
    "family": "center",
    "from": "of_iphone_center_sky",
    "gen": "of",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -517,6 +632,11 @@
    "family": "float",
    "from": "of_iphone_float_cream",
    "gen": "of",
+   "fams": [
+    "Russo One",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -539,6 +659,11 @@
    "family": "info",
    "from": "of_iphone_info_bone",
    "gen": "of",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "mint_green",
    "pairName": "Mint & Green",
    "look": "light",
@@ -561,6 +686,11 @@
    "family": "list",
    "from": "of_iphone_list_cobalt",
    "gen": "of",
+   "fams": [
+    "Russo One",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -583,6 +713,11 @@
    "family": "row",
    "from": "of_iphone_row_forest",
    "gen": "of",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -605,6 +740,11 @@
    "family": "split",
    "from": "of_iphone_split_ink",
    "gen": "of",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "black_on_white",
    "pairName": "Black on White",
    "look": "light",
@@ -627,6 +767,11 @@
    "family": "arcCrown",
    "from": "arcCrown-cd01-20",
    "gen": "sc",
+   "fams": [
+    "Bungee",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -649,6 +794,11 @@
    "family": "arcCrown",
    "from": "arcCrown-ck02-35",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -671,6 +821,11 @@
    "family": "arcCrown",
    "from": "arcCrown-jw10-30",
    "gen": "sc",
+   "fams": [
+    "Bungee",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_white",
    "pairName": "Black on White",
    "look": "light",
@@ -693,6 +848,11 @@
    "family": "arcCrown",
    "from": "arcCrown-su02-20",
    "gen": "sc",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -715,6 +875,11 @@
    "family": "bubblePop",
    "from": "bubblePop-cd01-20",
    "gen": "sc",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -737,6 +902,11 @@
    "family": "bubblePop",
    "from": "bubblePop-du05-20",
    "gen": "sc",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -759,6 +929,11 @@
    "family": "bubblePop",
    "from": "bubblePop-gl02-20",
    "gen": "sc",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -781,6 +956,11 @@
    "family": "gradientWave",
    "from": "gradientWave-gl01-35",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -803,6 +983,11 @@
    "family": "gradientWave",
    "from": "gradientWave-io03-20",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -825,6 +1010,11 @@
    "family": "gradientWave",
    "from": "gradientWave-jw07-15",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -847,6 +1037,11 @@
    "family": "hudTech",
    "from": "hudTech-cd10-20",
    "gen": "sc",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_green",
    "pairName": "Black & Green",
    "look": "dark",
@@ -869,6 +1064,11 @@
    "family": "hudTech",
    "from": "hudTech-du07-25",
    "gen": "sc",
+   "fams": [
+    "Bahiana",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -891,6 +1091,11 @@
    "family": "neonNight",
    "from": "neonNight-du07-15",
    "gen": "sc",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "white_on_blue",
    "pairName": "White on Blue",
    "look": "dark",
@@ -913,6 +1118,11 @@
    "family": "neonNight",
    "from": "neonNight-jw04-20",
    "gen": "sc",
+   "fams": [
+    "Big Shoulders Stencil Display",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_violet",
    "pairName": "Black & Violet",
    "look": "dark",
@@ -935,6 +1145,11 @@
    "family": "neonNight",
    "from": "neonNight-jw05-20",
    "gen": "sc",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_gold",
    "pairName": "Black & Gold",
    "look": "dark",
@@ -957,6 +1172,11 @@
    "family": "neonNight",
    "from": "neonNight-nn03-20",
    "gen": "sc",
+   "fams": [
+    "Russo One",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -979,6 +1199,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-cd10-30",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -1001,6 +1226,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-du01-25",
    "gen": "sc",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -1023,6 +1253,11 @@
    "family": "slabPoster",
    "from": "slabPoster-io06-35",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "navy_orange",
    "pairName": "Navy & Orange",
    "look": "dark",
@@ -1045,6 +1280,11 @@
    "family": "slabPoster",
    "from": "slabPoster-jw10-30",
    "gen": "sc",
+   "fams": [
+    "Big Shoulders Stencil Display",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -1067,6 +1307,11 @@
    "family": "slabPoster",
    "from": "slabPoster-pp02-15",
    "gen": "sc",
+   "fams": [
+    "Bahiana",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "teal_pink",
    "pairName": "Teal & Pink",
    "look": "dark",
@@ -1089,6 +1334,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-du02-20",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -1111,6 +1361,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-jw05-25",
    "gen": "sc",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -1133,6 +1388,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-pp03-35",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -1155,6 +1415,11 @@
    "family": "ticketStub",
    "from": "ticketStub-pp04-20",
    "gen": "sc",
+   "fams": [
+    "Bungee",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_black",
    "pairName": "White on Black",
    "look": "dark",
@@ -1177,6 +1442,11 @@
    "family": "trustSeal",
    "from": "trustSeal-du06-35",
    "gen": "sc",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -1199,6 +1469,11 @@
    "family": "voltStack",
    "from": "voltStack-du05-20",
    "gen": "sc",
+   "fams": [
+    "Bungee",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "blue_green",
    "pairName": "Blue & Green",
    "look": "dark",
@@ -1221,6 +1496,11 @@
    "family": "voltStack",
    "from": "voltStack-du10-35",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "blush_magenta",
    "pairName": "Blush & Magenta",
    "look": "light",
@@ -1243,6 +1523,11 @@
    "family": "voltStack",
    "from": "voltStack-gl04-20",
    "gen": "sc",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_pink",
    "pairName": "Black & Pink",
    "look": "dark",
@@ -1265,6 +1550,11 @@
    "family": "voltStack",
    "from": "voltStack-ik06-20",
    "gen": "sc",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -1287,6 +1577,11 @@
    "family": "band",
    "from": "of_ipad_band_plum",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "blush_magenta",
    "pairName": "Blush & Magenta",
    "look": "light",
@@ -1309,6 +1604,11 @@
    "family": "center",
    "from": "of_ipad_center_bone",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -1331,6 +1631,11 @@
    "family": "float",
    "from": "of_ipad_float_violet",
    "gen": "of",
+   "fams": [
+    "Protest Revolution",
+    "Libre Franklin",
+    "Oswald"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -1353,6 +1658,11 @@
    "family": "info",
    "from": "of_ipad_info_sun",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -1375,6 +1685,11 @@
    "family": "list",
    "from": "of_ipad_list_sand",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -1397,6 +1712,11 @@
    "family": "row",
    "from": "of_ipad_row_signal",
    "gen": "of",
+   "fams": [
+    "Big Shoulders Display",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -1419,6 +1739,11 @@
    "family": "split",
    "from": "of_ipad_split_slate",
    "gen": "of",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "blush_magenta",
    "pairName": "Blush & Magenta",
    "look": "light",
@@ -1441,6 +1766,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-su02-30",
    "gen": "sc",
+   "fams": [
+    "Protest Riot",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "black_on_orange",
    "pairName": "Black on Orange",
    "look": "vivid",
@@ -1463,6 +1793,11 @@
    "family": "bubblePop",
    "from": "bubblePop-jw04-20",
    "gen": "sc",
+   "fams": [
+    "Silkscreen",
+    "Sora",
+    "Oswald"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -1485,6 +1820,11 @@
    "family": "bubblePop",
    "from": "bubblePop-jw08-35",
    "gen": "sc",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -1507,6 +1847,11 @@
    "family": "glassCard",
    "from": "glassCard-cd10-30",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -1529,6 +1874,11 @@
    "family": "gradientWave",
    "from": "gradientWave-du08-20",
    "gen": "sc",
+   "fams": [
+    "Bungee",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_white_blue",
    "pairName": "Red, White & Blue",
    "look": "light",
@@ -1551,6 +1901,11 @@
    "family": "neonNight",
    "from": "neonNight-su02-30",
    "gen": "sc",
+   "fams": [
+    "Big Shoulders Display",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -1573,6 +1928,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-io03-20",
    "gen": "sc",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -1595,6 +1955,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-nn04-20",
    "gen": "sc",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -1617,6 +1982,11 @@
    "family": "slabPoster",
    "from": "slabPoster-jw09-35",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "mint_green",
    "pairName": "Mint & Green",
    "look": "light",
@@ -1639,6 +2009,11 @@
    "family": "ticketStub",
    "from": "ticketStub-jw07-20",
    "gen": "sc",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -1661,6 +2036,11 @@
    "family": "trustSeal",
    "from": "trustSeal-jw03-20",
    "gen": "sc",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -1683,6 +2063,11 @@
    "family": "trustSeal",
    "from": "trustSeal-jw10-26",
    "gen": "sc",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "red_white_blue",
    "pairName": "Red, White & Blue",
    "look": "light",
@@ -1705,6 +2090,11 @@
    "family": "band",
    "from": "of_mac_band_bone",
    "gen": "of",
+   "fams": [
+    "Big Shoulders Stencil Display",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -1727,6 +2117,11 @@
    "family": "float",
    "from": "of_mac_float_ink",
    "gen": "of",
+   "fams": [
+    "Big Shoulders Display",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "black_pink",
    "pairName": "Black & Pink",
    "look": "dark",
@@ -1749,6 +2144,11 @@
    "family": "info",
    "from": "of_mac_info_teal",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -1771,6 +2171,11 @@
    "family": "list",
    "from": "of_mac_list_cream",
    "gen": "of",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -1793,6 +2198,11 @@
    "family": "row",
    "from": "of_mac_row_sky",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -1815,6 +2225,11 @@
    "family": "split",
    "from": "of_mac_split_violet",
    "gen": "of",
+   "fams": [
+    "Protest Riot",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -1837,6 +2252,11 @@
    "family": "band",
    "from": "of_tablet_band_lime",
    "gen": "of",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_violet",
    "pairName": "Black & Violet",
    "look": "dark",
@@ -1859,6 +2279,11 @@
    "family": "center",
    "from": "of_tablet_center_midnight",
    "gen": "of",
+   "fams": [
+    "Gochi Hand",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_navy",
    "pairName": "White on Navy",
    "look": "dark",
@@ -1881,6 +2306,11 @@
    "family": "float",
    "from": "of_tablet_float_sun",
    "gen": "of",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -1903,6 +2333,11 @@
    "family": "info",
    "from": "of_tablet_info_signal",
    "gen": "of",
+   "fams": [
+    "Gochi Hand",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -1925,6 +2360,11 @@
    "family": "list",
    "from": "of_tablet_list_teal",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -1947,6 +2387,11 @@
    "family": "row",
    "from": "of_tablet_row_mint",
    "gen": "of",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -1969,6 +2414,11 @@
    "family": "split",
    "from": "of_tablet_split_midnight",
    "gen": "of",
+   "fams": [
+    "Gochi Hand",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "navy_white_red",
    "pairName": "Navy, White & Red",
    "look": "dark",
@@ -1991,6 +2441,11 @@
    "family": "band",
    "from": "of_pixel_band_midnight",
    "gen": "of",
+   "fams": [
+    "Truculenta",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -2013,6 +2468,11 @@
    "family": "center",
    "from": "of_pixel_center_signal",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -2035,6 +2495,11 @@
    "family": "float",
    "from": "of_pixel_float_ink",
    "gen": "of",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -2057,6 +2522,11 @@
    "family": "info",
    "from": "of_pixel_info_lime",
    "gen": "of",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -2079,6 +2549,11 @@
    "family": "list",
    "from": "of_pixel_list_oxblood",
    "gen": "of",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "black_red",
    "pairName": "Black & Red",
    "look": "dark",
@@ -2101,6 +2576,11 @@
    "family": "row",
    "from": "of_pixel_row_lime",
    "gen": "of",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -2123,6 +2603,11 @@
    "family": "split",
    "from": "of_pixel_split_violet",
    "gen": "of",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -2145,6 +2630,11 @@
    "family": "band",
    "from": "of_galaxy_band_sky",
    "gen": "of",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -2167,6 +2657,11 @@
    "family": "center",
    "from": "of_galaxy_center_forest",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -2189,6 +2684,11 @@
    "family": "float",
    "from": "of_galaxy_float_cobalt",
    "gen": "of",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -2211,6 +2711,11 @@
    "family": "info",
    "from": "of_galaxy_info_sun",
    "gen": "of",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_white",
    "pairName": "Black on White",
    "look": "light",
@@ -2233,6 +2738,11 @@
    "family": "list",
    "from": "of_galaxy_list_plum",
    "gen": "of",
+   "fams": [
+    "Protest Riot",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -2255,6 +2765,11 @@
    "family": "row",
    "from": "of_galaxy_row_blush",
    "gen": "of",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "blush_magenta",
    "pairName": "Blush & Magenta",
    "look": "light",
@@ -2277,6 +2792,11 @@
    "family": "split",
    "from": "of_galaxy_split_cream",
    "gen": "of",
+   "fams": [
+    "Big Shoulders Stencil Display",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -2299,6 +2819,11 @@
    "family": "band",
    "from": "of_foldable_band_blush",
    "gen": "of",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -2321,6 +2846,11 @@
    "family": "center",
    "from": "of_foldable_center_lime",
    "gen": "of",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "black_on_orange",
    "pairName": "Black on Orange",
    "look": "vivid",
@@ -2343,6 +2873,11 @@
    "family": "float",
    "from": "of_foldable_float_bone",
    "gen": "of",
+   "fams": [
+    "Russo One",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -2365,6 +2900,11 @@
    "family": "info",
    "from": "of_foldable_info_forest",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_green",
    "pairName": "Black & Green",
    "look": "dark",
@@ -2387,6 +2927,11 @@
    "family": "list",
    "from": "of_foldable_list_sun",
    "gen": "of",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "yellow_on_black",
    "pairName": "Yellow on Black",
    "look": "dark",
@@ -2409,6 +2954,11 @@
    "family": "row",
    "from": "of_foldable_row_violet",
    "gen": "of",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -2431,6 +2981,11 @@
    "family": "split",
    "from": "of_foldable_split_teal",
    "gen": "of",
+   "fams": [
+    "Big Shoulders Display",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -2453,6 +3008,11 @@
    "family": "band",
    "from": "of_console_band_forest",
    "gen": "of",
+   "fams": [
+    "Truculenta",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "green_gold",
    "pairName": "Green & Gold",
    "look": "dark",
@@ -2475,6 +3035,11 @@
    "family": "center",
    "from": "of_console_center_blush",
    "gen": "of",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "blush_magenta",
    "pairName": "Blush & Magenta",
    "look": "light",
@@ -2497,6 +3062,11 @@
    "family": "float",
    "from": "of_console_float_sand",
    "gen": "of",
+   "fams": [
+    "Bahiana",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -2519,6 +3089,11 @@
    "family": "info",
    "from": "of_console_info_sky",
    "gen": "of",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -2541,6 +3116,11 @@
    "family": "list",
    "from": "of_console_list_arctic",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -2563,6 +3143,11 @@
    "family": "row",
    "from": "of_console_row_slate",
    "gen": "of",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -2585,6 +3170,11 @@
    "family": "split",
    "from": "of_console_split_violet",
    "gen": "of",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -2607,6 +3197,11 @@
    "family": "band",
    "from": "of_controller_band_slate",
    "gen": "of",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -2629,6 +3224,11 @@
    "family": "center",
    "from": "of_controller_center_forest",
    "gen": "of",
+   "fams": [
+    "Big Shoulders Stencil Display",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "plum_lime",
    "pairName": "Plum & Lime",
    "look": "dark",
@@ -2651,6 +3251,11 @@
    "family": "float",
    "from": "of_controller_float_signal",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -2673,6 +3278,11 @@
    "family": "info",
    "from": "of_controller_info_blush",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -2695,6 +3305,11 @@
    "family": "list",
    "from": "of_controller_list_lime",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_orange",
    "pairName": "Black on Orange",
    "look": "vivid",
@@ -2717,6 +3332,11 @@
    "family": "row",
    "from": "of_controller_row_ink",
    "gen": "of",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -2739,6 +3359,11 @@
    "family": "split",
    "from": "of_controller_split_bone",
    "gen": "of",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "red_white_blue",
    "pairName": "Red, White & Blue",
    "look": "light",
@@ -2761,6 +3386,11 @@
    "family": "band",
    "from": "of_vr_band_ink",
    "gen": "of",
+   "fams": [
+    "Protest Revolution",
+    "Libre Franklin",
+    "Oswald"
+   ],
    "pair": "black_gold",
    "pairName": "Black & Gold",
    "look": "dark",
@@ -2783,6 +3413,11 @@
    "family": "center",
    "from": "of_vr_center_oxblood",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -2805,6 +3440,11 @@
    "family": "float",
    "from": "of_vr_float_arctic",
    "gen": "of",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -2827,6 +3467,11 @@
    "family": "info",
    "from": "of_vr_info_forest",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -2849,6 +3494,11 @@
    "family": "list",
    "from": "of_vr_list_signal",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -2871,6 +3521,11 @@
    "family": "row",
    "from": "of_vr_row_graphite",
    "gen": "of",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "red_white_blue",
    "pairName": "Red, White & Blue",
    "look": "light",
@@ -2893,6 +3548,11 @@
    "family": "split",
    "from": "of_vr_split_plum",
    "gen": "of",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_violet",
    "pairName": "Black & Violet",
    "look": "dark",
@@ -2915,6 +3575,11 @@
    "family": "band",
    "from": "of_gamelaptop_band_cobalt",
    "gen": "of",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -2937,6 +3602,11 @@
    "family": "center",
    "from": "of_gamelaptop_center_mint",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -2959,6 +3629,11 @@
    "family": "float",
    "from": "of_gamelaptop_float_plum",
    "gen": "of",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -2981,6 +3656,11 @@
    "family": "info",
    "from": "of_gamelaptop_info_lime",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -3003,6 +3683,11 @@
    "family": "list",
    "from": "of_gamelaptop_list_midnight",
    "gen": "of",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -3025,6 +3710,11 @@
    "family": "row",
    "from": "of_gamelaptop_row_cream",
    "gen": "of",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -3047,6 +3737,11 @@
    "family": "split",
    "from": "of_gamelaptop_split_signal",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_white_blue",
    "pairName": "Red, White & Blue",
    "look": "light",
@@ -3069,6 +3764,11 @@
    "family": "band",
    "from": "of_gamingpc_band_graphite",
    "gen": "of",
+   "fams": [
+    "Big Shoulders Display",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "black_on_white",
    "pairName": "Black on White",
    "look": "light",
@@ -3091,6 +3791,11 @@
    "family": "center",
    "from": "of_gamingpc_center_ink",
    "gen": "of",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -3113,6 +3818,11 @@
    "family": "float",
    "from": "of_gamingpc_float_plum",
    "gen": "of",
+   "fams": [
+    "Russo One",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_pink",
    "pairName": "Black & Pink",
    "look": "dark",
@@ -3135,6 +3845,11 @@
    "family": "info",
    "from": "of_gamingpc_info_slate",
    "gen": "of",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "navy_white_red",
    "pairName": "Navy, White & Red",
    "look": "dark",
@@ -3157,6 +3872,11 @@
    "family": "list",
    "from": "of_gamingpc_list_midnight",
    "gen": "of",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "white_on_blue",
    "pairName": "White on Blue",
    "look": "dark",
@@ -3179,6 +3899,11 @@
    "family": "row",
    "from": "of_gamingpc_row_oxblood",
    "gen": "of",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -3201,6 +3926,11 @@
    "family": "split",
    "from": "of_gamingpc_split_signal",
    "gen": "of",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_on_orange",
    "pairName": "Black on Orange",
    "look": "vivid",
@@ -3223,6 +3953,11 @@
    "family": "band",
    "from": "of_pchandheld_band_cream",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -3245,6 +3980,11 @@
    "family": "center",
    "from": "of_pchandheld_center_graphite",
    "gen": "of",
+   "fams": [
+    "Silkscreen",
+    "Sora",
+    "Oswald"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -3267,6 +4007,11 @@
    "family": "float",
    "from": "of_pchandheld_float_sun",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -3289,6 +4034,11 @@
    "family": "info",
    "from": "of_pchandheld_info_ink",
    "gen": "of",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_pink",
    "pairName": "Black & Pink",
    "look": "dark",
@@ -3311,6 +4061,11 @@
    "family": "list",
    "from": "of_pchandheld_list_sky",
    "gen": "of",
+   "fams": [
+    "Russo One",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "white_on_black",
    "pairName": "White on Black",
    "look": "dark",
@@ -3333,6 +4088,11 @@
    "family": "row",
    "from": "of_pchandheld_row_teal",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -3355,6 +4115,11 @@
    "family": "split",
    "from": "of_pchandheld_split_sun",
    "gen": "of",
+   "fams": [
+    "Truculenta",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -3377,6 +4142,11 @@
    "family": "band",
    "from": "of_switch_band_mint",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -3399,6 +4169,11 @@
    "family": "center",
    "from": "of_switch_center_slate",
    "gen": "of",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -3421,6 +4196,11 @@
    "family": "float",
    "from": "of_switch_float_oxblood",
    "gen": "of",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -3443,6 +4223,11 @@
    "family": "info",
    "from": "of_switch_info_forest",
    "gen": "of",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -3465,6 +4250,11 @@
    "family": "list",
    "from": "of_switch_list_sun",
    "gen": "of",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "teal_orange",
    "pairName": "Teal & Orange",
    "look": "dark",
@@ -3487,6 +4277,11 @@
    "family": "row",
    "from": "of_switch_row_graphite",
    "gen": "of",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -3509,6 +4304,11 @@
    "family": "split",
    "from": "of_switch_split_teal",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "mint_green",
    "pairName": "Mint & Green",
    "look": "light",
@@ -3531,6 +4331,11 @@
    "family": "band",
    "from": "of_headphones_band_teal",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -3553,6 +4358,11 @@
    "family": "center",
    "from": "of_headphones_center_sand",
    "gen": "of",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -3575,6 +4385,11 @@
    "family": "float",
    "from": "of_headphones_float_forest",
    "gen": "of",
+   "fams": [
+    "Protest Revolution",
+    "Libre Franklin",
+    "Oswald"
+   ],
    "pair": "plum_lime",
    "pairName": "Plum & Lime",
    "look": "dark",
@@ -3597,6 +4412,11 @@
    "family": "info",
    "from": "of_headphones_info_cobalt",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -3619,6 +4439,11 @@
    "family": "list",
    "from": "of_headphones_list_ink",
    "gen": "of",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -3641,6 +4466,11 @@
    "family": "row",
    "from": "of_headphones_row_violet",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -3663,6 +4493,11 @@
    "family": "split",
    "from": "of_headphones_split_bone",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -3685,6 +4520,11 @@
    "family": "band",
    "from": "of_earbuds_band_oxblood",
    "gen": "of",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "teal_orange",
    "pairName": "Teal & Orange",
    "look": "dark",
@@ -3707,6 +4547,11 @@
    "family": "center",
    "from": "of_earbuds_center_signal",
    "gen": "of",
+   "fams": [
+    "Big Shoulders Stencil Display",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -3729,6 +4574,11 @@
    "family": "float",
    "from": "of_earbuds_float_blush",
    "gen": "of",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -3751,6 +4601,11 @@
    "family": "info",
    "from": "of_earbuds_info_plum",
    "gen": "of",
+   "fams": [
+    "Big Shoulders Display",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "red_white_blue",
    "pairName": "Red, White & Blue",
    "look": "light",
@@ -3773,6 +4628,11 @@
    "family": "list",
    "from": "of_earbuds_list_slate",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_blue",
    "pairName": "White on Blue",
    "look": "dark",
@@ -3795,6 +4655,11 @@
    "family": "row",
    "from": "of_earbuds_row_lime",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "purple_gold",
    "pairName": "Purple & Gold",
    "look": "dark",
@@ -3817,6 +4682,11 @@
    "family": "split",
    "from": "of_earbuds_split_midnight",
    "gen": "of",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "navy_white_red",
    "pairName": "Navy, White & Red",
    "look": "dark",
@@ -3839,6 +4709,11 @@
    "family": "band",
    "from": "of_headset_band_violet",
    "gen": "of",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -3861,6 +4736,11 @@
    "family": "type",
    "from": "of_headset_type_arctic",
    "gen": "of",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_orange",
    "pairName": "Black on Orange",
    "look": "vivid",
@@ -3883,6 +4763,11 @@
    "family": "typeCenter",
    "from": "of_headset_typeCenter_forest",
    "gen": "of",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -3905,6 +4790,11 @@
    "family": "band",
    "from": "of_speaker_band_teal",
    "gen": "of",
+   "fams": [
+    "Bahiana",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -3927,6 +4817,11 @@
    "family": "center",
    "from": "of_speaker_center_arctic",
    "gen": "of",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -3949,6 +4844,11 @@
    "family": "float",
    "from": "of_speaker_float_forest",
    "gen": "of",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_lime",
    "pairName": "Black & Lime",
    "look": "dark",
@@ -3971,6 +4871,11 @@
    "family": "info",
    "from": "of_speaker_info_violet",
    "gen": "of",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_green",
    "pairName": "Black & Green",
    "look": "dark",
@@ -3993,6 +4898,11 @@
    "family": "list",
    "from": "of_speaker_list_ink",
    "gen": "of",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -4015,6 +4925,11 @@
    "family": "row",
    "from": "of_speaker_row_signal",
    "gen": "of",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "mint_green",
    "pairName": "Mint & Green",
    "look": "light",
@@ -4037,6 +4952,11 @@
    "family": "split",
    "from": "of_speaker_split_lime",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -4059,6 +4979,11 @@
    "family": "band",
    "from": "of_monitor_band_arctic",
    "gen": "of",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -4081,6 +5006,11 @@
    "family": "center",
    "from": "of_monitor_center_violet",
    "gen": "of",
+   "fams": [
+    "Protest Riot",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -4103,6 +5033,11 @@
    "family": "float",
    "from": "of_monitor_float_blush",
    "gen": "of",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -4125,6 +5060,11 @@
    "family": "info",
    "from": "of_monitor_info_sand",
    "gen": "of",
+   "fams": [
+    "Russo One",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -4147,6 +5087,11 @@
    "family": "list",
    "from": "of_monitor_list_slate",
    "gen": "of",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "navy_orange",
    "pairName": "Navy & Orange",
    "look": "dark",
@@ -4169,6 +5114,11 @@
    "family": "row",
    "from": "of_monitor_row_plum",
    "gen": "of",
+   "fams": [
+    "Big Shoulders Stencil Display",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -4191,6 +5141,11 @@
    "family": "split",
    "from": "of_monitor_split_cobalt",
    "gen": "of",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "teal_orange",
    "pairName": "Teal & Orange",
    "look": "dark",
@@ -4213,6 +5168,11 @@
    "family": "band",
    "from": "of_laptop_band_sun",
    "gen": "of",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -4235,6 +5195,11 @@
    "family": "center",
    "from": "of_laptop_center_plum",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -4257,6 +5222,11 @@
    "family": "float",
    "from": "of_laptop_float_lime",
    "gen": "of",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -4279,6 +5249,11 @@
    "family": "info",
    "from": "of_laptop_info_arctic",
    "gen": "of",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -4301,6 +5276,11 @@
    "family": "list",
    "from": "of_laptop_list_cobalt",
    "gen": "of",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -4323,6 +5303,11 @@
    "family": "row",
    "from": "of_laptop_row_midnight",
    "gen": "of",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -4345,6 +5330,11 @@
    "family": "split",
    "from": "of_laptop_split_ink",
    "gen": "of",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -4367,6 +5357,11 @@
    "family": "band",
    "from": "of_ssd_band_plum",
    "gen": "of",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_on_white",
    "pairName": "Black on White",
    "look": "light",
@@ -4389,6 +5384,11 @@
    "family": "center",
    "from": "of_ssd_center_arctic",
    "gen": "of",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -4411,6 +5411,11 @@
    "family": "float",
    "from": "of_ssd_float_forest",
    "gen": "of",
+   "fams": [
+    "Bahiana",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_green",
    "pairName": "Black & Green",
    "look": "dark",
@@ -4433,6 +5438,11 @@
    "family": "info",
    "from": "of_ssd_info_violet",
    "gen": "of",
+   "fams": [
+    "Bungee",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -4455,6 +5465,11 @@
    "family": "list",
    "from": "of_ssd_list_ink",
    "gen": "of",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -4477,6 +5492,11 @@
    "family": "row",
    "from": "of_ssd_row_signal",
    "gen": "of",
+   "fams": [
+    "Bungee",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -4499,6 +5519,11 @@
    "family": "split",
    "from": "of_ssd_split_slate",
    "gen": "of",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "navy_orange",
    "pairName": "Navy & Orange",
    "look": "dark",
@@ -4521,6 +5546,11 @@
    "family": "band",
    "from": "of_minipc_band_bone",
    "gen": "of",
+   "fams": [
+    "Bahiana",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -4543,6 +5573,11 @@
    "family": "center",
    "from": "of_minipc_center_sun",
    "gen": "of",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -4565,6 +5600,11 @@
    "family": "float",
    "from": "of_minipc_float_ink",
    "gen": "of",
+   "fams": [
+    "Protest Riot",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -4587,6 +5627,11 @@
    "family": "info",
    "from": "of_minipc_info_teal",
    "gen": "of",
+   "fams": [
+    "Protest Riot",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -4609,6 +5654,11 @@
    "family": "list",
    "from": "of_minipc_list_oxblood",
    "gen": "of",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_red",
    "pairName": "Black & Red",
    "look": "dark",
@@ -4631,6 +5681,11 @@
    "family": "row",
    "from": "of_minipc_row_sky",
    "gen": "of",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -4653,6 +5708,11 @@
    "family": "split",
    "from": "of_minipc_split_sun",
    "gen": "of",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "navy_orange",
    "pairName": "Navy & Orange",
    "look": "dark",
@@ -4675,6 +5735,11 @@
    "family": "band",
    "from": "of_chromebook_band_signal",
    "gen": "of",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -4697,6 +5762,11 @@
    "family": "type",
    "from": "of_chromebook_type_midnight",
    "gen": "of",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "navy_orange",
    "pairName": "Navy & Orange",
    "look": "dark",
@@ -4719,6 +5789,11 @@
    "family": "typeCenter",
    "from": "of_chromebook_typeCenter_graphite",
    "gen": "of",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "blush_magenta",
    "pairName": "Blush & Magenta",
    "look": "light",
@@ -4741,6 +5816,11 @@
    "family": "bubblePop",
    "from": "bubblePop-cd10-15",
    "gen": "sc",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -4763,6 +5843,11 @@
    "family": "bubblePop",
    "from": "bubblePop-nn05-15",
    "gen": "sc",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_orange",
    "pairName": "Black on Orange",
    "look": "vivid",
@@ -4785,6 +5870,11 @@
    "family": "checklistHero",
    "from": "checklistHero-jw07-15",
    "gen": "sc",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -4807,6 +5897,11 @@
    "family": "glassCard",
    "from": "glassCard-du05-15",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -4829,6 +5924,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-io03-20",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -4851,6 +5951,11 @@
    "family": "trustSeal",
    "from": "trustSeal-jw07-16",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -4873,6 +5978,11 @@
    "family": "voltStack",
    "from": "voltStack-jw10-15",
    "gen": "sc",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -4895,6 +6005,11 @@
    "family": "band",
    "from": "of_watch_band_signal",
    "gen": "of",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -4917,6 +6032,11 @@
    "family": "center",
    "from": "of_watch_center_midnight",
    "gen": "of",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "navy_orange",
    "pairName": "Navy & Orange",
    "look": "dark",
@@ -4939,6 +6059,11 @@
    "family": "float",
    "from": "of_watch_float_cream",
    "gen": "of",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_gold",
    "pairName": "Black & Gold",
    "look": "dark",
@@ -4961,6 +6086,11 @@
    "family": "info",
    "from": "of_watch_info_arctic",
    "gen": "of",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -4983,6 +6113,11 @@
    "family": "list",
    "from": "of_watch_list_graphite",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "teal_pink",
    "pairName": "Teal & Pink",
    "look": "dark",
@@ -5005,6 +6140,11 @@
    "family": "row",
    "from": "of_watch_row_signal",
    "gen": "of",
+   "fams": [
+    "Protest Revolution",
+    "Libre Franklin",
+    "Oswald"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -5027,6 +6167,11 @@
    "family": "split",
    "from": "of_watch_split_cream",
    "gen": "of",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -5049,6 +6194,11 @@
    "family": "band",
    "from": "of_smartwatch_band_midnight",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_blue",
    "pairName": "White on Blue",
    "look": "dark",
@@ -5071,6 +6221,11 @@
    "family": "center",
    "from": "of_smartwatch_center_mint",
    "gen": "of",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -5093,6 +6248,11 @@
    "family": "float",
    "from": "of_smartwatch_float_ink",
    "gen": "of",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_cyan",
    "pairName": "Black & Cyan",
    "look": "dark",
@@ -5115,6 +6275,11 @@
    "family": "info",
    "from": "of_smartwatch_info_lime",
    "gen": "of",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "yellow_on_black",
    "pairName": "Yellow on Black",
    "look": "dark",
@@ -5137,6 +6302,11 @@
    "family": "list",
    "from": "of_smartwatch_list_oxblood",
    "gen": "of",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -5159,6 +6329,11 @@
    "family": "row",
    "from": "of_smartwatch_row_cream",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -5181,6 +6356,11 @@
    "family": "split",
    "from": "of_smartwatch_split_graphite",
    "gen": "of",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -5203,6 +6383,11 @@
    "family": "band",
    "from": "of_metaglasses_band_lime",
    "gen": "of",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -5225,6 +6410,11 @@
    "family": "center",
    "from": "of_metaglasses_center_cobalt",
    "gen": "of",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -5247,6 +6437,11 @@
    "family": "float",
    "from": "of_metaglasses_float_cobalt",
    "gen": "of",
+   "fams": [
+    "Truculenta",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "black_violet",
    "pairName": "Black & Violet",
    "look": "dark",
@@ -5269,6 +6464,11 @@
    "family": "info",
    "from": "of_metaglasses_info_mint",
    "gen": "of",
+   "fams": [
+    "Bungee",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -5291,6 +6491,11 @@
    "family": "list",
    "from": "of_metaglasses_list_sand",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -5313,6 +6518,11 @@
    "family": "row",
    "from": "of_metaglasses_row_sand",
    "gen": "of",
+   "fams": [
+    "Big Shoulders Stencil Display",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -5335,6 +6545,11 @@
    "family": "split",
    "from": "of_metaglasses_split_cream",
    "gen": "of",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -5357,6 +6572,11 @@
    "family": "arcCrown",
    "from": "arcCrown-ca07-15",
    "gen": "sc",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -5379,6 +6599,11 @@
    "family": "arcCrown",
    "from": "arcCrown-cd10-20",
    "gen": "sc",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -5401,6 +6626,11 @@
    "family": "arcCrown",
    "from": "arcCrown-du07-30",
    "gen": "sc",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -5423,6 +6653,11 @@
    "family": "arcCrown",
    "from": "arcCrown-nn03-25",
    "gen": "sc",
+   "fams": [
+    "Bungee",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_yellow",
    "pairName": "Red & Yellow",
    "look": "dark",
@@ -5445,6 +6680,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-cd10-30",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "green_gold",
    "pairName": "Green & Gold",
    "look": "dark",
@@ -5467,6 +6707,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-du02-30",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_yellow",
    "pairName": "Red & Yellow",
    "look": "dark",
@@ -5489,6 +6734,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-su05-35",
    "gen": "sc",
+   "fams": [
+    "Bungee",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_gold",
    "pairName": "Black & Gold",
    "look": "dark",
@@ -5511,6 +6761,11 @@
    "family": "bubblePop",
    "from": "bubblePop-nn03-30",
    "gen": "sc",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -5533,6 +6788,11 @@
    "family": "bubblePop",
    "from": "bubblePop-pp06-35",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -5555,6 +6815,11 @@
    "family": "checklistHero",
    "from": "checklistHero-cd06-16",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -5577,6 +6842,11 @@
    "family": "checklistHero",
    "from": "checklistHero-du05-30",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "green_gold",
    "pairName": "Green & Gold",
    "look": "dark",
@@ -5599,6 +6869,11 @@
    "family": "checklistHero",
    "from": "checklistHero-io03-15",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "yellow_on_black",
    "pairName": "Yellow on Black",
    "look": "dark",
@@ -5621,6 +6896,11 @@
    "family": "glassCard",
    "from": "glassCard-cd06-15",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_gold",
    "pairName": "Black & Gold",
    "look": "dark",
@@ -5643,6 +6923,11 @@
    "family": "glassCard",
    "from": "glassCard-jw05-30",
    "gen": "sc",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "yellow_on_black",
    "pairName": "Yellow on Black",
    "look": "dark",
@@ -5665,6 +6950,11 @@
    "family": "glassCard",
    "from": "glassCard-jw10-30",
    "gen": "sc",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "purple_gold",
    "pairName": "Purple & Gold",
    "look": "dark",
@@ -5687,6 +6977,11 @@
    "family": "gradientWave",
    "from": "gradientWave-du01-30",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_yellow",
    "pairName": "Red & Yellow",
    "look": "dark",
@@ -5709,6 +7004,11 @@
    "family": "gradientWave",
    "from": "gradientWave-ik01-35",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "red_yellow",
    "pairName": "Red & Yellow",
    "look": "dark",
@@ -5731,6 +7031,11 @@
    "family": "neonNight",
    "from": "neonNight-du02-30",
    "gen": "sc",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "purple_gold",
    "pairName": "Purple & Gold",
    "look": "dark",
@@ -5753,6 +7058,11 @@
    "family": "neonNight",
    "from": "neonNight-ik04-35",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -5775,6 +7085,11 @@
    "family": "neonNight",
    "from": "neonNight-jw02-35",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "yellow_on_black",
    "pairName": "Yellow on Black",
    "look": "dark",
@@ -5797,6 +7112,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-nn01-30",
    "gen": "sc",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "red_yellow",
    "pairName": "Red & Yellow",
    "look": "dark",
@@ -5819,6 +7139,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-nn05-15",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "purple_gold",
    "pairName": "Purple & Gold",
    "look": "dark",
@@ -5841,6 +7166,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-pp02-15",
    "gen": "sc",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "purple_gold",
    "pairName": "Purple & Gold",
    "look": "dark",
@@ -5863,6 +7193,11 @@
    "family": "slabPoster",
    "from": "slabPoster-io03-15",
    "gen": "sc",
+   "fams": [
+    "Protest Riot",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -5885,6 +7220,11 @@
    "family": "slabPoster",
    "from": "slabPoster-jw01-20",
    "gen": "sc",
+   "fams": [
+    "Protest Revolution",
+    "Libre Franklin",
+    "Oswald"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -5907,6 +7247,11 @@
    "family": "slabPoster",
    "from": "slabPoster-jw04-20",
    "gen": "sc",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -5929,6 +7274,11 @@
    "family": "slabPoster",
    "from": "slabPoster-nn04-20",
    "gen": "sc",
+   "fams": [
+    "Truculenta",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "purple_gold",
    "pairName": "Purple & Gold",
    "look": "dark",
@@ -5951,6 +7301,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-cd04-15",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -5973,6 +7328,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-du01-30",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -5995,6 +7355,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-du02-30",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "red_yellow",
    "pairName": "Red & Yellow",
    "look": "dark",
@@ -6017,6 +7382,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-du06-35",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "yellow_on_black",
    "pairName": "Yellow on Black",
    "look": "dark",
@@ -6039,6 +7409,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-nn01-31",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "black_gold",
    "pairName": "Black & Gold",
    "look": "dark",
@@ -6061,6 +7436,11 @@
    "family": "ticketStub",
    "from": "ticketStub-ca07-20",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_yellow",
    "pairName": "Red & Yellow",
    "look": "dark",
@@ -6083,6 +7463,11 @@
    "family": "trustSeal",
    "from": "trustSeal-cd01-30",
    "gen": "sc",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "green_gold",
    "pairName": "Green & Gold",
    "look": "dark",
@@ -6105,6 +7490,11 @@
    "family": "trustSeal",
    "from": "trustSeal-cd02-35",
    "gen": "sc",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "purple_gold",
    "pairName": "Purple & Gold",
    "look": "dark",
@@ -6127,6 +7517,11 @@
    "family": "trustSeal",
    "from": "trustSeal-du05-15",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "purple_gold",
    "pairName": "Purple & Gold",
    "look": "dark",
@@ -6149,6 +7544,11 @@
    "family": "voltStack",
    "from": "voltStack-ck01-15",
    "gen": "sc",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "yellow_on_black",
    "pairName": "Yellow on Black",
    "look": "dark",
@@ -6171,6 +7571,11 @@
    "family": "voltStack",
    "from": "voltStack-ck03-20",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "green_gold",
    "pairName": "Green & Gold",
    "look": "dark",
@@ -6193,6 +7598,11 @@
    "family": "voltStack",
    "from": "voltStack-jw10-30",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_gold",
    "pairName": "Black & Gold",
    "look": "dark",
@@ -6215,6 +7625,11 @@
    "family": "voltStack",
    "from": "voltStack-su02-20",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "black_gold",
    "pairName": "Black & Gold",
    "look": "dark",
@@ -6237,6 +7652,11 @@
    "family": "band",
    "from": "of_gold_band_blush",
    "gen": "of",
+   "fams": [
+    "Russo One",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "purple_gold",
    "pairName": "Purple & Gold",
    "look": "dark",
@@ -6259,6 +7679,11 @@
    "family": "center",
    "from": "of_gold_center_lime",
    "gen": "of",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "green_gold",
    "pairName": "Green & Gold",
    "look": "dark",
@@ -6281,6 +7706,11 @@
    "family": "float",
    "from": "of_gold_float_cream",
    "gen": "of",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "red_yellow",
    "pairName": "Red & Yellow",
    "look": "dark",
@@ -6303,6 +7733,11 @@
    "family": "info",
    "from": "of_gold_info_midnight",
    "gen": "of",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -6325,6 +7760,11 @@
    "family": "list",
    "from": "of_gold_list_violet",
    "gen": "of",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "purple_gold",
    "pairName": "Purple & Gold",
    "look": "dark",
@@ -6347,6 +7787,11 @@
    "family": "row",
    "from": "of_gold_row_cobalt",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "green_gold",
    "pairName": "Green & Gold",
    "look": "dark",
@@ -6369,6 +7814,11 @@
    "family": "split",
    "from": "of_gold_split_sand",
    "gen": "of",
+   "fams": [
+    "Big Shoulders Stencil Display",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "purple_gold",
    "pairName": "Purple & Gold",
    "look": "dark",
@@ -6391,6 +7841,11 @@
    "family": "arcCrown",
    "from": "arcCrown-cd01-30",
    "gen": "sc",
+   "fams": [
+    "Gochi Hand",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -6413,6 +7868,11 @@
    "family": "arcCrown",
    "from": "arcCrown-cd06-30",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -6435,6 +7895,11 @@
    "family": "arcCrown",
    "from": "arcCrown-du05-15",
    "gen": "sc",
+   "fams": [
+    "Gochi Hand",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -6457,6 +7922,11 @@
    "family": "arcCrown",
    "from": "arcCrown-du07-15",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -6479,6 +7949,11 @@
    "family": "arcCrown",
    "from": "arcCrown-nn05-20",
    "gen": "sc",
+   "fams": [
+    "Bungee",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_blue",
    "pairName": "White on Blue",
    "look": "dark",
@@ -6501,6 +7976,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-jw05-30",
    "gen": "sc",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -6523,6 +8003,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-nn05-30",
    "gen": "sc",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -6545,6 +8030,11 @@
    "family": "bubblePop",
    "from": "bubblePop-cd06-30",
    "gen": "sc",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -6567,6 +8057,11 @@
    "family": "bubblePop",
    "from": "bubblePop-jw04-35",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_blue",
    "pairName": "White on Blue",
    "look": "dark",
@@ -6589,6 +8084,11 @@
    "family": "checklistHero",
    "from": "checklistHero-cd02-35",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -6611,6 +8111,11 @@
    "family": "checklistHero",
    "from": "checklistHero-cd05-35",
    "gen": "sc",
+   "fams": [
+    "Protest Revolution",
+    "Libre Franklin",
+    "Oswald"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -6633,6 +8138,11 @@
    "family": "checklistHero",
    "from": "checklistHero-cd06-25",
    "gen": "sc",
+   "fams": [
+    "Big Shoulders Stencil Display",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -6655,6 +8165,11 @@
    "family": "checklistHero",
    "from": "checklistHero-jw05-15",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "white_on_blue",
    "pairName": "White on Blue",
    "look": "dark",
@@ -6677,6 +8192,11 @@
    "family": "glassCard",
    "from": "glassCard-du01-30",
    "gen": "sc",
+   "fams": [
+    "Protest Riot",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "white_on_navy",
    "pairName": "White on Navy",
    "look": "dark",
@@ -6699,6 +8219,11 @@
    "family": "glassCard",
    "from": "glassCard-du02-30",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "midnight_cyan",
    "pairName": "Midnight & Cyan",
    "look": "dark",
@@ -6721,6 +8246,11 @@
    "family": "glassCard",
    "from": "glassCard-jw03-15",
    "gen": "sc",
+   "fams": [
+    "Big Shoulders Stencil Display",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "white_on_black",
    "pairName": "White on Black",
    "look": "dark",
@@ -6743,6 +8273,11 @@
    "family": "glassCard",
    "from": "glassCard-su03-35",
    "gen": "sc",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -6765,6 +8300,11 @@
    "family": "gradientWave",
    "from": "gradientWave-ck01-15",
    "gen": "sc",
+   "fams": [
+    "Big Shoulders Display",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "black_on_white",
    "pairName": "Black on White",
    "look": "light",
@@ -6787,6 +8327,11 @@
    "family": "gradientWave",
    "from": "gradientWave-jw05-15",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_black",
    "pairName": "White on Black",
    "look": "dark",
@@ -6809,6 +8354,11 @@
    "family": "gradientWave",
    "from": "gradientWave-nn05-15",
    "gen": "sc",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -6831,6 +8381,11 @@
    "family": "hudTech",
    "from": "hudTech-pa05-20",
    "gen": "sc",
+   "fams": [
+    "Protest Riot",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -6853,6 +8408,11 @@
    "family": "neonNight",
    "from": "neonNight-gl01-35",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_blue",
    "pairName": "White on Blue",
    "look": "dark",
@@ -6875,6 +8435,11 @@
    "family": "neonNight",
    "from": "neonNight-io08-35",
    "gen": "sc",
+   "fams": [
+    "Gochi Hand",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_navy",
    "pairName": "White on Navy",
    "look": "dark",
@@ -6897,6 +8462,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-du01-30",
    "gen": "sc",
+   "fams": [
+    "Silkscreen",
+    "Sora",
+    "Oswald"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -6919,6 +8489,11 @@
    "family": "slabPoster",
    "from": "slabPoster-cd01-25",
    "gen": "sc",
+   "fams": [
+    "Gochi Hand",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -6941,6 +8516,11 @@
    "family": "slabPoster",
    "from": "slabPoster-jw06-35",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "red_white_blue",
    "pairName": "Red, White & Blue",
    "look": "light",
@@ -6963,6 +8543,11 @@
    "family": "slabPoster",
    "from": "slabPoster-jw08-35",
    "gen": "sc",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_lime",
    "pairName": "Black & Lime",
    "look": "dark",
@@ -6985,6 +8570,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-cd07-35",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_white",
    "pairName": "Black on White",
    "look": "light",
@@ -7007,6 +8597,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-ck03-20",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -7029,6 +8624,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-nn05-15",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_navy",
    "pairName": "White on Navy",
    "look": "dark",
@@ -7051,6 +8651,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-pp04-15",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -7073,6 +8678,11 @@
    "family": "ticketStub",
    "from": "ticketStub-cd10-30",
    "gen": "sc",
+   "fams": [
+    "Truculenta",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -7095,6 +8705,11 @@
    "family": "ticketStub",
    "from": "ticketStub-ik07-35",
    "gen": "sc",
+   "fams": [
+    "Bahiana",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -7117,6 +8732,11 @@
    "family": "trustSeal",
    "from": "trustSeal-du03-35",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -7139,6 +8759,11 @@
    "family": "trustSeal",
    "from": "trustSeal-jw03-31",
    "gen": "sc",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -7161,6 +8786,11 @@
    "family": "trustSeal",
    "from": "trustSeal-nn04-20",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -7183,6 +8813,11 @@
    "family": "voltStack",
    "from": "voltStack-du04-35",
    "gen": "sc",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -7205,6 +8840,11 @@
    "family": "voltStack",
    "from": "voltStack-du06-35",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_navy",
    "pairName": "White on Navy",
    "look": "dark",
@@ -7227,6 +8867,11 @@
    "family": "voltStack",
    "from": "voltStack-gl07-35",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -7249,6 +8894,11 @@
    "family": "voltStack",
    "from": "voltStack-io03-15",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_blue",
    "pairName": "White on Blue",
    "look": "dark",
@@ -7271,6 +8921,11 @@
    "family": "band",
    "from": "of_silver_band_lime",
    "gen": "of",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -7293,6 +8948,11 @@
    "family": "center",
    "from": "of_silver_center_forest",
    "gen": "of",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -7315,6 +8975,11 @@
    "family": "float",
    "from": "of_silver_float_graphite",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -7337,6 +9002,11 @@
    "family": "info",
    "from": "of_silver_info_signal",
    "gen": "of",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -7359,6 +9029,11 @@
    "family": "list",
    "from": "of_silver_list_teal",
    "gen": "of",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "midnight_cyan",
    "pairName": "Midnight & Cyan",
    "look": "dark",
@@ -7381,6 +9056,11 @@
    "family": "row",
    "from": "of_silver_row_mint",
    "gen": "of",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -7403,6 +9083,11 @@
    "family": "split",
    "from": "of_silver_split_oxblood",
    "gen": "of",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -7425,6 +9110,11 @@
    "family": "arcCrown",
    "from": "arcCrown-du02-20",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "black_pink",
    "pairName": "Black & Pink",
    "look": "dark",
@@ -7447,6 +9137,11 @@
    "family": "arcCrown",
    "from": "arcCrown-du05-30",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "navy_orange",
    "pairName": "Navy & Orange",
    "look": "dark",
@@ -7469,6 +9164,11 @@
    "family": "arcCrown",
    "from": "arcCrown-jw07-15",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "blush_magenta",
    "pairName": "Blush & Magenta",
    "look": "light",
@@ -7491,6 +9191,11 @@
    "family": "arcCrown",
    "from": "arcCrown-pa01-30",
    "gen": "sc",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "yellow_on_black",
    "pairName": "Yellow on Black",
    "look": "dark",
@@ -7513,6 +9218,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-cd06-30",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -7535,6 +9245,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-cd10-25",
    "gen": "sc",
+   "fams": [
+    "Protest Riot",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -7557,6 +9272,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-jw10-20",
    "gen": "sc",
+   "fams": [
+    "Protest Riot",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "black_red",
    "pairName": "Black & Red",
    "look": "dark",
@@ -7579,6 +9299,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-nn06-35",
    "gen": "sc",
+   "fams": [
+    "Protest Revolution",
+    "Libre Franklin",
+    "Oswald"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -7601,6 +9326,11 @@
    "family": "bubblePop",
    "from": "bubblePop-du03-35",
    "gen": "sc",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -7623,6 +9353,11 @@
    "family": "bubblePop",
    "from": "bubblePop-du04-35",
    "gen": "sc",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -7645,6 +9380,11 @@
    "family": "bubblePop",
    "from": "bubblePop-ik05-30",
    "gen": "sc",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -7667,6 +9407,11 @@
    "family": "bubblePop",
    "from": "bubblePop-su02-30",
    "gen": "sc",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -7689,6 +9434,11 @@
    "family": "checklistHero",
    "from": "checklistHero-ca07-20",
    "gen": "sc",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -7711,6 +9461,11 @@
    "family": "checklistHero",
    "from": "checklistHero-du01-30",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -7733,6 +9488,11 @@
    "family": "checklistHero",
    "from": "checklistHero-du02-30",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -7755,6 +9515,11 @@
    "family": "checklistHero",
    "from": "checklistHero-ik05-25",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_white",
    "pairName": "Black on White",
    "look": "light",
@@ -7777,6 +9542,11 @@
    "family": "glassCard",
    "from": "glassCard-ck03-20",
    "gen": "sc",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -7799,6 +9569,11 @@
    "family": "glassCard",
    "from": "glassCard-du07-15",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_orange",
    "pairName": "Black on Orange",
    "look": "vivid",
@@ -7821,6 +9596,11 @@
    "family": "glassCard",
    "from": "glassCard-nn01-30",
    "gen": "sc",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -7843,6 +9623,11 @@
    "family": "glassCard",
    "from": "glassCard-su02-30",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_white",
    "pairName": "Black on White",
    "look": "light",
@@ -7865,6 +9650,11 @@
    "family": "gradientWave",
    "from": "gradientWave-cd10-20",
    "gen": "sc",
+   "fams": [
+    "Silkscreen",
+    "Sora",
+    "Oswald"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -7887,6 +9677,11 @@
    "family": "gradientWave",
    "from": "gradientWave-du08-15",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "mint_green",
    "pairName": "Mint & Green",
    "look": "light",
@@ -7909,6 +9704,11 @@
    "family": "gradientWave",
    "from": "gradientWave-jw05-16",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -7931,6 +9731,11 @@
    "family": "hudTech",
    "from": "hudTech-ca07-15",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -7953,6 +9758,11 @@
    "family": "hudTech",
    "from": "hudTech-jw07-16",
    "gen": "sc",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "blush_magenta",
    "pairName": "Blush & Magenta",
    "look": "light",
@@ -7975,6 +9785,11 @@
    "family": "hudTech",
    "from": "hudTech-pp02-15",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -7997,6 +9812,11 @@
    "family": "neonNight",
    "from": "neonNight-cd06-30",
    "gen": "sc",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "yellow_on_black",
    "pairName": "Yellow on Black",
    "look": "dark",
@@ -8019,6 +9839,11 @@
    "family": "neonNight",
    "from": "neonNight-du07-31",
    "gen": "sc",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "white_on_purple",
    "pairName": "White on Purple",
    "look": "dark",
@@ -8041,6 +9866,11 @@
    "family": "neonNight",
    "from": "neonNight-jw06-35",
    "gen": "sc",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_pink",
    "pairName": "Black & Pink",
    "look": "dark",
@@ -8063,6 +9893,11 @@
    "family": "neonNight",
    "from": "neonNight-nn02-35",
    "gen": "sc",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -8085,6 +9920,11 @@
    "family": "reviewProof",
    "from": "reviewProof-du07-15",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -8107,6 +9947,11 @@
    "family": "reviewProof",
    "from": "reviewProof-pp02-15",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -8129,6 +9974,11 @@
    "family": "reviewProof",
    "from": "reviewProof-pp02-20",
    "gen": "sc",
+   "fams": [
+    "Gochi Hand",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "mint_green",
    "pairName": "Mint & Green",
    "look": "light",
@@ -8151,6 +10001,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-cd06-15",
    "gen": "sc",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -8173,6 +10028,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-ik05-20",
    "gen": "sc",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "mint_green",
    "pairName": "Mint & Green",
    "look": "light",
@@ -8195,6 +10055,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-jw05-15",
    "gen": "sc",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "black_green",
    "pairName": "Black & Green",
    "look": "dark",
@@ -8217,6 +10082,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-pp02-20",
    "gen": "sc",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -8239,6 +10109,11 @@
    "family": "slabPoster",
    "from": "slabPoster-du01-20",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -8261,6 +10136,11 @@
    "family": "slabPoster",
    "from": "slabPoster-pa05-15",
    "gen": "sc",
+   "fams": [
+    "Russo One",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -8283,6 +10163,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-ca07-15",
    "gen": "sc",
+   "fams": [
+    "Protest Revolution",
+    "Libre Franklin",
+    "Oswald"
+   ],
    "pair": "yellow_on_black",
    "pairName": "Yellow on Black",
    "look": "dark",
@@ -8305,6 +10190,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-cd04-30",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "blue_green",
    "pairName": "Blue & Green",
    "look": "dark",
@@ -8327,6 +10217,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-cd10-20",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "black_white_orange",
    "pairName": "Black, White & Orange",
    "look": "dark",
@@ -8349,6 +10244,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-du10-35",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -8371,6 +10271,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-jw01-20",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "navy_white_red",
    "pairName": "Navy, White & Red",
    "look": "dark",
@@ -8393,6 +10298,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-jw05-16",
    "gen": "sc",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -8415,6 +10325,11 @@
    "family": "ticketStub",
    "from": "ticketStub-ck03-15",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -8437,6 +10352,11 @@
    "family": "trustSeal",
    "from": "trustSeal-io04-35",
    "gen": "sc",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -8459,6 +10379,11 @@
    "family": "voltStack",
    "from": "voltStack-du05-15",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -8481,6 +10406,11 @@
    "family": "voltStack",
    "from": "voltStack-gl02-15",
    "gen": "sc",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_on_white",
    "pairName": "Black on White",
    "look": "light",
@@ -8503,6 +10433,11 @@
    "family": "voltStack",
    "from": "voltStack-io06-35",
    "gen": "sc",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -8525,6 +10460,11 @@
    "family": "voltStack",
    "from": "voltStack-jw05-30",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_green",
    "pairName": "Black & Green",
    "look": "dark",
@@ -8547,6 +10487,11 @@
    "family": "band",
    "from": "of_coins_band_forest",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_green",
    "pairName": "White on Green",
    "look": "dark",
@@ -8569,6 +10514,11 @@
    "family": "center",
    "from": "of_coins_center_blush",
    "gen": "of",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "blush_magenta",
    "pairName": "Blush & Magenta",
    "look": "light",
@@ -8591,6 +10541,11 @@
    "family": "float",
    "from": "of_coins_float_teal",
    "gen": "of",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -8613,6 +10568,11 @@
    "family": "info",
    "from": "of_coins_info_sky",
    "gen": "of",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_orange",
    "pairName": "Black on Orange",
    "look": "vivid",
@@ -8635,6 +10595,11 @@
    "family": "list",
    "from": "of_coins_list_bone",
    "gen": "of",
+   "fams": [
+    "Truculenta",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -8657,6 +10622,11 @@
    "family": "row",
    "from": "of_coins_row_slate",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_orange",
    "pairName": "Black on Orange",
    "look": "vivid",
@@ -8679,6 +10649,11 @@
    "family": "split",
    "from": "of_coins_split_sun",
    "gen": "of",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "black_on_orange",
    "pairName": "Black on Orange",
    "look": "vivid",
@@ -8701,6 +10676,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-ck04-35",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -8723,6 +10703,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-nn01-30",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -8745,6 +10730,11 @@
    "family": "bubblePop",
    "from": "bubblePop-cd10-30",
    "gen": "sc",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -8767,6 +10757,11 @@
    "family": "checklistHero",
    "from": "checklistHero-cd04-15",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -8789,6 +10784,11 @@
    "family": "checklistHero",
    "from": "checklistHero-du08-16",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_on_white",
    "pairName": "Black on White",
    "look": "light",
@@ -8811,6 +10811,11 @@
    "family": "glassCard",
    "from": "glassCard-du02-20",
    "gen": "sc",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -8833,6 +10838,11 @@
    "family": "glassCard",
    "from": "glassCard-du07-30",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -8855,6 +10865,11 @@
    "family": "glassCard",
    "from": "glassCard-gl04-30",
    "gen": "sc",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -8877,6 +10892,11 @@
    "family": "gradientWave",
    "from": "gradientWave-gl04-20",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -8899,6 +10919,11 @@
    "family": "neonNight",
    "from": "neonNight-du07-20",
    "gen": "sc",
+   "fams": [
+    "Protest Revolution",
+    "Libre Franklin",
+    "Oswald"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -8921,6 +10946,11 @@
    "family": "neonNight",
    "from": "neonNight-gl04-20",
    "gen": "sc",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "yellow_on_black",
    "pairName": "Yellow on Black",
    "look": "dark",
@@ -8943,6 +10973,11 @@
    "family": "reviewProof",
    "from": "reviewProof-cd10-20",
    "gen": "sc",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -8965,6 +11000,11 @@
    "family": "reviewProof",
    "from": "reviewProof-io03-20",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -8987,6 +11027,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-du07-30",
    "gen": "sc",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -9009,6 +11054,11 @@
    "family": "slabPoster",
    "from": "slabPoster-ik06-20",
    "gen": "sc",
+   "fams": [
+    "Protest Revolution",
+    "Libre Franklin",
+    "Oswald"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -9031,6 +11081,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-io03-16",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -9053,6 +11108,11 @@
    "family": "ticketStub",
    "from": "ticketStub-du02-30",
    "gen": "sc",
+   "fams": [
+    "Big Shoulders Display",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "mint_green",
    "pairName": "Mint & Green",
    "look": "light",
@@ -9075,6 +11135,11 @@
    "family": "trustSeal",
    "from": "trustSeal-pp06-35",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "navy_orange",
    "pairName": "Navy & Orange",
    "look": "dark",
@@ -9097,6 +11162,11 @@
    "family": "voltStack",
    "from": "voltStack-pp02-15",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -9119,6 +11189,11 @@
    "family": "band",
    "from": "of_car_band_mint",
    "gen": "of",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -9141,6 +11216,11 @@
    "family": "center",
    "from": "of_car_center_lime",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -9163,6 +11243,11 @@
    "family": "float",
    "from": "of_car_float_oxblood",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -9185,6 +11270,11 @@
    "family": "info",
    "from": "of_car_info_forest",
    "gen": "of",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "green_gold",
    "pairName": "Green & Gold",
    "look": "dark",
@@ -9207,6 +11297,11 @@
    "family": "list",
    "from": "of_car_list_sun",
    "gen": "of",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -9229,6 +11324,11 @@
    "family": "row",
    "from": "of_car_row_cobalt",
    "gen": "of",
+   "fams": [
+    "Truculenta",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -9251,6 +11351,11 @@
    "family": "split",
    "from": "of_car_split_plum",
    "gen": "of",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_on_white",
    "pairName": "Black on White",
    "look": "light",
@@ -9273,6 +11378,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-du05-20",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -9295,6 +11405,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-nn01-20",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -9317,6 +11432,11 @@
    "family": "band",
    "from": "of_classic_band_sand",
    "gen": "of",
+   "fams": [
+    "Bahiana",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "mint_green",
    "pairName": "Mint & Green",
    "look": "light",
@@ -9339,6 +11459,11 @@
    "family": "center",
    "from": "of_classic_center_cream",
    "gen": "of",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -9361,6 +11486,11 @@
    "family": "float",
    "from": "of_classic_float_bone",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -9383,6 +11513,11 @@
    "family": "info",
    "from": "of_classic_info_cobalt",
    "gen": "of",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -9405,6 +11540,11 @@
    "family": "list",
    "from": "of_classic_list_blush",
    "gen": "of",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -9427,6 +11567,11 @@
    "family": "row",
    "from": "of_classic_row_violet",
    "gen": "of",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -9449,6 +11594,11 @@
    "family": "split",
    "from": "of_classic_split_slate",
    "gen": "of",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -9471,6 +11621,11 @@
    "family": "band",
    "from": "of_jdm_band_arctic",
    "gen": "of",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -9493,6 +11648,11 @@
    "family": "center",
    "from": "of_jdm_center_graphite",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_red",
    "pairName": "Black & Red",
    "look": "dark",
@@ -9515,6 +11675,11 @@
    "family": "float",
    "from": "of_jdm_float_blush",
    "gen": "of",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_yellow",
    "pairName": "Red & Yellow",
    "look": "dark",
@@ -9537,6 +11702,11 @@
    "family": "info",
    "from": "of_jdm_info_ink",
    "gen": "of",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -9559,6 +11729,11 @@
    "family": "list",
    "from": "of_jdm_list_lime",
    "gen": "of",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -9581,6 +11756,11 @@
    "family": "row",
    "from": "of_jdm_row_plum",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_pink",
    "pairName": "Black & Pink",
    "look": "dark",
@@ -9603,6 +11783,11 @@
    "family": "split",
    "from": "of_jdm_split_midnight",
    "gen": "of",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "teal_pink",
    "pairName": "Teal & Pink",
    "look": "dark",
@@ -9625,6 +11810,11 @@
    "family": "arcCrown",
    "from": "arcCrown-jw03-15",
    "gen": "sc",
+   "fams": [
+    "Bungee",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -9647,6 +11837,11 @@
    "family": "gradientWave",
    "from": "gradientWave-cd04-25",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "white_on_green",
    "pairName": "White on Green",
    "look": "dark",
@@ -9669,6 +11864,11 @@
    "family": "neonNight",
    "from": "neonNight-du05-26",
    "gen": "sc",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -9691,6 +11891,11 @@
    "family": "neonNight",
    "from": "neonNight-du08-15",
    "gen": "sc",
+   "fams": [
+    "Big Shoulders Display",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "green_gold",
    "pairName": "Green & Gold",
    "look": "dark",
@@ -9713,6 +11918,11 @@
    "family": "slabPoster",
    "from": "slabPoster-cd10-30",
    "gen": "sc",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -9735,6 +11945,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-cd05-35",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "midnight_cyan",
    "pairName": "Midnight & Cyan",
    "look": "dark",
@@ -9757,6 +11972,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-jw03-30",
    "gen": "sc",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -9779,6 +11999,11 @@
    "family": "voltStack",
    "from": "voltStack-su02-30",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -9801,6 +12026,11 @@
    "family": "band",
    "from": "of_trucks_band_sun",
    "gen": "of",
+   "fams": [
+    "Russo One",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -9823,6 +12053,11 @@
    "family": "center",
    "from": "of_trucks_center_sand",
    "gen": "of",
+   "fams": [
+    "Protest Revolution",
+    "Libre Franklin",
+    "Oswald"
+   ],
    "pair": "green_gold",
    "pairName": "Green & Gold",
    "look": "dark",
@@ -9845,6 +12080,11 @@
    "family": "float",
    "from": "of_trucks_float_sky",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -9867,6 +12107,11 @@
    "family": "info",
    "from": "of_trucks_info_cream",
    "gen": "of",
+   "fams": [
+    "Big Shoulders Display",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "mint_green",
    "pairName": "Mint & Green",
    "look": "light",
@@ -9889,18 +12134,23 @@
    "family": "list",
    "from": "of_trucks_list_forest",
    "gen": "of",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
    "accent": "#1c4cc8",
    "background": "pat_checks",
    "ground": "pattern",
-   "headline": "YOUR OLD TRUCK IS CASH",
-   "thumb": "assets/recipe-stills/r-of_trucks_list_forest.webp",
-   "stamp": "[70613,\"trucks\",{\"headline\":\"YOUR OLD TRUCK IS CASH\",\"tag\":\"F-150, SILVERADO, RAM, TACOMA, TUNDRA AND MORE\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-chevy-silverado-zr2-red\",\"k\":1}],false,\"Trucks · Studio list (offer card)\"]",
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA"
+   "states": "CA",
+   "headline": "YOUR OLD TRUCK IS CASH",
+   "thumb": "assets/recipe-stills/r-of_trucks_list_forest.webp",
+   "stamp": "[70613,\"trucks\",{\"headline\":\"YOUR OLD TRUCK IS CASH\",\"tag\":\"F-150, SILVERADO, RAM, TACOMA, TUNDRA AND MORE\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-chevy-silverado-zr2-red\",\"k\":1}],false,\"Trucks · Studio list (offer card)\"]"
   },
   "r-of_trucks_row_bone": {
    "kind": "recipe",
@@ -9911,6 +12161,11 @@
    "family": "row",
    "from": "of_trucks_row_bone",
    "gen": "of",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -9933,6 +12188,11 @@
    "family": "split",
    "from": "of_trucks_split_mint",
    "gen": "of",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -9955,6 +12215,11 @@
    "family": "band",
    "from": "of_toyota_band_plum",
    "gen": "of",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "red_white_blue",
    "pairName": "Red, White & Blue",
    "look": "light",
@@ -9977,6 +12242,11 @@
    "family": "center",
    "from": "of_toyota_center_bone",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -9999,6 +12269,11 @@
    "family": "float",
    "from": "of_toyota_float_forest",
    "gen": "of",
+   "fams": [
+    "Gochi Hand",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "purple_gold",
    "pairName": "Purple & Gold",
    "look": "dark",
@@ -10021,6 +12296,11 @@
    "family": "info",
    "from": "of_toyota_info_graphite",
    "gen": "of",
+   "fams": [
+    "Bahiana",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -10043,6 +12323,11 @@
    "family": "list",
    "from": "of_toyota_list_mint",
    "gen": "of",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -10065,6 +12350,11 @@
    "family": "row",
    "from": "of_toyota_row_sun",
    "gen": "of",
+   "fams": [
+    "Bungee",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "navy_orange",
    "pairName": "Navy & Orange",
    "look": "dark",
@@ -10087,6 +12377,11 @@
    "family": "split",
    "from": "of_toyota_split_slate",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_blue",
    "pairName": "White on Blue",
    "look": "dark",
@@ -10109,18 +12404,23 @@
    "family": "bandKnockout",
    "from": "bandKnockout-jw10-30",
    "gen": "sc",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "black_red",
    "pairName": "Black & Red",
    "look": "dark",
    "accent": "#fe4344",
    "background": "pair_conic",
    "ground": "gradient",
-   "headline": "WE BUY HONDAS",
-   "thumb": "assets/recipe-stills/r-bandKnockout-jw10-30.webp",
-   "stamp": "[47302,\"honda\",{\"headline\":\"WE BUY HONDAS\",\"points\":\"AS-IS, SAME DAY, NO FEES\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-honda-accord-white\",\"k\":1}],false,\"Band Knockout (library card)\"]",
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA"
+   "states": "CA",
+   "headline": "WE BUY HONDAS",
+   "thumb": "assets/recipe-stills/r-bandKnockout-jw10-30.webp",
+   "stamp": "[47302,\"honda\",{\"headline\":\"WE BUY HONDAS\",\"points\":\"AS-IS, SAME DAY, NO FEES\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-honda-accord-white\",\"k\":1}],false,\"Band Knockout (library card)\"]"
   },
   "r-hudTech-cd04-20": {
    "kind": "recipe",
@@ -10131,6 +12431,11 @@
    "family": "hudTech",
    "from": "hudTech-cd04-20",
    "gen": "sc",
+   "fams": [
+    "Silkscreen",
+    "Sora",
+    "Oswald"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -10153,6 +12458,11 @@
    "family": "hudTech",
    "from": "hudTech-io03-20",
    "gen": "sc",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -10175,6 +12485,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-pa01-30",
    "gen": "sc",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -10197,6 +12512,11 @@
    "family": "band",
    "from": "of_honda_band_arctic",
    "gen": "of",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -10219,6 +12539,11 @@
    "family": "center",
    "from": "of_honda_center_violet",
    "gen": "of",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -10241,6 +12566,11 @@
    "family": "float",
    "from": "of_honda_float_blush",
    "gen": "of",
+   "fams": [
+    "Bahiana",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "purple_gold",
    "pairName": "Purple & Gold",
    "look": "dark",
@@ -10263,6 +12593,11 @@
    "family": "info",
    "from": "of_honda_info_teal",
    "gen": "of",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -10285,6 +12620,11 @@
    "family": "list",
    "from": "of_honda_list_oxblood",
    "gen": "of",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -10307,6 +12647,11 @@
    "family": "row",
    "from": "of_honda_row_plum",
    "gen": "of",
+   "fams": [
+    "Truculenta",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -10329,6 +12674,11 @@
    "family": "split",
    "from": "of_honda_split_cobalt",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -10351,6 +12701,11 @@
    "family": "bubblePop",
    "from": "bubblePop-cd04-30",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -10373,6 +12728,11 @@
    "family": "checklistHero",
    "from": "checklistHero-ca05-35",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -10395,6 +12755,11 @@
    "family": "gradientWave",
    "from": "gradientWave-du07-20",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -10417,6 +12782,11 @@
    "family": "trustSeal",
    "from": "trustSeal-su02-20",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -10439,6 +12809,11 @@
    "family": "voltStack",
    "from": "voltStack-du01-20",
    "gen": "sc",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -10461,6 +12836,11 @@
    "family": "band",
    "from": "of_bmw_band_sun",
    "gen": "of",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "blush_magenta",
    "pairName": "Blush & Magenta",
    "look": "light",
@@ -10483,6 +12863,11 @@
    "family": "center",
    "from": "of_bmw_center_teal",
    "gen": "of",
+   "fams": [
+    "Protest Revolution",
+    "Libre Franklin",
+    "Oswald"
+   ],
    "pair": "mint_green",
    "pairName": "Mint & Green",
    "look": "light",
@@ -10505,6 +12890,11 @@
    "family": "float",
    "from": "of_bmw_float_lime",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "yellow_on_black",
    "pairName": "Yellow on Black",
    "look": "dark",
@@ -10527,6 +12917,11 @@
    "family": "info",
    "from": "of_bmw_info_oxblood",
    "gen": "of",
+   "fams": [
+    "Truculenta",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "black_pink",
    "pairName": "Black & Pink",
    "look": "dark",
@@ -10549,6 +12944,11 @@
    "family": "list",
    "from": "of_bmw_list_cobalt",
    "gen": "of",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -10571,6 +12971,11 @@
    "family": "row",
    "from": "of_bmw_row_bone",
    "gen": "of",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_pink",
    "pairName": "Black & Pink",
    "look": "dark",
@@ -10593,18 +12998,23 @@
    "family": "split",
    "from": "of_bmw_split_ink",
    "gen": "of",
+   "fams": [
+    "Truculenta",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
    "accent": "#c21725",
    "background": "pat_stripes",
    "ground": "pattern",
-   "headline": "YOUR BMW IS CASH",
-   "thumb": "assets/recipe-stills/r-of_bmw_split_ink.webp",
-   "stamp": "[45040,\"bmw\",{\"headline\":\"YOUR BMW IS CASH\",\"tag\":\"3 SERIES, 5 SERIES, X3, X5 AND M CARS\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-bmw-x3-black\",\"k\":1}],false,\"BMW · Split (offer card)\"]",
    "photo": "",
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA"
+   "states": "CA",
+   "headline": "YOUR BMW IS CASH",
+   "thumb": "assets/recipe-stills/r-of_bmw_split_ink.webp",
+   "stamp": "[45040,\"bmw\",{\"headline\":\"YOUR BMW IS CASH\",\"tag\":\"3 SERIES, 5 SERIES, X3, X5 AND M CARS\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-bmw-x3-black\",\"k\":1}],false,\"BMW · Split (offer card)\"]"
   },
   "r-of_mercedes_band_sky": {
    "kind": "recipe",
@@ -10615,6 +13025,11 @@
    "family": "band",
    "from": "of_mercedes_band_sky",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -10637,6 +13052,11 @@
    "family": "center",
    "from": "of_mercedes_center_arctic",
    "gen": "of",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -10659,6 +13079,11 @@
    "family": "float",
    "from": "of_mercedes_float_graphite",
    "gen": "of",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "teal_pink",
    "pairName": "Teal & Pink",
    "look": "dark",
@@ -10681,6 +13106,11 @@
    "family": "info",
    "from": "of_mercedes_info_sun",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -10703,6 +13133,11 @@
    "family": "list",
    "from": "of_mercedes_list_ink",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "navy_white_red",
    "pairName": "Navy, White & Red",
    "look": "dark",
@@ -10725,6 +13160,11 @@
    "family": "row",
    "from": "of_mercedes_row_blush",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -10747,6 +13187,11 @@
    "family": "split",
    "from": "of_mercedes_split_cream",
    "gen": "of",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -10769,6 +13214,11 @@
    "family": "arcCrown",
    "from": "arcCrown-ca03-35",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -10791,6 +13241,11 @@
    "family": "bubblePop",
    "from": "bubblePop-du02-30",
    "gen": "sc",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -10813,6 +13268,11 @@
    "family": "glassCard",
    "from": "glassCard-du08-15",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -10835,6 +13295,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-su02-25",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -10857,6 +13322,11 @@
    "family": "trustSeal",
    "from": "trustSeal-cd06-26",
    "gen": "sc",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -10879,6 +13349,11 @@
    "family": "trustSeal",
    "from": "trustSeal-nn05-30",
    "gen": "sc",
+   "fams": [
+    "Big Shoulders Display",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -10901,6 +13376,11 @@
    "family": "band",
    "from": "of_vans_band_midnight",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "navy_orange",
    "pairName": "Navy & Orange",
    "look": "dark",
@@ -10923,6 +13403,11 @@
    "family": "center",
    "from": "of_vans_center_sun",
    "gen": "of",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -10945,6 +13430,11 @@
    "family": "float",
    "from": "of_vans_float_ink",
    "gen": "of",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -10967,6 +13457,11 @@
    "family": "info",
    "from": "of_vans_info_teal",
    "gen": "of",
+   "fams": [
+    "Bungee",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -10989,6 +13484,11 @@
    "family": "list",
    "from": "of_vans_list_cream",
    "gen": "of",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_white_blue",
    "pairName": "Red, White & Blue",
    "look": "light",
@@ -11011,6 +13511,11 @@
    "family": "row",
    "from": "of_vans_row_sky",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -11033,6 +13538,11 @@
    "family": "split",
    "from": "of_vans_split_cobalt",
    "gen": "of",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -11055,6 +13565,11 @@
    "family": "band",
    "from": "of_semis_band_signal",
    "gen": "of",
+   "fams": [
+    "Big Shoulders Display",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -11077,6 +13592,11 @@
    "family": "center",
    "from": "of_semis_center_lime",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -11099,6 +13619,11 @@
    "family": "float",
    "from": "of_semis_float_slate",
    "gen": "of",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "navy_gold",
    "pairName": "Navy & Gold",
    "look": "dark",
@@ -11121,6 +13646,11 @@
    "family": "info",
    "from": "of_semis_info_arctic",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -11143,6 +13673,11 @@
    "family": "list",
    "from": "of_semis_list_graphite",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -11165,6 +13700,11 @@
    "family": "row",
    "from": "of_semis_row_midnight",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_navy",
    "pairName": "White on Navy",
    "look": "dark",
@@ -11187,6 +13727,11 @@
    "family": "split",
    "from": "of_semis_split_sand",
    "gen": "of",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -11209,6 +13754,11 @@
    "family": "arcCrown",
    "from": "arcCrown-pp04-15",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "black_on_white",
    "pairName": "Black on White",
    "look": "light",
@@ -11231,6 +13781,11 @@
    "family": "arcCrown",
    "from": "arcCrown-su03-35",
    "gen": "sc",
+   "fams": [
+    "Russo One",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -11253,6 +13808,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-cd01-30",
    "gen": "sc",
+   "fams": [
+    "Protest Riot",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -11275,6 +13835,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-nn07-35",
    "gen": "sc",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -11297,6 +13862,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-pa05-20",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -11319,6 +13889,11 @@
    "family": "bubblePop",
    "from": "bubblePop-du06-35",
    "gen": "sc",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -11341,6 +13916,11 @@
    "family": "bubblePop",
    "from": "bubblePop-du07-30",
    "gen": "sc",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -11363,6 +13943,11 @@
    "family": "bubblePop",
    "from": "bubblePop-du09-35",
    "gen": "sc",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_white_blue",
    "pairName": "Red, White & Blue",
    "look": "light",
@@ -11385,6 +13970,11 @@
    "family": "bubblePop",
    "from": "bubblePop-pa01-30",
    "gen": "sc",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -11407,6 +13997,11 @@
    "family": "checklistHero",
    "from": "checklistHero-pp02-15",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -11429,6 +14024,11 @@
    "family": "checklistHero",
    "from": "checklistHero-pp02-20",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -11451,6 +14051,11 @@
    "family": "glassCard",
    "from": "glassCard-du05-20",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -11473,6 +14078,11 @@
    "family": "glassCard",
    "from": "glassCard-gl02-15",
    "gen": "sc",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -11495,6 +14105,11 @@
    "family": "glassCard",
    "from": "glassCard-nn03-25",
    "gen": "sc",
+   "fams": [
+    "Big Shoulders Stencil Display",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -11517,6 +14132,11 @@
    "family": "gradientWave",
    "from": "gradientWave-cd04-30",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "red_white_blue",
    "pairName": "Red, White & Blue",
    "look": "light",
@@ -11539,6 +14159,11 @@
    "family": "gradientWave",
    "from": "gradientWave-ck03-15",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -11561,6 +14186,11 @@
    "family": "gradientWave",
    "from": "gradientWave-nn06-35",
    "gen": "sc",
+   "fams": [
+    "Truculenta",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -11583,6 +14213,11 @@
    "family": "neonNight",
    "from": "neonNight-cd06-25",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -11605,6 +14240,11 @@
    "family": "neonNight",
    "from": "neonNight-du05-31",
    "gen": "sc",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -11627,6 +14267,11 @@
    "family": "neonNight",
    "from": "neonNight-io01-35",
    "gen": "sc",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "blue_green",
    "pairName": "Blue & Green",
    "look": "dark",
@@ -11649,6 +14294,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-ik05-30",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -11671,6 +14321,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-su02-30",
    "gen": "sc",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -11693,6 +14348,11 @@
    "family": "slabPoster",
    "from": "slabPoster-jw02-35",
    "gen": "sc",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -11715,6 +14375,11 @@
    "family": "slabPoster",
    "from": "slabPoster-nn05-15",
    "gen": "sc",
+   "fams": [
+    "Bahiana",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_red",
    "pairName": "Black & Red",
    "look": "dark",
@@ -11737,6 +14402,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-cd06-30",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "teal_orange",
    "pairName": "Teal & Orange",
    "look": "dark",
@@ -11759,6 +14429,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-jw07-15",
    "gen": "sc",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "blue_green",
    "pairName": "Blue & Green",
    "look": "dark",
@@ -11781,6 +14456,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-jw08-35",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -11803,6 +14483,11 @@
    "family": "ticketStub",
    "from": "ticketStub-du07-15",
    "gen": "sc",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -11825,6 +14510,11 @@
    "family": "ticketStub",
    "from": "ticketStub-gl04-30",
    "gen": "sc",
+   "fams": [
+    "Truculenta",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -11847,6 +14537,11 @@
    "family": "ticketStub",
    "from": "ticketStub-ik01-35",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -11869,6 +14564,11 @@
    "family": "trustSeal",
    "from": "trustSeal-cd08-35",
    "gen": "sc",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -11891,6 +14591,11 @@
    "family": "trustSeal",
    "from": "trustSeal-cd10-20",
    "gen": "sc",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -11913,6 +14618,11 @@
    "family": "voltStack",
    "from": "voltStack-gl03-35",
    "gen": "sc",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -11935,6 +14645,11 @@
    "family": "voltStack",
    "from": "voltStack-ik05-20",
    "gen": "sc",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "mint_green",
    "pairName": "Mint & Green",
    "look": "light",
@@ -11957,6 +14672,11 @@
    "family": "voltStack",
    "from": "voltStack-jw07-16",
    "gen": "sc",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_white",
    "pairName": "Black on White",
    "look": "light",
@@ -11979,6 +14699,11 @@
    "family": "band",
    "from": "of_strips_band_slate",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "blue_green",
    "pairName": "Blue & Green",
    "look": "dark",
@@ -12001,6 +14726,11 @@
    "family": "center",
    "from": "of_strips_center_forest",
    "gen": "of",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_lime",
    "pairName": "Black & Lime",
    "look": "dark",
@@ -12023,6 +14753,11 @@
    "family": "float",
    "from": "of_strips_float_violet",
    "gen": "of",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "green_gold",
    "pairName": "Green & Gold",
    "look": "dark",
@@ -12045,6 +14780,11 @@
    "family": "info",
    "from": "of_strips_info_mint",
    "gen": "of",
+   "fams": [
+    "Silkscreen",
+    "Sora",
+    "Oswald"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -12067,6 +14807,11 @@
    "family": "list",
    "from": "of_strips_list_plum",
    "gen": "of",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_pink",
    "pairName": "Black & Pink",
    "look": "dark",
@@ -12089,6 +14834,11 @@
    "family": "row",
    "from": "of_strips_row_sand",
    "gen": "of",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -12111,6 +14861,11 @@
    "family": "split",
    "from": "of_strips_split_bone",
    "gen": "of",
+   "fams": [
+    "Bungee",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -12133,6 +14888,11 @@
    "family": "arcCrown",
    "from": "arcCrown-ck04-35",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -12155,6 +14915,11 @@
    "family": "arcCrown",
    "from": "arcCrown-ck05-35",
    "gen": "sc",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -12177,6 +14942,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-gl04-30",
    "gen": "sc",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -12199,6 +14969,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-ik05-30",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -12221,6 +14996,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-pa03-35",
    "gen": "sc",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -12243,6 +15023,11 @@
    "family": "bubblePop",
    "from": "bubblePop-ca07-15",
    "gen": "sc",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -12265,6 +15050,11 @@
    "family": "bubblePop",
    "from": "bubblePop-ck01-15",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -12287,6 +15077,11 @@
    "family": "bubblePop",
    "from": "bubblePop-du08-16",
    "gen": "sc",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -12309,6 +15104,11 @@
    "family": "bubblePop",
    "from": "bubblePop-gl02-15",
    "gen": "sc",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -12331,6 +15131,11 @@
    "family": "bubblePop",
    "from": "bubblePop-jw05-16",
    "gen": "sc",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -12353,6 +15158,11 @@
    "family": "bubblePop",
    "from": "bubblePop-pa05-15",
    "gen": "sc",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -12375,6 +15185,11 @@
    "family": "bubblePop",
    "from": "bubblePop-pp04-15",
    "gen": "sc",
+   "fams": [
+    "Bahiana",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_on_orange",
    "pairName": "Black on Orange",
    "look": "vivid",
@@ -12397,6 +15212,11 @@
    "family": "checklistHero",
    "from": "checklistHero-io03-20",
    "gen": "sc",
+   "fams": [
+    "Barrio",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -12419,6 +15239,11 @@
    "family": "checklistHero",
    "from": "checklistHero-nn05-30",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -12441,6 +15266,11 @@
    "family": "checklistHero",
    "from": "checklistHero-pa05-15",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -12463,6 +15293,11 @@
    "family": "glassCard",
    "from": "glassCard-ca05-35",
    "gen": "sc",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -12485,6 +15320,11 @@
    "family": "glassCard",
    "from": "glassCard-ca09-35",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -12507,6 +15347,11 @@
    "family": "glassCard",
    "from": "glassCard-pp04-15",
    "gen": "sc",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "white_on_blue",
    "pairName": "White on Blue",
    "look": "dark",
@@ -12529,6 +15374,11 @@
    "family": "gradientWave",
    "from": "gradientWave-gl03-35",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -12551,6 +15401,11 @@
    "family": "hudTech",
    "from": "hudTech-du08-20",
    "gen": "sc",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -12573,6 +15428,11 @@
    "family": "neonNight",
    "from": "neonNight-du08-16",
    "gen": "sc",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "blue_green",
    "pairName": "Blue & Green",
    "look": "dark",
@@ -12595,6 +15455,11 @@
    "family": "neonNight",
    "from": "neonNight-gl04-30",
    "gen": "sc",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "white_on_purple",
    "pairName": "White on Purple",
    "look": "dark",
@@ -12617,6 +15482,11 @@
    "family": "neonNight",
    "from": "neonNight-ik05-20",
    "gen": "sc",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "white_on_blue",
    "pairName": "White on Blue",
    "look": "dark",
@@ -12639,6 +15509,11 @@
    "family": "neonNight",
    "from": "neonNight-ik06-20",
    "gen": "sc",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "white_on_purple",
    "pairName": "White on Purple",
    "look": "dark",
@@ -12661,6 +15536,11 @@
    "family": "neonNight",
    "from": "neonNight-jw07-15",
    "gen": "sc",
+   "fams": [
+    "Truculenta",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "teal_orange",
    "pairName": "Teal & Orange",
    "look": "dark",
@@ -12683,6 +15563,11 @@
    "family": "reviewProof",
    "from": "reviewProof-cd06-20",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -12705,6 +15590,11 @@
    "family": "reviewProof",
    "from": "reviewProof-du08-20",
    "gen": "sc",
+   "fams": [
+    "Gochi Hand",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -12727,6 +15617,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-jw05-16",
    "gen": "sc",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "mint_green",
    "pairName": "Mint & Green",
    "look": "light",
@@ -12749,6 +15644,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-jw07-15",
    "gen": "sc",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -12771,6 +15671,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-nn01-15",
    "gen": "sc",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "midnight_cyan",
    "pairName": "Midnight & Cyan",
    "look": "dark",
@@ -12793,6 +15698,11 @@
    "family": "slabPoster",
    "from": "slabPoster-nn05-30",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -12815,6 +15725,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-cd10-15",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -12837,6 +15752,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-jw03-20",
    "gen": "sc",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -12859,6 +15779,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-jw07-16",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -12881,6 +15806,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-jw10-31",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -12903,6 +15833,11 @@
    "family": "ticketStub",
    "from": "ticketStub-cd06-15",
    "gen": "sc",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "blush_magenta",
    "pairName": "Blush & Magenta",
    "look": "light",
@@ -12925,6 +15860,11 @@
    "family": "trustSeal",
    "from": "trustSeal-cd10-30",
    "gen": "sc",
+   "fams": [
+    "Gochi Hand",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -12947,6 +15887,11 @@
    "family": "trustSeal",
    "from": "trustSeal-du07-25",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -12969,6 +15914,11 @@
    "family": "trustSeal",
    "from": "trustSeal-gl02-15",
    "gen": "sc",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "red_yellow",
    "pairName": "Red & Yellow",
    "look": "dark",
@@ -12991,6 +15941,11 @@
    "family": "trustSeal",
    "from": "trustSeal-ik05-25",
    "gen": "sc",
+   "fams": [
+    "Protest Revolution",
+    "Libre Franklin",
+    "Oswald"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -13013,6 +15968,11 @@
    "family": "voltStack",
    "from": "voltStack-jw07-20",
    "gen": "sc",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -13035,6 +15995,11 @@
    "family": "band",
    "from": "of_pokemon_band_graphite",
    "gen": "of",
+   "fams": [
+    "Big Shoulders Stencil Display",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "plum_lime",
    "pairName": "Plum & Lime",
    "look": "dark",
@@ -13057,6 +16022,11 @@
    "family": "center",
    "from": "of_pokemon_center_sand",
    "gen": "of",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -13079,6 +16049,11 @@
    "family": "float",
    "from": "of_pokemon_float_teal",
    "gen": "of",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -13101,6 +16076,11 @@
    "family": "info",
    "from": "of_pokemon_info_lime",
    "gen": "of",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -13123,6 +16103,11 @@
    "family": "list",
    "from": "of_pokemon_list_bone",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -13145,6 +16130,11 @@
    "family": "row",
    "from": "of_pokemon_row_cream",
    "gen": "of",
+   "fams": [
+    "Silkscreen",
+    "Sora",
+    "Oswald"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -13167,6 +16157,11 @@
    "family": "split",
    "from": "of_pokemon_split_blush",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "blush_magenta",
    "pairName": "Blush & Magenta",
    "look": "light",
@@ -13189,6 +16184,11 @@
    "family": "arcCrown",
    "from": "arcCrown-du05-20",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -13211,6 +16211,11 @@
    "family": "arcCrown",
    "from": "arcCrown-nn03-30",
    "gen": "sc",
+   "fams": [
+    "Big Shoulders Display",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -13233,6 +16238,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-ck03-20",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "blush_magenta",
    "pairName": "Blush & Magenta",
    "look": "light",
@@ -13255,6 +16265,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-jw05-15",
    "gen": "sc",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -13277,6 +16292,11 @@
    "family": "bandKnockout",
    "from": "bandKnockout-su01-35",
    "gen": "sc",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "blush_magenta",
    "pairName": "Blush & Magenta",
    "look": "light",
@@ -13299,6 +16319,11 @@
    "family": "bubblePop",
    "from": "bubblePop-io06-35",
    "gen": "sc",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_pink",
    "pairName": "White on Pink",
    "look": "vivid",
@@ -13321,6 +16346,11 @@
    "family": "bubblePop",
    "from": "bubblePop-nn05-30",
    "gen": "sc",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -13343,6 +16373,11 @@
    "family": "checklistHero",
    "from": "checklistHero-du07-15",
    "gen": "sc",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -13365,6 +16400,11 @@
    "family": "checklistHero",
    "from": "checklistHero-jw10-15",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -13387,6 +16427,11 @@
    "family": "checklistHero",
    "from": "checklistHero-pp09-35",
    "gen": "sc",
+   "fams": [
+    "Teko",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -13409,6 +16454,11 @@
    "family": "glassCard",
    "from": "glassCard-ca07-15",
    "gen": "sc",
+   "fams": [
+    "Protest Riot",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -13431,6 +16481,11 @@
    "family": "glassCard",
    "from": "glassCard-cd08-35",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "cream_red",
    "pairName": "Cream & Red",
    "look": "light",
@@ -13453,6 +16508,11 @@
    "family": "gradientWave",
    "from": "gradientWave-du07-15",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "blush_magenta",
    "pairName": "Blush & Magenta",
    "look": "light",
@@ -13475,6 +16535,11 @@
    "family": "gradientWave",
    "from": "gradientWave-gl07-35",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "navy_orange",
    "pairName": "Navy & Orange",
    "look": "dark",
@@ -13497,6 +16562,11 @@
    "family": "gradientWave",
    "from": "gradientWave-ik05-30",
    "gen": "sc",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -13519,6 +16589,11 @@
    "family": "gradientWave",
    "from": "gradientWave-jw05-20",
    "gen": "sc",
+   "fams": [
+    "Protest Revolution",
+    "Libre Franklin",
+    "Oswald"
+   ],
    "pair": "red_white_blue",
    "pairName": "Red, White & Blue",
    "look": "light",
@@ -13541,6 +16616,11 @@
    "family": "hudTech",
    "from": "hudTech-cd06-20",
    "gen": "sc",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -13563,6 +16643,11 @@
    "family": "hudTech",
    "from": "hudTech-jw03-20",
    "gen": "sc",
+   "fams": [
+    "Protest Revolution",
+    "Libre Franklin",
+    "Oswald"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -13585,6 +16670,11 @@
    "family": "hudTech",
    "from": "hudTech-nn06-35",
    "gen": "sc",
+   "fams": [
+    "Gochi Hand",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -13607,6 +16697,11 @@
    "family": "neonNight",
    "from": "neonNight-cd06-16",
    "gen": "sc",
+   "fams": [
+    "Kanit Black Italic",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "red_yellow",
    "pairName": "Red & Yellow",
    "look": "dark",
@@ -13629,6 +16724,11 @@
    "family": "neonNight",
    "from": "neonNight-ck03-20",
    "gen": "sc",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -13651,6 +16751,11 @@
    "family": "neonNight",
    "from": "neonNight-du01-30",
    "gen": "sc",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -13673,6 +16778,11 @@
    "family": "neonNight",
    "from": "neonNight-nn05-15",
    "gen": "sc",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "midnight_cyan",
    "pairName": "Midnight & Cyan",
    "look": "dark",
@@ -13695,6 +16805,11 @@
    "family": "reviewProof",
    "from": "reviewProof-cd04-20",
    "gen": "sc",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "white_pink",
    "pairName": "White & Pink",
    "look": "light",
@@ -13717,6 +16832,11 @@
    "family": "reviewProof",
    "from": "reviewProof-io03-15",
    "gen": "sc",
+   "fams": [
+    "Gochi Hand",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -13739,6 +16859,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-ca07-20",
    "gen": "sc",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "purple_gold",
    "pairName": "Purple & Gold",
    "look": "dark",
@@ -13761,6 +16886,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-du07-15",
    "gen": "sc",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "blush_magenta",
    "pairName": "Blush & Magenta",
    "look": "light",
@@ -13783,6 +16913,11 @@
    "family": "scriptRetro",
    "from": "scriptRetro-jw07-16",
    "gen": "sc",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -13805,6 +16940,11 @@
    "family": "slabPoster",
    "from": "slabPoster-du07-20",
    "gen": "sc",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -13827,6 +16967,11 @@
    "family": "slabPoster",
    "from": "slabPoster-gl03-35",
    "gen": "sc",
+   "fams": [
+    "Big Shoulders Stencil Display",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -13849,6 +16994,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-du07-15",
    "gen": "sc",
+   "fams": [
+    "Londrina Solid",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -13871,6 +17021,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-du07-30",
    "gen": "sc",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -13893,6 +17048,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-gl04-30",
    "gen": "sc",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -13915,6 +17075,11 @@
    "family": "stepsFlow",
    "from": "stepsFlow-jw07-17",
    "gen": "sc",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "black_violet",
    "pairName": "Black & Violet",
    "look": "dark",
@@ -13937,6 +17102,11 @@
    "family": "trustSeal",
    "from": "trustSeal-cd04-30",
    "gen": "sc",
+   "fams": [
+    "Russo One",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -13959,6 +17129,11 @@
    "family": "trustSeal",
    "from": "trustSeal-du02-20",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -13981,6 +17156,11 @@
    "family": "trustSeal",
    "from": "trustSeal-jw07-15",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_lilac",
    "pairName": "Black on Lilac",
    "look": "vivid",
@@ -14003,6 +17183,11 @@
    "family": "trustSeal",
    "from": "trustSeal-pa05-20",
    "gen": "sc",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -14025,6 +17210,11 @@
    "family": "voltStack",
    "from": "voltStack-ca07-15",
    "gen": "sc",
+   "fams": [
+    "Truculenta",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -14047,6 +17237,11 @@
    "family": "voltStack",
    "from": "voltStack-du02-20",
    "gen": "sc",
+   "fams": [
+    "DynaPuff",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "red_white_blue",
    "pairName": "Red, White & Blue",
    "look": "light",
@@ -14069,6 +17264,11 @@
    "family": "voltStack",
    "from": "voltStack-jw09-35",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_white",
    "pairName": "Black on White",
    "look": "light",
@@ -14091,6 +17291,11 @@
    "family": "band",
    "from": "of_sports_band_sand",
    "gen": "of",
+   "fams": [
+    "Silkscreen",
+    "Sora",
+    "Oswald"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -14113,6 +17318,11 @@
    "family": "center",
    "from": "of_sports_center_slate",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -14135,6 +17345,11 @@
    "family": "float",
    "from": "of_sports_float_arctic",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_yellow",
    "pairName": "Black on Yellow",
    "look": "vivid",
@@ -14157,6 +17372,11 @@
    "family": "info",
    "from": "of_sports_info_forest",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
@@ -14179,6 +17399,11 @@
    "family": "list",
    "from": "of_sports_list_signal",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "sand_teal",
    "pairName": "Sand & Teal",
    "look": "light",
@@ -14201,6 +17426,11 @@
    "family": "row",
    "from": "of_sports_row_graphite",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -14223,6 +17453,11 @@
    "family": "split",
    "from": "of_sports_split_plum",
    "gen": "of",
+   "fams": [
+    "Big Shoulders Display",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -14245,6 +17480,11 @@
    "family": "band",
    "from": "of_camera_band_cream",
    "gen": "of",
+   "fams": [
+    "Protest Revolution",
+    "Libre Franklin",
+    "Oswald"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -14267,6 +17507,11 @@
    "family": "center",
    "from": "of_camera_center_cobalt",
    "gen": "of",
+   "fams": [
+    "Barlow Condensed",
+    "Oswald",
+    "Libre Franklin"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -14289,6 +17534,11 @@
    "family": "float",
    "from": "of_camera_float_mint",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "arctic_teal",
    "pairName": "Arctic & Teal",
    "look": "light",
@@ -14311,6 +17561,11 @@
    "family": "info",
    "from": "of_camera_info_mint",
    "gen": "of",
+   "fams": [
+    "Galindo",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "black_on_aqua",
    "pairName": "Black on Aqua",
    "look": "vivid",
@@ -14333,6 +17588,11 @@
    "family": "list",
    "from": "of_camera_list_lime",
    "gen": "of",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_orange",
    "pairName": "Black on Orange",
    "look": "vivid",
@@ -14355,6 +17615,11 @@
    "family": "row",
    "from": "of_camera_row_sand",
    "gen": "of",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -14377,6 +17642,11 @@
    "family": "split",
    "from": "of_camera_split_midnight",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -14399,6 +17669,11 @@
    "family": "band",
    "from": "of_drone_band_graphite",
    "gen": "of",
+   "fams": [
+    "Sedgwick Ave Display",
+    "Manrope",
+    "Oswald"
+   ],
    "pair": "bone_purple",
    "pairName": "Bone & Purple",
    "look": "light",
@@ -14421,6 +17696,11 @@
    "family": "center",
    "from": "of_drone_center_ink",
    "gen": "of",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -14443,6 +17723,11 @@
    "family": "float",
    "from": "of_drone_float_sky",
    "gen": "of",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "silver_blue",
    "pairName": "Silver & Blue",
    "look": "light",
@@ -14465,6 +17750,11 @@
    "family": "info",
    "from": "of_drone_info_slate",
    "gen": "of",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_gold",
    "pairName": "Black & Gold",
    "look": "dark",
@@ -14487,6 +17777,11 @@
    "family": "list",
    "from": "of_drone_list_midnight",
    "gen": "of",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -14509,6 +17804,11 @@
    "family": "row",
    "from": "of_drone_row_oxblood",
    "gen": "of",
+   "fams": [
+    "Squada One",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "red_on_white",
    "pairName": "Red on White",
    "look": "light",
@@ -14531,6 +17831,11 @@
    "family": "split",
    "from": "of_drone_split_signal",
    "gen": "of",
+   "fams": [
+    "Tilt Warp",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "black_on_pink",
    "pairName": "Black on Pink",
    "look": "vivid",
@@ -14553,6 +17858,11 @@
    "family": "reviewProof",
    "from": "reviewProof-ca07-20",
    "gen": "sc",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "yellow_on_black",
    "pairName": "Yellow on Black",
    "look": "dark",
@@ -14575,6 +17885,11 @@
    "family": "trustSeal",
    "from": "trustSeal-jw10-31",
    "gen": "sc",
+   "fams": [
+    "Caveat Brush",
+    "Oswald",
+    "Manrope"
+   ],
    "pair": "midnight_cyan",
    "pairName": "Midnight & Cyan",
    "look": "dark",
@@ -14597,6 +17912,11 @@
    "family": "trustSeal",
    "from": "trustSeal-jw10-30",
    "gen": "sc",
+   "fams": [
+    "Bricolage Grotesque",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -14619,6 +17939,11 @@
    "family": "reviewProof",
    "from": "reviewProof-gl02-20",
    "gen": "sc",
+   "fams": [
+    "Gloock",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",

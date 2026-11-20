@@ -1692,6 +1692,15 @@
       "hue": null,
       "C": 0,
       "share": 0.05
+    },
+    "assets/bg-web/popular-honda-civic-type-r-fl5-1.jpg": {
+      "w": 1920,
+      "h": 1171,
+      "L": 0.311,
+      "dark": 0.235,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
     }
   },
   "gradients": [

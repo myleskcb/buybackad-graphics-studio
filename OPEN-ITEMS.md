@@ -4362,9 +4362,10 @@ Found and fixed the same day:
   a rebuilt layout's first preview and in the stills every builder draws through the studio page.
 - **The fix.** `engine.js loadFonts` now loads every face that matches. The stills builders record each
   still's font families (`fams`).
-- **Open.** The stills set in those families still show the fallback face until the next full redraw. That
-  redraw waits for the lock-screen work, which changes every face-up phone anyway, and for disk space:
-  the disk had 0.2 to 0.5 GB free, and a full redraw stopped partway, so it was put back.
+- **Drawn again**, with the lock screens' new clock and wallpapers: 45 first looks, 106 other
+  looks, 7 layout stills, 1 hero still and 25 full-size renders. A full run moves some
+  stills through the builders' order alone (see above). With every face-up phone and every face of those
+  families redrawn, the run is kept whole.
 
 Then (the owner, of a phone on a suggestion card: "we need all devices to look 100% photo accurate to ios
 18 26 and 27 backgrounds", "make sure the time is placed properly"): the compact clock layout is retired

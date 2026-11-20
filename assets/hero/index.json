@@ -1,6 +1,6 @@
 {
  "about": "Stills of the recipe and full-ad hero picks (assets/hero-picks.json), drawn by scripts/build_hero_stills.mjs; app.js scBuildWall shows them and opens each in the full ad.",
- "made": "2026-11-20T05:21:22.379Z",
+ "made": "2026-11-20T07:26:31.575Z",
  "items": {
   "full-iphone-v12": {
    "kind": "full",
@@ -8,6 +8,11 @@
    "line": "iphone",
    "seed": 12,
    "name": "iPhones (full ad, look 12)",
+   "fams": [
+    "Boogaloo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_lime",
    "pairName": "Black on Lime",
    "look": "vivid",
@@ -26,6 +31,11 @@
    "line": "mac",
    "seed": 8,
    "name": "MacBooks (full ad, look 8)",
+   "fams": [
+    "Saira Condensed",
+    "Oswald",
+    "Sora"
+   ],
    "pair": "lavender_violet",
    "pairName": "Lavender & Violet",
    "look": "light",
@@ -44,6 +54,11 @@
    "line": "macdesk",
    "seed": 2,
    "name": "Macs (full ad, look 2)",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "black_on_orange",
    "pairName": "Black on Orange",
    "look": "vivid",
@@ -62,6 +77,11 @@
    "line": "ipad",
    "seed": 15,
    "name": "iPads (full ad, look 15)",
+   "fams": [
+    "Sofia Sans Extra Condensed",
+    "Oswald",
+    "Schibsted Grotesk"
+   ],
    "pair": "sky_cobalt",
    "pairName": "Sky & Cobalt",
    "look": "light",
@@ -80,6 +100,11 @@
    "line": "console",
    "seed": 6,
    "name": "Consoles (full ad, look 6)",
+   "fams": [
+    "Luckiest Guy",
+    "Oswald",
+    "Nunito"
+   ],
    "pair": "mint_green",
    "pairName": "Mint & Green",
    "look": "light",
@@ -98,6 +123,11 @@
    "line": "galaxy",
    "seed": 6,
    "name": "Samsung (full ad, look 6)",
+   "fams": [
+    "Bungee",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_teal",
    "pairName": "White on Teal",
    "look": "vivid",
@@ -116,6 +146,11 @@
    "line": "pixel",
    "seed": 22,
    "name": "Pixel (full ad, look 22)",
+   "fams": [
+    "Bahiana",
+    "Barlow Condensed",
+    "Oswald"
+   ],
    "pair": "lemon_blue",
    "pairName": "Lemon & Blue",
    "look": "vivid",
@@ -134,6 +169,11 @@
    "line": "car",
    "seed": 1,
    "name": "Cars and trucks (full ad)",
+   "fams": [
+    "Tourney",
+    "Oswald",
+    "Chivo"
+   ],
    "pair": "white_on_red",
    "pairName": "White on Red",
    "look": "vivid",
@@ -152,6 +192,11 @@
    "line": "sports",
    "seed": 2,
    "name": "Sports cards (full ad, look 2)",
+   "fams": [
+    "Chivo",
+    "Oswald",
+    "Instrument Sans"
+   ],
    "pair": "white_on_violet",
    "pairName": "White on Violet",
    "look": "vivid",
