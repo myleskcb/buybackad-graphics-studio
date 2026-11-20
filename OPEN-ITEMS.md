@@ -3457,7 +3457,16 @@ Owed by the owner, in order:
    "WeBuy.AD" (Apple ID 6837161499) created, free, United States only.
 3. A reviewer's demo account on webuy.ad, and live Stripe keys, so the
    reviewer can pay.
-4. `ios/release.sh 1 --upload`.
+4. ~~`ios/release.sh 1 --upload`~~ Done 2026-11-19 22:28: build 1.0.0 (1)
+   signed for the App Store and uploaded ("Upload succeeded"); App Store
+   Connect showed it Processing. Next: a TestFlight internal group, then the
+   store page (screenshots, description, privacy answers) and App Review with
+   the reviewer's demo account.
+5. What a paying customer would still meet (the owner asked "anything else
+   we're missing?"): Stripe in test mode; no real card through the live
+   checkout yet; the contact address bounces; the terms' party; video export
+   inside the iPhone app not tried; a forgot-password flow and projects
+   across devices not checked.
 
 Open:
 - **reselling.us**: nothing connects today. A "Send to reselling.us" for its
