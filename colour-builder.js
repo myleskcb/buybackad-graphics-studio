@@ -340,9 +340,13 @@ function cbSupports(G, A, mode, c1, c2, ink, acc){
   });
   return out;
 }
-/* the number's colour on a box of the bright colour: the text, a deep
-   shade of the background, or white, whichever reads best */
+/* the number's colour on a box of the bright colour: the background's own
+   colour where it reads at 4.5:1, so each set's box carries both its
+   colours (the owner, 2026-11-19, of the second colours' previews: they all
+   looked the same, an orange box on each); else the text, a deep shade of
+   the background, or white, whichever reads best */
 function cbPlateInk(th){
+  if (cbCr(th.bg.c1, th.accent) >= 4.5) return th.bg.c1;
   const g = cbOk(th.bg.c1) || { h:258, C:0 };
   const deep = cbAtY(g.C < 0.03 ? 258 : g.h, 0.05, 0.012);
   return [th.ink, deep, '#ffffff'].sort((p, q) => cbCr(q, th.accent) - cbCr(p, th.accent))[0];
@@ -400,8 +404,27 @@ function cbTheme(set, supIdx, name){
     mine:true, made:{ bg:key(set.g), bright:key(set.a), pair:set.pair ? key(set.pair) : null, mode:set.mode } };
 }
 function cbName(set){
-  if (set.mode === 'light' && set.g.neutral) return set.pair ? set.pair.name + ' & ' + set.a.name + ' on White' : 'White & ' + set.a.name;
-  return set.g.name + ' & ' + set.a.name;
+  /* a colour picked by its code is named as it is drawn, not as the starting colour nearest it */
+  const nm = (c, hex) => (c.custom && cbColourName(hex)) || c.name;
+  const a = nm(set.a, set.accent);
+  if (set.mode === 'light' && set.g.neutral) return set.pair ? nm(set.pair, set.pair.hex) + ' & ' + a + ' on White' : 'White & ' + a;
+  return nm(set.g, set.c1) + ' & ' + a;
+}
+/* a colour's plain name as it is drawn: a neutral by its lightness (black, charcoal, grey, silver,
+   white), any other by the starting colour nearest it (cbNearest's own line between the two) */
+function cbColourName(hex){
+  const o = cbOk(hex); if (!o) return '';
+  if (o.C >= 0.045) return cbNearest(hex).name;
+  const Y = cbLum(hex);
+  return Y < 0.022 ? 'Black' : Y < 0.075 ? 'Charcoal' : Y < 0.32 ? 'Grey' : Y < 0.75 ? 'Silver' : 'White';
+}
+/* a set's name from the colours it has now, for a set whose colours were moved (the owner, 2026-11-19,
+   of "Navy & Orange" over a grey made from #696e77): the background's name and the bright colour's,
+   or, on a white set made from two colours, the small print's and the bright colour's on white */
+function cbNameOf(th){
+  const g = cbColourName(th.bg.c1), a = cbColourName(th.accent);
+  if (th.made && th.made.mode === 'light' && th.made.pair && g === 'White'){ const p = cbColourName(th.support); return (p && p !== a ? p + ' & ' : '') + a + ' on White'; }
+  return g === a ? g + ' Tones' : g + ' & ' + a;
 }
 /* the law, re-measured on a finished theme (the audit, and every set before it is saved) */
 function cbCheck(th){
@@ -511,6 +534,8 @@ function cbGrad(base, tw){ return (tw && tw.grad) || (base && base.made && base.
 function cbOffer(set, supIdx, name){
   const th = cbTheme(set, supIdx, name);
   Object.assign(th.bg, cbStop2(th.bg.c1, th, 'soft', set.mode));
+  /* named for its colours, so the name moves with them (cbApply); never saved */
+  if (!name) Object.defineProperty(th, 'auto', { value:true });
   return th;
 }
 function cbApply(base, mode, tw){
@@ -528,6 +553,15 @@ function cbApply(base, mode, tw){
   if (tw.acc) th.accent = oklchFit(tw.acc);
   if (tw.sup) th.support = oklchFit(tw.sup);
   if (tw.name && tw.name.trim()) th.name = tw.name.trim().slice(0, 40);
+  /* a name nobody typed follows the colours once they move into other names: an offer's, or a saved
+     set's "Your …" made the same way */
+  else if (tw.bg || tw.acc || tw.sup){
+    const was = cbNameOf(base), now = cbNameOf(th);
+    if (now !== was){
+      if (base.auto) th.name = now;
+      else if (base.name === 'Your ' + was) th.name = 'Your ' + now;
+    }
+  }
   return th;
 }
 /* the law, and three jobs in three colours: the bright colour stays a colour
@@ -767,14 +801,20 @@ function cbMount(root, opts){
 }
 /* a fresh choice clears the tweaks, the note and an edit */
 function cbFresh(st){ st.p = st.a = st.s = 0; st.tw = {}; st.note = ''; st.noteOther = null; st.edit = null; }
+/* the sample ad's words: a phone ad as the house writes one, on the house's
+   sample number. scripts/words_check.mjs reads them against the banned list
+   (rule 136: a phone ad asks for a text, never a photo) */
+const CB_AD_WORDS = { kicker:'WE BUY', head:'PHONES', small:'Free quote. Paid today.', number:'(562) 999-4994' };
 /* a sample ad in a set's colours: the jobs of rule 51, as an ad shows them */
 function cbAdHtml(th, big){
   const label = big ? ` role="img" aria-label="A sample ad in ${escHtml(th.name)}"` : ' aria-hidden="true"';
   return `<span class="cb-ad${big ? ' big' : ''}"${label} style="${cbAdVars(th)}">
-      <span class="cb-ad-k">WE BUY</span><span class="cb-ad-h">PHONES</span>
-      <span class="cb-ad-s">Text a photo for a quote</span><span class="cb-ad-n">(555) 012-3456</span>
+      <span class="cb-ad-k">${CB_AD_WORDS.kicker}</span><span class="cb-ad-h">${CB_AD_WORDS.head}</span>
+      <span class="cb-ad-s">${CB_AD_WORDS.small}</span><span class="cb-ad-n">${CB_AD_WORDS.number}</span>
     </span>`;
 }
+/* a pair at a glance: the set's background and bright colour, as drawn */
+function cbPairSw(th){ return `<i class="cb-pair-sw" aria-hidden="true" style="--g1:${th.bg.c1};--acc:${th.accent}"></i>`; }
 function cbAdVars(th){ return `--ga:${th.bg.a != null ? th.bg.a : 170}deg;--g1:${th.bg.c1};--g2:${th.bg.c2};--ink:${th.ink};--acc:${th.accent};--sup:${th.support};--pin:${cbPlateInk(th)}`; }
 /* a colour's plain name for a chip: light navy, deep red, gold */
 function cbShadeName(hex){
@@ -860,7 +900,7 @@ function cbRender(root){
           ${items.map((x, i) => { const t = cbOffer(x.sets[0], 0), on = !st.edit && i === st.p;
             return `<button type="button" class="cb-pair${on ? ' on' : ''}" role="radio" aria-checked="${on}" tabindex="${on || (st.edit && i === 0) ? 0 : -1}" data-i="${i}" data-cbf="p-${x.own ? 'own' : x.P.key}">
               ${cbAdHtml(t)}
-              <span class="cb-pair-name">${escHtml(x.P.name)}</span>
+              <span class="cb-pair-name">${cbPairSw(t)}${escHtml(x.P.name)}</span>
               <span class="cb-pair-meta">${x.own ? 'Your pick' : x.ready ? (x.n ? 'Ready-made · ' + x.n + ' designs' : 'Ready-made set') : 'Classic pair'}</span>
             </button>`; }).join('')}
           ${wrongEnd ? '' : `<label class="cb-pair cb-own" data-cbf="p-pick"><input type="color" value="${st.pHex || '#ff4a2e'}" aria-label="Your own second colour" data-cbf="p-pick-in">
@@ -876,7 +916,7 @@ function cbRender(root){
       <h3 class="cb-label"><span class="cb-num">3</span>${st.edit ? 'Editing your colours' : 'Your colours'}</h3>
       ${th ? `
       ${cbAdHtml(th, true)}
-      <label class="cb-namefield"><span class="cb-sublabel">Name</span><input type="text" class="cb-nameinput" data-cbf="name" maxlength="40" value="${escHtml(st.tw.name != null ? st.tw.name : st.edit ? base.name : '')}" placeholder="${escHtml(base.name)}"></label>
+      <label class="cb-namefield"><span class="cb-sublabel">Name</span><input type="text" class="cb-nameinput" data-cbf="name" maxlength="40" value="${escHtml(st.tw.name != null ? st.tw.name : st.edit ? th.name : '')}" placeholder="${escHtml(th.name)}"></label>
       ${!st.edit && sets.length > 1 ? `<div class="cb-opt"><div class="cb-sublabel">Background</div><div class="cb-chips">
         ${sets.map((x, i) => `<button type="button" class="chip${i === st.a ? ' on' : ''}" aria-pressed="${i === st.a}" data-a="${i}" data-cbf="a-${i}"><i style="background:${x.c1}"></i>${escHtml(cbSetLabel(x))}</button>`).join('')}
       </div></div>` : ''}
@@ -928,6 +968,7 @@ function cbRender(root){
 /* the live picture while a slider moves; the panel is drawn again when it stops */
 function cbPaint(root, th){
   const ad = root.querySelector('.cb-ad.big'); if (ad) ad.setAttribute('style', cbAdVars(th));
+  const nm = root.querySelector('.cb-nameinput'); if (nm) nm.placeholder = th.name;
   [['bg', th.bg.c1], ['acc', th.accent], ['sup', th.support], ['ink', th.ink]].forEach(([k, hex]) => {
     root.querySelectorAll(`[data-sw="${k}"]`).forEach(el => { el.style.background = hex; });
     root.querySelectorAll(`[data-h="${k}"], [data-x="${k}"]`).forEach(el => { el.value = hex; });
@@ -984,9 +1025,13 @@ function cbBind(root, v, saved){
     i.oninput = () => root.querySelectorAll(`[data-sw="${i.dataset.x}"]`).forEach(el => { el.style.background = i.value; });
     i.onchange = () => exact(i.dataset.x, i.value);
   });
+  /* Enter settles the code at once; drawing the panel again then takes the field away, and its change
+     (the same code) must not draw the panel a second time inside the first (it threw: "The node to be
+     removed is no longer a child of this node") */
   root.querySelectorAll('.cb-hex').forEach(i => {
-    i.onchange = () => exact(i.dataset.h, i.value);
-    i.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); exact(i.dataset.h, i.value); } };
+    let done = null;
+    i.onchange = () => { if (i.value !== done) exact(i.dataset.h, i.value); };
+    i.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); done = i.value; exact(i.dataset.h, i.value); } };
   });
   const name = root.querySelector('.cb-nameinput');
   if (name) name.oninput = () => { st.tw = Object.assign({}, st.tw, { name:name.value }); const ad = root.querySelector('.cb-ad.big'); if (ad) ad.setAttribute('aria-label', 'A sample ad in ' + (name.value.trim() || base.name)); };

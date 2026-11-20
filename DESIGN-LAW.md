@@ -4129,6 +4129,29 @@ leading hue is often the warm background (28 of 60 light renders, 19 of 60
 dark); the same twenty sets on three classics draw it in 24 of 60 renders on
 `main` and in 0 of 60 on `claude/fervent-pascal-w6mthe`.
 
+**The builder, looked at again (2026-11-19).** The owner: "this color builder is weird and the pallet check
+looked a bit odd". What was found, and what changed:
+- **The sample ad's words.** It asked for a photo ("Text a photo for a quote"), the phone ask rule 136
+  bans, on a made-up (555) number. It now reads "Free quote. Paid today." on the house's sample number,
+  (562) 999-4994, from `CB_AD_WORDS`, which `words_check` reads with the other generators.
+- **The name follows the colours.** A set's name was fixed when it was offered, so a "Navy & Orange"
+  whose background was typed as #696e77 (drawn #33373f) kept its name. A name nobody typed now
+  follows the colours once they move into other names (`cbNameOf`: "Charcoal & Orange"). A neutral is
+  named by its lightness (black, charcoal, grey, silver, white). A colour picked by its code is named
+  as it is drawn. A typed name stays.
+- **Each pair's preview wears its own pair.** Started from orange, every pair's bright colour is orange,
+  so the previews shared an orange headline and an orange box. The number on the box now takes the
+  background's own colour where it reads at 4.5:1 (`cbPlateInk`), the small print is set a size up,
+  and a swatch by each name shows the pair's two colours as drawn.
+- **Swatches stand off the page.** Each swatch's edge is the page's own text colour (`--cb-ring`), at
+  double strength for black and white, so black stands off a dark page and white off a light one. A
+  colour that belongs to the other look fades its swatch only; its name still reads.
+- **The checks are one column**, so none wraps mid-phrase. The step numbers are a size larger.
+- **In the studio's dialog**, the dialog's small-capital form labels no longer style the builder's own
+  labels: "Your own" and its line had run together in capitals, and the sliders' labels sat off their
+  rows.
+- **Enter in a colour code** drew the panel a second time inside the first and threw; it draws it once.
+
 ## 113. A customer reads plain words at a readable size
 
 Added 2026-10-02 on claude/fervent-pascal-w6mthe as 104; numbered 113 when merged into main after 104 to 112. The owner, on the poster look: "I like it now just fix the

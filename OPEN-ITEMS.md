@@ -4381,3 +4381,24 @@ difference in shape is taken by the wallpaper, cropped, and the clock keeps its 
 `scripts/lock_screen_check.mjs` holds it on all 89 phone photographs that can wear a lock screen, angled ones
 included. Drawn again: the 8 first looks, 71 other looks, 5 layout stills and 4 full-size renders that wear
 one. No hero still wears one.
+
+The colour builder, looked at again (2026-11-19; the owner: "this color builder is weird and the pallet check
+looked a bit odd"; rule 112's note):
+- **Done.**
+  - The sample ad's words: "Free quote. Paid today." on (562) 999-4994, held by `words_check`.
+  - A name that follows the colours ("Charcoal & Orange", not "Navy & Orange" over a grey).
+  - Each pair's preview wears its own pair: the number in its background's colour, and a swatch of the pair.
+  - Black and white swatches stand off the page; the other look's colour keeps a readable name.
+  - The checks in one column, larger step numbers.
+  - The studio dialog's form labels no longer restyle the builder's.
+  - Enter in a colour code no longer throws.
+- **Not reproduced.** The "boxes behind labels" and the faint step numbers, in Chromium and in Safari's
+  engine (WebKit, drawn off screen), on this branch and on webuy.ad, in both themes, at desktop and phone
+  widths. The nearest found was the dialog's labels (fixed). It waits on the owner's screenshot and browser.
+- **Owner.** Vivid and neon colours in the builder, once the owner picks from those proposals.
+- **Found, not fixed** (they fail the same on the committed code):
+  - `motion_phone_check`: the 13 and 13 mini turned upright change by 2.7 and 2.6 of the usual step at 200
+    to 202 degrees, over its 2.5.
+  - `theme_cohesion_audit`: it fails some of the house's own themes in `app.js` (Plum & Lime's name and
+    small print, for one) and does not know the "Neon pairs" group. It reads only `CB_READY` from the builder.
+  - `colour_builder_audit`: its cards section skips all seven cards ("the studio opened nothing").

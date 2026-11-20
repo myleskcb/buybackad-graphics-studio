@@ -679,7 +679,7 @@ produced." DESIGN-LAW rule 87. In practice:
 - **Words are stopped where they are written** (rule 144, 2026-11-18): run
   `node scripts/words_check.mjs` before a commit that touches any ad's words
   (FULL_WORDS, the lines, app.js DECKS, the video maker's catalogue, library
-  cards, FeedAd cards); a phrase goes into `spec/banned-words.json`, never
+  cards, FeedAd cards, the colour builder's sample ad `CB_AD_WORDS`); a phrase goes into `spec/banned-words.json`, never
   into one generator's list, and `node scripts/build_banned_words.mjs`
   writes the copy the site reads (`motion/banned-words.js`; spec/ is not
   served). The owner reviews ads on the review page

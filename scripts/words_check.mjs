@@ -12,6 +12,7 @@
      the video maker      motion/catalog.js HEADLINES, HOOKS, TAGS, NUMBER_LABELS, COPY
      library cards        assets/showcase/tpl, the live ones (scIsLive, less choice-holds)
      iPhones LA's FeedAd  tools/feed-stills/cards.json and batches/<day>/cards.json
+     the colour builder   colour-builder.js CB_AD_WORDS, its sample ad (a phone ad)
      the site's copy      motion/banned-words.js is in step with spec/banned-words.json
 
    A customer's own typed words are in none of these; the pre-flights note those (fullWords, the
@@ -75,6 +76,11 @@ for (const c of JSON.parse(read('assets/showcase/index.json')).filter(live)) {
 
 // the hints the forms show a customer (an example claim is a suggestion too)
 for (const f of ['index.html', 'motion/index.html']) if (existsSync(ROOT + f)) for (const m of read(f).matchAll(/placeholder="([^"]*)"/g)) { const w = m[1].replace(/&bull;/g, '•').replace(/&amp;/g, '&'); if (isWords(w)) scan(f + ' placeholders', 'phones', w, 'placeholder'); }
+
+// the colour builder's sample ad (2026-11-19: it asked for a photo, rule 136's banned phone ask, on a made-up number)
+const cbw = /const CB_AD_WORDS = (\{[^\n]*\});/.exec(read('colour-builder.js'));
+if (!cbw) { console.error('CB_AD_WORDS not found in colour-builder.js'); process.exit(2); }
+for (const [k, w] of Object.entries(Function('return ' + cbw[1])())) if (isWords(w)) scan('colour-builder.js CB_AD_WORDS', 'phones', w, k);
 
 // iPhones LA's FeedAd cards
 const feeds = ['tools/feed-stills/cards.json', ...(existsSync(ROOT + 'tools/feed-stills/batches') ? readdirSync(ROOT + 'tools/feed-stills/batches').map(b => `tools/feed-stills/batches/${b}/cards.json`) : [])].filter(p => existsSync(ROOT + p));

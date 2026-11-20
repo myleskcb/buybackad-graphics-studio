@@ -6475,3 +6475,19 @@ SEO session (158, pull request 15). Pull request 15 now meets this branch in `in
 - **Measure the ink against the font, not against a constant.** The check draws the screen twice, with and
   without its clock, and takes the clock's ink box from what differs. It compares that box's width to
   height with `measureText` of the same words in the same face, so it holds on any machine's fonts.
+
+## 2026-11-19 — The colour builder, looked at again (claude/xenodochial-mccarthy-7bea6d)
+
+- **A dialog's rule for its labels reaches every label inside it.** `.modal label` set the studio dialog's
+  form labels in small capitals, and the colour builder, opened in that dialog, is made of labels: a card,
+  a colour picker, a slider's name. Scoped as `.modal label:not(:where(.cb label))`, the rule keeps its
+  weight (`:where` counts for nothing) and leaves the builder's labels alone.
+- **Drawing a panel again from a key's handler takes the focused field away.** Its blur then fires its
+  change, which drew the panel again inside the first drawing, and the browser threw. Mark the value the
+  key handled, and let the change pass it.
+- **Name a colour by what is drawn, not by what it was made from.** The builder named a set by the two
+  starting colours it was solved from, so a background typed as grey kept "Navy". The name now comes
+  from the drawn colours, with neutrals named by their lightness.
+- **Safari's engine can be looked at without Safari.** When Playwright has no WebKit, a short Swift tool
+  (WKWebView, a window off screen, `takeSnapshot`) draws a page in the system's own WebKit and saves a
+  PNG, with nothing shown on the screen.
