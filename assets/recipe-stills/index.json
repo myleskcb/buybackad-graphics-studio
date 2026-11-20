@@ -1,6 +1,6 @@
 {
  "about": "Stills of the rebuilt library and offer ads (motion/recipes.json), drawn by scripts/build_recipe_stills.mjs; app.js shows them in the landing library and on the wall in place of the retired cards, and opens each in the full ad.",
- "made": "2026-11-20T07:26:13.089Z",
+ "made": "2026-11-20T07:39:54.258Z",
  "items": {
   "r-bandKnockout-ck07-35": {
    "kind": "recipe",

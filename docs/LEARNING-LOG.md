@@ -6462,3 +6462,16 @@ SEO session (158, pull request 15). Pull request 15 now meets this branch in `in
 - **A check that opens a design by name meets the redirect too.** `watermark_check` read "a template's
   preview" by tapping the strip's second card. It now reads a rebuilt layout's preview, marked signed out
   and clean on Starter, and steps back to a template by its id for the studio's own video.
+
+## 2026-11-19 — The lock screen's stretch (claude/xenodochial-mccarthy-7bea6d)
+
+- **A screen drawn into a photograph's glass takes that glass's shape.** The glass is the photograph's own
+  outline, so no two phones share one exactly, and an angled photograph's is wider. A screen drawn once at a
+  fixed size and then fitted to each glass, width and height apart, was squashed or stretched a little on
+  every phone. Build the screen to the glass's shape, and fit it at one scale.
+- **A taller clock is a larger clock, not a stretched one.** Pulling a canvas of the ordinary face 2.1 times
+  taller thickens its horizontal strokes against its vertical ones, which reads as a distortion even where
+  the eye cannot say why. Set the clock larger, in its own face.
+- **Measure the ink against the font, not against a constant.** The check draws the screen twice, with and
+  without its clock, and takes the clock's ink box from what differs. It compares that box's width to
+  height with `measureText` of the same words in the same face, so it holds on any machine's fonts.

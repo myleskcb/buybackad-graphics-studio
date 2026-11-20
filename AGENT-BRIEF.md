@@ -730,6 +730,10 @@ produced." DESIGN-LAW rule 87. In practice:
 - **Suggest for me** (rule 154): `node scripts/suggest_check.mjs` after any change to `suggestLooks`, the
   full ad's picks, Easy Mode's full ad or the video maker's New look. A suggestion keeps the ad's words,
   number, area and product, and is three or more axes from the ad and from every other one.
+- **A lock screen keeps its type's proportions** (rule 156): `node scripts/lock_screen_check.mjs` after any
+  change to `lockScreen`, `drawFront`, `glassAspect` or a phone photograph's outline. Each screen is built to
+  its glass's shape and drawn at one scale; a difference in shape is cropped from the wallpaper, never taken
+  by the type.
 - **The landing is built to a brief** (rule 162; the owner: "make it look like a custom built site
   with a large web design budget"): `landing.css`, scoped to the landing under the family skin, keeps
   rule 152's colours and rule 153's wordmark and sets one type scale, banded grounds (paper for the

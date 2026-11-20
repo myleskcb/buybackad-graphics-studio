@@ -1,6 +1,6 @@
 {
  "_doc": "Full-size renders of the rebuilt library ads (motion/recipes.json, the recipes made from library cards), for the library API (rule 111, 149). Made by scripts/render_rebuilt_ads.mjs through Easy Mode's full ad at 1080, as iPhones LA's copy. stamp is the recipe it was drawn from: a recipe changed since makes the render stale (library_api_check.mjs). Dates, ISO 8601 UTC: created and updated, the rebuild (the last commit of motion/recipes.json); rendered, when the file was drawn.",
- "built": "2026-11-20T07:30:11.025Z",
+ "built": "2026-11-20T07:43:33.033Z",
  "size": 1080,
  "quality": 0.88,
  "items": {
@@ -1039,12 +1039,12 @@
   "r-checklistHero-cd06-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 208379,
-   "sha1": "482c3217603c077c7bc11d80af4638cd6e088fd1",
+   "bytes": 208231,
+   "sha1": "ec3e09c0b316cd9fecacf594e622f9b3e6ac265f",
    "stamp": "f132e408693994c8e761a0cd846e191d946012ce",
    "from": "checklistHero-cd06-15",
    "title": "Checklist Hero 1",
-   "rendered": "2026-11-20T07:29:09Z",
+   "rendered": "2026-11-20T07:42:37Z",
    "created": "2026-11-20T05:49:17Z",
    "updated": "2026-11-20T05:49:17Z"
   },
@@ -1291,12 +1291,12 @@
   "r-glassCard-ca03-35": {
    "w": 1080,
    "h": 1080,
-   "bytes": 201943,
-   "sha1": "0d806cfbc68405f2efec0928945edf8bff9bf218",
+   "bytes": 201912,
+   "sha1": "9b95b735aee9c5555a91c34ae262aec7db10ae6e",
    "stamp": "cebaebc5d080cf84ee79f1e3efc23d49c2cff32a",
    "from": "glassCard-ca03-35",
    "title": "Glass Card 1",
-   "rendered": "2026-11-20T07:29:10Z",
+   "rendered": "2026-11-20T07:42:38Z",
    "created": "2026-11-20T05:49:17Z",
    "updated": "2026-11-20T05:49:17Z"
   },
@@ -2611,12 +2611,12 @@
   "r-scriptRetro-ck03-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 193522,
-   "sha1": "3c5912e4aadb55c03b7616a1f4b69a8a1c28921b",
+   "bytes": 193553,
+   "sha1": "3ba7e2fbde9c753dabc964067c1b3e29db3ab902",
    "stamp": "d7eca5f6924fada12163e05d43dc889577baa025",
    "from": "scriptRetro-ck03-15",
    "title": "Script Retro",
-   "rendered": "2026-11-20T07:29:11Z",
+   "rendered": "2026-11-20T07:42:39Z",
    "created": "2026-11-20T05:49:17Z",
    "updated": "2026-11-20T05:49:17Z"
   },
@@ -3547,12 +3547,12 @@
   "r-stepsFlow-pa05-15": {
    "w": 1080,
    "h": 1080,
-   "bytes": 200549,
-   "sha1": "1e153a98d8f2db2c9a46d2510b2c9918853ed755",
+   "bytes": 200476,
+   "sha1": "0213174c209a9f0cdf9a9a0c2dfb3cc22f7f1b19",
    "stamp": "9a784a4f630f240b5de499e2d4b675aa52c943d7",
    "from": "stepsFlow-pa05-15",
    "title": "Steps Flow 4",
-   "rendered": "2026-11-20T07:29:11Z",
+   "rendered": "2026-11-20T07:42:39Z",
    "created": "2026-11-20T05:49:17Z",
    "updated": "2026-11-20T05:49:17Z"
   },

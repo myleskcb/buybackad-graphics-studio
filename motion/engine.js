@@ -945,6 +945,9 @@ const SHEEN_AT = .35;                              // radians a back turns towar
  *  Dynamic Island as a pill only slightly darker than the glass. Drawn centred.
  *  `screen`, an image, lights the glass with it (a wallpaper), under the glare
  *  and the island. */
+/** The glass of a phone drawn w by h (drawFront: a bezel and its black border, .046 of the width in from the
+ *  edge): its width over its height, the shape a lock screen is built to (fullad.js lockScreen). */
+export const glassAspect = (w, h) => { const s = .046 * w; return (w - 2 * s) / Math.max(1, h - 2 * s); };
 function drawFront(ctx, w, h, metal, glare, rot, flip, cxNorm, notch = false, screen = null) {
   const R = CORNER * w;
   rrect(ctx, -w / 2, -h / 2, w, h, R); ctx.fillStyle = metal; ctx.fill();
@@ -953,8 +956,12 @@ function drawFront(ctx, w, h, metal, glare, rot, flip, cxNorm, notch = false, sc
   const s = b + 0.032 * w, sw = w - 2 * s, sh = h - 2 * s, sr = R - s * 1.05;
   rrect(ctx, -w / 2 + s, -h / 2 + s, sw, sh, sr); ctx.fillStyle = "#111215"; ctx.fill();
   if (screen) {
+    /* the screen at one scale, covering the glass and cropped to it: never stretched, so its type keeps its own
+       proportions (the owner, 2026-11-19, of two face-up phones: "weird stretch"). A lock screen is built to the
+       glass's own shape (glassAspect), so the crop is nothing at all */
     ctx.save(); rrect(ctx, -w / 2 + s, -h / 2 + s, sw, sh, sr); ctx.clip();
-    ctx.drawImage(screen, -w / 2 + s, -h / 2 + s, sw, sh); ctx.restore();
+    const k = Math.max(sw / screen.width, sh / screen.height), dw = screen.width * k, dh = screen.height * k;
+    ctx.drawImage(screen, -dw / 2, -dh / 2, dw, dh); ctx.restore();
   }
   if (glare && glare.strength > 0) {
     ctx.save(); rrect(ctx, -w / 2 + s, -h / 2 + s, sw, sh, sr); ctx.clip();

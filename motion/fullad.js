@@ -14,7 +14,7 @@
 // reuses the engine's painter, placement and collision passes and changes only what the maker
 // keeps small or leaves out.
 import { Ad, inkSprite, splitLines, trim, canvas, lum, prog, outBack, rng, clamp, contrastOf, fontCss, applyCase, labelFont, burstFontFor,
-  headlineLines, numberSprite, perksSprite, pointsOf, randomize, harmonise, formatNumber, oklchOf } from "./engine.js";
+  headlineLines, numberSprite, perksSprite, pointsOf, randomize, harmonise, formatNumber, oklchOf, glassAspect } from "./engine.js";
 import { FONTS, FINE_FACES, PALETTES, DEFAULT_STYLE, TYPE_VOICES, DEFAULT_PHONES } from "./catalog.js";
 import { drawChevrons, fillGradient, fillTexture, okHex } from "./decor.js";
 import { FULL_STYLES, pickFullStyles } from "./full-styles.js";
@@ -747,7 +747,8 @@ export class FullAd extends Ad {
       // and one layout, drawn over the four it always was so no other ad's moves: one that drew the compact clock
       // (retired 2026-11-19) wears the standard one
       const layout = LOCK_DRAW[mixSeed((this.st.seed >>> 0) * 17 + 3) % LOCK_DRAW.length];
-      this.phones.forEach((q, i) => { if (!(q.meta && q.meta.flat) && !q.screen) q.screen = lockScreen(this.p, (this.st.seed | 0) + i, this.st.lang, screenBase(this.p, this._groundAt(q)), { wall, layout, notch: !!(q.design && q.design.notch) }); });
+      // each built to its phone's own glass (its photograph's outline: an angled one is wider), so nothing is stretched
+      this.phones.forEach((q, i) => { if (!(q.meta && q.meta.flat) && !q.screen) q.screen = lockScreen(this.p, (this.st.seed | 0) + i, this.st.lang, screenBase(this.p, this._groundAt(q)), { wall, layout, notch: !!(q.design && q.design.notch), aspect: glassAspect(q.w, q.h) }); });
     }
     this._evenProduct();
     this._evenGround();
@@ -1661,7 +1662,9 @@ export function screenBase(p, groundY) {
   return (cand.find(([, k]) => k >= 1.8) || cand.sort((u, v) => v[1] - u[1])[0])[0];
 }
 export function lockScreen(p, seed = 1, lang = "en", base = null, opts = {}) {
-  const w = 330, h = 716, c = canvas(w, h), x = c.getContext("2d", { willReadFrequently: true }), r = rng(mixSeed((seed >>> 0) * 53 + 7));
+  // built to the glass it goes on (opts.aspect, its width over its height): the type is laid out on the width and
+  // placed down the height, so a taller or wider glass moves it, never stretches it
+  const w = 330, h = opts.aspect ? Math.round(w / clamp(opts.aspect, .36, .64)) : 716, c = canvas(w, h), x = c.getContext("2d", { willReadFrequently: true }), r = rng(mixSeed((seed >>> 0) * 53 + 7));
   const a = base || p.accent || p.plate || "#ffffff", A = oklchOf(a), G = oklchOf(p.ground || "#101418");
   const warm = A.C >= .06 && A.h >= 35 && A.h < 118;
   // a white, grey or black screen takes a pale tint of the ground's own hue in its tones, as few iOS
@@ -1745,6 +1748,7 @@ export function lockScreen(p, seed = 1, lang = "en", base = null, opts = {}) {
   x.textAlign = "center"; x.textBaseline = "alphabetic";
   const dateAt = (y, size, col = ink, align = "center", ax = w / 2) => { x.save(); x.textAlign = align; x.fillStyle = col; x.globalAlpha = .9; x.font = `600 ${Math.round(w * size)}px ${LOCK_FACE}`; x.fillText(LOCK_DAY[lang] || LOCK_DAY.en, ax, y); x.restore(); };
   const clockAt = (cx, y, size, stretch = 1, glass = false, align = "center") => {
+    if (opts.noClock) return;   // for scripts/lock_screen_check.mjs: the screen without its clock, to find the clock's ink
     x.save(); x.textAlign = align; x.font = `700 ${Math.round(w * size)}px ${LOCK_FACE}`;
     if ("letterSpacing" in x) x.letterSpacing = `${-Math.round(w * size * .02)}px`;
     x.translate(cx, y); x.scale(1, stretch);
@@ -1781,7 +1785,7 @@ export function lockScreen(p, seed = 1, lang = "en", base = null, opts = {}) {
   const row = (y, n, r0, col) => { const gap = r0 * .5, total = n * 2 * r0 + (n - 1) * gap; let cx = w / 2 - total / 2 + r0; for (const k of kinds.slice(0, n)) { widget(k, cx, y, r0, col); cx += 2 * r0 + gap; } };
   if (layout === "tall") {
     dateAt(h * .118, .054);
-    clockAt(w / 2, h * .425, .3, 2.1, true);
+    clockAt(w / 2, h * .37, .39, 1, true);   // iOS 26 on: the clock made larger, in glass; never pulled taller than its font (the owner: "weird stretch")
     row(h * .795, 3, w * .082, footInk);
   } else {
     dateAt(h * .134, .056);

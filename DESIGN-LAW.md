@@ -6655,7 +6655,8 @@ The rule (`fullad.js` `lockScreen`, drawn, never loaded, so a photo on the first
 - **One layout for an ad's phones** (`LOCK_LAYOUTS`):
   - classic;
   - widgets, a row of four under the clock (iOS 16 on);
-  - tall, iOS 26's Glass clock stretched to fill the top, its widgets at the foot;
+  - tall, iOS 26's larger Glass clock over the top, its widgets at the foot (never pulled taller than
+    its font: see the fit, below);
   - compact, iOS 27's small clock in the top row beside two widgets.
 
   Widgets (weather, a battery ring, an alarm, the day) are tinted one colour, as iOS tints them.
@@ -6690,6 +6691,25 @@ an ad keeps its two colour families, with no download.
   still stands off the ground (`screenBase`).
 - The flat waves and rings they replace read as drawings. The draw is still over four (glass twice), so an
   ad's wallpaper kind is kept wherever it was the gradient.
+
+**Each lock screen drawn to its own glass, at one scale (2026-11-19).** The owner, of two face-up iPhones
+showing 9:41 on a green wallpaper: "weird stretch". There were two causes:
+- Every lock screen was drawn on one 330 by 716 canvas, then stretched to its phone's glass. A glass is its
+  photograph's outline, so its shape varies (.448 to .460 wide to high against the canvas's .461; an angled
+  photograph's is wider).
+- The tall layout pulled its clock 2.1 times taller to fill the top.
+
+The rule now:
+- **The screen is its glass's shape**: `lockScreen` is built to the glass it goes on (`opts.aspect`, from
+  `engine.js` `glassAspect`). Its type is laid out on the width and placed down the height, so a taller glass
+  moves the type and never stretches it.
+- **One scale**: `drawFront` draws the screen at one scale, covering the glass. Any difference left in shape
+  is taken by the wallpaper, cropped at its edges, never by the type.
+- **The clock keeps its font's proportions**: iOS 26's taller clock is a larger clock (.39 of the screen's
+  width where the others are .285), never one pulled out of its face.
+- **Checked**: `scripts/lock_screen_check.mjs` builds every layout for every phone photograph that can wear
+  one (every one not flat, angled ones included). It fails when a screen is not its glass's shape within
+  half a percent, or when the clock's drawn ink is not the font's own width to height within three percent.
 
 ## 157. The call to action wears one of several marks, each moving its own way
 

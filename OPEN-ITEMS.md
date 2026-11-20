@@ -4373,3 +4373,11 @@ Then (the owner, of a phone on a suggestion card: "we need all devices to look 1
 The owner chose drawn wallpapers in iOS style over Apple's own images (rule 156). They are bloom (iOS
 18), glass (iOS 26 and 27) and gradient, in the ad's own colours, which keeps an ad to two colour families.
 They need no download.
+
+Then (the owner, of two face-up iPhones showing 9:41 on a green wallpaper: "weird stretch"): each lock screen
+is built to its phone's own glass and drawn on it at one scale (rule 156). Every screen had been drawn at 330
+by 716 and stretched to a glass of another shape, and the tall layout pulled its clock 2.1 times taller. Now a
+difference in shape is taken by the wallpaper, cropped, and the clock keeps its font's proportions.
+`scripts/lock_screen_check.mjs` holds it on all 89 phone photographs that can wear a lock screen, angled ones
+included. Drawn again: the 8 first looks, 71 other looks, 5 layout stills and 4 full-size renders that wear
+one. No hero still wears one.
