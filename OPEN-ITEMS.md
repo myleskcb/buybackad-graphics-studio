@@ -3452,10 +3452,9 @@ Done:
   ones already made).
 
 Owed by the owner, in order:
-1. Put the web part live (main): the app needs `IN_IOS_APP`, the sessionId and
-   Delete account on webuy.ad.
-2. App Store Connect: register `ad.webuy.app` and create the app record
-   "WeBuy.AD", United States only (ios/README.md "Releasing").
+1. ~~Put the web part live~~ Done 2026-11-19 (main 7ca8021a).
+2. ~~App Store Connect~~ Done 2026-11-19: `ad.webuy.app` registered, the app
+   "WeBuy.AD" (Apple ID 6837161499) created, free, United States only.
 3. A reviewer's demo account on webuy.ad, and live Stripe keys, so the
    reviewer can pay.
 4. `ios/release.sh 1 --upload`.
