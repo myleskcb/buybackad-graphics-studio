@@ -4229,7 +4229,7 @@ Open:
 16. **The explainers wear rule 153's wordmark.** The five explainer videos carry "WeBuy.AD" in
    Inter Tight in a corner (`#bug`: tools/explainers/stage.html and stage.css) and on their end card
    (tools/explainers/videos.js, with the icon). The next time they are drawn, both should be rule
-   161's icon and wordmark, and the posters drawn again. Not done here: they are main's videos, with
+   165's mark (the Ad label, which replaced rule 161's bubble), and the posters drawn again. Not done here: they are main's videos, with
    their music, and a render is its own job.
 17. **Rule numbers collide across branches.** `claude/full-ad-looks-layout` renumbered its rules to
    158, 159 and 160 when it merged pull request 14's branch (74de8569). It had not seen this
@@ -4264,6 +4264,12 @@ Open:
    (rule 158): 32 cards on a desktop, 24 at three or two columns, and 16 on a phone. "Show more" adds
    the same again. The library's pictures are lazy, so the landing fetches the same number of them at
    load (24 with 16 cards a page, 23 with 32).
+21. **The mark is the Ad label** (done, 2026-11-20, DESIGN-LAW 165). The owner, of the bubble: "the logo
+   sucks we need some more concepts or ideas or i'll build one". Six directions were drawn
+   (https://claude.ai/artifact/MbpAqeRMzErQvSZoU31TVX), and the owner took the first: WeBuy beside an
+   AD label, in Libre Franklin 900. It replaced the bubble everywhere the bubble was. favicon.svg's
+   letters are outlines, drawn by tools/brand/favicon.mjs. Before and after:
+   docs/seo-2026-11-18/mark-after-*.jpg (the bubble) and label-after-*.jpg.
 
 ## BL. 2026-11-18 — webuy.ad, the site's new address
 

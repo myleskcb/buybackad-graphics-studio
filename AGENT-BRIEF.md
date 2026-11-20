@@ -593,11 +593,12 @@ produced." DESIGN-LAW rule 87. In practice:
   name; watermark.js's `WORD` is the name.
   The landing is one column on one scale (rule 158: `--col`, `--gutter`, `--s1` to `--s9` at
   the end of styles.css): a new section takes them, never a padding or a gap of its own.
-  The mark is rule 161's (a W in a message bubble beside WeBuy.AD in Sora): `MARK` in
+  The mark is rule 165's (WeBuy beside an AD label, in Libre Franklin 900): `MARK` in
   build_seo_pages.mjs, and the same markup in index.html's four logos, the video maker's bar
-  (written by hand), the Look Book and master-library.html. Change it in all of them, then run
-  `sh tools/brand/make.sh` and `node scripts/build_og_cards.mjs --keep-ads` (without it, the
-  builder draws every page's ad again, and since rule 154 the same recipe draws a new look).
+  (written by hand), the Look Book and master-library.html. Change it in all of them. Then run
+  `sh tools/brand/make.sh`, `node tools/brand/favicon.mjs` (favicon.svg's letters are outlines) and
+  `node scripts/build_og_cards.mjs --keep-ads`. Without `--keep-ads` the builder draws every page's
+  ad again, and since rule 154 the same recipe draws a new look.
 - **The scripts:** a script that rewrites a showcase record passes its
   candidates through `gateRecords(page, pairs)` and writes only what
   `accept` keeps (see neutral_panels.mjs for the pattern). `live()` from the

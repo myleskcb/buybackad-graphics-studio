@@ -56,11 +56,11 @@
 @font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}
 @font-face{font-family:'Melodrama';src:url('assets/fonts/melodrama-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
 /* Inter Tight set rule 153's wordmark, as it sets Reselling.US's. Since rule 161 the wordmark
-   is Sora's, so no page downloads this face; it stays for the family skin's .logo rule below.
+   is another face's (rule 165: Libre Franklin), so no page downloads this one; it stays for the family skin's .logo rule below.
    SIL OFL 1.1, the licence beside it in assets/fonts/InterTight-OFL.txt. */
 @font-face{font-family:'Inter Tight';src:url('assets/fonts/inter-tight-latin.woff2') format('woff2');font-weight:500 800;font-style:normal;font-display:swap}
-/* Sora carries the WeBuy.AD wordmark (DESIGN-LAW 161, the owner's pick of the message-bubble mark) */
-@font-face{font-family:'WeBuy Sora';src:url('assets/fonts/sora-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
+/* Libre Franklin 900 sets the WeBuy.AD mark (DESIGN-LAW 165), SIL OFL 1.1, one of the project's ad faces */
+@font-face{font-family:'WeBuy Franklin';src:url('assets/fonts/libre-franklin-900.woff2') format('woff2');font-weight:900;font-style:normal;font-display:swap}
 
 /* DARK IS THE DEFAULT, matching the CRM. `data-theme` is stamped on <html>
    before first paint by the inline script in index.html, so there is no white
@@ -3090,22 +3090,14 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 /* the foot: its headings follow the page's h2s (h3), and a line's links are targets a thumb can take (24px) */
 .lpf-col .lpf-subs a{display:inline-block;min-height:24px;padding:4px 0;line-height:16px}
 
-/* ── THE MARK (DESIGN-LAW 161, 2026-11-19, the owner's pick: "Text me") ─────────────────────────
-   A W in a message bubble with a mint unread dot beside WeBuy.AD in Sora, whose period is that
-   dot. The icon is drawn, not set, so it is the same at every size and before any face loads.
-   Other skins keep their own mark (.logo-mark); the family skin shows this one. */
-.wb-icon{display:block;flex:none;width:28px;height:28px}
-.wb-icon .wb-b{fill:var(--wb-blue,#3d8bff)}
-.wb-icon .wb-w{fill:none;stroke:#fff;stroke-width:7.5;stroke-linejoin:miter;stroke-linecap:butt}
-.wb-icon .wb-d{fill:var(--wb-mint,#2fd58f);stroke:var(--wb-ring,#070d1c);stroke-width:4.5}
-.wb-word{font:700 22px/1 'WeBuy Sora',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;letter-spacing:-.045em;color:var(--wb-ink,currentColor);white-space:nowrap}
-.wb-word .wb-dot{display:inline-block;width:.25em;height:.25em;margin:0 .06em 0 .09em;border-radius:50%;background:var(--wb-mint,#2fd58f);color:transparent;overflow:hidden;line-height:.25em;vertical-align:.02em}
-.wb-word .wb-ad{color:var(--wb-blue,#3d8bff)}
-:root[data-skin='family']{--wb-blue:var(--accent);--wb-mint:var(--deal);--wb-ring:var(--surface-solid);--wb-ink:var(--text)}
-:root[data-skin='family'] .logo{gap:10px}
-:root:not([data-skin='family']) .logo .wb-icon{display:none}
+/* THE MARK (DESIGN-LAW 165, 2026-11-20, the owner's pick: "Take 1, the Ad label"). WeBuy beside an
+   AD label, the label every platform puts on a paid post, in Libre Franklin 900, the open revival of the
+   newspaper-ad face. The label is the icon as well. The period is in the text, for copying and reading
+   aloud, and hidden from the eye. */
+.wb-word{display:inline-flex;align-items:center;font:900 24px/1 'WeBuy Franklin','Libre Franklin','Franklin Gothic Medium','Arial Black',system-ui,sans-serif;letter-spacing:-.035em;color:var(--wb-ink,currentColor);white-space:nowrap}
+.wb-word .wb-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.wb-word .wb-ad{display:inline-grid;place-items:center;height:1.02em;margin-left:.2em;padding:.02em .26em 0;border-radius:.2em;background:var(--wb-blue,#3d8bff);color:#fff;font-size:.78em;letter-spacing:.01em}
+:root[data-skin='family']{--wb-blue:var(--accent);--wb-ink:var(--text)}
 @media(max-width:640px){
-  :root[data-skin='family'] .logo,:root[data-skin='family'] .lp-nav .logo{gap:8px}
-  :root[data-skin='family'] .logo .wb-icon{width:26px;height:26px}
-  :root[data-skin='family'] .logo .wb-word{font-size:20px}
+  :root[data-skin='family'] .logo .wb-word{font-size:21px}
 }

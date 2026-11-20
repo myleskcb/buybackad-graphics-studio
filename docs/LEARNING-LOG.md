@@ -6765,7 +6765,7 @@ RESUME HERE (superseded by the entry below):
   3. The explainers in rule 161's mark (§BK 16), and the rule numbers when the branches meet
      (§BK 17).
 
-## 2026-11-19 (latest) — the library's broken pictures traced, a check for them, and full rows (claude/zen-dijkstra-7b5a2e)
+## 2026-11-19 — the library's broken pictures traced, a check for them, and full rows (claude/zen-dijkstra-7b5a2e)
 
 Studied:
   The owner's screenshot came from a preview with the bubble mark: the library's Trucks line drew six
@@ -6796,9 +6796,48 @@ Found:
   - **One glyph can name the build.** The screenshot's "◎ Set your area" was dropped in pull request
     19, so the page was not 19's.
 
-RESUME HERE:
+RESUME HERE (superseded by the entry below):
   0. The owner's word on pull requests 14, 15, 17 and 19, in that order.
   1. The brand kit and search presence pull request on this branch (the roadmap session's brief).
   2. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5).
   3. The explainers in rule 161's mark (§BK 16), and the rule numbers when the branches meet
      (§BK 17).
+
+## 2026-11-20 (latest) — the mark is the Ad label: six new directions, and the owner's pick (claude/zen-dijkstra-7b5a2e)
+
+Studied:
+  The owner, of rule 161's bubble: "the logo sucks we need some more concepts or ideas or i'll build
+  one". Before drawing, the bubble was taken apart: it read as a chat app, its thin W was a blob at 16
+  pixels, Sora sounded like a startup rather than the ads, and ".AD" was its smallest piece. Six
+  directions came from the product's own world: the feed's ad label, our ads' plates, a buyer's sign,
+  the arrows round the number, a coin, a fast reply. All of them used faces already in the project.
+  The owner took the first: "Take 1, the Ad label".
+
+Measured:
+  - The mark on all nine pages that carry it, dark and light, read from the computed styles: Libre
+    Franklin 900 at 24px (16px in the Look Book), the label 39 by 19 pixels in the page's own blue,
+    white letters, and the text "WeBuy.AD" for copying and reading aloud.
+  - Checks: landing, SEO, pricing in step, area dialog, quick ad, library images (51 views), hero
+    wall, watermark and full ad studio pass; csp_hashes has nothing to write.
+
+Changed:
+  - DESIGN-LAW 165 (rule 161 superseded, rule 158 records the pick), OPEN-ITEMS §BK 21 (and 16
+    follows the mark), AGENT-BRIEF.
+  - The mark everywhere the bubble was; the icons, the wordmarks, the share card and the 17 link
+    previews drawn again (the pages' ads kept).
+  - `tools/brand/favicon.mjs`: favicon.svg's letters as outlines.
+
+Found:
+  - **A favicon cannot use a web font.** An SVG drawn as an image loads nothing, and an SVG made into
+    an image in the page cannot reach the page's faces either: the first trace drew nothing. The
+    letters are drawn on a canvas in the loaded face instead, traced with marching squares and
+    simplified to 123 points. No font tool was installed, and none was needed.
+  - **A closed outline cannot be simplified from its start.** With the chord's two ends on the same
+    point, every distance is zero and the loop collapses to a line. Split it at its farthest point
+    first.
+
+RESUME HERE:
+  0. The owner's word on pull requests 14, 15, 17 and 19, in that order.
+  1. The brand kit and search presence pull request on this branch (its brief needs rule 165's mark).
+  2. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5).
+  3. The explainers in rule 165's mark (§BK 16), and the rule numbers when the branches meet (§BK 17).

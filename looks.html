@@ -54,17 +54,16 @@ a{color:inherit}
 .brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;margin-right:auto}
 .brand b,.brand h1{font:700 28px/1 var(--display);letter-spacing:-.035em;margin:0}
 .brand i{display:inline-flex;align-items:center;gap:6px;font-style:normal}
-/* the mark (DESIGN-LAW 161) */
-@font-face{font-family:'WeBuy Sora';src:url('assets/fonts/sora-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
-:root{--wb-blue:var(--blue);--wb-mint:var(--mint);--wb-ring:var(--paper);--wb-ink:var(--ink)}
-.wb-icon{display:block;flex:none;width:28px;height:28px}
-.wb-icon .wb-b{fill:var(--wb-blue,#3d8bff)}
-.wb-icon .wb-w{fill:none;stroke:#fff;stroke-width:7.5;stroke-linejoin:miter;stroke-linecap:butt}
-.wb-icon .wb-d{fill:var(--wb-mint,#2fd58f);stroke:var(--wb-ring,#070d1c);stroke-width:4.5}
-.wb-word{font:700 22px/1 'WeBuy Sora',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;letter-spacing:-.045em;color:var(--wb-ink,currentColor);white-space:nowrap}
-.wb-word .wb-dot{display:inline-block;width:.25em;height:.25em;margin:0 .06em 0 .09em;border-radius:50%;background:var(--wb-mint,#2fd58f);color:transparent;overflow:hidden;line-height:.25em;vertical-align:.02em}
-.wb-word .wb-ad{color:var(--wb-blue,#3d8bff)}
-.brand i .wb-icon{width:18px;height:18px}.brand i .wb-word{font-size:15px}
+@font-face{font-family:'WeBuy Franklin';src:url('assets/fonts/libre-franklin-900.woff2') format('woff2');font-weight:900;font-style:normal;font-display:swap}
+:root{--wb-blue:var(--blue);--wb-ink:var(--ink)}
+/* THE MARK (DESIGN-LAW 165, 2026-11-20, the owner's pick: "Take 1, the Ad label"). WeBuy beside an
+   AD label, the label every platform puts on a paid post, in Libre Franklin 900, the open revival of the
+   newspaper-ad face. The label is the icon as well. The period is in the text, for copying and reading
+   aloud, and hidden from the eye. */
+.wb-word{display:inline-flex;align-items:center;font:900 24px/1 'WeBuy Franklin','Libre Franklin','Franklin Gothic Medium','Arial Black',system-ui,sans-serif;letter-spacing:-.035em;color:var(--wb-ink,currentColor);white-space:nowrap}
+.wb-word .wb-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.wb-word .wb-ad{display:inline-grid;place-items:center;height:1.02em;margin-left:.2em;padding:.02em .26em 0;border-radius:.2em;background:var(--wb-blue,#3d8bff);color:#fff;font-size:.78em;letter-spacing:.01em}
+.brand i .wb-word{font-size:16px}
 .brand>span{font:500 13px var(--body);color:var(--dim)}
 .back{font:600 14px var(--body);text-decoration:none;border:0;background:var(--veil);padding:7px 14px;border-radius:999px}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;min-height:38px}
@@ -106,7 +105,7 @@ html{scrollbar-gutter:stable}
 </style></head><body>
 <header class="mast"><div class="wrap">
   <div class="row">
-    <a class="brand" href="./"><h1>Look Book</h1><i><svg class="wb-icon" viewBox="9 9 82 82" aria-hidden="true" focusable="false"><path class="wb-b" d="M25 18H75Q86 18 86 29V61Q86 72 75 72H46L29 85Q26 87.5 26 84V72H25Q14 72 14 61V29Q14 18 25 18Z"/><path class="wb-w" d="M30 33L37.5 58L50 36L62.5 58L70 33"/><circle class="wb-d" cx="81" cy="21" r="10"/></svg><span class="wb-word">WeBuy<span class="wb-dot">.</span><span class="wb-ad">AD</span></span></i></a>
+    <a class="brand" href="./"><h1>Look Book</h1><i><span class="wb-word">WeBuy<span class="wb-sr">.</span><span class="wb-ad">AD</span></span></i></a>
     <a class="back" href="motion/">Video maker</a>
     <a class="back" href="./">Image studio</a>
   </div>
