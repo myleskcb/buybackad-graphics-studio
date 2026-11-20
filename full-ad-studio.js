@@ -56,12 +56,12 @@ const WORD_FIELDS = [
 ];
 
 const saved = (() => { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; } })();
-const FA = Object.assign({ on: false, line: {}, set: {}, seed: 1, pair: "", voice: "", words: {}, biz: "", recipe: {}, back: {} }, saved || {});
+const FA = Object.assign({ on: false, line: {}, set: {}, seed: 1, pair: "", voice: "", words: {}, biz: "", recipe: {}, back: {}, look: null }, saved || {});
 if (!FA.recipe || typeof FA.recipe !== "object") FA.recipe = {};
 if (!FA.back || typeof FA.back !== "object") FA.back = {};
-const live = { holding: false, n: 0, ad: null, subjects: [], thumbs: {}, timer: 0, ready: null, loaded: {}, recipes: null, byId: {}, backThumbs: {} };
+const live = { holding: false, n: 0, ad: null, subjects: [], thumbs: {}, timer: 0, ready: null, loaded: {}, recipes: null, byId: {}, backThumbs: {}, sugg: null };
 const assets = { phones: {}, index: [], accents: {} };
-const keep = () => { try { localStorage.setItem(KEY, JSON.stringify({ on: FA.on, line: FA.line, set: FA.set, seed: FA.seed, pair: FA.pair, voice: FA.voice, words: FA.words, biz: FA.biz, recipe: FA.recipe, back: FA.back })); } catch (e) { /* private mode */ } };
+const keep = () => { try { localStorage.setItem(KEY, JSON.stringify({ on: FA.on, line: FA.line, set: FA.set, seed: FA.seed, pair: FA.pair, voice: FA.voice, words: FA.words, biz: FA.biz, recipe: FA.recipe, back: FA.back, look: FA.look })); } catch (e) { /* private mode */ } };
 
 const el = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -126,7 +126,8 @@ function statesNow() {
 }
 
 /** The style the engine draws: the visitor's words over the line's own, the house style locked. */
-function styleNow(S, ids, set, size, R = recipeNow()) {
+/** The ad as the visitor set it, before it is drawn: { base, locks, W, H }. locks: a colour or a type picked by hand. */
+function baseNow(S, ids, set, size, R = recipeNow()) {
   const iph = S.key === "iphone", w = FA.words[S.key] || {}, rw = (R && R.words) || {}, own = !!(R && R.pictures && R.pictures.length);
   const F = size || FORMATS[ez.format] || FORMATS.square, ar = F.w / F.h;
   const aspect = ar >= 1.3 ? "16:9" : ar <= .62 ? "9:16" : Math.abs(ar - 1) < .02 ? "1:1" : "4:5";
@@ -153,13 +154,24 @@ function styleNow(S, ids, set, size, R = recipeNow()) {
   // the face: one picked, the house face ("house"), or none, and the seed draws one (fullStyle, rule 154). A
   // recipe's card pair and face are leans (its hint), never kept as picked: only a pick by hand is
   const pair = FA.pair || "", voice = FA.voice === "house" ? "house" : fullVoiceOk(FA.voice) ? FA.voice : "";
-  const pick = { ...(COLOUR_OF[pair] ? { palette: pair } : {}), ...(voice ? { type_pair: voice } : {}) };
-  return { st: fullStyle(base, base.seed, assets.index, pick), W: F.w, H: F.h };
+  const locks = { ...(COLOUR_OF[pair] ? { palette: pair } : {}), ...(voice ? { type_pair: voice } : {}) };
+  return { base, locks, W: F.w, H: F.h };
+}
+/* a suggestion used (Suggest for me) is a look drawn on this ad as it was when it was used: its line, design,
+   seed and pictures. New look, another line, design or picture leave it, as they leave the look it replaced */
+const lookKey = (S, set) => [S.key, FA.recipe[currentCat] || "", FA.seed | 0, set | 0].join("|");
+const lookNow = (S, set) => FA.look && FA.look.key === lookKey(S, set) ? FA.look.pick : null;
+/** The style the engine draws: the visitor's words over the line's own, the house style locked; extra: a
+ *  suggestion's look, drawn in place of the one used (if any) for its preview. */
+function styleNow(S, ids, set, size, R = recipeNow(), extra = null) {
+  const { base, locks, W, H } = baseNow(S, ids, set, size, R), look = extra || lookNow(S, set);
+  // a colour or type picked by hand stays over a suggestion's (the suggestions were drawn with them)
+  return { st: fullStyle(base, base.seed, assets.index, { ...(look || {}), ...locks }), W, H };
 }
 
-async function build(px, size) {
+async function build(px, size, extra = null) {
   const { S, ids, set, recipe } = await ready();
-  const { st, W, H } = styleNow(S, ids, set, size, recipe);
+  const { st, W, H } = styleNow(S, ids, set, size, recipe, extra);
   await Promise.all([loadFonts([...fontsFor(st), "franklin"]), groundReady(st)]);
   const k = px / Math.min(W, H);
   return { ad: new FullAd(st, assets, Math.round(W * k), Math.round(H * k)), st, S };
@@ -205,6 +217,8 @@ async function draw() {
     let pre = null; try { pre = fullPreflight(ad, frame); } catch (e) { console.warn("full ad pre-flight:", e); }
     say(pre);
     await tip(ad, n);
+    // suggestions for an ad that has since changed (New look, another line, design or picture) are put away
+    const sg = el("fa-suggest"); if (sg && !sg.hidden && live.sugg && live.sugg.key !== curKey()) { sg.hidden = true; live.sn = (live.sn | 0) + 1; }
     if (n === live.n) busy(false);            // current: the picture, what the pre-flight says of it, and the size's tip
   } catch (e) { console.warn("full ad:", e); if (n === live.n) { busy(false); fail(e); } }
 }
@@ -285,6 +299,84 @@ function mark() {
   /* the card that is on is the first one: the strip had been scrolled to the template under it */
   if (FA.on && strip && !lay) { strip.scrollLeft = 0; requestAnimationFrame(() => { strip.scrollLeft = 0; if (strip._syncArrows) strip._syncArrows(); }); }
   else if (FA.on && strip) { const b = strip.querySelector(".ez-tpl.sel"); if (b && b.scrollIntoView) b.scrollIntoView({ block: "nearest", inline: "nearest" }); }
+}
+
+/* ---------- Suggest for me ----------
+   The owner, 2026-11-19, through the roadmap session: "what if we have a randomize or not quite randomized but
+   suggest for me, which makes some sort of alternate styling based off of the ad you're looking at using other
+   different type faces or colors or adjusting BG image or assets". A row under the strip of other looks for the
+   ad on screen (the engine's suggestLooks): the same words, number, area and product, and another colour pair,
+   type, ground, headline treatment, sticker, number style and layout, each fitting this line and product and
+   apart from the ad and from each other; a colour or type picked by hand stays. Each card is drawn as it would
+   download and offered only when the download's own pre-flight lets it through (fullPreflight at 1080, less
+   what only the words can fix, as New look judges in the video maker); it is marked as the preview is for a
+   signed-out or Free visitor (rule 142). Use this puts its look on the ad (FA.look, kept until the ad itself
+   changes: New look, another line, design or picture); Back to mine puts back the look the visitor had. */
+const curSet = S => { const R = recipeNow(), own = !!(R && R.pictures && R.pictures.length); return own ? 0 : S.sets.length ? (FA.set[S.key] | 0) % S.sets.length : 0; };
+const curKey = () => { const S = lineNow(); return S ? lookKey(S, curSet(S)) : ""; };
+const voiceName = k => k === "house" || !k ? "House type" : ((TYPE_VOICES[k] || {}).name || k) + " type";
+function suggestButton() {
+  const head = document.querySelector("#page-easy .ez-stepline"); if (!head || el("fa-sg-open")) return;
+  head.insertAdjacentHTML("beforeend", `<button type="button" id="fa-sg-open" class="fa-sg-open" title="Other looks for this ad: the same words, number, area and product">&#10022; Suggest for me</button>`);
+  el("fa-sg-open").onclick = () => suggest(false);
+}
+function suggestBox() {
+  let box = el("fa-suggest");
+  if (box) return box;
+  const s = el("ez-strip"), shell = s && (s.closest(".strip-shell") || s); if (!shell) return null;
+  shell.insertAdjacentHTML("afterend", `<section id="fa-suggest" class="fa-suggest" hidden aria-label="Suggestions for this ad">
+    <div class="fa-sg-head"><b>Suggestions for this ad</b><span class="fa-sg-sub">the same words, number, area and product in another look</span>
+      <span class="fa-sg-acts"><button type="button" id="fa-sg-back" hidden>Back to mine</button><button type="button" id="fa-sg-more">More suggestions</button><button type="button" id="fa-sg-close">Close</button></span></div>
+    <div class="fa-sg-row" role="list"></div></section>`);
+  box = el("fa-suggest");
+  el("fa-sg-more").onclick = () => suggest(true);
+  el("fa-sg-close").onclick = () => { box.hidden = true; live.sn++; };
+  el("fa-sg-back").onclick = () => { FA.look = live.sugg ? live.sugg.was : null; keep(); live.thumbs = {}; tile(); later(0); el("fa-sg-back").hidden = true; used(null); };
+  return box;
+}
+const used = card => document.querySelectorAll("#fa-suggest .fa-sg-card").forEach(c => { const on = c === card; c.classList.toggle("used", on); const b = c.querySelector(".fa-sg-use"); if (b) { b.textContent = on ? "In use" : "Use this"; b.disabled = on; } });
+/** The row: up to six more suggestions (more: after the ones shown), each read before it is offered. */
+async function suggest(more) {
+  const box = suggestBox(); if (!box || !FA.on) return;
+  const row = box.querySelector(".fa-sg-row"), n = live.sn = (live.sn | 0) + 1;
+  box.hidden = false; box.setAttribute("aria-busy", "true");
+  if (!more) { row.innerHTML = ""; el("fa-sg-back").hidden = !(live.sugg && live.sugg.key === curKey() && FA.look && FA.look.key === curKey()); }
+  try {
+    const got = await ready(); if (n !== live.sn || got.S !== lineNow()) return;
+    const size = FORMATS[ez.format] || FORMATS.square, key = lookKey(got.S, got.set);
+    const { base, locks } = baseNow(got.S, got.ids, got.set, size, got.recipe);
+    const again = more && live.sugg && live.sugg.key === key;
+    const res = FULL.suggestLooks(base, base.seed, assets.index, { pick: locks, shown: lookNow(got.S, got.set), n: 10, from: again ? live.sugg.next : 1 });
+    live.sugg = { key, next: res.next, was: again || (live.sugg && live.sugg.key === key) ? live.sugg.was : FA.look };
+    let shown = 0;
+    for (const p of res.picks) {
+      if (n !== live.sn || shown >= 6) break;
+      const card = document.createElement("figure"); card.className = "fa-sg-card"; card.setAttribute("role", "listitem");
+      card.innerHTML = `<img alt="" aria-busy="true" src="${placeholder(COLOUR_OF[p.look.palette])}"><figcaption><span></span></figcaption>`;
+      row.appendChild(card);
+      let made = null; try { made = await build(1080, size, p.pick); } catch (e) { /* not offered */ }
+      if (n !== live.sn) { card.remove(); return; }
+      let pre = null; const frame = made ? fullStill(made.ad) : null; try { pre = made ? fullPreflight(made.ad, frame) : null; } catch (e) { /* unread: not offered */ }
+      const words = made ? new Set(FULL.fullWords(made.st).filter(f => f.level === "fix").map(f => f.say)) : new Set();
+      if (!pre || pre.findings.some(f => f.level === "fix" && !words.has(f.say))) { card.remove(); continue; }
+      // the picture, small, marked as the preview is (rule 142)
+      const k = 280 / Math.max(frame.width, frame.height), c = document.createElement("canvas"); c.width = Math.round(frame.width * k); c.height = Math.round(frame.height * k);
+      const g = c.getContext("2d"); g.imageSmoothingQuality = "high"; g.drawImage(frame, 0, 0, c.width, c.height);
+      const img = card.querySelector("img"), name = `${(COLOUR_OF[p.look.palette] || {}).name || p.look.palette}, ${voiceName(p.look.type_pair)}`;
+      img.src = typeof previewJpeg === "function" ? previewJpeg(c, .86) : c.toDataURL("image/jpeg", .86);
+      img.dataset.marked = String(typeof previewMarked === "boolean" ? previewMarked : false); img.removeAttribute("aria-busy"); img.alt = "A suggested look: " + name;
+      card.dataset.look = JSON.stringify(p.look);
+      card.querySelector("figcaption").innerHTML = `<span>${esc(name)}</span><button type="button" class="fa-sg-use">Use this</button>`;
+      card.querySelector(".fa-sg-use").onclick = () => {
+        if (curKey() !== key) { toast("This ad changed: here are suggestions for it now.", "info"); suggest(false); return; }
+        FA.look = { key, pick: p.pick }; keep(); live.thumbs = {}; tile(); later(0);
+        used(card); el("fa-sg-back").hidden = false;
+      };
+      shown++;
+    }
+    if (n === live.sn && !row.querySelector(".fa-sg-card")) row.innerHTML = `<p class="fa-sg-none">No other look fits this ad just now. Try New look, or let the colours or type choose again.</p>`;
+  } catch (e) { console.warn("suggestions:", e); if (n === live.sn && !row.children.length) row.innerHTML = `<p class="fa-sg-none">Suggestions could not load just now.</p>`; }
+  finally { if (n === live.sn) box.removeAttribute("aria-busy"); }
 }
 
 /* ---------- the strip: the rebuilt layouts in the old ones' place ----------
@@ -576,7 +668,7 @@ function install() {
     return r;
   };
   window.FullAdStudio = { state: FA, enter, leave, draw, build, check, lines: () => live.subjects, aliases: () => live.aliases || {}, isOn: () => FA.on, voices: () => FULL_VOICES.filter(k => fullVoiceOk(k)), pairs: () => COLOURWAYS.slice(),
-    recipes: loadRecipes, useRecipe };
+    recipes: loadRecipes, useRecipe, suggest };
   /* Easy Mode may be open already (a module runs after the page's own scripts): its strip is rebuilt,
      so the old renderings it was given leave; the recipes are fetched now, so the layouts follow at once */
   loadRecipes();
@@ -584,6 +676,7 @@ function install() {
     if (DEFAULT_OFF) tile(); else strip();
     if (FA.on || !DEFAULT_OFF) { if (!enter()) leave(); }
   }
+  suggestButton();
   window.dispatchEvent(new Event("full-ad-ready"));
 }
 

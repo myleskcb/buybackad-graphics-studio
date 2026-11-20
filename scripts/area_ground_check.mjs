@@ -14,8 +14,8 @@
      photograph of a place;
    - San Francisco's towns: the Golden Gate now and then (on some seeds, never more than a fifth of the
      ads, and only on seeds placeTurn lets through), never Lake Tahoe; Lake Tahoe's towns the reverse;
-   - a photograph of a place handed to the engine with the ad (ground_photo) is refused outside its towns
-     and drawn inside them;
+   - a photograph of a place handed to the engine with the ad (ground_photo), or picked for it (a suggestion
+     used), is refused outside its towns and drawn inside them;
    - every still the library and Easy Mode's strip show (assets/recipe-stills, assets/library-looks, assets/hero,
      assets/layout-stills: their indexes
      record the photograph each stands on and the towns it prints) stands on no photograph of a place
@@ -127,6 +127,11 @@ if (gg) {
   const out = given(SAMPLE), inn = given(SF);
   ok(out.background !== 'photo' && !(out.ground_photo && out.ground_photo.src === gg) && inn.background === 'photo' && inn.ground_photo && inn.ground_photo.src === gg,
     `a photograph of a place given with the ad (${file(gg)}) is refused under the sample's towns (drew ${out.background}) and drawn under its own (drew ${inn.background})`);
+  // and picked (a suggestion used, Suggest for me: a look kept from one area is not drawn on another's city)
+  const picked = where => F.fullStyle({ ...C.DEFAULT_STYLE, headline: 'WE BUY IPHONES', aspect: '1:1', phones: [], ...where }, 4242, [], { background: 'photo', ground_photo: { src: gg, focus: [.5, .5] } });
+  const pOut = picked(SAMPLE), pIn = picked(SF);
+  ok(!(pOut.ground_photo && pOut.ground_photo.src === gg) && pIn.background === 'photo' && pIn.ground_photo && pIn.ground_photo.src === gg,
+    `a photograph of a place picked for the ad is refused under the sample's towns (drew ${pOut.background}) and drawn under its own (drew ${pIn.background})`);
 }
 
 // the stills the library shows, as drawn: none on another place's photograph

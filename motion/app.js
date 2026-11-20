@@ -2,7 +2,7 @@
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES, DEFAULT_PHONES } from "./catalog.js";
 import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf, lotInto } from "./engine.js";
-import { FullAd, fullStyle, fullPreflight, fullStill, fullWords, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk, fullGroundReady, poolEntryFor } from "./fullad.js";
+import { FullAd, fullStyle, fullPreflight, fullStill, fullWords, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk, fullGroundReady, poolEntryFor, suggestLooks } from "./fullad.js";
 import { lookPreflight, LOOK_CODES } from "./look-preflight.js";
 import { FULL_VOICES } from "./full-voices.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
@@ -86,19 +86,24 @@ async function ensureSubject(st) {
   const got = await loadSubjectSet(S, set, "../assets/cutouts/", ent >= 0 ? { seed: st.seed >>> 0 } : {});
   Object.assign(state.assets.phones, got.assets); subjects.loaded[k] = got.ids;
 }
-const fullOf = st => {
-  // what was picked by hand for the full ad: its colours, and its type pair (one of the owner's pairs the
-  // full ad holds in, motion/full-voices.js; none picked is the house face)
-  const S = state.full ? subjectOf(st) : null, pick = { ...(st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {}), ...(fullVoiceOk(st.full_type) || st.full_type === "house" ? { type_pair: st.full_type } : {}) };
+/** What was picked by hand for the full ad: its colours and its type pair (the locks a suggestion keeps). */
+const fullLocks = st => ({ ...(st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {}), ...(fullVoiceOk(st.full_type) || st.full_type === "house" ? { type_pair: st.full_type } : {}) });
+/** What the full ad is drawn from, before its look is picked: the style, a recipe's pictures and leans, the line's pictures. */
+const fullInput = st => {
+  const S = state.full ? subjectOf(st) : null;
   // a recipe brings its own pictures (kept as given: subject_set 1) and its ground photograph
   const R = state.full ? recipeOf(st) : null, rids = R ? subjects.loaded["recipe|" + R.id] || [] : [], extra = { ...(R && R.ground_photo ? { ground_hint: { ...R.ground_photo } } : {}), ...(R && R.hint ? { hint: R.hint } : {}) };   // leans, not locks (the rebuild, 2026-11-18)
   // its claim, unless a claim or a business name was typed: a named buyer takes the badge
   if (R && R.words && R.words.claim && !st.feed_claim && !String(st.biz || "").trim()) extra.feed_claim = R.words.claim;
-  if (!S) return fullStyle({ ...st, ...extra, subject: "", ...(rids.length ? { phones: rids } : {}) }, st.seed, state.index, pick, state.locked);
+  if (!S) return { ...st, ...extra, subject: "", ...(rids.length ? { phones: rids } : {}) };
   // a recipe whose words name goods its line has no picture of stands on its words alone (words_only)
   const bare = !!(R && R.words_only && !rids.length), ids = rids.length ? rids : bare ? [] : S.sets.length ? subjects.loaded[subjectKey(S, st).k] || [] : [];
-  return fullStyle({ ...st, ...extra, phones: ids.length ? ids : ["none"], ...(rids.length || bare ? { subject_set: 1 } : {}) }, st.seed, state.index, pick, state.locked);
+  return { ...st, ...extra, phones: ids.length ? ids : ["none"], ...(rids.length || bare ? { subject_set: 1 } : {}) };
 };
+/* what was picked by hand for the full ad: its colours, and its type pair (one of the owner's pairs the full ad
+   holds in, motion/full-voices.js; none picked is the house face); a suggestion used (Suggest for me: full_look)
+   is drawn under them, and what was picked by hand stays over it */
+const fullOf = st => fullStyle(fullInput(st), st.seed, state.index, { ...(st.full_look && typeof st.full_look === "object" ? st.full_look : {}), ...fullLocks(st) }, state.locked);
 /* fonts, and a full ad's photo ground: a still made before the photo arrives draws the house
    gradient in its place (fullad.js fullGroundReady) */
 const readyToDraw = st => Promise.all([loadFonts(fontsFor(st)), st && st.full ? fullGroundReady(st).catch(() => null) : null]);
@@ -226,6 +231,8 @@ function restore() {
 
 async function rebuild() {
   const id = ++state.buildId;
+  // suggestions for an ad that has since changed (New look, its words, its product) are put away
+  const sb = $("mo-suggest"); if (sb && !sb.hidden && sugKey(state.style) !== sug.key) { sb.hidden = true; sug.n++; }
   try {
     if (state.full) await ensureSubject(state.style);
     const st = settle({ ...state.style });
@@ -316,6 +323,106 @@ function showAudit(rep) {
    search with nothing and it threw (every New look by a visitor who had not typed a number). When none of
    the eight passes, the closest comes back with what it needs (`fixes`), and the caller says so: a new look
    is never a failing one handed over without a word. Returns { st, fixes }, fixes empty when it passes. */
+/* SUGGEST FOR ME (2026-11-19; the owner, through the roadmap session: "what if we have a randomize or not quite
+   randomized but suggest for me, which makes some sort of alternate styling based off of the ad you're looking at
+   using other different type faces or colors or adjusting BG image or assets"). Beside New look, a row of other
+   looks for the ad on screen, its words, number, area and product kept:
+   - a full ad's are the engine's (fullad.js suggestLooks): another colour pair, type, ground, headline
+     treatment, sticker, number style and layout, each fitting this line and product, apart from the ad and
+     from each other; a colour or a type picked by hand stays. Used, it is the ad's full_look;
+   - an Any look's are new looks as New look draws them (randomize, its words and phones held, its locks
+     kept), no two in one palette or one face.
+   Each is read by the download's own pre-flight before it is offered (deliveredPreflight, less what only the
+   words can fix, as New look judges), and drawn as the player is, marked while a download would be (rule
+   142). Use this puts it on the ad; Back, or Back to mine, undoes it. */
+const sug = { n: 0, next: 1, key: "", was: null };
+const sugKey = st => JSON.stringify([!!state.full, state.full ? st.seed : "", st.subject || "", st.subject_set | 0, st.recipe || "", (st.phones || []).join(","), st.headline || "", st.tag || "", st.aspect || ""]);
+function sugBox() {
+  let box = $("mo-suggest"); if (box) return box;
+  const acts = document.querySelector(".mo-actions"); if (!acts) return null;
+  acts.insertAdjacentHTML("afterend", `<section id="mo-suggest" class="mo-suggest" hidden aria-label="Suggestions for this ad">
+    <div class="mo-sg-head"><b>Suggestions for this ad</b><span class="mo-sg-sub">the same words, number and product in another look</span>
+      <span class="mo-sg-acts"><button type="button" class="mo-btn" id="mo-sg-back" hidden>Back to mine</button><button type="button" class="mo-btn" id="mo-sg-more">More suggestions</button><button type="button" class="mo-btn" id="mo-sg-close">Close</button></span></div>
+    <div class="mo-sg-row" role="list"></div></section>`);
+  box = $("mo-suggest");
+  $("mo-sg-more").onclick = () => suggestLooksHere(true);
+  $("mo-sg-close").onclick = () => { box.hidden = true; sug.n++; };
+  $("mo-sg-back").onclick = () => {
+    if (!sug.was) return;
+    pushHistory(); state.style = sug.was; sug.was = null; $("undo").disabled = false;
+    save(); syncWords(); drawPhonePicker(); syncLocks(); rebuild();
+    $("mo-sg-back").hidden = true; sugUsed(null); sug.key = sugKey(state.style);
+  };
+  return box;
+}
+const sugUsed = card => document.querySelectorAll("#mo-suggest .mo-sg-card").forEach(c => { const on = c === card; c.classList.toggle("used", on); const b = c.querySelector(".mo-sg-use"); if (b) { b.textContent = on ? "In use" : "Use this"; b.disabled = on; } });
+/** The row: up to six more suggestions (more: after the ones shown), each read before it is offered. */
+async function suggestLooksHere(more) {
+  const box = sugBox(); if (!box) return;
+  landTyping();
+  const row = box.querySelector(".mo-sg-row"), n = ++sug.n, st0 = JSON.parse(JSON.stringify(state.style)), key = sugKey(st0);
+  box.hidden = false; box.setAttribute("aria-busy", "true");
+  if (!more || key !== sug.key) { row.innerHTML = ""; sug.next = 1; if (key !== sug.key) { sug.was = null; $("mo-sg-back").hidden = true; } }
+  sug.key = key;
+  try {
+    let cands = [];
+    if (state.full) {
+      await ensureSubject(st0);
+      const res = suggestLooks(fullInput(st0), st0.seed, state.index, { pick: fullLocks(st0), shown: st0.full_look || null, keep: state.locked, n: 10, from: sug.next });
+      sug.next = res.next;
+      cands = res.picks.map(p => ({ st: { ...st0, full_look: p.pick }, name: `${(COLOUR_OF[p.look.palette] || {}).name || p.look.palette}, ${p.look.type_pair === "house" ? "House" : (TYPE_VOICES[p.look.type_pair] || {}).name || p.look.type_pair} type` }));
+    } else {
+      // as New look draws one: the words and the phones held, the locks kept
+      const locked = new Set(state.locked); locked.add("phones");
+      const h0 = settle({ ...st0 }), seen = new Set([(h0.palette || "") + "|" + (h0.font || ""), "p:" + (h0.palette || ""), "f:" + (h0.font || "")]);
+      for (let k = 0; k < 40 && cands.length < 10; k++) {
+        const next = randomize(st0, (Math.imul((sug.next++) ^ 0x2545f491, 2654435761) >>> 0) || 1, locked, [], false), h = settle({ ...next }, locked);
+        if (seen.has("p:" + (h.palette || "")) || seen.has("f:" + (h.font || ""))) continue;
+        seen.add("p:" + (h.palette || "")); seen.add("f:" + (h.font || ""));
+        cands.push({ st: next, name: lookName(h) });
+      }
+    }
+    let shown = row.querySelectorAll(".mo-sg-card").length;
+    const want = shown + 6;
+    for (const c of cands) {
+      if (n !== sug.n || shown >= want) break;
+      const card = document.createElement("figure"); card.className = "mo-sg-card"; card.setAttribute("role", "listitem");
+      card.innerHTML = `<canvas aria-busy="true"></canvas><figcaption><span></span></figcaption>`;
+      row.appendChild(card);
+      const h = settle({ ...c.st });
+      let fixes = null;
+      try {
+        const rep = await deliveredPreflight(h), words = h.full ? new Set(fullWords(h).filter(f => f.level === "fix").map(f => f.say)) : null;
+        fixes = rep.findings.filter(f => f.level === "fix" && (words ? !words.has(f.say) : LOOK_CODES.has(f.code)));
+      } catch (e) { fixes = null; }
+      if (n !== sug.n) { card.remove(); return; }
+      if (!fixes || fixes.length) { card.remove(); continue; }
+      // the picture as the download draws it, small, and marked while a download would be (rule 142)
+      await readyToDraw(h);
+      const big = h.full ? 1080 : LOOK_PRE, [W0, H0] = ASPECTS[h.aspect] || ASPECTS["1:1"], kk = big / Math.min(W0, H0), ad = adFor(h, Math.round(W0 * kk), Math.round(H0 * kk));
+      let frame; if (h.full) frame = fullStill(ad); else { frame = document.createElement("canvas"); frame.width = ad.W; frame.height = ad.H; ad.stillAt(frame.getContext("2d")); }
+      const cv = card.querySelector("canvas"), k = 280 / Math.max(frame.width, frame.height);
+      cv.width = Math.round(frame.width * k); cv.height = Math.round(frame.height * k);
+      const x = cv.getContext("2d"); x.imageSmoothingQuality = "high"; x.drawImage(frame, 0, 0, cv.width, cv.height);
+      if (state.marks && window.PgfxMark) window.PgfxMark.draw(x, cv.width, cv.height);
+      cv.dataset.marked = String(!!(state.marks && window.PgfxMark)); cv.removeAttribute("aria-busy"); cv.setAttribute("role", "img"); cv.setAttribute("aria-label", "A suggested look: " + c.name);
+      card.dataset.look = JSON.stringify(h.full ? { palette: h.full_colour, type_pair: h.full_pair ? h.type_pair : "house", ground: h.background, text_fx: h.text_fx, arrangement: h.arrangement } : { palette: h.palette, font: h.font, vibe: h.vibe || "" });
+      card.querySelector("figcaption").innerHTML = `<span>${c.name.replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]))}</span><button type="button" class="mo-sg-use">Use this</button>`;
+      card.querySelector(".mo-sg-use").onclick = () => {
+        if (sugKey(state.style) !== key) { VH().toast("This ad changed: here are suggestions for it now."); suggestLooksHere(false); return; }
+        if (!sug.was) sug.was = JSON.parse(JSON.stringify(state.style));
+        pushHistory(); $("undo").disabled = false;
+        state.style = state.full ? { ...state.style, full_look: c.st.full_look } : JSON.parse(JSON.stringify(c.st));
+        save(); syncWords(); drawPhonePicker(); syncLocks(); rebuild();
+        sugUsed(card); $("mo-sg-back").hidden = false; sug.key = sugKey(state.style);
+      };
+      shown++;
+    }
+    if (n === sug.n && !row.querySelector(".mo-sg-card")) row.innerHTML = `<p class="mo-sg-none">No other look fits this ad just now. Try New look.</p>`;
+  } catch (e) { console.warn("suggestions:", e); if (n === sug.n && !row.children.length) row.innerHTML = `<p class="mo-sg-none">Suggestions could not load just now.</p>`; }
+  finally { if (n === sug.n) box.removeAttribute("aria-busy"); }
+}
+
 async function strongSeed(base, locked, pool, content, post = st => st) {
   const tried = [];
   // what this look needs before it goes out: the gate's own reading, less what the words alone need
@@ -749,6 +856,7 @@ function buildPanel() {
 
   // actions
   $("shuffle-look").addEventListener("click", () => shuffle(false));
+  if ($("suggest-look")) $("suggest-look").addEventListener("click", () => suggestLooksHere(false));
   $("shuffle-all").addEventListener("click", () => shuffle(true));
   // Back: the look, and the locks it had (a quick ad or an audience lets locks go)
   $("undo").addEventListener("click", () => {
@@ -798,8 +906,10 @@ async function shuffle(all) {
   try {
     // the full ad's look is its number: New look gives it another, and lets the colours change with it
     // (colours picked by hand are picked again); the customer's own look underneath is left as it was
-    const base = state.full && !all ? (({ full_palette, ...rest }) => rest)(state.style) : state.style;
-    const plain = () => state.full && !all ? { ...base, seed: (Math.random() * 1e9) | 0 } : randomize(state.style, (Math.random() * 1e9) | 0, locked, pool, all);
+    // a suggestion's look (full_look) goes with it: a new look is the engine's own again
+    const own = (({ full_look, ...rest }) => rest)(state.style);
+    const base = state.full && !all ? (({ full_palette, ...rest }) => rest)(own) : own;
+    const plain = () => state.full && !all ? { ...base, seed: (Math.random() * 1e9) | 0 } : randomize(own, (Math.random() * 1e9) | 0, locked, pool, all);
     let found;
     try { found = $("strong-only").checked ? await strongSeed(base, locked, pool, all) : { st: plain(), fixes: [] }; }
     catch (e) {                                     // the search could not run: a look without it, and the customer told so

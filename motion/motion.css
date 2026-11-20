@@ -204,3 +204,18 @@ a.mo-btn{display:inline-flex;align-items:center;text-decoration:none}
 [data-subject="other"] .mo-phone-only { display: none !important; }
 #f-subject { flex: 1; min-width: 0; }
 .mo-full-note.mo-full-fix { color: #a3261b; }
+/* Suggest for me (2026-11-19): a row of other looks for the ad, under the actions */
+.mo-suggest{margin:12px 0 4px;padding:14px;border-radius:14px;background:var(--surface-sunk, rgba(127,127,127,.08));border:1px solid var(--hairline-strong, rgba(127,127,127,.25))}
+.mo-suggest[hidden]{display:none}
+.mo-sg-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin-bottom:12px;font-weight:600}
+.mo-sg-sub{opacity:.7;font-weight:500;font-size:.9em}
+.mo-sg-acts{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.mo-sg-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.mo-sg-card{margin:0;display:flex;flex-direction:column;gap:8px}
+.mo-sg-card canvas{width:100%;height:auto;border-radius:10px;display:block}
+.mo-sg-card canvas[aria-busy=true]{min-height:120px;background:rgba(127,127,127,.12)}
+.mo-sg-card figcaption{display:flex;flex-direction:column;gap:6px;font-size:12px;opacity:.85}
+.mo-sg-use{border:none;border-radius:999px;padding:7px 10px;font-weight:700;cursor:pointer;background:var(--accent, #2563eb);color:#fff}
+.mo-sg-card.used canvas{outline:3px solid var(--accent, #2563eb);outline-offset:2px}
+.mo-sg-card.used .mo-sg-use{background:none;color:var(--accent, #2563eb);border:1.5px solid var(--accent, #2563eb);cursor:default}
+.mo-sg-none{margin:0;opacity:.75}

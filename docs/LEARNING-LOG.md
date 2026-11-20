@@ -6440,3 +6440,25 @@ SEO session (158, pull request 15). Pull request 15 now meets this branch in `in
   category's templates through `catTemplates()`, which drops a template the classics' gate holds. The
   gate is fetched after load, so 19 layouts were gated and never got a recipe. They are not offered,
   so nothing is lost, but the count (96 layouts, 77 recipes) only made sense after reading the gate.
+
+## 2026-11-19 — Suggest for me (claude/xenodochial-mccarthy-7bea6d)
+
+- **A pick changes the look without moving the ad.** The full ad draws its words and product from its
+  seed's own streams, and a hand pick only replaces a look axis after the draw. So another seed's look,
+  given as a pick on this seed, restyles the ad and leaves every word and picture where it was. No state
+  had to be pinned.
+- **Borrow whole looks, not single axes.** A ground, a headline treatment and a scrim are solved together
+  for the pair they were drawn with. So a suggestion is one seed's whole look, scrim and entrance
+  included, never a colour from one seed and a ground from another.
+- **"Family" needs a finer grain than the table has.** The colour table's families are only Dark and
+  Light, which would cap a row at two. A pair's look plus the hue bands of its ground and accent keeps
+  Navy & Gold and Navy & Orange together and the rest apart.
+- **A face loaded by FontFace can still draw a first canvas in Arial Black.** Easy Mode's stylesheets
+  declare some of the engine's families too ("Sofia Sans Extra Condensed", 500 to 900). While one of those
+  declared faces is unloaded, `document.fonts.check` says no and a canvas may match it first. So a rebuilt
+  layout's first preview was set in the fallback face, laid out to its metrics, until the next draw
+  (`watermark_check` caught it: two captures of one ad, 51.8 a channel apart). `loadFonts` now also loads
+  the spec (`document.fonts.load`), every matching face with it.
+- **A check that opens a design by name meets the redirect too.** `watermark_check` read "a template's
+  preview" by tapping the strip's second card. It now reads a rebuilt layout's preview, marked signed out
+  and clean on Starter, and steps back to a template by its id for the studio's own video.

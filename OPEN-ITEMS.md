@@ -4345,3 +4345,23 @@ Open:
   classics column), wherever they are still shown, draw the old thumbnails. A tap opens the rebuilt
   ad. The landing is the SEO session's (pull request 15).
 - **The editor.** Its template picker still lists the layouts, for editing and for drafts.
+
+Then (the owner, through the roadmap session: "what if we have a randomize or not quite randomized but
+suggest for me ..."): Suggest for me, beside Easy Mode's "Pick a look" and the video maker's New look
+(rule 154, `scripts/suggest_check.mjs`). It offers up to six other looks of the ad on screen, each
+fitting its line and product, apart from the ad and each other, and read by the download's pre-flight.
+Shown to the owner on real ads before it ships.
+Open: gold, silver, strips and Pokemon cards have fewer colour pairs that suit them, so their row can
+come out shorter (four on a gold ad).
+
+Found and fixed the same day:
+- **What happened.** Easy Mode's stylesheets declare seven of the engine's families (Sofia Sans Extra
+  Condensed, Schibsted Grotesk, Clash Display, Satoshi, Khand, Zodiak, Melodrama). While one of those
+  declared faces was unloaded, a canvas could set the words in Arial Black, laid out to its metrics.
+- **What it hit.** The Street, Bold, Luxe and Gothic type pairs (and the faces they label with), both in
+  a rebuilt layout's first preview and in the stills every builder draws through the studio page.
+- **The fix.** `engine.js loadFonts` now loads every face that matches. The stills builders record each
+  still's font families (`fams`).
+- **Open.** The stills set in those families still show the fallback face until the next full redraw. That
+  redraw waits for the lock-screen work, which changes every face-up phone anyway, and for disk space:
+  the disk had 0.2 to 0.5 GB free, and a full redraw stopped partway, so it was put back.

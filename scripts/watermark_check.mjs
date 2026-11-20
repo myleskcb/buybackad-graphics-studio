@@ -11,7 +11,7 @@
                   video maker's mark is not PgfxMark's;
      the lattice  a ninth of a marked picture is left clean (a crop would take the mark off), or
                   the mark is heavy (it moves the picture more than LIGHT a channel on average);
-     previews     signed out or Free, the full ad's preview, a template's preview or the editor's
+     previews     signed out or Free, the full ad's preview, a rebuilt layout's preview or the editor's
                   export preview is the clean picture; for a paid plan it is marked; signing in or
                   out does not draw them again;
      downloads    with a backend, the size and the marks are not the server's: a page made to say
@@ -183,18 +183,28 @@ console.log('the studio, signed out');
   await page.evaluate(() => { account = null; syncAcctUI(); });
   ok(!!await faPreview(page, true), 'signed out again, it is drawn marked again');
 
-  /* a template's preview */
-  await page.evaluate(() => { const b = [...document.querySelectorAll('#ez-strip .ez-tpl')].find(x => !/full ad/i.test(x.textContent)); b.click(); });
-  await page.waitForFunction(() => !FullAdStudio.isOn() && document.getElementById('ez-preview').complete && document.getElementById('ez-preview').naturalWidth > 0, null, { timeout: 30000 }).catch(() => {});
-  await page.waitForTimeout(1500);
-  const tpl = await page.evaluate(() => ({ shown: document.getElementById('ez-preview').src, clean: renderEzCanvas(560, 'jpeg'), tpl: ez.tpl }));
-  covered(await compare(page, tpl.shown, tpl.clean), "a template's preview (" + tpl.tpl + ')');
+  /* a layout's preview: the strip offers each designer layout as its rebuilt ad in the full ad since
+     2026-11-19 (no template preview is a visitor's: scripts/ez_strip_check.mjs), marked signed out and
+     clean on Starter, as the full ad's own */
+  const d0 = await page.evaluate(() => { const d = document.getElementById('fa-preview').dataset.drawn || ''; const b = document.querySelector('#ez-strip .ez-layout'); if (b) b.click(); return d; });
+  // the layout's own picture, drawn: not the one before it, still on screen while the layout loads
+  await page.waitForFunction(d0 => { const i = document.getElementById('fa-preview'); return FullAdStudio.isOn() && /^r-dl_/.test(FullAdStudio.state.recipe[currentCat] || '') && i.dataset.drawn !== d0 && i.getAttribute('aria-busy') === 'false'; }, d0, { timeout: 30000 }).catch(() => {});
+  const layId = await page.evaluate(() => FullAdStudio.state.recipe[currentCat] || '');
+  const lay = await faPreview(page, true);
+  await page.evaluate(() => { window.__pm = previewMarks; previewMarks = () => false; FullAdStudio.draw(); });
+  const layClean = await faPreview(page, false);
+  await page.evaluate(() => { previewMarks = window.__pm; syncAcctUI(); });
+  covered(lay && layClean ? await compare(page, lay, layClean) : null, "a layout's preview (" + layId + ')');
+  save('layout-marked.jpg', lay); save('layout-clean.jpg', layClean);
   await page.evaluate(() => { account = { email: 'audit@local', role: 'user', plan: 'basic', exports: { period: 'x', count: 0 } }; syncAcctUI(); });
-  await page.waitForTimeout(1200);
-  const tplPaid = await page.evaluate(() => ({ shown: document.getElementById('ez-preview').src, clean: renderEzCanvas(560, 'jpeg') }));
-  same(await compare(page, tplPaid.shown, tplPaid.clean), "on Starter the template's preview is the clean picture");
+  ok(!!await faPreview(page, false), "on Starter the layout's preview is drawn clean");
+  await page.evaluate(() => { account = null; syncAcctUI(); });
+  ok(!!await faPreview(page, true), 'signed out again, the layout is drawn marked again');
 
-  /* the studio's video: the preview video carries what the download would */
+  /* the studio's video: the preview video carries what the download would. It is a template's (a draft's,
+     the editor's): the full ad's video is the maker's, so the page steps back to a template by its id */
+  await page.evaluate(() => { FullAdStudio.leave(); selectEzTpl((TEMPLATES.find(t => /^dl_phones/.test(t.id)) || TEMPLATES[0]).id); });
+  await page.waitForTimeout(1500);
   await page.evaluate(() => { window.__vo = []; runVideoExport = async o => { window.__vo.push({ preview: !!o.preview, watermark: !!o.watermark }); }; document.getElementById('ez-phone').value = '(562) 555-0134'; });
   await page.evaluate(() => { account = null; syncAcctUI(); });
   await page.evaluate(() => ezDownloadVideo({ preview: true }));

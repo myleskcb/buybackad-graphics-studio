@@ -1831,11 +1831,16 @@ export async function loadFonts(names) {
   const want = [...new Set(names)].filter(n => FONTS[n]);
   await Promise.all(want.map(async n => {
     const [fam, wt, file] = FONTS[n];
-    if ([...document.fonts].some(f => f.family.replace(/"/g, "") === fam && String(f.weight).includes(String(wt)) && f.status === "loaded")) return;
-    try {
-      const face = new FontFace(fam, `url(${FONT_FILES_BASE}${file})`, { weight: String(wt).includes(" ") ? wt : String(wt) });
-      await face.load(); document.fonts.add(face);
-    } catch (e) { /* the family falls back; the layout still fits */ }
+    if (![...document.fonts].some(f => f.family.replace(/"/g, "") === fam && String(f.weight).includes(String(wt)) && f.status === "loaded")) {
+      try {
+        const face = new FontFace(fam, `url(${FONT_FILES_BASE}${file})`, { weight: String(wt).includes(" ") ? wt : String(wt) });
+        await face.load(); document.fonts.add(face);
+      } catch (e) { /* the family falls back; the layout still fits */ }
+    }
+    /* a page that declares the family in its own stylesheets (Easy Mode's) holds faces of it the canvas may match
+       first: until each face that matches is in, a first draw set the words in Arial Black, laid out to its
+       metrics (2026-11-19: a rebuilt layout's first preview, watermark_check). Every matching face is loaded. */
+    try { const spec = `${String(wt).split(" ")[0]} 40px "${fam}"`; if (!document.fonts.check(spec)) await document.fonts.load(spec); } catch (e) { /* drawn as it can be */ }
   }));
 }
 

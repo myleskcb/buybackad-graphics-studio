@@ -6401,6 +6401,41 @@ and "let's use bg images (occasionally) but of the corresponding city..".
   asks only that none goes past the table's share. `full_colour_check` draws its photograph checks
   under San Francisco's and Tahoe's towns, where photographs are still drawn.
 
+**Suggest for me: other looks of the same ad (2026-11-19).** The owner, through the roadmap session:
+"what if we have a randomize or not quite randomized but suggest for me, which makes some sort of
+alternate styling based off of the ad you're looking at using other different type faces or colors or
+adjusting BG image or assets".
+- **Where.** A "Suggest for me" button sits beside Easy Mode's "Pick a look" (the full ad) and beside the
+  video maker's New look. It opens a row of up to six other looks for the ad on screen, each with "Use
+  this", plus "More suggestions", "Back to mine" and "Close".
+- **What stays, what changes.** The ad's words, number, area and product stay, because the ad's own seed
+  draws them and a pick draws none of them. What changes is the colour pair, the type, the ground, the
+  headline treatment, the sticker, the number style and the layout (`fullad.js suggestLooks`).
+- **Not random.** Each look is one the engine draws for this line, these words and this product on
+  another seed. So the pair suits the line and the product, and the ground is the product's own or a
+  painted one, a city's photograph only in its own towns. The styles were solved for the pair and the
+  ground they came with.
+- **Apart.** Each look is three or more of those seven axes away from the ad and from every other
+  suggestion. No two share a colour family (the look, and the hue bands of ground and accent) or a type
+  pair.
+- **Locks.** A colour or a type picked by hand stays in every suggestion.
+- **Read before offered.** Each suggestion is drawn as it would download and read by the download's own
+  pre-flight, less what only the words can fix, as New look judges. A signed-out or Free visitor's cards
+  are marked as the preview is (rule 142).
+- **Used.** In Easy Mode a used suggestion is kept until the ad itself changes (New look, another line,
+  design or picture); in the maker it is the ad's `full_look`. Back, or Back to mine, undoes it. A city's
+  photograph in a used look still stands only behind its own towns. If the towns change, the engine
+  draws the ad's own ground in its place (`fullStyle`: `placeHere` on a picked photograph;
+  `area_ground_check` holds it).
+- **An Any look in the maker.** Its suggestions are new looks as New look draws them, its words and
+  phones held and its locks kept, no two in one palette or one face.
+- **Held by `scripts/suggest_check.mjs`.** It runs Easy Mode on iPhones, cars and gold, and the maker on
+  a full ad and an Any look. It checks:
+  - the count, and that each suggestion is apart from the ad and from the others;
+  - that a used suggestion draws its own look, keeps the words, number and pictures, and passes the
+    pre-flight;
+  - that Back to mine works, the locks hold, and a signed-out visitor's cards are marked.
+
 ## 155. A recipe takes after its card, and is never a copy of it
 
 Added 2026-11-18. The owner, of the library cards and the offer family drawn as recipes (rule

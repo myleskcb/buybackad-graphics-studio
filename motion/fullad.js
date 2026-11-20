@@ -1829,6 +1829,9 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   // its colourway: a pair of its tone and hue (or a neutral ground), of those that suit the line and its words
   if (lean && (H.tone || H.hue != null || H.neutral)) first = lean.pick(pairs, pairs.filter(k => pairAnswers(COLOUR_OF[k], H)), "colour") || first;
   const key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, type_pair: _t, type_any: _a, ...picked } = pick;
+  // a picked photograph of a place (a suggestion used: Suggest for me) stands only behind its own towns, as any
+  // photograph of one does (placeHere): a look kept from one area is drawn on its own ground in another
+  if (picked.ground_photo && picked.ground_photo.src && !placeHere(GROUND_PHOTOS[picked.ground_photo.src], where)) { delete picked.background; delete picked.ground_photo; }
   // the type: the house's one face, or one of the owner's pairs when one is picked (pick.type_pair, a
   // TYPE_VOICES key that FULL_VOICES holds). Carried in the look, after QUIET, so it is the face drawn.
   /* THE FACE A SEED DRAWS (2026-11-18, rule 154): every seeded full ad was set in the one house face,
@@ -1967,6 +1970,54 @@ export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cu
   }
   if (auto) POOLS.set(subject.key, pool.map(e => ({ ids: e.set.map(idOf), w: e.w })));
   return { ids, assets };
+}
+
+/* SUGGEST FOR ME (2026-11-19; the owner, through the roadmap session: "what if we have a randomize or not quite
+   randomized but suggest for me, which makes some sort of alternate styling based off of the ad you're looking at
+   using other different type faces or colors or adjusting BG image or assets"). Alternatives to an ad that keep
+   what it says and what it shows (its words, number, area and product: the ad's own seed draws them, and a pick
+   draws none of them) and change how it looks: its colours, type, ground, headline treatment, sticker, number
+   style and layout. Each is a look the engine draws for this line, these words and this product on another seed,
+   so each fits: a pair that suits the line and the product, a ground of the ad's own area (rule 154), styles
+   solved for the pair and the ground they came with. They are apart from the ad and from each other: three or
+   more of those changed, and no two in one colour family or one type pair. A colour or a type picked by hand
+   (pick) stays in every one. Each comes back as the pick that draws it on the ad's own seed (fullStyle's pick);
+   the caller reads each through the download's own pre-flight before it offers it. */
+export const LOOK_AXES = ["palette", "type_pair", "ground", "text_fx", "sticker_shape", "number_style", "arrangement"];
+/** How an ad looks, on the axes a suggestion changes. */
+export function lookOf(st) {
+  return { palette: st.full_colour || "", type_pair: st.full_pair ? st.type_pair : "house",
+    ground: st.background === "photo" && st.ground_photo ? "photo:" + st.ground_photo.src : String(st.background || ""),
+    text_fx: st.text_fx || "", sticker_shape: st.sticker_shape || "", number_style: st.number_style || "", arrangement: st.arrangement || "" };
+}
+/** The pick that draws an ad's look on any seed (its scrim and entrance with it, as they were solved together). */
+export function pickOfLook(st) {
+  return { palette: st.full_colour, type_pair: st.full_pair ? st.type_pair : "house", background: st.background,
+    ...(st.background === "photo" && st.ground_photo ? { ground_photo: { ...st.ground_photo } } : {}),
+    text_fx: st.text_fx, scrim: st.scrim, text_in: st.text_in, sticker_shape: st.sticker_shape, number_style: st.number_style, arrangement: st.arrangement };
+}
+const hueBand = hex => { const o = oklchOf(hex); return o.C < .04 ? "n" : String(Math.round(o.h / 45) % 8); };
+/** A colour family: a pair's look and the hue bands of its ground and accent (Navy & Gold and Navy & Orange are one). */
+export function pairFamily(key) { const c = COLOUR_OF[key]; return c ? (c.look || "") + hueBand(c.colors.ground) + hueBand(c.colors.accent) : String(key || ""); }
+/** Up to n alternatives to the ad base draws on seed, its words, number, area and product kept. pick: what was
+ *  picked by hand (kept in every one); shown: the look a suggestion already used put on the ad (they are apart
+ *  from it, never held to it); from: where the search starts (a later call goes on from the last call's next). */
+export function suggestLooks(base, seed, phoneIndex = [], { pick = {}, shown = null, keep = [], n = 6, from = 1, tries = 60 } = {}) {
+  const now = fullStyle(base, seed, phoneIndex, { ...(shown || {}), ...pick }, keep), cur = lookOf(now);
+  // the product the ad shows, held, so each look is drawn for it; no recipe lean, so the looks range wide
+  const held = { ...base, phones: (now.phones || []).slice(), ...(base.subject ? { subject_set: 1 } : {}), pin_phones: undefined, hint: undefined, ground_hint: undefined };
+  const out = [], fams = new Set([pairFamily(cur.palette)]), voices = new Set([cur.type_pair]);
+  let k = from;
+  for (; k < from + tries && out.length < n; k++) {
+    const other = fullStyle(held, (Math.imul((seed >>> 0) ^ 0x5bd1e995, 31) + k * 7919) >>> 0, phoneIndex, pick, keep), L = lookOf(other);
+    if (LOOK_AXES.filter(a => L[a] !== cur[a]).length < 3) continue;
+    if (!pick.palette && fams.has(pairFamily(L.palette))) continue;
+    if (!pick.type_pair && voices.has(L.type_pair)) continue;
+    if (out.some(o => LOOK_AXES.filter(a => o.look[a] !== L[a]).length < 3)) continue;
+    fams.add(pairFamily(L.palette)); voices.add(L.type_pair);
+    out.push({ pick: pickOfLook(other), look: L });
+  }
+  return { now: cur, picks: out, next: k };
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════════════════

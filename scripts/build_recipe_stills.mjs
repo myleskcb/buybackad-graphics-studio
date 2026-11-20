@@ -72,7 +72,9 @@ for (const r of want) {
     const ground = bg === 'photo' ? 'photo' : /^pair_/.test(bg) ? 'gradient' : /^pat_/.test(bg) ? 'pattern' : GROUND_SCENES.includes(bg) ? 'scene' : 'house';
     // and the photograph it stands on, with the towns it prints (scripts/area_ground_check.mjs: a city's photograph only behind its own towns)
     const photo = bg === 'photo' && st.ground_photo ? String(st.ground_photo.src || '') : '', where = String(st.feed_where ?? st.area ?? ''), states = String(st.area_states || '');
-    return { pair, pairName: P ? P.name : '', look: P ? P.look : '', accent: st.colors ? st.colors.accent : '', background: bg, ground, photo, where, states, headline: String(st.headline || ''), webp: c.toDataURL('image/webp', .76) };
+    // the faces it is set in, by family (a face the page declares too was drawn in Arial Black before 2026-11-19: engine.js loadFonts)
+    const E = await import('/motion/engine.js'), C = await import('/motion/catalog.js'), fams = [...new Set(E.fontsFor(st).map(n => (C.FONTS[n] || [])[0]).filter(Boolean))];
+    return { fams, pair, pairName: P ? P.name : '', look: P ? P.look : '', accent: st.colors ? st.colors.accent : '', background: bg, ground, photo, where, states, headline: String(st.headline || ''), webp: c.toDataURL('image/webp', .76) };
   }, { id: r.id, SIZE });
   if (got.error) { console.log(`  ${r.id}: ${got.error}`); continue; }
   writeFileSync(DIR + r.id + '.webp', Buffer.from(got.webp.split(',')[1], 'base64'));
