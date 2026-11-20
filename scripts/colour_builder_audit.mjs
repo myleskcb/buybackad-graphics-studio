@@ -121,7 +121,7 @@ async function openPage(){
   await page.setViewport({ width: 1400, height: 1000 });
   page.on('pageerror', e => pageErrors.push(String(e).slice(0, 200)));
   await offline(page);
-  await page.goto(BASE, { waitUntil: 'load', timeout: 120000 });
+  await page.goto(BASE + '?fullad=0', { waitUntil: 'load', timeout: 120000 });
   await page.waitForFunction(() => typeof renderEzCanvas === 'function' && typeof pgCheck === 'function' && typeof cbPartners === 'function', { timeout: 60000 });
   await page.evaluate(() => document.fonts.ready);
   return { ctx, page };

@@ -17,10 +17,10 @@
      the size     on a square the page does not say how much larger the product would stand on
                   Tall 3:4 (measured there, half again or more), or its one tap does not take it;
      choices      a colour pair or a type pair picked is not the one drawn;
-     stepping     a template picked from the strip does not bring the template's form and
-                  preview back, the card does not bring the full ad back, a reload forgets it,
-                  a design asked for by name is not the one opened, ?fullad=0 does not open a
-                  template;
+     stepping     a layout picked from the strip does not open its rebuilt ad in the full ad (the
+                  strip offers no old rendering since 2026-11-19: scripts/ez_strip_check.mjs), the
+                  card does not bring the full ad back, a reload forgets it, a design asked for by
+                  name is not the one opened (its rebuilt ad), ?fullad=0 does not open a template;
      the video    "Make the video of this ad" does not open the video maker on the same line,
                   headline, colours and type, or the photo the maker saves of it is not the
                   picture Easy Mode saved (one ad, both files compared);
@@ -143,19 +143,22 @@ console.log('a visitor who has never picked a design');
   await page.click('#fa-voices [data-voice=""]'); await page.click('#fa-pairs [data-pair=""]'); await settle(page);
 
   /* ---------- 3. stepping back and forth ---------- */
-  console.log('templates beside it');
+  console.log('the rebuilt layouts beside it');
   const second = await page.evaluate(() => document.querySelectorAll('#ez-strip .ez-tpl')[1].dataset.tpl);
-  await page.click(`#ez-strip .ez-tpl[data-tpl="${second}"]`); await page.waitForTimeout(900);
-  const t = await page.evaluate(() => ({ on: FullAdStudio.isOn(), tpl: ez.tpl, prev: getComputedStyle(document.getElementById('ez-preview')).display, form: getComputedStyle(document.getElementById('ez-text-fields')).display, mine: getComputedStyle(document.getElementById('fa-form')).display,
-    sel: [...document.querySelectorAll('#ez-strip .ez-tpl.sel')].map(b => b.dataset.tpl), src: (document.getElementById('ez-preview').src || '').length }));
-  ok(!t.on && t.tpl === second && t.prev !== 'none' && t.form !== 'none' && t.mine === 'none' && t.sel.join() === second && t.src > 1000, 'a template picked brings its own form and preview back', JSON.stringify(t).slice(0, 200));
+  await page.click(`#ez-strip .ez-tpl[data-tpl="${second}"]`);
+  await page.waitForFunction(id => FullAdStudio.state.recipe[currentCat] === id, second.slice(7), { timeout: 20000 }).catch(() => {}); await settle(page);
+  const t = await page.evaluate(() => ({ on: FullAdStudio.isOn(), recipe: FullAdStudio.state.recipe[currentCat] || '', prev: getComputedStyle(document.getElementById('ez-preview')).display, mine: getComputedStyle(document.getElementById('fa-form')).display,
+    sel: [...document.querySelectorAll('#ez-strip .ez-tpl.sel')].map(b => b.dataset.tpl) }));
+  ok(/^recipe:r-dl_/.test(second) && t.on && 'recipe:' + t.recipe === second && t.prev === 'none' && t.mine !== 'none' && t.sel.join() === second, 'a layout picked opens its rebuilt ad in the full ad, never the old rendering', JSON.stringify({ second, ...t }).slice(0, 200));
   await page.click('#ez-strip .ez-fulltile'); await settle(page);
   ok(await page.evaluate(() => FullAdStudio.isOn() && [...document.querySelectorAll('#ez-strip .ez-tpl.sel')].map(b => b.dataset.tpl).join() === 'full'), 'the card brings the full ad back');
   await page.reload({ waitUntil: 'load' }); await page.waitForFunction(() => typeof showEasy === 'function' && !!window.FullAdStudio, null, { timeout: 90000 });
   await page.evaluate(() => showEasy()); await quiet(page);
   ok(await drawn(page) && await page.evaluate(() => FullAdStudio.isOn()), 'a reload comes back to the full ad');
-  await page.evaluate(id => showEasy(id), second); await page.waitForTimeout(600);
-  ok(await page.evaluate(id => !FullAdStudio.isOn() && ez.tpl === id, second), 'a design asked for by name is the one opened');
+  const named = second.replace(/^recipe:r-/, '');
+  await page.evaluate(id => showEasy(id), named);
+  await page.waitForFunction(id => FullAdStudio.state.recipe[currentCat] === 'r-' + id, named, { timeout: 20000 }).catch(() => {});
+  ok(await page.evaluate(id => FullAdStudio.isOn() && FullAdStudio.state.recipe[currentCat] === 'r-' + id && getComputedStyle(document.getElementById('ez-preview')).display === 'none', named), 'a design asked for by name is the one opened, as its rebuilt ad');
   ok(!errors.length, 'no page errors', errors.slice(0, 2).join(' | '));
   await ctx.close();
 }

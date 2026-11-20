@@ -4331,3 +4331,17 @@ the recipe builder's ground match (`productOf`) reads the product as the line, n
 own photograph of its own make is swapped for a scene: a Honda Civic on the Honda line, and two BMW M3s on
 the BMW line. Making it read a car could move pictures on those lines ("the picture follows the ground"),
 so it waits for a look of its own.
+
+Then (the owner, through the roadmap session, of Easy Mode's strip: "now it's not loading properly or
+it's even worse showing me bad ad styles"): the strip offers the full ad and the 77 designer layouts'
+rebuilt ads, and no way in opens an old rendering (rule 155, `scripts/ez_strip_check.mjs`). The
+layouts' stills are `assets/layout-stills/` (1.7 MB).
+
+Open:
+- **The census.** `ad_census` reads "every offered ad" by the templates. It now opens the page with
+  `?fullad=0`, so it measures the templates as before. The strip offers their rebuilt ads, so the
+  census should read the strip's cards.
+- **The landing.** Its legacy template sections (the hero's template cards, "Use template →", the
+  classics column), wherever they are still shown, draw the old thumbnails. A tap opens the rebuilt
+  ad. The landing is the SEO session's (pull request 15).
+- **The editor.** Its template picker still lists the layouts, for editing and for drafts.

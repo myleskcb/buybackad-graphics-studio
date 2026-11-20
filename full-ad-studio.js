@@ -56,11 +56,12 @@ const WORD_FIELDS = [
 ];
 
 const saved = (() => { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; } })();
-const FA = Object.assign({ on: false, line: {}, set: {}, seed: 1, pair: "", voice: "", words: {}, biz: "", recipe: {} }, saved || {});
+const FA = Object.assign({ on: false, line: {}, set: {}, seed: 1, pair: "", voice: "", words: {}, biz: "", recipe: {}, back: {} }, saved || {});
 if (!FA.recipe || typeof FA.recipe !== "object") FA.recipe = {};
-const live = { holding: false, n: 0, ad: null, subjects: [], thumbs: {}, timer: 0, ready: null, loaded: {}, recipes: null, byId: {} };
+if (!FA.back || typeof FA.back !== "object") FA.back = {};
+const live = { holding: false, n: 0, ad: null, subjects: [], thumbs: {}, timer: 0, ready: null, loaded: {}, recipes: null, byId: {}, backThumbs: {} };
 const assets = { phones: {}, index: [], accents: {} };
-const keep = () => { try { localStorage.setItem(KEY, JSON.stringify({ on: FA.on, line: FA.line, set: FA.set, seed: FA.seed, pair: FA.pair, voice: FA.voice, words: FA.words, biz: FA.biz, recipe: FA.recipe })); } catch (e) { /* private mode */ } };
+const keep = () => { try { localStorage.setItem(KEY, JSON.stringify({ on: FA.on, line: FA.line, set: FA.set, seed: FA.seed, pair: FA.pair, voice: FA.voice, words: FA.words, biz: FA.biz, recipe: FA.recipe, back: FA.back })); } catch (e) { /* private mode */ } };
 
 const el = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -247,6 +248,9 @@ function placeholder(c) {
   return "data:image/svg+xml," + encodeURIComponent(svg);
 }
 async function thumb(img, S) {
+  /* while a layout is on, its own card is the one marked, and the full ad's card is the visitor's own ad
+     to come back to: as it looked, or the line's own full ad as the library shows it */
+  if (layoutOn()) { img.src = live.backThumbs[currentCat] || at("./assets/library-looks/full-" + S.key + ".webp"); return; }
   const k = S.key + "|" + (FA.pair || "") + "|" + (FA.voice || "") + "|" + (FA.seed | 0) + "|" + (FA.recipe[currentCat] || "");
   if (live.thumbs[k]) { img.src = live.thumbs[k]; return; }
   if (!img.getAttribute("src")) img.src = placeholder(COLOUR_OF[FA.pair] || COLOUR_OF[COLOURWAYS[0]]);
@@ -276,10 +280,94 @@ function tile() {
   thumb(b.querySelector("img"), S);
 }
 function mark() {
-  const strip = el("ez-strip");
-  document.querySelectorAll("#ez-strip .ez-tpl").forEach(b => b.classList.toggle("sel", FA.on ? b.dataset.tpl === "full" : b.dataset.tpl === ez.tpl));
+  const strip = el("ez-strip"), lay = layoutOn();
+  document.querySelectorAll("#ez-strip .ez-tpl").forEach(b => b.classList.toggle("sel", FA.on ? b.dataset.tpl === (lay ? "recipe:" + lay.id : "full") : b.dataset.tpl === ez.tpl));
   /* the card that is on is the first one: the strip had been scrolled to the template under it */
-  if (FA.on && strip) { strip.scrollLeft = 0; requestAnimationFrame(() => { strip.scrollLeft = 0; if (strip._syncArrows) strip._syncArrows(); }); }
+  if (FA.on && strip && !lay) { strip.scrollLeft = 0; requestAnimationFrame(() => { strip.scrollLeft = 0; if (strip._syncArrows) strip._syncArrows(); }); }
+  else if (FA.on && strip) { const b = strip.querySelector(".ez-tpl.sel"); if (b && b.scrollIntoView) b.scrollIntoView({ block: "nearest", inline: "nearest" }); }
+}
+
+/* ---------- the strip: the rebuilt layouts in the old ones' place ----------
+   The owner, 2026-11-19, of Easy Mode's strip, which still offered the designer layouts as the old
+   editor drew them (Deal Checklist, Glassline, Arctic Band, Three Steps, Price Point, Stub Mono): "now
+   it's not loading properly or it's even worse showing me bad ad styles". The strip offers the full
+   ad's own card and, for each designer layout of the category, its rebuilt ad: the layout's recipe
+   (motion/recipes.json, gen dl) drawn by the house engine, its still pre-rendered
+   (scripts/build_recipe_stills.mjs --layouts, assets/layout-stills/). A tap opens it in the full ad, so
+   the preview and the download are the full ad's (rule 141). An old rendering is never offered: a
+   layout asked for by name (a link, the last design, a key) opens its rebuilt ad, and anything else
+   the full ad. The templates stay in TEMPLATES for a draft made on one and for the editor; each
+   layout keeps its own lock (tplLocked: every Phones design free, the first three of a category free).
+   ?fullad=0 keeps the strip as it was, for the template checks. */
+const layoutOf = id => { const r = live.byId[id]; return r && r.gen === "dl" ? r : null; };
+const layoutOn = () => DEFAULT_OFF ? null : layoutOf(FA.recipe[currentCat]);
+const layoutName = r => String(r.label || r.id).replace(/ \((?:designer layout|library card|offer card)\)$/, "");
+const tplOf = id => (typeof TEMPLATES !== "undefined" && TEMPLATES.find(t => t.id === id)) || null;
+const layoutLocked = r => { try { return typeof tplLocked === "function" && tplLocked(tplOf(r.from)); } catch (e) { return false; } };
+/** A category's rebuilt layouts, in the order the strip offered the layouts (the free ones first), then the rest. */
+function layoutsOf(cat) {
+  let order = []; try { order = orderedCatList(cat).map(t => t.id); } catch (e) { /* the recipes' own order */ }
+  const pos = id => { const i = order.indexOf(id); return i < 0 ? 1e6 : i; };
+  return Object.values(live.byId).filter(r => r.gen === "dl" && r.cat === cat).map((r, i) => [r, i])
+    .sort((a, b) => pos(a[0].from) - pos(b[0].from) || a[1] - b[1]).map(x => x[0]);
+}
+/** The strip: the full ad's card, then the category's rebuilt layouts. */
+function strip() {
+  const s = el("ez-strip"); if (!s) return;
+  s.innerHTML = "";
+  tile();
+  if (!Object.keys(live.byId).length) { loadRecipes().then(() => { if (Object.keys(live.byId).length && el("ez-strip") === s) strip(); }); }
+  else layoutsOf(currentCat).forEach((r, i) => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "ez-tpl ez-layout"; b.dataset.tpl = "recipe:" + r.id; b.dataset.from = r.from;
+    b.innerHTML = `<img alt="${esc(layoutName(r))}" src="${at("./assets/layout-stills/" + r.id + ".webp")}"${i >= 6 ? ' loading="lazy"' : ""} decoding="async"><span class="tpl-name">${esc(layoutName(r))}</span>`;
+    b.onclick = () => selectEzTpl("recipe:" + r.id);
+    s.appendChild(b);
+  });
+  locks(); mark();
+  try { attachStripArrows(s); } catch (e) { /* the strip scrolls without them */ }
+  requestAnimationFrame(() => { if (s._syncArrows) s._syncArrows(); });
+}
+/** A layout's PRO tag follows its own lock, as a template's did (app.js refreshTplLocks). */
+function locks() {
+  document.querySelectorAll("#ez-strip .ez-layout").forEach(b => {
+    const r = live.byId[(b.dataset.tpl || "").slice(7)], on = !!r && layoutLocked(r), name = b.querySelector(".tpl-name"), tag = name && name.querySelector(".tpl-pro");
+    b.classList.toggle("locked", on);
+    if (on) b.title = "Pro design: any paid plan unlocks it"; else b.removeAttribute("title");
+    if (on && name && !tag) { const p = document.createElement("b"); p.className = "tpl-pro"; p.textContent = "PRO"; name.prepend(p); } else if (!on && tag) tag.remove();
+  });
+}
+/** A rebuilt layout, opened in the full ad on its own seed; the visitor's own ad is kept to come back to. */
+async function openLayout(rid) {
+  await loadRecipes(); const r = layoutOf(rid); if (!r) return enter();
+  if (layoutLocked(r)) { try { openPlans("“" + layoutName(r) + "” is a premium template. Every paid plan, from Starter at $25 a month, unlocks the whole library."); } catch (e) { /* no plans dialog here */ } return; }
+  if (!layoutOn()) {
+    const S = lineNow(), img = document.querySelector("#ez-strip .ez-fulltile img");
+    FA.back[r.cat] = { recipe: FA.recipe[r.cat] || "", line: FA.line[r.cat] || "", seed: FA.seed, pair: FA.pair, voice: FA.voice, words: S ? { ...(FA.words[S.key] || {}) } : {}, key: S ? S.key : "" };
+    if (img && /^data:/.test(img.src || "")) live.backThumbs[r.cat] = img.src;
+  }
+  await window.FullAdStudio.useRecipe(r.id);
+  keep(); live.thumbs = {};
+  if (!enter()) return;
+  if (el("ez-strip") && !el("ez-strip").querySelector(`.ez-tpl[data-tpl="recipe:${r.id}"]`)) strip(); else { tile(); mark(); }
+}
+/** Back from a layout to the visitor's own full ad, as they had it. */
+function backToOwn() {
+  const b = FA.back[currentCat]; delete FA.back[currentCat];
+  if (b) { FA.recipe[currentCat] = b.recipe || ""; if (b.line) FA.line[currentCat] = b.line; FA.seed = b.seed || 1; FA.pair = b.pair || ""; FA.voice = b.voice || ""; if (b.key) FA.words[b.key] = b.words || {}; }
+  else delete FA.recipe[currentCat];
+  keep(); live.thumbs = {};
+}
+/** An old rendering asked for by name: its rebuilt layout, else the full ad; never the old editor's drawing. */
+async function openFor(id) {
+  await loadRecipes();
+  // a recipe by its own id, or the design it was rebuilt from (a layout, a library card, an offer card)
+  const t = tplOf(id), r = live.byId[id] || live.byId["r-" + id];
+  if (r && r.gen === "dl") return openLayout(r.id);
+  if (layoutOn()) backToOwn();
+  if (r) { await window.FullAdStudio.useRecipe(r.id); keep(); live.thumbs = {}; }
+  else if (t && t.cat && t.cat !== currentCat) setCategory(t.cat);
+  if (!enter()) return;
+  strip();
 }
 
 /* ---------- the form ---------- */
@@ -413,12 +501,24 @@ function install() {
   ["ez-chips", "ez-themes", "ez-swatches"].forEach(hide);
   ["ez-edit-phone", "ez-edit-website"].forEach(id => { const n = el(id); if (n) n.classList.add("fa-hide"); });
 
+  /* the strip: the full ad's card and the rebuilt layouts (strip()); ?fullad=0, the templates as they were */
   const _strip = buildEzStrip;
-  buildEzStrip = function () { const r = _strip.apply(this, arguments); try { tile(); } catch (e) { console.warn("full ad card:", e); } return r; };
+  buildEzStrip = function () {
+    if (!DEFAULT_OFF) { try { return strip(); } catch (e) { console.warn("the strip:", e); } }
+    const r = _strip.apply(this, arguments); try { tile(); } catch (e) { console.warn("full ad card:", e); } return r;
+  };
+  const _locks = refreshTplLocks;
+  refreshTplLocks = function () { const r = _locks.apply(this, arguments); try { locks(); } catch (e) { /* the tags stay */ } return r; };
 
   const _select = selectEzTpl;
   selectEzTpl = function (id) {
-    if (id === "full") { if (!enter()) return _select.call(this, firstFreeTplId()); return; }
+    if (id === "full") {
+      if (layoutOn()) { backToOwn(); if (!enter()) return _select.call(this, firstFreeTplId()); strip(); return; }
+      if (!enter()) return _select.call(this, firstFreeTplId()); return;
+    }
+    if (!DEFAULT_OFF && typeof id === "string" && id.startsWith("recipe:")) { openLayout(id.slice(7)).catch(fail); return; }
+    /* a template by its id, from the code (the editor's device picker, the template audits): as before. A
+       visitor reaches none: the strip offers none, and a design asked for by name opens its rebuilt ad (showEasy) */
     if (FA.on && !live.holding) leave();
     const r = _select.apply(this, arguments);
     mark();
@@ -431,16 +531,21 @@ function install() {
   const _show = showEasy;
   showEasy = function (tplId) {
     let fresh = false; try { fresh = !tplId && !saved && !DEFAULT_OFF && localStorage.getItem("pgfx_last") == null && !live.shown; } catch (e) { /* asked for nothing */ }
-    const stay = !tplId && (FA.on || fresh) && !!live.subjects.length;
+    /* the strip offers no old rendering (strip()): Easy Mode opens on the full ad, and a design asked for by
+       name (a link, the last one picked) as its rebuilt ad, or the full ad where it has none (openFor) */
+    const named = !!tplId && !DEFAULT_OFF && !!live.subjects.length;
+    const stay = named || (!tplId && (FA.on || fresh || !DEFAULT_OFF) && !!live.subjects.length);
     live.holding = stay; live.shown = true;
     let r; try { r = _show.apply(this, arguments); } finally { live.holding = false; }
-    if (stay) { if (!enter()) leave(); } else if (tplId && FA.on) leave();
+    if (named) { if (enter()) openFor(tplId).catch(fail); else leave(); }
+    else if (stay) { if (!enter()) leave(); } else if (tplId && FA.on) leave();
     return r;
   };
 
   const _cat = setCategory;
   setCategory = function () {
-    const stay = FA.on; live.holding = stay;
+    // in Easy Mode the full ad stays on: a category's first template is never opened in its place
+    const stay = FA.on || (!DEFAULT_OFF && !!el("page-easy") && el("page-easy").classList.contains("active")); live.holding = stay;
     let r; try { r = _cat.apply(this, arguments); } finally { live.holding = false; }
     if (stay) { if (!enter()) { leave(); try { schedEzPreview(0); } catch (e) { /* drawn on the next change */ } } }
     return r;
@@ -472,10 +577,12 @@ function install() {
   };
   window.FullAdStudio = { state: FA, enter, leave, draw, build, check, lines: () => live.subjects, aliases: () => live.aliases || {}, isOn: () => FA.on, voices: () => FULL_VOICES.filter(k => fullVoiceOk(k)), pairs: () => COLOURWAYS.slice(),
     recipes: loadRecipes, useRecipe };
-  /* Easy Mode may be open already (a module runs after the page's own scripts) */
+  /* Easy Mode may be open already (a module runs after the page's own scripts): its strip is rebuilt,
+     so the old renderings it was given leave; the recipes are fetched now, so the layouts follow at once */
+  loadRecipes();
   if (el("ez-strip") && el("page-easy") && el("page-easy").classList.contains("active")) {
-    tile();
-    if (FA.on) { if (!enter()) leave(); }
+    if (DEFAULT_OFF) tile(); else strip();
+    if (FA.on || !DEFAULT_OFF) { if (!enter()) leave(); }
   }
   window.dispatchEvent(new Event("full-ad-ready"));
 }

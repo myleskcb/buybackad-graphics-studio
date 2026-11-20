@@ -160,7 +160,7 @@ async function openPage(){
   await page.setViewport({ width: 1400, height: 1000 });
   page.on('pageerror', e => pageErrors.push(String(e).slice(0, 200)));
   await offline(page);
-  await page.goto(BASE, { waitUntil: 'load', timeout: 120000 });
+  await page.goto(BASE + '?fullad=0', { waitUntil: 'load', timeout: 120000 });
   await page.waitForFunction(() => typeof renderEzCanvas === 'function' && typeof pgCheck === 'function' && typeof COLOR_THEMES !== 'undefined', { timeout: 60000 });
   await page.evaluate(() => document.fonts.ready);
   await new Promise(r => setTimeout(r, 2000));

@@ -9,21 +9,28 @@
    recipe's own seed (FullAdStudio.useRecipe, then build: the picture a customer downloads), on the
    shop's number and area as the library cards showed them, into assets/recipe-stills/<id>.webp,
    and writes assets/recipe-stills/index.json, which app.js reads to show them in the library and
-   on the wall and to open each in the full ad. A designer layout's recipe is left out: its
-   template is still offered.
+   on the wall and to open each in the full ad. A designer layout's recipe is left out here.
+
+   --layouts: the designer layouts' recipes, into assets/layout-stills/ (its own index, which the
+   library and its API never read). The owner, 2026-11-19, of Easy Mode's strip, which still offered
+   the layouts as the old editor drew them: "now it's not loading properly or it's even worse showing
+   me bad ad styles". full-ad-studio.js shows these in the strip in the layouts' place, and opens each
+   in the full ad (DESIGN-LAW 155).
 
    usage:  GFX_BASE=http://127.0.0.1:8931/ node scripts/build_recipe_stills.mjs          draw what is missing or stale
            node scripts/build_recipe_stills.mjs --check   exit 1 if a recipe has no still, or a still no recipe
            --all   draw every one again (after the engine or the recipes change)
-           --ids a,b   draw those again (after a change to the engine that only some of them draw) */
+           --ids a,b   draw those again (after a change to the engine that only some of them draw)
+           --layouts   the designer layouts' recipes instead, into assets/layout-stills/ (with the others) */
 import { readFileSync, writeFileSync, existsSync, mkdirSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
-const ROOT = new URL('../', import.meta.url).pathname, DIR = ROOT + 'assets/recipe-stills/';
+const LAYOUTS = process.argv.includes('--layouts'), REL = LAYOUTS ? 'assets/layout-stills/' : 'assets/recipe-stills/';
+const ROOT = new URL('../', import.meta.url).pathname, DIR = ROOT + REL;
 const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8931/').replace(/\/?$/, '/');
 const SHOP = { number: '(562) 999-4994', zip: '90802' };   // the library cards' own number and Long Beach
 const SIZE = 400;
-const recipes = JSON.parse(readFileSync(ROOT + 'motion/recipes.json', 'utf8')).recipes.filter(r => r.gen === 'sc' || r.gen === 'of');
+const recipes = JSON.parse(readFileSync(ROOT + 'motion/recipes.json', 'utf8')).recipes.filter(r => LAYOUTS ? r.gen === 'dl' : r.gen === 'sc' || r.gen === 'of');
 const index = existsSync(DIR + 'index.json') ? JSON.parse(readFileSync(DIR + 'index.json', 'utf8')) : { items: {} };
 // a still is stale when its recipe's seed, words or line moved (the recipe a still was drawn from, by these)
 const stamp = r => JSON.stringify([r.seed, r.subject, r.words, r.pictures, r.words_only || false, r.label]);
@@ -33,8 +40,8 @@ const want = recipes.filter(r => process.argv.includes('--all') || (ids0 && ids0
 
 if (process.argv.includes('--check')) {
   const ids = new Set(recipes.map(r => r.id)), orphan = Object.keys(index.items).filter(id => !ids.has(id));
-  if (want.length || orphan.length) { console.error(`recipe stills: ${want.length} missing or stale (${want.slice(0, 5).map(r => r.id).join(', ')}), ${orphan.length} with no recipe; run node scripts/build_recipe_stills.mjs`); process.exit(1); }
-  console.log(`recipe stills: ${recipes.length} rebuilt library and offer ads, each with its still`);
+  if (want.length || orphan.length) { console.error(`${LAYOUTS ? 'layout' : 'recipe'} stills: ${want.length} missing or stale (${want.slice(0, 5).map(r => r.id).join(', ')}), ${orphan.length} with no recipe; run node scripts/build_recipe_stills.mjs${LAYOUTS ? ' --layouts' : ''}`); process.exit(1); }
+  console.log(LAYOUTS ? `layout stills: ${recipes.length} rebuilt designer layouts, each with its still` : `recipe stills: ${recipes.length} rebuilt library and offer ads, each with its still`);
   process.exit(0);
 }
 mkdirSync(DIR, { recursive: true });
@@ -70,12 +77,14 @@ for (const r of want) {
   if (got.error) { console.log(`  ${r.id}: ${got.error}`); continue; }
   writeFileSync(DIR + r.id + '.webp', Buffer.from(got.webp.split(',')[1], 'base64'));
   const { webp, ...meta } = got;
-  index.items[r.id] = { kind: 'recipe', cat: r.cat, line: r.subject, seed: r.seed, name: r.label.replace(/ \((library card|offer card)\)$/, ''), family: (r.look && r.look.family) || '', from: r.from, gen: r.gen, ...meta, thumb: 'assets/recipe-stills/' + r.id + '.webp', stamp: stamp(r) };
+  index.items[r.id] = { kind: 'recipe', cat: r.cat, line: r.subject, seed: r.seed, name: r.label.replace(/ \((library card|offer card|designer layout)\)$/, ''), family: (r.look && r.look.family) || '', from: r.from, gen: r.gen, ...meta, thumb: REL + r.id + '.webp', stamp: stamp(r) };
   if (++n % 25 === 0) { process.stdout.write(`${n} `); writeFileSync(DIR + 'index.json', JSON.stringify({ about: '', items: index.items }) + '\n'); }
 }
 await browser.close();
 const ids = new Set(recipes.map(r => r.id));
 for (const id of Object.keys(index.items)) if (!ids.has(id)) delete index.items[id];   // a still whose recipe is gone stays on disk, out of the index
-writeFileSync(DIR + 'index.json', JSON.stringify({ about: 'Stills of the rebuilt library and offer ads (motion/recipes.json), drawn by scripts/build_recipe_stills.mjs; app.js shows them in the landing library and on the wall in place of the retired cards, and opens each in the full ad.', made: new Date().toISOString(), items: index.items }, null, 1) + '\n');
+const ABOUT = LAYOUTS ? 'Stills of the rebuilt designer layouts (motion/recipes.json, gen dl), drawn by scripts/build_recipe_stills.mjs --layouts; full-ad-studio.js shows them in Easy Mode\'s strip in the old layouts\' place and opens each in the full ad.'
+  : 'Stills of the rebuilt library and offer ads (motion/recipes.json), drawn by scripts/build_recipe_stills.mjs; app.js shows them in the landing library and on the wall in place of the retired cards, and opens each in the full ad.';
+writeFileSync(DIR + 'index.json', JSON.stringify({ about: ABOUT, made: new Date().toISOString(), items: index.items }, null, 1) + '\n');
 const bytes = Object.keys(index.items).reduce((t, id) => t + (existsSync(DIR + id + '.webp') ? statSync(DIR + id + '.webp').size : 0), 0);
-console.log(`\nrecipe stills: ${Object.keys(index.items).length} in assets/recipe-stills/ (${(bytes / 1048576).toFixed(1)} MB), ${n} drawn now`);
+console.log(`\n${LAYOUTS ? 'layout' : 'recipe'} stills: ${Object.keys(index.items).length} in ${REL} (${(bytes / 1048576).toFixed(1)} MB), ${n} drawn now`);

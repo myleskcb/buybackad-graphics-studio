@@ -233,7 +233,7 @@ const RUNNER = () => {
 const probe = await launch();
 const pp = await probe.newPage();
 await offline(pp);
-await pp.goto(BASE, { waitUntil: 'load', timeout: 180000 });
+await pp.goto(BASE + '?fullad=0', { waitUntil: 'load', timeout: 180000 });
 await new Promise(r => setTimeout(r, 2500));
 const classics = await pp.evaluate(() => TEMPLATES.filter(t => !/^sc-/.test(t.id) && !t.gated).map(t => t.id));
 const themeNames = await pp.evaluate(() => COLOR_THEMES.map(t => t.name));   // the themes the studio offers (rule 123)
@@ -275,7 +275,7 @@ async function worker(n){
       await page.setViewport({ width: 1400, height: 1000 });
       await offline(page);
       page.on('pageerror', e => { (row.pageErrors = row.pageErrors || []).push(String(e).slice(0, 160)); });
-      await page.goto(BASE, { waitUntil: 'load', timeout: 180000 });
+      await page.goto(BASE + '?fullad=0', { waitUntil: 'load', timeout: 180000 });
       await new Promise(r => setTimeout(r, 2000));
       await page.evaluate(`(${RUNNER.toString()})()`);
       await page.evaluate(l => { window.__onlyLooks = l; }, ONLY_LOOKS);

@@ -56,7 +56,7 @@ async function openPage(){
     window.__long = [];
     try { new PerformanceObserver(l => l.getEntries().forEach(e => window.__long.push([e.startTime, e.duration]))).observe({ type: 'longtask', buffered: true }); } catch (e){}
   });
-  await page.goto(BASE, { waitUntil: 'load', timeout: 120000 });
+  await page.goto(BASE + '?fullad=0', { waitUntil: 'load', timeout: 120000 });
   await page.waitForFunction(() => typeof openAdvancedFromEz === 'function' && typeof pgCheck === 'function', { timeout: 60000 });
   await page.evaluate(() => document.fonts.ready);
   await new Promise(r => setTimeout(r, 1500));

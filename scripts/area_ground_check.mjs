@@ -16,7 +16,8 @@
      ads, and only on seeds placeTurn lets through), never Lake Tahoe; Lake Tahoe's towns the reverse;
    - a photograph of a place handed to the engine with the ad (ground_photo) is refused outside its towns
      and drawn inside them;
-   - every still the library shows (assets/recipe-stills, assets/library-looks, assets/hero: their indexes
+   - every still the library and Easy Mode's strip show (assets/recipe-stills, assets/library-looks, assets/hero,
+     assets/layout-stills: their indexes
      record the photograph each stands on and the towns it prints) stands on no photograph of a place
      other than its own towns';
    - the tags: a photograph whose file names a landmark is tagged with its place, and every place has towns
@@ -129,7 +130,7 @@ if (gg) {
 }
 
 // the stills the library shows, as drawn: none on another place's photograph
-for (const [dir, kinds] of [['assets/recipe-stills', ['recipe']], ['assets/library-looks', ['recipe', 'full']], ['assets/hero', ['recipe', 'full']]]) {
+for (const [dir, kinds] of [['assets/recipe-stills', ['recipe']], ['assets/library-looks', ['recipe', 'full']], ['assets/hero', ['recipe', 'full']], ['assets/layout-stills', ['recipe']]]) {
   const f = ROOT + dir + '/index.json'; if (!existsSync(f)) { ok(false, `${dir}/index.json is missing`); continue; }
   const items = Object.entries(JSON.parse(readFileSync(f, 'utf8')).items || {}).filter(([, it]) => kinds.includes(it.kind));
   const unread = items.filter(([, it]) => !('photo' in it)).map(([id]) => id);

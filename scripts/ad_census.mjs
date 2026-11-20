@@ -970,7 +970,7 @@ async function studioPage(browser) {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
   const page = await ctx.newPage(), errors = [];
   page.on('pageerror', e => errors.push(String(e).slice(0, 200)));
-  await page.goto(BASE + '?demo=1', { waitUntil: 'load', timeout: 120000 });
+  await page.goto(BASE + '?demo=1&fullad=0', { waitUntil: 'load', timeout: 120000 });
   await page.waitForFunction(() => typeof buildLayer === 'function' && typeof renderEzCanvas === 'function' && typeof TEMPLATES !== 'undefined' && typeof pgCheck === 'function' && window.FullAdStudio, null, { timeout: 120000 });
   await page.waitForTimeout(2500);
   await page.evaluate(SHARED, VISITOR);

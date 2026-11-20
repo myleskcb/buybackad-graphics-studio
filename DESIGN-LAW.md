@@ -6565,6 +6565,39 @@ Lexus or we buy Tacoma's or buy trucks or buy Toyotas Tacoma tundra 4runner".
 - **Not applied to devices.** A line of one maker's goods (DJI's drones, Meta's Quest and glasses, the
   Apple Watch) keeps headlines like DRONE GROUNDED? GET CASH. Its models line names the maker.
 
+**Easy Mode's strip offers the rebuilt layouts, never the old renderings (2026-11-19).** The owner,
+through the roadmap session, of the "1 Pick a look" strip for Phones & Devices, which after the
+library and offer cards' retirement still offered the designer layouts as the old editor drew them
+(Deal Checklist, Glassline, Arctic Band, Three Steps, Price Point, Stub Mono): "now it's not loading
+properly or it's even worse showing me bad ad styles".
+- **The strip is the full ad's own card and the category's rebuilt layouts** (`full-ad-studio.js`
+  `strip()`). Each layout is its recipe (gen dl) drawn by the house engine, from a still
+  (`build_recipe_stills.mjs --layouts`, `assets/layout-stills/`, its own index, which the library
+  and its API never read). It keeps the layout's name, its place in the strip and its own lock: every
+  Phones design is free, and elsewhere the first three are. 77 layouts in 8 categories; Phones offers
+  Neon Vault, Stub Mono, Price Point, Sunset Wave, Marquee Arc, Three Steps, Arctic Band, Deal Checklist
+  and Agency Mono.
+- **A tap opens it in the full ad**, on its own seed, so the preview and the download are the full ad's
+  (rule 141). The full ad's card brings back the visitor's own ad as it was, kept per category while a
+  layout is on.
+- **No way in leads to an old rendering.** A layout asked for by name (a landing or Look Book link, the
+  last design, a saved state) opens its rebuilt ad. Any other design opens its recipe where it has one,
+  and else the full ad. A category changed in Easy Mode keeps the full ad.
+  - 19 layouts have no rebuilt ad: they fail the classics' gate or a choice hold, so they were never
+    offered once the page had loaded.
+  - The one offer card the earlier retirement missed (`of_mac_center_sun`) opens the full ad.
+- **The templates stay in TEMPLATES.** The studio indexes it (the first template, the free ones). A
+  draft made on one opens from its own layers, and the editor and the template audits still read
+  them. `?fullad=0` keeps the strip and the templates as they were: the template audits open the page
+  with it (`_showcase_harness`, `ad_census`, `designer_audit`, `every_card_audit`,
+  `ez_download_is_preview`, `ez_theme_audit`, `colour_builder_audit`, `ad_library_check`).
+- **Held by `scripts/ez_strip_check.mjs`.** In every category, every card must be the full ad's own or
+  a rebuilt layout of the category, from its still, and every rebuilt layout is offered once. A layout
+  tapped opens its rebuilt ad, and its download is its preview. The full ad's card brings the visitor's
+  ad back. A design asked for by name, and a category change, never open an old rendering. A signed-out
+  visitor sees the locks the layouts had. `full_ad_studio_check` steps through a layout in place of a
+  template.
+
 ## 156. A face-up iPhone wears an iOS lock screen, laid out as iOS lays one out
 
 Added 2026-11-18. The owner: "audit the iPhone backgrounds to look clean good... and actual iOS";

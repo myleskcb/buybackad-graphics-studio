@@ -6425,3 +6425,18 @@ SEO session (158, pull request 15). Pull request 15 now meets this branch in `in
 - **A generic headline is a template's tell on cars, not on one maker's goods.** WE BUY CARS over four
   BMW models reads as a form filled in. DRONE GROUNDED? GET CASH over DJI's models reads as written for
   them, so the rule stops at vehicles.
+
+## 2026-11-19 — Easy Mode's strip offers the rebuilt layouts (claude/xenodochial-mccarthy-7bea6d)
+
+- **Retire at the visitor's way in, not in the list the code stands on.** Retiring the 96 designer
+  layouts in `template-retired.js` would have left TEMPLATES with one template. The studio reads
+  `TEMPLATES[0]`, the first free one and the category's first. The strip, `showEasy` and the category
+  switch are where a visitor meets a design, so the redirect lives there.
+- **A redirect in a function the audits call is a redirect for the audits too.** Eleven template
+  audits open templates through `showEasy(id)`, as a visitor does. They now open the page with
+  `?fullad=0`, the switch that keeps the templates as they were. A programmatic `selectEzTpl(id)`
+  keeps opening the template, for the editor's device picker.
+- **A builder that reads a list built after a fetch races it.** The recipe builder read each
+  category's templates through `catTemplates()`, which drops a template the classics' gate holds. The
+  gate is fetched after load, so 19 layouts were gated and never got a recipe. They are not offered,
+  so nothing is lost, but the count (96 layouts, 77 recipes) only made sense after reading the gate.

@@ -516,7 +516,7 @@ async function browserPart() {
   try {
     for (const who of [{ email: 'shop@studio.example', admin: false }, { email: 'owner@studio.example', admin: true }]) {
       const page = await newPage();
-      await page.goto(BASE + '/index.html');
+      await page.goto(BASE + '/index.html?fullad=0');
       await page.waitForFunction(() => typeof window.addHistory === 'function' && window.adLibrary, null, { timeout: 30000 });
       const token = await page.evaluate(async (w) => {
         let r = await fetch('/api/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: w.email, password: 'a-long-password' }) });
@@ -524,7 +524,7 @@ async function browserPart() {
       }, who);
       ok(!!token, 'browser: ' + who.email + ' signed in');
       await page.evaluate((t) => localStorage.setItem('pgfx_token', JSON.stringify(t)), token);
-      await page.goto(BASE + '/index.html');
+      await page.goto(BASE + '/index.html?fullad=0');
       await page.waitForFunction(() => typeof window.showEasy === 'function' && window.adLibrary, null, { timeout: 30000 });
       await page.evaluate(() => showEasy(null));      // the studio loads the account as it opens
       await page.waitForFunction(() => { try { return !!account; } catch (e) { return false; } }, null, { timeout: 30000 });
@@ -605,14 +605,14 @@ async function browserPart() {
           return route.fulfill({ status: 200, headers: cors, contentType: 'application/json', body: '{}' });
         });
         const email = 'linked' + libStatus + '@studio.example';
-        await page.goto(BASE + '/index.html');
+        await page.goto(BASE + '/index.html?fullad=0');
         await page.waitForFunction(() => window.adLibrary && window.iplaLink, null, { timeout: 30000 });
         const token = await page.evaluate(async (em) => (await (await fetch('/api/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: em, password: 'a-long-password' }) })).json()).token, email);
         await page.evaluate((t) => {
           localStorage.setItem('pgfx_token', JSON.stringify(t));
           localStorage.setItem('ipla_link', JSON.stringify({ token: 'gfx_' + 'T'.repeat(30), connectedAt: '2026-10-06T00:00:00.000Z' }));
         }, token);
-        await page.goto(BASE + '/index.html');      // nobody opens the Library: the studio sends the link as it starts
+        await page.goto(BASE + '/index.html?fullad=0');      // nobody opens the Library: the studio sends the link as it starts
         const t0 = Date.now();
         while (!got.length && Date.now() - t0 < 30000) await page.waitForTimeout(250);
         const mine = await page.evaluate(async () => (await (await fetch('/api/ads/mine', { headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('pgfx_token')) } })).json()).links.page);
@@ -639,7 +639,7 @@ async function browserPart() {
     // the owner's master library: saved and finished, and at phone width
     try {
       const page = await newPage(390);
-      await page.goto(BASE + '/index.html');
+      await page.goto(BASE + '/index.html?fullad=0');
       const token = await page.evaluate(async () => (await (await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'owner@studio.example', password: 'a-long-password' }) })).json()).token);
       await page.evaluate((t) => localStorage.setItem('pgfx_token', JSON.stringify(t)), token);
       await page.goto(BASE + '/master-library.html');
@@ -659,7 +659,7 @@ async function browserPart() {
       await page.fill('#q-finished', 'gold');
       const g = await page.evaluate(() => document.getElementById('count-finished').textContent);
       ok(/ of \d+ shown/.test(g), 'browser: search narrows the finished designs (' + g + ')');
-      await page.goto(BASE + '/index.html');
+      await page.goto(BASE + '/index.html?fullad=0');
       await page.waitForFunction(() => window.adLibrary, null, { timeout: 30000 });
       await page.evaluate(() => window.adLibrary.open());   // before Easy Mode has loaded the account: the dialog loads it
       await page.waitForSelector('#adlib-overlay .adl-card', { timeout: 20000 });
@@ -673,7 +673,7 @@ async function browserPart() {
        an account from the landing page, Create account first */
     try {
       const page = await newPage();
-      await page.goto(BASE + '/index.html');
+      await page.goto(BASE + '/index.html?fullad=0');
       await page.waitForFunction(() => typeof window.showEasy === 'function' && window.adLibrary && window.pgfxAccount, null, { timeout: 30000 });
       await page.waitForFunction(() => document.querySelectorAll('#lp-tpl-grid .tpl-card').length > 0, null, { timeout: 30000 });
       await page.waitForTimeout(600);
@@ -715,7 +715,7 @@ async function browserPart() {
       await page.evaluate(() => document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')));
       // the rest as an operator, who has no cap
       await page.evaluate(async () => { const r = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'boss@studio.example', password: 'a-long-password' }) }); localStorage.setItem('pgfx_token', JSON.stringify((await r.json()).token)); });
-      await page.goto(BASE + '/index.html');
+      await page.goto(BASE + '/index.html?fullad=0');
       await page.waitForFunction(() => typeof window.showEasy === 'function' && window.adLibrary, null, { timeout: 30000 });
       await page.evaluate(() => showEasy(null));
       await page.waitForFunction(() => { try { return !!account && account.role === 'admin'; } catch (e) { return false; } }, null, { timeout: 30000 });
@@ -825,7 +825,7 @@ async function browserPart() {
         /* a free account: video ads come with Pro and Business, so the clip is
            refused and the photo saved for it comes off again */
         await page.evaluate(async () => { const r = await fetch('/api/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'upload-free@studio.example', password: 'a-long-password' }) }); localStorage.setItem('pgfx_token', JSON.stringify((await r.json()).token)); });
-        await page.goto(BASE + '/index.html');
+        await page.goto(BASE + '/index.html?fullad=0');
         await page.waitForFunction(() => window.adLibrary && window.pgfxAccount, null, { timeout: 30000 });
         await page.evaluate(() => window.adLibrary.open());
         await page.waitForSelector('#adlib-overlay #adl-upload', { state: 'attached', timeout: 20000 });
@@ -891,7 +891,7 @@ async function browserPart() {
     /* 3d. the master library: the video ad plays, every finished design has a star */
     try {
       const page = await newPage();
-      await page.goto(BASE + '/index.html');
+      await page.goto(BASE + '/index.html?fullad=0');
       const token = await page.evaluate(async () => (await (await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'maker@studio.example', password: 'a-long-password' }) })).json()).token);
       await page.evaluate((t) => localStorage.setItem('pgfx_token', JSON.stringify(t)), token);
       await page.goto(BASE + '/master-library.html');

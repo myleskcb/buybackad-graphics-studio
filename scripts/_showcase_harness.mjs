@@ -32,7 +32,7 @@ export async function openStudio(query = ''){
   const errors = [];
   page.on('pageerror', e => errors.push(String(e).slice(0, 160)));
   await offline(page);
-  await page.goto(BASE + '?look=graphite-orchid' + query, { waitUntil:'networkidle2', timeout:120000 });
+  await page.goto(BASE + '?look=graphite-orchid&fullad=0' + query, { waitUntil:'networkidle2', timeout:120000 });
   await page.waitForFunction(() => typeof buildLayer === 'function' && typeof renderThumb === 'function' && typeof SHOWCASE !== 'undefined', { timeout:60000 });
   await page.evaluate(() => {
     window.__sc = {
