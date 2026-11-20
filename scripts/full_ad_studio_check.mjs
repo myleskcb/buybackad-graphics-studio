@@ -138,6 +138,8 @@ console.log('a visitor who has never picked a design');
   for (const k of [pairs[1], pairs[7], pairs[11]]) { await page.click(`#fa-pairs [data-pair="${k}"]`); await settle(page, { colour: k }); const c = await page.evaluate(() => FullAdStudio.check(1080).then(r => r.colour)); if (c !== k) wrong.push(`${k} drew ${c}`); }
   ok(!wrong.length, 'a colour pair picked is the one drawn', wrong.join('; '));
   wrong.length = 0;
+  /* a long row is folded (editor-more.js, rule 163): open it as a visitor does, to reach the later pairs */
+  if (await page.$('#fa-voices-more[aria-expanded="false"]:not([hidden])')) await page.click('#fa-voices-more');
   for (const k of [voices[0], voices[Math.floor(voices.length / 2)], voices[voices.length - 1]]) { await page.click(`#fa-voices [data-voice="${k}"]`); await settle(page, { type: k }); const r = await page.evaluate(() => FullAdStudio.check(1080)); if (r.type !== k) wrong.push(`${k} drew ${r.type || 'the house face'}`); if (!r.ok) wrong.push(`${k}: ${r.fixes[0]}`); }
   ok(!wrong.length, 'a type pair picked is the one drawn, and the ad holds in it', wrong.join('; '));
   await page.click('#fa-voices [data-voice=""]'); await page.click('#fa-pairs [data-pair=""]'); await settle(page);

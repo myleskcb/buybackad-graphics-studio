@@ -6827,6 +6827,85 @@ RESUME HERE (superseded by the entry below):
   3. The explainers in rule 161's mark (§BK 16), and the rule numbers when the branches meet
      (§BK 17).
 
+## 2026-11-19 — the studio's editor in the full ad's look, the site in main's (claude/wizardly-yalow-496f45)
+
+Asked, by the session that holds pull request 15, for the owner: take Easy Mode, the designer and
+their dialogs from rule 98's poster look into rule 146's house look. Built first on d1dfc9a6 (rule
+152 and §BN there, with the house tokens borrowed from house.css), then main's reselling.us look
+reached pull request 15 ("Follow main") and house.css went. Asked twice, the owner kept the full
+ad's look for the editor: "Full ad look (PR 15)", then "Full-ad look anyway". Rebuilt on PR 15's tip (873937a2, 6758a715, 247b47ff, then 601db816) as
+DESIGN-LAW 163 and OPEN-ITEMS §BP: one section at the end of styles.css (mirrored into app.js), two
+lines of index.html, and scripts/editor_look_check.mjs.
+
+Measured with that check, on the base and on this branch:
+
+| a width and theme (8 views; 641 to 659 words on the base) | base, `family` (601db816; 6758a715 the same) | this branch |
+|---|---|---|
+| words under 12px | 336 to 346 | 0 |
+| words under 4.5:1, light | 1 (the picker's chosen filter, 4.35:1) | 0 |
+| words under 4.5:1, dark | 23 (white on the blue pills, 3.31:1; "Fix before you post", 2.42:1) | 0 |
+| the designer's bar at 1440 | its words on two lines | one line |
+| the designer's bar at 1280 | runs past the screen, Export cut off | one line |
+| the landing and the plans | main's look | main's look, the same pixels |
+
+Found:
+- **The base moved under the work.** Pull request 15 followed main while the editor was being
+  restyled for the look it had just dropped; the first pull request opened conflicting, against a
+  branch without house.css. Then it moved three more times: 6758a715 with pull request 14, 247b47ff
+  with the library's full rows (between this branch's checks and its push), and 601db816 with a new
+  mark (rule 165).
+  Fetch the base right before every push, not only before the pull request, and ask again when the
+  premise of an answer changes (the first answer named "PR 15" for a look PR 15 no longer had).
+- **A look for one part of a page**: `:root:is(:has(#page-easy.active),:has(#page-editor.active))
+  :not(:has(#page-plans.active))` turns the editor's tokens on at the root while it is open, so its
+  dialogs and pop-overs (outside its markup) follow, and off for the landing and the plans page.
+- **Rule 113's floors had lived in a skin.** The poster's legibility pass put them under
+  `[data-skin='poster']`; when `family` became the default, a template's form lost six of them and
+  the designer's colour note one (11.5px and 10.5px words). A floor belongs to what it protects.
+- **The base's designer bar broke its words onto two lines at 1440** ("Centre / all", "Save /
+  template", "⬇ / Export"): the poster's one-line rule went with the poster.
+- **`cssProbeOk()` reads `.ez-stepnum`'s radius from a bare probe on `body`**: a restyle of the step
+  number must be scoped (`#page-easy`), or the studio thinks its sheet failed and injects the copy.
+- **`innerText` reads CSS capitals, `textContent` does not**, and billing_check and ad_library_check
+  read `body.innerText` for a toast's words: capitals go on headings, badges, labels and calls only.
+- **A pill between chevrons on one button, its markup untouched**: one pseudo-element draws the pill,
+  the other both chevrons as two mask layers (transparent side borders do not do it: with a 999px
+  radius the padding box's corners come out square).
+- **Folding a row that other code draws**: its button must sit outside the row (the T key steps
+  `#ez-voices button`, ezTagSync marks every `#ez-tag-looks button`, tagline_panel_check counts
+  them), after the row's held note (choiceHoldNote finds it as `row.nextElementSibling`), and
+  ezTagHost must step past it (one line); a MutationObserver keeps the chosen one shown whoever moves
+  it, and a check that clicks a folded choice must open the row first, as a visitor would.
+- **A base's new rule can lose to a scoped section.** Main's `.acct-drop .am-delete{font-size:13px}`
+  (Delete account, by way of pull request 14) lost to the editor's `.view-item{font:...}`, which is
+  more specific, and its hover took the text colour. After each merge, look for the base's new rules under the section's
+  selectors and measure their states: hovered at 0.85 opacity, it was 4.24:1 in dark.
+- **A logo is not a word.** Rule 161's dot was a transparent ".", and rule 165's label sets a white
+  AD on #3d8bff, 3.3:1 in dark. A contrast check that reads every word must skip text that is drawn,
+  not set, and the brand's mark (WCAG's logotype exception), or it fails a logo.
+- **Rule numbers and section letters collide across branches** (146, 150 and 162 twice; 162 went to
+  the landing's brief while this pull request was open, so this rule is 163; §BD, §BE, §BN
+  and §BO each mean two things): take the next free over every branch and worktree, the uncommitted
+  ones included. Here 163 and §BP.
+- **main's `family` editor fails rule 113** 336 to 346 times a width and theme (labels at 10.5px,
+  NEW at 8.5px), and in dark 23 times under 4.5:1: white on its blue pills at 3.31:1, which main's
+  rule 138 measured and kept for its own buttons. Whatever the editor wears, rule 113 is the
+  product's, not a skin's.
+- **Three named checks fail on the base as here** (tagline_panel_check, ez_theme_audit --quick,
+  designer_audit): their card lists name cards the census's rebuild retired or holds back
+  (stepsFlow-nn05-30, sell_iphone and three more), and designer_audit's hand-off on
+  bandKnockout-pp04-15 is the same on every base (§BP 3).
+
+Learned: a restyle of a token-driven chrome is mostly a mapping, and its scope is part of the design:
+where the look applies (a skin, an attribute, or the page being open) decides what it survives. The
+poster's floors did not survive a skin change; the editor's look here is keyed to the editor itself.
+
+RESUME HERE:
+  0. The owner's word on pull request 15 and pull request 19.
+  1. The dialogs the check does not open (§BP 4).
+  2. The three checks' card lists, for the base's live cards (§BP 3).
+  3. The mark's label at 3.3:1 in dark, if the owner wants 4.5:1 there too (§BP 8): rule 165's call.
+
 ## 2026-11-19 (night) — main (the iPhone app, the pricing buttons) merged into pull request 14 (claude/ads-improvement-roadmap-7632c8)
 
 Auto-fix: main took two commits (the landing's pricing buttons on a fresh visit; WeBuy.AD for

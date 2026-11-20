@@ -6817,6 +6817,84 @@ family skin (`?skin=poster` keeps the old page; the studio is not touched).
   it opens a row of its lines with their counts, in the owner's order (`motion/subjects.json`); one of
   a single line has no arrow. The review page's categories carry the same arrows.
 
+## 163. The editor wears the full ad's look, while the site wears main's
+
+Added 2026-11-19 (numbered 163: 152, 153 and 161 are main's look and mark, 154 to 158 the
+census's and the landing's, 159 and 160 taken on other branches, 162 the landing's brief). Rule 146, rewritten, and rules
+152, 153 and 161 put the site in main's look: reselling.us's navy, one blue and mint, the system
+face, the WeBuy.AD mark (since rule 165, the Ad label). Asked the same day which look the studio's editor should wear, the owner
+chose the full ad's ("Full ad look (PR 15)"), and, asked again once the site had followed main and
+house.css was gone, "Full-ad look anyway": the editor looks unlike the landing and the plans on
+purpose. Supersedes rule 98 and rule 152's `family` skin in the editor.
+
+Measured first, by the check below on the base (`--before 601db816`, the editor in `family`; 6758a715
+and 247b47ff measure the same):
+per width and theme, across its eight views, 336 to 346 words under 12px (the labels at 10.5px,
+the full ad's NEW at 8.5px, the ✎ pop-over's labels); 1 word under 4.5:1 in light and 23 in dark
+(white on the blue pills at 3.31:1, the export dialog's Download and the colour builder's Use these
+colours among them; the full ad's "Fix before you post" at 2.42:1; every chosen chip at 4.07 to
+4.45:1). At 1440 the designer's bar breaks its words onto two lines, and at 1280 it runs past the
+screen.
+
+- **Where.** Easy Mode, the designer and the dialogs they open, while they are open:
+  `:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active))`. The
+  landing, the plans page (even opened over the editor) and a sign-in from the landing keep the
+  site's look, and a look asked for by URL (?skin=) still changes them; the editor wears the full
+  ad's look whatever the skin.
+- **The values are written here**, not borrowed: Silver & Blue in light (#e2e8f3, #111b30,
+  #1d4ed8), Navy & Gold in dark (#031b56, #f2f7ff, #f4b100), the panels a step off the ground, the
+  full ad's face (Chivo, declared here too), because house.css is gone and styles.css is also
+  app.js's `CSS_FALLBACK`, which must stand alone.
+- **The full ad's shapes, one job each.** Each step opens with the claim badge ("Step 1", its glow;
+  the number's `::before`, scoped to `#page-easy`, so `cssProbeOk()`'s bare probe still reads 50%);
+  headings in capitals ("Make your *ad*", the accent word); labels in small capitals; the selling
+  points are the ad's chips, a tick on each one picked; every other choice is a pill, the chosen one
+  filled with the accent; colour sets and samples in hairline frames, the chosen one ringed in the
+  accent; the area after a pin; Download is the pill between chevrons, stepped in size (one
+  `::before` draws the pill, one `::after` both chevrons as two mask layers: its markup and words
+  are untouched); the rest are outline pills. One accent, no glass, no grain, no hard shadow.
+- **The mark stays the brand's.** The WeBuy.AD mark is the site's in the editor's bars: rule 165's Ad
+  label, WeBuy in the editor's text colour, then the white AD on the brand's blue (#0a5fe0 in light,
+  #3d8bff in dark: pinned, since the editor's accent is gold in dark), at 24px (21px on a phone).
+  The section sets only the two tokens the mark reads, `--wb-blue` and `--wb-ink`. Everything else
+  wears the pair.
+- **The designer's bar is one line** from 1280 up (on the base its words break onto two lines at
+  1440, and at 1280 it runs past the screen, Export cut off): its tools keep one line, the mark at
+  its 24px; under 1440 three tools show their icon (their words kept for a screen reader and in
+  their titles) and the bar scrolls with Export pinned, as it did under 1100px.
+- **The long rows fold** (the owner: "Maybe these could just show a few options and then show more
+  so it's not all open by default"). A row of more than ten choices (the typefaces, 45; the headline
+  styles, 13; the full ad's typefaces) shows its first eight and the chosen one, and a real button
+  after it ("More typefaces (37)", with aria-expanded and aria-controls) opens the rest in place and
+  closes them again; shorter rows (Outline, Effect) stay open. editor-more.js folds what app.js and
+  full-ad-studio.js draw and follows the chosen one through a click, the T key, a new template and
+  the full ad's form drawn again; ezTagHost places the headline's sub-panel after that button.
+- **What stays the ad's.** The canvas, the previews, the strip's art, the colour swatches and the
+  headline samples keep their own colours and faces; only their frames changed. The canvas's
+  selection handles follow `--accent`.
+- **Words as written.** Capitals come from CSS on headings, badges, labels and calls (their
+  `textContent` is unchanged); a dialog's title, its notes and the toasts keep their case, because
+  checks read `body.innerText` for them (billing_check, ad_library_check).
+- **Rule 113 is the editor's own now.** Its floors had lived under the poster skin; with `family`
+  the default, six words of a template's form and the designer's colour note fell under 12px. The
+  editor carries them itself: 4.5:1 for every word, nothing under 12px (the ORIG swatch's 10.5px
+  badge excepted), in the pop-overs and dialogs too. The mark is a logotype, not a word: it keeps
+  the brand's colours, and its white AD on #3d8bff in dark (3.3:1, at 24px and weight 900) is not
+  counted.
+- **Checked** by scripts/editor_look_check.mjs (exit 1): the landing; Easy Mode (the full ad and a
+  template) with its area dialog, ✎ pop-over and colour builder; the designer with its template
+  picker and export dialog; and the plans page over it, at 390 and 1440, light and dark. It fails
+  when an editor view is not on the full ad's ground and face, when the landing or the plans page is
+  (the scope), on a word under 4.5:1 or 12px, a hard offset shadow, one of the poster's colours,
+  sideways scroll, a bar past 1440, an id or a bound class gone from index.html (against `--since`),
+  or a page error or CSP refusal. Its failures were put in by hand and caught: the poster look and
+  `family` (`--before`) fail it, and an id and a class removed from index.html fail the hooks. On
+  this change: 32 views, 5 to 194 words each (the long rows folded), and the scope at each width
+  and theme, all pass.
+  scripts/editor_fold_check.mjs holds the folding, at 1440 and 390: the rows that fold and the ones
+  that do not, the button opening and closing them, the chosen one always shown, the sub-panel's
+  place, no sideways scroll, no page error or CSP refusal.
+
 ## 165. The mark is the Ad label: WeBuy beside an AD label, in the face of newspaper ads
 
 Added 2026-11-20. (Numbered 165: 158 to 163 are taken across the branches, and
