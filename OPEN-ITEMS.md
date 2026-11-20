@@ -4000,6 +4000,37 @@ Open:
     - The owner's three are caught by what they named.
     - Precision on the worst 40, by eye: 33 clearly real, 7 borderline, none plainly wrong.
     - **owner**: keep or send back each basket ad on the review page (Audit basket filter).
+13. **The hero wall, the colours and the VR headsets** (DESIGN-LAW 145, 154, 155; the owner, of
+    webuy.ad's wall: "this hero is majorly lacking still", "too many similar or matching color
+    schemes", "no pattern fills and only 1 gradient multi color", asked, "Show more of them").
+    **done on `claude/zealous-dewdney-386bf8`**:
+    - No twin pairs in a seed's draw.
+    - Vivid 44%, light 36%, dark 20%.
+    - Gradients turn hue, and patterns read.
+    - Dark colourways lean to their hue.
+    - An ad with no product never stands on a photograph.
+    - Eighteen hand picks on the wall (9 full ads, 9 rebuilt), held by `hero_wall_check.mjs`.
+    - Every still and full-size rebuilt ad drawn again.
+    - **owner**: approve the wall (shown as one image, 2026-11-19) or name the tiles to swap.
+    - **owner**: a real VR headset photograph (a Meta Quest 3), the one in the repository being a
+      render. It waits for a word on the download. The seven VR ads stand on their words alone
+      until then, off the wall.
+    - Seen, not changed: the Pokémon and sports-card tiles' graded-slab pictures read pale at the
+      wall's size.
+14. **Vibrant pairs and trios, proposed** (the owner: "ideally we relearn color theory and ad design
+    to maximize all of the color pairs, trios, etc.. that work and keep a viewer captivated.. means
+    vibrant or neon colors often times or really good contrasts"). **proposed, not live**:
+    - 10 new schemes, each on its own ground, from colour theory (violet and yellow, blue and
+      orange, lime and purple, cyan and magenta, mint and red...).
+    - 3 of the neon-on-black pairs at full neon.
+    - Every one passes the studio's contrast floors, and none duplicates a pair the studio has.
+    - The colours and the reason for each are in `docs/colour-proposals-2026-11-19.json`.
+    - Shown to the owner on the iPhone and the cars full ad, 2026-11-19.
+    - **owner**: which to adopt, and which current pairs they replace. The candidates are the dark,
+      muted ones, such as Navy & Orange, Midnight & Cyan, Blue & Green, Teal & Orange and White on
+      Navy.
+    - Adopting one is a row in app.js `COLOR_THEMES` and `node scripts/build_house_colours.mjs`.
+      Then draw the stills again, and the wall and its check.
 
 ## BL. 2026-11-18 — webuy.ad, the site's new address
 
@@ -4177,3 +4208,83 @@ Open:
 5. The owner tools (`pick.html`, `library.html`, `social/`, `admin-ads/`,
    `phonegfx-studio.html`) keep the old look and name.
 
+## BN. 2026-11-19 — the landing built to a brief (DESIGN-LAW 162)
+
+The owner, looking at the landing: "looks so vibe coded and basic UI we need to fix and make it
+look like a custom built site with a large web design budget". Done on
+`claude/xenodochial-mccarthy-7bea6d`, not pushed:
+
+- **`landing.css`** (new, scoped to the landing under the family skin): one type scale, the
+  hero in three lines with the deal in mint on its own; the figures as a band on hairlines;
+  sections numbered on a hairline with a split head; the library on paper, a gallery with each
+  ad's name and colour set under it; the colour sets as one mosaic of small ads in their own
+  colours; the video on a stage with a framed full ad and its first three seconds as a
+  timeline; the workflow as a sequence with a drawing of each step; the plans as one table;
+  the FAQ beside a heading that holds still; the last call on the blue; the footer dark under
+  a wordmark as wide as the page. The hero's wall is one plane in perspective, with a
+  stranger's text arriving over it.
+- **`index.html`**: the library before the colour sets; the hero's lede, three proof points
+  and a "made for" row; the wall inside a stage with the text over it; the video's frame and
+  timeline; a drawing for each step; the footer's wordmark. The kicker and the headline are
+  unchanged, word for word (the share card draws them, rule 153).
+- **`app.js`**: the colour sets drawn as small ads in their own colours (until today 54 sets
+  drew one bar and three of `undefined`: a rebuilt ad carries no `c1`, `ink` or
+  `support`); a library caption names the colour set, not the layout twice.
+- **`pages.css`**: the same bar, scale, hairline sections, FAQ rows and dark footer for the
+  other pages, appended.
+- Checked by eye at 1440, 1024 and 375, dark and light, and on pull request 15's own landing
+  markup; no sideways scroll; `build_pricing`, `build_seo_pages` and `csp_hashes` checks
+  unchanged; `words_check` clear.
+
+Open:
+1. **The owner's look at it**: the screenshots went to the owner; nothing is pushed.
+2. **Pull request 15 restructured the same landing** (2908f8e7: "The landing on one column and
+   one scale; the colour sets out", a "what it makes" list and a "why it gets texts" row).
+   `landing.css` styles that markup too (checked on a copy of it); the markup itself meets this
+   branch's in `index.html` (the hero, the sections, the footer) and in `app.js`
+   (`scBuildFamilies`, `scCard`). Which landing the site keeps is the owner's call, then one
+   merge.
+3. **Rule numbers**: settled with pull request 14 at 815ebea2 (main's rules 152 and 153, the
+   census's 154 to 157); this branch's landing rule is 158. Pull request 15 still numbers its own.
+4. **`assets/hero/index.json`** is asked for on every landing load and does not exist (the
+   hero's full-ad stills, app.js, the hero wall's picks): a 404 the landing check counts. The
+   hero wall's own session has it.
+5. **The video section's frame** is a still of a full ad; the engine is on the page, so it could
+   play the ad itself when the section scrolls into view.
+6. **The studio** (Easy Mode, the editor) keeps its own chrome; a session of its own is on it.
+
+Then, the same day (the owner, relayed: "see not the new 2000", then "Both (~2,650)"; and "organize
+it as we said with the subcategories revealed after you select one of the main ones"):
+- **The library holds 2,405 ads**: the 665 rebuilt designs, 1,330 more looks of them (every design two
+  more, each passing the pre-flight in a pair of its own), 246 line full ads (41 lines, six seeds
+  each) and 164 video looks (`scripts/build_library_looks.mjs`, `--check`; 37 MB of 400px webp).
+  The ~2,650 asked for counted 246 video looks; the video maker's gallery now draws four a shelf at
+  its 720px width (main's reselling.us look), 164 in all, and the library takes what it offers.
+- **The video maker opens a gallery look by link** (`motion/app.js`: `?shelf=<id>&look=<seed>`), as
+  its shelf drew it, on the visitor's own words and number.
+- **The chips**: the main categories first, an arrow on the seven with lines, a row of lines with
+  counts under the chosen one; "Offer cards" only while more than one is left; the review page's
+  categories carry the arrows too (`scripts/review_page.html`). The studio's own category picker is a
+  menu, and the full ad's line picker is already grouped by the same lines.
+
+Open:
+7. **Push**: nothing of this is pushed; the owner's OK first.
+8. **The published review page** gets its arrows at its next build (`build_review_page.mjs`).
+
+Then, the same day (the owner: "Merge and redraw"): the hero-wall branch (98eeb651) is merged here
+(a46fa2b0), and the library's other looks are drawn again in its colours (`build_library_looks.mjs
+--all`): 1330 more looks, 245 line full ads, 164 video looks; 2,404 in the
+library. The wall check (`hero_wall_check.mjs`) holds on the redesigned landing; the colour check
+is clear on the merged engine.
+
+Then, the same day (the owner, through the roadmap session, of the library's cars: a BMW models
+line on a Toyota pickup, a Lexus one on a Toyota, "MOTORCYCLES BUYER" on a Honda Civic; "check every
+recipe whose headline or models line names a make or model"): seven ads were wrong, all cars (BMW
+and two Lexus models lines on the general line's pool, three motorcycle ads on Honda cars or the car
+pool, "WE BUY SPRINTERS" on a Transit); none of the phones, consoles or computers. The recipe builder
+now reads a make by its models, shows a model the words name and a car built since 2010, puts a
+motorcycle ad on the Harley, and says work vans where no named van has a usable cut-out: 50
+recipes changed (42 in the library; their stills, looks and full-size renders drawn again).
+`scripts/make_match_check.mjs` holds every recipe and line to it.
+Open: a Sprinter cut-out that is not flagged (the one in the repo shows dealer lettering), and more
+than one motorcycle (the Harley, 1988–2006, stands under all three); both downloads need the owner's OK.

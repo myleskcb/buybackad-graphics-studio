@@ -6267,3 +6267,122 @@ choice (best of the best, no theme twice, bright looks like the video ads, few d
 colour system (vibrant and neon pairs and trios, no pattern fills, one multi-colour gradient at
 most), the VR headset recipe, and the library's chips (main categories, a dropdown arrow where a
 category has subcategories). None of this is live until the owner merges into `main`.
+
+## 2026-11-19 — the landing built to a brief (claude/xenodochial-mccarthy-7bea6d)
+
+- **"Vibe coded" was the repetition, not the colours.** Every section was one template (a
+  dotted pill, a big left headline, a paragraph, a grid of identical dark cards) on one navy.
+  The colours the owner had just chosen stayed; the variety went into layout, grounds and type.
+- **A band that keeps its ground in both themes re-declares the tokens inside itself** (`--text`,
+  `--hairline`, `--accent`, ...). Everything already written against those tokens, chips,
+  buttons, captions, takes the band's colours without one more rule.
+- **Fail visible, again.** An entrance that starts at opacity 0 leaves the hero blank wherever
+  timers do not run (a background tab, a headless capture), as the old hero's comment warned.
+  The hero now moves without fading; only scroll-tied reveals fade, and only small blocks.
+- **A swatch that reads fields off a card breaks when the cards change shape.** The colour sets
+  read `c1`, `ink`, `support` off every card; the rebuilt ads carry a pair key instead, so 54
+  sets drew `background:undefined`. The colours now come from the engine that draws the ads.
+- **A caption over an ad hides its number; under it, it never does.** styles.css had hidden the
+  library captions for that reason; under the picture they can stay.
+- **Two sessions on one page.** Pull request 15 restructured the same landing on the same day.
+  The sheet was made to style both markups, and the overlap is written down for the merge.
+
+## 2026-11-19 — the library holds every new look, and its categories open into lines (claude/xenodochial-mccarthy-7bea6d)
+
+- **"The new 2000" was the review page's count, not the library's.** The census read 2,019 to 2,045
+  ads: the old cards, the rebuilt recipes, the full ads and the video looks together. The library had
+  one rebuilt ad per retired card, the same 665 as the live site. Asked, the owner chose both more
+  looks of each design and the video maker's ads.
+- **A second look should be one a visitor can reach.** The library's extra looks are the seeds New
+  look walks to, kept only when they pass the download's own pre-flight in a pair the design does not
+  wear yet, so a card opens to exactly the ad it shows.
+- **A gallery look is its shelf plus its seed, on the visitor's words.** A seed alone redraws the words
+  too, so the video maker learned a shelf link (`?shelf=&look=`).
+- **A gallery's width sets its size.** The video maker's "All" gallery fills one row a shelf; at its
+  720px column that is four, so 164 looks, where the census, before the restyle, read six a shelf.
+- **New items beside an old list, not inside it.** The wall and the editor read the shelf; adding
+  1,740 looks to it would have changed the wall the hero session is curating. A second list (scLib)
+  kept the change to the library.
+
+
+## 2026-11-19 — the hero wall chosen, brighter colours, no twins, gradients that turn hue (claude/zealous-dewdney-386bf8)
+
+Asked (the owner, of webuy.ad's wall, through the roadmap session): "this hero is majorly lacking
+still and the VR headset ad clearly wasn't audited or ever rebuilt", "too many similar or matching
+color schemes", "no pattern fills and only 1 gradient multi color" (asked, "Show more of them"),
+"these are all so dark and unoptimized colors", "not the same theme twice in 1 hero .. with
+different taglines". Show the new wall as one image before it ships.
+
+Changed:
+  - Five twin pairs are never drawn by a seed (`build_house_colours.mjs` marks them).
+  - The looks' shares are vivid 44%, light 36%, dark 20%; each had a third.
+  - Gradients turn hue the shorter way round, and a pair with a hueless accent turns to a
+    neighbour of its own hue. Patterns' marks stand nearly twice as far off the ground.
+  - Photographs .24 of the grounds, gradients and patterns .27 each.
+  - A dark colourway leans to its hue, not its darkness (109 recipes).
+  - An ad with no product never stands on a photograph: the VR and gaming headset ads.
+  - The wall: 18 hand picks, 9 full ads and 9 rebuilt designs, held by `hero_wall_check.mjs`.
+  - Every recipe still, every hero still and every full-size rebuilt ad drawn again on the new
+    engine. The rebuilt ads' EXIF names the software WeBuy.AD (rule 148).
+  - `docs/iphonesla-library.zip` repacked (`scripts/pack_iphonesla_library.sh`). The folder had
+    main's webuy.ad addresses and the rebuilt-ads section, which the zip lacked, so
+    `library_handoff_check` failed on five files.
+
+Learned:
+  - The owner saw main, which has none of this branch's work: its wall draws the old cards.
+  - A recipe's `pair` in motion/recipes.json is its card's, for the record. The pair it draws is
+    in the stills index.
+  - The stills were 40% dark, and 109 recipes leaned dark only because their card's colourway was
+    dark. The stills now: 183 dark, 240 light, 242 vivid.
+  - A tone-on-tone pattern at a step of .055 reads as a flat ground at the wall's size.
+  - A hard-edged gradient painted along the way puts its block on an in-between hue: the far block
+    takes the far end's own hue.
+  - A dark gradient that turns through the yellows goes olive. Teal & Orange takes the quiet middle
+    instead; it is the only pair whose way crosses them.
+  - A wall check has to read the page: the mix lays out the picks, and only the landing knows
+    which tile lands beside which.
+
+## 2026-11-19 — the hero-wall branch merged, the library drawn again in its colours (claude/xenodochial-mccarthy-7bea6d)
+
+- **A still's stamp names its recipe, not the engine.** The hero branch changed how every pair is
+  drawn (twins retired, more vivid, gradients that turn hue). The library's other looks were all
+  current by their stamps and all wrong by their colours, so they were drawn again with `--all`.
+  A change to `motion/fullad.js`, `motion/house-colours.js` or `motion/decor.js` means the same.
+- **Three numbering schemes met in one merge.** The hero branch was cut before pull request 14
+  renumbered the rules, so its new lines cited 146 and 149 for what is now 154 and 155. Only the
+  lines it added were moved; the notes that tell the history keep their old numbers on purpose.
+
+## 2026-11-19 — an ad shows what its words name (claude/xenodochial-mccarthy-7bea6d)
+
+- **A models line names a make without saying it.** "3 SERIES • 5 SERIES • X3 • X5" is BMW, "RX • ES • IS
+  • GX • NX" is Lexus; the builder only knew the makes' names, so both stayed on the general car line
+  and drew whatever its pool held. Two-letter models are read only as a run, never one "IS" alone.
+- **A make in a list of motorcycle makes is not a car.** "HARLEY HONDA · YAMAHA" sent two motorcycle
+  cards to the Honda line and gave them a Honda car in place of their motorcycle. Kinds come before
+  makes.
+- **The right make can still be the wrong car.** Once BMW was read, the first BMW in the catalogue
+  was a 1970s 3.0 CSL, and the first Silverado a 1981 one. A make's picture is now a model the words
+  name, built since 2010; a year range with no end that began in 1991 is not "since 2010".
+- **A check reads what an ad can draw, not one draw.** A look is the same recipe on another seed, and
+  a pool hands out its pictures by seed, so the check holds the whole pool to the words, unless the
+  words leave the list open ("and more").
+- **Fixing one card renames its neighbours.** Library names are numbered within a line, so the BMW
+  ad leaving the car line renumbered two Glass Cards; their stills were drawn again for the name.
+
+## 2026-11-19 (later) — the car fix, the hero wall and the library redraw folded into pull request 14 (claude/ads-improvement-roadmap-7632c8)
+
+The owner's word ("Yes, send them", then "Push it" in the census session): claude/xenodochial-
+mccarthy-7bea6d at c5213e62 is merged here. It had merged this branch at 815ebea2 first, so the
+code met no clash. It brings the car fix (every ad shows the make its words name;
+`scripts/make_match_check.mjs` holds it, for phones, consoles and computers too), the hero wall
+branch (claude/zealous-dewdney-386bf8 at 98eeb651: 18 picks, the twin pairs out of the draw, a
+brighter share, gradients that turn hue, the VR ads off photographs), the library redrawn in
+those colours, and the census's landing redesign.
+
+One number moved: the census called its landing rule 158, which is pull request 15's landing
+rule, claimed first (2908f8e7); 159 to 161 are taken on other branches. Here it is 162, and the
+census's own citations follow.
+
+Open, and the owner's: two sessions have redesigned the landing, the census (162, here) and the
+SEO session (158, pull request 15). Pull request 15 now meets this branch in `index.html`,
+`assets/hero/index.json` and the notes, and which landing leads is the owner's call.

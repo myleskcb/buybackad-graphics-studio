@@ -110,13 +110,16 @@ const r = await page.evaluate(async () => {
   for (const [phones, headline, subject] of [[['16-pro-max-natural', '16-pro-max-white'], 'SELL YOUR IPHONE', ''], [['15-pro-black', '15-pro-white', '16-black'], 'WE BUY IPHONES', ''], [['none'], 'WE BUY COINS', 'coins'], [['none'], 'WE BUY CARS & TRUCKS', 'car']])
     for (let s = 1; s <= 150; s++) {
       const seed = s * 104729, st = F.fullStyle({ ...C.DEFAULT_STYLE, headline, subject, aspect: '1:1', phones }, seed, index);
-      const was = F.drawPair(F.COLOURWAYS, E.rng((seed >>> 0) * 7 + 11)(), subject);
+      const was = F.drawPair(F.DRAWN, E.rng((seed >>> 0) * 7 + 11)(), subject);   // every pair but a twin (2026-11-19)
       out.unchanged.of++; if (st.full_colour === was) out.unchanged.same++;
     }
-  // the looks balance (rule 154): 300 seeds of an unrestricted line, about a third light, vivid and dark, no pair over 6%
+  // the looks balance (rule 154): 300 seeds of an unrestricted line, each look near its share (LOOK_SHARE, 2026-11-19:
+  // "these are all so dark"), no pair over twice the share of a pair of the look drawn most
   { const look = {}, pair = {};
     for (let s = 1; s <= 300; s++) { const st = F.fullStyle({ ...C.DEFAULT_STYLE, headline: 'WE BUY CARS & TRUCKS', subject: 'car', aspect: '1:1', phones: ['none'] }, s * 7907, index); const L = F.COLOUR_OF[st.full_colour].look; look[L] = (look[L] || 0) + 1; pair[st.full_colour] = (pair[st.full_colour] || 0) + 1; }
-    out.looks = { look, most: Object.entries(pair).sort((a, b) => b[1] - a[1])[0], pairs: Object.keys(pair).length }; }
+    const n = k => F.DRAWN.filter(x => F.COLOUR_OF[x].look === k).length, w = Object.fromEntries(['light', 'vivid', 'dark'].map(k => [k, Math.min(1, n(k) / 4) * F.LOOK_SHARE[k]])), sum = Object.values(w).reduce((a, b) => a + b, 0);
+    const want = Object.fromEntries(Object.entries(w).map(([k, v]) => [k, v / sum])), cap = 2 * Math.max(...Object.keys(want).map(k => want[k] / n(k)));
+    out.looks = { look, want, cap, most: Object.entries(pair).sort((a, b) => b[1] - a[1])[0], pairs: Object.keys(pair).length }; }
   // the ground and the product line up (2026-11-18, "ideally bg and assets line up"): every photograph a
   // seed draws agrees with the product the seed drew (groundFits), and on a scene with a floor the floor
   // line lands at the foot of the product band
@@ -176,8 +179,9 @@ const narrow = Object.entries(perSet).filter(([, s]) => s.size < 2);
 ok(!narrow.length, 'every phone set still draws two pairs or more (New look changes colour): ' + Object.entries(perSet).map(([n, s]) => `${n} ${s.size}`).join(', '));
 ok(r.unchanged.same === r.unchanged.of, `an ad with neutral phones or an unrestricted line draws the pair its seed's first draw gives (the look, then the pair): ${r.unchanged.same}/${r.unchanged.of}`);
 { const L = r.looks.look, n = Object.values(L).reduce((a, b) => a + b, 0), share = k => (L[k] || 0) / n;
-  ok(['light', 'vivid', 'dark'].every(k => Math.abs(share(k) - 1 / 3) <= .08) && r.looks.most[1] / n <= .06,
-    `300 seeds of an unrestricted line draw the looks near a third each (light ${L.light || 0}, vivid ${L.vivid || 0}, dark ${L.dark || 0}) over ${r.looks.pairs} pairs, none over 6% (the most, ${r.looks.most[0]}, ${r.looks.most[1]})`); }
+  const W = r.looks.want, pc = k => Math.round(W[k] * 100);
+  ok(['light', 'vivid', 'dark'].every(k => Math.abs(share(k) - W[k]) <= .08) && r.looks.most[1] / n <= r.looks.cap,
+    `300 seeds of an unrestricted line draw the looks near their shares, light ${pc('light')}%, vivid ${pc('vivid')}%, dark ${pc('dark')}% (light ${L.light || 0}, vivid ${L.vivid || 0}, dark ${L.dark || 0}) over ${r.looks.pairs} pairs, none over ${Math.round(r.looks.cap * 100)}% (the most, ${r.looks.most[0]}, ${r.looks.most[1]})`); }
 ok(r.grounds.photos > 0 && !r.grounds.off.length, `a seed's photograph keeps the card to two colour families: ${r.grounds.photos} photo grounds in 720 seeded ads, ${r.grounds.strong} of strong colour, each beside a pair of its family` + (r.grounds.off.length ? '; ' + r.grounds.off.slice(0, 4).join(', ') : ''));
 ok(r.lineup.photos > 0 && !r.lineup.bad.length, `every photograph a seed draws agrees with its product (spec/ground-tags.json): ${r.lineup.photos} photo grounds` + (r.lineup.bad.length ? '; ' + r.lineup.bad.slice(0, 4).join('; ') : ''));
 const reach = r.lineup.floors.filter(f => f.reach), short = r.lineup.floors.filter(f => !f.reach), floorBad = reach.filter(f => f.off > .03);
