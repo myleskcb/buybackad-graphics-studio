@@ -4539,6 +4539,83 @@ recipes changed (42 in the library; their stills, looks and full-size renders dr
 Open: a Sprinter cut-out that is not flagged (the one in the repo shows dealer lettering), and more
 than one motorcycle (the Harley, 1988–2006, stands under all three); both downloads need the owner's OK.
 
+## BP. 2026-11-19 — the studio's editor in the full ad's look, the site in main's (DESIGN-LAW 163)
+
+(claude/wizardly-yalow-496f45, rebuilt on claude/zen-dijkstra-7b5a2e at 601db816, pull request 15
+with rule 165's Ad label and pull request 14 at 4009d4c4; pull request 19 goes against that branch,
+and its before pictures and numbers are 601db816's. A first version, on d1dfc9a6 as rule 152 and §BN there, was set aside when pull request 15
+followed main and house.css went.)
+
+From the session that holds pull request 15: take Easy Mode and the designer from rule 98's poster
+look into rule 146's house look. Before it landed, main put the site in reselling.us's look (rules
+152, 153 and 161 here) and pull request 15 followed it ("Follow main"). The owner was asked twice
+which look the editor wears: "Full ad look (PR 15)", and, with house.css gone and the site in main's
+look, "Full-ad look anyway". This answers §BK item 2.
+
+Done:
+- **styles.css**: one section at its end, "THE EDITOR IN THE FULL AD'S LOOK": the editor's tokens
+  with the full ad's own values, scoped to the editor being open, and its components in the full
+  ad's shapes (rule 163). Mirrored into app.js by scripts/sync_css_fallback.mjs.
+- **index.html**: the area pill's ◎ (its pin is drawn by the sheet), and "Make your <em>ad</em>".
+  The WeBuy.AD mark is the base's. Every id, and every class the scripts name, kept.
+- **The mark**, rule 165's Ad label, which reached pull request 15 while this was open: the section
+  sets the two tokens it reads, `--wb-blue` to the brand's blue and `--wb-ink` to the editor's text;
+  rule 161's bubble rules (`.wb-icon`, `--wb-mint`, `--wb-ring`) are gone, and the designer's bar
+  carries the mark at its 24px. Both bars at 390, 1280 and 1440, light and dark, beside main's:
+  docs/editor-house-2026-11-19/sheet-bars.jpg.
+- **Delete account** (main's, by way of pull request 14, in the account menu): the editor's menu rule
+  out-ranked its 13px, and its hover took the text colour. The section gives both back and shows it at full
+  strength when hovered, where 0.85 opacity on the wash was 4.24:1 in dark (5.2 to 5.8:1 now).
+- **scripts/editor_look_check.mjs**, new (rule 163 says what it fails on).
+- **The long rows fold** (the owner's idea, relayed by the roadmap session): editor-more.js and its
+  script tag; one line of ezTagHost in app.js, so the headline's sub-panel follows the row's button;
+  full_ad_studio_check opens the full ad's typefaces before it picks the later ones, as a visitor
+  must; scripts/editor_fold_check.mjs, new.
+- **The landing and the plans page** keep the site's look: the check reads their ground at every
+  width and theme, with the plans page opened over the editor too. Diffed pixel for pixel against
+  601db816 at 390 and 1440, light and dark: the plans page is identical; the landing differs only in
+  its moving hero wall.
+
+Checks on this tree: editor_look_check (32 views, and the scope at each width and theme),
+editor_fold_check (1440 and 390), full_ad_studio_check, watermark_check, area_dialog_check (42 of
+42), billing_check (173), landing_check, seo_check, sync_css_fallback --check, hero_wall_check,
+make_match_check and library_images_check (51 views, 2,439 pictures) pass; csp_hashes has nothing
+to write. tagline_panel_check, ez_theme_audit --quick and designer_audit fail here exactly as on the
+base, 6758a715, 247b47ff and 601db816 (item 3); ad_library_check fails five browser steps exactly as
+on 601db816 and on pull request 14 at 4009d4c4 alone (item 9).
+
+Open:
+1. **Not on `main`, not deployed** (the owner's word).
+2. **The editor and the site look different, on purpose** (the owner's call): from the landing into
+   Easy Mode a visitor goes from navy, one blue and mint in the system face to Navy & Gold (or
+   Silver & Blue) in Chivo. The WeBuy.AD mark is the constant.
+3. **Three checks that fail on the base too** (6758a715, 247b47ff and 601db816, each served from git
+   beside this tree), on its cards, not the chrome:
+   - tagline_panel_check cannot open its card, stepsFlow-nn05-30, which the base holds back
+     ("opened null"), so none of its 67 steps changes the preview;
+   - ez_theme_audit --quick checks lowerThird-nn03-30, then stops at its template switch: its list
+     falls back to sell_iphone, which the base holds back, and the chip it reads is not there;
+   - designer_audit: on bandKnockout-pp04-15 the hand-off moves one line from where Easy Mode drew it
+     (more than 3px), and it measures 2 of its 6 default cards (four are held back).
+   Their card lists want the base's live cards.
+4. **The dialogs the check does not open yet** (the AI background dialog, the history, sign-in from
+   the editor) wear the same rules, and their small words are raised to the floor, but are not
+   measured: add them to the check's views.
+5. **Easy Mode's bar at 390** still wraps to four rows, as before: a menu like the landing's would
+   take it to one (markup and app.js).
+6. **The emoji in the bars' buttons** (🌐, 📚, 👤, 💾 …) are kept: under 900px the designer's bar
+   shows only them, and from 1101 to 1439 three tools show only their icon.
+7. **§BK item 2 on this branch** still says the editor wears main's look; this section answers it.
+8. **The mark's label is 3.3:1 in dark** (white AD on #3d8bff, rule 165). The editor keeps the
+   brand's colours and counts the mark as a logotype, not a word (WCAG's exception; at 24px and
+   weight 900 it is a large word too, whose floor is 3:1). For 4.5:1 there as well, rule 165's dark
+   blue would go to #2563eb (5.2:1) or deeper, everywhere the mark is.
+9. **ad_library_check fails five browser steps on pull request 14 at 4009d4c4**, and so on 601db816
+   and here, the same five, with FABRIC_JS served: the master library's `#grid-saved .ml-card` never
+   appears, 9 of the Easy Mode strip's 10 looks carry a star and none of the Templates panel's 80
+   library cards does, a navigation destroys one step's page, and the master library's stars time
+   out. Pull request 14's to fix; pull request 15's description records it.
+
 ## BQ. 2026-11-19 — the WeBuy.AD iPhone app, and the pricing buttons
 
 (BF on `main`. In pull request 14, BF is the Type Lab's, and BK to BP are taken on other branches, so it is BQ here.)
@@ -4642,4 +4719,3 @@ Missing or broken, for the owner:
    OffscreenCanvas). Try it on a real iPhone with TestFlight build 1.
 5. Stripe in test mode; a real card through the live checkout (the owner, with
    4242 4242 4242 4242 while in test mode); the contact address; the terms.
-

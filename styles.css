@@ -3103,3 +3103,463 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 }
 /* Delete account sits under Sign out, quieter than it and in the danger colour */
 .acct-drop .am-delete{color:var(--danger);font-size:13px;opacity:.85}
+
+
+/* ═════════════════════════════════════════════════════════════════════════
+   THE EDITOR IN THE FULL AD'S LOOK (DESIGN-LAW 163, 2026-11-19).
+   The site follows main: reselling.us's navy, one blue and mint (rule 152's `family` skin) and the
+   WeBuy.AD mark (rules 153, 161). The owner chose the full ad's own look for the studio's editor all
+   the same ("Full-ad look anyway"), knowing the editor then looks unlike the landing and the plans:
+   Easy Mode, the designer and the dialogs they open wear it while they are open, and nothing else.
+
+     GROUND  the full ad's pairs: Silver & Blue in light, Navy & Gold in dark (the site's light or
+             dark), panels a step off the ground, inputs set into the panel; no glass, no grain.
+     COLOUR  one accent: the step badges, the chosen chip, the download pill and its chevrons, focus.
+     TYPE    the full ad's own face (Chivo), capitals for the headings, badges, labels and calls;
+             words a dialog says stay as written (checks read them).
+     SHAPES  the claim badge (each step opens with one), chips with ticks for the selling points,
+             pills for every choice, the download in a pill between chevrons; soft shadows.
+     MARK    the WeBuy.AD mark stays the brand's: its blue bubble and mint dot, as on every page.
+
+   Scoped to the editor being open (#page-easy or #page-editor active), and off while the plans
+   page covers it, so the landing, the plans and a sign-in from the landing keep the site's look.
+   The values are written here, not borrowed, because this file is also app.js's CSS_FALLBACK and
+   must stand alone. The canvas and every ad preview are not touched: only their frames.
+   ═════════════════════════════════════════════════════════════════════════ */
+@font-face{font-family:'BB Chivo';src:url('assets/fonts/chivo-900.woff2') format('woff2');font-weight:100 900;font-display:swap}
+@font-face{font-family:'BB Chivo Fallback';src:local('Arial'),local('Helvetica Neue'),local('Helvetica');size-adjust:105.2%;ascent-override:89.4%;descent-override:23.8%;line-gap-override:0%}
+
+/* ── tokens: light, Silver & Blue (motion/house-colours.js silver_blue) ── */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)){
+  color-scheme:light;
+  --field:#e2e8f3;
+  --glass-bg:color-mix(in oklab,#e2e8f3 45%,#ffffff);
+  --glass-bg-strong:color-mix(in oklab,#e2e8f3 20%,#ffffff);
+  --glass-edge:rgba(17,27,48,.14);
+  --glass-blur:none;
+  --glass-shadow:none;
+  --glass-shadow-lift:0 22px 44px -22px rgba(17,27,48,.5),0 0 0 1px rgba(17,27,48,.14);
+  --surface-solid:color-mix(in oklab,#e2e8f3 20%,#ffffff);
+  --surface-raise:#e2e8f3;
+  --surface-sunk:rgba(17,27,48,.06);
+  --surface3:color-mix(in oklab,#e2e8f3 88%,#111b30);
+  --text:#111b30;
+  --text-2:#2c3a57;
+  --text-dim:#4b5878;
+  --hairline:rgba(17,27,48,.14);
+  --hairline-strong:rgba(17,27,48,.28);
+  --accent:#1d4ed8;
+  --accent-hover:#1d4ed8;
+  --accent-ink:#ffffff;
+  --accent-deep:#1d4ed8;
+  --accent-wash:color-mix(in srgb,#1d4ed8 13%,transparent);
+  --accent-soft:color-mix(in srgb,#1d4ed8 22%,#ffffff);
+  --accent-text:#1d4ed8;
+  --accent-rgb:29,78,216;--accent2-rgb:29,78,216;
+  --ring:#1d4ed8;--ring-rgb:29,78,216;
+  --glow:color-mix(in srgb,#1d4ed8 40%,transparent);
+  --glow-accent:0 10px 26px -12px color-mix(in srgb,#1d4ed8 40%,transparent);
+  --chip-fill:transparent;--chip-fill-hover:color-mix(in srgb,#1d4ed8 13%,transparent);
+  --brand-1:#1d4ed8;--brand-2:#1d4ed8;--brand-rgb:29,78,216;
+  --ai:#1d4ed8;
+  --good:#0f6b3c;--warn:#8a4b00;--danger:#a3261b;
+  --lift-1:0 1px 2px rgba(17,27,48,.1);
+  --lift-2:0 12px 26px -16px rgba(17,27,48,.45);
+  --lift-3:0 22px 44px -26px rgba(17,27,48,.55);
+  --hard:none;--hard-lg:none;
+  --stage-1:color-mix(in oklab,#e2e8f3 55%,#ffffff);
+  --stage-2:color-mix(in oklab,#e2e8f3 88%,#111b30);
+  --stage-dot:rgba(17,27,48,.09);
+  --scrim:rgba(11,18,36,.5);
+  --r-lg:18px;--r-md:12px;--r-sm:10px;
+  --ui:'BB Chivo','BB Chivo Fallback',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --display:'BB Chivo','BB Chivo Fallback','Arial Black',system-ui,sans-serif;
+  --bokeh-a:0;
+  --lit-patch:rgba(255,255,255,.55);
+  /* the WeBuy.AD mark keeps the brand's label (rule 165): white AD on the brand's blue, WeBuy in the text colour */
+  --wb-blue:#0a5fe0;--wb-ink:var(--text);
+}
+/* ── tokens: dark, Navy & Gold (motion/house-colours.js navy_gold) ── */
+:root[data-theme='dark']:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)){
+  color-scheme:dark;
+  --field:#031b56;
+  --glass-bg:color-mix(in oklab,#031b56 84%,#395185);
+  --glass-bg-strong:color-mix(in oklab,#031b56 72%,#395185);
+  --glass-edge:rgba(242,247,255,.15);
+  --glass-shadow-lift:0 26px 54px -24px rgba(0,0,0,.75),0 0 0 1px rgba(242,247,255,.3);
+  --surface-solid:color-mix(in oklab,#031b56 72%,#395185);
+  --surface-raise:#031b56;
+  --surface-sunk:rgba(242,247,255,.07);
+  --surface3:color-mix(in oklab,#031b56 80%,#000000);
+  --text:#f2f7ff;
+  --text-2:color-mix(in oklab,#f2f7ff 84%,#031b56);
+  --text-dim:color-mix(in oklab,#f2f7ff 68%,#031b56);
+  --hairline:rgba(242,247,255,.15);
+  --hairline-strong:rgba(242,247,255,.3);
+  --accent:#f4b100;
+  --accent-hover:#f4b100;
+  --accent-ink:#031b56;
+  --accent-deep:#f4b100;
+  --accent-wash:color-mix(in srgb,#f4b100 15%,transparent);
+  --accent-soft:color-mix(in srgb,#f4b100 24%,#031b56);
+  --accent-text:#f4b100;
+  --accent-rgb:244,177,0;--accent2-rgb:244,177,0;
+  --ring:#f4b100;--ring-rgb:244,177,0;
+  --glow:color-mix(in srgb,#f4b100 50%,transparent);
+  --glow-accent:0 10px 26px -12px color-mix(in srgb,#f4b100 50%,transparent);
+  --chip-fill-hover:color-mix(in srgb,#f4b100 15%,transparent);
+  --brand-1:#f4b100;--brand-2:#f4b100;--brand-rgb:244,177,0;
+  --ai:#f4b100;
+  --good:#7fe0a5;--warn:#ffcf66;--danger:#ff9a8b;
+  --lift-1:0 1px 2px rgba(0,0,0,.35);
+  --lift-2:0 14px 30px -16px rgba(0,0,0,.7);
+  --lift-3:0 26px 54px -26px rgba(0,0,0,.75);
+  --stage-1:color-mix(in oklab,#031b56 78%,#395185);
+  --stage-2:color-mix(in oklab,#031b56 80%,#000000);
+  --stage-dot:rgba(242,247,255,.07);
+  --scrim:rgba(1,8,26,.66);
+  --lit-patch:color-mix(in srgb,#395185 55%,transparent);
+  --wb-blue:#3d8bff;
+}
+
+/* the heading's accent word (index.html: Make your <em>ad</em>) is never italic, in any look */
+.ez-head .ez-h1 em{font-style:normal}
+
+/* ── the page: the pair's ground and its lit patch, as on the landing; no bokeh, no grain ── */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) body::before,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) body::after{display:none}
+/* the lit patch stays behind the heading: lower down, the strip's edge fades are painted in the plain ground */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) body{background:var(--field)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #page-easy{background:radial-gradient(70% 380px at 86% 0,var(--lit-patch) 0%,transparent 62%) no-repeat,var(--field);color:var(--text);font-family:var(--ui)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) :focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) ::selection{background:var(--accent);color:var(--accent-ink)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) input[type=range]{accent-color:var(--accent)}
+
+/* ── the call to action is the full ad's pill; the rest are outline pills ── */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .btn{border-radius:999px;font:800 14px/1.2 var(--ui);letter-spacing:.045em;text-transform:uppercase;filter:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .btn-xl{font-size:16px;padding:16px 28px;min-height:54px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .btn-primary,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .nav-upgrade,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .plan-btn,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .btn-gen,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tpl-card .tpl-use{background:var(--accent);color:var(--accent-ink);border:0;box-shadow:var(--glow-accent);transform:none;filter:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .btn-primary:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .nav-upgrade:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .btn-gen:hover{transform:translateY(-1px);box-shadow:0 14px 30px -12px var(--glow);filter:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .btn-primary:active,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .nav-upgrade:active,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .btn-gen:active{transform:translateY(1px);box-shadow:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .btn-outline,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .btn-dark{background:transparent;color:var(--text);border:2px solid var(--hairline-strong);box-shadow:none;transform:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .btn-outline:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .btn-dark:hover{background:var(--accent-wash);border-color:var(--accent);color:var(--text);transform:none;box-shadow:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .btn-ghost{background:transparent;color:var(--text-2);border:0;box-shadow:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .btn-ghost:hover{background:transparent;color:var(--text);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:5px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .plan-btn.ghost{background:transparent;color:var(--text);border:2px solid var(--hairline-strong);box-shadow:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .theme-btn{width:42px;height:42px;border-radius:999px;border:2px solid var(--hairline);background:transparent;color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .theme-btn:hover{border-color:var(--accent);background:transparent;color:var(--text)}
+
+
+/* ── Easy Mode's bar ── */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-nav{min-height:64px;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:color-mix(in srgb,var(--field) 94%,transparent);border-bottom:1px solid var(--hairline);box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-adv-link{color:var(--text-2);font:700 14.5px/1 var(--ui);padding:10px 9px;border-radius:999px;background:none;white-space:nowrap}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-adv-link:hover{color:var(--text);background:none;text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:6px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .nav-upgrade{border-radius:999px;font:900 13.5px/1 var(--ui);letter-spacing:.05em;text-transform:uppercase;padding:12px 17px;min-height:42px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .acct-chip{background:transparent;border:2px solid var(--hairline-strong);border-radius:999px;box-shadow:none;color:var(--text);font:800 13.5px/1 var(--ui);letter-spacing:.05em;text-transform:uppercase;padding:11px 15px;min-height:42px;-webkit-backdrop-filter:none;backdrop-filter:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .acct-chip:hover{border-color:var(--accent);background:var(--accent-wash)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .acct-plan{background:var(--accent);color:var(--accent-ink);border-radius:999px;font:800 12px/1.2 var(--ui);letter-spacing:.08em;padding:3px 8px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .acct-plan.free{background:transparent;color:var(--text-2);box-shadow:inset 0 0 0 1.5px var(--hairline-strong)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .caret{opacity:.75}
+
+/* ── Easy Mode: the heading, and each step opens with the claim badge ── */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-wrap{padding-top:34px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-head h2.ez-h1{font:900 clamp(32px,4.4vw,48px)/1 var(--display);letter-spacing:-.012em;text-transform:uppercase;text-wrap:balance;margin:0 0 10px;color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-head h2.ez-h1 em{font-style:normal;color:var(--accent)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-head p{font:400 17px/1.55 var(--ui);color:var(--text-2);margin:0 0 6px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #page-easy .ez-stepline{gap:10px 12px;margin:34px 0 14px;flex-wrap:wrap}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #page-easy .ez-stepnum{width:auto;height:auto;border-radius:999px;background:var(--accent);color:var(--accent-ink);border:0;box-shadow:0 0 24px var(--glow);font:800 12.5px/1 var(--ui);letter-spacing:.09em;text-transform:uppercase;padding:9px 14px;text-align:center}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #page-easy .ez-stepnum::before{content:"Step "}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #page-easy .ez-stepline h2{font:900 25px/1.05 var(--display);text-transform:uppercase;letter-spacing:-.012em;color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #page-easy .ez-stepline small{font:500 14.5px/1.3 var(--ui);color:var(--text-dim);margin:0}
+
+/* ── what you buy, and where: labels in the house's small capitals, the area after a pin ── */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-catrow{gap:10px 12px;flex-wrap:wrap}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-catrow label,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-wherelabel{font:800 12.5px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cat-select{appearance:none;-webkit-appearance:none;background-color:var(--surface-solid);background-image:linear-gradient(45deg,transparent 50%,var(--text) 50%),linear-gradient(135deg,var(--text) 50%,transparent 50%);background-position:calc(100% - 21px) 52%,calc(100% - 15px) 52%;background-size:6px 6px,6px 6px;background-repeat:no-repeat;
+  border:2px solid var(--hairline-strong);border-radius:999px;color:var(--text);font:700 15px/1.2 var(--ui);padding:11px 42px 11px 17px;min-height:46px;cursor:pointer}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cat-select:hover{border-color:var(--accent)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cat-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-where{display:inline-flex;align-items:center;gap:8px;background:transparent;border:2px solid var(--hairline-strong);border-radius:999px;color:var(--text);font:800 13.5px/1 var(--ui);letter-spacing:.05em;text-transform:uppercase;padding:11px 17px 11px 14px;min-height:46px;box-shadow:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-where::before{content:"";flex:none;width:13px;height:18px;background:var(--accent);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cpath d='M6 0a6 6 0 0 0-6 6c0 4.5 6 10 6 10s6-5.5 6-10a6 6 0 0 0-6-6zm0 8.6A2.6 2.6 0 1 1 6 3.4a2.6 2.6 0 0 1 0 5.2z'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cpath d='M6 0a6 6 0 0 0-6 6c0 4.5 6 10 6 10s6-5.5 6-10a6 6 0 0 0-6-6zm0 8.6A2.6 2.6 0 1 1 6 3.4a2.6 2.6 0 0 1 0 5.2z'/%3E%3C/svg%3E") center/contain no-repeat}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-where:hover{border-color:var(--accent);background:var(--accent-wash)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-where.unset{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}
+
+/* ── the strip: each design in the house frame, the chosen one ringed in the accent ── */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-strip{gap:14px;padding:8px 2px 16px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tpl img{border-radius:14px;border:3px solid transparent;box-shadow:0 0 0 1px var(--hairline)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tpl:hover img{transform:translateY(-2px);box-shadow:var(--lift-2),0 0 0 1px var(--hairline)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tpl.sel img{border-color:var(--accent);box-shadow:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tpl .tpl-name{font:700 13px/1.25 var(--ui);color:var(--text-2);margin-top:7px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tpl.sel .tpl-name{color:var(--text);font-weight:800}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tpl .tpl-pro,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-fulltile .fa-new{display:inline-block;vertical-align:1px;margin-right:6px;padding:3px 6px;border:0;border-radius:999px;font:800 12px/1 var(--ui);letter-spacing:.06em}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tpl .tpl-pro{background:var(--text);color:var(--field)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-fulltile .fa-new{background:var(--accent);color:var(--accent-ink)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tpl-lock{background:var(--text);color:var(--field);border:0;border-radius:999px;font:800 12px/1 var(--ui);letter-spacing:.06em}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tpl.locked::after{border-radius:14px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .strip-arrow{background:var(--surface-solid);border:2px solid var(--hairline);box-shadow:var(--lift-2);color:var(--text);-webkit-backdrop-filter:none;backdrop-filter:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .strip-arrow:hover{background:var(--surface-solid);border-color:var(--accent)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-keys{font-size:13px;color:var(--text-dim)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-keys b{color:var(--text-2);font-weight:800}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-keys kbd{border:1px solid var(--hairline-strong);border-bottom-width:2px;background:var(--surface-solid);color:var(--text);font-size:12px;font-weight:700;line-height:18px}
+
+/* ── the two cards: a panel a step off the ground, as the landing's ── */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-card{background:var(--glass-bg);border:1px solid var(--hairline);border-radius:22px;box-shadow:none;padding:22px;-webkit-backdrop-filter:none;backdrop-filter:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-preview-card{top:82px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-field{margin-bottom:18px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-field label,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-subttl,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-theme-grp{font:800 12.5px/1.25 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-field label span,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #fa-form .fa-opt,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-theme-grp small{font:500 13.5px/1.3 var(--ui);letter-spacing:0;text-transform:none;color:var(--text-dim)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-subttl{margin:16px 0 8px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-theme-grp{margin:8px 0 0}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-field input,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-field textarea,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .field input[type=text],:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .field input[type=tel],:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .field input[type=number],:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .field textarea,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .field select,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .modal input[type=text],:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .modal input[type=tel],:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .modal input[type=email],:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .modal input[type=password],:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-text,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-search,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-select,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tp-row select,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .fp-btn{
+  background:var(--surface-raise);border:2px solid var(--hairline);border-radius:12px;color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-field input,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-field textarea{font:500 16px/1.35 var(--ui);padding:11px 14px;min-height:48px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-field input::placeholder,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-field textarea::placeholder,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .modal input::placeholder,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .field input::placeholder{color:var(--text-dim);opacity:1}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-field input:focus,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-field textarea:focus,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .field input:focus,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .field textarea:focus,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .field select:focus,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .modal input:focus,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-text:focus,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-search:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-wash)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-edit-btn{border:2px solid var(--hairline);background:transparent;color:var(--text-2);border-radius:12px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-edit-btn:hover{border-color:var(--accent);color:var(--text);background:var(--accent-wash)}
+
+/* ── selling points: the full ad's chips, a tick on each one picked ── */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-chiprow{gap:8px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-chip{display:inline-flex;align-items:center;gap:6px;background:transparent;border:2px solid var(--hairline-strong);color:var(--text);border-radius:999px;padding:9px 14px 9px 13px;font:800 13px/1 var(--ui);letter-spacing:.03em;text-transform:uppercase;min-height:40px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-chip:hover{border-color:var(--accent);background:var(--accent-wash);color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-chip.on::before{content:"✓";font-weight:900}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-chip-custom:not(.on){border-style:dashed}
+
+/* ── every other choice is a pill; the one chosen is filled with the accent ── */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-fxrow{gap:7px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-fxrow button,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-voices button{background:transparent;border:2px solid var(--hairline-strong);color:var(--text);border-radius:999px;padding:9px 14px;font:700 13.5px/1 var(--ui);min-height:38px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-fxrow button:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-voices button:hover{border-color:var(--accent);background:var(--accent-wash)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-fxrow button.active,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-voices button.active,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-fxrow button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+/* (the editor's and its dialogs' chips; the landing's filters are house.css's) */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) :is(#page-easy,#page-editor,.modal) .chip{background:transparent;border:2px solid var(--hairline-strong);color:var(--text);border-radius:999px;font:700 13.5px/1 var(--ui);padding:8px 13px;box-shadow:none;transform:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) :is(#page-easy,#page-editor,.modal) .chip:hover{border-color:var(--accent);background:var(--accent-wash);color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) :is(#page-easy,#page-editor,.modal) :is(.chip.on,.chip.active){background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) :is(#page-easy,#page-editor,.modal) .chip .n{opacity:.8}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #badge-chips .chip::before{content:"+";margin-right:5px;font-weight:900;color:var(--accent)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #badge-chips .chip:hover::before{color:inherit}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ed-voices button{padding:8px 11px;font-size:13px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-sizes{gap:7px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #page-easy .ez-sizes .chip{font:800 13px/1 var(--ui);letter-spacing:.02em;padding:9px 13px;min-height:38px}
+/* the colour sets and the frames of every sample: a hairline, the chosen one ringed in the accent */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-theme{border:2px solid var(--hairline-strong);border-radius:12px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-theme:hover{border-color:var(--accent)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-theme.active,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #fa-pairs .ez-theme.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-theme.orig,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-sw.orig,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #fa-pairs .fa-any{background:transparent;color:var(--text);font:800 12px/1 var(--ui);letter-spacing:.04em;text-transform:uppercase}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #fa-pairs .fa-any{border:2px solid var(--hairline-strong);border-radius:12px;height:32px;padding:0 12px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #fa-pairs .fa-any.active{border-color:var(--accent);color:var(--text);box-shadow:0 0 0 3px var(--accent-wash)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-sw{border-radius:12px;box-shadow:0 0 0 1px var(--hairline)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-sw.sel{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-sw.orig{font-size:10.5px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tagstyle,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-phonepick-item,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tag-pat,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tag-preset{border:2px solid var(--hairline-strong)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tagstyle{border-radius:12px;background:var(--surface-sunk);color:var(--text);font:700 12.5px/1.15 var(--ui)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tagstyle:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-phonepick-item:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tag-pat:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tag-preset:hover{border-color:var(--accent)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tagstyle.active,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-phonepick-item.active,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tag-pat.active,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tag-preset.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-phonepick-item{background:var(--surface-sunk)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-phonepick-item span{font:700 12px/1.2 var(--ui);color:var(--text-2)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-phonepick-grp,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tag-patgrp{font:800 12px/1 var(--ui);letter-spacing:.08em;color:var(--text-2)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tag-note{border-left-color:var(--accent);background:var(--surface-sunk)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tagnote,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-held-note,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tag-pathint{font-size:13.5px;color:var(--text-2)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-fxline label{font:800 12px/1 var(--ui);letter-spacing:.07em;color:var(--text-2);width:80px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-fxnote{margin-left:90px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-fxline .fxval{font:700 13px/1 var(--ui);font-variant-numeric:tabular-nums;color:var(--text-2)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-fxline input[type=color],:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tag-stops input[type=color],:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) input[type=color]{border:2px solid var(--hairline);border-radius:10px;background:transparent}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tag-stops button{border:2px solid var(--hairline-strong);background:transparent;color:var(--text);border-radius:10px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-bulk,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-upload-bg{background:transparent;color:var(--text);border:2px dashed var(--hairline-strong)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-bulk{font:700 13.5px/1.2 var(--ui)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-upload-bg{border-radius:16px;font:700 16px/1.2 var(--ui)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-bulk:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-upload-bg:hover{border-color:var(--accent);background:var(--accent-wash)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-recent{border-radius:12px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-recent.sel{border-color:var(--accent)}
+
+/* ── the preview card: the ad in the house frame, the download in a pill between chevrons ── */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-preview-card img{border-radius:14px;box-shadow:0 0 0 1px var(--hairline)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-dl{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:58px;margin-top:16px;padding:16px 64px;background:transparent;border:0;border-radius:999px;
+  color:var(--accent-ink);font:900 16.5px/1.1 var(--ui);letter-spacing:.05em;text-transform:uppercase;box-shadow:none;filter:none;transform:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-dl::before{content:"";position:absolute;inset:0 54px;z-index:-1;border-radius:999px;background:var(--accent);box-shadow:0 10px 26px -12px var(--glow);transition:transform .15s,box-shadow .15s}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-dl::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:var(--accent);filter:drop-shadow(0 0 7px var(--glow));
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 30'%3E%3Cg fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath stroke-width='4' d='M4 9.5 9.5 15 4 20.5'/%3E%3Cpath stroke-width='4.6' d='M17 8l7 7-7 7'/%3E%3Cpath stroke-width='5.2' d='M30.5 6.5 39 15l-8.5 8.5'/%3E%3C/g%3E%3C/svg%3E") left center/44px 30px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 30'%3E%3Cg fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath stroke-width='4' d='M40 9.5 34.5 15 40 20.5'/%3E%3Cpath stroke-width='4.6' d='M27 8l-7 7 7 7'/%3E%3Cpath stroke-width='5.2' d='M13.5 6.5 5 15l8.5 8.5'/%3E%3C/g%3E%3C/svg%3E") right center/44px 30px no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 30'%3E%3Cg fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath stroke-width='4' d='M4 9.5 9.5 15 4 20.5'/%3E%3Cpath stroke-width='4.6' d='M17 8l7 7-7 7'/%3E%3Cpath stroke-width='5.2' d='M30.5 6.5 39 15l-8.5 8.5'/%3E%3C/g%3E%3C/svg%3E") left center/44px 30px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 30'%3E%3Cg fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath stroke-width='4' d='M40 9.5 34.5 15 40 20.5'/%3E%3Cpath stroke-width='4.6' d='M27 8l-7 7 7 7'/%3E%3Cpath stroke-width='5.2' d='M13.5 6.5 5 15l8.5 8.5'/%3E%3C/g%3E%3C/svg%3E") right center/44px 30px no-repeat}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-dl:hover{filter:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-dl:hover::before{transform:translateY(-1px);box-shadow:0 14px 30px -12px var(--glow)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-dl:active::before{transform:translateY(1px);box-shadow:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-dl:disabled{opacity:.55}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-open-adv,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-order{display:flex;align-items:center;justify-content:center;gap:6px;background:transparent;border:2px solid var(--hairline-strong);border-radius:999px;color:var(--text);font:800 13.5px/1.2 var(--ui);letter-spacing:.04em;text-transform:uppercase;padding:12px 16px;min-height:46px;text-align:center}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-open-adv:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-order:hover{border-color:var(--accent);background:var(--accent-wash);color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-order{color:var(--good)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-quota{font:600 13.5px/1.4 var(--ui);color:var(--text-2)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-quota b{font-family:var(--ui);color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-quota .up{color:var(--text);text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:3px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-hint{font-size:13.5px;color:var(--text-2)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-layers{border-top:1px solid var(--hairline)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-lname{font:800 14px/1.2 var(--ui)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-restore{color:var(--text);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:3px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .fa-say,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .fa-on .fa-tip:not([hidden]){background:var(--surface-sunk);border:1px solid var(--hairline);border-radius:14px;color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .fa-say p.fix b{color:var(--danger)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .fa-tip button{border:2px solid var(--accent);color:var(--text);background:var(--accent-wash);font:800 12.5px/1 var(--ui);letter-spacing:.04em;text-transform:uppercase;padding:8px 13px}
+
+/* ── menus, pop-overs and dialogs: a panel, a hairline, a soft shadow ── */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .view-drop,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #star-pop,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #txt-pop,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .fp-pop{background:var(--surface-solid);border:1px solid var(--hairline-strong);border-radius:16px;box-shadow:var(--glass-shadow-lift);-webkit-backdrop-filter:none;backdrop-filter:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .view-item{font:600 14.5px/1.2 var(--ui);border-radius:10px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .view-item:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #star-pop button:hover{background:var(--accent-wash);color:var(--text)}
+/* Delete account stays quieter than Sign out and in the danger colour (main's .am-delete, by way of pull request 14); hovered, at full strength (4.5:1 on the wash) */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .acct-drop .am-delete{font-size:13px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .acct-drop .am-delete:hover{color:var(--danger);opacity:1}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .view-item.on .vi-check{background:var(--accent);border-color:var(--accent)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .modal{background:var(--surface-solid);border:1px solid var(--hairline-strong);border-radius:24px;box-shadow:var(--glass-shadow-lift);-webkit-backdrop-filter:none;backdrop-filter:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .modal-overlay{-webkit-backdrop-filter:none;backdrop-filter:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .modal h3,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .picker-head h3{font:900 22px/1.1 var(--display);letter-spacing:-.012em;color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .modal .modal-sub{color:var(--text-2)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .modal label:not([class]),:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .area-sec-title,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-lab,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .co-kicker,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tp-row label,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #txt-pop .tp-title{font-weight:800;letter-spacing:.08em;color:var(--text-2)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .notif{background:var(--surface-solid);border:1px solid var(--hairline-strong);box-shadow:var(--glass-shadow-lift);font-family:var(--ui);-webkit-backdrop-filter:none;backdrop-filter:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .auth-tabs,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .seg,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .fillseg{background:var(--surface-sunk);border:1px solid var(--hairline);padding:4px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .auth-tabs button,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .seg button,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .fillseg button{color:var(--text-2);font-weight:700}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .auth-tabs button.active,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .seg button.active,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .fillseg button.active{background:var(--accent);color:var(--accent-ink);box-shadow:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .at-card{background:var(--surface-sunk);border:1px solid var(--hairline);border-radius:16px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .at-card:hover{border-color:var(--accent)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .at-card.hot{border-color:var(--accent);background:var(--accent-wash)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .picker-filters button{border:2px solid var(--hairline-strong);background:transparent;color:var(--text);font:700 13.5px/1 var(--ui);padding:9px 14px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .picker-filters button.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .resume-card{background:var(--accent-wash);border:1px solid var(--accent)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #tut-bubble{background:var(--surface-solid);border:1px solid var(--hairline-strong);box-shadow:var(--glass-shadow-lift)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #tut-bubble .tb-step{font:800 12px/1 var(--ui);letter-spacing:.09em;color:var(--accent)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #tut-bubble h4{font:900 18px/1.15 var(--display);color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #tut-spot{box-shadow:0 0 0 9999px var(--scrim),0 0 0 3px var(--accent),0 0 34px var(--glow)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .area-tok{background:var(--accent-wash);border:2px solid var(--accent);color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .area-tok-n{background:var(--accent);color:var(--accent-ink);font-family:var(--ui)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .area-near-opt{border:2px dashed var(--hairline-strong);color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .area-near-opt span{color:var(--accent)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .area-opt{border:1px solid var(--hairline);border-radius:12px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .area-opt.on,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .area-opt:hover{border-color:var(--accent);background:var(--accent-wash)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .area-reset,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cb-link,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ai-more,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-tag-pathint button{color:var(--text);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:3px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .xm-btn,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .hist-dl,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .hist-edit,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bg-result-acts button,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-acts button,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-more{background:transparent;border:2px solid var(--hairline-strong);color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .xm-btn:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .hist-dl:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .hist-edit:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bg-result-acts button:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-acts button:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-more:hover{border-color:var(--accent);color:var(--text);background:var(--accent-wash)}
+/* the colour builder (colour-builder.js) in the editor's dialog: hairlines, the chosen card ringed in the accent */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cb-tabs{background:var(--glass-bg);border:1px solid var(--hairline);box-shadow:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cb-tabs [role=tab]{color:var(--text-2);font-weight:800}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cb-tabs [role=tab].on{background:var(--accent);color:var(--accent-ink);box-shadow:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cb-num{background:var(--accent);color:var(--accent-ink)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cb-pair,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cb-look-btn{border:1.5px solid var(--hairline-strong);background:var(--surface-solid)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cb-pair:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:var(--lift-2)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cb-pair.on,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cb-look-btn.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cb-start.on{border-color:var(--accent);background:var(--surface-solid);box-shadow:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cb-switch{border-color:var(--hairline-strong);box-shadow:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cb-switch:hover{background:var(--accent-wash);color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cb-side{border:1px solid var(--hairline);box-shadow:var(--lift-3)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .cb.in-modal .cb-side{box-shadow:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-tile.on .bggen-thumb{border:2px solid var(--accent);box-shadow:0 0 0 3px var(--accent-wash)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-pick{border:2px solid var(--hairline-strong)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-tab.on{border-bottom-color:var(--accent)}
+
+/* ── the designer: the same bar, panels a step off the ground, the stage a shade under it ── */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .topbar{height:62px;flex-basis:62px;gap:5px;background:color-mix(in srgb,var(--field) 94%,transparent);border-bottom:1px solid var(--hairline);box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+/* one line for every tool (the bar scrolls under 1100px instead); the mark at rule 165's 24px */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .topbar .tb-btn,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .topbar .btn,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #export-btn,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .panel-tabs button{white-space:nowrap}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tb-tplname{max-width:150px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tb-sep{background:var(--hairline);height:24px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tb-tplname{font:800 12.5px/1 var(--ui);letter-spacing:.06em;text-transform:uppercase;color:var(--text-2)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tb-btn{color:var(--text-2);font:700 13.5px/1 var(--ui);border:0;border-radius:999px;padding:10px 7px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tb-btn:hover{background:var(--surface-sunk);color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tb-format{background-color:transparent;background-image:linear-gradient(45deg,transparent 50%,var(--text) 50%),linear-gradient(135deg,var(--text) 50%,transparent 50%);border:2px solid var(--hairline-strong);color:var(--text);font:700 13.5px/1 var(--ui);border-radius:999px;padding:9px 32px 9px 14px;min-height:40px;max-width:230px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tb-format:hover{border-color:var(--accent)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #enhance-btn{border:2px solid var(--accent);background:var(--accent-wash);color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #enhance-btn:hover{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #export-btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;box-shadow:var(--glow-accent);font:900 14px/1 var(--ui);letter-spacing:.05em;text-transform:uppercase;padding:12px 18px;min-height:42px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #export-btn:hover{filter:none;transform:translateY(-1px)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .panel{background:var(--glass-bg);-webkit-backdrop-filter:none;backdrop-filter:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .panel-left{border-right:1px solid var(--hairline)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .panel-right{border-left:1px solid var(--hairline)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .drawer-tab{background:var(--glass-bg);border:1px solid var(--hairline);color:var(--text-2);font-size:12px;-webkit-backdrop-filter:none;backdrop-filter:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .drawer-tab:hover{color:var(--text);background:var(--surface-solid)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .panel-tabs{border-bottom:1px solid var(--hairline)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .panel-tabs button{color:var(--text-2);font:700 13px/1 var(--ui);letter-spacing:0;border-bottom:3px solid transparent;padding:16px 5px 13px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .panel-tabs button:hover{color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .panel-tabs button.active{color:var(--text);border-bottom-color:var(--accent)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .psec-title{font:800 12.5px/1.2 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .field label{font:700 13.5px/1.3 var(--ui);color:var(--text-2)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .field input[type=text],:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .field input[type=tel],:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .field input[type=number],:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .field textarea,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .field select{font:500 15px/1.3 var(--ui);padding:9px 12px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ed-note,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .empty-hint,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ai-note,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .qr-help{color:var(--text-2)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .empty-hint{border:1px dashed var(--hairline-strong);background:var(--surface-sunk);border-radius:14px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ed-more{border:2px dashed var(--hairline-strong);border-radius:999px;color:var(--text);font:700 13px/1.2 var(--ui)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ed-more:hover{border-color:var(--accent);background:var(--accent-wash);color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .add-btn,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .emoji-grid button,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .icon-row button,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tp-biu button,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ts-shapes button{background:var(--surface-sunk);border:1px solid var(--hairline);color:var(--text-2)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .add-btn{border-radius:14px;font:700 13px/1.2 var(--ui)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .add-btn:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .emoji-grid button:hover,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .icon-row button:hover{border-color:var(--accent);background:var(--accent-wash);color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .icon-row button.active,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tp-biu button.active,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ts-shapes button.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .mini-tpl{border:1px solid var(--hairline);border-radius:12px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .mini-tpl.current{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .layer-row{border-radius:12px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .layer-row.selected{background:var(--accent-wash);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .layer-row .li-text,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .layer-acts button.on{color:var(--text)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .layer-ico{background:var(--surface-sunk);color:var(--text-2)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .stage::before{background-image:radial-gradient(var(--stage-dot) 1.2px,transparent 1.3px)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #canvas-holder{box-shadow:var(--lift-3),0 0 0 1px var(--hairline)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .zoombar{background:var(--surface-solid);border:1px solid var(--hairline-strong);box-shadow:var(--lift-2);-webkit-backdrop-filter:none;backdrop-filter:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .zoombar .zb-pct{font:700 12.5px/1 var(--ui);font-variant-numeric:tabular-nums}
+
+/* ── rule 113's floors, which the poster skin carried for the editor (its legibility pass,
+   2026-10-02): the site's skin is `family` now, so the editor carries them itself ── */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) body{font-size:16px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .chip .n{font-size:12.5px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tpl-card .tpl-lockpill{font-size:12px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-lprev{font-size:12.5px;color:var(--text-2)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-fxnote,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-bulk small,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ed-note{font-size:13.5px;color:var(--text-2)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .seg button{font-size:13px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .empty-hint{font-size:14px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-cost{font-size:14px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-bal{font-size:13px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .co-kicker{font-size:12px}
+
+/* ── rule 113's floor, in the corners the poster's legibility pass did not reach: nothing a
+   customer reads under 12px (the ORIG swatch's badge, 10.5px, is the one exception) ── */
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .modal label:not([class]),:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .label{font-size:12.5px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .area-sec-title,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-lab,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #txt-pop .tp-title,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .fp-group,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ed-count,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ab-pro,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bg-lib-badge,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-n,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-hot,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-fins,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .area-tok-n,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .area-tok-tag,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .layer-cl,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .mini-tpl .mt-name{font-size:12px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tp-row label{font-size:12px;width:60px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tp-row .tp-val{font:700 12px/1 var(--ui);font-variant-numeric:tabular-nums}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .tp-reset,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-restore,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .auth-hint,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .demo-note,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ai-note,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-hint,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-state,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #ez-recents:empty::after{font-size:13px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .layer-prev,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .hist-meta,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .area-opt span,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-name,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-sub,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .bggen-preview pre{font-size:12.5px}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ab-pro{padding:3px 7px}
+
+/* ── the long rows, folded (editor-more.js): the first eight and the chosen one show, the rest
+   behind a button that opens them in place; in every look the folded ones are gone ── */
+.fold-hide{display:none !important}
+.fold-more{display:inline-flex;align-items:center;gap:7px;margin:4px 0 2px;padding:7px 2px;background:none;border:0;color:var(--text);font:700 13px/1.2 var(--ui);cursor:pointer}
+.fold-more[hidden]{display:none}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .fold-more{min-height:36px;font:800 12.5px/1.2 var(--ui);letter-spacing:.06em;text-transform:uppercase;color:var(--text);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:5px}
+.fold-more::after{content:"";flex:none;width:7px;height:7px;border:solid currentColor;border-width:0 2px 2px 0;transform:translateY(-2px) rotate(45deg);transition:transform .15s}
+.fold-more[aria-expanded=true]::after{transform:translateY(2px) rotate(-135deg)}
+:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .fold-more:hover{text-decoration-thickness:3px}
+#ez-tag-looks + .fold-more,#ez-tag-looks + .ez-held-note + .fold-more{margin-bottom:6px}
+
+/* ── touch, and narrow screens ── */
+@media (pointer:coarse){
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .theme-btn{width:44px;height:44px}
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-fxrow button,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-voices button,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) :is(#page-easy,#page-editor,.modal) .chip{min-height:40px}
+}
+/* under a wide screen the bar keeps one line: three tools show their icon (their words stay for a
+   screen reader and in their titles), and the bar scrolls with Export pinned, as it does under 1100px */
+@media (max-width:1439px){
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #centre-all-btn .tb-label,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #brand-btn .tb-label,:root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #save-tpl-btn .tb-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .topbar{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .topbar > *{flex:none}
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .topbar .tb-spacer{flex:1 0 8px}
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #export-btn{position:sticky;right:0;z-index:2;box-shadow:var(--glow-accent),-18px 0 18px -10px var(--field)}
+}
+@media (max-width:640px){
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-adv-link{font-size:13.5px;padding:9px 7px}
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .nav-upgrade{padding:11px 14px;font-size:12.5px}
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .acct-chip{padding:10px 13px;font-size:12.5px}
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-head h2.ez-h1{font-size:clamp(30px,9vw,40px)}
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) #page-easy .ez-stepline h2{font-size:22px}
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-card{padding:18px 16px;border-radius:20px}
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-where{width:100%;justify-content:center}
+}
+@media (max-width:480px){
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-dl{padding:15px 46px;font-size:15px;min-height:54px}
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-dl::before{inset:0 38px}
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-dl::after{-webkit-mask-size:30px 21px,30px 21px;mask-size:30px 21px,30px 21px}
+}
+@media (prefers-reduced-motion:reduce){
+  :root:is(:has(#page-easy.active),:has(#page-editor.active)):not(:has(#page-plans.active)) .ez-dl::before{transition:none}
+}
