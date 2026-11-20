@@ -6722,7 +6722,7 @@ Open, and the owner's: two sessions have redesigned the landing, the census (162
 SEO session (158, pull request 15). Pull request 15 now meets this branch in `index.html`,
 `assets/hero/index.json` and the notes, and which landing leads is the owner's call.
 
-## 2026-11-19 (latest) — pull request 14 at c3694b14 merged here; this landing leads (claude/zen-dijkstra-7b5a2e)
+## 2026-11-19 — pull request 14 at c3694b14 merged here; this landing leads (claude/zen-dijkstra-7b5a2e)
 
 Studied:
   Pull request 14 had folded in the census's push (c5213e62): the car fix, the hero wall's picks
@@ -6758,9 +6758,47 @@ Found:
   - **Rule 162 is now taken twice**: the census's landing (pull request 14) and pull request 19's
     editor. Pull request 14 merges first, so pull request 19's rule becomes 163.
 
-RESUME HERE:
+RESUME HERE (superseded by the entry below):
   0. The owner's word on pull requests 14, 15, 17 and 19, in that order.
   1. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5).
   2. The landing's load (§BK 3): what is left is app.js at load.
+  3. The explainers in rule 161's mark (§BK 16), and the rule numbers when the branches meet
+     (§BK 17).
+
+## 2026-11-19 (latest) — the library's broken pictures traced, a check for them, and full rows (claude/zen-dijkstra-7b5a2e)
+
+Studied:
+  The owner's screenshot came from a preview with the bubble mark: the library's Trucks line drew six
+  cards, then showed only names ("Volt Stack template", "Trucks · Photo band template"). Every card
+  past the sixth was one of pull request 14's new library looks (`assets/library-looks/`), and the
+  list naming them had loaded.
+
+Measured:
+  - Each candidate build was served straight from git (a small server reading `git cat-file`), so no
+    working tree could move under it: 873937a2, pull request 17 at 7683508a and pull request 19 at
+    891826bc. With them, this branch's 6758a715, pull request 17's merge in progress (its own
+    preview) and pull request 19's working tree. Cars & Trucks and its Trucks line load in full on
+    every one, in the owner's window size, scrolled as a person would.
+  - The new `library_images_check`: 51 views, every category and line opened to the end, 2,439
+    pictures, all loaded, in 20 seconds. Behind a proxy that withholds `assets/library-looks/`, it
+    fails the way the owner saw.
+  - Library pictures fetched at load at 1440: 24 with 16 cards a page, 23 with 32. They are lazy.
+
+Changed:
+  - `scripts/library_images_check.mjs`.
+  - The library pages by full rows (`scPage`, rule 158): 32 on a desktop, 24 at three or two
+    columns, 16 on a phone.
+
+Found:
+  - **A preview that serves a working tree can break under a merge.** The list loads while the tree
+    has it; the pictures are asked for as the visitor scrolls, after a merge, abort or reset has
+    moved the tree. To judge a build, serve its commit, not a tree another session is changing.
+  - **One glyph can name the build.** The screenshot's "◎ Set your area" was dropped in pull request
+    19, so the page was not 19's.
+
+RESUME HERE:
+  0. The owner's word on pull requests 14, 15, 17 and 19, in that order.
+  1. The brand kit and search presence pull request on this branch (the roadmap session's brief).
+  2. A "hello" forward for webuy.ad; Search Console and Bing (§BK 5).
   3. The explainers in rule 161's mark (§BK 16), and the rule numbers when the branches meet
      (§BK 17).

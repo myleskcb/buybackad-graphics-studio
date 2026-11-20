@@ -6661,6 +6661,11 @@ product way better then wasting precious scroll space looking at color combos.."
   design should lead?": "SEO's (PR 15)". The hero wall's hand picks are the hero wall's own work
   (`assets/hero-picks.json`, `node scripts/hero_wall_check.mjs`), and this landing shows them as
   they are.
+- **The library opens in full rows** (the owner, 2026-11-19: "show more than 16"). A page is eight
+  rows of the grid as it is laid out at three columns or more (32 cards on a desktop, 24 at three),
+  24 cards at two columns, and 16 on a phone, where each card is the width of the screen. "Show more"
+  adds the same again. Every card's picture waits until it is scrolled near, so a larger page costs
+  nothing at load.
 - **The landing sells what it makes.** The colour sets, their link in the bar and the foot, and
   their count left it. In their place "Why it gets texts" (the number, one message, a real
   business: what the studio does, never a claim of results), then the video ads. The order: what
