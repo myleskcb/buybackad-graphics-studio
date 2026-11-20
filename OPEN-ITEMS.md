@@ -4320,13 +4320,21 @@ Done:
   ones already made).
 
 Owed by the owner, in order:
-1. Put the web part live (main): the app needs `IN_IOS_APP`, the sessionId and
-   Delete account on webuy.ad.
-2. App Store Connect: register `ad.webuy.app` and create the app record
-   "WeBuy.AD", United States only (ios/README.md "Releasing").
+1. ~~Put the web part live~~ Done 2026-11-19 (main 7ca8021a).
+2. ~~App Store Connect~~ Done 2026-11-19: `ad.webuy.app` registered, the app
+   "WeBuy.AD" (Apple ID 6837161499) created, free, United States only.
 3. A reviewer's demo account on webuy.ad, and live Stripe keys, so the
    reviewer can pay.
-4. `ios/release.sh 1 --upload`.
+4. ~~`ios/release.sh 1 --upload`~~ Done 2026-11-19 22:28: build 1.0.0 (1)
+   signed for the App Store and uploaded ("Upload succeeded"); App Store
+   Connect showed it Processing. Next: a TestFlight internal group, then the
+   store page (screenshots, description, privacy answers) and App Review with
+   the reviewer's demo account.
+5. What a paying customer would still meet (the owner asked "anything else
+   we're missing?"): Stripe in test mode; no real card through the live
+   checkout yet; the contact address bounces; the terms' party; video export
+   inside the iPhone app not tried; a forgot-password flow and projects
+   across devices not checked.
 
 Open:
 - **reselling.us**: nothing connects today. A "Send to reselling.us" for its
@@ -4334,6 +4342,56 @@ Open:
   like iPhones LA's /studio/images; Pro and Business would carry it.
 - The trailer bed for the explainers, the terms' party, the contact address,
   live Stripe keys (§BD, §BE).
+
+### The paid-customer walkthrough, 2026-11-19
+
+The owner: "anything else we're missing or is it a fully working and editable
+ad / video maker?", then "Yes, run it". No password or card was typed on the
+live site (the owner's to type); signed-in steps ran on a local copy in demo
+mode, the server on the real function code with a stand-in Stripe.
+
+Works:
+- **billing_check: 164 passed** with the browser part (real Chromium, the
+  stand-in Stripe): the landing's plans, the checkout agreement, Pay,
+  "Payment successful" on Pro, the switch to Business, a credit pack, the AI
+  credit hint, the video maker's Free gate and a Pro video with no marks,
+  Delete account. Two fixes to the check: the video maker asks for a number
+  before a download since 2026-11-10 (b7c74a1e), and reads it after 500 ms.
+  Run it with FABRIC_JS (a local fabric.min.js) or the editor errors.
+- Live, signed out: the pricing buttons, the video maker's "Sign in to
+  download your video. Video downloads come with Pro and Business."
+- Local demo, by hand: sign up, a design, the number, a colour set, Download
+  (a 1080 PNG, 1 of the week's 3 counted), the advanced editor (8 text layers,
+  the headline edited), Choose Pro, Delete account.
+- The iPhone app: a photo ad to the share sheet and Photos.
+
+Missing or broken, for the owner:
+1. **No password reset.** No Forgot password link and no endpoint: a customer
+   who forgets the password is locked out of a paid account. It needs an email
+   sender (none is configured: no Resend, Postmark or SendGrid key).
+2. ~~**The library on the plans.**~~ Done 2026-11-19, the owner: "Open it to
+   customers". Every signed-in account keeps a library (ad-library.js
+   `canUse()`): the Library buttons, the ★ on every ad, Save to library after a
+   download and in the video pop-up, the public link and its JSON and RSS. The
+   server already held each plan's limit (Keep 12 / 300 / 1,000 / 3,000) and
+   kept video for Pro and Business. What is about iPhones LA (the link sent to
+   the shop, "offered daily", "not for iPhones LA") stays with `shop()`: the
+   owner, or a browser connected from iPhones LA → Auto-post. A customer reads
+   "kept with your account: open them on any device, download one again, or
+   share them all with one link". On master-library.html a visitor to someone's
+   link sees "This library as a feed", and only an operator sees the
+   iPhones LA lines (`SHOP`, from /me). ad_library_check: as on main, only the
+   three upload-a-video steps fail; billing_check 164 passed.
+3. **Saved work is on the device.** The last 12 downloads (reopenable) and the
+   draft live in the browser (IndexedDB `pgfx`, localStorage); nothing follows
+   a customer to another phone or computer, except the ads they save to the
+   library (since item 2).
+4. **Video export in the iPhone app** stalled at 2% "Drawing frames" in the
+   Simulator for four minutes, though the web view has every API it uses
+   (VideoEncoder with H.264, AudioEncoder, MediaRecorder MP4, file sharing,
+   OffscreenCanvas). Try it on a real iPhone with TestFlight build 1.
+5. Stripe in test mode; a real card through the live checkout (the owner, with
+   4242 4242 4242 4242 while in test mode); the contact address; the terms.
 
 ## BR. 2026-11-19 — Sign in with Apple and Google (DESIGN-LAW 164)
 
