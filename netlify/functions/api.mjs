@@ -59,7 +59,7 @@
  */
 import { getStore } from '@netlify/blobs';
 import { libraryRoute } from '../lib/library.mjs';
-import { adLibraryRoute } from '../lib/adlibrary.mjs';
+import { adLibraryRoute, ownerKey } from '../lib/adlibrary.mjs';
 import { PLANS, PACKS, PAID, planId, videoOk, creditState, backgroundCredits } from '../lib/plans.mjs';
 import {
   billingOn, stripeMode, stripe, priceFor, catalog, subState, applySub, applySession, customerOf,
@@ -317,6 +317,48 @@ export default async (req) => {
       return json({ user: publicUser(await freshUser(user, env), env) });
     }
 
+    /* Delete my account (2026-11-19, for the WeBuy.AD iPhone app: App Store
+       guideline 5.1.1(v) asks an app that makes accounts to let them be
+       deleted inside it; the website gets the same). POST {confirm:'delete'}.
+       A paid subscription is cancelled at Stripe first, so nothing is charged
+       again, and the account stays if that fails; then the saved ads (their
+       pictures, videos, upload parts and public link), the AI pictures, and
+       the account go. Stripe keeps its own payment records (receipts, tax),
+       as the privacy policy says. A token issued before stops working,
+       because every route reads the account it names. */
+    if (p === '/account/delete' && req.method === 'POST') {
+      const em = await readToken(req, env);
+      if (!em) return json({ error: 'Sign in first' }, 401);
+      const user = await getUser(em);
+      if (!user) return json({ error: 'Account not found' }, 404);
+      const { confirm } = await req.json().catch(() => ({}));
+      if (confirm !== 'delete') return json({ error: 'Type delete to confirm' }, 400);
+      const sub = user.sub;
+      if (billingOn(env) && sub && sub.id && !['canceled', 'incomplete_expired', 'gone'].includes(sub.status)) {
+        try { await stripe(env, 'DELETE', '/subscriptions/' + sub.id); }
+        catch (e) {
+          if (e.status !== 404) return json({ error: 'Your subscription could not be cancelled, so the account was kept. Try again, or cancel it in Plan & billing first.' }, 502);
+        }
+      }
+      try {
+        const store = adStore(), owner = await ownerKey(em);
+        const lib = JSON.parse((await store.get('o:' + owner)) || 'null');
+        if (lib && lib.feed) await store.delete('f:' + lib.feed);
+        for (const pre of ['i:', 'v:', 'vp:', 'vu:']) {
+          const { blobs } = await store.list({ prefix: pre + owner + ':' });
+          for (const b of blobs) await store.delete(b.key);
+        }
+        await store.delete('o:' + owner);
+      } catch (e) { console.warn('account delete: the saved ads', e.message); }
+      try {
+        const gen = genStore(), ids = JSON.parse((await gen.get('idx/' + em)) || '[]');
+        for (const id of ids) await gen.delete('img/' + id);
+        await gen.delete('idx/' + em);
+      } catch (e) { console.warn('account delete: the AI pictures', e.message); }
+      await users().delete('u:' + em);
+      return json({ ok: true });
+    }
+
     /* One download, photo or video, from the studio or the video maker:
        /export counts it, /export/check says what the plan allows without
        counting (the video maker asks before it spends a minute making the
@@ -557,7 +599,7 @@ export default async (req) => {
         tax_id_collection: { enabled: 'true' },
         customer_update: customer ? { name: 'auto', address: 'auto' } : undefined,
         automatic_tax: env.STRIPE_TAX === 'on' ? { enabled: 'true' } : undefined,
-        invoice_creation: plan ? undefined : { enabled: 'true', invoice_data: { description: PACKS[pack].label + ' for Graphics Studio', metadata: md } },
+        invoice_creation: plan ? undefined : { enabled: 'true', invoice_data: { description: PACKS[pack].label + ' for WeBuy.AD', metadata: md } },
         // the renewal terms, next to Stripe's own pay button
         custom_text: { submit: { message: plan
           ? 'Renews automatically every ' + interval + ' at ' + money(PLANS[plan].price[interval]) + ' plus any tax until you cancel. Cancel any time in Plan & billing; your plan stays on to the end of the period you paid for.'
@@ -578,7 +620,7 @@ export default async (req) => {
       user.consent = { terms: TERMS_VERSION, at: consentAt, for: plan ? plan + '_' + interval : pack };
       await putUser(user);
       if (embed) return json({ clientSecret: j.client_secret, publishableKey: pk, sessionId: j.id });
-      return json({ url: j.url });
+      return json({ url: j.url, sessionId: j.id });   // the iPhone app keeps the id and confirms it when the customer comes back from Safari
     }
 
     /* The return from Checkout: the plan (or the credits) go on now, from

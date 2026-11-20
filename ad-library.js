@@ -183,7 +183,7 @@
     return null;
   }
 
-  const heldLine = h => h === 'unchecked'
+  const heldLine = h => !shop() ? '' : h === 'unchecked'
     ? 'Not for iPhones LA: it could not be checked for a website.'
     : 'Not for iPhones LA: it shows ' + h + '.';
 
@@ -195,12 +195,22 @@
      the owner can open, told it "goes to iPhones LA". Since 2026-10-11 the
      library is the owner's ("only accessible to my account"), so now every
      way into it is too: OWNER_CSS hides them, and nothing here offers a
-     save to anyone else. */
+     save to anyone else. Undone 2026-11-19 for every signed-in account
+     (canUse, below); the iPhones LA words stay the shop's (shop()). */
   function owner(){
     if (app.admin()) return true;
     const a = app.account();
     return !!a && a.role === 'admin';
   }
+  /* Owner, 2026-11-19: "Open it to customers". The plans sell a library (Keep
+     12, 300, 1,000 or 3,000 ads: plans.mjs library, held by the server), so
+     every signed-in account keeps one: the Library buttons, the stars, Save to
+     library, the card after a download, its public link. What is about iPhones
+     LA stays the shop's (shop(): the owner, or a browser connected to iPhones
+     LA): the link sent to the shop, the "not for iPhones LA" notes, "offered
+     daily", and the words that say so. */
+  function canUse(){ return !app.demo() && !!app.account(); }
+  function shop(){ return owner() || !!connKey(); }
   function ready(){
     if (app.demo()) return 'The ad library keeps your ads on the server, so it works on the hosted site, not in demo mode.';
     if (!app.account()) return 'signin';
@@ -627,12 +637,11 @@
 .hist-row .adl-hist{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:999px;font:600 11.5px/1 var(--ui);padding:9px 11px;cursor:pointer;flex:none;margin-right:8px}
 .hist-row .adl-hist:hover{border-color:#ffd200;color:#ffd200}
 `;
-  /* every way into the library is the owner's (see buttons()). Hidden until
-     the account is known to be an operator's, so a customer never sees a ★
-     flash in and out. */
+  /* every way into the library needs an account (see buttons()). Hidden until
+     one is known, so a signed-out visitor never sees a ★ flash in and out. */
   const OWNER_CSS = `
-html:not(.adl-owner) .adl-star,html:not(.adl-owner) .adl-starrow,html:not(.adl-owner) #ex-star,html:not(.adl-owner) #ex-star-video,
-html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner) .adl-ask{display:none!important}
+html:not(.adl-on) .adl-star,html:not(.adl-on) .adl-starrow,html:not(.adl-on) #ex-star,html:not(.adl-on) #ex-star-video,
+html:not(.adl-on) #mo-star,html:not(.adl-on) .adl-hist,html:not(.adl-on) .adl-ask{display:none!important}
 `;
   const BARE_CSS = `
 .adl-bare #adlib-overlay{position:fixed;inset:0;z-index:460;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(10,10,14,.6);backdrop-filter:blur(6px)}
@@ -807,7 +816,9 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
     const m = el('div', 'modal adl-modal');
     m.setAttribute('role', 'dialog'); m.setAttribute('aria-label', 'Ad library');
     m.appendChild(el('h3', '', 'Ad library'));
-    m.appendChild(el('div', 'modal-sub', 'Every ad you save here goes to iPhones LA by itself, picture and video, with nothing to download. Titles, descriptions, approval and posting are done there. The ★ on any ad saves it here; a video ad brings its clip.'));
+    m.appendChild(el('div', 'modal-sub', shop()
+      ? 'Every ad you save here goes to iPhones LA by itself, picture and video, with nothing to download. Titles, descriptions, approval and posting are done there. The ★ on any ad saves it here; a video ad brings its clip.'
+      : 'Your saved ads, pictures and videos, kept with your account: open them on any device, download one again, or share them all with one link. The ★ on any ad saves it here; a video ad brings its clip.'));
     const why = ready();
     if (why){
       m.appendChild(el('div', 'adl-empty', why === 'signin' ? 'Create a free account, or sign in, to keep a library of your ads and share it. No card needed.' : why));
@@ -844,13 +855,14 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
     feeds.appendChild(btn('Copy JSON feed', 'btn-ghost', () => copy(lib.links.json, 'Feed link')));
     feeds.appendChild(btn('Copy RSS', 'btn-ghost', () => copy(lib.links.rss, 'RSS link')));
     feeds.appendChild(btn('Reset link', 'btn-ghost', async () => {
-      if (!window.confirm('Make a new link? The old one stops working, so anyone using it (iPhones LA) needs the new one.')) return;
-      try { await app.call('/ads/link/reset', {}); await load(); app.toast('New link made. Give it to iPhones LA.', 'success'); }
+      if (!window.confirm(shop() ? 'Make a new link? The old one stops working, so anyone using it (iPhones LA) needs the new one.' : 'Make a new link? The old one stops working, so anyone you gave it to needs the new one.')) return;
+      try { await app.call('/ads/link/reset', {}); await load(); app.toast(shop() ? 'New link made. Give it to iPhones LA.' : 'New link made.', 'success'); }
       catch (e){ app.toast(e.message || 'Not reset', 'error'); }
     }));
     m.appendChild(feeds);
-    m.appendChild(el('div', 'adl-note adl-share', shareLine(lib)));
-    m.appendChild(el('div', 'adl-note', 'Anyone with the link can see these ads, and only these. Each ad is offered every day for ' + (lib.fresh_days || 7) + ' days from when it was saved, then it retires and a new one keeps things fresh. The studio posts nothing: iPhones LA reviews each ad and posts it within its daily limits.'));
+    if (shop()) m.appendChild(el('div', 'adl-note adl-share', shareLine(lib)));
+    if (!shop()) m.appendChild(el('div', 'adl-note', 'Anyone with the link can see these ads, and only these.'));
+    else m.appendChild(el('div', 'adl-note', 'Anyone with the link can see these ads, and only these. Each ad is offered every day for ' + (lib.fresh_days || 7) + ' days from when it was saved, then it retires and a new one keeps things fresh. The studio posts nothing: iPhones LA reviews each ad and posts it within its daily limits.'));
 
     // settings
     const set = el('div', 'adl-set');
@@ -882,7 +894,7 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
     // the ads
     const videos = lib.items.filter(x => x.video).length;
     const fresh = lib.items.filter(x => x.post).length;
-    m.appendChild(el('h4', '', 'Saved ads (' + lib.count + ' of ' + lib.limit + (videos ? ', ' + videos + ' with video' : '') + ', ' + fresh + ' offered today)'));
+    m.appendChild(el('h4', '', 'Saved ads (' + lib.count + ' of ' + lib.limit + (videos ? ', ' + videos + ' with video' : '') + (shop() ? ', ' + fresh + ' offered today' : '') + ')'));
     if (!lib.items.length) m.appendChild(el('div', 'adl-empty', 'Nothing saved yet. Press the ★ on any ad, ⭐ Save to library under your preview, ⬆ Upload a photo or video, or save one of your recent downloads below.'));
     else {
       const grid = el('div', 'adl-grid');
@@ -926,7 +938,8 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
     c.appendChild(el('b', '', it.title));
     c.appendChild(el('span', 'adl-meta', [it.category, it.image.width + ' × ' + it.image.height, it.video ? (it.video.seconds ? it.video.seconds + ' s ' : '') + it.video.format.toUpperCase() : '', 'saved ' + when(it.created)].filter(Boolean).join(' · ')));
     const days = lib.fresh_days || 7;
-    if (it.hold) c.appendChild(el('span', 'adl-hold', heldLine(it.hold)));
+    if (!shop()) { /* a customer's card: what it is and when it was saved */ }
+    else if (it.hold) c.appendChild(el('span', 'adl-hold', heldLine(it.hold)));
     else if (it.fresh === false) c.appendChild(el('span', 'adl-hold', 'Past its ' + days + ' days, so no longer offered. Make a new one to keep it fresh.'));
     else c.appendChild(el('span', 'adl-meta adl-sent', '✓ Offered to iPhones LA daily' + (it.post ? ', day ' + it.post.round + ' of ' + days : '')));
     const row = el('div', 'adl-row');
@@ -956,7 +969,7 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
     }
     const rm = el('button', 'adl-x', 'Remove'); rm.type = 'button';
     rm.onclick = async () => {
-      if (!window.confirm('Remove "' + it.title + '" from your library? It comes off your link for iPhones LA.')) return;
+      if (!window.confirm('Remove "' + it.title + '" from your library?' + (shop() ? ' It comes off your link for iPhones LA.' : ''))) return;
       try { await app.call('/ads/remove', { id: it.id }); Object.keys(state.saved).forEach(k => { if (state.saved[k] === it.id) delete state.saved[k]; }); await load(); }
       catch (e){ app.toast(e.message || 'Not removed', 'error'); }
     };
@@ -980,7 +993,7 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
     ask = el('div', 'adl-ask');
     ask.setAttribute('role', 'status');
     ask.appendChild(el('b', '', rec.blob ? 'Save this video ad to your library?' : 'Save this ad to your library?'));
-    ask.appendChild(el('p', '', (rec.blob ? 'Its photo goes with it. ' : '') + 'Saved ads go to iPhones LA by themselves, to review and post there.'));
+    ask.appendChild(el('p', '', (rec.blob ? 'Its photo goes with it. ' : '') + (shop() ? 'Saved ads go to iPhones LA by themselves, to review and post there.' : 'It is kept with your account, on any device, to download again or share.')));
     const row = el('div', 'adl-row');
     row.appendChild(btn('Save to library', 'btn-primary', async b => { b.disabled = true; b.textContent = 'Saving…'; await (rec.blob ? saveVideoAd(rec) : save(rec)); dismiss(); }));
     row.appendChild(btn('Always save', 'btn-ghost', () => { setAuto(true); enqueue(rec); dismiss(); }));
@@ -1002,12 +1015,12 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
     // the history record addHistory just wrote, so "Recent downloads" can show it saved
     app.history().then(rs => { const r = rs.find(x => x.name === name && x.data === dataUrl); if (r) rec.id = r.id; });
     if (ready()) return;                  // signed out or demo: say nothing after every download
-    if (!owner()) return;                 // the library is the owner's
+    if (!canUse()) return;                // signed in, on the hosted site
     if (autoOn()) enqueue(rec);
     else offer(rec);
   }
   function videoDownloaded(blob, name, photo){
-    if (!blob || ready() || !owner()) return;
+    if (!blob || ready() || !canUse()) return;
     const kind = (() => { try { return $('page-editor').classList.contains('active') ? 'adv' : 'ez'; } catch (e){ return 'ez'; } })();
     const rec = { blob, name, photo, proj: projectNow(kind), meta: { source: 'studio' }, video: studioVideoMeta(photo) };
     state.last = rec;
@@ -1052,18 +1065,18 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
     }
   }
 
-  /* the Library buttons are the owner's. Owner, 2026-10-11: "only accessible
-     to my account". They start hidden in the page and show for an operator
-     account (ADMIN_EMAILS on the server, role 'admin'), as the AI Studio
-     button does; signed out or any other account, they stay hidden. Only the
+  /* the Library buttons: every signed-in account's since 2026-11-19 (canUse;
+     before, the owner's alone: "only accessible to my account", 2026-10-11).
+     They start hidden in the page and show once an account is signed in;
+     signed out, they stay hidden. Only the
      buttons: the stars, Save to library and the plans' library are as they
      were. Run after every account change: the studio's syncAcctUI on the
      studio, the account's onChange on the other pages. */
   const BUTTONS = ['nav-adlib', 'tb-adlib', 'am-adlib', 'lpam-adlib', 'mo-adlib', 'ml-adlib'];   // lpam-adlib: the landing's account menu (2026-10-07)
   function buttons(){
-    const on = owner();
+    const on = canUse();
     BUTTONS.forEach(id => { const b = document.getElementById(id); if (b) b.style.display = on ? '' : 'none'; });
-    document.documentElement.classList.toggle('adl-owner', on);
+    document.documentElement.classList.toggle('adl-on', on);
   }
   function watchAccount(){
     const sync = window.syncAcctUI;

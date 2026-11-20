@@ -6759,9 +6759,13 @@ still waited for the template faces; with this rule, 104 ms, and a phone's Light
 Not done here: OPEN-ITEMS §BO.
 
   a message bubble, a sticker: https://claude.ai/artifact/FPgpT73Y32XWEBN7tr2DQq). The owner picked
-  the message bubble: rule 161.
+  the message bubble (rule 161), then on 2026-11-20, from six more, the Ad label (rule 165).
 
 ## 161. The mark is a message bubble: WeBuy.AD in Sora, and its period is the unread dot
+
+**Superseded by rule 165** (2026-11-20). The owner, of this mark: "the logo sucks we need some more
+concepts or ideas or i'll build one". Of six new directions the owner took the Ad label. What follows
+is the bubble as it was.
 
 Added 2026-11-19. (Numbered 161: 158 is pull request 15's landing and 159 pull request 17's, and
 the full ad's layouts branch, `claude/full-ad-looks-layout`, took 158 to 160 for its own at its
@@ -6898,3 +6902,45 @@ family skin (`?skin=poster` keeps the old page; the studio is not touched).
   Only the main categories show at first; one with more than one line carries an arrow, and choosing
   it opens a row of its lines with their counts, in the owner's order (`motion/subjects.json`); one of
   a single line has no arrow. The review page's categories carry the same arrows.
+
+## 165. The mark is the Ad label: WeBuy beside an AD label, in the face of newspaper ads
+
+Added 2026-11-20. (Numbered 165: 158 to 163 are taken across the branches, and
+`claude/sign-in-apple-google` holds 164.) The owner, of rule 161's message bubble: "the logo sucks we
+need some more concepts or ideas or i'll build one". Six directions were drawn, each a wordmark and an
+icon made together: the Ad label, the plate, the sign, chevrons, mint and fast
+(https://claude.ai/artifact/MbpAqeRMzErQvSZoU31TVX). The owner picked the first: "Take 1, the Ad label".
+
+- **The idea**: every platform marks a paid post with a small "Ad" or "Sponsored" label. Ours is the
+  name: "WeBuy", then AD in a blue label. The label is the icon as well. So the part only we own
+  leads, and the mark says "ads" before a word is read.
+- **Why the bubble went**:
+  - it read as a chat app;
+  - its thin W turned into a blob at 16 pixels;
+  - Sora is a tidy startup face, and the ads are loud, heavy and condensed;
+  - ".AD", the part only we own, was its smallest piece.
+- **The wordmark**: "WeBuy" in Libre Franklin 900, the open revival of Franklin Gothic, the face of
+  newspaper ads (OFL, `assets/fonts/libre-franklin-900.woff2`, 29 KB, preloaded on the landing), at
+  -0.035em in the text colour. Then the label:
+  - "AD" in white at 0.78 of the size, on the blue (`--wb-blue`: the accent, #3d8bff on dark, #0a5fe0
+    on light);
+  - 1.02 of its own size tall, its corners a fifth of that, a fifth of an em after "WeBuy".
+  The period is in the text and hidden from the eye, so the name copies and reads aloud as WeBuy.AD.
+- **Sizes**: 24px in every bar and foot, 21px on a phone's landing, 16px beside the Look Book's
+  title. The tokens are `--wb-blue` and `--wb-ink`; rule 161's `--wb-mint` and `--wb-ring` are no
+  longer read.
+- **The icon**: the label alone, white "AD" on the blue, on rule 153's navy tile with the blue glow
+  (`tools/brand/icon.html`). At 32 pixels and under, the label is drawn larger (`?small`), so its
+  letters hold at a browser tab's size. `favicon.svg` is that version with its letters in outlines,
+  because a favicon loads no web font; `node tools/brand/favicon.mjs` draws it from the icon.
+- **Where it is**: where rule 161 was.
+  - The landing's bar and foot, and Easy Mode's and the editor's bars.
+  - The information and category pages (`MARK` in `scripts/build_seo_pages.mjs`), the video maker's
+    own bar, the Look Book and the saved-ads library.
+  - The icons, the wordmark pictures, the share card and the 17 link previews.
+  - The iPhone app's icon (`ios/WeBuyAD/Assets.xcassets/AppIcon.appiconset/AppIcon.png`, the 1024
+    icon flattened as `ios/generate_project.py` does).
+
+  `sh tools/brand/make.sh`, `node tools/brand/favicon.mjs` and `node scripts/build_og_cards.mjs
+  --keep-ads` draw the pictures.
+- **Not yet**: the five explainer videos still wear rule 153's wordmark (OPEN-ITEMS §BK 16).

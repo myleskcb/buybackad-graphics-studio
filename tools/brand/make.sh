@@ -17,7 +17,10 @@ shot() { # url w h out
     --screenshot="$4" "$1" >/dev/null 2>&1
 }
 shot "file://$here/icon.html" 1024 1024 "$out/icon-1024.png"
-for s in 512 192 180 32; do sips -z "$s" "$s" "$out/icon-1024.png" --out "$out/icon-$s.png" >/dev/null; done
+for s in 512 192 180; do sips -z "$s" "$s" "$out/icon-1024.png" --out "$out/icon-$s.png" >/dev/null; done
+# the 32 px icon is the small version: a larger label, so its letters hold at a browser tab's size
+shot "file://$here/icon.html?small" 1024 1024 "$tmp/small.png"
+sips -z 32 32 "$tmp/small.png" --out "$out/icon-32.png" >/dev/null
 shot "file://$here/wordmark.html" 1000 260 "$tmp/wl.png"
 shot "file://$here/wordmark.html?on=dark" 1000 260 "$tmp/wd.png"
 cp "$tmp/wl.png" "$out/wordmark-on-light.png"; cp "$tmp/wd.png" "$out/wordmark-on-dark.png"

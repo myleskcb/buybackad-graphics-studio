@@ -4,7 +4,7 @@
      page's own kicker and title and the page's own ad in place of the home page's four. The home
      page and the information pages use the share card itself (assets/brand/share-card.jpg). -->
 <html><head><meta charset="utf-8"><style>
-@font-face { font-family: "WeBuy Sora"; src: url("../assets/fonts/sora-700.woff2") format("woff2"); font-weight: 700; }
+@font-face { font-family: "WeBuy Franklin"; src: url("../assets/fonts/libre-franklin-900.woff2") format("woff2"); font-weight: 900; }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body { width: 1200px; height: 630px; overflow: hidden; position: relative; color: #f4f7ff;
@@ -13,17 +13,12 @@ body { width: 1200px; height: 630px; overflow: hidden; position: relative; color
 .glow-a { width: 900px; height: 900px; right: -320px; top: -420px; background: radial-gradient(closest-side, rgba(61, 139, 255, 0.34), rgba(61, 139, 255, 0) 70%); }
 .glow-b { width: 760px; height: 760px; left: -280px; bottom: -480px; background: radial-gradient(closest-side, rgba(47, 213, 143, 0.22), rgba(47, 213, 143, 0) 70%); }
 .left { position: absolute; left: 72px; top: 64px; width: 590px; }
-.wordmark { display: flex; align-items: center; gap: 16px; }
-.wordmark .wb-icon { width: 56px; height: 56px; }
-.wordmark .wb-word { font-size: 44px; }
-:root { --wb-blue: #3d8bff; --wb-mint: #2fd58f; --wb-ring: #070d1c; --wb-ink: #f4f7ff; }
-.wb-icon{display:block;flex:none;width:28px;height:28px}
-.wb-icon .wb-b{fill:var(--wb-blue,#3d8bff)}
-.wb-icon .wb-w{fill:none;stroke:#fff;stroke-width:7.5;stroke-linejoin:miter;stroke-linecap:butt}
-.wb-icon .wb-d{fill:var(--wb-mint,#2fd58f);stroke:var(--wb-ring,#070d1c);stroke-width:4.5}
-.wb-word{font:700 22px/1 "WeBuy Sora",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;letter-spacing:-.045em;color:var(--wb-ink,currentColor);white-space:nowrap}
-.wb-word .wb-dot{display:inline-block;width:.25em;height:.25em;margin:0 .06em 0 .09em;border-radius:50%;background:var(--wb-mint,#2fd58f);color:transparent;overflow:hidden;line-height:.25em;vertical-align:.02em}
-.wb-word .wb-ad{color:var(--wb-blue,#3d8bff)}
+.wordmark { display: flex; align-items: center; }
+.wordmark .wb-word { font-size: 48px; }
+:root { --wb-blue: #3d8bff; --wb-ink: #f4f7ff; }
+.wb-word { display: inline-flex; align-items: center; font: 900 22px/1 "WeBuy Franklin", sans-serif; letter-spacing: -0.035em; color: var(--wb-ink); white-space: nowrap; }
+.wb-word .wb-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.wb-word .wb-ad { display: inline-grid; place-items: center; height: 1.02em; margin-left: .2em; padding: .02em .26em 0; border-radius: .2em; background: var(--wb-blue); color: #fff; font-size: .78em; letter-spacing: .01em; }
 .kicker { display: inline-flex; align-items: center; gap: 12px; margin-top: 52px; padding: 9px 18px 9px 14px; border-radius: 99px; background: rgba(61, 139, 255, 0.16); color: #a9cbff; font-size: 17.5px; font-weight: 600; white-space: nowrap; }
 .kicker i { width: 11px; height: 11px; border-radius: 50%; background: #2fd58f; box-shadow: 0 0 0 5px rgba(47, 213, 143, 0.22); }
 h1 { margin: 24px 0 0; font-size: 66px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.02; }
@@ -37,7 +32,7 @@ h1 span { color: #2fd58f; }
 </style></head><body>
 <div class="glow-a"></div><div class="glow-b"></div>
 <div class="left">
-  <div class="wordmark"><svg class="wb-icon" viewBox="9 9 82 82" aria-hidden="true" focusable="false"><path class="wb-b" d="M25 18H75Q86 18 86 29V61Q86 72 75 72H46L29 85Q26 87.5 26 84V72H25Q14 72 14 61V29Q14 18 25 18Z"/><path class="wb-w" d="M30 33L37.5 58L50 36L62.5 58L70 33"/><circle class="wb-d" cx="81" cy="21" r="10"/></svg><span class="wb-word">WeBuy<span class="wb-dot">.</span><span class="wb-ad">AD</span></span></div>
+  <div class="wordmark"><span class="wb-word">WeBuy<span class="wb-sr">.</span><span class="wb-ad">AD</span></span></div>
   <div class="kicker"><i></i><span id="kicker"></span></div>
   <h1 id="title"></h1>
 </div>
