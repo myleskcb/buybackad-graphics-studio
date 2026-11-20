@@ -5257,3 +5257,27 @@ RESUME HERE:
   1. §BD: the webhook move after the first checkout, iPhones LA's allowlist,
      the contact address, live Stripe keys.
 
+
+## 2026-11-19 — the WeBuy.AD iPhone app (claude/webuy-ad-new-site-url-f0be40)
+
+Asked: the WeBuy.AD app, like the iPhones LA app, ASAP, a usable SaaS; how the
+plans and checkout work; whether anything sends ads to reselling.us.
+
+Done: the iPhones LA shell around webuy.ad (`ios/`), Delete account, Safari
+payments in the app, the landing's pricing buttons (dead on a fresh visit).
+
+Found:
+  - A deferred binder takes its passengers with it: moving bindEasyUI() out of
+    boot for speed (2026-09-04) unbound four pricing buttons for ten weeks.
+    Click the buttons on a fresh load after any change to boot.
+  - In WKWebView, `<a download>` on a blob does nothing until the shell turns
+    it into a WKDownload; the share sheet then gives Save Image for free.
+  - window.open after an await is a popup without a user's tap and is
+    dropped; navigate the main frame instead and let the shell route it.
+  - Typing into the simulator is unreliable while a keyboard moves the page;
+    a Debug-only "run this script on the first page" hook (stripped from
+    Release, and release.sh checks) makes a flow testable without a real
+    account.
+
+RESUME HERE:
+  0. OPEN-ITEMS §BF: the web part live, then App Store Connect and the upload.

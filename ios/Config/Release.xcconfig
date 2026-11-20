@@ -1,0 +1,16 @@
+// Public app identifiers only. Never put provider secrets in an iOS bundle.
+IPHONEOS_DEPLOYMENT_TARGET = 17.0
+SWIFT_VERSION = 5.0
+PRODUCT_BUNDLE_IDENTIFIER = ad.webuy.app
+PRODUCT_NAME = WeBuyAD
+MARKETING_VERSION = 1.0.0
+CURRENT_PROJECT_VERSION = 1
+CODE_SIGN_STYLE = Automatic
+TARGETED_DEVICE_FAMILY = 1
+GENERATE_INFOPLIST_FILE = NO
+INFOPLIST_FILE = WeBuyAD/Info.plist
+CODE_SIGN_ENTITLEMENTS = WeBuyAD/WeBuyAD.entitlements
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
+// The team, in ignored Local.xcconfig (copy Local.example.xcconfig).
+DEVELOPMENT_TEAM =
+#include? "Local.xcconfig"

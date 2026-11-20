@@ -77,11 +77,11 @@ export function catalog() {
   const out = {};
   for (const [id, p] of Object.entries(PLANS)) {
     for (const [interval, amount] of Object.entries(p.price)) {
-      if (amount > 0) out[id + '_' + interval] = { key: id + '_' + interval, product: 'bbad_' + id, name: 'Graphics Studio ' + p.label, amount, interval, plan: id };
+      if (amount > 0) out[id + '_' + interval] = { key: id + '_' + interval, product: 'bbad_' + id, name: 'WeBuy.AD ' + p.label, amount, interval, plan: id };
     }
   }
   for (const [id, k] of Object.entries(PACKS)) {
-    out[id] = { key: id, product: 'bbad_credits', name: 'Graphics Studio AI credits', amount: k.price, credits: k.credits, pack: id, label: k.label };
+    out[id] = { key: id, product: 'bbad_credits', name: 'WeBuy.AD AI credits', amount: k.price, credits: k.credits, pack: id, label: k.label };
   }
   return out;
 }
@@ -233,7 +233,7 @@ export async function ensureWebhook(env, store, origin) {
   const list = await stripe(env, 'GET', '/webhook_endpoints', { limit: 100 });
   for (const w of list.data || []) if (w.url === url) await stripe(env, 'DELETE', '/webhook_endpoints/' + w.id);   // its secret is not ours to read
   const w = await stripe(env, 'POST', '/webhook_endpoints', {
-    url, enabled_events: WEBHOOK_EVENTS, description: 'Graphics Studio: plans and AI credits (registered by the site)',
+    url, enabled_events: WEBHOOK_EVENTS, description: 'WeBuy.AD: plans and AI credits (registered by the site)',
   });
   const moved = !!(have && have.secret);
   await store.set(whKey(mode), JSON.stringify({ id: w.id, secret: w.secret, url, ts: Date.now(), prev: moved ? have.secret : undefined }));
