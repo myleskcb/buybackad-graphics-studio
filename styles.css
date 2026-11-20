@@ -3101,3 +3101,5 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 @media(max-width:640px){
   :root[data-skin='family'] .logo .wb-word{font-size:21px}
 }
+/* Delete account sits under Sign out, quieter than it and in the danger colour */
+.acct-drop .am-delete{color:var(--danger);font-size:13px;opacity:.85}

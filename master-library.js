@@ -97,6 +97,21 @@
   }
 
   /* ---------- saved ads ---------- */
+  /* Is the person looking an operator (the owner)? Since 2026-11-19 every account
+     keeps a library (owner: "Open it to customers"); what is about iPhones LA (held,
+     offered daily, "for iPhones LA") is the owner's to read, never a customer's or the
+     visitors to a customer's link. */
+  let SHOP = false;
+  async function operator(){
+    let token = null;
+    try { token = JSON.parse(localStorage.getItem('pgfx_token') || 'null'); } catch (e){}
+    if (!API || !token || String(token).startsWith('demo:')) return false;
+    try {
+      const r = await fetch(API + '/me', { headers: { Accept: 'application/json', Authorization: 'Bearer ' + token } });
+      const j = await r.json().catch(() => ({}));
+      return !!(r.ok && j.user && j.user.role === 'admin');
+    } catch (e){ return false; }
+  }
   function savedCard(it){
     const c = el('div', 'ml-card');
     if (it.video){
@@ -119,7 +134,8 @@
     }
     c.appendChild(el('b', '', it.title));
     c.appendChild(el('span', 'ml-meta', [catName(it.category), it.image.width + ' × ' + it.image.height, it.video ? it.video.format.toUpperCase() + ' ' + it.video.width + ' × ' + it.video.height : '', 'saved ' + when(it.created)].filter(Boolean).join(' · ')));
-    if (it.hold) c.appendChild(el('span', 'ml-held', it.hold === 'unchecked' ? 'Held: not checked for a website, so not for iPhones LA' : 'Held: it shows ' + it.hold + ', so not for iPhones LA'));
+    if (!SHOP) { /* a customer's card, or a visitor's: what it is and when it was saved */ }
+    else if (it.hold) c.appendChild(el('span', 'ml-held', it.hold === 'unchecked' ? 'Held: not checked for a website, so not for iPhones LA' : 'Held: it shows ' + it.hold + ', so not for iPhones LA'));
     else if (it.fresh === false) c.appendChild(el('span', 'ml-held', 'Past its 7 days: no longer offered'));
     else if (it.post) c.appendChild(el('span', 'ml-post', 'Offered daily, day ' + it.post.round + ' of 7' + (it.post.next_at ? ', next ' + when(it.post.next_at) : ', its last')));
     else c.appendChild(el('span', 'ml-meta', 'For iPhones LA'));
@@ -131,8 +147,20 @@
   }
   function feedBox(lib, isOwner){
     const box = $('ml-feed');
-    box.hidden = false;
     box.textContent = '';
+    if (!SHOP){
+      // a customer's own library: its link to share; a visitor to a shared link: the feeds, plainly
+      box.hidden = false;
+      box.appendChild(el('b', '', isOwner ? 'Your public link' : 'This library as a feed'));
+      box.appendChild(el('p', '', isOwner
+        ? 'Share this page: anyone with it sees these ads and nothing else. Reset it in the studio (📚 Library) to stop the old one.'
+        : 'For apps that read it: the same ads as JSON and as RSS.'));
+      (isOwner ? [['This page', lib.links.page], ['JSON feed', lib.links.json], ['RSS', lib.links.rss]] : [['JSON feed', lib.links.json], ['RSS', lib.links.rss]]).forEach(([label, url]) => {
+        const p = el('p'); p.appendChild(el('span', '', label + ': ')); p.appendChild(el('code', '', url)); box.appendChild(p);
+      });
+      return;
+    }
+    box.hidden = false;
     box.appendChild(el('b', '', isOwner ? 'Your public link' : 'For iPhones LA'));
     const p1 = el('p', '', isOwner
       ? 'Give this page to iPhones LA. Anyone with it sees these ads and nothing else. Reset it in the studio (📚 Library) to stop the old one.'
@@ -183,10 +211,11 @@
       $('ml-crumb').textContent = lib.name || 'Ad library';
       $('ml-lead').textContent = 'WE BUY ads saved in WeBuy.AD, at full size. Each one downloads as a JPEG ready to post.';
     }
+    SHOP = await operator();
     feedBox(lib, !feed);
     if (!lib.items.length){ say(feed ? 'This library has no ads yet.' : 'Nothing saved yet. Download an ad in the studio and press "Save to library".', feed ? null : ['index.html', 'Open the studio']); return lib; }
     section('saved', lib.items.map(searchable), savedCard, {
-      countLine: n => n + (n === 1 ? ' ad' : ' ads') + ', ' + lib.items.filter(x => x.post).length + ' offered today',
+      countLine: n => n + (n === 1 ? ' ad' : ' ads') + (SHOP ? ', ' + lib.items.filter(x => x.post).length + ' offered today' : ''),
     });
     return lib;
   }

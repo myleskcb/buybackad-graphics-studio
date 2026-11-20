@@ -6852,6 +6852,8 @@ icon made together: the Ad label, the plate, the sign, chevrons, mint and fast
   - The information and category pages (`MARK` in `scripts/build_seo_pages.mjs`), the video maker's
     own bar, the Look Book and the saved-ads library.
   - The icons, the wordmark pictures, the share card and the 17 link previews.
+  - The iPhone app's icon (`ios/WeBuyAD/Assets.xcassets/AppIcon.appiconset/AppIcon.png`, the 1024
+    icon flattened as `ios/generate_project.py` does).
 
   `sh tools/brand/make.sh`, `node tools/brand/favicon.mjs` and `node scripts/build_og_cards.mjs
   --keep-ads` draw the pictures.
