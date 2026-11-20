@@ -100,7 +100,9 @@ const DRAW = async ({ how, id, key, seed, SIZE }) => {
   if (!pre.ok) return { fail: pre.findings.filter(f => f.level === 'fix').map(f => f.code).join(',') || 'pre-flight', pair };
   const c = document.createElement('canvas'); c.width = c.height = SIZE;
   const g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(frame, 0, 0, SIZE, SIZE);
-  return { pair, pairName: P ? P.name : '', accent: st.colors ? st.colors.accent : '', webp: c.toDataURL('image/webp', .76) };
+  // the photograph it stands on, with the towns it prints (scripts/area_ground_check.mjs: a city's photograph only behind its own towns)
+  const photo = st.background === 'photo' && st.ground_photo ? String(st.ground_photo.src || '') : '', where = String(st.feed_where ?? st.area ?? ''), states = String(st.area_states || '');
+  return { pair, pairName: P ? P.name : '', accent: st.colors ? st.colors.accent : '', photo, where, states, webp: c.toDataURL('image/webp', .76) };
 };
 
 const jobs = [];

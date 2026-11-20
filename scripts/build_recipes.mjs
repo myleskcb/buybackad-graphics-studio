@@ -386,9 +386,13 @@ function lineUp(ad, cat, subject, pictures, make, gp, words, notes) {
     const same = Object.keys(TAGS).filter(k => TAGS[k].shows === 'product' && fits(TAGS[k], P) && !/\|/.test(k)).sort();
     if (same.length) { notes.push(`ground swapped: it showed ${say(t)}`); return out({ src: same[hash(ad.id) % same.length], focus: [.5, .5], scrim: gp.scrim, from: gp.from }); }
   }
-  // a scene of the category
-  const scenes = Object.keys(TAGS).filter(k => TAGS[k].shows === 'scene' && !TAGS[k].never && (TAGS[k].suits || []).includes(cat)).sort();
-  if (scenes.length) { notes.push(`ground swapped for a scene: it showed ${say(t)}`); return out({ src: scenes[hash(ad.id) % scenes.length], focus: [.5, .5], scrim: gp.scrim, from: gp.from }); }
+  // a scene of the category, never one of a place: a city's own photograph stands only behind that city's ads,
+  // and only now and then (fullad.js placeHere; the owner, 2026-11-19, of the Golden Gate under a Long Beach ad:
+  // "that's SF"). A card whose id drew a place's scene draws again from the others; the rest keep theirs.
+  const scenes = Object.keys(TAGS).filter(k => TAGS[k].shows === 'scene' && !TAGS[k].never && (TAGS[k].suits || []).includes(cat)).sort(), unplaced = scenes.filter(k => !TAGS[k].place);
+  let scene = scenes.length ? scenes[hash(ad.id) % scenes.length] : null;
+  if (scene && TAGS[scene].place) scene = unplaced.length ? unplaced[hash(ad.id) % unplaced.length] : null;
+  if (scene) { notes.push(`ground swapped for a scene: it showed ${say(t)}`); return out({ src: scene, focus: [.5, .5], scrim: gp.scrim, from: gp.from }); }
   notes.push(`ground left out: it showed ${say(t)}`);
   return out(null);
 }

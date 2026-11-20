@@ -23,7 +23,7 @@ import { HOUSE_COLOURS, LINES, PAIR_LOOKS } from "./house-colours.js";
 import { FULL_VOICES } from "./full-voices.js";
 import { bannedIn } from "./banned-words.js";
 import { PHONE_WEIGHT, PHONE_REST, PHONE_VIEWS, PHONE_COUNTS, PHONE_LINEUP, pickWeighted } from "./product-demand.js";
-import { GROUND_SHARES, GROUND_SCENES, GROUND_GRADIENTS, GROUND_PATTERNS, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS } from "./full-grounds.js";
+import { GROUND_SHARES, GROUND_SCENES, GROUND_GRADIENTS, GROUND_PATTERNS, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS, GROUND_PLACES } from "./full-grounds.js";
 import { leanStream, leanPick, pairAnswers } from "./recipe-lean.js";
 
 // Proportions of the frame's width. 1080 x .052 = 56px, x .044 = 48px, x .032 = 35px.
@@ -413,10 +413,42 @@ export function groundFits(t, P) {
   if (P.kind === "iphone") return t.subject === "iphone" && !!t.model && P.models.length > 0 && P.models.every(m => m === t.model);
   return (GROUND_KIND[P.kind] || []).includes(t.subject);
 }
+/* A CITY'S OWN PHOTOGRAPH, NOW AND THEN (2026-11-19; the owner, of a Pixel ad on the Golden Gate Bridge
+   whose towns read LONG BEACH • LOS ANGELES • ANAHEIM: "that's SF", "let's use bg images (occasionally)
+   but of the corresponding city.."). A photograph of a place (spec/ground-tags.json place: the Golden
+   Gate, Lake Tahoe) is a ground only where a town the ad prints (its area: the visitor's, or the
+   sample's) is one of that place's towns, and then on two seeds in five; anywhere else it is never drawn.
+   The seed draws as it always did, over every photograph, so an ad that drew no city's photograph keeps
+   the ground it had; one that drew a city's photograph it may not stand on draws again from the painted
+   grounds (a scene, a gradient, a pattern or the house's own), and only it moves. A town's state counts
+   where it is known (the studio's towns are "Long Beach, CA"): a Richmond or an Albany out of state is
+   not the Bay's. */
+const US_STATES = new Set("AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY PR".split(" "));
+/** Where an ad is, as a photograph of a place is matched against it: { towns, states }. towns: the line
+ *  it prints ("LONG BEACH • LOS ANGELES • ANAHEIM"; a state after a town's comma, "LONG BEACH, CA", is
+ *  read as its state); states: the towns' states where they are known apart ("CA"). */
+export function whereOf(towns, states = "") {
+  const known = new Set(String(states || "").toUpperCase().split(/[^A-Z]+/).filter(s => US_STATES.has(s))), out = [];
+  for (const seg of String(towns || "").replace(/[\p{Extended_Pictographic}\uFE0F]/gu, " ").toUpperCase().split(/\s*[•·|/]\s*/))
+    seg.split(/\s*,\s*/).map(s => s.trim()).filter(Boolean).forEach((p, i) => { if (i > 0 && US_STATES.has(p)) known.add(p); else out.push(p); });
+  return { towns: out, states: known };
+}
+/** Whether a photograph may stand behind an ad that is where (whereOf): one of no place always; one of a
+ *  place only where a town the ad prints is one of its towns, in one of its states where those are known. */
+export function placeHere(m, where) {
+  if (!m || !m.place) return true;
+  const P = GROUND_PLACES[m.place], w = where && where.towns ? where : whereOf(where);
+  return !!P && w.towns.some(t => P.towns.includes(t)) && (!w.states.size || P.states.some(s => w.states.has(s)));
+}
+/** Now and then: the seeds on which a photograph of the ad's own place may be drawn (two in five). */
+export const placeTurn = seed => (Math.imul((seed >>> 0) ^ 0x2c1b3c6d, 0x9e3779b1) >>> 0) / 4294967296 < .4;
+export const placeOk = (m, where, seed) => !m || !m.place || (placeHere(m, where) && placeTurn(seed));
 /** The ground a seed draws for a line and the pair it drew: { background, ground_photo? }, or null
  *  for the house gradient the seed already drew. product (productFor): only a photograph that agrees
- *  with it is drawn. */
-export function groundFor(subject, seed, pairKey, product, lean = null) {
+ *  with it is drawn. area: where the ad is (whereOf, or the towns line it prints): a photograph of a
+ *  place only behind its own towns, now and then (placeOk). */
+export function groundFor(subject, seed, pairKey, product, lean = null, area = "") {
+  const where = area && area.towns ? area : whereOf(area);
   const cat = !subject || subject === "iphone" ? "phones" : (GROUND_LINE_CAT[subject] || "");
   /* an ad that shows no product (productFor: bare) never stands on a photograph (2026-11-19; the owner, of the
      VR headset ad: "clearly wasn't audited or ever rebuilt"): with nothing in front of it, a room or a desk is
@@ -424,6 +456,7 @@ export function groundFor(subject, seed, pairKey, product, lean = null) {
      painted ground: a gradient, a pattern, a scene or the house's own. */
   const bare = !!(product && product.bare);
   const pool = bare ? [] : (GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && photoSuits(GROUND_PHOTOS[src], pairKey) && groundFits(GROUND_PHOTOS[src], product));
+  const here = ph => placeOk(GROUND_PHOTOS[ph.src], where, seed) ? { background: "photo", ground_photo: ph } : null;   // a city's photograph only behind its own towns, now and then
   // the drawn scenes are night skies, auroras and glows made for light words: under dark words (a light pair,
   // a lime or aqua ground: rule 154) their deep tones turn grey and the shade behind the words runs to the
   // frame's edge (full_ad_check, 2026-11-18), so those pairs stand on the other kinds
@@ -439,15 +472,23 @@ export function groundFor(subject, seed, pairKey, product, lean = null) {
     const own = !bare && m0 && !m0.dim && groundFits({ ...m0, ...lean.photo }, product) && photoSuits(m0, pairKey) ? { src: p0, focus: lean.photo.focus || m0.focus || [.5, .5] } : null;   // the engine's own shade, for this pair (its card's was for its card)
     const can = [...(own || pool.length ? ["photo"] : []), ...(share.scene ? ["scene", ...GROUND_SCENES] : []), ...(share.gradient ? ["gradient", ...GROUND_GRADIENTS] : []),
       ...(share.pattern ? ["pattern", ...GROUND_PATTERNS] : []), "house", ...GROUNDS];
-    const got = lean.pick(can, lean.want, "ground"), of = L => L[Math.floor(lean.r() * L.length) % L.length];
-    if (got === "photo") { if (own) return { background: "photo", ground_photo: own }; const src = of(pool); return { background: "photo", ground_photo: { src, focus: GROUND_PHOTOS[src].focus || [.5, .5] } }; }
+    let got = lean.pick(can, lean.want, "ground"); const of = L => L[Math.floor(lean.r() * L.length) % L.length];
+    if (got === "photo") {
+      const ph = own || (src => ({ src, focus: GROUND_PHOTOS[src].focus || [.5, .5] }))(of(pool)), ok = here(ph);
+      if (ok) return ok;
+      got = lean.pick(can.filter(k => k !== "photo"), lean.want, "ground");   // a city's photograph that may not stand here: the lean picks again among the others
+    }
     if (got) return { background: got === "scene" ? of(GROUND_SCENES) : got === "gradient" ? of(GROUND_GRADIENTS) : got === "pattern" ? of(GROUND_PATTERNS) : got === "house" ? of(GROUNDS) : got };
   }
   // the line's own stream: two lines on one seed do not stand on the same kind of ground
   let h = 0x811c9dc5; for (const ch of String(subject || "iphone")) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
   const g = rng(mixSeed((mixSeed(seed >>> 0) ^ h) >>> 0)); g();
   let u = g() * (share.photo + share.scene + share.gradient + share.pattern + share.house);
-  if ((u -= share.photo) < 0) { const src = pool[Math.floor(g() * pool.length) % pool.length]; return { background: "photo", ground_photo: { src, focus: GROUND_PHOTOS[src].focus || [.5, .5] } }; }
+  if ((u -= share.photo) < 0) {
+    const src = pool[Math.floor(g() * pool.length) % pool.length], ok = here({ src, focus: GROUND_PHOTOS[src].focus || [.5, .5] });
+    if (ok) return ok;
+    u = g() * (share.scene + share.gradient + share.pattern + share.house);   // a city's photograph that may not stand here: the draw goes on among the painted grounds
+  }
   if ((u -= share.scene) < 0) return { background: GROUND_SCENES[Math.floor(g() * GROUND_SCENES.length) % GROUND_SCENES.length] };
   // a vivid gradient in the pair's own two families (decor.js pairGradientGround; the owner: "Also don't see any gradients really?")
   if ((u -= share.gradient) < 0) return { background: GROUND_GRADIENTS[Math.floor(g() * GROUND_GRADIENTS.length) % GROUND_GRADIENTS.length] };
@@ -1773,7 +1814,9 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const idx = Object.fromEntries(phoneIndex.map(m => [m.id, m]));
   const bold = subject ? [] : have.map(id => (idx[id] || {}).body).filter(b => b && b.C >= BOLD_C).map(b => b.h);
   // a photograph given with the ad whose colour is strong counts toward the two families, as a bold phone does
-  const given = st.ground_photo && st.ground_photo.src ? GROUND_PHOTOS[st.ground_photo.src] : null;
+  // where the ad is (the towns it prints and their states): a photograph of a place stands only behind its own (placeHere)
+  const where = whereOf(st.feed_where ?? st.area, st.area_states);
+  const given0 = st.ground_photo && st.ground_photo.src ? GROUND_PHOTOS[st.ground_photo.src] : null, givenOk = !!(st.ground_photo && st.ground_photo.src) && placeHere(given0, where), given = givenOk ? given0 : null;
   if (given && given.C >= .08 && given.hue != null) bold.push(given.hue);
   /* A REBUILT RECIPE'S LEAN (motion/recipe-lean.js, spec/recipe-looks.json; the owner, 2026-11-18, of the
      library cards and the offer family: "take them as inspiration but rebuild them all"): st.hint names
@@ -1813,11 +1856,12 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...view, ...type, ...picked };
   if (lean && !("arrangement" in picked)) look.arrangement = lean.pick(ARRANGEMENTS, H.arrangement, "arrangement") || look.arrangement;
   // the ground: a photograph given with the ad as given; otherwise the seed's own draw (groundFor), unless one was picked by hand
-  if (st.ground_photo && st.ground_photo.src) { look.background = "photo"; look.ground_photo = { ...st.ground_photo }; }
+  if (givenOk) { look.background = "photo"; look.ground_photo = { ...st.ground_photo }; }
   else if (!("background" in picked)) {
-    const gd = groundFor(st.subject, seed, key, productFor(st.subject, have), lean && H.ground ? { want: H.ground, photo: st.ground_hint || null, r: lr, pick: lean.pick } : null);
+    const gd = groundFor(st.subject, seed, key, productFor(st.subject, have), lean && H.ground ? { want: H.ground, photo: st.ground_hint || null, r: lr, pick: lean.pick } : null, where);
     if (gd) Object.assign(look, gd); else delete look.ground_photo;
   }
+  if (st.ground_photo && !givenOk && look.background !== "photo") look.ground_photo = null;   // a given photograph of another place is not carried on
   if (look.ground_photo) loadGroundPhoto(look.ground_photo.src).catch(() => {});
   /* THE LOOK'S STYLES (spec/full-styles.json, motion/full-styles.js; the owner, 2026-11-18: "notice how
      it's all same spiky circle?", "no variety in the text pure outlines?", "don't see any gradients

@@ -74,8 +74,12 @@ const lineCat = Object.fromEntries(subjects.map(s => [s.key, s.cat]));
    2026-11-18): a scene or a photograph of goods, the make and model of a vehicle or a phone, and the
    floor a scene's product stands on; fullad.js draws a photograph only beside a product it shows,
    and frames a scene so its floor is the product's foot */
-const TAGS = existsSync(ROOT + 'spec/ground-tags.json') ? JSON.parse(readFileSync(ROOT + 'spec/ground-tags.json', 'utf8')).tags : {};
-const TAG_KEYS = ['shows', 'subject', 'make', 'model', 'vehicle', 'floor', 'never', 'cuts'];
+const TAGSPEC = existsSync(ROOT + 'spec/ground-tags.json') ? JSON.parse(readFileSync(ROOT + 'spec/ground-tags.json', 'utf8')) : {}, TAGS = TAGSPEC.tags || {};
+/* the city or landmark a photograph shows, and that place's towns (2026-11-19; the owner, of the Golden Gate under
+   a Long Beach ad: "that's SF", "let's use bg images (occasionally) but of the corresponding city.."): fullad.js
+   stands an ad on it only where the towns it prints are the place's, and only now and then */
+const PLACES = Object.fromEntries(Object.entries(TAGSPEC.places || {}).map(([k, p]) => [k, { towns: (p.towns || []).map(t => String(t).toUpperCase()), states: (p.states || []).map(t => String(t).toUpperCase()) }]));
+const TAG_KEYS = ['shows', 'subject', 'make', 'model', 'vehicle', 'floor', 'never', 'cuts', 'place'];
 const dim = m => m.L < spec.limits.minL || m.dark > spec.limits.maxDark;
 const photos = Object.fromEntries([...pooled, ...carded].filter(f => spec.photos[f] && !spec.photos[f].error).map(f => {
   const m = spec.photos[f], t = TAGS[f] || {}, card = !pooled.includes(f);
@@ -94,12 +98,15 @@ export const GROUND_PATTERNS = ${JSON.stringify(spec.patterns || [])};
 export const GROUND_POOLS = ${JSON.stringify(spec.pools)};
 export const GROUND_LINE_CAT = ${JSON.stringify(lineCat)};
 export const GROUND_PHOTOS = ${JSON.stringify(photos)};
+export const GROUND_PLACES = ${JSON.stringify(PLACES)};
 `;
 
 if (process.argv.includes('--check')) {
   const bad = [];
   const now = existsSync(OUT) ? readFileSync(OUT, 'utf8') : '';
   if (now !== text) bad.push('motion/full-grounds.js is stale: run node scripts/build_full_grounds.mjs');
+  for (const [f, t] of Object.entries(TAGS)) if (t.place && !((PLACES[t.place] || {}).towns || []).length) bad.push(`${f} shows a place (${t.place}) with no towns in spec/ground-tags.json places`);
+  for (const [k, p] of Object.entries(PLACES)) if (!p.states.length || p.states.some(x => !/^[A-Z]{2}$/.test(x))) bad.push(`place ${k} needs its states, two letters each ("CA"): a town of the same name in another state is not it`);
   for (const f of untagged) bad.push(`${f} is pooled but not tagged in spec/ground-tags.json (what it shows, its floor)`);
   const credit = {};
   const credited = f => {

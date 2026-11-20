@@ -715,6 +715,12 @@ produced." DESIGN-LAW rule 87. In practice:
   the recipes, the lines' pools or the cut-outs; a make named by its models goes to its line or its own
   cut-out, a model it names built since 2010, a motorcycle shows a motorcycle, a van its words name or
   "work vans" (`build_recipes.mjs`).
+- **A city's photograph stands only behind its own towns, now and then** (rule 154):
+  `node scripts/area_ground_check.mjs` after any change to the grounds, their tags
+  (`spec/ground-tags.json`: `place` and `places`, each place's towns and states), the towns an ad is
+  given (`feed_where`, `area`, `area_states`) or the stills. A new photograph of a landmark is tagged
+  with its place; the check fails an untagged one whose file names a landmark. A stills builder records
+  `photo`, `where` and `states` in its index.
 - **The landing is built to a brief** (rule 162; the owner: "make it look like a custom built site
   with a large web design budget"): `landing.css`, scoped to the landing under the family skin, keeps
   rule 152's colours and rule 153's wordmark and sets one type scale, banded grounds (paper for the

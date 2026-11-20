@@ -6386,3 +6386,26 @@ census's own citations follow.
 Open, and the owner's: two sessions have redesigned the landing, the census (162, here) and the
 SEO session (158, pull request 15). Pull request 15 now meets this branch in `index.html`,
 `assets/hero/index.json` and the notes, and which landing leads is the owner's call.
+
+## 2026-11-19 — a city's own photograph, now and then (claude/xenodochial-mccarthy-7bea6d)
+
+- **A scene is not neutral when it is somewhere.** The Golden Gate and Lake Tahoe were tagged as
+  scenes, which go with any product, so they filled the pools. They were 61 of the 104 photograph
+  grounds of the library's first looks, behind ads that print LONG BEACH.
+- **A town's name is not a place.** Richmond, Albany, Oakland and Homewood are in many states. The
+  studio's towns carry their state ("Long Beach, CA") and the engine now reads it. A towns line typed
+  by hand has none, so only the name is read.
+- **Filtering a seeded pick re-deals everyone after it.** Taking the place photographs out of a pool
+  emptied the cars' and cameras' pools. That dropped the photograph's share and moved 133 looks that
+  had never stood on a city, among them three of the nine hero-wall ads. Drawing over the whole pool,
+  and drawing again only when the photograph is another place's, moved only the 172 that had. The
+  recipe builder's scene swap went the same way: 118 moved, then 85, all of them ones that had to.
+- **A full redraw is not a clean diff.** The stills builders carry state from one design to the
+  next in a page. A full run moved three first looks and five full-size renders that nothing had
+  touched; drawn alone, they matched the committed files byte for byte. Keep a redrawn file only
+  where the change can reach it (here: a photograph ground before, or a changed hint), and draw the
+  rest alone to check.
+- **An index that records what a still stands on lets a check read the library as drawn.** It no longer
+  has to replay it. The stills' indexes now carry the photograph and the towns it prints.
+- **The engine runs in plain Node** with an `Image` stub. A line given no pictures is "bare" and
+  never draws a photograph, so a replay has to give each line its pictures, or it checks nothing.

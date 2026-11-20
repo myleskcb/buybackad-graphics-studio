@@ -125,8 +125,11 @@ const r = await page.evaluate(async () => {
   // line lands at the foot of the product band
   out.lineup = { photos: 0, bad: [], floors: [] };
   const GR = await import('/motion/full-grounds.js');
+  // drawn under San Francisco's towns and Lake Tahoe's, where their photographs may stand: under towns of no place a
+  // city's photograph is never drawn, and most of the photographs are a city's (rule 154, scripts/area_ground_check.mjs)
+  const TOWNS = [{ feed_where: 'SAN FRANCISCO • DALY CITY • OAKLAND', area_states: 'CA' }, { feed_where: 'SOUTH LAKE TAHOE • TRUCKEE', area_states: 'CA' }];
   for (const subject of ['', 'car', 'gold', 'silver', 'coins', 'laptop', 'minipc', 'gamingpc', 'headphones', 'pokemon', 'sports', 'camera', 'console']) for (let s = 1; s <= 60; s++) {
-    const st = F.fullStyle({ ...C.DEFAULT_STYLE, headline: 'WE BUY THEM', subject, aspect: '1:1', phones: subject ? ['none'] : [] }, s * 7919, index);
+    const st = F.fullStyle({ ...C.DEFAULT_STYLE, headline: 'WE BUY THEM', subject, aspect: '1:1', phones: subject ? ['none'] : [], ...TOWNS[s % 2] }, s * 7919, index);
     if (!st.ground_photo) continue;
     out.lineup.photos++;
     const t = GR.GROUND_PHOTOS[st.ground_photo.src], P = F.productFor(subject, st.phones);
@@ -154,7 +157,7 @@ const r = await page.evaluate(async () => {
   const G = await import('/motion/full-grounds.js');
   out.grounds = { photos: 0, strong: 0, off: [] };
   for (const subject of ['', 'car', 'gold', 'sports', 'laptop', 'camera']) for (let s = 1; s <= 120; s++) {
-    const st = F.fullStyle({ ...C.DEFAULT_STYLE, headline: 'WE BUY THEM', subject, aspect: '1:1', phones: subject ? ['none'] : [] }, s * 977, index);
+    const st = F.fullStyle({ ...C.DEFAULT_STYLE, headline: 'WE BUY THEM', subject, aspect: '1:1', phones: subject ? ['none'] : [], ...TOWNS[s % 2] }, s * 977, index);
     if (st.background !== 'photo') continue; out.grounds.photos++;
     const m = G.GROUND_PHOTOS[st.ground_photo.src]; if (!m || !(m.C >= .08) || m.hue == null) continue; out.grounds.strong++;
     const hues = [st.colors.accent, st.colors.ground].map(E.oklchOf).filter(k => k.C >= .04).map(k => k.h);

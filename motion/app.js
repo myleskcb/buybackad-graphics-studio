@@ -185,7 +185,7 @@ function restore() {
         if (h.subject && h.subject !== "iphone") { s.subject = h.subject; s.subject_set = h.subject_set | 0; } else { delete s.subject; delete s.subject_set; }
         if (h.recipe) s.recipe = String(h.recipe); else delete s.recipe;   // a library design from the studio: the same recipe
         s.headline = String(h.headline || s.headline); s.tag = String(h.tag || ""); s.points = h.points == null ? null : String(h.points);
-        for (const k of ["feed_claim", "feed_burst", "feed_where", "biz", "site", "number_label"]) { if (h[k]) s[k] = String(h[k]); else delete s[k]; }
+        for (const k of ["feed_claim", "feed_burst", "feed_where", "area_states", "biz", "site", "number_label"]) { if (h[k]) s[k] = String(h[k]); else delete s[k]; }
         if (h.number) s.number = String(h.number);
         if (h.seed) s.seed = h.seed | 0;
         if (h.full_palette && COLOURWAYS.includes(h.full_palette)) s.full_palette = h.full_palette; else delete s.full_palette;
@@ -658,6 +658,7 @@ function buildPanel() {
   for (const [id, key, max] of FULL_FIELDS) $(id).addEventListener("input", debounce(e => {
     const v = e.target.value.trim().slice(0, max);
     if (v) state.style[key] = key === "site" ? v : v.toUpperCase(); else delete state.style[key];
+    if (key === "feed_where") delete state.style.area_states;   // towns typed by hand: their states are not known (fullad.js whereOf reads "TOWN, ST")
     save(); rebuild();
   }, 280));
   $("mode").addEventListener("click", e => {

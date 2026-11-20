@@ -1,6 +1,73 @@
 {
- "_doc": "What each ground photograph shows, read by eye on contact sheets (2026-11-18), so the ground and the product line up (the owner: \"ideally bg and assets line up\"; DESIGN-LAW 145). shows: 'scene' (a world the product stands in: a landscape, a desk, a field, a texture; suits: the categories it fits) or 'product' (it shows goods itself: subject is the line or kind it shows, make and model where it is a vehicle or a phone, vehicle: pickup or van). floor: where a surface the product can stand on meets the eye, 0 to 1 of the photograph's height; FullAd frames a scene so this line is the foot of the product band. never: a reason the photograph is not used at all. The full ad's pools (scripts/build_full_grounds.mjs) and the recipes (scripts/build_recipes.mjs) read this table; each --check fails a ground it does not tag. A car photograph may list cuts: the cut-outs that are that very car (a model name can span generations or bodies: an E46 and a G80 M3, a Transit Connect and a Courier); only those stand on it.",
- "version": "2026-11-18",
+ "_doc": "What each ground photograph shows, read by eye on contact sheets (2026-11-18), so the ground and the product line up (the owner: \"ideally bg and assets line up\"; DESIGN-LAW 145). shows: 'scene' (a world the product stands in: a landscape, a desk, a field, a texture; suits: the categories it fits) or 'product' (it shows goods itself: subject is the line or kind it shows, make and model where it is a vehicle or a phone, vehicle: pickup or van). floor: where a surface the product can stand on meets the eye, 0 to 1 of the photograph's height; FullAd frames a scene so this line is the foot of the product band. never: a reason the photograph is not used at all. The full ad's pools (scripts/build_full_grounds.mjs) and the recipes (scripts/build_recipes.mjs) read this table; each --check fails a ground it does not tag. A car photograph may list cuts: the cut-outs that are that very car (a model name can span generations or bodies: an E46 and a G80 M3, a Transit Connect and a Courier); only those stand on it. place: the city or landmark a photograph shows (places: its towns, as the towns line prints them, and their states); the full ad stands on it only now and then, and only where the towns it prints are that place's (the owner, 2026-11-19, of the Golden Gate under a Long Beach ad: \"that's SF\", \"let's use bg images (occasionally) but of the corresponding city..\").",
+ "version": "2026-11-19",
+ "places": {
+  "san-francisco": {
+   "name": "San Francisco and the Bay",
+   "states": [
+    "CA"
+   ],
+   "towns": [
+    "San Francisco",
+    "Daly City",
+    "South San Francisco",
+    "Oakland",
+    "Berkeley",
+    "Alameda",
+    "Emeryville",
+    "Albany",
+    "El Cerrito",
+    "Richmond",
+    "Sausalito",
+    "Mill Valley",
+    "Tiburon",
+    "Larkspur",
+    "Corte Madera",
+    "San Rafael",
+    "San Bruno",
+    "Millbrae",
+    "Burlingame",
+    "San Mateo",
+    "Pacifica",
+    "Brisbane",
+    "Colma",
+    "SF",
+    "Bay Area",
+    "SF Bay Area",
+    "San Francisco Bay Area",
+    "East Bay",
+    "Marin",
+    "North Bay"
+   ]
+  },
+  "lake-tahoe": {
+   "name": "Lake Tahoe",
+   "states": [
+    "CA",
+    "NV"
+   ],
+   "towns": [
+    "South Lake Tahoe",
+    "Tahoe City",
+    "Truckee",
+    "Incline Village",
+    "Kings Beach",
+    "Tahoe Vista",
+    "Carnelian Bay",
+    "Homewood",
+    "Meyers",
+    "Stateline",
+    "Zephyr Cove",
+    "Crystal Bay",
+    "Glenbrook",
+    "Lake Tahoe",
+    "Tahoe",
+    "North Lake Tahoe",
+    "North Tahoe",
+    "South Tahoe"
+   ]
+  }
+ },
  "tags": {
   "assets/bg-offer/apple-macbook-air-m2-1.jpg": {
    "shows": "product",
@@ -745,7 +812,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "place": "lake-tahoe"
   },
   "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg": {
    "shows": "scene",
@@ -763,7 +831,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "place": "san-francisco"
   },
   "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg": {
    "shows": "scene",
@@ -781,7 +850,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "place": "san-francisco"
   },
   "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg": {
    "shows": "scene",
@@ -799,7 +869,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "place": "san-francisco"
   },
   "assets/bg-web/wallpaper-golden-gate-bridge-sunset-3.jpg": {
    "shows": "scene",
@@ -817,7 +888,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "place": "san-francisco"
   },
   "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg": {
    "shows": "scene",
@@ -835,7 +907,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "place": "san-francisco"
   },
   "assets/bg-web/wallpaper-lake-tahoe-1.jpg": {
    "shows": "scene",
@@ -853,7 +926,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "place": "lake-tahoe"
   },
   "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg": {
    "shows": "scene",
@@ -871,7 +945,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "place": "lake-tahoe"
   },
   "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg": {
    "shows": "scene",
@@ -889,7 +964,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "place": "lake-tahoe"
   },
   "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg": {
    "shows": "scene",
@@ -907,7 +983,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "place": "lake-tahoe"
   },
   "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg": {
    "shows": "scene",
@@ -925,7 +1002,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "place": "lake-tahoe"
   },
   "assets/bg/dl_cars_reviewProof_mono.jpg": {
    "shows": "product",

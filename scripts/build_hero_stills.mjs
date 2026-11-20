@@ -70,7 +70,9 @@ for (const id of house.filter(id => !own(id))) {
     const pair = st.full_colour || '', P = (await import('/motion/house-colours.js')).HOUSE_COLOURS.find(c => c.key === pair);
     const bg = String(st.background || ''), { GROUND_SCENES } = await import('/motion/full-grounds.js');
     const ground = bg === 'photo' ? 'photo' : /^pair_/.test(bg) ? 'gradient' : /^pat_/.test(bg) ? 'pattern' : GROUND_SCENES.includes(bg) ? 'scene' : 'house';
-    return { ...meta, pair, pairName: P ? P.name : '', look: P ? P.look : '', background: bg, ground, headline: String(st.headline || ''), product: String(product), webp: c.toDataURL('image/webp', 0.78) };
+    // and the photograph it stands on, with the towns it prints (scripts/area_ground_check.mjs: a city's photograph only behind its own towns)
+    const photo = bg === 'photo' && st.ground_photo ? String(st.ground_photo.src || '') : '', where = String(st.feed_where ?? st.area ?? ''), states = String(st.area_states || '');
+    return { ...meta, pair, pairName: P ? P.name : '', look: P ? P.look : '', background: bg, ground, photo, where, states, headline: String(st.headline || ''), product: String(product), webp: c.toDataURL('image/webp', 0.78) };
   }, id);
   if (got.error) { console.log(`  ${id}: ${got.error}`); continue; }
   writeFileSync(DIR + id + '.webp', Buffer.from(got.webp.split(',')[1], 'base64'));

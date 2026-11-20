@@ -4288,3 +4288,20 @@ recipes changed (42 in the library; their stills, looks and full-size renders dr
 `scripts/make_match_check.mjs` holds every recipe and line to it.
 Open: a Sprinter cut-out that is not flagged (the one in the repo shows dealer lettering), and more
 than one motorcycle (the Harley, 1988–2006, stands under all three); both downloads need the owner's OK.
+
+Then, the same day (the owner, through the roadmap session, of a Pixel ad on the Golden Gate whose
+towns read LONG BEACH • LOS ANGELES • ANAHEIM: "that's SF", "let's use bg images (occasionally) but of
+the corresponding city.."): a photograph of a place now stands only behind its own towns, in its own
+state, on two seeds in five (rule 154, `scripts/area_ground_check.mjs`). Under the sample's towns no
+ad stands on one. 61 of the library's 104 first looks on a photograph had stood on the Golden Gate
+or Lake Tahoe. They were drawn again, with 5 whose card had been given a city's scene, 187 other
+looks and 34 full-size renders. The hero wall's nine are as they were.
+Found: the stills builders draw a design differently depending on the design drawn before it in
+the same page. Three first looks and five full-size renders came out differently in a full run
+than when drawn alone, with nothing of theirs changed. Drawn alone they match the committed ones
+byte for byte, so those were kept. The studio may carry the same state from one design to the next
+for a visitor. Open: find it.
+Open, and the owner's: photographs of the sample's own towns (Long Beach, Los Angeles, Anaheim) would
+let the library stand on its own city now and then; they are a download and wait on the owner's OK.
+The Bay's towns (Oakland, Berkeley, the Peninsula and Marin count as the Golden Gate's) are the
+owner's to narrow, in `spec/ground-tags.json`.

@@ -1,6 +1,6 @@
 {
  "about": "Stills of the recipe and full-ad hero picks (assets/hero-picks.json), drawn by scripts/build_hero_stills.mjs; app.js scBuildWall shows them and opens each in the full ad.",
- "made": "2026-11-19T12:02:10.067Z",
+ "made": "2026-11-20T05:21:22.379Z",
  "items": {
   "full-iphone-v12": {
    "kind": "full",
@@ -13,6 +13,9 @@
    "look": "vivid",
    "background": "pat_riso",
    "ground": "pattern",
+   "photo": "",
+   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "states": "CA",
    "headline": "WE BUY IPHONES",
    "product": "[object Object]",
    "thumb": "assets/hero/full-iphone-v12.webp"
@@ -28,6 +31,9 @@
    "look": "light",
    "background": "pair_arch",
    "ground": "gradient",
+   "photo": "",
+   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "states": "CA",
    "headline": "WE BUY MACBOOKS",
    "product": "[object Object]",
    "thumb": "assets/hero/full-mac-v8.webp"
@@ -43,6 +49,9 @@
    "look": "vivid",
    "background": "pat_memphis",
    "ground": "pattern",
+   "photo": "",
+   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "states": "CA",
    "headline": "WE BUY MACS",
    "product": "[object Object]",
    "thumb": "assets/hero/full-macdesk-v2.webp"
@@ -58,6 +67,9 @@
    "look": "light",
    "background": "pair_sunset",
    "ground": "gradient",
+   "photo": "",
+   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "states": "CA",
    "headline": "WE BUY IPADS",
    "product": "[object Object]",
    "thumb": "assets/hero/full-ipad-v15.webp"
@@ -73,6 +85,9 @@
    "look": "light",
    "background": "pat_polka",
    "ground": "pattern",
+   "photo": "",
+   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "states": "CA",
    "headline": "WE BUY CONSOLES",
    "product": "[object Object]",
    "thumb": "assets/hero/full-console-v6.webp"
@@ -88,6 +103,9 @@
    "look": "vivid",
    "background": "pat_rays",
    "ground": "pattern",
+   "photo": "",
+   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "states": "CA",
    "headline": "WE BUY SAMSUNG PHONES",
    "product": "[object Object]",
    "thumb": "assets/hero/full-galaxy-v6.webp"
@@ -103,6 +121,9 @@
    "look": "vivid",
    "background": "pair_arch",
    "ground": "gradient",
+   "photo": "",
+   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "states": "CA",
    "headline": "WE BUY PIXEL PHONES",
    "product": "[object Object]",
    "thumb": "assets/hero/full-pixel-v22.webp"
@@ -118,6 +139,9 @@
    "look": "vivid",
    "background": "pair_mesh",
    "ground": "gradient",
+   "photo": "",
+   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "states": "CA",
    "headline": "WE BUY CARS & TRUCKS",
    "product": "[object Object]",
    "thumb": "assets/hero/full-car-v1.webp"
@@ -133,6 +157,9 @@
    "look": "vivid",
    "background": "pat_waves",
    "ground": "pattern",
+   "photo": "",
+   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "states": "CA",
    "headline": "WE BUY SPORTS CARDS",
    "product": "[object Object]",
    "thumb": "assets/hero/full-sports-v2.webp"

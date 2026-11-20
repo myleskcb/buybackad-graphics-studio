@@ -102,8 +102,9 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
     }
     /* a photograph given with the ad (ground_photo: the contract the recipes made from older cards use)
        is drawn, passes the pre-flight, moves under the words in the video and holds still for the photo */
+    // (a photograph of a place is given with its own towns: under any other it is refused, scripts/area_ground_check.mjs)
     const gp = { src: 'assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg', focus: [.5, .5] };
-    const st2 = F.fullStyle({ ...C.DEFAULT_STYLE, ...Object.values(WORDS)[0], number: '(562) 999-4994', aspect: '1:1', ground_photo: gp }, 4242, index);
+    const st2 = F.fullStyle({ ...C.DEFAULT_STYLE, ...Object.values(WORDS)[0], number: '(562) 999-4994', aspect: '1:1', ground_photo: gp, feed_where: 'SOUTH LAKE TAHOE • TRUCKEE', area_states: 'CA' }, 4242, index);
     await F.fullGroundReady(st2); await E.loadFonts([...E.fontsFor(st2), 'franklin']);
     const ad2 = new F.FullAd(st2, assets, 1080, 1080), still2 = F.fullStill(ad2), pre2 = F.fullPreflight(ad2, still2);
     const corner = c => { const d = c.getContext('2d').getImageData(24, 1020, 60, 36).data; let v = 0; for (let i = 0; i < d.length; i += 4) v += d[i] + d[i + 1] + d[i + 2]; return v / (d.length / 4); };
@@ -144,7 +145,10 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
     const n = out.rows.length, photo = (by.photo || 0) / n;
     console.log(`  grounds: ${Object.entries(by).map(([k, v]) => `${k} ${v}`).join(', ')} of ${n}`);
     if (by['photo not drawn']) fail(`${by['photo not drawn']} ads drew a photo ground that was never painted`);
-    if (!(photo >= .15 && photo <= .6) || !by.scene || !by.house || !by.gradient || !by.pattern) fail(`the grounds' shares are off the table: ${JSON.stringify(by)} of ${n}`);
+    /* every kind drawn and no photograph past its share. These ads print no towns, and a city's photograph (most of
+       the iPhones' pool) stands only behind its own towns, now and then (rule 154, 2026-11-19), so the iPhones'
+       photograph draws fall to the painted grounds here; scripts/area_ground_check.mjs counts them under each place */
+    if (photo > .6 || !by.scene || !by.house || !by.gradient || !by.pattern) fail(`the grounds' shares are off the table: ${JSON.stringify(by)} of ${n}`);
     const c = out.contract;
     if (!(c.bg === 'photo' && c.drawn && c.ok && c.moved && c.held)) fail(`a ground_photo given with the ad: ${JSON.stringify(c)}`);
     else console.log('  ok   a ground_photo given with the ad is drawn, passes its pre-flight, moves in the video and holds still for the photo');

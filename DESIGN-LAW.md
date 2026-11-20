@@ -6351,6 +6351,56 @@ don't we have any of the video style ads on here that looked happier and more vi
 
 Not done here: OPEN-ITEMS §BJ 7.
 
+**A city's own photograph, now and then (2026-11-19).** The owner, through the roadmap session, of
+a Pixel ad on the Golden Gate Bridge whose towns read LONG BEACH • LOS ANGELES • ANAHEIM: "that's SF",
+and "let's use bg images (occasionally) but of the corresponding city..".
+- **A photograph of a place is tagged with it** (`spec/ground-tags.json`: `place`; its `places`
+  table gives each place its towns, as a towns line prints them, and its states). Five Golden Gate
+  and six Lake Tahoe photographs are tagged. Tagged as scenes, they went with every product and were
+  most of the photograph grounds: every one in the cars' and the cameras' pools, five of the
+  phones' seven. Of the library's 104 first looks that stood on a photograph, 61 stood on one of
+  them, under LONG BEACH • LOS ANGELES • ANAHEIM.
+- **It stands only behind its own towns** (`fullad.js` `placeHere`): a town the ad prints is one of
+  the place's, in one of its states where the ad's states are known. The towns are the line the ad
+  prints (`feed_where`, else `area`). The studio passes their states (`area_states`, from its
+  "Long Beach, CA"), so a Richmond in Virginia or an Albany in New York is not the Bay's. A towns
+  line typed by hand in the video maker drops them, and a state written after a comma counts.
+- **And only now and then** (`placeTurn`): on two seeds in five. Under San Francisco's towns a line
+  stands on the Golden Gate on 3 to 7 seeds in 100 (the consoles' and metals' pools have fewer
+  scenes), and never on Lake Tahoe.
+- **Nothing else moves.** The seed draws over every photograph, as it always did. Only an ad that
+  draws a city's photograph it may not stand on draws again, from the painted grounds: a scene, a
+  gradient, a pattern or the house's own. Its lean picks again among those too. Replayed in Node
+  against the engine before this rule, the 172 looks that stood on a city's photograph moved and
+  none of the other 2,315 did. A first try took the city photographs out of the pools, and it had
+  moved 133 more, three of the hero wall's nine among them.
+- **Drawn again**: the 61 first looks on a city's photograph and 5 whose card had been given a
+  city's scene, the other looks (187 of 1,575 changed) and 34 full-size renders. The hero
+  wall's nine are as they were.
+- **The sample's towns have no photograph of their own yet** (Long Beach, Los Angeles, Anaheim). So
+  the library's stills stand on none: 159 of its 2,240 recipe and line stills are on a
+  photograph of their goods, none on a city's. A photograph is still a quarter of the draws, but
+  most of the photographs were a city's, so far fewer ads stand on one here.
+- **A photograph given with the ad** (`ground_photo`) of another place than the ad's is refused and
+  not carried on. The recipe builder never swaps a card's ground for a place's scene
+  (`build_recipes.mjs`); the 85 recipes whose id drew one draw again among the others, and the
+  rest keep theirs.
+- **Held by `scripts/area_ground_check.mjs`** (plain Node). It draws every line on 60 seeds and every
+  recipe on 20 under these towns:
+  - the sample's;
+  - a town typed in the maker;
+  - none;
+  - three out-of-state namesakes.
+
+  None draws a photograph of a place. Under San Francisco's towns and Tahoe's, each draws its own
+  now and then and never the other's. A given photograph is refused outside its towns. Every still
+  in the library stands on no place but its own towns': its index now records the photograph and the
+  towns it prints. A photograph whose file names a landmark must be tagged with its place.
+- **The other checks follow.** `full_ad_check` gives its Tahoe photograph with Tahoe's towns. Its
+  iPhone ads print no towns, so it no longer asks a quarter of them to stand on a photograph; it
+  asks only that none goes past the table's share. `full_colour_check` draws its photograph checks
+  under San Francisco's and Tahoe's towns, where photographs are still drawn.
+
 ## 155. A recipe takes after its card, and is never a copy of it
 
 Added 2026-11-18. The owner, of the library cards and the offer family drawn as recipes (rule

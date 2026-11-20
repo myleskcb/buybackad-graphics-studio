@@ -116,6 +116,13 @@ function whereNow() {
   const home = String(a.home || "").split(",")[0].trim().toUpperCase();
   return (towns.length ? [...new Set(home ? [home, ...towns] : towns)].slice(0, 3) : home ? [home] : []).join(" • ");
 }
+/** The states of the towns a full ad names ("CA"), so a photograph of a place stands only behind its own
+ *  towns (fullad.js placeHere): a Richmond in Virginia is not the Bay's. */
+function statesNow() {
+  let a = null; try { a = typeof getArea === "function" ? getArea() : null; } catch (e) { /* none */ }
+  if (!a) return "";
+  return [...new Set([a.home, ...(a.cover || [])].map(s => (String(s || "").split(",")[1] || "").trim().toUpperCase()).filter(s => /^[A-Z]{2}$/.test(s)))].join(" ");
+}
 
 /** The style the engine draws: the visitor's words over the line's own, the house style locked. */
 function styleNow(S, ids, set, size, R = recipeNow()) {
@@ -138,7 +145,7 @@ function styleNow(S, ids, set, size, R = recipeNow()) {
   // colourway what its seed leans toward (fullad.js fullStyle)
   if (R && R.ground_photo) base.ground_hint = { ...R.ground_photo };
   if (R && R.hint) base.hint = R.hint;
-  const where = whereNow(); if (where) base.feed_where = where;
+  const where = whereNow(), states = statesNow(); if (where) base.feed_where = where; if (states) base.area_states = states;
   // a typed business name takes the badge over a library design's claim (the full ad's own rule); typed words over both
   if (up(w.claim)) base.feed_claim = up(w.claim); else if (up(rw.claim) && !String(FA.biz || "").trim()) base.feed_claim = up(rw.claim);
   if (up(w.burst) || up(rw.burst)) base.feed_burst = up(w.burst) || up(rw.burst);
@@ -393,7 +400,7 @@ function toVideo() {
     recipe: R ? R.id : "",
     headline: up(w.headline) || up(rw.headline) || S.heads[0].toUpperCase(), tag: up(w.tag) || up(rw.tag) || (S.key === "iphone" ? "" : S.models.toUpperCase()), points: up(w.points) || up(rw.points) || (S.key === "iphone" ? null : S.points),
     feed_claim: up(w.claim) || (String(FA.biz || "").trim() ? "" : up(rw.claim)), feed_burst: up(w.burst) || up(rw.burst), number_label: up(w.label) || up(rw.label), biz: String(FA.biz || "").trim(),
-    number: el("ez-phone").value.trim(), site: el("ez-website").value.trim(), feed_where: whereNow(),
+    number: el("ez-phone").value.trim(), site: el("ez-website").value.trim(), feed_where: whereNow(), area_states: statesNow(),
     aspect: ar >= 1.3 ? "16:9" : ar <= .62 ? "9:16" : Math.abs(ar - 1) < .02 ? "1:1" : "4:5", at: Date.now() };
   try { localStorage.setItem(HANDOFF, JSON.stringify(hand)); } catch (e) { /* the maker opens on its own look */ }
   location.href = at("./motion/") + "?full=1&from=studio";

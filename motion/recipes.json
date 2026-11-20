@@ -58,14 +58,15 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+    "src": "assets/bg-offer/rooms-home-desk-setup-1.jpg",
     "focus": [
      0.5,
      0.5
     ],
     "scrim": 0.6,
     "from": "bandKnockout-ck07-35",
-    "shows": "scene"
+    "shows": "scene",
+    "floor": 0.62
    },
    "pair": "black_red",
    "type_pair": "",
@@ -348,14 +349,15 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+    "src": "assets/bg-offer/rooms-desk-setup-1.jpg",
     "focus": [
      0.5,
      0.5
     ],
     "scrim": 0.5,
     "from": "checklistHero-jw10-30",
-    "shows": "scene"
+    "shows": "scene",
+    "floor": 0.72
    },
    "pair": "red_yellow",
    "type_pair": "",
@@ -505,14 +507,15 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+    "src": "assets/bg-offer/rooms-home-desk-setup-1.jpg",
     "focus": [
      0.5,
      0.5
     ],
     "scrim": 0.59,
     "from": "hudTech-ca07-20",
-    "shows": "scene"
+    "shows": "scene",
+    "floor": 0.62
    },
    "pair": "navy_orange",
    "type_pair": "grotesk",
@@ -622,14 +625,15 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
+    "src": "assets/bg-web/rooms-desk-setup-1.jpg",
     "focus": [
      0.5,
      0.5
     ],
     "scrim": 0.51,
     "from": "hudTech-jw05-15",
-    "shows": "scene"
+    "shows": "scene",
+    "floor": 0.72
    },
    "pair": "red_yellow",
    "type_pair": "",
@@ -737,7 +741,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-emerald-bay-lake-tahoe-2.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -890,7 +894,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
@@ -1051,14 +1055,15 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+    "src": "assets/bg-offer/rooms-home-desk-setup-1.jpg",
     "focus": [
      0.5,
      0.5
     ],
     "scrim": 0.25,
     "from": "ticketStub-nn06-35",
-    "shows": "scene"
+    "shows": "scene",
+    "floor": 0.62
    },
    "pair": "navy_orange",
    "type_pair": "stadium",
@@ -1108,7 +1113,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -1165,7 +1170,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -22574,7 +22579,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -22629,7 +22634,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -22808,7 +22813,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -22873,7 +22878,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -22991,7 +22996,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -23120,7 +23125,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -23309,7 +23314,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -23358,7 +23363,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -23416,7 +23421,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -23528,7 +23533,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-1.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
@@ -23587,7 +23592,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
@@ -23689,7 +23694,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-emerald-bay-lake-tahoe-2.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
@@ -23910,7 +23915,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -24009,7 +24014,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -24055,7 +24060,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -24102,7 +24107,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-emerald-bay-lake-tahoe-2.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -24150,7 +24155,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
@@ -24297,7 +24302,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -24344,7 +24349,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-1.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -24393,7 +24398,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-1.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
@@ -24441,7 +24446,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -24488,7 +24493,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -24535,7 +24540,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -24583,7 +24588,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -24628,7 +24633,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -24676,7 +24681,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-sunset-3.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -24723,7 +24728,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -25079,7 +25084,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -25140,7 +25145,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -25259,7 +25264,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -25308,7 +25313,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -25358,7 +25363,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -25475,7 +25480,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
@@ -25529,7 +25534,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-sunset-3.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -25583,7 +25588,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -25794,7 +25799,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-1.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -25852,7 +25857,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-sunset-3.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -25975,7 +25980,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -26039,7 +26044,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -26105,7 +26110,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -26167,7 +26172,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -26296,7 +26301,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -26349,7 +26354,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -26454,7 +26459,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -26505,7 +26510,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-sunset-3.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -26557,7 +26562,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-sunset-3.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -26610,7 +26615,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -26840,7 +26845,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-emerald-bay-lake-tahoe-2.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -26946,7 +26951,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -26998,7 +27003,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-1.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -27154,7 +27159,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
@@ -27223,7 +27228,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -27284,7 +27289,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
@@ -27467,7 +27472,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -27641,7 +27646,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -27694,7 +27699,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-1.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
@@ -27798,7 +27803,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
@@ -27852,7 +27857,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -28008,7 +28013,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
@@ -28060,7 +28065,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -28112,7 +28117,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -28163,7 +28168,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-1.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -28216,7 +28221,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -28328,7 +28333,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -28516,7 +28521,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -28645,7 +28650,7 @@
     }
    ],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
@@ -28694,7 +28699,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
@@ -28742,7 +28747,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
@@ -28789,7 +28794,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+    "src": "assets/showcase/bg/abs_paperTex_du06_3.webp",
     "focus": [
      0.5,
      0.5
@@ -28836,7 +28841,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-emerald-bay-lake-tahoe-2.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -28932,7 +28937,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -28978,7 +28983,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -29074,7 +29079,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
@@ -29121,7 +29126,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
+    "src": "assets/showcase/bg/abs_velvet_ck01_3.webp",
     "focus": [
      0.5,
      0.5
@@ -29215,7 +29220,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
+    "src": "assets/showcase/bg/abs_shadowcast_io08_3.webp",
     "focus": [
      0.5,
      0.5
@@ -29262,7 +29267,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+    "src": "assets/showcase/bg/abs_halftone_jw07_3.webp",
     "focus": [
      0.5,
      0.5
