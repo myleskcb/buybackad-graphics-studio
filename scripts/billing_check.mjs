@@ -59,7 +59,7 @@ writeFileSync(join(T, 'node_modules/@netlify/blobs/package.json'), JSON.stringif
 writeFileSync(join(T, 'node_modules/@netlify/blobs/index.js'), [
   'export const all = new Map();',
   'export const getStore = (o) => { const n = typeof o === "string" ? o : o.name; if (!all.has(n)) all.set(n, new Map()); const m = all.get(n);',
-  '  return { get: async (k) => (m.has(k) ? m.get(k) : null), set: async (k, v) => { m.set(k, v); }, delete: async (k) => { m.delete(k); }, list: async () => ({ blobs: [] }) }; };',
+  '  return { get: async (k) => (m.has(k) ? m.get(k) : null), set: async (k, v) => { m.set(k, v); }, delete: async (k) => { m.delete(k); }, list: async (o) => ({ blobs: [...m.keys()].filter((k) => !(o && o.prefix) || k.startsWith(o.prefix)).map((key) => ({ key })) }) }; };',
 ].join('\n'));
 
 const env = process.env;
@@ -176,6 +176,7 @@ globalThis.fetch = async (input, init = {}) => {
   if ((m = path.match(/^\/subscriptions\/(.+)$/))) {
     const sub = S.subs.get(m[1]);
     if (!sub || sub.mode !== mode) return missing('subscription');
+    if (method === 'DELETE') { sub.status = 'canceled'; S.cancelled = (S.cancelled || 0) + 1; return reply(200, sub); }
     if (method === 'POST') {
       if (body.items) { const it = sub.items.data.find((i) => i.id === body.items[0].id); it.price = S.prices.get(body.items[0].price); }
       if (body.cancel_at_period_end) sub.cancel_at_period_end = body.cancel_at_period_end === 'true';
@@ -607,6 +608,31 @@ let csPro;
   env.SITE_URL = was;
 }
 
+/* deleting an account (2026-11-19, the iPhone app: App Store guideline 5.1.1(v)) */
+{
+  const em = 'leaver@x.example', tok = await signup(em);
+  ok((await hit('POST', '/account/delete', { confirm: 'delete' })).status === 401, 'deleting an account needs the sign-in');
+  ok((await hit('POST', '/account/delete', {}, tok)).status === 400, 'deleting an account asks for the word delete');
+  const map = (name) => { if (!store.has(name)) store.set(name, new Map()); return store.get(name); };
+  const { ownerKey } = await import(pathToFileURL(join(T, 'netlify/lib/adlibrary.mjs')).href);
+  const owner = await ownerKey(em), lib = map('pgfx-ad-library'), gen = map('pgfx-generated');
+  lib.set('o:' + owner, JSON.stringify({ feed: 'fd_leaver', items: [] })); lib.set('f:fd_leaver', owner);
+  lib.set('i:' + owner + ':a1', 'jpeg'); lib.set('v:' + owner + ':a1', 'mp4'); lib.set('i:other:a1', 'someone else');
+  gen.set('idx/' + em, JSON.stringify(['g1'])); gen.set('img/g1', '{}');
+  const mode = billing.stripeMode(env);
+  S.subs.set('sub_leaver', { id: 'sub_leaver', mode, status: 'active', items: { data: [] }, metadata: {} });
+  const u = userBlob(em); u.plan = 'pro'; u.sub = { id: 'sub_leaver', status: 'active', plan: 'pro' }; setUser(u);
+  const r = await hit('POST', '/account/delete', { confirm: 'delete' }, tok);
+  ok(r.status === 200 && r.json.ok, 'a signed-in account with the word delete is deleted');
+  ok(S.subs.get('sub_leaver').status === 'canceled', 'its paid subscription is cancelled at Stripe first, so nothing is charged again');
+  ok(!store.get('pgfx-users').has('u:' + em), 'the account is gone');
+  ok(!lib.has('o:' + owner) && !lib.has('f:fd_leaver') && !lib.has('i:' + owner + ':a1') && !lib.has('v:' + owner + ':a1') && lib.has('i:other:a1'),
+    'its saved ads, their pictures and videos and its public link go, and nobody else\'s');
+  ok(!gen.has('idx/' + em) && !gen.has('img/g1'), 'its AI pictures go');
+  ok((await hit('GET', '/me', undefined, tok)).status === 404, 'the sign-in it had opens nothing');
+  ok((await hit('POST', '/auth/login', { email: em, password: 'a-long-password' })).status === 401, 'and the password no longer signs in');
+}
+
 /* operators */
 {
   const boss = await signup('boss2@studio.example');
@@ -768,7 +794,7 @@ async function browserPart() {
       await page.waitForSelector('#co-overlay.show #co-agree');
       const step1 = await page.evaluate(() => ({ title: document.getElementById('co-title').textContent, terms: document.getElementById('co-terms').textContent,
         feats: document.querySelectorAll('#co-features li').length, locked: document.getElementById('co-go').disabled, links: [...document.querySelectorAll('#co-agree-text a')].map((a) => a.getAttribute('href')).join() }));
-      ok(step1.title === 'Graphics Studio Pro' && /^Renews automatically every year at \$600/.test(step1.terms) && step1.feats >= 4 && step1.locked && step1.links === 'terms.html,privacy.html',
+      ok(step1.title === 'WeBuy.AD Pro' && /^Renews automatically every year at \$600/.test(step1.terms) && step1.feats >= 4 && step1.locked && step1.links === 'terms.html,privacy.html',
         `checkout: the agreement first, renewal terms in words, Continue locked until the box is ticked (${JSON.stringify(step1)})`);
       await shot(page, 'checkout-consent');
       await page.check('#co-agree');
@@ -844,7 +870,7 @@ async function browserPart() {
       await page.waitForSelector('#co-overlay.show #fake-stripe-pay', { timeout: 15000 }).catch(() => {});
       const dlg = await page.evaluate(() => ({ open: document.getElementById('co-overlay').classList.contains('show'), title: document.getElementById('co-title').textContent,
         price: document.getElementById('co-price').textContent, form: !!document.querySelector('#co-mount #fake-stripe-pay'), loading: !document.getElementById('co-loading').hidden }));
-      ok(dlg.open && dlg.title === 'Graphics Studio Starter' && dlg.price === '$25 a month' && dlg.form && !dlg.loading && page.url() === before,
+      ok(dlg.open && dlg.title === 'WeBuy.AD Starter' && dlg.price === '$25 a month' && dlg.form && !dlg.loading && page.url() === before,
         `embedded checkout: the form opens in the site's own dialog, on the same page (${JSON.stringify(dlg)})`);
       await shot(page, 'checkout-embedded');
       await page.click('#fake-stripe-pay');

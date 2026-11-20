@@ -4288,3 +4288,49 @@ recipes changed (42 in the library; their stills, looks and full-size renders dr
 `scripts/make_match_check.mjs` holds every recipe and line to it.
 Open: a Sprinter cut-out that is not flagged (the one in the repo shows dealer lettering), and more
 than one motorcycle (the Harley, 1988–2006, stands under all three); both downloads need the owner's OK.
+
+## BQ. 2026-11-19 — the WeBuy.AD iPhone app, and the pricing buttons
+
+(BF on `main`. In pull request 14, BF is the Type Lab's, and BK to BP are taken on other branches, so it is BQ here.)
+
+The owner: "now that the iPhones LA app is out we need to make the we buy. ad
+app", "ASAP", "We need to ship this and make it usable SAAS"; and, asked on the
+way, how the plans and the checkout work and whether anything sends ads to
+reselling.us.
+
+Done:
+- **The landing's pricing buttons** (Start free, Choose Starter, Go Pro, Choose
+  Business) did nothing on a fresh visit since 2026-09-04: they were bound in
+  bindEasyUI(), which boot stopped calling. Bound at boot; live, checked on
+  webuy.ad.
+- **`ios/`: WeBuy.AD for iPhone**, the iPhones LA shell around webuy.ad
+  (ios/README.md): a download goes to the share sheet (Save Image to Photos,
+  checked in the simulator), payments and billing open in Safari (checked),
+  Delete account, the camera, photos and location reasons, Try again, the W.
+  icon and the site's ground at launch. Builds for the simulator and, unsigned,
+  for a device; `ios/release.sh` archives, signs in the cloud and uploads.
+- **The site in the app** (`app.js` `IN_IOS_APP`): checkout opens Stripe's
+  page in Safari (Apple's US rule, 3.1.1(a)) and is confirmed on return
+  (`resumeAppCheckout`, `/checkout` now answers `sessionId` for the hosted page).
+- **Delete account** for everyone (`/api/account/delete`, both account menus,
+  privacy.html says so): the subscription is cancelled at Stripe first, then
+  the saved ads, the AI pictures and the account go. billing_check: 117 passed.
+- The name in Stripe: products, the webhook, a pack's invoice and the checkout
+  dialog say WeBuy.AD (new products only; Stripe keeps the old names on the
+  ones already made).
+
+Owed by the owner, in order:
+1. Put the web part live (main): the app needs `IN_IOS_APP`, the sessionId and
+   Delete account on webuy.ad.
+2. App Store Connect: register `ad.webuy.app` and create the app record
+   "WeBuy.AD", United States only (ios/README.md "Releasing").
+3. A reviewer's demo account on webuy.ad, and live Stripe keys, so the
+   reviewer can pay.
+4. `ios/release.sh 1 --upload`.
+
+Open:
+- **reselling.us**: nothing connects today. A "Send to reselling.us" for its
+  scheduling needs an import endpoint on the reselling.us side (resale-app),
+  like iPhones LA's /studio/images; Pro and Business would carry it.
+- The trailer bed for the explainers, the terms' party, the contact address,
+  live Stripe keys (§BD, §BE).

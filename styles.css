@@ -3047,3 +3047,5 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='family'] .lp-kicker,:root[data-skin='family'] .co-kicker{text-transform:none;letter-spacing:0;font-size:14px;font-weight:600}
 :root[data-skin='family'] .lp-kicker{color:var(--accent-text)}
 :root[data-skin='family'] .lp-kicker::before{background:var(--deal)}
+/* Delete account sits under Sign out, quieter than it and in the danger colour */
+.acct-drop .am-delete{color:var(--danger);font-size:13px;opacity:.85}
