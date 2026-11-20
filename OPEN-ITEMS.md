@@ -4514,10 +4514,14 @@ than one motorcycle (the Harley, 1988–2006, stands under all three); both down
 measured: to 2908f8e7 (main's look, pull request 14, the landing on one column) and to 58fe04e6
 (the census's rebuild: rule 155 retired the old offer and library cards). Both were merged in; the
 pull request goes against that branch, the owner's choice ("Keep PR 15's branch"). After it opened
-the branch moved to 873937a2 (the owner's mark, rule 161), merged in too: the checks were run again
-there, the Lighthouse numbers below are 58fe04e6's. First numbered 147 and §BL; 2908f8e7 had taken §BL and §BM,
-rules up to 158 were taken across the branches and the editor's session claimed §BN, so 159 and
-§BO.)
+the branch moved to 873937a2 (the owner's mark, rule 161) and then to 6758a715 (pull request 14 at
+c3694b14: the hero wall's picks, the library's 1,739 other looks), both merged in: the checks were
+run again there, hero_wall_check and make_match_check with them; the Lighthouse numbers below are
+58fe04e6's. At 6758a715 the wall is built as soon as the designs are in and does not wait for the
+looks' 1 MB index (scLoadMore), which the library, its chips, colours and the hero's count follow;
+at a phone's CPU the looks cost no long task of their own. First numbered 147 and §BL; 2908f8e7
+had taken §BL and §BM, rules up to 158 were taken across the branches and the editor's session
+claimed §BN, so 159 and §BO.)
 
 Asked by pull request 15's session (§BK 3): "cut the landing's remaining phone blocking time
 (about 2 s in Lighthouse, performance 65) without changing what any card looks like": build the

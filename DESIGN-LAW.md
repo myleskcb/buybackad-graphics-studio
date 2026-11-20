@@ -6706,7 +6706,9 @@ the whole landing until 29 template faces had loaded (0.7 MB), and the hidden fo
 - **The gallery is built when it comes near**: within a screen and a quarter of the window
   (IntersectionObserver), or at once by a chip or Show more. Until then the grid holds a screen
   (scGridWhenNear sets it, scRenderGrid clears it), so a page restored or linked to the gallery
-  does not jump.
+  does not jump. **The wall does not wait for the library**: it keeps to the designs, so it is
+  built as soon as they are in, and the library's other looks (rule 162's scLoadMore, 1 MB of
+  index) load beside it; the library, its chips, colours and the hero's count follow them.
 - **The template faces come with the studio.** Not at boot: tplFacesIn() asks for every face a
   template sets, the offer family's included, when the studio opens (warmTemplateAssets), and a
   card the landing must still draw live (a Classics chip, a still out of date) waits for them,
