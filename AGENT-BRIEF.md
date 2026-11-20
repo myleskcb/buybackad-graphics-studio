@@ -711,6 +711,10 @@ produced." DESIGN-LAW rule 87. In practice:
 - **The partner library serves the rebuilt library ads** (`assets/rebuilt-ads/`,
   `node scripts/render_rebuilt_ads.mjs --stale` after the recipes or the engine change;
   `library_api_check` fails while one is stale).
+- **An ad shows what its words name** (rule 155): `node scripts/make_match_check.mjs` after any change to
+  the recipes, the lines' pools or the cut-outs; a make named by its models goes to its line or its own
+  cut-out, a model it names built since 2010, a motorcycle shows a motorcycle, a van its words name or
+  "work vans" (`build_recipes.mjs`).
 - **The landing is built to a brief** (rule 158; the owner: "make it look like a custom built site
   with a large web design budget"): `landing.css`, scoped to the landing under the family skin, keeps
   rule 152's colours and rule 153's wordmark and sets one type scale, banded grounds (paper for the

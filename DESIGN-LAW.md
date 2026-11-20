@@ -6460,6 +6460,30 @@ ever rebuilt".
 
 Not done here: OPEN-ITEMS §BJ 9.
 
+**An ad shows what its words name (2026-11-19).** The owner, through the roadmap session, of the
+library's Cars & Trucks: "WE BUY CARS" over "3 SERIES • 5 SERIES • X3 • X5" stood on a Toyota Tacoma;
+two over "RX • ES • IS • GX • NX" on a Toyota; "MOTORCYCLES BUYER" on a Honda Civic. "Check every
+recipe whose headline or models line names a make or model ... not just cars."
+- **A make is named by its models too**: BMW's series, X and M models; a run of Lexus's two-letter
+  models (never one "IS" alone). Such a card goes to its make's line where there is one (BMW), or
+  shows its make's own cut-out (Lexus: an IS, an RX).
+- **A picture of a model the words name, built since 2010**: a models line naming several models
+  shows any of them (four BMW models are not always an X3), and a make's picture is a car built
+  since 2010 unless its words ask for classics, vintage, muscle or JDM (the owner, of an old
+  MacBook: "a really old MacBook that we don't even buy so that's gonna attract the wrong type of
+  clients"). The 1981 Silverado under F-150 • SILVERADO • RAM • TACOMA is now a 2022 ZR2; the 1970s
+  3.0 CSL under 3 SERIES • 5 SERIES • X3 • X5, an X3.
+- **A motorcycle ad shows a motorcycle** (the Harley Softail), on the general line, never the car a
+  make in its models line would pick; one with no models line of its own says HARLEY • HONDA •
+  YAMAHA, as the house's motorcycle cards do, never the car line's "cars, trucks and SUVs". With no
+  motorcycle cut-out it would stand on its words alone.
+- **A van its words name** shows that van where there is a usable cut-out of it; where there is none
+  (the one Sprinter is flagged) its headline says work vans.
+- **Held by `scripts/make_match_check.mjs`**: every recipe, and so every look of it, and every line's
+  own full ad, against the makes and kinds of every picture it can draw (its own, or its line's
+  pool); a list left open ("and more", "and cargo vans") lets the line's pool stand. Phones,
+  consoles, computers, audio and cameras are read the same way.
+
 ## 156. A face-up iPhone wears an iOS lock screen, laid out as iOS lays one out
 
 Added 2026-11-18. The owner: "audit the iPhone backgrounds to look clean good... and actual iOS";

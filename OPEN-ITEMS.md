@@ -4270,3 +4270,21 @@ it as we said with the subcategories revealed after you select one of the main o
 Open:
 7. **Push**: nothing of this is pushed; the owner's OK first.
 8. **The published review page** gets its arrows at its next build (`build_review_page.mjs`).
+
+Then, the same day (the owner: "Merge and redraw"): the hero-wall branch (98eeb651) is merged here
+(a46fa2b0), and the library's other looks are drawn again in its colours (`build_library_looks.mjs
+--all`): 1330 more looks, 245 line full ads, 164 video looks; 2,404 in the
+library. The wall check (`hero_wall_check.mjs`) holds on the redesigned landing; the colour check
+is clear on the merged engine.
+
+Then, the same day (the owner, through the roadmap session, of the library's cars: a BMW models
+line on a Toyota pickup, a Lexus one on a Toyota, "MOTORCYCLES BUYER" on a Honda Civic; "check every
+recipe whose headline or models line names a make or model"): seven ads were wrong, all cars (BMW
+and two Lexus models lines on the general line's pool, three motorcycle ads on Honda cars or the car
+pool, "WE BUY SPRINTERS" on a Transit); none of the phones, consoles or computers. The recipe builder
+now reads a make by its models, shows a model the words name and a car built since 2010, puts a
+motorcycle ad on the Harley, and says work vans where no named van has a usable cut-out: 50
+recipes changed (42 in the library; their stills, looks and full-size renders drawn again).
+`scripts/make_match_check.mjs` holds every recipe and line to it.
+Open: a Sprinter cut-out that is not flagged (the one in the repo shows dealer lettering), and more
+than one motorcycle (the Harley, 1988–2006, stands under all three); both downloads need the owner's OK.

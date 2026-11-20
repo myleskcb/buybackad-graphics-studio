@@ -1,6 +1,6 @@
 {
  "about": "Stills of the rebuilt library and offer ads (motion/recipes.json), drawn by scripts/build_recipe_stills.mjs; app.js shows them in the landing library and on the wall in place of the retired cards, and opens each in the full ad.",
- "made": "2026-11-19T12:06:04.872Z",
+ "made": "2026-11-20T03:30:06.825Z",
  "items": {
   "r-bandKnockout-ck07-35": {
    "kind": "recipe",
@@ -7605,28 +7605,28 @@
   "r-glassCard-du02-20": {
    "kind": "recipe",
    "cat": "cars",
-   "line": "car",
+   "line": "bmw",
    "seed": 83962,
-   "name": "Glass Card 1",
+   "name": "Glass Card",
    "family": "glassCard",
    "from": "glassCard-du02-20",
    "gen": "sc",
-   "pair": "black_on_aqua",
-   "pairName": "Black on Aqua",
-   "look": "vivid",
-   "accent": "#111214",
-   "background": "pat_topo",
+   "pair": "sand_teal",
+   "pairName": "Sand & Teal",
+   "look": "light",
+   "accent": "#006d6d",
+   "background": "pat_rays",
    "ground": "pattern",
    "headline": "WE BUY CARS",
    "thumb": "assets/recipe-stills/r-glassCard-du02-20.webp",
-   "stamp": "[83962,\"car\",{\"headline\":\"WE BUY CARS\",\"tag\":\"3 SERIES • 5 SERIES • X3 • X5\",\"claim\":\"RUNNING OR NOT\",\"label\":\"GET A CASH OFFER\"},[],false,\"Glass Card 1 (library card)\"]"
+   "stamp": "[83962,\"bmw\",{\"headline\":\"WE BUY CARS\",\"tag\":\"3 SERIES • 5 SERIES • X3 • X5\",\"claim\":\"RUNNING OR NOT\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-bmw-x3-black\",\"k\":1}],false,\"Glass Card (library card)\"]"
   },
   "r-glassCard-du07-30": {
    "kind": "recipe",
    "cat": "cars",
    "line": "car",
    "seed": 29782,
-   "name": "Glass Card 2",
+   "name": "Glass Card 1",
    "family": "glassCard",
    "from": "glassCard-du07-30",
    "gen": "sc",
@@ -7638,14 +7638,14 @@
    "ground": "pattern",
    "headline": "WE BUY CARS & TRUCKS",
    "thumb": "assets/recipe-stills/r-glassCard-du07-30.webp",
-   "stamp": "[29782,\"car\",{\"headline\":\"WE BUY CARS & TRUCKS\",\"tag\":\"TITLE IN HAND • RUNNING OR NOT\",\"claim\":\"HIGH MILES OK\",\"label\":\"GET A CASH OFFER\"},[],false,\"Glass Card 2 (library card)\"]"
+   "stamp": "[29782,\"car\",{\"headline\":\"WE BUY CARS & TRUCKS\",\"tag\":\"TITLE IN HAND • RUNNING OR NOT\",\"claim\":\"HIGH MILES OK\",\"label\":\"GET A CASH OFFER\"},[],false,\"Glass Card 1 (library card)\"]"
   },
   "r-glassCard-gl04-30": {
    "kind": "recipe",
    "cat": "cars",
    "line": "car",
    "seed": 92308,
-   "name": "Glass Card 3",
+   "name": "Glass Card 2",
    "family": "glassCard",
    "from": "glassCard-gl04-30",
    "gen": "sc",
@@ -7657,7 +7657,7 @@
    "ground": "gradient",
    "headline": "WE BUY CHEVYS",
    "thumb": "assets/recipe-stills/r-glassCard-gl04-30.webp",
-   "stamp": "[92308,\"car\",{\"headline\":\"WE BUY CHEVYS\",\"tag\":\"TITLE IN HAND • RUNNING OR NOT\",\"claim\":\"CAR BUYER\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-chevy-silverado-zr2-red\",\"k\":1}],false,\"Glass Card 3 (library card)\"]"
+   "stamp": "[92308,\"car\",{\"headline\":\"WE BUY CHEVYS\",\"tag\":\"TITLE IN HAND • RUNNING OR NOT\",\"claim\":\"CAR BUYER\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-chevy-silverado-zr2-red\",\"k\":1}],false,\"Glass Card 2 (library card)\"]"
   },
   "r-gradientWave-gl04-20": {
    "kind": "recipe",
@@ -7676,7 +7676,7 @@
    "ground": "pattern",
    "headline": "WE BUY CARS",
    "thumb": "assets/recipe-stills/r-gradientWave-gl04-20.webp",
-   "stamp": "[29321,\"car\",{\"headline\":\"WE BUY CARS\",\"tag\":\"RX • ES • IS • GX • NX\",\"claim\":\"AS-IS SAME DAY NO FEES\",\"label\":\"TEXT US NOW\"},[],false,\"Gradient Wave (library card)\"]"
+   "stamp": "[29321,\"car\",{\"headline\":\"WE BUY CARS\",\"tag\":\"RX • ES • IS • GX • NX\",\"claim\":\"AS-IS SAME DAY NO FEES\",\"label\":\"TEXT US NOW\"},[{\"file\":\"car-lexus-is-white\",\"k\":1}],false,\"Gradient Wave (library card)\"]"
   },
   "r-neonNight-du07-20": {
    "kind": "recipe",
@@ -7695,7 +7695,7 @@
    "ground": "scene",
    "headline": "WE BUY CARS & TRUCKS",
    "thumb": "assets/recipe-stills/r-neonNight-du07-20.webp",
-   "stamp": "[47717,\"car\",{\"headline\":\"WE BUY CARS & TRUCKS\",\"tag\":\"RX • ES • IS • GX • NX\",\"claim\":\"RUNNING OR NOT\"},[],false,\"Neon Night 1 (library card)\"]"
+   "stamp": "[47717,\"car\",{\"headline\":\"WE BUY CARS & TRUCKS\",\"tag\":\"RX • ES • IS • GX • NX\",\"claim\":\"RUNNING OR NOT\"},[{\"file\":\"car-lexus-rx-white\",\"k\":1}],false,\"Neon Night 1 (library card)\"]"
   },
   "r-neonNight-gl04-20": {
    "kind": "recipe",
@@ -7733,7 +7733,7 @@
    "ground": "house",
    "headline": "MOTORCYCLES BUYER",
    "thumb": "assets/recipe-stills/r-reviewProof-cd10-20.webp",
-   "stamp": "[99068,\"car\",{\"headline\":\"MOTORCYCLES BUYER\",\"claim\":\"✓ AS-IS • ✓ SAME DAY • ✓ NO FEES\",\"points\":\"AS-IS, SAME DAY, NO FEES\",\"label\":\"TEXT NOW FOR A QUOTE\"},[],false,\"Review Proof 1 (library card)\"]"
+   "stamp": "[99068,\"car\",{\"headline\":\"MOTORCYCLES BUYER\",\"claim\":\"✓ AS-IS • ✓ SAME DAY • ✓ NO FEES\",\"points\":\"AS-IS, SAME DAY, NO FEES\",\"label\":\"TEXT NOW FOR A QUOTE\",\"tag\":\"HARLEY • HONDA • YAMAHA\"},[{\"file\":\"car-harley-softail-black\",\"k\":1}],false,\"Review Proof 1 (library card)\"]"
   },
   "r-reviewProof-io03-20": {
    "kind": "recipe",
@@ -7847,7 +7847,7 @@
    "ground": "gradient",
    "headline": "YOUR LOCAL JEEPS BUYER",
    "thumb": "assets/recipe-stills/r-trustSeal-pp06-35.webp",
-   "stamp": "[84848,\"car\",{\"headline\":\"YOUR LOCAL JEEPS BUYER\",\"tag\":\"TITLE IN HAND • RUNNING OR NOT • HIGH MILES • SALVAGE\",\"claim\":\"CAR BUYER\",\"points\":\"TEXT A PIC, FREE QUOTE, NO FEES\"},[{\"file\":\"car-jeep-gladiator-rubicon-red-side\",\"k\":1}],false,\"Trust Seal (library card)\"]"
+   "stamp": "[84848,\"car\",{\"headline\":\"YOUR LOCAL JEEPS BUYER\",\"tag\":\"TITLE IN HAND • RUNNING OR NOT • HIGH MILES • SALVAGE\",\"claim\":\"CAR BUYER\",\"points\":\"TEXT A PIC, FREE QUOTE, NO FEES\"},[{\"file\":\"car-jeep-wrangler-rubicon-lime\",\"k\":1}],false,\"Trust Seal (library card)\"]"
   },
   "r-voltStack-pp02-15": {
    "kind": "recipe",
@@ -8322,7 +8322,7 @@
    "ground": "photo",
    "headline": "WE BUY CARS CASH ON THE SPOT",
    "thumb": "assets/recipe-stills/r-arcCrown-jw03-15.webp",
-   "stamp": "[5831,\"trucks\",{\"headline\":\"WE BUY CARS CASH ON THE SPOT\",\"tag\":\"F-150 • SILVERADO • RAM • TACOMA\"},[{\"file\":\"car-chevy-silverado-red\",\"k\":1}],false,\"Arc Crown (library card)\"]"
+   "stamp": "[5831,\"trucks\",{\"headline\":\"WE BUY CARS CASH ON THE SPOT\",\"tag\":\"F-150 • SILVERADO • RAM • TACOMA\"},[{\"file\":\"car-chevy-silverado-zr2-red\",\"k\":1}],false,\"Arc Crown (library card)\"]"
   },
   "r-gradientWave-cd04-25": {
    "kind": "recipe",
@@ -8341,7 +8341,7 @@
    "ground": "gradient",
    "headline": "WE BUY TACOMAS",
    "thumb": "assets/recipe-stills/r-gradientWave-cd04-25.webp",
-   "stamp": "[6782,\"trucks\",{\"headline\":\"WE BUY TACOMAS\",\"tag\":\"F-150 • SILVERADO • RAM • TACOMA • TUNDRA\",\"claim\":\"AS-IS SAME DAY NO FEES\",\"label\":\"CALL OR TEXT NOW\"},[{\"file\":\"car-chevy-silverado-red\",\"k\":1}],false,\"Gradient Wave (library card)\"]"
+   "stamp": "[6782,\"trucks\",{\"headline\":\"WE BUY TACOMAS\",\"tag\":\"F-150 • SILVERADO • RAM • TACOMA • TUNDRA\",\"claim\":\"AS-IS SAME DAY NO FEES\",\"label\":\"CALL OR TEXT NOW\"},[{\"file\":\"car-chevy-silverado-zr2-red\",\"k\":1}],false,\"Gradient Wave (library card)\"]"
   },
   "r-neonNight-du05-26": {
    "kind": "recipe",
@@ -8379,7 +8379,7 @@
    "ground": "photo",
    "headline": "WE BUY CARS",
    "thumb": "assets/recipe-stills/r-neonNight-du08-15.webp",
-   "stamp": "[23185,\"trucks\",{\"headline\":\"WE BUY CARS\",\"tag\":\"F-150 • SILVERADO • RAM • TACOMA\",\"claim\":\"NO FEES\"},[{\"file\":\"car-chevy-silverado-red\",\"k\":1}],false,\"Neon Night 2 (library card)\"]"
+   "stamp": "[23185,\"trucks\",{\"headline\":\"WE BUY CARS\",\"tag\":\"F-150 • SILVERADO • RAM • TACOMA\",\"claim\":\"NO FEES\"},[{\"file\":\"car-chevy-silverado-zr2-red\",\"k\":1}],false,\"Neon Night 2 (library card)\"]"
   },
   "r-slabPoster-cd10-30": {
    "kind": "recipe",
@@ -8474,7 +8474,7 @@
    "ground": "photo",
    "headline": "TRUCK IN THE DRIVEWAY? SELL IT",
    "thumb": "assets/recipe-stills/r-of_trucks_band_sun.webp",
-   "stamp": "[85659,\"trucks\",{\"headline\":\"TRUCK IN THE DRIVEWAY? SELL IT\",\"tag\":\"F-150, SILVERADO, RAM, TACOMA, TUNDRA AND MORE\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-chevy-silverado-red\",\"k\":1}],false,\"Trucks · Photo band (offer card)\"]"
+   "stamp": "[85659,\"trucks\",{\"headline\":\"TRUCK IN THE DRIVEWAY? SELL IT\",\"tag\":\"F-150, SILVERADO, RAM, TACOMA, TUNDRA AND MORE\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-chevy-silverado-zr2-red\",\"k\":1}],false,\"Trucks · Photo band (offer card)\"]"
   },
   "r-of_trucks_center_sand": {
    "kind": "recipe",
@@ -8493,7 +8493,7 @@
    "ground": "photo",
    "headline": "YOUR OLD TRUCK IS CASH",
    "thumb": "assets/recipe-stills/r-of_trucks_center_sand.webp",
-   "stamp": "[55637,\"trucks\",{\"headline\":\"YOUR OLD TRUCK IS CASH\",\"tag\":\"F-150, SILVERADO, RAM, TACOMA, TUNDRA AND MORE\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-chevy-silverado-red\",\"k\":1}],false,\"Trucks · Centre (offer card)\"]"
+   "stamp": "[55637,\"trucks\",{\"headline\":\"YOUR OLD TRUCK IS CASH\",\"tag\":\"F-150, SILVERADO, RAM, TACOMA, TUNDRA AND MORE\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-chevy-silverado-zr2-red\",\"k\":1}],false,\"Trucks · Centre (offer card)\"]"
   },
   "r-of_trucks_float_sky": {
    "kind": "recipe",
@@ -8550,7 +8550,7 @@
    "ground": "pattern",
    "headline": "YOUR OLD TRUCK IS CASH",
    "thumb": "assets/recipe-stills/r-of_trucks_list_forest.webp",
-   "stamp": "[70613,\"trucks\",{\"headline\":\"YOUR OLD TRUCK IS CASH\",\"tag\":\"F-150, SILVERADO, RAM, TACOMA, TUNDRA AND MORE\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-chevy-silverado-red\",\"k\":1}],false,\"Trucks · Studio list (offer card)\"]"
+   "stamp": "[70613,\"trucks\",{\"headline\":\"YOUR OLD TRUCK IS CASH\",\"tag\":\"F-150, SILVERADO, RAM, TACOMA, TUNDRA AND MORE\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-chevy-silverado-zr2-red\",\"k\":1}],false,\"Trucks · Studio list (offer card)\"]"
   },
   "r-of_trucks_row_bone": {
    "kind": "recipe",
@@ -8607,7 +8607,7 @@
    "ground": "gradient",
    "headline": "SELLING YOUR TOYOTA? WE BUY IT",
    "thumb": "assets/recipe-stills/r-of_toyota_band_plum.webp",
-   "stamp": "[16840,\"toyota\",{\"headline\":\"SELLING YOUR TOYOTA? WE BUY IT\",\"tag\":\"CAMRY, COROLLA, RAV4, TACOMA, TUNDRA, HIGHLANDER\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-toyota-tacoma-trd-offroad-black\",\"k\":1}],false,\"Toyota · Photo band (offer card)\"]"
+   "stamp": "[16840,\"toyota\",{\"headline\":\"SELLING YOUR TOYOTA? WE BUY IT\",\"tag\":\"CAMRY, COROLLA, RAV4, TACOMA, TUNDRA, HIGHLANDER\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-toyota-highlander-silver\",\"k\":1}],false,\"Toyota · Photo band (offer card)\"]"
   },
   "r-of_toyota_center_bone": {
    "kind": "recipe",
@@ -8626,7 +8626,7 @@
    "ground": "gradient",
    "headline": "SELLING YOUR TOYOTA? WE BUY IT",
    "thumb": "assets/recipe-stills/r-of_toyota_center_bone.webp",
-   "stamp": "[30282,\"toyota\",{\"headline\":\"SELLING YOUR TOYOTA? WE BUY IT\",\"tag\":\"CAMRY, COROLLA, RAV4, TACOMA, TUNDRA, HIGHLANDER\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-toyota-tacoma-orange\",\"k\":1}],false,\"Toyota · Centre (offer card)\"]"
+   "stamp": "[30282,\"toyota\",{\"headline\":\"SELLING YOUR TOYOTA? WE BUY IT\",\"tag\":\"CAMRY, COROLLA, RAV4, TACOMA, TUNDRA, HIGHLANDER\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-toyota-camry-silver\",\"k\":1}],false,\"Toyota · Centre (offer card)\"]"
   },
   "r-of_toyota_float_forest": {
    "kind": "recipe",
@@ -8645,7 +8645,7 @@
    "ground": "scene",
    "headline": "SELLING YOUR TOYOTA? WE BUY IT",
    "thumb": "assets/recipe-stills/r-of_toyota_float_forest.webp",
-   "stamp": "[83100,\"toyota\",{\"headline\":\"SELLING YOUR TOYOTA? WE BUY IT\",\"tag\":\"CAMRY, COROLLA, RAV4, TACOMA, TUNDRA, HIGHLANDER\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-toyota-tacoma-trd-offroad-black\",\"k\":1}],false,\"Toyota · Floating (offer card)\"]"
+   "stamp": "[83100,\"toyota\",{\"headline\":\"SELLING YOUR TOYOTA? WE BUY IT\",\"tag\":\"CAMRY, COROLLA, RAV4, TACOMA, TUNDRA, HIGHLANDER\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-toyota-camry-silver\",\"k\":1}],false,\"Toyota · Floating (offer card)\"]"
   },
   "r-of_toyota_info_graphite": {
    "kind": "recipe",
@@ -8664,7 +8664,7 @@
    "ground": "pattern",
    "headline": "SELLING YOUR TOYOTA? WE BUY IT",
    "thumb": "assets/recipe-stills/r-of_toyota_info_graphite.webp",
-   "stamp": "[43578,\"toyota\",{\"headline\":\"SELLING YOUR TOYOTA? WE BUY IT\",\"tag\":\"CAMRY, COROLLA, RAV4, TACOMA, TUNDRA, HIGHLANDER\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-toyota-tacoma-trd-black\",\"k\":1}],false,\"Toyota · Detailed (offer card)\"]"
+   "stamp": "[43578,\"toyota\",{\"headline\":\"SELLING YOUR TOYOTA? WE BUY IT\",\"tag\":\"CAMRY, COROLLA, RAV4, TACOMA, TUNDRA, HIGHLANDER\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-toyota-camry-silver\",\"k\":1}],false,\"Toyota · Detailed (offer card)\"]"
   },
   "r-of_toyota_list_mint": {
    "kind": "recipe",
@@ -8683,7 +8683,7 @@
    "ground": "pattern",
    "headline": "YOUR OLD TOYOTA IS CASH",
    "thumb": "assets/recipe-stills/r-of_toyota_list_mint.webp",
-   "stamp": "[3101,\"toyota\",{\"headline\":\"YOUR OLD TOYOTA IS CASH\",\"tag\":\"CAMRY, COROLLA, RAV4, TACOMA, TUNDRA, HIGHLANDER\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-toyota-tacoma-trd-black\",\"k\":1}],false,\"Toyota · Studio list (offer card)\"]"
+   "stamp": "[3101,\"toyota\",{\"headline\":\"YOUR OLD TOYOTA IS CASH\",\"tag\":\"CAMRY, COROLLA, RAV4, TACOMA, TUNDRA, HIGHLANDER\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-toyota-rav4-white\",\"k\":1}],false,\"Toyota · Studio list (offer card)\"]"
   },
   "r-of_toyota_row_sun": {
    "kind": "recipe",
@@ -8702,7 +8702,7 @@
    "ground": "pattern",
    "headline": "SELLING YOUR TOYOTA? WE BUY IT",
    "thumb": "assets/recipe-stills/r-of_toyota_row_sun.webp",
-   "stamp": "[10057,\"toyota\",{\"headline\":\"SELLING YOUR TOYOTA? WE BUY IT\",\"tag\":\"CAMRY, COROLLA, RAV4, TACOMA, TUNDRA, HIGHLANDER\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-toyota-tacoma-trd-black\",\"k\":1}],false,\"Toyota · Studio row (offer card)\"]"
+   "stamp": "[10057,\"toyota\",{\"headline\":\"SELLING YOUR TOYOTA? WE BUY IT\",\"tag\":\"CAMRY, COROLLA, RAV4, TACOMA, TUNDRA, HIGHLANDER\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-toyota-camry-silver\",\"k\":1}],false,\"Toyota · Studio row (offer card)\"]"
   },
   "r-of_toyota_split_slate": {
    "kind": "recipe",
@@ -8721,7 +8721,7 @@
    "ground": "gradient",
    "headline": "YOUR OLD TOYOTA IS CASH",
    "thumb": "assets/recipe-stills/r-of_toyota_split_slate.webp",
-   "stamp": "[56511,\"toyota\",{\"headline\":\"YOUR OLD TOYOTA IS CASH\",\"tag\":\"CAMRY, COROLLA, RAV4, TACOMA, TUNDRA, HIGHLANDER\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-toyota-tacoma-trd-offroad-black\",\"k\":1}],false,\"Toyota · Split (offer card)\"]"
+   "stamp": "[56511,\"toyota\",{\"headline\":\"YOUR OLD TOYOTA IS CASH\",\"tag\":\"CAMRY, COROLLA, RAV4, TACOMA, TUNDRA, HIGHLANDER\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-toyota-highlander-silver\",\"k\":1}],false,\"Toyota · Split (offer card)\"]"
   },
   "r-bandKnockout-jw10-30": {
    "kind": "recipe",
@@ -8740,31 +8740,31 @@
    "ground": "gradient",
    "headline": "WE BUY HONDAS",
    "thumb": "assets/recipe-stills/r-bandKnockout-jw10-30.webp",
-   "stamp": "[47302,\"honda\",{\"headline\":\"WE BUY HONDAS\",\"points\":\"AS-IS, SAME DAY, NO FEES\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-honda-civic-type-r-fl5-white\",\"k\":1}],false,\"Band Knockout (library card)\"]"
+   "stamp": "[47302,\"honda\",{\"headline\":\"WE BUY HONDAS\",\"points\":\"AS-IS, SAME DAY, NO FEES\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-honda-accord-white\",\"k\":1}],false,\"Band Knockout (library card)\"]"
   },
   "r-hudTech-cd04-20": {
    "kind": "recipe",
    "cat": "cars",
-   "line": "honda",
+   "line": "car",
    "seed": 89609,
    "name": "HUD Tech 1",
    "family": "hudTech",
    "from": "hudTech-cd04-20",
    "gen": "sc",
-   "pair": "bone_purple",
-   "pairName": "Bone & Purple",
+   "pair": "arctic_teal",
+   "pairName": "Arctic & Teal",
    "look": "light",
-   "accent": "#7024ab",
+   "accent": "#007570",
    "background": "pat_topo",
    "ground": "pattern",
    "headline": "WE BUY MOTORCYCLES",
    "thumb": "assets/recipe-stills/r-hudTech-cd04-20.webp",
-   "stamp": "[89609,\"honda\",{\"headline\":\"WE BUY MOTORCYCLES\",\"tag\":\"HARLEY HONDA · YAMAHA\",\"claim\":\"FAST CASH\",\"label\":\"TEXT US NOW\"},[{\"file\":\"car-honda-s2000-silver\",\"k\":1}],false,\"HUD Tech 1 (library card)\"]"
+   "stamp": "[89609,\"car\",{\"headline\":\"WE BUY MOTORCYCLES\",\"tag\":\"HARLEY HONDA · YAMAHA\",\"claim\":\"FAST CASH\",\"label\":\"TEXT US NOW\"},[{\"file\":\"car-harley-softail-black\",\"k\":1}],false,\"HUD Tech 1 (library card)\"]"
   },
   "r-hudTech-io03-20": {
    "kind": "recipe",
    "cat": "cars",
-   "line": "honda",
+   "line": "car",
    "seed": 42810,
    "name": "HUD Tech 2",
    "family": "hudTech",
@@ -8774,11 +8774,11 @@
    "pairName": "Black on Lilac",
    "look": "vivid",
    "accent": "#111214",
-   "background": "pat_rays",
-   "ground": "pattern",
+   "background": "pair_split",
+   "ground": "gradient",
    "headline": "WE BUY HONDAS",
    "thumb": "assets/recipe-stills/r-hudTech-io03-20.webp",
-   "stamp": "[42810,\"honda\",{\"headline\":\"WE BUY HONDAS\",\"tag\":\"HARLEY HONDA · YAMAHA\",\"claim\":\"FAST CASH\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-honda-passport-white\",\"k\":1}],false,\"HUD Tech 2 (library card)\"]"
+   "stamp": "[42810,\"car\",{\"headline\":\"WE BUY HONDAS\",\"tag\":\"HARLEY HONDA · YAMAHA\",\"claim\":\"FAST CASH\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-harley-softail-black\",\"k\":1}],false,\"HUD Tech 2 (library card)\"]"
   },
   "r-scriptRetro-pa01-30": {
    "kind": "recipe",
@@ -8797,7 +8797,7 @@
    "ground": "pattern",
    "headline": "WE BUY HONDAS",
    "thumb": "assets/recipe-stills/r-scriptRetro-pa01-30.webp",
-   "stamp": "[55719,\"honda\",{\"headline\":\"WE BUY HONDAS\",\"tag\":\"TITLE IN HAND • RUNNING OR NOT\",\"label\":\"GET A FREE QUOTE\"},[{\"file\":\"car-honda-hrv-beige\",\"k\":1}],false,\"Script Retro (library card)\"]"
+   "stamp": "[55719,\"honda\",{\"headline\":\"WE BUY HONDAS\",\"tag\":\"TITLE IN HAND • RUNNING OR NOT\",\"label\":\"GET A FREE QUOTE\"},[{\"file\":\"car-honda-civic-type-r-fl5-white\",\"k\":1}],false,\"Script Retro (library card)\"]"
   },
   "r-of_honda_band_arctic": {
    "kind": "recipe",
@@ -8854,7 +8854,7 @@
    "ground": "pattern",
    "headline": "CIVIC, ACCORD OR CR-V? GET AN OFFER",
    "thumb": "assets/recipe-stills/r-of_honda_float_blush.webp",
-   "stamp": "[90010,\"honda\",{\"headline\":\"CIVIC, ACCORD OR CR-V? GET AN OFFER\",\"tag\":\"CIVIC, ACCORD, CR-V, HR-V AND MORE\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-honda-civic-white\",\"k\":1}],false,\"Honda · Floating (offer card)\"]"
+   "stamp": "[90010,\"honda\",{\"headline\":\"CIVIC, ACCORD OR CR-V? GET AN OFFER\",\"tag\":\"CIVIC, ACCORD, CR-V, HR-V AND MORE\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-honda-accord-white\",\"k\":1}],false,\"Honda · Floating (offer card)\"]"
   },
   "r-of_honda_info_teal": {
    "kind": "recipe",
@@ -8873,7 +8873,7 @@
    "ground": "gradient",
    "headline": "YOUR OLD HONDA IS CASH",
    "thumb": "assets/recipe-stills/r-of_honda_info_teal.webp",
-   "stamp": "[69457,\"honda\",{\"headline\":\"YOUR OLD HONDA IS CASH\",\"tag\":\"CIVIC, ACCORD, CR-V, HR-V AND MORE\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-honda-civic-type-r-blue\",\"k\":1}],false,\"Honda · Detailed (offer card)\"]"
+   "stamp": "[69457,\"honda\",{\"headline\":\"YOUR OLD HONDA IS CASH\",\"tag\":\"CIVIC, ACCORD, CR-V, HR-V AND MORE\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-honda-accord-white\",\"k\":1}],false,\"Honda · Detailed (offer card)\"]"
   },
   "r-of_honda_list_oxblood": {
    "kind": "recipe",
@@ -8892,7 +8892,7 @@
    "ground": "pattern",
    "headline": "SELLING YOUR HONDA? WE BUY IT",
    "thumb": "assets/recipe-stills/r-of_honda_list_oxblood.webp",
-   "stamp": "[88381,\"honda\",{\"headline\":\"SELLING YOUR HONDA? WE BUY IT\",\"tag\":\"CIVIC, ACCORD, CR-V, HR-V AND MORE\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-honda-civic-white\",\"k\":1}],false,\"Honda · Studio list (offer card)\"]"
+   "stamp": "[88381,\"honda\",{\"headline\":\"SELLING YOUR HONDA? WE BUY IT\",\"tag\":\"CIVIC, ACCORD, CR-V, HR-V AND MORE\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-honda-accord-white\",\"k\":1}],false,\"Honda · Studio list (offer card)\"]"
   },
   "r-of_honda_row_plum": {
    "kind": "recipe",
@@ -8949,7 +8949,7 @@
    "ground": "gradient",
    "headline": "WE BUY BMWS",
    "thumb": "assets/recipe-stills/r-bubblePop-cd04-30.webp",
-   "stamp": "[44102,\"bmw\",{\"headline\":\"WE BUY BMWS\",\"burst\":\"FREE QUOTE\",\"label\":\"GET YOUR OFFER\"},[{\"file\":\"car-bmw-3-0-csl-beige\",\"k\":1}],false,\"Bubble Pop (library card)\"]"
+   "stamp": "[44102,\"bmw\",{\"headline\":\"WE BUY BMWS\",\"burst\":\"FREE QUOTE\",\"label\":\"GET YOUR OFFER\"},[{\"file\":\"car-bmw-m3-competition-green\",\"k\":1}],false,\"Bubble Pop (library card)\"]"
   },
   "r-checklistHero-ca05-35": {
    "kind": "recipe",
@@ -8968,7 +8968,7 @@
    "ground": "pattern",
    "headline": "WE BUY BMWS",
    "thumb": "assets/recipe-stills/r-checklistHero-ca05-35.webp",
-   "stamp": "[20455,\"bmw\",{\"headline\":\"WE BUY BMWS\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-bmw-x7-white\",\"k\":1}],false,\"Checklist Hero (library card)\"]"
+   "stamp": "[20455,\"bmw\",{\"headline\":\"WE BUY BMWS\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-bmw-x7-m50i-white\",\"k\":1}],false,\"Checklist Hero (library card)\"]"
   },
   "r-gradientWave-du07-20": {
    "kind": "recipe",
@@ -8987,7 +8987,7 @@
    "ground": "gradient",
    "headline": "WE BUY BMWS",
    "thumb": "assets/recipe-stills/r-gradientWave-du07-20.webp",
-   "stamp": "[93582,\"bmw\",{\"headline\":\"WE BUY BMWS\",\"tag\":\"3 SERIES • 5 SERIES • X3 • X5 • M SERIES\",\"claim\":\"AS-IS SAME DAY NO FEES\",\"label\":\"CALL OR TEXT NOW\"},[{\"file\":\"car-bmw-x7-white\",\"k\":1}],false,\"Gradient Wave (library card)\"]"
+   "stamp": "[93582,\"bmw\",{\"headline\":\"WE BUY BMWS\",\"tag\":\"3 SERIES • 5 SERIES • X3 • X5 • M SERIES\",\"claim\":\"AS-IS SAME DAY NO FEES\",\"label\":\"CALL OR TEXT NOW\"},[{\"file\":\"car-bmw-x3-black\",\"k\":1}],false,\"Gradient Wave (library card)\"]"
   },
   "r-trustSeal-su02-20": {
    "kind": "recipe",
@@ -9006,7 +9006,7 @@
    "ground": "house",
    "headline": "YOUR LOCAL BMWS BUYER",
    "thumb": "assets/recipe-stills/r-trustSeal-su02-20.webp",
-   "stamp": "[36787,\"bmw\",{\"headline\":\"YOUR LOCAL BMWS BUYER\",\"tag\":\"3 SERIES • 5 SERIES • X3 • X5 • M SERIES\",\"claim\":\"NO FEES\",\"points\":\"TEXT A PIC, FREE QUOTE, RUNNING OR NOT\"},[{\"file\":\"car-bmw-m3-blue\",\"k\":1}],false,\"Trust Seal (library card)\"]"
+   "stamp": "[36787,\"bmw\",{\"headline\":\"YOUR LOCAL BMWS BUYER\",\"tag\":\"3 SERIES • 5 SERIES • X3 • X5 • M SERIES\",\"claim\":\"NO FEES\",\"points\":\"TEXT A PIC, FREE QUOTE, RUNNING OR NOT\"},[{\"file\":\"car-bmw-x3-black\",\"k\":1}],false,\"Trust Seal (library card)\"]"
   },
   "r-voltStack-du01-20": {
    "kind": "recipe",
@@ -9025,7 +9025,7 @@
    "ground": "pattern",
    "headline": "WE BUY BMWS",
    "thumb": "assets/recipe-stills/r-voltStack-du01-20.webp",
-   "stamp": "[22632,\"bmw\",{\"headline\":\"WE BUY BMWS\",\"claim\":\"ONLINE NOW\",\"points\":\"AS-IS, SAME DAY, NO FEES\",\"label\":\"CALL OR TEXT NOW\"},[{\"file\":\"car-bmw-m3-blue\",\"k\":1}],false,\"Volt Stack (library card)\"]"
+   "stamp": "[22632,\"bmw\",{\"headline\":\"WE BUY BMWS\",\"claim\":\"ONLINE NOW\",\"points\":\"AS-IS, SAME DAY, NO FEES\",\"label\":\"CALL OR TEXT NOW\"},[{\"file\":\"car-bmw-x3-black\",\"k\":1}],false,\"Volt Stack (library card)\"]"
   },
   "r-of_bmw_band_sun": {
    "kind": "recipe",
@@ -9044,7 +9044,7 @@
    "ground": "gradient",
    "headline": "X3, X5 OR M3? GET AN OFFER",
    "thumb": "assets/recipe-stills/r-of_bmw_band_sun.webp",
-   "stamp": "[63680,\"bmw\",{\"headline\":\"X3, X5 OR M3? GET AN OFFER\",\"tag\":\"3 SERIES, 5 SERIES, X3, X5 AND M CARS\",\"label\":\"CALL OR TEXT\"},[],false,\"BMW · Photo band (offer card)\"]"
+   "stamp": "[63680,\"bmw\",{\"headline\":\"X3, X5 OR M3? GET AN OFFER\",\"tag\":\"3 SERIES, 5 SERIES, X3, X5 AND M CARS\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-bmw-x3-black\",\"k\":1}],false,\"BMW · Photo band (offer card)\"]"
   },
   "r-of_bmw_center_teal": {
    "kind": "recipe",
@@ -9082,7 +9082,7 @@
    "ground": "gradient",
    "headline": "X3, X5 OR M3? GET AN OFFER",
    "thumb": "assets/recipe-stills/r-of_bmw_float_lime.webp",
-   "stamp": "[82643,\"bmw\",{\"headline\":\"X3, X5 OR M3? GET AN OFFER\",\"tag\":\"3 SERIES, 5 SERIES, X3, X5 AND M CARS\",\"label\":\"CALL OR TEXT\"},[],false,\"BMW · Floating (offer card)\"]"
+   "stamp": "[82643,\"bmw\",{\"headline\":\"X3, X5 OR M3? GET AN OFFER\",\"tag\":\"3 SERIES, 5 SERIES, X3, X5 AND M CARS\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-bmw-m3-blue\",\"k\":1}],false,\"BMW · Floating (offer card)\"]"
   },
   "r-of_bmw_info_oxblood": {
    "kind": "recipe",
@@ -9101,7 +9101,7 @@
    "ground": "house",
    "headline": "SELLING YOUR BMW? WE BUY IT",
    "thumb": "assets/recipe-stills/r-of_bmw_info_oxblood.webp",
-   "stamp": "[52807,\"bmw\",{\"headline\":\"SELLING YOUR BMW? WE BUY IT\",\"tag\":\"3 SERIES, 5 SERIES, X3, X5 AND M CARS\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-bmw-ix3-2026-white\",\"k\":1}],false,\"BMW · Detailed (offer card)\"]"
+   "stamp": "[52807,\"bmw\",{\"headline\":\"SELLING YOUR BMW? WE BUY IT\",\"tag\":\"3 SERIES, 5 SERIES, X3, X5 AND M CARS\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-bmw-x3-black\",\"k\":1}],false,\"BMW · Detailed (offer card)\"]"
   },
   "r-of_bmw_list_cobalt": {
    "kind": "recipe",
@@ -9120,7 +9120,7 @@
    "ground": "house",
    "headline": "YOUR BMW IS CASH",
    "thumb": "assets/recipe-stills/r-of_bmw_list_cobalt.webp",
-   "stamp": "[26630,\"bmw\",{\"headline\":\"YOUR BMW IS CASH\",\"tag\":\"3 SERIES, 5 SERIES, X3, X5 AND M CARS\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-bmw-m3-blue\",\"k\":1}],false,\"BMW · Studio list (offer card)\"]"
+   "stamp": "[26630,\"bmw\",{\"headline\":\"YOUR BMW IS CASH\",\"tag\":\"3 SERIES, 5 SERIES, X3, X5 AND M CARS\",\"label\":\"CALL OR TEXT\"},[{\"file\":\"car-bmw-x3-black\",\"k\":1}],false,\"BMW · Studio list (offer card)\"]"
   },
   "r-of_bmw_row_bone": {
    "kind": "recipe",
@@ -9310,7 +9310,7 @@
    "ground": "gradient",
    "headline": "WE BUY SPRINTERS",
    "thumb": "assets/recipe-stills/r-arcCrown-ca03-35.webp",
-   "stamp": "[63558,\"vans\",{\"headline\":\"WE BUY SPRINTERS\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER\"},[{\"file\":\"car-ram-promaster-grey\",\"k\":1}],false,\"Arc Crown (library card)\"]"
+   "stamp": "[63558,\"vans\",{\"headline\":\"WE BUY SPRINTERS\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER\"},[{\"file\":\"car-ford-transit-connect-white\",\"k\":1}],false,\"Arc Crown (library card)\"]"
   },
   "r-bubblePop-du02-30": {
    "kind": "recipe",
@@ -9327,9 +9327,9 @@
    "accent": "#111214",
    "background": "pair_mesh",
    "ground": "gradient",
-   "headline": "WE BUY SPRINTERS",
+   "headline": "WE BUY WORK VANS",
    "thumb": "assets/recipe-stills/r-bubblePop-du02-30.webp",
-   "stamp": "[19005,\"vans\",{\"headline\":\"WE BUY SPRINTERS\",\"burst\":\"SAME DAY\",\"label\":\"GET YOUR OFFER\"},[{\"file\":\"car-ford-transit-connect-white\",\"k\":1}],false,\"Bubble Pop (library card)\"]"
+   "stamp": "[19005,\"vans\",{\"headline\":\"WE BUY WORK VANS\",\"burst\":\"SAME DAY\",\"label\":\"GET YOUR OFFER\"},[{\"file\":\"car-ford-transit-connect-white\",\"k\":1}],false,\"Bubble Pop (library card)\"]"
   },
   "r-glassCard-du08-15": {
    "kind": "recipe",
@@ -9348,7 +9348,7 @@
    "ground": "gradient",
    "headline": "WE BUY CARS",
    "thumb": "assets/recipe-stills/r-glassCard-du08-15.webp",
-   "stamp": "[7838,\"vans\",{\"headline\":\"WE BUY CARS\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER\",\"claim\":\"AS-IS\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-ford-transit-connect-white\",\"k\":1}],false,\"Glass Card (library card)\"]"
+   "stamp": "[7838,\"vans\",{\"headline\":\"WE BUY CARS\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER\",\"claim\":\"AS-IS\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-ford-transit-courier-white\",\"k\":1}],false,\"Glass Card (library card)\"]"
   },
   "r-scriptRetro-su02-25": {
    "kind": "recipe",
@@ -9367,7 +9367,7 @@
    "ground": "pattern",
    "headline": "WE BUY SPRINTERS",
    "thumb": "assets/recipe-stills/r-scriptRetro-su02-25.webp",
-   "stamp": "[31595,\"vans\",{\"headline\":\"WE BUY SPRINTERS\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER\",\"label\":\"REQUEST AN APPRAISAL\"},[{\"file\":\"car-ram-promaster-grey\",\"k\":1}],false,\"Script Retro (library card)\"]"
+   "stamp": "[31595,\"vans\",{\"headline\":\"WE BUY SPRINTERS\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER\",\"label\":\"REQUEST AN APPRAISAL\"},[{\"file\":\"car-ford-transit-courier-white\",\"k\":1}],false,\"Script Retro (library card)\"]"
   },
   "r-trustSeal-cd06-26": {
    "kind": "recipe",
@@ -9386,7 +9386,7 @@
    "ground": "house",
    "headline": "YOUR LOCAL WORK VANS BUYER",
    "thumb": "assets/recipe-stills/r-trustSeal-cd06-26.webp",
-   "stamp": "[63062,\"vans\",{\"headline\":\"YOUR LOCAL WORK VANS BUYER\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER • EXPRESS • NV\",\"claim\":\"AS-IS\",\"points\":\"TEXT A PIC, FREE QUOTE, NO FEES\"},[{\"file\":\"car-ford-transit-courier-white\",\"k\":1}],false,\"Trust Seal 1 (library card)\"]"
+   "stamp": "[63062,\"vans\",{\"headline\":\"YOUR LOCAL WORK VANS BUYER\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER • EXPRESS • NV\",\"claim\":\"AS-IS\",\"points\":\"TEXT A PIC, FREE QUOTE, NO FEES\"},[{\"file\":\"car-ram-promaster-grey\",\"k\":1}],false,\"Trust Seal 1 (library card)\"]"
   },
   "r-trustSeal-nn05-30": {
    "kind": "recipe",
@@ -9405,7 +9405,7 @@
    "ground": "house",
    "headline": "YOUR LOCAL WORK VANS BUYER",
    "thumb": "assets/recipe-stills/r-trustSeal-nn05-30.webp",
-   "stamp": "[65190,\"vans\",{\"headline\":\"YOUR LOCAL WORK VANS BUYER\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER • EXPRESS • NV\",\"claim\":\"AS-IS\",\"points\":\"TEXT A PIC, FREE QUOTE, NO FEES\"},[{\"file\":\"car-ford-transit-connect-white\",\"k\":1}],false,\"Trust Seal 2 (library card)\"]"
+   "stamp": "[65190,\"vans\",{\"headline\":\"YOUR LOCAL WORK VANS BUYER\",\"tag\":\"TRANSIT • SPRINTER • PROMASTER • EXPRESS • NV\",\"claim\":\"AS-IS\",\"points\":\"TEXT A PIC, FREE QUOTE, NO FEES\"},[{\"file\":\"car-ram-promaster-grey\",\"k\":1}],false,\"Trust Seal 2 (library card)\"]"
   },
   "r-of_vans_band_midnight": {
    "kind": "recipe",

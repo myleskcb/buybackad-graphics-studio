@@ -6341,3 +6341,30 @@ Learned:
     instead; it is the only pair whose way crosses them.
   - A wall check has to read the page: the mix lays out the picks, and only the landing knows
     which tile lands beside which.
+
+## 2026-11-19 — the hero-wall branch merged, the library drawn again in its colours (claude/xenodochial-mccarthy-7bea6d)
+
+- **A still's stamp names its recipe, not the engine.** The hero branch changed how every pair is
+  drawn (twins retired, more vivid, gradients that turn hue). The library's other looks were all
+  current by their stamps and all wrong by their colours, so they were drawn again with `--all`.
+  A change to `motion/fullad.js`, `motion/house-colours.js` or `motion/decor.js` means the same.
+- **Three numbering schemes met in one merge.** The hero branch was cut before pull request 14
+  renumbered the rules, so its new lines cited 146 and 149 for what is now 154 and 155. Only the
+  lines it added were moved; the notes that tell the history keep their old numbers on purpose.
+
+## 2026-11-19 — an ad shows what its words name (claude/xenodochial-mccarthy-7bea6d)
+
+- **A models line names a make without saying it.** "3 SERIES • 5 SERIES • X3 • X5" is BMW, "RX • ES • IS
+  • GX • NX" is Lexus; the builder only knew the makes' names, so both stayed on the general car line
+  and drew whatever its pool held. Two-letter models are read only as a run, never one "IS" alone.
+- **A make in a list of motorcycle makes is not a car.** "HARLEY HONDA · YAMAHA" sent two motorcycle
+  cards to the Honda line and gave them a Honda car in place of their motorcycle. Kinds come before
+  makes.
+- **The right make can still be the wrong car.** Once BMW was read, the first BMW in the catalogue
+  was a 1970s 3.0 CSL, and the first Silverado a 1981 one. A make's picture is now a model the words
+  name, built since 2010; a year range with no end that began in 1991 is not "since 2010".
+- **A check reads what an ad can draw, not one draw.** A look is the same recipe on another seed, and
+  a pool hands out its pictures by seed, so the check holds the whole pool to the words, unless the
+  words leave the list open ("and more").
+- **Fixing one card renames its neighbours.** Library names are numbered within a line, so the BMW
+  ad leaving the car line renumbered two Glass Cards; their stills were drawn again for the name.
