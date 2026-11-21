@@ -747,8 +747,16 @@ export class FullAd extends Ad {
       // and one layout, drawn over the four it always was so no other ad's moves: one that drew the compact clock
       // (retired 2026-11-19) wears the standard one
       const layout = LOCK_DRAW[mixSeed((this.st.seed >>> 0) * 17 + 3) % LOCK_DRAW.length];
+      // a third of ads put each phone in its own model's wallpaper, Apple's, in that model's finish nearest the
+      // screen's colour (deviceWall); the draw has its own stream, so no ad's other wallpaper or layout moves
+      const own = mixSeed((this.st.seed >>> 0) * 43 + 19) % 3 === 0;
       // each built to its phone's own glass (its photograph's outline: an angled one is wider), so nothing is stretched
-      this.phones.forEach((q, i) => { if (!(q.meta && q.meta.flat) && !q.screen) q.screen = lockScreen(this.p, (this.st.seed | 0) + i, this.st.lang, screenBase(this.p, this._groundAt(q)), { wall, layout, notch: !!(q.design && q.design.notch), aspect: glassAspect(q.w, q.h) }); });
+      this.phones.forEach((q, i) => {
+        if ((q.meta && q.meta.flat) || q.screen) return;
+        const base = screenBase(this.p, this._groundAt(q)), dw = own ? deviceWall(q.meta, base) : null;
+        q.screen = lockScreen(this.p, (this.st.seed | 0) + i, this.st.lang, base, { wall, layout, notch: !!(q.design && q.design.notch), aspect: glassAspect(q.w, q.h), image: dw && dw.img });
+        q.deviceWall = dw ? dw.file : null;
+      });
     }
     this._evenProduct();
     this._evenGround();
@@ -1698,6 +1706,21 @@ export function screenBase(p, groundY) {
   const cand = [a, lift(a, .35), lift(l, .45), lift(g, -.6)].map(c => [c, ratio(relLum(c), groundY)]);
   return (cand.find(([, k]) => k >= 1.8) || cand.sort((u, v) => v[1] - u[1])[0])[0];
 }
+/* a phone's own model's wallpaper (Apple's, engine.js loadDeviceWalls) in the finish whose colour is of the
+   screen's own family: within 30 degrees of its hue, or a neutral finish (white, black, silver, a titanium),
+   the nearest first. None when no finish fits: a wallpaper never brings a third colour in (rule 139). */
+export function deviceWall(meta, base) {
+  const list = (meta && meta.walls) || []; if (!list.length) return null;
+  const B = oklchOf(base || "#ffffff"), gap = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+  let best = null, bd = Infinity;
+  for (const wl of list) {
+    const T = oklchOf(wl.tone || "#808080"), neutral = T.C < .04;
+    if (!neutral && !(B.C >= .04 && gap(T.h, B.h) <= 30)) continue;
+    const d = neutral ? 60 + Math.abs(T.L - B.L) * 100 : gap(T.h, B.h) + Math.abs(T.L - B.L) * 40;
+    if (d < bd) { bd = d; best = wl; }
+  }
+  return best;
+}
 export function lockScreen(p, seed = 1, lang = "en", base = null, opts = {}) {
   // built to the glass it goes on (opts.aspect, its width over its height): the type is laid out on the width and
   // placed down the height, so a taller or wider glass moves it, never stretches it
@@ -1712,7 +1735,10 @@ export function lockScreen(p, seed = 1, lang = "en", base = null, opts = {}) {
   const blob = (cx, cy, rad, col, al) => { const gr = x.createRadialGradient(cx, cy, 0, cx, cy, rad); gr.addColorStop(0, rgba(col, al)); gr.addColorStop(1, rgba(col, 0)); x.fillStyle = gr; x.fillRect(0, 0, w, h); };
   const kind = LOCK_WALLS.includes(opts.wall) ? opts.wall : LOCK_WALLS[Math.floor(r() * LOCK_WALLS.length) % LOCK_WALLS.length];
   x.fillStyle = a; x.fillRect(0, 0, w, h);
-  if (kind === "bloom") {
+  if (opts.image) {   // the phone's own model's wallpaper, Apple's (deviceWall), covering the screen at one scale
+    const im = opts.image, k = Math.max(w / im.width, h / im.height);
+    x.drawImage(im, (w - im.width * k) / 2, (h - im.height * k) / 2, im.width * k, im.height * k);
+  } else if (kind === "bloom") {
     // iOS 18's: soft, saturated light rising out of a deeper ground, lit from behind; its middle the screen's own
     const side = r() < .5 ? -1 : 1;
     const v = x.createLinearGradient(0, 0, 0, h); v.addColorStop(0, tone(-.14, .9)); v.addColorStop(.55, a); v.addColorStop(1, tone(-.1, 1)); x.fillStyle = v; x.fillRect(0, 0, w, h);
@@ -1744,7 +1770,7 @@ export function lockScreen(p, seed = 1, lang = "en", base = null, opts = {}) {
     const v = x.createLinearGradient(0, 0, 0, h); v.addColorStop(0, tone(-.16)); v.addColorStop(.5, a); v.addColorStop(1, tone(.13, .8));
     x.fillStyle = v; x.fillRect(0, 0, w, h);
   }
-  { // a photograph's fine grain: Apple's wallpapers are light, not flat fills
+  if (!opts.image) { // a photograph's fine grain: Apple's wallpapers are light, not flat fills (Apple's own have theirs)
     const d = x.getImageData(0, 0, w, h), px = d.data; let q0 = Math.imul((seed >>> 0) ^ 0x9e3779b9, 2654435761) >>> 0;
     for (let i = 0; i < px.length; i += 4) { q0 = (Math.imul(q0, 1664525) + 1013904223) >>> 0; const n = ((q0 >>> 24) - 127.5) * .06; px[i] += n; px[i + 1] += n; px[i + 2] += n; }
     x.putImageData(d, 0, 0);

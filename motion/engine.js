@@ -4514,7 +4514,32 @@ export async function loadPhones(base = "./phones/", only = null) {
     img.onerror = () => res();
     img.src = base + m.id + ".webp";
   })));
+  await loadDeviceWalls(base, idx.phones);
   return { phones, index: idx.phones };
+}
+
+/* the family a phone's own wallpaper belongs to: Apple makes one for each model line and sells its Max, Plus
+   and mini beside it with the same one ("iPhone 17 Pro Max" is "17-pro", "iPhone 13 mini" "13", "iPhone 16e"
+   "16e"); null for a model with none of its own */
+export function wallFamily(model) {
+  const m = /iPhone\s+(\d+e?)(\s+Pro)?/i.exec(String(model || ""));
+  return m ? m[1].toLowerCase() + (m[2] ? "-pro" : "") : null;
+}
+/* each phone's own model's wallpapers, Apple's, in every finish of that model (rule 156; the owner, 2026-11-21:
+   "use the actual per device wall paper option and it's alternate colors as some of the bg variety"), at screen
+   size (scripts/build_device_walls.mjs writes phones/walls/). Loaded with the phones, so a first frame has them:
+   meta.walls, sorted by file, each { family, finish, file, tone, img }. None where the folder has none. */
+export async function loadDeviceWalls(base, metas) {
+  let list = [];
+  try { list = (await (await fetch(base + "walls/index.json")).json()).walls || []; } catch (e) { return; }
+  const fams = new Set(metas.map(m => wallFamily(m.model)).filter(Boolean)), by = {};
+  await Promise.all(list.filter(wl => fams.has(wl.family)).map(wl => new Promise(res => {
+    const img = new Image(); img.decoding = "async";
+    img.onload = () => { (by[wl.family] = by[wl.family] || []).push({ ...wl, img }); res(); };
+    img.onerror = () => res();
+    img.src = base + "walls/" + wl.file;
+  })));
+  for (const m of metas) m.walls = (by[wallFamily(m.model)] || []).slice().sort((p, q) => (p.file < q.file ? -1 : 1));
 }
 
 /** A phone the user uploads: key a plain ground away from the corners, crop to it. */
