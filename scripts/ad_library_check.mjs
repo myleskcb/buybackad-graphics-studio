@@ -650,9 +650,17 @@ async function browserPart() {
       const liveSrc = (readFileSync(join(ROOT, 'app.js'), 'utf8').match(/function scIsLive\(c\)\{[^\n]*\}/) || [])[0];
       ok(liveSrc, 'scIsLive is not where it was in app.js');
       const scIsLive = new Function(liveSrc + '; return scIsLive;')();
-      const offered = JSON.parse(readFileSync(join(ROOT, 'assets/showcase/index.json'), 'utf8')).filter((c) => scIsLive(c) && c.thumb).length;
+      const allCards = JSON.parse(readFileSync(join(ROOT, 'assets/showcase/index.json'), 'utf8'));
+      const onOffer = allCards.filter((c) => scIsLive(c) && c.thumb);
+      /* and since pull request 14 retired the cards (DESIGN-LAW 155), the rebuilt ad of every card
+         not on offer that has a still and a full-size render: netlify/lib/library.mjs's own test */
+      const readJson = (p) => (existsSync(join(ROOT, p)) ? JSON.parse(readFileSync(join(ROOT, p), 'utf8')) : {});
+      const stillsIx = readJson('assets/recipe-stills/index.json').items || {}, rebuiltIx = readJson('assets/rebuilt-ads/index.json').items || {};
+      const offeredIds = new Set(onOffer.map((c) => c.id)), cardById = new Map(allCards.map((c) => [c.id, c]));
+      const rebuiltN = Object.keys(rebuiltIx).filter((id) => { const h = stillsIx[id]; return h && h.thumb && !offeredIds.has(h.from) && !scIsLive(cardById.get(h.from)); }).length;
+      const offered = onOffer.length + rebuiltN;
       const m = await page.evaluate(() => ({ count: document.getElementById('count-finished').textContent, shown: document.querySelectorAll('#grid-finished .ml-card').length, wide: document.documentElement.scrollWidth - window.innerWidth, chips: document.querySelectorAll('#chips-finished button').length, saved: document.querySelectorAll('#grid-saved .ml-card').length }));
-      ok(m.count.startsWith(offered + ' designs offered') && m.shown === Math.min(60, offered) && m.chips > 2, 'browser: the finished designs are every offered card (' + JSON.stringify(m) + ', ' + offered + ' offered)');
+      ok(offered > 0 && m.count.startsWith(offered + ' designs offered') && m.shown === Math.min(60, offered) && m.chips > 2, 'browser: the finished designs are every offered card and every rebuilt ad (' + JSON.stringify(m) + ', ' + onOffer.length + ' cards and ' + rebuiltN + ' rebuilt)');
       await shot(page, 'master-finished-390');
       await page.click('#tab-saved'); await shot(page, 'master-saved-390'); await page.click('#tab-finished');
       ok(m.wide <= 0, 'browser: no sideways scroll on the master library at 390 px (' + m.wide + ')');
@@ -701,7 +709,7 @@ async function browserPart() {
       const st = await page.evaluate(async () => {
         const before = account.exports ? account.exports.count : 0;
         const stars = [...document.querySelectorAll('#ez-strip .ez-tpl .adl-star')];
-        const s = stars.find((x) => x.dataset.ref !== ez.tpl) || stars[0];
+        const s = stars.find((x) => x.dataset.ref !== ez.tpl && !/^full/.test(x.dataset.ref)) || stars[0];   // a template's: the Full ad card saves the ad as drawn (below)
         const ref = s.dataset.ref;
         await adLibrary.saveDesign(ref);
         adLibrary.paint();
@@ -722,6 +730,7 @@ async function browserPart() {
       await page.waitForFunction(() => adLibrary.state().lib, null, { timeout: 20000 });
       await page.evaluate(() => document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')));
       const ez2 = await page.evaluate(async () => {
+        if (window.FullAdStudio && FullAdStudio.isOn()) selectEzTpl(firstFreeTplId());   // a template on screen (the full ad is below)
         document.getElementById('ez-phone').value = '(562) 999-4994'; document.getElementById('ez-phone').dispatchEvent(new Event('input', { bubbles: true }));
         await new Promise((r) => setTimeout(r, 400));
         const before = adLibrary.state().lib.count;
@@ -729,6 +738,32 @@ async function browserPart() {
         return { before, after: adLibrary.state().lib.count, it: it && { template: it.template, kind: it.kind, w: it.image.width }, tpl: ez.tpl, on: document.getElementById('ez-star').classList.contains('on') };
       });
       ok(ez2.it && ez2.after === ez2.before + 1 && ez2.it.template === ez2.tpl && ez2.on, 'stars: Save to library under the preview saves the ad as made (' + JSON.stringify(ez2) + ')');
+      /* THE FULL AD (pull request 14: Easy Mode opens on it, and every library design is a rebuilt ad it
+         draws). 2026-11-21: Save to library saved the template under it, a rebuilt ad's ★ looked for a
+         card record it no longer has, and the strip's Full ad card had no ★ */
+      const full = await page.evaluate(async () => {
+        selectEzTpl('full');
+        await new Promise((r) => setTimeout(r, 300));
+        const on = FullAdStudio.isOn(), ref = FullAdStudio.ref(), before = adLibrary.state().lib.count;
+        const it = await adLibrary.saveEasy();
+        return { on, ref, tileStar: !!document.querySelector('#ez-strip .ez-fulltile .adl-star'), before, after: adLibrary.state().lib.count,
+          it: it && { template: it.template, w: it.image.width, texts: it.texts.length, title: it.title }, star: document.getElementById('ez-star').classList.contains('on') };
+      });
+      ok(full.on && full.tileStar && full.it && /^full:/.test(full.ref) && full.it.template === full.ref && full.after === full.before + 1 && full.it.texts > 0 && full.star,
+        'stars: with the full ad on, Save to library saves the ad as drawn, and its strip card has a ★ (' + JSON.stringify(full) + ')');
+      const house = await page.evaluate(async () => {
+        const s = document.querySelector('#lp-tpl-grid .adl-star[data-ref^="full:r-"]');
+        if (!s) return { found: false };
+        const ref = s.dataset.ref, before = adLibrary.state().lib.count;
+        s.click();
+        const t0 = Date.now();
+        while (Date.now() - t0 < 60000) { await new Promise((r) => setTimeout(r, 300)); const st = adLibrary.state(); if (st.lib && st.lib.items.some((i) => i.template === ref)) break; }
+        const it = adLibrary.state().lib.items.find((i) => i.template === ref);
+        const res = { found: true, ref, before, after: adLibrary.state().lib.count, it: it && { w: it.image.width, title: it.title }, full: FullAdStudio.isOn(), on: s.classList.contains('on') };
+        selectEzTpl(firstFreeTplId());   // back on a template for the steps after
+        return res;
+      });
+      ok(house.found && house.it && house.full && house.on && house.after === house.before + 1, 'stars: a rebuilt ad\'s ★ in the library opens it in the full ad and saves it as drawn (' + JSON.stringify(house) + ')');
       await page.evaluate(() => document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')));
       const ed = await page.evaluate(async () => {
         showEditor(); loadTemplate(firstFreeTplId());

@@ -11997,18 +11997,19 @@ function scRebuiltCard(id, h){
   // its layout is its card's family, so the wall's two-of-a-layout cap keeps two cards of one family apart
   return Object.assign(scHouseItem(id, { ...h, kind: 'recipe' }), { family: fam, theme: h.pairName || h.pair || 'House', accent: h.accent || '', layout: 'rebuilt:' + (h.family || id), rebuilt: true });
 }
-/* a house ad opened from the wall: Easy Mode's full ad, on that recipe, or that line and look */
+/* a house ad opened from the wall: Easy Mode's full ad, on that recipe, or that line and look.
+   Resolves true once the full ad is on it (the library's ★ saves it then: ad-library.js saveHouse) */
 function openHouseAd(h){
   // a look from the video maker's gallery opens where it is made, as its shelf drew it (motion/app.js ?shelf=&look=)
-  if (h.kind === 'any'){ location.href = 'motion/?full=0' + (h.shelf ? '&shelf=' + encodeURIComponent(h.shelf) : '') + '&look=' + encodeURIComponent(h.seed); return; }
+  if (h.kind === 'any'){ location.href = 'motion/?full=0' + (h.shelf ? '&shelf=' + encodeURIComponent(h.shelf) : '') + '&look=' + encodeURIComponent(h.seed); return Promise.resolve(false); }
   showEasy();
-  const FS = window.FullAdStudio; if (!FS) return;
-  Promise.resolve(h.kind === 'recipe' ? FS.useRecipe(h.id) : null).then(() => {
+  const FS = window.FullAdStudio; if (!FS) return Promise.resolve(false);
+  return Promise.resolve(h.kind === 'recipe' ? FS.useRecipe(h.id) : null).then(() => {
     if (h.kind !== 'recipe'){
       if (currentCat !== h.cat) setCategory(h.cat);
       const FA = FS.state; FA.line[h.cat] = h.line; FA.recipe[h.cat] = ''; FA.seed = h.seed || 1; FA.pair = ''; FA.voice = ''; FA.set = {};
     } else if (h.seed) FS.state.seed = h.seed;   // a recipe opens on its own seed (useRecipe); a design's other look, on that look's
-    FS.enter();
+    return FS.enter();
   });
 }
 /* THE ONE "LIVE" PREDICATE: not condemned, with imagery, with colour. The

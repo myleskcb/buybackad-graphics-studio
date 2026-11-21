@@ -456,6 +456,19 @@ function install() {
   const check = async (px, size) => { const { ad, st } = await build(px || 1080, size); const frame = fullStill(ad), pre = fullPreflight(ad, frame);
     return { ok: pre.ok, fixes: pre.findings.filter(f => f.level === "fix").map(f => f.say), notes: pre.findings.filter(f => f.level === "note").map(f => f.say), W: ad.W, H: ad.H,
       colour: st.full_colour, type: st.full_pair ? st.type_pair : "", headline: st.headline, subject: st.subject || "iphone", pictures: ad.phones.length }; };
+  /* for the ad library (ad-library.js saveFull, 2026-11-21): the picture this ad's Download makes at
+     px, what its pre-flight would stop, and the words on it. Until now Save to library saved the
+     template under the full ad, not the ad on screen. ref names the ad as the library keeps it. */
+  const ref = () => { const S = lineNow(), R = recipeNow(); return S ? "full:" + (R ? R.id : S.key) : ""; };
+  const still = async px => {
+    const { ad, st, S } = await build(px), frame = fullStill(ad);
+    let pre = null; try { pre = fullPreflight(ad, frame); } catch (e) { console.warn("full ad pre-flight:", e); }
+    const R = recipeNow();
+    return { frame, W: ad.W, H: ad.H, line: S.key, cat: currentCat, recipe: R ? R.id : "", ref: ref(),
+      fixes: pre && !pre.ok ? pre.findings.filter(f => f.level === "fix").map(f => f.say) : [],
+      words: { headline: st.headline || "", tag: st.tag || "", points: Array.isArray(st.points) ? st.points.join(", ") : (st.points || ""), label: st.number_label || "" },
+      site: st.site || "" };
+  };
   const useRecipe = async id => {
     await loadRecipes(); const r = live.byId[id]; if (!r) return null;
     if (currentCat !== r.cat) setCategory(r.cat);
@@ -463,7 +476,7 @@ function install() {
     FA.seed = r.seed || 1;   // its own look: a recipe opens on its own seed (New look moves on from it)
     return r;
   };
-  window.FullAdStudio = { state: FA, enter, leave, draw, build, check, lines: () => live.subjects, aliases: () => live.aliases || {}, isOn: () => FA.on, voices: () => FULL_VOICES.filter(k => fullVoiceOk(k)), pairs: () => COLOURWAYS.slice(),
+  window.FullAdStudio = { state: FA, enter, leave, draw, build, check, still, ref, lines: () => live.subjects, aliases: () => live.aliases || {}, isOn: () => FA.on, voices: () => FULL_VOICES.filter(k => fullVoiceOk(k)), pairs: () => COLOURWAYS.slice(),
     recipes: loadRecipes, useRecipe };
   /* Easy Mode may be open already (a module runs after the page's own scripts) */
   if (el("ez-strip") && el("page-easy") && el("page-easy").classList.contains("active")) {
