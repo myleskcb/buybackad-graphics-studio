@@ -1,0 +1,3 @@
+// Copy to Local.xcconfig (ignored). An identifier, never a secret.
+// The owner's team, the same one the iPhones LA app ships under.
+DEVELOPMENT_TEAM = 9Y5UV74466

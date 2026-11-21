@@ -706,6 +706,34 @@ produced." DESIGN-LAW rule 87. In practice:
   card's rebuilt ad from `assets/recipe-stills/` (`node scripts/build_recipe_stills.mjs`, `--check`)
   through `scLoadShelf`; `scLoadIndex` is the library cards alone. Rebuild the stills when the
   recipes or the engine change (`--all`).
+- **The hero wall is chosen, not filled** (rules 145 and 146, the owner, 2026-11-19). Every slot is
+  a hand pick in `assets/hero-picks.json`, a rebuilt ad or one of the full ad's own looks
+  (`full-<line>-v<seed>`, drawn by `node scripts/build_hero_stills.mjs`).
+  `node scripts/hero_wall_check.mjs` reads the landing's wall and holds it to:
+  - no pair, headline or family twice;
+  - three dark tiles at most, never touching;
+  - patterns and gradients shown, full ads included;
+  - a product in every tile.
+  A seed never draws a twin pair, and draws a dark look least (`LOOK_SHARE`). After an engine
+  change, draw the recipe stills, the hero stills and the rebuilt ads again.
 - **The partner library serves the rebuilt library ads** (`assets/rebuilt-ads/`,
   `node scripts/render_rebuilt_ads.mjs --stale` after the recipes or the engine change;
   `library_api_check` fails while one is stale).
+- **An ad shows what its words name** (rule 155): `node scripts/make_match_check.mjs` after any change to
+  the recipes, the lines' pools or the cut-outs; a make named by its models goes to its line or its own
+  cut-out, a model it names built since 2010, a motorcycle shows a motorcycle, a van its words name or
+  "work vans" (`build_recipes.mjs`).
+- **The landing is built to a brief** (rule 162; the owner: "make it look like a custom built site
+  with a large web design budget"): `landing.css`, scoped to the landing under the family skin, keeps
+  rule 152's colours and rule 153's wordmark and sets one type scale, banded grounds (paper for the
+  library, a stage for the video, the blue for the last call), numbered labels on hairlines and a
+  layout of its own per section; `pages.css` ends in the same look for the other pages. Change the
+  landing's look there, not in `styles.css`; a new section reuses `.lp-section-head`, `.flow` or a
+  band rather than a new card. Motion fails visible: never start the hero from hidden.
+- **The library's other looks** (rule 162): `assets/library-looks/` holds two more looks of every rebuilt
+  design, every line's own full ad and the video maker's gallery looks (`node scripts/build_library_looks.mjs`
+  with `GFX_BASE`, `--check`; `--all` after the engine, the recipes or the video maker's looks change).
+  app.js reads them beside the recipe stills for the landing's library only (scLoadMore, scLib); the
+  wall and the editor's library keep to the designs. A category's chips open into its lines
+  (scSubChips), in `motion/subjects.json`'s order.
+

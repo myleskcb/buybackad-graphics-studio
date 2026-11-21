@@ -205,6 +205,17 @@ function restore() {
   }
   if (q.get("full") === "1") state.full = true; else if (q.get("full") === "0") state.full = false;
   if (q.get("look")) state.style.seed = parseInt(q.get("look"), 10) || state.style.seed;
+  /* a look from the gallery, linked from the landing's library (app.js openHouseAd,
+     scripts/build_library_looks.mjs, 2026-11-19): ?shelf=<shelf id>&look=<seed> draws it as its shelf
+     drew it (shelfStyle), on the visitor's own words and number, and New look stays in that shelf, as
+     using the look from the gallery does. A seed alone redraws the words from the seed too. */
+  const linkShelf = q.get("shelf") && q.get("look") ? SHELVES.find(s => s.id === q.get("shelf")) : null;
+  if (linkShelf) {
+    state.full = false;
+    state.style = { ...shelfStyle(linkShelf, parseInt(q.get("look"), 10) || 1), number: state.style.number, phones: state.style.phones };
+    state.locked.add("vibe"); VIBE_AXES.forEach(a => state.locked.delete(a));
+    try { history.replaceState(null, "", location.pathname); } catch (e) { /* fine */ }
+  }
   // a look picked in the Look Book (looks.html): its vibe, ground or phone set, from its seed
   const pick = { vibe: q.get("vibe"), bg: q.get("bg"), layout: q.get("layout"), aspect: q.get("aspect") };
   if (pick.vibe || pick.bg || pick.layout) {

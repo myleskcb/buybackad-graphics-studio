@@ -399,6 +399,9 @@ export const QUIET = { decor: [], urgency: "none", overlay: "none", accents: 0, 
    the video maker's own palettes, so "Navy & Gold" was two navies and two golds.) The iPhones LA
    feed stills keep their own list (tools/feed-stills/render.mjs). */
 export const COLOURWAYS = HOUSE_COLOURS.map(c => c.key);
+/* the pairs a seed may draw: every one but a twin (house-colours.js: one scheme with an earlier pair at the
+   wall's size, 2026-11-19), which stays a theme and is drawn where it is picked by hand */
+export const DRAWN = HOUSE_COLOURS.filter(c => !c.twin).map(c => c.key);
 export const COLOUR_OF = Object.fromEntries(HOUSE_COLOURS.map(c => [c.key, c]));
 /* Grounds with nothing drawn in them. The review of 2026-11-12 found the others' features under
    the content: the edges of spot_floor's cone ran behind the chips and through the chevrons, and
@@ -458,6 +461,8 @@ export function productFor(subject, have) {
   const files = (have || []).filter(Boolean).map(id => String(id).replace(/^sub-/, "").replace(/^recipe:[^/]*\//, ""));
   if (line === "iphone") return { kind: "iphone", models: files.map(iphoneOf), files };
   if (line === "car") { const c = files.map(carOf).filter(Boolean); return { kind: "car", makes: c.map(x => x.make), models: c.map(x => x.model), van: c.some(x => x.van), files }; }
+  // an ad that stands on its words alone (a recipe whose goods its line has no picture of: words_only) shows nothing
+  if (!files.length || files.every(f => f === "none")) return { kind: line, files: [], bare: true };
   return { kind: line, files };
 }
 /** Whether a ground photograph's tag agrees with the product (productFor). */
@@ -480,7 +485,12 @@ export function groundFits(t, P) {
  *  with it is drawn. */
 export function groundFor(subject, seed, pairKey, product, lean = null) {
   const cat = !subject || subject === "iphone" ? "phones" : (GROUND_LINE_CAT[subject] || "");
-  const pool = (GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && photoSuits(GROUND_PHOTOS[src], pairKey) && groundFits(GROUND_PHOTOS[src], product));
+  /* an ad that shows no product (productFor: bare) never stands on a photograph (2026-11-19; the owner, of the
+     VR headset ad: "clearly wasn't audited or ever rebuilt"): with nothing in front of it, a room or a desk is
+     the picture, and the VR headsets' words stood on a dim room with a console in it. Its words stand on a
+     painted ground: a gradient, a pattern, a scene or the house's own. */
+  const bare = !!(product && product.bare);
+  const pool = bare ? [] : (GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && photoSuits(GROUND_PHOTOS[src], pairKey) && groundFits(GROUND_PHOTOS[src], product));
   // the drawn scenes are night skies, auroras and glows made for light words: under dark words (a light pair,
   // a lime or aqua ground: rule 154) their deep tones turn grey and the shade behind the words runs to the
   // frame's edge (full_ad_check, 2026-11-18), so those pairs stand on the other kinds
@@ -493,7 +503,7 @@ export function groundFor(subject, seed, pairKey, product, lean = null) {
      dim, fits the product drawn and keeps the card to two families, else one of the line's */
   if (lean && lean.want && lean.want.length) {
     const p0 = lean.photo && lean.photo.src, m0 = p0 ? GROUND_PHOTOS[p0] : null;
-    const own = m0 && !m0.dim && groundFits({ ...m0, ...lean.photo }, product) && photoSuits(m0, pairKey) ? { src: p0, focus: lean.photo.focus || m0.focus || [.5, .5] } : null;   // the engine's own shade, for this pair (its card's was for its card)
+    const own = !bare && m0 && !m0.dim && groundFits({ ...m0, ...lean.photo }, product) && photoSuits(m0, pairKey) ? { src: p0, focus: lean.photo.focus || m0.focus || [.5, .5] } : null;   // the engine's own shade, for this pair (its card's was for its card)
     const can = [...(own || pool.length ? ["photo"] : []), ...(share.scene ? ["scene", ...GROUND_SCENES] : []), ...(share.gradient ? ["gradient", ...GROUND_GRADIENTS] : []),
       ...(share.pattern ? ["pattern", ...GROUND_PATTERNS] : []), "house", ...GROUNDS];
     const got = lean.pick(can, lean.want, "ground"), of = L => L[Math.floor(lean.r() * L.length) % L.length];
@@ -605,7 +615,7 @@ export function lineTurn(subject, n) {
 }
 
 export function pairsFor(subject, headline, phoneHues = []) {
-  let keys = LINES.includes(subject) ? HOUSE_COLOURS.filter(c => (c.suits || []).includes(subject)).map(c => c.key) : COLOURWAYS;
+  let keys = LINES.includes(subject) ? HOUSE_COLOURS.filter(c => !c.twin && (c.suits || []).includes(subject)).map(c => c.key) : DRAWN;
   const named = String(headline || "").toUpperCase().split(/\s+/).filter(w => COLOUR_WORD[w.replace(/[^A-ZÁÉÍÓÚÑ]/g, "")]);
   if (named.length) {
     const agree = keys.filter(k => named.some(w => wordAgrees(w, COLOUR_OF[k].colors.accent)));
@@ -619,24 +629,30 @@ export function pairsFor(subject, headline, phoneHues = []) {
     // 16s drew Silver & Blue on every seed)
     keys = keys.filter(k => n[k] <= best || (many && oklchOf(COLOUR_OF[k].colors.ground).C < .04));
   }
-  return keys.length ? keys : COLOURWAYS;
+  return keys.length ? keys : DRAWN;
 }
 
+/* THE LOOKS' SHARES (2026-11-19; the owner, of the home page's wall: "these are all so dark and unoptimized
+   colors... why don't we have any of the video style ads on here that looked happier and more vibrant").
+   A third of every seed's ads were dark. Now a vivid ground is drawn most (44%), a light one next (36%) and a
+   dark one least (20%), each scaled as before where a look holds fewer than four pairs (a restricted line's). */
+export const LOOK_SHARE = { light: 1, vivid: 1.2, dark: .55 };
 /** THE LOOK FIRST, THEN THE PAIR (2026-11-18, rule 154). Eleven of the twelve proven pairs were a
  *  navy, black or deep ground under a warm accent, so a page of seeded ads read as one look "with
  *  5% variety or difference" (the owner). The pairs are now every colour theme (house-colours.js),
- *  each with its look (light, vivid or dark), and a seed's one draw u picks the look first, a third
- *  each where a look holds four pairs or more (one that holds fewer, a restricted line's, in
- *  proportion: gold has one vivid pair, which is not a third of gold), then the pair within the look.
+ *  each with its look (light, vivid or dark), and a seed's one draw u picks the look first, by its
+ *  share (LOOK_SHARE) where a look holds four pairs or more (one that holds fewer, a restricted line's, in
+ *  proportion: gold has one vivid pair, which is not a share of gold's), then the pair within the look.
  *  The draw is turned by the line's own step (lineTurn) before either is read, so the first ads of
  *  the lines (seed 1, one draw for all of them) spread over the looks and the pairs alike; the iPhone
  *  line turns by none. Still one draw of the seed's stream: the ground, the arrangement and the words
  *  a seed drew do not move. */
 export function drawPair(keys, u, subject) {
-  const groups = PAIR_LOOKS.map(k => keys.filter(x => (COLOUR_OF[x] || {}).look === k)).filter(l => l.length);
+  const looks = PAIR_LOOKS.filter(k => keys.some(x => (COLOUR_OF[x] || {}).look === k));
+  const groups = looks.map(k => keys.filter(x => (COLOUR_OF[x] || {}).look === k));
   const rest = keys.filter(x => !PAIR_LOOKS.includes((COLOUR_OF[x] || {}).look)); if (rest.length) groups.push(rest);
   if (!groups.length) return keys[0];
-  const w = groups.map(l => Math.min(1, l.length / 4)), sum = w.reduce((a, b) => a + b, 0);
+  const w = groups.map((l, i) => Math.min(1, l.length / 4) * (LOOK_SHARE[looks[i]] ?? 1)), sum = w.reduce((a, b) => a + b, 0);
   let v = ((clamp(u, 0, .999999) + lineTurn(subject, 9973) / 9973) % 1) * sum, i = 0;
   while (i < groups.length - 1 && v >= w[i]) { v -= w[i]; i++; }
   const L = groups[i], f = clamp(v / w[i], 0, .999999);

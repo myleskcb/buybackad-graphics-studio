@@ -4000,6 +4000,37 @@ Open:
     - The owner's three are caught by what they named.
     - Precision on the worst 40, by eye: 33 clearly real, 7 borderline, none plainly wrong.
     - **owner**: keep or send back each basket ad on the review page (Audit basket filter).
+13. **The hero wall, the colours and the VR headsets** (DESIGN-LAW 145, 154, 155; the owner, of
+    webuy.ad's wall: "this hero is majorly lacking still", "too many similar or matching color
+    schemes", "no pattern fills and only 1 gradient multi color", asked, "Show more of them").
+    **done on `claude/zealous-dewdney-386bf8`**:
+    - No twin pairs in a seed's draw.
+    - Vivid 44%, light 36%, dark 20%.
+    - Gradients turn hue, and patterns read.
+    - Dark colourways lean to their hue.
+    - An ad with no product never stands on a photograph.
+    - Eighteen hand picks on the wall (9 full ads, 9 rebuilt), held by `hero_wall_check.mjs`.
+    - Every still and full-size rebuilt ad drawn again.
+    - **owner**: approve the wall (shown as one image, 2026-11-19) or name the tiles to swap.
+    - **owner**: a real VR headset photograph (a Meta Quest 3), the one in the repository being a
+      render. It waits for a word on the download. The seven VR ads stand on their words alone
+      until then, off the wall.
+    - Seen, not changed: the Pokémon and sports-card tiles' graded-slab pictures read pale at the
+      wall's size.
+14. **Vibrant pairs and trios, proposed** (the owner: "ideally we relearn color theory and ad design
+    to maximize all of the color pairs, trios, etc.. that work and keep a viewer captivated.. means
+    vibrant or neon colors often times or really good contrasts"). **proposed, not live**:
+    - 10 new schemes, each on its own ground, from colour theory (violet and yellow, blue and
+      orange, lime and purple, cyan and magenta, mint and red...).
+    - 3 of the neon-on-black pairs at full neon.
+    - Every one passes the studio's contrast floors, and none duplicates a pair the studio has.
+    - The colours and the reason for each are in `docs/colour-proposals-2026-11-19.json`.
+    - Shown to the owner on the iPhone and the cars full ad, 2026-11-19.
+    - **owner**: which to adopt, and which current pairs they replace. The candidates are the dark,
+      muted ones, such as Navy & Orange, Midnight & Cyan, Blue & Green, Teal & Orange and White on
+      Navy.
+    - Adopting one is a row in app.js `COLOR_THEMES` and `node scripts/build_house_colours.mjs`.
+      Then draw the stills again, and the wall and its check.
 
 ## BL. 2026-11-18 — webuy.ad, the site's new address
 
@@ -4177,7 +4208,192 @@ Open:
 5. The owner tools (`pick.html`, `library.html`, `social/`, `admin-ads/`,
    `phonegfx-studio.html`) keep the old look and name.
 
-## BN. 2026-11-18 — the full ad's layout varies, and it may wear any video look (DESIGN-LAW 158)
+## BN. 2026-11-19 — the landing built to a brief (DESIGN-LAW 162)
+
+The owner, looking at the landing: "looks so vibe coded and basic UI we need to fix and make it
+look like a custom built site with a large web design budget". Done on
+`claude/xenodochial-mccarthy-7bea6d`, not pushed:
+
+- **`landing.css`** (new, scoped to the landing under the family skin): one type scale, the
+  hero in three lines with the deal in mint on its own; the figures as a band on hairlines;
+  sections numbered on a hairline with a split head; the library on paper, a gallery with each
+  ad's name and colour set under it; the colour sets as one mosaic of small ads in their own
+  colours; the video on a stage with a framed full ad and its first three seconds as a
+  timeline; the workflow as a sequence with a drawing of each step; the plans as one table;
+  the FAQ beside a heading that holds still; the last call on the blue; the footer dark under
+  a wordmark as wide as the page. The hero's wall is one plane in perspective, with a
+  stranger's text arriving over it.
+- **`index.html`**: the library before the colour sets; the hero's lede, three proof points
+  and a "made for" row; the wall inside a stage with the text over it; the video's frame and
+  timeline; a drawing for each step; the footer's wordmark. The kicker and the headline are
+  unchanged, word for word (the share card draws them, rule 153).
+- **`app.js`**: the colour sets drawn as small ads in their own colours (until today 54 sets
+  drew one bar and three of `undefined`: a rebuilt ad carries no `c1`, `ink` or
+  `support`); a library caption names the colour set, not the layout twice.
+- **`pages.css`**: the same bar, scale, hairline sections, FAQ rows and dark footer for the
+  other pages, appended.
+- Checked by eye at 1440, 1024 and 375, dark and light, and on pull request 15's own landing
+  markup; no sideways scroll; `build_pricing`, `build_seo_pages` and `csp_hashes` checks
+  unchanged; `words_check` clear.
+
+Open:
+1. **The owner's look at it**: the screenshots went to the owner; nothing is pushed.
+2. **Pull request 15 restructured the same landing** (2908f8e7: "The landing on one column and
+   one scale; the colour sets out", a "what it makes" list and a "why it gets texts" row).
+   `landing.css` styles that markup too (checked on a copy of it); the markup itself meets this
+   branch's in `index.html` (the hero, the sections, the footer) and in `app.js`
+   (`scBuildFamilies`, `scCard`). Which landing the site keeps is the owner's call, then one
+   merge.
+3. **Rule numbers**: settled with pull request 14 at 815ebea2 (main's rules 152 and 153, the
+   census's 154 to 157); this branch's landing rule is 158. Pull request 15 still numbers its own.
+4. **`assets/hero/index.json`** is asked for on every landing load and does not exist (the
+   hero's full-ad stills, app.js, the hero wall's picks): a 404 the landing check counts. The
+   hero wall's own session has it.
+5. **The video section's frame** is a still of a full ad; the engine is on the page, so it could
+   play the ad itself when the section scrolls into view.
+6. **The studio** (Easy Mode, the editor) keeps its own chrome; a session of its own is on it.
+
+Then, the same day (the owner, relayed: "see not the new 2000", then "Both (~2,650)"; and "organize
+it as we said with the subcategories revealed after you select one of the main ones"):
+- **The library holds 2,405 ads**: the 665 rebuilt designs, 1,330 more looks of them (every design two
+  more, each passing the pre-flight in a pair of its own), 246 line full ads (41 lines, six seeds
+  each) and 164 video looks (`scripts/build_library_looks.mjs`, `--check`; 37 MB of 400px webp).
+  The ~2,650 asked for counted 246 video looks; the video maker's gallery now draws four a shelf at
+  its 720px width (main's reselling.us look), 164 in all, and the library takes what it offers.
+- **The video maker opens a gallery look by link** (`motion/app.js`: `?shelf=<id>&look=<seed>`), as
+  its shelf drew it, on the visitor's own words and number.
+- **The chips**: the main categories first, an arrow on the seven with lines, a row of lines with
+  counts under the chosen one; "Offer cards" only while more than one is left; the review page's
+  categories carry the arrows too (`scripts/review_page.html`). The studio's own category picker is a
+  menu, and the full ad's line picker is already grouped by the same lines.
+
+Open:
+7. **Push**: nothing of this is pushed; the owner's OK first.
+8. **The published review page** gets its arrows at its next build (`build_review_page.mjs`).
+
+Then, the same day (the owner: "Merge and redraw"): the hero-wall branch (98eeb651) is merged here
+(a46fa2b0), and the library's other looks are drawn again in its colours (`build_library_looks.mjs
+--all`): 1330 more looks, 245 line full ads, 164 video looks; 2,404 in the
+library. The wall check (`hero_wall_check.mjs`) holds on the redesigned landing; the colour check
+is clear on the merged engine.
+
+Then, the same day (the owner, through the roadmap session, of the library's cars: a BMW models
+line on a Toyota pickup, a Lexus one on a Toyota, "MOTORCYCLES BUYER" on a Honda Civic; "check every
+recipe whose headline or models line names a make or model"): seven ads were wrong, all cars (BMW
+and two Lexus models lines on the general line's pool, three motorcycle ads on Honda cars or the car
+pool, "WE BUY SPRINTERS" on a Transit); none of the phones, consoles or computers. The recipe builder
+now reads a make by its models, shows a model the words name and a car built since 2010, puts a
+motorcycle ad on the Harley, and says work vans where no named van has a usable cut-out: 50
+recipes changed (42 in the library; their stills, looks and full-size renders drawn again).
+`scripts/make_match_check.mjs` holds every recipe and line to it.
+Open: a Sprinter cut-out that is not flagged (the one in the repo shows dealer lettering), and more
+than one motorcycle (the Harley, 1988–2006, stands under all three); both downloads need the owner's OK.
+
+## BQ. 2026-11-19 — the WeBuy.AD iPhone app, and the pricing buttons
+
+(BF on `main`. In pull request 14, BF is the Type Lab's, and BK to BP are taken on other branches, so it is BQ here.)
+
+The owner: "now that the iPhones LA app is out we need to make the we buy. ad
+app", "ASAP", "We need to ship this and make it usable SAAS"; and, asked on the
+way, how the plans and the checkout work and whether anything sends ads to
+reselling.us.
+
+Done:
+- **The landing's pricing buttons** (Start free, Choose Starter, Go Pro, Choose
+  Business) did nothing on a fresh visit since 2026-09-04: they were bound in
+  bindEasyUI(), which boot stopped calling. Bound at boot; live, checked on
+  webuy.ad.
+- **`ios/`: WeBuy.AD for iPhone**, the iPhones LA shell around webuy.ad
+  (ios/README.md): a download goes to the share sheet (Save Image to Photos,
+  checked in the simulator), payments and billing open in Safari (checked),
+  Delete account, the camera, photos and location reasons, Try again, the W.
+  icon and the site's ground at launch. Builds for the simulator and, unsigned,
+  for a device; `ios/release.sh` archives, signs in the cloud and uploads.
+- **The site in the app** (`app.js` `IN_IOS_APP`): checkout opens Stripe's
+  page in Safari (Apple's US rule, 3.1.1(a)) and is confirmed on return
+  (`resumeAppCheckout`, `/checkout` now answers `sessionId` for the hosted page).
+- **Delete account** for everyone (`/api/account/delete`, both account menus,
+  privacy.html says so): the subscription is cancelled at Stripe first, then
+  the saved ads, the AI pictures and the account go. billing_check: 117 passed.
+- The name in Stripe: products, the webhook, a pack's invoice and the checkout
+  dialog say WeBuy.AD (new products only; Stripe keeps the old names on the
+  ones already made).
+
+Owed by the owner, in order:
+1. ~~Put the web part live~~ Done 2026-11-19 (main 7ca8021a).
+2. ~~App Store Connect~~ Done 2026-11-19: `ad.webuy.app` registered, the app
+   "WeBuy.AD" (Apple ID 6837161499) created, free, United States only.
+3. A reviewer's demo account on webuy.ad, and live Stripe keys, so the
+   reviewer can pay.
+4. ~~`ios/release.sh 1 --upload`~~ Done 2026-11-19 22:28: build 1.0.0 (1)
+   signed for the App Store and uploaded ("Upload succeeded"); App Store
+   Connect showed it Processing. Next: a TestFlight internal group, then the
+   store page (screenshots, description, privacy answers) and App Review with
+   the reviewer's demo account.
+5. What a paying customer would still meet (the owner asked "anything else
+   we're missing?"): Stripe in test mode; no real card through the live
+   checkout yet; the contact address bounces; the terms' party; video export
+   inside the iPhone app not tried; a forgot-password flow and projects
+   across devices not checked.
+
+Open:
+- **reselling.us**: nothing connects today. A "Send to reselling.us" for its
+  scheduling needs an import endpoint on the reselling.us side (resale-app),
+  like iPhones LA's /studio/images; Pro and Business would carry it.
+- The trailer bed for the explainers, the terms' party, the contact address,
+  live Stripe keys (§BD, §BE).
+
+### The paid-customer walkthrough, 2026-11-19
+
+The owner: "anything else we're missing or is it a fully working and editable
+ad / video maker?", then "Yes, run it". No password or card was typed on the
+live site (the owner's to type); signed-in steps ran on a local copy in demo
+mode, the server on the real function code with a stand-in Stripe.
+
+Works:
+- **billing_check: 164 passed** with the browser part (real Chromium, the
+  stand-in Stripe): the landing's plans, the checkout agreement, Pay,
+  "Payment successful" on Pro, the switch to Business, a credit pack, the AI
+  credit hint, the video maker's Free gate and a Pro video with no marks,
+  Delete account. Two fixes to the check: the video maker asks for a number
+  before a download since 2026-11-10 (b7c74a1e), and reads it after 500 ms.
+  Run it with FABRIC_JS (a local fabric.min.js) or the editor errors.
+- Live, signed out: the pricing buttons, the video maker's "Sign in to
+  download your video. Video downloads come with Pro and Business."
+- Local demo, by hand: sign up, a design, the number, a colour set, Download
+  (a 1080 PNG, 1 of the week's 3 counted), the advanced editor (8 text layers,
+  the headline edited), Choose Pro, Delete account.
+- The iPhone app: a photo ad to the share sheet and Photos.
+
+Missing or broken, for the owner:
+1. **No password reset.** No Forgot password link and no endpoint: a customer
+   who forgets the password is locked out of a paid account. It needs an email
+   sender (none is configured: no Resend, Postmark or SendGrid key).
+2. ~~**The library on the plans.**~~ Done 2026-11-19, the owner: "Open it to
+   customers". Every signed-in account keeps a library (ad-library.js
+   `canUse()`): the Library buttons, the ★ on every ad, Save to library after a
+   download and in the video pop-up, the public link and its JSON and RSS. The
+   server already held each plan's limit (Keep 12 / 300 / 1,000 / 3,000) and
+   kept video for Pro and Business. What is about iPhones LA (the link sent to
+   the shop, "offered daily", "not for iPhones LA") stays with `shop()`: the
+   owner, or a browser connected from iPhones LA → Auto-post. A customer reads
+   "kept with your account: open them on any device, download one again, or
+   share them all with one link". On master-library.html a visitor to someone's
+   link sees "This library as a feed", and only an operator sees the
+   iPhones LA lines (`SHOP`, from /me). ad_library_check: as on main, only the
+   three upload-a-video steps fail; billing_check 164 passed.
+3. **Saved work is on the device.** The last 12 downloads (reopenable) and the
+   draft live in the browser (IndexedDB `pgfx`, localStorage); nothing follows
+   a customer to another phone or computer, except the ads they save to the
+   library (since item 2).
+4. **Video export in the iPhone app** stalled at 2% "Drawing frames" in the
+   Simulator for four minutes, though the web view has every API it uses
+   (VideoEncoder with H.264, AudioEncoder, MediaRecorder MP4, file sharing,
+   OffscreenCanvas). Try it on a real iPhone with TestFlight build 1.
+5. Stripe in test mode; a real card through the live checkout (the owner, with
+   4242 4242 4242 4242 while in test mode); the contact address; the terms.
+
+## BR. 2026-11-18 — the full ad's layout varies, and it may wear any video look (DESIGN-LAW 158)
 
 (claude/full-ad-looks-layout, from claude/xenodochial-mccarthy-7bea6d at a89b25e2. It replaces PR #16,
 claude/ad-design-variety-cohesion-5a7836, which made the same changes on `main`'s full ad before rule 154.)
@@ -4215,9 +4431,9 @@ Open:
 4. **The recipes** (rule 145) draw the house's own look only: a recipe made from an older card could
    lean to the video look nearest its card, not done.
 
-## BO. 2026-11-18 — the house's own styles, and a ZIP code for Your area (DESIGN-LAW 159, 160)
+## BS. 2026-11-18 — the house's own styles, and a ZIP code for Your area (DESIGN-LAW 159, 160)
 
-(claude/full-ad-looks-layout, after §BN.)
+(claude/full-ad-looks-layout, after §BR.)
 
 Done:
 - Twelve themes, two families (LA & coast, Art & studio), twelve painted grounds, three signs
@@ -4242,3 +4458,4 @@ Open:
    label placement for that look is the fix, not done here.
 4. **The ZIP stays in the maker.** It is not written back to the studio's brand kit (Easy Mode's
    area dialog has its own), and the towns chips show only in the full mode.
+0f3c9e5e

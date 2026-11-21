@@ -251,7 +251,7 @@ function rss(lib, origin, now) {
     '<channel>',
     '<title>' + esc(lib.name) + '</title>',
     '<link>' + esc(l.page) + '</link>',
-    '<description>' + esc('WE BUY ads from Graphics Studio, each a new item every day of its seven fresh days, for iPhones LA to review and post.') + '</description>',
+    '<description>' + esc('WE BUY ads from WeBuy.AD, each a new item every day of its seven fresh days, for iPhones LA to review and post.') + '</description>',
     '<atom:link href="' + esc(l.rss) + '" rel="self" type="application/rss+xml"/>',
     '<lastBuildDate>' + rfc822(now) + '</lastBuildDate>',
     '<ttl>60</ttl>',

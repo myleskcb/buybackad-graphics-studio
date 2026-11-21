@@ -104,6 +104,8 @@
      somebody opens it. -->
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="full-ad-studio.css">
+<!-- the landing's own design (DESIGN-LAW, "The landing is built to a brief"): after the two above, so it wins on the landing only -->
+<link rel="stylesheet" href="landing.css">
 
 <!-- ABOVE-THE-FOLD BACKDROPS, preloaded.
      app.js is only ~160ms of download but ~2s of EXECUTION (243 templates get
@@ -145,6 +147,7 @@
           <button class="view-item" id="lpam-exports">🕘 My downloads</button>
           <button class="view-item" id="lpam-adlib" style="display:none">📚 Ad library</button>
           <button class="view-item" id="lpam-signout">↪ Sign out</button>
+          <button class="view-item am-delete" id="lpam-delete">Delete account</button>
         </div>
       </span>
       <span class="view-menu lp-split">
@@ -158,18 +161,30 @@
     <div class="hero-copy">
       <div class="hero-eyebrow">For phone buyers, gold buyers and every reseller in between</div>
       <h1>Buyback ads that make strangers <em>text you first.</em></h1>
-      <p>Pick a design and type your phone number. Your number shows up big, so people can read it even in a tiny feed preview. Your ad looks like a real business, not a flyer on a pole. Made for Facebook Marketplace, OfferUp, Instagram and Craigslist. There&rsquo;s a video maker too.</p>
+      <p>Pick a design and type your phone number. Your number shows up big, so people can read it even in a tiny feed preview. Your ad looks like a real business, not a flyer on a pole.</p>
       <div class="hero-ctas">
         <button class="btn btn-primary btn-xl" id="lp-cta-main">Make my ad</button>
         <a href="#lp-templates" class="btn btn-outline btn-xl">See the library</a>
         <a href="motion/" class="btn btn-ghost btn-xl">Make a video ad</a>
       </div>
-      <div class="hero-note">No account needed to design. A free account lets you download 3 ads a week. Your work saves as you go.</div>
+      <ul class="hero-note hero-proof">
+        <li>No account needed to design</li>
+        <li>A free account downloads 3 ads a week</li>
+        <li>Your work saves as you go</li>
+      </ul>
+      <div class="hero-for"><span>Made for</span>Facebook Marketplace<i></i>OfferUp<i></i>Instagram<i></i>Craigslist</div>
     </div>
-    <div class="hero-wall" id="hero-wall">
-      <div class="wall-col" data-dir="up"></div>
-      <div class="wall-col" data-dir="down"></div>
-      <div class="wall-col" data-dir="up"></div>
+    <div class="hero-stage">
+      <div class="hero-wall" id="hero-wall">
+        <div class="wall-col" data-dir="up"></div>
+        <div class="wall-col" data-dir="down"></div>
+        <div class="wall-col" data-dir="up"></div>
+      </div>
+      <!-- what the headline promises, as it lands: a stranger's text (a picture of one, no real message) -->
+      <div class="hero-ping" aria-hidden="true">
+        <span class="hp-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4.2c-4.7 0-8.3 3-8.3 6.9 0 2.2 1.2 4.1 3.1 5.4-.2 1.2-.8 2.4-1.7 3.3 1.9-.1 3.5-.8 4.6-1.8.7.2 1.5.2 2.3.2 4.7 0 8.3-3 8.3-6.9S16.7 4.2 12 4.2Z" fill="currentColor"/></svg></span>
+        <span class="hp-body"><span class="hp-top"><b>New message</b><span>now</span></span><span class="hp-msg">Saw your ad. Still buying iPhones? I have a 15 Pro.</span></span>
+      </div>
     </div>
   </section>
   <div class="lp-stats" id="lp-stats">
@@ -182,6 +197,21 @@
   </div>
   <!-- the category ticker (poster look, DESIGN-LAW rule 98): what the studio sells for, in an ink band with the four signal colours between -->
   <div class="lp-ticker" aria-hidden="true"><div class="lp-ticker-band"><div class="lp-ticker-track"><span>Phones</span><i></i><span>Gold</span><i></i><span>Silver</span><i></i><span>Coins</span><i></i><span>Cars</span><i></i><span>Test strips</span><i></i><span>Pokémon</span><i></i><span>Sports cards</span><i></i><span>Watches</span><i></i><span>Laptops</span><i></i><span>Cameras</span><i></i><span>Consoles</span><i></i><span>Phones</span><i></i><span>Gold</span><i></i><span>Silver</span><i></i><span>Coins</span><i></i><span>Cars</span><i></i><span>Test strips</span><i></i><span>Pokémon</span><i></i><span>Sports cards</span><i></i><span>Watches</span><i></i><span>Laptops</span><i></i><span>Cameras</span><i></i><span>Consoles</span><i></i></div></div></div>
+
+  <section class="lp-section" id="lp-templates">
+    <div class="lp-section-head">
+      <div class="lp-kicker">Design library</div>
+      <h2>Ready-made ads. What you see is what you post.</h2>
+      <p>Every card below is a real design you can use. Click one and it opens with its colours, picture and words already in place. Type your number, download, post. Filter by what you buy, or pick a colour set below.</p>
+    </div>
+    <div class="lp-chips" id="lp-chips"></div>
+    <div class="tpl-grid" id="lp-tpl-grid"></div>
+    <div class="tpl-more-row">
+      <span class="tpl-count" id="lp-tpl-count"></span>
+      <button class="btn btn-outline" id="lp-tpl-more">Show more</button>
+      <button class="btn btn-ghost" id="lp-tpl-all">Open the whole library in the studio &rarr;</button>
+    </div>
+  </section>
 
   <section class="lp-section" id="lp-themes">
     <div class="lp-section-head">
@@ -204,20 +234,6 @@
     <div class="cb-root" id="cb-root" role="tabpanel" aria-labelledby="cb-tab-build" hidden></div>
   </section>
 
-  <section class="lp-section" id="lp-templates">
-    <div class="lp-section-head">
-      <div class="lp-kicker">Design library</div>
-      <h2>Ready-made ads. What you see is what you post.</h2>
-      <p>Every card below is a real design you can use. Click one and it opens with its colours, picture and words already in place. Type your number, download, post. Filter by what you buy, or pick a colour set above.</p>
-    </div>
-    <div class="lp-chips" id="lp-chips"></div>
-    <div class="tpl-grid" id="lp-tpl-grid"></div>
-    <div class="tpl-more-row">
-      <span class="tpl-count" id="lp-tpl-count"></span>
-      <button class="btn btn-outline" id="lp-tpl-more">Show more</button>
-      <button class="btn btn-ghost" id="lp-tpl-all">Open the whole library in the studio &rarr;</button>
-    </div>
-  </section>
 
   <section class="lp-section" id="lp-video">
     <div class="lp-section-head">
@@ -227,6 +243,17 @@
       <p><b>New: the full ad.</b> Your claim, headline, the models you buy, three selling points, your phones, your number, your towns and your website on one ad, each as large as it fits, in one clean style. Download it as a photo or as a video of the same ad.</p>
       <a class="btn btn-primary" href="motion/?full=1">Make a full ad &rarr;</a>
       <a class="btn btn-outline" href="motion/?full=0">Browse every video look &rarr;</a>
+    </div>
+    <div class="vid-stage">
+      <div class="vid-frame">
+        <img src="assets/rebuilt-ads/r-hudTech-ca07-20.jpg?v=ebf16797d8e5" alt="A full ad for selling an iPhone, in teal and orange, with the phone number big at the bottom" width="1080" height="1080" loading="lazy" decoding="async">
+        <a class="vid-play" href="motion/?full=1">Play it in the video maker</a>
+      </div>
+      <ol class="vid-time" aria-label="The first three seconds of a video ad">
+        <li><b>0s</b><span>Phones fly in</span></li>
+        <li><b>2s</b><span>Your headline is up</span></li>
+        <li><b>3s</b><span>Your number, big</span></li>
+      </ol>
     </div>
   </section>
 
@@ -238,17 +265,20 @@
     </div>
     <div class="flow">
       <div class="flow-step">
-        <div class="fs-num">STEP 01</div>
+        <div class="fs-art" aria-hidden="true"><span class="fs-lay"><i></i><i></i><i></i><i></i></span><span class="fs-lay on"><i></i><i></i><i></i><i></i></span><span class="fs-lay"><i></i><i></i><i></i><i></i></span></div>
+        <div class="fs-num">Step 01</div>
         <h3>Pick a layout</h3>
         <p>Sixteen hand-made layouts, from a checklist to a ticket stub, each sized for a phone screen and built to stand out in a busy feed. A big headline, a few plain facts and one big number to text.</p>
       </div>
       <div class="flow-step">
-        <div class="fs-num">STEP 02</div>
+        <div class="fs-art" aria-hidden="true"><span class="fs-dots"><i style="--a:#0b1f4d;--b:#f5c518"></i><i style="--a:#111418;--b:#ff3b30"></i><i class="on" style="--a:#0f3d3e;--b:#ff7a1a"></i><i style="--a:#ffffff;--b:#1f4fd1"></i><i style="--a:#1b0f2e;--b:#22d3ee"></i><i style="--a:#f7e04b;--b:#111418"></i><i style="--a:#e11d48;--b:#ffffff"></i><i style="--a:#0a1224;--b:#a3e635"></i><i style="--a:#fde2e4;--b:#7c3aed"></i><i style="--a:#003049;--b:#f77f00"></i></span></div>
+        <div class="fs-num">Step 02</div>
         <h3>Pick your colours</h3>
         <p>Restyle the whole ad in one tap. The text, the bright colour, the boxes and the background all change together, so nothing is left in the old colour.</p>
       </div>
       <div class="flow-step">
-        <div class="fs-num">STEP 03</div>
+        <div class="fs-art" aria-hidden="true"><span class="fs-type"><span class="fs-field">(562) 999-4994</span><span class="fs-dl">Download</span></span></div>
+        <div class="fs-num">Step 03</div>
         <h3>Type and download</h3>
         <p>Your number, your city, what you pay for. Save your details once and every design fills itself in. Download in any of six sizes, from a square post to a story or a printed flyer.</p>
       </div>
@@ -434,6 +464,7 @@
       </div>
     </div>
     <div class="lpf-base">&copy; 2026 BUYBACK.AD, WeBuy.AD</div>
+    <div class="lpf-mark" aria-hidden="true">WeBuy<em>.AD</em></div>
   </footer>
 </div>
 
@@ -462,6 +493,7 @@
           <button class="view-item" id="am-adlib" style="display:none">📚 Ad library</button>
           <button class="view-item" id="am-admin" style="display:none">🛠 AI Studio</button>
           <button class="view-item" id="am-signout">↪ Sign out</button>
+          <button class="view-item am-delete" id="am-delete">Delete account</button>
         </div>
       </span>
       <button class="ez-adv-link" id="ez-adv-link">Advanced editor →</button>

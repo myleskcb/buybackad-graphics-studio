@@ -1,8 +1,8 @@
-/* MADE FROM spec/full-grounds.json BY scripts/build_full_grounds.mjs (version 2026-11-18).
+/* MADE FROM spec/full-grounds.json BY scripts/build_full_grounds.mjs (version 2026-11-19).
    Never type into it: change the table, then run the script. What the full ad stands on: the shares of
    a seed's draw, the drawn scenes, and each category's photographs with their measured colour. */
-export const GROUND_VERSION = "2026-11-18";
-export const GROUND_SHARES = {"photo":0.3,"scene":0.12,"gradient":0.22,"pattern":0.22,"house":0.14};
+export const GROUND_VERSION = "2026-11-19";
+export const GROUND_SHARES = {"photo":0.24,"scene":0.1,"gradient":0.27,"pattern":0.27,"house":0.12};
 export const GROUND_HOUSE = ["radial","tonal","linear"];
 export const GROUND_SCENES = ["aurora","drift","sky_gradient","marble_soft","glow_orbs"];
 export const GROUND_GRADIENTS = ["pair_linear","pair_radial","pair_mesh","pair_conic","pair_sunset","pair_split","pair_corner","pair_arch"];
