@@ -6690,9 +6690,10 @@ The rule (`fullad.js` `lockScreen`, drawn, never loaded, so a photo on the first
   grey.
 - **The ink is the wallpaper's**: white on all but a near-white wallpaper, and a deep tone of it
   there.
-- **Never an image of Apple's**: the wallpapers are Apple's artwork, and its face and symbols are
-  licensed for mock-ups of software on its platforms. A screenshot's layers are not pulled into an
-  ad.
+- **Apple's images only as the owner chose them**: the wallpapers are Apple's artwork, and its face and
+  symbols are licensed for mock-ups of software on its platforms. A screenshot's layers are not pulled
+  into an ad. On 2026-11-21 the owner chose Apple's own per-device wallpapers for a third of phones (below);
+  nothing else of Apple's is drawn.
 
 **The time where iOS puts it (2026-11-19).** The owner, of a phone on a suggestion card: "we need all devices
 to look 100% photo accurate to ios 18 26 and 27 backgrounds", "make sure the time is placed properly". The
@@ -6732,6 +6733,23 @@ The rule now:
 - **Checked**: `scripts/lock_screen_check.mjs` builds every layout for every phone photograph that can wear
   one (every one not flat, angled ones included). It fails when a screen is not its glass's shape within
   half a percent.
+
+**Each phone's own model's wallpaper, Apple's, on a third of phones (2026-11-21).** The owner: "can we use the
+actual per device wall paper option and it's alternate colors as some of the bg variety". Asked whether to draw
+each model's wallpaper in iOS style or use Apple's own images (Apple's artwork, which this rule had kept out),
+the owner chose Apple's own, on about a third of phones.
+- **The files**: each iPhone line's own wallpaper in each of its finishes, iPhone 13 to 18 Pro. There are 51
+  files from 9to5Mac and iClarified, each download approved by the owner. `scripts/build_device_walls.mjs`
+  writes them 440 wide to `motion/phones/walls/` with their source pages. The three iPhone 17e files are not
+  verified as Apple's originals and are marked so.
+- **Which**: a third of ads (`ownWallTurn`, a seed stream of its own, so no other wallpaper or layout moves).
+  Each phone takes its own model's wallpaper in the finish whose colour is of the screen's own family, within
+  30 degrees of its hue, or in a neutral finish (`deviceWall`). A wallpaper never brings in a third colour,
+  and a phone with none that fits keeps the drawn wallpaper.
+- **The clock on them** turns deep from a paler top (luminance .4; the drawn wallpapers turn at .68). On the
+  15's pastels, the whites and the 18 Pro's glacier and silver, a white clock read under 2.3:1.
+- **Checked** (`lock_screen_check`): every family loads; each pick is of the screen's family or neutral; a
+  third of seeds; and the clock holds Apple's measures on one wallpaper of each family, in every layout.
 
 **The clock as Apple sets 9:41 (2026-11-20).** The owner, of the next stills: "it got better but still has an
 irregular gap", then "compare against actual apple imagery". The face's own spacing set the colon tight

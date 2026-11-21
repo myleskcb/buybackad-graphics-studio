@@ -749,7 +749,7 @@ export class FullAd extends Ad {
       const layout = LOCK_DRAW[mixSeed((this.st.seed >>> 0) * 17 + 3) % LOCK_DRAW.length];
       // a third of ads put each phone in its own model's wallpaper, Apple's, in that model's finish nearest the
       // screen's colour (deviceWall); the draw has its own stream, so no ad's other wallpaper or layout moves
-      const own = mixSeed((this.st.seed >>> 0) * 43 + 19) % 3 === 0;
+      const own = ownWallTurn(this.st.seed);
       // each built to its phone's own glass (its photograph's outline: an angled one is wider), so nothing is stretched
       this.phones.forEach((q, i) => {
         if ((q.meta && q.meta.flat) || q.screen) return;
@@ -1709,6 +1709,8 @@ export function screenBase(p, groundY) {
 /* a phone's own model's wallpaper (Apple's, engine.js loadDeviceWalls) in the finish whose colour is of the
    screen's own family: within 30 degrees of its hue, or a neutral finish (white, black, silver, a titanium),
    the nearest first. None when no finish fits: a wallpaper never brings a third colour in (rule 139). */
+/* whether an ad's phones wear their own model's wallpaper: a third of seeds (the owner: "about a third") */
+export const ownWallTurn = seed => mixSeed((seed >>> 0) * 43 + 19) % 3 === 0;
 export function deviceWall(meta, base) {
   const list = (meta && meta.walls) || []; if (!list.length) return null;
   const B = oklchOf(base || "#ffffff"), gap = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
@@ -1780,7 +1782,9 @@ export function lockScreen(p, seed = 1, lang = "en", base = null, opts = {}) {
     for (let q = 0; q < d.length; q += 16) { t += .2126 * lin8(d[q]) + .7152 * lin8(d[q + 1]) + .0722 * lin8(d[q + 2]); n++; } return n ? t / n : 0; };
   const topY = lumOf(w * .15, h * .02, w * .85, h * .27), footY = lumOf(0, h * .85, w, h * .95);
   // white as iOS sets it, on all but a near-white wallpaper (gold, orange, a mid blue keep a white clock)
-  const deep = okHex(.27, Math.min(.12, chroma * .7), hue), ink = topY < .68 ? "#ffffff" : deep;
+  // on Apple's own wallpapers (deviceWall) the clock turns deep from a paler top: their pastels and whites
+  // (the 15's, the 16's white, the 18 Pro's glacier and silver) left a white clock under 2.3:1, unreadable in an ad
+  const deep = okHex(.27, Math.min(.12, chroma * .7), hue), ink = topY < (opts.image ? .4 : .68) ? "#ffffff" : deep;
   // the status bar, in iOS's own measures (u: one point of its 393-point screen): signal, Wi-Fi and battery,
   // 72 points of them, ending 34 points in from the right edge, level with the island's middle; under a
   // notch a touch smaller and lower, in the ear between the notch and the glass's round corner (the

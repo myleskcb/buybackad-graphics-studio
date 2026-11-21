@@ -1,0 +1,890 @@
+{
+ "about": "Each iPhone line's own wallpaper, Apple's, in each finish, at screen size (scripts/build_device_walls.mjs; DESIGN-LAW 156). fullad.js deviceWall puts a phone in its own model's wallpaper on about a third of ads, in the finish whose colour is of the screen's own family.",
+ "made": "2026-11-21T23:29:45.552Z",
+ "walls": [
+  {
+   "family": "13",
+   "model": "iPhone 13 / 13 mini",
+   "finish": "Blue",
+   "file": "13-blue.webp",
+   "tone": "#527e93",
+   "size": [
+    440,
+    953
+   ],
+   "from": [
+    1404,
+    3040
+   ],
+   "source": "https://9to5mac.com/2021/09/29/iphone-13-wallpapers-download/",
+   "official": true
+  },
+  {
+   "family": "13",
+   "model": "iPhone 13 / 13 mini",
+   "finish": "Green",
+   "file": "13-green.webp",
+   "tone": "#4b8a86",
+   "size": [
+    440,
+    953
+   ],
+   "from": [
+    1404,
+    3040
+   ],
+   "source": "https://9to5mac.com/2022/03/08/download-the-new-green-iphone-13-and-iphone-13-pro-wallpapers-right-here/",
+   "official": true
+  },
+  {
+   "family": "13",
+   "model": "iPhone 13 / 13 mini",
+   "finish": "Midnight",
+   "file": "13-midnight.webp",
+   "tone": "#5d3460",
+   "size": [
+    440,
+    953
+   ],
+   "from": [
+    1404,
+    3040
+   ],
+   "source": "https://9to5mac.com/2021/09/29/iphone-13-wallpapers-download/",
+   "official": true
+  },
+  {
+   "family": "13",
+   "model": "iPhone 13 / 13 mini",
+   "finish": "Pink",
+   "file": "13-pink.webp",
+   "tone": "#f0a8c1",
+   "size": [
+    440,
+    953
+   ],
+   "from": [
+    1404,
+    3040
+   ],
+   "source": "https://9to5mac.com/2021/09/29/iphone-13-wallpapers-download/",
+   "official": true
+  },
+  {
+   "family": "13-pro",
+   "model": "iPhone 13 Pro / Pro Max",
+   "finish": "Alpine Green",
+   "file": "13-pro-alpine-green.webp",
+   "tone": "#1f7a50",
+   "size": [
+    440,
+    951
+   ],
+   "from": [
+    1542,
+    3334
+   ],
+   "source": "https://9to5mac.com/2022/03/08/download-the-new-green-iphone-13-and-iphone-13-pro-wallpapers-right-here/",
+   "official": true
+  },
+  {
+   "family": "13-pro",
+   "model": "iPhone 13 Pro / Pro Max",
+   "finish": "Gold",
+   "file": "13-pro-gold.webp",
+   "tone": "#8d6405",
+   "size": [
+    440,
+    951
+   ],
+   "from": [
+    1542,
+    3334
+   ],
+   "source": "https://9to5mac.com/2021/09/29/iphone-13-wallpapers-download/",
+   "official": true
+  },
+  {
+   "family": "13-pro",
+   "model": "iPhone 13 Pro / Pro Max",
+   "finish": "Graphite",
+   "file": "13-pro-graphite.webp",
+   "tone": "#57135c",
+   "size": [
+    440,
+    951
+   ],
+   "from": [
+    1542,
+    3334
+   ],
+   "source": "https://9to5mac.com/2021/09/29/iphone-13-wallpapers-download/",
+   "official": true
+  },
+  {
+   "family": "13-pro",
+   "model": "iPhone 13 Pro / Pro Max",
+   "finish": "Sierra Blue",
+   "file": "13-pro-sierra-blue.webp",
+   "tone": "#22488c",
+   "size": [
+    440,
+    951
+   ],
+   "from": [
+    1542,
+    3334
+   ],
+   "source": "https://9to5mac.com/2021/09/29/iphone-13-wallpapers-download/",
+   "official": true
+  },
+  {
+   "family": "13-pro",
+   "model": "iPhone 13 Pro / Pro Max",
+   "finish": "Silver",
+   "file": "13-pro-silver.webp",
+   "tone": "#208172",
+   "size": [
+    440,
+    951
+   ],
+   "from": [
+    1542,
+    3334
+   ],
+   "source": "https://9to5mac.com/2021/09/29/iphone-13-wallpapers-download/",
+   "official": true
+  },
+  {
+   "family": "13",
+   "model": "iPhone 13 / 13 mini",
+   "finish": "Red",
+   "file": "13-red.webp",
+   "tone": "#c24d7d",
+   "size": [
+    440,
+    953
+   ],
+   "from": [
+    1404,
+    3040
+   ],
+   "source": "https://9to5mac.com/2021/09/29/iphone-13-wallpapers-download/",
+   "official": true
+  },
+  {
+   "family": "13",
+   "model": "iPhone 13 / 13 mini",
+   "finish": "Starlight",
+   "file": "13-starlight.webp",
+   "tone": "#87cddc",
+   "size": [
+    440,
+    953
+   ],
+   "from": [
+    1404,
+    3040
+   ],
+   "source": "https://9to5mac.com/2021/09/29/iphone-13-wallpapers-download/",
+   "official": true
+  },
+  {
+   "family": "14",
+   "model": "iPhone 14 / 14 Plus",
+   "finish": "Blue",
+   "file": "14-blue.webp",
+   "tone": "#897c96",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/87374/download-the-official-iphone-14-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "14",
+   "model": "iPhone 14 / 14 Plus",
+   "finish": "Midnight",
+   "file": "14-midnight.webp",
+   "tone": "#818790",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/87374/download-the-official-iphone-14-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "14-pro",
+   "model": "iPhone 14 Pro / Pro Max",
+   "finish": "Deep Purple",
+   "file": "14-pro-deep-purple.webp",
+   "tone": "#8d799f",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/87374/download-the-official-iphone-14-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "14-pro",
+   "model": "iPhone 14 Pro / Pro Max",
+   "finish": "Gold",
+   "file": "14-pro-gold.webp",
+   "tone": "#a69167",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/87374/download-the-official-iphone-14-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "14-pro",
+   "model": "iPhone 14 Pro / Pro Max",
+   "finish": "Silver",
+   "file": "14-pro-silver.webp",
+   "tone": "#7f869a",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/87374/download-the-official-iphone-14-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "14-pro",
+   "model": "iPhone 14 Pro / Pro Max",
+   "finish": "Space Black",
+   "file": "14-pro-space-black.webp",
+   "tone": "#84888e",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/87374/download-the-official-iphone-14-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "14",
+   "model": "iPhone 14 / 14 Plus",
+   "finish": "Purple",
+   "file": "14-purple.webp",
+   "tone": "#8189a2",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/87374/download-the-official-iphone-14-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "14",
+   "model": "iPhone 14 / 14 Plus",
+   "finish": "Red",
+   "file": "14-red.webp",
+   "tone": "#946d84",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/87374/download-the-official-iphone-14-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "14",
+   "model": "iPhone 14 / 14 Plus",
+   "finish": "Starlight",
+   "file": "14-starlight.webp",
+   "tone": "#aa8685",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/87374/download-the-official-iphone-14-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "14",
+   "model": "iPhone 14 / 14 Plus",
+   "finish": "Yellow",
+   "file": "14-yellow.webp",
+   "tone": "#bab449",
+   "size": [
+    440,
+    952
+   ],
+   "from": [
+    901,
+    1950
+   ],
+   "source": "https://9to5mac.com/2023/03/22/download-yellow-iphone-14-wallpaper/",
+   "official": true
+  },
+  {
+   "family": "15",
+   "model": "iPhone 15 / 15 Plus",
+   "finish": "Blue",
+   "file": "15-blue.webp",
+   "tone": "#b3d1e0",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/91483/download-the-official-iphone-15-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "15",
+   "model": "iPhone 15 / 15 Plus",
+   "finish": "Green",
+   "file": "15-green.webp",
+   "tone": "#bdd6af",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/91483/download-the-official-iphone-15-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "15",
+   "model": "iPhone 15 / 15 Plus",
+   "finish": "Pink",
+   "file": "15-pink.webp",
+   "tone": "#eac1c0",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/91483/download-the-official-iphone-15-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "15-pro",
+   "model": "iPhone 15 Pro / Pro Max",
+   "finish": "Black Titanium",
+   "file": "15-pro-black-titanium.webp",
+   "tone": "#46464a",
+   "size": [
+    440,
+    953
+   ],
+   "from": [
+    1080,
+    2340
+   ],
+   "source": "https://9to5mac.com/2023/09/21/iphone-15-pro-wallpapers/",
+   "official": true
+  },
+  {
+   "family": "15-pro",
+   "model": "iPhone 15 Pro / Pro Max",
+   "finish": "Blue Titanium",
+   "file": "15-pro-blue-titanium.webp",
+   "tone": "#525967",
+   "size": [
+    440,
+    953
+   ],
+   "from": [
+    1080,
+    2340
+   ],
+   "source": "https://9to5mac.com/2023/09/21/iphone-15-pro-wallpapers/",
+   "official": true
+  },
+  {
+   "family": "15-pro",
+   "model": "iPhone 15 Pro / Pro Max",
+   "finish": "Natural Titanium",
+   "file": "15-pro-natural-titanium.webp",
+   "tone": "#69625a",
+   "size": [
+    440,
+    953
+   ],
+   "from": [
+    1080,
+    2340
+   ],
+   "source": "https://9to5mac.com/2023/09/21/iphone-15-pro-wallpapers/",
+   "official": true
+  },
+  {
+   "family": "15-pro",
+   "model": "iPhone 15 Pro / Pro Max",
+   "finish": "White Titanium",
+   "file": "15-pro-white-titanium.webp",
+   "tone": "#747677",
+   "size": [
+    440,
+    953
+   ],
+   "from": [
+    1080,
+    2340
+   ],
+   "source": "https://9to5mac.com/2023/09/21/iphone-15-pro-wallpapers/",
+   "official": true
+  },
+  {
+   "family": "16",
+   "model": "iPhone 16 / 16 Plus",
+   "finish": "Black",
+   "file": "16-black.webp",
+   "tone": "#4f4e5e",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/94911/download-the-official-iphone-16-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "16",
+   "model": "iPhone 16 / 16 Plus",
+   "finish": "Pink",
+   "file": "16-pink.webp",
+   "tone": "#c1669c",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/94911/download-the-official-iphone-16-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "16-pro",
+   "model": "iPhone 16 Pro / Pro Max",
+   "finish": "Black Titanium",
+   "file": "16-pro-black-titanium.webp",
+   "tone": "#35374a",
+   "size": [
+    440,
+    956
+   ],
+   "from": [
+    1320,
+    2868
+   ],
+   "source": "https://www.iclarified.com/94911/download-the-official-iphone-16-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "16-pro",
+   "model": "iPhone 16 Pro / Pro Max",
+   "finish": "Desert",
+   "file": "16-pro-desert.webp",
+   "tone": "#513c36",
+   "size": [
+    440,
+    956
+   ],
+   "from": [
+    1320,
+    2868
+   ],
+   "source": "https://www.iclarified.com/94911/download-the-official-iphone-16-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "16-pro",
+   "model": "iPhone 16 Pro / Pro Max",
+   "finish": "Natural",
+   "file": "16-pro-natural.webp",
+   "tone": "#47423b",
+   "size": [
+    440,
+    956
+   ],
+   "from": [
+    1320,
+    2868
+   ],
+   "source": "https://www.iclarified.com/94911/download-the-official-iphone-16-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "16-pro",
+   "model": "iPhone 16 Pro / Pro Max",
+   "finish": "White",
+   "file": "16-pro-white.webp",
+   "tone": "#3f4a50",
+   "size": [
+    440,
+    956
+   ],
+   "from": [
+    1320,
+    2868
+   ],
+   "source": "https://www.iclarified.com/94911/download-the-official-iphone-16-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "16",
+   "model": "iPhone 16 / 16 Plus",
+   "finish": "Teal",
+   "file": "16-teal.webp",
+   "tone": "#318c85",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/94911/download-the-official-iphone-16-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "16",
+   "model": "iPhone 16 / 16 Plus",
+   "finish": "Ultramarine",
+   "file": "16-ultramarine.webp",
+   "tone": "#556fbf",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/94911/download-the-official-iphone-16-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "16",
+   "model": "iPhone 16 / 16 Plus",
+   "finish": "White",
+   "file": "16-white.webp",
+   "tone": "#abb3bc",
+   "size": [
+    440,
+    954
+   ],
+   "from": [
+    1290,
+    2796
+   ],
+   "source": "https://www.iclarified.com/94911/download-the-official-iphone-16-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "16e",
+   "model": "iPhone 16e",
+   "finish": "Black",
+   "file": "16e-black.webp",
+   "tone": "#83868c",
+   "size": [
+    440,
+    952
+   ],
+   "from": [
+    1170,
+    2532
+   ],
+   "source": "https://9to5mac.com/2025/02/19/you-dont-need-to-buy-an-iphone-16e-to-use-apples-latest-wallpaper/",
+   "official": true
+  },
+  {
+   "family": "16e",
+   "model": "iPhone 16e",
+   "finish": "White",
+   "file": "16e-white.webp",
+   "tone": "#83868c",
+   "size": [
+    440,
+    952
+   ],
+   "from": [
+    1170,
+    2532
+   ],
+   "source": "https://9to5mac.com/2025/02/19/you-dont-need-to-buy-an-iphone-16e-to-use-apples-latest-wallpaper/",
+   "official": true
+  },
+  {
+   "family": "17",
+   "model": "iPhone 17",
+   "finish": "Lavender",
+   "file": "17-lavender.webp",
+   "tone": "#c8c0dd",
+   "size": [
+    440,
+    957
+   ],
+   "from": [
+    1206,
+    2622
+   ],
+   "source": "https://www.iclarified.com/98545/download-the-official-iphone-17-and-iphone-17-pro-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "17",
+   "model": "iPhone 17",
+   "finish": "Mist Blue",
+   "file": "17-mist-blue.webp",
+   "tone": "#b8c9e2",
+   "size": [
+    440,
+    957
+   ],
+   "from": [
+    1206,
+    2622
+   ],
+   "source": "https://www.iclarified.com/98545/download-the-official-iphone-17-and-iphone-17-pro-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "17-pro",
+   "model": "iPhone 17 Pro / Pro Max",
+   "finish": "Cosmic Orange",
+   "file": "17-pro-cosmic-orange.webp",
+   "tone": "#5b3d30",
+   "size": [
+    440,
+    956
+   ],
+   "from": [
+    2811,
+    6108
+   ],
+   "source": "https://9to5mac.com/2025/09/10/download-the-new-iphone-air-and-iphone-17-pro-wallpapers/",
+   "official": true
+  },
+  {
+   "family": "17-pro",
+   "model": "iPhone 17 Pro / Pro Max",
+   "finish": "Deep Blue",
+   "file": "17-pro-deep-blue.webp",
+   "tone": "#3d3b48",
+   "size": [
+    440,
+    956
+   ],
+   "from": [
+    2811,
+    6108
+   ],
+   "source": "https://9to5mac.com/2025/09/10/download-the-new-iphone-air-and-iphone-17-pro-wallpapers/",
+   "official": true
+  },
+  {
+   "family": "17-pro",
+   "model": "iPhone 17 Pro / Pro Max",
+   "finish": "Silver",
+   "file": "17-pro-silver.webp",
+   "tone": "#394348",
+   "size": [
+    440,
+    956
+   ],
+   "from": [
+    2811,
+    6108
+   ],
+   "source": "https://9to5mac.com/2025/09/10/download-the-new-iphone-air-and-iphone-17-pro-wallpapers/",
+   "official": true
+  },
+  {
+   "family": "17",
+   "model": "iPhone 17",
+   "finish": "Sage",
+   "file": "17-sage.webp",
+   "tone": "#b7d1b2",
+   "size": [
+    440,
+    957
+   ],
+   "from": [
+    1206,
+    2622
+   ],
+   "source": "https://www.iclarified.com/98545/download-the-official-iphone-17-and-iphone-17-pro-wallpaper-here",
+   "official": true
+  },
+  {
+   "family": "17e",
+   "model": "iPhone 17e",
+   "finish": "Black",
+   "file": "17e-black.webp",
+   "tone": "#604d6d",
+   "size": [
+    440,
+    952
+   ],
+   "from": [
+    1170,
+    2532
+   ],
+   "source": "https://www.iclarified.com/100084/download-the-official-iphone-17e-wallpaper-here",
+   "official": false
+  },
+  {
+   "family": "17e",
+   "model": "iPhone 17e",
+   "finish": "Soft Pink",
+   "file": "17e-soft-pink.webp",
+   "tone": "#fcbdc3",
+   "size": [
+    440,
+    952
+   ],
+   "from": [
+    1170,
+    2532
+   ],
+   "source": "https://www.iclarified.com/100084/download-the-official-iphone-17e-wallpaper-here",
+   "official": false
+  },
+  {
+   "family": "17e",
+   "model": "iPhone 17e",
+   "finish": "White",
+   "file": "17e-white.webp",
+   "tone": "#e4dfee",
+   "size": [
+    440,
+    952
+   ],
+   "from": [
+    1170,
+    2532
+   ],
+   "source": "https://www.iclarified.com/100084/download-the-official-iphone-17e-wallpaper-here",
+   "official": false
+  },
+  {
+   "family": "18-pro",
+   "model": "iPhone 18 Pro / Pro Max",
+   "finish": "Black",
+   "file": "18-pro-black.webp",
+   "tone": "#353335",
+   "size": [
+    440,
+    957
+   ],
+   "from": [
+    1206,
+    2622
+   ],
+   "source": "https://9to5mac.com/2026/09/09/download-the-new-iphone-18-pro-wallpapers-here/",
+   "official": true
+  },
+  {
+   "family": "18-pro",
+   "model": "iPhone 18 Pro / Pro Max",
+   "finish": "Burgundy",
+   "file": "18-pro-burgundy.webp",
+   "tone": "#5e3940",
+   "size": [
+    440,
+    957
+   ],
+   "from": [
+    1206,
+    2622
+   ],
+   "source": "https://9to5mac.com/2026/09/09/download-the-new-iphone-18-pro-wallpapers-here/",
+   "official": true
+  },
+  {
+   "family": "18-pro",
+   "model": "iPhone 18 Pro / Pro Max",
+   "finish": "Glacier",
+   "file": "18-pro-glacier.webp",
+   "tone": "#c6cde5",
+   "size": [
+    440,
+    957
+   ],
+   "from": [
+    1206,
+    2622
+   ],
+   "source": "https://9to5mac.com/2026/09/09/download-the-new-iphone-18-pro-wallpapers-here/",
+   "official": true
+  },
+  {
+   "family": "18-pro",
+   "model": "iPhone 18 Pro / Pro Max",
+   "finish": "Silver",
+   "file": "18-pro-silver.webp",
+   "tone": "#cfcecd",
+   "size": [
+    440,
+    957
+   ],
+   "from": [
+    1206,
+    2622
+   ],
+   "source": "https://9to5mac.com/2026/09/09/download-the-new-iphone-18-pro-wallpapers-here/",
+   "official": true
+  }
+ ]
+}

@@ -4411,3 +4411,13 @@ looked a bit odd"; rule 112's note):
   - `theme_cohesion_audit`: it fails some of the house's own themes in `app.js` (Plum & Lime's name and
     small print, for one) and does not know the "Neon pairs" group. It reads only `CB_READY` from the builder.
   - `colour_builder_audit`: its cards section skips all seven cards ("the studio opened nothing").
+
+Then (2026-11-21; the owner: "can we use the actual per device wall paper option and it's alternate colors as
+some of the bg variety"): a third of ads put each phone in its own model's wallpaper, Apple's, in that model's
+finish nearest the screen's colour (rule 156). The owner chose Apple's own images over drawn ones and approved
+the 51 downloads (9to5Mac and iClarified, 85 MB, kept outside the repo; 1.3 MB at screen size in
+`motion/phones/walls/`). The three iPhone 17e files are not verified as Apple's originals.
+- **Drawn again**: the stills that changed in both of two redraws: 3 first looks, 28 other looks, 3 layout
+  stills and 1 full-size render. Some of those changed because the still drawn before them did (the builders'
+  order): a coin, a silver and a truck ad among them.
+- **Owner**: Apple's wallpapers are Apple's artwork in the ads; the owner chose them knowing that.

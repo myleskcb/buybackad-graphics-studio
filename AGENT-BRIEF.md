@@ -734,6 +734,10 @@ produced." DESIGN-LAW rule 87. In practice:
   change to `lockScreen`, `LOCK_CLOCK`, `lockClock`, `drawFront`, `glassAspect` or a phone photograph's
   outline. Each screen is built to its glass's shape and drawn at one scale; the clock is Apple's size, place
   and spacing, measured on Apple's Newsroom images. Measure against Apple's own imagery, not memory.
+- **Each phone's own model's wallpaper** (rule 156): Apple's, on a third of ads, in the finish of the screen's
+  colour family (`fullad.js deviceWall`). A new model's wallpapers, once the owner approves each download, go
+  through `scripts/build_device_walls.mjs <manifest.json>` (never fetched by it); `--check` holds the folder
+  and its index together.
 - **The landing is built to a brief** (rule 162; the owner: "make it look like a custom built site
   with a large web design budget"): `landing.css`, scoped to the landing under the family skin, keeps
   rule 152's colours and rule 153's wordmark and sets one type scale, banded grounds (paper for the

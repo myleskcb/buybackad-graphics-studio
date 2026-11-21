@@ -88,6 +88,38 @@ const r = await page.evaluate(async (APPLE) => {
       if (Math.abs(tall - A.tall) > .01 || Math.abs(foot - A.foot) > .01) out.apple.push(`${id}: ${tall.toFixed(3)} of the width tall (Apple's ${A.tall}), foot ${foot.toFixed(3)} down (Apple's ${A.foot})`);
     }
   }
+  // APPLE'S OWN WALLPAPERS (deviceWall; 2026-11-21, the owner chose Apple's images on about a third of phones):
+  // every family's loaded, each pick of the screen's own family or neutral, a third of seeds, and the clock held
+  // to all of the above on one wallpaper of each family, in every layout
+  await E.loadDeviceWalls('/motion/phones/', metas);
+  const bases = ['#0b2a6b', '#1d4ed8', '#06b6d4', '#0f766e', '#16a34a', '#84cc16', '#f5b301', '#ff7a00', '#e11d2a', '#ec4899', '#7e22ce', '#1b1c20', '#f3f5f9', '#8a8f98'];
+  const gap = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+  const fams = new Map(); out.walls = { families: 0, picked: new Set(), offFamily: [], noWalls: [] };
+  for (const m of metas) {
+    if (!m.walls || !m.walls.length) { if (E.wallFamily(m.model)) out.walls.noWalls.push(m.id); continue; }
+    fams.set(E.wallFamily(m.model), m);
+    for (const b of bases) {
+      const wl = F.deviceWall(m, b); if (!wl) continue;
+      out.walls.picked.add(wl.file);
+      const T = E.oklchOf(wl.tone), B = E.oklchOf(b);
+      if (T.C >= .04 && !(B.C >= .04 && gap(T.h, B.h) <= 30)) out.walls.offFamily.push(`${m.id} on ${b}: ${wl.file}`);
+    }
+  }
+  out.walls.families = fams.size; out.walls.picked = out.walls.picked.size;
+  let turns = 0; for (let s = 1; s <= 900; s++) if (F.ownWallTurn(s)) turns++;
+  out.walls.share = turns / 900;
+  for (const [fam, m] of fams) {
+    const wl = m.walls[0], aspect = E.glassAspect(1000 * m.w / m.h, 1000);
+    for (const layout of F.LOCK_LAYOUTS) {
+      const kind = layout === 'tall' ? 'tall' : 'classic', K = F.LOCK_CLOCK[kind], id = `${fam} ${wl.file} ${layout}`;
+      const opts = { aspect, layout, image: wl.img, notch: false };
+      const c = F.lockScreen(p, 7, 'en', wl.tone, opts), c0 = F.lockScreen(p, 7, 'en', wl.tone, { ...opts, noClock: true });
+      const d = ink(c, c0); if (!d) { out.clock.push(`${id}: no clock`); continue; }
+      if (d.runs.length !== 4) out.gaps.push(`${id}: ${d.runs.length} runs of ink, not four figures`);
+      const A = APPLE[kind], tall = d.h / c.width, foot = (d.y1 + 1) / c.height;
+      if (Math.abs(tall - A.tall) > .01 || Math.abs(foot - A.foot) > .01) out.apple.push(`${id}: ${tall.toFixed(3)} tall, foot ${foot.toFixed(3)}`);
+    }
+  }
   return out;
 }, APPLE);
 console.log(`lock screens: ${r.metas} phone photographs (glass shapes ${Math.min(...r.aspects)} to ${Math.max(...r.aspects)}), ${r.metas * 3} screens; the tall clock lifted ${(r.lifts.tall || 1).toFixed(3)}`);
@@ -97,6 +129,11 @@ ok(!r.lift.length, `no clock is lifted past its face's own (classic not at all, 
 ok(!r.gaps.length, `the four figures stand apart at Apple's gaps, within 3.5 hundredths of the clock's height`, r.gaps.slice(0, 4).join('; '));
 ok(!r.colon.length, `the colon is centred on the figures, as Apple's is`, r.colon.slice(0, 4).join('; '));
 ok(!r.apple.length, `each clock is Apple's size for the screen and sits where Apple's does, within a hundredth`, r.apple.slice(0, 4).join('; '));
+const Wl = r.walls;
+console.log(`Apple's own wallpapers: ${Wl.families} families loaded, ${Wl.picked} wallpapers chosen across ${14} screen colours, a share of ${(Wl.share * 100).toFixed(1)}% of seeds`);
+ok(!Wl.noWalls.length, 'every phone of a model with its own wallpaper has them loaded', Wl.noWalls.slice(0, 6).join(', '));
+ok(!Wl.offFamily.length, "each wallpaper chosen is of the screen's own colour family, or neutral (never a third colour)", Wl.offFamily.slice(0, 4).join('; '));
+ok(Wl.share > .3 && Wl.share < .37, `about a third of ads put their phones in their own model's wallpaper (${(Wl.share * 100).toFixed(1)}%)`);
 ok(!errors.length, 'no page errors', errors.slice(0, 2).join(' | '));
 await browser.close();
 console.log(fails.length ? `\nlock screens: ${fails.length} failed` : '\nlock screens: every clock is set as Apple sets 9:41, on every phone');

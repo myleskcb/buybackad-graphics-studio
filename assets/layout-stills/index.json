@@ -1,6 +1,6 @@
 {
  "about": "Stills of the rebuilt designer layouts (motion/recipes.json, gen dl), drawn by scripts/build_recipe_stills.mjs --layouts; full-ad-studio.js shows them in Easy Mode's strip in the old layouts' place and opens each in the full ad.",
- "made": "2026-11-20T20:35:36.767Z",
+ "made": "2026-11-21T23:43:06.331Z",
  "items": {
   "r-dl_phones_agencyGrid_mono": {
    "kind": "recipe",

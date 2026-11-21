@@ -6507,3 +6507,15 @@ SEO session (158, pull request 15). Pull request 15 now meets this branch in `in
 - **A change shows in every redraw; order noise does not.** The stills builders move a few stills through
   the order they draw in, a different few each run. A still that changes in two redraws after one change
   wears that change; a still that changes in only one was moved by the order.
+
+## 2026-11-21 — Each phone's own wallpaper (claude/xenodochial-mccarthy-7bea6d)
+
+- **A press gallery that is gone can still have its files.** 9to5Mac's older wallpaper posts lost their
+  galleries, but the site's media listing still named the files, and they still load. Prefer a host that names
+  each file by its colour (iClarified) over one that numbers them.
+- **A white clock that suits a drawn wallpaper fails on Apple's pastels.** The drawn wallpapers are built for a
+  white clock; Apple's 15, 16 white and 18 Pro glacier are pale from the top. Measure the light behind the
+  clock per wallpaper and set the switch where white falls under about 2.3:1.
+- **Order noise is deterministic, and it spreads.** Two redraws in the same order move the same stills. A
+  still changed by the engine can change the one drawn after it, in both runs. Comparing two runs separates
+  only the noise that differs between them; the rest is said, not hidden.
