@@ -6491,3 +6491,19 @@ SEO session (158, pull request 15). Pull request 15 now meets this branch in `in
 - **Safari's engine can be looked at without Safari.** When Playwright has no WebKit, a short Swift tool
   (WKWebView, a window off screen, `takeSnapshot`) draws a page in the system's own WebKit and saves a
   PNG, with nothing shown on the screen.
+
+## 2026-11-20 — 9:41 as Apple sets it (claude/xenodochial-mccarthy-7bea6d)
+
+- **Measure Apple's own images, not a memory of them.** Apple's Newsroom press images open as plain images
+  on apple.com, so a page script can read their pixels. The iOS 16 clock's figures matched the system face
+  at 600 within a hundredth; its gaps did not. The face's own spacing set the colon tight and the 1 loose,
+  where Apple sets the colon a tenth of the figures' height from each side and tucks the 1 under the 4.
+- **A named face that is not installed falls through silently.** "SF Pro Display" is not on this Mac, so the
+  canvas drew `system-ui`, which is SF and has real widths down to ultra-condensed. `document.fonts.check`
+  says true for a family no FontFace declares, so it cannot tell. Measure the text: identical widths under
+  several family names mean they all fell through to one face.
+- **Drawing figures one by one loses the face's contextual forms.** SF raises its colon between figures;
+  set alone, the colon sits on the baseline. Centre it on the figures' ink.
+- **A change shows in every redraw; order noise does not.** The stills builders move a few stills through
+  the order they draw in, a different few each run. A still that changes in two redraws after one change
+  wears that change; a still that changes in only one was moved by the order.

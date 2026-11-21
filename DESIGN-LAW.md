@@ -6678,8 +6678,8 @@ The rule (`fullad.js` `lockScreen`, drawn, never loaded, so a photo on the first
 - **One layout for an ad's phones** (`LOCK_LAYOUTS`):
   - classic;
   - widgets, a row of four under the clock (iOS 16 on);
-  - tall, iOS 26's larger Glass clock over the top, its widgets at the foot (never pulled taller than
-    its font: see the fit, below);
+  - tall, iOS 26's tall Liquid Glass clock over the top (narrow figures, as Apple's: see the clock,
+    below), its widgets at the foot;
   - compact, iOS 27's small clock in the top row beside two widgets.
 
   Widgets (weather, a battery ring, an alarm, the day) are tinted one colour, as iOS tints them.
@@ -6728,11 +6728,32 @@ The rule now:
   moves the type and never stretches it.
 - **One scale**: `drawFront` draws the screen at one scale, covering the glass. Any difference left in shape
   is taken by the wallpaper, cropped at its edges, never by the type.
-- **The clock keeps its font's proportions**: iOS 26's taller clock is a larger clock (.39 of the screen's
-  width where the others are .285), never one pulled out of its face.
+- **The clock keeps its font's proportions** (see the clock, below, for how far the tall one is lifted).
 - **Checked**: `scripts/lock_screen_check.mjs` builds every layout for every phone photograph that can wear
   one (every one not flat, angled ones included). It fails when a screen is not its glass's shape within
-  half a percent, or when the clock's drawn ink is not the font's own width to height within three percent.
+  half a percent.
+
+**The clock as Apple sets 9:41 (2026-11-20).** The owner, of the next stills: "it got better but still has an
+irregular gap", then "compare against actual apple imagery". The face's own spacing set the colon tight
+against the 9 and left the 1 loose. Measured on Apple's own Newsroom images (`fullad.js` `LOCK_CLOCK`,
+`lockClock`):
+- **iOS 16 to 18** ("Apple-WWDC22-iOS16-Personalized-Lockscreen-Widgets"): figures the system face draws at
+  600 (0.75, 0.19, 0.78 and 0.42 of their height wide). They are set 0.109, 0.101 and 0.039 of their height
+  apart: the 1 tucks in under the 4's arm. The clock is 0.186 of the screen's width tall, from 0.155 to 0.24
+  down the screen, under the date (0.13 down); a row of widgets is centred 0.305 down.
+- **iOS 26 on** ("Apple-WWDC25-iOS-26-hero"): tall, narrow figures in Liquid Glass, about 1.2 wide to high,
+  0.46 of the width tall, from 0.15 to 0.36 down, about 0.05 of their height apart, under a date 0.125 down.
+- **Each figure is placed by its own ink**, so the gaps are Apple's whatever face draws them. **The colon is
+  centred on the figures**, as Apple's is; set alone, a face's colon sits on its baseline.
+- **The tall clock** is a taller cut of Apple's face, which a canvas cannot ask for. It is the system face at
+  its narrowest (`fontStretch` ultra-condensed) and light (200), lifted at most a fifth toward Apple's shape:
+  1.095 on a Mac. Pulled 2.1 times, it read as a stretch. A face that cannot narrow keeps its width, and the
+  clock's width is held to Apple's.
+- **Checked** (`lock_screen_check`): each clock is drawn in the shape `lockClock` sets within three percent;
+  the classic clock is not lifted and the tall one at most a fifth; the four figures stand apart at Apple's
+  gaps within 3.5 hundredths of the clock's height; the colon is centred; each clock is Apple's size for the
+  screen's width and sits where Apple's does, within a hundredth. Spaced half as wide, the 4 and 1 touch, and
+  it fails.
 
 ## 157. The call to action wears one of several marks, each moving its own way
 

@@ -1631,6 +1631,43 @@ export function subjectDraw(key, seed, loaded) {
    glyphs are white on a deep wallpaper and a deep tone of it on a light one, as iOS tints them. */
 const LOCK_DAY = { en: "Tuesday, September 9", es: "martes, 9 de septiembre" };
 const LOCK_FACE = '"SF Pro Display", "SF Pro Text", system-ui, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif';
+/* THE CLOCK, as Apple sets 9:41 (2026-11-20; the owner, of a gap in it that looked irregular: "compare against
+   actual apple imagery"). Measured on Apple's own press images:
+   - iOS 16 to 18 (Newsroom, "Apple-WWDC22-iOS16-Personalized-Lockscreen-Widgets"): figures the system face
+     draws at 600 (0.75, 0.19, 0.78 and 0.42 of their height wide), set 0.109, 0.101 and 0.039 of their height
+     apart (the 1 tucks in under the 4's arm), 0.186 of the screen's width tall;
+   - iOS 26 on (Newsroom, "Apple-WWDC25-iOS-26-hero"): tall, narrow figures in Liquid Glass, about 1.2 wide to
+     high, 0.46 of the width tall, about 0.05 of their height apart.
+   The face's own spacing set the colon tight and the 1 loose; each figure is now placed by its own ink. The
+   tall clock is a taller cut of Apple's face, which a canvas cannot ask for: it is the system face at its
+   narrowest, light, lifted at most a fifth to Apple's shape (pulled 2.1 times, it read as a stretch). */
+export const LOCK_CLOCK = {
+  classic: { weight: 600, stretch: "normal", gaps: [.109, .101, .039], tall: .186, aspect: 0, maxLift: 1, maxWide: .6 },
+  tall: { weight: 200, stretch: "ultra-condensed", gaps: [.055, .05, .055], tall: .46, aspect: 1.2, maxLift: 1.2, maxWide: .62 },
+};
+const LOCK_TALL_FACE = 'system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif';
+/* where each figure of 9:41 goes on a screen `w` wide: the font, its width (stretch), the lift, the clock's
+   width, the figures' ink height before the lift, and each figure's origin from the clock's left edge */
+export function lockClock(x, kind, w) {
+  const K = LOCK_CLOCK[kind] || LOCK_CLOCK.classic, face = kind === "tall" ? LOCK_TALL_FACE : LOCK_FACE;
+  x.save(); x.textAlign = "left"; x.textBaseline = "alphabetic"; x.font = `${K.weight} 100px ${face}`;
+  if ("fontStretch" in x) x.fontStretch = K.stretch;
+  if ("letterSpacing" in x) x.letterSpacing = "0px";
+  const m = [..."9:41"].map(ch => { const t = x.measureText(ch); return { ch, l: t.actualBoundingBoxLeft, r: t.actualBoundingBoxRight, a: t.actualBoundingBoxAscent, d: t.actualBoundingBoxDescent }; });
+  x.restore();
+  const ih = Math.max(...m.map(f => f.a)) + Math.max(0, ...m.map(f => f.d));   // the figures' ink height at 100px
+  const figs = m.reduce((s, f) => s + f.l + f.r, 0), G = K.gaps.reduce((s, g) => s + g, 0);
+  // drawn, the clock is figs / (ih * lift) + G wide to high: lifted toward Apple's shape, never past maxLift
+  const lift = K.aspect > G ? clamp(figs / (ih * (K.aspect - G)), 1, K.maxLift) : 1;
+  let px = 100 * w * K.tall / (ih * lift);
+  const wide = p => (figs + G * ih * lift) * p / 100;
+  if (wide(px) > w * K.maxWide) px *= w * K.maxWide / wide(px);   // a face that cannot narrow: the width rules
+  const s = px / 100, figures = []; let cur = 0;
+  /* the colon centred on the figures, as Apple's is (set alone, a face's colon sits on its baseline: the
+     raised time colon is a contextual form the figures beside it call up) */
+  m.forEach((f, i) => { figures.push({ ch: f.ch, x: cur + f.l * s, y: f.ch === ":" ? (f.a - f.d - ih) / 2 * s : 0 }); cur += (f.l + f.r) * s + (i < 3 ? K.gaps[i] * ih * s * lift : 0); });
+  return { font: `${K.weight} ${px.toFixed(2)}px ${face}`, stretch: K.stretch, lift, width: cur, ink: ih * s, glass: kind === "tall", figures };
+}
 /* the wallpapers, drawn as Apple's own read (2026-11-19; the owner: "100% photo accurate to ios 18 26 and 27
    backgrounds", then "Drawn, iOS style" over Apple's own images): bloom, iOS 18's soft light rising out of a
    deep ground; glass, iOS 26 and 27's ribbons of Liquid Glass lit along their edge; gradient, the Color
@@ -1740,23 +1777,29 @@ export function lockScreen(p, seed = 1, lang = "en", base = null, opts = {}) {
   for (let i = 0; i < 4; i++) { const bhh = (4 + 2.35 * i) * u * k; rr(gx + i * 4.7 * u * k, sy + 5.5 * u * k - bhh, 3 * u * k, bhh, .9 * u); x.fill(); }
   /* THE LAYOUT, one for the ad's phones (LOCK_LAYOUTS; the owner, 2026-11-18: "What are the other iOS lock
      screen layouts? Don't somehow have widgets what about some that are closer to the iOS 26 or 27"):
-     classic, the date over a large clock; widgets, a row of four under it (iOS 16 on); tall, iOS 26's
-     Glass clock stretched to fill the top, its widgets moved to the foot. Widgets are tinted one colour, as iOS
+     classic, the date over a large clock; widgets, a row of four under it (iOS 16 on); tall, iOS 26's tall
+     Glass clock over the top (LOCK_CLOCK), its widgets moved to the foot. Widgets are tinted one colour, as iOS
      tints them, on a vibrant disc of it: weather, a battery ring, an alarm, the calendar's day. */
   const layout = LOCK_LAYOUTS_SET.includes(opts.layout) ? opts.layout : "classic", es = lang === "es";
   const footInk = footY < .68 ? "#ffffff" : deep;
   x.textAlign = "center"; x.textBaseline = "alphabetic";
   const dateAt = (y, size, col = ink, align = "center", ax = w / 2) => { x.save(); x.textAlign = align; x.fillStyle = col; x.globalAlpha = .9; x.font = `600 ${Math.round(w * size)}px ${LOCK_FACE}`; x.fillText(LOCK_DAY[lang] || LOCK_DAY.en, ax, y); x.restore(); };
-  const clockAt = (cx, y, size, stretch = 1, glass = false, align = "center") => {
+  /* the clock, set as Apple sets 9:41 (LOCK_CLOCK): each figure placed by its own ink, Apple's gaps between,
+     sized to Apple's height for the screen's width, its foot at `foot` */
+  const clockAt = (cx, foot, kind) => {
     if (opts.noClock) return;   // for scripts/lock_screen_check.mjs: the screen without its clock, to find the clock's ink
-    x.save(); x.textAlign = align; x.font = `700 ${Math.round(w * size)}px ${LOCK_FACE}`;
-    if ("letterSpacing" in x) x.letterSpacing = `${-Math.round(w * size * .02)}px`;
-    x.translate(cx, y); x.scale(1, stretch);
-    if (glass) {   // Liquid Glass: the numerals clear at their foot, brighter at their head, a lit edge round them
-      const g = x.createLinearGradient(0, -w * size * .74, 0, 0); g.addColorStop(0, rgba(ink, .82)); g.addColorStop(1, rgba(ink, .34));
-      x.fillStyle = g; x.fillText("9:41", 0, 0);
-      x.lineWidth = Math.max(1, w * .0045) / stretch; x.strokeStyle = rgba(ink, .9); x.strokeText("9:41", 0, 0);
-    } else { x.fillStyle = ink; x.fillText("9:41", 0, 0); }
+    const C = lockClock(x, kind, w);
+    x.save(); x.textAlign = "left"; x.textBaseline = "alphabetic"; x.font = C.font;
+    if ("fontStretch" in x) x.fontStretch = C.stretch;
+    if ("letterSpacing" in x) x.letterSpacing = "0px";
+    x.translate(cx - C.width / 2, foot); x.scale(1, C.lift);
+    let g = null;
+    if (C.glass) {   // Liquid Glass: the figures clear toward their foot, brighter at their head, a lit edge round them
+      g = x.createLinearGradient(0, -C.ink, 0, 0); g.addColorStop(0, rgba(ink, .78)); g.addColorStop(1, rgba(ink, .3));
+      x.lineWidth = Math.max(1, w * .0045) / C.lift; x.strokeStyle = rgba(ink, .92);
+    }
+    x.fillStyle = g || ink;
+    for (const f of C.figures) { x.fillText(f.ch, f.x, f.y); if (g) x.strokeText(f.ch, f.x, f.y); }
     x.restore();
   };
   const widget = (kind, cx, cy, r0, col) => {
@@ -1783,14 +1826,17 @@ export function lockScreen(p, seed = 1, lang = "en", base = null, opts = {}) {
   };
   const kinds = ["weather", "battery", "alarm", "calendar"].map(k => [k, r()]).sort((p0, p1) => p0[1] - p1[1]).map(p0 => p0[0]);
   const row = (y, n, r0, col) => { const gap = r0 * .5, total = n * 2 * r0 + (n - 1) * gap; let cx = w / 2 - total / 2 + r0; for (const k of kinds.slice(0, n)) { widget(k, cx, y, r0, col); cx += 2 * r0 + gap; } };
+  /* placed as Apple's own press images place them (LOCK_CLOCK): iOS 26's date 0.125 of the screen down, its
+     tall clock from 0.15 to 0.36; iOS 16 to 18's date 0.13 down, the clock from 0.155 to 0.24, a row of
+     widgets centred 0.305 down */
   if (layout === "tall") {
-    dateAt(h * .118, .054);
-    clockAt(w / 2, h * .37, .39, 1, true);   // iOS 26 on: the clock made larger, in glass; never pulled taller than its font (the owner: "weird stretch")
+    dateAt(h * .125, .05);
+    clockAt(w / 2, h * .36, "tall");
     row(h * .795, 3, w * .082, footInk);
   } else {
-    dateAt(h * .134, .056);
-    clockAt(w / 2, h * .262, .285);
-    if (layout === "widgets") row(h * .335, 4, w * .082, ink);
+    dateAt(h * .13, .053);
+    clockAt(w / 2, h * .24, "classic");
+    if (layout === "widgets") row(h * .305, 4, w * .067, ink);
   }
   // the flashlight and the camera, in glass circles at the foot: smoked over a light wallpaper, frosted over a deep one
   const cr = w * .075, cy = h * .905, glass = footY < .1 ? "rgba(255,255,255,.2)" : "rgba(0,0,0,.26)";

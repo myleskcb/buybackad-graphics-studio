@@ -4379,8 +4379,17 @@ is built to its phone's own glass and drawn on it at one scale (rule 156). Every
 by 716 and stretched to a glass of another shape, and the tall layout pulled its clock 2.1 times taller. Now a
 difference in shape is taken by the wallpaper, cropped, and the clock keeps its font's proportions.
 `scripts/lock_screen_check.mjs` holds it on all 89 phone photographs that can wear a lock screen, angled ones
-included. Drawn again: the 8 first looks, 71 other looks, 5 layout stills and 4 full-size renders that wear
-one. No hero still wears one.
+included. Drawn again: the 8 first looks, 71 other looks, 5 layout stills and 4 full-size renders (corrected
+2026-11-20: about 30 of those other looks were moved by the builders' order alone, not by a lock screen). No
+hero still wears one.
+
+Then (2026-11-20; the owner, of the next stills: "it got better but still has an irregular gap", then "compare
+against actual apple imagery"): the clock is set as Apple's own Newsroom images set 9:41 (rule 156): Apple's
+gaps, each figure placed by its ink, the colon centred, Apple's size and place for the screen, and iOS 26's
+tall clock in narrow figures, lifted 1.095 (it had been pulled 2.1 times, then set wide). Drawn again: the 8
+first looks, 42 other looks, 5 layout stills and 4 full-size renders that changed in both redraws. A still that
+changed in only one redraw was moved by the builders' order (trucks, cars and coins among them) and keeps its
+committed file.
 
 The colour builder, looked at again (2026-11-19; the owner: "this color builder is weird and the pallet check
 looked a bit odd"; rule 112's note):
