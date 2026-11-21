@@ -2,8 +2,9 @@
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES, DEFAULT_PHONES } from "./catalog.js";
 import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf, lotInto } from "./engine.js";
-import { FullAd, fullStyle, fullPreflight, fullStill, fullWords, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk, fullGroundReady, poolEntryFor } from "./fullad.js";
+import { FullAd, fullStyle, fullPreflight, fullStill, fullWords, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk, fullGroundReady, poolEntryFor, FULL_LAYOUT } from "./fullad.js";
 import { lookPreflight, LOOK_CODES } from "./look-preflight.js";
+import { areaFrom } from "./geo.js";
 import { FULL_VOICES } from "./full-voices.js";
 import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
@@ -89,15 +90,20 @@ async function ensureSubject(st) {
 const fullOf = st => {
   // what was picked by hand for the full ad: its colours, and its type pair (one of the owner's pairs the
   // full ad holds in, motion/full-voices.js; none picked is the house face)
-  const S = state.full ? subjectOf(st) : null, pick = { ...(st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {}), ...(fullVoiceOk(st.full_type) || st.full_type === "house" ? { type_pair: st.full_type } : {}) };
+  const S = state.full ? subjectOf(st) : null, pick = { ...(st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {}), ...(fullVoiceOk(st.full_type) || st.full_type === "house" ? { type_pair: st.full_type } : {}),
+    // a layout choice locked under Layout holds (rule 158); the rest follows the look's number
+    ...Object.fromEntries(Object.keys(FULL_LAYOUT).filter(k => state.locked.has(k) && st[k]).map(k => [k, st[k]])) };
+  // the look it wears (rule 158): the look on screen when it came from Any look or the gallery's video looks
+  // (full_look true), the house's own (false), or, after New look, the seed's: a video look for a third of seeds
+  const opts = { look: st.full_look === true ? "own" : st.full_look === false ? "" : "mix" };
   // a recipe brings its own pictures (kept as given: subject_set 1) and its ground photograph
   const R = state.full ? recipeOf(st) : null, rids = R ? subjects.loaded["recipe|" + R.id] || [] : [], extra = { ...(R && R.ground_photo ? { ground_hint: { ...R.ground_photo } } : {}), ...(R && R.hint ? { hint: R.hint } : {}) };   // leans, not locks (the rebuild, 2026-11-18)
   // its claim, unless a claim or a business name was typed: a named buyer takes the badge
   if (R && R.words && R.words.claim && !st.feed_claim && !String(st.biz || "").trim()) extra.feed_claim = R.words.claim;
-  if (!S) return fullStyle({ ...st, ...extra, subject: "", ...(rids.length ? { phones: rids } : {}) }, st.seed, state.index, pick, state.locked);
+  if (!S) return fullStyle({ ...st, ...extra, subject: "", ...(rids.length ? { phones: rids } : {}) }, st.seed, state.index, pick, state.locked, opts);
   // a recipe whose words name goods its line has no picture of stands on its words alone (words_only)
   const bare = !!(R && R.words_only && !rids.length), ids = rids.length ? rids : bare ? [] : S.sets.length ? subjects.loaded[subjectKey(S, st).k] || [] : [];
-  return fullStyle({ ...st, ...extra, phones: ids.length ? ids : ["none"], ...(rids.length || bare ? { subject_set: 1 } : {}) }, st.seed, state.index, pick, state.locked);
+  return fullStyle({ ...st, ...extra, phones: ids.length ? ids : ["none"], ...(rids.length || bare ? { subject_set: 1 } : {}) }, st.seed, state.index, pick, state.locked, opts);
 };
 /* fonts, and a full ad's photo ground: a still made before the photo arrives draws the house
    gradient in its place (fullad.js fullGroundReady) */
@@ -108,7 +114,7 @@ const adFor = (st, w, h) => new (AdOf(st))(st, state.assets, w, h);
 
 const BOARD_NAMES = { none: "No sign", freeway: "Green freeway sign", freeway_blue: "Blue freeway sign", poster: "Swap meet poster",
   bandit_yellow: "Yellow street sign", bandit_white: "White street sign", flyer: "Tear-off flyer", neon_box: "Neon box",
-  marquee: "Theatre marquee", store_sign: "Corner store sign" };
+  marquee: "Theatre marquee", store_sign: "Corner store sign", billboard: "Roadside billboard", tiki_plank: "Tiki bar plank", surfboard: "Surfboard" };
 const URGENCY_NAMES = { none: "None", pulse_cta: "Pulsing TEXT NOW badge", caution_tape: "Caution tape", ticker: "Scrolling ticker",
   stamp: "CASH stamp", arrows: "Arrows at the number", flash_border: "Border flashing on the beat", beat_pump: "Pump on the beat" };
 const VIBE_AXES = ["palette", "background", "font", "type_pair", "text_fx", "number_style", "board", "decor", "skew"];
@@ -241,6 +247,8 @@ async function rebuild() {
     state.audio = null;
     if (state.sound) startAudio(0);
     syncPanel(st);
+    // the layout as drawn: a costlier choice that gave way to keep the headline large shows what took its place (rule 158)
+    if (ad.full && ad.full.layout) document.querySelectorAll('#design select[data-key^="full_"]').forEach(el => { const v = ad.st[el.dataset.key]; if (v != null) el.value = String(v); });
     syncFull(ad);
     syncLook(ad, st);
     writeListing(st);
@@ -399,7 +407,17 @@ function stopAudio() { if (state.audioSrc) { try { state.audioSrc.stop(); } catc
 
 // the full ad's fields: [input, key in the style, longest]
 const FULL_FIELDS = [["f-biz", "biz", 28], ["f-claim", "feed_claim", 44], ["f-towns", "feed_where", 60], ["f-site", "site", 40], ["f-burst", "feed_burst", 14]];
-const fullName = st => (COLOUR_OF[st.full_colour] || {}).name || lookName(st);   // the pair's name, the same as Easy Mode's theme
+const fullName = st => (COLOUR_OF[st.full_colour] || {}).name || lookName(st);   // the pair's name (the same as Easy Mode's theme), else the video look's
+// the full ad's layout choices, by name (fullad.js FULL_LAYOUT, rule 158)
+const LAYOUT_NAMES = {
+  full_align: ["Alignment", { center: "Centred", left: "On the left edge" }],
+  full_order: ["Product", { classic: "In the middle", hero_low: "High, the headline under it", number_high: "Low, the number over it" }],
+  full_side: ["Selling points", { left: "Left of the product", right: "Right of the product" }],
+  full_claim: ["Claim badge", { pill: "Pill", tab: "Square tab", ribbon: "Ribbon", bar: "Full-width bar" }],
+  full_chips: ["Point style", { pill: "Pills", tab: "Square tabs", bare: "Ticks, no plates" }],
+  full_cta: ["Call to action", { line: "A line over the number", bubble: "Speech bubble" }],
+  full_foot: ["Towns and website", { rows: "Two rows", line: "One line", band: "On a band" }],
+};
 
 /** What the ad can be about, into its picker: iPhones first (the maker's own), then the offer family's lines by group. */
 function fillSubjects() {
@@ -617,9 +635,20 @@ function buildPanel() {
     }
     design.appendChild(sec);
   }
+  {   // the full ad's own layout (rule 158), each choice lockable like any other
+    const sec = document.createElement("details"); sec.className = "mo-sec mo-full-only"; sec.open = true;
+    sec.innerHTML = `<summary>Layout</summary><p class="mo-note">Drawn with each new look; pick one to keep it.</p>`;
+    for (const k of Object.keys(FULL_LAYOUT)) {
+      const [label, names] = LAYOUT_NAMES[k], row = document.createElement("div"); row.className = "mo-set";
+      row.innerHTML = `<label>${label}<select data-key="${k}">${Object.keys(FULL_LAYOUT[k]).map(v => `<option value="${v}">${names[v] || v}</option>`).join("")}</select></label>
+        <button class="mo-lock" data-lock="${k}" aria-pressed="false" title="Lock: keep this when shuffling">&#128275;</button>`;
+      sec.appendChild(row);
+    }
+    design.appendChild(sec);
+  }
   design.addEventListener("change", e => {
     const k = e.target.dataset.key; if (!k) return;
-    const raw = e.target.value, sample = OPTIONS[k][0];
+    const raw = e.target.value, sample = (OPTIONS[k] || [""])[0];
     pushHistory();
     state.style[k] = typeof sample === "number" ? Number(raw) : raw;
     state.locked.add(k);                            // what you choose by hand stays put
@@ -663,7 +692,8 @@ function buildPanel() {
   $("mode").addEventListener("click", e => {
     const b = e.target.closest("[data-full]"); if (!b) return;
     const on = b.dataset.full === "1"; if (on === state.full) return;
-    state.full = on; save(); syncMode(); rebuild(); renderGallery(true);
+    // from Any look, the full ad of the look on screen (owner, 2026-11-18: "for every single video, I want a photo ad equivalent")
+    state.full = on; if (on) state.style.full_look = true; save(); syncMode(); rebuild(); renderGallery(true);
   });
   $("full-colours").addEventListener("click", e => {
     const b = e.target.closest("[data-colour]"); if (!b) return;
@@ -691,7 +721,42 @@ function buildPanel() {
     state.style = applyCopy(state.style, (Math.random() * 1e9) | 0, lk, true);
     save(); syncWords(); rebuild();
   });
-  $("f-area").addEventListener("input", debounce(e => {
+  // your area: a ZIP code becomes its town (the ad names the town); a ZIP or a town brings the towns nearby,
+  // to tap for the full ad's towns line, the suggested three filled in while that line is empty
+  const townsOf = () => String(state.style.feed_where || "").split(/\s*(?:•|,)\s*/).map(t => t.trim()).filter(Boolean);
+  const drawTowns = a => {
+    const box = $("area-towns"); state.areaTowns = a || null;
+    if (!a || !a.towns.length) { box.hidden = true; return; }
+    const on = new Set(townsOf().map(t => t.toUpperCase()));
+    $("area-towns-note").textContent = (a.zip ? `${a.zip} is ${a.city}, ${a.st}. ` : "") + "Towns nearby: tap up to 3 for the towns line";
+    $("area-chips").innerHTML = a.towns.map(t => `<button type="button" aria-pressed="${on.has(t.toUpperCase())}" data-town="${t.replace(/"/g, "&quot;")}">${t}</button>`).join("")
+      + `<button type="button" class="mo-link" data-suggest="1">Suggested</button>`;
+    box.hidden = false;
+  };
+  $("area-chips").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b || !state.areaTowns) return;
+    pushHistory();
+    let list = townsOf().map(t => t.toUpperCase());
+    if (b.dataset.suggest) list = state.areaTowns.suggested.map(t => t.toUpperCase());
+    else { const t = b.dataset.town.toUpperCase(); list = list.includes(t) ? list.filter(x => x !== t) : [...list, t].slice(-3); }
+    if (list.length) state.style.feed_where = list.join(" • "); else delete state.style.feed_where;
+    save(); syncWords(); drawTowns(state.areaTowns); rebuild();
+  });
+  const placeArea = async text => {
+    const a = await areaFrom(text).catch(() => null);
+    if (String($("f-area").value).trim() !== text && !(a && a.zip && $("f-area").value === a.city)) return;   // typed on since
+    if (!a) { if (/^\d{5}$/.test(text)) VH().toast("That ZIP code could not be placed. Try your city's name."); drawTowns(null); return; }
+    if (!state.style.feed_where && a.suggested.length) { state.style.feed_where = a.suggested.map(t => t.toUpperCase()).join(" • "); save(); syncWords(); rebuild(); }
+    drawTowns(a);
+    return a;
+  };
+  $("f-area").addEventListener("focus", e => { const v = e.target.value.trim(); if (!state.areaTowns && v.length >= 2) placeArea(v); });
+  $("f-area").addEventListener("input", debounce(async e => {
+    const typed = e.target.value.trim();
+    if (/^\d{5}$/.test(typed)) {                              // a ZIP code: its town is what the ad names
+      const a = await placeArea(typed); if (!a) return;
+      e.target.value = a.city; state.style.zip = a.zip;
+    } else if (typed.length >= 3) placeArea(typed);
     const before = areaOf(state.style);
     state.style.area = e.target.value.slice(0, 30);
     const after = areaOf(state.style);
@@ -797,7 +862,7 @@ async function shuffle(all) {
   try {
     // the full ad's look is its number: New look gives it another, and lets the colours change with it
     // (colours picked by hand are picked again); the customer's own look underneath is left as it was
-    const base = state.full && !all ? (({ full_palette, ...rest }) => rest)(state.style) : state.style;
+    const base = state.full && !all ? (({ full_palette, full_look, ...rest }) => rest)(state.style) : state.style;   // the seed decides: a video look or the house's (rule 158)
     const plain = () => state.full && !all ? { ...base, seed: (Math.random() * 1e9) | 0 } : randomize(state.style, (Math.random() * 1e9) | 0, locked, pool, all);
     let found;
     try { found = $("strong-only").checked ? await strongSeed(base, locked, pool, all) : { st: plain(), fixes: [] }; }
@@ -988,6 +1053,10 @@ const SHELVES = [
   ...Object.entries(STUDIO).map(([id, g]) => ({ id: "studio-" + id, group: "Studio", label: g.label, backgrounds: g.backgrounds.filter(b => OPTIONS.background.includes(b)) })),
 ];
 const GALLERY_PAGE = 24, SHELF_MAX = 96, THUMB_MAX = 320;
+// the full ad's gallery (rule 158): the house's own looks, then every shelf of Any look, each look drawn as its
+// full ad (owner, 2026-11-18: "for every single video, I want a photo ad equivalent")
+const HOUSE_SHELF = { id: "house", group: "Full ad", label: "House looks", house: true };
+const shelvesNow = () => state.full ? [HOUSE_SHELF, ...SHELVES] : SHELVES;
 // A look keeps its engine, to play, only where it can be pointed at or with Play them all
 // on; anywhere else it stays a still until it is asked to move, so a long gallery stays
 // light on a phone.
@@ -1075,7 +1144,15 @@ async function shelfThumb(shelf, W, H, k, lock) {
   for (let tries = 0; tries < 3; tries++) {
     const seed = state.gallerySeed++;
     try {
+      if (shelf.house) {                              // the house's own look for this number
+        const st = { ...(({ full_palette, ...rest }) => rest)(state.style), seed, full_look: false };
+        await ensureSubject(st); return await thumb(fullOf(st), Math.round(W * k), Math.round(H * k), false);
+      }
       const st = shelfStyle(shelf, seed);
+      if (state.full) {                               // the look, as its full ad (its own pre-flight runs on the download)
+        const look = { ...st, full_look: true };
+        await ensureSubject(look); return await thumb(fullOf(look), Math.round(W * k), Math.round(H * k), lock, look);
+      }
       if (!await lookPasses(st)) continue;           // a look its own pre-flight would stop is passed over
       return await thumb(st, Math.round(W * k), Math.round(H * k), lock);
     }
@@ -1086,7 +1163,7 @@ async function shelfThumb(shelf, W, H, k, lock) {
 
 /** The look, still, as a button that uses it, with its caption under it. lock: using it
  *  keeps its vibe, so New look stays in the shelf it came from. */
-async function thumb(st, w, h, lock) {
+async function thumb(st, w, h, lock, src = null) {   // src: the video look a full ad was drawn from
   await readyToDraw(st);
   const ad = adFor(st, w, h);
   const b = document.createElement("button"); b.className = "mo-thumb"; b.title = "Use this look";
@@ -1095,8 +1172,9 @@ async function thumb(st, w, h, lock) {
   const ctx = c.getContext("2d");
   ad.stillAt(ctx);
   frame.appendChild(c); b.appendChild(frame);
-  const name = st.full ? fullName(st) : lookName(st), font = st.full ? "Full ad" : TYPE_VOICES[st.type_pair] ? TYPE_VOICES[st.type_pair].name + " type" : labelFor("font", st.font);
-  if (window.adLibrary) frame.appendChild(window.adLibrary.star("motion-" + st.seed, { name, save: () => { landTyping(); return saveLook(st.full ? { ...state.style, seed: st.seed, full_palette: st.full_colour } : { ...st, number: state.style.number, phones: state.style.phones }); } }));
+  const name = st.full ? fullName(st) : lookName(st), font = st.full ? (TYPE_VOICES[st.type_pair] && st.full_pair ? TYPE_VOICES[st.type_pair].name + " type · " : "") + "Full ad" : TYPE_VOICES[st.type_pair] ? TYPE_VOICES[st.type_pair].name + " type" : labelFor("font", st.font);
+  const use = () => st.full ? (src ? { ...src, number: state.style.number, phones: state.style.phones, full_look: true } : { ...state.style, seed: st.seed, full_palette: st.full_colour, full_look: false }) : { ...st, number: state.style.number, phones: state.style.phones };
+  if (window.adLibrary) frame.appendChild(window.adLibrary.star("motion-" + st.seed, { name, save: () => { landTyping(); return saveLook(use()); } }));
   b.insertAdjacentHTML("beforeend", `<span class="mo-cap"><b>${name}</b><small>${font}${st.full ? "" : " · " + labelFor("hook", st.hook)}</small></span>`);
   b.setAttribute("aria-label", `Use this look: ${name}, ${font}`);
   const th = { el: b, st, w, h, ad: keepAds() ? ad : null, ctx, t0: 0, lastT: 0, last: 0, hover: false, seen: false, moving: false };
@@ -1106,7 +1184,8 @@ async function thumb(st, w, h, lock) {
   b.addEventListener("focus", () => hover(true)); b.addEventListener("blur", () => hover(false));
   b.addEventListener("click", () => {
     pushHistory();
-    if (st.full) { state.style = { ...state.style, seed: st.seed, full_palette: st.full_colour }; save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }   // a full ad's look is its number and its colours
+    // a house full ad's look is its number and its colours; a video look's full ad is that look, worn (rule 158)
+    if (st.full) { state.style = use(); if (src && lock) { state.locked.add("vibe"); VIBE_AXES.forEach(a => state.locked.delete(a)); } save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
     state.style = { ...st, number: state.style.number, phones: state.style.phones };
     if (lock) { state.locked.add("vibe"); VIBE_AXES.forEach(a => state.locked.delete(a)); }   // New look stays in the shelf browsed
     save(); syncWords(); rebuild(); window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1193,15 +1272,13 @@ function thumbLoop(now) {
   requestAnimationFrame(thumbLoop);
 }
 
-const FULL_MAX = 48;                                  // the full ad's gallery: this many looks of it, at most
-const galleryDone = () => state.full ? state.galleryShown >= FULL_MAX : (state.galleryCat || "all") === "all" ? state.galleryShelf >= SHELVES.length : state.galleryShown >= SHELF_MAX;
+const galleryDone = () => (state.galleryCat || "all") === "all" ? state.galleryShelf >= shelvesNow().length : state.galleryShown >= SHELF_MAX;
 const nearEnd = () => { const e = $("gallery-end"); return e && e.getBoundingClientRect().top < innerHeight + 600; };
 
 /** The button under the gallery says how many the next batch adds, and goes at the end. */
 function syncMore() {
   const b = $("more"), row = state.galleryRow || 4;
-  const next = state.full ? Math.min(12, FULL_MAX - state.galleryShown)
-    : (state.galleryCat || "all") === "all" ? Math.min(SHELVES.length - state.galleryShelf, Math.ceil(GALLERY_PAGE / row)) * row
+  const next = (state.galleryCat || "all") === "all" ? Math.min(shelvesNow().length - state.galleryShelf, Math.ceil(GALLERY_PAGE / row)) * row
     : Math.min(GALLERY_PAGE, SHELF_MAX - state.galleryShown);
   b.hidden = galleryDone(); b.disabled = false; b.textContent = `Show ${next} more`;
 }
@@ -1230,23 +1307,10 @@ async function renderGallery(reset) {
   const shown = () => { $("looks-count").textContent = `${thumbs.length} shown`; };
   let made = 0;
   try {
-    if (state.full) {
-      // the full ad's gallery: this ad in other colours and arrangements, one look a number
-      let grid = g.querySelector(".mo-gallery");
-      if (!grid) { grid = document.createElement("div"); grid.className = "mo-gallery"; g.appendChild(grid); }
-      for (let i = 0; i < 12 && state.galleryShown < FULL_MAX; i++) {
-        const base = (({ full_palette, ...rest }) => rest)(state.style), seed = state.gallerySeed++;
-        let b = null;
-        try { await ensureSubject({ ...base, seed }); b = await thumb(fullOf({ ...base, seed }), Math.round(W * k), Math.round(H * k), false); }
-        catch (e) { console.warn("Full ad look " + seed + " skipped:", e); }
-        if (!live()) return;
-        if (b) { grid.appendChild(b); made++; shown(); }
-        state.galleryShown++;
-        await new Promise(r => setTimeout(r, 0));
-      }
-    } else if (cat === "all") {
-      while (made < GALLERY_PAGE && state.galleryShelf < SHELVES.length) {
-        const shelf = SHELVES[state.galleryShelf++];
+    if (cat === "all") {
+      const shelves = shelvesNow();
+      while (made < GALLERY_PAGE && state.galleryShelf < shelves.length) {
+        const shelf = shelves[state.galleryShelf++];
         if (shelf.group !== state.galleryGroup) { state.galleryGroup = shelf.group; g.insertAdjacentHTML("beforeend", `<h3 class="mo-shelf-grp">${shelf.group}</h3>`); }
         const sec = document.createElement("section"); sec.className = "mo-shelf";
         sec.innerHTML = `<header><h4>${shelf.label}</h4><button class="mo-link" data-cat="${shelf.id}">See all &rsaquo;</button></header><div class="mo-gallery"></div>`;
@@ -1260,7 +1324,7 @@ async function renderGallery(reset) {
         }
       }
     } else {
-      const shelf = SHELVES.find(s => s.id === cat);
+      const shelf = shelvesNow().find(s => s.id === cat) || SHELVES[0];
       let grid = g.querySelector(".mo-gallery");
       if (!grid) { grid = document.createElement("div"); grid.className = "mo-gallery"; g.appendChild(grid); }
       for (let i = 0; i < GALLERY_PAGE && state.galleryShown < SHELF_MAX; i++) {

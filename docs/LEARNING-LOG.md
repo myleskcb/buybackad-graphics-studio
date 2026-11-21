@@ -6417,3 +6417,56 @@ Auto-fix: main took two commits (the landing's pricing buttons on a fresh visit;
 iPhone, Delete account, payment in Safari). The code merged on its own; only the notes met. Main
 named its open items BF, which this branch gave the Type Lab, and BK to BP are taken on other
 branches, so they are BQ here, with a line saying so.
+
+## 2026-11-18 — the full ad's layout and the video looks, on rule 154's branch (DESIGN-LAW 158; claude/full-ad-looks-layout)
+
+Asked: compare PR #16 with the xenodochial branch on the same ads, then "rebuild it" on top.
+
+Done:
+  - Drew the same 24 seeds on `main`, PR #16 and xenodochial, each by its own code and still, and
+    measured the pictures (nearest neighbour in colour and in where the picture is busy). The two
+    branches had solved different halves: colour and fill there, look and layout here.
+  - Ported the layout into their `_layoutType` and the video looks into their `fullStyle`, keeping
+    their sticker, fills, marks, grounds, pre-flight and recipes.
+
+Found:
+  - The pre-flight reads every small line in one ink: lines on a sign, a bubble or a band need their own.
+  - A video palette's white words on a mid ground made the engine lay a heavy shade over the headline;
+    the pre-flight saw it reach the edges and the dark small lines sink in it. Fix the ink at the
+    source (near-black or white) and the shade is not needed.
+  - The engine's automatic scrim is wider than the house's table: pass the table's value.
+  - Rays and a sunburst are drawn every frame: lay them into the ground once, at rest.
+  - What a style table keeps to "plain" grounds must be kept off a video look's grounds too.
+  - A left-aligned headline's treatment reaches past its letters: stand the letters in by half the reach.
+  - A costly shape (bubble, band) must give way before the points fall out or the headline fails the
+    feed preview, not only when the product's band is short.
+  - A helper hidden in a pane cannot see scroll: drive galleries that start on view in a headless page.
+
+RESUME HERE: OPEN-ITEMS §BR. Then the owner's new styles: four LA, four beach and island, four of
+hand-made, Apple-style, commercial studio and avant-garde grounds.
+
+## 2026-11-18 — the house's own styles, and a ZIP code for Your area (DESIGN-LAW 159, 160; claude/full-ad-looks-layout)
+
+Asked: more of our own styles ("GTA or LA", "beach and island", "colorful", "hand generated / apple
+style / commercial style / avant garde"); a ZIP code with the towns nearby to pick; "mix and both?"
+
+Done:
+  - Twelve themes painted in code (style-grounds.js), three signs; 72 full ads through the pre-flight.
+  - geo.js reads the studio's own ZIP and place data; the towns chips; the language row renamed.
+
+Found:
+  - "GTA style" is a setting, not a property: draw LA's light and streets, never a game's logo,
+    lettering, characters or screens (rule 159). The same for "Apple style".
+  - A ground's colour can be read as a mark by the pre-flight's edge check: the engine's shade over a
+    bright stripe at the frame's edge. Lay a video look's shade into its ground.
+  - Leaves at the sides of a frame run behind its small lines: corners only.
+  - Screen-blend colour fields on a dark ground, or they go muddy.
+  - The studio's own town scoring puts the big city first (Long Beach got LOS ANGELES and ANAHEIM);
+    for a buyer's towns line, the neighbours first.
+  - A check that cycles through a list (vibes) samples other looks when the list grows: a failure it
+    then shows may be older than the change. Run the same look on the untouched code before fixing.
+  - A video look's small line may repeat its call to action: check the words against each other.
+
+RESUME HERE: OPEN-ITEMS §BS. The owner's eye on the twelve; then PR #14, the xenodochial branch and
+this branch land in that order.
+0f3c9e5e

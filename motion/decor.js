@@ -10,6 +10,7 @@
 // invitation) and never a deadline, a countdown or a price that is about to move.
 
 import { canvas, rrect, rng, lerp, clamp, prog, outCubic, outBack, outBounce, outQuint, lum, mix, rgba, fontCss, noiseTile, contrastOf, oklchOf } from "./engine.js";
+import { styleGround, styleBoard } from "./style-grounds.js";   // the owner's new styles (2026-11-18)
 
 const TAU = Math.PI * 2;
 // A loop that draws as many random values as the frame has pixels takes its own stream,
@@ -1208,7 +1209,7 @@ export function themeBoard(kind, w, h, s, p, st, r, extra, B) {
       B.rot = r.uniform(-3, 3) * Math.PI / 180;
       break;
     }
-    default: return null;
+    default: return styleBoard(kind, w, h, s, p, st, r, extra, B);   // the new styles' signs
   }
   return { c, ox, oy };
 }
@@ -1351,7 +1352,7 @@ export function themeGround(kind, x, st, p, W, H, sc, r) {
       x.fillStyle = "rgba(0,0,0,.12)"; for (const f of [.2, .5, .8]) { x.beginPath(); x.arc(W * .05, H * f, U * .018, 0, TAU); x.fill(); }
       grain(x, W, H, r, 10, .2); return true;
     }
-    default: return false;
+    default: return styleGround(kind, x, st, p, W, H, sc, r);   // the new styles' grounds
   }
 }
 

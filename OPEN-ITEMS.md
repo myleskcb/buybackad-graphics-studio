@@ -4393,3 +4393,69 @@ Missing or broken, for the owner:
 5. Stripe in test mode; a real card through the live checkout (the owner, with
    4242 4242 4242 4242 while in test mode); the contact address; the terms.
 
+## BR. 2026-11-18 — the full ad's layout varies, and it may wear any video look (DESIGN-LAW 158)
+
+(claude/full-ad-looks-layout, from claude/xenodochial-mccarthy-7bea6d at a89b25e2. It replaces PR #16,
+claude/ad-design-variety-cohesion-5a7836, which made the same changes on `main`'s full ad before rule 154.)
+
+The owner: the full ads "look shockingly similar to one another"; "I need text variety placements";
+"the video ads originally.. backgrounds.. patterns.. fonts.. arrangement/assortment of devices were
+really good"; "for every single video, I want a photo ad equivalent"; then, comparing the two branches,
+"rebuild it" on top of rule 154's.
+
+Done:
+- **The layout** (`FULL_LAYOUT`): alignment, the product's band middle, high or low, the points' side,
+  four claim badges, three point styles, two calls to action, three footers. Rule 154's stickers and
+  fills and rule 157's marks kept; a left-aligned card's mark stands on the number's right.
+- **Video looks on the full ad** (`fullStyle(…, { look })`), signs included, with the fixes rule 158
+  lists so each passes the pre-flight.
+- **The maker**: Any look to Full ad wears the look; the full gallery's shelves; New look's mix; Layout.
+- Measured: every one of 192 full ads (house looks and video looks, 24 in each of four sizes) passes
+  `fullBlockers` and the pre-flight; `full_ad_check`, `full_colour_check`, `full_type_check`,
+  `full_ad_studio_check`, `look_preflight_check`, `quick_ad_check` and `buylist_check` all clear, and
+  `full_style_check` after one fix (a wide frame's points fell out under the bubble and the band).
+- Measured on the comparison's 24 seeds (the same words and iPhones; nearest neighbour on the picture):
+  layout difference .26 in a square and .15 to .16 in a story (rule 154's branch .18 and .12, `main`
+  .08 and .10); pairs of ads alike in colour and layout at once 0 in a square and 1 to 3 in a story
+  (rule 154's 0 and 16, `main`'s 20 and 10); 22 to 23 layouts in 24 ads (rule 154's one). With the
+  maker's mix (a third of New looks a video look) 15 grounds and 15 treatments in 24.
+
+Open:
+1. **Not on `main`.** It sits on PR #14's branch (claude/ads-improvement-roadmap-7632c8), which now
+   holds the xenodochial branch: #14 lands first, then this. PR #16 is superseded and can be closed once this is up.
+2. **The weights are first guesses**: `FULL_LAYOUT`'s, and `VIDEO_SHARE` (35% of New looks wear a
+   video look). The owner likes the LA looks (the freeway sign, the palms): their share may go up.
+3. **Rule numbers**: these are 158 to 160, after PR #14's renumbering (the xenodochial branch's
+   146 to 149 are 154 to 157 there). The sound branch (claude/video-music-sfx-audit-3691d1) wrote its
+   rule as 147: check it against the merged list when it lands.
+4. **The recipes** (rule 145) draw the house's own look only: a recipe made from an older card could
+   lean to the video look nearest its card, not done.
+
+## BS. 2026-11-18 — the house's own styles, and a ZIP code for Your area (DESIGN-LAW 159, 160)
+
+(claude/full-ad-looks-layout, after §BR.)
+
+Done:
+- Twelve themes, two families (LA & coast, Art & studio), twelve painted grounds, three signs
+  (billboard, tiki plank, surfboard); 72 of 72 full ads clean through the pre-flight.
+- Your area takes a ZIP; the towns nearby as chips; Suggested; the language row renamed.
+- Checked: `full_ad_check`, `full_style_check`, `full_colour_check`, `full_type_check`,
+  `full_ad_studio_check`, `look_preflight_check`, `quick_ad_check`, `buylist_check` (after Surf shop's
+  plate was deepened: its names read 4.4:1), `audience_check`, `type_voices_check`; the maker's ZIP,
+  chips, Suggested and language row driven headless, no page errors.
+
+Open:
+1. **The owner's eye.** Built without seeing them on a phone: which of the twelve to keep, push or
+   drop is the owner's (a theme dropped from `THEMES` leaves nothing behind but its painter).
+2. **Look numbers moved.** Twelve more vibes change which vibe an old look number draws (as the 50
+   themes did when they came); a saved look keeps its own, as it always has.
+3. **The video audits** (`motion_audit.mjs`, `motion_palette_audit.mjs`) need `puppeteer-core`,
+   which this Mac does not have: the new palettes have not been through them.
+5. **`motion_cta_audit` fails one look, and the fault is older than this branch**: Shipping box,
+   4:5, seed 499897, number bottom-right, "stacked": the call to action sits .13 to .155 of the
+   number's size over it (floor .14), the same on the xenodochial branch's own code (a89b25e2). The
+   twelve new vibes changed which looks the audit's 300 seeds draw, and this one came up. The engine's
+   label placement for that look is the fix, not done here.
+4. **The ZIP stays in the maker.** It is not written back to the studio's brand kit (Easy Mode's
+   area dialog has its own), and the towns chips show only in the full mode.
+0f3c9e5e

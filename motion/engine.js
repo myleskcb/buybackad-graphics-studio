@@ -519,7 +519,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
 const BOARD_FACE = { freeway: "#006b3f", freeway_blue: "#1d4f9c", poster: null, bandit_yellow: "#ffd21a", bandit_white: "#f6f6f1",
   flyer: "#fbfaf5", neon_box: "#0c0618", marquee: "#fffaf0", store_sign: "plate", price_tag: null, chalkboard: "#24382f",
   receipt: "#fbfbf7", wanted_poster: "#e9d3a6", sticky_note: null, speech_bubble: "#ffffff", ticket_stub: "plate",
-  led_panel: "#0b0b0d", lightbox: "#ffffff", postcard: "#fffdf6" };
+  led_panel: "#0b0b0d", lightbox: "#ffffff", postcard: "#fffdf6", billboard: "#fbf7ee", tiki_plank: "#7a4a22", surfboard: "#fdfbf6" };
 function boardPalette(b, p) {
   let ink = b.ink;
   if (ink === "auto") ink = lum(p.plate) > .55 ? "#111111" : "#ffffff";
@@ -2205,10 +2205,13 @@ function ctaBadge(text, size, hot, face = "oswald") {
  *  (the photo ads' stack, DESIGN-LAW 115 and 120: one rhythm down the stack, and the strip
  *  wears the CTA's colour). rows: each chip's slice of the sprite, shadow included, cut on
  *  the middle of the gaps so a chip drawn on its own never repeats a neighbour's shadow. */
-export function perksSprite(items, fs, hot, align, row = false, face = "oswald", grad = false) {
-  const ink = contrastOf(hot, "#111111") >= contrastOf(hot, "#ffffff") ? "#111111" : "#ffffff";
-  const P = { ink, accent: ink, ground: hot, plate: hot, plate_ink: ink };
-  const sps = items.map(s => inkSprite(s, s.split("").map(() => ink), face, fs, .04, "flat", P, 0));
+export function perksSprite(items, fs, hot, align, row = false, face = "oswald", grad = false, look = {}) {
+  // look.shape (the full ad's points, rule 158): "pill" (as ever), "tab" (square-cornered plates) or "bare"
+  // (no plate: the tick in the call to action's colour, the words in look.ink on the ground itself)
+  const bare = look.shape === "bare" && !!look.ink;
+  const ink = bare ? look.ink : contrastOf(hot, "#111111") >= contrastOf(hot, "#ffffff") ? "#111111" : "#ffffff";
+  const P = bare ? { ink, accent: ink, ground: look.ground || hot, plate: hot, plate_ink: ink } : { ink, accent: ink, ground: hot, plate: hot, plate_ink: ink };
+  const sps = items.map(s => inkSprite(s, s.split("").map(() => ink), face, fs, .04, bare && lum(ink) >= .5 ? "shadow" : "flat", P, 0));
   const py = fs * .3, px = fs * .52, tick = fs * .62, tg = fs * .34;
   const asc = Math.max(...sps.map(sp => sp.asc)), h = asc * .92 + py * 2;
   const ws = sps.map(sp => px + tick + tg + sp.inkW + px), cw = Math.max(...ws);
@@ -2222,10 +2225,12 @@ export function perksSprite(items, fs, hot, align, row = false, face = "oswald",
     const w = ws[i];
     const rx = row ? cx : pad + (align === "r" ? cw - w : align === "c" ? (cw - w) / 2 : 0), ry = row ? pad : pad + i * (h + gap);
     cx += w + gap;
-    x.save(); x.shadowColor = "rgba(0,0,0,.32)"; x.shadowBlur = fs * .35; x.shadowOffsetY = fs * .1;
-    rrect(x, rx, ry, w, h, h / 2); x.fillStyle = grad ? fillGradient(x, 0, ry, 0, ry + h, hot, ink, 4.5) : hot; x.fill(); x.restore();
+    if (!bare) {
+      x.save(); x.shadowColor = "rgba(0,0,0,.32)"; x.shadowBlur = fs * .35; x.shadowOffsetY = fs * .1;
+      rrect(x, rx, ry, w, h, look.shape === "tab" ? h * .16 : h / 2); x.fillStyle = grad ? fillGradient(x, 0, ry, 0, ry + h, hot, ink, 4.5) : hot; x.fill(); x.restore();
+    }
     const tx = rx + px, ty = ry + h / 2;
-    x.save(); x.strokeStyle = ink; x.lineWidth = fs * .14; x.lineCap = "round"; x.lineJoin = "round";
+    x.save(); x.strokeStyle = bare ? hot : ink; x.lineWidth = fs * (bare ? .17 : .14); x.lineCap = "round"; x.lineJoin = "round";
     x.beginPath(); x.moveTo(tx + tick * .04, ty + tick * .02); x.lineTo(tx + tick * .37, ty + tick * .33); x.lineTo(tx + tick * .96, ty - tick * .34); x.stroke(); x.restore();
     x.drawImage(sp.c, tx + tick + tg - sp.pad, ry + py - sp.pad - sp.asc * .04 + (asc - sp.asc) * .46);
     if (row) {

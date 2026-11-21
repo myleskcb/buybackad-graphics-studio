@@ -72,6 +72,25 @@ export const THEME_PALETTES = {
   picnic_red: P("#f4efe6", "#ffffff", "#b3261e", "#1d6f42", "#b3261e", "#ffffff"),
   space_navy: P("#070b1f", "#243b8a", "#ffffff", "#ff9f1c", "#ff9f1c", "#070b1f"),
   money_green: P("#0f4d2e", "#2e8b57", "#f4f1de", "#d4af37", "#d4af37", "#0f4d2e"),
+  // LA & coast (owner, 2026-11-18: "GTA or LA style", "more beach and island style", "colorful of course"):
+  // LA's own light and streets, never one game's art (style-grounds.js)
+  golden_hour: P("#2b1846", "#ff9a5a", "#ffffff", "#ffd23f", "#c2362a", "#ffffff", { sky: ["#2b1846", "#7a2e6b", "#e2533f", "#ffb347"], sil: "#1a0d24", sun: "#ffe08a" }),
+  night_drive: P("#140b2e", "#3b1f6b", "#ffffff", "#ff3fa4", "#24d6ff", "#0b0620", { lamp: "#ffcf6b" }),
+  boulevard: P("#1b4965", "#ffb38a", "#ffffff", "#ffd166", "#c9184a", "#ffffff", { sky: ["#1b4965", "#3d7ea6", "#ffb38a", "#ffe5b4"], sil: "#0b2233", sun: "#fff1c1" }),
+  skyline_teal: P("#0f3d4c", "#ffb38a", "#ffffff", "#ffd166", "#c9184a", "#ffffff", { sky: ["#0f3d4c", "#1f7a8c", "#ffb38a", "#ffd6a5"], sil: "#0a1f29", sun: "#fff1c1" }),
+  tiki_wood: P("#7a4a22", "#b07a45", "#fff4dc", "#ffcc29", "#13806c", "#ffffff"),
+  surf_teal: P("#0b6e78", "#7fd1c7", "#ffffff", "#ffd23f", "#c73e25", "#ffffff", { stripes: ["#ffd23f", "#ff9f1c", "#ff5d3a", "#e63973"] }),
+  tropic_cream: P("#fff2dc", "#ffffff", "#123d2b", "#c92a3a", "#c92a3a", "#ffffff", { leaves: ["#0f5132", "#1f7a4d", "#2e9e62"] }),
+  cabana_peach: P("#ffd6a5", "#fff4e6", "#1d3557", "#c92a3a", "#1d3557", "#ffffff", { awning: "#e63946", sun: "#ffc93c" }),
+  // Art & studio: paint by hand, soft glows, a coloured studio, bold shapes
+  paint_paper: P("#fbf5ea", "#ffffff", "#1b1b1b", "#c92a3a", "#1d4ed8", "#ffffff", { paint: ["#ff4f5e", "#ffc93c", "#3d5afe", "#00c2a8", "#ff8fab"] }),
+  glow_white: P("#f5f5f7", "#ffffff", "#1d1d1f", "#6d28d9", "#1d1d1f", "#ffffff", { blobs: ["#ff6b9d", "#ffa94d", "#a78bfa", "#5ac8fa", "#34d399"] }),
+  glow_black: P("#050507", "#1c1c1e", "#ffffff", "#ffb340", "#ffffff", "#050507", { blobs: ["#ff375f", "#ff9f0a", "#bf5af2", "#0a84ff", "#30d158"] }),
+  studio_orange: P("#ff7a3d", "#ffc29e", "#1b0f0a", "#3a0ca3", "#1b0f0a", "#ffffff", { gels: ["#ff3c8e", "#ffd23f"] }),
+  studio_blue: P("#3049e8", "#9aa9ff", "#ffffff", "#ffe14d", "#ffe14d", "#111111", { gels: ["#00e5ff", "#ff4fd8"] }),
+  studio_pink: P("#ff5fa2", "#ffc2dc", "#2a0a1a", "#4c1d95", "#2a0a1a", "#ffffff", { gels: ["#ffd23f", "#7c3aed"] }),
+  avant_paper: P("#f2efe6", "#ffffff", "#111111", "#c92a3a", "#1d4ed8", "#ffffff", { shapes: ["#e63946", "#ffd23f", "#1d4ed8", "#111111", "#00a676"] }),
+  avant_black: P("#111111", "#2a2a2a", "#f2efe6", "#ffd23f", "#c92a3a", "#ffffff", { shapes: ["#e63946", "#ffd23f", "#1d4ed8", "#f2efe6", "#00a676"] }),
 };
 
 // The signs the new themes add (painted in decor.js themeBoard).
@@ -86,14 +105,21 @@ export const THEME_BOARDS = {
   led_panel: { ink: "#ffb000", accent: "#ff5a36", fx: ["glow", "flat"], pad: .5, fonts: ["press-start", "audiowide", "squada", "teko", "jetbrains"] },
   lightbox: { ink: "#111111", fx: ["flat", "shadow"], pad: .45 },
   postcard: { ink: "#1d3557", accent: "#e63946", fx: ["flat"], pad: .6, fonts: ["kaushan", "shrikhand", "young-serif", "knewave"] },
+  // the new styles' signs (style-grounds.js styleBoard)
+  billboard: { ink: "#111111", accent: "#d62828", fx: ["flat", "hard_shadow"], pad: .48 },
+  tiki_plank: { ink: "#fff4dc", accent: "#ffcc29", fx: ["flat", "hard_shadow"], pad: .5, fonts: ["shrikhand", "knewave", "luckiest", "rye"] },
+  surfboard: { ink: "#0b3c49", accent: "#d6452a", fx: ["flat"], pad: .55, fonts: ["shrikhand", "tilt-warp", "bungee", "luckiest"] },
 };
 
 // The grounds the new themes add (painted in decor.js themeGround). Each is a material a
 // theme paints in its own colours, so looks without a theme do not draw them.
 export const THEME_GROUNDS = ["blueprint", "newsprint", "kraft", "wood", "tile", "brushed_metal", "carbon", "gingham",
-  "starfield", "pegboard", "diamond_plate", "racing_stripes", "holo", "notebook"];
+  "starfield", "pegboard", "diamond_plate", "racing_stripes", "holo", "notebook",
+  // the new styles' (style-grounds.js styleGround)
+  "golden_hour", "night_drive", "boulevard", "skyline_poster", "bamboo", "surf_sunset", "tropical", "cabana",
+  "brush_paint", "soft_blobs", "color_studio", "bold_shapes"];
 
-export const THEME_FAMILIES = ["Signs & shops", "Retro & pop", "Clean & premium", "Night & neon", "Paper & print", "Street & sport", "Playful & bold"];
+export const THEME_FAMILIES = ["Signs & shops", "Retro & pop", "Clean & premium", "Night & neon", "Paper & print", "Street & sport", "Playful & bold", "LA & coast", "Art & studio"];
 
 const T = (family, label, spec) => ({ family, label, ...spec });
 
@@ -411,4 +437,81 @@ export const THEMES = {
     style: { accent_in: ["flip3d", "drop", "fly"], accent_idle: ["turntable", "float"], overlay: ["shimmer", "none"], sound_kit: ["trap", "funk"] },
     copy: { en: { headlines: ["TURN YOUR OLD IPHONE INTO CASH", "CASH FOR YOUR IPHONE", "WE BUY IPHONES"], tags: ["FREE QUOTE", "ALL MODELS"] },
       es: { headlines: ["CONVIERTE TU IPHONE EN EFECTIVO", "COMPRAMOS IPHONES"], tags: ["COTIZACIÓN GRATIS"] } } }),
+
+  // ----------------------------------------------------------------- LA & coast (2026-11-18)
+  golden_hour: T("LA & coast", "Golden hour freeway", { palettes: ["golden_hour"], backgrounds: ["golden_hour"],
+    fonts: ["big-shoulders", "sofia-xcond", "oswald", "bangers"], fx: ["outline_shadow", "hard_shadow", "double_outline", "long_shadow"], skew: [8, 12, 0],
+    boards: ["freeway", "none"], boardChance: .3, numbers: ["box", "pill", "sticker"],
+    accent_sets: ["la_sun", "cash"], accent_kinds: ["asset", "mix"], phone_angles: ["angled", "turntable"],
+    style: { grade: ["warm"], text_in: ["skew_slide", "slam", "slide"], accent_in: ["slide", "fly"] },
+    copy: { en: { headlines: ["CASH FOR YOUR IPHONE", "WE BUY IPHONES, {AREA}", "SELL YOUR IPHONE"], tags: ["LOCAL BUYER", "FREE QUOTE", "ALL MODELS"] },
+      es: { headlines: ["EFECTIVO POR TU IPHONE", "COMPRAMOS IPHONES"], tags: ["COMPRADOR LOCAL", "COTIZACIÓN GRATIS"] } } }),
+  night_drive: T("LA & coast", "Night drive", { palettes: ["night_drive"], backgrounds: ["night_drive"],
+    fonts: ["audiowide", "russo", "saira-cond", "tilt-warp"], fx: ["neon", "glow", "rgb_split", "outline"], boards: ["neon_box", "none"], boardChance: .3, numbers: ["neon", "outline", "pill"],
+    accent_sets: ["hype", "phones"], accent_kinds: ["symbol"], phone_angles: ["turntable", "angled"],
+    style: { grade: ["punchy"], overlay: ["light_leak", "none"], accent_in: ["zoom", "fade"] },
+    copy: { en: { headlines: ["CASH FOR YOUR IPHONE", "WE BUY IPHONES", "TURN YOUR IPHONE INTO CASH"], tags: ["TEXT US NOW", "FREE QUOTE"] },
+      es: { headlines: ["EFECTIVO POR TU IPHONE", "COMPRAMOS IPHONES"], tags: ["MÁNDANOS TEXTO"] } } }),
+  boulevard: T("LA & coast", "Boulevard billboard", { palettes: ["boulevard"], backgrounds: ["boulevard"],
+    fonts: ["oswald", "big-shoulders", "barlow-cond", "franklin"], fx: ["flat", "hard_shadow"], boards: ["billboard"], boardChance: 1, numbers: ["box", "pill", "ticket"],
+    accent_sets: ["la_sun", "local"], accent_kinds: ["asset", "mix"], phone_angles: ["flat", "angled"],
+    style: { grade: ["warm", "clean"], accent_in: ["drop", "slide"] },
+    copy: { en: { headlines: ["WE BUY IPHONES", "CASH FOR IPHONES, {AREA}", "SELL YOUR IPHONE HERE"], tags: ["LOCAL BUYER", "FREE QUOTE"] },
+      es: { headlines: ["COMPRAMOS IPHONES", "VENDE TU IPHONE AQUÍ"], tags: ["COMPRADOR LOCAL"] } } }),
+  skyline_poster: T("LA & coast", "Skyline poster", { palettes: ["skyline_teal"], backgrounds: ["skyline_poster"],
+    fonts: ["sofia-xcond", "big-shoulders", "oswald", "stencil"], fx: ["outline_shadow", "extrude", "double_outline"], skew: [8, 0], numbers: ["sticker", "pill", "box"],
+    accent_sets: ["la_sun", "cash"], accent_kinds: ["asset", "mix"], phone_angles: ["angled", "turntable"],
+    style: { grade: ["warm"], text_in: ["skew_slide", "slam"] },
+    copy: { en: { headlines: ["{AREA} BUYS IPHONES", "CASH FOR YOUR IPHONE", "WE BUY IPHONES"], tags: ["LOCAL BUYER", "ALL MODELS"] },
+      es: { headlines: ["COMPRAMOS IPHONES EN {AREA}", "EFECTIVO POR TU IPHONE"], tags: ["COMPRADOR LOCAL"] } } }),
+  tiki_bar: T("LA & coast", "Tiki bar", { palettes: ["tiki_wood"], backgrounds: ["bamboo"],
+    fonts: ["shrikhand", "knewave", "luckiest", "rye"], fx: ["extrude", "hard_shadow", "sticker"], boards: ["tiki_plank", "none"], boardChance: .6, numbers: ["tag", "pill", "sticker"],
+    accent_sets: ["sparkle", "la_sun"], accent_kinds: ["symbol", "mix"], phone_angles: ["angled", "turntable"],
+    style: { grade: ["warm"], accent_in: ["swing", "drop"], accent_idle: ["bob", "sway"] },
+    copy: { en: { headlines: ["ALOHA! WE BUY IPHONES", "CASH FOR YOUR IPHONE", "TRADE YOUR IPHONE FOR CASH"], tags: ["FREE QUOTE", "LOCAL BUYER"] },
+      es: { headlines: ["¡COMPRAMOS IPHONES!", "EFECTIVO POR TU IPHONE"], tags: ["COTIZACIÓN GRATIS"] } } }),
+  surf_shop: T("LA & coast", "Surf shop", { palettes: ["surf_teal"], backgrounds: ["surf_sunset"],
+    fonts: ["shrikhand", "tilt-warp", "bungee", "luckiest"], fx: ["extrude", "long_shadow", "sticker"], boards: ["surfboard", "none"], boardChance: .5, numbers: ["pill", "sticker"],
+    accent_sets: ["la_sun", "sparkle"], accent_kinds: ["symbol", "mix"], phone_angles: ["wide_spin", "angled"],
+    style: { accent_in: ["swing", "orbit"], accent_idle: ["bob", "float"] },
+    copy: { en: { headlines: ["SURF'S UP: CASH FOR IPHONES", "CASH FOR YOUR IPHONE", "WE BUY IPHONES"], tags: ["FREE QUOTE", "ALL MODELS"] },
+      es: { headlines: ["EFECTIVO POR TU IPHONE", "COMPRAMOS IPHONES"], tags: ["COTIZACIÓN GRATIS"] } } }),
+  tropical: T("LA & coast", "Tropical leaves", { palettes: ["tropic_cream"], backgrounds: ["tropical"],
+    fonts: ["shrikhand", "young-serif", "bricolage", "kaushan"], fx: ["flat", "sticker", "highlighter"], numbers: ["pill", "box"],
+    accent_sets: ["sparkle", "love"], accent_kinds: ["symbol"], phone_angles: ["turntable", "flat"],
+    style: { grade: ["clean", "warm"], accent_in: ["pop", "fade"] },
+    copy: { en: { headlines: ["FRESH CASH FOR YOUR IPHONE", "SELL YOUR IPHONE", "WE BUY IPHONES"], tags: ["FREE QUOTE", "CRACKED OK"] },
+      es: { headlines: ["VENDE TU IPHONE", "COMPRAMOS IPHONES"], tags: ["COTIZACIÓN GRATIS"] } } }),
+  cabana: T("LA & coast", "Cabana stripes", { palettes: ["cabana_peach"], backgrounds: ["cabana"],
+    fonts: ["bungee", "luckiest", "shrikhand", "oswald"], fx: ["sticker", "box", "hard_shadow"], numbers: ["pill", "ticket", "sticker"],
+    accent_sets: ["la_sun", "party"], accent_kinds: ["symbol", "mix"], phone_angles: ["angled", "flat"],
+    style: { grade: ["warm"], accent_in: ["drop", "pop"] },
+    copy: { en: { headlines: ["BEACH DAY CASH FOR IPHONES", "SELL YOUR IPHONE", "WE BUY IPHONES"], tags: ["FREE QUOTE", "LOCAL BUYER"] },
+      es: { headlines: ["VENDE TU IPHONE", "COMPRAMOS IPHONES"], tags: ["COMPRADOR LOCAL"] } } }),
+
+  // ----------------------------------------------------------------- Art & studio (2026-11-18)
+  hand_painted: T("Art & studio", "Hand painted", { palettes: ["paint_paper"], backgrounds: ["brush_paint"],
+    fonts: ["marker", "kalam", "knewave", "cabin-sketch"], fx: ["flat", "sticker", "highlighter"], numbers: ["underline", "pill", "plain"],
+    accent_sets: ["sparkle", "checks"], accent_kinds: ["symbol"], phone_angles: ["flat", "angled"],
+    style: { accent_in: ["pop", "swing"], text_in: ["wipe", "word_pop"] },
+    copy: { en: { headlines: ["WE BUY IPHONES", "CASH FOR YOUR IPHONE", "SELL YOUR OLD IPHONE"], tags: ["FREE QUOTE", "LOCAL BUYER"] },
+      es: { headlines: ["COMPRAMOS IPHONES", "VENDE TU IPHONE"], tags: ["COTIZACIÓN GRATIS"] } } }),
+  soft_glow: T("Art & studio", "Soft glow", { palettes: ["glow_white", "glow_black"], backgrounds: ["soft_blobs"],
+    fonts: ["satoshi", "clash", "unbounded", "sora", "bricolage"], fx: ["flat", "shadow", "glass"], numbers: ["pill", "box"],
+    accent_sets: ["premium", "sparkle"], accent_kinds: ["symbol"], phone_angles: ["turntable", "flat"],
+    style: { grade: ["clean"], accent_in: ["fade", "zoom"], text_in: ["rise_mask", "blur_in", "slide"] },
+    copy: { en: { headlines: ["YOUR OLD IPHONE, NOW CASH", "SELL YOUR IPHONE", "CASH FOR YOUR IPHONE"], tags: ["FREE QUOTE", "ALL MODELS"] },
+      es: { headlines: ["VENDE TU IPHONE", "EFECTIVO POR TU IPHONE"], tags: ["COTIZACIÓN GRATIS"] } } }),
+  studio_shoot: T("Art & studio", "Studio shoot", { palettes: ["studio_orange", "studio_blue", "studio_pink"], backgrounds: ["color_studio"],
+    fonts: ["unbounded", "clash", "bricolage", "schibsted"], fx: ["flat", "shadow", "extrude", "block3d"], numbers: ["pill", "box"],
+    accent_sets: ["premium", "cash"], accent_kinds: ["asset", "symbol"], phone_angles: ["turntable", "angled"],
+    style: { grade: ["clean", "punchy"], accent_in: ["zoom", "flip3d"] },
+    copy: { en: { headlines: ["CASH FOR YOUR IPHONE", "WE BUY IPHONES", "SELL YOUR IPHONE"], tags: ["FREE QUOTE", "ALL MODELS"] },
+      es: { headlines: ["EFECTIVO POR TU IPHONE", "COMPRAMOS IPHONES"], tags: ["COTIZACIÓN GRATIS"] } } }),
+  avant_garde: T("Art & studio", "Avant-garde", { palettes: ["avant_paper", "avant_black"], backgrounds: ["bold_shapes"],
+    fonts: ["unbounded", "gloock", "young-serif", "bricolage", "sofia-xcond"], fx: ["flat", "inline", "block3d", "cutout"], numbers: ["box", "plain", "outline"],
+    accent_sets: ["marks", "keys"], accent_kinds: ["symbol"], phone_angles: ["flat", "angled"],
+    style: { accent_in: ["slide", "stamp"], text_in: ["mask_words", "slide"] },
+    copy: { en: { headlines: ["WE BUY IPHONES", "IPHONE IN, CASH OUT", "SELL YOUR IPHONE"], tags: ["FREE QUOTE", "LOCAL BUYER"] },
+      es: { headlines: ["COMPRAMOS IPHONES", "VENDE TU IPHONE"], tags: ["COTIZACIÓN GRATIS"] } } }),
 };

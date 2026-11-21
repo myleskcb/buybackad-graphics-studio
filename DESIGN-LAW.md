@@ -6630,3 +6630,119 @@ family skin (`?skin=poster` keeps the old page; the studio is not touched).
   Only the main categories show at first; one with more than one line carries an arrow, and choosing
   it opens a row of its lines with their counts, in the owner's order (`motion/subjects.json`); one of
   a single line has no arrow. The review page's categories carry the same arrows.
+
+## 158. The full ad varies its layout by rule, and may wear any look the video maker has
+
+Added 2026-11-18. It widens rules 137, 154 and 157. The owner, of the full ads: "they look
+shockingly similar to one another", "I need text variety placements, and more than just copy
+variety"; "the video ads originally.. those backgrounds those patterns those text those fonts and
+those arrangement/assortment of devices were really good.. we regressed since we unified"; "for
+every single video, I want a photo ad equivalent.. and if it doesn't meet the requirement,
+modify or fix it". Rule 154 gave a seed its colours, ground, face and fills; every ad still stood
+in one centred stack (claim pill, headline, points left of the product, sticker right, call to
+action, number, footer), and none wore the video maker's 78 looks or its 19 signs.
+
+Measured first, on the same 24 seeds, words and iPhones (each branch's own code, its own still):
+`main` had 20 pairs of ads alike in colour and layout at once; rule 154's branch none in a square
+but 16 in a story, and one layout in 24; the full ad with a layout of its own (an earlier cut of
+this rule, on `main`'s house style) none and 24 layouts. Nearest-neighbour difference in layout
+(where the picture is busy, 24 x 24): .08, .18 and .27.
+
+- **The layout** (`FULL_LAYOUT`, `drawLayout`, `layoutOf`): drawn from the seed on a stream of its
+  own, so the colours, ground, face, product and words a seed drew do not move; or picked and
+  locked under Layout in the maker.
+  - One alignment to a card (rule 109): centred, or every block on the column's left edge. On the
+    left edge the headline's letters stand in by half their treatment's reach (`FX_REACH`), so
+    the outline, box or shadow meets the margin, not the letters.
+  - The product's band in the middle, high (the headline under it) or low (the number over it).
+  - The points left or right of the product, the sticker on its other side; a wide frame puts the
+    product on either side.
+  - The claim's badge a pill, a square tab, a ribbon or a bar the column's width (no glow on a
+    bar or a left-aligned card: it reached the frame's edge).
+  - The points as pills, square tabs or bare ticks on the ground (`perksSprite`'s `look.shape`).
+  - The call to action as a line, or in a speech bubble pointing down at the number.
+  - The towns and website in rows, on one line, or on a band of the plate's colour.
+  - Rule 154's sticker shapes and fills and rule 157's marks stay as they are. On a left-aligned
+    card the number has room only on its right: its mark stands there and points back (the
+    chevrons and the two arrows become one arrow, the phone and bubble pair the phone).
+- **What gives way, in order**, when the band or the headline is short (the headline under what
+  reads in a feed's preview, rule 138's 20px at a quarter size): the speech bubble becomes a line,
+  a banded or two-row footer one line; only then does the headline come down. A sign that would
+  cost the product its band is left off.
+- **A video look** (`videoLookFor`, `fullStyle(…, { look })`): "own" wears the look a style
+  carries, "seed" draws one, "mix" draws one for `VIDEO_SHARE` (35%) of seeds and the house's own
+  look for the rest; without `look` (every check and every recipe) the house's own, as before.
+  The look brings its palette, ground or pattern, type pair, treatment, colour use, number style
+  (to the nearest of the full ad's five), sign and arrangement (all 16 have a place). What makes
+  it a full ad holds: every element, the floors, the pre-flight. Fixed for it:
+  - its words read on its ground: a palette whose ink is under 4.5:1 (white on mid orange or teal)
+    takes near-black or white, and an accent word that would be lost there goes mono; otherwise
+    the engine laid a heavy shade over the headline that sank the small lines and reached the
+    frame's edges;
+  - its plate's words read on its plate (4.5:1);
+  - the shade round its headline is the house table's for its treatment (`scrim`);
+  - a ground that moves holds still (a sunburst's rays laid into the ground once, aurora a mesh,
+    drift bokeh): the shade the small lines get is laid on the ground once;
+  - what the style table keeps to the house's plain grounds (glass, an edge alone, bare figures)
+    goes on a plate: a video ground is never plain;
+  - a sign hangs without its posts, stakes and lamps (`FULL_BOARDS`, `BOARD_REACH`).
+- **The small lines' ink** (`bodyInkOf`): the palette's where it reads 4.5:1, else near-black or
+  white; `_evenGround` and the pre-flight read each line in its own ink and on what it stands on
+  (the ground, a sign, a bubble, a band).
+- **The maker**: from Any look, Full ad is the full ad of the look on screen; the gallery under
+  Full ad shows the house's own looks, then every shelf of Any look as full ads, and tapping one
+  wears that look; New look lets the seed decide; Layout picks and locks each choice, and shows
+  what the ad drew.
+
+Measured after: see OPEN-ITEMS §BR.
+
+## 159. The house paints its own styles: LA, the coast, and the studio's art, never a copy of a game or a brand
+
+Added 2026-11-18. The owner: "those custom made bgs we're not bad at all like the fwy signs or the
+palms"; "can we make more of our own custom styles?", "what about some GTA or LA style?", "or more
+beach and island style?", "colorful of course? we could make a hand generated / apple style /
+commercial style / avant garde backgrounds". The video maker had 50 themes and 14 LA looks; none
+tropical or island, and its art grounds were gradients, meshes and patterns.
+
+- **Twelve new themes in two families** (`motion/themes.js`; grounds and signs painted in
+  `motion/style-grounds.js`, handed on by `decor.js` `themeGround` and `themeBoard`):
+  - LA & coast: Golden hour freeway (a sky going gold over an overpass, palms), Night drive (a
+    boulevard of streetlights to the horizon, their light on the wet road), Boulevard billboard (a
+    new roadside billboard holds the headline), Skyline poster (downtown and palms under a big sky),
+    Tiki bar (bamboo, a new carved plank sign), Surf shop (sunset stripes out of a corner, waves),
+    Tropical leaves (monstera and palm fronds in the corners), Cabana stripes (an awning's scallops,
+    the sun).
+  - Art & studio: Hand painted (brush strokes, bristle marks, spatters on paper), Soft glow (fields
+    of colour melting together, light or dark: screen-blended on dark), Studio shoot (a coloured
+    sweep, two gel lights, a pool of light under the product), Avant-garde (a disc, a half moon, a
+    band, a block, a ring and dots in flat colour).
+- **The setting, never the property.** "GTA style" is drawn as LA's own light and streets: the
+  palms, the overpasses, the golden hour, neon, bold slanted lettering. No game's logo, its
+  lettering, its characters, its illustrated panels or its screens' words; no brand's wallpaper or
+  mark ("Apple style" is soft colour and glass, not Apple's art). An ad that reads as someone
+  else's property invites a complaint against the shop that posts it.
+- **Colourful, and still an ad**: every ground keeps its busiest marks toward the edges and the
+  corners and its middle calm; every palette's words read on its ground (the full ad's rule 158
+  fixes hold); the new signs hang without their posts and lamps on the full ad (`FULL_BOARDS`,
+  `BOARD_REACH`). Every one is a video look and, through rule 158, a full ad.
+- Measured: each theme in three seeds, square and story, as its full ad: 72 of 72 pass
+  `fullBlockers` and the pre-flight. Their shelves are "LA & coast" and "Art & studio" in both
+  galleries.
+
+## 160. Your area takes a ZIP code, and offers the towns nearby
+
+Added 2026-11-18. The owner: "and we should put zip code", "you can quick pick the cities
+surrounding if mentioned or you can take the suggested nearby locations / cities commonly
+associated"; and, of the language row, "mix and both? seems contradictory".
+
+- **A ZIP code in Your area** becomes its town (the ad names the town, never the ZIP), from the
+  studio's own data (`assets/geo`, 41,488 ZIP codes and 16,261 places), read by `motion/geo.js` only
+  when someone types or focuses the field. A town's name works too.
+- **The towns nearby** (up to nine, as chips under the field in the full mode): the buyer's own
+  first, then the smaller towns round it, then the big cities (the studio's rule: reviewers live in
+  the suburbs). Tapping one puts it on the full ad's towns line, three at most, the oldest giving
+  way; tapping it again takes it off; Suggested puts back the town and its two best neighbours,
+  which fill the line by themselves while it is empty. 90802 gives LONG BEACH, CARSON, TORRANCE.
+- **The language row says what each does**: English, Español, Bilingual (both on every ad), Varied
+  (some ads in English, some in Spanish, some bilingual). The values are as they were.
+0f3c9e5e
