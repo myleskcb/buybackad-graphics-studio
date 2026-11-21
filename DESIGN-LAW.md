@@ -6630,3 +6630,28 @@ family skin (`?skin=poster` keeps the old page; the studio is not touched).
   Only the main categories show at first; one with more than one line carries an arrow, and choosing
   it opens a row of its lines with their counts, in the owner's order (`motion/subjects.json`); one of
   a single line has no arrow. The review page's categories carry the same arrows.
+
+## 164. Sign in with Apple and Google: one pair of buttons, shown when configured, checked on the server
+
+Added 2026-11-19. The owner: "apple and google sign in ?".
+
+- **One pair, both dialogs.** `account.js` draws them (`pgfxAccount.social.mount`): the video
+  maker's dialog and the studio's (`app.js ensureGoogleAuth`, whose box keeps the id `#auth-google`)
+  put them above the email form, with an "or with email" line under them. Apple's button is drawn
+  by Apple's own script, as its guidelines want; Google's by Google's.
+- **Shown only when configured.** `/api/auth/config` says which: `APPLE_CLIENT_ID` (the web Services
+  ID) and `GOOGLE_CLIENT_ID`. Without them no script loads and nothing shows.
+- **Checked on the server.** Google's credential by Google's tokeninfo (as before); Apple's identity
+  token in `netlify/lib/appleid.mjs` against Apple's published keys: the signature, the issuer, the
+  audience (the Services ID, or the iPhone app's bundle ID `APPLE_BUNDLE_ID`), the expiry, a verified
+  email, and the nonce the page made. An unknown key id fetches Apple's keys once more first.
+- **One account per email.** Apple or Google with a confirmed email signs in to the account that
+  email already has, or opens one. An account opened this way has no password, and the email form
+  says to use its button.
+- **Not in the iPhone app's web view.** Google refuses it there, and the App Store requires Apple
+  wherever Google is offered, so the app shows neither until it signs in with Apple natively.
+- **Held by** `scripts/appleid_check.mjs` (a key pair standing in for Apple's: a good token, and the
+  forged, expired, wrong-app, wrong-nonce, unknown-key and unverified ones refused) and
+  `scripts/social_signin_check.mjs` (both dialogs against stand-ins for Apple, Google and the API).
+
+Not done here: OPEN-ITEMS §BR.
