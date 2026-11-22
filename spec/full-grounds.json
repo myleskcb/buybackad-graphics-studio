@@ -1,12 +1,12 @@
 {
-  "_doc": "What the full ad stands on (motion/fullad.js; DESIGN-LAW 137, 139; OPEN-ITEMS §BJ). The owner, 2026-11-18: \"how come none of the videos use a BG?\", \"also only have 1 BG style?!\", \"retire but bg counts.. so combo of assets and bg is best though\", \"with cars people like a good bg or sunset\", \"not low exposure dark images...\". A seed draws one of three kinds of ground: a photograph from its category's pool (graded toward the pair's ground, shaded only where words stand, moving slowly in the video), one of the engine's drawn scenes, or the house's own gradient. The shares below are each kind's part of a seed's draw where the line has that kind; a line with no photograph shares its photo part between the other two. A photograph is drawn only where its own colour keeps the card to two families with the pair the seed drew (rule 139); a hand-picked look or a ground_photo given in the style is never overruled. Photographs come only from the repository's own credited folders: never a dark one (mean relative luminance under .14 or more than 35% of it near black), never cash or money, never outer space for goods that are not about space, never a legible licence plate or a person's face. scripts/build_full_grounds.mjs --measure reads each photograph's brightness and colour into 'photos'; the generator writes motion/full-grounds.js (the site cannot read spec/); --check fails a stale module or a pooled photograph that is missing, unmeasured, dark or uncredited. Pools are by the lines' categories (motion/subjects.json 'cat'); the iPhone line is 'phones'. 2026-11-18 (rule 154; the owner: \"still not enough colors, gradients, pattern fill, or other ways instead of colors\", \"a lot of these are the same thing with 5% variety or difference\"): a fifth kind, the house patterns and textures (pattern: tone-on-tone marks in the ground’s own colour, motion/decor.js FULL_PATTERNS), and five more of the pair’s own gradients (a conic sweep, a sunset, a hard diagonal split, a two-corner duotone, an arch blocked in behind the product). The photograph keeps the largest share. 2026-11-19 (the owner, of the home page's wall: \"no pattern fills and only 1 gradient multi color\", asked, \"Show more of them\"; \"these are all so dark\"): the photograph's share 0.3 to 0.24, a scene's 0.12 to 0.1 and the house's 0.14 to 0.12; a gradient's and a pattern's 0.22 to 0.27 each. A photograph is still a quarter of the grounds (\"retire but bg counts\").",
-  "version": "2026-11-19",
+  "_doc": "What the full ad stands on (motion/fullad.js; DESIGN-LAW 137, 139; OPEN-ITEMS §BJ). The owner, 2026-11-18: \"how come none of the videos use a BG?\", \"also only have 1 BG style?!\", \"retire but bg counts.. so combo of assets and bg is best though\", \"with cars people like a good bg or sunset\", \"not low exposure dark images...\". A seed draws one of three kinds of ground: a photograph from its category's pool (graded toward the pair's ground, shaded only where words stand, moving slowly in the video), one of the engine's drawn scenes, or the house's own gradient. The shares below are each kind's part of a seed's draw where the line has that kind; a line with no photograph shares its photo part between the other two. A photograph is drawn only where its own colour keeps the card to two families with the pair the seed drew (rule 139); a hand-picked look or a ground_photo given in the style is never overruled. Photographs come only from the repository's own credited folders: never a dark one (mean relative luminance under .14 or more than 35% of it near black), never cash or money, never outer space for goods that are not about space, never a legible licence plate or a person's face. scripts/build_full_grounds.mjs --measure reads each photograph's brightness and colour into 'photos'; the generator writes motion/full-grounds.js (the site cannot read spec/); --check fails a stale module or a pooled photograph that is missing, unmeasured, dark or uncredited. Pools are by the lines' categories (motion/subjects.json 'cat'); the iPhone line is 'phones'. 2026-11-18 (rule 154; the owner: \"still not enough colors, gradients, pattern fill, or other ways instead of colors\", \"a lot of these are the same thing with 5% variety or difference\"): a fifth kind, the house patterns and textures (pattern: tone-on-tone marks in the ground’s own colour, motion/decor.js FULL_PATTERNS), and five more of the pair’s own gradients (a conic sweep, a sunset, a hard diagonal split, a two-corner duotone, an arch blocked in behind the product). The photograph keeps the largest share. 2026-11-19 (the owner, of the home page's wall: \"no pattern fills and only 1 gradient multi color\", asked, \"Show more of them\"; \"these are all so dark\"): the photograph's share 0.3 to 0.24, a scene's 0.12 to 0.1 and the house's 0.14 to 0.12; a gradient's and a pattern's 0.22 to 0.27 each. A photograph is still a quarter of the grounds (\"retire but bg counts\"). 2026-11-21 (the owner: \"Where are the background images? None of these have background images\", \"background images are pretty important here\"): the photo share rises to .4, and to .55 where the ad's area is in a metro with its own photographs (places: assets/bg-free, public domain and CC0 only, from scripts/fetch_free_photos.mjs, read by eye, imported by scripts/import_free_photos.mjs); a photograph is laid under the words in one of five treatments (fullad.js PHOTO_TREATS: grade, tint, duotone, wash, pattern); line_patterns are the grounds painted for a line's own goods (decor.js: cards, slabs, binder, foil, stitch, pixels, pads, crt, coins, reeded, road, tread), drawn for that line in .65 of its pattern share.",
+  "version": "2026-11-21",
   "shares": {
-    "photo": 0.24,
-    "scene": 0.1,
-    "gradient": 0.27,
-    "pattern": 0.27,
-    "house": 0.12
+    "photo": 0.4,
+    "scene": 0.08,
+    "gradient": 0.2,
+    "pattern": 0.22,
+    "house": 0.1
   },
   "house": [
     "radial",
@@ -32,7 +32,10 @@
       "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
       "assets/bg-web/wallpaper-lake-tahoe-1.jpg",
       "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
-      "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg"
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+      "assets/bg-free/roads-14.jpg",
+      "assets/bg-free/roads-16.jpg",
+      "assets/bg-free/roads-10.jpg"
     ],
     "gaming": [
       "assets/bg-web/rooms-desk-setup-1.jpg",
@@ -46,7 +49,10 @@
       "assets/bg-web/macbook-macbook-on-desk-2.jpg",
       "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
       "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
-      "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg"
+      "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+      "assets/bg-free/roads-14.jpg",
+      "assets/bg-free/roads-16.jpg",
+      "assets/bg-free/roads-10.jpg"
     ],
     "computers": [
       "assets/bg-web/macbook-macbook-on-desk-1.jpg",
@@ -58,7 +64,10 @@
       "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
       "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
       "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
-      "assets/bg-web/macbook-macbook-on-desk-1.jpg"
+      "assets/bg-web/macbook-macbook-on-desk-1.jpg",
+      "assets/bg-free/roads-14.jpg",
+      "assets/bg-free/roads-16.jpg",
+      "assets/bg-free/roads-10.jpg"
     ],
     "cameras": [
       "assets/bg-web/wallpaper-emerald-bay-lake-tahoe-2.jpg",
@@ -66,22 +75,34 @@
       "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
       "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
       "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
-      "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg"
+      "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+      "assets/bg-free/roads-14.jpg",
+      "assets/bg-free/roads-16.jpg",
+      "assets/bg-free/roads-10.jpg"
     ],
     "gold": [
       "assets/bg-web/gold-gold-jewelry-display-1.jpg",
       "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
       "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
-      "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg"
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+      "assets/bg-free/gold-6.jpg",
+      "assets/bg-free/gold-7.jpg",
+      "assets/bg-free/gold-10.jpg"
     ],
     "silver": [
       "assets/bg-web/coins-coin-collection-album-1.jpg",
       "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
-      "assets/bg-web/wallpaper-lake-tahoe-1.jpg"
+      "assets/bg-web/wallpaper-lake-tahoe-1.jpg",
+      "assets/bg-free/coins-4.jpg",
+      "assets/bg-free/coins-7.jpg",
+      "assets/bg-free/coins-11.jpg"
     ],
     "coins": [
       "assets/bg-web/coins-coin-collection-album-1.jpg",
-      "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg"
+      "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
+      "assets/bg-free/coins-4.jpg",
+      "assets/bg-free/coins-7.jpg",
+      "assets/bg-free/coins-11.jpg"
     ],
     "cars": [
       "assets/bg-web/wallpaper-golden-gate-bridge-sunset-3.jpg",
@@ -93,7 +114,21 @@
       "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
       "assets/bg-web/wallpaper-lake-tahoe-1.jpg",
       "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
-      "assets/bg-web/wallpaper-emerald-bay-lake-tahoe-2.jpg"
+      "assets/bg-web/wallpaper-emerald-bay-lake-tahoe-2.jpg",
+      "assets/bg-free/geo-inland-empire-3.jpg",
+      "assets/bg-free/geo-inland-empire-4.jpg",
+      "assets/bg-free/geo-inland-empire-5.jpg",
+      "assets/bg-free/geo-phoenix-8.jpg",
+      "assets/bg-free/geo-phoenix-9.jpg",
+      "assets/bg-free/roads-10.jpg",
+      "assets/bg-free/roads-14.jpg",
+      "assets/bg-free/roads-16.jpg",
+      "assets/bg-free/roads-17.jpg",
+      "assets/bg-free/roads-18.jpg",
+      "assets/bg-free/roads-23.jpg",
+      "assets/bg-free/roads-26.jpg",
+      "assets/bg-free/roads-27.jpg",
+      "assets/bg-free/roads-28.jpg"
     ],
     "strips": [],
     "pokemon": [
@@ -1692,6 +1727,1050 @@
       "hue": null,
       "C": 0,
       "share": 0.05
+    },
+    "assets/bg-free/coins-4.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.216,
+      "dark": 0.17,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-free/coins-7.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.233,
+      "dark": 0.045,
+      "hue": 35,
+      "C": 0.092,
+      "share": 0.3
+    },
+    "assets/bg-free/coins-11.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.209,
+      "dark": 0.033,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/gold-6.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.335,
+      "dark": 0.023,
+      "hue": 78,
+      "C": 0.099,
+      "share": 0.34
+    },
+    "assets/bg-free/gold-7.jpg": {
+      "w": 1920,
+      "h": 1279,
+      "L": 0.286,
+      "dark": 0.021,
+      "hue": 223,
+      "C": 0.099,
+      "share": 0.78
+    },
+    "assets/bg-free/geo-los-angeles-1.jpg": {
+      "w": 2000,
+      "h": 1500,
+      "L": 0.299,
+      "dark": 0.067,
+      "hue": 255,
+      "C": 0.112,
+      "share": 0.43
+    },
+    "assets/bg-free/geo-los-angeles-2.jpg": {
+      "w": 2000,
+      "h": 1500,
+      "L": 0.228,
+      "dark": 0.014,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-los-angeles-3.jpg": {
+      "w": 2000,
+      "h": 1333,
+      "L": 0.308,
+      "dark": 0.061,
+      "hue": 253,
+      "C": 0.106,
+      "share": 0.22
+    },
+    "assets/bg-free/geo-los-angeles-4.jpg": {
+      "w": 2000,
+      "h": 1500,
+      "L": 0.324,
+      "dark": 0.114,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-los-angeles-5.jpg": {
+      "w": 2000,
+      "h": 1500,
+      "L": 0.242,
+      "dark": 0.084,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg-free/geo-los-angeles-6.jpg": {
+      "w": 2000,
+      "h": 1125,
+      "L": 0.308,
+      "dark": 0.026,
+      "hue": 245,
+      "C": 0.153,
+      "share": 1
+    },
+    "assets/bg-free/geo-los-angeles-7.jpg": {
+      "w": 2000,
+      "h": 1127,
+      "L": 0.306,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-los-angeles-8.jpg": {
+      "w": 2000,
+      "h": 1127,
+      "L": 0.308,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-los-angeles-11.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.373,
+      "dark": 0.248,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-free/geo-los-angeles-12.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.219,
+      "dark": 0.077,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-los-angeles-13.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.269,
+      "dark": 0.081,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/bg-free/geo-los-angeles-15.jpg": {
+      "w": 1920,
+      "h": 1275,
+      "L": 0.341,
+      "dark": 0.053,
+      "hue": 149,
+      "C": 0.095,
+      "share": 0.37
+    },
+    "assets/bg-free/geo-los-angeles-16.jpg": {
+      "w": 1920,
+      "h": 1082,
+      "L": 0.325,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-los-angeles-17.jpg": {
+      "w": 1920,
+      "h": 1082,
+      "L": 0.251,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-los-angeles-18.jpg": {
+      "w": 1920,
+      "h": 1082,
+      "L": 0.282,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-los-angeles-19.jpg": {
+      "w": 1920,
+      "h": 849,
+      "L": 0.28,
+      "dark": 0.079,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-new-york-5.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.171,
+      "dark": 0.163,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-new-york-7.jpg": {
+      "w": 1920,
+      "h": 1342,
+      "L": 0.149,
+      "dark": 0.303,
+      "hue": null,
+      "C": 0,
+      "share": 0.11
+    },
+    "assets/bg-free/geo-new-york-10.jpg": {
+      "w": 1920,
+      "h": 1226,
+      "L": 0.247,
+      "dark": 0.254,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/bg-free/geo-new-york-11.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.187,
+      "dark": 0.285,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-free/geo-chicago-1.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.306,
+      "dark": 0.044,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-free/geo-chicago-5.jpg": {
+      "w": 1440,
+      "h": 1920,
+      "L": 0.27,
+      "dark": 0.197,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/bg-free/geo-chicago-8.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.225,
+      "dark": 0.233,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-chicago-10.jpg": {
+      "w": 1920,
+      "h": 1281,
+      "L": 0.286,
+      "dark": 0.055,
+      "hue": 250,
+      "C": 0.125,
+      "share": 0.35
+    },
+    "assets/bg-free/geo-dallas-4.jpg": {
+      "w": 1920,
+      "h": 1549,
+      "L": 0.297,
+      "dark": 0.036,
+      "hue": 149,
+      "C": 0.1,
+      "share": 0.42
+    },
+    "assets/bg-free/geo-dallas-5.jpg": {
+      "w": 1920,
+      "h": 806,
+      "L": 0.284,
+      "dark": 0.09,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-dallas-6.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.346,
+      "dark": 0.137,
+      "hue": 243,
+      "C": 0.089,
+      "share": 0.17
+    },
+    "assets/bg-free/geo-houston-2.jpg": {
+      "w": 1920,
+      "h": 1281,
+      "L": 0.258,
+      "dark": 0.065,
+      "hue": 243,
+      "C": 0.099,
+      "share": 0.17
+    },
+    "assets/bg-free/geo-houston-3.jpg": {
+      "w": 1920,
+      "h": 1256,
+      "L": 0.202,
+      "dark": 0.038,
+      "hue": 260,
+      "C": 0.186,
+      "share": 0.75
+    },
+    "assets/bg-free/geo-houston-4.jpg": {
+      "w": 1920,
+      "h": 1260,
+      "L": 0.21,
+      "dark": 0.044,
+      "hue": 256,
+      "C": 0.143,
+      "share": 0.78
+    },
+    "assets/bg-free/geo-houston-5.jpg": {
+      "w": 1920,
+      "h": 1271,
+      "L": 0.187,
+      "dark": 0.022,
+      "hue": 260,
+      "C": 0.186,
+      "share": 0.33
+    },
+    "assets/bg-free/geo-houston-6.jpg": {
+      "w": 1920,
+      "h": 1000,
+      "L": 0.264,
+      "dark": 0.13,
+      "hue": null,
+      "C": 0,
+      "share": 0.05
+    },
+    "assets/bg-free/geo-atlanta-2.jpg": {
+      "w": 1920,
+      "h": 840,
+      "L": 0.331,
+      "dark": 0.068,
+      "hue": null,
+      "C": 0,
+      "share": 0.11
+    },
+    "assets/bg-free/geo-atlanta-3.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.267,
+      "dark": 0.002,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-atlanta-8.jpg": {
+      "w": 1920,
+      "h": 1275,
+      "L": 0.373,
+      "dark": 0.18,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-atlanta-10.jpg": {
+      "w": 1920,
+      "h": 1299,
+      "L": 0.364,
+      "dark": 0.11,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-washington-2.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.176,
+      "dark": 0.258,
+      "hue": 250,
+      "C": 0.086,
+      "share": 0.19
+    },
+    "assets/bg-free/geo-washington-4.jpg": {
+      "w": 1920,
+      "h": 823,
+      "L": 0.18,
+      "dark": 0.085,
+      "hue": 252,
+      "C": 0.15,
+      "share": 0.54
+    },
+    "assets/bg-free/geo-washington-5.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.483,
+      "dark": 0.036,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-washington-6.jpg": {
+      "w": 1920,
+      "h": 996,
+      "L": 0.278,
+      "dark": 0.057,
+      "hue": 228,
+      "C": 0.091,
+      "share": 0.27
+    },
+    "assets/bg-free/geo-washington-7.jpg": {
+      "w": 1506,
+      "h": 1920,
+      "L": 0.185,
+      "dark": 0.198,
+      "hue": null,
+      "C": 0,
+      "share": 0.13
+    },
+    "assets/bg-free/geo-washington-8.jpg": {
+      "w": 1920,
+      "h": 1286,
+      "L": 0.278,
+      "dark": 0.226,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-philadelphia-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.223,
+      "dark": 0.221,
+      "hue": null,
+      "C": 0,
+      "share": 0.13
+    },
+    "assets/bg-free/geo-philadelphia-3.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.176,
+      "dark": 0.002,
+      "hue": 258,
+      "C": 0.126,
+      "share": 0.35
+    },
+    "assets/bg-free/geo-philadelphia-5.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.418,
+      "dark": 0.003,
+      "hue": 143,
+      "C": 0.097,
+      "share": 0.48
+    },
+    "assets/bg-free/geo-philadelphia-11.jpg": {
+      "w": 1920,
+      "h": 1272,
+      "L": 0.519,
+      "dark": 0.078,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-miami-1.jpg": {
+      "w": 1920,
+      "h": 810,
+      "L": 0.421,
+      "dark": 0.029,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-miami-2.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.24,
+      "dark": 0.02,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-miami-4.jpg": {
+      "w": 1920,
+      "h": 964,
+      "L": 0.357,
+      "dark": 0.012,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-miami-5.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.216,
+      "dark": 0.059,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-miami-7.jpg": {
+      "w": 1920,
+      "h": 1272,
+      "L": 0.303,
+      "dark": 0.035,
+      "hue": 251,
+      "C": 0.099,
+      "share": 0.21
+    },
+    "assets/bg-free/geo-miami-8.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.46,
+      "dark": 0.038,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-free/geo-miami-10.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.223,
+      "dark": 0.152,
+      "hue": 259,
+      "C": 0.111,
+      "share": 0.31
+    },
+    "assets/bg-free/geo-phoenix-1.jpg": {
+      "w": 1920,
+      "h": 1406,
+      "L": 0.261,
+      "dark": 0.121,
+      "hue": 238,
+      "C": 0.113,
+      "share": 0.48
+    },
+    "assets/bg-free/geo-phoenix-8.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.287,
+      "dark": 0.112,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-phoenix-9.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.178,
+      "dark": 0.078,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-boston-1.jpg": {
+      "w": 1920,
+      "h": 960,
+      "L": 0.177,
+      "dark": 0.06,
+      "hue": 68,
+      "C": 0.108,
+      "share": 0.21
+    },
+    "assets/bg-free/geo-boston-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.332,
+      "dark": 0.014,
+      "hue": 237,
+      "C": 0.087,
+      "share": 0.3
+    },
+    "assets/bg-free/geo-boston-3.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.175,
+      "dark": 0,
+      "hue": 243,
+      "C": 0.093,
+      "share": 0.56
+    },
+    "assets/bg-free/geo-boston-7.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.206,
+      "dark": 0.081,
+      "hue": 256,
+      "C": 0.117,
+      "share": 0.45
+    },
+    "assets/bg-free/geo-boston-8.jpg": {
+      "w": 1920,
+      "h": 1469,
+      "L": 0.294,
+      "dark": 0.03,
+      "hue": 247,
+      "C": 0.133,
+      "share": 0.26
+    },
+    "assets/bg-free/geo-boston-9.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.185,
+      "dark": 0.026,
+      "hue": 248,
+      "C": 0.085,
+      "share": 0.23
+    },
+    "assets/bg-free/geo-boston-10.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.223,
+      "dark": 0.301,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-free/geo-inland-empire-3.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.231,
+      "dark": 0.028,
+      "hue": null,
+      "C": 0,
+      "share": 0.11
+    },
+    "assets/bg-free/geo-inland-empire-4.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.38,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0.08
+    },
+    "assets/bg-free/geo-inland-empire-5.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.267,
+      "dark": 0.003,
+      "hue": 243,
+      "C": 0.095,
+      "share": 0.31
+    },
+    "assets/bg-free/geo-inland-empire-6.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.242,
+      "dark": 0.015,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-san-francisco-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.251,
+      "dark": 0.107,
+      "hue": 254,
+      "C": 0.093,
+      "share": 0.2
+    },
+    "assets/bg-free/geo-san-francisco-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.227,
+      "dark": 0.031,
+      "hue": 253,
+      "C": 0.107,
+      "share": 0.26
+    },
+    "assets/bg-free/geo-san-francisco-4.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.198,
+      "dark": 0.156,
+      "hue": 250,
+      "C": 0.1,
+      "share": 0.35
+    },
+    "assets/bg-free/geo-san-francisco-8.jpg": {
+      "w": 1920,
+      "h": 1187,
+      "L": 0.161,
+      "dark": 0.276,
+      "hue": 255,
+      "C": 0.114,
+      "share": 0.31
+    },
+    "assets/bg-free/geo-detroit-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.29,
+      "dark": 0.008,
+      "hue": null,
+      "C": 0,
+      "share": 0.14
+    },
+    "assets/bg-free/geo-detroit-2.jpg": {
+      "w": 1920,
+      "h": 983,
+      "L": 0.445,
+      "dark": 0.001,
+      "hue": 245,
+      "C": 0.112,
+      "share": 0.8
+    },
+    "assets/bg-free/geo-detroit-3.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.384,
+      "dark": 0.038,
+      "hue": null,
+      "C": 0,
+      "share": 0.12
+    },
+    "assets/bg-free/geo-detroit-4.jpg": {
+      "w": 1920,
+      "h": 1334,
+      "L": 0.424,
+      "dark": 0.087,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-seattle-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.256,
+      "dark": 0.035,
+      "hue": 252,
+      "C": 0.088,
+      "share": 0.18
+    },
+    "assets/bg-free/geo-seattle-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.336,
+      "dark": 0.178,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-seattle-8.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.266,
+      "dark": 0.017,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-seattle-11.jpg": {
+      "w": 1920,
+      "h": 960,
+      "L": 0.317,
+      "dark": 0.209,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-free/geo-seattle-12.jpg": {
+      "w": 1920,
+      "h": 1104,
+      "L": 0.412,
+      "dark": 0.089,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-seattle-13.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.303,
+      "dark": 0.033,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg-free/geo-tampa-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.239,
+      "dark": 0.087,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-tampa-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.286,
+      "dark": 0.004,
+      "hue": null,
+      "C": 0,
+      "share": 0.07
+    },
+    "assets/bg-free/geo-tampa-6.jpg": {
+      "w": 1920,
+      "h": 1279,
+      "L": 0.2,
+      "dark": 0.145,
+      "hue": null,
+      "C": 0,
+      "share": 0.05
+    },
+    "assets/bg-free/geo-tampa-7.jpg": {
+      "w": 1445,
+      "h": 1920,
+      "L": 0.248,
+      "dark": 0.073,
+      "hue": 249,
+      "C": 0.123,
+      "share": 0.34
+    },
+    "assets/bg-free/geo-san-diego-1.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.198,
+      "dark": 0.004,
+      "hue": null,
+      "C": 0,
+      "share": 0.11
+    },
+    "assets/bg-free/geo-san-diego-2.jpg": {
+      "w": 1409,
+      "h": 1920,
+      "L": 0.252,
+      "dark": 0.032,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-san-diego-3.jpg": {
+      "w": 1920,
+      "h": 1255,
+      "L": 0.24,
+      "dark": 0.066,
+      "hue": 252,
+      "C": 0.123,
+      "share": 0.21
+    },
+    "assets/bg-free/geo-san-diego-5.jpg": {
+      "w": 1920,
+      "h": 1542,
+      "L": 0.243,
+      "dark": 0.135,
+      "hue": 264,
+      "C": 0.14,
+      "share": 0.47
+    },
+    "assets/bg-free/geo-denver-1.jpg": {
+      "w": 1920,
+      "h": 1277,
+      "L": 0.234,
+      "dark": 0.03,
+      "hue": 79,
+      "C": 0.098,
+      "share": 0.16
+    },
+    "assets/bg-free/geo-denver-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.291,
+      "dark": 0.076,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg-free/geo-denver-7.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.223,
+      "dark": 0.17,
+      "hue": 252,
+      "C": 0.115,
+      "share": 0.23
+    },
+    "assets/bg-free/geo-denver-8.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.369,
+      "dark": 0.05,
+      "hue": 247,
+      "C": 0.095,
+      "share": 0.28
+    },
+    "assets/bg-free/geo-denver-9.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.212,
+      "dark": 0.112,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg-free/geo-orlando-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.3,
+      "dark": 0.021,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-orlando-3.jpg": {
+      "w": 1920,
+      "h": 1534,
+      "L": 0.278,
+      "dark": 0.079,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/bg-free/geo-orlando-4.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.334,
+      "dark": 0.085,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-free/geo-orlando-6.jpg": {
+      "w": 1920,
+      "h": 1443,
+      "L": 0.308,
+      "dark": 0.083,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-free/geo-orlando-7.jpg": {
+      "w": 1440,
+      "h": 1920,
+      "L": 0.31,
+      "dark": 0.092,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-free/geo-minneapolis-4.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.278,
+      "dark": 0.025,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/bg-free/geo-minneapolis-5.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.22,
+      "dark": 0.033,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/bg-free/gold-10.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.239,
+      "dark": 0.065,
+      "hue": 95,
+      "C": 0.089,
+      "share": 0.21
+    },
+    "assets/bg-free/roads-10.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.296,
+      "dark": 0.045,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-free/roads-14.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.288,
+      "dark": 0.024,
+      "hue": 77,
+      "C": 0.087,
+      "share": 0.18
+    },
+    "assets/bg-free/roads-16.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.253,
+      "dark": 0.059,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/roads-17.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.217,
+      "dark": 0.063,
+      "hue": 245,
+      "C": 0.118,
+      "share": 0.16
+    },
+    "assets/bg-free/roads-18.jpg": {
+      "w": 1920,
+      "h": 1275,
+      "L": 0.311,
+      "dark": 0.007,
+      "hue": 254,
+      "C": 0.115,
+      "share": 0.28
+    },
+    "assets/bg-free/roads-23.jpg": {
+      "w": 1445,
+      "h": 1920,
+      "L": 0.228,
+      "dark": 0.189,
+      "hue": 252,
+      "C": 0.127,
+      "share": 0.25
+    },
+    "assets/bg-free/roads-26.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.317,
+      "dark": 0.021,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/roads-27.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.27,
+      "dark": 0.002,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/roads-28.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.243,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0
     }
   },
   "gradients": [
@@ -1720,5 +2799,183 @@
     "pat_grain",
     "pat_paper",
     "pat_riso"
-  ]
+  ],
+  "places": {
+    "los-angeles": [
+      "assets/bg-free/geo-los-angeles-1.jpg",
+      "assets/bg-free/geo-los-angeles-2.jpg",
+      "assets/bg-free/geo-los-angeles-3.jpg",
+      "assets/bg-free/geo-los-angeles-4.jpg",
+      "assets/bg-free/geo-los-angeles-5.jpg",
+      "assets/bg-free/geo-los-angeles-6.jpg",
+      "assets/bg-free/geo-los-angeles-7.jpg",
+      "assets/bg-free/geo-los-angeles-8.jpg",
+      "assets/bg-free/geo-los-angeles-11.jpg",
+      "assets/bg-free/geo-los-angeles-12.jpg",
+      "assets/bg-free/geo-los-angeles-13.jpg",
+      "assets/bg-free/geo-los-angeles-15.jpg",
+      "assets/bg-free/geo-los-angeles-16.jpg",
+      "assets/bg-free/geo-los-angeles-17.jpg",
+      "assets/bg-free/geo-los-angeles-18.jpg",
+      "assets/bg-free/geo-los-angeles-19.jpg"
+    ],
+    "new-york": [
+      "assets/bg-free/geo-new-york-5.jpg",
+      "assets/bg-free/geo-new-york-7.jpg",
+      "assets/bg-free/geo-new-york-10.jpg",
+      "assets/bg-free/geo-new-york-11.jpg"
+    ],
+    "chicago": [
+      "assets/bg-free/geo-chicago-1.jpg",
+      "assets/bg-free/geo-chicago-5.jpg",
+      "assets/bg-free/geo-chicago-8.jpg",
+      "assets/bg-free/geo-chicago-10.jpg"
+    ],
+    "dallas": [
+      "assets/bg-free/geo-dallas-4.jpg",
+      "assets/bg-free/geo-dallas-5.jpg",
+      "assets/bg-free/geo-dallas-6.jpg"
+    ],
+    "houston": [
+      "assets/bg-free/geo-houston-2.jpg",
+      "assets/bg-free/geo-houston-3.jpg",
+      "assets/bg-free/geo-houston-4.jpg",
+      "assets/bg-free/geo-houston-5.jpg",
+      "assets/bg-free/geo-houston-6.jpg"
+    ],
+    "atlanta": [
+      "assets/bg-free/geo-atlanta-2.jpg",
+      "assets/bg-free/geo-atlanta-3.jpg",
+      "assets/bg-free/geo-atlanta-8.jpg",
+      "assets/bg-free/geo-atlanta-10.jpg"
+    ],
+    "washington": [
+      "assets/bg-free/geo-washington-2.jpg",
+      "assets/bg-free/geo-washington-4.jpg",
+      "assets/bg-free/geo-washington-5.jpg",
+      "assets/bg-free/geo-washington-6.jpg",
+      "assets/bg-free/geo-washington-7.jpg",
+      "assets/bg-free/geo-washington-8.jpg"
+    ],
+    "philadelphia": [
+      "assets/bg-free/geo-philadelphia-2.jpg",
+      "assets/bg-free/geo-philadelphia-3.jpg",
+      "assets/bg-free/geo-philadelphia-5.jpg",
+      "assets/bg-free/geo-philadelphia-11.jpg"
+    ],
+    "miami": [
+      "assets/bg-free/geo-miami-1.jpg",
+      "assets/bg-free/geo-miami-2.jpg",
+      "assets/bg-free/geo-miami-4.jpg",
+      "assets/bg-free/geo-miami-5.jpg",
+      "assets/bg-free/geo-miami-7.jpg",
+      "assets/bg-free/geo-miami-8.jpg",
+      "assets/bg-free/geo-miami-10.jpg"
+    ],
+    "phoenix": [
+      "assets/bg-free/geo-phoenix-1.jpg",
+      "assets/bg-free/geo-phoenix-8.jpg",
+      "assets/bg-free/geo-phoenix-9.jpg"
+    ],
+    "boston": [
+      "assets/bg-free/geo-boston-1.jpg",
+      "assets/bg-free/geo-boston-2.jpg",
+      "assets/bg-free/geo-boston-3.jpg",
+      "assets/bg-free/geo-boston-7.jpg",
+      "assets/bg-free/geo-boston-8.jpg",
+      "assets/bg-free/geo-boston-9.jpg",
+      "assets/bg-free/geo-boston-10.jpg"
+    ],
+    "inland-empire": [
+      "assets/bg-free/geo-inland-empire-3.jpg",
+      "assets/bg-free/geo-inland-empire-4.jpg",
+      "assets/bg-free/geo-inland-empire-5.jpg",
+      "assets/bg-free/geo-inland-empire-6.jpg"
+    ],
+    "san-francisco": [
+      "assets/bg-free/geo-san-francisco-1.jpg",
+      "assets/bg-free/geo-san-francisco-2.jpg",
+      "assets/bg-free/geo-san-francisco-4.jpg",
+      "assets/bg-free/geo-san-francisco-8.jpg"
+    ],
+    "detroit": [
+      "assets/bg-free/geo-detroit-1.jpg",
+      "assets/bg-free/geo-detroit-2.jpg",
+      "assets/bg-free/geo-detroit-3.jpg",
+      "assets/bg-free/geo-detroit-4.jpg"
+    ],
+    "seattle": [
+      "assets/bg-free/geo-seattle-1.jpg",
+      "assets/bg-free/geo-seattle-2.jpg",
+      "assets/bg-free/geo-seattle-8.jpg",
+      "assets/bg-free/geo-seattle-11.jpg",
+      "assets/bg-free/geo-seattle-12.jpg",
+      "assets/bg-free/geo-seattle-13.jpg"
+    ],
+    "tampa": [
+      "assets/bg-free/geo-tampa-1.jpg",
+      "assets/bg-free/geo-tampa-2.jpg",
+      "assets/bg-free/geo-tampa-6.jpg",
+      "assets/bg-free/geo-tampa-7.jpg"
+    ],
+    "san-diego": [
+      "assets/bg-free/geo-san-diego-1.jpg",
+      "assets/bg-free/geo-san-diego-2.jpg",
+      "assets/bg-free/geo-san-diego-3.jpg",
+      "assets/bg-free/geo-san-diego-5.jpg"
+    ],
+    "denver": [
+      "assets/bg-free/geo-denver-1.jpg",
+      "assets/bg-free/geo-denver-2.jpg",
+      "assets/bg-free/geo-denver-7.jpg",
+      "assets/bg-free/geo-denver-8.jpg",
+      "assets/bg-free/geo-denver-9.jpg"
+    ],
+    "orlando": [
+      "assets/bg-free/geo-orlando-2.jpg",
+      "assets/bg-free/geo-orlando-3.jpg",
+      "assets/bg-free/geo-orlando-4.jpg",
+      "assets/bg-free/geo-orlando-6.jpg",
+      "assets/bg-free/geo-orlando-7.jpg"
+    ],
+    "minneapolis": [
+      "assets/bg-free/geo-minneapolis-4.jpg",
+      "assets/bg-free/geo-minneapolis-5.jpg"
+    ]
+  },
+  "line_patterns": {
+    "pokemon": [
+      "pat_slabs",
+      "pat_binder",
+      "pat_cards",
+      "pat_foil"
+    ],
+    "sports": [
+      "pat_slabs",
+      "pat_cards",
+      "pat_stitch",
+      "pat_binder"
+    ],
+    "gaming": [
+      "pat_pixels",
+      "pat_pads",
+      "pat_crt"
+    ],
+    "coins": [
+      "pat_coins",
+      "pat_reeded"
+    ],
+    "gold": [
+      "pat_coins",
+      "pat_reeded"
+    ],
+    "silver": [
+      "pat_coins",
+      "pat_reeded"
+    ],
+    "cars": [
+      "pat_road",
+      "pat_tread"
+    ]
+  }
 }

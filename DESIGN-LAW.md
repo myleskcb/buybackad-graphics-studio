@@ -6746,3 +6746,48 @@ associated"; and, of the language row, "mix and both? seems contradictory".
 - **The language row says what each does**: English, Español, Bilingual (both on every ad), Varied
   (some ads in English, some in Spanish, some bilingual). The values are as they were.
 0f3c9e5e
+
+## 161. Photographs under the words: five treatments, the area's own city, the lines' own grounds
+
+Added 2026-11-21. The owner: "Where are the background images? None of these have background
+images. Some of them can be patterned background. Some of them can have a pattern and background
+image. Some of them can have an overlay or tint as long as it's supporting of the background image";
+"location based backgrounds like photos of cities, aerial view or city signs other city landmarks",
+"we could start with metropolitans"; "Gaming is lacking in image variety as well as cards. Pokémon
+cards and sports cards are extremely lacking in variety"; "background images are pretty important
+here". Downloads approved: free licence only, the top 20 US metros, cards painted.
+
+- **A photograph is the commonest ground**: .4 of a seed's draw (it was .24), .55 where the ad's area
+  is in a metro the library holds. A painted pattern, a gradient, a scene and the house's own share
+  the rest (`spec/full-grounds.json` shares).
+- **Five treatments** (`fullad.js` `PHOTO_TREATS`, drawn on a stream of the seed's own): *grade*, the
+  picture graded toward the pair (the house's, unchanged); *tint*, the accent's hue laid into the
+  picture, its lights and shadows kept; *duotone*, the picture in two tones, the pair's ground and
+  accent; *wash*, the ground's colour washing in where the headline and the footer stand, the picture
+  clear across the product's band; *pattern*, the graded picture under a fine screen (dots, lines, a
+  grid, scan lines, crosses) in the words' ink, thinned behind the product. A duotone takes the
+  pair's two colours, so a photograph of any colour stands under it; a tint keeps half the picture's
+  own colour, so a tinted photograph is held to rule 139 as a graded one is. The
+  pre-flight reads the delivered picture as before: the shade behind each block of words is what
+  keeps them reading, not a heavy grade over the whole photograph.
+- **The area's own city** (`motion/metros.js`, made by `scripts/build_metros.mjs` from the studio's
+  geo data): a ZIP code by its first three digits, towns by the metro their namesakes' people mostly
+  live in (Pasadena, Glendale, Burbank is Los Angeles). That metro's skylines, aerials and landmarks
+  join every line's pool three times over, and the line's photographs of somewhere else that can be
+  told (`spec/ground-tags.json` where: the Golden Gate, Lake Tahoe, Big Sur) leave it; a place is a
+  scene, so it fits every product. An ad that shows
+  no product still never stands on a photograph.
+- **Free licence only.** The library's new photographs (`assets/bg-free/`) are public domain or CC0
+  (Carol M. Highsmith's archive at the Library of Congress, US government aerials, CC0 uploads), so
+  an ad needs no photo credit; `ATTRIBUTION.json` keeps each one's source. Every candidate is read
+  by eye first (`scripts/fetch_free_photos.mjs`, then contact sheets, then
+  `scripts/import_free_photos.mjs`): never a face that leads, a crowd, a politician, a sculpture or
+  mural (an artist's copyright), a trademarked landmark (the Hollywood Sign, the Space Needle), a
+  theme park, the twin towers or a disaster, an old black-and-white photograph, a date stamp.
+- **The lines' own grounds, painted** (`decor.js`, `line_patterns`): real Pokémon and sports cards
+  carry their makers' art and the players' faces, which a paid ad may not use, so the cards stand on
+  drawn ones: generic cards, graded slabs, a binder page, foil, a ball's stitching; gaming on pixels,
+  pads and a screen's scan lines; coins and bullion on rims and reeding; cars on a road and a tread.
+  No maker's art, symbol or lettering (no PlayStation shapes, no Pokémon card back). One tone of the
+  ground, a wider step than the general patterns, thinned behind the product; a line with them draws
+  one in .65 of its pattern share.

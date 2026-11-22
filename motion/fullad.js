@@ -23,7 +23,8 @@ import { HOUSE_COLOURS, LINES, PAIR_LOOKS } from "./house-colours.js";
 import { FULL_VOICES } from "./full-voices.js";
 import { bannedIn } from "./banned-words.js";
 import { PHONE_WEIGHT, PHONE_REST, PHONE_VIEWS, PHONE_COUNTS, PHONE_LINEUP, pickWeighted } from "./product-demand.js";
-import { GROUND_SHARES, GROUND_SCENES, GROUND_GRADIENTS, GROUND_PATTERNS, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS } from "./full-grounds.js";
+import { GROUND_SHARES, GROUND_SCENES, GROUND_GRADIENTS, GROUND_PATTERNS, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS, GROUND_PLACES, GROUND_LINE_PATTERNS } from "./full-grounds.js";
+import { metroOf } from "./metros.js";
 import { leanStream, leanPick, pairAnswers } from "./recipe-lean.js";
 
 // Proportions of the frame's width. 1080 x .052 = 56px, x .044 = 48px, x .032 = 35px.
@@ -483,19 +484,34 @@ export function groundFits(t, P) {
 /** The ground a seed draws for a line and the pair it drew: { background, ground_photo? }, or null
  *  for the house gradient the seed already drew. product (productFor): only a photograph that agrees
  *  with it is drawn. */
-export function groundFor(subject, seed, pairKey, product, lean = null) {
+export function groundFor(subject, seed, pairKey, product, lean = null, place = "", want = {}) {
   const cat = !subject || subject === "iphone" ? "phones" : (GROUND_LINE_CAT[subject] || "");
+  /* the photograph's treatment (photoTreatFor, on a stream of its own); a duotone lays the pair's own two
+     colours into the picture, so its own colour does not count against the card's two families (a tint
+     keeps half of it, so a tinted photograph is held to rule 139 as a graded one is: full_colour_check) */
+  const tf0 = photoTreatFor(seed, subject), tf = want.treat && PHOTO_TREATS[want.treat] != null ? { ...tf0, treat: want.treat, ...(want.treat === "pattern" && !tf0.pattern ? { pattern: PHOTO_PATTERNS[seed % PHOTO_PATTERNS.length] } : {}) } : tf0;
+  const anyHue = tf.treat === "duotone";
+  const suits = src => anyHue || photoSuits(GROUND_PHOTOS[src], pairKey);
+  /* THE AREA'S OWN PLACE (2026-11-21; the owner: "location based backgrounds like photos of cities, aerial
+     view or city signs other city landmarks", "start with metropolitans"): where the ad's area is in one of
+     the metros the library holds (motion/metros.js), its skyline, aerials and landmarks join the line's
+     pool three times over, a photograph is drawn more often, and the line's photographs of somewhere
+     else (ground-tags' where: the Golden Gate behind a New York ad) leave it. A place is a scene, so it
+     fits every product. */
+  const placed = place && !(product && product.bare) ? (GROUND_PLACES[place] || []).filter(src => GROUND_PHOTOS[src] && !GROUND_PHOTOS[src].never && suits(src)) : [];
+  // and no photograph of somewhere else that can be told (the Golden Gate behind a New York ad): ground-tags' where
+  const here = src => !place || !GROUND_PHOTOS[src].where || GROUND_PHOTOS[src].where === place;
   /* an ad that shows no product (productFor: bare) never stands on a photograph (2026-11-19; the owner, of the
      VR headset ad: "clearly wasn't audited or ever rebuilt"): with nothing in front of it, a room or a desk is
      the picture, and the VR headsets' words stood on a dim room with a console in it. Its words stand on a
      painted ground: a gradient, a pattern, a scene or the house's own. */
   const bare = !!(product && product.bare);
-  const pool = bare ? [] : (GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && photoSuits(GROUND_PHOTOS[src], pairKey) && groundFits(GROUND_PHOTOS[src], product));
+  const pool = bare ? [] : [...placed, ...placed, ...placed, ...(GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && suits(src) && here(src) && groundFits(GROUND_PHOTOS[src], product))];
   // the drawn scenes are night skies, auroras and glows made for light words: under dark words (a light pair,
   // a lime or aqua ground: rule 154) their deep tones turn grey and the shade behind the words runs to the
   // frame's edge (full_ad_check, 2026-11-18), so those pairs stand on the other kinds
   const pc = COLOUR_OF[pairKey], darkWords = !!pc && lum(pc.colors.ink) < lum(pc.colors.ground);
-  const share = { photo: pool.length ? GROUND_SHARES.photo : 0, scene: GROUND_SCENES.length && !darkWords ? GROUND_SHARES.scene : 0, gradient: GROUND_GRADIENTS.length ? (GROUND_SHARES.gradient || 0) : 0,
+  const share = { photo: pool.length ? (placed.length ? Math.max(GROUND_SHARES.photo, .55) : GROUND_SHARES.photo) : 0, scene: GROUND_SCENES.length && !darkWords ? GROUND_SHARES.scene : 0, gradient: GROUND_GRADIENTS.length ? (GROUND_SHARES.gradient || 0) : 0,
     pattern: GROUND_PATTERNS.length ? (GROUND_SHARES.pattern || 0) : 0, house: GROUND_SHARES.house };
   /* a rebuilt recipe's lean (motion/recipe-lean.js; the owner, 2026-11-18: "take them as inspiration but
      rebuild them all", "retire but bg counts"): a kind of ground or one ground its card stood for, of
@@ -507,20 +523,104 @@ export function groundFor(subject, seed, pairKey, product, lean = null) {
     const can = [...(own || pool.length ? ["photo"] : []), ...(share.scene ? ["scene", ...GROUND_SCENES] : []), ...(share.gradient ? ["gradient", ...GROUND_GRADIENTS] : []),
       ...(share.pattern ? ["pattern", ...GROUND_PATTERNS] : []), "house", ...GROUNDS];
     const got = lean.pick(can, lean.want, "ground"), of = L => L[Math.floor(lean.r() * L.length) % L.length];
-    if (got === "photo") { if (own) return { background: "photo", ground_photo: own }; const src = of(pool); return { background: "photo", ground_photo: { src, focus: GROUND_PHOTOS[src].focus || [.5, .5] } }; }
+    if (got === "photo") { if (own) return { background: "photo", ground_photo: { ...own, ...tf } }; const src = of(pool); return { background: "photo", ground_photo: { src, focus: GROUND_PHOTOS[src].focus || [.5, .5], ...tf } }; }
     if (got) return { background: got === "scene" ? of(GROUND_SCENES) : got === "gradient" ? of(GROUND_GRADIENTS) : got === "pattern" ? of(GROUND_PATTERNS) : got === "house" ? of(GROUNDS) : got };
   }
   // the line's own stream: two lines on one seed do not stand on the same kind of ground
   let h = 0x811c9dc5; for (const ch of String(subject || "iphone")) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
   const g = rng(mixSeed((mixSeed(seed >>> 0) ^ h) >>> 0)); g();
+  /* a kind of ground picked in the maker (Background, want.kind): only that kind is drawn, where the ad has one */
+  if (want.kind && share[want.kind] > 0) for (const k of Object.keys(share)) if (k !== want.kind) share[k] = 0;
   let u = g() * (share.photo + share.scene + share.gradient + share.pattern + share.house);
-  if ((u -= share.photo) < 0) { const src = pool[Math.floor(g() * pool.length) % pool.length]; return { background: "photo", ground_photo: { src, focus: GROUND_PHOTOS[src].focus || [.5, .5] } }; }
+  if ((u -= share.photo) < 0) { const src = pool[Math.floor(g() * pool.length) % pool.length]; return { background: "photo", ground_photo: { src, focus: GROUND_PHOTOS[src].focus || [.5, .5], ...tf } }; }
   if ((u -= share.scene) < 0) return { background: GROUND_SCENES[Math.floor(g() * GROUND_SCENES.length) % GROUND_SCENES.length] };
   // a vivid gradient in the pair's own two families (decor.js pairGradientGround; the owner: "Also don't see any gradients really?")
   if ((u -= share.gradient) < 0) return { background: GROUND_GRADIENTS[Math.floor(g() * GROUND_GRADIENTS.length) % GROUND_GRADIENTS.length] };
   // a tone-on-tone pattern or texture in the pair's own ground colour (decor.js fullPatternGround; rule 154)
-  if ((u -= share.pattern) < 0) return { background: GROUND_PATTERNS[Math.floor(g() * GROUND_PATTERNS.length) % GROUND_PATTERNS.length] };
+  if ((u -= share.pattern) < 0 || want.kind === "pattern") {
+    /* a line with grounds painted for its own goods (GROUND_LINE_PATTERNS: the cards' slabs, binders and
+       foil, gaming's pixels and pads, the coins' rims, the cars' roads) draws one of them most of the time
+       (the owner, 2026-11-21: "Pokemon cards and sports cards are extremely lacking in variety") */
+    const own = GROUND_LINE_PATTERNS[cat] || [], k = g();
+    if (own.length && k < .65) return { background: own[Math.floor(g() * own.length) % own.length] };
+    return { background: GROUND_PATTERNS[Math.floor(g() * GROUND_PATTERNS.length) % GROUND_PATTERNS.length] };
+  }
   return null;
+}
+/* HOW A PHOTOGRAPH IS LAID UNDER THE WORDS (2026-11-21; the owner: "Some of them can be patterned
+   background. Some of them can have a pattern and background image. Some of them can have an overlay or
+   tint as long as it's supporting of the background image and the general ad"). Each treatment's number is
+   how much of the house grade it keeps (the pair's ground over the picture, heavier on a bright one):
+   grade, the picture graded toward the pair; tint, the pair's accent laid into its colour; duotone, the
+   picture in two tones, its shadows the pair's ground and its lights the accent's; wash, the ground's
+   colour washing in where the headline and the footer stand, the picture clear across the product's band;
+   pattern, the graded picture under a fine screen of dots, lines, a grid or scan lines in the words' ink,
+   thinned behind the product. A duotone takes the pair's two colours, so a photograph of any colour can
+   stand under it; the others keep the picture's own colour, so it must be of the pair's family where it
+   is strong (rule 139). Drawn on a stream of the seed's own: the ground it drew does not move. */
+export const PHOTO_TREATS = { grade: 1, tint: .5, duotone: .22, wash: .3, pattern: .72 };
+export const PHOTO_TREAT_SHARES = { grade: .28, tint: .16, duotone: .16, wash: .2, pattern: .2 };
+export const PHOTO_PATTERNS = ["dots", "lines", "grid", "scan", "cross"];
+const TREATED = new WeakMap();
+/** A photograph with the pair's colours laid into it: a duotone or a tint (drawn once, kept per picture). */
+export function treatedPhoto(img, treat, p) {
+  const key = treat + p.ground + p.accent; let per = TREATED.get(img); if (!per) TREATED.set(img, per = new Map());
+  if (per.has(key)) return per.get(key);
+  const w = img.naturalWidth || img.width, h = img.naturalHeight || img.height, c = canvas(w, h), x = c.getContext("2d");
+  x.drawImage(img, 0, 0, w, h);
+  if (treat === "duotone") {
+    // grey first, then the lights toward the accent (lifted toward white) and the shadows toward the ground
+    x.globalCompositeOperation = "saturation"; x.fillStyle = "#808080"; x.fillRect(0, 0, w, h);
+    const A = oklchOf(p.accent), G = oklchOf(p.ground);
+    x.globalCompositeOperation = "multiply"; x.fillStyle = okHex(clamp(Math.max(A.L, .78), 0, .97), Math.min(A.C, .16), A.h); x.fillRect(0, 0, w, h);
+    x.globalCompositeOperation = "screen"; x.fillStyle = okHex(clamp(Math.min(G.L, .32), .08, .4), Math.min(G.C, .14), G.h); x.fillRect(0, 0, w, h);
+  } else {
+    // the accent's hue laid over the picture's own, half way, its lights and shadows kept
+    x.globalCompositeOperation = "color"; x.globalAlpha = .55; x.fillStyle = p.accent; x.fillRect(0, 0, w, h);
+  }
+  x.globalCompositeOperation = "source-over"; x.globalAlpha = 1;
+  per.set(key, c); return c;
+}
+/** A fine screen laid over a graded photograph in the words' ink, thinned behind the product. */
+function photoPattern(ox, W, H, p, kind, seed) {
+  const U = Math.min(W, H), D = Math.hypot(W, H), c = canvas(W, H), m = c.getContext("2d"), r = rng((seed ^ 0x27d4eb2f) >>> 0);
+  const ink = p.ink || (relLum(p.ground) < .2 ? "#ffffff" : "#111111"), light = relLum(ink) > .5;
+  m.fillStyle = m.strokeStyle = ink; m.globalAlpha = light ? .16 : .13; m.lineWidth = Math.max(1, U * .0022);
+  if (kind === "dots") {
+    const s = U * (.016 + r() * .01), rad = s * .2;
+    for (let y = s / 2; y < H; y += s) for (let x = (Math.round(y / s) % 2 ? s / 2 : 0); x < W; x += s) { m.beginPath(); m.arc(x, y, rad, 0, Math.PI * 2); m.fill(); }
+  } else if (kind === "lines") {
+    const s = U * (.014 + r() * .01), dir = r() < .5 ? 1 : -1;
+    m.save(); m.translate(W / 2, H / 2); m.rotate(dir * Math.PI / 4); m.beginPath();
+    for (let k = -D; k < D; k += s) { m.moveTo(k, -D); m.lineTo(k, D); }
+    m.stroke(); m.restore();
+  } else if (kind === "grid") {
+    const s = U * (.05 + r() * .03); m.beginPath();
+    for (let x = s; x < W; x += s) { m.moveTo(x, 0); m.lineTo(x, H); }
+    for (let y = s; y < H; y += s) { m.moveTo(0, y); m.lineTo(W, y); }
+    m.stroke();
+  } else if (kind === "scan") {
+    const s = U * (.008 + r() * .004); m.globalAlpha *= .9;
+    for (let y = 0; y < H; y += s) m.fillRect(0, y, W, s * .38);
+  } else {
+    const s = U * (.06 + r() * .03), a = s * .14; m.lineWidth *= 1.4; m.beginPath();
+    for (let y = s / 2; y < H; y += s) for (let x = s / 2; x < W; x += s) { m.moveTo(x - a, y); m.lineTo(x + a, y); m.moveTo(x, y - a); m.lineTo(x, y + a); }
+    m.stroke();
+  }
+  // thinned behind the product, which stands on the picture itself
+  m.globalAlpha = 1; m.globalCompositeOperation = "destination-out";
+  const hole = m.createRadialGradient(W / 2, H * .55, 0, W / 2, H * .55, U * .55);
+  hole.addColorStop(0, "rgba(0,0,0,.85)"); hole.addColorStop(.6, "rgba(0,0,0,.4)"); hole.addColorStop(1, "rgba(0,0,0,0)");
+  m.fillStyle = hole; m.fillRect(0, 0, W, H);
+  ox.drawImage(c, 0, 0);
+}
+/** The treatment a seed draws for its photograph, and its screen where it has one. */
+export function photoTreatFor(seed, subject) {
+  let h = 0x9747b28c; for (const ch of String(subject || "iphone")) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
+  const t = rng(mixSeed(((seed >>> 0) ^ h ^ 0x5bd1e995) >>> 0)); t();
+  let u = t(), treat = "grade";
+  for (const [k, w] of Object.entries(PHOTO_TREAT_SHARES)) { if ((u -= w) < 0) { treat = k; break; } }
+  return treat === "pattern" ? { treat, pattern: PHOTO_PATTERNS[Math.floor(t() * PHOTO_PATTERNS.length) % PHOTO_PATTERNS.length] } : { treat };
 }
 export const ARRANGEMENTS = ["lineup", "fan", "showcase", "podium", "wings"];
 /** How far past its letters a headline treatment reaches, in its size, counting both sides (the letters
@@ -853,8 +953,10 @@ export class FullAd extends Ad {
       return false;
     }
     if (this.groundImg) return false;
-    const W = this.W, H = this.H, m = GROUND_PHOTOS[gp.src] || {};
-    this.groundImg = img; this.groundFocus = Array.isArray(gp.focus) ? gp.focus : (m.focus || [.5, .5]);
+    const W = this.W, H = this.H, m = GROUND_PHOTOS[gp.src] || {}, treat = PHOTO_TREATS[gp.treat] != null ? gp.treat : "grade";
+    // the treatment (PHOTO_TREATS): a duotone or a tint is laid into the picture itself, once
+    this.groundImg = treat === "duotone" || treat === "tint" ? treatedPhoto(img, treat, this.p) : img; this.groundTreat = treat;
+    this.groundFocus = Array.isArray(gp.focus) ? gp.focus : (m.focus || [.5, .5]);
     // a scene with a floor (a desk top, a court, a sill: spec/ground-tags.json) is framed so the floor is
     // the foot of the product band, where the product's own shadow falls (the owner: "bg and assets line up")
     const shows = gp.shows || m.shows, floor = gp.floor != null ? +gp.floor : m.floor;
@@ -864,12 +966,21 @@ export class FullAd extends Ad {
     this.groundDrift = ((st.seed | 0) % 2 ? 1 : -1) * .025;
     // the grade: the pair's ground over the picture, heavier on a bright picture and a dark pair
     const darkPair = relLum(this.p.ground) < .2, L = m.L != null ? m.L : .25;
-    const a = gp.scrim != null ? clamp(+gp.scrim, 0, .9) : clamp((darkPair ? .3 : .38) + (L - .2) * .6, .22, .6);
+    const a0 = gp.scrim != null ? clamp(+gp.scrim, 0, .9) : clamp((darkPair ? .3 : .38) + (L - .2) * .6, .22, .6), a = a0 * PHOTO_TREATS[treat];
     const over = canvas(W, H), ox = over.getContext("2d");
     ox.fillStyle = rgba(this.p.ground, a); ox.fillRect(0, 0, W, H);
+    if (treat === "wash") {
+      // the ground's colour washes in from the top and the foot, where the headline and the footer stand,
+      // and leaves the picture clear across the product's band
+      const wg = ox.createLinearGradient(0, 0, 0, H), s = darkPair ? .92 : .88;
+      wg.addColorStop(0, rgba(this.p.ground, s)); wg.addColorStop(.3, rgba(this.p.ground, s * .35)); wg.addColorStop(.45, rgba(this.p.ground, 0));
+      wg.addColorStop(.62, rgba(this.p.ground, 0)); wg.addColorStop(.8, rgba(this.p.ground, s * .5)); wg.addColorStop(1, rgba(this.p.ground, s));
+      ox.fillStyle = wg; ox.fillRect(0, 0, W, H);
+    }
     const D = Math.hypot(W, H), vg = ox.createRadialGradient(W / 2, H / 2, D * .28, W / 2, H / 2, D * .72);
-    vg.addColorStop(0, rgba(this.p.ground, 0)); vg.addColorStop(1, rgba(this.p.ground, darkPair ? .5 : .35));
+    vg.addColorStop(0, rgba(this.p.ground, 0)); vg.addColorStop(1, rgba(this.p.ground, (darkPair ? .5 : .35) * (treat === "grade" ? 1 : .6)));
     ox.fillStyle = vg; ox.fillRect(0, 0, W, H);
+    if (treat === "pattern") photoPattern(ox, W, H, this.p, gp.pattern || "dots", (st.seed | 0) >>> 0);
     this.groundOver = over; this.groundEven = {};   // the evening behind each block of words, kept apart: each comes in with its words
     const bg = canvas(W, H), bx = bg.getContext("2d");
     this._drawPhoto(bx, this.tHold); bx.drawImage(over, 0, 0);
@@ -880,7 +991,7 @@ export class FullAd extends Ad {
   /** The photograph at a moment: a slow push-in round the focus and a little drift across, eased to
    *  rest at the still's moment (tHold) and held there. */
   _drawPhoto(ctx, t) {
-    const img = this.groundImg, W = this.W, H = this.H, iw = img.naturalWidth, ih = img.naturalHeight;
+    const img = this.groundImg, W = this.W, H = this.H, iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
     const u = clamp(t / Math.max(.5, this.tHold), 0, 1), e = 1 - (1 - u) ** 3;   // eases to rest
     const k = Math.max(W / iw, H / ih);
     let zoom = 1.02 + .07 * e, sh = H / (k * zoom), sy;
@@ -2039,7 +2150,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   let first = drawPair(pairs, r(), st.subject);
   // its colourway: a pair of its tone and hue (or a neutral ground), of those that suit the line and its words
   if (lean && (H.tone || H.hue != null || H.neutral)) first = lean.pick(pairs, pairs.filter(k => pairAnswers(COLOUR_OF[k], H)), "colour") || first;
-  const key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, type_pair: _t, type_any: _a, ...picked } = pick;
+  const key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, type_pair: _t, type_any: _a, ground_kind: _gk, photo_treat: _pt, ...picked } = pick;
   // the type: the house's one face, or one of the owner's pairs when one is picked (pick.type_pair, a
   // TYPE_VOICES key that FULL_VOICES holds). Carried in the look, after QUIET, so it is the face drawn.
   /* THE FACE A SEED DRAWS (2026-11-18, rule 154): every seeded full ad was set in the one house face,
@@ -2067,9 +2178,9 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...view, ...type, ...picked };
   if (lean && !("arrangement" in picked)) look.arrangement = lean.pick(ARRANGEMENTS, H.arrangement, "arrangement") || look.arrangement;
   // the ground: a photograph given with the ad as given; otherwise the seed's own draw (groundFor), unless one was picked by hand
-  if (st.ground_photo && st.ground_photo.src) { look.background = "photo"; look.ground_photo = { ...st.ground_photo }; }
+  if (st.ground_photo && st.ground_photo.src && (!pick.ground_kind || pick.ground_kind === "photo")) { look.background = "photo"; look.ground_photo = { ...st.ground_photo, ...(PHOTO_TREATS[pick.photo_treat] != null ? { treat: pick.photo_treat } : {}) }; }
   else if (!("background" in picked)) {
-    const gd = groundFor(st.subject, seed, key, productFor(st.subject, have), lean && H.ground ? { want: H.ground, photo: st.ground_hint || null, r: lr, pick: lean.pick } : null);
+    const gd = groundFor(st.subject, seed, key, productFor(st.subject, have), lean && H.ground && !pick.ground_kind ? { want: H.ground, photo: st.ground_hint || null, r: lr, pick: lean.pick } : null, metroOf(st.area), { kind: pick.ground_kind || "", treat: pick.photo_treat || "" });
     if (gd) Object.assign(look, gd); else delete look.ground_photo;
   }
   if (look.ground_photo) loadGroundPhoto(look.ground_photo.src).catch(() => {});
@@ -2095,6 +2206,8 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   // the number's mark stay the seed's
   const vid = opts.look ? videoLookFor(st, seed, opts.look) : null;
   if (vid && PALETTES[vid.palette]) {
+    // a kind of ground locked in the maker's Background panel (rule 161) holds under a video look too
+    const heldGround = pick.ground_kind ? { background: look.background, ground_photo: look.ground_photo } : null;
     // its plate's words read on its plate (a video palette's plate ink is chosen for a big sign, and sat 2:1 on a small one)
     const colors = { ...PALETTES[vid.palette], ...(vid.colors || {}) };
     if (colors.plate && contrastOf(colors.plate_ink || "#ffffff", colors.plate) < 4.5) colors.plate_ink = contrastOf(colors.plate, "#111111") >= contrastOf(colors.plate, "#ffffff") ? "#111111" : "#ffffff";
@@ -2119,6 +2232,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
     if (["glass", "outline"].includes(look.plate_fill)) { look.plate_fill = "solid"; look.plate_grad = false; }
     if (look.number_style === "underline" && !("number_style" in picked)) look.number_style = "pill";
     delete look.ground_photo;
+    if (heldGround) { look.background = heldGround.background; if (heldGround.ground_photo) look.ground_photo = heldGround.ground_photo; }
     if (!fullVoiceOk(pick.type_pair, pick.type_any) && fullVoiceOk(vid.type_pair, true)) {
       const v = TYPE_VOICES[vid.type_pair];
       Object.assign(look, { type_pair: vid.type_pair, font: v.display, number_font: v.numberRead ? v.label : "same", full_pair: true });
@@ -2156,7 +2270,10 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   const out = harmonise(randomize(base, seed, locked, pool, false), locked, idx);
   // the voice-over's lines are about phones: an ad for anything else plays its music alone
   const quiet = subject ? { voice: "off", vo_clip: "", vo_text: "" } : {};
-  return { ...out, ...QUIET, ...look, ...words, ...quiet, full: true, phones: subject ? have : (out.phones || []).slice(0, most) };
+  // what it stands on, by kind, and a photograph's treatment: the maker's Background panel shows them (rule 161)
+  const bgk = look.background, drawnGround = { full_ground: bgk === "photo" ? "photo" : /^pat_/.test(bgk) ? "pattern" : /^pair_/.test(bgk) ? "gradient" : GROUND_SCENES.includes(bgk) ? "scene" : GROUNDS.includes(bgk) ? "house" : "look",
+    full_treat: (look.ground_photo && look.ground_photo.treat) || "grade" };
+  return { ...out, ...QUIET, ...look, ...words, ...quiet, ...drawnGround, full: true, phones: subject ? have : (out.phones || []).slice(0, most) };
 }
 
 /** What would stop this ad going out, in words: a block left out for want of room, a block

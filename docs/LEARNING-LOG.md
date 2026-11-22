@@ -6469,4 +6469,36 @@ Found:
 
 RESUME HERE: OPEN-ITEMS §BS. The owner's eye on the twelve; then PR #14, the xenodochial branch and
 this branch land in that order.
-0f3c9e5e
+
+## 2026-11-21 — photographs under the words, the area's own city, the lines' own grounds (DESIGN-LAW 161; claude/full-ad-looks-layout)
+
+Asked: "Where are the background images? None of these have background images", patterns, a photo
+with a pattern, a supporting tint; city photographs by metro; "Gaming is lacking in image variety as
+well as cards. Pokémon cards and sports cards are extremely lacking". Approved: downloads of free
+licence only, the top 20 metros, cards painted.
+
+Done:
+  - Photo share .24 to .4 (.55 in a metro the library holds); five treatments (grade, tint, duotone,
+    wash, pattern); twelve painted grounds for cards, gaming, coins and cars.
+  - 116 public domain and CC0 photographs in assets/bg-free (105 of the metros), each read by eye;
+    metros.js matches a ZIP or towns to a metro; the maker's Background panel.
+
+Found:
+  - The house grade (the pair's ground at .3 to .6 over the whole picture, plus a vignette) is what
+    made the photographs disappear: on most pairs a photo read as a flat colour. The shade the engine
+    lays behind each block of words already keeps them reading, so the other treatments keep a
+    fraction of the grade (tint .5, duotone .22, wash .3, pattern .72) and the pre-flight still passes.
+  - Tone-on-tone marks at the general patterns' step (.095) vanish when the marks are thin outlines
+    of things (slabs, cards): the lines' own grounds need a wider step (.12 to .15).
+  - Commons search terms bring people more than places: about half of what came back was turned down
+    (podiums, crowds, cosplay, sculptures, postcards, the twin towers, a crash site). Read every
+    candidate; filters on the title and the licence's restrictions catch only some.
+  - Landmarks can be trademarks (the Hollywood Sign, the Space Needle, the Empire State Building, the
+    Transamerica Pyramid): keep them out where the photograph is about the building.
+  - Free photographs of trading cards are old tobacco cards, or people playing; the shop's own
+    photographs are the way to real card backgrounds.
+  - Most night skylines fall under the house's dark-ground limits (L .14, 35% near black): 31 of them.
+  - A town's name alone is ambiguous (Pasadena is in Texas too, and bigger): vote over all the towns
+    in the area, each by where its namesakes' people live.
+
+RESUME HERE: OPEN-ITEMS §BT. The owner's eye on the gallery; card photographs from the shop.

@@ -22,7 +22,9 @@ import { createRequire } from 'node:module';
 const ROOT = new URL('../', import.meta.url).pathname, SRC = ROOT + 'spec/full-grounds.json', OUT = ROOT + 'motion/full-grounds.js';
 const spec = JSON.parse(readFileSync(SRC, 'utf8'));
 const subjects = JSON.parse(readFileSync(ROOT + 'motion/subjects.json', 'utf8')).subjects;
-const pooled = [...new Set(Object.values(spec.pools).flat())];
+/* the areas' own places (2026-11-21, spec.places: a metro's skyline, aerials and landmarks, joined to every
+   line's pool where the ad's area is in that metro, motion/metros.js) are pooled photographs too */
+const pooled = [...new Set([...Object.values(spec.pools).flat(), ...Object.values(spec.places || {}).flat()])];
 /* the cards' own photographs (motion/recipes.json, the rebuild of 2026-11-18): a rebuilt recipe may stand
    on the photograph its card stood on, where that fits the product its seed drew and is not dim (the
    owner: "not low exposure dark images..."); measured here as the pools are, and marked dim where under
@@ -75,7 +77,7 @@ const lineCat = Object.fromEntries(subjects.map(s => [s.key, s.cat]));
    floor a scene's product stands on; fullad.js draws a photograph only beside a product it shows,
    and frames a scene so its floor is the product's foot */
 const TAGS = existsSync(ROOT + 'spec/ground-tags.json') ? JSON.parse(readFileSync(ROOT + 'spec/ground-tags.json', 'utf8')).tags : {};
-const TAG_KEYS = ['shows', 'subject', 'make', 'model', 'vehicle', 'floor', 'never', 'cuts'];
+const TAG_KEYS = ['shows', 'subject', 'make', 'model', 'vehicle', 'floor', 'never', 'cuts', 'where'];
 const dim = m => m.L < spec.limits.minL || m.dark > spec.limits.maxDark;
 const photos = Object.fromEntries([...pooled, ...carded].filter(f => spec.photos[f] && !spec.photos[f].error).map(f => {
   const m = spec.photos[f], t = TAGS[f] || {}, card = !pooled.includes(f);
@@ -92,6 +94,8 @@ export const GROUND_SCENES = ${JSON.stringify(spec.scenes)};
 export const GROUND_GRADIENTS = ${JSON.stringify(spec.gradients || [])};
 export const GROUND_PATTERNS = ${JSON.stringify(spec.patterns || [])};
 export const GROUND_POOLS = ${JSON.stringify(spec.pools)};
+export const GROUND_PLACES = ${JSON.stringify(spec.places || {})};
+export const GROUND_LINE_PATTERNS = ${JSON.stringify(spec.line_patterns || {})};
 export const GROUND_LINE_CAT = ${JSON.stringify(lineCat)};
 export const GROUND_PHOTOS = ${JSON.stringify(photos)};
 `;
@@ -119,10 +123,11 @@ if (process.argv.includes('--check')) {
   // every gradient and pattern the table names is one the engine paints (motion/decor.js PAIR_GRADIENTS, FULL_PATTERNS)
   const decor = readFileSync(ROOT + 'motion/decor.js', 'utf8'), listed = name => JSON.parse((new RegExp(`export const ${name} = (\\[[^\\]]*\\])`).exec(decor) || [, '[]'])[1].replace(/\s+/g, ' '));
   for (const [k, painter] of [['gradients', 'PAIR_GRADIENTS'], ['patterns', 'FULL_PATTERNS']]) { const known = listed(painter); for (const g of spec[k] || []) if (!known.includes(g)) bad.push(`${k}: ${g} is not one motion/decor.js paints (${painter})`); }
+  { const known = listed('FULL_PATTERNS'); for (const [cat, L] of Object.entries(spec.line_patterns || {})) for (const g of L) if (!known.includes(g)) bad.push(`line_patterns ${cat}: ${g} is not one motion/decor.js paints (FULL_PATTERNS)`); }
   const noPool = subjects.filter(s => !(s.cat in spec.pools)).map(s => s.key);
   if (noPool.length) bad.push('lines whose category has no pool entry: ' + noPool.join(', '));
   if (bad.length) { console.error(bad.join('\n')); process.exit(1); }
-  console.log(`motion/full-grounds.js is current: ${carded.length} cards' own photographs (${carded.filter(f => spec.photos[f] && spec.photos[f].L != null && dim(spec.photos[f])).length} dim), ${pooled.length} photographs in ${Object.keys(spec.pools).length} pools, ${spec.scenes.length} scenes, ${(spec.gradients || []).length} gradients, ${(spec.patterns || []).length} patterns, version ${spec.version}`);
+  console.log(`motion/full-grounds.js is current: ${carded.length} cards' own photographs (${carded.filter(f => spec.photos[f] && spec.photos[f].L != null && dim(spec.photos[f])).length} dim), ${pooled.length} photographs in ${Object.keys(spec.pools).length} pools and ${Object.keys(spec.places || {}).length} places, ${spec.scenes.length} scenes, ${(spec.gradients || []).length} gradients, ${(spec.patterns || []).length} patterns, version ${spec.version}`);
 } else {
   writeFileSync(OUT, text);
   console.log(`wrote motion/full-grounds.js: ${Object.keys(photos).length} photographs, ${spec.scenes.length} scenes, shares ${JSON.stringify(spec.shares)}`);

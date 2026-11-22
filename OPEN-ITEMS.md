@@ -4458,4 +4458,39 @@ Open:
    label placement for that look is the fix, not done here.
 4. **The ZIP stays in the maker.** It is not written back to the studio's brand kit (Easy Mode's
    area dialog has its own), and the towns chips show only in the full mode.
-0f3c9e5e
+
+## BT. 2026-11-21 — photographs under the words, the area's own city, the lines' own grounds (DESIGN-LAW 161)
+
+(claude/full-ad-looks-layout, after §BS. The owner: "Where are the background images?", "background
+images are pretty important here", "Pokémon cards and sports cards are extremely lacking in variety".)
+
+Done:
+- A photograph is .4 of a seed's ground (.55 in a metro the library holds), laid under the words in
+  one of five treatments: grade, tint, duotone, wash, pattern.
+- `assets/bg-free/`: 116 free-licence photographs (public domain and CC0 only, 74 MB): 105 of the 20
+  biggest metros (2 to 16 each, Los Angeles 16), 9 roads and coasts, coin slabs and piles, gold bars.
+  288 candidates were fetched by `scripts/fetch_free_photos.mjs` and read by eye on contact sheets
+  (172 turned down: people, artworks, trademarks, wrong places, old prints, and 31 night shots under
+  the house's limits for dark grounds); `scripts/import_free_photos.mjs` brought in the rest.
+  `motion/metros.js` (from `scripts/build_metros.mjs`) finds the metro of a ZIP code or of towns.
+- The pools: cars 10 to 24 photographs (roads, coasts, open desert), coins 2 to 5, silver 3 to 6,
+  gold 4 to 7; the coast roads joined the phones', audio's, wearables' and cameras' pools.
+- Twelve grounds painted for the lines' own goods (cards, slabs, binder, foil, stitch; pixels, pads,
+  screen; coins, reeding; road, tread).
+- The maker's Background panel: what the ad stands on, and a photograph's treatment, each lockable.
+
+Open:
+1. **Card photographs.** Commons had no usable free photograph of trading cards (old tobacco cards,
+   cosplay, people at tables). The cards stand on painted grounds. The shop's own photographs of
+   slabs, binders and its counter would be the best grounds for them, and are the owner's to take.
+2. **No new gaming photographs.** Every arcade, pinball and esports photograph Commons had free
+   showed people, a band's art or a brand, or was too dark. The gaming line leans on its painted
+   grounds (pixels, pads, a screen) until better ones are found or shot.
+3. **More places, and thin ones.** The top 20 metros only; Minneapolis has 2 photographs, Dallas and
+   Phoenix 3. States, and the
+   metros after the twentieth, are the next step (same scripts, more groups in
+   `spec/free-photo-queries.json`).
+4. **The owner's eye on the treatments' shares** (`PHOTO_TREAT_SHARES`) and the photo share (.4).
+5. **The Golden Gate Bridge and the skylines that hold a trademarked building** (the Empire State,
+   the Space Needle) are kept out where a photograph is about the building; a skyline that has one in
+   it is kept. If the shop wants no risk at all, drop those by hand.

@@ -92,7 +92,10 @@ const fullOf = st => {
   // full ad holds in, motion/full-voices.js; none picked is the house face)
   const S = state.full ? subjectOf(st) : null, pick = { ...(st.full_palette && COLOURWAYS.includes(st.full_palette) ? { palette: st.full_palette } : {}), ...(fullVoiceOk(st.full_type) || st.full_type === "house" ? { type_pair: st.full_type } : {}),
     // a layout choice locked under Layout holds (rule 158); the rest follows the look's number
-    ...Object.fromEntries(Object.keys(FULL_LAYOUT).filter(k => state.locked.has(k) && st[k]).map(k => [k, st[k]])) };
+    ...Object.fromEntries(Object.keys(FULL_LAYOUT).filter(k => state.locked.has(k) && st[k]).map(k => [k, st[k]])),
+    // the ground's kind and a photograph's treatment, locked under Background (rule 161)
+    ...(state.locked.has("full_ground") && GROUND_KINDS[st.full_ground] && st.full_ground !== "look" ? { ground_kind: st.full_ground } : {}),
+    ...(state.locked.has("full_treat") && PHOTO_TREAT_NAMES[st.full_treat] ? { photo_treat: st.full_treat } : {}) };
   // the look it wears (rule 158): the look on screen when it came from Any look or the gallery's video looks
   // (full_look true), the house's own (false), or, after New look, the seed's: a video look for a third of seeds
   const opts = { look: st.full_look === true ? "own" : st.full_look === false ? "" : "mix" };
@@ -419,6 +422,10 @@ const LAYOUT_NAMES = {
   full_foot: ["Towns and website", { rows: "Two rows", line: "One line", band: "On a band" }],
 };
 
+// what the full ad stands on (rule 161): the kind of ground, and how a photograph is laid under the words
+const GROUND_KINDS = { photo: "A photograph", pattern: "A painted pattern", gradient: "A gradient", scene: "A drawn scene", house: "The house's own", look: "The look's own" };
+const PHOTO_TREAT_NAMES = { grade: "Graded to the colours", tint: "Tinted", duotone: "Duotone", wash: "Washed at the top and foot", pattern: "Under a fine pattern" };
+
 /** What the ad can be about, into its picker: iPhones first (the maker's own), then the offer family's lines by group. */
 function fillSubjects() {
   const groups = [];
@@ -641,6 +648,17 @@ function buildPanel() {
     for (const k of Object.keys(FULL_LAYOUT)) {
       const [label, names] = LAYOUT_NAMES[k], row = document.createElement("div"); row.className = "mo-set";
       row.innerHTML = `<label>${label}<select data-key="${k}">${Object.keys(FULL_LAYOUT[k]).map(v => `<option value="${v}">${names[v] || v}</option>`).join("")}</select></label>
+        <button class="mo-lock" data-lock="${k}" aria-pressed="false" title="Lock: keep this when shuffling">&#128275;</button>`;
+      sec.appendChild(row);
+    }
+    design.appendChild(sec);
+  }
+  {   // what it stands on (rule 161): a photograph, a painted pattern, a gradient...; a photograph's treatment
+    const sec = document.createElement("details"); sec.className = "mo-sec mo-full-only"; sec.open = true;
+    sec.innerHTML = `<summary>Background</summary><p class="mo-note">Two looks in five stand on a photograph. When your area is in one of the 20 biggest US metros, it's a photograph of your city. Pick one to keep it.</p>`;
+    for (const [k, label, names] of [["full_ground", "Stands on", GROUND_KINDS], ["full_treat", "Photo treatment", PHOTO_TREAT_NAMES]]) {
+      const row = document.createElement("div"); row.className = "mo-set";
+      row.innerHTML = `<label>${label}<select data-key="${k}">${Object.entries(names).map(([v, n]) => `<option value="${v}"${v === "look" ? " disabled" : ""}>${n}</option>`).join("")}</select></label>
         <button class="mo-lock" data-lock="${k}" aria-pressed="false" title="Lock: keep this when shuffling">&#128275;</button>`;
       sec.appendChild(row);
     }
