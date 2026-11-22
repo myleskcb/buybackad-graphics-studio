@@ -6630,3 +6630,46 @@ family skin (`?skin=poster` keeps the old page; the studio is not touched).
   Only the main categories show at first; one with more than one line carries an arrow, and choosing
   it opens a row of its lines with their counts, in the owner's order (`motion/subjects.json`); one of
   a single line has no arrow. The review page's categories carry the same arrows.
+
+## 167. A business card is a print sheet: the bleed, the safe area, and the ads' own colours and type
+
+The owner, 2026-11-19: "business card designer..? just an idea and suggest quick same day print
+locations near you? just as an added bonus"; 2026-11-22: "Do this task here", and of it and a logo
+designer to come: "needs to be super pay walled". The maker is `cards/` (`cards/cards.js`).
+
+- **The sheet.** A standard US card, 3.5 × 2 in, drawn at 300 dpi with the 1/8 in bleed print shops
+  ask for: 1125 × 675 pixels, the trim 1050 × 600 inside it. Grounds, bands, panels and halftones run
+  to the bleed; every word and the QR stay in the safe area, 1/8 in inside the trim. A line seated on
+  the safe area's foot is seated by its descenders, not its baseline.
+- **The print file** is a PDF of both sides, each page on the bleed with an 18 pt slug for eight crop
+  marks, its TrimBox the card and its BleedBox the bleed, the sides as JPEGs (no PDF library). The
+  PNGs are the same sheets.
+- **It matches the ads.** It wears the full ad's colour pairs (`motion/house-colours.js`) and the
+  type pairs the full ad may wear (`motion/full-voices.js`, plus Bold), with every word's colour held
+  to contrast on what it sits on. It says what the customer told the studio (`pgfx_brand`: number,
+  website, business name, towns; `pgfx_full_studio`: the line they buy, its pair and type), in the
+  full ad's capitals (iPHONE).
+- **Varied by rule, not one look.** Five layouts (Band, Split, Centred, Pop, Ticket), each with a
+  back that answers it; New look draws a layout, a pair (most often one that suits what is bought)
+  and a type pair.
+- **It shows what is bought** (the audit, 2026-11-22, the owner: "audit and refine and try to make
+  sure the designs are as good"). Every front but Centred, which is the typographic one, carries the
+  line's own product, the full ad's cutout (`motion/subjects.json` sets, `assets/cutouts/`), fitted
+  whole in the trim, never on a word, with a soft shadow (a hard one on Pop); a back with no QR
+  shows it in the QR's place, so no side is half empty. New look moves through the line's pictures.
+- **The number is read first.** A type pair whose display face is a script or a pixel face, or that
+  the full ad already sets its number apart for (`numberRead`), sets the number in Libre Franklin
+  900. A name wraps to two lines before it shrinks, and lines are spaced by the face's own ascenders
+  and descenders; a long name that a wide or decorative face would still set below 52 px goes into
+  the pair's reading face. Pop's offset shadow is the accent, scaled to the type, as a print in two
+  inks.
+- **Paid.** Anyone designs and sees a card; the preview carries the WeBuy.AD mark until the plan
+  downloads cards. The print file comes with Pro and Business (`plans.mjs` `cards`), decided by the
+  function (`/api/export/check` and `/api/export`, kind `card`) and counted as one photo download.
+- **Print it today** is Google Maps searches near the customer's ZIP or town, which they open
+  themselves: nothing about them is sent anywhere by the page.
+- **Checked** by `scripts/business_card_check.mjs` (sizes, the safe area and overlaps across layouts,
+  pairs, type and a long name; the product in the trim, on every front but Centred and on every back
+  without a QR, and never on a word; the PDF's boxes, crop marks and xref; the print links; the paywall
+  signed out, on Starter and on Pro, light and dark, at 390) and `scripts/billing_check.mjs` (the
+  function's rule).

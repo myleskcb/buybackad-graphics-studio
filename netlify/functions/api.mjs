@@ -60,7 +60,7 @@
 import { getStore } from '@netlify/blobs';
 import { libraryRoute } from '../lib/library.mjs';
 import { adLibraryRoute, ownerKey } from '../lib/adlibrary.mjs';
-import { PLANS, PACKS, PAID, planId, videoOk, creditState, backgroundCredits } from '../lib/plans.mjs';
+import { PLANS, PACKS, PAID, planId, videoOk, cardsOk, creditState, backgroundCredits } from '../lib/plans.mjs';
 import {
   billingOn, stripeMode, stripe, priceFor, catalog, subState, applySub, applySession, customerOf,
   syncDue, syncSub, ensureWebhook, verifyEvent, webhookSecretKey, ensurePortalConfig, portalConfigKey, TERMS_VERSION,
@@ -375,6 +375,11 @@ export default async (req) => {
       if (roleFor(em, env) === 'admin') return json({ user: publicUser(user, env), maxPx: 2160, watermark: false, remaining: null });
       await freshUser(user, env);
       const { kind } = await req.json().catch(() => ({}));
+      /* a print-ready business card (cards/): Pro and Business (plans.mjs cards, owner 2026-11-22:
+         "needs to be super pay walled"), then one of the plan's photo downloads */
+      if (kind === 'card' && !cardsOk(user.plan)) {
+        return json({ error: 'Print-ready business cards come with Pro and Business', needs: 'cards', user: publicUser(user, env) }, 403);
+      }
       if (kind === 'video' && !videoOk(user.plan)) {
         return json({ error: 'Video downloads come with Pro and Business', needs: 'video', user: publicUser(user, env) }, 403);
       }

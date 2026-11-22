@@ -330,6 +330,18 @@ const setUser = (u) => store.get('pgfx-users').set('u:' + u.email, JSON.stringif
   const bu = userBlob('provideo@x.example'); bu.plan = 'business'; setUser(bu);
   const bv = await hit('POST', '/export/check', { kind: 'video' }, pt);
   ok(bv.status === 200 && bv.json.remaining === null, 'Business: videos unlimited, whatever was counted on Pro');
+  /* print-ready business cards (cards/; plans.mjs cards, owner 2026-11-22: "needs to be super pay
+     walled"): Pro and Business only, a card one of the plan's photo downloads */
+  const ct = await signup('cards@x.example');
+  const cf = await hit('POST', '/export', { kind: 'card' }, ct);
+  ok(cf.status === 403 && cf.json.needs === 'cards' && userBlob('cards@x.example').exports.count === 0, 'Free does not download business cards (403, needs cards), and nothing is counted');
+  const cs = userBlob('cards@x.example'); cs.plan = 'basic'; setUser(cs);
+  const ctl = () => hit('POST', '/auth/login', { email: 'cards@x.example', password: 'a-long-password' }).then((r) => r.json.token);
+  ok((await hit('POST', '/export/check', { kind: 'card' }, await ctl())).status === 403, 'Starter does not download business cards either');
+  const cp = userBlob('cards@x.example'); cp.plan = 'pro'; setUser(cp);
+  const ptk = await ctl(), cc = await hit('POST', '/export/check', { kind: 'card' }, ptk);
+  ok(cc.status === 200 && cc.json.remaining === plans.PLANS.pro.monthly && cc.json.watermark === false, 'Pro: /export/check for a card says the photo downloads left, no watermark');
+  ok((await hit('POST', '/export', { kind: 'card' }, ptk)).status === 200 && userBlob('cards@x.example').exports.count === 1, 'Pro: a business card is counted as one photo download');
 }
 
 /* ---------- 3. Stripe off ---------- */
