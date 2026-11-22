@@ -117,15 +117,23 @@ const DRAW = async ({ how, id, key, seed, SIZE, A, fresh }) => {
   return { fams, pair, pairName: P ? P.name : '', accent: st.colors ? st.colors.accent : '', photo, where, states, words, shape, webp: c.toDataURL('image/webp', .76) };
 };
 
-// NEIGHBOURS DIFFER (rule 166; the owner: "there's no variations at all?"): a look is passed over, as a look in its
-// neighbour's colours is, when it has its neighbour's skeleton or prints its selling points. Its neighbours, in the
-// library's order: the design's own look before it, the look before that, and after a design's last look the next
-// design's own (scripts/variety_check.mjs)
+// THREE LOOKS, THREE STRUCTURES (rule 166; the owner: "there's no variations at all?"): a look is passed over, as a
+// look in a colour pair the design already wears is, when it has the skeleton of the look before it or prints its
+// selling points; a line's full ad likewise against the full ad before it. (The library's neighbours, in the order
+// the landing shows them, are kept apart there: app.js scNeighboursDiffer, measured by scripts/variety_check.mjs.)
 const skelOf = m => m && m.shape ? [m.shape.order || 'head', m.shape.mode, m.shape.mirror ? 'mirrored' : 'plain', m.shape.points_style].join(' / ') : '';
 const ptsOf = m => m && m.words && (m.words.points || []).length ? m.words.points.slice().sort().join(' · ') : '';
-const nextOf = new Map();
-{ const byLine = {}; for (const r of recipes) if (firsts[r.id]) (byLine[r.subject] = byLine[r.subject] || []).push(r.id); for (const ids of Object.values(byLine)) ids.forEach((id, i) => nextOf.set(id, ids[i + 1] || null)); }
-const likeNeighbour = (m, prev, next) => (skelOf(m) && (skelOf(m) === skelOf(prev) || (next && skelOf(m) === skelOf(next)))) || (ptsOf(m) && ptsOf(m) === ptsOf(prev));
+const likeNeighbour = (m, prev) => (skelOf(m) && skelOf(m) === skelOf(prev)) || (ptsOf(m) && ptsOf(m) === ptsOf(prev));
+// A FAIR SHARE: a line's full ad is passed over when its skeleton, its selling points or its towns would cover more
+// than a third of the line (its designs' first looks, their other looks and its full ads). The full ads are drawn
+// after every look, so the line's looks are all in when they are counted.
+const FAIR = 1 / 3;
+const lineKeys = line => {
+  const ms = recipes.filter(r => r.subject === line && firsts[r.id]).flatMap(r => [firsts[r.id], ...Object.values(items).filter(x => x.kind === 'recipe' && x.base === r.id)]);
+  return { n: ms.length + FULL_SEEDS, ms };
+};
+const keysOf = m => [skelOf(m) && 's:' + skelOf(m), ptsOf(m) && 'p:' + ptsOf(m), m && m.words && m.words.metro && 'a:' + m.words.metro].filter(Boolean);
+const overShare = (m, count, n) => keysOf(m).some(k => (count.get(k) || 0) + 1 > n * FAIR);
 
 const jobs = [];
 if (ONLY.includes('looks')) for (const r of recipes) {
@@ -145,43 +153,50 @@ let drawn = 0, short = [];
 if (jobs.length) {
   console.log(`the studio: ${jobs.length} designs and lines, ${WORKERS} at a time`);
   const pages = await Promise.all(Array.from({ length: Math.min(WORKERS, jobs.length) }, studioPage));
-  let next = 0;
-  await Promise.all(pages.map(async page => {
-    while (next < jobs.length) {
-      const job = jobs[next++];
-      if (job.kind === 'looks') {
-        const r = job.r, want = LOOKS - 1, used = new Set([firsts[r.id].pair]), got = [], nxt = nextOf.get(r.id) ? firsts[nextOf.get(r.id)] : null;
-        let prev = firsts[r.id];
-        for (const id of Object.keys(items)) if (items[id].kind === 'recipe' && items[id].base === r.id) delete items[id];
-        for (let k = 1; k <= TRIES && got.length < want; k++) {
-          const res = await page.evaluate(DRAW, { how: 'recipe', id: r.id, seed: r.seed + k, SIZE, A: recipeArea(r.id, got.length + 1), fresh: true });
-          if (res.error) { console.log(`  ${r.id}: ${res.error}`); break; }
-          if (res.fail || used.has(res.pair) || likeNeighbour(res, prev, got.length + 1 === want ? nxt : null)) continue;
-          used.add(res.pair); got.push(k); prev = res;
-          const id = `${r.id}~${got.length + 1}`, { webp, ...meta } = res;
-          put(id, webp, { kind: 'recipe', id, base: r.id, look: got.length + 1, seed: r.seed + k, cat: r.cat, line: r.subject,
-            name: firsts[r.id].name, family: firsts[r.id].family || '', from: r.from, gen: r.gen, ...meta, stamp: lookStamp(r) });
-          drawn++;
+  // the looks first, then the lines' full ads, which count the looks (A FAIR SHARE)
+  const phases = [jobs.filter(j => j.kind === 'looks'), jobs.filter(j => j.kind === 'full')];
+  for (const list of phases) {
+    let next = 0;
+    await Promise.all(pages.map(async page => {
+      while (next < list.length) {
+        const job = list[next++];
+        if (job.kind === 'looks') {
+          const r = job.r, want = LOOKS - 1, used = new Set([firsts[r.id].pair]), got = [];
+          let prev = firsts[r.id];
+          for (const id of Object.keys(items)) if (items[id].kind === 'recipe' && items[id].base === r.id) delete items[id];
+          for (let k = 1; k <= TRIES && got.length < want; k++) {
+            const res = await page.evaluate(DRAW, { how: 'recipe', id: r.id, seed: r.seed + k, SIZE, A: recipeArea(r.id, got.length + 1), fresh: true });
+            if (res.error) { console.log(`  ${r.id}: ${res.error}`); break; }
+            if (res.fail || used.has(res.pair) || likeNeighbour(res, prev)) continue;
+            used.add(res.pair); got.push(k); prev = res;
+            const id = `${r.id}~${got.length + 1}`, { webp, ...meta } = res;
+            put(id, webp, { kind: 'recipe', id, base: r.id, look: got.length + 1, seed: r.seed + k, cat: r.cat, line: r.subject,
+              name: firsts[r.id].name, family: firsts[r.id].family || '', from: r.from, gen: r.gen, ...meta, stamp: lookStamp(r) });
+            drawn++;
+          }
+          if (got.length < want) short.push(r.id + ` (${got.length + 1} looks)`);
+        } else {
+          const s = job.s, used = new Set();
+          for (const id of Object.keys(items)) if (items[id].kind === 'full' && items[id].line === s.key) delete items[id];
+          const L = lineKeys(s.key), count = new Map();
+          for (const m of L.ms) for (const k of keysOf(m)) count.set(k, (count.get(k) || 0) + 1);
+          let n = 0, prevFull = null;
+          for (let seed = 1; seed <= TRIES && n < FULL_SEEDS; seed++) {
+            const res = await page.evaluate(DRAW, { how: 'full', key: s.key, seed, SIZE, A: fullArea(s.key, seed) });
+            if (res.error) { console.log(`  ${s.key}: ${res.error}`); break; }
+            if (res.fail || used.has(res.pair) || likeNeighbour(res, prevFull) || overShare(res, count, L.n)) continue;
+            used.add(res.pair); n++; prevFull = res;
+            for (const k of keysOf(res)) count.set(k, (count.get(k) || 0) + 1);
+            const id = 'full-' + s.key + (n > 1 ? '-v' + n : ''), { webp, ...meta } = res;
+            put(id, webp, { kind: 'full', id, seed, cat: s.cat, line: s.key, name: s.label + ' full ad', ...meta, stamp: fullStamp(s) });
+            drawn++;
+          }
+          if (n < FULL_SEEDS) short.push(s.key + ` (${n} full ads)`);
         }
-        if (got.length < want) short.push(r.id + ` (${got.length + 1} looks)`);
-      } else {
-        const s = job.s, used = new Set();
-        for (const id of Object.keys(items)) if (items[id].kind === 'full' && items[id].line === s.key) delete items[id];
-        let n = 0, prevFull = null;
-        for (let seed = 1; seed <= TRIES && n < FULL_SEEDS; seed++) {
-          const res = await page.evaluate(DRAW, { how: 'full', key: s.key, seed, SIZE, A: fullArea(s.key, seed) });
-          if (res.error) { console.log(`  ${s.key}: ${res.error}`); break; }
-          if (res.fail || used.has(res.pair) || likeNeighbour(res, prevFull, null)) continue;
-          used.add(res.pair); n++; prevFull = res;
-          const id = 'full-' + s.key + (n > 1 ? '-v' + n : ''), { webp, ...meta } = res;
-          put(id, webp, { kind: 'full', id, seed, cat: s.cat, line: s.key, name: s.label + ' full ad', ...meta, stamp: fullStamp(s) });
-          drawn++;
-        }
-        if (n < FULL_SEEDS) short.push(s.key + ` (${n} full ads)`);
+        if (drawn && drawn % 50 < 3) save();
       }
-      if (drawn && drawn % 50 < 3) save();
-    }
-  }));
+    }));
+  }
   save();
 }
 

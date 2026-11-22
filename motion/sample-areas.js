@@ -43,8 +43,8 @@ export const SAMPLE_AREAS = [
   { metro: "Washington", zip: "20001", code: "202" },
 ];
 const hash = s => { let h = 2166136261 >>> 0; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; };
-/* the sample at place i of its line in the library's order: the metros walked seven at a time from the line's
-   own start, so neighbours are never from one metro and each metro takes its share (scripts/variety_check.mjs) */
+/* the sample at place i of its line in the recipes' order: the metros walked seven at a time from the line's
+   own start, so each metro takes its share (the landing keeps neighbours apart: app.js scNeighboursDiffer) */
 export function sampleAreaAt(line, i) {
   const a = SAMPLE_AREAS[(hash(line) + i * 7) % SAMPLE_AREAS.length];
   return { ...a, number: `(${a.code}) 555-01${String((hash(line + "#" + i) >>> 8) % 100).padStart(2, "0")}` };

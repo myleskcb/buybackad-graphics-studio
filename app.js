@@ -12165,6 +12165,61 @@ function scMix(list, limit){
   if (typeof PLATFORM_MIX === 'undefined') return typeof limit === 'number' ? list.slice(0, limit) : list;
   return PLATFORM_MIX.order(list, scSubject, limit);
 }
+/* NEIGHBOURS DIFFER (DESIGN-LAW 166; the owner, 2026-11-21, of the library: "bro the variety is so minimal
+   here..? there's no variations at all?", then "all the same selling points and location"). The ranking puts
+   the strongest first and keeps neighbours apart in family; then a card that has its neighbour's structure
+   (which comes first, the band's shape, the side the product takes, how its points are drawn), its selling
+   points or its towns changes places with the nearest card that has none of them and is of the same line and
+   the same lock, so the mix's lines and the unlocked cards first stand. A card that differs from its
+   neighbour only in how its points are drawn (ticks beside outlines, the product on the same side) reads as
+   the same layout, so it moves too where its line has a card laid out otherwise. A card's structure and
+   words are its still's, as it was drawn (house.shape and house.words: scripts/build_recipe_stills.mjs,
+   build_library_looks.mjs); scripts/variety_check.mjs reads the library in this order. */
+function scNeighboursDiffer(list){
+  const keys = new Map(), keyOf = c => {
+    if (!keys.has(c)){
+      const h = c && c.house, s = h && h.shape, w = (h && h.words) || {}, layout = s ? [s.order || 'head', s.mode, s.mirror ? 'mirrored' : 'plain'] : null;
+      keys.set(c, s ? { layout: layout.join(' / '), skel: layout.concat(s.points_style).join(' / '),
+        pts: (w.points || []).slice().sort().join(' · '), metro: w.metro || '' } : null);
+    }
+    return keys.get(c);
+  };
+  // alike: the same structure, selling points or towns (never side by side); laid out alike: the same layout
+  const alike = (a, b) => { const x = a && keyOf(a), y = b && keyOf(b);
+    return !!(x && y) && (x.skel === y.skel || (!!x.pts && x.pts === y.pts) || (!!x.metro && x.metro === y.metro)); };
+  const laidAlike = (a, b) => { const x = a && keyOf(a), y = b && keyOf(b); return !!(x && y) && x.layout === y.layout; };
+  const fair = (a, b) => !a || !b || (!alike(a, b) && a.family !== b.family);
+  const apart = (a, b) => fair(a, b) && !laidAlike(a, b);
+  const lock = it => it.classic ? tplLocked(it.classic) : scLocked(it);
+  const out = list.slice();
+  for (let i = 1; i < out.length; i++){
+    const must = alike(out[i - 1], out[i]);
+    if (!must && !laidAlike(out[i - 1], out[i])) continue;
+    const x = out[i], sub = scSubject(x), lk = lock(x);
+    let pick = -1;
+    // first a card after it that keeps apart from both its new neighbours and leaves the card it trades with apart
+    // from its own; for a card that must move, then one that keeps clear of the card before it; at the end of the
+    // list, where nothing comes after, the nearest card before it that both places keep apart
+    for (const strict of must ? [true, false] : [true]){
+      for (let j = i + 1; j < out.length && pick < 0; j++){
+        const c = out[j];
+        if (scSubject(c) !== sub || lock(c) !== lk || !(strict ? apart : fair)(out[i - 1], c)) continue;
+        if (strict && (!apart(c, j === i + 1 ? x : out[i + 1]) || !apart(j === i + 1 ? c : out[j - 1], x) || !apart(x, out[j + 1]))) continue;
+        pick = j;
+      }
+      if (pick >= 0) break;
+    }
+    for (const ok of pick < 0 ? (must ? [apart, fair] : [apart]) : []){
+      for (let j = i - 2; j >= 0 && pick < 0; j--){
+        const c = out[j];
+        if (scSubject(c) !== sub || lock(c) !== lk) continue;
+        if (ok(out[i - 1], c) && ok(c, out[i + 1]) && ok(out[j - 1], x) && ok(x, out[j + 1])) pick = j;
+      }
+    }
+    if (pick >= 0){ out[i] = out[pick]; out[pick] = x; }
+  }
+  return out;
+}
 /* THE WALL'S VARIETY (owner, 2026-11-18, of the landing's wall: "the heros barely have any
    variety..", "all of the CTA still look a little too common and similar", and "most of the time
    we want it centered... like 70-80% of the time sometimes aligned left and rarely aligned right.
@@ -12580,9 +12635,10 @@ function scRenderGrid(reset){
          the showcase's, because consoles, VR, Samsung and Pixel exist only as
          offer cards; a palette filter is the showcase's own and keeps to it, and
          so does a line (an offer card does not say which line it is).
-         Unlocked first inside every line (scRankMixed). */
+         Unlocked first inside every line (scRankMixed). No two neighbours share
+         a structure, selling points or towns (scNeighboursDiffer). */
       const offers = f.fam === 'all' && !line ? scOfferPool(f.cat === 'all' ? null : f.cat) : [];
-      SHOWCASE.list = scMix(scRankMixed(sub, offers));
+      SHOWCASE.list = scNeighboursDiffer(scMix(scRankMixed(sub, offers)));
     }
   }
   const slice = SHOWCASE.list.slice(SHOWCASE.shown, SHOWCASE.shown + SHOWCASE.PAGE);

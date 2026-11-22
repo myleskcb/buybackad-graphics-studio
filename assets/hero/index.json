@@ -1,6 +1,6 @@
 {
  "about": "Stills of the recipe and full-ad hero picks (assets/hero-picks.json), drawn by scripts/build_hero_stills.mjs; app.js scBuildWall shows them and opens each in the full ad.",
- "made": "2026-11-22T00:22:55.515Z",
+ "made": "2026-11-22T11:29:52.000Z",
  "items": {
   "full-iphone-v12": {
    "kind": "full",
@@ -15,8 +15,8 @@
      "FAIR OFFER"
     ],
     "label": "MESSAGE US",
-    "number": "(510) 555-0102",
-    "metro": "Bay Area"
+    "number": "(612) 555-0127",
+    "metro": "Minneapolis"
    },
    "shape": {
     "mode": "side",
@@ -39,8 +39,8 @@
    "background": "pat_riso",
    "ground": "pattern",
    "photo": "",
-   "where": "OAKLAND • SAN FRANCISCO • BERKELEY",
-   "states": "CA",
+   "where": "MINNEAPOLIS • SAINT PAUL • SAINT LOUIS PARK",
+   "states": "MN",
    "headline": "WE BUY IPHONES",
    "product": "[object Object]",
    "thumb": "assets/hero/full-iphone-v12.webp"
@@ -224,8 +224,8 @@
      "PAID TODAY"
     ],
     "label": "CALL OR TEXT",
-    "number": "(404) 555-0151",
-    "metro": "Atlanta"
+    "number": "(215) 555-0188",
+    "metro": "Philadelphia"
    },
    "shape": {
     "mode": "side",
@@ -248,8 +248,8 @@
    "background": "pat_rays",
    "ground": "pattern",
    "photo": "",
-   "where": "ATLANTA • SANDY SPRINGS • BROOKHAVEN",
-   "states": "GA",
+   "where": "PHILADELPHIA • CAMDEN • CHERRY HILL",
+   "states": "PA NJ",
    "headline": "WE BUY SAMSUNG PHONES",
    "product": "[object Object]",
    "thumb": "assets/hero/full-galaxy-v6.webp"
@@ -310,8 +310,8 @@
      "NO FEES"
     ],
     "label": "GET YOUR OFFER",
-    "number": "(303) 555-0159",
-    "metro": "Denver"
+    "number": "(615) 555-0135",
+    "metro": "Nashville"
    },
    "shape": {
     "mode": "side",
@@ -334,8 +334,8 @@
    "background": "pair_mesh",
    "ground": "gradient",
    "photo": "",
-   "where": "DENVER • AURORA • LAKEWOOD",
-   "states": "CO",
+   "where": "NASHVILLE • BRENTWOOD • FRANKLIN",
+   "states": "TN",
    "headline": "WE BUY CARS & TRUCKS",
    "product": "[object Object]",
    "thumb": "assets/hero/full-car-v1.webp"
@@ -353,8 +353,8 @@
      "GRADED OR RAW"
     ],
     "label": "GET YOUR OFFER",
-    "number": "(303) 555-0136",
-    "metro": "Denver"
+    "number": "(210) 555-0149",
+    "metro": "San Antonio"
    },
    "shape": {
     "mode": "side",
@@ -377,8 +377,8 @@
    "background": "pat_waves",
    "ground": "pattern",
    "photo": "",
-   "where": "DENVER • AURORA • LAKEWOOD",
-   "states": "CO",
+   "where": "SAN ANTONIO • SCHERTZ • CONVERSE",
+   "states": "TX",
    "headline": "WE BUY SPORTS CARDS",
    "product": "[object Object]",
    "thumb": "assets/hero/full-sports-v2.webp"

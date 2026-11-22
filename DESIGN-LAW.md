@@ -6826,9 +6826,11 @@ Colours, faces, stickers and grounds varied. The structure, the words and the pl
   TEXT FOR A QUOTE, CALL US TODAY) and four in Spanish. It had always been CALL OR TEXT.
 - **A sample's area**: the library's stills, its other looks, the hero wall, the renders and the strip of
   layouts. Each sample takes a US metro (the owner: "US metros nationwide"), walked seven at a time along its
-  line, so neighbours never share one (`motion/sample-areas.js`). Its number is the metro's own code on
+  line, so every metro takes its share (`motion/sample-areas.js`). Its number is the metro's own code on
   555-0100 to 555-0199 (the owner: "Match the area, 555-01xx"), the numbers set aside for fiction. A visitor's
-  own ad keeps their own area and number. A city photograph follows the sample's towns (rule 154).
+  own ad keeps their own area and number. A city photograph follows the sample's towns (rule 154). The hero
+  wall's own full ads take metros no other tile on the wall prints, so its eighteen read as eighteen buyers
+  (`scripts/build_hero_stills.mjs`).
 - **The structure**, each choice on a seed stream of its own, so no colour, face or ground moves (`fullStyle`):
   - the product over the headline three times in ten (`full_order`);
   - the side band mirrored, the product first and the points after it, half the time (`full_mirror`);
@@ -6836,11 +6838,24 @@ Colours, faces, stickers and grounds varied. The structure, the words and the pl
   - four times in ten, the band's next best shape where it shows the product at least .85 as large
     (`full_band`).
 
-  All of it is held to the pre-flight.
-- **Measured**: `scripts/variety_check.mjs` reads what each still recorded, per line and on the hero wall:
-  the spread of selling-point sets, metros, calls to action and skeletons. It fails when neighbours print
-  the same points or come from one metro, or when one set or metro covers more than a third. With
-  `--skeletons` it also fails when neighbours share a skeleton or one covers more than a third.
+  All of it is held to the pre-flight. A design's three looks are three structures with three sets of points,
+  and a line's own full ads are passed over where their structure, points or towns would cover more than a
+  third of the line (`scripts/build_library_looks.mjs`).
+- **Neighbours differ where a visitor sees them.** The landing shows the library strongest first, designs
+  apart (`app.js` `scOrder`), not in the recipes' order. Then `scNeighboursDiffer` trades a card that has its
+  neighbour's structure, selling points or towns for the nearest card of the same line and the same lock that
+  has none of them. Where its line has another layout, a card laid out like its neighbour moves too: ticks
+  beside outlines, with the product on the same side, read as one layout. The free cards first and the
+  platform's mix stand. On the hero wall, no two tiles that touch share a structure, points or towns: one
+  above the other in a column (the columns loop) and side by side as the wall first stands (the columns
+  scroll at their own speeds). Four picks changed places within their lines for it (`assets/hero-picks.json`).
+- **Measured as shown** (2026-11-22): `scripts/variety_check.mjs` opens the landing and reads the library in
+  the order it shows it, for All and for every line, and the hero wall as it stands. It reports the spread of
+  point sets, metros, calls to action, skeletons and layouts. It fails when neighbours share a skeleton,
+  points or a metro, when one covers more than a third of a line, or when a still lacks its record. Layouts
+  alike are reported, not failed: the headsets and Chromebooks carry no product in the band and have one
+  layout. Its first version (2026-11-21) read the library in the recipes' order, which the landing never
+  shows. It counted neighbours apart there while, as shown, 3 to 9 in 100 shared a structure.
 
 ## 162. The landing is built to a brief: one type scale, a rhythm of grounds, and a layout of its own for each section
 

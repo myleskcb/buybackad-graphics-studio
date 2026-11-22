@@ -734,10 +734,13 @@ produced." DESIGN-LAW rule 87. In practice:
   change to `lockScreen`, `LOCK_CLOCK`, `lockClock`, `drawFront`, `glassAspect` or a phone photograph's
   outline. Each screen is built to its glass's shape and drawn at one scale; the clock is Apple's size, place
   and spacing, measured on Apple's Newsroom images. Measure against Apple's own imagery, not memory.
-- **The library varies** (rule 166): `node scripts/variety_check.mjs --skeletons` after a redraw of the
-  stills, a change to `motion/claims.js`, `motion/sample-areas.js`, the full ad's structure (`full_order`,
-  `full_mirror`, `points_style`, `full_band`) or a stills builder. A new line gets its claims in
-  `motion/claims.js` (words_check reads them); a sample's area is never a visitor's: theirs stays theirs.
+- **The library varies** (rule 166): `GFX_BASE=<a server on this tree> node scripts/variety_check.mjs` (it
+  opens the landing and reads the library and the hero wall as they are shown) after a redraw of the stills,
+  a change to `motion/claims.js`, `motion/sample-areas.js`, the full ad's structure (`full_order`,
+  `full_mirror`, `points_style`, `full_band`), a stills builder, the library's order (`app.js` `scOrder`,
+  `scRankMixed`, `scNeighboursDiffer`) or the hero picks. Measure neighbours in the order the page shows them,
+  never in the recipes' order. A new line gets its claims in `motion/claims.js` (words_check reads them); a
+  sample's area is never a visitor's: theirs stays theirs.
 - **Each phone's own model's wallpaper** (rule 156): Apple's, on a third of ads, in the finish of the screen's
   colour family (`fullad.js deviceWall`). A new model's wallpapers, once the owner approves each download, go
   through `scripts/build_device_walls.mjs <manifest.json>` (never fetched by it); `--check` holds the folder

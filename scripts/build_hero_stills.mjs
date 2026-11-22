@@ -20,14 +20,26 @@ import { recipeArea, fullArea } from './_sample_areas.mjs';
 const ROOT = new URL('../', import.meta.url).pathname, DIR = ROOT + 'assets/hero/';
 const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8931/').replace(/\/?$/, '/');
 const SHOP = { number: '(562) 999-4994', zip: '90802' };   // the page's own area until a still sets its own
-// each pick's area and number are its own, as its still in the library has them (motion/sample-areas.js)
-const areaOf = id => { const m = /^full-(.+?)(?:-v(\d+))?$/.exec(id); return m ? fullArea(m[1], m[2] ? +m[2] : 1) : recipeArea(id); };
 const picks = (JSON.parse(readFileSync(ROOT + 'assets/hero-picks.json', 'utf8')).picks || []).map(String);
 const house = picks.filter(id => /^r-|^full-/.test(id));
 const index = existsSync(DIR + 'index.json') ? JSON.parse(readFileSync(DIR + 'index.json', 'utf8')) : { items: {} };
 // a recipe pick whose still the library's rebuilt ads already have (scripts/build_recipe_stills.mjs) needs no second one
 const rebuilt = existsSync(ROOT + 'assets/recipe-stills/index.json') ? JSON.parse(readFileSync(ROOT + 'assets/recipe-stills/index.json', 'utf8')).items || {} : {};
 const own = id => !!rebuilt[id] && existsSync(ROOT + rebuilt[id].thumb);
+// each pick's area and number (motion/sample-areas.js): a recipe pick's are its still's in the library; a line's full
+// ad, drawn for the wall alone, takes the first metro on its line's walk that no other tile on the wall prints, so the
+// wall reads as eighteen buyers, not three in Denver (rule 166; scripts/variety_check.mjs)
+const fullPick = id => /^full-(.+?)(?:-v(\d+))?$/.exec(id);
+const areas = new Map(), taken = new Set();
+for (const id of house) if (!fullPick(id)) { const A = recipeArea(id); areas.set(id, A); taken.add((own(id) && rebuilt[id].words && rebuilt[id].words.metro) || A.metro); }
+for (const id of house) {
+  const m = fullPick(id); if (!m) continue;
+  const line = m[1], seed = m[2] ? +m[2] : 1;
+  let A = fullArea(line, seed);
+  for (let k = 1; k <= 30 && taken.has(A.metro); k++) A = fullArea(line, seed + k);   // seven metros a step: all thirty
+  taken.add(A.metro); areas.set(id, A);
+}
+const areaOf = id => areas.get(id);
 const missing = house.filter(id => !own(id) && (!index.items[id] || !existsSync(DIR + id + '.webp')));
 
 if (process.argv.includes('--check')) {

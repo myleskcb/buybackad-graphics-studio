@@ -1,6 +1,8 @@
-/* Where each sample sits in its line, in the library's order (motion/recipes.json's: a design, its other looks,
+/* Where each sample sits in its line, in the recipes' order (motion/recipes.json: a design, its other looks,
    then the next design; a line's own full ads after them), and the area that place takes (motion/sample-areas.js
-   sampleAreaAt: neighbours never from one metro). For the stills builders and the renders. */
+   sampleAreaAt: the metros walked seven at a time, so each takes its share). The landing shows the library in
+   an order of its own and keeps neighbours from one metro apart there (app.js scNeighboursDiffer). For the
+   stills builders and the renders. */
 import { readFileSync } from 'node:fs';
 import { sampleAreaAt } from '../motion/sample-areas.js';
 const ROOT = new URL('../', import.meta.url).pathname;

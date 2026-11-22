@@ -6531,3 +6531,19 @@ SEO session (158, pull request 15). Pull request 15 now meets this branch in `in
 - **Measure what the owner sees, not what the code varies.** The first skeleton key counted the number's
   plate and the mark, which already varied, and called the library varied. The owner's "skeleton" is the
   order of the blocks, the band and the side the product takes; measured on those, it was one.
+
+## 2026-11-22 — The library's variety, measured as shown (claude/xenodochial-mccarthy-7bea6d)
+
+- **A neighbour is whatever the page puts beside it.** The first check walked the recipes' order: a design,
+  its other looks, then the next design. The landing sorts by strength and keeps families apart, so a
+  design's looks never sit together there. The check passed while, as shown, 3 to 9 neighbours in 100 shared
+  a structure. Read the order from the page that shows it.
+- **Fix the order where it is made.** No builder chooses what the landing puts beside a still; a pass after
+  the landing's own sort can. Trading only cards of the same line and the same lock keeps the sort's other
+  promises, the free cards first and the mix's lines.
+- **Distinct is not different.** Neighbours apart by the structure key still read alike when only the
+  points' drawing differed (ticks beside outlines, with the product on the same side). The eye compares
+  the layout: what comes first, the band and the side. Keep layouts apart where the line has more than one.
+- **A browser tab keeps the script it loaded.** The preview pane ran the app.js from before the edit until
+  it was fetched again with `cache: 'reload'`. Check that the new code is the code running before reading a
+  result from it.
