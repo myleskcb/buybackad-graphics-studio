@@ -27,6 +27,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, unlink
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
+import { recipeArea } from './_sample_areas.mjs';
 import { exifStamp } from './_jpeg_exif.mjs';
 import { LIBRARY_SITE, LIBRARY_SAY } from './_library_finish.mjs';
 import { stampOf, libraryRecipes } from './_rebuilt.mjs';
@@ -73,14 +74,16 @@ if (todo.length) {
     const words = {}, pts = r.words.points ? r.words.points.split(', ').map(w => sayOf(w, r.subject)).join(', ') : '';
     if (pts && pts !== r.words.points) words.points = pts;
     if (r.words.label && sayOf(r.words.label, r.subject) !== r.words.label) words.label = sayOf(r.words.label, r.subject);
-    const got = await page.evaluate(async ({ id, words, SIZE, QUALITY }) => {
+    const A = recipeArea(r.id);   // its own area and number, as its still has them (motion/sample-areas.js)
+    const got = await page.evaluate(async ({ id, words, SIZE, QUALITY, A }) => {
       const M = await import('/motion/fullad.js'), FS = window.FullAdStudio, FA = FS.state;
+      const area = await resolveArea(A.zip); if (area) setArea(area); $('ez-phone').value = A.number;
       const rec = await FS.useRecipe(id); if (!rec) return { error: 'no recipe ' + id };
       FA.biz = ''; FA.words[rec.subject] = { ...words };
       const { ad } = await FS.build(SIZE, FORMATS.square);
       const frame = M.fullStill(ad);
       return { jpg: frame.toDataURL('image/jpeg', QUALITY), w: frame.width, h: frame.height };
-    }, { id: r.id, words, SIZE, QUALITY });
+    }, { id: r.id, words, SIZE, QUALITY, A });
     if (got.error || !/^data:image\/jpeg;base64,/.test(got.jpg || '')) { failed.push(r.id + ': ' + (got.error || 'no picture')); continue; }
     const dates = { created: rebuiltAt, updated: rebuiltAt, rendered: nowIso() };
     const title = r.label.replace(/ \((library card)\)$/, '');

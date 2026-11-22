@@ -4421,3 +4421,18 @@ the 51 downloads (9to5Mac and iClarified, 85 MB, kept outside the repo; 1.3 MB a
   stills and 1 full-size render. Some of those changed because the still drawn before them did (the builders'
   order): a coin, a silver and a truck ad among them.
 - **Owner**: Apple's wallpapers are Apple's artwork in the ads; the owner chose them knowing that.
+
+The library's variety (2026-11-21; the owner, through the roadmap session: "bro the variety is so minimal
+here..? there's no variations at all?", "all the same selling points and location"; rule 166):
+- **Done.** Each ad draws its selling points from its line's own claims (two, three or none) and its call to
+  action from six; a sample takes a US metro walked along its line, with a 555-01xx number on the metro's
+  code; and the structure varies by seed (product first, a mirrored band, the points ticked, numbered,
+  outlined or dotted, the band's next best shape). `scripts/variety_check.mjs` measures the spread per line
+  and on the hero wall.
+- **Owner's choices**: "US metros nationwide" for the sample towns, and "Match the area, 555-01xx" for the
+  sample number.
+- **Not yet**: the video maker's Any looks (164 in the library) keep the one area typed into the maker; the
+  points of a design that brings its own words keep them on its own look.
+- **Next**: redraw the library's other looks (`build_library_looks.mjs --all --only looks,full`) so each passes
+  over a seed with its neighbour's skeleton or points; then `variety_check.mjs --skeletons` should pass in every
+  line. Neighbouring designs' own looks (fixed by their recipes' seeds) can still share one.

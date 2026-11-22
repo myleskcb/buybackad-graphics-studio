@@ -15,10 +15,13 @@
            node scripts/build_hero_stills.mjs --check   exit 1 if a recipe or full-ad pick has no still */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { recipeArea, fullArea } from './_sample_areas.mjs';
 
 const ROOT = new URL('../', import.meta.url).pathname, DIR = ROOT + 'assets/hero/';
 const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8931/').replace(/\/?$/, '/');
-const SHOP = { number: '(562) 999-4994', zip: '90802' };   // the library cards' own number and Long Beach
+const SHOP = { number: '(562) 999-4994', zip: '90802' };   // the page's own area until a still sets its own
+// each pick's area and number are its own, as its still in the library has them (motion/sample-areas.js)
+const areaOf = id => { const m = /^full-(.+?)(?:-v(\d+))?$/.exec(id); return m ? fullArea(m[1], m[2] ? +m[2] : 1) : recipeArea(id); };
 const picks = (JSON.parse(readFileSync(ROOT + 'assets/hero-picks.json', 'utf8')).picks || []).map(String);
 const house = picks.filter(id => /^r-|^full-/.test(id));
 const index = existsSync(DIR + 'index.json') ? JSON.parse(readFileSync(DIR + 'index.json', 'utf8')) : { items: {} };
@@ -47,8 +50,9 @@ await page.evaluate(async S => {
 }, SHOP);
 
 for (const id of house.filter(id => !own(id))) {
-  const got = await page.evaluate(async id => {
+  const got = await page.evaluate(async ({ id, A }) => {
     const M = await import('/motion/fullad.js'), FS = window.FullAdStudio, FA = FS.state;
+    const area = await resolveArea(A.zip); if (area) setArea(area); $('ez-phone').value = A.number;
     let meta;
     if (id.startsWith('r-')) {
       const r = await FS.useRecipe(id); if (!r) return { error: 'no recipe ' + id };
@@ -74,8 +78,11 @@ for (const id of house.filter(id => !own(id))) {
     const photo = bg === 'photo' && st.ground_photo ? String(st.ground_photo.src || '') : '', where = String(st.feed_where ?? st.area ?? ''), states = String(st.area_states || '');
     // the faces it is set in, by family (a face the page declares too was drawn in Arial Black before 2026-11-19: engine.js loadFonts)
     const E = await import('/motion/engine.js'), C = await import('/motion/catalog.js'), fams = [...new Set(E.fontsFor(st).map(n => (C.FONTS[n] || [])[0]).filter(Boolean))];
-    return { ...meta, fams, pair, pairName: P ? P.name : '', look: P ? P.look : '', background: bg, ground, photo, where, states, headline: String(st.headline || ''), product: String(product), webp: c.toDataURL('image/webp', 0.78) };
-  }, id);
+    const E2 = await import('/motion/engine.js');
+    const words = { points: E2.pointsOf(st), label: String(st.number_label || ''), number: String(st.number || ''), metro: A.metro };
+    const shape = { mode: (ad.full && ad.full.mode) || '', order: (ad.full && ad.full.order) || 'head', mirror: !!(ad.full && ad.full.mirror), points_style: E2.pointsOf(st).length ? String(st.points_style || 'tick') : 'none', points_n: E2.pointsOf(st).length, number_style: String(st.number_style || 'pill'), mark: String(st.cta_mark || ''), arrangement: String(st.arrangement || '') };
+    return { ...meta, words, shape, fams, pair, pairName: P ? P.name : '', look: P ? P.look : '', background: bg, ground, photo, where, states, headline: String(st.headline || ''), product: String(product), webp: c.toDataURL('image/webp', 0.78) };
+  }, { id, A: areaOf(id) });
   if (got.error) { console.log(`  ${id}: ${got.error}`); continue; }
   writeFileSync(DIR + id + '.webp', Buffer.from(got.webp.split(',')[1], 'base64'));
   const { webp, ...meta } = got;

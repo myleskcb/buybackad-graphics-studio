@@ -6807,6 +6807,41 @@ or text icon that doesn't need to be the only animated element".
   - `full_ad_check` counts any mark as the number's eye-catcher;
   - `full_colour_check` reads the chevrons' colour on the chevrons themselves.
 
+
+## 166. An ad varies its structure, its selling points and its sample's towns by its seed
+
+Added 2026-11-21. The owner, of the library: "bro the variety is so minimal here..? there's no variations at
+all?", then "all the same selling points and location". Across the lines nearly every ad was one skeleton:
+- a badge, the headline and a models line;
+- three tick chips at the left and the product at the right;
+- CALL OR TEXT, arrows into the number bar, and LONG BEACH • LOS ANGELES • ANAHEIM under it.
+
+Colours, faces, stickers and grounds varied. The structure, the words and the place did not.
+
+- **The selling points** are drawn by the ad's seed from its line's own true claims (`motion/claims.js`). An
+  ad gets two or three, or none one time in eight, none repeating a promise its headline, line or call to
+  action makes. Every line had printed FREE QUOTE · CASH SAME DAY · NO FEES. A design's own words stay on its
+  own look; its other looks draw their own, so no row repeats them.
+- **The call to action** is drawn from six in English (CALL OR TEXT, TEXT US NOW, GET YOUR OFFER, MESSAGE US,
+  TEXT FOR A QUOTE, CALL US TODAY) and four in Spanish. It had always been CALL OR TEXT.
+- **A sample's area**: the library's stills, its other looks, the hero wall, the renders and the strip of
+  layouts. Each sample takes a US metro (the owner: "US metros nationwide"), walked seven at a time along its
+  line, so neighbours never share one (`motion/sample-areas.js`). Its number is the metro's own code on
+  555-0100 to 555-0199 (the owner: "Match the area, 555-01xx"), the numbers set aside for fiction. A visitor's
+  own ad keeps their own area and number. A city photograph follows the sample's towns (rule 154).
+- **The structure**, each choice on a seed stream of its own, so no colour, face or ground moves (`fullStyle`):
+  - the product over the headline three times in ten (`full_order`);
+  - the side band mirrored, the product first and the points after it, half the time (`full_mirror`);
+  - the points ticked, numbered, outlined or dotted (`points_style`);
+  - four times in ten, the band's next best shape where it shows the product at least .85 as large
+    (`full_band`).
+
+  All of it is held to the pre-flight.
+- **Measured**: `scripts/variety_check.mjs` reads what each still recorded, per line and on the hero wall:
+  the spread of selling-point sets, metros, calls to action and skeletons. It fails when neighbours print
+  the same points or come from one metro, or when one set or metro covers more than a third. With
+  `--skeletons` it also fails when neighbours share a skeleton or one covers more than a third.
+
 ## 162. The landing is built to a brief: one type scale, a rhythm of grounds, and a layout of its own for each section
 
 (Rule 158 on the census branch. Folded into pull request 14 on 2026-11-19 it became 162: 158 is pull

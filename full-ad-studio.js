@@ -137,7 +137,7 @@ function baseNow(S, ids, set, size, R = recipeNow()) {
   const base = { ...DEFAULT_STYLE, lang: "en",
     headline: up(w.headline) || up(rw.headline) || (V ? V.heads[0] : S.heads[0]).toUpperCase(),
     tag: up(w.tag) || up(rw.tag) || (iph ? "" : (V ? V.models : S.models).toUpperCase()),
-    points: up(w.points) || up(rw.points) || (iph ? null : S.points),
+    points: up(w.points) || up(rw.points) || null,   // none typed: the full ad draws them from the line's own claims (motion/claims.js)
     number: el("ez-phone").value.trim(), number_label: up(w.label) || up(rw.label),
     site: el("ez-website").value.trim(), biz: String(FA.biz || "").trim(),
     // a recipe's own pictures are kept as given (subject_set: the full ad draws a line's pool only at 0)
@@ -578,7 +578,7 @@ function toVideo() {
   const w = FA.words[S.key] || {}, up = v => String(v || "").trim().toUpperCase(), F = FORMATS[ez.format] || FORMATS.square, ar = F.w / F.h;
   const hand = { subject: S.key, subject_set: S.sets.length ? (FA.set[S.key] | 0) % S.sets.length : 0, seed: FA.seed | 0 || 1, full_palette: FA.pair || "", full_type: FA.voice === "house" ? "house" : fullVoiceOk(FA.voice) ? FA.voice : "",
     recipe: R ? R.id : "",
-    headline: up(w.headline) || up(rw.headline) || S.heads[0].toUpperCase(), tag: up(w.tag) || up(rw.tag) || (S.key === "iphone" ? "" : S.models.toUpperCase()), points: up(w.points) || up(rw.points) || (S.key === "iphone" ? null : S.points),
+    headline: up(w.headline) || up(rw.headline) || S.heads[0].toUpperCase(), tag: up(w.tag) || up(rw.tag) || (S.key === "iphone" ? "" : S.models.toUpperCase()), points: up(w.points) || up(rw.points) || null,
     feed_claim: up(w.claim) || (String(FA.biz || "").trim() ? "" : up(rw.claim)), feed_burst: up(w.burst) || up(rw.burst), number_label: up(w.label) || up(rw.label), biz: String(FA.biz || "").trim(),
     number: el("ez-phone").value.trim(), site: el("ez-website").value.trim(), feed_where: whereNow(), area_states: statesNow(),
     aspect: ar >= 1.3 ? "16:9" : ar <= .62 ? "9:16" : Math.abs(ar - 1) < .02 ? "1:1" : "4:5", at: Date.now() };

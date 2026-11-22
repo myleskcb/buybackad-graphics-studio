@@ -1,6 +1,6 @@
 {
  "about": "Stills of the rebuilt designer layouts (motion/recipes.json, gen dl), drawn by scripts/build_recipe_stills.mjs --layouts; full-ad-studio.js shows them in Easy Mode's strip in the old layouts' place and opens each in the full ad.",
- "made": "2026-11-21T23:43:06.331Z",
+ "made": "2026-11-22T00:22:49.451Z",
  "items": {
   "r-dl_phones_agencyGrid_mono": {
    "kind": "recipe",
@@ -23,9 +23,28 @@
    "background": "radial",
    "ground": "house",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "OAKLAND • SAN FRANCISCO • BERKELEY",
    "states": "CA",
    "headline": "SELL YOUR IPHONE",
+   "words": {
+    "points": [
+     "FAIR OFFER",
+     "CRACKED OK"
+    ],
+    "label": "GET YOUR OFFER",
+    "number": "(510) 555-0122",
+    "metro": "Bay Area"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": true,
+    "points_style": "tick",
+    "points_n": 2,
+    "number_style": "underline",
+    "mark": "arrow",
+    "arrangement": "lineup"
+   },
    "thumb": "assets/layout-stills/r-dl_phones_agencyGrid_mono.webp",
    "stamp": "[65085,\"iphone\",{\"headline\":\"SELL YOUR iPHONE\",\"tag\":\"iPHONE • iPAD • MACBOOK • SAMSUNG\",\"claim\":\"LOCAL BUYER\",\"label\":\"GET YOUR OFFER\"},[],false,\"Agency Mono (designer layout)\"]"
   },
@@ -50,9 +69,29 @@
    "background": "pat_riso",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "NEW YORK CITY • MANHATTAN • BROOKLYN",
+   "states": "NY",
    "headline": "SELL YOUR IPHONE",
+   "words": {
+    "points": [
+     "CASH SAME DAY",
+     "LOCAL BUYER",
+     "WE MEET YOU"
+    ],
+    "label": "TEXT US NOW",
+    "number": "(212) 555-0110",
+    "metro": "New York"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "box",
+    "mark": "arrow",
+    "arrangement": "wings"
+   },
    "thumb": "assets/layout-stills/r-dl_phones_arcCrown_crimson.webp",
    "stamp": "[95106,\"iphone\",{\"headline\":\"SELL YOUR iPHONE\",\"tag\":\"iPHONE • iPAD • MACBOOK • SAMSUNG\"},[],false,\"Marquee Arc (designer layout)\"]"
   },
@@ -77,9 +116,29 @@
    "background": "pat_stripes",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "CHICAGO • CICERO • EVANSTON",
+   "states": "IL",
    "headline": "SELL YOUR IPHONE",
+   "words": {
+    "points": [
+     "NO FEES",
+     "FREE QUOTE",
+     "LOCAL"
+    ],
+    "label": "GET YOUR OFFER",
+    "number": "(312) 555-0147",
+    "metro": "Chicago"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "box",
+    "mark": "none",
+    "arrangement": "wings"
+   },
    "thumb": "assets/layout-stills/r-dl_phones_bandKnockout_arctic.webp",
    "stamp": "[79256,\"iphone\",{\"headline\":\"SELL YOUR iPHONE\",\"points\":\"NO FEES, FREE QUOTE, LOCAL\",\"label\":\"GET YOUR OFFER\"},[],false,\"Arctic Band (designer layout)\"]"
   },
@@ -104,9 +163,28 @@
    "background": "pair_mesh",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "LAS VEGAS • NORTH LAS VEGAS • PARADISE",
+   "states": "NV",
    "headline": "SELL YOUR IPHONE",
+   "words": {
+    "points": [
+     "QUOTE BY TEXT",
+     "CRACKED OK"
+    ],
+    "label": "GET YOUR OFFER",
+    "number": "(702) 555-0110",
+    "metro": "Las Vegas"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "dot",
+    "points_n": 2,
+    "number_style": "box",
+    "mark": "phone",
+    "arrangement": "wings"
+   },
    "thumb": "assets/layout-stills/r-dl_phones_checklistHero_emerald.webp",
    "stamp": "[89710,\"iphone\",{\"headline\":\"SELL YOUR iPHONE\",\"claim\":\"NO FEES FREE QUOTE LOCAL\",\"label\":\"GET YOUR OFFER\"},[],false,\"Deal Checklist (designer layout)\"]"
   },
@@ -131,9 +209,29 @@
    "background": "pair_sunset",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "WASHINGTON • ARLINGTON • ALEXANDRIA",
+   "states": "DC VA",
    "headline": "SELL YOUR IPHONE",
+   "words": {
+    "points": [
+     "CRACKED OK",
+     "FREE QUOTE",
+     "ANY CARRIER"
+    ],
+    "label": "GET YOUR OFFER",
+    "number": "(202) 555-0173",
+    "metro": "Washington"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "underline",
+    "mark": "message",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_phones_gradientWave_sunset.webp",
    "stamp": "[70353,\"iphone\",{\"headline\":\"SELL YOUR iPHONE\",\"tag\":\"iPHONE • iPAD • MACBOOK • SAMSUNG\",\"claim\":\"NO FEES FREE QUOTE LOCAL\",\"label\":\"GET YOUR OFFER\"},[],false,\"Sunset Wave (designer layout)\"]"
   },
@@ -158,9 +256,25 @@
    "background": "pair_radial",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "ATLANTA • SANDY SPRINGS • BROOKHAVEN",
+   "states": "GA",
    "headline": "SELL YOUR IPHONE",
+   "words": {
+    "points": [],
+    "label": "CALL OR TEXT",
+    "number": "(404) 555-0184",
+    "metro": "Atlanta"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "none",
+    "points_n": 0,
+    "number_style": "pill",
+    "mark": "message",
+    "arrangement": "podium"
+   },
    "thumb": "assets/layout-stills/r-dl_phones_neonNight_royal.webp",
    "stamp": "[97840,\"iphone\",{\"headline\":\"SELL YOUR iPHONE\",\"tag\":\"iPHONE • iPAD • MACBOOK • SAMSUNG\",\"claim\":\"LOCAL BUYER\"},[],false,\"Neon Vault (designer layout)\"]"
   },
@@ -185,9 +299,25 @@
    "background": "pair_split",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "DENVER • AURORA • LAKEWOOD",
+   "states": "CO",
    "headline": "CASH",
+   "words": {
+    "points": [],
+    "label": "GET YOUR OFFER",
+    "number": "(303) 555-0145",
+    "metro": "Denver"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "none",
+    "points_n": 0,
+    "number_style": "box",
+    "mark": "arrows",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_phones_priceAnchor_volt.webp",
    "stamp": "[72666,\"iphone\",{\"headline\":\"CASH\",\"claim\":\"SELL YOUR iPHONE\"},[],false,\"Price Point (designer layout)\"]"
   },
@@ -212,9 +342,28 @@
    "background": "pair_linear",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "ANAHEIM • LONG BEACH • SANTA ANA",
    "states": "CA",
    "headline": "CASH IN 3 STEPS",
+   "words": {
+    "points": [
+     "LOCAL BUYER",
+     "PAID TODAY"
+    ],
+    "label": "MESSAGE US",
+    "number": "(714) 555-0133",
+    "metro": "Orange County"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "numbered",
+    "points_n": 2,
+    "number_style": "tag",
+    "mark": "chevrons",
+    "arrangement": "lineup"
+   },
    "thumb": "assets/layout-stills/r-dl_phones_stepsFlow_volt.webp",
    "stamp": "[62462,\"iphone\",{\"headline\":\"CASH IN 3 STEPS\",\"claim\":\"HOW IT WORKS\"},[],false,\"Three Steps (designer layout)\"]"
   },
@@ -239,9 +388,29 @@
    "background": "pair_sunset",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "TAMPA • ST. PETERSBURG • BRANDON",
+   "states": "FL",
    "headline": "SELL YOUR IPHONE",
+   "words": {
+    "points": [
+     "LOCAL BUYER",
+     "CRACKED OK",
+     "CASH SAME DAY"
+    ],
+    "label": "GET YOUR OFFER",
+    "number": "(813) 555-0121",
+    "metro": "Tampa"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "outline",
+    "points_n": 3,
+    "number_style": "ticket",
+    "mark": "message",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_phones_ticketStub_mono.webp",
    "stamp": "[5976,\"iphone\",{\"headline\":\"SELL YOUR iPHONE\",\"tag\":\"iPHONE • iPAD • MACBOOK • SAMSUNG\",\"claim\":\"CASH PAID TODAY\",\"label\":\"GET YOUR OFFER\"},[],false,\"Stub Mono (designer layout)\"]"
   },
@@ -266,9 +435,25 @@
    "background": "pat_checks",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "SAN ANTONIO • SCHERTZ • CONVERSE",
+   "states": "TX",
    "headline": "CASH FOR GOLD",
+   "words": {
+    "points": [],
+    "label": "GET A FREE QUOTE",
+    "number": "(210) 555-0106",
+    "metro": "San Antonio"
+   },
+   "shape": {
+    "mode": "stack",
+    "order": "head",
+    "mirror": false,
+    "points_style": "none",
+    "points_n": 0,
+    "number_style": "box",
+    "mark": "chevrons",
+    "arrangement": "wings"
+   },
    "thumb": "assets/layout-stills/r-dl_gold_agencyGrid_gold.webp",
    "stamp": "[57667,\"gold\",{\"headline\":\"CASH FOR GOLD\",\"tag\":\"GOLD JEWELRY • ROLEX • CLASS RINGS • GOLD CHAINS\",\"claim\":\"LOCAL GOLD BUYER\",\"label\":\"GET A FREE QUOTE\"},[],false,\"Atelier Grid (designer layout)\"]"
   },
@@ -293,9 +478,29 @@
    "background": "pair_mesh",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "PHOENIX • GLENDALE • MESA",
+   "states": "AZ",
    "headline": "CASH FOR GOLD",
+   "words": {
+    "points": [
+     "PAID TODAY",
+     "TESTED FREE",
+     "LOCAL BUYER"
+    ],
+    "label": "CALL OR TEXT",
+    "number": "(602) 555-0194",
+    "metro": "Phoenix"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": true,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "underline",
+    "mark": "chevrons",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_gold_arcCrown_gold.webp",
    "stamp": "[3824,\"gold\",{\"headline\":\"CASH FOR GOLD\",\"tag\":\"GOLD JEWELRY • ROLEX • CLASS RINGS • GOLD CHAINS\"},[],false,\"Crown Karat (designer layout)\"]"
   },
@@ -320,9 +525,29 @@
    "background": "pair_split",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "BOSTON • CAMBRIDGE • SOMERVILLE",
+   "states": "MA",
    "headline": "CASH FOR GOLD",
+   "words": {
+    "points": [
+     "NO FEES",
+     "FREE QUOTE",
+     "PRIVATE"
+    ],
+    "label": "GET A FREE QUOTE",
+    "number": "(617) 555-0182",
+    "metro": "Boston"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "pill",
+    "mark": "phone_text",
+    "arrangement": "lineup"
+   },
    "thumb": "assets/layout-stills/r-dl_gold_bandKnockout_paper.webp",
    "stamp": "[76763,\"gold\",{\"headline\":\"CASH FOR GOLD\",\"points\":\"NO FEES, FREE QUOTE, PRIVATE\",\"label\":\"GET A FREE QUOTE\"},[],false,\"Ledger Band (designer layout)\"]"
   },
@@ -347,9 +572,28 @@
    "background": "pat_grid",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "MINNEAPOLIS • SAINT PAUL • SAINT LOUIS PARK",
+   "states": "MN",
    "headline": "CASH FOR GOLD",
+   "words": {
+    "points": [
+     "FREE QUOTE",
+     "LOCAL BUYER"
+    ],
+    "label": "GET A FREE QUOTE",
+    "number": "(612) 555-0194",
+    "metro": "Minneapolis"
+   },
+   "shape": {
+    "mode": "stack",
+    "order": "product",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 2,
+    "number_style": "pill",
+    "mark": "phone_text",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_gold_checklistHero_gold.webp",
    "stamp": "[9788,\"gold\",{\"headline\":\"CASH FOR GOLD\",\"claim\":\"NO FEES FREE QUOTE PRIVATE\",\"label\":\"GET A FREE QUOTE\"},[],false,\"Scale Checklist (designer layout)\"]"
   },
@@ -374,9 +618,29 @@
    "background": "pat_paper",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "PORTLAND • VANCOUVER • BEAVERTON",
+   "states": "OR WA",
    "headline": "CASH FOR GOLD",
+   "words": {
+    "points": [
+     "PAID TODAY",
+     "FREE QUOTE",
+     "LOCAL BUYER"
+    ],
+    "label": "CALL OR TEXT",
+    "number": "(503) 555-0107",
+    "metro": "Portland"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "numbered",
+    "points_n": 3,
+    "number_style": "tag",
+    "mark": "chevrons",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_gold_duoSplit_gold.webp",
    "stamp": "[63355,\"gold\",{\"headline\":\"CASH FOR GOLD\",\"claim\":\"PAID AT CURRENT MARKET RATES\"},[],false,\"Karat Split (designer layout)\"]"
   },
@@ -404,6 +668,25 @@
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
    "states": "CA",
    "headline": "CASH FOR GOLD",
+   "words": {
+    "points": [
+     "NO FEES",
+     "PAID TODAY"
+    ],
+    "label": "GET A FREE QUOTE",
+    "number": "(562) 555-0119",
+    "metro": "Long Beach"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": true,
+    "points_style": "outline",
+    "points_n": 2,
+    "number_style": "pill",
+    "mark": "message",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_gold_glassCard_gold.webp",
    "stamp": "[50860,\"gold\",{\"headline\":\"CASH FOR GOLD\",\"tag\":\"GOLD JEWELRY • ROLEX • CLASS RINGS • GOLD CHAINS\",\"claim\":\"LOCAL GOLD BUYER\",\"label\":\"GET A FREE QUOTE\"},[],false,\"Gilt Glass (designer layout)\"]"
   },
@@ -428,9 +711,29 @@
    "background": "radial",
    "ground": "house",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "ORLANDO • PINE HILLS • ALAFAYA",
+   "states": "FL",
    "headline": "CASH FOR GOLD",
+   "words": {
+    "points": [
+     "TESTED FREE",
+     "PAID BY WEIGHT",
+     "LOCAL BUYER"
+    ],
+    "label": "GET A FREE QUOTE",
+    "number": "(407) 555-0182",
+    "metro": "Orlando"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "numbered",
+    "points_n": 3,
+    "number_style": "box",
+    "mark": "arrow",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_gold_gradientWave_gold.webp",
    "stamp": "[91313,\"gold\",{\"headline\":\"CASH FOR GOLD\",\"tag\":\"GOLD JEWELRY • ROLEX • CLASS RINGS • GOLD CHAINS\",\"claim\":\"NO FEES FREE QUOTE PRIVATE\",\"label\":\"GET A FREE QUOTE\"},[],false,\"Molten Wave (designer layout)\"]"
   },
@@ -455,9 +758,28 @@
    "background": "pair_conic",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "DALLAS • IRVING • GARLAND",
+   "states": "TX",
    "headline": "CASH FOR GOLD",
+   "words": {
+    "points": [
+     "PAID TODAY",
+     "FREE QUOTE"
+    ],
+    "label": "CALL OR TEXT",
+    "number": "(214) 555-0169",
+    "metro": "Dallas"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": false,
+    "points_style": "dot",
+    "points_n": 2,
+    "number_style": "ticket",
+    "mark": "message",
+    "arrangement": "podium"
+   },
    "thumb": "assets/layout-stills/r-dl_gold_slabPoster_paper.webp",
    "stamp": "[82100,\"gold\",{\"headline\":\"CASH FOR GOLD\",\"claim\":\"LOCAL GOLD BUYER\"},[],false,\"Broadsheet Gold (designer layout)\"]"
   },
@@ -482,9 +804,29 @@
    "background": "pat_grain",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "RIVERSIDE • FONTANA • MORENO VALLEY",
    "states": "CA",
    "headline": "CASH FOR GOLD",
+   "words": {
+    "points": [
+     "PAID TODAY",
+     "LOCAL BUYER",
+     "NO FEES"
+    ],
+    "label": "GET A FREE QUOTE",
+    "number": "(951) 555-0107",
+    "metro": "Inland Empire"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "underline",
+    "mark": "phone",
+    "arrangement": "podium"
+   },
    "thumb": "assets/layout-stills/r-dl_gold_ticketStub_gold.webp",
    "stamp": "[5186,\"gold\",{\"headline\":\"CASH FOR GOLD\",\"tag\":\"GOLD JEWELRY • ROLEX • CLASS RINGS • GOLD CHAINS\",\"claim\":\"PAID AT CURRENT MARKET RATES\",\"label\":\"GET A FREE QUOTE\"},[],false,\"Assay Ticket (designer layout)\"]"
   },
@@ -509,9 +851,29 @@
    "background": "pat_grid",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "NASHVILLE • BRENTWOOD • FRANKLIN",
+   "states": "TN",
    "headline": "CASH FOR GOLD",
+   "words": {
+    "points": [
+     "NO FEES",
+     "FREE QUOTE",
+     "PRIVATE"
+    ],
+    "label": "GET A FREE QUOTE",
+    "number": "(615) 555-0110",
+    "metro": "Nashville"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": true,
+    "points_style": "numbered",
+    "points_n": 3,
+    "number_style": "tag",
+    "mark": "chevrons",
+    "arrangement": "podium"
+   },
    "thumb": "assets/layout-stills/r-dl_gold_voltStack_gold.webp",
    "stamp": "[66551,\"gold\",{\"headline\":\"CASH FOR GOLD\",\"claim\":\"LOCAL GOLD BUYER\",\"points\":\"NO FEES, FREE QUOTE, PRIVATE\",\"label\":\"GET A FREE QUOTE\"},[],false,\"Bullion Stack (designer layout)\"]"
   },
@@ -536,9 +898,29 @@
    "background": "pair_mesh",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "SAN ANTONIO • SCHERTZ • CONVERSE",
+   "states": "TX",
    "headline": "WANTED GOLD",
+   "words": {
+    "points": [
+     "PAID TODAY",
+     "FREE QUOTE",
+     "NO FEES"
+    ],
+    "label": "CALL OR TEXT",
+    "number": "(210) 555-0173",
+    "metro": "San Antonio"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": true,
+    "points_style": "numbered",
+    "points_n": 3,
+    "number_style": "pill",
+    "mark": "curved",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_gold_wantedFrame_paper.webp",
    "stamp": "[70848,\"gold\",{\"headline\":\"WANTED GOLD\",\"tag\":\"GOLD JEWELRY • ROLEX • CLASS RINGS • GOLD CHAINS\",\"claim\":\"LOCAL GOLD BUYER\"},[],false,\"Gold Rush Frame (designer layout)\"]"
   },
@@ -563,9 +945,29 @@
    "background": "pair_radial",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "PHILADELPHIA • CAMDEN • CHERRY HILL",
+   "states": "PA NJ",
    "headline": "WE BUY SILVER",
+   "words": {
+    "points": [
+     "NO FEES",
+     "LOCAL BUYER",
+     "PAID TODAY"
+    ],
+    "label": "CALL OR TEXT",
+    "number": "(215) 555-0155",
+    "metro": "Philadelphia"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": false,
+    "points_style": "numbered",
+    "points_n": 3,
+    "number_style": "box",
+    "mark": "chevrons",
+    "arrangement": "wings"
+   },
    "thumb": "assets/layout-stills/r-dl_silver_arcCrown_mono.webp",
    "stamp": "[53033,\"silver\",{\"headline\":\"WE BUY SILVER\",\"tag\":\"SILVER COINS • SILVER BARS • SILVERWARE • SILVER JEWELRY\"},[],false,\"Sterling Arc (designer layout)\"]"
   },
@@ -590,9 +992,29 @@
    "background": "photo",
    "ground": "photo",
    "photo": "assets/bg-web/coins-coin-collection-album-1.jpg",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "DETROIT • DEARBORN • WARREN",
+   "states": "MI",
    "headline": "WE BUY SILVER",
+   "words": {
+    "points": [
+     "NO FEES",
+     "FREE QUOTE",
+     "LOCAL"
+    ],
+    "label": "GET A FREE QUOTE",
+    "number": "(313) 555-0167",
+    "metro": "Detroit"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "pill",
+    "mark": "arrow",
+    "arrangement": "wings"
+   },
    "thumb": "assets/layout-stills/r-dl_silver_bandKnockout_mono.webp",
    "stamp": "[1192,\"silver\",{\"headline\":\"WE BUY SILVER\",\"points\":\"NO FEES, FREE QUOTE, LOCAL\",\"label\":\"GET A FREE QUOTE\"},[],false,\"Ingot Band (designer layout)\"]"
   },
@@ -617,9 +1039,25 @@
    "background": "radial",
    "ground": "house",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "SEATTLE • BELLEVUE • KIRKLAND",
+   "states": "WA",
    "headline": "WE BUY SILVER",
+   "words": {
+    "points": [],
+    "label": "GET A FREE QUOTE",
+    "number": "(206) 555-0130",
+    "metro": "Seattle"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "none",
+    "points_n": 0,
+    "number_style": "pill",
+    "mark": "arrow",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_silver_checklistHero_ocean.webp",
    "stamp": "[60502,\"silver\",{\"headline\":\"WE BUY SILVER\",\"claim\":\"NO FEES FREE QUOTE LOCAL\",\"label\":\"GET A FREE QUOTE\"},[],false,\"Weigh-In List (designer layout)\"]"
   },
@@ -644,9 +1082,29 @@
    "background": "pair_sunset",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "LOS ANGELES • GLENDALE • EAST LOS ANGELES",
    "states": "CA",
    "headline": "WE BUY SILVER",
+   "words": {
+    "points": [
+     "PAID BY WEIGHT",
+     "LOCAL BUYER",
+     "NO FEES"
+    ],
+    "label": "GET A FREE QUOTE",
+    "number": "(213) 555-0166",
+    "metro": "Los Angeles"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "outline",
+    "points_n": 3,
+    "number_style": "pill",
+    "mark": "message",
+    "arrangement": "lineup"
+   },
    "thumb": "assets/layout-stills/r-dl_silver_gradientWave_ocean.webp",
    "stamp": "[81009,\"silver\",{\"headline\":\"WE BUY SILVER\",\"tag\":\"SILVER COINS • SILVER BARS • SILVERWARE • SILVER JEWELRY\",\"claim\":\"NO FEES FREE QUOTE LOCAL\",\"label\":\"GET A FREE QUOTE\"},[],false,\"Quicksilver (designer layout)\"]"
   },
@@ -671,9 +1129,29 @@
    "background": "linear",
    "ground": "house",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "MIAMI • HIALEAH • LITTLE HAVANA",
+   "states": "FL",
    "headline": "WE BUY SILVER",
+   "words": {
+    "points": [
+     "TESTED FREE",
+     "NO FEES",
+     "PAID TODAY"
+    ],
+    "label": "CALL OR TEXT",
+    "number": "(305) 555-0103",
+    "metro": "Miami"
+   },
+   "shape": {
+    "mode": "stack",
+    "order": "head",
+    "mirror": false,
+    "points_style": "numbered",
+    "points_n": 3,
+    "number_style": "box",
+    "mark": "chevrons",
+    "arrangement": "lineup"
+   },
    "thumb": "assets/layout-stills/r-dl_silver_karatSeal_mono.webp",
    "stamp": "[44941,\"silver\",{\"headline\":\"WE BUY SILVER\",\"tag\":\"SILVER COINS • SILVER BARS • SILVERWARE • SILVER JEWELRY\",\"claim\":\"LOCAL BUYER\"},[],false,\"Hallmark Seal (designer layout)\"]"
   },
@@ -698,9 +1176,28 @@
    "background": "tonal",
    "ground": "house",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "SALT LAKE CITY • WEST VALLEY CITY • WEST JORDAN",
+   "states": "UT",
    "headline": "CASH",
+   "words": {
+    "points": [
+     "TESTED FREE",
+     "PAID BY WEIGHT"
+    ],
+    "label": "CALL OR TEXT",
+    "number": "(801) 555-0191",
+    "metro": "Salt Lake City"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": false,
+    "points_style": "dot",
+    "points_n": 2,
+    "number_style": "pill",
+    "mark": "arrows",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_silver_priceAnchor_mono.webp",
    "stamp": "[61062,\"silver\",{\"headline\":\"CASH\",\"claim\":\"WE BUY SILVER\"},[],false,\"Spot Anchor (designer layout)\"]"
   },
@@ -725,9 +1222,28 @@
    "background": "linear",
    "ground": "house",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "SAN DIEGO • CHULA VISTA • NATIONAL CITY",
    "states": "CA",
    "headline": "WE BUY SILVER",
+   "words": {
+    "points": [
+     "TESTED FREE",
+     "PAID TODAY"
+    ],
+    "label": "MESSAGE US",
+    "number": "(619) 555-0138",
+    "metro": "San Diego"
+   },
+   "shape": {
+    "mode": "stack",
+    "order": "head",
+    "mirror": false,
+    "points_style": "numbered",
+    "points_n": 2,
+    "number_style": "box",
+    "mark": "chevrons",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_silver_slabPoster_mono.webp",
    "stamp": "[21908,\"silver\",{\"headline\":\"WE BUY SILVER\",\"claim\":\"LOCAL BUYER\"},[],false,\"Sterling Slab (designer layout)\"]"
   },
@@ -752,9 +1268,28 @@
    "background": "pat_zigzag",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "CHARLOTTE • HUNTERSVILLE • CONCORD",
+   "states": "NC",
    "headline": "CASH IN 3 STEPS",
+   "words": {
+    "points": [
+     "PAID TODAY",
+     "TESTED FREE"
+    ],
+    "label": "TEXT FOR A QUOTE",
+    "number": "(704) 555-0150",
+    "metro": "Charlotte"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 2,
+    "number_style": "pill",
+    "mark": "message",
+    "arrangement": "podium"
+   },
    "thumb": "assets/layout-stills/r-dl_silver_stepsFlow_ocean.webp",
    "stamp": "[94804,\"silver\",{\"headline\":\"CASH IN 3 STEPS\",\"claim\":\"HOW IT WORKS\"},[],false,\"Silver Steps (designer layout)\"]"
   },
@@ -779,9 +1314,29 @@
    "background": "pat_paper",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "AUSTIN • ROUND ROCK • PFLUGERVILLE",
+   "states": "TX",
    "headline": "WE BUY SILVER",
+   "words": {
+    "points": [
+     "PAID TODAY",
+     "FREE QUOTE",
+     "NO FEES"
+    ],
+    "label": "GET A FREE QUOTE",
+    "number": "(512) 555-0163",
+    "metro": "Austin"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "tag",
+    "mark": "arrows",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_silver_ticketStub_arctic.webp",
    "stamp": "[15272,\"silver\",{\"headline\":\"WE BUY SILVER\",\"tag\":\"SILVER COINS • SILVER BARS • SILVERWARE • SILVER JEWELRY\",\"claim\":\"PAID AT CURRENT MARKET RATES\",\"label\":\"GET A FREE QUOTE\"},[],false,\"Mint Ticket (designer layout)\"]"
   },
@@ -806,9 +1361,29 @@
    "background": "pat_memphis",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "SACRAMENTO • ELK GROVE • WEST SACRAMENTO",
    "states": "CA",
    "headline": "WANTED SILVER",
+   "words": {
+    "points": [
+     "FREE QUOTE",
+     "PAID TODAY",
+     "NO FEES"
+    ],
+    "label": "TEXT US NOW",
+    "number": "(916) 555-0100",
+    "metro": "Sacramento"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "underline",
+    "mark": "phone_text",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_silver_wantedFrame_arctic.webp",
    "stamp": "[25719,\"silver\",{\"headline\":\"WANTED SILVER\",\"tag\":\"SILVER COINS • SILVER BARS • SILVERWARE • SILVER JEWELRY\",\"claim\":\"LOCAL BUYER\"},[],false,\"Silver Notice (designer layout)\"]"
   },
@@ -833,9 +1408,25 @@
    "background": "pair_arch",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "SAN DIEGO • CHULA VISTA • NATIONAL CITY",
    "states": "CA",
    "headline": "WE BUY COINS",
+   "words": {
+    "points": [],
+    "label": "MESSAGE US",
+    "number": "(619) 555-0131",
+    "metro": "San Diego"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "none",
+    "points_n": 0,
+    "number_style": "box",
+    "mark": "chevrons",
+    "arrangement": "podium"
+   },
    "thumb": "assets/layout-stills/r-dl_coins_arcCrown_gold.webp",
    "stamp": "[87905,\"coins\",{\"headline\":\"WE BUY COINS\",\"tag\":\"OLD COINS • SILVER DOLLARS • GOLD COINS • COIN COLLECTIONS\"},[],false,\"Liberty Arc (designer layout)\"]"
   },
@@ -860,9 +1451,29 @@
    "background": "pair_split",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "CHARLOTTE • HUNTERSVILLE • CONCORD",
+   "states": "NC",
    "headline": "WE BUY COINS",
+   "words": {
+    "points": [
+     "NO FEES",
+     "FREE QUOTE",
+     "DISCREET"
+    ],
+    "label": "REQUEST AN APPRAISAL",
+    "number": "(704) 555-0144",
+    "metro": "Charlotte"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "outline",
+    "points_n": 3,
+    "number_style": "underline",
+    "mark": "phone",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_coins_bandKnockout_gold.webp",
    "stamp": "[44953,\"coins\",{\"headline\":\"WE BUY COINS\",\"points\":\"NO FEES, FREE QUOTE, DISCREET\",\"label\":\"REQUEST AN APPRAISAL\"},[],false,\"Greysheet Band (designer layout)\"]"
   },
@@ -887,9 +1498,28 @@
    "background": "pat_memphis",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "AUSTIN • ROUND ROCK • PFLUGERVILLE",
+   "states": "TX",
    "headline": "CASH",
+   "words": {
+    "points": [
+     "QUOTE BY TEXT",
+     "NO FEES"
+    ],
+    "label": "GET YOUR OFFER",
+    "number": "(512) 555-0173",
+    "metro": "Austin"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "outline",
+    "points_n": 2,
+    "number_style": "box",
+    "mark": "chevrons",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_coins_priceAnchor_gold.webp",
    "stamp": "[77119,\"coins\",{\"headline\":\"CASH\",\"claim\":\"WE BUY COINS\"},[],false,\"Reserve Price (designer layout)\"]"
   },
@@ -914,9 +1544,29 @@
    "background": "pat_checks",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "SACRAMENTO • ELK GROVE • WEST SACRAMENTO",
    "states": "CA",
    "headline": "WE BUY COINS",
+   "words": {
+    "points": [
+     "QUOTE BY TEXT",
+     "NO FEES",
+     "LOCAL BUYER"
+    ],
+    "label": "CALL US TODAY",
+    "number": "(916) 555-0110",
+    "metro": "Sacramento"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "dot",
+    "points_n": 3,
+    "number_style": "tag",
+    "mark": "arrows",
+    "arrangement": "wings"
+   },
    "thumb": "assets/layout-stills/r-dl_coins_slabPoster_gold.webp",
    "stamp": "[86759,\"coins\",{\"headline\":\"WE BUY COINS\",\"claim\":\"COLLECTIONS WANTED\"},[],false,\"Mint Poster (designer layout)\"]"
   },
@@ -941,9 +1591,28 @@
    "background": "photo",
    "ground": "photo",
    "photo": "assets/bg-web/coins-coin-collection-album-1.jpg",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "PHILADELPHIA • CAMDEN • CHERRY HILL",
+   "states": "PA NJ",
    "headline": "WE BUY COINS",
+   "words": {
+    "points": [
+     "LOCAL BUYER",
+     "QUOTE BY TEXT"
+    ],
+    "label": "REQUEST AN APPRAISAL",
+    "number": "(215) 555-0198",
+    "metro": "Philadelphia"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": true,
+    "points_style": "tick",
+    "points_n": 2,
+    "number_style": "box",
+    "mark": "none",
+    "arrangement": "wings"
+   },
    "thumb": "assets/layout-stills/r-dl_coins_ticketStub_paper.webp",
    "stamp": "[6999,\"coins\",{\"headline\":\"WE BUY COINS\",\"tag\":\"OLD COINS • SILVER DOLLARS • GOLD COINS • COIN COLLECTIONS\",\"claim\":\"PAID ON THE SPOT\",\"label\":\"REQUEST AN APPRAISAL\"},[],false,\"Auction Stub (designer layout)\"]"
   },
@@ -968,9 +1637,29 @@
    "background": "pat_paper",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "DETROIT • DEARBORN • WARREN",
+   "states": "MI",
    "headline": "WANTED COINS",
+   "words": {
+    "points": [
+     "PAID TODAY",
+     "QUOTE BY TEXT",
+     "FAIR OFFER"
+    ],
+    "label": "MESSAGE US",
+    "number": "(313) 555-0135",
+    "metro": "Detroit"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": true,
+    "points_style": "outline",
+    "points_n": 3,
+    "number_style": "box",
+    "mark": "chevrons",
+    "arrangement": "podium"
+   },
    "thumb": "assets/layout-stills/r-dl_coins_wantedFrame_paper.webp",
    "stamp": "[3772,\"coins\",{\"headline\":\"WANTED COINS\",\"tag\":\"OLD COINS • SILVER DOLLARS • GOLD COINS • COIN COLLECTIONS\",\"claim\":\"COLLECTIONS WANTED\"},[],false,\"Old Mint Notice (designer layout)\"]"
   },
@@ -995,9 +1684,29 @@
    "background": "pat_halftone",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "DALLAS • IRVING • GARLAND",
+   "states": "TX",
    "headline": "WE BUY CARS",
+   "words": {
+    "points": [
+     "NO FEES",
+     "PAID ON THE SPOT",
+     "FREE QUOTE"
+    ],
+    "label": "GET A CASH OFFER",
+    "number": "(214) 555-0130",
+    "metro": "Dallas"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": true,
+    "points_style": "outline",
+    "points_n": 3,
+    "number_style": "underline",
+    "mark": "message",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_cars_agencyGrid_mono.webp",
    "stamp": "[50579,\"car\",{\"headline\":\"WE BUY CARS\",\"tag\":\"TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT\",\"claim\":\"LOCAL CAR BUYER\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-honda-hrv-beige\",\"k\":1}],false,\"Showroom Grid (designer layout)\"]"
   },
@@ -1022,9 +1731,29 @@
    "background": "pat_polka",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "RIVERSIDE • FONTANA • MORENO VALLEY",
    "states": "CA",
    "headline": "WE BUY CARS",
+   "words": {
+    "points": [
+     "WE COME TO YOU",
+     "CASH TODAY",
+     "QUOTE BY TEXT"
+    ],
+    "label": "GET YOUR OFFER",
+    "number": "(951) 555-0142",
+    "metro": "Inland Empire"
+   },
+   "shape": {
+    "mode": "stack",
+    "order": "head",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "pill",
+    "mark": "arrow",
+    "arrangement": "lineup"
+   },
    "thumb": "assets/layout-stills/r-dl_cars_arcCrown_sunset.webp",
    "stamp": "[74080,\"car\",{\"headline\":\"WE BUY CARS\",\"tag\":\"TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT\"},[{\"file\":\"car-honda-civic-white\",\"k\":1}],false,\"Boulevard Arc (designer layout)\"]"
   },
@@ -1049,9 +1778,29 @@
    "background": "pair_mesh",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "NASHVILLE • BRENTWOOD • FRANKLIN",
+   "states": "TN",
    "headline": "WE BUY CARS",
+   "words": {
+    "points": [
+     "AS-IS",
+     "SAME DAY",
+     "NO FEES"
+    ],
+    "label": "GET A CASH OFFER",
+    "number": "(615) 555-0155",
+    "metro": "Nashville"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": true,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "box",
+    "mark": "message",
+    "arrangement": "lineup"
+   },
    "thumb": "assets/layout-stills/r-dl_cars_bandKnockout_sunset.webp",
    "stamp": "[16363,\"car\",{\"headline\":\"WE BUY CARS\",\"points\":\"AS-IS, SAME DAY, NO FEES\",\"label\":\"GET A CASH OFFER\"},[],false,\"Sunset Strip (designer layout)\"]"
   },
@@ -1076,9 +1825,29 @@
    "background": "pair_linear",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "SAN ANTONIO • SCHERTZ • CONVERSE",
+   "states": "TX",
    "headline": "WE BUY CARS",
+   "words": {
+    "points": [
+     "CASH TODAY",
+     "PAID ON THE SPOT",
+     "QUOTE BY TEXT"
+    ],
+    "label": "GET A CASH OFFER",
+    "number": "(210) 555-0168",
+    "metro": "San Antonio"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "outline",
+    "points_n": 3,
+    "number_style": "box",
+    "mark": "phone",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_cars_checklistHero_emerald.webp",
    "stamp": "[54965,\"car\",{\"headline\":\"WE BUY CARS\",\"claim\":\"AS-IS SAME DAY NO FEES\",\"label\":\"GET A CASH OFFER\"},[],false,\"Pickup List (designer layout)\"]"
   },
@@ -1103,9 +1872,28 @@
    "background": "pair_arch",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "PHOENIX • GLENDALE • MESA",
+   "states": "AZ",
    "headline": "WE BUY CARS",
+   "words": {
+    "points": [
+     "FREE QUOTE",
+     "WE COME TO YOU"
+    ],
+    "label": "TEXT US NOW",
+    "number": "(602) 555-0148",
+    "metro": "Phoenix"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "numbered",
+    "points_n": 2,
+    "number_style": "box",
+    "mark": "chevrons",
+    "arrangement": "podium"
+   },
    "thumb": "assets/layout-stills/r-dl_cars_duoSplit_crimson.webp",
    "stamp": "[22050,\"car\",{\"headline\":\"WE BUY CARS\",\"claim\":\"CASH ON THE SPOT\"},[],false,\"Lot Split (designer layout)\"]"
   },
@@ -1130,9 +1918,28 @@
    "background": "photo",
    "ground": "photo",
    "photo": "assets/showcase/bg/abs_paperTex_du06_3.webp",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "BOSTON • CAMBRIDGE • SOMERVILLE",
+   "states": "MA",
    "headline": "WE BUY CARS",
+   "words": {
+    "points": [
+     "PAID ON THE SPOT",
+     "QUOTE BY TEXT"
+    ],
+    "label": "GET A CASH OFFER",
+    "number": "(617) 555-0136",
+    "metro": "Boston"
+   },
+   "shape": {
+    "mode": "stack",
+    "order": "head",
+    "mirror": false,
+    "points_style": "dot",
+    "points_n": 2,
+    "number_style": "tag",
+    "mark": "phone",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_cars_glassCard_ocean.webp",
    "stamp": "[9118,\"car\",{\"headline\":\"WE BUY CARS\",\"tag\":\"TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT\",\"claim\":\"LOCAL CAR BUYER\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-honda-hrv-beige\",\"k\":1}],false,\"Showroom Glass (designer layout)\"]"
   },
@@ -1157,9 +1964,29 @@
    "background": "pair_sunset",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "MINNEAPOLIS • SAINT PAUL • SAINT LOUIS PARK",
+   "states": "MN",
    "headline": "WE BUY CARS",
+   "words": {
+    "points": [
+     "FREE QUOTE",
+     "PAID ON THE SPOT",
+     "NO FEES"
+    ],
+    "label": "GET A CASH OFFER",
+    "number": "(612) 555-0124",
+    "metro": "Minneapolis"
+   },
+   "shape": {
+    "mode": "stack",
+    "order": "head",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "pill",
+    "mark": "arrow",
+    "arrangement": "lineup"
+   },
    "thumb": "assets/layout-stills/r-dl_cars_gradientWave_crimson.webp",
    "stamp": "[75524,\"car\",{\"headline\":\"WE BUY CARS\",\"tag\":\"TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT\",\"claim\":\"AS-IS SAME DAY NO FEES\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-honda-hrv-beige\",\"k\":1}],false,\"Redline Wave (designer layout)\"]"
   },
@@ -1184,9 +2011,29 @@
    "background": "photo",
    "ground": "photo",
    "photo": "assets/showcase/bg/abs_paperTex_du06_3.webp",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "PORTLAND • VANCOUVER • BEAVERTON",
+   "states": "OR WA",
    "headline": "WE BUY CARS",
+   "words": {
+    "points": [
+     "PAID ON THE SPOT",
+     "WE COME TO YOU",
+     "FREE QUOTE"
+    ],
+    "label": "GET A CASH OFFER",
+    "number": "(503) 555-0153",
+    "metro": "Portland"
+   },
+   "shape": {
+    "mode": "stack",
+    "order": "product",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "box",
+    "mark": "none",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_cars_hudTech_crimson.webp",
    "stamp": "[43265,\"car\",{\"headline\":\"WE BUY CARS\",\"tag\":\"TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT\",\"claim\":\"LOCAL CAR BUYER\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-honda-hrv-beige\",\"k\":1}],false,\"Dash HUD (designer layout)\"]"
   },
@@ -1214,6 +2061,25 @@
    "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
    "states": "CA",
    "headline": "WE BUY CARS",
+   "words": {
+    "points": [
+     "LOCAL BUYER",
+     "QUOTE BY TEXT"
+    ],
+    "label": "CALL US TODAY",
+    "number": "(562) 555-0166",
+    "metro": "Long Beach"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "tick",
+    "points_n": 2,
+    "number_style": "box",
+    "mark": "arrow",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_cars_neonNight_sunset.webp",
    "stamp": "[51188,\"car\",{\"headline\":\"WE BUY CARS\",\"tag\":\"TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT\",\"claim\":\"LOCAL CAR BUYER\"},[{\"file\":\"car-honda-pilot-white\",\"k\":1}],false,\"Neon Garage (designer layout)\"]"
   },
@@ -1238,9 +2104,28 @@
    "background": "tonal",
    "ground": "house",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "ORLANDO • PINE HILLS • ALAFAYA",
+   "states": "FL",
    "headline": "CASH",
+   "words": {
+    "points": [
+     "FREE QUOTE",
+     "WE COME TO YOU"
+    ],
+    "label": "CALL US TODAY",
+    "number": "(407) 555-0128",
+    "metro": "Orlando"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 2,
+    "number_style": "tag",
+    "mark": "chevrons",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_cars_priceAnchor_crimson.webp",
    "stamp": "[42735,\"car\",{\"headline\":\"CASH\",\"claim\":\"WE BUY CARS\"},[],false,\"Sticker Price (designer layout)\"]"
   },
@@ -1265,9 +2150,29 @@
    "background": "linear",
    "ground": "house",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "DALLAS • IRVING • GARLAND",
+   "states": "TX",
    "headline": "WE BUY CARS",
+   "words": {
+    "points": [
+     "LOCAL BUYER",
+     "WE COME TO YOU",
+     "CASH TODAY"
+    ],
+    "label": "GET YOUR OFFER",
+    "number": "(214) 555-0125",
+    "metro": "Dallas"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": false,
+    "points_style": "dot",
+    "points_n": 3,
+    "number_style": "underline",
+    "mark": "chevrons",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_cars_slabPoster_mono.webp",
    "stamp": "[45920,\"car\",{\"headline\":\"WE BUY CARS\",\"claim\":\"LOCAL CAR BUYER\"},[],false,\"Junker Poster (designer layout)\"]"
   },
@@ -1292,9 +2197,25 @@
    "background": "pair_mesh",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "RIVERSIDE • FONTANA • MORENO VALLEY",
    "states": "CA",
    "headline": "WE BUY CARS",
+   "words": {
+    "points": [],
+    "label": "GET A CASH OFFER",
+    "number": "(951) 555-0163",
+    "metro": "Inland Empire"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "none",
+    "points_n": 0,
+    "number_style": "ticket",
+    "mark": "chevrons",
+    "arrangement": "podium"
+   },
    "thumb": "assets/layout-stills/r-dl_cars_ticketStub_mono.webp",
    "stamp": "[49429,\"car\",{\"headline\":\"WE BUY CARS\",\"tag\":\"TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT\",\"claim\":\"CASH ON THE SPOT\",\"label\":\"GET A CASH OFFER\"},[{\"file\":\"car-honda-accord-2023-white-side\",\"k\":1}],false,\"Pink Slip (designer layout)\"]"
   },
@@ -1319,9 +2240,29 @@
    "background": "pat_stripes",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "NASHVILLE • BRENTWOOD • FRANKLIN",
+   "states": "TN",
    "headline": "WE BUY CARS",
+   "words": {
+    "points": [
+     "AS-IS",
+     "SAME DAY",
+     "NO FEES"
+    ],
+    "label": "GET A CASH OFFER",
+    "number": "(615) 555-0150",
+    "metro": "Nashville"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "pill",
+    "mark": "chevrons",
+    "arrangement": "wings"
+   },
    "thumb": "assets/layout-stills/r-dl_cars_voltStack_ocean.webp",
    "stamp": "[1219,\"car\",{\"headline\":\"WE BUY CARS\",\"claim\":\"LOCAL CAR BUYER\",\"points\":\"AS-IS, SAME DAY, NO FEES\",\"label\":\"GET A CASH OFFER\"},[],false,\"Motor Stack (designer layout)\"]"
   },
@@ -1346,9 +2287,28 @@
    "background": "pat_checks",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "SAN ANTONIO • SCHERTZ • CONVERSE",
+   "states": "TX",
    "headline": "WANTED CARS",
+   "words": {
+    "points": [
+     "NO FEES",
+     "FREE QUOTE"
+    ],
+    "label": "CALL OR TEXT",
+    "number": "(210) 555-0187",
+    "metro": "San Antonio"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 2,
+    "number_style": "ticket",
+    "mark": "chevrons",
+    "arrangement": "podium"
+   },
    "thumb": "assets/layout-stills/r-dl_cars_wantedFrame_paper.webp",
    "stamp": "[23654,\"car\",{\"headline\":\"WANTED CARS\",\"tag\":\"TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT\",\"claim\":\"LOCAL CAR BUYER\"},[{\"file\":\"car-honda-civic-type-r-fl5-white\",\"k\":1}],false,\"Runner Wanted (designer layout)\"]"
   },
@@ -1373,9 +2333,29 @@
    "background": "pair_radial",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "ORLANDO • PINE HILLS • ALAFAYA",
+   "states": "FL",
    "headline": "CASH FOR TEST STRIPS",
+   "words": {
+    "points": [
+     "LOCAL BUYER",
+     "NO FEES",
+     "QUOTE BY TEXT"
+    ],
+    "label": "GET YOUR OFFER",
+    "number": "(407) 555-0117",
+    "metro": "Orlando"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "ticket",
+    "mark": "curved",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_strips_arcCrown_emerald.webp",
    "stamp": "[27240,\"strips\",{\"headline\":\"CASH FOR TEST STRIPS\",\"tag\":\"DIABETIC TEST STRIPS • SEALED BOXES • ALL MAJOR BRANDS\"},[],false,\"Care Arc (designer layout)\"]"
   },
@@ -1400,9 +2380,29 @@
    "background": "pat_rings",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "DALLAS • IRVING • GARLAND",
+   "states": "TX",
    "headline": "CASH FOR TEST STRIPS",
+   "words": {
+    "points": [
+     "DISCREET",
+     "FAST",
+     "FAIR"
+    ],
+    "label": "GET YOUR OFFER",
+    "number": "(214) 555-0178",
+    "metro": "Dallas"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "ticket",
+    "mark": "phone",
+    "arrangement": "podium"
+   },
    "thumb": "assets/layout-stills/r-dl_strips_bandKnockout_arctic.webp",
    "stamp": "[13546,\"strips\",{\"headline\":\"CASH FOR TEST STRIPS\",\"points\":\"DISCREET, FAST, FAIR\",\"label\":\"GET YOUR OFFER\"},[],false,\"Clinic Band (designer layout)\"]"
   },
@@ -1427,9 +2427,29 @@
    "background": "glow_orbs",
    "ground": "scene",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "RIVERSIDE • FONTANA • MORENO VALLEY",
    "states": "CA",
    "headline": "CASH FOR TEST STRIPS",
+   "words": {
+    "points": [
+     "PAID TODAY",
+     "NO FEES",
+     "QUOTE BY TEXT"
+    ],
+    "label": "GET YOUR OFFER",
+    "number": "(951) 555-0166",
+    "metro": "Inland Empire"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "numbered",
+    "points_n": 3,
+    "number_style": "tag",
+    "mark": "phone",
+    "arrangement": "wings"
+   },
    "thumb": "assets/layout-stills/r-dl_strips_glassCard_emerald.webp",
    "stamp": "[36,\"strips\",{\"headline\":\"CASH FOR TEST STRIPS\",\"tag\":\"DIABETIC TEST STRIPS • SEALED BOXES • ALL MAJOR BRANDS\",\"claim\":\"SEALED BOXES ONLY\",\"label\":\"GET YOUR OFFER\"},[],false,\"Clean Glass (designer layout)\"]"
   },
@@ -1454,9 +2474,25 @@
    "background": "tonal",
    "ground": "house",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "NASHVILLE • BRENTWOOD • FRANKLIN",
+   "states": "TN",
    "headline": "CASH",
+   "words": {
+    "points": [],
+    "label": "TEXT FOR A QUOTE",
+    "number": "(615) 555-0103",
+    "metro": "Nashville"
+   },
+   "shape": {
+    "mode": "stack",
+    "order": "head",
+    "mirror": false,
+    "points_style": "none",
+    "points_n": 0,
+    "number_style": "box",
+    "mark": "arrows",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_strips_priceAnchor_emerald.webp",
    "stamp": "[39103,\"strips\",{\"headline\":\"CASH\",\"claim\":\"CASH FOR TEST STRIPS\"},[],false,\"Box Price (designer layout)\"]"
   },
@@ -1481,9 +2517,25 @@
    "background": "tonal",
    "ground": "house",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "SAN ANTONIO • SCHERTZ • CONVERSE",
+   "states": "TX",
    "headline": "CASH FOR TEST STRIPS",
+   "words": {
+    "points": [],
+    "label": "CALL US TODAY",
+    "number": "(210) 555-0108",
+    "metro": "San Antonio"
+   },
+   "shape": {
+    "mode": "stack",
+    "order": "product",
+    "mirror": false,
+    "points_style": "none",
+    "points_n": 0,
+    "number_style": "tag",
+    "mark": "phone",
+    "arrangement": "lineup"
+   },
    "thumb": "assets/layout-stills/r-dl_strips_slabPoster_arctic.webp",
    "stamp": "[16237,\"strips\",{\"headline\":\"CASH FOR TEST STRIPS\",\"claim\":\"SEALED BOXES ONLY\"},[],false,\"Box Poster (designer layout)\"]"
   },
@@ -1508,9 +2560,25 @@
    "background": "pair_radial",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "PHILADELPHIA • CAMDEN • CHERRY HILL",
+   "states": "PA NJ",
    "headline": "WE BUY POKÉMON",
+   "words": {
+    "points": [],
+    "label": "TEXT FOR A QUOTE",
+    "number": "(215) 555-0102",
+    "metro": "Philadelphia"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": false,
+    "points_style": "none",
+    "points_n": 0,
+    "number_style": "box",
+    "mark": "chevrons",
+    "arrangement": "lineup"
+   },
    "thumb": "assets/layout-stills/r-dl_pokemon_arcCrown_royal.webp",
    "stamp": "[84028,\"pokemon\",{\"headline\":\"WE BUY POKÉMON\",\"tag\":\"POKEMON CARDS • CHARIZARD • VINTAGE SETS • BOOSTER BOXES\"},[],false,\"Champion Arc (designer layout)\"]"
   },
@@ -1535,9 +2603,29 @@
    "background": "pat_stripes",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "DETROIT • DEARBORN • WARREN",
+   "states": "MI",
    "headline": "WE BUY POKÉMON",
+   "words": {
+    "points": [
+     "CASH",
+     "NO FEES",
+     "LOCAL"
+    ],
+    "label": "REQUEST AN APPRAISAL",
+    "number": "(313) 555-0115",
+    "metro": "Detroit"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "numbered",
+    "points_n": 3,
+    "number_style": "underline",
+    "mark": "phone",
+    "arrangement": "podium"
+   },
    "thumb": "assets/layout-stills/r-dl_pokemon_bandKnockout_volt.webp",
    "stamp": "[99288,\"pokemon\",{\"headline\":\"WE BUY POKÉMON\",\"points\":\"CASH, NO FEES, LOCAL\",\"label\":\"REQUEST AN APPRAISAL\"},[],false,\"Grade Band (designer layout)\"]"
   },
@@ -1562,9 +2650,29 @@
    "background": "pair_corner",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "SEATTLE • BELLEVUE • KIRKLAND",
+   "states": "WA",
    "headline": "WE BUY POKÉMON",
+   "words": {
+    "points": [
+     "LOCAL BUYER",
+     "PAID TODAY",
+     "NO FEES"
+    ],
+    "label": "REQUEST AN APPRAISAL",
+    "number": "(206) 555-0128",
+    "metro": "Seattle"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "dot",
+    "points_n": 3,
+    "number_style": "tag",
+    "mark": "curved",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_pokemon_bubblePop_royal.webp",
    "stamp": "[10301,\"pokemon\",{\"headline\":\"WE BUY POKÉMON\",\"burst\":\"CASH NOW\",\"label\":\"REQUEST AN APPRAISAL\"},[],false,\"Holo Pop (designer layout)\"]"
   },
@@ -1589,9 +2697,29 @@
    "background": "pair_mesh",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "LOS ANGELES • GLENDALE • EAST LOS ANGELES",
    "states": "CA",
    "headline": "WE BUY POKÉMON",
+   "words": {
+    "points": [
+     "LOCAL BUYER",
+     "WHOLE COLLECTIONS",
+     "PAID TODAY"
+    ],
+    "label": "REQUEST AN APPRAISAL",
+    "number": "(213) 555-0114",
+    "metro": "Los Angeles"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "numbered",
+    "points_n": 3,
+    "number_style": "pill",
+    "mark": "curved",
+    "arrangement": "podium"
+   },
    "thumb": "assets/layout-stills/r-dl_pokemon_checklistHero_royal.webp",
    "stamp": "[11576,\"pokemon\",{\"headline\":\"WE BUY POKÉMON\",\"claim\":\"CASH NO FEES LOCAL\",\"label\":\"REQUEST AN APPRAISAL\"},[],false,\"Binder List (designer layout)\"]"
   },
@@ -1616,9 +2744,28 @@
    "background": "photo",
    "ground": "photo",
    "photo": "assets/bg-web/rooms-desk-setup-1.jpg",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "MIAMI • HIALEAH • LITTLE HAVANA",
+   "states": "FL",
    "headline": "WE BUY POKÉMON",
+   "words": {
+    "points": [
+     "NO FEES",
+     "SINGLES AND SEALED"
+    ],
+    "label": "REQUEST AN APPRAISAL",
+    "number": "(305) 555-0102",
+    "metro": "Miami"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": true,
+    "points_style": "numbered",
+    "points_n": 2,
+    "number_style": "pill",
+    "mark": "none",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_pokemon_gradientWave_volt.webp",
    "stamp": "[16823,\"pokemon\",{\"headline\":\"WE BUY POKÉMON\",\"tag\":\"POKEMON CARDS • CHARIZARD • VINTAGE SETS • BOOSTER BOXES\",\"claim\":\"CASH NO FEES LOCAL\",\"label\":\"REQUEST AN APPRAISAL\"},[],false,\"Prism Wave (designer layout)\"]"
   },
@@ -1643,9 +2790,29 @@
    "background": "pat_rays",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "SALT LAKE CITY • WEST VALLEY CITY • WEST JORDAN",
+   "states": "UT",
    "headline": "WE BUY POKÉMON",
+   "words": {
+    "points": [
+     "WHOLE COLLECTIONS",
+     "LOCAL BUYER",
+     "PAID TODAY"
+    ],
+    "label": "TEXT US NOW",
+    "number": "(801) 555-0190",
+    "metro": "Salt Lake City"
+   },
+   "shape": {
+    "mode": "stack",
+    "order": "head",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "pill",
+    "mark": "chevrons",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_pokemon_neonNight_royal.webp",
    "stamp": "[34842,\"pokemon\",{\"headline\":\"WE BUY POKÉMON\",\"tag\":\"POKEMON CARDS • CHARIZARD • VINTAGE SETS • BOOSTER BOXES\",\"claim\":\"COLLECTIONS WANTED\"},[],false,\"Neon Holo (designer layout)\"]"
   },
@@ -1670,9 +2837,28 @@
    "background": "tonal",
    "ground": "house",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "SAN DIEGO • CHULA VISTA • NATIONAL CITY",
    "states": "CA",
    "headline": "CASH",
+   "words": {
+    "points": [
+     "NO FEES",
+     "PAID TODAY"
+    ],
+    "label": "TEXT US NOW",
+    "number": "(619) 555-0128",
+    "metro": "San Diego"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "tick",
+    "points_n": 2,
+    "number_style": "tag",
+    "mark": "phone_text",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_pokemon_priceAnchor_volt.webp",
    "stamp": "[90429,\"pokemon\",{\"headline\":\"CASH\",\"claim\":\"WE BUY POKÉMON\"},[],false,\"Grail Price (designer layout)\"]"
   },
@@ -1697,9 +2883,29 @@
    "background": "pair_linear",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "CHARLOTTE • HUNTERSVILLE • CONCORD",
+   "states": "NC",
    "headline": "WE BUY POKÉMON",
+   "words": {
+    "points": [
+     "LOCAL BUYER",
+     "WHOLE COLLECTIONS",
+     "FREE QUOTE"
+    ],
+    "label": "GET YOUR OFFER",
+    "number": "(704) 555-0141",
+    "metro": "Charlotte"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": true,
+    "points_style": "numbered",
+    "points_n": 3,
+    "number_style": "underline",
+    "mark": "message",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_pokemon_slabPoster_mono.webp",
    "stamp": "[48895,\"pokemon\",{\"headline\":\"WE BUY POKÉMON\",\"claim\":\"COLLECTIONS WANTED\"},[],false,\"Slab Poster (designer layout)\"]"
   },
@@ -1724,9 +2930,29 @@
    "background": "pat_rays",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "AUSTIN • ROUND ROCK • PFLUGERVILLE",
+   "states": "TX",
    "headline": "WE BUY POKÉMON",
+   "words": {
+    "points": [
+     "CASH",
+     "NO FEES",
+     "LOCAL"
+    ],
+    "label": "REQUEST AN APPRAISAL",
+    "number": "(512) 555-0103",
+    "metro": "Austin"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "dot",
+    "points_n": 3,
+    "number_style": "pill",
+    "mark": "chevrons",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_pokemon_voltStack_volt.webp",
    "stamp": "[71757,\"pokemon\",{\"headline\":\"WE BUY POKÉMON\",\"claim\":\"COLLECTIONS WANTED\",\"points\":\"CASH, NO FEES, LOCAL\",\"label\":\"REQUEST AN APPRAISAL\"},[],false,\"Trainer Stack (designer layout)\"]"
   },
@@ -1751,9 +2977,28 @@
    "background": "marble_soft",
    "ground": "scene",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "PHILADELPHIA • CAMDEN • CHERRY HILL",
+   "states": "PA NJ",
    "headline": "SPORTS CARDS",
+   "words": {
+    "points": [
+     "FREE QUOTE",
+     "NO FEES"
+    ],
+    "label": "REQUEST AN APPRAISAL",
+    "number": "(215) 555-0162",
+    "metro": "Philadelphia"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 2,
+    "number_style": "pill",
+    "mark": "none",
+    "arrangement": "lineup"
+   },
    "thumb": "assets/layout-stills/r-dl_sports_agencyGrid_mono.webp",
    "stamp": "[30881,\"sports\",{\"headline\":\"SPORTS CARDS\",\"tag\":\"SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES\",\"claim\":\"COLLECTIONS WANTED\",\"label\":\"REQUEST AN APPRAISAL\"},[],false,\"Program Grid (designer layout)\"]"
   },
@@ -1778,9 +3023,29 @@
    "background": "photo",
    "ground": "photo",
    "photo": "assets/bg-web/sports-baseball-stadium-night-3.jpg",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "DETROIT • DEARBORN • WARREN",
+   "states": "MI",
    "headline": "SPORTS CARDS",
+   "words": {
+    "points": [
+     "CASH",
+     "NO FEES",
+     "LOCAL"
+    ],
+    "label": "REQUEST AN APPRAISAL",
+    "number": "(313) 555-0174",
+    "metro": "Detroit"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "numbered",
+    "points_n": 3,
+    "number_style": "pill",
+    "mark": "none",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_sports_bandKnockout_emerald.webp",
    "stamp": "[28168,\"sports\",{\"headline\":\"SPORTS CARDS\",\"points\":\"CASH, NO FEES, LOCAL\",\"label\":\"REQUEST AN APPRAISAL\"},[],false,\"Field Band (designer layout)\"]"
   },
@@ -1805,9 +3070,28 @@
    "background": "pair_linear",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "SEATTLE • BELLEVUE • KIRKLAND",
+   "states": "WA",
    "headline": "SPORTS CARDS",
+   "words": {
+    "points": [
+     "LOCAL BUYER",
+     "FREE QUOTE"
+    ],
+    "label": "REQUEST AN APPRAISAL",
+    "number": "(206) 555-0188",
+    "metro": "Seattle"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "tick",
+    "points_n": 2,
+    "number_style": "pill",
+    "mark": "chevrons",
+    "arrangement": "lineup"
+   },
    "thumb": "assets/layout-stills/r-dl_sports_checklistHero_crimson.webp",
    "stamp": "[92216,\"sports\",{\"headline\":\"SPORTS CARDS\",\"claim\":\"CASH NO FEES LOCAL\",\"label\":\"REQUEST AN APPRAISAL\"},[],false,\"Comp Checklist (designer layout)\"]"
   },
@@ -1832,9 +3116,29 @@
    "background": "pair_split",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "LOS ANGELES • GLENDALE • EAST LOS ANGELES",
    "states": "CA",
    "headline": "SPORTS CARDS",
+   "words": {
+    "points": [
+     "LOCAL BUYER",
+     "FREE QUOTE",
+     "WHOLE COLLECTIONS"
+    ],
+    "label": "CALL US TODAY",
+    "number": "(213) 555-0174",
+    "metro": "Los Angeles"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": true,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "pill",
+    "mark": "curved",
+    "arrangement": "wings"
+   },
    "thumb": "assets/layout-stills/r-dl_sports_duoSplit_mono.webp",
    "stamp": "[78979,\"sports\",{\"headline\":\"SPORTS CARDS\",\"claim\":\"PAID PER CARD\"},[],false,\"Locker Split (designer layout)\"]"
   },
@@ -1859,9 +3163,29 @@
    "background": "photo",
    "ground": "photo",
    "photo": "assets/bg-web/sports-baseball-stadium-night-3.jpg",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "MIAMI • HIALEAH • LITTLE HAVANA",
+   "states": "FL",
    "headline": "SPORTS CARDS",
+   "words": {
+    "points": [
+     "PAID TODAY",
+     "GRADED OR RAW",
+     "FREE QUOTE"
+    ],
+    "label": "REQUEST AN APPRAISAL",
+    "number": "(305) 555-0162",
+    "metro": "Miami"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": false,
+    "points_style": "outline",
+    "points_n": 3,
+    "number_style": "pill",
+    "mark": "phone_text",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_sports_glassCard_mono.webp",
    "stamp": "[59979,\"sports\",{\"headline\":\"SPORTS CARDS\",\"tag\":\"SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES\",\"claim\":\"COLLECTIONS WANTED\",\"label\":\"REQUEST AN APPRAISAL\"},[],false,\"Case Glass (designer layout)\"]"
   },
@@ -1886,9 +3210,28 @@
    "background": "pair_linear",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "SALT LAKE CITY • WEST VALLEY CITY • WEST JORDAN",
+   "states": "UT",
    "headline": "SPORTS CARDS",
+   "words": {
+    "points": [
+     "WHOLE COLLECTIONS",
+     "LOCAL BUYER"
+    ],
+    "label": "REQUEST AN APPRAISAL",
+    "number": "(801) 555-0150",
+    "metro": "Salt Lake City"
+   },
+   "shape": {
+    "mode": "stack",
+    "order": "product",
+    "mirror": false,
+    "points_style": "numbered",
+    "points_n": 2,
+    "number_style": "underline",
+    "mark": "phone",
+    "arrangement": "lineup"
+   },
    "thumb": "assets/layout-stills/r-dl_sports_gradientWave_crimson.webp",
    "stamp": "[63797,\"sports\",{\"headline\":\"SPORTS CARDS\",\"tag\":\"SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES\",\"claim\":\"CASH NO FEES LOCAL\",\"label\":\"REQUEST AN APPRAISAL\"},[],false,\"Clutch Wave (designer layout)\"]"
   },
@@ -1913,9 +3256,29 @@
    "background": "pat_topo",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "SAN DIEGO • CHULA VISTA • NATIONAL CITY",
    "states": "CA",
    "headline": "SPORTS CARDS",
+   "words": {
+    "points": [
+     "NO FEES",
+     "GRADED OR RAW",
+     "FREE QUOTE"
+    ],
+    "label": "REQUEST AN APPRAISAL",
+    "number": "(619) 555-0180",
+    "metro": "San Diego"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "underline",
+    "mark": "chevrons",
+    "arrangement": "podium"
+   },
    "thumb": "assets/layout-stills/r-dl_sports_hudTech_emerald.webp",
    "stamp": "[931,\"sports\",{\"headline\":\"SPORTS CARDS\",\"tag\":\"SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES\",\"claim\":\"COLLECTIONS WANTED\",\"label\":\"REQUEST AN APPRAISAL\"},[],false,\"Stat HUD (designer layout)\"]"
   },
@@ -1940,9 +3303,28 @@
    "background": "aurora",
    "ground": "scene",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "CHARLOTTE • HUNTERSVILLE • CONCORD",
+   "states": "NC",
    "headline": "SPORTS CARDS",
+   "words": {
+    "points": [
+     "GRADED OR RAW",
+     "FREE QUOTE"
+    ],
+    "label": "CALL OR TEXT",
+    "number": "(704) 555-0192",
+    "metro": "Charlotte"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "numbered",
+    "points_n": 2,
+    "number_style": "pill",
+    "mark": "chevrons",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_sports_neonNight_emerald.webp",
    "stamp": "[73147,\"sports\",{\"headline\":\"SPORTS CARDS\",\"tag\":\"SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES\",\"claim\":\"COLLECTIONS WANTED\"},[],false,\"Night Game (designer layout)\"]"
   },
@@ -1967,9 +3349,29 @@
    "background": "radial",
    "ground": "house",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "AUSTIN • ROUND ROCK • PFLUGERVILLE",
+   "states": "TX",
    "headline": "CASH",
+   "words": {
+    "points": [
+     "WHOLE COLLECTIONS",
+     "NO FEES",
+     "LOCAL BUYER"
+    ],
+    "label": "TEXT US NOW",
+    "number": "(512) 555-0154",
+    "metro": "Austin"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "outline",
+    "points_n": 3,
+    "number_style": "ticket",
+    "mark": "chevrons",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_sports_priceAnchor_crimson.webp",
    "stamp": "[91254,\"sports\",{\"headline\":\"CASH\",\"claim\":\"SPORTS CARDS\"},[],false,\"Card Price (designer layout)\"]"
   },
@@ -1994,9 +3396,28 @@
    "background": "pat_rays",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "SACRAMENTO • ELK GROVE • WEST SACRAMENTO",
    "states": "CA",
    "headline": "SPORTS CARDS",
+   "words": {
+    "points": [
+     "GRADED OR RAW",
+     "PAID TODAY"
+    ],
+    "label": "REQUEST AN APPRAISAL",
+    "number": "(916) 555-0140",
+    "metro": "Sacramento"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "tick",
+    "points_n": 2,
+    "number_style": "pill",
+    "mark": "arrows",
+    "arrangement": "wings"
+   },
    "thumb": "assets/layout-stills/r-dl_sports_scriptRetro_paper.webp",
    "stamp": "[45358,\"sports\",{\"headline\":\"SPORTS CARDS\",\"tag\":\"SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES\",\"label\":\"REQUEST AN APPRAISAL\"},[],false,\"Pennant Script (designer layout)\"]"
   },
@@ -2021,9 +3442,28 @@
    "background": "pat_grain",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "PHILADELPHIA • CAMDEN • CHERRY HILL",
+   "states": "PA NJ",
    "headline": "SPORTS CARDS",
+   "words": {
+    "points": [
+     "GRADED OR RAW",
+     "NO FEES"
+    ],
+    "label": "REQUEST AN APPRAISAL",
+    "number": "(215) 555-0177",
+    "metro": "Philadelphia"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": true,
+    "points_style": "outline",
+    "points_n": 2,
+    "number_style": "ticket",
+    "mark": "arrow",
+    "arrangement": "podium"
+   },
    "thumb": "assets/layout-stills/r-dl_sports_ticketStub_crimson.webp",
    "stamp": "[1127,\"sports\",{\"headline\":\"SPORTS CARDS\",\"tag\":\"SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES\",\"claim\":\"PAID PER CARD\",\"label\":\"REQUEST AN APPRAISAL\"},[],false,\"Season Ticket (designer layout)\"]"
   },
@@ -2048,9 +3488,29 @@
    "background": "tonal",
    "ground": "house",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "DETROIT • DEARBORN • WARREN",
+   "states": "MI",
    "headline": "SPORTS CARDS",
+   "words": {
+    "points": [
+     "CASH",
+     "NO FEES",
+     "LOCAL"
+    ],
+    "label": "REQUEST AN APPRAISAL",
+    "number": "(313) 555-0165",
+    "metro": "Detroit"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "dot",
+    "points_n": 3,
+    "number_style": "box",
+    "mark": "arrows",
+    "arrangement": "fan"
+   },
    "thumb": "assets/layout-stills/r-dl_sports_voltStack_crimson.webp",
    "stamp": "[73557,\"sports\",{\"headline\":\"SPORTS CARDS\",\"claim\":\"COLLECTIONS WANTED\",\"points\":\"CASH, NO FEES, LOCAL\",\"label\":\"REQUEST AN APPRAISAL\"},[],false,\"Rookie Stack (designer layout)\"]"
   },
@@ -2075,9 +3535,28 @@
    "background": "pair_radial",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "SEATTLE • BELLEVUE • KIRKLAND",
+   "states": "WA",
    "headline": "WANTED CARDS",
+   "words": {
+    "points": [
+     "WHOLE COLLECTIONS",
+     "FREE QUOTE"
+    ],
+    "label": "TEXT US NOW",
+    "number": "(206) 555-0103",
+    "metro": "Seattle"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 2,
+    "number_style": "pill",
+    "mark": "chevrons",
+    "arrangement": "showcase"
+   },
    "thumb": "assets/layout-stills/r-dl_sports_wantedFrame_paper.webp",
    "stamp": "[96023,\"sports\",{\"headline\":\"WANTED CARDS\",\"tag\":\"SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES\",\"claim\":\"COLLECTIONS WANTED\"},[],false,\"Grail Wanted (designer layout)\"]"
   }

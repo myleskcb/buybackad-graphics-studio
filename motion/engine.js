@@ -5,6 +5,7 @@ import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, 
   NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES, THEME_GROUNDS, SOUND_ALIASES, LATE_OPTIONS, KEPT_OPTIONS, KIT_BPM,
   SEASON_TUNES, SEASON_ACCENTS, SEASON_TRACKS, CLASSICAL_TUNES, TRACKS, TYPE_VOICES, VOICE_OF_FONT } from "./catalog.js";
 import { AUDIENCES, GENERAL } from "./audiences.js";
+import { drawClaims } from "./claims.js";
 import { pickVoice, voiceFits } from "./voices.js";
 import { placeAccents, drawAccents, timeAccents } from "./accents.js";
 import { vibeBackground, candidateGround, themeGround, freshGround, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
@@ -329,17 +330,16 @@ export function strikeOf(st) {
 }
 
 /** The selling points a look shows (the photo ads' stack, DESIGN-LAW 83): the customer's own,
- *  comma separated ("" shows none), or, left to the look, the first three of its language's
- *  list that repeat no word the headline, the tag or the label already says (one "quote" is
- *  enough, as harmonise() says of the label). Three at most, short enough to stand as chips. */
+ *  comma separated ("" shows none), or, left to the look, a set drawn by its seed from its line's
+ *  own true claims (motion/claims.js: two or three, or none, a different set from look to look;
+ *  the owner, 2026-11-21: "all the same selling points"), none repeating a word the headline, the
+ *  tag or the label already says. Three at most, short enough to stand as chips. */
 export function pointsOf(st) {
   const cut = s => s.trim().toUpperCase().slice(0, 24);
   if (typeof st.points === "string") return st.points.split(/[,\n•·|]+/).map(cut).filter(Boolean).slice(0, 3);
   const head = st.headline || "", lang = st.lang || "en";
   const es = lang === "both" ? !SPANISH.test(head) : lang === "es" || SPANISH.test(head);
-  const stems = s => s.toUpperCase().split(/[^A-ZÁÉÍÓÚÑÜ]+/).filter(w => w.length >= 4).map(w => w.slice(0, 5));
-  const said = new Set(stems(`${head} ${st.tag || ""} ${st.number_label || ""}`));
-  return ((COPY[es ? "es" : "en"] || {}).points || []).filter(s => !stems(s).some(w => said.has(w))).slice(0, 3);
+  return drawClaims(st.subject || "iphone", st.seed || 1, [head, st.tag || "", st.number_label || ""], es).map(cut);
 }
 
 /* THE NUMBER SAYS WHAT TO DO WITH IT (2026-11-18). The ad census read 246 looks in the maker's
@@ -2217,8 +2217,12 @@ function ctaBadge(text, size, hot, face = "oswald") {
  *  (the photo ads' stack, DESIGN-LAW 115 and 120: one rhythm down the stack, and the strip
  *  wears the CTA's colour). rows: each chip's slice of the sprite, shadow included, cut on
  *  the middle of the gaps so a chip drawn on its own never repeats a neighbour's shadow. */
-export function perksSprite(items, fs, hot, align, row = false, face = "oswald", grad = false) {
-  const ink = contrastOf(hot, "#111111") >= contrastOf(hot, "#ffffff") ? "#111111" : "#ffffff";
+/* the selling points as chips. style (the full ad's points_style, 2026-11-21; the owner: "there's no variations at all?"):
+   tick, a filled chip led by a tick (the house's own, as before); numbered, the steps 1, 2, 3 in a disc of the chip's
+   ink; outline, the chip's edge alone round words in its colour, led by a tick; dot, a filled chip led by a dot */
+export function perksSprite(items, fs, hot, align, row = false, face = "oswald", grad = false, style = "tick", edgeInk = null) {
+  const open = style === "outline" && edgeInk;
+  const ink = open ? edgeInk : contrastOf(hot, "#111111") >= contrastOf(hot, "#ffffff") ? "#111111" : "#ffffff";
   const P = { ink, accent: ink, ground: hot, plate: hot, plate_ink: ink };
   const sps = items.map(s => inkSprite(s, s.split("").map(() => ink), face, fs, .04, "flat", P, 0));
   const py = fs * .3, px = fs * .52, tick = fs * .62, tg = fs * .34;
@@ -2235,10 +2239,18 @@ export function perksSprite(items, fs, hot, align, row = false, face = "oswald",
     const rx = row ? cx : pad + (align === "r" ? cw - w : align === "c" ? (cw - w) / 2 : 0), ry = row ? pad : pad + i * (h + gap);
     cx += w + gap;
     x.save(); x.shadowColor = "rgba(0,0,0,.32)"; x.shadowBlur = fs * .35; x.shadowOffsetY = fs * .1;
-    rrect(x, rx, ry, w, h, h / 2); x.fillStyle = grad ? fillGradient(x, 0, ry, 0, ry + h, hot, ink, 4.5) : hot; x.fill(); x.restore();
+    rrect(x, rx, ry, w, h, h / 2);
+    if (open) { x.shadowColor = "transparent"; x.lineWidth = Math.max(1.5, fs * .12); x.strokeStyle = hot; x.stroke(); }
+    else { x.fillStyle = grad ? fillGradient(x, 0, ry, 0, ry + h, hot, ink, 4.5) : hot; x.fill(); }
+    x.restore();
     const tx = rx + px, ty = ry + h / 2;
-    x.save(); x.strokeStyle = ink; x.lineWidth = fs * .14; x.lineCap = "round"; x.lineJoin = "round";
-    x.beginPath(); x.moveTo(tx + tick * .04, ty + tick * .02); x.lineTo(tx + tick * .37, ty + tick * .33); x.lineTo(tx + tick * .96, ty - tick * .34); x.stroke(); x.restore();
+    x.save(); x.strokeStyle = open ? hot : ink; x.fillStyle = open ? hot : ink; x.lineWidth = fs * .14; x.lineCap = "round"; x.lineJoin = "round";
+    if (style === "numbered") {   // the step's number in a disc of the chip's ink, its figure in the chip's colour
+      x.beginPath(); x.arc(tx + tick * .5, ty, tick * .58, 0, Math.PI * 2); x.fill();
+      x.fillStyle = hot; x.font = `800 ${Math.round(tick * .86)}px ${FONTS[face] ? FONTS[face][0] : "Oswald"}, sans-serif`; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(String(i + 1), tx + tick * .5, ty + tick * .04);
+    } else if (style === "dot") { x.beginPath(); x.arc(tx + tick * .5, ty, tick * .26, 0, Math.PI * 2); x.fill(); }
+    else { x.beginPath(); x.moveTo(tx + tick * .04, ty + tick * .02); x.lineTo(tx + tick * .37, ty + tick * .33); x.lineTo(tx + tick * .96, ty - tick * .34); x.stroke(); }
+    x.restore();
     x.drawImage(sp.c, tx + tick + tg - sp.pad, ry + py - sp.pad - sp.asc * .04 + (asc - sp.asc) * .46);
     if (row) {
       const x0 = i ? rx - gap / 2 : 0, x1 = i < n - 1 ? rx + w + gap / 2 : c.width;

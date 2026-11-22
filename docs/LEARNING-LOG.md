@@ -6519,3 +6519,15 @@ SEO session (158, pull request 15). Pull request 15 now meets this branch in `in
 - **Order noise is deterministic, and it spreads.** Two redraws in the same order move the same stills. A
   still changed by the engine can change the one drawn after it, in both runs. Comparing two runs separates
   only the noise that differs between them; the rest is said, not hidden.
+
+## 2026-11-21 — The library's variety (claude/xenodochial-mccarthy-7bea6d)
+
+- **One default string copied to every line is a skeleton.** All 41 lines carried the same points, and the
+  label took the first of its list, so the whole library said one thing. A per-ad draw from a per-line pool,
+  on the ad's own seed stream, varies it without moving any other draw.
+- **Hashing keys to metros leaves neighbours from one metro.** Thirty metros hashed at random put three of
+  twelve iPad ads in Chicago. Walking each line's places seven at a time (seven and thirty share no factor)
+  gives every neighbour another metro and every metro its share.
+- **Measure what the owner sees, not what the code varies.** The first skeleton key counted the number's
+  plate and the mark, which already varied, and called the library varied. The owner's "skeleton" is the
+  order of the blocks, the band and the side the product takes; measured on those, it was one.

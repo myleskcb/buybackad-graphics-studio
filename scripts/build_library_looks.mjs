@@ -27,6 +27,7 @@
            node scripts/build_library_looks.mjs --check   exit 1 if a rebuilt design lacks its looks or a still its file */
 import { readFileSync, writeFileSync, existsSync, mkdirSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { recipeArea, fullArea } from './_sample_areas.mjs';
 
 const ROOT = new URL('../', import.meta.url).pathname, DIR = ROOT + 'assets/library-looks/', INDEX = DIR + 'index.json';
 const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8931/').replace(/\/?$/, '/');
@@ -85,9 +86,14 @@ async function studioPage() {
   return page;
 }
 // one ad drawn and read: a recipe on a seed, or a line's own full ad on a seed; null pre-flight fails are reported
-const DRAW = async ({ how, id, key, seed, SIZE }) => {
+const DRAW = async ({ how, id, key, seed, SIZE, A, fresh }) => {
   const M = await import('/motion/fullad.js'), H = await import('/motion/house-colours.js'), FS = window.FullAdStudio, FA = FS.state;
-  if (how === 'recipe') { const r = await FS.useRecipe(id); if (!r) return { error: 'no recipe ' + id }; }
+  // its own area and number (motion/sample-areas.js: a US metro, a 555-01xx number on its code)
+  if (A) { const area = await resolveArea(A.zip); if (area) setArea(area); $('ez-phone').value = A.number; }
+  // a design's other look draws its own selling points and call to action (motion/claims.js): its own words stay
+  // on its own look, so no row repeats them (the owner: "never the same trio across a row")
+  let kept = null;
+  if (how === 'recipe') { const r = await FS.useRecipe(id); if (!r) return { error: 'no recipe ' + id }; if (fresh && r.words) { kept = { w: r.words, points: r.words.points, label: r.words.label }; delete r.words.points; delete r.words.label; } }
   else {
     const S = FS.lines().find(s => s.key === key); if (!S) return { error: 'no line ' + key };
     if (currentCat !== S.cat) setCategory(S.cat);
@@ -95,6 +101,7 @@ const DRAW = async ({ how, id, key, seed, SIZE }) => {
   }
   FA.biz = ''; FA.seed = seed;
   const { ad, st } = await FS.build(1080, FORMATS.square);
+  if (kept) { if (kept.points != null) kept.w.points = kept.points; if (kept.label != null) kept.w.label = kept.label; }
   const frame = M.fullStill(ad), pre = M.fullPreflight(ad, frame);
   const pair = st.full_colour || '', P = H.HOUSE_COLOURS.find(c => c.key === pair);
   if (!pre.ok) return { fail: pre.findings.filter(f => f.level === 'fix').map(f => f.code).join(',') || 'pre-flight', pair };
@@ -104,8 +111,21 @@ const DRAW = async ({ how, id, key, seed, SIZE }) => {
   const photo = st.background === 'photo' && st.ground_photo ? String(st.ground_photo.src || '') : '', where = String(st.feed_where ?? st.area ?? ''), states = String(st.area_states || '');
   // the faces it is set in, by family (a face the page declares too was drawn in Arial Black before 2026-11-19: engine.js loadFonts)
   const E = await import('/motion/engine.js'), C = await import('/motion/catalog.js'), fams = [...new Set(E.fontsFor(st).map(n => (C.FONTS[n] || [])[0]).filter(Boolean))];
-  return { fams, pair, pairName: P ? P.name : '', accent: st.colors ? st.colors.accent : '', photo, where, states, webp: c.toDataURL('image/webp', .76) };
+  // what it says and how it is built, for scripts/variety_check.mjs
+  const words = { points: E.pointsOf(st), label: String(st.number_label || ''), number: String(st.number || ''), metro: A ? A.metro : '' };
+  const shape = { mode: (ad.full && ad.full.mode) || '', order: (ad.full && ad.full.order) || 'head', mirror: !!(ad.full && ad.full.mirror), points_style: E.pointsOf(st).length ? String(st.points_style || 'tick') : 'none', points_n: E.pointsOf(st).length, number_style: String(st.number_style || 'pill'), mark: String(st.cta_mark || ''), arrangement: String(st.arrangement || '') };
+  return { fams, pair, pairName: P ? P.name : '', accent: st.colors ? st.colors.accent : '', photo, where, states, words, shape, webp: c.toDataURL('image/webp', .76) };
 };
+
+// NEIGHBOURS DIFFER (rule 166; the owner: "there's no variations at all?"): a look is passed over, as a look in its
+// neighbour's colours is, when it has its neighbour's skeleton or prints its selling points. Its neighbours, in the
+// library's order: the design's own look before it, the look before that, and after a design's last look the next
+// design's own (scripts/variety_check.mjs)
+const skelOf = m => m && m.shape ? [m.shape.order || 'head', m.shape.mode, m.shape.mirror ? 'mirrored' : 'plain', m.shape.points_style].join(' / ') : '';
+const ptsOf = m => m && m.words && (m.words.points || []).length ? m.words.points.slice().sort().join(' · ') : '';
+const nextOf = new Map();
+{ const byLine = {}; for (const r of recipes) if (firsts[r.id]) (byLine[r.subject] = byLine[r.subject] || []).push(r.id); for (const ids of Object.values(byLine)) ids.forEach((id, i) => nextOf.set(id, ids[i + 1] || null)); }
+const likeNeighbour = (m, prev, next) => (skelOf(m) && (skelOf(m) === skelOf(prev) || (next && skelOf(m) === skelOf(next)))) || (ptsOf(m) && ptsOf(m) === ptsOf(prev));
 
 const jobs = [];
 if (ONLY.includes('looks')) for (const r of recipes) {
@@ -130,13 +150,14 @@ if (jobs.length) {
     while (next < jobs.length) {
       const job = jobs[next++];
       if (job.kind === 'looks') {
-        const r = job.r, want = LOOKS - 1, used = new Set([firsts[r.id].pair]), got = [];
+        const r = job.r, want = LOOKS - 1, used = new Set([firsts[r.id].pair]), got = [], nxt = nextOf.get(r.id) ? firsts[nextOf.get(r.id)] : null;
+        let prev = firsts[r.id];
         for (const id of Object.keys(items)) if (items[id].kind === 'recipe' && items[id].base === r.id) delete items[id];
         for (let k = 1; k <= TRIES && got.length < want; k++) {
-          const res = await page.evaluate(DRAW, { how: 'recipe', id: r.id, seed: r.seed + k, SIZE });
+          const res = await page.evaluate(DRAW, { how: 'recipe', id: r.id, seed: r.seed + k, SIZE, A: recipeArea(r.id, got.length + 1), fresh: true });
           if (res.error) { console.log(`  ${r.id}: ${res.error}`); break; }
-          if (res.fail || used.has(res.pair)) continue;
-          used.add(res.pair); got.push(k);
+          if (res.fail || used.has(res.pair) || likeNeighbour(res, prev, got.length + 1 === want ? nxt : null)) continue;
+          used.add(res.pair); got.push(k); prev = res;
           const id = `${r.id}~${got.length + 1}`, { webp, ...meta } = res;
           put(id, webp, { kind: 'recipe', id, base: r.id, look: got.length + 1, seed: r.seed + k, cat: r.cat, line: r.subject,
             name: firsts[r.id].name, family: firsts[r.id].family || '', from: r.from, gen: r.gen, ...meta, stamp: lookStamp(r) });
@@ -146,12 +167,12 @@ if (jobs.length) {
       } else {
         const s = job.s, used = new Set();
         for (const id of Object.keys(items)) if (items[id].kind === 'full' && items[id].line === s.key) delete items[id];
-        let n = 0;
+        let n = 0, prevFull = null;
         for (let seed = 1; seed <= TRIES && n < FULL_SEEDS; seed++) {
-          const res = await page.evaluate(DRAW, { how: 'full', key: s.key, seed, SIZE });
+          const res = await page.evaluate(DRAW, { how: 'full', key: s.key, seed, SIZE, A: fullArea(s.key, seed) });
           if (res.error) { console.log(`  ${s.key}: ${res.error}`); break; }
-          if (res.fail || used.has(res.pair)) continue;
-          used.add(res.pair); n++;
+          if (res.fail || used.has(res.pair) || likeNeighbour(res, prevFull, null)) continue;
+          used.add(res.pair); n++; prevFull = res;
           const id = 'full-' + s.key + (n > 1 ? '-v' + n : ''), { webp, ...meta } = res;
           put(id, webp, { kind: 'full', id, seed, cat: s.cat, line: s.key, name: s.label + ' full ad', ...meta, stamp: fullStamp(s) });
           drawn++;

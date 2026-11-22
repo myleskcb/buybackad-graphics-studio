@@ -18,6 +18,7 @@ import { Ad, inkSprite, splitLines, trim, canvas, lum, prog, outBack, rng, clamp
 import { FONTS, FINE_FACES, PALETTES, DEFAULT_STYLE, TYPE_VOICES, DEFAULT_PHONES } from "./catalog.js";
 import { drawChevrons, fillGradient, fillTexture, okHex } from "./decor.js";
 import { FULL_STYLES, pickFullStyles } from "./full-styles.js";
+import { drawClaims, drawLabel } from "./claims.js";
 import { placeAccents, timeAccents } from "./accents.js";
 import { HOUSE_COLOURS, LINES, PAIR_LOOKS } from "./house-colours.js";
 import { FULL_VOICES } from "./full-voices.js";
@@ -1155,7 +1156,7 @@ export class FullAd extends Ad {
       for (const [n, row] of shapes) {
         if (n > items.length || n < 1) continue;
         for (let fs = U * FULL.chip; ; fs = Math.max(U * FULL.chipMin, fs * .95)) {
-          const key = `${n}|${row}|${align}|${fs.toFixed(2)}`, q = (this._chipCache ||= new Map()).get(key) || this._chipCache.set(key, perksSprite(items.slice(0, n), fs, this.hot, align, row, face, !!this.st.plate_grad)).get(key);
+          const key = `${n}|${row}|${align}|${fs.toFixed(2)}|${this.st.points_style || "tick"}`, q = (this._chipCache ||= new Map()).get(key) || this._chipCache.set(key, perksSprite(items.slice(0, n), fs, this.hot, align, row, face, !!this.st.plate_grad, this.st.points_style || "tick", ph.ink)).get(key);
           if (q.w <= maxW && q.h <= maxH) return { q, fs, n, row };
           if (fs <= U * FULL.chipMin) break;
         }
@@ -1213,7 +1214,14 @@ export class FullAd extends Ad {
     // the shape that shows the product largest; a sticker is worth a quarter of the product's size, an icon a
     // twentieth, and larger points break a tie (a stack of them at 43px against a strip at 33px)
     const worth = T => T ? T.sub.k * (1 + (T.sub.rb || T.rb ? .25 : 0) + (T.sub.ri ? .05 : 0)) * (T.chips ? (T.chips.fs / (U * FULL.chip)) ** .35 : items.length ? .7 : 1) : -1;
-    const bestShape = band => { let S = shape("side", band); if (!wide && hasPhones) for (const m of ["stack", "tall"]) { const T = shape(m, band); if (worth(T) > worth(S) * 1.03) S = T; } return S; };
+    // and, on the ad's own word (full_band "alt", a seed stream of its own: the owner, 2026-11-21, "there's no
+    // variations at all?"), the next best shape where it shows the product at least .85 as large
+    const bestShape = band => {
+      let S = shape("side", band); const others = [];
+      if (!wide && hasPhones) for (const m of ["stack", "tall"]) { const T = shape(m, band); if (!T) continue; others.push(T); if (worth(T) > worth(S) * 1.03) S = T; }
+      if (st.full_band === "alt") { const alt = [shape("side", band), ...others].filter(T => T && T.mode !== S.mode && worth(T) >= worth(S) * .85).sort((a, b) => worth(b) - worth(a))[0]; if (alt) S = alt; }
+      return S;
+    };;
 
     /* ---- the headline gives way only while the product is held back by the band's height ----
        The band is owed a share of the frame (bandMin), but only a product that can use it: a
@@ -1247,15 +1255,21 @@ export class FullAd extends Ad {
     const stretch = Math.min(g * 1.3, spare / (nStretch + 1.5)), bandH = need, pad = (spare - stretch * nStretch) / 2;
     let y = eyT + Math.max(0, pad);
     const R = F.rects, put = (name, c, cx = mid) => { const r = [cx - c.width / 2, y, cx + c.width / 2, y + c.height]; R[name] = r; y += c.height; return r; };
-    if (claim) { const r = put("claim", claim.c); claim.x = r[0]; claim.y = r[1]; y += g * gClaim + overClaim(hd) + stretch; }
+    // the product first (full_order "product", the ad's own seed's word: the owner, 2026-11-21, "there's no
+    // variations at all?"): the band stands over the headline, the same gaps between them in the other order
+    const first = st.full_order === "product" && !wide && hasPhones;
+    let bandTop, bandBot;
+    if (claim) { const r = put("claim", claim.c); claim.x = r[0]; claim.y = r[1]; y += g * gClaim + (first ? 0 : overClaim(hd)) + stretch; }
+    if (first) { bandTop = y; bandBot = y + bandH; y = bandBot + g * gBand + stretch * .5 + overClaim(hd); }
     const y0 = y, xs = hd.lines.map(L => mid - L.inkW / 2);
     const block = [Math.min(...xs), y0, Math.max(...hd.lines.map((L, i) => xs[i] + L.inkW)), y0 + hd.blockH];
     R.headline = block.slice(); y += hd.blockH;
     let tagXY = null;
     if (tagB) { y += tagGap(hd) + stretch; const r = put("line", tagB.c); tagXY = [r[0], r[1]]; }
     const outer = [Math.min(block[0], tagXY ? tagXY[0] : W), block[1], Math.max(block[2], tagXY ? tagXY[0] + tagB.c.width : 0), y];
-    y += g * gBand + stretch * .5;
-    const bandTop = y, bandBot = y + bandH; y = bandBot + g * gBand + stretch * .5;
+    if (!first) { y += g * gBand + stretch * .5; bandTop = y; bandBot = y + bandH; y = bandBot + g * gBand + stretch * .5; }
+    else y += g * gBand + stretch * .5;
+    F.order = first ? "product" : "head";
     let labXY = null;
     if (labB) { const r = put("call to action", labB.c); labXY = [r[0], r[1]]; y += g * gLab + stretch; }
     // the pill is what is spaced and measured; its sprite carries the shadow's margin round it
@@ -1267,14 +1281,17 @@ export class FullAd extends Ad {
 
     // where the row of the product and its eye-catchers stands: [x0, x1] and its middle line
     let rowX0, rowX1, rowCy;
+    // mirrored (full_mirror, the ad's own seed's word): in the side band the product first, the points after it
+    const mir = F.mirror = !!(side && st.full_mirror && chips && sub.w);
     if (wide) {
       if (chips) { chips.x = mid - chips.q.w / 2; chips.y = bandTop + (bandH - chips.q.h) / 2; }
       rowX0 = W * .59; rowX1 = W - e; rowCy = H / 2;
     } else if (side) {
       // the points and the product's row centred together across the column
       const total = (chips ? chips.q.w + (sub.w ? gx : 0) : 0) + sub.w, x0 = cx0 + (colW - total) / 2;
-      if (chips) { chips.x = x0; chips.y = bandTop + (bandH - chips.q.h) / 2; }
-      rowX0 = x0 + (chips ? chips.q.w + gx : 0); rowX1 = rowX0 + sub.w; rowCy = bandTop + bandH / 2;
+      if (mir) { rowX0 = x0; rowX1 = x0 + sub.w; chips.x = rowX1 + gx; chips.y = bandTop + (bandH - chips.q.h) / 2; }
+      else { if (chips) { chips.x = x0; chips.y = bandTop + (bandH - chips.q.h) / 2; } rowX0 = x0 + (chips ? chips.q.w + gx : 0); rowX1 = rowX0 + sub.w; }
+      rowCy = bandTop + bandH / 2;
     } else if (S.mode === "tall") {
       const rowW = chips.q.w + gx + S.rb * 2, x0 = mid - rowW / 2;
       chips.x = x0; chips.y = bandTop + (S.topH - chips.q.h) / 2;
@@ -1294,7 +1311,7 @@ export class FullAd extends Ad {
     else R.sticker = [F.burst.x - F.burst.R, F.burst.y - F.burst.R, F.burst.x + F.burst.R, F.burst.y + F.burst.R];
     F.iconSlot = null; F.subjectFit = hasPhones ? sub.k : 1; F.group = null;
     if (hasPhones && sub.k > 0) {
-      const k = sub.k, x0 = rowX0 + (rowX1 - rowX0 - sub.w) / 2, gcx = x0 + gw * k / 2, ocx = (G[0] + G[2]) / 2, ocy = (G[1] + G[3]) / 2;
+      const k = sub.k, lead = mir && sub.rb && !sub.below ? sub.rb * 2 + gx * .8 : 0, x0 = rowX0 + (rowX1 - rowX0 - sub.w) / 2 + lead, gcx = x0 + gw * k / 2, ocx = (G[0] + G[2]) / 2, ocy = (G[1] + G[3]) / 2;
       for (const q of this.phones) { q.home = [gcx + (q.home[0] - ocx) * k, rowCy + (q.home[1] - ocy) * k]; q.size *= k; }
       this.stageC = [gcx, rowCy]; this.stageSpan = [gcx - gw * k / 2, gcx + gw * k / 2];
       F.group = [gcx - gw * k / 2, rowCy - gh * k / 2, gcx + gw * k / 2, rowCy + gh * k / 2];
@@ -1309,7 +1326,7 @@ export class FullAd extends Ad {
         F.burst = { x: bx, y: by, R: rb }; R.sticker = [bx - rb, by - rb, bx + rb, by + rb];
         if (ri) { const ix = bx + rb + gx + ri; F.iconSlot = { x: ix, y: by, R: ri }; R.icon = [ix - ri, by - ri, ix + ri, by + ri]; }
       } else if (sub.rb) {
-        const rb = sub.rb, ri = sub.ri, bx = x0 + gw * k + gx * .8 + rb, by = rowCy - sub.colH / 2 + rb;
+        const rb = sub.rb, ri = sub.ri, bx = mir ? x0 - gx * .8 - rb : x0 + gw * k + gx * .8 + rb, by = rowCy - sub.colH / 2 + rb;
         F.burst = { x: bx, y: by, R: rb };
         R.sticker = [bx - rb, by - rb, bx + rb, by + rb];
         if (ri) { const iy = by + rb + g * 1.5 + ri; F.iconSlot = { x: bx, y: iy, R: ri }; R.icon = [bx - ri, iy - ri, bx + ri, iy + ri]; }
@@ -1996,8 +2013,12 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
   // fullWords() says where they repeat). The order is the order they are read in.
   const fresh = (list, said) => { const start = Math.floor(r() * list.length); for (let i = 0; i < list.length; i++) { const w = list[(start + i) % list.length]; if (!said.some(x => sharesWord(w, x))) return w; } return list[start]; };
   const line = st.feed_line ?? (st.tag || one(FULL_WORDS.line));
-  const points = st.points ?? (pointsOf(st).length ? pointsOf(st).join(", ") : fresh(FULL_WORDS.points, [st.headline, line]));
-  const label = st.number_label || (es ? "LLAMA O MANDA TEXTO" : FULL_WORDS.label[0]);
+  // the selling points and the call to action: the customer's own, else drawn by the ad's seed from its line's
+  // own true claims (motion/claims.js), a different set and count from ad to ad, some none (the owner,
+  // 2026-11-21: "all the same selling points"; every line had printed FREE QUOTE · CASH SAME DAY · NO FEES
+  // and CALL OR TEXT)
+  const points = st.points ?? drawClaims(st.subject || "iphone", seed, [st.headline, line], es).join(", ");
+  const label = st.number_label || drawLabel(seed, [st.headline, line, points], es);
   // who is buying: a business name, where one is given, takes the badge (the first thing read). An ad
   // with no name on it is the pattern of the buyers nobody trusts (competitor research, 2026-11-12:
   // the brand is what carries the eye to the rest of an ad; "top dollar" is on every sign in the trade)
@@ -2012,13 +2033,24 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = []) {
     feed_burst: burst,
     accent_word: accentWord(st.headline, look.colors.accent),
   };
-  const base = { ...DEFAULT_STYLE, ...st, ...QUIET, ...look, ...words, phones: have, full: true, seed };
-  const locked = new Set([...keep, ...Object.keys(QUIET), ...Object.keys(look), ...Object.keys(words), "phones", "headline", "tag", "number", "aspect", "duration", "lang", "lang_mode", "area", "full", "accent_word", "strike_text", "hook_text"]);
+  /* THE AD'S STRUCTURE, each on a seed stream of its own so no other draw moves (2026-11-21; the owner: "bro the
+     variety is so minimal here..? there's no variations at all?"): the product over the headline three times in
+     ten; the side band mirrored half the time; the points ticked, numbered, outlined or dotted; and four times in
+     ten the band's next best shape, where it shows the product nearly as large. A hand's or a held value stays. */
+  const turn = k => (mixSeed((seed >>> 0) * 71 + k) >>> 0) / 4294967296;
+  const shapes = {
+    full_order: st.full_order ?? (turn(1) < .3 ? "product" : "head"),
+    full_mirror: st.full_mirror ?? turn(2) < .5,
+    points_style: st.points_style ?? ["tick", "tick", "numbered", "outline", "dot"][Math.floor(turn(3) * 5)],
+    full_band: st.full_band ?? (turn(4) < .4 ? "alt" : "best"),
+  };
+  const base = { ...DEFAULT_STYLE, ...st, ...QUIET, ...look, ...words, ...shapes, phones: have, full: true, seed };
+  const locked = new Set([...keep, ...Object.keys(QUIET), ...Object.keys(look), ...Object.keys(words), ...Object.keys(shapes), "phones", "headline", "tag", "number", "aspect", "duration", "lang", "lang_mode", "area", "full", "accent_word", "strike_text", "hook_text"]);
   const pool = have.length || subject ? [] : phoneIndex.map(m => m.id);   // another product never borrows iPhones
   const out = harmonise(randomize(base, seed, locked, pool, false), locked, idx);
   // the voice-over's lines are about phones: an ad for anything else plays its music alone
   const quiet = subject ? { voice: "off", vo_clip: "", vo_text: "" } : {};
-  return { ...out, ...QUIET, ...look, ...words, ...quiet, full: true, phones: subject ? have : (out.phones || []).slice(0, most) };
+  return { ...out, ...QUIET, ...look, ...words, ...shapes, ...quiet, full: true, phones: subject ? have : (out.phones || []).slice(0, most) };
 }
 
 /** What would stop this ad going out, in words: a block left out for want of room, a block

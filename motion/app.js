@@ -544,7 +544,7 @@ async function applyRecipe(id) {
   const w = R.words || {}, S = subjects.list.find(x => x.key === R.subject), other = R.subject !== "iphone";
   s.headline = w.headline || (S ? S.heads[0].toUpperCase() : s.headline);
   s.tag = w.tag || (S && other ? S.models.toUpperCase() : "");
-  s.points = w.points || (S && other ? S.points : null);
+  s.points = w.points || null;   // none in the design: drawn from the line's own claims (pointsOf, motion/claims.js)
   delete s.feed_claim;                               // the design's claim is drawn unless a business name or a claim is typed (fullOf)
   for (const [k, v] of [["feed_burst", w.burst], ["number_label", w.label]]) { if (v) s[k] = v; else delete s[k]; }
   // its look is its own seed's, leaning toward its card (fullOf passes the hint), never the card's pair or face
@@ -693,8 +693,8 @@ function buildPanel() {
       if (was) { if (own[0].includes(state.style.headline)) state.style.headline = "WE BUY IPHONES"; if (own[1].includes(state.style.tag)) state.style.tag = ""; if (own[2].includes(state.style.points)) state.style.points = null; }
     } else {
       state.style.subject = key; state.style.subject_set = 0;
-      state.style.headline = S.heads[0].toUpperCase(); state.style.tag = S.models.toUpperCase(); state.style.points = S.points;
-      ["headline", "tag", "points"].forEach(k => state.locked.add(k));
+      state.style.headline = S.heads[0].toUpperCase(); state.style.tag = S.models.toUpperCase(); state.style.points = null;   // drawn from its own claims by the seed
+      ["headline", "tag"].forEach(k => state.locked.add(k));
     }
     save(); syncWords(); syncMode(); rebuild(); renderGallery(true);
   });

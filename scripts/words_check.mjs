@@ -13,6 +13,8 @@
      library cards        assets/showcase/tpl, the live ones (scIsLive, less choice-holds)
      iPhones LA's FeedAd  tools/feed-stills/cards.json and batches/<day>/cards.json
      the colour builder   colour-builder.js CB_AD_WORDS, its sample ad (a phone ad)
+     the lines' claims    motion/claims.js CLAIMS, LINE_CLAIMS, CLAIMS_ES (each under its own category) and
+                          the calls to action LABELS, LABELS_ES (any ad's, read as a phone ad's)
      the site's copy      motion/banned-words.js is in step with spec/banned-words.json
 
    A customer's own typed words are in none of these; the pre-flights note those (fullWords, the
@@ -81,6 +83,13 @@ for (const f of ['index.html', 'motion/index.html']) if (existsSync(ROOT + f)) f
 const cbw = /const CB_AD_WORDS = (\{[^\n]*\});/.exec(read('colour-builder.js'));
 if (!cbw) { console.error('CB_AD_WORDS not found in colour-builder.js'); process.exit(2); }
 for (const [k, w] of Object.entries(Function('return ' + cbw[1])())) if (isWords(w)) scan('colour-builder.js CB_AD_WORDS', 'phones', w, k);
+
+// the selling points and calls to action each ad draws by its seed (motion/claims.js, 2026-11-21)
+const CL = await import(new URL('../motion/claims.js', import.meta.url).href);
+for (const [cat, list] of Object.entries(CL.CLAIMS)) for (const w of list) scan('motion/claims.js CLAIMS', cat, w, cat);
+for (const [line, list] of Object.entries(CL.LINE_CLAIMS)) for (const w of list) scan('motion/claims.js LINE_CLAIMS', CL.LINE_CAT[line] || 'phones', w, line);
+for (const [cat, list] of Object.entries(CL.CLAIMS_ES)) for (const w of list) scan('motion/claims.js CLAIMS_ES', cat === 'default' ? 'phones' : cat, w, cat);
+for (const w of [...CL.LABELS, ...CL.LABELS_ES]) scan('motion/claims.js LABELS', 'phones', w, 'label');
 
 // iPhones LA's FeedAd cards
 const feeds = ['tools/feed-stills/cards.json', ...(existsSync(ROOT + 'tools/feed-stills/batches') ? readdirSync(ROOT + 'tools/feed-stills/batches').map(b => `tools/feed-stills/batches/${b}/cards.json`) : [])].filter(p => existsSync(ROOT + p));

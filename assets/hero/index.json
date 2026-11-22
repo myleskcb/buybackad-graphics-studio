@@ -1,6 +1,6 @@
 {
  "about": "Stills of the recipe and full-ad hero picks (assets/hero-picks.json), drawn by scripts/build_hero_stills.mjs; app.js scBuildWall shows them and opens each in the full ad.",
- "made": "2026-11-20T07:26:31.575Z",
+ "made": "2026-11-22T00:22:55.515Z",
  "items": {
   "full-iphone-v12": {
    "kind": "full",
@@ -8,6 +8,26 @@
    "line": "iphone",
    "seed": 12,
    "name": "iPhones (full ad, look 12)",
+   "words": {
+    "points": [
+     "LOCAL BUYER",
+     "QUOTE BY TEXT",
+     "FAIR OFFER"
+    ],
+    "label": "MESSAGE US",
+    "number": "(510) 555-0102",
+    "metro": "Bay Area"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": true,
+    "points_style": "numbered",
+    "points_n": 3,
+    "number_style": "underline",
+    "mark": "chevrons",
+    "arrangement": "fan"
+   },
    "fams": [
     "Boogaloo",
     "Oswald",
@@ -19,7 +39,7 @@
    "background": "pat_riso",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "OAKLAND • SAN FRANCISCO • BERKELEY",
    "states": "CA",
    "headline": "WE BUY IPHONES",
    "product": "[object Object]",
@@ -31,6 +51,26 @@
    "line": "mac",
    "seed": 8,
    "name": "MacBooks (full ad, look 8)",
+   "words": {
+    "points": [
+     "QUOTE BY TEXT",
+     "CASH SAME DAY",
+     "WE MEET YOU"
+    ],
+    "label": "GET YOUR OFFER",
+    "number": "(407) 555-0147",
+    "metro": "Orlando"
+   },
+   "shape": {
+    "mode": "stack",
+    "order": "head",
+    "mirror": false,
+    "points_style": "dot",
+    "points_n": 3,
+    "number_style": "tag",
+    "mark": "arrows",
+    "arrangement": "showcase"
+   },
    "fams": [
     "Saira Condensed",
     "Oswald",
@@ -42,8 +82,8 @@
    "background": "pair_arch",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "ORLANDO • PINE HILLS • ALAFAYA",
+   "states": "FL",
    "headline": "WE BUY MACBOOKS",
    "product": "[object Object]",
    "thumb": "assets/hero/full-mac-v8.webp"
@@ -54,6 +94,26 @@
    "line": "macdesk",
    "seed": 2,
    "name": "Macs (full ad, look 2)",
+   "words": {
+    "points": [
+     "LOCAL BUYER",
+     "PAID TODAY",
+     "NO FEES"
+    ],
+    "label": "GET YOUR OFFER",
+    "number": "(206) 555-0139",
+    "metro": "Seattle"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "pill",
+    "mark": "none",
+    "arrangement": "showcase"
+   },
    "fams": [
     "Chivo",
     "Oswald",
@@ -65,8 +125,8 @@
    "background": "pat_memphis",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "SEATTLE • BELLEVUE • KIRKLAND",
+   "states": "WA",
    "headline": "WE BUY MACS",
    "product": "[object Object]",
    "thumb": "assets/hero/full-macdesk-v2.webp"
@@ -77,6 +137,22 @@
    "line": "ipad",
    "seed": 15,
    "name": "iPads (full ad, look 15)",
+   "words": {
+    "points": [],
+    "label": "MESSAGE US",
+    "number": "(619) 555-0115",
+    "metro": "San Diego"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": false,
+    "points_style": "none",
+    "points_n": 0,
+    "number_style": "box",
+    "mark": "chevrons",
+    "arrangement": "fan"
+   },
    "fams": [
     "Sofia Sans Extra Condensed",
     "Oswald",
@@ -88,7 +164,7 @@
    "background": "pair_sunset",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
+   "where": "SAN DIEGO • CHULA VISTA • NATIONAL CITY",
    "states": "CA",
    "headline": "WE BUY IPADS",
    "product": "[object Object]",
@@ -100,6 +176,25 @@
    "line": "console",
    "seed": 6,
    "name": "Consoles (full ad, look 6)",
+   "words": {
+    "points": [
+     "NO FEES",
+     "LOCAL BUYER"
+    ],
+    "label": "CALL OR TEXT",
+    "number": "(303) 555-0186",
+    "metro": "Denver"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "dot",
+    "points_n": 2,
+    "number_style": "box",
+    "mark": "chevrons",
+    "arrangement": "lineup"
+   },
    "fams": [
     "Luckiest Guy",
     "Oswald",
@@ -111,8 +206,8 @@
    "background": "pat_polka",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "DENVER • AURORA • LAKEWOOD",
+   "states": "CO",
    "headline": "WE BUY CONSOLES",
    "product": "[object Object]",
    "thumb": "assets/hero/full-console-v6.webp"
@@ -123,6 +218,25 @@
    "line": "galaxy",
    "seed": 6,
    "name": "Samsung (full ad, look 6)",
+   "words": {
+    "points": [
+     "CRACKED OK",
+     "PAID TODAY"
+    ],
+    "label": "CALL OR TEXT",
+    "number": "(404) 555-0151",
+    "metro": "Atlanta"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "dot",
+    "points_n": 2,
+    "number_style": "tag",
+    "mark": "arrows",
+    "arrangement": "lineup"
+   },
    "fams": [
     "Bungee",
     "Oswald",
@@ -134,8 +248,8 @@
    "background": "pat_rays",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "ATLANTA • SANDY SPRINGS • BROOKHAVEN",
+   "states": "GA",
    "headline": "WE BUY SAMSUNG PHONES",
    "product": "[object Object]",
    "thumb": "assets/hero/full-galaxy-v6.webp"
@@ -146,6 +260,26 @@
    "line": "pixel",
    "seed": 22,
    "name": "Pixel (full ad, look 22)",
+   "words": {
+    "points": [
+     "CRACKED OK",
+     "LOCAL BUYER",
+     "ANY CARRIER"
+    ],
+    "label": "CALL US TODAY",
+    "number": "(702) 555-0168",
+    "metro": "Las Vegas"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "dot",
+    "points_n": 3,
+    "number_style": "pill",
+    "mark": "arrows",
+    "arrangement": "lineup"
+   },
    "fams": [
     "Bahiana",
     "Barlow Condensed",
@@ -157,8 +291,8 @@
    "background": "pair_arch",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "LAS VEGAS • NORTH LAS VEGAS • PARADISE",
+   "states": "NV",
    "headline": "WE BUY PIXEL PHONES",
    "product": "[object Object]",
    "thumb": "assets/hero/full-pixel-v22.webp"
@@ -169,6 +303,26 @@
    "line": "car",
    "seed": 1,
    "name": "Cars and trucks (full ad)",
+   "words": {
+    "points": [
+     "LOCAL BUYER",
+     "QUOTE BY TEXT",
+     "NO FEES"
+    ],
+    "label": "GET YOUR OFFER",
+    "number": "(303) 555-0159",
+    "metro": "Denver"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "product",
+    "mirror": false,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "box",
+    "mark": "chevrons",
+    "arrangement": "showcase"
+   },
    "fams": [
     "Tourney",
     "Oswald",
@@ -180,8 +334,8 @@
    "background": "pair_mesh",
    "ground": "gradient",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "DENVER • AURORA • LAKEWOOD",
+   "states": "CO",
    "headline": "WE BUY CARS & TRUCKS",
    "product": "[object Object]",
    "thumb": "assets/hero/full-car-v1.webp"
@@ -192,6 +346,26 @@
    "line": "sports",
    "seed": 2,
    "name": "Sports cards (full ad, look 2)",
+   "words": {
+    "points": [
+     "PAID TODAY",
+     "NO FEES",
+     "GRADED OR RAW"
+    ],
+    "label": "GET YOUR OFFER",
+    "number": "(303) 555-0136",
+    "metro": "Denver"
+   },
+   "shape": {
+    "mode": "side",
+    "order": "head",
+    "mirror": true,
+    "points_style": "tick",
+    "points_n": 3,
+    "number_style": "underline",
+    "mark": "none",
+    "arrangement": "showcase"
+   },
    "fams": [
     "Chivo",
     "Oswald",
@@ -203,8 +377,8 @@
    "background": "pat_waves",
    "ground": "pattern",
    "photo": "",
-   "where": "LONG BEACH • LOS ANGELES • ANAHEIM",
-   "states": "CA",
+   "where": "DENVER • AURORA • LAKEWOOD",
+   "states": "CO",
    "headline": "WE BUY SPORTS CARDS",
    "product": "[object Object]",
    "thumb": "assets/hero/full-sports-v2.webp"

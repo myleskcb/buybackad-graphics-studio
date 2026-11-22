@@ -24,11 +24,14 @@
            --layouts   the designer layouts' recipes instead, into assets/layout-stills/ (with the others) */
 import { readFileSync, writeFileSync, existsSync, mkdirSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { recipeArea } from './_sample_areas.mjs';
 
 const LAYOUTS = process.argv.includes('--layouts'), REL = LAYOUTS ? 'assets/layout-stills/' : 'assets/recipe-stills/';
 const ROOT = new URL('../', import.meta.url).pathname, DIR = ROOT + REL;
 const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8931/').replace(/\/?$/, '/');
-const SHOP = { number: '(562) 999-4994', zip: '90802' };   // the library cards' own number and Long Beach
+const SHOP = { number: '(562) 999-4994', zip: '90802' };   // the page's own area until the first still sets its own
+// each still's area and number are its own (motion/sample-areas.js: a US metro by its id, a 555-01xx number on the
+// metro's code; the owner, 2026-11-21: "all the same selling points and location", "US metros nationwide")
 const SIZE = 400;
 const recipes = JSON.parse(readFileSync(ROOT + 'motion/recipes.json', 'utf8')).recipes.filter(r => LAYOUTS ? r.gen === 'dl' : r.gen === 'sc' || r.gen === 'of');
 const index = existsSync(DIR + 'index.json') ? JSON.parse(readFileSync(DIR + 'index.json', 'utf8')) : { items: {} };
@@ -58,8 +61,10 @@ await page.evaluate(async S => {
 }, SHOP);
 let n = 0;
 for (const r of want) {
-  const got = await page.evaluate(async ({ id, SIZE }) => {
+  const A = recipeArea(r.id);
+  const got = await page.evaluate(async ({ id, SIZE, A }) => {
     const M = await import('/motion/fullad.js'), FS = window.FullAdStudio, FA = FS.state;
+    const area = await resolveArea(A.zip); if (area) setArea(area); $('ez-phone').value = A.number;
     const r = await FS.useRecipe(id); if (!r) return { error: 'no recipe ' + id };
     FA.biz = '';
     const { ad, st } = await FS.build(1080, FORMATS.square);
@@ -74,8 +79,11 @@ for (const r of want) {
     const photo = bg === 'photo' && st.ground_photo ? String(st.ground_photo.src || '') : '', where = String(st.feed_where ?? st.area ?? ''), states = String(st.area_states || '');
     // the faces it is set in, by family (a face the page declares too was drawn in Arial Black before 2026-11-19: engine.js loadFonts)
     const E = await import('/motion/engine.js'), C = await import('/motion/catalog.js'), fams = [...new Set(E.fontsFor(st).map(n => (C.FONTS[n] || [])[0]).filter(Boolean))];
-    return { fams, pair, pairName: P ? P.name : '', look: P ? P.look : '', accent: st.colors ? st.colors.accent : '', background: bg, ground, photo, where, states, headline: String(st.headline || ''), webp: c.toDataURL('image/webp', .76) };
-  }, { id: r.id, SIZE });
+    // what it says and how it is built, for scripts/variety_check.mjs (the owner: "there's no variations at all?")
+    const words = { points: E.pointsOf(st), label: String(st.number_label || ''), number: String(st.number || ''), metro: A.metro };
+    const shape = { mode: (ad.full && ad.full.mode) || '', order: (ad.full && ad.full.order) || 'head', mirror: !!(ad.full && ad.full.mirror), points_style: E.pointsOf(st).length ? String(st.points_style || 'tick') : 'none', points_n: E.pointsOf(st).length, number_style: String(st.number_style || 'pill'), mark: String(st.cta_mark || ''), arrangement: String(st.arrangement || '') };
+    return { fams, pair, pairName: P ? P.name : '', look: P ? P.look : '', accent: st.colors ? st.colors.accent : '', background: bg, ground, photo, where, states, headline: String(st.headline || ''), words, shape, webp: c.toDataURL('image/webp', .76) };
+  }, { id: r.id, SIZE, A });
   if (got.error) { console.log(`  ${r.id}: ${got.error}`); continue; }
   writeFileSync(DIR + r.id + '.webp', Buffer.from(got.webp.split(',')[1], 'base64'));
   const { webp, ...meta } = got;
