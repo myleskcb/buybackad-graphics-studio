@@ -4432,11 +4432,16 @@ here..? there's no variations at all?", "all the same selling points and locatio
 - **Owner's choices**: "US metros nationwide" for the sample towns, and "Match the area, 555-01xx" for the
   sample number.
 - **Neighbours, as a visitor sees them** (2026-11-22): the landing keeps the library's neighbours apart in the
-  order it shows it (`app.js` `scNeighboursDiffer`). In All and in every line, no two neighbours share a
-  structure, selling points or a metro. Neighbours laid out alike, across the 41 lines: 540 as sorted, 461
-  with only the structure kept apart, 55 with layouts kept apart too. Of the 55, 14 each are in the headsets
-  and Chromebooks, which have one layout, and 17 in gaming PCs. In All: 501, 414, 28. A line's full ads keep
-  each structure, point set and metro to a third of the line (the headsets' commonest structure had been 40%).
+  order and the grid it shows (`app.js` `scNeighboursDiffer`). In every line, no two ads side by side share a
+  structure, selling points or a metro. The ad above another (4 columns on a wide screen, 3, 2 on a phone)
+  repeats one 13, 7 and 1 times in about 2,100 places across the lines, where it did 221, 216 and 184 times.
+  Most of those are in lines whose commonest structure covers more than a fifth of the line (gaming PCs,
+  Hondas, headsets, Chromebooks); a few sit at the ends of long lines. Neighbours laid out alike across the
+  lines: 540 as sorted, 64 now, 14 each of them in the headsets and Chromebooks, which have one layout. A
+  line's full ads keep each structure, point set and metro to a third of the line (the headsets' commonest
+  structure had been 40%).
+- **All**, reported, not held: one structure repeated side by side and 24, 7 and 5 above, all past card 1,437,
+  where the platform's mix runs out of lines to interleave and shows the rest a line at a time.
 - **The hero wall**: four picks changed places within their lines, and its own full ads took metros no other
   tile prints. It has 18 metros on 18 tiles and no touching tiles alike; 5 of its 30 touching pairs are laid
   out alike, where 9 were.

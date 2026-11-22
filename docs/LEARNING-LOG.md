@@ -6547,3 +6547,11 @@ SEO session (158, pull request 15). Pull request 15 now meets this branch in `in
 - **A browser tab keeps the script it loaded.** The preview pane ran the app.js from before the edit until
   it was fetched again with `cache: 'reload'`. Check that the new code is the code running before reading a
   result from it.
+- **A grid has a neighbour above.** With no two ads side by side alike, 216 still repeated the ad above them
+  in three columns. A grid of four, three or two columns puts the ad above four, three or two before it in
+  the list; keep each ad apart from the four before it.
+- **Time it where it runs, and warm.** In the preview pane, right after a load, the pass read 60 to 130 ms;
+  in a headless page, warm, it takes 6 ms. The pane can run as a background page. The same pass with string
+  keys and a long reach had taken 1.6 s: number the keys and keep the search near.
+- **A sed substitution changes every line it matches.** One meant for the pass's loop count changed three
+  other loops in app.js. Diff after any sed on a large file, or make the change with an exact edit.

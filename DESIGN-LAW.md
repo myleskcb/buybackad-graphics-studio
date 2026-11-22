@@ -6842,20 +6842,27 @@ Colours, faces, stickers and grounds varied. The structure, the words and the pl
   and a line's own full ads are passed over where their structure, points or towns would cover more than a
   third of the line (`scripts/build_library_looks.mjs`).
 - **Neighbours differ where a visitor sees them.** The landing shows the library strongest first, designs
-  apart (`app.js` `scOrder`), not in the recipes' order. Then `scNeighboursDiffer` trades a card that has its
-  neighbour's structure, selling points or towns for the nearest card of the same line and the same lock that
-  has none of them. Where its line has another layout, a card laid out like its neighbour moves too: ticks
-  beside outlines, with the product on the same side, read as one layout. The free cards first and the
-  platform's mix stand. On the hero wall, no two tiles that touch share a structure, points or towns: one
-  above the other in a column (the columns loop) and side by side as the wall first stands (the columns
-  scroll at their own speeds). Four picks changed places within their lines for it (`assets/hero-picks.json`).
+  apart (`app.js` `scOrder`), not in the recipes' order, in a grid of four columns, three or two
+  (`landing.css`). Then `scNeighboursDiffer` trades cards, each only with a card of the same line and the
+  same lock, so the platform's mix and the free cards first stand. It trades until no card has the
+  structure, selling points or towns of the card beside it or of the card above it, which is four, three or
+  two before it. Where the line has another layout, a card laid out like the card beside it moves too:
+  ticks beside outlines, with the product on the same side, read as one layout. Every trade lowers the cost
+  of the whole list, and the sweeps run from both ends; 6 ms over all 2,404 cards. On the hero wall, no two
+  tiles that touch share a structure, points or towns: one above the other in a column (the columns loop)
+  and side by side as the wall first stands (the columns scroll at their own speeds). Four picks changed
+  places within their lines for it (`assets/hero-picks.json`).
 - **Measured as shown** (2026-11-22): `scripts/variety_check.mjs` opens the landing and reads the library in
   the order it shows it, for All and for every line, and the hero wall as it stands. It reports the spread of
-  point sets, metros, calls to action, skeletons and layouts. It fails when neighbours share a skeleton,
-  points or a metro, when one covers more than a third of a line, or when a still lacks its record. Layouts
-  alike are reported, not failed: the headsets and Chromebooks carry no product in the band and have one
-  layout. Its first version (2026-11-21) read the library in the recipes' order, which the landing never
-  shows. It counted neighbours apart there while, as shown, 3 to 9 in 100 shared a structure.
+  point sets, metros, calls to action, skeletons and layouts. It fails when, in a line or on the hero wall,
+  neighbours share a skeleton, points or a metro; when, across the lines, more than one ad in a hundred
+  repeats one with the ad above it in a grid of any width; when one covers more than a third of a line; or
+  when a still lacks its record. A line whose commonest structure covers more than a fifth of it cannot
+  always keep it four ads apart. All is reported: past the point where the platform's mix runs out of lines
+  to interleave, it shows the rest a line at a time. Layouts alike are reported too: the headsets and
+  Chromebooks carry no product in the band and have one layout. The check's first version (2026-11-21)
+  read the library in the recipes' order, which the landing never shows. It counted neighbours apart there
+  while, as shown, 3 to 9 in 100 shared a structure.
 
 ## 162. The landing is built to a brief: one type scale, a rhythm of grounds, and a layout of its own for each section
 

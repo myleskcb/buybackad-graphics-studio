@@ -21,15 +21,21 @@
                differently. Reported: a line whose ads carry no product in the band (the headsets) has
                one layout only.
 
-   Neighbours in the library are the ads one after the other in its order. On the hero wall they are the
-   tiles that touch: one above the other in a column (its last touches its first, as the column loops) and,
-   as the wall first stands and as it stays for a visitor who asks for less motion, side by side. (The
-   columns scroll at their own speeds, so side by side changes as they move; one above the other never does.)
+   Neighbours in the library are the ads one after the other in its order, and the ad above another: the
+   library is a grid of four columns on a wide screen, three on a narrower one and two on a phone
+   (landing.css), so the ad above is four, three or two before it. On the hero wall they are the tiles that
+   touch: one above the other in a column (its last touches its first, as the column loops) and, as the wall
+   first stands and as it stays for a visitor who asks for less motion, side by side. (The columns scroll at
+   their own speeds, so side by side changes as they move; one above the other never does.)
 
-   Fails when, in All, in a line of six ads or more, or on the hero wall: two neighbours print the same
-   selling points (two or more), come from the same metro or share a skeleton; one point set, metro or
-   skeleton covers more than a third; or a still was drawn before its words were recorded. The video maker's
-   Any looks record neither and are not counted.
+   Fails when, in a line of six ads or more or on the hero wall, two neighbours print the same selling
+   points (two or more), come from the same metro or share a skeleton; when, across the lines, more than one
+   ad in a hundred has any of them in common with the ad above it, in a grid of any width (where a line's
+   commonest structure covers more than a fifth of it, it cannot always be kept four ads apart, and the end
+   of a line has few ads left to trade with; each is reported); when one point set, metro or skeleton
+   covers more than a third of a line; or when a still was drawn before its words were recorded. All is
+   reported: past the point where the platform's mix runs out of lines to interleave, it shows the rest a
+   line at a time. The video maker's Any looks record neither and are not counted.
 
    usage:  GFX_BASE=http://127.0.0.1:8932/ node scripts/variety_check.mjs [--line ipad] [--json out.json]
            exit 1 on a failure */
@@ -81,6 +87,10 @@ const keyOf = {
 };
 const recorded = m => !!(m && m.words && m.shape);
 const drawnByTheFullAd = m => !!m && m.kind !== 'any';
+// any of the structure, the selling points (two or more) or the towns in common
+const alike = (a, b) => recorded(a) && recorded(b) && (keyOf.skeleton(a) === keyOf.skeleton(b)
+  || ((a.words.points || []).length > 0 && keyOf.points(a) === keyOf.points(b)) || (!!a.words.metro && a.words.metro === b.words.metro));
+const WIDTHS = [2, 3, 4];
 // the spread of a set of ads, and their neighbours: pairs of ads that touch
 function measure(name, ads, pairs, ids) {
   const out = { name, n: ads.filter(drawnByTheFullAd).length, unrecorded: ads.filter(m => drawnByTheFullAd(m) && !recorded(m)).length, keys: {} };
@@ -97,7 +107,15 @@ const rows = [];
 for (const [line, list] of Object.entries(seen.lib)) {
   const ads = list.map(c => stillOf(c.src)), ids = list.map(c => c.id), pairs = [];
   for (let i = 1; i < ads.length; i++) pairs.push([i - 1, i]);
-  rows.push(measure(line, ads, pairs, ids));
+  const r = measure(line, ads, pairs, ids);
+  // the ad above, in a grid of two, three and four columns: how many places there are, and how many repeat it
+  r.above = {}; r.aboveAt = {};
+  for (const w of WIDTHS) {
+    const hits = []; let places = 0;
+    for (let i = w; i < ads.length; i++) { if (!recorded(ads[i]) || !recorded(ads[i - w])) continue; places++; if (alike(ads[i], ads[i - w])) hits.push(`${ids[i - w]} over ${ids[i]}`); }
+    r.above[w] = { places, repeats: hits.length }; r.aboveAt[w] = hits.slice(0, 4);
+  }
+  rows.push(r);
 }
 const libRows = rows.slice().sort((a, b) => (b.name === 'all') - (a.name === 'all') || b.n - a.n);
 let wallRow = null;
@@ -117,26 +135,38 @@ if (!ONLY && seen.wall.length) {
 const fails = [], pct = x => (x * 100).toFixed(0) + '%';
 const NAMES = { points: 'print the same selling points', area: 'come from the same metro', skeleton: 'share a skeleton' };
 const hold = (r, wall) => {
-  if (r.n < LEAST && r.name !== 'all' && !wall) return;
+  if (r.name === 'all' || (r.n < LEAST && !wall)) return;
   if (r.unrecorded) fails.push(`${r.name}: ${r.unrecorded} stills drawn before their words were recorded (draw them again)`);
   for (const k of ['points', 'area', 'skeleton']) {
     const x = r.keys[k];
     if (x.neighbours) fails.push(`${r.name}: ${x.neighbours} ${wall ? 'touching tiles' : 'neighbours'} ${NAMES[k]} (${x.pairs.join('; ')})`);
-    if (r.name !== 'all' && x.share > FAIR + 1e-9 && x.top !== '(none)') fails.push(`${r.name}: one ${k === 'area' ? 'metro' : k === 'points' ? 'point set' : 'skeleton'} covers ${pct(x.share)} (${x.top})`);
+    if (x.share > FAIR + 1e-9 && x.top !== '(none)') fails.push(`${r.name}: one ${k === 'area' ? 'metro' : k === 'points' ? 'point set' : 'skeleton'} covers ${pct(x.share)} (${x.top})`);
   }
 };
 for (const r of libRows) hold(r, false);
 if (wallRow) hold(wallRow, true);
+// the ad above, across the lines: at most one place in a hundred, in a grid of each width
+const lineRows = libRows.filter(r => r.name !== 'all'), aboveAll = {};
+for (const w of WIDTHS) {
+  const places = lineRows.reduce((t, r) => t + r.above[w].places, 0), repeats = lineRows.reduce((t, r) => t + r.above[w].repeats, 0);
+  aboveAll[w] = { places, repeats };
+  if (repeats > places / 100) fails.push(`across the lines, ${repeats} of ${places} ads have something in common with the ad above them in a grid of ${w} columns (more than one in a hundred): ${lineRows.filter(r => r.above[w].repeats).map(r => `${r.name} ${r.above[w].repeats}`).join(', ')}`);
+}
 
 const show = r => {
   const p = r.keys.points, a = r.keys.area, l = r.keys.label, s = r.keys.skeleton, y = r.keys.layout;
-  console.log(r.name.padEnd(12) + String(r.n).padStart(5) + '  ' + `${p.distinct} (${pct(p.share)}, ${p.neighbours})`.padEnd(26) + `${a.distinct} (${pct(a.share)}, ${a.neighbours})`.padEnd(22) + `${l.distinct} (${pct(l.share)})`.padEnd(14) + `${s.distinct} (${pct(s.share)}, ${s.neighbours})`.padEnd(24) + `${y.distinct} (${y.neighbours})` + (r.unrecorded ? `   ${r.unrecorded} unrecorded` : ''));
+  console.log(r.name.padEnd(12) + String(r.n).padStart(5) + '  ' + `${p.distinct} (${pct(p.share)}, ${p.neighbours})`.padEnd(26) + `${a.distinct} (${pct(a.share)}, ${a.neighbours})`.padEnd(22) + `${l.distinct} (${pct(l.share)})`.padEnd(14) + `${s.distinct} (${pct(s.share)}, ${s.neighbours})`.padEnd(24) + `${y.distinct} (${y.neighbours})`.padEnd(15)
+    + (r.above ? WIDTHS.map(w => r.above[w].repeats).join(' / ') : '') + (r.unrecorded ? `   ${r.unrecorded} unrecorded` : ''));
 };
 console.log(`variety, as the landing shows it (${BASE}): the library in its own order, All and ${libRows.length - 1} lines` + (wallRow ? `; the hero wall's ${wallRow.n} tiles as they touch` : ''));
-console.log('            ads  ' + 'point sets (top, nbrs)'.padEnd(26) + 'metros (top, nbrs)'.padEnd(22) + 'labels (top)'.padEnd(14) + 'skeletons (top, nbrs)'.padEnd(24) + 'layouts (nbrs)');
+console.log('            ads  ' + 'point sets (top, nbrs)'.padEnd(26) + 'metros (top, nbrs)'.padEnd(22) + 'labels (top)'.padEnd(14) + 'skeletons (top, nbrs)'.padEnd(24) + 'layouts (nbrs)'.padEnd(15) + 'above, 2 / 3 / 4 columns');
 for (const r of libRows) show(r);
 if (wallRow) show(wallRow);
-if (OUT) writeFileSync(OUT, JSON.stringify({ base: BASE, rows: libRows, wall: wallRow, failures: fails }, null, 1));
+console.log(`\nthe ad above, across the lines: ` + WIDTHS.map(w => `${aboveAll[w].repeats} of ${aboveAll[w].places} in ${w} columns`).join(', ')
+  + (lineRows.some(r => WIDTHS.some(w => r.above[w].repeats)) ? ` (${lineRows.filter(r => WIDTHS.some(w => r.above[w].repeats)).map(r => r.name).join(', ')})` : ''));
+const all = libRows.find(r => r.name === 'all');
+if (all) console.log(`All, reported: ${['points', 'area', 'skeleton'].map(k => `${all.keys[k].neighbours} neighbours ${NAMES[k]}`).join(', ')}; the ad above ${WIDTHS.map(w => all.above[w].repeats).join(' / ')} in 2 / 3 / 4 columns`);
+if (OUT) writeFileSync(OUT, JSON.stringify({ base: BASE, rows: libRows, wall: wallRow, above: aboveAll, failures: fails }, null, 1));
 if (fails.length) { console.log(`\n${fails.length} failed:`); for (const f of fails.slice(0, 40)) console.log('  ' + f); }
-console.log(fails.length ? '\nvariety: failed' : '\nvariety: no two neighbours share a skeleton, selling points or towns, in the library or on the hero wall, and none covers more than a third');
+console.log(fails.length ? '\nvariety: failed' : '\nvariety: in every line and on the hero wall no two neighbours share a skeleton, selling points or towns, the ad above repeats one in fewer than one place in a hundred, and none covers more than a third');
 process.exit(fails.length ? 1 : 0);

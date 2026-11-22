@@ -12167,57 +12167,85 @@ function scMix(list, limit){
 }
 /* NEIGHBOURS DIFFER (DESIGN-LAW 166; the owner, 2026-11-21, of the library: "bro the variety is so minimal
    here..? there's no variations at all?", then "all the same selling points and location"). The ranking puts
-   the strongest first and keeps neighbours apart in family; then a card that has its neighbour's structure
-   (which comes first, the band's shape, the side the product takes, how its points are drawn), its selling
-   points or its towns changes places with the nearest card that has none of them and is of the same line and
-   the same lock, so the mix's lines and the unlocked cards first stand. A card that differs from its
-   neighbour only in how its points are drawn (ticks beside outlines, the product on the same side) reads as
-   the same layout, so it moves too where its line has a card laid out otherwise. A card's structure and
-   words are its still's, as it was drawn (house.shape and house.words: scripts/build_recipe_stills.mjs,
-   build_library_looks.mjs); scripts/variety_check.mjs reads the library in this order. */
+   the strongest first and keeps neighbours apart in family; then cards change places, each only with a card
+   of the same line and the same lock (so the mix's lines and the unlocked cards first stand), until no card
+   has the structure (which comes first, the band's shape, the side the product takes, how its points are
+   drawn), the selling points or the towns of the card beside it or of the card above it. The library is a
+   grid of four columns, three or two (landing.css), so the card above is four, three or two before it, and
+   each card is held to the four before it. A card laid out like the card beside it (only its points drawn
+   differently: ticks beside outlines, the product on the same side) moves too where its line has one laid
+   out otherwise. A card's structure and words are its still's, as it was drawn (house.shape and house.words:
+   scripts/build_recipe_stills.mjs, build_library_looks.mjs); scripts/variety_check.mjs reads this order. */
 function scNeighboursDiffer(list){
-  const keys = new Map(), keyOf = c => {
-    if (!keys.has(c)){
-      const h = c && c.house, s = h && h.shape, w = (h && h.words) || {}, layout = s ? [s.order || 'head', s.mode, s.mirror ? 'mirrored' : 'plain'] : null;
-      keys.set(c, s ? { layout: layout.join(' / '), skel: layout.concat(s.points_style).join(' / '),
-        pts: (w.points || []).slice().sort().join(' · '), metro: w.metro || '' } : null);
+  const out = list.slice(), n = out.length, REACH = 80, NEAR = n > 400 ? 16 : REACH;
+  // each card's keys as small numbers, 0 for none: its structure, its layout, its selling points, its towns, its
+  // family, its line and its lock (a card the indexes record nothing of is alike with nothing)
+  const ids = new Map(), num = s => { let v = ids.get(s); if (!v) ids.set(s, v = ids.size + 1); return v; };
+  const K = out.map(c => {
+    const h = c && c.house, s = h && h.shape, w = (h && h.words) || {};
+    const lay = s ? [s.order || 'head', s.mode, s.mirror ? 'mirrored' : 'plain'].join(' / ') : '';
+    return { skel: s ? num('s ' + lay + ' / ' + s.points_style) : 0, lay: s ? num('l ' + lay) : 0,
+      pts: s && (w.points || []).length ? num('p ' + w.points.slice().sort().join(' · ')) : 0, metro: s && w.metro ? num('m ' + w.metro) : 0,
+      fam: c && c.family ? num('f ' + c.family) : 0, sub: num('u ' + scSubject(c)), lock: (c.classic ? tplLocked(c.classic) : scLocked(c)) ? 1 : 0 };
+  });
+  const swap = (i, j) => { [out[i], out[j]] = [out[j], out[i]]; [K[i], K[j]] = [K[j], K[i]]; };
+  // what the card at k costs where it stands: alike (the same structure, points or towns) or of one family with
+  // the card beside it most, alike with the card two to four before it (above it, in a narrower grid) next, laid
+  // out like the card beside it least. A card the indexes record nothing of (a video look, an offer card) costs
+  // nothing: the ranking placed it
+  const cost = k => {
+    const c = K[k]; let p = 0;
+    if (!c.skel) return 0;
+    for (let d = 1; d <= 4 && k - d >= 0; d++){
+      const b = K[k - d];
+      if ((c.skel && c.skel === b.skel) || (c.pts && c.pts === b.pts) || (c.metro && c.metro === b.metro)) p += d === 1 ? 8 : 3;
+      if (d === 1) p += (c.fam && c.fam === b.fam ? 8 : 0) + (c.lay && c.lay === b.lay ? 1 : 0);
     }
-    return keys.get(c);
+    return p;
   };
-  // alike: the same structure, selling points or towns (never side by side); laid out alike: the same layout
-  const alike = (a, b) => { const x = a && keyOf(a), y = b && keyOf(b);
-    return !!(x && y) && (x.skel === y.skel || (!!x.pts && x.pts === y.pts) || (!!x.metro && x.metro === y.metro)); };
-  const laidAlike = (a, b) => { const x = a && keyOf(a), y = b && keyOf(b); return !!(x && y) && x.layout === y.layout; };
-  const fair = (a, b) => !a || !b || (!alike(a, b) && a.family !== b.family);
-  const apart = (a, b) => fair(a, b) && !laidAlike(a, b);
-  const lock = it => it.classic ? tplLocked(it.classic) : scLocked(it);
-  const out = list.slice();
-  for (let i = 1; i < out.length; i++){
-    const must = alike(out[i - 1], out[i]);
-    if (!must && !laidAlike(out[i - 1], out[i])) continue;
-    const x = out[i], sub = scSubject(x), lk = lock(x);
-    let pick = -1;
-    // first a card after it that keeps apart from both its new neighbours and leaves the card it trades with apart
-    // from its own; for a card that must move, then one that keeps clear of the card before it; at the end of the
-    // list, where nothing comes after, the nearest card before it that both places keep apart
-    for (const strict of must ? [true, false] : [true]){
-      for (let j = i + 1; j < out.length && pick < 0; j++){
-        const c = out[j];
-        if (scSubject(c) !== sub || lock(c) !== lk || !(strict ? apart : fair)(out[i - 1], c)) continue;
-        if (strict && (!apart(c, j === i + 1 ? x : out[i + 1]) || !apart(j === i + 1 ? c : out[j - 1], x) || !apart(x, out[j + 1]))) continue;
-        pick = j;
+  // what trading the cards at i and j saves over every place whose cost they touch (i to i+4, j to j+4); whether a
+  // place but i then costs more; and what i still costs
+  const at = [], was = [];
+  const trade = (i, j) => {
+    at.length = 0; for (let d = 0; d <= 4; d++){ if (i + d < n) at.push(i + d); if (j + d < n && (j + d < i || j + d > i + 4)) at.push(j + d); }
+    for (let q = 0; q < at.length; q++) was[q] = cost(at[q]);
+    swap(i, j);
+    let saved = 0, worse = false, left = 0;
+    for (let q = 0; q < at.length; q++){ const now = cost(at[q]); saved += was[q] - now; if (at[q] === i) left = now; else if (now > was[q]) worse = true; }
+    swap(i, j);
+    return { saved, worse, clear: !worse && !left };
+  };
+  // each card in turn: the nearest card after it that clears it and costs nothing elsewhere; failing that, the
+  // trade that saves the most (the places after it are seen again as the sweep comes to them); at the end of the
+  // list, a card before it where no other place costs more. Every trade lowers the cost of the whole list, and
+  // the sweeps run from the end too (alike is the same both ways), so the last cards have as many to trade with
+  // as the first
+  // (in All, a card laid out like its neighbour and nothing worse looks only a few places away: thousands of cards
+  // are swept as the page opens, and a line's own view, a few hundred at most, looks as far as for the rest)
+  const sweep = () => {
+    let moved = 0;
+    for (let i = 1; i < n; i++){
+      const here = cost(i);
+      if (!here) continue;
+      const sub = K[i].sub, lk = K[i].lock, reach = here > 1 ? REACH : NEAR;
+      let best = -1, most = 0;
+      for (let j = i + 1; j < Math.min(n, i + reach); j++){
+        if (K[j].sub !== sub || K[j].lock !== lk) continue;
+        const t = trade(i, j);
+        if (t.clear){ best = j; break; }
+        if (t.saved > most){ most = t.saved; best = j; }
       }
-      if (pick >= 0) break;
-    }
-    for (const ok of pick < 0 ? (must ? [apart, fair] : [apart]) : []){
-      for (let j = i - 2; j >= 0 && pick < 0; j--){
-        const c = out[j];
-        if (scSubject(c) !== sub || lock(c) !== lk) continue;
-        if (ok(out[i - 1], c) && ok(c, out[i + 1]) && ok(out[j - 1], x) && ok(x, out[j + 1])) pick = j;
+      if (best < 0) for (let j = i - 1; j >= Math.max(0, i - reach); j--){
+        if (K[j].sub !== sub || K[j].lock !== lk) continue;
+        const t = trade(i, j);
+        if (!t.worse && t.saved > most){ most = t.saved; best = j; }
       }
+      if (best >= 0){ swap(i, best); moved++; }
     }
-    if (pick >= 0){ out[i] = out[pick]; out[pick] = x; }
-  }
+    return moved;
+  };
+  const flip = () => { out.reverse(); K.reverse(); };
+  for (let pass = 0; pass < 4; pass++){ if (pass % 2) flip(); const moved = sweep(); if (pass % 2) flip(); if (!moved) break; }
   return out;
 }
 /* THE WALL'S VARIETY (owner, 2026-11-18, of the landing's wall: "the heros barely have any
