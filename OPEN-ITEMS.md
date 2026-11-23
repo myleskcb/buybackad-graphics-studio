@@ -4393,7 +4393,68 @@ Missing or broken, for the owner:
 5. Stripe in test mode; a real card through the live checkout (the owner, with
    4242 4242 4242 4242 while in test mode); the contact address; the terms.
 
-## BR. 2026-11-19 — Sign in with Apple and Google (DESIGN-LAW 164)
+
+
+## BU. 2026-11-22 — business cards, and the logo designer planned (DESIGN-LAW 167)
+
+The owner, 2026-11-19: "business card designer..? just an idea and suggest quick same day print
+locations near you? just as an added bonus"; 2026-11-22, of it: "Do this task here", and "what about
+logo designer later with assets included ? suggested logo maker? outline assets? vector assets? pop
+art style? comic style? use LM credits ? plan this out too but needs to be super pay walled ? along w
+business cards?".
+
+Done (this branch):
+- **`cards/`**, the business card maker: front and back at 300 dpi with the bleed, five layouts in the
+  full ad's colour and type pairs, filled from what the customer typed in the studio, a QR on the
+  back. Download the print PDF (crop marks, TrimBox and BleedBox) or the PNGs. Linked from the
+  landing's bar, the video maker's bar and Easy Mode ("Matching business card"); in the sitemap.
+- **Paid**: Pro and Business (`plans.mjs` `cards`, enforced by the function, kind `card`, one photo
+  download). The plan cards and the comparison table say so (`build_pricing.mjs`).
+- **Print it today**: after a download, Google Maps searches for same-day business card printing and
+  for FedEx Office, Staples, Office Depot OfficeMax and The UPS Store near the customer's ZIP, and
+  what to ask for.
+- `account.js` finds the API from `cards/` as from `motion/`.
+
+Open:
+- **Which plans.** Business cards are Pro and Business now; Starter is one switch in `plans.mjs`.
+- **A card from a saved ad's look.** The card takes the full ad's colours and type as the studio last
+  had them; picking a card's look from one of the customer's library ads is a next step.
+
+### The logo designer, planned (not built)
+
+What it makes: a logo for a buying business. A mark and a wordmark in three lockups (side by side,
+stacked, the mark alone), as SVG (vector), transparent PNG, a one-colour version, and the small sizes
+(favicon, app icon). It becomes the customer's brand kit: the badge on the full ad, the business card,
+the video's end card.
+
+1. **Assets: a vector icon set of what is bought**, outline and filled, on one stroke and corner
+   grid: phone, tablet, laptop, watch, ring, gold bar, coin, car, truck, van, camera, drone,
+   controller, trading card, test strip box, cash, handshake, pin. Drawn as our own SVGs, or taken
+   from icon sets under permissive licences (Tabler Icons MIT, Lucide ISC, Phosphor MIT), never a
+   brand's mark (no Apple logo, no car badges): the free-licence rule the photos keep.
+2. **Styles, as generators varied by a seed** (cohesive by rules, never one house look): monogram
+   badge, outline line-art, pop art (Ben-Day dots, offset colour, heavy outline), comic (ink outline,
+   starburst, speech bubble, Bangers/Luckiest/Knewave lettering), stamp and seal, varsity/sport,
+   luxe serif for gold and jewellery, neon, minimal geometric. Faces from the type pairs, colours from
+   the house pairs, so a logo goes with the ads.
+3. **"Suggest logos"**: from the business name, what they buy and the town, a page of suggestions
+   at once (say 12), More like this on one, and locks on the parts liked (mark, face, colours).
+4. **AI credits**, where they earn their price: a language model for name, tagline and slogan ideas
+   and for which styles suit (a credit or two a batch). The vector mark stays ours (sharp, editable,
+   clear to use); an image model's picture is not a vector and its rights are murkier, so at most
+   it is a mood board.
+5. **"Super pay walled"**: design and preview free, the preview heavily marked. The file is made by
+   the function, not the browser: the page sends the design (style, seed, words, colours), the
+   function checks the plan and draws the SVG, so the clean vector never reaches a browser that has
+   not paid. A new plan flag (`logos`) and kind (`logo`) beside `cards`.
+6. **Phases**: (a) the icon set and the generators with a marked preview; (b) the paid server-drawn
+   SVG/PNG export; (c) the brand kit: the logo on cards, ads and videos; (d) the AI suggestions.
+
+The owner decides: the tier (Pro and Business, Business alone, or a one-time logo pack for any plan
+like the AI credit packs), what a suggestion batch costs in credits, and the terms' line on who owns
+a logo made here.
+
+## BV. 2026-11-19 — Sign in with Apple and Google (DESIGN-LAW 168)
 
 The owner: "apple and google sign in ?". Google's sign-in was built but switched off (no
 `GOOGLE_CLIENT_ID`); Apple's did not exist.

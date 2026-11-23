@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Business card maker for buyers | WeBuy.AD</title>
+<meta name="description" content="Make a print-ready business card that matches your buying ads: your number, what you buy and your area, front and back, with the bleed and crop marks print shops ask for. Then find a shop near you that prints the same day.">
+<link rel="canonical" href="https://webuy.ad/cards/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WeBuy.AD">
+<meta property="og:title" content="Business card maker for buyers">
+<meta property="og:description" content="A print-ready business card that matches your ads, and a shop near you that prints it today.">
+<meta property="og:url" content="https://webuy.ad/cards/">
+<meta property="og:image" content="https://webuy.ad/assets/brand/share-card.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../assets/brand/icon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="../assets/brand/icon-180.png">
+<link rel="stylesheet" href="../pages.css">
+<link rel="stylesheet" href="cards.css">
+<script src="../video-help.js" defer></script>
+<script src="../watermark.js" defer></script>
+<script src="../account.js" defer></script>
+<script type="module" src="cards.js"></script>
+</head>
+<body class="cd">
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <a class="brand" href="../index.html">WeBuy<em>.AD</em></a>
+  <nav aria-label="Site">
+    <a href="../index.html#lp-templates">Image ads</a>
+    <a href="../motion/">Video ads</a>
+    <a href="./" aria-current="page">Business cards</a>
+    <a href="../index.html#pricing">Pricing</a>
+    <a href="../about.html">About</a>
+  </nav>
+</header>
+
+<main id="main" class="cd-main wide">
+  <div class="cd-head">
+    <h1>Business cards</h1>
+    <p class="cd-sub">A card that matches your ads: your number, what you buy and your towns, front and back. It is made to print, 3.5 × 2 inches with the bleed and crop marks print shops ask for. Then find a shop near you that prints it today.</p>
+  </div>
+
+  <div class="cd-grid">
+    <section class="cd-stage-col" aria-label="Preview">
+      <div class="cd-stage" id="cd-stage">
+        <figure><canvas id="cd-front" width="720" height="432" aria-label="The front of your business card"></canvas><figcaption>Front</figcaption></figure>
+        <figure><canvas id="cd-back" width="720" height="432" aria-label="The back of your business card"></canvas><figcaption>Back</figcaption></figure>
+        <div class="cd-loading" id="cd-loading">Loading the type and colours&hellip;</div>
+      </div>
+      <p class="cd-guide">The faint edge around each side is the bleed: it is cut off. Every word stays an eighth of an inch inside the cut.</p>
+      <p class="cd-guide" id="cd-small" hidden></p>
+      <p class="cd-guide" id="cd-ink" hidden>Bright greens, blues and pinks like these print a little softer than they look on a screen. Ask the shop for a proof if the exact colour matters.</p>
+      <div class="cd-actions">
+        <button class="cd-btn" id="cd-shuffle" type="button" title="Another layout, colours, type and background, same words">&#10227; New look</button>
+        <button class="cd-btn" id="cd-print" type="button" title="Shops near you that print business cards the same day">&#128205; Where to print today</button>
+        <span class="cd-dl">
+          <button class="cd-btn primary" id="cd-pdf" type="button" title="Front and back in one PDF at 600 dpi, with the bleed and crop marks">&#11015; Download print PDF</button>
+          <button class="cd-btn" id="cd-png" type="button" title="The front and the back as PNGs, 300 dpi">&#11015; PNGs</button>
+        </span>
+      </div>
+      <p class="cd-note" id="cd-note" role="status" aria-live="polite">Design as many as you like. The print-ready download comes with Pro and Business.</p>
+    </section>
+
+    <section class="cd-form" aria-label="Your card">
+      <label for="cd-name">Your business name</label>
+      <input id="cd-name" type="text" maxlength="40" placeholder="Long Beach Phone Buyers" autocomplete="organization">
+      <label for="cd-line">What you buy</label>
+      <select id="cd-line"></select>
+      <label for="cd-phone">Your phone number</label>
+      <input id="cd-phone" type="tel" maxlength="24" placeholder="(562) 555-0123" autocomplete="tel">
+      <label for="cd-site">Your website <span class="cd-opt">optional</span></label>
+      <input id="cd-site" type="text" maxlength="60" placeholder="longbeachphonebuyers.com" autocomplete="url">
+      <label for="cd-where">Your towns <span class="cd-opt">optional, up to three</span></label>
+      <input id="cd-where" type="text" maxlength="60" placeholder="Long Beach • Lakewood • Downey">
+      <label for="cd-points">Selling points on the back <span class="cd-opt">with commas</span></label>
+      <input id="cd-points" type="text" maxlength="90">
+      <label for="cd-models">The line under them <span class="cd-opt">what you take</span></label>
+      <input id="cd-models" type="text" maxlength="60">
+      <label class="cd-check"><input id="cd-qr" type="checkbox"> A QR code on the back <span class="cd-opt">to your website, or your number</span></label>
+
+      <h2 class="cd-h">Style</h2>
+      <div class="cd-chips" id="cd-styles" role="group" aria-label="Style"></div>
+      <h2 class="cd-h">Layout</h2>
+      <div class="cd-chips" id="cd-layouts" role="group" aria-label="Layout"></div>
+      <h2 class="cd-h">Colours</h2>
+      <div class="cd-chips cd-swatches" id="cd-pairs" role="group" aria-label="Colours"></div>
+      <h2 class="cd-h">Type</h2>
+      <div class="cd-chips" id="cd-voices" role="group" aria-label="Type"></div>
+      <h2 class="cd-h">Background</h2>
+      <div class="cd-chips" id="cd-fills" role="group" aria-label="Background"></div>
+    </section>
+  </div>
+
+  <section class="cd-print" id="print" hidden aria-labelledby="print-h">
+    <h2 id="print-h">Print it today</h2>
+    <p>Most office and print shops print business cards the same day, often while you wait an hour or two. Call ahead to check the time and the stock they have.</p>
+    <div class="pt-row">
+      <label for="pt-where">Near</label>
+      <input id="pt-where" type="text" maxlength="60" placeholder="Your ZIP code or town" autocomplete="postal-code">
+    </div>
+    <div class="pt-links" id="pt-links"></div>
+    <p class="pt-small">These open Google Maps in a new tab, with the search you see. Nothing about you is sent anywhere until you open one.</p>
+    <h3>What to ask for</h3>
+    <ul class="pt-ask">
+      <li><b>Standard business cards</b>, 3.5 × 2 inches, full colour on both sides.</li>
+      <li><b>14 pt or 16 pt card stock</b>, matte or gloss. Matte is easier to write on.</li>
+      <li><b>Bring the print PDF</b> on your phone or email it to the store. It already has the 1/8 inch bleed and the crop marks, so tell them to trim to the marks.</li>
+      <li>A first box of 100 to 250 is plenty to hand out at meet-ups and leave at shops.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="bottom">
+  <a href="../index.html">WeBuy.AD</a>
+  <a href="../motion/">Video ads</a>
+  <a href="../about.html">About</a>
+  <a href="../terms.html">Terms</a>
+  <a href="../privacy.html">Privacy</a>
+  <span>&copy; 2026 WeBuy.AD</span>
+</footer>
+</body>
+</html>

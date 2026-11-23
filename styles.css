@@ -3049,3 +3049,11 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 :root[data-skin='family'] .lp-kicker::before{background:var(--deal)}
 /* Delete account sits under Sign out, quieter than it and in the danger colour */
 .acct-drop .am-delete{color:var(--danger);font-size:13px;opacity:.85}
+/* A text box under 16px makes iOS zoom the page in when it is tapped, and the
+   page stays zoomed: on a phone, in the app and the mobile site alike, the
+   area dialog ran off the right edge after typing a ZIP (2026-11-22). Every
+   box on a touch screen reads at 16px; desktops keep their sizes. */
+@media (hover:none) and (pointer:coarse){
+  input:not([type=range]):not([type=color]):not([type=checkbox]):not([type=radio]):not([type=file]),
+  textarea,select{font-size:16px!important}
+}

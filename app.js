@@ -6676,17 +6676,17 @@ const IN_IOS_APP = /\bWeBuyADApp\//.test(navigator.userAgent);
    each plan's line. Owner, 2026-10-09: $25 / $60 / $100, Free beside them;
    2026-11-18: Pro's videos limited, Business's unlimited. */
 const PLANS = {
-  free: {"label":"Free","price":{"month":0},"weekly":3,"monthly":null,"maxPx":1080,"watermark":true,"video":false,"videos":0,"credits":5,"library":12,"allDesigns":false,"qr":false},
-  basic: {"label":"Starter","price":{"month":2500,"year":25000},"weekly":null,"monthly":100,"maxPx":2160,"watermark":false,"video":false,"videos":0,"credits":50,"library":300,"allDesigns":true,"qr":false},
-  pro: {"label":"Pro","price":{"month":6000,"year":60000},"weekly":null,"monthly":500,"maxPx":2160,"watermark":false,"video":true,"videos":30,"credits":200,"library":1000,"allDesigns":true,"qr":true,"hot":true},
-  business: {"label":"Business","price":{"month":10000,"year":100000},"weekly":null,"monthly":null,"maxPx":2160,"watermark":false,"video":true,"videos":null,"credits":500,"library":3000,"allDesigns":true,"qr":true},
+  free: {"label":"Free","price":{"month":0},"weekly":3,"monthly":null,"maxPx":1080,"watermark":true,"video":false,"videos":0,"credits":5,"library":12,"allDesigns":false,"qr":false,"cards":false},
+  basic: {"label":"Starter","price":{"month":2500,"year":25000},"weekly":null,"monthly":100,"maxPx":2160,"watermark":false,"video":false,"videos":0,"credits":50,"library":300,"allDesigns":true,"qr":false,"cards":false},
+  pro: {"label":"Pro","price":{"month":6000,"year":60000},"weekly":null,"monthly":500,"maxPx":2160,"watermark":false,"video":true,"videos":30,"credits":200,"library":1000,"allDesigns":true,"qr":true,"cards":true,"hot":true},
+  business: {"label":"Business","price":{"month":10000,"year":100000},"weekly":null,"monthly":null,"maxPx":2160,"watermark":false,"video":true,"videos":null,"credits":500,"library":3000,"allDesigns":true,"qr":true,"cards":true},
 };
 const PACKS = {
   credits100: {"label":"100 AI credits","credits":100,"price":900},
   credits300: {"label":"300 AI credits","credits":300,"price":2500},
 };
-const PLAN_ROWS = [{"key":"photos","label":"Photo downloads","note":"","cells":{"free":"3 a week","basic":"100 a month","pro":"500 a month","business":"Unlimited"}},{"key":"videos","label":"Video ads to download","note":"Anyone can make and watch a video ad. Downloading one, with sound and no watermark, comes with Pro and Business.","cells":{"free":"No","basic":"No","pro":"30 a month","business":"Unlimited"}},{"key":"designs","label":"Designs","note":"","cells":{"free":"Every Phones design, plus the top 3 in every other category","basic":"Every design in all 13 categories","pro":"Every design in all 13 categories","business":"Every design in all 13 categories"}},{"key":"size","label":"Largest download","note":"","cells":{"free":"1080 pixels","basic":"2160 pixels","pro":"2160 pixels","business":"2160 pixels"}},{"key":"watermark","label":"Watermark","note":"","cells":{"free":"A light WeBuy.AD mark","basic":"None","pro":"None","business":"None"}},{"key":"credits","label":"AI credits a month","note":"","cells":{"free":"5","basic":"50","pro":"200","business":"500"}},{"key":"library","label":"Ads kept in your library","note":"","cells":{"free":"12","basic":"300","pro":"1,000","business":"3,000"}},{"key":"qr","label":"A QR code on your ad","note":"","cells":{"free":"No","basic":"No","pro":"Yes","business":"Yes"}}];
-const PLAN_BULLETS = {"free":["3 photo downloads a week","Every Phones design, plus the top 3 in every other category","Standard size (1080 pixels) with a light WeBuy.AD watermark","5 AI credits a month"],"basic":["100 photo downloads a month","Every design in all 13 categories","No watermark, up to double size (2160 pixels)","50 AI credits a month","Keep 300 ads in your library"],"pro":["500 photo downloads a month","30 video ads a month, with sound","Everything in Starter","Add a QR code people can scan","200 AI credits a month","Keep 1,000 ads in your library"],"business":["Unlimited photo downloads","Unlimited video ads, with sound","Everything in Pro","500 AI credits a month","Keep 3,000 ads in your library"]};
+const PLAN_ROWS = [{"key":"photos","label":"Photo downloads","note":"","cells":{"free":"3 a week","basic":"100 a month","pro":"500 a month","business":"Unlimited"}},{"key":"videos","label":"Video ads to download","note":"Anyone can make and watch a video ad. Downloading one, with sound and no watermark, comes with Pro and Business.","cells":{"free":"No","basic":"No","pro":"30 a month","business":"Unlimited"}},{"key":"designs","label":"Designs","note":"","cells":{"free":"Every Phones design, plus the top 3 in every other category","basic":"Every design in all 13 categories","pro":"Every design in all 13 categories","business":"Every design in all 13 categories"}},{"key":"size","label":"Largest download","note":"","cells":{"free":"1080 pixels","basic":"2160 pixels","pro":"2160 pixels","business":"2160 pixels"}},{"key":"watermark","label":"Watermark","note":"","cells":{"free":"A light WeBuy.AD mark","basic":"None","pro":"None","business":"None"}},{"key":"credits","label":"AI credits a month","note":"","cells":{"free":"5","basic":"50","pro":"200","business":"500"}},{"key":"library","label":"Ads kept in your library","note":"","cells":{"free":"12","basic":"300","pro":"1,000","business":"3,000"}},{"key":"qr","label":"A QR code on your ad","note":"","cells":{"free":"No","basic":"No","pro":"Yes","business":"Yes"}},{"key":"cards","label":"Business cards to print","note":"Anyone can design a business card. Downloading the print-ready file comes with Pro and Business.","cells":{"free":"No","basic":"No","pro":"Yes","business":"Yes"}}];
+const PLAN_BULLETS = {"free":["3 photo downloads a week","Every Phones design, plus the top 3 in every other category","Standard size (1080 pixels) with a light WeBuy.AD watermark","5 AI credits a month"],"basic":["100 photo downloads a month","Every design in all 13 categories","No watermark, up to double size (2160 pixels)","50 AI credits a month","Keep 300 ads in your library"],"pro":["500 photo downloads a month","30 video ads a month, with sound","Everything in Starter","Add a QR code people can scan","Print-ready business cards","200 AI credits a month","Keep 1,000 ads in your library"],"business":["Unlimited photo downloads","Unlimited video ads, with sound","Everything in Pro","500 AI credits a month","Keep 3,000 ads in your library"]};
 const PLAN_FOR = {"free":"Try every step, no card","basic":"Photo ads, every design","pro":"Photos, and a video a day","business":"Unlimited photos and video"};
 /* PLANS:END */
 const usd = (cents) => '$' + (cents / 100).toLocaleString('en-US', { minimumFractionDigits: cents % 100 ? 2 : 0, maximumFractionDigits: 2 });
@@ -11984,18 +11984,19 @@ function scRebuiltCard(id, h){
   // its layout is its card's family, so the wall's two-of-a-layout cap keeps two cards of one family apart
   return Object.assign(scHouseItem(id, { ...h, kind: 'recipe' }), { family: fam, theme: h.pairName || h.pair || 'House', accent: h.accent || '', layout: 'rebuilt:' + (h.family || id), rebuilt: true });
 }
-/* a house ad opened from the wall: Easy Mode's full ad, on that recipe, or that line and look */
+/* a house ad opened from the wall: Easy Mode's full ad, on that recipe, or that line and look.
+   Resolves true once the full ad is on it (the library's ★ saves it then: ad-library.js saveHouse) */
 function openHouseAd(h){
   // a look from the video maker's gallery opens where it is made, as its shelf drew it (motion/app.js ?shelf=&look=)
-  if (h.kind === 'any'){ location.href = 'motion/?full=0' + (h.shelf ? '&shelf=' + encodeURIComponent(h.shelf) : '') + '&look=' + encodeURIComponent(h.seed); return; }
+  if (h.kind === 'any'){ location.href = 'motion/?full=0' + (h.shelf ? '&shelf=' + encodeURIComponent(h.shelf) : '') + '&look=' + encodeURIComponent(h.seed); return Promise.resolve(false); }
   showEasy();
-  const FS = window.FullAdStudio; if (!FS) return;
-  Promise.resolve(h.kind === 'recipe' ? FS.useRecipe(h.id) : null).then(() => {
+  const FS = window.FullAdStudio; if (!FS) return Promise.resolve(false);
+  return Promise.resolve(h.kind === 'recipe' ? FS.useRecipe(h.id) : null).then(() => {
     if (h.kind !== 'recipe'){
       if (currentCat !== h.cat) setCategory(h.cat);
       const FA = FS.state; FA.line[h.cat] = h.line; FA.recipe[h.cat] = ''; FA.seed = h.seed || 1; FA.pair = ''; FA.voice = ''; FA.set = {};
     } else if (h.seed) FS.state.seed = h.seed;   // a recipe opens on its own seed (useRecipe); a design's other look, on that look's
-    FS.enter();
+    return FS.enter();
   });
 }
 /* THE ONE "LIVE" PREDICATE: not condemned, with imagery, with colour. The
@@ -12365,11 +12366,27 @@ function scBuildWall(cards){
         return;
       }
       d.title = c.name;
-      d.innerHTML = `<img src="${assetUrl(c.thumb)}" alt="${escHtml(c.name)} template" loading="${k < 3 ? 'eager' : 'lazy'}" decoding="async">`;   // the wall is the shop window: tilted 448px thumbs, no guard needed
+      /* the first four of each copy at once: a column running down starts on its second copy */
+      d.innerHTML = `<img src="${assetUrl(c.thumb)}" alt="${escHtml(c.name)} template" loading="${k % mine.length < 4 ? 'eager' : 'lazy'}" decoding="async">`;   // the wall is the shop window: tilted 448px thumbs, no guard needed
       d.onclick = () => c.house ? openHouseAd(c.house) : openShowcase(c.id);
       col.appendChild(d);
     });
   });
+  /* the wall comes in whole (owner, 2026-11-20: "the hero however is still rocky"): the stage
+     waits (index.html .wall-wait, landing.css) until the pictures in view are decoded, two and a
+     half seconds at most; then the rest load at once, since a lazy picture clipped by the hero
+     only started loading as it scrolled into sight, and came in blank */
+  const stage = wall.closest('.hero-stage');
+  const imgs = [...wall.querySelectorAll('img')];
+  const first = imgs.filter(im => im.loading !== 'lazy');
+  const reveal = () => {
+    if (stage) stage.classList.remove('wall-wait');
+    imgs.forEach(im => { if (im.loading === 'lazy') { im.fetchPriority = 'low'; im.loading = 'eager'; } });
+  };
+  Promise.race([
+    Promise.all(first.map(im => im.decode ? im.decode().catch(() => {}) : null)),
+    new Promise(r => setTimeout(r, 2500)),
+  ]).then(() => requestAnimationFrame(reveal));
 }
 /* PALETTES, not families. A "family" is how the engine generates colour; a
    palette — ground, ink, accent, support, with a name — is what a person

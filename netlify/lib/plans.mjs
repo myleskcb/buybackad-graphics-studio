@@ -55,27 +55,31 @@ export const MODEL_COST_USD = {
  *  customer. A video is made and encoded in the customer's browser, so the
  *  allowance is the line between the two plans, not a cost we carry
  *  (HOSTING_USD already counts the library's larger video files). Until this
- *  date Pro's 500 downloads were "photos or videos" in one count. */
+ *  date Pro's 500 downloads were "photos or videos" in one count.
+ *  `cards` is whether the plan downloads print-ready business cards (cards/:
+ *  anyone can design one and see it). Owner, 2026-11-22, of the business card
+ *  designer and a logo designer to come: "needs to be super pay walled".
+ *  A card download is one of the plan's photo downloads. */
 export const PLANS = {
   free: {
     label: 'Free', price: { month: 0 },
     weekly: 3, monthly: null, maxPx: 1080, watermark: true, video: false, videos: 0,
-    credits: 5, library: 12, allDesigns: false, qr: false,
+    credits: 5, library: 12, allDesigns: false, qr: false, cards: false,
   },
   basic: {   // shown as Starter
     label: 'Starter', price: { month: 2500, year: 25000 },
     weekly: null, monthly: 100, maxPx: 2160, watermark: false, video: false, videos: 0,
-    credits: 50, library: 300, allDesigns: true, qr: false,
+    credits: 50, library: 300, allDesigns: true, qr: false, cards: false,
   },
   pro: {
     label: 'Pro', price: { month: 6000, year: 60000 },
     weekly: null, monthly: 500, maxPx: 2160, watermark: false, video: true, videos: 30,
-    credits: 200, library: 1000, allDesigns: true, qr: true,
+    credits: 200, library: 1000, allDesigns: true, qr: true, cards: true,
   },
   business: {
     label: 'Business', price: { month: 10000, year: 100000 },
     weekly: null, monthly: null, maxPx: 2160, watermark: false, video: true, videos: null,
-    credits: 500, library: 3000, allDesigns: true, qr: true,
+    credits: 500, library: 3000, allDesigns: true, qr: true, cards: true,
   },
 };
 
@@ -101,6 +105,7 @@ export function featureRows() {
     row('credits', 'AI credits a month', (p) => num(p.credits)),
     row('library', 'Ads kept in your library', (p) => num(p.library)),
     row('qr', 'A QR code on your ad', (p) => (p.qr ? 'Yes' : 'No')),
+    row('cards', 'Business cards to print', (p) => (p.cards ? 'Yes' : 'No'), 'Anyone can design a business card. Downloading the print-ready file comes with Pro and Business.'),
   ];
 }
 /** the short list on each plan's card (and the checkout dialog), most telling first */
@@ -109,7 +114,7 @@ export function planBullets(id) {
   const credits = num(p.credits) + ' AI credits a month', lib = 'Keep ' + num(p.library) + ' ads in your library';
   if (id === 'free') return [num(p.weekly) + ' photo downloads a week', designs(p), 'Standard size (' + p.maxPx + ' pixels) with a light WeBuy.AD watermark', credits];
   if (id === 'basic') return [num(p.monthly) + ' photo downloads a month', designs(p), 'No watermark, up to double size (' + p.maxPx + ' pixels)', credits, lib];
-  if (id === 'pro') return [num(p.monthly) + ' photo downloads a month', num(p.videos) + ' video ads a month, with sound', 'Everything in Starter', 'Add a QR code people can scan', credits, lib];
+  if (id === 'pro') return [num(p.monthly) + ' photo downloads a month', num(p.videos) + ' video ads a month, with sound', 'Everything in Starter', 'Add a QR code people can scan', 'Print-ready business cards', credits, lib];
   return ['Unlimited photo downloads', 'Unlimited video ads, with sound', 'Everything in Pro', credits, lib];
 }
 /** who each plan is for, in one line under its name */
@@ -121,6 +126,8 @@ export const planId = (p) => (PLANS[p] ? p : LEGACY[p] || 'free');
 export const PAID = Object.keys(PLANS).filter((id) => id !== 'free');
 /** can this plan download (or save to the library) a video ad */
 export const videoOk = (plan) => !!PLANS[planId(plan)].video;
+/** whether a plan downloads print-ready business cards (cards/) */
+export const cardsOk = (plan) => !!PLANS[planId(plan)].cards;
 
 /** One-off AI credit packs, any signed-in account. Never expire; spent after
  *  the month's plan credits. */

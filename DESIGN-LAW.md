@@ -6631,7 +6631,109 @@ family skin (`?skin=poster` keeps the old page; the studio is not touched).
   it opens a row of its lines with their counts, in the owner's order (`motion/subjects.json`); one of
   a single line has no arrow. The review page's categories carry the same arrows.
 
-## 164. Sign in with Apple and Google: one pair of buttons, shown when configured, checked on the server
+## 167. A business card is a print sheet: the bleed, the safe area, and the ads' own colours and type
+
+The owner, 2026-11-19: "business card designer..? just an idea and suggest quick same day print
+locations near you? just as an added bonus"; 2026-11-22: "Do this task here", and of it and a logo
+designer to come: "needs to be super pay walled". The maker is `cards/` (`cards/cards.js`).
+
+- **The sheet.** A standard US card, 3.5 × 2 in, drawn at 300 dpi with the 1/8 in bleed print shops
+  ask for: 1125 × 675 pixels, the trim 1050 × 600 inside it. Grounds, bands, panels and halftones run
+  to the bleed; every word and the QR stay in the safe area, 1/8 in inside the trim. A line seated on
+  the safe area's foot is seated by its descenders, not its baseline.
+- **The print file** is a PDF of both sides, each page on the bleed with an 18 pt slug for eight crop
+  marks, its TrimBox the card and its BleedBox the bleed, the sides as JPEGs (no PDF library), drawn
+  at 600 dpi (2250 × 1350), twice the press's 300, so small type prints with clean edges. The PNGs are
+  the 300 dpi sheets.
+- **Nothing under 7 pt.** The small lines (the towns, the website, the models line, a label) start at
+  32 px and stop at 29 px, 7 pt at 300 dpi, in half-pixel steps. Before going under, a models line
+  breaks into two of nearly a length, the towns break at a bullet, Band's website moves under the
+  number, and Ticket's goes off the stub to the towns. Only words too long for their place even then
+  go under 7 pt, and the page tells the customer which ("Your website is long for a card…").
+- **It matches the ads.** It wears the full ad's colour pairs (`motion/house-colours.js`) and the
+  type pairs the full ad may wear (`motion/full-voices.js`, plus Bold), with every word's colour held
+  to contrast on what it sits on. It says what the customer told the studio (`pgfx_brand`: number,
+  website, business name, towns; `pgfx_full_studio`: the line they buy, its pair and type), in the
+  full ad's capitals (iPHONE).
+- **Varied by rule, not one look.** Five layouts (Band, Split, Centred, Pop, Ticket), and five backs,
+  each the other half of its front (the polish, 2026-11-22: every layout had worn one back, re-coloured).
+  Band's back turns the band round, the plate for the ground and the card's ground for the band, with
+  the number on it and the QR standing on it. Split's panel is at the right behind the front's left,
+  holding the QR or the product. Centred sets everything on the middle line, the QR between what is
+  bought and a row of points. Pop's back is the comic's next panel: a white speech balloon says what
+  is bought. Ticket's stub is at the left, its tear and notches just behind the front's. A back with
+  no QR sets the number large. New look draws a layout, a pair (most often one that suits what is
+  bought) and a type pair.
+- **The fill** (the owner, 2026-11-22: "more creativity, fill pattern gradient something to give it
+  some distinguishing pattern"). Each side's main field wears one of ten: Glow, Rays, Fade, Rings,
+  Stripes, Dots, Grid, Cash (dollar signs), Waves, or Flat; its other regions (a band, a panel, a stub)
+  take a soft fade. A fill is two colours, the field's own and a second tone moved away from its words'
+  colour, eased off until every word on it keeps 4.5:1, or what it had on the flat field where that was
+  less; Pop's halftone takes such a tone too. Glow, Rays and Rings come from behind the product, the
+  QR or Pop's burst. New look always brings a fill; Flat is there to pick. The check draws each side
+  without its words, on a fill and flat, and reads the pixels under every word.
+- **The style** (the owner, 2026-11-22: "are you going professional are you going friendly? Are you going
+  vibrant and attractive business card?"): six art directions, Professional, Friendly, Bold, Premium,
+  Street and Comic, each a curated set of layouts, colour pairs (chosen by their colours: Premium's gold
+  on dark, Friendly's pastels, Bold's saturated grounds), type pairs (Premium's serif, Friendly's rounded
+  faces, Street's stencil, marker and brush) and grounds. New look draws all four from one style, so a
+  card has one personality, never a comic layout in a hairline serif; Any draws a style first, then a
+  look from it. Premium adds a fine double frame between the trim and the safe area, in the accent or,
+  where the accent is the field's own colour, the words' colour. Every other rule here holds in every style.
+- **Picture grounds** (the owner: "same quality as the actual ads ... background images could be an
+  option"). Photo: the ads' own photograph of what is bought (`assets/bg`, generated scenes with no text,
+  logos or people, listed with their brightness in `cards/photos.json` by `scripts/card_photos.mjs`;
+  Premium asks for a dark one, Friendly a bright one); it takes the product cutout's place, on Ticket's
+  stub and Split's back panel rather than under the words, and New look never puts it under Centred,
+  whose words would cover it. Scene: one the video maker paints (`motion/decor.js`, loaded only when
+  used) in the card's own colours, the product standing in it as in the ads; scenes that draw a border
+  at the edge are left out, the cut would slice it. Under the words of either, a scrim in the field's
+  own colour: the side is drawn once without its words at full size, the pixels under every word read,
+  and the scrim made just strong enough that at most one pixel in twenty under a word falls below 4.7:1
+  (or what the flat field gives where that is less); solid under the words, fading out over the
+  picture's side, an even veil where the words cover the field; at least half strength under a photograph.
+- **Ticket's number is on one line** (the owner: "the phone numbers on 2 lines does not look good"),
+  on the ticket's main part between two rules like a printed field, under what is bought and the name;
+  the stub carries the product.
+- **The QR** stands on a white tile, at least 3/4 in across, and nothing is drawn over it: no word, no
+  product, no burst. Under it, "SCAN TO VISIT" (to the website) or "SCAN TO CALL".
+- **Print colour.** A pair with a bright green, cyan, blue, violet or pink (saturated and light, by
+  hue) says under the preview that it prints a little softer than the screen and to ask for a proof:
+  four inks fall short of those; reds, oranges and yellows print close.
+- **It shows what is bought** (the audit, 2026-11-22, the owner: "audit and refine and try to make
+  sure the designs are as good"). Every front but Centred, which is the typographic one, carries the
+  line's own product, the full ad's cutout (`motion/subjects.json` sets, `assets/cutouts/`), fitted
+  whole in the trim, never on a word, with a soft shadow (a hard one on Pop); a back with no QR
+  shows it in the QR's place, so no side is half empty. New look moves through the line's pictures.
+- **The number is read first.** A type pair whose display face is a script or a pixel face, or that
+  the full ad already sets its number apart for (`numberRead`), sets the number in Libre Franklin
+  900. A name wraps to two lines before it shrinks, and lines are spaced by the face's own ascenders
+  and descenders; a long name that a wide or decorative face would still set below 52 px goes into
+  the pair's reading face; a pixel face reads as words only from 80 px, so under that a name or a
+  back's headline is set in the reading face. Of two-line breaks as large, the one whose lines are
+  nearest a length wins. Pop's offset shadow is the accent, scaled to the type, as a print in two
+  inks, and only under a face with the weight for it: none under a high-contrast serif, a script or a
+  pixel face, where it doubles into a blur. Text at the top edge is set from its measured top (Oswald's
+  capitals and the É of POKÉMON rose over the safe line when placed by a share of the size).
+- **Paid.** Anyone designs and sees a card; the preview carries the WeBuy.AD mark until the plan
+  downloads cards. The print file comes with Pro and Business (`plans.mjs` `cards`), decided by the
+  function (`/api/export/check` and `/api/export`, kind `card`) and counted as one photo download.
+- **Print it today** is Google Maps searches near the customer's ZIP or town, which they open
+  themselves: nothing about them is sent anywhere by the page.
+- **Checked** by `scripts/business_card_check.mjs` (sizes, the safe area and overlaps across layouts,
+  pairs, type and a long name; the product in the trim, on every front but Centred and on every back
+  without a QR but Centred's, and never on a word; nothing under 7 pt; every QR 3/4 in or more and
+  clear; five different backs with a QR and without; the number large on a back with no QR; Pop's
+  shadow by the face; the colour note; every word's pixels on every fill, the photograph and seven
+  scenes (510 sides); the six styles' lists and New look staying in them; the photograph in the
+  product's place; the Style picker; the PDF's boxes, crop marks, xref and 600 dpi pages; the print
+  links; the paywall signed out, on Starter and on Pro, light and dark, at 390) and
+  `scripts/billing_check.mjs` (the function's rule). A sweep of every layout × type pair × QR × three
+  name lengths (1,740 sides) found one line under 7 pt: a 31-character website in the widest pair, at 6.7 pt, which the page names.
+
+## 168. Sign in with Apple and Google: one pair of buttons, shown when configured, checked on the server
+
+(Written as 164 and OPEN-ITEMS BR; both were taken on other branches by the time it met main, so 168 and BV.)
 
 Added 2026-11-19. The owner: "apple and google sign in ?".
 
@@ -6654,4 +6756,4 @@ Added 2026-11-19. The owner: "apple and google sign in ?".
   forged, expired, wrong-app, wrong-nonce, unknown-key and unverified ones refused) and
   `scripts/social_signin_check.mjs` (both dialogs against stand-ins for Apple, Google and the API).
 
-Not done here: OPEN-ITEMS §BR.
+Not done here: OPEN-ITEMS §BV.

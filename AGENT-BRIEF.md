@@ -729,7 +729,7 @@ produced." DESIGN-LAW rule 87. In practice:
   wall and the editor's library keep to the designs. A category's chips open into its lines
   (scSubChips), in `motion/subjects.json`'s order.
 
-- **Sign in with Apple and Google** (rule 164, 2026-11-19): both buttons come from `account.js`
+- **Sign in with Apple and Google** (rule 168, 2026-11-19): both buttons come from `account.js`
   (`pgfxAccount.social.mount`), on both dialogs, shown only when `/api/auth/config` reports
   `APPLE_CLIENT_ID` or `GOOGLE_CLIENT_ID`; Apple's token is checked in `netlify/lib/appleid.mjs`.
   Never show them inside the iPhone app's web view (`WeBuyADApp/` in the user agent). Before a

@@ -1,6 +1,6 @@
 # Sign in with Apple and Google: what the owner sets up
 
-The code is in place (DESIGN-LAW 164, OPEN-ITEMS §BR). Each button appears on webuy.ad only once
+The code is in place (DESIGN-LAW 168, OPEN-ITEMS §BV). Each button appears on webuy.ad only once
 its ID is in the Netlify project's environment, so nothing shows until these steps are done. Each
 takes about ten minutes. You do them yourself: they need your Google and Apple sign-ins.
 
