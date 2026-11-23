@@ -152,10 +152,11 @@ async function open({ demo = true, token = null, route = null, scheme = 'dark', 
       for (let i = 0; i < d.length; i += 4 * 3) { const lp = L(d[i], d[i + 1], d[i + 2]); cs.push((Math.max(lc, lp) + .05) / (Math.min(lc, lp) + .05)); }
       cs.sort((a, b) => a - b); return cs[Math.floor(cs.length * .05)];
     };
-    const pairs = CardMaker.pairs(), voices = CardMaker.voices(), bad = [], kinds = CardMaker.FILLS.filter((k) => k !== 'flat');
+    const pairs = CardMaker.pairs(), voices = CardMaker.voices(), bad = [];
+    const kinds = CardMaker.FILLS.filter((k) => k !== 'flat').concat(['photo', 'scene:velvet', 'scene:spot_floor', 'scene:brick_night', 'scene:pastel_blobs', 'scene:rays_bold', 'scene:sprinkles', 'scene:window_light']);
     let n = 0, sides = 0, worstSeen = 99;
     for (const layout of CardMaker.LAYOUTS) for (let j = 0; j < 3; j++) {
-      const base = { layout, pair: pairs[(n * 11 + j * 17) % pairs.length], voice: voices[(n * 5) % voices.length], name: ['Long Beach Phone Buyers', 'JJ Coins', 'Westside Watch & Phone Buyers'][j], qr: j !== 1 };
+      const base = { layout, line: ['iphone', 'gold', 'car'][j], pair: pairs[(n * 11 + j * 17) % pairs.length], voice: voices[(n * 5) % voices.length], name: ['Long Beach Phone Buyers', 'JJ Coins', 'Westside Watch & Phone Buyers'][j], qr: j !== 1, style: '', look: '', frame: false };
       n++;
       for (const side of ['front', 'back']) {
         Object.assign(CardMaker.state, base, { fill: 'flat' });
@@ -174,7 +175,41 @@ async function open({ demo = true, token = null, route = null, scheme = 'dark', 
     }
     return { bad, sides, worstSeen };
   });
-  ok(!fills.bad.length, 'no word loses contrast to a fill: ' + fills.sides + ' sides, every fill, light, vivid and dark pairs' + (fills.bad.length ? ': ' + fills.bad.slice(0, 5).join(' || ') + ' (' + fills.bad.length + ')' : ''));
+  ok(!fills.bad.length, 'no word loses contrast to a fill, a photograph or a scene: ' + fills.sides + ' sides, every fill, the photo and seven scenes, light, vivid and dark pairs' + (fills.bad.length ? ': ' + fills.bad.slice(0, 5).join(' || ') + ' (' + fills.bad.length + ')' : ''));
+
+  /* ---------- the styles: art directions, each a curated set; New look stays in its style ---------- */
+  const st = await page.evaluate(async () => {
+    const S = CardMaker.STYLES, pairs = new Set(CardMaker.pairs()), voices = new Set(CardMaker.voices()), lays = new Set(CardMaker.LAYOUTS), fills = new Set(CardMaker.FILLS);
+    const bad = [], strays = [];
+    for (const s of S) {
+      const badKeys = [...s.pairs.filter((k) => !pairs.has(k)), ...s.voices.filter((k) => !voices.has(k)), ...s.layouts.filter((k) => !lays.has(k)), ...s.grounds.filter((g) => !(fills.has(g) || g === 'photo' || /^scene:/.test(g)))];
+      if (badKeys.length || new Set(s.pairs).size < 6 || new Set(s.voices).size < 4 || s.grounds.length < 5) bad.push(s.key + ' ' + badKeys.join(','));
+      Object.assign(CardMaker.state, { style: s.key, line: 'iphone' });
+      for (let i = 0; i < 24; i++) {
+        CardMaker.newLook(); const t = CardMaker.state;
+        if (!s.layouts.includes(t.layout) || !s.pairs.includes(t.pair) || !s.voices.includes(t.voice) || !s.grounds.includes(t.fill) || t.look !== s.key || t.frame !== s.frame || (t.fill === 'photo' && t.layout === 'center')) strays.push(s.key + ': ' + [t.layout, t.pair, t.voice, t.fill].join(' '));
+      }
+    }
+    // Any: each look drawn from one style, whole
+    Object.assign(CardMaker.state, { style: '' });
+    const seen = new Set();
+    for (let i = 0; i < 30; i++) { CardMaker.newLook(); const t = CardMaker.state, s = S.find((x) => x.key === t.look); seen.add(t.look); if (!s || !s.layouts.includes(t.layout) || !s.pairs.includes(t.pair) || !s.grounds.includes(t.fill)) strays.push('any: ' + t.look + ' ' + t.layout + ' ' + t.pair); }
+    // the photograph takes the product's place; the Style picker
+    Object.assign(CardMaker.state, { style: 'pro', look: 'pro', frame: false, layout: 'band', line: 'iphone', fill: 'photo', pair: 'navy_gold', voice: 'bold' });
+    const ph = await CardMaker.render('front');
+    Object.assign(CardMaker.state, { fill: 'glow' });
+    const gl = await CardMaker.render('front');
+    document.querySelector('#cd-styles button[data-k="premium"]').click();
+    await new Promise((r) => setTimeout(r, 400));
+    return { bad, strays, any: seen.size, photoNoProduct: !ph.boxes.some((b) => b.role === 'product') && gl.boxes.some((b) => b.role === 'product'),
+      chips: document.querySelectorAll('#cd-styles button').length, picked: [CardMaker.state.look, CardMaker.state.frame, CardMaker.state.layout],
+      grounds: [...document.querySelectorAll('#cd-fills button')].map((b) => b.dataset.k) };
+  });
+  ok(!st.bad.length, 'six styles, each with its own layouts, at least six colour pairs, four type pairs and five grounds, every key real' + (st.bad.length ? ': ' + st.bad.join(' | ') : ''));
+  ok(!st.strays.length && st.any >= 4, 'New look stays in its style (24 looks each), never a photo under Centred; Any draws a whole style each time (' + st.any + ' styles in 30)' + (st.strays.length ? ': ' + st.strays.slice(0, 4).join(' | ') : ''));
+  ok(st.photoNoProduct, 'on a photo ground the photograph takes the product cutout\'s place');
+  ok(st.chips === 7 && st.picked[0] === 'premium' && st.picked[1] === true && ['center', 'split', 'band'].includes(st.picked[2]) && st.grounds.includes('scene:velvet') && st.grounds.includes('photo'),
+    'the Style picker: Any and six styles; Premium draws a premium look, framed, and offers its scenes and the photograph (' + st.picked.join(', ') + ')');
 
   /* ---------- the print PDF: the file the download saves ---------- */
   const pdf = await page.evaluate(async () => Array.from(await CardMaker.printFile(false)));

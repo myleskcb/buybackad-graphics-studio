@@ -24,7 +24,7 @@
    window.CardMaker is for scripts/business_card_check.mjs.
    ═══════════════════════════════════════════════════════════════════════════ */
 import { FONTS, TYPE_VOICES } from "../motion/catalog.js";
-import { loadFonts, fontCss, applyCase, rng, contrastOf, mix, rgba } from "../motion/engine.js";
+import { loadFonts, fontCss, applyCase, rng, contrastOf, mix, rgba, lum } from "../motion/engine.js";
 import { HOUSE_COLOURS } from "../motion/house-colours.js";
 import { FULL_VOICES } from "../motion/full-voices.js";
 
@@ -59,7 +59,7 @@ const STORE = "pgfx_card";
 let LINES = [], LINE_OF = {};
 const state = Object.assign({
   name: "", line: "", phone: "", site: "", where: "", points: "", models: "",
-  layout: "band", pair: "", voice: "bold", fill: "", qr: true, seed: 1,
+  layout: "band", pair: "", voice: "bold", fill: "", style: "", look: "", frame: false, qr: true, seed: 1,
 }, jget(STORE, null) || {});
 const keep = () => jset(STORE, state);
 
@@ -159,6 +159,7 @@ let BARE = false;
 /** text at (x, baseline y), its box recorded so the check can hold it to the safe area */
 function say(ctx, out, text, font, size, x, y, { align = "left", fill = "#000", role = "text", shadow = null, foot = false } = {}) {
   if (!text) return null;
+  frameNow(ctx);
   ctx.font = fontCss(font, size); ctx.textAlign = align; ctx.textBaseline = "alphabetic";
   const m = ctx.measureText(text);
   if (foot) y -= m.actualBoundingBoxDescent;          // y is where the line must end, descenders and all
@@ -241,7 +242,6 @@ const FILLS = [
   { key: "flat", name: "Flat", hint: "One flat colour", k: 0 },
 ];
 const FILL_OF = Object.fromEntries(FILLS.map(x => [x.key, x]));
-const fillNow = () => FILL_OF[state.fill] ? state.fill : "glow";
 /** The fill's second tone: base moved toward white under dark words or black under light ones (or the
  *  other way, less, where the base is already at that end), as far as every word keeps its contrast.
  *  words: [[colour, the contrast it needs], ...] */
@@ -296,10 +296,15 @@ function field(ctx, kind, x, y, w, h, base, tone, fx, fy, font) {
   }
   ctx.restore();
 }
-/** a side's main field in the card's fill */
+/** A side's main field in the card's ground: a fill, the photograph, or a scene with its measured scrim.
+ *  Its rectangle is recorded, so the scrims can be fitted to the words that land on it. */
 function mainField(ctx, f, x, y, w, h, base, words, fx, fy) {
-  const kind = fillNow();
-  field(ctx, kind, x, y, w, h, base, toneOf(base, words, FILL_OF[kind].k), fx, fy, f.label);
+  const kind = fillNow(), i = FIELDS.length, pic = imageGround(kind) && GROUND;
+  FIELDS.push({ x, y, w, h, base, ink: words[0][0], image: !!pic });
+  if (!pic) { const k = imageGround(kind) ? "glow" : kind; field(ctx, k, x, y, w, h, base, toneOf(base, words, FILL_OF[k].k), fx, fy, f.label); return; }
+  if (kind === "photo") paintPhoto(ctx, GROUND, x, y, w, h);
+  else paintScene(ctx, GROUND, kind.slice(6), x, y, w, h, base, words, fx, fy);
+  if (SCRIMS && SCRIMS[i]) drawScrim(ctx, FIELDS[i], SCRIMS[i]);
 }
 /** a side's other region: a soft fade where the card has a fill, flat where it has none */
 function softField(ctx, f, x, y, w, h, base, words) {
@@ -309,10 +314,199 @@ function softField(ctx, f, x, y, w, h, base, words) {
 /** Pop's halftone stays where the fill is a light or a gradient; over a pattern it would be two patterns */
 const popDots = () => ["flat", "fade", "glow"].includes(fillNow());
 
+/* ---------- the grounds beyond the fills: the line's photograph, and the video maker's painted scenes ----------
+   (the owner, 2026-11-22: "same quality as the actual ads ... things like background images could be an
+   option"). A photo ground is the ads' own photograph of what is bought (assets/bg, listed with each one's
+   brightness in cards/photos.json: generated scenes with no text, logos or people), and it takes the
+   product's place: the picture is the photograph. A scene is one the video maker paints (motion/decor.js)
+   in the card's own colours, the product standing in it as in the ads. Under the words of either, a scrim
+   in the field's own colour, only as strong as the pixels under each word need: the side is drawn once
+   without its words, the pixels under every word read, and the scrim set so every word keeps 4.5:1 (or
+   what it has on the flat field where that is less). It is solid under the words and fades out over the
+   picture's side; where the words cover the field, it is an even veil. */
+let PHOTOS = {};                                    // cards/photos.json: { cat: [{ f, l }] }
+const NO_PHOTO_LINES = ["ipad", "mac", "macdesk"];  // the phones photographs show phones
+const SCENES = {
+  studio_sweep: "Studio", window_light: "Window light", tile_gloss: "Tile", paper_cut: "Paper", brushed_metal: "Brushed metal", split_soft: "Soft light",
+  pastel_blobs: "Pastel", pill_stage: "Podium", podium_steps: "Steps", sky_gradient: "Sky", confetti_soft: "Confetti", glow_orbs: "Orbs",
+  rays_bold: "Sunburst", sun_rays: "Sun rays", sprinkles: "Sprinkles", diagonal_lines: "Diagonals",
+  velvet: "Velvet", spot_floor: "Spotlight", beams_stage: "Stage", ribbon_wave: "Ribbon", candy_fade: "Gold dust", arch_window: "Arch", carbon: "Carbon", bokeh_night: "Night lights",
+  brick_night: "Brick", brick_neon_wash: "Neon brick", concrete: "Concrete",
+  polka_pop: "Polka", halftone_duo: "Halftone", checker_diamond: "Checker", halftone_lines: "Print lines",
+};
+/* ---------- the style: an art direction, the card's choices that belong together ----------
+   (the owner, 2026-11-22: "are you going professional are you going friendly? Are you going vibrant and
+   attractive business card?"). New look draws a layout, a colour pair, a type pair and a ground from one
+   direction's own lists, so a card has one personality, not a random mix (a comic layout in a hairline
+   serif). Any draws a direction first, then a look from it. The pairs are chosen by their colours, the
+   type by its character; the rest of the card's rules hold in every style. */
+const STYLES = [
+  { key: "pro", name: "Professional", hint: "Calm colours, clean type, room to breathe", photo: [0, 1],
+    layouts: ["band", "split", "center", "ticket"],
+    pairs: ["navy_gold", "white_on_navy", "white_on_blue", "black_on_white", "silver_blue", "red_white_blue", "navy_white_red", "arctic_teal", "white_on_green", "black_gold", "bone_purple", "sand_teal", "blue_green", "cream_red"],
+    voices: ["bold", "grotesk", "block", "tech", "stadium", "street"],
+    grounds: ["flat", "fade", "grid", "glow", "photo", "scene:studio_sweep", "scene:window_light", "scene:tile_gloss", "scene:paper_cut", "scene:brushed_metal", "scene:split_soft"] },
+  { key: "friendly", name: "Friendly", hint: "Soft colours, rounded type, a warm welcome", photo: [.4, 1],
+    layouts: ["center", "band", "split", "ticket"],
+    pairs: ["mint_green", "sky_cobalt", "lavender_violet", "blush_magenta", "lemon_blue", "cream_red", "sand_teal", "arctic_teal", "bone_purple", "white_pink", "black_on_pink", "black_on_lilac", "silver_blue"],
+    voices: ["puff", "toon", "boogie", "note", "warp", "cutout", "grotesk"],
+    grounds: ["glow", "dots", "waves", "rings", "photo", "scene:pastel_blobs", "scene:pill_stage", "scene:podium_steps", "scene:sky_gradient", "scene:confetti_soft", "scene:glow_orbs"] },
+  { key: "bold", name: "Bold", hint: "Saturated colour, heavy type, energy", photo: [0, 1],
+    layouts: ["band", "split", "ticket", "pop"],
+    pairs: ["black_on_yellow", "black_on_orange", "white_on_red", "white_on_pink", "white_on_teal", "white_on_violet", "black_on_lime", "black_on_aqua", "black_on_pink", "lemon_blue", "red_yellow", "navy_orange", "midnight_cyan", "white_on_purple"],
+    voices: ["street", "stadium", "sport", "squad", "speed", "varsity", "press", "cutout", "retro"],
+    grounds: ["rays", "stripes", "fade", "cash", "photo", "scene:rays_bold", "scene:sun_rays", "scene:sprinkles", "scene:diagonal_lines", "scene:glow_orbs"] },
+  { key: "premium", name: "Premium", hint: "Dark grounds, gold, a serif and a fine frame", photo: [0, .4], frame: true,
+    layouts: ["center", "split", "band"],
+    pairs: ["black_gold", "navy_gold", "green_gold", "purple_gold", "yellow_on_black", "white_on_black", "white_on_navy", "bone_purple"],
+    voices: ["luxe", "luxe", "grotesk", "block", "tech"],
+    grounds: ["glow", "fade", "photo", "scene:velvet", "scene:spot_floor", "scene:beams_stage", "scene:ribbon_wave", "scene:candy_fade", "scene:arch_window", "scene:carbon", "scene:bokeh_night"] },
+  { key: "street", name: "Street", hint: "Brick and neon, stencils and markers", photo: [0, .5],
+    layouts: ["ticket", "band", "split", "pop"],
+    pairs: ["black_pink", "black_lime", "black_cyan", "black_violet", "plum_lime", "teal_pink", "black_red", "black_green", "black_white_orange", "yellow_on_black", "white_on_black", "black_on_yellow", "midnight_cyan"],
+    voices: ["stencil", "marker", "brush", "riot", "protest", "barrio", "arcade", "pixel", "tall", "squad", "retro"],
+    grounds: ["stripes", "grid", "cash", "photo", "scene:brick_night", "scene:brick_neon_wash", "scene:concrete", "scene:carbon", "scene:diagonal_lines"] },
+  { key: "comic", name: "Comic", hint: "Halftone, bursts and speech balloons", photo: [0, 1],
+    layouts: ["pop"],
+    pairs: ["black_on_yellow", "black_on_lime", "black_on_aqua", "black_on_pink", "black_on_lilac", "white_on_red", "white_on_pink", "white_on_violet", "lemon_blue", "sand_teal", "cream_red", "bone_purple", "black_on_orange"],
+    voices: ["pop", "boogie", "toon", "retro", "cutout", "puff", "warp", "riot"],
+    grounds: ["rays", "dots", "flat", "scene:polka_pop", "scene:halftone_duo", "scene:checker_diamond", "scene:rays_bold", "scene:halftone_lines"] },
+];
+const STYLE_OF = Object.fromEntries(STYLES.map(s => [s.key, s]));
+const ANY_SCENES = ["scene:velvet", "scene:spot_floor", "scene:studio_sweep", "scene:window_light", "scene:pastel_blobs", "scene:rays_bold", "scene:brick_night", "scene:bokeh_night"];
+
+function photoList() {
+  const L = lineNow(); if (NO_PHOTO_LINES.includes(L.key)) return [];
+  const all = PHOTOS[L.cat] || [], S = STYLE_OF[state.look], [lo, hi] = (S && S.photo) || [0, 1], fit = all.filter(p => p.l >= lo && p.l <= hi);
+  return fit.length >= 3 ? fit : all;
+}
+const photoOk = () => photoList().length > 0;
+function photoFile() { const L = photoList(); return L.length ? L[Math.abs(state.seed | 0) % L.length].f : null; }
+/** the card's ground: a fill, "photo" (where the line has photographs) or "scene:<kind>" */
+function fillNow() {
+  const k = state.fill;
+  if (FILL_OF[k]) return k;
+  if (k === "photo") return photoOk() ? k : "glow";
+  if (/^scene:/.test(k) && SCENES[k.slice(6)]) return k;
+  return "glow";
+}
+const imageGround = k => k === "photo" || /^scene:/.test(k);
+const groundName = k => FILL_OF[k] ? FILL_OF[k].name : k === "photo" ? "Photo" : SCENES[k.slice(6)] || k;
+/** the grounds the picker shows: the fills, the line's photograph, and the style's scenes */
+function groundsShown() {
+  const S = STYLE_OF[state.style] || STYLE_OF[state.look];
+  const keys = [...FILLS.map(x => x.key), ...(photoOk() ? ["photo"] : []), ...(S ? S.grounds : ANY_SCENES).filter(k => /^scene:/.test(k))];
+  if (!keys.includes(fillNow())) keys.push(fillNow());
+  return [...new Set(keys)].map(k => ({ key: k, name: groundName(k), hint: FILL_OF[k] ? FILL_OF[k].hint : k === "photo" ? "A photograph of what you buy" : "A painted scene, as in the ads" }));
+}
+
+/* what one drawing of a side is working with (render sets these and clears them) */
+let FIELDS = [], SCRIMS = null, GROUND = null, PHOTO_ON = false, CUR_P = null, FRAME_DUE = false;
+const grounds = {};
+async function loadGround(kind) {
+  if (kind === "photo") {
+    const f = photoFile(); if (!f) return null;
+    return grounds[f] || (grounds[f] = new Promise(res => { const im = new Image(); im.decoding = "async"; im.onload = () => res(im); im.onerror = () => res(null); im.src = new URL("../assets/bg/" + f + ".jpg", import.meta.url).href; }));
+  }
+  if (/^scene:/.test(kind)) return grounds.decor || (grounds.decor = import("../motion/decor.js").catch(() => null));
+  return null;
+}
+function paintPhoto(ctx, im, x, y, w, h) {
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  const k = Math.max(w / im.naturalWidth, h / im.naturalHeight), iw = im.naturalWidth * k, ih = im.naturalHeight * k;
+  ctx.drawImage(im, x + (w - iw) / 2, y + (h - ih) / 2, iw, ih);
+  ctx.restore();
+}
+/** one of the video maker's scenes, painted into a field in the card's colours (as motion/photo-grounds.js does for the image ads) */
+function paintScene(ctx, D, kind, x, y, w, h, base, words, fx, fy) {
+  const tone = toneOf(base, words, .3), light = tone !== base ? tone : mix(base, lum(base) < .5 ? "#ffffff" : "#000000", .2);
+  const p = { ground: base, light, ink: words[0][0], accent: CUR_P.accent, plate: CUR_P.plate, plate_ink: CUR_P.plateInk, sun: CUR_P.accent };
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip(); ctx.translate(x, y);
+  ctx.fillStyle = base; ctx.fillRect(0, 0, w, h);
+  const seed = (state.seed | 0) * 31 + 7, R = rng(seed), st = { seed, decor: [], score: "" }, sc = [fx - x, fy - y];
+  try { D.withoutPalms(() => D.freshGround(kind, ctx, st, p, w, h, sc, R) || D.candidateGround(kind, ctx, st, p, w, h, sc, R) || D.themeGround(kind, ctx, st, p, w, h, sc, R) || D.vibeBackground(kind, ctx, st, p, w, h, sc, R)); }
+  catch (e) { /* the field's own colour stands */ }
+  ctx.restore();
+}
+function drawScrim(ctx, F, s) {
+  if (!s || !(s.a > 0)) return;
+  ctx.save(); ctx.beginPath(); ctx.rect(F.x, F.y, F.w, F.h); ctx.clip();
+  if (s.mode === "veil") ctx.fillStyle = rgba(F.base, s.a);
+  else { const g = ctx.createLinearGradient(...s.line); g.addColorStop(0, rgba(F.base, s.a)); g.addColorStop(s.solid, rgba(F.base, s.a)); g.addColorStop(1, rgba(F.base, 0)); ctx.fillStyle = g; }
+  ctx.fillRect(F.x, F.y, F.w, F.h);
+  ctx.restore();
+}
+/** The scrims for a side's picture fields, from a drawing of it without its words (probe, at scale s) */
+function scrimsFor(probe, s) {
+  const c = probe.canvas, D = c.getContext("2d").getImageData(0, 0, c.width, c.height).data, out = [];
+  const lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }, Lrgb = (r, g, b) => .2126 * lin(r) + .7152 * lin(g) + .0722 * lin(b);
+  const rgbOf = h => [1, 3, 5].map(k => parseInt(h.slice(k, k + 2), 16));
+  probe.fields.forEach((F, i) => {
+    if (!F.image) return;
+    const ws = probe.boxes.filter(b => b.text && /^#[0-9a-f]{6}$/i.test(b.color || "") && b.x + b.w / 2 >= F.x && b.x + b.w / 2 <= F.x + F.w && b.y + b.h / 2 >= F.y && b.y + b.h / 2 <= F.y + F.h);
+    if (!ws.length) return;   // a picture with no words on it stands as it is
+    const pad = 28, T = { l: Math.min(...ws.map(b => b.x)) - pad, t: Math.min(...ws.map(b => b.y)) - pad, r: Math.max(...ws.map(b => b.x + b.w)) + pad, b: Math.max(...ws.map(b => b.y + b.h)) + pad };
+    const free = { right: (F.x + F.w - T.r) / F.w, left: (T.l - F.x) / F.w, bottom: (F.y + F.h - T.b) / F.h, top: (T.t - F.y) / F.h };
+    const side = Object.keys(free).reduce((a, k) => free[k] > free[a] ? k : a, "right"), photo = fillNow() === "photo";
+    let geo;
+    if (free[side] < .22) geo = { mode: "veil", a: photo ? .55 : 0 };
+    else {
+      const fade = Math.min(300, free[side] * (side === "right" || side === "left" ? F.w : F.h) * .85);
+      const line = side === "right" ? [F.x, 0, T.r + fade, 0] : side === "left" ? [F.x + F.w, 0, T.l - fade, 0] : side === "bottom" ? [0, F.y, 0, T.b + fade] : [0, F.y + F.h, 0, T.t - fade];
+      const len = Math.hypot(line[2] - line[0], line[3] - line[1]);
+      geo = { mode: "side", line, solid: Math.max(0, (len - fade) / len), a: photo ? .5 : 0 };
+    }
+    const [br, bgr, bb] = rgbOf(F.base);
+    for (const w of ws) {
+      // the contrast it needs, with a margin for the print file's finer pixels (drawn at twice this size)
+      const flat = contrastOf(w.color, F.base), need = flat >= 4.7 ? 4.7 : flat - .02, Lc = Lrgb(...rgbOf(w.color)), px = [];
+      for (let y = Math.max(0, Math.floor(w.y * s)); y < Math.min(c.height, Math.ceil((w.y + w.h) * s)); y += 2)
+        for (let x = Math.max(0, Math.floor(w.x * s)); x < Math.min(c.width, Math.ceil((w.x + w.w) * s)); x += 2) { const o = (y * c.width + x) * 4; px.push(D[o], D[o + 1], D[o + 2]); }
+      // at most one pixel in twenty under the word below what it needs (the 5th percentile), counted, not sorted
+      const ok = al => {
+        let low = 0; const n = px.length / 3, most = n * .05;
+        for (let k = 0; k < px.length; k += 3) {
+          const L = Lrgb(px[k] + (br - px[k]) * al, px[k + 1] + (bgr - px[k + 1]) * al, px[k + 2] + (bb - px[k + 2]) * al);
+          if ((Math.max(L, Lc) + .05) / (Math.min(L, Lc) + .05) < need && ++low > most) return false;
+        }
+        return true;
+      };
+      while (geo.a < 1 && !ok(geo.a)) geo.a = Math.min(1, geo.a + .05);
+    }
+    out[i] = geo;
+  });
+  return out;
+}
+/** Premium's frame: two hairlines in the accent between the trim and the safe area, drawn before the first word or picture so a product may stand over it */
+function frameNow(ctx) {
+  if (!FRAME_DUE) return; FRAME_DUE = false;
+  // in the accent, or in the words' colour where the accent is the field's own (a gold back in gold)
+  const F = FIELDS[0], col = !F || contrastOf(CUR_P.accent, F.base) >= 2 ? CUR_P.accent : F.ink;
+  ctx.save(); ctx.strokeStyle = col;
+  ctx.lineWidth = 3; rr(ctx, BLEED + 18, BLEED + 18, TRIM.w - 36, TRIM.h - 36, 8); ctx.stroke();
+  ctx.lineWidth = 1.2; rr(ctx, BLEED + 27, BLEED + 27, TRIM.w - 54, TRIM.h - 54, 5); ctx.stroke();
+  ctx.restore();
+}
+/** New look: a layout, a pair, type and a ground from one style's lists (Any: a style drawn first) */
+function newLook() {
+  state.seed = (state.seed | 0) + 1;
+  const R = rng(state.seed * 104729), pick = a => a[Math.floor(R() * a.length)];
+  const S = STYLE_OF[state.style] || pick(STYLES);
+  state.look = S.key; state.frame = !!S.frame;
+  state.layout = pick(S.layouts);
+  const pairs = S.pairs.map(k => PAIR_OF[k]).filter(Boolean), suits = pairs.filter(p => (p.suits || []).includes(lineNow().cat));
+  state.pair = pick(suits.length >= 3 && R() < .5 ? suits : pairs).key;
+  state.voice = pick(S.voices.filter(v => VOICES.includes(v)));
+  // a photograph where it can be seen: Centred's words cover the card, so its scrim would hide the picture
+  state.fill = S.grounds.includes("photo") && photoOk() && state.layout !== "center" && R() < .3 ? "photo" : pick(S.grounds.filter(g => g !== "photo"));
+  keep(); drawControls(); later(0);
+}
+
 /** The product the line buys, the full ad's own cutout (motion/subjects.json sets), fitted whole into
  *  x, y, w, h: a soft shadow under it, or a comic's hard one. Its box is recorded; it stays in the trim. */
 function product(ctx, out, img, x, y, w, h, { align = "center", valign = "bottom", hard = null } = {}) {
-  if (!img || w < 60 || h < 60) return null;
+  frameNow(ctx);
+  if (PHOTO_ON || !img || w < 60 || h < 60) return null;   // on a photo ground the photograph is the picture
   const k = Math.min(w / img.naturalWidth, h / img.naturalHeight), iw = img.naturalWidth * k, ih = img.naturalHeight * k;
   const ix = align === "left" ? x : align === "right" ? x + w - iw : x + (w - iw) / 2, iy = valign === "top" ? y : valign === "center" ? y + (h - ih) / 2 : y + h - ih;
   ctx.save();
@@ -461,8 +655,8 @@ function front(ctx, P, W, f, d, out, img) {
        rules, like a ticket's printed field; the stub, torn off along the dashes, carries the product. (The
        owner, 2026-11-22: "the phone numbers on 2 lines does not look good"; the stub had set it in two.) */
     const tearX = S.x + S.w * .62, LI = [[P.ink, 4.5]];
-    mainField(ctx, f, 0, 0, tearX, SHEET.h, P.ground, G, tearX, SHEET.h / 2);
-    softField(ctx, f, tearX, 0, SHEET.w - tearX, SHEET.h, P.light, LI);
+    if (fillNow() === "photo") { softField(ctx, f, 0, 0, tearX, SHEET.h, P.ground, G); mainField(ctx, f, tearX, 0, SHEET.w - tearX, SHEET.h, P.light, LI, (tearX + SHEET.w) / 2, SHEET.h / 2); }   // the photograph on the stub
+    else { mainField(ctx, f, 0, 0, tearX, SHEET.h, P.ground, G, tearX, SHEET.h / 2); softField(ctx, f, tearX, 0, SHEET.w - tearX, SHEET.h, P.light, LI); }
     ctx.strokeStyle = P.ink; ctx.lineWidth = 4; ctx.setLineDash([16, 14]);
     ctx.beginPath(); ctx.moveTo(tearX, 0); ctx.lineTo(tearX, SHEET.h); ctx.stroke(); ctx.setLineDash([]);
     ctx.save(); ctx.beginPath(); ctx.rect(tearX, 0, SHEET.w - tearX, SHEET.h); ctx.clip();   // the notches bite the stub only
@@ -503,6 +697,7 @@ function tick(ctx, out, x, by, ps, acc, bg) {
 /** The QR on a white tile, s across (a phone reads it on any ground): a hard comic shadow and an outline
  *  when asked. The tile is recorded; nothing is ever drawn over it. */
 function qrTile(ctx, out, qr, x, y, s, { stroke = null, hard = null } = {}) {
+  frameNow(ctx);
   if (hard) { ctx.fillStyle = hard; rr(ctx, x + 12, y + 12, s, s, 18); ctx.fill(); }
   ctx.fillStyle = "#ffffff"; rr(ctx, x, y, s, s, 18); ctx.fill();
   if (stroke) { ctx.lineWidth = 6; ctx.strokeStyle = stroke; ctx.stroke(); }
@@ -593,8 +788,8 @@ function backBand(ctx, P, W, f, out, qr, img, S) {
 /** Split: the front's panel seen from behind, at the right now; it holds the QR or the product */
 function backSplit(ctx, P, W, f, out, qr, img, S) {
   const panelX = SHEET.w - (S.x + S.w * .38 + 30);
-  mainField(ctx, f, 0, 0, panelX, SHEET.h, P.ground, [[P.ink, 4.5], [P.accent, 3]], panelX, SHEET.h / 2);
-  softField(ctx, f, panelX, 0, SHEET.w - panelX, SHEET.h, P.plate, [[P.plateInk, 4.5]]);
+  if (fillNow() === "photo") { softField(ctx, f, 0, 0, panelX, SHEET.h, P.ground, [[P.ink, 4.5], [P.accent, 3]]); mainField(ctx, f, panelX, 0, SHEET.w - panelX, SHEET.h, P.plate, [[P.plateInk, 4.5]], (panelX + SHEET.w) / 2, SHEET.h / 2); }   // the photograph on the panel
+  else { mainField(ctx, f, 0, 0, panelX, SHEET.h, P.ground, [[P.ink, 4.5], [P.accent, 3]], panelX, SHEET.h / 2); softField(ctx, f, panelX, 0, SHEET.w - panelX, SHEET.h, P.plate, [[P.plateInk, 4.5]]); }
   column(ctx, out, W, f, S.x, S.y, panelX - 40 - S.x, S.y + S.h, { ink: P.ink, acc: P.accent, bg: P.ground, big: !qr });
   const px = panelX + 40, pw = S.x + S.w - px;
   if (qr) qrWithWords(ctx, out, qr, W, f.label, px, pw, S.y, S.y + S.h, P.plateInk);
@@ -657,8 +852,8 @@ function backPop(ctx, P, W, f, out, qr, img, S) {
  *  behind the front's. The stub holds the QR (or the product); the points are on the ticket. */
 function backTicket(ctx, P, W, f, out, qr, img, S) {
   const tearX = SHEET.w - (S.x + S.w * .62), lab = f.label;
-  mainField(ctx, f, tearX, 0, SHEET.w - tearX, SHEET.h, P.ground, [[P.ink, 4.5], [P.accent, 3]], tearX, SHEET.h / 2);
-  softField(ctx, f, 0, 0, tearX, SHEET.h, P.light, [[P.ink, 4.5]]);
+  if (fillNow() === "photo") { softField(ctx, f, tearX, 0, SHEET.w - tearX, SHEET.h, P.ground, [[P.ink, 4.5], [P.accent, 3]]); mainField(ctx, f, 0, 0, tearX, SHEET.h, P.light, [[P.ink, 4.5]], tearX / 2, SHEET.h / 2); }   // the photograph on the stub
+  else { mainField(ctx, f, tearX, 0, SHEET.w - tearX, SHEET.h, P.ground, [[P.ink, 4.5], [P.accent, 3]], tearX, SHEET.h / 2); softField(ctx, f, 0, 0, tearX, SHEET.h, P.light, [[P.ink, 4.5]]); }
   ctx.strokeStyle = P.ink; ctx.lineWidth = 4; ctx.setLineDash([16, 14]);
   ctx.beginPath(); ctx.moveTo(tearX, 0); ctx.lineTo(tearX, SHEET.h); ctx.stroke(); ctx.setLineDash([]);
   ctx.save(); ctx.beginPath(); ctx.rect(0, 0, tearX, SHEET.h); ctx.clip();
@@ -722,15 +917,24 @@ export async function render(side, { scale = 1, marks = false, bare = false } = 
   let qr = null;
   if (side === "back" && state.qr) { try { await loadQr(); qr = qrCanvas(qrText(W)); } catch (e) { qr = null; } }
   const img = await loadProduct(lineNow());
-  const c = document.createElement("canvas");
-  c.width = Math.round(SHEET.w * scale); c.height = Math.round(SHEET.h * scale);
-  const ctx = c.getContext("2d"); ctx.scale(scale, scale);
-  const out = [];
-  BARE = !!bare;
-  try { if (side === "back") back(ctx, P, W, f, state.layout, out, qr, img); else front(ctx, P, W, f, state.layout, out, img); }
-  finally { BARE = false; }
-  if (marks && window.PgfxMark) { ctx.setTransform(1, 0, 0, 1, 0, 0); window.PgfxMark.draw(ctx, c.width, c.height); }
-  return { canvas: c, boxes: out };
+  const kind = fillNow(), ground = imageGround(kind) ? await loadGround(kind) : null;
+  const paint = (sc, scrims, bareNow) => {
+    const c = document.createElement("canvas");
+    c.width = Math.round(SHEET.w * sc); c.height = Math.round(SHEET.h * sc);
+    const ctx = c.getContext("2d"); ctx.scale(sc, sc);
+    const out = [];
+    FIELDS = []; SCRIMS = scrims; GROUND = ground; PHOTO_ON = kind === "photo" && !!ground; CUR_P = P; BARE = !!bareNow;
+    FRAME_DUE = !!state.frame && !["pop", "ticket"].includes(state.layout);   // Pop and Ticket have frames of their own
+    try { if (side === "back") back(ctx, P, W, f, state.layout, out, qr, img); else front(ctx, P, W, f, state.layout, out, img); }
+    finally { BARE = false; SCRIMS = null; GROUND = null; PHOTO_ON = false; FRAME_DUE = false; }
+    return { canvas: c, boxes: out, fields: FIELDS.slice() };
+  };
+  // a picture ground: drawn once without its words, at full size (half size blurred sprinkles and blob edges
+  // into a contrast they do not have), to fit the scrims to what is under them
+  const scrims = ground ? scrimsFor(paint(1, null, true), 1) : null;
+  const r = paint(scale, scrims, bare);
+  if (marks && window.PgfxMark) { const ctx = r.canvas.getContext("2d"); ctx.setTransform(1, 0, 0, 1, 0, 0); window.PgfxMark.draw(ctx, r.canvas.width, r.canvas.height); }
+  return r;
 }
 
 /* ---------- the print file: a PDF, both sides, with the bleed and crop marks ---------- */
@@ -889,16 +1093,17 @@ const later = (ms = 140) => { clearTimeout(timer); timer = setTimeout(draw, ms);
 
 function chips(id, list, on, pick) {
   const el = $(id); el.innerHTML = list.map(x => `<button type="button" data-k="${esc(x.key)}" aria-pressed="${x.key === on}" title="${esc(x.hint || x.name)}"${x.style ? ` style="${x.style}"` : ""}>${x.html || esc(x.name)}</button>`).join("");
-  el.onclick = e => { const b = e.target.closest("button[data-k]"); if (!b) return; pick(b.dataset.k); el.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); };
+  el.onclick = e => { const b = e.target.closest("button[data-k]"); if (!b) return; pick(b.dataset.k); if (b.isConnected) el.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); };   // a pick that redrew the chips (Style) has set them already
 }
 function drawControls() {
+  chips("cd-styles", [{ key: "", name: "Any", hint: "A different direction each New look" }].concat(STYLES), state.style || "", k => { state.style = k; newLook(); });
   chips("cd-layouts", LAYOUTS, state.layout, k => { state.layout = k; keep(); later(0); });
   const suits = PAIRS.filter(p => (p.suits || []).includes(lineNow().cat)), rest = PAIRS.filter(p => !suits.includes(p));
   const shown = suits.concat(rest).slice(0, 30); if (!shown.includes(pairNow())) shown.unshift(pairNow());   // the pair on the card is always one to see
   chips("cd-pairs", shown.map(p => ({ key: p.key, name: p.name, html: `<i style="background:${p.colors.ground}"></i><i style="background:${p.colors.accent}"></i>` })), pairNow().key,
     k => { state.pair = k; keep(); later(0); });
   chips("cd-voices", VOICES.map(k => ({ key: k, name: TYPE_VOICES[k].name })), voiceNow(), k => { state.voice = k; keep(); later(0); });
-  chips("cd-fills", FILLS, fillNow(), k => { state.fill = k; keep(); later(0); });
+  chips("cd-fills", groundsShown(), fillNow(), k => { state.fill = k; keep(); later(0); });
 }
 function fillForm() {
   const sel = $("cd-line"), groups = {};
@@ -914,13 +1119,7 @@ function bind() {
   for (const k of ["name", "phone", "site", "where", "points", "models"]) $("cd-" + k).addEventListener("input", e => { state[k] = e.target.value; keep(); later(); });
   $("cd-line").addEventListener("change", e => { state.line = e.target.value; state.points = ""; state.models = ""; keep(); fillForm(); drawControls(); later(0); });
   $("cd-qr").addEventListener("change", e => { state.qr = e.target.checked; keep(); later(0); });
-  $("cd-shuffle").onclick = () => {
-    state.seed = (state.seed | 0) + 1; const R = rng(state.seed * 104729);
-    const suits = PAIRS.filter(p => (p.suits || []).includes(lineNow().cat)), pool = suits.length > 4 && R() < .6 ? suits : PAIRS;
-    state.layout = LAYOUTS[Math.floor(R() * LAYOUTS.length)].key; state.pair = pool[Math.floor(R() * pool.length)].key; state.voice = VOICES[Math.floor(R() * VOICES.length)];
-    const fills = FILLS.filter(x => x.k); state.fill = fills[Math.floor(R() * fills.length)].key;   // New look always brings a fill; Flat is there to pick
-    keep(); drawControls(); later(0);
-  };
+  $("cd-shuffle").onclick = newLook;
   $("cd-pdf").onclick = e => download("pdf", e.currentTarget);
   $("cd-png").onclick = e => download("png", e.currentTarget);
   $("cd-print").onclick = () => showPrint(true);
@@ -929,6 +1128,7 @@ function bind() {
 
 async function start() {
   try { const j = await fetch(new URL("../motion/subjects.json", import.meta.url)).then(r => r.json()); LINES = j.subjects || []; } catch (e) { LINES = []; }
+  try { PHOTOS = (await fetch(new URL("photos.json", import.meta.url)).then(r => r.json())).photos || {}; } catch (e) { PHOTOS = {}; }
   LINE_OF = Object.fromEntries(LINES.map(s => [s.key, s]));
   const st = fromStudio();
   for (const k of ["name", "phone", "site", "where", "line", "pair"]) if (!state[k] && st[k]) state[k] = st[k];
@@ -941,6 +1141,7 @@ async function start() {
   if (window.pgfxAccount && window.pgfxAccount.onChange) window.pgfxAccount.onChange(async () => { await checkEntitled(); later(0); });
 }
 
-window.CardMaker = { state, render, pdfOf, printFile, FILLS: FILLS.map(x => x.key), vividPair: k => vividPair(PAIR_OF[k]), kindOf, printLinks, draw, SHEET, TRIM, SAFE, BLEED, DPI, LAYOUTS: LAYOUTS.map(l => l.key), pairs: () => PAIRS.map(p => p.key), voices: () => VOICES.slice(),
+window.CardMaker = { state, render, pdfOf, printFile, FILLS: FILLS.map(x => x.key), newLook, photoOk, grounds: () => groundsShown().map(x => x.key),
+  STYLES: STYLES.map(s => ({ key: s.key, name: s.name, layouts: s.layouts, pairs: s.pairs, voices: s.voices, grounds: s.grounds, frame: !!s.frame })), vividPair: k => vividPair(PAIR_OF[k]), kindOf, printLinks, draw, SHEET, TRIM, SAFE, BLEED, DPI, LAYOUTS: LAYOUTS.map(l => l.key), pairs: () => PAIRS.map(p => p.key), voices: () => VOICES.slice(),
   entitled: () => entitled, ready: null };
 window.CardMaker.ready = start().catch(e => { console.error("business card maker:", e); note("The card maker did not load. Reload the page.", true); });

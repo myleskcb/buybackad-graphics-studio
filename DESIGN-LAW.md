@@ -6672,6 +6672,26 @@ designer to come: "needs to be super pay walled". The maker is `cards/` (`cards/
   less; Pop's halftone takes such a tone too. Glow, Rays and Rings come from behind the product, the
   QR or Pop's burst. New look always brings a fill; Flat is there to pick. The check draws each side
   without its words, on a fill and flat, and reads the pixels under every word.
+- **The style** (the owner, 2026-11-22: "are you going professional are you going friendly? Are you going
+  vibrant and attractive business card?"): six art directions, Professional, Friendly, Bold, Premium,
+  Street and Comic, each a curated set of layouts, colour pairs (chosen by their colours: Premium's gold
+  on dark, Friendly's pastels, Bold's saturated grounds), type pairs (Premium's serif, Friendly's rounded
+  faces, Street's stencil, marker and brush) and grounds. New look draws all four from one style, so a
+  card has one personality, never a comic layout in a hairline serif; Any draws a style first, then a
+  look from it. Premium adds a fine double frame between the trim and the safe area, in the accent or,
+  where the accent is the field's own colour, the words' colour. Every other rule here holds in every style.
+- **Picture grounds** (the owner: "same quality as the actual ads ... background images could be an
+  option"). Photo: the ads' own photograph of what is bought (`assets/bg`, generated scenes with no text,
+  logos or people, listed with their brightness in `cards/photos.json` by `scripts/card_photos.mjs`;
+  Premium asks for a dark one, Friendly a bright one); it takes the product cutout's place, on Ticket's
+  stub and Split's back panel rather than under the words, and New look never puts it under Centred,
+  whose words would cover it. Scene: one the video maker paints (`motion/decor.js`, loaded only when
+  used) in the card's own colours, the product standing in it as in the ads; scenes that draw a border
+  at the edge are left out, the cut would slice it. Under the words of either, a scrim in the field's
+  own colour: the side is drawn once without its words at full size, the pixels under every word read,
+  and the scrim made just strong enough that at most one pixel in twenty under a word falls below 4.7:1
+  (or what the flat field gives where that is less); solid under the words, fading out over the
+  picture's side, an even veil where the words cover the field; at least half strength under a photograph.
 - **Ticket's number is on one line** (the owner: "the phone numbers on 2 lines does not look good"),
   on the ticket's main part between two rules like a printed field, under what is bought and the name;
   the stub carries the product.
@@ -6704,7 +6724,9 @@ designer to come: "needs to be super pay walled". The maker is `cards/` (`cards/
   pairs, type and a long name; the product in the trim, on every front but Centred and on every back
   without a QR but Centred's, and never on a word; nothing under 7 pt; every QR 3/4 in or more and
   clear; five different backs with a QR and without; the number large on a back with no QR; Pop's
-  shadow by the face; the colour note; the PDF's boxes, crop marks, xref and 600 dpi pages; the print
+  shadow by the face; the colour note; every word's pixels on every fill, the photograph and seven
+  scenes (510 sides); the six styles' lists and New look staying in them; the photograph in the
+  product's place; the Style picker; the PDF's boxes, crop marks, xref and 600 dpi pages; the print
   links; the paywall signed out, on Starter and on Pro, light and dark, at 390) and
   `scripts/billing_check.mjs` (the function's rule). A sweep of every layout × type pair × QR × three
   name lengths (1,740 sides) found one line under 7 pt: a 31-character website in the widest pair, at 6.7 pt, which the page names.
