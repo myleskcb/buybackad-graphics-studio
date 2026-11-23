@@ -46,7 +46,7 @@ const LAYOUTS = [
   { key: "split", name: "Split", hint: "What you buy on a panel, you beside it" },
   { key: "center", name: "Centred", hint: "Everything on one line down the middle" },
   { key: "pop", name: "Pop", hint: "Comic-book: halftone dots, a burst, hard shadows" },
-  { key: "ticket", name: "Ticket", hint: "A ticket stub: a dashed tear between you and your number" },
+  { key: "ticket", name: "Ticket", hint: "A ticket: your number on its printed line, what you buy on the stub" },
 ];
 const PAIRS = HOUSE_COLOURS.filter(c => !c.twin);
 const PAIR_OF = Object.fromEntries(HOUSE_COLOURS.map(c => [c.key, c]));
@@ -59,7 +59,7 @@ const STORE = "pgfx_card";
 let LINES = [], LINE_OF = {};
 const state = Object.assign({
   name: "", line: "", phone: "", site: "", where: "", points: "", models: "",
-  layout: "band", pair: "", voice: "bold", qr: true, seed: 1,
+  layout: "band", pair: "", voice: "bold", fill: "", qr: true, seed: 1,
 }, jget(STORE, null) || {});
 const keep = () => jset(STORE, state);
 
@@ -154,16 +154,20 @@ function sayTowns(ctx, out, t, font, x, foot, w, opts) {
   for (let i = T.lines.length - 1; i >= 0; i--) { b = say(ctx, out, T.lines[i], font, T.size, x, foot, Object.assign({ foot: true, role: "where" }, opts)); foot = b.y - T.size * .36; }
   return b;
 }
+/** BARE: draw everything but the words, so the check can read what each word stands on */
+let BARE = false;
 /** text at (x, baseline y), its box recorded so the check can hold it to the safe area */
 function say(ctx, out, text, font, size, x, y, { align = "left", fill = "#000", role = "text", shadow = null, foot = false } = {}) {
   if (!text) return null;
   ctx.font = fontCss(font, size); ctx.textAlign = align; ctx.textBaseline = "alphabetic";
   const m = ctx.measureText(text);
   if (foot) y -= m.actualBoundingBoxDescent;          // y is where the line must end, descenders and all
-  if (shadow) { ctx.fillStyle = shadow.color; ctx.fillText(text, x + shadow.dx, y + shadow.dy); }
-  ctx.fillStyle = fill; ctx.fillText(text, x, y);
+  if (!BARE) {
+    if (shadow) { ctx.fillStyle = shadow.color; ctx.fillText(text, x + shadow.dx, y + shadow.dy); }
+    ctx.fillStyle = fill; ctx.fillText(text, x, y);
+  }
   const left = align === "center" ? x - m.width / 2 : align === "right" ? x - m.width : x;
-  const b = { role, text, size, font, shadow: !!shadow, x: left, y: y - m.actualBoundingBoxAscent, w: m.width + (shadow ? Math.max(0, shadow.dx) : 0), h: m.actualBoundingBoxAscent + m.actualBoundingBoxDescent + (shadow ? Math.max(0, shadow.dy) : 0) };
+  const b = { role, text, size, font, color: fill, shadow: !!shadow, x: left, y: y - m.actualBoundingBoxAscent, w: m.width + (shadow ? Math.max(0, shadow.dx) : 0), h: m.actualBoundingBoxAscent + m.actualBoundingBoxDescent + (shadow ? Math.max(0, shadow.dy) : 0) };
   out.push(b);
   return b;
 }
@@ -217,6 +221,94 @@ function halftone(ctx, x0, y0, w, h, color, cx, cy, reach) {
   }
   ctx.restore();
 }
+/* ---------- the fill: a gradient or a pattern on a side's main field ----------
+   (the owner, 2026-11-22: "We should have more creativity, fill pattern gradient something to give it
+   some distinguishing pattern".) Every fill is drawn in two colours: the field's own, and a second tone,
+   the same colour moved away from the colour of the words on it. The words never lose contrast to a
+   fill: against the tone, every word on the field keeps 4.5:1, or what it had on the flat field where
+   that was less, and the tone is eased off until it does. A side's other regions (a band, a panel, a
+   stub) take a soft fade of their own. */
+const FILLS = [
+  { key: "glow", name: "Glow", hint: "A light behind what you buy", k: .38 },
+  { key: "rays", name: "Rays", hint: "A sunburst from behind what you buy", k: .2 },
+  { key: "fade", name: "Fade", hint: "A gradient corner to corner", k: .36 },
+  { key: "rings", name: "Rings", hint: "Rings spreading out from what you buy", k: .18 },
+  { key: "stripes", name: "Stripes", hint: "Diagonal stripes, tone on tone", k: .15 },
+  { key: "dots", name: "Dots", hint: "A dot grid, tone on tone", k: .26 },
+  { key: "grid", name: "Grid", hint: "Graph-paper lines", k: .2 },
+  { key: "cash", name: "Cash", hint: "Dollar signs, tone on tone", k: .2 },
+  { key: "waves", name: "Waves", hint: "Wavy lines, tone on tone", k: .2 },
+  { key: "flat", name: "Flat", hint: "One flat colour", k: 0 },
+];
+const FILL_OF = Object.fromEntries(FILLS.map(x => [x.key, x]));
+const fillNow = () => FILL_OF[state.fill] ? state.fill : "glow";
+/** The fill's second tone: base moved toward white under dark words or black under light ones (or the
+ *  other way, less, where the base is already at that end), as far as every word keeps its contrast.
+ *  words: [[colour, the contrast it needs], ...] */
+function toneOf(base, words, k) {
+  if (!k) return base;
+  const darkWords = words.every(([c]) => contrastOf(c, "#ffffff") > contrastOf(c, "#000000"));
+  let away = darkWords ? "#ffffff" : "#000000";
+  if (contrastOf(base, away) < 1.35) { away = darkWords ? "#000000" : "#ffffff"; k *= .7; }
+  for (let i = 0; i < 10; i++, k *= .75) {
+    const t = mix(base, away, k);
+    if (words.every(([c]) => contrastOf(c, t) >= Math.min(4.5, contrastOf(c, base)))) return t;
+  }
+  return base;
+}
+/** A region in a fill: its base, and the fill's pattern or gradient in its tone. fx, fy: where the glow,
+ *  rays and rings come from (behind the product or the QR). font: the face the Cash fill's signs are in. */
+function field(ctx, kind, x, y, w, h, base, tone, fx, fy, font) {
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  ctx.fillStyle = base; ctx.fillRect(x, y, w, h);
+  const far = Math.hypot(Math.max(fx - x, x + w - fx), Math.max(fy - y, y + h - fy));
+  if (tone !== base) {
+    ctx.fillStyle = tone; ctx.strokeStyle = tone;
+    if (kind === "fade") {
+      const g = ctx.createLinearGradient(x, y, x + w, y + h); g.addColorStop(0, tone); g.addColorStop(1, base); ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+    } else if (kind === "glow") {
+      const g = ctx.createRadialGradient(fx, fy, 0, fx, fy, Math.max(w, h) * .6); g.addColorStop(0, tone); g.addColorStop(.35, tone); g.addColorStop(1, rgba(tone, 0));
+      ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+    } else if (kind === "rays") {
+      const n = 28;
+      for (let i = 0; i < n; i += 2) { const a0 = i * 2 * Math.PI / n, a1 = (i + 1) * 2 * Math.PI / n; ctx.beginPath(); ctx.moveTo(fx, fy); ctx.arc(fx, fy, far, a0, a1); ctx.closePath(); ctx.fill(); }
+    } else if (kind === "rings") {
+      ctx.lineWidth = 16; for (let r = 40; r < far; r += 46) { ctx.beginPath(); ctx.arc(fx, fy, r, 0, Math.PI * 2); ctx.stroke(); }
+    } else if (kind === "stripes") {
+      ctx.translate(x, y); ctx.rotate(-Math.PI / 4);
+      const L = w + h; for (let s = -L; s < L; s += 44) ctx.fillRect(s, -L, 20, 3 * L);
+    } else if (kind === "dots") {
+      for (let yy = y + 14, r = 0; yy < y + h; yy += 30, r++) for (let xx = x + 14 + (r % 2) * 15; xx < x + w; xx += 30) { ctx.beginPath(); ctx.arc(xx, yy, 4.6, 0, Math.PI * 2); ctx.fill(); }
+    } else if (kind === "grid") {
+      ctx.lineWidth = 3; ctx.beginPath();
+      for (let xx = x + 20; xx < x + w; xx += 44) { ctx.moveTo(xx, y); ctx.lineTo(xx, y + h); }
+      for (let yy = y + 20; yy < y + h; yy += 44) { ctx.moveTo(x, yy); ctx.lineTo(x + w, yy); }
+      ctx.stroke();
+    } else if (kind === "cash") {
+      ctx.font = fontCss(font, 46); ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      for (let yy = y + 30, r = 0; yy < y + h + 40; yy += 74, r++) for (let xx = x + 30 + (r % 2) * 46; xx < x + w + 40; xx += 92) {
+        ctx.save(); ctx.translate(xx, yy); ctx.rotate(-.26); ctx.fillText("$", 0, 0); ctx.restore();
+      }
+    } else if (kind === "waves") {
+      ctx.lineWidth = 6; ctx.lineCap = "round";
+      for (let yy = y + 18; yy < y + h + 20; yy += 38) { ctx.beginPath(); for (let xx = x - 10; xx <= x + w + 10; xx += 8) ctx.lineTo(xx, yy + Math.sin((xx - x) / 120 * Math.PI * 2) * 9); ctx.stroke(); }
+    }
+  }
+  ctx.restore();
+}
+/** a side's main field in the card's fill */
+function mainField(ctx, f, x, y, w, h, base, words, fx, fy) {
+  const kind = fillNow();
+  field(ctx, kind, x, y, w, h, base, toneOf(base, words, FILL_OF[kind].k), fx, fy, f.label);
+}
+/** a side's other region: a soft fade where the card has a fill, flat where it has none */
+function softField(ctx, f, x, y, w, h, base, words) {
+  if (fillNow() === "flat") { ctx.fillStyle = base; ctx.fillRect(x, y, w, h); return; }
+  field(ctx, "fade", x, y, w, h, base, toneOf(base, words, .14), 0, 0, f.label);
+}
+/** Pop's halftone stays where the fill is a light or a gradient; over a pattern it would be two patterns */
+const popDots = () => ["flat", "fade", "glow"].includes(fillNow());
+
 /** The product the line buys, the full ad's own cutout (motion/subjects.json sets), fitted whole into
  *  x, y, w, h: a soft shadow under it, or a comic's hard one. Its box is recorded; it stays in the trim. */
 function product(ctx, out, img, x, y, w, h, { align = "center", valign = "bottom", hard = null } = {}) {
@@ -261,10 +353,12 @@ const accentOn = (P, bg, ink) => contrastOf(P.ground, bg) >= 3 ? P.ground : cont
  *  panels run to the bleed; the product stays in the trim. */
 function front(ctx, P, W, f, d, out, img) {
   const S = SAFE, R = rng(state.seed * 7919 + 13), disp = f.display, lab = f.label, num = numFontOf(f);
+  const G = [[P.ink, 4.5], [P.accent, 3]], PL = [[P.plateInk, 4.5]];   // the words on the ground, and on the plate
   ctx.fillStyle = P.ground; ctx.fillRect(0, 0, SHEET.w, SHEET.h);
   if (d === "band") {
     const bandTop = S.y + S.h - 170, colW = img ? S.w * .6 : S.w;
-    ctx.fillStyle = P.plate; ctx.fillRect(0, bandTop, SHEET.w, SHEET.h - bandTop);
+    mainField(ctx, f, 0, 0, SHEET.w, bandTop - 10, P.ground, G, S.x + colW + 24 + (S.w - colW - 24) / 2, (S.y + bandTop) / 2);
+    softField(ctx, f, 0, bandTop, SHEET.w, SHEET.h - bandTop, P.plate, PL);
     ctx.fillStyle = P.accent; ctx.fillRect(0, bandTop - 10, SHEET.w, 10);
     const { B: NB, font: nf } = nameBlock(ctx, W.name, f, 112, colW, 196);
     const nb = drawBlock(ctx, out, NB, nf, S.x, S.y, { fill: P.ink, role: "name" });
@@ -287,7 +381,8 @@ function front(ctx, P, W, f, d, out, img) {
     }
   } else if (d === "split") {
     const panelW = S.x + S.w * .38 + 30, px = S.x, pw = S.w * .38 - 24;
-    ctx.fillStyle = P.plate; ctx.fillRect(0, 0, panelW, SHEET.h);
+    mainField(ctx, f, 0, 0, panelW, SHEET.h, P.plate, PL, panelW / 2, SHEET.h * .68);
+    softField(ctx, f, panelW, 0, SHEET.w - panelW, SHEET.h, P.ground, G);
     // "WE BUY" over what is bought: the panel reads as one claim; the product under it
     const rows = W.buy.split(/\s+/), first = rows.length > 2 ? rows.slice(0, 2).join(" ") : rows[0], rest = rows.slice(rows.length > 2 ? 2 : 1).join(" ");
     const s1 = fit(ctx, first, disp, 104, pw, 104), RB = rest ? setBlock(ctx, rest, disp, 104, pw, img ? 150 : 230) : null;
@@ -309,6 +404,7 @@ function front(ctx, P, W, f, d, out, img) {
     say(ctx, out, "CALL OR TEXT", lab, fitS(ctx, "CALL OR TEXT", lab, rw, 30), rx, pb.y - 14, { foot: true, fill: P.ink, role: "label" });
   } else if (d === "center") {
     const cx = S.x + S.w / 2;
+    mainField(ctx, f, 0, 0, SHEET.w, SHEET.h, P.ground, G, SHEET.w / 2, SHEET.h / 2);
     const bs = fit(ctx, W.buy, lab, 34, S.w * .7);
     ctx.font = fontCss(lab, bs); const bw = ctx.measureText(W.buy).width + 52, bh = bs + 30;
     ctx.fillStyle = P.accent; rr(ctx, cx - bw / 2, S.y + 4, bw, bh, bh / 2); ctx.fill();
@@ -337,7 +433,8 @@ function front(ctx, P, W, f, d, out, img) {
     if (ms) say(ctx, out, W.models, lab, ms, cx, nb + 34 + 6 + 22 + ms * .76, { align: "center", fill: P.ink, role: "models" });
   } else if (d === "pop") {
     const line = P.dark ? "#ffffff" : "#111111";
-    halftone(ctx, 0, 0, SHEET.w, SHEET.h, rgba(P.dark ? "#ffffff" : "#000000", .13), SHEET.w * .86, SHEET.h * .2, SHEET.w * .7);
+    mainField(ctx, f, 0, 0, SHEET.w, SHEET.h, P.ground, G, S.x + S.w - 112, S.y + 100);   // rays and rings from the burst
+    if (popDots()) halftone(ctx, 0, 0, SHEET.w, SHEET.h, toneOf(P.ground, G, .2), SHEET.w * .86, SHEET.h * .2, SHEET.w * .7);   // dots in a tone the words keep their contrast on
     ctx.lineWidth = 10; ctx.strokeStyle = line; rr(ctx, S.x - 14, S.y - 14, S.w + 28, S.h + 28, 18); ctx.stroke();
     const colW = img ? S.w * .6 : S.w - 250;
     // the product, under the burst, with a comic's hard shadow
@@ -360,31 +457,36 @@ function front(ctx, P, W, f, d, out, img) {
     if (W.where) fy = sayTowns(ctx, out, W.where, lab, S.x + 8, fy, colW - 16, { fill: P.ink }).y - 10;
     if (W.site) say(ctx, out, W.site, lab, fitS(ctx, W.site, lab, colW - 16, 30), S.x + 8, fy, { foot: true, fill: P.ink, role: "site" });
   } else {   // ticket
-    const tearX = S.x + S.w * .62;
-    ctx.fillStyle = P.light; ctx.fillRect(tearX, 0, SHEET.w - tearX, SHEET.h);
+    /* The ticket: its main part carries what is bought, the name, and the number on one line between two
+       rules, like a ticket's printed field; the stub, torn off along the dashes, carries the product. (The
+       owner, 2026-11-22: "the phone numbers on 2 lines does not look good"; the stub had set it in two.) */
+    const tearX = S.x + S.w * .62, LI = [[P.ink, 4.5]];
+    mainField(ctx, f, 0, 0, tearX, SHEET.h, P.ground, G, tearX, SHEET.h / 2);
+    softField(ctx, f, tearX, 0, SHEET.w - tearX, SHEET.h, P.light, LI);
     ctx.strokeStyle = P.ink; ctx.lineWidth = 4; ctx.setLineDash([16, 14]);
     ctx.beginPath(); ctx.moveTo(tearX, 0); ctx.lineTo(tearX, SHEET.h); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save(); ctx.beginPath(); ctx.rect(tearX, 0, SHEET.w - tearX, SHEET.h); ctx.clip();   // the notches bite the stub only
     ctx.fillStyle = P.ground; [S.y - BLEED, S.y + S.h + BLEED].forEach(y => { ctx.beginPath(); ctx.arc(tearX, y, 34, 0, Math.PI * 2); ctx.fill(); });
+    ctx.restore();
     const lw = tearX - S.x - 40;
     const bs = fit(ctx, W.buy, lab, 34, lw);
     const b0 = drawBlock(ctx, out, { lines: [W.buy], size: bs }, lab, S.x, S.y, { fill: P.accent, role: "buy" });   // from its measured top: the É of POKÉMON rose over the safe line
-    const { B: NB, font: nf } = nameBlock(ctx, W.name, f, 104, lw, 210);
-    const nb = drawBlock(ctx, out, NB, nf, S.x, b0 + 22, { fill: P.ink, role: "name" });
-    const rx = tearX + 44, rw = S.x + S.w - rx;
-    // the website goes on the stub when it fits there at 7 pt; a long one goes under the towns, where there is room
-    const stubSite = W.site && fitS(ctx, W.site, lab, rw, 30) >= FLOOR;
+    // the foot: the website, the towns over it
     let lf = S.y + S.h;
-    if (W.site && !stubSite) lf = say(ctx, out, W.site, lab, fitS(ctx, W.site, lab, lw, 30), S.x, lf, { foot: true, fill: P.ink, role: "site" }).y - 12;
-    const wb = W.where ? sayTowns(ctx, out, W.where, lab, S.x, lf, lw, { fill: P.ink }) : null;
-    if (wb) lf = wb.y;
-    product(ctx, out, img, S.x, nb + 22, lw, lf - 22 - (nb + 22), { align: "left" });
-    const digits = W.phone.replace(/\s+/g, " "), parts = digits.match(/^(\(?\d{3}\)?)\s*(.*)$/), [a, b] = parts ? [parts[1], parts[2]] : [digits, ""];
-    const ps = Math.min(fit(ctx, a, num, 96, rw, 100), b ? fit(ctx, b, num, 96, rw, 100) : 999);
-    const area = contrastOf(P.accent, P.light) >= 3 ? P.accent : P.ink;
-    const lb = say(ctx, out, "CALL OR TEXT", lab, fitS(ctx, "CALL OR TEXT", lab, rw, 30), rx, S.y + S.h / 2 - ps - 26, { fill: P.ink, role: "label" });
-    say(ctx, out, a, num, ps, rx, lb.y + lb.h + 18 + ps * .74, { fill: area, role: "phone" });
-    if (b) say(ctx, out, b, num, ps, rx, lb.y + lb.h + 18 + ps * .74 + ps * 1.02, { fill: P.ink, role: "phone" });
-    if (stubSite) say(ctx, out, W.site, lab, fitS(ctx, W.site, lab, rw, 30), rx, S.y + S.h, { foot: true, fill: P.ink, role: "site" });
+    if (W.site) lf = say(ctx, out, W.site, lab, fitS(ctx, W.site, lab, lw, 30), S.x, lf, { foot: true, fill: P.ink, role: "site" }).y - 12;
+    if (W.where) lf = sayTowns(ctx, out, W.where, lab, S.x, lf, lw, { fill: P.ink }).y;
+    // the number's field: a rule, CALL OR TEXT, the number on one line, a rule
+    const ruleB = lf - 24;
+    ctx.fillStyle = P.accent; ctx.fillRect(S.x, ruleB, lw, 4);
+    const ps = fit(ctx, W.phone, num, 96, lw, 100);
+    const pb = say(ctx, out, W.phone, num, ps, S.x, ruleB - 16, { foot: true, fill: P.accent, role: "phone" });
+    const lb = say(ctx, out, "CALL OR TEXT", lab, fitS(ctx, "CALL OR TEXT", lab, lw, 30), S.x, pb.y - 16, { foot: true, fill: P.ink, role: "label" });
+    ctx.fillStyle = P.accent; ctx.fillRect(S.x, lb.y - 20, lw, 4);
+    // the name, under what is bought, in the room above the field
+    const { B: NB, font: nf } = nameBlock(ctx, W.name, f, 104, lw, Math.max(60, Math.min(210, lb.y - 20 - 22 - (b0 + 22))));
+    drawBlock(ctx, out, NB, nf, S.x, b0 + 22, { fill: P.ink, role: "name" });
+    // the stub: the product, whole
+    product(ctx, out, img, tearX + 30, S.y - 10, BLEED + TRIM.w - 6 - (tearX + 30), S.h + 20, { align: "center", valign: "center" });
   }
 }
 
@@ -472,9 +574,9 @@ function drawRows(ctx, out, R, lab, cx, top, ink, acc, bg) {
  *  band, the number on it; the QR (or the product) stands on the band as the product does in front */
 function backBand(ctx, P, W, f, out, qr, img, S) {
   const bg = P.plate, ink = P.plateInk, acc = accentOn(P, bg, ink), lab = f.label, num = numFontOf(f);
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, SHEET.w, SHEET.h);
   const bandTop = S.y + S.h - 140, side = 300, colW = S.w - side - 44;
-  ctx.fillStyle = P.ground; ctx.fillRect(0, bandTop, SHEET.w, SHEET.h - bandTop);
+  mainField(ctx, f, 0, 0, SHEET.w, bandTop - 10, bg, [[ink, 4.5], [acc, 3]], S.x + S.w - side / 2, (S.y + bandTop) / 2);
+  softField(ctx, f, 0, bandTop, SHEET.w, SHEET.h - bandTop, P.ground, [[P.ink, 4.5]]);
   ctx.fillStyle = P.accent; ctx.fillRect(0, bandTop - 10, SHEET.w, 10);
   column(ctx, out, W, f, S.x, S.y, colW, bandTop - 34, { ink, acc, bg, contact: false, headMax: 72 });
   let fy = S.y + S.h;
@@ -491,8 +593,8 @@ function backBand(ctx, P, W, f, out, qr, img, S) {
 /** Split: the front's panel seen from behind, at the right now; it holds the QR or the product */
 function backSplit(ctx, P, W, f, out, qr, img, S) {
   const panelX = SHEET.w - (S.x + S.w * .38 + 30);
-  ctx.fillStyle = P.ground; ctx.fillRect(0, 0, SHEET.w, SHEET.h);
-  ctx.fillStyle = P.plate; ctx.fillRect(panelX, 0, SHEET.w - panelX, SHEET.h);
+  mainField(ctx, f, 0, 0, panelX, SHEET.h, P.ground, [[P.ink, 4.5], [P.accent, 3]], panelX, SHEET.h / 2);
+  softField(ctx, f, panelX, 0, SHEET.w - panelX, SHEET.h, P.plate, [[P.plateInk, 4.5]]);
   column(ctx, out, W, f, S.x, S.y, panelX - 40 - S.x, S.y + S.h, { ink: P.ink, acc: P.accent, bg: P.ground, big: !qr });
   const px = panelX + 40, pw = S.x + S.w - px;
   if (qr) qrWithWords(ctx, out, qr, W, f.label, px, pw, S.y, S.y + S.h, P.plateInk);
@@ -502,7 +604,7 @@ function backSplit(ctx, P, W, f, out, qr, img, S) {
 /** Centred: everything on the middle line, on the plate; the QR between what is bought and the points */
 function backCenter(ctx, P, W, f, out, qr, img, S) {
   const bg = P.plate, ink = P.plateInk, acc = accentOn(P, bg, ink), lab = f.label, num = numFontOf(f), cx = S.x + S.w / 2;
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, SHEET.w, SHEET.h);
+  mainField(ctx, f, 0, 0, SHEET.w, SHEET.h, bg, [[ink, 4.5], [acc, 3]], cx, SHEET.h / 2);
   const H = nameBlock(ctx, W.buy, f, 76, S.w * .92, 130, 60);
   const hb = drawBlock(ctx, out, H.B, H.font, cx, S.y, { align: "center", fill: acc, role: "buy" });
   let fy = S.y + S.h;
@@ -533,8 +635,8 @@ function backCenter(ctx, P, W, f, out, qr, img, S) {
 function backPop(ctx, P, W, f, out, qr, img, S) {
   const bg = P.plate, ink = P.plateInk, acc = accentOn(P, bg, ink), line = onColour(bg), lab = f.label;
   const hard = contrastOf(P.accent, bg) >= 1.6 ? P.accent : rgba("#000000", .85);
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, SHEET.w, SHEET.h);
-  halftone(ctx, 0, 0, SHEET.w, SHEET.h, rgba(line, .12), SHEET.w * .1, SHEET.h * .9, SHEET.w * .6);
+  mainField(ctx, f, 0, 0, SHEET.w, SHEET.h, bg, [[ink, 4.5], [acc, 3]], S.x + S.w - 150, S.y + S.h / 2);
+  if (popDots()) halftone(ctx, 0, 0, SHEET.w, SHEET.h, toneOf(bg, [[ink, 4.5], [acc, 3]], .2), SHEET.w * .1, SHEET.h * .9, SHEET.w * .6);
   ctx.lineWidth = 10; ctx.strokeStyle = line; rr(ctx, S.x - 14, S.y - 14, S.w + 28, S.h + 28, 18); ctx.stroke();
   const side = 296, colW = S.w - side - 44;
   // the balloon: white, inked, its tail to the points below
@@ -555,11 +657,13 @@ function backPop(ctx, P, W, f, out, qr, img, S) {
  *  behind the front's. The stub holds the QR (or the product); the points are on the ticket. */
 function backTicket(ctx, P, W, f, out, qr, img, S) {
   const tearX = SHEET.w - (S.x + S.w * .62), lab = f.label;
-  ctx.fillStyle = P.ground; ctx.fillRect(0, 0, SHEET.w, SHEET.h);
-  ctx.fillStyle = P.light; ctx.fillRect(0, 0, tearX, SHEET.h);
+  mainField(ctx, f, tearX, 0, SHEET.w - tearX, SHEET.h, P.ground, [[P.ink, 4.5], [P.accent, 3]], tearX, SHEET.h / 2);
+  softField(ctx, f, 0, 0, tearX, SHEET.h, P.light, [[P.ink, 4.5]]);
   ctx.strokeStyle = P.ink; ctx.lineWidth = 4; ctx.setLineDash([16, 14]);
   ctx.beginPath(); ctx.moveTo(tearX, 0); ctx.lineTo(tearX, SHEET.h); ctx.stroke(); ctx.setLineDash([]);
+  ctx.save(); ctx.beginPath(); ctx.rect(0, 0, tearX, SHEET.h); ctx.clip();
   ctx.fillStyle = P.ground; [S.y - BLEED, S.y + S.h + BLEED].forEach(y => { ctx.beginPath(); ctx.arc(tearX, y, 34, 0, Math.PI * 2); ctx.fill(); });
+  ctx.restore();
   const rx = tearX + 44;
   column(ctx, out, W, f, rx, S.y, S.x + S.w - rx, S.y + S.h, { ink: P.ink, acc: P.accent, bg: P.ground, big: !qr });
   const sw = tearX - 44 - S.x;
@@ -612,7 +716,7 @@ function loadProduct(L) {
 }
 
 /** one side of the card on a canvas: { canvas, boxes } (boxes: every word, the QR and the product, for the check) */
-export async function render(side, { scale = 1, marks = false } = {}) {
+export async function render(side, { scale = 1, marks = false, bare = false } = {}) {
   const f = TYPE_VOICES[voiceNow()], P = paletteOf(pairNow()), W = words();
   await loadFonts([f.display, f.label, numFontOf(f)]);
   let qr = null;
@@ -622,7 +726,9 @@ export async function render(side, { scale = 1, marks = false } = {}) {
   c.width = Math.round(SHEET.w * scale); c.height = Math.round(SHEET.h * scale);
   const ctx = c.getContext("2d"); ctx.scale(scale, scale);
   const out = [];
-  if (side === "back") back(ctx, P, W, f, state.layout, out, qr, img); else front(ctx, P, W, f, state.layout, out, img);
+  BARE = !!bare;
+  try { if (side === "back") back(ctx, P, W, f, state.layout, out, qr, img); else front(ctx, P, W, f, state.layout, out, img); }
+  finally { BARE = false; }
   if (marks && window.PgfxMark) { ctx.setTransform(1, 0, 0, 1, 0, 0); window.PgfxMark.draw(ctx, c.width, c.height); }
   return { canvas: c, boxes: out };
 }
@@ -792,6 +898,7 @@ function drawControls() {
   chips("cd-pairs", shown.map(p => ({ key: p.key, name: p.name, html: `<i style="background:${p.colors.ground}"></i><i style="background:${p.colors.accent}"></i>` })), pairNow().key,
     k => { state.pair = k; keep(); later(0); });
   chips("cd-voices", VOICES.map(k => ({ key: k, name: TYPE_VOICES[k].name })), voiceNow(), k => { state.voice = k; keep(); later(0); });
+  chips("cd-fills", FILLS, fillNow(), k => { state.fill = k; keep(); later(0); });
 }
 function fillForm() {
   const sel = $("cd-line"), groups = {};
@@ -811,6 +918,7 @@ function bind() {
     state.seed = (state.seed | 0) + 1; const R = rng(state.seed * 104729);
     const suits = PAIRS.filter(p => (p.suits || []).includes(lineNow().cat)), pool = suits.length > 4 && R() < .6 ? suits : PAIRS;
     state.layout = LAYOUTS[Math.floor(R() * LAYOUTS.length)].key; state.pair = pool[Math.floor(R() * pool.length)].key; state.voice = VOICES[Math.floor(R() * VOICES.length)];
+    const fills = FILLS.filter(x => x.k); state.fill = fills[Math.floor(R() * fills.length)].key;   // New look always brings a fill; Flat is there to pick
     keep(); drawControls(); later(0);
   };
   $("cd-pdf").onclick = e => download("pdf", e.currentTarget);
@@ -833,6 +941,6 @@ async function start() {
   if (window.pgfxAccount && window.pgfxAccount.onChange) window.pgfxAccount.onChange(async () => { await checkEntitled(); later(0); });
 }
 
-window.CardMaker = { state, render, pdfOf, printFile, vividPair: k => vividPair(PAIR_OF[k]), kindOf, printLinks, draw, SHEET, TRIM, SAFE, BLEED, DPI, LAYOUTS: LAYOUTS.map(l => l.key), pairs: () => PAIRS.map(p => p.key), voices: () => VOICES.slice(),
+window.CardMaker = { state, render, pdfOf, printFile, FILLS: FILLS.map(x => x.key), vividPair: k => vividPair(PAIR_OF[k]), kindOf, printLinks, draw, SHEET, TRIM, SAFE, BLEED, DPI, LAYOUTS: LAYOUTS.map(l => l.key), pairs: () => PAIRS.map(p => p.key), voices: () => VOICES.slice(),
   entitled: () => entitled, ready: null };
 window.CardMaker.ready = start().catch(e => { console.error("business card maker:", e); note("The card maker did not load. Reload the page.", true); });

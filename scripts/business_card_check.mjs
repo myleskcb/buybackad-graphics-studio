@@ -139,6 +139,43 @@ async function open({ demo = true, token = null, route = null, scheme = 'dark', 
   ok(!looks.shadowWrong.length && looks.luxeShadow === false, "Pop's offset shadow under a heavy face, none under a hairline serif, a script or a pixel face, in every type pair" + (looks.shadowWrong.length ? ': ' + looks.shadowWrong.join(', ') : ''));
   ok(looks.noteVivid && !looks.noteCalm && looks.lime && looks.cyan, 'a bright green, cyan, blue or pink pair says it prints softer; a calm one does not (' + looks.vivid + ' / ' + looks.calm + ')');
 
+  /* ---------- the fills: no word loses contrast to a pattern or a gradient ----------
+     Each side drawn twice without its words, on a fill and on the flat ground; under every word, the
+     darkest-to-lightest pixels it stands on (the 5th percentile of its contrast) must keep 4.5:1, or what
+     the flat ground gave where that was less. */
+  const fills = await page.evaluate(async () => {
+    const L = (r, g, b) => [r, g, b].map((v) => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }).reduce((s, v, i) => s + v * [.2126, .7152, .0722][i], 0);
+    const hex = (h) => { h = h.replace('#', ''); return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)); };
+    const worst = (canvas, box) => {
+      const x0 = Math.max(0, Math.floor(box.x)), y0 = Math.max(0, Math.floor(box.y)), w = Math.max(1, Math.ceil(box.w)), h = Math.max(1, Math.ceil(box.h));
+      const d = canvas.getContext('2d').getImageData(x0, y0, w, h).data, lc = L(...hex(box.color)), cs = [];
+      for (let i = 0; i < d.length; i += 4 * 3) { const lp = L(d[i], d[i + 1], d[i + 2]); cs.push((Math.max(lc, lp) + .05) / (Math.min(lc, lp) + .05)); }
+      cs.sort((a, b) => a - b); return cs[Math.floor(cs.length * .05)];
+    };
+    const pairs = CardMaker.pairs(), voices = CardMaker.voices(), bad = [], kinds = CardMaker.FILLS.filter((k) => k !== 'flat');
+    let n = 0, sides = 0, worstSeen = 99;
+    for (const layout of CardMaker.LAYOUTS) for (let j = 0; j < 3; j++) {
+      const base = { layout, pair: pairs[(n * 11 + j * 17) % pairs.length], voice: voices[(n * 5) % voices.length], name: ['Long Beach Phone Buyers', 'JJ Coins', 'Westside Watch & Phone Buyers'][j], qr: j !== 1 };
+      n++;
+      for (const side of ['front', 'back']) {
+        Object.assign(CardMaker.state, base, { fill: 'flat' });
+        const flat = await CardMaker.render(side, { bare: true });
+        for (const kind of kinds) {
+          Object.assign(CardMaker.state, { fill: kind });
+          const r = await CardMaker.render(side, { bare: true }); sides++;
+          r.boxes.filter((b) => b.text && b.color && /^#/.test(b.color)).forEach((b, i) => {
+            const fb = flat.boxes.filter((x) => x.text && x.color && /^#/.test(x.color))[i];
+            const was = worst(flat.canvas, fb), now = worst(r.canvas, b);
+            worstSeen = Math.min(worstSeen, now / Math.min(4.5, was));
+            if (now < Math.min(4.5, was) - .15) bad.push(layout + '/' + side + ' ' + kind + ' ' + base.pair + ' ' + b.role + ':' + b.text.slice(0, 20) + ' ' + was.toFixed(2) + '→' + now.toFixed(2));
+          });
+        }
+      }
+    }
+    return { bad, sides, worstSeen };
+  });
+  ok(!fills.bad.length, 'no word loses contrast to a fill: ' + fills.sides + ' sides, every fill, light, vivid and dark pairs' + (fills.bad.length ? ': ' + fills.bad.slice(0, 5).join(' || ') + ' (' + fills.bad.length + ')' : ''));
+
   /* ---------- the print PDF: the file the download saves ---------- */
   const pdf = await page.evaluate(async () => Array.from(await CardMaker.printFile(false)));
   const buf = Buffer.from(pdf), txt = buf.toString('latin1');

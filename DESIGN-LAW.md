@@ -6664,6 +6664,17 @@ designer to come: "needs to be super pay walled". The maker is `cards/` (`cards/
   is bought. Ticket's stub is at the left, its tear and notches just behind the front's. A back with
   no QR sets the number large. New look draws a layout, a pair (most often one that suits what is
   bought) and a type pair.
+- **The fill** (the owner, 2026-11-22: "more creativity, fill pattern gradient something to give it
+  some distinguishing pattern"). Each side's main field wears one of ten: Glow, Rays, Fade, Rings,
+  Stripes, Dots, Grid, Cash (dollar signs), Waves, or Flat; its other regions (a band, a panel, a stub)
+  take a soft fade. A fill is two colours, the field's own and a second tone moved away from its words'
+  colour, eased off until every word on it keeps 4.5:1, or what it had on the flat field where that was
+  less; Pop's halftone takes such a tone too. Glow, Rays and Rings come from behind the product, the
+  QR or Pop's burst. New look always brings a fill; Flat is there to pick. The check draws each side
+  without its words, on a fill and flat, and reads the pixels under every word.
+- **Ticket's number is on one line** (the owner: "the phone numbers on 2 lines does not look good"),
+  on the ticket's main part between two rules like a printed field, under what is bought and the name;
+  the stub carries the product.
 - **The QR** stands on a white tile, at least 3/4 in across, and nothing is drawn over it: no word, no
   product, no burst. Under it, "SCAN TO VISIT" (to the website) or "SCAN TO CALL".
 - **Print colour.** A pair with a bright green, cyan, blue, violet or pink (saturated and light, by
