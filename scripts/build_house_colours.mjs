@@ -86,7 +86,10 @@ const colours = rows.map(t => {
   // the lit middle: a fifth toward white, or as far as keeps the words 4.5:1 on it
   let k = .2; while (dark && k > 0 && cr(ink, mix(lighter, '#ffffff', k)) < 4.5) k = Math.round((k - .02) * 100) / 100;
   const light = dark ? mix(lighter, '#ffffff', Math.max(0, k)) : lighter;
-  const plate_ink = two && cr(accent, ground) >= 4.5 ? ground : cr(accent, ground) >= cr(accent, '#ffffff') ? ground : '#ffffff';
+  let plate_ink = two && cr(accent, ground) >= 4.5 ? ground : cr(accent, ground) >= cr(accent, '#ffffff') ? ground : '#ffffff';
+  // a light accent on a vivid ground (a yellow, lime or amber plate on red, magenta or blue: 2026-11-22) reads in neither the
+  // ground's colour nor white: its words are the house's black. Every pair before them reads 4.5:1 one of the two ways, and keeps it.
+  if (cr(plate_ink, accent) < 4.5 && cr('#111214', accent) > cr(plate_ink, accent)) plate_ink = '#111214';
   // which lines it suits: the library's own row where it has one, else the pair's own measured hues
   const pal = PALETTES.find(q => q.name === name);
   if (group === 'Proven pairs' && !pal) { console.error(`${name}: not in refresh_palettes.mjs PALETTES, so which lines it suits is unknown`); process.exit(2); }

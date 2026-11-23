@@ -15,7 +15,9 @@
      - bright: at most three dark tiles, and never two dark ones side by side or one above the other;
      - what the owner asked to see more of: three tiles or more on a pattern, three or more on a gradient;
      - the video maker's own full ads ("full-<line>"): three or more;
-     - a product in every tile (nothing on its words alone).
+     - a product in every tile (nothing on its words alone);
+     - a pinned tile in the pair it was approved in (hero-picks.json pins; the owner approved the wall,
+       2026-11-22: "Approve the wall").
    Each tile's pair, look, ground and headline are its still's, as it was drawn (assets/recipe-stills/index.json,
    assets/hero/index.json: scripts/build_recipe_stills.mjs, scripts/build_hero_stills.mjs).
 
@@ -28,7 +30,7 @@ const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8899/').replace(/\/?$/, 
 const json = p => JSON.parse(readFileSync(ROOT + p, 'utf8'));
 const stills = (existsSync(ROOT + 'assets/recipe-stills/index.json') ? json('assets/recipe-stills/index.json').items : {}) || {};
 const hero = (existsSync(ROOT + 'assets/hero/index.json') ? json('assets/hero/index.json').items : {}) || {};
-const picks = (json('assets/hero-picks.json').picks || []).map(String);
+const picks = (json('assets/hero-picks.json').picks || []).map(String), pins = json('assets/hero-picks.json').pins || {};
 const recipes = Object.fromEntries(json('motion/recipes.json').recipes.map(r => [r.id, r]));
 const MOST_DARK = 3, LEAST_PATTERN = 3, LEAST_GRADIENT = 3, LEAST_FULL = 3;
 
@@ -87,6 +89,9 @@ const full = tiles.filter(t => t.full).length;
 ok(full >= LEAST_FULL, `${LEAST_FULL} or more of the video maker's own full ads: ${full}`);
 const bare = tiles.filter(t => t.id && recipes[t.id] && recipes[t.id].words_only);
 ok(!bare.length, 'a product in every tile (none on its words alone)' + (bare.length ? ': ' + bare.map(t => t.id).join(', ') : ''));
+// the wall the owner approved (2026-11-22, "Approve the wall") shows every pick in the pair it was approved in (hero-picks.json pins)
+const offPin = known.filter(t => pins[t.id] && t.meta.pair !== pins[t.id]);
+ok(!offPin.length, 'every pinned tile in the pair it was approved in' + (offPin.length ? ': ' + offPin.map(t => `${t.id} on ${t.meta.pair}, pinned ${pins[t.id]}`).join(', ') : ''));
 
 const report = {
   tiles: tiles.map(t => ({ row: t.r, col: t.c, id: t.id, line: t.meta && t.meta.line, pair: t.meta && t.meta.pair, look: t.meta && t.meta.look, ground: t.meta && t.meta.ground, headline: t.meta && t.meta.headline })),

@@ -5816,6 +5816,10 @@ const COLOR_THEMES = [
   { name:'Black on Aqua',    group:'Two colours', family:'Light', bg:{type:'grad', c1:'#53f2f2', c2:'#12e3e3', a:170}, accent:'#111214', ink:'#111214' },
   { name:'Black on Pink',    group:'Two colours', family:'Light', bg:{type:'grad', c1:'#ffafce', c2:'#f799be', a:170}, accent:'#111214', ink:'#111214' },
   { name:'Black on Lilac',   group:'Two colours', family:'Light', bg:{type:'grad', c1:'#ceb6fc', c2:'#c0a2f5', a:170}, accent:'#111214', ink:'#111214' },
+  /* 2026-11-22 (the owner: "ideally we relearn color theory and ad design to maximize all of the color pairs, trios, etc.. that work and keep a viewer captivated.. means vibrant or neon colors often times or really good contrasts"; shown on real ads, then "Adopt all 13"): complementary and split-complementary pairs at the most chroma sRGB holds (docs/colour-proposals-2026-11-19.json) */
+  { name:'Yellow on Violet', group:'Two colours', family:'Dark', bg:{type:'grad', c1:'#7924ef', c2:'#6e02e1', a:170}, accent:'#ffe64b', ink:'#ffe64b' },
+  { name:'Yellow on Red', group:'Two colours', family:'Dark', bg:{type:'grad', c1:'#ca1a1f', c2:'#bf0013', a:170}, accent:'#ffe64b', ink:'#ffe64b' },
+  { name:'Lime on Magenta', group:'Two colours', family:'Dark', bg:{type:'grad', c1:'#c51a83', c2:'#ba027a', a:170}, accent:'#b6ff57', ink:'#b6ff57' },
   { name:'Red, White & Blue',     group:'Three colours', family:'Light', bg:{type:'grad', c1:'#ffffff', c2:'#edf1f7', a:170}, accent:'#c8102e', ink:'#0b1f4d' },
   { name:'Navy, White & Red',     group:'Three colours', family:'Dark', bg:{type:'grad', c1:'#0c2152', c2:'#071437', a:170}, accent:'#ff4b55', ink:'#ffffff' },
   { name:'White, Black & Red',    group:'Three colours', family:'Light', bg:{type:'grad', c1:'#ffffff', c2:'#efeff0', a:170}, accent:'#c8102e', ink:'#111214' },
@@ -5823,6 +5827,14 @@ const COLOR_THEMES = [
   { name:'Black, White & Yellow', group:'Three colours', family:'Dark', bg:{type:'grad', c1:'#1b1b1d', c2:'#070708', a:170}, accent:'#f5b301', ink:'#ffffff' },
   { name:'Black, White & Orange', group:'Three colours', family:'Dark', bg:{type:'grad', c1:'#1b1b1d', c2:'#070708', a:170}, accent:'#ff7a00', ink:'#ffffff' },
   { name:'Blue, White & Yellow',  group:'Three colours', family:'Dark', bg:{type:'grad', c1:'#1d43b0', c2:'#132e7c', a:170}, accent:'#f5b301', ink:'#ffffff' },
+  /* 2026-11-22: the adopted trios (see Yellow on Violet above), each on a ground of its own */
+  { name:'Electric Blue, White & Orange', group:'Three colours', family:'Dark', bg:{type:'grad', c1:'#073ad7', c2:'#002ac9', a:170}, accent:'#ffb06d', ink:'#ffffff' },
+  { name:'Hot Pink, Black & Cobalt', group:'Three colours', family:'Light', bg:{type:'grad', c1:'#ff93bf', c2:'#ff7ab4', a:170}, accent:'#0f1eba', ink:'#111214' },
+  { name:'Neon Lime, Black & Purple', group:'Three colours', family:'Light', bg:{type:'grad', c1:'#deffbf', c2:'#b6ff57', a:170}, accent:'#6e02ae', ink:'#111214' },
+  { name:'Cyan, Black & Magenta', group:'Three colours', family:'Light', bg:{type:'grad', c1:'#34fcfb', c2:'#0aeeee', a:170}, accent:'#a80269', ink:'#111214' },
+  { name:'Orange, Black & Cobalt', group:'Three colours', family:'Light', bg:{type:'grad', c1:'#ff9f62', c2:'#fe8a38', a:170}, accent:'#1108cd', ink:'#111214' },
+  { name:'Yellow, Black & Magenta', group:'Three colours', family:'Light', bg:{type:'grad', c1:'#fff4b0', c2:'#ffe64b', a:170}, accent:'#a80269', ink:'#111214' },
+  { name:'Mint, Black & Violet', group:'Three colours', family:'Light', bg:{type:'grad', c1:'#96ffc8', c2:'#70f6b5', a:170}, accent:'#5a12d6', ink:'#111214' },
   /* the library's twelve pairings (rule 123) */
   { name:'Navy & Gold',     group:'Proven pairs', family:'Dark',  bg:{type:'grad', c1:'#072667', c2:'#031b56', a:170}, accent:'#f4b100', ink:'#f2f7ff', support:'#fdd76f', aka:['Night Blue'] },
   { name:'Navy & Orange',   group:'Proven pairs', family:'Dark',  bg:{type:'grad', c1:'#072667', c2:'#031b56', a:170}, accent:'#ff7a00', ink:'#f2f7ff', support:'#fba763', aka:['Night Neon'] },
@@ -5852,9 +5864,10 @@ const COLOR_THEMES = [
   { name:'Arctic & Teal',      group:'Light pairs', family:'Light', bg:{type:'grad', c1:'#e9f6fa', c2:'#d7ecf4', a:170}, accent:'#007570', ink:'#001e2d', support:'#005455' },
   { name:'Bone & Purple',      group:'Light pairs', family:'Light', bg:{type:'grad', c1:'#f3f0e7', c2:'#e9e4d7', a:170}, accent:'#7024ab', ink:'#100f0d', support:'#501d7a' },
   { name:'White & Pink',       group:'Light pairs', family:'Light', bg:{type:'grad', c1:'#ffffff', c2:'#f7f2f4', a:170}, accent:'#cb0b71', ink:'#130e10', support:'#8e024d' },
-  { name:'Black & Pink',       group:'Neon pairs',  family:'Dark',  bg:{type:'grad', c1:'#1b1a1f', c2:'#0e0d10', a:170}, accent:'#ff35a0', ink:'#ffffff', support:'#ff99c2' },
-  { name:'Black & Lime',       group:'Neon pairs',  family:'Dark',  bg:{type:'grad', c1:'#181c17', c2:'#0b0e0b', a:170}, accent:'#8bd737', ink:'#ffffff', support:'#c6eda7' },
-  { name:'Black & Cyan',       group:'Neon pairs',  family:'Dark',  bg:{type:'grad', c1:'#161b20', c2:'#090e11', a:170}, accent:'#0ec7de', ink:'#ffffff', support:'#a1e5f1' },
+  /* 2026-11-22: Black & Pink, Black & Lime and Black & Cyan at the neon they stood for (adopted with the trios above): pink and cyan words, the lime at full neon */
+  { name:'Black & Pink',       group:'Neon pairs',  family:'Dark',  bg:{type:'grad', c1:'#1b1a1f', c2:'#0e0d10', a:170}, accent:'#fe6dae', ink:'#ffffff', support:'#feafd2' },
+  { name:'Black & Lime',       group:'Neon pairs',  family:'Dark',  bg:{type:'grad', c1:'#181c17', c2:'#0b0e0b', a:170}, accent:'#93da24', ink:'#ffffff', support:'#c4eb87' },
+  { name:'Black & Cyan',       group:'Neon pairs',  family:'Dark',  bg:{type:'grad', c1:'#161b20', c2:'#090e11', a:170}, accent:'#01d9f3', ink:'#ffffff', support:'#73eaf8' },
   { name:'Black & Violet',     group:'Neon pairs',  family:'Dark',  bg:{type:'grad', c1:'#1a1a21', c2:'#0d0d11', a:170}, accent:'#ad74ff', ink:'#ffffff', support:'#ceb6fc' },
   { name:'Plum & Lime',        group:'Neon pairs',  family:'Dark',  bg:{type:'grad', c1:'#481645', c2:'#340b32', a:170}, accent:'#8bd737', ink:'#ffffff', support:'#c6eda7' },
   { name:'Teal & Pink',        group:'Neon pairs',  family:'Dark',  bg:{type:'grad', c1:'#00393a', c2:'#002929', a:170}, accent:'#fd68a6', ink:'#ffffff', support:'#fbb2cb' },
@@ -12009,6 +12022,8 @@ function openHouseAd(h){
       if (currentCat !== h.cat) setCategory(h.cat);
       const FA = FS.state; FA.line[h.cat] = h.line; FA.recipe[h.cat] = ''; FA.seed = h.seed || 1; FA.pair = ''; FA.voice = ''; FA.set = {};
     } else if (h.seed) FS.state.seed = h.seed;   // a recipe opens on its own seed (useRecipe); a design's other look, on that look's
+    // a wall pick the owner approved opens in the pair it was approved in (assets/hero-picks.json pins, 2026-11-22)
+    if (h.pin) FS.state.pair = h.pin;
     return FS.enter();
   });
 }

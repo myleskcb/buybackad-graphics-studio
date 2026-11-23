@@ -4011,26 +4011,27 @@ Open:
     - An ad with no product never stands on a photograph.
     - Eighteen hand picks on the wall (9 full ads, 9 rebuilt), held by `hero_wall_check.mjs`.
     - Every still and full-size rebuilt ad drawn again.
-    - **owner**: approve the wall (shown as one image, 2026-11-19) or name the tiles to swap.
+    - **Approved by the owner, 2026-11-22** ("Approve the wall"). Its picks are pinned to their
+      approved pairs (`assets/hero-picks.json` `pins`, DESIGN-LAW 145).
     - **owner**: a real VR headset photograph (a Meta Quest 3), the one in the repository being a
       render. It waits for a word on the download. The seven VR ads stand on their words alone
       until then, off the wall.
     - Seen, not changed: the Pokémon and sports-card tiles' graded-slab pictures read pale at the
       wall's size.
-14. **Vibrant pairs and trios, proposed** (the owner: "ideally we relearn color theory and ad design
-    to maximize all of the color pairs, trios, etc.. that work and keep a viewer captivated.. means
-    vibrant or neon colors often times or really good contrasts"). **proposed, not live**:
-    - 10 new schemes, each on its own ground, from colour theory (violet and yellow, blue and
-      orange, lime and purple, cyan and magenta, mint and red...).
-    - 3 of the neon-on-black pairs at full neon.
-    - Every one passes the studio's contrast floors, and none duplicates a pair the studio has.
-    - The colours and the reason for each are in `docs/colour-proposals-2026-11-19.json`.
-    - Shown to the owner on the iPhone and the cars full ad, 2026-11-19.
-    - **owner**: which to adopt, and which current pairs they replace. The candidates are the dark,
-      muted ones, such as Navy & Orange, Midnight & Cyan, Blue & Green, Teal & Orange and White on
-      Navy.
-    - Adopting one is a row in app.js `COLOR_THEMES` and `node scripts/build_house_colours.mjs`.
-      Then draw the stills again, and the wall and its check.
+14. **Vibrant pairs and trios** (the owner: "ideally we relearn color theory and ad design to
+    maximize all of the color pairs, trios, etc.. that work and keep a viewer captivated.. means
+    vibrant or neon colors often times or really good contrasts"). Shown on real ads 2026-11-19;
+    the owner, 2026-11-22: "Adopt all 13". **done** (DESIGN-LAW 154):
+    - 10 new schemes, each on its own ground, are rows of app.js `COLOR_THEMES`.
+    - Black & Pink, Black & Lime and Black & Cyan are brighter.
+    - Six were moved the least that passes the photo ads' law (`theme_law`, 64 of 64): two trios
+      became two-colour signs (Yellow on Red, Lime on Magenta), and Mint, Black & Red became Mint,
+      Black & Violet for colour-blind readers.
+    - The approved wall keeps its colours (pins).
+    - Every recipe still and full-size rebuilt ad was drawn again.
+    - **owner**: whether any dark, muted pair should leave the draw now that the vivid look holds
+      20. Candidates: Navy & Orange, Midnight & Cyan, Blue & Green, Teal & Orange, White on Navy.
+      Nothing was retired without the word.
 
 ## BL. 2026-11-18 — webuy.ad, the site's new address
 

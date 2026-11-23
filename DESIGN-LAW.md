@@ -6170,6 +6170,14 @@ CASH" twice, MacBook twice, two red ones side by side, no pattern and no gradien
   `build_hero_stills.mjs`): its pair's look, the kind of ground and the headline.
 - Shown to the owner as one image before anything ships, drawn from the stills in the wall's
   order.
+- **Approved by the owner, 2026-11-22** ("Approve the wall"). It had shipped with pull request
+  14. Each pick is pinned to the pair it was approved in (`assets/hero-picks.json` `pins`):
+  - it is drawn and opened in that pair (`build_hero_stills.mjs`, `app.js` `openHouseAd`);
+  - it keeps its approved still, drawn again only with `--redraw`;
+  - the wall's rebuilt tiles keep copies of their approved stills in `assets/hero/`, which the
+    wall prefers over the library's.
+  New colour pairs move every seed's draw. Without the pins they would have recoloured the approved
+  wall. `hero_wall_check` holds every pinned tile to its pin.
 
 Not done here: OPEN-ITEMS §BJ.
 
@@ -6348,6 +6356,36 @@ don't we have any of the video style ads on here that looked happier and more vi
   Seen on `scripts/full_look_sheet.mjs` before and after: the same 48 seeds went from 10 hue bands
   to 12, with orange, lime, pink, yellow, aqua and lilac grounds where tinted lake and bridge
   photographs stood.
+
+**Vibrant pairs adopted (2026-11-22).** The owner: "ideally we relearn color theory and ad design to
+maximize all of the color pairs, trios, etc.. that work and keep a viewer captivated.. means vibrant
+or neon colors often times or really good contrasts". Thirteen proposals were shown on real ads
+(`docs/colour-proposals-2026-11-19.json`), then: "Adopt all 13". They are rows of app.js
+`COLOR_THEMES`, so a photo ad and a full ad have them alike (rule 123).
+- **Ten new schemes, each on its own ground**:
+  - two colours: Yellow on Violet, Yellow on Red, Lime on Magenta;
+  - three colours: Electric Blue, White & Orange; Hot Pink, Black & Cobalt; Neon Lime, Black &
+    Purple; Cyan, Black & Magenta; Orange, Black & Cobalt; Yellow, Black & Magenta; Mint, Black &
+    Violet.
+- **The neon pairs brighter.** Black & Pink, Black & Lime and Black & Cyan keep their names (the
+  business cards read them by key). Black & Pink takes the hot pink the owner saw. The lime and the
+  cyan go as far toward neon as white words allow.
+- **Held to the photo ads' law** (`scripts/theme_law.mjs`, 64 of 64): the money word 4.5:1 on both
+  of the ground's stops, 1.7:1 off the words, and 3:1 for colour-blind readers. Six were moved the
+  least that passes:
+  - a trio with white words cannot carry a yellow or a lime money word that stands apart from them,
+    so Red, White & Yellow is Yellow on Red and Magenta, White & Neon Lime is Lime on Magenta, each
+    on a slightly deeper ground;
+  - Mint, Black & Red is Mint, Black & Violet (red on mint is one colour to a red-green colour-blind
+    reader);
+  - the electric blue is a little deeper, the hot pink and the orange a little lighter;
+  - the neon pairs keep white words.
+- **The plate's words** (`build_house_colours.mjs`): black where neither the ground's colour nor
+  white reads 4.5:1 on the plate (a yellow, amber or lime plate on red, blue or magenta). Every
+  pair before them reads one of those, and keeps it.
+- No new twins, and none within CIEDE2000 14 of a pair the studio had. The vivid look holds 20
+  pairs (was 11).
+- The approved hero wall keeps its colours: its picks are pinned (rule 145).
 
 Not done here: OPEN-ITEMS §BJ 7.
 
