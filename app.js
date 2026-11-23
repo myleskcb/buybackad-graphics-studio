@@ -12134,26 +12134,129 @@ function scOrder(list){
      most of the library, so no card is clean and that rule would sort by
      nothing but the warning count */
   const warned = c => { const w = c.school && c.school.warn; return w ? w.length : 0; };
-  const pool = list.slice().sort((a, b) => ((img(b) + b.affinity + scVivid(b) * 4 - warned(b)) - (img(a) + a.affinity + scVivid(a) * 4 - warned(a))) || (b.density - a.density));
-  const light = c => scLum(c.c1) > 0.22;
-  const hueOf = c => typeof c.hue === 'number' ? c.hue : null;
-  const hueGap = (a, b) => { const x = Math.abs((hueOf(a) ?? 0) - (hueOf(b) ?? 0)) % 360; return x > 180 ? 360 - x : x; };
-  const out = [];
-  while (pool.length){
-    const prev = out[out.length - 1], prev2 = out[out.length - 2];
-    let k = -1;
-    if (prev){
-      /* first a different HUE (a quarter turn from the last card, an eighth
-         from the one before), then family and lightness, then category */
-      const farHue = c => hueGap(c, prev) >= 90 && (!prev2 || hueGap(c, prev2) >= 45);
-      k = pool.findIndex(c => farHue(c) && c.family !== prev.family && c.cat !== prev.cat);
-      if (k < 0) k = pool.findIndex(c => farHue(c) && c.family !== prev.family);
-      if (k < 0) k = pool.findIndex(c => hueGap(c, prev) >= 60 && c.family !== prev.family);
-      if (k < 0) k = pool.findIndex(c => c.family !== prev.family && light(c) !== light(prev));
-      if (k < 0) k = pool.findIndex(c => c.family !== prev.family);
+  /* THE ORDER WITHOUT THE SCAN (2026-11-22). Each place in the order used to look through the whole
+     pool, up to five times, working out every card's hue gap and lightness again at each look. The
+     library as it stands carries no hue and no ground colour on any card, so the colour tests never
+     pass, and every place ran four of them to the end: All's 2,404 cards took 410 to 520 ms in a
+     headless Chromium, and up to 700 in the app's preview, each time All was drawn or a chip
+     changed. Now each card's keys are worked out once, and the pool is a tree over the strength
+     order in which each stretch knows the family and the category all its cards are (when they
+     are), the family of its dark grounds and of its light ones, and which of 32 sectors of the wheel
+     its hues sit in, so a stretch where no card can pass is passed over whole: under a millisecond.
+     Each place still takes what the scan took, the first card in strength order to pass the first
+     test any card passes, and with none, the strongest left: the same order, card for card. */
+  const n = list.length;
+  /* the strength once per card, sorted by the same comparison, so the sort makes the same moves: a
+     card without an approval count (affinity) has no strength (NaN), and beside it the sort falls to
+     edge density, and to the order it was given where that is missing too */
+  const keys = list.map((c, i) => ({ i, s: img(c) + c.affinity + scVivid(c) * 4 - warned(c), d: c.density }));
+  keys.sort((a, b) => (b.s - a.s) || (b.d - a.d));
+  const pool = keys.map(k => list[k.i]);
+  // family and category as numbers, equal exactly where the values are (===; each NaN its own)
+  const ids = () => { const seen = new Map(); let next = 0; return v => { if (v !== v) return next++; let k = seen.get(v); if (k === undefined) seen.set(v, k = next++); return k; }; };
+  const famId = ids(), catId = ids(), lums = new Map();
+  const FAM = new Int32Array(n), CAT = new Int32Array(n), HUE = new Float64Array(n), LIGHT = new Uint8Array(n);
+  for (let p = 0; p < n; p++){
+    const c = pool[p];
+    FAM[p] = famId(c.family); CAT[p] = catId(c.cat);
+    HUE[p] = typeof c.hue === 'number' ? c.hue : 0;   // no hue reads as 0
+    let l = lums.get(c.c1);
+    if (l === undefined) lums.set(c.c1, l = scLum(c.c1) > 0.22 ? 1 : 0);
+    LIGHT[p] = l;
+  }
+  const hueGap = (x, y) => { const d = Math.abs(x - y) % 360; return d > 180 ? 360 - d : d; };
+  /* the wheel in 32 sectors. A hue that is NaN or infinite passes no hue test and sits in none; one
+     too large to place exactly sits in all, so it is always tested */
+  const W = 360 / 32, EPS = 1e-6;
+  const wheel = h => ((h % 360) + 360) % 360, sectorAt = r => Math.min(31, Math.floor(r / W));
+  const sector = h => !Number.isFinite(h) ? 0 : !(Math.abs(h) < 1e6) ? -1 : 1 << sectorAt(wheel(h));
+  // sectors a to b, going round the wheel
+  const span = (a, b) => { const from = ~((1 << a) - 1), to = b >= 31 ? -1 : (1 << (b + 1)) - 1; return a <= b ? from & to : from | to; };
+  /* the sectors that may hold a hue at least `least` degrees from x: the arc from x + least round to
+     x + 360 - least, widened a hair at each end so no hue in it is missed */
+  const reach = (x, least) => !Number.isFinite(x) ? 0 : !(Math.abs(x) < 1e6) ? -1
+    : span(sectorAt(wheel(x + least - EPS)), sectorAt(wheel(x + 360 - least + EPS)));
+  /* the tree, a node for each stretch of the pool: the family all the cards left in it are, and the
+     category (NONE when none is left, MIXED when they differ); the family of its dark grounds and of
+     its light ones, the same way; the sectors its hues sit in */
+  let size = 1; while (size < n) size <<= 1;
+  const NONE = -2, MIXED = -1;
+  const NFAM = new Int32Array(2 * size).fill(NONE), NCAT = new Int32Array(2 * size).fill(NONE);
+  const NDARK = new Int32Array(2 * size).fill(NONE), NLIGHT = new Int32Array(2 * size).fill(NONE), NHUE = new Int32Array(2 * size);
+  const join = (a, b) => a === NONE ? b : b === NONE || a === b ? a : MIXED;
+  for (let p = 0; p < n; p++){
+    const v = size + p;
+    NFAM[v] = FAM[p]; NCAT[v] = CAT[p]; (LIGHT[p] ? NLIGHT : NDARK)[v] = FAM[p]; NHUE[v] = sector(HUE[p]);
+  }
+  for (let v = size - 1; v >= 1; v--){
+    const l = 2 * v, r = l + 1;
+    NFAM[v] = join(NFAM[l], NFAM[r]); NCAT[v] = join(NCAT[l], NCAT[r]);
+    NDARK[v] = join(NDARK[l], NDARK[r]); NLIGHT[v] = join(NLIGHT[l], NLIGHT[r]); NHUE[v] = NHUE[l] | NHUE[r];
+  }
+  /* a card taken: the stretches it is in are told, up to the first that reads as it did, for nothing
+     above that one changes either (and a stretch told late would only claim too much, never too little) */
+  const take = p => {
+    let v = size + p;
+    NFAM[v] = NCAT[v] = NDARK[v] = NLIGHT[v] = NONE; NHUE[v] = 0;
+    while ((v >>= 1) >= 1){
+      const l = 2 * v, r = l + 1;
+      const f = join(NFAM[l], NFAM[r]), c = join(NCAT[l], NCAT[r]), d = join(NDARK[l], NDARK[r]), g = join(NLIGHT[l], NLIGHT[r]), h = NHUE[l] | NHUE[r];
+      if (f === NFAM[v] && c === NCAT[v] && d === NDARK[v] && g === NLIGHT[v] && h === NHUE[v]) break;
+      NFAM[v] = f; NCAT[v] = c; NDARK[v] = d; NLIGHT[v] = g; NHUE[v] = h;
     }
-    if (k < 0) k = 0;
-    out.push(pool.splice(k, 1)[0]);
+  };
+  const strongest = () => { let v = 1; while (v < size) v = NFAM[2 * v] !== NONE ? 2 * v : 2 * v + 1; return v - size; };
+  /* first a different HUE (a quarter turn from the last card, an eighth
+     from the one before), then family and lightness, then category. The five tests, in turn, each
+     wanting a family other than the last card's:
+       T1  a hue 90° from the last card and 45° from the one before, and another category;
+       T2  the same hues;
+       T3  a hue 60° from the last card;
+       T4  the other lightness of ground;
+       T5  nothing more. */
+  const T1 = 1, T2 = 2, T3 = 4, T4 = 8, T5 = 16;
+  let F = 0, C = 0, LP = 0, HP = 0, HP2 = 0, TWO = false, R90 = 0, R60 = 0, R45 = 0, open = 0, best = -1;
+  // the tests still open that some card left in stretch v may pass (never "none" where one does)
+  const can = v => {
+    if (NFAM[v] === NONE || NFAM[v] === F) return 0;
+    let t = open & T5;
+    if (open & T4){ const f = LP ? NDARK[v] : NLIGHT[v]; if (f !== NONE && f !== F) t |= T4; }
+    const h = NHUE[v];
+    if ((open & T3) && (h & R60)) t |= T3;
+    if ((open & (T1 | T2)) && (h & R90) && (h & R45)){ t |= open & T2; if (NCAT[v] !== C) t |= open & T1; }
+    return t;
+  };
+  /* in strength order, left before right: a card that passes a test is the choice so far, and only
+     the tests before it stay open, so the last card chosen passes the first test any card passes,
+     and is the first in order to pass it */
+  const walk = v => {
+    const t = can(v);
+    if (!t) return;
+    if (v >= size){
+      const p = v - size, g = hueGap(HUE[p], HP);
+      const far = (t & (T1 | T2)) && g >= 90 && (!TWO || hueGap(HUE[p], HP2) >= 45);
+      const hit = far && (t & T1) && CAT[p] !== C ? T1 : far && (t & T2) ? T2 : (t & T3) && g >= 60 ? T3
+        : (t & T4) && LIGHT[p] !== LP ? T4 : t & T5;
+      if (hit){ best = p; open &= hit - 1; }
+      return;
+    }
+    walk(2 * v);
+    if (open) walk(2 * v + 1);
+  };
+  const out = new Array(n);
+  for (let k = 0, last = -1, before = -1; k < n; k++){
+    best = -1;
+    if (last >= 0){
+      F = FAM[last]; C = CAT[last]; LP = LIGHT[last]; HP = HUE[last];
+      TWO = before >= 0; HP2 = TWO ? HUE[before] : 0;
+      R90 = reach(HP, 90); R60 = reach(HP, 60); R45 = TWO ? reach(HP2, 45) : -1;
+      open = T1 | T2 | T3 | T4 | T5;
+      open = can(1);                 // the tests some card left may pass at all
+      if (open) walk(1);
+    }
+    const p = best >= 0 ? best : strongest();   // with no test passed, the strongest left
+    out[k] = pool[p]; take(p);
+    before = last; last = p;
   }
   return out;
 }
