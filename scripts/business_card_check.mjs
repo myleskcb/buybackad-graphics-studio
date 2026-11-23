@@ -74,9 +74,15 @@ async function open({ demo = true, token = null, route = null, scheme = 'dark', 
           const A = words[a], B = words[c], dx = Math.min(A.x + A.w, B.x + B.w) - Math.max(A.x, B.x), dy = Math.min(A.y + A.h, B.y + B.h) - Math.max(A.y, B.y);
           if (dx > 2 && dy > 2) overlap.push(A.text + ' / ' + B.text);
         }
+        /* nothing is ever drawn over the QR: a word on it, or the product, and a phone cannot read it */
+        const qr = r.boxes.find((b) => b.role === 'qr');
+        const onQr = qr ? r.boxes.filter((b) => b !== qr && (b.text || b.role === 'product') && Math.min(b.x + b.w, qr.x + qr.w) - Math.max(b.x, qr.x) > 1 && Math.min(b.y + b.h, qr.y + qr.h) - Math.max(b.y, qr.y) > 1).map((b) => b.role + ':' + b.text) : [];
+        const small = words.filter((b) => b.size < 29).map((b) => b.role + ':' + b.text + '@' + Math.round(b.size));
+        const big = Math.max(0, ...r.boxes.filter((b) => b.role === 'contact').map((b) => b.size));
+        const sig = [qr, r.boxes.find((b) => b.role === 'point'), r.boxes.find((b) => b.role === 'contact'), pic].map((b) => b ? Math.round(b.x / 20) + ',' + Math.round(b.y / 20) : '-').join(' ');
         out.push({ layout, side, pair: CardMaker.state.pair, voice: CardMaker.state.voice, name: CardMaker.state.name, w: r.canvas.width, h: r.canvas.height,
           outside: outside.map((b) => b.role + ':' + (b.text || '') + '@' + [b.x, b.y, b.w, b.h].map(Math.round).join(',')), overlap: overlap.concat(onPic.map((x) => 'the product / ' + x)), pic: !!pic,
-          roles: [...new Set(r.boxes.map((b) => b.role))], texts: words.map((b) => b.text).join(' | ') });
+          roles: [...new Set(r.boxes.map((b) => b.role))], texts: words.map((b) => b.text).join(' | '), qrW: qr ? qr.w : 0, onQr, small, big, sig });
       }
     }
     return out;
@@ -94,20 +100,51 @@ async function open({ demo = true, token = null, route = null, scheme = 'dark', 
   ok(backs.every((r) => r.roles.includes('point') && r.roles.includes('contact')), 'every back carries the selling points and the number');
   ok(backs.some((r) => r.roles.includes('qr')) && backs.some((r) => !r.roles.includes('qr')), 'the QR comes and goes with its box');
   ok(fronts.filter((r) => r.layout !== 'center').every((r) => r.pic), 'every front but Centred shows the product the line buys (' + fronts.filter((r) => r.layout !== 'center' && !r.pic).map((r) => r.layout).join(', ') + ')');
-  ok(backs.filter((r) => !r.roles.includes('qr')).every((r) => r.pic), 'a back without a QR shows the product in its place');
+  ok(backs.filter((r) => !r.roles.includes('qr') && r.layout !== 'center').every((r) => r.pic), 'a back without a QR shows the product in its place (Centred is set in type alone, front and back)');
+  const sm = res.filter((r) => r.small.length);
+  ok(!sm.length, 'every word on every side is 7 pt (29 px at 300 dpi) or more' + (sm.length ? ': ' + sm.slice(0, 4).map((r) => r.layout + '/' + r.side + ' ' + r.voice + ' ' + r.small.join(', ')).join(' || ') : ''));
+  const qrs = backs.filter((r) => r.qrW);
+  ok(qrs.every((r) => r.qrW >= 225), 'every QR is at least 3/4 in across (' + Math.round(Math.min(...qrs.map((r) => r.qrW))) + ' px the smallest)');
+  const onq = backs.filter((r) => r.onQr.length);
+  ok(!onq.length, 'nothing is drawn over a QR' + (onq.length ? ': ' + onq.slice(0, 3).map((r) => r.layout + ' ' + r.onQr.join(', ')).join(' || ') : ''));
+  const noQr = backs.filter((r) => !r.qrW);
+  ok(noQr.every((r) => r.big >= 60), 'with no QR the back sets the number large (' + noQr.map((r) => r.layout + ' ' + Math.round(r.big)).join(', ') + ')');
   const said = res.find((r) => r.side === 'front' && r.name === 'Long Beach Phone Buyers');
   ok(said && /LONG BEACH PHONE BUYERS/.test(said.texts.replace(/ \| /g, ' ')) && /\(562\) 999-4994/.test(said.texts) && /WE BUY iPHONES/.test(said.texts), 'the card says what the studio was told: ' + (said && said.texts));
   ok(res.some((r) => /LONG BEACH • LAKEWOOD • DOWNEY/.test(r.texts)) && res.some((r) => /longbeachphonebuyers\.com/.test(r.texts)), 'the towns and the website from the studio are on the card');
 
-  /* ---------- the print PDF ---------- */
-  const pdf = await page.evaluate(async () => {
-    const jp = async (c) => new Promise((res) => c.toBlob((b) => b.arrayBuffer().then((a) => res({ bytes: new Uint8Array(a), w: c.width, h: c.height })), 'image/jpeg', .9));
-    const f = await CardMaker.render('front'), b = await CardMaker.render('back');
-    const bytes = CardMaker.pdfOf([await jp(f.canvas), await jp(b.canvas)]);
-    return Array.from(bytes);
+  /* ---------- each layout has its own back; Pop's shadow; the colour note ---------- */
+  const looks = await page.evaluate(async () => {
+    const sig = async () => { const r = await CardMaker.render('back'); return r.boxes.filter((b) => ['qr', 'point', 'contact', 'buy', 'product'].includes(b.role)).map((b) => b.role + Math.round(b.x / 20) + ',' + Math.round(b.y / 20)).join(' '); };
+    const o = { qr: [], none: [] };
+    for (const layout of CardMaker.LAYOUTS) for (const qr of [true, false]) {
+      Object.assign(CardMaker.state, { layout, qr, pair: CardMaker.pairs()[3], voice: 'bold', name: 'Long Beach Phone Buyers' });
+      o[qr ? 'qr' : 'none'].push(await sig());
+    }
+    // the shadow goes with the face the name is set in: a pixel name set in its pair's reading face has one
+    o.shadowWrong = [];
+    for (const voice of CardMaker.voices()) {
+      Object.assign(CardMaker.state, { layout: 'pop', voice });
+      const r = await CardMaker.render('front');
+      r.boxes.filter((b) => b.role === 'name').forEach((b) => { if (b.shadow !== !['serif', 'script', 'mono'].includes(CardMaker.kindOf(b.font))) o.shadowWrong.push(voice + ':' + b.font); });
+      if (voice === 'luxe') o.luxeShadow = r.boxes.some((b) => b.role === 'name' && b.shadow);
+    }
+    const pairs = CardMaker.pairs(), vivid = pairs.find((k) => CardMaker.vividPair(k)), calm = pairs.find((k) => !CardMaker.vividPair(k));
+    const note = async (k) => { CardMaker.state.pair = k; await CardMaker.draw(); return !document.getElementById('cd-ink').hidden; };
+    o.vivid = vivid; o.calm = calm; o.noteVivid = await note(vivid); o.noteCalm = await note(calm);
+    o.lime = CardMaker.vividPair('black_on_lime'); o.cyan = CardMaker.vividPair('black_cyan');
+    return o;
   });
+  ok(new Set(looks.qr).size === 5 && new Set(looks.none).size === 5, 'the five layouts have five different backs, with a QR and without (' + new Set(looks.qr).size + ', ' + new Set(looks.none).size + ')');
+  ok(!looks.shadowWrong.length && looks.luxeShadow === false, "Pop's offset shadow under a heavy face, none under a hairline serif, a script or a pixel face, in every type pair" + (looks.shadowWrong.length ? ': ' + looks.shadowWrong.join(', ') : ''));
+  ok(looks.noteVivid && !looks.noteCalm && looks.lime && looks.cyan, 'a bright green, cyan, blue or pink pair says it prints softer; a calm one does not (' + looks.vivid + ' / ' + looks.calm + ')');
+
+  /* ---------- the print PDF: the file the download saves ---------- */
+  const pdf = await page.evaluate(async () => Array.from(await CardMaker.printFile(false)));
   const buf = Buffer.from(pdf), txt = buf.toString('latin1');
   ok(txt.startsWith('%PDF-1.4') && /%%EOF\s*$/.test(txt), 'the PDF starts and ends as a PDF');
+  const ims = [...txt.matchAll(/\/Width (\d+) \/Height (\d+)/g)].map((m) => m[1] + '×' + m[2]);
+  ok(ims.length === 2 && ims.every((d) => d === '2250×1350'), 'both sides are drawn at 600 dpi for the press (' + ims.join(', ') + ')');
   ok((txt.match(/\/Type \/Page /g) || []).length === 2 && /\/Count 2/.test(txt), 'the PDF has two pages, front and back');
   const trim = txt.match(/\/TrimBox \[([\d. ]+)\]/), bleed = txt.match(/\/BleedBox \[([\d. ]+)\]/);
   const tb = trim && trim[1].split(' ').map(Number), bb = bleed && bleed[1].split(' ').map(Number);

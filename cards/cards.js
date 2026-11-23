@@ -112,6 +112,48 @@ function fit(ctx, text, font, max, w, h, min = 10) {
   }
   return Math.max(min, s);
 }
+/* The small lines (the towns, the website, the models line, a label) are set at 7 pt or more: 29 px at
+   300 dpi; SMALL is where they start. Only words too long to fit their place at 7 pt go under it
+   (the polish, 2026-11-22: they had been 24-28 px, 6 pt, at the floor of what prints legibly). */
+const FLOOR = 29, SMALL = 32;
+/** a small line's size, in half-pixel steps so it never lands just under the floor */
+function fitS(ctx, text, font, w, max = SMALL) {
+  let s = max;
+  for (; s > 20; s -= .5) { ctx.font = fontCss(font, s); if (ctx.measureText(text).width <= w) break; }
+  return s;
+}
+/** The towns as one line at 7 pt and more, or broken at a bullet into two (the polish: "LONG BEACH •
+ *  LAKEWOOD • DOWNEY" in a wide face would not go across Split's column at 7 pt) */
+function townLines(ctx, t, font, w, max = 30) {
+  const s = fitS(ctx, t, font, w, max), parts = t.split(/\s*•\s*/);
+  if (s >= FLOOR || parts.length < 2) return { lines: [t], size: s };
+  let best = null;   // (sayTowns spaces its lines itself)
+  for (let i = 1; i < parts.length; i++) {
+    const a = parts.slice(0, i).join(" • "), b = parts.slice(i).join(" • "), z = Math.min(fitS(ctx, a, font, w, max), fitS(ctx, b, font, w, max));
+    if (!best || z > best.size) best = { lines: [a, b], size: z };
+  }
+  return best;
+}
+/** A small line (the models line) at 7 pt and more: on one line where it fits there, else broken into two
+ *  of nearly a length, never shrunk under the floor while two lines would hold it */
+function smallBlock(ctx, t, font, w, max = 30) {
+  const s = fitS(ctx, t, font, w, max), ws = t.split(/\s+/);
+  if (s >= FLOOR || ws.length < 2) return { lines: [t], size: s };
+  let best = null;
+  for (let i = 1; i < ws.length; i++) {
+    const a = ws.slice(0, i).join(" "), b = ws.slice(i).join(" "), z = Math.min(fitS(ctx, a, font, w, max), fitS(ctx, b, font, w, max));
+    ctx.font = fontCss(font, z); const d = Math.abs(ctx.measureText(a).width - ctx.measureText(b).width);
+    if (!best || z > best.size + .25 || (z > best.size - .25 && d < best.d)) best = { lines: [a, b], size: z, d, lh: 1.24 };
+  }
+  return best.size > s ? best : { lines: [t], size: s };
+}
+/** the towns drawn up from a foot line; returns the top box */
+function sayTowns(ctx, out, t, font, x, foot, w, opts) {
+  const T = townLines(ctx, t, font, w, opts.max || 30);
+  let b = null;
+  for (let i = T.lines.length - 1; i >= 0; i--) { b = say(ctx, out, T.lines[i], font, T.size, x, foot, Object.assign({ foot: true, role: "where" }, opts)); foot = b.y - T.size * .36; }
+  return b;
+}
 /** text at (x, baseline y), its box recorded so the check can hold it to the safe area */
 function say(ctx, out, text, font, size, x, y, { align = "left", fill = "#000", role = "text", shadow = null, foot = false } = {}) {
   if (!text) return null;
@@ -121,7 +163,7 @@ function say(ctx, out, text, font, size, x, y, { align = "left", fill = "#000", 
   if (shadow) { ctx.fillStyle = shadow.color; ctx.fillText(text, x + shadow.dx, y + shadow.dy); }
   ctx.fillStyle = fill; ctx.fillText(text, x, y);
   const left = align === "center" ? x - m.width / 2 : align === "right" ? x - m.width : x;
-  const b = { role, text, x: left, y: y - m.actualBoundingBoxAscent, w: m.width + (shadow ? Math.max(0, shadow.dx) : 0), h: m.actualBoundingBoxAscent + m.actualBoundingBoxDescent + (shadow ? Math.max(0, shadow.dy) : 0) };
+  const b = { role, text, size, font, shadow: !!shadow, x: left, y: y - m.actualBoundingBoxAscent, w: m.width + (shadow ? Math.max(0, shadow.dx) : 0), h: m.actualBoundingBoxAscent + m.actualBoundingBoxDescent + (shadow ? Math.max(0, shadow.dy) : 0) };
   out.push(b);
   return b;
 }
@@ -137,7 +179,10 @@ function setBlock(ctx, text, font, max, w, h) {
   for (let i = 1; i < ws.length; i++) {
     const a = ws.slice(0, i).join(" "), b = ws.slice(i).join(" ");
     const s = Math.min(fit(ctx, a, font, max, w, h / 2 / LH), fit(ctx, b, font, max, w, h / 2 / LH), h / (1 + LH));
-    if (!two || s > two.size) two = { lines: [a, b], size: s };
+    ctx.font = fontCss(font, s); const d = Math.abs(ctx.measureText(a).width - ctx.measureText(b).width);
+    // the largest; of breaks as large, the one whose two lines are nearest a length (not "OLD COINS, /
+    // SILVER DOLLARS AND COLLECTIONS")
+    if (!two || s > two.size + .5 || (s > two.size - .5 && d < two.d)) two = { lines: [a, b], size: s, d };
   }
   return two.size > one.size * 1.18 ? two : one;
 }
@@ -147,7 +192,7 @@ function baselines(ctx, B, font, top, extra = 0) {
   ctx.font = fontCss(font, B.size);
   const ms = B.lines.map(t => ctx.measureText(t));
   const out = [top + ms[0].actualBoundingBoxAscent];
-  for (let i = 1; i < ms.length; i++) out.push(out[i - 1] + Math.max(B.size * LH, ms[i - 1].actualBoundingBoxDescent + ms[i].actualBoundingBoxAscent + B.size * .08 + extra));
+  for (let i = 1; i < ms.length; i++) out.push(out[i - 1] + Math.max(B.size * (B.lh || LH), ms[i - 1].actualBoundingBoxDescent + ms[i].actualBoundingBoxAscent + B.size * .08 + extra));
   return { ys: out, last: ms[ms.length - 1] };
 }
 /** a set block drawn with its top at y; returns its bottom (the last line's descenders) */
@@ -197,13 +242,20 @@ function numFontOf(f) {
 /** The name, in the pair's display face; a long one in a wide or decorative face that would set below a
  *  size a card is read at goes into the pair's reading face, heavy, instead (the audit: a long name in
  *  Silkscreen set at 40 px across a card) */
-function nameBlock(ctx, name, f, max, w, h) {
-  const B = setBlock(ctx, name, f.display, max, w, h), kind = (FONTS[f.display] || [])[3];
-  if (B.size >= 52 || !["mono", "script", "display", "wide"].includes(kind)) return { B, font: f.display };
+function nameBlock(ctx, name, f, max, w, h, least = 52) {
+  const B = setBlock(ctx, name, f.display, max, w, h), kind = kindOf(f.display);
+  if (kind === "mono") least = Math.max(least, 80);   // a pixel face reads as words only large (the polish: "WE BUY APPLE WATCH" in Silkscreen)
+  if (B.size >= least || !["mono", "script", "display", "wide"].includes(kind)) return { B, font: f.display };
   const B2 = setBlock(ctx, name, f.label, max, w, h);
-  return B2.size > B.size * 1.15 ? { B: B2, font: f.label } : { B, font: f.display };
+  return kind === "mono" || B2.size > B.size * 1.15 ? { B: B2, font: f.label } : { B, font: f.display };
 }
+const kindOf = font => (FONTS[font] || [])[3];
+/** Pop's offset shadow only under a face with the weight to carry it: a high-contrast serif, a script or a
+ *  pixel face goes muddy under one (the audit: Gloock's hairlines doubled into a blur) */
+const shadowOk = font => !["serif", "script", "mono"].includes(kindOf(font));
 const onColour = c => contrastOf("#ffffff", c) > contrastOf("#111111", c) ? "#ffffff" : "#111111";
+/** the accent on another ground: the card's own ground where it stands out, else the accent, else the ink */
+const accentOn = (P, bg, ink) => contrastOf(P.ground, bg) >= 3 ? P.ground : contrastOf(P.accent, bg) >= 3 ? P.accent : ink;
 
 /** The front, one of the five layouts. Everything a reader needs stays in SAFE; grounds, bands and
  *  panels run to the bleed; the product stays in the trim. */
@@ -218,12 +270,21 @@ function front(ctx, P, W, f, d, out, img) {
     const nb = drawBlock(ctx, out, NB, nf, S.x, S.y, { fill: P.ink, role: "name" });
     const bs = fit(ctx, W.buy, lab, 46, colW);
     say(ctx, out, W.buy, lab, bs, S.x, nb + 20 + bs * .74, { fill: P.accent, role: "buy" });
-    if (W.where) say(ctx, out, W.where, lab, fit(ctx, W.where, lab, 28, colW), S.x, bandTop - 30, { foot: true, fill: P.ink, role: "where" });
+    if (W.where) sayTowns(ctx, out, W.where, lab, S.x, bandTop - 30, colW, { fill: P.ink, max: 32 });
     // the product stands on the band, its foot just over the edge
     product(ctx, out, img, S.x + colW + 24, S.y - 18, S.x + S.w - (S.x + colW + 24) + BLEED * .6, bandTop + 34 - (S.y - 18), { align: "center" });
-    const ps = fit(ctx, W.phone, num, 112, S.w * (W.site ? .6 : 1), 118);
-    say(ctx, out, W.phone, num, ps, S.x, S.y + S.h - 22, { foot: true, fill: P.plateInk, role: "phone" });
-    if (W.site) say(ctx, out, W.site, lab, fit(ctx, W.site, lab, 30, S.w * .36), S.x + S.w, S.y + S.h - 30, { foot: true, align: "right", fill: P.plateInk, role: "site" });
+    // the website beside the number where it fits there at 7 pt, else under it across the band; the
+    // number has the rest
+    let ss = 0, sw = 0;
+    if (W.site) { ss = fitS(ctx, W.site, lab, S.w * .46); ctx.font = fontCss(lab, ss); sw = ctx.measureText(W.site).width; }
+    if (W.site && ss < FLOOR) {
+      const sb = say(ctx, out, W.site, lab, fitS(ctx, W.site, lab, S.w), S.x, S.y + S.h - 4, { foot: true, fill: P.plateInk, role: "site" });
+      say(ctx, out, W.phone, num, fit(ctx, W.phone, num, 104, S.w, sb.y - 12 - (bandTop + 40)), S.x, sb.y - 12, { foot: true, fill: P.plateInk, role: "phone" });
+    } else {
+      const ps = fit(ctx, W.phone, num, 112, S.w - (sw ? sw + 44 : 0), 118);
+      say(ctx, out, W.phone, num, ps, S.x, S.y + S.h - 22, { foot: true, fill: P.plateInk, role: "phone" });
+      if (W.site) say(ctx, out, W.site, lab, ss, S.x + S.w, S.y + S.h - 30, { foot: true, align: "right", fill: P.plateInk, role: "site" });
+    }
   } else if (d === "split") {
     const panelW = S.x + S.w * .38 + 30, px = S.x, pw = S.w * .38 - 24;
     ctx.fillStyle = P.plate; ctx.fillRect(0, 0, panelW, SHEET.h);
@@ -232,19 +293,20 @@ function front(ctx, P, W, f, d, out, img) {
     const s1 = fit(ctx, first, disp, 104, pw, 104), RB = rest ? setBlock(ctx, rest, disp, 104, pw, img ? 150 : 230) : null;
     const h = s1 * .78 + 14 + (RB ? blockH(ctx, RB, disp) : 0);
     const top = img ? S.y + 4 : S.y + (S.h - h) / 2;
-    const b1 = say(ctx, out, first, disp, s1, px, top + s1 * .76, { fill: P.plateInk, role: "buy" });
-    const rb = RB ? drawBlock(ctx, out, RB, disp, px, b1.y + b1.h + 14, { fill: P.plateInk, role: "buy" }) : b1.y + b1.h;
+    // set from its measured top: a tall face's capitals (Oswald's) rose over the safe line when placed by a fixed share of the size
+    const b1 = drawBlock(ctx, out, { lines: [first], size: s1 }, disp, px, top, { fill: P.plateInk, role: "buy" });
+    const rb = RB ? drawBlock(ctx, out, RB, disp, px, b1 + 14, { fill: P.plateInk, role: "buy" }) : b1;
     product(ctx, out, img, S.x - 12, rb + 24, panelW - 24 - (S.x - 12), S.y + S.h + BLEED * .7 - (rb + 24), { align: "center" });
     const rx = panelW + 40, rw = S.x + S.w - rx;
-    const { B: NB, font: nf } = nameBlock(ctx, W.name, f, 92, rw, 176);
+    const { B: NB, font: nf } = nameBlock(ctx, W.name, f, 116, rw, 176);   // a short name set large, not lost at the top
     const nb = drawBlock(ctx, out, NB, nf, rx, S.y, { fill: P.ink, role: "name" });
     ctx.fillStyle = P.accent; ctx.fillRect(rx, nb + 20, 90, 8);
-    if (W.models) say(ctx, out, W.models, lab, fit(ctx, W.models, lab, 26, rw), rx, nb + 46 + 22, { fill: P.ink, role: "models" });
+    if (W.models) drawBlock(ctx, out, smallBlock(ctx, W.models, lab, rw), lab, rx, nb + 46, { fill: P.ink, role: "models" });
     const ps = fit(ctx, W.phone, num, 96, rw, 104);
-    const wb = W.where ? say(ctx, out, W.where, lab, fit(ctx, W.where, lab, 26, rw), rx, S.y + S.h, { foot: true, fill: P.ink, role: "where" }) : null;
-    const sb = W.site ? say(ctx, out, W.site, lab, fit(ctx, W.site, lab, 30, rw), rx, (wb ? wb.y - 14 : S.y + S.h), { foot: true, fill: P.ink, role: "site" }) : null;
+    const wb = W.where ? sayTowns(ctx, out, W.where, lab, rx, S.y + S.h, rw, { fill: P.ink }) : null;
+    const sb = W.site ? say(ctx, out, W.site, lab, fitS(ctx, W.site, lab, rw), rx, (wb ? wb.y - 14 : S.y + S.h), { foot: true, fill: P.ink, role: "site" }) : null;
     const pb = say(ctx, out, W.phone, num, ps, rx, (sb ? sb.y : wb ? wb.y : S.y + S.h) - 16, { foot: true, fill: P.accent, role: "phone" });
-    say(ctx, out, "CALL OR TEXT", lab, fit(ctx, "CALL OR TEXT", lab, 26, rw), rx, pb.y - 14, { foot: true, fill: P.ink, role: "label" });
+    say(ctx, out, "CALL OR TEXT", lab, fitS(ctx, "CALL OR TEXT", lab, rw, 30), rx, pb.y - 14, { foot: true, fill: P.ink, role: "label" });
   } else if (d === "center") {
     const cx = S.x + S.w / 2;
     const bs = fit(ctx, W.buy, lab, 34, S.w * .7);
@@ -252,13 +314,22 @@ function front(ctx, P, W, f, d, out, img) {
     ctx.fillStyle = P.accent; rr(ctx, cx - bw / 2, S.y + 4, bw, bh, bh / 2); ctx.fill();
     say(ctx, out, W.buy, lab, bs, cx, S.y + 4 + bh / 2 + bs * .36, { align: "center", fill: onColour(P.accent), role: "buy" });
     // the number and the line under it from the foot; the name, a rule and the models line centred between
+    // the website and the towns on one line at 7 pt and more, or on two (the website last) when they will not
     const footT = [W.site, W.where].filter(Boolean).join("   •   ");
-    const fb = footT ? say(ctx, out, footT, lab, fit(ctx, footT, lab, 28, S.w), cx, S.y + S.h, { foot: true, align: "center", fill: P.ink, role: "foot" }) : null;
+    let fb = null;
+    if (footT) {
+      const one = fitS(ctx, footT, lab, S.w, 30);
+      if (one >= FLOOR || !(W.site && W.where)) fb = say(ctx, out, footT, lab, one, cx, S.y + S.h, { foot: true, align: "center", fill: P.ink, role: "foot" });
+      else {
+        const sb = say(ctx, out, W.site, lab, fitS(ctx, W.site, lab, S.w, 30), cx, S.y + S.h, { foot: true, align: "center", fill: P.ink, role: "site" });
+        fb = sayTowns(ctx, out, W.where, lab, cx, sb.y - 12, S.w, { align: "center", fill: P.ink });
+      }
+    }
     const ps = fit(ctx, W.phone, num, 104, S.w * .9, 110);
     const pb = say(ctx, out, W.phone, num, ps, cx, (fb ? fb.y - 22 : S.y + S.h), { foot: true, align: "center", fill: P.accent, role: "phone" });
     const top = S.y + bh + 30, room = pb.y - 30 - top;
     const { B: NB, font: nf } = nameBlock(ctx, W.name, f, 108, S.w, Math.min(210, room - (W.models ? 80 : 40)));
-    const ms = W.models ? fit(ctx, W.models, lab, 26, S.w * .9) : 0;
+    const ms = W.models ? fitS(ctx, W.models, lab, S.w * .9, 30) : 0;
     const gh = blockH(ctx, NB, nf) + 34 + 6 + (ms ? 22 + ms : 0), y0 = top + Math.max(0, (room - gh) / 2);
     const nb = drawBlock(ctx, out, NB, nf, cx, y0, { align: "center", fill: P.ink, role: "name" });
     // a divider well clear of the name, so it never reads as one word underlined
@@ -278,16 +349,16 @@ function front(ctx, P, W, f, d, out, img) {
     // the name with an offset shadow in the accent, as a print in two inks (black where the accent will not show)
     const { B: NB, font: nf } = nameBlock(ctx, W.name, f, 100, colW - 16, 196);
     const shade = P.accent !== P.ink && contrastOf(P.accent, P.ground) >= 1.6 ? P.accent : rgba("#000000", .8), off = Math.max(3, NB.size * .055);
-    const nb = drawBlock(ctx, out, NB, nf, S.x + 8, S.y + 8, { fill: P.ink, role: "name", shadow: { color: shade, dx: off, dy: off } });
+    const nb = drawBlock(ctx, out, NB, nf, S.x + 8, S.y + 8, { fill: P.ink, role: "name", shadow: shadowOk(nf) ? { color: shade, dx: off, dy: off } : null });
     const bs = fit(ctx, W.buy, disp, 56, colW - 16);
     say(ctx, out, W.buy, disp, bs, S.x + 8, nb + 16 + bs * .76, { fill: shade === P.accent ? P.ink : P.accent, role: "buy" });
     const ps = fit(ctx, W.phone, num, 88, colW - 60, 96);
     ctx.font = fontCss(num, ps); const pw = ctx.measureText(W.phone).width + 44, ph = ps + 34, py = S.y + S.h - ph - 6;
     ctx.fillStyle = P.plate; rr(ctx, S.x + 8, py, pw, ph, 14); ctx.fill(); ctx.lineWidth = 6; ctx.strokeStyle = line; ctx.stroke();
     say(ctx, out, W.phone, num, ps, S.x + 30, py + ph / 2 + ps * .36, { fill: P.plateInk, role: "phone" });
-    const foot = [W.where, W.site].filter(Boolean);
     let fy = py - 18;
-    foot.forEach(t => { const b = say(ctx, out, t, lab, fit(ctx, t, lab, 26, colW - 16), S.x + 8, fy, { foot: true, fill: P.ink, role: t === W.site ? "site" : "where" }); fy = b.y - 10; });
+    if (W.where) fy = sayTowns(ctx, out, W.where, lab, S.x + 8, fy, colW - 16, { fill: P.ink }).y - 10;
+    if (W.site) say(ctx, out, W.site, lab, fitS(ctx, W.site, lab, colW - 16, 30), S.x + 8, fy, { foot: true, fill: P.ink, role: "site" });
   } else {   // ticket
     const tearX = S.x + S.w * .62;
     ctx.fillStyle = P.light; ctx.fillRect(tearX, 0, SHEET.w - tearX, SHEET.h);
@@ -296,54 +367,208 @@ function front(ctx, P, W, f, d, out, img) {
     ctx.fillStyle = P.ground; [S.y - BLEED, S.y + S.h + BLEED].forEach(y => { ctx.beginPath(); ctx.arc(tearX, y, 34, 0, Math.PI * 2); ctx.fill(); });
     const lw = tearX - S.x - 40;
     const bs = fit(ctx, W.buy, lab, 34, lw);
-    const b0 = say(ctx, out, W.buy, lab, bs, S.x, S.y + bs * .76, { fill: P.accent, role: "buy" });
+    const b0 = drawBlock(ctx, out, { lines: [W.buy], size: bs }, lab, S.x, S.y, { fill: P.accent, role: "buy" });   // from its measured top: the É of POKÉMON rose over the safe line
     const { B: NB, font: nf } = nameBlock(ctx, W.name, f, 104, lw, 210);
-    const nb = drawBlock(ctx, out, NB, nf, S.x, b0.y + b0.h + 22, { fill: P.ink, role: "name" });
-    const wb = W.where ? say(ctx, out, W.where, lab, fit(ctx, W.where, lab, 26, lw), S.x, S.y + S.h, { foot: true, fill: P.ink, role: "where" }) : null;
-    product(ctx, out, img, S.x, nb + 22, lw, (wb ? wb.y : S.y + S.h) - 22 - (nb + 22), { align: "left" });
+    const nb = drawBlock(ctx, out, NB, nf, S.x, b0 + 22, { fill: P.ink, role: "name" });
     const rx = tearX + 44, rw = S.x + S.w - rx;
+    // the website goes on the stub when it fits there at 7 pt; a long one goes under the towns, where there is room
+    const stubSite = W.site && fitS(ctx, W.site, lab, rw, 30) >= FLOOR;
+    let lf = S.y + S.h;
+    if (W.site && !stubSite) lf = say(ctx, out, W.site, lab, fitS(ctx, W.site, lab, lw, 30), S.x, lf, { foot: true, fill: P.ink, role: "site" }).y - 12;
+    const wb = W.where ? sayTowns(ctx, out, W.where, lab, S.x, lf, lw, { fill: P.ink }) : null;
+    if (wb) lf = wb.y;
+    product(ctx, out, img, S.x, nb + 22, lw, lf - 22 - (nb + 22), { align: "left" });
     const digits = W.phone.replace(/\s+/g, " "), parts = digits.match(/^(\(?\d{3}\)?)\s*(.*)$/), [a, b] = parts ? [parts[1], parts[2]] : [digits, ""];
     const ps = Math.min(fit(ctx, a, num, 96, rw, 100), b ? fit(ctx, b, num, 96, rw, 100) : 999);
     const area = contrastOf(P.accent, P.light) >= 3 ? P.accent : P.ink;
-    const lb = say(ctx, out, "CALL OR TEXT", lab, fit(ctx, "CALL OR TEXT", lab, 26, rw), rx, S.y + S.h / 2 - ps - 26, { fill: P.ink, role: "label" });
+    const lb = say(ctx, out, "CALL OR TEXT", lab, fitS(ctx, "CALL OR TEXT", lab, rw, 30), rx, S.y + S.h / 2 - ps - 26, { fill: P.ink, role: "label" });
     say(ctx, out, a, num, ps, rx, lb.y + lb.h + 18 + ps * .74, { fill: area, role: "phone" });
     if (b) say(ctx, out, b, num, ps, rx, lb.y + lb.h + 18 + ps * .74 + ps * 1.02, { fill: P.ink, role: "phone" });
-    if (W.site) say(ctx, out, W.site, lab, fit(ctx, W.site, lab, 24, rw), rx, S.y + S.h, { foot: true, fill: P.ink, role: "site" });
+    if (stubSite) say(ctx, out, W.site, lab, fitS(ctx, W.site, lab, rw, 30), rx, S.y + S.h, { foot: true, fill: P.ink, role: "site" });
   }
 }
 
-/** The back: the selling points and the models line, and a QR to the website (or the number); with
- *  no QR, the product takes its place, so a back is never half empty */
-function back(ctx, P, W, f, d, out, qr, img) {
-  const S = SAFE, disp = f.display, lab = f.label;
-  const flip = d === "band" || d === "pop";             // a light back behind a bold front, and the other way
-  const bg = flip ? P.plate : P.ground, ink = flip ? P.plateInk : P.ink, acc = flip ? (contrastOf(P.ground, P.plate) >= 3 ? P.ground : P.plateInk) : P.accent;
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, SHEET.w, SHEET.h);
-  if (d === "pop") halftone(ctx, 0, 0, SHEET.w, SHEET.h, rgba(contrastOf("#000000", bg) > 7 ? "#000000" : "#ffffff", .12), SHEET.w * .1, SHEET.h * .9, SHEET.w * .6);
-  if (d === "ticket") { ctx.strokeStyle = ink; ctx.lineWidth = 4; ctx.setLineDash([16, 14]); rr(ctx, S.x - 10, S.y - 10, S.w + 20, S.h + 20, 20); ctx.stroke(); ctx.setLineDash([]); }
-  const side = qr || img ? 380 : 0, colW = S.w - (side ? side + 40 : 0);
-  const HB = setBlock(ctx, W.buy, disp, 80, colW, 150);
-  let y = drawBlock(ctx, out, HB, disp, S.x, S.y, { fill: acc, role: "buy" }) + 16;
-  if (W.models) { const ms = fit(ctx, W.models, lab, 28, colW); const m = say(ctx, out, W.models, lab, ms, S.x, y + ms * .76, { fill: ink, role: "models" }); y = m.y + m.h + 20; }
-  const call = (W.site ? W.site + "   •   " : "") + W.phone, cs = fit(ctx, call, lab, 32, colW);
-  ctx.font = fontCss(lab, cs); const callTop = S.y + S.h - cs * 1.05;
-  const n = W.points.length, ps = Math.min(...W.points.map(t => fit(ctx, t, lab, 42, colW - 60)), Math.max(24, (callTop - 22 - y) / Math.max(1, n) - 14));
-  W.points.forEach((t, i) => {
-    const by = y + (i + 1) * (ps + 14) - 4;
-    ctx.fillStyle = acc; ctx.beginPath(); ctx.arc(S.x + ps * .32, by - ps * .34, ps * .32, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = bg; ctx.lineWidth = Math.max(3, ps * .1); ctx.lineCap = "round"; ctx.lineJoin = "round";
-    ctx.beginPath(); ctx.moveTo(S.x + ps * .17, by - ps * .34); ctx.lineTo(S.x + ps * .28, by - ps * .22); ctx.lineTo(S.x + ps * .48, by - ps * .48); ctx.stroke();
-    out.push({ role: "tick", text: "", x: S.x, y: by - ps * .66, w: ps * .64, h: ps * .64 });
-    say(ctx, out, t, lab, ps, S.x + ps * .9, by, { fill: ink, role: "point" });
-  });
-  say(ctx, out, call, lab, cs, S.x, S.y + S.h, { foot: true, fill: ink, role: "contact" });
-  if (qr) {
-    const qs = 360, qx = S.x + S.w - qs, qy = S.y + (S.h - qs) / 2;
-    ctx.fillStyle = "#ffffff"; rr(ctx, qx, qy, qs, qs, 18); ctx.fill();
-    ctx.imageSmoothingEnabled = false; ctx.drawImage(qr, qx + 14, qy + 14, qs - 28, qs - 28); ctx.imageSmoothingEnabled = true;
-    out.push({ role: "qr", text: "", x: qx, y: qy, w: qs, h: qs });
-  } else if (img) product(ctx, out, img, S.x + S.w - side, S.y, side + BLEED * .6, S.h, { align: "center", valign: "center", hard: d === "pop" ? rgba("#000000", .85) : null });
+/* ---------- the backs: one for each layout, so a card turned over is the same design's other half ----------
+   (the polish, 2026-11-22: every layout had worn one back, re-coloured, a headline, ticks and a QR) */
+
+/** a selling point's tick: a disc in the accent, the check cut in the ground's colour */
+function tick(ctx, out, x, by, ps, acc, bg) {
+  ctx.fillStyle = acc; ctx.beginPath(); ctx.arc(x + ps * .32, by - ps * .34, ps * .32, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = bg; ctx.lineWidth = Math.max(3, ps * .1); ctx.lineCap = "round"; ctx.lineJoin = "round";
+  ctx.beginPath(); ctx.moveTo(x + ps * .17, by - ps * .34); ctx.lineTo(x + ps * .28, by - ps * .22); ctx.lineTo(x + ps * .48, by - ps * .48); ctx.stroke();
+  out.push({ role: "tick", text: "", x, y: by - ps * .66, w: ps * .64, h: ps * .64 });
 }
+/** The QR on a white tile, s across (a phone reads it on any ground): a hard comic shadow and an outline
+ *  when asked. The tile is recorded; nothing is ever drawn over it. */
+function qrTile(ctx, out, qr, x, y, s, { stroke = null, hard = null } = {}) {
+  if (hard) { ctx.fillStyle = hard; rr(ctx, x + 12, y + 12, s, s, 18); ctx.fill(); }
+  ctx.fillStyle = "#ffffff"; rr(ctx, x, y, s, s, 18); ctx.fill();
+  if (stroke) { ctx.lineWidth = 6; ctx.strokeStyle = stroke; ctx.stroke(); }
+  const pad = Math.round(s * .045);
+  ctx.imageSmoothingEnabled = false; ctx.drawImage(qr, x + pad, y + pad, s - 2 * pad, s - 2 * pad); ctx.imageSmoothingEnabled = true;
+  out.push({ role: "qr", text: "", x, y, w: s, h: s });
+}
+const scanWords = W => W.site ? "SCAN TO VISIT" : "SCAN TO CALL";
+/** the QR and its few words under it, centred in a column x..x+w, top..bottom */
+function qrWithWords(ctx, out, qr, W, lab, x, w, top, bottom, ink, max = 300) {
+  const t = scanWords(W), ls = fitS(ctx, t, lab, w, 30), qs = Math.min(max, w, bottom - top - ls - 22);
+  const y = top + (bottom - top - (qs + 20 + ls)) / 2;
+  qrTile(ctx, out, qr, x + (w - qs) / 2, y, qs);
+  say(ctx, out, t, lab, ls, x + w / 2, y + qs + 20 + ls * .74, { align: "center", fill: ink, role: "label" });
+}
+
+/** The back's words down a column, x to x + w, top to bottom: what is bought (the pair's display face),
+ *  the models line, the selling points with ticks, and at the foot the number (large where no QR stands
+ *  beside it) over the website. What will not fit at 7 pt gives way first: the models line, then a
+ *  fourth point. o: { ink, acc, bg, head: false to leave the headline out, contact: false to leave the
+ *  number and website to the layout, big } */
+function column(ctx, out, W, f, x, top, w, bottom, o) {
+  const lab = f.label, num = numFontOf(f);
+  let foot = bottom;
+  if (o.contact !== false) {
+    if (W.site) foot = say(ctx, out, W.site, lab, fitS(ctx, W.site, lab, w), x, foot, { foot: true, fill: o.ink, role: "site" }).y - 12;
+    const ps = fit(ctx, W.phone, num, o.big ? 88 : 56, w, o.big ? 96 : 62, 30);
+    foot = say(ctx, out, W.phone, num, ps, x, foot, { foot: true, fill: o.big ? o.acc : o.ink, role: "contact" }).y - (o.big ? 30 : 24);
+  }
+  let y = top;
+  if (o.head !== false) { const H = nameBlock(ctx, W.buy, f, o.headMax || 80, w, 150, 60); y = drawBlock(ctx, out, H.B, H.font, x, y, { fill: o.acc, role: "buy" }) + 16; }
+  const MB = W.models ? smallBlock(ctx, W.models, lab, w) : null;
+  const plan = (withModels, n) => {
+    const pts = W.points.slice(0, n), my = withModels && MB ? blockH(ctx, MB, lab) + 22 : 0, room = foot - y - my;
+    const ps = Math.min(44, ...pts.map(t => fit(ctx, t, lab, 44, w - 40)), (room + 14) / (n * 1.5));
+    return { pts, withModels: withModels && !!MB, ps, room };
+  };
+  const n = W.points.length, tries = [plan(true, n), plan(false, n), plan(false, Math.min(n, 3))];
+  const P = tries.find(t => t.ps >= 30) || tries[2];
+  if (P.withModels) y = drawBlock(ctx, out, MB, lab, x, y, { fill: o.ink, role: "models" }) + 22;
+  // the rows a little apart where there is room, the block kept up by what it lists
+  const pitch = Math.min(P.ps * 1.75, (foot - y + P.ps * .5) / P.pts.length), extra = Math.max(0, foot - y - (P.pts.length * pitch - P.ps * .5));
+  let by = y + Math.min(20, extra / 2) + P.ps * .8;
+  P.pts.forEach(t => { tick(ctx, out, x, by, P.ps, o.acc, o.bg); say(ctx, out, t, lab, P.ps, x + P.ps * .9, by, { fill: o.ink, role: "point" }); by += pitch; });
+}
+
+/** the points side by side on the middle line, in one row or in two, a tick before each */
+function pointRows(ctx, pts, lab, max, w) {
+  const widthAt = (row, s) => { ctx.font = fontCss(lab, s); return row.reduce((a, t) => a + ctx.measureText(t).width + s * .9, 0) + (row.length - 1) * s * 1.3; };
+  const half = Math.ceil(pts.length / 2);
+  for (const rows of [[pts], [pts.slice(0, half), pts.slice(half)].filter(r => r.length)]) {
+    let s = max; while (s > 20 && rows.some(r => widthAt(r, s) > w)) s -= 1;
+    if (s >= FLOOR || rows.length > 1) return { rows, ps: s };
+  }
+}
+const rowsH = R => R.rows.length * R.ps * 1.5 - R.ps * .5;
+function drawRows(ctx, out, R, lab, cx, top, ink, acc, bg) {
+  let by = top + R.ps * .8;
+  R.rows.forEach(row => {
+    ctx.font = fontCss(lab, R.ps);
+    const ws = row.map(t => ctx.measureText(t).width), total = ws.reduce((a, b) => a + b + R.ps * .9, 0) + (row.length - 1) * R.ps * 1.3;
+    let x = cx - total / 2;
+    row.forEach((t, i) => { tick(ctx, out, x, by, R.ps, acc, bg); say(ctx, out, t, lab, R.ps, x + R.ps * .9, by, { fill: ink, role: "point" }); x += ws[i] + R.ps * 2.2; });
+    by += R.ps * 1.5;
+  });
+}
+
+/** Band: the front's band the other way round, the plate for the ground and the card's ground for the
+ *  band, the number on it; the QR (or the product) stands on the band as the product does in front */
+function backBand(ctx, P, W, f, out, qr, img, S) {
+  const bg = P.plate, ink = P.plateInk, acc = accentOn(P, bg, ink), lab = f.label, num = numFontOf(f);
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, SHEET.w, SHEET.h);
+  const bandTop = S.y + S.h - 140, side = 300, colW = S.w - side - 44;
+  ctx.fillStyle = P.ground; ctx.fillRect(0, bandTop, SHEET.w, SHEET.h - bandTop);
+  ctx.fillStyle = P.accent; ctx.fillRect(0, bandTop - 10, SHEET.w, 10);
+  column(ctx, out, W, f, S.x, S.y, colW, bandTop - 34, { ink, acc, bg, contact: false, headMax: 72 });
+  let fy = S.y + S.h;
+  if (W.site) fy = say(ctx, out, W.site, lab, fitS(ctx, W.site, lab, colW), S.x, fy, { foot: true, fill: P.ink, role: "site" }).y - 10;
+  say(ctx, out, W.phone, num, fit(ctx, W.phone, num, qr ? 72 : 88, colW, fy - bandTop - 20, 30), S.x, fy, { foot: true, fill: P.ink, role: "contact" });
+  if (qr) {
+    const qy = bandTop + 56 - side;
+    qrTile(ctx, out, qr, S.x + S.w - side, qy, side);
+    const t = scanWords(W), ls = fitS(ctx, t, lab, side, 30);
+    say(ctx, out, t, lab, ls, S.x + S.w - side / 2, S.y + S.h, { foot: true, align: "center", fill: P.ink, role: "label" });
+  } else product(ctx, out, img, S.x + colW + 24, S.y - 18, S.x + S.w - (S.x + colW + 24) + BLEED * .6, bandTop + 34 - (S.y - 18), { align: "center" });
+}
+
+/** Split: the front's panel seen from behind, at the right now; it holds the QR or the product */
+function backSplit(ctx, P, W, f, out, qr, img, S) {
+  const panelX = SHEET.w - (S.x + S.w * .38 + 30);
+  ctx.fillStyle = P.ground; ctx.fillRect(0, 0, SHEET.w, SHEET.h);
+  ctx.fillStyle = P.plate; ctx.fillRect(panelX, 0, SHEET.w - panelX, SHEET.h);
+  column(ctx, out, W, f, S.x, S.y, panelX - 40 - S.x, S.y + S.h, { ink: P.ink, acc: P.accent, bg: P.ground, big: !qr });
+  const px = panelX + 40, pw = S.x + S.w - px;
+  if (qr) qrWithWords(ctx, out, qr, W, f.label, px, pw, S.y, S.y + S.h, P.plateInk);
+  else product(ctx, out, img, panelX + 20, S.y - 10, BLEED + TRIM.w - (panelX + 20), S.h + 20, { align: "center", valign: "center" });
+}
+
+/** Centred: everything on the middle line, on the plate; the QR between what is bought and the points */
+function backCenter(ctx, P, W, f, out, qr, img, S) {
+  const bg = P.plate, ink = P.plateInk, acc = accentOn(P, bg, ink), lab = f.label, num = numFontOf(f), cx = S.x + S.w / 2;
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, SHEET.w, SHEET.h);
+  const H = nameBlock(ctx, W.buy, f, 76, S.w * .92, 130, 60);
+  const hb = drawBlock(ctx, out, H.B, H.font, cx, S.y, { align: "center", fill: acc, role: "buy" });
+  let fy = S.y + S.h;
+  if (qr) {
+    // the foot: the website and the number on one line, or on two
+    const call = (W.site ? W.site + "   •   " : "") + W.phone, cs = fitS(ctx, call, lab, S.w, 34);
+    if (cs >= FLOOR || !W.site) fy = say(ctx, out, call, lab, cs, cx, fy, { foot: true, align: "center", fill: ink, role: "contact" }).y;
+    else { fy = say(ctx, out, W.site, lab, fitS(ctx, W.site, lab, S.w), cx, fy, { foot: true, align: "center", fill: ink, role: "site" }).y - 10;
+      fy = say(ctx, out, W.phone, lab, fitS(ctx, W.phone, lab, S.w, 34), cx, fy, { foot: true, align: "center", fill: ink, role: "contact" }).y; }
+    const R = pointRows(ctx, W.points, lab, 36, S.w), top = fy - 24 - rowsH(R);
+    drawRows(ctx, out, R, lab, cx, top, ink, acc, bg);
+    const qs = Math.min(272, top - 24 - (hb + 24));
+    qrTile(ctx, out, qr, cx - qs / 2, hb + 24 + (top - 24 - (hb + 24) - qs) / 2, qs);
+  } else {
+    // no QR: the points down the middle, a rule, and the number large over the website
+    if (W.site) fy = say(ctx, out, W.site, lab, fitS(ctx, W.site, lab, S.w), cx, fy, { foot: true, align: "center", fill: ink, role: "site" }).y - 12;
+    const pb = say(ctx, out, W.phone, num, fit(ctx, W.phone, num, 96, S.w * .9, 104, 30), cx, fy, { foot: true, align: "center", fill: acc, role: "contact" });
+    ctx.fillStyle = acc; ctx.fillRect(cx - 70, pb.y - 34, 140, 6);
+    const room = pb.y - 34 - 24 - (hb + 24), n = W.points.length;
+    const ps = Math.min(42, ...W.points.map(t => fit(ctx, t, lab, 42, S.w * .8)), (room + 14) / (n * 1.5));
+    const R = { rows: W.points.map(t => [t]), ps };
+    drawRows(ctx, out, R, lab, cx, hb + 24 + Math.max(0, (room - rowsH(R)) / 2), ink, acc, bg);
+  }
+}
+
+/** Pop: the comic's next panel; a speech balloon says what is bought, the points under it, the QR (or
+ *  the product) with a hard shadow, halftone and the heavy frame of the front */
+function backPop(ctx, P, W, f, out, qr, img, S) {
+  const bg = P.plate, ink = P.plateInk, acc = accentOn(P, bg, ink), line = onColour(bg), lab = f.label;
+  const hard = contrastOf(P.accent, bg) >= 1.6 ? P.accent : rgba("#000000", .85);
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, SHEET.w, SHEET.h);
+  halftone(ctx, 0, 0, SHEET.w, SHEET.h, rgba(line, .12), SHEET.w * .1, SHEET.h * .9, SHEET.w * .6);
+  ctx.lineWidth = 10; ctx.strokeStyle = line; rr(ctx, S.x - 14, S.y - 14, S.w + 28, S.h + 28, 18); ctx.stroke();
+  const side = 296, colW = S.w - side - 44;
+  // the balloon: white, inked, its tail to the points below
+  const H = nameBlock(ctx, W.buy, f, 66, colW - 64, 124, 60);
+  ctx.font = fontCss(H.font, H.B.size);
+  const tw = Math.max(...H.B.lines.map(t => ctx.measureText(t).width)), bx = S.x + 8, by = S.y + 8, bw = tw + 64, bh = blockH(ctx, H.B, H.font) + 46, tx = bx + Math.min(70, bw * .2);
+  ctx.lineWidth = 6; ctx.strokeStyle = "#111111"; ctx.fillStyle = "#ffffff"; ctx.lineJoin = "round";
+  ctx.beginPath(); ctx.moveTo(tx, by + bh - 2); ctx.lineTo(tx - 8, by + bh + 36); ctx.lineTo(tx + 42, by + bh - 2); ctx.closePath(); ctx.fill(); ctx.stroke();
+  rr(ctx, bx, by, bw, bh, Math.min(44, bh * .4)); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(tx + 4, by + bh - 9); ctx.lineTo(tx - 3, by + bh + 26); ctx.lineTo(tx + 34, by + bh - 9); ctx.closePath(); ctx.fill();
+  drawBlock(ctx, out, H.B, H.font, bx + 32, by + 23, { fill: "#111111", role: "buy" });
+  column(ctx, out, W, f, S.x + 8, by + bh + 52, colW, S.y + S.h, { ink, acc, bg, head: false, big: !qr });
+  if (qr) { const qs = side - 16; qrTile(ctx, out, qr, S.x + S.w - qs - 14, S.y + (S.h - qs) / 2 - 6, qs, { stroke: "#111111", hard }); }
+  else product(ctx, out, img, S.x + colW + 30, S.y + 10, S.w - colW - 34, S.h - 20, { valign: "center", hard: rgba("#000000", .85) });
+}
+
+/** Ticket: the front's ticket from behind; the stub is at the left now, its tear and notches just
+ *  behind the front's. The stub holds the QR (or the product); the points are on the ticket. */
+function backTicket(ctx, P, W, f, out, qr, img, S) {
+  const tearX = SHEET.w - (S.x + S.w * .62), lab = f.label;
+  ctx.fillStyle = P.ground; ctx.fillRect(0, 0, SHEET.w, SHEET.h);
+  ctx.fillStyle = P.light; ctx.fillRect(0, 0, tearX, SHEET.h);
+  ctx.strokeStyle = P.ink; ctx.lineWidth = 4; ctx.setLineDash([16, 14]);
+  ctx.beginPath(); ctx.moveTo(tearX, 0); ctx.lineTo(tearX, SHEET.h); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = P.ground; [S.y - BLEED, S.y + S.h + BLEED].forEach(y => { ctx.beginPath(); ctx.arc(tearX, y, 34, 0, Math.PI * 2); ctx.fill(); });
+  const rx = tearX + 44;
+  column(ctx, out, W, f, rx, S.y, S.x + S.w - rx, S.y + S.h, { ink: P.ink, acc: P.accent, bg: P.ground, big: !qr });
+  const sw = tearX - 44 - S.x;
+  if (qr) qrWithWords(ctx, out, qr, W, lab, S.x, sw, S.y, S.y + S.h, P.ink, 290);
+  else product(ctx, out, img, BLEED + 10, S.y, tearX - 30 - (BLEED + 10), S.h, { align: "center", valign: "center" });
+}
+
+const BACKS = { band: backBand, split: backSplit, center: backCenter, pop: backPop, ticket: backTicket };
+function back(ctx, P, W, f, d, out, qr, img) { (BACKS[d] || backBand)(ctx, P, W, f, out, qr, img, SAFE); }
 
 /* ---------- the QR (qrcode-generator, as the studio loads it) ---------- */
 let qrLib = null;
@@ -439,6 +664,23 @@ export function pdfOf(jpegs) {
 }
 const jpegOf = c => new Promise(res => c.toBlob(b => b.arrayBuffer().then(a => res({ bytes: new Uint8Array(a), w: c.width, h: c.height })), "image/jpeg", .95));
 const pngOf = c => new Promise(res => c.toBlob(res, "image/png"));
+/** The print file the download saves: both sides drawn at 600 dpi, twice the press's 300, so the type's
+ *  edges print as clean as type set in the file (the polish, 2026-11-22: small type at 300 dpi showed
+ *  its pixels to a designer's eye). The page is the same 3.5 × 2 in. */
+export async function printFile(marks = false) {
+  const f = await render("front", { scale: 2, marks }), b = await render("back", { scale: 2, marks });
+  return pdfOf([await jpegOf(f.canvas), await jpegOf(b.canvas)]);
+}
+/** Whether a colour is one a print shop's four inks fall short of: a bright green, cyan, blue, violet
+ *  or pink (saturated and light, by hue). Reds, oranges and yellows print close to the screen. */
+function vividInk(hex) {
+  const n = parseInt(String(hex).slice(1), 16); if (!/^#[0-9a-f]{6}$/i.test(hex)) return false;
+  const r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), s = mx ? (mx - mn) / mx : 0;
+  if (s < .7 || mx < .75) return false;
+  const h = ((mx === r ? ((g - b) / (mx - mn)) % 6 : mx === g ? (b - r) / (mx - mn) + 2 : (r - g) / (mx - mn) + 4) * 60 + 360) % 360;
+  return h >= 75 && h <= 335;
+}
+const vividPair = p => ["ground", "plate", "accent"].some(k => vividInk(p.colors[k]));
 
 /* ---------- the plan's say (the video maker's planGate, kind "card") ---------- */
 const VH = () => window.VideoHelp;
@@ -480,11 +722,16 @@ async function download(kind, btn) {
   const g = await gate(() => download(kind, btn)); if (!g) return;
   const label = btn.textContent; btn.disabled = true; btn.textContent = "Making it…";
   try {
-    const [f, b] = [await render("front", { marks: g.watermark }), await render("back", { marks: g.watermark })];
-    if (!await g.count()) return;
-    if (kind === "pdf") saveBlob(new Blob([pdfOf([await jpegOf(f.canvas), await jpegOf(b.canvas)])], { type: "application/pdf" }), slug() + ".pdf");
-    else { saveBlob(await pngOf(f.canvas), slug() + "-front.png"); saveBlob(await pngOf(b.canvas), slug() + "-back.png"); }
-    note(kind === "pdf" ? "Downloaded: front and back, 3.5 × 2 in, with the bleed and crop marks." : "Downloaded: the front and the back, 1125 × 675 each (300 dpi with the bleed).");
+    if (kind === "pdf") {
+      const bytes = await printFile(g.watermark);
+      if (!await g.count()) return;
+      saveBlob(new Blob([bytes], { type: "application/pdf" }), slug() + ".pdf");
+    } else {
+      const [f, b] = [await render("front", { marks: g.watermark }), await render("back", { marks: g.watermark })];
+      if (!await g.count()) return;
+      saveBlob(await pngOf(f.canvas), slug() + "-front.png"); saveBlob(await pngOf(b.canvas), slug() + "-back.png");
+    }
+    note(kind === "pdf" ? "Downloaded: front and back, 3.5 × 2 in at 600 dpi, with the bleed and crop marks." : "Downloaded: the front and the back, 1125 × 675 each (300 dpi with the bleed).");
     showPrint(true);
   } catch (e) { console.error("business card:", e); note("That did not work: " + (e.message || e) + ". Try again.", true); }
   finally { btn.disabled = false; btn.textContent = label; }
@@ -525,6 +772,11 @@ async function draw() {
   }
   $("cd-stage").dataset.drawn = String(n);
   $("cd-stage").dataset.marked = String(!entitled);
+  const ink = $("cd-ink"); if (ink) ink.hidden = !vividPair(pairNow());
+  // a website, towns or models line too long to print at 7 pt is set smaller; the customer is told which
+  const NAMES = { site: "website", where: "towns", models: "line under what you buy" }, small = [...new Set(f.boxes.concat(b.boxes).filter(x => x.text && x.size < 29 && NAMES[x.role]).map(x => NAMES[x.role]))];
+  const warn = $("cd-small");
+  if (warn) { warn.hidden = !small.length; warn.textContent = small.length ? "Your " + small.join(" and ") + (small.length > 1 ? " are" : " is") + " long for a card, so " + (small.length > 1 ? "they print" : "it prints") + " under 7 pt. Shorter reads better on a card." : ""; }
 }
 let timer = 0;
 const later = (ms = 140) => { clearTimeout(timer); timer = setTimeout(draw, ms); };
@@ -581,6 +833,6 @@ async function start() {
   if (window.pgfxAccount && window.pgfxAccount.onChange) window.pgfxAccount.onChange(async () => { await checkEntitled(); later(0); });
 }
 
-window.CardMaker = { state, render, pdfOf, printLinks, draw, SHEET, TRIM, SAFE, BLEED, DPI, LAYOUTS: LAYOUTS.map(l => l.key), pairs: () => PAIRS.map(p => p.key), voices: () => VOICES.slice(),
+window.CardMaker = { state, render, pdfOf, printFile, vividPair: k => vividPair(PAIR_OF[k]), kindOf, printLinks, draw, SHEET, TRIM, SAFE, BLEED, DPI, LAYOUTS: LAYOUTS.map(l => l.key), pairs: () => PAIRS.map(p => p.key), voices: () => VOICES.slice(),
   entitled: () => entitled, ready: null };
 window.CardMaker.ready = start().catch(e => { console.error("business card maker:", e); note("The card maker did not load. Reload the page.", true); });

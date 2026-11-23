@@ -6642,16 +6642,33 @@ designer to come: "needs to be super pay walled". The maker is `cards/` (`cards/
   to the bleed; every word and the QR stay in the safe area, 1/8 in inside the trim. A line seated on
   the safe area's foot is seated by its descenders, not its baseline.
 - **The print file** is a PDF of both sides, each page on the bleed with an 18 pt slug for eight crop
-  marks, its TrimBox the card and its BleedBox the bleed, the sides as JPEGs (no PDF library). The
-  PNGs are the same sheets.
+  marks, its TrimBox the card and its BleedBox the bleed, the sides as JPEGs (no PDF library), drawn
+  at 600 dpi (2250 × 1350), twice the press's 300, so small type prints with clean edges. The PNGs are
+  the 300 dpi sheets.
+- **Nothing under 7 pt.** The small lines (the towns, the website, the models line, a label) start at
+  32 px and stop at 29 px, 7 pt at 300 dpi, in half-pixel steps. Before going under, a models line
+  breaks into two of nearly a length, the towns break at a bullet, Band's website moves under the
+  number, and Ticket's goes off the stub to the towns. Only words too long for their place even then
+  go under 7 pt, and the page tells the customer which ("Your website is long for a card…").
 - **It matches the ads.** It wears the full ad's colour pairs (`motion/house-colours.js`) and the
   type pairs the full ad may wear (`motion/full-voices.js`, plus Bold), with every word's colour held
   to contrast on what it sits on. It says what the customer told the studio (`pgfx_brand`: number,
   website, business name, towns; `pgfx_full_studio`: the line they buy, its pair and type), in the
   full ad's capitals (iPHONE).
-- **Varied by rule, not one look.** Five layouts (Band, Split, Centred, Pop, Ticket), each with a
-  back that answers it; New look draws a layout, a pair (most often one that suits what is bought)
-  and a type pair.
+- **Varied by rule, not one look.** Five layouts (Band, Split, Centred, Pop, Ticket), and five backs,
+  each the other half of its front (the polish, 2026-11-22: every layout had worn one back, re-coloured).
+  Band's back turns the band round, the plate for the ground and the card's ground for the band, with
+  the number on it and the QR standing on it. Split's panel is at the right behind the front's left,
+  holding the QR or the product. Centred sets everything on the middle line, the QR between what is
+  bought and a row of points. Pop's back is the comic's next panel: a white speech balloon says what
+  is bought. Ticket's stub is at the left, its tear and notches just behind the front's. A back with
+  no QR sets the number large. New look draws a layout, a pair (most often one that suits what is
+  bought) and a type pair.
+- **The QR** stands on a white tile, at least 3/4 in across, and nothing is drawn over it: no word, no
+  product, no burst. Under it, "SCAN TO VISIT" (to the website) or "SCAN TO CALL".
+- **Print colour.** A pair with a bright green, cyan, blue, violet or pink (saturated and light, by
+  hue) says under the preview that it prints a little softer than the screen and to ask for a proof:
+  four inks fall short of those; reds, oranges and yellows print close.
 - **It shows what is bought** (the audit, 2026-11-22, the owner: "audit and refine and try to make
   sure the designs are as good"). Every front but Centred, which is the typographic one, carries the
   line's own product, the full ad's cutout (`motion/subjects.json` sets, `assets/cutouts/`), fitted
@@ -6661,8 +6678,12 @@ designer to come: "needs to be super pay walled". The maker is `cards/` (`cards/
   the full ad already sets its number apart for (`numberRead`), sets the number in Libre Franklin
   900. A name wraps to two lines before it shrinks, and lines are spaced by the face's own ascenders
   and descenders; a long name that a wide or decorative face would still set below 52 px goes into
-  the pair's reading face. Pop's offset shadow is the accent, scaled to the type, as a print in two
-  inks.
+  the pair's reading face; a pixel face reads as words only from 80 px, so under that a name or a
+  back's headline is set in the reading face. Of two-line breaks as large, the one whose lines are
+  nearest a length wins. Pop's offset shadow is the accent, scaled to the type, as a print in two
+  inks, and only under a face with the weight for it: none under a high-contrast serif, a script or a
+  pixel face, where it doubles into a blur. Text at the top edge is set from its measured top (Oswald's
+  capitals and the É of POKÉMON rose over the safe line when placed by a share of the size).
 - **Paid.** Anyone designs and sees a card; the preview carries the WeBuy.AD mark until the plan
   downloads cards. The print file comes with Pro and Business (`plans.mjs` `cards`), decided by the
   function (`/api/export/check` and `/api/export`, kind `card`) and counted as one photo download.
@@ -6670,6 +6691,9 @@ designer to come: "needs to be super pay walled". The maker is `cards/` (`cards/
   themselves: nothing about them is sent anywhere by the page.
 - **Checked** by `scripts/business_card_check.mjs` (sizes, the safe area and overlaps across layouts,
   pairs, type and a long name; the product in the trim, on every front but Centred and on every back
-  without a QR, and never on a word; the PDF's boxes, crop marks and xref; the print links; the paywall
-  signed out, on Starter and on Pro, light and dark, at 390) and `scripts/billing_check.mjs` (the
-  function's rule).
+  without a QR but Centred's, and never on a word; nothing under 7 pt; every QR 3/4 in or more and
+  clear; five different backs with a QR and without; the number large on a back with no QR; Pop's
+  shadow by the face; the colour note; the PDF's boxes, crop marks, xref and 600 dpi pages; the print
+  links; the paywall signed out, on Starter and on Pro, light and dark, at 390) and
+  `scripts/billing_check.mjs` (the function's rule). A sweep of every layout × type pair × QR × three
+  name lengths (1,740 sides) found one line under 7 pt: a 31-character website in the widest pair, at 6.7 pt, which the page names.
