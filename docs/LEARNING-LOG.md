@@ -6502,3 +6502,54 @@ Found:
     in the area, each by where its namesakes' people live.
 
 RESUME HERE: OPEN-ITEMS §BT. The owner's eye on the gallery; card photographs from the shop.
+
+## 2026-11-22 — four more kinds of ground, and the card lines' own pictures (DESIGN-LAW 163; claude/full-ad-looks-layout)
+
+Asked: device or brand imagery, abstract backgrounds, space, "what else would we use?", a list of
+what gives variety and makes good design; then "Yes, build them" (device, abstract, brand in type,
+colour and shape); and "why arent there new card assets like we talked about".
+
+Done:
+  - Twenty painted grounds in four families (motion/full-families.js); the shares now spread the
+    draw over nine kinds, a photograph still the commonest at .3.
+  - Twenty card pictures painted in a headless browser with the studio's fonts; Pokémon 2 to 11
+    pictures, sports 8 to 19.
+
+Found:
+  - "Paint generic cards" was heard as card grounds on 2026-11-21, and only grounds were made; the
+    owner meant the pictures in front. A request about a line's variety means its product pictures
+    first, its grounds second.
+  - "Device imagery" as library photographs of devices would break rule 160 (a photograph of goods
+    must be the ad's own make and model). Painting the ad's own product picture as the ground
+    always matches.
+  - A square ad leaves little ground showing: a trail of small product echoes lay under the
+    product and its sticker and showed nothing. A ground's feature has to live where words are
+    not: the frame's edges, or larger than the frame.
+  - A sample sheet at 4:5 read as "the ads changed shape": the owner's ads are mainly 1:1, so
+    sheets lead with square.
+  - A ground feature much darker than a light ground (a grey laptop close-up on white) turns the
+    shade behind each block of words into visible boxes, and where a box meets the frame the
+    pre-flight stops it (full_style_check, laptop 2241). Keep painted features within a step of the
+    ground's own tone, and fade them out before the edges.
+  - Word tapes drawn across the whole frame ran under the headline; a corner tape runs at 45 degrees
+    across the corner, not along the diagonal.
+
+Later the same day (DESIGN-LAW 164; OPEN-ITEMS BU 5 to 9):
+  - Selling points drawn by the seed: two to four, from each line's own promises and any buyer's,
+    each said several ways, the money or the quote always in the first two.
+  - The iPhone mix by the owner's word, not by release date alone: the 17 Pro Max pushed, the 16
+    Pro Max (the shop's best seller) close behind, the colourful base and Plus models a third.
+  - Watch Ultra 4 and Series 12 from the owner's site; no ad-ready free picture of 2026 Samsung or
+    Pixel phones exists on Commons.
+
+Found:
+  - "2026 / 2027 adjacent" read alone pushed the older phones nearly out; the owner then said the
+    16 Pro Max is the best seller and the colourful base models are wanted too. Weights are a
+    marketing decision: ask which models sell, not only which are new.
+  - The sample sheet's renderer pinned two iPhone 16 Pros on every iPhone ad, and the owner read
+    it as the engine's choice. A sheet must draw what the engine draws.
+  - A layout that keeps "the first n" where items do not fit drops the wrong ones; drop the longest.
+  - The owner's site serves its device art at 640 x 640, the same renders the studio already
+    holds; the larger files came as the owner's own upload.
+
+RESUME HERE: OPEN-ITEMS §BU 5 to 9. Device pictures for 2026 Samsung and Pixel; a Spanish points pool.

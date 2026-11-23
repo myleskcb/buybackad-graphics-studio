@@ -1737,7 +1737,7 @@
    "cat": "phones",
    "group": "Phones and Apple",
    "label": "Foldables",
-   "models": "Galaxy Z Fold, Z Flip and Pixel Fold",
+   "models": "iPhone Duo, Galaxy Z Fold and Flip, Pixel Fold",
    "heads": [
     "WE BUY FOLDABLES",
     "CASH FOR FOLDABLES",
@@ -1799,6 +1799,15 @@
       }
      ],
      "w": 11
+    },
+    {
+     "set": [
+      {
+       "file": "qs-iphone-duo",
+       "k": 1
+      }
+     ],
+     "w": 12
     },
     {
      "set": [
@@ -2419,6 +2428,24 @@
     ]
    ],
    "pool": [
+    {
+     "set": [
+      {
+       "file": "qs-watch-ultra4",
+       "k": 1
+      }
+     ],
+     "w": 11
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s12",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
     {
      "set": [
       {
@@ -5631,7 +5658,88 @@
        "k": 1
       }
      ],
-     "w": 11
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-collection",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-slabs-trio",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-binder",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-cards-fan",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-slab",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-packs-fan",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-booster-box",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-card-holo",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-card-fullart",
+       "k": 1
+      }
+     ],
+     "w": 4
     },
     {
      "set": [
@@ -5640,7 +5748,7 @@
        "k": 1
       }
      ],
-     "w": 8
+     "w": 2
     }
    ]
   },
@@ -5722,11 +5830,110 @@
     {
      "set": [
       {
+       "file": "ph-sports-collection",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
        "file": "sports-slabs-stack",
        "k": 1
       }
      ],
      "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-slabs-autos",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-refractor-fan",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-binder",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-auto-slab",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-packs-fan",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-hobby-box",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-card-auto",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-card-patch",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-card-soccer",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-card-hockey",
+       "k": 1
+      }
+     ],
+     "w": 2
     },
     {
      "set": [

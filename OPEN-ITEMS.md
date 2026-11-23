@@ -4494,3 +4494,73 @@ Open:
 5. **The Golden Gate Bridge and the skylines that hold a trademarked building** (the Empire State,
    the Space Needle) are kept out where a photograph is about the building; a skyline that has one in
    it is kept. If the shop wants no risk at all, drop those by hand.
+
+## BU. 2026-11-22 — four more kinds of ground, and the card lines' own pictures (DESIGN-LAW 163)
+
+(claude/full-ad-looks-layout, after §BT. The owner: "some backgrounds we'll use more device or brand
+imagery", "or we use abstract img backgrounds", "what else would we use?", "Yes, build them"; and,
+of the card ads, "why arent there new card assets like we talked about".)
+
+Done:
+- `motion/full-families.js`: twenty grounds in four families, painted in the pair's own colours:
+  product (a wall of the ad's own product, a close-up out of focus, a giant outline of it), abstract
+  (silk, liquid chrome, bokeh, frosted glass, holographic foil, spheres, a light leak), shape (disc,
+  Bauhaus, bands, pills, colour blocks, wave, rising sun), type (word wall, giant word, word tape).
+- The shares: photograph .3 (.55 in a metro with its own), abstract .13, gradient .12, pattern .12,
+  shape .1, product .1, type .05, scene .04, house .04. "Stands on" in the maker offers each family.
+- Twenty card pictures painted (`scripts/paint_card_pictures.mjs`, ph-poke-* and ph-sports-*):
+  holo and full-art cards, fanned cards, graded slabs, three slabs, binders, booster packs, a booster
+  box, a collection; soccer and hockey rookies, an autograph, a patch autograph, refractors, a graded
+  autograph, three graded rookies, wax and hobby packs, a hobby box, a sports collection. Pokémon's
+  pool 2 to 11 pictures, sports' 8 to 19.
+
+Open:
+1. **The card pictures are placeholders.** Drawn cards read as cards but not as a particular
+   valuable one; a photograph of the shop's own slabs, binders and sealed boxes would sell harder.
+   Each ph-* is named so it can be swapped one for one.
+2. **The graded Charizard (`poke-psa-charizard`) is CC BY-SA 2.0** (cut from a Wikimedia Commons
+   photograph, `assets/cutouts/ATTRIBUTION.json`): that licence asks for a credit on the ad, and the
+   card's art is the maker's. Rule 161 holds new ad photographs to public domain or CC0. It still has
+   weight 6 of the Pokémon pool; the owner's call whether it stays.
+3. **Still to build from the list:** textures and materials (about 40 CC0 photographs, about 25 MB:
+   needs the owner's go-ahead to download), space (NASA photographs are public domain, about 30, about
+   20 MB, plus painted ones; most are dark, so under a duotone or wash), the area drawn as a map from
+   the studio's own geo data, money and value grounds, seasonal sets.
+4. **The new shares are first guesses** and want the owner's eye on a sheet of New looks.
+5. **The devices of 2026, and 2027 next** (the owner, 2026-11-22: "iphone duo", "z fold 8", "any other
+   new devices?", "it needs to be 2026 / 2027 adjacent"). Done: the iPhone draw weighs the 2025 and 2026
+   models about nine in ten (spec/product-demand.json), and the iPhone Duo leads the foldables line
+   (its words now name it first). Missing pictures, by what launched (press coverage):
+   - Apple, 2026-09-09: the iPhone Duo has only the owner's site art (562 x 364, small) and no render
+     in motion/phones, so it cannot stand in an iPhone ad; the iPhone Air (2025) neither. Apple Watch
+     Series 12 and Ultra 4, and AirPods 5, are not in assets/devices.json. The base iPhone 18 and 18e
+     are due in spring 2027.
+   - Samsung: Galaxy S26, S26+ and S26 Ultra (2026-02-25), Galaxy Z Fold 8 Ultra, Z Fold 8 and Z Flip 8
+     (2026-07-22). The library's newest Samsung pictures are the S24 and generic generated foldables.
+   - Google: the Pixel 11 family (2026-08). The newest Pixel pictures are the Pixel 9.
+   The owner's site's device art (uploaded 2026-09-27) is the source the iPhone pictures came from;
+   the same for these would keep every device real. Needs the owner's upload or go-ahead.
+6. **Card pictures, photo-accurate**: painted ones read as drawn up close. Options, best first: the
+   shop's own photographs; 3D renders of slabs, boxes, packs and a binder with our own art (no 3D tool
+   on this Mac yet); the fal image model making blank objects with our labels laid on after. Real
+   popular cards (a named player, Pokémon art) only from the shop's own stock, after a word with a
+   lawyer: a player's face in a paid ad is his likeness.
+7. **Selling points vary** (DESIGN-LAW 164, done 2026-11-22): two to four per ad, drawn from each
+   line's own promises and any buyer's, each said several ways. Spanish ads still draw the old
+   three from the catalogue's Spanish list; a Spanish pool is next.
+8. **The iPhone mix, by the owner's word** (done 2026-11-22): the 17 Pro Max pushed hardest, the 16
+   Pro Max (the shop's best seller) close behind, the 18 Pro Max present and to grow; the colourful
+   base and Plus models of 14 to 17 about a third of the draw. The iPhone 16 Plus has no render in
+   motion/phones and is left out until it has one. Watch Ultra 4 and Series 12 came from the owner's
+   site (2026-11-22) and lead the watch line; assets/devices.json has them by hand, since
+   scripts/device_catalog.py needs Pillow, which this Mac does not have: teach it ultra4 and s12 when
+   it next runs. The same broad mix (hot items and everyday ones) is wanted for cards, cars and
+   jewellery.
+9. **2026 Samsung and Pixel pictures: none on Commons fit an ad** (searched 2026-11-22). The CC0 ones of
+   the Galaxy S26 series and the S25 Ultra are store displays (price tags, security tethers, the
+   maker's screen) or a phone in a hand; the CC BY and CC BY-SA ones of the S26 Ultra and the Z Fold 8
+   and Fold 8 Ultra are the same kind of store shots and would need a credit on the ad; the Pixel 11
+   Pro's clean drawings (CC BY-SA) are flat vectors that would not sit with the studio's photographed
+   devices. The owner's site is Apple only. Ways in: the shop's own photographs of the Samsung and
+   Pixel phones it buys (cut out by the existing scripts), stock bought with ad rights, or the fal
+   model drawing from a real photograph as its reference (scripts/bggen_entities.py), read by eye.

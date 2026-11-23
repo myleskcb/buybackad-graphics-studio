@@ -10,6 +10,7 @@ import { placeAccents, drawAccents, timeAccents } from "./accents.js";
 import { vibeBackground, candidateGround, themeGround, freshGround, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
   drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse,
   drawSticker, pairGradientGround, fillGradient, fullPatternGround, toneOf as okTone } from "./decor.js";
+import { familyGround } from "./full-families.js";   // the full ad's product, abstract, shape and type grounds (rule 163)
 
 // ------------------------------------------------------------ small tools
 
@@ -334,7 +335,8 @@ export function strikeOf(st) {
  *  enough, as harmonise() says of the label). Three at most, short enough to stand as chips. */
 export function pointsOf(st) {
   const cut = s => s.trim().toUpperCase().slice(0, 24);
-  if (typeof st.points === "string") return st.points.split(/[,\n•·|]+/).map(cut).filter(Boolean).slice(0, 3);
+  // three at most on a plain look; the full ad lays out four where they fit (rule 164)
+  if (typeof st.points === "string") return st.points.split(/[,\n•·|]+/).map(cut).filter(Boolean).slice(0, st.full ? 4 : 3);
   const head = st.headline || "", lang = st.lang || "en";
   const es = lang === "both" ? !SPANISH.test(head) : lang === "es" || SPANISH.test(head);
   const stems = s => s.toUpperCase().split(/[^A-ZÁÉÍÓÚÑÜ]+/).filter(w => w.length >= 4).map(w => w.slice(0, 5));
@@ -2365,7 +2367,7 @@ export function trim(c) {
 
 // ------------------------------------------------------------ backgrounds
 
-function background(st, p, W, H, sc, r) {
+function background(st, p, W, H, sc, r, prods = []) {
   const c = canvas(W, H), x = c.getContext("2d");
   const g = p.ground, l = p.light;
   const [cx, cy] = sc;
@@ -2374,6 +2376,8 @@ function background(st, p, W, H, sc, r) {
   // the full ad's tone-on-tone patterns (decor.js FULL_PATTERNS) carry their own light and no black vignette:
   // on a cream or a mint ground a black edge is a grey stain
   if (fullPatternGround(st.background, x, st, p, W, H, sc, r)) return c;
+  // and the four families of 2026-11-22 (motion/full-families.js): the product ones paint the ad's own pictures
+  if (familyGround(st.background, x, st, p, W, H, sc, r, prods)) return c;
   const pairG = pairGradientGround(st.background, x, st, p, W, H, sc, r);
   if (pairG || candidateGround(st.background, x, st, p, W, H, sc, r) || freshGround(st.background, x, st, p, W, H, sc, r) || themeGround(st.background, x, st, p, W, H, sc, r) || vibeBackground(st.background, x, st, p, W, H, sc, r)) {
     // a pair's own gradient on a light ground keeps its edges clean: black at its corners is grey on cream (2026-11-18)
@@ -2617,7 +2621,7 @@ export class Ad {
     this.idleMove = this.plan ? (this.plan.idleMove || { k: 0, anchor: 0, amp: 0 }) : this._idleRoom();
     for (const p of this.phones) { p.idleK = this.idleMove.k; p.idleAnchor = this.idleMove.anchor; p.idleAmp = this.idleMove.amp; }
     this._buildDecor();
-    this.bg = background(st, this.p, this.W, this.H, this.stageC, rng(st.seed + 1));
+    this.bg = background(st, this.p, this.W, this.H, this.stageC, rng(st.seed + 1), this.phones.map(q => q.img).filter(Boolean));
     this.liveGround = ["sunburst", "aurora", "drift"].includes(st.background);
     this._softFloor();
     this.dofBlur = 0;

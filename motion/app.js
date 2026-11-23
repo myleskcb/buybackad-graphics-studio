@@ -245,6 +245,7 @@ async function rebuild() {
     const ad = adFor(st, Math.round(W * k), Math.round(H * k));
     if (id !== state.buildId) return;
     state.ad = ad;
+    if (state.full && state.style.points == null && document.activeElement !== $("f-points")) $("f-points").value = st.points || "";
     const c = $("preview"); c.width = ad.W; c.height = ad.H;
     state.t0 = performance.now(); state.tPaused = 0;
     state.audio = null;
@@ -423,7 +424,8 @@ const LAYOUT_NAMES = {
 };
 
 // what the full ad stands on (rule 161): the kind of ground, and how a photograph is laid under the words
-const GROUND_KINDS = { photo: "A photograph", pattern: "A painted pattern", gradient: "A gradient", scene: "A drawn scene", house: "The house's own", look: "The look's own" };
+const GROUND_KINDS = { photo: "A photograph", product: "Your product, as the ground", abstract: "Abstract (silk, chrome, glass, foil)", shape: "Colour and shape", type: "Words (your goods' own word)",
+  pattern: "A painted pattern", gradient: "A gradient", scene: "A drawn scene", house: "The house's own", look: "The look's own" };   // the four families of rule 163 after the photograph
 const PHOTO_TREAT_NAMES = { grade: "Graded to the colours", tint: "Tinted", duotone: "Duotone", wash: "Washed at the top and foot", pattern: "Under a fine pattern" };
 
 /** What the ad can be about, into its picker: iPhones first (the maker's own), then the offer family's lines by group. */
@@ -462,7 +464,7 @@ async function applyRecipe(id) {
   const w = R.words || {}, S = subjects.list.find(x => x.key === R.subject), other = R.subject !== "iphone";
   s.headline = w.headline || (S ? S.heads[0].toUpperCase() : s.headline);
   s.tag = w.tag || (S && other ? S.models.toUpperCase() : "");
-  s.points = w.points || (S && other ? S.points : null);
+  s.points = w.points || null;   // a design's own points, else the ad draws the line's (rule 164)
   delete s.feed_claim;                               // the design's claim is drawn unless a business name or a claim is typed (fullOf)
   for (const [k, v] of [["feed_burst", w.burst], ["number_label", w.label]]) { if (v) s[k] = v; else delete s[k]; }
   // its look is its own seed's, leaning toward its card (fullOf passes the hint), never the card's pair or face
@@ -611,8 +613,9 @@ function buildPanel() {
       if (was) { if (own[0].includes(state.style.headline)) state.style.headline = "WE BUY IPHONES"; if (own[1].includes(state.style.tag)) state.style.tag = ""; if (own[2].includes(state.style.points)) state.style.points = null; }
     } else {
       state.style.subject = key; state.style.subject_set = 0;
-      state.style.headline = S.heads[0].toUpperCase(); state.style.tag = S.models.toUpperCase(); state.style.points = S.points;
-      ["headline", "tag", "points"].forEach(k => state.locked.add(k));
+      // the points are left to the ad, which draws two to four of the line's own by its seed (rule 164); typed ones stay as typed
+      state.style.headline = S.heads[0].toUpperCase(); state.style.tag = S.models.toUpperCase(); state.style.points = null;
+      ["headline", "tag"].forEach(k => state.locked.add(k));
     }
     save(); syncWords(); syncMode(); rebuild(); renderGallery(true);
   });
@@ -655,7 +658,7 @@ function buildPanel() {
   }
   {   // what it stands on (rule 161): a photograph, a painted pattern, a gradient...; a photograph's treatment
     const sec = document.createElement("details"); sec.className = "mo-sec mo-full-only"; sec.open = true;
-    sec.innerHTML = `<summary>Background</summary><p class="mo-note">Two looks in five stand on a photograph. When your area is in one of the 20 biggest US metros, it's a photograph of your city. Pick one to keep it.</p>`;
+    sec.innerHTML = `<summary>Background</summary><p class="mo-note">About a third of looks stand on a photograph; when your area is in one of the 20 biggest US metros, it's a photograph of your city. The rest stand on your own product, an abstract, colour and shapes, your goods' own word, a pattern or a gradient. Pick one to keep it.</p>`;
     for (const [k, label, names] of [["full_ground", "Stands on", GROUND_KINDS], ["full_treat", "Photo treatment", PHOTO_TREAT_NAMES]]) {
       const row = document.createElement("div"); row.className = "mo-set";
       row.innerHTML = `<label>${label}<select data-key="${k}">${Object.entries(names).map(([v, n]) => `<option value="${v}"${v === "look" ? " disabled" : ""}>${n}</option>`).join("")}</select></label>
@@ -908,7 +911,8 @@ function syncWords() {
   put("f-number", state.style.number || "");
   put("f-label", state.style.number_label || "");
   put("f-hook", state.style.hook === "strike_out" ? strikeOf(state.style).text : (state.style.hook_text || ""));
-  if (document.activeElement !== $("f-points")) $("f-points").value = pointsOf(state.style).join(", ");
+  // the points the ad drew, where none are typed (the full ad draws them by its seed: rule 164)
+  if (document.activeElement !== $("f-points")) $("f-points").value = state.full && state.style.points == null && state.ad && state.ad.st.full ? (state.ad.st.points || "") : pointsOf(state.style).join(", ");
   if (document.activeElement !== $("f-area")) $("f-area").value = state.style.area || "";
   for (const [id, key] of FULL_FIELDS) if (document.activeElement !== $(id)) $(id).value = state.style[key] || "";
   document.querySelectorAll("#langs [data-lang]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.lang === (state.style.lang_mode || "mix"))));

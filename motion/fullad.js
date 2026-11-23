@@ -24,6 +24,8 @@ import { FULL_VOICES } from "./full-voices.js";
 import { bannedIn } from "./banned-words.js";
 import { PHONE_WEIGHT, PHONE_REST, PHONE_VIEWS, PHONE_COUNTS, PHONE_LINEUP, pickWeighted } from "./product-demand.js";
 import { GROUND_SHARES, GROUND_SCENES, GROUND_GRADIENTS, GROUND_PATTERNS, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS, GROUND_PLACES, GROUND_LINE_PATTERNS } from "./full-grounds.js";
+import { FAMILY_GROUNDS, FAMILY_OF } from "./full-families.js";
+import { drawPoints, OLD_DEFAULTS } from "./full-points.js";
 import { metroOf } from "./metros.js";
 import { leanStream, leanPick, pairAnswers } from "./recipe-lean.js";
 
@@ -512,7 +514,10 @@ export function groundFor(subject, seed, pairKey, product, lean = null, place = 
   // frame's edge (full_ad_check, 2026-11-18), so those pairs stand on the other kinds
   const pc = COLOUR_OF[pairKey], darkWords = !!pc && lum(pc.colors.ink) < lum(pc.colors.ground);
   const share = { photo: pool.length ? (placed.length ? Math.max(GROUND_SHARES.photo, .55) : GROUND_SHARES.photo) : 0, scene: GROUND_SCENES.length && !darkWords ? GROUND_SHARES.scene : 0, gradient: GROUND_GRADIENTS.length ? (GROUND_SHARES.gradient || 0) : 0,
-    pattern: GROUND_PATTERNS.length ? (GROUND_SHARES.pattern || 0) : 0, house: GROUND_SHARES.house };
+    pattern: GROUND_PATTERNS.length ? (GROUND_SHARES.pattern || 0) : 0, house: GROUND_SHARES.house,
+    /* the four families of 2026-11-22 (rule 163; motion/full-families.js): abstract, shape and type are painted in the
+       pair's own colours; the product ones paint the ad's own pictures, so an ad that shows none has none */
+    abstract: GROUND_SHARES.abstract || 0, shape: GROUND_SHARES.shape || 0, product: bare ? 0 : (GROUND_SHARES.product || 0), type: GROUND_SHARES.type || 0 };
   /* a rebuilt recipe's lean (motion/recipe-lean.js; the owner, 2026-11-18: "take them as inspiration but
      rebuild them all", "retire but bg counts"): a kind of ground or one ground its card stood for, of
      those this ad may stand on; for a photograph, the one its card stood on where that is measured, not
@@ -531,7 +536,7 @@ export function groundFor(subject, seed, pairKey, product, lean = null, place = 
   const g = rng(mixSeed((mixSeed(seed >>> 0) ^ h) >>> 0)); g();
   /* a kind of ground picked in the maker (Background, want.kind): only that kind is drawn, where the ad has one */
   if (want.kind && share[want.kind] > 0) for (const k of Object.keys(share)) if (k !== want.kind) share[k] = 0;
-  let u = g() * (share.photo + share.scene + share.gradient + share.pattern + share.house);
+  let u = g() * Object.values(share).reduce((a, b) => a + b, 0);
   if ((u -= share.photo) < 0) { const src = pool[Math.floor(g() * pool.length) % pool.length]; return { background: "photo", ground_photo: { src, focus: GROUND_PHOTOS[src].focus || [.5, .5], ...tf } }; }
   if ((u -= share.scene) < 0) return { background: GROUND_SCENES[Math.floor(g() * GROUND_SCENES.length) % GROUND_SCENES.length] };
   // a vivid gradient in the pair's own two families (decor.js pairGradientGround; the owner: "Also don't see any gradients really?")
@@ -544,6 +549,10 @@ export function groundFor(subject, seed, pairKey, product, lean = null, place = 
     const own = GROUND_LINE_PATTERNS[cat] || [], k = g();
     if (own.length && k < .65) return { background: own[Math.floor(g() * own.length) % own.length] };
     return { background: GROUND_PATTERNS[Math.floor(g() * GROUND_PATTERNS.length) % GROUND_PATTERNS.length] };
+  }
+  for (const fam of ["abstract", "shape", "product", "type"]) {
+    const L = FAMILY_GROUNDS[fam];
+    if ((u -= share[fam]) < 0 || (want.kind === fam && share[fam] > 0)) return { background: L[Math.floor(g() * L.length) % L.length] };
   }
   return null;
 }
@@ -1369,11 +1378,23 @@ export class FullAd extends Ad {
     // the points as pills, square tabs or bare ticks on the ground (in the small lines' ink, the ground evened under them)
     const chipLook = Lay.chips === "bare" ? { shape: "bare", ink: gInk, ground: p.ground } : { shape: Lay.chips };
     const chipAlign = left ? "l" : "c";
+    /* fewer points where all of them do not fit (rule 164: an ad may draw four): the longest drop first and the
+       rest keep their order, so the short money and quote promises stay; tried from one fewer down to one, in
+       the rows the call allows. (Keeping the first two, a wide face such as Russo One could not fit two long
+       ones, and four type pairs left the measured list: full_type_check, 2026-11-22.) */
+    const subset = n => {
+      if (n >= items.length) return items;
+      const keep = items.map((t, i) => [t.length, i]).sort((a, b) => a[0] - b[0] || a[1] - b[1]).slice(0, n).map(x => x[1]).sort((a, b) => a - b);
+      return keep.map(i => items[i]);
+    };
     const chipsFor = (shapes, maxW, maxH, align) => {
-      for (const [n, row] of shapes) {
+      // the customer's typed points: all of them or the first two, and where those do not fit the download stops and says so
+      const full = shapes.filter(s => s[0] === items.length), rows = full.length ? full.map(s => s[1]) : [false], order = st.points_drawn ? full.slice() : shapes;
+      if (st.points_drawn) for (let k = items.length - 1; k >= 1; k--) for (const row of rows) order.push([k, row]);
+      for (const [n, row] of order) {
         if (n > items.length || n < 1) continue;
         for (let fs = U * FULL.chip; ; fs = Math.max(U * FULL.chipMin, fs * .95)) {
-          const key = `${n}|${row}|${align}|${Lay.chips}|${fs.toFixed(2)}`, q = (this._chipCache ||= new Map()).get(key) || this._chipCache.set(key, perksSprite(items.slice(0, n), fs, this.hot, align, row, face, !!this.st.plate_grad, chipLook)).get(key);
+          const key = `${n}|${row}|${align}|${Lay.chips}|${fs.toFixed(2)}`, q = (this._chipCache ||= new Map()).get(key) || this._chipCache.set(key, perksSprite(st.points_drawn ? subset(n) : items.slice(0, n), fs, this.hot, align, row, face, !!this.st.plate_grad, chipLook)).get(key);
           if (q.w <= maxW && q.h <= maxH) return { q, fs, n, row };
           if (fs <= U * FULL.chipMin) break;
         }
@@ -2197,7 +2218,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   // dark: the words are lighter than the ground (a vivid ground under white words is dark here); busy: a
   // photograph or a drawn scene, not one of the house's own painted grounds (its gradients and its
   // tone-on-tone patterns are the pair's own colours, solved for the words: rule 154)
-  const own2 = COLOUR_OF[key].colors, painted = [...GROUNDS, ...GROUND_GRADIENTS, ...GROUND_PATTERNS].includes(look.background);
+  const own2 = COLOUR_OF[key].colors, painted = [...GROUNDS, ...GROUND_GRADIENTS, ...GROUND_PATTERNS, ...FAMILY_GROUNDS.shape, ...FAMILY_GROUNDS.type].includes(look.background);
   const styles = pickFullStyles(rng(((seed >>> 0) ^ 0x51ed27f3) * 13 + lineTurn(st.subject, 99991) + 5),
     { dark: lum(own2.ink) > lum(own2.ground), busy: !painted, lean });
   if ("text_fx" in picked || held("text_fx")) delete styles.scrim;
@@ -2249,7 +2270,11 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   // a look's small line that says what the call to action says (a video look's tag CALL OR TEXT over its CALL OR
   // TEXT, rule 158) gives way to one from the list: the ad never says one thing twice
   const line = st.feed_line ?? (st.tag && !sharesWord(st.tag, label) ? st.tag : st.tag ? fresh(FULL_WORDS.line, [st.headline, label]) : one(FULL_WORDS.line));
-  const points = st.points ?? (pointsOf(st).length ? pointsOf(st).join(", ") : fresh(FULL_WORDS.points, [st.headline, line]));
+  /* the selling points (rule 164, motion/full-points.js): typed ones as typed; otherwise two to four drawn by the seed from
+     the line's own promises and any buyer's, each in one of its phrasings (a line's old fixed list counts as untyped) */
+  const typedPoints = st.points != null && !OLD_DEFAULTS.has(String(st.points).trim().toUpperCase());
+  const points = typedPoints ? st.points : es ? (pointsOf({ ...st, points: null }).join(", ") || fresh(FULL_WORDS.points, [st.headline, line]))
+    : (drawPoints(st.subject, r, [st.headline, line], sharesWord) || fresh(FULL_WORDS.points, [st.headline, line]));
   // who is buying: a business name, where one is given, takes the badge (the first thing read). An ad
   // with no name on it is the pattern of the buyers nobody trusts (competitor research, 2026-11-12:
   // the brand is what carries the eye to the rest of an ad; "top dollar" is on every sign in the trade)
@@ -2257,7 +2282,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   const claim = st.feed_claim ?? (biz ? biz.toUpperCase() : fresh(FULL_WORDS.claim, [st.headline, line, points]));
   const burst = st.feed_burst ?? fresh(es ? FULL_WORDS.burst_es : FULL_WORDS.burst, [st.headline, line, points, claim, label]);
   const words = {
-    feed_claim: claim, feed_line: line, points, number_label: label,
+    feed_claim: claim, feed_line: line, points, points_drawn: !typedPoints, number_label: label,   // drawn points may be fewer where they do not fit; typed ones never quietly
     feed_where: st.feed_where ?? (area ? area.toUpperCase() : ""),
     // the website as a sentence, so it reads as an address (owner, 2026-11-03: "that way they know it's a URL")
     feed_site: st.feed_site ?? (st.site ? (es ? "Visítanos en " : "Visit our website at ") + String(st.site).trim() : ""),
@@ -2271,7 +2296,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   // the voice-over's lines are about phones: an ad for anything else plays its music alone
   const quiet = subject ? { voice: "off", vo_clip: "", vo_text: "" } : {};
   // what it stands on, by kind, and a photograph's treatment: the maker's Background panel shows them (rule 161)
-  const bgk = look.background, drawnGround = { full_ground: bgk === "photo" ? "photo" : /^pat_/.test(bgk) ? "pattern" : /^pair_/.test(bgk) ? "gradient" : GROUND_SCENES.includes(bgk) ? "scene" : GROUNDS.includes(bgk) ? "house" : "look",
+  const bgk = look.background, drawnGround = { full_ground: bgk === "photo" ? "photo" : /^pat_/.test(bgk) ? "pattern" : /^pair_/.test(bgk) ? "gradient" : GROUND_SCENES.includes(bgk) ? "scene" : GROUNDS.includes(bgk) ? "house" : FAMILY_OF[bgk] || "look",
     full_treat: (look.ground_photo && look.ground_photo.treat) || "grade" };
   return { ...out, ...QUIET, ...look, ...words, ...quiet, ...drawnGround, full: true, phones: subject ? have : (out.phones || []).slice(0, most) };
 }

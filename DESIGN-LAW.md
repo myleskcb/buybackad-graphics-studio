@@ -6791,3 +6791,72 @@ here". Downloads approved: free licence only, the top 20 US metros, cards painte
   No maker's art, symbol or lettering (no PlayStation shapes, no Pokémon card back). One tone of the
   ground, a wider step than the general patterns, thinned behind the product; a line with them draws
   one in .65 of its pattern share.
+
+## 163. Four more kinds of ground, and the card lines' own pictures
+
+Added 2026-11-22. The owner: "some backgrounds we'll use more device or brand imagery", "or we use
+abstract img backgrounds", "space?", "what else would we use?", "some times patterns / colors etc.
+can you list what would give us a good amount of variety and what's relevant and makes good
+design?"; of the list (device, abstract, brand in type, colour and shape first, no downloads):
+"Yes, build them". And, of the card ads: "why arent there new card assets like we talked about".
+
+- **Four families, painted** (`motion/full-families.js`, called from engine.js `background`):
+  *product*, the ad's own pictures as its ground (a wall of them tone on tone, cleared round the real
+  one; a close-up far too near to fit, out of focus in the pair's two tones; one giant outline of it
+  on the far side, cut by the edge); *abstract* (silk ribbons, liquid chrome, bokeh, frosted glass,
+  a holographic foil, soft spheres, a light leak); *shape* (one disc, Bauhaus corners, Swiss bands,
+  pills, colour blocks, a wave, a rising sun); *type* (the goods' own word as a wall, one word too
+  big for the frame, a tape of words).
+- **The product family shows only the ad's own product**, so it fits every line (rule 160's "never a
+  MacBook behind an iPhone"); an ad that shows no product never draws it. A device photograph from
+  the library would have to match make and model; the ad's own picture always does.
+- **Two colour families still** (rule 139): every family paints in the ground's own tones and the
+  far end and deep shade the pair's gradients use (`pairGradientColours`); a mark beside the words
+  steps away from their ink (`patternTone`). Shape and type grounds count as the house's own painted
+  grounds for the styles' draw; product and abstract ones as busy.
+- **Marks are type only** (rule 116): the type family sets the goods' word from the headline (WE BUY
+  POKÉMON CARDS gives POKÉMON CARDS) and "WE BUY", "CASH"; never a maker's logo.
+- **The shares** (`spec/full-grounds.json`): photograph .3 (.55 in a metro with its own photographs),
+  abstract .13, gradient .12, pattern .12, shape .1, product .1, type .05, scene .04, the house .04.
+  The maker's Background panel offers each family under "Stands on", lockable.
+- **The card lines' pictures** (`scripts/paint_card_pictures.mjs`, `scripts/card-painter.js`): twenty
+  pictures drawn in code, named ph-* as placeholders (rule 117's convention): trading cards of no game
+  (an element's emblem for art, invented names, no yellow border), slabs of no grader (a plain label,
+  a grade, a hologram square), booster packs, a sealed booster box, binder pages, a collection laid
+  out; sports cards of no league, team or player (a ball for art, an autograph that is a scribble, a
+  jersey swatch of no team), refractors, wax and hobby packs, a hobby box. Pokémon's pool went from 2
+  pictures to 11, sports' from 8 to 19 (`spec/product-demand.json`). A photograph of the shop's own
+  stock replaces any of them.
+- Checked: every family on 40 full ads across ten lines at 1:1, and every new card picture on its own
+  full ad, all through `fullBlockers` and the pre-flight.
+
+## 164. Selling points vary: two to four, each promise said several ways, the money always early
+
+Added 2026-11-22. The owner, of a row of card, console and coin ads: "All of these still have the
+same selling points why is that so can we have some that have more than three maybe three is the
+ideal number but some can have two some could have four depending on how heavy hitting or how
+important they are", "we shouldn't have 10 graphics in a row that I'll have the exact same things
+covered or we could always rephrase it or have variations of the same information or use different
+selling points".
+
+- **Drawn by the seed** (`motion/full-points.js` drawPoints, from fullStyle): a full ad whose points
+  nobody typed draws two (.2), three (.55) or four (.25). A line's old fixed list (OLD_DEFAULTS)
+  counts as untyped; the maker no longer copies a line's list into the style when the line is
+  picked, so New look draws again. Typed points are drawn as typed.
+- **Which**: promises any buyer can stand behind (paid, quote, fees, meet, easy, fair) and each
+  kind of goods' own (phones: cracked, carrier, models; cards: singles, graded, lots, sealed, era;
+  gold and silver: tested, scale, broken, kinds; coins; cars: come, running, miles; gaming, cameras,
+  wearables, audio, computers, strips), each weighed by how hard it hits. The line's own leads in
+  .7 of ads.
+- **How said**: every promise has two to five phrasings, one drawn per ad (PAID TODAY, CASH SAME
+  DAY, PAID ON THE SPOT, CASH ON THE SPOT, PAID IN PERSON).
+- **Always**: one heavy hitter (the money or the quote) in every set, and within its first two,
+  since the layout keeps the first two where four do not fit; never two points that start with the
+  same word, never a word the headline or the line under it says (one promise, once); every phrasing
+  18 characters or less, no comma; none on the banned list (`scripts/words_check.mjs` reads every
+  phrasing). Four only from the short ones.
+- `pointsOf` keeps four on a full ad (three on a plain look).
+- **Where they do not all fit** (fullad.js chipsFor): the longest drop first and the rest keep their
+  order, from one fewer down to one, so the short money and quote promises stay. Keeping the first
+  two instead, four wide type pairs (Tech, Arcade, Warp, Pixel) could not fit two long points and
+  left the measured list (full_type_check); with this they hold, all 28.
