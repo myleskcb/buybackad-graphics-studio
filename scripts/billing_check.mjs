@@ -122,7 +122,7 @@ globalThis.fetch = async (input, init = {}) => {
   if (method === 'GET' && (m = path.match(/^\/products\/(.+)$/))) { const p = S.products.get(mode + ':' + m[1]); return p ? reply(200, p) : missing('product'); }
   if (method === 'POST' && path === '/products') {
     if (S.products.has(mode + ':' + body.id)) return reply(400, { error: { code: 'resource_already_exists', message: 'exists' } });
-    const p = { id: body.id, name: body.name }; S.products.set(mode + ':' + body.id, p); return reply(200, p);
+    const p = { id: body.id, name: body.name, statement_descriptor: body.statement_descriptor }; S.products.set(mode + ':' + body.id, p); return reply(200, p);
   }
   if (method === 'GET' && path === '/prices') {
     const keys = [].concat(body.lookup_keys || []);
@@ -433,6 +433,21 @@ let csPro;
   // the webhook: canceled at Stripe
   const secret = JSON.parse(store.get('pgfx-users').get('stripe:whsec:test')).secret;
   const signed = (obj, t) => { const payload = JSON.stringify(obj); t = t || Math.floor(Date.now() / 1000); return { payload, header: 't=' + t + ',v1=' + createHmac('sha256', secret).update(t + '.' + payload).digest('hex') }; };
+  /* the Stripe account is shared with iPhones.LA (2026-11-23): its own sales reach this
+     webhook too, and one bought with the same email must not touch the plan */
+  const before = userBlob('buyer@x.example');
+  const foreignSub = { id: 'sub_iphonesla', object: 'subscription', status: 'active', customer: 'cus_other', metadata: { email: 'buyer@x.example' },
+    items: { data: [{ id: 'si_other', price: { id: 'price_phonecase', lookup_key: null, metadata: {}, recurring: { interval: 'month' } }, current_period_end: Math.floor(Date.now() / 1000) + 86400 }] } };
+  for (const ev of [
+    { type: 'checkout.session.completed', data: { object: { id: 'cs_iphonesla', mode: 'subscription', customer_email: 'buyer@x.example', metadata: {}, subscription: foreignSub } } },
+    { type: 'customer.subscription.created', data: { object: foreignSub } },
+    { type: 'customer.subscription.deleted', data: { object: Object.assign({}, foreignSub, { status: 'canceled' }) } },
+  ]) { const f = signed(ev); await hit('POST', '/stripe-webhook', f.payload, null, { 'Stripe-Signature': f.header }); }
+  const afterForeign = userBlob('buyer@x.example');
+  ok(afterForeign.plan === before.plan && afterForeign.plan === 'business' && afterForeign.sub.id === before.sub.id,
+    "the shared account's other sales (a checkout and a subscription with the same email) leave the plan alone");
+  ok(S.products.get('test:bbad_business') && S.products.get('test:bbad_business').statement_descriptor === 'WEBUY.AD',
+    'a plan\'s product carries the WEBUY.AD statement suffix for its renewals');
   const ended = Object.assign({}, sub, { status: 'canceled' });
   const forged = await hit('POST', '/stripe-webhook', JSON.stringify({ type: 'customer.subscription.deleted', data: { object: ended } }), null, { 'Stripe-Signature': 't=' + Math.floor(Date.now() / 1000) + ',v1=' + 'ab'.repeat(32) });
   ok(forged.status === 400 && userBlob('buyer@x.example').plan === 'business', 'a forged webhook is refused');
@@ -466,6 +481,7 @@ let csPro;
   const cs = [...S.sessions.values()].pop();
   ok(r.status === 200 && cs.mode === 'payment' && S.prices.get(cs.line_items[0].price).unit_amount === 900 && cs.customer_creation === 'always' && !cs.allow_promotion_codes,
     'a pack is a one-off payment of $9, a customer made, no promotion codes');
+  ok(cs.payment_intent_data && cs.payment_intent_data.statement_descriptor_suffix === 'WEBUY.AD', 'a pack\'s card statement ends WEBUY.AD');
   ok((await hit('POST', '/checkout/confirm', { session_id: cs.id }, t)).json.pending === true, 'an unpaid session confirms nothing');
   pay(cs.id);
   const c1 = await hit('POST', '/checkout/confirm', { session_id: cs.id }, t);

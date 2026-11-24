@@ -92,16 +92,22 @@
      and app.js's on the studio) put these buttons above the email form; mount() draws
      them in a box and calls back with the account. Each shows only when the backend
      says it is configured (/api/auth/config: APPLE_CLIENT_ID, GOOGLE_CLIENT_ID), so a
-     site without them loads nothing. Apple's button and popup are its own JS (the
-     button drawn by Apple, as its guidelines want); its identity token goes to
-     /api/auth/apple with the nonce this page made, and Google's credential to
-     /api/auth/google. Inside the WeBuy.AD iPhone app neither shows yet: Google refuses
+     site without them loads nothing.
+     The owner, 2026-11-23, of Google's own button in a white box on the dark window:
+     "blend with app ui". Google's button is Google's page in a frame, black or white
+     and at most 400px, and the page around a frame can't restyle it. So both buttons
+     are the site's own, drawn like the window they sit in (its fields' surface and
+     edge, its type, the form's full width), each with its company's logo and words.
+     Ours opens the company's own popup: Apple's through AppleID.auth.signIn, its
+     identity token to /api/auth/apple with the nonce this page made; Google's through
+     its token client, the access token to /api/auth/google, which asks Google whom it
+     was issued to. Inside the WeBuy.AD iPhone app neither shows yet: Google refuses
      sign-in in an app's web view, and the App Store asks for Apple alongside it, which
      the app has to do natively (OPEN-ITEMS). */
   const IN_IOS_APP = /\bWeBuyADApp\//.test(navigator.userAgent);
   const APPLE_JS = 'https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js';
   const GOOGLE_JS = 'https://accounts.google.com/gsi/client';
-  let socialCfg = null, appleNonce = '', socialTarget = null, appleBound = false, googleInit = false;
+  let socialCfg = null, appleNonce = '', socialTarget = null, googleClient = null, socialStyled = false;
   const socialConfig = () => socialCfg || (socialCfg = (DEMO || IN_IOS_APP) ? Promise.resolve({}) : api('/auth/config').catch(() => ({})));
   const loadScript = (src, ready) => new Promise((res, rej) => {
     if (ready()) return res();
@@ -111,6 +117,7 @@
     s.addEventListener('error', () => rej(new Error('did not load')));
   });
   const newNonce = () => { const b = new Uint8Array(16); crypto.getRandomValues(b); return Array.from(b, x => x.toString(16).padStart(2, '0')).join(''); };
+  const socialError = msg => { if (socialTarget && socialTarget.onError) socialTarget.onError(msg); };
   /* a sign-in from either button: the account it opens, then the dialog's own next step */
   async function socialDone(path, body, via){
     const t = socialTarget;
@@ -118,50 +125,90 @@
     try { const user = took(await api(path, body)); if (t.onSignedIn) await t.onSignedIn(user, via); }
     catch (e){ if (t.onError) t.onError(explain(e)); }
   }
+  /* the logos, as each company draws them: Google's G in its four colours, Apple's apple
+     in the button's own ink */
+  const G_LOGO = '<svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">'
+    + '<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>'
+    + '<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>'
+    + '<path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>'
+    + '<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>';
+  const APPLE_LOGO = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>';
+  /* each window's own look: the studio's (styles.css) gives them its fields' raised surface,
+     hairline edge and focus ring; this file's gives them its own buttons' edge and type */
+  const SOCIAL_CSS = `
+.social-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;box-sizing:border-box;min-height:44px;margin:0;padding:10px 18px;border-radius:999px;font-family:inherit;font-size:14.5px;font-weight:650;line-height:1.2;letter-spacing:-.005em;cursor:pointer;transition:background-color .14s ease,border-color .14s ease,box-shadow .14s ease,transform .1s ease;-webkit-tap-highlight-color:transparent}
+.social-btn svg{width:18px;height:18px;flex:none;display:block}
+.social-apple svg{width:17px;height:17px;margin-top:-2px}
+.social-btn:active{transform:scale(.985)}
+.social-btn:focus{outline:none}
+.auth-google .social-btn{background:var(--surface-raise,#1e1e21);border:1px solid var(--hairline-strong,rgba(255,255,255,.16));color:var(--text,#f5f5f7)}
+.auth-google .social-btn:hover{border-color:var(--text-dim,#8e8e93)}
+.auth-google .social-btn:focus-visible{border-color:var(--accent,#0a84ff);box-shadow:0 0 0 4px var(--accent-wash,rgba(10,132,255,.16))}
+.acct-social .social-btn{background:transparent;border:1.5px solid var(--line,rgba(20,20,20,.18));color:var(--text,#141414);font:700 15px Satoshi,system-ui,sans-serif}
+.acct-social .social-btn:hover{background:rgba(127,127,127,.1)}
+.acct-social .social-btn:focus-visible{border-color:var(--accent,#2b56f5);box-shadow:0 0 0 4px rgba(43,86,245,.18)}
+`;
+  function socialButton(kind, words, logo, onClick){
+    const b = el('button', 'social-btn social-' + kind);
+    b.type = 'button';
+    b.innerHTML = logo + '<span>' + words + '</span>';
+    b.addEventListener('click', onClick);
+    return b;
+  }
+  /* Apple's popup, from our button: signIn() answers with the token, and the first
+     time only with the name. Closing the popup is not worth a word. */
+  function appleSignIn(){
+    let p;
+    try { p = window.AppleID.auth.signIn(); } catch (e){ p = Promise.reject(e); }
+    Promise.resolve(p).then(d => {
+      d = d || {};
+      const n = d.user && d.user.name ? [d.user.name.firstName, d.user.name.lastName].filter(Boolean).join(' ') : '';
+      return socialDone('/auth/apple', { id_token: d.authorization && d.authorization.id_token, name: n, nonce: appleNonce }, 'Apple');
+    }, err => {
+      const code = err && err.error;
+      if (code === 'popup_closed_by_user' || code === 'user_cancelled_authorize') return;
+      socialError('Apple sign-in did not finish. Try again.');
+    });
+  }
+  /* Google's popup, from our button: the token client asks which account and hands back an
+     access token. It has to open inside the click, or the browser blocks the popup. */
+  function googleSignIn(){
+    try { googleClient.requestAccessToken(); } catch (e){ socialError('Google sign-in did not finish. Try again.'); }
+  }
   async function mountSocial(holder, handlers){
     socialTarget = handlers || {};
     const cfg = await socialConfig();
     const apple = !!(cfg && cfg.apple && cfg.appleClientId), google = !!(cfg && cfg.google && cfg.googleClientId);
     if (!holder || (!apple && !google)) return false;
-    let shown = false;
-    if (apple && !holder.querySelector('#appleid-signin')){
-      const host = el('div', 'social-apple');
-      host.id = 'appleid-signin';             // Apple's JS draws its own button here
-      Object.assign(host.dataset, { color: 'black', border: 'true', type: 'continue', mode: 'center-align', borderRadius: '50', width: '300', height: '44' });
-      holder.appendChild(host);
+    if (!socialStyled){ const st = el('style'); st.textContent = SOCIAL_CSS; (document.head || document.body).appendChild(st); socialStyled = true; }
+    if (apple && !holder.querySelector('.social-apple')){
       try {
         await loadScript(APPLE_JS, () => !!(window.AppleID && window.AppleID.auth));
         appleNonce = appleNonce || newNonce();
         window.AppleID.auth.init({ clientId: cfg.appleClientId, scope: 'name email', redirectURI: location.origin + '/', usePopup: true, nonce: appleNonce });
-        if (!appleBound){
-          appleBound = true;
-          document.addEventListener('AppleIDSignInOnSuccess', ev => {
-            const d = (ev && ev.detail) || {}, n = d.user && d.user.name ? [d.user.name.firstName, d.user.name.lastName].filter(Boolean).join(' ') : '';
-            socialDone('/auth/apple', { id_token: d.authorization && d.authorization.id_token, name: n, nonce: appleNonce }, 'Apple');
-          });
-          document.addEventListener('AppleIDSignInOnFailure', ev => {
-            const code = ev && ev.detail && ev.detail.error;
-            if (code === 'popup_closed_by_user' || code === 'user_cancelled_authorize') return;   // they closed it: nothing to say
-            if (socialTarget && socialTarget.onError) socialTarget.onError('Apple sign-in did not finish. Try again.');
-          });
-        }
-        shown = true;
-      } catch (e){ host.remove(); }
-    } else if (apple) shown = true;
+        if (!holder.querySelector('.social-apple')) holder.insertBefore(socialButton('apple', 'Continue with Apple', APPLE_LOGO, appleSignIn), holder.querySelector('.social-google'));
+      } catch (e){ /* Apple's script did not load: no Apple button */ }
+    }
     if (google && !holder.querySelector('.social-google')){
-      const host = el('div', 'social-google');
-      holder.appendChild(host);
       try {
-        await loadScript(GOOGLE_JS, () => !!(window.google && window.google.accounts && window.google.accounts.id));
-        if (!googleInit){
-          googleInit = true;
-          window.google.accounts.id.initialize({ client_id: cfg.googleClientId, callback: resp => socialDone('/auth/google', { credential: resp && resp.credential }, 'Google') });
-        }
-        window.google.accounts.id.renderButton(host, { theme: 'filled_black', size: 'large', shape: 'pill', width: 300, text: 'continue_with' });
-        shown = true;
-      } catch (e){ host.remove(); }
-    } else if (google) shown = true;
-    return shown;
+        await loadScript(GOOGLE_JS, () => !!(window.google && window.google.accounts && window.google.accounts.oauth2));
+        if (!googleClient) googleClient = window.google.accounts.oauth2.initTokenClient({
+          client_id: cfg.googleClientId, scope: 'openid email profile', prompt: 'select_account',
+          callback: r => {
+            if (r && r.access_token) return socialDone('/auth/google', { access_token: r.access_token }, 'Google');
+            if (r && r.error === 'access_denied') return;                    // they said no: nothing to say
+            socialError('Google sign-in did not finish. Try again.');
+          },
+          error_callback: e => {
+            const type = e && e.type;
+            if (type === 'popup_closed') return;                                // they closed it
+            socialError(type === 'popup_failed_to_open' ? "The browser blocked Google's sign-in window. Allow pop-ups for this site and try again." : 'Google sign-in did not finish. Try again.');
+          },
+        });
+        if (!holder.querySelector('.social-google')) holder.appendChild(socialButton('google', 'Continue with Google', G_LOGO, googleSignIn));
+      } catch (e){ /* Google's script did not load: no Google button */ }
+    }
+    return !!holder.querySelector('.social-btn');
   }
 
   /* ---------- the dialog ---------- */
@@ -171,9 +218,9 @@
 .acct-modal{width:min(380px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--panel,#fffdf8);color:var(--text,#141414);border:1px solid var(--line,rgba(20,20,20,.18));border-radius:18px;padding:22px 22px 18px;box-shadow:0 24px 60px -14px rgba(0,0,0,.5);font:15px/1.4 Satoshi,system-ui,sans-serif}
 .acct-modal h3{margin:0 0 4px;font-size:20px}
 .acct-modal p.acct-sub{margin:0 0 14px;color:var(--text-2,#3b3833);font-size:14px}
-.acct-tabs{display:flex;gap:4px;background:rgba(20,20,20,.06);border-radius:999px;padding:3px;margin-bottom:14px}
+.acct-tabs{display:flex;gap:4px;background:var(--bg,#f2eee4);border:1px solid var(--line,rgba(20,20,20,.12));border-radius:999px;padding:3px;margin-bottom:14px}
 .acct-tabs button{flex:1;border:0;background:none;color:var(--text-2,#3b3833);font:700 13.5px Satoshi,system-ui,sans-serif;padding:9px;border-radius:999px;cursor:pointer;min-height:40px}
-.acct-tabs button[aria-selected=true]{background:var(--panel,#fff);color:var(--text,#141414);box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.acct-tabs button[aria-selected=true]{background:var(--panel,#fff);color:var(--text,#141414);box-shadow:0 1px 4px rgba(0,0,0,.15),inset 0 0 0 1px var(--line,rgba(20,20,20,.12))}
 .acct-modal label{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted,#66615a);margin:10px 0 5px}
 .acct-modal input{width:100%;box-sizing:border-box;font:500 16px Satoshi,system-ui,sans-serif;padding:11px 13px;border-radius:12px;border:1.5px solid var(--line,rgba(20,20,20,.18));background:var(--bg,#f2eee4);color:var(--text,#141414)}
 .acct-modal input:focus{outline:none;border-color:var(--accent,#2b56f5);box-shadow:0 0 0 4px rgba(43,86,245,.18)}
@@ -184,7 +231,7 @@
 .acct-row button.primary{background:var(--btn,#2b56f5);color:var(--accent-ink,#fff);border-color:transparent}
 .acct-row button:disabled{opacity:.5;cursor:default}
 .acct-note{font-size:13px;color:var(--text-2,#3b3833);margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(20,20,20,.05)}
-.acct-social{display:flex;flex-direction:column;align-items:center;gap:10px;margin:2px 0 4px}
+.acct-social{display:flex;flex-direction:column;align-items:stretch;gap:10px;margin:2px 0 4px}
 .acct-social[hidden],.acct-or[hidden]{display:none}
 .acct-or{display:flex;align-items:center;gap:12px;margin:12px 0 2px;color:var(--muted,#66615a);font-size:12px}
 .acct-or::before,.acct-or::after{content:'';flex:1;height:1px;background:var(--line,rgba(20,20,20,.18))}

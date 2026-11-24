@@ -89,13 +89,34 @@ export function catalog() {
 const lookupKey = (key) => 'bbad_' + key;
 const overrideFor = (env, key) => env['PRICE_' + key.toUpperCase()] || (key === 'pro_month' ? env.PRICE_PRO : '') || '';
 
+/* The Stripe account is shared (owner, 2026-11-23: WeBuy.AD has no registered
+   business yet, so it sells through the iPhones.LA account). A card statement
+   is then the account's own prefix, a star and this suffix ("IPHONES.LA*
+   WEBUY.AD"): Stripe lets a card charge set only the suffix. A credit pack sets
+   it on its payment; a plan's renewals take it from the product. */
+export const STATEMENT_SUFFIX = 'WEBUY.AD';
+
+/* The shared account's webhook also hears that account's other sales. Only a
+   session the site made (it always names a plan or a pack) or a subscription to
+   one of the site's plans may touch an account here: an iPhones.LA
+   subscription bought with the same email must not end a WeBuy.AD plan. */
+export function ownSession(cs) {
+  const md = (cs && cs.metadata) || {};
+  return !!((md.plan && planId(md.plan) !== 'free') || PACKS[md.pack]);
+}
+export function ownSubscription(sub, env) {
+  const item = sub && sub.items && sub.items.data && sub.items.data[0];
+  const md = (sub && sub.metadata) || {};
+  return !!(planOfPrice(item && item.price, env) || (md.plan && planId(md.plan) !== 'free'));
+}
+
 const priceIds = new Map();   // per warm instance: mode:key:amount → price id
 export function forgetPrices() { priceIds.clear(); }
 
 async function ensureProduct(env, item) {
   try { return await stripe(env, 'GET', '/products/' + item.product); }
   catch (e) { if (e.status !== 404) throw e; }
-  try { return await stripe(env, 'POST', '/products', { id: item.product, name: item.name }); }
+  try { return await stripe(env, 'POST', '/products', { id: item.product, name: item.name, statement_descriptor: STATEMENT_SUFFIX }); }
   catch (e) { if (e.code === 'resource_already_exists') return { id: item.product }; throw e; }
 }
 
