@@ -6860,3 +6860,38 @@ selling points".
   order, from one fewer down to one, so the short money and quote promises stay. Keeping the first
   two instead, four wide type pairs (Tech, Arcade, Warp, Pixel) could not fit two long points and
   left the measured list (full_type_check); with this they hold, all 28.
+
+## 165. No real card art and no credited photograph on a card ad; the 2026 phones painted; Spanish ads in Spanish
+
+Added 2026-11-23. The owner, of the four things left open on 2026-11-22 (the 2026 Samsung and Pixel
+pictures, the Spanish selling points, the first-guess weights, the credited Charizard): "CAN WE FIX ALL 4".
+
+- **The real Charizard is gone, everywhere.** The graded Charizard cut-out (`poke-psa-charizard`) and
+  the two Pokémon ground photographs it was cut from (`assets/bg-web/pokemon-charizard-card-1` and `-2`)
+  were CC BY-SA (a credit on every ad) and carried the maker's art and a photographer's mark: rule 161
+  already said a paid ad may carry neither. The cut-out is rejected (`assets/approved-assets.json`
+  reason `real-card-art`) and flagged (`assets/cutout-flags.json`), so no pool, template audit or AI
+  background picker draws it; the offer family, the street templates and the category cut-outs take
+  the painted ph-poke-* pictures; the 48 site designs that showed it take `ph-poke-slab` (the same
+  shape, 0.605 to 1). The grounds are painted again as the same scene (`scripts/paint_card_scenes.mjs`,
+  `pokemon-slabs-display-1` and `-2`: a glossy display table, slabs of no grader on clear stands, a
+  shop blurred behind), so the 66 designs laid out over the photographs keep their light where their
+  words stand; their bg-offer crops, p90s, luminance rows and every reference moved with them, the
+  photographs left the library, and the 94 site designs that drew either were re-rendered.
+- **The 2026 Galaxy and Pixel, painted** (`scripts/phone-painter.js`, `scripts/paint_phone_pictures.mjs`):
+  Commons has no 2026 Galaxy or Pixel photograph an ad can use, so seventeen are drawn the way the card
+  pictures are: the Galaxy S26 and S26 Ultra with the lenses in one raised pill, the Z Fold 8 open and
+  closed, the Z Flip 8 with its cover screen and open, the Pixel 11 and 11 Pro with the camera bar, a
+  Pixel foldable open, each in its own finishes; no maker's logo, no word on a back, nobody's software
+  on a screen (a clock and colour fields only). They lead the galaxy, pixel, foldable and android
+  pools; the older pictures stay in the draw. A photograph of the shop's own stock replaces any one.
+- **Spanish ads say it in Spanish** (`motion/full-points.js` PROMISES_ES, KINDS_ES): the same promises
+  as rule 164 by the same keys and weights, each said two to five ways in Spanish, 18 letters at most,
+  no comma; a Spanish full ad draws them as the English one does (it drew the catalogue's one Spanish
+  list before, TODOS LOS MODELOS on a gold ad). Its badge and small line come from Spanish lists too
+  (FULL_WORDS.claim_es, line_es): they were drawn from the English ones. `scripts/words_check.mjs`
+  reads every phrasing in both languages and fails one longer than 18 or with a comma.
+- **The shares are the owner's to set**: the gallery's Tune the mix panel shows real ads for each kind
+  of ground (nine), each photo treatment (five) and each number of points (three), and keeps the
+  owner's More, Less, Same or Never in the page's own store (`tuning/choices`); the weights in
+  `spec/full-grounds.json`, `PHOTO_TREAT_SHARES` and `POINT_COUNTS` follow it.

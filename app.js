@@ -1677,7 +1677,7 @@ const TEMPLATES = [
     "coins": ["assets/bg-web/coins-american-gold-eagle-coin-3.jpg", "assets/bg-web/coins-coin-collection-album-1.jpg", "assets/bg-web/coins-coin-hoard-1.jpg", "assets/bg-web/coins-half-dollar-1.jpg", "assets/bg-web/coins-morgan-silver-dollar-1.jpg", "assets/bg-web/coins-morgan-silver-dollar-2.jpg", "assets/bg-web/coins-morgan-silver-dollar-3.jpg"],
     "cars": ["assets/bg-web/cars-bmw-key-1.jpg", "assets/bg-web/cars-bmw-key-2.jpg", "assets/bg-web/cars-bmw-key-3.jpg", "assets/bg-web/cars-car-interior-steering-wheel-dashboard-1.jpg", "assets/bg-web/cars-car-interior-steering-wheel-dashboard-2.jpg", "assets/bg-web/cars-car-key-fob-1.jpg", "assets/bg-web/cars-classic-car-chrome-grille-1.jpg", "assets/bg-web/cars-classic-car-chrome-grille-2.jpg", "assets/bg-web/cars-classic-car-chrome-grille-3.jpg", "assets/bg-web/cars-sports-car-front-night-1.jpg", "assets/bg-web/cars-sports-car-front-night-2.jpg", "assets/bg-web/cars-used-car-dealership-lot-1.jpg", "assets/bg-web/trucks-chevrolet-silverado-pickup-1.jpg", "assets/bg-web/trucks-chevrolet-silverado-pickup-3.jpg", "assets/bg-web/trucks-ford-f-150-1.jpg", "assets/bg-web/trucks-ford-f-150-2.jpg", "assets/bg-web/trucks-ford-f-150-3.jpg", "assets/bg-web/trucks-pickup-truck-1.jpg", "assets/bg-web/trucks-pickup-truck-3.jpg", "assets/bg-web/trucks-pickup-truck-bed-1.jpg", "assets/bg-web/trucks-pickup-truck-bed-3.jpg"],
     "strips": ["assets/bg-web/strips-blood-glucose-meter-1.jpg", "assets/bg-web/strips-blood-glucose-meter-4.jpg", "assets/bg-web/strips-blood-glucose-test-strips-2.jpg", "assets/bg-web/strips-blood-glucose-test-strips-3.jpg", "assets/bg-web/strips-contour-next-test-strips-1.jpg", "assets/bg-web/strips-contour-next-test-strips-2.jpg", "assets/bg-web/strips-contour-next-test-strips-3.jpg", "assets/bg-web/strips-freestyle-libre-3.jpg", "assets/bg-web/strips-freestyle-libre-4.jpg", "assets/bg-web/strips-glucose-meter-test-strip-2.jpg"],
-    "pokemon": ["assets/bg-web/pokemon-charizard-card-1.jpg", "assets/bg-web/pokemon-charizard-card-2.jpg"]};
+    "pokemon": ["assets/bg-web/pokemon-slabs-display-1.jpg", "assets/bg-web/pokemon-slabs-display-2.jpg"]};
   const bgRealN = {};
   window.BG_MANIFEST = [];
   Object.keys(BOOK).forEach(cat => {
@@ -1904,9 +1904,9 @@ const TEMPLATES = [
     strips:  [['streetIconGrid','emerald','Strip Grid','strip-boxes'], ['streetRibbon','arctic','Strip Ribbon','strip-boxes'],
               ['streetSpecCheck','ocean','Strip Checklist','strip-boxes'], ['streetSplitCol','volt','Strip Split','strip-boxes'],
               ['streetPriceTag','volt','Strip Payout','cash-stack-banded']],
-    pokemon: [['streetRibbon','royal','Poke Ribbon','poke-psa-charizard'], ['streetTwoCol','volt','Poke Checklist','poke-psa-charizard'],
-              ['streetIconGrid','crimson','Poke Grid','poke-psa-charizard'], ['streetPriceBadge','ocean','Poke Payout','poke-psa-charizard'],
-              ['streetCutoutHero','sunset','Poke Lineup','poke-psa-charizard']],
+    pokemon: [['streetRibbon','royal','Poke Ribbon','ph-poke-slab'], ['streetTwoCol','volt','Poke Checklist','ph-poke-cards-fan'],
+              ['streetIconGrid','crimson','Poke Grid','ph-poke-collection'], ['streetPriceBadge','ocean','Poke Payout','ph-poke-slabs-trio'],
+              ['streetCutoutHero','sunset','Poke Lineup','ph-poke-slabs-trio']],
     sports:  [['streetSplitCol','crimson','Card Split','ph-sports-cards-fan'], ['streetCutoutHero','emerald','Card Lineup','ph-sports-slabs-fan'],
               ['streetTwoCol','crimson','Card Checklist','ph-sports-cards-fan'], ['streetTopStrip','royal','Card Strip','ph-sports-slab'],
               ['streetPriceTag','royal','Card Payout','cash-stack-banded']],
@@ -9531,7 +9531,7 @@ const CAT_CUTOUTS = {
   coins:   ['coin-loose-pile','coin-graded-fan-three'],
   cars:    ['car-sedan-rear','car-title-docs'],
   strips:  ['strip-boxes'],
-  pokemon: ['poke-psa-charizard'],
+  pokemon: ['ph-poke-slabs-trio','ph-poke-cards-fan','ph-poke-slab'],
   sports:  ['ph-sports-slabs-fan','ph-sports-cards-fan','ph-sports-slab'],
 };
 /* Width of a text layer, estimated from its own metrics. Build time has no

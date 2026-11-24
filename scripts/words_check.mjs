@@ -50,7 +50,11 @@ for (const [k, list] of Object.entries(FULL_WORDS)) for (const w of list) scan('
 // the full ad's selling points, drawn by its seed (motion/full-points.js, rule 164): every phrasing of every promise
 const FP = await import(new URL('../motion/full-points.js', import.meta.url).href);
 for (const sub of ['iphone', 'ipad', 'watch', 'headphones', 'console', 'camera', 'pokemon', 'gold', 'coins', 'car', 'strips'])
-  for (const [k, [, says]] of Object.entries(FP.promisesFor(sub))) for (const w of says) scan('motion/full-points.js', sub === 'iphone' ? 'phones' : sub, w, k);
+  for (const lang of ['en', 'es']) for (const [k, [, says]] of Object.entries(FP.promisesFor(sub, lang))) for (const w of says) {
+    scan('motion/full-points.js', sub === 'iphone' ? 'phones' : sub, w, `${lang} ${k}`);
+    // a chip holds 18 letters, and a comma would split one point into two (pointsOf splits on it)
+    if (w.length > 18 || /,/.test(w)) hits.push({ source: 'motion/full-points.js', where: `${lang} ${k}`, label: w.length > 18 ? 'LONGER THAN 18' : 'COMMA', text: w });
+  }
 
 // the lines: the full ad's table, and the offer family it is made from
 for (const s of JSON.parse(read('motion/subjects.json')).subjects) for (const w of strings([s.heads, s.models, s.points, ...(s.variants || []).map(v => [v.heads, v.models])])) scan('motion/subjects.json', s.cat, w, s.key);

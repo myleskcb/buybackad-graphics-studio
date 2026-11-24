@@ -4522,6 +4522,7 @@ Open:
    photograph, `assets/cutouts/ATTRIBUTION.json`): that licence asks for a credit on the ad, and the
    card's art is the maker's. Rule 161 holds new ad photographs to public domain or CC0. It still has
    weight 6 of the Pokémon pool; the owner's call whether it stays.
+   **Done 2026-11-23 (DESIGN-LAW 165):** retired with the two Charizard ground photographs; see §BV.
 3. **Still to build from the list:** textures and materials (about 40 CC0 photographs, about 25 MB:
    needs the owner's go-ahead to download), space (NASA photographs are public domain, about 30, about
    20 MB, plus painted ones; most are dark, so under a duotone or wash), the area drawn as a map from
@@ -4547,7 +4548,7 @@ Open:
    lawyer: a player's face in a paid ad is his likeness.
 7. **Selling points vary** (DESIGN-LAW 164, done 2026-11-22): two to four per ad, drawn from each
    line's own promises and any buyer's, each said several ways. Spanish ads still draw the old
-   three from the catalogue's Spanish list; a Spanish pool is next.
+   three from the catalogue's Spanish list; a Spanish pool is next. **Done 2026-11-23** (§BV).
 8. **The iPhone mix, by the owner's word** (done 2026-11-22): the 17 Pro Max pushed hardest, the 16
    Pro Max (the shop's best seller) close behind, the 18 Pro Max present and to grow; the colourful
    base and Plus models of 14 to 17 about a third of the draw. The iPhone 16 Plus has no render in
@@ -4564,3 +4565,38 @@ Open:
    devices. The owner's site is Apple only. Ways in: the shop's own photographs of the Samsung and
    Pixel phones it buys (cut out by the existing scripts), stock bought with ad rights, or the fal
    model drawing from a real photograph as its reference (scripts/bggen_entities.py), read by eye.
+   **Done 2026-11-23, painted** (§BV): seventeen 2026 Galaxy and Pixel pictures in code.
+
+## BV. 2026-11-23 — the four left open: no real Charizard, the 2026 phones, Spanish points, the owner's shares (DESIGN-LAW 165)
+
+(claude/full-ad-looks-layout, after §BU. The owner: "CAN WE FIX ALL 4".)
+
+Done:
+- The graded Charizard cut-out rejected and flagged; the two Charizard ground photographs replaced by
+  painted display scenes (`scripts/paint_card_scenes.mjs`) under new names, every reference moved
+  (66 site designs, looks, ground fixes, full grounds, offer grounds and p90s, luminance), the
+  photographs removed; the 48 designs that showed the cut-out take `ph-poke-slab`; the 94 affected
+  site designs re-rendered (`scripts/rethumb_showcase.mjs`); the AI background picker no longer
+  offers it (its ref and thumb removed).
+- Seventeen 2026 Galaxy and Pixel pictures painted (`scripts/paint_phone_pictures.mjs`) and weighed
+  first in the galaxy, pixel, foldable and android pools.
+- Spanish selling points, badges and small lines (`motion/full-points.js`, `FULL_WORDS.claim_es`,
+  `line_es`).
+- The gallery (claude.ai artifact, private) has a Tune the mix panel that stores the owner's choices.
+
+Open:
+1. **The owner's shares.** When the panel has choices (`tuning/choices` in the gallery's store), set
+   `spec/full-grounds.json` shares, `PHOTO_TREAT_SHARES` and `POINT_COUNTS` from them (More x1.5,
+   Less x0.5, Never 0, then normalise) and rebuild.
+2. **Nearly 400 other cut-outs are CC BY or CC BY-SA** (`assets/cutouts/ATTRIBUTION.json`): almost every
+   car, and Commons photographs of consoles, cameras, AirPods, coins and gold. Those licences ask for a
+   credit wherever the picture is shown, the Charizard's problem without the card art. Ways out: a
+   credit line the studio adds to an ad that draws one (small, in the footer), or replacing them with
+   the shop's own photographs, painted pictures or public-domain ones line by line. The owner's call.
+3. `photo-subjects.js` keeps the Charizard photographs' focus and subject grid under the new names; the
+   painted scenes put their slab where the photograph's was, so it holds, but `scripts/photo_subjects.py`
+   should measure them when Pillow is on this Mac. The same for `scripts/bggen_entities.py`, which would
+   also offer the new phone and card pictures to the AI background picker.
+4. The painted phones are close to each line's 2026 shape but drawn: the shop's own photographs of the
+   Galaxy and Pixel phones it buys would replace them one for one.
+

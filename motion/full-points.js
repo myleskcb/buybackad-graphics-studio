@@ -88,6 +88,35 @@ const KINDS = {
     lots:    [.4, ["ONE BOX OR MANY", "BULK BOXES TOO"]],
   },
 };
+/* EN ESPAÑOL (2026-11-23). A Spanish ad drew the catalogue's one Spanish list until now (COTIZACIÓN GRATIS, PAGO EN
+   EFECTIVO, TODOS LOS MODELOS on a gold ad as on a phone's): the same promises as above, by the same keys and weights,
+   said the way a Spanish-speaking seller asks, 18 letters at most, no comma. A promise with no Spanish phrasing is not drawn. */
+const PROMISES_ES = {
+  paid:  ["PAGO HOY", "EFECTIVO HOY", "PAGO AL MOMENTO", "PAGO EN EL ACTO", "PAGO EN PERSONA"],
+  quote: ["COTIZACIÓN GRATIS", "COTIZA POR TEXTO", "OFERTA GRATIS", "PRECIO POR TEXTO", "OFERTA EN MINUTOS"],
+  fees:  ["SIN COMISIONES", "SIN CARGOS", "CERO COMISIONES"],
+  meet:  ["NOS VEMOS CERCA", "ENCUENTRO LOCAL", "COMPRADOR LOCAL", "TÚ ELIGES DÓNDE"],
+  easy:  ["SIN COMPLICACIONES", "SIN PRESIÓN", "VENTA FÁCIL", "SIN CITA PREVIA"],
+  fair:  ["OFERTA JUSTA", "PRECIO HONESTO", "PRECIO CLARO"],
+};
+const MODELS_ES = ["TODOS LOS MODELOS", "MODELOS ANTERIORES", "NUEVOS O USADOS"];
+const KINDS_ES = {
+  phone:    { cracked: ["PANTALLA ROTA OK", "ROTOS TAMBIÉN", "ESTRELLADOS OK"], carrier: ["CUALQUIER COMPAÑÍA", "LIBERADO O NO"],
+              models: MODELS_ES, trade: ["¿CAMBIAS? VENDE", "¿TE SOBRA UNO?"] },
+  computer: { cracked: ["PANTALLA ROTA OK", "CON DAÑOS TAMBIÉN"], models: MODELS_ES, extras: ["CON O SIN CARGADOR", "CON O SIN CAJA"] },
+  wearable: { models: MODELS_ES, extras: ["CON O SIN CAJA", "CUALQUIER CORREA"] },
+  audio:    { models: MODELS_ES, extras: ["CON O SIN CAJA", "CON O SIN ESTUCHE"] },
+  gaming:   { extras: ["CONTROLES TAMBIÉN", "JUEGOS TAMBIÉN", "ACCESORIOS TAMBIÉN"], models: ["TODOS LOS MODELOS", "CONSOLAS VIEJAS OK", "NUEVAS O USADAS"], box: ["CON O SIN CAJA"] },
+  camera:   { lenses: ["CUERPOS Y LENTES", "LENTES TAMBIÉN", "KITS TAMBIÉN"], brands: ["TODAS LAS MARCAS", "NUEVAS O USADAS"] },
+  cards:    { singles: ["SUELTAS O SETS", "UNA CARTA O CAJAS"], graded: ["GRADUADAS O NO", "CARTAS GRADUADAS"], lots: ["COLECCIÓN ENTERA", "ÁLBUMES TAMBIÉN", "LOTES TAMBIÉN"],
+              sealed: ["CAJAS SELLADAS", "SOBRES Y CAJAS"], era: ["VIEJAS O NUEVAS"] },
+  metal:    { tested: ["PRUEBA GRATIS", "LO PROBAMOS GRATIS", "PRUEBA EN EL ACTO"], scale: ["PESADO A LA VISTA", "BÁSCULA A LA VISTA"],
+              broken: ["JOYAS ROTAS OK", "ORO QUEBRADO OK", "ARETES SOLOS OK"], kinds: ["ANILLOS Y CADENAS", "CUALQUIER KILATE", "ORO DE TODO COLOR"] },
+  coins:    { graded: ["CERTIFICADAS O NO", "MONEDAS EN SLAB"], lots: ["COLECCIÓN ENTERA", "ROLLOS TAMBIÉN", "MONEDAS HEREDADAS"], kinds: ["DÓLARES DE PLATA", "ORO Y PLATA"] },
+  car:      { come: ["VAMOS A TI", "VAMOS A TU CASA", "LO RECOGEMOS"], running: ["FUNCIONE O NO", "ANDE O NO ANDE", "AUNQUE NO ARRANQUE"],
+              miles: ["MILLAJE ALTO OK", "AUTOS VIEJOS OK", "CHOCADOS TAMBIÉN"] },
+  strips:   { sealed: ["CAJAS SELLADAS", "SIN VENCER"], brands: ["TODAS LAS MARCAS", "MARCAS PRINCIPALES"], lots: ["UNA CAJA O MUCHAS", "CAJAS AL MAYOREO"] },
+};
 const KIND_OF = {
   iphone: "phone", android: "phone", pixel: "phone", galaxy: "phone", foldable: "phone",
   ipad: "computer", mac: "computer", macdesk: "computer", laptop: "computer", monitor: "computer", ssd: "computer", minipc: "computer", chromebook: "computer", gamingpc: "computer",
@@ -100,10 +129,13 @@ const KIND_OF = {
   car: "car", classic: "car", jdm: "car", trucks: "car", toyota: "car", honda: "car", bmw: "car", mercedes: "car", vans: "car", semis: "car",
   strips: "strips",
 };
-/** The promises a line's ad can draw: the line's own first (by the order the owner's buyers ask), then any buyer's. */
-export function promisesFor(subject) {
-  const own = KINDS[KIND_OF[subject || "iphone"]] || {};
-  return { ...own, ...PROMISES };
+/** The promises a line's ad can draw: the line's own first (by the order the owner's buyers ask), then any buyer's;
+ *  in Spanish ("es") each keeps its weight and takes its Spanish phrasings. */
+export function promisesFor(subject, lang = "en") {
+  const kind = KIND_OF[subject || "iphone"], all = { ...(KINDS[kind] || {}), ...PROMISES };
+  if (lang !== "es") return all;
+  const es = { ...((KINDS_ES[kind]) || {}), ...PROMISES_ES };
+  return Object.fromEntries(Object.entries(all).filter(([k]) => es[k]).map(([k, [w]]) => [k, [w, es[k]]]));
 }
 /** Each line's fixed list until 2026-11-22 (motion/subjects.json points): a style carrying one of
  *  them was given its line's default, not typed by a customer, so it draws as one nobody typed. */
@@ -112,10 +144,10 @@ export const OLD_DEFAULTS = new Set(["FREE QUOTE, CASH SAME DAY, NO FEES", "TEST
 
 /** The points an ad draws: r is the ad's words stream, said the lines already on the ad, shares
  *  (a, b) whether two lines make one promise (fullad.js sharesWord). Returns "A, B, C". */
-export function drawPoints(subject, r, said, shares) {
+export function drawPoints(subject, r, said, shares, lang = "en") {
   const roll = r(); let n = 3;
   for (let acc = 0, i = 0; i < POINT_COUNTS.length; i++) { acc += POINT_COUNTS[i][1]; if (roll < acc) { n = POINT_COUNTS[i][0]; break; } }
-  const all = Object.entries(promisesFor(subject)).map(([k, [w, says]]) => ({ k, w, says }));
+  const all = Object.entries(promisesFor(subject, lang)).map(([k, [w, says]]) => ({ k, w, says }));
   const out = [], seen = [...said];
   // a promise of the line's own leads (what this seller asks first), then the draw by weight
   const own = new Set(Object.keys(KINDS[KIND_OF[subject || "iphone"]] || {}));

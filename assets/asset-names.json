@@ -1431,5 +1431,22 @@
  "ph-sports-hobby-box": "Sealed hobby box",
  "ph-sports-collection": "A sports card collection",
  "qs-watch-ultra4": "Apple Watch Ultra 4",
- "qs-watch-s12": "Apple Watch Series 12"
+ "qs-watch-s12": "Apple Watch Series 12",
+ "sam-s26-ultra-back-violet": "Galaxy S26 Ultra, violet",
+ "sam-s26-ultra-back-titanium": "Galaxy S26 Ultra, titanium",
+ "sam-s26-ultra-front": "Galaxy S26 Ultra, front",
+ "sam-s26-back-skyblue": "Galaxy S26, sky blue",
+ "sam-s26-back-pink": "Galaxy S26, pink",
+ "sam-s26-back-navy": "Galaxy S26, navy",
+ "sam-fold8-closed-back": "Galaxy Z Fold 8, closed",
+ "sam-fold8-open": "Galaxy Z Fold 8, open",
+ "sam-flip8-closed-ice": "Galaxy Z Flip 8, closed",
+ "sam-flip8-open-violet": "Galaxy Z Flip 8, open",
+ "pix-11-pro-back-moonstone": "Pixel 11 Pro, moonstone",
+ "pix-11-pro-back-porcelain": "Pixel 11 Pro, porcelain",
+ "pix-11-pro-back-obsidian": "Pixel 11 Pro, obsidian",
+ "pix-11-back-indigo": "Pixel 11, indigo",
+ "pix-11-back-lime": "Pixel 11, lime",
+ "pix-11-pro-front": "Pixel 11 Pro, front",
+ "pix-fold-pro-open": "Pixel Pro Fold, open"
 }

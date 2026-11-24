@@ -220,11 +220,12 @@
     'laptop-gaming-open':[1694,1131], 'vr-headset':[1823,1082], 'buds-overear-headphones':[1284,1760], 'airpods-case-open':[1262,1234], 'pix-buds-case':[1751,1600],
     'speaker-portable':[646,1560], 'smart-tv-stand':[1298,860], 'tv-flatscreen':[1356,941], 'laptop-windows-open':[1928,1827], 'sam-watch-pair':[1816,1368], 
     'camera-mirrorless':[1966,1524], 'camera-dslr-body':[1930,1716], 'drone-folded':[1603,1121],
-    /* 2026-09-27: approved pictures that replace the owner's rejects, the real
-       PSA Charizard and the card placeholders (scripts/make_card_assets.py) */
+    /* 2026-09-27: approved pictures that replace the owner's rejects and the card
+       placeholders, and (2026-11-23) the painted Pokémon pictures that replace the real PSA Charizard (scripts/make_card_assets.py) */
     'ip-group-colour-lineup':[1752,1042], 'ipad-front-screen-off':[1323,1593], 'macbook-open-angle':[1764,1276], 'mac-half-open-glow':[1720,1499],
     'watch-pair-bands':[863,1226], 'buds-pair-loose':[1286,1517], 'silver-candlesticks':[1314,1640], 'strip-boxes':[444,418],
-    'poke-psa-charizard':[369,610], 'ph-sports-slabs-fan':[1414,1350], 'ph-sports-cards-fan':[1342,1138], 'ph-sports-slab':[727,1207], 'ph-sports-box':[1312,832], };
+    'ph-poke-slabs-trio':[1600,1223], 'ph-poke-cards-fan':[1600,976], 'ph-poke-slab':[720,1190], 'ph-poke-booster-box':[1272,751], 'ph-poke-collection':[1600,1048],
+    'ph-sports-slabs-fan':[1414,1350], 'ph-sports-cards-fan':[1342,1138], 'ph-sports-slab':[727,1207], 'ph-sports-box':[1312,832], };
   /* the car lines' pictures (2026-11-18): identified vehicles only (assets/vehicles.json names make and model) */
   Object.assign(SIZE, { 'car-toyota-camry-silver':[1835,704], 'car-honda-civic-white':[1787,889], 'car-toyota-rav4-white':[1684,881], 'car-tesla-model-y-blue':[1833,844], 'car-toyota-tacoma-trd-black':[1798,1195], 'car-honda-accord-white':[1845,1196], 'car-chevy-camaro-1969-silver':[1892,751], 'car-ford-bronco-1st-gen-cream':[1676,873], 'car-chevy-corvette-c1-blue':[1842,771], 'car-chevy-silverado-red':[1784,776], 'car-porsche-356-blue':[1658,673], 'car-jeep-wagoneer-classic-red':[1825,999], 'car-honda-civic-type-r-fl5-white':[1621,916], 'car-nissan-skyline-gtr-r34-blue':[1759,957], 'car-toyota-gr-supra-2026-red':[1579,763], 'car-nissan-gtr-r35-white':[1646,835], 'car-toyota-gr86-blue':[1823,843], 'car-honda-s2000-silver':[1793,819], 'car-chevy-silverado-zr2-red':[1675,1194], 'car-ford-f150-raptor-2026-black':[1902,1189], 'car-ford-f150-lightning-black':[1715,843], 'car-toyota-tacoma-orange':[1818,954], 'car-toyota-highlander-silver':[1562,691], 'car-toyota-prius-2026-grey':[1571,859], 'car-toyota-gr-corolla-black':[1656,984], 'car-honda-hrv-beige':[1780,969], 'car-bmw-x3-black':[1794,1145], 'car-bmw-m3-blue':[1784,923], 'car-bmw-ix3-2026-white':[1817,858], 'car-bmw-m4-convertible-black':[1808,851], 'car-mercedes-c-class-all-terrain-white':[1732,1118], 'car-mercedes-glc-blue':[1786,818], 'car-mercedes-amg-g63-2025-black':[1620,1186], 'car-mercedes-amg-gle63-silver':[1806,1023], 'car-mercedes-s-class-black':[1792,765], 'car-ford-transit-connect-white':[1829,1065], 'car-ram-promaster-grey':[1858,1145], 'car-ldv-maxus-van-white':[1804,1052], 'car-freightliner-cascadia-blue':[1725,1268], 'car-peterbilt-389-white':[1859,1300] });
   /* the desktop Macs' and the Androids' pictures (2026-11-18, the owner's lines) */
@@ -381,7 +382,8 @@
     { key:'pokemon', cat:'pokemon', label:'Pok\u00e9mon cards', models:'Singles, slabs, binders and sealed boxes',
       heads:['Pok\u00e9mon cards? We buy them.', 'Your old Pok\u00e9mon cards are cash.', 'Pok\u00e9mon collection? Get cash.'],
       ask:'Photos of the cards or the slabs', check:['Singles or whole collections', 'Graded or raw', NOSHIP],
-      sets:[[['poke-psa-charizard', 1]]] },
+      // the painted pictures (2026-11-23): the graded Charizard photograph carried its maker's art and a CC BY-SA credit (DESIGN-LAW 161)
+      sets:[[['ph-poke-slabs-trio', 1]], [['ph-poke-cards-fan', 1]], [['ph-poke-slab', 1]], [['ph-poke-collection', 1]], [['ph-poke-booster-box', 1]]] },
     { key:'sports', cat:'sports', label:'Sports cards', models:'Rookies, autos, slabs and sealed wax',
       heads:['Sports cards? We buy them.', 'Your old sports cards are cash.', 'Card collection in a closet? Sell it.'],
       ask:'Photos of the cards or the slabs', check:['Singles or whole collections', 'Graded or raw', NOSHIP],
@@ -465,7 +467,7 @@
      white type over it clears 4.5:1, and no picture is darker than it needs. */
   const GROUNDS = {
     sports: [{ file:'dl_sports_arcCrown_crimson', p90:198 }, { file:'dl_sports_agencyGrid_mono', p90:170 }, { file:'dl_sports_glassCard_mono', p90:224 }],
-    pokemon: [{ file:'pokemon-charizard-card-1', p90:198 }, { file:'pokemon-charizard-card-2', p90:218 }],   // real photographs (DESIGN-LAW 117)
+    pokemon: [{ file:'pokemon-slabs-display-1', p90:225 }, { file:'pokemon-slabs-display-2', p90:230 }],   // painted display scenes (DESIGN-LAW 161: no real card's art, no credited photograph)
     strips: [{ file:'strips-contour-next-test-strips-2', p90:171 }, { file:'strips-blood-glucose-test-strips-2', p90:241 }, { file:'strips-blood-glucose-meter-1', p90:203 }],
     coins: [{ file:'coins-coin-collection-album-1', p90:184 }, { file:'coins-morgan-silver-dollar-1', p90:220 }, { file:'coins-american-gold-eagle-coin-1', p90:239 }],
     gold: [{ file:'gold-gold-jewelry-rings-3', p90:254 }, { file:'gold-gold-bracelet-2', p90:178 }, { file:'gold-gold-bracelet-4', p90:219 }],   // 2026-11-18: the necklace close-up stood on black (median 0)

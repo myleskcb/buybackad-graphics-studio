@@ -1,7 +1,7 @@
-/* MADE FROM spec/product-demand.json BY scripts/build_product_demand.mjs (version 2026-11-22).
+/* MADE FROM spec/product-demand.json BY scripts/build_product_demand.mjs (version 2026-11-23).
    Never type into it: change the table, then run the script. What a full ad shows when nobody
    picked the product (motion/fullad.js drawPhones, subjectDraw). */
-export const DEMAND_VERSION = "2026-11-22";
+export const DEMAND_VERSION = "2026-11-23";
 /** The iPhone line: each model's weight (a model not listed weighs PHONE_REST). */
 export const PHONE_WEIGHT = {"iPhone 17 Pro Max":24,"iPhone 16 Pro Max":20,"iPhone 18 Pro Max":14,"iPhone 17 Pro":11,"iPhone 17":10,"iPhone 16 Pro":9,"iPhone 16":9,"iPhone 18 Pro":8,"iPhone 15":7,"iPhone 15 Pro Max":6,"iPhone 14":5,"iPhone 15 Plus":4,"iPhone 15 Pro":4,"iPhone 14 Pro Max":4,"iPhone 17e":3,"iPhone 14 Plus":3,"iPhone 14 Pro":3,"iPhone 13":3,"iPhone 16e":2,"iPhone 13 Pro Max":2,"iPhone 13 Pro":1.5,"iPhone 13 mini":1};
 export const PHONE_REST = 0.3;

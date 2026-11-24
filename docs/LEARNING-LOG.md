@@ -6553,3 +6553,25 @@ Found:
     holds; the larger files came as the owner's own upload.
 
 RESUME HERE: OPEN-ITEMS §BU 5 to 9. Device pictures for 2026 Samsung and Pixel; a Spanish points pool.
+
+## 2026-11-23 — the four left open (DESIGN-LAW 165; OPEN-ITEMS BV)
+
+The owner: "CAN WE FIX ALL 4" (2026 Samsung and Pixel pictures, Spanish points, the first-guess
+weights, the credited Charizard).
+  - The real Charizard retired everywhere: the cut-out, and the two ground photographs it came from,
+    which 66 site designs stood on. Painted display scenes took the photographs' place under new
+    names; 94 site designs re-rendered.
+  - Seventeen 2026 Galaxy and Pixel pictures painted in code and weighed first in their pools.
+  - Spanish selling points, badges and small lines in Spanish.
+  - The gallery's Tune the mix panel keeps the owner's More / Less / Same / Never for every share.
+
+Found:
+  - A licence problem is never one picture: the Charizard cut-out was cut from a photograph that two
+    grounds, 66 site designs, the offer cards and the AI picker all used. Grep for the source too.
+  - Port 8899 belonged to another session's server, serving another worktree: a re-render through it
+    drew the old code. Check which folder a port serves (lsof on its cwd) before trusting it.
+  - puppeteer-core is not installed in worktrees; a small stand-in over Playwright (scratchpad, linked
+    into the ignored node_modules) ran rethumb_showcase.mjs unchanged.
+  - Almost 400 other cut-outs (nearly every car) are CC BY or CC BY-SA: the same credit question, open.
+
+RESUME HERE: OPEN-ITEMS §BV 1 (read the owner's choices from the gallery and set the shares), then 2.

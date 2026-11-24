@@ -559,4 +559,128 @@ const MAKE = {
 };
 window.PICTURES = Object.keys(MAKE);
 window.PAINT = id => { const c = fit(MAKE[id](), 1600); return { w: c.width, h: c.height, png: c.toDataURL('image/png') }; };
+
+/* THE CARD LINE'S PHOTOGRAPH GROUNDS, PAINTED (2026-11-23). The two Pokémon grounds the studio stood its card
+   ads on were photographs of real graded Charizards at a convention (CC BY-SA, a photographer's mark in the
+   corner, the maker's art on every card): a paid ad may carry none of that (DESIGN-LAW 161). These are the same
+   scene, painted: a glossy white display table, slabs of no grader on clear stands, a shop blurred behind, so
+   the designs laid out over the photographs keep their light where their words stand. */
+function cardBack() {
+  const W = 700, H = 980, c = mk(W, H), x = c.getContext('2d');
+  rr(x, 0, 0, W, H, 34); x.save(); x.clip();
+  x.fillStyle = lin(x, 0, 0, W, H, ['#18286a', '#2a48b8', '#16245e']); x.fillRect(0, 0, W, H);
+  x.save(); x.translate(W / 2, H / 2); x.globalAlpha = .1; x.fillStyle = '#9fc3ff';
+  for (let i = 0; i < 24; i++) { x.rotate(TAU / 24); x.beginPath(); x.moveTo(0, 0); x.lineTo(W, -46); x.lineTo(W, 46); x.closePath(); x.fill(); }
+  x.restore();
+  x.lineWidth = 22; x.strokeStyle = '#d9b44e'; rr(x, 30, 30, W - 60, H - 60, 22); x.stroke();
+  x.beginPath(); x.arc(W / 2, H / 2, 176, 0, TAU); x.fillStyle = 'rgba(255,255,255,.08)'; x.fill(); x.lineWidth = 16; x.strokeStyle = '#d9b44e'; x.stroke();
+  star(x, W / 2, H / 2, 128, '#f0cf62');
+  x.restore(); return c;
+}
+const layer = (W, H, draw, blur = 0) => { const c = mk(W, H); draw(c.getContext('2d')); if (!blur) return c; const o = mk(W, H), y = o.getContext('2d'); y.filter = `blur(${blur}px)`; y.drawImage(c, 0, 0); return o; };
+/** A clear easel: the plate it stands on and the back that holds it (drawn before the slab), its lip (after). */
+function standBack(x, cx, by, w) {
+  x.save(); x.beginPath(); x.moveTo(cx - w * .64, by + w * .05); x.lineTo(cx + w * .64, by + w * .05); x.lineTo(cx + w * .5, by - w * .1); x.lineTo(cx - w * .5, by - w * .1); x.closePath();
+  x.fillStyle = 'rgba(214,228,242,.32)'; x.fill(); x.lineWidth = 2.5; x.strokeStyle = 'rgba(255,255,255,.85)'; x.stroke();
+  x.beginPath(); x.moveTo(cx - w * .2, by - w * .08); x.lineTo(cx - w * .12, by - w * 1.1); x.lineTo(cx + w * .12, by - w * 1.1); x.lineTo(cx + w * .2, by - w * .08); x.closePath();
+  x.fillStyle = 'rgba(205,222,240,.2)'; x.fill(); x.strokeStyle = 'rgba(255,255,255,.5)'; x.stroke(); x.restore();
+}
+function standFront(x, cx, by, w) {
+  x.save(); x.fillStyle = 'rgba(232,240,250,.45)'; rr(x, cx - w * .54, by - w * .14, w * 1.08, w * .09, 4); x.fill();
+  x.lineWidth = 2; x.strokeStyle = 'rgba(255,255,255,.9)'; x.stroke(); x.restore();
+}
+/** An empty easel, leaning back, as a shop's display has between its cards. */
+function emptyStand(x, cx, by, h, lean) {
+  x.save(); x.translate(cx, by); x.transform(1, 0, lean, 1, 0, 0);
+  x.beginPath(); x.moveTo(-h * .2, 0); x.lineTo(-h * .16, -h); x.lineTo(h * .16, -h); x.lineTo(h * .2, 0); x.closePath();
+  x.fillStyle = lin(x, -h * .2, 0, h * .2, 0, ['rgba(200,215,235,.18)', 'rgba(255,255,255,.42)', 'rgba(190,205,225,.16)']); x.fill();
+  x.lineWidth = 3; x.strokeStyle = 'rgba(255,255,255,.8)'; x.stroke(); x.restore();
+  standBack(x, cx, by, h * .42); standFront(x, cx, by, h * .42);
+}
+/** The slab on its easel with its shadow and its reflection in the glossy top. */
+function displayed(x, img, cx, by, h, o = {}) {
+  const w = h * img.width / img.height, X = cx - w / 2, Y = by - h;
+  x.save(); x.filter = 'blur(16px)'; x.fillStyle = 'rgba(40,36,32,.22)'; x.beginPath(); x.ellipse(cx, by + h * .012, w * .62, h * .035, 0, 0, TAU); x.fill(); x.restore();
+  const r = mk(w, h * .4), y = r.getContext('2d');
+  y.save(); y.translate(0, h); y.scale(1, -1); y.drawImage(img, 0, 0, w, h); y.restore();
+  y.globalCompositeOperation = 'destination-in'; y.fillStyle = lin(y, 0, 0, 0, h * .4, ['rgba(0,0,0,.32)', 'rgba(0,0,0,0)']); y.fillRect(0, 0, w, h * .4);
+  const sw = w * .9;
+  x.save(); x.filter = `blur(${2 + (o.blur || 0)}px)`; x.drawImage(r, X, by + h * .02); x.restore();
+  const body = layer(w + 40, h + 40, z => { standBack(z, w / 2 + 20, h + 20 + h * .015, sw * .55); z.drawImage(img, 20, 20, w, h); standFront(z, w / 2 + 20, h + 20 + h * .03, sw * .55); }, o.blur || 0);
+  x.drawImage(body, X - 20, Y - 20);
+}
+function displayScene(v) {
+  const W = 1920, H = 1280, c = mk(W, H), x = c.getContext('2d'), R = rng(v.seed);
+  // the shop behind, out of focus
+  const shop = layer(W, H, b => {
+    b.fillStyle = lin(b, 0, 0, 0, H, v.wall); b.fillRect(0, 0, W, H);
+    b.fillStyle = lin(b, 0, 0, W * v.pillar[0], 0, v.pillar[1]); b.fillRect(0, 0, W * v.pillar[0], H * .8);
+    for (const [px, py, pw, ph, col] of v.boxes) { b.fillStyle = col; b.fillRect(px * W, py * H, pw * W, ph * H); }
+  }, 30);
+  x.drawImage(shop, 0, 0);
+  x.drawImage(layer(W, H, b => {
+    for (let i = 0; i < v.dots.n; i++) { const bx = (v.dots.x0 + R() * (v.dots.x1 - v.dots.x0)) * W, by = (.04 + R() * .4) * H, br = 12 + R() * 34;
+      b.globalAlpha = .25 + R() * .45; b.fillStyle = v.dots.cols[Math.floor(R() * v.dots.cols.length)]; b.beginPath(); b.arc(bx, by, br, 0, TAU); b.fill(); }
+  }, 5), 0, 0);
+  // the glossy white display top
+  const top = H * v.top, cx = W * v.tcx, rx = W * v.rx, ry = H * .66, cy = top + ry;
+  x.save(); x.beginPath(); x.ellipse(cx, cy, rx, ry, 0, 0, TAU); x.clip();
+  x.fillStyle = lin(x, 0, top, 0, H, v.table); x.fillRect(0, 0, W, H);
+  // a glossy top mirrors the shop, faintly and softly, and the ceiling's lights in rows
+  x.save(); x.globalAlpha = .1; x.filter = 'blur(10px)'; x.translate(0, 2 * top); x.scale(1, -1); x.drawImage(shop, 0, 0); x.restore();
+  x.filter = 'blur(7px)';
+  for (const [lx, ly, lw, lh, a] of v.glints) { x.globalAlpha = a; x.fillStyle = '#ffffff'; x.beginPath(); x.ellipse(lx * W, ly * H, lw * W, lh * H, 0, 0, TAU); x.fill(); }
+  for (const [ry0, n, rw, rh, ra] of v.rows || []) for (let i = 0; i < n; i++) { x.globalAlpha = ra * (.7 + R() * .3); x.beginPath(); x.ellipse((.18 + i * .74 / Math.max(1, n - 1) + (R() - .5) * .04) * W, ry0 * H, rw * W, rh * H, 0, 0, TAU); x.fill(); }
+  x.globalAlpha = .5; x.filter = 'blur(40px)'; x.fillStyle = v.spill; x.beginPath(); x.ellipse(W * .5, top + H * .05, W * .5, H * .06, 0, 0, TAU); x.fill();
+  x.restore();
+  x.save(); x.beginPath(); x.ellipse(cx, cy, rx, ry, 0, 0, TAU); x.lineWidth = 5; x.strokeStyle = 'rgba(110,104,98,.32)'; x.stroke();
+  x.beginPath(); x.ellipse(cx, cy + 7, rx, ry, 0, Math.PI * 1.05, Math.PI * 1.95); x.lineWidth = 3; x.strokeStyle = 'rgba(255,255,255,.7)'; x.stroke(); x.restore();
+  // what stands on it, back to front: the far ones softer
+  for (const it of v.items) {
+    if (it.kind === 'stand') emptyStand(x, it.x * W, it.y * H, it.h * H, it.lean || -.12);
+    else displayed(x, it.img(), it.x * W, it.y * H, it.h * H, { blur: it.blur || 0 });
+  }
+  // the lens: a little light fall-off and grain
+  const g = x.createRadialGradient(W * .52, H * .56, H * .35, W * .52, H * .56, W * .78); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(0,0,0,${v.vignette})`);
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  const id = x.getImageData(0, 0, W, H), d = id.data; for (let i = 0; i < d.length; i += 4) { const n = (R() - .5) * 9; d[i] += n; d[i + 1] += n; d[i + 2] += n; }
+  x.putImageData(id, 0, 0);
+  return c;
+}
+const backSlab = () => once('bks', () => slab(cardBack(), { title: 'GEM MINT', line1: 'CARD BACK · 1ST EDITION', line2: '2025 · NO. 001', grade: '10', band: '#1d3557' }));
+const SCENES = {
+  'pokemon-slabs-display-1': () => displayScene({ seed: 61, top: .5, tcx: .58, rx: .7, vignette: .22,
+    wall: ['#3b352f', '#5a5149', '#7d7268'], pillar: [.24, ['#7d7771', '#5f5a55']],
+    rows: [[.6, 5, .022, .007, .85], [.7, 4, .03, .009, .7]],
+    boxes: [[.4, 0, .34, .13, 'rgba(236,236,232,.92)'], [.52, .16, .22, .05, 'rgba(255,238,205,.55)'], [.63, .22, .04, .14, 'rgba(70,190,90,.75)'],
+      [.46, .21, .035, .1, 'rgba(235,140,60,.6)'], [.3, .1, .03, .09, 'rgba(60,160,225,.65)'], [.8, .05, .2, .35, 'rgba(30,28,26,.7)']],
+    dots: { n: 22, x0: .26, x1: 1, cols: ['#ffe6c0', '#fff4dc', '#ffd59a', '#f5f5f0'] },
+    table: ['#f4f1ed', '#ebe7e2', '#d6d1cb'], spill: 'rgba(120,112,104,.35)',
+    glints: [[.36, .62, .05, .012, .8], [.52, .66, .06, .012, .75], [.76, .63, .05, .012, .7], [.6, .9, .12, .03, .35]],
+    items: [{ kind: 'stand', x: .11, y: .7, h: .23, lean: -.18 },
+      { img: backSlab, x: .33, y: .55, h: .3, blur: 3 },
+      { img: () => pokeSlab('fire', { title: 'GEM MINT', line1: 'CINDERFANG · HOLO', line2: '2025 · NO. 006', grade: '10', band: '#b3261e' }), x: .55, y: .76, h: .52 }] }),
+  'pokemon-slabs-display-2': () => displayScene({ seed: 83, top: .42, tcx: .6, rx: .74, vignette: .18,
+    wall: ['#4a423c', '#6d635b', '#8f857c'], pillar: [.3, ['#a0968e', '#7f766f']],
+    rows: [[.52, 5, .025, .008, .9], [.62, 4, .034, .01, .75]],
+    boxes: [[.62, 0, .38, .3, 'rgba(24,22,20,.85)'], [.66, .04, .1, .1, 'rgba(240,160,70,.7)'], [.8, .02, .04, .16, 'rgba(70,190,90,.8)'],
+      [.5, .02, .1, .06, 'rgba(255,245,225,.8)'], [.88, .2, .12, .08, 'rgba(255,215,150,.55)']],
+    dots: { n: 26, x0: .5, x1: 1, cols: ['#ffcf8a', '#ffe9c6', '#ff9f5a', '#d8f5c0'] },
+    table: ['#f8f6f3', '#eeebe7', '#dcd7d1'], spill: 'rgba(130,120,110,.3)',
+    glints: [[.42, .55, .06, .012, .85], [.58, .58, .07, .012, .8], [.84, .56, .05, .012, .7], [.5, .86, .16, .035, .4]],
+    items: [{ kind: 'stand', x: .31, y: .66, h: .27, lean: -.16 },
+      { img: backSlab, x: .5, y: .5, h: .3, blur: 3 },
+      { img: () => slab(poke.fullFire(), { title: 'GEM MINT', line1: 'CINDERFANG · FULL ART', line2: '2025 · NO. 140', grade: '10', band: '#b3261e' }), x: .62, y: .74, h: .54 }] }),
+};
+window.SCENE_IDS = Object.keys(SCENES);
+/* the scene at 1920x1280, and the offer card's ground cut from its centre at 1080 with p90, the 90th percentile
+   luminance of its upper two thirds (scripts/make_offer_grounds.py's measure, where a headline stands) */
+window.SCENE = id => {
+  const c = SCENES[id](), o = mk(1080, 1080), y = o.getContext('2d'), s = Math.min(c.width, c.height);
+  y.imageSmoothingQuality = 'high'; y.drawImage(c, (c.width - s) / 2, (c.height - s) / 2, s, s, 0, 0, 1080, 1080);
+  const d = y.getImageData(0, 0, 1080, 720).data, L = [];
+  for (let i = 0; i < d.length; i += 4) L.push(.299 * d[i] + .587 * d[i + 1] + .114 * d[i + 2]);
+  L.sort((a, b) => a - b);
+  return { jpg: c.toDataURL('image/jpeg', .9), offer: o.toDataURL('image/jpeg', .88), p90: Math.round(L[Math.floor(L.length * .9)]) };
+};
 })();

@@ -653,6 +653,9 @@ export const FULL_WORDS = {
   label: ["CALL OR TEXT", "TEXT US NOW", "GET YOUR OFFER"],
   burst: ["CASH!", "FAST CASH", "NO FEES", "PAID TODAY", "SAME DAY", "EASY SALE"],
   burst_es: ["PAGO HOY", "PAGO YA", "FÁCIL"],
+  // a Spanish ad's badge and small line in Spanish too (2026-11-23: they were drawn from the English lists)
+  claim_es: ["LOCAL Y HONESTO", "RESPUESTA RÁPIDA • PAGO HOY", "COMPRADOR LOCAL • OFERTA JUSTA", "OFERTA JUSTA • SIN PRESIÓN", "COMPRADOR HONESTO • PAGO HOY"],
+  line_es: ["TODOS LOS MODELOS", "NUEVO, USADO O ROTO", "CUALQUIER COMPAÑÍA • ROTOS OK"],
 };
 
 /* ONE PROMISE, ONCE. The review of 2026-11-12 found the same promise three times on one square:
@@ -2269,17 +2272,19 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   const label = st.number_label || (es ? "LLAMA O MANDA TEXTO" : FULL_WORDS.label[0]);
   // a look's small line that says what the call to action says (a video look's tag CALL OR TEXT over its CALL OR
   // TEXT, rule 158) gives way to one from the list: the ad never says one thing twice
-  const line = st.feed_line ?? (st.tag && !sharesWord(st.tag, label) ? st.tag : st.tag ? fresh(FULL_WORDS.line, [st.headline, label]) : one(FULL_WORDS.line));
+  const LINES = es ? FULL_WORDS.line_es : FULL_WORDS.line;
+  const line = st.feed_line ?? (st.tag && !sharesWord(st.tag, label) ? st.tag : st.tag ? fresh(LINES, [st.headline, label]) : one(LINES));
   /* the selling points (rule 164, motion/full-points.js): typed ones as typed; otherwise two to four drawn by the seed from
-     the line's own promises and any buyer's, each in one of its phrasings (a line's old fixed list counts as untyped) */
+     the line's own promises and any buyer's, each in one of its phrasings, in the ad's language (a line's old fixed list
+     counts as untyped) */
   const typedPoints = st.points != null && !OLD_DEFAULTS.has(String(st.points).trim().toUpperCase());
-  const points = typedPoints ? st.points : es ? (pointsOf({ ...st, points: null }).join(", ") || fresh(FULL_WORDS.points, [st.headline, line]))
-    : (drawPoints(st.subject, r, [st.headline, line], sharesWord) || fresh(FULL_WORDS.points, [st.headline, line]));
+  const points = typedPoints ? st.points
+    : (drawPoints(st.subject, r, [st.headline, line], sharesWord, es ? "es" : "en") || (es ? pointsOf({ ...st, points: null }).join(", ") : "") || fresh(FULL_WORDS.points, [st.headline, line]));
   // who is buying: a business name, where one is given, takes the badge (the first thing read). An ad
   // with no name on it is the pattern of the buyers nobody trusts (competitor research, 2026-11-12:
   // the brand is what carries the eye to the rest of an ad; "top dollar" is on every sign in the trade)
   const biz = String(st.biz || "").trim();
-  const claim = st.feed_claim ?? (biz ? biz.toUpperCase() : fresh(FULL_WORDS.claim, [st.headline, line, points]));
+  const claim = st.feed_claim ?? (biz ? biz.toUpperCase() : fresh(es ? FULL_WORDS.claim_es : FULL_WORDS.claim, [st.headline, line, points]));
   const burst = st.feed_burst ?? fresh(es ? FULL_WORDS.burst_es : FULL_WORDS.burst, [st.headline, line, points, claim, label]);
   const words = {
     feed_claim: claim, feed_line: line, points, points_drawn: !typedPoints, number_label: label,   // drawn points may be fewer where they do not fit; typed ones never quietly
