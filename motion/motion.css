@@ -44,7 +44,8 @@ a.mo-btn{display:inline-flex;align-items:center;text-decoration:none}
 .mo-vibes{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px;align-items:center}
 .mo-vibes button{border:1.5px solid var(--line);background:var(--panel);color:var(--text-2);font:700 13px -apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',sans-serif;padding:7px 12px;border-radius:999px;cursor:pointer;min-height:36px;white-space:nowrap}
 .mo-vibes button:hover{border-color:var(--accent)}
-.mo-vibes button[aria-checked=true]{border-color:var(--btn);color:var(--text);background:color-mix(in srgb,var(--btn) 16%,var(--bg))}
+.mo-vibes button[aria-checked=true],.mo-vibes button[aria-pressed=true]{border-color:var(--btn);color:var(--text);background:color-mix(in srgb,var(--btn) 16%,var(--bg))}
+.mo-towns .mo-vibes{margin-top:6px}
 .mo-vibes button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .mo-chip-grp{flex-basis:100%;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:6px}
 @media (max-width:620px){.mo-vibes{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}.mo-chip-grp{flex-basis:auto;margin:0 0 0 8px;white-space:nowrap}}

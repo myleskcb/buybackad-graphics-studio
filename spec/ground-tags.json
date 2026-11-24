@@ -1,5 +1,5 @@
 {
- "_doc": "What each ground photograph shows, read by eye on contact sheets (2026-11-18), so the ground and the product line up (the owner: \"ideally bg and assets line up\"; DESIGN-LAW 145). shows: 'scene' (a world the product stands in: a landscape, a desk, a field, a texture; suits: the categories it fits) or 'product' (it shows goods itself: subject is the line or kind it shows, make and model where it is a vehicle or a phone, vehicle: pickup or van). floor: where a surface the product can stand on meets the eye, 0 to 1 of the photograph's height; FullAd frames a scene so this line is the foot of the product band. never: a reason the photograph is not used at all. The full ad's pools (scripts/build_full_grounds.mjs) and the recipes (scripts/build_recipes.mjs) read this table; each --check fails a ground it does not tag. A car photograph may list cuts: the cut-outs that are that very car (a model name can span generations or bodies: an E46 and a G80 M3, a Transit Connect and a Courier); only those stand on it.",
+ "_doc": "What each ground photograph shows, read by eye on contact sheets (2026-11-18), so the ground and the product line up (the owner: \"ideally bg and assets line up\"; DESIGN-LAW 145). shows: 'scene' (a world the product stands in: a landscape, a desk, a field, a texture; suits: the categories it fits) or 'product' (it shows goods itself: subject is the line or kind it shows, make and model where it is a vehicle or a phone, vehicle: pickup or van). floor: where a surface the product can stand on meets the eye, 0 to 1 of the photograph's height; FullAd frames a scene so this line is the foot of the product band. never: a reason the photograph is not used at all. The full ad's pools (scripts/build_full_grounds.mjs) and the recipes (scripts/build_recipes.mjs) read this table; each --check fails a ground it does not tag. A car photograph may list cuts: the cut-outs that are that very car (a model name can span generations or bodies: an E46 and a G80 M3, a Transit Connect and a Courier); only those stand on it. where: the place a photograph shows, where it can be told (a metro of motion/metros.js, or another place): an ad whose area is in a metro stands on no photograph of somewhere else (rule 161).",
  "version": "2026-11-18",
  "tags": {
   "assets/bg-offer/apple-macbook-air-m2-1.jpg": {
@@ -745,7 +745,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "where": "lake-tahoe"
   },
   "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg": {
    "shows": "scene",
@@ -763,7 +764,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "where": "san-francisco"
   },
   "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg": {
    "shows": "scene",
@@ -781,7 +783,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "where": "san-francisco"
   },
   "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg": {
    "shows": "scene",
@@ -799,7 +802,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "where": "san-francisco"
   },
   "assets/bg-web/wallpaper-golden-gate-bridge-sunset-3.jpg": {
    "shows": "scene",
@@ -817,7 +821,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "where": "san-francisco"
   },
   "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg": {
    "shows": "scene",
@@ -835,7 +840,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "where": "san-francisco"
   },
   "assets/bg-web/wallpaper-lake-tahoe-1.jpg": {
    "shows": "scene",
@@ -853,7 +859,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "where": "lake-tahoe"
   },
   "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg": {
    "shows": "scene",
@@ -871,7 +878,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "where": "lake-tahoe"
   },
   "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg": {
    "shows": "scene",
@@ -889,7 +897,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "where": "lake-tahoe"
   },
   "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg": {
    "shows": "scene",
@@ -907,7 +916,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "where": "lake-tahoe"
   },
   "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg": {
    "shows": "scene",
@@ -925,7 +935,8 @@
     "pokemon",
     "sports",
     "strips"
-   ]
+   ],
+   "where": "lake-tahoe"
   },
   "assets/bg/dl_cars_reviewProof_mono.jpg": {
    "shows": "product",
@@ -1302,6 +1313,466 @@
   "assets/showcase/bg/dg_tile_jw08_silver_3.webp": {
    "shows": "product",
    "subject": "silver"
+  },
+  "assets/bg-free/geo-los-angeles-1.jpg": {
+   "shows": "scene",
+   "where": "los-angeles"
+  },
+  "assets/bg-free/geo-los-angeles-2.jpg": {
+   "shows": "scene",
+   "where": "los-angeles"
+  },
+  "assets/bg-free/geo-los-angeles-3.jpg": {
+   "shows": "scene",
+   "where": "los-angeles"
+  },
+  "assets/bg-free/geo-los-angeles-4.jpg": {
+   "shows": "scene",
+   "where": "los-angeles"
+  },
+  "assets/bg-free/geo-los-angeles-5.jpg": {
+   "shows": "scene",
+   "where": "los-angeles"
+  },
+  "assets/bg-free/geo-los-angeles-6.jpg": {
+   "shows": "scene",
+   "where": "los-angeles"
+  },
+  "assets/bg-free/geo-los-angeles-7.jpg": {
+   "shows": "scene",
+   "where": "los-angeles"
+  },
+  "assets/bg-free/geo-los-angeles-8.jpg": {
+   "shows": "scene",
+   "where": "los-angeles"
+  },
+  "assets/bg-free/geo-new-york-5.jpg": {
+   "shows": "scene",
+   "where": "new-york"
+  },
+  "assets/bg-free/geo-new-york-7.jpg": {
+   "shows": "scene",
+   "where": "new-york"
+  },
+  "assets/bg-free/geo-los-angeles-11.jpg": {
+   "shows": "scene",
+   "where": "los-angeles"
+  },
+  "assets/bg-free/geo-los-angeles-12.jpg": {
+   "shows": "scene",
+   "where": "los-angeles"
+  },
+  "assets/bg-free/geo-los-angeles-13.jpg": {
+   "shows": "scene",
+   "where": "los-angeles"
+  },
+  "assets/bg-free/geo-chicago-1.jpg": {
+   "shows": "scene",
+   "where": "chicago"
+  },
+  "assets/bg-free/geo-chicago-5.jpg": {
+   "shows": "scene",
+   "where": "chicago"
+  },
+  "assets/bg-free/geo-dallas-4.jpg": {
+   "shows": "scene",
+   "where": "dallas"
+  },
+  "assets/bg-free/geo-dallas-5.jpg": {
+   "shows": "scene",
+   "where": "dallas"
+  },
+  "assets/bg-free/geo-dallas-6.jpg": {
+   "shows": "scene",
+   "where": "dallas"
+  },
+  "assets/bg-free/geo-houston-2.jpg": {
+   "shows": "scene",
+   "where": "houston"
+  },
+  "assets/bg-free/geo-houston-3.jpg": {
+   "shows": "scene",
+   "where": "houston"
+  },
+  "assets/bg-free/geo-houston-4.jpg": {
+   "shows": "scene",
+   "where": "houston"
+  },
+  "assets/bg-free/geo-houston-5.jpg": {
+   "shows": "scene",
+   "where": "houston"
+  },
+  "assets/bg-free/geo-houston-6.jpg": {
+   "shows": "scene",
+   "where": "houston"
+  },
+  "assets/bg-free/geo-atlanta-2.jpg": {
+   "shows": "scene",
+   "where": "atlanta"
+  },
+  "assets/bg-free/geo-atlanta-3.jpg": {
+   "shows": "scene",
+   "where": "atlanta"
+  },
+  "assets/bg-free/geo-washington-2.jpg": {
+   "shows": "scene",
+   "where": "washington"
+  },
+  "assets/bg-free/geo-washington-4.jpg": {
+   "shows": "scene",
+   "where": "washington"
+  },
+  "assets/bg-free/geo-washington-5.jpg": {
+   "shows": "scene",
+   "where": "washington"
+  },
+  "assets/bg-free/geo-washington-6.jpg": {
+   "shows": "scene",
+   "where": "washington"
+  },
+  "assets/bg-free/geo-washington-7.jpg": {
+   "shows": "scene",
+   "where": "washington"
+  },
+  "assets/bg-free/geo-washington-8.jpg": {
+   "shows": "scene",
+   "where": "washington"
+  },
+  "assets/bg-free/geo-philadelphia-2.jpg": {
+   "shows": "scene",
+   "where": "philadelphia"
+  },
+  "assets/bg-free/geo-philadelphia-3.jpg": {
+   "shows": "scene",
+   "where": "philadelphia"
+  },
+  "assets/bg-free/geo-miami-1.jpg": {
+   "shows": "scene",
+   "where": "miami"
+  },
+  "assets/bg-free/geo-miami-2.jpg": {
+   "shows": "scene",
+   "where": "miami"
+  },
+  "assets/bg-free/geo-phoenix-1.jpg": {
+   "shows": "scene",
+   "where": "phoenix"
+  },
+  "assets/bg-free/geo-boston-1.jpg": {
+   "shows": "scene",
+   "where": "boston"
+  },
+  "assets/bg-free/geo-boston-2.jpg": {
+   "shows": "scene",
+   "where": "boston"
+  },
+  "assets/bg-free/geo-boston-3.jpg": {
+   "shows": "scene",
+   "where": "boston"
+  },
+  "assets/bg-free/geo-inland-empire-3.jpg": {
+   "shows": "scene",
+   "where": "inland-empire"
+  },
+  "assets/bg-free/geo-inland-empire-4.jpg": {
+   "shows": "scene",
+   "where": "inland-empire"
+  },
+  "assets/bg-free/geo-inland-empire-5.jpg": {
+   "shows": "scene",
+   "where": "inland-empire"
+  },
+  "assets/bg-free/geo-san-francisco-1.jpg": {
+   "shows": "scene",
+   "where": "san-francisco"
+  },
+  "assets/bg-free/geo-san-francisco-2.jpg": {
+   "shows": "scene",
+   "where": "san-francisco"
+  },
+  "assets/bg-free/geo-detroit-1.jpg": {
+   "shows": "scene",
+   "where": "detroit"
+  },
+  "assets/bg-free/geo-detroit-2.jpg": {
+   "shows": "scene",
+   "where": "detroit"
+  },
+  "assets/bg-free/geo-detroit-3.jpg": {
+   "shows": "scene",
+   "where": "detroit"
+  },
+  "assets/bg-free/geo-detroit-4.jpg": {
+   "shows": "scene",
+   "where": "detroit"
+  },
+  "assets/bg-free/geo-seattle-1.jpg": {
+   "shows": "scene",
+   "where": "seattle"
+  },
+  "assets/bg-free/geo-seattle-2.jpg": {
+   "shows": "scene",
+   "where": "seattle"
+  },
+  "assets/bg-free/geo-tampa-1.jpg": {
+   "shows": "scene",
+   "where": "tampa"
+  },
+  "assets/bg-free/geo-tampa-2.jpg": {
+   "shows": "scene",
+   "where": "tampa"
+  },
+  "assets/bg-free/geo-san-diego-1.jpg": {
+   "shows": "scene",
+   "where": "san-diego"
+  },
+  "assets/bg-free/geo-san-diego-2.jpg": {
+   "shows": "scene",
+   "where": "san-diego"
+  },
+  "assets/bg-free/geo-san-diego-3.jpg": {
+   "shows": "scene",
+   "where": "san-diego"
+  },
+  "assets/bg-free/geo-san-diego-5.jpg": {
+   "shows": "scene",
+   "where": "san-diego"
+  },
+  "assets/bg-free/geo-denver-1.jpg": {
+   "shows": "scene",
+   "where": "denver"
+  },
+  "assets/bg-free/geo-denver-2.jpg": {
+   "shows": "scene",
+   "where": "denver"
+  },
+  "assets/bg-free/geo-orlando-2.jpg": {
+   "shows": "scene",
+   "where": "orlando"
+  },
+  "assets/bg-free/geo-orlando-3.jpg": {
+   "shows": "scene",
+   "where": "orlando"
+  },
+  "assets/bg-free/geo-orlando-4.jpg": {
+   "shows": "scene",
+   "where": "orlando"
+  },
+  "assets/bg-free/geo-orlando-6.jpg": {
+   "shows": "scene",
+   "where": "orlando"
+  },
+  "assets/bg-free/geo-orlando-7.jpg": {
+   "shows": "scene",
+   "where": "orlando"
+  },
+  "assets/bg-free/coins-4.jpg": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/bg-free/coins-7.jpg": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/bg-free/coins-11.jpg": {
+   "shows": "product",
+   "subject": "coins"
+  },
+  "assets/bg-free/gold-6.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-free/gold-7.jpg": {
+   "shows": "product",
+   "subject": "gold"
+  },
+  "assets/bg-free/geo-new-york-10.jpg": {
+   "shows": "scene",
+   "where": "new-york"
+  },
+  "assets/bg-free/geo-new-york-11.jpg": {
+   "shows": "scene",
+   "where": "new-york"
+  },
+  "assets/bg-free/geo-los-angeles-15.jpg": {
+   "shows": "scene",
+   "where": "los-angeles"
+  },
+  "assets/bg-free/geo-los-angeles-16.jpg": {
+   "shows": "scene",
+   "where": "los-angeles"
+  },
+  "assets/bg-free/geo-los-angeles-17.jpg": {
+   "shows": "scene",
+   "where": "los-angeles"
+  },
+  "assets/bg-free/geo-los-angeles-18.jpg": {
+   "shows": "scene",
+   "where": "los-angeles"
+  },
+  "assets/bg-free/geo-los-angeles-19.jpg": {
+   "shows": "scene",
+   "where": "los-angeles"
+  },
+  "assets/bg-free/geo-chicago-8.jpg": {
+   "shows": "scene",
+   "where": "chicago"
+  },
+  "assets/bg-free/geo-chicago-10.jpg": {
+   "shows": "scene",
+   "where": "chicago"
+  },
+  "assets/bg-free/geo-atlanta-8.jpg": {
+   "shows": "scene",
+   "where": "atlanta"
+  },
+  "assets/bg-free/geo-atlanta-10.jpg": {
+   "shows": "scene",
+   "where": "atlanta"
+  },
+  "assets/bg-free/geo-philadelphia-5.jpg": {
+   "shows": "scene",
+   "where": "philadelphia"
+  },
+  "assets/bg-free/geo-philadelphia-11.jpg": {
+   "shows": "scene",
+   "where": "philadelphia"
+  },
+  "assets/bg-free/geo-miami-4.jpg": {
+   "shows": "scene",
+   "where": "miami"
+  },
+  "assets/bg-free/geo-miami-5.jpg": {
+   "shows": "scene",
+   "where": "miami"
+  },
+  "assets/bg-free/geo-miami-7.jpg": {
+   "shows": "scene",
+   "where": "miami"
+  },
+  "assets/bg-free/geo-miami-8.jpg": {
+   "shows": "scene",
+   "where": "miami"
+  },
+  "assets/bg-free/geo-miami-10.jpg": {
+   "shows": "scene",
+   "where": "miami"
+  },
+  "assets/bg-free/geo-phoenix-8.jpg": {
+   "shows": "scene",
+   "where": "phoenix"
+  },
+  "assets/bg-free/geo-phoenix-9.jpg": {
+   "shows": "scene",
+   "where": "phoenix"
+  },
+  "assets/bg-free/geo-boston-7.jpg": {
+   "shows": "scene",
+   "where": "boston"
+  },
+  "assets/bg-free/geo-boston-8.jpg": {
+   "shows": "scene",
+   "where": "boston"
+  },
+  "assets/bg-free/geo-boston-9.jpg": {
+   "shows": "scene",
+   "where": "boston"
+  },
+  "assets/bg-free/geo-boston-10.jpg": {
+   "shows": "scene",
+   "where": "boston"
+  },
+  "assets/bg-free/geo-inland-empire-6.jpg": {
+   "shows": "scene",
+   "where": "inland-empire"
+  },
+  "assets/bg-free/geo-san-francisco-4.jpg": {
+   "shows": "scene",
+   "where": "san-francisco"
+  },
+  "assets/bg-free/geo-san-francisco-8.jpg": {
+   "shows": "scene",
+   "where": "san-francisco"
+  },
+  "assets/bg-free/geo-seattle-8.jpg": {
+   "shows": "scene",
+   "where": "seattle"
+  },
+  "assets/bg-free/geo-seattle-11.jpg": {
+   "shows": "scene",
+   "where": "seattle"
+  },
+  "assets/bg-free/geo-seattle-12.jpg": {
+   "shows": "scene",
+   "where": "seattle"
+  },
+  "assets/bg-free/geo-seattle-13.jpg": {
+   "shows": "scene",
+   "where": "seattle"
+  },
+  "assets/bg-free/geo-minneapolis-4.jpg": {
+   "shows": "scene",
+   "where": "minneapolis"
+  },
+  "assets/bg-free/geo-minneapolis-5.jpg": {
+   "shows": "scene",
+   "where": "minneapolis"
+  },
+  "assets/bg-free/geo-tampa-6.jpg": {
+   "shows": "scene",
+   "where": "tampa"
+  },
+  "assets/bg-free/geo-tampa-7.jpg": {
+   "shows": "scene",
+   "where": "tampa"
+  },
+  "assets/bg-free/geo-denver-7.jpg": {
+   "shows": "scene",
+   "where": "denver"
+  },
+  "assets/bg-free/geo-denver-8.jpg": {
+   "shows": "scene",
+   "where": "denver"
+  },
+  "assets/bg-free/geo-denver-9.jpg": {
+   "shows": "scene",
+   "where": "denver"
+  },
+  "assets/bg-free/roads-10.jpg": {
+   "shows": "scene"
+  },
+  "assets/bg-free/roads-14.jpg": {
+   "shows": "scene",
+   "where": "california-coast"
+  },
+  "assets/bg-free/roads-16.jpg": {
+   "shows": "scene",
+   "where": "california-coast"
+  },
+  "assets/bg-free/roads-17.jpg": {
+   "shows": "scene",
+   "where": "alaska"
+  },
+  "assets/bg-free/roads-18.jpg": {
+   "shows": "scene",
+   "where": "alaska"
+  },
+  "assets/bg-free/roads-23.jpg": {
+   "shows": "scene",
+   "where": "missouri"
+  },
+  "assets/bg-free/roads-26.jpg": {
+   "shows": "scene"
+  },
+  "assets/bg-free/roads-27.jpg": {
+   "shows": "scene"
+  },
+  "assets/bg-free/roads-28.jpg": {
+   "shows": "scene"
+  },
+  "assets/bg-free/gold-10.jpg": {
+   "shows": "product",
+   "subject": "gold"
   }
  }
 }

@@ -1417,6 +1417,20 @@
     }
    },
    "art": "qs-sheet-watch-ultra3-2025"
+  },
+  "watch-ultra4": {
+   "line": "watch",
+   "family": "WATCH ULTRA",
+   "name": "Apple Watch Ultra 4",
+   "colours": {},
+   "art": "qs-watch-ultra4"
+  },
+  "watch-s12": {
+   "line": "watch",
+   "family": "APPLE WATCH",
+   "name": "Apple Watch Series 12",
+   "colours": {},
+   "art": "qs-watch-s12"
   }
  }
 }

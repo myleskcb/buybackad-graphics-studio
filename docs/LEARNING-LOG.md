@@ -6418,6 +6418,58 @@ iPhone, Delete account, payment in Safari). The code merged on its own; only the
 named its open items BF, which this branch gave the Type Lab, and BK to BP are taken on other
 branches, so they are BQ here, with a line saying so.
 
+## 2026-11-18 — the full ad's layout and the video looks, on rule 154's branch (DESIGN-LAW 158; claude/full-ad-looks-layout)
+
+Asked: compare PR #16 with the xenodochial branch on the same ads, then "rebuild it" on top.
+
+Done:
+  - Drew the same 24 seeds on `main`, PR #16 and xenodochial, each by its own code and still, and
+    measured the pictures (nearest neighbour in colour and in where the picture is busy). The two
+    branches had solved different halves: colour and fill there, look and layout here.
+  - Ported the layout into their `_layoutType` and the video looks into their `fullStyle`, keeping
+    their sticker, fills, marks, grounds, pre-flight and recipes.
+
+Found:
+  - The pre-flight reads every small line in one ink: lines on a sign, a bubble or a band need their own.
+  - A video palette's white words on a mid ground made the engine lay a heavy shade over the headline;
+    the pre-flight saw it reach the edges and the dark small lines sink in it. Fix the ink at the
+    source (near-black or white) and the shade is not needed.
+  - The engine's automatic scrim is wider than the house's table: pass the table's value.
+  - Rays and a sunburst are drawn every frame: lay them into the ground once, at rest.
+  - What a style table keeps to "plain" grounds must be kept off a video look's grounds too.
+  - A left-aligned headline's treatment reaches past its letters: stand the letters in by half the reach.
+  - A costly shape (bubble, band) must give way before the points fall out or the headline fails the
+    feed preview, not only when the product's band is short.
+  - A helper hidden in a pane cannot see scroll: drive galleries that start on view in a headless page.
+
+RESUME HERE: OPEN-ITEMS §BR. Then the owner's new styles: four LA, four beach and island, four of
+hand-made, Apple-style, commercial studio and avant-garde grounds.
+
+## 2026-11-18 — the house's own styles, and a ZIP code for Your area (DESIGN-LAW 159, 160; claude/full-ad-looks-layout)
+
+Asked: more of our own styles ("GTA or LA", "beach and island", "colorful", "hand generated / apple
+style / commercial style / avant garde"); a ZIP code with the towns nearby to pick; "mix and both?"
+
+Done:
+  - Twelve themes painted in code (style-grounds.js), three signs; 72 full ads through the pre-flight.
+  - geo.js reads the studio's own ZIP and place data; the towns chips; the language row renamed.
+
+Found:
+  - "GTA style" is a setting, not a property: draw LA's light and streets, never a game's logo,
+    lettering, characters or screens (rule 159). The same for "Apple style".
+  - A ground's colour can be read as a mark by the pre-flight's edge check: the engine's shade over a
+    bright stripe at the frame's edge. Lay a video look's shade into its ground.
+  - Leaves at the sides of a frame run behind its small lines: corners only.
+  - Screen-blend colour fields on a dark ground, or they go muddy.
+  - The studio's own town scoring puts the big city first (Long Beach got LOS ANGELES and ANAHEIM);
+    for a buyer's towns line, the neighbours first.
+  - A check that cycles through a list (vibes) samples other looks when the list grows: a failure it
+    then shows may be older than the change. Run the same look on the untouched code before fixing.
+  - A video look's small line may repeat its call to action: check the words against each other.
+
+RESUME HERE: OPEN-ITEMS §BS. The owner's eye on the twelve; then PR #14, the xenodochial branch and
+this branch land in that order.
+
 ## 2026-11-19 (night) — Sign in with Apple and Google (DESIGN-LAW 168; claude/sign-in-apple-google)
 
 Asked: "apple and google sign in ?", on the video maker's dialog. Found: Google's sign-in was
@@ -6440,6 +6492,90 @@ Checked: `appleid_check` 16 of 16, `social_signin_check` 20 of 20; `watermark_ch
 `full_ad_studio_check` pass; `billing_check` 172 of 173, the same fabric.js failure as before.
 
 RESUME HERE: the owner's two IDs (§BV 1), then Sign in with Apple in the iPhone app (§BV 3).
+
+## 2026-11-21 — photographs under the words, the area's own city, the lines' own grounds (DESIGN-LAW 161; claude/full-ad-looks-layout)
+
+Asked: "Where are the background images? None of these have background images", patterns, a photo
+with a pattern, a supporting tint; city photographs by metro; "Gaming is lacking in image variety as
+well as cards. Pokémon cards and sports cards are extremely lacking". Approved: downloads of free
+licence only, the top 20 metros, cards painted.
+
+Done:
+  - Photo share .24 to .4 (.55 in a metro the library holds); five treatments (grade, tint, duotone,
+    wash, pattern); twelve painted grounds for cards, gaming, coins and cars.
+  - 116 public domain and CC0 photographs in assets/bg-free (105 of the metros), each read by eye;
+    metros.js matches a ZIP or towns to a metro; the maker's Background panel.
+
+Found:
+  - The house grade (the pair's ground at .3 to .6 over the whole picture, plus a vignette) is what
+    made the photographs disappear: on most pairs a photo read as a flat colour. The shade the engine
+    lays behind each block of words already keeps them reading, so the other treatments keep a
+    fraction of the grade (tint .5, duotone .22, wash .3, pattern .72) and the pre-flight still passes.
+  - Tone-on-tone marks at the general patterns' step (.095) vanish when the marks are thin outlines
+    of things (slabs, cards): the lines' own grounds need a wider step (.12 to .15).
+  - Commons search terms bring people more than places: about half of what came back was turned down
+    (podiums, crowds, cosplay, sculptures, postcards, the twin towers, a crash site). Read every
+    candidate; filters on the title and the licence's restrictions catch only some.
+  - Landmarks can be trademarks (the Hollywood Sign, the Space Needle, the Empire State Building, the
+    Transamerica Pyramid): keep them out where the photograph is about the building.
+  - Free photographs of trading cards are old tobacco cards, or people playing; the shop's own
+    photographs are the way to real card backgrounds.
+  - Most night skylines fall under the house's dark-ground limits (L .14, 35% near black): 31 of them.
+  - A town's name alone is ambiguous (Pasadena is in Texas too, and bigger): vote over all the towns
+    in the area, each by where its namesakes' people live.
+
+RESUME HERE: OPEN-ITEMS §BT. The owner's eye on the gallery; card photographs from the shop.
+
+## 2026-11-22 — four more kinds of ground, and the card lines' own pictures (DESIGN-LAW 163; claude/full-ad-looks-layout)
+
+Asked: device or brand imagery, abstract backgrounds, space, "what else would we use?", a list of
+what gives variety and makes good design; then "Yes, build them" (device, abstract, brand in type,
+colour and shape); and "why arent there new card assets like we talked about".
+
+Done:
+  - Twenty painted grounds in four families (motion/full-families.js); the shares now spread the
+    draw over nine kinds, a photograph still the commonest at .3.
+  - Twenty card pictures painted in a headless browser with the studio's fonts; Pokémon 2 to 11
+    pictures, sports 8 to 19.
+
+Found:
+  - "Paint generic cards" was heard as card grounds on 2026-11-21, and only grounds were made; the
+    owner meant the pictures in front. A request about a line's variety means its product pictures
+    first, its grounds second.
+  - "Device imagery" as library photographs of devices would break rule 160 (a photograph of goods
+    must be the ad's own make and model). Painting the ad's own product picture as the ground
+    always matches.
+  - A square ad leaves little ground showing: a trail of small product echoes lay under the
+    product and its sticker and showed nothing. A ground's feature has to live where words are
+    not: the frame's edges, or larger than the frame.
+  - A sample sheet at 4:5 read as "the ads changed shape": the owner's ads are mainly 1:1, so
+    sheets lead with square.
+  - A ground feature much darker than a light ground (a grey laptop close-up on white) turns the
+    shade behind each block of words into visible boxes, and where a box meets the frame the
+    pre-flight stops it (full_style_check, laptop 2241). Keep painted features within a step of the
+    ground's own tone, and fade them out before the edges.
+  - Word tapes drawn across the whole frame ran under the headline; a corner tape runs at 45 degrees
+    across the corner, not along the diagonal.
+
+Later the same day (DESIGN-LAW 164; OPEN-ITEMS BW 5 to 9):
+  - Selling points drawn by the seed: two to four, from each line's own promises and any buyer's,
+    each said several ways, the money or the quote always in the first two.
+  - The iPhone mix by the owner's word, not by release date alone: the 17 Pro Max pushed, the 16
+    Pro Max (the shop's best seller) close behind, the colourful base and Plus models a third.
+  - Watch Ultra 4 and Series 12 from the owner's site; no ad-ready free picture of 2026 Samsung or
+    Pixel phones exists on Commons.
+
+Found:
+  - "2026 / 2027 adjacent" read alone pushed the older phones nearly out; the owner then said the
+    16 Pro Max is the best seller and the colourful base models are wanted too. Weights are a
+    marketing decision: ask which models sell, not only which are new.
+  - The sample sheet's renderer pinned two iPhone 16 Pros on every iPhone ad, and the owner read
+    it as the engine's choice. A sheet must draw what the engine draws.
+  - A layout that keeps "the first n" where items do not fit drops the wrong ones; drop the longest.
+  - The owner's site serves its device art at 640 x 640, the same renders the studio already
+    holds; the larger files came as the owner's own upload.
+
+RESUME HERE: OPEN-ITEMS §BW 5 to 9. Device pictures for 2026 Samsung and Pixel; a Spanish points pool.
 
 ## 2026-11-22 — the vibrant pairs adopted, the approved wall pinned (claude/zealous-dewdney-386bf8)
 
@@ -6466,3 +6602,4 @@ Learned:
     colour and moving the ground, or the yellow fades to cream.
   - The business cards read `black_pink`, `black_lime` and `black_cyan` by key: brighten a pair,
     never rename it.
+

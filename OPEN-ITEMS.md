@@ -4394,7 +4394,107 @@ Missing or broken, for the owner:
 5. Stripe in test mode; a real card through the live checkout (the owner, with
    4242 4242 4242 4242 while in test mode); the contact address; the terms.
 
+## BR. 2026-11-18 — the full ad's layout varies, and it may wear any video look (DESIGN-LAW 158)
 
+(claude/full-ad-looks-layout, from claude/xenodochial-mccarthy-7bea6d at a89b25e2. It replaces PR #16,
+claude/ad-design-variety-cohesion-5a7836, which made the same changes on `main`'s full ad before rule 154.)
+
+The owner: the full ads "look shockingly similar to one another"; "I need text variety placements";
+"the video ads originally.. backgrounds.. patterns.. fonts.. arrangement/assortment of devices were
+really good"; "for every single video, I want a photo ad equivalent"; then, comparing the two branches,
+"rebuild it" on top of rule 154's.
+
+Done:
+- **The layout** (`FULL_LAYOUT`): alignment, the product's band middle, high or low, the points' side,
+  four claim badges, three point styles, two calls to action, three footers. Rule 154's stickers and
+  fills and rule 157's marks kept; a left-aligned card's mark stands on the number's right.
+- **Video looks on the full ad** (`fullStyle(…, { look })`), signs included, with the fixes rule 158
+  lists so each passes the pre-flight.
+- **The maker**: Any look to Full ad wears the look; the full gallery's shelves; New look's mix; Layout.
+- Measured: every one of 192 full ads (house looks and video looks, 24 in each of four sizes) passes
+  `fullBlockers` and the pre-flight; `full_ad_check`, `full_colour_check`, `full_type_check`,
+  `full_ad_studio_check`, `look_preflight_check`, `quick_ad_check` and `buylist_check` all clear, and
+  `full_style_check` after one fix (a wide frame's points fell out under the bubble and the band).
+- Measured on the comparison's 24 seeds (the same words and iPhones; nearest neighbour on the picture):
+  layout difference .26 in a square and .15 to .16 in a story (rule 154's branch .18 and .12, `main`
+  .08 and .10); pairs of ads alike in colour and layout at once 0 in a square and 1 to 3 in a story
+  (rule 154's 0 and 16, `main`'s 20 and 10); 22 to 23 layouts in 24 ads (rule 154's one). With the
+  maker's mix (a third of New looks a video look) 15 grounds and 15 treatments in 24.
+
+Open:
+1. **Not on `main`.** It sits on PR #14's branch (claude/ads-improvement-roadmap-7632c8), which now
+   holds the xenodochial branch: #14 lands first, then this. PR #16 is superseded and can be closed once this is up.
+2. **The weights are first guesses**: `FULL_LAYOUT`'s, and `VIDEO_SHARE` (35% of New looks wear a
+   video look). The owner likes the LA looks (the freeway sign, the palms): their share may go up.
+3. **Rule numbers**: these are 158 to 160, after PR #14's renumbering (the xenodochial branch's
+   146 to 149 are 154 to 157 there). The sound branch (claude/video-music-sfx-audit-3691d1) wrote its
+   rule as 147: check it against the merged list when it lands.
+4. **The recipes** (rule 145) draw the house's own look only: a recipe made from an older card could
+   lean to the video look nearest its card, not done.
+
+## BS. 2026-11-18 — the house's own styles, and a ZIP code for Your area (DESIGN-LAW 159, 160)
+
+(claude/full-ad-looks-layout, after §BR.)
+
+Done:
+- Twelve themes, two families (LA & coast, Art & studio), twelve painted grounds, three signs
+  (billboard, tiki plank, surfboard); 72 of 72 full ads clean through the pre-flight.
+- Your area takes a ZIP; the towns nearby as chips; Suggested; the language row renamed.
+- Checked: `full_ad_check`, `full_style_check`, `full_colour_check`, `full_type_check`,
+  `full_ad_studio_check`, `look_preflight_check`, `quick_ad_check`, `buylist_check` (after Surf shop's
+  plate was deepened: its names read 4.4:1), `audience_check`, `type_voices_check`; the maker's ZIP,
+  chips, Suggested and language row driven headless, no page errors.
+
+Open:
+1. **The owner's eye.** Built without seeing them on a phone: which of the twelve to keep, push or
+   drop is the owner's (a theme dropped from `THEMES` leaves nothing behind but its painter).
+2. **Look numbers moved.** Twelve more vibes change which vibe an old look number draws (as the 50
+   themes did when they came); a saved look keeps its own, as it always has.
+3. **The video audits** (`motion_audit.mjs`, `motion_palette_audit.mjs`) need `puppeteer-core`,
+   which this Mac does not have: the new palettes have not been through them.
+5. **`motion_cta_audit` fails one look, and the fault is older than this branch**: Shipping box,
+   4:5, seed 499897, number bottom-right, "stacked": the call to action sits .13 to .155 of the
+   number's size over it (floor .14), the same on the xenodochial branch's own code (a89b25e2). The
+   twelve new vibes changed which looks the audit's 300 seeds draw, and this one came up. The engine's
+   label placement for that look is the fix, not done here.
+4. **The ZIP stays in the maker.** It is not written back to the studio's brand kit (Easy Mode's
+   area dialog has its own), and the towns chips show only in the full mode.
+
+## BT. 2026-11-21 — photographs under the words, the area's own city, the lines' own grounds (DESIGN-LAW 161)
+
+(claude/full-ad-looks-layout, after §BS. The owner: "Where are the background images?", "background
+images are pretty important here", "Pokémon cards and sports cards are extremely lacking in variety".)
+
+Done:
+- A photograph is .4 of a seed's ground (.55 in a metro the library holds), laid under the words in
+  one of five treatments: grade, tint, duotone, wash, pattern.
+- `assets/bg-free/`: 116 free-licence photographs (public domain and CC0 only, 74 MB): 105 of the 20
+  biggest metros (2 to 16 each, Los Angeles 16), 9 roads and coasts, coin slabs and piles, gold bars.
+  288 candidates were fetched by `scripts/fetch_free_photos.mjs` and read by eye on contact sheets
+  (172 turned down: people, artworks, trademarks, wrong places, old prints, and 31 night shots under
+  the house's limits for dark grounds); `scripts/import_free_photos.mjs` brought in the rest.
+  `motion/metros.js` (from `scripts/build_metros.mjs`) finds the metro of a ZIP code or of towns.
+- The pools: cars 10 to 24 photographs (roads, coasts, open desert), coins 2 to 5, silver 3 to 6,
+  gold 4 to 7; the coast roads joined the phones', audio's, wearables' and cameras' pools.
+- Twelve grounds painted for the lines' own goods (cards, slabs, binder, foil, stitch; pixels, pads,
+  screen; coins, reeding; road, tread).
+- The maker's Background panel: what the ad stands on, and a photograph's treatment, each lockable.
+
+Open:
+1. **Card photographs.** Commons had no usable free photograph of trading cards (old tobacco cards,
+   cosplay, people at tables). The cards stand on painted grounds. The shop's own photographs of
+   slabs, binders and its counter would be the best grounds for them, and are the owner's to take.
+2. **No new gaming photographs.** Every arcade, pinball and esports photograph Commons had free
+   showed people, a band's art or a brand, or was too dark. The gaming line leans on its painted
+   grounds (pixels, pads, a screen) until better ones are found or shot.
+3. **More places, and thin ones.** The top 20 metros only; Minneapolis has 2 photographs, Dallas and
+   Phoenix 3. States, and the
+   metros after the twentieth, are the next step (same scripts, more groups in
+   `spec/free-photo-queries.json`).
+4. **The owner's eye on the treatments' shares** (`PHOTO_TREAT_SHARES`) and the photo share (.4).
+5. **The Golden Gate Bridge and the skylines that hold a trademarked building** (the Empire State,
+   the Space Needle) are kept out where a photograph is about the building; a skyline that has one in
+   it is kept. If the shop wants no risk at all, drop those by hand.
 
 ## BU. 2026-11-22 — business cards, and the logo designer planned (DESIGN-LAW 167)
 
@@ -4476,3 +4576,75 @@ Open:
    (`ASAuthorizationAppleIDProvider` in the shell, its identity token sent to `/api/auth/apple`),
    then `APPLE_BUNDLE_ID` = `ad.webuy.app` in Netlify. Google can follow in the app only alongside
    Apple (App Store guideline 4.8).
+
+## BW. 2026-11-22 — four more kinds of ground, and the card lines' own pictures (DESIGN-LAW 163)
+(BU on claude/full-ad-looks-layout; `main` had given BU to the business cards by the time it landed, 2026-11-23, so it is BW here.)
+
+(claude/full-ad-looks-layout, after §BT. The owner: "some backgrounds we'll use more device or brand
+imagery", "or we use abstract img backgrounds", "what else would we use?", "Yes, build them"; and,
+of the card ads, "why arent there new card assets like we talked about".)
+
+Done:
+- `motion/full-families.js`: twenty grounds in four families, painted in the pair's own colours:
+  product (a wall of the ad's own product, a close-up out of focus, a giant outline of it), abstract
+  (silk, liquid chrome, bokeh, frosted glass, holographic foil, spheres, a light leak), shape (disc,
+  Bauhaus, bands, pills, colour blocks, wave, rising sun), type (word wall, giant word, word tape).
+- The shares: photograph .3 (.55 in a metro with its own), abstract .13, gradient .12, pattern .12,
+  shape .1, product .1, type .05, scene .04, house .04. "Stands on" in the maker offers each family.
+- Twenty card pictures painted (`scripts/paint_card_pictures.mjs`, ph-poke-* and ph-sports-*):
+  holo and full-art cards, fanned cards, graded slabs, three slabs, binders, booster packs, a booster
+  box, a collection; soccer and hockey rookies, an autograph, a patch autograph, refractors, a graded
+  autograph, three graded rookies, wax and hobby packs, a hobby box, a sports collection. Pokémon's
+  pool 2 to 11 pictures, sports' 8 to 19.
+
+Open:
+1. **The card pictures are placeholders.** Drawn cards read as cards but not as a particular
+   valuable one; a photograph of the shop's own slabs, binders and sealed boxes would sell harder.
+   Each ph-* is named so it can be swapped one for one.
+2. **The graded Charizard (`poke-psa-charizard`) is CC BY-SA 2.0** (cut from a Wikimedia Commons
+   photograph, `assets/cutouts/ATTRIBUTION.json`): that licence asks for a credit on the ad, and the
+   card's art is the maker's. Rule 161 holds new ad photographs to public domain or CC0. It still has
+   weight 6 of the Pokémon pool; the owner's call whether it stays.
+3. **Still to build from the list:** textures and materials (about 40 CC0 photographs, about 25 MB:
+   needs the owner's go-ahead to download), space (NASA photographs are public domain, about 30, about
+   20 MB, plus painted ones; most are dark, so under a duotone or wash), the area drawn as a map from
+   the studio's own geo data, money and value grounds, seasonal sets.
+4. **The new shares are first guesses** and want the owner's eye on a sheet of New looks.
+5. **The devices of 2026, and 2027 next** (the owner, 2026-11-22: "iphone duo", "z fold 8", "any other
+   new devices?", "it needs to be 2026 / 2027 adjacent"). Done: the iPhone draw weighs the 2025 and 2026
+   models about nine in ten (spec/product-demand.json), and the iPhone Duo leads the foldables line
+   (its words now name it first). Missing pictures, by what launched (press coverage):
+   - Apple, 2026-09-09: the iPhone Duo has only the owner's site art (562 x 364, small) and no render
+     in motion/phones, so it cannot stand in an iPhone ad; the iPhone Air (2025) neither. Apple Watch
+     Series 12 and Ultra 4, and AirPods 5, are not in assets/devices.json. The base iPhone 18 and 18e
+     are due in spring 2027.
+   - Samsung: Galaxy S26, S26+ and S26 Ultra (2026-02-25), Galaxy Z Fold 8 Ultra, Z Fold 8 and Z Flip 8
+     (2026-07-22). The library's newest Samsung pictures are the S24 and generic generated foldables.
+   - Google: the Pixel 11 family (2026-08). The newest Pixel pictures are the Pixel 9.
+   The owner's site's device art (uploaded 2026-09-27) is the source the iPhone pictures came from;
+   the same for these would keep every device real. Needs the owner's upload or go-ahead.
+6. **Card pictures, photo-accurate**: painted ones read as drawn up close. Options, best first: the
+   shop's own photographs; 3D renders of slabs, boxes, packs and a binder with our own art (no 3D tool
+   on this Mac yet); the fal image model making blank objects with our labels laid on after. Real
+   popular cards (a named player, Pokémon art) only from the shop's own stock, after a word with a
+   lawyer: a player's face in a paid ad is his likeness.
+7. **Selling points vary** (DESIGN-LAW 164, done 2026-11-22): two to four per ad, drawn from each
+   line's own promises and any buyer's, each said several ways. Spanish ads still draw the old
+   three from the catalogue's Spanish list; a Spanish pool is next.
+8. **The iPhone mix, by the owner's word** (done 2026-11-22): the 17 Pro Max pushed hardest, the 16
+   Pro Max (the shop's best seller) close behind, the 18 Pro Max present and to grow; the colourful
+   base and Plus models of 14 to 17 about a third of the draw. The iPhone 16 Plus has no render in
+   motion/phones and is left out until it has one. Watch Ultra 4 and Series 12 came from the owner's
+   site (2026-11-22) and lead the watch line; assets/devices.json has them by hand, since
+   scripts/device_catalog.py needs Pillow, which this Mac does not have: teach it ultra4 and s12 when
+   it next runs. The same broad mix (hot items and everyday ones) is wanted for cards, cars and
+   jewellery.
+9. **2026 Samsung and Pixel pictures: none on Commons fit an ad** (searched 2026-11-22). The CC0 ones of
+   the Galaxy S26 series and the S25 Ultra are store displays (price tags, security tethers, the
+   maker's screen) or a phone in a hand; the CC BY and CC BY-SA ones of the S26 Ultra and the Z Fold 8
+   and Fold 8 Ultra are the same kind of store shots and would need a credit on the ad; the Pixel 11
+   Pro's clean drawings (CC BY-SA) are flat vectors that would not sit with the studio's photographed
+   devices. The owner's site is Apple only. Ways in: the shop's own photographs of the Samsung and
+   Pixel phones it buys (cut out by the existing scripts), stock bought with ad rights, or the fal
+   model drawing from a real photograph as its reference (scripts/bggen_entities.py), read by eye.
+

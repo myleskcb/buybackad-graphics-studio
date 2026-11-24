@@ -273,7 +273,7 @@
       heads:['Your old Google Pixel is cash.', 'Sell your Google Pixel.', 'Google Pixel? Get cash.'],
       ask:'Model, storage and carrier', check:['Unlocked or on a carrier', 'Signed out of Google', NOSHIP],
       sets:[[['pix-9-back-green', 1], ['pix-9-back-obsidian', 0.92]], [['pix-trio-lineup', 1]], [['pix-9-back-green', 1]]] },
-    { key:'foldable', cat:'phones', label:'Foldables', models:'Galaxy Z Fold, Z Flip and Pixel Fold',
+    { key:'foldable', cat:'phones', label:'Foldables', models:'iPhone Duo, Galaxy Z Fold and Flip, Pixel Fold',   // the iPhone Duo first (2026-09; the owner, 2026-11-22: "iphone duo")
       heads:['Fold or Flip? We buy both.', 'Your old foldable is cash.', 'Folding phone? Sell it.'],
       ask:'Model, storage and the hinge', check:['Screen protector on or off', 'Signed out of Google', NOSHIP],
       sets:[[['sam-fold-half', 1], ['sam-flip-open', 0.9]], [['sam-fold-open-flat', 1]], [['pix-fold-open', 1]]] },

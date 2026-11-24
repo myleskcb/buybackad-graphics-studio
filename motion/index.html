@@ -48,10 +48,10 @@
 
   <div class="mo-mode" aria-label="Kind of ad">
     <div class="mo-seg" id="mode" role="radiogroup" aria-label="Kind of ad">
-      <button data-full="1" role="radio" title="Every detail on one ad, in one clean style, as a photo and as a video">Full ad <span class="mo-new">New</span></button>
+      <button data-full="1" role="radio" title="Every detail on one ad, in the house look or any of the maker's, as a photo and as a video">Full ad <span class="mo-new">New</span></button>
       <button data-full="0" role="radio" title="Every look the maker has: street signs, neon, pastel, and more">Any look</button>
     </div>
-    <p class="mo-note mo-full-only">Your claim, headline, models, selling points, phones, number, towns and website on one ad, as large as each fits, in one clean style. Download it as a photo or a video. New look changes the colours and the arrangement.</p>
+    <p class="mo-note mo-full-only">Your claim, headline, models, selling points, phones, number, towns and website on one ad, as large as each fits. Download it as a photo or a video. New look gives it a new look and layout: the house&rsquo;s own, or one of the maker&rsquo;s themes. Coming from Any look, it is the full ad of the look you were on.</p>
     <p class="mo-note mo-any-only">Every look the maker has, from LA street signs to clean tech, for phones. Your full ad is kept as you left it.</p>
   </div>
 
@@ -153,17 +153,21 @@
     <aside class="mo-panel" aria-label="Settings">
       <details open class="mo-sec">
         <summary>Words</summary>
-        <div class="mo-field">Language <span class="mo-opt">Mix gives some looks in English, some in Spanish, some in both</span>
+        <div class="mo-field">Language <span class="mo-opt">Bilingual puts English and Spanish on every ad; Varied gives some ads in English, some in Spanish, some bilingual</span>
           <div class="mo-seg" id="langs" role="radiogroup" aria-label="Language">
             <button data-lang="en" role="radio">English</button>
             <button data-lang="es" role="radio">Español</button>
-            <button data-lang="both" role="radio">Both</button>
-            <button data-lang="mix" role="radio">Mix</button>
+            <button data-lang="both" role="radio" title="English and Spanish on every ad">Bilingual</button>
+            <button data-lang="mix" role="radio" title="Some ads in English, some in Spanish, some bilingual">Varied</button>
           </div>
         </div>
-        <label class="mo-field">Your area <span class="mo-opt">the city the ads name, like LA or Long Beach</span>
-          <input id="f-area" maxlength="30" placeholder="LA" autocomplete="address-level2">
+        <label class="mo-field">Your area <span class="mo-opt">your ZIP code or your city, like 90802 or Long Beach</span>
+          <input id="f-area" maxlength="30" placeholder="ZIP code or city" autocomplete="postal-code">
         </label>
+        <div class="mo-field mo-full-only mo-towns" id="area-towns" hidden>
+          <span class="mo-opt" id="area-towns-note">Towns nearby: tap up to 3 for the towns line</span>
+          <div class="mo-vibes" id="area-chips" role="group" aria-label="Towns nearby"></div>
+        </div>
         <label class="mo-field mo-full-only">What you buy <span class="mo-opt">its pictures and its models line come with it</span>
           <span class="mo-row"><select id="f-subject" aria-label="What you buy"><option value="iphone">iPhones</option></select><button class="mo-mini" id="new-picture" type="button" title="Another picture of it" aria-label="Another picture of it" hidden>&#10227;</button></span>
         </label>
@@ -267,8 +271,8 @@
       <label class="mo-check"><input type="checkbox" id="play-all"> Play them all</label>
     </div>
     <p class="mo-note mo-any-only">Browse by look. Your words, phones and locked settings stay; everything else is new. Point at a look to watch it move, tap it to use it.</p>
-    <p class="mo-note mo-full-only">Your ad in other colours and arrangements. Tap one to use it.</p>
-    <div class="mo-vibes mo-any-only" id="gallery-cats" role="radiogroup" aria-label="Show looks of one kind"></div>
+    <p class="mo-note mo-full-only">The house&rsquo;s own looks, then every look the maker has, each as a full ad with your words. Tap one to use it.</p>
+    <div class="mo-vibes" id="gallery-cats" role="radiogroup" aria-label="Show looks of one kind"></div>
     <div id="gallery"></div>
     <div id="gallery-end"><button class="mo-btn mo-more" id="more">Show 24 more</button></div>
   </section>
