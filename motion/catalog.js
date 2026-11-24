@@ -540,7 +540,8 @@ export const OPTIONS = {
     "sunset_sky", "sky_day", "stucco", "concrete", "brick_night", "candy_flake", "cork", "fluoro", "asphalt", "beach", "mural_wall", "velvet",
     "tonal", "aurora", "drift"],
   palette: [...Object.keys(PALETTES), "match", "match", "match"],
-  camera: ["push_in", "push_out", "still", "drift", "punch", "tilt", "whip_in", "handheld"],
+  // still only (engine.js Ad, 2026-11-23): every camera move scaled the finished frame up and softened it
+  camera: ["still"],
   shake: [0, 1, 2],
   // scored like a commercial: every kit plays chords in a key (audio.js); the grooves
   // after cinematic are patterns of their own on real instruments (music.js), the last
@@ -841,7 +842,7 @@ export const GROUPS = [
   ["Number", ["number_style", "number_format", "number_pos", "number_in"]],
   ["Phones", ["arrangement", "pose", "phone_finish", "entry", "end_face", "phone_idle", "front_glimpse", "glare", "depth"]],
   ["Accents", ["accents", "accent_set", "accent_kind", "accent_in", "accent_idle", "accent_out"]],
-  ["Scene", ["background", "palette", "camera", "shake", "overlay", "grade", "outro"]],
+  ["Scene", ["background", "palette", "shake", "overlay", "grade", "outro"]],
   ["Sound", ["track", "sound_kit", "season", "melody", "lead", "tone", "accent", "hit", "number_sfx"]],
 ];
 

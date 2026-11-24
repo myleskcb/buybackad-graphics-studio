@@ -9,7 +9,9 @@
    downloads, "but we don't want the content to be unreadable or not fun to
    look at". So it is a light lattice of small words across the whole
    picture, in two tones (a light word over a dark one a pixel apart), so it
-   shows on dark and light grounds alike and the ad reads through it. Being
+   shows on dark and light grounds alike and the ad reads through it. Spaced
+   out on 2026-11-23 ("it could be a little less frequent"): a word in every
+   ninth of the picture still, about 2.4 times fewer of them. Being
    everywhere, a crop cannot take it off, and a phone's clean-up tool cannot
    paint it out without painting out the product and the number under it.
    The four corner words it replaces went with a crop or four taps.
@@ -45,7 +47,9 @@
     const t = document.createElement('canvas'); t.width = w; t.height = h;
     const x = t.getContext('2d');
     x.font = font; x.textAlign = 'center'; x.textBaseline = 'middle';
-    const tw = x.measureText(WORD).width, stepX = tw + fs * 3.2, stepY = fs * 4.2;
+    // spaced out (the owner, 2026-11-23: "this giant watermark. It's not a bad thing, but it could be a little less
+    // frequent"): about 2.4 times fewer words than the lattice of 2026-11-17, still one or more in every ninth of the picture
+    const tw = x.measureText(WORD).width, stepX = tw + fs * 6.2, stepY = fs * 7.6;
     const nudge = Math.max(1, Math.round(fs * 0.07)), R = Math.hypot(w, h) / 2 + stepX;
     x.translate(w / 2, h / 2); x.rotate(ANGLE * Math.PI / 180);
     let row = 0;

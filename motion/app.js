@@ -2167,6 +2167,167 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
 
 // ------------------------------------------------------------ start
 
+/* THE MAKER AS A DESIGN TOOL (the owner, 2026-11-23: "this is like a form right now or you're scrolling and inputting
+   details about your business and hoping it looks good. You should at least be looking at the ad as you make these
+   changes", "the editor itself shouldn't have more than one or two lines of a header subheader and then maybe a
+   toolbar at the top", "maybe we number it so you go through the steps", "Phone video ad shows you a few styles and
+   templates and you click a template. Then you enter the editor", "aspect ratio should be right below the image").
+   The page (motion/index.html) is a toolbar, six numbered steps beside the ad, the ad always in view with its sizes
+   under it, and a start of templates: the home page's own ads. Every control is the one it was, by its id. */
+const LINKED = /[?&](from|look|shelf|vibe|bg|layout)=/.test(location.search);   // a link that brings a look opens on it
+const HAD_SAVED = (() => { try { return !!localStorage.getItem(STORE); } catch (e) { return false; } })();
+const escText = v => String(v == null ? "" : v).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function buildTool() {
+  const main = $("main"), tabs = [...document.querySelectorAll("#steps [data-step]")];
+  const show = step => {
+    if (!tabs.some(t => t.dataset.step === step && getComputedStyle(t).display !== "none")) step = "words";
+    tabs.forEach(t => { const on = t.dataset.step === step; t.setAttribute("aria-selected", String(on)); t.tabIndex = on ? 0 : -1; });
+    document.querySelectorAll(".mo-panel .mo-step").forEach(p => { p.hidden = p.dataset.step !== step; });
+    try { sessionStorage.setItem("pgfx_motion_step", step); } catch (e) { /* fine */ }
+    // the looks are drawn when they are first opened (the step's panel scrolls, so they are never "near" the page's view)
+    if (step === "look" && !state.galleryOn) { state.galleryOn = true; renderGallery(true).catch(e => console.warn("Gallery:", e)); }
+    const panel = document.querySelector(".mo-tool .mo-panel"); if (panel) panel.scrollTop = 0;
+  };
+  tabs.forEach(t => t.addEventListener("click", () => show(t.dataset.step)));
+  $("steps").addEventListener("keydown", e => {
+    if (!["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight"].includes(e.key)) return;
+    const live = tabs.filter(t => getComputedStyle(t).display !== "none"), i = live.indexOf(document.activeElement); if (i < 0) return;
+    const next = live[(i + (["ArrowDown", "ArrowRight"].includes(e.key) ? 1 : live.length - 1)) % live.length];
+    e.preventDefault(); next.focus(); show(next.dataset.step);
+  });
+  // one Download, a photo or the video
+  const menu = $("dl-menu"), tog = $("dl-toggle");
+  const shut = () => { menu.hidden = true; tog.setAttribute("aria-expanded", "false"); };
+  tog.addEventListener("click", e => { e.stopPropagation(); const open = menu.hidden; menu.hidden = !open; tog.setAttribute("aria-expanded", String(open)); });
+  document.addEventListener("click", e => { if (!menu.hidden && !e.target.closest("#dl-wrap")) shut(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !menu.hidden) { shut(); tog.focus(); } });
+  menu.addEventListener("click", e => { if (e.target.closest("button")) shut(); });
+  $("check-dl-mp4").addEventListener("click", () => $("download").click());
+  $("check-dl-jpg").addEventListener("click", () => $("download-jpg").click());
+  $("feed-view").addEventListener("click", () => openFeedView().catch(e => console.warn("Feed view:", e)));
+  $("check-feed").addEventListener("click", () => $("feed-view").click());
+  // the start: templates first, unless a link brought a look
+  const enter = step => { main.dataset.view = "edit"; show(step); window.scrollTo(0, 0); };
+  $("to-start").addEventListener("click", () => { main.dataset.view = "start"; window.scrollTo(0, 0); });
+  $("start-continue").hidden = !HAD_SAVED;
+  $("start-continue").addEventListener("click", () => enter("words"));
+  $("start-video").addEventListener("click", () => {
+    if (state.full) { pushHistory(); state.full = false; save(); syncMode(); rebuild(); renderGallery(true); }
+    enter("look");
+  });
+  let last = ""; try { last = sessionStorage.getItem("pgfx_motion_step") || ""; } catch (e) { /* fine */ }
+  /* the checks' layout (?edit=all, and any automated browser unless ?edit=steps asks for the real one): the editor
+     open on every step at once, Download's two buttons in sight, so the scripts that press the maker's controls
+     (quick_ad_check, buylist_check, typing_pause_check, full_*_check...) find each where it always was */
+  const ALL = /[?&]edit=all\b/.test(location.search) || (navigator.webdriver === true && !/[?&]edit=steps\b/.test(location.search));
+  if (ALL) main.dataset.steps = "all";
+  // the landing's "Browse every video look" (?full=0) opens on the looks; its "Make a full ad" (?full=1), on the templates
+  const looks = /[?&]full=0\b/.test(location.search);
+  main.dataset.view = LINKED || ALL || looks ? "edit" : "start";
+  show(looks ? "look" : last || "words");
+  buildStart(enter).catch(e => { console.warn("Templates:", e); main.dataset.view = "edit"; });
+}
+
+/** The home page's own ads (assets/hero-picks.json, drawn by scripts/build_hero_stills.mjs) as the templates to start from:
+ *  the owner, 2026-11-23, "This tool is cool, but it doesn't help you make the ads generated in the hero". */
+async function buildStart(enter) {
+  const grid = $("start-grid");
+  const get = async p => { try { const r = await fetch(p, { cache: "no-cache" }); return r.ok ? r.json() : null; } catch (e) { return null; } };
+  const [hero, picks] = await Promise.all([get("../assets/hero/index.json"), get("../assets/hero-picks.json")]);
+  const items = (hero && hero.items) || {}, order = ((picks && picks.picks) || Object.keys(items)).filter(id => items[id]);
+  if (!order.length) { $("main").dataset.view = "edit"; return; }
+  grid.innerHTML = order.map(id => {
+    const h = items[id];
+    return `<button class="mo-tpl" type="button" data-id="${escText(id)}"><img src="../${escText(h.thumb)}" alt="${escText(h.headline || h.name)}" width="448" height="448" loading="lazy" decoding="async"><span>Use this</span></button>`;
+  }).join("");
+  grid.addEventListener("click", async e => {
+    const b = e.target.closest(".mo-tpl"); if (!b) return;
+    await useTemplate(items[b.dataset.id], b.dataset.id);
+    enter("words");
+  });
+}
+
+/** One of those ads in the maker, as the home page drew it: its line or its library design, its look's number and its pair. */
+async function useTemplate(h, id) {
+  if (!h) return;
+  if (h.kind === "recipe") await applyRecipe(id);
+  else {
+    pushHistory();
+    const s = state.style, key = subjects.alias[h.line] || h.line, S = subjects.list.find(x => x.key === key);
+    delete s.recipe; delete s.full_type;
+    if (!S || key === "iphone") { delete s.subject; delete s.subject_set; s.headline = "WE BUY IPHONES"; s.tag = ""; }
+    else { s.subject = S.key; s.subject_set = 0; s.headline = S.heads[0].toUpperCase(); s.tag = S.models.toUpperCase(); }
+    s.points = null;                                 // the line's own, drawn by the seed (rule 164)
+    ["headline", "tag"].forEach(k => state.locked.add(k));
+    s.seed = (h.seed | 0) || 1;
+    state.full = true;
+  }
+  if (h.pin && COLOURWAYS.includes(h.pin)) state.style.full_palette = h.pin; else delete state.style.full_palette;
+  save(); syncWords(); syncMode(); rebuild(); renderGallery(true);
+}
+
+/* TITLES AND DESCRIPTIONS ON PRO AND BUSINESS (the owner, 2026-11-23: "generate title generate description should be a
+   feature for pro users for the higher Tier"). Display only, as the player's mark is (syncMarks): signed out, Free or
+   Starter, the listing is shown under a veil and its buttons rest; a copy with no backend (demo) is not gated. */
+async function syncListingGate() {
+  const acct = window.pgfxAccount;
+  let open = !acct || !!acct.demo;
+  if (!open && acct.signedIn()) { try { const me = await acct.me(); open = !!me && (me.role === "admin" || ["pro", "business"].includes(me.plan)); } catch (e) { /* stays shut */ } }
+  state.listingOpen = open;
+  $("listing-gate").hidden = open; $("listing-tier").hidden = open;
+  const box = document.querySelector("#quick .mo-listing"); if (box) box.classList.toggle("mo-locked", !open);
+  ["qa-new-title", "qa-new-body", "qa-copy-title", "qa-copy-body", "qa-copy-all", "qa-save-txt", "qa-rewrite"].forEach(id => { const b = $(id); if (b) b.disabled = !open; });
+  ["qa-title", "qa-body", "qa-price"].forEach(id => { const t = $(id); if (t) t.readOnly = !open; });
+}
+
+/* VIEW IN MARKETPLACE FEED (the owner, 2026-11-23: "a button that says view in marketplace feed and we could show some
+   regular normal listing type of photos and then yours with the title"): the ad as it lands among other listings,
+   in a phone-sized feed. The other listings are made up, from the maker's own phone pictures and the free-licence
+   photographs (assets/bg-free), and say so. */
+function listingPhoto(img, i) {
+  const c = document.createElement("canvas"); c.width = c.height = 360;
+  const g = c.getContext("2d"), tones = [["#e8e3db", "#c9c1b5"], ["#dfe3e8", "#b8c0ca"], ["#efe9e1", "#d3c7b8"], ["#e4e1dc", "#bdb6ab"]][i % 4];
+  const bg = g.createLinearGradient(0, 0, 0, 360); bg.addColorStop(0, tones[0]); bg.addColorStop(1, tones[1]); g.fillStyle = bg; g.fillRect(0, 0, 360, 360);
+  if (img && img.naturalWidth) {
+    const h = 290, w = h * img.naturalWidth / img.naturalHeight;
+    g.save(); g.translate(180, 186); g.rotate(([-7, 5, -3, 8][i % 4]) * Math.PI / 180);
+    g.shadowColor = "rgba(0,0,0,.32)"; g.shadowBlur = 22; g.shadowOffsetY = 12; g.drawImage(img, -w / 2, -h / 2, w, h); g.restore();
+  }
+  return c.toDataURL("image/jpeg", .84);
+}
+async function openFeedView() {
+  const ad = state.ad; if (!ad) return;
+  const snap = document.createElement("canvas"); snap.width = ad.W; snap.height = ad.H;
+  const sx = snap.getContext("2d"); ad.frame(sx, ad.st.duration * .95, { subsFly: 3, subsMove: 2 });
+  if (state.marks && window.PgfxMark) window.PgfxMark.draw(sx, ad.W, ad.H);
+  const where = String(state.style.area || "").trim() || "Near you";
+  const typed = $("qa-title") && $("qa-title").value.trim(), price = $("qa-price") && $("qa-price").value.trim();
+  // the listing's own title (the Listing step writes one for every ad), else the headline as a seller would type it
+  const cased = String(state.style.headline || "We buy phones").toLowerCase().replace(/(^|\s)([a-z])/g, (m, a, b) => a + b.toUpperCase())
+    .replace(/\bIphone/g, "iPhone").replace(/\bIpad/g, "iPad").replace(/\bMacbook/g, "MacBook").replace(/\bPs5\b/g, "PS5").replace(/\bPokemon/g, "Pokémon");
+  const title = typed || cased + ", local buyer";
+  const want = [/^iPhone 13$/, /^iPhone 14 Pro$/, /^iPhone 15$/, /^iPhone 16 Pro Max$/], used = new Set();
+  const phones = want.map(re => state.index.find(m => re.test(m.model) && !used.has(m.id) && state.assets.phones[m.id] && used.add(m.id)) || null);
+  const said = ["128GB, unlocked", "cracked back, works", "like new, with box", "256GB, unlocked"], cost = ["$260", "$340", "$480", "$820"];
+  const others = phones.map((m, i) => m && { img: listingPhoto(state.assets.phones[m.id].img, i), price: cost[i], title: `${m.model}, ${said[i]}` }).filter(Boolean)
+    .concat([{ img: "../assets/bg-free/gold-6.jpg", price: "$450", title: "14k gold chain, 22 in" },
+      { img: "../assets/bg-free/coins-4.jpg", price: "$120", title: "Old coin lot, must go" },
+      { img: "../assets/bg-free/geo-los-angeles-2.jpg", price: "$1,950", title: "1 bd apartment for rent" }]);
+  const tiles = [...others.slice(0, 2), { img: snap.toDataURL("image/jpeg", .86), price: price ? "$" + price.replace(/^\$/, "") : "$1", title, mine: true }, ...others.slice(2)];
+  const wrap = document.createElement("div"); wrap.className = "mo-feed";
+  wrap.innerHTML = `<div class="mo-feed-phone" role="dialog" aria-modal="true" aria-label="Your ad in a marketplace feed">
+    <div class="mo-feed-bar"><span><b>Today's picks</b><i>${escText(where)} &middot; 40 mi</i></span><button class="mo-feed-x" type="button" aria-label="Close">&#10005;</button></div>
+    <div class="mo-feed-grid">${tiles.map(t => `<figure class="mo-feed-item${t.mine ? " mine" : ""}"><img src="${t.img}" alt="${t.mine ? "Your ad" : ""}"><figcaption><b>${escText(t.price)}</b><span>${escText(t.title)}</span><i>${escText(where)}</i></figcaption>${t.mine ? '<em>Your ad</em>' : ""}</figure>`).join("")}</div>
+    <p class="mo-feed-note">A made-up feed, to show how your ad stands out among other listings. Your title and price come from the Listing step.</p></div>`;
+  const close = () => { wrap.remove(); document.removeEventListener("keydown", onKey); $("feed-view").focus(); };
+  const onKey = e => { if (e.key === "Escape") close(); };
+  wrap.addEventListener("click", e => { if (e.target === wrap || e.target.closest(".mo-feed-x")) close(); });
+  document.addEventListener("keydown", onKey);
+  document.body.appendChild(wrap);
+  wrap.querySelector(".mo-feed-x").focus();
+}
+
 (async function main() {
   restore();
   try { buildPanel(); buildGallery(); }
@@ -2182,8 +2343,9 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
   }
   // its own try: the Quick ad panel failing must not clear the saved look as the catch above does
   try { buildQuick(); } catch (e) { console.error("Quick ad could not be set up:", e); const q = $("quick"); if (q) q.hidden = true; }
-  syncMarks();
-  if (window.pgfxAccount) window.pgfxAccount.onChange(() => syncMarks());
+  try { buildTool(); } catch (e) { console.error("The editor's steps could not be set up:", e); $("main").dataset.view = "edit"; }
+  syncMarks(); syncListingGate();
+  if (window.pgfxAccount) window.pgfxAccount.onChange(() => { syncMarks(); syncListingGate(); });
   await start();
 })();
 
