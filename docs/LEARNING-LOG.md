@@ -6440,3 +6440,29 @@ Checked: `appleid_check` 16 of 16, `social_signin_check` 20 of 20; `watermark_ch
 `full_ad_studio_check` pass; `billing_check` 172 of 173, the same fabric.js failure as before.
 
 RESUME HERE: the owner's two IDs (§BV 1), then Sign in with Apple in the iPhone app (§BV 3).
+
+## 2026-11-22 — the vibrant pairs adopted, the approved wall pinned (claude/zealous-dewdney-386bf8)
+
+Asked: the owner approved the hero wall ("Approve the wall") and adopted the thirteen proposed
+colour schemes ("Adopt all 13").
+
+Changed:
+  - Ten new schemes are rows of app.js `COLOR_THEMES`. Black & Pink, Black & Lime and Black &
+    Cyan are brighter, under the same names.
+  - `build_house_colours.mjs` gives a plate black words where neither the ground's colour nor white
+    reads.
+  - The wall's eighteen picks are pinned to their approved pairs (`assets/hero-picks.json` `pins`).
+    `build_hero_stills.mjs` keeps their approved stills, `app.js` opens them in their pins, and
+    `hero_wall_check.mjs` holds them to it.
+  - Every recipe still and full-size rebuilt ad drawn again: the stills are now 133 dark (was 183),
+    309 vivid (was 242); 175 of 665 draw a new scheme.
+
+Learned:
+  - New pairs move every seed's draw, so an approved wall recolours unless its picks are pinned.
+  - The full ad's floors are not the photo ads' law. `theme_law` asks a money word to stand 1.7:1 off
+    the words and 4.5:1 on the ground, and to read for colour-blind readers. White words with a
+    yellow or lime money word cannot do both, and red on mint fails a red-green reader. Six of the
+    thirteen moved the least that passes. Solve against the law's own formulas, holding the vivid
+    colour and moving the ground, or the yellow fades to cream.
+  - The business cards read `black_pink`, `black_lime` and `black_cyan` by key: brighten a pair,
+    never rename it.
