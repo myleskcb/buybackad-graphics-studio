@@ -6834,6 +6834,13 @@ Found:
     (other sessions' browsers and simulators) its timed presses could not be staged. Two things of this branch it
     caught: the checks' layout had the looks first and in view, drawing two dozen while it typed (last now), and
     Back's label split off for the phones took the press from the button (pointer-events: none on it).
+  - The earbuds full ad at 16:9 "ran to the edge" in full_ad_studio_check since the ground families of 2026-11-23:
+    nothing did. The headline's shade (scrimC) is drawn over the ground every frame, and the pre-flight read what
+    is drawn against the bare ground, so the shade's soft edge over a frosted-glass outline read as a mark. A shade
+    is the ground's: measure against the ground under it, as engine.js's guards do (fixed in fullPreflight). Not the
+    small lines' layers (groundEven) too: on a photograph they are not drawn as kept, and adding them made 18
+    full_ad_check cases read the ground lighter than the picture. A baseline is checked against the frame, pixel
+    by pixel, before it is trusted.
   - "Self condensing but legible at all level": three pages at eleven widths, 320 to 1920 (no sideways scroll,
     nothing off the screen, no words under 12 px). The landing's bar ran its buttons off the edge from 1010 to
     1440; its gaps close with the window now and its links give way least needed first.
@@ -6845,5 +6852,4 @@ RESUME HERE:
   3. Open: the engine's photo pools still draw assets/bg-web (CC BY/BY-SA, ruled out 2026-11-21) and
      Golden Gate wallpapers wherever no metro is known; two LA photographs are of Griffith Observatory and
      one of the Santa Monica pier sign; "Pasadena" alone resolves to Houston (metros.js); the studio's
-     template default number is still (562) 999-4994; full_ad_studio_check's earbuds-landscape edge
-     failure is older than this branch; the founder's WhatsApp on the landing goes public with the merge.
+     template default number is still (562) 999-4994.
