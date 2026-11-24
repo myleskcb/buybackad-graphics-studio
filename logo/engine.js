@@ -686,6 +686,46 @@ export function coverSvg(design, faces, { phone = "", w = 1640, h = 624 } = {}) 
   return svgOf({ w, h, it }, c.P, { mode: "colour", bg: false, pad: 0, title: c.N.full + " cover", size: [w, h] });
 }
 
+/** Every file of the kit as text: the logo as a vector in colour (see-through and on its ground), black
+ *  and white, the name beside the mark, the mark alone, the profile picture and the cover, and a note of
+ *  the colours and faces. The function sends these to a plan that includes logos; the page makes the
+ *  PNGs from them. */
+export function kitFiles(design, faces, { phone = "" } = {}) {
+  const d = cleanDesign(design), P = paletteOf(d.pair), V = LOGO_VOICES[d.voice], N = partsOf(d.name);
+  const F = (o) => logoSvg(d, faces, o).svg;
+  const face = k => (faces[k] && faces[k].family) || k;
+  const readme = [
+    N.full + " logo, made with WeBuy.AD (webuy.ad/logo)",
+    "",
+    "svg/   vector files: open them in any design app, send them to a sign or print shop, use them at any size.",
+    "png/   pictures: logo.png and logo-side-by-side.png are see-through, for putting on a photo or a page.",
+    "       Use logo-black on light backgrounds and logo-white on dark ones.",
+    "social/ profile-picture.png (1080 x 1080, for the circle Facebook, Instagram and OfferUp crop to)",
+    "       and facebook-cover.png (1640 x 624).",
+    "",
+    "Your colours",
+    "  Background  " + P.G, "  Lettering   " + P.I, "  Accent      " + P.A, "  Band        " + P.P + " (its lettering " + P.Q + ")",
+    "",
+    "Your lettering",
+    "  " + face(V.display) + " for the name, " + face(V.label) + " for the small lines.",
+    "  Both are free fonts under the SIL Open Font License (fonts.google.com, or fontshare.com for Satoshi).",
+    "  The files have the letters drawn as shapes, so they look right without the fonts installed.",
+    "",
+  ].join("\n");
+  return {
+    "logo.svg": F({ mode: "transparent", bg: false, pad: .04 }),
+    "logo-on-colour.svg": F({ mode: "colour", pad: .14 }),
+    "logo-black.svg": F({ mode: "black", pad: .04 }),
+    "logo-white.svg": F({ mode: "white", pad: .04 }),
+    "logo-side-by-side.svg": F({ form: "horizontal", mode: "transparent", bg: false, pad: .04 }),
+    "mark.svg": F({ form: "mark", mode: "transparent", bg: false, pad: .02 }),
+    "mark-on-colour.svg": F({ form: "mark", mode: "colour", pad: .1 }),
+    "profile.svg": profileSvg(d, faces, { size: 1080 }).svg,
+    "cover.svg": coverSvg(d, faces, { phone }).svg,
+    "README.txt": readme,
+  };
+}
+
 /* ---------- the design: what is stored, sent and drawn ---------- */
 export const LIMITS = { name: 40, small: 32, town: 28 };
 /** a design held to what the engine draws: the server draws only this */
