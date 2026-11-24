@@ -12414,6 +12414,11 @@ function scColourVivid(h){ const [r, g, b] = scHexRgb(h); return (Math.max(r, g,
 /* the word a colour set's small ad buys: the markets in turn, so the mosaic reads as every
    market's colours rather than 54 phone ads (the card that shows most sets best is a phone's) */
 const FAM_WORDS = ['iPhones', 'gold', 'cars', 'cards', 'silver', 'coins', 'laptops', 'watches', 'games', 'Pixels', 'cameras', 'strips'];
+/* a sample number on each set, written as a phone number reads, never the business's own: 555-01xx is the
+   range kept for fiction (2026-11-23; the owner: "Why do we have to put the 999? That'd be obviously
+   affiliated with my business") */
+const FAM_NUMBERS = ['213', '310', '562', '714', '818', '626', '909', '424', '323', '657', '951', '747'];
+const famNumber = ix => `${FAM_NUMBERS[ix % FAM_NUMBERS.length]}-555-01${String(10 + (ix * 37) % 90).padStart(2, '0')}`;
 function famPaint(b, c){ const s = b.querySelector('.fam-art'); if (s) for (const k in c) if (c[k]) s.style.setProperty('--' + k, c[k]); }
 function scBuildFamilies(cards){
   const grid = $('fam-grid');
@@ -12444,7 +12449,7 @@ function scBuildFamilies(cards){
     b.dataset.fam = p.theme;
     b.title = p.theme + ' · ' + p.family + ' · ' + p.n + ' cards';
     const r = p.rep;
-    b.innerHTML = `<span class="fam-art" aria-hidden="true"><b>We buy<em>${FAM_WORDS[ix % FAM_WORDS.length]}</em></b><i>999-4994</i></span>
+    b.innerHTML = `<span class="fam-art" aria-hidden="true"><b>We buy<em>${FAM_WORDS[ix % FAM_WORDS.length]}</em></b><i>${famNumber(ix)}</i></span>
       <div class="fam-name">${escHtml(p.theme)}</div>
       <div class="fam-meta">${p.n} design${p.n === 1 ? '' : 's'}</div>`;
     if (r.c1) famPaint(b, { g: r.c1, i: r.ink, a: r.accent, p: r.accent, pi: r.c1 });
@@ -12458,6 +12463,14 @@ function scBuildFamilies(cards){
     };
     grid.appendChild(b);
   });
+  /* twelve sets at first, the rest a tap away (landing.css .fam-grid:not(.all)) */
+  let more = grid.parentNode.querySelector('.fam-more');
+  if (pals.length > 12){
+    if (!more){ more = document.createElement('button'); more.type = 'button'; more.className = 'btn btn-outline fam-more'; grid.after(more); }
+    const label = () => { more.textContent = grid.classList.contains('all') ? 'Show fewer' : `Show all ${pals.length} colour sets`; };
+    more.onclick = () => { grid.classList.toggle('all'); label(); };
+    label();
+  } else if (more) more.remove();
   if (needPair.length) import('./motion/fullad.js').then(M => {
     for (const [b, k] of needPair){
       const c = M.COLOUR_OF && M.COLOUR_OF[k] && M.COLOUR_OF[k].colors;

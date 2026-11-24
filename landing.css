@@ -49,8 +49,15 @@
   font-family:var(--x-body);
   -webkit-font-smoothing:antialiased;
 }
-/* paper: the library's ground, light in both themes */
+/* the library's ground (2026-11-23; the owner, of the white band across a dark page: "not really cohesive
+   with the rest of the website... right now it's just a little excessive"): in the dark theme a step up
+   from the page's navy with the blue's glow at its top edge, so the ads stand out without a white slab;
+   paper in the light theme, as the rest of that page is */
 [data-skin=family] #page-landing #lp-templates{
+  --field:#0e1730;
+  background:radial-gradient(1100px 420px at 50% 0%,rgba(61,139,255,.13),transparent 72%),var(--field);
+}
+[data-skin=family][data-theme=light] #page-landing #lp-templates{
   color-scheme:light;
   --field:#f5f7fa;
   --text:#0a1224;--text-2:#4a566d;--text-dim:#5f6a80;
@@ -62,7 +69,7 @@
   --glass-edge:rgba(12,20,40,.08);
   --deal:#0e9f6a;--deal-text:#0b8659;--good:#0e9f6a;
 }
-[data-skin=family][data-theme=light] #page-landing #lp-templates{--field:#ffffff}
+[data-skin=family][data-theme=light] #page-landing #lp-templates{--field:#ffffff;background:var(--field)}
 /* stage: the video's ground, and the footer's, dark in both themes */
 [data-skin=family] #page-landing #lp-video,
 [data-skin=family] #page-landing .lp-footer-big{
@@ -208,27 +215,53 @@
   background:radial-gradient(50% 50% at 50% 50%,rgba(var(--accent-rgb),.22),transparent 70%);
   filter:blur(20px);
 }
-/* what the headline promises, as it lands on a phone */
+/* WHAT THE HEADLINE PROMISES, AS IT LANDS ON A PHONE (2026-11-23; the owner: "use the imessage app icon
+   for the notification and put it closer aligned on the top below the header", "drop down like a
+   notification", "ios 27 styling animation / flow"). Three strangers' texts drop in at the top of the
+   stage, just under the bar, one at a time on a 15 s loop: each falls in on a spring, holds, and goes back
+   up as the next comes. The card is a phone banner: a Messages-style icon (drawn here, not Apple's file),
+   the sender and "now", the message under. A glass panel, blurred only where the pointer is fine: a blur
+   over the moving wall is drawn again every frame, which stutters on a phone (2026-11-20). */
 [data-skin=family] #page-landing .hero-ping{
-  position:absolute;z-index:4;left:-36px;top:22%;
-  display:flex;gap:12px;align-items:flex-start;width:min(352px,86%);
-  padding:14px 16px 15px 14px;border-radius:22px;
-  /* near solid, with no backdrop blur: a blur over the moving wall is drawn again every
-     frame, which is what stutters on a phone (2026-11-20) */
-  background:color-mix(in srgb,var(--surface-solid) 94%,transparent);
-  border:1px solid var(--glass-edge);
-  box-shadow:0 40px 80px -30px rgba(0,0,0,.7),0 12px 28px -14px rgba(0,0,0,.45);
-  animation:x-ping .9s .7s var(--x-ease) both;
+  position:absolute;z-index:4;left:50%;top:14px;width:min(372px,calc(100% - 24px));
+  height:86px;transform:translateX(-50%);pointer-events:none;
 }
-[data-skin=family][data-theme=light] #page-landing .hero-ping{box-shadow:0 40px 80px -36px rgba(10,30,70,.42),0 12px 28px -16px rgba(10,30,70,.22)}
-[data-skin=family] #page-landing .hp-icon{width:40px;height:40px;border-radius:11px;flex:none;display:grid;place-items:center;background:var(--accent);color:#fff}
-[data-skin=family] #page-landing .hp-icon svg{width:22px;height:22px}
-[data-skin=family] #page-landing .hp-body{flex:1;min-width:0;line-height:1.35}
+[data-skin=family] #page-landing .hp-card{
+  position:absolute;inset:0 0 auto 0;
+  display:flex;gap:12px;align-items:center;
+  padding:12px 16px 12px 12px;border-radius:24px;
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04)),rgba(28,31,40,.86);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 24px 48px -18px rgba(0,0,0,.7),0 8px 18px -10px rgba(0,0,0,.5);
+  opacity:0;transform:translateY(-128%) scale(.94);
+  animation:x-drop 15s infinite both;
+}
+[data-skin=family] #page-landing .hp-card:nth-child(2){animation-delay:5s}
+[data-skin=family] #page-landing .hp-card:nth-child(3){animation-delay:10s}
+@media (hover:hover) and (pointer:fine){
+  [data-skin=family] #page-landing .hp-card{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05)),rgba(30,33,43,.62);-webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%)}
+}
+[data-skin=family][data-theme=light] #page-landing .hp-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,255,255,.78)),rgba(246,247,250,.9);
+  border-color:rgba(10,30,70,.08);
+  box-shadow:inset 0 1px 0 #fff,0 24px 48px -20px rgba(10,30,70,.38),0 8px 18px -10px rgba(10,30,70,.2);
+}
+[data-skin=family] #page-landing .hp-icon{width:38px;height:38px;flex:none;border-radius:9px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+[data-skin=family] #page-landing .hp-icon svg{width:38px;height:38px;display:block}
+[data-skin=family] #page-landing .hp-body{flex:1;min-width:0;line-height:1.3;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif}
 [data-skin=family] #page-landing .hp-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-[data-skin=family] #page-landing .hp-top b{font-size:14.5px;font-weight:650;letter-spacing:-.01em;color:var(--text)}
-[data-skin=family] #page-landing .hp-top span{font-size:12.5px;color:var(--text-dim)}
-[data-skin=family] #page-landing .hp-msg{display:block;margin-top:3px;font-size:14.5px;color:var(--text-2)}
-@keyframes x-ping{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}
+[data-skin=family] #page-landing .hp-top b{font-size:15px;font-weight:600;letter-spacing:-.015em;color:var(--text)}
+[data-skin=family] #page-landing .hp-top span{font-size:13px;color:var(--text-dim)}
+[data-skin=family] #page-landing .hp-msg{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px;font-size:14.5px;letter-spacing:-.01em;color:var(--text-2)}
+/* one 15 s loop a card: down from above the bar on a spring (a little past, then home), held, back up */
+@keyframes x-drop{
+  0%{opacity:0;transform:translateY(-128%) scale(.94);animation-timing-function:cubic-bezier(.2,.9,.25,1.25)}
+  5%{opacity:1;transform:translateY(5px) scale(1.005);animation-timing-function:cubic-bezier(.3,0,.3,1)}
+  7%{opacity:1;transform:none}
+  29%{opacity:1;transform:none;animation-timing-function:cubic-bezier(.5,0,.75,0)}
+  33%{opacity:0;transform:translateY(-118%) scale(.96)}
+  100%{opacity:0;transform:translateY(-118%) scale(.96)}
+}
 
 /* ── 4. The figures under the hero ────────────────────────────────────── */
 [data-skin=family] #page-landing .lp-stats{
@@ -284,7 +317,7 @@
 [data-skin=family] #page-landing .lp-section-head > .btn + .btn{margin-top:0}
 
 /* ── 6. 01 The library, on paper ──────────────────────────────────────── */
-[data-skin=family] #page-landing #lp-templates{background:var(--field);color:var(--text)}
+[data-skin=family] #page-landing #lp-templates{color:var(--text)}
 [data-skin=family] #page-landing .lp-chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 44px}
 [data-skin=family] #page-landing .lp-chips .chip{
   min-height:40px;padding:0 16px;border-radius:999px;
@@ -357,7 +390,11 @@
    now the pairs the designs are made in), so the landing shows them once */
 [data-skin=family] #page-landing .cb-ready > .lp-subhead ~ .lp-subhead,
 [data-skin=family] #page-landing #theme-grid{display:none}
-[data-skin=family] #page-landing .fam-grid{grid-template-columns:repeat(9,minmax(0,1fr));gap:10px}
+[data-skin=family] #page-landing .fam-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+/* twelve sets at first, the rest a tap away (scBuildFamilies' Show all): 59 small squares made the section
+   long and the pricing late (2026-11-23) */
+[data-skin=family] #page-landing .fam-grid:not(.all) .fam-card:nth-child(n+13){display:none}
+[data-skin=family] #page-landing .fam-more{margin:22px 0 0}
 [data-skin=family] #page-landing .fam-card{
   padding:0;background:none;border:0;border-radius:12px;box-shadow:none;
   -webkit-backdrop-filter:none;backdrop-filter:none;overflow:visible;
@@ -369,15 +406,15 @@
 [data-skin=family] #page-landing .fam-art{
   position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;
   background:var(--g,var(--surface-raise));color:var(--i,var(--text));
-  display:flex;flex-direction:column;justify-content:space-between;padding:12% 11% 11%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9%;padding:10%;text-align:center;
   box-shadow:inset 0 0 0 1px rgba(127,127,127,.18);
   font-family:'Anton','Oswald','Bebas Neue',Impact,'Arial Narrow',var(--x-disp);
 }
-[data-skin=family] #page-landing .fam-art b{display:block;font-size:clamp(13px,1.35vw,21px);line-height:.92;letter-spacing:.01em;font-weight:800;text-transform:uppercase}
+[data-skin=family] #page-landing .fam-art b{display:block;font-size:clamp(17px,2.05vw,31px);line-height:.9;letter-spacing:.01em;font-weight:800;text-transform:uppercase}
 [data-skin=family] #page-landing .fam-art b em{font-style:normal;color:var(--a,var(--accent));display:block}
 [data-skin=family] #page-landing .fam-art i{
-  align-self:flex-start;display:block;font-style:normal;font-family:var(--x-disp);
-  font-size:clamp(8px,.72vw,11px);font-weight:800;letter-spacing:.02em;font-variant-numeric:tabular-nums;
+  align-self:center;display:block;font-style:normal;font-family:var(--x-disp);
+  font-size:clamp(9.5px,.92vw,13.5px);font-weight:800;letter-spacing:.02em;font-variant-numeric:tabular-nums;
   background:var(--p,var(--accent));color:var(--pi,#fff);padding:.35em .6em;border-radius:99px;white-space:nowrap;
 }
 [data-skin=family] #page-landing .fam-card .fam-name{font-size:12.5px;font-weight:600;line-height:1.25;letter-spacing:-.005em;color:var(--text)}
@@ -620,10 +657,14 @@
 }
 @keyframes x-rise{from{transform:translateY(24px)}to{transform:none}}
 @media print{[data-skin=family] #page-landing *{animation:none!important}}
+@media (prefers-reduced-motion:reduce){
+  [data-skin=family] #page-landing .hp-card:first-child{opacity:1;transform:none}
+  [data-skin=family] #page-landing .hp-card:not(:first-child){display:none}
+}
 @keyframes x-in{from{transform:translateY(22px)}to{transform:none}}
 @keyframes x-stage{from{transform:translateX(48px)}to{transform:none}}
 @media (prefers-reduced-motion:reduce){
-  [data-skin=family] #page-landing .hero-ping,
+  [data-skin=family] #page-landing .hp-card,
   [data-skin=family] #page-landing .vid-time::before,
   [data-skin=family] #page-landing .fs-field::after{animation:none}
 }
@@ -632,7 +673,7 @@
 @media (max-width:1180px){
   [data-skin=family] #page-landing .hero-v2{grid-template-columns:minmax(0,540px) minmax(0,1fr)}
   [data-skin=family] #page-landing .tpl-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-  [data-skin=family] #page-landing .fam-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+  [data-skin=family] #page-landing .fam-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
   [data-skin=family] #page-landing .lp-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
   [data-skin=family] #page-landing .lp-stats .stat:nth-child(3n+1){border-left:0;padding-left:0}
   [data-skin=family] #page-landing .lp-stats .stat:nth-child(n+4){border-top:1px solid var(--hairline);margin-top:26px}
@@ -650,7 +691,6 @@
   [data-skin=family] #page-landing .hero-stage{min-height:460px;margin:12px calc(-1 * var(--x-gut)) 0}
   [data-skin=family] #page-landing .hero-wall{height:460px;transform:perspective(2200px) rotateX(16deg) rotateY(-10deg) rotateZ(10deg)}
   [data-skin=family] #page-landing .hero-stage .hero-wall{top:-6%;bottom:-10%;left:-4%;right:-30%;height:auto;transform:rotateX(16deg) rotateY(-10deg) rotateZ(10deg)}
-  [data-skin=family] #page-landing .hero-ping{left:var(--x-gut);top:10%}
   [data-skin=family] #page-landing .lp-section-head{grid-template-columns:1fr}
   [data-skin=family] #page-landing .lp-section-head > *,
   [data-skin=family] #page-landing .lp-section-head > h2{grid-column:1;grid-row:auto}
@@ -677,7 +717,6 @@
   [data-skin=family] #page-landing .hero-wall{gap:12px}
   [data-skin=family] #page-landing .wall-col{gap:12px}
   [data-skin=family] #page-landing .wall-card{border-radius:11px}
-  [data-skin=family] #page-landing .hero-ping{left:var(--x-gut);right:var(--x-gut);width:auto;top:6%}
   /* the lead figure across the top, then two columns: 2, 4, 6 on the left, 3 and 5 on the right */
   [data-skin=family] #page-landing .lp-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   [data-skin=family] #page-landing .lp-stats .stat,
