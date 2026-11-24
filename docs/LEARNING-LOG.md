@@ -6718,3 +6718,29 @@ Found:
 RESUME HERE:
   0. OPEN-ITEMS §BX, Open 1 and 2: this branch onto `main` with the owner's OK; iPhones LA to
      accept webuy.ad, then the old project's redirect.
+
+## 2026-11-23 (night) — the sign-in buttons in the window's own look (DESIGN-LAW 168; claude/google-button-blend)
+
+Asked: "Yes, ship it", to a fix for the white box around Google's button on webuy.ad, then "blend
+with app ui". Found: Google sign-in is on live (`GOOGLE_CLIENT_ID` set; Apple still off), and pull
+request 20 had already merged. Google's button is Google's page in a frame. The page is
+`color-scheme: dark` and the frame's page is light, so Chrome paints an opaque backdrop behind the
+frame: the white box. `color-scheme: light` on the frame's holder removes it (tried on the live
+page), but what is left is still Google's black pill, 300px on a 367px form, in Google's type, and
+nothing outside the frame restyles it. Blending meant the site's own buttons.
+
+Done: both buttons drawn by `account.js`, dressed as each window (the studio's fields' surface, edge,
+type and focus ring; `account.js`'s own buttons' edge and type), the form's full width, with each
+company's logo and words. Google's popup through its token client, Apple's through
+`AppleID.auth.signIn()`. The token client hands back an access token, not an ID token, so
+`netlify/lib/googleid.mjs` asks tokeninfo whom it was issued to: only this site's client ID, or a
+token another site got for the same person would sign them in here. It still takes an ID token
+from a page opened before. The account dialog's Create / Sign in switch had no visible track or
+chosen side on a dark page (a light-theme tint on a navy window); it uses the window's own colours now.
+
+Checked: `googleid_check` 17 of 17, `appleid_check` 16 of 16, `social_signin_check` 34 of 34 (new:
+each button against its window's field and button, Google's failures and blocked popup, the switch on
+a dark page); `billing_check` 176 of 177, the same fabric.js failure as before.
+
+RESUME HERE: the owner presses "Continue with Google" once on webuy.ad (§BV 4; automation can't open
+the popup), then Apple's Services ID (§BV 1).

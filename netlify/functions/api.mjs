@@ -68,6 +68,7 @@ import {
 } from '../lib/billing.mjs';
 import { bggenRoute, generateImage, loadRecipe, dataUrlOf } from '../lib/bggen.mjs';
 import { verifyAppleIdToken } from '../lib/appleid.mjs';
+import { verifyGoogleToken, googleProfileName } from '../lib/googleid.mjs';
 
 export const config = { path: '/api/*' };
 
@@ -317,26 +318,26 @@ export default async (req) => {
       return json({ token: await makeToken(who.email, env), user: publicUser(user, env) });
     }
 
-    // Google Sign-In: the browser sends the GIS ID token; we verify it against
-    // Google's tokeninfo endpoint, check the audience, then find-or-create the
-    // account and issue our own JWT. No password stored for these users.
+    // Google Sign-In: the site's own button opens Google's popup through Google's
+    // token client, and the page sends the access token (or, from a page still open
+    // from before, the ID token Google's own button gave). lib/googleid.mjs asks
+    // Google's tokeninfo whom it was issued to (this site's client ID only) and for a
+    // confirmed email; then find-or-create the account and issue our own JWT. No
+    // password stored for these users.
     if (p === '/auth/google' && req.method === 'POST') {
       if (!env.GOOGLE_CLIENT_ID) return json({ error: 'Google sign-in is not enabled' }, 503);
-      const { credential } = await req.json().catch(() => ({}));
-      if (!credential) return json({ error: 'Missing credential' }, 400);
-      const vr = await fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(credential));
-      if (!vr.ok) return json({ error: 'Google rejected the sign-in. Try again.' }, 401);
-      const info = await vr.json();
-      if (info.aud !== env.GOOGLE_CLIENT_ID) return json({ error: 'Sign-in was issued for a different app' }, 401);
-      if (info.email_verified !== 'true' && info.email_verified !== true) return json({ error: 'Google account email is unverified' }, 401);
-      const em = String(info.email || '').toLowerCase();
-      if (!em) return json({ error: 'Google returned no email' }, 401);
-      let user = await getUser(em);
+      const { credential, access_token: accessToken } = await req.json().catch(() => ({}));
+      if (!credential && !accessToken) return json({ error: 'Missing credential' }, 400);
+      let who;
+      try { who = await verifyGoogleToken({ credential, accessToken }, { clientId: env.GOOGLE_CLIENT_ID }); }
+      catch (e) { return json({ error: e.message }, 401); }
+      let user = await getUser(who.email);
       if (!user) {
-        user = { email: em, provider: 'google', plan: 'free', exports: { period: '', count: 0 }, created: Date.now(), name: info.name || '' };
+        const name = who.name || (accessToken ? await googleProfileName(accessToken) : '');
+        user = { email: who.email, provider: 'google', plan: 'free', exports: { period: '', count: 0 }, created: Date.now(), name };
         await putUser(user);
       }
-      return json({ token: await makeToken(em, env), user: publicUser(user, env) });
+      return json({ token: await makeToken(who.email, env), user: publicUser(user, env) });
     }
 
     if (p === '/me') {
