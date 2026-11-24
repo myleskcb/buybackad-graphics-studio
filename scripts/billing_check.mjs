@@ -11,7 +11,8 @@
       prices it, and then costs ceil(price / CREDIT_USD); the free tier's day
       ceiling holds; operators are not charged.
    2. Downloads. /export/check never counts; /export counts; Free stops at 3
-      a week with 402.
+      a week with 402; Pro's videos are counted apart and stop at the month's
+      allowance with 402 while photos still go; Business's are unlimited.
    3. Stripe off: checkout says so (503), nothing else changes.
    4. Stripe on with only STRIPE_SECRET: the first checkout makes the product,
       the price under its lookup key and the webhook (secret kept); the next
@@ -58,7 +59,7 @@ writeFileSync(join(T, 'node_modules/@netlify/blobs/package.json'), JSON.stringif
 writeFileSync(join(T, 'node_modules/@netlify/blobs/index.js'), [
   'export const all = new Map();',
   'export const getStore = (o) => { const n = typeof o === "string" ? o : o.name; if (!all.has(n)) all.set(n, new Map()); const m = all.get(n);',
-  '  return { get: async (k) => (m.has(k) ? m.get(k) : null), set: async (k, v) => { m.set(k, v); }, delete: async (k) => { m.delete(k); }, list: async () => ({ blobs: [] }) }; };',
+  '  return { get: async (k) => (m.has(k) ? m.get(k) : null), set: async (k, v) => { m.set(k, v); }, delete: async (k) => { m.delete(k); }, list: async (o) => ({ blobs: [...m.keys()].filter((k) => !(o && o.prefix) || k.startsWith(o.prefix)).map((key) => ({ key })) }) }; };',
 ].join('\n'));
 
 const env = process.env;
@@ -121,7 +122,7 @@ globalThis.fetch = async (input, init = {}) => {
   if (method === 'GET' && (m = path.match(/^\/products\/(.+)$/))) { const p = S.products.get(mode + ':' + m[1]); return p ? reply(200, p) : missing('product'); }
   if (method === 'POST' && path === '/products') {
     if (S.products.has(mode + ':' + body.id)) return reply(400, { error: { code: 'resource_already_exists', message: 'exists' } });
-    const p = { id: body.id, name: body.name }; S.products.set(mode + ':' + body.id, p); return reply(200, p);
+    const p = { id: body.id, name: body.name, statement_descriptor: body.statement_descriptor }; S.products.set(mode + ':' + body.id, p); return reply(200, p);
   }
   if (method === 'GET' && path === '/prices') {
     const keys = [].concat(body.lookup_keys || []);
@@ -175,6 +176,7 @@ globalThis.fetch = async (input, init = {}) => {
   if ((m = path.match(/^\/subscriptions\/(.+)$/))) {
     const sub = S.subs.get(m[1]);
     if (!sub || sub.mode !== mode) return missing('subscription');
+    if (method === 'DELETE') { sub.status = 'canceled'; S.cancelled = (S.cancelled || 0) + 1; return reply(200, sub); }
     if (method === 'POST') {
       if (body.items) { const it = sub.items.data.find((i) => i.id === body.items[0].id); it.price = S.prices.get(body.items[0].price); }
       if (body.cancel_at_period_end) sub.cancel_at_period_end = body.cancel_at_period_end === 'true';
@@ -311,6 +313,35 @@ const setUser = (u) => store.get('pgfx-users').set('u:' + u.email, JSON.stringif
   ok(sv.status === 403 && userBlob('freevideo@x.example').exports.count === 0, 'Starter does not download videos, and nothing is counted');
   const sp = await hit('POST', '/export/check', {}, (await hit('POST', '/auth/login', { email: 'freevideo@x.example', password: 'a-long-password' })).json.token);
   ok(sp.status === 200 && sp.json.remaining === 100 && sp.json.watermark === false && sp.json.maxPx === 2160, 'Starter: 100 photos a month, no watermark, 2160');
+  /* Pro's videos are a monthly allowance of their own (plans.mjs videos, 2026-11-18): a video is
+     counted on it and not on the photos; at the allowance a video is 402, a photo still goes */
+  const pt = await signup('provideo@x.example');
+  const pu = userBlob('provideo@x.example'); pu.plan = 'pro'; setUser(pu);
+  const cap = plans.PLANS.pro.videos;
+  const vc = await hit('POST', '/export/check', { kind: 'video' }, pt);
+  ok(vc.status === 200 && vc.json.kind === 'video' && vc.json.remaining === cap, `Pro: /export/check for a video says ${cap} left (${vc.json.remaining})`);
+  for (let i = 0; i < cap; i++) await hit('POST', '/export', { kind: 'video' }, pt);
+  const over = await hit('POST', '/export', { kind: 'video' }, pt);
+  ok(over.status === 402 && over.json.kind === 'video' && over.json.limit === cap && /Business has unlimited video/.test(over.json.error) && userBlob('provideo@x.example').videos.count === cap,
+    `Pro stops at ${cap} videos a month with 402, says Business is unlimited (${over.status} ${over.json && over.json.error})`);
+  ok(userBlob('provideo@x.example').exports.count === 0 && (await hit('POST', '/export/check', {}, pt)).json.remaining === plans.PLANS.pro.monthly,
+    'Pro: videos are not counted on the photos, and a photo still goes at the video allowance');
+  ok((await hit('GET', '/me', undefined, pt)).json.user.videos.count === cap, '/me carries the video count for the browser to say what is left');
+  const bu = userBlob('provideo@x.example'); bu.plan = 'business'; setUser(bu);
+  const bv = await hit('POST', '/export/check', { kind: 'video' }, pt);
+  ok(bv.status === 200 && bv.json.remaining === null, 'Business: videos unlimited, whatever was counted on Pro');
+  /* print-ready business cards (cards/; plans.mjs cards, owner 2026-11-22: "needs to be super pay
+     walled"): Pro and Business only, a card one of the plan's photo downloads */
+  const ct = await signup('cards@x.example');
+  const cf = await hit('POST', '/export', { kind: 'card' }, ct);
+  ok(cf.status === 403 && cf.json.needs === 'cards' && userBlob('cards@x.example').exports.count === 0, 'Free does not download business cards (403, needs cards), and nothing is counted');
+  const cs = userBlob('cards@x.example'); cs.plan = 'basic'; setUser(cs);
+  const ctl = () => hit('POST', '/auth/login', { email: 'cards@x.example', password: 'a-long-password' }).then((r) => r.json.token);
+  ok((await hit('POST', '/export/check', { kind: 'card' }, await ctl())).status === 403, 'Starter does not download business cards either');
+  const cp = userBlob('cards@x.example'); cp.plan = 'pro'; setUser(cp);
+  const ptk = await ctl(), cc = await hit('POST', '/export/check', { kind: 'card' }, ptk);
+  ok(cc.status === 200 && cc.json.remaining === plans.PLANS.pro.monthly && cc.json.watermark === false, 'Pro: /export/check for a card says the photo downloads left, no watermark');
+  ok((await hit('POST', '/export', { kind: 'card' }, ptk)).status === 200 && userBlob('cards@x.example').exports.count === 1, 'Pro: a business card is counted as one photo download');
 }
 
 /* ---------- 3. Stripe off ---------- */
@@ -402,6 +433,21 @@ let csPro;
   // the webhook: canceled at Stripe
   const secret = JSON.parse(store.get('pgfx-users').get('stripe:whsec:test')).secret;
   const signed = (obj, t) => { const payload = JSON.stringify(obj); t = t || Math.floor(Date.now() / 1000); return { payload, header: 't=' + t + ',v1=' + createHmac('sha256', secret).update(t + '.' + payload).digest('hex') }; };
+  /* the Stripe account is shared with iPhones.LA (2026-11-23): its own sales reach this
+     webhook too, and one bought with the same email must not touch the plan */
+  const before = userBlob('buyer@x.example');
+  const foreignSub = { id: 'sub_iphonesla', object: 'subscription', status: 'active', customer: 'cus_other', metadata: { email: 'buyer@x.example' },
+    items: { data: [{ id: 'si_other', price: { id: 'price_phonecase', lookup_key: null, metadata: {}, recurring: { interval: 'month' } }, current_period_end: Math.floor(Date.now() / 1000) + 86400 }] } };
+  for (const ev of [
+    { type: 'checkout.session.completed', data: { object: { id: 'cs_iphonesla', mode: 'subscription', customer_email: 'buyer@x.example', metadata: {}, subscription: foreignSub } } },
+    { type: 'customer.subscription.created', data: { object: foreignSub } },
+    { type: 'customer.subscription.deleted', data: { object: Object.assign({}, foreignSub, { status: 'canceled' }) } },
+  ]) { const f = signed(ev); await hit('POST', '/stripe-webhook', f.payload, null, { 'Stripe-Signature': f.header }); }
+  const afterForeign = userBlob('buyer@x.example');
+  ok(afterForeign.plan === before.plan && afterForeign.plan === 'business' && afterForeign.sub.id === before.sub.id,
+    "the shared account's other sales (a checkout and a subscription with the same email) leave the plan alone");
+  ok(S.products.get('test:bbad_business') && S.products.get('test:bbad_business').statement_descriptor === 'WEBUY.AD',
+    'a plan\'s product carries the WEBUY.AD statement suffix for its renewals');
   const ended = Object.assign({}, sub, { status: 'canceled' });
   const forged = await hit('POST', '/stripe-webhook', JSON.stringify({ type: 'customer.subscription.deleted', data: { object: ended } }), null, { 'Stripe-Signature': 't=' + Math.floor(Date.now() / 1000) + ',v1=' + 'ab'.repeat(32) });
   ok(forged.status === 400 && userBlob('buyer@x.example').plan === 'business', 'a forged webhook is refused');
@@ -435,6 +481,7 @@ let csPro;
   const cs = [...S.sessions.values()].pop();
   ok(r.status === 200 && cs.mode === 'payment' && S.prices.get(cs.line_items[0].price).unit_amount === 900 && cs.customer_creation === 'always' && !cs.allow_promotion_codes,
     'a pack is a one-off payment of $9, a customer made, no promotion codes');
+  ok(cs.payment_intent_data && cs.payment_intent_data.statement_descriptor_suffix === 'WEBUY.AD', 'a pack\'s card statement ends WEBUY.AD');
   ok((await hit('POST', '/checkout/confirm', { session_id: cs.id }, t)).json.pending === true, 'an unpaid session confirms nothing');
   pay(cs.id);
   const c1 = await hit('POST', '/checkout/confirm', { session_id: cs.id }, t);
@@ -554,6 +601,64 @@ let csPro;
   await hit('POST', '/checkout', { consent: true, pack: 'credits100' }, buyer);
   ok(S.pmds.size === before, 'a draft deploy address is never registered as a payment method domain');
   env.SITE_URL = was;
+}
+
+/* the site moves to a new address (webuy.ad, 2026-11-18): the webhook moves
+   with it, since Stripe does not follow the old host's redirect */
+{
+  const was = env.SITE_URL;
+  const hook = () => JSON.parse(store.get('pgfx-users').get('stripe:whsec:live'));
+  const buy = () => hit('POST', '/checkout', { consent: true, pack: 'credits100' }, buyer);
+  env.SITE_URL = 'https://studio.example';
+  await buy();
+  const before = hook();
+  ok(before.url === 'https://studio.example/api/stripe-webhook', 'the live webhook is at the site\'s address');
+  env.SITE_URL = 'https://new.example';
+  await buy();
+  const after = hook();
+  ok(after.url === 'https://new.example/api/stripe-webhook' && after.prev === before.secret && after.secret !== before.secret,
+    'a new site address moves the webhook there, and the old secret is kept for events on their way');
+  ok(!S.hooks.has(before.id) && S.hooks.has(after.id) && [...S.hooks.values()].filter((h) => h.mode === 'live').length === 1,
+    'the endpoint at the old address is removed: one live endpoint');
+  const sign = (secret) => { const payload = JSON.stringify({ type: 'invoice.created', data: { object: {} } }), ts = Math.floor(Date.now() / 1000);
+    return [payload, { 'Stripe-Signature': 't=' + ts + ',v1=' + createHmac('sha256', secret).update(ts + '.' + payload).digest('hex') }]; };
+  const [p0, h0] = sign(before.secret), [p1, h1] = sign(after.secret);
+  ok((await hit('POST', '/stripe-webhook', p0, null, h0)).status === 200, 'an event signed with the old secret is still accepted');
+  ok((await hit('POST', '/stripe-webhook', p1, null, h1)).status === 200, 'an event signed with the new secret is accepted');
+  await buy();
+  ok(hook().id === after.id, 'the same address again registers nothing new');
+  delete env.SITE_URL;   // no configured address: the request's own (studio.example here) never moves it
+  await buy();
+  ok(hook().id === after.id, 'the address a request came in on does not move the webhook');
+  env.SITE_URL = 'https://studio--draft.netlify.app';
+  await buy();
+  ok(hook().id === after.id, 'a draft deploy address does not move the webhook');
+  env.SITE_URL = was;
+}
+
+/* deleting an account (2026-11-19, the iPhone app: App Store guideline 5.1.1(v)) */
+{
+  const em = 'leaver@x.example', tok = await signup(em);
+  ok((await hit('POST', '/account/delete', { confirm: 'delete' })).status === 401, 'deleting an account needs the sign-in');
+  ok((await hit('POST', '/account/delete', {}, tok)).status === 400, 'deleting an account asks for the word delete');
+  const map = (name) => { if (!store.has(name)) store.set(name, new Map()); return store.get(name); };
+  const { ownerKey } = await import(pathToFileURL(join(T, 'netlify/lib/adlibrary.mjs')).href);
+  const owner = await ownerKey(em), lib = map('pgfx-ad-library'), gen = map('pgfx-generated');
+  lib.set('o:' + owner, JSON.stringify({ feed: 'fd_leaver', items: [] })); lib.set('f:fd_leaver', owner);
+  lib.set('i:' + owner + ':a1', 'jpeg'); lib.set('v:' + owner + ':a1', 'mp4'); lib.set('i:other:a1', 'someone else');
+  gen.set('idx/' + em, JSON.stringify(['g1'])); gen.set('img/g1', '{}');
+  const mode = billing.stripeMode(env);
+  S.subs.set('sub_leaver', { id: 'sub_leaver', mode, status: 'active', items: { data: [] }, metadata: {} });
+  const u = userBlob(em); u.plan = 'pro'; u.sub = { id: 'sub_leaver', status: 'active', plan: 'pro' }; setUser(u);
+  const r = await hit('POST', '/account/delete', { confirm: 'delete' }, tok);
+  ok(r.status === 200 && r.json.ok, 'a signed-in account with the word delete is deleted');
+  ok(S.subs.get('sub_leaver').status === 'canceled', 'its paid subscription is cancelled at Stripe first, so nothing is charged again');
+  ok(!store.get('pgfx-users').has('u:' + em), 'the account is gone');
+  ok(!lib.has('o:' + owner) && !lib.has('f:fd_leaver') && !lib.has('i:' + owner + ':a1') && !lib.has('v:' + owner + ':a1') && lib.has('i:other:a1'),
+    'its saved ads, their pictures and videos and its public link go, and nobody else\'s');
+  ok(!gen.has('idx/' + em) && !gen.has('img/g1'), 'its AI pictures go');
+  ok((await hit('GET', '/me', undefined, tok)).status === 404, 'the sign-in it had opens nothing');
+  ok((await hit('POST', '/auth/login', { email: em, password: 'a-long-password' })).status === 401, 'and the password no longer signs in');
 }
 
 /* operators */
@@ -676,10 +781,11 @@ async function browserPart() {
       const pr = await page.evaluate(() => {
         const sec = document.getElementById('pricing');
         sec.scrollIntoView();
-        return { cards: [...sec.querySelectorAll('.lp-price-card h3')].map((h) => h.textContent), free: !!sec.querySelector('.lp-price-card:first-child.lp-price-free'), text: sec.innerText, over: document.documentElement.scrollWidth - innerWidth };
+        return { cards: [...sec.querySelectorAll('.lp-price-card h3')].map((h) => h.textContent), free: !!sec.querySelector('.lp-price-card:first-child.lp-price-free'), text: sec.innerText, over: document.documentElement.scrollWidth - innerWidth, rows: sec.querySelectorAll('table.lp-compare tbody tr').length };
       });
       ok(pr.cards.join() === 'Free,Starter,Pro,Business' && pr.free, `landing ${w}: Free first, left of the three plans (${pr.cards.join()})`);
-      ok(/photos or videos/.test(pr.text) && /\$1,000 a year/.test(pr.text) && /Unlimited downloads/.test(pr.text) && /AI credits/.test(pr.text) && /100 credits are \$9/.test(pr.text), `landing ${w}: videos, yearly price and credits on the cards`);
+      ok(/30 video ads a month/.test(pr.text) && /Unlimited video ads/.test(pr.text) && /\$1,000 a year/.test(pr.text) && /Unlimited photo downloads/.test(pr.text) && /AI credits/.test(pr.text) && /100 credits are \$9/.test(pr.text), `landing ${w}: videos (Pro's a month, Business's unlimited), yearly price and credits on the cards`);
+      ok(pr.rows >= 9 && /Video ads to download/.test(pr.text), `landing ${w}: the table compares every plan (${pr.rows} rows)`);
       ok(/you save \$50/.test(pr.text) && /you save \$120/.test(pr.text) && /you save \$200/.test(pr.text), `landing ${w}: each paid card says what yearly saves`);
       ok(pr.over <= 0, `landing ${w}: no sideways scroll (${pr.over}px)`);
       if (process.env.SHOT_DIR) { await page.waitForTimeout(600); await page.locator('#pricing').screenshot({ path: join(process.env.SHOT_DIR, 'landing-pricing-' + w + '.png') }); }
@@ -699,6 +805,9 @@ async function browserPart() {
       ok(/Or \$250 a year: you save \$50/.test(m.per) && /Or \$600 a year: you save \$120/.test(m.per) && /Or \$1,000 a year: you save \$200/.test(m.per), `plans ${w}: monthly cards say what yearly saves (${m.per})`);
       ok(/Secure checkout/.test(m.trust) && /Cancel any time/.test(m.trust) && !/What customers say/.test(m.trust), `plans ${w}: what you can count on, at the bottom; no reviews until there are real ones`);
       ok(!/opens soon/.test(m.note), `plans ${w}: billing is on, no "opens soon" note`);
+      const cmp = await page.evaluate(() => ({ rows: document.querySelectorAll('#plans-grid .plans-compare table tbody tr').length, video: ((document.querySelector('#plans-grid .plans-compare') || {}).innerText || '').includes('Video ads to download'),
+        tag: (document.querySelector('#plans-grid .plan-tag-video') || {}).textContent || '' }));
+      ok(cmp.rows >= 9 && cmp.video && cmp.tag === 'Unlimited video', `plans ${w}: the same table under the cards, Business tagged Unlimited video (${JSON.stringify(cmp)})`);
       await shot(page, 'plans-month-' + w);
       await page.click('.plans-toggle button:nth-child(2)');
       const y = await page.evaluate(() => [...document.querySelectorAll('#plans-grid .plan-card .plan-price')].map((p) => p.textContent).join('|'));
@@ -713,7 +822,7 @@ async function browserPart() {
       await page.waitForSelector('#co-overlay.show #co-agree');
       const step1 = await page.evaluate(() => ({ title: document.getElementById('co-title').textContent, terms: document.getElementById('co-terms').textContent,
         feats: document.querySelectorAll('#co-features li').length, locked: document.getElementById('co-go').disabled, links: [...document.querySelectorAll('#co-agree-text a')].map((a) => a.getAttribute('href')).join() }));
-      ok(step1.title === 'Graphics Studio Pro' && /^Renews automatically every year at \$600/.test(step1.terms) && step1.feats >= 4 && step1.locked && step1.links === 'terms.html,privacy.html',
+      ok(step1.title === 'WeBuy.AD Pro' && /^Renews automatically every year at \$600/.test(step1.terms) && step1.feats >= 4 && step1.locked && step1.links === 'terms.html,privacy.html',
         `checkout: the agreement first, renewal terms in words, Continue locked until the box is ticked (${JSON.stringify(step1)})`);
       await shot(page, 'checkout-consent');
       await page.check('#co-agree');
@@ -789,7 +898,7 @@ async function browserPart() {
       await page.waitForSelector('#co-overlay.show #fake-stripe-pay', { timeout: 15000 }).catch(() => {});
       const dlg = await page.evaluate(() => ({ open: document.getElementById('co-overlay').classList.contains('show'), title: document.getElementById('co-title').textContent,
         price: document.getElementById('co-price').textContent, form: !!document.querySelector('#co-mount #fake-stripe-pay'), loading: !document.getElementById('co-loading').hidden }));
-      ok(dlg.open && dlg.title === 'Graphics Studio Starter' && dlg.price === '$25 a month' && dlg.form && !dlg.loading && page.url() === before,
+      ok(dlg.open && dlg.title === 'WeBuy.AD Starter' && dlg.price === '$25 a month' && dlg.form && !dlg.loading && page.url() === before,
         `embedded checkout: the form opens in the site's own dialog, on the same page (${JSON.stringify(dlg)})`);
       await shot(page, 'checkout-embedded');
       await page.click('#fake-stripe-pay');
@@ -844,11 +953,18 @@ async function browserPart() {
       const page = await newPage(1280);
       await page.goto(BASE + '/motion/');
       await page.waitForFunction(() => document.getElementById('loading').hidden && window.pgfxAccount, null, { timeout: 120000 });
+      /* a number first: since 2026-11-10 (b7c74a1e) the maker asks for one before any
+         download (numberReady), so the step below meets the account question. The field's
+         section is opened if it is folded, and the number is waited for until it is saved
+         (the field is read after a 500 ms pause, motion/app.js), not for a fixed time */
+      await page.evaluate(() => { const f = document.getElementById('f-number'); const sec = f && f.closest('details'); if (sec) sec.open = true; });
+      await page.fill('#f-number', '(562) 999-4994');
+      await page.waitForFunction(() => { try { return /562/.test(JSON.stringify(JSON.parse(localStorage.getItem('pgfx_motion_v1') || '{}'))); } catch (e) { return false; } }, null, { timeout: 10000 }).catch(() => {});
       await page.click('#download');
       await page.waitForSelector('#acct-overlay.show', { timeout: 15000 }).catch(() => {});
       ok(await page.$('#acct-overlay.show') !== null, 'video maker: a signed-out Download asks for an account first');
       const vt = await signup('videos@x.example');
-      await page.evaluate((t) => { localStorage.setItem('pgfx_token', JSON.stringify(t)); document.getElementById('acct-overlay').classList.remove('show'); }, vt);
+      await page.evaluate((t) => { localStorage.setItem('pgfx_token', JSON.stringify(t)); const o = document.getElementById('acct-overlay'); if (o) o.classList.remove('show'); }, vt);
       await page.click('#download');
       await page.waitForFunction(() => /Video downloads come with Pro and Business/.test(document.body.innerText), null, { timeout: 30000 }).catch(() => {});
       ok(/Video downloads come with Pro and Business/.test(await page.evaluate(() => document.body.innerText)) && userBlob('videos@x.example').exports.count === 0,
@@ -864,7 +980,7 @@ async function browserPart() {
         return page.$eval('#export-note', (n) => n.textContent);
       };
       const note = await dl();
-      ok(/Saved we-buy-phones/.test(note) && userBlob('videos@x.example').exports.count === 1, 'video maker: a Pro download is made and counted once (' + note.slice(0, 120) + ')');
+      ok(/Saved we-buy-phones/.test(note) && (userBlob('videos@x.example').videos || {}).count === 1 && userBlob('videos@x.example').exports.count === 0, 'video maker: a Pro download is made and counted once, on the video meter (' + note.slice(0, 120) + ')');
       ok(/1080×1080/.test(note) && /\(1440×1440, the moment/.test(note), 'video maker: Pro gets a 1080 video and a 1440 photo (' + note.slice(0, 200) + ')');
       const isPhoto = (d) => /\.(png|jpe?g)$/.test(d.suggestedFilename());   // a JPG since 2026-10-11 (DESIGN-LAW 108, 110)
       const proPng = files.find(isPhoto);
@@ -887,7 +1003,7 @@ async function browserPart() {
         ok(diff.sizes.join() === '1440,1440' && diff.corner < 2, 'video maker: Pro\'s photo carries no marks, the same pixels as an operator\'s (' + JSON.stringify(diff) + ')');
       }
       await page.evaluate((t) => { localStorage.setItem('pgfx_token', JSON.stringify(t)); }, vt);
-      const lim = userBlob('videos@x.example'); lim.exports.count = 500; setUser(lim);
+      const lim = userBlob('videos@x.example'), d = new Date(); lim.videos = { period: d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'), count: plans.PLANS.pro.videos }; setUser(lim);
       await page.evaluate(() => window.VideoHelp && VideoHelp.close());
       await page.click('#download');
       await page.waitForFunction(() => /used this plan's downloads/.test(document.body.innerText), null, { timeout: 30000 }).catch(() => {});

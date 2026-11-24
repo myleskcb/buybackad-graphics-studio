@@ -3,7 +3,7 @@
 
    The handoff is code for another repository, so it is run here before it is
    handed over:
-   1. A stand-in BUYBACK.AD on 127.0.0.1:8897: the real router
+   1. A stand-in WeBuy.AD on 127.0.0.1:8897: the real router
       (netlify/lib/library.mjs) behind a key, and this checkout's files.
    2. docs/iphonesla-library/test_buybackad_library.py against it (Python
       3.9+, Pillow for the JPEG checks).
@@ -38,7 +38,7 @@ const SITE = 'http://127.0.0.1:8897', SHOP = 'http://127.0.0.1:8896';
 const { libraryRoute } = await import(pathToFileURL(join(ROOT, 'netlify/lib/library.mjs')).href);
 const bad = [], ok = (c, what) => { if (!c) bad.push(what); return c; };
 
-/* 1. the stand-in BUYBACK.AD */
+/* 1. the stand-in WeBuy.AD */
 const TYPES = { '.json': 'application/json', '.webp': 'image/webp', '.jpg': 'image/jpeg', '.png': 'image/png', '.html': 'text/html', '.js': 'text/javascript' };
 const site = createServer(async (q, s) => {
   const url = new URL(q.url, SITE);
@@ -143,8 +143,9 @@ try {
     return { name: f.name, type: f.type, bytes: f.size, size: [bmp.width, bmp.height], magic: [...b.slice(0, 3)], hash: h, lastModified: f.lastModified };
   });
   if (page_.added){
-    const id = page_.added.name.replace(/(_\d{4}-\d{2}-\d{2})?\.jpg$/, ''), want = readFileSync(join(ROOT, 'assets/library-ads', id + '.jpg'));
-    const r = JSON.parse(readFileSync(join(ROOT, 'assets/library-ads/index.json'), 'utf8')).items[id] || {};
+    // a rebuilt ad (r-<card id>, the library cards retired 2026-11-18) has its render in assets/rebuilt-ads/
+    const id = page_.added.name.replace(/(_\d{4}-\d{2}-\d{2})?\.jpg$/, ''), dir = /^r-/.test(id) ? 'assets/rebuilt-ads' : 'assets/library-ads', want = readFileSync(join(ROOT, dir, id + '.jpg'));
+    const r = JSON.parse(readFileSync(join(ROOT, dir, 'index.json'), 'utf8')).items[id] || {};
     page_.added.namedForUpload = page_.added.name === id + '_' + String(r.rendered || '').slice(0, 10) + '.jpg' && page_.added.lastModified === Date.parse(r.rendered || '');
     let h = 0; for (const x of want) h = (h * 31 + x) >>> 0;
     page_.added.sameAsRender = h === page_.added.hash && want.length === page_.added.bytes;

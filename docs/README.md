@@ -1,18 +1,19 @@
 # NEW GFX ENGINE — study program
 
-Entry point for any LLM or person picking up the Graphics Studio design work.
+Entry point for any LLM or person picking up the WeBuy.AD design work.
 Read this file first, then `SESSION-PROTOCOL.md`, then whichever curriculum
 module the log says is next.
 
 ## What this project is
 
-**Graphics Studio by BUYBACK.AD** — a browser-based ad builder for phone buyers
+**WeBuy.AD** — a browser-based ad builder for phone buyers
 and resellers. Pick a template, type a headline and a phone number, export a
 post-ready graphic for Facebook Marketplace, OfferUp, Instagram or Craigslist.
 
 - Repo: `myleskcb/buybackad-graphics-studio`
 - Working copy: `~/Downloads/gfxv23` (see MIGRATION note in OPERATIONS.md)
-- Live: https://buybackad-graphics-studio.netlify.app
+- Live: https://webuy.ad (the `buybackad-finished-copy` project, also at
+  https://buybackad-finished-copy.netlify.app; OPEN-ITEMS §BL)
 - Netlify project: `buybackad-graphics-studio`
 
 ## The document map

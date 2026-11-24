@@ -1,6 +1,6 @@
-"""Checks for buybackad_library.py against a live BUYBACK.AD library.
+"""Checks for buybackad_library.py against a live WeBuy.AD library.
 
-    BUYBACKAD_LIBRARY_URL=https://buybackad-graphics-studio.netlify.app \
+    BUYBACKAD_LIBRARY_URL=https://webuy.ad \
     BUYBACKAD_LIBRARY_KEY=bbl_... \
     python3 -m unittest test_buybackad_library -v
 

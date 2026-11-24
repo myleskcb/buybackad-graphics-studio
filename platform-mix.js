@@ -57,8 +57,10 @@
   /* offer-library.js buying line -> subject. Foldables, Android tablets,
      controllers, gaming PCs and the rest are real lines the owner did not
      name, so they stay unweighted. */
-  const OFFER_LINE = { iphone:'iphone', mac:'mac', ipad:'ipad', console:'console', switch:'console', vr:'vr',
-    galaxy:'samsung', pixel:'pixel', gold:'gold', coins:'coins', pokemon:'pokemon', car:'cars', sports:'cards' };
+  const OFFER_LINE = { iphone:'iphone', mac:'mac', macdesk:'mac', ipad:'ipad', console:'console', switch:'console', vr:'vr',
+    galaxy:'samsung', pixel:'pixel', gold:'gold', coins:'coins', pokemon:'pokemon', car:'cars', sports:'cards',
+    // the car lines (2026-11-18) share the owner's cars slot
+    classic:'cars', jdm:'cars', trucks:'cars', toyota:'cars', honda:'cars', bmw:'cars', mercedes:'cars', vans:'cars', semis:'cars' };
   function templateSubject(t){
     if (!t) return null;
     const pics = (t.layers || []).filter(l => l && l.props && l.props.src)

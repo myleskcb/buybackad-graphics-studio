@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* The video maker's type pairs (motion/catalog.js TYPE_VOICES) say what the photo
-   ads' FONT_PAIRS (app.js) say: the same eighteen voices, the same display face at
+   ads' FONT_PAIRS (app.js) say: the same voices, the same display face at
    the same weight, the same reading face at its label weight, and every face a file
    the maker can load (assets/fonts/). DESIGN-LAW 100 and 133.
    usage: node scripts/type_voices_check.mjs   (exits 1 on any difference) */

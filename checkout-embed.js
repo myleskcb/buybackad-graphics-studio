@@ -77,6 +77,7 @@
     $('co-agree').checked = false;
     $('co-go').disabled = true;
     $('co-go').textContent = 'Continue to secure payment';
+    $('co-go').onclick = proceed;            // a failed form above may have pointed it at Stripe's page
     $('co-err').textContent = '';
     $('co-consent').hidden = false;
     $('co-loading').hidden = true;
@@ -111,19 +112,33 @@
       return;
     }
     teardown();                              // Stripe allows one embedded checkout at a time
-    const stripe = StripeCtor(j.publishableKey);
-    // dahlia renamed initEmbeddedCheckout to createEmbeddedCheckoutPage (same options)
-    const create = stripe.createEmbeddedCheckoutPage ? 'createEmbeddedCheckoutPage' : 'initEmbeddedCheckout';
-    const checkout = await stripe[create]({
-      fetchClientSecret: () => Promise.resolve(j.clientSecret),
-      onComplete: () => {
-        close();
-        if (typeof o.onDone === 'function') o.onDone(j.sessionId);
-      },
-    });
-    current = checkout;
-    checkout.mount('#co-mount');
-    $('co-loading').hidden = true;
+    /* the form itself can still fail to start (an expired session, a key Stripe refuses): the
+       dialog never sits on "loading" for good. It says nothing was charged and offers Stripe's
+       own page, the same way a blocked Stripe.js does (2026-11-18) */
+    try {
+      const stripe = StripeCtor(j.publishableKey);
+      // dahlia renamed initEmbeddedCheckout to createEmbeddedCheckoutPage (same options)
+      const create = stripe.createEmbeddedCheckoutPage ? 'createEmbeddedCheckoutPage' : 'initEmbeddedCheckout';
+      const checkout = await stripe[create]({
+        fetchClientSecret: () => Promise.resolve(j.clientSecret),
+        onComplete: () => {
+          close();
+          if (typeof o.onDone === 'function') o.onDone(j.sessionId);
+        },
+      });
+      current = checkout;
+      checkout.mount('#co-mount');
+      $('co-loading').hidden = true;
+    } catch (e) {
+      console.warn('embedded checkout:', e);
+      teardown();
+      $('co-loading').hidden = true;
+      $('co-consent').hidden = false;
+      $('co-err').textContent = 'The payment form could not open. Nothing was charged. Continue to pay on Stripe’s secure page instead.';
+      $('co-go').disabled = false;
+      $('co-go').textContent = 'Pay on Stripe’s page';
+      $('co-go').onclick = async () => { try { location.href = await o.hosted(); } catch (e2) { $('co-err').textContent = e2.message || 'Checkout could not start. Nothing was charged.'; } finally { $('co-go').onclick = proceed; } };
+    }
   }
 
   /** o: { title, price, note, features[], terms, plan (bool), start() → the

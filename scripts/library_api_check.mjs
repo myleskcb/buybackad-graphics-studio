@@ -9,11 +9,19 @@
       again since makes it stale: run render_library_ads.mjs --stale). Each
       carries its three dates (created, updated, rendered: ISO 8601 UTC, in
       order), and the JPEG's EXIF says the same (_jpeg_exif.mjs).
+      The rebuilt ads (2026-11-18, DESIGN-LAW 155: the owner retired the old
+      library cards, "Retire them", and asked for their rebuilt ads in this
+      feed, "Do it here"): every rebuilt library ad whose card the site no
+      longer offers has a render (assets/rebuilt-ads/,
+      scripts/render_rebuilt_ads.mjs), none is left for one that has no such
+      ad, each file is the one its index names, a 1080x1080 JPEG, drawn from
+      its recipe as it is now (stamp, _rebuilt.mjs), dated and stamped alike.
    1. The router on its own, against this checkout's files: no keys is 503;
       no key, a wrong key or a key shorter than 32 is 401 with
       WWW-Authenticate; both headers work; two keys at once (a rotation) both
       work; over the day's count is 429; POST is 405; no CORS header. Every
-      route answers; the ads are the site's offered cards, each with its
+      route answers; the ads are the site's offered cards and the rebuilt
+      ads of the cards it no longer offers, each with its
       render, thumbnail and studio link, every link a file in this checkout;
       categories add up; the filters filter; search puts what an ad is for
       (its category) before a palette in its title; paging adds up; a held
@@ -34,9 +42,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { exifRead } from './_jpeg_exif.mjs';
+import { stampOf, libraryRecipes } from './_rebuilt.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
-const BASE = process.env.GFX_BASE || 'http://localhost:8899';
+const BASE = (process.env.GFX_BASE || 'http://localhost:8899').replace(/\/+$/, '');   // with or without its last slash
 const { libraryRoute, libraryForget } = await import(pathToFileURL(join(ROOT, 'netlify/lib/library.mjs')).href);
 const bad = [];
 const ok = (cond, what) => { if (!cond) bad.push(what); return cond; };
@@ -82,6 +91,34 @@ ok(!wrong.length, wrong.length + " renders are not what their index says (a 1080
 ok(!stale.length, stale.length + ' renders are older than their card in the library (run render_library_ads.mjs --stale): ' + stale.slice(0, 5).join(', '));
 ok(!undated.length, undated.length + ' renders lack their three dates in order (created, updated, rendered; run render_library_ads.mjs --stamp): ' + undated.slice(0, 3).join(', '));
 ok(!unexif.length, unexif.length + " renders' EXIF does not say what the index says (run render_library_ads.mjs --stamp): " + unexif.slice(0, 2).join(', '));
+/* the rebuilt ads' renders */
+const offeredIds = new Set(offered.map((c) => c.id));
+const stills = json('assets/recipe-stills/index.json').items;
+const rebuilt = existsSync(join(ROOT, 'assets/rebuilt-ads/index.json')) ? json('assets/rebuilt-ads/index.json').items : {};
+const rebuiltWant = libraryRecipes(json('motion/recipes.json').recipes).filter((r) => !offeredIds.has(r.from) && stills[r.id]);
+const rMissing = rebuiltWant.filter((r) => !rebuilt[r.id]).map((r) => r.id);
+ok(!rMissing.length, rMissing.length + ' rebuilt library ads have no render (run render_rebuilt_ads.mjs --stale): ' + rMissing.slice(0, 5).join(', '));
+const rExtra = Object.keys(rebuilt).filter((id) => !rebuiltWant.some((r) => r.id === id));
+ok(!rExtra.length, rExtra.length + ' renders for no rebuilt library ad: ' + rExtra.slice(0, 5).join(', '));
+const rFiles = existsSync(join(ROOT, 'assets/rebuilt-ads')) ? readdirSync(join(ROOT, 'assets/rebuilt-ads')).filter((f) => f.endsWith('.jpg')) : [];
+ok(rFiles.length === Object.keys(rebuilt).length, rFiles.length + ' rebuilt render files for ' + Object.keys(rebuilt).length + ' entries');
+const rWrong = [], rStale = [], rUndated = [], rUnexif = [];
+for (const rc of rebuiltWant) {
+  const e = rebuilt[rc.id]; if (!e) continue;
+  const f = join(ROOT, 'assets/rebuilt-ads', rc.id + '.jpg');
+  if (!existsSync(f)) { rWrong.push(rc.id + ' (no file)'); continue; }
+  const b = readFileSync(f), size = jpegSize(b);
+  if (sha1(b) !== e.sha1 || b[0] !== 0xff || b[1] !== 0xd8 || String(size) !== '1080,1080' || e.w !== 1080 || e.bytes !== b.length) rWrong.push(rc.id);
+  if (e.stamp !== stampOf(rc)) rStale.push(rc.id);
+  if (![e.created, e.updated, e.rendered].every((d) => ISO.test(d || '')) || !(e.created <= e.updated && e.updated <= e.rendered)) rUndated.push(rc.id + ' ' + [e.created, e.updated, e.rendered].join(' '));
+  const x = exifRead(b);
+  if (!x || x.created !== e.created || x.updated !== e.updated || x.uploaded !== e.rendered || !x.title || !x.software) rUnexif.push(rc.id + ' ' + JSON.stringify(x));
+}
+ok(!rWrong.length, rWrong.length + ' rebuilt renders are not what their index says (a 1080x1080 JPEG of that sha1): ' + rWrong.slice(0, 5).join(', '));
+ok(!rStale.length, rStale.length + ' rebuilt renders are older than their recipe (run render_rebuilt_ads.mjs --stale): ' + rStale.slice(0, 5).join(', '));
+ok(!rUndated.length, rUndated.length + ' rebuilt renders lack their three dates in order: ' + rUndated.slice(0, 3).join(', '));
+ok(!rUnexif.length, rUnexif.length + " rebuilt renders' EXIF does not say what the index says: " + rUnexif.slice(0, 2).join(', '));
+const isRebuilt = (a) => !!a.rebuilt_from, rendOf = (a) => (isRebuilt(a) ? rebuilt[a.id] : renders[a.id]);
 
 /* ---------- 1. the router ---------- */
 const KEY = 'bbl_' + 'k'.repeat(40), KEY2 = 'bbl_' + 'n'.repeat(40);
@@ -120,9 +157,9 @@ r = await call('/library/v1');
 ok(r.status === 200 && !r.headers.get('Access-Control-Allow-Origin'), 'the index failed, or carries a CORS header');
 ok((await call('/library/v2')).status === 404 && (await call('/library/v1/assets')).status === 404, 'an unknown version or route is not 404');
 
-const want = offered.filter((c) => renders[c.id]).length;
+const wantCards = offered.filter((c) => renders[c.id]).length, wantRebuilt = rebuiltWant.filter((rc) => rebuilt[rc.id]).length, want = wantCards + wantRebuilt;
 const idx = r.body;
-ok(idx.counts.ads === want && want === offered.length, `ads ${idx.counts.ads}, the site offers ${offered.length} (scIsLive), ${want} rendered`);
+ok(idx.counts.ads === want && wantCards === offered.length, `ads ${idx.counts.ads}: the site offers ${offered.length} cards (scIsLive), ${wantCards} rendered, and ${wantRebuilt} rebuilt ads of the cards it no longer offers`);
 ok(r.headers.get('X-Library-Version') === idx.version, 'the version header is not the index version');
 const cats = (await call('/library/v1/categories')).body.categories;
 ok(Object.values(cats).reduce((a, b) => a + b, 0) === want, 'the categories do not add up to the ads');
@@ -132,10 +169,11 @@ ok(all.length === want, `paging gave ${all.length} ads`);
 const local = (u) => join(ROOT, new URL(u).pathname);
 const nofile = all.filter((a) => !existsSync(local(a.image.url)) || !existsSync(local(a.thumb.url))).map((a) => a.id);
 ok(!nofile.length, nofile.length + ' ads link to no file: ' + nofile.slice(0, 5).join(', '));
-ok(all.every((a) => a.image.url === ORIGIN + '/assets/library-ads/' + a.id + '.jpg?v=' + renders[a.id].sha1.slice(0, 12) && a.image.width === 1080 && a.image.format === 'jpg'
+ok(all.every((a) => a.image.url === ORIGIN + '/assets/' + (isRebuilt(a) ? 'rebuilt-ads/' : 'library-ads/') + a.id + '.jpg?v=' + rendOf(a).sha1.slice(0, 12) && a.image.width === 1080 && a.image.format === 'jpg'
   && a.studio_url === ORIGIN + '/?card=' + a.id && a.title && a.category && !('_s' in a)), 'an ad is missing its image, size, studio link or title, or shows an internal field');
+ok(all.filter(isRebuilt).every((a) => !offeredIds.has(a.rebuilt_from) && a.id === 'r-' + a.rebuilt_from), 'a rebuilt ad stands for a card still offered, or names another card');
 /* the dates: every ad carries its three, as the index has them; since= and sort= work on them; one ad answers Last-Modified; the index names the latest */
-ok(all.every((a) => a.created === renders[a.id].created && a.updated === renders[a.id].updated && a.uploaded === renders[a.id].rendered && ISO.test(a.uploaded)), 'an ad does not carry created, updated and uploaded as the render index has them');
+ok(all.every((a) => a.created === rendOf(a).created && a.updated === rendOf(a).updated && a.uploaded === rendOf(a).rendered && ISO.test(a.uploaded)), 'an ad does not carry created, updated and uploaded as the render index has them');
 const newestUp = all.map((a) => a.uploaded).sort().pop(), oldestCr = all.map((a) => a.created).sort()[0];
 ok(idx.latest && idx.latest.uploaded === newestUp && idx.latest.created === all.map((a) => a.created).sort().pop(), 'the index does not name the latest dates: ' + JSON.stringify(idx.latest));
 const sinceAll = (await call('/library/v1/ads?since=' + oldestCr.slice(0, 10) + '&limit=200')).body, sinceNone = (await call('/library/v1/ads?since=2099-01-01')).body;
@@ -154,9 +192,9 @@ const oneR = await call('/library/v1/ads/' + all[0].id);
 ok(oneR.headers.get('Last-Modified') === new Date(all[0].uploaded).toUTCString(), 'one ad does not answer Last-Modified with its upload: ' + oneR.headers.get('Last-Modified'));
 
 const gold = (await call('/library/v1/ads?category=gold&limit=500')).body;
-ok(gold.limit === 200 && gold.total === offered.filter((c) => c.cat === 'gold').length && gold.items.every((a) => a.category === 'gold'), 'category does not filter, or the limit is not capped at 200');
+const goldN = offered.filter((c) => c.cat === 'gold').length + rebuiltWant.filter((rc) => rebuilt[rc.id] && stills[rc.id].cat === 'gold').length;
+ok(gold.limit === 200 && gold.total === goldN && gold.items.every((a) => a.category === 'gold'), 'category does not filter, or the limit is not capped at 200');
 const q = (await call('/library/v1/ads?q=gold')).body;
-const goldN = offered.filter((c) => c.cat === 'gold').length;
 ok(q.total > goldN && q.total < want && q.items.slice(0, goldN).every((a) => a.category === 'gold'), 'q=gold does not narrow, or the gold ads are not first: ' + q.items.slice(0, 3).map((a) => a.category + ' ' + a.title).join(' | '));
 const ph = (await call('/library/v1/ads?category=phones&limit=3')).body;
 ok(ph.items.length === 3 && ph.next_offset === 3, 'paging by category is off');
@@ -166,7 +204,7 @@ ok((await call('/library/v1/ads/' + encodeURIComponent('../x'))).status === 400,
 const held = json('assets/showcase/holds.json').holds[0];
 if (held) ok((await call('/library/v1/ads/' + held.id)).status === 404, 'a held card (' + held.id + ') is offered');
 
-const unit = { ads: want, categories: cats, version: idx.version, renderMB: +(Object.values(renders).reduce((a, x) => a + x.bytes, 0) / 1048576).toFixed(1) };
+const unit = { ads: want, cards: wantCards, rebuilt: wantRebuilt, categories: cats, version: idx.version, renderMB: +([...Object.values(renders), ...Object.values(rebuilt)].reduce((a, x) => a + x.bytes, 0) / 1048576).toFixed(1) };
 
 /* ---------- 2. through the real function ---------- */
 let through = 'skipped (no server at ' + BASE + ')';

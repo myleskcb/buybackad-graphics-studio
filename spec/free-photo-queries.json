@@ -1,0 +1,402 @@
+{
+ "_doc": "What scripts/fetch_free_photos.mjs looks for on Wikimedia Commons (the owner, 2026-11-21: \"background images are pretty important here\", \"location based backgrounds like photos of cities, aerial view or city signs other city landmarks\", \"start with metropolitans\"; \"Gaming is lacking in image variety as well as cards\"; downloads approved: free licence only, the top 20 US metros). Only public domain and CC0 photographs are kept, so an ad needs no photo credit. Each group: where its photographs go (cat: the file prefix; metro: a place group in motion/geo.js METROS), the searches, and how many candidates to keep before they are read by eye on contact sheets. Never: the Hollywood Sign (a trademark licensed by its chamber of commerce), theme parks, artworks and sculptures (Cloud Gate), maps, drawings, old black-and-white photographs, crowds and faces.",
+ "groups": [
+  {
+   "metro": "new-york",
+   "want": 12,
+   "queries": [
+    "Highsmith New York City skyline",
+    "Manhattan skyline",
+    "Brooklyn Bridge",
+    "Times Square night",
+    "Manhattan aerial view",
+    "New York City street"
+   ],
+   "more": [
+    "Manhattan skyline from Brooklyn",
+    "Empire State Building exterior",
+    "Brooklyn Bridge Manhattan skyline",
+    "New York skyline night",
+    "Flatiron Building",
+    "Chrysler Building exterior",
+    "Highsmith Manhattan"
+   ]
+  },
+  {
+   "metro": "los-angeles",
+   "want": 16,
+   "queries": [
+    "Highsmith Los Angeles skyline",
+    "Los Angeles skyline",
+    "Highsmith Santa Monica",
+    "Highsmith Venice Beach",
+    "Highsmith Long Beach California",
+    "Griffith Observatory",
+    "Los Angeles aerial view",
+    "Highsmith Los Angeles freeway",
+    "Highsmith Hollywood Boulevard",
+    "Highsmith Malibu",
+    "Highsmith Orange County California",
+    "Highsmith Huntington Beach"
+   ],
+   "more": [
+    "Santa Monica Pier",
+    "Venice Beach California",
+    "Long Beach California skyline",
+    "Downtown Los Angeles night"
+   ]
+  },
+  {
+   "metro": "chicago",
+   "want": 10,
+   "queries": [
+    "Highsmith Chicago skyline",
+    "Chicago skyline",
+    "Chicago River downtown",
+    "Chicago aerial view",
+    "Highsmith Chicago street"
+   ],
+   "more": [
+    "Chicago skyline night",
+    "Chicago Riverwalk",
+    "Chicago lakefront skyline"
+   ]
+  },
+  {
+   "metro": "dallas",
+   "want": 8,
+   "queries": [
+    "Highsmith Dallas skyline",
+    "Dallas skyline",
+    "Highsmith Fort Worth",
+    "Dallas aerial view"
+   ]
+  },
+  {
+   "metro": "houston",
+   "want": 8,
+   "queries": [
+    "Highsmith Houston skyline",
+    "Houston skyline",
+    "Houston aerial view",
+    "Highsmith Houston"
+   ]
+  },
+  {
+   "metro": "atlanta",
+   "want": 9,
+   "queries": [
+    "Highsmith Atlanta skyline",
+    "Atlanta skyline",
+    "Atlanta aerial view",
+    "Highsmith Atlanta"
+   ],
+   "more": [
+    "Atlanta skyline night",
+    "Midtown Atlanta skyline",
+    "Downtown Atlanta"
+   ]
+  },
+  {
+   "metro": "washington",
+   "want": 8,
+   "queries": [
+    "Highsmith Washington Monument",
+    "United States Capitol exterior",
+    "Highsmith Lincoln Memorial",
+    "Washington DC aerial view"
+   ]
+  },
+  {
+   "metro": "philadelphia",
+   "want": 10,
+   "queries": [
+    "Highsmith Philadelphia skyline",
+    "Philadelphia skyline",
+    "Philadelphia City Hall",
+    "Highsmith Philadelphia"
+   ],
+   "more": [
+    "Philadelphia skyline Schuylkill River",
+    "Benjamin Franklin Bridge",
+    "Highsmith Philadelphia City Hall",
+    "Philadelphia skyline night"
+   ]
+  },
+  {
+   "metro": "miami",
+   "want": 10,
+   "queries": [
+    "Highsmith Miami skyline",
+    "Miami skyline",
+    "Highsmith Miami Beach",
+    "Highsmith Ocean Drive Miami"
+   ],
+   "more": [
+    "Miami Beach",
+    "Brickell skyline",
+    "South Beach Miami",
+    "Miami skyline night",
+    "Biscayne Bay skyline"
+   ]
+  },
+  {
+   "metro": "phoenix",
+   "want": 9,
+   "queries": [
+    "Highsmith Phoenix Arizona",
+    "Phoenix Arizona skyline",
+    "Camelback Mountain",
+    "Highsmith Scottsdale"
+   ],
+   "more": [
+    "Downtown Phoenix",
+    "Phoenix Arizona aerial",
+    "Camelback Mountain Phoenix",
+    "Tempe Town Lake",
+    "Scottsdale Arizona",
+    "saguaro desert Phoenix"
+   ]
+  },
+  {
+   "metro": "boston",
+   "want": 9,
+   "queries": [
+    "Highsmith Boston skyline",
+    "Boston skyline",
+    "Zakim Bridge",
+    "Highsmith Boston"
+   ],
+   "more": [
+    "Boston Back Bay skyline",
+    "Boston Harbor skyline",
+    "Boston skyline night"
+   ]
+  },
+  {
+   "metro": "inland-empire",
+   "want": 9,
+   "queries": [
+    "Highsmith Riverside California",
+    "Highsmith Palm Springs",
+    "Highsmith San Bernardino",
+    "Highsmith Inland Empire California",
+    "San Bernardino Mountains"
+   ],
+   "more": [
+    "Downtown Riverside California",
+    "Palm Springs California",
+    "Lake Arrowhead California",
+    "Joshua Tree National Park",
+    "Ontario California"
+   ]
+  },
+  {
+   "metro": "san-francisco",
+   "want": 10,
+   "queries": [
+    "Highsmith San Francisco skyline",
+    "San Francisco skyline",
+    "Highsmith Bay Bridge",
+    "Highsmith San Francisco cable car",
+    "Highsmith Golden Gate Bridge"
+   ],
+   "more": [
+    "Golden Gate Bridge",
+    "San Francisco Bay Bridge night",
+    "Painted Ladies San Francisco",
+    "San Francisco cable car",
+    "Transamerica Pyramid"
+   ]
+  },
+  {
+   "metro": "detroit",
+   "want": 8,
+   "queries": [
+    "Highsmith Detroit skyline",
+    "Detroit skyline",
+    "Renaissance Center Detroit",
+    "Highsmith Detroit"
+   ]
+  },
+  {
+   "metro": "seattle",
+   "want": 9,
+   "queries": [
+    "Highsmith Seattle skyline",
+    "Seattle skyline",
+    "Space Needle",
+    "Highsmith Seattle"
+   ],
+   "more": [
+    "Seattle waterfront",
+    "Seattle skyline Mount Rainier",
+    "Seattle skyline night",
+    "Kerry Park Seattle"
+   ]
+  },
+  {
+   "metro": "minneapolis",
+   "want": 8,
+   "queries": [
+    "Highsmith Minneapolis skyline",
+    "Minneapolis skyline",
+    "Stone Arch Bridge Minneapolis",
+    "Highsmith Saint Paul Minnesota"
+   ],
+   "more": [
+    "Downtown Minneapolis",
+    "Minneapolis skyline night",
+    "Saint Paul Minnesota skyline",
+    "Stone Arch Bridge Mississippi River Minneapolis"
+   ]
+  },
+  {
+   "metro": "tampa",
+   "want": 8,
+   "queries": [
+    "Highsmith Tampa skyline",
+    "Tampa skyline",
+    "Highsmith St. Petersburg Florida",
+    "Highsmith Clearwater Beach"
+   ],
+   "more": [
+    "Tampa Riverwalk",
+    "St. Petersburg Florida skyline",
+    "Clearwater Beach Florida",
+    "Tampa skyline night"
+   ]
+  },
+  {
+   "metro": "san-diego",
+   "want": 9,
+   "queries": [
+    "Highsmith San Diego skyline",
+    "San Diego skyline",
+    "Highsmith Coronado",
+    "Highsmith La Jolla",
+    "Highsmith Balboa Park"
+   ]
+  },
+  {
+   "metro": "denver",
+   "want": 8,
+   "queries": [
+    "Highsmith Denver skyline",
+    "Denver skyline",
+    "Highsmith Red Rocks",
+    "Highsmith Denver"
+   ],
+   "more": [
+    "Denver skyline night",
+    "Denver Union Station",
+    "Red Rocks Park",
+    "Downtown Denver"
+   ]
+  },
+  {
+   "metro": "orlando",
+   "want": 7,
+   "queries": [
+    "Highsmith Orlando Florida",
+    "Orlando skyline",
+    "Lake Eola"
+   ]
+  },
+  {
+   "cat": "roads",
+   "want": 22,
+   "queries": [
+    "Highsmith Pacific Coast Highway",
+    "Highsmith Route 66",
+    "Highsmith desert highway",
+    "Highsmith mountain road",
+    "Highsmith highway sunset",
+    "Highsmith Big Sur",
+    "Highsmith open road",
+    "Highsmith Monument Valley road",
+    "parking garage night",
+    "Highsmith Las Vegas Strip"
+   ],
+   "more": [
+    "highway sunset",
+    "desert road",
+    "California coastal highway",
+    "mountain highway",
+    "city street night lights",
+    "Route 66 sign",
+    "open road",
+    "scenic byway",
+    "palm trees street Los Angeles",
+    "freeway interchange aerial"
+   ]
+  },
+  {
+   "cat": "gaming",
+   "want": 12,
+   "queries": [
+    "video arcade",
+    "arcade machines",
+    "game controller desk",
+    "gaming setup",
+    "pinball machines",
+    "retro video games collection",
+    "LAN party"
+   ],
+   "more": [
+    "retro arcade",
+    "neon arcade",
+    "esports arena",
+    "retro gaming",
+    "game room",
+    "arcade cabinets",
+    "video game museum",
+    "gaming room neon"
+   ]
+  },
+  {
+   "cat": "coins",
+   "want": 12,
+   "queries": [
+    "coin collection",
+    "coins on table",
+    "pile of coins",
+    "coin show",
+    "numismatic collection album"
+   ],
+   "more": [
+    "silver coins",
+    "gold coins pile",
+    "coin collection album",
+    "coins close up",
+    "stack of coins"
+   ]
+  },
+  {
+   "cat": "collect",
+   "want": 12,
+   "queries": [
+    "trading card show",
+    "trading cards binder",
+    "card shop",
+    "trading card game tournament",
+    "collectibles shop"
+   ]
+  },
+  {
+   "cat": "gold",
+   "want": 8,
+   "queries": [
+    "gold jewelry display",
+    "jewelry store window",
+    "gold chains",
+    "gold bars"
+   ],
+   "more": [
+    "gold jewelry",
+    "gold rings",
+    "jewelry display case"
+   ]
+  }
+ ]
+}

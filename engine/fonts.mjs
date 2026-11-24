@@ -78,6 +78,36 @@ export const FONT_FILES = {
   "Roboto Slab": { 400: "roboto-slab-400.woff2", 700: "roboto-slab-700.woff2" },                // slab
   "Zilla Slab": { 400: "zilla-slab-400.woff2", 700: "zilla-slab-700.woff2" },                   // slab
   "Big Shoulders Stencil Display": { 400: "big-shoulders-stencil-display-400.woff2", 700: "big-shoulders-stencil-display-700.woff2" },// stencil
+  /* the Type Lab picks, 2026-11-13 (DESIGN-LAW 140). A key "200 800" is a variable
+     file over that weight range. Kanit Black Italic is Kanit's 900 italic under its
+     own name, so no line has to carry a style; Truculenta is its narrowest width. */
+  "Stick No Bills": { "200 800": "stick-no-bills-var.woff2" }, // condensed
+  "Bahiana": { 400: "bahiana-400.woff2" }, // condensed
+  "Londrina Solid": { 900: "londrina-solid-900.woff2" }, // condensed
+  "Truculenta": { "100 900": "truculenta-cond-var.woff2" }, // condensed
+  "Kanit Black Italic": { 900: "kanit-900i.woff2" }, // italic
+  "Fugaz One": { 400: "fugaz-one-400.woff2" }, // italic
+  "Gochi Hand": { 400: "gochi-hand-400.woff2" }, // handwritten
+  "Barrio": { 400: "barrio-400.woff2" }, // handwritten
+  "Caveat Brush": { 400: "caveat-brush-400.woff2" }, // script
+  "Rubik Spray Paint": { 400: "rubik-spray-paint-400.woff2" }, // graffiti
+  "Protest Revolution": { 400: "protest-revolution-400.woff2" }, // graffiti
+  "Protest Riot": { 400: "protest-riot-400.woff2" }, // graffiti
+  "Ranchers": { 400: "ranchers-400.woff2" }, // retro
+  "Tourney": { "100 900": "tourney-var.woff2" }, // retro
+  "Zilla Slab Highlight": { 700: "zilla-slab-highlight-700.woff2" }, // retro
+  "Londrina Shadow": { 400: "londrina-shadow-400.woff2" }, // retro
+  "Rampart One": { 400: "rampart-one-400.woff2" }, // retro
+  "Fruktur": { 400: "fruktur-400.woff2" }, // blackletter
+  "Cherry Bomb One": { 400: "cherry-bomb-one-400.woff2" }, // rounded
+  "DynaPuff": { "400 700": "dynapuff-var.woff2" }, // rounded
+  "Boogaloo": { 400: "boogaloo-400.woff2" }, // rounded
+  "Galindo": { 400: "galindo-400.woff2" }, // rounded
+  "Michroma": { 400: "michroma-400.woff2" }, // techno
+  "Tilt Neon": { 400: "tilt-neon-400.woff2" }, // techno
+  "Silkscreen": { 700: "silkscreen-700.woff2" }, // techno
+  "VT323": { 400: "vt323-400.woff2" }, // techno
+  "Workbench": { 400: "workbench-400.woff2" }, // techno
   "Clash Display": { 500: "clash-display-500.woff2", 600: "clash-display-600.woff2", 700: "clash-display-700.woff2" },// unapproved
   "Khand": { 600: "khand-600.woff2", 700: "khand-700.woff2" },                                  // unapproved
   "Melodrama": { 500: "melodrama-500.woff2", 700: "melodrama-700.woff2" },                      // unapproved
@@ -98,7 +128,10 @@ function b64(file) {
    a bold — synthetic emboldening is exactly the kind of silent width change
    that broke the measurements before. */
 export function nearestWeight(family, weight) {
-  const have = Object.keys(FONT_FILES[family] || {}).map(Number);
+  const keys = Object.keys(FONT_FILES[family] || {});
+  /* a variable file ships every weight in its range */
+  for (const k of keys) if (k.includes(' ')) { const [a, b] = k.split(' ').map(Number); return Math.min(b, Math.max(a, weight)); }
+  const have = keys.map(Number);
   if (!have.length) return weight;
   return have.reduce((a, b) => Math.abs(b - weight) < Math.abs(a - weight) ? b : a);
 }

@@ -3208,6 +3208,9 @@ look was swept 30 times on its own until what failed in it was out.
 
 ## 98. The studio's chrome is a print shop's: paper, ink and four signal colours
 
+*Superseded as the house look on 2026-11-19 by rule 152; the poster skin
+stays one URL away (`?skin=poster`).*
+
 Added 2026-10-01 (numbered 98: the video rule took 97 on main first);
 supersedes rule 96's look. The owner, a day after graphite
 and one blue: "Blue is all right, but … we need something very cohesive and
@@ -3943,7 +3946,7 @@ iPhones LA repo to finish this library of imagery".
   served: docs/ is 404'd) holds the Python client, the two routes, the picker
   and a paste-ready prompt for `loganipad/iphoneslainv`, which this session
   could not reach. `scripts/library_handoff_check.mjs` runs all of it against
-  a stand-in BUYBACK.AD: nine Python tests, the README's Flask and FastAPI
+  a stand-in WeBuy.AD: nine Python tests, the README's Flask and FastAPI
   code as written, and the demo listing page in Chromium, where a pick adds a
   JPEG with white behind the cut-out to the listing's photos.
 - Measured 2026-10-04: 867 assets (637 cut-outs, 77 scenes, 153 backgrounds)
@@ -4703,7 +4706,7 @@ a layout (15) and a subject (13), none missing.
 - **The picture says the same.** Each JPEG carries an EXIF segment
   (`scripts/_jpeg_exif.mjs`: DateTimeOriginal = created, DateTime = updated,
   DateTimeDigitized = uploaded, each with OffsetTime +00:00, ImageDescription
-  the title in ASCII, Software "BUYBACK.AD Graphics Studio"), written after
+  the title in ASCII, Software "WeBuy.AD" since rule 153), written after
   the JFIF segment, read back by the check, by ImageMagick and by Pillow,
   the picture's bytes untouched. A file's sha1, and so the API's `?v=`,
   moves only when its dates do: `--stamp` writes EXIF again only where it
@@ -5603,7 +5606,1488 @@ a towns line or a website.
 
 Not done here: OPEN-ITEMS §BC.
 
-## 154. A video ad sounds like a trailer, not a game
+## 138. The pre-flight: an ad is measured on its own delivered picture before it goes out
+
+Added 2026-11-12. The owner: "is there anything we can do to add another layer
+of intelligence another layer of self validating or auditing before it's
+generated or in the generating process/design process?", "how do these ads
+never have mistakes".
+
+Rule 87 has every generation measured before it is produced. For the full ad
+that measure was the layout reading its own numbers (`fullBlockers`), and a
+layout's numbers are what it meant to draw. The review of the same day found
+three faults those numbers passed (a number's brackets 4px from its pill's
+edge, ticks under the number on a light ground, a headline's outline in the
+margin).
+
+- **`fullPreflight(ad, frame)`** (`motion/fullad.js`) draws nothing and trusts
+  nothing: it reads the picture as delivered. Nothing within 17px of the edge
+  (of a 1080 short side); every line against the pixels actually behind its
+  letters, 4.5:1 for the small lines and 3:1 for the headline and number; each
+  product against the ground behind it, 1.25:1; the headline and number 20px
+  and 16px tall in a feed's small preview; the picture's weight compressed (how
+  busy it is) within a quarter of the busiest ad the layout draws today; the
+  layout's own findings; and the words.
+- **`fullWords(st)`**: no promise twice (two lines sharing a word's stem),
+  nothing that needs proof ("#1", "best", "highest", "fastest", "guaranteed"),
+  no "up to" price, a website that reads as one, a number that is one, and a
+  name: an ad that says nowhere who is buying is told so.
+- **Letters' soft edges are not ground.** The first cut failed readable lines:
+  a letter's edge is a blend of ink and ground, and a pill's box holds its round
+  ends. The ring round the letters is left out and a pill is read on its
+  straight middle (docs/THEME-AUDIT.md's first correction, met again).
+- **A finding is "fix" or "note".** A fix stops a photo, a video and a library
+  save until the customer chooses Go back and fix it or Download it anyway
+  (`preflightGate`). A note is said under the preview. Both in the customer's
+  words (rule 113). New look takes only looks that pass.
+- **A check that cannot run never stands between a customer and their ad**: an
+  error in the pre-flight lets the download through and is logged.
+- **Checked**: `scripts/full_ad_check.mjs` runs it on all 256 ads (none with a
+  fix on ordinary words) and presses the gate on the page.
+
+The review that prompted it, with its thirteen faults and the five patterns
+under them, is docs/FULL-AD-REVIEW-2026-11-12.md. Not done here: OPEN-ITEMS §BD.
+
+## 139. A full ad's colours: no see-through accent, a metal in its own colour, the product counted
+
+Added 2026-11-12. The owner, of the full ad in the twelve pairs (rule 137):
+"the theming is much better", "but still needs tweaks". The twelve pairs drawn
+on one ad, everything else held, one sheet per product (iPhone, MacBook, gold,
+silver, coins, car, Pokémon, the owner's default phones), looked at cell by cell
+and measured in OKLCH. Three faults, each in every pair it could reach.
+
+- **An accent is never faded by opacity.** The chevrons stepped toward the
+  number in opacity (.32, .6, 1), set that morning so a photo would stop
+  catching whichever chevron the clock had lit (docs/FULL-AD-REVIEW-2026-11-12.md
+  item 7; that intent is kept). A see-through colour is that colour mixed
+  into whatever is under it, in sRGB: gold over navy drew `#504b3a` (C .028,
+  khaki grey), orange over navy a brown, gold over purple a rose-brown at hue
+  25 (a third family on a two-family card), gold over green an olive. Rule
+  103 keeps an accent at C .12 and up and a warm hue over its muddy floor; an
+  opacity step breaks both on every dark pair with a warm accent. Step a
+  repeated mark in size and weight (`CHEVRON_STEP`: 70, 85, 100%, each a step
+  from its neighbour in proportion to their size), never in opacity.
+- **A word that names a colour is drawn in it, or is not accented.** The
+  accent goes to the goods (rule 137), so on a gold or silver ad it paints the
+  metal's name: WE BUY GOLD drew GOLD in cyan, green, red or blue on seven of
+  the twelve pairs, and SILVER was gold, orange or yellow on seven. Gold is
+  hue 65 to 110 at C .1 and up (rule 103's named band: Red & Yellow's `#e5b800`
+  is gold, Navy & Orange's `#ff7a00` is not); silver is a cool hue (180 to
+  285) or no hue. `accentWord` passes over a colour word the accent is not
+  (WE BUY GOLD on Black & Red accents BUY), and a seeded ad on a line the
+  library's `AFFINITY` restricts (gold, silver, test strips, Pokémon) draws
+  its pair from those that suit it, written into `house-colours.js` as each
+  pair's `suits` by `build_house_colours.mjs`, never typed. The photo ads hold
+  the same line (`pgHuePlan` keeps gold among a card's two families when its
+  headline says GOLD).
+- **The product counts toward the two families** (rule 95). The owner's
+  default set stands a Cosmic Orange 17 Pro Max in the middle, and the seed
+  drew any pair under it; an orange phone on Midnight & Cyan or Blue & Green
+  is a third colour. A phone counts when its picture is a colour: measured
+  from the picture at load (`bodyColour`, the middle 80% of its opaque pixels
+  by lightness; the index's `metal` is the frame and undersays the back), C
+  .07 and up, which is six finishes ((PRODUCT)RED, Cosmic Orange,
+  Ultramarine, Yellow, Pink, the 13's Blue). A seeded ad draws from the pairs
+  that keep it to two families (hues within 30 degrees are one, as
+  `pgHuePlan` counts them; a neutral ground is none); phones that are two
+  colours by themselves may also stand on a neutral ground.
+- **A pair picked by hand is never narrowed**, and an ad that brings none of
+  these (any other line, neutral phones, no colour word) draws exactly the pair
+  its seed drew before: the same list, one draw.
+
+Measured after: over 300 seeds, gold draws only its five gold pairs, silver
+Midnight & Cyan and Silver & Blue, Pokémon never a neutral ground; the default
+phones Navy & Orange, Teal & Orange, Red & Yellow, the three blacks and Silver
+& Blue; neutral phones all twelve, as before.
+
+**Checked** by `scripts/full_colour_check.mjs` (about a minute, exit 1 on a
+failure): every chevron in every pair reaches the accent on the delivered
+picture, colour words on all twelve pairs, 900 seeded ads on the restricted
+lines, 1,440 seeded ads with bold phones (and every phone set still draws two
+pairs or more), and 600 ads that must draw the pair they drew before. Each of
+the three faults, put back by hand, fails it. Run it with `full_ad_check`
+before a commit that touches the full ad's colours, `accentWord`, `pairsFor`,
+the chevrons, `house-colours.js` or `loadPhones`.
+
+Not done here (OPEN-ITEMS §BE): the lit patch of each ground is under rule
+103's ground chroma, because so are some of the themes' own grounds.
+## 140. A new face is open-licence, proven per family, and reviewed before it is paired
+
+Added 2026-11-13. The owner: "we only have pretty normal looking fonts. We want
+fonts that pop, that catch, that may not be as readily available … and if they
+are licensed then maybe we can create spinoff or similar versions in that
+styling … as many unique ones that are graphic design friendly, conducive of
+different design languages".
+
+- **The Type Lab** (`assets/font-lab.json`, files in `assets/fonts/lab/`,
+  written by `scripts/fetch_lab_fonts.mjs`): 182 display faces in fifteen
+  design languages (wide, compressed, heavy italic, grotesque, fat soft serif,
+  high-contrast, slab and western, blackletter, sign-painter script, marker,
+  chunky, techno, pixel, deco and inline, experimental). None was in the
+  2026-09-01 gallery of 151, in the picker, or on the shelf rule 9 retired.
+- **The licence is proven, not assumed**: a face is taken only if its own
+  record under `ofl/` in google/fonts says OFL. Nine asked for were under
+  another licence or had no upright cut and were left out. OFL lets us
+  self-host, embed in a paid ad and modify the face.
+- **A licensed face is answered with an open face in its styling, never with
+  its files.** `like` on a lab face names the commercial face it stands in
+  for (Druk Wide, Monument Extended, Cooper Black, Tungsten, Fette Fraktur…).
+  A "spinoff" is made from an OFL face (which may be modified, under a new
+  name) or drawn from nothing; a commercial font's file is never opened,
+  traced, converted or renamed.
+- **Each was read as an ad before it was kept**: the dollar sign, the figures,
+  the number's punctuation and the Spanish accents on the file's character
+  map; then set as a claim, a price and a phone number. 89 were cut (hairline
+  faces, outlines that vanish, textures that do not read, eight with no
+  Spanish).
+- **A lab face is not in the product.** Nothing loads `lab.css`. The owner
+  picks on the Type Lab page (`scripts/build_type_lab_page.mjs`); the picks go
+  into `font-lab.json`'s `verdicts`, the approved ones into
+  `approved-fonts.json`, `engine/fonts.mjs` and `faces.css`, and only then into
+  a pair (rules 70, 100, 133), which every card has to pass (rule 101).
+
+Not done here: OPEN-ITEMS §BF.
+
+## 141. The download is the preview, the picture is on it, and the first ad is the house ad
+
+Added 2026-11-13. The owner, of a Neon Vault ad downloaded from Easy Mode (a
+flat violet gradient, a cream headline, a cream box with the number, a small
+phone emoji): "This isn't really a cohesive ad. How did this come out the
+engine? How do we avoid this mistake? Where are the assets? … how do we make it
+go above and beyond", "How do we integrate the type faces and how do we
+integrate general design language to fix this?", "I know it's a sample, but
+regardless the samples should look good too", "make sure the unification from
+photos and videos is ready".
+
+**How it came out, traced on the scene** (reproduced to the pixel; the script
+is `scripts/ez_download_is_preview.mjs`):
+
+1. *The photograph was thrown away.* The card stands on a real photograph
+   (`assets/bg-web/phones-iphone-13-pro-1.jpg`). Until a visitor picked a
+   background Easy Mode treated a template's own photograph as a placeholder:
+   the strip showed the card on its photograph, the preview showed it grey and
+   blurred, and Download answered "No background selected … Export without
+   background" and then drew the card's fallback, a two-stop gradient. One
+   card, three pictures. That path dated from the generated studio scenes that
+   rule 117 retired; every card has stood on a real photograph since, and the
+   path outlived its reason. It was written down three times and fixed none
+   (the UX audit of 2026-09-22, the cohesion audit of 2026-09-27, the flow
+   audit of 2026-11-11).
+2. *It was the default, not an edge.* All 96 designer layouts took it; 82 of
+   them carry no product picture, so nothing on the download showed the goods.
+   The first card in 8 of the 13 categories is one of them, and
+   `firstFreeTplId()` is Neon Vault: it was the first ad every new visitor
+   made.
+3. *The design had been normalised away.* The layout is authored as Bungee,
+   hollow letters with a neon stroke and glow, a dark glass frame. By the time
+   the template is registered the load-time passes have made it Clash Display,
+   a cream fill with a dark stroke, and a cream box with a gold stroke: each
+   pass repairs one measured thing, and none answers for the ad.
+4. *A lacking card was decorated, not finished.* The emoji pass found the card
+   sparse (rule 88's amendment) and put a 74px phone beside a 185px headline.
+5. *The gate passed it.* `pgCheck` reads what is on a card. It had no reading
+   for what is missing from one, and it filed the headline's 2.66:1 on the
+   gradient (wanted 4.5) as a warning.
+6. *Every audit shared the mistake.* `motion_audit`, `motion_gallery`,
+   `type_gap_audit` and `every_card_audit` each set `ez.bgPicked = true`
+   before measuring: they measured the one state a first-time customer was
+   never in.
+
+**So:**
+
+- **One ground.** A card's own photograph is its ground in the strip, the
+  preview, the download and the video, until the visitor picks another
+  (`renderEzCanvas`; `mode` no longer chooses a ground). There is no
+  placeholder state and no "No background selected" stop. An ad saved before
+  this rule without a background reopens as it was posted, its fallback as the
+  ground picked; a draft left on the grey placeholder opens on the photograph.
+- **The gate reads the picture** (`pgPictureCheck`, appended to `pgCheck`):
+  `r.picture` is the ground (photo, drawn, flat), the product pictures shown
+  whole, and the photograph that could not be drawn. A photograph that did not
+  arrive fails (`picture`) and is said in the visitor's words; an ad with
+  nothing on it that shows the goods is a warning (`noPicture`): a flat colour
+  is the visitor's to choose, and no card may open that way.
+- **A check takes no step a visitor does not take.**
+  `scripts/ez_download_is_preview.mjs` opens each card as a visitor does, types
+  a number, presses the real Download and compares the file with the preview
+  (both brought to 48px by the same steps; the defect measured 53 a channel of
+  255, a sound card about 1, the limit is 4). On `main` before this rule it
+  fails the 8 first cards;
+  now every offered card passes. A check that forces a state before it
+  measures says which visitor that state belongs to.
+- **The first ad is the house ad** (`full-ad-studio.js`,
+  `full-ad-studio.css`). The full ad (rule 137) is the first card in Easy
+  Mode's strip for every line it draws (`motion/subjects.json`: 35 lines, 13
+  categories) and what a visitor who has never picked a design opens on. It is
+  drawn by the video maker's own class, so the picture downloaded here and the
+  video made of it there are one ad: "Make the video of this ad" opens the
+  maker on the same line, words, number, colours, type and look
+  (`pgfx_full_handoff`, read once); the photo the maker saves of it and the
+  file Easy Mode saved are compared by the check (0.75 a channel of 255). Its
+  preview is the file's own picture, laid out at the size the visitor's plan
+  will download and scaled down; it is `aria-busy` until it is current and
+  says what it shows (its number, line, colours, type and size), so a check
+  waits on that and never on the clock. Its
+  gate is the full ad's pre-flight (rule 138), said in the same dialog. It is
+  never a member of `TEMPLATES`: no pass, audit or table of the photo ads sees
+  it. A template picked from the strip steps it back; `?fullad=0` opens Easy
+  Mode on a template for a check of the templates' own first run.
+- **The owner's type pairs are on the full ad** (`motion/full-voices.js`,
+  written by `scripts/full_type_check.mjs --write`, never by hand). The full
+  ad was one face. A pair is offered on it where the ad still holds: its
+  display face takes the double outline (not a `FINE_FACE`), and in four
+  sizes, on a dark and a light colour pair, in English and Spanish, the full
+  ad's blockers and pre-flight have nothing to fix and, with ordinary words on
+  a square and on 4:5, the headline and the number read in a feed's preview.
+  Then each kept pair is looked at, at the size of a feed's preview, and one
+  the eye cannot read is held with the reason (`BY_EYE` in the script). 29 of
+  44 today. The display face letters the headline, the number and the
+  sticker; the reading face the claim, the line, the selling points, the call
+  to action and the towns. A caps-only display face draws IPHONE, so the lines
+  under it say IPHONE too (`spellsSmallI`, read off the glyphs): one spelling
+  on a card. Easy Mode's full ad and the video maker both offer the row.
+- **The size that shows the product is said where the size is chosen.** A
+  square holds nine blocks and the product is what gives way: over six lines
+  it covers 5 to 8% of a square and 10 to 24% of a Tall 3:4. Easy Mode lays
+  the ad out tall as well and says how much larger the product would stand
+  when it is half again or more; one tap takes that size.
+- **Wide starts at 3:2.** The full ad's side-by-side layout is for 16:9. At
+  4:3, which only the studio draws, it left every line's blocks too close;
+  laid out upright all 35 lines hold (`wide = ar >= 1.5`).
+
+Checks: `ez_download_is_preview.mjs`, `full_ad_studio_check.mjs` (the first
+run, the file, 35 lines in Easy Mode's six sizes, the choices, stepping to a
+template and back, the video and its photo, 390 wide, and every page sent
+under the site's own Content-Security-Policy, as production sends it),
+`full_type_check.mjs`, and `full_ad_check.mjs` as before.
+
+**2026-11-18, measured as written.** `full_type_check` named its pairs `navy-gold` and
+`silver-blue`, but the keys are underscored, so two dark pairs stood in for "a dark and a light
+pair". Once rule 154 made the headline treatment a seed's draw, each face was also judged under
+whatever treatment its sixteen seeds drew, so the list turned with the seeds. It now measures
+each face on Navy & Gold and Silver & Blue, under the house's double outline and pill. Measured
+so, Flyer (Stick No Bills) set its headline at 107px on the light pair, a pixel under the feed's
+floor, and left the list: 28 pairs.
+
+Not done here: OPEN-ITEMS §BG.
+
+## 142. The mark: light, across the whole ad, on every preview its download would carry
+
+Added 2026-11-17. The owner: "Can people just download the ad through their
+browser or natively or screenshot the ad and crop it what protections we have
+in place and what can we do?", then "Yes, do it" to the mark across the
+middle, every preview marked, and the server's word on a download; then "But
+we don't want the content to be unreadable or not fun to look at we want the
+gallery/feed to look clean and cohesive".
+
+**What was open, traced:**
+
+1. *Every preview was the clean ad.* Easy Mode's preview (560), the full
+   ad's (900), the editor's export preview (540) and the video maker's player
+   (720) were the clean picture, saved by a right-click or a long press with no
+   account. The studio's Create video was made clean at the download's full
+   size, for anyone, and its player offered its own Download.
+2. *The mark came off with a crop.* Four words in the corners at half
+   strength, over the plainest part of the picture: a crop, or a phone's
+   clean-up tool, took them off in seconds.
+3. *The page decided.* A download's size and marks came from `account.plan`,
+   which anyone can change in the browser; the server only counted. A Free
+   account so changed downloaded a clean 2160.
+
+**So:**
+
+- **One mark** (`watermark.js`, `window.PgfxMark`): a light lattice of small
+  WeBuy.AD words across the whole picture, a light word over a dark one a
+  pixel apart, so it shows on dark and light grounds and the ad reads through
+  it. Measured on the picture's short side, so a preview and its download
+  carry the same pattern. The studio (`drawWatermarkMarks`) and the video
+  maker (`drawMarks`) draw this one, never their own. Light means it moves the
+  picture by about 2 of 255 a channel on average (the check's ceiling is 14);
+  across means every ninth of a marked picture carries it.
+- **A preview carries what its download would.** Signed out or Free, marked; a
+  paid plan or an operator, clean (`previewMarks()` in app.js; `syncMarks()`
+  in the video maker; `PgfxMark.marked(plan, role)` decides both). A preview
+  drawn under one answer is drawn again when the account changes. The studio's
+  Create video is made with the same answer, and a marked one is made again
+  clean, with its sound, when a plan that downloads clean asks for the MP4.
+  The player's own Download, picture-in-picture and Save video are off. A copy
+  with no backend (demo) marks nothing in the maker, as its downloads are not
+  gated.
+- **The server decides a download.** With a backend, `gateExport` asks
+  `/api/export/check` (which counts nothing) for the size and the marks before
+  the file is drawn; the page's plan is display only. An answer without the
+  field is marked; a refusal or a dropped connection makes no file. A Free
+  file whose mark did not load is refused, never made clean.
+- **What stays clean:** the gallery's sample cards and the strip's
+  thumbnails, which carry the sample number (562) 999-4994 and are small. The
+  owner wants the gallery "clean and cohesive", and a sample is not the
+  customer's ad.
+- **What this is not:** a lock. The ad is drawn in the visitor's browser, so
+  someone who reads the code can still draw it clean. The mark makes a
+  screenshot, a saved preview or a crop no better than the Free download; only
+  drawing paid files on the server closes the rest (OPEN-ITEMS §BH).
+
+The first single-file studio (`phonegfx-studio.html`), linked from nowhere and
+drawing the first designs with its own corner mark and its own plan check, is
+404'd at the edge (netlify.toml); the file stays.
+
+Checked by `scripts/watermark_check.mjs`: one mark; every ninth of the full
+ad's, a template's, the editor's and the maker's preview marked signed out,
+and light; clean for paid plans and drawn again on a change of account; the
+server's size and marks over a page made to say Pro; no file on a refusal or a
+dropped connection; the video player's own Download off and a marked preview
+made again clean; no page promising a "small" watermark. With the mark
+switched off it fails four times.
+
+## 143. One census of every offered ad: what each is made of, read as a visitor opens it
+
+Added 2026-11-18. (Rule 142, the watermark, was being written the same week
+on claude/ads-improvement-roadmap-7632c8.) The owner, 2026-11-17: old design
+language and old wording keep coming back after being fixed; the photo ads
+have bad colours and odd layouts; the video ads look right but lacked the
+photo ads' information.
+
+Why things come back: the house style is one generation (the full ad, rules
+137 to 141) and five more are offered beside it. The rules are 140-odd and
+the checks about 150, each of one property and each run on the generation it
+was written for. A fix to one generation's defaults leaves the others' as they
+were, a check of one never reads another, and nothing showed, per ad, what it
+is built from. The census is that view.
+
+- **Every offered ad, one row each** (`scripts/ad_census.mjs`): the full ad's
+  35 lines (Easy Mode's first card), the designer layouts and the offer family
+  as Easy Mode's strip offers them, the library cards the wall offers, every
+  look of the video maker's Any look gallery, and iPhones LA's FeedAd batch
+  (not on the site, but posted as ours). "Offered" is the page's own answer,
+  never a list kept in the census: `catTemplates()` (holds, retirements and
+  the gate's `gated` already out), `scIsLive` (the choice holds wrap it: 362
+  of the 366 cards the index's stamps pass), `FullAdStudio.lines()`, the
+  gallery with Show more pressed until it goes, the batches' own reports.
+- **Opened as a visitor opens it** (rule 141): the census types a number, a
+  website and a business name where the page asks for one, and gives an area
+  (San Diego, so a card printing the library's Long Beach towns would show
+  it), and nothing else, so every other word on an ad is the studio's own.
+  The full ad is read twice, with the business name and without it: the field
+  is optional, and without it the claim badge draws its words from the full
+  ad's own list.
+- **What it reads, per ad**: the generation and engine. The ground (the outer
+  band's median) and the accent (the largest saturated hue family that is
+  neither the ground nor a shade of it, outside the product) on the picture
+  as drawn, against the twelve pairs within 5 (OKLab x100: the full ads, in a
+  pair by construction, measure within 3.3 and 0); a photograph is no
+  pair's ground. The type pair or faces. Which of the full ad's elements it
+  carries, read off what was drawn (the full ad's rects, a template's line
+  roles and layer names, the engine's sprites). The product pictures' share of
+  the height and of the area. Every word against one list. The generation's
+  own pre-flight where it has one (fullPreflight, pgCheck, FeedAd's blockers
+  and audit, each made the way its own generation makes it); Any look has none.
+- **One list of words no default ad carries** (`spec/banned-words.json`): the
+  competitor research's 5.2 (UP TO $, TOP DOLLAR, HIGHEST, BEST PRICE, BEAT
+  ANY OFFER, ANY CONDITION with no limit, ICLOUD OK, NO TITLE, TODAY ONLY),
+  rule 138's proof words, rule 55's (a dollar figure, invented proof, a dash)
+  and rule 136's (TEXT A PIC on a phone ad), each row with its source. A
+  phrase is added there, never in a script, and `--rescan` re-scores the last
+  census in under a second. The census also reads the lists each generation
+  draws its defaults from (FULL_WORDS, subjects.json, the video maker's COPY
+  and HEADLINES, the FeedAd cards): an old phrase fixed in one list and left
+  in another is how it came back.
+- **The gate** (`--gate`) exits 1 when an offered ad is off the house engine
+  (anything but FullAd) or the twelve pairs, carries a banned phrase, or lacks
+  a required element: business name, headline, product picture, phone number,
+  call to action, towns (rule 137's; claims and the sticker are counted, not
+  required, as the research cuts both; so is the website). It is not wired
+  into any deploy: on its first run it failed 986 of 987 offered ads, every
+  ad of the older generations and 34 of the 35 full ads. It measures the retirements the owner decides; no older generation
+  could pass it.
+- **A census changes nothing.** Run it before and after a change to any
+  generation's words, colours or defaults, and compare the counts.
+
+Found on its first run (OPEN-ITEMS §BI has the tables): the full ad's own
+defaults say TOP DOLLAR to a visitor who types no business name (33 of
+35) and ANY CONDITION on the iPhone line; only the full ad has a place for a
+business name; its product spans a median 22% of a square's height against
+Any look's 35%; 186 of 362 library cards and 67 of 77 designer layouts show
+no product picture; Any look has no pre-flight and 214 of its 246
+looks no call to action; TEXT A PIC is still on 12 phone cards; and the video
+maker loses a number typed within half a second of the area.
+
+**2026-11-18, what the eye sees: the audit basket.** The owner pointed at three library cards the census
+had ranked mid-table (#279 to #287 of 585, score 6):
+- a dark band across the middle holding only the models line ("a very strange center box that doesn't
+  have enough information");
+- an old MacBook the line does not buy;
+- a laptop off the centre of centred words, with "the colors ... a little bit random with the pink CTA and
+  the white informational text".
+
+Then: "Can you detect this? Do you see what I see without hearing my opinion ... can we audit for the
+worst ones and anything similar to this in confusion? We can put them in an audit basket".
+
+The census read words, elements, contrast and pairs, not the composition. It now also reads each ad's
+layout: its lines' boxes, sizes and inks; its plates and their fills; its product's boxes and cut-outs;
+and its picture's colours by hue family. From these it makes five findings (`confusionOf`, thresholds
+in `CONFUSE`):
+- **The product off its axis.** Its centre is over 10% of the width from the axis its centred words
+  are set on (over 20% is severe). A two-column layout is meant and is left alone.
+- **A box with little in it.** A plate, band or panel over 6% of the frame whose words and pictures
+  cover under 15% of it, or that holds one line under 52px and at most a small picture.
+- **A colour outside its pair.** A designed colour (a plate of 2% of the frame, or a line's ink) of a
+  family the declared pair does not have. A family is within 30 degrees or of one name, and a deep
+  colour counts only at chroma .08. On a ground the engine drew, a hue family over 2% of the picture
+  counts too.
+- **Words in unrelated colours.** Three ink families, or the call to action's plate in a colour
+  nothing else wears (a tint counts).
+- **A model the line does not buy.** A cut-out flagged "old model" in `assets/cutout-flags.json`.
+
+A row with any finding is in the audit basket. Its severities add to its score, so it sinks in the
+review page's ranking. The page lists the basket worst first, and the owner keeps an ad (Approve) or
+sends it back for a rebuild or a fix (Deny with a note, or Change).
+
+All three of the owner's cards are caught by the finding they named. Measured on every offered ad:
+- **By generation:** Full ad 0 of 246, Library recipe 0 of 738, Designer layout 2 of 77, Offer family 1 of 299, Library card 86 of 362, Any look 0 of 246, FeedAd (iPhones LA) 0 of 51.
+- **By finding:** empty-box 55, lone-cta 22, off-pair-colour 14, off-axis 4, old-product 2.
+- **Precision:** of the worst 40, looked at by eye, 33 are clearly real and 7 borderline (a strap
+  ribbon with one rate line, a pale tinted call-to-action pill, a teal between blue and green). None
+  is plainly wrong.
+- **Where:** every one is an older static card. The full ads and the rebuilt recipes read clean.
+  The old-product finding read the "old model" flags from the working copy that adds them
+  (`CENSUS_FLAGS`).
+
+`--rescan` re-reads them in seconds. `CENSUS_FLAGS` reads the flags from another tree's file.
+
+Not done here: OPEN-ITEMS §BI.
+
+## 144. A banned word is stopped where it is written, and every fix carries the check that holds it
+
+Added 2026-11-18. The owner, of the census's findings (rule 143): "FIX IT".
+
+Rule 143 found the old words back because each list was fixed alone: TOP DOLLAR left the
+pre-flight's list on 2026-11-12 and stayed in FULL_WORDS, so 33 of the 35 first full ads said
+it. A phrase is now stopped at every place words are written, from one list:
+
+- **One list, on the site too.** `spec/banned-words.json` (each phrase now with `say`, the
+  sentence a customer who typed it is told, rule 113). The site cannot read `spec/` (netlify.toml
+  404s it), so `scripts/build_banned_words.mjs` writes `motion/banned-words.js` from it (`--check`
+  fails when stale). The full ad's `fullWords` notes a typed phrase; the video maker's look
+  pre-flight reads the same module.
+- **The defaults.** `FULL_WORDS` lost TOP DOLLAR (three claims, a point, the TOP $$$ sticker) and
+  ANY CONDITION (a models line, a point). With no business name typed, a full ad's badge says
+  LOCAL & HONEST, QUICK REPLIES • CASH TODAY, LOCAL BUYER • FAIR OFFERS, FAIR OFFER • NO
+  PRESSURE or HONEST BUYER • PAID TODAY: the research's "identity or place". The designer
+  layouts' decks (app.js `DECKS`): the iPhone models line CRACKED OK • ANY CARRIER, the cars
+  kicker LOCAL CAR BUYER, a phone deck's tile TEXT US NOW (`ask`); the fallbacks and
+  `SELL_POINTS` lost ANY CONDITION.
+- **The library's rewriter** (`scripts/refresh_copy.mjs`, its rule 7, `oneListWords`): a phone
+  card asks TEXT US NOW (rule 136), every other deck keeps TEXT A PIC, since an IMEI cannot price
+  gold, cards or a car; ANY CONDITION becomes the limit each deck can stand behind (CRACKED OK,
+  RUNNING OR NOT, PLAYED OR MINT, SEALED, IN DATE …), the first the card does not already say,
+  and a tile's small line follows so the pair does not say it twice. `PAIRS`, `swapWord` and the
+  hours line no longer write either phrase. Applied to 54 library cards (66 lines) and
+  re-rendered (`rethumb_showcase.mjs`).
+- **iPhones LA's FeedAd**: `tools/feed-stills/generate.mjs` refuses to start when one of its lists
+  carries a banned phrase; the 51 stills were re-worded and redrawn (OPEN-ITEMS §BJ).
+- **`scripts/words_check.mjs`** reads every list ads are written from (FULL_WORDS, the lines, the
+  offer family, the designer decks, the video maker's catalogue, the live library cards, FeedAd's
+  cards, and whether `motion/banned-words.js` is current): 4,345 lines in a second, exit 1 on a
+  phrase. Run before a commit that touches words. Run on FULL_WORDS as it stood before this
+  rule, it fails with seven hits.
+
+The same day, from the census:
+- **Two more lines have a picture**, landed as the ingester lands one (`assets/offer-assets.json`):
+  PC handhelds (a Steam Deck photograph, its screen, a map editor with a date, filled dark) and Meta
+  glasses (Ray-Ban Meta). Their offer cards gain the picture layouts, their full ads a product.
+  Gaming PCs, gaming headsets, SSDs, mini PCs and sealed Chromebooks still have no clean picture
+  in the repository; fetching them is a download, so it waits on the owner.
+- **A line's first full ad turns the seed's pair** (`lineTurn`, rule 139 kept: one draw, the
+  ground, arrangement and words unmoved, a restricted line within its own pairs, the iPhone
+  line not at all): the first ads of 30 unrestricted lines open over 11 pairs, at most 4 on one,
+  where 31 of the 35 opened in Green & Gold. `full_colour_check.mjs` holds it.
+- **Headlines that read**: the gold photograph behind `dl_gold_voltStack_gold` and
+  `dl_gold_gradientWave_gold` darkened (`ground-fix.json` scrim .377 to .46), `trustSeal-nn05-30`
+  repaired, `scriptRetro-jw05-16`'s photograph darkened (scrim .5 to .62); all four pass the gate.
+
+**The review loop.** The owner, the same day: "how do we break down this process so it goes
+smoothly every time". Census (rule 143) → the review page (`scripts/build_review_page.mjs`: every
+offered ad by category, best to worst, a thumb up or down, a note, a picture from the
+category's own cut-outs) → `scripts/apply_review.mjs` (a thumb down retires a template or holds a
+library card; a note is a change made by hand) → `words_check.mjs` and the census again. What
+the owner says twice becomes a rule and a check.
+
+Not done here: OPEN-ITEMS §BJ.
+
+## 145. Every ad is a recipe the house engine draws, as a photo and a video, on a ground that counts
+
+Added 2026-11-18. The owner, at the review page: "rebuild how we arrived to these ads so every
+single one can be made a video or at least audited.. how come none of the videos use a BG?";
+of the older ads, "retire but bg counts.. so combo of assets and bg is best though"; "good info
+good layout poor styling", "lacks any cohesive direction", "also only have 1 BG style?!".
+
+- **One engine.** The full ad (rule 137) draws every ad the site makes. An older ad (library
+  card, designer layout, offer card) is a *recipe* (`motion/recipes.json`, written by
+  `scripts/build_recipes.mjs` from the ads as the studio serves them; `--check`): its words on the
+  full ad's fields (a phrase on the one list dropped, rule 144; the customer's towns, number and
+  site their own), its line, its own cut-outs (the line's pool where it used a flagged render),
+  the make a car card names, its ground photograph, the nearest of the twelve pairs. Easy Mode and
+  the video maker open any recipe from "From the library"; it downloads as a photo and as a video
+  through the same pre-flight. Never add an ad to the site that only one renderer can draw.
+- **A ground is a photograph, a scene or the house gradient.** `ground_photo: { src, focus, scrim,
+  from }` is drawn cover-fit round its focus, tinted toward the pair's ground and shaded only where
+  words stand; in the video it pushes in slowly and rests on the still. A seed draws a photo 40%,
+  a drawn scene 25%, the gradient 35% (`spec/full-grounds.json`), from per-category pools of bright
+  photographs of the category's own world, only those that keep the card to two colour families.
+  Never a dark, low-exposure photo, cash or money, outer space for goods that are not about space,
+  another make's car, a legible licence plate, a person's face, or text.
+- **The product and the ground together** ("combo of assets and bg"): every recipe shows its
+  product where the line has a picture (676 of 679; the three without are gaming headsets, which
+  have no clean photograph yet).
+- **The pre-flight reads the ground as delivered**: the headline is shaded on photo and scene
+  grounds, small lines keep 15% headroom over the ground's worst twentieth, busyness is weighed on
+  what stands on the photo, and a download waits for its photo (`fullGroundReady`).
+- **The audit sees all of it**: the census reads recipes as their own generation and the full ad
+  in several looks a line (`--variations`), and the review page carries them, with the owner's
+  Hero mark for the landing page's wall.
+
+**The hero wall, chosen (2026-11-19).** The owner, of the home page's wall: "this hero is majorly
+lacking still", "we need to show off our best of the best... not the same theme twice in 1 hero ..
+with different taglines", "why don't we have any of the video style ads on here that looked happier
+and more vibrant". The wall had been machine-filled: four Steps Flow ads, "SPARE CONTROLLERS? GET
+CASH" twice, MacBook twice, two red ones side by side, no pattern and no gradient.
+- **Eighteen picks fill every slot** the platform's mix gives (`assets/hero-picks.json`):
+  - iPhone 5, Mac 2, iPad 2, consoles 2;
+  - one each for Samsung, Pixel, gold, coins, Pokémon, cars and trading cards.
+  - Nine are the video maker's own full ads (`full-<line>-v<seed>`), chosen by eye from 174 seeds.
+    Nine are rebuilt designs, chosen from the redrawn stills.
+  - The order within a line keeps like colours apart, since the mix decides each slot's line.
+- **The rules, held by `scripts/hero_wall_check.mjs`**, which opens the landing and reads the wall
+  a visitor sees:
+  - every tile a hand pick;
+  - no colour pair, headline or rebuilt family twice;
+  - at most three dark tiles, and no two touching;
+  - three or more on a pattern and three or more on a gradient;
+  - three or more full ads;
+  - a product in every tile (nothing on its words alone).
+  - The wall now: 7 light, 10 vivid, 1 dark (gold), 9 on a pattern, 7 on a gradient, no photograph.
+- **Each still records what the check reads** (`build_recipe_stills.mjs`,
+  `build_hero_stills.mjs`): its pair's look, the kind of ground and the headline.
+- Shown to the owner as one image before anything ships, drawn from the stills in the wall's
+  order.
+- **Approved by the owner, 2026-11-22** ("Approve the wall"). It had shipped with pull request
+  14. Each pick is pinned to the pair it was approved in (`assets/hero-picks.json` `pins`):
+  - it is drawn and opened in that pair (`build_hero_stills.mjs`, `app.js` `openHouseAd`);
+  - it keeps its approved still, drawn again only with `--redraw`;
+  - the wall's rebuilt tiles keep copies of their approved stills in `assets/hero/`, which the
+    wall prefers over the library's.
+  New colour pairs move every seed's draw. Without the pins they would have recoloured the approved
+  wall. `hero_wall_check` holds every pinned tile to its pin.
+
+Not done here: OPEN-ITEMS §BJ.
+
+## 152. The studio's chrome is reselling.us's: navy, one blue, and mint for the deal
+
+*Numbered 152, not 138: rules 138 to 151 were already taken on other branches
+(grepped every branch and worktree on 2026-11-19); 153 follows it.*
+
+Added 2026-11-19, the day webuy.ad went live (OPEN-ITEMS §BL); supersedes rule
+98's look. The owner: "it needs to have similar or matching styling to
+reselling.us", "or color scheming at first?". The studio is sold beside
+reselling.us, so it wears that site's colours, read off its own sheet
+(`/static/app.css`), not reinvented: the `family` skin in `styles.css`, the
+default since this day.
+
+- **Ground**: deep navy #070d1c, panels #101a30, lifted #17233e, hairlines
+  #1d2945 and #2b3959; text #f4f7ff, #a3aec6 for ledes, #8a96b0 for small
+  print. Light: #f2f4f8, white panels, text #0a1224.
+- **One blue** for the action, the link and the focus ring: #3d8bff (light:
+  #0a5fe0, reselling.us's own accent-text, chosen over its #0a6cff because it
+  holds 4.5:1 both as words on the ground and under white words).
+- **Mint is the deal**: the headline's second phrase, cash and done (#2fd58f,
+  words #4be3a3; light #0b8659). Never a button, never a background.
+- **Flat pills**: the primary button is the blue, no gradient, no glow; the
+  second is a white veil (rgba(255,255,255,.08)). Panels are flat navy on
+  hairlines, 22px corners, no offset shadow.
+- **The field** is one blue glow at the top right over a navy fall to the
+  ground in 420px, painted on the page; no bokeh, vignette or grain.
+- **Light or dark follows the device**, as reselling.us does, until the
+  visitor uses the toggle. The information pages (`pages.css`), the Look
+  Book, the ad library page and the 404 carry the same colours.
+- **Measured 2026-11-19**: every text pair holds 4.5:1 except white on the
+  dark-mode blue button, 3.31:1, which is reselling.us's own button and was
+  kept to match (its labels are 14 to 17px semibold, so it holds only the
+  large-text bar); and the light headline's green phrase, 4.17:1, which is
+  50px and up, where 3:1 is the bar.
+- **Then the type, the wordmark and the pictures**: rule 153, the same day.
+
+## 153. The name is WeBuy.AD, written and drawn the way Reselling.US is
+
+Added 2026-11-19, after rule 152's colours. The owner chose the wordmark
+"WeBuy.AD". Every rule below is reselling.us's own (its `docs/brand/source/`
+and `/static/app.css`), applied to the new name, so the two read as one family.
+
+- **The wordmark**: `WeBuy` and `.AD` in Inter Tight 750, -0.035em (-0.04em
+  at display size), the `.AD` in the blue (#3d8bff; #0a5fe0 on light). No
+  mark beside it in a header; 22px, 21px on a phone, where it now stays (the
+  poster hid it there). The face is reselling.us's own file, OFL, in
+  `assets/fonts/`, and sets the wordmark and nothing else.
+- **The type**: headlines and text in the system face (SF Pro on an Apple
+  device), headlines 700 and tight (-0.04em on the hero, -0.03em on h1 and
+  h2): the `system` type, the default. Ads keep their own faces.
+- **Sentence case** for the kicker (a blue-tinted pill with a mint dot) and the
+  landing's section labels. The editor's small labels keep their capitals.
+- **The icon**: a white W in Inter Tight 800 with the period in mint, on the
+  navy with the blue glow (`tools/brand/icon.html`), as Reselling.US's R.
+  `assets/brand/icon-{32,180,192,512,1024}.png`; `favicon.svg` carries it for
+  anything that asks for that file by name.
+- **The share card** (og:image, `assets/brand/share-card.jpg`, 1200 x 630,
+  under 300 KB): the wordmark, the home page's own kicker and headline, word
+  for word, and four real ads from its wall. All of it is drawn by
+  `sh tools/brand/make.sh` with headless Chrome; draw it again after the
+  kicker or the headline changes.
+- **The name in words**: "WeBuy.AD" wherever the product, the site or the
+  business is named: the watermark on free exports, the copyright lines, and
+  the terms and privacy policy, whose agreement is with WeBuy.AD. Until
+  2026-11-23 the business stayed BUYBACK.AD; then the owner: "Anything that
+  was previously referred to as the old name needs to be switched over to the
+  new name" (terms version 2026-11-23, `TERMS_VERSION`; the contact is
+  support@webuy.ad, Namecheap mail forwarding). Identifiers keep their old
+  spelling, since renaming them breaks billing, partners or saved sessions:
+  the repository and Netlify project names, `buybackad_library.py` and
+  `BUYBACKAD_LIBRARY_KEY`, Stripe's `bbad_*` lookup keys, the `pgfx` storage
+  keys. Dated history (the learning log, OPEN-ITEMS, HANDOFF, the audits)
+  keeps the name it had.
+
+## 154. A seed draws a different ad, not the same one 5% off: every colour theme, the look first, a face, a ground of five kinds, a fill
+
+(The census branch numbered its four rules 146 to 149; folded into pull request 14 on 2026-11-19 they
+became 154 to 157, since 146 is pull request 15's and main had taken 152 and 153 after finding
+138 to 151 in use. Its own citations followed.)
+
+Added 2026-11-18. It widens rules 123, 137 and 139. The owner, of the full ads: "still not
+enough colors, gradients, pattern fill, or other ways instead of colors", and "a lot of these
+are the same thing with 5% variety or difference". A sheet of 48 seeded full ads
+(`scripts/full_look_sheet.mjs`) had 41 on a dark ground, 12 pairs and one face. 11 of the 12
+proven pairs are a navy, black or deep ground under a warm accent. Of the 1,128 pairs of ads on
+it, 249 matched on look, kind of ground and face. After this rule the same sheet draws 32 pairs,
+21 faces and 20 grounds; looks are 16 light, 13 vivid, 11 dark and 8 photos read as grey; 9
+pairs of ads match. Both sheets are in `.render/` (`--tag before`, `--tag after`).
+
+- **Every colour theme is a pair.** The full ad draws the twelve proven pairs and also the two-
+  and three-colour themes, the new light pairs and the new neon pairs: 54 in all (15 light, 11
+  vivid, 28 dark). They live in `COLOR_THEMES` (app.js), so Easy Mode offers them too (rule 123:
+  one vocabulary). Each is solved in OKLCH and passes `theme_law.mjs` and
+  `build_house_colours.mjs`. A vivid ground cannot carry a third colour that reads 4.5:1 on it
+  and still stands 1.7:1 off white words, so the vivid grounds are two-colour themes (White on
+  Pink, Black on Lime). The words' floor on the ground is 4.5:1, the floor rule 138's pre-flight
+  holds on the delivered picture. 7:1 only a navy or black ground can give. Each pair names its
+  `look` and its `hot` colour, the accent, which the engine's `hotColour()` takes as given. Its
+  stock yellow or pink had been a third colour on every light pair.
+- **The look first, then the pair** (`drawPair`). One draw of the seed picks light, vivid or
+  dark: a third each, or in proportion where a restricted line holds fewer than four pairs of a
+  look (gold has one vivid pair). The same draw then picks the pair within the look. The line's
+  step turns the draw before either is read, so the first ads of the lines spread over the looks
+  too. Over 300 seeds: light 98–100, vivid 100–108, dark 94–104, no pair over 5.3%.
+- **A face by the seed.** A seed nobody styled draws one of the 29 vetted pairs (`FULL_VOICES`).
+  It keeps the house face a quarter of the time (`HOUSE_FACE`), on a stream of its own. A face
+  picked by hand is kept. "House" in both makers keeps Chivo; "Any" lets New look pick. A number
+  whose face sets it under its floor takes the condensed house figures (oswald). Chevrons shrink
+  to fit, down to 70%, beside a tall number.
+- **Five kinds of ground** (`spec/full-grounds.json`): photo .3, gradient .22, pattern .22,
+  house .14, scene .12.
+  - Gradients: eight of the pair's own (`pair_linear`, `pair_radial`, `pair_mesh`, `pair_conic`,
+    `pair_sunset`, `pair_split`, `pair_corner`, `pair_arch`), along one OKLCH path. A warm accent
+    that would be under its muddy floor at a depth light words read on (gold at .42 is olive),
+    and a two-colour pair's white or black, make the far end a tone of the ground instead.
+  - Patterns and textures (`decor.js` `FULL_PATTERNS`): `pat_halftone`, `pat_stripes`,
+    `pat_checks`, `pat_grid`, `pat_waves`, `pat_zigzag`, `pat_rays`, `pat_rings`, `pat_topo`,
+    `pat_polka`, `pat_gingham`, `pat_memphis`, `pat_grain`, `pat_paper`, `pat_riso`. Every mark
+    is one tone of the ground's own colour, a small step in OKLCH lightness away from the words
+    (`patternTone`). The marks thin to a third behind the product, and nothing moves in the video.
+  - The drawn scenes stand only under light words. On a light pair their deep tones go grey, and
+    the shade behind the words reached the frame's edge.
+  - On the full ad's light pairs, the house grounds deepen in a tone of the ground, never black.
+- **Fills that are not a colour** (`spec/full-styles.json`).
+  - The sticker draws a `sticker_fill`: `solid`, `gradient`, `stripes`, `dots`, `foil` or
+    `outline`.
+  - The number's plate and the claim's badge draw a `plate_fill`: `solid`, `gradient`,
+    `stripes`, `dots`, `foil`, `glass` or `outline`. `glass` and `outline` go only on the house's
+    own painted grounds. They carry their words in the lines' own ink and never glow.
+  - Stripes, dots and foil are the fill's hue moved away from its ink (`decor.js`
+    `fillTexture`), so none reads worse than the flat fill.
+  - The headline draws from 17 treatments. Nine are new: `foil`, `glass`, `block3d`,
+    `long_shadow`, `pop_stack`, `inline`, `cutout` (plain grounds only), `stamped` and `box`.
+    A claim over a plated headline keeps clear of the plate.
+- **Checked** by:
+  - `full_colour_check` (the look balance and the line-turned first ads);
+  - `full_style_check` (every fill, treatment, gradient and pattern in every pair and size, on
+    photographs and on three textured grounds, through the pre-flight; every textured fill at
+    least the flat fill's contrast);
+  - `full_ad_check` (all five kinds of ground drawn);
+  - `full_ad_studio_check` (every theme offered);
+  - the census (a two-colour pair, and a light pair whose accent is a tone of its own ground,
+    judged by the ground it declares).
+
+**Brighter, and no twins (2026-11-19).** The owner, of the home page's wall: "too many similar or
+matching color schemes", "no pattern fills and only 1 gradient multi color" (asked whether that
+meant fewer or more: "Show more of them"), "these are all so dark and unoptimized colors... why
+don't we have any of the video style ads on here that looked happier and more vibrant".
+- **Twins are never drawn by a seed.** A pair whose ground, accent and words are each within sight
+  of an earlier pair's (CIEDE2000 under 8, 3 and 30) is its twin:
+  - Blue on White (of Silver & Blue);
+  - White, Black & Red (of Red, White & Blue);
+  - Black, White & Red (of Black & Red);
+  - Black, White & Yellow (of Black & Gold);
+  - Blue, White & Yellow (of Navy & Gold).
+  `build_house_colours.mjs` marks them (`twin`); `fullad.js` `DRAWN` leaves them out. Each stays a
+  theme in the studio and is drawn where it is picked by hand.
+- **The looks' shares** (`LOOK_SHARE`): a seed draws a vivid ground most (44%), a light one next
+  (36%) and a dark one least (20%), where each had a third. A restricted line's look that holds
+  fewer than four pairs is scaled down as before.
+- **Gradients turn hue.** A pair gradient goes from the ground's hue into the far end's along the
+  shorter way round, keeping its colour all the way, where the two are 150 degrees apart or less.
+  Navy goes into cyan, purple through magenta into gold, red through orange into yellow. Past 150
+  degrees, or on a ground with no hue, it passes a quiet middle as before. So does a dark ground
+  whose way runs through the yellows (70 to 125 degrees), which go olive at that depth: Teal &
+  Orange would pass through khaki. A ground whose accent
+  has no hue (White on Pink, Black on Lime) goes to a neighbour of its own hue, 40 degrees on, or
+  40 back where on would land in the yellows and browns. A hard-edged field (split, arch) is two
+  blocks, the far one in the far end's own hue: a block on the way read as a third colour (Sand &
+  Teal's arch came out green). `full_style_check` holds a gradient to the pair's two families and
+  the hues on the way between them, never a hue off that way.
+- **Patterns read as patterns.** Their marks stand nearly twice as far off the ground (a step of
+  .095 for the shapes, where .055 read as a flat ground at the wall's size). `patternTone` still
+  keeps the words at 7:1 on them where it can, and otherwise moves them away from the words.
+- **The grounds' shares** (`spec/full-grounds.json`): a photograph .24 (was .3), a scene .1 (was
+  .12), the house's own .12 (was .14), and a gradient and a pattern .27 each (were .22). A
+  photograph is still a quarter of the grounds ("retire but bg counts").
+- Checked by `full_colour_check`: the first draw is modelled with `DRAWN` and `LOOK_SHARE`, and the
+  looks must come out near their shares, no pair over twice a pair's share of the look drawn most.
+  Seen on `scripts/full_look_sheet.mjs` before and after: the same 48 seeds went from 10 hue bands
+  to 12, with orange, lime, pink, yellow, aqua and lilac grounds where tinted lake and bridge
+  photographs stood.
+
+**Vibrant pairs adopted (2026-11-22).** The owner: "ideally we relearn color theory and ad design to
+maximize all of the color pairs, trios, etc.. that work and keep a viewer captivated.. means vibrant
+or neon colors often times or really good contrasts". Thirteen proposals were shown on real ads
+(`docs/colour-proposals-2026-11-19.json`), then: "Adopt all 13". They are rows of app.js
+`COLOR_THEMES`, so a photo ad and a full ad have them alike (rule 123).
+- **Ten new schemes, each on its own ground**:
+  - two colours: Yellow on Violet, Yellow on Red, Lime on Magenta;
+  - three colours: Electric Blue, White & Orange; Hot Pink, Black & Cobalt; Neon Lime, Black &
+    Purple; Cyan, Black & Magenta; Orange, Black & Cobalt; Yellow, Black & Magenta; Mint, Black &
+    Violet.
+- **The neon pairs brighter.** Black & Pink, Black & Lime and Black & Cyan keep their names (the
+  business cards read them by key). Black & Pink takes the hot pink the owner saw. The lime and the
+  cyan go as far toward neon as white words allow.
+- **Held to the photo ads' law** (`scripts/theme_law.mjs`, 64 of 64): the money word 4.5:1 on both
+  of the ground's stops, 1.7:1 off the words, and 3:1 for colour-blind readers. Six were moved the
+  least that passes:
+  - a trio with white words cannot carry a yellow or a lime money word that stands apart from them,
+    so Red, White & Yellow is Yellow on Red and Magenta, White & Neon Lime is Lime on Magenta, each
+    on a slightly deeper ground;
+  - Mint, Black & Red is Mint, Black & Violet (red on mint is one colour to a red-green colour-blind
+    reader);
+  - the electric blue is a little deeper, the hot pink and the orange a little lighter;
+  - the neon pairs keep white words.
+- **The plate's words** (`build_house_colours.mjs`): black where neither the ground's colour nor
+  white reads 4.5:1 on the plate (a yellow, amber or lime plate on red, blue or magenta). Every
+  pair before them reads one of those, and keeps it.
+- No new twins, and none within CIEDE2000 14 of a pair the studio had. The vivid look holds 20
+  pairs (was 11).
+- The approved hero wall keeps its colours: its picks are pinned (rule 145).
+
+Not done here: OPEN-ITEMS §BJ 7.
+
+## 155. A recipe takes after its card, and is never a copy of it
+
+Added 2026-11-18. The owner, of the library cards and the offer family drawn as recipes (rule
+145): "Library card ones are not great.. I would take them as inspiration but rebuild them all",
+"Offer family needs a rebuild also", "they're alright at best and seem to follow their own set of
+rules ? things like the heros all look so simialr".
+
+Measured on the recipes as they were drawn:
+- Every recipe opened on seed 1, so all the cards of a line drew one sticker, one treatment, one
+  number and one arrangement.
+- Every recipe was locked to its card's pair, the nearest of the twelve dark ones. An offer card in
+  sun (yellow) drew Black & Red.
+- Every recipe was locked to its card's photograph and its card's picture, so a line's heroes
+  repeated.
+
+The rule:
+- **A seed of its own.** A recipe's look is the draw of its seed (its id, hashed: `seed` in
+  `motion/recipes.json`). Easy Mode, the video maker, the hero wall, the hero stills and the census
+  all open it there. New look moves on from it.
+- **What it takes after is a lean, never a lock** (`spec/recipe-looks.json`, written into each
+  recipe's `hint` by `scripts/build_recipes.mjs`).
+  - Its family's idea: a library card's or a layout's family (glassCard, ticketStub, neonNight,
+    checklistHero ...), or an offer card's layout (band, split, float ...). It leans to the
+    faces, grounds (a kind or a key), treatments, stickers, numbers, fills and arrangements that
+    family stood for.
+  - Its colourway (sun, blush, cobalt, crimson ...), as a tone (light, vivid, dark) and a hue. A
+    library card's own theme was one of the twelve dark pairs the owner called generic, so its
+    colour leans only where its family has one.
+  - Its card's face, among its family's faces; never an offer card's, which its family set by
+    line.
+  - `fullStyle` draws from the hint by the table's share (`lean`), on a stream of its own
+    (`motion/recipe-lean.js`). Otherwise it draws as for any ad, so two cards of one family are two
+    different ads. An ad with no hint draws what it drew before.
+  - A pair, a face or a ground picked by hand is kept as picked.
+- **Its card's photograph is a ground it may stand on**, and the photograph still counts (the
+  owner: "retire but bg counts"). It is drawn only where it is measured and not dim
+  (`scripts/build_full_grounds.mjs --measure` measures the cards' photographs as it measures the
+  pools), fits the product the seed drew, and keeps the card to two families. A card's overlay
+  over its photograph (`overlay:dots/dark|...`) was never a file: the photograph is kept.
+- **The product is the line's, drawn by the seed**, as on any full ad of the line: the in-demand
+  models first, so the heroes stop repeating. A card keeps its own picture only where its words
+  name the product: a make, a model, a van, or one kind of goods inside a broader line.
+  - A controller card on Consoles shows a controller.
+  - A Switch card on Handhelds shows a Switch.
+  - PS5 OR XBOX? shows a PS5 or an Xbox.
+  - These are taken from the line's pool in turn, or from the card's own picture.
+  - Where the line has no picture of that kind (VR headsets, gaming laptops), the ad stands on its
+    words alone (`words_only`), never beside another product.
+- **Checked by:**
+  - `build_recipes --check`: every name the table leans to is one the engine draws, and every
+    colourway a layout or an offer card names is in the table.
+  - `build_full_grounds --check`: every card's photograph is measured.
+  - The census: every recipe through the pre-flight on its own seed.
+  - `scripts/full_look_sheet.mjs --recipes`: a sheet of the rebuilt recipes beside the same
+    recipes before.
+
+**2026-11-18, the old cards retired.** Asked whether to retire the old static library cards and
+offer cards now that each has a rebuilt version, the owner said "Retire them".
+
+- **What was retired:** 366 library cards were held (`assets/showcase/holds.json`) and 299 offer
+  templates retired (`template-retired.js`), each with "rebuilt as r-..." for its reason, by
+  `scripts/retire_older_ads.mjs --rebuilt`. The 77 designer layouts stay. Nothing is deleted:
+  deleting a row brings a card back.
+- **What stands in their place:** the rebuilt ad. `app.js` `scLoadShelf` gives the landing's
+  library grid, its wall, the editor's library and a card's `?card=` link the live cards plus the
+  rebuilt ad of every retired one. Each rebuilt ad shows its still
+  (`scripts/build_recipe_stills.mjs`, `assets/recipe-stills/`, 665) and opens in Easy Mode's full ad
+  on its own seed. `scLoadIndex` stays the library cards alone, as the scripts read it.
+- **The hero wall:** its picks that were library cards point at their rebuilt recipes.
+- **The recipes do not move when their cards retire:** `build_recipes.mjs` reads each card from
+  its index, and the templates with `?noretire=1`, keeping those retired because they were rebuilt
+  and leaving out any other retirement.
+- **The partner library serves the rebuilt ads** (rule 111; the owner, of rendering the rebuilt ads
+  "so the partner library feed serves them": "Do it here").
+  - `scripts/render_rebuilt_ads.mjs` renders the rebuilt ad of every library card at 1080 through
+    Easy Mode's full ad, as iPhones LA's copy. The copy carries the number, Long Beach and the
+    website line. A phone's ad asks for the IMEI, a Mac's or a watch's for the serial; other goods
+    keep their own words.
+  - The renders go to `assets/rebuilt-ads/`, with EXIF dates and an index whose stamp
+    (`_rebuilt.mjs`) marks one stale when its recipe moves.
+  - `netlify/lib/library.mjs` offers each as `r-<card id>`, with `rebuilt_from`.
+  - The retired cards' own renders were pruned by `render_library_ads.mjs`, as it prunes any card
+    no longer offered.
+  - Checked by `library_api_check` (every rebuilt render present, fresh and dated; the feed the
+    live cards plus the rebuilt ads) and `library_handoff_check` (a partner's pick is the render,
+    byte for byte).
+- **A models line is cut where its list breaks**, never mid-word ("ROLEX • CAR" was CARTIER cut at
+  sixty letters).
+
+**Its card's colour, not its card's darkness (2026-11-19).** The owner, of the home page's wall:
+"these are all so dark and unoptimized colors", and "the VR headset ad clearly wasn't audited or
+ever rebuilt".
+- **A dark colourway leans to its hue**, or to a ground of no colour, in any tone:
+  - the hue for forest, plum, slate, midnight and oxblood;
+  - a ground of no colour for ink and graphite.
+  The darkness was the old card's: 109 recipes leaned dark for it alone, and 40% of the stills were
+  dark. A family whose idea needs a dark ground still leans dark (hudTech, neonNight: a glow).
+- **An ad that shows no product never stands on a photograph** (`productFor` marks it `bare`;
+  `groundFor` draws it no photograph, neither the line's nor its card's). With nothing in front of
+  it, a room or a desk becomes the picture. The VR headsets' words stood on a dim room with a
+  console in it.
+- **The VR headsets** (seven offer-card recipes, on the console line) stand on their words alone.
+  The one VR picture in the repository is a render (`assets/cutout-flags.json`), and a real one
+  waits for the owner's word on a download. They now stand on painted grounds in their own pairs,
+  and stay off the wall, which shows a product in every tile (`hero_wall_check`). The seven gaming
+  headsets are the same.
+
+Not done here: OPEN-ITEMS §BJ 9.
+
+**An ad shows what its words name (2026-11-19).** The owner, through the roadmap session, of the
+library's Cars & Trucks: "WE BUY CARS" over "3 SERIES • 5 SERIES • X3 • X5" stood on a Toyota Tacoma;
+two over "RX • ES • IS • GX • NX" on a Toyota; "MOTORCYCLES BUYER" on a Honda Civic. "Check every
+recipe whose headline or models line names a make or model ... not just cars."
+- **A make is named by its models too**: BMW's series, X and M models; a run of Lexus's two-letter
+  models (never one "IS" alone). Such a card goes to its make's line where there is one (BMW), or
+  shows its make's own cut-out (Lexus: an IS, an RX).
+- **A picture of a model the words name, built since 2010**: a models line naming several models
+  shows any of them (four BMW models are not always an X3), and a make's picture is a car built
+  since 2010 unless its words ask for classics, vintage, muscle or JDM (the owner, of an old
+  MacBook: "a really old MacBook that we don't even buy so that's gonna attract the wrong type of
+  clients"). The 1981 Silverado under F-150 • SILVERADO • RAM • TACOMA is now a 2022 ZR2; the 1970s
+  3.0 CSL under 3 SERIES • 5 SERIES • X3 • X5, an X3.
+- **A motorcycle ad shows a motorcycle** (the Harley Softail), on the general line, never the car a
+  make in its models line would pick; one with no models line of its own says HARLEY • HONDA •
+  YAMAHA, as the house's motorcycle cards do, never the car line's "cars, trucks and SUVs". With no
+  motorcycle cut-out it would stand on its words alone.
+- **A van its words name** shows that van where there is a usable cut-out of it; where there is none
+  (the one Sprinter is flagged) its headline says work vans.
+- **Held by `scripts/make_match_check.mjs`**: every recipe, and so every look of it, and every line's
+  own full ad, against the makes and kinds of every picture it can draw (its own, or its line's
+  pool); a list left open ("and more", "and cargo vans") lets the line's pool stand. Phones,
+  consoles, computers, audio and cameras are read the same way.
+
+## 156. A face-up iPhone wears an iOS lock screen, laid out as iOS lays one out
+
+Added 2026-11-18. The owner: "audit the iPhone backgrounds to look clean good... and actual iOS";
+then "We just need to readjust the status bar size and positioning slightly", and "What are the
+other iOS lock screen layouts? Don't somehow have widgets what about some that are closer to the
+iOS 26 or 27"; of the clock that is white on a deep wallpaper and dark on a light one, "I like that
+you're doing the black-and-white so we have some variety".
+
+The audit found a flat fill crossed by three see-through rings under a dark band (on yellow, the
+band went olive, rule 103), a small, low clock, no status bar, and flat discs with boxes for glyphs.
+
+The rule (`fullad.js` `lockScreen`, drawn, never loaded, so a photo on the first frame has it):
+
+- **The status bar** is drawn in iOS's own measures (a point of its 393-point screen): signal,
+  Wi-Fi and battery, 72 points of them, ending 34 points in from the edge, level with the island's
+  middle. Beside a notch they are a touch smaller and lower, in the space before the glass's round
+  corner.
+- **The date over a large clock**, in the system face (SF on an Apple device, Helvetica Neue
+  elsewhere). The flashlight and the camera sit in glass circles at the foot, over the home bar.
+- **One layout for an ad's phones** (`LOCK_LAYOUTS`):
+  - classic;
+  - widgets, a row of four under the clock (iOS 16 on);
+  - tall, iOS 26's Glass clock stretched to fill the top, its widgets at the foot;
+  - compact, iOS 27's small clock in the top row beside two widgets.
+
+  Widgets (weather, a battery ring, an alarm, the day) are tinted one colour, as iOS tints them.
+- **One wallpaper for an ad's phones** (`LOCK_WALLS`: a glow, a gradient, waves, ripples), in tones
+  of the screen's own colour only (`screenBase`: one of the card's two families; two families
+  blended in sRGB would draw a third, rule 139). A warm hue only lightens (rule 103). A white,
+  grey or black screen takes a pale tint of the ground's hue, never a warm one, which goes olive on
+  grey.
+- **The ink is the wallpaper's**: white on all but a near-white wallpaper, and a deep tone of it
+  there.
+- **Never an image of Apple's**: the wallpapers are Apple's artwork, and its face and symbols are
+  licensed for mock-ups of software on its platforms. A screenshot's layers are not pulled into an
+  ad.
+
+## 157. The call to action wears one of several marks, each moving its own way
+
+Added 2026-11-18. The owner: "Although I said, have one assimilated design language, I didn't mean
+one style ... every single one has the same arrows pointing to the CTA and I would love to have
+more variety ... some without arrows some with more direct pointing arrows maybe some with a phone
+or text icon that doesn't need to be the only animated element".
+
+- **The marks**, a seed's draw (`spec/full-styles.json` `cta_mark`, the last draw of the style
+  stream, so a seed's other styles do not move):
+  - the chevrons (26%);
+  - none (14%);
+  - one direct arrow (16%), or two pointing in (12%);
+  - a hand-drawn curved arrow (10%);
+  - a phone (12%), a message bubble (6%), or both (4%).
+- **None only beside a sticker**: an ad keeps one thing that catches the eye, and draws one arrow
+  where it has no sticker.
+- **Sizing**: each mark takes the room either side of the number's pill it needs, at .7 of its size
+  at least. A mark that does not fit gives way to the chevrons, then to none.
+- **Colour**: every mark is the pair's accent (`hot`, rule 139), its glyph in the ink that reads on
+  it.
+- **In the video**:
+  - the chevrons' glow runs inward;
+  - the arrows push toward the number on a beat;
+  - the curved arrow draws itself in;
+  - the phone rings (a shake and a ripple);
+  - the bubble bounces while its dots type.
+
+  On the photo every mark is at rest (`fullStill`).
+- **Checked**:
+  - `full_style_check` draws every mark in every pair and size through the pre-flight, and its
+    shares over 600 seeds;
+  - `full_ad_check` counts any mark as the number's eye-catcher;
+  - `full_colour_check` reads the chevrons' colour on the chevrons themselves.
+
+## 162. The landing is built to a brief: one type scale, a rhythm of grounds, and a layout of its own for each section
+
+(Rule 158 on the census branch. Folded into pull request 14 on 2026-11-19 it became 162: 158 is pull
+request 15's landing rule, claimed first, and 159 to 161 are taken on other branches.)
+
+Added 2026-11-19. The owner, looking at the landing: "looks so vibe coded and basic UI we need
+to fix and make it look like a custom built site with a large web design budget". The page had
+one template, repeated: a dotted pill label, a big left headline, a paragraph, a grid of the
+same dark rounded cards, on one navy from the top of the page to the bottom. What read as
+"vibe coded" was the repetition, not the colours, so the colours stay (rule 152: navy, one blue
+for the action, mint for the deal; rule 153: WeBuy.AD in Inter Tight, the system face for
+words) and what stands on them is rebuilt, in `landing.css`, scoped to the landing under the
+family skin (`?skin=poster` keeps the old page; the studio is not touched).
+
+- **One type scale**: the hero 46 to 90px, section headlines 38 to 74px, both 700 and set
+  tight (-0.045em), balanced; text 17px at a 1.6 measure. The hero sets in three lines, the
+  deal on its own line in mint.
+- **A rhythm of grounds**, each band re-declaring the family's tokens inside itself, so what
+  sits in it (chips, buttons, captions) takes the band's colours with no rule of its own:
+  the hero on the field; the library on **paper**, light in both themes, so the ads read as
+  prints; the video on a deeper **stage**; the last call on the **blue** (#0b5ce6, 5.7:1 under
+  white words at any size); the footer dark in both themes, under a wordmark as wide as the
+  page.
+- **Section labels numbered** on a hairline (01, 02, ... in the blue), sentence case as rule
+  148 asks, in place of the dotted pills. The hero's kicker keeps rule 153's pill.
+- **A layout of its own for each section**: a split head (the headline left, its words
+  right); the library as a gallery with a caption under each ad (its name and its colour
+  set); the colour sets as one mosaic of small ads, each drawn in its own colours; the video
+  on a stage with its first three seconds as a timeline; the workflow as a sequence with a
+  drawn picture of each step; the plans as one table; the FAQ beside a heading that holds
+  still; work with us as three columns on hairlines.
+- **Hairlines, not boxes**: a box is drawn only where it frames something (the plan table,
+  a drawn step, the video frame). Steps, answers and partner columns stand on hairlines.
+- **The hero's wall is one plane** in a deliberate perspective (three columns of real ads,
+  turned away from the reader) instead of a loose tilt, with a picture of what the headline
+  promises over it: a stranger's text arriving. Which ads stand on the wall is the hero
+  wall's own work (its picks), not this rule's.
+- **The colour sets are drawn, not listed**: each set is a small ad in its own ground, ink,
+  accent and plate, read from the card that shows it best, or for a rebuilt ad from the
+  engine (`motion/fullad.js` `COLOUR_OF`). Until this day the swatches read `c1`, `ink` and
+  `support` off every card, which a rebuilt ad does not carry, so 54 sets drew one bar and
+  three of `undefined`. The studio's colour themes are now the same 54 sets, so the second
+  grid that listed them again is not shown.
+- **Motion fails visible**: the hero settles in by movement alone, never from hidden, so a
+  page whose timers do not run (a background tab, the share card's headless capture) still
+  shows its words; lower down a heading or a small block rises as it scrolls into view,
+  where the browser ties the motion to the scroll; a tall grid is left still.
+  `prefers-reduced-motion` stops all of it.
+- **Every pair holds 4.5:1**, measured: the paper's second text #4a566d on #f5f7fa 6.9:1 and
+  its small print 5.1:1; white on the last call's blue 5.7:1, its paragraph (white at 94%)
+  5.2:1; the stage's small print 6.7:1. Rule 152's own exceptions (the blue button's white
+  label, the light headline's mint) stand as that rule measured them.
+- **The other pages** (`pages.css`: about, learn, terms, privacy, the master library and the
+  category pages) take the same bar, scale, hairline sections, FAQ rows and footer, in a
+  block appended to that sheet.
+- **A branch that restructures the landing** (pull request 15 adds a "what it makes" list
+  and a "why it gets texts" row, and drops the colour sets) gets the same look: the sheet
+  styles any `.flow` row, the `ul.lp-lines` index, and a hero wall with no stage around it.
+- **Checked** by eye at 1440, 1024 and 375, dark and light; no sideways scroll; the
+  pricing, category-page and CSP checks unchanged; words_check clear.
+- **The library holds every new look** (the owner, of the live library's "All 665": "see not the
+  new 2000"; asked what it should hold, "Both (~2,650)"). Beside each rebuilt design's first look it
+  shows two more of its looks, every line's own full ad and the video maker's Any look gallery
+  (`assets/library-looks/`, `scripts/build_library_looks.mjs`): 2,405 ads on 2026-11-19. A second
+  or third look is the design on the seeds after its own, as New look walks them, taken only when it
+  passes the full ad's pre-flight in a pair the design does not wear yet; a line's full ad is its
+  first six passing seeds; a video look is the gallery's own (four a shelf at the gallery's width,
+  164). Each opens where it is made: the design on that look's seed, the full ad on that line and
+  seed, the video maker on that look (`motion/?full=0&shelf=<id>&look=<seed>`, drawn as its shelf
+  draws it). The wall and the editor's library keep to the designs.
+- **Categories open into their lines** (the owner: "the subcategories revealed after you select one
+  of the main ones would show a drop down arrow if there's sub categories.. so there's no guessing").
+  Only the main categories show at first; one with more than one line carries an arrow, and choosing
+  it opens a row of its lines with their counts, in the owner's order (`motion/subjects.json`); one of
+  a single line has no arrow. The review page's categories carry the same arrows.
+
+## 158. The full ad varies its layout by rule, and may wear any look the video maker has
+
+Added 2026-11-18. It widens rules 137, 154 and 157. The owner, of the full ads: "they look
+shockingly similar to one another", "I need text variety placements, and more than just copy
+variety"; "the video ads originally.. those backgrounds those patterns those text those fonts and
+those arrangement/assortment of devices were really good.. we regressed since we unified"; "for
+every single video, I want a photo ad equivalent.. and if it doesn't meet the requirement,
+modify or fix it". Rule 154 gave a seed its colours, ground, face and fills; every ad still stood
+in one centred stack (claim pill, headline, points left of the product, sticker right, call to
+action, number, footer), and none wore the video maker's 78 looks or its 19 signs.
+
+Measured first, on the same 24 seeds, words and iPhones (each branch's own code, its own still):
+`main` had 20 pairs of ads alike in colour and layout at once; rule 154's branch none in a square
+but 16 in a story, and one layout in 24; the full ad with a layout of its own (an earlier cut of
+this rule, on `main`'s house style) none and 24 layouts. Nearest-neighbour difference in layout
+(where the picture is busy, 24 x 24): .08, .18 and .27.
+
+- **The layout** (`FULL_LAYOUT`, `drawLayout`, `layoutOf`): drawn from the seed on a stream of its
+  own, so the colours, ground, face, product and words a seed drew do not move; or picked and
+  locked under Layout in the maker.
+  - One alignment to a card (rule 109): centred, or every block on the column's left edge. On the
+    left edge the headline's letters stand in by half their treatment's reach (`FX_REACH`), so
+    the outline, box or shadow meets the margin, not the letters.
+  - The product's band in the middle, high (the headline under it) or low (the number over it).
+  - The points left or right of the product, the sticker on its other side; a wide frame puts the
+    product on either side.
+  - The claim's badge a pill, a square tab, a ribbon or a bar the column's width (no glow on a
+    bar or a left-aligned card: it reached the frame's edge).
+  - The points as pills, square tabs or bare ticks on the ground (`perksSprite`'s `look.shape`).
+  - The call to action as a line, or in a speech bubble pointing down at the number.
+  - The towns and website in rows, on one line, or on a band of the plate's colour.
+  - Rule 154's sticker shapes and fills and rule 157's marks stay as they are. On a left-aligned
+    card the number has room only on its right: its mark stands there and points back (the
+    chevrons and the two arrows become one arrow, the phone and bubble pair the phone).
+- **What gives way, in order**, when the band or the headline is short (the headline under what
+  reads in a feed's preview, rule 138's 20px at a quarter size): the speech bubble becomes a line,
+  a banded or two-row footer one line; only then does the headline come down. A sign that would
+  cost the product its band is left off.
+- **A video look** (`videoLookFor`, `fullStyle(…, { look })`): "own" wears the look a style
+  carries, "seed" draws one, "mix" draws one for `VIDEO_SHARE` (35%) of seeds and the house's own
+  look for the rest; without `look` (every check and every recipe) the house's own, as before.
+  The look brings its palette, ground or pattern, type pair, treatment, colour use, number style
+  (to the nearest of the full ad's five), sign and arrangement (all 16 have a place). What makes
+  it a full ad holds: every element, the floors, the pre-flight. Fixed for it:
+  - its words read on its ground: a palette whose ink is under 4.5:1 (white on mid orange or teal)
+    takes near-black or white, and an accent word that would be lost there goes mono; otherwise
+    the engine laid a heavy shade over the headline that sank the small lines and reached the
+    frame's edges;
+  - its plate's words read on its plate (4.5:1);
+  - the shade round its headline is the house table's for its treatment (`scrim`);
+  - a ground that moves holds still (a sunburst's rays laid into the ground once, aurora a mesh,
+    drift bokeh): the shade the small lines get is laid on the ground once;
+  - what the style table keeps to the house's plain grounds (glass, an edge alone, bare figures)
+    goes on a plate: a video ground is never plain;
+  - a sign hangs without its posts, stakes and lamps (`FULL_BOARDS`, `BOARD_REACH`).
+- **The small lines' ink** (`bodyInkOf`): the palette's where it reads 4.5:1, else near-black or
+  white; `_evenGround` and the pre-flight read each line in its own ink and on what it stands on
+  (the ground, a sign, a bubble, a band).
+- **The maker**: from Any look, Full ad is the full ad of the look on screen; the gallery under
+  Full ad shows the house's own looks, then every shelf of Any look as full ads, and tapping one
+  wears that look; New look lets the seed decide; Layout picks and locks each choice, and shows
+  what the ad drew.
+
+Measured after: see OPEN-ITEMS §BR.
+
+## 159. The house paints its own styles: LA, the coast, and the studio's art, never a copy of a game or a brand
+
+Added 2026-11-18. The owner: "those custom made bgs we're not bad at all like the fwy signs or the
+palms"; "can we make more of our own custom styles?", "what about some GTA or LA style?", "or more
+beach and island style?", "colorful of course? we could make a hand generated / apple style /
+commercial style / avant garde backgrounds". The video maker had 50 themes and 14 LA looks; none
+tropical or island, and its art grounds were gradients, meshes and patterns.
+
+- **Twelve new themes in two families** (`motion/themes.js`; grounds and signs painted in
+  `motion/style-grounds.js`, handed on by `decor.js` `themeGround` and `themeBoard`):
+  - LA & coast: Golden hour freeway (a sky going gold over an overpass, palms), Night drive (a
+    boulevard of streetlights to the horizon, their light on the wet road), Boulevard billboard (a
+    new roadside billboard holds the headline), Skyline poster (downtown and palms under a big sky),
+    Tiki bar (bamboo, a new carved plank sign), Surf shop (sunset stripes out of a corner, waves),
+    Tropical leaves (monstera and palm fronds in the corners), Cabana stripes (an awning's scallops,
+    the sun).
+  - Art & studio: Hand painted (brush strokes, bristle marks, spatters on paper), Soft glow (fields
+    of colour melting together, light or dark: screen-blended on dark), Studio shoot (a coloured
+    sweep, two gel lights, a pool of light under the product), Avant-garde (a disc, a half moon, a
+    band, a block, a ring and dots in flat colour).
+- **The setting, never the property.** "GTA style" is drawn as LA's own light and streets: the
+  palms, the overpasses, the golden hour, neon, bold slanted lettering. No game's logo, its
+  lettering, its characters, its illustrated panels or its screens' words; no brand's wallpaper or
+  mark ("Apple style" is soft colour and glass, not Apple's art). An ad that reads as someone
+  else's property invites a complaint against the shop that posts it.
+- **Colourful, and still an ad**: every ground keeps its busiest marks toward the edges and the
+  corners and its middle calm; every palette's words read on its ground (the full ad's rule 158
+  fixes hold); the new signs hang without their posts and lamps on the full ad (`FULL_BOARDS`,
+  `BOARD_REACH`). Every one is a video look and, through rule 158, a full ad.
+- Measured: each theme in three seeds, square and story, as its full ad: 72 of 72 pass
+  `fullBlockers` and the pre-flight. Their shelves are "LA & coast" and "Art & studio" in both
+  galleries.
+
+## 160. Your area takes a ZIP code, and offers the towns nearby
+
+Added 2026-11-18. The owner: "and we should put zip code", "you can quick pick the cities
+surrounding if mentioned or you can take the suggested nearby locations / cities commonly
+associated"; and, of the language row, "mix and both? seems contradictory".
+
+- **A ZIP code in Your area** becomes its town (the ad names the town, never the ZIP), from the
+  studio's own data (`assets/geo`, 41,488 ZIP codes and 16,261 places), read by `motion/geo.js` only
+  when someone types or focuses the field. A town's name works too.
+- **The towns nearby** (up to nine, as chips under the field in the full mode): the buyer's own
+  first, then the smaller towns round it, then the big cities (the studio's rule: reviewers live in
+  the suburbs). Tapping one puts it on the full ad's towns line, three at most, the oldest giving
+  way; tapping it again takes it off; Suggested puts back the town and its two best neighbours,
+  which fill the line by themselves while it is empty. 90802 gives LONG BEACH, CARSON, TORRANCE.
+- **The language row says what each does**: English, Español, Bilingual (both on every ad), Varied
+  (some ads in English, some in Spanish, some bilingual). The values are as they were.
+0f3c9e5e
+
+## 161. Photographs under the words: five treatments, the area's own city, the lines' own grounds
+
+Added 2026-11-21. The owner: "Where are the background images? None of these have background
+images. Some of them can be patterned background. Some of them can have a pattern and background
+image. Some of them can have an overlay or tint as long as it's supporting of the background image";
+"location based backgrounds like photos of cities, aerial view or city signs other city landmarks",
+"we could start with metropolitans"; "Gaming is lacking in image variety as well as cards. Pokémon
+cards and sports cards are extremely lacking in variety"; "background images are pretty important
+here". Downloads approved: free licence only, the top 20 US metros, cards painted.
+
+- **A photograph is the commonest ground**: .4 of a seed's draw (it was .24), .55 where the ad's area
+  is in a metro the library holds. A painted pattern, a gradient, a scene and the house's own share
+  the rest (`spec/full-grounds.json` shares).
+- **Five treatments** (`fullad.js` `PHOTO_TREATS`, drawn on a stream of the seed's own): *grade*, the
+  picture graded toward the pair (the house's, unchanged); *tint*, the accent's hue laid into the
+  picture, its lights and shadows kept; *duotone*, the picture in two tones, the pair's ground and
+  accent; *wash*, the ground's colour washing in where the headline and the footer stand, the picture
+  clear across the product's band; *pattern*, the graded picture under a fine screen (dots, lines, a
+  grid, scan lines, crosses) in the words' ink, thinned behind the product. A duotone takes the
+  pair's two colours, so a photograph of any colour stands under it; a tint keeps half the picture's
+  own colour, so a tinted photograph is held to rule 139 as a graded one is. The
+  pre-flight reads the delivered picture as before: the shade behind each block of words is what
+  keeps them reading, not a heavy grade over the whole photograph.
+- **The area's own city** (`motion/metros.js`, made by `scripts/build_metros.mjs` from the studio's
+  geo data): a ZIP code by its first three digits, towns by the metro their namesakes' people mostly
+  live in (Pasadena, Glendale, Burbank is Los Angeles). That metro's skylines, aerials and landmarks
+  join every line's pool three times over, and the line's photographs of somewhere else that can be
+  told (`spec/ground-tags.json` where: the Golden Gate, Lake Tahoe, Big Sur) leave it; a place is a
+  scene, so it fits every product. An ad that shows
+  no product still never stands on a photograph.
+- **Free licence only.** The library's new photographs (`assets/bg-free/`) are public domain or CC0
+  (Carol M. Highsmith's archive at the Library of Congress, US government aerials, CC0 uploads), so
+  an ad needs no photo credit; `ATTRIBUTION.json` keeps each one's source. Every candidate is read
+  by eye first (`scripts/fetch_free_photos.mjs`, then contact sheets, then
+  `scripts/import_free_photos.mjs`): never a face that leads, a crowd, a politician, a sculpture or
+  mural (an artist's copyright), a trademarked landmark (the Hollywood Sign, the Space Needle), a
+  theme park, the twin towers or a disaster, an old black-and-white photograph, a date stamp.
+- **The lines' own grounds, painted** (`decor.js`, `line_patterns`): real Pokémon and sports cards
+  carry their makers' art and the players' faces, which a paid ad may not use, so the cards stand on
+  drawn ones: generic cards, graded slabs, a binder page, foil, a ball's stitching; gaming on pixels,
+  pads and a screen's scan lines; coins and bullion on rims and reeding; cars on a road and a tread.
+  No maker's art, symbol or lettering (no PlayStation shapes, no Pokémon card back). One tone of the
+  ground, a wider step than the general patterns, thinned behind the product; a line with them draws
+  one in .65 of its pattern share.
+
+## 163. Four more kinds of ground, and the card lines' own pictures
+
+Added 2026-11-22. The owner: "some backgrounds we'll use more device or brand imagery", "or we use
+abstract img backgrounds", "space?", "what else would we use?", "some times patterns / colors etc.
+can you list what would give us a good amount of variety and what's relevant and makes good
+design?"; of the list (device, abstract, brand in type, colour and shape first, no downloads):
+"Yes, build them". And, of the card ads: "why arent there new card assets like we talked about".
+
+- **Four families, painted** (`motion/full-families.js`, called from engine.js `background`):
+  *product*, the ad's own pictures as its ground (a wall of them tone on tone, cleared round the real
+  one; a close-up far too near to fit, out of focus in the pair's two tones; one giant outline of it
+  on the far side, cut by the edge); *abstract* (silk ribbons, liquid chrome, bokeh, frosted glass,
+  a holographic foil, soft spheres, a light leak); *shape* (one disc, Bauhaus corners, Swiss bands,
+  pills, colour blocks, a wave, a rising sun); *type* (the goods' own word as a wall, one word too
+  big for the frame, a tape of words).
+- **The product family shows only the ad's own product**, so it fits every line (rule 160's "never a
+  MacBook behind an iPhone"); an ad that shows no product never draws it. A device photograph from
+  the library would have to match make and model; the ad's own picture always does.
+- **Two colour families still** (rule 139): every family paints in the ground's own tones and the
+  far end and deep shade the pair's gradients use (`pairGradientColours`); a mark beside the words
+  steps away from their ink (`patternTone`). Shape and type grounds count as the house's own painted
+  grounds for the styles' draw; product and abstract ones as busy.
+- **Marks are type only** (rule 116): the type family sets the goods' word from the headline (WE BUY
+  POKÉMON CARDS gives POKÉMON CARDS) and "WE BUY", "CASH"; never a maker's logo.
+- **The shares** (`spec/full-grounds.json`): photograph .3 (.55 in a metro with its own photographs),
+  abstract .13, gradient .12, pattern .12, shape .1, product .1, type .05, scene .04, the house .04.
+  The maker's Background panel offers each family under "Stands on", lockable.
+- **The card lines' pictures** (`scripts/paint_card_pictures.mjs`, `scripts/card-painter.js`): twenty
+  pictures drawn in code, named ph-* as placeholders (rule 117's convention): trading cards of no game
+  (an element's emblem for art, invented names, no yellow border), slabs of no grader (a plain label,
+  a grade, a hologram square), booster packs, a sealed booster box, binder pages, a collection laid
+  out; sports cards of no league, team or player (a ball for art, an autograph that is a scribble, a
+  jersey swatch of no team), refractors, wax and hobby packs, a hobby box. Pokémon's pool went from 2
+  pictures to 11, sports' from 8 to 19 (`spec/product-demand.json`). A photograph of the shop's own
+  stock replaces any of them.
+- Checked: every family on 40 full ads across ten lines at 1:1, and every new card picture on its own
+  full ad, all through `fullBlockers` and the pre-flight.
+
+## 164. Selling points vary: two to four, each promise said several ways, the money always early
+
+Added 2026-11-22. The owner, of a row of card, console and coin ads: "All of these still have the
+same selling points why is that so can we have some that have more than three maybe three is the
+ideal number but some can have two some could have four depending on how heavy hitting or how
+important they are", "we shouldn't have 10 graphics in a row that I'll have the exact same things
+covered or we could always rephrase it or have variations of the same information or use different
+selling points".
+
+- **Drawn by the seed** (`motion/full-points.js` drawPoints, from fullStyle): a full ad whose points
+  nobody typed draws two (.2), three (.55) or four (.25). A line's old fixed list (OLD_DEFAULTS)
+  counts as untyped; the maker no longer copies a line's list into the style when the line is
+  picked, so New look draws again. Typed points are drawn as typed.
+- **Which**: promises any buyer can stand behind (paid, quote, fees, meet, easy, fair) and each
+  kind of goods' own (phones: cracked, carrier, models; cards: singles, graded, lots, sealed, era;
+  gold and silver: tested, scale, broken, kinds; coins; cars: come, running, miles; gaming, cameras,
+  wearables, audio, computers, strips), each weighed by how hard it hits. The line's own leads in
+  .7 of ads.
+- **How said**: every promise has two to five phrasings, one drawn per ad (PAID TODAY, CASH SAME
+  DAY, PAID ON THE SPOT, CASH ON THE SPOT, PAID IN PERSON).
+- **Always**: one heavy hitter (the money or the quote) in every set, and within its first two,
+  since the layout keeps the first two where four do not fit; never two points that start with the
+  same word, never a word the headline or the line under it says (one promise, once); every phrasing
+  18 characters or less, no comma; none on the banned list (`scripts/words_check.mjs` reads every
+  phrasing). Four only from the short ones.
+- `pointsOf` keeps four on a full ad (three on a plain look).
+- **Where they do not all fit** (fullad.js chipsFor): the longest drop first and the rest keep their
+  order, from one fewer down to one, so the short money and quote promises stay. Keeping the first
+  two instead, four wide type pairs (Tech, Arcade, Warp, Pixel) could not fit two long points and
+  left the measured list (full_type_check); with this they hold, all 28.
+
+## 167. A business card is a print sheet: the bleed, the safe area, and the ads' own colours and type
+
+The owner, 2026-11-19: "business card designer..? just an idea and suggest quick same day print
+locations near you? just as an added bonus"; 2026-11-22: "Do this task here", and of it and a logo
+designer to come: "needs to be super pay walled". The maker is `cards/` (`cards/cards.js`).
+
+- **The sheet.** A standard US card, 3.5 × 2 in, drawn at 300 dpi with the 1/8 in bleed print shops
+  ask for: 1125 × 675 pixels, the trim 1050 × 600 inside it. Grounds, bands, panels and halftones run
+  to the bleed; every word and the QR stay in the safe area, 1/8 in inside the trim. A line seated on
+  the safe area's foot is seated by its descenders, not its baseline.
+- **The print file** is a PDF of both sides, each page on the bleed with an 18 pt slug for eight crop
+  marks, its TrimBox the card and its BleedBox the bleed, the sides as JPEGs (no PDF library), drawn
+  at 600 dpi (2250 × 1350), twice the press's 300, so small type prints with clean edges. The PNGs are
+  the 300 dpi sheets.
+- **Nothing under 7 pt.** The small lines (the towns, the website, the models line, a label) start at
+  32 px and stop at 29 px, 7 pt at 300 dpi, in half-pixel steps. Before going under, a models line
+  breaks into two of nearly a length, the towns break at a bullet, Band's website moves under the
+  number, and Ticket's goes off the stub to the towns. Only words too long for their place even then
+  go under 7 pt, and the page tells the customer which ("Your website is long for a card…").
+- **It matches the ads.** It wears the full ad's colour pairs (`motion/house-colours.js`) and the
+  type pairs the full ad may wear (`motion/full-voices.js`, plus Bold), with every word's colour held
+  to contrast on what it sits on. It says what the customer told the studio (`pgfx_brand`: number,
+  website, business name, towns; `pgfx_full_studio`: the line they buy, its pair and type), in the
+  full ad's capitals (iPHONE).
+- **Varied by rule, not one look.** Five layouts (Band, Split, Centred, Pop, Ticket), and five backs,
+  each the other half of its front (the polish, 2026-11-22: every layout had worn one back, re-coloured).
+  Band's back turns the band round, the plate for the ground and the card's ground for the band, with
+  the number on it and the QR standing on it. Split's panel is at the right behind the front's left,
+  holding the QR or the product. Centred sets everything on the middle line, the QR between what is
+  bought and a row of points. Pop's back is the comic's next panel: a white speech balloon says what
+  is bought. Ticket's stub is at the left, its tear and notches just behind the front's. A back with
+  no QR sets the number large. New look draws a layout, a pair (most often one that suits what is
+  bought) and a type pair.
+- **The fill** (the owner, 2026-11-22: "more creativity, fill pattern gradient something to give it
+  some distinguishing pattern"). Each side's main field wears one of ten: Glow, Rays, Fade, Rings,
+  Stripes, Dots, Grid, Cash (dollar signs), Waves, or Flat; its other regions (a band, a panel, a stub)
+  take a soft fade. A fill is two colours, the field's own and a second tone moved away from its words'
+  colour, eased off until every word on it keeps 4.5:1, or what it had on the flat field where that was
+  less; Pop's halftone takes such a tone too. Glow, Rays and Rings come from behind the product, the
+  QR or Pop's burst. New look always brings a fill; Flat is there to pick. The check draws each side
+  without its words, on a fill and flat, and reads the pixels under every word.
+- **The style** (the owner, 2026-11-22: "are you going professional are you going friendly? Are you going
+  vibrant and attractive business card?"): six art directions, Professional, Friendly, Bold, Premium,
+  Street and Comic, each a curated set of layouts, colour pairs (chosen by their colours: Premium's gold
+  on dark, Friendly's pastels, Bold's saturated grounds), type pairs (Premium's serif, Friendly's rounded
+  faces, Street's stencil, marker and brush) and grounds. New look draws all four from one style, so a
+  card has one personality, never a comic layout in a hairline serif; Any draws a style first, then a
+  look from it. Premium adds a fine double frame between the trim and the safe area, in the accent or,
+  where the accent is the field's own colour, the words' colour. Every other rule here holds in every style.
+- **Picture grounds** (the owner: "same quality as the actual ads ... background images could be an
+  option"). Photo: the ads' own photograph of what is bought (`assets/bg`, generated scenes with no text,
+  logos or people, listed with their brightness in `cards/photos.json` by `scripts/card_photos.mjs`;
+  Premium asks for a dark one, Friendly a bright one); it takes the product cutout's place, on Ticket's
+  stub and Split's back panel rather than under the words, and New look never puts it under Centred,
+  whose words would cover it. Scene: one the video maker paints (`motion/decor.js`, loaded only when
+  used) in the card's own colours, the product standing in it as in the ads; scenes that draw a border
+  at the edge are left out, the cut would slice it. Under the words of either, a scrim in the field's
+  own colour: the side is drawn once without its words at full size, the pixels under every word read,
+  and the scrim made just strong enough that at most one pixel in twenty under a word falls below 4.7:1
+  (or what the flat field gives where that is less); solid under the words, fading out over the
+  picture's side, an even veil where the words cover the field; at least half strength under a photograph.
+- **Ticket's number is on one line** (the owner: "the phone numbers on 2 lines does not look good"),
+  on the ticket's main part between two rules like a printed field, under what is bought and the name;
+  the stub carries the product.
+- **The QR** stands on a white tile, at least 3/4 in across, and nothing is drawn over it: no word, no
+  product, no burst. Under it, "SCAN TO VISIT" (to the website) or "SCAN TO CALL".
+- **Print colour.** A pair with a bright green, cyan, blue, violet or pink (saturated and light, by
+  hue) says under the preview that it prints a little softer than the screen and to ask for a proof:
+  four inks fall short of those; reds, oranges and yellows print close.
+- **It shows what is bought** (the audit, 2026-11-22, the owner: "audit and refine and try to make
+  sure the designs are as good"). Every front but Centred, which is the typographic one, carries the
+  line's own product, the full ad's cutout (`motion/subjects.json` sets, `assets/cutouts/`), fitted
+  whole in the trim, never on a word, with a soft shadow (a hard one on Pop); a back with no QR
+  shows it in the QR's place, so no side is half empty. New look moves through the line's pictures.
+- **The number is read first.** A type pair whose display face is a script or a pixel face, or that
+  the full ad already sets its number apart for (`numberRead`), sets the number in Libre Franklin
+  900. A name wraps to two lines before it shrinks, and lines are spaced by the face's own ascenders
+  and descenders; a long name that a wide or decorative face would still set below 52 px goes into
+  the pair's reading face; a pixel face reads as words only from 80 px, so under that a name or a
+  back's headline is set in the reading face. Of two-line breaks as large, the one whose lines are
+  nearest a length wins. Pop's offset shadow is the accent, scaled to the type, as a print in two
+  inks, and only under a face with the weight for it: none under a high-contrast serif, a script or a
+  pixel face, where it doubles into a blur. Text at the top edge is set from its measured top (Oswald's
+  capitals and the É of POKÉMON rose over the safe line when placed by a share of the size).
+- **Paid.** Anyone designs and sees a card; the preview carries the WeBuy.AD mark until the plan
+  downloads cards. The print file comes with Pro and Business (`plans.mjs` `cards`), decided by the
+  function (`/api/export/check` and `/api/export`, kind `card`) and counted as one photo download.
+- **Print it today** is Google Maps searches near the customer's ZIP or town, which they open
+  themselves: nothing about them is sent anywhere by the page.
+- **Checked** by `scripts/business_card_check.mjs` (sizes, the safe area and overlaps across layouts,
+  pairs, type and a long name; the product in the trim, on every front but Centred and on every back
+  without a QR but Centred's, and never on a word; nothing under 7 pt; every QR 3/4 in or more and
+  clear; five different backs with a QR and without; the number large on a back with no QR; Pop's
+  shadow by the face; the colour note; every word's pixels on every fill, the photograph and seven
+  scenes (510 sides); the six styles' lists and New look staying in them; the photograph in the
+  product's place; the Style picker; the PDF's boxes, crop marks, xref and 600 dpi pages; the print
+  links; the paywall signed out, on Starter and on Pro, light and dark, at 390) and
+  `scripts/billing_check.mjs` (the function's rule). A sweep of every layout × type pair × QR × three
+  name lengths (1,740 sides) found one line under 7 pt: a 31-character website in the widest pair, at 6.7 pt, which the page names.
+
+## 168. Sign in with Apple and Google: one pair of buttons, shown when configured, checked on the server
+
+(Written as 164 and OPEN-ITEMS BR; both were taken on other branches by the time it met main, so 168 and BV.)
+
+Added 2026-11-19. The owner: "apple and google sign in ?". The buttons became the site's own on
+2026-11-23 (the owner: "blend with app ui").
+
+- **One pair, both dialogs.** `account.js` draws them (`pgfxAccount.social.mount`): the video
+  maker's dialog and the studio's (`app.js ensureGoogleAuth`, whose box keeps the id `#auth-google`)
+  put them above the email form, Apple first, with an "or with email" line under them.
+- **The site's own buttons, in the window's own look** (2026-11-23). Google's button is Google's
+  page in a frame: black, white or blue, at most 400px wide, in Google's type, and nothing outside
+  the frame restyles it. On the dark windows it sat in a white box (the page's dark `color-scheme`
+  against the frame's light one makes Chrome paint the frame's backdrop) and fell 67px short of the
+  form. So both buttons are drawn by `account.js`: the form's full width, 44px tall, pill-shaped,
+  each with its company's logo and words ("Continue with Apple", "Continue with Google"), and
+  dressed as the window they sit in. In the studio's window they wear its fields' raised surface,
+  hairline edge, type and focus ring; in `account.js`'s own window (the video maker, the library)
+  its buttons' edge and type, as its Cancel does. They open each company's own popup: Apple's
+  through `AppleID.auth.signIn()`, Google's through its token client
+  (`google.accounts.oauth2.initTokenClient`, openid email profile, asking which account). Never put
+  a company's framed button back: it cannot blend. The same pass gave `account.js`'s Create / Sign
+  in switch a track and a chosen side that show on a dark page.
+- **Shown only when configured.** `/api/auth/config` says which: `APPLE_CLIENT_ID` (the web Services
+  ID) and `GOOGLE_CLIENT_ID`. Without them no script loads and nothing shows.
+- **Checked on the server.** Google's access token (or the ID token an older page sends) in
+  `netlify/lib/googleid.mjs` by Google's tokeninfo, which must name this site's client ID (an access
+  token another site got for the same person must not sign them in here) and a confirmed email; a
+  new account's name comes from Google's userinfo. Apple's identity
+  token in `netlify/lib/appleid.mjs` against Apple's published keys: the signature, the issuer, the
+  audience (the Services ID, or the iPhone app's bundle ID `APPLE_BUNDLE_ID`), the expiry, a verified
+  email, and the nonce the page made. An unknown key id fetches Apple's keys once more first.
+- **One account per email.** Apple or Google with a confirmed email signs in to the account that
+  email already has, or opens one. An account opened this way has no password, and the email form
+  says to use its button.
+- **Not in the iPhone app's web view.** Google refuses it there, and the App Store requires Apple
+  wherever Google is offered, so the app shows neither until it signs in with Apple natively.
+- **Held by** `scripts/appleid_check.mjs` (a key pair standing in for Apple's: a good token, and the
+  forged, expired, wrong-app, wrong-nonce, unknown-key and unverified ones refused),
+  `scripts/googleid_check.mjs` (a stand-in tokeninfo: a good access token and ID token, and another
+  app's, a refused, an expired, an unconfirmed and an emailless one refused) and
+  `scripts/social_signin_check.mjs` (both dialogs against stand-ins for Apple, Google and the API,
+  and how each button sits: the form's width, its window's surface, edge and type, no frame).
+
+Not done here: OPEN-ITEMS §BV.
+
+
+## 169. A picture that does not arrive is never shown broken
+
+Added 2026-11-23. The owner, of wall tiles showing the browser's broken-picture mark and their alt
+text ("MacBooks (full ad, look 8) template"): "Can you fix this so our final product doesn't have
+this issue".
+
+What he saw was a preview page whose server had been stopped before its late pictures were asked
+for; the live site loaded all 36. But any picture can fail on its way to a visitor: a dropped
+request on a phone, a tab left open across a deploy, a still missing from a build. Until now a
+failed one drew the browser's mark and its alt text across the tile, for good.
+
+- **Only a picture that has arrived is seen.** A wall picture is clear until it has loaded
+  (`app.js scWallWatch`), so a slow or failed one is its tile's own quiet surface, in every browser
+  (Firefox writes alt text into a picture still on its way). `landing.css` only fades it in. The
+  landing's library pictures are clear until loaded too (`scCard`, 2026-11-24): run against the
+  live site, the check caught a failed one painting its mark for the moment before its error event
+  was handled.
+- **It is asked for again.** `pictureWatch` hides a picture the moment it fails and asks again
+  after 1.5 s and 5 s. Most failures are a dropped request, and the second ask brings it.
+- **A tile whose picture never comes leaves.** On the wall its card goes in both copies of its
+  column, so the loop stays whole: one tile fewer, nothing broken, nothing missing to the eye. In
+  the landing's library its card steps out of the grid (`scCard`).
+- **It comes back when it can.** When the browser is back online, the tab is shown again or the
+  page returns from the browser's page cache, a lost picture is asked for once more, and its tile
+  returns if it comes.
+- **Set on the picture, never in a stylesheet.** Hiding and showing are inline styles from the one
+  script. A visitor holding an old `app.js` and a new `landing.css` (or the other way) must never
+  be left with a rule that hides pictures and no script to show them.
+- **Held by** `scripts/wall_pictures_check.mjs`: the landing with pictures made to fail (dropped
+  for six seconds; gone for good; then back), a sampler in the page looking ten times a second for
+  a failed picture in sight. It also fails when any wall picture does not load with nothing made to
+  fail, which is how a still missing from a build is caught before a visitor finds it.
+
+Not done here: OPEN-ITEMS §BY.
+
+## 170. A video ad sounds like a trailer, not a game
 
 Added 2026-11-18, built out 2026-11-19. The owner, of the video ads' music
 and sound effects: "funny and cheerful but not always professional ... like

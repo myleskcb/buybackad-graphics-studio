@@ -58,10 +58,12 @@ export const ACCENT_SETS = {
 };
 
 /** The cutouts, loaded once. Resolves to { name: img } with whatever loaded. */
-export function loadAccents(base = "../assets/cutouts/") {
+export function loadAccents(base = "../assets/cutouts/", only = null) {
   if (loadAccents._p) return loadAccents._p;
   const out = {};
-  return (loadAccents._p = Promise.all(ACCENT_ASSETS.map(n => new Promise(res => {
+  // only: the cutouts wanted, for a page that draws one set and not the maker's nine (the studio's
+  // full ad draws the "cash" set alone: a megabyte less on a first visit)
+  return (loadAccents._p = Promise.all(ACCENT_ASSETS.filter(n => !only || only.includes(n)).map(n => new Promise(res => {
     const img = new Image(); img.decoding = "async";
     img.onload = () => { out[n] = img; res(); }; img.onerror = () => res(); img.src = base + n + ".webp";
   }))).then(() => out));

@@ -1,0 +1,32 @@
+/* The full ad in Easy Mode (full-ad-studio.js, DESIGN-LAW 141). Its own file: styles.css is
+   mirrored into app.js (CSS_FALLBACK), and nothing here is needed before the studio is open. */
+
+/* the strip's card: a template card in every way, with a NEW mark in its caption */
+.ez-fulltile .fa-new{display:inline-block;vertical-align:1px;margin-right:5px;padding:2px 5px;border-radius:4px;font:700 8.5px/1 var(--ui);letter-spacing:.08em;color:#fff;background:var(--accent)}
+
+/* its form and its preview stand in for a template's while it is on */
+#fa-form,#fa-preview{display:none}
+.fa-on #fa-form{display:block}
+.fa-on #fa-preview{display:block;max-width:100%;height:auto;border-radius:var(--r-lg, 14px)}
+.fa-on #ez-preview,
+.fa-on #ez-device-field,.fa-on #ez-text-fields,.fa-on #ez-emoji-field,.fa-on #ez-voice-field,.fa-on #ez-phonepick-field,.fa-on #ez-tag-field,
+.fa-on #ez-upload-bg,.fa-on #ez-open-adv,.fa-on #ez-star,.fa-on #ez-star-video,.fa-on #ez-order,.fa-on #ez-pack,.fa-on #ez-keys,
+.fa-on .ez-layers,.fa-on .fa-hide{display:none !important}
+
+#fa-form .fa-opt{text-transform:none;font-weight:500;letter-spacing:0}
+#fa-form input[type=text]{width:100%}
+#fa-pairs .fa-any{border:2px solid var(--hairline-strong);border-radius:11px;height:32px;padding:0 12px;background:var(--surface-sunk);color:var(--text-dim);font:600 11.5px/1 var(--ui);cursor:pointer}
+#fa-pairs .fa-any.active,#fa-pairs .ez-theme.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-wash, rgba(37,99,235,.18))}
+#fa-pairs .fa-any.active{color:var(--accent)}
+.fa-actions .ez-fxrow{margin-bottom:0}
+
+/* what the pre-flight has to say, in the visitor's words */
+.fa-say{margin:2px 0 0;padding:10px 12px;border-radius:12px;background:var(--surface-sunk);border:1px solid var(--hairline-strong);font:500 13.5px/1.4 var(--ui);color:var(--text)}
+.fa-say p{margin:0}
+.fa-say p + p{margin-top:6px}
+.fa-say p.fix b{color:#b3261e}
+
+/* where the size is chosen: how much larger the product stands on the tall one */
+.fa-tip{display:none}
+.fa-on .fa-tip:not([hidden]){display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0 2px;padding:9px 12px;border-radius:12px;background:var(--surface-sunk);border:1px solid var(--hairline-strong);font:500 13.5px/1.35 var(--ui);color:var(--text)}
+.fa-tip button{margin-left:auto;border:1.5px solid var(--accent);background:none;color:var(--accent);border-radius:999px;padding:6px 12px;font:700 12.5px/1 var(--ui);cursor:pointer}

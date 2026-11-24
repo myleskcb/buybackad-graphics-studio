@@ -92,7 +92,58 @@
     oxblood:  { dark:1, g1:'#5e161c', g2:'#360a0e', ink:'#fff1ea', sub:'#e8bdb4', acc:'#ffb892', band:'#ffb38a', bandInk:'#2a0a07', bandSub:'#5c2419' },
     arctic:   { g1:'#eef4f8', g2:'#dce7ef', ink:'#0f1d2a', sub:'#3a4b5b', acc:'#0a6978', band:'#0a6978', bandInk:'#ffffff', bandSub:'#cdeef2' },
   };
-  const LOOK_KEYS = Object.keys(LOOKS), DARK_KEYS = LOOK_KEYS.filter(k => LOOKS[k].dark);
+  const LOOK_KEYS = Object.keys(LOOKS);
+
+  /* ── THE HOUSE'S COLOURS (2026-11-18). The owner, of these cards on the review page: "good info
+     good layout poor styling", "lacks any cohesive direction", "seems like cards have a specific
+     theming to them and same with computers". The twenty looks above were this family's own
+     palette, and side by side they read as twenty brands: orange beside salmon, cream and red,
+     maroon on black, lime and blush on the same row. Every card's panel, band, number and markers
+     now come from the twelve proven pairs (app.js COLOR_THEMES "Proven pairs", DESIGN-LAW 123:
+     the full ad's colours, rule 137), read by name and never typed here, and each category draws
+     from its own few (CAT_PAIRS), so a category reads as one family and the family reads as the
+     house. The twenty names stay only as the rotation's tokens, so every card keeps its id, its
+     face and its headline; the colours above are what a page without the studio's themes falls
+     back to (the build scripts that read this file for its lines in a bare VM). */
+  const CAT_PAIRS = {
+    phones:    ['navy_orange', 'midnight_cyan', 'black_red', 'silver_blue'],
+    gaming:    ['black_green', 'midnight_cyan', 'purple_gold'],
+    audio:     ['black_red', 'navy_orange', 'midnight_cyan'],
+    computers: ['silver_blue', 'midnight_cyan', 'blue_green'],
+    wearables: ['teal_orange', 'navy_gold', 'black_red'],
+    cameras:   ['black_gold', 'navy_orange', 'teal_orange'],
+    gold:      ['black_gold', 'navy_gold', 'purple_gold'],        // gold wants a gold accent (rule 139, house-colours.js suits)
+    silver:    ['silver_blue', 'midnight_cyan', 'blue_green'],    // silver a cool one
+    coins:     ['navy_gold', 'black_gold', 'green_gold'],
+    cars:      ['black_red', 'navy_orange', 'midnight_cyan'],
+    strips:    ['silver_blue', 'blue_green', 'teal_orange'],
+    pokemon:   ['red_yellow', 'navy_gold', 'purple_gold'],        // never a neutral ground (suits)
+    sports:    ['navy_orange', 'red_yellow', 'black_gold'],
+  };
+  const hexRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const relLum = h => { const [r, g, b] = hexRgb(h).map(v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }); return .2126 * r + .7152 * g + .0722 * b; };
+  const ratio = (a, b) => { const x = relLum(a), y = relLum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+  const mixHex = (a, b, t) => '#' + hexRgb(a).map((v, i) => Math.round(v + (hexRgb(b)[i] - v) * t).toString(16).padStart(2, '0')).join('');
+  /* the most a colour can lean toward the ground and still read at `need` on every ground given */
+  const lean = (ink, toward, grounds, need) => { for (let t = .45; t > 0; t -= .05) { const c = mixHex(ink, toward, t); if (grounds.every(g => ratio(c, g) >= need)) return c; } return ink; };
+  const pairKey = name => String(name).toLowerCase().replace(/\s*&\s*/g, '_').replace(/[^a-z_]/g, '');
+  const PAIRS = typeof COLOR_THEMES !== 'undefined' ? COLOR_THEMES.filter(T => T.group === 'Proven pairs' && T.bg && T.bg.c1) : [];
+  /* a pair as this family's look: the pair's ground for the panels, its ink for the words, its
+     accent for the band, the models line and the markers; the number on the band in whichever of
+     the ground, black or white reads best (6:1 is this file's own bar), the label beside it leaning
+     toward the band as far as 4.5:1 allows */
+  const houseLook = T => {
+    const dark = T.family !== 'Light', g1 = T.bg.c1, g2 = T.bg.c2, ink = T.ink, band = T.accent;
+    const acc = [T.accent, T.support, ink].find(c => c && ratio(c, g1) >= 4.5 && ratio(c, g2) >= 4.5) || ink;
+    const bandInk = [g2, '#000000', '#ffffff'].sort((a, b) => ratio(b, band) - ratio(a, band))[0];
+    return { dark: dark ? 1 : 0, pair: T.name, g1, g2, ink, sub: lean(ink, dark ? g2 : g1, [g1, g2], 5.5), acc, band, bandInk, bandSub: lean(bandInk, band, [band], 4.5) };
+  };
+  const HOUSE = Object.fromEntries(PAIRS.map(T => [pairKey(T.name), houseLook(T)]));
+  /* a card's look: its token turned into one of its category's pairs */
+  const lookFor = (token, cat) => {
+    const keys = (CAT_PAIRS[cat] || CAT_PAIRS.phones).filter(k => HOUSE[k]);
+    return keys.length ? HOUSE[keys[LOOK_KEYS.indexOf(token) % keys.length]] : LOOKS[token];
+  };
 
   /* ── FACES: a display face for the headline and a reading face for the rest
      (the number included, as on the owner's cards). em = the face's average
@@ -145,9 +196,13 @@
     computers: ['russo', 'squada', 'barlowc', 'oswald'],
     wearables: ['audiowide', 'shrikhand', 'sniglet', 'sairac'],
     cameras:   ['shrikhand', 'cormorant', 'oswald', 'barlowc'],
-    gold:      ['rye', 'cormorant', 'shrikhand', 'gloock'],
-    silver:    ['cormorant', 'rye', 'gloock', 'serif'],
-    coins:     ['rye', 'cormorant', 'slab', 'gloock'],
+    /* gold, silver and coins in modern display faces (owner, 2026-11-18: "the gold ones look like
+       old people fonts"): Rye, Cormorant Garamond, Gloock and Young Serif out, the house's own
+       Clash Display, Big Shoulders Display, Unbounded and Sofia Sans in (rule 140: nothing from
+       the Type Lab until the owner picks it) */
+    gold:      ['clash', 'shoulder', 'bounded', 'sofia'],
+    silver:    ['shoulder', 'clash', 'sofia', 'schib'],
+    coins:     ['clash', 'shoulder', 'bounded', 'sofia'],
     cars:      ['teko', 'bungee', 'knewave', 'oswald', 'barlowc'],
     strips:    ['nunito', 'sniglet', 'bric', 'franklin'],
     phones:    ['bric', 'bounded', 'shrikhand', 'audiowide', 'clash'],
@@ -170,6 +225,10 @@
     'ip-group-colour-lineup':[1752,1042], 'ipad-front-screen-off':[1323,1593], 'macbook-open-angle':[1764,1276], 'mac-half-open-glow':[1720,1499],
     'watch-pair-bands':[863,1226], 'buds-pair-loose':[1286,1517], 'silver-candlesticks':[1314,1640], 'strip-boxes':[444,418],
     'poke-psa-charizard':[369,610], 'ph-sports-slabs-fan':[1414,1350], 'ph-sports-cards-fan':[1342,1138], 'ph-sports-slab':[727,1207], 'ph-sports-box':[1312,832], };
+  /* the car lines' pictures (2026-11-18): identified vehicles only (assets/vehicles.json names make and model) */
+  Object.assign(SIZE, { 'car-toyota-camry-silver':[1835,704], 'car-honda-civic-white':[1787,889], 'car-toyota-rav4-white':[1684,881], 'car-tesla-model-y-blue':[1833,844], 'car-toyota-tacoma-trd-black':[1798,1195], 'car-honda-accord-white':[1845,1196], 'car-chevy-camaro-1969-silver':[1892,751], 'car-ford-bronco-1st-gen-cream':[1676,873], 'car-chevy-corvette-c1-blue':[1842,771], 'car-chevy-silverado-red':[1784,776], 'car-porsche-356-blue':[1658,673], 'car-jeep-wagoneer-classic-red':[1825,999], 'car-honda-civic-type-r-fl5-white':[1621,916], 'car-nissan-skyline-gtr-r34-blue':[1759,957], 'car-toyota-gr-supra-2026-red':[1579,763], 'car-nissan-gtr-r35-white':[1646,835], 'car-toyota-gr86-blue':[1823,843], 'car-honda-s2000-silver':[1793,819], 'car-chevy-silverado-zr2-red':[1675,1194], 'car-ford-f150-raptor-2026-black':[1902,1189], 'car-ford-f150-lightning-black':[1715,843], 'car-toyota-tacoma-orange':[1818,954], 'car-toyota-highlander-silver':[1562,691], 'car-toyota-prius-2026-grey':[1571,859], 'car-toyota-gr-corolla-black':[1656,984], 'car-honda-hrv-beige':[1780,969], 'car-bmw-x3-black':[1794,1145], 'car-bmw-m3-blue':[1784,923], 'car-bmw-ix3-2026-white':[1817,858], 'car-bmw-m4-convertible-black':[1808,851], 'car-mercedes-c-class-all-terrain-white':[1732,1118], 'car-mercedes-glc-blue':[1786,818], 'car-mercedes-amg-g63-2025-black':[1620,1186], 'car-mercedes-amg-gle63-silver':[1806,1023], 'car-mercedes-s-class-black':[1792,765], 'car-ford-transit-connect-white':[1829,1065], 'car-ram-promaster-grey':[1858,1145], 'car-ldv-maxus-van-white':[1804,1052], 'car-freightliner-cascadia-blue':[1725,1268], 'car-peterbilt-389-white':[1859,1300] });
+  /* the desktop Macs' and the Androids' pictures (2026-11-18, the owner's lines) */
+  Object.assign(SIZE, { 'qs-imac-24-m4--blue':[446,376], 'qs-imac-24-m4--silver':[446,376], 'qs-imac-24-m4--purple':[446,376], 'photo-mac-studio-angle':[1295,1059], 'android-trio':[1936,1548] });
 
   /* ── THE STEPS, in the owner's words. What to send changes per line; the
      meeting and the pay do not. "Nearby" rather than the owner's "In Long
@@ -181,68 +240,73 @@
      heads = headlines, each naming only what its pictures show or the kind of
      thing they show; ask = what to send; check = the list layout's ticks
      (process, not promises); sets = product pictures, rotated per card;
-     ledger = the model names a type-only card sets as its picture. */
+     ledger = the model names a type-only card sets as its picture; alias = the
+     line a full ad of this one draws now (the owner's lines, 2026-11-18: the
+     menus leave it out, its cards stay); lookCat = the category whose colours
+     and faces its cards were made in, where the line moved (Apple Watch to
+     Wearables: its cards keep the looks they were audited in); cards:false =
+     a line only the full ad draws. */
   const NOSHIP = 'No shipping, no labels';
   const LINES = [
     // Phones & Devices
-    { key:'iphone', cat:'phones', label:'iPhone', models:'iPhone 11 and newer, every size',
+    { key:'iphone', cat:'phones', label:'iPhones', models:'iPhone 11 and newer, every size',
       heads:['Your old iPhone, cash in hand.', 'Spare iPhone? Spare cash.', 'Upgraded? Sell the old iPhone.', 'Two iPhones, one pocket?', 'Your old iPhone is cash.'],
       ask:'Model, storage and carrier', check:['Cracked screens too', 'Unlocked or on a carrier', NOSHIP],
       sets:[[['ip-group-colour-lineup', 1]], [['iphone-15-pro-back-white', 1], ['iphone-15-pro-back-blue', 0.97]], [['iphone-17-pro-back-silver', 1], ['iphone-15-pro-back-white', 0.94]], [['iphone-17-pro-back-black', 1], ['iphone-15-pro-back-gold', 0.95]]] },
-    { key:'ipad', cat:'phones', label:'iPad', models:'iPad, iPad mini, iPad Air and iPad Pro',
+    { key:'ipad', cat:'phones', label:'iPads', models:'iPad, iPad mini, iPad Air and iPad Pro',
       heads:['Old iPad. New money.', 'iPad in a drawer? Sell it.', 'Upgraded? Sell the old iPad.'],
       ask:'Model, size and storage', check:['Cracked screens too', 'Wi-Fi or cellular', NOSHIP],
       sets:[[['ipad-front-screen-off', 1]], [['ipad-pair-sizes', 1]], [['ipad-back-camera', 1], ['ipad-front-screen-off', 0.92]]] },
-    { key:'mac', cat:'phones', label:'MacBook', models:'MacBook Air and MacBook Pro, M1 and newer',
+    { key:'mac', cat:'phones', label:'MacBooks', models:'MacBook Air and MacBook Pro, M1 and newer',
       heads:['Old MacBook. New money.', 'MacBook in the closet? Sell it.', 'Your old MacBook is cash.'],
       ask:'The year, chip and memory', check:['Bring the charger if you have it', 'Signed out of iCloud', NOSHIP],
       sets:[[['mac-pro-open-front', 1]], [['macbook-open-angle', 1]], [['mac-half-open-glow', 1]]] },
-    { key:'watch', cat:'phones', label:'Apple Watch', models:'Apple Watch Series, SE and Ultra',
+    { key:'watch', cat:'wearables', lookCat:'phones', label:'Apple Watch', models:'Apple Watch Series, SE and Ultra',
       heads:['Your old Apple Watch is cash.', 'New watch? Sell the old one.', 'Apple Watch in a drawer? Sell it.'],
       ask:'Series, size, GPS or cellular', check:['Bring the charger if you have it', 'Unpaired and reset', NOSHIP],
       sets:[[['watch-pair-bands', 1]], [['watch-single-angle', 1]], [['apple-watch-stack-three', 1]]] },
-    { key:'galaxy', cat:'phones', label:'Samsung Galaxy', models:'Galaxy S21 and newer, Ultra too',
-      heads:['Your old Galaxy is cash.', 'Upgraded? Sell the old Galaxy.', 'Galaxy in a drawer? Sell it.'],
+    { key:'galaxy', cat:'phones', label:'Samsung', models:'Galaxy S21 and newer, Ultra too',
+      heads:['Sell your old Samsung.', 'Samsung Galaxy? Get cash.', 'Samsung in a drawer? Sell it.'],   // the brand named (owner, 2026-11-18, of "Your old Galaxy is cash.": "your old Google your old Samsung", "it's clearly missing a word"); each fits the layouts at the number's 1.31x
       ask:'Model, storage and carrier', check:['Unlocked or on a carrier', 'Signed out of Google', NOSHIP],
       sets:[[['sam-s24-ultra-back', 1], ['sam-s24-ultra-front', 0.88]], [['samsung-galaxy-back', 1], ['sam-s24-ultra-back', 1]], [['sam-s24-ultra-back', 1]]] },
-    { key:'pixel', cat:'phones', label:'Google Pixel', models:'Pixel 7 and newer, Pro too',
-      heads:['Your old Pixel is cash.', 'Pixel in a drawer? Sell it.', 'Upgraded? Sell the old Pixel.'],
+    { key:'pixel', cat:'phones', label:'Pixel', models:'Pixel 7 and newer, Pro too',
+      heads:['Your old Google Pixel is cash.', 'Sell your Google Pixel.', 'Google Pixel? Get cash.'],
       ask:'Model, storage and carrier', check:['Unlocked or on a carrier', 'Signed out of Google', NOSHIP],
       sets:[[['pix-9-back-green', 1], ['pix-9-back-obsidian', 0.92]], [['pix-trio-lineup', 1]], [['pix-9-back-green', 1]]] },
-    { key:'foldable', cat:'phones', label:'Foldables', models:'Galaxy Z Fold, Z Flip and Pixel Fold',
+    { key:'foldable', cat:'phones', label:'Foldables', models:'iPhone Duo, Galaxy Z Fold and Flip, Pixel Fold',   // the iPhone Duo first (2026-09; the owner, 2026-11-22: "iphone duo")
       heads:['Fold or Flip? We buy both.', 'Your old foldable is cash.', 'Folding phone? Sell it.'],
       ask:'Model, storage and the hinge', check:['Screen protector on or off', 'Signed out of Google', NOSHIP],
       sets:[[['sam-fold-half', 1], ['sam-flip-open', 0.9]], [['sam-fold-open-flat', 1]], [['pix-fold-open', 1]]] },
-    { key:'tablet', cat:'phones', label:'Android tablets', models:'Galaxy Tab and Pixel Tablet',
+    { key:'tablet', cat:'phones', label:'Android tablets', alias:'android', models:'Galaxy Tab and Pixel Tablet',
       heads:['Android tablet? We buy it.', 'Tablet in a drawer? Sell it.'],
       ask:'Model, size and storage', check:['Bring the charger if you have it', 'Signed out of Google', NOSHIP],
       sets:[[['pix-tablet-back', 1]]] },
     // Gaming
-    { key:'console', cat:'gaming', label:'Consoles', models:'PS5, PS5 Pro, Xbox Series X and S',
+    { key:'console', cat:'gaming', label:'Consoles', models:'PS5, Xbox, Switch and controllers',
       heads:['PS5 or Xbox? We buy both.', 'Console in the closet? Sell it.', 'Your old console is cash.'],
       ask:'Model, storage, disc or digital', check:['Bring the controller and cables', 'Signed out of your account', NOSHIP],
       sets:[[['game-console-pair', 1]]] },
-    { key:'switch', cat:'gaming', label:'Nintendo Switch', models:'Switch, Switch OLED and Switch 2',
+    { key:'switch', cat:'gaming', label:'Nintendo Switch', alias:'pchandheld', models:'Switch, Switch OLED and Switch 2',
       heads:['Switch in a drawer? Sell it.', 'Your old Switch is cash.'],
       ask:'Model, and the Joy-Con with it', check:['Bring the dock and charger', 'Signed out of your account', NOSHIP],
       sets:[[['console-handheld-pair', 1]], [['gaming-handheld', 1]]] },
-    { key:'controller', cat:'gaming', label:'Controllers', models:'DualSense, DualSense Edge and Xbox controllers',
+    { key:'controller', cat:'gaming', label:'Controllers', alias:'console', models:'DualSense, DualSense Edge and Xbox controllers',
       heads:['Spare controllers? Get cash.', 'Extra DualSense? Sell it.'],
       ask:'Which ones, and how many', check:['Drift or worn sticks, say so', 'Bring the cables if you have them', NOSHIP],
       sets:[[['controller-pair', 1]]] },
-    { key:'gamelaptop', cat:'gaming', label:'Gaming laptops', models:'Gaming laptops, RTX 30 series and newer',
+    { key:'gamelaptop', cat:'gaming', label:'Gaming laptops', alias:'gamingpc', models:'Gaming laptops, RTX 30 series and newer',
       heads:['Gaming laptop? We buy it.', 'Upgraded your rig? Sell the laptop.'],
       ask:'Model, GPU and memory', check:['Bring the charger', 'Signed out and wiped', NOSHIP],
       sets:[[['laptop-gaming-open', 1]]] },
-    { key:'vr', cat:'gaming', label:'VR headsets', models:'Meta Quest 3, Quest 3S and Quest 2',
+    { key:'vr', cat:'gaming', label:'VR headsets', alias:'console', models:'Meta Quest 3, Quest 3S and Quest 2',
       heads:['Quest in a drawer? Sell it.', 'Your old VR headset is cash.'],
       ask:'Model, storage, controllers', check:['Bring both controllers', 'Signed out of your account', NOSHIP],
       sets:[[['vr-headset', 1]]] },
-    { key:'pchandheld', cat:'gaming', label:'PC handhelds', models:'Steam Deck, ROG Ally, Legion Go and MSI Claw',
+    { key:'pchandheld', cat:'gaming', label:'Handhelds', models:'Steam Deck, ROG Ally, Legion Go and Switch',
       heads:['Steam Deck or ROG Ally? We buy both.', 'PC handheld? Get cash for it.'],
       ask:'Model and storage', check:['Bring the charger', 'Signed out and wiped', NOSHIP],
       ledger:['Steam Deck', 'ROG Ally', 'Legion Go', 'MSI Claw'] },
-    { key:'gamingpc', cat:'gaming', label:'Gaming PCs', models:'Towers with an RTX 30 series card or newer',
+    { key:'gamingpc', cat:'gaming', label:'Computers', models:'Desktops and laptops, RTX 30 series and newer',
       heads:['Gaming PC? We buy the whole rig.', 'Selling your gaming PC?'],
       ask:'The CPU, GPU and memory', check:['Photos of the parts list help', 'Signed out and wiped', NOSHIP],
       ledger:['RTX 50 series', 'RTX 40 series', 'RTX 30 series', 'Ryzen and Core i7'] },
@@ -309,7 +373,7 @@
     { key:'car', cat:'cars', label:'Cars and trucks', models:'Cars, trucks and SUVs, running or not',
       heads:['Car sitting in the driveway? Sell it.', 'Your old car is cash.', 'Running or not, we buy it.'],
       ask:'Year, make, model and miles', meet:'Where the car is, checked with you', paid:'Cash, at the car', check:['Title in hand helps', 'Running or not', 'Keys if you have them'],
-      sets:[[['car-sedan-rear', 1]], [['car-suv-side', 1]], [['car-damaged-front', 1]]] },
+      sets:[[['car-toyota-camry-silver', 1]], [['car-honda-civic-white', 1]], [['car-toyota-rav4-white', 1]], [['car-tesla-model-y-blue', 1]], [['car-toyota-tacoma-trd-black', 1]], [['car-honda-accord-white', 1]]] },
     { key:'strips', cat:'strips', label:'Test strips', models:'Sealed, unexpired test strip boxes',
       heads:['Extra test strips? Sell them.', 'Sealed boxes? Get cash.', 'Unused test strips are cash.'],
       ask:'Brand, count and expiry date', check:['Sealed and unexpired only', 'All the major brands', NOSHIP],
@@ -331,6 +395,64 @@
       heads:['Drone grounded? Get cash.', 'Your old drone is cash.'],
       ask:'Model, batteries and controller', check:['Bring the controller', 'Every battery you have', NOSHIP],
       sets:[[['drone-folded', 1]]] },
+    /* THE CAR LINES (owner, 2026-11-18: "JDM could be a category, classics, trucks, toyotas, hondas, bmw,
+       mercedes / amg, work vans, semi trucks, sprinters..", "unidentified cars skip we need to know what it is
+       with confidence.. and if it's classic goes in the classic category"). Every picture is one
+       assets/vehicles.json names; a classic is one it marks vintage. There is no Sprinter photograph yet:
+       the Work vans line names it in its words and shows a Transit, a ProMaster or another identified van. */
+    { key:'classic', cat:'cars', label:'Classic cars', models:'Classic and vintage cars, running or restored',
+      heads:['Classic in the garage? Sell it.', 'Your classic car is cash.', 'Vintage car? Get an offer.'],
+      ask:'Year, make, model and photos', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Running or not, say so', 'Original or restored'],
+      sets:[[['car-chevy-camaro-1969-silver', 1]], [['car-ford-bronco-1st-gen-cream', 1]], [['car-chevy-corvette-c1-blue', 1]], [['car-chevy-silverado-red', 1]], [['car-porsche-356-blue', 1]], [['car-jeep-wagoneer-classic-red', 1]]] },
+    { key:'jdm', cat:'cars', label:'JDM cars', models:'Supra, GT-R, Type R, GR86, S2000 and more',
+      heads:['JDM car to sell? We buy it.', 'Your JDM build is cash.', 'Supra, GT-R or Type R? Get an offer.'],
+      ask:'Year, model, mods and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['List the mods', 'Title in hand helps', 'Keys and spares'],
+      sets:[[['car-honda-civic-type-r-fl5-white', 1]], [['car-nissan-skyline-gtr-r34-blue', 1]], [['car-toyota-gr-supra-2026-red', 1]], [['car-nissan-gtr-r35-white', 1]], [['car-toyota-gr86-blue', 1]], [['car-honda-s2000-silver', 1]]] },
+    { key:'trucks', cat:'cars', label:'Trucks', models:'F-150, Silverado, Ram, Tacoma, Tundra and more',
+      heads:['Truck in the driveway? Sell it.', 'Your old truck is cash.', 'Running or not, we buy trucks.'],
+      ask:'Year, make, model and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Running or not', 'Keys if you have them'],
+      sets:[[['car-chevy-silverado-zr2-red', 1]], [['car-ford-f150-raptor-2026-black', 1]], [['car-toyota-tacoma-trd-black', 1]], [['car-ford-f150-lightning-black', 1]], [['car-toyota-tacoma-orange', 1]]] },
+    { key:'toyota', cat:'cars', label:'Toyota', models:'Camry, Corolla, RAV4, Tacoma, Tundra, Highlander',
+      heads:['Selling your Toyota? We buy it.', 'Your old Toyota is cash.', 'Camry, RAV4 or Tacoma? Get an offer.'],
+      ask:'Year, model and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Running or not', 'Keys if you have them'],
+      sets:[[['car-toyota-camry-silver', 1]], [['car-toyota-rav4-white', 1]], [['car-toyota-tacoma-trd-black', 1]], [['car-toyota-highlander-silver', 1]], [['car-toyota-prius-2026-grey', 1]], [['car-toyota-gr-corolla-black', 1]]] },
+    { key:'honda', cat:'cars', label:'Honda', models:'Civic, Accord, CR-V, HR-V and more',
+      heads:['Selling your Honda? We buy it.', 'Your old Honda is cash.', 'Civic, Accord or CR-V? Get an offer.'],
+      ask:'Year, model and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Running or not', 'Keys if you have them'],
+      sets:[[['car-honda-civic-white', 1]], [['car-honda-accord-white', 1]], [['car-honda-civic-type-r-fl5-white', 1]], [['car-honda-hrv-beige', 1]]] },
+    { key:'bmw', cat:'cars', label:'BMW', models:'3 Series, 5 Series, X3, X5 and M cars',
+      heads:['Selling your BMW? We buy it.', 'Your BMW is cash.', 'X3, X5 or M3? Get an offer.'],
+      ask:'Year, model and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Service records help', 'Keys if you have them'],
+      sets:[[['car-bmw-x3-black', 1]], [['car-bmw-m3-blue', 1]], [['car-bmw-ix3-2026-white', 1]], [['car-bmw-m4-convertible-black', 1]]] },
+    { key:'mercedes', cat:'cars', label:'Mercedes / AMG', models:'C-Class, GLC, G-Class, AMG and more',
+      heads:['Selling your Mercedes? We buy it.', 'Your Mercedes is cash.', 'AMG or G-Class? Get an offer.'],
+      ask:'Year, model and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Service records help', 'Keys if you have them'],
+      sets:[[['car-mercedes-c-class-all-terrain-white', 1]], [['car-mercedes-glc-blue', 1]], [['car-mercedes-amg-g63-2025-black', 1]], [['car-mercedes-amg-gle63-silver', 1]], [['car-mercedes-s-class-black', 1]]] },
+    { key:'vans', cat:'cars', label:'Work vans', models:'Sprinter, Transit, ProMaster and cargo vans',
+      heads:['Work van to sell? We buy it.', 'Your old work van is cash.', 'Sprinter or Transit? Get an offer.'],
+      ask:'Year, model and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Racks and shelving too', 'High miles OK'],
+      sets:[[['car-ford-transit-connect-white', 1]], [['car-ram-promaster-grey', 1]], [['car-ldv-maxus-van-white', 1]]] },
+    { key:'semis', cat:'cars', label:'Semi trucks', models:'Freightliner, Peterbilt, Kenworth and more',
+      heads:['Semi truck to sell? We buy it.', 'Your old semi is cash.', 'Day cab or sleeper? Get an offer.'],
+      ask:'Year, make, model and miles', meet:'Where the vehicle is, checked with you', paid:'Cash, at the vehicle', check:['Title in hand helps', 'Running or not', 'Paperwork ready'],
+      sets:[[['car-freightliner-cascadia-blue', 1]], [['car-peterbilt-389-white', 1]]] },
+    /* THE OWNER'S LINES (2026-11-18): "and technically categories would be iPhones, iPads, Macbooks, Macs,
+       Androids (all), Pixel, Samsung, or foldables", "Gaming would be Consoles, Computers, and Handhelds".
+       So Apple Watch went to Wearables; Android tablets folded into Androids, the Switch into Handhelds,
+       controllers and VR headsets into Consoles, gaming laptops into Computers (alias: the line a full ad
+       picked under the old key now draws; their offer cards stay as they were). Two lines the offer
+       family had no card for are added here, last, so every card above keeps its look (a card's look and
+       face turn with its line's place in this list): the desktop Macs and Androids of every brand.
+       cards:false: no fabric card is made for them; the house engine draws their ads, photo and video
+       (DESIGN-LAW 145). The menus list the lines in the owner's order (scripts/build_full_subjects.mjs MENU). */
+    { key:'macdesk', cat:'phones', label:'Macs', models:'iMac, Mac mini and Mac Studio, M1 and newer', cards:false,
+      heads:['Old iMac? New money.', 'iMac or Mac Studio? We buy both.', 'Your old Mac is cash.'],
+      ask:'The model, year, chip and memory', check:['Bring the power cord', 'Signed out of iCloud', NOSHIP],
+      sets:[[['qs-imac-24-m4--blue', 1]], [['photo-mac-studio-angle', 1]], [['qs-imac-24-m4--silver', 1], ['qs-imac-24-m4--purple', 0.96]]] },
+    { key:'android', cat:'phones', label:'Androids (all brands)', models:'Samsung, Pixel, Motorola, OnePlus and more', cards:false,
+      heads:['Any Android phone? We buy it.', 'Sell your old Android.', 'Android in a drawer? Sell it.'],
+      ask:'Brand, model and storage', check:['Unlocked or on a carrier', 'Signed out of Google', NOSHIP],
+      sets:[[['sam-s24-ultra-back', 1], ['pix-9-back-obsidian', 0.92]], [['android-trio', 1]], [['sam-fold-half', 1], ['pix-9-back-green', 0.9]]] },
   ];
 
   /* ── THE PHOTOGRAPHS. The owner, 2026-09-27: "the gray sections should have a
@@ -346,15 +468,31 @@
     pokemon: [{ file:'pokemon-charizard-card-1', p90:198 }, { file:'pokemon-charizard-card-2', p90:218 }],   // real photographs (DESIGN-LAW 117)
     strips: [{ file:'strips-contour-next-test-strips-2', p90:171 }, { file:'strips-blood-glucose-test-strips-2', p90:241 }, { file:'strips-blood-glucose-meter-1', p90:203 }],
     coins: [{ file:'coins-coin-collection-album-1', p90:184 }, { file:'coins-morgan-silver-dollar-1', p90:220 }, { file:'coins-american-gold-eagle-coin-1', p90:239 }],
-    gold: [{ file:'gold-gold-jewelry-rings-3', p90:254 }, { file:'gold-gold-bracelet-2', p90:178 }, { file:'gold-gold-necklace-chain-close-3', p90:137 }],
+    gold: [{ file:'gold-gold-jewelry-rings-3', p90:254 }, { file:'gold-gold-bracelet-2', p90:178 }, { file:'gold-gold-bracelet-4', p90:219 }],   // 2026-11-18: the necklace close-up stood on black (median 0)
     silver: [{ file:'silver-silverware-set-1', p90:206 }, { file:'silver-silver-cutlery-1', p90:183 }, { file:'silver-silver-jewelry-rings-2', p90:248 }],
-    cars: [{ file:'cars-used-car-dealership-lot-1', p90:189 }, { file:'trucks-pickup-truck-1', p90:198 }, { file:'cars-classic-car-chrome-grille-1', p90:251 }],
+    /* 2026-11-18 (the owner: "with cars people like a good bg or sunset", "not low exposure dark images"): the turquoise
+       '56 Chevy and the studio's own sunset scene; out went the lot (another dealer's sign and phone number on its wall) and the
+       black classic at a show (median 70, people behind it) */
+    cars: [{ file:'trucks-pickup-truck-1', p90:198 }, { file:'dl_cars_stepsFlow_sunset', p90:216 }],
+    /* the car lines (2026-11-18): the sunset scene alone, so no other car stands behind a line's own (the owner:
+       "ideally bg and assets line up"); Classic cars keeps the '56 Chevy beside it */
+    carScene: [{ file:'dl_cars_stepsFlow_sunset', p90:216 }],
     iphone: [{ file:'phones-iphone-15-pro-back-camera-1', p90:166 }, { file:'phones-iphone-14-pro-1', p90:118 }, { file:'phones-apple-iphone-15-1', p90:181 }],
     /* 2026-10-11, the owner of the 11-inch Air on a desk: "this MacBook in the background is old design language ... We don't buy
        so it's misrepresenting". The line buys M1 and newer: a 16-inch M4 Pro and an M2 Air stand in for that Air and for a keyboard
        close-up that could not be dated; the M3 Pro stays. Their screens are lit by mac-wallpapers.js (BG_SCREENS). */
     mac: [{ file:'macbook-macbook-pro-16-inch-2', p90:185 }, { file:'macbook-macbook-pro-m3-1', p90:198 }, { file:'apple-macbook-air-m2-1', p90:200 }],
-    space: [{ file:'space-earth-from-iss-night-1', p90:130 }, { file:'space-earth-from-iss-night-3', p90:22 }, { file:'space-moon-surface-nasa-4', p90:99 }, { file:'space-earth-from-iss-night-4', p90:99 }, { file:'space-aurora-from-space-3', p90:172 }, { file:'space-galaxy-hubble-telescope-1', p90:170 }],
+    /* 2026-11-18, the lines that stood on NASA's pictures (Earth at night, the Moon, an aurora, a galaxy: "lacks any cohesive
+       direction") stand in their own world: computers and the Android phones on desks, audio, cameras and wearables on
+       photographs of their own goods, bright, from assets/bg-web (credits in bg-offer/ATTRIBUTION.json) */
+    desk: [{ file:'rooms-home-desk-setup-1', p90:165 }, { file:'rooms-desk-setup-1', p90:199 }],
+    headphones: [{ file:'audio-airpods-max-2', p90:238 }, { file:'audio-bose-quietcomfort-headphones-2', p90:255 }, { file:'audio-airpods-max-1', p90:253 }],
+    earbuds: [{ file:'audio-airpods-pro-4', p90:216 }, { file:'audio-samsung-galaxy-buds-3', p90:174 }, { file:'audio-beats-fit-pro-1', p90:218 }, { file:'audio-airpods-4-1', p90:216 }],
+    speaker: [{ file:'audio-sonos-speaker-4', p90:207 }, { file:'rooms-home-desk-setup-1', p90:165 }],
+    camera: [{ file:'cameras-fujifilm-x-t5-2', p90:216 }, { file:'cameras-leica-q2-4', p90:255 }],
+    drone: [{ file:'cameras-dji-mini-4-pro-2', p90:250 }],
+    watch: [{ file:'wearables-apple-watch-series-9-4', p90:218 }],
+    glasses: [{ file:'wearables-meta-ray-ban-1', p90:194 }, { file:'rooms-desk-setup-1', p90:199 }],
   };
   /* the gaming lines, gaming headsets and monitors stand in real gamers'
      rooms, photographs like every other category's (2026-10-11, the owner of
@@ -367,10 +505,13 @@
      rooms did (audit_templates.mjs, each card measured on each room); a room
      dark but for lit screens (p90 136, p99 226) was left out, its small type
      at 2.7:1. The drawn rooms (scripts/make_gaming_grounds.py) are retired. */
-  GROUNDS.gaming = [{ file:'rooms-home-desk-setup-1', p90:165 }, { file:'rooms-desk-setup-1', p90:199 }, { file:'rooms-living-room-console-1', p90:190 },
-    { file:'rooms-gaming-pc-setup-1', p90:230 }];
+  GROUNDS.gaming = [{ file:'rooms-home-desk-setup-1', p90:165 }, { file:'rooms-desk-setup-1', p90:199 }, { file:'rooms-living-room-console-1', p90:190 }];
+  // 2026-11-18: the gaming PC setup left them, the darkest room (half its pixels under 49 of 255: "not low exposure dark images")
   const GROUND_OF = { iphone:'iphone', ipad:'iphone', mac:'mac', gold:'gold', silver:'silver', coins:'coins', car:'cars',
-    strips:'strips', pokemon:'pokemon', sports:'sports', gaming:'gaming', headset:'gaming', monitor:'gaming' };
+    strips:'strips', pokemon:'pokemon', sports:'sports', gaming:'gaming', headset:'gaming', monitor:'gaming',
+    classic:'cars', jdm:'carScene', trucks:'carScene', toyota:'carScene', honda:'carScene', bmw:'carScene', mercedes:'carScene', vans:'carScene', semis:'carScene',
+    watch:'watch', galaxy:'desk', pixel:'desk', foldable:'desk', tablet:'desk', headphones:'headphones', earbuds:'earbuds', speaker:'speaker',
+    laptop:'desk', ssd:'desk', minipc:'desk', chromebook:'desk', metaglasses:'glasses', smartwatch:'desk', camera:'camera', drone:'drone' };
   /* white on black-shaded pixels of luminance v: v * (1 - a) <= 118 is 4.5:1;
      110 and 0.05 are the margin */
   const shadeFor = p90 => +Math.max(0.2, Math.min(0.82, 1 - 110 / Math.max(1, p90) + 0.05)).toFixed(2);
@@ -566,12 +707,12 @@
   const STEP_ICONS = ['chat', 'pin', 'cash'];
   const DSTEP = 168, DNUM = 180, DGAP = 24;
   const DBW = (FW - 2 * DGAP) / 3;
-  const weBuy = (L, F, text, y) => {
-    const pw = 150;
+  const weBuy = (L, F, text, y, align) => {
+    const pw = 150, x0 = align === 'center' ? Math.round(CX - (pw + 18 + lineW(text, { em: 0.54 }, 26)) / 2) : M;   // centred: the pill and the models as one line
     return [
-      r('We Buy Pill', { left:M, top:y, width:pw, height:46, fill:L.band, rx:23, ry:23 }),
-      t('We Buy', 'deco', 'none', 'WE BUY', { left:M + pw / 2, top:y + 9, originX:'center', fontFamily:F.r, fontSize:26, fontWeight:700, fill:L.bandInk, charSpacing:80 }),
-      t('Models', 'sub', 'none', text, { left:M + pw + 18, top:y + 9, fontFamily:F.r, fontSize:26, fontWeight:F.rw, fill:PH.ink }),
+      r('We Buy Pill', { left:x0, top:y, width:pw, height:46, fill:L.band, rx:23, ry:23 }),
+      t('We Buy', 'deco', 'none', 'WE BUY', { left:x0 + pw / 2, top:y + 9, originX:'center', fontFamily:F.r, fontSize:26, fontWeight:700, fill:L.bandInk, charSpacing:80 }),
+      t('Models', 'sub', 'none', text, { left:x0 + pw + 18, top:y + 9, fontFamily:F.r, fontSize:26, fontWeight:F.rw, fill:PH.ink }),
     ];
   };
   /* the checklist on one see-through grey card (never tinted, rule 85: the
@@ -622,14 +763,16 @@
     ];
   };
   /* the number's own box: the band's colours and lines, rounded and floating */
-  const numberBox = (L, F, top) => {
+  const numberBox = (L, F, top, align) => {
     const w = F.rw === 500 ? 700 : F.rw;
     return [
       r('Action Band', Object.assign({ left:FL, top, width:FW, height:FNUM, rx:30, ry:30, shadow:sh('rgba(0,0,0,0.38)', 34, 0, 14) }, litFill(L.band))),
       sheen('Action Band Sheen', FL, top, FW, L.band),
       t('Call Label', 'cta', 'none', 'Call or text', { left:M, top:top + 26, fontFamily:F.r, fontSize:26, fontWeight:F.rw, fill:L.bandSub }),
       t('Website', 'website', 'none', SITE, { left:W - M, top:top + 26, originX:'right', fontFamily:F.r, fontSize:26, fontWeight:F.rw, fill:L.bandSub }),
-      t('Phone Number', 'phone', 'none', NUMBER, { left:M, top:top + 62, fontFamily:F.r, fontSize:NUM_PX, fontWeight:w, fill:L.bandInk }),
+      t('Phone Number', 'phone', 'none', NUMBER, align === 'center'
+        ? { left:CX, top:top + 62, originX:'center', fontFamily:F.r, fontSize:NUM_PX, fontWeight:w, fill:L.bandInk }
+        : { left:M, top:top + 62, fontFamily:F.r, fontSize:NUM_PX, fontWeight:w, fill:L.bandInk }),
     ];
   };
   const ON_PHOTO = { dark:1 };                 // products on a photograph take the deep shadow
@@ -669,7 +812,9 @@
       const fit = fitHead(head, F, W - 2 * M, 2, 108); if (!fit) return null;
       const top = 110, y0 = top + fit.h + 40, pTop = y0 - 30;
       if (y0 + 3 * 104 + 3 * 46 + 16 > BT - 20) return null;
-      return [...shade(G, top + fit.h + 18, BT), vignette(), models(PH, F, line.models, M, 64), headline(L, F, fit, M, top, W - 2 * M, 'left', PH.ink),
+      /* the headline and its models line centred across the photograph (2026-11-18, the owner's
+         odds: most cards centred); the panel and the product below keep their two columns */
+      return [...shade(G, top + fit.h + 18, BT), vignette(), models(PH, F, line.models, CX, 64, 'center'), headline(L, F, fit, CX, top, W - 2 * M, 'center', PH.ink),
         r('Steps Panel', { left:M - 36, top:pTop, width:460 + 72, height:BT - pTop, fill:panelFill(L) }),
         ...arrange(set, { x:600, y:y0 - 10, w:W - M - 600, h:BT - 36 - y0 }, ON_PHOTO),
         ...stepsList(L, F, line, M, y0, 460, style, L.ink, L.sub, L.acc, L.g1),
@@ -730,9 +875,12 @@
       /* a step's detail sets in two lines at most in its box */
       if ([line.ask, line.meet || MEET, line.paid || PAID].some(d => lineW(d, { em: 0.54 }, 26) > 2 * (FBW - 2 * FPAD))) return null;
       return [...shade(G, top + fit.h + 18, floor), vignette(0.32), grain(), ...lightPool(CX, (prodTop + floor) / 2, (floor - prodTop) * 0.95),
-        models(PH, F, line.models, M, 64), headline(L, F, fit, M, top, W - 2 * M, 'left', PH.ink),
+        /* centred (owner, 2026-11-18: "most of the time we want it centered... like 70-80% of the
+           time sometimes aligned left and rarely aligned right"): Floating joins Centre and Type,
+           centred; the measure is the one it always set at, so every card keeps its headline */
+        models(PH, F, line.models, CX, 64, 'center'), headline(L, F, fit, CX, top, W - 2 * M, 'center', PH.ink),
         ...arrange(set, { x:M, y:prodTop, w:W - 2 * M, h:floor - prodTop }, ON_PHOTO),
-        ...stepBoxes(L, F, line, SB, style), ...numberBox(L, F, NB)];
+        ...stepBoxes(L, F, line, SB, style), ...numberBox(L, F, NB, 'center')];
     },
     /* "Detailed": the informative card. The WE BUY label and the models, the
        headline, a checklist on the left with the product on the right, how
@@ -746,7 +894,7 @@
       if (M + 168 + lineW(line.models, RF, 26) > W - M) return null;                          // the models fit beside the label
       if ([line.ask, line.meet || MEET, line.paid || PAID].some(d => lineW(d, RF, 26) > 2 * (DBW - 44))) return null;
       const pw = W - M - 600, ph = HOW - 16 - mid;
-      return [...shade(G, HOW + 34, SB - 8), vignette(0.32), grain(), ...lightPool(600 + pw / 2, mid + ph / 2, Math.min(pw, ph * 1.2) * 0.62), ...weBuy(L, F, line.models, 56), headline(L, F, fit, M, top, W - 2 * M, 'left', PH.ink),
+      return [...shade(G, HOW + 34, SB - 8), vignette(0.32), grain(), ...lightPool(600 + pw / 2, mid + ph / 2, Math.min(pw, ph * 1.2) * 0.62), ...weBuy(L, F, line.models, 56, 'center'), headline(L, F, fit, CX, top, W - 2 * M, 'center', PH.ink),
         ...goodToKnow(L, F, items, M, mid),
         ...arrange(set, { x:600, y:mid, w:W - M - 600, h:HOW - 16 - mid }, ON_PHOTO),
         t('How Label', 'deco', 'none', 'HOW IT WORKS', { left:M, top:HOW, fontFamily:F.r, fontSize:26, fontWeight:700, fill:PH.sub, charSpacing:120 }),
@@ -799,9 +947,10 @@
 
   const made = [];
   LINES.forEach((line, li) => {
+    if (line.cards === false) return;   // a line only the full ad draws (Macs, Androids: the owner's lines, 2026-11-18)
     const lays = line.ledger ? ['type', 'typeCenter', 'band'] : ['row', 'list', 'band', 'split', 'center', 'float', 'info'];   // new layouts last: the cards before them keep their rotation
-    const grounds = GROUNDS[GROUND_OF[line.key] || GROUND_OF[line.cat] || 'space'];
-    const flavor = (FLAVOR[line.cat] || []).map(k => FACE[k]).filter(Boolean);
+    const grounds = GROUNDS[GROUND_OF[line.key] || GROUND_OF[line.lookCat || line.cat] || 'desk'];
+    const flavor = (FLAVOR[line.lookCat || line.cat] || []).map(k => FACE[k]).filter(Boolean);
     lays.forEach((lay, k) => {
       const faceOk = F => (lay === 'split' || lay === 'band') ? F.cond || F.em <= 0.56 : true;
       const pool = flavor.filter(faceOk).length ? flavor.filter(faceOk) : FACES.filter(faceOk);
@@ -817,7 +966,7 @@
         const F = a < 60 ? pool[(li + k * 2 + a) % pool.length] : general[(li * 5 + k * 7 + a) % general.length];
         const head = line.heads[(k + a) % line.heads.length];
         const set = line.sets ? line.sets[(k + a) % line.sets.length] : null;
-        const L = LOOKS[look];
+        const L = lookFor(look, line.lookCat || line.cat);
         const layers = LAYOUTS[lay](L, F, line, head, set, style, G);
         if (layers) built = { look, F, head, layers, L };
       }
@@ -854,5 +1003,5 @@
     });
   }
   /* for the lab and the prompt: what this family is made of */
-  try { window.OFFER_LIBRARY = { looks: LOOKS, faces: FACES, flavor: FLAVOR, lines: LINES, layouts: Object.keys(LAYOUTS), grounds: GROUNDS, count: made.length }; } catch (e){}
+  try { window.OFFER_LIBRARY = { looks: HOUSE, catPairs: CAT_PAIRS, faces: FACES, flavor: FLAVOR, lines: LINES, layouts: Object.keys(LAYOUTS), grounds: GROUNDS, count: made.length }; } catch (e){}
 })();

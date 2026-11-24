@@ -1,5 +1,5 @@
 /**
- * Serve Graphics Studio at https://reselling.us/gfx/
+ * Serve WeBuy.AD at https://reselling.us/gfx/
  *
  * reselling.us is a React SPA ("RU CRM v1") behind Cloudflare whose router
  * answers every unknown path with its own shell — which is why /gfx already
@@ -13,7 +13,7 @@
  * relative-path (assets/…), and config.js derives its API base from
  * location.pathname, so it runs unmodified from a sub-path.
  */
-const ORIGIN = 'https://buybackad-graphics-studio.netlify.app';
+const ORIGIN = 'https://webuy.ad';
 const MOUNT  = '/gfx';
 
 export default {

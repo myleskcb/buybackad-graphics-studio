@@ -1,5 +1,5 @@
 /**
- * BUYBACK.AD backend — Netlify Function port of worker.js, plus the AI
+ * WeBuy.AD backend — Netlify Function port of worker.js, plus the AI
  * background service. One catch-all function at /api/*.
  *
  * Provides: email+password auth (PBKDF2 + HMAC JWT), plan tracking,
@@ -17,6 +17,8 @@
  *                                returned to the client.
  *   POST /api/admin/generate-bg  admin path. Prompt used VERBATIM; returned
  *                                with the image so it can be edited + re-run.
+ *   GET|PUT /api/admin/approvals admin path. The approval page's marks:
+ *                                which ads are commercial worthy, hero worthy, denied.
  *   POST /api/admin/approve-bg   admin path. Publishes an image to the blob
  *                                store under a Designer Library filename.
  *   GET  /api/bg/<filename>      public. Serves published blobs — the site's
@@ -57,14 +59,16 @@
  */
 import { getStore } from '@netlify/blobs';
 import { libraryRoute } from '../lib/library.mjs';
-import { adLibraryRoute } from '../lib/adlibrary.mjs';
-import { PLANS, PACKS, PAID, planId, videoOk, creditState, backgroundCredits } from '../lib/plans.mjs';
+import { adLibraryRoute, ownerKey } from '../lib/adlibrary.mjs';
+import { PLANS, PACKS, PAID, planId, videoOk, cardsOk, creditState, backgroundCredits } from '../lib/plans.mjs';
 import {
   billingOn, stripeMode, stripe, priceFor, catalog, subState, applySub, applySession, customerOf,
   syncDue, syncSub, ensureWebhook, verifyEvent, webhookSecretKey, ensurePortalConfig, portalConfigKey, TERMS_VERSION,
-  ensurePaymentDomain, paymentDomainKey,
+  ensurePaymentDomain, paymentDomainKey, STATEMENT_SUFFIX, ownSession, ownSubscription,
 } from '../lib/billing.mjs';
 import { bggenRoute, generateImage, loadRecipe, dataUrlOf } from '../lib/bggen.mjs';
+import { verifyAppleIdToken } from '../lib/appleid.mjs';
+import { verifyGoogleToken, googleProfileName } from '../lib/googleid.mjs';
 
 export const config = { path: '/api/*' };
 
@@ -120,7 +124,7 @@ const roleFor = (email, env) => (adminEmails(env).includes(email) ? 'admin' : 'u
    AI not charged (bggen.mjs), the biggest library (adlibrary.mjs). `plan` stays
    the billed one, so checkout can still be tried; credits say unlimited. */
 const publicUser = (u, env) => ({
-  email: u.email, plan: planId(u.plan), exports: u.exports, role: roleFor(u.email, env),
+  email: u.email, plan: planId(u.plan), exports: u.exports, videos: u.videos || { period: '', count: 0 }, role: roleFor(u.email, env),
   credits: roleFor(u.email, env) === 'admin' ? { ...creditState(u), unlimited: true } : creditState(u),
   sub: u.sub && u.sub.id ? { plan: u.sub.plan, interval: u.sub.interval, status: u.sub.status, periodEnd: u.sub.periodEnd, cancelAt: u.sub.cancelAt } : null,
 });
@@ -131,6 +135,15 @@ function exportMeter(user) {
   const period = plan.weekly ? isoWeek() : isoMonth();
   if (!user.exports || user.exports.period !== period) user.exports = { period, count: 0 };
   return { plan, cap, period, per: plan.weekly ? 'week' : 'month', remaining: cap === null ? null : Math.max(0, cap - user.exports.count) };
+}
+/* the video meter, apart from the photos (plans.mjs `videos`, 2026-11-18): a
+   calendar month's video downloads; null is unlimited (Business) */
+function videoMeter(user) {
+  const plan = PLANS[planId(user.plan)];
+  const cap = plan.videos === undefined ? null : plan.videos;
+  const period = isoMonth();
+  if (!user.videos || user.videos.period !== period) user.videos = { period, count: 0 };
+  return { plan, cap, period, per: 'month', remaining: cap === null ? null : Math.max(0, cap - user.videos.count) };
 }
 /* a paid account whose period ran out is read from Stripe again (billing.mjs) */
 async function freshUser(user, env) {
@@ -153,6 +166,8 @@ const bgStore = () => getStore('pgfx-backgrounds'); // published backgrounds: re
 const genStore = () => getStore({ name: 'pgfx-generated', consistency: 'strong' });
 // saved ads: a save is read back at once (the library, its public link)
 const adStore = () => getStore({ name: 'pgfx-ad-library', consistency: 'strong' });
+// the owner's approvals (approve.html): read back at once on another device
+const approvalStore = () => getStore({ name: 'pgfx-approvals', consistency: 'strong' });
 
 async function getUser(em) { return JSON.parse((await users().get('u:' + em)) || 'null'); }
 async function putUser(u) { await users().set('u:' + u.email, JSON.stringify(u)); }
@@ -264,36 +279,65 @@ export default async (req) => {
       const user = await getUser(em);
       if (!user) return json({ error: 'Wrong email or password' }, 401);
       if (user.provider === 'google' && !user.hash) return json({ error: 'This account uses Google sign-in. Use the Google button.' }, 401);
+      if (user.provider === 'apple' && !user.hash) return json({ error: 'This account uses Sign in with Apple. Use the Apple button.' }, 401);
       if (user.hash !== await pbkdf2(password || '', user.salt)) return json({ error: 'Wrong email or password' }, 401);
       return json({ token: await makeToken(em, env), user: publicUser(user, env) });
     }
 
     // Which auth methods the frontend should render. Google appears only when
-    // GOOGLE_CLIENT_ID is configured in the Netlify env.
+    // GOOGLE_CLIENT_ID is configured in the Netlify env; Apple only when
+    // APPLE_CLIENT_ID (the web Services ID) is.
     if (p === '/auth/config') {
-      return json({ google: !!env.GOOGLE_CLIENT_ID, googleClientId: env.GOOGLE_CLIENT_ID || '' });
+      return json({ google: !!env.GOOGLE_CLIENT_ID, googleClientId: env.GOOGLE_CLIENT_ID || '',
+        apple: !!env.APPLE_CLIENT_ID, appleClientId: env.APPLE_CLIENT_ID || '' });
     }
 
-    // Google Sign-In: the browser sends the GIS ID token; we verify it against
-    // Google's tokeninfo endpoint, check the audience, then find-or-create the
-    // account and issue our own JWT. No password stored for these users.
-    if (p === '/auth/google' && req.method === 'POST') {
-      if (!env.GOOGLE_CLIENT_ID) return json({ error: 'Google sign-in is not enabled' }, 503);
-      const { credential } = await req.json().catch(() => ({}));
-      if (!credential) return json({ error: 'Missing credential' }, 400);
-      const vr = await fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(credential));
-      if (!vr.ok) return json({ error: 'Google rejected the sign-in. Try again.' }, 401);
-      const info = await vr.json();
-      if (info.aud !== env.GOOGLE_CLIENT_ID) return json({ error: 'Sign-in was issued for a different app' }, 401);
-      if (info.email_verified !== 'true' && info.email_verified !== true) return json({ error: 'Google account email is unverified' }, 401);
-      const em = String(info.email || '').toLowerCase();
-      if (!em) return json({ error: 'Google returned no email' }, 401);
-      let user = await getUser(em);
+    // Sign in with Apple (2026-11-19, the owner: "apple and google sign in ?"). The
+    // browser, or the iPhone app, sends Apple's identity token; netlify/lib/appleid.mjs
+    // checks it against Apple's published keys: signature, issuer, audience (the web
+    // Services ID APPLE_CLIENT_ID, or the app's bundle ID APPLE_BUNDLE_ID), expiry, a
+    // verified email and the page's nonce. Then find-or-create the account by email, as
+    // Google's does, and issue our own token. Apple sends the name only on the first
+    // sign-in, so it is kept then. No password is stored for these accounts.
+    if (p === '/auth/apple' && req.method === 'POST') {
+      const audiences = [env.APPLE_CLIENT_ID, env.APPLE_BUNDLE_ID].filter(Boolean);
+      if (!audiences.length) return json({ error: 'Sign in with Apple is not enabled' }, 503);
+      const { id_token: idToken, name, nonce } = await req.json().catch(() => ({}));
+      let who;
+      try { who = await verifyAppleIdToken(idToken, { audiences, nonce: String(nonce || '') }); }
+      catch (e) { return json({ error: e.message }, 401); }
+      let user = await getUser(who.email);
       if (!user) {
-        user = { email: em, provider: 'google', plan: 'free', exports: { period: '', count: 0 }, created: Date.now(), name: info.name || '' };
+        user = { email: who.email, provider: 'apple', appleSub: who.sub, plan: 'free', exports: { period: '', count: 0 },
+          created: Date.now(), name: String(name || '').trim().slice(0, 80) };
+        await putUser(user);
+      } else if (!user.appleSub) {
+        user.appleSub = who.sub;
         await putUser(user);
       }
-      return json({ token: await makeToken(em, env), user: publicUser(user, env) });
+      return json({ token: await makeToken(who.email, env), user: publicUser(user, env) });
+    }
+
+    // Google Sign-In: the site's own button opens Google's popup through Google's
+    // token client, and the page sends the access token (or, from a page still open
+    // from before, the ID token Google's own button gave). lib/googleid.mjs asks
+    // Google's tokeninfo whom it was issued to (this site's client ID only) and for a
+    // confirmed email; then find-or-create the account and issue our own JWT. No
+    // password stored for these users.
+    if (p === '/auth/google' && req.method === 'POST') {
+      if (!env.GOOGLE_CLIENT_ID) return json({ error: 'Google sign-in is not enabled' }, 503);
+      const { credential, access_token: accessToken } = await req.json().catch(() => ({}));
+      if (!credential && !accessToken) return json({ error: 'Missing credential' }, 400);
+      let who;
+      try { who = await verifyGoogleToken({ credential, accessToken }, { clientId: env.GOOGLE_CLIENT_ID }); }
+      catch (e) { return json({ error: e.message }, 401); }
+      let user = await getUser(who.email);
+      if (!user) {
+        const name = who.name || (accessToken ? await googleProfileName(accessToken) : '');
+        user = { email: who.email, provider: 'google', plan: 'free', exports: { period: '', count: 0 }, created: Date.now(), name };
+        await putUser(user);
+      }
+      return json({ token: await makeToken(who.email, env), user: publicUser(user, env) });
     }
 
     if (p === '/me') {
@@ -304,10 +348,55 @@ export default async (req) => {
       return json({ user: publicUser(await freshUser(user, env), env) });
     }
 
+    /* Delete my account (2026-11-19, for the WeBuy.AD iPhone app: App Store
+       guideline 5.1.1(v) asks an app that makes accounts to let them be
+       deleted inside it; the website gets the same). POST {confirm:'delete'}.
+       A paid subscription is cancelled at Stripe first, so nothing is charged
+       again, and the account stays if that fails; then the saved ads (their
+       pictures, videos, upload parts and public link), the AI pictures, and
+       the account go. Stripe keeps its own payment records (receipts, tax),
+       as the privacy policy says. A token issued before stops working,
+       because every route reads the account it names. */
+    if (p === '/account/delete' && req.method === 'POST') {
+      const em = await readToken(req, env);
+      if (!em) return json({ error: 'Sign in first' }, 401);
+      const user = await getUser(em);
+      if (!user) return json({ error: 'Account not found' }, 404);
+      const { confirm } = await req.json().catch(() => ({}));
+      if (confirm !== 'delete') return json({ error: 'Type delete to confirm' }, 400);
+      const sub = user.sub;
+      if (billingOn(env) && sub && sub.id && !['canceled', 'incomplete_expired', 'gone'].includes(sub.status)) {
+        try { await stripe(env, 'DELETE', '/subscriptions/' + sub.id); }
+        catch (e) {
+          if (e.status !== 404) return json({ error: 'Your subscription could not be cancelled, so the account was kept. Try again, or cancel it in Plan & billing first.' }, 502);
+        }
+      }
+      try {
+        const store = adStore(), owner = await ownerKey(em);
+        const lib = JSON.parse((await store.get('o:' + owner)) || 'null');
+        if (lib && lib.feed) await store.delete('f:' + lib.feed);
+        for (const pre of ['i:', 'v:', 'vp:', 'vu:']) {
+          const { blobs } = await store.list({ prefix: pre + owner + ':' });
+          for (const b of blobs) await store.delete(b.key);
+        }
+        await store.delete('o:' + owner);
+      } catch (e) { console.warn('account delete: the saved ads', e.message); }
+      try {
+        const gen = genStore(), ids = JSON.parse((await gen.get('idx/' + em)) || '[]');
+        for (const id of ids) await gen.delete('img/' + id);
+        await gen.delete('idx/' + em);
+      } catch (e) { console.warn('account delete: the AI pictures', e.message); }
+      await users().delete('u:' + em);
+      return json({ ok: true });
+    }
+
     /* One download, photo or video, from the studio or the video maker:
        /export counts it, /export/check says what the plan allows without
        counting (the video maker asks before it spends a minute making the
-       video, and counts once the file is made). */
+       video, and counts once the file is made). A video (with the photo of
+       it that rides along) is counted on the plan's video meter, a photo on
+       its photo meter: Pro has 500 photos and 30 videos a month, Business
+       both unlimited (plans.mjs, 2026-11-18). */
     if ((p === '/export' || p === '/export/check') && req.method === 'POST') {
       const em = await readToken(req, env);
       if (!em) return json({ error: 'Not signed in' }, 401);
@@ -317,12 +406,26 @@ export default async (req) => {
       if (roleFor(em, env) === 'admin') return json({ user: publicUser(user, env), maxPx: 2160, watermark: false, remaining: null });
       await freshUser(user, env);
       const { kind } = await req.json().catch(() => ({}));
+      /* a print-ready business card (cards/): Pro and Business (plans.mjs cards, owner 2026-11-22:
+         "needs to be super pay walled"), then one of the plan's photo downloads */
+      if (kind === 'card' && !cardsOk(user.plan)) {
+        return json({ error: 'Print-ready business cards come with Pro and Business', needs: 'cards', user: publicUser(user, env) }, 403);
+      }
       if (kind === 'video' && !videoOk(user.plan)) {
         return json({ error: 'Video downloads come with Pro and Business', needs: 'video', user: publicUser(user, env) }, 403);
       }
+      if (kind === 'video') {
+        const v = videoMeter(user);
+        if (v.cap !== null && v.remaining <= 0) {
+          return json({ error: 'Video limit reached: ' + v.plan.label + "'s " + v.cap + ' video downloads this month. They start over on the 1st, and Business has unlimited video',
+            kind: 'video', limit: v.cap, per: 'month', user: publicUser(user, env) }, 402);
+        }
+        if (p === '/export') { user.videos.count++; await putUser(user); }
+        return json({ user: publicUser(user, env), kind: 'video', maxPx: v.plan.maxPx, watermark: v.plan.watermark, remaining: v.cap === null ? null : v.cap - user.videos.count });
+      }
       const m = exportMeter(user);
       if (m.cap !== null && m.remaining <= 0) {
-        return json({ error: 'Download limit reached for this ' + m.per, limit: m.cap, per: m.per, user: publicUser(user, env) }, 402);
+        return json({ error: 'Download limit reached: ' + m.plan.label + "'s " + m.cap + ' photo downloads this ' + m.per, kind: 'photo', limit: m.cap, per: m.per, user: publicUser(user, env) }, 402);
       }
       if (p === '/export') { user.exports.count++; await putUser(user); }
       return json({ user: publicUser(user, env), maxPx: m.plan.maxPx, watermark: m.plan.watermark, remaining: m.cap === null ? null : m.cap - user.exports.count });
@@ -351,6 +454,24 @@ export default async (req) => {
       if (m[2].length > 12 * 1024 * 1024) return json({ error: 'Image too large' }, 400);
       await bgStore().set('bg/' + filename, JSON.stringify({ mime: 'image/' + m[1], b64: m[2], by: em, ts: Date.now() }));
       return json({ ok: true, filename, url: '/api/bg/' + filename });
+    }
+
+    // ---------- the owner's approvals (approve.html) ----------
+    // Which ads are commercial worthy, hero worthy or denied: one record, kept
+    // for the operators so a phone and a Mac show the same marks.
+    if (p === '/admin/approvals' && (req.method === 'GET' || req.method === 'PUT')) {
+      const em = await readToken(req, env);
+      if (!em || roleFor(em, env) !== 'admin') return json({ error: 'Not authorized' }, 403);
+      if (req.method === 'GET') {
+        return json({ approvals: JSON.parse((await approvalStore().get('approvals')) || 'null') || { commercial: [], hero: [], denied: [], ts: 0 } });
+      }
+      const b = await req.json().catch(() => null);
+      const ids = (a) => (Array.isArray(a) ? [...new Set(a.filter((k) => typeof k === 'string' && /^[\w-]{1,80}$/.test(k)))].slice(0, 5000) : null);
+      const rec = b && { commercial: ids(b.commercial), hero: ids(b.hero), denied: ids(b.denied) };
+      if (!rec || !rec.commercial || !rec.hero || !rec.denied) return json({ error: 'Send commercial, hero and denied as lists of card ids' }, 400);
+      rec.ts = Date.now(); rec.by = em;
+      await approvalStore().set('approvals', JSON.stringify(rec));
+      return json({ ok: true, ts: rec.ts });
     }
 
     if (p === '/admin/bg-status') {
@@ -506,7 +627,7 @@ export default async (req) => {
         // partner and creator discounts are Stripe promotion codes, on the plans
         allow_promotion_codes: plan ? 'true' : undefined,
         subscription_data: plan ? { metadata: { email: em, plan, terms: TERMS_VERSION, consent_at: consentAt } } : undefined,
-        payment_intent_data: plan ? undefined : { metadata: md },
+        payment_intent_data: plan ? undefined : { metadata: md, statement_descriptor_suffix: STATEMENT_SUFFIX },
         /* B2B: a business can add its tax ID (and the name and address it
            wants on the invoice), a credit pack gets an invoice like a plan
            does, and Stripe Tax works out sales tax when STRIPE_TAX is on (it
@@ -514,7 +635,7 @@ export default async (req) => {
         tax_id_collection: { enabled: 'true' },
         customer_update: customer ? { name: 'auto', address: 'auto' } : undefined,
         automatic_tax: env.STRIPE_TAX === 'on' ? { enabled: 'true' } : undefined,
-        invoice_creation: plan ? undefined : { enabled: 'true', invoice_data: { description: PACKS[pack].label + ' for Graphics Studio', metadata: md } },
+        invoice_creation: plan ? undefined : { enabled: 'true', invoice_data: { description: PACKS[pack].label + ' for WeBuy.AD', metadata: md } },
         // the renewal terms, next to Stripe's own pay button
         custom_text: { submit: { message: plan
           ? 'Renews automatically every ' + interval + ' at ' + money(PLANS[plan].price[interval]) + ' plus any tax until you cancel. Cancel any time in Plan & billing; your plan stays on to the end of the period you paid for.'
@@ -535,7 +656,7 @@ export default async (req) => {
       user.consent = { terms: TERMS_VERSION, at: consentAt, for: plan ? plan + '_' + interval : pack };
       await putUser(user);
       if (embed) return json({ clientSecret: j.client_secret, publishableKey: pk, sessionId: j.id });
-      return json({ url: j.url });
+      return json({ url: j.url, sessionId: j.id });   // the iPhone app keeps the id and confirms it when the customer comes back from Safari
     }
 
     /* The return from Checkout: the plan (or the credits) go on now, from
@@ -594,7 +715,8 @@ export default async (req) => {
       const ev = await verifyEvent(env, users(), payload, req.headers.get('Stripe-Signature'));
       if (!ev) return new Response('bad signature', { status: 400 });
       const obj = (ev.data && ev.data.object) || {};
-      if (ev.type === 'checkout.session.completed' || ev.type === 'checkout.session.async_payment_succeeded') {
+      // the shared Stripe account's other sales are not this site's (billing.mjs, ownSession)
+      if ((ev.type === 'checkout.session.completed' || ev.type === 'checkout.session.async_payment_succeeded') && ownSession(obj)) {
         const em = String((obj.metadata || {}).email || obj.client_reference_id || obj.customer_email || '').toLowerCase();
         const user = em && (await getUser(em));
         if (user) {
@@ -621,7 +743,7 @@ export default async (req) => {
           }
         }
       }
-      if (ev.type.startsWith('customer.subscription.')) {
+      if (ev.type.startsWith('customer.subscription.') && ownSubscription(obj, env)) {
         const em = String((obj.metadata || {}).email || '').toLowerCase();
         const user = em && (await getUser(em));
         // only the account's own subscription moves it (an old one ending must not end a new one)

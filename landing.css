@@ -1,0 +1,804 @@
+/* ═════════════════════════════════════════════════════════════════════════
+   THE LANDING, BUILT TO A BRIEF (2026-11-19; DESIGN-LAW, "The landing is built to a brief")
+
+   The owner, looking at the landing: "looks so vibe coded and basic UI we
+   need to fix and make it look like a custom built site with a large web
+   design budget". Every section had been the same template: a dotted pill
+   label, a big left headline, a paragraph, then a grid of the same dark
+   rounded cards, on one navy from the top of the page to the bottom.
+
+   This sheet keeps the family's colours and wordmark (rules 152 and 153:
+   navy, one blue for the action, mint for the deal, WeBuy.AD in Inter
+   Tight) and rebuilds what stands on them:
+     - one type scale with a real display size, set tight;
+     - a rhythm of grounds: the hero on the field, the library on paper so
+       the ads read as prints, the video on a deeper stage, the last call on
+       the blue, the footer under a wordmark as wide as the page;
+     - numbered section labels on a hairline, in place of dotted pills;
+     - a layout of its own for each section: a split head, a gallery, a
+       mosaic, a stage, a sequence, a plan table, a two-column FAQ;
+     - hairlines in place of boxed cards wherever the box was only a box.
+
+   Scoped to the landing under the family skin, so ?skin=poster keeps the
+   old page and the studio is not touched. Loaded after styles.css and
+   full-ad-studio.css. A band that keeps one ground in both themes (paper,
+   stage, blue) re-declares the family's tokens inside itself, so whatever
+   sits in it (chips, buttons, captions) takes the band's colours without a
+   rule of its own.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+/* the row of a category's lines (app.js scSubChips) has a place in every skin; the family's look of it is below */
+.lp-subchips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
+.lp-subchips[hidden]{display:none}
+
+/* ── 0. The page and its measures ─────────────────────────────────────── */
+[data-skin=family] #page-landing{
+  --x-max:1328px;
+  --x-gut:clamp(20px,4.4vw,64px);
+  --x-pad:max(var(--x-gut),calc((100% - var(--x-max)) / 2));
+  --x-sec:clamp(96px,11vw,176px);
+  --x-ease:cubic-bezier(.22,.7,.2,1);
+  --x-disp:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI Variable Display','Segoe UI',system-ui,Roboto,'Helvetica Neue',Arial,sans-serif;
+  --x-body:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI Variable Text','Segoe UI',system-ui,Roboto,'Helvetica Neue',Arial,sans-serif;
+  --x-arrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2.5 8h10M8.8 3.9 12.9 8l-4.1 4.1' fill='none' stroke='%23000' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --x-check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.2 8.5 6.5 11.6 12.8 4.6' fill='none' stroke='%23000' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  counter-reset:x-sec;
+  overflow-x:clip;
+  background:var(--field);
+  color:var(--text);
+  font-family:var(--x-body);
+  -webkit-font-smoothing:antialiased;
+}
+/* the library's ground (2026-11-23; the owner, of the white band across a dark page: "not really cohesive
+   with the rest of the website... right now it's just a little excessive"): in the dark theme a step up
+   from the page's navy with the blue's glow at its top edge, so the ads stand out without a white slab;
+   paper in the light theme, as the rest of that page is */
+[data-skin=family] #page-landing #lp-templates{
+  --field:#0e1730;
+  background:radial-gradient(1100px 420px at 50% 0%,rgba(61,139,255,.13),transparent 72%),var(--field);
+}
+[data-skin=family][data-theme=light] #page-landing #lp-templates{
+  color-scheme:light;
+  --field:#f5f7fa;
+  --text:#0a1224;--text-2:#4a566d;--text-dim:#5f6a80;
+  --hairline:#e1e6ee;--hairline-strong:#cfd6e2;
+  --accent:#0a5fe0;--accent-hover:#0059d6;--accent-text:#0a5fe0;--accent-deep:#0849ad;--accent-soft:#e6effe;
+  --accent-wash:rgba(10,95,224,.10);--accent-rgb:10,95,224;--ring:#0a6cff;
+  --chip-fill:rgba(10,18,36,.06);--chip-fill-hover:rgba(10,18,36,.10);
+  --surface-solid:#ffffff;--surface-raise:#eef1f6;--surface-sunk:rgba(10,18,36,.05);
+  --glass-edge:rgba(12,20,40,.08);
+  --deal:#0e9f6a;--deal-text:#0b8659;--good:#0e9f6a;
+}
+[data-skin=family][data-theme=light] #page-landing #lp-templates{--field:#ffffff;background:var(--field)}
+/* stage: the video's ground, and the footer's, dark in both themes */
+[data-skin=family] #page-landing #lp-video,
+[data-skin=family] #page-landing .lp-footer-big{
+  color-scheme:dark;
+  --field:#050a16;
+  --text:#f4f7ff;--text-2:#a3aec6;--text-dim:#8a96b0;
+  --hairline:#18233d;--hairline-strong:#26324f;
+  --accent:#3d8bff;--accent-hover:#5a9cff;--accent-text:#7db1ff;--accent-deep:#2f7af0;--accent-soft:#d3e4ff;
+  --accent-wash:rgba(61,139,255,.14);--accent-rgb:61,139,255;--ring:#7db1ff;
+  --chip-fill:rgba(255,255,255,.08);--chip-fill-hover:rgba(255,255,255,.14);
+  --surface-solid:#101a30;--surface-raise:#17233e;--surface-sunk:rgba(255,255,255,.05);
+  --glass-edge:rgba(255,255,255,.08);
+  --deal:#2fd58f;--deal-text:#4be3a3;--good:#2fd58f;
+}
+/* the last call: the blue, deep enough for white words at any size (5.7:1) */
+[data-skin=family] #page-landing .lp-cta{
+  color-scheme:dark;
+  --field:#0b5ce6;
+  --text:#ffffff;--text-2:rgba(255,255,255,.94);--text-dim:rgba(255,255,255,.9);
+  --hairline:rgba(255,255,255,.22);
+}
+
+/* ── 1. The bar ───────────────────────────────────────────────────────── */
+[data-skin=family] #page-landing .lp-nav{
+  height:72px;gap:0;padding:0 var(--x-pad);
+  background:color-mix(in srgb,var(--field) 78%,transparent);
+  -webkit-backdrop-filter:blur(18px) saturate(150%);backdrop-filter:blur(18px) saturate(150%);
+  border-bottom:1px solid transparent;box-shadow:none;
+  transition:background .3s,border-color .3s;
+}
+@supports (animation-timeline:scroll()){
+  [data-skin=family] #page-landing .lp-nav{
+    animation:x-bar linear both;animation-timeline:scroll(root);animation-range:0 140px;
+  }
+  @keyframes x-bar{
+    from{background:transparent;border-bottom-color:transparent;-webkit-backdrop-filter:none;backdrop-filter:none}
+    to{background:color-mix(in srgb,var(--field) 82%,transparent);border-bottom-color:var(--hairline)}
+  }
+}
+/* THE BAR CONDENSES ITSELF (the owner, 2026-11-23: "the site needs to be self condensing but legible at all level").
+   Eight links ran the Log in / Sign up / Make my ad group off the right edge between 1010 and about 1440 wide (the
+   skin's fixed 30 px gaps outranked styles.css's narrower ones). The gaps close with the window, and the links give way
+   least needed first, the type never smaller: Business cards and Look Book (both in the footer), then FAQ, How it works
+   and Customise together; under 1010 the row goes, as it did (styles.css). Measured at every 30 px, 1000 to 1560. */
+[data-skin=family] #page-landing .lp-nav-links{gap:clamp(16px,1.7vw,30px);margin-left:clamp(20px,2.8vw,56px)}
+[data-skin=family] #page-landing .lp-nav-links a{display:inline-block}   /* the skin decides what gives way, not styles.css */
+/* by data-give, not by address: the host rewrites links (looks.html is /looks on webuy.ad), and an [href] rule
+   stopped matching live (2026-11-24) */
+@media (max-width:1449px){[data-skin=family] #page-landing .lp-nav-links a[data-give="2"]{display:none}}
+@media (max-width:1179px){[data-skin=family] #page-landing .lp-nav-links a[data-give="1"]{display:none}}
+[data-skin=family] #page-landing .lp-nav-links a{font-size:14.5px;font-weight:500;color:var(--text-2);letter-spacing:-.005em;position:relative;padding:6px 0}
+[data-skin=family] #page-landing .lp-nav-links a::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1.5px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .35s var(--x-ease)}
+[data-skin=family] #page-landing .lp-nav-links a:hover{color:var(--text)}
+[data-skin=family] #page-landing .lp-nav-links a:hover::after{transform:scaleX(1)}
+[data-skin=family] #page-landing .lp-nav-right{gap:6px}
+[data-skin=family] #page-landing .lp-nav .btn{min-height:40px;padding:0 18px;font-size:14.5px;font-weight:600}
+[data-skin=family] #page-landing .lp-nav .lp-caret{padding:0 12px;margin-left:1px}
+[data-skin=family] #page-landing .theme-btn{width:40px;height:40px;border-radius:50%}
+
+/* ── 2. Buttons on the page ───────────────────────────────────────────── */
+[data-skin=family] #page-landing .btn-xl{min-height:56px;padding:0 28px;font-size:16px;font-weight:600;letter-spacing:-.012em;gap:10px}
+[data-skin=family] #page-landing .btn-xl.btn-primary::after,
+[data-skin=family] #page-landing .x-go::after{
+  content:'';width:16px;height:16px;flex:none;background:currentColor;
+  -webkit-mask:var(--x-arrow) center/contain no-repeat;mask:var(--x-arrow) center/contain no-repeat;
+  transition:transform .35s var(--x-ease);
+}
+[data-skin=family] #page-landing .btn-xl.btn-primary:hover::after,
+[data-skin=family] #page-landing .x-go:hover::after{transform:translateX(3px)}
+[data-skin=family] #page-landing .btn-ghost.btn-xl{padding:0 6px;background:none;color:var(--text);text-decoration:underline;text-decoration-color:var(--hairline-strong);text-underline-offset:6px;text-decoration-thickness:1.5px}
+[data-skin=family] #page-landing .btn-ghost.btn-xl:hover{text-decoration-color:currentColor}
+
+/* ── 3. The hero ──────────────────────────────────────────────────────── */
+[data-skin=family] #page-landing .hero-v2{
+  max-width:none;margin:0;
+  padding:132px 0 0 var(--x-pad);
+  grid-template-columns:minmax(0,680px) minmax(0,1fr);
+  column-gap:clamp(40px,6vw,104px);
+  min-height:min(100svh,980px);
+  align-items:center;position:relative;overflow:hidden;
+}
+[data-skin=family] #page-landing .hero-copy{padding:24px 0 96px}
+[data-skin=family] #page-landing .hero-eyebrow{font-size:14px;padding:8px 16px 8px 13px;margin:0}
+[data-skin=family] #page-landing .hero h1{
+  font-family:var(--x-disp);
+  font-size:clamp(46px,5.6vw,90px);font-weight:700;
+  line-height:.95;letter-spacing:-.048em;word-spacing:0;
+  margin:30px 0 30px;text-wrap:balance;
+}
+/* the deal on a line of its own: three lines, the last one mint (rule 152) */
+[data-skin=family] #page-landing .hero h1 em{display:block;color:var(--deal-text)}
+[data-skin=family] #page-landing .hero p{font-size:clamp(17px,1.32vw,19px);line-height:1.6;color:var(--text-2);max-width:31em;margin:0}
+[data-skin=family] #page-landing .hero-ctas{gap:12px;margin-top:40px;align-items:center}
+/* the three selling points (owner, 2026-11-20: "those are good selling points"): read as
+   claims, not small print; the deal in each in the page's ink, the rest a step down */
+[data-skin=family] #page-landing .hero-proof{list-style:none;padding:0;margin:30px 0 0;display:flex;flex-wrap:wrap;gap:12px 26px;font-size:15.5px;color:var(--text-2)}
+[data-skin=family] #page-landing .hero-proof li{display:flex;align-items:center;gap:9px}
+[data-skin=family] #page-landing .hero-proof b{font-weight:650;color:var(--text);margin-right:-.3em}
+[data-skin=family] #page-landing .hero-proof li::before{
+  content:'';width:17px;height:17px;flex:none;background:var(--deal);
+  -webkit-mask:var(--x-check) center/contain no-repeat;mask:var(--x-check) center/contain no-repeat;
+}
+[data-skin=family] #page-landing .hero-for{
+  margin-top:44px;padding-top:24px;border-top:1px solid var(--hairline);
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;
+  font-size:14.5px;font-weight:600;letter-spacing:-.01em;color:var(--text-2);
+}
+[data-skin=family] #page-landing .hero-for > span{font-weight:500;color:var(--text-dim);margin-right:4px}
+[data-skin=family] #page-landing .hero-for i{width:3px;height:3px;border-radius:50%;background:var(--text-dim);opacity:.6}
+
+/* the wall, on a plane: three columns of real ads, turned away from the
+   reader in one deliberate perspective instead of a loose tilt */
+/* a wall with no stage around it (a branch's markup without .hero-stage) takes the same
+   plane in the hero's own column; inside the stage it bleeds past the column's edges */
+[data-skin=family] #page-landing .hero-wall{
+  height:680px;gap:22px;
+  transform:perspective(2200px) rotateX(18deg) rotateY(-14deg) rotateZ(12deg);
+  transform-origin:30% 50%;transform-style:preserve-3d;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 16%,#000 80%,transparent 100%);
+  mask-image:linear-gradient(180deg,transparent 0,#000 16%,#000 80%,transparent 100%);
+}
+[data-skin=family] #page-landing .hero-stage{position:relative;align-self:stretch;min-height:640px;perspective:2200px;perspective-origin:20% 45%}
+[data-skin=family] #page-landing .hero-stage .hero-wall{
+  position:absolute;top:-12%;bottom:-18%;left:4%;right:-22%;height:auto;
+  transform:rotateX(18deg) rotateY(-14deg) rotateZ(12deg);
+}
+[data-skin=family] #page-landing .wall-col{gap:22px}
+[data-skin=family] #page-landing .wall-card{
+  border-radius:16px;border:0;
+  box-shadow:0 0 0 1px rgba(255,255,255,.05),0 30px 60px -28px rgba(0,0,0,.75),0 10px 22px -12px rgba(0,0,0,.45);
+}
+[data-skin=family][data-theme=light] #page-landing .wall-card{box-shadow:0 0 0 1px rgba(10,18,36,.05),0 30px 60px -30px rgba(10,30,70,.45),0 10px 22px -14px rgba(10,30,70,.25)}
+[data-skin=family] #page-landing .wall-card:hover{transform:translateY(-4px);box-shadow:0 0 0 1px rgba(255,255,255,.08),0 40px 70px -30px rgba(0,0,0,.8)}
+/* THE WALL WITHOUT A JOLT (owner, 2026-11-20: "the hero however is still rocky... it's always
+   been"). Measured on the landing: it came in four steps (the stage sliding in empty, grey
+   squares, then every picture at once), each column jumped 9 to 11 px each time its loop
+   wrapped, and cards scrolled in blank, their pictures lazy and clipped by the hero.
+   1. The loop: a column is its list twice and travels -50%, so the second copy must start one
+      whole period down. A flex gap sits only BETWEEN cards, which leaves the column half a gap
+      short of two periods; an empty last item adds the missing gap, at every skin's spacing.
+   2. One entrance: the stage waits (index.html .wall-wait) until the pictures in view are in
+      (scBuildWall), then the wall slides in whole and the message lands after it. Six seconds
+      at most, should the script never say. */
+#page-landing .wall-col::after{content:'';flex:none;height:0}
+#page-landing .hero-stage.wall-wait .hero-wall,
+#page-landing .hero-stage.wall-wait .hero-ping{opacity:0;animation:x-show 0s 6s forwards}
+[data-skin=family] #page-landing .hero-stage.wall-wait{animation:none}
+#page-landing .hero-stage .hero-wall{transition:opacity .7s var(--x-ease,ease)}
+@keyframes x-show{to{opacity:1}}
+/* 3. Only a picture that has arrived is seen. The owner, 2026-11-23, of tiles showing the browser's
+      broken-picture mark and their alt text: "fix this so our final product doesn't have this
+      issue". app.js (pictureWatch, scWallWatch) keeps a wall picture clear until it has loaded,
+      asks again for one that failed, and lets a tile whose picture never comes leave the wall in
+      both copies of its column. It hides and shows on the picture itself; this only fades it in. */
+#page-landing .wall-card img{transition:opacity .35s var(--x-ease,ease)}
+/* the stage's light: the family's blue glow, low behind the plane */
+[data-skin=family] #page-landing .hero-stage::before{
+  content:'';position:absolute;inset:10% -10% 0 10%;pointer-events:none;
+  background:radial-gradient(50% 50% at 50% 50%,rgba(var(--accent-rgb),.22),transparent 70%);
+  filter:blur(20px);
+}
+/* WHAT THE HEADLINE PROMISES, AS IT LANDS ON A PHONE (2026-11-23). The owner: "use the imessage app icon for the
+   notification and put it closer aligned on the top below the header", "drop down like a notification", "ios 27
+   styling animation / flow", "audit and compare to make 1:1 to ios notification and app icon/ styling", and of the
+   dark card it was: "a little too opaque or dark". Three strangers' texts arrive at the top of the stage, one at a
+   time on a 15 s loop, as iOS 27 shows a Messages banner. Every number below was measured off the iOS 27 simulator
+   (iPhone 18 Pro, light appearance): a real Messages notification with these words, over this wall.
+     The banner: 386 x 79 pt with two lines of message, 8 pt in from each side, corners 24 pt; the icon 38 pt, 14 pt
+       in, centred; the words 12 pt after it; the sender 15 pt semibold and the message 15 pt regular, both black, on
+       an 18 pt line, untracked; "now" 13 pt grey on the sender's line, 17 pt from the right edge.
+     The glass: light in either theme, as iOS draws it. Fitted against the screenshot over the same frame of the
+       wall: white at 48% over a blur of 13, saturation 1.3, brightness 1.15 (mean error 8 of 255, no tint), and a
+       soft rim. Live blur where the pointer is fine and on iPhones (Safari's backdrop is the system's own, drawn by
+       Core Animation); other phones get the same light card unblurred, as iOS draws it with Reduce Transparency on:
+       a blur over the moving wall stuttered there (2026-11-20).
+     The flow: out of the island. It grows from about a third of its size at the top, out of focus, slides down
+       past its place by 11 pt at a third of a second and springs back, still by 0.96 s; it leaves the way it came,
+       up and in, in a third of a second. The travel is shortened to 40 px so it starts inside the stage.
+   No clip on .hero-ping: a clip (or a filter, or opacity under 1) there would make it the glass's backdrop root,
+   and the glass would show nothing of the wall. */
+[data-skin=family] #page-landing .hero-ping{
+  position:absolute;z-index:4;left:50%;top:14px;width:min(386px,calc(100% - 16px));
+  height:80px;transform:translateX(-50%);pointer-events:none;
+}
+[data-skin=family] #page-landing .hp-card{
+  position:absolute;inset:0 0 auto 0;
+  display:flex;gap:12px;align-items:center;
+  padding:12.5px 17px 12.5px 14px;border-radius:24px;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,'Segoe UI',Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;color:rgba(0,0,0,.92);text-align:left;
+  background:rgba(246,246,249,.9);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.3),inset 0 1.5px 1px -.5px rgba(255,255,255,.6),0 10px 28px -12px rgba(0,0,0,.35);
+  opacity:0;transform:translateY(-40px) scale(.3);
+  animation:x-island 15s linear infinite both;
+}
+[data-skin=family] #page-landing .hp-card:nth-child(2),
+[data-skin=family] #page-landing .hp-card:nth-child(2) :is(.hp-icon,.hp-body){animation-delay:5s}
+[data-skin=family] #page-landing .hp-card:nth-child(3),
+[data-skin=family] #page-landing .hp-card:nth-child(3) :is(.hp-icon,.hp-body){animation-delay:10s}
+@media (hover:hover) and (pointer:fine){
+  [data-skin=family] #page-landing .hp-card{background:rgba(255,255,255,.48);-webkit-backdrop-filter:blur(13px) saturate(1.3) brightness(1.15);backdrop-filter:blur(13px) saturate(1.3) brightness(1.15)}
+}
+@supports (-webkit-touch-callout:none){
+  [data-skin=family] #page-landing .hp-card{background:rgba(255,255,255,.48);-webkit-backdrop-filter:blur(13px) saturate(1.3) brightness(1.15);backdrop-filter:blur(13px) saturate(1.3) brightness(1.15)}
+}
+@media (prefers-reduced-transparency:reduce){
+  [data-skin=family] #page-landing .hp-card{background:rgba(246,246,249,.97);-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+[data-skin=family] #page-landing .hp-defs{position:absolute;width:0;height:0;overflow:hidden}
+[data-skin=family] #page-landing .hp-icon{position:relative;top:.8px;width:38px;height:38px;flex:none;animation:x-focus 15s linear infinite both}
+[data-skin=family] #page-landing .hp-icon svg{width:38px;height:38px;display:block}
+[data-skin=family] #page-landing .hp-body{position:relative;top:-1.7px;flex:1;min-width:0;animation:x-focus 15s linear infinite both}
+[data-skin=family] #page-landing .hp-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;height:17.7px}
+[data-skin=family] #page-landing .hp-top b{font-size:15px;line-height:18px;font-weight:600}
+[data-skin=family] #page-landing .hp-top span{flex:none;font-size:13px;line-height:18px;letter-spacing:-.08px;color:rgba(40,40,50,.66)}
+[data-skin=family] #page-landing .hp-msg{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:15px;line-height:18px}
+/* the flow, as measured at 60 fps (1% of the loop is 150 ms): in out of the island, past its place and home, held, up and in */
+@keyframes x-island{
+  0%{opacity:0;transform:translateY(-40px) scale(.3)}
+  .4%{opacity:.6;transform:translateY(-37px) scale(.4)}
+  .87%{opacity:1;transform:translateY(-16px) scale(.58)}
+  1.33%{opacity:1;transform:translateY(-2px) scale(.72)}
+  1.87%{opacity:1;transform:translateY(9.5px) scale(.88)}
+  2.2%{opacity:1;transform:translateY(11px) scale(.94)}
+  2.73%{opacity:1;transform:translateY(9px) scale(.99)}
+  3.4%{opacity:1;transform:translateY(3.5px) scale(1)}
+  4.07%{opacity:1;transform:translateY(.5px) scale(1)}
+  4.4%{opacity:1;transform:translateY(-.5px) scale(1)}
+  6.4%{opacity:1;transform:none}
+  29.33%{opacity:1;transform:none;animation-timing-function:cubic-bezier(.45,0,.85,.4)}
+  31.67%{opacity:0;transform:translateY(-40px) scale(.3)}
+  100%{opacity:0;transform:translateY(-40px) scale(.3)}
+}
+/* out of focus while it is small, as iOS brings it in and takes it out */
+@keyframes x-focus{
+  0%{filter:blur(6px)}
+  .87%{filter:blur(3px)}
+  1.33%{filter:blur(.8px)}
+  1.8%{filter:none}
+  29.33%{filter:none;animation-timing-function:ease-in}
+  31.67%{filter:blur(6px)}
+  100%{filter:blur(6px)}
+}
+
+/* ── 4. The figures under the hero ────────────────────────────────────── */
+[data-skin=family] #page-landing .lp-stats{
+  max-width:none;margin:0;padding:0 var(--x-pad);
+  display:grid;grid-template-columns:1.5fr repeat(5,minmax(0,1fr));gap:0;
+  border:0;position:relative;
+}
+[data-skin=family] #page-landing .lp-stats::before{content:'';position:absolute;left:var(--x-pad);right:var(--x-pad);top:0;height:1px;background:var(--hairline)}
+[data-skin=family] #page-landing .lp-stats .stat{flex-direction:column;align-items:flex-start;gap:12px;padding:34px 22px 8px;border-left:1px solid var(--hairline)}
+[data-skin=family] #page-landing .lp-stats .stat:first-child{border-left:0;padding-left:0}
+[data-skin=family] #page-landing .lp-stats .stat b{font-family:var(--x-disp);font-size:clamp(34px,3.3vw,52px);font-weight:700;letter-spacing:-.045em;line-height:.95;color:var(--text)}
+[data-skin=family] #page-landing .lp-stats .stat-lead b{color:var(--accent-text)}
+[data-skin=family] #page-landing .lp-stats .stat span{font-size:13.5px;line-height:1.4;color:var(--text-dim);max-width:24ch}
+
+/* ── 5. Sections: the measure, the numbered label, the split head ─────── */
+[data-skin=family] #page-landing .lp-section{
+  max-width:none;margin:0;
+  padding:var(--x-sec) var(--x-pad);
+  counter-increment:x-sec;position:relative;
+}
+[data-skin=family] #page-landing .lp-section + .lp-section::before{
+  content:'';position:absolute;top:0;left:var(--x-pad);right:var(--x-pad);height:1px;background:var(--hairline);
+}
+[data-skin=family] #page-landing #lp-templates::before,
+[data-skin=family] #page-landing #lp-templates + .lp-section::before,
+[data-skin=family] #page-landing #lp-video::before,
+[data-skin=family] #page-landing #lp-video + .lp-section::before{display:none}
+[data-skin=family] #page-landing .lp-kicker{
+  display:flex;align-items:center;gap:14px;margin:0 0 32px;
+  font-size:13.5px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--text-2);
+}
+[data-skin=family] #page-landing .lp-kicker::before{
+  content:counter(x-sec,decimal-leading-zero);
+  display:inline;width:auto;height:auto;border:0;border-radius:0;margin:0;background:none;box-shadow:none;
+  color:var(--accent-text);font-weight:700;font-variant-numeric:tabular-nums;
+}
+[data-skin=family] #page-landing .lp-kicker::after{content:'';flex:0 1 72px;height:1px;background:var(--hairline-strong)}
+[data-skin=family] #page-landing .lp-section-head{
+  display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);
+  column-gap:clamp(32px,7vw,120px);row-gap:18px;align-items:start;
+  margin:0 0 clamp(48px,5.5vw,84px);
+}
+[data-skin=family] #page-landing .lp-section-head > *{grid-column:2;margin:0}
+[data-skin=family] #page-landing .lp-section-head > .lp-kicker{grid-column:1 / -1;margin-bottom:14px}
+[data-skin=family] #page-landing .lp-section-head > h2{grid-column:1;grid-row:2 / span 6}
+[data-skin=family] #page-landing .lp-section-head h2{
+  font-family:var(--x-disp);font-size:clamp(38px,5vw,74px);font-weight:700;
+  line-height:.98;letter-spacing:-.045em;word-spacing:0;text-wrap:balance;
+}
+[data-skin=family] #page-landing .lp-section-head p{font-size:17px;line-height:1.62;color:var(--text-2);max-width:44ch;margin:0}
+[data-skin=family] #page-landing .lp-section-head p b{color:var(--text);font-weight:650}
+[data-skin=family] #page-landing .lp-section-head > .btn{justify-self:start;margin-top:10px}
+[data-skin=family] #page-landing .lp-section-head > .btn + .btn{margin-top:0}
+
+/* ── 6. 01 The library, on paper ──────────────────────────────────────── */
+[data-skin=family] #page-landing #lp-templates{color:var(--text)}
+[data-skin=family] #page-landing .lp-chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 44px}
+[data-skin=family] #page-landing .lp-chips .chip{
+  min-height:40px;padding:0 16px;border-radius:999px;
+  background:transparent;border:1px solid var(--hairline-strong);
+  font-size:14px;font-weight:550;letter-spacing:-.005em;color:var(--text-2);
+  display:inline-flex;align-items:center;gap:8px;transition:background .2s,color .2s,border-color .2s;
+}
+[data-skin=family] #page-landing .lp-chips .chip:hover{border-color:var(--text);color:var(--text);background:transparent}
+[data-skin=family] #page-landing .lp-chips .chip.on{background:var(--text);border-color:var(--text);color:var(--field)}
+[data-skin=family] #page-landing .lp-chips .chip .n{font-size:12px;font-weight:600;opacity:.55;font-variant-numeric:tabular-nums;margin:0}
+/* a category with lines carries an arrow that turns as its row of lines opens beneath (app.js scSubChips) */
+[data-skin=family] #page-landing .chip .caret{width:12px;height:12px;flex:none;margin-left:-2px;opacity:.7;transition:transform .3s var(--x-ease)}
+[data-skin=family] #page-landing .chip[aria-expanded="true"] .caret{transform:rotate(180deg);opacity:1}
+[data-skin=family] #page-landing .lp-chips:has(+ .lp-subchips:not([hidden])){margin-bottom:14px}
+[data-skin=family] #page-landing .lp-subchips{
+  display:flex;flex-wrap:wrap;gap:8px;margin:0 0 44px;padding:14px 0 0 18px;position:relative;
+  animation:x-open .35s var(--x-ease) both;
+}
+[data-skin=family] #page-landing .lp-subchips[hidden]{display:none}
+[data-skin=family] #page-landing .lp-subchips::before{content:'';position:absolute;left:0;top:14px;bottom:4px;width:2px;border-radius:2px;background:var(--accent)}
+[data-skin=family] #page-landing .lp-subchips .chip{
+  min-height:36px;padding:0 14px;border-radius:999px;background:var(--chip-fill);border:1px solid transparent;
+  font-size:13.5px;font-weight:550;color:var(--text-2);display:inline-flex;align-items:center;gap:7px;
+}
+[data-skin=family] #page-landing .lp-subchips .chip:hover{color:var(--text);background:var(--chip-fill-hover)}
+[data-skin=family] #page-landing .lp-subchips .chip.on{background:var(--accent);color:#fff}
+[data-skin=family] #page-landing .lp-subchips .chip .n{font-size:11.5px;font-weight:600;opacity:.6;font-variant-numeric:tabular-nums}
+@keyframes x-open{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+[data-skin=family] #page-landing .tpl-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:48px 28px}
+[data-skin=family] #page-landing .tpl-card{
+  aspect-ratio:auto;overflow:visible;background:none;border:0;border-radius:0;box-shadow:none;
+  display:flex;flex-direction:column;gap:16px;
+}
+[data-skin=family] #page-landing .tpl-card:hover{transform:none;box-shadow:none}
+[data-skin=family] #page-landing .tpl-card img{
+  position:relative;inset:auto;aspect-ratio:1;height:auto;border-radius:14px;
+  box-shadow:0 0 0 1px rgba(10,18,36,.06),0 22px 44px -26px rgba(10,30,70,.42),0 6px 14px -8px rgba(10,30,70,.18);
+  transition:transform .55s var(--x-ease),box-shadow .55s var(--x-ease);
+}
+[data-skin=family] #page-landing .tpl-card:hover img{transform:translateY(-6px);box-shadow:0 0 0 1px rgba(10,18,36,.06),0 36px 60px -30px rgba(10,30,70,.5),0 10px 20px -10px rgba(10,30,70,.2)}
+[data-skin=family] #page-landing .tpl-card .tpl-veil{inset:0 0 auto 0;aspect-ratio:1;border-radius:14px;backdrop-filter:none;-webkit-backdrop-filter:none;opacity:0}
+[data-skin=family] #page-landing .tpl-card .tpl-use{
+  top:14px;right:14px;background:#0a1224;color:#fff;box-shadow:0 8px 20px -8px rgba(0,0,0,.5);
+  font-size:13px;font-weight:600;padding:9px 14px;
+}
+[data-skin=family] #page-landing .tpl-card:hover .tpl-use{transform:translateY(-6px)}
+/* the caption sits under the picture, not over its number (styles.css hid it for
+   that reason, 2026-09-26), so it can be read without a hover a phone never sends */
+[data-skin=family] #page-landing .tpl-card .tpl-meta{
+  position:static;padding:0;background:none;display:flex;align-items:baseline;justify-content:space-between;gap:14px;opacity:1;
+}
+[data-skin=family] #page-landing .tpl-card .tpl-name{font-size:15px;font-weight:600;letter-spacing:-.012em;color:var(--text);text-shadow:none}
+[data-skin=family] #page-landing .tpl-card .tpl-tag{
+  font-size:13px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--text-dim);
+  background:none;border:0;padding:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+[data-skin=family] #page-landing .tpl-card .tpl-lockpill{top:14px;left:14px}
+[data-skin=family] #page-landing .tpl-card .adl-star{top:auto;bottom:auto}
+[data-skin=family] #page-landing .tpl-more-row{margin-top:56px;padding-top:28px;border-top:1px solid var(--hairline);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+[data-skin=family] #page-landing .tpl-more-row .tpl-count{margin-right:auto;font-size:14px;color:var(--text-dim)}
+[data-skin=family] #page-landing .tpl-more-row .btn{min-height:48px;padding:0 22px;font-size:15px}
+
+/* ── 7. 02 Colours: one mosaic of the sets, each drawn as a small ad ──── */
+[data-skin=family] #page-landing .cb-tabs{margin:0 0 36px;padding:4px;background:var(--chip-fill);border:0}
+[data-skin=family] #page-landing .cb-tabs [role=tab]{font-size:14.5px;font-weight:600;min-height:40px;padding:0 18px}
+[data-skin=family] #page-landing .cb-ready > .lp-subhead{
+  font:500 14px/1.4 var(--x-body);letter-spacing:0;text-transform:none;color:var(--text-dim);margin:0 0 18px;
+}
+/* the second list is the same 54 sets again (the studio's colour themes are
+   now the pairs the designs are made in), so the landing shows them once */
+[data-skin=family] #page-landing .cb-ready > .lp-subhead ~ .lp-subhead,
+[data-skin=family] #page-landing #theme-grid{display:none}
+[data-skin=family] #page-landing .fam-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+/* twelve sets at first, the rest a tap away (scBuildFamilies' Show all): 59 small squares made the section
+   long and the pricing late (2026-11-23) */
+[data-skin=family] #page-landing .fam-grid:not(.all) .fam-card:nth-child(n+13){display:none}
+[data-skin=family] #page-landing .fam-more{margin:22px 0 0}
+[data-skin=family] #page-landing .fam-card{
+  padding:0;background:none;border:0;border-radius:12px;box-shadow:none;
+  -webkit-backdrop-filter:none;backdrop-filter:none;overflow:visible;
+  display:flex;flex-direction:column;gap:8px;transition:transform .4s var(--x-ease);
+}
+[data-skin=family] #page-landing .fam-card:hover{transform:translateY(-3px)}
+[data-skin=family] #page-landing .fam-card.on{box-shadow:none}
+[data-skin=family] #page-landing .fam-card.on .fam-art{box-shadow:0 0 0 2px var(--field),0 0 0 4px var(--accent)}
+[data-skin=family] #page-landing .fam-art{
+  position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;
+  background:var(--g,var(--surface-raise));color:var(--i,var(--text));
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9%;padding:10%;text-align:center;
+  box-shadow:inset 0 0 0 1px rgba(127,127,127,.18);
+  font-family:'Anton','Oswald','Bebas Neue',Impact,'Arial Narrow',var(--x-disp);
+}
+[data-skin=family] #page-landing .fam-art b{display:block;font-size:clamp(17px,2.05vw,31px);line-height:.9;letter-spacing:.01em;font-weight:800;text-transform:uppercase}
+[data-skin=family] #page-landing .fam-art b em{font-style:normal;color:var(--a,var(--accent));display:block}
+[data-skin=family] #page-landing .fam-art i{
+  align-self:center;display:block;font-style:normal;font-family:var(--x-disp);
+  font-size:clamp(9.5px,.92vw,13.5px);font-weight:800;letter-spacing:.02em;font-variant-numeric:tabular-nums;
+  background:var(--p,var(--accent));color:var(--pi,#fff);padding:.35em .6em;border-radius:99px;white-space:nowrap;
+}
+[data-skin=family] #page-landing .fam-card .fam-name{font-size:12.5px;font-weight:600;line-height:1.25;letter-spacing:-.005em;color:var(--text)}
+[data-skin=family] #page-landing .fam-card .fam-meta{font-size:12px;margin:0;color:var(--text-dim)}   /* 12 px at the least, at every width (2026-11-23) */
+/* an old card with no colours to draw keeps its bars */
+[data-skin=family] #page-landing .fam-card .fam-sw{height:auto;aspect-ratio:1;margin:0;border-radius:12px}
+
+/* ── 8. 03 Video, on the stage ────────────────────────────────────────── */
+[data-skin=family] #page-landing #lp-video{
+  background:var(--field);color:var(--text);
+  display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);column-gap:clamp(40px,7vw,120px);align-items:center;
+  overflow:hidden;
+}
+[data-skin=family] #page-landing #lp-video::after{
+  content:'';position:absolute;right:-10%;top:-30%;width:70%;height:120%;pointer-events:none;
+  background:radial-gradient(50% 50% at 50% 50%,rgba(61,139,255,.20),transparent 70%);
+}
+[data-skin=family] #page-landing #lp-video .lp-section-head{display:block;margin:0;position:relative;z-index:1}
+[data-skin=family] #page-landing #lp-video .lp-section-head h2{margin:0 0 26px}
+[data-skin=family] #page-landing #lp-video .lp-section-head p{margin:0 0 16px}
+[data-skin=family] #page-landing #lp-video .lp-section-head .btn{margin:22px 10px 0 0}
+[data-skin=family] #page-landing .vid-stage{position:relative;z-index:1}
+[data-skin=family] #page-landing .vid-frame{
+  position:relative;border-radius:22px;overflow:hidden;aspect-ratio:1;
+  background:#0d1526;box-shadow:0 0 0 1px rgba(255,255,255,.06),0 60px 120px -50px rgba(0,0,0,.9),0 0 120px -40px rgba(61,139,255,.45);
+}
+[data-skin=family] #page-landing .vid-frame img,
+[data-skin=family] #page-landing .vid-frame canvas{display:block;width:100%;height:100%;object-fit:cover}
+/* in the corner an ad keeps clear: never over its number at the foot (rule 136) */
+[data-skin=family] #page-landing .vid-play{
+  position:absolute;left:16px;top:16px;display:inline-flex;align-items:center;gap:10px;
+  padding:8px 14px 8px 8px;border-radius:99px;font-size:13.5px;font-weight:600;color:#fff;
+  background:rgba(5,10,22,.62);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.14);text-decoration:none;
+}
+[data-skin=family] #page-landing .vid-play::before{content:'';width:28px;height:28px;border-radius:50%;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6 4.5v7l5.5-3.5z' fill='%23070d1c'/%3E%3C/svg%3E") center/14px no-repeat}
+/* the first three seconds, as the video plays them */
+[data-skin=family] #page-landing .vid-time{
+  position:relative;margin-top:28px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  padding-top:22px;border-top:1px solid var(--hairline-strong);
+}
+[data-skin=family] #page-landing .vid-time::before{
+  content:'';position:absolute;top:-1px;left:0;height:1px;width:100%;
+  background:linear-gradient(90deg,var(--accent),var(--deal));transform-origin:left;
+  animation:x-play 6s linear infinite;
+}
+@keyframes x-play{0%{transform:scaleX(0)}55%,100%{transform:scaleX(1)}}
+[data-skin=family] #page-landing .vid-time li{list-style:none;padding-right:16px}
+[data-skin=family] #page-landing .vid-time b{display:block;font-family:var(--x-disp);font-size:28px;font-weight:700;letter-spacing:-.04em;color:var(--text);font-variant-numeric:tabular-nums}
+[data-skin=family] #page-landing .vid-time span{display:block;margin-top:4px;font-size:14px;line-height:1.4;color:var(--text-2)}
+
+/* ── 9. 04 The workflow: a sequence, not three boxes ──────────────────────
+   Any row of steps on the page (the workflow, work with us, and a "why"
+   row where a branch has one) stands on hairlines, not in boxes. */
+[data-skin=family] #page-landing .flow{grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+[data-skin=family] #page-landing .flow-step{
+  background:none;border:0;border-radius:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;
+  padding:0 clamp(20px,3vw,44px) 0 0;
+}
+[data-skin=family] #page-landing .flow-step + .flow-step{padding-left:clamp(20px,3vw,44px);border-left:1px solid var(--hairline)}
+[data-skin=family] #page-landing .flow-step > h3:first-child{margin-top:0}
+[data-skin=family] #page-landing #lp-how .fs-num{
+  font-family:var(--x-disp);font-size:15px;font-weight:600;letter-spacing:0;color:var(--accent-text);margin:0 0 22px;
+}
+[data-skin=family] #page-landing .flow-step h3{font-family:var(--x-disp);font-size:clamp(22px,1.9vw,28px);font-weight:700;letter-spacing:-.03em;margin:28px 0 12px}
+[data-skin=family] #page-landing .flow-step p{font-size:15.5px;line-height:1.6;color:var(--text-2);max-width:36ch}
+/* a small, drawn picture of each step */
+[data-skin=family] #page-landing .fs-art{
+  height:168px;border-radius:18px;background:var(--surface-solid);border:1px solid var(--hairline);
+  position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:12px;padding:22px;
+}
+[data-skin=family] #page-landing .fs-lay{width:64px;aspect-ratio:1;border-radius:10px;background:var(--surface-raise);border:1px solid var(--hairline-strong);display:flex;flex-direction:column;gap:5px;padding:9px;transition:transform .5s var(--x-ease)}
+[data-skin=family] #page-landing .fs-lay i{display:block;height:5px;border-radius:3px;background:var(--text-dim);opacity:.45}
+[data-skin=family] #page-landing .fs-lay i:first-child{height:9px;width:80%;opacity:.9;background:var(--text)}
+[data-skin=family] #page-landing .fs-lay i:last-child{margin-top:auto;height:10px;width:70%;border-radius:99px;background:var(--accent);opacity:1}
+[data-skin=family] #page-landing .fs-lay.on{transform:translateY(-8px) scale(1.08);box-shadow:0 0 0 2px var(--accent),0 18px 30px -16px rgba(var(--accent-rgb),.6)}
+[data-skin=family] #page-landing .fs-dots{display:grid;grid-template-columns:repeat(5,30px);gap:10px}
+[data-skin=family] #page-landing .fs-dots i{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--a) 50%,var(--b) 50%);box-shadow:inset 0 0 0 1px rgba(127,127,127,.25)}
+[data-skin=family] #page-landing .fs-dots i.on{box-shadow:0 0 0 2px var(--surface-solid),0 0 0 4px var(--accent)}
+[data-skin=family] #page-landing .fs-type{display:flex;flex-direction:column;gap:10px;width:100%;max-width:250px}
+[data-skin=family] #page-landing .fs-field{height:44px;border-radius:12px;border:1px solid var(--hairline-strong);background:var(--field);display:flex;align-items:center;padding:0 14px;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--text);letter-spacing:.01em}
+[data-skin=family] #page-landing .fs-field::after{content:'';width:1.5px;height:18px;margin-left:2px;background:var(--accent);animation:x-caret 1.1s steps(1) infinite}
+@keyframes x-caret{50%{opacity:0}}
+[data-skin=family] #page-landing .fs-dl{height:40px;border-radius:99px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600}
+
+/* an index of what the studio makes ads for, where a branch lists it (ul.lp-lines):
+   three columns of links on hairlines, each with the arrow the buttons carry */
+[data-skin=family] #page-landing .lp-lines{list-style:none;margin:0;padding:0;columns:3 260px;column-gap:clamp(24px,4vw,56px)}
+[data-skin=family] #page-landing .lp-lines li{break-inside:avoid;border-top:1px solid var(--hairline)}
+[data-skin=family] #page-landing .lp-lines a{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 2px;
+  font-size:16px;font-weight:550;letter-spacing:-.01em;color:var(--text);text-decoration:none;transition:color .2s;
+}
+[data-skin=family] #page-landing .lp-lines a::after{
+  content:'';width:15px;height:15px;flex:none;background:var(--text-dim);
+  -webkit-mask:var(--x-arrow) center/contain no-repeat;mask:var(--x-arrow) center/contain no-repeat;
+  transition:transform .35s var(--x-ease),background .2s;
+}
+[data-skin=family] #page-landing .lp-lines a:hover{color:var(--accent-text)}
+[data-skin=family] #page-landing .lp-lines a:hover::after{background:var(--accent-text);transform:translateX(3px)}
+
+/* ── 10. 05 Pricing: one table of plans ───────────────────────────────── */
+[data-skin=family] #page-landing .lp-price-grid{
+  gap:0;border:1px solid var(--hairline);border-radius:24px;overflow:hidden;
+  background:var(--surface-solid);
+}
+[data-skin=family] #page-landing .lp-price-card{
+  background:none;border:0;border-radius:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;
+  padding:36px 30px 32px;display:flex;flex-direction:column;
+}
+[data-skin=family] #page-landing .lp-price-card + .lp-price-card{border-left:1px solid var(--hairline)}
+[data-skin=family] #page-landing .lp-price-card.hot{background:var(--surface-raise);box-shadow:inset 0 3px 0 var(--accent)}
+[data-skin=family] #page-landing .lp-price-tag{
+  position:static;order:-1;align-self:flex-start;margin:0 0 14px;padding:0;background:none;box-shadow:none;
+  font-size:12.5px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--accent-text);border-radius:0;
+}
+[data-skin=family] #page-landing .lp-price-tag-video{color:var(--deal-text)}
+[data-skin=family] #page-landing .lp-price-card h3{font-family:var(--x-disp);font-size:22px;font-weight:700;letter-spacing:-.025em;margin:0 0 4px}
+[data-skin=family] #page-landing .lp-price-for{font-size:14px;color:var(--text-dim);margin:0 0 26px}
+[data-skin=family] #page-landing .lp-price{font-family:var(--x-disp);font-size:clamp(44px,4vw,60px);font-weight:700;letter-spacing:-.05em;line-height:1;margin:0 0 10px}
+[data-skin=family] #page-landing .lp-price small{font-family:var(--x-body);font-size:15px;font-weight:500;letter-spacing:0;margin-left:2px}
+[data-skin=family] #page-landing .lp-price-alt{font-size:13.5px;line-height:1.45;margin:0 0 26px;min-height:2.9em}
+[data-skin=family] #page-landing .lp-price-alt b{color:var(--deal-text)}
+[data-skin=family] #page-landing .lp-price-card ul{border-top:1px solid var(--hairline);padding-top:18px;margin:0 0 30px}
+[data-skin=family] #page-landing .lp-price-card li{font-size:14.5px;line-height:1.45;padding:7px 0 7px 26px;color:var(--text-2)}
+[data-skin=family] #page-landing .lp-price-card li::before{
+  content:'';top:10px;width:15px;height:15px;background:var(--deal);
+  -webkit-mask:var(--x-check) center/contain no-repeat;mask:var(--x-check) center/contain no-repeat;
+}
+[data-skin=family] #page-landing .lp-price-card > .btn{align-self:stretch;min-height:48px;font-size:15px}
+[data-skin=family] #page-landing .lp-compare-wrap{margin-top:28px;border-radius:24px;border:1px solid var(--hairline);background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+[data-skin=family] #page-landing .lp-compare{font-size:14px}
+[data-skin=family] #page-landing .lp-compare caption{font-family:var(--x-disp);font-size:18px;font-weight:700;letter-spacing:-.02em;padding:24px 24px 12px}
+[data-skin=family] #page-landing .lp-compare th,[data-skin=family] #page-landing .lp-compare td{padding:14px 24px;border-top:1px solid var(--hairline)}
+[data-skin=family] #page-landing .lp-compare tr > :nth-child(4){background:rgba(var(--accent-rgb),.07)}
+[data-skin=family] #page-landing .lp-compare-notes,[data-skin=family] #page-landing .lp-price-foot{font-size:14px;color:var(--text-dim);max-width:70ch}
+
+/* ── 11. 06 FAQ: the heading holds still, the answers run beside it ───── */
+[data-skin=family] #page-landing #faq{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);column-gap:clamp(32px,7vw,120px);align-items:start}
+[data-skin=family] #page-landing #faq > .lp-section-head{display:block;grid-column:1;grid-row:1 / span 40;position:sticky;top:120px;margin:0}
+[data-skin=family] #page-landing #faq > .lp-section-head h2{margin-top:14px}
+[data-skin=family] #page-landing #faq > .lp-faq{grid-column:2}
+[data-skin=family] #page-landing .lp-faq{
+  background:none;border:0;border-radius:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;
+  padding:0;margin:0;border-bottom:1px solid var(--hairline);
+}
+[data-skin=family] #page-landing .lp-faq:first-of-type{border-top:1px solid var(--hairline)}
+[data-skin=family] #page-landing .lp-faq summary{
+  position:relative;padding:24px 56px 24px 0;font-family:var(--x-disp);font-size:clamp(17px,1.4vw,20px);font-weight:600;letter-spacing:-.02em;
+  color:var(--text);transition:color .2s;
+}
+[data-skin=family] #page-landing .lp-faq summary:hover{color:var(--accent-text)}
+[data-skin=family] #page-landing .lp-faq summary::after,
+[data-skin=family] #page-landing .lp-faq summary::before{
+  content:'';position:absolute;right:6px;top:50%;width:16px;height:1.75px;margin-top:-1px;float:none;
+  background:currentColor;border-radius:2px;transition:transform .35s var(--x-ease),opacity .35s;
+}
+[data-skin=family] #page-landing .lp-faq summary::before{transform:rotate(90deg)}
+[data-skin=family] #page-landing .lp-faq[open] summary::before{transform:rotate(0);opacity:0}
+[data-skin=family] #page-landing .lp-faq[open] summary::after{content:''}
+[data-skin=family] #page-landing .lp-faq p{font-size:16px;line-height:1.65;color:var(--text-2);padding:0 56px 28px 0;max-width:68ch}
+
+/* ── 12. 07 Work with us: three columns on hairlines ──────────────────── */
+[data-skin=family] #page-landing #lp-partners .flow{grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+[data-skin=family] #page-landing #lp-partners .flow-step{display:flex;flex-direction:column;padding:4px clamp(20px,3vw,44px) 4px 0}
+[data-skin=family] #page-landing #lp-partners .flow-step + .flow-step{padding-left:clamp(20px,3vw,44px);border-left:1px solid var(--hairline)}
+[data-skin=family] #page-landing #lp-partners .fs-num{font-family:var(--x-body);font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:none;color:var(--text-dim);margin:0}
+[data-skin=family] #page-landing #lp-partners .flow-step h3{margin-top:16px}
+[data-skin=family] #page-landing #lp-partners .flow-step p{flex:1}
+[data-skin=family] #page-landing #lp-partners .flow-step .btn{align-self:flex-start;margin-top:26px;min-height:44px;padding:0 18px}
+
+/* ── 13. The last call, on the blue ───────────────────────────────────── */
+[data-skin=family] #page-landing .lp-cta{
+  max-width:none;margin:0;padding:clamp(96px,11vw,168px) var(--x-pad);
+  background:var(--field);color:var(--text);position:relative;overflow:hidden;
+}
+[data-skin=family] #page-landing .lp-cta::before{
+  content:'';position:absolute;inset:auto -10% -60% 30%;height:140%;pointer-events:none;
+  background:radial-gradient(50% 50% at 50% 50%,rgba(125,177,255,.55),transparent 70%);opacity:.55;
+}
+[data-skin=family] #page-landing .lp-cta-inner{
+  background:none;border:0;border-radius:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;
+  padding:0;text-align:left;overflow:visible;
+  display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:48px;row-gap:24px;align-items:end;
+}
+[data-skin=family] #page-landing .lp-cta-inner::before{display:none}
+[data-skin=family] #page-landing .lp-cta-inner h2{
+  grid-column:1;font-family:var(--x-disp);font-size:clamp(48px,7.4vw,124px);font-weight:700;
+  line-height:.92;letter-spacing:-.055em;word-spacing:0;margin:0;text-wrap:balance;color:#fff;
+}
+[data-skin=family] #page-landing .lp-cta-inner p{grid-column:1;font-size:18px;color:var(--text-2);margin:0;max-width:44ch}
+[data-skin=family] #page-landing .lp-cta-inner .btn{grid-column:2;grid-row:1 / span 2;align-self:end;background:#fff;color:#0a1224}
+[data-skin=family] #page-landing .lp-cta-inner .btn:hover{background:#eaf1ff}
+
+/* ── 14. The footer, under the wordmark ───────────────────────────────── */
+[data-skin=family] #page-landing .lp-footer-big{
+  background:var(--field);color:var(--text-2);border-top:0;
+  padding:clamp(72px,8vw,112px) var(--x-pad) 0;overflow:hidden;
+}
+[data-skin=family] #page-landing .lpf-cols{max-width:none;grid-template-columns:1.5fr 1fr 1.6fr 1fr 1fr;gap:40px}
+[data-skin=family] #page-landing .lpf-brand .logo{font-size:26px}
+[data-skin=family] #page-landing .lpf-brand p{font-size:15px;line-height:1.55;color:var(--text-2);max-width:28ch;margin-top:14px}
+[data-skin=family] #page-landing .lpf-col h4{font:600 13px/1 var(--x-body);letter-spacing:0;text-transform:none;color:var(--text);margin-bottom:18px}
+[data-skin=family] #page-landing .lpf-col a{font-size:14.5px;padding:6px 0;color:var(--text-2);transition:color .2s}
+[data-skin=family] #page-landing .lpf-col a:hover{color:var(--text)}
+[data-skin=family] #page-landing .lpf-base{max-width:none;margin:64px 0 0;padding:22px 0 0;border-top:1px solid var(--hairline);font-size:13px;color:var(--text-dim)}
+[data-skin=family] #page-landing .lpf-mark{
+  display:block;margin:clamp(40px,5vw,72px) 0 0;line-height:.78;white-space:nowrap;
+  font-family:'Inter Tight',var(--x-disp);font-weight:750;letter-spacing:-.06em;
+  font-size:clamp(84px,20.4vw,290px);color:#101b33;user-select:none;
+  transform:translateY(.16em);
+}
+[data-skin=family] #page-landing .lpf-mark em{font-style:normal;color:#14305f}
+
+/* ── 15. Motion ───────────────────────────────────────────────────────────
+   The hero settles in by movement alone, never from hidden: a page whose
+   timers do not run (a background tab, a headless capture such as the share
+   card's, tools/brand/make.sh) must still show its words (styles.css, the
+   hero entrance: "Fail visible"). Lower down, a heading or a small block
+   rises as it scrolls into view, where the browser ties the motion to the
+   scroll itself; by movement alone too, since a scroll-tied animation runs
+   both ways: whatever is below the screen counts as not yet scrolled to, so
+   a fade left every heading blank in a whole-page capture (measured
+   2026-11-19) and would in print. A tall grid is left still. */
+@media (prefers-reduced-motion:no-preference){
+  @supports (animation-timeline:view()){
+    [data-skin=family] #page-landing .lp-section-head,
+    [data-skin=family] #page-landing .flow,
+    [data-skin=family] #page-landing .vid-stage,
+    [data-skin=family] #page-landing .lp-cta-inner{
+      animation:x-rise linear both;animation-timeline:view();animation-range:entry 0% entry 60%;
+    }
+  }
+  [data-skin=family] #page-landing .hero-copy > *{animation:x-in 1s var(--x-ease) both}
+  [data-skin=family] #page-landing .hero-copy > :nth-child(2){animation-delay:.05s}
+  [data-skin=family] #page-landing .hero-copy > :nth-child(3){animation-delay:.1s}
+  [data-skin=family] #page-landing .hero-copy > :nth-child(4){animation-delay:.15s}
+  [data-skin=family] #page-landing .hero-copy > :nth-child(n+5){animation-delay:.2s}
+  [data-skin=family] #page-landing .hero-stage{animation:x-stage 1.5s .05s var(--x-ease) both}
+}
+@keyframes x-rise{from{transform:translateY(24px)}to{transform:none}}
+@media print{[data-skin=family] #page-landing *{animation:none!important}}
+@media (prefers-reduced-motion:reduce){
+  [data-skin=family] #page-landing .hp-card:first-child{opacity:1;transform:none}
+  [data-skin=family] #page-landing .hp-card:not(:first-child){display:none}
+}
+@keyframes x-in{from{transform:translateY(22px)}to{transform:none}}
+@keyframes x-stage{from{transform:translateX(48px)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){
+  [data-skin=family] #page-landing .hp-card,
+  [data-skin=family] #page-landing .hp-icon,
+  [data-skin=family] #page-landing .hp-body,
+  [data-skin=family] #page-landing .vid-time::before,
+  [data-skin=family] #page-landing .fs-field::after{animation:none}
+}
+
+/* ── 16. Narrower screens ─────────────────────────────────────────────── */
+@media (max-width:1180px){
+  [data-skin=family] #page-landing .hero-v2{grid-template-columns:minmax(0,540px) minmax(0,1fr)}
+  [data-skin=family] #page-landing .tpl-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  [data-skin=family] #page-landing .fam-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  [data-skin=family] #page-landing .lp-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  [data-skin=family] #page-landing .lp-stats .stat:nth-child(3n+1){border-left:0;padding-left:0}
+  [data-skin=family] #page-landing .lp-stats .stat:nth-child(n+4){border-top:1px solid var(--hairline);margin-top:26px}
+  [data-skin=family] #page-landing .lpf-cols{grid-template-columns:1fr 1fr 1fr}
+  [data-skin=family] #page-landing .lpf-brand{grid-column:1 / -1}
+}
+@media (max-width:1000px){
+  [data-skin=family] #page-landing .lp-price-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  [data-skin=family] #page-landing .lp-price-card:nth-child(3){border-left:0}
+  [data-skin=family] #page-landing .lp-price-card:nth-child(n+3){border-top:1px solid var(--hairline)}
+}
+@media (max-width:900px){
+  [data-skin=family] #page-landing .hero-v2{grid-template-columns:1fr;padding:108px var(--x-gut) 0;min-height:0}
+  [data-skin=family] #page-landing .hero-copy{padding:8px 0 0}
+  [data-skin=family] #page-landing .hero-stage{min-height:460px;margin:12px calc(-1 * var(--x-gut)) 0}
+  [data-skin=family] #page-landing .hero-wall{height:460px;transform:perspective(2200px) rotateX(16deg) rotateY(-10deg) rotateZ(10deg)}
+  [data-skin=family] #page-landing .hero-stage .hero-wall{top:-6%;bottom:-10%;left:-4%;right:-30%;height:auto;transform:rotateX(16deg) rotateY(-10deg) rotateZ(10deg)}
+  [data-skin=family] #page-landing .lp-section-head{grid-template-columns:1fr}
+  [data-skin=family] #page-landing .lp-section-head > *,
+  [data-skin=family] #page-landing .lp-section-head > h2{grid-column:1;grid-row:auto}
+  [data-skin=family] #page-landing .lp-section-head > h2{margin-bottom:8px}
+  [data-skin=family] #page-landing #lp-video{grid-template-columns:1fr;row-gap:56px}
+  [data-skin=family] #page-landing .flow{grid-template-columns:1fr;gap:48px}
+  [data-skin=family] #page-landing .flow-step + .flow-step,
+  [data-skin=family] #page-landing #lp-partners .flow-step + .flow-step{padding:48px 0 0;border-left:0;border-top:1px solid var(--hairline)}
+  [data-skin=family] #page-landing .lp-lines{columns:1}
+  [data-skin=family] #page-landing .flow-step{padding-right:0}
+  [data-skin=family] #page-landing #faq{grid-template-columns:1fr}
+  [data-skin=family] #page-landing #faq > .lp-section-head{position:static;grid-row:auto;margin-bottom:40px}
+  [data-skin=family] #page-landing .lp-cta-inner{grid-template-columns:1fr}
+  [data-skin=family] #page-landing .lp-cta-inner .btn{grid-column:1;grid-row:auto;justify-self:start}
+}
+@media (max-width:640px){
+  [data-skin=family] #page-landing .lp-nav{height:64px;padding:0 16px}
+  [data-skin=family] #page-landing .hero-v2{padding-top:96px}
+  [data-skin=family] #page-landing .hero h1{font-size:clamp(42px,12vw,58px);letter-spacing:-.045em;margin:24px 0}
+  [data-skin=family] #page-landing .hero-ctas .btn-xl{flex:1 1 auto}
+  [data-skin=family] #page-landing .hero-ctas .btn-ghost.btn-xl{flex:0 1 auto}
+  [data-skin=family] #page-landing .hero-for{margin-top:32px}
+  [data-skin=family] #page-landing .hero-stage{min-height:400px}
+  [data-skin=family] #page-landing .hero-wall{gap:12px}
+  [data-skin=family] #page-landing .wall-col{gap:12px}
+  [data-skin=family] #page-landing .wall-card{border-radius:11px}
+  /* the lead figure across the top, then two columns: 2, 4, 6 on the left, 3 and 5 on the right */
+  [data-skin=family] #page-landing .lp-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  [data-skin=family] #page-landing .lp-stats .stat,
+  [data-skin=family] #page-landing .lp-stats .stat:nth-child(n){margin:0;padding:22px 0;border-left:0;border-top:1px solid var(--hairline)}
+  [data-skin=family] #page-landing .lp-stats .stat.stat-lead{grid-column:1 / -1;border-top:0;padding-top:28px}
+  [data-skin=family] #page-landing .lp-stats .stat:nth-child(odd):not(.stat-lead){border-left:1px solid var(--hairline);padding-left:18px}
+  [data-skin=family] #page-landing .lp-chips{flex-wrap:nowrap;overflow-x:auto;margin-left:calc(-1 * var(--x-gut));margin-right:calc(-1 * var(--x-gut));padding:0 var(--x-gut) 4px;scrollbar-width:none}
+  [data-skin=family] #page-landing .lp-chips::-webkit-scrollbar{display:none}
+  [data-skin=family] #page-landing .lp-chips .chip{flex:none}
+  [data-skin=family] #page-landing .lp-subchips{flex-wrap:nowrap;overflow-x:auto;margin-right:calc(-1 * var(--x-gut));padding-right:var(--x-gut);scrollbar-width:none}
+  [data-skin=family] #page-landing .lp-subchips::-webkit-scrollbar{display:none}
+  [data-skin=family] #page-landing .lp-subchips .chip{flex:none}
+  [data-skin=family] #page-landing .tpl-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 14px}
+  [data-skin=family] #page-landing .tpl-card .tpl-meta{flex-direction:column;gap:2px}
+  [data-skin=family] #page-landing .tpl-card .tpl-name{font-size:14px}
+  [data-skin=family] #page-landing .tpl-card .tpl-tag{font-size:12.5px}
+  [data-skin=family] #page-landing .fam-grid{
+    grid-auto-flow:column;grid-template-rows:repeat(3,auto);grid-template-columns:none;grid-auto-columns:96px;
+    overflow-x:auto;margin:0 calc(-1 * var(--x-gut));padding:0 var(--x-gut) 6px;scrollbar-width:none;
+  }
+  [data-skin=family] #page-landing .fam-grid::-webkit-scrollbar{display:none}
+  [data-skin=family] #page-landing .fam-art b{font-size:15px}
+  [data-skin=family] #page-landing .fam-art i{font-size:9px}
+  [data-skin=family] #page-landing .lp-price-grid{grid-template-columns:1fr}
+  [data-skin=family] #page-landing .lp-price-card + .lp-price-card{border-left:0;border-top:1px solid var(--hairline)}
+  [data-skin=family] #page-landing .lp-faq summary{padding-right:40px}
+  [data-skin=family] #page-landing .lp-faq p{padding-right:0}
+  [data-skin=family] #page-landing .vid-time b{font-size:22px}
+  [data-skin=family] #page-landing .vid-time span{font-size:13px}
+  [data-skin=family] #page-landing .lpf-cols{grid-template-columns:1fr 1fr;gap:32px 20px}
+  [data-skin=family] #page-landing .lpf-col-ads{grid-column:1 / -1}
+}

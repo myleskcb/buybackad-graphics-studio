@@ -15,11 +15,13 @@
    - Finished designs: every card the studio offers, read from this deploy
      (assets/showcase/index.json and the full-size renders in
      assets/library-ads/), by the site's own test for an offered card
-     (scIsLive in app.js, the same as netlify/lib/library.mjs). Whatever the
-     latest build re-drew is what shows: nothing here is a copy. Each carries
-     a ★ (owner, 2026-10-06: "every ad has an option to add to library"):
-     the full-size render, as shown, goes to the account's library through
-     ad-library.js; signed out, the account dialog comes first.
+     (scIsLive in app.js, the same as netlify/lib/library.mjs), then the
+     rebuilt ad of every card retired (assets/recipe-stills/,
+     assets/rebuilt-ads/). Whatever the latest build re-drew is what shows:
+     nothing here is a copy. For the operator each carries a ★ (owner,
+     2026-10-06: "every ad has an option to add to library"): the full-size
+     render, as shown, goes to the account's library through ad-library.js.
+     The renders carry iPhones LA's number, so a customer has no ★ here.
    A saved video ad plays here, with its clip to download beside its photo.
    ═══════════════════════════════════════════════════════ */
 (() => {
@@ -97,6 +99,23 @@
   }
 
   /* ---------- saved ads ---------- */
+  /* Is the person looking an operator (the owner)? Since 2026-11-19 every account
+     keeps a library (owner: "Open it to customers"); what is about iPhones LA (held,
+     offered daily, "for iPhones LA") is the owner's to read, never a customer's or the
+     visitors to a customer's link. */
+  let SHOP = false, asked = null;
+  /* asked once: the saved tab and the finished tab both wait on it */
+  function operator(){ return asked || (asked = whoIs()); }
+  async function whoIs(){
+    let token = null;
+    try { token = JSON.parse(localStorage.getItem('pgfx_token') || 'null'); } catch (e){}
+    if (!API || !token || String(token).startsWith('demo:')) return false;
+    try {
+      const r = await fetch(API + '/me', { headers: { Accept: 'application/json', Authorization: 'Bearer ' + token } });
+      const j = await r.json().catch(() => ({}));
+      return !!(r.ok && j.user && j.user.role === 'admin');
+    } catch (e){ return false; }
+  }
   function savedCard(it){
     const c = el('div', 'ml-card');
     if (it.video){
@@ -119,7 +138,8 @@
     }
     c.appendChild(el('b', '', it.title));
     c.appendChild(el('span', 'ml-meta', [catName(it.category), it.image.width + ' × ' + it.image.height, it.video ? it.video.format.toUpperCase() + ' ' + it.video.width + ' × ' + it.video.height : '', 'saved ' + when(it.created)].filter(Boolean).join(' · ')));
-    if (it.hold) c.appendChild(el('span', 'ml-held', it.hold === 'unchecked' ? 'Held: not checked for a website, so not for iPhones LA' : 'Held: it shows ' + it.hold + ', so not for iPhones LA'));
+    if (!SHOP) { /* a customer's card, or a visitor's: what it is and when it was saved */ }
+    else if (it.hold) c.appendChild(el('span', 'ml-held', it.hold === 'unchecked' ? 'Held: not checked for a website, so not for iPhones LA' : 'Held: it shows ' + it.hold + ', so not for iPhones LA'));
     else if (it.fresh === false) c.appendChild(el('span', 'ml-held', 'Past its 7 days: no longer offered'));
     else if (it.post) c.appendChild(el('span', 'ml-post', 'Offered daily, day ' + it.post.round + ' of 7' + (it.post.next_at ? ', next ' + when(it.post.next_at) : ', its last')));
     else c.appendChild(el('span', 'ml-meta', 'For iPhones LA'));
@@ -131,12 +151,24 @@
   }
   function feedBox(lib, isOwner){
     const box = $('ml-feed');
-    box.hidden = false;
     box.textContent = '';
+    if (!SHOP){
+      // a customer's own library: its link to share; a visitor to a shared link: the feeds, plainly
+      box.hidden = false;
+      box.appendChild(el('b', '', isOwner ? 'Your public link' : 'This library as a feed'));
+      box.appendChild(el('p', '', isOwner
+        ? 'Share this page: anyone with it sees these ads and nothing else. Reset it in the studio (📚 Library) to stop the old one.'
+        : 'For apps that read it: the same ads as JSON and as RSS.'));
+      (isOwner ? [['This page', lib.links.page], ['JSON feed', lib.links.json], ['RSS', lib.links.rss]] : [['JSON feed', lib.links.json], ['RSS', lib.links.rss]]).forEach(([label, url]) => {
+        const p = el('p'); p.appendChild(el('span', '', label + ': ')); p.appendChild(el('code', '', url)); box.appendChild(p);
+      });
+      return;
+    }
+    box.hidden = false;
     box.appendChild(el('b', '', isOwner ? 'Your public link' : 'For iPhones LA'));
     const p1 = el('p', '', isOwner
       ? 'Give this page to iPhones LA. Anyone with it sees these ads and nothing else. Reset it in the studio (📚 Library) to stop the old one.'
-      : 'Every ad saved in Graphics Studio, picture and video. Each is offered daily for 7 days from when it was saved, then retires. iPhones LA reads one of these and reviews and posts the ads there:');
+      : 'Every ad saved in WeBuy.AD, picture and video. Each is offered daily for 7 days from when it was saved, then retires. iPhones LA reads one of these and reviews and posts the ads there:');
     box.appendChild(p1);
     const rows = isOwner ? [['This page', lib.links.page], ['JSON feed', lib.links.json], ['RSS', lib.links.rss]] : [['JSON feed', lib.links.json], ['RSS', lib.links.rss]];
     rows.forEach(([label, url]) => {
@@ -178,33 +210,48 @@
       return null;
     }
     if (feed){
-      document.title = (lib.name || 'Ad library') + ' | Graphics Studio by BUYBACK.AD';
+      document.title = (lib.name || 'Ad library') + ' | WeBuy.AD';
       $('ml-title').textContent = lib.name || 'Ad library';
       $('ml-crumb').textContent = lib.name || 'Ad library';
-      $('ml-lead').textContent = 'WE BUY ads saved in Graphics Studio, at full size. Each one downloads as a JPEG ready to post.';
+      $('ml-lead').textContent = 'WE BUY ads saved in WeBuy.AD, at full size. Each one downloads as a JPEG ready to post.';
     }
+    SHOP = await operator();
     feedBox(lib, !feed);
     if (!lib.items.length){ say(feed ? 'This library has no ads yet.' : 'Nothing saved yet. Download an ad in the studio and press "Save to library".', feed ? null : ['index.html', 'Open the studio']); return lib; }
     section('saved', lib.items.map(searchable), savedCard, {
-      countLine: n => n + (n === 1 ? ' ad' : ' ads') + ', ' + lib.items.filter(x => x.post).length + ' offered today',
+      countLine: n => n + (n === 1 ? ' ad' : ' ads') + (SHOP ? ', ' + lib.items.filter(x => x.post).length + ' offered today' : ''),
     });
     return lib;
   }
 
   /* ---------- finished designs ---------- */
+  /* Since pull request 14 (2026-11-21, "Retire them", DESIGN-LAW 155) every library card is retired
+     and its REBUILT ad stands in its place: its still (assets/recipe-stills/) as the thumbnail, its
+     full-size render (assets/rebuilt-ads/, drawn by scripts/render_rebuilt_ads.mjs as iPhones LA's
+     copy: the shop's number and its website line). This tab lists them as the partner library does
+     (netlify/lib/library.mjs): a card still offered first, then the rebuilt ad of every card that is
+     not. Until now it read the cards alone, and showed none. */
+  const fullUrl = x => 'assets/' + x.dir + '/' + x.id + '.jpg?v=' + x.render.slice(0, 12);
   /* the design's full-size render, as shown, into the account's library; the
      words on it read from its record, a website on it holds it from iPhones LA
-     (the same rule the studio keeps) */
+     (the same rule the studio keeps). The operator's alone: the renders carry
+     the shop's number, so a customer makes theirs in the studio */
   async function saveFinished(x){
     const lib = window.adLibrary;
     if (!lib) throw new Error('the library did not load; reload the page');
     if (!x.render) throw new Error('this design has no full-size render yet');
-    const full = 'assets/library-ads/' + x.id + '.jpg?v=' + x.render.slice(0, 12);
-    const r = await fetch(full);
+    const r = await fetch(fullUrl(x));
     if (!r.ok) throw new Error('the render could not be fetched (' + r.status + ')');
     const blob = await r.blob();
     const data = await new Promise((res, rej) => { const f = new FileReader(); f.onload = () => res(String(f.result)); f.onerror = () => rej(new Error('the render could not be read')); f.readAsDataURL(blob); });
     const meta = { title: x.title, category: x.category, template: 'sc-' + x.id, texts: [], products: [], source: 'master', hold: '' };
+    if (x.words){
+      /* a rebuilt ad: its words are its recipe's (the still's stamp), and its render carries the
+         website line (render_rebuilt_ads.mjs), so it is held from iPhones LA as a card with one was */
+      Object.entries(x.words).forEach(([role, text]) => { if (text && meta.texts.length < 24) meta.texts.push({ role, text: String(text).replace(/\s+/g, ' ').trim().slice(0, 200) }); });
+      meta.hold = 'a website';
+      return lib.save({ name: x.id + '.jpg', data, meta });
+    }
     try {
       const rec = await fetch('assets/showcase/tpl/' + x.id + '.json').then(q => q.ok ? q.json() : null);
       const layers = (rec && rec.tpl && rec.tpl.layers) || [];
@@ -221,13 +268,13 @@
   }
   function finishedCard(x){
     const c = el('div', 'ml-card');
-    const full = x.render ? 'assets/library-ads/' + x.id + '.jpg?v=' + x.render.slice(0, 12) : x.thumb;
+    const full = x.render ? fullUrl(x) : x.thumb;
     const a = link(full, '', { blank: true });
     a.className = 'ml-img';
     a.setAttribute('aria-label', 'Open ' + x.title + ' at full size');
     const im = el('img'); im.src = x.thumb; im.alt = x.title; im.loading = 'lazy'; im.width = 448; im.height = 448;
     a.appendChild(im);
-    if (window.adLibrary && x.render && !feed) a.appendChild(window.adLibrary.star('sc-' + x.id, { name: x.title, save: () => saveFinished(x) }));
+    if (window.adLibrary && x.render && !feed && SHOP) a.appendChild(window.adLibrary.star('sc-' + x.id, { name: x.title, save: () => saveFinished(x) }));
     c.appendChild(a);
     c.appendChild(el('b', '', x.title));
     c.appendChild(el('span', 'ml-meta', catName(x.category) + (x.subject ? ' · ' + x.subject : '')));
@@ -242,15 +289,22 @@
     if (finishedLoaded) return;
     finishedLoaded = true;
     const grid = $('grid-finished');
-    let cards = [], renders = {}, built = '';
+    let cards = [], renders = {}, built = '', stills = {}, rebuilt = {}, lines = {};
     try {
-      const [a, b] = await Promise.all([
+      const [a, b, s, rb, sj] = await Promise.all([
         fetch('assets/showcase/index.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }),
         fetch('assets/library-ads/index.json').then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch('assets/recipe-stills/index.json').then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch('assets/rebuilt-ads/index.json').then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch('motion/subjects.json').then(r => r.ok ? r.json() : null).catch(() => null),
+        operator().then(v => { SHOP = v; }),
       ]);
       cards = Array.isArray(a) ? a : [];
       renders = (b && b.items) || {};
-      built = (b && b.built) || '';
+      stills = (s && s.items) || {};
+      rebuilt = (rb && rb.items) || {};
+      lines = Object.fromEntries(((sj && sj.subjects) || []).map(x => [x.key, x.label]));
+      built = [b && b.built, rb && rb.built].filter(Boolean).sort().pop() || '';
     } catch (e){
       finishedLoaded = false;
       grid.textContent = '';
@@ -259,9 +313,24 @@
     }
     const items = cards.filter(c => live(c) && c.thumb).map(c => ({
       id: c.id, title: c.name || c.id, category: c.cat || 'other', subject: c.subject || '',
-      thumb: c.thumb, render: renders[c.id] ? renders[c.id].sha1 : '',
+      thumb: c.thumb, render: renders[c.id] ? renders[c.id].sha1 : '', dir: 'library-ads',
       _s: words([c.id, c.name, c.cat, c.theme, c.layout, c.subject, c.family].join(' ')),
     }));
+    // the rebuilt ad of every card no longer offered, with its render (library.mjs, the same test)
+    const offered = new Set(items.map(x => x.id)), byId = new Map(cards.map(c => [c.id, c]));
+    for (const [id, r] of Object.entries(rebuilt)){
+      const h = stills[id];
+      if (!h || !h.thumb || offered.has(h.from) || live(byId.get(h.from))) continue;
+      let w = {};
+      try { const st = JSON.parse(h.stamp || 'null'); w = (st && st[2]) || {}; } catch (e){ /* the headline alone */ }
+      if (!w.headline && h.headline) w = { headline: h.headline };
+      const fam = String(h.family || '').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, ch => ch.toUpperCase());
+      items.push({
+        id, title: r.title || h.name || id, category: h.cat || 'other', subject: lines[h.line] || h.line || '',
+        thumb: h.thumb, render: r.sha1 || '', dir: 'rebuilt-ads', words: w,
+        _s: words([id, r.title, h.name, h.cat, h.pairName, fam, h.line, lines[h.line], h.from, w.headline].join(' ')),
+      });
+    }
     const full = items.filter(x => x.render).length;
     section('finished', items, finishedCard, {
       paged: true,

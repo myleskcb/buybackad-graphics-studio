@@ -1,4 +1,4 @@
-# BUYBACK.AD — deploy guide
+# WeBuy.AD — deploy guide
 
 ## Frontend
 Deploy a clean checkout of `main` with the Netlify CLI (AGENT-BRIEF.md,
@@ -21,7 +21,8 @@ Blobs (store `pgfx-users`). The Cloudflare Worker at `worker.js` is the
 retired first version: not deployed, 404'd at the edge, kept for history.
 
 **Two Netlify projects, two sets of settings.** `buybackad-finished-copy`
-(the one presented, https://buybackad-finished-copy.netlify.app) is linked
+(the one presented: https://webuy.ad, live 2026-11-19 UTC, also at
+https://buybackad-finished-copy.netlify.app; OPEN-ITEMS §BL) is linked
 to this repo but builds from the branch `claude/fervent-pascal-w6mthe`, not
 `main`; the `sync-finished-copy` job in `.github/workflows/deploy.yml` moves
 that branch to `main` on every push, so a push to `main` is live there in
@@ -45,7 +46,7 @@ redeploy. `.env.example` is the local copy for `netlify dev`.
 | `AI_FREE_DAILY_CREDITS` / `AI_DAILY_CREDITS` | site-wide ceilings a day: the free tier's AI credits (default 100, about $4) and everyone's (default 2000, a runaway guard). `RL_USER_DAILY`, `RL_PRO_DAILY` and `RL_GLOBAL_DAILY` are retired: credits replace them |
 | `STRIPE_SECRET` | **switches billing on.** The only Stripe setting needed: the prices, the products and the webhook make themselves (below). Until it is set, Go Pro says "Checkout is not open yet" and nothing is charged |
 | `STRIPE_PUBLISHABLE_KEY` | optional, and the one to set with `STRIPE_SECRET`: `pk_test_…` with a test secret, `pk_live_…` with a live one. With it, checkout happens **on the site**: Stripe's payment form (card, Apple Pay, Google Pay, Link, whatever the Stripe dashboard's Payment methods switch on) opens inside the site's own dialog (`checkout-embed.js`, Stripe Embedded Checkout) and a card pays without leaving the page. Its look follows the Stripe dashboard's Settings → Branding (colours, font, corners). Without it, or with a key of the other mode, checkout is Stripe's hosted page |
-| `STRIPE_WEBHOOK_SECRET`, `PRICE_<KEY>`, `SITE_URL` | optional. A webhook you made by hand (otherwise the site registers its own); a price you made by hand (`PRICE_PRO_MONTH`, `PRICE_BUSINESS_YEAR`, `PRICE_CREDITS100`…; the old `PRICE_PRO` is `PRICE_PRO_MONTH`); the site's own https origin, where Stripe sends people back and events (defaults to Netlify's `URL`) |
+| `STRIPE_WEBHOOK_SECRET`, `PRICE_<KEY>`, `SITE_URL` | optional. A webhook you made by hand (otherwise the site registers its own); a price you made by hand (`PRICE_PRO_MONTH`, `PRICE_BUSINESS_YEAR`, `PRICE_CREDITS100`…; the old `PRICE_PRO` is `PRICE_PRO_MONTH`); the site's own https origin, where Stripe sends people back and events (defaults to Netlify's `URL`, which is the primary domain, `https://webuy.ad`, once it is set). Leave it unset, or make it `https://webuy.ad`: a netlify.app value keeps Checkout and the webhook on the old address. When the address changes, the next checkout moves the webhook to it (`ensureWebhook`) |
 | `GOOGLE_CLIENT_ID` | optional; shows the Google sign-in button |
 | `LIBRARY_KEYS`, `LIBRARY_DAILY` | the partner library API, below |
 
@@ -71,6 +72,17 @@ Stripe, once (owner, 2026-10-08: "make it live we can use stripe"):
    Test-mode customers and subscriptions are not carried into live mode.
 4. Partner and creator discounts are Stripe promotion codes (Stripe →
    Coupons); Checkout shows the code field on the plans.
+
+**The live account (2026-11-23).** WeBuy.AD has no registered business yet, so it
+sells through the owner's iPhones.LA Stripe account. `STRIPE_SECRET` for
+Production is that account's own standard key named "WeBuy.AD website" (roll
+or revoke it without touching iPhones.LA's key); Deploy Previews and branch
+deploys keep test keys. Buyers see iPhones.LA on Stripe's form, the Apple Pay
+and Google Pay sheet, receipts, invoices and the billing portal; the card
+statement is the account's prefix then `WEBUY.AD` (`STATEMENT_SUFFIX` in
+`netlify/lib/billing.mjs`). The webhook hears every sale of that account and
+acts only on the site's own plans and packs (`ownSession`, `ownSubscription`).
+A WeBuy.AD Stripe account later means moving paying subscribers.
 
 The plan switches on when the customer comes back from Checkout
 (`/api/checkout/confirm` reads the session from Stripe), so it never waits
@@ -98,7 +110,7 @@ and the plans page and Checkout in Chromium.
 | Price | $0 | $25 a month, $250 a year | $60 a month, $600 a year | $100 a month, $1,000 a year |
 | Downloads | 3 photos a week | 100 photos a month | 500 a month, photos or videos | unlimited, photos or videos |
 | Video ads | make and watch | make and watch | download, no marks | download, no marks |
-| Size, watermark | 1080 px, BUYBACK.AD marks | 2160 px, none | 2160 px, none | 2160 px, none |
+| Size, watermark | 1080 px, WeBuy.AD marks | 2160 px, none | 2160 px, none | 2160 px, none |
 | Designs | every Phones card + the top 3 of each other category | all | all | all |
 | AI credits a month | 5 | 50 | 200 | 500 |
 | Ads kept in the library | 12 | 300 | 1,000 | 3,000 |
@@ -291,7 +303,7 @@ the landing, a video saved from each; `FABRIC_JS=…` when cdnjs is out of
 reach).
 
 ## SCANS.AD (ScanMap) integration — optional
-Graphics Studio runs 100% standalone. The integration is also **invisible to
+WeBuy.AD runs 100% standalone. The integration is also **invisible to
 single-product users**: every SCANS.AD surface (order buttons, tracked-link
 helper) stays hidden until the browser proves membership of BOTH platforms —
 the user is signed in here AND has either arrived via ScanMap's dashboard link

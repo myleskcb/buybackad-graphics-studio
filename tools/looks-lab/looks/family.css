@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap');
-/* FAMILY: the resale. design language (violet-light / violet-dark), applied to Graphics Studio. */
+/* FAMILY: the resale. design language (violet-light / violet-dark), applied to WeBuy.AD. */
 :root[data-theme][data-finish='counter']:is([data-lab='family'],[data-lab='suite']){
   --block:#6C26D6;--on-block:#ffffff;--on-block-muted:#D9CCF7;--dot:#0786A3;--control:#7B7498;
   --display:'Instrument Sans',-apple-system,'Segoe UI',sans-serif;

@@ -1,6 +1,92 @@
 {
- "size": {},
- "sets": {},
+ "size": {
+  "photo-gaming-steam-deck-dark": [
+   1814,
+   746
+  ],
+  "photo-wear-ray-ban-meta": [
+   1803,
+   949
+  ],
+  "photo-gaming-pc-tower": [
+   870,
+   1800
+  ],
+  "photo-ssd-samsung-980-pro": [
+   1800,
+   549
+  ],
+  "photo-ssd-wd-black-sn850x": [
+   1800,
+   545
+  ],
+  "photo-minipc-intel-nuc8": [
+   1800,
+   1134
+  ],
+  "photo-minipc-minisforum-n40": [
+   1589,
+   1509
+  ],
+  "photo-chromebook-asus-c201": [
+   1495,
+   1800
+  ]
+ },
+ "sets": {
+  "pchandheld": [
+   [
+    [
+     "photo-gaming-steam-deck-dark",
+     1
+    ]
+   ]
+  ],
+  "metaglasses": [
+   [
+    [
+     "photo-wear-ray-ban-meta",
+     1
+    ]
+   ]
+  ],
+  "gamingpc": [
+   [
+    [
+     "photo-gaming-pc-tower",
+     1
+    ]
+   ]
+  ],
+  "ssd": [
+   [
+    [
+     "photo-ssd-samsung-980-pro",
+     1
+    ]
+   ],
+   [
+    [
+     "photo-ssd-wd-black-sn850x",
+     1
+    ]
+   ]
+  ],
+  "minipc": [
+   [
+    [
+     "photo-minipc-intel-nuc8",
+     1
+    ]
+   ],
+   [
+    [
+     "photo-minipc-minisforum-n40",
+     1
+    ]
+   ]
+  ]
+ },
  "replaces": {},
  "grounds": {}
 }

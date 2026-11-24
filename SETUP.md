@@ -1,4 +1,4 @@
-# BUYBACK.AD monorepo, new machine setup
+# WeBuy.AD monorepo, new machine setup
 
 Two zips carry everything: `graphics-studio.zip` (the hosted site, all 129
 backdrops, the Netlify backend function) and `orchard-photo-engine.zip` (the
@@ -49,7 +49,7 @@ git add -A && git commit -m "Monorepo: graphics-studio + orchard + scanmap"
 gh repo create myleskcb/buyback-monorepo --private --source . --push
 ```
 
-## 3. Graphics Studio (hosted site)
+## 3. WeBuy.AD (hosted site)
 
 ```sh
 cd ~/code/buyback/apps/graphics-studio
@@ -67,8 +67,11 @@ netlify deploy --prod                           # ship to production
 Notes:
 - Deploys are CLI-direct from this folder (the GitHub repo
   myleskcb/buybackad-graphics-studio is history, not CD).
-- Live site: https://buybackad-graphics-studio.netlify.app
-  (buyback.ad + www + studio.scans.ad are attached and go live once DNS exists).
+- Live site: https://webuy.ad (the `buybackad-finished-copy` project, also
+  at https://buybackad-finished-copy.netlify.app; OPEN-ITEMS §BL). The older project,
+  https://buybackad-graphics-studio.netlify.app (team KCB, the id above), has no
+  custom domain since 2026-11-23 and still serves iPhones LA's studio link;
+  docs/OPERATIONS.md has the order for retiring it.
 
 ## 4. ORCHARD photo engine (local tool)
 
@@ -111,6 +114,6 @@ working directory:
 
 - [ ] http://localhost:4477/backgrounds.html shows 129/129 live
 - [ ] http://localhost:8877 loads, sign-in works, templates show photo backdrops
-- [ ] `curl https://buybackad-graphics-studio.netlify.app/api/health` answers `"accounts":true` and `"store":"ok"` after a deploy. `502` means the function shipped without `npm ci`; `404` means the site shipped without its function; `"accounts":false` means `JWT_SECRET` is not set on that Netlify project. The sign-in dialog says the same thing in those three cases, so a visitor's "cannot log in" names its cause
+- [ ] `curl https://webuy.ad/api/health` answers `"accounts":true` and `"store":"ok"` after a deploy. `502` means the function shipped without `npm ci`; `404` means the site shipped without its function; `"accounts":false` means `JWT_SECRET` is not set on that Netlify project. The sign-in dialog says the same thing in those three cases, so a visitor's "cannot log in" names its cause
 - [ ] `netlify deploy --prod` from graphics-studio succeeds
 - [ ] ORCHARD approve on any slot writes a JPG into apps/graphics-studio/assets/bg

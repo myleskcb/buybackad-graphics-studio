@@ -3249,7 +3249,1520 @@ Open:
    `ad_library_check.mjs`, which fail the same way on untouched `main`. Run
    both on the Mac before a deploy.
 
-## BO. 2026-11-18 — the video ads sound like a trailer, not a game (DESIGN-LAW 154)
+## Ad approvals. 2026-11-11: one page to mark an ad commercial worthy, hero worthy, or denied
+
+The owner: "make sure we have an approval page for the commercial worthy ads
+and hero worthy". There was none on the site: the hero picker opens only from
+a checkout (`tools/hero-picker/`, 404'd at the edge), `pick.html` is good/bad
+over an older set, and nothing recorded "commercial worthy" at all.
+
+Done:
+- `approve.html` (`approve.js`, `approve.css`), served, noindex. Every live
+  card of `assets/showcase/index.json` (366 today, the wall's own `scIsLive`
+  test, the hero picker's order) with three marks: **Commercial**, **Hero**,
+  **No**. Commercial and Hero are separate, a card may carry both; No clears
+  them. Tabs To review / All / Commercial worthy / Hero worthy / Denied,
+  category chips, search by name or SKU, keys C H X on a focused card. Hero
+  ads keep the order they were picked in (the number on the card).
+- The marks are written to the browser on every tap, and for a signed-in
+  operator to the server (`GET|PUT /api/admin/approvals`, store
+  `pgfx-approvals`, newest copy wins), so a phone and a Mac agree.
+- **Export lists** gives `assets/commercial-picks.json` (new, empty today)
+  and `assets/hero-picks.json` in the shape the wall reads. A first visit
+  starts from those two files: 12 of the 17 hero picks on file are live
+  cards and show as hero worthy; the other 5 are held cards the wall
+  already skips.
+- Check: `node scripts/approve_check.mjs` (the route as the real function
+  with a stand-in store, the page's files, the noindex lines). In Chromium at
+  1440 and 390: marks, order numbers, tabs, search, export, a reload keeping
+  the marks, the signed-in save against a mocked API; no page errors, no
+  sideways scroll.
+
+Open:
+1. **The landing does not read the server copy.** A Hero mark reaches the
+   wall when the exported `hero-picks.json` is committed and deployed, as
+   with the hero picker before. Reading `/api` on every landing visit was
+   not added unasked.
+2. **Nothing consumes `commercial-picks.json` yet.** It is the owner's list;
+   what a commercial worthy ad earns (first in the gallery, the only cards
+   iPhones LA auto-posts, the cards made into video ads) is the owner's call.
+3. **Photo ads only.** The video ads are drawn in the browser by `/motion`;
+   their review (stars, favourites) is still `/admin-ads/`.
+4. Not exercised against production: this session's network cannot reach
+   Netlify. The server save needs `JWT_SECRET`, as every account feature.
+
+## BD. 2026-11-12 — live; the review by eye; the pre-flight; competitors (DESIGN-LAW 138)
+
+(claude/friendly-heisenberg-868z63. `main` moved to 9dddf354 on the owner's "go live".)
+
+Done:
+- **`main` is §BC's work.** GitHub's deploy run moved buybackad-finished-copy's
+  branch (it builds itself). The direct deploy to buybackad-graphics-studio was
+  **skipped: NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID are not set** on the
+  repository. Set them and re-run "Deploy main to Netlify", or deploy from the Mac.
+- **Reviewed by eye**: thirteen faults in ten ads, fixed where each starts
+  (docs/FULL-AD-REVIEW-2026-11-12.md).
+- **The pre-flight** (rule 138) on the page, before every download, in the check.
+- **A business name** on the ad (the badge), from the competitor pass.
+- **Competitor and evidence research**: docs/COMPETITOR-RESEARCH-2026-11-12.md.
+
+Open:
+1. **This round is on the branch, not on `main`** (everything after 9dddf354).
+2. **The research saw no competitor picture**: every image host is blocked from
+   the cloud container. Thirty minutes by hand (its section 2.5), or those hosts
+   allowed in the environment, closes it.
+3. **For the owner to decide, from the research**: an OfferUp-safe export (no
+   number, no website, little text); the website line off the picture; three
+   claims instead of six; the sticker off by default; an owner-entered price
+   line and proof chip; a "data wiped" chip; a real photograph in the product's
+   place. Each cuts against something the owner asked for by name (the website
+   on 2026-11-03, "maximize elements" and "eye catchy elements" on 2026-11-11),
+   so none was changed.
+4. **"Text a photo, get a price"** (research) is rule 136's opposite: for phones
+   the named first step is TEXT YOUR IMEI.
+5. **Claude on every customer's ad** is not built: the pre-flight is the
+   automatic part. A model looking at each ad needs the backend to call one per
+   ad (cost and seconds each); the weekly iPhones LA batch already has a session
+   look at its sheet. Offer it as a paid "second opinion" only if wanted.
+6. **Any look** has none of this: the pre-flight and the review are the full ad's.
+
+## BE. 2026-11-12 — the full ad's colours, tweaked (DESIGN-LAW 139)
+
+(claude/admiring-hamilton-6bbehw, from `main` at 9dddf354, with
+claude/friendly-heisenberg-868z63 (the full ad reviewed by eye, the pre-flight),
+claude/festive-ramanujan-vhcayy (six step styles) and
+claude/wizardly-keller-abkuc4 (the approval page) merged in first.)
+
+The owner: "the theming is much better", "but still needs tweaks". No tweak was
+named, so the twelve pairs were drawn on the same ad, everything else held, one
+sheet per product, and every cell looked at and measured in OKLCH.
+
+Done (rule 139):
+- **The chevrons are the accent at full strength**, stepped in size, not
+  opacity. The opacity step drew khaki, brown, rose-brown and olive on every
+  dark pair with a warm accent. The review's fix it replaces (§BD, item 7 of
+  docs/FULL-AD-REVIEW-2026-11-12.md: always larger toward the number, never
+  lit by the clock) still holds.
+- **GOLD and SILVER are drawn in their own colour or not accented**, and a
+  seeded gold, silver, test strip or Pokémon ad draws its pair from the
+  library's own `AFFINITY` (now each pair's `suits` in `house-colours.js`).
+- **A bold phone counts toward the two colour families**: the owner's default
+  set (an orange 17 Pro Max in the middle) no longer lands on Midnight & Cyan,
+  Blue & Green or Green & Gold. Phone colours are measured from the pictures
+  at load (`bodyColour`).
+- `scripts/full_colour_check.mjs` holds all three (chevrons read off the
+  delivered pixels; words, lines and phones over 3,000 drawn styles; 600 ads
+  that must draw the pair they drew before). Each fault put back fails it.
+- Checks: full_ad_check, quick_ad_check, buylist_check, social_studio_check,
+  listing_check, audience_check and motion_cta_audit all clear on the final
+  code; theme_law, audit_theme_grammar, theme_cohesion_audit and cvd_audit
+  pass; every page loads with no errors.
+
+Open:
+1. **Not on `main`.** Pushed to its branch; merging is the owner's word.
+2. **Navy & Gold and Purple & Gold with an orange phone** are excluded by 4
+   degrees: gold is hue 81, the Cosmic Orange body 47, and the law's family gap
+   is 30 (`pgHuePlan`). By eye both look fine (analogous warms). If the owner
+   wants them back, widen `FAMILY_GAP` to 35 in `motion/fullad.js` and say so in
+   rule 139; Green & Gold comes back with them.
+3. **The lit patch of each ground is under rule 103's ground chroma** (the
+   pair's `light`, its lighter stop mixed a fifth toward white in sRGB: navy
+   C .091, green .083, teal .053 where 0.14 is asked at that luminance). Not
+   changed: some themes' own grounds are under it too (Teal & Orange's ground
+   is C .049), and those are the studio's themes, solved by the colour builder.
+   Lifting the lights in OKLCH would make the grounds bluer, greener and redder;
+   that is the owner's call, and it should go through `house_themes.mjs`.
+4. **The cash icon at 4:5** (the photo of a fan of banknotes, about 55px) stands
+   alone under the sticker and reads as a stray mark at feed size. It was chosen
+   on 2026-11-12 over the handshake, the pin and the shield; the next look at
+   it is the layout's, not the colours'.
+5. **The sticker on Silver & Blue is a dark navy star** (the card's ink, as the
+   white star is on the dark pairs). Consistent by rule 137; whether a light
+   card's sticker should take the accent instead is the owner's call.
+6. ~~`hotColour()` can fall back to colours outside the pair~~ (yellow, pink,
+   green, cyan) when an accent is too close to its ground in luminance. All
+   twelve give their own accent; `build_house_colours.mjs` now refuses a pair
+   that would not (done the same day).
+7. **iPhones LA's weekly batch** still draws its own sixteen colourways
+   (`tools/feed-stills`), untouched here (§BC 4).
+8. **The engine's own chevrons fade by opacity too** (`motion/decor.js`
+   `drawChevrons`: the two unlit of three at .35, a running light). Every plain
+   video look ("Any look") and iPhones LA's feed stills draw them, so a warm
+   accent's unlit chevrons are the same khaki and brown as the full ad's were.
+   Not changed: the feed's ads are the owner's approved set (§BC 4), and the
+   running light is an animation the owner may want as it is. The rule 139
+   fix, if wanted: unlit at full colour without the glow and at the full ad's
+   `CHEVRON_STEP` sizes, lit with the glow.
+9. **Not re-run here**: `steps_rhythm_audit.mjs` and `step_number_audit.mjs`
+   for the merged step styles (their harness is puppeteer-core against a
+   server on 8899). The step-styles session ran `audit_card.mjs` and `pgCheck`
+   in four sizes on the cards it changed; run the two on the Mac before a
+   deploy.
+## BF. 2026-11-13 — the Type Lab: 182 new display faces, waiting on the owner's picks (DESIGN-LAW 140)
+
+(claude/youthful-cray-en1m2i.)
+
+The owner: "we only have pretty normal looking fonts … as many unique ones
+that are graphic design friendly … and then we can integrate them into our ads".
+
+Done:
+- 182 OFL faces vendored in `assets/fonts/lab/` (190 files, 4.7 MB), listed in
+  `assets/font-lab.json` by design language, each with the licensed face it
+  stands in for where there is one.
+- The review page (`scripts/build_type_lab_page.mjs`): type any headline, four
+  grounds, caps, Yes / Maybe on each face, one button that copies the picks.
+
+Open:
+1. **The owner's picks.** Nothing is in the picker or a pair until they come
+   back. Record them in `font-lab.json` `verdicts`.
+2. **Integrate the picks**: move the files to `assets/fonts/`, add to
+   `approved-fonts.json`, `engine/fonts.mjs` (`FONT_FILES`), `APPROVED_FACES`
+   in app.js; run `fetch_fonts.mjs` for `faces.css` and bump its `?v=`.
+3. **New pairs** from them in `FONT_PAIRS` and `TYPE_VOICES` (a display face
+   with a reading face already in the house), then `type_voices_check`,
+   `every_card_audit` for each new voice, and the video palette audit.
+   Caps-only faces and weak figures need `faceGlyphs` and `numberRead`.
+4. **Delete the unpicked files** from `assets/fonts/lab/` once the picks are in.
+5. **Not reachable from the build machine** (network policy): Fontshare,
+   Velvetyne, Collletttivo, Open Foundry, The League of Moveable Type. Their
+   open faces (Tanker, Panchang, Chubbo, Boxing, Bagnard, Pilowlava, Karrik,
+   Mazius Display…) would be a second batch if those hosts are allowed.
+6. Colour fonts (Honk, Nabla, Bungee Spice) were left out: fabric and the SVG
+   engine draw one fill per glyph.
+
+## BG. 2026-11-13 — the download is the preview; the house ad first in Easy Mode; the type pairs on it (DESIGN-LAW 141)
+
+(claude/brave-mayer-8bv851, from `main` at 9dddf354, with claude/admiring-hamilton-6bbehw and claude/youthful-cray-en1m2i merged in first.)
+
+The owner, of a Neon Vault download: "This isn't really a cohesive ad. How did
+this come out the engine? How do we avoid this mistake? Where are the assets?",
+"How do we integrate the type faces and how do we integrate general design
+language to fix this?", "the samples should look good too", "make sure the
+unification from photos and videos is ready".
+
+Done:
+- **Traced and reproduced** (rule 141 has the six causes). The download was
+  the card's fallback gradient: the preview's photograph was a placeholder.
+- **Two branches merged**: the full ad's review, pre-flight, colours and step
+  styles (15 commits) and the Type Lab with the owner's 27 picks (3 commits).
+  Both had written a rule 138 and a §BD; the Type Lab's are 140 and §BF here.
+  Every page loaded after; `full_ad_check`, `full_colour_check` and
+  `type_voices_check` all clear.
+- **Easy Mode downloads what it previews.** No placeholder, no "No background
+  selected". All offered cards pass `ez_download_is_preview.mjs`; on untouched
+  `main` it fails the 8 categories' first cards.
+- **The full ad is the first card in Easy Mode** and what a new visitor opens
+  on (`full-ad-studio.js`): 35 lines, six sizes, the twelve pairs, the type
+  pairs, the number, website and area the page already asks for.
+- **The type pairs on the full ad**, in Easy Mode and in the video maker: 29
+  of the 44 hold (`motion/full-voices.js`).
+- **One ad as a picture and as a video**: "Make the video of this ad" opens
+  the maker on the same ad.
+
+Open:
+1. **Not on `main`, not deployed.** The branch is pushed. `main` deploys by
+   itself once the repository secrets are set; putting this there is the
+   owner's word.
+2. **Three sessions' work is on this branch and two others are not.** Merged
+   here: admiring-hamilton (with friendly-heisenberg, festive-ramanujan and
+   wizardly-keller inside it) and youthful-cray. Not merged, on purpose, as
+   they are accounts and not ads: `claude/combined` (accounts, the Reselling.US
+   link, shared terms; 6 commits) and `claude/focused-bell-da4xmh` (a plan
+   document). `claude/youthful-cray-en1m2i` said its every-card audit of the
+   new voices was still running; if it pushes holds, merge them.
+3. **The owner's eye on the type pairs.** The sheet of all 44 on the full ad
+   was looked at once. Held by eye: Gothic (blackletter capitals under the
+   outline do not read) and Terminal (thin strokes). Cut by measure: Bold,
+   Comic, Serif, Rush, Ranch, Cherry and Neon (the headline reads small in a
+   feed's preview on a square), Modern and Circuit (so wide the number falls
+   under its floor), and the four fine faces. Strike or restore a line in
+   `BY_EYE` and run `full_type_check.mjs --write`.
+4. **Above and beyond: what the pictures say.** Drawn for the same words
+   (the sheets are in the session's notes, not the repo):
+   - The engine's depth and photo finishes (reflection, soft floor, the
+     photo-real phones, a turned pose) change nothing that can be seen on a
+     square: the product is 22 to 26% of its height and 5 to 8% of its area.
+     Product scale is the gap to a generated hero picture, not effects.
+   - On Tall 3:4 or Flyer the same ad shows three phones at 37% of the height
+     and 22% of the area, with the cash icon. That, in a Type Lab pair, is the
+     strongest picture the engine draws today. The page now says so where the
+     size is chosen. Whether the full ad should OPEN tall is the owner's call
+     ("primarily 1:1 or 3:4").
+   - A solid, extruded headline (`text_fx: "extrude"`, already in the engine;
+     the pre-flight passes it) is cleaner than the double outline on the dark
+     pairs and heavier than it on the light ones. The double outline is the
+     house style the owner approved; a second headline style for dark pairs
+     only is a choice to show, not to switch on.
+   - A product-first square (the headline capped lower, the sticker over the
+     product's corner, the points in one row) is a second layout rule for the
+     full ad. The owner asked on 2026-11-03 for "the text as large and legible
+     as possible"; the two pull against each other on a square, so it wants
+     the owner's word before it is built.
+5. **The 96 designer layouts are still photograph-and-words** (§BC 2). They
+   now ship their photograph, and Neon Vault with it is still a headline laid
+   over the product. With the full ad first in the strip, retiring them line
+   by line is easier to judge; it is still the owner's call.
+6. **Neon Vault is no longer neon.** Its authored look (hollow neon letters,
+   a glass frame) is rewritten at load by the face and plate passes. Either the
+   name goes or the passes leave a card its authored look; the same is likely
+   true of other designer layouts (not counted).
+7. **The emoji beside a headline** (rule 88) can be 40% of the line's height
+   (74px beside 185px on Neon Vault). The owner asked twice for emoji as a
+   large-format style. A floor of half the line's height, or none, is one line
+   in `pgEmojiPass`; it changes which cards carry one on Apple devices, so it
+   was left for the owner.
+8. **In Easy Mode the full ad has no Save to library and no star** (hidden
+   while it is on). The video maker saves a full ad; the same save here needs
+   the library to take a full ad's state from this page.
+9. **One pop-up still stands before the first ad**: "Where do you buy?" (flow
+   audit finding 3). The other is gone. The full ad names the towns only once
+   an area is set, so the question could wait until the visitor wants them.
+10. **Wide 4:3** holds, with the product small (4 to 12% of the area): it is
+    the one size where the upright layout has width it does not use.
+11. **Checks not run here**: `ez_theme_audit.mjs`, `designer_audit.mjs` and
+    `every_card_audit.mjs` (hours each). The render path's ground changed for
+    every designer layout in its default state: these audits already forced
+    that state (`ez.bgPicked = true`), so their numbers should stand, and
+    `ez_download_is_preview.mjs` read the gate on every offered card as opened
+    (no failure). Run `ez_theme_audit.mjs --quick` on the Mac before a deploy.
+    `landing_check.mjs` and three steps of `ad_library_check.mjs` cannot run
+    in a cloud session (§BC 8).
+
+## BH. 2026-11-17 — the mark across the ad, every preview marked, the server's word on a download (DESIGN-LAW 142)
+
+(claude/ads-improvement-roadmap-7632c8, from `main` at 9dddf354, moved onto
+claude/brave-mayer-8bv851 first (a fast-forward), so it carries §BD to §BG.)
+
+The owner: "Can people just download the ad through their browser or natively
+or screenshot the ad and crop it what protections we have in place and what can
+we do?", then "Yes, do it" to the mark across the middle, every preview marked,
+and the server's word on a download; then "But we don't want the content to be
+unreadable or not fun to look at we want the gallery/feed to look clean and
+cohesive and it could be built around your reseller profile/business profile".
+
+Found first: every preview was the clean ad (Easy Mode 560, the full ad 900,
+the editor's export preview 540, the maker's player 720); the studio's Create
+video was a clean full-size MP4 for anyone, whose player offered its own
+Download; the Free mark was four corner words a crop took off; and a
+download's size and marks came from `account.plan`, which the browser can
+change.
+
+Done:
+- **One mark** (`watermark.js`): a light lattice of small BUYBACK.AD words
+  across the whole picture, two tones, so it shows on dark and light grounds.
+  The studio and the video maker draw it and nothing of their own.
+- **Every preview a download would mark is marked** (signed out, Free), drawn
+  again when the account changes; paid plans and operators see them clean.
+  The studio's Create video is made the same way, and made again clean (with
+  its sound) when a plan that downloads clean asks for the MP4; the player's
+  own Download, picture-in-picture and Save video are off.
+- **The server decides a download** (`gateExport` asks `/api/export/check`):
+  a page made to say Pro still downloads Free's 1080, marked. No answer, a
+  refusal or a dropped connection makes no file; a Free file whose mark did not
+  load is refused.
+- "a small BUYBACK.AD watermark" is "a light" one on the plans and in the FAQ
+  (the FAQ block's hash in `_headers` and `netlify.toml` rewritten).
+- `phonegfx-studio.html`, the first single-file studio, linked from nowhere and
+  drawing the first designs with the corner mark and its own plan check, is
+  404'd at the edge (netlify.toml); the file stays.
+- `scripts/watermark_check.mjs` (fails four times with the mark off).
+  `motion_export_check.mjs` and `video_photo_check.mjs` now answer
+  `api('/export/check')` for their stub account, since a static server has
+  none.
+
+Open:
+1. **Not on `main`, not deployed.** This branch also carries everything of
+   §BD to §BG that `main` lacks. The deploy step still skips: NETLIFY_AUTH_TOKEN
+   and NETLIFY_SITE_ID are not set on the repository (§BD).
+2. **It is not a lock.** The ad is drawn in the visitor's browser, so someone
+   who reads the code can still draw it clean. Drawing paid files on the
+   server closes that; it needs the engine in a headless browser per download
+   (time and cost each). Worth it only if clean copies turn up.
+3. **A record of every download** (the account, the time, the number and
+   business name printed on the ad, a picture fingerprint), so an ad found
+   online can be traced to the account that made it: not built. The number on
+   the ad is already the quickest trace.
+4. **Still clean on purpose:** the landing wall's samples and Easy Mode's strip
+   (the sample number), and the video maker's gallery thumbnails (320 px, the
+   visitor's own words). The owner wants the gallery "clean and cohesive".
+5. **The editor's live canvas is not marked**, only its export preview: a
+   screenshot of the editor while designing is clean. A light overlay there is
+   one CSS layer, if wanted.
+6. **The suggested-ad feed built around a business profile** (the owner, the
+   same day) is not built: categories, a shop or mobile-only switch, a tone, and
+   the feed's tiles drawn with the mark until download.
+7. **Not run on this Mac:** `video_photo_check`, `motion_export_check`,
+   `device_picker_check`, `tagline_panel_check` and `landing_check` import
+   puppeteer-core, which is not installed here.
+8. **Failing the same way on the branch without this work** (seen on this
+   Mac): `ez_download_is_preview` fails dl_gold_voltStack_gold and
+   dl_gold_gradientWave_gold (6.14 and 7.09 a channel, gate legib:Headline);
+   `billing_check`'s browser part waits for the account dialog on the maker's
+   Download, which now asks for the number first; `ad_library_check`'s browser
+   part stops on 'TYPE_VOICES' before initialization (seen the same when
+   fabric does not load and app.js stops partway); `quick_ad_check` times out
+   on its third quick ad (a photo after the video, line 115), as on the branch
+   without this work.
+
+## BI. 2026-11-18 — the ad census: what every offered ad is made of (DESIGN-LAW 143)
+
+(claude/xenodochial-mccarthy-7bea6d, started from claude/brave-mayer-8bv851 at
+4cb43f38, the ad work not yet on `main`; for the session on
+claude/ads-improvement-roadmap-7632c8, whose watermark work, uncommitted when
+this was written, holds rule 142 and §BH.)
+
+The owner, 2026-11-17: old design language and old wording keep coming back
+after being fixed; the photo ads have bad colours and odd layouts; the video
+ads look right but lacked the photo ads' information.
+
+Done:
+- `scripts/ad_census.mjs` and `spec/banned-words.json` (rule 143): every ad
+  the site offers, opened as a visitor opens it, one row each, in
+  `.render/ad-census/` (`census.json`, a sortable and filterable `index.html`
+  with a thumbnail a row, `census.thumbs.json`). `--gate`, not wired into any
+  deploy. `--rescan` re-scores the last census in a second.
+- The census below, 987 offered ads in 6.9 minutes with two workers, with
+  the script at 5c61955d; none failed to open. Nothing was changed: no ad, template, table,
+  default or retirement. Its page, published for the owner (private to the
+  account until shared): https://claude.ai/artifact/XntKpJBBiJTX7bZQR8SLLL
+
+| generation | engine | ads | off the twelve pairs | with a banned phrase | lacks a required element | pre-flight fails | product, median share of height / area | fails the gate |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Full ad | FullAd | 35 | 0 | 34 | 7 | 0 of 35 | 22% / 5% | 34 |
+| Designer layout | fabric template | 77 | 77 | 9 | 77 | 2 of 77 | 25% / 8% | 77 |
+| Offer family | fabric template | 216 | 216 | 0 | 216 | 0 of 216 | 27% / 8% | 216 |
+| Library card | fabric template | 362 | 362 | 20 | 362 | 2 of 362 | 19% / 4% | 362 |
+| Any look | engine Ad | 246 | 240 | 0 | 246 | has none | 35% / 21% | 246 |
+| FeedAd (iPhones LA) | FeedAd | 51 | 47 | 43 | 51 | 7 of 51 | 14% / 2% | 51 |
+| all | | 987 | 942 | 106 | 959 | | | 986 |
+
+What each generation lacks (ads of each):
+
+| lacks | Full ad | Designer layout | Offer family | Library card | Any look | FeedAd (iPhones LA) |
+|---|---:|---:|---:|---:|---:|---:|
+| business name (required) | 0 | 77 | 216 | 362 | 246 | 51 |
+| headline (required) | 0 | 0 | 0 | 0 | 0 | 0 |
+| product picture (required) | 7 | 67 | 21 | 186 | 0 | 0 |
+| phone number (required) | 0 | 0 | 0 | 0 | 0 | 0 |
+| call to action (required) | 0 | 35 | 0 | 143 | 214 | 0 |
+| towns (required) | 0 | 77 | 216 | 315 | 246 | 0 |
+| claims | 0 | 9 | 160 | 111 | 38 | 0 |
+| sticker | 13 | 70 | 216 | 350 | 224 | 51 |
+| website | 0 | 11 | 0 | 3 | 246 | 0 |
+
+Banned or old words (ads carrying each):
+
+- TOP DOLLAR: 64 (Full ad 33, FeedAd (iPhones LA) 31)
+- ANY CONDITION (no limit): 25 (Full ad 1, Designer layout 9, Library card 9, FeedAd (iPhones LA) 6)
+- an en or em dash: 21 (FeedAd (iPhones LA) 21)
+- TEXT A PIC (phone ads): 12 (Library card 12)
+- the full ad, read again with no business name typed: 34 of 35 carry a banned phrase
+
+Worst offenders (2 a missing required element, 2 a banned phrase, 1 each for
+off the pairs, a failing pre-flight and an engine that is not the full ad):
+
+- 14: Library card, Teal & Orange · Trust Seal (`trustSeal-du06-35`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: text-a-pic, any-condition; lacks: business name, product picture, call to action, towns
+- 12: Designer layout, Neon Garage (`dl_cars_neonNight_sunset`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: any-condition; lacks: business name, product picture, call to action, towns
+- 12: Designer layout, Junker Poster (`dl_cars_slabPoster_mono`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: any-condition; lacks: business name, product picture, call to action, towns
+- 12: Designer layout, Runner Wanted (`dl_cars_wantedFrame_paper`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: any-condition; lacks: business name, product picture, call to action, towns
+- 12: Library card, Teal & Orange · Arc Crown (`arcCrown-cd01-20`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: text-a-pic; lacks: business name, product picture, call to action, towns
+- 12: Library card, Navy & Orange · Trust Seal (`trustSeal-cd10-15`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: text-a-pic; lacks: business name, product picture, call to action, towns
+- 12: Library card, Black & Green · Trust Seal (`trustSeal-du07-30`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: text-a-pic; lacks: business name, product picture, call to action, towns
+- 12: Library card, Red & Yellow · Trust Seal (`trustSeal-jw07-16`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: text-a-pic; lacks: business name, product picture, call to action, towns
+- 10: Designer layout, Boulevard Arc (`dl_cars_arcCrown_sunset`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); lacks: business name, product picture, call to action, towns
+- 10: Designer layout, Lot Split (`dl_cars_duoSplit_crimson`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: any-condition; lacks: business name, call to action, towns
+- 10: Designer layout, Showroom Glass (`dl_cars_glassCard_ocean`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: any-condition; lacks: business name, product picture, towns
+- 10: Designer layout, Dash HUD (`dl_cars_hudTech_crimson`): off the house engine (fabric template); off the twelve pairs (stands on a photograph); banned: any-condition; lacks: business name, product picture, towns
+
+Found (none fixed here; each is the owner's call or its own change):
+1. **The house ad says TOP DOLLAR by default.** The full ad's own word lists
+   (`motion/fullad.js` FULL_WORDS) carry TOP DOLLAR in three of five claims,
+   in one points list and as the TOP $$$ sticker, and ANY CONDITION in a
+   models line and a points list. A visitor who types a business name gets it
+   in the badge; one who does not (the field is optional) gets the list's
+   claim, and 34 of the 35 full ads then carry a banned phrase: TOP DOLLAR
+   PAID on 27 badges and TOP DOLLAR • FAST CASH on 6. The iPhone line says ANY
+   CARRIER • ANY CONDITION for every visitor (its models line comes from
+   FULL_WORDS.line at seed 1). The one offered ad that passes the gate is the
+   full ad for coins, whose claim drew LOCAL & HONEST. The research left both phrases
+   out on 2026-11-12 and the pre-flight's own proof list (rule 138) was
+   written the same day without them, so the fix landed in one list and the
+   phrase stayed in the other.
+2. **The full ad fails the gate on seven lines for want of a picture**: gaming
+   PCs, PC handhelds, headsets, SSDs, mini PCs, Chromebooks and Meta glasses
+   are drawn with words alone (§BC 6). 13 of the 35 carry no sticker: those
+   seven (the sticker stands beside the product) and six whose square the
+   layout found no room on (camera, car, controller, Switch, VR, foldable).
+3. **Only the full ad can carry a business name.** No template, library card,
+   Any look or FeedAd still has a place for one (FeedAd names iPhones LA in its
+   website line alone).
+4. **The product is small on the house ad.** On a square its pictures span a
+   median 22% of the height and 5% of the area, against Any look's 35% and 21%
+   and the offer family's 27% and 8% (§BG 4: a product-first square, or opening
+   tall, is the owner's call). FeedAd's stills are smaller still: 14% and 2%.
+5. **186 of the 362 library cards and 67 of the 77 designer layouts show no
+   product picture**: the goods are only in the photograph behind them, if at
+   all.
+6. **Any look has no pre-flight**, and its looks carry the least of the photo
+   ads' information: 214 of 246 no call to action, none the towns or a
+   business name, 240 off the twelve pairs (its palettes are its own
+   vocabulary, §AO).
+7. **TEXT A PIC is still on 12 phone library cards** (rule 136; §AZ 7, open
+   since 2026-11-03), and ANY CONDITION, with no limit, is a kicker, a point
+   or a tile on 9 designer layouts and 9 library cards.
+8. **iPhones LA's FeedAd batches** carry TOP DOLLAR on 31 of 51 stills and the
+   models line iPHONE 15 – 18 PRO MAX with an en dash on 21 (rule 55 bars the
+   dash in customer copy); the words are in `tools/feed-stills/cards.json`.
+   With today's engine, 7 of the 51 no longer pass FeedAd's own gate, read
+   the way its generator reads it: three headlines under 3:1, three sets of
+   selling points with no room, and `glassCard-nn01-20`'s headline over its
+   number. The pictures posted are the JPGs made then; a video drawn again
+   from a batch's report would differ. Those ads are the owner's approved set (§BC 4).
+9. **Two gold designer layouts fail the gate's headline legibility as opened**,
+   `dl_gold_voltStack_gold` (the first card in Gold) and
+   `dl_gold_gradientWave_gold`, and two library cards
+   (`trustSeal-nn05-30`, `scriptRetro-jw05-16`). On this Mac
+   `ez_download_is_preview.mjs` fails the two layouts too (the gate shades
+   them at download, so the file differs from the preview by 6 and 7 a
+   channel), and it fails them at 26fb5dd0, the commit whose rule 141 says
+   every offered card passed. That session ran in a cloud container on a
+   local copy of fabric; the difference is the machine or the renderer, and
+   is not known.
+10. **The video maker loses a typed number when the area follows within half a
+    second.** Both fields are debounced (the number 500 ms, the area 400 ms)
+    and the area's handler refills the form (`syncWords`) before the number's
+    own reads it, so the number goes back to empty. A person typing is slower;
+    browser autofill, which fills both at once, is not. Found when the
+    census's first run read every Any look with YOUR NUMBER on it. The
+    2026-11-11 log met the same fault in another pair of fields.
+    **Fixed 2026-11-18** (claude/sad-pike-c4b427, in pull request 14 with this
+    census): every word still waiting on its pause lands before the boxes are
+    filled again (`landTyping()`), held by `scripts/typing_pause_check.mjs`.
+    The census's one-field-at-a-time wait for it can go.
+11. **No ad prints the library's Long Beach towns to a visitor elsewhere**:
+    every card that carries a towns line (47 library cards) took the
+    visitor's.
+12. **31 of the 35 full ads open in the same pair, Green & Gold.** A new
+    visitor's first full ad is seed 1, and seed 1 draws the same place in
+    the list of pairs for every line the list does not narrow (gold, silver,
+    test strips and Pokémon have their own, rule 139). New look moves on from
+    it. One look for every first ad may be what the owner wants (the research
+    asks for one thing that stays the same across posts) or not; it is
+    measured here, not judged.
+
+Open:
+1. **Not on `main`.** This branch carries claude/brave-mayer-8bv851's 25
+   commits, which are not on `main` either, and the census on top. Putting
+   either there is the owner's word.
+2. **The gate waits on the retirements and the words.** It fails 986 of 987
+   offered ads today: every ad of the older generations, and 34 of the 35 full
+   ads (seven for want of a picture, the rest for their own default words).
+   Wire it into a deploy once the owner has said which generations go and the
+   full ad passes it (found 1 and 2).
+3. **The words, the owner's call**: FULL_WORDS' TOP DOLLAR and ANY CONDITION,
+   the 12 TEXT A PIC cards, the 18 ANY CONDITION kickers, points and tiles,
+   and FeedAd's
+   TOP DOLLAR and dash. Each is one line in its list; the census shows each
+   ad that changes.
+4. **The video maker's number and area** (item 10): `syncWords` could leave a
+   field with an edit still pending alone. A change to the maker's page:
+   run `quick_ad_check.mjs` and `buylist_check.mjs` with it.
+5. **The two gold layouts** (item 9): measure the headline's contrast on the
+   Mac and in a container side by side before choosing between a darker
+   shade and a hold.
+6. **What the census does not read**: the size a visitor picks (it reads the
+   square), a theme or a type voice picked by hand, the Designer (advanced
+   editor), and the ad set and Quick ad in the video maker. Each is a reading
+   to add when a fix touches it.
+
+## BJ. 2026-11-18 — the census's findings fixed, and the owner's review notes (DESIGN-LAW 144)
+
+(claude/xenodochial-mccarthy-7bea6d, on top of §BI.) The owner, of §BI's findings: "FIX IT".
+Then, looking at the live landing page and the census, a run of notes, each kept here in the
+owner's words with where it stands. Status words: **done** (on this branch, checked), **helper**
+(done by a helper fork on this branch; see its line), **open** (not started), **owner** (waits on
+the owner's word).
+
+The census's findings (§BI, Found):
+1. **done** — TOP DOLLAR and ANY CONDITION out of the full ad's defaults; the list on the site;
+   fullWords notes a typed phrase; `scripts/words_check.mjs` (rule 144).
+2. **done, part** — pictures for PC handhelds and Meta glasses. **owner**: gaming PCs, gaming
+   headsets, SSDs, mini PCs and sealed Chromebooks have no clean picture in the repository; free
+   photographs (Wikimedia Commons, as `scripts/cut_vehicle_photos.py` cut the cars) need a
+   download the owner has not yet allowed. Only the full ad has a place for a business name;
+   the older generations' cards without a product picture (186 library cards, 67 designer
+   layouts) are the owner's thumbs on the review page, not a mass hold.
+3. **done** — TEXT A PIC on phone cards and ANY CONDITION across the library and the layouts,
+   and the rewriter that kept writing them (refresh_copy.mjs rule 7).
+4. **helper** — iPhones LA's FeedAd: 51 stills re-worded and redrawn, all pass FeedAd's own gate
+   (43 carried a banned phrase, 7 failed it); the generator refuses a banned list; a new check
+   in `harness.js` refuses a still whose 1080 picture strays from the layout it checked. The
+   pictures already posted are the old ones: reposting is the owner's call. The batch's videos
+   are not re-rendered.
+5. **helper** — Any look: a call to action on all 246 looks (214 had none: `engine.js`
+   `defaultLabel`), and a pre-flight (`motion/look-preflight.js` `lookPreflight`, checked by
+   `scripts/look_preflight_check.mjs`) in front of every download, video and save; the gallery
+   and New look skip a look its own pre-flight would stop. DON'T WAIT and ¡NO ESPERES! left the
+   video maker's words and joined the list's pressure phrases.
+6. **done** — the two gold designer layouts and two library cards that failed headline
+   legibility pass the gate.
+7. **done** — the first full ads spread over 11 pairs (`lineTurn`).
+8. **done elsewhere** — the video maker's lost number: session "Video maker: number lost when
+   area typed right after", branch `claude/sad-pike-c4b427` (291b8ed6, 31c634f5), not merged.
+
+The owner's notes the same day (the review notes):
+- "I want to see the entire library categorized and ranked best to worst (just for me the admin)
+  so I can audit poor language or write quick changes with pop up prompt and thumbs up and down
+  to approve or deny" — **done**: `scripts/build_review_page.mjs` → the review page (an
+  Artifact; its store keeps each decision) → `scripts/apply_review.mjs`.
+- "when you want to change the element there should be a drop down of car assets we have",
+  "usually vectors and pngs", "same goes for phone or other categories.. you can click the asset
+  or replace asset" — **done** on the review page (each category's approved cut-outs); **open**
+  in the ad maker itself (Easy Mode's phone picker, made for every category).
+- "why are the same elements being used on the hero... same phones.. or same ipad
+  arrangements.. we need infinite but prioritized by recent popular and expensive models", "not
+  just front and back", "any possible style.. side profile... front with lock screens.. backs..
+  diagonal.. multi.. or just 1", "all colors too ..", "but obviously the most will be the hot
+  in demand models", "the heros barely have any variety.." — **done** (helper): when nobody
+  picked the product, the full ad draws it by the seed from weighted pools
+  (`spec/product-demand.json`, written to `motion/product-demand.js` by
+  `scripts/build_product_demand.mjs`; the weights are judgement by launch year and price tier,
+  dated, for the owner to adjust): the five newest Pro and Pro Max models are 72% of phones over
+  1,200 draws, 73 of 89 finishes appear, views back 34%, turned 20%, front with a lock screen
+  22%, front turned 10%, side 8%, mixed 6%; one to three phones; every other line draws from a
+  pool of up to 12 pictures. A quick ad keeps the phones on screen (`pin_phones`), so its listing
+  keeps its model and price. **owner**: no 18 Pro Max in black, 18 Pro in silver, 17 in white or
+  black, 15 in black or yellow, and no iPhone Air; front views are drawn, not photographed.
+- "your old Google your old Samsung", "it's clearly missing a word and it could fit on the first
+  line easily" — **done** (helper): "Your old Google / Pixel is cash.", "Sell your Google Pixel.";
+  Galaxy reads "Sell your old Samsung.": "Your old Samsung Galaxy is cash." fits one layout only
+  at the headline's size. **owner**: whether Samsung alone is right.
+- "most of the time we want it centered... like 70-80% of the time sometimes aligned left and
+  rarely aligned right" — **done** (helper): the wall picks ~75% centred, at most 20% left, none
+  right; the offer family went from 34 to 125 centred cards of 225; Studio row, Split and Photo
+  band stay left (centring Studio row makes it Centre). The full ad is always centred (rule 137).
+- "audit the font use.. the gold ones look like old people fonts..." — **done** (helper): the
+  offer family's gold, silver and coin faces (Rye, Cormorant, Gloock) are Clash Display, Big
+  Shoulders, Unbounded and Sofia; 26 library cards left Gloock, Young Serif and Instrument Serif;
+  13 serif pairs on the gold designer layouts became the house faces.
+- "sell you macbook with the view of the keyboard on the site hero is a little band and loacks
+  details particularly around the middle" — **done** (helper): `scriptRetro-nn04-20` carries a
+  MacBook Air photograph in the middle, in a modern face.
+- "all of the CTA still look a little too common and similar" — **done** (helper): the wall
+  shows at most two cards of a layout family (12 families on 18 cards), so the number and call
+  to action styles vary. **owner**: 9 of the 12 hand picks in `hero-picks.json` are Steps Flow.
+- the trucks card, "a little bland / vague", "more vibrant or neon.. or draw from a less pastel
+  pallete", "orange and salmon looks a little funny", "how about we pick one", "Maybe classic
+  cars is an option?" — **done** (helper): `stepsFlow-nn01-20` reads SELL YOUR CLASSIC / CAR
+  OR TRUCK, ANY YEAR in one vivid orange; three sibling cards lost "CARS, TRUCKS, VANS".
+- "audit all of the color schemes.. with cars people like a good bg or sunset", "not low
+  exposure dark images..." — **done** (helper): the 9 darkest car cards stand on bright
+  photographs of what they name, shaded behind the words only; the Challenger's licence plate,
+  legible behind a card's words, is blurred in the photograph. **owner**: the Sprinters card keeps
+  its dark ground (no Sprinter photograph in the repository); three right-aligned Pokémon cards
+  stay in the library, off the wall.
+- "what if you wanted to put an @ instead", "a social handle", "maybe it specifies platform as
+  well?", "you could also have multiple CTA?", "check box ? if wanted" — **open**: the contact
+  block (number, website, an @handle with its platform, one or more calls to action by
+  checkbox), in the full ad and the makers.
+- "how do these ads relate to the video ads.. aren't all photo ads supposed to be made into a
+  video", "every photo ad can have enough variety of animations and styles..." — the full ad is
+  a photo and a video of one ad (rule 137); the older generations are photos only. **open**:
+  more variety of motion and style in the full ad's video.
+- "how to we break down this process so it goes smoothly every time" — **done**: the review loop
+  (rule 144).
+- "also rebuild the checkout, pricing tiers.. and feature breakdown", "so the highest package
+  gets video credits", "atleast 2 paid tiers or maybe 3 and which case videos are limited on the
+  2nd but fully allowed on 3rd?" — **done** (helper): Free (3 a week, watermarked, no video, 5
+  credits), Starter $25 (100 photos a month, no video, 50), Pro $60 (500 photos, 30 videos a
+  month on their own meter, enforced in /export, 200), Business $100 (unlimited photos and video,
+  500), yearly at ten months; `scripts/build_pricing.mjs` writes the landing's cards and
+  comparison table and app.js's PLANS block from `netlify/lib/plans.mjs`; checkout offers Stripe's
+  hosted page when the embedded form fails to open. **owner**: Pro's 30 videos a month; the
+  Terms' plan paragraph and its version (TERMS_VERSION 2026-11-18); card lines like "Photos, and a
+  video a day". Nothing is live until deployed.
+
+The rebuild (DESIGN-LAW 145), the owner's "rebuild how we arrived to these ads so every single
+one can be made a video or at least audited", "how come none of the videos use a BG?":
+- **done** — every older ad a recipe the house engine draws as a photo and a video (679; 676 pass
+  the pre-flight, 676 show a product, 644 stand on a photo; the 14 that name a car make show it);
+  opened from "From the library" in Easy Mode and the video maker.
+- **done** — photo grounds in the full ad, photo and video (40% photo, 25% scene, 35% gradient by
+  the seed; per-category pools, nothing dark, no cash, no space, no plates or faces).
+- **done** — the offer family on the twelve pairs and bright grounds of its own world; the owner's
+  photographs (free licence, Wikimedia Commons, the owner's yes) for gaming PCs, SSDs, mini PCs and
+  Chromebooks; four legible licence plates blurred behind library cards.
+- **owner** — gaming headsets and monitors still have no clean photograph; the Chromebook photo is
+  an open laptop on a line whose words say "sealed, new in the box"; a "WE BUY HONDAS" card about
+  motorcycles draws a Honda SUV; Pokémon recipes still lean on one Charizard photograph and navy
+  pairs; whether the 679 older renderings retire now that each has a recipe.
+
+Open:
+1. **Not on `main`**, and the census gate still waits on the owner's retirements (§BI Open 2).
+2. **Gaming headsets and monitors** have no clean photograph.
+3. **The contact block (an @handle and its platform, several calls to action by checkbox) and the
+   picture picker in the makers** (above).
+4. **The older renderings**: retire them (`scripts/retire_older_ads.mjs`, or all of them) once the
+   owner has audited the recipes on the review page; then the hero picks.
+5. **The hero wall takes house ads** (done, 2026-11-18): a recipe or a full-ad look the owner marks
+   Hero goes on `assets/hero-picks.json` (`apply_review.mjs`), `scripts/build_hero_stills.mjs` draws
+   its still into `assets/hero/` (`--check` fails a pick without one), and the wall shows it and
+   opens it in Easy Mode's full ad. A pick on a line the platform mix does not weigh (foldables,
+   gaming PCs, headsets, monitors, SSDs and the like) still never takes a wall slot: the owner's
+   mix decides which lines the wall shows. Van cards now draw a van (Transit, ProMaster) where
+   they had drawn an SUV.
+6. **Two product-and-words mismatches fixed** (2026-11-18, "finish all prompts open"): an older
+   car card goes to the car line its words name (a card listing F-150 • SILVERADO • RAM • TACOMA
+   is on Trucks and draws a Silverado; 33 cards moved: Trucks 8, Toyota 8, Work vans 6, BMW 5,
+   Honda 4, Classics 2), and no recipe shows a car the photo catalogue does not name (16 did).
+   The sealed Chromebook line no longer shows the open-laptop photograph: its offer cards are the
+   named-brand type cards again and its full ad has words alone until a sealed box is
+   photographed. **owner**: the downloads (a sealed Chromebook box, a Sprinter, a Kenworth, a gaming
+   headset, a monitor) and whether the older static versions retire.
+7. **The owner's lines** (2026-11-18: "and technically categories would be iPhones, iPads, Macbooks,
+   Macs, Androids (all), Pixel, Samsung, or foldables", "Gaming would be Consoles, Computers, and
+   Handhelds") — **done**: the full ad's What you buy, the video maker's picker and the review page
+   (a row of lines under a category) list exactly those, in that order. Macs (iMac in seven colours,
+   Mac Studio) and Androids of every brand (Samsung, Pixel, the foldables, the Pixel Tablet, two
+   unbranded Android sets) are new lines; the iMacs left MacBooks, the unbranded Androids left
+   Samsung. Apple Watch went to Wearables (first there), its seven offer cards with it in the looks
+   they were audited in. Android tablets, the Switch, controllers, VR headsets and gaming laptops
+   folded into Androids, Handhelds, Consoles and Computers (`aliases` in motion/subjects.json: a
+   saved look on an old key draws the new line; their offer cards stay as they were, ids and all).
+   **owner**: a clean Mac mini photograph, a ROG Ally and a Legion Go, and a gaming laptop (the one
+   there was rejected); no VR headset picture passed either. Each download waits on the owner's OK.
+8. **The look system** (DESIGN-LAW 154; the owner: "still not enough colors, gradients, pattern
+   fill, or other ways instead of colors", "a lot of these are the same thing with 5% variety or
+   difference"). **helper**, done:
+   - 54 pairs (15 light, 11 vivid, 28 dark), drawn look first;
+   - a face by the seed (the house face a quarter of the time);
+   - eight gradients and fifteen tone-on-tone patterns and textures;
+   - stripe, dot, foil, glass and outline fills on the sticker, the number's plate and the
+     claim's badge;
+   - nine more headline treatments.
+
+   A sheet of 48 seeded ads went from 41 dark grounds, 12 pairs and one face to 32 pairs and 21
+   faces. Pairs of ads matching on look, kind of ground and face went from 249 to 9 of 1,128.
+
+   **open**:
+   - the recipes take their pair from the nearest of the twelve (`motion/recipes.json` is stale
+     until rebuilt: the nearest pair of many cards changes);
+   - the recipes' rebuild ("take them as inspiration") should hand their family's look to these
+     keys;
+   - **owner**: whether gold lines, which keep to their eight gold pairs and one vivid one, may
+     stand on a light ground (no gold reads on cream at 4.5:1 without going mustard, rule 103).
+9. **The library cards, the offer family and the designer layouts, rebuilt** (DESIGN-LAW 155;
+   the owner: "Library card ones are not great.. I would take them as inspiration but rebuild them
+   all", "Offer family needs a rebuild also", "the heros all look so simialr").
+   - **done**: every recipe draws on a seed of its own and leans toward its card's family and
+     colourway, never locked to its card's pair, face, photograph or picture.
+   - 617 of 738 draw their product from the line's pool by their seed.
+   - 107 show a picture their words name: 65 a car make, 21 a kind of goods from the pool, and
+     21 their own picture, on a line with no pool.
+   - 14 (VR headsets, gaming laptops) stand on their words alone.
+   - A sheet of 48 went from one dark look, one face and one chip style to 28 pairs, 21 faces and
+     22 grounds, with no near twins.
+
+   - The type check now measures a dark and a light pair under the house outline (rule 141).
+     Flyer left the 29 vetted faces: 28 remain.
+
+   **open**:
+   - The older renderings are retired (the owner: "Retire them"): 366 library cards held, 299 offer
+     templates retired, each "rebuilt as r-...". The landing, the editor's library and a card's link
+     show the rebuilt ad in its place (`scLoadShelf`, `assets/recipe-stills/`). The designer layouts
+     stay.
+   - The partner library (iPhones LA's feed) serves the 366 rebuilt library ads, rendered at full
+     size (`assets/rebuilt-ads/`, 77 MB); the retired cards' renders are pruned.
+   - **owner**: re-pick the hero wall from the rebuilt recipes on the review page; the wall's old
+     picks point at their rebuilt recipes meanwhile.
+   - **owner**: whether the 299 rebuilt offer cards join the partner feed (it only ever carried
+     library cards); about 60 MB more.
+   - **owner**: a VR headset and a gaming laptop photograph, so their cards show the product.
+10. **The iPhone lock screens, and the call to action's marks** (DESIGN-LAW 156, 157) — **done**:
+    lock screens laid out as iOS lays them out (a status bar in iOS's measures, four layouts:
+    classic, widgets, iOS 26's tall Glass clock, iOS 27's compact one; four clean wallpapers in the
+    screen's own colour); eight marks at the number, each moving its own way.
+11. **MacBooks and Macs** (the owner: "a really old MacBook that we don't even buy", "don't see any of
+    these ads talk about the MacBook Neo", "macs ... need more in the category") — **done**:
+    - six pre-M1 MacBook pictures are flagged "old model" in `assets/cutout-flags.json`;
+    - the MacBook Neo is drawn about one MacBook ad in twenty, and those ads name it (a word variant
+      in `motion/subjects.json`);
+    - Macs gain the Mac Studio's front and sets of several (iMacs in two or three colours, an iMac
+      beside a Mac Studio).
+
+    **owner**: a clean M4 Mac mini, a Mac Pro or a Studio Display photograph; each download waits on
+    an OK.
+12. **The audit basket** (DESIGN-LAW 143; the owner: "Can you detect this? ... put them in an audit
+    basket"). **done**: the census reads what the eye sees: a product off its axis, a box with little in
+    it, a colour outside its pair, words in unrelated colours, a model the line does not buy.
+    - The basket holds 89 of 2,019 ads: 86 library cards, 2 designer layouts and 1 offer card. No
+      full ad, rebuilt recipe, Any look or FeedAd is in it.
+    - The owner's three are caught by what they named.
+    - Precision on the worst 40, by eye: 33 clearly real, 7 borderline, none plainly wrong.
+    - **owner**: keep or send back each basket ad on the review page (Audit basket filter).
+13. **The hero wall, the colours and the VR headsets** (DESIGN-LAW 145, 154, 155; the owner, of
+    webuy.ad's wall: "this hero is majorly lacking still", "too many similar or matching color
+    schemes", "no pattern fills and only 1 gradient multi color", asked, "Show more of them").
+    **done on `claude/zealous-dewdney-386bf8`**:
+    - No twin pairs in a seed's draw.
+    - Vivid 44%, light 36%, dark 20%.
+    - Gradients turn hue, and patterns read.
+    - Dark colourways lean to their hue.
+    - An ad with no product never stands on a photograph.
+    - Eighteen hand picks on the wall (9 full ads, 9 rebuilt), held by `hero_wall_check.mjs`.
+    - Every still and full-size rebuilt ad drawn again.
+    - **Approved by the owner, 2026-11-22** ("Approve the wall"). Its picks are pinned to their
+      approved pairs (`assets/hero-picks.json` `pins`, DESIGN-LAW 145).
+    - **owner**: a real VR headset photograph (a Meta Quest 3), the one in the repository being a
+      render. It waits for a word on the download. The seven VR ads stand on their words alone
+      until then, off the wall.
+    - Seen, not changed: the Pokémon and sports-card tiles' graded-slab pictures read pale at the
+      wall's size.
+14. **Vibrant pairs and trios** (the owner: "ideally we relearn color theory and ad design to
+    maximize all of the color pairs, trios, etc.. that work and keep a viewer captivated.. means
+    vibrant or neon colors often times or really good contrasts"). Shown on real ads 2026-11-19;
+    the owner, 2026-11-22: "Adopt all 13". **done** (DESIGN-LAW 154):
+    - 10 new schemes, each on its own ground, are rows of app.js `COLOR_THEMES`.
+    - Black & Pink, Black & Lime and Black & Cyan are brighter.
+    - Six were moved the least that passes the photo ads' law (`theme_law`, 64 of 64): two trios
+      became two-colour signs (Yellow on Red, Lime on Magenta), and Mint, Black & Red became Mint,
+      Black & Violet for colour-blind readers.
+    - The approved wall keeps its colours (pins).
+    - Every recipe still and full-size rebuilt ad was drawn again.
+    - **owner**: whether any dark, muted pair should leave the draw now that the vivid look holds
+      20. Candidates: Navy & Orange, Midnight & Cyan, Blue & Green, Teal & Orange, White on Navy.
+      Nothing was retired without the word.
+
+## BL. 2026-11-18 — webuy.ad, the site's new address
+
+(BD on `main` until pull request 14 met it on 2026-11-19; BE became BM the same way.)
+
+(claude/webuy-ad-new-site-url-f0be40, from `main` at 9dddf354.)
+
+The owner: "webuy.ad launch new site URL". The name was registered at
+Namecheap at 03:38 UTC on 2026-11-19 (whois), a few hours before the ask; it
+answered Namecheap's parking page (`A 162.255.119.247`, `www CNAME
+parkingpage.namecheap.com`), and Netlify answered "Not Found" for it, so no
+project had it. **Do not call it live until `dig +short webuy.ad` answers
+`75.2.60.5` and `https://webuy.ad/api/health` answers `"ok":true`.**
+`studio.scans.ad` was reported live for a whole session before anyone looked
+(HANDOFF.md).
+
+The project it belongs on is `buybackad-finished-copy` (team myleskcb2): it
+serves `main`, with accounts, billing and AI backgrounds on.
+`buybackad-graphics-studio` is a build from before 2026-10-08.
+
+Done (this branch):
+- **Every page's own address is `https://webuy.ad`**: the canonical, og:url,
+  og:image and JSON-LD of index, about, learn, motion, terms, privacy and the
+  18 category pages in `ads/` (rebuilt by `scripts/build_seo_pages.mjs`, whose
+  `SITE` is now webuy.ad; the rebuild was checked to be byte for byte before
+  the change), `sitemap.xml`, `robots.txt`. index.html's JSON-LD hash is
+  rewritten in the CSP of `netlify.toml` and `_headers` (`csp_hashes.mjs`).
+- **The Stripe webhook follows the site's address.** It was registered once
+  per mode and kept; on a new primary domain Netlify's `URL` changes, the old
+  endpoint stays at the netlify.app address, and Stripe does not follow a
+  redirect. `ensureWebhook` now moves it when the configured address
+  (`SITE_URL` or Netlify's `URL`, never a request's own host) differs from the
+  stored one, deletes the old endpoint (its id is the one this site kept), and
+  keeps the old secret so events already on their way still verify.
+  `billing_check.mjs`: 108 passed; the two new checks fail on the old code.
+  The payment method domain (Apple Pay, Google Pay, Link) was already per
+  host, so webuy.ad registers itself on the first checkout there.
+- **The deploy workflow's live check** reads webuy.ad, and until it answers,
+  the netlify.app address with a warning that says why; its curls follow
+  redirects.
+- The partner library docs and examples, the iPhones LA connection notes, the
+  CSP check's default, the tracks builder's user agent, the retired worker's
+  origin, README, AGENT-BRIEF, SETUP, OPERATIONS and docs/README name
+  webuy.ad. History (the learning log, the audits, HANDOFF) is left as it was.
+
+Done in the owner's accounts, 2026-11-19 UTC, in the owner's Chrome with
+the owner signed in (the Netlify login myleskcb@gmail.com sees only team KCB;
+`buybackad-finished-copy` needs the myleskcb2@gmail.com login):
+- Steps 1 and 2 below. Netlify: `webuy.ad` primary, `www.webuy.ad` redirects
+  to it, external DNS. Namecheap: the `@` URL redirect deleted, the `www`
+  CNAME changed to `buybackad-finished-copy.netlify.app.`, `A @ 75.2.60.5`
+  added; the mail forwarding SPF record left. Namecheap's nameservers, 1.1.1.1
+  and 8.8.8.8 all answered `75.2.60.5` within a minute, and
+  `curl --resolve webuy.ad:80:75.2.60.5 http://webuy.ad/api/health` answered
+  `"ok":true`.
+- Step 4: `SITE_URL` is not set on the project (its variables are
+  ADMIN_EMAILS, FAL_KEY, JWT_SECRET, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET),
+  so Netlify's `URL` becomes `https://webuy.ad` from the next deploy.
+- Step 3, the certificate: the first try failed. Netlify asks Let's Encrypt
+  the moment a domain is added, which was while the parking records still
+  answered. Order it right next time: put the DNS in first, then add the
+  domain in Netlify. Netlify's own retry got it a few minutes later: Let's
+  Encrypt, `webuy.ad` and `www.webuy.ad`, valid to 2027-02-17 (it renews
+  itself). Checked 07:42 UTC: `https://webuy.ad/api/health` answers
+  `"ok":true` from 75.2.60.5; `www` and `http://` answer 301 to
+  `https://webuy.ad/`.
+- **webuy.ad is live**, serving `main` as it was before this branch: the
+  pages still name the netlify.app address as canonical until step 5.
+- The netlify.app address does **not** redirect to the primary domain (it
+  answers 200), so the webhook at the old address keeps working until the
+  first checkout after step 5 moves it.
+
+The steps, in order:
+1. **Netlify** (team myleskcb2 → `buybackad-finished-copy` → Domain
+   management → Add a domain): `webuy.ad`, and `www.webuy.ad` when it offers
+   it; make `webuy.ad` the primary domain. Keep the DNS at Namecheap: do not
+   switch to Netlify DNS unless the nameservers at Namecheap move too (that
+   mismatch is why `studio.scans.ad` and `buyback.ad` never resolved,
+   OPERATIONS.md).
+2. **Namecheap** (Domain List → webuy.ad → Manage → Advanced DNS): delete the
+   parking records (the `www` CNAME to parkingpage.namecheap.com and the `@`
+   URL redirect), then add `A  @  75.2.60.5` and
+   `CNAME  www  buybackad-finished-copy.netlify.app.`. Leave the mail (MX)
+   records.
+3. Wait for `dig +short webuy.ad` to answer `75.2.60.5`, then Netlify →
+   Domain management → HTTPS → Verify DNS configuration; the certificate
+   follows (minutes, at most about an hour).
+4. **`SITE_URL`** on `buybackad-finished-copy`: unset it, or set it to
+   `https://webuy.ad`. A netlify.app value keeps Checkout's return and the
+   webhook on the old address.
+5. **Merge this branch into `main`** only after step 3: the canonical links
+   then point at a site that answers, not at a parking page. The push deploys.
+6. As an operator, Plan & billing → **Set up prices, webhook and wallets
+   now** (or wait for the first checkout): the webhook moves to webuy.ad and
+   webuy.ad is registered for the wallets.
+7. **iPhones LA** (IPHONESLA-CONNECTION.md, "Owed by the owner" 1): on
+   Render, `GFX_STUDIO_URL=https://webuy.ad/` and webuy.ad in
+   `GFX_STUDIO_ORIGINS`; in iphoneslainv, `https://webuy.ad` in
+   `STUDIO_SITES` (`app/buyback_ad_feed.py`). Until then the studio on
+   webuy.ad cannot connect to iPhones LA.
+
+Open:
+1. **The name on the site is still BUYBACK.AD** ("Graphics Studio by
+   BUYBACK.AD", the watermark, the logo, the explainer videos). Whether the
+   wordmark becomes WEBUY.AD is the owner's call; nothing was renamed.
+2. **The contact address bounces.** Terms and privacy give
+   `hello@buyback.ad`, and `buyback.ad` has no DNS at all (no A, no MX).
+   webuy.ad has Namecheap's mail forwarding records: a `hello` forward made
+   there, then the two pages changed to `hello@webuy.ad`, would fix it.
+3. **Sign-ins do not carry over.** A browser signed in on a netlify.app
+   address keeps its token and brand kit there (localStorage is per
+   address); on webuy.ad the customer signs in again. Accounts are on the
+   server and are the same.
+4. The explainer videos' end card prints the address once one resolves
+   (`tools/explainers/videos.js`, `URL_LINE`): render them again with
+   `--url webuy.ad` after step 3.
+5. Billing on the live project answered **test mode** on 2026-11-18: a
+   launch on the new address takes no money until the live keys are in.
+6. Search: add webuy.ad in Google Search Console and submit
+   `https://webuy.ad/sitemap.xml`.
+
+## BM. 2026-11-19 — the reselling.us look: colour first (DESIGN-LAW 152)
+
+The owner, once webuy.ad was live: "logos branding webkit", "all aspects need
+to finish and it needs to have similar or matching styling to reselling.us",
+"or color scheming at first?". Colour first, as asked.
+
+Done:
+- **The `family` skin** (`styles.css`, the default): reselling.us's own
+  colours from its `/static/app.css`, dark and light, its flat pill buttons,
+  its one-glow field; light or dark follows the device until the toggle is
+  used. The poster look is `?skin=poster`.
+- The same colours in `pages.css` (about, learn, terms, privacy, the 18
+  category pages, the video maker), the Look Book, the ad library page and
+  the 404. The owner tools (`pick.html`, `library.html`, `social/`,
+  `admin-ads/`, `phonegfx-studio.html`) are as they were.
+- Checked by eye at 1280 and 390, dark and light: the landing, Easy Mode,
+  the advanced editor, about, the Look Book, the video maker; no sideways
+  scroll at 390; contrast measured (rule 152).
+
+Then, the same day (DESIGN-LAW 153), the owner chose "WeBuy.AD":
+- **Type**: the system face for headlines and text, the default (`system`).
+- **The wordmark** `WeBuy.AD` in Inter Tight 750 on every page's header; the
+  face vendored from reselling.us with its OFL text.
+- **The icon, the favicon and the share card**, drawn by
+  `tools/brand/make.sh` from HTML, as reselling.us draws its own; every page
+  points at `assets/brand/`. `scripts/render_og.mjs` is marked superseded.
+- **The name**: page titles, JSON-LD, the headers and footers, the welcome
+  line, the watermark on free exports, the locked-design pattern, the
+  billing portal's line. The kicker and section labels in sentence case.
+- Checked by eye at 1280 and 390, dark and light: the landing, a category
+  page, the 404, the Look Book; no sideways scroll; the CSS copy in app.js
+  and the CSP hashes rewritten.
+
+Open:
+1. **The terms and privacy policy** still make the agreement with BUYBACK.AD
+   and call the Service "Graphics Studio": renaming the party is the owner's
+   legal call, with a new `TERMS_VERSION` (checkout records the version).
+2. ~~The explainer videos~~ **Done the same day**: all five rendered again in
+   the WeBuy.AD look (the stage, the W. icon and wordmark on the end card,
+   `webuy.ad` under the button, the studio's screens taken again in its dark
+   mode), with orchestral music in place of the big-band jazz. Found on the
+   way: every explainer had gone silent after 8 s (a 12-second clip started
+   4 s in); the clip now repeats under a crossfade for the whole video
+   (measured: -21 to -25 dB from start to end in all five). The trailer bed
+   of `claude/video-music-sfx-audit-3691d1` is drawn live in the maker and
+   is not a file yet; it would be the better bed once it is.
+3. **The Stripe billing portal** keeps the line it was made with
+   ("Graphics Studio by BUYBACK.AD: …"): `ensurePortalConfig` makes a
+   configuration once and stores it, so the new line reaches Stripe only
+   when that configuration is made again.
+4. The partner library API still names itself "BUYBACK.AD library"
+   (`netlify/lib/library.mjs`), left so a partner's code that reads it does
+   not change under it.
+5. The owner tools (`pick.html`, `library.html`, `social/`, `admin-ads/`,
+   `phonegfx-studio.html`) keep the old look and name.
+
+## BN. 2026-11-19 — the landing built to a brief (DESIGN-LAW 162)
+
+The owner, looking at the landing: "looks so vibe coded and basic UI we need to fix and make it
+look like a custom built site with a large web design budget". Done on
+`claude/xenodochial-mccarthy-7bea6d`, not pushed:
+
+- **`landing.css`** (new, scoped to the landing under the family skin): one type scale, the
+  hero in three lines with the deal in mint on its own; the figures as a band on hairlines;
+  sections numbered on a hairline with a split head; the library on paper, a gallery with each
+  ad's name and colour set under it; the colour sets as one mosaic of small ads in their own
+  colours; the video on a stage with a framed full ad and its first three seconds as a
+  timeline; the workflow as a sequence with a drawing of each step; the plans as one table;
+  the FAQ beside a heading that holds still; the last call on the blue; the footer dark under
+  a wordmark as wide as the page. The hero's wall is one plane in perspective, with a
+  stranger's text arriving over it.
+- **`index.html`**: the library before the colour sets; the hero's lede, three proof points
+  and a "made for" row; the wall inside a stage with the text over it; the video's frame and
+  timeline; a drawing for each step; the footer's wordmark. The kicker and the headline are
+  unchanged, word for word (the share card draws them, rule 153).
+- **`app.js`**: the colour sets drawn as small ads in their own colours (until today 54 sets
+  drew one bar and three of `undefined`: a rebuilt ad carries no `c1`, `ink` or
+  `support`); a library caption names the colour set, not the layout twice.
+- **`pages.css`**: the same bar, scale, hairline sections, FAQ rows and dark footer for the
+  other pages, appended.
+- Checked by eye at 1440, 1024 and 375, dark and light, and on pull request 15's own landing
+  markup; no sideways scroll; `build_pricing`, `build_seo_pages` and `csp_hashes` checks
+  unchanged; `words_check` clear.
+
+Open:
+1. **The owner's look at it**: the screenshots went to the owner; nothing is pushed.
+2. **Pull request 15 restructured the same landing** (2908f8e7: "The landing on one column and
+   one scale; the colour sets out", a "what it makes" list and a "why it gets texts" row).
+   `landing.css` styles that markup too (checked on a copy of it); the markup itself meets this
+   branch's in `index.html` (the hero, the sections, the footer) and in `app.js`
+   (`scBuildFamilies`, `scCard`). Which landing the site keeps is the owner's call, then one
+   merge.
+3. **Rule numbers**: settled with pull request 14 at 815ebea2 (main's rules 152 and 153, the
+   census's 154 to 157); this branch's landing rule is 158. Pull request 15 still numbers its own.
+4. **`assets/hero/index.json`** is asked for on every landing load and does not exist (the
+   hero's full-ad stills, app.js, the hero wall's picks): a 404 the landing check counts. The
+   hero wall's own session has it.
+5. **The video section's frame** is a still of a full ad; the engine is on the page, so it could
+   play the ad itself when the section scrolls into view.
+6. **The studio** (Easy Mode, the editor) keeps its own chrome; a session of its own is on it.
+
+Then, the same day (the owner, relayed: "see not the new 2000", then "Both (~2,650)"; and "organize
+it as we said with the subcategories revealed after you select one of the main ones"):
+- **The library holds 2,405 ads**: the 665 rebuilt designs, 1,330 more looks of them (every design two
+  more, each passing the pre-flight in a pair of its own), 246 line full ads (41 lines, six seeds
+  each) and 164 video looks (`scripts/build_library_looks.mjs`, `--check`; 37 MB of 400px webp).
+  The ~2,650 asked for counted 246 video looks; the video maker's gallery now draws four a shelf at
+  its 720px width (main's reselling.us look), 164 in all, and the library takes what it offers.
+- **The video maker opens a gallery look by link** (`motion/app.js`: `?shelf=<id>&look=<seed>`), as
+  its shelf drew it, on the visitor's own words and number.
+- **The chips**: the main categories first, an arrow on the seven with lines, a row of lines with
+  counts under the chosen one; "Offer cards" only while more than one is left; the review page's
+  categories carry the arrows too (`scripts/review_page.html`). The studio's own category picker is a
+  menu, and the full ad's line picker is already grouped by the same lines.
+
+Open:
+7. **Push**: nothing of this is pushed; the owner's OK first.
+8. **The published review page** gets its arrows at its next build (`build_review_page.mjs`).
+
+Then, the same day (the owner: "Merge and redraw"): the hero-wall branch (98eeb651) is merged here
+(a46fa2b0), and the library's other looks are drawn again in its colours (`build_library_looks.mjs
+--all`): 1330 more looks, 245 line full ads, 164 video looks; 2,404 in the
+library. The wall check (`hero_wall_check.mjs`) holds on the redesigned landing; the colour check
+is clear on the merged engine.
+
+Then, the same day (the owner, through the roadmap session, of the library's cars: a BMW models
+line on a Toyota pickup, a Lexus one on a Toyota, "MOTORCYCLES BUYER" on a Honda Civic; "check every
+recipe whose headline or models line names a make or model"): seven ads were wrong, all cars (BMW
+and two Lexus models lines on the general line's pool, three motorcycle ads on Honda cars or the car
+pool, "WE BUY SPRINTERS" on a Transit); none of the phones, consoles or computers. The recipe builder
+now reads a make by its models, shows a model the words name and a car built since 2010, puts a
+motorcycle ad on the Harley, and says work vans where no named van has a usable cut-out: 50
+recipes changed (42 in the library; their stills, looks and full-size renders drawn again).
+`scripts/make_match_check.mjs` holds every recipe and line to it.
+Open: a Sprinter cut-out that is not flagged (the one in the repo shows dealer lettering), and more
+than one motorcycle (the Harley, 1988–2006, stands under all three); both downloads need the owner's OK.
+
+## BQ. 2026-11-19 — the WeBuy.AD iPhone app, and the pricing buttons
+
+(BF on `main`. In pull request 14, BF is the Type Lab's, and BK to BP are taken on other branches, so it is BQ here.)
+
+The owner: "now that the iPhones LA app is out we need to make the we buy. ad
+app", "ASAP", "We need to ship this and make it usable SAAS"; and, asked on the
+way, how the plans and the checkout work and whether anything sends ads to
+reselling.us.
+
+Done:
+- **The landing's pricing buttons** (Start free, Choose Starter, Go Pro, Choose
+  Business) did nothing on a fresh visit since 2026-09-04: they were bound in
+  bindEasyUI(), which boot stopped calling. Bound at boot; live, checked on
+  webuy.ad.
+- **`ios/`: WeBuy.AD for iPhone**, the iPhones LA shell around webuy.ad
+  (ios/README.md): a download goes to the share sheet (Save Image to Photos,
+  checked in the simulator), payments and billing open in Safari (checked),
+  Delete account, the camera, photos and location reasons, Try again, the W.
+  icon and the site's ground at launch. Builds for the simulator and, unsigned,
+  for a device; `ios/release.sh` archives, signs in the cloud and uploads.
+- **The site in the app** (`app.js` `IN_IOS_APP`): checkout opens Stripe's
+  page in Safari (Apple's US rule, 3.1.1(a)) and is confirmed on return
+  (`resumeAppCheckout`, `/checkout` now answers `sessionId` for the hosted page).
+- **Delete account** for everyone (`/api/account/delete`, both account menus,
+  privacy.html says so): the subscription is cancelled at Stripe first, then
+  the saved ads, the AI pictures and the account go. billing_check: 117 passed.
+- The name in Stripe: products, the webhook, a pack's invoice and the checkout
+  dialog say WeBuy.AD (new products only; Stripe keeps the old names on the
+  ones already made).
+
+Owed by the owner, in order:
+1. ~~Put the web part live~~ Done 2026-11-19 (main 7ca8021a).
+2. ~~App Store Connect~~ Done 2026-11-19: `ad.webuy.app` registered, the app
+   "WeBuy.AD" (Apple ID 6837161499) created, free, United States only.
+3. A reviewer's demo account on webuy.ad, and live Stripe keys, so the
+   reviewer can pay.
+4. ~~`ios/release.sh 1 --upload`~~ Done 2026-11-19 22:28: build 1.0.0 (1)
+   signed for the App Store and uploaded ("Upload succeeded"); App Store
+   Connect showed it Processing. Next: a TestFlight internal group, then the
+   store page (screenshots, description, privacy answers) and App Review with
+   the reviewer's demo account.
+5. What a paying customer would still meet (the owner asked "anything else
+   we're missing?"): Stripe in test mode; no real card through the live
+   checkout yet; the contact address bounces; the terms' party; video export
+   inside the iPhone app not tried; a forgot-password flow and projects
+   across devices not checked.
+
+Open:
+- **reselling.us**: nothing connects today. A "Send to reselling.us" for its
+  scheduling needs an import endpoint on the reselling.us side (resale-app),
+  like iPhones LA's /studio/images; Pro and Business would carry it.
+- The trailer bed for the explainers, the terms' party, the contact address,
+  live Stripe keys (§BD, §BE).
+
+### The paid-customer walkthrough, 2026-11-19
+
+The owner: "anything else we're missing or is it a fully working and editable
+ad / video maker?", then "Yes, run it". No password or card was typed on the
+live site (the owner's to type); signed-in steps ran on a local copy in demo
+mode, the server on the real function code with a stand-in Stripe.
+
+Works:
+- **billing_check: 164 passed** with the browser part (real Chromium, the
+  stand-in Stripe): the landing's plans, the checkout agreement, Pay,
+  "Payment successful" on Pro, the switch to Business, a credit pack, the AI
+  credit hint, the video maker's Free gate and a Pro video with no marks,
+  Delete account. Two fixes to the check: the video maker asks for a number
+  before a download since 2026-11-10 (b7c74a1e), and reads it after 500 ms.
+  Run it with FABRIC_JS (a local fabric.min.js) or the editor errors.
+- Live, signed out: the pricing buttons, the video maker's "Sign in to
+  download your video. Video downloads come with Pro and Business."
+- Local demo, by hand: sign up, a design, the number, a colour set, Download
+  (a 1080 PNG, 1 of the week's 3 counted), the advanced editor (8 text layers,
+  the headline edited), Choose Pro, Delete account.
+- The iPhone app: a photo ad to the share sheet and Photos.
+
+Missing or broken, for the owner:
+1. **No password reset.** No Forgot password link and no endpoint: a customer
+   who forgets the password is locked out of a paid account. It needs an email
+   sender (none is configured: no Resend, Postmark or SendGrid key).
+2. ~~**The library on the plans.**~~ Done 2026-11-19, the owner: "Open it to
+   customers". Every signed-in account keeps a library (ad-library.js
+   `canUse()`): the Library buttons, the ★ on every ad, Save to library after a
+   download and in the video pop-up, the public link and its JSON and RSS. The
+   server already held each plan's limit (Keep 12 / 300 / 1,000 / 3,000) and
+   kept video for Pro and Business. What is about iPhones LA (the link sent to
+   the shop, "offered daily", "not for iPhones LA") stays with `shop()`: the
+   owner, or a browser connected from iPhones LA → Auto-post. A customer reads
+   "kept with your account: open them on any device, download one again, or
+   share them all with one link". On master-library.html a visitor to someone's
+   link sees "This library as a feed", and only an operator sees the
+   iPhones LA lines (`SHOP`, from /me). ad_library_check: as on main, only the
+   three upload-a-video steps fail; billing_check 164 passed.
+3. **Saved work is on the device.** The last 12 downloads (reopenable) and the
+   draft live in the browser (IndexedDB `pgfx`, localStorage); nothing follows
+   a customer to another phone or computer, except the ads they save to the
+   library (since item 2).
+4. **Video export in the iPhone app** stalled at 2% "Drawing frames" in the
+   Simulator for four minutes, though the web view has every API it uses
+   (VideoEncoder with H.264, AudioEncoder, MediaRecorder MP4, file sharing,
+   OffscreenCanvas). Try it on a real iPhone with TestFlight build 1.
+5. Stripe in test mode; a real card through the live checkout (the owner, with
+   4242 4242 4242 4242 while in test mode); the contact address; the terms.
+
+## BR. 2026-11-18 — the full ad's layout varies, and it may wear any video look (DESIGN-LAW 158)
+
+(claude/full-ad-looks-layout, from claude/xenodochial-mccarthy-7bea6d at a89b25e2. It replaces PR #16,
+claude/ad-design-variety-cohesion-5a7836, which made the same changes on `main`'s full ad before rule 154.)
+
+The owner: the full ads "look shockingly similar to one another"; "I need text variety placements";
+"the video ads originally.. backgrounds.. patterns.. fonts.. arrangement/assortment of devices were
+really good"; "for every single video, I want a photo ad equivalent"; then, comparing the two branches,
+"rebuild it" on top of rule 154's.
+
+Done:
+- **The layout** (`FULL_LAYOUT`): alignment, the product's band middle, high or low, the points' side,
+  four claim badges, three point styles, two calls to action, three footers. Rule 154's stickers and
+  fills and rule 157's marks kept; a left-aligned card's mark stands on the number's right.
+- **Video looks on the full ad** (`fullStyle(…, { look })`), signs included, with the fixes rule 158
+  lists so each passes the pre-flight.
+- **The maker**: Any look to Full ad wears the look; the full gallery's shelves; New look's mix; Layout.
+- Measured: every one of 192 full ads (house looks and video looks, 24 in each of four sizes) passes
+  `fullBlockers` and the pre-flight; `full_ad_check`, `full_colour_check`, `full_type_check`,
+  `full_ad_studio_check`, `look_preflight_check`, `quick_ad_check` and `buylist_check` all clear, and
+  `full_style_check` after one fix (a wide frame's points fell out under the bubble and the band).
+- Measured on the comparison's 24 seeds (the same words and iPhones; nearest neighbour on the picture):
+  layout difference .26 in a square and .15 to .16 in a story (rule 154's branch .18 and .12, `main`
+  .08 and .10); pairs of ads alike in colour and layout at once 0 in a square and 1 to 3 in a story
+  (rule 154's 0 and 16, `main`'s 20 and 10); 22 to 23 layouts in 24 ads (rule 154's one). With the
+  maker's mix (a third of New looks a video look) 15 grounds and 15 treatments in 24.
+
+Open:
+1. **Not on `main`.** It sits on PR #14's branch (claude/ads-improvement-roadmap-7632c8), which now
+   holds the xenodochial branch: #14 lands first, then this. PR #16 is superseded and can be closed once this is up.
+2. **The weights are first guesses**: `FULL_LAYOUT`'s, and `VIDEO_SHARE` (35% of New looks wear a
+   video look). The owner likes the LA looks (the freeway sign, the palms): their share may go up.
+3. **Rule numbers**: these are 158 to 160, after PR #14's renumbering (the xenodochial branch's
+   146 to 149 are 154 to 157 there). The sound branch (claude/video-music-sfx-audit-3691d1) wrote its
+   rule as 147: check it against the merged list when it lands.
+4. **The recipes** (rule 145) draw the house's own look only: a recipe made from an older card could
+   lean to the video look nearest its card, not done.
+
+## BS. 2026-11-18 — the house's own styles, and a ZIP code for Your area (DESIGN-LAW 159, 160)
+
+(claude/full-ad-looks-layout, after §BR.)
+
+Done:
+- Twelve themes, two families (LA & coast, Art & studio), twelve painted grounds, three signs
+  (billboard, tiki plank, surfboard); 72 of 72 full ads clean through the pre-flight.
+- Your area takes a ZIP; the towns nearby as chips; Suggested; the language row renamed.
+- Checked: `full_ad_check`, `full_style_check`, `full_colour_check`, `full_type_check`,
+  `full_ad_studio_check`, `look_preflight_check`, `quick_ad_check`, `buylist_check` (after Surf shop's
+  plate was deepened: its names read 4.4:1), `audience_check`, `type_voices_check`; the maker's ZIP,
+  chips, Suggested and language row driven headless, no page errors.
+
+Open:
+1. **The owner's eye.** Built without seeing them on a phone: which of the twelve to keep, push or
+   drop is the owner's (a theme dropped from `THEMES` leaves nothing behind but its painter).
+2. **Look numbers moved.** Twelve more vibes change which vibe an old look number draws (as the 50
+   themes did when they came); a saved look keeps its own, as it always has.
+3. **The video audits** (`motion_audit.mjs`, `motion_palette_audit.mjs`) need `puppeteer-core`,
+   which this Mac does not have: the new palettes have not been through them.
+5. **`motion_cta_audit` fails one look, and the fault is older than this branch**: Shipping box,
+   4:5, seed 499897, number bottom-right, "stacked": the call to action sits .13 to .155 of the
+   number's size over it (floor .14), the same on the xenodochial branch's own code (a89b25e2). The
+   twelve new vibes changed which looks the audit's 300 seeds draw, and this one came up. The engine's
+   label placement for that look is the fix, not done here.
+4. **The ZIP stays in the maker.** It is not written back to the studio's brand kit (Easy Mode's
+   area dialog has its own), and the towns chips show only in the full mode.
+
+## BT. 2026-11-21 — photographs under the words, the area's own city, the lines' own grounds (DESIGN-LAW 161)
+
+(claude/full-ad-looks-layout, after §BS. The owner: "Where are the background images?", "background
+images are pretty important here", "Pokémon cards and sports cards are extremely lacking in variety".)
+
+Done:
+- A photograph is .4 of a seed's ground (.55 in a metro the library holds), laid under the words in
+  one of five treatments: grade, tint, duotone, wash, pattern.
+- `assets/bg-free/`: 116 free-licence photographs (public domain and CC0 only, 74 MB): 105 of the 20
+  biggest metros (2 to 16 each, Los Angeles 16), 9 roads and coasts, coin slabs and piles, gold bars.
+  288 candidates were fetched by `scripts/fetch_free_photos.mjs` and read by eye on contact sheets
+  (172 turned down: people, artworks, trademarks, wrong places, old prints, and 31 night shots under
+  the house's limits for dark grounds); `scripts/import_free_photos.mjs` brought in the rest.
+  `motion/metros.js` (from `scripts/build_metros.mjs`) finds the metro of a ZIP code or of towns.
+- The pools: cars 10 to 24 photographs (roads, coasts, open desert), coins 2 to 5, silver 3 to 6,
+  gold 4 to 7; the coast roads joined the phones', audio's, wearables' and cameras' pools.
+- Twelve grounds painted for the lines' own goods (cards, slabs, binder, foil, stitch; pixels, pads,
+  screen; coins, reeding; road, tread).
+- The maker's Background panel: what the ad stands on, and a photograph's treatment, each lockable.
+
+Open:
+1. **Card photographs.** Commons had no usable free photograph of trading cards (old tobacco cards,
+   cosplay, people at tables). The cards stand on painted grounds. The shop's own photographs of
+   slabs, binders and its counter would be the best grounds for them, and are the owner's to take.
+2. **No new gaming photographs.** Every arcade, pinball and esports photograph Commons had free
+   showed people, a band's art or a brand, or was too dark. The gaming line leans on its painted
+   grounds (pixels, pads, a screen) until better ones are found or shot.
+3. **More places, and thin ones.** The top 20 metros only; Minneapolis has 2 photographs, Dallas and
+   Phoenix 3. States, and the
+   metros after the twentieth, are the next step (same scripts, more groups in
+   `spec/free-photo-queries.json`).
+4. **The owner's eye on the treatments' shares** (`PHOTO_TREAT_SHARES`) and the photo share (.4).
+5. **The Golden Gate Bridge and the skylines that hold a trademarked building** (the Empire State,
+   the Space Needle) are kept out where a photograph is about the building; a skyline that has one in
+   it is kept. If the shop wants no risk at all, drop those by hand.
+
+## BU. 2026-11-22 — business cards, and the logo designer planned (DESIGN-LAW 167)
+
+The owner, 2026-11-19: "business card designer..? just an idea and suggest quick same day print
+locations near you? just as an added bonus"; 2026-11-22, of it: "Do this task here", and "what about
+logo designer later with assets included ? suggested logo maker? outline assets? vector assets? pop
+art style? comic style? use LM credits ? plan this out too but needs to be super pay walled ? along w
+business cards?".
+
+Done (this branch):
+- **`cards/`**, the business card maker: front and back at 300 dpi with the bleed, five layouts in the
+  full ad's colour and type pairs, filled from what the customer typed in the studio, a QR on the
+  back. Download the print PDF (crop marks, TrimBox and BleedBox) or the PNGs. Linked from the
+  landing's bar, the video maker's bar and Easy Mode ("Matching business card"); in the sitemap.
+- **Paid**: Pro and Business (`plans.mjs` `cards`, enforced by the function, kind `card`, one photo
+  download). The plan cards and the comparison table say so (`build_pricing.mjs`).
+- **Print it today**: after a download, Google Maps searches for same-day business card printing and
+  for FedEx Office, Staples, Office Depot OfficeMax and The UPS Store near the customer's ZIP, and
+  what to ask for.
+- `account.js` finds the API from `cards/` as from `motion/`.
+
+Open:
+- **Which plans.** Business cards are Pro and Business now; Starter is one switch in `plans.mjs`.
+- **A card from a saved ad's look.** The card takes the full ad's colours and type as the studio last
+  had them; picking a card's look from one of the customer's library ads is a next step.
+
+### The logo designer, planned (not built)
+
+What it makes: a logo for a buying business. A mark and a wordmark in three lockups (side by side,
+stacked, the mark alone), as SVG (vector), transparent PNG, a one-colour version, and the small sizes
+(favicon, app icon). It becomes the customer's brand kit: the badge on the full ad, the business card,
+the video's end card.
+
+1. **Assets: a vector icon set of what is bought**, outline and filled, on one stroke and corner
+   grid: phone, tablet, laptop, watch, ring, gold bar, coin, car, truck, van, camera, drone,
+   controller, trading card, test strip box, cash, handshake, pin. Drawn as our own SVGs, or taken
+   from icon sets under permissive licences (Tabler Icons MIT, Lucide ISC, Phosphor MIT), never a
+   brand's mark (no Apple logo, no car badges): the free-licence rule the photos keep.
+2. **Styles, as generators varied by a seed** (cohesive by rules, never one house look): monogram
+   badge, outline line-art, pop art (Ben-Day dots, offset colour, heavy outline), comic (ink outline,
+   starburst, speech bubble, Bangers/Luckiest/Knewave lettering), stamp and seal, varsity/sport,
+   luxe serif for gold and jewellery, neon, minimal geometric. Faces from the type pairs, colours from
+   the house pairs, so a logo goes with the ads.
+3. **"Suggest logos"**: from the business name, what they buy and the town, a page of suggestions
+   at once (say 12), More like this on one, and locks on the parts liked (mark, face, colours).
+4. **AI credits**, where they earn their price: a language model for name, tagline and slogan ideas
+   and for which styles suit (a credit or two a batch). The vector mark stays ours (sharp, editable,
+   clear to use); an image model's picture is not a vector and its rights are murkier, so at most
+   it is a mood board.
+5. **"Super pay walled"**: design and preview free, the preview heavily marked. The file is made by
+   the function, not the browser: the page sends the design (style, seed, words, colours), the
+   function checks the plan and draws the SVG, so the clean vector never reaches a browser that has
+   not paid. A new plan flag (`logos`) and kind (`logo`) beside `cards`.
+6. **Phases**: (a) the icon set and the generators with a marked preview; (b) the paid server-drawn
+   SVG/PNG export; (c) the brand kit: the logo on cards, ads and videos; (d) the AI suggestions.
+
+The owner decides: the tier (Pro and Business, Business alone, or a one-time logo pack for any plan
+like the AI credit packs), what a suggestion batch costs in credits, and the terms' line on who owns
+a logo made here.
+
+## BV. 2026-11-19 — Sign in with Apple and Google (DESIGN-LAW 168)
+
+The owner: "apple and google sign in ?". Google's sign-in was built but switched off (no
+`GOOGLE_CLIENT_ID`); Apple's did not exist.
+
+Done:
+- `/api/auth/apple` and `netlify/lib/appleid.mjs` (the token checked against Apple's keys);
+  `/api/auth/config` reports Apple too.
+- One pair of buttons in `account.js`, used by the video maker's dialog and the studio's.
+- The CSP lets Apple's script and popup through, and Google's button stylesheet.
+- The privacy policy names Apple alongside Google.
+- `scripts/appleid_check.mjs` and `scripts/social_signin_check.mjs`.
+- 2026-11-23, the owner: "blend with app ui". Google's own button sat in a white box on the dark
+  windows, 300px on a 367px form. Both buttons are the site's own now, dressed as each window
+  (DESIGN-LAW 168); Google's popup comes from its token client, and `netlify/lib/googleid.mjs`
+  checks the access token's client ID (`scripts/googleid_check.mjs`). `account.js`'s Create / Sign
+  in switch shows on a dark page.
+
+Open:
+1. **owner**: Google is on (`GOOGLE_CLIENT_ID` was set by 2026-11-23). Apple is left: create the
+   Services ID and put `APPLE_CLIENT_ID` in Netlify (`docs/SIGN-IN-SETUP.md`, step by step).
+2. **owner**: read the privacy policy's Apple lines (live since 2026-11-23, with pull request 20).
+3. The iPhone app shows neither button. It needs Sign in with Apple natively
+   (`ASAuthorizationAppleIDProvider` in the shell, its identity token sent to `/api/auth/apple`),
+   then `APPLE_BUNDLE_ID` = `ad.webuy.app` in Netlify. Google can follow in the app only alongside
+   Apple (App Store guideline 4.8).
+4. **owner**: press "Continue with Google" once on webuy.ad. Automation can't open its popup, so
+   the live sign-in is not yet proven end to end. If Google says `origin_mismatch`, add
+   `https://webuy.ad` to the client's Authorized JavaScript origins.
+
+## BW. 2026-11-22 — four more kinds of ground, and the card lines' own pictures (DESIGN-LAW 163)
+(BU on claude/full-ad-looks-layout; `main` had given BU to the business cards by the time it landed, 2026-11-23, so it is BW here.)
+
+(claude/full-ad-looks-layout, after §BT. The owner: "some backgrounds we'll use more device or brand
+imagery", "or we use abstract img backgrounds", "what else would we use?", "Yes, build them"; and,
+of the card ads, "why arent there new card assets like we talked about".)
+
+Done:
+- `motion/full-families.js`: twenty grounds in four families, painted in the pair's own colours:
+  product (a wall of the ad's own product, a close-up out of focus, a giant outline of it), abstract
+  (silk, liquid chrome, bokeh, frosted glass, holographic foil, spheres, a light leak), shape (disc,
+  Bauhaus, bands, pills, colour blocks, wave, rising sun), type (word wall, giant word, word tape).
+- The shares: photograph .3 (.55 in a metro with its own), abstract .13, gradient .12, pattern .12,
+  shape .1, product .1, type .05, scene .04, house .04. "Stands on" in the maker offers each family.
+- Twenty card pictures painted (`scripts/paint_card_pictures.mjs`, ph-poke-* and ph-sports-*):
+  holo and full-art cards, fanned cards, graded slabs, three slabs, binders, booster packs, a booster
+  box, a collection; soccer and hockey rookies, an autograph, a patch autograph, refractors, a graded
+  autograph, three graded rookies, wax and hobby packs, a hobby box, a sports collection. Pokémon's
+  pool 2 to 11 pictures, sports' 8 to 19.
+
+Open:
+1. **The card pictures are placeholders.** Drawn cards read as cards but not as a particular
+   valuable one; a photograph of the shop's own slabs, binders and sealed boxes would sell harder.
+   Each ph-* is named so it can be swapped one for one.
+2. **The graded Charizard (`poke-psa-charizard`) is CC BY-SA 2.0** (cut from a Wikimedia Commons
+   photograph, `assets/cutouts/ATTRIBUTION.json`): that licence asks for a credit on the ad, and the
+   card's art is the maker's. Rule 161 holds new ad photographs to public domain or CC0. It still has
+   weight 6 of the Pokémon pool; the owner's call whether it stays.
+3. **Still to build from the list:** textures and materials (about 40 CC0 photographs, about 25 MB:
+   needs the owner's go-ahead to download), space (NASA photographs are public domain, about 30, about
+   20 MB, plus painted ones; most are dark, so under a duotone or wash), the area drawn as a map from
+   the studio's own geo data, money and value grounds, seasonal sets.
+4. **The new shares are first guesses** and want the owner's eye on a sheet of New looks.
+5. **The devices of 2026, and 2027 next** (the owner, 2026-11-22: "iphone duo", "z fold 8", "any other
+   new devices?", "it needs to be 2026 / 2027 adjacent"). Done: the iPhone draw weighs the 2025 and 2026
+   models about nine in ten (spec/product-demand.json), and the iPhone Duo leads the foldables line
+   (its words now name it first). Missing pictures, by what launched (press coverage):
+   - Apple, 2026-09-09: the iPhone Duo has only the owner's site art (562 x 364, small) and no render
+     in motion/phones, so it cannot stand in an iPhone ad; the iPhone Air (2025) neither. Apple Watch
+     Series 12 and Ultra 4, and AirPods 5, are not in assets/devices.json. The base iPhone 18 and 18e
+     are due in spring 2027.
+   - Samsung: Galaxy S26, S26+ and S26 Ultra (2026-02-25), Galaxy Z Fold 8 Ultra, Z Fold 8 and Z Flip 8
+     (2026-07-22). The library's newest Samsung pictures are the S24 and generic generated foldables.
+   - Google: the Pixel 11 family (2026-08). The newest Pixel pictures are the Pixel 9.
+   The owner's site's device art (uploaded 2026-09-27) is the source the iPhone pictures came from;
+   the same for these would keep every device real. Needs the owner's upload or go-ahead.
+6. **Card pictures, photo-accurate**: painted ones read as drawn up close. Options, best first: the
+   shop's own photographs; 3D renders of slabs, boxes, packs and a binder with our own art (no 3D tool
+   on this Mac yet); the fal image model making blank objects with our labels laid on after. Real
+   popular cards (a named player, Pokémon art) only from the shop's own stock, after a word with a
+   lawyer: a player's face in a paid ad is his likeness.
+7. **Selling points vary** (DESIGN-LAW 164, done 2026-11-22): two to four per ad, drawn from each
+   line's own promises and any buyer's, each said several ways. Spanish ads still draw the old
+   three from the catalogue's Spanish list; a Spanish pool is next.
+8. **The iPhone mix, by the owner's word** (done 2026-11-22): the 17 Pro Max pushed hardest, the 16
+   Pro Max (the shop's best seller) close behind, the 18 Pro Max present and to grow; the colourful
+   base and Plus models of 14 to 17 about a third of the draw. The iPhone 16 Plus has no render in
+   motion/phones and is left out until it has one. Watch Ultra 4 and Series 12 came from the owner's
+   site (2026-11-22) and lead the watch line; assets/devices.json has them by hand, since
+   scripts/device_catalog.py needs Pillow, which this Mac does not have: teach it ultra4 and s12 when
+   it next runs. The same broad mix (hot items and everyday ones) is wanted for cards, cars and
+   jewellery.
+9. **2026 Samsung and Pixel pictures: none on Commons fit an ad** (searched 2026-11-22). The CC0 ones of
+   the Galaxy S26 series and the S25 Ultra are store displays (price tags, security tethers, the
+   maker's screen) or a phone in a hand; the CC BY and CC BY-SA ones of the S26 Ultra and the Z Fold 8
+   and Fold 8 Ultra are the same kind of store shots and would need a credit on the ad; the Pixel 11
+   Pro's clean drawings (CC BY-SA) are flat vectors that would not sit with the studio's photographed
+   devices. The owner's site is Apple only. Ways in: the shop's own photographs of the Samsung and
+   Pixel phones it buys (cut out by the existing scripts), stock bought with ad rights, or the fal
+   model drawing from a real photograph as its reference (scripts/bggen_entities.py), read by eye.
+
+## BX. 2026-11-23 — WeBuy.AD everywhere, the old domains dropped, mail, and what the site still needs
+
+(claude/domain-saas-f5840a, from `main` at 57522eb2, `main` merged in at 875e6167 and c190dba9.
+Main named its Sign in with Apple and Google BV and took BW, so this is BX.)
+
+The owner, from a session asked to "use my name cheap to connect domain and create all necessary
+saas parts": skip buyback.ad, "drop old branding", "Yes, all of it", then "Anything that was
+previously referred to as the old name needs to be switched over to the new name".
+
+Done:
+- **buyback.ad was never registered.** The .ad registry answers NXDOMAIN and its whois has no
+  record (2026-11-18 and 2026-11-23); Namecheap sold it for $21.98 a year. The owner chose not to
+  buy it. `buyback.ad`, `www.buyback.ad` and `studio.scans.ad` (the old project's primary domain,
+  never resolved; `scans.ad` is in another Namecheap account) are off the old Netlify project.
+  Both sites still answer 200.
+- **Mail** (Namecheap, webuy.ad, Redirect Email): support@webuy.ad to myleskcb@gmail.com, beside
+  the contact@iphones.la forward another session made for the App Store review; hello@webuy.ad to
+  myleskcb@gmail.com. Checked after a reload, not by sending mail.
+- **The name**: WeBuy.AD wherever the product, the site or the business was BUYBACK.AD or
+  Graphics Studio: the terms (the party, the Service; version 2026-11-23, `TERMS_VERSION`) and
+  privacy (updated 2026-11-23), the copyright line on every page and the 18 category pages, the
+  old single-file page, robots.txt, the library API's name and realm, the label a studio sends
+  iPhones LA when it connects, the partner kit's words (zip repacked), code comments, the current
+  docs, DESIGN-LAW 153's name rule. Identifiers and dated history keep the old spelling (rule 153).
+- Docs: AGENT-BRIEF's domains, OPERATIONS (URLs, mail, the logins, retiring the old project),
+  SETUP, IPHONESLA-CONNECTION.
+
+The SaaS parts on webuy.ad (`buybackad-finished-copy`), read 2026-11-23. Its variables: ADMIN_EMAILS,
+FAL_KEY, JWT_SECRET, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET. `/api/health`: ok, accounts, store ok,
+ai, google false, billing (test mode).
+
+| Part | State | What is left, and whose |
+|---|---|---|
+| Accounts, operators | live | none |
+| AI backgrounds | live (fal) | optional: a `GEMINI_KEY` as the fallback; the old project has one, webuy.ad's has none. The owner pastes it |
+| Billing | **live, 2026-11-23**, on the iPhones.LA Stripe account (WeBuy.AD has no registered business yet). Its own standard key, "WeBuy.AD website", is `STRIPE_SECRET` for Production only; previews keep test keys. The operator setup made 8 live prices, the webhook at https://webuy.ad/api/stripe-webhook and Apple Pay on webuy.ad | the owner's choice later: a WeBuy.AD Stripe account (a sole proprietor can open one; trading as WeBuy.AD in California usually needs a fictitious business name). Moving paying subscribers then is a migration |
+| What buyers see of the shared account | Stripe's form, the Apple Pay and Google Pay sheet, receipts and invoices and the billing portal say iPhones.LA; the card statement is the account's prefix then `WEBUY.AD` (`STATEMENT_SUFFIX`: a pack's payment, a plan's product) | the test-mode products are still named Graphics Studio Pro and Business (made 2026-10-11); live ones are WeBuy.AD |
+| `SITE_URL` | not set, not needed | Netlify's `URL` is the primary domain, https://webuy.ad |
+| Google sign-in | **live, 2026-11-23**: Google Cloud project `webuy-ad` (myleskcb@gmail.com), app WeBuy.AD in production, External, client "WeBuy.AD website" for https://webuy.ad and https://www.webuy.ad; `GOOGLE_CLIENT_ID` set; the owner's own sign-in by Google opened the operator account | Apple: `docs/SIGN-IN-SETUP.md` |
+| Mail in | live | none |
+| Mail out | none: no password reset, no address check | a build: a mail provider, its DNS records at Namecheap, and the reset flow |
+| Search | **Search Console verified 2026-11-23** (Domain property webuy.ad, myleskcb@gmail.com, TXT `google-site-verification` at Namecheap); https://webuy.ad/sitemap.xml submitted ("Couldn't fetch" on the first day; the file answers 200) | Bing Webmaster Tools can import from Search Console |
+| Analytics | **Cloudflare Web Analytics, live 2026-11-23** (195b5f1d): site webuy.ad in myleskcb@gmail.com's Cloudflare account, beside iphones.la and reselling.us; the beacon on the 26 public pages, its two CSP entries, the privacy row. No cookies | none |
+| Legal pages | live as WeBuy.AD | none |
+
+Open:
+1. On `main` and live (94bd8bff, then edee1d1b with the shared-account billing).
+   The webhook hears every sale of the iPhones.LA account: only a session naming one of the
+   site's plans or packs, or a subscription to one of its plans, touches an account here
+   (`ownSession`, `ownSubscription`; billing_check fails on the old code).
+2. **The old project still serves iPhones LA.** iphones.la's CORS door answers 204 only for
+   `https://buybackad-graphics-studio.netlify.app` (400 for webuy.ad and finished-copy), and
+   iPhones LA's code names it as `DEFAULT_STUDIO_URL` with no webuy.ad in `STUDIO_SITES`. The
+   owner chose iPhones LA first; the redirect waits (OPERATIONS, "Retiring the old project").
+3. Chrome's Netlify login is myleskcb2 again (webuy.ad's team); the old project needs the
+   myleskcb@gmail.com login.
+6. **Two secrets passed through the session's screen reads**: the Google client's secret (the
+   site does not use it) and the new live Stripe key's value in Stripe's one-time dialog. Neither
+   was copied anywhere. Rolling both is the safe move: Google Cloud → Clients → WeBuy.AD website
+   (the site needs only the client ID), and Stripe → API keys → WeBuy.AD website → Roll, then the
+   new value into Netlify's STRIPE_SECRET (Production) and a deploy.
+4. `assets/og/og-card.jpg` and `assets/og/buybackad-og.jpg` still draw the old name; no page links
+   them (the share card is `assets/brand/share-card.jpg`).
+5. This Mac has no Netlify CLI and no CLI login (the brief said otherwise); the old project's
+   last deploy is a CLI deploy of 2026-10-07.
+
+## BY. 2026-11-23 — a picture that does not arrive is never shown broken (DESIGN-LAW 169)
+
+The owner, of a screenshot of the wall with six tiles showing the browser's broken-picture mark and
+their alt text: "Can you fix this so our final product doesn't have this issue".
+
+Found: the screenshot was the browser pane's preview tab (localhost:8961, opened for the sign-in
+check), whose server had been stopped. The wall's late pictures are asked for only once the wall
+is in, and the wall comes in on an animation frame, which a hidden tab never gets; shown again
+after the server had gone, it asked for twelve pictures and got none. The live site loaded 36 of 36
+at desktop and phone widths. Nothing was missing from the build.
+
+Done:
+- `app.js`: `pictureWatch` (hide on failure, ask again at 1.5 s and 5 s, then let the tile leave;
+  ask once more when the connection, the tab or the page cache returns), `scWallWatch` (a wall
+  picture is clear until it has loaded; a lost one's card leaves in both copies of its column), and
+  the same watch on the landing's library cards (`scCard`).
+- `landing.css`: a wall picture fades in when it arrives.
+- `scripts/wall_pictures_check.mjs` (22 cases). Run against the code before this change it fails
+  12, with the same alt text in sight that the screenshot shows.
+- 2026-11-24, after pull request 23 went live: the check run against webuy.ad passed the wall but
+  caught a failed library picture in sight (21 of 22), for the moment between its failure and its
+  error event. A library picture was visible while loading; the wall's never was. `scCard` now keeps
+  it clear until it has loaded. The check gained a case (a loaded library picture must be seen):
+  23 of 23, five runs on the live site with the new `app.js`.
+
+Open:
+1. A column that loses three or more of its six cards is shorter than the stage, so a gap passes
+   once in its loop. It takes half a column's pictures failing for good. Drawing the wall again
+   from the cards that are left would close it.
+2. The watch is on the wall and the landing's library. Other pictures a visitor loads from the
+   server (the studio's background and photo pickers, the video maker's posters, the business
+   cards' grounds) still show the browser's mark if one fails. The same `pictureWatch` fits them.
+3. `scripts/landing_check.mjs` was not run here: it needs `puppeteer-core`, which this worktree
+   does not have. `hero_wall_check` passes.
+5. `full_ad_studio_check` fails one case on `main` (7ead02be), with or without this change: "earbuds
+   landscape: Something on the ad runs to the edge of the picture". It is the full ad's, not the
+   wall's; passed to the session that owns the full ad's looks.
+4. When a preview server is stopped, its tab in the browser pane should be closed with it: the
+   owner reads that pane as the product.
+
+## BO. 2026-11-18 — the video ads sound like a trailer, not a game (DESIGN-LAW 170)
 
 (claude/video-music-sfx-audit-3691d1, from 9dddf354.)
 

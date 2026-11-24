@@ -79,14 +79,44 @@ export const FONTS = {
   "satoshi-700":      ["Satoshi", 700, "satoshi-700.woff2", "geometric"],
   "chivo-700":        ["Chivo", 700, "chivo-700.woff2", "grotesk"],
   "franklin-700":     ["Libre Franklin", 700, "libre-franklin-700.woff2", "grotesk"],
+  // the Type Lab picks (2026-11-13, DESIGN-LAW 140): each the display face of its own pair
+  "michroma":         ["Michroma", 400, "michroma-400.woff2", "wide"],
+  "stick-no-bills":   ["Stick No Bills", 800, "stick-no-bills-var.woff2", "condensed"],
+  "bahiana":          ["Bahiana", 400, "bahiana-400.woff2", "condensed"],
+  "londrina-solid":   ["Londrina Solid", 900, "londrina-solid-900.woff2", "condensed"],
+  "truculenta":       ["Truculenta", 900, "truculenta-cond-var.woff2", "condensed"],
+  "kanit-italic":     ["Kanit Black Italic", 900, "kanit-900i.woff2", "grotesk"],
+  "fugaz":            ["Fugaz One", 400, "fugaz-one-400.woff2", "display"],
+  "zilla-highlight":  ["Zilla Slab Highlight", 700, "zilla-slab-highlight-700.woff2", "slab"],
+  "ranchers":         ["Ranchers", 400, "ranchers-400.woff2", "display"],
+  "tourney":          ["Tourney", 900, "tourney-var.woff2", "display"],
+  "fruktur":          ["Fruktur", 400, "fruktur-400.woff2", "display"],
+  "caveat-brush":     ["Caveat Brush", 400, "caveat-brush-400.woff2", "script"],
+  "gochi":            ["Gochi Hand", 400, "gochi-hand-400.woff2", "script"],
+  "barrio":           ["Barrio", 400, "barrio-400.woff2", "display"],
+  "spray-paint":      ["Rubik Spray Paint", 400, "rubik-spray-paint-400.woff2", "display"],
+  "cherry-bomb":      ["Cherry Bomb One", 400, "cherry-bomb-one-400.woff2", "display"],
+  "dynapuff":         ["DynaPuff", 700, "dynapuff-var.woff2", "display"],
+  "boogaloo":         ["Boogaloo", 400, "boogaloo-400.woff2", "display"],
+  "galindo":          ["Galindo", 400, "galindo-400.woff2", "display"],
+  "protest-revolution":["Protest Revolution", 400, "protest-revolution-400.woff2", "display"],
+  "protest-riot":     ["Protest Riot", 400, "protest-riot-400.woff2", "display"],
+  "tilt-neon":        ["Tilt Neon", 400, "tilt-neon-400.woff2", "display"],
+  "silkscreen":       ["Silkscreen", 700, "silkscreen-700.woff2", "mono"],
+  "vt323":            ["VT323", 400, "vt323-400.woff2", "mono"],
+  "workbench":        ["Workbench", 400, "workbench-400.woff2", "mono"],
+  "londrina-shadow":  ["Londrina Shadow", 400, "londrina-shadow-400.woff2", "display"],
+  "rampart":          ["Rampart One", 400, "rampart-one-400.woff2", "display"],
 };
 
 // the pair cuts are never drawn on their own: the shuffle draws from the faces it always
 // had, so every look number keeps its look (a longer list moved every draw after it)
-export const PAIR_CUTS = new Set(["sofia-xcond-800", "unbounded-800", "schibsted-800", "schibsted-700", "satoshi-700", "chivo-700", "franklin-700"]);
+export const PAIR_CUTS = new Set(["sofia-xcond-800", "unbounded-800", "schibsted-800", "schibsted-700", "satoshi-700", "chivo-700", "franklin-700",
+  "michroma", "stick-no-bills", "bahiana", "londrina-solid", "truculenta", "kanit-italic", "fugaz", "zilla-highlight", "ranchers", "tourney", "fruktur", "caveat-brush", "gochi", "barrio", "spray-paint", "cherry-bomb", "dynapuff", "boogaloo", "galindo", "protest-revolution", "protest-riot", "tilt-neon", "silkscreen", "vt323", "workbench", "londrina-shadow", "rampart"]);
 
 /* THE OWNER'S TYPE PAIRS (DESIGN-LAW 100, carried into the video by 133). The
-   photo ads' FONT_PAIRS in app.js, the same eighteen voices, each a display face
+   photo ads' FONT_PAIRS in app.js, the same voices (eighteen, and the Type Lab's
+   twenty-seven of 2026-11-13), each a display face
    for the headline, the opening line, the number and the marks, and a reading
    face (at its label weight, 700 or more: WEIGHT_FLOOR) for everything read:
    the small line, the label over the number, the selling points, the call to
@@ -113,6 +143,33 @@ export const TYPE_VOICES = {
   stencil: { name: "Stencil", display: "stencil",         label: "barlow-cond", numberRead: true },
   grotesk: { name: "Grotesk", display: "bricolage",       label: "instrument-sans" },
   serif:   { name: "Serif",   display: "young-serif",     label: "manrope" },
+  // the Type Lab picks (2026-11-13)
+  circuit:  { name: "Circuit",   display: "michroma",           label: "sora" },
+  flyer:    { name: "Flyer",     display: "stick-no-bills",     label: "franklin-700" },
+  tall:     { name: "Tall",      display: "bahiana",            label: "barlow-cond", numberRead: true },
+  cutout:   { name: "Cutout",    display: "londrina-solid",     label: "nunito" },
+  press:    { name: "Press",     display: "truculenta",         label: "manrope" },
+  speed:    { name: "Speed",     display: "kanit-italic",       label: "chivo-700" },
+  rush:     { name: "Rush",      display: "fugaz",              label: "instrument-sans" },
+  highlight:{ name: "Highlight", display: "zilla-highlight",    label: "manrope", numberRead: true },
+  ranch:    { name: "Ranch",     display: "ranchers",           label: "nunito" },
+  varsity:  { name: "Varsity",   display: "tourney",            label: "chivo-700" },
+  gothic:   { name: "Gothic",    display: "fruktur",            label: "schibsted-700", numberRead: true },
+  brush:    { name: "Brush",     display: "caveat-brush",       label: "manrope" },
+  note:     { name: "Note",      display: "gochi",              label: "nunito" },
+  barrio:   { name: "Barrio",    display: "barrio",             label: "barlow-cond", numberRead: true },
+  spray:    { name: "Spray",     display: "spray-paint",        label: "manrope", numberRead: true },
+  cherry:   { name: "Cherry",    display: "cherry-bomb",        label: "nunito" },
+  puff:     { name: "Puff",      display: "dynapuff",           label: "nunito" },
+  boogie:   { name: "Boogie",    display: "boogaloo",           label: "instrument-sans" },
+  toon:     { name: "Toon",      display: "galindo",            label: "nunito" },
+  protest:  { name: "Protest",   display: "protest-revolution", label: "franklin-700", numberRead: true },
+  riot:     { name: "Riot",      display: "protest-riot",       label: "franklin-700" },
+  neon:     { name: "Neon",      display: "tilt-neon",          label: "sora" },
+  pixel:    { name: "Pixel",     display: "silkscreen",         label: "sora", numberRead: true },
+  terminal: { name: "Terminal",  display: "vt323",              label: "sora" },
+  scanline: { name: "Scanline",  display: "workbench",          label: "sora", numberRead: true },
+  depth:    { name: "Depth",     display: "rampart",            label: "manrope", numberRead: true },
 };
 /* Every face a look, a vibe, a theme or a sign may still name, to the voice that
    speaks closest to it, so a saved look and every shuffle land on a pair. */
@@ -128,10 +185,12 @@ export const VOICE_OF_FONT = {
   "instrument-sans": "grotesk", "instrument-serif": "luxe", "nunito": "pop", "sniglet": "pop", "special-elite": "serif",
   "jetbrains": "tech", "cabin-sketch": "marker", "kalam": "comic",
   "schibsted-800": "grotesk", "schibsted-700": "grotesk", "satoshi-700": "modern", "chivo-700": "grotesk", "franklin-700": "grotesk",
+  "michroma": "circuit", "stick-no-bills": "flyer", "bahiana": "tall", "londrina-solid": "cutout", "truculenta": "press", "kanit-italic": "speed", "fugaz": "rush", "zilla-highlight": "highlight", "ranchers": "ranch", "tourney": "varsity", "fruktur": "gothic", "caveat-brush": "brush", "gochi": "note", "barrio": "barrio", "spray-paint": "spray", "cherry-bomb": "cherry", "dynapuff": "puff", "boogaloo": "boogie", "galindo": "toon", "protest-revolution": "protest", "protest-riot": "riot", "tilt-neon": "neon", "silkscreen": "pixel", "vt323": "terminal", "workbench": "scanline", "londrina-shadow": "cutout", "rampart": "depth",
 };
 
 // Faces too fine or too busy to carry an outline or a thin treatment.
-export const FINE_FACES = new Set(["instrument-serif", "cormorant", "bungee-shade", "rubik-iso", "faster-one", "cabin-sketch", "rubik-dirt"]);
+export const FINE_FACES = new Set(["instrument-serif", "cormorant", "bungee-shade", "rubik-iso", "faster-one", "cabin-sketch", "rubik-dirt",
+  "zilla-highlight", "spray-paint", "workbench", "londrina-shadow", "rampart"]);
 
 // name: ground, light (middle of the ground), ink (headline), accent,
 //       plate (behind boxed type), plate_ink (type on the plate)
@@ -303,7 +362,7 @@ export const COPY = {
     tags: ["", "", "TEXT FOR A QUOTE", "CALL OR TEXT", "LOCAL CASH OFFERS", "FREE QUOTE", "TEXT YOUR IMEI, GET A PRICE", "ALL MODELS WANTED",
       "FROM THE {CODE}", "{AREA} LOCAL", "WE'RE FROM HERE", "MEET UP LOCAL", "WE GOT YOU", "SE HABLA ESPAÑOL"],
     labels: ["", "", "CALL OR TEXT", "TEXT US", "GET A QUOTE", "TEXT FOR A QUOTE"],
-    cta: ["TEXT NOW", "CALL NOW", "TEXT US NOW", "DON'T WAIT", "GET YOUR QUOTE"],
+    cta: ["TEXT NOW", "CALL NOW", "TEXT US NOW", "GET AN OFFER", "GET YOUR QUOTE"],
     urgent: ["IT LOSES VALUE EVERY MONTH", "SELL IT WHILE IT'S WORTH MORE", "NEW IPHONES ARE OUT. OLD ONES DROP."],
     ticker: ["TEXT YOUR IMEI", "GET A PRICE", "CASH", "LOCAL TO {AREA}", "ALL MODELS", "CALL OR TEXT", "SE HABLA ESPAÑOL", "IT LOSES VALUE EVERY MONTH"],
     stamp: ["CASH", "CASH PAID", "LOCAL"],
@@ -323,7 +382,7 @@ export const COPY = {
       "COMPRAMOS IPHONES EN {AREA}", "SOMOS DE AQUÍ. COMPRAMOS IPHONES."],
     tags: ["", "MÁNDANOS EL IMEI", "LLAMA O MANDA TEXTO", "SOMOS DE AQUÍ", "COMPRADORES LOCALES", "COTIZACIÓN GRATIS", "TODOS LOS MODELOS", "SOMOS DE {AREA}", "AQUÍ EN {AREA}"],
     labels: ["", "LLAMA O MANDA TEXTO", "MÁNDANOS TEXTO", "LLÁMANOS"],
-    cta: ["¡MÁNDANOS TEXTO!", "¡LLAMA YA!", "¡NO ESPERES!", "¡COTIZA AHORA!"],
+    cta: ["¡MÁNDANOS TEXTO!", "¡LLAMA YA!", "¡PIDE TU OFERTA!", "¡COTIZA AHORA!"],
     urgent: ["PIERDE VALOR CADA MES", "VÉNDELO MIENTRAS VALE MÁS", "SALIÓ EL NUEVO. EL VIEJO BAJA."],
     ticker: ["MÁNDANOS EL IMEI", "TE DAMOS PRECIO", "EFECTIVO", "SOMOS DE {AREA}", "TODOS LOS MODELOS", "LLAMA O MANDA TEXTO", "PIERDE VALOR CADA MES"],
     stamp: ["EFECTIVO", "EFECTIVO", "LOCAL"],
@@ -481,7 +540,8 @@ export const OPTIONS = {
     "sunset_sky", "sky_day", "stucco", "concrete", "brick_night", "candy_flake", "cork", "fluoro", "asphalt", "beach", "mural_wall", "velvet",
     "tonal", "aurora", "drift"],
   palette: [...Object.keys(PALETTES), "match", "match", "match"],
-  camera: ["push_in", "push_out", "still", "drift", "punch", "tilt", "whip_in", "handheld"],
+  // still only (engine.js Ad, 2026-11-23): every camera move scaled the finished frame up and softened it
+  camera: ["still"],
   shake: [0, 1, 2],
   // scored like a commercial: every kit plays chords in a key (audio.js); the grooves
   // after cinematic are patterns of their own on real instruments (music.js), the last
@@ -490,7 +550,7 @@ export const OPTIONS = {
   sound_kit: ["uplift", "house", "hiphop", "lofi", "minimal", "cinematic",
     "reggaeton", "jersey_club", "drill", "phonk", "baile_funk", "amapiano", "cumbia", "disco", "uk_garage", "swing", "epic", "march", "bossa",
     "pop", "rnb", "motown", "gospel", "classical", "synthwave", "gfunk", "future_bass", "deep_house", "trance", "nu_disco", "none",
-    // 2026-11-19 (DESIGN-LAW 154): a trailer's pulse, drums and low strings, last so every earlier look draws as it did
+    // 2026-11-19 (DESIGN-LAW 170): a trailer's pulse, drums and low strings, last so every earlier look draws as it did
     "trailer"],
   // braam (2026-11-19): a trailer's brass blast, last for the same reason
   hit: ["impact", "riser", "cymbal", "bass_drop", "gong", "timpani", "whip", "anvil", "crash", "swell", "orchestra", "braam"],
@@ -636,7 +696,7 @@ export const WEIGHTS = {
   // keeps its kit, tune and instrument (a recording, drawn late, may play in their place).
   // One number here puts any of them in the shuffle, and changes the kit, tune or
   // instrument of the looks that land on it.
-  // Trailer, not a game (DESIGN-LAW 154): the cartoon and game sounds keep their weight here,
+  // Trailer, not a game (DESIGN-LAW 170): the cartoon and game sounds keep their weight here,
   // so every look number draws what it always drew, and a shuffle that lands on one plays a
   // stand-in instead (STAND_INS, below). The trailer's own sounds (2026-11-19) weigh nothing
   // here: they come in as stand-ins.
@@ -704,7 +764,7 @@ export const SOUND_ALIASES = {
   number_sfx: { coin: "whoosh_ding", pop: "whoosh_boom", chime: "whoosh_ding", shave_haircut: "tick_boom", bells: "whoosh_ding", triangle: "whoosh_ding",
     glock_run: "whoosh_boom", harp_gliss: "whoosh_boom", whistle: "tick_boom", text_ding: "whoosh_ding", phone_buzz: "tick_boom" },
   // The most popular kept, the weirder retired (owner, 2026-11-19, of the sound menus: "take out the
-  // weirder instruments and openers.. pick the top ones", "most popular"; DESIGN-LAW 154): the
+  // weirder instruments and openers.. pick the top ones", "most popular"; DESIGN-LAW 170): the
   // novelty hits and number sounds above, these opening sounds and these instruments for a tune
   accent: { air_horn: "none", siren: "none", whistle: "none", vibraslap: "none", bell_tree: "none" },
   lead: { marimba: "vibes", xylophone: "vibes", glock: "vibes", balafon: "vibes", kalimba: "harp", strumstick: "guitar", harmonica: "sax",
@@ -731,7 +791,7 @@ export const KIT_MODE = { uplift: "major", lofi: "major", house: "minor", hiphop
 // A trailer, not a game (owner, 2026-11-18: "funny and cheerful but not always professional",
 // "like I'm playing mario kart", "I need like trailer commercial professional"; 2026-11-19, of
 // building a trailer's sounds, dropping the jazz and evening the number sound: "best suggestion
-// works"; DESIGN-LAW 154). A shuffle that lands on a sound in `gone` plays one drawn from `to`
+// works"; DESIGN-LAW 170). A shuffle that lands on a sound in `gone` plays one drawn from `to`
 // (engine.js standIns, on a stream of its own): every look number that drew anything else keeps
 // it, and the stand-ins share out as set here, not as the options happen to sit in the list.
 // Every sound in `gone` is still offered by hand, and a holiday ad keeps its own tunes and
@@ -802,6 +862,10 @@ export const SOUND_NAMES = {
 
 export const FLAGS = { flash: 0.6, shine: 0.5, rgb_hit: 0.3, speed_lines: 0.35, sparkles: 0.35 };
 
+// the phones an ad opens with: among the regular models and the Pro Maxes the picker opens on
+// (allPhones shows the rest). The video maker and the studio's full ad both start here.
+export const DEFAULT_PHONES = ["18-pro-max-burgundy", "17-pro-max-cosmic-orange", "18-pro-max-glacier", "16-pink"];
+
 export const DEFAULT_STYLE = {
   phones: [], headline: "WE BUY PHONES", tag: "", number: "", number_label: "",
   seed: 1, aspect: "1:1", duration: 6, fps: 30,
@@ -855,7 +919,7 @@ export const GROUPS = [
   ["Number", ["number_style", "number_format", "number_pos", "number_in"]],
   ["Phones", ["arrangement", "pose", "phone_finish", "entry", "end_face", "phone_idle", "front_glimpse", "glare", "depth"]],
   ["Accents", ["accents", "accent_set", "accent_kind", "accent_in", "accent_idle", "accent_out"]],
-  ["Scene", ["background", "palette", "camera", "shake", "overlay", "grade", "outro"]],
+  ["Scene", ["background", "palette", "shake", "overlay", "grade", "outro"]],
   ["Sound", ["track", "sound_kit", "season", "melody", "lead", "tone", "accent", "hit", "number_sfx", "sting"]],
 ];
 

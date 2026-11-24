@@ -13,7 +13,7 @@
 //  - every ad is levelled to the same loudness (-16 LUFS, peaks under -1 dBFS), so no
 //    look is louder than the next and nothing clips.
 // And a trailer, not a game (owner, 2026-11-18: "like I'm playing mario kart ... I need like
-// trailer commercial professional"; DESIGN-LAW 154): no bell runs on the shine or the end
+// trailer commercial professional"; DESIGN-LAW 170): no bell runs on the shine or the end
 // card, no cork pop on the sticker, and the horns, whistles, anvils, mallets and famous tunes
 // only where someone picks them (catalog.js STAND_INS). Its own sounds (2026-11-19): the
 // braam, two number sounds that land on a low hit, and a trailer's bed (music.js).
@@ -174,7 +174,7 @@ function compose(ad, ctx, voDur, rec) {
   const musicLevel = (st.music_volume ?? .5) * 1.3, music = bus(musicLevel, true, tone.input);
 
   // ---- the key and the chords, drawn from the seed
-  // Layers in one key (owner, 2026-11-19, DESIGN-LAW 154): over a real recording or the user's own
+  // Layers in one key (owner, 2026-11-19, DESIGN-LAW 170): over a real recording or the user's own
   // track, the key it is heard in (recordingKey), so every hit, chime and bell agrees with it;
   // else one drawn from the seed (drawn either way, so the seed's other draws never move).
   const drawn = r.pick([57, 58, 60, 62, 55, 53]);          // A, Bb, C, D, G, F
@@ -265,7 +265,7 @@ function compose(ad, ctx, voDur, rec) {
       [root, root + 12, root + (minor ? 15 : 16), root + 19, root + 24].forEach(m => S.note(hit, "organ", m, .45, .3));
       boom(hit, .4); break;
     }
-    // a trailer's braam (2026-11-19, DESIGN-LAW 154): a swell into a low brass blast over the low hit
+    // a trailer's braam (2026-11-19, DESIGN-LAW 170): a swell into a low brass blast over the low hit
     case "braam": S.swell(hit - 1.1, hit, .16); S.braam(hit, .5, 36 + A.keyPc); boom(hit, .7); break;
     default: S.swish(tl.text - .45, .5, true, -.3, .11); boom(hit, .9);
   }
@@ -274,7 +274,7 @@ function compose(ad, ctx, voDur, rec) {
     ad.lines.forEach((L, i) => S.swish(tl.lines[i], .35, true, 0, .05));
 
   // ---- chimes in the bed's key (2026-11-19: "make more tunes, songs, or chimes we can use";
-  // DESIGN-LAW 154): on the number, or on the end card (st.sting). Each lands on a soft low hit,
+  // DESIGN-LAW 170): on the number, or on the end card (st.sting). Each lands on a soft low hit,
   // so the music steps back under it; nothing in them is pitched above about 1.2 kHz.
   const chime = (kind, t) => {
     const root = 60 + A.keyPc, third = minor ? 3 : 4;
@@ -295,7 +295,7 @@ function compose(ad, ctx, voDur, rec) {
     case "register": S.register(tl.number + .05, .32, bell1); break;
     case "chime": S.bell(tl.number + .05, bell1, .15); S.bell(tl.number + .15, bell2, .13); break;
     case "whoosh_ding": S.swish(tl.number - .25, .35, true, .3, .09); S.bell(tl.number + .12, bell2, .15); break;
-    // a trailer's (2026-11-19, DESIGN-LAW 154): a clock's three dry ticks into the number, then a
+    // a trailer's (2026-11-19, DESIGN-LAW 170): a clock's three dry ticks into the number, then a
     // low hit on it; or a whoosh rising into the low hit. The music steps back under the hit,
     // which sits under the headline's (measured: the headline's -8 to -9 dB, these -15).
     case "tick_boom": [-.42, -.28, -.14].forEach((d, i) => { S.key(tl.number + d, .1 + i * .02); S.tock(tl.number + d, .035 + i * .01, .15); }); boom(tl.number, .24); break;
@@ -327,7 +327,7 @@ function compose(ad, ctx, voDur, rec) {
     }
     default: S.pop(tl.number + .05, .15, bell1);
   }
-  // Trailer, not a game (DESIGN-LAW 154, 2026-11-18): the phones' shine is silent (it was a
+  // Trailer, not a game (DESIGN-LAW 170, 2026-11-18): the phones' shine is silent (it was a
   // rising four-bell run, a game's power-up), the sticker lands with a soft thump (it was a cork
   // pop just after the headline hit), and the end card comes in on a soft whoosh (it was two
   // bells rising a fifth)

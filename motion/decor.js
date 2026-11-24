@@ -9,7 +9,8 @@
 // urgency is only ever TRUE urgency (phones lose value; "text now" is an
 // invitation) and never a deadline, a countdown or a price that is about to move.
 
-import { canvas, rrect, rng, lerp, clamp, prog, outCubic, outBack, outBounce, outQuint, lum, mix, rgba, fontCss, noiseTile } from "./engine.js";
+import { canvas, rrect, rng, lerp, clamp, prog, outCubic, outBack, outBounce, outQuint, lum, mix, rgba, fontCss, noiseTile, contrastOf, oklchOf } from "./engine.js";
+import { styleGround, styleBoard } from "./style-grounds.js";   // the owner's new styles (2026-11-18)
 
 const TAU = Math.PI * 2;
 // A loop that draws as many random values as the frame has pixels takes its own stream,
@@ -1208,7 +1209,7 @@ export function themeBoard(kind, w, h, s, p, st, r, extra, B) {
       B.rot = r.uniform(-3, 3) * Math.PI / 180;
       break;
     }
-    default: return null;
+    default: return styleBoard(kind, w, h, s, p, st, r, extra, B);   // the new styles' signs
   }
   return { c, ox, oy };
 }
@@ -1351,7 +1352,7 @@ export function themeGround(kind, x, st, p, W, H, sc, r) {
       x.fillStyle = "rgba(0,0,0,.12)"; for (const f of [.2, .5, .8]) { x.beginPath(); x.arc(W * .05, H * f, U * .018, 0, TAU); x.fill(); }
       grain(x, W, H, r, 10, .2); return true;
     }
-    default: return false;
+    default: return styleGround(kind, x, st, p, W, H, sc, r);   // the new styles' grounds
   }
 }
 
@@ -1671,4 +1672,602 @@ export function freshGround(kind, x, st, p, W, H, sc, r) {
     }
   }
   return false;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════
+   THE FULL AD'S STYLES (2026-11-18; spec/full-styles.json, motion/full-styles.js)
+
+   The owner, of the full ads and the recipes they draw: "notice how it's all same spiky circle?",
+   "and there's no variety in the text pure outlines?", "Also don't see any gradients really?".
+   A seed now draws a sticker shape, a headline treatment, an entrance and a number treatment from
+   one table; these are the sticker shapes, the gradient a plate may wear, and the two-colour
+   gradient grounds, every one in the card's own two colour families (rules 95 and 139).
+   ══════════════════════════════════════════════════════════════════════════════════════════ */
+
+/** OKLCH to sRGB hex, the chroma eased down until the colour is in gamut. */
+export function okHex(L, C, h) {
+  for (let c = Math.max(0, C); c >= 0; c -= .004) {
+    const a = c * Math.cos(h * Math.PI / 180), b = c * Math.sin(h * Math.PI / 180);
+    const l = (L + .3963377774 * a + .2158037573 * b) ** 3, m = (L - .1055613458 * a - .0638541728 * b) ** 3, s = (L - .0894841775 * a - 1.291485548 * b) ** 3;
+    const rgb = [4.0767416621 * l - 3.3077115913 * m + .2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - .3413193965 * s, -.0041960863 * l - .7034186147 * m + 1.707614701 * s];
+    if (rgb.every(v => v >= -.001 && v <= 1.001)) {
+      const f = v => { v = Math.min(1, Math.max(0, v)); return Math.round(255 * (v <= .0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - .055)); };
+      return "#" + rgb.map(v => f(v).toString(16).padStart(2, "0")).join("");
+    }
+  }
+  const g = Math.round(255 * Math.min(1, Math.max(0, L)));
+  return "#" + [g, g, g].map(v => v.toString(16).padStart(2, "0")).join("");
+}
+/** The same colour, lighter or deeper by dL of OKLCH lightness: its hue and chroma kept. */
+export function toneOf(hex, dL) { const k = oklchOf(hex); return okHex(Math.min(.985, Math.max(.04, k.L + dL)), k.C, k.h); }
+
+/** The two ends of a fill lit from above, [top, foot], never harder to read on than the flat fill (the
+ *  roadmap, 2026-11-18: "a gradient plate keeps the contrast the solid plate had"): the fill's own
+ *  colour at one end, the same hue moved away from its ink at the other, so under light ink the foot
+ *  deepens and over dark ink the top lifts, and every point of it gives the ink at least the flat
+ *  fill's contrast. A fill at the end of the scale, which cannot move away, stays flat (top = foot). */
+export function gradientEnds(fill, ink) {
+  const lightInk = lum(ink) > lum(fill), flat = contrastOf(ink, fill);
+  for (const d of [.14, .1, .06]) {
+    const top = lightInk ? fill : toneOf(fill, d), foot = lightInk ? toneOf(fill, -d) : fill, moved = lightInk ? foot : top;
+    if (moved !== fill && contrastOf(ink, moved) >= flat + .05) return [top, foot];
+  }
+  return [fill, fill];
+}
+/** A fill lit from above (gradientEnds) as a canvas gradient from (x0, y0) to (x1, y1); the flat fill
+ *  where it cannot bend, or where the ink would read under minCr (or under the flat fill's own) on it. */
+export function fillGradient(ctx, x0, y0, x1, y1, fill, ink, minCr = 3) {
+  const [top, foot] = gradientEnds(fill, ink);
+  if (top === foot || Math.min(contrastOf(ink, top), contrastOf(ink, foot)) < Math.min(minCr, contrastOf(ink, fill))) return fill;
+  const g = ctx.createLinearGradient(x0, y0, x1, y1); g.addColorStop(0, top); g.addColorStop(1, foot); return g;
+}
+
+/** The sticker's shapes, beside the starburst (drawStarburst, which Any look keeps). */
+export const STICKER_SHAPES = ["starburst", "seal", "badge", "ribbon", "tag", "stamp", "pill"];
+const STICKER_TILT = { starburst: -12, seal: -8, badge: -6, ribbon: -4, tag: -12, stamp: -9, pill: -10 };
+/** The room each shape leaves its words, as a share of R: [width, height]. Every shape stands inside the
+ *  circle of radius R the layout gave the starburst, tilted or not (its farthest corner within .99 R): a
+ *  ribbon whose tails reached 1.14 R ran into the frame's margin where the room sits by the edge
+ *  (galaxy, switch, jdm in Easy Mode's tall and wide sizes, 2026-11-18). */
+const STICKER_BOX = { starburst: [1.3, 1.15], seal: [1.28, 1.08], badge: [1.34, 1.1], ribbon: [1.16, .54], tag: [1.2, .76], stamp: [1.32, .52], pill: [1.52, .6] };
+
+/** One sticker, centred on (cx, cy) inside a circle of radius R: its shape, its fill (flat or lit
+ *  from above when grad), its ink, its words fitted to the shape's own room; it pops in at t0 and
+ *  sways a little, as the starburst does. */
+export function drawSticker(ctx, shape, cx, cy, R, text, fill, ink, t, t0, fontName, grad = false) {
+  shape = STICKER_SHAPES.includes(shape) ? shape : "starburst";
+  // the fill (2026-11-18, rule 154): flat, lit from above (grad true or "gradient"), striped, dotted, a
+  // foil's sheen (fillTexture), or the outline alone: no plate, so its edge, its rings and its words are
+  // all in the fill, the card's own ink, which reads on the ground
+  const mode = grad === true ? "gradient" : typeof grad === "string" && grad ? grad : "solid", line = mode === "outline";
+  if (shape === "starburst" && mode === "solid") return drawStarburst(ctx, cx, cy, R, text, fill, ink, t, t0, fontName);
+  const q = prog(t, t0, .35); if (q <= 0) return;
+  const sc = Math.max(.01, outBack(q, 2.6)), rot = (STICKER_TILT[shape] + Math.sin((t - t0) * 2.4) * 4) * Math.PI / 180;
+  ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot); ctx.scale(sc, sc);
+  if (line) ink = fill;
+  const paint = (y0, y1, f = fill) => mode === "gradient" ? fillGradient(ctx, 0, y0, 0, y1, f, ink, 3) : f;
+  const shadow = () => { ctx.shadowColor = line ? "rgba(0,0,0,.28)" : "rgba(0,0,0,.35)"; ctx.shadowBlur = R * (line ? .06 : .15); ctx.shadowOffsetY = R * (line ? .02 : .05); };
+  const flat = () => { ctx.shadowColor = "transparent"; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; };
+  // the shape's body on the path just drawn: filled and textured, or its edge alone
+  const body = (y0, y1, f = fill) => {
+    if (line) { ctx.lineWidth = R * .075; ctx.strokeStyle = f; ctx.stroke(); flat(); return; }
+    ctx.fillStyle = paint(y0, y1, f); ctx.fill(); flat(); fillTexture(ctx, mode, f, ink, -R * 1.1, y0, R * 1.1, y1);
+  };
+  const ring = (rr, w) => { ctx.beginPath(); ctx.arc(0, 0, rr, 0, TAU); ctx.lineWidth = w; ctx.strokeStyle = ink; ctx.stroke(); };
+  switch (shape) {
+    case "starburst": {
+      const n = 18; ctx.beginPath();
+      for (let i = 0; i < n * 2; i++) { const a = i / (n * 2) * TAU, rr = i % 2 ? R * .78 : R; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+      ctx.closePath(); shadow(); body(-R, R); flat(); if (!line) { ctx.lineWidth = R * .05; ctx.strokeStyle = ink; ctx.stroke(); } break;
+    }
+    case "seal": {   // a scalloped seal, a thin ring inside its edge
+      const n = 22; ctx.beginPath();
+      for (let i = 0; i <= 180; i++) { const a = i / 180 * TAU, rr = R * (.93 + .07 * Math.cos(n * a)); ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+      ctx.closePath(); shadow(); body(-R, R); ring(R * .79, R * .035); break;
+    }
+    case "badge": {  // a round badge with a ring
+      ctx.beginPath(); ctx.arc(0, 0, R * .97, 0, TAU); shadow(); body(-R, R);
+      ring(R * .86, R * .05); if (!line) ring(R * .97, R * .02); break;
+    }
+    case "ribbon": { // a banner with folded, notched tails behind it
+      const bw = R * 1.408, bh = R * .74, tw = R * .42, th = R * .56, dy = R * .06, tail = toneOf(fill, -.12);   // the tails' far corners at .99 R
+      // (an outline alone is the banner without its folded tails: their edges would cross behind its words)
+      if (!line) [-1, 1].forEach(sd => {
+        const x0 = sd * (bw / 2 - tw * .35), x1 = sd * (bw / 2 + tw * .55);
+        ctx.beginPath(); ctx.moveTo(x0, -th / 2 + dy); ctx.lineTo(x1, -th / 2 + dy); ctx.lineTo(x1 - sd * tw * .32, dy); ctx.lineTo(x1, th / 2 + dy); ctx.lineTo(x0, th / 2 + dy); ctx.closePath();
+        shadow(); ctx.fillStyle = tail; ctx.fill(); flat();
+      });
+      rrect(ctx, -bw / 2, -bh / 2, bw, bh, R * .06); shadow(); body(-bh / 2, bh / 2);
+      ctx.lineWidth = R * .025; ctx.strokeStyle = ink; rrect(ctx, -bw / 2 + R * .07, -bh / 2 + R * .07, bw - R * .14, bh - R * .14, R * .04); ctx.stroke(); break;
+    }
+    case "tag": {    // a price tag, its point to the left and a punched hole
+      const tw = R * 1.8, th = R * 1, x0 = -tw / 2, pt = th * .42;   // its rounded corners at .99 R
+      ctx.beginPath(); ctx.moveTo(x0 + pt, -th / 2); ctx.lineTo(tw / 2 - R * .08, -th / 2); ctx.quadraticCurveTo(tw / 2, -th / 2, tw / 2, -th / 2 + R * .08);
+      ctx.lineTo(tw / 2, th / 2 - R * .08); ctx.quadraticCurveTo(tw / 2, th / 2, tw / 2 - R * .08, th / 2); ctx.lineTo(x0 + pt, th / 2); ctx.lineTo(x0, 0); ctx.closePath();
+      shadow(); body(-th / 2, th / 2);
+      if (!line) { ctx.save(); ctx.globalCompositeOperation = "destination-out"; ctx.beginPath(); ctx.arc(x0 + pt * .62, 0, R * .09, 0, TAU); ctx.fill(); ctx.restore(); }
+      ctx.beginPath(); ctx.arc(x0 + pt * .62, 0, R * .13, 0, TAU); ctx.lineWidth = R * .025; ctx.strokeStyle = ink; ctx.stroke();
+      ctx.translate(R * .12, 0); break;   // the words sit right of the hole
+    }
+    case "stamp": {  // a rubber stamp's plate: a double rule inside its edge
+      const sw = R * 1.76, sh = R * .92;   // its corners at .99 R
+      rrect(ctx, -sw / 2, -sh / 2, sw, sh, R * .07); shadow(); body(-sh / 2, sh / 2);
+      ctx.strokeStyle = ink; ctx.lineWidth = R * .05; rrect(ctx, -sw / 2 + R * .08, -sh / 2 + R * .08, sw - R * .16, sh - R * .16, R * .05); ctx.stroke();
+      ctx.lineWidth = R * .022; rrect(ctx, -sw / 2 + R * .17, -sh / 2 + R * .17, sw - R * .34, sh - R * .34, R * .03); ctx.stroke(); break;
+    }
+    case "pill": {   // a tilted pill label, a hairline inside its edge
+      const pw = R * 1.92, ph = R * .8;
+      rrect(ctx, -pw / 2, -ph / 2, pw, ph, ph / 2); shadow(); body(-ph / 2, ph / 2);
+      ctx.lineWidth = R * .03; ctx.strokeStyle = ink; rrect(ctx, -pw / 2 + R * .07, -ph / 2 + R * .07, pw - R * .14, ph - R * .14, (ph - R * .14) / 2); ctx.stroke(); break;
+    }
+  }
+  // the words: one row where the shape is wide, two where it is round and the words long
+  const [bwk, bhk] = STICKER_BOX[shape], bw = R * bwk, bh = R * bhk, wide = bwk / bhk > 1.6;
+  const ws = text.split(" "), lines = !wide && ws.length > 1 && text.length > 6 ? [ws.slice(0, Math.ceil(ws.length / 2)).join(" "), ws.slice(Math.ceil(ws.length / 2)).join(" ")] : [text];
+  let fs = Math.min(R * (lines.length > 1 ? .42 : .5), bh / lines.length * .86);
+  ctx.font = fontCss(fontName, fs);
+  while (Math.max(...lines.map(l => ctx.measureText(l).width)) > bw && fs > 6) { fs *= .93; ctx.font = fontCss(fontName, fs); }
+  ctx.fillStyle = ink; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  lines.forEach((l, i) => ctx.fillText(l, 0, (i - (lines.length - 1) / 2) * fs * 1.02));
+  ctx.restore();
+}
+
+/** The grounds of two colours (owner: "Also don't see any gradients really?"): the pair's ground and
+ *  its accent's hue at a lightness the words already read on (a dark ground's accent lifted a little,
+ *  a warm one out of its muddy floor, rule 103), as a linear sweep, a radial glow behind the product
+ *  or a soft mesh of blobs. Two families only: the ground's and the accent's. Keys: pair_linear,
+ *  pair_radial, pair_mesh. Returns false for any other kind (the engine's background() asks each
+ *  painter in turn). */
+/* 2026-11-18 (rule 154; the owner: "still not enough colors, gradients, pattern fill, or other ways
+   instead of colors"): five more fields beside the sweep, the glow and the mesh. A conic sweep round
+   the product, a sky that burns low behind it (sunset), a hard two-tone diagonal (split), a duotone
+   glow from two corners (corner), and a tall arch of the accent's colour blocked in behind the
+   product (arch). The same two colours, along the same OKLCH path, so a field can be hard-edged and
+   still never draw a third hue or a tone the words do not read on. */
+export const PAIR_GRADIENTS = ["pair_linear", "pair_radial", "pair_mesh", "pair_conic", "pair_sunset", "pair_split", "pair_corner", "pair_arch"];
+export function pairGradientColours(p) {
+  // a ground is "dark" for this where its words are lighter than it: a vivid ground under white words
+  // (White on Pink, L .52) keeps its far end darker, never lighter, than the words read on
+  const G = oklchOf(p.ground), A = oklchOf(p.accent), dark = p.ink ? lum(p.ink) > lum(p.ground) : G.L < .56, warm = A.h >= 25 && A.h < 115;
+  const L2 = dark ? Math.min(.5, Math.max(G.L + .07, warm ? .42 : .3)) : Math.min(.93, Math.max(.6, G.L - .06));
+  const hot0 = okHex(L2, Math.min(.17, Math.max(.1, A.C)), A.h), Hy = oklchOf(hot0);
+  /* a tone of the ground alone where the accent cannot be the far end: a two-colour pair's accent is its
+     words' white or black (no hue to go to), and a warm accent at a depth light words still read on is
+     under its muddy floor (rule 103: gold at OKLCH .42 is olive, orange is rust; the owner, of the
+     conic sweep on Navy & Orange it drew, would see brown). A deep ground lifts toward its own lighter
+     tone, a mid one (White on Pink) deepens, a light one lifts. */
+  const floor = h => h >= 35 && h < 45 ? .12 : h >= 45 && h < 65 ? .2 : h >= 65 && h < 105 ? .33 : h >= 105 && h < 120 ? .3 : h >= 120 && h < 140 ? .22 : 0;
+  const relY = h => { const [r, g, b] = [1, 3, 5].map(k => { const v = parseInt(h.slice(k, k + 2), 16) / 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }); return .2126 * r + .7152 * g + .0722 * b; };
+  if (A.C < .04 || relY(hot0) < floor(Hy.h)) {
+    /* 2026-11-19 (the owner, of the home page's wall: "no pattern fills and only 1 gradient multi color", and
+       asked, "Show more of them"): a ground of a colour goes to a neighbour of its own hue, 40 degrees on
+       (pink to coral, teal to blue, navy to violet, violet to magenta), or 40 back where on lands in the
+       yellows and browns (red to crimson, orange to red, sand to peach): two hues, never a muddy one. A black,
+       white or grey ground has no hue to go from, and keeps its one tone. */
+    const Lh = dark ? (G.L < .4 ? Math.min(.5, G.L + .15) : Math.max(.12, G.L - .15)) : Math.min(.975, G.L + .07);
+    const on = (G.h + 40) % 360, ph = on >= 40 && on <= 130 ? (G.h + 320) % 360 : on, partner = G.C >= .04;
+    const hot = partner ? okHex(Lh, Math.max(G.C, .06), ph) : okHex(Lh, G.C, G.h);
+    const deep = okHex(dark ? Math.max(.1, G.L - .07) : Math.min(.975, G.L + .03), G.C, G.h);
+    return { hot, deep, dark, tonal: !partner, partner };
+  }
+  const hot = hot0;
+  const deep = okHex(dark ? Math.max(.1, G.L - .08) : Math.min(.975, G.L + .03), G.C, G.h);
+  return { hot, deep, dark };
+}
+const smooth01 = (e0, e1, x) => { const t = clamp((x - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); };
+export function pairGradientGround(kind, x, st, p, W, H, sc, r) {
+  if (!PAIR_GRADIENTS.includes(kind)) return false;
+  /* Painted as a field from the ground (0) to the accent (1), each pixel's colour taken in OKLCH
+     along deep → ground → a quiet middle → hot: the ground's hue fades out before the accent's comes
+     in, so no pixel is a third hue (an sRGB blend of navy and orange passes through brown, of blue
+     and green through cyan). Drawn at 128 across and scaled up smooth. */
+  const { hot, deep, tonal, partner, dark } = pairGradientColours(p), G = oklchOf(p.ground), Hh = oklchOf(hot), Dd = oklchOf(deep);
+  /* the ground's hue turns into the far end's along the shorter way round, its colour kept all the way
+     (2026-11-19: "only 1 gradient multi color"): navy into cyan, purple through magenta into gold, red
+     through orange into yellow. Where the two are more than 150 degrees apart, or the ground has no hue,
+     the field passes through a quiet middle as before (a turn that long is a rainbow), and so does a dark
+     one whose way runs through the yellows (70 to 125 degrees): at a depth light words read on they are
+     olive (Teal & Orange would pass from teal through khaki). */
+  const dh = (((Hh.h - G.h) % 360) + 540) % 360 - 180;
+  const olive = dark && Array.from({ length: 19 }, (_, i) => (((G.h + dh * (i + 1) / 20) % 360) + 360) % 360).some(h => h >= 70 && h <= 125);
+  const sweep = partner || (!tonal && G.C >= .04 && Hh.C >= .04 && Math.abs(dh) <= 150 && !olive);
+  const [cx, cy] = sc || [W / 2, H * .6];
+  const ux = cx / W, uy = cy / H, asp = H / W;
+  // the hard-edged fields are drawn finer, so their edge is a line and not a blur scaled up from 128
+  const hard = kind === "pair_split" || kind === "pair_arch", n = hard ? Math.min(540, Math.round(W / 2)) : 128, e = 1.4 / n;
+  let field;
+  if (kind === "pair_linear") {
+    const a = (r ? r.uniform(.12, .38) : .25) * Math.PI, dx = Math.cos(a), dy = Math.sin(a) * H / W, n = Math.hypot(dx, dy);
+    field = (u, v) => .5 + ((u - .5) * dx + (v - .5) * dy) / n / 1.15;
+  } else if (kind === "pair_radial") {
+    const k = Math.max(1, H / W);
+    field = (u, v) => 1 - Math.min(1, Math.hypot(u - ux, (v - uy) * k) / .62) - (v < .42 ? (.42 - v) * .9 : 0);
+  } else if (kind === "pair_conic") {
+    // a sweep round the product: the angle from its middle, the accent's side turned by the seed
+    const a0 = (r ? r() : .3) * TAU;
+    field = (u, v) => { const th = Math.atan2((v - uy) * asp, u - ux), d = Math.min(1, Math.hypot(u - ux, (v - uy) * asp) / .9); return .5 + .44 * Math.cos(th - a0) * (.55 + .45 * d); };
+  } else if (kind === "pair_sunset") {
+    // deep at the top, the ground's own colour through the middle, the accent's burning low on a horizon
+    // just under the product, and the floor below it falling back to the ground
+    const hv = clamp(uy + .1, .55, .82), su = r ? r.uniform(-.12, .12) : 0;
+    field = (u, v) => {
+      const sky = v < hv ? .04 + .9 * (v / hv) ** 2.3 : .94 - .6 * ((v - hv) / (1 - hv)) ** .8;
+      return sky + .22 * Math.exp(-(((u - ux - su) ** 2) + ((v - hv) * asp) ** 2) / .03);
+    };
+  } else if (kind === "pair_split") {
+    // two tones meeting on a hard diagonal through the product's middle
+    const a = (r ? r.uniform(.95, 1.3) : 1.1) * (r && r() < .5 ? -1 : 1), sa = Math.sin(a), ca = Math.cos(a);
+    field = (u, v) => .2 + .6 * smooth01(-e, e, (u - ux) * sa * -1 + (v - uy) * asp * ca);
+  } else if (kind === "pair_corner") {
+    // a duotone: the accent's glow from one corner, the ground's deep shade from the opposite one
+    const tl = r ? r() < .5 : true, [ax, ay, bx, by] = tl ? [0, 0, 1, 1] : [1, 0, 0, 1];
+    field = (u, v) => .44 + .62 * Math.exp(-((u - ax) ** 2 + ((v - ay) * asp) ** 2) / .32) - .44 * Math.exp(-((u - bx) ** 2 + ((v - by) * asp) ** 2) / .26);
+  } else if (kind === "pair_arch") {
+    // a tall arch of the accent's colour blocked in behind the product, standing on the frame's foot
+    const R = W > H ? .19 : .3, top = clamp(uy * asp - .32 + R, R + .04, asp);   // in units of the width: the arch's round top .32 over the product's middle
+    field = (u, v) => {
+      const X = u - ux, Y = v * asp, sd = Y >= top ? Math.abs(X) - R : Math.hypot(X, Y - top) - R;
+      return .24 + .56 * (1 - smooth01(-e, e, sd));
+    };
+  } else {
+    const blobs = Array.from({ length: 4 }, (_, i) => ({ u: r ? r() * .9 + .05 : (i * .37 + .1) % 1, v: r ? r() * .9 + .05 : (i * .61 + .2) % 1, rad: r ? r.uniform(.28, .45) : .36, w: i % 2 ? -.45 : .62 }));
+    field = (u, v) => .42 + blobs.reduce((t, b) => t + b.w * Math.exp(-((u - b.u) ** 2 + ((v - b.v) * H / W) ** 2) / (b.rad * b.rad)), 0);
+  }
+  const midL = (G.L + Hh.L) / 2, m = Math.max(2, Math.round(n * H / W)), c = canvas(n, m), cx2 = c.getContext("2d"), id = cx2.createImageData(n, m);
+  const toRgb = (L, C, h) => {
+    const a = C * Math.cos(h * Math.PI / 180), b = C * Math.sin(h * Math.PI / 180);
+    const l = (L + .3963377774 * a + .2158037573 * b) ** 3, mm = (L - .1055613458 * a - .0638541728 * b) ** 3, ss = (L - .0894841775 * a - 1.291485548 * b) ** 3;
+    return [4.0767416621 * l - 3.3077115913 * mm + .2309699292 * ss, -1.2684380046 * l + 2.6097574011 * mm - .3413193965 * ss, -.0041960863 * l - .7034186147 * mm + 1.707614701 * ss]
+      .map(v => { v = Math.min(1, Math.max(0, v)); return Math.round(255 * (v <= .0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - .055)); });
+  };
+  for (let j = 0; j < m; j++) for (let i = 0; i < n; i++) {
+    const t = Math.min(1, Math.max(0, field((i + .5) / n, (j + .5) / m)));
+    let L, C, h;
+    if (tonal) { h = G.h; C = G.C; L = t < .35 ? lerp(Dd.L, G.L, t / .35) : lerp(G.L, Hh.L, (t - .35) / .65); }   // one hue: no grey middle to pass through
+    else if (t < .35) { const k = t / .35; L = lerp(Dd.L, G.L, k); C = lerp(Dd.C, G.C, k); h = G.h; }
+    // (a hard-edged field, split or arch, is two blocks: the far one in the far end's own hue, never one on the way)
+    else if (sweep) { const k = (t - .35) / .65; L = lerp(G.L, Hh.L, k); C = lerp(G.C, Hh.C, k); h = hard ? (k >= .5 ? Hh.h : G.h) : (G.h + dh * k + 360) % 360; }
+    else if (t < .55) { const k = (t - .35) / .2; L = lerp(G.L, midL, k); C = G.C * (1 - k); h = G.h; }
+    else { const k = (t - .55) / .45; L = lerp(midL, Hh.L, k); C = Hh.C * k; h = Hh.h; }
+    const [R, Gr, B] = toRgb(L, C, h), o = (j * n + i) * 4;
+    id.data[o] = R; id.data[o + 1] = Gr; id.data[o + 2] = B; id.data[o + 3] = 255;
+  }
+  cx2.putImageData(id, 0, 0);
+  x.save(); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = "high"; x.drawImage(c, 0, 0, W, H); x.restore();
+  return true;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════════
+   THE FULL AD'S PATTERNS AND TEXTURES (2026-11-18, rule 154). The owner: "still not enough colors,
+   gradients, pattern fill, or other ways instead of colors". The engine's own patterned grounds
+   (dots, stripes, checker, halftone...) were kept off the full ad (rule 137's review, 2026-11-12):
+   drawn in the light or the accent at a strength made for a bare phone video, their features ran
+   under the chips and through the chevrons. These are made for an ad full of words: every mark is
+   one tone of the ground's own colour (tone-on-tone, one colour family), a small step in OKLCH
+   lightness, away from the words' ink, or toward the middle of the scale only where the words keep
+   7:1 on it either way, so no line reads worse on a mark than on the ground; and the marks thin out
+   behind the product, which stands on a quiet middle. Still in the video (drawn once).
+   ═══════════════════════════════════════════════════════════════════════════════════════════════ */
+export const FULL_PATTERNS = ["pat_halftone", "pat_stripes", "pat_checks", "pat_grid", "pat_waves", "pat_zigzag", "pat_rays", "pat_rings",
+  "pat_topo", "pat_polka", "pat_gingham", "pat_memphis", "pat_grain", "pat_paper", "pat_riso",
+  "pat_cards", "pat_slabs", "pat_binder", "pat_foil", "pat_stitch", "pat_pixels", "pat_pads", "pat_crt", "pat_coins", "pat_reeded", "pat_road", "pat_tread"];
+/** The tone a pattern's marks take on this pair: the ground's own hue and chroma, dL lighter or deeper. */
+export function patternTone(p, dL = .06) {
+  const G = oklchOf(p.ground), ink = p.ink || (G.L < .56 ? "#ffffff" : "#111111");
+  const up = okHex(Math.min(.985, G.L + dL), G.C, G.h), down = okHex(Math.max(.05, G.L - dL), G.C, G.h);
+  const cu = contrastOf(ink, up), cd = contrastOf(ink, down);
+  if (cu >= 7 && cd >= 7) return G.L < .5 ? up : down;
+  return cu >= cd ? up : down;
+}
+const hexRgb = h => [1, 3, 5].map(k => parseInt(h.slice(k, k + 2), 16));
+export function fullPatternGround(kind, x, st, p, W, H, sc, r) {
+  if (!FULL_PATTERNS.includes(kind)) return false;
+  r = fork(r || rng(7));
+  const U = Math.min(W, H), [cx, cy] = sc || [W / 2, H * .58], D = Math.hypot(W, H);
+  // the ground, lit a little behind the product in its own lighter tone
+  x.fillStyle = p.ground; x.fillRect(0, 0, W, H);
+  const lit = x.createRadialGradient(cx, cy, 0, cx, cy, D * .6);
+  lit.addColorStop(0, rgba(p.light || p.ground, .55)); lit.addColorStop(1, rgba(p.light || p.ground, 0)); x.fillStyle = lit; x.fillRect(0, 0, W, H);
+  // the marks, on a layer of their own: thinned behind the product, then laid on the ground
+  /* the step from the ground (2026-11-19; the owner, of the home page's wall: "no pattern fills", then "Show
+     more of them"): a step of .05 read as a flat ground at the wall's size, so the marks now stand nearly
+     twice as far off it. patternTone still keeps the words at 7:1 on them where both ways allow it, and
+     otherwise moves them away from the words. */
+  const step = { pat_grain: .1, pat_paper: .06, pat_riso: .1, pat_topo: .09, pat_grid: .08, pat_waves: .085,
+    // the lines' own grounds are pictures of things, drawn in thin lines: a wider step, or they read as a flat ground
+    pat_cards: .15, pat_slabs: .15, pat_binder: .15, pat_foil: .13, pat_stitch: .15, pat_pixels: .12, pat_pads: .15, pat_crt: .12, pat_coins: .15, pat_reeded: .15, pat_road: .13, pat_tread: .12 }[kind] || .095;
+  const tone = patternTone(p, step), [tr, tg, tb] = hexRgb(tone), c = canvas(W, H), m = c.getContext("2d");
+  m.fillStyle = tone; m.strokeStyle = tone; m.lineCap = "round"; m.lineJoin = "round";
+  const speckle = (n, alpha) => {   // a tile of single grains in the tone
+    const t = canvas(n, n), tx = t.getContext("2d"), id = tx.createImageData(n, n);
+    for (let i = 0; i < n * n; i++) { const o = i * 4; id.data[o] = tr; id.data[o + 1] = tg; id.data[o + 2] = tb; id.data[o + 3] = alpha(); }
+    tx.putImageData(id, 0, 0); return t;
+  };
+  switch (kind) {
+    case "pat_halftone": {   // a dot screen at 45 degrees, the dots growing toward one corner
+      const s = U * .03, a = Math.PI / 4, corner = r() < .5 ? [0, 0] : [W, 0];
+      m.save(); m.translate(W / 2, H / 2); m.rotate(a);
+      for (let yy = -D / 2; yy < D / 2; yy += s) for (let xx = -D / 2; xx < D / 2; xx += s) {
+        const gx = W / 2 + xx * Math.cos(a) - yy * Math.sin(a), gy = H / 2 + xx * Math.sin(a) + yy * Math.cos(a);
+        const k = 1 - Math.hypot(gx - corner[0], gy - corner[1]) / D, rad = s * .46 * clamp(k * 1.25 - .1, .06, 1);
+        m.beginPath(); m.arc(xx, yy, rad, 0, TAU); m.fill();
+      }
+      m.restore(); break;
+    }
+    case "pat_stripes": {    // broad diagonal stripes
+      const w = U * .034, dir = r() < .5 ? 1 : -1;
+      m.save(); m.translate(W / 2, H / 2); m.rotate(dir * Math.PI / 4);
+      for (let s = -D; s < D; s += w * 2) m.fillRect(s, -D, w, D * 2);
+      m.restore(); break;
+    }
+    case "pat_checks": {     // a checkerboard, big enough to read as a floor and not as noise
+      const q = U / (r() < .5 ? 9 : 12);
+      for (let yy = 0, j = 0; yy < H; yy += q, j++) for (let xx = 0, i = 0; xx < W; xx += q, i++) if ((i + j) % 2) m.fillRect(xx, yy, q, q);
+      break;
+    }
+    case "pat_grid": {       // graph paper: a fine grid, every fifth line heavier
+      const q = U * .045;
+      for (let i = 0, xx = (W / 2) % q; xx < W; xx += q, i++) { m.lineWidth = Math.max(1, U * (i % 5 ? .0022 : .005)); m.beginPath(); m.moveTo(xx, 0); m.lineTo(xx, H); m.stroke(); }
+      for (let j = 0, yy = (H / 2) % q; yy < H; yy += q, j++) { m.lineWidth = Math.max(1, U * (j % 5 ? .0022 : .005)); m.beginPath(); m.moveTo(0, yy); m.lineTo(W, yy); m.stroke(); }
+      break;
+    }
+    case "pat_waves": {      // thin parallel waves across the frame
+      const q = U * .042, amp = U * .011, wl = U * .17, ph = r() * TAU; m.lineWidth = Math.max(1.5, U * .0055);
+      for (let yy = -q; yy < H + q; yy += q) { m.beginPath(); for (let xx = 0; xx <= W; xx += U * .01) m.lineTo(xx, yy + Math.sin(xx / wl * TAU + ph + yy * .013) * amp); m.stroke(); }
+      break;
+    }
+    case "pat_zigzag": {     // rows of chevrons
+      const q = U * .06, w = U * .045; m.lineWidth = Math.max(2, U * .008);
+      for (let yy = 0; yy < H + q; yy += q) { m.beginPath(); for (let xx = -w, i = 0; xx <= W + w; xx += w, i++) m.lineTo(xx, yy + (i % 2 ? w * .5 : 0)); m.stroke(); }
+      break;
+    }
+    case "pat_rays": {       // a sunburst from behind the product
+      const n = 28, off = r() * TAU / n;
+      for (let i = 0; i < n; i += 2) { const a0 = off + i / n * TAU, a1 = off + (i + 1) / n * TAU; m.beginPath(); m.moveTo(cx, cy); m.lineTo(cx + Math.cos(a0) * D, cy + Math.sin(a0) * D); m.lineTo(cx + Math.cos(a1) * D, cy + Math.sin(a1) * D); m.closePath(); m.fill(); }
+      break;
+    }
+    case "pat_rings": {      // rings round the product
+      const q = U * .052; m.lineWidth = U * .013;
+      for (let rad = q; rad < D; rad += q) { m.beginPath(); m.arc(cx, cy, rad, 0, TAU); m.stroke(); }
+      break;
+    }
+    case "pat_topo": {       // a contour map: the lines of a smooth field of a few hills from the seed
+      const n = Math.min(480, Math.round(W / 2)), mm = Math.max(2, Math.round(n * H / W)), hills = Array.from({ length: 6 }, () => ({ u: r(), v: r(), s: r.uniform(.12, .32), w: r.uniform(-1, 1) }));
+      const f = (u, v) => hills.reduce((t, h) => t + h.w * Math.exp(-((u - h.u) ** 2 + ((v - h.v) * H / W) ** 2) / (h.s * h.s)), 0) * 9;
+      const band = new Int16Array(n * mm); for (let j = 0; j < mm; j++) for (let i = 0; i < n; i++) band[j * n + i] = Math.floor(f(i / n, j / mm));
+      const t = canvas(n, mm), tx = t.getContext("2d"), id = tx.createImageData(n, mm);
+      for (let j = 0; j < mm - 1; j++) for (let i = 0; i < n - 1; i++) { const b = band[j * n + i]; if (b !== band[j * n + i + 1] || b !== band[(j + 1) * n + i]) { const o = (j * n + i) * 4; id.data[o] = tr; id.data[o + 1] = tg; id.data[o + 2] = tb; id.data[o + 3] = 255; } }
+      tx.putImageData(id, 0, 0); m.imageSmoothingEnabled = true; m.imageSmoothingQuality = "high"; m.drawImage(t, 0, 0, W, H); m.drawImage(t, W / n * .5, H / mm * .5, W, H);
+      break;
+    }
+    case "pat_polka": {      // big polka dots in offset rows
+      const q = U * .15, rad = U * .038;
+      for (let yy = 0, j = 0; yy < H + q; yy += q * .866, j++) for (let xx = (j % 2) * q / 2; xx < W + q; xx += q) { m.beginPath(); m.arc(xx, yy, rad, 0, TAU); m.fill(); }
+      break;
+    }
+    case "pat_gingham": {    // a gingham check: bands both ways, the crossings a step deeper
+      const q = U * .12, b = q / 2; m.globalAlpha = .6;
+      for (let xx = 0; xx < W; xx += q) m.fillRect(xx, 0, b, H);
+      for (let yy = 0; yy < H; yy += q) m.fillRect(0, yy, W, b);
+      m.globalAlpha = 1; break;
+    }
+    case "pat_memphis": {    // a scatter of paper shapes: triangles, squiggles, rings and crosses
+      const n = Math.round(W * H / (U * U) * 26);
+      for (let i = 0; i < n; i++) {
+        const px = r() * W, py = r() * H, s = U * r.uniform(.018, .04), a = r() * TAU, k = Math.floor(r() * 4);
+        m.save(); m.translate(px, py); m.rotate(a); m.lineWidth = Math.max(2, U * .007);
+        if (k === 0) { m.beginPath(); m.moveTo(0, -s); m.lineTo(s * .87, s * .5); m.lineTo(-s * .87, s * .5); m.closePath(); m.fill(); }
+        else if (k === 1) { m.beginPath(); for (let t = 0; t <= 1.001; t += .1) m.lineTo((t - .5) * s * 2.4, Math.sin(t * TAU * 1.5) * s * .35); m.stroke(); }
+        else if (k === 2) { m.beginPath(); m.arc(0, 0, s * .6, 0, TAU); m.stroke(); }
+        else { m.fillRect(-s * .7, -s * .14, s * 1.4, s * .28); m.fillRect(-s * .14, -s * .7, s * .28, s * 1.4); }
+        m.restore();
+      }
+      break;
+    }
+    /* THE LINES' OWN GROUNDS (2026-11-21; the owner: "Gaming is lacking in image variety as well as cards.
+       Pokemon cards and sports cards are extremely lacking in variety"). Real cards carry their makers' art
+       and the players' faces, which a paid ad may not use, so these are drawn: generic cards, graded slabs,
+       a binder page and foil for the cards; pixels, pads and a screen for gaming; rims and reeding for coins
+       and bullion; a road and a tread for cars. No maker's art, symbol or lettering. One tone, as above. */
+    case "pat_cards": {      // a loose scatter of trading cards: a frame, an art window, two text bars
+      const w = U * r.uniform(.15, .19), h = w * 88 / 63, cols = Math.ceil(W / (w * 1.25)) + 1, rows = Math.ceil(H / (h * 1.1)) + 1;
+      m.lineWidth = Math.max(2, U * .005);
+      for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+        const px = (i + (j % 2) * .5) * w * 1.25 + r.uniform(-.12, .12) * w, py = j * h * 1.1 + r.uniform(-.1, .1) * h;
+        m.save(); m.translate(px, py); m.rotate(r.uniform(-.22, .22));
+        m.beginPath(); m.roundRect(-w / 2, -h / 2, w, h, w * .06); m.stroke();
+        m.beginPath(); m.roundRect(-w * .41, -h * .42, w * .82, h * .46, w * .02); m.globalAlpha = .55; m.fill(); m.globalAlpha = 1;
+        m.fillRect(-w * .38, h * .12, w * .76, h * .045); m.fillRect(-w * .38, h * .22, w * .5, h * .035); m.fillRect(-w * .38, h * .3, w * .62, h * .035);
+        m.restore();
+      }
+      break;
+    }
+    case "pat_slabs": {      // rows of graded slabs: the case, its label bar with a grade, the card inside
+      const w = U * r.uniform(.17, .2), h = w * 1.62, gx = w * .3, gy = h * .14, cols = Math.ceil(W / (w + gx)) + 1, rows = Math.ceil(H / (h + gy)) + 1, lw = Math.max(2, U * .005);
+      const ox = -r() * w, oy = -r() * h * .5;
+      for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+        const px = ox + i * (w + gx) + (j % 2) * (w + gx) / 2, py = oy + j * (h + gy);
+        m.lineWidth = lw; m.beginPath(); m.roundRect(px, py, w, h, w * .07); m.stroke();
+        m.beginPath(); m.roundRect(px + w * .07, py + h * .05, w * .86, h * .17, w * .03); m.fill();
+        m.save(); m.globalCompositeOperation = "destination-out";
+        m.fillRect(px + w * .14, py + h * .09, w * .44, h * .025); m.fillRect(px + w * .14, py + h * .15, w * .3, h * .02);
+        m.beginPath(); m.arc(px + w * .76, py + h * .135, h * .045, 0, TAU); m.fill(); m.restore();
+        m.lineWidth = lw * .8; m.beginPath(); m.roundRect(px + w * .14, py + h * .28, w * .72, h * .64, w * .03); m.stroke();
+        m.globalAlpha = .4; m.fillRect(px + w * .19, py + h * .32, w * .62, h * .34); m.globalAlpha = 1;
+      }
+      break;
+    }
+    case "pat_binder": {     // a binder page: nine pockets, the page's edge and its rings, a little turned
+      const ang = r.uniform(-.08, .08), pw = Math.max(W, H) * 1.05, ph = pw * 1.12;
+      m.save(); m.translate(W / 2, H / 2); m.rotate(ang); m.lineWidth = Math.max(2, U * .005);
+      m.beginPath(); m.roundRect(-pw / 2, -ph / 2, pw, ph, U * .02); m.stroke();
+      const pad = pw * .07, cw = (pw - pad * 2.4) / 3, chh = (ph - pad * 2) / 3;
+      for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) {
+        const px = -pw / 2 + pad * 1.4 + i * cw + cw * .04, py = -ph / 2 + pad + j * chh + chh * .04;
+        m.beginPath(); m.roundRect(px, py, cw * .92, chh * .92, U * .012); m.stroke();
+        m.globalAlpha = .3; m.beginPath(); m.roundRect(px + cw * .08, py + chh * .06, cw * .76, chh * .5, U * .006); m.fill(); m.globalAlpha = 1;
+        m.beginPath(); m.moveTo(px, py + chh * .2); m.lineTo(px + cw * .92, py + chh * .2); m.globalAlpha = .5; m.stroke(); m.globalAlpha = 1;
+      }
+      for (let k = 0; k < 3; k++) { m.beginPath(); m.arc(-pw / 2 + pad * .6, -ph / 2 + ph * (.2 + k * .3), U * .018, 0, TAU); m.fill(); }
+      m.restore(); break;
+    }
+    case "pat_foil": {       // holographic foil: soft diagonal bands of sheen and a scatter of sparkles
+      const dir = r() < .5 ? 1 : -1, bands = 7 + Math.floor(r() * 4);
+      m.save(); m.translate(W / 2, H / 2); m.rotate(dir * r.uniform(.5, .9));
+      for (let k = 0; k < bands; k++) {
+        const y0 = -D / 2 + (k + r.uniform(-.2, .2)) * D / bands, bw = D / bands * r.uniform(.35, .7), gr = m.createLinearGradient(0, y0, 0, y0 + bw);
+        gr.addColorStop(0, rgba(tone, 0)); gr.addColorStop(.5, rgba(tone, r.uniform(.5, 1))); gr.addColorStop(1, rgba(tone, 0));
+        m.fillStyle = gr; m.fillRect(-D, y0, D * 2, bw);
+      }
+      m.restore(); m.fillStyle = tone;
+      const n = Math.round(W * H / (U * U) * 22);
+      for (let i = 0; i < n; i++) {
+        const px = r() * W, py = r() * H, s = U * r.uniform(.008, .026);
+        m.beginPath(); m.moveTo(px, py - s); m.quadraticCurveTo(px, py, px + s, py); m.quadraticCurveTo(px, py, px, py + s); m.quadraticCurveTo(px, py, px - s, py); m.quadraticCurveTo(px, py, px, py - s); m.fill();
+      }
+      break;
+    }
+    case "pat_stitch": {     // a ball's seams: wide arcs across the frame, stitched in V's along them
+      m.lineWidth = Math.max(2, U * .005);
+      const seams = 2 + Math.floor(r() * 2);
+      for (let k = 0; k < seams; k++) {
+        const R = Math.max(W, H) * r.uniform(.55, .9), side = k % 2 ? 1 : -1, ccx = W / 2 + side * (R + U * r.uniform(-.25, .1)), ccy = H * r.uniform(.2, .8);
+        const a0 = side > 0 ? Math.PI * .55 : -Math.PI * .45, a1 = side > 0 ? Math.PI * 1.45 : Math.PI * .45, step = U * .035 / R;
+        m.beginPath(); m.arc(ccx, ccy, R, a0, a1); m.stroke();
+        for (let a = a0; a < a1; a += step) {
+          const ux = Math.cos(a), uy = Math.sin(a), tx = -uy, ty = ux, px = ccx + ux * R, py = ccy + uy * R, s = U * .016;
+          m.beginPath(); m.moveTo(px - ux * s + tx * s * .6, py - uy * s + ty * s * .6); m.lineTo(px, py); m.lineTo(px + ux * s + tx * s * .6, py + uy * s + ty * s * .6); m.stroke();
+        }
+      }
+      break;
+    }
+    case "pat_pixels": {     // eight-bit pixels: a dissolve of squares rising from the foot and the corners
+      const s = U * r.uniform(.026, .038), corner = r() < .5;
+      for (let yy = 0; yy < H; yy += s) for (let xx = 0; xx < W; xx += s) {
+        const fromFoot = yy / H, fromSide = Math.abs(xx / W - .5) * 2, k = corner ? Math.max(fromFoot * .9, fromSide * .7 + fromFoot * .3) : fromFoot;
+        if (r() < k * k * 1.1 - .12) m.fillRect(xx + s * .06, yy + s * .06, s * .88, s * .88);
+      }
+      break;
+    }
+    case "pat_pads": {       // a scatter of game-pad marks: a cross pad, a diamond of four buttons, a stick
+      const n = Math.round(W * H / (U * U) * 9); m.lineWidth = Math.max(2, U * .006);
+      for (let i = 0; i < n; i++) {
+        const px = r() * W, py = r() * H, s = U * r.uniform(.035, .06), k = i % 3;
+        m.save(); m.translate(px, py); m.rotate(r.uniform(-.4, .4));
+        if (k === 0) { const a = s * .34; m.beginPath(); m.roundRect(-s, -a, s * 2, a * 2, a * .4); m.fill(); m.beginPath(); m.roundRect(-a, -s, a * 2, s * 2, a * .4); m.fill(); }
+        else if (k === 1) { for (const [dx, dy] of [[0, -1], [1, 0], [0, 1], [-1, 0]]) { m.beginPath(); m.arc(dx * s * .62, dy * s * .62, s * .3, 0, TAU); m.stroke(); } }
+        else { m.beginPath(); m.arc(0, 0, s * .8, 0, TAU); m.stroke(); m.beginPath(); m.arc(0, 0, s * .5, 0, TAU); m.fill(); }
+        m.restore();
+      }
+      break;
+    }
+    case "pat_crt": {        // a screen: fine scan lines and the rounded glass of a set, near the frame's edge
+      const s = U * .009;
+      for (let yy = 0; yy < H; yy += s) m.fillRect(0, yy, W, s * .42);
+      m.lineWidth = Math.max(3, U * .01);
+      for (const inset of [.035, .07]) { m.beginPath(); m.roundRect(U * inset, U * inset, W - U * inset * 2, H - U * inset * 2, U * (.09 - inset * .5)); m.stroke(); }
+      break;
+    }
+    case "pat_coins": {      // a scatter of coins: the rim, the beads round it, a plain field (no face)
+      const n = Math.round(W * H / (U * U) * 10); m.lineWidth = Math.max(2, U * .005);
+      for (let i = 0; i < n; i++) {
+        const px = r() * W, py = r() * H, R = U * r.uniform(.05, .11);
+        m.beginPath(); m.arc(px, py, R, 0, TAU); m.stroke(); m.beginPath(); m.arc(px, py, R * .84, 0, TAU); m.stroke();
+        const beads = Math.round(R / (U * .006));
+        for (let b = 0; b < beads; b++) { const a = b / beads * TAU; m.beginPath(); m.arc(px + Math.cos(a) * R * .92, py + Math.sin(a) * R * .92, U * .0028, 0, TAU); m.fill(); }
+        m.globalAlpha = .35; m.beginPath(); m.arc(px, py, R * .6, 0, TAU); m.fill(); m.globalAlpha = 1;
+      }
+      break;
+    }
+    case "pat_reeded": {     // a coin's reeded edge: a great rim across the frame, ridged all along it
+      const R = Math.max(W, H) * r.uniform(.75, 1), ccx = W * r.uniform(.2, .8), ccy = r() < .5 ? H + R * .55 : -R * .55, band = U * .08, n = Math.round(TAU * R / (U * .012));
+      m.lineWidth = Math.max(1.5, U * .0035);
+      m.beginPath(); m.arc(ccx, ccy, R, 0, TAU); m.stroke(); m.beginPath(); m.arc(ccx, ccy, R - band, 0, TAU); m.stroke();
+      for (let k = 0; k < n; k++) { const a = k / n * TAU; m.beginPath(); m.moveTo(ccx + Math.cos(a) * (R - band * .15), ccy + Math.sin(a) * (R - band * .15)); m.lineTo(ccx + Math.cos(a) * (R - band * .85), ccy + Math.sin(a) * (R - band * .85)); m.stroke(); }
+      break;
+    }
+    case "pat_road": {       // a road in perspective: lane lines running to a point behind the product, on asphalt grain
+      const vx = W * r.uniform(.4, .6), vy = H * r.uniform(.3, .45), lanes = 5;
+      for (let k = 0; k <= lanes; k++) {
+        const bx = -W * .4 + k * W * 1.8 / lanes, dashes = 12;
+        for (let d = 0; d < dashes; d += 2) {
+          const t0 = d / dashes, t1 = (d + 1) / dashes, e0 = t0 * t0, e1 = t1 * t1, wv = U * .02;
+          m.beginPath(); m.moveTo(vx + (bx - vx) * e0 - wv * e0, vy + (H - vy) * e0); m.lineTo(vx + (bx - vx) * e1 - wv * e1, vy + (H - vy) * e1);
+          m.lineTo(vx + (bx - vx) * e1 + wv * e1, vy + (H - vy) * e1); m.lineTo(vx + (bx - vx) * e0 + wv * e0, vy + (H - vy) * e0); m.closePath(); m.fill();
+        }
+      }
+      m.fillStyle = m.createPattern(speckle(192, () => r() < .3 ? Math.round(r() * 160) : 0), "repeat"); m.fillRect(0, 0, W, H);
+      break;
+    }
+    case "pat_tread": {      // two tyre tracks running down the frame, their tread in blocks
+      const tw = U * .2, s = U * .05;
+      for (const cxx of [W * .14, W * .86]) {
+        for (let yy = -s; yy < H + s; yy += s) {
+          m.beginPath(); m.moveTo(cxx - tw / 2, yy); m.lineTo(cxx, yy + s * .45); m.lineTo(cxx + tw / 2, yy); m.lineTo(cxx + tw / 2, yy + s * .32); m.lineTo(cxx, yy + s * .77); m.lineTo(cxx - tw / 2, yy + s * .32); m.closePath(); m.fill();
+        }
+      }
+      break;
+    }
+    case "pat_grain": {      // film grain over the soft light
+      m.fillStyle = m.createPattern(speckle(256, () => Math.round(r() ** 2.2 * 255)), "repeat"); m.fillRect(0, 0, W, H);
+      break;
+    }
+    case "pat_paper": {      // paper: a soft cloudy fibre and a scatter of short fibres
+      const n = 64, t = canvas(n, Math.max(2, Math.round(n * H / W))), tx = t.getContext("2d"), id = tx.createImageData(t.width, t.height);
+      for (let i = 0; i < t.width * t.height; i++) { const o = i * 4; id.data[o] = tr; id.data[o + 1] = tg; id.data[o + 2] = tb; id.data[o + 3] = Math.round(r() * 150); }
+      tx.putImageData(id, 0, 0); m.imageSmoothingEnabled = true; m.imageSmoothingQuality = "high"; m.drawImage(t, 0, 0, W, H);
+      m.lineWidth = Math.max(1, U * .0018);
+      for (let i = 0; i < 240; i++) { const px = r() * W, py = r() * H, a = r() * TAU, l = U * r.uniform(.01, .05); m.beginPath(); m.moveTo(px, py); m.quadraticCurveTo(px + Math.cos(a + .6) * l * .5, py + Math.sin(a + .6) * l * .5, px + Math.cos(a) * l, py + Math.sin(a) * l); m.stroke(); }
+      break;
+    }
+    case "pat_riso": {       // a risograph print: a coarse dot screen a hair off register, and its grain
+      const s = U * .022, off = U * .004;
+      for (let yy = 0, j = 0; yy < H + s; yy += s, j++) for (let xx = (j % 2) * s / 2; xx < W + s; xx += s) {
+        const k = .5 + .5 * Math.sin(xx / W * 3.1 + yy / H * 2.3 + 1.7), rad = s * .42 * (.25 + .75 * k);
+        m.beginPath(); m.arc(xx + off, yy - off, rad, 0, TAU); m.fill();
+      }
+      m.fillStyle = m.createPattern(speckle(128, () => r() < .18 ? 200 : 0), "repeat"); m.fillRect(0, 0, W, H);
+      break;
+    }
+  }
+  // thinned behind the product: the middle keeps a third of the marks, the frame's edges all of them
+  m.globalCompositeOperation = "destination-in";
+  const fade = m.createRadialGradient(cx, cy, U * .08, cx, cy, Math.max(W, H) * .62);
+  fade.addColorStop(0, "rgba(0,0,0,.32)"); fade.addColorStop(.55, "rgba(0,0,0,.8)"); fade.addColorStop(1, "rgba(0,0,0,1)");
+  m.fillStyle = fade; m.fillRect(0, 0, W, H); m.globalCompositeOperation = "source-over";
+  x.drawImage(c, 0, 0);
+  return true;
+}
+
+/* THE FILLS OF THE STICKER, THE PLATES AND THE BADGE (2026-11-18, rule 154): beside the flat colour
+   and the light from above (fillGradient), stripes, a dot screen and a pressed foil's sheen. Each is
+   the fill's own hue moved away from the ink it carries, so every point of it reads at least as well
+   as the flat fill (gradientEnds' rule); laid on the path the caller has just filled, clipped to it. */
+export const FILL_TEXTURES = ["stripes", "dots", "foil"];
+/** A texture's tone: the fill moved d away from its ink; the fill itself where it cannot move further
+ *  (a white plate under dark figures: OKLCH tops out at .985, a grey that read 4% worse, 2026-11-18). */
+export function textureTone(fill, ink, d) {
+  const t = toneOf(fill, lum(ink) > lum(fill) ? -d : d);
+  return contrastOf(ink, t) >= contrastOf(ink, fill) ? t : fill;
+}
+export function fillTexture(ctx, mode, fill, ink, x0, y0, x1, y1) {
+  if (!FILL_TEXTURES.includes(mode)) return;
+  const w = x1 - x0, h = y1 - y0, u = Math.max(4, Math.min(w, h));
+  const away = d => textureTone(fill, ink, d);
+  ctx.save(); ctx.clip();
+  if (mode === "stripes") {
+    ctx.fillStyle = away(.09); const sw = u * .16, D = Math.hypot(w, h);
+    ctx.translate(x0 + w / 2, y0 + h / 2); ctx.rotate(-Math.PI / 4);
+    for (let s = -D; s < D; s += sw * 2) ctx.fillRect(s, -D, sw, D * 2);
+  } else if (mode === "dots") {
+    ctx.fillStyle = away(.1); const s = u * .2;
+    for (let yy = y0, j = 0; yy < y1 + s; yy += s * .87, j++) for (let xx = x0 + (j % 2) * s / 2; xx < x1 + s; xx += s) { ctx.beginPath(); ctx.arc(xx, yy, s * .2, 0, TAU); ctx.fill(); }
+  } else {
+    // foil: a sheen across it in two bands, one wide and one narrow, the way light catches pressed metal
+    const g = ctx.createLinearGradient(x0, y0, x1, y1);
+    [[0, fill], [.22, away(.16)], [.36, fill], [.58, fill], [.68, away(.1)], [.76, fill], [1, away(.05)]].forEach(([o, c2]) => g.addColorStop(o, c2));
+    ctx.fillStyle = g; ctx.fillRect(x0, y0, w, h);
+  }
+  ctx.restore();
 }

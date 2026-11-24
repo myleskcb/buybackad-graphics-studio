@@ -1,41 +1,57 @@
 # Operations — hosting, deploy, URLs, repo hygiene
 
-State verified 2026-08-28.
+State verified 2026-08-28; the URLs, mail and logins 2026-11-23 (OPEN-ITEMS §BX).
 
 ## Live URLs
 
 | URL | Status | Notes |
 |---|---|---|
-| **https://buybackad-graphics-studio.netlify.app** | **200 — use this** | Netlify default. Always works. **Phone-accessible.** |
-| https://studio.scans.ad | DNS fails | Configured in Netlify, not resolvable. See below. |
-| https://buyback.ad | DNS fails | Domain alias set, no DNS at all |
+| **https://webuy.ad** | **200 — use this** | The site's address: `buybackad-finished-copy`'s primary domain, `main`. DNS at Namecheap (`A @ 75.2.60.5`, `CNAME www buybackad-finished-copy.netlify.app.`), Let's Encrypt certificate by Netlify. Live 2026-11-19 UTC (OPEN-ITEMS §BL) |
+| https://buybackad-finished-copy.netlify.app | 200 | The same project's Netlify address |
+| https://buybackad-graphics-studio.netlify.app | 200, stale | The older project (team KCB): a CLI deploy of 2026-10-07. **iPhones LA's studio connection still points here** (only this origin passes iphones.la's CORS door, checked 2026-11-23); redirect it to webuy.ad once iPhones LA accepts webuy.ad (below) |
+| https://buyback.ad | never registered | Dropped 2026-11-23: the .ad registry has no record of it and the owner chose not to buy it. Taken off the old project |
+| https://studio.scans.ad | dropped | Never resolved (the Netlify zone was not authoritative; `scans.ad` is in another Namecheap account). Taken off the old project 2026-11-23 |
 | https://scans.ad | 200 | The sibling product, resolves fine |
 | https://reselling.us/GFX | 200 but WRONG | Serves "RU CRM v1" — a different app's SPA shell |
 
-### The studio.scans.ad break — diagnosed, needs a human
+### Mail
 
-The DNS record is **correct on Netlify's nameservers**:
+`webuy.ad` uses Namecheap's email forwarding (Domain List → webuy.ad → Manage →
+Redirect Email; MX `eforward1-5.registrar-servers.com`, SPF
+`include:spf.efwd.registrar-servers.com`):
 
-```
-dig +short studio.scans.ad @dns1.p04.nsone.net   ->  52.52.192.191, 13.52.188.95
-dig +short studio.scans.ad @8.8.8.8              ->  (nothing)
-```
+| Address | Forwards to |
+|---|---|
+| support@webuy.ad | myleskcb@gmail.com and contact@iphones.la |
+| hello@webuy.ad | myleskcb@gmail.com |
 
-Cause: `scans.ad` is delegated at the registrar to
-`dns1.registrar-servers.com` / `dns2.registrar-servers.com` (Namecheap), **not**
-to Netlify's `dns1.p04.nsone.net`. The Netlify zone exists and has the record,
-but it is not authoritative, so nobody on the internet can see it. The root
-`scans.ad` resolves only because an A record was added at the registrar
-directly.
+The terms and privacy policy give support@webuy.ad. Nothing on the site sends
+mail: there is no password reset or address check yet (README, Notes).
 
-**Two fixes, both requiring registrar access (a human decision — do not do this
-unattended, it moves DNS for a live product):**
+### Accounts that hold the site
 
-1. *Minimal:* add a `studio` CNAME at Namecheap pointing to
-   `buybackad-graphics-studio.netlify.app`. Touches nothing else.
-2. *Clean:* repoint `scans.ad` nameservers at Namecheap to Netlify's NS1 set,
-   so the existing Netlify zone becomes authoritative. Better long-term,
-   briefly riskier for the live `scans.ad` site.
+| What | Where | Login |
+|---|---|---|
+| webuy.ad (registrar and DNS) | Namecheap, BasicDNS | account `myleskcb` (also holds iphones.la, reselling.us; not scans.ad) |
+| `buybackad-finished-copy` (webuy.ad, `main`) | Netlify team myleskcb2 | myleskcb2@gmail.com, with Google |
+| `buybackad-graphics-studio` (the old project) | Netlify team KCB | myleskcb@gmail.com |
+
+One browser holds one Netlify login at a time. Keep webuy.ad's DNS at Namecheap:
+do not move a domain to Netlify DNS unless its nameservers at the registrar move
+too (that mismatch is why studio.scans.ad never resolved).
+
+### Retiring the old project, in order
+
+1. iPhones LA accepts webuy.ad: `https://webuy.ad` in `STUDIO_SITES`
+   (`app/buyback_ad_feed.py`) and `DEFAULT_STUDIO_URL` (`app/studio_auth.py`) in
+   `myleskcb/iphoneslainv-1`, and on Render `GFX_STUDIO_URL=https://webuy.ad/`
+   with `https://webuy.ad` in `GFX_STUDIO_ORIGINS` (docs/IPHONESLA-CONNECTION.md).
+   Check: `curl -si -X OPTIONS https://iphones.la/api/buy-ads/studio/brief -H
+   'Origin: https://webuy.ad' -H 'Access-Control-Request-Method: GET'` answers 204.
+2. Then deploy a redirect to the old project (team KCB login): a folder with
+   `_redirects` holding `/*  https://webuy.ad/:splat  301!` and an `index.html`
+   that links to webuy.ad. Accounts made there stay in its Blobs; nobody was
+   billed there (it predates Stripe).
 
 ### About reselling.us/GFX
 
@@ -47,11 +63,14 @@ to the Netlify site.** A subdomain avoids fighting another app's router, and it
 is one DNS record instead of a proxy rule that has to be maintained.
 
 Until a domain decision is made, the netlify.app URL is the phone URL.
+(2026-11-18: the decision is webuy.ad, OPEN-ITEMS §BL.)
 
 ## Deploying
 
-The Netlify CLI is authenticated (`myleskcb@gmail.com`, team KCB) and the folder
-is linked to project `buybackad-graphics-studio`.
+On 2026-11-23 this Mac had no Netlify CLI installed and no CLI login: webuy.ad
+deploys by GitHub (a push to `main` moves `claude/fervent-pascal-w6mthe`, which
+`buybackad-finished-copy` builds). The commands below are for the old project,
+team KCB (`myleskcb@gmail.com`).
 
 ```
 cd ~/Downloads/gfxv23

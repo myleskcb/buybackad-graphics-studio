@@ -1,0 +1,2985 @@
+{
+  "_doc": "What the full ad stands on (motion/fullad.js; DESIGN-LAW 137, 139; OPEN-ITEMS §BJ). The owner, 2026-11-18: \"how come none of the videos use a BG?\", \"also only have 1 BG style?!\", \"retire but bg counts.. so combo of assets and bg is best though\", \"with cars people like a good bg or sunset\", \"not low exposure dark images...\". A seed draws one of three kinds of ground: a photograph from its category's pool (graded toward the pair's ground, shaded only where words stand, moving slowly in the video), one of the engine's drawn scenes, or the house's own gradient. The shares below are each kind's part of a seed's draw where the line has that kind; a line with no photograph shares its photo part between the other two. A photograph is drawn only where its own colour keeps the card to two families with the pair the seed drew (rule 139); a hand-picked look or a ground_photo given in the style is never overruled. Photographs come only from the repository's own credited folders: never a dark one (mean relative luminance under .14 or more than 35% of it near black), never cash or money, never outer space for goods that are not about space, never a legible licence plate or a person's face. scripts/build_full_grounds.mjs --measure reads each photograph's brightness and colour into 'photos'; the generator writes motion/full-grounds.js (the site cannot read spec/); --check fails a stale module or a pooled photograph that is missing, unmeasured, dark or uncredited. Pools are by the lines' categories (motion/subjects.json 'cat'); the iPhone line is 'phones'. 2026-11-18 (rule 154; the owner: \"still not enough colors, gradients, pattern fill, or other ways instead of colors\", \"a lot of these are the same thing with 5% variety or difference\"): a fifth kind, the house patterns and textures (pattern: tone-on-tone marks in the ground’s own colour, motion/decor.js FULL_PATTERNS), and five more of the pair’s own gradients (a conic sweep, a sunset, a hard diagonal split, a two-corner duotone, an arch blocked in behind the product). The photograph keeps the largest share. 2026-11-19 (the owner, of the home page's wall: \"no pattern fills and only 1 gradient multi color\", asked, \"Show more of them\"; \"these are all so dark\"): the photograph's share 0.3 to 0.24, a scene's 0.12 to 0.1 and the house's 0.14 to 0.12; a gradient's and a pattern's 0.22 to 0.27 each. A photograph is still a quarter of the grounds (\"retire but bg counts\"). 2026-11-21 (the owner: \"Where are the background images? None of these have background images\", \"background images are pretty important here\"): the photo share rises to .4, and to .55 where the ad's area is in a metro with its own photographs (places: assets/bg-free, public domain and CC0 only, from scripts/fetch_free_photos.mjs, read by eye, imported by scripts/import_free_photos.mjs); a photograph is laid under the words in one of five treatments (fullad.js PHOTO_TREATS: grade, tint, duotone, wash, pattern); line_patterns are the grounds painted for a line's own goods (decor.js: cards, slabs, binder, foil, stitch, pixels, pads, crt, coins, reeded, road, tread), drawn for that line in .65 of its pattern share. 2026-11-22 (the owner: \"some backgrounds we'll use more device or brand imagery\", \"or we use abstract img backgrounds\", \"what else would we use?\", then \"Yes, build them\"; DESIGN-LAW 163): four more kinds, painted in motion/full-families.js: product (the ad's own pictures as a wall, a close-up out of focus or an echo; never another product), abstract (silk, liquid chrome, bokeh, frosted glass, holographic foil, spheres, a light leak), shape (a disc, Bauhaus corners, bands, pills, colour blocks, a wave, a rising sun) and type (the goods' own word as a wall, one giant word, a tape of words). The photograph .4 to .3 (still .55 in a metro with its own photographs), a scene .08 to .04, a gradient .2 to .12, a pattern .22 to .12, the house .1 to .04; abstract .13, shape .1, product .1, type .05.",
+  "version": "2026-11-22",
+  "shares": {
+    "photo": 0.3,
+    "scene": 0.04,
+    "gradient": 0.12,
+    "pattern": 0.12,
+    "house": 0.04,
+    "abstract": 0.13,
+    "shape": 0.1,
+    "product": 0.1,
+    "type": 0.05
+  },
+  "house": [
+    "radial",
+    "tonal",
+    "linear"
+  ],
+  "scenes": [
+    "aurora",
+    "drift",
+    "sky_gradient",
+    "marble_soft",
+    "glow_orbs"
+  ],
+  "limits": {
+    "minL": 0.14,
+    "maxDark": 0.35
+  },
+  "pools": {
+    "phones": [
+      "assets/bg-web/macbook-macbook-on-desk-1.jpg",
+      "assets/bg-web/macbook-macbook-on-desk-2.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-sunset-3.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-1.jpg",
+      "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+      "assets/bg-free/roads-14.jpg",
+      "assets/bg-free/roads-16.jpg",
+      "assets/bg-free/roads-10.jpg"
+    ],
+    "gaming": [
+      "assets/bg-web/rooms-desk-setup-1.jpg",
+      "assets/bg-web/rooms-home-desk-setup-1.jpg",
+      "assets/bg-web/rooms-living-room-console-1.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg"
+    ],
+    "audio": [
+      "assets/bg-web/rooms-desk-setup-1.jpg",
+      "assets/bg-web/macbook-macbook-on-desk-2.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+      "assets/bg-free/roads-14.jpg",
+      "assets/bg-free/roads-16.jpg",
+      "assets/bg-free/roads-10.jpg"
+    ],
+    "computers": [
+      "assets/bg-web/macbook-macbook-on-desk-1.jpg",
+      "assets/bg-web/macbook-macbook-on-desk-2.jpg",
+      "assets/bg-web/rooms-desk-setup-1.jpg",
+      "assets/bg-web/rooms-home-desk-setup-1.jpg"
+    ],
+    "wearables": [
+      "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
+      "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
+      "assets/bg-web/macbook-macbook-on-desk-1.jpg",
+      "assets/bg-free/roads-14.jpg",
+      "assets/bg-free/roads-16.jpg",
+      "assets/bg-free/roads-10.jpg"
+    ],
+    "cameras": [
+      "assets/bg-web/wallpaper-emerald-bay-lake-tahoe-2.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+      "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+      "assets/bg-free/roads-14.jpg",
+      "assets/bg-free/roads-16.jpg",
+      "assets/bg-free/roads-10.jpg"
+    ],
+    "gold": [
+      "assets/bg-web/gold-gold-jewelry-display-1.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+      "assets/bg-free/gold-6.jpg",
+      "assets/bg-free/gold-7.jpg",
+      "assets/bg-free/gold-10.jpg"
+    ],
+    "silver": [
+      "assets/bg-web/coins-coin-collection-album-1.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-1.jpg",
+      "assets/bg-free/coins-4.jpg",
+      "assets/bg-free/coins-7.jpg",
+      "assets/bg-free/coins-11.jpg"
+    ],
+    "coins": [
+      "assets/bg-web/coins-coin-collection-album-1.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg",
+      "assets/bg-free/coins-4.jpg",
+      "assets/bg-free/coins-7.jpg",
+      "assets/bg-free/coins-11.jpg"
+    ],
+    "cars": [
+      "assets/bg-web/wallpaper-golden-gate-bridge-sunset-3.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg",
+      "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg",
+      "assets/bg-web/wallpaper-lake-tahoe-1.jpg",
+      "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg",
+      "assets/bg-web/wallpaper-emerald-bay-lake-tahoe-2.jpg",
+      "assets/bg-free/geo-inland-empire-3.jpg",
+      "assets/bg-free/geo-inland-empire-4.jpg",
+      "assets/bg-free/geo-inland-empire-5.jpg",
+      "assets/bg-free/geo-phoenix-8.jpg",
+      "assets/bg-free/geo-phoenix-9.jpg",
+      "assets/bg-free/roads-10.jpg",
+      "assets/bg-free/roads-14.jpg",
+      "assets/bg-free/roads-16.jpg",
+      "assets/bg-free/roads-17.jpg",
+      "assets/bg-free/roads-18.jpg",
+      "assets/bg-free/roads-23.jpg",
+      "assets/bg-free/roads-26.jpg",
+      "assets/bg-free/roads-27.jpg",
+      "assets/bg-free/roads-28.jpg"
+    ],
+    "strips": [],
+    "pokemon": [
+      "assets/bg-web/rooms-living-room-console-1.jpg",
+      "assets/bg-web/rooms-desk-setup-1.jpg",
+      "assets/bg-web/rooms-home-desk-setup-1.jpg"
+    ],
+    "sports": [
+      "assets/bg-web/sports-baseball-on-grass-1.jpg",
+      "assets/bg-web/sports-baseball-on-grass-2.jpg",
+      "assets/bg-web/sports-baseball-stadium-night-3.jpg",
+      "assets/bg-web/sports-basketball-on-court-3.jpg"
+    ]
+  },
+  "photos": {
+    "assets/bg-web/macbook-macbook-on-desk-1.jpg": {
+      "w": 1920,
+      "h": 1272,
+      "L": 0.38,
+      "dark": 0.024,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-web/macbook-macbook-on-desk-2.jpg": {
+      "w": 1920,
+      "h": 1153,
+      "L": 0.175,
+      "dark": 0.13,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-web/wallpaper-golden-gate-bridge-sunset-3.jpg": {
+      "w": 2048,
+      "h": 1536,
+      "L": 0.344,
+      "dark": 0.086,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-web/wallpaper-golden-gate-bridge-fog-4.jpg": {
+      "w": 2048,
+      "h": 897,
+      "L": 0.2,
+      "dark": 0.186,
+      "hue": 270,
+      "C": 0.109,
+      "share": 0.58
+    },
+    "assets/bg-web/wallpaper-lake-tahoe-1.jpg": {
+      "w": 2048,
+      "h": 1084,
+      "L": 0.248,
+      "dark": 0.06,
+      "hue": 268,
+      "C": 0.089,
+      "share": 0.48
+    },
+    "assets/bg-web/wallpaper-sand-harbor-lake-tahoe-3.jpg": {
+      "w": 2048,
+      "h": 1542,
+      "L": 0.208,
+      "dark": 0.044,
+      "hue": 251,
+      "C": 0.134,
+      "share": 0.34
+    },
+    "assets/bg-web/wallpaper-lake-tahoe-sunset-4.jpg": {
+      "w": 2048,
+      "h": 1365,
+      "L": 0.285,
+      "dark": 0.076,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg-web/rooms-desk-setup-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.149,
+      "dark": 0.254,
+      "hue": null,
+      "C": 0,
+      "share": 0.1
+    },
+    "assets/bg-web/rooms-home-desk-setup-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.145,
+      "dark": 0.242,
+      "hue": null,
+      "C": 0,
+      "share": 0.09
+    },
+    "assets/bg-web/rooms-living-room-console-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.246,
+      "dark": 0.265,
+      "hue": 77,
+      "C": 0.095,
+      "share": 0.35
+    },
+    "assets/bg-web/wallpaper-golden-gate-bridge-sunset-4.jpg": {
+      "w": 2048,
+      "h": 1431,
+      "L": 0.214,
+      "dark": 0.14,
+      "hue": 316,
+      "C": 0.091,
+      "share": 0.32
+    },
+    "assets/bg-web/wallpaper-lake-tahoe-sunset-1.jpg": {
+      "w": 2048,
+      "h": 1365,
+      "L": 0.204,
+      "dark": 0.085,
+      "hue": 37,
+      "C": 0.096,
+      "share": 0.16
+    },
+    "assets/bg-web/wallpaper-golden-gate-bridge-baker-beach-2.jpg": {
+      "w": 2048,
+      "h": 1365,
+      "L": 0.244,
+      "dark": 0.054,
+      "hue": null,
+      "C": 0,
+      "share": 0.08
+    },
+    "assets/bg-web/wallpaper-lake-tahoe-boulders-2.jpg": {
+      "w": 2048,
+      "h": 1536,
+      "L": 0.273,
+      "dark": 0.023,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/wallpaper-emerald-bay-lake-tahoe-2.jpg": {
+      "w": 2048,
+      "h": 1365,
+      "L": 0.29,
+      "dark": 0.35,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/bg-web/wallpaper-golden-gate-bridge-from-battery-spencer-3.jpg": {
+      "w": 2048,
+      "h": 1365,
+      "L": 0.205,
+      "dark": 0.151,
+      "hue": 251,
+      "C": 0.132,
+      "share": 0.46
+    },
+    "assets/bg-web/gold-gold-jewelry-display-1.jpg": {
+      "w": 2048,
+      "h": 1939,
+      "L": 0.196,
+      "dark": 0.186,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg-web/coins-coin-collection-album-1.jpg": {
+      "w": 1920,
+      "h": 1551,
+      "L": 0.333,
+      "dark": 0.034,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/sports-baseball-on-grass-1.jpg": {
+      "w": 2048,
+      "h": 1365,
+      "L": 0.165,
+      "dark": 0.095,
+      "hue": 133,
+      "C": 0.087,
+      "share": 0.35
+    },
+    "assets/bg-web/sports-baseball-on-grass-2.jpg": {
+      "w": 2048,
+      "h": 1152,
+      "L": 0.164,
+      "dark": 0.167,
+      "hue": 134,
+      "C": 0.102,
+      "share": 0.32
+    },
+    "assets/bg-web/sports-baseball-stadium-night-3.jpg": {
+      "w": 2048,
+      "h": 1498,
+      "L": 0.168,
+      "dark": 0.277,
+      "hue": 95,
+      "C": 0.092,
+      "share": 0.15
+    },
+    "assets/bg-web/sports-basketball-on-court-3.jpg": {
+      "w": 2048,
+      "h": 1536,
+      "L": 0.218,
+      "dark": 0.094,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-offer/apple-macbook-air-m2-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.347,
+      "dark": 0.138,
+      "hue": 322,
+      "C": 0.099,
+      "share": 0.43
+    },
+    "assets/bg-offer/audio-airpods-4-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.508,
+      "dark": 0.014,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/audio-airpods-max-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.652,
+      "dark": 0.024,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/audio-airpods-max-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.578,
+      "dark": 0.064,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/audio-airpods-pro-4.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.331,
+      "dark": 0.024,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/audio-beats-fit-pro-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.36,
+      "dark": 0.048,
+      "hue": 79,
+      "C": 0.109,
+      "share": 0.38
+    },
+    "assets/bg-offer/audio-bose-quietcomfort-headphones-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.683,
+      "dark": 0.082,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/audio-sonos-speaker-4.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.306,
+      "dark": 0.072,
+      "hue": 69,
+      "C": 0.086,
+      "share": 0.21
+    },
+    "assets/bg-offer/cameras-dji-mini-4-pro-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.817,
+      "dark": 0.013,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/cameras-fujifilm-x-t5-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.29,
+      "dark": 0.2,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/cameras-leica-q2-4.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.412,
+      "dark": 0.272,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/coins-american-gold-eagle-coin-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.389,
+      "dark": 0.245,
+      "hue": 88,
+      "C": 0.101,
+      "share": 0.32
+    },
+    "assets/bg-offer/coins-coin-collection-album-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.285,
+      "dark": 0.046,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/dl_sports_agencyGrid_mono.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.126,
+      "dark": 0.296,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/dl_sports_arcCrown_crimson.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.223,
+      "dark": 0.197,
+      "hue": 59,
+      "C": 0.089,
+      "share": 0.16
+    },
+    "assets/bg-offer/dl_sports_glassCard_mono.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.224,
+      "dark": 0.244,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/gold-gold-bracelet-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.344,
+      "dark": 0.001,
+      "hue": null,
+      "C": 0,
+      "share": 0.09
+    },
+    "assets/bg-offer/gold-gold-bracelet-4.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.564,
+      "dark": 0,
+      "hue": 83,
+      "C": 0.097,
+      "share": 0.15
+    },
+    "assets/bg-offer/gold-gold-jewelry-rings-3.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.53,
+      "dark": 0.075,
+      "hue": 10,
+      "C": 0.116,
+      "share": 0.18
+    },
+    "assets/bg-offer/macbook-macbook-pro-16-inch-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.279,
+      "dark": 0.167,
+      "hue": 259,
+      "C": 0.159,
+      "share": 0.15
+    },
+    "assets/bg-offer/macbook-macbook-pro-m3-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.263,
+      "dark": 0.347,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/bg-offer/phones-apple-iphone-15-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.285,
+      "dark": 0.029,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/phones-iphone-14-pro-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.12,
+      "dark": 0.162,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/phones-iphone-15-pro-back-camera-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.124,
+      "dark": 0.065,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/bg-offer/pokemon-charizard-card-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.344,
+      "dark": 0.063,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-offer/pokemon-charizard-card-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.397,
+      "dark": 0.172,
+      "hue": null,
+      "C": 0,
+      "share": 0.1
+    },
+    "assets/bg-offer/rooms-desk-setup-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.159,
+      "dark": 0.249,
+      "hue": null,
+      "C": 0,
+      "share": 0.1
+    },
+    "assets/bg-offer/rooms-home-desk-setup-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.155,
+      "dark": 0.278,
+      "hue": null,
+      "C": 0,
+      "share": 0.11
+    },
+    "assets/bg-offer/rooms-living-room-console-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.204,
+      "dark": 0.345,
+      "hue": 80,
+      "C": 0.084,
+      "share": 0.26
+    },
+    "assets/bg-offer/silver-silver-cutlery-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.138,
+      "dark": 0.361,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/silver-silver-jewelry-rings-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.234,
+      "dark": 0.266,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/silver-silverware-set-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.164,
+      "dark": 0.146,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/strips-blood-glucose-meter-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.34,
+      "dark": 0.129,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/bg-offer/strips-blood-glucose-test-strips-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.596,
+      "dark": 0.104,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-offer/strips-contour-next-test-strips-2.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.326,
+      "dark": 0.061,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-offer/wearables-apple-watch-series-9-4.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.468,
+      "dark": 0.138,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-offer/wearables-meta-ray-ban-1.jpg": {
+      "w": 1080,
+      "h": 1080,
+      "L": 0.265,
+      "dark": 0.163,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/coins-american-gold-eagle-coin-3.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.191,
+      "dark": 0.055,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-web/coins-old-coins-2.jpg": {
+      "w": 2048,
+      "h": 1152,
+      "L": 0.592,
+      "dark": 0.073,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/colours-jeep-wrangler-red-1.jpg": {
+      "w": 1920,
+      "h": 1281,
+      "L": 0.306,
+      "dark": 0.111,
+      "hue": 38,
+      "C": 0.131,
+      "share": 0.19
+    },
+    "assets/bg-web/colours-toyota-tacoma-red-1.jpg": {
+      "w": 1920,
+      "h": 1281,
+      "L": 0.279,
+      "dark": 0.111,
+      "hue": null,
+      "C": 0,
+      "share": 0.14
+    },
+    "assets/bg-web/gold-gold-bracelet-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.353,
+      "dark": 0.001,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-web/gold-gold-bracelet-3.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.362,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-web/gold-gold-bullion-bar-2.jpg": {
+      "w": 1920,
+      "h": 1160,
+      "L": 0.732,
+      "dark": 0.004,
+      "hue": 84,
+      "C": 0.132,
+      "share": 0.36
+    },
+    "assets/bg-web/gold-gold-bullion-bars-2.jpg": {
+      "w": 2048,
+      "h": 1399,
+      "L": 0.147,
+      "dark": 0.252,
+      "hue": null,
+      "C": 0,
+      "share": 0.14
+    },
+    "assets/bg-web/gold-gold-bullion-bars-3.jpg": {
+      "w": 2048,
+      "h": 1365,
+      "L": 0.284,
+      "dark": 0.016,
+      "hue": 223,
+      "C": 0.099,
+      "share": 0.78
+    },
+    "assets/bg-web/gold-gold-jewelry-rings-3.jpg": {
+      "w": 1920,
+      "h": 1531,
+      "L": 0.58,
+      "dark": 0.058,
+      "hue": 9,
+      "C": 0.115,
+      "share": 0.16
+    },
+    "assets/bg-web/gold-gold-necklace-chain-close-3.jpg": {
+      "w": 1920,
+      "h": 1599,
+      "L": 0.035,
+      "dark": 0.826,
+      "hue": null,
+      "C": 0,
+      "share": 0.12
+    },
+    "assets/bg-web/gold-gold-ring-wedding-band-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.242,
+      "dark": 0.157,
+      "hue": null,
+      "C": 0,
+      "share": 0.09
+    },
+    "assets/bg-web/gold-gold-ring-wedding-band-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.342,
+      "dark": 0.101,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/gold-gold-ring-wedding-band-3.jpg": {
+      "w": 1920,
+      "h": 1620,
+      "L": 0.243,
+      "dark": 0.007,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/gold-gold-watch-1.jpg": {
+      "w": 1920,
+      "h": 1278,
+      "L": 0.08,
+      "dark": 0.776,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/bg-web/gold-rolex-watch-3.jpg": {
+      "w": 1920,
+      "h": 1920,
+      "L": 0.124,
+      "dark": 0.168,
+      "hue": null,
+      "C": 0,
+      "share": 0.09
+    },
+    "assets/bg-web/macbook-macbook-air-2.jpg": {
+      "w": 1920,
+      "h": 1081,
+      "L": 0.023,
+      "dark": 0.881,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/macbook-macbook-pro-m3-4.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.016,
+      "dark": 0.899,
+      "hue": 261,
+      "C": 0.112,
+      "share": 0.45
+    },
+    "assets/bg-web/phones-apple-iphone-15-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.285,
+      "dark": 0.028,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/phones-apple-iphone-15-2.jpg": {
+      "w": 1920,
+      "h": 1442,
+      "L": 0.38,
+      "dark": 0.024,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/phones-iphone-13-pro-1.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.151,
+      "dark": 0.283,
+      "hue": 18,
+      "C": 0.132,
+      "share": 0.81
+    },
+    "assets/bg-web/phones-iphone-13-pro-2.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.156,
+      "dark": 0.279,
+      "hue": 20,
+      "C": 0.132,
+      "share": 0.81
+    },
+    "assets/bg-web/phones-iphone-13-pro-3.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.149,
+      "dark": 0.254,
+      "hue": 30,
+      "C": 0.157,
+      "share": 0.66
+    },
+    "assets/bg-web/phones-iphone-14-pro-1.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.091,
+      "dark": 0.373,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/phones-iphone-14-pro-2.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.491,
+      "dark": 0.049,
+      "hue": null,
+      "C": 0,
+      "share": 0.11
+    },
+    "assets/bg-web/phones-iphone-14-pro-3.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.532,
+      "dark": 0.006,
+      "hue": null,
+      "C": 0,
+      "share": 0.08
+    },
+    "assets/bg-web/phones-iphone-15-pro-back-camera-1.jpg": {
+      "w": 1920,
+      "h": 1356,
+      "L": 0.148,
+      "dark": 0.046,
+      "hue": null,
+      "C": 0,
+      "share": 0.09
+    },
+    "assets/bg-web/phones-iphone-16-pro-1.jpg": {
+      "w": 1920,
+      "h": 1441,
+      "L": 0.304,
+      "dark": 0.042,
+      "hue": null,
+      "C": 0,
+      "share": 0.07
+    },
+    "assets/bg-web/pokemon-charizard-card-1.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.301,
+      "dark": 0.113,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/bg-web/pokemon-charizard-card-2.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.386,
+      "dark": 0.173,
+      "hue": null,
+      "C": 0,
+      "share": 0.07
+    },
+    "assets/bg-web/popular2-dodge-challenger-1.jpg": {
+      "w": 1920,
+      "h": 1251,
+      "L": 0.381,
+      "dark": 0.087,
+      "hue": null,
+      "C": 0,
+      "share": 0.09
+    },
+    "assets/bg-web/popular2-lamborghini-aventador-2.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.295,
+      "dark": 0.127,
+      "hue": 43,
+      "C": 0.138,
+      "share": 0.41
+    },
+    "assets/bg-web/silver-silver-bullion-bars-3.jpg": {
+      "w": 2048,
+      "h": 2048,
+      "L": 0.147,
+      "dark": 0.228,
+      "hue": 66,
+      "C": 0.101,
+      "share": 0.56
+    },
+    "assets/bg-web/silver-silver-cutlery-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.112,
+      "dark": 0.427,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/silver-silver-cutlery-2.jpg": {
+      "w": 1920,
+      "h": 925,
+      "L": 0.067,
+      "dark": 0.57,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/silver-silver-jewelry-rings-2.jpg": {
+      "w": 1920,
+      "h": 1442,
+      "L": 0.219,
+      "dark": 0.271,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/silver-silver-necklace-chain-1.jpg": {
+      "w": 1920,
+      "h": 1457,
+      "L": 0.199,
+      "dark": 0.148,
+      "hue": 58,
+      "C": 0.096,
+      "share": 0.3
+    },
+    "assets/bg-web/silver-silver-tea-set-5.jpg": {
+      "w": 1694,
+      "h": 1680,
+      "L": 0.183,
+      "dark": 0.074,
+      "hue": 75,
+      "C": 0.105,
+      "share": 0.18
+    },
+    "assets/bg-web/silver-silverware-set-1.jpg": {
+      "w": 1600,
+      "h": 1512,
+      "L": 0.178,
+      "dark": 0.159,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/silver-silverware-set-3.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.309,
+      "dark": 0.001,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/sports-baseball-and-glove-1.jpg": {
+      "w": 2048,
+      "h": 1536,
+      "L": 0.308,
+      "dark": 0.178,
+      "hue": 256,
+      "C": 0.143,
+      "share": 0.34
+    },
+    "assets/bg-web/sports-baseball-and-glove-2.jpg": {
+      "w": 2048,
+      "h": 1519,
+      "L": 0.317,
+      "dark": 0.046,
+      "hue": 44,
+      "C": 0.123,
+      "share": 0.54
+    },
+    "assets/bg-web/sports-baseball-and-glove-3.jpg": {
+      "w": 2048,
+      "h": 1536,
+      "L": 0.112,
+      "dark": 0.579,
+      "hue": 60,
+      "C": 0.11,
+      "share": 0.35
+    },
+    "assets/bg-web/strips-blood-glucose-meter-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.354,
+      "dark": 0.098,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/bg-web/strips-blood-glucose-meter-4.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.407,
+      "dark": 0.079,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-web/strips-blood-glucose-test-strips-3.jpg": {
+      "w": 1920,
+      "h": 1920,
+      "L": 0.531,
+      "dark": 0.08,
+      "hue": null,
+      "C": 0,
+      "share": 0.07
+    },
+    "assets/bg-web/strips-contour-next-test-strips-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.418,
+      "dark": 0.078,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/bg-web/strips-contour-next-test-strips-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.329,
+      "dark": 0.044,
+      "hue": null,
+      "C": 0,
+      "share": 0.05
+    },
+    "assets/bg-web/strips-contour-next-test-strips-3.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.401,
+      "dark": 0.02,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/strips-freestyle-libre-3.jpg": {
+      "w": 1920,
+      "h": 1446,
+      "L": 0.358,
+      "dark": 0.005,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/strips-freestyle-libre-4.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.159,
+      "dark": 0.312,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg-web/strips-glucose-meter-test-strip-2.jpg": {
+      "w": 1920,
+      "h": 1432,
+      "L": 0.152,
+      "dark": 0.597,
+      "hue": null,
+      "C": 0,
+      "share": 0.05
+    },
+    "assets/bg-web/trucks-chevrolet-silverado-pickup-3.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.174,
+      "dark": 0.184,
+      "hue": 115,
+      "C": 0.098,
+      "share": 0.17
+    },
+    "assets/bg-web/trucks-ford-f-150-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.393,
+      "dark": 0.062,
+      "hue": 74,
+      "C": 0.099,
+      "share": 0.16
+    },
+    "assets/bg/dl_coins_agencyGrid_paper.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.265,
+      "dark": 0.167,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg/dl_coins_reviewProof_paper.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.396,
+      "dark": 0.095,
+      "hue": null,
+      "C": 0,
+      "share": 0.05
+    },
+    "assets/bg/dl_coins_scriptRetro_paper.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.233,
+      "dark": 0.147,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_coins_slabPoster_gold.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.28,
+      "dark": 0.181,
+      "hue": null,
+      "C": 0,
+      "share": 0.07
+    },
+    "assets/bg/dl_coins_ticketStub_paper.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.266,
+      "dark": 0.149,
+      "hue": null,
+      "C": 0,
+      "share": 0.05
+    },
+    "assets/bg/dl_coins_trustSeal_gold.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.497,
+      "dark": 0.111,
+      "hue": 67,
+      "C": 0.103,
+      "share": 0.45
+    },
+    "assets/bg/dl_coins_voltStack_royal.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.102,
+      "dark": 0.485,
+      "hue": null,
+      "C": 0,
+      "share": 0.09
+    },
+    "assets/bg/dl_coins_wantedFrame_paper.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.144,
+      "dark": 0.338,
+      "hue": null,
+      "C": 0,
+      "share": 0.13
+    },
+    "assets/bg/dl_gold_arcCrown_gold.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.295,
+      "dark": 0.16,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/bg/dl_gold_duoSplit_gold.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.182,
+      "dark": 0.398,
+      "hue": 67,
+      "C": 0.09,
+      "share": 0.24
+    },
+    "assets/bg/dl_gold_gradientWave_gold.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.112,
+      "dark": 0.355,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg/dl_gold_karatSeal_gold.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.182,
+      "dark": 0.398,
+      "hue": 67,
+      "C": 0.09,
+      "share": 0.24
+    },
+    "assets/bg/dl_gold_priceAnchor_gold.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.164,
+      "dark": 0.316,
+      "hue": 47,
+      "C": 0.092,
+      "share": 0.28
+    },
+    "assets/bg/dl_pokemon_agencyGrid_royal.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.102,
+      "dark": 0.448,
+      "hue": 40,
+      "C": 0.096,
+      "share": 0.33
+    },
+    "assets/bg/dl_pokemon_neonNight_royal.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.266,
+      "dark": 0.264,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg/dl_silver_arcCrown_mono.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.133,
+      "dark": 0.222,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_silver_bandKnockout_mono.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.18,
+      "dark": 0.294,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_silver_checklistHero_ocean.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.075,
+      "dark": 0.419,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_silver_diagonalRush_mono.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.111,
+      "dark": 0.373,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_silver_glassCard_ocean.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.424,
+      "dark": 0.064,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_agencyGrid_mono.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_bandKnockout_emerald.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_checklistHero_crimson.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_duoSplit_mono.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_glassCard_mono.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.228,
+      "dark": 0.241,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_gradientWave_crimson.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_hudTech_emerald.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_neonNight_emerald.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_priceAnchor_crimson.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_reviewProof_paper.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.44,
+      "dark": 0.06,
+      "hue": null,
+      "C": 0,
+      "share": 0.12
+    },
+    "assets/bg/dl_sports_scriptRetro_paper.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.13,
+      "dark": 0.291,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg/dl_sports_stepsFlow_emerald.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.418,
+      "dark": 0.129,
+      "hue": 118,
+      "C": 0.108,
+      "share": 0.34
+    },
+    "assets/bg/dl_sports_ticketStub_crimson.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.225,
+      "dark": 0.263,
+      "hue": 69,
+      "C": 0.095,
+      "share": 0.16
+    },
+    "assets/bg/dl_sports_trustSeal_crimson.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.444,
+      "dark": 0.159,
+      "hue": 30,
+      "C": 0.092,
+      "share": 0.19
+    },
+    "assets/bg/dl_sports_voltStack_crimson.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.249,
+      "dark": 0.15,
+      "hue": null,
+      "C": 0,
+      "share": 0.07
+    },
+    "assets/bg/dl_sports_wantedFrame_paper.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.228,
+      "dark": 0.195,
+      "hue": 59,
+      "C": 0.09,
+      "share": 0.17
+    },
+    "assets/bg/dl_strips_gradientWave_emerald.jpg": {
+      "w": 1200,
+      "h": 1200,
+      "L": 0.33,
+      "dark": 0.138,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/scenes/scene-flat-ipads.jpg": {
+      "w": 1600,
+      "h": 1350,
+      "L": 0.333,
+      "dark": 0.164,
+      "hue": null,
+      "C": 0,
+      "share": 0.09
+    },
+    "assets/scenes/scene-grad-mac-gold.jpg": {
+      "w": 1600,
+      "h": 1350,
+      "L": 0.323,
+      "dark": 0.093,
+      "hue": 334,
+      "C": 0.158,
+      "share": 0.67
+    },
+    "assets/scenes/scene-own-macbook-open.jpg": {
+      "w": 2048,
+      "h": 1536,
+      "L": 0.238,
+      "dark": 0.184,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/scenes/scene-own-macbook-stack.jpg": {
+      "w": 2048,
+      "h": 1536,
+      "L": 0.135,
+      "dark": 0.352,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/scenes/scene-studio-amber-ipad.jpg": {
+      "w": 1600,
+      "h": 1350,
+      "L": 0.177,
+      "dark": 0.313,
+      "hue": 77,
+      "C": 0.093,
+      "share": 0.26
+    },
+    "assets/scenes/scene-studio-teal-watch.jpg": {
+      "w": 1600,
+      "h": 1350,
+      "L": 0.207,
+      "dark": 0.285,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/showcase/bg/abs_halftone_jw07_3.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.066,
+      "dark": 0,
+      "hue": 157,
+      "C": 0.088,
+      "share": 0.84
+    },
+    "assets/showcase/bg/abs_paperTex_du06_3.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.515,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/abs_shadowcast_io08_3.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.478,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/abs_velvet_ck01_3.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.028,
+      "dark": 0.544,
+      "hue": 345,
+      "C": 0.088,
+      "share": 0.99
+    },
+    "assets/showcase/bg/dg_cast_cd06_sports_2.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.15,
+      "dark": 0.045,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/showcase/bg/dg_cast_cd06_sports_4.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.15,
+      "dark": 0.045,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/showcase/bg/dg_cast_gl03_sports_3.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.173,
+      "dark": 0.032,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_cast_gl07_sports_0.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.173,
+      "dark": 0.033,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_cast_jw09_sports_5.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.043,
+      "dark": 0.447,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/showcase/bg/dg_cast_nn06_sports_1.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.026,
+      "dark": 0.731,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_cast_su01_sports_0.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.182,
+      "dark": 0.031,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_tile_du03_coins_2.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.677,
+      "dark": 0.01,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/showcase/bg/dg_tile_du03_silver_5.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.721,
+      "dark": 0.003,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_tile_du04_silver_2.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.721,
+      "dark": 0.003,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_tile_ik07_silver_2.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.731,
+      "dark": 0.003,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_tile_jw04_silver_0.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.721,
+      "dark": 0.003,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_tile_jw06_coins_3.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.681,
+      "dark": 0.006,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/showcase/bg/dg_tile_jw06_silver_0.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.722,
+      "dark": 0.003,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/showcase/bg/dg_tile_jw08_silver_3.webp": {
+      "w": 864,
+      "h": 864,
+      "L": 0.722,
+      "dark": 0.003,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-web/strips-blood-glucose-test-strips-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.639,
+      "dark": 0.084,
+      "hue": null,
+      "C": 0,
+      "share": 0.05
+    },
+    "assets/bg-free/coins-4.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.216,
+      "dark": 0.17,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-free/coins-7.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.233,
+      "dark": 0.045,
+      "hue": 35,
+      "C": 0.092,
+      "share": 0.3
+    },
+    "assets/bg-free/coins-11.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.209,
+      "dark": 0.033,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/gold-6.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.335,
+      "dark": 0.023,
+      "hue": 78,
+      "C": 0.099,
+      "share": 0.34
+    },
+    "assets/bg-free/gold-7.jpg": {
+      "w": 1920,
+      "h": 1279,
+      "L": 0.286,
+      "dark": 0.021,
+      "hue": 223,
+      "C": 0.099,
+      "share": 0.78
+    },
+    "assets/bg-free/geo-los-angeles-1.jpg": {
+      "w": 2000,
+      "h": 1500,
+      "L": 0.299,
+      "dark": 0.067,
+      "hue": 255,
+      "C": 0.112,
+      "share": 0.43
+    },
+    "assets/bg-free/geo-los-angeles-2.jpg": {
+      "w": 2000,
+      "h": 1500,
+      "L": 0.228,
+      "dark": 0.014,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-los-angeles-3.jpg": {
+      "w": 2000,
+      "h": 1333,
+      "L": 0.308,
+      "dark": 0.061,
+      "hue": 253,
+      "C": 0.106,
+      "share": 0.22
+    },
+    "assets/bg-free/geo-los-angeles-4.jpg": {
+      "w": 2000,
+      "h": 1500,
+      "L": 0.324,
+      "dark": 0.114,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-los-angeles-5.jpg": {
+      "w": 2000,
+      "h": 1500,
+      "L": 0.242,
+      "dark": 0.084,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg-free/geo-los-angeles-6.jpg": {
+      "w": 2000,
+      "h": 1125,
+      "L": 0.308,
+      "dark": 0.026,
+      "hue": 245,
+      "C": 0.153,
+      "share": 1
+    },
+    "assets/bg-free/geo-los-angeles-7.jpg": {
+      "w": 2000,
+      "h": 1127,
+      "L": 0.306,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-los-angeles-8.jpg": {
+      "w": 2000,
+      "h": 1127,
+      "L": 0.308,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-los-angeles-11.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.373,
+      "dark": 0.248,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-free/geo-los-angeles-12.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.219,
+      "dark": 0.077,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-los-angeles-13.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.269,
+      "dark": 0.081,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/bg-free/geo-los-angeles-15.jpg": {
+      "w": 1920,
+      "h": 1275,
+      "L": 0.341,
+      "dark": 0.053,
+      "hue": 149,
+      "C": 0.095,
+      "share": 0.37
+    },
+    "assets/bg-free/geo-los-angeles-16.jpg": {
+      "w": 1920,
+      "h": 1082,
+      "L": 0.325,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-los-angeles-17.jpg": {
+      "w": 1920,
+      "h": 1082,
+      "L": 0.251,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-los-angeles-18.jpg": {
+      "w": 1920,
+      "h": 1082,
+      "L": 0.282,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-los-angeles-19.jpg": {
+      "w": 1920,
+      "h": 849,
+      "L": 0.28,
+      "dark": 0.079,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-new-york-5.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.171,
+      "dark": 0.163,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-new-york-7.jpg": {
+      "w": 1920,
+      "h": 1342,
+      "L": 0.149,
+      "dark": 0.303,
+      "hue": null,
+      "C": 0,
+      "share": 0.11
+    },
+    "assets/bg-free/geo-new-york-10.jpg": {
+      "w": 1920,
+      "h": 1226,
+      "L": 0.247,
+      "dark": 0.254,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/bg-free/geo-new-york-11.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.187,
+      "dark": 0.285,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-free/geo-chicago-1.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.306,
+      "dark": 0.044,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-free/geo-chicago-5.jpg": {
+      "w": 1440,
+      "h": 1920,
+      "L": 0.27,
+      "dark": 0.197,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/bg-free/geo-chicago-8.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.225,
+      "dark": 0.233,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-chicago-10.jpg": {
+      "w": 1920,
+      "h": 1281,
+      "L": 0.286,
+      "dark": 0.055,
+      "hue": 250,
+      "C": 0.125,
+      "share": 0.35
+    },
+    "assets/bg-free/geo-dallas-4.jpg": {
+      "w": 1920,
+      "h": 1549,
+      "L": 0.297,
+      "dark": 0.036,
+      "hue": 149,
+      "C": 0.1,
+      "share": 0.42
+    },
+    "assets/bg-free/geo-dallas-5.jpg": {
+      "w": 1920,
+      "h": 806,
+      "L": 0.284,
+      "dark": 0.09,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-dallas-6.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.346,
+      "dark": 0.137,
+      "hue": 243,
+      "C": 0.089,
+      "share": 0.17
+    },
+    "assets/bg-free/geo-houston-2.jpg": {
+      "w": 1920,
+      "h": 1281,
+      "L": 0.258,
+      "dark": 0.065,
+      "hue": 243,
+      "C": 0.099,
+      "share": 0.17
+    },
+    "assets/bg-free/geo-houston-3.jpg": {
+      "w": 1920,
+      "h": 1256,
+      "L": 0.202,
+      "dark": 0.038,
+      "hue": 260,
+      "C": 0.186,
+      "share": 0.75
+    },
+    "assets/bg-free/geo-houston-4.jpg": {
+      "w": 1920,
+      "h": 1260,
+      "L": 0.21,
+      "dark": 0.044,
+      "hue": 256,
+      "C": 0.143,
+      "share": 0.78
+    },
+    "assets/bg-free/geo-houston-5.jpg": {
+      "w": 1920,
+      "h": 1271,
+      "L": 0.187,
+      "dark": 0.022,
+      "hue": 260,
+      "C": 0.186,
+      "share": 0.33
+    },
+    "assets/bg-free/geo-houston-6.jpg": {
+      "w": 1920,
+      "h": 1000,
+      "L": 0.264,
+      "dark": 0.13,
+      "hue": null,
+      "C": 0,
+      "share": 0.05
+    },
+    "assets/bg-free/geo-atlanta-2.jpg": {
+      "w": 1920,
+      "h": 840,
+      "L": 0.331,
+      "dark": 0.068,
+      "hue": null,
+      "C": 0,
+      "share": 0.11
+    },
+    "assets/bg-free/geo-atlanta-3.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.267,
+      "dark": 0.002,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-atlanta-8.jpg": {
+      "w": 1920,
+      "h": 1275,
+      "L": 0.373,
+      "dark": 0.18,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-atlanta-10.jpg": {
+      "w": 1920,
+      "h": 1299,
+      "L": 0.364,
+      "dark": 0.11,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-washington-2.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.176,
+      "dark": 0.258,
+      "hue": 250,
+      "C": 0.086,
+      "share": 0.19
+    },
+    "assets/bg-free/geo-washington-4.jpg": {
+      "w": 1920,
+      "h": 823,
+      "L": 0.18,
+      "dark": 0.085,
+      "hue": 252,
+      "C": 0.15,
+      "share": 0.54
+    },
+    "assets/bg-free/geo-washington-5.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.483,
+      "dark": 0.036,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-washington-6.jpg": {
+      "w": 1920,
+      "h": 996,
+      "L": 0.278,
+      "dark": 0.057,
+      "hue": 228,
+      "C": 0.091,
+      "share": 0.27
+    },
+    "assets/bg-free/geo-washington-7.jpg": {
+      "w": 1506,
+      "h": 1920,
+      "L": 0.185,
+      "dark": 0.198,
+      "hue": null,
+      "C": 0,
+      "share": 0.13
+    },
+    "assets/bg-free/geo-washington-8.jpg": {
+      "w": 1920,
+      "h": 1286,
+      "L": 0.278,
+      "dark": 0.226,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-philadelphia-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.223,
+      "dark": 0.221,
+      "hue": null,
+      "C": 0,
+      "share": 0.13
+    },
+    "assets/bg-free/geo-philadelphia-3.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.176,
+      "dark": 0.002,
+      "hue": 258,
+      "C": 0.126,
+      "share": 0.35
+    },
+    "assets/bg-free/geo-philadelphia-5.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.418,
+      "dark": 0.003,
+      "hue": 143,
+      "C": 0.097,
+      "share": 0.48
+    },
+    "assets/bg-free/geo-philadelphia-11.jpg": {
+      "w": 1920,
+      "h": 1272,
+      "L": 0.519,
+      "dark": 0.078,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-miami-1.jpg": {
+      "w": 1920,
+      "h": 810,
+      "L": 0.421,
+      "dark": 0.029,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-miami-2.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.24,
+      "dark": 0.02,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-miami-4.jpg": {
+      "w": 1920,
+      "h": 964,
+      "L": 0.357,
+      "dark": 0.012,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-miami-5.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.216,
+      "dark": 0.059,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-miami-7.jpg": {
+      "w": 1920,
+      "h": 1272,
+      "L": 0.303,
+      "dark": 0.035,
+      "hue": 251,
+      "C": 0.099,
+      "share": 0.21
+    },
+    "assets/bg-free/geo-miami-8.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.46,
+      "dark": 0.038,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-free/geo-miami-10.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.223,
+      "dark": 0.152,
+      "hue": 259,
+      "C": 0.111,
+      "share": 0.31
+    },
+    "assets/bg-free/geo-phoenix-1.jpg": {
+      "w": 1920,
+      "h": 1406,
+      "L": 0.261,
+      "dark": 0.121,
+      "hue": 238,
+      "C": 0.113,
+      "share": 0.48
+    },
+    "assets/bg-free/geo-phoenix-8.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.287,
+      "dark": 0.112,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-phoenix-9.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.178,
+      "dark": 0.078,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-boston-1.jpg": {
+      "w": 1920,
+      "h": 960,
+      "L": 0.177,
+      "dark": 0.06,
+      "hue": 68,
+      "C": 0.108,
+      "share": 0.21
+    },
+    "assets/bg-free/geo-boston-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.332,
+      "dark": 0.014,
+      "hue": 237,
+      "C": 0.087,
+      "share": 0.3
+    },
+    "assets/bg-free/geo-boston-3.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.175,
+      "dark": 0,
+      "hue": 243,
+      "C": 0.093,
+      "share": 0.56
+    },
+    "assets/bg-free/geo-boston-7.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.206,
+      "dark": 0.081,
+      "hue": 256,
+      "C": 0.117,
+      "share": 0.45
+    },
+    "assets/bg-free/geo-boston-8.jpg": {
+      "w": 1920,
+      "h": 1469,
+      "L": 0.294,
+      "dark": 0.03,
+      "hue": 247,
+      "C": 0.133,
+      "share": 0.26
+    },
+    "assets/bg-free/geo-boston-9.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.185,
+      "dark": 0.026,
+      "hue": 248,
+      "C": 0.085,
+      "share": 0.23
+    },
+    "assets/bg-free/geo-boston-10.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.223,
+      "dark": 0.301,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-free/geo-inland-empire-3.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.231,
+      "dark": 0.028,
+      "hue": null,
+      "C": 0,
+      "share": 0.11
+    },
+    "assets/bg-free/geo-inland-empire-4.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.38,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0.08
+    },
+    "assets/bg-free/geo-inland-empire-5.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.267,
+      "dark": 0.003,
+      "hue": 243,
+      "C": 0.095,
+      "share": 0.31
+    },
+    "assets/bg-free/geo-inland-empire-6.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.242,
+      "dark": 0.015,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-san-francisco-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.251,
+      "dark": 0.107,
+      "hue": 254,
+      "C": 0.093,
+      "share": 0.2
+    },
+    "assets/bg-free/geo-san-francisco-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.227,
+      "dark": 0.031,
+      "hue": 253,
+      "C": 0.107,
+      "share": 0.26
+    },
+    "assets/bg-free/geo-san-francisco-4.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.198,
+      "dark": 0.156,
+      "hue": 250,
+      "C": 0.1,
+      "share": 0.35
+    },
+    "assets/bg-free/geo-san-francisco-8.jpg": {
+      "w": 1920,
+      "h": 1187,
+      "L": 0.161,
+      "dark": 0.276,
+      "hue": 255,
+      "C": 0.114,
+      "share": 0.31
+    },
+    "assets/bg-free/geo-detroit-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.29,
+      "dark": 0.008,
+      "hue": null,
+      "C": 0,
+      "share": 0.14
+    },
+    "assets/bg-free/geo-detroit-2.jpg": {
+      "w": 1920,
+      "h": 983,
+      "L": 0.445,
+      "dark": 0.001,
+      "hue": 245,
+      "C": 0.112,
+      "share": 0.8
+    },
+    "assets/bg-free/geo-detroit-3.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.384,
+      "dark": 0.038,
+      "hue": null,
+      "C": 0,
+      "share": 0.12
+    },
+    "assets/bg-free/geo-detroit-4.jpg": {
+      "w": 1920,
+      "h": 1334,
+      "L": 0.424,
+      "dark": 0.087,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-seattle-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.256,
+      "dark": 0.035,
+      "hue": 252,
+      "C": 0.088,
+      "share": 0.18
+    },
+    "assets/bg-free/geo-seattle-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.336,
+      "dark": 0.178,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-seattle-8.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.266,
+      "dark": 0.017,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-seattle-11.jpg": {
+      "w": 1920,
+      "h": 960,
+      "L": 0.317,
+      "dark": 0.209,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-free/geo-seattle-12.jpg": {
+      "w": 1920,
+      "h": 1104,
+      "L": 0.412,
+      "dark": 0.089,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-seattle-13.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.303,
+      "dark": 0.033,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg-free/geo-tampa-1.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.239,
+      "dark": 0.087,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-tampa-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.286,
+      "dark": 0.004,
+      "hue": null,
+      "C": 0,
+      "share": 0.07
+    },
+    "assets/bg-free/geo-tampa-6.jpg": {
+      "w": 1920,
+      "h": 1279,
+      "L": 0.2,
+      "dark": 0.145,
+      "hue": null,
+      "C": 0,
+      "share": 0.05
+    },
+    "assets/bg-free/geo-tampa-7.jpg": {
+      "w": 1445,
+      "h": 1920,
+      "L": 0.248,
+      "dark": 0.073,
+      "hue": 249,
+      "C": 0.123,
+      "share": 0.34
+    },
+    "assets/bg-free/geo-san-diego-1.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.198,
+      "dark": 0.004,
+      "hue": null,
+      "C": 0,
+      "share": 0.11
+    },
+    "assets/bg-free/geo-san-diego-2.jpg": {
+      "w": 1409,
+      "h": 1920,
+      "L": 0.252,
+      "dark": 0.032,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-san-diego-3.jpg": {
+      "w": 1920,
+      "h": 1255,
+      "L": 0.24,
+      "dark": 0.066,
+      "hue": 252,
+      "C": 0.123,
+      "share": 0.21
+    },
+    "assets/bg-free/geo-san-diego-5.jpg": {
+      "w": 1920,
+      "h": 1542,
+      "L": 0.243,
+      "dark": 0.135,
+      "hue": 264,
+      "C": 0.14,
+      "share": 0.47
+    },
+    "assets/bg-free/geo-denver-1.jpg": {
+      "w": 1920,
+      "h": 1277,
+      "L": 0.234,
+      "dark": 0.03,
+      "hue": 79,
+      "C": 0.098,
+      "share": 0.16
+    },
+    "assets/bg-free/geo-denver-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.291,
+      "dark": 0.076,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg-free/geo-denver-7.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.223,
+      "dark": 0.17,
+      "hue": 252,
+      "C": 0.115,
+      "share": 0.23
+    },
+    "assets/bg-free/geo-denver-8.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.369,
+      "dark": 0.05,
+      "hue": 247,
+      "C": 0.095,
+      "share": 0.28
+    },
+    "assets/bg-free/geo-denver-9.jpg": {
+      "w": 1920,
+      "h": 1080,
+      "L": 0.212,
+      "dark": 0.112,
+      "hue": null,
+      "C": 0,
+      "share": 0.03
+    },
+    "assets/bg-free/geo-orlando-2.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.3,
+      "dark": 0.021,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/geo-orlando-3.jpg": {
+      "w": 1920,
+      "h": 1534,
+      "L": 0.278,
+      "dark": 0.079,
+      "hue": null,
+      "C": 0,
+      "share": 0.04
+    },
+    "assets/bg-free/geo-orlando-4.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.334,
+      "dark": 0.085,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-free/geo-orlando-6.jpg": {
+      "w": 1920,
+      "h": 1443,
+      "L": 0.308,
+      "dark": 0.083,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-free/geo-orlando-7.jpg": {
+      "w": 1440,
+      "h": 1920,
+      "L": 0.31,
+      "dark": 0.092,
+      "hue": null,
+      "C": 0,
+      "share": 0.01
+    },
+    "assets/bg-free/geo-minneapolis-4.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.278,
+      "dark": 0.025,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/bg-free/geo-minneapolis-5.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.22,
+      "dark": 0.033,
+      "hue": null,
+      "C": 0,
+      "share": 0.02
+    },
+    "assets/bg-free/gold-10.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.239,
+      "dark": 0.065,
+      "hue": 95,
+      "C": 0.089,
+      "share": 0.21
+    },
+    "assets/bg-free/roads-10.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.296,
+      "dark": 0.045,
+      "hue": null,
+      "C": 0,
+      "share": 0.06
+    },
+    "assets/bg-free/roads-14.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.288,
+      "dark": 0.024,
+      "hue": 77,
+      "C": 0.087,
+      "share": 0.18
+    },
+    "assets/bg-free/roads-16.jpg": {
+      "w": 1920,
+      "h": 1440,
+      "L": 0.253,
+      "dark": 0.059,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/roads-17.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.217,
+      "dark": 0.063,
+      "hue": 245,
+      "C": 0.118,
+      "share": 0.16
+    },
+    "assets/bg-free/roads-18.jpg": {
+      "w": 1920,
+      "h": 1275,
+      "L": 0.311,
+      "dark": 0.007,
+      "hue": 254,
+      "C": 0.115,
+      "share": 0.28
+    },
+    "assets/bg-free/roads-23.jpg": {
+      "w": 1445,
+      "h": 1920,
+      "L": 0.228,
+      "dark": 0.189,
+      "hue": 252,
+      "C": 0.127,
+      "share": 0.25
+    },
+    "assets/bg-free/roads-26.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.317,
+      "dark": 0.021,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/roads-27.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.27,
+      "dark": 0.002,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    },
+    "assets/bg-free/roads-28.jpg": {
+      "w": 1920,
+      "h": 1280,
+      "L": 0.243,
+      "dark": 0,
+      "hue": null,
+      "C": 0,
+      "share": 0
+    }
+  },
+  "gradients": [
+    "pair_linear",
+    "pair_radial",
+    "pair_mesh",
+    "pair_conic",
+    "pair_sunset",
+    "pair_split",
+    "pair_corner",
+    "pair_arch"
+  ],
+  "patterns": [
+    "pat_halftone",
+    "pat_stripes",
+    "pat_checks",
+    "pat_grid",
+    "pat_waves",
+    "pat_zigzag",
+    "pat_rays",
+    "pat_rings",
+    "pat_topo",
+    "pat_polka",
+    "pat_gingham",
+    "pat_memphis",
+    "pat_grain",
+    "pat_paper",
+    "pat_riso"
+  ],
+  "places": {
+    "los-angeles": [
+      "assets/bg-free/geo-los-angeles-1.jpg",
+      "assets/bg-free/geo-los-angeles-2.jpg",
+      "assets/bg-free/geo-los-angeles-3.jpg",
+      "assets/bg-free/geo-los-angeles-4.jpg",
+      "assets/bg-free/geo-los-angeles-5.jpg",
+      "assets/bg-free/geo-los-angeles-6.jpg",
+      "assets/bg-free/geo-los-angeles-7.jpg",
+      "assets/bg-free/geo-los-angeles-8.jpg",
+      "assets/bg-free/geo-los-angeles-11.jpg",
+      "assets/bg-free/geo-los-angeles-12.jpg",
+      "assets/bg-free/geo-los-angeles-13.jpg",
+      "assets/bg-free/geo-los-angeles-15.jpg",
+      "assets/bg-free/geo-los-angeles-16.jpg",
+      "assets/bg-free/geo-los-angeles-17.jpg",
+      "assets/bg-free/geo-los-angeles-18.jpg",
+      "assets/bg-free/geo-los-angeles-19.jpg"
+    ],
+    "new-york": [
+      "assets/bg-free/geo-new-york-5.jpg",
+      "assets/bg-free/geo-new-york-7.jpg",
+      "assets/bg-free/geo-new-york-10.jpg",
+      "assets/bg-free/geo-new-york-11.jpg"
+    ],
+    "chicago": [
+      "assets/bg-free/geo-chicago-1.jpg",
+      "assets/bg-free/geo-chicago-5.jpg",
+      "assets/bg-free/geo-chicago-8.jpg",
+      "assets/bg-free/geo-chicago-10.jpg"
+    ],
+    "dallas": [
+      "assets/bg-free/geo-dallas-4.jpg",
+      "assets/bg-free/geo-dallas-5.jpg",
+      "assets/bg-free/geo-dallas-6.jpg"
+    ],
+    "houston": [
+      "assets/bg-free/geo-houston-2.jpg",
+      "assets/bg-free/geo-houston-3.jpg",
+      "assets/bg-free/geo-houston-4.jpg",
+      "assets/bg-free/geo-houston-5.jpg",
+      "assets/bg-free/geo-houston-6.jpg"
+    ],
+    "atlanta": [
+      "assets/bg-free/geo-atlanta-2.jpg",
+      "assets/bg-free/geo-atlanta-3.jpg",
+      "assets/bg-free/geo-atlanta-8.jpg",
+      "assets/bg-free/geo-atlanta-10.jpg"
+    ],
+    "washington": [
+      "assets/bg-free/geo-washington-2.jpg",
+      "assets/bg-free/geo-washington-4.jpg",
+      "assets/bg-free/geo-washington-5.jpg",
+      "assets/bg-free/geo-washington-6.jpg",
+      "assets/bg-free/geo-washington-7.jpg",
+      "assets/bg-free/geo-washington-8.jpg"
+    ],
+    "philadelphia": [
+      "assets/bg-free/geo-philadelphia-2.jpg",
+      "assets/bg-free/geo-philadelphia-3.jpg",
+      "assets/bg-free/geo-philadelphia-5.jpg",
+      "assets/bg-free/geo-philadelphia-11.jpg"
+    ],
+    "miami": [
+      "assets/bg-free/geo-miami-1.jpg",
+      "assets/bg-free/geo-miami-2.jpg",
+      "assets/bg-free/geo-miami-4.jpg",
+      "assets/bg-free/geo-miami-5.jpg",
+      "assets/bg-free/geo-miami-7.jpg",
+      "assets/bg-free/geo-miami-8.jpg",
+      "assets/bg-free/geo-miami-10.jpg"
+    ],
+    "phoenix": [
+      "assets/bg-free/geo-phoenix-1.jpg",
+      "assets/bg-free/geo-phoenix-8.jpg",
+      "assets/bg-free/geo-phoenix-9.jpg"
+    ],
+    "boston": [
+      "assets/bg-free/geo-boston-1.jpg",
+      "assets/bg-free/geo-boston-2.jpg",
+      "assets/bg-free/geo-boston-3.jpg",
+      "assets/bg-free/geo-boston-7.jpg",
+      "assets/bg-free/geo-boston-8.jpg",
+      "assets/bg-free/geo-boston-9.jpg",
+      "assets/bg-free/geo-boston-10.jpg"
+    ],
+    "inland-empire": [
+      "assets/bg-free/geo-inland-empire-3.jpg",
+      "assets/bg-free/geo-inland-empire-4.jpg",
+      "assets/bg-free/geo-inland-empire-5.jpg",
+      "assets/bg-free/geo-inland-empire-6.jpg"
+    ],
+    "san-francisco": [
+      "assets/bg-free/geo-san-francisco-1.jpg",
+      "assets/bg-free/geo-san-francisco-2.jpg",
+      "assets/bg-free/geo-san-francisco-4.jpg",
+      "assets/bg-free/geo-san-francisco-8.jpg"
+    ],
+    "detroit": [
+      "assets/bg-free/geo-detroit-1.jpg",
+      "assets/bg-free/geo-detroit-2.jpg",
+      "assets/bg-free/geo-detroit-3.jpg",
+      "assets/bg-free/geo-detroit-4.jpg"
+    ],
+    "seattle": [
+      "assets/bg-free/geo-seattle-1.jpg",
+      "assets/bg-free/geo-seattle-2.jpg",
+      "assets/bg-free/geo-seattle-8.jpg",
+      "assets/bg-free/geo-seattle-11.jpg",
+      "assets/bg-free/geo-seattle-12.jpg",
+      "assets/bg-free/geo-seattle-13.jpg"
+    ],
+    "tampa": [
+      "assets/bg-free/geo-tampa-1.jpg",
+      "assets/bg-free/geo-tampa-2.jpg",
+      "assets/bg-free/geo-tampa-6.jpg",
+      "assets/bg-free/geo-tampa-7.jpg"
+    ],
+    "san-diego": [
+      "assets/bg-free/geo-san-diego-1.jpg",
+      "assets/bg-free/geo-san-diego-2.jpg",
+      "assets/bg-free/geo-san-diego-3.jpg",
+      "assets/bg-free/geo-san-diego-5.jpg"
+    ],
+    "denver": [
+      "assets/bg-free/geo-denver-1.jpg",
+      "assets/bg-free/geo-denver-2.jpg",
+      "assets/bg-free/geo-denver-7.jpg",
+      "assets/bg-free/geo-denver-8.jpg",
+      "assets/bg-free/geo-denver-9.jpg"
+    ],
+    "orlando": [
+      "assets/bg-free/geo-orlando-2.jpg",
+      "assets/bg-free/geo-orlando-3.jpg",
+      "assets/bg-free/geo-orlando-4.jpg",
+      "assets/bg-free/geo-orlando-6.jpg",
+      "assets/bg-free/geo-orlando-7.jpg"
+    ],
+    "minneapolis": [
+      "assets/bg-free/geo-minneapolis-4.jpg",
+      "assets/bg-free/geo-minneapolis-5.jpg"
+    ]
+  },
+  "line_patterns": {
+    "pokemon": [
+      "pat_slabs",
+      "pat_binder",
+      "pat_cards",
+      "pat_foil"
+    ],
+    "sports": [
+      "pat_slabs",
+      "pat_cards",
+      "pat_stitch",
+      "pat_binder"
+    ],
+    "gaming": [
+      "pat_pixels",
+      "pat_pads",
+      "pat_crt"
+    ],
+    "coins": [
+      "pat_coins",
+      "pat_reeded"
+    ],
+    "gold": [
+      "pat_coins",
+      "pat_reeded"
+    ],
+    "silver": [
+      "pat_coins",
+      "pat_reeded"
+    ],
+    "cars": [
+      "pat_road",
+      "pat_tread"
+    ]
+  }
+}

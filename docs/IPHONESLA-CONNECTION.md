@@ -1,6 +1,6 @@
 # iPhones.LA connection
 
-How BUYBACK.AD and iPhones.LA talk, what each side owns, and what is owed.
+How WeBuy.AD and iPhones.LA talk, what each side owns, and what is owed.
 iPhones.LA is `myleskcb/iphoneslainv-1` (FastAPI on Render; it was
 `loganipad/iphoneslainv` until 2026-10-19). "iPLA" below. Read on 2026-11-10
 against iPLA `main` at `30866d5` and this repo's `claude/quirky-ride-gi02j6`.
@@ -16,9 +16,9 @@ When anything below changes on either side, update this file in the same change.
 | 2 | studio → iPLA | `GET /api/buy-ads/studio/brief` | `Bearer gfx_…` | iPLA |
 | 3 | studio → iPLA | `POST /api/buy-ads/studio/images` (every export) | `Bearer gfx_…` | iPLA |
 | 4 | studio → iPLA | `POST /api/buy-ads/studio/library` (the ad library's public link) | `Bearer gfx_…` | iPLA |
-| 5 | iPLA → studio | `GET <site>/api/ads/feed/fd_…` and each `image.url` | the link is the key | BUYBACK.AD |
+| 5 | iPLA → studio | `GET <site>/api/ads/feed/fd_…` and each `image.url` | the link is the key | WeBuy.AD |
 | 6 | studio → iPLA page | "Back to the Ad Generator" link | the person's own session | both |
-| 7 | not used by iPLA | `GET /api/library/v1/…` (the Designer Library) | `bbl_` key, `LIBRARY_KEYS` | BUYBACK.AD |
+| 7 | not used by iPLA | `GET /api/library/v1/…` (the Designer Library) | `bbl_` key, `LIBRARY_KEYS` | WeBuy.AD |
 
 Copies, not calls: `motion/listing.js` ports iPLA's `app/buy_ad_copy.py` (the
 title and description maker and its checks); iPLA's `app/buy_ad_graphic.py`
@@ -81,7 +81,7 @@ them; it built connection 5 instead.
 
 | Side | Name | Default | Effect |
 |---|---|---|---|
-| iPLA | `GFX_STUDIO_URL` | `https://buybackad-graphics-studio.netlify.app/` | where Open the studio sends people; the default CORS origin |
+| iPLA | `GFX_STUDIO_URL` | `https://buybackad-graphics-studio.netlify.app/` (should be `https://webuy.ad/` from 2026-11-18) | where Open the studio sends people; the default CORS origin |
 | iPLA | `GFX_STUDIO_ORIGINS` | that URL's origin | the exact CORS origins (a comma list; `*` and `--` deploy previews are dropped) |
 | iPLA | `BUYBACKAD_FEED_URL` | unset | the library link until the studio sends one |
 | iPLA | `BUYBACKAD_FEED_MINUTES` / `BUYBACKAD_FEED_LIMIT` | 10 / 5 | read cadence (0 turns it off); ads per read (1 to 25) |
@@ -101,7 +101,7 @@ Render's values could not be checked from the code.
   door).
 - The token or code format: `iphonesla-link.js` (`TOKEN_RE`, `CODE_RE`) and
   `studio_auth.py` (iPLA refuses over 120 characters).
-- A new studio site, such as buyback.ad: iPLA's `GFX_STUDIO_ORIGINS` on Render
+- A new studio site (a new domain): iPLA's `GFX_STUDIO_ORIGINS` on Render
   and `STUDIO_SITES` in `buyback_ad_feed.py`. A path mount (`reselling.us/gfx`)
   also breaks the library page shape on both sides.
 - A feed field iPLA reads, or the library page's path: `buyback_ad_feed.py`
@@ -126,7 +126,12 @@ Owed by the owner:
    finished-copy's library link, but its CORS door answers only
    `GFX_STUDIO_URL`'s origin unless `GFX_STUDIO_ORIGINS` lists more. Set on
    Render (iPLA's service): `GFX_STUDIO_ORIGINS=https://buybackad-graphics-studio.netlify.app,https://buybackad-finished-copy.netlify.app`
-   (add `https://studio.scans.ad` and `https://buyback.ad` once they resolve).
+   (studio.scans.ad and buyback.ad were dropped on 2026-11-23: neither will resolve).
+   **2026-11-19 UTC: the studio's address is `https://webuy.ad`** (live). Until iPLA
+   lists it, the studio on webuy.ad cannot connect: put it first in
+   `GFX_STUDIO_ORIGINS`, set `GFX_STUDIO_URL=https://webuy.ad/` on Render,
+   and add `https://webuy.ad` to `STUDIO_SITES` in `app/buyback_ad_feed.py`
+   so its library link is accepted.
 2. **The phone number on WE BUY pictures.** The studio puts the number large on
    them; iPLA keeps its own number-bearing cards out of its WE BUY library
    because OfferUp takes them down (`ad_designer.py`,
@@ -162,7 +167,7 @@ and shape.
 
 ### Prompt for a session on myleskcb/iphoneslainv-1
 
-> BUYBACK.AD's `docs/IPHONESLA-CONNECTION.md` (myleskcb/buybackad-graphics-studio)
+> WeBuy.AD's `docs/IPHONESLA-CONNECTION.md` (myleskcb/buybackad-graphics-studio)
 > lists what iPhones.LA owes the studio connection. Do items 3 to 8: in
 > `app/buyback_ad_feed.py`, read the feed with `?due=1`, read `repost_days` and
 > `created` where the feed puts them, and decide with the owner whether the

@@ -8,7 +8,9 @@ import { AUDIENCES, GENERAL } from "./audiences.js";
 import { pickVoice, voiceFits } from "./voices.js";
 import { placeAccents, drawAccents, timeAccents } from "./accents.js";
 import { vibeBackground, candidateGround, themeGround, freshGround, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
-  drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse } from "./decor.js";
+  drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse,
+  drawSticker, pairGradientGround, fillGradient, fullPatternGround, toneOf as okTone } from "./decor.js";
+import { familyGround } from "./full-families.js";   // the full ad's product, abstract, shape and type grounds (rule 163)
 
 // ------------------------------------------------------------ small tools
 
@@ -128,7 +130,7 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   return harmonise(out, locked);
 }
 
-/** A trailer, not a game (catalog.js STAND_INS, DESIGN-LAW 154): a sound a shuffle may no
+/** A trailer, not a game (catalog.js STAND_INS, DESIGN-LAW 170): a sound a shuffle may no
  *  longer play gives way to a stand-in, drawn from a stream of its own (every axis takes its
  *  draws whether or not it needs them, so one axis never moves another's). After the audience
  *  and the vibe, which may set the music. A holiday's own tunes and opening sound stay. */
@@ -351,12 +353,32 @@ export function strikeOf(st) {
  *  enough, as harmonise() says of the label). Three at most, short enough to stand as chips. */
 export function pointsOf(st) {
   const cut = s => s.trim().toUpperCase().slice(0, 24);
-  if (typeof st.points === "string") return st.points.split(/[,\n•·|]+/).map(cut).filter(Boolean).slice(0, 3);
+  // three at most on a plain look; the full ad lays out four where they fit (rule 164)
+  if (typeof st.points === "string") return st.points.split(/[,\n•·|]+/).map(cut).filter(Boolean).slice(0, st.full ? 4 : 3);
   const head = st.headline || "", lang = st.lang || "en";
   const es = lang === "both" ? !SPANISH.test(head) : lang === "es" || SPANISH.test(head);
   const stems = s => s.toUpperCase().split(/[^A-ZÁÉÍÓÚÑÜ]+/).filter(w => w.length >= 4).map(w => w.slice(0, 5));
   const said = new Set(stems(`${head} ${st.tag || ""} ${st.number_label || ""}`));
   return ((COPY[es ? "es" : "en"] || {}).points || []).filter(s => !stems(s).some(w => said.has(w))).slice(0, 3);
+}
+
+/* THE NUMBER SAYS WHAT TO DO WITH IT (2026-11-18). The ad census read 246 looks in the maker's
+   Any look gallery and 214 had no call to action: the maker holds the customer's own label, which
+   is empty until one is typed, and the label pools leave a look without one in a third of draws.
+   A plain look whose label is empty draws its language's first call that repeats no word the
+   headline or the line under it already says (one promise, once); a label typed is drawn as typed.
+   The full ad and FeedAd draw their own (FULL_WORDS.label, the feed card's). */
+const DEFAULT_LABELS = {
+  en: ["CALL OR TEXT", "TEXT US NOW", "CALL NOW"],
+  es: ["LLAMA O MANDA TEXTO", "MÁNDANOS TEXTO", "LLÁMANOS"],
+  both: ["CALL OR TEXT · LLAMA O ESCRIBE", "TEXT US · MÁNDANOS TEXTO"],
+};
+export function defaultLabel(st) {
+  const lang = st.lang === "both" ? "both" : st.lang === "es" || (st.lang !== "en" && SPANISH.test(st.headline || "")) ? "es" : "en";
+  const stems = s => String(s || "").toUpperCase().split(/[^A-ZÁÉÍÓÚÑÜ]+/).filter(w => w.length >= 4).map(w => w.slice(0, 5));
+  const said = new Set(stems(`${st.headline || ""} ${st.tag || ""}`));
+  const list = DEFAULT_LABELS[lang];
+  return list.find(l => !stems(l).some(w => said.has(w))) || list[0];
 }
 
 /** The few pairings that do not work, repaired. Nothing here narrows the look;
@@ -429,7 +451,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   // confetti"): a party popper as the number lands, when the confetti starts; never without it
   if (!locked.has("number_sfx")) {
     if (st.overlay === "confetti") st.number_sfx = "confetti";
-    else if (st.number_sfx === "confetti") st.number_sfx = st.number_in === "type" ? "ticks" : "whoosh_boom";   // a cork pop is a game's (DESIGN-LAW 154)
+    else if (st.number_sfx === "confetti") st.number_sfx = st.number_in === "type" ? "ticks" : "whoosh_boom";   // a cork pop is a game's (DESIGN-LAW 170)
   }
   if (!["hook_line", "word_beat", "strike_out"].includes(st.hook) && ["typewriter", "scramble", "drop_letters", "spin_letters"].includes(st.text_in) && !locked.has("text_in"))
     st.text_in = ["slide", "skew_slide", "slam", "wipe"][st.seed % 4];
@@ -504,11 +526,11 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (!locked.has("accent") && st.accent === "sleigh_bells" && st.season !== "christmas") st.accent = "none";
   if (st.sound_kit === "none" && !locked.has("melody")) st.melody = "none";
   // an original hook drawn by a shuffle takes its bed's mode: over a bed in the other mode it plays
-  // its twin (catalog.js HOOK_PAIR); one picked by hand plays as picked (DESIGN-LAW 154)
+  // its twin (catalog.js HOOK_PAIR); one picked by hand plays as picked (DESIGN-LAW 170)
   { const bed = KIT_MODE[(SOUND_ALIASES.sound_kit || {})[st.sound_kit] || st.sound_kit];
     if (!locked.has("melody") && HOOK_MODE[st.melody] && bed && bed !== HOOK_MODE[st.melody]) st.melody = HOOK_PAIR[st.melody]; }
   if (["bumblebee", "turkish_march", "fur_elise", "entertainer", "mountain_king"].includes(st.melody) && st.lead === "organ" && !locked.has("lead"))
-    st.lead = ["piano", "harp", "epiano", "strings"][st.seed % 4];   // no mallets (DESIGN-LAW 154)
+    st.lead = ["piano", "harp", "epiano", "strings"][st.seed % 4];   // no mallets (DESIGN-LAW 170)
   // a take that no longer fits (a shorter ad, another language, a bank that arrived late) is picked again, the same way every time
   if (!voiceFits(st)) pickVoice(st, rng(st.seed * 53 + 7), locked);
   return st;
@@ -522,7 +544,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
 const BOARD_FACE = { freeway: "#006b3f", freeway_blue: "#1d4f9c", poster: null, bandit_yellow: "#ffd21a", bandit_white: "#f6f6f1",
   flyer: "#fbfaf5", neon_box: "#0c0618", marquee: "#fffaf0", store_sign: "plate", price_tag: null, chalkboard: "#24382f",
   receipt: "#fbfbf7", wanted_poster: "#e9d3a6", sticky_note: null, speech_bubble: "#ffffff", ticket_stub: "plate",
-  led_panel: "#0b0b0d", lightbox: "#ffffff", postcard: "#fffdf6" };
+  led_panel: "#0b0b0d", lightbox: "#ffffff", postcard: "#fffdf6", billboard: "#fbf7ee", tiki_plank: "#7a4a22", surfboard: "#fdfbf6" };
 function boardPalette(b, p) {
   let ink = b.ink;
   if (ink === "auto") ink = lum(p.plate) > .55 ? "#111111" : "#ffffff";
@@ -535,6 +557,9 @@ function boardPalette(b, p) {
 
 /** A loud colour that reads on this ground: for badges, tickers, arrows and borders. */
 function hotColour(p) {
+  // a palette that names its loud colour (the full ad's pairs, house-colours.js "hot": the accent) keeps it:
+  // the stock yellow or pink below is a third colour on a light pair whose accent is dark (rule 139)
+  if (p.hot) return p.hot;
   for (const c of [p.accent, "#ffd60a", "#ff2d55", "#30d158", "#00e5ff"]) if (Math.abs(lum(c) - lum(p.ground)) > .3 && lum(c) > .25) return c;
   return lum(p.ground) > .5 ? "#111111" : "#ffd60a";
 }
@@ -1395,7 +1420,8 @@ function landedOutline(p) {
 // How far each camera has pushed in by the time the number is on screen (from about
 // one second in); the phones it draws bigger must still clear the number.
 const SETTLE_ZOOM = { push_in: 1.05, push_out: 1.07, still: 1, drift: 1.06, punch: 1.02, tilt: 1.06, whip_in: 1.04, handheld: 1.06 };
-const settleZoom = st => (SETTLE_ZOOM[st.camera] ?? 1.08) * (st.urgency === "beat_pump" ? 1.023 : 1);
+// every look is still (Ad's constructor, 2026-11-23): the camera "still" settles at 1, with no beat pump
+const settleZoom = st => SETTLE_ZOOM[st.camera] ?? 1;
 const onCamera = (P, W, H, z) => P.map(([x, y]) => [W / 2 + (x - W / 2) * z, H / 2 + (y - H / 2) * z]);
 // The phones may stand no smaller than this to make room for the number.
 const MIN_FIT = .45;
@@ -1431,6 +1457,37 @@ function inOutline(P, [x, y]) {
   let c = false;
   for (let i = 0, j = P.length - 1; i < P.length; j = i++) if ((P[i][1] > y) !== (P[j][1] > y) && x < (P[j][0] - P[i][0]) * (y - P[i][1]) / (P[j][1] - P[i][1]) + P[i][0]) c = !c;
   return c;
+}
+
+// ------------------------------------------------------------ colour in OKLCH
+/** OKLab of one sRGB colour (0-255 channels). DESIGN-LAW 40: colour is judged in OKLCH, never sRGB. */
+export function oklabOf(R, G, B) {
+  const f = v => { v /= 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
+  const r = f(R), g = f(G), b = f(B);
+  const l = Math.cbrt(.4122214708 * r + .5363325363 * g + .0514459929 * b), m = Math.cbrt(.2119034982 * r + .6806995451 * g + .1073969566 * b), s = Math.cbrt(.0883024619 * r + .2817188376 * g + .6299787005 * b);
+  return [.2104542553 * l + .793617785 * m - .0040720468 * s, 1.9779984951 * l - 2.428592205 * m + .4505937099 * s, .0259040371 * l + .7827717662 * m - .808675766 * s];
+}
+/** A colour's OKLCH lightness, chroma and hue. */
+export function oklchOf(hex) {
+  const [L, A, B] = oklabOf(...[1, 3, 5].map(i => parseInt(String(hex).slice(i, i + 2), 16) || 0));
+  return { L, C: Math.hypot(A, B), h: (Math.atan2(B, A) * 180 / Math.PI + 360) % 360 };
+}
+/** The colour a phone's picture reads as, measured once at load (loadPhones: meta.body): the mean
+ *  of the middle 80% of its opaque pixels by lightness, so the camera's black and the glare are
+ *  left out. Its metal (meta.metal) is the frame's, and undersays the back: a Teal 16 is C .041 by
+ *  its picture. The bold finishes come out C .078 and up ((PRODUCT)RED, Cosmic Orange,
+ *  Ultramarine, Yellow, Pink, the 13's Blue); every other is under .05. */
+export function bodyColour(img) {
+  const w = 40, h = Math.max(1, Math.round(40 * (img.naturalHeight || img.height) / (img.naturalWidth || img.width)));
+  const c = canvas(w, h), x = c.getContext("2d", { willReadFrequently: true });
+  x.drawImage(img, 0, 0, w, h);
+  const d = x.getImageData(0, 0, w, h).data, px = [];
+  for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200) px.push(oklabOf(d[i], d[i + 1], d[i + 2]));
+  if (px.length < 20) return null;
+  px.sort((a, b) => a[0] - b[0]);
+  const mid = px.slice(Math.floor(px.length * .1), Math.ceil(px.length * .9)), n = mid.length;
+  const A = mid.reduce((t, p) => t + p[1], 0) / n, B = mid.reduce((t, p) => t + p[2], 0) / n, L = mid.reduce((t, p) => t + p[0], 0) / n;
+  return { L: +L.toFixed(3), C: +Math.hypot(A, B).toFixed(3), h: Math.round((Math.atan2(B, A) * 180 / Math.PI + 360) % 360) };
 }
 
 // ------------------------------------------------------------ the set's colours
@@ -1792,7 +1849,9 @@ const PHONE_TURN = 14 * Math.PI / 180;     // a flat photo carries a gentle turn
 
 // ------------------------------------------------------------ type
 
-export const FONT_FILES_BASE = "../assets/fonts/";
+// Beside the engine, whichever page draws with it: "../assets/fonts/" was read against the page,
+// which is right from /motion/ and wrong from the studio's own page (full-ad-studio.js, 2026-11-13).
+export const FONT_FILES_BASE = new URL("../assets/fonts/", import.meta.url).href;
 
 export async function loadFonts(names) {
   const want = [...new Set(names)].filter(n => FONTS[n]);
@@ -1820,6 +1879,10 @@ export const fontCss = (name, size) => { const [fam, wt] = FONTS[name] || FONTS.
 
 const KEEP_UPPER = new Set(["LA", "OC", "SF", "NYC", "USA", "IE", "SGV", "DTLA", "LB", "SD"]);
 export function applyCase(text, cs) {
+  // "brand": capitals with Apple's own small i (iPHONE, iPAD, iMAC), the way the full ad's other
+  // lines are set. Not one of OPTIONS.case: only the full ad asks for it (a look drawn in it had
+  // IPHONE in its headline and iPHONE in the line under it, 2026-11-12).
+  if (cs === "brand") return text.toUpperCase().replace(/\bIPHONE/g, "iPHONE").replace(/\bIPAD/g, "iPAD").replace(/\bIMAC/g, "iMAC");
   let out = cs === "upper" ? text.toUpperCase() : text.split(/\s+/).map(w => !w ? w
     : KEEP_UPPER.has(w.replace(/[^A-Za-z]/g, "").toUpperCase()) && w === w.toUpperCase() ? w : w[0].toUpperCase() + w.slice(1).toLowerCase()).join(" ");
   if (cs !== "upper") out = out.replace(/\bIphone/g, "iPhone").replace(/\bIpad/g, "iPad").replace(/\bMacbook/g, "MacBook");
@@ -2148,7 +2211,9 @@ export function headlineLines(st, p, size, nLines) {
 
 /** A speech-bubble badge (TEXT NOW) that points at the number. */
 function ctaBadge(text, size, hot, face = "oswald") {
-  const ink = lum(hot) > .55 ? "#111111" : "#ffffff";
+  // whichever of black and white reads better on the badge (as perksSprite picks): by lightness alone,
+  // white went on a hot pink at 3.5:1, a small line under its 4.5 (the look pre-flight, 2026-11-18)
+  const ink = contrastOf(hot, "#111111") >= contrastOf(hot, "#ffffff") ? "#111111" : "#ffffff";
   const fs = Math.max(12, size * .4);
   const sp = inkSprite(text, text.split("").map(() => ink), face, fs, .05, "flat", { ink, accent: ink, ground: hot, plate: hot, plate_ink: ink }, 0);
   const px = fs * .6, py = fs * .26, w = sp.inkW + px * 2, h = sp.asc * .92 + py * 2, tail = h * .34;
@@ -2166,10 +2231,13 @@ function ctaBadge(text, size, hot, face = "oswald") {
  *  (the photo ads' stack, DESIGN-LAW 115 and 120: one rhythm down the stack, and the strip
  *  wears the CTA's colour). rows: each chip's slice of the sprite, shadow included, cut on
  *  the middle of the gaps so a chip drawn on its own never repeats a neighbour's shadow. */
-export function perksSprite(items, fs, hot, align, row = false, face = "oswald") {
-  const ink = contrastOf(hot, "#111111") >= contrastOf(hot, "#ffffff") ? "#111111" : "#ffffff";
-  const P = { ink, accent: ink, ground: hot, plate: hot, plate_ink: ink };
-  const sps = items.map(s => inkSprite(s, s.split("").map(() => ink), face, fs, .04, "flat", P, 0));
+export function perksSprite(items, fs, hot, align, row = false, face = "oswald", grad = false, look = {}) {
+  // look.shape (the full ad's points, rule 158): "pill" (as ever), "tab" (square-cornered plates) or "bare"
+  // (no plate: the tick in the call to action's colour, the words in look.ink on the ground itself)
+  const bare = look.shape === "bare" && !!look.ink;
+  const ink = bare ? look.ink : contrastOf(hot, "#111111") >= contrastOf(hot, "#ffffff") ? "#111111" : "#ffffff";
+  const P = bare ? { ink, accent: ink, ground: look.ground || hot, plate: hot, plate_ink: ink } : { ink, accent: ink, ground: hot, plate: hot, plate_ink: ink };
+  const sps = items.map(s => inkSprite(s, s.split("").map(() => ink), face, fs, .04, bare && lum(ink) >= .5 ? "shadow" : "flat", P, 0));
   const py = fs * .3, px = fs * .52, tick = fs * .62, tg = fs * .34;
   const asc = Math.max(...sps.map(sp => sp.asc)), h = asc * .92 + py * 2;
   const ws = sps.map(sp => px + tick + tg + sp.inkW + px), cw = Math.max(...ws);
@@ -2183,10 +2251,12 @@ export function perksSprite(items, fs, hot, align, row = false, face = "oswald")
     const w = ws[i];
     const rx = row ? cx : pad + (align === "r" ? cw - w : align === "c" ? (cw - w) / 2 : 0), ry = row ? pad : pad + i * (h + gap);
     cx += w + gap;
-    x.save(); x.shadowColor = "rgba(0,0,0,.32)"; x.shadowBlur = fs * .35; x.shadowOffsetY = fs * .1;
-    rrect(x, rx, ry, w, h, h / 2); x.fillStyle = hot; x.fill(); x.restore();
+    if (!bare) {
+      x.save(); x.shadowColor = "rgba(0,0,0,.32)"; x.shadowBlur = fs * .35; x.shadowOffsetY = fs * .1;
+      rrect(x, rx, ry, w, h, look.shape === "tab" ? h * .16 : h / 2); x.fillStyle = grad ? fillGradient(x, 0, ry, 0, ry + h, hot, ink, 4.5) : hot; x.fill(); x.restore();
+    }
     const tx = rx + px, ty = ry + h / 2;
-    x.save(); x.strokeStyle = ink; x.lineWidth = fs * .14; x.lineCap = "round"; x.lineJoin = "round";
+    x.save(); x.strokeStyle = bare ? hot : ink; x.lineWidth = fs * (bare ? .17 : .14); x.lineCap = "round"; x.lineJoin = "round";
     x.beginPath(); x.moveTo(tx + tick * .04, ty + tick * .02); x.lineTo(tx + tick * .37, ty + tick * .33); x.lineTo(tx + tick * .96, ty - tick * .34); x.stroke(); x.restore();
     x.drawImage(sp.c, tx + tick + tg - sp.pad, ry + py - sp.pad - sp.asc * .04 + (asc - sp.asc) * .46);
     if (row) {
@@ -2243,7 +2313,7 @@ export function numberSprite(st, p, size, cta) {
     x.translate(6 * sk, 6 * sk);
     x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 14 * sk; x.shadowOffsetY = 6 * sk;
     x.beginPath(); x.moveTo(3 + H * .45, 3); x.lineTo(3 + W, 3); x.lineTo(3 + W, 3 + H); x.lineTo(3 + H * .45, 3 + H); x.lineTo(3, 3 + H / 2); x.closePath();
-    x.fillStyle = p.plate; x.fill(); x.restore();
+    x.fillStyle = st.plate_grad ? fillGradient(x, 0, 3, 0, 3 + H, p.plate, col, 3.5) : p.plate; x.fill(); x.restore();
     x.beginPath(); x.arc(3 + hole, 3 + H / 2, holeR, 0, 7); x.fillStyle = p.ground; x.fill();
     // the figures' ink centred on the plate: baseline at the middle plus half their height
     const base = 3 + H / 2 + (up - down) / 2;
@@ -2253,6 +2323,9 @@ export function numberSprite(st, p, size, cta) {
     const px = size * .45, py = size * .14;
     const W = sp.inkW + px * 2, H = sp.asc * .95 + py * 2;
     const c = canvas(W + 24 * sk, H + 24 * sk), x = c.getContext("2d");
+    // a plate lit from above where the look asks for it (plate_grad, spec/full-styles.json): the same
+    // hue lighter at the top and deeper at the foot, the figures still 3.5:1 on both
+    const plateFill = (y0, y1) => st.plate_grad ? fillGradient(x, 0, y0, 0, y1, p.plate, col, 3.5) : p.plate;
     x.translate(6 * sk, 6 * sk);
     const r = style === "pill" ? H / 2 : size * .1;
     if (style === "outline") {
@@ -2260,7 +2333,7 @@ export function numberSprite(st, p, size, cta) {
     } else {
       x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 14 * sk; x.shadowOffsetY = 6 * sk;
       if (style === "ticket") {
-        rrect(x, 3, 3, W, H, size * .06); x.fillStyle = p.plate; x.fill(); x.restore();
+        rrect(x, 3, 3, W, H, size * .06); x.fillStyle = plateFill(3, 3 + H); x.fill(); x.restore();
         x.globalCompositeOperation = "destination-out";
         [3, 3 + W].forEach(cx => { x.beginPath(); x.arc(cx, 3 + H / 2, H * .18, 0, 7); x.fill(); });
         x.globalCompositeOperation = "source-over";
@@ -2268,10 +2341,10 @@ export function numberSprite(st, p, size, cta) {
         x.beginPath(); x.moveTo(3 + W * .06, 3 + H * .14); x.lineTo(3 + W * .06, 3 + H * .86); x.stroke(); x.setLineDash([]);
       } else if (style === "tag") {
         x.beginPath(); x.moveTo(3 + H * .45, 3); x.lineTo(3 + W, 3); x.lineTo(3 + W, 3 + H); x.lineTo(3 + H * .45, 3 + H); x.lineTo(3, 3 + H / 2); x.closePath();
-        x.fillStyle = p.plate; x.fill(); x.restore();
+        x.fillStyle = plateFill(3, 3 + H); x.fill(); x.restore();
         x.beginPath(); x.arc(3 + H * .45, 3 + H / 2, H * .09, 0, 7); x.fillStyle = p.ground; x.fill();
       } else {
-        rrect(x, 3, 3, W, H, r); x.fillStyle = p.plate; x.fill(); x.restore();
+        rrect(x, 3, 3, W, H, r); x.fillStyle = plateFill(3, 3 + H); x.fill(); x.restore();
       }
     }
     x.drawImage(sp.c, 3 + px - sp.pad + (style === "tag" ? H * .2 : 0), 3 + py - sp.pad - sp.asc * .03);
@@ -2318,15 +2391,24 @@ export function trim(c) {
 
 // ------------------------------------------------------------ backgrounds
 
-function background(st, p, W, H, sc, r) {
+function background(st, p, W, H, sc, r, prods = []) {
   const c = canvas(W, H), x = c.getContext("2d");
   const g = p.ground, l = p.light;
   const [cx, cy] = sc;
   const radial = (k = .75) => { const gr = x.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(W, H) * k); gr.addColorStop(0, l); gr.addColorStop(1, g); return gr; };
   x.fillStyle = g; x.fillRect(0, 0, W, H);
-  if (candidateGround(st.background, x, st, p, W, H, sc, r) || freshGround(st.background, x, st, p, W, H, sc, r) || themeGround(st.background, x, st, p, W, H, sc, r) || vibeBackground(st.background, x, st, p, W, H, sc, r)) {
-    const vg0 = x.createRadialGradient(cx, cy, Math.hypot(W, H) * .35, cx, cy, Math.hypot(W, H) * .8);
-    vg0.addColorStop(0, "rgba(0,0,0,0)"); vg0.addColorStop(1, "rgba(0,0,0,.2)"); x.fillStyle = vg0; x.fillRect(0, 0, W, H);
+  // the full ad's tone-on-tone patterns (decor.js FULL_PATTERNS) carry their own light and no black vignette:
+  // on a cream or a mint ground a black edge is a grey stain
+  if (fullPatternGround(st.background, x, st, p, W, H, sc, r)) return c;
+  // and the four families of 2026-11-22 (motion/full-families.js): the product ones paint the ad's own pictures
+  if (familyGround(st.background, x, st, p, W, H, sc, r, prods)) return c;
+  const pairG = pairGradientGround(st.background, x, st, p, W, H, sc, r);
+  if (pairG || candidateGround(st.background, x, st, p, W, H, sc, r) || freshGround(st.background, x, st, p, W, H, sc, r) || themeGround(st.background, x, st, p, W, H, sc, r) || vibeBackground(st.background, x, st, p, W, H, sc, r)) {
+    // a pair's own gradient on a light ground keeps its edges clean: black at its corners is grey on cream (2026-11-18)
+    if (!(pairG && lum(g) > .45)) {
+      const vg0 = x.createRadialGradient(cx, cy, Math.hypot(W, H) * .35, cx, cy, Math.hypot(W, H) * .8);
+      vg0.addColorStop(0, "rgba(0,0,0,0)"); vg0.addColorStop(1, "rgba(0,0,0,.2)"); x.fillStyle = vg0; x.fillRect(0, 0, W, H);
+    }
     if (st.grain) { const nc = noiseTile(256, st.seed, 12); x.globalAlpha = .3; x.fillStyle = x.createPattern(nc, "repeat"); x.fillRect(0, 0, W, H); x.globalAlpha = 1; }
     return c;
   }
@@ -2457,8 +2539,10 @@ function background(st, p, W, H, sc, r) {
     }
     // one hue from its shadow to its light, the way a lit studio wall falls off: depth without colour travel
     case "tonal": case "aurora": case "drift": {
-      const gr = x.createLinearGradient(0, 0, 0, H);
-      gr.addColorStop(0, shade(g, -.28)); gr.addColorStop(.55, g); gr.addColorStop(1, shade(g, -.12)); x.fillStyle = gr; x.fillRect(0, 0, W, H);
+      // on the full ad's light pairs (rule 154) the deep end is a tone of the ground itself: black mixed into
+      // cream or white is a grey top that dark words read 2.6:1 on (full_ad_check, 2026-11-18)
+      const gr = x.createLinearGradient(0, 0, 0, H), lightG = st.full && lum(g) > .45;
+      gr.addColorStop(0, lightG ? okTone(g, -.07) : shade(g, -.28)); gr.addColorStop(.55, g); gr.addColorStop(1, lightG ? okTone(g, -.035) : shade(g, -.12)); x.fillStyle = gr; x.fillRect(0, 0, W, H);
       const hz = x.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(W, H) * .5);
       hz.addColorStop(0, rgba(l, .75)); hz.addColorStop(1, rgba(l, 0)); x.fillStyle = hz; x.fillRect(0, 0, W, H);
       break;                                                     // aurora and drift move on top of this every frame
@@ -2466,9 +2550,11 @@ function background(st, p, W, H, sc, r) {
     default: x.fillStyle = radial(); x.fillRect(0, 0, W, H);
   }
   sceneryOver(x, st, p, W, H, r);
-  // vignette
+  // vignette: on the full ad's light pairs a deeper tone of the ground itself, never black (rule 154)
   const vg = x.createRadialGradient(cx, cy, Math.hypot(W, H) * .3, cx, cy, Math.hypot(W, H) * .75);
-  vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,.28)"); x.fillStyle = vg; x.fillRect(0, 0, W, H);
+  if (st.full && lum(g) > .45) { const t = okTone(g, -.08); vg.addColorStop(0, rgba(t, 0)); vg.addColorStop(1, rgba(t, .6)); }
+  else { vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,.28)"); }
+  x.fillStyle = vg; x.fillRect(0, 0, W, H);
   if (st.grain) { const nc = noiseTile(256, st.seed, 12); x.globalAlpha = .35; x.fillStyle = x.createPattern(nc, "repeat"); x.fillRect(0, 0, W, H); x.globalAlpha = 1; }
   return c;
 }
@@ -2521,6 +2607,12 @@ export function planFor(style, assets) {
 export class Ad {
   /** assets: { phones: {id: {img, meta}} } */
   constructor(style, assets, width, height, opts = {}) {
+    /* NO CAMERA MOVES (the owner, 2026-11-23: "Panning across a video and zooming in and losing quality is not how
+       we're gonna gain clients"). Every move (push in and out, drift, tilt, whip, handheld, punch) drew the finished
+       frame as one picture and scaled it up, 2% to 34%, softening the words, the number and the phones. Every look is
+       laid out and drawn still, at 1:1; the openings that zoomed (punch in, flash cut, cold open, beat pump) no longer
+       do (_camera). */
+    style = { ...style, camera: "still" };
     this.st = { ...DEFAULT_STYLE, ...style };
     let st = this.st;
     this.W = width || (ASPECTS[st.aspect] || ASPECTS["1:1"])[0];
@@ -2530,8 +2622,12 @@ export class Ad {
     // customer previews is what they download. (Audit 2026-10-01: 72 of 200 looks came out
     // with the words, the number or the phones elsewhere in the download.)
     const [cw, ch] = planSize(st.aspect);
-    this.plan = opts.plan === false || (this.W === cw && this.H === ch) ? null : planFor(style, assets);
+    // opts.plan: false to lay out at this size, or a plan already made (another size of a look already drawn)
+    this.plan = opts.plan === false || (this.W === cw && this.H === ch) ? null : opts.plan && typeof opts.plan === "object" ? opts.plan : planFor(style, assets);
     if (this.plan) { Object.assign(st, this.plan.st); }
+    // a plain look's number always says what to do with it: the label typed, else its language's call
+    // (defaultLabel). Only this class: FullAd and FeedAd lay out and word their own.
+    if (this.constructor === Ad && !String(st.number_label || "").trim()) st.number_label = defaultLabel(st);
     this.p = pal(st);
     this.boardDef = BOARDS[st.board] || null;
     this.pHead = this.boardDef ? boardPalette(this.boardDef, this.p) : this.p;
@@ -2555,7 +2651,7 @@ export class Ad {
     this.idleMove = this.plan ? (this.plan.idleMove || { k: 0, anchor: 0, amp: 0 }) : this._idleRoom();
     for (const p of this.phones) { p.idleK = this.idleMove.k; p.idleAnchor = this.idleMove.anchor; p.idleAmp = this.idleMove.amp; }
     this._buildDecor();
-    this.bg = background(st, this.p, this.W, this.H, this.stageC, rng(st.seed + 1));
+    this.bg = background(st, this.p, this.W, this.H, this.stageC, rng(st.seed + 1), this.phones.map(q => q.img).filter(Boolean));
     this.liveGround = ["sunburst", "aurora", "drift"].includes(st.background);
     this._softFloor();
     this.dofBlur = 0;
@@ -2569,6 +2665,7 @@ export class Ad {
     this.bgLum = ls.mean; this.bgDark = ls.dark;
     this._scrim();
     this._contrastGuard();
+    if (this.constructor === Ad && !this.plan) this._labelGuard();
     this.still = null;
     this.acc = canvas(this.W, this.H); this.tmp = canvas(this.W, this.H);
   }
@@ -2800,6 +2897,7 @@ export class Ad {
       let nm = numberSprite(st, p, L.nSize * H, ctaOf()); if (L.dropLabel) nm = { ...nm, label: null };
       Object.assign(this, { size: z, lines: ls, lineH: lh, blockH: bh, margin: m, tag: tg, num: nm, pos: this._place(ls, lh, bh, tg, nm, m, z) });
       this._lay = L;
+      if (L.labelFx === "sticker") this._stickerLabel();      // as the plan's own label guard found it (_labelGuard)
       return this._hookText();
     }
     const alts = [st.number_pos, ...["under-headline", "bottom-center", "bottom-right", "bottom-left"].filter(x => x !== st.number_pos)];
@@ -2827,10 +2925,15 @@ export class Ad {
       if (pos.ok) break;
       if (firstFit == null) firstFit = size;
       if (size < firstFit * .8) {
-        // crowded: rather than shrink the type to a whisper, lose the small extras
-        // (the label over the number, then the tag) before anything may overlap
-        if (num.label) { dropLabel = true; continue; }
-        if (tag) { tag = null; st.tag = ""; continue; }
+        // crowded: rather than shrink the type to a whisper, lose the small extras before
+        // anything may overlap. A plain look's label is its call to action, which every ad
+        // carries (2026-11-18): there the tag goes and the label stays. FeedAd, which draws a
+        // label of its own over this layout, still lets the engine's go first.
+        if (this.constructor === Ad) { if (tag) { tag = null; st.tag = ""; continue; } }
+        else {
+          if (num.label) { dropLabel = true; continue; }
+          if (tag) { tag = null; st.tag = ""; continue; }
+        }
         let placed = false;
         for (const room of ["shown", "under", null]) {  // under the phones in full view, then under them at all, then anywhere
           for (const np of alts) { st.number_pos = np; pos = this._place(lines, lineH, blockH, tag, num, m, size); if (pos.num[1] + num.c.height <= H * .985 && pos.oy >= H * .02 && (!room || this._roomUnder(pos, num, size, room === "shown"))) { placed = true; break; } }
@@ -3535,7 +3638,7 @@ export class Ad {
         return hits;
       };
       const best = PL ? (PL.tape ? [PL.tape, 0] : ["", 1]) : ["tr", "tl", "br", "bl"].map(k => [k, score(k)]).sort((a, b) => a[1] - b[1])[0];
-      if (best[1] === 0) { this.tape = { corner: best[0], text: st.cta || (es ? "¡NO ESPERES!" : "DON'T WAIT"), t0: tl.number + .35 }; this.cues.tape = this.tape.t0; }
+      if (best[1] === 0) { this.tape = { corner: best[0], text: st.cta || (es ? "MÁNDANOS TEXTO" : "TEXT US NOW"), t0: tl.number + .35 }; this.cues.tape = this.tape.t0; }
       else st.urgency = "arrows";                          // no clear corner: point at the number instead
     }
     if (st.urgency === "ticker") {
@@ -3602,6 +3705,48 @@ export class Ad {
       this.scrimBoost = (this.scrimBoost || 1) * 1.6;
       this._scrim();
     }
+  }
+
+  /* THE CALL TO ACTION READS (2026-11-18). The label over the number is a small line, and since
+     defaultLabel every plain look has one, wherever its number landed: over a sunburst, a bright
+     patch of a photograph, a phone. Measured as _contrastGuard measures the headline, on the ground
+     and the phones at rest under the scrim, at the label's worst tenth (its brightest under light
+     ink, its darkest under dark); under 4.5:1 the label is drawn as a sticker (inkSprite's
+     "sticker": each letter ringed in a plate colour that contrasts with it), which reads on
+     anything, and the plan keeps the choice, so every size draws the same label. */
+  _labelGuard() {
+    const num = this.num; if (!num || !num.label || num.cta || !this.pos || !this.pos.label) return;
+    const W = this.W, H = this.H, q = 2, w = Math.max(8, Math.round(W / q)), h = Math.max(8, Math.round(H / q));
+    const c = canvas(w, h), x = c.getContext("2d", { willReadFrequently: true });
+    x.save(); x.scale(1 / q, 1 / q); x.drawImage(this.bg, 0, 0);
+    const tEnd = this.st.duration - .1;
+    for (const i of this.drawOrder) { const ph = this.phones[i], s = phoneState(ph, tEnd, this.st, true); if (s) drawPhone(x, ph, ...s, W); }
+    x.restore();
+    if (this.scrimC) x.drawImage(this.scrimC, 0, 0, w, h);
+    const [lx, ly] = this.pos.label, Lc = num.label;
+    const d = x.getImageData(Math.max(0, Math.floor(lx / q)), Math.max(0, Math.floor(ly / q)), Math.max(1, Math.ceil(Lc.width / q)), Math.max(1, Math.ceil(Lc.height / q))).data;
+    const L = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }, Lof = (r, g, b) => .2126 * L(r) + .7152 * L(g) + .0722 * L(b);
+    const Li = Lof(...hexRgb(this.p.ink)), vals = [];
+    for (let k = 0; k < d.length; k += 4) vals.push(Lof(d[k], d[k + 1], d[k + 2]));
+    vals.sort((a, b) => a - b);
+    const Lb = vals[Math.min(vals.length - 1, Math.floor(vals.length * (Li >= .18 ? .9 : .1)))];
+    this.labelBehind = (Math.max(Li, Lb) + .05) / (Math.min(Li, Lb) + .05);
+    if (this.labelBehind >= 4.5) return;
+    this._stickerLabel();
+    this._lay = { ...this._lay, labelFx: "sticker" };
+  }
+
+  /** The label over the number drawn as a sticker, standing where the plain one stood. Its ring is the
+   *  palette's plate where that gives the small line its 4.5:1, else near-black (white under dark ink,
+   *  as inkSprite rings dark letters). */
+  _stickerLabel() {
+    const num = this.num; if (!num || !num.label || num.cta || !this.pos || !this.pos.label) return;
+    const st = this.st, p = this.p, size = ((this._lay && this._lay.nSize) || 0) * this.H, lt = applyCase(st.number_label, "upper");
+    const dark = lum(p.ink) < .5, ring = dark ? "#ffffff" : contrastOf(p.plate, p.ink) >= 4.5 ? p.plate : "#111111";
+    const L0 = num.label, L1 = trim(inkSprite(lt, lt.split("").map(() => p.ink), labelFont(st), Math.max(4, size * .34), .08, "sticker", dark ? p : { ...p, plate: ring }, 0).c);
+    const [lx, ly] = this.pos.label;
+    this.num = { ...num, label: L1, labelRing: ring };
+    this.pos = { ...this.pos, label: [lx + (L0.width - L1.width) / 2, ly + (L0.height - L1.height) / 2] };
   }
 
   _scrim() {
@@ -3787,16 +3932,9 @@ export class Ad {
   }
 
   _camera(t) {
-    const c = this._camera0(t);
-    if (this.st.hook === "punch_in" && t < .5) c[0] *= lerp(2.1, 1, outQuint(clamp(t / .5)));
-    // an opening with no words opens close on the phones and pulls back, so the thumbnail is
-    // the product, not the ground (frame 0 of these hooks showed under 15% of anything)
-    if (["flash_cut", "cold_open"].includes(this.st.hook) && t < .6) {
-      const e = 1 - outCubic(clamp(t / .6)), z = c[0] * lerp(1, 1.6, e);
-      c[1] -= e * z * (this.stageC[0] - this.W / 2) / this.W; c[2] -= e * z * (this.stageC[1] - this.H / 2) / this.H; c[0] = z;
-    }
-    if (this.st.urgency === "beat_pump") c[0] *= 1 + .022 * beatPulse(t, this.tl.hit, this.st.bpm || 118);
-    return c;
+    // still: nothing scales the frame (the constructor's note, 2026-11-23); the old openings' zooms and the beat pump
+    // drew the stage 2% to 110% larger than it was made
+    return this._camera0(t);
   }
 
   _hookLine(ctx, t, hold = false) {
@@ -4134,6 +4272,10 @@ export class Ad {
       case "slot": {
         // each slice spins down like a slot reel and stops, left to right
         const n = Math.max(6, Math.min(12, this.num.text.length));
+        // once every reel has stopped the number is drawn whole: the slices overlap by a pixel, and the
+        // pill's soft shadow, drawn twice in each overlap, stood as a row of ticks under the number
+        // on a light ground (seen 2026-11-12 on Silver & Blue)
+        if (prog(t, tl.number + (n - 1) * .045, .5) >= 1) { draw(nx, ny); break; }
         for (let i = 0; i < n; i++) {
           const qi = prog(t, tl.number + i * .045, .5); if (qi <= 0) continue;
           const x0 = c.width * i / n, w = c.width / n + 1, e = outCubic(qi), off = ((1 - e) * 3 * c.height) % c.height;
@@ -4151,6 +4293,7 @@ export class Ad {
       case "roll": {
         // each slice of the number rolls up into place, left to right
         const n = 10;
+        if (prog(t, tl.number + (n - 1) * .04, .35) >= 1) { draw(nx, ny); break; }   // landed: drawn whole (the slices' overlap doubled the shadow)
         for (let i = 0; i < n; i++) {
           const qi = prog(t, tl.number + i * .04, .35); if (qi <= 0) continue;
           const x0 = c.width * i / n, w = c.width / n + 1, off = (1 - outBack(qi, 1.3)) * c.height;
@@ -4175,7 +4318,9 @@ export class Ad {
   /** The starburst, the arrows at the number, the rubber stamp and the caution tape. */
   _urgency(ctx, t) {
     const st = this.st, tl = this.tl;
-    if (this.burst) drawStarburst(ctx, this.burst.x, this.burst.y, this.burst.R, applyCase(this.burst.text, "upper"), this.burst.fill, this.burst.ink, t, this.burst.t0, this.burst.font);
+    // the sticker's shape and fill (spec/full-styles.json: the full ad draws one of seven; a look that names
+    // none keeps the starburst, as Any look always has)
+    if (this.burst) drawSticker(ctx, st.sticker_shape || "starburst", this.burst.x, this.burst.y, this.burst.R, applyCase(this.burst.text, "upper"), this.burst.fill, this.burst.ink, t, this.burst.t0, this.burst.font, st.sticker_fill || !!st.sticker_grad);
     if (this.arrow) drawNeonArrow(ctx, this.arrow.from, this.arrow.to, this.arrow.color, t, this.arrow.t0, this.size);
     if (st.urgency === "arrows" && this.arrowsMode) drawChevrons(ctx, this.numBox, this.size, this.hot, t, tl.number + .3, this.W, this.arrowsMode);
     if (this.stamp) drawStamp(ctx, this.stamp.S, this.stamp.x, this.stamp.y, t, this.stamp.t0);
@@ -4371,8 +4516,10 @@ function randomChar(t, j) {
 
 // ------------------------------------------------------------ assets
 
-export async function loadPhones(base = "./phones/") {
+export async function loadPhones(base = "./phones/", only = null) {
   const idx = await (await fetch(base + "index.json")).json();
+  // only: the ids wanted, for a page that draws a few phones and not the picker (the studio's full ad)
+  if (only) { const want = new Set(only); idx.phones = idx.phones.filter(m => want.has(m.id)); }
   // never a photo that failed its check (ok: false). A painted back (repaint) stays: each is
   // a model Apple made in a finish it was sold in, built from a real back and Apple's own
   // straight-on camera where no straight photo of it exists (scripts/bake_extra_phones.py),
@@ -4383,7 +4530,7 @@ export async function loadPhones(base = "./phones/") {
   const phones = {};
   await Promise.all(idx.phones.map(m => new Promise(res => {
     const img = new Image(); img.decoding = "async";
-    img.onload = () => { phones[m.id] = { img, meta: m }; PHONE_META[m.id] = m; res(); };
+    img.onload = () => { try { m.body = bodyColour(img); } catch (e) { m.body = null; } phones[m.id] = { img, meta: m }; PHONE_META[m.id] = m; res(); };
     img.onerror = () => res();
     img.src = base + m.id + ".webp";
   })));

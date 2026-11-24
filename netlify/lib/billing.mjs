@@ -34,8 +34,9 @@ export const WEBHOOK_EVENTS = [
 
 /** The terms a customer agrees to at checkout (terms.html carries the same
  *  date); recorded on the Checkout session, the subscription or the payment,
- *  and the account, with the time it was given. */
-export const TERMS_VERSION = '2026-10-12';
+ *  and the account, with the time it was given. 2026-11-18: Pro's videos are
+ *  counted apart, 30 a month, and Business's are unlimited (plans.mjs). */
+export const TERMS_VERSION = '2026-11-23';
 /** statuses that keep the plan on: past_due is Stripe still retrying the card */
 const LIVE = new Set(['active', 'trialing', 'past_due']);
 
@@ -77,16 +78,37 @@ export function catalog() {
   const out = {};
   for (const [id, p] of Object.entries(PLANS)) {
     for (const [interval, amount] of Object.entries(p.price)) {
-      if (amount > 0) out[id + '_' + interval] = { key: id + '_' + interval, product: 'bbad_' + id, name: 'Graphics Studio ' + p.label, amount, interval, plan: id };
+      if (amount > 0) out[id + '_' + interval] = { key: id + '_' + interval, product: 'bbad_' + id, name: 'WeBuy.AD ' + p.label, amount, interval, plan: id };
     }
   }
   for (const [id, k] of Object.entries(PACKS)) {
-    out[id] = { key: id, product: 'bbad_credits', name: 'Graphics Studio AI credits', amount: k.price, credits: k.credits, pack: id, label: k.label };
+    out[id] = { key: id, product: 'bbad_credits', name: 'WeBuy.AD AI credits', amount: k.price, credits: k.credits, pack: id, label: k.label };
   }
   return out;
 }
 const lookupKey = (key) => 'bbad_' + key;
 const overrideFor = (env, key) => env['PRICE_' + key.toUpperCase()] || (key === 'pro_month' ? env.PRICE_PRO : '') || '';
+
+/* The Stripe account is shared (owner, 2026-11-23: WeBuy.AD has no registered
+   business yet, so it sells through the iPhones.LA account). A card statement
+   is then the account's own prefix, a star and this suffix ("IPHONES.LA*
+   WEBUY.AD"): Stripe lets a card charge set only the suffix. A credit pack sets
+   it on its payment; a plan's renewals take it from the product. */
+export const STATEMENT_SUFFIX = 'WEBUY.AD';
+
+/* The shared account's webhook also hears that account's other sales. Only a
+   session the site made (it always names a plan or a pack) or a subscription to
+   one of the site's plans may touch an account here: an iPhones.LA
+   subscription bought with the same email must not end a WeBuy.AD plan. */
+export function ownSession(cs) {
+  const md = (cs && cs.metadata) || {};
+  return !!((md.plan && planId(md.plan) !== 'free') || PACKS[md.pack]);
+}
+export function ownSubscription(sub, env) {
+  const item = sub && sub.items && sub.items.data && sub.items.data[0];
+  const md = (sub && sub.metadata) || {};
+  return !!(planOfPrice(item && item.price, env) || (md.plan && planId(md.plan) !== 'free'));
+}
 
 const priceIds = new Map();   // per warm instance: mode:key:amount → price id
 export function forgetPrices() { priceIds.clear(); }
@@ -94,7 +116,7 @@ export function forgetPrices() { priceIds.clear(); }
 async function ensureProduct(env, item) {
   try { return await stripe(env, 'GET', '/products/' + item.product); }
   catch (e) { if (e.status !== 404) throw e; }
-  try { return await stripe(env, 'POST', '/products', { id: item.product, name: item.name }); }
+  try { return await stripe(env, 'POST', '/products', { id: item.product, name: item.name, statement_descriptor: STATEMENT_SUFFIX }); }
   catch (e) { if (e.code === 'resource_already_exists') return { id: item.product }; throw e; }
 }
 
@@ -209,26 +231,38 @@ export async function syncSub(user, env) {
 const whKey = (mode) => 'stripe:whsec:' + mode;
 
 /** Registers the webhook endpoint (once per mode) unless one is configured.
- *  Never for a draft deploy's address, which dies with the draft. */
+ *  Never for a draft deploy's address, which dies with the draft.
+ *  When the site's own address moves (a new primary domain, webuy.ad on
+ *  2026-11-18, makes Netlify's URL the new one), the endpoint moves with it:
+ *  Stripe does not follow a redirect, so events sent to the old address
+ *  would fail once the old host answers 301. Only the site's configured
+ *  address (SITE_URL or Netlify's URL) moves it, never the address a request
+ *  happened to arrive on, so visitors on two hosts cannot swap it back and
+ *  forth. The old secret is kept for events already on their way. */
 export async function ensureWebhook(env, store, origin) {
   if (env.STRIPE_WEBHOOK_SECRET) return { ok: true, source: 'env' };
   const mode = stripeMode(env);
-  const have = await store.get(whKey(mode));
-  if (have) { try { return Object.assign({ ok: true, source: 'stored' }, { url: JSON.parse(have).url }); } catch (e) { /* remake it */ } }
+  let have = null;
+  try { const raw = await store.get(whKey(mode)); if (raw) have = JSON.parse(raw); } catch (e) { /* remake it */ }
+  const fixed = !!(env.SITE_URL || env.URL);
   const site = String(env.SITE_URL || env.URL || origin || '').replace(/\/$/, '');
   let host = '';
   try { host = new URL(site).hostname; } catch (e) { /* no address */ }
-  if (!/^https:\/\//.test(site) || !host || host.includes('--') || /^(localhost|127\.)/.test(host)) {
-    return { ok: false, reason: 'no production https address to send events to (set SITE_URL)' };
-  }
-  const url = site + '/api/stripe-webhook';
+  const production = /^https:\/\//.test(site) && host && !host.includes('--') && !/^(localhost|127\.)/.test(host);
+  const url = production ? site + '/api/stripe-webhook' : '';
+  if (have && have.secret && (!url || !fixed || have.url === url)) return { ok: true, source: 'stored', url: have.url };
+  if (!url) return { ok: false, reason: 'no production https address to send events to (set SITE_URL)' };
   const list = await stripe(env, 'GET', '/webhook_endpoints', { limit: 100 });
   for (const w of list.data || []) if (w.url === url) await stripe(env, 'DELETE', '/webhook_endpoints/' + w.id);   // its secret is not ours to read
   const w = await stripe(env, 'POST', '/webhook_endpoints', {
-    url, enabled_events: WEBHOOK_EVENTS, description: 'Graphics Studio: plans and AI credits (registered by the site)',
+    url, enabled_events: WEBHOOK_EVENTS, description: 'WeBuy.AD: plans and AI credits (registered by the site)',
   });
-  await store.set(whKey(mode), JSON.stringify({ id: w.id, secret: w.secret, url, ts: Date.now() }));
-  return { ok: true, source: 'created', url };
+  const moved = !!(have && have.secret);
+  await store.set(whKey(mode), JSON.stringify({ id: w.id, secret: w.secret, url, ts: Date.now(), prev: moved ? have.secret : undefined }));
+  /* the endpoint at the old address was registered by this site (its id is
+     the one kept here), so it goes; one already gone is no matter */
+  if (moved && have.id && have.id !== w.id) await stripe(env, 'DELETE', '/webhook_endpoints/' + have.id).catch(() => {});
+  return moved ? { ok: true, source: 'moved', url, from: have.url } : { ok: true, source: 'created', url };
 }
 
 /* ---------- the payment method domain ---------- */
@@ -272,7 +306,7 @@ const same = (a, b) => { if (a.length !== b.length) return false; let d = 0; for
 export async function verifyEvent(env, store, payload, header) {
   const secrets = [env.STRIPE_WEBHOOK_SECRET];
   for (const mode of ['live', 'test']) {
-    try { const raw = await store.get(whKey(mode)); if (raw) secrets.push(JSON.parse(raw).secret); } catch (e) { /* none */ }
+    try { const raw = await store.get(whKey(mode)); if (raw) { const h = JSON.parse(raw); secrets.push(h.secret, h.prev); } } catch (e) { /* none */ }
   }
   const t = (String(header || '').match(/(?:^|,)t=(\d+)/) || [])[1];
   const sigs = [...String(header || '').matchAll(/(?:^|,)v1=([0-9a-f]+)/g)].map((m) => m[1]);
@@ -300,7 +334,7 @@ export async function ensurePortalConfig(env, store, site) {
   if (have) { try { return JSON.parse(have).id; } catch (e) { /* remake it */ } }
   const c = await stripe(env, 'POST', '/billing_portal/configurations', {
     business_profile: {
-      headline: 'Graphics Studio by BUYBACK.AD: your plan, card and invoices',
+      headline: 'WeBuy.AD: your plan, card and invoices',
       privacy_policy_url: site + '/privacy.html',
       terms_of_service_url: site + '/terms.html',
     },

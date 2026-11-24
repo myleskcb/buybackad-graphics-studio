@@ -1,4 +1,4 @@
-# Agent brief — Graphics Studio by BUYBACK.AD
+# Agent brief — WeBuy.AD
 
 Notes for whoever, or whatever, is about to change this repo. Most of what
 follows has already cost a silent breakage, seven weeks of unbacked work, or a
@@ -14,7 +14,7 @@ anything.
 
 ## What this is
 
-**Graphics Studio by BUYBACK.AD** — a browser ad builder for phone buyers and
+**WeBuy.AD** — a browser ad builder for phone buyers and
 resellers. Pick a template, type a headline and a phone number, export a
 post-ready graphic for Facebook Marketplace, OfferUp, Instagram or Craigslist.
 
@@ -26,7 +26,7 @@ That is the standard every change is held to.
 |---|---|
 | Repo | `myleskcb/buybackad-graphics-studio` |
 | Working copy | `~/Downloads/gfxv23` — see the warning below |
-| Live | https://buybackad-graphics-studio.netlify.app |
+| Live | **https://webuy.ad** (from 2026-11-19 UTC; DNS at Namecheap, certificate by Netlify), the `buybackad-finished-copy` project's primary domain; also https://buybackad-finished-copy.netlify.app (OPEN-ITEMS §BL) |
 | Netlify project | `buybackad-graphics-studio` (CLI is authenticated) |
 | Study program | `docs/` — start at `docs/README.md` |
 
@@ -286,25 +286,19 @@ curl -sS -o /dev/null -w '%{http_code} /docs\n'   $U/docs/README.md   # must be 
 python3 scripts/cvd_audit.py                                         # exits 1 on failure
 ```
 
-## Domains — known broken, needs a human
+## Domains
 
 | URL | State |
 |---|---|
-| `buybackad-graphics-studio.netlify.app` | **works — this is the URL to share** |
-| `studio.scans.ad` | configured in Netlify, **no public DNS** |
-| `buyback.ad` / `www.buyback.ad` | domain alias set, no DNS at all |
+| `webuy.ad` / `www.webuy.ad` | **works — the site's address** (live 2026-11-19 UTC; `A @ 75.2.60.5` and `CNAME www buybackad-finished-copy.netlify.app.` at Namecheap; `www` redirects to the bare name; Let's Encrypt, renews itself) |
+| `buybackad-finished-copy.netlify.app` | works; `main` (the netlify.app address of the project webuy.ad points at, team myleskcb2) |
+| `buybackad-graphics-studio.netlify.app` | works, but a CLI deploy of 2026-10-07 (team KCB). **iPhones LA's studio connection still points here**: retire it only in the order in `docs/OPERATIONS.md` |
+| `buyback.ad`, `www.buyback.ad`, `studio.scans.ad` | **dropped 2026-11-23** and taken off the old project: buyback.ad was never registered (the owner chose not to buy it), studio.scans.ad never resolved |
 
-The `studio` record exists and is correct on Netlify's nameservers, but
-`scans.ad` is delegated at the registrar to `dns1.registrar-servers.com`
-(Namecheap), so the Netlify zone is not authoritative and nobody can see it:
-
-```bash
-dig +short studio.scans.ad @dns1.p04.nsone.net   # 52.52.192.191, 13.52.188.95
-dig +short studio.scans.ad @8.8.8.8              # nothing
-```
-
-Two fixes, both needing registrar access, both moving DNS for a live product —
-**do not do this unattended.** Detail in `docs/OPERATIONS.md`.
+Mail is Namecheap forwarding: support@webuy.ad and hello@webuy.ad (OPERATIONS,
+"Mail"). The logins that hold each piece, and why webuy.ad's DNS stays at
+Namecheap, are in OPERATIONS too. DNS, registrar settings, Stripe and plan
+limits are still the owner's to change, never unattended.
 
 `reselling.us/GFX` returns 200 but serves a *different* app (RU CRM v1), whose
 SPA catch-all answers every path. Mounting there means a subdomain
@@ -598,6 +592,14 @@ produced." DESIGN-LAW rule 87. In practice:
   run out of order (refresh reads git HEAD; import restores the tone grade;
   naturalize then darken; support_highlights before neutral_panels; content
   audit after overlap; curate last).
+- **The full ad's layout and looks** (rule 158, 2026-11-18): `FULL_LAYOUT` varies the layout by
+  the seed (alignment, order, sides, claim, points, call to action, footer) on a stream of its own;
+  `fullStyle(…, { look: "own" | "seed" | "mix" })` lets it wear a video look. Without `look` it is
+  the house's own, so a check or a recipe that calls `fullStyle(st, seed, index)` draws what it
+  drew. Never lock the full ad back to one layout to make it "cohesive": hold the grammar (the
+  elements, floors, margin, gap, one alignment, the pre-flight) and let the layout and look vary.
+  A new layout choice goes into `FULL_LAYOUT` with a weight and a name in `LAYOUT_NAMES`
+  (`motion/app.js`), and must pass the pre-flight on every look.
 - **The full ad** (rule 137, 2026-11-11): `motion/fullad.js` `FullAd` is the
   house-style ad with every element, laid out by rule (never by retrying
   seeds), the video maker's default mode. Its colours are the twelve proven
@@ -606,11 +608,146 @@ produced." DESIGN-LAW rule 87. In practice:
   `build_full_subjects.mjs`): never edit either file by hand. Every draw in
   the maker goes through `settle()` and `adFor()` in `motion/app.js`; a new
   path that calls `harmonise` or `new Ad` directly draws the wrong ad in full
-  mode. Before a commit that touches it, the maker's page or the engine's
-  painters: `node scripts/full_ad_check.mjs`, then `quick_ad_check.mjs` and
-  `buylist_check.mjs`. Retired templates are `template-retired.js` (by hand;
-  `?noretire=1` shows them).
+  mode. What an ad needs before it goes out is read by `deliveredPreflight()`
+  (a full ad at 1080 on the short side, an Any look at 540), by the
+  download's gate and by the search for a new look alike: read at 360, the
+  search passed looks the gate then stopped (2026-11-18). Before a commit
+  that touches it, the maker's page or the engine's painters: `node
+  scripts/full_ad_check.mjs`,
+  then `quick_ad_check.mjs` and `buylist_check.mjs`. Retired templates are
+  `template-retired.js` (by hand; `?noretire=1` shows them).
+- **The full ad's colours** (rule 139, 2026-11-12): never fade an accent by
+  opacity (a see-through gold over navy is khaki); a word naming a colour
+  (GOLD, SILVER, ORO, PLATA) is accented only by that colour (`accentWord`);
+  a seeded ad's pair comes from `pairsFor`: the pairs that suit its line
+  (each pair's `suits`, written from refresh_palettes.mjs `AFFINITY` by
+  `build_house_colours.mjs`) and that keep it to two colour families with
+  its bold phones (`meta.body`, measured from each picture by `loadPhones`).
+  A hand-picked pair is never narrowed. Check: `node
+  scripts/full_colour_check.mjs`, with `full_ad_check.mjs`.
+- **Browser checks without a server or cdnjs** (2026-11-12): a cloud session
+  may be refused `python3 -m http.server`. Pass
+  `PLAYWRIGHT_MODULE=$PWD/scripts/pw_local.cjs` (and `FABRIC_JS=…` for the
+  studio's pages) to any check that reads that variable: it answers
+  127.0.0.1:8931 from disk in-process.
 - **After any merge, load every page** (2026-11-11): a merge git calls clean
   left `motion/app.js` declaring one name twice, and the video maker dead.
 - **The record of what is still inconsistent** is docs/COHESION-AUDIT.md.
   Read it before touching the classics' passes or the render paths.
+- **The download is the preview, and the first ad is the house ad** (rule 141,
+  2026-11-13): a card's own photograph is its ground in the strip, the
+  preview, the download and the video; `renderEzCanvas`'s `mode` chooses no
+  ground, and there is no placeholder state. The gate reads the picture
+  (`pgPictureCheck`: `picture` fails, `noPicture` warns). The full ad is the
+  first card in Easy Mode and a new visitor's first ad (`full-ad-studio.js`, a
+  module beside `device-walls.js`; never in `TEMPLATES`; `?fullad=0` opens on
+  a template). Its type pairs are `motion/full-voices.js`, written by
+  `full_type_check.mjs --write`, never by hand. Before a commit that touches
+  Easy Mode's render or download, the full ad, its page or the engine's
+  painters: `node scripts/ez_download_is_preview.mjs` (add `--all` for a
+  change to the render) and `node scripts/full_ad_studio_check.mjs`, then
+  `full_type_check.mjs` and `full_ad_check.mjs`. A check that sets a state
+  before it measures (`ez.bgPicked = true` did, in four audits) measures a
+  visitor who may not exist: say which one.
+- **The mark** (rule 142, 2026-11-17): one drawing, `watermark.js`
+  (`window.PgfxMark`), loaded before app.js and the video maker; the studio's
+  `drawWatermarkMarks` and the maker's `drawMarks` call it and draw nothing of
+  their own. A preview carries what its download would (`previewMarks()` in
+  app.js, `syncMarks()` in the maker): a new preview path goes through
+  `previewJpeg` or `markPreviewUrl`, never straight to `toDataURL`. With a
+  backend a download's size and marks are the server's (`gateExport(px, kind)`
+  asks `/api/export/check`; a video passes `kind: 'video'` and is asked and
+  counted on the video meter), so a check on a static server that stubs `account`
+  must answer `api('/export/check')` too (see `motion_export_check.mjs`).
+  Before a commit that touches a preview, a download or the mark:
+  `node scripts/watermark_check.mjs`.
+- **The census of every offered ad** (rule 143, 2026-11-18): `node
+  scripts/ad_census.mjs` opens every ad the site offers the way a visitor
+  does (Easy Mode's strip, the library wall, the full ad's 35 lines, the
+  video maker's Any look gallery, iPhones LA's FeedAd batch) and writes what
+  each is made of to `.render/ad-census/` (a JSON and a sortable page with a
+  thumbnail a row): generation, engine, colours against the twelve pairs,
+  type, elements, product share, banned words, pre-flight. Banned and old
+  wording is one list, `spec/banned-words.json`: add a phrase there, never in
+  a script, and re-score the last census with `--rescan` (seconds, no
+  browser). Run it before and after a change to any generation's words,
+  colours or defaults and compare the counts: a fix to one generation leaves
+  the others as they were, which is how old words came back. `--gate` fails
+  every ad of the older generations and 34 of the 35 full ads today,
+  so it is not wired into any deploy; that waits on the owner's retirements
+  and words (OPEN-ITEMS §BI).
+- **Words are stopped where they are written** (rule 144, 2026-11-18): run
+  `node scripts/words_check.mjs` before a commit that touches any ad's words
+  (FULL_WORDS, the lines, app.js DECKS, the video maker's catalogue, library
+  cards, FeedAd cards); a phrase goes into `spec/banned-words.json`, never
+  into one generator's list, and `node scripts/build_banned_words.mjs`
+  writes the copy the site reads (`motion/banned-words.js`; spec/ is not
+  served). The owner reviews ads on the review page
+  (`scripts/build_review_page.mjs` from the census); their thumbs and notes
+  are applied with `scripts/apply_review.mjs` (OPEN-ITEMS §BJ).
+- **Every ad is a recipe the full ad draws** (rule 145): an older ad's words, pictures and
+  ground live in `motion/recipes.json` (`node scripts/build_recipes.mjs`, `--check`), opened from
+  "From the library"; photo grounds come from `spec/full-grounds.json`
+  (`scripts/build_full_grounds.mjs`). A new ad design goes in as a recipe or a full-ad option,
+  never as a renderer of its own, so it is a photo and a video and the census reads it.
+- **A recipe takes after its card, never copies it** (rule 155): its own seed, and a lean
+  (`spec/recipe-looks.json`, `motion/recipe-lean.js`) toward its family's idea and colourway.
+  Never lock a recipe to its card's pair, face, photograph or picture; the product is the line's
+  pool unless the words name it.
+- **The old library and offer cards are retired** (the owner, 2026-11-18). The landing shows each
+  card's rebuilt ad from `assets/recipe-stills/` (`node scripts/build_recipe_stills.mjs`, `--check`)
+  through `scLoadShelf`; `scLoadIndex` is the library cards alone. Rebuild the stills when the
+  recipes or the engine change (`--all`).
+- **The hero wall is chosen, not filled** (rules 145 and 154, the owner, 2026-11-19). Every slot is
+  a hand pick in `assets/hero-picks.json`, a rebuilt ad or one of the full ad's own looks
+  (`full-<line>-v<seed>`, drawn by `node scripts/build_hero_stills.mjs`).
+  `node scripts/hero_wall_check.mjs` reads the landing's wall and holds it to:
+  - no pair, headline or family twice;
+  - three dark tiles at most, never touching;
+  - patterns and gradients shown, full ads included;
+  - a product in every tile;
+  - a pinned tile in its pin.
+  The owner approved the wall on 2026-11-22. Its picks are pinned to their approved pairs
+  (`pins`): they keep their approved stills and open in those pairs. A new colour pair moves every
+  seed's draw but never the wall. Redraw it only with the owner's word (`--redraw`).
+  A seed never draws a twin pair, and draws a dark look least (`LOOK_SHARE`). After an engine
+  change, draw the recipe stills and the rebuilt ads again.
+- **A new colour pair is a row of app.js `COLOR_THEMES`** (rule 154), the photo ads' and the full
+  ad's alike. It passes `node scripts/theme_law.mjs`: the money word 4.5:1 on both of the ground's
+  stops and 1.7:1 off the words, and 3:1 for colour-blind readers. Then
+  `node scripts/build_house_colours.mjs`, which marks twins and checks the full ad's floors.
+- **The partner library serves the rebuilt library ads** (`assets/rebuilt-ads/`,
+  `node scripts/render_rebuilt_ads.mjs --stale` after the recipes or the engine change;
+  `library_api_check` fails while one is stale).
+- **An ad shows what its words name** (rule 155): `node scripts/make_match_check.mjs` after any change to
+  the recipes, the lines' pools or the cut-outs; a make named by its models goes to its line or its own
+  cut-out, a model it names built since 2010, a motorcycle shows a motorcycle, a van its words name or
+  "work vans" (`build_recipes.mjs`).
+- **The landing is built to a brief** (rule 162; the owner: "make it look like a custom built site
+  with a large web design budget"): `landing.css`, scoped to the landing under the family skin, keeps
+  rule 152's colours and rule 153's wordmark and sets one type scale, banded grounds (paper for the
+  library, a stage for the video, the blue for the last call), numbered labels on hairlines and a
+  layout of its own per section; `pages.css` ends in the same look for the other pages. Change the
+  landing's look there, not in `styles.css`; a new section reuses `.lp-section-head`, `.flow` or a
+  band rather than a new card. Motion fails visible: never start the hero from hidden.
+- **The library's other looks** (rule 162): `assets/library-looks/` holds two more looks of every rebuilt
+  design, every line's own full ad and the video maker's gallery looks (`node scripts/build_library_looks.mjs`
+  with `GFX_BASE`, `--check`; `--all` after the engine, the recipes or the video maker's looks change).
+  app.js reads them beside the recipe stills for the landing's library only (scLoadMore, scLib); the
+  wall and the editor's library keep to the designs. A category's chips open into its lines
+  (scSubChips), in `motion/subjects.json`'s order.
+
+- **Sign in with Apple and Google** (rule 168, 2026-11-19): both buttons come from `account.js`
+  (`pgfxAccount.social.mount`), on both dialogs, shown only when `/api/auth/config` reports
+  `APPLE_CLIENT_ID` or `GOOGLE_CLIENT_ID`. Since 2026-11-23 they are the site's own buttons, dressed
+  as the window they sit in; never put Google's or Apple's framed button back (it can't blend).
+  Apple's token is checked in `netlify/lib/appleid.mjs`, Google's in `netlify/lib/googleid.mjs`
+  (its client ID, always). Never show them inside the iPhone app's web view (`WeBuyADApp/` in the
+  user agent). Before a commit that touches sign-in: `node scripts/appleid_check.mjs`,
+  `node scripts/googleid_check.mjs` and `node scripts/social_signin_check.mjs`.
+- **A picture that does not arrive is never shown broken** (rule 169, 2026-11-23): gallery pictures
+  go through `pictureWatch` in `app.js` (the wall's through `scWallWatch`): hidden on failure, asked
+  for again, and the tile leaves if it never comes. Hide and show on the picture itself, never by a
+  stylesheet rule that needs the script. New galleries of server pictures get the same watch.
+  Before a commit that touches the wall or the landing's library: `node scripts/wall_pictures_check.mjs`.
+  And close a preview's tab when you stop its server: the owner reads the browser pane as the product.

@@ -81,7 +81,7 @@ async function studio(width, setup){
   });
   page.on('pageerror', e => errors.push(width + 'px: ' + e.message));
   page.on('console', m => { if (m.type() === 'error' && /Content Security Policy|Refused to/.test(m.text())) errors.push(width + 'px CSP: ' + m.text().slice(0, 200)); });
-  await page.goto(BASE + '/index.html');
+  await page.goto(BASE + '/index.html?fullad=0');   // the templates' own first run: a new visitor otherwise opens on the full ad (rule 141)
   await page.waitForFunction(() => typeof window.showEasy === 'function' && typeof openAreaDialog === 'function' && window.fabric, null, { timeout: 30000 });
   await page.evaluate(s => { localStorage.setItem('pgfx_area_asked', 'true'); if (s) localStorage.setItem('pgfx_brand', JSON.stringify(s)); showEasy(); }, setup || null);
   await page.waitForTimeout(800);
@@ -184,24 +184,21 @@ try {
   ok(!(await state(page)).open, '4: Save closes the dialog');
   ok(saved && saved.areaLine === lineOf(s.on), '4: Save writes the line, in order (' + (saved && saved.areaLine) + ')');
   ok(saved && saved.cover.length === s.on.length, '4: Save writes the towns');
-  const printed = await page.evaluate(async () => {
-    const tid = await scRegister('glassCard-ca05-35');
-    selectEzTpl(tid);
-    await new Promise(r => setTimeout(r, 1200));
-    const sc = renderEzCanvas(1080, 'png', null, null, 'square', true);
-    const o = sc.getObjects().find(o => typeof o.text === 'string' && o.text.indexOf(getArea().areaLine) !== -1);
-    const t = o && o.text; sc.dispose(); return t;
-  });
-  ok(printed === saved.areaLine, '4: a card with the line prints the saved towns (' + printed + ')');
+  /* the towns print on the full ad's footer (the library cards that printed the line were retired,
+     2026-11-18, the owner: "Retire them"; no designer layout carries one): its first three, in capitals */
+  const printed = await page.evaluate(async () => (await FullAdStudio.build(1080, FORMATS.square)).st.feed_where || '');
+  const want = saved.cover.slice(0, 3).map(c => c.split(',')[0].trim().toUpperCase());
+  ok(want.every(t => printed.includes(t)), '4: the full ad prints the saved towns (' + printed + ')');
 
   await page.evaluate(() => openAreaDialog());
   await page.waitForTimeout(400);
   s = await state(page);
   ok(s.on.join('|') === saved.cover.map(c => c.split(',')[0]).join('|'), '4: reopening shows the saved towns');
   ok(await page.evaluate(() => $('area-save').textContent) === 'Save', '4: the button reads Save for a saved area');
-  /* 6: the card strip */
-  await page.waitForFunction(() => $('area-line').classList.contains('shot') && /^data:image\/jpeg/.test($('area-line-img').src || ''), null, { timeout: 8000 }).catch(() => {});
-  ok(await page.evaluate(() => $('area-line').classList.contains('shot')), '6: the card open in Easy Mode is shown cropped to its line');
+  /* 6: the card strip: no design open prints the line now (the full ad prints it in its footer), so the
+     dialog keeps its plain plate, the saved line on it */
+  await page.waitForTimeout(600);
+  ok(await page.evaluate(line => !$('area-line').classList.contains('shot') && $('area-line').dataset.text === line, saved.areaLine), '6: with no card that prints the line open, the plain plate shows the saved line');
   if (SHOT) await page.locator('#area-overlay .modal').screenshot({ path: join(SHOT, 'area-4-card-strip.png') });
   await page.click('#area-on .area-tok[data-i="0"]');
   await page.click('#area-skip');

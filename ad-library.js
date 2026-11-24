@@ -183,7 +183,7 @@
     return null;
   }
 
-  const heldLine = h => h === 'unchecked'
+  const heldLine = h => !shop() ? '' : h === 'unchecked'
     ? 'Not for iPhones LA: it could not be checked for a website.'
     : 'Not for iPhones LA: it shows ' + h + '.';
 
@@ -195,12 +195,22 @@
      the owner can open, told it "goes to iPhones LA". Since 2026-10-11 the
      library is the owner's ("only accessible to my account"), so now every
      way into it is too: OWNER_CSS hides them, and nothing here offers a
-     save to anyone else. */
+     save to anyone else. Undone 2026-11-19 for every signed-in account
+     (canUse, below); the iPhones LA words stay the shop's (shop()). */
   function owner(){
     if (app.admin()) return true;
     const a = app.account();
     return !!a && a.role === 'admin';
   }
+  /* Owner, 2026-11-19: "Open it to customers". The plans sell a library (Keep
+     12, 300, 1,000 or 3,000 ads: plans.mjs library, held by the server), so
+     every signed-in account keeps one: the Library buttons, the stars, Save to
+     library, the card after a download, its public link. What is about iPhones
+     LA stays the shop's (shop(): the owner, or a browser connected to iPhones
+     LA): the link sent to the shop, the "not for iPhones LA" notes, "offered
+     daily", and the words that say so. */
+  function canUse(){ return !app.demo() && !!app.account(); }
+  function shop(){ return owner() || !!connKey(); }
   function ready(){
     if (app.demo()) return 'The ad library keeps your ads on the server, so it works on the hosted site, not in demo mode.';
     if (!app.account()) return 'signin';
@@ -460,6 +470,7 @@
   }
   async function saveDesign(ref, opts){
     opts = opts || {};
+    if (/^full(:|$)/.test(String(ref))) return saveFullTile();   // the full ad: as it is drawn, not a template
     let tplId = ref;
     if (/^sc-/.test(ref) && !app.template(ref)){
       if (typeof scRegister !== 'function') throw new Error('the design could not be loaded');
@@ -510,7 +521,69 @@
     try { return kind === 'adv' ? edProject() : ezProject(); } catch (e){ return null; }
   }
   /* the Easy Mode ad, as Download my ad makes it, saved instead of downloaded */
+  /* THE FULL AD, AS SHOWN (2026-11-21). Since pull request 14 Easy Mode opens on the full ad, and
+     every library design is a rebuilt ad drawn by it. Save to library saved the template under it,
+     and a ★ on a rebuilt ad looked for a card record it no longer has ("the design could not be
+     loaded"). Now they save the picture the full ad's Download makes (full-ad-studio.js still), in
+     the visitor's number, at the plan's size, counted as a download as every save is. */
+  const FS = () => window.FullAdStudio || null;
+  const fullOn = () => { try { const f = FS(); return !!(f && f.isOn && f.isOn()); } catch (e){ return false; } };
+  const fullRef = () => { try { const f = FS(); return (f && f.ref && f.ref()) || 'full'; } catch (e){ return 'full'; } };
+  const houseRef = h => 'full:' + (h.kind === 'recipe' ? h.id : h.line || h.id);
+  async function saveFull(){
+    const f = FS();
+    if (!f || typeof f.still !== 'function') throw new Error('the full ad did not load; reload the page');
+    const phone = $('ez-phone').value.trim();
+    if (!phone){
+      app.toast('Type your phone number first, buyers need to reach you', 'error');
+      $('ez-phone').focus(); $('ez-phone').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return null;
+    }
+    if (!await signedIn(() => saveFull())) return null;
+    const gate = await gateExport(ezExportPx());
+    if (!gate) return null;
+    let made;
+    try { made = await f.still(gate.px); }
+    catch (e){ app.toast('The full ad could not load just now. Try again in a moment.', 'error'); return null; }
+    // the full ad's own gate, as its Download asks it (rule 138)
+    if (made.fixes.length && typeof pgGateAsk === 'function' && !await pgGateAsk({ fails: made.fixes.map(s => ({ code: 'full', say: s })) })) return null;
+    let url = made.frame.toDataURL('image/png');
+    if (gate.watermark) url = await applyWatermark(url, made.W, made.H);
+    try { await recordExport(); }
+    catch (e){ app.toast('The save could not be counted as a download: ' + e.message, 'error'); return null; }
+    const tidy = v => String(v || '').replace(/\s+/g, ' ').trim();
+    const texts = Object.entries(made.words).filter(([, t]) => tidy(t)).map(([role, t]) => ({ role, text: tidy(t).slice(0, 200) }));
+    const title = tidy(made.words.headline) || 'Full ad';
+    const name = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-full-ad-' + (ez.format && ez.format !== 'square' ? ez.format + '-' : '') + gate.px + '.png';
+    const meta = { title: title.slice(0, 80), category: made.cat || '', template: made.ref, texts, products: [],
+      hold: gate.watermark ? 'the watermark' : tidy(made.site) ? 'a website' : '', source: 'studio' };
+    const item = await save({ name, data: url, proj: null, meta }, true);
+    if (item) app.toast(item.hold ? 'Saved to your library. ' + heldLine(item.hold) : 'Saved to your library ⭐' + (app.admin() ? '' : ' (1 download used)'), 'success');
+    paint();
+    return item;
+  }
+  /* the ★ on the strip's Full ad card: that card on, then the ad as drawn */
+  function saveFullTile(){
+    if (!fullOn() && typeof selectEzTpl === 'function') selectEzTpl('full');
+    return fullOn() ? saveFull() : Promise.resolve(null);
+  }
+  /* the ★ on a rebuilt ad (the landing's library, the designer's Templates panel): it opens in Easy
+     Mode's full ad, as a click on it does, and is saved as drawn there, in the visitor's number. A
+     video maker's look opens in the maker, whose own ★ saves it. */
+  async function saveHouse(h){
+    if (!h || typeof openHouseAd !== 'function') throw new Error('the design could not be loaded');
+    if (!await signedIn(() => saveHouse(h))) return null;
+    if (!await openHouseAd(h)) return null;
+    return saveFull();
+  }
+  /* a library card's ★: a rebuilt ad saves as drawn (saveHouse), a card still on offer as before */
+  function decorateCard(card, c){
+    if (!card || !c) return;
+    if (c.house) decorate(card, houseRef(c.house), { name: c.name, save: () => saveHouse(c.house) });
+    else decorate(card, 'sc-' + c.id, { name: c.name });
+  }
   async function saveEasy(){
+    if (fullOn()) return saveFull();     // the ad on screen is the full ad
     const phone = $('ez-phone').value.trim();
     if (!phone){
       app.toast('Type your phone number first, buyers need to reach you', 'error');
@@ -627,12 +700,11 @@
 .hist-row .adl-hist{background:var(--surface-sunk);border:.5px solid var(--hairline);color:var(--text);border-radius:999px;font:600 11.5px/1 var(--ui);padding:9px 11px;cursor:pointer;flex:none;margin-right:8px}
 .hist-row .adl-hist:hover{border-color:#ffd200;color:#ffd200}
 `;
-  /* every way into the library is the owner's (see buttons()). Hidden until
-     the account is known to be an operator's, so a customer never sees a ★
-     flash in and out. */
+  /* every way into the library needs an account (see buttons()). Hidden until
+     one is known, so a signed-out visitor never sees a ★ flash in and out. */
   const OWNER_CSS = `
-html:not(.adl-owner) .adl-star,html:not(.adl-owner) .adl-starrow,html:not(.adl-owner) #ex-star,html:not(.adl-owner) #ex-star-video,
-html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner) .adl-ask{display:none!important}
+html:not(.adl-on) .adl-star,html:not(.adl-on) .adl-starrow,html:not(.adl-on) #ex-star,html:not(.adl-on) #ex-star-video,
+html:not(.adl-on) #mo-star,html:not(.adl-on) .adl-hist,html:not(.adl-on) .adl-ask{display:none!important}
 `;
   const BARE_CSS = `
 .adl-bare #adlib-overlay{position:fixed;inset:0;z-index:460;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(10,10,14,.6);backdrop-filter:blur(6px)}
@@ -677,7 +749,7 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
   }
   function paint(){
     document.querySelectorAll('.adl-star[data-ref]').forEach(paintOne);
-    ['ez-star', 'ex-star'].forEach(id => { const b = $(id); if (b && app.here()){ try { b.classList.toggle('on', isSaved(id === 'ez-star' ? ez.tpl : currentTplId)); } catch (e){} } });
+    ['ez-star', 'ex-star'].forEach(id => { const b = $(id); if (b && app.here()){ try { b.classList.toggle('on', isSaved(id === 'ez-star' ? (fullOn() ? fullRef() : ez.tpl) : currentTplId)); } catch (e){} } });
   }
   /* the star itself: a span, not a button, because the cards it sits on
      are often buttons themselves */
@@ -736,10 +808,16 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
   function stars(){
     if (!app.here()) return;
     style();
-    wrap('scCard', (card, a) => { const c = a[0]; if (card && c) decorate(card, 'sc-' + c.id, { name: c.name }); });
+    wrap('scCard', (card, a) => decorateCard(card, a[0]));
     wrap('scClassicCard', (card, a) => { const t = a[0]; if (card && t) decorate(card, t.id, { name: t.name }); });
     const tplName = id => { try { return (TEMPLATES.find(t => t.id === id) || {}).name; } catch (e){ return undefined; } };
-    wrap('buildEzStrip', () => document.querySelectorAll('#ez-strip .ez-tpl[data-tpl]').forEach(b => decorate(b, b.dataset.tpl, { name: tplName(b.dataset.tpl) })));
+    /* the strip's cards, and the Full ad card full-ad-studio.js puts in front of them after this
+       wrapper has run: watched, so a card added later gets its ★ too */
+    const decorateStrip = () => document.querySelectorAll('#ez-strip .ez-tpl[data-tpl]').forEach(b => b.dataset.tpl === 'full'
+      ? decorate(b, 'full', { name: 'the full ad', save: () => saveFullTile() })
+      : decorate(b, b.dataset.tpl, { name: tplName(b.dataset.tpl) }));
+    wrap('buildEzStrip', decorateStrip);
+    try { const strip = $('ez-strip'); if (strip && window.MutationObserver) new MutationObserver(decorateStrip).observe(strip, { childList: true }); } catch (e){}
     wrap('buildPickerGrid', (r, a) => {
       let f = a[0]; try { if (f === undefined) f = currentFilter; } catch (e){}
       if (f === 'mine') return;
@@ -747,7 +825,12 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
       zip('#picker-grid .tpl-card:not(.tpl-saved-card)', list, t => t.id, t => t.name);
     });
     wrap('refreshMyTemplates', () => zip('#builtin-tpl-grid .mini-tpl', catTemplates(), t => t.id, t => t.name));
-    wrap('edBuildLibrary', () => { if (!SHOWCASE.cards) return; zip('#ed-lib-grid .mini-tpl', SHOWCASE.cards.filter(c => c.cat === currentCat).slice(0, 80), c => 'sc-' + c.id, c => c.name); });
+    /* the panel lists the shelf (scLoadShelf: the cards on offer, then the rebuilt ads), as edBuildLibrary does */
+    wrap('edBuildLibrary', () => {
+      const shelf = SHOWCASE.shelf || SHOWCASE.cards; if (!shelf) return;
+      const list = shelf.filter(c => c.cat === currentCat).slice(0, 80);
+      document.querySelectorAll('#ed-lib-grid .mini-tpl').forEach((card, i) => decorateCard(card, list[i]));
+    });
     wrap('openHistory', () => { app.history().then(recs => {
       document.querySelectorAll('#hist-list .hist-row').forEach((row, i) => {
         const r = recs[i]; if (!r || row.querySelector('.adl-hist')) return;
@@ -759,11 +842,11 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
       }); }); });
     /* what was built before this file loaded (the landing's gallery draws
        as soon as its index is in) */
-    try { document.querySelectorAll('#ez-strip .ez-tpl[data-tpl]').forEach(b => decorate(b, b.dataset.tpl)); } catch (e){}
+    try { decorateStrip(); } catch (e){}
     try {
       const grid = $('lp-tpl-grid');
       if (grid && grid.children.length && SHOWCASE && SHOWCASE.list){
-        [...grid.querySelectorAll('.tpl-card')].forEach((card, i) => { const x = SHOWCASE.list[i]; if (x) decorate(card, x.classic ? x.classic.id : 'sc-' + x.id, { name: x.classic ? x.classic.name : x.name }); });
+        [...grid.querySelectorAll('.tpl-card')].forEach((card, i) => { const x = SHOWCASE.list[i]; if (!x) return; if (x.classic) decorate(card, x.classic.id, { name: x.classic.name }); else decorateCard(card, x); });
       }
     } catch (e){}
     /* the ad as made */
@@ -807,7 +890,9 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
     const m = el('div', 'modal adl-modal');
     m.setAttribute('role', 'dialog'); m.setAttribute('aria-label', 'Ad library');
     m.appendChild(el('h3', '', 'Ad library'));
-    m.appendChild(el('div', 'modal-sub', 'Every ad you save here goes to iPhones LA by itself, picture and video, with nothing to download. Titles, descriptions, approval and posting are done there. The ★ on any ad saves it here; a video ad brings its clip.'));
+    m.appendChild(el('div', 'modal-sub', shop()
+      ? 'Every ad you save here goes to iPhones LA by itself, picture and video, with nothing to download. Titles, descriptions, approval and posting are done there. The ★ on any ad saves it here; a video ad brings its clip.'
+      : 'Your saved ads, pictures and videos, kept with your account: open them on any device, download one again, or share them all with one link. The ★ on any ad saves it here; a video ad brings its clip.'));
     const why = ready();
     if (why){
       m.appendChild(el('div', 'adl-empty', why === 'signin' ? 'Create a free account, or sign in, to keep a library of your ads and share it. No card needed.' : why));
@@ -844,13 +929,14 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
     feeds.appendChild(btn('Copy JSON feed', 'btn-ghost', () => copy(lib.links.json, 'Feed link')));
     feeds.appendChild(btn('Copy RSS', 'btn-ghost', () => copy(lib.links.rss, 'RSS link')));
     feeds.appendChild(btn('Reset link', 'btn-ghost', async () => {
-      if (!window.confirm('Make a new link? The old one stops working, so anyone using it (iPhones LA) needs the new one.')) return;
-      try { await app.call('/ads/link/reset', {}); await load(); app.toast('New link made. Give it to iPhones LA.', 'success'); }
+      if (!window.confirm(shop() ? 'Make a new link? The old one stops working, so anyone using it (iPhones LA) needs the new one.' : 'Make a new link? The old one stops working, so anyone you gave it to needs the new one.')) return;
+      try { await app.call('/ads/link/reset', {}); await load(); app.toast(shop() ? 'New link made. Give it to iPhones LA.' : 'New link made.', 'success'); }
       catch (e){ app.toast(e.message || 'Not reset', 'error'); }
     }));
     m.appendChild(feeds);
-    m.appendChild(el('div', 'adl-note adl-share', shareLine(lib)));
-    m.appendChild(el('div', 'adl-note', 'Anyone with the link can see these ads, and only these. Each ad is offered every day for ' + (lib.fresh_days || 7) + ' days from when it was saved, then it retires and a new one keeps things fresh. The studio posts nothing: iPhones LA reviews each ad and posts it within its daily limits.'));
+    if (shop()) m.appendChild(el('div', 'adl-note adl-share', shareLine(lib)));
+    if (!shop()) m.appendChild(el('div', 'adl-note', 'Anyone with the link can see these ads, and only these.'));
+    else m.appendChild(el('div', 'adl-note', 'Anyone with the link can see these ads, and only these. Each ad is offered every day for ' + (lib.fresh_days || 7) + ' days from when it was saved, then it retires and a new one keeps things fresh. The studio posts nothing: iPhones LA reviews each ad and posts it within its daily limits.'));
 
     // settings
     const set = el('div', 'adl-set');
@@ -882,7 +968,7 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
     // the ads
     const videos = lib.items.filter(x => x.video).length;
     const fresh = lib.items.filter(x => x.post).length;
-    m.appendChild(el('h4', '', 'Saved ads (' + lib.count + ' of ' + lib.limit + (videos ? ', ' + videos + ' with video' : '') + ', ' + fresh + ' offered today)'));
+    m.appendChild(el('h4', '', 'Saved ads (' + lib.count + ' of ' + lib.limit + (videos ? ', ' + videos + ' with video' : '') + (shop() ? ', ' + fresh + ' offered today' : '') + ')'));
     if (!lib.items.length) m.appendChild(el('div', 'adl-empty', 'Nothing saved yet. Press the ★ on any ad, ⭐ Save to library under your preview, ⬆ Upload a photo or video, or save one of your recent downloads below.'));
     else {
       const grid = el('div', 'adl-grid');
@@ -926,7 +1012,8 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
     c.appendChild(el('b', '', it.title));
     c.appendChild(el('span', 'adl-meta', [it.category, it.image.width + ' × ' + it.image.height, it.video ? (it.video.seconds ? it.video.seconds + ' s ' : '') + it.video.format.toUpperCase() : '', 'saved ' + when(it.created)].filter(Boolean).join(' · ')));
     const days = lib.fresh_days || 7;
-    if (it.hold) c.appendChild(el('span', 'adl-hold', heldLine(it.hold)));
+    if (!shop()) { /* a customer's card: what it is and when it was saved */ }
+    else if (it.hold) c.appendChild(el('span', 'adl-hold', heldLine(it.hold)));
     else if (it.fresh === false) c.appendChild(el('span', 'adl-hold', 'Past its ' + days + ' days, so no longer offered. Make a new one to keep it fresh.'));
     else c.appendChild(el('span', 'adl-meta adl-sent', '✓ Offered to iPhones LA daily' + (it.post ? ', day ' + it.post.round + ' of ' + days : '')));
     const row = el('div', 'adl-row');
@@ -956,7 +1043,7 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
     }
     const rm = el('button', 'adl-x', 'Remove'); rm.type = 'button';
     rm.onclick = async () => {
-      if (!window.confirm('Remove "' + it.title + '" from your library? It comes off your link for iPhones LA.')) return;
+      if (!window.confirm('Remove "' + it.title + '" from your library?' + (shop() ? ' It comes off your link for iPhones LA.' : ''))) return;
       try { await app.call('/ads/remove', { id: it.id }); Object.keys(state.saved).forEach(k => { if (state.saved[k] === it.id) delete state.saved[k]; }); await load(); }
       catch (e){ app.toast(e.message || 'Not removed', 'error'); }
     };
@@ -980,7 +1067,7 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
     ask = el('div', 'adl-ask');
     ask.setAttribute('role', 'status');
     ask.appendChild(el('b', '', rec.blob ? 'Save this video ad to your library?' : 'Save this ad to your library?'));
-    ask.appendChild(el('p', '', (rec.blob ? 'Its photo goes with it. ' : '') + 'Saved ads go to iPhones LA by themselves, to review and post there.'));
+    ask.appendChild(el('p', '', (rec.blob ? 'Its photo goes with it. ' : '') + (shop() ? 'Saved ads go to iPhones LA by themselves, to review and post there.' : 'It is kept with your account, on any device, to download again or share.')));
     const row = el('div', 'adl-row');
     row.appendChild(btn('Save to library', 'btn-primary', async b => { b.disabled = true; b.textContent = 'Saving…'; await (rec.blob ? saveVideoAd(rec) : save(rec)); dismiss(); }));
     row.appendChild(btn('Always save', 'btn-ghost', () => { setAuto(true); enqueue(rec); dismiss(); }));
@@ -1002,12 +1089,12 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
     // the history record addHistory just wrote, so "Recent downloads" can show it saved
     app.history().then(rs => { const r = rs.find(x => x.name === name && x.data === dataUrl); if (r) rec.id = r.id; });
     if (ready()) return;                  // signed out or demo: say nothing after every download
-    if (!owner()) return;                 // the library is the owner's
+    if (!canUse()) return;                // signed in, on the hosted site
     if (autoOn()) enqueue(rec);
     else offer(rec);
   }
   function videoDownloaded(blob, name, photo){
-    if (!blob || ready() || !owner()) return;
+    if (!blob || ready() || !canUse()) return;
     const kind = (() => { try { return $('page-editor').classList.contains('active') ? 'adv' : 'ez'; } catch (e){ return 'ez'; } })();
     const rec = { blob, name, photo, proj: projectNow(kind), meta: { source: 'studio' }, video: studioVideoMeta(photo) };
     state.last = rec;
@@ -1052,18 +1139,18 @@ html:not(.adl-owner) #mo-star,html:not(.adl-owner) .adl-hist,html:not(.adl-owner
     }
   }
 
-  /* the Library buttons are the owner's. Owner, 2026-10-11: "only accessible
-     to my account". They start hidden in the page and show for an operator
-     account (ADMIN_EMAILS on the server, role 'admin'), as the AI Studio
-     button does; signed out or any other account, they stay hidden. Only the
+  /* the Library buttons: every signed-in account's since 2026-11-19 (canUse;
+     before, the owner's alone: "only accessible to my account", 2026-10-11).
+     They start hidden in the page and show once an account is signed in;
+     signed out, they stay hidden. Only the
      buttons: the stars, Save to library and the plans' library are as they
      were. Run after every account change: the studio's syncAcctUI on the
      studio, the account's onChange on the other pages. */
   const BUTTONS = ['nav-adlib', 'tb-adlib', 'am-adlib', 'lpam-adlib', 'mo-adlib', 'ml-adlib'];   // lpam-adlib: the landing's account menu (2026-10-07)
   function buttons(){
-    const on = owner();
+    const on = canUse();
     BUTTONS.forEach(id => { const b = document.getElementById(id); if (b) b.style.display = on ? '' : 'none'; });
-    document.documentElement.classList.toggle('adl-owner', on);
+    document.documentElement.classList.toggle('adl-on', on);
   }
   function watchAccount(){
     const sync = window.syncAcctUI;

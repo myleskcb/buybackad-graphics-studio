@@ -1,11 +1,18 @@
 {
- "_doc": "What a full ad can be about, made from offer-library.js LINES by scripts/build_full_subjects.mjs. Do not edit by hand: change the offer family and run the script.",
+ "_doc": "What a full ad can be about, made from offer-library.js LINES by scripts/build_full_subjects.mjs, and each line's pool (what a full ad nobody picked the picture for draws from, by its seed) from spec/product-demand.json, assets/devices.json and assets/vehicles.json. Do not edit by hand: change those and run the script. aliases: a line folded into another (the owner's lines, 2026-11-18), which a look that picked it now draws.",
+ "aliases": {
+  "tablet": "android",
+  "switch": "pchandheld",
+  "controller": "console",
+  "gamelaptop": "gamingpc",
+  "vr": "console"
+ },
  "subjects": [
   {
    "key": "iphone",
    "cat": "phones",
    "group": "Phones and Apple",
-   "label": "iPhone",
+   "label": "iPhones",
    "models": "iPhone 11 and newer, every size",
    "heads": [
     "WE BUY iPHONES",
@@ -50,13 +57,14 @@
       "k": 0.95
      }
     ]
-   ]
+   ],
+   "pool": []
   },
   {
    "key": "ipad",
    "cat": "phones",
    "group": "Phones and Apple",
-   "label": "iPad",
+   "label": "iPads",
    "models": "iPad, iPad mini, iPad Air and iPad Pro",
    "heads": [
     "WE BUY iPADS",
@@ -87,13 +95,390 @@
       "k": 0.92
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "ipad-front-screen-off",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "ipad-pair-sizes",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "ipad-back-camera",
+       "k": 1
+      },
+      {
+       "file": "ipad-front-screen-off",
+       "k": 0.92
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-pro-13-m5--silver",
+       "k": 1
+      },
+      {
+       "file": "qs-ipad-pro-13-m5--space-black",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-pro-13-m5--silver",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-pro-13-m5--space-black",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-pro-13-m4",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-pro-11-m4--silver",
+       "k": 1
+      },
+      {
+       "file": "qs-ipad-pro-11-m4--space-black",
+       "k": 0.92
+      }
+     ],
+     "w": 2.8
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-13-m4--blue",
+       "k": 1
+      },
+      {
+       "file": "qs-ipad-air-13-m4--purple",
+       "k": 0.92
+      },
+      {
+       "file": "qs-ipad-air-13-m4--space-gray",
+       "k": 0.92
+      },
+      {
+       "file": "qs-ipad-air-13-m4--starlight",
+       "k": 0.92
+      }
+     ],
+     "w": 2.8
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-11-m4--blue",
+       "k": 1
+      },
+      {
+       "file": "qs-ipad-air-11-m4--purple",
+       "k": 0.92
+      },
+      {
+       "file": "qs-ipad-air-11-m4--space-gray",
+       "k": 0.92
+      },
+      {
+       "file": "qs-ipad-air-11-m4--starlight",
+       "k": 0.92
+      }
+     ],
+     "w": 2.8
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-pro-11-m4--silver",
+       "k": 1
+      }
+     ],
+     "w": 2.1
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-pro-11-m4--space-black",
+       "k": 1
+      }
+     ],
+     "w": 2.1
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-13-m4--blue",
+       "k": 1
+      }
+     ],
+     "w": 1.05
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-13-m4--purple",
+       "k": 1
+      }
+     ],
+     "w": 1.05
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-13-m4--space-gray",
+       "k": 1
+      }
+     ],
+     "w": 1.05
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-13-m4--starlight",
+       "k": 1
+      }
+     ],
+     "w": 1.05
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-11-m4--blue",
+       "k": 1
+      }
+     ],
+     "w": 1.05
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-11-m4--purple",
+       "k": 1
+      }
+     ],
+     "w": 1.05
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-11-m4--space-gray",
+       "k": 1
+      }
+     ],
+     "w": 1.05
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-11-m4--starlight",
+       "k": 1
+      }
+     ],
+     "w": 1.05
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-mini-7-a17-pro--blue",
+       "k": 1
+      },
+      {
+       "file": "qs-ipad-mini-7-a17-pro--purple",
+       "k": 0.92
+      },
+      {
+       "file": "qs-ipad-mini-7-a17-pro--space-gray",
+       "k": 0.92
+      },
+      {
+       "file": "qs-ipad-mini-7-a17-pro--starlight",
+       "k": 0.92
+      }
+     ],
+     "w": 2.4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-mini-7-a17-pro--blue",
+       "k": 1
+      }
+     ],
+     "w": 0.9
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-mini-7-a17-pro--purple",
+       "k": 1
+      }
+     ],
+     "w": 0.9
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-mini-7-a17-pro--space-gray",
+       "k": 1
+      }
+     ],
+     "w": 0.9
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-mini-7-a17-pro--starlight",
+       "k": 1
+      }
+     ],
+     "w": 0.9
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-11-a16--blue",
+       "k": 1
+      },
+      {
+       "file": "qs-ipad-11-a16--pink",
+       "k": 0.92
+      },
+      {
+       "file": "qs-ipad-11-a16--silver",
+       "k": 0.92
+      },
+      {
+       "file": "qs-ipad-11-a16--yellow",
+       "k": 0.92
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-11-a16--blue",
+       "k": 1
+      }
+     ],
+     "w": 0.75
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-11-a16--pink",
+       "k": 1
+      }
+     ],
+     "w": 0.75
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-11-a16--silver",
+       "k": 1
+      }
+     ],
+     "w": 0.75
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-11-a16--yellow",
+       "k": 1
+      }
+     ],
+     "w": 0.75
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-13-m3",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-11-m3",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-13-m2",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-air-11-m2",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-ipad-mini-6",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
    ]
   },
   {
    "key": "mac",
    "cat": "phones",
    "group": "Phones and Apple",
-   "label": "MacBook",
+   "label": "MacBooks",
    "models": "MacBook Air and MacBook Pro, M1 and newer",
    "heads": [
     "WE BUY MACBOOKS",
@@ -120,51 +505,828 @@
       "k": 1
      }
     ]
+   ],
+   "variants": [
+    {
+     "match": "macbook-neo",
+     "heads": [
+      "SELL YOUR MACBOOK NEO",
+      "WE BUY MACBOOK NEO",
+      "CASH FOR YOUR MACBOOK NEO"
+     ],
+     "models": "MacBook Neo, every colour"
+    }
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-16-m5--silver",
+       "k": 1
+      },
+      {
+       "file": "qs-macbook-pro-16-m5--space-black",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-14-m5--silver",
+       "k": 1
+      },
+      {
+       "file": "qs-macbook-pro-14-m5--space-black",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-16-m5--silver",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-16-m5--space-black",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-14-m5--silver",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-14-m5--space-black",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-15-m5--midnight",
+       "k": 1
+      },
+      {
+       "file": "qs-macbook-air-15-m5--silver",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-air-15-m5--sky-blue",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-air-15-m5--starlight",
+       "k": 0.92
+      }
+     ],
+     "w": 3.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-13-m5--midnight",
+       "k": 1
+      },
+      {
+       "file": "qs-macbook-air-13-m5--silver",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-air-13-m5--sky-blue",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-air-13-m5--starlight",
+       "k": 0.92
+      }
+     ],
+     "w": 3.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-15-m5--midnight",
+       "k": 1
+      }
+     ],
+     "w": 1.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-15-m5--silver",
+       "k": 1
+      }
+     ],
+     "w": 1.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-15-m5--sky-blue",
+       "k": 1
+      }
+     ],
+     "w": 1.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-15-m5--starlight",
+       "k": 1
+      }
+     ],
+     "w": 1.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-13-m5--midnight",
+       "k": 1
+      }
+     ],
+     "w": 1.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-13-m5--silver",
+       "k": 1
+      }
+     ],
+     "w": 1.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-13-m5--sky-blue",
+       "k": 1
+      }
+     ],
+     "w": 1.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-13-m5--starlight",
+       "k": 1
+      }
+     ],
+     "w": 1.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-16--silver",
+       "k": 1
+      },
+      {
+       "file": "qs-macbook-pro-16--space-black",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-pro-16--space-gray",
+       "k": 0.92
+      }
+     ],
+     "w": 2.4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-14--silver",
+       "k": 1
+      },
+      {
+       "file": "qs-macbook-pro-14--space-black",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-pro-14--space-gray",
+       "k": 0.92
+      }
+     ],
+     "w": 2.4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-16--silver",
+       "k": 1
+      }
+     ],
+     "w": 1.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-16--space-black",
+       "k": 1
+      }
+     ],
+     "w": 1.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-16--space-gray",
+       "k": 1
+      }
+     ],
+     "w": 1.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-14--silver",
+       "k": 1
+      }
+     ],
+     "w": 1.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-14--space-black",
+       "k": 1
+      }
+     ],
+     "w": 1.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-pro-14--space-gray",
+       "k": 1
+      }
+     ],
+     "w": 1.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-15--midnight",
+       "k": 1
+      },
+      {
+       "file": "qs-macbook-air-15--silver",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-air-15--sky-blue",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-air-15--space-gray",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-air-15--starlight",
+       "k": 0.92
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-13--midnight",
+       "k": 1
+      },
+      {
+       "file": "qs-macbook-air-13--silver",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-air-13--sky-blue",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-air-13--space-gray",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-air-13--starlight",
+       "k": 0.92
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-15--midnight",
+       "k": 1
+      }
+     ],
+     "w": 0.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-15--silver",
+       "k": 1
+      }
+     ],
+     "w": 0.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-15--sky-blue",
+       "k": 1
+      }
+     ],
+     "w": 0.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-15--space-gray",
+       "k": 1
+      }
+     ],
+     "w": 0.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-15--starlight",
+       "k": 1
+      }
+     ],
+     "w": 0.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-13--midnight",
+       "k": 1
+      }
+     ],
+     "w": 0.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-13--silver",
+       "k": 1
+      }
+     ],
+     "w": 0.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-13--sky-blue",
+       "k": 1
+      }
+     ],
+     "w": 0.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-13--space-gray",
+       "k": 1
+      }
+     ],
+     "w": 0.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-air-13--starlight",
+       "k": 1
+      }
+     ],
+     "w": 0.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-neo-13--blush",
+       "k": 1
+      },
+      {
+       "file": "qs-macbook-neo-13--citrus",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-neo-13--indigo",
+       "k": 0.92
+      },
+      {
+       "file": "qs-macbook-neo-13--silver",
+       "k": 0.92
+      }
+     ],
+     "w": 1.4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-neo-13--blush",
+       "k": 1
+      }
+     ],
+     "w": 0.525
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-neo-13--citrus",
+       "k": 1
+      }
+     ],
+     "w": 0.525
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-neo-13--indigo",
+       "k": 1
+      }
+     ],
+     "w": 0.525
+    },
+    {
+     "set": [
+      {
+       "file": "qs-macbook-neo-13--silver",
+       "k": 1
+      }
+     ],
+     "w": 0.525
+    }
    ]
   },
   {
-   "key": "watch",
+   "key": "macdesk",
    "cat": "phones",
    "group": "Phones and Apple",
-   "label": "Apple Watch",
-   "models": "Apple Watch Series, SE and Ultra",
+   "label": "Macs",
+   "models": "iMac, Mac mini and Mac Studio, M1 and newer",
    "heads": [
-    "WE BUY APPLE WATCHES",
-    "CASH FOR APPLE WATCHES",
-    "SELL YOUR APPLE WATCH"
+    "WE BUY MACS",
+    "CASH FOR MACS",
+    "SELL YOUR MAC"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
      {
-      "file": "watch-pair-bands",
+      "file": "qs-imac-24-m4--blue",
       "k": 1
      }
     ],
     [
      {
-      "file": "watch-single-angle",
+      "file": "photo-mac-studio-angle",
       "k": 1
      }
     ],
     [
      {
-      "file": "apple-watch-stack-three",
+      "file": "qs-imac-24-m4--silver",
       "k": 1
+     },
+     {
+      "file": "qs-imac-24-m4--purple",
+      "k": 0.96
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--blue",
+       "k": 1
+      }
+     ],
+     "w": 3.857
+    },
+    {
+     "set": [
+      {
+       "file": "photo-mac-studio-angle",
+       "k": 1
+      }
+     ],
+     "w": 11
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--silver",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m4--purple",
+       "k": 0.96
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--blue",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m4--green",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m4--orange",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m4--pink",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m4--purple",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m4--silver",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m4--yellow",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--green",
+       "k": 1
+      }
+     ],
+     "w": 0.857
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--orange",
+       "k": 1
+      }
+     ],
+     "w": 0.857
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--pink",
+       "k": 1
+      }
+     ],
+     "w": 0.857
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--purple",
+       "k": 1
+      }
+     ],
+     "w": 0.857
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--silver",
+       "k": 1
+      }
+     ],
+     "w": 0.857
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--yellow",
+       "k": 1
+      }
+     ],
+     "w": 0.857
+    },
+    {
+     "set": [
+      {
+       "file": "qs-sheet-macstudio-2025",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m1--blue",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m1--green",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m1--orange",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m1--pink",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m1--purple",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m1--yellow",
+       "k": 0.92
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m1--blue",
+       "k": 1
+      }
+     ],
+     "w": 0.5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m1--green",
+       "k": 1
+      }
+     ],
+     "w": 0.5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m1--orange",
+       "k": 1
+      }
+     ],
+     "w": 0.5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m1--pink",
+       "k": 1
+      }
+     ],
+     "w": 0.5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m1--purple",
+       "k": 1
+      }
+     ],
+     "w": 0.5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m1--yellow",
+       "k": 1
+      }
+     ],
+     "w": 0.5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--blue",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m4--pink",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--blue",
+       "k": 1
+      },
+      {
+       "file": "photo-mac-studio-angle",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-family-imac--blue",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-device-imac",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--green",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m4--yellow",
+       "k": 0.92
+      },
+      {
+       "file": "qs-imac-24-m4--orange",
+       "k": 0.92
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-imac-24-m4--purple",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m4--silver",
+       "k": 0.92
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-sheet-macstudio-2025",
+       "k": 1
+      },
+      {
+       "file": "qs-imac-24-m4--silver",
+       "k": 0.92
+      }
+     ],
+     "w": 3
+    }
    ]
   },
   {
-   "key": "galaxy",
+   "key": "android",
    "cat": "phones",
    "group": "Phones and Apple",
-   "label": "Samsung Galaxy",
-   "models": "Galaxy S21 and newer, Ultra too",
+   "label": "Androids (all brands)",
+   "models": "Samsung, Pixel, Motorola, OnePlus and more",
    "heads": [
-    "WE BUY GALAXY PHONES",
-    "CASH FOR GALAXY PHONES",
-    "SELL YOUR GALAXY"
+    "WE BUY ANDROIDS",
+    "CASH FOR ANDROIDS",
+    "SELL YOUR ANDROID"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
@@ -174,33 +1336,205 @@
       "k": 1
      },
      {
-      "file": "sam-s24-ultra-front",
-      "k": 0.88
+      "file": "pix-9-back-obsidian",
+      "k": 0.92
      }
     ],
     [
      {
-      "file": "samsung-galaxy-back",
+      "file": "android-trio",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "sam-fold-half",
       "k": 1
      },
      {
-      "file": "sam-s24-ultra-back",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "sam-s24-ultra-back",
-      "k": 1
+      "file": "pix-9-back-green",
+      "k": 0.9
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "sam-s24-ultra-back",
+       "k": 1
+      },
+      {
+       "file": "pix-9-back-obsidian",
+       "k": 0.92
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "android-trio",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "sam-fold-half",
+       "k": 1
+      },
+      {
+       "file": "pix-9-back-green",
+       "k": 0.9
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s24-ultra-back",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "pix-9-back-obsidian",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s24-ultra-front",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "pix-9-back-green",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "sam-fold-open-flat",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s24-back-violet",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "sam-flip-open",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "pix-fold-open",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "pix-9-front",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "pix-trio-lineup",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s23-back-green",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "android-pair",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "pix-tablet-back",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "sam-flip-closed",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "sam-fold-half",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
    ]
   },
   {
    "key": "pixel",
    "cat": "phones",
    "group": "Phones and Apple",
-   "label": "Google Pixel",
+   "label": "Pixel",
    "models": "Pixel 7 and newer, Pro too",
    "heads": [
     "WE BUY PIXEL PHONES",
@@ -231,6 +1565,171 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "pix-9-back-green",
+       "k": 1
+      },
+      {
+       "file": "pix-9-back-obsidian",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "pix-trio-lineup",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "pix-9-back-green",
+       "k": 1
+      }
+     ],
+     "w": 12
+    },
+    {
+     "set": [
+      {
+       "file": "pix-9-back-obsidian",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "pix-9-front",
+       "k": 1
+      }
+     ],
+     "w": 6
+    }
+   ]
+  },
+  {
+   "key": "galaxy",
+   "cat": "phones",
+   "group": "Phones and Apple",
+   "label": "Samsung",
+   "models": "Galaxy S21 and newer, Ultra too",
+   "heads": [
+    "WE BUY SAMSUNG PHONES",
+    "CASH FOR SAMSUNG PHONES",
+    "SELL YOUR SAMSUNG"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "sam-s24-ultra-back",
+      "k": 1
+     },
+     {
+      "file": "sam-s24-ultra-front",
+      "k": 0.88
+     }
+    ],
+    [
+     {
+      "file": "samsung-galaxy-back",
+      "k": 1
+     },
+     {
+      "file": "sam-s24-ultra-back",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "sam-s24-ultra-back",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "sam-s24-ultra-back",
+       "k": 1
+      },
+      {
+       "file": "sam-s24-ultra-front",
+       "k": 0.88
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "samsung-galaxy-back",
+       "k": 1
+      },
+      {
+       "file": "sam-s24-ultra-back",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s24-ultra-back",
+       "k": 1
+      }
+     ],
+     "w": 14
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s24-ultra-front",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s24-back-violet",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s23-back-green",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "samsung-galaxy-back",
+       "k": 1
+      }
+     ],
+     "w": 3
+    }
    ]
   },
   {
@@ -238,7 +1737,7 @@
    "cat": "phones",
    "group": "Phones and Apple",
    "label": "Foldables",
-   "models": "Galaxy Z Fold, Z Flip and Pixel Fold",
+   "models": "iPhone Duo, Galaxy Z Fold and Flip, Pixel Fold",
    "heads": [
     "WE BUY FOLDABLES",
     "CASH FOR FOLDABLES",
@@ -268,27 +1767,84 @@
       "k": 1
      }
     ]
-   ]
-  },
-  {
-   "key": "tablet",
-   "cat": "phones",
-   "group": "Phones and Apple",
-   "label": "Android tablets",
-   "models": "Galaxy Tab and Pixel Tablet",
-   "heads": [
-    "WE BUY TABLETS",
-    "CASH FOR TABLETS",
-    "SELL YOUR TABLET"
    ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "pix-tablet-back",
-      "k": 1
-     }
-    ]
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "sam-fold-half",
+       "k": 1
+      },
+      {
+       "file": "sam-flip-open",
+       "k": 0.9
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "sam-fold-open-flat",
+       "k": 1
+      }
+     ],
+     "w": 13
+    },
+    {
+     "set": [
+      {
+       "file": "pix-fold-open",
+       "k": 1
+      }
+     ],
+     "w": 11
+    },
+    {
+     "set": [
+      {
+       "file": "qs-iphone-duo",
+       "k": 1
+      }
+     ],
+     "w": 12
+    },
+    {
+     "set": [
+      {
+       "file": "sam-fold-half",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "sam-flip-open",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "samsung-fold-open",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "sam-flip-closed",
+       "k": 1
+      }
+     ],
+     "w": 5
+    }
    ]
   },
   {
@@ -296,7 +1852,7 @@
    "cat": "gaming",
    "group": "Gaming",
    "label": "Consoles",
-   "models": "PS5, PS5 Pro, Xbox Series X and S",
+   "models": "PS5, Xbox, Switch and controllers",
    "heads": [
     "WE BUY CONSOLES",
     "CASH FOR CONSOLES",
@@ -310,125 +1866,181 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-gaming-ps5-white",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-xbox-series-x",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch2-docked",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch-oled-docked",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch-oled-set",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-dualsense-white",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-dualsense-black",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch-dock",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
    ]
   },
   {
-   "key": "switch",
+   "key": "gamingpc",
    "cat": "gaming",
    "group": "Gaming",
-   "label": "Nintendo Switch",
-   "models": "Switch, Switch OLED and Switch 2",
+   "label": "Computers",
+   "models": "Desktops and laptops, RTX 30 series and newer",
    "heads": [
-    "WE BUY NINTENDO SWITCH",
-    "CASH FOR NINTENDO SWITCH",
-    "SELL YOUR SWITCH"
+    "WE BUY GAMING COMPUTERS",
+    "CASH FOR GAMING COMPUTERS",
+    "SELL YOUR GAMING PC"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
      {
-      "file": "console-handheld-pair",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "gaming-handheld",
+      "file": "photo-gaming-pc-tower",
       "k": 1
      }
     ]
-   ]
-  },
-  {
-   "key": "controller",
-   "cat": "gaming",
-   "group": "Gaming",
-   "label": "Controllers",
-   "models": "DualSense, DualSense Edge and Xbox controllers",
-   "heads": [
-    "WE BUY CONTROLLERS",
-    "CASH FOR CONTROLLERS",
-    "SELL YOUR CONTROLLERS"
    ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "controller-pair",
-      "k": 1
-     }
-    ]
-   ]
-  },
-  {
-   "key": "gamelaptop",
-   "cat": "gaming",
-   "group": "Gaming",
-   "label": "Gaming laptops",
-   "models": "Gaming laptops, RTX 30 series and newer",
-   "heads": [
-    "WE BUY GAMING LAPTOPS",
-    "CASH FOR GAMING LAPTOPS",
-    "SELL YOUR GAMING LAPTOP"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "laptop-gaming-open",
-      "k": 1
-     }
-    ]
-   ]
-  },
-  {
-   "key": "vr",
-   "cat": "gaming",
-   "group": "Gaming",
-   "label": "VR headsets",
-   "models": "Meta Quest 3, Quest 3S and Quest 2",
-   "heads": [
-    "WE BUY VR HEADSETS",
-    "CASH FOR VR HEADSETS",
-    "SELL YOUR VR HEADSET"
-   ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "vr-headset",
-      "k": 1
-     }
-    ]
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-gaming-pc-tower",
+       "k": 1
+      }
+     ],
+     "w": 13
+    }
    ]
   },
   {
    "key": "pchandheld",
    "cat": "gaming",
    "group": "Gaming",
-   "label": "PC handhelds",
-   "models": "Steam Deck, ROG Ally, Legion Go and MSI Claw",
+   "label": "Handhelds",
+   "models": "Steam Deck, ROG Ally, Legion Go and Switch",
    "heads": [
-    "WE BUY PC HANDHELDS",
-    "CASH FOR PC HANDHELDS",
+    "WE BUY GAMING HANDHELDS",
+    "CASH FOR GAMING HANDHELDS",
     "SELL YOUR HANDHELD"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": []
-  },
-  {
-   "key": "gamingpc",
-   "cat": "gaming",
-   "group": "Gaming",
-   "label": "Gaming PCs",
-   "models": "Towers with an RTX 30 series card or newer",
-   "heads": [
-    "WE BUY GAMING PCS",
-    "CASH FOR GAMING PCS",
-    "SELL YOUR GAMING PC"
+   "sets": [
+    [
+     {
+      "file": "photo-gaming-steam-deck-dark",
+      "k": 1
+     }
+    ]
    ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": []
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-gaming-steam-deck-dark",
+       "k": 1
+      }
+     ],
+     "w": 13
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch2",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-steam-deck",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch-oled",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gaming-switch2-joycon",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
+   ]
   },
   {
    "key": "headphones",
@@ -449,6 +2061,62 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-max-front",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-max-silver",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-max-blue",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-max-grey",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-max-case",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-device-airpods-max",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
    ]
   },
   {
@@ -482,6 +2150,53 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-pro",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods-pro-buds",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-airpods",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-galaxy-buds-cases",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-audio-beats-fit-pro-case",
+       "k": 1
+      }
+     ],
+     "w": 4
+    }
    ]
   },
   {
@@ -496,7 +2211,8 @@
     "SELL YOUR HEADSET"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": []
+   "sets": [],
+   "pool": []
   },
   {
    "key": "speaker",
@@ -517,7 +2233,8 @@
       "k": 1
      }
     ]
-   ]
+   ],
+   "pool": []
   },
   {
    "key": "monitor",
@@ -544,7 +2261,8 @@
       "k": 1
      }
     ]
-   ]
+   ],
+   "pool": []
   },
   {
    "key": "laptop",
@@ -565,7 +2283,8 @@
       "k": 1
      }
     ]
-   ]
+   ],
+   "pool": []
   },
   {
    "key": "ssd",
@@ -579,7 +2298,40 @@
     "SELL YOUR SEALED SSDS"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": []
+   "sets": [
+    [
+     {
+      "file": "photo-ssd-samsung-980-pro",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "photo-ssd-wd-black-sn850x",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-ssd-samsung-980-pro",
+       "k": 1
+      }
+     ],
+     "w": 13
+    },
+    {
+     "set": [
+      {
+       "file": "photo-ssd-wd-black-sn850x",
+       "k": 1
+      }
+     ],
+     "w": 12
+    }
+   ]
   },
   {
    "key": "minipc",
@@ -593,7 +2345,40 @@
     "SELL YOUR MINI PC"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": []
+   "sets": [
+    [
+     {
+      "file": "photo-minipc-intel-nuc8",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "photo-minipc-minisforum-n40",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-minipc-intel-nuc8",
+       "k": 1
+      }
+     ],
+     "w": 12
+    },
+    {
+     "set": [
+      {
+       "file": "photo-minipc-minisforum-n40",
+       "k": 1
+      }
+     ],
+     "w": 11
+    }
+   ]
   },
   {
    "key": "chromebook",
@@ -607,21 +2392,386 @@
     "SELL YOUR SEALED CHROMEBOOK"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": []
+   "sets": [],
+   "pool": []
   },
   {
-   "key": "metaglasses",
+   "key": "watch",
    "cat": "wearables",
    "group": "Wearables",
-   "label": "Meta glasses",
-   "models": "Ray-Ban Meta and Oakley Meta glasses",
+   "label": "Apple Watch",
+   "models": "Apple Watch Series, SE and Ultra",
    "heads": [
-    "WE BUY META GLASSES",
-    "CASH FOR META GLASSES",
-    "SELL YOUR META GLASSES"
+    "WE BUY APPLE WATCHES",
+    "CASH FOR APPLE WATCHES",
+    "SELL YOUR APPLE WATCH"
    ],
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": []
+   "sets": [
+    [
+     {
+      "file": "watch-pair-bands",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "watch-single-angle",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "apple-watch-stack-three",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "qs-watch-ultra4",
+       "k": 1
+      }
+     ],
+     "w": 11
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s12",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-ultra3--titanium-black",
+       "k": 1
+      },
+      {
+       "file": "qs-watch-ultra3--titanium-natural",
+       "k": 0.92
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-ultra3--titanium-black",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-ultra3--titanium-natural",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s11--aluminum-jet-black",
+       "k": 1
+      },
+      {
+       "file": "qs-watch-s11--aluminum-rose-gold",
+       "k": 0.92
+      },
+      {
+       "file": "qs-watch-s11--aluminum-silver",
+       "k": 0.92
+      },
+      {
+       "file": "qs-watch-s11--aluminum-space-gray",
+       "k": 0.92
+      },
+      {
+       "file": "qs-watch-s11--titanium-gold",
+       "k": 0.92
+      },
+      {
+       "file": "qs-watch-s11--titanium-natural",
+       "k": 0.92
+      },
+      {
+       "file": "qs-watch-s11--titanium-slate",
+       "k": 0.92
+      }
+     ],
+     "w": 3.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s11--aluminum-jet-black",
+       "k": 1
+      }
+     ],
+     "w": 0.771
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s11--aluminum-rose-gold",
+       "k": 1
+      }
+     ],
+     "w": 0.771
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s11--aluminum-silver",
+       "k": 1
+      }
+     ],
+     "w": 0.771
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s11--aluminum-space-gray",
+       "k": 1
+      }
+     ],
+     "w": 0.771
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s11--titanium-gold",
+       "k": 1
+      }
+     ],
+     "w": 0.771
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s11--titanium-natural",
+       "k": 1
+      }
+     ],
+     "w": 0.771
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s11--titanium-slate",
+       "k": 1
+      }
+     ],
+     "w": 0.771
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-ultra2--titanium-black",
+       "k": 1
+      },
+      {
+       "file": "qs-watch-ultra2--titanium-natural",
+       "k": 0.92
+      }
+     ],
+     "w": 2.8
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s10--aluminum-jet-black",
+       "k": 1
+      },
+      {
+       "file": "qs-watch-s10--aluminum-rose-gold",
+       "k": 0.92
+      },
+      {
+       "file": "qs-watch-s10--aluminum-silver",
+       "k": 0.92
+      },
+      {
+       "file": "qs-watch-s10--titanium-gold",
+       "k": 0.92
+      },
+      {
+       "file": "qs-watch-s10--titanium-natural",
+       "k": 0.92
+      },
+      {
+       "file": "qs-watch-s10--titanium-slate",
+       "k": 0.92
+      }
+     ],
+     "w": 2.8
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-ultra2--titanium-black",
+       "k": 1
+      }
+     ],
+     "w": 2.1
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-ultra2--titanium-natural",
+       "k": 1
+      }
+     ],
+     "w": 2.1
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s10--aluminum-jet-black",
+       "k": 1
+      }
+     ],
+     "w": 0.7
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s10--aluminum-rose-gold",
+       "k": 1
+      }
+     ],
+     "w": 0.7
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s10--aluminum-silver",
+       "k": 1
+      }
+     ],
+     "w": 0.7
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s10--titanium-gold",
+       "k": 1
+      }
+     ],
+     "w": 0.7
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s10--titanium-natural",
+       "k": 1
+      }
+     ],
+     "w": 0.7
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s10--titanium-slate",
+       "k": 1
+      }
+     ],
+     "w": 0.7
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-se3--aluminum-midnight",
+       "k": 1
+      },
+      {
+       "file": "qs-watch-se3--aluminum-starlight",
+       "k": 0.92
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-se3--aluminum-midnight",
+       "k": 1
+      }
+     ],
+     "w": 1.5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-se3--aluminum-starlight",
+       "k": 1
+      }
+     ],
+     "w": 1.5
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-s9--aluminum-midnight",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-se2--aluminum-midnight",
+       "k": 1
+      },
+      {
+       "file": "qs-watch-se2--aluminum-silver",
+       "k": 0.92
+      },
+      {
+       "file": "qs-watch-se2--aluminum-starlight",
+       "k": 0.92
+      }
+     ],
+     "w": 1.2
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-se2--aluminum-midnight",
+       "k": 1
+      }
+     ],
+     "w": 0.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-se2--aluminum-silver",
+       "k": 1
+      }
+     ],
+     "w": 0.6
+    },
+    {
+     "set": [
+      {
+       "file": "qs-watch-se2--aluminum-starlight",
+       "k": 1
+      }
+     ],
+     "w": 0.6
+    }
+   ]
   },
   {
    "key": "smartwatch",
@@ -642,6 +2792,39 @@
       "k": 1
      }
     ]
+   ],
+   "pool": []
+  },
+  {
+   "key": "metaglasses",
+   "cat": "wearables",
+   "group": "Wearables",
+   "label": "Meta glasses",
+   "models": "Ray-Ban Meta and Oakley Meta glasses",
+   "heads": [
+    "WE BUY META GLASSES",
+    "CASH FOR META GLASSES",
+    "SELL YOUR META GLASSES"
+   ],
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [
+    [
+     {
+      "file": "photo-wear-ray-ban-meta",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-wear-ray-ban-meta",
+       "k": 1
+      }
+     ],
+     "w": 13
+    }
    ]
   },
   {
@@ -681,6 +2864,278 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "gold-necklace-single",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-bars-pamp",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-eagle-coins",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-bars-pair",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-krugerrand-springbok",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-bracelet-flat",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "gold-bracelet-cuban",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "gold-jewelry",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "gold-rings-scatter",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "gold-watch-luxury",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-double-eagle-1907",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "gold-earrings-pile",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "gold-class-ring",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "gold-teeth-dental",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "gold-scale-weighing",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-bangle-beaded",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-bar-cast",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-bracelet-filigree",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-brooch-art-nouveau",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-buffalo-2013",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-buffalo-proof",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-buffalo-proof-reverse",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-cuba-5-pesos-1915",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-eagle-proof",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-krugerrand-obverse",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-ring-diamonds-garnets",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-sovereign-1918",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-sovereign-1963",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-sovereigns-six",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-watch-longines-boxed",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
    ]
   },
   {
@@ -720,6 +3175,89 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "silver-flatware-set",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "silver-candlesticks",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-silver-eagle-obverse",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-silver-maple-stack",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-silver-maple-pile",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-silver-morgan-1886",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-silver-peace-dollar-pair",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-silver-eagle-reverse",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-silver-panda-coins-pair",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
    ]
   },
   {
@@ -759,6 +3297,224 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-coin-gold-eagle-obverse",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-double-eagle-1849",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-album",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-half-dollar-stacks",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-buffalo-nickel-pair",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-double-eagle-1866",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-indian-cent-pair",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-buffalo-nickel-stack",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "coin-single-large",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-bridgeport-half-1936",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-capped-bust-half-1822",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-capped-bust-half-1835",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-capped-bust-half-1835-reverse",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-capped-bust-half-1836-reverse",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-draped-bust-dollar-1795",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-draped-bust-dollar-1798",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-flying-eagle-cent-1856-reverse",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-flying-eagle-cent-1858",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-gold-dollar-1857",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-gold-eagle-reverse",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-ike-dollar-1971",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-ike-dollar-bicentennial",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-indian-cent-1860",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-indian-eagle-1907",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
    ]
   },
   {
@@ -776,22 +3532,2070 @@
    "sets": [
     [
      {
-      "file": "car-sedan-rear",
+      "file": "car-toyota-camry-silver",
       "k": 1
      }
     ],
     [
      {
-      "file": "car-suv-side",
+      "file": "car-honda-civic-white",
       "k": 1
      }
     ],
     [
      {
-      "file": "car-damaged-front",
+      "file": "car-toyota-rav4-white",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-tesla-model-y-blue",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-toyota-tacoma-trd-black",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-honda-accord-white",
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "car-toyota-camry-silver",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-civic-white",
+       "k": 1
+      }
+     ],
+     "w": 27.69
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-rav4-white",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "car-tesla-model-y-blue",
+       "k": 1
+      }
+     ],
+     "w": 26.18
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tacoma-trd-black",
+       "k": 1
+      }
+     ],
+     "w": 27.14
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-accord-white",
+       "k": 1
+      }
+     ],
+     "w": 24.39
+    },
+    {
+     "set": [
+      {
+       "file": "car-ford-f150-raptor-2026-black",
+       "k": 1
+      }
+     ],
+     "w": 31.2
+    },
+    {
+     "set": [
+      {
+       "file": "car-ford-f150-lightning-black",
+       "k": 1
+      }
+     ],
+     "w": 26.74
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tacoma-orange",
+       "k": 1
+      }
+     ],
+     "w": 25.11
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-camry-2025-white-side",
+       "k": 1
+      }
+     ],
+     "w": 24.99
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tacoma-trd-offroad-black",
+       "k": 1
+      }
+     ],
+     "w": 24.14
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tacoma-trd-offroad-red",
+       "k": 1
+      }
+     ],
+     "w": 24.14
+    },
+    {
+     "set": [
+      {
+       "file": "car-tesla-model-y-juniper-grey",
+       "k": 1
+      }
+     ],
+     "w": 24.07
+    },
+    {
+     "set": [
+      {
+       "file": "car-tesla-model-y-performance-red",
+       "k": 1
+      }
+     ],
+     "w": 24.07
+    },
+    {
+     "set": [
+      {
+       "file": "car-chevy-silverado-zr2-red",
+       "k": 1
+      }
+     ],
+     "w": 23.18
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-gr-corolla-black",
+       "k": 1
+      }
+     ],
+     "w": 22.29
+    },
+    {
+     "set": [
+      {
+       "file": "car-tesla-model-y-red-side",
+       "k": 1
+      }
+     ],
+     "w": 21.66
+    },
+    {
+     "set": [
+      {
+       "file": "car-jeep-wrangler-rubicon-2026-orange",
+       "k": 1
+      }
+     ],
+     "w": 20.8
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tundra-trd-pro-blue",
+       "k": 1
+      }
+     ],
+     "w": 20.8
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-accord-2023-white-side",
+       "k": 1
+      }
+     ],
+     "w": 20.06
+    },
+    {
+     "set": [
+      {
+       "file": "car-chevy-equinox-white",
+       "k": 1
+      }
+     ],
+     "w": 19.61
+    },
+    {
+     "set": [
+      {
+       "file": "car-tesla-model-3-highland-red",
+       "k": 1
+      }
+     ],
+     "w": 19.61
+    },
+    {
+     "set": [
+      {
+       "file": "car-tesla-model-3-white",
+       "k": 1
+      }
+     ],
+     "w": 18.86
+    },
+    {
+     "set": [
+      {
+       "file": "car-nissan-rogue-copper",
+       "k": 1
+      }
+     ],
+     "w": 18.79
+    },
+    {
+     "set": [
+      {
+       "file": "car-hyundai-tucson-white",
+       "k": 1
+      }
+     ],
+     "w": 17.83
+    },
+    {
+     "set": [
+      {
+       "file": "car-jeep-wrangler-rubicon-lime",
+       "k": 1
+      }
+     ],
+     "w": 17.09
+    },
+    {
+     "set": [
+      {
+       "file": "car-jeep-wrangler-sahara-red",
+       "k": 1
+      }
+     ],
+     "w": 14.86
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-civic-sedan-blue-rear",
+       "k": 1
+      }
+     ],
+     "w": 11.11
+    },
+    {
+     "set": [
+      {
+       "file": "car-ford-f150-black-rear",
+       "k": 1
+      }
+     ],
+     "w": 11.03
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-crv-red-rear",
+       "k": 1
+      }
+     ],
+     "w": 10.86
+    },
+    {
+     "set": [
+      {
+       "file": "car-hyundai-ioniq-9-white",
+       "k": 1
+      }
+     ],
+     "w": 10.4
+    },
+    {
+     "set": [
+      {
+       "file": "car-kia-telluride-grey",
+       "k": 1
+      }
+     ],
+     "w": 10.4
+    },
+    {
+     "set": [
+      {
+       "file": "car-hyundai-palisade-white",
+       "k": 1
+      }
+     ],
+     "w": 10.03
+    },
+    {
+     "set": [
+      {
+       "file": "car-subaru-forester-silver",
+       "k": 1
+      }
+     ],
+     "w": 10.03
+    },
+    {
+     "set": [
+      {
+       "file": "car-buick-enclave-grey",
+       "k": 1
+      }
+     ],
+     "w": 9.66
+    },
+    {
+     "set": [
+      {
+       "file": "car-hyundai-santa-fe-white",
+       "k": 1
+      }
+     ],
+     "w": 9.66
+    },
+    {
+     "set": [
+      {
+       "file": "car-kia-ev9-silver",
+       "k": 1
+      }
+     ],
+     "w": 9.66
+    },
+    {
+     "set": [
+      {
+       "file": "car-kia-sorento-grey",
+       "k": 1
+      }
+     ],
+     "w": 9.66
+    },
+    {
+     "set": [
+      {
+       "file": "car-mazda-cx90-blue",
+       "k": 1
+      }
+     ],
+     "w": 9.66
+    },
+    {
+     "set": [
+      {
+       "file": "car-subaru-crosstrek-wilderness-blue",
+       "k": 1
+      }
+     ],
+     "w": 9.66
+    },
+    {
+     "set": [
+      {
+       "file": "car-vw-tiguan-2024-red",
+       "k": 1
+      }
+     ],
+     "w": 9.66
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-accord-white-rear",
+       "k": 1
+      }
+     ],
+     "w": 9.63
+    },
+    {
+     "set": [
+      {
+       "file": "car-chevy-equinox-white-rear",
+       "k": 1
+      }
+     ],
+     "w": 9.56
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-hrv-beige",
+       "k": 1
+      }
+     ],
+     "w": 9.29
+    },
+    {
+     "set": [
+      {
+       "file": "car-hyundai-kona-grey",
+       "k": 1
+      }
+     ],
+     "w": 9.29
+    }
+   ]
+  },
+  {
+   "key": "classic",
+   "cat": "cars",
+   "group": "Cars",
+   "label": "Classic cars",
+   "models": "Classic and vintage cars, running or restored",
+   "heads": [
+    "WE BUY CLASSIC CARS",
+    "CASH FOR CLASSIC CARS",
+    "SELL YOUR CLASSIC CAR"
+   ],
+   "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
+   "sets": [
+    [
+     {
+      "file": "car-chevy-camaro-1969-silver",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-ford-bronco-1st-gen-cream",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-chevy-corvette-c1-blue",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-chevy-silverado-red",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-porsche-356-blue",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-jeep-wagoneer-classic-red",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "car-chevy-camaro-1969-silver",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "car-ford-bronco-1st-gen-cream",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "car-chevy-corvette-c1-blue",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "car-chevy-silverado-red",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "car-porsche-356-blue",
+       "k": 1
+      }
+     ],
+     "w": 6.6
+    },
+    {
+     "set": [
+      {
+       "file": "car-jeep-wagoneer-classic-red",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "car-dodge-challenger-1972-lime",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-nsx-na1-red",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "car-mini-classic-cream",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-land-cruiser-80-red",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "car-land-rover-defender-90-teal",
+       "k": 1
+      }
+     ],
+     "w": 3.6
+    },
+    {
+     "set": [
+      {
+       "file": "car-mercedes-190e-evo-black",
+       "k": 1
+      }
+     ],
+     "w": 3.6
+    },
+    {
+     "set": [
+      {
+       "file": "car-mercedes-w114-classic-cream",
+       "k": 1
+      }
+     ],
+     "w": 3.6
+    },
+    {
+     "set": [
+      {
+       "file": "car-bmw-3-0-csl-beige",
+       "k": 1
+      }
+     ],
+     "w": 3.24
+    },
+    {
+     "set": [
+      {
+       "file": "car-chevy-corvette-c3-grey-rear",
+       "k": 1
+      }
+     ],
+     "w": 1.8
+    },
+    {
+     "set": [
+      {
+       "file": "car-jeep-wagoneer-classic-red-rear",
+       "k": 1
+      }
+     ],
+     "w": 1.8
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-supra-a80-silver",
+       "k": 1
+      }
+     ],
+     "w": 1.8
+    },
+    {
+     "set": [
+      {
+       "file": "car-vw-golf-mk1-white-rear",
+       "k": 1
+      }
+     ],
+     "w": 1.8
+    },
+    {
+     "set": [
+      {
+       "file": "car-porsche-911-carrera-rs-orange",
+       "k": 1
+      }
+     ],
+     "w": 1.62
+    }
+   ]
+  },
+  {
+   "key": "jdm",
+   "cat": "cars",
+   "group": "Cars",
+   "label": "JDM cars",
+   "models": "Supra, GT-R, Type R, GR86, S2000 and more",
+   "heads": [
+    "WE BUY JDM CARS",
+    "CASH FOR JDM CARS",
+    "SELL YOUR JDM CAR"
+   ],
+   "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
+   "sets": [
+    [
+     {
+      "file": "car-honda-civic-type-r-fl5-white",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-nissan-skyline-gtr-r34-blue",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-toyota-gr-supra-2026-red",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-nissan-gtr-r35-white",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-toyota-gr86-blue",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-honda-s2000-silver",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "car-honda-civic-type-r-fl5-white",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "car-nissan-skyline-gtr-r34-blue",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-gr-supra-2026-red",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "car-nissan-gtr-r35-white",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-gr86-blue",
+       "k": 1
+      }
+     ],
+     "w": 5.4
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-s2000-silver",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-civic-type-r-blue",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-nsx-na1-red",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "car-nissan-z-yellow",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "car-subaru-wrx-blue",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-gr-corolla-black",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-land-cruiser-80-red",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-civic-type-r-fk8-blue-rear",
+       "k": 1
+      }
+     ],
+     "w": 1.8
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-gr-supra-grey-rear",
+       "k": 1
+      }
+     ],
+     "w": 1.8
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-supra-a80-silver",
+       "k": 1
+      }
+     ],
+     "w": 1.8
+    },
+    {
+     "set": [
+      {
+       "file": "car-acura-integra-red-rear",
+       "k": 1
+      }
+     ],
+     "w": 1.62
+    }
+   ]
+  },
+  {
+   "key": "trucks",
+   "cat": "cars",
+   "group": "Cars",
+   "label": "Trucks",
+   "models": "F-150, Silverado, Ram, Tacoma, Tundra and more",
+   "heads": [
+    "WE BUY TRUCKS",
+    "CASH FOR TRUCKS",
+    "SELL YOUR TRUCK"
+   ],
+   "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
+   "sets": [
+    [
+     {
+      "file": "car-chevy-silverado-zr2-red",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-ford-f150-raptor-2026-black",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-toyota-tacoma-trd-black",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-ford-f150-lightning-black",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-toyota-tacoma-orange",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "car-chevy-silverado-zr2-red",
+       "k": 1
+      }
+     ],
+     "w": 22.2
+    },
+    {
+     "set": [
+      {
+       "file": "car-ford-f150-raptor-2026-black",
+       "k": 1
+      }
+     ],
+     "w": 27
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tacoma-trd-black",
+       "k": 1
+      }
+     ],
+     "w": 21.57
+    },
+    {
+     "set": [
+      {
+       "file": "car-ford-f150-lightning-black",
+       "k": 1
+      }
+     ],
+     "w": 23.57
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tacoma-orange",
+       "k": 1
+      }
+     ],
+     "w": 22.31
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tacoma-trd-offroad-black",
+       "k": 1
+      }
+     ],
+     "w": 18.57
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tacoma-trd-offroad-red",
+       "k": 1
+      }
+     ],
+     "w": 18.57
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tundra-trd-pro-blue",
+       "k": 1
+      }
+     ],
+     "w": 17.6
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tundra-1794-black",
+       "k": 1
+      }
+     ],
+     "w": 14.46
+    },
+    {
+     "set": [
+      {
+       "file": "car-jeep-gladiator-rubicon-red-side",
+       "k": 1
+      }
+     ],
+     "w": 9.05
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tacoma-trd-black-rear",
+       "k": 1
+      }
+     ],
+     "w": 8.69
+    },
+    {
+     "set": [
+      {
+       "file": "car-ford-f150-black-rear",
+       "k": 1
+      }
+     ],
+     "w": 8.49
+    },
+    {
+     "set": [
+      {
+       "file": "car-gmc-sierra-denali-grey",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "car-ford-maverick-red",
+       "k": 1
+      }
+     ],
+     "w": 6.86
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tundra-trd-pro-white-rear",
+       "k": 1
+      }
+     ],
+     "w": 6.79
+    },
+    {
+     "set": [
+      {
+       "file": "car-nissan-titan-xd-silver",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "car-ram-1500-limited-grey",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "car-tesla-cybertruck",
+       "k": 1
+      }
+     ],
+     "w": 5.2
+    },
+    {
+     "set": [
+      {
+       "file": "car-gmc-sierra-ev-grey-rear",
+       "k": 1
+      }
+     ],
+     "w": 4.68
+    },
+    {
+     "set": [
+      {
+       "file": "car-jeep-gladiator-green",
+       "k": 1
+      }
+     ],
+     "w": 4.53
+    },
+    {
+     "set": [
+      {
+       "file": "car-ram-1500-black-rear",
+       "k": 1
+      }
+     ],
+     "w": 3.47
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-ridgeline-grey-rear",
+       "k": 1
+      }
+     ],
+     "w": 3.42
+    },
+    {
+     "set": [
+      {
+       "file": "car-tesla-cybertruck-cyberbeast",
+       "k": 1
+      }
+     ],
+     "w": 2.34
+    },
+    {
+     "set": [
+      {
+       "file": "car-tesla-cybertruck-rear-street",
+       "k": 1
+      }
+     ],
+     "w": 2.34
+    },
+    {
+     "set": [
+      {
+       "file": "car-rivian-r1t-green-rear",
+       "k": 1
+      }
+     ],
+     "w": 2.16
+    },
+    {
+     "set": [
+      {
+       "file": "car-rivian-r1t-white-rear",
+       "k": 1
+      }
+     ],
+     "w": 2.16
+    }
+   ]
+  },
+  {
+   "key": "toyota",
+   "cat": "cars",
+   "group": "Cars",
+   "label": "Toyota",
+   "models": "Camry, Corolla, RAV4, Tacoma, Tundra, Highlander",
+   "heads": [
+    "WE BUY TOYOTAS",
+    "CASH FOR TOYOTAS",
+    "SELL YOUR TOYOTA"
+   ],
+   "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
+   "sets": [
+    [
+     {
+      "file": "car-toyota-camry-silver",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-toyota-rav4-white",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-toyota-tacoma-trd-black",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-toyota-highlander-silver",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-toyota-prius-2026-grey",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-toyota-gr-corolla-black",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "car-toyota-camry-silver",
+       "k": 1
+      }
+     ],
+     "w": 21
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-rav4-white",
+       "k": 1
+      }
+     ],
+     "w": 19.25
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tacoma-trd-black",
+       "k": 1
+      }
+     ],
+     "w": 21.85
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-highlander-silver",
+       "k": 1
+      }
+     ],
+     "w": 18.4
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-prius-2026-grey",
+       "k": 1
+      }
+     ],
+     "w": 19
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-gr-corolla-black",
+       "k": 1
+      }
+     ],
+     "w": 21.85
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-camry-2025-white-side",
+       "k": 1
+      }
+     ],
+     "w": 20.93
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tacoma-orange",
+       "k": 1
+      }
+     ],
+     "w": 19.5
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tacoma-trd-offroad-black",
+       "k": 1
+      }
+     ],
+     "w": 18.85
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tacoma-trd-offroad-red",
+       "k": 1
+      }
+     ],
+     "w": 18.85
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tundra-trd-pro-blue",
+       "k": 1
+      }
+     ],
+     "w": 17.6
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-4runner-green",
+       "k": 1
+      }
+     ],
+     "w": 15.5
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-4runner-limited-black",
+       "k": 1
+      }
+     ],
+     "w": 15
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tundra-1794-black",
+       "k": 1
+      }
+     ],
+     "w": 14.85
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-highlander-black",
+       "k": 1
+      }
+     ],
+     "w": 14.3
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-highlander-blue",
+       "k": 1
+      }
+     ],
+     "w": 14.3
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-sienna-white",
+       "k": 1
+      }
+     ],
+     "w": 10.8
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-rav4-2026-white-rear",
+       "k": 1
+      }
+     ],
+     "w": 9.36
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-rav4-phev-red-rear",
+       "k": 1
+      }
+     ],
+     "w": 9.07
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tacoma-trd-black-rear",
+       "k": 1
+      }
+     ],
+     "w": 8.78
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-corolla-cross-silver-rear",
+       "k": 1
+      }
+     ],
+     "w": 8.19
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-gr-supra-2026-red",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-venza-silver",
+       "k": 1
+      }
+     ],
+     "w": 7.5
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-corolla-white",
+       "k": 1
+      }
+     ],
+     "w": 7.31
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-tundra-trd-pro-white-rear",
+       "k": 1
+      }
+     ],
+     "w": 6.93
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-prius-grey-rear",
+       "k": 1
+      }
+     ],
+     "w": 6.53
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-prius-silver-rear",
+       "k": 1
+      }
+     ],
+     "w": 6.53
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-gr86-blue",
+       "k": 1
+      }
+     ],
+     "w": 4.9
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-gr-supra-grey-rear",
+       "k": 1
+      }
+     ],
+     "w": 3.6
+    },
+    {
+     "set": [
+      {
+       "file": "car-toyota-venza-silver-rear",
+       "k": 1
+      }
+     ],
+     "w": 3.38
+    }
+   ]
+  },
+  {
+   "key": "honda",
+   "cat": "cars",
+   "group": "Cars",
+   "label": "Honda",
+   "models": "Civic, Accord, CR-V, HR-V and more",
+   "heads": [
+    "WE BUY HONDAS",
+    "CASH FOR HONDAS",
+    "SELL YOUR HONDA"
+   ],
+   "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
+   "sets": [
+    [
+     {
+      "file": "car-honda-civic-white",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-honda-accord-white",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-honda-civic-type-r-fl5-white",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-honda-hrv-beige",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "car-honda-civic-white",
+       "k": 1
+      }
+     ],
+     "w": 24
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-accord-white",
+       "k": 1
+      }
+     ],
+     "w": 22.6
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-civic-type-r-fl5-white",
+       "k": 1
+      }
+     ],
+     "w": 10.25
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-hrv-beige",
+       "k": 1
+      }
+     ],
+     "w": 17.5
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-accord-2023-white-side",
+       "k": 1
+      }
+     ],
+     "w": 18.27
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-pilot-white",
+       "k": 1
+      }
+     ],
+     "w": 14
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-civic-sedan-blue-rear",
+       "k": 1
+      }
+     ],
+     "w": 9.45
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-crv-red-rear",
+       "k": 1
+      }
+     ],
+     "w": 9.13
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-accord-white-rear",
+       "k": 1
+      }
+     ],
+     "w": 8.82
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-passport-white",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-civic-type-r-blue",
+       "k": 1
+      }
+     ],
+     "w": 6.75
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-hrv-red-rear",
+       "k": 1
+      }
+     ],
+     "w": 6.53
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-pilot-white-rear",
+       "k": 1
+      }
+     ],
+     "w": 4.73
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-civic-type-r-fk8-blue-rear",
+       "k": 1
+      }
+     ],
+     "w": 3.04
+    },
+    {
+     "set": [
+      {
+       "file": "car-honda-ridgeline-grey-rear",
+       "k": 1
+      }
+     ],
+     "w": 2.59
+    }
+   ]
+  },
+  {
+   "key": "bmw",
+   "cat": "cars",
+   "group": "Cars",
+   "label": "BMW",
+   "models": "3 Series, 5 Series, X3, X5 and M cars",
+   "heads": [
+    "WE BUY BMWS",
+    "CASH FOR BMWS",
+    "SELL YOUR BMW"
+   ],
+   "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
+   "sets": [
+    [
+     {
+      "file": "car-bmw-x3-black",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-bmw-m3-blue",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-bmw-ix3-2026-white",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-bmw-m4-convertible-black",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "car-bmw-x3-black",
+       "k": 1
+      }
+     ],
+     "w": 20.05
+    },
+    {
+     "set": [
+      {
+       "file": "car-bmw-m3-blue",
+       "k": 1
+      }
+     ],
+     "w": 17.4
+    },
+    {
+     "set": [
+      {
+       "file": "car-bmw-ix3-2026-white",
+       "k": 1
+      }
+     ],
+     "w": 20.6
+    },
+    {
+     "set": [
+      {
+       "file": "car-bmw-m4-convertible-black",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "car-bmw-x7-m50i-white",
+       "k": 1
+      }
+     ],
+     "w": 14
+    },
+    {
+     "set": [
+      {
+       "file": "car-bmw-x7-white",
+       "k": 1
+      }
+     ],
+     "w": 11.2
+    },
+    {
+     "set": [
+      {
+       "file": "car-bmw-x3-m50-black-rear",
+       "k": 1
+      }
+     ],
+     "w": 7.67
+    },
+    {
+     "set": [
+      {
+       "file": "car-bmw-m3-touring-blue-rear",
+       "k": 1
+      }
+     ],
+     "w": 7.56
+    },
+    {
+     "set": [
+      {
+       "file": "car-bmw-m3-competition-green",
+       "k": 1
+      }
+     ],
+     "w": 7.29
+    },
+    {
+     "set": [
+      {
+       "file": "car-bmw-i4-white-rear",
+       "k": 1
+      }
+     ],
+     "w": 6.3
+    },
+    {
+     "set": [
+      {
+       "file": "car-bmw-x5-black-rear",
+       "k": 1
+      }
+     ],
+     "w": 6.19
+    }
+   ]
+  },
+  {
+   "key": "mercedes",
+   "cat": "cars",
+   "group": "Cars",
+   "label": "Mercedes / AMG",
+   "models": "C-Class, GLC, G-Class, AMG and more",
+   "heads": [
+    "WE BUY MERCEDES & AMG",
+    "CASH FOR MERCEDES & AMG",
+    "SELL YOUR MERCEDES"
+   ],
+   "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
+   "sets": [
+    [
+     {
+      "file": "car-mercedes-c-class-all-terrain-white",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-mercedes-glc-blue",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-mercedes-amg-g63-2025-black",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-mercedes-amg-gle63-silver",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-mercedes-s-class-black",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "car-mercedes-c-class-all-terrain-white",
+       "k": 1
+      }
+     ],
+     "w": 19.8
+    },
+    {
+     "set": [
+      {
+       "file": "car-mercedes-glc-blue",
+       "k": 1
+      }
+     ],
+     "w": 18.4
+    },
+    {
+     "set": [
+      {
+       "file": "car-mercedes-amg-g63-2025-black",
+       "k": 1
+      }
+     ],
+     "w": 16.5
+    },
+    {
+     "set": [
+      {
+       "file": "car-mercedes-amg-gle63-silver",
+       "k": 1
+      }
+     ],
+     "w": 16.5
+    },
+    {
+     "set": [
+      {
+       "file": "car-mercedes-s-class-black",
+       "k": 1
+      }
+     ],
+     "w": 13.8
+    },
+    {
+     "set": [
+      {
+       "file": "car-mercedes-amg-g63-cabriolet-blue",
+       "k": 1
+      }
+     ],
+     "w": 13.5
+    },
+    {
+     "set": [
+      {
+       "file": "car-mercedes-amg-g63-yellow",
+       "k": 1
+      }
+     ],
+     "w": 13.5
+    },
+    {
+     "set": [
+      {
+       "file": "car-mercedes-g-class-orange",
+       "k": 1
+      }
+     ],
+     "w": 10.8
+    },
+    {
+     "set": [
+      {
+       "file": "car-mercedes-amg-gt63-4door-white",
+       "k": 1
+      }
+     ],
+     "w": 7.25
+    },
+    {
+     "set": [
+      {
+       "file": "car-mercedes-amg-g63-4x4-blue-rear",
+       "k": 1
+      }
+     ],
+     "w": 5.87
+    },
+    {
+     "set": [
+      {
+       "file": "car-mercedes-amg-gt-black-series-orange",
+       "k": 1
+      }
+     ],
+     "w": 4.72
+    }
+   ]
+  },
+  {
+   "key": "vans",
+   "cat": "cars",
+   "group": "Cars",
+   "label": "Work vans",
+   "models": "Sprinter, Transit, ProMaster and cargo vans",
+   "heads": [
+    "WE BUY WORK VANS",
+    "CASH FOR WORK VANS",
+    "SELL YOUR WORK VAN"
+   ],
+   "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
+   "sets": [
+    [
+     {
+      "file": "car-ford-transit-connect-white",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-ram-promaster-grey",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-ldv-maxus-van-white",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "car-ford-transit-connect-white",
+       "k": 1
+      }
+     ],
+     "w": 7.8
+    },
+    {
+     "set": [
+      {
+       "file": "car-ram-promaster-grey",
+       "k": 1
+      }
+     ],
+     "w": 7.8
+    },
+    {
+     "set": [
+      {
+       "file": "car-ldv-maxus-van-white",
+       "k": 1
+      }
+     ],
+     "w": 7.8
+    },
+    {
+     "set": [
+      {
+       "file": "car-ford-e-transit-custom-white-rear",
+       "k": 1
+      }
+     ],
+     "w": 2.16
+    },
+    {
+     "set": [
+      {
+       "file": "car-ford-transit-courier-white",
+       "k": 1
+      }
+     ],
+     "w": 2.16
+    },
+    {
+     "set": [
+      {
+       "file": "car-ford-transit-custom-silver-rear",
+       "k": 1
+      }
+     ],
+     "w": 2.16
+    }
+   ]
+  },
+  {
+   "key": "semis",
+   "cat": "cars",
+   "group": "Cars",
+   "label": "Semi trucks",
+   "models": "Freightliner, Peterbilt, Kenworth and more",
+   "heads": [
+    "WE BUY SEMI TRUCKS",
+    "CASH FOR SEMI TRUCKS",
+    "SELL YOUR SEMI TRUCK"
+   ],
+   "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
+   "sets": [
+    [
+     {
+      "file": "car-freightliner-cascadia-blue",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "car-peterbilt-389-white",
+      "k": 1
+     }
+    ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "car-freightliner-cascadia-blue",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "car-peterbilt-389-white",
+       "k": 1
+      }
+     ],
+     "w": 7
+    }
    ]
   },
   {
@@ -813,6 +5617,17 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "strip-boxes",
+       "k": 1
+      }
+     ],
+     "w": 11
+    }
    ]
   },
   {
@@ -834,6 +5649,107 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "poke-psa-charizard",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-collection",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-slabs-trio",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-binder",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-cards-fan",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-slab",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-packs-fan",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-booster-box",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-card-holo",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-card-fullart",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "poke-slabs-trio",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
    ]
   },
   {
@@ -873,6 +5789,179 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "ph-sports-slabs-fan",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-cards-fan",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-slab",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-box",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-collection",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "sports-slabs-stack",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-slabs-autos",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-refractor-fan",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-binder",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-auto-slab",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-packs-fan",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-hobby-box",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-card-auto",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-card-patch",
+       "k": 1
+      }
+     ],
+     "w": 4
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-card-soccer",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-card-hockey",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-card-baseball",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-card-basketball",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "ph-sports-card-football",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
    ]
   },
   {
@@ -904,6 +5993,116 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-camera-sony-a7r5",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-canon-r5",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-nikon-z8",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-sony-a7iv",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-canon-r6",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-fujifilm-xt5",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-leica-q2",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-sony-a7r-gm",
+       "k": 1
+      }
+     ],
+     "w": 5
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-canon-5d2",
+       "k": 1
+      }
+     ],
+     "w": 3
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-canon-100mm",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-sony-a7iv-zoom",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "photo-camera-sony-a7r-body",
+       "k": 1
+      }
+     ],
+     "w": 2
+    }
    ]
   },
   {
@@ -925,6 +6124,17 @@
       "k": 1
      }
     ]
+   ],
+   "pool": [
+    {
+     "set": [
+      {
+       "file": "photo-camera-dji-mini-4-pro",
+       "k": 1
+      }
+     ],
+     "w": 10
+    }
    ]
   }
  ]
