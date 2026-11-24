@@ -215,52 +215,87 @@
   background:radial-gradient(50% 50% at 50% 50%,rgba(var(--accent-rgb),.22),transparent 70%);
   filter:blur(20px);
 }
-/* WHAT THE HEADLINE PROMISES, AS IT LANDS ON A PHONE (2026-11-23; the owner: "use the imessage app icon
-   for the notification and put it closer aligned on the top below the header", "drop down like a
-   notification", "ios 27 styling animation / flow"). Three strangers' texts drop in at the top of the
-   stage, just under the bar, one at a time on a 15 s loop: each falls in on a spring, holds, and goes back
-   up as the next comes. The card is a phone banner: a Messages-style icon (drawn here, not Apple's file),
-   the sender and "now", the message under. A glass panel, blurred only where the pointer is fine: a blur
-   over the moving wall is drawn again every frame, which stutters on a phone (2026-11-20). */
+/* WHAT THE HEADLINE PROMISES, AS IT LANDS ON A PHONE (2026-11-23). The owner: "use the imessage app icon for the
+   notification and put it closer aligned on the top below the header", "drop down like a notification", "ios 27
+   styling animation / flow", "audit and compare to make 1:1 to ios notification and app icon/ styling", and of the
+   dark card it was: "a little too opaque or dark". Three strangers' texts arrive at the top of the stage, one at a
+   time on a 15 s loop, as iOS 27 shows a Messages banner. Every number below was measured off the iOS 27 simulator
+   (iPhone 18 Pro, light appearance): a real Messages notification with these words, over this wall.
+     The banner: 386 x 79 pt with two lines of message, 8 pt in from each side, corners 24 pt; the icon 38 pt, 14 pt
+       in, centred; the words 12 pt after it; the sender 15 pt semibold and the message 15 pt regular, both black, on
+       an 18 pt line, untracked; "now" 13 pt grey on the sender's line, 17 pt from the right edge.
+     The glass: light in either theme, as iOS draws it. Fitted against the screenshot over the same frame of the
+       wall: white at 48% over a blur of 13, saturation 1.3, brightness 1.15 (mean error 8 of 255, no tint), and a
+       soft rim. Live blur where the pointer is fine and on iPhones (Safari's backdrop is the system's own, drawn by
+       Core Animation); other phones get the same light card unblurred, as iOS draws it with Reduce Transparency on:
+       a blur over the moving wall stuttered there (2026-11-20).
+     The flow: out of the island. It grows from about a third of its size at the top, out of focus, slides down
+       past its place by 11 pt at a third of a second and springs back, still by 0.96 s; it leaves the way it came,
+       up and in, in a third of a second. The travel is shortened to 40 px so it starts inside the stage.
+   No clip on .hero-ping: a clip (or a filter, or opacity under 1) there would make it the glass's backdrop root,
+   and the glass would show nothing of the wall. */
 [data-skin=family] #page-landing .hero-ping{
-  position:absolute;z-index:4;left:50%;top:14px;width:min(372px,calc(100% - 24px));
-  height:86px;transform:translateX(-50%);pointer-events:none;
+  position:absolute;z-index:4;left:50%;top:14px;width:min(386px,calc(100% - 16px));
+  height:80px;transform:translateX(-50%);pointer-events:none;
 }
 [data-skin=family] #page-landing .hp-card{
   position:absolute;inset:0 0 auto 0;
   display:flex;gap:12px;align-items:center;
-  padding:12px 16px 12px 12px;border-radius:24px;
-  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04)),rgba(28,31,40,.86);
-  border:1px solid rgba(255,255,255,.12);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 24px 48px -18px rgba(0,0,0,.7),0 8px 18px -10px rgba(0,0,0,.5);
-  opacity:0;transform:translateY(-128%) scale(.94);
-  animation:x-drop 15s infinite both;
+  padding:12.5px 17px 12.5px 14px;border-radius:24px;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,'Segoe UI',Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;color:rgba(0,0,0,.92);text-align:left;
+  background:rgba(246,246,249,.9);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.3),inset 0 1.5px 1px -.5px rgba(255,255,255,.6),0 10px 28px -12px rgba(0,0,0,.35);
+  opacity:0;transform:translateY(-40px) scale(.3);
+  animation:x-island 15s linear infinite both;
 }
-[data-skin=family] #page-landing .hp-card:nth-child(2){animation-delay:5s}
-[data-skin=family] #page-landing .hp-card:nth-child(3){animation-delay:10s}
+[data-skin=family] #page-landing .hp-card:nth-child(2),
+[data-skin=family] #page-landing .hp-card:nth-child(2) :is(.hp-icon,.hp-body){animation-delay:5s}
+[data-skin=family] #page-landing .hp-card:nth-child(3),
+[data-skin=family] #page-landing .hp-card:nth-child(3) :is(.hp-icon,.hp-body){animation-delay:10s}
 @media (hover:hover) and (pointer:fine){
-  [data-skin=family] #page-landing .hp-card{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05)),rgba(30,33,43,.62);-webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%)}
+  [data-skin=family] #page-landing .hp-card{background:rgba(255,255,255,.48);-webkit-backdrop-filter:blur(13px) saturate(1.3) brightness(1.15);backdrop-filter:blur(13px) saturate(1.3) brightness(1.15)}
 }
-[data-skin=family][data-theme=light] #page-landing .hp-card{
-  background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,255,255,.78)),rgba(246,247,250,.9);
-  border-color:rgba(10,30,70,.08);
-  box-shadow:inset 0 1px 0 #fff,0 24px 48px -20px rgba(10,30,70,.38),0 8px 18px -10px rgba(10,30,70,.2);
+@supports (-webkit-touch-callout:none){
+  [data-skin=family] #page-landing .hp-card{background:rgba(255,255,255,.48);-webkit-backdrop-filter:blur(13px) saturate(1.3) brightness(1.15);backdrop-filter:blur(13px) saturate(1.3) brightness(1.15)}
 }
-[data-skin=family] #page-landing .hp-icon{width:38px;height:38px;flex:none;border-radius:9px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+@media (prefers-reduced-transparency:reduce){
+  [data-skin=family] #page-landing .hp-card{background:rgba(246,246,249,.97);-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+[data-skin=family] #page-landing .hp-defs{position:absolute;width:0;height:0;overflow:hidden}
+[data-skin=family] #page-landing .hp-icon{position:relative;top:.8px;width:38px;height:38px;flex:none;animation:x-focus 15s linear infinite both}
 [data-skin=family] #page-landing .hp-icon svg{width:38px;height:38px;display:block}
-[data-skin=family] #page-landing .hp-body{flex:1;min-width:0;line-height:1.3;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif}
-[data-skin=family] #page-landing .hp-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-[data-skin=family] #page-landing .hp-top b{font-size:15px;font-weight:600;letter-spacing:-.015em;color:var(--text)}
-[data-skin=family] #page-landing .hp-top span{font-size:13px;color:var(--text-dim)}
-[data-skin=family] #page-landing .hp-msg{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px;font-size:14.5px;letter-spacing:-.01em;color:var(--text-2)}
-/* one 15 s loop a card: down from above the bar on a spring (a little past, then home), held, back up */
-@keyframes x-drop{
-  0%{opacity:0;transform:translateY(-128%) scale(.94);animation-timing-function:cubic-bezier(.2,.9,.25,1.25)}
-  5%{opacity:1;transform:translateY(5px) scale(1.005);animation-timing-function:cubic-bezier(.3,0,.3,1)}
-  7%{opacity:1;transform:none}
-  29%{opacity:1;transform:none;animation-timing-function:cubic-bezier(.5,0,.75,0)}
-  33%{opacity:0;transform:translateY(-118%) scale(.96)}
-  100%{opacity:0;transform:translateY(-118%) scale(.96)}
+[data-skin=family] #page-landing .hp-body{position:relative;top:-1.7px;flex:1;min-width:0;animation:x-focus 15s linear infinite both}
+[data-skin=family] #page-landing .hp-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;height:17.7px}
+[data-skin=family] #page-landing .hp-top b{font-size:15px;line-height:18px;font-weight:600}
+[data-skin=family] #page-landing .hp-top span{flex:none;font-size:13px;line-height:18px;letter-spacing:-.08px;color:rgba(40,40,50,.66)}
+[data-skin=family] #page-landing .hp-msg{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:15px;line-height:18px}
+/* the flow, as measured at 60 fps (1% of the loop is 150 ms): in out of the island, past its place and home, held, up and in */
+@keyframes x-island{
+  0%{opacity:0;transform:translateY(-40px) scale(.3)}
+  .4%{opacity:.6;transform:translateY(-37px) scale(.4)}
+  .87%{opacity:1;transform:translateY(-16px) scale(.58)}
+  1.33%{opacity:1;transform:translateY(-2px) scale(.72)}
+  1.87%{opacity:1;transform:translateY(9.5px) scale(.88)}
+  2.2%{opacity:1;transform:translateY(11px) scale(.94)}
+  2.73%{opacity:1;transform:translateY(9px) scale(.99)}
+  3.4%{opacity:1;transform:translateY(3.5px) scale(1)}
+  4.07%{opacity:1;transform:translateY(.5px) scale(1)}
+  4.4%{opacity:1;transform:translateY(-.5px) scale(1)}
+  6.4%{opacity:1;transform:none}
+  29.33%{opacity:1;transform:none;animation-timing-function:cubic-bezier(.45,0,.85,.4)}
+  31.67%{opacity:0;transform:translateY(-40px) scale(.3)}
+  100%{opacity:0;transform:translateY(-40px) scale(.3)}
+}
+/* out of focus while it is small, as iOS brings it in and takes it out */
+@keyframes x-focus{
+  0%{filter:blur(6px)}
+  .87%{filter:blur(3px)}
+  1.33%{filter:blur(.8px)}
+  1.8%{filter:none}
+  29.33%{filter:none;animation-timing-function:ease-in}
+  31.67%{filter:blur(6px)}
+  100%{filter:blur(6px)}
 }
 
 /* ── 4. The figures under the hero ────────────────────────────────────── */
@@ -665,6 +700,8 @@
 @keyframes x-stage{from{transform:translateX(48px)}to{transform:none}}
 @media (prefers-reduced-motion:reduce){
   [data-skin=family] #page-landing .hp-card,
+  [data-skin=family] #page-landing .hp-icon,
+  [data-skin=family] #page-landing .hp-body,
   [data-skin=family] #page-landing .vid-time::before,
   [data-skin=family] #page-landing .fs-field::after{animation:none}
 }
