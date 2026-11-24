@@ -6847,3 +6847,20 @@ RESUME HERE:
      one of the Santa Monica pier sign; "Pasadena" alone resolves to Houston (metros.js); the studio's
      template default number is still (562) 999-4994; full_ad_studio_check's earbuds-landscape edge
      failure is older than this branch; the founder's WhatsApp on the landing goes public with the merge.
+
+## 2026-11-24 — the library's pictures, clear until loaded (DESIGN-LAW 169; claude/library-pictures-clear)
+
+Pull request 23 went live, and `wall_pictures_check` was run against webuy.ad itself. The wall
+passed every case. The library failed one: a picture made to fail was caught in sight, for the
+moment between the request failing and the error event reaching `pictureWatch`. Locally the gap
+never showed; the live page is busier, and the sampler's timer ran inside it. The wall had no such
+gap because its pictures are clear until they load. The library's now are too (`scCard`), which
+also keeps Firefox from writing alt text into a card still loading.
+
+Checked: 23 of 23, five runs, on webuy.ad with the new `app.js` served in its place (page.route),
+so the test met the live site's own timing. The new case: every library picture that has loaded is
+seen (16 of 16).
+
+Lesson: run a new check against the live site after it ships, not only the local server. The race
+it found exists only at the live site's pace.
+

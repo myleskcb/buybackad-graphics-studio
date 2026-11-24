@@ -12706,7 +12706,11 @@ function scCard(c){
     ${locked ? '<div class="pro-guard"></div><div class="tpl-lockpill">🔒 PRO</div>' : ''}
     <div class="tpl-use">${locked ? 'Unlock with Pro →' : 'Use template →'}</div>
     <div class="tpl-meta"><span class="tpl-name">${escHtml(c.name)}</span><span class="tpl-tag">${escHtml(c.theme || c.family || '')}</span></div>`;
-  pictureWatch(card.querySelector('img'), () => { card.style.display = 'none'; }, () => { card.style.display = ''; });
+  /* clear until it has loaded, as on the wall: a picture that fails never paints its mark, even for
+     the moment before its error is heard, and Firefox writes no alt text into one still on its way */
+  const pic = card.querySelector('img');
+  if (!(pic.complete && pic.naturalWidth > 0)) pic.style.opacity = '0';
+  pictureWatch(pic, () => { card.style.display = 'none'; }, () => { card.style.display = ''; });
   const go = () => c.house ? openHouseAd(c.house) : openShowcase(c.id);   // a rebuilt ad opens in the full ad
   card.onclick = go;
   card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } };

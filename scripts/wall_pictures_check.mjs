@@ -6,7 +6,8 @@
    This opens the landing with some pictures made to fail (page.route) and fails when:
 
      whole      with nothing failing, any wall picture has not loaded or cannot be seen (a still
-                missing from the build shows here, before a visitor finds it);
+                missing from the build shows here, before a visitor finds it), or a library picture
+                that has loaded is still clear;
      dropped    a wall picture whose first two requests are dropped shows broken as it waits, or is
                 not in, in both copies of its column, once the third is let through;
      never      a wall picture that never comes leaves its card standing: the card must be gone from
@@ -96,6 +97,10 @@ let picks;
   // the library, further down: its first card's picture
   await page.evaluate(() => { const g = document.querySelector('#page-landing .tpl-card'); if (g) g.scrollIntoView({ block: 'center' }); });
   await page.waitForFunction(() => { const im = document.querySelector('#page-landing .tpl-card img'); return im && im.complete && im.naturalWidth > 0; }, null, { timeout: 30000 }).catch(() => {});
+  // the library's pictures are clear until they load (scCard): every one that has loaded must be seen
+  await page.waitForTimeout(1500);
+  const lib = await page.evaluate(() => [...document.querySelectorAll('#page-landing .tpl-card img')].filter((im) => im.complete && im.naturalWidth > 0).map((im) => getComputedStyle(im).opacity));
+  ok(lib.length >= 4 && lib.every((o) => o === '1'), `every library picture that has loaded is seen: ${lib.filter((o) => o === '1').length} of ${lib.length}`);
   picks.card = await page.evaluate(() => {
     const cards = [...document.querySelectorAll('#page-landing .tpl-card')];
     const c = cards.find((d) => { const s = d.querySelector('img').getAttribute('src') || ''; return !/^(data|blob):/.test(s); });   // a baked picture, not one drawn here
