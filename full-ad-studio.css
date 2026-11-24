@@ -30,7 +30,7 @@
 .fa-tip{display:none}
 .fa-on .fa-tip:not([hidden]){display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0 2px;padding:9px 12px;border-radius:12px;background:var(--surface-sunk);border:1px solid var(--hairline-strong);font:500 13.5px/1.35 var(--ui);color:var(--text)}
 .fa-tip button{margin-left:auto;border:1.5px solid var(--accent);background:none;color:var(--accent);border-radius:999px;padding:6px 12px;font:700 12.5px/1 var(--ui);cursor:pointer}
-/* the customer's logo on the badge (logo/, DESIGN-LAW 170) */
+/* the customer's logo on the badge (logo/, DESIGN-LAW 176) */
 #page-easy .fa-logo-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-weight:650}
 #page-easy .fa-logo-row input{width:18px;height:18px;margin:0}
 #page-easy .fa-logo-row a,#fa-logo-make{text-decoration:underline;text-underline-offset:3px}
