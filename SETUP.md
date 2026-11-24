@@ -1,4 +1,4 @@
-# BUYBACK.AD monorepo, new machine setup
+# WeBuy.AD monorepo, new machine setup
 
 Two zips carry everything: `graphics-studio.zip` (the hosted site, all 129
 backdrops, the Netlify backend function) and `orchard-photo-engine.zip` (the
@@ -49,7 +49,7 @@ git add -A && git commit -m "Monorepo: graphics-studio + orchard + scanmap"
 gh repo create myleskcb/buyback-monorepo --private --source . --push
 ```
 
-## 3. Graphics Studio (hosted site)
+## 3. WeBuy.AD (hosted site)
 
 ```sh
 cd ~/code/buyback/apps/graphics-studio
@@ -69,8 +69,9 @@ Notes:
   myleskcb/buybackad-graphics-studio is history, not CD).
 - Live site: https://webuy.ad (the `buybackad-finished-copy` project, also
   at https://buybackad-finished-copy.netlify.app; OPEN-ITEMS §BL). The older project,
-  https://buybackad-graphics-studio.netlify.app, has buyback.ad, www and
-  studio.scans.ad attached, none with DNS.
+  https://buybackad-graphics-studio.netlify.app (team KCB, the id above), has no
+  custom domain since 2026-11-23 and still serves iPhones LA's studio link;
+  docs/OPERATIONS.md has the order for retiring it.
 
 ## 4. ORCHARD photo engine (local tool)
 

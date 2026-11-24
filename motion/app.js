@@ -765,21 +765,24 @@ function buildPanel() {
   });
   const placeArea = async text => {
     const a = await areaFrom(text).catch(() => null);
-    if (String($("f-area").value).trim() !== text && !(a && a.zip && $("f-area").value === a.city)) return;   // typed on since
+    // typed on since: neither the box nor the saved area says it any more (a refill puts the saved area in the box)
+    if (![String($("f-area").value).trim(), String(state.style.area || "").trim()].includes(text) && !(a && a.zip && $("f-area").value === a.city)) return;
     if (!a) { if (/^\d{5}$/.test(text)) VH().toast("That ZIP code could not be placed. Try your city's name."); drawTowns(null); return; }
     if (!state.style.feed_where && a.suggested.length) { state.style.feed_where = a.suggested.map(t => t.toUpperCase()).join(" • "); save(); syncWords(); rebuild(); }
     drawTowns(a);
     return a;
   };
   $("f-area").addEventListener("focus", e => { const v = e.target.value.trim(); if (!state.areaTowns && v.length >= 2) placeArea(v); });
-  $("f-area").addEventListener("input", debounce(async e => {
-    const typed = e.target.value.trim();
-    if (/^\d{5}$/.test(typed)) {                              // a ZIP code: its town is what the ad names
-      const a = await placeArea(typed); if (!a) return;
-      e.target.value = a.city; state.style.zip = a.zip;
-    } else if (typed.length >= 3) placeArea(typed);
+  /* Your area lands as typed when its pause ends, a ZIP code too, so a refill, Back, a download or New
+     look from then on has it (landTyping), and the city already written into the words follows it. A
+     ZIP is then looked up: once its town is found, the town is the area (what the ad names and the box
+     says) unless the area has moved on meanwhile, and a download waits for it (areaPlaced). Until
+     2026-11-23 the ZIP landed only after its lookup (1.6 MB of data the first time): a refill meanwhile
+     put the old area back in the box, the lookup took that for typing on and dropped the ZIP, and a
+     download went out with the old area (scripts/typing_pause_check.mjs, cases 11 to 13). */
+  const setArea = v => {
     const before = areaOf(state.style);
-    state.style.area = e.target.value.slice(0, 30);
+    state.style.area = String(v).slice(0, 30);
     const after = areaOf(state.style);
     if (before && after && before !== after) {             // the city already written into the words follows the field
       const re = new RegExp(`\\b${before.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "g");
@@ -787,6 +790,19 @@ function buildPanel() {
       if (Array.isArray(state.style.ticker_items)) state.style.ticker_items = state.style.ticker_items.map(s => s.replace(re, after));
     }
     save(); syncWords(); rebuild();
+  };
+  $("f-area").addEventListener("input", debounce(e => {
+    const typed = e.target.value.trim();
+    setArea(e.target.value);
+    if (/^\d{5}$/.test(typed)) {                              // a ZIP code: its town is what the ad names, once found
+      const p = state.placing = placeArea(typed).then(a => {
+        if (!a || String(state.style.area || "").trim() !== typed) return;   // not placed, or the area has moved on since
+        state.style.zip = a.zip;
+        if ($("f-area").value.trim() === typed) $("f-area").value = a.city;   // the box too, where it still says the ZIP
+        setArea(a.city);
+      }).catch(err => console.warn("The ZIP code could not be placed:", err))
+        .finally(() => { if (state.placing === p) state.placing = null; });
+    } else if (typed.length >= 3) placeArea(typed);
   }, 400));
   $("new-headline").addEventListener("click", () => anotherLine("headline"));
 
@@ -1196,7 +1212,7 @@ async function thumb(st, w, h, lock, src = null) {   // src: the video look a fu
   frame.appendChild(c); b.appendChild(frame);
   const name = st.full ? fullName(st) : lookName(st), font = st.full ? (TYPE_VOICES[st.type_pair] && st.full_pair ? TYPE_VOICES[st.type_pair].name + " type · " : "") + "Full ad" : TYPE_VOICES[st.type_pair] ? TYPE_VOICES[st.type_pair].name + " type" : labelFor("font", st.font);
   const use = () => st.full ? (src ? { ...src, number: state.style.number, phones: state.style.phones, full_look: true } : { ...state.style, seed: st.seed, full_palette: st.full_colour, full_look: false }) : { ...st, number: state.style.number, phones: state.style.phones };
-  if (window.adLibrary) frame.appendChild(window.adLibrary.star("motion-" + st.seed, { name, save: () => { landTyping(); return saveLook(use()); } }));
+  if (window.adLibrary) frame.appendChild(window.adLibrary.star("motion-" + st.seed, { name, save: async () => { landTyping(); await areaPlaced(); return saveLook(use()); } }));
   b.insertAdjacentHTML("beforeend", `<span class="mo-cap"><b>${name}</b><small>${font}${st.full ? "" : " · " + labelFor("hook", st.hook)}</small></span>`);
   b.setAttribute("aria-label", `Use this look: ${name}, ${font}`);
   const th = { el: b, st, w, h, ad: keepAds() ? ad : null, ctx, t0: 0, lastT: 0, last: 0, hover: false, seen: false, moving: false };
@@ -1524,6 +1540,7 @@ async function download(opts = {}) {
   let ad = null;
   const tried = [];
   try {
+    await areaPlaced();                           // a ZIP code still being placed: its town first
     const gate = await planGate(() => download(opts), "Sign in to download your video. Video downloads come with Pro and Business.");
     if (!gate) return;
     const st = settle({ ...state.style });
@@ -1597,6 +1614,7 @@ async function downloadJpg() {
   const note = t => { $("export-note").textContent = t; };
   const prog = (p, label) => { $("bar").style.width = Math.round(p * 100) + "%"; $("progress-label").textContent = label; };
   try {
+    await areaPlaced();                           // a ZIP code still being placed: its town first
     const gate = await planGate(() => downloadJpg(), "Sign in to download your ad as a photo. Free accounts get 3 downloads a week.", "photo");
     if (!gate) return;
     const st = settle({ ...state.style });
@@ -1651,6 +1669,7 @@ async function saveLook(stRaw, btn) {
   const b = btn || $("mo-star");
   if (b && b.disabled) return null;
   if (b) b.disabled = true;
+  await areaPlaced();                           // a ZIP code still being placed: its town first
   $("progress").hidden = false; $("export-note").textContent = "";
   const note = t => { $("export-note").textContent = t; };
   const prog = (p, label) => { $("bar").style.width = Math.round(p * 100) + "%"; $("progress-label").textContent = label; };
@@ -1908,6 +1927,7 @@ async function downloadBuyList() {
   const btn = $("bl-download"); if (btn.disabled) return; btn.disabled = true;
   const note = t => { $("bl-check").textContent = t; };
   try {
+    await areaPlaced();                           // a ZIP code still being placed: its town first
     const gate = await planGate(() => downloadBuyList(), "Sign in to download your buying list. Free accounts get 3 downloads a week.", "photo");
     if (!gate) return;
     const st = settle({ ...state.style });
@@ -2048,6 +2068,7 @@ async function quickAd() {
   btn.disabled = true;
   const note = t => { $("export-note").textContent = t; };
   try {
+    await areaPlaced();                           // a ZIP code still being placed: its town first
     pushHistory();                                  // Back brings the look, its words and its locks back
     const from = landings;                          // words typed while the look is found land on it too (putLook)
     const st = { ...state.style }, auto = quick.angle === "auto";
@@ -2138,6 +2159,9 @@ function landTyping() {
   }
   return boxes;
 }
+/** A ZIP code in Your area lands at once and is then placed, its town looked up (buildPanel's setArea):
+ *  what is made or saved from the look waits for the town, so the file names the town the ad shows. */
+const areaPlaced = () => Promise.resolve(state.placing).catch(() => {});
 addEventListener("pagehide", () => landTyping());                                   // a reload or a closed tab inside a pause
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") landTyping(); });   // a phone that leaves the page may never come back to it
 

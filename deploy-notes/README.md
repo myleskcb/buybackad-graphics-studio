@@ -1,4 +1,4 @@
-# Putting Graphics Studio on a real URL
+# Putting WeBuy.AD on a real URL
 
 ## The URL that works today
 
@@ -44,7 +44,7 @@ The Worker strips `/gfx` before forwarding, so the backend still sees `/api`.
 ### Check after deploying
 
     curl -sI https://reselling.us/gfx/ | head -1            # 200
-    curl -s  https://reselling.us/gfx/ | grep -o '<title>[^<]*'   # Graphics Studio, not RU CRM
+    curl -s  https://reselling.us/gfx/ | grep -o '<title>[^<]*'   # WeBuy.AD, not RU CRM
     curl -sI https://reselling.us/gfx  | grep -i location   # 301 -> /gfx/
 
 If the title still says **RU CRM v1**, the Worker route did not match and the

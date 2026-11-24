@@ -3946,7 +3946,7 @@ iPhones LA repo to finish this library of imagery".
   served: docs/ is 404'd) holds the Python client, the two routes, the picker
   and a paste-ready prompt for `loganipad/iphoneslainv`, which this session
   could not reach. `scripts/library_handoff_check.mjs` runs all of it against
-  a stand-in BUYBACK.AD: nine Python tests, the README's Flask and FastAPI
+  a stand-in WeBuy.AD: nine Python tests, the README's Flask and FastAPI
   code as written, and the demo listing page in Chromium, where a pick adds a
   JPEG with white behind the cut-out to the listing's photos.
 - Measured 2026-10-04: 867 assets (637 cut-outs, 77 scenes, 153 backgrounds)
@@ -4706,7 +4706,7 @@ a layout (15) and a subject (13), none missing.
 - **The picture says the same.** Each JPEG carries an EXIF segment
   (`scripts/_jpeg_exif.mjs`: DateTimeOriginal = created, DateTime = updated,
   DateTimeDigitized = uploaded, each with OffsetTime +00:00, ImageDescription
-  the title in ASCII, Software "BUYBACK.AD Graphics Studio"), written after
+  the title in ASCII, Software "WeBuy.AD" since rule 153), written after
   the JFIF segment, read back by the check, by ImageMagick and by Pillow,
   the picture's bytes untouched. A file's sha1, and so the API's `?v=`,
   moves only when its dates do: `--stamp` writes EXIF again only where it
@@ -5897,7 +5897,7 @@ gallery/feed to look clean and cohesive".
 **So:**
 
 - **One mark** (`watermark.js`, `window.PgfxMark`): a light lattice of small
-  BUYBACK.AD words across the whole picture, a light word over a dark one a
+  WeBuy.AD words across the whole picture, a light word over a dark one a
   pixel apart, so it shows on dark and light grounds and the ad reads through
   it. Measured on the picture's short side, so a preview and its download
   carry the same pattern. The studio (`drawWatermarkMarks`) and the video
@@ -6170,6 +6170,14 @@ CASH" twice, MacBook twice, two red ones side by side, no pattern and no gradien
   `build_hero_stills.mjs`): its pair's look, the kind of ground and the headline.
 - Shown to the owner as one image before anything ships, drawn from the stills in the wall's
   order.
+- **Approved by the owner, 2026-11-22** ("Approve the wall"). It had shipped with pull request
+  14. Each pick is pinned to the pair it was approved in (`assets/hero-picks.json` `pins`):
+  - it is drawn and opened in that pair (`build_hero_stills.mjs`, `app.js` `openHouseAd`);
+  - it keeps its approved still, drawn again only with `--redraw`;
+  - the wall's rebuilt tiles keep copies of their approved stills in `assets/hero/`, which the
+    wall prefers over the library's.
+  New colour pairs move every seed's draw. Without the pins they would have recoloured the approved
+  wall. `hero_wall_check` holds every pinned tile to its pin.
 
 Not done here: OPEN-ITEMS §BJ.
 
@@ -6233,12 +6241,18 @@ and `/static/app.css`), applied to the new name, so the two read as one family.
   for word, and four real ads from its wall. All of it is drawn by
   `sh tools/brand/make.sh` with headless Chrome; draw it again after the
   kicker or the headline changes.
-- **The name in words**: "WeBuy.AD" wherever the product or the site is named,
-  the watermark on free exports included. **BUYBACK.AD stays the business**:
-  the copyright lines, and the terms and privacy policy, whose agreement is
-  with BUYBACK.AD (only their header, title and home link changed). Renaming
-  the party to an agreement is the owner's legal call, with a new terms
-  version (`TERMS_VERSION`).
+- **The name in words**: "WeBuy.AD" wherever the product, the site or the
+  business is named: the watermark on free exports, the copyright lines, and
+  the terms and privacy policy, whose agreement is with WeBuy.AD. Until
+  2026-11-23 the business stayed BUYBACK.AD; then the owner: "Anything that
+  was previously referred to as the old name needs to be switched over to the
+  new name" (terms version 2026-11-23, `TERMS_VERSION`; the contact is
+  support@webuy.ad, Namecheap mail forwarding). Identifiers keep their old
+  spelling, since renaming them breaks billing, partners or saved sessions:
+  the repository and Netlify project names, `buybackad_library.py` and
+  `BUYBACKAD_LIBRARY_KEY`, Stripe's `bbad_*` lookup keys, the `pgfx` storage
+  keys. Dated history (the learning log, OPEN-ITEMS, HANDOFF, the audits)
+  keeps the name it had.
 
 ## 154. A seed draws a different ad, not the same one 5% off: every colour theme, the look first, a face, a ground of five kinds, a fill
 
@@ -6348,6 +6362,36 @@ don't we have any of the video style ads on here that looked happier and more vi
   Seen on `scripts/full_look_sheet.mjs` before and after: the same 48 seeds went from 10 hue bands
   to 12, with orange, lime, pink, yellow, aqua and lilac grounds where tinted lake and bridge
   photographs stood.
+
+**Vibrant pairs adopted (2026-11-22).** The owner: "ideally we relearn color theory and ad design to
+maximize all of the color pairs, trios, etc.. that work and keep a viewer captivated.. means vibrant
+or neon colors often times or really good contrasts". Thirteen proposals were shown on real ads
+(`docs/colour-proposals-2026-11-19.json`), then: "Adopt all 13". They are rows of app.js
+`COLOR_THEMES`, so a photo ad and a full ad have them alike (rule 123).
+- **Ten new schemes, each on its own ground**:
+  - two colours: Yellow on Violet, Yellow on Red, Lime on Magenta;
+  - three colours: Electric Blue, White & Orange; Hot Pink, Black & Cobalt; Neon Lime, Black &
+    Purple; Cyan, Black & Magenta; Orange, Black & Cobalt; Yellow, Black & Magenta; Mint, Black &
+    Violet.
+- **The neon pairs brighter.** Black & Pink, Black & Lime and Black & Cyan keep their names (the
+  business cards read them by key). Black & Pink takes the hot pink the owner saw. The lime and the
+  cyan go as far toward neon as white words allow.
+- **Held to the photo ads' law** (`scripts/theme_law.mjs`, 64 of 64): the money word 4.5:1 on both
+  of the ground's stops, 1.7:1 off the words, and 3:1 for colour-blind readers. Six were moved the
+  least that passes:
+  - a trio with white words cannot carry a yellow or a lime money word that stands apart from them,
+    so Red, White & Yellow is Yellow on Red and Magenta, White & Neon Lime is Lime on Magenta, each
+    on a slightly deeper ground;
+  - Mint, Black & Red is Mint, Black & Violet (red on mint is one colour to a red-green colour-blind
+    reader);
+  - the electric blue is a little deeper, the hot pink and the orange a little lighter;
+  - the neon pairs keep white words.
+- **The plate's words** (`build_house_colours.mjs`): black where neither the ground's colour nor
+  white reads 4.5:1 on the plate (a yellow, amber or lime plate on red, blue or magenta). Every
+  pair before them reads one of those, and keeps it.
+- No new twins, and none within CIEDE2000 14 of a pair the studio had. The vivid look holds 20
+  pairs (was 11).
+- The approved hero wall keeps its colours: its picks are pinned (rule 145).
 
 Not done here: OPEN-ITEMS §BJ 7.
 
@@ -6861,7 +6905,134 @@ selling points".
   two instead, four wide type pairs (Tech, Arcade, Warp, Pixel) could not fit two long points and
   left the measured list (full_type_check); with this they hold, all 28.
 
-## 165. No real card art and no credited photograph on a card ad; the 2026 phones painted; Spanish ads in Spanish
+## 167. A business card is a print sheet: the bleed, the safe area, and the ads' own colours and type
+
+The owner, 2026-11-19: "business card designer..? just an idea and suggest quick same day print
+locations near you? just as an added bonus"; 2026-11-22: "Do this task here", and of it and a logo
+designer to come: "needs to be super pay walled". The maker is `cards/` (`cards/cards.js`).
+
+- **The sheet.** A standard US card, 3.5 × 2 in, drawn at 300 dpi with the 1/8 in bleed print shops
+  ask for: 1125 × 675 pixels, the trim 1050 × 600 inside it. Grounds, bands, panels and halftones run
+  to the bleed; every word and the QR stay in the safe area, 1/8 in inside the trim. A line seated on
+  the safe area's foot is seated by its descenders, not its baseline.
+- **The print file** is a PDF of both sides, each page on the bleed with an 18 pt slug for eight crop
+  marks, its TrimBox the card and its BleedBox the bleed, the sides as JPEGs (no PDF library), drawn
+  at 600 dpi (2250 × 1350), twice the press's 300, so small type prints with clean edges. The PNGs are
+  the 300 dpi sheets.
+- **Nothing under 7 pt.** The small lines (the towns, the website, the models line, a label) start at
+  32 px and stop at 29 px, 7 pt at 300 dpi, in half-pixel steps. Before going under, a models line
+  breaks into two of nearly a length, the towns break at a bullet, Band's website moves under the
+  number, and Ticket's goes off the stub to the towns. Only words too long for their place even then
+  go under 7 pt, and the page tells the customer which ("Your website is long for a card…").
+- **It matches the ads.** It wears the full ad's colour pairs (`motion/house-colours.js`) and the
+  type pairs the full ad may wear (`motion/full-voices.js`, plus Bold), with every word's colour held
+  to contrast on what it sits on. It says what the customer told the studio (`pgfx_brand`: number,
+  website, business name, towns; `pgfx_full_studio`: the line they buy, its pair and type), in the
+  full ad's capitals (iPHONE).
+- **Varied by rule, not one look.** Five layouts (Band, Split, Centred, Pop, Ticket), and five backs,
+  each the other half of its front (the polish, 2026-11-22: every layout had worn one back, re-coloured).
+  Band's back turns the band round, the plate for the ground and the card's ground for the band, with
+  the number on it and the QR standing on it. Split's panel is at the right behind the front's left,
+  holding the QR or the product. Centred sets everything on the middle line, the QR between what is
+  bought and a row of points. Pop's back is the comic's next panel: a white speech balloon says what
+  is bought. Ticket's stub is at the left, its tear and notches just behind the front's. A back with
+  no QR sets the number large. New look draws a layout, a pair (most often one that suits what is
+  bought) and a type pair.
+- **The fill** (the owner, 2026-11-22: "more creativity, fill pattern gradient something to give it
+  some distinguishing pattern"). Each side's main field wears one of ten: Glow, Rays, Fade, Rings,
+  Stripes, Dots, Grid, Cash (dollar signs), Waves, or Flat; its other regions (a band, a panel, a stub)
+  take a soft fade. A fill is two colours, the field's own and a second tone moved away from its words'
+  colour, eased off until every word on it keeps 4.5:1, or what it had on the flat field where that was
+  less; Pop's halftone takes such a tone too. Glow, Rays and Rings come from behind the product, the
+  QR or Pop's burst. New look always brings a fill; Flat is there to pick. The check draws each side
+  without its words, on a fill and flat, and reads the pixels under every word.
+- **The style** (the owner, 2026-11-22: "are you going professional are you going friendly? Are you going
+  vibrant and attractive business card?"): six art directions, Professional, Friendly, Bold, Premium,
+  Street and Comic, each a curated set of layouts, colour pairs (chosen by their colours: Premium's gold
+  on dark, Friendly's pastels, Bold's saturated grounds), type pairs (Premium's serif, Friendly's rounded
+  faces, Street's stencil, marker and brush) and grounds. New look draws all four from one style, so a
+  card has one personality, never a comic layout in a hairline serif; Any draws a style first, then a
+  look from it. Premium adds a fine double frame between the trim and the safe area, in the accent or,
+  where the accent is the field's own colour, the words' colour. Every other rule here holds in every style.
+- **Picture grounds** (the owner: "same quality as the actual ads ... background images could be an
+  option"). Photo: the ads' own photograph of what is bought (`assets/bg`, generated scenes with no text,
+  logos or people, listed with their brightness in `cards/photos.json` by `scripts/card_photos.mjs`;
+  Premium asks for a dark one, Friendly a bright one); it takes the product cutout's place, on Ticket's
+  stub and Split's back panel rather than under the words, and New look never puts it under Centred,
+  whose words would cover it. Scene: one the video maker paints (`motion/decor.js`, loaded only when
+  used) in the card's own colours, the product standing in it as in the ads; scenes that draw a border
+  at the edge are left out, the cut would slice it. Under the words of either, a scrim in the field's
+  own colour: the side is drawn once without its words at full size, the pixels under every word read,
+  and the scrim made just strong enough that at most one pixel in twenty under a word falls below 4.7:1
+  (or what the flat field gives where that is less); solid under the words, fading out over the
+  picture's side, an even veil where the words cover the field; at least half strength under a photograph.
+- **Ticket's number is on one line** (the owner: "the phone numbers on 2 lines does not look good"),
+  on the ticket's main part between two rules like a printed field, under what is bought and the name;
+  the stub carries the product.
+- **The QR** stands on a white tile, at least 3/4 in across, and nothing is drawn over it: no word, no
+  product, no burst. Under it, "SCAN TO VISIT" (to the website) or "SCAN TO CALL".
+- **Print colour.** A pair with a bright green, cyan, blue, violet or pink (saturated and light, by
+  hue) says under the preview that it prints a little softer than the screen and to ask for a proof:
+  four inks fall short of those; reds, oranges and yellows print close.
+- **It shows what is bought** (the audit, 2026-11-22, the owner: "audit and refine and try to make
+  sure the designs are as good"). Every front but Centred, which is the typographic one, carries the
+  line's own product, the full ad's cutout (`motion/subjects.json` sets, `assets/cutouts/`), fitted
+  whole in the trim, never on a word, with a soft shadow (a hard one on Pop); a back with no QR
+  shows it in the QR's place, so no side is half empty. New look moves through the line's pictures.
+- **The number is read first.** A type pair whose display face is a script or a pixel face, or that
+  the full ad already sets its number apart for (`numberRead`), sets the number in Libre Franklin
+  900. A name wraps to two lines before it shrinks, and lines are spaced by the face's own ascenders
+  and descenders; a long name that a wide or decorative face would still set below 52 px goes into
+  the pair's reading face; a pixel face reads as words only from 80 px, so under that a name or a
+  back's headline is set in the reading face. Of two-line breaks as large, the one whose lines are
+  nearest a length wins. Pop's offset shadow is the accent, scaled to the type, as a print in two
+  inks, and only under a face with the weight for it: none under a high-contrast serif, a script or a
+  pixel face, where it doubles into a blur. Text at the top edge is set from its measured top (Oswald's
+  capitals and the É of POKÉMON rose over the safe line when placed by a share of the size).
+- **Paid.** Anyone designs and sees a card; the preview carries the WeBuy.AD mark until the plan
+  downloads cards. The print file comes with Pro and Business (`plans.mjs` `cards`), decided by the
+  function (`/api/export/check` and `/api/export`, kind `card`) and counted as one photo download.
+- **Print it today** is Google Maps searches near the customer's ZIP or town, which they open
+  themselves: nothing about them is sent anywhere by the page.
+- **Checked** by `scripts/business_card_check.mjs` (sizes, the safe area and overlaps across layouts,
+  pairs, type and a long name; the product in the trim, on every front but Centred and on every back
+  without a QR but Centred's, and never on a word; nothing under 7 pt; every QR 3/4 in or more and
+  clear; five different backs with a QR and without; the number large on a back with no QR; Pop's
+  shadow by the face; the colour note; every word's pixels on every fill, the photograph and seven
+  scenes (510 sides); the six styles' lists and New look staying in them; the photograph in the
+  product's place; the Style picker; the PDF's boxes, crop marks, xref and 600 dpi pages; the print
+  links; the paywall signed out, on Starter and on Pro, light and dark, at 390) and
+  `scripts/billing_check.mjs` (the function's rule). A sweep of every layout × type pair × QR × three
+  name lengths (1,740 sides) found one line under 7 pt: a 31-character website in the widest pair, at 6.7 pt, which the page names.
+
+## 168. Sign in with Apple and Google: one pair of buttons, shown when configured, checked on the server
+
+(Written as 164 and OPEN-ITEMS BR; both were taken on other branches by the time it met main, so 168 and BV.)
+
+Added 2026-11-19. The owner: "apple and google sign in ?".
+
+- **One pair, both dialogs.** `account.js` draws them (`pgfxAccount.social.mount`): the video
+  maker's dialog and the studio's (`app.js ensureGoogleAuth`, whose box keeps the id `#auth-google`)
+  put them above the email form, with an "or with email" line under them. Apple's button is drawn
+  by Apple's own script, as its guidelines want; Google's by Google's.
+- **Shown only when configured.** `/api/auth/config` says which: `APPLE_CLIENT_ID` (the web Services
+  ID) and `GOOGLE_CLIENT_ID`. Without them no script loads and nothing shows.
+- **Checked on the server.** Google's credential by Google's tokeninfo (as before); Apple's identity
+  token in `netlify/lib/appleid.mjs` against Apple's published keys: the signature, the issuer, the
+  audience (the Services ID, or the iPhone app's bundle ID `APPLE_BUNDLE_ID`), the expiry, a verified
+  email, and the nonce the page made. An unknown key id fetches Apple's keys once more first.
+- **One account per email.** Apple or Google with a confirmed email signs in to the account that
+  email already has, or opens one. An account opened this way has no password, and the email form
+  says to use its button.
+- **Not in the iPhone app's web view.** Google refuses it there, and the App Store requires Apple
+  wherever Google is offered, so the app shows neither until it signs in with Apple natively.
+- **Held by** `scripts/appleid_check.mjs` (a key pair standing in for Apple's: a good token, and the
+  forged, expired, wrong-app, wrong-nonce, unknown-key and unverified ones refused) and
+  `scripts/social_signin_check.mjs` (both dialogs against stand-ins for Apple, Google and the API).
+
+Not done here: OPEN-ITEMS §BV.
+
+## 169. No real card art and no credited photograph on a card ad; the 2026 phones painted; Spanish ads in Spanish
 
 Added 2026-11-23. The owner, of the four things left open on 2026-11-22 (the 2026 Samsung and Pixel
 pictures, the Spanish selling points, the first-guess weights, the credited Charizard): "CAN WE FIX ALL 4".

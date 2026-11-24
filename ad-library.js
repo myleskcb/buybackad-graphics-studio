@@ -470,6 +470,7 @@
   }
   async function saveDesign(ref, opts){
     opts = opts || {};
+    if (/^full(:|$)/.test(String(ref))) return saveFullTile();   // the full ad: as it is drawn, not a template
     let tplId = ref;
     if (/^sc-/.test(ref) && !app.template(ref)){
       if (typeof scRegister !== 'function') throw new Error('the design could not be loaded');
@@ -520,7 +521,69 @@
     try { return kind === 'adv' ? edProject() : ezProject(); } catch (e){ return null; }
   }
   /* the Easy Mode ad, as Download my ad makes it, saved instead of downloaded */
+  /* THE FULL AD, AS SHOWN (2026-11-21). Since pull request 14 Easy Mode opens on the full ad, and
+     every library design is a rebuilt ad drawn by it. Save to library saved the template under it,
+     and a ★ on a rebuilt ad looked for a card record it no longer has ("the design could not be
+     loaded"). Now they save the picture the full ad's Download makes (full-ad-studio.js still), in
+     the visitor's number, at the plan's size, counted as a download as every save is. */
+  const FS = () => window.FullAdStudio || null;
+  const fullOn = () => { try { const f = FS(); return !!(f && f.isOn && f.isOn()); } catch (e){ return false; } };
+  const fullRef = () => { try { const f = FS(); return (f && f.ref && f.ref()) || 'full'; } catch (e){ return 'full'; } };
+  const houseRef = h => 'full:' + (h.kind === 'recipe' ? h.id : h.line || h.id);
+  async function saveFull(){
+    const f = FS();
+    if (!f || typeof f.still !== 'function') throw new Error('the full ad did not load; reload the page');
+    const phone = $('ez-phone').value.trim();
+    if (!phone){
+      app.toast('Type your phone number first, buyers need to reach you', 'error');
+      $('ez-phone').focus(); $('ez-phone').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return null;
+    }
+    if (!await signedIn(() => saveFull())) return null;
+    const gate = await gateExport(ezExportPx());
+    if (!gate) return null;
+    let made;
+    try { made = await f.still(gate.px); }
+    catch (e){ app.toast('The full ad could not load just now. Try again in a moment.', 'error'); return null; }
+    // the full ad's own gate, as its Download asks it (rule 138)
+    if (made.fixes.length && typeof pgGateAsk === 'function' && !await pgGateAsk({ fails: made.fixes.map(s => ({ code: 'full', say: s })) })) return null;
+    let url = made.frame.toDataURL('image/png');
+    if (gate.watermark) url = await applyWatermark(url, made.W, made.H);
+    try { await recordExport(); }
+    catch (e){ app.toast('The save could not be counted as a download: ' + e.message, 'error'); return null; }
+    const tidy = v => String(v || '').replace(/\s+/g, ' ').trim();
+    const texts = Object.entries(made.words).filter(([, t]) => tidy(t)).map(([role, t]) => ({ role, text: tidy(t).slice(0, 200) }));
+    const title = tidy(made.words.headline) || 'Full ad';
+    const name = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-full-ad-' + (ez.format && ez.format !== 'square' ? ez.format + '-' : '') + gate.px + '.png';
+    const meta = { title: title.slice(0, 80), category: made.cat || '', template: made.ref, texts, products: [],
+      hold: gate.watermark ? 'the watermark' : tidy(made.site) ? 'a website' : '', source: 'studio' };
+    const item = await save({ name, data: url, proj: null, meta }, true);
+    if (item) app.toast(item.hold ? 'Saved to your library. ' + heldLine(item.hold) : 'Saved to your library ⭐' + (app.admin() ? '' : ' (1 download used)'), 'success');
+    paint();
+    return item;
+  }
+  /* the ★ on the strip's Full ad card: that card on, then the ad as drawn */
+  function saveFullTile(){
+    if (!fullOn() && typeof selectEzTpl === 'function') selectEzTpl('full');
+    return fullOn() ? saveFull() : Promise.resolve(null);
+  }
+  /* the ★ on a rebuilt ad (the landing's library, the designer's Templates panel): it opens in Easy
+     Mode's full ad, as a click on it does, and is saved as drawn there, in the visitor's number. A
+     video maker's look opens in the maker, whose own ★ saves it. */
+  async function saveHouse(h){
+    if (!h || typeof openHouseAd !== 'function') throw new Error('the design could not be loaded');
+    if (!await signedIn(() => saveHouse(h))) return null;
+    if (!await openHouseAd(h)) return null;
+    return saveFull();
+  }
+  /* a library card's ★: a rebuilt ad saves as drawn (saveHouse), a card still on offer as before */
+  function decorateCard(card, c){
+    if (!card || !c) return;
+    if (c.house) decorate(card, houseRef(c.house), { name: c.name, save: () => saveHouse(c.house) });
+    else decorate(card, 'sc-' + c.id, { name: c.name });
+  }
   async function saveEasy(){
+    if (fullOn()) return saveFull();     // the ad on screen is the full ad
     const phone = $('ez-phone').value.trim();
     if (!phone){
       app.toast('Type your phone number first, buyers need to reach you', 'error');
@@ -686,7 +749,7 @@ html:not(.adl-on) #mo-star,html:not(.adl-on) .adl-hist,html:not(.adl-on) .adl-as
   }
   function paint(){
     document.querySelectorAll('.adl-star[data-ref]').forEach(paintOne);
-    ['ez-star', 'ex-star'].forEach(id => { const b = $(id); if (b && app.here()){ try { b.classList.toggle('on', isSaved(id === 'ez-star' ? ez.tpl : currentTplId)); } catch (e){} } });
+    ['ez-star', 'ex-star'].forEach(id => { const b = $(id); if (b && app.here()){ try { b.classList.toggle('on', isSaved(id === 'ez-star' ? (fullOn() ? fullRef() : ez.tpl) : currentTplId)); } catch (e){} } });
   }
   /* the star itself: a span, not a button, because the cards it sits on
      are often buttons themselves */
@@ -745,10 +808,16 @@ html:not(.adl-on) #mo-star,html:not(.adl-on) .adl-hist,html:not(.adl-on) .adl-as
   function stars(){
     if (!app.here()) return;
     style();
-    wrap('scCard', (card, a) => { const c = a[0]; if (card && c) decorate(card, 'sc-' + c.id, { name: c.name }); });
+    wrap('scCard', (card, a) => decorateCard(card, a[0]));
     wrap('scClassicCard', (card, a) => { const t = a[0]; if (card && t) decorate(card, t.id, { name: t.name }); });
     const tplName = id => { try { return (TEMPLATES.find(t => t.id === id) || {}).name; } catch (e){ return undefined; } };
-    wrap('buildEzStrip', () => document.querySelectorAll('#ez-strip .ez-tpl[data-tpl]').forEach(b => decorate(b, b.dataset.tpl, { name: tplName(b.dataset.tpl) })));
+    /* the strip's cards, and the Full ad card full-ad-studio.js puts in front of them after this
+       wrapper has run: watched, so a card added later gets its ★ too */
+    const decorateStrip = () => document.querySelectorAll('#ez-strip .ez-tpl[data-tpl]').forEach(b => b.dataset.tpl === 'full'
+      ? decorate(b, 'full', { name: 'the full ad', save: () => saveFullTile() })
+      : decorate(b, b.dataset.tpl, { name: tplName(b.dataset.tpl) }));
+    wrap('buildEzStrip', decorateStrip);
+    try { const strip = $('ez-strip'); if (strip && window.MutationObserver) new MutationObserver(decorateStrip).observe(strip, { childList: true }); } catch (e){}
     wrap('buildPickerGrid', (r, a) => {
       let f = a[0]; try { if (f === undefined) f = currentFilter; } catch (e){}
       if (f === 'mine') return;
@@ -756,7 +825,12 @@ html:not(.adl-on) #mo-star,html:not(.adl-on) .adl-hist,html:not(.adl-on) .adl-as
       zip('#picker-grid .tpl-card:not(.tpl-saved-card)', list, t => t.id, t => t.name);
     });
     wrap('refreshMyTemplates', () => zip('#builtin-tpl-grid .mini-tpl', catTemplates(), t => t.id, t => t.name));
-    wrap('edBuildLibrary', () => { if (!SHOWCASE.cards) return; zip('#ed-lib-grid .mini-tpl', SHOWCASE.cards.filter(c => c.cat === currentCat).slice(0, 80), c => 'sc-' + c.id, c => c.name); });
+    /* the panel lists the shelf (scLoadShelf: the cards on offer, then the rebuilt ads), as edBuildLibrary does */
+    wrap('edBuildLibrary', () => {
+      const shelf = SHOWCASE.shelf || SHOWCASE.cards; if (!shelf) return;
+      const list = shelf.filter(c => c.cat === currentCat).slice(0, 80);
+      document.querySelectorAll('#ed-lib-grid .mini-tpl').forEach((card, i) => decorateCard(card, list[i]));
+    });
     wrap('openHistory', () => { app.history().then(recs => {
       document.querySelectorAll('#hist-list .hist-row').forEach((row, i) => {
         const r = recs[i]; if (!r || row.querySelector('.adl-hist')) return;
@@ -768,11 +842,11 @@ html:not(.adl-on) #mo-star,html:not(.adl-on) .adl-hist,html:not(.adl-on) .adl-as
       }); }); });
     /* what was built before this file loaded (the landing's gallery draws
        as soon as its index is in) */
-    try { document.querySelectorAll('#ez-strip .ez-tpl[data-tpl]').forEach(b => decorate(b, b.dataset.tpl)); } catch (e){}
+    try { decorateStrip(); } catch (e){}
     try {
       const grid = $('lp-tpl-grid');
       if (grid && grid.children.length && SHOWCASE && SHOWCASE.list){
-        [...grid.querySelectorAll('.tpl-card')].forEach((card, i) => { const x = SHOWCASE.list[i]; if (x) decorate(card, x.classic ? x.classic.id : 'sc-' + x.id, { name: x.classic ? x.classic.name : x.name }); });
+        [...grid.querySelectorAll('.tpl-card')].forEach((card, i) => { const x = SHOWCASE.list[i]; if (!x) return; if (x.classic) decorate(card, x.classic.id, { name: x.classic.name }); else decorateCard(card, x); });
       }
     } catch (e){}
     /* the ad as made */

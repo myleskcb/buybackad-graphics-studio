@@ -1,5 +1,5 @@
 """Checks for BuybackadFeed and autopost_worker.py, against a stand-in
-BUYBACK.AD ad library on this machine (no network, no key):
+WeBuy.AD ad library on this machine (no network, no key):
 
     python3 -m unittest test_autopost -v
 """

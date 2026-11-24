@@ -90,7 +90,7 @@ const renderedOf = (id, p) => {
   if (p && p.rendered && prev.built && prev.built.slice(0, 10) === p.rendered) return prev.built.replace(/\.\d{3}Z$/, 'Z');
   return lastSeen['assets/library-ads/' + id + '.jpg'] || (p && p.rendered ? p.rendered + 'T00:00:00Z' : nowIso());
 };
-const SOFTWARE = 'WeBuy.AD';   // the product's name (DESIGN-LAW 148, 2026-11-19); BUYBACK.AD stays the business
+const SOFTWARE = 'WeBuy.AD';   // the product's and the business's name (DESIGN-LAW 153; the business too since 2026-11-23)
 const stamp = (buf, c, dates) => exifStamp(buf, { title: c.name || c.id, software: SOFTWARE, created: dates.created, updated: dates.updated, uploaded: dates.rendered });
 
 const items = { ...prev.items };

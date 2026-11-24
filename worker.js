@@ -1,5 +1,5 @@
 /**
- * BUYBACK.AD backend — single-file Cloudflare Worker.
+ * WeBuy.AD backend — single-file Cloudflare Worker.
  * Provides: email+password auth, plan tracking, server-enforced export limits,
  * Stripe Checkout session creation, and the Stripe webhook that activates plans.
  *

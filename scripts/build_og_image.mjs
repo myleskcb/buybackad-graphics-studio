@@ -43,7 +43,7 @@ const jpg = await p.evaluate(async thumbs => {
   /* the words */
   const fade = g.createLinearGradient(0, 0, 700, 0); fade.addColorStop(0, 'rgba(13,16,23,1)'); fade.addColorStop(0.72, 'rgba(13,16,23,.92)'); fade.addColorStop(1, 'rgba(13,16,23,0)');
   g.fillStyle = fade; g.fillRect(0, 0, 720, H);
-  g.fillStyle = '#9aa3b5'; g.font = '600 24px "Schibsted Grotesk"'; g.fillText('GRAPHICS STUDIO · BUYBACK.AD', 72, 150);
+  g.fillStyle = '#9aa3b5'; g.font = '600 24px "Schibsted Grotesk"'; g.fillText('WEBUY.AD', 72, 150);
   g.fillStyle = '#f4f5f8'; g.font = '800 78px "Bricolage Grotesque"';
   ['“We Buy” ads', 'that stop', 'the scroll.'].forEach((t, k) => g.fillText(t, 68, 250 + k * 84));
   g.fillStyle = '#c3c9d6'; g.font = '500 28px "Schibsted Grotesk"';

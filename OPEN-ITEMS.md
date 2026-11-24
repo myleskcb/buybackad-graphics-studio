@@ -4011,26 +4011,27 @@ Open:
     - An ad with no product never stands on a photograph.
     - Eighteen hand picks on the wall (9 full ads, 9 rebuilt), held by `hero_wall_check.mjs`.
     - Every still and full-size rebuilt ad drawn again.
-    - **owner**: approve the wall (shown as one image, 2026-11-19) or name the tiles to swap.
+    - **Approved by the owner, 2026-11-22** ("Approve the wall"). Its picks are pinned to their
+      approved pairs (`assets/hero-picks.json` `pins`, DESIGN-LAW 145).
     - **owner**: a real VR headset photograph (a Meta Quest 3), the one in the repository being a
       render. It waits for a word on the download. The seven VR ads stand on their words alone
       until then, off the wall.
     - Seen, not changed: the Pokémon and sports-card tiles' graded-slab pictures read pale at the
       wall's size.
-14. **Vibrant pairs and trios, proposed** (the owner: "ideally we relearn color theory and ad design
-    to maximize all of the color pairs, trios, etc.. that work and keep a viewer captivated.. means
-    vibrant or neon colors often times or really good contrasts"). **proposed, not live**:
-    - 10 new schemes, each on its own ground, from colour theory (violet and yellow, blue and
-      orange, lime and purple, cyan and magenta, mint and red...).
-    - 3 of the neon-on-black pairs at full neon.
-    - Every one passes the studio's contrast floors, and none duplicates a pair the studio has.
-    - The colours and the reason for each are in `docs/colour-proposals-2026-11-19.json`.
-    - Shown to the owner on the iPhone and the cars full ad, 2026-11-19.
-    - **owner**: which to adopt, and which current pairs they replace. The candidates are the dark,
-      muted ones, such as Navy & Orange, Midnight & Cyan, Blue & Green, Teal & Orange and White on
-      Navy.
-    - Adopting one is a row in app.js `COLOR_THEMES` and `node scripts/build_house_colours.mjs`.
-      Then draw the stills again, and the wall and its check.
+14. **Vibrant pairs and trios** (the owner: "ideally we relearn color theory and ad design to
+    maximize all of the color pairs, trios, etc.. that work and keep a viewer captivated.. means
+    vibrant or neon colors often times or really good contrasts"). Shown on real ads 2026-11-19;
+    the owner, 2026-11-22: "Adopt all 13". **done** (DESIGN-LAW 154):
+    - 10 new schemes, each on its own ground, are rows of app.js `COLOR_THEMES`.
+    - Black & Pink, Black & Lime and Black & Cyan are brighter.
+    - Six were moved the least that passes the photo ads' law (`theme_law`, 64 of 64): two trios
+      became two-colour signs (Yellow on Red, Lime on Magenta), and Mint, Black & Red became Mint,
+      Black & Violet for colour-blind readers.
+    - The approved wall keeps its colours (pins).
+    - Every recipe still and full-size rebuilt ad was drawn again.
+    - **owner**: whether any dark, muted pair should leave the draw now that the vivid look holds
+      20. Candidates: Navy & Orange, Midnight & Cyan, Blue & Green, Teal & Orange, White on Navy.
+      Nothing was retired without the word.
 
 ## BL. 2026-11-18 — webuy.ad, the site's new address
 
@@ -4495,7 +4496,89 @@ Open:
    the Space Needle) are kept out where a photograph is about the building; a skyline that has one in
    it is kept. If the shop wants no risk at all, drop those by hand.
 
-## BU. 2026-11-22 — four more kinds of ground, and the card lines' own pictures (DESIGN-LAW 163)
+## BU. 2026-11-22 — business cards, and the logo designer planned (DESIGN-LAW 167)
+
+The owner, 2026-11-19: "business card designer..? just an idea and suggest quick same day print
+locations near you? just as an added bonus"; 2026-11-22, of it: "Do this task here", and "what about
+logo designer later with assets included ? suggested logo maker? outline assets? vector assets? pop
+art style? comic style? use LM credits ? plan this out too but needs to be super pay walled ? along w
+business cards?".
+
+Done (this branch):
+- **`cards/`**, the business card maker: front and back at 300 dpi with the bleed, five layouts in the
+  full ad's colour and type pairs, filled from what the customer typed in the studio, a QR on the
+  back. Download the print PDF (crop marks, TrimBox and BleedBox) or the PNGs. Linked from the
+  landing's bar, the video maker's bar and Easy Mode ("Matching business card"); in the sitemap.
+- **Paid**: Pro and Business (`plans.mjs` `cards`, enforced by the function, kind `card`, one photo
+  download). The plan cards and the comparison table say so (`build_pricing.mjs`).
+- **Print it today**: after a download, Google Maps searches for same-day business card printing and
+  for FedEx Office, Staples, Office Depot OfficeMax and The UPS Store near the customer's ZIP, and
+  what to ask for.
+- `account.js` finds the API from `cards/` as from `motion/`.
+
+Open:
+- **Which plans.** Business cards are Pro and Business now; Starter is one switch in `plans.mjs`.
+- **A card from a saved ad's look.** The card takes the full ad's colours and type as the studio last
+  had them; picking a card's look from one of the customer's library ads is a next step.
+
+### The logo designer, planned (not built)
+
+What it makes: a logo for a buying business. A mark and a wordmark in three lockups (side by side,
+stacked, the mark alone), as SVG (vector), transparent PNG, a one-colour version, and the small sizes
+(favicon, app icon). It becomes the customer's brand kit: the badge on the full ad, the business card,
+the video's end card.
+
+1. **Assets: a vector icon set of what is bought**, outline and filled, on one stroke and corner
+   grid: phone, tablet, laptop, watch, ring, gold bar, coin, car, truck, van, camera, drone,
+   controller, trading card, test strip box, cash, handshake, pin. Drawn as our own SVGs, or taken
+   from icon sets under permissive licences (Tabler Icons MIT, Lucide ISC, Phosphor MIT), never a
+   brand's mark (no Apple logo, no car badges): the free-licence rule the photos keep.
+2. **Styles, as generators varied by a seed** (cohesive by rules, never one house look): monogram
+   badge, outline line-art, pop art (Ben-Day dots, offset colour, heavy outline), comic (ink outline,
+   starburst, speech bubble, Bangers/Luckiest/Knewave lettering), stamp and seal, varsity/sport,
+   luxe serif for gold and jewellery, neon, minimal geometric. Faces from the type pairs, colours from
+   the house pairs, so a logo goes with the ads.
+3. **"Suggest logos"**: from the business name, what they buy and the town, a page of suggestions
+   at once (say 12), More like this on one, and locks on the parts liked (mark, face, colours).
+4. **AI credits**, where they earn their price: a language model for name, tagline and slogan ideas
+   and for which styles suit (a credit or two a batch). The vector mark stays ours (sharp, editable,
+   clear to use); an image model's picture is not a vector and its rights are murkier, so at most
+   it is a mood board.
+5. **"Super pay walled"**: design and preview free, the preview heavily marked. The file is made by
+   the function, not the browser: the page sends the design (style, seed, words, colours), the
+   function checks the plan and draws the SVG, so the clean vector never reaches a browser that has
+   not paid. A new plan flag (`logos`) and kind (`logo`) beside `cards`.
+6. **Phases**: (a) the icon set and the generators with a marked preview; (b) the paid server-drawn
+   SVG/PNG export; (c) the brand kit: the logo on cards, ads and videos; (d) the AI suggestions.
+
+The owner decides: the tier (Pro and Business, Business alone, or a one-time logo pack for any plan
+like the AI credit packs), what a suggestion batch costs in credits, and the terms' line on who owns
+a logo made here.
+
+## BV. 2026-11-19 — Sign in with Apple and Google (DESIGN-LAW 168)
+
+The owner: "apple and google sign in ?". Google's sign-in was built but switched off (no
+`GOOGLE_CLIENT_ID`); Apple's did not exist.
+
+Done:
+- `/api/auth/apple` and `netlify/lib/appleid.mjs` (the token checked against Apple's keys);
+  `/api/auth/config` reports Apple too.
+- One pair of buttons in `account.js`, used by the video maker's dialog and the studio's.
+- The CSP lets Apple's script and popup through, and Google's button stylesheet.
+- The privacy policy names Apple alongside Google.
+- `scripts/appleid_check.mjs` and `scripts/social_signin_check.mjs`.
+
+Open:
+1. **owner**: create the Google OAuth client and the Apple Services ID, and put
+   `GOOGLE_CLIENT_ID` and `APPLE_CLIENT_ID` in Netlify (`docs/SIGN-IN-SETUP.md`, step by step).
+2. **owner**: read the privacy policy's new Apple lines before this goes live.
+3. The iPhone app shows neither button. It needs Sign in with Apple natively
+   (`ASAuthorizationAppleIDProvider` in the shell, its identity token sent to `/api/auth/apple`),
+   then `APPLE_BUNDLE_ID` = `ad.webuy.app` in Netlify. Google can follow in the app only alongside
+   Apple (App Store guideline 4.8).
+
+## BW. 2026-11-22 — four more kinds of ground, and the card lines' own pictures (DESIGN-LAW 163)
+(BU on claude/full-ad-looks-layout; `main` had given BU to the business cards by the time it landed, 2026-11-23, so it is BW here.)
 
 (claude/full-ad-looks-layout, after §BT. The owner: "some backgrounds we'll use more device or brand
 imagery", "or we use abstract img backgrounds", "what else would we use?", "Yes, build them"; and,
@@ -4522,7 +4605,7 @@ Open:
    photograph, `assets/cutouts/ATTRIBUTION.json`): that licence asks for a credit on the ad, and the
    card's art is the maker's. Rule 161 holds new ad photographs to public domain or CC0. It still has
    weight 6 of the Pokémon pool; the owner's call whether it stays.
-   **Done 2026-11-23 (DESIGN-LAW 165):** retired with the two Charizard ground photographs; see §BV.
+   **Done 2026-11-23 (DESIGN-LAW 169):** retired with the two Charizard ground photographs; see §BY.
 3. **Still to build from the list:** textures and materials (about 40 CC0 photographs, about 25 MB:
    needs the owner's go-ahead to download), space (NASA photographs are public domain, about 30, about
    20 MB, plus painted ones; most are dark, so under a duotone or wash), the area drawn as a map from
@@ -4548,7 +4631,7 @@ Open:
    lawyer: a player's face in a paid ad is his likeness.
 7. **Selling points vary** (DESIGN-LAW 164, done 2026-11-22): two to four per ad, drawn from each
    line's own promises and any buyer's, each said several ways. Spanish ads still draw the old
-   three from the catalogue's Spanish list; a Spanish pool is next. **Done 2026-11-23** (§BV).
+   three from the catalogue's Spanish list; a Spanish pool is next. **Done 2026-11-23** (§BY).
 8. **The iPhone mix, by the owner's word** (done 2026-11-22): the 17 Pro Max pushed hardest, the 16
    Pro Max (the shop's best seller) close behind, the 18 Pro Max present and to grow; the colourful
    base and Plus models of 14 to 17 about a third of the draw. The iPhone 16 Plus has no render in
@@ -4565,11 +4648,68 @@ Open:
    devices. The owner's site is Apple only. Ways in: the shop's own photographs of the Samsung and
    Pixel phones it buys (cut out by the existing scripts), stock bought with ad rights, or the fal
    model drawing from a real photograph as its reference (scripts/bggen_entities.py), read by eye.
-   **Done 2026-11-23, painted** (§BV): seventeen 2026 Galaxy and Pixel pictures in code.
+   **Done 2026-11-23, painted** (§BY): seventeen 2026 Galaxy and Pixel pictures in code.
 
-## BV. 2026-11-23 — the four left open: no real Charizard, the 2026 phones, Spanish points, the owner's shares (DESIGN-LAW 165)
+## BX. 2026-11-23 — WeBuy.AD everywhere, the old domains dropped, mail, and what the site still needs
 
-(claude/full-ad-looks-layout, after §BU. The owner: "CAN WE FIX ALL 4".)
+(claude/domain-saas-f5840a, from `main` at 57522eb2, `main` merged in at 875e6167 and c190dba9.
+Main named its Sign in with Apple and Google BV and took BW, so this is BX.)
+
+The owner, from a session asked to "use my name cheap to connect domain and create all necessary
+saas parts": skip buyback.ad, "drop old branding", "Yes, all of it", then "Anything that was
+previously referred to as the old name needs to be switched over to the new name".
+
+Done:
+- **buyback.ad was never registered.** The .ad registry answers NXDOMAIN and its whois has no
+  record (2026-11-18 and 2026-11-23); Namecheap sold it for $21.98 a year. The owner chose not to
+  buy it. `buyback.ad`, `www.buyback.ad` and `studio.scans.ad` (the old project's primary domain,
+  never resolved; `scans.ad` is in another Namecheap account) are off the old Netlify project.
+  Both sites still answer 200.
+- **Mail** (Namecheap, webuy.ad, Redirect Email): support@webuy.ad to myleskcb@gmail.com, beside
+  the contact@iphones.la forward another session made for the App Store review; hello@webuy.ad to
+  myleskcb@gmail.com. Checked after a reload, not by sending mail.
+- **The name**: WeBuy.AD wherever the product, the site or the business was BUYBACK.AD or
+  Graphics Studio: the terms (the party, the Service; version 2026-11-23, `TERMS_VERSION`) and
+  privacy (updated 2026-11-23), the copyright line on every page and the 18 category pages, the
+  old single-file page, robots.txt, the library API's name and realm, the label a studio sends
+  iPhones LA when it connects, the partner kit's words (zip repacked), code comments, the current
+  docs, DESIGN-LAW 153's name rule. Identifiers and dated history keep the old spelling (rule 153).
+- Docs: AGENT-BRIEF's domains, OPERATIONS (URLs, mail, the logins, retiring the old project),
+  SETUP, IPHONESLA-CONNECTION.
+
+The SaaS parts on webuy.ad (`buybackad-finished-copy`), read 2026-11-23. Its variables: ADMIN_EMAILS,
+FAL_KEY, JWT_SECRET, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET. `/api/health`: ok, accounts, store ok,
+ai, google false, billing (test mode).
+
+| Part | State | What is left, and whose |
+|---|---|---|
+| Accounts, operators | live | none |
+| AI backgrounds | live (fal) | optional: a `GEMINI_KEY` as the fallback; the old project has one, webuy.ad's has none. The owner pastes it |
+| Billing | on, **test mode** | the owner: Stripe live keys (`sk_live`, `pk_live`) into the project's variables, a deploy, then Plan & billing → Set up prices, webhook and wallets now (the webhook and Apple Pay domain move to webuy.ad). In Stripe: public business name WeBuy.AD, support email support@webuy.ad, receipts on |
+| `SITE_URL` | not set, not needed | Netlify's `URL` is the primary domain, https://webuy.ad |
+| Google sign-in | off | the owner: a Google Cloud OAuth client (Web, origin https://webuy.ad, consent screen named WeBuy.AD); its client ID into `GOOGLE_CLIENT_ID` |
+| Mail in | live | none |
+| Mail out | none: no password reset, no address check | a build: a mail provider, its DNS records at Namecheap, and the reset flow |
+| Search | not set up | the owner: Search Console, Domain property webuy.ad (a TXT record at Namecheap), submit https://webuy.ad/sitemap.xml; Bing can import it |
+| Analytics | none | the owner's choice of tool; the CSP and the privacy policy change with it |
+| Legal pages | live; WeBuy.AD once this branch is on `main` | none |
+
+Open:
+1. **This branch is not on `main`** until the owner says so; the push deploys webuy.ad.
+2. **The old project still serves iPhones LA.** iphones.la's CORS door answers 204 only for
+   `https://buybackad-graphics-studio.netlify.app` (400 for webuy.ad and finished-copy), and
+   iPhones LA's code names it as `DEFAULT_STUDIO_URL` with no webuy.ad in `STUDIO_SITES`. The
+   owner chose iPhones LA first; the redirect waits (OPERATIONS, "Retiring the old project").
+3. **Chrome's Netlify login is myleskcb@gmail.com (team KCB)** since this session, which switched
+   it to reach the old project; webuy.ad's settings need the myleskcb2 login again.
+4. `assets/og/og-card.jpg` and `assets/og/buybackad-og.jpg` still draw the old name; no page links
+   them (the share card is `assets/brand/share-card.jpg`).
+5. This Mac has no Netlify CLI and no CLI login (the brief said otherwise); the old project's
+   last deploy is a CLI deploy of 2026-10-07.
+
+## BY. 2026-11-23 — the four left open: no real Charizard, the 2026 phones, Spanish points, the owner's shares (DESIGN-LAW 169)
+
+(claude/full-ad-looks-layout, after §BW. The owner: "CAN WE FIX ALL 4".)
 
 Done:
 - The graded Charizard cut-out rejected and flagged; the two Charizard ground photographs replaced by

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* THE BUYBACK.AD MARK, CHECKED (watermark.js, DESIGN-LAW 142).
+/* THE WeBuy.AD MARK, CHECKED (watermark.js, DESIGN-LAW 142).
 
    The owner, 2026-11-17, asked whether people can "just download the ad through their browser or
    natively or screenshot the ad and crop it", then "Yes, do it": the mark across the middle, on

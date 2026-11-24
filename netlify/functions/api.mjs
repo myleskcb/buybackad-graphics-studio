@@ -1,5 +1,5 @@
 /**
- * BUYBACK.AD backend — Netlify Function port of worker.js, plus the AI
+ * WeBuy.AD backend — Netlify Function port of worker.js, plus the AI
  * background service. One catch-all function at /api/*.
  *
  * Provides: email+password auth (PBKDF2 + HMAC JWT), plan tracking,
@@ -60,13 +60,14 @@
 import { getStore } from '@netlify/blobs';
 import { libraryRoute } from '../lib/library.mjs';
 import { adLibraryRoute, ownerKey } from '../lib/adlibrary.mjs';
-import { PLANS, PACKS, PAID, planId, videoOk, creditState, backgroundCredits } from '../lib/plans.mjs';
+import { PLANS, PACKS, PAID, planId, videoOk, cardsOk, creditState, backgroundCredits } from '../lib/plans.mjs';
 import {
   billingOn, stripeMode, stripe, priceFor, catalog, subState, applySub, applySession, customerOf,
   syncDue, syncSub, ensureWebhook, verifyEvent, webhookSecretKey, ensurePortalConfig, portalConfigKey, TERMS_VERSION,
   ensurePaymentDomain, paymentDomainKey,
 } from '../lib/billing.mjs';
 import { bggenRoute, generateImage, loadRecipe, dataUrlOf } from '../lib/bggen.mjs';
+import { verifyAppleIdToken } from '../lib/appleid.mjs';
 
 export const config = { path: '/api/*' };
 
@@ -277,14 +278,43 @@ export default async (req) => {
       const user = await getUser(em);
       if (!user) return json({ error: 'Wrong email or password' }, 401);
       if (user.provider === 'google' && !user.hash) return json({ error: 'This account uses Google sign-in. Use the Google button.' }, 401);
+      if (user.provider === 'apple' && !user.hash) return json({ error: 'This account uses Sign in with Apple. Use the Apple button.' }, 401);
       if (user.hash !== await pbkdf2(password || '', user.salt)) return json({ error: 'Wrong email or password' }, 401);
       return json({ token: await makeToken(em, env), user: publicUser(user, env) });
     }
 
     // Which auth methods the frontend should render. Google appears only when
-    // GOOGLE_CLIENT_ID is configured in the Netlify env.
+    // GOOGLE_CLIENT_ID is configured in the Netlify env; Apple only when
+    // APPLE_CLIENT_ID (the web Services ID) is.
     if (p === '/auth/config') {
-      return json({ google: !!env.GOOGLE_CLIENT_ID, googleClientId: env.GOOGLE_CLIENT_ID || '' });
+      return json({ google: !!env.GOOGLE_CLIENT_ID, googleClientId: env.GOOGLE_CLIENT_ID || '',
+        apple: !!env.APPLE_CLIENT_ID, appleClientId: env.APPLE_CLIENT_ID || '' });
+    }
+
+    // Sign in with Apple (2026-11-19, the owner: "apple and google sign in ?"). The
+    // browser, or the iPhone app, sends Apple's identity token; netlify/lib/appleid.mjs
+    // checks it against Apple's published keys: signature, issuer, audience (the web
+    // Services ID APPLE_CLIENT_ID, or the app's bundle ID APPLE_BUNDLE_ID), expiry, a
+    // verified email and the page's nonce. Then find-or-create the account by email, as
+    // Google's does, and issue our own token. Apple sends the name only on the first
+    // sign-in, so it is kept then. No password is stored for these accounts.
+    if (p === '/auth/apple' && req.method === 'POST') {
+      const audiences = [env.APPLE_CLIENT_ID, env.APPLE_BUNDLE_ID].filter(Boolean);
+      if (!audiences.length) return json({ error: 'Sign in with Apple is not enabled' }, 503);
+      const { id_token: idToken, name, nonce } = await req.json().catch(() => ({}));
+      let who;
+      try { who = await verifyAppleIdToken(idToken, { audiences, nonce: String(nonce || '') }); }
+      catch (e) { return json({ error: e.message }, 401); }
+      let user = await getUser(who.email);
+      if (!user) {
+        user = { email: who.email, provider: 'apple', appleSub: who.sub, plan: 'free', exports: { period: '', count: 0 },
+          created: Date.now(), name: String(name || '').trim().slice(0, 80) };
+        await putUser(user);
+      } else if (!user.appleSub) {
+        user.appleSub = who.sub;
+        await putUser(user);
+      }
+      return json({ token: await makeToken(who.email, env), user: publicUser(user, env) });
     }
 
     // Google Sign-In: the browser sends the GIS ID token; we verify it against
@@ -375,6 +405,11 @@ export default async (req) => {
       if (roleFor(em, env) === 'admin') return json({ user: publicUser(user, env), maxPx: 2160, watermark: false, remaining: null });
       await freshUser(user, env);
       const { kind } = await req.json().catch(() => ({}));
+      /* a print-ready business card (cards/): Pro and Business (plans.mjs cards, owner 2026-11-22:
+         "needs to be super pay walled"), then one of the plan's photo downloads */
+      if (kind === 'card' && !cardsOk(user.plan)) {
+        return json({ error: 'Print-ready business cards come with Pro and Business', needs: 'cards', user: publicUser(user, env) }, 403);
+      }
       if (kind === 'video' && !videoOk(user.plan)) {
         return json({ error: 'Video downloads come with Pro and Business', needs: 'video', user: publicUser(user, env) }, 403);
       }

@@ -1,4 +1,4 @@
-# BUYBACK.AD — deploy guide
+# WeBuy.AD — deploy guide
 
 ## Frontend
 Deploy a clean checkout of `main` with the Netlify CLI (AGENT-BRIEF.md,
@@ -99,7 +99,7 @@ and the plans page and Checkout in Chromium.
 | Price | $0 | $25 a month, $250 a year | $60 a month, $600 a year | $100 a month, $1,000 a year |
 | Downloads | 3 photos a week | 100 photos a month | 500 a month, photos or videos | unlimited, photos or videos |
 | Video ads | make and watch | make and watch | download, no marks | download, no marks |
-| Size, watermark | 1080 px, BUYBACK.AD marks | 2160 px, none | 2160 px, none | 2160 px, none |
+| Size, watermark | 1080 px, WeBuy.AD marks | 2160 px, none | 2160 px, none | 2160 px, none |
 | Designs | every Phones card + the top 3 of each other category | all | all | all |
 | AI credits a month | 5 | 50 | 200 | 500 |
 | Ads kept in the library | 12 | 300 | 1,000 | 3,000 |
@@ -292,7 +292,7 @@ the landing, a video saved from each; `FABRIC_JS=…` when cdnjs is out of
 reach).
 
 ## SCANS.AD (ScanMap) integration — optional
-Graphics Studio runs 100% standalone. The integration is also **invisible to
+WeBuy.AD runs 100% standalone. The integration is also **invisible to
 single-product users**: every SCANS.AD surface (order buttons, tracked-link
 helper) stays hidden until the browser proves membership of BOTH platforms —
 the user is signed in here AND has either arrived via ScanMap's dashboard link

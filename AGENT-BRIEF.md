@@ -1,4 +1,4 @@
-# Agent brief — Graphics Studio by BUYBACK.AD
+# Agent brief — WeBuy.AD
 
 Notes for whoever, or whatever, is about to change this repo. Most of what
 follows has already cost a silent breakage, seven weeks of unbacked work, or a
@@ -14,7 +14,7 @@ anything.
 
 ## What this is
 
-**Graphics Studio by BUYBACK.AD** — a browser ad builder for phone buyers and
+**WeBuy.AD** — a browser ad builder for phone buyers and
 resellers. Pick a template, type a headline and a phone number, export a
 post-ready graphic for Facebook Marketplace, OfferUp, Instagram or Craigslist.
 
@@ -286,27 +286,19 @@ curl -sS -o /dev/null -w '%{http_code} /docs\n'   $U/docs/README.md   # must be 
 python3 scripts/cvd_audit.py                                         # exits 1 on failure
 ```
 
-## Domains — known broken, needs a human
+## Domains
 
 | URL | State |
 |---|---|
-| `webuy.ad` / `www.webuy.ad` | **works — the site's address** (live 2026-11-19 UTC; `A @ 75.2.60.5` and `CNAME www buybackad-finished-copy.netlify.app.` at Namecheap; `www` redirects to the bare name) |
-| `buybackad-finished-copy.netlify.app` | works; `main` (the netlify.app address of the project webuy.ad points at) |
-| `buybackad-graphics-studio.netlify.app` | works, but a build from before 2026-10-08 (FLOW-AUDIT 2026-11-11) |
-| `studio.scans.ad` | configured in Netlify, **no public DNS** |
-| `buyback.ad` / `www.buyback.ad` | domain alias set, no DNS at all |
+| `webuy.ad` / `www.webuy.ad` | **works — the site's address** (live 2026-11-19 UTC; `A @ 75.2.60.5` and `CNAME www buybackad-finished-copy.netlify.app.` at Namecheap; `www` redirects to the bare name; Let's Encrypt, renews itself) |
+| `buybackad-finished-copy.netlify.app` | works; `main` (the netlify.app address of the project webuy.ad points at, team myleskcb2) |
+| `buybackad-graphics-studio.netlify.app` | works, but a CLI deploy of 2026-10-07 (team KCB). **iPhones LA's studio connection still points here**: retire it only in the order in `docs/OPERATIONS.md` |
+| `buyback.ad`, `www.buyback.ad`, `studio.scans.ad` | **dropped 2026-11-23** and taken off the old project: buyback.ad was never registered (the owner chose not to buy it), studio.scans.ad never resolved |
 
-The `studio` record exists and is correct on Netlify's nameservers, but
-`scans.ad` is delegated at the registrar to `dns1.registrar-servers.com`
-(Namecheap), so the Netlify zone is not authoritative and nobody can see it:
-
-```bash
-dig +short studio.scans.ad @dns1.p04.nsone.net   # 52.52.192.191, 13.52.188.95
-dig +short studio.scans.ad @8.8.8.8              # nothing
-```
-
-Two fixes, both needing registrar access, both moving DNS for a live product —
-**do not do this unattended.** Detail in `docs/OPERATIONS.md`.
+Mail is Namecheap forwarding: support@webuy.ad and hello@webuy.ad (OPERATIONS,
+"Mail"). The logins that hold each piece, and why webuy.ad's DNS stays at
+Namecheap, are in OPERATIONS too. DNS, registrar settings, Stripe and plan
+limits are still the owner's to change, never unattended.
 
 `reselling.us/GFX` returns 200 but serves a *different* app (RU CRM v1), whose
 SPA catch-all answers every path. Mounting there means a subdomain
@@ -706,16 +698,24 @@ produced." DESIGN-LAW rule 87. In practice:
   card's rebuilt ad from `assets/recipe-stills/` (`node scripts/build_recipe_stills.mjs`, `--check`)
   through `scLoadShelf`; `scLoadIndex` is the library cards alone. Rebuild the stills when the
   recipes or the engine change (`--all`).
-- **The hero wall is chosen, not filled** (rules 145 and 146, the owner, 2026-11-19). Every slot is
+- **The hero wall is chosen, not filled** (rules 145 and 154, the owner, 2026-11-19). Every slot is
   a hand pick in `assets/hero-picks.json`, a rebuilt ad or one of the full ad's own looks
   (`full-<line>-v<seed>`, drawn by `node scripts/build_hero_stills.mjs`).
   `node scripts/hero_wall_check.mjs` reads the landing's wall and holds it to:
   - no pair, headline or family twice;
   - three dark tiles at most, never touching;
   - patterns and gradients shown, full ads included;
-  - a product in every tile.
+  - a product in every tile;
+  - a pinned tile in its pin.
+  The owner approved the wall on 2026-11-22. Its picks are pinned to their approved pairs
+  (`pins`): they keep their approved stills and open in those pairs. A new colour pair moves every
+  seed's draw but never the wall. Redraw it only with the owner's word (`--redraw`).
   A seed never draws a twin pair, and draws a dark look least (`LOOK_SHARE`). After an engine
-  change, draw the recipe stills, the hero stills and the rebuilt ads again.
+  change, draw the recipe stills and the rebuilt ads again.
+- **A new colour pair is a row of app.js `COLOR_THEMES`** (rule 154), the photo ads' and the full
+  ad's alike. It passes `node scripts/theme_law.mjs`: the money word 4.5:1 on both of the ground's
+  stops and 1.7:1 off the words, and 3:1 for colour-blind readers. Then
+  `node scripts/build_house_colours.mjs`, which marks twins and checks the full ad's floors.
 - **The partner library serves the rebuilt library ads** (`assets/rebuilt-ads/`,
   `node scripts/render_rebuilt_ads.mjs --stale` after the recipes or the engine change;
   `library_api_check` fails while one is stale).
@@ -737,3 +737,8 @@ produced." DESIGN-LAW rule 87. In practice:
   wall and the editor's library keep to the designs. A category's chips open into its lines
   (scSubChips), in `motion/subjects.json`'s order.
 
+- **Sign in with Apple and Google** (rule 168, 2026-11-19): both buttons come from `account.js`
+  (`pgfxAccount.social.mount`), on both dialogs, shown only when `/api/auth/config` reports
+  `APPLE_CLIENT_ID` or `GOOGLE_CLIENT_ID`; Apple's token is checked in `netlify/lib/appleid.mjs`.
+  Never show them inside the iPhone app's web view (`WeBuyADApp/` in the user agent). Before a
+  commit that touches sign-in: `node scripts/appleid_check.mjs` and `node scripts/social_signin_check.mjs`.

@@ -6470,6 +6470,29 @@ Found:
 RESUME HERE: OPEN-ITEMS §BS. The owner's eye on the twelve; then PR #14, the xenodochial branch and
 this branch land in that order.
 
+## 2026-11-19 (night) — Sign in with Apple and Google (DESIGN-LAW 168; claude/sign-in-apple-google)
+
+Asked: "apple and google sign in ?", on the video maker's dialog. Found: Google's sign-in was
+already built (2026-10, `/auth/google` through Google's tokeninfo, the studio's button) but
+switched off for want of `GOOGLE_CLIENT_ID`, and only on the studio's dialog; Apple's did not
+exist; the video maker's dialog (`account.js`) had neither.
+
+Done: Apple on the server (`netlify/lib/appleid.mjs`: Apple has no tokeninfo, so its JWT is
+checked against its published keys, and its rotated keys are fetched again once); both buttons
+in one place (`account.js`), used by both dialogs; the CSP; the privacy policy; the owner's steps
+(`docs/SIGN-IN-SETUP.md`).
+
+Found on the way: Apple's button must be Apple's own, so its script draws it into
+`#appleid-signin` and the result comes back as a document event. Two dialogs never share a page
+(on the studio `account.js` hands over to `app.js`), so one element and one listener do. Inside the
+iPhone app neither shows: Google answers "disallowed_useragent" in an app's web view, and offering
+Google there obliges Apple too.
+
+Checked: `appleid_check` 16 of 16, `social_signin_check` 20 of 20; `watermark_check` and
+`full_ad_studio_check` pass; `billing_check` 172 of 173, the same fabric.js failure as before.
+
+RESUME HERE: the owner's two IDs (§BV 1), then Sign in with Apple in the iPhone app (§BV 3).
+
 ## 2026-11-21 — photographs under the words, the area's own city, the lines' own grounds (DESIGN-LAW 161; claude/full-ad-looks-layout)
 
 Asked: "Where are the background images? None of these have background images", patterns, a photo
@@ -6534,7 +6557,7 @@ Found:
   - Word tapes drawn across the whole frame ran under the headline; a corner tape runs at 45 degrees
     across the corner, not along the diagonal.
 
-Later the same day (DESIGN-LAW 164; OPEN-ITEMS BU 5 to 9):
+Later the same day (DESIGN-LAW 164; OPEN-ITEMS BW 5 to 9):
   - Selling points drawn by the seed: two to four, from each line's own promises and any buyer's,
     each said several ways, the money or the quote always in the first two.
   - The iPhone mix by the owner's word, not by release date alone: the 17 Pro Max pushed, the 16
@@ -6552,9 +6575,151 @@ Found:
   - The owner's site serves its device art at 640 x 640, the same renders the studio already
     holds; the larger files came as the owner's own upload.
 
-RESUME HERE: OPEN-ITEMS §BU 5 to 9. Device pictures for 2026 Samsung and Pixel; a Spanish points pool.
+RESUME HERE: OPEN-ITEMS §BW 5 to 9. Device pictures for 2026 Samsung and Pixel; a Spanish points pool.
 
-## 2026-11-23 — the four left open (DESIGN-LAW 165; OPEN-ITEMS BV)
+## 2026-11-22 — the vibrant pairs adopted, the approved wall pinned (claude/zealous-dewdney-386bf8)
+
+Asked: the owner approved the hero wall ("Approve the wall") and adopted the thirteen proposed
+colour schemes ("Adopt all 13").
+
+Changed:
+  - Ten new schemes are rows of app.js `COLOR_THEMES`. Black & Pink, Black & Lime and Black &
+    Cyan are brighter, under the same names.
+  - `build_house_colours.mjs` gives a plate black words where neither the ground's colour nor white
+    reads.
+  - The wall's eighteen picks are pinned to their approved pairs (`assets/hero-picks.json` `pins`).
+    `build_hero_stills.mjs` keeps their approved stills, `app.js` opens them in their pins, and
+    `hero_wall_check.mjs` holds them to it.
+  - Every recipe still and full-size rebuilt ad drawn again: the stills are now 133 dark (was 183),
+    309 vivid (was 242); 175 of 665 draw a new scheme.
+
+Learned:
+  - New pairs move every seed's draw, so an approved wall recolours unless its picks are pinned.
+  - The full ad's floors are not the photo ads' law. `theme_law` asks a money word to stand 1.7:1 off
+    the words and 4.5:1 on the ground, and to read for colour-blind readers. White words with a
+    yellow or lime money word cannot do both, and red on mint fails a red-green reader. Six of the
+    thirteen moved the least that passes. Solve against the law's own formulas, holding the vivid
+    colour and moving the ground, or the yellow fades to cream.
+  - The business cards read `black_pink`, `black_lime` and `black_cyan` by key: brighten a pair,
+    never rename it.
+
+## 2026-11-23 — a ZIP code in Your area lands at once (claude/area-zip-lands-now, off pull request 18)
+
+Asked: audit the typing-pause fix of 2026-11-18 (on `main` since pull request 14) and validate it
+again; then, for what the audit found, a fix on a branch off pull request 18.
+
+Found:
+  - On `main` the fix is whole. Every word field still goes through `debounce`; nothing newer fills
+    the boxes outside `syncWords`; every whole new look comes after a step or through `putLook`.
+    typing_pause_check 39 of 39, quick_ad_check 47, buylist_check 20, full_ad_check all clear, and
+    every page loads with no page error (the one violation is phonegfx-studio.html's old inline
+    script, as on 2026-11-18).
+  - Pull request 18 (a ZIP code for Your area, rule 160) made the area's handler wait for the
+    town's lookup before anything landed, and the first lookup loads 1.6 MB (assets/geo/). Inside
+    that wait the 2026-11-18 fault was back, for the area: ↻ Another headline or New look put the
+    old area in the box, the lookup took that for typing on, and the ZIP was dropped without a
+    word; Download photo began at once and went out with the old area. With the lookup slowed to a
+    phone's pace, the new cases 11 to 13 failed 8 lines on the pull request's head (edf48084).
+  - typing_pause_check passed on pull request 18: its cases typed a city. A check covers the
+    inputs it types; a new kind of input (a ZIP) needs its own case, written with it.
+  - Autofill makes it the likely path, not a rare one: the field asks for `postal-code`, so a
+    browser fills a ZIP there with the number, the cursor in another box, on the first (slow) lookup.
+  - quick_ad_check failed 2 of 47 in one of four runs here. With Math.random seeded alike in both
+    trees, pull request 18's head and this branch gave the same lead models and the same results
+    for six seeds, two failing on both: the second wholesale quick ad leads with another model, so
+    the price kept for the first does not follow it. Pull request 18's own, not this change's; an
+    A/B with the randomness pinned answers "is it mine?" where reruns only make it likelier.
+
+Done (motion/app.js):
+  - The area lands as typed when its pause ends, a ZIP too (`setArea`), and the city in the words
+    follows it, as before. A ZIP is then looked up: once its town is found it is the area and what
+    the box says, unless the area has moved on meanwhile. While the first lookup runs, the words
+    and the ad name the ZIP (metroOf already reads one for the background).
+  - The lookup's "typed on since" reads the saved area as well as the box, so a refill no longer
+    cancels it.
+  - Every download and save (`download`, `downloadJpg`, `saveLook` and a gallery look's star,
+    `quickAd`, `downloadBuyList`) waits for a ZIP still being looked up (`areaPlaced`): the file
+    names the town the ad shows.
+  - A ZIP the data does not know now stays the area, so the box and the ad agree and the toast
+    still asks for the city; before, the ad kept the old area under a box that said the ZIP. The
+    owner's call if that should go back.
+
+Checked: typing_pause_check (15 cases, 59 lines) all passed; cases 11 to 13 failed 8 lines on
+edf48084 before the fix. The browser pane: 92101 autofilled, ↻ pressed at once, ended San Diego,
+92101, the number kept, the towns nearby shown. quick_ad_check as above; buylist_check all passed;
+full_ad_check all clear; every page loaded with no page error.
+
+Not on `main` and not on pull request 18's branch: this branch is cut from its head (edf48084) and
+goes onto it as a fast-forward while it has not moved. Merging is the owner's call.
+
+RESUME HERE: the owner's word to fold this into pull request 18 (or the session that owns it), and
+pull request 18's quick_ad_check seeds 23 and 37 (the wholesale lot's lead model) for that session.
+
+## 2026-11-23 (later) — `main` takes pull requests 20, 21 and 18, with the ZIP fix (claude/merge-20-21-18)
+
+Asked: "aren't we on pr 21? what happens when we're pushing old stuff and new stuff at the same
+time?", "merge??", then "Clean ones to main".
+
+Found, by merging every open pull request onto `main` in a scratch checkout before touching it:
+  - Six pull requests were open at once, from six sessions, and four aimed at branches that are
+    no longer the product: 15 and 18 at pull request 14's branch (merged 2026-11-21), 17 and 19
+    at 15's. Merged on GitHub as they stood, they would have landed there and never reached the site.
+  - 20 merged clean; 21 and 18 collided only where each appends (the log, the rules, the open
+    items). 15, and 17 and 19 on top of it, conflict with today's `main` in ten files (app.js,
+    index.html, _headers, netlify.toml, privacy.html, terms.html, sitemap.xml and three docs): old
+    lines against newer ones, where taking the old side would quietly undo `main`'s newer work.
+  - Rule numbers 158, 159, 161 and 163 each name two different rules, one on 15, 17 and 19's line
+    and one on 18. 18 lands first, so its numbers stand; 15's line renumbers when it lands.
+  - Open item BU was `main`'s business cards and also 18's "four more kinds of ground": 18's is BW
+    here, with a line saying so, and its log's two references to it follow.
+  - A resolve script refused a log hunk (its first side opened mid-entry), a chained commit ran
+    anyway, and a conflict marker was committed. A scan of the tree for markers caught it before
+    anything was pushed, and the merge commit was amended. Scan for markers after every hand
+    resolution, and never chain a commit after a step that can fail.
+
+Done: `main` + 20 + 21 + 18 + the ZIP fix (claude/area-zip-lands-now), one merge commit each, in
+that order; the appended logs, rules and open items kept from both sides, in date, number and
+letter order.
+
+Checked on the merged tree: typing_pause_check 15 cases (59 lines) passed; quick_ad_check 47 of 47
+twice; buylist_check 20 passed; full_ad_check all clear; appleid_check 16, social_signin_check 20,
+watermark_check 48, all clear; hero_wall_check holds; every page loaded with no page error (the one
+violation, phonegfx-studio.html's old inline script, as on `main` before).
+
+Not done: pull requests 15, 17 and 19. They need 15's conflict resolved against this `main` (ten
+files), their rules 158, 159, 161 and 163 renumbered (165 is theirs; 169 on are free), and 17 and
+19 aimed at `main`.
+
+RESUME HERE: pull request 15 against this `main`, then 17 and 19.
+## 2026-11-23 — WeBuy.AD everywhere; the old domains dropped (claude/domain-saas-f5840a)
+
+Asked: connect the domains through Namecheap and set up every SaaS part, with the owner present;
+then "drop old branding" and "Anything that was previously referred to as the old name needs to
+be switched over to the new name".
+
+Done: OPEN-ITEMS §BX. buyback.ad was never registered (skipped); three dead domains off the old
+project; support@ and hello@webuy.ad forward; the name is WeBuy.AD in every current file.
+
+Found:
+  - A brief can describe a domain as "attached, no DNS" for months when it was never bought. Ask
+    the registry (`dig +norecurse <name> NS @<the TLD's server>`, `whois -h whois.nic.ad`) before
+    planning DNS for it.
+  - Four days passed between the task and the owner's sign-in; another session had launched
+    webuy.ad meanwhile, and a third made the same contact change an hour before the merge. Fetch
+    `main` before every step that writes, not only at the start.
+  - The built-in browser lost both sign-ins whenever the app closed its pane; the owner's Chrome
+    kept them. A Netlify session in one browser is one login: the second team meant signing out of
+    the first.
+  - Generic "buyback ad" is the product's category, not the old name: a rename must match
+    BUYBACK.AD and Graphics Studio, never the phrase.
+  - CSS_FALLBACK was stale on `main`; any styles.css edit (comments too) means
+    `node scripts/sync_css_fallback.mjs`, and again after merging `main`.
+
+RESUME HERE:
+  0. OPEN-ITEMS §BX, Open 1 and 2: this branch onto `main` with the owner's OK; iPhones LA to
+     accept webuy.ad, then the old project's redirect.
+
+## 2026-11-23 — the four left open (DESIGN-LAW 169; OPEN-ITEMS BY)
 
 The owner: "CAN WE FIX ALL 4" (2026 Samsung and Pixel pictures, Spanish points, the first-guess
 weights, the credited Charizard).
@@ -6574,4 +6739,4 @@ Found:
     into the ignored node_modules) ran rethumb_showcase.mjs unchanged.
   - Almost 400 other cut-outs (nearly every car) are CC BY or CC BY-SA: the same credit question, open.
 
-RESUME HERE: OPEN-ITEMS §BV 1 (read the owner's choices from the gallery and set the shares), then 2.
+RESUME HERE: OPEN-ITEMS §BY 1 (read the owner's choices from the gallery and set the shares), then 2.

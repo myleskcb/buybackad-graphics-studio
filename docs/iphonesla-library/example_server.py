@@ -106,7 +106,7 @@ class Handler(BaseHTTPRequestHandler):
         except LibraryError as e:
             # the library's own refusals pass through; a key problem is ours to fix, not the visitor's
             status = e.status if e.status in (400, 404, 429) else 502
-            return self._json(status, {"error": str(e) if status != 502 else "the BUYBACK.AD library did not answer"})
+            return self._json(status, {"error": str(e) if status != 502 else "the WeBuy.AD library did not answer"})
         except ValueError:
             return self._json(400, {"error": "bad parameter"})
 

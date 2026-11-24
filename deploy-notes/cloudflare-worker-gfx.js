@@ -1,5 +1,5 @@
 /**
- * Serve Graphics Studio at https://reselling.us/gfx/
+ * Serve WeBuy.AD at https://reselling.us/gfx/
  *
  * reselling.us is a React SPA ("RU CRM v1") behind Cloudflare whose router
  * answers every unknown path with its own shell — which is why /gfx already

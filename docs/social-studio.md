@@ -1,6 +1,6 @@
 # iPhones.LA Social Studio
 
-`/social/` is the shop's internal version of Graphics Studio and Video Ads.
+`/social/` is the shop's internal version of WeBuy.AD and Video Ads.
 It requires the existing Studio admin account on a deployed site. It has no
 entry in the customer navigation and uses no consumer-app code.
 

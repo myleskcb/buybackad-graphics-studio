@@ -411,7 +411,7 @@ const footer = (up) => `<footer class="bottom">
   <a href="${up}index.html#faq">FAQ</a>
   <a href="${up}terms.html">Terms</a>
   <a href="${up}privacy.html">Privacy</a>
-  <span>&copy; 2026 BUYBACK.AD</span>
+  <span>&copy; 2026 WeBuy.AD</span>
 </footer>`;
 
 function page(c) {

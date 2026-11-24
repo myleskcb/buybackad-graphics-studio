@@ -1,12 +1,12 @@
 # NEW GFX ENGINE — study program
 
-Entry point for any LLM or person picking up the Graphics Studio design work.
+Entry point for any LLM or person picking up the WeBuy.AD design work.
 Read this file first, then `SESSION-PROTOCOL.md`, then whichever curriculum
 module the log says is next.
 
 ## What this project is
 
-**Graphics Studio by BUYBACK.AD** — a browser-based ad builder for phone buyers
+**WeBuy.AD** — a browser-based ad builder for phone buyers
 and resellers. Pick a template, type a headline and a phone number, export a
 post-ready graphic for Facebook Marketplace, OfferUp, Instagram or Craigslist.
 

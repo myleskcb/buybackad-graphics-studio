@@ -192,7 +192,7 @@ test('the exchange is called once, with no cookie and no token, and the token is
   const body = JSON.parse(c.init.body);
   assert.deepEqual(Object.keys(body).sort(), ['code', 'label']);
   assert.equal(body.code, CODE);
-  assert.equal(body.label, 'Graphics Studio, Chrome on Mac');
+  assert.equal(body.label, 'WeBuy.AD, Chrome on Mac');
   const kept = JSON.parse(s.local._m.ipla_link);
   assert.deepEqual(Object.keys(kept).sort(), ['connectedAt', 'token']);
   assert.equal(kept.token, TOKEN);
@@ -821,7 +821,7 @@ test('chips are checked as rendered, including hidden and synthesized badges', a
 });
 
 test('domains, handles and street addresses are refused; local, vanity and spaced phone numbers are sent', async () => {
-  for (const text of ['buyback.ad', 'scans.ad/x', 'iphones . la', 'iphones. la', '@iphonesla', 'IG: iphonesla', '123 Main Street']) {
+  for (const text of ['webuy.ad', 'scans.ad/x', 'iphones . la', 'iphones. la', '@iphonesla', 'IG: iphonesla', '123 Main Street']) {
     const s = studio({ local: linked(), respond: okUpload });
     await settle();
     await s.exportAdvanced('contact.png', { objects: [{ type: 'i-text', text }] });

@@ -16,7 +16,7 @@ own. Each has a light and a dark set.
 
 | File | Idea |
 |---|---|
-| `suite.css` | The resale. grammar on plain greys, with orange as Graphics Studio's own colour. Includes `family.css`. |
+| `suite.css` | The resale. grammar on plain greys, with orange as WeBuy.AD's own colour. Includes `family.css`. |
 | `family.css` | The resale. system as written: violet, a cyan dot, violet-tinted greys. |
 | `greenback.css` | Oatmeal paper and one banknote green; an engraved rosette and wave border; Besley. |
 | `signal.css` | The yellow and black of a WE BUY sign; Big Shoulders capitals. |
