@@ -739,6 +739,9 @@ produced." DESIGN-LAW rule 87. In practice:
 
 - **Sign in with Apple and Google** (rule 168, 2026-11-19): both buttons come from `account.js`
   (`pgfxAccount.social.mount`), on both dialogs, shown only when `/api/auth/config` reports
-  `APPLE_CLIENT_ID` or `GOOGLE_CLIENT_ID`; Apple's token is checked in `netlify/lib/appleid.mjs`.
-  Never show them inside the iPhone app's web view (`WeBuyADApp/` in the user agent). Before a
-  commit that touches sign-in: `node scripts/appleid_check.mjs` and `node scripts/social_signin_check.mjs`.
+  `APPLE_CLIENT_ID` or `GOOGLE_CLIENT_ID`. Since 2026-11-23 they are the site's own buttons, dressed
+  as the window they sit in; never put Google's or Apple's framed button back (it can't blend).
+  Apple's token is checked in `netlify/lib/appleid.mjs`, Google's in `netlify/lib/googleid.mjs`
+  (its client ID, always). Never show them inside the iPhone app's web view (`WeBuyADApp/` in the
+  user agent). Before a commit that touches sign-in: `node scripts/appleid_check.mjs`,
+  `node scripts/googleid_check.mjs` and `node scripts/social_signin_check.mjs`.

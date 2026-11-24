@@ -14,7 +14,8 @@ takes about ten minutes. You do them yourself: they need your Google and Apple s
    - application type **Web application**, name **WeBuy.AD website**;
    - **Authorized JavaScript origins**: `https://webuy.ad` and `https://www.webuy.ad`
      (add `https://buybackad-finished-copy.netlify.app` too if you test there);
-   - no redirect URIs are needed.
+   - no redirect URIs are needed: the button is the site's own, and it opens Google's sign-in
+     popup, which only needs the origins.
 4. Copy the **Client ID**. It ends in `.apps.googleusercontent.com`.
 5. In **Netlify → buybackad-finished-copy → Site configuration → Environment variables**, add
    `GOOGLE_CLIENT_ID` with that value, then redeploy.
@@ -48,6 +49,8 @@ sit above the email form. Try each:
 
 ## Good to know
 
+- Both buttons are the site's own, dressed like the sign-in window, with each company's logo and
+  words. Pressing one opens that company's own sign-in popup.
 - An account opened with Apple or Google has no password. If someone tries the email form with
   it, they're told to use the button.
 - Apple shares the name only on the first sign-in, and it is kept then.
@@ -55,5 +58,5 @@ sit above the email form. Try each:
   and the App Store requires Sign in with Apple wherever Google sign-in is offered. The app needs
   Apple's own native sign-in (`AuthenticationServices`), which sends its token to the same
   `/api/auth/apple`. When that is built, add `APPLE_BUNDLE_ID` = `ad.webuy.app` to Netlify too.
-- **The privacy policy** now names Apple alongside Google (what is kept, which script loads, the
-  providers' table). Read it over before this goes live.
+- **The privacy policy** names Apple alongside Google (what is kept, which script loads, the
+  providers' table). It went live on 2026-11-23.
