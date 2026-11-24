@@ -6603,3 +6603,54 @@ Learned:
   - The business cards read `black_pink`, `black_lime` and `black_cyan` by key: brighten a pair,
     never rename it.
 
+## 2026-11-23 — a ZIP code in Your area lands at once (claude/area-zip-lands-now, off pull request 18)
+
+Asked: audit the typing-pause fix of 2026-11-18 (on `main` since pull request 14) and validate it
+again; then, for what the audit found, a fix on a branch off pull request 18.
+
+Found:
+  - On `main` the fix is whole. Every word field still goes through `debounce`; nothing newer fills
+    the boxes outside `syncWords`; every whole new look comes after a step or through `putLook`.
+    typing_pause_check 39 of 39, quick_ad_check 47, buylist_check 20, full_ad_check all clear, and
+    every page loads with no page error (the one violation is phonegfx-studio.html's old inline
+    script, as on 2026-11-18).
+  - Pull request 18 (a ZIP code for Your area, rule 160) made the area's handler wait for the
+    town's lookup before anything landed, and the first lookup loads 1.6 MB (assets/geo/). Inside
+    that wait the 2026-11-18 fault was back, for the area: ↻ Another headline or New look put the
+    old area in the box, the lookup took that for typing on, and the ZIP was dropped without a
+    word; Download photo began at once and went out with the old area. With the lookup slowed to a
+    phone's pace, the new cases 11 to 13 failed 8 lines on the pull request's head (edf48084).
+  - typing_pause_check passed on pull request 18: its cases typed a city. A check covers the
+    inputs it types; a new kind of input (a ZIP) needs its own case, written with it.
+  - Autofill makes it the likely path, not a rare one: the field asks for `postal-code`, so a
+    browser fills a ZIP there with the number, the cursor in another box, on the first (slow) lookup.
+  - quick_ad_check failed 2 of 47 in one of four runs here. With Math.random seeded alike in both
+    trees, pull request 18's head and this branch gave the same lead models and the same results
+    for six seeds, two failing on both: the second wholesale quick ad leads with another model, so
+    the price kept for the first does not follow it. Pull request 18's own, not this change's; an
+    A/B with the randomness pinned answers "is it mine?" where reruns only make it likelier.
+
+Done (motion/app.js):
+  - The area lands as typed when its pause ends, a ZIP too (`setArea`), and the city in the words
+    follows it, as before. A ZIP is then looked up: once its town is found it is the area and what
+    the box says, unless the area has moved on meanwhile. While the first lookup runs, the words
+    and the ad name the ZIP (metroOf already reads one for the background).
+  - The lookup's "typed on since" reads the saved area as well as the box, so a refill no longer
+    cancels it.
+  - Every download and save (`download`, `downloadJpg`, `saveLook` and a gallery look's star,
+    `quickAd`, `downloadBuyList`) waits for a ZIP still being looked up (`areaPlaced`): the file
+    names the town the ad shows.
+  - A ZIP the data does not know now stays the area, so the box and the ad agree and the toast
+    still asks for the city; before, the ad kept the old area under a box that said the ZIP. The
+    owner's call if that should go back.
+
+Checked: typing_pause_check (15 cases, 59 lines) all passed; cases 11 to 13 failed 8 lines on
+edf48084 before the fix. The browser pane: 92101 autofilled, ↻ pressed at once, ended San Diego,
+92101, the number kept, the towns nearby shown. quick_ad_check as above; buylist_check all passed;
+full_ad_check all clear; every page loaded with no page error.
+
+Not on `main` and not on pull request 18's branch: this branch is cut from its head (edf48084) and
+goes onto it as a fast-forward while it has not moved. Merging is the owner's call.
+
+RESUME HERE: the owner's word to fold this into pull request 18 (or the session that owns it), and
+pull request 18's quick_ad_check seeds 23 and 37 (the wholesale lot's lead model) for that session.
