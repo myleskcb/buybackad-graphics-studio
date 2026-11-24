@@ -494,6 +494,8 @@ ${nav('../')}
   <div class="ctas"><a class="btn" href="${pick}">${c.soon ? esc(cta) : `Make ${an(esc(one(c)))} ad`}</a></div>
 </main>
 ${footer('../')}
+<!-- Cloudflare Web Analytics (privacy.html, "The services we use"): page visits and load times, no cookies -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "2315e63735b243f28ef4c80f1dd52673"}'></script>
 </body>
 </html>
 `;

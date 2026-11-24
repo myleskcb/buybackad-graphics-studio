@@ -64,10 +64,11 @@ import { PLANS, PACKS, PAID, planId, videoOk, cardsOk, creditState, backgroundCr
 import {
   billingOn, stripeMode, stripe, priceFor, catalog, subState, applySub, applySession, customerOf,
   syncDue, syncSub, ensureWebhook, verifyEvent, webhookSecretKey, ensurePortalConfig, portalConfigKey, TERMS_VERSION,
-  ensurePaymentDomain, paymentDomainKey,
+  ensurePaymentDomain, paymentDomainKey, STATEMENT_SUFFIX, ownSession, ownSubscription,
 } from '../lib/billing.mjs';
 import { bggenRoute, generateImage, loadRecipe, dataUrlOf } from '../lib/bggen.mjs';
 import { verifyAppleIdToken } from '../lib/appleid.mjs';
+import { verifyGoogleToken, googleProfileName } from '../lib/googleid.mjs';
 
 export const config = { path: '/api/*' };
 
@@ -317,26 +318,26 @@ export default async (req) => {
       return json({ token: await makeToken(who.email, env), user: publicUser(user, env) });
     }
 
-    // Google Sign-In: the browser sends the GIS ID token; we verify it against
-    // Google's tokeninfo endpoint, check the audience, then find-or-create the
-    // account and issue our own JWT. No password stored for these users.
+    // Google Sign-In: the site's own button opens Google's popup through Google's
+    // token client, and the page sends the access token (or, from a page still open
+    // from before, the ID token Google's own button gave). lib/googleid.mjs asks
+    // Google's tokeninfo whom it was issued to (this site's client ID only) and for a
+    // confirmed email; then find-or-create the account and issue our own JWT. No
+    // password stored for these users.
     if (p === '/auth/google' && req.method === 'POST') {
       if (!env.GOOGLE_CLIENT_ID) return json({ error: 'Google sign-in is not enabled' }, 503);
-      const { credential } = await req.json().catch(() => ({}));
-      if (!credential) return json({ error: 'Missing credential' }, 400);
-      const vr = await fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(credential));
-      if (!vr.ok) return json({ error: 'Google rejected the sign-in. Try again.' }, 401);
-      const info = await vr.json();
-      if (info.aud !== env.GOOGLE_CLIENT_ID) return json({ error: 'Sign-in was issued for a different app' }, 401);
-      if (info.email_verified !== 'true' && info.email_verified !== true) return json({ error: 'Google account email is unverified' }, 401);
-      const em = String(info.email || '').toLowerCase();
-      if (!em) return json({ error: 'Google returned no email' }, 401);
-      let user = await getUser(em);
+      const { credential, access_token: accessToken } = await req.json().catch(() => ({}));
+      if (!credential && !accessToken) return json({ error: 'Missing credential' }, 400);
+      let who;
+      try { who = await verifyGoogleToken({ credential, accessToken }, { clientId: env.GOOGLE_CLIENT_ID }); }
+      catch (e) { return json({ error: e.message }, 401); }
+      let user = await getUser(who.email);
       if (!user) {
-        user = { email: em, provider: 'google', plan: 'free', exports: { period: '', count: 0 }, created: Date.now(), name: info.name || '' };
+        const name = who.name || (accessToken ? await googleProfileName(accessToken) : '');
+        user = { email: who.email, provider: 'google', plan: 'free', exports: { period: '', count: 0 }, created: Date.now(), name };
         await putUser(user);
       }
-      return json({ token: await makeToken(em, env), user: publicUser(user, env) });
+      return json({ token: await makeToken(who.email, env), user: publicUser(user, env) });
     }
 
     if (p === '/me') {
@@ -626,7 +627,7 @@ export default async (req) => {
         // partner and creator discounts are Stripe promotion codes, on the plans
         allow_promotion_codes: plan ? 'true' : undefined,
         subscription_data: plan ? { metadata: { email: em, plan, terms: TERMS_VERSION, consent_at: consentAt } } : undefined,
-        payment_intent_data: plan ? undefined : { metadata: md },
+        payment_intent_data: plan ? undefined : { metadata: md, statement_descriptor_suffix: STATEMENT_SUFFIX },
         /* B2B: a business can add its tax ID (and the name and address it
            wants on the invoice), a credit pack gets an invoice like a plan
            does, and Stripe Tax works out sales tax when STRIPE_TAX is on (it
@@ -714,7 +715,8 @@ export default async (req) => {
       const ev = await verifyEvent(env, users(), payload, req.headers.get('Stripe-Signature'));
       if (!ev) return new Response('bad signature', { status: 400 });
       const obj = (ev.data && ev.data.object) || {};
-      if (ev.type === 'checkout.session.completed' || ev.type === 'checkout.session.async_payment_succeeded') {
+      // the shared Stripe account's other sales are not this site's (billing.mjs, ownSession)
+      if ((ev.type === 'checkout.session.completed' || ev.type === 'checkout.session.async_payment_succeeded') && ownSession(obj)) {
         const em = String((obj.metadata || {}).email || obj.client_reference_id || obj.customer_email || '').toLowerCase();
         const user = em && (await getUser(em));
         if (user) {
@@ -741,7 +743,7 @@ export default async (req) => {
           }
         }
       }
-      if (ev.type.startsWith('customer.subscription.')) {
+      if (ev.type.startsWith('customer.subscription.') && ownSubscription(obj, env)) {
         const em = String((obj.metadata || {}).email || '').toLowerCase();
         const user = em && (await getUser(em));
         // only the account's own subscription moves it (an old one ending must not end a new one)

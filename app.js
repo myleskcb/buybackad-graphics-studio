@@ -12280,6 +12280,80 @@ function scWallVariety(order, want){
     return it;
   }).filter(Boolean);
 }
+/* A PICTURE THAT DOES NOT ARRIVE IS NEVER SHOWN BROKEN. The owner, 2026-11-23, of wall tiles showing
+   the browser's broken-picture mark and their alt text ("MacBooks (full ad, look 8) template"):
+   "fix this so our final product doesn't have this issue". Those were a preview whose server had
+   stopped before the late pictures were asked for, but any picture can fail on its way to a visitor:
+   a dropped request on a phone, a tab left open across a deploy, a still missing from a build.
+   pictureWatch(img, lost, back): the picture is hidden the moment it fails (and a wall picture is
+   clear until it has loaded, scWallWatch), it is asked for again after 1.5 s and 5 s, and if it
+   still has not come lost() lets its tile leave. When the connection or the tab comes back it is
+   asked for once more, and back() returns the tile if it came. All of it is set on the picture
+   itself, never in a stylesheet: a visitor holding an older copy of one file and a newer copy of
+   the other must not be left with a wall that hides its pictures and nothing to show them. */
+const PICTURE_RETRY_MS = [1500, 5000];
+const _lostPictures = new Set();
+function pictureAgain(img){
+  const src = img.getAttribute('src');
+  if (!src) return false;
+  img.setAttribute('src', src);   // setting it again, even to the same address, asks again
+  return true;
+}
+function pictureWatch(img, lost, back){
+  if (!img || img._watch) return;
+  const w = img._watch = { tries: 0, lost: false, timer: 0 };
+  const arrived = () => {
+    if (!(img.naturalWidth > 0)) return;
+    clearTimeout(w.timer); w.tries = 0;
+    img.style.visibility = ''; img.style.opacity = '';
+    img.classList.add('in');
+    if (w.lost){ w.lost = false; _lostPictures.delete(img); if (back) back(img); }
+  };
+  const failed = () => {
+    clearTimeout(w.timer);
+    img.classList.remove('in');
+    img.style.visibility = 'hidden';   // no broken-picture mark, no alt text: the tile's own surface
+    if (!img.isConnected) return;      // its wall was drawn again: nothing to keep asking for
+    if (w.tries < PICTURE_RETRY_MS.length){
+      w.timer = setTimeout(() => { if (!pictureAgain(img)) failed(); }, PICTURE_RETRY_MS[w.tries++]);
+      return;
+    }
+    if (!w.lost){ w.lost = true; _lostPictures.add(img); if (lost) lost(img); }
+  };
+  img.addEventListener('load', arrived);
+  img.addEventListener('error', failed);
+  if (img.complete && img.getAttribute('src')) (img.naturalWidth > 0 ? arrived : failed)();
+}
+/* back online, back on the tab, or back from the browser's page cache: ask once more for what was lost */
+function picturesAgain(){
+  _lostPictures.forEach(img => {
+    if (!img.isConnected){ _lostPictures.delete(img); return; }
+    img._watch.tries = PICTURE_RETRY_MS.length;   // one ask; it stays lost if this fails too
+    pictureAgain(img);
+  });
+}
+window.addEventListener('online', picturesAgain);
+window.addEventListener('pageshow', e => { if (e.persisted) picturesAgain(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) picturesAgain(); });
+/* On the wall a column is its list twice (the loop), so a card whose picture is lost leaves in both
+   copies and the loop stays whole: one tile fewer, nothing broken, nothing missing to the eye. */
+function scWallTwins(card){
+  const col = card && card.parentElement;
+  if (!col) return [];
+  const all = [...col.querySelectorAll('.wall-card')], half = all.length / 2, i = all.indexOf(card) % half;
+  return [all[i], all[i + half]].filter(Boolean);
+}
+function scWallWatch(img){
+  /* clear until it has loaded, so a slow one is its tile's quiet surface in every browser (Firefox
+     writes the alt text into a picture still on its way); landing.css fades it in */
+  if (!(img.complete && img.naturalWidth > 0)) img.style.opacity = '0';
+  pictureWatch(img,
+    im => scWallTwins(im.closest('.wall-card')).forEach(d => { d.style.display = 'none'; }),
+    im => {
+      const twins = scWallTwins(im.closest('.wall-card'));
+      if (twins.every(d => { const t = d.querySelector('img'); return !(t && t._watch && t._watch.lost); })) twins.forEach(d => { d.style.display = ''; });
+    });
+}
 function scBuildWall(cards){
   const wall = $('hero-wall');
   if (!wall) return;
@@ -12385,6 +12459,7 @@ function scBuildWall(cards){
         d.title = t.name;
         d.innerHTML = `<img src="${THUMBS[t.id] || thumbFallback(t, 160)}" alt="${escHtml(t.name)} template" decoding="async">`;
         const img = d.querySelector('img');
+        scWallWatch(img);
         ensureTplAssets(t).then(() => { const u = getThumb(t.id, 448); if (u) img.src = u; });
         d.onclick = () => showEasy(t.id);
         col.appendChild(d);
@@ -12393,6 +12468,7 @@ function scBuildWall(cards){
       d.title = c.name;
       /* the first four of each copy at once: a column running down starts on its second copy */
       d.innerHTML = `<img src="${assetUrl(c.thumb)}" alt="${escHtml(c.name)} template" loading="${k % mine.length < 4 ? 'eager' : 'lazy'}" decoding="async">`;   // the wall is the shop window: tilted 448px thumbs, no guard needed
+      scWallWatch(d.querySelector('img'));   // a picture that fails is never shown broken (pictureWatch)
       d.onclick = () => c.house ? openHouseAd(c.house) : openShowcase(c.id);
       col.appendChild(d);
     });
@@ -12630,6 +12706,7 @@ function scCard(c){
     ${locked ? '<div class="pro-guard"></div><div class="tpl-lockpill">🔒 PRO</div>' : ''}
     <div class="tpl-use">${locked ? 'Unlock with Pro →' : 'Use template →'}</div>
     <div class="tpl-meta"><span class="tpl-name">${escHtml(c.name)}</span><span class="tpl-tag">${escHtml(c.theme || c.family || '')}</span></div>`;
+  pictureWatch(card.querySelector('img'), () => { card.style.display = 'none'; }, () => { card.style.display = ''; });
   const go = () => c.house ? openHouseAd(c.house) : openShowcase(c.id);   // a rebuilt ad opens in the full ad
   card.onclick = go;
   card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } };

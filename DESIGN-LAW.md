@@ -7009,15 +7009,31 @@ designer to come: "needs to be super pay walled". The maker is `cards/` (`cards/
 
 (Written as 164 and OPEN-ITEMS BR; both were taken on other branches by the time it met main, so 168 and BV.)
 
-Added 2026-11-19. The owner: "apple and google sign in ?".
+Added 2026-11-19. The owner: "apple and google sign in ?". The buttons became the site's own on
+2026-11-23 (the owner: "blend with app ui").
 
 - **One pair, both dialogs.** `account.js` draws them (`pgfxAccount.social.mount`): the video
   maker's dialog and the studio's (`app.js ensureGoogleAuth`, whose box keeps the id `#auth-google`)
-  put them above the email form, with an "or with email" line under them. Apple's button is drawn
-  by Apple's own script, as its guidelines want; Google's by Google's.
+  put them above the email form, Apple first, with an "or with email" line under them.
+- **The site's own buttons, in the window's own look** (2026-11-23). Google's button is Google's
+  page in a frame: black, white or blue, at most 400px wide, in Google's type, and nothing outside
+  the frame restyles it. On the dark windows it sat in a white box (the page's dark `color-scheme`
+  against the frame's light one makes Chrome paint the frame's backdrop) and fell 67px short of the
+  form. So both buttons are drawn by `account.js`: the form's full width, 44px tall, pill-shaped,
+  each with its company's logo and words ("Continue with Apple", "Continue with Google"), and
+  dressed as the window they sit in. In the studio's window they wear its fields' raised surface,
+  hairline edge, type and focus ring; in `account.js`'s own window (the video maker, the library)
+  its buttons' edge and type, as its Cancel does. They open each company's own popup: Apple's
+  through `AppleID.auth.signIn()`, Google's through its token client
+  (`google.accounts.oauth2.initTokenClient`, openid email profile, asking which account). Never put
+  a company's framed button back: it cannot blend. The same pass gave `account.js`'s Create / Sign
+  in switch a track and a chosen side that show on a dark page.
 - **Shown only when configured.** `/api/auth/config` says which: `APPLE_CLIENT_ID` (the web Services
   ID) and `GOOGLE_CLIENT_ID`. Without them no script loads and nothing shows.
-- **Checked on the server.** Google's credential by Google's tokeninfo (as before); Apple's identity
+- **Checked on the server.** Google's access token (or the ID token an older page sends) in
+  `netlify/lib/googleid.mjs` by Google's tokeninfo, which must name this site's client ID (an access
+  token another site got for the same person must not sign them in here) and a confirmed email; a
+  new account's name comes from Google's userinfo. Apple's identity
   token in `netlify/lib/appleid.mjs` against Apple's published keys: the signature, the issuer, the
   audience (the Services ID, or the iPhone app's bundle ID `APPLE_BUNDLE_ID`), the expiry, a verified
   email, and the nonce the page made. An unknown key id fetches Apple's keys once more first.
@@ -7027,8 +7043,43 @@ Added 2026-11-19. The owner: "apple and google sign in ?".
 - **Not in the iPhone app's web view.** Google refuses it there, and the App Store requires Apple
   wherever Google is offered, so the app shows neither until it signs in with Apple natively.
 - **Held by** `scripts/appleid_check.mjs` (a key pair standing in for Apple's: a good token, and the
-  forged, expired, wrong-app, wrong-nonce, unknown-key and unverified ones refused) and
-  `scripts/social_signin_check.mjs` (both dialogs against stand-ins for Apple, Google and the API).
+  forged, expired, wrong-app, wrong-nonce, unknown-key and unverified ones refused),
+  `scripts/googleid_check.mjs` (a stand-in tokeninfo: a good access token and ID token, and another
+  app's, a refused, an expired, an unconfirmed and an emailless one refused) and
+  `scripts/social_signin_check.mjs` (both dialogs against stand-ins for Apple, Google and the API,
+  and how each button sits: the form's width, its window's surface, edge and type, no frame).
 
 Not done here: OPEN-ITEMS §BV.
 
+
+## 169. A picture that does not arrive is never shown broken
+
+Added 2026-11-23. The owner, of wall tiles showing the browser's broken-picture mark and their alt
+text ("MacBooks (full ad, look 8) template"): "Can you fix this so our final product doesn't have
+this issue".
+
+What he saw was a preview page whose server had been stopped before its late pictures were asked
+for; the live site loaded all 36. But any picture can fail on its way to a visitor: a dropped
+request on a phone, a tab left open across a deploy, a still missing from a build. Until now a
+failed one drew the browser's mark and its alt text across the tile, for good.
+
+- **Only a picture that has arrived is seen.** A wall picture is clear until it has loaded
+  (`app.js scWallWatch`), so a slow or failed one is its tile's own quiet surface, in every browser
+  (Firefox writes alt text into a picture still on its way). `landing.css` only fades it in.
+- **It is asked for again.** `pictureWatch` hides a picture the moment it fails and asks again
+  after 1.5 s and 5 s. Most failures are a dropped request, and the second ask brings it.
+- **A tile whose picture never comes leaves.** On the wall its card goes in both copies of its
+  column, so the loop stays whole: one tile fewer, nothing broken, nothing missing to the eye. In
+  the landing's library its card steps out of the grid (`scCard`).
+- **It comes back when it can.** When the browser is back online, the tab is shown again or the
+  page returns from the browser's page cache, a lost picture is asked for once more, and its tile
+  returns if it comes.
+- **Set on the picture, never in a stylesheet.** Hiding and showing are inline styles from the one
+  script. A visitor holding an old `app.js` and a new `landing.css` (or the other way) must never
+  be left with a rule that hides pictures and no script to show them.
+- **Held by** `scripts/wall_pictures_check.mjs`: the landing with pictures made to fail (dropped
+  for six seconds; gone for good; then back), a sampler in the page looking ten times a second for
+  a failed picture in sight. It also fails when any wall picture does not load with nothing made to
+  fail, which is how a still missing from a build is caught before a visitor finds it.
+
+Not done here: OPEN-ITEMS §BY.

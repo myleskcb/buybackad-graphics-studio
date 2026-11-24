@@ -6715,11 +6715,83 @@ Found:
   - CSS_FALLBACK was stale on `main`; any styles.css edit (comments too) means
     `node scripts/sync_css_fallback.mjs`, and again after merging `main`.
 
+Later the same day: Search Console verified, Google sign-in live, billing live on the shared
+iPhones.LA Stripe account, Cloudflare Web Analytics live (§BX's table).
+  - A shared Stripe account sends its other sales to this webhook. An iPhones.LA subscription
+    bought with a WeBuy.AD customer's email read as Free and would have ended a paid plan: the
+    handler now acts only on the site's own plans and packs.
+  - Screen reads carry secrets: `find` returned a copy button's label holding Google's client
+    secret, and a screenshot showed Stripe's one-time key. On a page that shows a secret, read with
+    a filtered script or not at all, and let the owner copy it.
+  - Stripe can make a second standard secret key per account, named, so a site gets its own key
+    and the account's main key is never rolled under another business.
+
 RESUME HERE:
+  0. OPEN-ITEMS §BX, Open 2 and 6: iPhones LA to accept webuy.ad, then the old project's
+     redirect; the two secrets the session saw, rolled.
+
+## 2026-11-23 (night) — the sign-in buttons in the window's own look (DESIGN-LAW 168; claude/google-button-blend)
+
+Asked: "Yes, ship it", to a fix for the white box around Google's button on webuy.ad, then "blend
+with app ui". Found: Google sign-in is on live (`GOOGLE_CLIENT_ID` set; Apple still off), and pull
+request 20 had already merged. Google's button is Google's page in a frame. The page is
+`color-scheme: dark` and the frame's page is light, so Chrome paints an opaque backdrop behind the
+frame: the white box. `color-scheme: light` on the frame's holder removes it (tried on the live
+page), but what is left is still Google's black pill, 300px on a 367px form, in Google's type, and
+nothing outside the frame restyles it. Blending meant the site's own buttons.
+
+Done: both buttons drawn by `account.js`, dressed as each window (the studio's fields' surface, edge,
+type and focus ring; `account.js`'s own buttons' edge and type), the form's full width, with each
+company's logo and words. Google's popup through its token client, Apple's through
+`AppleID.auth.signIn()`. The token client hands back an access token, not an ID token, so
+`netlify/lib/googleid.mjs` asks tokeninfo whom it was issued to: only this site's client ID, or a
+token another site got for the same person would sign them in here. It still takes an ID token
+from a page opened before. The account dialog's Create / Sign in switch had no visible track or
+chosen side on a dark page (a light-theme tint on a navy window); it uses the window's own colours now.
+
+Checked: `googleid_check` 17 of 17, `appleid_check` 16 of 16, `social_signin_check` 34 of 34 (new:
+each button against its window's field and button, Google's failures and blocked popup, the switch on
+a dark page); `billing_check` 176 of 177, the same fabric.js failure as before.
+
+RESUME HERE: the owner presses "Continue with Google" once on webuy.ad (§BV 4; automation can't open
+the popup), then Apple's Services ID (§BV 1).
+
+## 2026-11-23 (late night) — a picture that does not arrive is never shown broken (DESIGN-LAW 169; claude/wall-tiles-never-broken)
+
+Asked, with a screenshot of the wall: "Can you fix this so our final product doesn't have this
+issue". Six tiles showed the browser's broken-picture mark and their alt text.
+
+Found: the screenshot was this session's own preview tab, left open in the browser pane after its
+server was stopped. The wall asks for its late pictures only once it is in, and it comes in on an
+animation frame; a hidden tab gets none, so the asking waited until the owner looked, by which
+time the server was gone. The live site was whole (36 of 36, two widths). So the fault he saw was
+mine to cause, and the product's to survive: nothing stood between a failed picture and the
+browser's mark.
+
+Done: `pictureWatch` and `scWallWatch` in `app.js`, the watch on the library's cards, a fade in
+`landing.css`, and `scripts/wall_pictures_check.mjs`.
+
+Found on the way: the first draft hid wall pictures with a stylesheet rule and showed them with a
+class from the script. A visitor with a cached `app.js` and a fresh `landing.css` would have had an
+invisible wall. Hiding and showing moved onto the picture itself. And two library cards can share a
+name in different colours, so the check finds a card by its picture.
+
+Checked: `wall_pictures_check` 22 of 22, three runs (12 of the 22 fail on the code before);
+`hero_wall_check` passes; `social_signin_check` 33 of 33 (the entry above says 34: a miscount, it
+has 33 cases); `billing_check` 179 of 180, the same fabric.js failure as before. `landing_check` not
+run (no `puppeteer-core` here). `full_ad_studio_check` 29 of 30: "earbuds landscape" runs to the
+edge, on `main` too with this change taken out, so it came with the full ad's own work.
+
+The check's own first draft dropped pictures "for six seconds" by the clock; on a busy machine the
+page took longer than that to come in and the pictures were let through before it looked. It now
+drops them until it says otherwise.
+
+RESUME HERE: the owner's OK to merge; then §BY 1 and 2 if he wants the rest of the site watched too.
+
   0. OPEN-ITEMS §BX, Open 1 and 2: this branch onto `main` with the owner's OK; iPhones LA to
      accept webuy.ad, then the old project's redirect.
 
-## 2026-11-23 (later still) — the newest designs on the site; the text banner as iOS 27 draws it; the video maker as a design tool (claude/site-newest-designs, local)
+## 2026-11-24 — the newest designs on the site; the text banner as iOS 27 draws it; the video maker as a design tool (claude/site-newest-designs, local)
 
 Asked (the owner, after pull request 15's landing was turned down): "audit and push the newest designs",
 "still don't see the latest design ads... we make site changes and then ad changes but only the newest

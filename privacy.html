@@ -41,7 +41,7 @@
     <li><strong>A shop link.</strong> If a shop gives you a connect link (for example iPhones.LA&rsquo;s Auto-post page), the ads you download are also sent to that shop&rsquo;s picture library, with a list of the words and product pictures on the ad so the shop can write the listing. A phone number may be on the picture; ads that show a website, QR code, street address, social handle or watermark are not sent, and the studio tells you when that happens. The link only exists if you open one.</li>
     <li><strong>Printing and posting through SCANS.AD.</strong> Only for accounts that are also SCANS.AD members, and only when you choose &ldquo;Order prints + posting&rdquo;: the ad image, its name and size are handed to the SCANS.AD site in a new browser tab.</li>
     <li><strong>The video maker.</strong> Videos are made on your device and nothing is uploaded. It reads the area from your brand kit in this browser.</li>
-    <li><strong>Fonts, code libraries and hosting.</strong> The site is hosted on Netlify. The drawing library comes from cdnjs (Cloudflare); the font picker and the site&rsquo;s Look menu load fonts from Google Fonts; HEIC photo conversion and QR codes load a small library from jsDelivr or unpkg when you use them; if Google or Apple sign-in is offered, its button loads from accounts.google.com or appleid.cdn-apple.com. Like any website request, these services see your IP address.</li>
+    <li><strong>Fonts, code libraries and hosting.</strong> The site is hosted on Netlify. The drawing library comes from cdnjs (Cloudflare); the font picker and the site&rsquo;s Look menu load fonts from Google Fonts; HEIC photo conversion and QR codes load a small library from jsDelivr or unpkg when you use them; if Google or Apple sign-in is offered, its sign-in script loads from accounts.google.com or appleid.cdn-apple.com. Like any website request, these services see your IP address.</li>
   </ul>
 
   <h2>Payments</h2>
@@ -57,6 +57,7 @@
     <tr><td>Google</td><td>AI image generation (Gemini, the fallback), Google sign-in if you use it, Google Fonts</td><td>The same as fal.ai for generation; your Google sign-in token if you use it; IP address for fonts</td></tr>
     <tr><td>Apple</td><td>Sign in with Apple, if you use it</td><td>Your Apple sign-in token, which carries the email and the name you choose to share</td></tr>
     <tr><td>Cloudflare (cdnjs), jsDelivr, unpkg</td><td>Deliver code libraries the studio loads</td><td>IP address, like any website request</td></tr>
+    <tr><td>Cloudflare Web Analytics</td><td>Counts page visits and how fast pages load, with no cookies</td><td>The page address, the page you came from, your browser and device type, and the country worked out from your IP address; Cloudflare says it does not fingerprint visitors or build profiles</td></tr>
   </table>
   <p>iPhones.LA and SCANS.AD receive data only when you use their links, as described above.</p>
 
@@ -67,7 +68,7 @@
   <p>We do not sell your data, share it for cross-context behavioural advertising, run third-party advertising trackers, or read the ads you make. We do not use your content or your prompts to train AI models.</p>
 
   <h2>Cookies and local storage</h2>
-  <p>The studio uses your browser&rsquo;s local storage to keep you signed in and to save your work on your device. We do not use advertising or analytics cookies. Stripe&rsquo;s payment form sets its own cookies for fraud prevention when you check out.</p>
+  <p>The studio uses your browser&rsquo;s local storage to keep you signed in and to save your work on your device. We do not use advertising or analytics cookies: page visits are counted by Cloudflare Web Analytics, which sets none. Stripe&rsquo;s payment form sets its own cookies for fraud prevention when you check out.</p>
 
   <h2>How long we keep it</h2>
   <ul class="tidy">
@@ -107,5 +108,7 @@
   <a href="privacy.html">Privacy</a>
   <span>&copy; 2026 WeBuy.AD</span>
 </footer>
+<!-- Cloudflare Web Analytics (privacy.html, "The services we use"): page visits and load times, no cookies -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "2315e63735b243f28ef4c80f1dd52673"}'></script>
 </body>
 </html>

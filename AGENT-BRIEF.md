@@ -739,6 +739,15 @@ produced." DESIGN-LAW rule 87. In practice:
 
 - **Sign in with Apple and Google** (rule 168, 2026-11-19): both buttons come from `account.js`
   (`pgfxAccount.social.mount`), on both dialogs, shown only when `/api/auth/config` reports
-  `APPLE_CLIENT_ID` or `GOOGLE_CLIENT_ID`; Apple's token is checked in `netlify/lib/appleid.mjs`.
-  Never show them inside the iPhone app's web view (`WeBuyADApp/` in the user agent). Before a
-  commit that touches sign-in: `node scripts/appleid_check.mjs` and `node scripts/social_signin_check.mjs`.
+  `APPLE_CLIENT_ID` or `GOOGLE_CLIENT_ID`. Since 2026-11-23 they are the site's own buttons, dressed
+  as the window they sit in; never put Google's or Apple's framed button back (it can't blend).
+  Apple's token is checked in `netlify/lib/appleid.mjs`, Google's in `netlify/lib/googleid.mjs`
+  (its client ID, always). Never show them inside the iPhone app's web view (`WeBuyADApp/` in the
+  user agent). Before a commit that touches sign-in: `node scripts/appleid_check.mjs`,
+  `node scripts/googleid_check.mjs` and `node scripts/social_signin_check.mjs`.
+- **A picture that does not arrive is never shown broken** (rule 169, 2026-11-23): gallery pictures
+  go through `pictureWatch` in `app.js` (the wall's through `scWallWatch`): hidden on failure, asked
+  for again, and the tile leaves if it never comes. Hide and show on the picture itself, never by a
+  stylesheet rule that needs the script. New galleries of server pictures get the same watch.
+  Before a commit that touches the wall or the landing's library: `node scripts/wall_pictures_check.mjs`.
+  And close a preview's tab when you stop its server: the owner reads the browser pane as the product.
