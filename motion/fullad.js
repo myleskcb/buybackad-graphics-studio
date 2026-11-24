@@ -2390,7 +2390,7 @@ export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cu
    rule it serves is DESIGN-LAW 87 (every generation is measured before it is produced) and the
    brief's warning under it: a check that shares the mistake it is checking for passes it.
 
-   On the picture (frame: the ad as delivered; ad.bg: its ground alone):
+   On the picture (frame: the ad as delivered; ad.bg: its ground alone, under the shade round its words):
      edge        nothing drawn nearer the frame's edge than 1.6% of the short side (17px of 1080)
      reads       every line against the pixels actually behind its letters: 4.5:1 for the small
                  lines, 3:1 for the headline and the number (a product, a sticker or a glow under
@@ -2449,7 +2449,13 @@ export function fullPreflight(ad, frame) {
   const F = ad.full, R = F.rects, W = ad.W, H = ad.H, U = F.U, st = ad.st;
   const findings = [], checks = [], say = (code, level, s) => findings.push({ code, level, say: s });
   const px = frame.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, W, H).data;
-  const bg = ad.bg.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, W, H).data;
+  /* the ground as it stands in the still: the engine's shade round the words and the number (scrimC, in by the
+     still's moment) is a glow over the ground, not a mark on it. Read as drawn, its darkening of a bright line in
+     the ground stopped a download at the edge: a frosted-glass pane's rim at the top of the earbuds' landscape
+     ad (2026-11-24), as a sunset's stripes did before a video look laid its shade into its ground */
+  let ground = ad.bg;
+  if (ad.scrimC) { const gx = (ground = canvas(W, H)).getContext("2d"); gx.drawImage(ad.bg, 0, 0); gx.drawImage(ad.scrimC, 0, 0, W, H); }
+  const bg = ground.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, W, H).data;
   const lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
   const Lat = (d, q) => .2126 * lin(d[q]) + .7152 * lin(d[q + 1]) + .0722 * lin(d[q + 2]);
   const Lhex = h => { const [r, g, b] = [1, 3, 5].map(i => lin(parseInt(h.slice(i, i + 2), 16))); return .2126 * r + .7152 * g + .0722 * b; };

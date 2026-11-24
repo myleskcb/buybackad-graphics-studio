@@ -82,7 +82,18 @@
    ],
    "models_es": "iPad, iPad mini, iPad Air y iPad Pro",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [],
+   "sets": [
+    [
+     {
+      "file": "qs-ipad-pro-13-m5--silver",
+      "k": 1
+     },
+     {
+      "file": "qs-ipad-pro-13-m5--space-black",
+      "k": 0.92
+     }
+    ]
+   ],
    "pool": [
     {
      "set": [
@@ -447,7 +458,18 @@
    ],
    "models_es": "MacBook Air y MacBook Pro, M1 o más nuevas",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [],
+   "sets": [
+    [
+     {
+      "file": "qs-macbook-pro-16-m5--silver",
+      "k": 1
+     },
+     {
+      "file": "qs-macbook-pro-16-m5--space-black",
+      "k": 0.92
+     }
+    ]
+   ],
    "variants": [
     {
      "match": "macbook-neo",
@@ -1281,7 +1303,14 @@
    ],
    "models_es": "Samsung, Pixel, Motorola, OnePlus y más",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [],
+   "sets": [
+    [
+     {
+      "file": "sam-s26-ultra-back-violet",
+      "k": 1
+     }
+    ]
+   ],
    "pool": [
     {
      "set": [
@@ -1518,7 +1547,14 @@
    ],
    "models_es": "Pixel 7 o más nuevos, Pro también",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [],
+   "sets": [
+    [
+     {
+      "file": "pix-11-pro-back-moonstone",
+      "k": 1
+     }
+    ]
+   ],
    "pool": [
     {
      "set": [
@@ -1922,7 +1958,14 @@
    ],
    "models_es": "PS5, Xbox, Switch y controles",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [],
+   "sets": [
+    [
+     {
+      "file": "photo-gaming-ps5-white",
+      "k": 1
+     }
+    ]
+   ],
    "pool": [
     {
      "set": [
@@ -2125,7 +2168,14 @@
    ],
    "models_es": "Bose, Sony, Sennheiser, Beats y AirPods Max",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [],
+   "sets": [
+    [
+     {
+      "file": "photo-audio-airpods-max-front",
+      "k": 1
+     }
+    ]
+   ],
    "pool": [
     {
      "set": [
@@ -2200,7 +2250,14 @@
    ],
    "models_es": "AirPods Pro, Galaxy Buds y Pixel Buds",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [],
+   "sets": [
+    [
+     {
+      "file": "photo-audio-airpods-pro",
+      "k": 1
+     }
+    ]
+   ],
    "pool": [
     {
      "set": [
@@ -2461,7 +2518,14 @@
    ],
    "models_es": "Apple Watch Series, SE y Ultra",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [],
+   "sets": [
+    [
+     {
+      "file": "qs-watch-ultra4",
+      "k": 1
+     }
+    ]
+   ],
    "pool": [
     {
      "set": [
@@ -3236,7 +3300,14 @@
    ],
    "models_es": "Monedas antiguas, dólares de plata y colecciones",
    "points": "FREE QUOTE, PAID TODAY, NO FEES",
-   "sets": [],
+   "sets": [
+    [
+     {
+      "file": "photo-coin-gold-eagle-obverse",
+      "k": 1
+     }
+    ]
+   ],
    "pool": [
     {
      "set": [
@@ -5968,7 +6039,14 @@
    ],
    "models_es": "Cámaras sin espejo y DSLR, y lentes",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [],
+   "sets": [
+    [
+     {
+      "file": "photo-camera-sony-a7r5",
+      "k": 1
+     }
+    ]
+   ],
    "pool": [
     {
      "set": [
@@ -6097,7 +6175,14 @@
    ],
    "models_es": "DJI Mini, Air y Mavic",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [],
+   "sets": [
+    [
+     {
+      "file": "photo-camera-dji-mini-4-pro",
+      "k": 1
+     }
+    ]
+   ],
    "pool": [
     {
      "set": [

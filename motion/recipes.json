@@ -1333,6 +1333,7 @@
    },
    "words": {
     "headline": "SELL YOUR iPHONE",
+    "claim": "NO FEES • FREE QUOTE • LOCAL",
     "points": "NO FEES, FREE QUOTE, LOCAL",
     "label": "GET YOUR OFFER"
    },
@@ -2270,7 +2271,7 @@
    "pair": "black_green",
    "type_pair": "",
    "notes": [
-    "its picture (ipad-pair-sizes) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -2398,7 +2399,7 @@
    "pair": "black_green",
    "type_pair": "stadium",
    "notes": [
-    "its picture (ipad-pair-sizes) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -3348,7 +3349,7 @@
    "pair": "silver_blue",
    "type_pair": "warp",
    "notes": [
-    "its picture (ipad-pair-sizes) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -3741,7 +3742,7 @@
    "pair": "navy_gold",
    "type_pair": "",
    "notes": [
-    "its picture (ipad-pair-sizes) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -3788,8 +3789,9 @@
    "pair": "midnight_cyan",
    "type_pair": "sport",
    "notes": [
+    "left out 1 flagged or rejected picture",
     "ground swapped: it showed an iPhone 15 pro",
-    "its pictures (ipad-back-camera, ipad-front-screen-off) left to the line's pool"
+    "its picture (ipad-back-camera) left to the line's pool"
    ]
   },
   {
@@ -3837,8 +3839,9 @@
    "pair": "black_white_orange",
    "type_pair": "grotesk",
    "notes": [
+    "left out 1 flagged or rejected picture",
     "ground swapped: it showed an iPhone 15",
-    "its pictures (ipad-back-camera, ipad-front-screen-off) left to the line's pool"
+    "its picture (ipad-back-camera) left to the line's pool"
    ]
   },
   {
@@ -3886,8 +3889,9 @@
    "pair": "midnight_cyan",
    "type_pair": "",
    "notes": [
+    "left out 1 flagged or rejected picture",
     "ground swapped: it showed an iPhone 15 pro",
-    "its pictures (ipad-back-camera, ipad-front-screen-off) left to the line's pool"
+    "its picture (ipad-back-camera) left to the line's pool"
    ]
   },
   {
@@ -3935,8 +3939,8 @@
    "pair": "black_white_red",
    "type_pair": "",
    "notes": [
-    "ground swapped: it showed an iPhone 14 pro",
-    "its picture (ipad-pair-sizes) left to the line's pool"
+    "left out 1 flagged or rejected picture",
+    "ground swapped: it showed an iPhone 14 pro"
    ]
   },
   {
@@ -3984,8 +3988,9 @@
    "pair": "black_violet",
    "type_pair": "",
    "notes": [
+    "left out 1 flagged or rejected picture",
     "ground swapped: it showed an iPhone 15",
-    "its pictures (ipad-back-camera, ipad-front-screen-off) left to the line's pool"
+    "its picture (ipad-back-camera) left to the line's pool"
    ]
   },
   {
@@ -4034,8 +4039,8 @@
    "pair": "black_violet",
    "type_pair": "",
    "notes": [
-    "ground swapped: it showed an iPhone 14 pro",
-    "its picture (ipad-front-screen-off) left to the line's pool"
+    "left out 1 flagged or rejected picture",
+    "ground swapped: it showed an iPhone 14 pro"
    ]
   },
   {
@@ -4080,8 +4085,8 @@
    "pair": "teal_orange",
    "type_pair": "tech",
    "notes": [
-    "ground swapped: it showed an iPhone 14 pro",
-    "its picture (ipad-front-screen-off) left to the line's pool"
+    "left out 1 flagged or rejected picture",
+    "ground swapped: it showed an iPhone 14 pro"
    ]
   },
   {
@@ -5456,7 +5461,7 @@
    "pair": "midnight_cyan",
    "type_pair": "",
    "notes": [
-    "its picture (pix-9-back-green) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -5504,7 +5509,7 @@
    "pair": "black_violet",
    "type_pair": "",
    "notes": [
-    "its picture (pix-trio-lineup) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -5551,7 +5556,7 @@
    "pair": "black_white_red",
    "type_pair": "grotesk",
    "notes": [
-    "its picture (pix-9-back-green) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -5598,7 +5603,7 @@
    "pair": "black_violet",
    "type_pair": "",
    "notes": [
-    "its picture (pix-9-back-green) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -5644,7 +5649,7 @@
    "pair": "black_white_red",
    "type_pair": "",
    "notes": [
-    "its picture (pix-trio-lineup) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -5692,7 +5697,7 @@
    "pair": "black_violet",
    "type_pair": "grotesk",
    "notes": [
-    "its pictures (pix-9-back-green, pix-9-back-obsidian) left to the line's pool"
+    "left out 2 flagged or rejected pictures"
    ]
   },
   {
@@ -5738,7 +5743,7 @@
    "pair": "midnight_cyan",
    "type_pair": "",
    "notes": [
-    "its picture (pix-trio-lineup) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -10007,12 +10012,7 @@
     "tag": "GAMING AND OFFICE MONITORS, 24 INCH AND UP",
     "label": "CALL OR TEXT"
    },
-   "pictures": [
-    {
-     "file": "smart-tv-stand",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/bg-offer/rooms-home-desk-setup-1.jpg",
     "focus": [
@@ -10025,7 +10025,10 @@
     "floor": 0.62
    },
    "pair": "midnight_cyan",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "left out 1 flagged or rejected picture"
+   ]
   },
   {
    "id": "r-of_monitor_center_violet",
@@ -10057,12 +10060,7 @@
     "tag": "GAMING AND OFFICE MONITORS, 24 INCH AND UP",
     "label": "CALL OR TEXT"
    },
-   "pictures": [
-    {
-     "file": "smart-tv-stand",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/bg-offer/rooms-living-room-console-1.jpg",
     "focus": [
@@ -10075,7 +10073,10 @@
     "floor": 0.86
    },
    "pair": "black_lime",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "left out 1 flagged or rejected picture"
+   ]
   },
   {
    "id": "r-of_monitor_float_blush",
@@ -10107,12 +10108,7 @@
     "tag": "GAMING AND OFFICE MONITORS, 24 INCH AND UP",
     "label": "CALL OR TEXT"
    },
-   "pictures": [
-    {
-     "file": "tv-flatscreen",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/bg-offer/rooms-home-desk-setup-1.jpg",
     "focus": [
@@ -10125,7 +10121,10 @@
     "floor": 0.62
    },
    "pair": "black_lime",
-   "type_pair": "squad"
+   "type_pair": "squad",
+   "notes": [
+    "left out 1 flagged or rejected picture"
+   ]
   },
   {
    "id": "r-of_monitor_info_sand",
@@ -10156,12 +10155,7 @@
     "tag": "GAMING AND OFFICE MONITORS, 24 INCH AND UP",
     "label": "CALL OR TEXT"
    },
-   "pictures": [
-    {
-     "file": "smart-tv-stand",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/bg-offer/rooms-desk-setup-1.jpg",
     "focus": [
@@ -10174,7 +10168,10 @@
     "floor": 0.72
    },
    "pair": "blue_green",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "left out 1 flagged or rejected picture"
+   ]
   },
   {
    "id": "r-of_monitor_list_slate",
@@ -10204,12 +10201,7 @@
     "tag": "GAMING AND OFFICE MONITORS, 24 INCH AND UP",
     "label": "CALL OR TEXT"
    },
-   "pictures": [
-    {
-     "file": "tv-flatscreen",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/bg-offer/rooms-living-room-console-1.jpg",
     "focus": [
@@ -10222,7 +10214,10 @@
     "floor": 0.86
    },
    "pair": "midnight_cyan",
-   "type_pair": "squad"
+   "type_pair": "squad",
+   "notes": [
+    "left out 1 flagged or rejected picture"
+   ]
   },
   {
    "id": "r-of_monitor_row_plum",
@@ -10253,12 +10248,7 @@
     "tag": "GAMING AND OFFICE MONITORS, 24 INCH AND UP",
     "label": "CALL OR TEXT"
    },
-   "pictures": [
-    {
-     "file": "smart-tv-stand",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/bg-offer/rooms-desk-setup-1.jpg",
     "focus": [
@@ -10271,7 +10261,10 @@
     "floor": 0.72
    },
    "pair": "midnight_cyan",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "left out 1 flagged or rejected picture"
+   ]
   },
   {
    "id": "r-of_monitor_split_cobalt",
@@ -10301,12 +10294,7 @@
     "tag": "GAMING AND OFFICE MONITORS, 24 INCH AND UP",
     "label": "CALL OR TEXT"
    },
-   "pictures": [
-    {
-     "file": "smart-tv-stand",
-     "k": 1
-    }
-   ],
+   "pictures": [],
    "ground_photo": {
     "src": "assets/bg-offer/rooms-desk-setup-1.jpg",
     "focus": [
@@ -10319,7 +10307,10 @@
     "floor": 0.72
    },
    "pair": "black_violet",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "left out 1 flagged or rejected picture"
+   ]
   },
   {
    "id": "r-of_laptop_band_sun",
@@ -10676,7 +10667,7 @@
    },
    "words": {
     "headline": "SPARE SSDS? WE BUY THEM",
-    "tag": "NVME AND SATA, 1TB AND UP, SEALED OR USED",
+    "tag": "NVME AND SATA, 1TB AND UP, NEW IN THE BOX",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -10724,7 +10715,7 @@
    },
    "words": {
     "headline": "SPARE SSDS? WE BUY THEM",
-    "tag": "NVME AND SATA, 1TB AND UP, SEALED OR USED",
+    "tag": "NVME AND SATA, 1TB AND UP, NEW IN THE BOX",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -10771,7 +10762,7 @@
    },
    "words": {
     "headline": "SEALED SSDS? GET CASH",
-    "tag": "NVME AND SATA, 1TB AND UP, SEALED OR USED",
+    "tag": "NVME AND SATA, 1TB AND UP, NEW IN THE BOX",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -10818,7 +10809,7 @@
    },
    "words": {
     "headline": "SPARE SSDS? WE BUY THEM",
-    "tag": "NVME AND SATA, 1TB AND UP, SEALED OR USED",
+    "tag": "NVME AND SATA, 1TB AND UP, NEW IN THE BOX",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -10864,7 +10855,7 @@
    },
    "words": {
     "headline": "SEALED SSDS? GET CASH",
-    "tag": "NVME AND SATA, 1TB AND UP, SEALED OR USED",
+    "tag": "NVME AND SATA, 1TB AND UP, NEW IN THE BOX",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -10912,7 +10903,7 @@
    },
    "words": {
     "headline": "SPARE SSDS? WE BUY THEM",
-    "tag": "NVME AND SATA, 1TB AND UP, SEALED OR USED",
+    "tag": "NVME AND SATA, 1TB AND UP, NEW IN THE BOX",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -10957,7 +10948,7 @@
    },
    "words": {
     "headline": "SEALED SSDS? GET CASH",
-    "tag": "NVME AND SATA, 1TB AND UP, SEALED OR USED",
+    "tag": "NVME AND SATA, 1TB AND UP, NEW IN THE BOX",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -11335,7 +11326,7 @@
    },
    "words": {
     "headline": "SEALED CHROMEBOOKS? WE BUY THEM",
-    "tag": "SEALED CHROMEBOOKS, NEW IN THE BOX",
+    "tag": "ANY BRAND, NEW IN THE BOX",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -11379,7 +11370,7 @@
    },
    "words": {
     "headline": "SEALED CHROMEBOOKS? WE BUY THEM",
-    "tag": "SEALED CHROMEBOOKS, NEW IN THE BOX",
+    "tag": "ANY BRAND, NEW IN THE BOX",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -11423,7 +11414,7 @@
    },
    "words": {
     "headline": "NEW IN THE BOX? GET CASH",
-    "tag": "SEALED CHROMEBOOKS, NEW IN THE BOX",
+    "tag": "ANY BRAND, NEW IN THE BOX",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -13205,7 +13196,7 @@
    "pair": "purple_gold",
    "type_pair": "",
    "notes": [
-    "its picture (gold-scale-weighing) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -14137,7 +14128,7 @@
    "pair": "green_gold",
    "type_pair": "",
    "notes": [
-    "its picture (gold-jewelry) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -14548,7 +14539,7 @@
    "pair": "navy_gold",
    "type_pair": "",
    "notes": [
-    "its picture (gold-scale-weighing) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -15208,6 +15199,7 @@
    },
    "words": {
     "headline": "CASH FOR GOLD",
+    "claim": "NO FEES • FREE QUOTE • PRIVATE",
     "points": "NO FEES, FREE QUOTE, PRIVATE",
     "label": "GET A FREE QUOTE"
    },
@@ -15644,7 +15636,7 @@
    "words": {
     "headline": "WANTED GOLD",
     "tag": "GOLD JEWELRY • ROLEX • CLASS RINGS • GOLD CHAINS",
-    "claim": "LOCAL GOLD BUYER"
+    "claim": "BY A LOCAL BUYER"
    },
    "pictures": [],
    "ground_photo": {
@@ -17631,7 +17623,7 @@
    "pair": "black_green",
    "type_pair": "luxe",
    "notes": [
-    "its picture (silver-candlesticks) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -18288,6 +18280,7 @@
    },
    "words": {
     "headline": "WE BUY SILVER",
+    "claim": "NO FEES • FREE QUOTE • LOCAL",
     "points": "NO FEES, FREE QUOTE, LOCAL",
     "label": "GET A FREE QUOTE"
    },
@@ -18702,7 +18695,7 @@
    "words": {
     "headline": "WANTED SILVER",
     "tag": "SILVER COINS • SILVER BARS • SILVERWARE • SILVER JEWELRY",
-    "claim": "LOCAL BUYER"
+    "claim": "BY A LOCAL BUYER"
    },
    "pictures": [],
    "ground_photo": {
@@ -18811,7 +18804,7 @@
    "pair": "black_lime",
    "type_pair": "stadium",
    "notes": [
-    "its picture (silver-candlesticks) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -18858,7 +18851,7 @@
    "pair": "midnight_cyan",
    "type_pair": "",
    "notes": [
-    "its picture (silver-candlesticks) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -18952,7 +18945,7 @@
    "pair": "black_violet",
    "type_pair": "",
    "notes": [
-    "its picture (silver-candlesticks) left to the line's pool"
+    "left out 1 flagged or rejected picture"
    ]
   },
   {
@@ -21849,6 +21842,7 @@
    },
    "words": {
     "headline": "WE BUY COINS",
+    "claim": "NO FEES • FREE QUOTE • DISCREET",
     "points": "NO FEES, FREE QUOTE, DISCREET",
     "label": "GET AN OFFER"
    },
@@ -22047,7 +22041,7 @@
    "words": {
     "headline": "WANTED COINS",
     "tag": "OLD COINS • SILVER DOLLARS • GOLD COINS • COIN COLLECTIONS",
-    "claim": "COLLECTIONS WANTED"
+    "claim": "BY A LOCAL BUYER"
    },
    "pictures": [],
    "ground_photo": {
@@ -23604,6 +23598,7 @@
    },
    "words": {
     "headline": "WE BUY CARS",
+    "claim": "AS-IS • SAME DAY • NO FEES",
     "points": "AS-IS, SAME DAY, NO FEES",
     "label": "GET A CASH OFFER"
    },
@@ -26311,7 +26306,7 @@
    "words": {
     "headline": "WANTED CARS",
     "tag": "TOYOTA • HONDA • FORD • CHEVY • BMW • RUNNING OR NOT",
-    "claim": "LOCAL CAR BUYER"
+    "claim": "BY A LOCAL BUYER"
    },
    "pictures": [
     {
@@ -31329,7 +31324,7 @@
    },
    "words": {
     "headline": "CASH FOR TEST STRIPS",
-    "tag": "DIABETIC TEST STRIPS • SEALED BOXES • ALL MAJOR BRANDS"
+    "tag": "DIABETIC TEST STRIPS • ALL MAJOR BRANDS • IN-DATE BOXES"
    },
    "pictures": [],
    "ground_photo": {
@@ -31385,6 +31380,7 @@
    },
    "words": {
     "headline": "CASH FOR TEST STRIPS",
+    "claim": "DISCREET • FAST • FAIR",
     "points": "DISCREET, FAST, FAIR",
     "label": "GET YOUR OFFER"
    },
@@ -31442,7 +31438,7 @@
    },
    "words": {
     "headline": "CASH FOR TEST STRIPS",
-    "tag": "DIABETIC TEST STRIPS • SEALED BOXES • ALL MAJOR BRANDS",
+    "tag": "DIABETIC TEST STRIPS • ALL MAJOR BRANDS • IN-DATE BOXES",
     "claim": "SEALED BOXES ONLY",
     "label": "GET YOUR OFFER"
    },
@@ -34254,7 +34250,8 @@
     "hue": 270
    },
    "words": {
-    "headline": "WE BUY POKÉMON"
+    "headline": "WE BUY POKÉMON",
+    "tag": "POKÉMON CARDS • BASE SET • 1ST EDITIONS • GRADED CARDS"
    },
    "pictures": [],
    "ground_photo": {
@@ -34269,10 +34266,7 @@
     "subject": "pokemon"
    },
    "pair": "navy_gold",
-   "type_pair": "",
-   "dropped": [
-    "line under it: \"POKEMON CARDS • CHARIZARD • VINTAGE SETS • BOOSTER BOXES\" (GRAILS / APPRAISAL)"
-   ]
+   "type_pair": ""
   },
   {
    "id": "r-dl_pokemon_bandKnockout_volt",
@@ -34313,7 +34307,8 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON",
-    "points": "CASH, NO FEES, LOCAL",
+    "claim": "LOCAL • NO PRESSURE • ANY ERA",
+    "points": "LOCAL, NO PRESSURE, ANY ERA",
     "label": "GET AN OFFER"
    },
    "pictures": [],
@@ -34429,7 +34424,7 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON",
-    "claim": "CASH NO FEES LOCAL",
+    "claim": "LOCAL NO PRESSURE ANY ERA",
     "label": "GET AN OFFER"
    },
    "pictures": [],
@@ -34483,7 +34478,8 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON",
-    "claim": "CASH NO FEES LOCAL",
+    "tag": "POKÉMON CARDS • BASE SET • 1ST EDITIONS • GRADED CARDS",
+    "claim": "LOCAL NO PRESSURE ANY ERA",
     "label": "GET AN OFFER"
    },
    "pictures": [],
@@ -34499,10 +34495,7 @@
     "subject": "pokemon"
    },
    "pair": "plum_lime",
-   "type_pair": "",
-   "dropped": [
-    "line under it: \"POKEMON CARDS • CHARIZARD • VINTAGE SETS • BOOSTER BOXES\" (GRAILS / APPRAISAL)"
-   ]
+   "type_pair": ""
   },
   {
    "id": "r-dl_pokemon_neonNight_royal",
@@ -34539,6 +34532,7 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON",
+    "tag": "POKÉMON CARDS • BASE SET • 1ST EDITIONS • GRADED CARDS",
     "claim": "COLLECTIONS WANTED"
    },
    "pictures": [],
@@ -34554,10 +34548,7 @@
     "subject": "pokemon"
    },
    "pair": "navy_white_red",
-   "type_pair": "",
-   "dropped": [
-    "line under it: \"POKEMON CARDS • CHARIZARD • VINTAGE SETS • BOOSTER BOXES\" (GRAILS / APPRAISAL)"
-   ]
+   "type_pair": ""
   },
   {
    "id": "r-dl_pokemon_priceAnchor_volt",
@@ -34703,7 +34694,7 @@
    "words": {
     "headline": "WE BUY POKÉMON",
     "claim": "COLLECTIONS WANTED",
-    "points": "CASH, NO FEES, LOCAL",
+    "points": "LOCAL, NO PRESSURE, ANY ERA",
     "label": "GET AN OFFER"
    },
    "pictures": [],
@@ -37372,8 +37363,8 @@
     "neutral": true
    },
    "words": {
-    "headline": "SPORTS CARDS",
-    "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES",
+    "headline": "WE BUY SPORTS CARDS",
+    "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • GRADED CARDS",
     "claim": "COLLECTIONS WANTED",
     "label": "GET AN OFFER"
    },
@@ -37390,10 +37381,7 @@
     "subject": "sports"
    },
    "pair": "black_lime",
-   "type_pair": "",
-   "notes": [
-    "its picture (ph-sports-cards-fan) left to the line's pool"
-   ]
+   "type_pair": ""
   },
   {
    "id": "r-dl_sports_bandKnockout_emerald",
@@ -37433,8 +37421,9 @@
     "hue": 155
    },
    "words": {
-    "headline": "SPORTS CARDS",
-    "points": "CASH, NO FEES, LOCAL",
+    "headline": "WE BUY SPORTS CARDS",
+    "claim": "LOCAL • NO PRESSURE • ANY ERA",
+    "points": "LOCAL, NO PRESSURE, ANY ERA",
     "label": "GET AN OFFER"
    },
    "pictures": [],
@@ -37487,8 +37476,8 @@
     "hue": 25
    },
    "words": {
-    "headline": "SPORTS CARDS",
-    "claim": "CASH NO FEES LOCAL",
+    "headline": "WE BUY SPORTS CARDS",
+    "claim": "LOCAL NO PRESSURE ANY ERA",
     "label": "GET AN OFFER"
    },
    "pictures": [],
@@ -37530,8 +37519,8 @@
     "neutral": true
    },
    "words": {
-    "headline": "SPORTS CARDS",
-    "claim": "PAID PER CARD"
+    "headline": "WE BUY SPORTS CARDS",
+    "claim": "PAID WHEN WE AGREE"
    },
    "pictures": [],
    "ground_photo": {
@@ -37588,8 +37577,8 @@
     "neutral": true
    },
    "words": {
-    "headline": "SPORTS CARDS",
-    "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES",
+    "headline": "WE BUY SPORTS CARDS",
+    "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • GRADED CARDS",
     "claim": "COLLECTIONS WANTED",
     "label": "GET AN OFFER"
    },
@@ -37643,9 +37632,9 @@
     "hue": 25
    },
    "words": {
-    "headline": "SPORTS CARDS",
-    "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES",
-    "claim": "CASH NO FEES LOCAL",
+    "headline": "WE BUY SPORTS CARDS",
+    "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • GRADED CARDS",
+    "claim": "LOCAL NO PRESSURE ANY ERA",
     "label": "GET AN OFFER"
    },
    "pictures": [],
@@ -37700,8 +37689,8 @@
     "hue": 155
    },
    "words": {
-    "headline": "SPORTS CARDS",
-    "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES",
+    "headline": "WE BUY SPORTS CARDS",
+    "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • GRADED CARDS",
     "claim": "COLLECTIONS WANTED",
     "label": "GET AN OFFER"
    },
@@ -37754,8 +37743,8 @@
     "hue": 155
    },
    "words": {
-    "headline": "SPORTS CARDS",
-    "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES",
+    "headline": "WE BUY SPORTS CARDS",
+    "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • GRADED CARDS",
     "claim": "COLLECTIONS WANTED"
    },
    "pictures": [],
@@ -37808,7 +37797,7 @@
    },
    "words": {
     "headline": "CASH",
-    "claim": "SPORTS CARDS"
+    "claim": "WE BUY SPORTS CARDS"
    },
    "pictures": [],
    "ground_photo": {
@@ -37869,8 +37858,8 @@
     "neutral": true
    },
    "words": {
-    "headline": "SPORTS CARDS",
-    "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES",
+    "headline": "WE BUY SPORTS CARDS",
+    "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • GRADED CARDS",
     "label": "GET AN OFFER"
    },
    "pictures": [],
@@ -37926,9 +37915,9 @@
     "hue": 25
    },
    "words": {
-    "headline": "SPORTS CARDS",
-    "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES",
-    "claim": "PAID PER CARD",
+    "headline": "WE BUY SPORTS CARDS",
+    "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • GRADED CARDS",
+    "claim": "PAID WHEN WE AGREE",
     "label": "GET AN OFFER"
    },
    "pictures": [],
@@ -37982,9 +37971,9 @@
     "hue": 25
    },
    "words": {
-    "headline": "SPORTS CARDS",
+    "headline": "WE BUY SPORTS CARDS",
     "claim": "COLLECTIONS WANTED",
-    "points": "CASH, NO FEES, LOCAL",
+    "points": "LOCAL, NO PRESSURE, ANY ERA",
     "label": "GET AN OFFER"
    },
    "pictures": [],
@@ -38037,9 +38026,9 @@
     "neutral": true
    },
    "words": {
-    "headline": "WANTED CARDS",
-    "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES",
-    "claim": "COLLECTIONS WANTED"
+    "headline": "WANTED SPORTS CARDS",
+    "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • GRADED CARDS",
+    "claim": "BY A LOCAL BUYER"
    },
    "pictures": [],
    "ground_photo": {

@@ -236,6 +236,9 @@ for (const S of subjects) {
     const entry = { set: e.set, w: +e.w.toFixed(3) }; pool.push(entry); same.set(sig, entry);
   }
   S.pool = pool;
+  /* the first set stands for the pool (the studio and the video maker load a line's pictures through its sets): a line whose
+     offer sets were all barred keeps its pool's best entry as its one set, so it is drawn from the pool as before, not bare */
+  if (!S.sets.length && pool.length) S.sets = [pool[0].set];
 }
 
 const json = JSON.stringify({ _doc: 'What a full ad can be about, made from offer-library.js LINES by scripts/build_full_subjects.mjs, and each line\'s pool (what a full ad nobody picked the picture for draws from, by its seed) from spec/product-demand.json, assets/devices.json and assets/vehicles.json. Do not edit by hand: change those and run the script. aliases: a line folded into another (the owner\'s lines, 2026-11-18), which a look that picked it now draws.', aliases, subjects }, null, 1) + '\n';

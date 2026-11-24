@@ -1366,8 +1366,9 @@ const TEMPLATES = [
       r('Side Panel', { left:-60, top:-60, width:560, height:W+120, rx:44, fill:P.deep, shadow:sh('rgba(0,0,0,0.5)', 40, 14, 0) }),
       t('Headline 1', 'headline', 'upper', C.h1, { left:64, top:130, fontFamily:T.d, fontSize:96, fill:'#ffffff' }),
       t('Headline 2', 'headline', 'upper', C.h2, { left:60, top:236, fontFamily:T.d, fontSize:132, grad:{ c1:P.a1, c2:P.a2, a:115 }, shadow:sh(P.glow, 24) }),
-      // one bullet a point: in the narrow panel three wrapped lines read as one broken sentence
-      tb('Info Text', 'info', 'upper', String(C.sub || '').split('\n').map(l => '• ' + l).join('\n'), { left:64, top:462, width:372, fontFamily:T.s, fontSize:28, fill:'rgba(255,255,255,0.85)', fontWeight:'700', lineHeight:1.48 }),
+      // a check a point: in the narrow panel three wrapped lines read as one broken sentence (a check, not a bullet: a line
+      // with bullets reads as a list, and applyBrandVocab swaps a list for the line's brand words)
+      tb('Info Text', 'info', 'upper', String(C.sub || '').split('\n').map(l => '✓ ' + l).join('\n'), { left:64, top:462, width:372, fontFamily:T.s, fontSize:28, fill:'rgba(255,255,255,0.85)', fontWeight:'700', lineHeight:1.48 }),
       /* a box the panel's width, so a long line wraps inside the panel:
          "PAID AT CURRENT MARKET RATES" ran 289px past it onto the photograph */
       tb('Price Line', 'info', 'upper', C.price, { left:64, top:764, width:400, fontFamily:T.d, fontSize:40, fill:P.a1, lineHeight:1.12, shadow:sh(P.glow, 16) }),
