@@ -73,6 +73,17 @@ Stripe, once (owner, 2026-10-08: "make it live we can use stripe"):
 4. Partner and creator discounts are Stripe promotion codes (Stripe →
    Coupons); Checkout shows the code field on the plans.
 
+**The live account (2026-11-23).** WeBuy.AD has no registered business yet, so it
+sells through the owner's iPhones.LA Stripe account. `STRIPE_SECRET` for
+Production is that account's own standard key named "WeBuy.AD website" (roll
+or revoke it without touching iPhones.LA's key); Deploy Previews and branch
+deploys keep test keys. Buyers see iPhones.LA on Stripe's form, the Apple Pay
+and Google Pay sheet, receipts, invoices and the billing portal; the card
+statement is the account's prefix then `WEBUY.AD` (`STATEMENT_SUFFIX` in
+`netlify/lib/billing.mjs`). The webhook hears every sale of that account and
+acts only on the site's own plans and packs (`ownSession`, `ownSubscription`).
+A WeBuy.AD Stripe account later means moving paying subscribers.
+
 The plan switches on when the customer comes back from Checkout
 (`/api/checkout/confirm` reads the session from Stripe), so it never waits
 for the webhook. The webhook carries renewals, plan changes made in the
