@@ -49,11 +49,13 @@
         <div class="cd-loading" id="cd-loading">Loading the type and colours&hellip;</div>
       </div>
       <p class="cd-guide">The faint edge around each side is the bleed: it is cut off. Every word stays an eighth of an inch inside the cut.</p>
+      <p class="cd-guide" id="cd-small" hidden></p>
+      <p class="cd-guide" id="cd-ink" hidden>Bright greens, blues and pinks like these print a little softer than they look on a screen. Ask the shop for a proof if the exact colour matters.</p>
       <div class="cd-actions">
-        <button class="cd-btn" id="cd-shuffle" type="button" title="Another layout, colours and type, same words">&#10227; New look</button>
+        <button class="cd-btn" id="cd-shuffle" type="button" title="Another layout, colours, type and background, same words">&#10227; New look</button>
         <button class="cd-btn" id="cd-print" type="button" title="Shops near you that print business cards the same day">&#128205; Where to print today</button>
         <span class="cd-dl">
-          <button class="cd-btn primary" id="cd-pdf" type="button" title="Front and back in one PDF, with the bleed and crop marks">&#11015; Download print PDF</button>
+          <button class="cd-btn primary" id="cd-pdf" type="button" title="Front and back in one PDF at 600 dpi, with the bleed and crop marks">&#11015; Download print PDF</button>
           <button class="cd-btn" id="cd-png" type="button" title="The front and the back as PNGs, 300 dpi">&#11015; PNGs</button>
         </span>
       </div>
@@ -77,12 +79,16 @@
       <input id="cd-models" type="text" maxlength="60">
       <label class="cd-check"><input id="cd-qr" type="checkbox"> A QR code on the back <span class="cd-opt">to your website, or your number</span></label>
 
+      <h2 class="cd-h">Style</h2>
+      <div class="cd-chips" id="cd-styles" role="group" aria-label="Style"></div>
       <h2 class="cd-h">Layout</h2>
       <div class="cd-chips" id="cd-layouts" role="group" aria-label="Layout"></div>
       <h2 class="cd-h">Colours</h2>
       <div class="cd-chips cd-swatches" id="cd-pairs" role="group" aria-label="Colours"></div>
       <h2 class="cd-h">Type</h2>
       <div class="cd-chips" id="cd-voices" role="group" aria-label="Type"></div>
+      <h2 class="cd-h">Background</h2>
+      <div class="cd-chips" id="cd-fills" role="group" aria-label="Background"></div>
     </section>
   </div>
 
