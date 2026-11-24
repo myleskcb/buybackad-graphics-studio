@@ -4453,3 +4453,59 @@ the video's end card.
 The owner decides: the tier (Pro and Business, Business alone, or a one-time logo pack for any plan
 like the AI credit packs), what a suggestion batch costs in credits, and the terms' line on who owns
 a logo made here.
+
+## BV. 2026-11-23 — WeBuy.AD everywhere, the old domains dropped, mail, and what the site still needs
+
+(claude/domain-saas-f5840a, from `main` at 57522eb2, `main` merged in at 875e6167.)
+
+The owner, from a session asked to "use my name cheap to connect domain and create all necessary
+saas parts": skip buyback.ad, "drop old branding", "Yes, all of it", then "Anything that was
+previously referred to as the old name needs to be switched over to the new name".
+
+Done:
+- **buyback.ad was never registered.** The .ad registry answers NXDOMAIN and its whois has no
+  record (2026-11-18 and 2026-11-23); Namecheap sold it for $21.98 a year. The owner chose not to
+  buy it. `buyback.ad`, `www.buyback.ad` and `studio.scans.ad` (the old project's primary domain,
+  never resolved; `scans.ad` is in another Namecheap account) are off the old Netlify project.
+  Both sites still answer 200.
+- **Mail** (Namecheap, webuy.ad, Redirect Email): support@webuy.ad to myleskcb@gmail.com, beside
+  the contact@iphones.la forward another session made for the App Store review; hello@webuy.ad to
+  myleskcb@gmail.com. Checked after a reload, not by sending mail.
+- **The name**: WeBuy.AD wherever the product, the site or the business was BUYBACK.AD or
+  Graphics Studio: the terms (the party, the Service; version 2026-11-23, `TERMS_VERSION`) and
+  privacy (updated 2026-11-23), the copyright line on every page and the 18 category pages, the
+  old single-file page, robots.txt, the library API's name and realm, the label a studio sends
+  iPhones LA when it connects, the partner kit's words (zip repacked), code comments, the current
+  docs, DESIGN-LAW 153's name rule. Identifiers and dated history keep the old spelling (rule 153).
+- Docs: AGENT-BRIEF's domains, OPERATIONS (URLs, mail, the logins, retiring the old project),
+  SETUP, IPHONESLA-CONNECTION.
+
+The SaaS parts on webuy.ad (`buybackad-finished-copy`), read 2026-11-23. Its variables: ADMIN_EMAILS,
+FAL_KEY, JWT_SECRET, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET. `/api/health`: ok, accounts, store ok,
+ai, google false, billing (test mode).
+
+| Part | State | What is left, and whose |
+|---|---|---|
+| Accounts, operators | live | none |
+| AI backgrounds | live (fal) | optional: a `GEMINI_KEY` as the fallback; the old project has one, webuy.ad's has none. The owner pastes it |
+| Billing | on, **test mode** | the owner: Stripe live keys (`sk_live`, `pk_live`) into the project's variables, a deploy, then Plan & billing → Set up prices, webhook and wallets now (the webhook and Apple Pay domain move to webuy.ad). In Stripe: public business name WeBuy.AD, support email support@webuy.ad, receipts on |
+| `SITE_URL` | not set, not needed | Netlify's `URL` is the primary domain, https://webuy.ad |
+| Google sign-in | off | the owner: a Google Cloud OAuth client (Web, origin https://webuy.ad, consent screen named WeBuy.AD); its client ID into `GOOGLE_CLIENT_ID` |
+| Mail in | live | none |
+| Mail out | none: no password reset, no address check | a build: a mail provider, its DNS records at Namecheap, and the reset flow |
+| Search | not set up | the owner: Search Console, Domain property webuy.ad (a TXT record at Namecheap), submit https://webuy.ad/sitemap.xml; Bing can import it |
+| Analytics | none | the owner's choice of tool; the CSP and the privacy policy change with it |
+| Legal pages | live; WeBuy.AD once this branch is on `main` | none |
+
+Open:
+1. **This branch is not on `main`** until the owner says so; the push deploys webuy.ad.
+2. **The old project still serves iPhones LA.** iphones.la's CORS door answers 204 only for
+   `https://buybackad-graphics-studio.netlify.app` (400 for webuy.ad and finished-copy), and
+   iPhones LA's code names it as `DEFAULT_STUDIO_URL` with no webuy.ad in `STUDIO_SITES`. The
+   owner chose iPhones LA first; the redirect waits (OPERATIONS, "Retiring the old project").
+3. **Chrome's Netlify login is myleskcb@gmail.com (team KCB)** since this session, which switched
+   it to reach the old project; webuy.ad's settings need the myleskcb2 login again.
+4. `assets/og/og-card.jpg` and `assets/og/buybackad-og.jpg` still draw the old name; no page links
+   them (the share card is `assets/brand/share-card.jpg`).
+5. This Mac has no Netlify CLI and no CLI login (the brief said otherwise); the old project's
+   last deploy is a CLI deploy of 2026-10-07.

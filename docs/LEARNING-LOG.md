@@ -6417,3 +6417,31 @@ Auto-fix: main took two commits (the landing's pricing buttons on a fresh visit;
 iPhone, Delete account, payment in Safari). The code merged on its own; only the notes met. Main
 named its open items BF, which this branch gave the Type Lab, and BK to BP are taken on other
 branches, so they are BQ here, with a line saying so.
+
+## 2026-11-23 — WeBuy.AD everywhere; the old domains dropped (claude/domain-saas-f5840a)
+
+Asked: connect the domains through Namecheap and set up every SaaS part, with the owner present;
+then "drop old branding" and "Anything that was previously referred to as the old name needs to
+be switched over to the new name".
+
+Done: OPEN-ITEMS §BV. buyback.ad was never registered (skipped); three dead domains off the old
+project; support@ and hello@webuy.ad forward; the name is WeBuy.AD in every current file.
+
+Found:
+  - A brief can describe a domain as "attached, no DNS" for months when it was never bought. Ask
+    the registry (`dig +norecurse <name> NS @<the TLD's server>`, `whois -h whois.nic.ad`) before
+    planning DNS for it.
+  - Four days passed between the task and the owner's sign-in; another session had launched
+    webuy.ad meanwhile, and a third made the same contact change an hour before the merge. Fetch
+    `main` before every step that writes, not only at the start.
+  - The built-in browser lost both sign-ins whenever the app closed its pane; the owner's Chrome
+    kept them. A Netlify session in one browser is one login: the second team meant signing out of
+    the first.
+  - Generic "buyback ad" is the product's category, not the old name: a rename must match
+    BUYBACK.AD and Graphics Studio, never the phrase.
+  - CSS_FALLBACK was stale on `main`; any styles.css edit (comments too) means
+    `node scripts/sync_css_fallback.mjs`, and again after merging `main`.
+
+RESUME HERE:
+  0. OPEN-ITEMS §BV, Open 1 and 2: this branch onto `main` with the owner's OK; iPhones LA to
+     accept webuy.ad, then the old project's redirect.
