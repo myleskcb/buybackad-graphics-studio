@@ -7065,7 +7065,10 @@ failed one drew the browser's mark and its alt text across the tile, for good.
 
 - **Only a picture that has arrived is seen.** A wall picture is clear until it has loaded
   (`app.js scWallWatch`), so a slow or failed one is its tile's own quiet surface, in every browser
-  (Firefox writes alt text into a picture still on its way). `landing.css` only fades it in.
+  (Firefox writes alt text into a picture still on its way). `landing.css` only fades it in. The
+  landing's library pictures are clear until loaded too (`scCard`, 2026-11-24): run against the
+  live site, the check caught a failed one painting its mark for the moment before its error event
+  was handled.
 - **It is asked for again.** `pictureWatch` hides a picture the moment it fails and asks again
   after 1.5 s and 5 s. Most failures are a dropped request, and the second ask brings it.
 - **A tile whose picture never comes leaves.** On the wall its card goes in both copies of its
