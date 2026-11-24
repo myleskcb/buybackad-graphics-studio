@@ -4567,15 +4567,23 @@ Done:
 - The CSP lets Apple's script and popup through, and Google's button stylesheet.
 - The privacy policy names Apple alongside Google.
 - `scripts/appleid_check.mjs` and `scripts/social_signin_check.mjs`.
+- 2026-11-23, the owner: "blend with app ui". Google's own button sat in a white box on the dark
+  windows, 300px on a 367px form. Both buttons are the site's own now, dressed as each window
+  (DESIGN-LAW 168); Google's popup comes from its token client, and `netlify/lib/googleid.mjs`
+  checks the access token's client ID (`scripts/googleid_check.mjs`). `account.js`'s Create / Sign
+  in switch shows on a dark page.
 
 Open:
-1. **owner**: create the Google OAuth client and the Apple Services ID, and put
-   `GOOGLE_CLIENT_ID` and `APPLE_CLIENT_ID` in Netlify (`docs/SIGN-IN-SETUP.md`, step by step).
-2. **owner**: read the privacy policy's new Apple lines before this goes live.
+1. **owner**: Google is on (`GOOGLE_CLIENT_ID` was set by 2026-11-23). Apple is left: create the
+   Services ID and put `APPLE_CLIENT_ID` in Netlify (`docs/SIGN-IN-SETUP.md`, step by step).
+2. **owner**: read the privacy policy's Apple lines (live since 2026-11-23, with pull request 20).
 3. The iPhone app shows neither button. It needs Sign in with Apple natively
    (`ASAuthorizationAppleIDProvider` in the shell, its identity token sent to `/api/auth/apple`),
    then `APPLE_BUNDLE_ID` = `ad.webuy.app` in Netlify. Google can follow in the app only alongside
    Apple (App Store guideline 4.8).
+4. **owner**: press "Continue with Google" once on webuy.ad. Automation can't open its popup, so
+   the live sign-in is not yet proven end to end. If Google says `origin_mismatch`, add
+   `https://webuy.ad` to the client's Authorized JavaScript origins.
 
 ## BW. 2026-11-22 — four more kinds of ground, and the card lines' own pictures (DESIGN-LAW 163)
 (BU on claude/full-ad-looks-layout; `main` had given BU to the business cards by the time it landed, 2026-11-23, so it is BW here.)
