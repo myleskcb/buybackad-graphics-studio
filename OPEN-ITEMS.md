@@ -4698,7 +4698,7 @@ ai, google false, billing (test mode).
 | Mail in | live | none |
 | Mail out | none: no password reset, no address check | a build: a mail provider, its DNS records at Namecheap, and the reset flow |
 | Search | **Search Console verified 2026-11-23** (Domain property webuy.ad, myleskcb@gmail.com, TXT `google-site-verification` at Namecheap); https://webuy.ad/sitemap.xml submitted ("Couldn't fetch" on the first day; the file answers 200) | Bing Webmaster Tools can import from Search Console |
-| Analytics | none | the owner chose Cloudflare Web Analytics; needs the owner's Cloudflare sign-in for the site token, then the script, the CSP and the privacy policy |
+| Analytics | **Cloudflare Web Analytics, live 2026-11-23** (195b5f1d): site webuy.ad in myleskcb@gmail.com's Cloudflare account, beside iphones.la and reselling.us; the beacon on the 26 public pages, its two CSP entries, the privacy row. No cookies | none |
 | Legal pages | live as WeBuy.AD | none |
 
 Open:
