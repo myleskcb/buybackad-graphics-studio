@@ -6744,3 +6744,35 @@ a dark page); `billing_check` 176 of 177, the same fabric.js failure as before.
 
 RESUME HERE: the owner presses "Continue with Google" once on webuy.ad (§BV 4; automation can't open
 the popup), then Apple's Services ID (§BV 1).
+
+## 2026-11-23 (late night) — a picture that does not arrive is never shown broken (DESIGN-LAW 169; claude/wall-tiles-never-broken)
+
+Asked, with a screenshot of the wall: "Can you fix this so our final product doesn't have this
+issue". Six tiles showed the browser's broken-picture mark and their alt text.
+
+Found: the screenshot was this session's own preview tab, left open in the browser pane after its
+server was stopped. The wall asks for its late pictures only once it is in, and it comes in on an
+animation frame; a hidden tab gets none, so the asking waited until the owner looked, by which
+time the server was gone. The live site was whole (36 of 36, two widths). So the fault he saw was
+mine to cause, and the product's to survive: nothing stood between a failed picture and the
+browser's mark.
+
+Done: `pictureWatch` and `scWallWatch` in `app.js`, the watch on the library's cards, a fade in
+`landing.css`, and `scripts/wall_pictures_check.mjs`.
+
+Found on the way: the first draft hid wall pictures with a stylesheet rule and showed them with a
+class from the script. A visitor with a cached `app.js` and a fresh `landing.css` would have had an
+invisible wall. Hiding and showing moved onto the picture itself. And two library cards can share a
+name in different colours, so the check finds a card by its picture.
+
+Checked: `wall_pictures_check` 22 of 22, three runs (12 of the 22 fail on the code before);
+`hero_wall_check` passes; `social_signin_check` 33 of 33 (the entry above says 34: a miscount, it
+has 33 cases); `billing_check` 179 of 180, the same fabric.js failure as before. `landing_check` not
+run (no `puppeteer-core` here). `full_ad_studio_check` 29 of 30: "earbuds landscape" runs to the
+edge, on `main` too with this change taken out, so it came with the full ad's own work.
+
+The check's own first draft dropped pictures "for six seconds" by the clock; on a busy machine the
+page took longer than that to come in and the pictures were let through before it looked. It now
+drops them until it says otherwise.
+
+RESUME HERE: the owner's OK to merge; then §BY 1 and 2 if he wants the rest of the site watched too.
