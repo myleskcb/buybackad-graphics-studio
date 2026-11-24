@@ -109,7 +109,15 @@
     to{background:color-mix(in srgb,var(--field) 82%,transparent);border-bottom-color:var(--hairline)}
   }
 }
-[data-skin=family] #page-landing .lp-nav-links{gap:30px;margin-left:56px}
+/* THE BAR CONDENSES ITSELF (the owner, 2026-11-23: "the site needs to be self condensing but legible at all level").
+   Eight links ran the Log in / Sign up / Make my ad group off the right edge between 1010 and about 1440 wide (the
+   skin's fixed 30 px gaps outranked styles.css's narrower ones). The gaps close with the window, and the links give way
+   least needed first, the type never smaller: Business cards and Look Book (both in the footer), then FAQ, How it works
+   and Customise together; under 1010 the row goes, as it did (styles.css). Measured at every 30 px, 1000 to 1560. */
+[data-skin=family] #page-landing .lp-nav-links{gap:clamp(16px,1.7vw,30px);margin-left:clamp(20px,2.8vw,56px)}
+[data-skin=family] #page-landing .lp-nav-links a{display:inline-block}   /* the skin decides what gives way, not styles.css */
+@media (max-width:1449px){[data-skin=family] #page-landing .lp-nav-links a[href="cards/"],[data-skin=family] #page-landing .lp-nav-links a[href="looks.html"]{display:none}}
+@media (max-width:1179px){[data-skin=family] #page-landing .lp-nav-links a[href="#faq"],[data-skin=family] #page-landing .lp-nav-links a[href="#lp-how"],[data-skin=family] #page-landing .lp-nav-links a[href="#lp-themes"]{display:none}}
 [data-skin=family] #page-landing .lp-nav-links a{font-size:14.5px;font-weight:500;color:var(--text-2);letter-spacing:-.005em;position:relative;padding:6px 0}
 [data-skin=family] #page-landing .lp-nav-links a::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1.5px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .35s var(--x-ease)}
 [data-skin=family] #page-landing .lp-nav-links a:hover{color:var(--text)}
@@ -453,7 +461,7 @@
   background:var(--p,var(--accent));color:var(--pi,#fff);padding:.35em .6em;border-radius:99px;white-space:nowrap;
 }
 [data-skin=family] #page-landing .fam-card .fam-name{font-size:12.5px;font-weight:600;line-height:1.25;letter-spacing:-.005em;color:var(--text)}
-[data-skin=family] #page-landing .fam-card .fam-meta{font-size:11.5px;margin:0;color:var(--text-dim)}
+[data-skin=family] #page-landing .fam-card .fam-meta{font-size:12px;margin:0;color:var(--text-dim)}   /* 12 px at the least, at every width (2026-11-23) */
 /* an old card with no colours to draw keeps its bars */
 [data-skin=family] #page-landing .fam-card .fam-sw{height:auto;aspect-ratio:1;margin:0;border-radius:12px}
 

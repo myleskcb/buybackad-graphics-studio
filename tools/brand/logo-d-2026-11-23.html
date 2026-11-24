@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WeBuy.AD logo: the tag, taken further</title>
+<!-- 2026-11-23: the owner, of the eight directions (logo-directions-2026-11-23.html): "I think D was really good,
+     but maybe the app icon could also have the word mark below the icon? And we could also try a capitalize
+     version to an idea. I do like the lowercase [styling]. It is pretty simplistic and sleek."
+     D (the tag) in three cases, each in the site's header and large; the app icon with the wordmark under the
+     tag, and the stacked lockup; and what each keeps at small sizes. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@700;750;800;900&family=Inter:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0b1222;--navy-2:#111a2e;--hair:rgba(255,255,255,.08);--blue:#3d8bff;--mint:#2fd58f;--page:#070b16;--text:#e8edf7;--dim:#93a0b8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--page);color:var(--text);font:15px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:44px 24px 96px}
+h1{font:800 32px/1.1 'Inter Tight',sans-serif;letter-spacing:-.03em;margin:0 0 8px}
+h2{font:750 19px/1.2 'Inter Tight',sans-serif;margin:0;letter-spacing:-.01em}
+.lede{color:var(--dim);max-width:780px;margin:0 0 34px}
+.opt{border:1px solid var(--hair);border-radius:18px;margin:0 0 26px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0))}
+.opt-h{display:flex;align-items:baseline;gap:14px;padding:16px 22px 12px;border-bottom:1px solid var(--hair);flex-wrap:wrap}
+.opt-h b{font:800 13px/1 Inter,sans-serif;letter-spacing:.12em;color:var(--mint)}
+.opt-h p{margin:0;color:var(--dim);font-size:14px;flex:1;min-width:240px;text-align:right}
+.bar{display:flex;align-items:center;gap:30px;height:66px;padding:0 26px;background:var(--navy);border-bottom:1px solid var(--hair);overflow:hidden}
+.bar nav{display:flex;gap:22px;font:500 13.5px Inter,sans-serif;color:#b9c4d8;flex:1;white-space:nowrap}
+.bar .cta{font:600 13.5px Inter,sans-serif;color:#fff;background:var(--blue);padding:9px 16px;border-radius:999px;white-space:nowrap}
+.bar .logo{font-size:23px;display:flex;align-items:center}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-height:190px}
+.tile{display:flex;align-items:center;justify-content:center;padding:26px;overflow:hidden;min-width:0;font-size:clamp(32px,4.4vw,54px)}
+.tile.dark{background:var(--navy-2)}
+.tile.light{background:#fbfbfd;border-left:1px solid #e9ecf2}
+.dark,.bar{--ink:#fff;--deal:var(--mint)}
+.light{--ink:#0d1321;--deal:#0e9f6a}
+/* the mark: the tag, then the word */
+.m-d{display:inline-flex;align-items:center;gap:.28em;line-height:1;white-space:nowrap}
+.m-d svg{width:1.05em;height:1.05em;display:block}
+.m-d span{font-family:'Inter Tight',sans-serif;font-weight:800;letter-spacing:-.045em;color:var(--ink)}
+.m-d span em{font-style:normal;color:var(--deal)}
+.m-d.caps span{letter-spacing:-.02em;font-weight:800}
+/* the icons */
+.icons{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0;border-top:1px solid var(--hair)}
+.cell{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:12px;padding:26px 16px 18px;background:#151d31;border-left:1px solid var(--hair);min-height:230px}
+.cell:first-child{border-left:0}
+.cell small{color:var(--dim);font-size:12px;text-align:center;line-height:1.35}
+.app{width:120px;height:120px;border-radius:27px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.app svg{width:100%;height:100%;display:block}
+.home{display:flex;flex-direction:column;align-items:center;gap:7px;padding:16px 22px;border-radius:22px;background:linear-gradient(160deg,#5b7cfa,#9a5bf0 55%,#f06b8b)}
+.home .app{width:76px;height:76px;border-radius:17px;box-shadow:0 6px 14px rgba(0,0,0,.25)}
+.home span{font:500 12px -apple-system,BlinkMacSystemFont,'SF Pro Text',Inter,sans-serif;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.stack{display:flex;flex-direction:column;align-items:center;gap:10px;font-size:30px}
+.stack svg{width:2.2em;height:2.2em;display:block}
+.stack span{font-family:'Inter Tight',sans-serif;font-weight:800;letter-spacing:-.045em;color:#fff;line-height:1}
+.stack span em{font-style:normal;color:var(--mint)}
+.small{display:flex;align-items:flex-end;gap:14px}
+.small span{display:block;overflow:hidden}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>D, the tag, taken further</h1>
+  <p class="lede">Three cases of the wordmark, each in the header at its real size and large on navy and on white. Then the app
+    icon with the word under the tag, as you asked, beside the tag alone, and the stacked lockup for a profile picture or
+    a splash screen. The word stops reading under about 40 pixels, so the favicon keeps the tag alone.</p>
+  <div id="cases"></div>
+
+  <section class="opt">
+    <div class="opt-h"><b>ICON</b><h2>The app icon, with the word under the tag</h2><p>Lowercase, as you like it. Shown at full size, on a phone's home screen, and small.</p></div>
+    <div class="icons" id="icons"></div>
+  </section>
+</div>
+<script>
+/* the tag (the same drawing as direction D), in the colour of where it stands */
+const TAG = (fill = 'var(--deal)') => `<svg viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(-28 12 12)"><path fill-rule="evenodd" fill="${fill}" d="M8.6 4.5H20a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H8.6a2 2 0 0 1-1.5-.68L2.4 13.3a2 2 0 0 1 0-2.6l4.7-5.52A2 2 0 0 1 8.6 4.5Zm-.1 9.3a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6Z"/></g></svg>`;
+const tagPath = TAG('#2fd58f').replace('<svg viewBox="0 0 24 24" aria-hidden="true">', '').replace('</svg>', '');
+const CASES = [
+  { k: 'D1', name: 'lowercase', idea: 'The one you liked: simple and sleek. The tag and .ad in mint.', word: 'webuy<em>.ad</em>', caps: false },
+  { k: 'D2', name: 'WeBuy.ad', idea: 'The two words told apart by their capitals; .ad stays small, the address.', word: 'WeBuy<em>.ad</em>', caps: false },
+  { k: 'D3', name: 'WEBUY.AD', idea: 'All capitals, like the ads it makes. Louder, less sleek.', word: 'WEBUY<em>.AD</em>', caps: true },
+];
+const nav = `<nav><span>Templates</span><span>Video ads</span><span>Business cards</span><span>Look Book</span><span>Pricing</span></nav><span class="cta">Make my ad</span>`;
+const mark = c => `<span class="m-d${c.caps ? ' caps' : ''}">${TAG()}<span>${c.word}</span></span>`;
+document.getElementById('cases').innerHTML = CASES.map(c => `
+  <section class="opt">
+    <div class="opt-h"><b>${c.k}</b><h2>${c.name}</h2><p>${c.idea}</p></div>
+    <div class="bar"><span class="logo">${mark(c)}</span>${nav}</div>
+    <div class="row"><div class="tile dark">${mark(c)}</div><div class="tile light">${mark(c)}</div></div>
+  </section>`).join('');
+/* the icons: the tag with the word under it (lowercase), the tag alone, the lockup */
+const withWord = (word = 'webuy', ad = '.ad') => `<svg viewBox="0 0 120 120"><rect width="120" height="120" fill="#0b1222"/>
+  <g transform="translate(36 14) scale(2)">${tagPath}</g>
+  <text x="60" y="96" text-anchor="middle" font-family="Inter Tight" font-weight="800" font-size="21" letter-spacing="-.9" fill="#fff">${word}<tspan fill="#2fd58f">${ad}</tspan></text></svg>`;
+const tagOnly = `<svg viewBox="0 0 120 120"><rect width="120" height="120" fill="#0b1222"/><g transform="translate(20 20) scale(3.33)">${tagPath}</g></svg>`;
+const sized = (svg, px, r) => `<span style="width:${px}px;height:${px}px;border-radius:${r}px">${svg.replace('<svg ', `<svg width="${px}" height="${px}" `)}</span>`;
+document.getElementById('icons').innerHTML = `
+  <div class="cell"><span class="app">${withWord()}</span><small>The icon: the tag, the word under it</small></div>
+  <div class="cell"><span class="home"><span class="app">${withWord()}</span><span>WeBuy.AD</span></span><small>On a home screen, with its name under it</small></div>
+  <div class="cell"><span class="app">${tagOnly}</span><small>The tag alone, for comparison</small></div>
+  <div class="cell"><span class="stack">${TAG('#2fd58f')}<span>webuy<em>.ad</em></span></span><small>The lockup: a profile picture, a splash screen</small></div>
+  <div class="cell"><span class="small">${sized(withWord(), 48, 11)}${sized(tagOnly, 32, 7)}${sized(tagOnly, 16, 3)}</span><small>48 with the word · 32 and 16 (favicon), the tag alone</small></div>`;
+</script>
+</body>
+</html>
