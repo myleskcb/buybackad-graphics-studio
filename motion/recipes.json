@@ -6099,7 +6099,7 @@
    },
    "words": {
     "headline": "FOLDING PHONE? SELL IT",
-    "tag": "GALAXY Z FOLD, Z FLIP AND PIXEL FOLD",
+    "tag": "iPHONE DUO, GALAXY Z FOLD AND FLIP, PIXEL FOLD",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -6147,7 +6147,7 @@
    },
    "words": {
     "headline": "FOLDING PHONE? SELL IT",
-    "tag": "GALAXY Z FOLD, Z FLIP AND PIXEL FOLD",
+    "tag": "iPHONE DUO, GALAXY Z FOLD AND FLIP, PIXEL FOLD",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -6195,7 +6195,7 @@
    },
    "words": {
     "headline": "FOLDING PHONE? SELL IT",
-    "tag": "GALAXY Z FOLD, Z FLIP AND PIXEL FOLD",
+    "tag": "iPHONE DUO, GALAXY Z FOLD AND FLIP, PIXEL FOLD",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -6241,7 +6241,7 @@
    },
    "words": {
     "headline": "FOLDING PHONE? SELL IT",
-    "tag": "GALAXY Z FOLD, Z FLIP AND PIXEL FOLD",
+    "tag": "iPHONE DUO, GALAXY Z FOLD AND FLIP, PIXEL FOLD",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -6288,7 +6288,7 @@
    },
    "words": {
     "headline": "FOLDING PHONE? SELL IT",
-    "tag": "GALAXY Z FOLD, Z FLIP AND PIXEL FOLD",
+    "tag": "iPHONE DUO, GALAXY Z FOLD AND FLIP, PIXEL FOLD",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -6336,7 +6336,7 @@
    },
    "words": {
     "headline": "FOLD OR FLIP? WE BUY BOTH",
-    "tag": "GALAXY Z FOLD, Z FLIP AND PIXEL FOLD",
+    "tag": "iPHONE DUO, GALAXY Z FOLD AND FLIP, PIXEL FOLD",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -6382,7 +6382,7 @@
    },
    "words": {
     "headline": "YOUR OLD FOLDABLE IS CASH",
-    "tag": "GALAXY Z FOLD, Z FLIP AND PIXEL FOLD",
+    "tag": "iPHONE DUO, GALAXY Z FOLD AND FLIP, PIXEL FOLD",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -13633,13 +13633,15 @@
    "words": {
     "headline": "WE BUY GOLD JEWELRY",
     "tag": "10K • 14K • 18K • SCRAP & DENTAL • CUBAN LINKS",
-    "claim": "FAST CASH",
     "label": "GET A FREE QUOTE"
    },
    "pictures": [],
    "ground_photo": null,
    "pair": "black_gold",
    "type_pair": "warp",
+   "dropped": [
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ],
    "notes": [
     "left out 1 flagged or rejected picture",
     "cash ground left out"
@@ -14225,8 +14227,7 @@
     ]
    },
    "words": {
-    "headline": "CASH OUT YOUR GOLD JEWELRY",
-    "claim": "REPLYING NOW"
+    "headline": "CASH OUT YOUR GOLD JEWELRY"
    },
    "pictures": [],
    "ground_photo": {
@@ -14241,7 +14242,10 @@
     "subject": "gold"
    },
    "pair": "black_gold",
-   "type_pair": "stadium"
+   "type_pair": "stadium",
+   "dropped": [
+    "claim: \"REPLYING NOW\" (ONLINE NOW)"
+   ]
   },
   {
    "id": "r-slabPoster-jw04-20",
@@ -14865,7 +14869,6 @@
    },
    "words": {
     "headline": "CASH IN YOUR GOLD",
-    "claim": "FAST CASH",
     "points": "NO FEES, DISCREET, PRIVATE",
     "label": "GET A FREE QUOTE"
    },
@@ -14882,7 +14885,10 @@
     "subject": "gold"
    },
    "pair": "red_yellow",
-   "type_pair": "luxe"
+   "type_pair": "luxe",
+   "dropped": [
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ]
   },
   {
    "id": "r-voltStack-ck03-20",
@@ -15260,7 +15266,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg/dl_gold_karatSeal_gold.jpg",
+    "src": "assets/bg-web/gold-gold-necklace-chain-close-3.jpg",
     "focus": [
      0.5,
      0.5
@@ -17148,8 +17154,7 @@
    },
    "words": {
     "headline": "WE BUY SILVER",
-    "tag": "STERLING • .925 • SILVERWARE",
-    "claim": "FAST CASH"
+    "tag": "STERLING • .925 • SILVERWARE"
    },
    "pictures": [],
    "ground_photo": {
@@ -17165,6 +17170,9 @@
    },
    "pair": "black_green",
    "type_pair": "",
+   "dropped": [
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ],
    "notes": [
     "left out 1 flagged or rejected picture"
    ]
@@ -17364,7 +17372,6 @@
     ]
    },
    "words": {
-    "headline": "GET PAID CASH · ZELLE · VENMO · WIRE",
     "claim": "THE PAWN SHOP OFFERED YOU WHAT?"
    },
    "pictures": [],
@@ -17380,7 +17387,10 @@
     "subject": "silver"
    },
    "pair": "midnight_cyan",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "headline: \"GET PAID CASH · ZELLE · VENMO · WIRE\" (ZELLE / VENMO)"
+   ]
   },
   {
    "id": "r-slabPoster-jw08-35",
@@ -17880,7 +17890,6 @@
    "words": {
     "headline": "YOUR LOCAL SILVER BUYER",
     "tag": "STERLING • .925 • SILVERWARE • ANTIQUES • TIFFANY & CO",
-    "claim": "FAST CASH",
     "points": "CASH, TEXT A PIC, FREE QUOTE"
    },
    "pictures": [],
@@ -17897,6 +17906,9 @@
    },
    "pair": "black_gold",
    "type_pair": "",
+   "dropped": [
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ],
    "notes": [
     "its picture (silver-flatware-set) left to the line's pool"
    ]
@@ -17938,7 +17950,6 @@
    "words": {
     "headline": "YOUR LOCAL SILVER BUYER",
     "tag": "STERLING • .925 • SILVERWARE • ANTIQUES • TIFFANY & CO",
-    "claim": "FAST CASH",
     "points": "CASH, TEXT A PIC, FREE QUOTE"
    },
    "pictures": [],
@@ -17955,6 +17966,9 @@
    },
    "pair": "blue_green",
    "type_pair": "",
+   "dropped": [
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ],
    "notes": [
     "left out 1 flagged or rejected picture"
    ]
@@ -20106,7 +20120,6 @@
     ]
    },
    "words": {
-    "headline": "GET PAID CASH · ZELLE · VENMO · WIRE",
     "tag": "GRAILS • MORGANS • PEACE DOLLARS • KEY DATES",
     "claim": "THE COIN SHOP OFFERED YOU WHAT?",
     "label": "REQUEST AN APPRAISAL"
@@ -20115,6 +20128,9 @@
    "ground_photo": null,
    "pair": "teal_orange",
    "type_pair": "",
+   "dropped": [
+    "headline: \"GET PAID CASH · ZELLE · VENMO · WIRE\" (ZELLE / VENMO)"
+   ],
    "notes": [
     "left out 1 flagged or rejected picture",
     "cash ground left out"
@@ -21172,7 +21188,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg/dl_coins_slabPoster_gold.jpg",
+    "src": "assets/bg/dl_coins_agencyGrid_paper.jpg",
     "focus": [
      0.5,
      0.5
@@ -21269,7 +21285,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg/dl_coins_slabPoster_gold.jpg",
+    "src": "assets/bg/dl_coins_voltStack_royal.jpg",
     "focus": [
      0.5,
      0.5
@@ -21367,7 +21383,7 @@
    },
    "pictures": [],
    "ground_photo": {
-    "src": "assets/bg/dl_coins_wantedFrame_paper.jpg",
+    "src": "assets/bg-offer/coins-american-gold-eagle-coin-1.jpg",
     "focus": [
      0.5,
      0.5
@@ -21621,7 +21637,6 @@
     "hue": 118
    },
    "words": {
-    "headline": "GET PAID CASH · ZELLE · VENMO · WIRE",
     "claim": "THE COIN SHOP OFFERED YOU WHAT?",
     "points": "NO FEES, SAME DAY, DISCREET",
     "label": "REQUEST AN APPRAISAL"
@@ -21630,6 +21645,9 @@
    "ground_photo": null,
    "pair": "midnight_cyan",
    "type_pair": "",
+   "dropped": [
+    "headline: \"GET PAID CASH · ZELLE · VENMO · WIRE\" (ZELLE / VENMO)"
+   ],
    "notes": [
     "cash ground left out"
    ]
@@ -21832,7 +21850,7 @@
    "words": {
     "headline": "WE BUY COINS",
     "points": "NO FEES, FREE QUOTE, DISCREET",
-    "label": "REQUEST AN APPRAISAL"
+    "label": "GET AN OFFER"
    },
    "pictures": [],
    "ground_photo": null,
@@ -21982,7 +22000,7 @@
     "headline": "WE BUY COINS",
     "tag": "OLD COINS • SILVER DOLLARS • GOLD COINS • COIN COLLECTIONS",
     "claim": "PAID ON THE SPOT",
-    "label": "REQUEST AN APPRAISAL"
+    "label": "GET AN OFFER"
    },
    "pictures": [],
    "ground_photo": null,
@@ -22863,7 +22881,6 @@
    "words": {
     "headline": "WE BUY MOTORCYCLES",
     "tag": "HARLEY HONDA · YAMAHA",
-    "claim": "FAST CASH",
     "label": "TEXT US NOW"
    },
    "pictures": [
@@ -22885,6 +22902,9 @@
    "pair": "green_gold",
    "type_pair": "",
    "make": "motorcycle",
+   "dropped": [
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ],
    "notes": [
     "left out 1 unidentified car picture",
     "a motorcycle picture in place of car-motorcycle-side",
@@ -22929,7 +22949,6 @@
    "words": {
     "headline": "WE BUY HONDAS",
     "tag": "HARLEY HONDA · YAMAHA",
-    "claim": "FAST CASH",
     "label": "GET A CASH OFFER"
    },
    "pictures": [
@@ -22942,6 +22961,9 @@
    "pair": "purple_gold",
    "type_pair": "stadium",
    "make": "motorcycle",
+   "dropped": [
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ],
    "notes": [
     "left out 1 unidentified car picture",
     "a motorcycle picture in place of car-motorcycle-side",
@@ -23905,7 +23927,7 @@
    },
    "words": {
     "headline": "RUNNING OR NOT, WE BUY IT",
-    "tag": "CARS, TRUCKS AND SUVS, RUNNING OR NOT",
+    "tag": "CARS, TRUCKS AND SUVS OF EVERY MAKE",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -23953,7 +23975,7 @@
    },
    "words": {
     "headline": "YOUR OLD CAR IS CASH",
-    "tag": "CARS, TRUCKS AND SUVS, RUNNING OR NOT",
+    "tag": "CARS, TRUCKS AND SUVS OF EVERY MAKE",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -24004,7 +24026,7 @@
    },
    "words": {
     "headline": "RUNNING OR NOT, WE BUY IT",
-    "tag": "CARS, TRUCKS AND SUVS, RUNNING OR NOT",
+    "tag": "CARS, TRUCKS AND SUVS OF EVERY MAKE",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -24050,7 +24072,7 @@
    },
    "words": {
     "headline": "YOUR OLD CAR IS CASH",
-    "tag": "CARS, TRUCKS AND SUVS, RUNNING OR NOT",
+    "tag": "CARS, TRUCKS AND SUVS OF EVERY MAKE",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -24097,7 +24119,7 @@
    },
    "words": {
     "headline": "YOUR OLD CAR IS CASH",
-    "tag": "CARS, TRUCKS AND SUVS, RUNNING OR NOT",
+    "tag": "CARS, TRUCKS AND SUVS OF EVERY MAKE",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -24145,7 +24167,7 @@
    },
    "words": {
     "headline": "CAR SITTING IN THE DRIVEWAY? SELL IT",
-    "tag": "CARS, TRUCKS AND SUVS, RUNNING OR NOT",
+    "tag": "CARS, TRUCKS AND SUVS OF EVERY MAKE",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -24190,7 +24212,7 @@
    },
    "words": {
     "headline": "YOUR OLD CAR IS CASH",
-    "tag": "CARS, TRUCKS AND SUVS, RUNNING OR NOT",
+    "tag": "CARS, TRUCKS AND SUVS OF EVERY MAKE",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -24339,7 +24361,7 @@
    },
    "words": {
     "headline": "VINTAGE CAR? GET AN OFFER",
-    "tag": "CLASSIC AND VINTAGE CARS, RUNNING OR RESTORED",
+    "tag": "CLASSIC AND VINTAGE CARS, PROJECT OR RESTORED",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -24388,7 +24410,7 @@
    },
    "words": {
     "headline": "YOUR CLASSIC CAR IS CASH",
-    "tag": "CLASSIC AND VINTAGE CARS, RUNNING OR RESTORED",
+    "tag": "CLASSIC AND VINTAGE CARS, PROJECT OR RESTORED",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -24436,7 +24458,7 @@
    },
    "words": {
     "headline": "VINTAGE CAR? GET AN OFFER",
-    "tag": "CLASSIC AND VINTAGE CARS, RUNNING OR RESTORED",
+    "tag": "CLASSIC AND VINTAGE CARS, PROJECT OR RESTORED",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -24483,7 +24505,7 @@
    },
    "words": {
     "headline": "CLASSIC IN THE GARAGE? SELL IT",
-    "tag": "CLASSIC AND VINTAGE CARS, RUNNING OR RESTORED",
+    "tag": "CLASSIC AND VINTAGE CARS, PROJECT OR RESTORED",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -24530,7 +24552,7 @@
    },
    "words": {
     "headline": "YOUR CLASSIC CAR IS CASH",
-    "tag": "CLASSIC AND VINTAGE CARS, RUNNING OR RESTORED",
+    "tag": "CLASSIC AND VINTAGE CARS, PROJECT OR RESTORED",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -24578,7 +24600,7 @@
    },
    "words": {
     "headline": "CLASSIC IN THE GARAGE? SELL IT",
-    "tag": "CLASSIC AND VINTAGE CARS, RUNNING OR RESTORED",
+    "tag": "CLASSIC AND VINTAGE CARS, PROJECT OR RESTORED",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -24623,7 +24645,7 @@
    },
    "words": {
     "headline": "VINTAGE CAR? GET AN OFFER",
-    "tag": "CLASSIC AND VINTAGE CARS, RUNNING OR RESTORED",
+    "tag": "CLASSIC AND VINTAGE CARS, PROJECT OR RESTORED",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -25410,7 +25432,6 @@
    },
    "words": {
     "headline": "WE BUY TACOMAS",
-    "claim": "ONLINE NOW",
     "points": "AS-IS, SAME DAY, NO FEES",
     "label": "CALL OR TEXT NOW"
    },
@@ -25433,6 +25454,9 @@
    "pair": "navy_orange",
    "type_pair": "",
    "make": "toyota",
+   "dropped": [
+    "claim: \"ONLINE NOW\" (ONLINE NOW)"
+   ],
    "notes": [
     "a toyota tacoma picture in place of none",
     "ground swapped for a scene: it showed a toyota tacoma"
@@ -27521,7 +27545,6 @@
    },
    "words": {
     "headline": "WE BUY BMWS",
-    "claim": "ONLINE NOW",
     "points": "AS-IS, SAME DAY, NO FEES",
     "label": "CALL OR TEXT NOW"
    },
@@ -27544,6 +27567,9 @@
    "pair": "purple_gold",
    "type_pair": "",
    "make": "bmw",
+   "dropped": [
+    "claim: \"ONLINE NOW\" (ONLINE NOW)"
+   ],
    "notes": [
     "left out 1 unidentified car picture",
     "a bmw picture in place of car-suv-side",
@@ -30615,8 +30641,7 @@
     ]
    },
    "words": {
-    "headline": "CASH FOR TEST STRIPS & CGMS",
-    "claim": "ONLINE NOW"
+    "headline": "CASH FOR TEST STRIPS & CGMS"
    },
    "pictures": [],
    "ground_photo": {
@@ -30631,7 +30656,10 @@
     "subject": "strips"
    },
    "pair": "teal_orange",
-   "type_pair": "grotesk"
+   "type_pair": "grotesk",
+   "dropped": [
+    "claim: \"ONLINE NOW\" (ONLINE NOW)"
+   ]
   },
   {
    "id": "r-slabPoster-nn05-15",
@@ -31903,8 +31931,7 @@
     ]
    },
    "words": {
-    "headline": "WE BUY POKÉMON",
-    "tag": "GRAILS WANTED • CHARIZARD • MOONBREON"
+    "headline": "WE BUY POKÉMON"
    },
    "pictures": [],
    "ground_photo": {
@@ -31919,7 +31946,10 @@
     "subject": "pokemon"
    },
    "pair": "teal_orange",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-arcCrown-ck05-35",
@@ -31955,8 +31985,7 @@
     ]
    },
    "words": {
-    "headline": "WE BUY POKÉMON CARDS & SLABS",
-    "tag": "GRAILS WANTED • CHARIZARD • MOONBREON"
+    "headline": "WE BUY POKÉMON CARDS & SLABS"
    },
    "pictures": [],
    "ground_photo": {
@@ -31971,7 +32000,10 @@
     "subject": "pokemon"
    },
    "pair": "navy_orange",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-bandKnockout-gl04-30",
@@ -32010,8 +32042,7 @@
    },
    "words": {
     "headline": "WE BUY POKEMON CARDS",
-    "points": "CASH, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "points": "CASH, LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -32026,7 +32057,10 @@
     "subject": "pokemon"
    },
    "pair": "navy_orange",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-bandKnockout-ik05-30",
@@ -32065,8 +32099,7 @@
    },
    "words": {
     "headline": "WE BUY POKEMON",
-    "points": "CASH, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "points": "CASH, LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -32081,7 +32114,10 @@
     "subject": "pokemon"
    },
    "pair": "midnight_cyan",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-bandKnockout-pa03-35",
@@ -32138,7 +32174,7 @@
    "pair": "navy_gold",
    "type_pair": "warp",
    "notes": [
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
   {
@@ -32183,8 +32219,7 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON",
-    "burst": "CASH NOW",
-    "label": "REQUEST AN APPRAISAL"
+    "burst": "CASH NOW"
    },
    "pictures": [],
    "ground_photo": {
@@ -32199,7 +32234,10 @@
     "subject": "pokemon"
    },
    "pair": "blue_green",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-bubblePop-ck01-15",
@@ -32243,8 +32281,7 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON CARDS & SLABS",
-    "burst": "CASH NOW",
-    "label": "REQUEST AN APPRAISAL"
+    "burst": "CASH NOW"
    },
    "pictures": [],
    "ground_photo": {
@@ -32259,7 +32296,10 @@
     "subject": "pokemon"
    },
    "pair": "red_yellow",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-bubblePop-du08-16",
@@ -32304,8 +32344,7 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON CARDS & SLABS",
-    "burst": "CASH NOW",
-    "label": "REQUEST AN APPRAISAL"
+    "burst": "CASH NOW"
    },
    "pictures": [],
    "ground_photo": {
@@ -32321,8 +32360,11 @@
    },
    "pair": "green_gold",
    "type_pair": "warp",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
   {
@@ -32368,8 +32410,7 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON",
-    "burst": "CASH NOW",
-    "label": "REQUEST AN APPRAISAL"
+    "burst": "CASH NOW"
    },
    "pictures": [],
    "ground_photo": {
@@ -32384,7 +32425,10 @@
     "subject": "pokemon"
    },
    "pair": "blue_green",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-bubblePop-jw05-16",
@@ -32428,8 +32472,7 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON",
-    "burst": "CASH NOW",
-    "label": "REQUEST AN APPRAISAL"
+    "burst": "CASH NOW"
    },
    "pictures": [],
    "ground_photo": {
@@ -32444,7 +32487,10 @@
     "subject": "pokemon"
    },
    "pair": "midnight_cyan",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-bubblePop-pa05-15",
@@ -32488,8 +32534,7 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON",
-    "burst": "CASH NOW",
-    "label": "REQUEST AN APPRAISAL"
+    "burst": "CASH NOW"
    },
    "pictures": [],
    "ground_photo": {
@@ -32504,7 +32549,10 @@
     "subject": "pokemon"
    },
    "pair": "midnight_cyan",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-bubblePop-pp04-15",
@@ -32549,8 +32597,7 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON",
-    "burst": "CASH NOW",
-    "label": "REQUEST AN APPRAISAL"
+    "burst": "CASH NOW"
    },
    "pictures": [],
    "ground_photo": {
@@ -32565,7 +32612,10 @@
     "subject": "pokemon"
    },
    "pair": "teal_orange",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-checklistHero-io03-20",
@@ -32601,8 +32651,7 @@
    },
    "words": {
     "headline": "WE BUY POKEMON",
-    "claim": "CASH NO FEES LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -32618,8 +32667,11 @@
    },
    "pair": "navy_orange",
    "type_pair": "",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
   {
@@ -32657,8 +32709,7 @@
    },
    "words": {
     "headline": "WE BUY POKEMON",
-    "claim": "CASH NO FEES LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -32673,7 +32724,10 @@
     "subject": "pokemon"
    },
    "pair": "red_yellow",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-checklistHero-pa05-15",
@@ -32709,8 +32763,7 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON",
-    "claim": "CASH NO FEES LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -32725,7 +32778,10 @@
     "subject": "pokemon"
    },
    "pair": "navy_gold",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-glassCard-ca05-35",
@@ -32762,18 +32818,20 @@
     ]
    },
    "words": {
-    "headline": "WE BUY POKÉMON CARDS",
-    "tag": "GRAILS WANTED • CHARIZARD • MOONBREON • ALT ARTS",
-    "claim": "REPLYING NOW",
-    "label": "REQUEST AN APPRAISAL"
+    "headline": "WE BUY POKÉMON CARDS"
    },
    "pictures": [],
    "ground_photo": null,
    "pair": "teal_orange",
    "type_pair": "warp",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON • ALT ARTS\" (GRAILS / APPRAISAL)",
+    "claim: \"REPLYING NOW\" (ONLINE NOW)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
     "cash ground left out",
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
   {
@@ -32812,17 +32870,19 @@
    },
    "words": {
     "headline": "WE BUY POKEMON CARDS",
-    "tag": "GRAILS WANTED • CHARIZARD • MOONBREON • ALT ARTS",
-    "claim": "ONLINE NOW",
     "label": "CALL OR TEXT NOW"
    },
    "pictures": [],
    "ground_photo": null,
    "pair": "navy_orange",
    "type_pair": "warp",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON • ALT ARTS\" (GRAILS / APPRAISAL)",
+    "claim: \"ONLINE NOW\" (ONLINE NOW)"
+   ],
    "notes": [
     "cash ground left out",
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
   {
@@ -32861,17 +32921,19 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON",
-    "tag": "TEXT A PIC · GET A PRICE",
-    "claim": "GRAILS WANTED",
-    "label": "REQUEST AN APPRAISAL"
+    "tag": "TEXT A PIC · GET A PRICE"
    },
    "pictures": [],
    "ground_photo": null,
    "pair": "midnight_cyan",
    "type_pair": "",
+   "dropped": [
+    "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
     "cash ground left out",
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
   {
@@ -32908,7 +32970,6 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON CARDS",
-    "tag": "GRAILS WANTED • CHARIZARD • MOONBREON",
     "claim": "CASH NO FEES LOCAL",
     "label": "CALL OR TEXT NOW"
    },
@@ -32925,7 +32986,10 @@
     "subject": "pokemon"
    },
    "pair": "teal_orange",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-hudTech-du08-20",
@@ -32963,9 +33027,7 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON CARDS & SLABS",
-    "tag": "GRAILS WANTED CHARIZARD · MOONBREON",
-    "claim": "GOT ANOTHER QUOTE?",
-    "label": "REQUEST AN APPRAISAL"
+    "claim": "GOT ANOTHER QUOTE?"
    },
    "pictures": [],
    "ground_photo": {
@@ -32980,7 +33042,11 @@
     "subject": "pokemon"
    },
    "pair": "blue_green",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED CHARIZARD · MOONBREON\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-neonNight-du08-16",
@@ -33014,9 +33080,7 @@
     "tone": "dark"
    },
    "words": {
-    "headline": "WE BUY POKÉMON",
-    "tag": "GRAILS WANTED • CHARIZARD",
-    "claim": "FAST CASH"
+    "headline": "WE BUY POKÉMON"
    },
    "pictures": [],
    "ground_photo": {
@@ -33031,7 +33095,11 @@
     "subject": "pokemon"
    },
    "pair": "purple_gold",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD\" (GRAILS / APPRAISAL)",
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ]
   },
   {
    "id": "r-neonNight-gl04-30",
@@ -33066,8 +33134,7 @@
    },
    "words": {
     "headline": "WE BUY POKEMON",
-    "tag": "TEXT A PIC · GET A PRICE",
-    "claim": "GRAILS WANTED"
+    "tag": "TEXT A PIC · GET A PRICE"
    },
    "pictures": [],
    "ground_photo": {
@@ -33082,7 +33149,10 @@
     "subject": "pokemon"
    },
    "pair": "red_yellow",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-neonNight-ik05-20",
@@ -33117,7 +33187,6 @@
    },
    "words": {
     "headline": "WE BUY POKEMON CARDS",
-    "tag": "GRAILS WANTED • CHARIZARD",
     "claim": "CARD BUYER"
    },
    "pictures": [],
@@ -33134,8 +33203,11 @@
    },
    "pair": "teal_orange",
    "type_pair": "warp",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
   {
@@ -33171,7 +33243,6 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON CARDS",
-    "tag": "GRAILS WANTED • CHARIZARD",
     "claim": "CARD BUYER"
    },
    "pictures": [],
@@ -33188,8 +33259,11 @@
    },
    "pair": "blue_green",
    "type_pair": "warp",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
   {
@@ -33224,9 +33298,7 @@
     "tone": "dark"
    },
    "words": {
-    "headline": "WE BUY POKÉMON",
-    "tag": "GRAILS WANTED • CHARIZARD",
-    "claim": "FAST CASH"
+    "headline": "WE BUY POKÉMON"
    },
    "pictures": [],
    "ground_photo": {
@@ -33241,7 +33313,11 @@
     "subject": "pokemon"
    },
    "pair": "midnight_cyan",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD\" (GRAILS / APPRAISAL)",
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ]
   },
   {
    "id": "r-reviewProof-cd06-20",
@@ -33283,8 +33359,7 @@
    "words": {
     "headline": "POKEMON CARDS BUYER",
     "claim": "✓ CASH • NO FEES • ✓ LOCAL",
-    "points": "CASH, NO FEES, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -33299,7 +33374,10 @@
     "subject": "pokemon"
    },
    "pair": "purple_gold",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-reviewProof-du08-20",
@@ -33341,8 +33419,7 @@
    "words": {
     "headline": "POKÉMON CARDS BUYER",
     "claim": "✓ CASH • NO FEES • ✓ LOCAL",
-    "points": "CASH, NO FEES, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -33357,7 +33434,10 @@
     "subject": "pokemon"
    },
    "pair": "navy_gold",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-scriptRetro-jw05-16",
@@ -33399,9 +33479,7 @@
     ]
    },
    "words": {
-    "headline": "WE BUY POKÉMON",
-    "tag": "GRAILS WANTED • CHARIZARD",
-    "label": "REQUEST AN APPRAISAL"
+    "headline": "WE BUY POKÉMON"
    },
    "pictures": [],
    "ground_photo": {
@@ -33417,8 +33495,12 @@
    },
    "pair": "navy_gold",
    "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
   {
@@ -33461,9 +33543,7 @@
     ]
    },
    "words": {
-    "headline": "WE BUY POKÉMON",
-    "tag": "GRAILS WANTED • CHARIZARD",
-    "label": "REQUEST AN APPRAISAL"
+    "headline": "WE BUY POKÉMON"
    },
    "pictures": [],
    "ground_photo": {
@@ -33478,7 +33558,11 @@
     "subject": "pokemon"
    },
    "pair": "green_gold",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-scriptRetro-nn01-15",
@@ -33521,9 +33605,7 @@
     ]
    },
    "words": {
-    "headline": "WE BUY POKÉMON",
-    "tag": "GRAILS WANTED • CHARIZARD",
-    "label": "REQUEST AN APPRAISAL"
+    "headline": "WE BUY POKÉMON"
    },
    "pictures": [],
    "ground_photo": {
@@ -33538,7 +33620,11 @@
     "subject": "pokemon"
    },
    "pair": "teal_orange",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-slabPoster-nn05-30",
@@ -33621,8 +33707,7 @@
     ]
    },
    "words": {
-    "headline": "CASH IN 3 STEPS",
-    "claim": "FAST CASH"
+    "headline": "CASH IN 3 STEPS"
    },
    "pictures": [],
    "ground_photo": {
@@ -33638,8 +33723,11 @@
    },
    "pair": "navy_orange",
    "type_pair": "",
+   "dropped": [
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ],
    "notes": [
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
   {
@@ -33680,7 +33768,7 @@
    "type_pair": "warp",
    "notes": [
     "cash ground left out",
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
   {
@@ -33711,8 +33799,7 @@
     ]
    },
    "words": {
-    "headline": "CASH IN 3 STEPS",
-    "claim": "FAST CASH"
+    "headline": "CASH IN 3 STEPS"
    },
    "pictures": [],
    "ground_photo": {
@@ -33728,8 +33815,11 @@
    },
    "pair": "green_gold",
    "type_pair": "",
+   "dropped": [
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ],
    "notes": [
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
   {
@@ -33779,7 +33869,7 @@
    "pair": "purple_gold",
    "type_pair": "warp",
    "notes": [
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
   {
@@ -33819,9 +33909,7 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON",
-    "tag": "GRAILS WANTED • CHARIZARD • MOONBREON",
-    "claim": "CASH OFFERS, CARD BY CARD",
-    "label": "REQUEST AN APPRAISAL"
+    "claim": "CASH OFFERS, CARD BY CARD"
    },
    "pictures": [],
    "ground_photo": {
@@ -33836,7 +33924,11 @@
     "subject": "pokemon"
    },
    "pair": "midnight_cyan",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-trustSeal-cd10-30",
@@ -33875,7 +33967,6 @@
    },
    "words": {
     "headline": "YOUR LOCAL POKEMON CARDS BUYER",
-    "tag": "GRAILS WANTED • CHARIZARD • MOONBREON • ALT ARTS",
     "claim": "CARD BUYER",
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
@@ -33892,7 +33983,10 @@
     "subject": "pokemon"
    },
    "pair": "navy_orange",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON • ALT ARTS\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-trustSeal-du07-25",
@@ -33931,7 +34025,6 @@
    },
    "words": {
     "headline": "YOUR LOCAL POKÉMON CARDS BUYER",
-    "tag": "GRAILS WANTED • CHARIZARD • MOONBREON • ALT ARTS",
     "claim": "CARD BUYER",
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
@@ -33948,7 +34041,10 @@
     "subject": "pokemon"
    },
    "pair": "green_gold",
-   "type_pair": "stadium"
+   "type_pair": "stadium",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON • ALT ARTS\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-trustSeal-gl02-15",
@@ -33986,8 +34082,6 @@
    },
    "words": {
     "headline": "YOUR LOCAL POKÉMON BUYER",
-    "tag": "GRAILS WANTED • CHARIZARD • MOONBREON • ALT ARTS",
-    "claim": "FAST CASH",
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
    "pictures": [],
@@ -34003,7 +34097,11 @@
     "subject": "pokemon"
    },
    "pair": "navy_gold",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON • ALT ARTS\" (GRAILS / APPRAISAL)",
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ]
   },
   {
    "id": "r-trustSeal-ik05-25",
@@ -34041,7 +34139,6 @@
    },
    "words": {
     "headline": "YOUR LOCAL POKÉMON CARDS BUYER",
-    "tag": "GRAILS WANTED • CHARIZARD • MOONBREON • ALT ARTS",
     "claim": "CARD BUYER",
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
@@ -34058,7 +34155,10 @@
     "subject": "pokemon"
    },
    "pair": "teal_orange",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON • ALT ARTS\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-voltStack-jw07-20",
@@ -34096,9 +34196,7 @@
    },
    "words": {
     "headline": "WE BUY POKEMON",
-    "claim": "GRAILS WANTED",
-    "points": "CASH, NO FEES, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -34113,7 +34211,11 @@
     "subject": "pokemon"
    },
    "pair": "blue_green",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-dl_pokemon_arcCrown_royal",
@@ -34152,8 +34254,7 @@
     "hue": 270
    },
    "words": {
-    "headline": "WE BUY POKÉMON",
-    "tag": "POKEMON CARDS • CHARIZARD • VINTAGE SETS • BOOSTER BOXES"
+    "headline": "WE BUY POKÉMON"
    },
    "pictures": [],
    "ground_photo": {
@@ -34168,7 +34269,10 @@
     "subject": "pokemon"
    },
    "pair": "navy_gold",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"POKEMON CARDS • CHARIZARD • VINTAGE SETS • BOOSTER BOXES\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-dl_pokemon_bandKnockout_volt",
@@ -34210,7 +34314,7 @@
    "words": {
     "headline": "WE BUY POKÉMON",
     "points": "CASH, NO FEES, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "label": "GET AN OFFER"
    },
    "pictures": [],
    "ground_photo": {
@@ -34272,7 +34376,7 @@
    "words": {
     "headline": "WE BUY POKÉMON",
     "burst": "CASH NOW",
-    "label": "REQUEST AN APPRAISAL"
+    "label": "GET AN OFFER"
    },
    "pictures": [],
    "ground_photo": {
@@ -34326,7 +34430,7 @@
    "words": {
     "headline": "WE BUY POKÉMON",
     "claim": "CASH NO FEES LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "label": "GET AN OFFER"
    },
    "pictures": [],
    "ground_photo": {
@@ -34379,9 +34483,8 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON",
-    "tag": "POKEMON CARDS • CHARIZARD • VINTAGE SETS • BOOSTER BOXES",
     "claim": "CASH NO FEES LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "label": "GET AN OFFER"
    },
    "pictures": [],
    "ground_photo": {
@@ -34396,7 +34499,10 @@
     "subject": "pokemon"
    },
    "pair": "plum_lime",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"POKEMON CARDS • CHARIZARD • VINTAGE SETS • BOOSTER BOXES\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-dl_pokemon_neonNight_royal",
@@ -34433,7 +34539,6 @@
    },
    "words": {
     "headline": "WE BUY POKÉMON",
-    "tag": "POKEMON CARDS • CHARIZARD • VINTAGE SETS • BOOSTER BOXES",
     "claim": "COLLECTIONS WANTED"
    },
    "pictures": [],
@@ -34449,7 +34554,10 @@
     "subject": "pokemon"
    },
    "pair": "navy_white_red",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"POKEMON CARDS • CHARIZARD • VINTAGE SETS • BOOSTER BOXES\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-dl_pokemon_priceAnchor_volt",
@@ -34596,7 +34704,7 @@
     "headline": "WE BUY POKÉMON",
     "claim": "COLLECTIONS WANTED",
     "points": "CASH, NO FEES, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "label": "GET AN OFFER"
    },
    "pictures": [],
    "ground_photo": {
@@ -34639,7 +34747,7 @@
    },
    "words": {
     "headline": "POKÉMON CARDS? WE BUY THEM",
-    "tag": "SINGLES, SLABS, BINDERS AND SEALED BOXES",
+    "tag": "SINGLES, BINDERS AND GRADED CARDS",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -34657,7 +34765,7 @@
    "pair": "navy_gold",
    "type_pair": "",
    "notes": [
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-collection) left to the line's pool"
    ]
   },
   {
@@ -34687,7 +34795,7 @@
    },
    "words": {
     "headline": "POKÉMON CARDS? WE BUY THEM",
-    "tag": "SINGLES, SLABS, BINDERS AND SEALED BOXES",
+    "tag": "SINGLES, BINDERS AND GRADED CARDS",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -34705,7 +34813,7 @@
    "pair": "navy_gold",
    "type_pair": "",
    "notes": [
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-cards-fan) left to the line's pool"
    ]
   },
   {
@@ -34735,7 +34843,7 @@
    },
    "words": {
     "headline": "POKÉMON COLLECTION? GET CASH",
-    "tag": "SINGLES, SLABS, BINDERS AND SEALED BOXES",
+    "tag": "SINGLES, BINDERS AND GRADED CARDS",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -34753,7 +34861,7 @@
    "pair": "red_yellow",
    "type_pair": "",
    "notes": [
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-slabs-trio) left to the line's pool"
    ]
   },
   {
@@ -34782,7 +34890,7 @@
    },
    "words": {
     "headline": "POKÉMON CARDS? WE BUY THEM",
-    "tag": "SINGLES, SLABS, BINDERS AND SEALED BOXES",
+    "tag": "SINGLES, BINDERS AND GRADED CARDS",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -34800,7 +34908,7 @@
    "pair": "red_yellow",
    "type_pair": "",
    "notes": [
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-cards-fan) left to the line's pool"
    ]
   },
   {
@@ -34829,7 +34937,7 @@
    },
    "words": {
     "headline": "YOUR OLD POKÉMON CARDS ARE CASH",
-    "tag": "SINGLES, SLABS, BINDERS AND SEALED BOXES",
+    "tag": "SINGLES, BINDERS AND GRADED CARDS",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -34847,7 +34955,7 @@
    "pair": "red_yellow",
    "type_pair": "",
    "notes": [
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-cards-fan) left to the line's pool"
    ]
   },
   {
@@ -34878,7 +34986,7 @@
    },
    "words": {
     "headline": "POKÉMON CARDS? WE BUY THEM",
-    "tag": "SINGLES, SLABS, BINDERS AND SEALED BOXES",
+    "tag": "SINGLES, BINDERS AND GRADED CARDS",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -34896,7 +35004,7 @@
    "pair": "navy_gold",
    "type_pair": "",
    "notes": [
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-slabs-trio) left to the line's pool"
    ]
   },
   {
@@ -34924,7 +35032,7 @@
    },
    "words": {
     "headline": "POKÉMON COLLECTION? GET CASH",
-    "tag": "SINGLES, SLABS, BINDERS AND SEALED BOXES",
+    "tag": "SINGLES, BINDERS AND GRADED CARDS",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -34942,7 +35050,7 @@
    "pair": "navy_gold",
    "type_pair": "",
    "notes": [
-    "its picture (poke-psa-charizard) left to the line's pool"
+    "its picture (ph-poke-slabs-trio) left to the line's pool"
    ]
   },
   {
@@ -34979,8 +35087,7 @@
     ]
    },
    "words": {
-    "headline": "WE BUY SPORTS CARDS & SLABS",
-    "tag": "GRAILS WANTED • ROOKIES • AUTOS"
+    "headline": "WE BUY SPORTS CARDS & SLABS"
    },
    "pictures": [],
    "ground_photo": {
@@ -34995,6 +35102,9 @@
    },
    "pair": "black_green",
    "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • ROOKIES • AUTOS\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
     "its picture (ph-sports-slab) left to the line's pool"
    ]
@@ -35034,8 +35144,7 @@
     ]
    },
    "words": {
-    "headline": "WE BUY SPORTS CARDS & SLABS",
-    "tag": "GRAILS WANTED • ROOKIES • AUTOS"
+    "headline": "WE BUY SPORTS CARDS & SLABS"
    },
    "pictures": [],
    "ground_photo": {
@@ -35050,7 +35159,10 @@
     "subject": "sports"
    },
    "pair": "purple_gold",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • ROOKIES • AUTOS\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-bandKnockout-ck03-20",
@@ -35088,8 +35200,7 @@
    },
    "words": {
     "headline": "WE BUY SPORTS CARDS & SLABS",
-    "points": "CASH, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "points": "CASH, LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -35104,6 +35215,9 @@
    },
    "pair": "black_red",
    "type_pair": "",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
@@ -35144,8 +35258,7 @@
    },
    "words": {
     "headline": "WE BUY CARDS",
-    "points": "CASH, NO FEES, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -35160,7 +35273,10 @@
     "floor": 0.78
    },
    "pair": "silver_blue",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-bandKnockout-su01-35",
@@ -35198,8 +35314,7 @@
    },
    "words": {
     "headline": "WE BUY SPORTS CARDS",
-    "points": "CASH, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "points": "CASH, LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -35214,7 +35329,10 @@
     "subject": "sports"
    },
    "pair": "green_gold",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-bubblePop-io06-35",
@@ -35370,8 +35488,7 @@
    },
    "words": {
     "headline": "WE BUY CARDS",
-    "claim": "CASH NO FEES LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -35386,7 +35503,10 @@
     "floor": 0.78
    },
    "pair": "black_green",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-checklistHero-jw10-15",
@@ -35422,8 +35542,7 @@
    },
    "words": {
     "headline": "WE BUY CARDS",
-    "claim": "CASH NO FEES LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -35438,7 +35557,10 @@
     "subject": "sports"
    },
    "pair": "black_gold",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-checklistHero-pp09-35",
@@ -35474,8 +35596,7 @@
    },
    "words": {
     "headline": "WE BUY SPORTS CARDS",
-    "claim": "CASH NO FEES LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -35490,7 +35611,10 @@
     "subject": "sports"
    },
    "pair": "navy_gold",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-glassCard-ca07-15",
@@ -35528,14 +35652,16 @@
    },
    "words": {
     "headline": "WE BUY CARDS",
-    "tag": "GRAILS WANTED • ROOKIES • AUTOS • PATCHES",
-    "claim": "CARD BUYER",
-    "label": "REQUEST AN APPRAISAL"
+    "claim": "CARD BUYER"
    },
    "pictures": [],
    "ground_photo": null,
    "pair": "silver_blue",
    "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • ROOKIES • AUTOS • PATCHES\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
     "left out 1 flagged or rejected picture",
     "cash ground left out"
@@ -35576,15 +35702,17 @@
     ]
    },
    "words": {
-    "headline": "WE BUY SPORTS CARDS",
-    "tag": "CASH · ZELLE · VENMO · WIRE",
-    "claim": "GRAILS WANTED",
-    "label": "REQUEST AN APPRAISAL"
+    "headline": "WE BUY SPORTS CARDS"
    },
    "pictures": [],
    "ground_photo": null,
    "pair": "purple_gold",
    "type_pair": "",
+   "dropped": [
+    "line under it: \"CASH · ZELLE · VENMO · WIRE\" (ZELLE / VENMO)",
+    "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
     "left out 1 flagged or rejected picture",
     "cash ground left out"
@@ -35624,9 +35752,7 @@
    },
    "words": {
     "headline": "WE BUY CARDS",
-    "tag": "GRAILS WANTED • ROOKIES • AUTOS • PATCHES",
-    "claim": "CASH NO FEES LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -35640,7 +35766,11 @@
     "shows": "scene"
    },
    "pair": "silver_blue",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • ROOKIES • AUTOS • PATCHES\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-gradientWave-gl07-35",
@@ -35676,9 +35806,7 @@
    },
    "words": {
     "headline": "WE BUY SPORTS CARDS",
-    "tag": "GRAILS WANTED • ROOKIES • AUTOS • PATCHES",
-    "claim": "CASH NO FEES LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -35693,7 +35821,11 @@
     "subject": "sports"
    },
    "pair": "purple_gold",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • ROOKIES • AUTOS • PATCHES\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-gradientWave-ik05-30",
@@ -35729,9 +35861,7 @@
    },
    "words": {
     "headline": "WE BUY SPORTS CARDS",
-    "tag": "GRAILS WANTED • ROOKIES • AUTOS • PATCHES",
-    "claim": "CASH NO FEES LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -35745,7 +35875,11 @@
     "shows": "scene"
    },
    "pair": "navy_orange",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • ROOKIES • AUTOS • PATCHES\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-gradientWave-jw05-20",
@@ -35781,7 +35915,6 @@
    },
    "words": {
     "headline": "WE BUY SPORTS CARDS",
-    "tag": "GRAILS WANTED • ROOKIES • AUTOS • PATCHES",
     "claim": "CASH NO FEES LOCAL",
     "label": "TEXT US NOW"
    },
@@ -35798,7 +35931,10 @@
     "subject": "sports"
    },
    "pair": "red_yellow",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • ROOKIES • AUTOS • PATCHES\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-hudTech-cd06-20",
@@ -35835,10 +35971,7 @@
     "tone": "dark"
    },
    "words": {
-    "headline": "WE BUY SPORTS CARDS",
-    "tag": "CASH · ZELLE · VENMO · WIRE",
-    "claim": "GRAILS WANTED",
-    "label": "REQUEST AN APPRAISAL"
+    "headline": "WE BUY SPORTS CARDS"
    },
    "pictures": [],
    "ground_photo": {
@@ -35853,6 +35986,11 @@
    },
    "pair": "black_green",
    "type_pair": "",
+   "dropped": [
+    "line under it: \"CASH · ZELLE · VENMO · WIRE\" (ZELLE / VENMO)",
+    "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
     "its picture (ph-sports-box) left to the line's pool"
    ]
@@ -35892,10 +36030,7 @@
     "tone": "dark"
    },
    "words": {
-    "headline": "WE BUY SPORTS CARDS",
-    "tag": "CASH · ZELLE · VENMO · WIRE",
-    "claim": "GRAILS WANTED",
-    "label": "REQUEST AN APPRAISAL"
+    "headline": "WE BUY SPORTS CARDS"
    },
    "pictures": [],
    "ground_photo": {
@@ -35910,7 +36045,12 @@
     "subject": "sports"
    },
    "pair": "black_gold",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"CASH · ZELLE · VENMO · WIRE\" (ZELLE / VENMO)",
+    "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-hudTech-nn06-35",
@@ -35948,8 +36088,6 @@
    },
    "words": {
     "headline": "WE BUY SPORTS CARDS & SLABS",
-    "tag": "GRAILS WANTED ROOKIES · AUTOS",
-    "claim": "ONLINE NOW",
     "label": "CALL OR TEXT NOW"
    },
    "pictures": [],
@@ -35965,7 +36103,11 @@
     "subject": "sports"
    },
    "pair": "red_yellow",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED ROOKIES · AUTOS\" (GRAILS / APPRAISAL)",
+    "claim: \"ONLINE NOW\" (ONLINE NOW)"
+   ]
   },
   {
    "id": "r-neonNight-cd06-16",
@@ -35999,9 +36141,7 @@
     "tone": "dark"
    },
    "words": {
-    "headline": "WE BUY CARDS",
-    "tag": "CASH · ZELLE · VENMO · WIRE",
-    "claim": "GRAILS WANTED"
+    "headline": "WE BUY CARDS"
    },
    "pictures": [],
    "ground_photo": {
@@ -36016,7 +36156,11 @@
     "subject": "sports"
    },
    "pair": "silver_blue",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"CASH · ZELLE · VENMO · WIRE\" (ZELLE / VENMO)",
+    "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-neonNight-ck03-20",
@@ -36050,9 +36194,7 @@
     "tone": "dark"
    },
    "words": {
-    "headline": "WE BUY SPORTS CARDS & SLABS",
-    "tag": "GRAILS WANTED • ROOKIES • AUTOS",
-    "claim": "FAST CASH"
+    "headline": "WE BUY SPORTS CARDS & SLABS"
    },
    "pictures": [],
    "ground_photo": {
@@ -36068,6 +36210,10 @@
    },
    "pair": "red_yellow",
    "type_pair": "",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • ROOKIES • AUTOS\" (GRAILS / APPRAISAL)",
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ],
    "notes": [
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
@@ -36104,9 +36250,7 @@
     "tone": "dark"
    },
    "words": {
-    "headline": "WE BUY SPORTS CARDS & SLABS",
-    "tag": "GRAILS WANTED • ROOKIES • AUTOS",
-    "claim": "FAST CASH"
+    "headline": "WE BUY SPORTS CARDS & SLABS"
    },
    "pictures": [],
    "ground_photo": {
@@ -36121,7 +36265,11 @@
     "subject": "sports"
    },
    "pair": "black_green",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • ROOKIES • AUTOS\" (GRAILS / APPRAISAL)",
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ]
   },
   {
    "id": "r-neonNight-nn05-15",
@@ -36155,9 +36303,7 @@
     "tone": "dark"
    },
    "words": {
-    "headline": "WE BUY CARDS",
-    "tag": "CASH · ZELLE · VENMO · WIRE",
-    "claim": "GRAILS WANTED"
+    "headline": "WE BUY CARDS"
    },
    "pictures": [],
    "ground_photo": {
@@ -36172,7 +36318,11 @@
     "subject": "sports"
    },
    "pair": "navy_orange",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "line under it: \"CASH · ZELLE · VENMO · WIRE\" (ZELLE / VENMO)",
+    "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-reviewProof-cd04-20",
@@ -36213,8 +36363,7 @@
    "words": {
     "headline": "SPORTS CARDS BUYER",
     "claim": "✓ CASH • NO FEES • ✓ LOCAL",
-    "points": "CASH, NO FEES, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -36229,7 +36378,10 @@
     "floor": 0.78
    },
    "pair": "green_gold",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-reviewProof-io03-15",
@@ -36270,8 +36422,7 @@
    "words": {
     "headline": "CARDS BUYER",
     "claim": "✓ CASH • ✓ NO FEES • ✓ LOCAL",
-    "points": "CASH, NO FEES, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -36285,7 +36436,10 @@
     "shows": "scene"
    },
    "pair": "silver_blue",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-scriptRetro-ca07-20",
@@ -36328,9 +36482,7 @@
     ]
    },
    "words": {
-    "headline": "WE BUY SPORTS CARDS & SLABS",
-    "tag": "GRAILS WANTED • ROOKIES • AUTOS",
-    "label": "REQUEST AN APPRAISAL"
+    "headline": "WE BUY SPORTS CARDS & SLABS"
    },
    "pictures": [],
    "ground_photo": {
@@ -36345,6 +36497,10 @@
    },
    "pair": "purple_gold",
    "type_pair": "warp",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • ROOKIES • AUTOS\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
@@ -36390,9 +36546,7 @@
     ]
    },
    "words": {
-    "headline": "WE BUY CARDS",
-    "tag": "GRAILS WANTED • ROOKIES • AUTOS",
-    "label": "REQUEST AN APPRAISAL"
+    "headline": "WE BUY CARDS"
    },
    "pictures": [],
    "ground_photo": {
@@ -36406,7 +36560,11 @@
     "shows": "scene"
    },
    "pair": "black_green",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • ROOKIES • AUTOS\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-scriptRetro-jw07-16",
@@ -36449,14 +36607,16 @@
     ]
    },
    "words": {
-    "headline": "WE BUY CARDS",
-    "tag": "GRAILS WANTED • ROOKIES • AUTOS",
-    "label": "REQUEST AN APPRAISAL"
+    "headline": "WE BUY CARDS"
    },
    "pictures": [],
    "ground_photo": null,
    "pair": "silver_blue",
    "type_pair": "warp",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • ROOKIES • AUTOS\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
     "ground left out: too dark (the ground pools' measure, 2026-11-18)",
     "its picture (ph-sports-slabs-fan) left to the line's pool"
@@ -36497,8 +36657,7 @@
     ]
    },
    "words": {
-    "headline": "WE BUY SPORTS CARDS & SLABS",
-    "claim": "FAST CASH"
+    "headline": "WE BUY SPORTS CARDS & SLABS"
    },
    "pictures": [],
    "ground_photo": {
@@ -36514,6 +36673,9 @@
    },
    "pair": "green_gold",
    "type_pair": "warp",
+   "dropped": [
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ],
    "notes": [
     "left out 1 flagged or rejected picture"
    ]
@@ -36553,8 +36715,7 @@
     ]
    },
    "words": {
-    "headline": "WE BUY SPORTS CARDS & SLABS",
-    "claim": "ONLINE NOW · TEXT US"
+    "headline": "WE BUY SPORTS CARDS & SLABS"
    },
    "pictures": [],
    "ground_photo": {
@@ -36569,7 +36730,10 @@
     "subject": "sports"
    },
    "pair": "purple_gold",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "claim: \"ONLINE NOW · TEXT US\" (ONLINE NOW)"
+   ]
   },
   {
    "id": "r-stepsFlow-du07-15",
@@ -36749,8 +36913,7 @@
     ]
    },
    "words": {
-    "headline": "CASH IN 3 STEPS",
-    "claim": "FAST CASH"
+    "headline": "CASH IN 3 STEPS"
    },
    "pictures": [],
    "ground_photo": {
@@ -36765,6 +36928,9 @@
    },
    "pair": "red_yellow",
    "type_pair": "warp",
+   "dropped": [
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ],
    "notes": [
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
@@ -36806,7 +36972,6 @@
    "words": {
     "headline": "YOUR LOCAL SPORTS CARDS BUYER",
     "tag": "LONG BEACH · LAKEWOOD · DOWNEY · CARSON · TORRANCE",
-    "claim": "GRAILS WANTED",
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
    "pictures": [],
@@ -36822,7 +36987,10 @@
     "subject": "sports"
    },
    "pair": "purple_gold",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-trustSeal-du02-20",
@@ -36861,8 +37029,6 @@
    },
    "words": {
     "headline": "YOUR LOCAL SPORTS CARDS & SLABS BUYER",
-    "tag": "GRAILS WANTED • ROOKIES • AUTOS • PATCHES • NUMBERED /99",
-    "claim": "FAST CASH",
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
    "pictures": [],
@@ -36878,7 +37044,11 @@
     "subject": "sports"
    },
    "pair": "red_yellow",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "dropped": [
+    "line under it: \"GRAILS WANTED • ROOKIES • AUTOS • PATCHES • NUMBERED /99\" (GRAILS / APPRAISAL)",
+    "claim: \"FAST CASH\" (FAST CASH)"
+   ]
   },
   {
    "id": "r-trustSeal-jw07-15",
@@ -36916,8 +37086,6 @@
    },
    "words": {
     "headline": "YOUR LOCAL CARDS BUYER",
-    "tag": "CASH · ZELLE · VENMO · WIRE",
-    "claim": "GRAILS WANTED",
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
    "pictures": [],
@@ -36933,6 +37101,10 @@
    },
    "pair": "navy_gold",
    "type_pair": "",
+   "dropped": [
+    "line under it: \"CASH · ZELLE · VENMO · WIRE\" (ZELLE / VENMO)",
+    "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
@@ -36975,7 +37147,6 @@
    "words": {
     "headline": "YOUR LOCAL SPORTS CARDS BUYER",
     "tag": "TEXT A PIC · GET A PRICE",
-    "claim": "GRAILS WANTED",
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
    "pictures": [],
@@ -36991,7 +37162,10 @@
     "subject": "sports"
    },
    "pair": "navy_orange",
-   "type_pair": "stadium"
+   "type_pair": "stadium",
+   "dropped": [
+    "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-voltStack-ca07-15",
@@ -37029,9 +37203,7 @@
    },
    "words": {
     "headline": "WE BUY CARDS",
-    "claim": "GRAILS WANTED",
-    "points": "CASH, NO FEES, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -37046,6 +37218,10 @@
    },
    "pair": "midnight_cyan",
    "type_pair": "",
+   "dropped": [
+    "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
     "its picture (ph-sports-box) left to the line's pool"
    ]
@@ -37086,9 +37262,7 @@
    },
    "words": {
     "headline": "WE BUY SPORTS CARDS & SLABS",
-    "claim": "ONLINE NOW · TEXT US",
-    "points": "CASH, NO FEES, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -37104,6 +37278,10 @@
    },
    "pair": "red_yellow",
    "type_pair": "",
+   "dropped": [
+    "claim: \"ONLINE NOW · TEXT US\" (ONLINE NOW)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
    "notes": [
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
@@ -37144,9 +37322,7 @@
    },
    "words": {
     "headline": "WE BUY SPORTS CARDS & SLABS",
-    "claim": "REPLYING NOW",
-    "points": "CASH, NO FEES, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
    "ground_photo": {
@@ -37161,7 +37337,11 @@
     "subject": "sports"
    },
    "pair": "purple_gold",
-   "type_pair": ""
+   "type_pair": "",
+   "dropped": [
+    "claim: \"REPLYING NOW\" (ONLINE NOW)",
+    "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ]
   },
   {
    "id": "r-dl_sports_agencyGrid_mono",
@@ -37195,7 +37375,7 @@
     "headline": "SPORTS CARDS",
     "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES",
     "claim": "COLLECTIONS WANTED",
-    "label": "REQUEST AN APPRAISAL"
+    "label": "GET AN OFFER"
    },
    "pictures": [],
    "ground_photo": {
@@ -37255,7 +37435,7 @@
    "words": {
     "headline": "SPORTS CARDS",
     "points": "CASH, NO FEES, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "label": "GET AN OFFER"
    },
    "pictures": [],
    "ground_photo": {
@@ -37309,7 +37489,7 @@
    "words": {
     "headline": "SPORTS CARDS",
     "claim": "CASH NO FEES LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "label": "GET AN OFFER"
    },
    "pictures": [],
    "ground_photo": {
@@ -37411,7 +37591,7 @@
     "headline": "SPORTS CARDS",
     "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES",
     "claim": "COLLECTIONS WANTED",
-    "label": "REQUEST AN APPRAISAL"
+    "label": "GET AN OFFER"
    },
    "pictures": [],
    "ground_photo": {
@@ -37466,7 +37646,7 @@
     "headline": "SPORTS CARDS",
     "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES",
     "claim": "CASH NO FEES LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "label": "GET AN OFFER"
    },
    "pictures": [],
    "ground_photo": {
@@ -37523,7 +37703,7 @@
     "headline": "SPORTS CARDS",
     "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES",
     "claim": "COLLECTIONS WANTED",
-    "label": "REQUEST AN APPRAISAL"
+    "label": "GET AN OFFER"
    },
    "pictures": [],
    "ground_photo": {
@@ -37691,7 +37871,7 @@
    "words": {
     "headline": "SPORTS CARDS",
     "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES",
-    "label": "REQUEST AN APPRAISAL"
+    "label": "GET AN OFFER"
    },
    "pictures": [],
    "ground_photo": {
@@ -37749,7 +37929,7 @@
     "headline": "SPORTS CARDS",
     "tag": "SPORTS CARDS • ROOKIE CARDS • AUTOGRAPHS • UNOPENED BOXES",
     "claim": "PAID PER CARD",
-    "label": "REQUEST AN APPRAISAL"
+    "label": "GET AN OFFER"
    },
    "pictures": [],
    "ground_photo": {
@@ -37805,7 +37985,7 @@
     "headline": "SPORTS CARDS",
     "claim": "COLLECTIONS WANTED",
     "points": "CASH, NO FEES, LOCAL",
-    "label": "REQUEST AN APPRAISAL"
+    "label": "GET AN OFFER"
    },
    "pictures": [],
    "ground_photo": {
@@ -37903,7 +38083,7 @@
    },
    "words": {
     "headline": "SPORTS CARDS? WE BUY THEM",
-    "tag": "ROOKIES, AUTOS, SLABS AND SEALED WAX",
+    "tag": "BASEBALL, FOOTBALL, BASKETBALL, HOCKEY AND MORE",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -37950,7 +38130,7 @@
    },
    "words": {
     "headline": "YOUR OLD SPORTS CARDS ARE CASH",
-    "tag": "ROOKIES, AUTOS, SLABS AND SEALED WAX",
+    "tag": "BASEBALL, FOOTBALL, BASKETBALL, HOCKEY AND MORE",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -37998,7 +38178,7 @@
    },
    "words": {
     "headline": "CARD COLLECTION IN A CLOSET? SELL IT",
-    "tag": "ROOKIES, AUTOS, SLABS AND SEALED WAX",
+    "tag": "BASEBALL, FOOTBALL, BASKETBALL, HOCKEY AND MORE",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -38044,7 +38224,7 @@
    },
    "words": {
     "headline": "SPORTS CARDS? WE BUY THEM",
-    "tag": "ROOKIES, AUTOS, SLABS AND SEALED WAX",
+    "tag": "BASEBALL, FOOTBALL, BASKETBALL, HOCKEY AND MORE",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -38091,7 +38271,7 @@
    },
    "words": {
     "headline": "YOUR OLD SPORTS CARDS ARE CASH",
-    "tag": "ROOKIES, AUTOS, SLABS AND SEALED WAX",
+    "tag": "BASEBALL, FOOTBALL, BASKETBALL, HOCKEY AND MORE",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -38138,7 +38318,7 @@
    },
    "words": {
     "headline": "SPORTS CARDS? WE BUY THEM",
-    "tag": "ROOKIES, AUTOS, SLABS AND SEALED WAX",
+    "tag": "BASEBALL, FOOTBALL, BASKETBALL, HOCKEY AND MORE",
     "label": "CALL OR TEXT"
    },
    "pictures": [],
@@ -38183,7 +38363,7 @@
    },
    "words": {
     "headline": "SPORTS CARDS? WE BUY THEM",
-    "tag": "ROOKIES, AUTOS, SLABS AND SEALED WAX",
+    "tag": "BASEBALL, FOOTBALL, BASKETBALL, HOCKEY AND MORE",
     "label": "CALL OR TEXT"
    },
    "pictures": [],

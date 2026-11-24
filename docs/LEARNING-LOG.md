@@ -6740,3 +6740,24 @@ Found:
   - Almost 400 other cut-outs (nearly every car) are CC BY or CC BY-SA: the same credit question, open.
 
 RESUME HERE: OPEN-ITEMS §BY 1 (read the owner's choices from the gallery and set the shares), then 2.
+
+## 2026-11-23 — card copy, Spanish headlines, the goods, the grounds (DESIGN-LAW 170; OPEN-ITEMS BZ)
+
+Asked: push to PR 18 (already merged: `main` merged in here instead, 24 commits, three documents by hand); then the
+owner's review of the gallery: card ads "screaming scalper", the painted cards, road and tread, the product looks, the
+turned phones; "audit extensively".
+  - Five read-only audits in parallel (collectible pictures, other pictures, grounds and looks, words, image rights)
+    before changing anything; each found something the eye on one ad would not.
+
+Found:
+  - The bar on pictures had a side door: pools were filtered, the offer family's sets were not, and an empty pool falls
+    back to the first set. Filter every path a picture takes, not the one you are looking at.
+  - The word-overlap filter (first five letters) hid the good card points under a CARDS headline and left the worst.
+    Run the real draw over thousands of seeds before judging a list by reading it.
+  - A tone-on-tone ground of thin lines disappears once thinned behind the product and shaded behind the words; solid
+    shapes with cut details survive. A wider tone step does little: the tone helper clamps it for contrast.
+  - A new ban on the one list catches every list it reads, the owner's own shop's included: scope it, ask, do not
+    rewrite someone's live ads to pass a check.
+  - A sticker breaks on spaces: its longest word, not its length, sets its size.
+
+RESUME HERE: OPEN-ITEMS §BZ 1 (the owner's decision on real card pictures), 5 (motion), then §BY 1.

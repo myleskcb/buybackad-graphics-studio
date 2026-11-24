@@ -4740,3 +4740,32 @@ Open:
 4. The painted phones are close to each line's 2026 shape but drawn: the shop's own photographs of the
    Galaxy and Pixel phones it buys would replace them one for one.
 
+## BZ. 2026-11-23 — card copy, Spanish headlines, the goods, the grounds (DESIGN-LAW 170)
+
+(claude/full-ad-looks-layout, after `main` was merged in. The owner's review of the gallery; five read-only audits.)
+
+Done: see DESIGN-LAW 170.
+
+Open:
+1. **Real card pictures: the owner's decision.** No painted card can read as one that trades: what makes a card
+   recognisable is its maker's art. The research (2026-11-23): Commons holds no usable Pokémon card; The Pokémon
+   Company's press assets are editorial and non-commercial only and may not be passed on; stock sites sell branded cards
+   as editorial only (no ads); Topps asks permission for its card images, and a player's face in an ad needs the
+   player's consent. What shops do is photograph their own stock. Options: (a) the shop's own photos, uploaded per shop
+   (lowest risk that shows real cards; the studio supplies none); (b) the studio shoots real cards once for every shop
+   (closer to the Pokellector suit); (c) painted, made better (illustrated full-art faces, real-looking slab labels,
+   shrink-wrapped boxes) but never A.
+2. **Lines with no picture now**: speaker, laptop, smartwatch, monitor (and headset, chromebook as before) draw their
+   words alone. Free photos found: Galaxy S26 Ultra and the S26 series (CC0), Switch 2 handheld (CC0), PS5 (CC0),
+   iPhone 17 Pro / Pro Max and Pixel 10 Pro (CC BY-SA, a credit). Downloads need the owner's go-ahead.
+3. **iPhones LA's feed stills** (`tools/feed-stills/cards.json`, the 2026-11-07 batch) say HONEST BUYER, FAST CASH and
+   CASH OR ZELLE: the owner's own shop, so the one list does not hold phones to them yet.
+4. **Grounds still weak**: the road on a dark pair; the binder's pockets read as windows. More patterns per category
+   (the grounds audit's list: cracked glass and app grid for phones, keyboard keys for computers, a watch dial, coin
+   stacks and bars, toploaders, yard lines, a viewfinder) and ones that suit any line (price tags, trade-in arrows).
+5. **Motion** (the owner, 2026-11-23): grounds that move in their subject's direction, the finished ad from the first
+   frame, a hook in the first second, the cover a still of the same ad. Next.
+6. **Raised camera bumps**: a turned phone in a still still reads flat; the engine's lens plateau is the larger fix.
+7. The Pixel line has only the six painted Pixel 11s left; the vans line has no Sprinter (its flagged cut-outs need
+   their glass retouched).
+

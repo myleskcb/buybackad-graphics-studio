@@ -7066,3 +7066,39 @@ pictures, the Spanish selling points, the first-guess weights, the credited Char
   of ground (nine), each photo treatment (five) and each number of points (three), and keeps the
   owner's More, Less, Same or Never in the page's own store (`tuning/choices`); the weights in
   `spec/full-grounds.json`, `PHOTO_TREAT_SHARES` and `POINT_COUNTS` follow it.
+
+## 170. Card ads in a collector's voice; Spanish ads in Spanish from the headline down; the goods recognisable; grounds that read
+
+Added 2026-11-23. The owner, reviewing the gallery: the sports-card ad "this ad no good", "the copy on the sports
+cards is just kind of bad ... we're aliens trying to appeal to a collector that would easily see through this type of
+ad ... Cards are screaming scalper"; the painted cards "look like energy Pokémon cards, which no one trades and booster
+box of something generic just doesn't look real"; the cars' road "a pretty odd road photo", the trucks' tread "maybe a
+more recognizable tire pattern"; Product wall, close-up and echo "getting a bit lost in translation"; the turned phones
+"look rather flat ... going a few degrees less so you can see more Phone". Five audits (pictures twice, grounds, words,
+image rights) read every line first; their findings are OPEN-ITEMS §BZ.
+
+- **A card seller is a collector, or a collector's family.** The card lines draw their own points (`motion/full-points.js`
+  KINDS.cards: one card or a lot, whole collections, graded or raw, card by card, you decide, any era) and say the shared
+  promises their own way (KIND_SAYS: send photos first, paid when we agree; no NO FEES), their own badge and sticker
+  (`FULL_WORDS.claim_cards`, `burst_cards`, Spanish too), headlines without CASH FOR (`scripts/build_full_subjects.mjs`
+  HEADS, coins too) and sublines in plain words (`offer-library.js`). No sealed boxes, packs or bulk (a flipper buys
+  those), no hobby words in a row, no speed. A sticker's longest word stays about five letters: it breaks on spaces.
+- **The words the trade distrusts are on the one list** (`spec/banned-words.json`): HONEST (rule 80: a reputation
+  nobody gave), IN MINUTES, NO APPOINTMENT, FAST CASH, ONLINE NOW, the payment apps; on the card lines GRAILS, chase-card
+  names, SEALED WAX and APPRAISAL. The library designs were rebuilt so their card words drop out. Phones are not yet held
+  to HONEST and FAST CASH: iPhones LA's own feed stills say them, the owner's call.
+- **A Spanish ad is Spanish from the headline down**: every line has `heads_es` and `models_es` (carros, camionetas,
+  audífonos, bocinas), and the video maker uses them when a line is picked, a design opened, or the language changed
+  (`motion/app.js` lineWords, relang). `scripts/words_check.mjs` reads them.
+- **A picture the owner rejected or the audits flagged is never drawn**: the offer family's sets go through the same bar
+  as the pools (a line whose pool was empty drew its first set: a rejected speaker, laptop and smartwatch on every ad), a
+  set picked before its pictures were barred falls back to the pool, and 30 more pictures are flagged with their reason
+  (`assets/cutout-flags.json`: empty slabs, mislabelled Pixels, TVs on the monitor line, AI renders with a made-up brand, the
+  1933 double eagle, which no one may own). The coin and gold pools name their recognisable bullion first.
+- **Grounds that read at feed size**: road, tread and reeded edge are solid shapes in the tone with their details cut
+  out (a road from above with its lane lines and a zebra crossing; a tyre and five-spoke wheel cut by a corner, or its
+  tread unrolled with grooves and slanted blocks; a grooved rim), at a wider step. The product grounds keep what makes the
+  goods the goods: the wall is the real picture tinted on shelves, the close-up shows the product's top in an upper
+  corner, the echo ripples its outline out from where it stands.
+- **A full ad turns a phone a sixth less** (`motion/engine.js` FULL_TURN): about 29 degrees turned, 50 side on. Videos
+  and recipes keep their angles.

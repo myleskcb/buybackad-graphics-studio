@@ -334,7 +334,7 @@ function binder(cards, o = {}) {
 /* ── sports cards of no league, team or player ───────────────────────────────────────────────── */
 const TEAMS = [
   { c1: '#0b2a5b', c2: '#1f6fd1', acc: '#ffcf3d' }, { c1: '#5b0b14', c2: '#d1283a', acc: '#ffffff' }, { c1: '#063d2c', c2: '#12925e', acc: '#ffd166' },
-  { c1: '#2a0b5b', c2: '#7b2cbf', acc: '#ffb703' }, { c1: '#141414', c2: '#3d3d3d', acc: '#f15a24' }, { c1: '#00343f', c2: '#00a3ad', acc: '#ff7a59' },
+  { c1: '#2a0b5b', c2: '#7b2cbf', acc: '#ffb703' }, { c1: '#6b1d00', c2: '#ff6b00', acc: '#ffffff' }, { c1: '#00343f', c2: '#00a3ad', acc: '#ff7a59' },
 ];
 const SPORTS = { basketball: { pos: 'POINT GUARD', num: '23' }, baseball: { pos: 'SHORTSTOP', num: '7' }, football: { pos: 'WIDE RECEIVER', num: '88' }, soccer: { pos: 'FORWARD', num: '10' }, hockey: { pos: 'CENTER', num: '91' } };
 function ball(x, sport, cx, cy, r) {
@@ -372,6 +372,9 @@ function ball(x, sport, cx, cy, r) {
     x.strokeStyle = 'rgba(60,60,60,.7)'; x.lineWidth = r * .02;
     for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + i * TAU / 5, b = a + TAU / 10; x.beginPath(); x.moveTo(cx + Math.cos(a) * r * .33, cy + Math.sin(a) * r * .33); x.lineTo(cx + Math.cos(a) * r * .62, cy + Math.sin(a) * r * .62); x.stroke(); pent(cx + Math.cos(b) * r * .92, cy + Math.sin(b) * r * .92, r * .3, b); }
   } else {
+    // hockey: a face-off circle of white ice under the sticks and the puck, so the black puck stands on white
+    sh(); x.beginPath(); x.arc(cx, cy, r * 1.04, 0, TAU); x.fillStyle = rad(x, cx - r * .3, cy - r * .35, r * .1, r * 1.15, ['#ffffff', '#eef4fb', '#c4d4e8']); x.fill();
+    x.shadowColor = 'transparent'; x.lineWidth = r * .075; x.strokeStyle = '#d7263d'; x.beginPath(); x.arc(cx, cy, r * .9, 0, TAU); x.stroke();
     x.save(); x.lineCap = 'round';
     for (const s of [-1, 1]) {
       x.save(); x.translate(cx, cy + r * .1); x.rotate(s * .62);

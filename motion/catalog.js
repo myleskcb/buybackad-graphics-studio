@@ -365,8 +365,9 @@ export const COPY = {
     cta: ["TEXT NOW", "CALL NOW", "TEXT US NOW", "GET AN OFFER", "GET YOUR QUOTE"],
     urgent: ["IT LOSES VALUE EVERY MONTH", "SELL IT WHILE IT'S WORTH MORE", "NEW IPHONES ARE OUT. OLD ONES DROP."],
     ticker: ["TEXT YOUR IMEI", "GET A PRICE", "CASH", "LOCAL TO {AREA}", "ALL MODELS", "CALL OR TEXT", "SE HABLA ESPAÑOL", "IT LOSES VALUE EVERY MONTH"],
-    stamp: ["CASH", "CASH PAID", "LOCAL"],
-    burst: ["CASH!", "LOCAL!", "FREE QUOTE", "{CODE}"],
+    // never a selling point's own words on the sticker or stamp beside it (sense audit 2026-11-23: FREE QUOTE twice, CASH PAID twice)
+    stamp: ["CASH", "LOCAL"],
+    burst: ["CASH!", "LOCAL!", "{CODE}"],
     // the selling points under the words (the photo ads' stack, DESIGN-LAW 83): only what every
     // shop on the site can say, so no speed, no condition and no price promise
     points: ["FREE QUOTE", "CASH PAID", "ALL MODELS", "LOCAL BUYER", "QUOTE BY TEXT", "MEET LOCALLY"],

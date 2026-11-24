@@ -30,7 +30,7 @@ if (!LINES || !LINES.length) { console.error('offer-library.js gave no lines'); 
 const NAMES = {
   iphone: ['iPHONES', 'iPHONE'], ipad: ['iPADS', 'iPAD'], mac: ['MACBOOKS', 'MACBOOK'], watch: ['APPLE WATCHES', 'APPLE WATCH'],
   galaxy: ['SAMSUNG PHONES', 'SAMSUNG'], pixel: ['PIXEL PHONES', 'PIXEL'], foldable: ['FOLDABLES', 'FOLD OR FLIP'],
-  macdesk: ['MACS', 'MAC'], android: ['ANDROIDS', 'ANDROID'],   // the owner's lines (2026-11-18): the desktop Macs, and Androids of every brand
+  macdesk: ['MACS', 'MAC'], android: ['ANDROID PHONES', 'ANDROID'],   // the owner's lines (2026-11-18): the desktop Macs, and Androids of every brand
   console: ['CONSOLES', 'CONSOLE'], pchandheld: ['GAMING HANDHELDS', 'HANDHELD'], gamingpc: ['GAMING COMPUTERS', 'GAMING PC'],
   headphones: ['HEADPHONES', 'HEADPHONES'], earbuds: ['EARBUDS', 'EARBUDS'], headset: ['GAMING HEADSETS', 'HEADSET'], speaker: ['SPEAKERS', 'SPEAKER'],
   monitor: ['MONITORS', 'MONITOR'], laptop: ['LAPTOPS', 'LAPTOP'], ssd: ['SEALED SSDS', 'SEALED SSDS'], minipc: ['MINI PCS', 'MINI PC'], chromebook: ['SEALED CHROMEBOOKS', 'SEALED CHROMEBOOK'],
@@ -63,6 +63,58 @@ const missing = [], subjects = [], aliases = {};
    line's entry whose pictures match, its ad says these words, unless the customer typed their own: the
    Neo is drawn about one ad in twenty (spec/product-demand.json), and those ads name it. */
 const VARIANTS = { mac: [{ match: 'macbook-neo', heads: ['SELL YOUR MACBOOK NEO', 'WE BUY MACBOOK NEO', 'CASH FOR YOUR MACBOOK NEO'], models: 'MacBook Neo, every colour' }] };
+/* A Spanish ad's headline and line under it (2026-11-23: a Spanish card ad read SELL YOUR SPORTS CARDS over Spanish
+   points). Said the way a US Spanish-speaking seller says it: carros, camionetas, audífonos, bocinas. */
+const SPANISH = {
+  iphone: [["COMPRAMOS iPHONES", "VENDE TU iPHONE"], "iPhone 11 y más nuevos, todos los tamaños"],
+  ipad: [["COMPRAMOS iPADS", "VENDE TU iPAD"], "iPad, iPad mini, iPad Air y iPad Pro"],
+  mac: [["COMPRAMOS MACBOOKS", "VENDE TU MACBOOK"], "MacBook Air y MacBook Pro, M1 o más nuevas"],
+  macdesk: [["COMPRAMOS MACS", "VENDE TU MAC"], "iMac, Mac mini y Mac Studio, M1 o más nuevas"],
+  android: [["COMPRAMOS CELULARES ANDROID", "VENDE TU ANDROID"], "Samsung, Pixel, Motorola, OnePlus y más"],
+  pixel: [["COMPRAMOS CELULARES PIXEL", "VENDE TU PIXEL"], "Pixel 7 o más nuevos, Pro también"],
+  galaxy: [["COMPRAMOS CELULARES SAMSUNG", "VENDE TU SAMSUNG"], "Galaxy S21 o más nuevos, Ultra también"],
+  foldable: [["COMPRAMOS PLEGABLES", "VENDE TU FOLD O FLIP"], "iPhone Duo, Galaxy Z Fold y Flip, Pixel Fold"],
+  console: [["COMPRAMOS CONSOLAS", "VENDE TU CONSOLA"], "PS5, Xbox, Switch y controles"],
+  gamingpc: [["COMPRAMOS PCS GAMER", "VENDE TU PC GAMER"], "De escritorio y laptops, RTX serie 30 o más nuevas"],
+  pchandheld: [["COMPRAMOS CONSOLAS PORTÁTILES", "VENDE TU PORTÁTIL"], "Steam Deck, ROG Ally, Legion Go y Switch"],
+  headphones: [["COMPRAMOS AUDÍFONOS", "VENDE TUS AUDÍFONOS"], "Bose, Sony, Sennheiser, Beats y AirPods Max"],
+  earbuds: [["COMPRAMOS AIRPODS Y MÁS", "VENDE TUS AUDÍFONOS"], "AirPods Pro, Galaxy Buds y Pixel Buds"],
+  headset: [["COMPRAMOS AUDÍFONOS GAMER", "VENDE TU HEADSET"], "Astro A50 X, Turtle Beach Stealth, SteelSeries Arctis"],
+  speaker: [["COMPRAMOS BOCINAS", "VENDE TU BOCINA"], "Bocinas Bluetooth portátiles"],
+  monitor: [["COMPRAMOS MONITORES", "VENDE TU MONITOR"], "Monitores gamer y de oficina, de 24 pulgadas o más"],
+  laptop: [["COMPRAMOS LAPTOPS", "VENDE TU LAPTOP"], "Laptops Windows, modelos recientes"],
+  ssd: [["COMPRAMOS SSD SELLADOS", "VENDE TUS SSD SELLADOS"], "NVMe y SATA, de 1TB o más, nuevos en su caja"],
+  minipc: [["COMPRAMOS MINI PCS", "VENDE TU MINI PC"], "Mac mini, Intel NUC, Beelink y Minisforum"],
+  chromebook: [["COMPRAMOS CHROMEBOOKS SELLADAS", "VENDE TU CHROMEBOOK SELLADA"], "De cualquier marca, nuevas en su caja"],
+  watch: [["COMPRAMOS APPLE WATCH", "VENDE TU APPLE WATCH"], "Apple Watch Series, SE y Ultra"],
+  smartwatch: [["COMPRAMOS RELOJES INTELIGENTES", "VENDE TU SMARTWATCH"], "Galaxy Watch, Pixel Watch y más"],
+  metaglasses: [["COMPRAMOS LENTES META", "VENDE TUS LENTES META"], "Lentes Ray-Ban Meta y Oakley Meta"],
+  gold: [["COMPRAMOS ORO", "VENDE TU ORO"], "Anillos, cadenas, monedas y oro quebrado"],
+  silver: [["COMPRAMOS PLATA", "VENDE TU PLATA"], "Monedas, barras, cubiertos y joyas"],
+  coins: [["COMPRAMOS MONEDAS", "COMPRAMOS COLECCIONES DE MONEDAS", "VENDE TUS MONEDAS"], "Monedas antiguas, dólares de plata y colecciones"],
+  car: [["COMPRAMOS CARROS Y CAMIONETAS", "VENDE TU CARRO"], "Carros, camionetas y SUVs de toda marca"],
+  classic: [["COMPRAMOS CARROS CLÁSICOS", "VENDE TU CLÁSICO"], "Clásicos y antiguos, de proyecto o restaurados"],
+  jdm: [["COMPRAMOS CARROS JDM", "VENDE TU JDM"], "Supra, GT-R, Type R, GR86, S2000 y más"],
+  trucks: [["COMPRAMOS CAMIONETAS", "VENDE TU CAMIONETA"], "F-150, Silverado, Ram, Tacoma, Tundra y más"],
+  toyota: [["COMPRAMOS TOYOTAS", "VENDE TU TOYOTA"], "Camry, Corolla, RAV4, Tacoma, Tundra, Highlander"],
+  honda: [["COMPRAMOS HONDAS", "VENDE TU HONDA"], "Civic, Accord, CR-V, HR-V y más"],
+  bmw: [["COMPRAMOS BMW", "VENDE TU BMW"], "Serie 3, Serie 5, X3, X5 y los M"],
+  mercedes: [["COMPRAMOS MERCEDES Y AMG", "VENDE TU MERCEDES"], "Clase C, GLC, Clase G, AMG y más"],
+  vans: [["COMPRAMOS VANS DE TRABAJO", "VENDE TU VAN"], "Sprinter, Transit, ProMaster y vans de carga"],
+  semis: [["COMPRAMOS TRÁILERS", "VENDE TU TRÁILER"], "Freightliner, Peterbilt, Kenworth y más"],
+  strips: [["COMPRAMOS TIRAS REACTIVAS", "VENDE TUS TIRAS REACTIVAS"], "Cajas de tiras reactivas selladas y sin vencer"],
+  pokemon: [["COMPRAMOS CARTAS POKÉMON", "VENDE TUS CARTAS POKÉMON", "COMPRAMOS COLECCIONES POKÉMON"], "Sueltas, carpetas y cartas certificadas"],
+  sports: [["COMPRAMOS TARJETAS DEPORTIVAS", "VENDE TUS TARJETAS DEPORTIVAS"], "Béisbol, fútbol americano, básquetbol, hockey y más"],
+  camera: [["COMPRAMOS CÁMARAS", "VENDE TU CÁMARA"], "Cámaras sin espejo y DSLR, y lentes"],
+  drone: [["COMPRAMOS DRONES", "VENDE TU DRON"], "DJI Mini, Air y Mavic"],
+};
+/* Lines whose sellers hear CASH FOR as a pawn counter's low offer (2026-11-23, the owner: card ads were "screaming
+   scalper"): a collector, or a collector's family, is told who buys and what, never how fast the cash comes. */
+const HEADS = {
+  pokemon: ['WE BUY POKÉMON CARDS', 'SELL YOUR POKÉMON CARDS', 'BUYING POKÉMON COLLECTIONS'],
+  sports: ['WE BUY SPORTS CARDS', 'SELL YOUR SPORTS CARDS', 'WE BUY CARD COLLECTIONS'],
+  coins: ['WE BUY COINS', 'WE BUY COIN COLLECTIONS', 'SELL YOUR COINS'],
+};
 for (const l of LINES) {
   if (l.alias) { aliases[l.key] = l.alias; continue; }
   const nm = NAMES[l.key];
@@ -70,11 +122,13 @@ for (const l of LINES) {
   // every set of pictures the offer cards use for the line, in their order; a set is one or two pictures [file, its size beside the first]
   const sets = (l.sets || []).map(set => set.map(([file, k]) => ({ file, k: +(+k || 1).toFixed(2) })));
   for (const s of sets) for (const p of s) if (!existsSync(`${ROOT}assets/cutouts/${p.file}.webp`)) missing.push(`${l.key}: assets/cutouts/${p.file}.webp`);
-  const heads = [`WE BUY ${nm[0]}`, `CASH FOR ${nm[0]}`, ...(nm[1] === nm[0] ? [`SELL YOUR ${nm[1]}`] : [`SELL YOUR ${nm[1]}`])].filter((h, i, a) => a.indexOf(h) === i);
+  const heads = HEADS[l.key] || [`WE BUY ${nm[0]}`, `CASH FOR ${nm[0]}`, ...(nm[1] === nm[0] ? [`SELL YOUR ${nm[1]}`] : [`SELL YOUR ${nm[1]}`])].filter((h, i, a) => a.indexOf(h) === i);
   const points = POINTS[l.key] || 'FREE QUOTE, CASH SAME DAY, NO FEES';
   // a chip holds about sixteen letters at a readable size beside the product (full_ad_check: a 23-letter one found no room)
   for (const c of points.split(', ')) if (c.length > 16) { console.error(`the point "${c}" for ${l.key} is over 16 letters`); process.exit(2); }
-  subjects.push({ key: l.key, cat: l.cat, group: GROUPS[l.cat] || 'More', label: l.label, models: l.models, heads, points, sets, ...(VARIANTS[l.key] ? { variants: VARIANTS[l.key] } : {}) });
+  if (!SPANISH[l.key]) { console.error(`no Spanish headline for the line "${l.key}": add it to SPANISH`); process.exit(2); }
+  const [heads_es, models_es] = SPANISH[l.key];
+  subjects.push({ key: l.key, cat: l.cat, group: GROUPS[l.cat] || 'More', label: l.label, models: l.models, heads, heads_es, models_es, points, sets, ...(VARIANTS[l.key] ? { variants: VARIANTS[l.key] } : {}) });
 }
 if (missing.length) { console.error('pictures missing:\n  ' + missing.join('\n  ')); process.exit(1); }
 for (const [k, to] of Object.entries(aliases)) if (!subjects.some(s => s.key === to)) { console.error(`the line "${k}" folds into "${to}", which is no line`); process.exit(2); }
@@ -104,6 +158,14 @@ const barred = new Set([...(GRID.rejected || []), ...Object.keys(GRID.verifiedBa
 const fileOf = f => `${ROOT}assets/cutouts/${f}.webp`;
 const bytesOf = f => { try { return statSync(fileOf(f)).size; } catch (e) { return 0; } };
 const dropped = [];
+/* the offer family's sets go through the same bar as the pool (2026-11-23): an ad whose pool is empty draws its line's
+   first set, and the Picture menu offers every set, so a rejected or flagged picture there was drawn on every speaker,
+   laptop and smartwatch ad. A line left with none shows its words alone, as headset and chromebook do. */
+for (const S of subjects) {
+  const kept = S.sets.filter(set => set.every(p => !barred.has(p.file)));
+  if (kept.length < S.sets.length) dropped.push(`${S.key}: ${S.sets.length - kept.length} offer set(s) with a rejected or flagged picture`);
+  S.sets = kept;
+}
 const usable = (f, why) => { if (!existsSync(fileOf(f))) { dropped.push(`${why}: ${f} (no such picture)`); return false; } if (barred.has(f)) { dropped.push(`${why}: ${f} (rejected, mislabelled or flagged)`); return false; } return true; };
 for (const S of subjects) {
   const C = DEMAND[S.key]; if (!C) { S.pool = []; continue; }

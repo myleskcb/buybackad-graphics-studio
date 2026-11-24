@@ -112,7 +112,8 @@ const pad = (W, H, rail) => { const c = mk(W + rail + 40, H + 40), x = c.getCont
 /* ---- the phones ---- */
 /** Galaxy S26 line, back: the lenses in one raised pill at the top left, the flash beside it; the Ultra a fourth lens. */
 function galaxyBack(fin, ultra) {
-  const W = 780, H = ultra ? 1640 : 1660, R = ultra ? 70 : 118, rail = 18, [c, x] = pad(W, H, rail);
+  // square on, no side rail: a rail drawn as the body shifted right left a sliver that squared the top corner (audit, 2026-11-23)
+  const W = 780, H = ultra ? 1640 : 1660, R = ultra ? 70 : 118, rail = 0, [c, x] = pad(W, H, rail);
   const f = body(x, W, H, R, fin, { rail }); glass(x, W, H, R, f, fin.glass, { seed: ultra ? 11 : 12 });
   const lr = ultra ? 74 : 66, gap = lr * 2.32, px = W * .14, py = H * .045, pw = lr * 2.5, ph = gap * 2 + lr * 2.5;
   x.save(); x.shadowColor = 'rgba(0,0,0,.3)'; x.shadowBlur = 18; x.shadowOffsetY = 6;
@@ -133,9 +134,10 @@ function slabFront(fin, W, H, R, wall, o = {}) {
 }
 /** Pixel 11 line, back: the camera bar across its top, black glass holding the lenses, the flash on the bar's end. */
 function pixelBack(fin, pro) {
-  const W = 790, H = 1650, R = 150, rail = 18, [c, x] = pad(W, H, rail);
+  const W = 790, H = 1650, R = 150, rail = 0, [c, x] = pad(W, H, rail);   // square on, as the S26 back
   const f = body(x, W, H, R, fin, { rail, buttons: [[.18, .07], [.3, .12]] }); glass(x, W, H, R, f, fin.glass, { seed: pro ? 21 : 22, sheen: .12 });
-  const by = H * .085, bh = H * .1, bx = f + 2, bw = W - f * 2 - 4;
+  // the bar inside the body's edge: run to the frame, its round ends crossed the corners' curve
+  const by = H * .085, bh = H * .1, bx = f + W * .03, bw = W - bx * 2;
   // the bar, in the frame's metal, raised
   x.save(); x.shadowColor = 'rgba(0,0,0,.35)'; x.shadowBlur = 26; x.shadowOffsetY = 10;
   rr(x, bx, by, bw, bh, bh / 2); x.fillStyle = lin(x, 0, by, 0, by + bh, [fin.metal[2], fin.metal[0], fin.metal[1], fin.metal[3]]); x.fill(); x.restore();
