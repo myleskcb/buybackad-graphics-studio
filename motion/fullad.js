@@ -1167,7 +1167,7 @@ export class FullAd extends Ad {
     const F = this.full = { U, e, g, wide, tall, col: [cx0, cx1], rects: {}, px: {}, left: [], layout: Lay, onGround: [], board: "", ink: gInk };
     // the claim, on its badge (a pill, a square tab, a ribbon, a bar the column's width)
     let claim = null;
-    /* THE CUSTOMER'S LOGO (logo/, DESIGN-LAW 170): a picture (st.claim_logo, a canvas the studio draws from
+    /* THE CUSTOMER'S LOGO (logo/, DESIGN-LAW 176): a picture (st.claim_logo, a canvas the studio draws from
        the brand kit, its name beside its mark) takes the badge's place, taller than a claim's
        badge (1.8 times) and never wider than the column. It is the badge, so it is drawn as the claim is (it pops in;
        no glow round it), and the layout keeps its room. A style without one, or one handed on as JSON (the

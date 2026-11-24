@@ -437,7 +437,7 @@ export default async (req) => {
       return json({ user: publicUser(user, env), maxPx: m.plan.maxPx, watermark: m.plan.watermark, remaining: m.cap === null ? null : m.cap - user.exports.count });
     }
 
-    /* THE LOGO FILES (logo/, DESIGN-LAW 170). The page sends the design it shows; the plan is checked
+    /* THE LOGO FILES (logo/, DESIGN-LAW 176). The page sends the design it shows; the plan is checked
        (Pro and Business: plans.mjs logos), one photo download is counted, and the files are drawn
        here by logo/engine.js (netlify/lib/logos.mjs), so a clean vector never comes from a browser
        that has not paid. A drawing that fails counts nothing. */

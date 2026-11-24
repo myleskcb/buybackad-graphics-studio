@@ -4761,3 +4761,48 @@ Open:
    wall's; passed to the session that owns the full ad's looks.
 4. When a preview server is stopped, its tab in the browser pane should be closed with it: the
    owner reads that pane as the product.
+
+## CC. 2026-11-24 — the logo maker and brand kit; the card maker opens on finished cards (DESIGN-LAW 176)
+
+(176 and CC because rules 170 to 175 and §BZ, §CA and §CB were taken on other branches when this landed.)
+
+The owner, 2026-11-24: "I don't see anywhere to generate logos or business cards. We should have business assets
+generable, like we were talking about previously, but they need to be good, very, very good", and "that's something
+you would probably be paying for". §BU's plan, phases (a) to (c), built on `claude/sharp-lamport-781905`.
+
+Done:
+- **`logo/`**: the name and the line, 24 finished logos (18 hand-designed layouts in the house's type pairs and colour
+  pairs, every word outlined from the site's own fonts), More, tabs, four rows of the picked logo, and the brand kit:
+  the files, the card, the ads' badge, the profile picture and the Facebook cover.
+- **Paid**: Pro and Business (`plans.mjs logos`; the plan cards and comparison table say so, `build_pricing.mjs`).
+  `/api/logo/file` checks the plan, counts one photo download and draws the files with the same engine.
+- **The card maker** opens on twelve finished cards in the customer's words; the form is Customise behind it; a Logo
+  layout wears the picked logo. `business_card_check.mjs` opens Customise first.
+- **The full ad** wears the logo on its badge (Easy Mode), in the ad's pair, and opens in the logo's pair.
+- Links: the landing's bar (from 1180 px) and footer, Easy Mode's bar, the video maker's bar, the card maker, the sitemap.
+- Checks: `scripts/logo_check.mjs`, `scripts/logo_sheet.mjs`, `scripts/build_logo_glyphs.mjs --check`.
+
+Open, the owner's call:
+- **The price.** Logos are on Pro and Business today, one switch each in `plans.mjs`. For reference Looka charges
+  about $35 for a basic logo, $72 for premium files and $96 a year for a brand kit; a one-time logo pack for Free and
+  Starter (sold like the AI credit packs) would need a Stripe product, which is the owner's to make.
+- **Who owns a logo made here**, and a line in the terms that a logo is not a registered trademark until the customer
+  registers it (§BU asked the same).
+- **AI suggestions** (§BU phase d: names, taglines, which styles suit) are not built.
+- **A landing section** showing logos: the landing is built to a brief (rule 162) and the owner approved it; this
+  branch adds links only.
+
+Open, next steps:
+- **The video maker** does not wear the logo yet: Easy Mode's hand-off to it is JSON and the badge is a picture. The
+  maker can read `pgfx_logo_kit` and draw the badge as `full-ad-studio.js logoBadge` does.
+- **The photo templates** (the classic cards) do not wear the logo; only the full ad and the card do.
+- **Easy Mode's own form** was not touched (claude/design-editor-ux-075e8b rebuilt it into five tabs, unmerged): only
+  the bar's link. When that branch lands, a "Your logo" control may belong in its Words tab.
+- **The preview is drawn in the browser** by the same engine, so a visitor who reads the page's code can draw a clean
+  file; the files the plan pays for come from the function, and the mark is on every preview. Moving the previews
+  to the server would close that and cost a round trip a gallery.
+- **After the deploy**: a draft first, then POST `/api/logo/file` as a Pro account must answer 200 with the files (the
+  function imports `logo/engine.js` and each face by a literal dynamic import, which the bundler packs; a missing
+  face answers 500 and counts nothing). The type is about 2 MB across 34 faces; a page loads only the faces it draws.
+- `full_ad_studio_check` still fails its one case on `main` ("earbuds landscape: Something on the ad runs to the
+  edge", §BY 5); this branch's change is inert without a logo kit, which that check never sets.

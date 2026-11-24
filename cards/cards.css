@@ -55,7 +55,7 @@
 .pt-ask{margin:6px 0 0;padding-left:20px;max-width:760px;color:var(--text-2)}
 .pt-ask b{color:var(--text)}
 
-/* the gallery (DESIGN-LAW 170): finished cards with the customer's details in them, the form behind */
+/* the gallery (DESIGN-LAW 176): finished cards with the customer's details in them, the form behind */
 .cd-details{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1.2fr);gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:16px 18px;margin:0 0 22px}
 @media (max-width:760px){.cd-details{grid-template-columns:1fr 1fr}.cd-dname{grid-column:1/-1}}
 @media (max-width:420px){.cd-details{grid-template-columns:1fr}}

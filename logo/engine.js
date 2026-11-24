@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   THE LOGO ENGINE (DESIGN-LAW 170). The owner, 2026-11-24: "I don't see anywhere to generate logos
+   THE LOGO ENGINE (DESIGN-LAW 176). The owner, 2026-11-24: "I don't see anywhere to generate logos
    or business cards. We should have business assets generable ... but they need to be good, very,
    very good", and "that's something you would probably be paying for".
 
@@ -98,7 +98,11 @@ export function partsOf(raw, script = false) {
 /* ---------- the type: outlines laid out with the face's own kerning ---------- */
 /** a glyph of a face, or of the pair's reading face, or nothing (a name never shows a box) */
 function glyph(F, ch, alt) {
-  return (F && F.g[ch]) || (alt && alt.g[ch]) || (ch === "’" && F && F.g["'"]) || (ch === "•" && F && F.g["·"]) || null;
+  const g = (F && F.g[ch]) || (alt && alt.g[ch]) || (ch === "’" && F && F.g["'"]) || (ch === "•" && F && F.g["·"]);
+  if (g) return g;
+  // a letter the face lacks (an accent a subset left out) is set as its plain letter, never dropped
+  const base = ch.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return base && base !== ch ? glyph(F, base, alt) : null;
 }
 /** a run of text in a face on its 1000 em: each glyph's place, the advance and the ink box */
 function shapeRun(F, str, track = 0, alt = null) {
@@ -428,7 +432,8 @@ const LAYOUTS = {
     it.push({ d: starD(cx, cy, 496, 24, .86, c.d.seed % 2 ? 0 : Math.PI / 24), fill: "P", tone: 1 });
     it.push({ d: circleD(cx, cy, 380), fill: "G", tone: 0 });
     it.push(ring(cx, cy, 352, 8, "P", 1));
-    const B = fitBlock(D, N.full, 560, 300, { maxLines: 3, lead: 1.12, capMax: 140 });
+    // the words as wide as the inner ring's chord allows within 130 of the middle (2 × √(352² − 130²) ≈ 650)
+    const B = fitBlock(D, N.full, 630, 300, { maxLines: 3, lead: 1.12, capMax: 140 });
     const bx = drawBlock(it, D, B, cx, cy + 34, { lead: 1.12, fill: "I", tone: 1 });
     const ss = fitSize(Lb, c.small, 400, 32, .16);
     it.push(textLine(Lb, c.small, ss, cx, bx.top0 - 44, { track: .16, fill: "A", tone: 1 }).item);

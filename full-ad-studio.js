@@ -29,7 +29,7 @@
    the full ad is never a member of TEMPLATES, so no pass, audit or table of the photo ads sees
    it. Every function it wraps is wrapped, not spliced (AGENT-BRIEF 1).
 
-   THE CUSTOMER'S LOGO (2026-11-24, DESIGN-LAW 170). A logo picked in the logo maker (logo/, kept in
+   THE CUSTOMER'S LOGO (2026-11-24, DESIGN-LAW 176). A logo picked in the logo maker (logo/, kept in
    localStorage pgfx_logo_kit) takes the badge at the top: its name beside its mark, drawn by the logo
    engine in the ad's own colour pair (the logo's own where the ad wears a video look), on a pill of its
    ground (motion/fullad.js st.claim_logo). With a logo on and no pair picked by hand, the ad opens in
@@ -69,7 +69,7 @@ const live = { holding: false, n: 0, ad: null, subjects: [], thumbs: {}, timer: 
 const assets = { phones: {}, index: [], accents: {} };
 const keep = () => { try { localStorage.setItem(KEY, JSON.stringify({ on: FA.on, line: FA.line, set: FA.set, seed: FA.seed, pair: FA.pair, voice: FA.voice, words: FA.words, biz: FA.biz, recipe: FA.recipe, logo: FA.logo })); } catch (e) { /* private mode */ } };
 
-/* ---------- the customer's logo on the badge (logo/, DESIGN-LAW 170) ---------- */
+/* ---------- the customer's logo on the badge (logo/, DESIGN-LAW 176) ---------- */
 /** the logo picked in the logo maker, or null */
 const kitNow = () => { try { const k = JSON.parse(localStorage.getItem("pgfx_logo_kit") || "null"); return k && k.design && k.design.t ? k.design : null; } catch (e) { return null; } };
 const logoOn = () => FA.logo !== false && !!kitNow();

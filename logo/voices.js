@@ -1,4 +1,4 @@
-/* The type pairs the logo maker sets (DESIGN-LAW 170): the full ad's vetted pairs
+/* The type pairs the logo maker sets (DESIGN-LAW 176): the full ad's vetted pairs
    (motion/full-voices.js, each read at a feed's size and by eye) and Bold, the card's default, as
    motion/catalog.js TYPE_VOICES names them. A copy, so the engine and the function that draws a paid
    file need no catalogue; scripts/logo_check.mjs fails when it and TYPE_VOICES say different things.

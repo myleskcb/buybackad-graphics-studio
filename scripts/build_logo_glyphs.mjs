@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* THE LOGO MAKER'S TYPE, AS OUTLINES (DESIGN-LAW 170).
+/* THE LOGO MAKER'S TYPE, AS OUTLINES (DESIGN-LAW 176).
 
    A logo is a vector file a sign shop, a printer or a web page uses as it is, so its words are
    outlines, never <text> that falls back to whatever face the reader's machine has. This script

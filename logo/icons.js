@@ -1,4 +1,4 @@
-/* The symbols a logo may carry (DESIGN-LAW 170). The first twenty are the house set, assets/icon-set.svg
+/* The symbols a logo may carry (DESIGN-LAW 176). The first twenty are the house set, assets/icon-set.svg
    (spec/icons.json): one 100-unit box, a 12-unit margin, one stroke weight, round caps and joins, generic by
    silhouette and never a brand's mark. The last five are drawn here in the same grammar for the lines the set
    had nothing for (consoles, computers, headphones, watches, cameras). scripts/logo_check.mjs holds the first

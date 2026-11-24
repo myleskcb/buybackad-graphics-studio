@@ -21,7 +21,7 @@
    as Google Maps searches the customer opens themselves (no service is called and nothing about
    them is sent), and what to ask for.
 
-   The page opens on a gallery of finished cards (2026-11-24, DESIGN-LAW 170: "The card maker opens
+   The page opens on a gallery of finished cards (2026-11-24, DESIGN-LAW 176: "The card maker opens
    on a gallery of finished cards with the visitor's details filled in"): each a look drawn from one
    style's lists, front and back, in the customer's own words; the one tapped opens Customise, the
    form above, behind it. With a logo picked in the logo maker (logo/, localStorage pgfx_logo_kit),
@@ -696,7 +696,7 @@ function front(ctx, P, W, f, d, out, img) {
   }
 }
 
-/* ---------- the logo (DESIGN-LAW 170): the brand kit's logo, on the front, in the card's own colours ---------- */
+/* ---------- the logo (DESIGN-LAW 176): the brand kit's logo, on the front, in the card's own colours ---------- */
 /** the logo the customer picked in the logo maker (logo/logo.js keeps it), or null */
 const kitNow = () => { const k = jget("pgfx_logo_kit", null); return k && k.design && k.design.t ? k.design : null; };
 const logos = {};

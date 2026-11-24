@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* A contact sheet of the logo maker's gallery (DESIGN-LAW 170): the finished logos it offers for a few
+/* A contact sheet of the logo maker's gallery (DESIGN-LAW 176): the finished logos it offers for a few
    real kinds of name and line, drawn by logo/engine.js in Node exactly as the page and the function
    draw them, written to .render/logo-sheet/index.html (with every layout's mark, lockup and one-colour
    versions on a second sheet). Look at it before and after any change to a layout.

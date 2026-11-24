@@ -1,4 +1,4 @@
-/* THE LOGO FILES, DRAWN BY THE FUNCTION (DESIGN-LAW 170; OPEN-ITEMS §BU "super pay walled").
+/* THE LOGO FILES, DRAWN BY THE FUNCTION (DESIGN-LAW 176; OPEN-ITEMS §BU "super pay walled").
 
    The logo maker (logo/) draws every preview in the browser with logo/engine.js and marks it until the
    plan includes logos. The files a customer keeps are drawn here, by the same engine with the same
