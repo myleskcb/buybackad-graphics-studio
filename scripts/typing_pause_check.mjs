@@ -23,10 +23,19 @@
      9. Download photo pressed inside the number's pause: the number in hand at the press, and no
         "type your phone number first";
     10. the page reloaded inside the number's pause: the number still there;
-    11. no page error and no CSP violation in any of them.
+    11-13. a ZIP code in Your area (autofill puts one there: autocomplete="postal-code"), whose town
+        is looked up after it lands, the first time from 1.6 MB of data, slowed here to a phone's
+        pace: ↻ Another headline (11), New look (12) or Download photo (13) pressed while the town
+        is looked up. The ZIP is saved, then its town in its place, and the number with them; the
+        photo is made only once the town is found (2026-11-23: the lookup took a refill for
+        typing on and dropped the ZIP, and a download went out with the old area);
+    14. a ZIP code's town follows into the words, as a typed city does (case 4): 92101 turns
+        "WE BUY IPHONES IN LONG BEACH" into "... IN SAN DIEGO";
+    15. no page error and no CSP violation in any of them.
 
    Each case runs in a fresh browser context (the maker keeps the visitor's look in localStorage,
-   and a shared context leaks it into the next case), signed out (a download stops at sign-in).
+   and a shared context leaks it into the next case), signed out (a download stops at sign-in),
+   but for case 13, which runs in the local demo mode so the photo is made.
    The times between the two moves are read in the page, from the events themselves: a case whose
    moves were not inside the pause tested nothing, and fails as such.
 
@@ -86,11 +95,14 @@ async function ensureServer() {
 
 /* ------------------------------------------------------------------ the page */
 /** A fresh maker, ready: its first ad drawn (rebuild hides #loading). */
-async function fresh(browser) {
+async function fresh(browser, opts = {}) {
   const ctx = await browser.newContext({ viewport: { width: 1400, height: 1000 }, deviceScaleFactor: 1 });
+  if (opts.demo) await ctx.addInitScript(() => { try { localStorage.setItem('pgfx_local_demo', '1'); } catch (e) { /* none */ } });
   await ctx.addInitScript(() => {
     // every input and click, with its time, so a case can say how far apart its moves really were
-    window.__ev = []; window.__csp = [];
+    window.__ev = []; window.__csp = []; window.__prog = [];
+    // the progress line under a download, with when it changed: when the download's own work began
+    document.addEventListener('DOMContentLoaded', () => { const l = document.getElementById('progress-label'); if (l) new MutationObserver(() => window.__prog.push([performance.now(), l.textContent])).observe(l, { childList: true, characterData: true, subtree: true }); });
     const rec = e => { window.__ev.push([e.type, (e.target && e.target.id) || '', performance.now()]); };
     document.addEventListener('input', rec, true); document.addEventListener('click', rec, true);
     document.addEventListener('securitypolicyviolation', e => window.__csp.push(e.violatedDirective + ' ' + e.blockedURI));
@@ -122,8 +134,8 @@ const ready = page => page.waitForFunction(() => { const l = document.getElement
 const saved = page => page.evaluate(k => { try { return JSON.parse(localStorage.getItem(k) || '{}').style || {}; } catch (e) { return {}; } }, STORE);
 /** The saved look once it says what is wanted, then again after every field's pause has run out
  *  (a late handler must not take it back). After 5 s without it, as it is. */
-async function settled(page, want) {
-  const end = Date.now() + 5000;
+async function settled(page, want, ms = 5000) {
+  const end = Date.now() + ms;
   let s = await saved(page);
   while (!want(s) && Date.now() < end) { await page.waitForTimeout(100); s = await saved(page); }
   await page.waitForTimeout(PAUSE.number + 300);
@@ -144,6 +156,33 @@ const field = (page, id) => page.inputValue('#' + id);
 const q = v => JSON.stringify(v);
 
 const N = '(619) 555-0142', N2 = '(619) 555-0177', A = 'San Diego', B = 'Harbor Buyers';
+
+/* A ZIP code in Your area (cases 11-13): autofill puts it there with the number, the cursor left in the
+   number box. The first lookup of its town loads assets/geo/ (1.6 MB), slowed here to `slow` ms, a phone
+   on a slow connection; the visitor presses `id` after the area's pause and before the town is found.
+   Returns the saved look once it has settled, and the times (page clock) of the press and the town. */
+const ZIP = '90802', TOWN = 'Long Beach';
+async function zipThen(page, id, slow = 2500) {
+  await page.route('**/assets/geo/*.json', async r => { await new Promise(f => setTimeout(f, slow)); return r.fallback(); });
+  await page.evaluate(([z, n]) => {
+    document.getElementById('f-number').focus();
+    for (const [box, v] of [['f-area', z], ['f-number', n]]) { const el = document.getElementById(box); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); }
+  }, [ZIP, N]);
+  await page.waitForTimeout(PAUSE.area + 300);           // the area's pause is over; its town is still being looked up
+  await page.click('#' + id);
+  const s = await settled(page, s => s.area === TOWN && s.zip === ZIP && s.number === N, slow + 8000);
+  const t = await page.evaluate(id => {
+    const at = x => { const e = window.__ev.filter(v => v[1] === x).pop(); return e ? e[2] : NaN; };
+    const geo = performance.getEntriesByType('resource').filter(e => /assets\/geo\//.test(e.name)).map(e => e.responseEnd);
+    return { area: at('f-area'), press: at(id), town: geo.length ? Math.max(...geo) : NaN };
+  }, id);
+  ok(t.press - t.area > PAUSE.area && t.press < t.town, `pressed ${Math.round(t.press - t.area)} ms after the ZIP, ${Math.round(t.town - t.press)} ms before its town was found`);
+  ok(s.area === TOWN, `the area is the ZIP's town: ${q(s.area)}`);
+  ok(s.zip === ZIP, `the ZIP is kept with it: ${q(s.zip)}`);
+  ok(s.number === N, `the number is saved: ${q(s.number)}`);
+  ok(await field(page, 'f-area') === TOWN, `the area's box says the town: ${q(await field(page, 'f-area'))}`);
+  return t;
+}
 
 /* ------------------------------------------------------------------ the cases */
 const CASES = [
@@ -275,6 +314,29 @@ const CASES = [
     ok(s.number === N, `the number is saved: ${q(s.number)}`);
     ok(await field(page, 'f-number') === N, `the number's box shows it after the reload: ${q(await field(page, 'f-number'))}`);
   }],
+  [11, 'a ZIP code in the area, and ↻ Another headline pressed while its town is looked up', async page => {
+    await zipThen(page, 'new-headline');
+  }],
+  [12, 'a ZIP code in the area, and New look pressed while its town is looked up', async page => {
+    await zipThen(page, 'shuffle-look');
+  }],
+  [13, 'a ZIP code in the area, and Download photo pressed while its town is looked up', async page => {
+    const got = page.waitForEvent('download', { timeout: 120000 }).then(d => ({ at: Date.now(), name: d.suggestedFilename() })).catch(() => null);
+    const t = await zipThen(page, 'download-jpg', 6000);
+    const d = await got, at = await page.evaluate(() => performance.timeOrigin);
+    const began = await page.evaluate(p => { const c = window.__prog.find(x => x[0] > p); return c ? c[0] : NaN; }, t.press);
+    ok(began > t.town, `the photo was begun ${Math.round(began - t.town)} ms after the town was found (${Math.round(began - t.press)} ms after the press)`);
+    ok(d && d.at > at + t.town, `and handed over after it${d ? ': ' + d.name : ' (no file came)'}`);
+  }, { demo: true }],
+  [14, 'a ZIP code\'s town follows into the words', async page => {
+    await typePaused(page, 'f-area', 'Long Beach', 'area');
+    await typePaused(page, 'f-headline', 'we buy iphones in long beach', 'headline', 'WE BUY IPHONES IN LONG BEACH');
+    await page.evaluate(() => __type('f-area', '92101'));
+    const s = await settled(page, s => s.area === 'San Diego' && s.headline === 'WE BUY IPHONES IN SAN DIEGO', 10000);
+    ok(s.area === 'San Diego' && s.zip === '92101', `92101 is placed: ${q(s.area)}, ${q(s.zip)}`);
+    ok(s.headline === 'WE BUY IPHONES IN SAN DIEGO', `the headline's city follows it: ${q(s.headline)}`);
+    ok(await field(page, 'f-headline') === 'WE BUY IPHONES IN SAN DIEGO', `and its box shows it: ${q(await field(page, 'f-headline'))}`);
+  }],
 ];
 
 /* ------------------------------------------------------------------ run */
@@ -282,12 +344,12 @@ const server = await ensureServer();
 const browser = await chromium.launch();
 const errors = [], cspHits = [];
 try {
-  for (const [n, name, run] of CASES) {
+  for (const [n, name, run, opts] of CASES) {
     if (ONLY && !ONLY.includes(n)) continue;
     console.log(`\n${n}. ${name}`);
     let c;
     try {
-      c = await fresh(browser);
+      c = await fresh(browser, opts);
       await run(c.page);
     } catch (e) { ok(false, `case ${n} could not run: ${String(e.message || e).split('\n')[0]}`); }
     if (c) {
@@ -296,7 +358,7 @@ try {
       await c.ctx.close();
     }
   }
-  console.log('\n11. the pages');
+  console.log('\n15. the pages');
   ok(!errors.length, `no page errors${errors.length ? ': ' + errors.slice(0, 3).join(' | ') : ''}`);
   ok(!cspHits.length, `no CSP violations${cspHits.length ? ': ' + cspHits.slice(0, 3).join(' | ') : ''}`);
 } finally {
