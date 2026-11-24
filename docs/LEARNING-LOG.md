@@ -6830,9 +6830,10 @@ Found:
     take 15 MB.
   - Checks: quick_ad_check and buylist_check pass; watermark_check all clear; full_ad_studio_check fails only the
     earbuds-landscape edge it failed before this branch; build_recipe_stills and build_hero_stills --check pass, the
-    still-camera redraw byte for byte the same. typing_pause_check: every outcome holds; case 1's precondition (two
-    keystrokes under 90 ms apart) was not met at a load average of 100 to 650 (other sessions' browsers and
-    simulators). The checks' layout had the looks first and in view, drawing two dozen while it typed: last now.
+    still-camera redraw byte for byte the same. typing_pause_check passes at a load average of 15; at 100 to 650
+    (other sessions' browsers and simulators) its timed presses could not be staged. Two things of this branch it
+    caught: the checks' layout had the looks first and in view, drawing two dozen while it typed (last now), and
+    Back's label split off for the phones took the press from the button (pointer-events: none on it).
   - "Self condensing but legible at all level": three pages at eleven widths, 320 to 1920 (no sideways scroll,
     nothing off the screen, no words under 12 px). The landing's bar ran its buttons off the edge from 1010 to
     1440; its gaps close with the window now and its links give way least needed first.

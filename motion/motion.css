@@ -292,6 +292,9 @@ a.mo-btn{display:inline-flex;align-items:center;text-decoration:none}
   .mo-tool .mo-panel{position:static;max-height:none;overflow:visible}
   .mo-under .mo-seg{flex-wrap:wrap;justify-content:center}
 }
+/* a button's label is part of the button: a press on its words is a press on the button (the target is the button,
+   as before the label was split off for the phones; typing_pause_check reads presses by the button's id) */
+.mo-tb-label{pointer-events:none}
 /* the narrowest phones: Templates and Back by their signs alone (named for a screen reader), Download its own size,
    so the toolbar is two rows and the ad comes up sooner */
 @media (max-width:520px){
@@ -302,7 +305,9 @@ a.mo-btn{display:inline-flex;align-items:center;text-decoration:none}
 }
 /* the checks' layout (buildTool: ?edit=all, or an automated browser): every step at once, every control in sight */
 .mo-tool[data-steps=all] .mo-step[hidden],.mo-tool[data-steps=all] #attn[hidden]{display:block!important}
-.mo-tool[data-steps=all] .mo-dl-menu[hidden]{display:flex!important;position:static;box-shadow:none;border:0;padding:0;flex-direction:row}
+.mo-tool[data-steps=all] .mo-dl{flex-wrap:wrap;max-width:100%;gap:6px}
+.mo-tool[data-steps=all] .mo-dl-menu[hidden]{display:flex!important;position:static;box-shadow:none;border:0;padding:0;flex-direction:row;flex-wrap:wrap;min-width:0;background:none}
+.mo-tool[data-steps=all] .mo-dl-menu .mo-btn{width:auto}
 .mo-tool[data-steps=all] #shuffle-all[hidden],.mo-tool[data-steps=all] #browse[hidden]{display:inline-flex!important}
 .mo-tool[data-steps=all] .mo-panel{max-height:none;overflow:visible;position:static}
 /* the looks last, as the page had them: first in the panel, the gallery was in view at once and drew and played
