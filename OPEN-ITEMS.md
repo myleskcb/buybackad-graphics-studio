@@ -4691,23 +4691,32 @@ ai, google false, billing (test mode).
 |---|---|---|
 | Accounts, operators | live | none |
 | AI backgrounds | live (fal) | optional: a `GEMINI_KEY` as the fallback; the old project has one, webuy.ad's has none. The owner pastes it |
-| Billing | on, **test mode** | the owner: Stripe live keys (`sk_live`, `pk_live`) into the project's variables, a deploy, then Plan & billing → Set up prices, webhook and wallets now (the webhook and Apple Pay domain move to webuy.ad). In Stripe: public business name WeBuy.AD, support email support@webuy.ad, receipts on |
+| Billing | **live, 2026-11-23**, on the iPhones.LA Stripe account (WeBuy.AD has no registered business yet). Its own standard key, "WeBuy.AD website", is `STRIPE_SECRET` for Production only; previews keep test keys. The operator setup made 8 live prices, the webhook at https://webuy.ad/api/stripe-webhook and Apple Pay on webuy.ad | the owner's choice later: a WeBuy.AD Stripe account (a sole proprietor can open one; trading as WeBuy.AD in California usually needs a fictitious business name). Moving paying subscribers then is a migration |
+| What buyers see of the shared account | Stripe's form, the Apple Pay and Google Pay sheet, receipts and invoices and the billing portal say iPhones.LA; the card statement is the account's prefix then `WEBUY.AD` (`STATEMENT_SUFFIX`: a pack's payment, a plan's product) | the test-mode products are still named Graphics Studio Pro and Business (made 2026-10-11); live ones are WeBuy.AD |
 | `SITE_URL` | not set, not needed | Netlify's `URL` is the primary domain, https://webuy.ad |
-| Google sign-in | off | the owner: a Google Cloud OAuth client (Web, origin https://webuy.ad, consent screen named WeBuy.AD); its client ID into `GOOGLE_CLIENT_ID` |
+| Google sign-in | **live, 2026-11-23**: Google Cloud project `webuy-ad` (myleskcb@gmail.com), app WeBuy.AD in production, External, client "WeBuy.AD website" for https://webuy.ad and https://www.webuy.ad; `GOOGLE_CLIENT_ID` set; the owner's own sign-in by Google opened the operator account | Apple: `docs/SIGN-IN-SETUP.md` |
 | Mail in | live | none |
 | Mail out | none: no password reset, no address check | a build: a mail provider, its DNS records at Namecheap, and the reset flow |
-| Search | not set up | the owner: Search Console, Domain property webuy.ad (a TXT record at Namecheap), submit https://webuy.ad/sitemap.xml; Bing can import it |
-| Analytics | none | the owner's choice of tool; the CSP and the privacy policy change with it |
-| Legal pages | live; WeBuy.AD once this branch is on `main` | none |
+| Search | **Search Console verified 2026-11-23** (Domain property webuy.ad, myleskcb@gmail.com, TXT `google-site-verification` at Namecheap); https://webuy.ad/sitemap.xml submitted ("Couldn't fetch" on the first day; the file answers 200) | Bing Webmaster Tools can import from Search Console |
+| Analytics | **Cloudflare Web Analytics, live 2026-11-23** (195b5f1d): site webuy.ad in myleskcb@gmail.com's Cloudflare account, beside iphones.la and reselling.us; the beacon on the 26 public pages, its two CSP entries, the privacy row. No cookies | none |
+| Legal pages | live as WeBuy.AD | none |
 
 Open:
-1. **This branch is not on `main`** until the owner says so; the push deploys webuy.ad.
+1. On `main` and live (94bd8bff, then edee1d1b with the shared-account billing).
+   The webhook hears every sale of the iPhones.LA account: only a session naming one of the
+   site's plans or packs, or a subscription to one of its plans, touches an account here
+   (`ownSession`, `ownSubscription`; billing_check fails on the old code).
 2. **The old project still serves iPhones LA.** iphones.la's CORS door answers 204 only for
    `https://buybackad-graphics-studio.netlify.app` (400 for webuy.ad and finished-copy), and
    iPhones LA's code names it as `DEFAULT_STUDIO_URL` with no webuy.ad in `STUDIO_SITES`. The
    owner chose iPhones LA first; the redirect waits (OPERATIONS, "Retiring the old project").
-3. **Chrome's Netlify login is myleskcb@gmail.com (team KCB)** since this session, which switched
-   it to reach the old project; webuy.ad's settings need the myleskcb2 login again.
+3. Chrome's Netlify login is myleskcb2 again (webuy.ad's team); the old project needs the
+   myleskcb@gmail.com login.
+6. **Two secrets passed through the session's screen reads**: the Google client's secret (the
+   site does not use it) and the new live Stripe key's value in Stripe's one-time dialog. Neither
+   was copied anywhere. Rolling both is the safe move: Google Cloud → Clients → WeBuy.AD website
+   (the site needs only the client ID), and Stripe → API keys → WeBuy.AD website → Roll, then the
+   new value into Netlify's STRIPE_SECRET (Production) and a deploy.
 4. `assets/og/og-card.jpg` and `assets/og/buybackad-og.jpg` still draw the old name; no page links
    them (the share card is `assets/brand/share-card.jpg`).
 5. This Mac has no Netlify CLI and no CLI login (the brief said otherwise); the old project's

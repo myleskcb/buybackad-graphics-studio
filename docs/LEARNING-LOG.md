@@ -6715,9 +6715,20 @@ Found:
   - CSS_FALLBACK was stale on `main`; any styles.css edit (comments too) means
     `node scripts/sync_css_fallback.mjs`, and again after merging `main`.
 
+Later the same day: Search Console verified, Google sign-in live, billing live on the shared
+iPhones.LA Stripe account, Cloudflare Web Analytics live (§BX's table).
+  - A shared Stripe account sends its other sales to this webhook. An iPhones.LA subscription
+    bought with a WeBuy.AD customer's email read as Free and would have ended a paid plan: the
+    handler now acts only on the site's own plans and packs.
+  - Screen reads carry secrets: `find` returned a copy button's label holding Google's client
+    secret, and a screenshot showed Stripe's one-time key. On a page that shows a secret, read with
+    a filtered script or not at all, and let the owner copy it.
+  - Stripe can make a second standard secret key per account, named, so a site gets its own key
+    and the account's main key is never rolled under another business.
+
 RESUME HERE:
-  0. OPEN-ITEMS §BX, Open 1 and 2: this branch onto `main` with the owner's OK; iPhones LA to
-     accept webuy.ad, then the old project's redirect.
+  0. OPEN-ITEMS §BX, Open 2 and 6: iPhones LA to accept webuy.ad, then the old project's
+     redirect; the two secrets the session saw, rolled.
 
 ## 2026-11-23 (night) — the sign-in buttons in the window's own look (DESIGN-LAW 168; claude/google-button-blend)
 
