@@ -67,7 +67,10 @@ for (const r of want) {
     const pair = st.full_colour || '', P = (await import('/motion/house-colours.js')).HOUSE_COLOURS.find(c => c.key === pair);
     // what the wall's own check reads (scripts/hero_wall_check.mjs): the pair's look, the kind of ground, the headline
     const bg = String(st.background || ''), { GROUND_SCENES } = await import('/motion/full-grounds.js');
-    const ground = bg === 'photo' ? 'photo' : /^pair_/.test(bg) ? 'gradient' : /^pat_/.test(bg) ? 'pattern' : GROUND_SCENES.includes(bg) ? 'scene' : 'house';
+    // the engine's kinds (motion/full-grounds.js GROUND_SHARES): the four families of 2026-11-22 by their own names; 'house' is the plain
+    // radial, tonal and linear alone (it took all four until 2026-11-23, and read as plain)
+    const ground = bg === 'photo' ? 'photo' : /^pair_/.test(bg) ? 'gradient' : /^pat_/.test(bg) ? 'pattern' : GROUND_SCENES.includes(bg) ? 'scene'
+      : /^abs_/.test(bg) ? 'abstract' : /^shp_/.test(bg) ? 'shape' : /^prod_/.test(bg) ? 'product' : /^typ_/.test(bg) ? 'type' : 'house';
     return { pair, pairName: P ? P.name : '', look: P ? P.look : '', accent: st.colors ? st.colors.accent : '', background: bg, ground, headline: String(st.headline || ''), webp: c.toDataURL('image/webp', .76) };
   }, { id: r.id, SIZE, number: sampleNumber(r.id) });
   if (got.error) { console.log(`  ${r.id}: ${got.error}`); continue; }
