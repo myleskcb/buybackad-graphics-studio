@@ -4762,7 +4762,7 @@ Open:
 4. When a preview server is stopped, its tab in the browser pane should be closed with it: the
    owner reads that pane as the product.
 
-## BO. 2026-11-18 — the video ads sound like a trailer, not a game (DESIGN-LAW 170)
+## BO. 2026-11-18 — the video ads sound like a trailer, not a game (DESIGN-LAW 174)
 
 (claude/video-music-sfx-audit-3691d1, from 9dddf354.)
 
@@ -4785,9 +4785,9 @@ Done:
   chime menu). **Eight original hooks**, matched to their bed's mode.
 - **Genres**: 23 in 1000 shuffles, lo-fi 2%. **Layers in one key**: over a
   recording or the user's own track, its key (six of six known keys read).
-- `scripts/motion_music_check.mjs` part 7. Its substance was run in the
-  browser pane: `puppeteer-core` is not installed on this machine, so the
-  script itself has not run.
+- `scripts/motion_music_check.mjs` part 7. All seven parts pass (2026-11-24,
+  on the branch merged with `main`, through a `puppeteer-core` stand-in over
+  Playwright that answers request interception).
 
 Open:
 1. **Heard and approved** (2026-11-19): the trailer's sounds, then the
@@ -4799,4 +4799,50 @@ Open:
    would need a beat tracker that follows the recording, not one tempo.
 4. **The explainer videos** (`tools/explainers`) still play Small Note
    Boogaloo: they explain, they do not sell, and were left.
-5. **Not pushed, not on `main`.**
+5. **Merged with `main` and pushed** (2026-11-24, 8529b419; its rule became 174:
+   `main` and other branches had taken 154, then 170 to 173). Not on `main`
+   yet: it goes with §CB.
+
+## CB. 2026-11-24 — a moving scene under the full ad's words (DESIGN-LAW 175)
+
+(claude/video-music-sfx-audit-3691d1, on 8529b419: the sound work merged with `main`.)
+
+The owner asked for backgrounds that move (cities, devices, cars), made
+cost-effectively, as a library beside the free photographs; having seen the
+test batch behind mock ads: "Yes, build it".
+
+Done:
+- **The test** (fifteen clips on fal, $4.03): Hailuo 02 Standard on a scene drawn
+  first (Seedream) kept four of five; on a library photograph one of five. About
+  38 cents a kept clip drawn, $1.35 from a photograph. Every clip loops.
+- **Six clips** in `motion/clips/` (7 MB), made by `scripts/build_clip_grounds.sh`:
+  the neon street, the circuit board, the city at golden hour, the phone in a light
+  sweep, the gold bars, Los Angeles from the air.
+- **The full ad draws one as a photograph that moves**: graded, framed and pushed
+  in on as a photograph; tagged for where it may stand; light words only.
+- **Background > Stands on: A moving scene**, and **Moving scene** to pick one.
+  New look draws one for 6% of iPhone ads in Long Beach; nothing outside the
+  video maker changes.
+- **Read at every moment**: the evening reads twelve moments of the clip, held to
+  the sheet's measured gap from the real frames. 78 ads, every line at 24 moments
+  of the clip itself: all at or over the bar, the closest 1.19 times it.
+- **The export seeks the clip frame by frame** (about 5 ms a seek); the preview
+  plays it; the photo with a video is drawn on the clip at its moment.
+- `scripts/clip_grounds_check.mjs` holds all of it. `full_ad_check`,
+  `quick_ad_check`, `buylist_check` and `motion_music_check` pass.
+
+Open:
+1. **The owner to look** in the maker: Full ad, Style, Background, Stands on: A
+   moving scene.
+2. **Any look** (the plain engine) has no moving ground yet.
+3. **A story or a wide frame** crops the square clips (a story shows the middle 56%,
+   at 2.5 times) and is softer than a square. Drawn in 9:16, or wider, if those
+   frames matter.
+4. **More clips**: grow the library from drawn scenes in reviewed batches of about
+   twenty (about $7.50 a batch). The light ribbons and the open road barely moved
+   and want another prompt. The test's script and its clips are in `.motion-test/`
+   of this worktree, out of git; the fal key is asked for at a hidden prompt in a
+   terminal tab, never kept.
+5. **How often New look draws a clip** (`CLIP_SHARE`, .3 of the seeds a clip
+   fits, 6%) is the owner's call.
+6. **Not on `main`** until the owner says so.

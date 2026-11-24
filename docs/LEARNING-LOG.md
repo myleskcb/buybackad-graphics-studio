@@ -6864,7 +6864,7 @@ seen (16 of 16).
 Lesson: run a new check against the live site after it ships, not only the local server. The race
 it found exists only at the live site's pace.
 
-## 2026-11-18 and -19 — the video ads sound like a trailer, not a game (DESIGN-LAW 170; claude/video-music-sfx-audit-3691d1)
+## 2026-11-18 and -19 — the video ads sound like a trailer, not a game (DESIGN-LAW 174; claude/video-music-sfx-audit-3691d1)
 
 Asked: audit the music and sound effects ("like I'm playing mario kart ...
 I need like trailer commercial professional"); then the shuffle's odds; then
@@ -6914,3 +6914,39 @@ or under -1 dBFS; the levels and bands above; the maker loading with no
 error and showing only the kept sounds; audience_check. Not run:
 motion_music_check and motion_sound_check (no puppeteer-core here),
 full_ad_check (no playwright).
+
+## 2026-11-24 — a moving scene under the full ad's words (DESIGN-LAW 175; claude/video-music-sfx-audit-3691d1)
+
+The owner wanted backgrounds that move, cheaply, as a library. A test batch on fal
+chose the model (Hailuo 02 Standard, on a scene drawn first); "Yes, build it" built
+six clips into the full ad as photographs that play, read at every moment, played in
+the preview and sought frame by frame in the export. `main` was merged in first (149
+commits behind), and this branch's sound rule renumbered twice (154, then 174).
+
+Learned:
+  - A browser seek is exact and cheap on a clip encoded for it (a key frame every
+    half second, no B-frames): 5 ms a frame, the same pixels in any order. No
+    demuxer and no decoder of our own were needed for a frame-accurate export.
+  - A small sheet of a clip reads kinder than its frames: a bright speck under a
+    line is softened (5.50:1 on the sheet, 4.40:1 on the frame), and larger tiles
+    barely helped (5.33:1). Measure the gap and hold the sheet to it; do not assume
+    a bigger sample fixes it.
+  - A share of the seeds that fit is not a share of ads. 12% of fitting seeds was
+    1.7% of ads once light words and rule 139 had their say. Count the ads.
+  - A template's colours count as picked. A choice that overrides them (a scene made
+    for light words over dark-word colours) says so in a toast.
+  - Judging a moving ground on its first frame is not judging it: the gold bars'
+    headline read 2.1:1 when the flare passed, 10.5:1 once every moment was read.
+  - On this Mac: no `timeout` command; ffmpeg in a `while read` loop eats the loop's
+    input (`-nostdin`); `read` at a last line without a newline fails under `set -e`.
+    Four browser checks at once made `full_ad_check` fail once on timing (its note
+    read at 1.5 s); alone it passed, as on `main`.
+  - Rule numbers: 170 to 173 were taken on three unmerged branches while this was
+    written. Grep every branch and worktree right before writing one.
+
+Checked: `clip_grounds_check` (all clear), `full_ad_check`, `quick_ad_check`,
+`buylist_check`, `motion_music_check` (seven of seven); in the browser pane, the
+preview on the neon street under a template's ad, and a frame of the exported MP4.
+
+RESUME HERE: the owner looks at a moving scene in the maker (§CB 1) and says whether
+it goes on `main` (§CB 6); then more clips (§CB 4), Any look (§CB 2).

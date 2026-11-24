@@ -250,7 +250,7 @@ TUNES.carol_bells.season = "christmas";
 TUNES.toccata.season = "halloween";
 
 // Original hooks (owner, 2026-11-19: "make more tunes, songs, or chimes we can use"; "original
-// hooks", DESIGN-LAW 170): short melodies written for these ads, so nothing is a cartoon's tune and
+// hooks", DESIGN-LAW 174): short melodies written for these ads, so nothing is a cartoon's tune and
 // nothing is anyone else's. Each was checked against the famous openings it could echo (two first
 // drafts began as "Happy Birthday" and "Mary Had a Little Lamb", and were rewritten). Every one
 // is four bars in common time, its chords under it, in the bed's key like any tune; `pair`: the
@@ -333,7 +333,7 @@ export const KITS = {
   deep_house: { prog: "lush", keys: ["synth_pluck", "epiano", "organ_b3"] },
   trance: { prog: "minor", keys: ["supersaw", "pad"] },
   nu_disco: { prog: "minor", keys: ["synth_brass", "synth_pluck", "funk_guitar", "clav"] },
-  // 2026-11-19 (owner: "I need like trailer commercial professional"; DESIGN-LAW 170): a trailer's
+  // 2026-11-19 (owner: "I need like trailer commercial professional"; DESIGN-LAW 174): a trailer's
   // bed, low strings over a pulsing synth bass, drums like taiko, a clock ticking until the hit
   trailer: { prog: "minor", keys: ["strings", "pad"] },
 };

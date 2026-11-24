@@ -130,7 +130,7 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   return harmonise(out, locked);
 }
 
-/** A trailer, not a game (catalog.js STAND_INS, DESIGN-LAW 170): a sound a shuffle may no
+/** A trailer, not a game (catalog.js STAND_INS, DESIGN-LAW 174): a sound a shuffle may no
  *  longer play gives way to a stand-in, drawn from a stream of its own (every axis takes its
  *  draws whether or not it needs them, so one axis never moves another's). After the audience
  *  and the vibe, which may set the music. A holiday's own tunes and opening sound stay. */
@@ -451,7 +451,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   // confetti"): a party popper as the number lands, when the confetti starts; never without it
   if (!locked.has("number_sfx")) {
     if (st.overlay === "confetti") st.number_sfx = "confetti";
-    else if (st.number_sfx === "confetti") st.number_sfx = st.number_in === "type" ? "ticks" : "whoosh_boom";   // a cork pop is a game's (DESIGN-LAW 170)
+    else if (st.number_sfx === "confetti") st.number_sfx = st.number_in === "type" ? "ticks" : "whoosh_boom";   // a cork pop is a game's (DESIGN-LAW 174)
   }
   if (!["hook_line", "word_beat", "strike_out"].includes(st.hook) && ["typewriter", "scramble", "drop_letters", "spin_letters"].includes(st.text_in) && !locked.has("text_in"))
     st.text_in = ["slide", "skew_slide", "slam", "wipe"][st.seed % 4];
@@ -526,11 +526,11 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (!locked.has("accent") && st.accent === "sleigh_bells" && st.season !== "christmas") st.accent = "none";
   if (st.sound_kit === "none" && !locked.has("melody")) st.melody = "none";
   // an original hook drawn by a shuffle takes its bed's mode: over a bed in the other mode it plays
-  // its twin (catalog.js HOOK_PAIR); one picked by hand plays as picked (DESIGN-LAW 170)
+  // its twin (catalog.js HOOK_PAIR); one picked by hand plays as picked (DESIGN-LAW 174)
   { const bed = KIT_MODE[(SOUND_ALIASES.sound_kit || {})[st.sound_kit] || st.sound_kit];
     if (!locked.has("melody") && HOOK_MODE[st.melody] && bed && bed !== HOOK_MODE[st.melody]) st.melody = HOOK_PAIR[st.melody]; }
   if (["bumblebee", "turkish_march", "fur_elise", "entertainer", "mountain_king"].includes(st.melody) && st.lead === "organ" && !locked.has("lead"))
-    st.lead = ["piano", "harp", "epiano", "strings"][st.seed % 4];   // no mallets (DESIGN-LAW 170)
+    st.lead = ["piano", "harp", "epiano", "strings"][st.seed % 4];   // no mallets (DESIGN-LAW 174)
   // a take that no longer fits (a shorter ad, another language, a bank that arrived late) is picked again, the same way every time
   if (!voiceFits(st)) pickVoice(st, rng(st.seed * 53 + 7), locked);
   return st;

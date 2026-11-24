@@ -30,7 +30,7 @@
    7. A trailer, not a game (owner, 2026-11-18: "like I'm playing mario kart ... I need like
       trailer commercial professional"; 2026-11-19: "pick the top ones", "most popular", "other
       genres other then lofi", "more tunes, songs, or chimes", layers in one key; DESIGN-LAW
-      170): 1000 shuffles and 300 full ads play no opening sound, no cartoon hit, no bell,
+      174): 1000 shuffles and 300 full ads play no opening sound, no cartoon hit, no bell,
       mallet, whistle or cork number sound (the popper only under confetti), no famous tune, no
       mallet lead, not the circus march or the whistle groove, no big-band jazz and no retired
       sound; an original hook only in its bed's mode; the trailer's bed in at least 180, twelve

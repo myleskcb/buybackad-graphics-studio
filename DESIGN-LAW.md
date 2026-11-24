@@ -7087,7 +7087,7 @@ failed one drew the browser's mark and its alt text across the tile, for good.
 
 Not done here: OPEN-ITEMS §BY.
 
-## 170. A video ad sounds like a trailer, not a game
+## 174. A video ad sounds like a trailer, not a game
 
 Added 2026-11-18, built out 2026-11-19. The owner, of the video ads' music
 and sound effects: "funny and cheerful but not always professional ... like
@@ -7211,3 +7211,80 @@ ticks before the rest was built.
 Heard by the owner (2026-11-19), the chimes, the hooks and the genres in the
 shuffle: "Sounds right". Every sound here was built and balanced by measure
 first; the owner's ear is the last check.
+
+## 175. A video ad may stand on a moving scene: a clip that plays under the words, read at every moment
+
+Added 2026-11-24. The owner asked for backgrounds that move (cities, devices,
+cars), made cost-effectively, as a library beside the free photographs, and
+remembered a cheap Chinese model whose name began with an h. Having seen the
+test batch behind mock ads on a review page: "Yes, build it".
+
+Measured first (the motion-ground test, 2026-11-24, fifteen clips on fal for
+$4.03). MiniMax Hailuo 02 Standard (27 cents for 6 s at 768p) kept four of five
+scenes drawn first as a square still (Seedream v4, 3 cents), and one of five
+animated library photographs: on a wide photograph it mangles the small things
+(the traffic of an aerial as red bars, towers ghosting through each other,
+people at a rail). A kept clip costs about 38 cents drawn and $1.35 from a
+photograph. Hailuo Pro (48 cents, 1080p) is sharper, and kept the aerial
+cleanest; Hailuo Fast (10 cents) takes no end frame, so it cannot loop; LTX
+(2 cents) bends its subject and comes back 3:2. Given the same picture as its
+first and last frame, a Hailuo clip comes back near its start, and its last
+0.75 s faded into its opening left every seam at 8 ordinary frame steps or
+fewer.
+
+- **The library** (`motion/clips.js`; the files in `motion/clips/`, made by
+  `scripts/build_clip_grounds.sh` from the looped clips): six clips, 7 MB
+  together. The neon street at night, the glowing circuit board, the city at
+  golden hour and the phone in a light sweep were drawn; the gold bars and the
+  Los Angeles aerial (on Pro) are library photographs. Each is an MP4 with a
+  key frame every half second and no B-frames, so a seek is quick; its first
+  frame as a picture; and a sheet of twelve moments across it (every 10th
+  frame, 256 px).
+- **A photograph that moves** (`FullAd._photoGround`): a ground_photo whose src
+  is the clip's first frame and whose clip names it, graded, framed and pushed
+  in on as a photograph is (rule 161). A duotone or a tint is laid into a picture
+  once, so a clip is graded instead. Every path that draws a still (the gallery,
+  the audit, the plan, the pre-flight) draws the first frame.
+- **Where a clip may stand**, tagged as a photograph is: a scene goes with any
+  goods; the gold bars only behind gold; the phone, a drawn phone of no model
+  you can name, only by hand (a photograph of goods stands behind its own,
+  rule 161); the city at golden hour (drawn, but palm-lined) and the aerial only
+  for Los Angeles; the neon street never behind a car. A clip with a strong
+  colour only under a pair of its family (rule 139).
+- **Light words only.** The clips are night streets, glows and lit cities; under
+  dark words the grade washes them milky (the neon street on a template's
+  bone-and-purple colours). A seed draws one only under light words; a scene
+  picked in the maker takes a pair with light words, lets a template's
+  dark-word colours go and says so, and wears no video look (rule 158) over it,
+  whose palette may have dark words.
+- **How often**: picked in the maker's Background panel (Stands on: A moving
+  scene; Moving scene: Any that suits, or one), or drawn by New look in the video
+  maker for 30% of the seeds a clip fits (`CLIP_SHARE`): 6.0% of iPhone ads in
+  Long Beach. A still made anywhere else never stands on one (fullStyle's
+  `opts.moving`, given by the maker alone), and every seed that draws no clip
+  draws the ground and colours it drew before (279 of 279).
+- **Read at every moment.** `_evenGround` reads the still and the sheet's twelve
+  moments (`_clipLooks`) and evens where the worst moment is under the bar.
+  Read on the sheet, a small bright speck is softer than on the clip's own frame
+  (the neon street under a call to action: 5.50:1 on the sheet, 4.40:1 on the
+  frame; 384 px tiles read 5.33:1), so a sheet's reading is divided by its
+  measured gap (`SHEET_KIND`, 1.25). Judged on the first frame alone, the gold
+  bars' headline fell to 2.1 to 3.0:1 as the flare passed under it; read at every
+  moment, 10.5 to 11.2:1.
+- **Played, and exported frame by frame.** The preview plays one player a clip
+  under the ad on screen (`attachClip`, `followClip`). The MP4 export seeks a
+  player of its own to each frame's moment before drawing it (`prepareExport`,
+  `prepareFrame`, `endExport`): a seek lands on its exact frame in about 5 ms
+  (360 seeks in 1.8 to 2.6 s for a 15 s ad), and a 6 s square took 3.4 s against
+  1.7 s on a still photograph. The real-time recorder plays its own; the photo
+  that goes with a video is drawn on the clip at its own moment.
+
+**Checked** by `scripts/clip_grounds_check.mjs` (it needs a server that answers
+byte ranges, as a video's seek does: `.motion-test/serve.mjs` does, Python's
+http.server does not): who draws a clip; 78 ads, every line on its ground read
+at 24 moments of the clip itself, the closest 1.19 times its bar; a 6 s MP4 read
+back, its ground moving under the words; the maker's panel and preview.
+
+Not done: the looks under Any look (the plain engine) have no moving ground; a
+story or a wide frame crops the square clip (a story shows its middle 56%, at
+2.5 times), softer than a square.

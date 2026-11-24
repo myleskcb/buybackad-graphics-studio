@@ -550,7 +550,7 @@ export const OPTIONS = {
   sound_kit: ["uplift", "house", "hiphop", "lofi", "minimal", "cinematic",
     "reggaeton", "jersey_club", "drill", "phonk", "baile_funk", "amapiano", "cumbia", "disco", "uk_garage", "swing", "epic", "march", "bossa",
     "pop", "rnb", "motown", "gospel", "classical", "synthwave", "gfunk", "future_bass", "deep_house", "trance", "nu_disco", "none",
-    // 2026-11-19 (DESIGN-LAW 170): a trailer's pulse, drums and low strings, last so every earlier look draws as it did
+    // 2026-11-19 (DESIGN-LAW 174): a trailer's pulse, drums and low strings, last so every earlier look draws as it did
     "trailer"],
   // braam (2026-11-19): a trailer's brass blast, last for the same reason
   hit: ["impact", "riser", "cymbal", "bass_drop", "gong", "timpani", "whip", "anvil", "crash", "swell", "orchestra", "braam"],
@@ -696,7 +696,7 @@ export const WEIGHTS = {
   // keeps its kit, tune and instrument (a recording, drawn late, may play in their place).
   // One number here puts any of them in the shuffle, and changes the kit, tune or
   // instrument of the looks that land on it.
-  // Trailer, not a game (DESIGN-LAW 170): the cartoon and game sounds keep their weight here,
+  // Trailer, not a game (DESIGN-LAW 174): the cartoon and game sounds keep their weight here,
   // so every look number draws what it always drew, and a shuffle that lands on one plays a
   // stand-in instead (STAND_INS, below). The trailer's own sounds (2026-11-19) weigh nothing
   // here: they come in as stand-ins.
@@ -764,7 +764,7 @@ export const SOUND_ALIASES = {
   number_sfx: { coin: "whoosh_ding", pop: "whoosh_boom", chime: "whoosh_ding", shave_haircut: "tick_boom", bells: "whoosh_ding", triangle: "whoosh_ding",
     glock_run: "whoosh_boom", harp_gliss: "whoosh_boom", whistle: "tick_boom", text_ding: "whoosh_ding", phone_buzz: "tick_boom" },
   // The most popular kept, the weirder retired (owner, 2026-11-19, of the sound menus: "take out the
-  // weirder instruments and openers.. pick the top ones", "most popular"; DESIGN-LAW 170): the
+  // weirder instruments and openers.. pick the top ones", "most popular"; DESIGN-LAW 174): the
   // novelty hits and number sounds above, these opening sounds and these instruments for a tune
   accent: { air_horn: "none", siren: "none", whistle: "none", vibraslap: "none", bell_tree: "none" },
   lead: { marimba: "vibes", xylophone: "vibes", glock: "vibes", balafon: "vibes", kalimba: "harp", strumstick: "guitar", harmonica: "sax",
@@ -791,7 +791,7 @@ export const KIT_MODE = { uplift: "major", lofi: "major", house: "minor", hiphop
 // A trailer, not a game (owner, 2026-11-18: "funny and cheerful but not always professional",
 // "like I'm playing mario kart", "I need like trailer commercial professional"; 2026-11-19, of
 // building a trailer's sounds, dropping the jazz and evening the number sound: "best suggestion
-// works"; DESIGN-LAW 170). A shuffle that lands on a sound in `gone` plays one drawn from `to`
+// works"; DESIGN-LAW 174). A shuffle that lands on a sound in `gone` plays one drawn from `to`
 // (engine.js standIns, on a stream of its own): every look number that drew anything else keeps
 // it, and the stand-ins share out as set here, not as the options happen to sit in the list.
 // Every sound in `gone` is still offered by hand, and a holiday ad keeps its own tunes and
