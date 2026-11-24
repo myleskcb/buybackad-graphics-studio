@@ -7051,7 +7051,43 @@ Added 2026-11-19. The owner: "apple and google sign in ?". The buttons became th
 
 Not done here: OPEN-ITEMS §BV.
 
-## 169. No real card art and no credited photograph on a card ad; the 2026 phones painted; Spanish ads in Spanish
+
+## 169. A picture that does not arrive is never shown broken
+
+Added 2026-11-23. The owner, of wall tiles showing the browser's broken-picture mark and their alt
+text ("MacBooks (full ad, look 8) template"): "Can you fix this so our final product doesn't have
+this issue".
+
+What he saw was a preview page whose server had been stopped before its late pictures were asked
+for; the live site loaded all 36. But any picture can fail on its way to a visitor: a dropped
+request on a phone, a tab left open across a deploy, a still missing from a build. Until now a
+failed one drew the browser's mark and its alt text across the tile, for good.
+
+- **Only a picture that has arrived is seen.** A wall picture is clear until it has loaded
+  (`app.js scWallWatch`), so a slow or failed one is its tile's own quiet surface, in every browser
+  (Firefox writes alt text into a picture still on its way). `landing.css` only fades it in. The
+  landing's library pictures are clear until loaded too (`scCard`, 2026-11-24): run against the
+  live site, the check caught a failed one painting its mark for the moment before its error event
+  was handled.
+- **It is asked for again.** `pictureWatch` hides a picture the moment it fails and asks again
+  after 1.5 s and 5 s. Most failures are a dropped request, and the second ask brings it.
+- **A tile whose picture never comes leaves.** On the wall its card goes in both copies of its
+  column, so the loop stays whole: one tile fewer, nothing broken, nothing missing to the eye. In
+  the landing's library its card steps out of the grid (`scCard`).
+- **It comes back when it can.** When the browser is back online, the tab is shown again or the
+  page returns from the browser's page cache, a lost picture is asked for once more, and its tile
+  returns if it comes.
+- **Set on the picture, never in a stylesheet.** Hiding and showing are inline styles from the one
+  script. A visitor holding an old `app.js` and a new `landing.css` (or the other way) must never
+  be left with a rule that hides pictures and no script to show them.
+- **Held by** `scripts/wall_pictures_check.mjs`: the landing with pictures made to fail (dropped
+  for six seconds; gone for good; then back), a sampler in the page looking ten times a second for
+  a failed picture in sight. It also fails when any wall picture does not load with nothing made to
+  fail, which is how a still missing from a build is caught before a visitor finds it.
+
+Not done here: OPEN-ITEMS §BY.
+
+## 170. No real card art and no credited photograph on a card ad; the 2026 phones painted; Spanish ads in Spanish
 
 Added 2026-11-23. The owner, of the four things left open on 2026-11-22 (the 2026 Samsung and Pixel
 pictures, the Spanish selling points, the first-guess weights, the credited Charizard): "CAN WE FIX ALL 4".
@@ -7086,7 +7122,7 @@ pictures, the Spanish selling points, the first-guess weights, the credited Char
   owner's More, Less, Same or Never in the page's own store (`tuning/choices`); the weights in
   `spec/full-grounds.json`, `PHOTO_TREAT_SHARES` and `POINT_COUNTS` follow it.
 
-## 170. Card ads in a collector's voice; Spanish ads in Spanish from the headline down; the goods recognisable; grounds that read
+## 171. Card ads in a collector's voice; Spanish ads in Spanish from the headline down; the goods recognisable; grounds that read
 
 Added 2026-11-23. The owner, reviewing the gallery: the sports-card ad "this ad no good", "the copy on the sports
 cards is just kind of bad ... we're aliens trying to appeal to a collector that would easily see through this type of
@@ -7094,7 +7130,7 @@ ad ... Cards are screaming scalper"; the painted cards "look like energy Pokémo
 box of something generic just doesn't look real"; the cars' road "a pretty odd road photo", the trucks' tread "maybe a
 more recognizable tire pattern"; Product wall, close-up and echo "getting a bit lost in translation"; the turned phones
 "look rather flat ... going a few degrees less so you can see more Phone". Five audits (pictures twice, grounds, words,
-image rights) read every line first; their findings are OPEN-ITEMS §BZ.
+image rights) read every line first; their findings are OPEN-ITEMS §CA.
 
 - **A card seller is a collector, or a collector's family.** The card lines draw their own points (`motion/full-points.js`
   KINDS.cards: one card or a lot, whole collections, graded or raw, card by card, you decide, any era) and say the shared

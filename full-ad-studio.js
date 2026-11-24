@@ -117,6 +117,12 @@ function whereNow() {
   return (towns.length ? [...new Set(home ? [home, ...towns] : towns)].slice(0, 3) : home ? [home] : []).join(" • ");
 }
 
+/** The area as the engine places it (motion/metros.js metroOf): the ZIP, then the home town. */
+function areaNow() {
+  let a = null; try { a = typeof getArea === "function" ? getArea() : null; } catch (e) { /* none */ }
+  return a ? [a.zip, a.home].filter(Boolean).join(" · ") : "";
+}
+
 /** The style the engine draws: the visitor's words over the line's own, the house style locked. */
 function styleNow(S, ids, set, size, R = recipeNow()) {
   const iph = S.key === "iphone", w = FA.words[S.key] || {}, rw = (R && R.words) || {}, own = !!(R && R.pictures && R.pictures.length);
@@ -139,6 +145,11 @@ function styleNow(S, ids, set, size, R = recipeNow()) {
   if (R && R.ground_photo) base.ground_hint = { ...R.ground_photo };
   if (R && R.hint) base.hint = R.hint;
   const where = whereNow(); if (where) base.feed_where = where;
+  /* the area the photograph is chosen by (fullad.js groundFor: metroOf(st.area); 2026-11-22, "when the area is one of
+     the 20 biggest US metros, the photograph is usually of that city... a photograph tagged with another place never
+     stands behind your ad"). Only the video maker passed it: no full ad from Easy Mode stood on its own city, and the
+     Golden Gate stood behind Long Beach ads (2026-11-23). The ZIP first, the engine's surest key, then the town. */
+  const area = areaNow(); if (area) base.area = area;
   // a typed business name takes the badge over a library design's claim (the full ad's own rule); typed words over both
   if (up(w.claim)) base.feed_claim = up(w.claim); else if (up(rw.claim) && !String(FA.biz || "").trim()) base.feed_claim = up(rw.claim);
   if (up(w.burst) || up(rw.burst)) base.feed_burst = up(w.burst) || up(rw.burst);

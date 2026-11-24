@@ -4613,7 +4613,7 @@ Open:
    photograph, `assets/cutouts/ATTRIBUTION.json`): that licence asks for a credit on the ad, and the
    card's art is the maker's. Rule 161 holds new ad photographs to public domain or CC0. It still has
    weight 6 of the Pokémon pool; the owner's call whether it stays.
-   **Done 2026-11-23 (DESIGN-LAW 169):** retired with the two Charizard ground photographs; see §BY.
+   **Done 2026-11-23 (DESIGN-LAW 170):** retired with the two Charizard ground photographs; see §BZ.
 3. **Still to build from the list:** textures and materials (about 40 CC0 photographs, about 25 MB:
    needs the owner's go-ahead to download), space (NASA photographs are public domain, about 30, about
    20 MB, plus painted ones; most are dark, so under a duotone or wash), the area drawn as a map from
@@ -4639,7 +4639,7 @@ Open:
    lawyer: a player's face in a paid ad is his likeness.
 7. **Selling points vary** (DESIGN-LAW 164, done 2026-11-22): two to four per ad, drawn from each
    line's own promises and any buyer's, each said several ways. Spanish ads still draw the old
-   three from the catalogue's Spanish list; a Spanish pool is next. **Done 2026-11-23** (§BY).
+   three from the catalogue's Spanish list; a Spanish pool is next. **Done 2026-11-23** (§BZ).
 8. **The iPhone mix, by the owner's word** (done 2026-11-22): the 17 Pro Max pushed hardest, the 16
    Pro Max (the shop's best seller) close behind, the 18 Pro Max present and to grow; the colourful
    base and Plus models of 14 to 17 about a third of the draw. The iPhone 16 Plus has no render in
@@ -4656,7 +4656,7 @@ Open:
    devices. The owner's site is Apple only. Ways in: the shop's own photographs of the Samsung and
    Pixel phones it buys (cut out by the existing scripts), stock bought with ad rights, or the fal
    model drawing from a real photograph as its reference (scripts/bggen_entities.py), read by eye.
-   **Done 2026-11-23, painted** (§BY): seventeen 2026 Galaxy and Pixel pictures in code.
+   **Done 2026-11-23, painted** (§BZ): seventeen 2026 Galaxy and Pixel pictures in code.
 
 ## BX. 2026-11-23 — WeBuy.AD everywhere, the old domains dropped, mail, and what the site still needs
 
@@ -4693,29 +4693,78 @@ ai, google false, billing (test mode).
 |---|---|---|
 | Accounts, operators | live | none |
 | AI backgrounds | live (fal) | optional: a `GEMINI_KEY` as the fallback; the old project has one, webuy.ad's has none. The owner pastes it |
-| Billing | on, **test mode** | the owner: Stripe live keys (`sk_live`, `pk_live`) into the project's variables, a deploy, then Plan & billing → Set up prices, webhook and wallets now (the webhook and Apple Pay domain move to webuy.ad). In Stripe: public business name WeBuy.AD, support email support@webuy.ad, receipts on |
+| Billing | **live, 2026-11-23**, on the iPhones.LA Stripe account (WeBuy.AD has no registered business yet). Its own standard key, "WeBuy.AD website", is `STRIPE_SECRET` for Production only; previews keep test keys. The operator setup made 8 live prices, the webhook at https://webuy.ad/api/stripe-webhook and Apple Pay on webuy.ad | the owner's choice later: a WeBuy.AD Stripe account (a sole proprietor can open one; trading as WeBuy.AD in California usually needs a fictitious business name). Moving paying subscribers then is a migration |
+| What buyers see of the shared account | Stripe's form, the Apple Pay and Google Pay sheet, receipts and invoices and the billing portal say iPhones.LA; the card statement is the account's prefix then `WEBUY.AD` (`STATEMENT_SUFFIX`: a pack's payment, a plan's product) | the test-mode products are still named Graphics Studio Pro and Business (made 2026-10-11); live ones are WeBuy.AD |
 | `SITE_URL` | not set, not needed | Netlify's `URL` is the primary domain, https://webuy.ad |
-| Google sign-in | off | the owner: a Google Cloud OAuth client (Web, origin https://webuy.ad, consent screen named WeBuy.AD); its client ID into `GOOGLE_CLIENT_ID` |
+| Google sign-in | **live, 2026-11-23**: Google Cloud project `webuy-ad` (myleskcb@gmail.com), app WeBuy.AD in production, External, client "WeBuy.AD website" for https://webuy.ad and https://www.webuy.ad; `GOOGLE_CLIENT_ID` set; the owner's own sign-in by Google opened the operator account | Apple: `docs/SIGN-IN-SETUP.md` |
 | Mail in | live | none |
 | Mail out | none: no password reset, no address check | a build: a mail provider, its DNS records at Namecheap, and the reset flow |
-| Search | not set up | the owner: Search Console, Domain property webuy.ad (a TXT record at Namecheap), submit https://webuy.ad/sitemap.xml; Bing can import it |
-| Analytics | none | the owner's choice of tool; the CSP and the privacy policy change with it |
-| Legal pages | live; WeBuy.AD once this branch is on `main` | none |
+| Search | **Search Console verified 2026-11-23** (Domain property webuy.ad, myleskcb@gmail.com, TXT `google-site-verification` at Namecheap); https://webuy.ad/sitemap.xml submitted ("Couldn't fetch" on the first day; the file answers 200) | Bing Webmaster Tools can import from Search Console |
+| Analytics | **Cloudflare Web Analytics, live 2026-11-23** (195b5f1d): site webuy.ad in myleskcb@gmail.com's Cloudflare account, beside iphones.la and reselling.us; the beacon on the 26 public pages, its two CSP entries, the privacy row. No cookies | none |
+| Legal pages | live as WeBuy.AD | none |
 
 Open:
-1. **This branch is not on `main`** until the owner says so; the push deploys webuy.ad.
+1. On `main` and live (94bd8bff, then edee1d1b with the shared-account billing).
+   The webhook hears every sale of the iPhones.LA account: only a session naming one of the
+   site's plans or packs, or a subscription to one of its plans, touches an account here
+   (`ownSession`, `ownSubscription`; billing_check fails on the old code).
 2. **The old project still serves iPhones LA.** iphones.la's CORS door answers 204 only for
    `https://buybackad-graphics-studio.netlify.app` (400 for webuy.ad and finished-copy), and
    iPhones LA's code names it as `DEFAULT_STUDIO_URL` with no webuy.ad in `STUDIO_SITES`. The
    owner chose iPhones LA first; the redirect waits (OPERATIONS, "Retiring the old project").
-3. **Chrome's Netlify login is myleskcb@gmail.com (team KCB)** since this session, which switched
-   it to reach the old project; webuy.ad's settings need the myleskcb2 login again.
+3. Chrome's Netlify login is myleskcb2 again (webuy.ad's team); the old project needs the
+   myleskcb@gmail.com login.
+6. **Two secrets passed through the session's screen reads**: the Google client's secret (the
+   site does not use it) and the new live Stripe key's value in Stripe's one-time dialog. Neither
+   was copied anywhere. Rolling both is the safe move: Google Cloud → Clients → WeBuy.AD website
+   (the site needs only the client ID), and Stripe → API keys → WeBuy.AD website → Roll, then the
+   new value into Netlify's STRIPE_SECRET (Production) and a deploy.
 4. `assets/og/og-card.jpg` and `assets/og/buybackad-og.jpg` still draw the old name; no page links
    them (the share card is `assets/brand/share-card.jpg`).
 5. This Mac has no Netlify CLI and no CLI login (the brief said otherwise); the old project's
    last deploy is a CLI deploy of 2026-10-07.
 
-## BY. 2026-11-23 — the four left open: no real Charizard, the 2026 phones, Spanish points, the owner's shares (DESIGN-LAW 169)
+## BY. 2026-11-23 — a picture that does not arrive is never shown broken (DESIGN-LAW 169)
+
+The owner, of a screenshot of the wall with six tiles showing the browser's broken-picture mark and
+their alt text: "Can you fix this so our final product doesn't have this issue".
+
+Found: the screenshot was the browser pane's preview tab (localhost:8961, opened for the sign-in
+check), whose server had been stopped. The wall's late pictures are asked for only once the wall
+is in, and the wall comes in on an animation frame, which a hidden tab never gets; shown again
+after the server had gone, it asked for twelve pictures and got none. The live site loaded 36 of 36
+at desktop and phone widths. Nothing was missing from the build.
+
+Done:
+- `app.js`: `pictureWatch` (hide on failure, ask again at 1.5 s and 5 s, then let the tile leave;
+  ask once more when the connection, the tab or the page cache returns), `scWallWatch` (a wall
+  picture is clear until it has loaded; a lost one's card leaves in both copies of its column), and
+  the same watch on the landing's library cards (`scCard`).
+- `landing.css`: a wall picture fades in when it arrives.
+- `scripts/wall_pictures_check.mjs` (22 cases). Run against the code before this change it fails
+  12, with the same alt text in sight that the screenshot shows.
+- 2026-11-24, after pull request 23 went live: the check run against webuy.ad passed the wall but
+  caught a failed library picture in sight (21 of 22), for the moment between its failure and its
+  error event. A library picture was visible while loading; the wall's never was. `scCard` now keeps
+  it clear until it has loaded. The check gained a case (a loaded library picture must be seen):
+  23 of 23, five runs on the live site with the new `app.js`.
+
+Open:
+1. A column that loses three or more of its six cards is shorter than the stage, so a gap passes
+   once in its loop. It takes half a column's pictures failing for good. Drawing the wall again
+   from the cards that are left would close it.
+2. The watch is on the wall and the landing's library. Other pictures a visitor loads from the
+   server (the studio's background and photo pickers, the video maker's posters, the business
+   cards' grounds) still show the browser's mark if one fails. The same `pictureWatch` fits them.
+3. `scripts/landing_check.mjs` was not run here: it needs `puppeteer-core`, which this worktree
+   does not have. `hero_wall_check` passes.
+5. `full_ad_studio_check` fails one case on `main` (7ead02be), with or without this change: "earbuds
+   landscape: Something on the ad runs to the edge of the picture". It is the full ad's, not the
+   wall's; passed to the session that owns the full ad's looks.
+4. When a preview server is stopped, its tab in the browser pane should be closed with it: the
+   owner reads that pane as the product.
+
+## BZ. 2026-11-23 — the four left open: no real Charizard, the 2026 phones, Spanish points, the owner's shares (DESIGN-LAW 170)
 
 (claude/full-ad-looks-layout, after §BW. The owner: "CAN WE FIX ALL 4".)
 
@@ -4748,11 +4797,11 @@ Open:
 4. The painted phones are close to each line's 2026 shape but drawn: the shop's own photographs of the
    Galaxy and Pixel phones it buys would replace them one for one.
 
-## BZ. 2026-11-23 — card copy, Spanish headlines, the goods, the grounds (DESIGN-LAW 170)
+## CA. 2026-11-23 — card copy, Spanish headlines, the goods, the grounds (DESIGN-LAW 171)
 
 (claude/full-ad-looks-layout, after `main` was merged in. The owner's review of the gallery; five read-only audits.)
 
-Done: see DESIGN-LAW 170.
+Done: see DESIGN-LAW 171.
 
 Open:
 1. **Real card pictures: the owner's decision.** No painted card can read as one that trades: what makes a card

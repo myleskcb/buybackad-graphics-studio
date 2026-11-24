@@ -57,6 +57,7 @@
     <tr><td>Google</td><td>AI image generation (Gemini, the fallback), Google sign-in if you use it, Google Fonts</td><td>The same as fal.ai for generation; your Google sign-in token if you use it; IP address for fonts</td></tr>
     <tr><td>Apple</td><td>Sign in with Apple, if you use it</td><td>Your Apple sign-in token, which carries the email and the name you choose to share</td></tr>
     <tr><td>Cloudflare (cdnjs), jsDelivr, unpkg</td><td>Deliver code libraries the studio loads</td><td>IP address, like any website request</td></tr>
+    <tr><td>Cloudflare Web Analytics</td><td>Counts page visits and how fast pages load, with no cookies</td><td>The page address, the page you came from, your browser and device type, and the country worked out from your IP address; Cloudflare says it does not fingerprint visitors or build profiles</td></tr>
   </table>
   <p>iPhones.LA and SCANS.AD receive data only when you use their links, as described above.</p>
 
@@ -67,7 +68,7 @@
   <p>We do not sell your data, share it for cross-context behavioural advertising, run third-party advertising trackers, or read the ads you make. We do not use your content or your prompts to train AI models.</p>
 
   <h2>Cookies and local storage</h2>
-  <p>The studio uses your browser&rsquo;s local storage to keep you signed in and to save your work on your device. We do not use advertising or analytics cookies. Stripe&rsquo;s payment form sets its own cookies for fraud prevention when you check out.</p>
+  <p>The studio uses your browser&rsquo;s local storage to keep you signed in and to save your work on your device. We do not use advertising or analytics cookies: page visits are counted by Cloudflare Web Analytics, which sets none. Stripe&rsquo;s payment form sets its own cookies for fraud prevention when you check out.</p>
 
   <h2>How long we keep it</h2>
   <ul class="tidy">
@@ -107,5 +108,7 @@
   <a href="privacy.html">Privacy</a>
   <span>&copy; 2026 WeBuy.AD</span>
 </footer>
+<!-- Cloudflare Web Analytics (privacy.html, "The services we use"): page visits and load times, no cookies -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "2315e63735b243f28ef4c80f1dd52673"}'></script>
 </body>
 </html>

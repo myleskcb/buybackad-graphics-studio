@@ -6715,9 +6715,20 @@ Found:
   - CSS_FALLBACK was stale on `main`; any styles.css edit (comments too) means
     `node scripts/sync_css_fallback.mjs`, and again after merging `main`.
 
+Later the same day: Search Console verified, Google sign-in live, billing live on the shared
+iPhones.LA Stripe account, Cloudflare Web Analytics live (§BX's table).
+  - A shared Stripe account sends its other sales to this webhook. An iPhones.LA subscription
+    bought with a WeBuy.AD customer's email read as Free and would have ended a paid plan: the
+    handler now acts only on the site's own plans and packs.
+  - Screen reads carry secrets: `find` returned a copy button's label holding Google's client
+    secret, and a screenshot showed Stripe's one-time key. On a page that shows a secret, read with
+    a filtered script or not at all, and let the owner copy it.
+  - Stripe can make a second standard secret key per account, named, so a site gets its own key
+    and the account's main key is never rolled under another business.
+
 RESUME HERE:
-  0. OPEN-ITEMS §BX, Open 1 and 2: this branch onto `main` with the owner's OK; iPhones LA to
-     accept webuy.ad, then the old project's redirect.
+  0. OPEN-ITEMS §BX, Open 2 and 6: iPhones LA to accept webuy.ad, then the old project's
+     redirect; the two secrets the session saw, rolled.
 
 ## 2026-11-23 (night) — the sign-in buttons in the window's own look (DESIGN-LAW 168; claude/google-button-blend)
 
@@ -6745,7 +6756,7 @@ a dark page); `billing_check` 176 of 177, the same fabric.js failure as before.
 RESUME HERE: the owner presses "Continue with Google" once on webuy.ad (§BV 4; automation can't open
 the popup), then Apple's Services ID (§BV 1).
 
-## 2026-11-23 — the four left open (DESIGN-LAW 169; OPEN-ITEMS BY)
+## 2026-11-23 — the four left open (DESIGN-LAW 170; OPEN-ITEMS BZ)
 
 The owner: "CAN WE FIX ALL 4" (2026 Samsung and Pixel pictures, Spanish points, the first-guess
 weights, the credited Charizard).
@@ -6765,9 +6776,9 @@ Found:
     into the ignored node_modules) ran rethumb_showcase.mjs unchanged.
   - Almost 400 other cut-outs (nearly every car) are CC BY or CC BY-SA: the same credit question, open.
 
-RESUME HERE: OPEN-ITEMS §BY 1 (read the owner's choices from the gallery and set the shares), then 2.
+RESUME HERE: OPEN-ITEMS §BZ 1 (read the owner's choices from the gallery and set the shares), then 2.
 
-## 2026-11-23 — card copy, Spanish headlines, the goods, the grounds (DESIGN-LAW 170; OPEN-ITEMS BZ)
+## 2026-11-23 — card copy, Spanish headlines, the goods, the grounds (DESIGN-LAW 171; OPEN-ITEMS CA)
 
 Asked: push to PR 18 (already merged: `main` merged in here instead, 24 commits, three documents by hand); then the
 owner's review of the gallery: card ads "screaming scalper", the painted cards, road and tread, the product looks, the
@@ -6786,4 +6797,112 @@ Found:
     rewrite someone's live ads to pass a check.
   - A sticker breaks on spaces: its longest word, not its length, sets its size.
 
-RESUME HERE: OPEN-ITEMS §BZ 1 (the owner's decision on real card pictures), 5 (motion), then §BY 1.
+RESUME HERE: OPEN-ITEMS §CA 1 (the owner's decision on real card pictures), 5 (motion), then §BZ 1.
+## 2026-11-23 (late night) — a picture that does not arrive is never shown broken (DESIGN-LAW 169; claude/wall-tiles-never-broken)
+
+Asked, with a screenshot of the wall: "Can you fix this so our final product doesn't have this
+issue". Six tiles showed the browser's broken-picture mark and their alt text.
+
+Found: the screenshot was this session's own preview tab, left open in the browser pane after its
+server was stopped. The wall asks for its late pictures only once it is in, and it comes in on an
+animation frame; a hidden tab gets none, so the asking waited until the owner looked, by which
+time the server was gone. The live site was whole (36 of 36, two widths). So the fault he saw was
+mine to cause, and the product's to survive: nothing stood between a failed picture and the
+browser's mark.
+
+Done: `pictureWatch` and `scWallWatch` in `app.js`, the watch on the library's cards, a fade in
+`landing.css`, and `scripts/wall_pictures_check.mjs`.
+
+Found on the way: the first draft hid wall pictures with a stylesheet rule and showed them with a
+class from the script. A visitor with a cached `app.js` and a fresh `landing.css` would have had an
+invisible wall. Hiding and showing moved onto the picture itself. And two library cards can share a
+name in different colours, so the check finds a card by its picture.
+
+Checked: `wall_pictures_check` 22 of 22, three runs (12 of the 22 fail on the code before);
+`hero_wall_check` passes; `social_signin_check` 33 of 33 (the entry above says 34: a miscount, it
+has 33 cases); `billing_check` 179 of 180, the same fabric.js failure as before. `landing_check` not
+run (no `puppeteer-core` here). `full_ad_studio_check` 29 of 30: "earbuds landscape" runs to the
+edge, on `main` too with this change taken out, so it came with the full ad's own work.
+
+The check's own first draft dropped pictures "for six seconds" by the clock; on a busy machine the
+page took longer than that to come in and the pictures were let through before it looked. It now
+drops them until it says otherwise.
+
+RESUME HERE: the owner's OK to merge; then §BY 1 and 2 if he wants the rest of the site watched too.
+
+  0. OPEN-ITEMS §BX, Open 1 and 2: this branch onto `main` with the owner's OK; iPhones LA to
+     accept webuy.ad, then the old project's redirect.
+
+## 2026-11-24 — the newest designs on the site; the text banner as iOS 27 draws it; the video maker as a design tool (claude/site-newest-designs, local)
+
+Asked (the owner, after pull request 15's landing was turned down): "audit and push the newest designs",
+"still don't see the latest design ads... we make site changes and then ad changes but only the newest
+site changes ever reflect", sample numbers on the ads ("Why do we have to put the 999?"), the hero's text
+"1:1 to ios notification and app icon/ styling" ("a little too opaque or dark?"). Then, of the video
+maker: "Panning across a video and zooming in and losing quality is not how we're gonna gain clients",
+"this giant watermark... could be a little less frequent", "a button that says view in marketplace feed",
+"generate title generate description should be a feature for pro users for the higher Tier", "It's a
+graphic design tool. We need to make it resemble that", "where is the asset library?", "it doesn't help
+you make the ads generated in the hero".
+
+Done (nothing pushed; the owner approves before `main`):
+  - Stills follow the engine (scripts/engine_stamp.mjs): the library's 665 and the wall's 18 drawn again,
+    each on a 555-01xx sample number; the builders name the four ground families of 2026-11-22.
+  - Easy Mode's full ad passes the area to the engine (full-ad-studio.js areaNow): city photographs, and
+    no Golden Gate behind a Long Beach ad.
+  - The landing: the banner measured off the iOS 27 simulator (386 x 79 pt, 15 pt semibold over 15 pt,
+    the Messages icon drawn from its measured geometry, light glass fitted to 8 of 255 over the same
+    frame of the wall, the arrival out of the island at 60 fps); format-detection off (Safari made the
+    555s call links); the library leads with photograph, gradient and pattern grounds; a wall proposal
+    (four swaps, hero_wall_check holds).
+  - The video maker: templates first (the home page's 18 ads), a toolbar, six numbered steps beside the
+    ad (Look, Words, Style, Media, Listing, Check), its sizes under it, one Download menu, the attention
+    check off the page, Quick ad as Listing (written for you on Pro and Business), View in Marketplace
+    feed, every camera still (no pan or zoom), the watermark about 2.4 times sparser.
+
+Found:
+  - A still goes stale when the engine that draws it moves, not only its recipe: stamp the engine.
+  - The engine's camera moves (and four openings) drew the finished frame as one picture and scaled it
+    up, 2% to 110%: soft words and phones. Lay out and draw at 1:1.
+  - pages.css caps every `main` without `.wide` at 760 px: a workspace page needs the class.
+  - `xcrun simctl push <udid> com.apple.MobileSMS msg.apns` draws a real Messages banner about 7 s
+    later, and `simctl io recordVideo` catches it at 60 fps: the reference for anything that imitates
+    iOS, measured, not remembered. A Playwright harness over the same frame fits a CSS glass to it.
+  - The disk filled twice (ENOSPC) while simulators were up: they and swap take gigabytes; the stills
+    take 15 MB.
+  - Checks: quick_ad_check and buylist_check pass; watermark_check all clear; full_ad_studio_check fails only the
+    earbuds-landscape edge it failed before this branch; build_recipe_stills and build_hero_stills --check pass, the
+    still-camera redraw byte for byte the same. typing_pause_check passes at a load average of 15; at 100 to 650
+    (other sessions' browsers and simulators) its timed presses could not be staged. Two things of this branch it
+    caught: the checks' layout had the looks first and in view, drawing two dozen while it typed (last now), and
+    Back's label split off for the phones took the press from the button (pointer-events: none on it).
+  - "Self condensing but legible at all level": three pages at eleven widths, 320 to 1920 (no sideways scroll,
+    nothing off the screen, no words under 12 px). The landing's bar ran its buttons off the edge from 1010 to
+    1440; its gaps close with the window now and its links give way least needed first.
+
+RESUME HERE:
+  1. The owner's look at the landing preview and the maker, then this branch onto `main` (a push deploys).
+  2. The logo: the owner liked D (the tag, lowercase "webuy.ad"); tools/brand/logo-d-2026-11-23.html shows it in
+     three cases with the app icon carrying the word under the tag. Waiting on the pick.
+  3. Open: the engine's photo pools still draw assets/bg-web (CC BY/BY-SA, ruled out 2026-11-21) and
+     Golden Gate wallpapers wherever no metro is known; two LA photographs are of Griffith Observatory and
+     one of the Santa Monica pier sign; "Pasadena" alone resolves to Houston (metros.js); the studio's
+     template default number is still (562) 999-4994; full_ad_studio_check's earbuds-landscape edge
+     failure is older than this branch; the founder's WhatsApp on the landing goes public with the merge.
+
+## 2026-11-24 — the library's pictures, clear until loaded (DESIGN-LAW 169; claude/library-pictures-clear)
+
+Pull request 23 went live, and `wall_pictures_check` was run against webuy.ad itself. The wall
+passed every case. The library failed one: a picture made to fail was caught in sight, for the
+moment between the request failing and the error event reaching `pictureWatch`. Locally the gap
+never showed; the live page is busier, and the sampler's timer ran inside it. The wall had no such
+gap because its pictures are clear until they load. The library's now are too (`scCard`), which
+also keeps Firefox from writing alt text into a card still loading.
+
+Checked: 23 of 23, five runs, on webuy.ad with the new `app.js` served in its place (page.route),
+so the test met the live site's own timing. The new case: every library picture that has loaded is
+seen (16 of 16).
+
+Lesson: run a new check against the live site after it ships, not only the local server. The race
+it found exists only at the live site's pace.
+

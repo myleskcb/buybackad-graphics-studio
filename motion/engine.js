@@ -1397,7 +1397,8 @@ function landedOutline(p) {
 // How far each camera has pushed in by the time the number is on screen (from about
 // one second in); the phones it draws bigger must still clear the number.
 const SETTLE_ZOOM = { push_in: 1.05, push_out: 1.07, still: 1, drift: 1.06, punch: 1.02, tilt: 1.06, whip_in: 1.04, handheld: 1.06 };
-const settleZoom = st => (SETTLE_ZOOM[st.camera] ?? 1.08) * (st.urgency === "beat_pump" ? 1.023 : 1);
+// every look is still (Ad's constructor, 2026-11-23): the camera "still" settles at 1, with no beat pump
+const settleZoom = st => SETTLE_ZOOM[st.camera] ?? 1;
 const onCamera = (P, W, H, z) => P.map(([x, y]) => [W / 2 + (x - W / 2) * z, H / 2 + (y - H / 2) * z]);
 // The phones may stand no smaller than this to make room for the number.
 const MIN_FIT = .45;
@@ -2587,6 +2588,12 @@ export function planFor(style, assets) {
 export class Ad {
   /** assets: { phones: {id: {img, meta}} } */
   constructor(style, assets, width, height, opts = {}) {
+    /* NO CAMERA MOVES (the owner, 2026-11-23: "Panning across a video and zooming in and losing quality is not how
+       we're gonna gain clients"). Every move (push in and out, drift, tilt, whip, handheld, punch) drew the finished
+       frame as one picture and scaled it up, 2% to 34%, softening the words, the number and the phones. Every look is
+       laid out and drawn still, at 1:1; the openings that zoomed (punch in, flash cut, cold open, beat pump) no longer
+       do (_camera). */
+    style = { ...style, camera: "still" };
     this.st = { ...DEFAULT_STYLE, ...style };
     let st = this.st;
     this.W = width || (ASPECTS[st.aspect] || ASPECTS["1:1"])[0];
@@ -3906,16 +3913,9 @@ export class Ad {
   }
 
   _camera(t) {
-    const c = this._camera0(t);
-    if (this.st.hook === "punch_in" && t < .5) c[0] *= lerp(2.1, 1, outQuint(clamp(t / .5)));
-    // an opening with no words opens close on the phones and pulls back, so the thumbnail is
-    // the product, not the ground (frame 0 of these hooks showed under 15% of anything)
-    if (["flash_cut", "cold_open"].includes(this.st.hook) && t < .6) {
-      const e = 1 - outCubic(clamp(t / .6)), z = c[0] * lerp(1, 1.6, e);
-      c[1] -= e * z * (this.stageC[0] - this.W / 2) / this.W; c[2] -= e * z * (this.stageC[1] - this.H / 2) / this.H; c[0] = z;
-    }
-    if (this.st.urgency === "beat_pump") c[0] *= 1 + .022 * beatPulse(t, this.tl.hit, this.st.bpm || 118);
-    return c;
+    // still: nothing scales the frame (the constructor's note, 2026-11-23); the old openings' zooms and the beat pump
+    // drew the stage 2% to 110% larger than it was made
+    return this._camera0(t);
   }
 
   _hookLine(ctx, t, hold = false) {
