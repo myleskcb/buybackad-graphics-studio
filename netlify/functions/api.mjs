@@ -64,7 +64,7 @@ import { PLANS, PACKS, PAID, planId, videoOk, cardsOk, creditState, backgroundCr
 import {
   billingOn, stripeMode, stripe, priceFor, catalog, subState, applySub, applySession, customerOf,
   syncDue, syncSub, ensureWebhook, verifyEvent, webhookSecretKey, ensurePortalConfig, portalConfigKey, TERMS_VERSION,
-  ensurePaymentDomain, paymentDomainKey,
+  ensurePaymentDomain, paymentDomainKey, STATEMENT_SUFFIX, ownSession, ownSubscription,
 } from '../lib/billing.mjs';
 import { bggenRoute, generateImage, loadRecipe, dataUrlOf } from '../lib/bggen.mjs';
 import { verifyAppleIdToken } from '../lib/appleid.mjs';
@@ -626,7 +626,7 @@ export default async (req) => {
         // partner and creator discounts are Stripe promotion codes, on the plans
         allow_promotion_codes: plan ? 'true' : undefined,
         subscription_data: plan ? { metadata: { email: em, plan, terms: TERMS_VERSION, consent_at: consentAt } } : undefined,
-        payment_intent_data: plan ? undefined : { metadata: md },
+        payment_intent_data: plan ? undefined : { metadata: md, statement_descriptor_suffix: STATEMENT_SUFFIX },
         /* B2B: a business can add its tax ID (and the name and address it
            wants on the invoice), a credit pack gets an invoice like a plan
            does, and Stripe Tax works out sales tax when STRIPE_TAX is on (it
@@ -714,7 +714,8 @@ export default async (req) => {
       const ev = await verifyEvent(env, users(), payload, req.headers.get('Stripe-Signature'));
       if (!ev) return new Response('bad signature', { status: 400 });
       const obj = (ev.data && ev.data.object) || {};
-      if (ev.type === 'checkout.session.completed' || ev.type === 'checkout.session.async_payment_succeeded') {
+      // the shared Stripe account's other sales are not this site's (billing.mjs, ownSession)
+      if ((ev.type === 'checkout.session.completed' || ev.type === 'checkout.session.async_payment_succeeded') && ownSession(obj)) {
         const em = String((obj.metadata || {}).email || obj.client_reference_id || obj.customer_email || '').toLowerCase();
         const user = em && (await getUser(em));
         if (user) {
@@ -741,7 +742,7 @@ export default async (req) => {
           }
         }
       }
-      if (ev.type.startsWith('customer.subscription.')) {
+      if (ev.type.startsWith('customer.subscription.') && ownSubscription(obj, env)) {
         const em = String((obj.metadata || {}).email || '').toLowerCase();
         const user = em && (await getUser(em));
         // only the account's own subscription moves it (an old one ending must not end a new one)
