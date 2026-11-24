@@ -6654,3 +6654,40 @@ goes onto it as a fast-forward while it has not moved. Merging is the owner's ca
 
 RESUME HERE: the owner's word to fold this into pull request 18 (or the session that owns it), and
 pull request 18's quick_ad_check seeds 23 and 37 (the wholesale lot's lead model) for that session.
+
+## 2026-11-23 (later) — `main` takes pull requests 20, 21 and 18, with the ZIP fix (claude/merge-20-21-18)
+
+Asked: "aren't we on pr 21? what happens when we're pushing old stuff and new stuff at the same
+time?", "merge??", then "Clean ones to main".
+
+Found, by merging every open pull request onto `main` in a scratch checkout before touching it:
+  - Six pull requests were open at once, from six sessions, and four aimed at branches that are
+    no longer the product: 15 and 18 at pull request 14's branch (merged 2026-11-21), 17 and 19
+    at 15's. Merged on GitHub as they stood, they would have landed there and never reached the site.
+  - 20 merged clean; 21 and 18 collided only where each appends (the log, the rules, the open
+    items). 15, and 17 and 19 on top of it, conflict with today's `main` in ten files (app.js,
+    index.html, _headers, netlify.toml, privacy.html, terms.html, sitemap.xml and three docs): old
+    lines against newer ones, where taking the old side would quietly undo `main`'s newer work.
+  - Rule numbers 158, 159, 161 and 163 each name two different rules, one on 15, 17 and 19's line
+    and one on 18. 18 lands first, so its numbers stand; 15's line renumbers when it lands.
+  - Open item BU was `main`'s business cards and also 18's "four more kinds of ground": 18's is BW
+    here, with a line saying so, and its log's two references to it follow.
+  - A resolve script refused a log hunk (its first side opened mid-entry), a chained commit ran
+    anyway, and a conflict marker was committed. A scan of the tree for markers caught it before
+    anything was pushed, and the merge commit was amended. Scan for markers after every hand
+    resolution, and never chain a commit after a step that can fail.
+
+Done: `main` + 20 + 21 + 18 + the ZIP fix (claude/area-zip-lands-now), one merge commit each, in
+that order; the appended logs, rules and open items kept from both sides, in date, number and
+letter order.
+
+Checked on the merged tree: typing_pause_check 15 cases (59 lines) passed; quick_ad_check 47 of 47
+twice; buylist_check 20 passed; full_ad_check all clear; appleid_check 16, social_signin_check 20,
+watermark_check 48, all clear; hero_wall_check holds; every page loaded with no page error (the one
+violation, phonegfx-studio.html's old inline script, as on `main` before).
+
+Not done: pull requests 15, 17 and 19. They need 15's conflict resolved against this `main` (ten
+files), their rules 158, 159, 161 and 163 renumbered (165 is theirs; 169 on are free), and 17 and
+19 aimed at `main`.
+
+RESUME HERE: pull request 15 against this `main`, then 17 and 19.
