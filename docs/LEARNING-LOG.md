@@ -6788,6 +6788,66 @@ drops them until it says otherwise.
 
 RESUME HERE: the owner's OK to merge; then §BY 1 and 2 if he wants the rest of the site watched too.
 
+  0. OPEN-ITEMS §BX, Open 1 and 2: this branch onto `main` with the owner's OK; iPhones LA to
+     accept webuy.ad, then the old project's redirect.
+
+## 2026-11-24 — the newest designs on the site; the text banner as iOS 27 draws it; the video maker as a design tool (claude/site-newest-designs, local)
+
+Asked (the owner, after pull request 15's landing was turned down): "audit and push the newest designs",
+"still don't see the latest design ads... we make site changes and then ad changes but only the newest
+site changes ever reflect", sample numbers on the ads ("Why do we have to put the 999?"), the hero's text
+"1:1 to ios notification and app icon/ styling" ("a little too opaque or dark?"). Then, of the video
+maker: "Panning across a video and zooming in and losing quality is not how we're gonna gain clients",
+"this giant watermark... could be a little less frequent", "a button that says view in marketplace feed",
+"generate title generate description should be a feature for pro users for the higher Tier", "It's a
+graphic design tool. We need to make it resemble that", "where is the asset library?", "it doesn't help
+you make the ads generated in the hero".
+
+Done (nothing pushed; the owner approves before `main`):
+  - Stills follow the engine (scripts/engine_stamp.mjs): the library's 665 and the wall's 18 drawn again,
+    each on a 555-01xx sample number; the builders name the four ground families of 2026-11-22.
+  - Easy Mode's full ad passes the area to the engine (full-ad-studio.js areaNow): city photographs, and
+    no Golden Gate behind a Long Beach ad.
+  - The landing: the banner measured off the iOS 27 simulator (386 x 79 pt, 15 pt semibold over 15 pt,
+    the Messages icon drawn from its measured geometry, light glass fitted to 8 of 255 over the same
+    frame of the wall, the arrival out of the island at 60 fps); format-detection off (Safari made the
+    555s call links); the library leads with photograph, gradient and pattern grounds; a wall proposal
+    (four swaps, hero_wall_check holds).
+  - The video maker: templates first (the home page's 18 ads), a toolbar, six numbered steps beside the
+    ad (Look, Words, Style, Media, Listing, Check), its sizes under it, one Download menu, the attention
+    check off the page, Quick ad as Listing (written for you on Pro and Business), View in Marketplace
+    feed, every camera still (no pan or zoom), the watermark about 2.4 times sparser.
+
+Found:
+  - A still goes stale when the engine that draws it moves, not only its recipe: stamp the engine.
+  - The engine's camera moves (and four openings) drew the finished frame as one picture and scaled it
+    up, 2% to 110%: soft words and phones. Lay out and draw at 1:1.
+  - pages.css caps every `main` without `.wide` at 760 px: a workspace page needs the class.
+  - `xcrun simctl push <udid> com.apple.MobileSMS msg.apns` draws a real Messages banner about 7 s
+    later, and `simctl io recordVideo` catches it at 60 fps: the reference for anything that imitates
+    iOS, measured, not remembered. A Playwright harness over the same frame fits a CSS glass to it.
+  - The disk filled twice (ENOSPC) while simulators were up: they and swap take gigabytes; the stills
+    take 15 MB.
+  - Checks: quick_ad_check and buylist_check pass; watermark_check all clear; full_ad_studio_check fails only the
+    earbuds-landscape edge it failed before this branch; build_recipe_stills and build_hero_stills --check pass, the
+    still-camera redraw byte for byte the same. typing_pause_check passes at a load average of 15; at 100 to 650
+    (other sessions' browsers and simulators) its timed presses could not be staged. Two things of this branch it
+    caught: the checks' layout had the looks first and in view, drawing two dozen while it typed (last now), and
+    Back's label split off for the phones took the press from the button (pointer-events: none on it).
+  - "Self condensing but legible at all level": three pages at eleven widths, 320 to 1920 (no sideways scroll,
+    nothing off the screen, no words under 12 px). The landing's bar ran its buttons off the edge from 1010 to
+    1440; its gaps close with the window now and its links give way least needed first.
+
+RESUME HERE:
+  1. The owner's look at the landing preview and the maker, then this branch onto `main` (a push deploys).
+  2. The logo: the owner liked D (the tag, lowercase "webuy.ad"); tools/brand/logo-d-2026-11-23.html shows it in
+     three cases with the app icon carrying the word under the tag. Waiting on the pick.
+  3. Open: the engine's photo pools still draw assets/bg-web (CC BY/BY-SA, ruled out 2026-11-21) and
+     Golden Gate wallpapers wherever no metro is known; two LA photographs are of Griffith Observatory and
+     one of the Santa Monica pier sign; "Pasadena" alone resolves to Houston (metros.js); the studio's
+     template default number is still (562) 999-4994; full_ad_studio_check's earbuds-landscape edge
+     failure is older than this branch; the founder's WhatsApp on the landing goes public with the merge.
+
 ## 2026-11-24 — the library's pictures, clear until loaded (DESIGN-LAW 169; claude/library-pictures-clear)
 
 Pull request 23 went live, and `wall_pictures_check` was run against webuy.ad itself. The wall

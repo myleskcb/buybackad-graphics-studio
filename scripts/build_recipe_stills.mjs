@@ -18,15 +18,19 @@
            --ids a,b   draw those again (after a change to the engine that only some of them draw) */
 import { readFileSync, writeFileSync, existsSync, mkdirSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { engineStamp, sampleNumber } from './engine_stamp.mjs';
 
 const ROOT = new URL('../', import.meta.url).pathname, DIR = ROOT + 'assets/recipe-stills/';
 const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8931/').replace(/\/?$/, '/');
-const SHOP = { number: '(562) 999-4994', zip: '90802' };   // the library cards' own number and Long Beach
+// Long Beach, as the library cards showed; the number a sample one per still (engine_stamp.mjs sampleNumber),
+// never the business's own line, which every still printed until 2026-11-23
+const SHOP = { zip: '90802' };
+const ENGINE = engineStamp();   // a change to the engine that draws them makes every still stale (engine_stamp.mjs)
 const SIZE = 400;
 const recipes = JSON.parse(readFileSync(ROOT + 'motion/recipes.json', 'utf8')).recipes.filter(r => r.gen === 'sc' || r.gen === 'of');
 const index = existsSync(DIR + 'index.json') ? JSON.parse(readFileSync(DIR + 'index.json', 'utf8')) : { items: {} };
 // a still is stale when its recipe's seed, words or line moved (the recipe a still was drawn from, by these)
-const stamp = r => JSON.stringify([r.seed, r.subject, r.words, r.pictures, r.words_only || false, r.label]);
+const stamp = r => JSON.stringify([r.seed, r.subject, r.words, r.pictures, r.words_only || false, r.label, ENGINE]);
 // --ids a,b: those again, besides any missing or stale (a change to the engine that only some grounds draw)
 const ids0 = (i => i > 0 ? new Set(process.argv[i + 1].split(',')) : null)(process.argv.indexOf('--ids'));
 const want = recipes.filter(r => process.argv.includes('--all') || (ids0 && ids0.has(r.id)) || !index.items[r.id] || index.items[r.id].stamp !== stamp(r) || !existsSync(DIR + r.id + '.webp'));
@@ -47,11 +51,12 @@ await page.evaluate(async S => {
   account = { email: 'stills@local', role: 'admin', plan: 'pro' }; loadAccount = async () => account; recordExport = async () => true;
   const a = await resolveArea(S.zip); if (a) setArea(a);
   try { jset('pgfx_area_asked', true); } catch (e) { }
-  $('ez-phone').value = S.number; $('ez-website').value = '';
+  $('ez-website').value = '';
 }, SHOP);
 let n = 0;
 for (const r of want) {
-  const got = await page.evaluate(async ({ id, SIZE }) => {
+  const got = await page.evaluate(async ({ id, SIZE, number }) => {
+    $('ez-phone').value = number;
     const M = await import('/motion/fullad.js'), FS = window.FullAdStudio, FA = FS.state;
     const r = await FS.useRecipe(id); if (!r) return { error: 'no recipe ' + id };
     FA.biz = '';
@@ -62,13 +67,16 @@ for (const r of want) {
     const pair = st.full_colour || '', P = (await import('/motion/house-colours.js')).HOUSE_COLOURS.find(c => c.key === pair);
     // what the wall's own check reads (scripts/hero_wall_check.mjs): the pair's look, the kind of ground, the headline
     const bg = String(st.background || ''), { GROUND_SCENES } = await import('/motion/full-grounds.js');
-    const ground = bg === 'photo' ? 'photo' : /^pair_/.test(bg) ? 'gradient' : /^pat_/.test(bg) ? 'pattern' : GROUND_SCENES.includes(bg) ? 'scene' : 'house';
+    // the engine's kinds (motion/full-grounds.js GROUND_SHARES): the four families of 2026-11-22 by their own names; 'house' is the plain
+    // radial, tonal and linear alone (it took all four until 2026-11-23, and read as plain)
+    const ground = bg === 'photo' ? 'photo' : /^pair_/.test(bg) ? 'gradient' : /^pat_/.test(bg) ? 'pattern' : GROUND_SCENES.includes(bg) ? 'scene'
+      : /^abs_/.test(bg) ? 'abstract' : /^shp_/.test(bg) ? 'shape' : /^prod_/.test(bg) ? 'product' : /^typ_/.test(bg) ? 'type' : 'house';
     return { pair, pairName: P ? P.name : '', look: P ? P.look : '', accent: st.colors ? st.colors.accent : '', background: bg, ground, headline: String(st.headline || ''), webp: c.toDataURL('image/webp', .76) };
-  }, { id: r.id, SIZE });
+  }, { id: r.id, SIZE, number: sampleNumber(r.id) });
   if (got.error) { console.log(`  ${r.id}: ${got.error}`); continue; }
   writeFileSync(DIR + r.id + '.webp', Buffer.from(got.webp.split(',')[1], 'base64'));
   const { webp, ...meta } = got;
-  index.items[r.id] = { kind: 'recipe', cat: r.cat, line: r.subject, seed: r.seed, name: r.label.replace(/ \((library card|offer card)\)$/, ''), family: (r.look && r.look.family) || '', from: r.from, gen: r.gen, ...meta, thumb: 'assets/recipe-stills/' + r.id + '.webp', stamp: stamp(r) };
+  index.items[r.id] = { kind: 'recipe', cat: r.cat, line: r.subject, seed: r.seed, name: r.label.replace(/ \((library card|offer card)\)$/, ''), family: (r.look && r.look.family) || '', from: r.from, gen: r.gen, ...meta, thumb: 'assets/recipe-stills/' + r.id + '.webp', stamp: stamp(r), number: sampleNumber(r.id), engine: ENGINE };
   if (++n % 25 === 0) { process.stdout.write(`${n} `); writeFileSync(DIR + 'index.json', JSON.stringify({ about: '', items: index.items }) + '\n'); }
 }
 await browser.close();

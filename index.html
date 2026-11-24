@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- every number on the page is a sample (555s): never a link to call -->
+<meta name="format-detection" content="telephone=no">
 <title>"We Buy" Ad Maker for Resellers | WeBuy.AD</title>
 <meta name="description" content="Make &quot;We Buy&quot; ads for phones, gold, silver, coins, cars, Pokémon cards, sports cards and diabetic test strips. Pick a template, add your number, download a post-ready image. Free to start.">
 <!-- The site's address is https://webuy.ad (live 2026-11-19). The canonical,
@@ -127,12 +129,12 @@
     <div class="lp-nav-links">
       <a href="#lp-templates">Templates</a>
       <a href="motion/">Video ads</a>
-      <a href="cards/">Business cards</a>
-      <a href="looks.html">Look Book</a>
-      <a href="#lp-themes">Palettes</a>
-      <a href="#lp-how">How it works</a>
+      <a href="#lp-how" data-give="1">How it works</a>
+      <a href="#lp-themes" data-give="1">Customise</a>
       <a href="#pricing">Pricing</a>
-      <a href="#faq">FAQ</a>
+      <a href="#faq" data-give="1">FAQ</a>
+      <a href="cards/" data-give="2">Business cards</a>
+      <a href="looks.html" data-give="2">Look Book</a>
     </div>
     <div class="lp-nav-right">
       <button class="theme-btn" data-theme-toggle title="Switch between dark and light" aria-label="Switch between dark and light"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor"/></svg></button>
@@ -158,7 +160,7 @@
 
   <section class="hero hero-v2">
     <div class="hero-copy">
-      <div class="hero-eyebrow">For phone buyers, gold buyers and every reseller in between</div>
+      <div class="hero-eyebrow">The ad maker for buyback businesses</div>
       <h1>Buyback ads that make strangers <em>text you first.</em></h1>
       <p>Pick a design and type your phone number. Your number shows up big, so people can read it even in a tiny feed preview. Your ad looks like a real business, not a flyer on a pole.</p>
       <div class="hero-ctas">
@@ -180,10 +182,15 @@
         <div class="wall-col" data-dir="down"></div>
         <div class="wall-col" data-dir="up"></div>
       </div>
-      <!-- what the headline promises, as it lands: a stranger's text (a picture of one, no real message) -->
+      <!-- what the headline promises, as it lands: strangers' texts, arriving the way an iPhone shows them (iOS 27's
+           banner, measured off the simulator 2026-11-23: landing.css .hero-ping). Pictures of messages, no real ones;
+           the numbers are 555s. The Messages icon is drawn here from those measurements (#hp-msgs), not Apple's file.
+           One at a time, on a loop, CSS only; still for a visitor who asks for less motion. -->
       <div class="hero-ping" aria-hidden="true">
-        <span class="hp-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4.2c-4.7 0-8.3 3-8.3 6.9 0 2.2 1.2 4.1 3.1 5.4-.2 1.2-.8 2.4-1.7 3.3 1.9-.1 3.5-.8 4.6-1.8.7.2 1.5.2 2.3.2 4.7 0 8.3-3 8.3-6.9S16.7 4.2 12 4.2Z" fill="currentColor"/></svg></span>
-        <span class="hp-body"><span class="hp-top"><b>New message</b><span>now</span></span><span class="hp-msg">Saw your ad. Still buying iPhones? I have a 15 Pro.</span></span>
+        <div class="hp-card"><span class="hp-icon"><svg viewBox="0 0 38 38" aria-hidden="true"><use href="#hp-msgs"/></svg></span><span class="hp-body"><span class="hp-top"><b>(562) 555-0148</b><span>now</span></span><span class="hp-msg">Saw your ad. Still buying iPhones? I have a 15&nbsp;Pro Max, 256GB.</span></span></div>
+        <div class="hp-card"><span class="hp-icon"><svg viewBox="0 0 38 38" aria-hidden="true"><use href="#hp-msgs"/></svg></span><span class="hp-body"><span class="hp-top"><b>(310) 555-0193</b><span>now</span></span><span class="hp-msg">Do you buy gold? I have a chain and two rings.</span></span></div>
+        <div class="hp-card"><span class="hp-icon"><svg viewBox="0 0 38 38" aria-hidden="true"><use href="#hp-msgs"/></svg></span><span class="hp-body"><span class="hp-top"><b>(714) 555-0126</b><span>now</span></span><span class="hp-msg">Is the PS5 price still good? I can meet today.</span></span></div>
+        <svg class="hp-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs><linearGradient id="hp-tile" x1="0" y1="0" x2="0" y2="38" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#5af472"/><stop offset="1" stop-color="#1acf38"/></linearGradient><linearGradient id="hp-bub" x1="0" y1="6.2" x2="0" y2="29.3" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fafefb"/><stop offset="1" stop-color="#cff7d6"/></linearGradient><symbol id="hp-msgs" viewBox="0 0 38 38"><path fill="url(#hp-tile)" d="M38 19L37.98 25.38L37.93 27.41L37.85 28.88L37.74 30.07L37.59 31.07L37.41 31.94L37.19 32.71L36.94 33.4L36.65 34.02L36.32 34.58L35.95 35.08L35.54 35.54L35.08 35.95L34.58 36.32L34.02 36.65L33.4 36.94L32.71 37.19L31.94 37.41L31.07 37.59L30.07 37.74L28.88 37.85L27.41 37.93L25.38 37.98L19 38L12.62 37.98L10.59 37.93L9.12 37.85L7.93 37.74L6.93 37.59L6.06 37.41L5.29 37.19L4.6 36.94L3.98 36.65L3.42 36.32L2.92 35.95L2.46 35.54L2.05 35.08L1.68 34.58L1.35 34.02L1.06 33.4L.81 32.71L.59 31.94L.41 31.07L.26 30.07L.15 28.88L.07 27.41L.02 25.38L0 19L.02 12.62L.07 10.59L.15 9.12L.26 7.93L.41 6.93L.59 6.06L.81 5.29L1.06 4.6L1.35 3.98L1.68 3.42L2.05 2.92L2.46 2.46L2.92 2.05L3.42 1.68L3.98 1.35L4.6 1.06L5.29 .81L6.06 .59L6.93 .41L7.93 .26L9.12 .15L10.59 .07L12.62 .02L19 0L25.38 .02L27.41 .07L28.88 .15L30.07 .26L31.07 .41L31.94 .59L32.71 .81L33.4 1.06L34.02 1.35L34.58 1.68L35.08 2.05L35.54 2.46L35.95 2.92L36.32 3.42L36.65 3.98L36.94 4.6L37.19 5.29L37.41 6.06L37.59 6.93L37.74 7.93L37.85 9.12L37.93 10.59L37.98 12.62Z"/><g fill="url(#hp-bub)"><ellipse cx="18.83" cy="17.67" rx="13.67" ry="11.5"/><path d="M7.63 24.27C7.9 26 7.8 27.9 7.2 29.25C9.6 29.55 12.4 29.3 15.3 28.78Z"/></g></symbol></defs></svg>
       </div>
     </div>
   </section>
@@ -211,27 +218,6 @@
       <button class="btn btn-outline" id="lp-tpl-more">Show more</button>
       <button class="btn btn-ghost" id="lp-tpl-all">Open the whole library in the studio &rarr;</button>
     </div>
-  </section>
-
-  <section class="lp-section" id="lp-themes">
-    <div class="lp-section-head">
-      <div class="lp-kicker">Colours</div>
-      <h2><span id="lp-pal-count">31</span> colour sets. Every design checked before you see it.</h2>
-      <p>Each colour set styles the whole ad: the background, the text, one bright colour for the big words, the boxes, and the outline, 3-D and glow on the headline, all from the same few colours. Some use just two colours, like a hand-painted sign (yellow on black, white on red). Some use three (red, white and blue). The twelve pairs are the ones our designs are made in. Before a design appears here, we check that the headline, the phone number and the button all stand out from what&rsquo;s behind them. If any of them is hard to read, the design is hidden. Photos keep their own colours; we only darken them where words sit on top.</p>
-    </div>
-    <!-- ready-made sets or the colour builder (colour-builder.js, DESIGN-LAW rule 112); the ready-made
-         panel holds the library's twelve and every set the studio offers, in its groups (rule 125) -->
-    <div class="cb-tabs" id="cb-tabs" role="tablist" aria-label="Colour sets">
-      <button type="button" role="tab" id="cb-tab-ready" data-tab="ready" aria-controls="cb-ready" aria-selected="true">Ready-made <span class="n">31</span></button>
-      <button type="button" role="tab" id="cb-tab-build" data-tab="build" aria-controls="cb-root" aria-selected="false" tabindex="-1">Build your own</button>
-    </div>
-    <div class="cb-ready" id="cb-ready" role="tabpanel" aria-labelledby="cb-tab-ready">
-      <div class="lp-subhead">The <span id="lp-lib-count">12</span> pairs our designs are made in. Tap one to see its designs.</div>
-      <div class="fam-grid" id="fam-grid"></div>
-      <div class="lp-subhead">Every colour set, for any design. Tap one to start with it.</div>
-      <div class="theme-grid" id="theme-grid"></div>
-    </div>
-    <div class="cb-root" id="cb-root" role="tabpanel" aria-labelledby="cb-tab-build" hidden></div>
   </section>
 
 
@@ -277,12 +263,33 @@
         <p>Restyle the whole ad in one tap. The text, the bright colour, the boxes and the background all change together, so nothing is left in the old colour.</p>
       </div>
       <div class="flow-step">
-        <div class="fs-art" aria-hidden="true"><span class="fs-type"><span class="fs-field">(562) 999-4994</span><span class="fs-dl">Download</span></span></div>
+        <div class="fs-art" aria-hidden="true"><span class="fs-type"><span class="fs-field">(562) 555-0142</span><span class="fs-dl">Download</span></span></div>
         <div class="fs-num">Step 03</div>
         <h3>Type and download</h3>
         <p>Your number, your city, what you pay for. Save your details once and every design fills itself in. Download in any of six sizes, from a square post to a story or a printed flyer.</p>
       </div>
     </div>
+  </section>
+
+  <section class="lp-section" id="lp-themes">
+    <div class="lp-section-head">
+      <div class="lp-kicker">Customise</div>
+      <h2>Make it yours. Every colour checked before you see it.</h2>
+      <p>Every design opens in its own colours, and all of them are yours to change: pick one of the sets our designs are made in, or build one from your brand colour. Before a design reaches you, we check that the headline, your number and the button all stand out from what is behind them.</p>
+    </div>
+    <!-- ready-made sets or the colour builder (colour-builder.js, DESIGN-LAW rule 112); the ready-made
+         panel holds the library's twelve and every set the studio offers, in its groups (rule 125) -->
+    <div class="cb-tabs" id="cb-tabs" role="tablist" aria-label="Colour sets">
+      <button type="button" role="tab" id="cb-tab-ready" data-tab="ready" aria-controls="cb-ready" aria-selected="true">Ready-made <span class="n">31</span></button>
+      <button type="button" role="tab" id="cb-tab-build" data-tab="build" aria-controls="cb-root" aria-selected="false" tabindex="-1">Build your own</button>
+    </div>
+    <div class="cb-ready" id="cb-ready" role="tabpanel" aria-labelledby="cb-tab-ready">
+      <div class="lp-subhead">The <span id="lp-lib-count">12</span> pairs our designs are made in. Tap one to see its designs.</div>
+      <div class="fam-grid" id="fam-grid"></div>
+      <div class="lp-subhead">Every colour set, for any design. Tap one to start with it.</div>
+      <div class="theme-grid" id="theme-grid"></div>
+    </div>
+    <div class="cb-root" id="cb-root" role="tabpanel" aria-labelledby="cb-tab-build" hidden></div>
   </section>
 
   <section class="lp-section" id="pricing">
@@ -381,19 +388,19 @@
       <div class="fs-num">CREATORS</div>
       <h3>Get paid to post</h3>
       <p>Already post buyback ads every day? Make them here and tag us. You get Pro free, plus a cut for every reseller you bring in.</p>
-      <a class="btn btn-outline" href="sms:+15629994994">Text us to apply &rarr;</a>
+      <a class="btn btn-outline" href="mailto:support@webuy.ad?subject=Creators">Email us to apply &rarr;</a>
     </div>
     <div class="flow-step">
       <div class="fs-num">PARTNERS</div>
       <h3>Bring your network</h3>
       <p>Run a buyback group, wholesale list, repair shop or coaching community? Your members get a discount and you get a share of every subscription.</p>
-      <a class="btn btn-outline" href="sms:+15629994994">Text us about partnerships &rarr;</a>
+      <a class="btn btn-outline" href="mailto:support@webuy.ad?subject=Partnerships">Email us about partnerships &rarr;</a>
     </div>
     <div class="flow-step">
       <div class="fs-num">BUSINESSES</div>
       <h3>Your brand, our tools</h3>
       <p>For buyers with many locations, franchises and marketplaces: designs in your brand, logins for your whole team, and our ad maker inside your own app.</p>
-      <a class="btn btn-primary" href="tel:+15629994994">Call (562) 999-4994 &rarr;</a>
+      <a class="btn btn-primary" href="https://wa.me/15623867000" target="_blank" rel="noopener">WhatsApp the founder &rarr;</a>
     </div>
   </div>
 </section>
@@ -452,11 +459,11 @@
       </div>
       <div class="lpf-col">
         <h4>Talk to us</h4>
-        <a href="tel:+15629994994">Call (562) 999-4994</a>
+        <a href="mailto:support@webuy.ad">Email support@webuy.ad</a>
         <a href="#" id="lpf-signup">Create free account</a>
         <a href="#" id="lpf-login">Log in</a>
         <a href="#" id="lpf-signout" style="display:none">Sign out</a>
-        <a href="sms:+15629994994">Text (562) 999-4994</a>
+        <a href="https://wa.me/15623867000" target="_blank" rel="noopener">WhatsApp the founder</a>
       </div>
       <div class="lpf-col">
         <h4>Legal</h4>
@@ -1026,7 +1033,7 @@
     <h3>Brand kit</h3>
     <div class="modal-sub">Saved once and filled into every template automatically. Your number, your site, done.</div>
     <label for="bk-phone">Phone number</label>
-    <input type="tel" id="bk-phone" placeholder="(562) 999-4994">
+    <input type="tel" id="bk-phone" placeholder="(555) 123-4567">
     <label for="bk-website">Website / handle</label>
     <input type="text" id="bk-website" placeholder="iphones.LA">
     <label for="bk-name">Business name <span style="text-transform:none;font-weight:400;color:var(--muted)">(optional)</span></label>

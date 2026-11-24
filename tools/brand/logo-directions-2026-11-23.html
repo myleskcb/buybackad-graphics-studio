@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WeBuy.AD logo directions</title>
+<!-- 2026-11-23: the owner, of the WeBuy.AD wordmark on the live site: "show me alternative wordmarks
+     or other styles of logos this one is bad". Eight directions, each in the site's header at real
+     size, large on navy and on white, and as an app icon and a favicon at 32 and 16 pixels. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wdth,wght@62..125,700..900&family=Bricolage+Grotesque:opsz,wght@12..96,700..800&family=Fraunces:ital,opsz,wght@0,9..144,700..900;1,9..144,600..800&family=Inter+Tight:wght@600;700;750;800;900&family=Inter:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0b1222; --navy-2:#111a2e; --hair:rgba(255,255,255,.08);
+  --blue:#3d8bff; --mint:#2fd58f; --sun:#ffd23a;
+  --page:#070b16; --text:#e8edf7; --dim:#93a0b8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--page);color:var(--text);font:15px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:48px 24px 96px}
+h1{font:800 34px/1.1 'Inter Tight',sans-serif;letter-spacing:-.03em;margin:0 0 8px}
+.lede{color:var(--dim);max-width:760px;margin:0 0 40px}
+.opt{border:1px solid var(--hair);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0));margin:0 0 28px;overflow:hidden}
+.opt-h{display:flex;align-items:baseline;gap:14px;padding:18px 22px 14px;border-bottom:1px solid var(--hair)}
+.opt-h b{font:800 13px/1 Inter,sans-serif;letter-spacing:.12em;color:var(--blue)}
+.opt-h h2{font:750 19px/1.2 'Inter Tight',sans-serif;margin:0;letter-spacing:-.01em}
+.opt-h p{margin:0;color:var(--dim);font-size:14px;flex:1;text-align:right}
+/* the site's header, at its real size */
+.bar{display:flex;align-items:center;gap:30px;height:66px;padding:0 26px;background:var(--navy);border-bottom:1px solid var(--hair)}
+.bar nav{display:flex;gap:22px;font:500 13.5px Inter,sans-serif;color:#b9c4d8;flex:1}
+.bar .cta{font:600 13.5px Inter,sans-serif;color:#fff;background:var(--blue);padding:9px 16px;border-radius:999px}
+.bar .logo{font-size:23px;display:flex;align-items:center}
+.bar .logo .m-h{font-size:21px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 250px;min-height:230px}
+.tile{display:flex;align-items:center;justify-content:center;padding:28px;overflow:hidden;min-width:0}
+.tile.dark{background:var(--navy-2)}
+.tile.light{background:#fbfbfd;border-left:1px solid #e9ecf2}
+.tile.big{font-size:clamp(32px,4vw,50px)}
+.icons{display:flex;align-items:center;justify-content:center;gap:22px;background:#151d31;border-left:1px solid var(--hair)}
+.icons .app{width:112px;height:112px;border-radius:26px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.icons .fav{display:flex;flex-direction:column;gap:10px;align-items:center}
+.icons .fav span{display:block;overflow:hidden;border-radius:6px}
+.icons small{color:var(--dim);font-size:11px}
+.dark{--ink:#ffffff;--acc:var(--blue);--deal:var(--mint)}
+.light{--ink:#0d1321;--acc:#0a5fe0;--deal:#0e9f6a}
+.bar{--ink:#ffffff;--acc:var(--blue);--deal:var(--mint)}
+svg{display:block}
+
+/* A · Plain grotesk */
+.m-a{font-family:'Bricolage Grotesque',sans-serif;font-variation-settings:'opsz' 96;font-weight:800;letter-spacing:-.05em;color:var(--ink);line-height:1;white-space:nowrap}
+.m-a i{display:inline-block;width:.19em;height:.19em;border-radius:.045em;background:var(--deal);margin:0 .055em 0 .07em;vertical-align:baseline}
+.m-a em{font-style:normal;color:var(--ink);opacity:.62}
+
+/* B · Poster */
+.m-b{font-family:Anton,sans-serif;font-weight:400;letter-spacing:.012em;color:var(--ink);line-height:1;white-space:nowrap;font-size:1.12em}
+.m-b em{font-style:normal;color:var(--acc)}
+
+/* C · The sign */
+.m-c{display:inline-flex;align-items:center;gap:.16em;line-height:1;white-space:nowrap}
+.m-c b{font-family:Archivo,sans-serif;font-variation-settings:'wdth' 72;font-weight:900;font-size:.9em;letter-spacing:.01em;color:#101114;background:var(--sun);padding:.14em .3em .1em;border-radius:.07em;transform:rotate(-2.5deg);box-shadow:0 .05em 0 rgba(0,0,0,.25)}
+.m-c span{font-family:Archivo,sans-serif;font-variation-settings:'wdth' 90;font-weight:800;color:var(--ink);letter-spacing:-.01em}
+
+/* D · The tag */
+.m-d{display:inline-flex;align-items:center;gap:.28em;line-height:1;white-space:nowrap}
+.m-d svg{width:1.05em;height:1.05em}
+.m-d span{font-family:'Inter Tight',sans-serif;font-weight:800;letter-spacing:-.045em;color:var(--ink)}
+.m-d span em{font-style:normal;color:var(--deal)}
+
+/* E · The check W */
+.m-e{display:inline-flex;align-items:center;gap:.3em;line-height:1;white-space:nowrap}
+.m-e svg{width:1.15em;height:1.15em}
+.m-e span{font-family:'Inter Tight',sans-serif;font-weight:900;letter-spacing:-.05em;color:var(--ink)}
+.m-e span em{font-style:normal;color:var(--deal)}
+
+/* F · Classified */
+.m-f{font-family:Fraunces,serif;font-variation-settings:'opsz' 144,'SOFT' 50;font-weight:850;letter-spacing:-.035em;color:var(--ink);line-height:1;white-space:nowrap;font-size:1.06em}
+.m-f em{font-style:italic;font-weight:700;color:var(--acc);letter-spacing:-.01em}
+
+/* G · The stamp */
+.m-g{display:inline-flex;align-items:center;gap:.32em;line-height:1;white-space:nowrap}
+.m-g svg{width:1.45em;height:1.45em}
+.m-g span{font-family:'Inter Tight',sans-serif;font-weight:800;letter-spacing:-.04em;color:var(--ink)}
+.m-g span em{font-style:normal;color:var(--acc)}
+
+/* H · The block */
+.m-h{display:inline-flex;align-items:flex-end;gap:.06em;line-height:1;white-space:nowrap}
+.m-h b{display:inline-flex;flex-direction:column;justify-content:center;font-family:Anton,sans-serif;font-weight:400;color:#fff;background:var(--acc);font-size:1em;line-height:.86;letter-spacing:.02em;padding:.16em .2em .12em;border-radius:.14em;text-align:left}
+.m-h span{font-family:'Inter Tight',sans-serif;font-weight:800;color:var(--deal);font-size:.62em;letter-spacing:-.02em;margin-bottom:.02em}
+
+/* the live mark, for reference */
+.m-z{font-family:'Inter Tight',sans-serif;font-weight:750;letter-spacing:-.035em;color:var(--ink);line-height:1;white-space:nowrap}
+.m-z em{font-style:normal;color:var(--acc)}
+.ref .opt-h b{color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>WeBuy.AD: eight logo directions</h1>
+  <p class="lede">Each one in the site's header at its real size, large on the site's navy and on white, and as an app icon and a favicon. The last card is today's wordmark, for comparison. Name the ones you like (or the parts of them), and I will take that one further: kerning by hand, the icon drawn at small sizes, and the files the site uses.</p>
+  <div id="opts"></div>
+</div>
+<template id="icons-a"><svg viewBox="0 0 112 112"><rect width="112" height="112" fill="#0b1222"/><text x="50" y="76" text-anchor="middle" font-family="Bricolage Grotesque" font-weight="800" font-size="66" letter-spacing="-3" fill="#fff" style="font-variation-settings:'opsz' 96">W</text><rect x="78" y="64" width="12" height="12" rx="3" fill="#2fd58f"/></svg></template>
+<script>
+/* the marks, written once; each takes the size and the colours of where it is put */
+const TAG = `<svg viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(-28 12 12)"><path fill-rule="evenodd" fill="var(--deal)" d="M8.6 4.5H20a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H8.6a2 2 0 0 1-1.5-.68L2.4 13.3a2 2 0 0 1 0-2.6l4.7-5.52A2 2 0 0 1 8.6 4.5Zm-.1 9.3a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6Z"/></g></svg>`;
+const CHECKW = `<svg viewBox="0 0 26 24" aria-hidden="true"><path d="M2.4 5.2 7.2 19.4 12.1 9.1 16.4 19.4" fill="none" stroke="var(--ink)" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.4 19.4 23.8 2.6" fill="none" stroke="var(--deal)" stroke-width="3.3" stroke-linecap="round"/></svg>`;
+const STAMP = id => `<svg viewBox="0 0 100 100" aria-hidden="true"><defs><path id="ring-${id}" d="M50 50m-36 0a36 36 0 1 1 72 0a36 36 0 1 1-72 0"/></defs><circle cx="50" cy="50" r="47" fill="none" stroke="var(--acc)" stroke-width="4"/><text font-family="Archivo" font-weight="800" font-size="12.4" letter-spacing="3.1" fill="var(--acc)" style="font-variation-settings:'wdth' 100"><textPath href="#ring-${id}">WEBUY.AD · ADS FOR BUYERS · </textPath></text><circle cx="50" cy="50" r="24" fill="var(--acc)"/><text x="50" y="62" text-anchor="middle" font-family="Anton" font-size="34" fill="#fff">W</text></svg>`;
+let n = 0;
+const MARKS = [
+  { k: 'A', name: 'Plain grotesk', idea: 'One confident word, a mint square for the dot: the deal, done. Nothing to explain.',
+    mark: () => `<span class="m-a">WeBuy<i></i><em>ad</em></span>`,
+    icon: () => `<svg viewBox="0 0 112 112"><rect width="112" height="112" fill="#0b1222"/><text x="51" y="78" text-anchor="middle" font-family="Bricolage Grotesque" font-weight="800" font-size="70" letter-spacing="-3" fill="#fff" style="font-variation-settings:'opsz' 96">W</text><rect x="80" y="66" width="13" height="13" rx="3" fill="#2fd58f"/></svg>` },
+  { k: 'B', name: 'Poster', idea: 'Set in the ads’ own condensed headline voice, as loud as the posters it makes.',
+    mark: () => `<span class="m-b">WEBUY<em>.AD</em></span>`,
+    icon: () => `<svg viewBox="0 0 112 112"><rect width="112" height="112" fill="#3d8bff"/><text x="56" y="86" text-anchor="middle" font-family="Anton" font-size="80" fill="#fff">W</text></svg>` },
+  { k: 'C', name: 'The sign', idea: 'The yellow WE BUY sign every buyer knows from the roadside, made tidy.',
+    mark: () => `<span class="m-c"><b>WE BUY</b><span>.ad</span></span>`,
+    icon: () => `<svg viewBox="0 0 112 112"><rect width="112" height="112" fill="#0b1222"/><g transform="rotate(-4 56 56)"><rect x="12" y="32" width="88" height="48" rx="5" fill="#ffd23a"/><text x="56" y="67" text-anchor="middle" font-family="Archivo" font-weight="900" font-size="30" textLength="74" lengthAdjust="spacingAndGlyphs" fill="#101114" style="font-variation-settings:'wdth' 72">WE BUY</text></g></svg>` },
+  { k: 'D', name: 'The tag', idea: 'A hang tag: a price, a deal, something bought and sold. Quiet beside the word.',
+    mark: () => `<span class="m-d">${TAG}<span>webuy<em>.ad</em></span></span>`,
+    icon: () => `<svg viewBox="0 0 112 112"><rect width="112" height="112" fill="#0b1222"/><g transform="translate(18 18) scale(3.15)" style="--deal:#2fd58f">${TAG.replace('<svg viewBox="0 0 24 24" aria-hidden="true">', '').replace('</svg>', '')}</g></svg>` },
+  { k: 'E', name: 'The check W', idea: 'The W’s last stroke runs on into a check: the ad made, the deal done.',
+    mark: () => `<span class="m-e">${CHECKW}<span>WeBuy<em>.ad</em></span></span>`,
+    icon: () => `<svg viewBox="0 0 112 112"><rect width="112" height="112" fill="#0b1222"/><g transform="translate(17 20) scale(3)" style="--ink:#fff;--deal:#2fd58f">${CHECKW.replace('<svg viewBox="0 0 26 24" aria-hidden="true">', '').replace('</svg>', '')}</g></svg>` },
+  { k: 'F', name: 'Classified', idea: 'The newspaper’s classified ad, where WE BUY began: a serif that says established.',
+    mark: () => `<span class="m-f">WeBuy<em>.ad</em></span>`,
+    icon: () => `<svg viewBox="0 0 112 112"><rect width="112" height="112" fill="#f6f1e6"/><text x="56" y="80" text-anchor="middle" font-family="Fraunces" font-weight="900" font-size="74" fill="#0b1222" style="font-variation-settings:'opsz' 144,'SOFT' 50">W</text></svg>` },
+  { k: 'G', name: 'The stamp', idea: 'A seal, as on a receipt: paid, checked, official. The ring says what we do.',
+    mark: () => `<span class="m-g">${STAMP(n++)}<span>WeBuy<em>.ad</em></span></span>`,
+    icon: () => `<svg viewBox="0 0 112 112"><rect width="112" height="112" fill="#0b1222"/><g transform="translate(9 9) scale(.94)" style="--acc:#3d8bff">${STAMP(n++).replace('<svg viewBox="0 0 100 100" aria-hidden="true">', '').replace('</svg>', '')}</g></svg>` },
+  { k: 'H', name: 'The block', idea: 'WE over BUY in a block, a sticker you could put on a sign; .ad hangs off its corner.',
+    mark: () => `<span class="m-h"><b>WE<br>BUY</b><span>.ad</span></span>`,
+    icon: () => `<svg viewBox="0 0 112 112"><rect width="112" height="112" fill="#3d8bff"/><text x="17" y="54" font-family="Anton" font-size="38" fill="#fff" letter-spacing="1">WE</text><text x="17" y="92" font-family="Anton" font-size="38" fill="#fff" letter-spacing="1">BUY</text><rect x="80" y="76" width="14" height="14" rx="3.5" fill="#2fd58f"/></svg>` },
+  { k: 'NOW', name: 'Today’s wordmark', idea: 'Inter Tight 750, the .AD in the blue (rule 153). For comparison.', ref: true,
+    mark: () => `<span class="m-z">WeBuy<em>.AD</em></span>`,
+    icon: () => `<svg viewBox="0 0 112 112"><rect width="112" height="112" fill="#0b1222"/><text x="56" y="76" text-anchor="middle" font-family="Inter Tight" font-weight="750" font-size="56" letter-spacing="-2" fill="#fff">W</text></svg>` },
+];
+const nav = `<nav><span>Templates</span><span>Video ads</span><span>Business cards</span><span>Look Book</span><span>Pricing</span></nav><span class="cta">Make my ad</span>`;
+document.getElementById('opts').innerHTML = MARKS.map(m => `
+  <section class="opt${m.ref ? ' ref' : ''}">
+    <div class="opt-h"><b>${m.k}</b><h2>${m.name}</h2><p>${m.idea}</p></div>
+    <div class="bar"><span class="logo">${m.mark()}</span>${nav}</div>
+    <div class="row">
+      <div class="tile dark big">${m.mark()}</div>
+      <div class="tile light big">${m.mark()}</div>
+      <div class="icons">
+        <span class="app">${m.icon()}</span>
+        <span class="fav"><span style="width:32px;height:32px">${m.icon()}</span><span style="width:16px;height:16px;border-radius:3px">${m.icon()}</span><small>32 · 16</small></span>
+      </div>
+    </div>
+  </section>`).join('');
+document.querySelectorAll('.icons svg').forEach(s => { s.setAttribute('width', '100%'); s.setAttribute('height', '100%'); });
+</script>
+</body>
+</html>

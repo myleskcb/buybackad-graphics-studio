@@ -12136,7 +12136,15 @@ function scOrder(list){
      most of the library, so no card is clean and that rule would sort by
      nothing but the warning count */
   const warned = c => { const w = c.school && c.school.warn; return w ? w.length : 0; };
-  const pool = list.slice().sort((a, b) => ((img(b) + b.affinity + scVivid(b) * 4 - warned(b)) - (img(a) + a.affinity + scVivid(a) * 4 - warned(a))) || (b.density - a.density));
+  /* the newest designs first (the owner, 2026-11-23: "still don't see the latest design ads"): a rebuilt ad by the
+     ground its still was drawn on (build_recipe_stills: the engine's kinds), the photographs, gradients and patterns
+     the owner asked to see first, the newer painted families next, the plain house grounds last. A rebuilt ad has no
+     approval count or edge density: missing, they made every comparison NaN and the shop window was file order */
+  const GROUND_RANK = { photo: 3, gradient: 3, pattern: 3, scene: 2.5, abstract: 2.5, shape: 2.5, product: 2.5, type: 2, house: 0 };
+  const groundOf = c => (c.house && c.house.ground) || '';
+  const grd = c => GROUND_RANK[groundOf(c)] || 0;
+  const score = c => img(c) + (c.affinity || 0) + grd(c) + scVivid(c) * 4 - warned(c);
+  const pool = list.slice().sort((a, b) => (score(b) - score(a)) || ((b.density || 0) - (a.density || 0)));
   const light = c => scLum(c.c1) > 0.22;
   const hueOf = c => typeof c.hue === 'number' ? c.hue : null;
   const hueGap = (a, b) => { const x = Math.abs((hueOf(a) ?? 0) - (hueOf(b) ?? 0)) % 360; return x > 180 ? 360 - x : x; };
@@ -12152,6 +12160,8 @@ function scOrder(list){
       if (k < 0) k = pool.findIndex(c => farHue(c) && c.family !== prev.family);
       if (k < 0) k = pool.findIndex(c => hueGap(c, prev) >= 60 && c.family !== prev.family);
       if (k < 0) k = pool.findIndex(c => c.family !== prev.family && light(c) !== light(prev));
+      // neighbours on different kinds of ground too: a photograph, then a gradient or a pattern, not a run of one
+      if (k < 0) k = pool.findIndex(c => c.family !== prev.family && groundOf(c) !== groundOf(prev) && grd(c) >= grd(prev) - .5);
       if (k < 0) k = pool.findIndex(c => c.family !== prev.family);
     }
     if (k < 0) k = 0;
@@ -12490,6 +12500,11 @@ function scColourVivid(h){ const [r, g, b] = scHexRgb(h); return (Math.max(r, g,
 /* the word a colour set's small ad buys: the markets in turn, so the mosaic reads as every
    market's colours rather than 54 phone ads (the card that shows most sets best is a phone's) */
 const FAM_WORDS = ['iPhones', 'gold', 'cars', 'cards', 'silver', 'coins', 'laptops', 'watches', 'games', 'Pixels', 'cameras', 'strips'];
+/* a sample number on each set, written as a phone number reads, never the business's own: 555-01xx is the
+   range kept for fiction (2026-11-23; the owner: "Why do we have to put the 999? That'd be obviously
+   affiliated with my business") */
+const FAM_NUMBERS = ['213', '310', '562', '714', '818', '626', '909', '424', '323', '657', '951', '747'];
+const famNumber = ix => `${FAM_NUMBERS[ix % FAM_NUMBERS.length]}-555-01${String(10 + (ix * 37) % 90).padStart(2, '0')}`;
 function famPaint(b, c){ const s = b.querySelector('.fam-art'); if (s) for (const k in c) if (c[k]) s.style.setProperty('--' + k, c[k]); }
 function scBuildFamilies(cards){
   const grid = $('fam-grid');
@@ -12520,7 +12535,7 @@ function scBuildFamilies(cards){
     b.dataset.fam = p.theme;
     b.title = p.theme + ' · ' + p.family + ' · ' + p.n + ' cards';
     const r = p.rep;
-    b.innerHTML = `<span class="fam-art" aria-hidden="true"><b>We buy<em>${FAM_WORDS[ix % FAM_WORDS.length]}</em></b><i>999-4994</i></span>
+    b.innerHTML = `<span class="fam-art" aria-hidden="true"><b>We buy<em>${FAM_WORDS[ix % FAM_WORDS.length]}</em></b><i>${famNumber(ix)}</i></span>
       <div class="fam-name">${escHtml(p.theme)}</div>
       <div class="fam-meta">${p.n} design${p.n === 1 ? '' : 's'}</div>`;
     if (r.c1) famPaint(b, { g: r.c1, i: r.ink, a: r.accent, p: r.accent, pi: r.c1 });
@@ -12534,6 +12549,14 @@ function scBuildFamilies(cards){
     };
     grid.appendChild(b);
   });
+  /* twelve sets at first, the rest a tap away (landing.css .fam-grid:not(.all)) */
+  let more = grid.parentNode.querySelector('.fam-more');
+  if (pals.length > 12){
+    if (!more){ more = document.createElement('button'); more.type = 'button'; more.className = 'btn btn-outline fam-more'; grid.after(more); }
+    const label = () => { more.textContent = grid.classList.contains('all') ? 'Show fewer' : `Show all ${pals.length} colour sets`; };
+    more.onclick = () => { grid.classList.toggle('all'); label(); };
+    label();
+  } else if (more) more.remove();
   if (needPair.length) import('./motion/fullad.js').then(M => {
     for (const [b, k] of needPair){
       const c = M.COLOUR_OF && M.COLOUR_OF[k] && M.COLOUR_OF[k].colors;
