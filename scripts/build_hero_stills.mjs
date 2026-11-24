@@ -22,10 +22,14 @@
            --redraw   draw every pick again, the pinned ones in their pins */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { engineStamp, sampleNumber } from './engine_stamp.mjs';
 
 const ROOT = new URL('../', import.meta.url).pathname, DIR = ROOT + 'assets/hero/';
 const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8931/').replace(/\/?$/, '/');
-const SHOP = { number: '(562) 999-4994', zip: '90802' };   // the library cards' own number and Long Beach
+// Long Beach, as the library cards showed; a sample number per still (engine_stamp.mjs), never the business's
+// own line (every still printed it until 2026-11-23)
+const SHOP = { zip: '90802' };
+const ENGINE = engineStamp();   // the engine a still was drawn by (engine_stamp.mjs)
 const HP = JSON.parse(readFileSync(ROOT + 'assets/hero-picks.json', 'utf8'));
 const picks = (HP.picks || []).map(String), pins = HP.pins || {};
 const house = picks.filter(id => /^r-|^full-/.test(id));
@@ -39,10 +43,15 @@ const REDRAW = process.argv.includes('--redraw');
 const kept = id => !REDRAW && !!pins[id] && !!index.items[id] && index.items[id].pair === pins[id] && existsSync(DIR + id + '.webp');
 const missing = house.filter(id => !own(id) && (!index.items[id] || !existsSync(DIR + id + '.webp')));
 const offPin = house.filter(id => pins[id] && index.items[id] && index.items[id].pair !== pins[id]);
+// drawn by an older engine: an unpinned still is stale; a pinned one is the approved wall, kept, and said
+const oldEngine = house.filter(id => !own(id) && index.items[id] && index.items[id].engine !== ENGINE);
+const staleFree = oldEngine.filter(id => !pins[id]), stalePinned = oldEngine.filter(id => pins[id]);
 
 if (process.argv.includes('--check')) {
   if (missing.length) { console.error(`hero stills missing for ${missing.length} pick${missing.length > 1 ? 's' : ''}: ${missing.join(', ')}; run node scripts/build_hero_stills.mjs`); process.exit(1); }
   if (offPin.length) { console.error(`hero stills off their pinned pair: ${offPin.map(id => `${id} (${index.items[id].pair}, pinned ${pins[id]})`).join(', ')}; run node scripts/build_hero_stills.mjs`); process.exit(1); }
+  if (staleFree.length) { console.error(`hero stills drawn by an older engine: ${staleFree.join(', ')}; run node scripts/build_hero_stills.mjs`); process.exit(1); }
+  if (stalePinned.length) console.log(`hero stills: ${stalePinned.length} approved pick${stalePinned.length === 1 ? ' was' : 's were'} drawn by an older engine and kept as approved; the wall does not show today's ads until they are drawn again (--redraw) and approved again`);
   const n = house.filter(id => pins[id]).length;
   console.log(`hero stills: ${house.length} recipe or full-ad pick${house.length === 1 ? '' : 's'}, each with its still` + (n ? `, ${n} in the pair it was approved in` : ''));
   process.exit(0);
@@ -58,11 +67,12 @@ await page.evaluate(async S => {
   account = { email: 'hero@local', role: 'admin', plan: 'pro' }; loadAccount = async () => account; recordExport = async () => true;
   const a = await resolveArea(S.zip); if (a) setArea(a);
   try { jset('pgfx_area_asked', true); } catch (e) { }
-  $('ez-phone').value = S.number; $('ez-website').value = '';
+  $('ez-website').value = '';
 }, SHOP);
 
 for (const id of house.filter(id => !own(id) && !kept(id))) {
-  const got = await page.evaluate(async ({ id, pin }) => {
+  const got = await page.evaluate(async ({ id, pin, number }) => {
+    $('ez-phone').value = number;
     const M = await import('/motion/fullad.js'), FS = window.FullAdStudio, FA = FS.state;
     let meta;
     if (id.startsWith('r-')) {
@@ -87,11 +97,11 @@ for (const id of house.filter(id => !own(id) && !kept(id))) {
     const bg = String(st.background || ''), { GROUND_SCENES } = await import('/motion/full-grounds.js');
     const ground = bg === 'photo' ? 'photo' : /^pair_/.test(bg) ? 'gradient' : /^pat_/.test(bg) ? 'pattern' : GROUND_SCENES.includes(bg) ? 'scene' : 'house';
     return { ...meta, pair, pairName: P ? P.name : '', look: P ? P.look : '', background: bg, ground, headline: String(st.headline || ''), product: String(product), webp: c.toDataURL('image/webp', 0.78) };
-  }, { id, pin: pins[id] || '' });
+  }, { id, pin: pins[id] || '', number: sampleNumber(id) });
   if (got.error) { console.log(`  ${id}: ${got.error}`); continue; }
   writeFileSync(DIR + id + '.webp', Buffer.from(got.webp.split(',')[1], 'base64'));
   const { webp, ...meta } = got;
-  index.items[id] = { ...meta, thumb: 'assets/hero/' + id + '.webp', ...(pins[id] ? { pin: pins[id] } : {}) };
+  index.items[id] = { ...meta, thumb: 'assets/hero/' + id + '.webp', number: sampleNumber(id), engine: ENGINE, ...(pins[id] ? { pin: pins[id] } : {}) };
   console.log(`  ${id}: ${meta.name} on ${meta.pair}`);
 }
 const keptN = house.filter(id => kept(id)).length;
