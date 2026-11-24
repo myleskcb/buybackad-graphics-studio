@@ -4721,3 +4721,38 @@ Open:
    them (the share card is `assets/brand/share-card.jpg`).
 5. This Mac has no Netlify CLI and no CLI login (the brief said otherwise); the old project's
    last deploy is a CLI deploy of 2026-10-07.
+
+## BY. 2026-11-23 — a picture that does not arrive is never shown broken (DESIGN-LAW 169)
+
+The owner, of a screenshot of the wall with six tiles showing the browser's broken-picture mark and
+their alt text: "Can you fix this so our final product doesn't have this issue".
+
+Found: the screenshot was the browser pane's preview tab (localhost:8961, opened for the sign-in
+check), whose server had been stopped. The wall's late pictures are asked for only once the wall
+is in, and the wall comes in on an animation frame, which a hidden tab never gets; shown again
+after the server had gone, it asked for twelve pictures and got none. The live site loaded 36 of 36
+at desktop and phone widths. Nothing was missing from the build.
+
+Done:
+- `app.js`: `pictureWatch` (hide on failure, ask again at 1.5 s and 5 s, then let the tile leave;
+  ask once more when the connection, the tab or the page cache returns), `scWallWatch` (a wall
+  picture is clear until it has loaded; a lost one's card leaves in both copies of its column), and
+  the same watch on the landing's library cards (`scCard`).
+- `landing.css`: a wall picture fades in when it arrives.
+- `scripts/wall_pictures_check.mjs` (22 cases). Run against the code before this change it fails
+  12, with the same alt text in sight that the screenshot shows.
+
+Open:
+1. A column that loses three or more of its six cards is shorter than the stage, so a gap passes
+   once in its loop. It takes half a column's pictures failing for good. Drawing the wall again
+   from the cards that are left would close it.
+2. The watch is on the wall and the landing's library. Other pictures a visitor loads from the
+   server (the studio's background and photo pickers, the video maker's posters, the business
+   cards' grounds) still show the browser's mark if one fails. The same `pictureWatch` fits them.
+3. `scripts/landing_check.mjs` was not run here: it needs `puppeteer-core`, which this worktree
+   does not have. `hero_wall_check` passes.
+5. `full_ad_studio_check` fails one case on `main` (7ead02be), with or without this change: "earbuds
+   landscape: Something on the ad runs to the edge of the picture". It is the full ad's, not the
+   wall's; passed to the session that owns the full ad's looks.
+4. When a preview server is stopped, its tab in the browser pane should be closed with it: the
+   owner reads that pane as the product.
