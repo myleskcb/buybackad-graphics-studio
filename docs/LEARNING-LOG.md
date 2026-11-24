@@ -6417,3 +6417,26 @@ Auto-fix: main took two commits (the landing's pricing buttons on a fresh visit;
 iPhone, Delete account, payment in Safari). The code merged on its own; only the notes met. Main
 named its open items BF, which this branch gave the Type Lab, and BK to BP are taken on other
 branches, so they are BQ here, with a line saying so.
+
+## 2026-11-19 (night) — Sign in with Apple and Google (DESIGN-LAW 168; claude/sign-in-apple-google)
+
+Asked: "apple and google sign in ?", on the video maker's dialog. Found: Google's sign-in was
+already built (2026-10, `/auth/google` through Google's tokeninfo, the studio's button) but
+switched off for want of `GOOGLE_CLIENT_ID`, and only on the studio's dialog; Apple's did not
+exist; the video maker's dialog (`account.js`) had neither.
+
+Done: Apple on the server (`netlify/lib/appleid.mjs`: Apple has no tokeninfo, so its JWT is
+checked against its published keys, and its rotated keys are fetched again once); both buttons
+in one place (`account.js`), used by both dialogs; the CSP; the privacy policy; the owner's steps
+(`docs/SIGN-IN-SETUP.md`).
+
+Found on the way: Apple's button must be Apple's own, so its script draws it into
+`#appleid-signin` and the result comes back as a document event. Two dialogs never share a page
+(on the studio `account.js` hands over to `app.js`), so one element and one listener do. Inside the
+iPhone app neither shows: Google answers "disallowed_useragent" in an app's web view, and offering
+Google there obliges Apple too.
+
+Checked: `appleid_check` 16 of 16, `social_signin_check` 20 of 20; `watermark_check` and
+`full_ad_studio_check` pass; `billing_check` 172 of 173, the same fabric.js failure as before.
+
+RESUME HERE: the owner's two IDs (§BV 1), then Sign in with Apple in the iPhone app (§BV 3).

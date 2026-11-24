@@ -6730,3 +6730,30 @@ designer to come: "needs to be super pay walled". The maker is `cards/` (`cards/
   links; the paywall signed out, on Starter and on Pro, light and dark, at 390) and
   `scripts/billing_check.mjs` (the function's rule). A sweep of every layout × type pair × QR × three
   name lengths (1,740 sides) found one line under 7 pt: a 31-character website in the widest pair, at 6.7 pt, which the page names.
+
+## 168. Sign in with Apple and Google: one pair of buttons, shown when configured, checked on the server
+
+(Written as 164 and OPEN-ITEMS BR; both were taken on other branches by the time it met main, so 168 and BV.)
+
+Added 2026-11-19. The owner: "apple and google sign in ?".
+
+- **One pair, both dialogs.** `account.js` draws them (`pgfxAccount.social.mount`): the video
+  maker's dialog and the studio's (`app.js ensureGoogleAuth`, whose box keeps the id `#auth-google`)
+  put them above the email form, with an "or with email" line under them. Apple's button is drawn
+  by Apple's own script, as its guidelines want; Google's by Google's.
+- **Shown only when configured.** `/api/auth/config` says which: `APPLE_CLIENT_ID` (the web Services
+  ID) and `GOOGLE_CLIENT_ID`. Without them no script loads and nothing shows.
+- **Checked on the server.** Google's credential by Google's tokeninfo (as before); Apple's identity
+  token in `netlify/lib/appleid.mjs` against Apple's published keys: the signature, the issuer, the
+  audience (the Services ID, or the iPhone app's bundle ID `APPLE_BUNDLE_ID`), the expiry, a verified
+  email, and the nonce the page made. An unknown key id fetches Apple's keys once more first.
+- **One account per email.** Apple or Google with a confirmed email signs in to the account that
+  email already has, or opens one. An account opened this way has no password, and the email form
+  says to use its button.
+- **Not in the iPhone app's web view.** Google refuses it there, and the App Store requires Apple
+  wherever Google is offered, so the app shows neither until it signs in with Apple natively.
+- **Held by** `scripts/appleid_check.mjs` (a key pair standing in for Apple's: a good token, and the
+  forged, expired, wrong-app, wrong-nonce, unknown-key and unverified ones refused) and
+  `scripts/social_signin_check.mjs` (both dialogs against stand-ins for Apple, Google and the API).
+
+Not done here: OPEN-ITEMS §BV.
