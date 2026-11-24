@@ -7148,8 +7148,9 @@ something you would probably be paying for". OPEN-ITEMS §BU had planned it. The
   style's lists (the six styles twice), no pair twice and no layout more than twice, in the customer's own words from
   the studio, the Logo layout first when a logo is kept. The form above is Customise, behind the gallery; a tap opens
   it on that card. Drawing is one at a time: the gallery lends a look to the card's state only while it draws it.
-- **Findable:** Logo and brand kit in the landing's bar (from 1180 px) and footer, in Easy Mode's bar, the video
-  maker's bar and the card maker's, and in the sitemap.
+- **Findable:** Logo and brand kit in Easy Mode's bar, the video maker's bar, the card maker's, the landing's footer
+  and the sitemap; in the landing's bar as "Logo & brand kit" from 1300 px, in Business cards' place (the bar is
+  full from 1450 and the kit is where the card is made from the logo; `landing.css`, measured 1000 to 1920).
 - **Held by** `scripts/logo_check.mjs` (103 checks: the voices against the catalogue, the glyphs and the function's
   faces, the twenty symbols, every pair's contrast; every layout drawn for eight kinds of name in every voice it
   takes, in every form and version, with no NaN, no missing letter and one colour in a one-colour file; the gallery

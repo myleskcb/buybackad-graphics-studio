@@ -4779,7 +4779,9 @@ Done:
 - **The card maker** opens on twelve finished cards in the customer's words; the form is Customise behind it; a Logo
   layout wears the picked logo. `business_card_check.mjs` opens Customise first.
 - **The full ad** wears the logo on its badge (Easy Mode), in the ad's pair, and opens in the logo's pair.
-- Links: the landing's bar (from 1180 px) and footer, Easy Mode's bar, the video maker's bar, the card maker, the sitemap.
+- Links: Easy Mode's bar, the video maker's bar, the card maker, the landing's footer, the sitemap, and the landing's
+  bar as "Logo & brand kit" from 1300 px in Business cards' place (the bar had no room for both: 40 to 60 px spare
+  from 1450, and the new link ran into Log in at 1180 to 1270). The owner may want Business cards back in the bar.
 - Checks: `scripts/logo_check.mjs`, `scripts/logo_sheet.mjs`, `scripts/build_logo_glyphs.mjs --check`.
 
 Open, the owner's call:
