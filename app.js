@@ -12136,7 +12136,15 @@ function scOrder(list){
      most of the library, so no card is clean and that rule would sort by
      nothing but the warning count */
   const warned = c => { const w = c.school && c.school.warn; return w ? w.length : 0; };
-  const pool = list.slice().sort((a, b) => ((img(b) + b.affinity + scVivid(b) * 4 - warned(b)) - (img(a) + a.affinity + scVivid(a) * 4 - warned(a))) || (b.density - a.density));
+  /* the newest designs first (the owner, 2026-11-23: "still don't see the latest design ads"): a rebuilt ad by the
+     ground its still was drawn on (build_recipe_stills: the engine's kinds), the photographs, gradients and patterns
+     the owner asked to see first, the newer painted families next, the plain house grounds last. A rebuilt ad has no
+     approval count or edge density: missing, they made every comparison NaN and the shop window was file order */
+  const GROUND_RANK = { photo: 3, gradient: 3, pattern: 3, scene: 2.5, abstract: 2.5, shape: 2.5, product: 2.5, type: 2, house: 0 };
+  const groundOf = c => (c.house && c.house.ground) || '';
+  const grd = c => GROUND_RANK[groundOf(c)] || 0;
+  const score = c => img(c) + (c.affinity || 0) + grd(c) + scVivid(c) * 4 - warned(c);
+  const pool = list.slice().sort((a, b) => (score(b) - score(a)) || ((b.density || 0) - (a.density || 0)));
   const light = c => scLum(c.c1) > 0.22;
   const hueOf = c => typeof c.hue === 'number' ? c.hue : null;
   const hueGap = (a, b) => { const x = Math.abs((hueOf(a) ?? 0) - (hueOf(b) ?? 0)) % 360; return x > 180 ? 360 - x : x; };
@@ -12152,6 +12160,8 @@ function scOrder(list){
       if (k < 0) k = pool.findIndex(c => farHue(c) && c.family !== prev.family);
       if (k < 0) k = pool.findIndex(c => hueGap(c, prev) >= 60 && c.family !== prev.family);
       if (k < 0) k = pool.findIndex(c => c.family !== prev.family && light(c) !== light(prev));
+      // neighbours on different kinds of ground too: a photograph, then a gradient or a pattern, not a run of one
+      if (k < 0) k = pool.findIndex(c => c.family !== prev.family && groundOf(c) !== groundOf(prev) && grd(c) >= grd(prev) - .5);
       if (k < 0) k = pool.findIndex(c => c.family !== prev.family);
     }
     if (k < 0) k = 0;
