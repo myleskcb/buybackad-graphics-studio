@@ -87,6 +87,83 @@
   async function login(email, password){ return took(await api('/auth/login', { email: clean(email), password })); }
   function signout(){ jset(TOKEN, null); state.me = null; state.meFor = null; tell(); }
 
+  /* ---------- Sign in with Apple, and with Google ----------
+     The owner, 2026-11-19: "apple and google sign in ?". Both dialogs (this file's,
+     and app.js's on the studio) put these buttons above the email form; mount() draws
+     them in a box and calls back with the account. Each shows only when the backend
+     says it is configured (/api/auth/config: APPLE_CLIENT_ID, GOOGLE_CLIENT_ID), so a
+     site without them loads nothing. Apple's button and popup are its own JS (the
+     button drawn by Apple, as its guidelines want); its identity token goes to
+     /api/auth/apple with the nonce this page made, and Google's credential to
+     /api/auth/google. Inside the WeBuy.AD iPhone app neither shows yet: Google refuses
+     sign-in in an app's web view, and the App Store asks for Apple alongside it, which
+     the app has to do natively (OPEN-ITEMS). */
+  const IN_IOS_APP = /\bWeBuyADApp\//.test(navigator.userAgent);
+  const APPLE_JS = 'https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js';
+  const GOOGLE_JS = 'https://accounts.google.com/gsi/client';
+  let socialCfg = null, appleNonce = '', socialTarget = null, appleBound = false, googleInit = false;
+  const socialConfig = () => socialCfg || (socialCfg = (DEMO || IN_IOS_APP) ? Promise.resolve({}) : api('/auth/config').catch(() => ({})));
+  const loadScript = (src, ready) => new Promise((res, rej) => {
+    if (ready()) return res();
+    let s = document.querySelector('script[data-src="' + src + '"]');
+    if (!s){ s = document.createElement('script'); s.src = src; s.async = true; s.dataset.src = src; document.head.appendChild(s); }
+    s.addEventListener('load', () => (ready() ? res() : rej(new Error('did not start'))));
+    s.addEventListener('error', () => rej(new Error('did not load')));
+  });
+  const newNonce = () => { const b = new Uint8Array(16); crypto.getRandomValues(b); return Array.from(b, x => x.toString(16).padStart(2, '0')).join(''); };
+  /* a sign-in from either button: the account it opens, then the dialog's own next step */
+  async function socialDone(path, body, via){
+    const t = socialTarget;
+    if (!t) return;
+    try { const user = took(await api(path, body)); if (t.onSignedIn) await t.onSignedIn(user, via); }
+    catch (e){ if (t.onError) t.onError(explain(e)); }
+  }
+  async function mountSocial(holder, handlers){
+    socialTarget = handlers || {};
+    const cfg = await socialConfig();
+    const apple = !!(cfg && cfg.apple && cfg.appleClientId), google = !!(cfg && cfg.google && cfg.googleClientId);
+    if (!holder || (!apple && !google)) return false;
+    let shown = false;
+    if (apple && !holder.querySelector('#appleid-signin')){
+      const host = el('div', 'social-apple');
+      host.id = 'appleid-signin';             // Apple's JS draws its own button here
+      Object.assign(host.dataset, { color: 'black', border: 'true', type: 'continue', mode: 'center-align', borderRadius: '50', width: '300', height: '44' });
+      holder.appendChild(host);
+      try {
+        await loadScript(APPLE_JS, () => !!(window.AppleID && window.AppleID.auth));
+        appleNonce = appleNonce || newNonce();
+        window.AppleID.auth.init({ clientId: cfg.appleClientId, scope: 'name email', redirectURI: location.origin + '/', usePopup: true, nonce: appleNonce });
+        if (!appleBound){
+          appleBound = true;
+          document.addEventListener('AppleIDSignInOnSuccess', ev => {
+            const d = (ev && ev.detail) || {}, n = d.user && d.user.name ? [d.user.name.firstName, d.user.name.lastName].filter(Boolean).join(' ') : '';
+            socialDone('/auth/apple', { id_token: d.authorization && d.authorization.id_token, name: n, nonce: appleNonce }, 'Apple');
+          });
+          document.addEventListener('AppleIDSignInOnFailure', ev => {
+            const code = ev && ev.detail && ev.detail.error;
+            if (code === 'popup_closed_by_user' || code === 'user_cancelled_authorize') return;   // they closed it: nothing to say
+            if (socialTarget && socialTarget.onError) socialTarget.onError('Apple sign-in did not finish. Try again.');
+          });
+        }
+        shown = true;
+      } catch (e){ host.remove(); }
+    } else if (apple) shown = true;
+    if (google && !holder.querySelector('.social-google')){
+      const host = el('div', 'social-google');
+      holder.appendChild(host);
+      try {
+        await loadScript(GOOGLE_JS, () => !!(window.google && window.google.accounts && window.google.accounts.id));
+        if (!googleInit){
+          googleInit = true;
+          window.google.accounts.id.initialize({ client_id: cfg.googleClientId, callback: resp => socialDone('/auth/google', { credential: resp && resp.credential }, 'Google') });
+        }
+        window.google.accounts.id.renderButton(host, { theme: 'filled_black', size: 'large', shape: 'pill', width: 300, text: 'continue_with' });
+        shown = true;
+      } catch (e){ host.remove(); }
+    } else if (google) shown = true;
+    return shown;
+  }
+
   /* ---------- the dialog ---------- */
   const CSS = `
 .acct-overlay{position:fixed;inset:0;z-index:470;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(10,10,14,.6);backdrop-filter:blur(6px)}
@@ -107,6 +184,10 @@
 .acct-row button.primary{background:var(--btn,#2b56f5);color:var(--accent-ink,#fff);border-color:transparent}
 .acct-row button:disabled{opacity:.5;cursor:default}
 .acct-note{font-size:13px;color:var(--text-2,#3b3833);margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(20,20,20,.05)}
+.acct-social{display:flex;flex-direction:column;align-items:center;gap:10px;margin:2px 0 4px}
+.acct-social[hidden],.acct-or[hidden]{display:none}
+.acct-or{display:flex;align-items:center;gap:12px;margin:12px 0 2px;color:var(--muted,#66615a);font-size:12px}
+.acct-or::before,.acct-or::after{content:'';flex:1;height:1px;background:var(--line,rgba(20,20,20,.18))}
 `;
   let overlay = null, styled = false, mode = 'up', next = null;
   const el = (tag, cls, txt) => { const n = document.createElement(tag); if (cls) n.className = cls; if (txt != null) n.textContent = txt; return n; };
@@ -118,6 +199,8 @@
     overlay.setAttribute('role', 'dialog'); overlay.setAttribute('aria-modal', 'true'); overlay.setAttribute('aria-label', 'Your account');
     const m = el('div', 'acct-modal');
     m.innerHTML = `<h3>Welcome to WeBuy.AD</h3><p class="acct-sub" id="acct-sub"></p>
+      <div class="acct-social" id="acct-social" hidden></div>
+      <div class="acct-or" id="acct-or" hidden><span>or with email</span></div>
       <div class="acct-tabs" role="tablist"><button type="button" role="tab" id="acct-tab-up" aria-selected="true">Create free account</button><button type="button" role="tab" id="acct-tab-in" aria-selected="false">Sign in</button></div>
       <form id="acct-form" novalidate>
         <label for="acct-email">Email</label><input type="email" id="acct-email" autocomplete="email" placeholder="you@example.com">
@@ -183,8 +266,14 @@
     setMode(want);
     overlay.classList.add('show');
     setTimeout(() => { try { q('acct-email').focus(); } catch (e){} }, 60);
+    /* Apple and Google above the form, when the site has them */
+    mountSocial(q('acct-social'), {
+      onSignedIn: async user => { const fn = next; close(); if (fn) { try { await fn(user); } catch (e){ console.warn('after sign-in:', e); } } },
+      onError: msg => { q('acct-err').textContent = msg; },
+    }).then(shown => { q('acct-social').hidden = !shown; q('acct-or').hidden = !shown; }).catch(() => {});
   }
 
-  window.pgfxAccount = { api, API, demo: DEMO, token, signedIn, me, signup, login, signout, openAuth, close, onChange: fn => { state.listeners.push(fn); }, seen: () => jget(SEEN, false) };
+  window.pgfxAccount = { api, API, demo: DEMO, token, signedIn, me, signup, login, signout, openAuth, close, onChange: fn => { state.listeners.push(fn); }, seen: () => jget(SEEN, false),
+    social: { mount: mountSocial } };
   if (signedIn() && !demoToken()) jset(SEEN, true);
 })();

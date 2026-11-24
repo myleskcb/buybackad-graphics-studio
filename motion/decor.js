@@ -10,6 +10,7 @@
 // invitation) and never a deadline, a countdown or a price that is about to move.
 
 import { canvas, rrect, rng, lerp, clamp, prog, outCubic, outBack, outBounce, outQuint, lum, mix, rgba, fontCss, noiseTile, contrastOf, oklchOf } from "./engine.js";
+import { styleGround, styleBoard } from "./style-grounds.js";   // the owner's new styles (2026-11-18)
 
 const TAU = Math.PI * 2;
 // A loop that draws as many random values as the frame has pixels takes its own stream,
@@ -1208,7 +1209,7 @@ export function themeBoard(kind, w, h, s, p, st, r, extra, B) {
       B.rot = r.uniform(-3, 3) * Math.PI / 180;
       break;
     }
-    default: return null;
+    default: return styleBoard(kind, w, h, s, p, st, r, extra, B);   // the new styles' signs
   }
   return { c, ox, oy };
 }
@@ -1351,7 +1352,7 @@ export function themeGround(kind, x, st, p, W, H, sc, r) {
       x.fillStyle = "rgba(0,0,0,.12)"; for (const f of [.2, .5, .8]) { x.beginPath(); x.arc(W * .05, H * f, U * .018, 0, TAU); x.fill(); }
       grain(x, W, H, r, 10, .2); return true;
     }
-    default: return false;
+    default: return styleGround(kind, x, st, p, W, H, sc, r);   // the new styles' grounds
   }
 }
 
@@ -1949,7 +1950,8 @@ export function pairGradientGround(kind, x, st, p, W, H, sc, r) {
    behind the product, which stands on a quiet middle. Still in the video (drawn once).
    ═══════════════════════════════════════════════════════════════════════════════════════════════ */
 export const FULL_PATTERNS = ["pat_halftone", "pat_stripes", "pat_checks", "pat_grid", "pat_waves", "pat_zigzag", "pat_rays", "pat_rings",
-  "pat_topo", "pat_polka", "pat_gingham", "pat_memphis", "pat_grain", "pat_paper", "pat_riso"];
+  "pat_topo", "pat_polka", "pat_gingham", "pat_memphis", "pat_grain", "pat_paper", "pat_riso",
+  "pat_cards", "pat_slabs", "pat_binder", "pat_foil", "pat_stitch", "pat_pixels", "pat_pads", "pat_crt", "pat_coins", "pat_reeded", "pat_road", "pat_tread"];
 /** The tone a pattern's marks take on this pair: the ground's own hue and chroma, dL lighter or deeper. */
 export function patternTone(p, dL = .06) {
   const G = oklchOf(p.ground), ink = p.ink || (G.L < .56 ? "#ffffff" : "#111111");
@@ -1972,7 +1974,9 @@ export function fullPatternGround(kind, x, st, p, W, H, sc, r) {
      more of them"): a step of .05 read as a flat ground at the wall's size, so the marks now stand nearly
      twice as far off it. patternTone still keeps the words at 7:1 on them where both ways allow it, and
      otherwise moves them away from the words. */
-  const step = { pat_grain: .1, pat_paper: .06, pat_riso: .1, pat_topo: .09, pat_grid: .08, pat_waves: .085 }[kind] || .095;
+  const step = { pat_grain: .1, pat_paper: .06, pat_riso: .1, pat_topo: .09, pat_grid: .08, pat_waves: .085,
+    // the lines' own grounds are pictures of things, drawn in thin lines: a wider step, or they read as a flat ground
+    pat_cards: .15, pat_slabs: .15, pat_binder: .15, pat_foil: .13, pat_stitch: .15, pat_pixels: .12, pat_pads: .15, pat_crt: .12, pat_coins: .15, pat_reeded: .15, pat_road: .13, pat_tread: .12 }[kind] || .095;
   const tone = patternTone(p, step), [tr, tg, tb] = hexRgb(tone), c = canvas(W, H), m = c.getContext("2d");
   m.fillStyle = tone; m.strokeStyle = tone; m.lineCap = "round"; m.lineJoin = "round";
   const speckle = (n, alpha) => {   // a tile of single grains in the tone
@@ -2058,6 +2062,150 @@ export function fullPatternGround(kind, x, st, p, W, H, sc, r) {
         else if (k === 2) { m.beginPath(); m.arc(0, 0, s * .6, 0, TAU); m.stroke(); }
         else { m.fillRect(-s * .7, -s * .14, s * 1.4, s * .28); m.fillRect(-s * .14, -s * .7, s * .28, s * 1.4); }
         m.restore();
+      }
+      break;
+    }
+    /* THE LINES' OWN GROUNDS (2026-11-21; the owner: "Gaming is lacking in image variety as well as cards.
+       Pokemon cards and sports cards are extremely lacking in variety"). Real cards carry their makers' art
+       and the players' faces, which a paid ad may not use, so these are drawn: generic cards, graded slabs,
+       a binder page and foil for the cards; pixels, pads and a screen for gaming; rims and reeding for coins
+       and bullion; a road and a tread for cars. No maker's art, symbol or lettering. One tone, as above. */
+    case "pat_cards": {      // a loose scatter of trading cards: a frame, an art window, two text bars
+      const w = U * r.uniform(.15, .19), h = w * 88 / 63, cols = Math.ceil(W / (w * 1.25)) + 1, rows = Math.ceil(H / (h * 1.1)) + 1;
+      m.lineWidth = Math.max(2, U * .005);
+      for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+        const px = (i + (j % 2) * .5) * w * 1.25 + r.uniform(-.12, .12) * w, py = j * h * 1.1 + r.uniform(-.1, .1) * h;
+        m.save(); m.translate(px, py); m.rotate(r.uniform(-.22, .22));
+        m.beginPath(); m.roundRect(-w / 2, -h / 2, w, h, w * .06); m.stroke();
+        m.beginPath(); m.roundRect(-w * .41, -h * .42, w * .82, h * .46, w * .02); m.globalAlpha = .55; m.fill(); m.globalAlpha = 1;
+        m.fillRect(-w * .38, h * .12, w * .76, h * .045); m.fillRect(-w * .38, h * .22, w * .5, h * .035); m.fillRect(-w * .38, h * .3, w * .62, h * .035);
+        m.restore();
+      }
+      break;
+    }
+    case "pat_slabs": {      // rows of graded slabs: the case, its label bar with a grade, the card inside
+      const w = U * r.uniform(.17, .2), h = w * 1.62, gx = w * .3, gy = h * .14, cols = Math.ceil(W / (w + gx)) + 1, rows = Math.ceil(H / (h + gy)) + 1, lw = Math.max(2, U * .005);
+      const ox = -r() * w, oy = -r() * h * .5;
+      for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+        const px = ox + i * (w + gx) + (j % 2) * (w + gx) / 2, py = oy + j * (h + gy);
+        m.lineWidth = lw; m.beginPath(); m.roundRect(px, py, w, h, w * .07); m.stroke();
+        m.beginPath(); m.roundRect(px + w * .07, py + h * .05, w * .86, h * .17, w * .03); m.fill();
+        m.save(); m.globalCompositeOperation = "destination-out";
+        m.fillRect(px + w * .14, py + h * .09, w * .44, h * .025); m.fillRect(px + w * .14, py + h * .15, w * .3, h * .02);
+        m.beginPath(); m.arc(px + w * .76, py + h * .135, h * .045, 0, TAU); m.fill(); m.restore();
+        m.lineWidth = lw * .8; m.beginPath(); m.roundRect(px + w * .14, py + h * .28, w * .72, h * .64, w * .03); m.stroke();
+        m.globalAlpha = .4; m.fillRect(px + w * .19, py + h * .32, w * .62, h * .34); m.globalAlpha = 1;
+      }
+      break;
+    }
+    case "pat_binder": {     // a binder page: nine pockets, the page's edge and its rings, a little turned
+      const ang = r.uniform(-.08, .08), pw = Math.max(W, H) * 1.05, ph = pw * 1.12;
+      m.save(); m.translate(W / 2, H / 2); m.rotate(ang); m.lineWidth = Math.max(2, U * .005);
+      m.beginPath(); m.roundRect(-pw / 2, -ph / 2, pw, ph, U * .02); m.stroke();
+      const pad = pw * .07, cw = (pw - pad * 2.4) / 3, chh = (ph - pad * 2) / 3;
+      for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) {
+        const px = -pw / 2 + pad * 1.4 + i * cw + cw * .04, py = -ph / 2 + pad + j * chh + chh * .04;
+        m.beginPath(); m.roundRect(px, py, cw * .92, chh * .92, U * .012); m.stroke();
+        m.globalAlpha = .3; m.beginPath(); m.roundRect(px + cw * .08, py + chh * .06, cw * .76, chh * .5, U * .006); m.fill(); m.globalAlpha = 1;
+        m.beginPath(); m.moveTo(px, py + chh * .2); m.lineTo(px + cw * .92, py + chh * .2); m.globalAlpha = .5; m.stroke(); m.globalAlpha = 1;
+      }
+      for (let k = 0; k < 3; k++) { m.beginPath(); m.arc(-pw / 2 + pad * .6, -ph / 2 + ph * (.2 + k * .3), U * .018, 0, TAU); m.fill(); }
+      m.restore(); break;
+    }
+    case "pat_foil": {       // holographic foil: soft diagonal bands of sheen and a scatter of sparkles
+      const dir = r() < .5 ? 1 : -1, bands = 7 + Math.floor(r() * 4);
+      m.save(); m.translate(W / 2, H / 2); m.rotate(dir * r.uniform(.5, .9));
+      for (let k = 0; k < bands; k++) {
+        const y0 = -D / 2 + (k + r.uniform(-.2, .2)) * D / bands, bw = D / bands * r.uniform(.35, .7), gr = m.createLinearGradient(0, y0, 0, y0 + bw);
+        gr.addColorStop(0, rgba(tone, 0)); gr.addColorStop(.5, rgba(tone, r.uniform(.5, 1))); gr.addColorStop(1, rgba(tone, 0));
+        m.fillStyle = gr; m.fillRect(-D, y0, D * 2, bw);
+      }
+      m.restore(); m.fillStyle = tone;
+      const n = Math.round(W * H / (U * U) * 22);
+      for (let i = 0; i < n; i++) {
+        const px = r() * W, py = r() * H, s = U * r.uniform(.008, .026);
+        m.beginPath(); m.moveTo(px, py - s); m.quadraticCurveTo(px, py, px + s, py); m.quadraticCurveTo(px, py, px, py + s); m.quadraticCurveTo(px, py, px - s, py); m.quadraticCurveTo(px, py, px, py - s); m.fill();
+      }
+      break;
+    }
+    case "pat_stitch": {     // a ball's seams: wide arcs across the frame, stitched in V's along them
+      m.lineWidth = Math.max(2, U * .005);
+      const seams = 2 + Math.floor(r() * 2);
+      for (let k = 0; k < seams; k++) {
+        const R = Math.max(W, H) * r.uniform(.55, .9), side = k % 2 ? 1 : -1, ccx = W / 2 + side * (R + U * r.uniform(-.25, .1)), ccy = H * r.uniform(.2, .8);
+        const a0 = side > 0 ? Math.PI * .55 : -Math.PI * .45, a1 = side > 0 ? Math.PI * 1.45 : Math.PI * .45, step = U * .035 / R;
+        m.beginPath(); m.arc(ccx, ccy, R, a0, a1); m.stroke();
+        for (let a = a0; a < a1; a += step) {
+          const ux = Math.cos(a), uy = Math.sin(a), tx = -uy, ty = ux, px = ccx + ux * R, py = ccy + uy * R, s = U * .016;
+          m.beginPath(); m.moveTo(px - ux * s + tx * s * .6, py - uy * s + ty * s * .6); m.lineTo(px, py); m.lineTo(px + ux * s + tx * s * .6, py + uy * s + ty * s * .6); m.stroke();
+        }
+      }
+      break;
+    }
+    case "pat_pixels": {     // eight-bit pixels: a dissolve of squares rising from the foot and the corners
+      const s = U * r.uniform(.026, .038), corner = r() < .5;
+      for (let yy = 0; yy < H; yy += s) for (let xx = 0; xx < W; xx += s) {
+        const fromFoot = yy / H, fromSide = Math.abs(xx / W - .5) * 2, k = corner ? Math.max(fromFoot * .9, fromSide * .7 + fromFoot * .3) : fromFoot;
+        if (r() < k * k * 1.1 - .12) m.fillRect(xx + s * .06, yy + s * .06, s * .88, s * .88);
+      }
+      break;
+    }
+    case "pat_pads": {       // a scatter of game-pad marks: a cross pad, a diamond of four buttons, a stick
+      const n = Math.round(W * H / (U * U) * 9); m.lineWidth = Math.max(2, U * .006);
+      for (let i = 0; i < n; i++) {
+        const px = r() * W, py = r() * H, s = U * r.uniform(.035, .06), k = i % 3;
+        m.save(); m.translate(px, py); m.rotate(r.uniform(-.4, .4));
+        if (k === 0) { const a = s * .34; m.beginPath(); m.roundRect(-s, -a, s * 2, a * 2, a * .4); m.fill(); m.beginPath(); m.roundRect(-a, -s, a * 2, s * 2, a * .4); m.fill(); }
+        else if (k === 1) { for (const [dx, dy] of [[0, -1], [1, 0], [0, 1], [-1, 0]]) { m.beginPath(); m.arc(dx * s * .62, dy * s * .62, s * .3, 0, TAU); m.stroke(); } }
+        else { m.beginPath(); m.arc(0, 0, s * .8, 0, TAU); m.stroke(); m.beginPath(); m.arc(0, 0, s * .5, 0, TAU); m.fill(); }
+        m.restore();
+      }
+      break;
+    }
+    case "pat_crt": {        // a screen: fine scan lines and the rounded glass of a set, near the frame's edge
+      const s = U * .009;
+      for (let yy = 0; yy < H; yy += s) m.fillRect(0, yy, W, s * .42);
+      m.lineWidth = Math.max(3, U * .01);
+      for (const inset of [.035, .07]) { m.beginPath(); m.roundRect(U * inset, U * inset, W - U * inset * 2, H - U * inset * 2, U * (.09 - inset * .5)); m.stroke(); }
+      break;
+    }
+    case "pat_coins": {      // a scatter of coins: the rim, the beads round it, a plain field (no face)
+      const n = Math.round(W * H / (U * U) * 10); m.lineWidth = Math.max(2, U * .005);
+      for (let i = 0; i < n; i++) {
+        const px = r() * W, py = r() * H, R = U * r.uniform(.05, .11);
+        m.beginPath(); m.arc(px, py, R, 0, TAU); m.stroke(); m.beginPath(); m.arc(px, py, R * .84, 0, TAU); m.stroke();
+        const beads = Math.round(R / (U * .006));
+        for (let b = 0; b < beads; b++) { const a = b / beads * TAU; m.beginPath(); m.arc(px + Math.cos(a) * R * .92, py + Math.sin(a) * R * .92, U * .0028, 0, TAU); m.fill(); }
+        m.globalAlpha = .35; m.beginPath(); m.arc(px, py, R * .6, 0, TAU); m.fill(); m.globalAlpha = 1;
+      }
+      break;
+    }
+    case "pat_reeded": {     // a coin's reeded edge: a great rim across the frame, ridged all along it
+      const R = Math.max(W, H) * r.uniform(.75, 1), ccx = W * r.uniform(.2, .8), ccy = r() < .5 ? H + R * .55 : -R * .55, band = U * .08, n = Math.round(TAU * R / (U * .012));
+      m.lineWidth = Math.max(1.5, U * .0035);
+      m.beginPath(); m.arc(ccx, ccy, R, 0, TAU); m.stroke(); m.beginPath(); m.arc(ccx, ccy, R - band, 0, TAU); m.stroke();
+      for (let k = 0; k < n; k++) { const a = k / n * TAU; m.beginPath(); m.moveTo(ccx + Math.cos(a) * (R - band * .15), ccy + Math.sin(a) * (R - band * .15)); m.lineTo(ccx + Math.cos(a) * (R - band * .85), ccy + Math.sin(a) * (R - band * .85)); m.stroke(); }
+      break;
+    }
+    case "pat_road": {       // a road in perspective: lane lines running to a point behind the product, on asphalt grain
+      const vx = W * r.uniform(.4, .6), vy = H * r.uniform(.3, .45), lanes = 5;
+      for (let k = 0; k <= lanes; k++) {
+        const bx = -W * .4 + k * W * 1.8 / lanes, dashes = 12;
+        for (let d = 0; d < dashes; d += 2) {
+          const t0 = d / dashes, t1 = (d + 1) / dashes, e0 = t0 * t0, e1 = t1 * t1, wv = U * .02;
+          m.beginPath(); m.moveTo(vx + (bx - vx) * e0 - wv * e0, vy + (H - vy) * e0); m.lineTo(vx + (bx - vx) * e1 - wv * e1, vy + (H - vy) * e1);
+          m.lineTo(vx + (bx - vx) * e1 + wv * e1, vy + (H - vy) * e1); m.lineTo(vx + (bx - vx) * e0 + wv * e0, vy + (H - vy) * e0); m.closePath(); m.fill();
+        }
+      }
+      m.fillStyle = m.createPattern(speckle(192, () => r() < .3 ? Math.round(r() * 160) : 0), "repeat"); m.fillRect(0, 0, W, H);
+      break;
+    }
+    case "pat_tread": {      // two tyre tracks running down the frame, their tread in blocks
+      const tw = U * .2, s = U * .05;
+      for (const cxx of [W * .14, W * .86]) {
+        for (let yy = -s; yy < H + s; yy += s) {
+          m.beginPath(); m.moveTo(cxx - tw / 2, yy); m.lineTo(cxx, yy + s * .45); m.lineTo(cxx + tw / 2, yy); m.lineTo(cxx + tw / 2, yy + s * .32); m.lineTo(cxx, yy + s * .77); m.lineTo(cxx - tw / 2, yy + s * .32); m.closePath(); m.fill();
+        }
       }
       break;
     }

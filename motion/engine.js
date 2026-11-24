@@ -10,6 +10,7 @@ import { placeAccents, drawAccents, timeAccents } from "./accents.js";
 import { vibeBackground, candidateGround, themeGround, freshGround, sceneryOver, buildBoard, drawBoard, freeSpot, drawStarburst, drawPinstripe, buildSpray, drawSpray,
   drawAwning, drawNeonArrow, buildTicker, drawTicker, drawTape, buildStamp, drawStamp, chevronRoom, drawChevrons, drawFlashBorder, beatPulse,
   drawSticker, pairGradientGround, fillGradient, fullPatternGround, toneOf as okTone } from "./decor.js";
+import { familyGround } from "./full-families.js";   // the full ad's product, abstract, shape and type grounds (rule 163)
 
 // ------------------------------------------------------------ small tools
 
@@ -334,7 +335,8 @@ export function strikeOf(st) {
  *  enough, as harmonise() says of the label). Three at most, short enough to stand as chips. */
 export function pointsOf(st) {
   const cut = s => s.trim().toUpperCase().slice(0, 24);
-  if (typeof st.points === "string") return st.points.split(/[,\n•·|]+/).map(cut).filter(Boolean).slice(0, 3);
+  // three at most on a plain look; the full ad lays out four where they fit (rule 164)
+  if (typeof st.points === "string") return st.points.split(/[,\n•·|]+/).map(cut).filter(Boolean).slice(0, st.full ? 4 : 3);
   const head = st.headline || "", lang = st.lang || "en";
   const es = lang === "both" ? !SPANISH.test(head) : lang === "es" || SPANISH.test(head);
   const stems = s => s.toUpperCase().split(/[^A-ZÁÉÍÓÚÑÜ]+/).filter(w => w.length >= 4).map(w => w.slice(0, 5));
@@ -519,7 +521,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
 const BOARD_FACE = { freeway: "#006b3f", freeway_blue: "#1d4f9c", poster: null, bandit_yellow: "#ffd21a", bandit_white: "#f6f6f1",
   flyer: "#fbfaf5", neon_box: "#0c0618", marquee: "#fffaf0", store_sign: "plate", price_tag: null, chalkboard: "#24382f",
   receipt: "#fbfbf7", wanted_poster: "#e9d3a6", sticky_note: null, speech_bubble: "#ffffff", ticket_stub: "plate",
-  led_panel: "#0b0b0d", lightbox: "#ffffff", postcard: "#fffdf6" };
+  led_panel: "#0b0b0d", lightbox: "#ffffff", postcard: "#fffdf6", billboard: "#fbf7ee", tiki_plank: "#7a4a22", surfboard: "#fdfbf6" };
 function boardPalette(b, p) {
   let ink = b.ink;
   if (ink === "auto") ink = lum(p.plate) > .55 ? "#111111" : "#ffffff";
@@ -2205,10 +2207,13 @@ function ctaBadge(text, size, hot, face = "oswald") {
  *  (the photo ads' stack, DESIGN-LAW 115 and 120: one rhythm down the stack, and the strip
  *  wears the CTA's colour). rows: each chip's slice of the sprite, shadow included, cut on
  *  the middle of the gaps so a chip drawn on its own never repeats a neighbour's shadow. */
-export function perksSprite(items, fs, hot, align, row = false, face = "oswald", grad = false) {
-  const ink = contrastOf(hot, "#111111") >= contrastOf(hot, "#ffffff") ? "#111111" : "#ffffff";
-  const P = { ink, accent: ink, ground: hot, plate: hot, plate_ink: ink };
-  const sps = items.map(s => inkSprite(s, s.split("").map(() => ink), face, fs, .04, "flat", P, 0));
+export function perksSprite(items, fs, hot, align, row = false, face = "oswald", grad = false, look = {}) {
+  // look.shape (the full ad's points, rule 158): "pill" (as ever), "tab" (square-cornered plates) or "bare"
+  // (no plate: the tick in the call to action's colour, the words in look.ink on the ground itself)
+  const bare = look.shape === "bare" && !!look.ink;
+  const ink = bare ? look.ink : contrastOf(hot, "#111111") >= contrastOf(hot, "#ffffff") ? "#111111" : "#ffffff";
+  const P = bare ? { ink, accent: ink, ground: look.ground || hot, plate: hot, plate_ink: ink } : { ink, accent: ink, ground: hot, plate: hot, plate_ink: ink };
+  const sps = items.map(s => inkSprite(s, s.split("").map(() => ink), face, fs, .04, bare && lum(ink) >= .5 ? "shadow" : "flat", P, 0));
   const py = fs * .3, px = fs * .52, tick = fs * .62, tg = fs * .34;
   const asc = Math.max(...sps.map(sp => sp.asc)), h = asc * .92 + py * 2;
   const ws = sps.map(sp => px + tick + tg + sp.inkW + px), cw = Math.max(...ws);
@@ -2222,10 +2227,12 @@ export function perksSprite(items, fs, hot, align, row = false, face = "oswald",
     const w = ws[i];
     const rx = row ? cx : pad + (align === "r" ? cw - w : align === "c" ? (cw - w) / 2 : 0), ry = row ? pad : pad + i * (h + gap);
     cx += w + gap;
-    x.save(); x.shadowColor = "rgba(0,0,0,.32)"; x.shadowBlur = fs * .35; x.shadowOffsetY = fs * .1;
-    rrect(x, rx, ry, w, h, h / 2); x.fillStyle = grad ? fillGradient(x, 0, ry, 0, ry + h, hot, ink, 4.5) : hot; x.fill(); x.restore();
+    if (!bare) {
+      x.save(); x.shadowColor = "rgba(0,0,0,.32)"; x.shadowBlur = fs * .35; x.shadowOffsetY = fs * .1;
+      rrect(x, rx, ry, w, h, look.shape === "tab" ? h * .16 : h / 2); x.fillStyle = grad ? fillGradient(x, 0, ry, 0, ry + h, hot, ink, 4.5) : hot; x.fill(); x.restore();
+    }
     const tx = rx + px, ty = ry + h / 2;
-    x.save(); x.strokeStyle = ink; x.lineWidth = fs * .14; x.lineCap = "round"; x.lineJoin = "round";
+    x.save(); x.strokeStyle = bare ? hot : ink; x.lineWidth = fs * (bare ? .17 : .14); x.lineCap = "round"; x.lineJoin = "round";
     x.beginPath(); x.moveTo(tx + tick * .04, ty + tick * .02); x.lineTo(tx + tick * .37, ty + tick * .33); x.lineTo(tx + tick * .96, ty - tick * .34); x.stroke(); x.restore();
     x.drawImage(sp.c, tx + tick + tg - sp.pad, ry + py - sp.pad - sp.asc * .04 + (asc - sp.asc) * .46);
     if (row) {
@@ -2360,7 +2367,7 @@ export function trim(c) {
 
 // ------------------------------------------------------------ backgrounds
 
-function background(st, p, W, H, sc, r) {
+function background(st, p, W, H, sc, r, prods = []) {
   const c = canvas(W, H), x = c.getContext("2d");
   const g = p.ground, l = p.light;
   const [cx, cy] = sc;
@@ -2369,6 +2376,8 @@ function background(st, p, W, H, sc, r) {
   // the full ad's tone-on-tone patterns (decor.js FULL_PATTERNS) carry their own light and no black vignette:
   // on a cream or a mint ground a black edge is a grey stain
   if (fullPatternGround(st.background, x, st, p, W, H, sc, r)) return c;
+  // and the four families of 2026-11-22 (motion/full-families.js): the product ones paint the ad's own pictures
+  if (familyGround(st.background, x, st, p, W, H, sc, r, prods)) return c;
   const pairG = pairGradientGround(st.background, x, st, p, W, H, sc, r);
   if (pairG || candidateGround(st.background, x, st, p, W, H, sc, r) || freshGround(st.background, x, st, p, W, H, sc, r) || themeGround(st.background, x, st, p, W, H, sc, r) || vibeBackground(st.background, x, st, p, W, H, sc, r)) {
     // a pair's own gradient on a light ground keeps its edges clean: black at its corners is grey on cream (2026-11-18)
@@ -2612,7 +2621,7 @@ export class Ad {
     this.idleMove = this.plan ? (this.plan.idleMove || { k: 0, anchor: 0, amp: 0 }) : this._idleRoom();
     for (const p of this.phones) { p.idleK = this.idleMove.k; p.idleAnchor = this.idleMove.anchor; p.idleAmp = this.idleMove.amp; }
     this._buildDecor();
-    this.bg = background(st, this.p, this.W, this.H, this.stageC, rng(st.seed + 1));
+    this.bg = background(st, this.p, this.W, this.H, this.stageC, rng(st.seed + 1), this.phones.map(q => q.img).filter(Boolean));
     this.liveGround = ["sunburst", "aurora", "drift"].includes(st.background);
     this._softFloor();
     this.dofBlur = 0;

@@ -1,6 +1,6 @@
 # Operations — hosting, deploy, URLs, repo hygiene
 
-State verified 2026-08-28; the URLs, mail and logins 2026-11-23 (OPEN-ITEMS §BV).
+State verified 2026-08-28; the URLs, mail and logins 2026-11-23 (OPEN-ITEMS §BX).
 
 ## Live URLs
 

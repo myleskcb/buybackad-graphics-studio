@@ -592,6 +592,14 @@ produced." DESIGN-LAW rule 87. In practice:
   run out of order (refresh reads git HEAD; import restores the tone grade;
   naturalize then darken; support_highlights before neutral_panels; content
   audit after overlap; curate last).
+- **The full ad's layout and looks** (rule 158, 2026-11-18): `FULL_LAYOUT` varies the layout by
+  the seed (alignment, order, sides, claim, points, call to action, footer) on a stream of its own;
+  `fullStyle(…, { look: "own" | "seed" | "mix" })` lets it wear a video look. Without `look` it is
+  the house's own, so a check or a recipe that calls `fullStyle(st, seed, index)` draws what it
+  drew. Never lock the full ad back to one layout to make it "cohesive": hold the grammar (the
+  elements, floors, margin, gap, one alignment, the pre-flight) and let the layout and look vary.
+  A new layout choice goes into `FULL_LAYOUT` with a weight and a name in `LAYOUT_NAMES`
+  (`motion/app.js`), and must pass the pre-flight on every look.
 - **The full ad** (rule 137, 2026-11-11): `motion/fullad.js` `FullAd` is the
   house-style ad with every element, laid out by rule (never by retrying
   seeds), the video maker's default mode. Its colours are the twelve proven
@@ -690,16 +698,24 @@ produced." DESIGN-LAW rule 87. In practice:
   card's rebuilt ad from `assets/recipe-stills/` (`node scripts/build_recipe_stills.mjs`, `--check`)
   through `scLoadShelf`; `scLoadIndex` is the library cards alone. Rebuild the stills when the
   recipes or the engine change (`--all`).
-- **The hero wall is chosen, not filled** (rules 145 and 146, the owner, 2026-11-19). Every slot is
+- **The hero wall is chosen, not filled** (rules 145 and 154, the owner, 2026-11-19). Every slot is
   a hand pick in `assets/hero-picks.json`, a rebuilt ad or one of the full ad's own looks
   (`full-<line>-v<seed>`, drawn by `node scripts/build_hero_stills.mjs`).
   `node scripts/hero_wall_check.mjs` reads the landing's wall and holds it to:
   - no pair, headline or family twice;
   - three dark tiles at most, never touching;
   - patterns and gradients shown, full ads included;
-  - a product in every tile.
+  - a product in every tile;
+  - a pinned tile in its pin.
+  The owner approved the wall on 2026-11-22. Its picks are pinned to their approved pairs
+  (`pins`): they keep their approved stills and open in those pairs. A new colour pair moves every
+  seed's draw but never the wall. Redraw it only with the owner's word (`--redraw`).
   A seed never draws a twin pair, and draws a dark look least (`LOOK_SHARE`). After an engine
-  change, draw the recipe stills, the hero stills and the rebuilt ads again.
+  change, draw the recipe stills and the rebuilt ads again.
+- **A new colour pair is a row of app.js `COLOR_THEMES`** (rule 154), the photo ads' and the full
+  ad's alike. It passes `node scripts/theme_law.mjs`: the money word 4.5:1 on both of the ground's
+  stops and 1.7:1 off the words, and 3:1 for colour-blind readers. Then
+  `node scripts/build_house_colours.mjs`, which marks twins and checks the full ad's floors.
 - **The partner library serves the rebuilt library ads** (`assets/rebuilt-ads/`,
   `node scripts/render_rebuilt_ads.mjs --stale` after the recipes or the engine change;
   `library_api_check` fails while one is stale).
@@ -721,3 +737,8 @@ produced." DESIGN-LAW rule 87. In practice:
   wall and the editor's library keep to the designs. A category's chips open into its lines
   (scSubChips), in `motion/subjects.json`'s order.
 
+- **Sign in with Apple and Google** (rule 168, 2026-11-19): both buttons come from `account.js`
+  (`pgfxAccount.social.mount`), on both dialogs, shown only when `/api/auth/config` reports
+  `APPLE_CLIENT_ID` or `GOOGLE_CLIENT_ID`; Apple's token is checked in `netlify/lib/appleid.mjs`.
+  Never show them inside the iPhone app's web view (`WeBuyADApp/` in the user agent). Before a
+  commit that touches sign-in: `node scripts/appleid_check.mjs` and `node scripts/social_signin_check.mjs`.

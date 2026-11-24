@@ -7,6 +7,7 @@
    list on 2026-11-12 and stayed in FULL_WORDS for six days):
 
      the full ad          motion/fullad.js FULL_WORDS
+     its selling points   motion/full-points.js PROMISES and each kind's own
      the lines            motion/subjects.json, and offer-library.js LINES (the offer family)
      designer layouts     app.js DECKS
      the video maker      motion/catalog.js HEADLINES, HOOKS, TAGS, NUMBER_LABELS, COPY
@@ -45,6 +46,11 @@ const fw = /export const FULL_WORDS = (\{[\s\S]*?\n\});/.exec(read('motion/fulla
 if (!fw) { console.error('FULL_WORDS not found in motion/fullad.js'); process.exit(2); }
 const FULL_WORDS = Function('return ' + fw[1])();
 for (const [k, list] of Object.entries(FULL_WORDS)) for (const w of list) scan('full ad FULL_WORDS', 'phones', w, k);
+
+// the full ad's selling points, drawn by its seed (motion/full-points.js, rule 164): every phrasing of every promise
+const FP = await import(new URL('../motion/full-points.js', import.meta.url).href);
+for (const sub of ['iphone', 'ipad', 'watch', 'headphones', 'console', 'camera', 'pokemon', 'gold', 'coins', 'car', 'strips'])
+  for (const [k, [, says]] of Object.entries(FP.promisesFor(sub))) for (const w of says) scan('motion/full-points.js', sub === 'iphone' ? 'phones' : sub, w, k);
 
 // the lines: the full ad's table, and the offer family it is made from
 for (const s of JSON.parse(read('motion/subjects.json')).subjects) for (const w of strings([s.heads, s.models, s.points, ...(s.variants || []).map(v => [v.heads, v.models])])) scan('motion/subjects.json', s.cat, w, s.key);

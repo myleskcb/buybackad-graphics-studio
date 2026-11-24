@@ -1,6 +1,6 @@
 {
- "about": "Stills of the recipe and full-ad hero picks (assets/hero-picks.json), drawn by scripts/build_hero_stills.mjs; app.js scBuildWall shows them and opens each in the full ad.",
- "made": "2026-11-19T12:02:10.067Z",
+ "about": "Stills of the recipe and full-ad hero picks (assets/hero-picks.json), drawn by scripts/build_hero_stills.mjs; app.js scBuildWall shows them and opens each in the full ad. A pinned pick (pin) is drawn and opened in the pair it was approved in.",
+ "made": "2026-11-23T08:24:16.942Z",
  "items": {
   "full-iphone-v12": {
    "kind": "full",
@@ -15,7 +15,9 @@
    "ground": "pattern",
    "headline": "WE BUY IPHONES",
    "product": "[object Object]",
-   "thumb": "assets/hero/full-iphone-v12.webp"
+   "thumb": "assets/hero/full-iphone-v12.webp",
+   "pin": "black_on_lime",
+   "frozen": "2026-11-22"
   },
   "full-mac-v8": {
    "kind": "full",
@@ -30,7 +32,9 @@
    "ground": "gradient",
    "headline": "WE BUY MACBOOKS",
    "product": "[object Object]",
-   "thumb": "assets/hero/full-mac-v8.webp"
+   "thumb": "assets/hero/full-mac-v8.webp",
+   "pin": "lavender_violet",
+   "frozen": "2026-11-22"
   },
   "full-macdesk-v2": {
    "kind": "full",
@@ -45,7 +49,9 @@
    "ground": "pattern",
    "headline": "WE BUY MACS",
    "product": "[object Object]",
-   "thumb": "assets/hero/full-macdesk-v2.webp"
+   "thumb": "assets/hero/full-macdesk-v2.webp",
+   "pin": "black_on_orange",
+   "frozen": "2026-11-22"
   },
   "full-ipad-v15": {
    "kind": "full",
@@ -60,7 +66,9 @@
    "ground": "gradient",
    "headline": "WE BUY IPADS",
    "product": "[object Object]",
-   "thumb": "assets/hero/full-ipad-v15.webp"
+   "thumb": "assets/hero/full-ipad-v15.webp",
+   "pin": "sky_cobalt",
+   "frozen": "2026-11-22"
   },
   "full-console-v6": {
    "kind": "full",
@@ -75,7 +83,9 @@
    "ground": "pattern",
    "headline": "WE BUY CONSOLES",
    "product": "[object Object]",
-   "thumb": "assets/hero/full-console-v6.webp"
+   "thumb": "assets/hero/full-console-v6.webp",
+   "pin": "mint_green",
+   "frozen": "2026-11-22"
   },
   "full-galaxy-v6": {
    "kind": "full",
@@ -90,7 +100,9 @@
    "ground": "pattern",
    "headline": "WE BUY SAMSUNG PHONES",
    "product": "[object Object]",
-   "thumb": "assets/hero/full-galaxy-v6.webp"
+   "thumb": "assets/hero/full-galaxy-v6.webp",
+   "pin": "white_on_teal",
+   "frozen": "2026-11-22"
   },
   "full-pixel-v22": {
    "kind": "full",
@@ -105,7 +117,9 @@
    "ground": "gradient",
    "headline": "WE BUY PIXEL PHONES",
    "product": "[object Object]",
-   "thumb": "assets/hero/full-pixel-v22.webp"
+   "thumb": "assets/hero/full-pixel-v22.webp",
+   "pin": "lemon_blue",
+   "frozen": "2026-11-22"
   },
   "full-car-v1": {
    "kind": "full",
@@ -120,7 +134,9 @@
    "ground": "gradient",
    "headline": "WE BUY CARS & TRUCKS",
    "product": "[object Object]",
-   "thumb": "assets/hero/full-car-v1.webp"
+   "thumb": "assets/hero/full-car-v1.webp",
+   "pin": "white_on_red",
+   "frozen": "2026-11-22"
   },
   "full-sports-v2": {
    "kind": "full",
@@ -135,7 +151,189 @@
    "ground": "pattern",
    "headline": "WE BUY SPORTS CARDS",
    "product": "[object Object]",
-   "thumb": "assets/hero/full-sports-v2.webp"
+   "thumb": "assets/hero/full-sports-v2.webp",
+   "pin": "white_on_violet",
+   "frozen": "2026-11-22"
+  },
+  "r-stepsFlow-nn01-30": {
+   "kind": "recipe",
+   "cat": "phones",
+   "line": "iphone",
+   "seed": 2433,
+   "name": "Steps Flow 2",
+   "family": "stepsFlow",
+   "from": "stepsFlow-nn01-30",
+   "gen": "sc",
+   "pair": "black_on_yellow",
+   "pairName": "Black on Yellow",
+   "look": "vivid",
+   "accent": "#121212",
+   "background": "linear",
+   "ground": "house",
+   "headline": "FAST CASH FOR IPHONES",
+   "thumb": "assets/hero/r-stepsFlow-nn01-30.webp",
+   "pin": "black_on_yellow",
+   "frozen": "2026-11-22"
+  },
+  "r-slabPoster-pp04-15": {
+   "kind": "recipe",
+   "cat": "phones",
+   "line": "iphone",
+   "seed": 22465,
+   "name": "Slab Poster",
+   "family": "slabPoster",
+   "from": "slabPoster-pp04-15",
+   "gen": "sc",
+   "pair": "bone_purple",
+   "pairName": "Bone & Purple",
+   "look": "light",
+   "accent": "#7024ab",
+   "background": "pair_radial",
+   "ground": "gradient",
+   "headline": "SELL YOUR IPHONE",
+   "thumb": "assets/hero/r-slabPoster-pp04-15.webp",
+   "pin": "bone_purple",
+   "frozen": "2026-11-22"
+  },
+  "r-neonNight-nn04-20": {
+   "kind": "recipe",
+   "cat": "phones",
+   "line": "iphone",
+   "seed": 73997,
+   "name": "Neon Night",
+   "family": "neonNight",
+   "from": "neonNight-nn04-20",
+   "gen": "sc",
+   "pair": "black_on_pink",
+   "pairName": "Black on Pink",
+   "look": "vivid",
+   "accent": "#111214",
+   "background": "pair_arch",
+   "ground": "gradient",
+   "headline": "WE BUY IPHONES PAID SAME DAY",
+   "thumb": "assets/hero/r-neonNight-nn04-20.webp",
+   "pin": "black_on_pink",
+   "frozen": "2026-11-22"
+  },
+  "r-of_iphone_split_ink": {
+   "kind": "recipe",
+   "cat": "phones",
+   "line": "iphone",
+   "seed": 40199,
+   "name": "iPhones · Split",
+   "family": "split",
+   "from": "of_iphone_split_ink",
+   "gen": "of",
+   "pair": "black_on_white",
+   "pairName": "Black on White",
+   "look": "light",
+   "accent": "#111214",
+   "background": "linear",
+   "ground": "house",
+   "headline": "YOUR OLD IPHONE IS CASH",
+   "thumb": "assets/hero/r-of_iphone_split_ink.webp",
+   "pin": "black_on_white",
+   "frozen": "2026-11-22"
+  },
+  "r-of_ipad_center_bone": {
+   "kind": "recipe",
+   "cat": "phones",
+   "line": "ipad",
+   "seed": 18546,
+   "name": "iPads · Centre",
+   "family": "center",
+   "from": "of_ipad_center_bone",
+   "gen": "of",
+   "pair": "black_on_aqua",
+   "pairName": "Black on Aqua",
+   "look": "vivid",
+   "accent": "#111214",
+   "background": "pair_radial",
+   "ground": "gradient",
+   "headline": "UPGRADED? SELL THE OLD IPAD",
+   "thumb": "assets/hero/r-of_ipad_center_bone.webp",
+   "pin": "black_on_aqua",
+   "frozen": "2026-11-22"
+  },
+  "r-of_console_list_arctic": {
+   "kind": "recipe",
+   "cat": "gaming",
+   "line": "console",
+   "seed": 44472,
+   "name": "Consoles · Studio list",
+   "family": "list",
+   "from": "of_console_list_arctic",
+   "gen": "of",
+   "pair": "sand_teal",
+   "pairName": "Sand & Teal",
+   "look": "light",
+   "accent": "#006d6d",
+   "background": "pat_topo",
+   "ground": "pattern",
+   "headline": "CONSOLE IN THE CLOSET? SELL IT",
+   "thumb": "assets/hero/r-of_console_list_arctic.webp",
+   "pin": "sand_teal",
+   "frozen": "2026-11-22"
+  },
+  "r-bubblePop-pp06-35": {
+   "kind": "recipe",
+   "cat": "gold",
+   "line": "gold",
+   "seed": 57084,
+   "name": "Bubble Pop 2",
+   "family": "bubblePop",
+   "from": "bubblePop-pp06-35",
+   "gen": "sc",
+   "pair": "navy_gold",
+   "pairName": "Navy & Gold",
+   "look": "dark",
+   "accent": "#f4b100",
+   "background": "pat_polka",
+   "ground": "pattern",
+   "headline": "WE BUY GOLD PAID BY WEIGHT",
+   "thumb": "assets/hero/r-bubblePop-pp06-35.webp",
+   "pin": "navy_gold",
+   "frozen": "2026-11-22"
+  },
+  "r-scriptRetro-cd06-15": {
+   "kind": "recipe",
+   "cat": "coins",
+   "line": "coins",
+   "seed": 20139,
+   "name": "Script Retro 1",
+   "family": "scriptRetro",
+   "from": "scriptRetro-cd06-15",
+   "gen": "sc",
+   "pair": "cream_red",
+   "pairName": "Cream & Red",
+   "look": "light",
+   "accent": "#c21725",
+   "background": "pat_rays",
+   "ground": "pattern",
+   "headline": "CASH FOR COINS",
+   "thumb": "assets/hero/r-scriptRetro-cd06-15.webp",
+   "pin": "cream_red",
+   "frozen": "2026-11-22"
+  },
+  "r-bandKnockout-gl04-30": {
+   "kind": "recipe",
+   "cat": "pokemon",
+   "line": "pokemon",
+   "seed": 74163,
+   "name": "Band Knockout 1",
+   "family": "bandKnockout",
+   "from": "bandKnockout-gl04-30",
+   "gen": "sc",
+   "pair": "black_on_lilac",
+   "pairName": "Black on Lilac",
+   "look": "vivid",
+   "accent": "#111214",
+   "background": "pat_paper",
+   "ground": "pattern",
+   "headline": "WE BUY POKEMON CARDS",
+   "thumb": "assets/hero/r-bandKnockout-gl04-30.webp",
+   "pin": "black_on_lilac",
+   "frozen": "2026-11-22"
   }
  }
 }

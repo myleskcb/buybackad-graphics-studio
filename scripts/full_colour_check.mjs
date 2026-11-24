@@ -156,7 +156,8 @@ const r = await page.evaluate(async () => {
   for (const subject of ['', 'car', 'gold', 'sports', 'laptop', 'camera']) for (let s = 1; s <= 120; s++) {
     const st = F.fullStyle({ ...C.DEFAULT_STYLE, headline: 'WE BUY THEM', subject, aspect: '1:1', phones: subject ? ['none'] : [] }, s * 977, index);
     if (st.background !== 'photo') continue; out.grounds.photos++;
-    const m = G.GROUND_PHOTOS[st.ground_photo.src]; if (!m || !(m.C >= .08) || m.hue == null) continue; out.grounds.strong++;
+    // a duotone (rule 161) lays the pair's own two colours into the picture: it brings no family of its own
+    const m = G.GROUND_PHOTOS[st.ground_photo.src]; if (!m || !(m.C >= .08) || m.hue == null || st.ground_photo.treat === 'duotone') continue; out.grounds.strong++;
     const hues = [st.colors.accent, st.colors.ground].map(E.oklchOf).filter(k => k.C >= .04).map(k => k.h);
     if (!hues.some(h => Math.min(Math.abs(h - m.hue), 360 - Math.abs(h - m.hue)) <= 30)) out.grounds.off.push(`${subject || 'iphone'} ${s}: ${st.ground_photo.src.split('/').pop()} on ${st.full_colour}`);
   }
