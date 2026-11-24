@@ -1,7 +1,7 @@
-/* BUYBACK.AD library picker, for iPhones LA's listing page.
+/* WeBuy.AD library picker, for iPhones LA's listing page.
 
    A panel beside the title and description: the library's ads (the finished
-   ads approved into the BUYBACK.AD library, the shop's number on them), a
+   ads approved into the WeBuy.AD library, the shop's number on them), a
    search, a category, an order (the library's own, newest upload first,
    oldest first), a grid, More. Each tile says when the ad was uploaded.
    Picking one hands the page the full-size ad as a JPEG File (1080x1080), as
@@ -12,7 +12,7 @@
    picture identifies itself wherever it goes.
 
    It talks only to iPhones LA's own server (the routes below), never to
-   BUYBACK.AD: the key stays on the server.
+   WeBuy.AD: the key stays on the server.
 
      <div id="bbl"></div>
      <script src="/static/library-picker.js"></script>
@@ -58,7 +58,7 @@
     const pageSize = Math.max(6, Math.min(60, opts.pageSize || 24));
     if (!styled){ const s = document.createElement('style'); s.textContent = CSS; document.head.appendChild(s); styled = true; }
     root.classList.add('bbl'); root.textContent = '';
-    root.appendChild(el('h3', null, opts.title || 'BUYBACK.AD library'));
+    root.appendChild(el('h3', null, opts.title || 'WeBuy.AD library'));
     const bar = el('div', 'bbl-bar');
     const q = el('input'); q.type = 'search'; q.placeholder = 'Search: iphone, gold, pokemon…'; q.setAttribute('aria-label', 'Search the library');
     const cat = el('select'); cat.setAttribute('aria-label', 'Category');

@@ -1,6 +1,5 @@
-# Graphics Studio by BUYBACK.AD. The site is served from the Netlify address;
-# buyback.ad does not resolve yet (checked 2026-09-22). Update the Sitemap line
-# with the rest of the canonical URLs when the domain goes live.
+# WeBuy.AD, served at https://webuy.ad. The Sitemap line and every page's
+# canonical URL name that address: move them together if it ever changes.
 User-agent: *
 Allow: /
 Disallow: /api/

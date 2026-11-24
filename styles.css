@@ -13,7 +13,7 @@
       the CRM: a page selling loud buyback ads should not look like a SaaS
       dashboard. Colour that is not the accent means state:
       green good, amber caution, red stop (2026-09-30: AI wears the accent).
-   3. Brand is not accent. BUYBACK.AD's orange lives in the logo mark and
+   3. Brand is not accent. The brand's orange lives in the logo mark and
       wordmark only, as --brand-1/--brand-2, so the accent can be retuned for
       contrast without repainting the brand.
    4. Anything the eye compares — prices, counts, percentages, quotas — is set
@@ -1997,7 +1997,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .tpl-card:hover .tpl-veil{background:rgba(0,0,0,0)}
 
 /* ── PRO GUARD. A locked preview stays sharp (a sharp card sells the plan)
-   but cannot be lifted: a repeating diagonal PRO · BUYBACK.AD pattern over
+   but cannot be lifted: a repeating diagonal PRO · WeBuy.AD pattern over
    the whole card, a lock in the middle, and thumbnails that are 448px at
    most. The pattern is an SVG data URI so it is text, not a blur. ── */
 .pro-guard{position:absolute;inset:0;pointer-events:none;

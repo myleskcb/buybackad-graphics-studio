@@ -1,4 +1,4 @@
-// ── BUYBACK.AD configuration ──
+// ── WeBuy.AD configuration ──
 // Leave PGFX_API empty to run in DEMO MODE (accounts + limits simulated in the
 // browser, checkout simulated — perfect for clicking through the full flow).
 // "/api" = the same-origin Netlify Function backend (netlify/functions/api.mjs)

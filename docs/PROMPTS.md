@@ -14,7 +14,7 @@ most mornings.
 You are continuing an ongoing graphic-design study program on a real product.
 
 PROJECT
-Graphics Studio by BUYBACK.AD — a browser ad builder for phone buyers and
+WeBuy.AD — a browser ad builder for phone buyers and
 resellers. Working copy: ~/Downloads/gfxv23. Repo:
 myleskcb/buybackad-graphics-studio. Live at
 https://webuy.ad (the buybackad-finished-copy project).

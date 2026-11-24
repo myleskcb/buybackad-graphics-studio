@@ -1,4 +1,4 @@
-# Agent brief — Graphics Studio by BUYBACK.AD
+# Agent brief — WeBuy.AD
 
 Notes for whoever, or whatever, is about to change this repo. Most of what
 follows has already cost a silent breakage, seven weeks of unbacked work, or a
@@ -14,7 +14,7 @@ anything.
 
 ## What this is
 
-**Graphics Studio by BUYBACK.AD** — a browser ad builder for phone buyers and
+**WeBuy.AD** — a browser ad builder for phone buyers and
 resellers. Pick a template, type a headline and a phone number, export a
 post-ready graphic for Facebook Marketplace, OfferUp, Instagram or Craigslist.
 
@@ -286,27 +286,19 @@ curl -sS -o /dev/null -w '%{http_code} /docs\n'   $U/docs/README.md   # must be 
 python3 scripts/cvd_audit.py                                         # exits 1 on failure
 ```
 
-## Domains — known broken, needs a human
+## Domains
 
 | URL | State |
 |---|---|
-| `webuy.ad` / `www.webuy.ad` | **works — the site's address** (live 2026-11-19 UTC; `A @ 75.2.60.5` and `CNAME www buybackad-finished-copy.netlify.app.` at Namecheap; `www` redirects to the bare name) |
-| `buybackad-finished-copy.netlify.app` | works; `main` (the netlify.app address of the project webuy.ad points at) |
-| `buybackad-graphics-studio.netlify.app` | works, but a build from before 2026-10-08 (FLOW-AUDIT 2026-11-11) |
-| `studio.scans.ad` | configured in Netlify, **no public DNS** |
-| `buyback.ad` / `www.buyback.ad` | domain alias set, no DNS at all |
+| `webuy.ad` / `www.webuy.ad` | **works — the site's address** (live 2026-11-19 UTC; `A @ 75.2.60.5` and `CNAME www buybackad-finished-copy.netlify.app.` at Namecheap; `www` redirects to the bare name; Let's Encrypt, renews itself) |
+| `buybackad-finished-copy.netlify.app` | works; `main` (the netlify.app address of the project webuy.ad points at, team myleskcb2) |
+| `buybackad-graphics-studio.netlify.app` | works, but a CLI deploy of 2026-10-07 (team KCB). **iPhones LA's studio connection still points here**: retire it only in the order in `docs/OPERATIONS.md` |
+| `buyback.ad`, `www.buyback.ad`, `studio.scans.ad` | **dropped 2026-11-23** and taken off the old project: buyback.ad was never registered (the owner chose not to buy it), studio.scans.ad never resolved |
 
-The `studio` record exists and is correct on Netlify's nameservers, but
-`scans.ad` is delegated at the registrar to `dns1.registrar-servers.com`
-(Namecheap), so the Netlify zone is not authoritative and nobody can see it:
-
-```bash
-dig +short studio.scans.ad @dns1.p04.nsone.net   # 52.52.192.191, 13.52.188.95
-dig +short studio.scans.ad @8.8.8.8              # nothing
-```
-
-Two fixes, both needing registrar access, both moving DNS for a live product —
-**do not do this unattended.** Detail in `docs/OPERATIONS.md`.
+Mail is Namecheap forwarding: support@webuy.ad and hello@webuy.ad (OPERATIONS,
+"Mail"). The logins that hold each piece, and why webuy.ad's DNS stays at
+Namecheap, are in OPERATIONS too. DNS, registrar settings, Stripe and plan
+limits are still the owner's to change, never unattended.
 
 `reselling.us/GFX` returns 200 but serves a *different* app (RU CRM v1), whose
 SPA catch-all answers every path. Mounting there means a subdomain

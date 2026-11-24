@@ -36,7 +36,7 @@ export const WEBHOOK_EVENTS = [
  *  date); recorded on the Checkout session, the subscription or the payment,
  *  and the account, with the time it was given. 2026-11-18: Pro's videos are
  *  counted apart, 30 a month, and Business's are unlimited (plans.mjs). */
-export const TERMS_VERSION = '2026-11-18';
+export const TERMS_VERSION = '2026-11-23';
 /** statuses that keep the plan on: past_due is Stripe still retrying the card */
 const LIVE = new Set(['active', 'trialing', 'past_due']);
 

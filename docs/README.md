@@ -6,7 +6,7 @@ module the log says is next.
 
 ## What this project is
 
-**Graphics Studio by BUYBACK.AD** — a browser-based ad builder for phone buyers
+**WeBuy.AD** — a browser-based ad builder for phone buyers
 and resellers. Pick a template, type a headline and a phone number, export a
 post-ready graphic for Facebook Marketplace, OfferUp, Instagram or Craigslist.
 

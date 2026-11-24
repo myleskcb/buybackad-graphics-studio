@@ -1,17 +1,17 @@
-# The BUYBACK.AD library on iPhones LA's listing page
+# The WeBuy.AD library on iPhones LA's listing page
 
 The owner, 2026-10-04: "build the intermediary so the ad title and description
 page and list it can access the library material from buyback ad via a key ...
 give me the rest to put into the iPhones LA repo", and then: "it's going to be
 ads that we approved and send to the library in the buyback ad app".
 
-The library is BUYBACK.AD's Designer Library: the finished ads the site offers
+The library is WeBuy.AD's Designer Library: the finished ads the site offers
 (311 on 2026-10-04: phones 64, pokemon 41, coins 40, cars 36, gold 33, silver
 33, sports 33, strips 31), with the shop's number, (562) 999-4994, and
 iphones.LA on them. Each is published at full size, 1080x1080 JPEG, drawn by
 the studio's own engine; the listing page puts one on a listing as a photo.
 
-BUYBACK.AD's part is built and on `main` (`netlify/lib/library.mjs`, served as
+WeBuy.AD's part is built and on `main` (`netlify/lib/library.mjs`, served as
 `/api/library/v1`; the renders in `assets/library-ads/`; DESIGN-LAW rule 111).
 This folder is the rest, for `myleskcb/iphoneslainv-1` (the repo was
 `loganipad/iphoneslainv` until the move of 2026-10-19).
@@ -26,17 +26,17 @@ as the reference for the Designer Library API.
 ## How the two apps talk
 
 ```
-iPhones LA listing page ──▶ iPhones LA server ──(key)──▶ BUYBACK.AD /api/library/v1
+iPhones LA listing page ──▶ iPhones LA server ──(key)──▶ WeBuy.AD /api/library/v1
   (title, description,       /api/buybackad-library/*        which ads there are
    photos, List it)           holds the key                          │
          ▲                                                          ▼
          └──────────── the ad, a 1080 JPEG File ◀──── assets/library-ads/<id>.jpg
 ```
 
-Two apps, talking through one API: iPhones LA's server asks BUYBACK.AD which
+Two apps, talking through one API: iPhones LA's server asks WeBuy.AD which
 ads are in the library (the key proves it is iPhones LA); the ads themselves
-are image files at fixed addresses on the BUYBACK.AD site. When the library
-changes (an ad approved in, held back, re-drawn), BUYBACK.AD re-renders and
+are image files at fixed addresses on the WeBuy.AD site. When the library
+changes (an ad approved in, held back, re-drawn), WeBuy.AD re-renders and
 deploys, and the next answer is the new library: nothing to sync on this side.
 The browser never sees the key.
 
@@ -55,7 +55,7 @@ The browser never sees the key.
 
 1. **Make a key** (anywhere):
    `python3 -c "import secrets; print('bbl_' + secrets.token_urlsafe(32))"`
-2. **BUYBACK.AD's Netlify project** (the one iPhones LA will call,
+2. **WeBuy.AD's Netlify project** (the one iPhones LA will call,
    `buybackad-finished-copy`, whose domain is webuy.ad, unless you say
    otherwise): Site configuration →
    Environment variables → add `LIBRARY_KEYS` = `iphonesla:<the key>`
@@ -115,7 +115,7 @@ An ad (the real record, 2026-10-04):
   "created": "2026-09-05T06:37:29Z", "updated": "2026-10-02T08:07:47Z", "uploaded": "2026-10-04T07:56:34Z" }
 ```
 
-**The rebuilt ads (2026-11-19).** BUYBACK.AD retired its old static library
+**The rebuilt ads (2026-11-19).** WeBuy.AD retired its old static library
 cards and rebuilt each one in its house ad engine. The library now hands out
 the rebuilt ad in each card's place, in the same shape:
 
@@ -131,7 +131,7 @@ An old card's id no longer answers: ask for the list again, or add `r-` to it.
 
 `image` is the ad itself, the picture for a listing (`?v=` changes when it is
 re-drawn). `thumb` is the library's preview, for a grid. `studio_url` opens the
-ad in the BUYBACK.AD studio, to change it before downloading (a download from
+ad in the WeBuy.AD studio, to change it before downloading (a download from
 there comes back through the existing studio link, the WE BUY picture library).
 
 **The dates** (ISO 8601, UTC) identify the media: `created` is when the ad
@@ -140,7 +140,7 @@ when the picture you get was drawn (it is the one that changes when `?v=`
 does). `created <= updated <= uploaded`, always. The JPEG itself carries the
 same three as EXIF (`DateTimeOriginal` = created, `DateTime` = updated,
 `DateTimeDigitized` = uploaded, each `+00:00`, with `ImageDescription` the
-title and `Software` "BUYBACK.AD Graphics Studio"), so an ad still says what it
+title and `Software` "WeBuy.AD"), so an ad still says what it
 is and when it was made after it has been uploaded to a listing or a photo
 library. The client's `filename(ad)` names a file for the ad and its upload
 day (`bubblePop-nn05-30_2026-10-04.jpg`); `dates(ad)` gives the three as
@@ -153,7 +153,7 @@ Errors: `{ "error": "..." }` with 400 (a bad id), 401 (no key or a wrong
 one; `WWW-Authenticate: Bearer`), 404 (an ad no longer in the library, or an
 unknown route), 405 (anything but GET), 429 (the day's requests for this key;
 `Retry-After`), 502 (the library could not be read), 503 (no keys set on
-BUYBACK.AD).
+WeBuy.AD).
 
 ## The iPhones LA routes
 
@@ -179,7 +179,7 @@ bp = Blueprint("buybackad_library", __name__, url_prefix="/api/buybackad-library
 def _fail(e: LibraryError):
     # the library's own refusals pass through; a key or network problem is the shop's to fix
     status = e.status if e.status in (400, 404, 429) else 502
-    return jsonify(error=str(e) if status != 502 else "the BUYBACK.AD library did not answer"), status
+    return jsonify(error=str(e) if status != 502 else "the WeBuy.AD library did not answer"), status
 
 @bp.get("/<route>")
 def proxy(route):
@@ -214,7 +214,7 @@ router = APIRouter(prefix="/api/buybackad-library")
 
 def _fail(e: LibraryError):
     status = e.status if e.status in (400, 404, 429) else 502
-    raise HTTPException(status, str(e) if status != 502 else "the BUYBACK.AD library did not answer")
+    raise HTTPException(status, str(e) if status != 502 else "the WeBuy.AD library did not answer")
 
 @router.get("/jpeg/{ad_id}")
 def jpeg(ad_id: str, side: Optional[int] = Query(None, alias="max")):
@@ -262,7 +262,7 @@ stay exactly as they are. `ad` is the record above. The same comes as a
 `buybackad:pick` event on the element. Each tile says when the ad was
 uploaded, and the Order control puts the newest upload first.
 
-## Checked (2026-10-06, from the BUYBACK.AD repo)
+## Checked (2026-10-06, from the WeBuy.AD repo)
 
 `scripts/library_api_check.mjs`: the renders (one for every ad the site
 offers, each a 1080x1080 JPEG of the card as the library shows it now, none
@@ -271,7 +271,7 @@ EXIF), the keys, rotation, the day's cap, every route, filters, `since`,
 `sort`, `Last-Modified`, the index's `latest`, paging, every link a real
 file, a held ad not offered, and the real function end to end.
 `scripts/library_handoff_check.mjs`: this folder's thirteen Python tests
-against a stand-in BUYBACK.AD (the dates on every ad, `since` and `sort`,
+against a stand-in WeBuy.AD (the dates on every ad, `since` and `sort`,
 the EXIF dates inside the JPEG among them); the Flask and FastAPI code
 above, taken out of this file and run; `example_server.py`'s listing page in
 Chromium (the picker loads the ads with their upload dates, "gold" narrows
@@ -284,12 +284,12 @@ API only once `main` is deployed with `LIBRARY_KEYS` set.
 ## Paste-ready prompt for the iPhones LA session
 
 ```
-In myleskcb/iphoneslainv-1: add the BUYBACK.AD ad library to the listing page
+In myleskcb/iphoneslainv-1: add the WeBuy.AD ad library to the listing page
 (the page where a listing gets its title and description and is listed).
-The library is BUYBACK.AD's finished ads (with our number on them) as
+The library is WeBuy.AD's finished ads (with our number on them) as
 1080x1080 JPEGs; a picked ad goes on the listing as a photo.
 
-Unzip iphonesla-library.zip (from the BUYBACK.AD repo,
+Unzip iphonesla-library.zip (from the WeBuy.AD repo,
 myleskcb/buybackad-graphics-studio, docs/iphonesla-library.zip). Read its
 README.md first: it is the API contract and has Flask and FastAPI versions of
 the routes; example_server.py has them runnable. Then:
@@ -348,7 +348,7 @@ feeling", "reposted daily of course"). So:
   while the ad is fresh. The studio never posts.
 
 ```
-BUYBACK.AD studio ──save──▶ the ad library ──public link──▶ iPhones LA worker ──▶ Auto-post
+WeBuy.AD studio ──save──▶ the ad library ──public link──▶ iPhones LA worker ──▶ Auto-post
  (download, Save)          (Netlify Blobs)   JSON / RSS       autopost_worker.py    (the shop's own
                                                               every 10-15 min        posting: post, repost)
 ```
@@ -381,7 +381,7 @@ Content-Type: application/json
 
 iPhones LA's side of it:
 - Accept it with the same token check and CORS as `/studio/images`.
-- Accept only a `site` that is a BUYBACK.AD site: `https://webuy.ad` (the address from
+- Accept only a `site` that is a WeBuy.AD site: `https://webuy.ad` (the address from
   2026-11-18), `https://buybackad-finished-copy.netlify.app`,
   `https://buybackad-graphics-studio.netlify.app`, `https://studio.scans.ad`.
   The `feed_url` must be exactly `site + /master-library.html?feed=fd_` plus
@@ -501,7 +501,7 @@ day's slots are posted.
 RSS instead of the worker: any RSS reader that takes new items gets each ad
 once a day for its seven days, because each day's slot is a new guid.
 
-### Checked (2026-10-05, from the BUYBACK.AD repo)
+### Checked (2026-10-05, from the WeBuy.AD repo)
 
 `scripts/ad_library_check.mjs` covers the following:
 
@@ -529,13 +529,13 @@ cannot reach.
 ### Paste-ready prompt for the iPhones LA session (review, then post)
 
 ```
-In myleskcb/iphoneslainv-1: bring BUYBACK.AD's WE BUY ads into the listings
+In myleskcb/iphoneslainv-1: bring WeBuy.AD's WE BUY ads into the listings
 site's review every day, and post the approved ones through the shop's
 existing Auto-post, within its daily limits.
 
-The ads come from BUYBACK.AD's ad library: a public link the studio sends by
+The ads come from WeBuy.AD's ad library: a public link the studio sends by
 itself to POST /api/buy-ads/studio/library (or the owner copies it from 📚
-Library → Copy link). From the BUYBACK.AD repo
+Library → Copy link). From the WeBuy.AD repo
 (myleskcb/buybackad-graphics-studio), read docs/iphonesla-library/README.md,
 section "Auto-post and repost: the ad library's public link". It is the
 contract. buybackad_library.py (BuybackadFeed) reads it; autopost_worker.py

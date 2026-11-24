@@ -1,16 +1,16 @@
-"""BUYBACK.AD library client, for iPhones LA's server.
+"""WeBuy.AD library client, for iPhones LA's server.
 
-The listing page (title, description, list it) puts one of BUYBACK.AD's
+The listing page (title, description, list it) puts one of WeBuy.AD's
 library ads on a listing: the finished ads the owner approved into the
-library in the BUYBACK.AD app, with the shop's number on them. This module is
-the only thing that talks to BUYBACK.AD: it holds the key, which never goes to
+library in the WeBuy.AD app, with the shop's number on them. This module is
+the only thing that talks to WeBuy.AD: it holds the key, which never goes to
 a browser. Standard library only (Pillow only to make an ad smaller than
 1080).
 
 Configure with two environment variables:
 
     BUYBACKAD_LIBRARY_URL   https://webuy.ad
-    BUYBACKAD_LIBRARY_KEY   bbl_...   (the key BUYBACK.AD's owner set in LIBRARY_KEYS)
+    BUYBACKAD_LIBRARY_KEY   bbl_...   (the key WeBuy.AD's owner set in LIBRARY_KEYS)
 
     lib = BuybackadLibrary.from_env()
     page = lib.ads(category="phones", q="iphone", limit=24)
@@ -28,7 +28,7 @@ What comes back is described in README.md beside this file (the contract
 of /api/library/v1).
 
 The ad library's public link (BuybackadFeed) is the other way in: the ads
-saved in the BUYBACK.AD studio, and which of them are due to post. It needs no
+saved in the WeBuy.AD studio, and which of them are due to post. It needs no
 key (the link is the access) and is what autopost_worker.py reads:
 
     BUYBACKAD_FEED_URL   https://webuy.ad/master-library.html?feed=fd_...
@@ -66,7 +66,7 @@ class LibraryError(Exception):
 class BuybackadLibrary:
     def __init__(self, base_url: str, key: str, timeout: float = 15.0, cache_seconds: float = 300.0):
         if not base_url or not base_url.startswith(("https://", "http://")):
-            raise ValueError("base_url must be the BUYBACK.AD site, e.g. https://webuy.ad")
+            raise ValueError("base_url must be the WeBuy.AD site, e.g. https://webuy.ad")
         if not key or len(key) < 32:
             raise ValueError("key must be the library key (32 characters or more)")
         self.base = base_url.rstrip("/") + "/api/library/v1"
@@ -163,7 +163,7 @@ class BuybackadLibrary:
 
     # ---------- the pictures ----------
     def fetch_image(self, url: str, max_bytes: int = 15 * 1024 * 1024) -> bytes:
-        """A picture from the BUYBACK.AD site (an ad's image or thumb url). A
+        """A picture from the WeBuy.AD site (an ad's image or thumb url). A
         url pointing anywhere else is refused."""
         return _fetch_image(url, self.site, self.timeout, max_bytes)
 
@@ -195,9 +195,9 @@ class BuybackadLibrary:
                 msg = json.loads(e.read().decode("utf-8")).get("error") or e.reason
             except Exception:
                 msg = e.reason
-            raise LibraryError(f"BUYBACK.AD library {e.code}: {msg}", e.code) from None
+            raise LibraryError(f"WeBuy.AD library {e.code}: {msg}", e.code) from None
         except (urllib.error.URLError, TimeoutError, OSError) as e:
-            raise LibraryError(f"BUYBACK.AD library unreachable: {e}") from None
+            raise LibraryError(f"WeBuy.AD library unreachable: {e}") from None
         with self._lock:
             if len(self._cache) > 500:
                 self._cache.clear()
@@ -206,7 +206,7 @@ class BuybackadLibrary:
 
 
 class BuybackadFeed:
-    """The ad library's public link: the ads saved in the BUYBACK.AD studio
+    """The ad library's public link: the ads saved in the WeBuy.AD studio
     (📚 Library), and which of them are offered today.
 
     Each ad is offered once a day for seven days from when it was saved
@@ -250,9 +250,9 @@ class BuybackadFeed:
                 msg = json.loads(e.read().decode("utf-8")).get("error") or e.reason
             except Exception:
                 msg = e.reason
-            raise LibraryError(f"BUYBACK.AD ad library {e.code}: {msg}", e.code) from None
+            raise LibraryError(f"WeBuy.AD ad library {e.code}: {msg}", e.code) from None
         except (urllib.error.URLError, TimeoutError, OSError, ValueError) as e:
-            raise LibraryError(f"BUYBACK.AD ad library unreachable: {e}") from None
+            raise LibraryError(f"WeBuy.AD ad library unreachable: {e}") from None
 
     def due(self, posted=(), category: str | None = None) -> list:
         """The ads offered today: fresh, not held, and whose current slot is
@@ -264,14 +264,14 @@ class BuybackadFeed:
 
     def jpeg(self, ad: dict, max_side: int | None = None, quality: int = 90) -> bytes:
         """The ad's picture, byte for byte as it was saved (a JPEG); smaller with
-        max_side (needs Pillow). Only from the BUYBACK.AD site the link is on."""
+        max_side (needs Pillow). Only from the WeBuy.AD site the link is on."""
         image = ad.get("image") or {}
         return _as_jpeg(_fetch_image(image.get("url", ""), self.site, self.timeout, 15 * 1024 * 1024), image, max_side, quality)
 
     def video(self, ad: dict, max_bytes: int = 60 * 1024 * 1024) -> bytes | None:
         """A video ad's clip (ad["video"]: url, format "mp4" or "webm", width,
         height, bytes, seconds), byte for byte; None for a photo ad. Only from
-        the BUYBACK.AD site the link is on. The photo (jpeg) is always there
+        the WeBuy.AD site the link is on. The photo (jpeg) is always there
         too: OfferUp takes a video only with a photo beside it."""
         video = ad.get("video") or None
         if not video or not video.get("url"):
@@ -286,7 +286,7 @@ class BuybackadFeed:
 def _fetch_image(url: str, site, timeout: float, max_bytes: int) -> bytes:
     u = urllib.parse.urlsplit(url or "")
     if (u.scheme, u.netloc) != (site.scheme, site.netloc):
-        raise LibraryError("refusing a picture from outside the BUYBACK.AD site: " + str(url))
+        raise LibraryError("refusing a picture from outside the WeBuy.AD site: " + str(url))
     req = urllib.request.Request(url, headers={"User-Agent": "iphonesla-library/3"})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:

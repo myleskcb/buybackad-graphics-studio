@@ -1,4 +1,4 @@
-"""Take the BUYBACK.AD ad library's WE BUY ads into the listings site's
+"""Take the WeBuy.AD ad library's WE BUY ads into the listings site's
 review, and post the approved ones through the shop's own Auto-post. A
 reference worker for iPhones LA's server.
 
@@ -6,12 +6,12 @@ The owner, 2026-10-05: "auto post the we buy ads and auto repost them too";
 2026-10-11: "we're supposed to do the approval or denial of the title
 description on the listings iPhone LA site", "the same imagery for seven
 days per unique ad that is our maximum", "reposted daily of course". The
-BUYBACK.AD studio only makes the imagery; titles, descriptions, approval and
+WeBuy.AD studio only makes the imagery; titles, descriptions, approval and
 posting are the site's, within its daily limits.
 
 What it does, each run:
   1. reads the library's public link (BuybackadFeed): every ad saved in the
-     BUYBACK.AD studio, each offered once a day for seven days from its save
+     WeBuy.AD studio, each offered once a day for seven days from its save
      (a slot is "this ad, on this day"; past its seven days it has none);
   2. hands each ad it has not seen to `intake(ad, jpeg, video=None)`, once:
      the site's review queue, where its title and description maker writes
@@ -205,7 +205,7 @@ def _load(spec: str, flag: str = "--post"):
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(description="Take the BUYBACK.AD ad library's ads into review, and post the approved ones.")
+    ap = argparse.ArgumentParser(description="Take the WeBuy.AD ad library's ads into review, and post the approved ones.")
     ap.add_argument("--state", default="buybackad-autopost.json", help="where the posted slots and the ads taken in are kept")
     ap.add_argument("--intake", help="module:function that puts one ad into the site's review")
     ap.add_argument("--approved", help="module:function that says whether an ad is approved to post today")

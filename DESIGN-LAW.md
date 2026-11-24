@@ -3946,7 +3946,7 @@ iPhones LA repo to finish this library of imagery".
   served: docs/ is 404'd) holds the Python client, the two routes, the picker
   and a paste-ready prompt for `loganipad/iphoneslainv`, which this session
   could not reach. `scripts/library_handoff_check.mjs` runs all of it against
-  a stand-in BUYBACK.AD: nine Python tests, the README's Flask and FastAPI
+  a stand-in WeBuy.AD: nine Python tests, the README's Flask and FastAPI
   code as written, and the demo listing page in Chromium, where a pick adds a
   JPEG with white behind the cut-out to the listing's photos.
 - Measured 2026-10-04: 867 assets (637 cut-outs, 77 scenes, 153 backgrounds)
@@ -4706,7 +4706,7 @@ a layout (15) and a subject (13), none missing.
 - **The picture says the same.** Each JPEG carries an EXIF segment
   (`scripts/_jpeg_exif.mjs`: DateTimeOriginal = created, DateTime = updated,
   DateTimeDigitized = uploaded, each with OffsetTime +00:00, ImageDescription
-  the title in ASCII, Software "BUYBACK.AD Graphics Studio"), written after
+  the title in ASCII, Software "WeBuy.AD" since rule 153), written after
   the JFIF segment, read back by the check, by ImageMagick and by Pillow,
   the picture's bytes untouched. A file's sha1, and so the API's `?v=`,
   moves only when its dates do: `--stamp` writes EXIF again only where it
@@ -5897,7 +5897,7 @@ gallery/feed to look clean and cohesive".
 **So:**
 
 - **One mark** (`watermark.js`, `window.PgfxMark`): a light lattice of small
-  BUYBACK.AD words across the whole picture, a light word over a dark one a
+  WeBuy.AD words across the whole picture, a light word over a dark one a
   pixel apart, so it shows on dark and light grounds and the ad reads through
   it. Measured on the picture's short side, so a preview and its download
   carry the same pattern. The studio (`drawWatermarkMarks`) and the video
@@ -6233,12 +6233,18 @@ and `/static/app.css`), applied to the new name, so the two read as one family.
   for word, and four real ads from its wall. All of it is drawn by
   `sh tools/brand/make.sh` with headless Chrome; draw it again after the
   kicker or the headline changes.
-- **The name in words**: "WeBuy.AD" wherever the product or the site is named,
-  the watermark on free exports included. **BUYBACK.AD stays the business**:
-  the copyright lines, and the terms and privacy policy, whose agreement is
-  with BUYBACK.AD (only their header, title and home link changed). Renaming
-  the party to an agreement is the owner's legal call, with a new terms
-  version (`TERMS_VERSION`).
+- **The name in words**: "WeBuy.AD" wherever the product, the site or the
+  business is named: the watermark on free exports, the copyright lines, and
+  the terms and privacy policy, whose agreement is with WeBuy.AD. Until
+  2026-11-23 the business stayed BUYBACK.AD; then the owner: "Anything that
+  was previously referred to as the old name needs to be switched over to the
+  new name" (terms version 2026-11-23, `TERMS_VERSION`; the contact is
+  support@webuy.ad, Namecheap mail forwarding). Identifiers keep their old
+  spelling, since renaming them breaks billing, partners or saved sessions:
+  the repository and Netlify project names, `buybackad_library.py` and
+  `BUYBACKAD_LIBRARY_KEY`, Stripe's `bbad_*` lookup keys, the `pgfx` storage
+  keys. Dated history (the learning log, OPEN-ITEMS, HANDOFF, the audits)
+  keeps the name it had.
 
 ## 154. A seed draws a different ad, not the same one 5% off: every colour theme, the look first, a face, a ground of five kinds, a fill
 

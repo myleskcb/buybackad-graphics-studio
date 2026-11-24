@@ -1,5 +1,5 @@
 /**
- * BUYBACK.AD backend — Netlify Function port of worker.js, plus the AI
+ * WeBuy.AD backend — Netlify Function port of worker.js, plus the AI
  * background service. One catch-all function at /api/*.
  *
  * Provides: email+password auth (PBKDF2 + HMAC JWT), plan tracking,

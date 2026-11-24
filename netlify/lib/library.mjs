@@ -1,5 +1,5 @@
 /**
- * The library API: BUYBACK.AD's library of ads for a partner's server, behind
+ * The library API: WeBuy.AD's library of ads for a partner's server, behind
  * a key.
  *
  * Owner, 2026-10-04: "build the intermediary so the ad title and description
@@ -194,7 +194,7 @@ export async function libraryRoute(req, url, p, env, deps) {
   const keys = libraryKeys(env);
   if (!keys.length) return reply({ error: 'The library API is not switched on here (no LIBRARY_KEYS)' }, 503);
   const partner = await whoseKey(presentedKey(req), keys);
-  if (!partner) return reply({ error: 'A valid library key is required' }, 401, { 'WWW-Authenticate': 'Bearer realm="buyback.ad library"' });
+  if (!partner) return reply({ error: 'A valid library key is required' }, 401, { 'WWW-Authenticate': 'Bearer realm="webuy.ad library"' });
   if (deps.count && !(await deps.count(partner))) return reply({ error: "This key has used today's requests; it resets at midnight UTC" }, 429, { 'Retry-After': '3600' });
 
   const route = p.replace(/^\/library\/?/, '');
@@ -209,7 +209,7 @@ export async function libraryRoute(req, url, p, env, deps) {
   if (!parts.length || (parts.length === 1 && parts[0] === '')) {
     const base = url.origin + '/api/library/v1';
     return reply({
-      name: 'BUYBACK.AD library', version: data.version, partner,
+      name: 'WeBuy.AD library', version: data.version, partner,
       counts: { ads: data.ads.length, categories: tally() },
       latest: data.latest,
       routes: { categories: base + '/categories', ads: base + '/ads', ad: base + '/ads/{id}' },
