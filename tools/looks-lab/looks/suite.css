@@ -1,5 +1,5 @@
 /* @include family.css */
-/* SUITE: the family grammar on hue-free graphite, with Graphics Studio's own slab colour. */
+/* SUITE: the family grammar on hue-free graphite, with WeBuy.AD's own slab colour. */
 :root[data-theme][data-finish='counter'][data-lab='suite']{
   --block:#FF5A1F;--on-block:#141414;--on-block-muted:rgba(20,20,20,.72);--dot:#FF5A1F;--control:#767676;
   --ink:#141414;--paper:#F3F3F3;--stamp:#FF5A1F;

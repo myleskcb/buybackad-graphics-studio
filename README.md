@@ -292,7 +292,7 @@ the landing, a video saved from each; `FABRIC_JS=…` when cdnjs is out of
 reach).
 
 ## SCANS.AD (ScanMap) integration — optional
-Graphics Studio runs 100% standalone. The integration is also **invisible to
+WeBuy.AD runs 100% standalone. The integration is also **invisible to
 single-product users**: every SCANS.AD surface (order buttons, tracked-link
 helper) stays hidden until the browser proves membership of BOTH platforms —
 the user is signed in here AND has either arrived via ScanMap's dashboard link

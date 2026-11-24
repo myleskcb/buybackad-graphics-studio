@@ -1,7 +1,7 @@
 (() => {
   const bar = document.createElement('div'); bar.className = 'lab-suite';
   bar.innerHTML = '<b>reselling.us</b><div class="ls-apps">' +
-    '<a class="ls-app"><i></i>CRM</a><a class="ls-app resale"><i></i>resale. deal desk</a><a class="ls-app"><i></i>SCANS.AD</a><a class="ls-app on"><i></i>Graphics Studio</a></div>' +
+    '<a class="ls-app"><i></i>CRM</a><a class="ls-app resale"><i></i>resale. deal desk</a><a class="ls-app"><i></i>SCANS.AD</a><a class="ls-app on"><i></i>WeBuy.AD</a></div>' +
     '<span class="ls-right">The apps resellers run on</span>';
   document.body.prepend(bar);
   const ctas = document.querySelector('.hero-ctas'), note = document.querySelector('.hero-note');

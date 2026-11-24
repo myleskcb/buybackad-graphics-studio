@@ -297,7 +297,7 @@
     const br = /Edg\//.test(ua) ? 'Edge' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox'
       : /Safari\//.test(ua) ? 'Safari' : '';
     const where = [br, os].filter(Boolean).join(' on ');
-    return ('Graphics Studio' + (where ? ', ' + where : '')).slice(0, 60);
+    return ('WeBuy.AD' + (where ? ', ' + where : '')).slice(0, 60);
   }
   const sentence = j => (j && typeof j.detail === 'string' && j.detail.length <= 200) ? j.detail : '';
 

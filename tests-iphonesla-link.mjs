@@ -192,7 +192,7 @@ test('the exchange is called once, with no cookie and no token, and the token is
   const body = JSON.parse(c.init.body);
   assert.deepEqual(Object.keys(body).sort(), ['code', 'label']);
   assert.equal(body.code, CODE);
-  assert.equal(body.label, 'Graphics Studio, Chrome on Mac');
+  assert.equal(body.label, 'WeBuy.AD, Chrome on Mac');
   const kept = JSON.parse(s.local._m.ipla_link);
   assert.deepEqual(Object.keys(kept).sort(), ['connectedAt', 'token']);
   assert.equal(kept.token, TOKEN);

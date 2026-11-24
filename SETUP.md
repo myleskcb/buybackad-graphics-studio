@@ -49,7 +49,7 @@ git add -A && git commit -m "Monorepo: graphics-studio + orchard + scanmap"
 gh repo create myleskcb/buyback-monorepo --private --source . --push
 ```
 
-## 3. Graphics Studio (hosted site)
+## 3. WeBuy.AD (hosted site)
 
 ```sh
 cd ~/code/buyback/apps/graphics-studio

@@ -34,6 +34,6 @@ window.PGFX_API = (function () {
 // ── SCANS.AD (ScanMap) integration ──
 // Where "Order prints + posting" sends finished ads: your ScanMap install's
 // domain (its Netlify URL works too, e.g. "https://scansad.netlify.app").
-// Leave EMPTY ("") to hide every cross-product button — Graphics Studio then
+// Leave EMPTY ("") to hide every cross-product button — WeBuy.AD then
 // runs 100% standalone.
 window.SCANMAP_URL = "https://scans.ad";

@@ -1,6 +1,6 @@
 # NEW GFX ENGINE — study program
 
-Entry point for any LLM or person picking up the Graphics Studio design work.
+Entry point for any LLM or person picking up the WeBuy.AD design work.
 Read this file first, then `SESSION-PROTOCOL.md`, then whichever curriculum
 module the log says is next.
 

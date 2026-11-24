@@ -364,7 +364,7 @@ function page(census) {
     pairs: PAIRS.map(p => ({ key: p.key, name: p.name, ground: p.ground, accent: p.accent })) }).replace(/</g, '\\u003c');
   /* One self-contained page, the Type Lab page's way (build_type_lab_page.mjs): no document
      wrapper, so it publishes as an artifact as it is and opens from disk the same. */
-  return `<title>Graphics Studio ad census</title>
+  return `<title>WeBuy.AD ad census</title>
 <meta charset="utf-8">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap">
