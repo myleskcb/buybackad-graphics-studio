@@ -4741,6 +4741,11 @@ Done:
 - `landing.css`: a wall picture fades in when it arrives.
 - `scripts/wall_pictures_check.mjs` (22 cases). Run against the code before this change it fails
   12, with the same alt text in sight that the screenshot shows.
+- 2026-11-24, after pull request 23 went live: the check run against webuy.ad passed the wall but
+  caught a failed library picture in sight (21 of 22), for the moment between its failure and its
+  error event. A library picture was visible while loading; the wall's never was. `scCard` now keeps
+  it clear until it has loaded. The check gained a case (a loaded library picture must be seen):
+  23 of 23, five runs on the live site with the new `app.js`.
 
 Open:
 1. A column that loses three or more of its six cards is shorter than the stage, so a gap passes
