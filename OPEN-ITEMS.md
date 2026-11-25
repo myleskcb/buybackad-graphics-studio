@@ -4826,3 +4826,58 @@ Open:
 7. The Pixel line has only the six painted Pixel 11s left; the vans line has no Sprinter (its flagged cut-outs need
    their glass retouched).
 
+
+## CE. 2026-11-24 — card ads on painted grounds; the landmark photographs (DESIGN-LAW 177)
+
+(claude/card-ads-painted-grounds, stacked on claude/full-ad-looks-layout.)
+
+Done: see DESIGN-LAW 177. The 27 library ads whose ground moved were drawn again: 22 card ads that stood on a
+photograph (20 on Los Angeles place photographs, 4 of them the Griffith Observatory's `-12` and `-13`; 2 on rule 170's
+painted slab displays) and 5 whose lean moved within its kind. No other library ad moved. All 82 card library renders
+were then drawn again in a scratch folder and compared pixel by pixel: 6 more (`r-stepsFlow-du07-15`, `-du07-30`,
+`-gl04-30`, `-jw03-20`, `-jw10-31`, `r-bubblePop-io06-35`, painted grounds all) were still the 2026-11-23 renders with the
+card words rule 171 retired (SLABS AND SEALED WAX, SAME DAY), and were drawn again too. Every card render now matches
+the engine's draw, none on a photograph.
+
+Open:
+1. **Place photographs about one named landmark: the owner's call.** The rule so far: no trademarked landmark where the
+   photograph is about the building. All 101 `assets/bg-free/geo-*` place photographs (the 20 metros) were read by eye on
+   2026-11-24; none was removed. Card ads no longer draw them; every other line still does.
+   - *About one named building or monument* (the stronger case):
+     - Los Angeles: 7 of its 16 are the Griffith Observatory: `-3` (the facade, its name), `-4` (the building and its
+       lawn), `-5` (the Astronomers Monument on the lawn: a sculpture), `-11` (the observatory before downtown), `-12`
+       (close up, its name in metal letters: the ground `r-voltStack-ca07-15` stood on), `-13` (its TO TELESCOPE sign),
+       `-15` (its front, a crowd). `-1` is the skyline from its terrace, a few visitors from behind in the frame.
+     - Washington: all 6 are monuments: `-4`, `-5`, `-6` the US Capitol; `-7`, `-8` the Lincoln Memorial; `-2` the
+       Washington Monument over the Reflecting Pool with the WWII Memorial.
+     - Denver `-7`, Union Station under its neon UNION STATION / TRAVEL BY TRAIN sign.
+     - Detroit `-4`, the Renaissance Center (General Motors' headquarters).
+     - San Diego `-5`, the Salk Institute.
+     - San Francisco `-8`, the Painted Ladies (private houses).
+     - Tampa `-7`, the Tampa Convention Center with the Gasparilla pirate ship.
+     - Miami `-10` (the Miami Beach Federal Building) and Orlando `-7` (The Vue at Lake Eola): one tower each, neither
+       famous.
+   - *A named structure, or a trademarked building leading the view*:
+     - Seattle `-11`, `-13`: the Space Needle at the centre of the skyline.
+     - San Francisco `-1` (the Transamerica Pyramid at the edge) and `-4` (Coit Tower on Telegraph Hill).
+     - Bridges: Boston `-1`, `-2`, `-3`, `-9`, `-10` (the Zakim: 5 of Boston's 7), Minneapolis `-4`, `-5` (the Stone Arch:
+       both of its 2), New York `-10`, `-11` (the Brooklyn Bridge), Philadelphia `-11` (the Ben Franklin).
+     - Los Angeles `-19`, Santa Monica Pier from the air with its amusement park (rule 161 keeps theme parks out).
+     - Atlanta `-10`, the skyline over the Georgia Dome, demolished in 2017.
+   If the first group goes, Washington has no place photograph left (its ads draw their line's pool, as outside a metro)
+   and Los Angeles has 9. The way out is a `never` tag in `spec/ground-tags.json` (the pools pass over it) or dropping
+   the file from `places`; more CC0 skylines can replace them, fetched and read by eye as before (downloads need the
+   owner's go-ahead).
+2. **The painted slab displays** (`pokemon-slabs-display-1`, `-2`, rule 170) no longer stand behind a full ad: drawn
+   through a photograph's path they read as a photograph of a shop. If the owner wants them back, they come back as a
+   painted ground of their own (a family ground), not as a photograph. The 66 old designs laid out over them keep them.
+3. **A shop's own card photographs** (§CA 1, option a): when a shop uploads its own, a card ad may stand on them. That is
+   a path of its own, decided then; `paintedLine` is where it would open.
+4. **The rebuilt renders' stamp misses the line's own words.** `scripts/_rebuilt.mjs` stamps a render with its recipe's
+   seed, line, words and pictures, not the line's headlines and models in `motion/subjects.json` nor the engine, so the
+   six above kept rule 171's retired words through `--stale`. Other lines' renders may be stale the same way; the
+   comparison above (a scratch script) has only been run on the card lines.
+5. **A redraw can depend on the ad drawn before it.** `render_rebuilt_ads.mjs` draws every recipe in one Easy Mode page,
+   and something carried from one recipe to the next can change the face: `r-neonNight-du08-16` comes out in one face
+   drawn first or by `--ids` and in another after some other recipes (its ground the same). A full redraw and an `--ids`
+   redraw can disagree.

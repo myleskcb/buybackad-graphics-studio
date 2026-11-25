@@ -15,7 +15,14 @@
            GFX_BASE=http://127.0.0.1:8931/ node scripts/build_full_grounds.mjs --measure
                                                                # read each photograph into the table first
            node scripts/build_full_grounds.mjs --check         # exit 1 if stale, or a pooled photograph is
-                                                               # missing, unmeasured, dark or uncredited */
+                                                               # missing, unmeasured, dark or uncredited, or
+                                                               # a card line could stand on a photograph
+
+   THE CARD ADS STAND ON PAINTED GROUNDS (DESIGN-LAW 177, 2026-11-24): spec.painted names the categories
+   whose ads never stand on a photograph (the trading cards: their makers' art, the players' faces, and
+   the credited bg-web photographs the owner's rule keeps off a card ad, rules 161 and 170). Their pools
+   stay empty, their recipes carry no photograph into GROUND_PHOTOS, and fullad.js groundFor reads
+   GROUND_PAINTED to keep the area's place photographs from them too. */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
@@ -30,7 +37,8 @@ const pooled = [...new Set([...Object.values(spec.pools).flat(), ...Object.value
    owner: "not low exposure dark images..."); measured here as the pools are, and marked dim where under
    the limits (fullad.js groundFor passes over a dim one), never pooled for other ads */
 const RECIPES = existsSync(ROOT + 'motion/recipes.json') ? JSON.parse(readFileSync(ROOT + 'motion/recipes.json', 'utf8')).recipes || [] : [];
-const carded = [...new Set(RECIPES.filter(r => r.ground_photo && r.ground_photo.src).map(r => r.ground_photo.src))].filter(f => !pooled.includes(f)).sort();
+const PAINTED = spec.painted || [];   // a card recipe's photograph is never one the engine knows (rule 177)
+const carded = [...new Set(RECIPES.filter(r => r.ground_photo && r.ground_photo.src && !PAINTED.includes(r.cat)).map(r => r.ground_photo.src))].filter(f => !pooled.includes(f)).sort();
 
 if (process.argv.includes('--measure')) {
   const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8931/').replace(/\/?$/, '/');
@@ -97,6 +105,7 @@ export const GROUND_POOLS = ${JSON.stringify(spec.pools)};
 export const GROUND_PLACES = ${JSON.stringify(spec.places || {})};
 export const GROUND_LINE_PATTERNS = ${JSON.stringify(spec.line_patterns || {})};
 export const GROUND_LINE_CAT = ${JSON.stringify(lineCat)};
+export const GROUND_PAINTED = ${JSON.stringify(PAINTED)};
 export const GROUND_PHOTOS = ${JSON.stringify(photos)};
 `;
 
@@ -126,8 +135,15 @@ if (process.argv.includes('--check')) {
   { const known = listed('FULL_PATTERNS'); for (const [cat, L] of Object.entries(spec.line_patterns || {})) for (const g of L) if (!known.includes(g)) bad.push(`line_patterns ${cat}: ${g} is not one motion/decor.js paints (FULL_PATTERNS)`); }
   const noPool = subjects.filter(s => !(s.cat in spec.pools)).map(s => s.key);
   if (noPool.length) bad.push('lines whose category has no pool entry: ' + noPool.join(', '));
+  // a card ad stands on a painted ground (rule 177): no photograph in a painted category's pool, every line whose goods
+  // are trading cards (motion/full-points.js kindOf) in a painted category, and no card recipe carrying a photograph
+  for (const cat of PAINTED) if ((spec.pools[cat] || []).length) bad.push(`pools ${cat}: a painted category (spec.painted) holds ${spec.pools[cat].length} photographs`);
+  const { kindOf } = await import(new URL('../motion/full-points.js', import.meta.url).href);
+  for (const s of subjects) if (kindOf(s.key) === 'cards' && !PAINTED.includes(s.cat)) bad.push(`${s.key}: its goods are trading cards, but its category ${s.cat} is not in spec.painted`);
+  const photoed = RECIPES.filter(r => PAINTED.includes(r.cat) && r.ground_photo);
+  if (photoed.length) bad.push(`${photoed.length} card recipes carry a ground photograph (motion/recipes.json, e.g. ${photoed[0].id}): run node scripts/build_recipes.mjs`);
   if (bad.length) { console.error(bad.join('\n')); process.exit(1); }
-  console.log(`motion/full-grounds.js is current: ${carded.length} cards' own photographs (${carded.filter(f => spec.photos[f] && spec.photos[f].L != null && dim(spec.photos[f])).length} dim), ${pooled.length} photographs in ${Object.keys(spec.pools).length} pools and ${Object.keys(spec.places || {}).length} places, ${spec.scenes.length} scenes, ${(spec.gradients || []).length} gradients, ${(spec.patterns || []).length} patterns, version ${spec.version}`);
+  console.log(`motion/full-grounds.js is current: ${carded.length} cards' own photographs (${carded.filter(f => spec.photos[f] && spec.photos[f].L != null && dim(spec.photos[f])).length} dim), ${pooled.length} photographs in ${Object.keys(spec.pools).length} pools and ${Object.keys(spec.places || {}).length} places, ${PAINTED.length} categories painted only (${PAINTED.join(', ')}), ${spec.scenes.length} scenes, ${(spec.gradients || []).length} gradients, ${(spec.patterns || []).length} patterns, version ${spec.version}`);
 } else {
   writeFileSync(OUT, text);
   console.log(`wrote motion/full-grounds.js: ${Object.keys(photos).length} photographs, ${spec.scenes.length} scenes, shares ${JSON.stringify(spec.shares)}`);

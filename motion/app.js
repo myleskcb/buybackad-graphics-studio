@@ -2,7 +2,7 @@
 
 import { OPTIONS, LABELS, GROUPS, HEADLINES, COPY, FONTS, PALETTES, DEFAULT_STYLE, CLASSIC, VIBES, THEME_FAMILIES, GROUND_CANDIDATES, SOUND_ALIASES, SOUND_NAMES, countLooks, TYPE_VOICES, DEFAULT_PHONES } from "./catalog.js";
 import { Ad, ASPECTS, rng, randomize, harmonise, settleIdleClashes, loadPhones, loadFonts, fontsFor, phoneFromFile, heightOf, pal, applyVibe, applyCopy, applyAudience, applyVoice, areaOf, linkedLook, pointsOf, strikeOf, lotInto } from "./engine.js";
-import { FullAd, fullStyle, fullPreflight, fullStill, fullWords, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk, fullGroundReady, poolEntryFor, FULL_LAYOUT } from "./fullad.js";
+import { FullAd, fullStyle, fullPreflight, fullStill, fullWords, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk, fullGroundReady, poolEntryFor, FULL_LAYOUT, paintedLine } from "./fullad.js";
 import { lookPreflight, LOOK_CODES } from "./look-preflight.js";
 import { areaFrom } from "./geo.js";
 import { FULL_VOICES } from "./full-voices.js";
@@ -659,7 +659,7 @@ function buildPanel() {
   }
   {   // what it stands on (rule 161): a photograph, a painted pattern, a gradient...; a photograph's treatment
     const sec = document.createElement("details"); sec.className = "mo-sec mo-full-only"; sec.open = true;
-    sec.innerHTML = `<summary>Background</summary><p class="mo-note">About a third of looks stand on a photograph; when your area is in one of the 20 biggest US metros, it's a photograph of your city. The rest stand on your own product, an abstract, colour and shapes, your goods' own word, a pattern or a gradient. Pick one to keep it.</p>`;
+    sec.innerHTML = `<summary>Background</summary><p class="mo-note">About a third of looks stand on a photograph; when your area is in one of the 20 biggest US metros, it's a photograph of your city. The rest stand on your own product, an abstract, colour and shapes, your goods' own word, a pattern or a gradient. Card ads always stand on a painted one. Pick one to keep it.</p>`;
     for (const [k, label, names] of [["full_ground", "Stands on", GROUND_KINDS], ["full_treat", "Photo treatment", PHOTO_TREAT_NAMES]]) {
       const row = document.createElement("div"); row.className = "mo-set";
       row.innerHTML = `<label>${label}<select data-key="${k}">${Object.entries(names).map(([v, n]) => `<option value="${v}"${v === "look" ? " disabled" : ""}>${n}</option>`).join("")}</select></label>
@@ -937,6 +937,10 @@ function syncWords() {
 
 function syncPanel(st) {
   document.querySelectorAll("#design select").forEach(s => { const k = s.dataset.key; s.value = String(st[k]); });
+  { // a card ad stands on a painted ground (rule 177): a photograph and its treatment are not offered
+    const cards = paintedLine(st.subject), o = document.querySelector('#design select[data-key="full_ground"] option[value="photo"]'), t = document.querySelector('#design select[data-key="full_treat"]');
+    if (o) o.disabled = cards; if (t) t.disabled = cards;
+  }
   syncPalettePicker(String(st.palette));
   document.querySelectorAll("[data-flag]").forEach(c => { c.checked = !!st[c.dataset.flag]; });
   document.querySelectorAll("#aspects [data-aspect]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.aspect === st.aspect)));

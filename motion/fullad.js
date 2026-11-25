@@ -23,7 +23,7 @@ import { HOUSE_COLOURS, LINES, PAIR_LOOKS } from "./house-colours.js";
 import { FULL_VOICES } from "./full-voices.js";
 import { bannedIn } from "./banned-words.js";
 import { PHONE_WEIGHT, PHONE_REST, PHONE_VIEWS, PHONE_COUNTS, PHONE_LINEUP, pickWeighted } from "./product-demand.js";
-import { GROUND_SHARES, GROUND_SCENES, GROUND_GRADIENTS, GROUND_PATTERNS, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS, GROUND_PLACES, GROUND_LINE_PATTERNS } from "./full-grounds.js";
+import { GROUND_SHARES, GROUND_SCENES, GROUND_GRADIENTS, GROUND_PATTERNS, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS, GROUND_PLACES, GROUND_LINE_PATTERNS, GROUND_PAINTED } from "./full-grounds.js";
 import { FAMILY_GROUNDS, FAMILY_OF } from "./full-families.js";
 import { drawPoints, OLD_DEFAULTS, kindOf } from "./full-points.js";
 import { metroOf } from "./metros.js";
@@ -483,11 +483,18 @@ export function groundFits(t, P) {
   if (P.kind === "iphone") return t.subject === "iphone" && !!t.model && P.models.length > 0 && P.models.every(m => m === t.model);
   return (GROUND_KIND[P.kind] || []).includes(t.subject);
 }
+/* A CARD AD STANDS ON A PAINTED GROUND (DESIGN-LAW 177, 2026-11-24; the owner's rule, 161 and 170: photographs
+   behind paid ads are public domain or CC0 and need no credit, and the cards stand on painted grounds until the
+   shop shoots its own). The card lines' pools held credited bg-web photographs, the area's city photographs joined
+   them three times over, and a rebuilt recipe leaned to its card's photograph: a sports-card library ad stood on
+   the Griffith Observatory. A line whose goods are trading cards (full-points.js kindOf, or a category the table
+   paints: spec/full-grounds.json painted) is never drawn on a photograph, whatever it was handed. */
+export const paintedLine = subject => !!subject && subject !== "iphone" && (kindOf(subject) === "cards" || GROUND_PAINTED.includes(GROUND_LINE_CAT[subject]));
 /** The ground a seed draws for a line and the pair it drew: { background, ground_photo? }, or null
  *  for the house gradient the seed already drew. product (productFor): only a photograph that agrees
  *  with it is drawn. */
 export function groundFor(subject, seed, pairKey, product, lean = null, place = "", want = {}) {
-  const cat = !subject || subject === "iphone" ? "phones" : (GROUND_LINE_CAT[subject] || "");
+  const cat = !subject || subject === "iphone" ? "phones" : (GROUND_LINE_CAT[subject] || ""), painted = paintedLine(subject);
   /* the photograph's treatment (photoTreatFor, on a stream of its own); a duotone lays the pair's own two
      colours into the picture, so its own colour does not count against the card's two families (a tint
      keeps half of it, so a tinted photograph is held to rule 139 as a graded one is: full_colour_check) */
@@ -508,7 +515,8 @@ export function groundFor(subject, seed, pairKey, product, lean = null, place = 
      the picture, and the VR headsets' words stood on a dim room with a console in it. Its words stand on a
      painted ground: a gradient, a pattern, a scene or the house's own. */
   const bare = !!(product && product.bare);
-  const pool = bare ? [] : [...placed, ...placed, ...placed, ...(GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && suits(src) && here(src) && groundFits(GROUND_PHOTOS[src], product))];
+  // a card ad stands on no photograph: not its line's, not its area's (rule 177)
+  const pool = bare || painted ? [] : [...placed, ...placed, ...placed, ...(GROUND_POOLS[cat] || []).filter(src => GROUND_PHOTOS[src] && suits(src) && here(src) && groundFits(GROUND_PHOTOS[src], product))];
   // the drawn scenes are night skies, auroras and glows made for light words: under dark words (a light pair,
   // a lime or aqua ground: rule 154) their deep tones turn grey and the shade behind the words runs to the
   // frame's edge (full_ad_check, 2026-11-18), so those pairs stand on the other kinds
@@ -524,7 +532,7 @@ export function groundFor(subject, seed, pairKey, product, lean = null, place = 
      dim, fits the product drawn and keeps the card to two families, else one of the line's */
   if (lean && lean.want && lean.want.length) {
     const p0 = lean.photo && lean.photo.src, m0 = p0 ? GROUND_PHOTOS[p0] : null;
-    const own = !bare && m0 && !m0.dim && groundFits({ ...m0, ...lean.photo }, product) && photoSuits(m0, pairKey) ? { src: p0, focus: lean.photo.focus || m0.focus || [.5, .5] } : null;   // the engine's own shade, for this pair (its card's was for its card)
+    const own = !bare && !painted && m0 && !m0.dim && groundFits({ ...m0, ...lean.photo }, product) && photoSuits(m0, pairKey) ? { src: p0, focus: lean.photo.focus || m0.focus || [.5, .5] } : null;   // the engine's own shade, for this pair (its card's was for its card)
     const can = [...(own || pool.length ? ["photo"] : []), ...(share.scene ? ["scene", ...GROUND_SCENES] : []), ...(share.gradient ? ["gradient", ...GROUND_GRADIENTS] : []),
       ...(share.pattern ? ["pattern", ...GROUND_PATTERNS] : []), "house", ...GROUNDS];
     const got = lean.pick(can, lean.want, "ground"), of = L => L[Math.floor(lean.r() * L.length) % L.length];
@@ -535,9 +543,15 @@ export function groundFor(subject, seed, pairKey, product, lean = null, place = 
   let h = 0x811c9dc5; for (const ch of String(subject || "iphone")) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
   const g = rng(mixSeed((mixSeed(seed >>> 0) ^ h) >>> 0)); g();
   /* a kind of ground picked in the maker (Background, want.kind): only that kind is drawn, where the ad has one */
-  if (want.kind && share[want.kind] > 0) for (const k of Object.keys(share)) if (k !== want.kind) share[k] = 0;
-  let u = g() * Object.values(share).reduce((a, b) => a + b, 0);
+  const only = !!want.kind && share[want.kind] > 0;
+  if (only) for (const k of Object.keys(share)) if (k !== want.kind) share[k] = 0;
+  /* a card ad keeps the photograph's part of the draw and paints it (rule 177): a seed that drew a photograph draws
+     again among the painted kinds, and one that drew a painted ground keeps it, so the card ads already seen stay */
+  const held = painted && !bare && !only ? (placed.length ? Math.max(GROUND_SHARES.photo, .55) : GROUND_SHARES.photo) : 0;
+  const painting = Object.values(share).reduce((a, b) => a + b, 0);
+  let u = g() * (painting + held);
   if ((u -= share.photo) < 0) { const src = pool[Math.floor(g() * pool.length) % pool.length]; return { background: "photo", ground_photo: { src, focus: GROUND_PHOTOS[src].focus || [.5, .5], ...tf } }; }
+  if ((u -= held) < 0) u = g() * painting;
   if ((u -= share.scene) < 0) return { background: GROUND_SCENES[Math.floor(g() * GROUND_SCENES.length) % GROUND_SCENES.length] };
   // a vivid gradient in the pair's own two families (decor.js pairGradientGround; the owner: "Also don't see any gradients really?")
   if ((u -= share.gradient) < 0) return { background: GROUND_GRADIENTS[Math.floor(g() * GROUND_GRADIENTS.length) % GROUND_GRADIENTS.length] };
@@ -2171,7 +2185,9 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   const idx = Object.fromEntries(phoneIndex.map(m => [m.id, m]));
   const bold = subject ? [] : have.map(id => (idx[id] || {}).body).filter(b => b && b.C >= BOLD_C).map(b => b.h);
   // a photograph given with the ad whose colour is strong counts toward the two families, as a bold phone does
-  const given = st.ground_photo && st.ground_photo.src ? GROUND_PHOTOS[st.ground_photo.src] : null;
+  // (never on a card ad, which stands on a painted ground whatever it was handed: rule 177)
+  const cardGround = paintedLine(st.subject), photoGiven = !cardGround && !!(st.ground_photo && st.ground_photo.src);
+  const given = photoGiven ? GROUND_PHOTOS[st.ground_photo.src] : null;
   if (given && given.C >= .08 && given.hue != null) bold.push(given.hue);
   /* A REBUILT RECIPE'S LEAN (motion/recipe-lean.js, spec/recipe-looks.json; the owner, 2026-11-18, of the
      library cards and the offer family: "take them as inspiration but rebuild them all"): st.hint names
@@ -2211,7 +2227,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   const look = { palette: "midnight", colors: { ...COLOUR_OF[key].colors }, full_colour: key, background: one(GROUNDS), arrangement: one(ARRANGEMENTS), feed_icon: one(ICONS), ...view, ...type, ...picked };
   if (lean && !("arrangement" in picked)) look.arrangement = lean.pick(ARRANGEMENTS, H.arrangement, "arrangement") || look.arrangement;
   // the ground: a photograph given with the ad as given; otherwise the seed's own draw (groundFor), unless one was picked by hand
-  if (st.ground_photo && st.ground_photo.src && (!pick.ground_kind || pick.ground_kind === "photo")) { look.background = "photo"; look.ground_photo = { ...st.ground_photo, ...(PHOTO_TREATS[pick.photo_treat] != null ? { treat: pick.photo_treat } : {}) }; }
+  if (photoGiven && (!pick.ground_kind || pick.ground_kind === "photo")) { look.background = "photo"; look.ground_photo = { ...st.ground_photo, ...(PHOTO_TREATS[pick.photo_treat] != null ? { treat: pick.photo_treat } : {}) }; }
   else if (!("background" in picked)) {
     const gd = groundFor(st.subject, seed, key, productFor(st.subject, have), lean && H.ground && !pick.ground_kind ? { want: H.ground, photo: st.ground_hint || null, r: lr, pick: lean.pick } : null, metroOf(st.area), { kind: pick.ground_kind || "", treat: pick.photo_treat || "" });
     if (gd) Object.assign(look, gd); else delete look.ground_photo;
@@ -2271,6 +2287,12 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
       Object.assign(look, { type_pair: vid.type_pair, font: v.display, number_font: v.numberRead ? v.label : "same", full_pair: true });
     }
   } else look.full_look = false;
+  // a look handed in on a photograph (a video look kept as its own, a ground picked by hand) gives a card ad the seed's painted ground
+  if (cardGround && (look.background === "photo" || look.ground_photo)) {
+    delete look.ground_photo;
+    const gd = groundFor(st.subject, seed, key, productFor(st.subject, have), null, metroOf(st.area));
+    look.background = gd ? gd.background : GROUNDS[(seed >>> 0) % GROUNDS.length];
+  }
   // the layout (rule 158), on a stream of its own: what the seed drew above does not move
   Object.assign(look, drawLayout(seed, pick));
   const area = (st.area || "").trim();
@@ -2313,7 +2335,9 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   // what it stands on, by kind, and a photograph's treatment: the maker's Background panel shows them (rule 161)
   const bgk = look.background, drawnGround = { full_ground: bgk === "photo" ? "photo" : /^pat_/.test(bgk) ? "pattern" : /^pair_/.test(bgk) ? "gradient" : GROUND_SCENES.includes(bgk) ? "scene" : GROUNDS.includes(bgk) ? "house" : FAMILY_OF[bgk] || "look",
     full_treat: (look.ground_photo && look.ground_photo.treat) || "grade" };
-  return { ...out, ...QUIET, ...look, ...words, ...quiet, ...drawnGround, full: true, phones: subject ? have : (out.phones || []).slice(0, most) };
+  const done = { ...out, ...QUIET, ...look, ...words, ...quiet, ...drawnGround, full: true, phones: subject ? have : (out.phones || []).slice(0, most) };
+  if (cardGround) delete done.ground_photo;   // nor carries one it was handed (rule 177)
+  return done;
 }
 
 /** What would stop this ad going out, in words: a block left out for want of room, a block
