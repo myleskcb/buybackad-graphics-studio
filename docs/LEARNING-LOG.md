@@ -7022,3 +7022,29 @@ Put on `main` at the owner's word, after pull request 26 was merged in.
 RESUME HERE: the moving-scenes session reports on its own (§CB); merge it with care,
 as it edits motion/app.js too.
 
+## 2026-11-25 — a moving scene is one ad (DESIGN-LAW 179; claude/modest-maxwell-ce019b)
+
+The owner, the day the moving grounds went live: a moving background "doesn't really mean it's a good ad"; it needs
+moving elements, sound, "cohesive elements". Measured first, then each scene given a kit: its moment on a beat, its
+light, its sound, its choices; the ad's arc built round it to the end card. A review page with sound went to the owner.
+
+Learned:
+  - Measure the ad without the ground to see what the ad itself does: the full ad's own layers stood still on 47 of
+    52 late frames, under a clip that never stopped. The clip hid it.
+  - A clip's best moment is rarely where the ad needs it: the gold flare peaked inside the headline's entrance. Start
+    the clip at an offset so its moment lands on the ad's beat.
+  - A hit under a new sound ducks the bed by about what the sound adds: at .2 to .3 the scene's sound changed its
+    window's level by -0.5 to +1.2 dB. Measure what a sound adds (the render with it less the render without it), not
+    the window's level.
+  - The still is drawn at rest: every new beat (a pulse, a stamp, a light) checks `_still`, or the photo and the
+    pre-flight catch it mid-move.
+  - Rule numbers 177 and 178, and open items CD and CE, were taken on other branches the same day. Grep every branch,
+    worktree and commit message right before writing one.
+
+Checked: `clip_grounds_check` (all five parts), `full_ad_check`, `quick_ad_check`, `buylist_check`,
+`motion_music_check`; twelve exports read back (1080 square, H.264 with AAC).
+
+Then, at the owner's word ("Yes, put it live"), `main` (15 commits on: the trimmed toolbar, the card ads) merged in;
+its toolbar took open item CF, so this one became CH. Every check passed on the merge, and it went on `main`.
+
+RESUME HERE: the owner's notes on the scenes (§CH 1); the golden-hour city and the phone may want redrawn clips (§CH 3).

@@ -337,6 +337,14 @@ function compose(ad, ctx, voDur, rec) {
   if (cues.stamp != null) { S.thump(cues.stamp + .2, .32, 0); S.tock(cues.stamp + .2, .08, 0); }
   if (cues.tape != null) S.swish(cues.tape, .38, false, .3, .08);
   if (ad.tOutro != null) { S.swish(ad.tOutro - .35, .4, true, 0, .08); if (st.sting && st.sting !== "none") chime(st.sting, ad.tOutro + .05); }
+  // a moving scene's beats (DESIGN-LAW 179, FullAd._sceneBeats): the scene's own sound into the moment the clip and the
+  // light share, the sticker stamping again just after, the push to the call to action, and in a long ad a soft whoosh
+  // under the second light. The moment's low hit .4 to .48 against the headline's .85 to .9 (its loudest tenth of a
+  // second under the headline's, as rule 174's chimes sit), the push's .32, so the bed steps back under each
+  if (cues.scene) sceneSfx(S, boom, cues.scene.kind, cues.scene.t);
+  if (cues.restamp != null) { S.thump(cues.restamp, .2, 0); S.tock(cues.restamp + .01, .08, 0); }
+  if (cues.pulse != null) { S.swish(cues.pulse - .32, .36, true, .2, .13); boom(cues.pulse, .32); }
+  if (cues.glint != null) S.swish(cues.glint - .2, .45, true, -.2, .1);
 
   // ---- the bed: a real recording in place of the music made here, or a scored kit or a
   // groove of its own (music.js) with a tune over either. Music that cannot be laid out
@@ -364,6 +372,20 @@ function compose(ad, ctx, voDur, rec) {
   // in over 10 ms (no click), out over the last 0.7 s
   master.gain.setValueAtTime(0, 0); master.gain.linearRampToValueAtTime(1, .01);
   master.gain.setValueAtTime(1, Math.max(.02, T - .7)); master.gain.linearRampToValueAtTime(0, T);
+}
+
+/** A moving scene's own sound at its moment t (motion/clips.js scene.sfx): a car passing left to right; data ticking
+ *  faster into a click; a cymbal drawn backwards into the gold's flare; air swelling; a long wind; a light sweep. Built
+ *  from the effects the trailer kit already has (rule 174: nothing a game would play). */
+function sceneSfx(S, boom, kind, t) {
+  switch (kind) {
+    case "pass": S.swish(t - .55, .6, true, -.55, .24); S.swish(t - .02, .55, false, .55, .2); boom(t, .45); break;
+    case "data": for (let i = 0; i < 7; i++) S.key(t - .45 + i * .065, .1 + i * .015); S.tock(t, .16, 0); boom(t, .45); break;
+    case "flare": S.reverseCymbal(t - 1, t, .16); boom(t, .42); break;
+    case "air": S.swell(t - 1, t, .22); boom(t, .42); break;
+    case "wind": S.swish(t - 1.1, 1.3, true, 0, .2); boom(t, .45); break;
+    case "sweep": S.reverseCymbal(t - .7, t, .13); S.swish(t - .15, .45, false, .3, .14); boom(t, .4); break;
+  }
 }
 
 /** The voice sits on top of a mix that already peaks near full scale, so a

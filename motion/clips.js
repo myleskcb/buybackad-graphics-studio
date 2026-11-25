@@ -32,14 +32,35 @@ export const SHEET_KIND = 1.25;
    not: those it never stands behind; where: the metro it can be told to be (a seed draws it only for
    an ad there); byHand: never drawn by a seed, only picked in the maker's Background panel. */
 export const CLIPS = {
-  clip_neon_street: { label: "Neon street at night", L: .057, hue: 276, C: .135, w: 768, shows: "scene", not: ["cars"] },   // generic cars, but cars: never behind a car ad
-  clip_circuit: { label: "Glowing circuit board", L: .091, hue: 252, C: .117, w: 768, shows: "scene", lines: ["phones", "gaming", "audio", "computers", "wearables", "cameras"] },
-  clip_city_gold: { label: "City at golden hour", L: .306, hue: 62, C: .105, w: 768, shows: "scene", where: "los-angeles" },   // drawn, no landmark, but palm-lined: it reads as Los Angeles
-  clip_city_aerial: { label: "Los Angeles from the air", L: .297, hue: 247, C: .153, w: 1080, shows: "scene", where: "los-angeles" },   // assets/bg-free/geo-los-angeles-6.jpg, on Pro
-  clip_gold_bars: { label: "Gold bars", L: .492, hue: 80, C: .104, w: 768, shows: "product", lines: ["gold"] },   // assets/bg-free/gold-6.jpg
+  clip_neon_street: { label: "Neon street at night", L: .057, hue: 276, C: .135, w: 768, shows: "scene", not: ["cars"],   // generic cars, but cars: never behind a car ad
+    scene: { moment: .96, light: "#7fe8ff", sfx: "pass", kit: { text_in: ["slam", "elastic"], phone_idle: ["pulse", "float"], sound_kit: ["synthwave", "future_bass"], hit: ["bass_drop", "riser"], number_sfx: ["whoosh_boom"], sting: ["chime_brass"] } } },
+  clip_circuit: { label: "Glowing circuit board", L: .091, hue: 252, C: .117, w: 768, shows: "scene", lines: ["phones", "gaming", "audio", "computers", "wearables", "cameras"],
+    scene: { moment: 1.33, light: "#8fdcff", sfx: "data", kit: { text_in: ["mask_words", "rise_mask"], phone_idle: ["pulse", "breathe"], sound_kit: ["deep_house", "minimal", "future_bass"], hit: ["bass_drop", "impact"], number_sfx: ["ticks", "tick_boom"], sting: ["chime_logo"] } } },
+  clip_city_gold: { label: "City at golden hour", L: .306, hue: 62, C: .105, w: 768, shows: "scene", where: "los-angeles",   // drawn, no landmark, but palm-lined: it reads as Los Angeles
+    scene: { moment: null, light: "#ffd9a0", sfx: "air", kit: { text_in: ["rise_mask", "slide"], phone_idle: ["float", "breathe"], sound_kit: ["cinematic", "uplift", "rnb"], hit: ["swell", "cymbal"], number_sfx: ["chime_strings"], sting: ["chime_strings"] } } },
+  clip_city_aerial: { label: "Los Angeles from the air", L: .297, hue: 247, C: .153, w: 1080, shows: "scene", where: "los-angeles",   // assets/bg-free/geo-los-angeles-6.jpg, on Pro
+    scene: { moment: 1.79, light: "#ffffff", sfx: "wind", kit: { text_in: ["mask_words", "slide"], phone_idle: ["float"], sound_kit: ["trailer", "epic", "cinematic"], hit: ["braam", "swell"], number_sfx: ["whoosh_boom", "chime_brass"], sting: ["chime_brass"] } } },
+  clip_gold_bars: { label: "Gold bars", L: .492, hue: 80, C: .104, w: 768, shows: "product", lines: ["gold"],   // assets/bg-free/gold-6.jpg
+    scene: { moment: .79, light: "#ffe08a", sfx: "flare", kit: { text_in: ["slam", "word_pop"], phone_idle: ["breathe"], sound_kit: ["trailer", "hiphop", "epic"], hit: ["riser", "braam"], number_sfx: ["chime_piano", "whoosh_boom"], sting: ["chime_brass"] } } },
   // a drawn phone of no model you can name: a photograph of goods stands behind an ad only when they are its own (rule 161)
-  clip_phone_light: { label: "Light across a phone", L: .205, hue: null, C: 0, w: 768, shows: "product", lines: ["phones"], byHand: true },
+  clip_phone_light: { label: "Light across a phone", L: .205, hue: null, C: 0, w: 768, shows: "product", lines: ["phones"], byHand: true,
+    scene: { moment: 2.04, light: "#e8f4ff", sfx: "sweep", kit: { text_in: ["rise_mask", "mask_words"], phone_idle: ["breathe", "float"], sound_kit: ["deep_house", "minimal", "rnb"], hit: ["cymbal", "swell"], number_sfx: ["chime_piano", "chime_logo"], sting: ["chime_piano"] } } },
 };
+/* EACH SCENE IS ONE AD, NOT A GROUND UNDER ONE (DESIGN-LAW 179; the owner, 2026-11-25: "Having an animated background,
+   doesn't really mean it's a good ad. It still needs to have other moving elements SFX ... cohesive elements"). Measured
+   first: on every clip the ad's own layers had landed by 1.03 s and stood still on 47 of 52 frames after 2.5 s, with
+   three hits after the opening, and all six clips drew the same entrance, bed, hits and chimes. A scene now brings:
+     moment  the clip's own peak, in its time (measured on its 125 frames: the gold bars' flare at .79 s, their
+             brightness 134 to 171; a passing car's light at .96 s; the circuit's pulse at 1.33 s; the aerial's glint at
+             1.79 s; the phone's light at 2.04 s, faint). The clip is started so its moment lands on a beat of the
+             music after the words are in (FullAd: sceneT). The golden-hour city has none (its light moves 0.3 of a
+             level): the ad's own light and sound make its beat.
+     light   the colour of the sweep that crosses the headline, then the number, at the moment.
+     sfx     the moment's sound (audio.js sceneSfx): a car passing, data ticking, a swell into the flare, air, wind,
+             a sweep. Then the sticker stamps again (a thump), and two beats on the number pulses (a whoosh).
+     kit     the choices that belong to the scene, one of each drawn by the seed (on a stream of its own): its
+             entrance, the phone's idle move, its bed, its headline hit, its number sound and its end chime. Every
+             sound is one rule 174 keeps in a shuffle (a trailer, not a game). One picked by hand stays. */
 export const CLIP_IDS = Object.keys(CLIPS);
 /** How often a seed draws a clip where one fits (its line, its place, light words, and a pair of the clip's family:
  *  rule 139), on a stream of its own. Few seeds fit: at .12, 1.7% of iPhone ads in Long Beach stood on a clip, which
