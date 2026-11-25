@@ -7362,3 +7362,52 @@ something you would probably be paying for". OPEN-ITEMS §BU had planned it. The
   `scripts/logo_sheet.mjs` draws a contact sheet: look at it before and after any change to a layout.
 
 Not done here: OPEN-ITEMS §CC.
+
+## 180. A brand kit is bought once and made a step at a time; a logo's mark is the shop's initials in the thing it buys
+
+(Written as 180 because 178 and 179 were taken on other branches when this landed.)
+
+Added 2026-11-24. The owner: "a logo maker that has industry relevant assets and elements so they feel
+personalized and actually graphic design oriented"; "a logo brand kit fee ... one time you can save these and
+re-download them at any time and it makes you up to 20 different images"; "a more expensive pack ... 50
+images and covers more platforms ... Instagram story [highlight] bubbles"; "go through each step and approve
+each one and then review them ... download the whole folder or ... the flow of making it, but they can't
+download it and it's watermarked and not enough quality"; "How about 1499 and 1999"; "five dollars off if you
+buy a month subscription as well"; "does it have name suggestions?", "tries to mix words into a working name?",
+"can it connect to an AI thinking model?".
+
+1. **The mark is the shop's own initials built into what it buys** (engine.js MARKS): struck into a reeded coin
+   under a laurel, stamped on a cast bar, on a graded slab's label, lit on a phone's screen, between a
+   controller's grips, in a watch dial, under a speedometer's needle, etched on a chip, in a lens's blades,
+   inside trade arrows, on a crate's side, in a drop, under headphones. Thirteen marks, each for its lines, and
+   they lead that line's gallery (the Symbols tab). Never a brand's shape: no real phone's camera, no grading
+   company's label, no car badge. Tone 1 is the ink and tone 0 what is cut from it, so the one-colour files read.
+2. **The kit is every file a shop needs, drawn from the one logo** (kit.js FORMATS): Essentials, 20 files (the
+   logo six ways, three profile pictures, five banners sized to each platform's safe area, the card's front
+   and back, three web icons, an email signature); Complete, 50 (and eight Instagram highlight covers, five
+   stories inside the story's own bars, six posts and five more platforms, a window poster, a door sign, a
+   sticker, a photo watermark, an email header, a one-page brand guide). One look a step, the same in every
+   file of that step; Try another look moves it.
+3. **The flow is the kit's steps, approved one at a time** (logo.js): name, logo, make it yours, profiles and
+   banners, the business card with the customer's details and printing near them, posts, signs and web, then
+   the review: every file in a grid with its title and size, Essentials or Complete, and one download as a
+   folder numbered in the steps' order (each file a PNG at its size, the vectors kept as SVG, the card's print
+   PDF with its bleed). A rail at the top ticks what is approved; changing the logo un-ticks what came after.
+4. **Seen free, small and marked; the files only when it's theirs**: a preview is at most 420 px on its long
+   side and wears the WeBuy.AD mark until the kit is bought or the plan includes it. The files are drawn by the
+   function for a kit saved on the account (`/api/kits/file`), never counted against the photo downloads.
+5. **Bought once, kept**: Essentials $14.99, Complete $19.99 (plans.mjs KITS), $5 less as the add-on at a
+   Starter plan's checkout, $5 to take Essentials to Complete; Pro and Business include Complete. A kit bought
+   is a credit until it is saved for one business name; the design under that name may change any time, a new
+   name takes a new kit. A refund takes the credit back, or stops the kit it made.
+6. **Names**: the free mixer (names.js) blends the customer's words with the line's goods, its town and the
+   trade's words, shown as little logos; the AI's (netlify/lib/names.mjs, Claude Opus 5.5) for AI credits, only
+   with `ANTHROPIC_API_KEY`. Both keep the same never-list: no other firm's name or mark, no claim.
+
+Checked by `scripts/logo_check.mjs` (the kits on the function: 402 with none, saved once a name, the files
+byte for byte the page's, the upgrade, a refund; the flow, the review's 50 and 20, the demo's folder and its
+sizes, the paywall signed out, on Starter and on Pro; 390 and 768 px), `scripts/billing_check.mjs` (a kit's
+checkout, the Starter add-on as a one-time second line, Pro offered no add-on), `scripts/plan_economics.mjs`
+(the kits' and the AI names' margins) and `scripts/kit_sheet.mjs` (a contact sheet of every file).
+
+Not done here: OPEN-ITEMS §CG.

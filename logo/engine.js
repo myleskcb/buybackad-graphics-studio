@@ -68,13 +68,19 @@ export function paletteOf(key) {
 const GENERIC = new Set(("BUYERS BUYER BUY BUYS BUYING CASH CO CO. COMPANY INC INC. LLC EXCHANGE TRADING TRADERS TRADE ELECTRONICS WIRELESS MOBILE " +
   "MOBILES PAWN SHOP STORE GOLD SILVER COINS COIN CARDS CARD PHONES PHONE CELL AUTO AUTOS MOTORS CARS DEALS OUTLET DEPOT HUB LAB PLUS PRO GROUP TECH " +
   "REPAIR REPAIRS BUYBACK BUYBACKS BULLION JEWELRY JEWELERS JEWELLERS GAMES GAMING COLLECTIBLES COLLECTABLES SUPPLY SUPPLIES DEVICES GADGETS " +
-  "RECYCLING RECYCLERS RESALE RESELLERS LOANS").split(" "));
+  "RECYCLING RECYCLERS RESALE RESELLERS LOANS WHOLESALE WHOLESALERS TRADERS DISTRIBUTORS LIQUIDATION LIQUIDATORS").split(" "));
 const STOP = new Set(["THE", "OF", "AND", "&", "A", "AN", "LLC", "INC", "INC.", "CO", "CO.", "WE"]);
 /** what a logo says for each line Easy Mode lists (app.js CATS): generic, never another firm's name */
 export const LINE_WORDS = { phones: "PHONES", gaming: "GAMES & CONSOLES", gold: "GOLD & JEWELRY", coins: "COINS", pokemon: "TRADING CARDS",
   silver: "SILVER", cars: "CARS & TRUCKS", sports: "SPORTS CARDS", computers: "COMPUTERS", audio: "AUDIO & HEADPHONES", wearables: "WATCHES",
-  cameras: "CAMERAS & DRONES", strips: "TEST STRIPS" };
+  cameras: "CAMERAS & DRONES", strips: "TEST STRIPS",
+  /* the trade's own shops (the owner, 2026-11-24: "tech, buyers, wholesale traders, device stores ... resellers") */
+  wholesale: "WHOLESALE LOTS", devices: "DEVICES", resale: "RESALE" };
 export const LINES = Object.keys(LINE_WORDS);
+/** the small line a logo says by default: "WE BUY" and the line's goods, or the trade's own words where
+ *  "WE BUY" says less than the shop does (a wholesaler, a device store, a reseller) */
+export const LINE_SMALL = { wholesale: "WHOLESALE · BULK · TRADE-INS", devices: "PHONES · TABLETS · LAPTOPS", resale: "BUY · SELL · TRADE" };
+export const smallFor = cat => LINE_SMALL[cat] || "WE BUY " + (LINE_WORDS[cat] || "PHONES");
 const up = s => String(s || "").toUpperCase().replace(/\bIPHONE/g, "iPHONE").replace(/\bIPAD/g, "iPAD").replace(/\bIMAC/g, "iMAC");
 const titleCase = s => String(s || "").split(/(\s+)/).map(w => /^\s+$/.test(w) || !w ? w : w === w.toUpperCase() && w.length <= 3 ? w : w[0].toUpperCase() + w.slice(1).toLowerCase()).join("");
 const tidy = s => String(s || "").replace(/[\u0000-\u001f<>]/g, "").replace(/\s+/g, " ").trim();
@@ -90,7 +96,10 @@ export function partsOf(raw, script = false) {
   const lead = cut > 0 ? words.slice(0, cut).join(" ") : set, trail = cut > 0 ? words.slice(cut).join(" ") : "";
   const sig = (cut > 0 && cut >= 2 ? words.slice(0, cut) : words).filter(w => !STOP.has(bare(w)) && /[A-Za-z0-9]/.test(w));
   let init;
-  if (sig.length === 1) { const b = bare(sig[0]).replace(/[^A-Z0-9]/g, ""); init = b.length <= 3 && sig[0] === sig[0].toUpperCase() ? b : b.slice(0, 1); }
+  // a short name in capitals before the trade's words is the shop's own initials: MK ELECTRONICS is MK
+  const own = cut === 1 && /^[A-Z0-9&]{2,3}$/.test(bare(words[0]).replace(/[^A-Z0-9&]/g, "")) && words[0] === words[0].toUpperCase() ? bare(words[0]).replace(/[^A-Z0-9]/g, "") : "";
+  if (own) init = own;
+  else if (sig.length === 1) { const b = bare(sig[0]).replace(/[^A-Z0-9]/g, ""); init = b.length <= 3 && sig[0] === sig[0].toUpperCase() ? b : b.slice(0, 1); }
   else init = sig.slice(0, 2).map(w => bare(w).replace(/[^A-Z0-9]/g, "").slice(0, 1)).join("");
   return { full: set, lead, trail, init: init || "W", words };
 }
@@ -214,6 +223,190 @@ function iconItem(key, cx, cy, s, stroke = "A", tone = 1, sw = 7) {
 const ring = (cx, cy, r, w, stroke = "A", tone = 0) => ({ d: circleD(cx, cy, r), stroke, sw: w, tone });
 const dot = (cx, cy, r, fill = "A", tone = 0) => ({ d: circleD(cx, cy, r), fill, tone });
 
+/* ---------- the industry marks (DESIGN-LAW 180) ----------
+   The owner, 2026-11-24: "a logo maker that has industry relevant assets and elements so they feel
+   personalized and actually graphic design oriented". A mark here is the shop's own initials built into
+   the thing it buys: struck into a coin, stamped on a bar, printed on a graded slab's label, lit on a
+   phone's screen, set in a watch dial. Every shop's is its own (its initials), and every one says its
+   trade at a glance. On the 1000 box; tone 1 is the ink, tone 0 what is cut out of it (the one-colour
+   versions read the same). Never a brand's shape: no real phone's camera, no grading company's label. */
+const deg = a => a * Math.PI / 180;
+const onC = (cx, cy, r, a) => [cx + r * Math.sin(deg(a)), cy - r * Math.cos(deg(a))];
+const arcPath = (cx, cy, r, a0, a1) => { const [x0, y0] = onC(cx, cy, r, a0), [x1, y1] = onC(cx, cy, r, a1); return `M${f1(x0)},${f1(y0)}A${f1(r)},${f1(r)} 0 ${Math.abs(a1 - a0) > 180 ? 1 : 0},1 ${f1(x1)},${f1(y1)}`; };
+const LEAF = "M0,-30Q17,0 0,30Q-17,0 0,-30Z";
+/** a laurel of leaves along a rising curve under a centre, both sides */
+function laurel(it, cx, cy, r, fill, tone, n = 5) {
+  // two branches along an arc under the centre, from the middle out and up; a pair of leaves at each step
+  for (const side of [-1, 1]) {
+    it.push({ d: arcPath(cx, cy - r, r, side > 0 ? 168 : 120, side > 0 ? 240 : 192), stroke: fill, sw: 9, tone, round: true });
+    for (let i = 0; i < n; i++) {
+      const a = side > 0 ? 172 - i * 15 : 188 + i * 15, [x, y] = onC(cx, cy - r, r, a), tang = a + (side > 0 ? -90 : 90);
+      for (const off of [-1, 1]) it.push({ d: LEAF, tf: `translate(${f1(x)} ${f1(y)}) rotate(${f1(180 - tang + off * 40 + (side > 0 ? 0 : 180))}) translate(0 -26) scale(${(1.25 - i * .08).toFixed(3)})`, fill, tone });
+    }
+  }
+}
+const initialsAt = (it, c, x, y, w, cap, fill, tone, track = .02) => { const s = fitSize(c.D, c.N.init, w, cap, track); it.push(textLine(c.D, c.N.init, s, x, y + capOf(c.D, s) / 2, { fill, tone, track }).item); return capOf(c.D, s); };
+const MARKS = {
+  /* a coin with a reeded edge and beads, the initials struck in it, a laurel under them */
+  coinStruck(c) {
+    const it = [], cx = 500, cy = 500, reed = [], beads = [];
+    it.push({ d: circleD(cx, cy, 490), fill: "A", tone: 1 });
+    for (let i = 0; i < 120; i++) { const [x0, y0] = onC(cx, cy, 452, i * 3), [x1, y1] = onC(cx, cy, 482, i * 3); reed.push(`M${f1(x0)},${f1(y0)}L${f1(x1)},${f1(y1)}`); }
+    it.push({ d: reed.join(""), stroke: "G", sw: 7, tone: 0 });
+    it.push(ring(cx, cy, 430, 10, "G", 0));
+    for (let i = 0; i < 60; i++) { const [x, y] = onC(cx, cy, 394, i * 6); beads.push(circleD(x, y, 7)); }
+    it.push({ d: beads.join(""), fill: "G", tone: 0 });
+    initialsAt(it, c, cx, cy - 50, 420, 210, "G", 0);
+    laurel(it, cx, cy + 250, 230, "G", 0, 4);
+    it.push({ d: starD(cx, cy - 250, 30), fill: "G", tone: 0 });
+    return it;
+  },
+  /* a cast bar seen from above: its bevel, the initials stamped in its face, three stars */
+  ingot(c) {
+    const it = [];
+    it.push({ d: polyD([[175, 230], [825, 230], [965, 770], [35, 770]]), fill: "A", tone: 1 });
+    it.push({ d: polyD([[255, 310], [745, 310], [850, 690], [150, 690]]), stroke: "G", sw: 9, tone: 0, join: true });
+    it.push({ d: "M175,230L255,310M825,230L745,310M965,770L850,690M35,770L150,690", stroke: "G", sw: 7, tone: 0 });
+    const ch = initialsAt(it, c, 500, 470, 470, 200, "G", 0, .05);
+    for (const dx of [-70, 0, 70]) it.push({ d: starD(500 + dx, 470 + ch / 2 + 80, dx ? 18 : 24), fill: "G", tone: 0 });
+    return it;
+  },
+  /* a graded card in its case: the initials on the label, a card with a sparkle in the window */
+  slab(c) {
+    const it = [], x = 240, y = 30, w = 520, h = 940;
+    it.push({ d: rectD(x, y, w, h, 60), fill: "P", tone: 1 });
+    it.push({ d: rectD(x + 32, y + 32, w - 64, 200, 26), fill: "G", tone: 0 });
+    const s = fitSize(c.D, c.N.init, 280, 120, .02);
+    it.push(textLine(c.D, c.N.init, s, x + 32 + 34, y + 32 + 100 + capOf(c.D, s) / 2, { align: "left", fill: "I", tone: 1, track: .02 }).item);
+    it.push({ d: starD(x + w - 32 - 78, y + 132, 46), fill: "A", tone: 1 });
+    it.push({ d: rectD(x + 32, y + 264, w - 64, h - 296, 26), fill: "G", tone: 0 });
+    it.push({ d: rectD(x + 92, y + 318, w - 184, h - 400, 20), fill: "A", tone: 1 });
+    it.push({ d: rectD(x + 120, y + 348, w - 240, (h - 400) * .56, 12), stroke: "G", sw: 9, tone: 0 });
+    it.push({ d: starD(500, y + 348 + (h - 400) * .28, 82, 4, .36), fill: "G", tone: 0 });
+    it.push({ d: rectD(x + 150, y + 348 + (h - 400) * .56 + 40, w - 300, 16, 8) + rectD(x + 150, y + 348 + (h - 400) * .56 + 80, w - 380, 16, 8), fill: "G", tone: 0 });
+    return it;
+  },
+  /* a phone's front: its rounded body, a pill at the head of the screen, the initials lit on it */
+  device(c) {
+    const it = [], x = 255, y = 25, w = 490, h = 950;
+    it.push({ d: rectD(x, y, w, h, 112), fill: "P", tone: 1 });
+    it.push({ d: rectD(x + 30, y + 30, w - 60, h - 60, 86), fill: "G", tone: 0 });
+    it.push({ d: rectD(500 - 72, y + 66, 144, 42, 21), fill: "P", tone: 1 });
+    initialsAt(it, c, 500, 470, 360, 230, "A", 1);
+    it.push({ d: rectD(500 - 95, y + h - 90, 190, 16, 8), fill: "I", tone: 1 });
+    for (let i = 0; i < 3; i++) it.push({ d: rectD(500 - 66 + i * 50, 690 - i * 26, 32, 50 + i * 26, 8), fill: "A", tone: 1 });
+    return it;
+  },
+  /* a controller: the pad and the buttons, the initials between the grips */
+  pad(c) {
+    const it = [], body = LOGO_ICONS.controller[0].split(" M")[0];
+    it.push({ d: body, tf: "translate(0 -40) scale(10)", fill: "P", tone: 1 });
+    it.push({ d: rectD(178, 420, 150, 46, 10) + rectD(230, 368, 46, 150, 10), fill: "G", tone: 0 });
+    for (const [x, y] of [[760, 395], [822, 450], [698, 450], [760, 505]]) it.push({ d: circleD(x, y, 27), fill: "G", tone: 0 });
+    initialsAt(it, c, 500, 445, 250, 120, "G", 0);
+    return it;
+  },
+  /* a watch: the straps, the case and its crown, twelve marks round the dial, the initials in it */
+  dial(c) {
+    const it = [], cx = 500, cy = 500, ticks = [];
+    it.push({ d: rectD(375, 15, 250, 210, 34) + rectD(375, 775, 250, 210, 34), fill: "S", tone: 1 });
+    it.push({ d: rectD(830, 455, 64, 90, 16), fill: "P", tone: 1 });
+    it.push({ d: circleD(cx, cy, 345), fill: "P", tone: 1 });
+    it.push(ring(cx, cy, 300, 9, "G", 0));
+    for (let i = 0; i < 12; i++) { const r0 = i % 3 === 0 ? 228 : 250, [x0, y0] = onC(cx, cy, r0, i * 30), [x1, y1] = onC(cx, cy, 282, i * 30); ticks.push(`M${f1(x0)},${f1(y0)}L${f1(x1)},${f1(y1)}`); }
+    it.push({ d: ticks.join(""), stroke: "G", sw: 14, tone: 0, round: true });
+    initialsAt(it, c, cx, cy, 300, 150, "Q", 0);
+    return it;
+  },
+  /* a speedometer: the arc and its marks, the needle past the middle, the initials under the hub */
+  gauge(c) {
+    const it = [], cx = 500, cy = 540, ticks = [];
+    it.push({ d: arcPath(cx, cy, 400, -125, 125), stroke: "A", sw: 52, tone: 1, round: true });
+    for (let a = -120; a <= 120; a += 20) { const [x0, y0] = onC(cx, cy, a % 60 === 0 ? 285 : 310, a), [x1, y1] = onC(cx, cy, 340, a); ticks.push(`M${f1(x0)},${f1(y0)}L${f1(x1)},${f1(y1)}`); }
+    it.push({ d: ticks.join(""), stroke: "I", sw: 12, tone: 1, round: true });
+    const [nx, ny] = onC(cx, cy, 330, 48), [l0x, l0y] = onC(cx, cy, 26, 48 - 90), [l1x, l1y] = onC(cx, cy, 26, 48 + 90);
+    it.push({ d: polyD([[l0x, l0y], [nx, ny], [l1x, l1y]]), fill: "I", tone: 1 });
+    it.push({ d: circleD(cx, cy, 44), fill: "I", tone: 1 });
+    initialsAt(it, c, cx, cy + 235, 400, 150, "I", 1);
+    return it;
+  },
+  /* a chip: its pins, its die, the initials etched on it */
+  chip(c) {
+    const it = [], pins = [];
+    for (let i = 0; i < 5; i++) { const p = 290 + i * 105; pins.push(rectD(p - 20, 80, 40, 130, 12), rectD(p - 20, 790, 40, 130, 12), rectD(80, p - 20, 130, 40, 12), rectD(790, p - 20, 130, 40, 12)); }
+    it.push({ d: pins.join(""), fill: "A", tone: 1 });
+    it.push({ d: rectD(190, 190, 620, 620, 56), fill: "P", tone: 1 });
+    it.push({ d: rectD(252, 252, 496, 496, 30), stroke: "Q", sw: 9, tone: 0 });
+    it.push({ d: circleD(300, 300, 18), fill: "Q", tone: 0 });
+    initialsAt(it, c, 500, 500, 380, 200, "Q", 0);
+    return it;
+  },
+  /* a lens: the barrel, six blades round the opening, the initials in it */
+  aperture(c) {
+    const it = [], cx = 500, cy = 500, blades = [], hex = [];
+    it.push({ d: circleD(cx, cy, 480), fill: "P", tone: 1 });
+    it.push(ring(cx, cy, 438, 9, "Q", 0));
+    for (let i = 0; i < 6; i++) { const [x0, y0] = onC(cx, cy, 250, i * 60), [x1, y1] = onC(cx, cy, 438, i * 60 + 62); blades.push(`M${f1(x0)},${f1(y0)}L${f1(x1)},${f1(y1)}`); hex.push([x0, y0]); }
+    it.push({ d: blades.join(""), stroke: "Q", sw: 10, tone: 0 });
+    it.push({ d: polyD(hex), stroke: "Q", sw: 10, tone: 0, join: true });
+    initialsAt(it, c, cx, cy, 300, 140, "Q", 0);
+    return it;
+  },
+  /* two arrows chasing each other round the initials: buy, sell, trade */
+  cycle(c) {
+    const it = [], cx = 500, cy = 500, r = 385;
+    for (const [a0, a1] of [[-150, -20], [30, 160]]) {
+      it.push({ d: arcPath(cx, cy, r, a0, a1), stroke: "A", sw: 58, tone: 1 });
+      const [tx, ty] = onC(cx, cy, r, a1 + 22), [b0x, b0y] = onC(cx, cy, r - 78, a1 - 2), [b1x, b1y] = onC(cx, cy, r + 78, a1 - 2);
+      it.push({ d: polyD([[b0x, b0y], [tx, ty], [b1x, b1y]]), fill: "A", tone: 1, join: true });
+    }
+    initialsAt(it, c, cx, cy, 470, 250, "I", 1);
+    return it;
+  },
+  /* a crate seen from its corner: the tape across its lid, the initials on its side */
+  crate(c) {
+    const it = [];
+    it.push({ d: polyD([[500, 150], [835, 330], [500, 510], [165, 330]]), fill: "A", tone: 1 });
+    it.push({ d: polyD([[165, 330], [500, 510], [500, 880], [165, 700]]), fill: "P", tone: 1 });
+    it.push({ d: polyD([[500, 510], [835, 330], [835, 700], [500, 880]]), fill: "S", tone: 1 });
+    it.push({ d: polyD([[300, 225], [365, 190], [700, 370], [635, 405]]), fill: "G", tone: 0 });
+    it.push({ d: "M165,330L500,510L835,330M500,510V880", stroke: "G", sw: 8, tone: 0, join: true });
+    const s = fitSize(c.D, c.N.init, 250, 150, .02), t = textLine(c.D, c.N.init, s, 0, capOf(c.D, s) / 2, { fill: "Q", tone: 0, track: .02 });
+    it.push({ g: [t.item], tf: "translate(332 610) skewY(28.3)" });
+    return it;
+  },
+  /* a drop, for test strips: the initials in it */
+  drop(c) {
+    const it = [];
+    it.push({ d: "M500,40C500,40 170,430 170,640A330,330 0 0 0 830,640C830,430 500,40 500,40Z", fill: "P", tone: 1 });
+    it.push({ d: "M262,520Q284,430 340,350", stroke: "Q", sw: 22, tone: 0, round: true });
+    initialsAt(it, c, 520, 680, 380, 190, "Q", 0);
+    return it;
+  },
+  /* headphones: the band over the initials, a cup each side */
+  phones2(c) {
+    const it = [];
+    it.push({ d: "M190,560A310,310 0 0 1 810,560", stroke: "A", sw: 62, tone: 1, round: true });
+    it.push({ d: rectD(100, 500, 190, 330, 72) + rectD(710, 500, 190, 330, 72), fill: "P", tone: 1 });
+    it.push({ d: rectD(140, 560, 110, 210, 50) + rectD(750, 560, 110, 210, 50), stroke: "Q", sw: 9, tone: 0 });
+    initialsAt(it, c, 500, 680, 330, 170, "I", 1);
+    return it;
+  },
+};
+/** the industry mark's layout: the mark over the name and the small line */
+const markLayout = (name, cats, key) => ({ name, group: "mark", shape: "circle", kinds: ["condensed", "wide", "grotesk", "display", "serif"], cats, mark: c => MARKS[key](c), draw(c) {
+  const it = [], { D, Lb, N } = c, W = 1400, ms = 620;
+  it.push({ g: MARKS[key](c), tf: `translate(${(W - ms) / 2} 20) scale(${ms / 1000})` });
+  let y = 20 + ms + 80;
+  const lead = N.trail ? N.lead : N.full, B = fitBlock(D, lead, 1300, 300, { maxLines: 2, lead: 1.08, capMax: 190 });
+  const bx = drawBlock(it, D, B, W / 2, y + capOf(D, B.size) * (1 + (B.n - 1) * 1.08) / 2, { lead: 1.08, fill: "I", tone: 1 });
+  y = bx.bot0 + 58;
+  const sub = N.trail || c.small, ss = fitSize(Lb, sub, 1000, 52, .3), st = textLine(Lb, sub, ss, W / 2, y + capOf(Lb, ss), { track: .3, fill: "A", tone: 1 });
+  it.push(st.item);
+  if (N.trail) { const s2 = fitSize(Lb, c.small, 760, 30, .3); it.push(textLine(Lb, c.small, s2, W / 2, y + capOf(Lb, ss) + 44 + capOf(Lb, s2), { track: .3, fill: "I", tone: 1 }).item); y += 44 + capOf(Lb, s2); }
+  return { w: W, h: y + capOf(Lb, ss) + 50, it, ok: bx.cap >= MIN_CAP, word: true };
+} });
+
 /* ---------- the layouts ---------- */
 /* Each layout draws a design into items on its own artboard and says whether every word kept a size a
    logo is read at (ok). The voice kinds it takes: a script face never goes round a ring. */
@@ -225,7 +418,7 @@ function ctxOf(d, faces) {
   const V = LOGO_VOICES[d.voice] || LOGO_VOICES.bold, D = faces[V.display], Lb = faces[V.label] || D;
   if (!D) throw new Error("The face " + V.display + " is not loaded");
   const script = V.kind === "script", N = partsOf(d.name, script);
-  const small = up(tidy(d.small) || "WE BUY " + (LINE_WORDS[d.cat] || "PHONES"));
+  const small = up(tidy(d.small) || smallFor(d.cat));
   const town = up(tidy(d.town));
   return { d, V, D, Lb, N, small, town, P: paletteOf(d.pair), icon: LOGO_ICONS[d.icon] ? d.icon : "", R: rng((d.seed | 0) * 2654435761 >>> 0), script };
 }
@@ -334,9 +527,11 @@ const LAYOUTS = {
     drawBlock(it, D, B, 500, ry + rh / 2, { lead: 1.2, fill: "Q", tone: 0 });
     if (c.icon) it.push(iconItem(c.icon, 500, 270, 260, "A", 0, 7));
     else { const ms = fitSize(D, N.init, 360, 190); it.push(textLine(D, N.init, ms, 500, 270 + capOf(D, ms) / 2, { fill: "A", tone: 0 }).item); }
-    const foot = N.trail || c.small, fs = fitSize(Lb, foot, 460, 44, .12);
-    it.push(textLine(Lb, foot, fs, 500, ry + rh + 80 + capOf(Lb, fs), { track: .12, fill: "I", tone: 0 }).item);
-    if (N.trail) { const s2 = fitSize(Lb, c.small, 300, 26, .14); it.push(textLine(Lb, c.small, s2, 500, ry + rh + 80 + capOf(Lb, fs) + 36 + capOf(Lb, s2), { track: .14, fill: "A", tone: 0 }).item); }
+    // the foot sits where the shield narrows to its point: each line held to the width the shield has there
+    const shieldW = yy => { const t = (yy - y) / h; return t <= .52 ? w - 80 : Math.max(120, (w - 80) * (1 - Math.pow((t - .52) / .48, 1.6))); };
+    const foot = N.trail || c.small, fy = ry + rh + 70, fs = fitSize(Lb, foot, shieldW(fy + 44) * .86, 44, .12);
+    it.push(textLine(Lb, foot, fs, 500, fy + capOf(Lb, fs), { track: .12, fill: "I", tone: 0 }).item);
+    if (N.trail) { const y2 = fy + capOf(Lb, fs) + 30, s2 = fitSize(Lb, c.small, shieldW(y2 + 26) * .82, 26, .14); it.push(textLine(Lb, c.small, s2, 500, y2 + capOf(Lb, s2), { track: .14, fill: "A", tone: 0 }).item); }
     return { w: 1000, h: 1000, it, ok: capH >= MIN_CAP };
   } },
 
@@ -573,6 +768,21 @@ const LAYOUTS = {
     return { w: W, h: y + capOf(Lb, ss) + 70 + shift, it: [{ g: it, tf: `translate(0 ${f1(shift)})` }], ok: capH >= MIN_CAP, word: true };
   } },
 
+  // the industry marks, each for the lines it belongs to (DESIGN-LAW 180)
+  struck: markLayout("Struck coin", ["gold", "coins", "silver"], "coinStruck"),
+  ingot: markLayout("Gold bar", ["gold", "silver", "coins"], "ingot"),
+  slab: markLayout("Graded slab", ["pokemon", "sports"], "slab"),
+  handset: markLayout("Phone", ["phones", "devices", "resale"], "device"),
+  controller: markLayout("Controller", ["gaming"], "pad"),
+  dial: markLayout("Watch dial", ["wearables"], "dial"),
+  gauge: markLayout("Speedometer", ["cars"], "gauge"),
+  chip: markLayout("Chip", ["computers", "devices"], "chip"),
+  aperture: markLayout("Lens", ["cameras"], "aperture"),
+  cycle: markLayout("Trade arrows", ["resale", "wholesale", "phones", "devices"], "cycle"),
+  crate: markLayout("Crate", ["wholesale"], "crate"),
+  drop: markLayout("Drop", ["strips"], "drop"),
+  cans: markLayout("Headphones", ["audio"], "phones2"),
+
   /* A retro wordmark: the name over a hard offset shadow, the small line on a pill under it. */
   retro: { name: "Retro", group: "wordmark", shape: "square", kinds: ["display", "condensed", "wide"], draw(c) {
     const it = [], { D, Lb, N } = c, W = 1500;
@@ -595,6 +805,8 @@ export const LOGO_LAYOUTS = Object.fromEntries(Object.entries(LAYOUTS).map(([k, 
 /** The mark: the initials (or the symbol) in the layout's own shape, for a profile picture, an app
  *  icon or a favicon, where a whole seal would be too small to read. */
 function drawMark(c, shape) {
+  const own = LAYOUTS[c.d.t] && LAYOUTS[c.d.t].mark;
+  if (own) return { w: 1000, h: 1000, it: own(c), ok: true };
   const it = [], { D, N } = c, cx = 500, cy = 500;
   const body = shape === "shield" ? shieldD(160, 60, 680, 880) : shape === "hex" ? polyD(hexPts(cx, cy, 480)) : shape === "circle" ? circleD(cx, cy, 480) : rectD(30, 30, 940, 940, 200);
   const inner = shape === "shield" ? shieldD(196, 96, 608, 790) : shape === "hex" ? polyD(hexPts(cx, cy, 432)) : shape === "circle" ? circleD(cx, cy, 436) : rectD(70, 70, 860, 860, 165);
@@ -769,6 +981,9 @@ const LINE_PAIRS = {
   pokemon: ["black_on_yellow", "lemon_blue", "white_on_red", "navy_gold", "hot_pink_black_cobalt", "yellow_black_magenta"],
   gaming: ["black_violet", "black_lime", "white_on_violet", "black_cyan", "teal_pink", "mint_black_violet"],
   strips: ["white_on_teal", "arctic_teal", "mint_green", "white_on_blue", "sky_cobalt", "blue_green"],
+  wholesale: ["navy_orange", "black_white_orange", "black_on_orange", "navy_gold", "sand_teal", "black_on_yellow", "orange_black_cobalt"],
+  devices: ["midnight_cyan", "black_cyan", "white_on_blue", "sky_cobalt", "electric_blue_white_orange", "black_lime", "white_on_violet"],
+  resale: ["teal_orange", "white_on_green", "black_on_lime", "hot_pink_black_cobalt", "navy_white_red", "white_on_pink", "black_on_aqua"],
 };
 /** Layouts for a line: those drawn for it (a plate for cars, a coin for gold) lead, then the rest. */
 function layoutsFor(cat) {
@@ -823,3 +1038,8 @@ function nearTwin(a, b) {
   const A = paletteOf(a), B = paletteOf(b);
   return contrast(A.G, B.G) < 1.25 && contrast(A.A, B.A) < 1.25;
 }
+
+/* ---------- for the brand kit (logo/kit.js): the engine's own tools, so a kit file is drawn the way a
+   logo is (the same outlines, palette roles and lockups), never a second way ---------- */
+export const K = { ctxOf, partsOf, drawMark, drawHorizontal, svgOf, textLine, fitSize, fitBlock, drawBlock, capOf, shapeRun, arcText, arcFit,
+  rectD, circleD, starD, polyD, hexPts, shieldD, iconItem, ring, dot, tidy, up, f1, esc, LAYOUTS };

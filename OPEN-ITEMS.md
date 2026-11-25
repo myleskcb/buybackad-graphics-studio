@@ -4901,3 +4901,43 @@ Open, next steps:
   face answers 500 and counts nothing). The type is about 2 MB across 34 faces; a page loads only the faces it draws.
 - `full_ad_studio_check` still fails its one case on `main` ("earbuds landscape: Something on the ad runs to the
   edge", §BY 5); this branch's change is inert without a logo kit, which that check never sets.
+
+## CG. 2026-11-24 — the brand kit, step by step, bought once; industry marks; name ideas (DESIGN-LAW 180)
+
+(claude/brand-kit-flow, from `main` at e28ef95b, which had just taken pull request 25 at the owner's word.
+CD, CE and CF, and rules 178 and 179, were taken on other branches.)
+
+Done:
+- **Industry marks**: thirteen marks with the shop's initials in the thing it buys, leading each line's
+  gallery; a Symbols tab. The crest's small lines fit the shield where it narrows. "MK Electronics" is MK.
+- **Three more lines** in the logo maker: device stores, wholesale and bulk lots, resale and trade-ins, with
+  their own words, symbols (trade arrows, boxes, a store front, a tablet) and colours.
+- **The kit, 20 or 50 files** (logo/kit.js), drawn by the engine on the page and the function alike: a
+  Complete kit is 50 SVGs in about 30 ms on the server, a 7 MB folder of 62 files once made into pictures.
+- **The flow**: the steps, Looks good and Try another look, the rail, the review's grid, the details for the
+  card's back, the posts and the signature, and Print it today under the card.
+- **Paid**: `/api/kits`, `/api/kits/save`, `/api/kits/file`; the checkout sells `kit` (essentials, complete,
+  upgrade) and Starter's `addKit`; a kit comes back to /logo/ and downloads; refunds handled. The plans
+  page, the comparison row and the checkout dialog say so (`build_pricing.mjs`); Starter's checkout offers
+  the kit at $5 off.
+- **Name ideas**: the free mixer, and Ask AI (`/api/names`, 2 AI credits a batch, refunded if it fails).
+- `@anthropic-ai/sdk` joins package.json for the AI names; it loads only when a batch is asked for.
+
+Open, the owner's:
+1. **The prices.** $14.99 and $19.99 are one line each in plans.mjs KITS (the owner weighed $11.99 and
+   $15.99 too). Stripe promotion codes are allowed on the kits, so a lower price can be tried with a code.
+2. **The terms**: a one-time purchase's line (what a kit is, that it stays downloadable, refunds), and who
+   owns a logo made here (§CC asked the same). TERMS_VERSION moves with it.
+3. **AI name ideas need `ANTHROPIC_API_KEY`** in Netlify (Production), then a deploy; the button shows itself
+   when it is set. The privacy page should name Anthropic beside fal and Google when it is switched on.
+   Never run against the real API here: the request's shape follows the SDK's documentation, and the first
+   live batch should be read by eye.
+4. **A first live kit purchase** with a real card (then refunded) proves the loop end to end: Stripe makes the
+   five kit prices on first use (`/admin/billing` lists 13 prices now).
+5. Whether Starter's add-on should show on the plans page itself, not only in its checkout.
+
+Open, next:
+- The marks are on the logo maker's layouts; the card maker's own gallery and the video maker's end card
+  still wear the logo as before.
+- A 9:16 Instagram story post per line (the stories are generic: buying, quote, open, what we buy, follow).
+- Highlight covers in more subjects (prices per item, trade-ins, repairs when that segment comes).

@@ -769,3 +769,9 @@ produced." DESIGN-LAW rule 87. In practice:
   keep a usual name at a readable size in all of them. The picked logo is `pgfx_logo_kit`: the card maker's Logo
   layout and the full ad's badge (`st.claim_logo`) read it. The card maker opens on a gallery; its form is Customise.
   Before a commit that touches any of it: `node scripts/logo_check.mjs` (and look at `node scripts/logo_sheet.mjs`).
+- **The brand kit** (rule 180, 2026-11-24): `logo/kit.js` lists every file of a kit (`FORMATS`: its tier,
+  step, folder and size) and draws it from the one logo with the engine's own tools (`engine.js K`); the page
+  previews them small and marked, `/api/kits/file` draws them for a kit saved on the account. A new file is a
+  `FORMATS` entry; a new industry mark is an `engine.js MARKS` entry and a `markLayout` for its lines. Prices
+  are `plans.mjs KITS` (run `scripts/build_pricing.mjs`). Before a commit that touches any of it:
+  `node scripts/logo_check.mjs`, `node scripts/billing_check.mjs`, and look at `node scripts/kit_sheet.mjs`.
