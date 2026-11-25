@@ -7771,3 +7771,62 @@ Not done here: the layout over a fortnight. Every full ad is one skeleton with 5
 the posts still reuse one from the past two weeks, memory or not; more layout families are §BJ 15's next
 step. A video saved from the maker is not remembered (the maker draws its own looks), and the memory is
 the browser's: a shop on two devices has two.
+
+## 185. A business card is the brand's: the logo, its colours and its lettering on every card, only the layout and the background chosen
+
+Added 2026-11-25. The owner: "business cards also dont have any real brand assets? or background options?",
+then "still not enough to make a consistent brand kit people will use moving forward needs to looks super
+clean", and of the plan below: "Yes, build it".
+
+What was wrong: two card makers that did not match. The card maker (`cards/`, rule 167) opened on twelve
+cards of which three wore the shop's logo; the other nine changed the colours, the lettering and the line
+("WE BUY iPHONES" under a logo made for gold), with ad copy, product photos and comic bursts. Its
+backgrounds were the ads' (Glow, Rays, Rings, Stripes, Cash, painted scenes). The brand kit's card (`logo/kit.js`)
+was one look, and printed sample details where the customer had left a box empty ((555) 555-0123,
+hello@yourshop.com), the number even when the form showed the studio's.
+
+1. **One card, drawn in one place.** `logo/card.js` draws the brand card from the logo with the logo engine,
+   pure like it, so the page and the function draw the same file. The kit's card step and the files the kit
+   pays for (`card-front`, `card-back`) and the card maker's Brand cards are this one drawing.
+2. **The logo, its colours and its lettering, on every card.** A brand card wears the customer's logo (the
+   logo maker's, or, until they make one, the first logo the maker would suggest for their name, and the page
+   says so), drawn in the card's colours, words set in the logo's own two faces. The customer chooses only
+   the **layout** (Centred, Left, Big mark, Band, Frame, Minimal, Split, Edge) and the **background**.
+3. **Backgrounds are the logo's own colours.** Your colour (the logo's ground), White (a warm paper, `#f7f5f0`,
+   with the brand's own dark as the words where it reads 7:1, else near-black, and the accent pressed darker
+   in its own hue until a small line reads 3:1), Second colour (the logo's plate colour as the card, its ground
+   as the plate), Sheen (the ground a little lighter at the top and darker at the foot, its own hue only, rule 5),
+   Linen, Pinstripe, Pattern (the mark repeated small) and Watermark (the mark large behind the words): each
+   texture in the card's own tone, stepped from the ground only as far as keeps every word 4.5:1 and every small
+   line 3:1 on it. No photograph, no painted scene, no second hue.
+4. **Clean, by rule.** The front is the logo and nothing that sells: no WE BUY, no number, no QR (a band may
+   carry the website). The back is who and how to reach them, only what was given: the person and their title
+   (or the business), then a row each for the phone, email, website, handle, address and hours, each with its
+   icon in the accent, and the mark or the QR beside them. Two sizes of words a side besides the logo; nothing
+   under 7 pt (29 px); every word, the logo and the QR inside the safe area, 1/8 in inside the trim (rule 167),
+   and the words a little further in; no word on the logo, the mark or the QR. When the details are many or long,
+   the rows' spacing gives first, then the name's size; an address or hours breaks at its comma, an email
+   before its @; the mark beside them shrinks to make room (the QR never under 3/4 in); a centred back sets its
+   small mark aside before anything gets small.
+5. **An empty detail prints nothing.** The card never fills a box with a sample. The studio's number and website
+   go into the kit's own details (`pgfx_logo.details`), not only into the form's boxes.
+6. **One set of details, one choice.** The card maker's Brand cards edit the kit's details (the same the kit's
+   posts and email signature read) and write the layout and background chosen to the kit (`pgfx_logo.card`,
+   kept by `cleanSpec` and the function), so the card in the kit is the card picked here. The kit's "Try another
+   look" walks `CARD_LOOKS` and lets go of a choice made in the card maker.
+7. **Promo cards stay, as a tab of their own.** The rule 167 layouts (Band, Split, Centred, Pop, Ticket, Logo),
+   with what is bought, the number large and a QR, are Promo cards: handouts for meet-ups and counters. A kit's
+   line leads them, so a gold logo's promo card says gold.
+8. **One Print it today.** `logo/print-today.js` is the card maker's and the kit's (Apple Maps on Apple devices
+   and in the iPhone app, round the area's point; Google Maps elsewhere; a remembered switch; only the chains
+   that offer same-day cards: rule 167, continued); `logo/pdf.js` re-exports it.
+
+Checked by `scripts/brand_card_check.mjs` (no browser: 6,144 sides, 48 logos of every line, long names, every
+layout and background, front and back, with every detail, none, long ones, the person alone and a QR, held to
+the sheet, the safe area, 7 pt, no overlaps, the colours on every background and texture, no sample, the front
+selling nothing, the back saying what was given, the QR's size; every logo pair on every background; the kit's
+card files the same as the card maker's), `scripts/business_card_check.mjs` (the Brand cards tab, its details
+in the kit, New look, the chips, the print PDF, 390 px light and dark in both tabs) and `scripts/logo_check.mjs`
+(the card maker opening on twelve brand cards in all eight layouts, a pick written to the kit).
+
+Not done here: OPEN-ITEMS §CL.

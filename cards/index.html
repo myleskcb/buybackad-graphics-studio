@@ -39,7 +39,7 @@
 <main id="main" class="cd-main wide">
   <div class="cd-head">
     <h1>Business cards</h1>
-    <p class="cd-sub">Pick a finished card with your details already on it, front and back. Each one is made to print, 3.5 × 2 inches with the bleed and crop marks print shops ask for. Then find a shop near you that prints it today.</p>
+    <p class="cd-sub">Pick a finished card with your logo and details already on it, front and back. Each one is made to print, 3.5 × 2 inches with the bleed and crop marks print shops ask for. Then find a shop near you that prints it today.</p>
   </div>
 
   <section class="cd-gallery" id="cd-gallery" aria-labelledby="cd-gal-h">
@@ -48,10 +48,16 @@
       <div class="cd-dfield"><label for="cd-g-phone">Your phone number</label><input id="cd-g-phone" type="tel" maxlength="24" placeholder="(562) 555-0123" autocomplete="tel"></div>
       <div class="cd-dfield"><label for="cd-g-line">What you buy</label><select id="cd-g-line"></select></div>
     </div>
+    <div class="cd-tabs" role="tablist" aria-label="Kind of card">
+      <button type="button" role="tab" id="cd-tab-brand" data-mode="brand" aria-selected="true" aria-controls="cd-gal">Brand cards</button>
+      <button type="button" role="tab" id="cd-tab-promo" data-mode="promo" aria-selected="false" aria-controls="cd-gal">Promo cards</button>
+    </div>
+    <p class="cd-tab-says" id="cd-tab-says">Your logo, its colours and its lettering on every card, and your details on the back: the card you hand someone.</p>
     <div class="cd-gal-head">
       <h2 id="cd-gal-h">Tap the card you like</h2>
       <a class="cd-logo-link" id="cd-logo-link" href="../logo/">Make a logo for your card</a>
     </div>
+    <p class="cd-suggest" id="cd-suggest" hidden>These wear a logo suggested for your name. <a href="../logo/">Make your own logo</a> and every card wears it.</p>
     <div class="cd-gal" id="cd-gal" aria-live="polite"></div>
     <div class="cd-gal-more"><button class="cd-btn" id="cd-gal-more" type="button">Show me more cards</button></div>
   </section>
@@ -83,6 +89,20 @@
     </section>
 
     <section class="cd-form" aria-label="Your card">
+      <div class="cd-brand-form" id="cd-brand-form">
+        <p class="cd-brand-says">Your details go on the back of the card, and on your kit's posts and email signature. Leave any blank: nothing is printed in its place.</p>
+        <div class="cd-brand-grid">
+          <div><label for="cd-b-person">Your name <span class="cd-opt">optional</span></label><input id="cd-b-person" name="person" type="text" maxlength="32" placeholder="Maria Lopez" autocomplete="name"></div>
+          <div><label for="cd-b-role">Your title <span class="cd-opt">optional</span></label><input id="cd-b-role" name="role" type="text" maxlength="32" placeholder="Owner" autocomplete="organization-title"></div>
+          <div><label for="cd-b-phone">Phone</label><input id="cd-b-phone" name="phone" type="tel" maxlength="24" placeholder="(562) 555-0123" autocomplete="tel"></div>
+          <div><label for="cd-b-email">Email</label><input id="cd-b-email" name="email" type="email" maxlength="48" placeholder="hello@yourshop.com" autocomplete="email"></div>
+          <div><label for="cd-b-site">Website</label><input id="cd-b-site" name="site" type="text" maxlength="40" placeholder="yourshop.com" autocomplete="url"></div>
+          <div><label for="cd-b-handle">Instagram or TikTok</label><input id="cd-b-handle" name="handle" type="text" maxlength="32" placeholder="@yourshop" autocomplete="off"></div>
+          <div><label for="cd-b-address">Address</label><input id="cd-b-address" name="address" type="text" maxlength="48" placeholder="123 Main St, Long Beach" autocomplete="street-address"></div>
+          <div><label for="cd-b-hours">Hours</label><input id="cd-b-hours" name="hours" type="text" maxlength="40" placeholder="Mon to Sat, 10 to 7" autocomplete="off"></div>
+        </div>
+      </div>
+      <div class="cd-promo-form" id="cd-promo-form">
       <label for="cd-name">Your business name</label>
       <input id="cd-name" type="text" maxlength="40" placeholder="Long Beach Phone Buyers" autocomplete="organization">
       <label for="cd-line">What you buy</label>
@@ -97,8 +117,17 @@
       <input id="cd-points" type="text" maxlength="90">
       <label for="cd-models">The line under them <span class="cd-opt">what you take</span></label>
       <input id="cd-models" type="text" maxlength="60">
+      </div>
       <label class="cd-check"><input id="cd-qr" type="checkbox"> A QR code on the back <span class="cd-opt">to your website, or your number</span></label>
 
+      <div class="cd-brand-chips" id="cd-brand-chips">
+        <h2 class="cd-h">Layout</h2>
+        <div class="cd-chips" id="cd-blayouts" role="group" aria-label="Layout"></div>
+        <h2 class="cd-h">Background</h2>
+        <div class="cd-chips cd-gchips" id="cd-bgrounds" role="group" aria-label="Background"></div>
+        <p class="cd-brand-says">Your colours and lettering are your logo's, so your card, posts and signs all match. <a href="../logo/">Change them in the logo maker</a>.</p>
+      </div>
+      <div class="cd-promo-chips" id="cd-promo-chips">
       <h2 class="cd-h">Style</h2>
       <div class="cd-chips" id="cd-styles" role="group" aria-label="Style"></div>
       <h2 class="cd-h">Layout</h2>
@@ -109,6 +138,7 @@
       <div class="cd-chips" id="cd-voices" role="group" aria-label="Type"></div>
       <h2 class="cd-h">Background</h2>
       <div class="cd-chips" id="cd-fills" role="group" aria-label="Background"></div>
+      </div>
     </section>
   </div>
   </section>

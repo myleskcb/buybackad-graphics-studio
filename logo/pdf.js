@@ -54,11 +54,5 @@ export function imagePdf(j, wPt, hPt) {
   return out;
 }
 
-/* print it today (the card maker's printLinks): Google Maps searches the customer opens themselves */
-const CHAINS = ["FedEx Office", "Staples", "Office Depot OfficeMax", "The UPS Store"];
-export function printLinks(q) {
-  const where = String(q || "").trim(), near = where ? " near " + where : " near me";
-  const url = s => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(s);
-  return [{ name: "Same-day business card printing" + (where ? " near " + where : ""), url: url("same day business card printing" + near), main: true }]
-    .concat(CHAINS.map(c => ({ name: c, url: url(c + near) })));
-}
+/* print it today: the one copy the card maker and the kit's card step share (print-today.js) */
+export { printLinks } from "./print-today.js";
