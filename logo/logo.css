@@ -1,0 +1,85 @@
+/* The logo maker and brand kit (logo/, DESIGN-LAW 176). Rides on pages.css: its tokens, header and
+   footer, light and dark following the device. Numbered steps, finished logos to tap, nothing to read
+   twice: the customer came because they can't design. */
+.lg-main{max-width:1240px;padding-top:clamp(28px,4vw,56px)}
+.lg-step{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:13.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.lg-step span{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--btn);color:var(--accent-ink);font-size:13.5px;letter-spacing:0}
+.lg h1{margin:0 0 14px;font-size:clamp(36px,5.4vw,64px)}
+.lg h2{margin:0 0 6px;padding-top:0;border-top:0}
+.lg-sub{max-width:720px;margin:0 0 24px;color:var(--text-2);font-size:17px;line-height:1.55}
+
+/* step 1 */
+.lg-form{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.3fr) minmax(0,1fr) auto;gap:14px;align-items:end;background:var(--panel);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);border-radius:22px;padding:20px}
+@media (max-width:980px){.lg-form{grid-template-columns:1fr 1fr}.lg-form .lg-name{grid-column:1/-1}.lg-form .lg-btn{grid-column:1/-1}}
+@media (max-width:520px){.lg-form{grid-template-columns:1fr;padding:16px}}
+.lg-field{display:flex;flex-direction:column;gap:7px;min-width:0}
+.lg-field label{font-size:14px;font-weight:650;color:var(--text)}
+.lg-opt{font-weight:500;color:var(--muted)}
+.lg-field input,.lg-field select{width:100%;box-sizing:border-box;font:500 16px -apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',sans-serif;color:var(--text);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;min-height:48px}
+.lg-name input{font-size:18px;font-weight:600}
+.lg-field input:focus,.lg-field select:focus{outline:none;border-color:var(--accent)}
+.lg-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid var(--line);background:var(--panel);color:var(--text);font:700 15.5px -apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',sans-serif;padding:12px 20px;min-height:48px;border-radius:999px;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.lg-btn:hover{border-color:var(--accent)}
+.lg-btn.primary{background:var(--btn);color:var(--accent-ink);border-color:transparent}
+.lg-btn.primary:hover{background:var(--btn-hover)}
+.lg-btn:disabled{opacity:.55;cursor:default}
+.lg-btn:focus-visible,.lg-tile:focus-visible,.lg-row button:focus-visible,.lg-tabs button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* step 2: the gallery */
+.lg-gallery,.lg-edit,.lg-kit{margin-top:clamp(40px,6vw,72px);scroll-margin-top:88px}
+.lg-gal-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.lg-tabs{display:flex;gap:6px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px}
+.lg-tabs button{border:0;background:none;color:var(--text-2);font:650 14.5px -apple-system,BlinkMacSystemFont,system-ui,sans-serif;padding:9px 16px;border-radius:999px;cursor:pointer;min-height:40px}
+.lg-tabs button[aria-selected=true]{background:var(--btn);color:var(--accent-ink)}
+.lg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+@media (max-width:520px){.lg-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+.lg-tile{position:relative;display:block;padding:0;border:0;border-radius:16px;overflow:hidden;cursor:pointer;aspect-ratio:4/3;background:var(--panel);box-shadow:0 0 0 1px color-mix(in srgb,var(--line) 70%,transparent);transition:transform .2s cubic-bezier(.22,.7,.2,1),box-shadow .2s}
+.lg-tile:hover{transform:translateY(-2px);box-shadow:0 14px 30px -18px rgba(0,0,0,.55),0 0 0 1px var(--accent)}
+.lg-tile canvas{display:block;width:100%;height:100%}
+.lg-tile[aria-pressed=true]{box-shadow:0 0 0 3px var(--btn)}
+.lg-tile[aria-pressed=true]::after{content:'✓';position:absolute;top:10px;right:10px;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--btn);color:var(--accent-ink);font:800 15px system-ui}
+.lg-tile.wait{background:linear-gradient(100deg,var(--panel) 30%,color-mix(in srgb,var(--line) 50%,var(--panel)) 50%,var(--panel) 70%);background-size:300% 100%;animation:lg-wait 1.2s linear infinite}
+@keyframes lg-wait{to{background-position:-150% 0}}
+@media (prefers-reduced-motion:reduce){.lg-tile.wait{animation:none}.lg-tile{transition:none}}
+.lg-more-row{display:flex;justify-content:center;margin-top:20px}
+
+/* step 3: make it yours */
+.lg-edit-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:start;margin-top:14px}
+@media (max-width:900px){.lg-edit-grid{grid-template-columns:minmax(0,1fr)}}
+.lg-big{margin:0;position:sticky;top:88px;border-radius:22px;overflow:hidden;box-shadow:0 0 0 1px color-mix(in srgb,var(--line) 70%,transparent)}
+@media (max-width:900px){.lg-big{position:static}}
+.lg-big canvas{display:block;width:100%;height:auto}
+.lg-big figcaption{padding:10px 14px;font-size:13.5px;color:var(--muted);background:var(--panel)}
+.lg-rows{background:var(--panel);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);border-radius:22px;padding:18px 20px}
+.lg-rows h3{margin:16px 0 8px;font-size:13.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-family:inherit}
+.lg-rows h3:first-of-type{margin-top:6px}
+.lg-hint{margin:0;font-size:14.5px;color:var(--text-2)}
+.lg-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.lg-row button{position:relative;display:flex;flex-direction:column;padding:0;border:0;border-radius:12px;overflow:hidden;cursor:pointer;background:var(--bg);box-shadow:0 0 0 1px color-mix(in srgb,var(--line) 70%,transparent)}
+.lg-row button canvas{display:block;width:100%;aspect-ratio:4/3;height:auto}
+.lg-row button[aria-pressed=true]{box-shadow:0 0 0 3px var(--btn)}
+.lg-row button span{display:block;padding:4px 7px;font:650 12.5px -apple-system,system-ui,sans-serif;color:var(--text-2);background:var(--bg);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lg-rows .lg-field{margin-top:16px}
+
+/* step 4: the kit */
+.kit-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:1000px){.kit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.kit-grid{grid-template-columns:minmax(0,1fr)}}
+.kit-card{display:flex;flex-direction:column;gap:12px;background:var(--panel);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);border-radius:22px;padding:18px}
+.kit-card h3{margin:0;font-size:19px}
+.kit-card p{margin:0;font-size:15px;line-height:1.5;color:var(--text-2);flex:1}
+.kit-card .lg-btn{align-self:flex-start}
+.kit-wide{grid-column:span 2}
+@media (max-width:640px){.kit-wide{grid-column:auto}}
+.kit-files{grid-row:span 1}
+.kit-art{display:block;width:100%;height:auto;border-radius:12px;box-shadow:0 0 0 1px color-mix(in srgb,var(--line) 60%,transparent)}
+.kit-card-art{box-shadow:0 18px 36px -22px rgba(0,0,0,.6),0 0 0 1px color-mix(in srgb,var(--line) 60%,transparent)}
+.kit-round{display:grid;place-items:center;padding:8px 0}
+.kit-round .kit-art{width:min(100%,240px);border-radius:50%}
+.kit-versions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.kit-versions figure{margin:0;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px color-mix(in srgb,var(--line) 60%,transparent)}
+.kit-versions canvas{display:block;width:100%;height:auto}
+.kit-versions figcaption{padding:4px 8px;font-size:12.5px;font-weight:600;color:var(--muted);background:var(--bg)}
+.lg-note{margin:18px 2px 0;font-size:15px;color:var(--text-2)}
+.lg-note.bad{color:#ff8a7a}
+@media (prefers-color-scheme:light){.lg-note.bad{color:#b3261e}}

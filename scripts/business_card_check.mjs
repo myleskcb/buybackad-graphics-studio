@@ -45,6 +45,8 @@ async function open({ demo = true, token = null, route = null, scheme = 'dark', 
   if (route) await page.route('**/api/**', route);
   await page.goto(BASE + 'cards/?c=' + Date.now(), { waitUntil: 'load' });
   await page.waitForFunction(() => window.CardMaker && document.getElementById('cd-stage').dataset.drawn, null, { timeout: 30000 });
+  // the page opens on its gallery of finished cards (DESIGN-LAW 176); these checks are the form's, so open Customise
+  await page.evaluate(() => CardMaker.customise());
   return { page, ctx, errors };
 }
 
