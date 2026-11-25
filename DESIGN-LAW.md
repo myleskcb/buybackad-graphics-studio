@@ -7359,3 +7359,77 @@ back, its ground moving under the words; the maker's panel and preview.
 Not done: the looks under Any look (the plain engine) have no moving ground; a
 story or a wide frame crops the square clip (a story shows its middle 56%, at
 2.5 times), softer than a square.
+
+## 176. A logo is drawn, never generated: hand-made layouts in the house's type and colours, picked from finished results, paid for as files
+
+(Written as 176 because rules 170 to 175 were taken on other branches when this landed: full-ad-looks-layout,
+merge-15-17-19, design-editor-ux-075e8b and video-music-sfx-audit.)
+
+Added 2026-11-24. The owner: "I don't see anywhere to generate logos or business cards. We should have business
+assets generable, like we were talking about previously, but they need to be good, very, very good", and "that's
+something you would probably be paying for". OPEN-ITEMS §BU had planned it. The maker is `logo/` (`logo/engine.js`,
+`logo/logo.js`); the customers came because they can't design, so every step shows finished results to pick from.
+
+- **Finished results, not settings.** The customer types the business name once and picks what they buy (Easy
+  Mode's thirteen lines, in plain words). The page shows 24 finished logos in that name at once
+  (`engine.js gallery`); More adds 24; three tabs narrow them to badges, words or initials. The one tapped shows
+  four rows of itself, each a finished thumbnail: other colours, lettering, shapes and symbols. No slider, no
+  colour picker, nothing to read twice. A new visitor typed a name, saw 24 logos, picked one and had its kit drawn
+  in about 7 seconds in the check (`logo_check.mjs` prints it); the brief was a minute.
+- **Hand-designed layouts.** Eighteen, the looks buying shops wear: Seal, Coin (gold, silver, coins, cards, watches),
+  Emblem (a bar across a ringed circle), Crest (a shield and a ribbon), Stamp, Tag, Ribbon, Hexagon, Balloon, Burst,
+  Plate (cars), Stacked, Monogram, Roundel, Speed, Label, Luxe (gold, jewellery, watches, coins and the like) and
+  Arch. A layout sets the name whole or as its lead and its trail (LONG BEACH / PHONE BUYERS: the generic words
+  after the name's own, `partsOf`), and the initials. Each says which kinds of face it takes: a script never goes
+  round a ring. A name a layout would set under capitals 46 high on its 1000 artboard is left out of the gallery
+  (`ok`), never shrunk to nothing; a usual name keeps every layout in every voice it takes.
+- **The house's type and colours, and variety by rule.** Voices are the full ad's vetted pairs and Bold
+  (`logo/voices.js`, held to `motion/catalog.js TYPE_VOICES`); colours are the house pairs (`LOGO_PAIRS`), each held
+  to words 4.5:1 on the ground and on the band and the accent 3:1. A gallery has no pair twice, no voice more than
+  twice, at least twelve layouts, dark and light grounds by turns, and the line's own layouts and pairs first (gold's
+  Coin, black and gold; cars' Plate). Cohesive by rules, never one house look (the owner's "ad variety").
+- **No drawn lettering.** Every word is the face's own outlines (`logo/glyphs/<face>.js`, written by
+  `scripts/build_logo_glyphs.mjs` from the site's own font files, its kerning read from the face's GPOS), so the SVG
+  is a vector with no font to install and no `<text>`; no model draws a letter (they garble words). Text round a
+  circle is set glyph by glyph on its middle radius. A letter a face lacks is set as its plain letter, never dropped.
+- **Symbols** come from the house set (`assets/icon-set.svg`, twenty), and five drawn in its grammar for the lines
+  it had none for (controller, laptop, headphones, watch, camera). Generic silhouettes, never a brand's mark; no
+  logo writes another firm's name (Pokémon is TRADING CARDS).
+- **Three forms, four versions.** Every logo is also its mark (its initials or its symbol in its layout's own
+  shape: circle, square, shield or hexagon) and a side-by-side lockup (the mark and the name). Each comes in colour,
+  see-through, black and white; a one-colour file cuts its knock-outs through with a mask, so it holds one colour.
+- **The brand kit: one logo everywhere.** The logo picked is kept for the site (`pgfx_logo_kit`).
+  - The business card: a Logo layout, the logo large in the safe area on the card's field, set in the card's own pair
+    by the engine, the details on Split's back (`cards/cards.js frontLogo`). Never on a picture ground.
+  - The full ad: the side-by-side lockup on a pill of its ground takes the badge at the top (`motion/fullad.js
+    st.claim_logo`, 1.8 times a claim's height, never wider than the column), in the ad's own pair (the logo's own on a
+    video look). With a logo on and no pair picked, the ad opens in the logo's pair. "Your logo on the badge" turns it
+    off. The pre-flight reads the badge as the logo's own, not as a line of words on a plate; every other check is as
+    it was. A style handed on as JSON (the video maker's hand-off) carries no logo and draws its claim.
+  - The profile picture: 1080 square, a round logo whole and any other its mark, inside the middle 76% (the circle
+    Facebook, Instagram and OfferUp crop to).
+  - The Facebook cover: 1640 × 624, the lockup, what is bought and the number in the middle 1100 (what a phone shows),
+    the mark in the ground's light tone off the right edge and rules off the left as decoration a phone may crop.
+- **Paid as files.** Anyone designs and previews; the preview carries the WeBuy.AD mark until the plan includes
+  logos. The files come with Pro and Business (`plans.mjs logos`), drawn by the function (`/api/logo/file`,
+  `netlify/lib/logos.mjs`) with the same engine and faces after it has checked the plan and counted one photo
+  download; nothing is counted when it refuses. The page makes the PNGs from those SVGs (2400 px on the long side,
+  the mark 1024, a 180 icon, the profile picture and the cover) and saves one zip with a note of the colours and
+  faces. A design is held to what the engine draws (`cleanDesign`) before the function draws it.
+- **The card maker opens on finished cards** (the owner's VistaPrint): twelve looks, front and back, each from one
+  style's lists (the six styles twice), no pair twice and no layout more than twice, in the customer's own words from
+  the studio, the Logo layout first when a logo is kept. The form above is Customise, behind the gallery; a tap opens
+  it on that card. Drawing is one at a time: the gallery lends a look to the card's state only while it draws it.
+- **Findable:** Logo and brand kit in Easy Mode's bar, the video maker's bar, the card maker's, the landing's footer
+  and the sitemap; in the landing's bar as "Logo & brand kit" from 1300 px, in Business cards' place (the bar is
+  full from 1450 and the kit is where the card is made from the logo; `landing.css`, measured 1000 to 1920).
+- **Held by** `scripts/logo_check.mjs` (103 checks: the voices against the catalogue, the glyphs and the function's
+  faces, the twenty symbols, every pair's contrast; every layout drawn for eight kinds of name in every voice it
+  takes, in every form and version, with no NaN, no missing letter and one colour in a one-colour file; the gallery
+  for 13 lines and 6 names; the banned list on every line a logo writes; the function's 403, 400, 402 and counts; the
+  page from a typed name to a picked logo, timed; the rows, the tabs and More; the zip's files and sizes; the paywall
+  signed out, on Starter and on Pro, light and dark; the card gallery and its Logo layout in the safe area; the full
+  ad's badge and its pre-flight; no sideways scroll at 390) and by `business_card_check.mjs` and `billing_check.mjs`.
+  `scripts/logo_sheet.mjs` draws a contact sheet: look at it before and after any change to a layout.
+
+Not done here: OPEN-ITEMS §CC.

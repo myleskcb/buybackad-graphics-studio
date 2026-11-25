@@ -29,6 +29,13 @@
    the full ad is never a member of TEMPLATES, so no pass, audit or table of the photo ads sees
    it. Every function it wraps is wrapped, not spliced (AGENT-BRIEF 1).
 
+   THE CUSTOMER'S LOGO (2026-11-24, DESIGN-LAW 176). A logo picked in the logo maker (logo/, kept in
+   localStorage pgfx_logo_kit) takes the badge at the top: its name beside its mark, drawn by the logo
+   engine in the ad's own colour pair (the logo's own where the ad wears a video look), on a pill of its
+   ground (motion/fullad.js st.claim_logo). With a logo on and no pair picked by hand, the ad opens in
+   the logo's pair. "Your logo on the badge" turns it off; ?brand=logo (the logo maker's "Put it on my
+   ads") opens Easy Mode on the full ad with it on.
+
    Check: node scripts/full_ad_studio_check.mjs */
 import { loadPhones, loadFonts, fontsFor } from "./motion/engine.js";
 import { DEFAULT_STYLE, DEFAULT_PHONES, TYPE_VOICES, FONTS } from "./motion/catalog.js";
@@ -56,11 +63,45 @@ const WORD_FIELDS = [
 ];
 
 const saved = (() => { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; } })();
-const FA = Object.assign({ on: false, line: {}, set: {}, seed: 1, pair: "", voice: "", words: {}, biz: "", recipe: {} }, saved || {});
+const FA = Object.assign({ on: false, line: {}, set: {}, seed: 1, pair: "", voice: "", words: {}, biz: "", recipe: {}, logo: true }, saved || {});
 if (!FA.recipe || typeof FA.recipe !== "object") FA.recipe = {};
 const live = { holding: false, n: 0, ad: null, subjects: [], thumbs: {}, timer: 0, ready: null, loaded: {}, recipes: null, byId: {} };
 const assets = { phones: {}, index: [], accents: {} };
-const keep = () => { try { localStorage.setItem(KEY, JSON.stringify({ on: FA.on, line: FA.line, set: FA.set, seed: FA.seed, pair: FA.pair, voice: FA.voice, words: FA.words, biz: FA.biz, recipe: FA.recipe })); } catch (e) { /* private mode */ } };
+const keep = () => { try { localStorage.setItem(KEY, JSON.stringify({ on: FA.on, line: FA.line, set: FA.set, seed: FA.seed, pair: FA.pair, voice: FA.voice, words: FA.words, biz: FA.biz, recipe: FA.recipe, logo: FA.logo })); } catch (e) { /* private mode */ } };
+
+/* ---------- the customer's logo on the badge (logo/, DESIGN-LAW 176) ---------- */
+/** the logo picked in the logo maker, or null */
+const kitNow = () => { try { const k = JSON.parse(localStorage.getItem("pgfx_logo_kit") || "null"); return k && k.design && k.design.t ? k.design : null; } catch (e) { return null; } };
+const logoOn = () => FA.logo !== false && !!kitNow();
+const logoPics = {};
+/** The badge: the logo's name beside its mark (logo/engine.js, form "horizontal") on a pill of its ground
+ *  with an edge in its accent, in the pair asked for (the ad's), drawn at 240 px tall. Cached by design. */
+function logoBadge(pairKey) {
+  const k0 = kitNow(); if (!k0) return Promise.resolve(null);
+  const d = { ...k0, pair: COLOUR_OF[pairKey] ? pairKey : k0.pair }, key = JSON.stringify(d);
+  return logoPics[key] || (logoPics[key] = (async () => {
+    const E = await import("./logo/engine.js"), faces = {};
+    for (const f of E.facesOf(d)) faces[f] = (await import(`./logo/glyphs/${f}.js`)).default;
+    const r = E.logoSvg(d, faces, { form: "horizontal", bg: false, pad: 0 }), P = E.paletteOf(d.pair);
+    const url = URL.createObjectURL(new Blob([r.svg], { type: "image/svg+xml" }));
+    const im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const H = 240, ih = H * .62, iw = r.w * ih / r.h, W = Math.round(iw + H * .62), c = document.createElement("canvas");
+    c.width = W; c.height = H;
+    const x = c.getContext("2d"), q = H / 2;
+    x.beginPath(); x.roundRect ? x.roundRect(4, 4, W - 8, H - 8, q - 4) : x.rect(4, 4, W - 8, H - 8);
+    x.fillStyle = P.G; x.fill(); x.lineWidth = 7; x.strokeStyle = P.A; x.stroke();
+    x.drawImage(im, (W - iw) / 2, (H - ih) / 2, iw, ih);
+    URL.revokeObjectURL(url);
+    return c;
+  })().catch(e => { console.warn("full ad logo:", e); delete logoPics[key]; return null; }));
+}
+/** a style with the badge set: the logo, in the ad's pair (its own on a video look) */
+async function withLogo(st) {
+  if (!logoOn()) return st;
+  const pic = await logoBadge(st.full_colour || "");
+  if (pic) st.claim_logo = pic;
+  return st;
+}
 
 const el = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -155,7 +196,8 @@ function styleNow(S, ids, set, size, R = recipeNow()) {
   if (up(w.burst) || up(rw.burst)) base.feed_burst = up(w.burst) || up(rw.burst);
   // the face: one picked, the house face ("house"), or none, and the seed draws one (fullStyle, rule 154). A
   // recipe's card pair and face are leans (its hint), never kept as picked: only a pick by hand is
-  const pair = FA.pair || "", voice = FA.voice === "house" ? "house" : fullVoiceOk(FA.voice) ? FA.voice : "";
+  const kit = logoOn() ? kitNow() : null;
+  const pair = FA.pair || (kit && COLOUR_OF[kit.pair] ? kit.pair : ""), voice = FA.voice === "house" ? "house" : fullVoiceOk(FA.voice) ? FA.voice : "";
   const pick = { ...(COLOUR_OF[pair] ? { palette: pair } : {}), ...(voice ? { type_pair: voice } : {}) };
   return { st: fullStyle(base, base.seed, assets.index, pick), W: F.w, H: F.h };
 }
@@ -163,7 +205,7 @@ function styleNow(S, ids, set, size, R = recipeNow()) {
 async function build(px, size) {
   const { S, ids, set, recipe } = await ready();
   const { st, W, H } = styleNow(S, ids, set, size, recipe);
-  await Promise.all([loadFonts([...fontsFor(st), "franklin"]), groundReady(st)]);
+  await Promise.all([loadFonts([...fontsFor(st), "franklin"]), groundReady(st), withLogo(st)]);
   const k = px / Math.min(W, H);
   return { ad: new FullAd(st, assets, Math.round(W * k), Math.round(H * k)), st, S };
 }
@@ -251,7 +293,7 @@ function placeholder(c) {
   return "data:image/svg+xml," + encodeURIComponent(svg);
 }
 async function thumb(img, S) {
-  const k = S.key + "|" + (FA.pair || "") + "|" + (FA.voice || "") + "|" + (FA.seed | 0) + "|" + (FA.recipe[currentCat] || "");
+  const k = S.key + "|" + (FA.pair || "") + "|" + (FA.voice || "") + "|" + (FA.seed | 0) + "|" + (FA.recipe[currentCat] || "") + "|" + (logoOn() ? JSON.stringify(kitNow()) : "");
   if (live.thumbs[k]) { img.src = live.thumbs[k]; return; }
   if (!img.getAttribute("src")) img.src = placeholder(COLOUR_OF[FA.pair] || COLOUR_OF[COLOURWAYS[0]]);
   try {
@@ -259,7 +301,7 @@ async function thumb(img, S) {
     const { st } = styleNow(got.S, got.ids, got.set, FORMATS.square, got.recipe);
     /* the strip shows a card with the studio's sample number, as every card beside it does */
     const shown = { ...st, number: "(562) 999-4994" };
-    await Promise.all([loadFonts([...fontsFor(shown), "franklin"]), groundReady(shown)]);
+    await Promise.all([loadFonts([...fontsFor(shown), "franklin"]), groundReady(shown), withLogo(shown)]);
     const c = fullStill(new FullAd(shown, assets, 396, 396));
     live.thumbs[k] = c.toDataURL("image/jpeg", .86);
     if (img.isConnected) img.src = live.thumbs[k];
@@ -315,6 +357,8 @@ function buildForm() {
     (ls.length > 1 ? `<div class="ez-field"><label for="fa-line">What you buy <span class="fa-opt">its pictures and its models line come with it</span></label><select id="fa-line" class="cat-select">${ls.map(s => `<option value="${s.key}"${s === S ? " selected" : ""}>${esc(s.label)}</option>`).join("")}</select></div>` : "")
     + libraryField()
     + `<div class="ez-field"><label for="fa-biz">Your business name <span class="fa-opt">optional: it takes the badge at the top</span></label><div class="ez-fieldrow"><input id="fa-biz" type="text" maxlength="28" value="${esc(FA.biz || "")}" placeholder="Long Beach Phone Buyers"></div></div>`
+    + (kitNow() ? `<div class="ez-field"><label class="fa-logo-row"><input id="fa-logo" type="checkbox"${logoOn() ? " checked" : ""}> Your logo on the badge <a href="${esc(at("./logo/"))}" class="fa-opt">change it</a></label></div>`
+      : `<div class="ez-field"><a class="fa-opt" id="fa-logo-make" href="${esc(at("./logo/"))}">Make a logo for your ads: it takes the badge at the top</a></div>`)
     + WORD_FIELDS.map(field).join("")
     + `<div class="ez-field"><label>Colours <span class="fa-opt">${COLOURWAYS.length} pairs, light, vivid and dark</span></label><div class="ez-themes" id="fa-pairs" role="group" aria-label="Colours">
         <button type="button" class="fa-any${FA.pair ? "" : " active"}" data-pair="" aria-pressed="${FA.pair ? "false" : "true"}" title="New look picks a pair that suits what you buy">Any</button>`
@@ -345,6 +389,7 @@ function buildForm() {
   el("fa-voices").addEventListener("click", e => { const b = e.target.closest("button[data-voice]"); if (!b) return; FA.voice = b.dataset.voice; keep();
     el("fa-voices").querySelectorAll("button[data-voice]").forEach(x => x.classList.toggle("active", x === b)); tile(); later(0); });
   el("fa-shuffle").onclick = () => { FA.seed = ((FA.seed | 0) || 1) + 1; keep(); tile(); later(0); };
+  const lg = el("fa-logo"); if (lg) lg.addEventListener("change", e => { FA.logo = e.target.checked; keep(); live.thumbs = {}; tile(); later(0); });
   const pic = el("fa-picture"); if (pic) pic.onclick = () => { FA.set[S.key] = ((FA.set[S.key] | 0) + 1) % S.sets.length; keep(); live.thumbs = {}; tile(); later(0); };
 }
 
@@ -487,12 +532,17 @@ function install() {
     FA.seed = r.seed || 1;   // its own look: a recipe opens on its own seed (New look moves on from it)
     return r;
   };
-  window.FullAdStudio = { state: FA, enter, leave, draw, build, check, still, ref, lines: () => live.subjects, aliases: () => live.aliases || {}, isOn: () => FA.on, voices: () => FULL_VOICES.filter(k => fullVoiceOk(k)), pairs: () => COLOURWAYS.slice(),
+  window.FullAdStudio = { state: FA, enter, leave, draw, build, check, still, ref, logoOn, logoBadge, lines: () => live.subjects, aliases: () => live.aliases || {}, isOn: () => FA.on, voices: () => FULL_VOICES.filter(k => fullVoiceOk(k)), pairs: () => COLOURWAYS.slice(),
     recipes: loadRecipes, useRecipe };
   /* Easy Mode may be open already (a module runs after the page's own scripts) */
   if (el("ez-strip") && el("page-easy") && el("page-easy").classList.contains("active")) {
     tile();
     if (FA.on) { if (!enter()) leave(); }
+  }
+  /* the logo maker's "Put it on my ads" (logo/, ?brand=logo): Easy Mode on the full ad, the logo on */
+  if (/[?&]brand=logo\b/.test(location.search)) {
+    try { const u = new URL(location.href); u.searchParams.delete("brand"); history.replaceState(history.state, "", u.pathname + u.search + u.hash); } catch (e) { /* the address keeps it */ }
+    if (kitNow()) { FA.logo = true; keep(); setTimeout(() => { try { showEasy(); selectEzTpl("full"); } catch (e) { console.warn("brand link:", e); } }, 60); }
   }
   window.dispatchEvent(new Event("full-ad-ready"));
 }

@@ -59,27 +59,32 @@ export const MODEL_COST_USD = {
  *  `cards` is whether the plan downloads print-ready business cards (cards/:
  *  anyone can design one and see it). Owner, 2026-11-22, of the business card
  *  designer and a logo designer to come: "needs to be super pay walled".
- *  A card download is one of the plan's photo downloads. */
+ *  A card download is one of the plan's photo downloads.
+ *  `logos` is whether the plan downloads the logo files and the brand kit
+ *  (logo/: SVG and PNG, colour, see-through, black and white, the mark, the
+ *  profile picture and the cover), drawn by the function (logos.mjs). Anyone
+ *  designs and previews a logo. Owner, 2026-11-24: "that's something you would
+ *  probably be paying for". One download of the kit is one photo download. */
 export const PLANS = {
   free: {
     label: 'Free', price: { month: 0 },
     weekly: 3, monthly: null, maxPx: 1080, watermark: true, video: false, videos: 0,
-    credits: 5, library: 12, allDesigns: false, qr: false, cards: false,
+    credits: 5, library: 12, allDesigns: false, qr: false, cards: false, logos: false,
   },
   basic: {   // shown as Starter
     label: 'Starter', price: { month: 2500, year: 25000 },
     weekly: null, monthly: 100, maxPx: 2160, watermark: false, video: false, videos: 0,
-    credits: 50, library: 300, allDesigns: true, qr: false, cards: false,
+    credits: 50, library: 300, allDesigns: true, qr: false, cards: false, logos: false,
   },
   pro: {
     label: 'Pro', price: { month: 6000, year: 60000 },
     weekly: null, monthly: 500, maxPx: 2160, watermark: false, video: true, videos: 30,
-    credits: 200, library: 1000, allDesigns: true, qr: true, cards: true,
+    credits: 200, library: 1000, allDesigns: true, qr: true, cards: true, logos: true,
   },
   business: {
     label: 'Business', price: { month: 10000, year: 100000 },
     weekly: null, monthly: null, maxPx: 2160, watermark: false, video: true, videos: null,
-    credits: 500, library: 3000, allDesigns: true, qr: true, cards: true,
+    credits: 500, library: 3000, allDesigns: true, qr: true, cards: true, logos: true,
   },
 };
 
@@ -106,6 +111,7 @@ export function featureRows() {
     row('library', 'Ads kept in your library', (p) => num(p.library)),
     row('qr', 'A QR code on your ad', (p) => (p.qr ? 'Yes' : 'No')),
     row('cards', 'Business cards to print', (p) => (p.cards ? 'Yes' : 'No'), 'Anyone can design a business card. Downloading the print-ready file comes with Pro and Business.'),
+    row('logos', 'Logo files and brand kit', (p) => (p.logos ? 'Yes' : 'No'), 'Anyone can make and try a logo. The full-size files, the profile picture and the cover come with Pro and Business.'),
   ];
 }
 /** the short list on each plan's card (and the checkout dialog), most telling first */
@@ -114,7 +120,7 @@ export function planBullets(id) {
   const credits = num(p.credits) + ' AI credits a month', lib = 'Keep ' + num(p.library) + ' ads in your library';
   if (id === 'free') return [num(p.weekly) + ' photo downloads a week', designs(p), 'Standard size (' + p.maxPx + ' pixels) with a light WeBuy.AD watermark', credits];
   if (id === 'basic') return [num(p.monthly) + ' photo downloads a month', designs(p), 'No watermark, up to double size (' + p.maxPx + ' pixels)', credits, lib];
-  if (id === 'pro') return [num(p.monthly) + ' photo downloads a month', num(p.videos) + ' video ads a month, with sound', 'Everything in Starter', 'Add a QR code people can scan', 'Print-ready business cards', credits, lib];
+  if (id === 'pro') return [num(p.monthly) + ' photo downloads a month', num(p.videos) + ' video ads a month, with sound', 'Everything in Starter', 'Add a QR code people can scan', 'Print-ready business cards', 'Logo files and brand kit', credits, lib];
   return ['Unlimited photo downloads', 'Unlimited video ads, with sound', 'Everything in Pro', credits, lib];
 }
 /** who each plan is for, in one line under its name */
@@ -128,6 +134,8 @@ export const PAID = Object.keys(PLANS).filter((id) => id !== 'free');
 export const videoOk = (plan) => !!PLANS[planId(plan)].video;
 /** whether a plan downloads print-ready business cards (cards/) */
 export const cardsOk = (plan) => !!PLANS[planId(plan)].cards;
+/** whether a plan downloads the logo files and the brand kit (logo/) */
+export const logosOk = (plan) => !!PLANS[planId(plan)].logos;
 
 /** One-off AI credit packs, any signed-in account. Never expire; spent after
  *  the month's plan credits. */
