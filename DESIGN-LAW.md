@@ -7433,3 +7433,43 @@ something you would probably be paying for". OPEN-ITEMS §BU had planned it. The
   `scripts/logo_sheet.mjs` draws a contact sheet: look at it before and after any change to a layout.
 
 Not done here: OPEN-ITEMS §CC.
+
+## 178. The ads sell: a buyer says TOP DOLLAR, with nothing a shop can be asked to prove
+
+Added 2026-11-24. The owner, looking across the ads: "all I see is honest or local buyer not top buyer
+or highest paying. We need more sales ways to pitch yourself." Asked how hard a default ad should sell,
+they chose bold with no proof needed, over drawing HIGHEST and #1 by default and over leaving them out
+of the picks too.
+
+- **About half of what an ad says unasked is a buyer selling.** The full ad's badge draws from thirteen
+  lines, eight of them bold: TOP DOLLAR PAID, WE PAY TOP DOLLAR, TOP CASH • PAID TODAY, TOP PRICES •
+  NO FEES, REAL CASH • NOT CREDIT, NO LOWBALL OFFERS, TOP PAYOUTS • NO HAGGLING, MONEY IN YOUR POCKET.
+  Its sticker adds TOP CASH, TOP $$$ and TOP DOLLAR. Over 4,680 drawn ads (39 lines, 120 seeds) 61% of
+  badges and 53% of stickers are bold, and no badge is on more than a fifth of them.
+- **Each line that fits is as likely** (`fresh` in `fullStyle`). The badge, sticker and small line skip a
+  line that repeats a word already on the ad. They used to walk from a random start to the next that
+  fit, which gave a line every draw of the lines before it that rarely fit: WE PAY TOP DOLLAR took 21% of
+  badges and TOP CASH • PAID TODAY 1%, TOP $$$ a third of stickers. One draw either way, so the rest of
+  a seed's ad is drawn as before.
+  Its selling points gain a promise of their own (`top` in `motion/full-points.js`, weighed .7 beside
+  the money's 1): TOP DOLLAR PAID, TOP CASH PAID, WE PAY TOP DOLLAR, TOP PRICES PAID. Spanish says it
+  the way a seller hears it (PAGAMOS BIEN, BUEN PAGO, BUEN PRECIO, EFECTIVO REAL • NO CRÉDITO,
+  SIN OFERTAS BAJAS; the sticker BUEN PAGO, not PAGAMOS BIEN, whose seven letters set it under its
+  floor). The local and fair lines stay in the same lists: one look is never one voice.
+- **The video maker too.** Two looks in three that said LOCAL BUYER say TOP DOLLAR PAID, TOP CASH PAID
+  or WE PAY TOP DOLLAR (12 of 18 in English, 2 of 4 in Spanish), and its points, ticker, sticker and
+  tags carry them (`motion/themes.js`, `motion/catalog.js`).
+- **Nothing a shop can be asked to prove is drawn for it.** HIGHEST, BEST PRICE, #1 and WE BEAT ANY
+  OFFER stay out of every default list: these ads speak for other businesses, and a measurable
+  superlative is a claim made in their name. A shop that can stand behind one types it, and the
+  pre-flight's note ("a claim you may be asked to prove") still says so. TOP DOLLAR states no fact
+  anyone can check; the research's ban on it (rule 143, 5.2: the most generic phrase in the trade) was
+  a judgement of taste, and the owner's word replaces it.
+- **The card lines keep their collector's voice** (rule 171). `spec/banned-words.json` keeps TOP DOLLAR
+  off the pokemon and sports lines alone, their badge and sticker lists are unchanged, and their
+  points have no `top` promise (`KIND_SAYS.cards.top: null`).
+- **Held by** `scripts/words_check.mjs` (every phrasing in both languages, 18 letters for a point, no
+  comma), the census's one list, and the full ad's checks drawing every line in every size with the
+  new words. The library's renders and the landing's stills are drawn again in these words.
+
+Not done here: OPEN-ITEMS §CF.
