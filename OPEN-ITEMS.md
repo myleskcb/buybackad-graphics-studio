@@ -4901,3 +4901,16 @@ Open, next steps:
   face answers 500 and counts nothing). The type is about 2 MB across 34 faces; a page loads only the faces it draws.
 - `full_ad_studio_check` still fails its one case on `main` ("earbuds landscape: Something on the ad runs to the
   edge", §BY 5); this branch's change is inert without a logo kit, which that check never sets.
+
+## CF. 2026-11-25 — the maker's toolbar trimmed to three (DESIGN-LAW 178)
+
+(claude/video-music-sfx-audit-3691d1.) The owner: "Why does the top bar have so many
+options?", "the sideline looks easier to use", "I like the numbers"; then "Yes, trim it".
+
+Done: the bar is Back, New look and Download (the only filled button); Kind of ad and
+All templates open step 1; the feed view is in step 6 only.
+
+Open:
+1. **The owner to look**, then go live (not on `main` yet).
+2. The moving-scenes session (its own worktree) edits motion/app.js too: merge with care.
+

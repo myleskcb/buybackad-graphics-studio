@@ -6961,3 +6961,20 @@ a check that reads "the still" must draw the still, not whatever a live source s
 
 RESUME HERE: the owner looks at a moving scene in the maker (§CB 1); then more clips
 (§CB 4), Any look (§CB 2), stories and wide frames (§CB 3).
+
+## 2026-11-25 — the maker's toolbar trimmed to three (DESIGN-LAW 178; claude/video-music-sfx-audit-3691d1)
+
+The owner found the bar busy and its colours mixed. Seven controls became three; the
+kind of ad and the templates moved into step 1, and the feed view stayed only in Check.
+
+Learned:
+  - Read a toolbar by what each button is: an action on the ad, a place you are, or a
+    setting. Only the first belongs in the bar; the steps already say where you are.
+  - One colour, two meanings reads as noise: filled now means "do this", an outline
+    "you are here".
+  - A button that repeats one in a step (the feed view) is the cheapest to cut: grep
+    for a second way in before keeping one.
+
+RESUME HERE: the owner looks at the trimmed bar (§CF 1) and says whether it goes live;
+the moving-scenes session reports on its own (§CB).
+
