@@ -1639,12 +1639,16 @@ const H0 = p => p.h * p.size;
 const POSE_TURN = { flat: 0, edge_left: -.6, edge_right: .6 };
 // Side on, by hand only (rule 124): turned 60 degrees, the buttons' edge toward the lens.
 const POSE_SIDE = { profile_left: -1.05, profile_right: 1.05 };
+// A full ad is mostly seen as a still, where a turn that reads in motion reads as a thin flat card
+// (owner, 2026-11-23: "going a few degrees less so you can see more phone"): it turns a sixth less,
+// about 29 degrees for a turned phone and 50 for one side on. Videos and recipes keep their angles.
+const FULL_TURN = 5 / 6;
 
 /** rest: the phones as they stand once landed, without the move they make after (a still
  *  of the ad, its photo, and what the words are measured against). */
 function phoneState(p, t, st, rest = false) {
   const s = phoneState0(p, t, st);
-  const turn = POSE_TURN[st.pose] || POSE_SIDE[st.pose] || 0;
+  const turn = (POSE_TURN[st.pose] || POSE_SIDE[st.pose] || 0) * (st.full ? FULL_TURN : 1);
   if (s && turn) s[4] += turn;
   if (s && !rest && p.tIdle != null && t > p.tIdle) phoneIdle(s, p, t, st);
   return s;

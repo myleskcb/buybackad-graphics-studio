@@ -4613,6 +4613,7 @@ Open:
    photograph, `assets/cutouts/ATTRIBUTION.json`): that licence asks for a credit on the ad, and the
    card's art is the maker's. Rule 161 holds new ad photographs to public domain or CC0. It still has
    weight 6 of the Pokémon pool; the owner's call whether it stays.
+   **Done 2026-11-23 (DESIGN-LAW 170):** retired with the two Charizard ground photographs; see §BZ.
 3. **Still to build from the list:** textures and materials (about 40 CC0 photographs, about 25 MB:
    needs the owner's go-ahead to download), space (NASA photographs are public domain, about 30, about
    20 MB, plus painted ones; most are dark, so under a duotone or wash), the area drawn as a map from
@@ -4638,7 +4639,7 @@ Open:
    lawyer: a player's face in a paid ad is his likeness.
 7. **Selling points vary** (DESIGN-LAW 164, done 2026-11-22): two to four per ad, drawn from each
    line's own promises and any buyer's, each said several ways. Spanish ads still draw the old
-   three from the catalogue's Spanish list; a Spanish pool is next.
+   three from the catalogue's Spanish list; a Spanish pool is next. **Done 2026-11-23** (§BZ).
 8. **The iPhone mix, by the owner's word** (done 2026-11-22): the 17 Pro Max pushed hardest, the 16
    Pro Max (the shop's best seller) close behind, the 18 Pro Max present and to grow; the colourful
    base and Plus models of 14 to 17 about a third of the draw. The iPhone 16 Plus has no render in
@@ -4655,6 +4656,7 @@ Open:
    devices. The owner's site is Apple only. Ways in: the shop's own photographs of the Samsung and
    Pixel phones it buys (cut out by the existing scripts), stock bought with ad rights, or the fal
    model drawing from a real photograph as its reference (scripts/bggen_entities.py), read by eye.
+   **Done 2026-11-23, painted** (§BZ): seventeen 2026 Galaxy and Pixel pictures in code.
 
 ## BX. 2026-11-23 — WeBuy.AD everywhere, the old domains dropped, mail, and what the site still needs
 
@@ -4766,6 +4768,68 @@ Open:
    before and after.
 4. When a preview server is stopped, its tab in the browser pane should be closed with it: the
    owner reads that pane as the product.
+
+## BZ. 2026-11-23 — the four left open: no real Charizard, the 2026 phones, Spanish points, the owner's shares (DESIGN-LAW 170)
+
+(claude/full-ad-looks-layout, after §BW. The owner: "CAN WE FIX ALL 4".)
+
+Done:
+- The graded Charizard cut-out rejected and flagged; the two Charizard ground photographs replaced by
+  painted display scenes (`scripts/paint_card_scenes.mjs`) under new names, every reference moved
+  (66 site designs, looks, ground fixes, full grounds, offer grounds and p90s, luminance), the
+  photographs removed; the 48 designs that showed the cut-out take `ph-poke-slab`; the 94 affected
+  site designs re-rendered (`scripts/rethumb_showcase.mjs`); the AI background picker no longer
+  offers it (its ref and thumb removed).
+- Seventeen 2026 Galaxy and Pixel pictures painted (`scripts/paint_phone_pictures.mjs`) and weighed
+  first in the galaxy, pixel, foldable and android pools.
+- Spanish selling points, badges and small lines (`motion/full-points.js`, `FULL_WORDS.claim_es`,
+  `line_es`).
+- The gallery (claude.ai artifact, private) has a Tune the mix panel that stores the owner's choices.
+
+Open:
+1. **The owner's shares.** When the panel has choices (`tuning/choices` in the gallery's store), set
+   `spec/full-grounds.json` shares, `PHOTO_TREAT_SHARES` and `POINT_COUNTS` from them (More x1.5,
+   Less x0.5, Never 0, then normalise) and rebuild.
+2. **Nearly 400 other cut-outs are CC BY or CC BY-SA** (`assets/cutouts/ATTRIBUTION.json`): almost every
+   car, and Commons photographs of consoles, cameras, AirPods, coins and gold. Those licences ask for a
+   credit wherever the picture is shown, the Charizard's problem without the card art. Ways out: a
+   credit line the studio adds to an ad that draws one (small, in the footer), or replacing them with
+   the shop's own photographs, painted pictures or public-domain ones line by line. The owner's call.
+3. `photo-subjects.js` keeps the Charizard photographs' focus and subject grid under the new names; the
+   painted scenes put their slab where the photograph's was, so it holds, but `scripts/photo_subjects.py`
+   should measure them when Pillow is on this Mac. The same for `scripts/bggen_entities.py`, which would
+   also offer the new phone and card pictures to the AI background picker.
+4. The painted phones are close to each line's 2026 shape but drawn: the shop's own photographs of the
+   Galaxy and Pixel phones it buys would replace them one for one.
+
+## CA. 2026-11-23 — card copy, Spanish headlines, the goods, the grounds (DESIGN-LAW 171)
+
+(claude/full-ad-looks-layout, after `main` was merged in. The owner's review of the gallery; five read-only audits.)
+
+Done: see DESIGN-LAW 171.
+
+Open:
+1. **Real card pictures: the owner's decision.** No painted card can read as one that trades: what makes a card
+   recognisable is its maker's art. The research (2026-11-23): Commons holds no usable Pokémon card; The Pokémon
+   Company's press assets are editorial and non-commercial only and may not be passed on; stock sites sell branded cards
+   as editorial only (no ads); Topps asks permission for its card images, and a player's face in an ad needs the
+   player's consent. What shops do is photograph their own stock. Options: (a) the shop's own photos, uploaded per shop
+   (lowest risk that shows real cards; the studio supplies none); (b) the studio shoots real cards once for every shop
+   (closer to the Pokellector suit); (c) painted, made better (illustrated full-art faces, real-looking slab labels,
+   shrink-wrapped boxes) but never A.
+2. **Lines with no picture now**: speaker, laptop, smartwatch, monitor (and headset, chromebook as before) draw their
+   words alone. Free photos found: Galaxy S26 Ultra and the S26 series (CC0), Switch 2 handheld (CC0), PS5 (CC0),
+   iPhone 17 Pro / Pro Max and Pixel 10 Pro (CC BY-SA, a credit). Downloads need the owner's go-ahead.
+3. **iPhones LA's feed stills** (`tools/feed-stills/cards.json`, the 2026-11-07 batch) say HONEST BUYER, FAST CASH and
+   CASH OR ZELLE: the owner's own shop, so the one list does not hold phones to them yet.
+4. **Grounds still weak**: the road on a dark pair; the binder's pockets read as windows. More patterns per category
+   (the grounds audit's list: cracked glass and app grid for phones, keyboard keys for computers, a watch dial, coin
+   stacks and bars, toploaders, yard lines, a viewfinder) and ones that suit any line (price tags, trade-in arrows).
+5. **Motion** (the owner, 2026-11-23): grounds that move in their subject's direction, the finished ad from the first
+   frame, a hook in the first second, the cover a still of the same ad. Next.
+6. **Raised camera bumps**: a turned phone in a still still reads flat; the engine's lens plateau is the larger fix.
+7. The Pixel line has only the six painted Pixel 11s left; the vans line has no Sprinter (its flagged cut-outs need
+   their glass retouched).
 
 ## BO. 2026-11-18 — the video ads sound like a trailer, not a game (DESIGN-LAW 174)
 

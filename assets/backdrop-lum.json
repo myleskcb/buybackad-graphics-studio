@@ -231,6 +231,13 @@
   "cat": "?"
  },
  {
+  "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
+  "lum": 0.44,
+  "p90": 0.771,
+  "detail": 7.73,
+  "cat": "?"
+ },
+ {
   "src": "assets/scenes/scene-iso-mini-blush.jpg",
   "lum": 0.434,
   "p90": 0.726,
@@ -273,6 +280,13 @@
   "cat": "?"
  },
  {
+  "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
+  "lum": 0.42,
+  "p90": 0.723,
+  "detail": 7.53,
+  "cat": "?"
+ },
+ {
   "src": "assets/scenes/scene-grad-minis-lime.jpg",
   "lum": 0.419,
   "p90": 0.92,
@@ -312,13 +326,6 @@
   "lum": 0.411,
   "p90": 0.823,
   "detail": 17.59,
-  "cat": "?"
- },
- {
-  "src": "assets/bg-web/pokemon-charizard-card-2.jpg",
-  "lum": 0.41,
-  "p90": 0.761,
-  "detail": 15.47,
   "cat": "?"
  },
  {
@@ -613,13 +620,6 @@
   "lum": 0.354,
   "p90": 0.803,
   "detail": 5.44,
-  "cat": "?"
- },
- {
-  "src": "assets/bg-web/pokemon-charizard-card-1.jpg",
-  "lum": 0.353,
-  "p90": 0.642,
-  "detail": 9.21,
   "cat": "?"
  },
  {

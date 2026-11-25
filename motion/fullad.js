@@ -25,7 +25,7 @@ import { bannedIn } from "./banned-words.js";
 import { PHONE_WEIGHT, PHONE_REST, PHONE_VIEWS, PHONE_COUNTS, PHONE_LINEUP, pickWeighted } from "./product-demand.js";
 import { GROUND_SHARES, GROUND_SCENES, GROUND_GRADIENTS, GROUND_PATTERNS, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS, GROUND_PLACES, GROUND_LINE_PATTERNS } from "./full-grounds.js";
 import { FAMILY_GROUNDS, FAMILY_OF } from "./full-families.js";
-import { drawPoints, OLD_DEFAULTS } from "./full-points.js";
+import { drawPoints, OLD_DEFAULTS, kindOf } from "./full-points.js";
 import { metroOf } from "./metros.js";
 import { leanStream, leanPick, pairAnswers } from "./recipe-lean.js";
 import { CLIPS, CLIP_SHARE, clipsFor, clipStill, clipOf, clipTime, loadClipSheet, clipSheet, sheetTile, SHEET, SHEET_KIND, ClipPlayer } from "./clips.js";
@@ -672,12 +672,24 @@ export const ICONS = ["cash"];
  *  the research's verdict on TOP DOLLAR there was "replace with identity or place" (2026-11-12),
  *  and until 2026-11-18 it still stood on 33 of the 35 first full ads (OPEN-ITEMS §BI). */
 export const FULL_WORDS = {
-  claim: ["LOCAL & HONEST", "QUICK REPLIES • CASH TODAY", "LOCAL BUYER • FAIR OFFERS", "FAIR OFFER • NO PRESSURE", "HONEST BUYER • PAID TODAY"],
+  claim: ["LOCAL BUYER • FAIR OFFERS", "QUICK REPLIES • CASH TODAY", "FAIR OFFER • NO PRESSURE", "LOCAL BUYER • PAID TODAY", "AN OFFER • YOU DECIDE"],
   line: ["ALL MODELS WANTED", "NEW, USED OR CRACKED", "ANY CARRIER • CRACKED OK"],
   points: ["FREE QUOTE, CASH SAME DAY, NO FEES", "QUOTE BY TEXT, PAID TODAY, WE MEET YOU", "TEXT US NOW, FAIR OFFER, NO HASSLE"],
   label: ["CALL OR TEXT", "TEXT US NOW", "GET YOUR OFFER"],
-  burst: ["CASH!", "FAST CASH", "NO FEES", "PAID TODAY", "SAME DAY", "EASY SALE"],
-  burst_es: ["PAGO HOY", "PAGO YA", "FÁCIL"],
+  // no PAID TODAY or SAME DAY: beside a point that says the day the same promise stood twice, and SAME DAY alone is a fragment
+  burst: ["CASH!", "NO FEES", "EASY SALE", "CASH PAID"],
+  burst_es: ["PAGO HOY", "SIN PRISA", "TRATO JUSTO"],
+  // a Spanish ad's badge and small line in Spanish too (2026-11-23: they were drawn from the English lists)
+  claim_es: ["SOMOS DE AQUÍ", "RESPUESTA RÁPIDA • PAGO HOY", "COMPRADOR LOCAL • OFERTA JUSTA", "OFERTA JUSTA • SIN PRESIÓN", "SIN COMPROMISO • PAGO HOY"],
+  line_es: ["TODOS LOS MODELOS", "NUEVO, USADO O ROTO", "CUALQUIER COMPAÑÍA • ROTOS OK"],
+  /* a card ad's badge and sticker (2026-11-23, the owner: card ads were "screaming scalper"): a collector hears speed and
+     "cash" as a low offer, so the card lines say who buys and that the seller decides. No HONEST anywhere (rule 80: a
+     reputation nobody gave), no FAST CASH (a payday lender's words). */
+  claim_cards: ["LOCAL CARD BUYER", "LOCAL CARD BUYER • NO PRESSURE", "BUYING COLLECTIONS • ANY ERA", "FAIR OFFER • NO PRESSURE", "AN OFFER • YOU DECIDE"],
+  claim_cards_es: ["COMPRADOR LOCAL", "COMPRAMOS COLECCIONES", "COMPRADOR LOCAL • SIN PRESIÓN", "OFERTA JUSTA • SIN COMPROMISO", "UNA OFERTA Y TÚ DECIDES"],
+  // a sticker breaks on its spaces, so its longest word sets its size: five letters or so, as the lists above
+  burst_cards: ["NO RUSH", "YOUR CALL", "ANY ERA", "FAIR OFFER", "LOCAL BUYER"],
+  burst_cards_es: ["SIN PRISA", "TRATO JUSTO"],
 };
 
 /* ONE PROMISE, ONCE. The review of 2026-11-12 found the same promise three times on one square:
@@ -2369,21 +2381,24 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   // repeat a promise the lines before it already make (the customer's own words are never changed:
   // fullWords() says where they repeat). The order is the order they are read in.
   const fresh = (list, said) => { const start = Math.floor(r() * list.length); for (let i = 0; i < list.length; i++) { const w = list[(start + i) % list.length]; if (!said.some(x => sharesWord(w, x))) return w; } return list[start]; };
-  const label = st.number_label || (es ? "LLAMA O MANDA TEXTO" : FULL_WORDS.label[0]);
+  const label = st.number_label || (es ? "LLAMA O ESCRÍBENOS" : FULL_WORDS.label[0]);
   // a look's small line that says what the call to action says (a video look's tag CALL OR TEXT over its CALL OR
   // TEXT, rule 158) gives way to one from the list: the ad never says one thing twice
-  const line = st.feed_line ?? (st.tag && !sharesWord(st.tag, label) ? st.tag : st.tag ? fresh(FULL_WORDS.line, [st.headline, label]) : one(FULL_WORDS.line));
+  const LINES = es ? FULL_WORDS.line_es : FULL_WORDS.line;
+  const line = st.feed_line ?? (st.tag && !sharesWord(st.tag, label) ? st.tag : st.tag ? fresh(LINES, [st.headline, label]) : one(LINES));
   /* the selling points (rule 164, motion/full-points.js): typed ones as typed; otherwise two to four drawn by the seed from
-     the line's own promises and any buyer's, each in one of its phrasings (a line's old fixed list counts as untyped) */
+     the line's own promises and any buyer's, each in one of its phrasings, in the ad's language (a line's old fixed list
+     counts as untyped) */
   const typedPoints = st.points != null && !OLD_DEFAULTS.has(String(st.points).trim().toUpperCase());
-  const points = typedPoints ? st.points : es ? (pointsOf({ ...st, points: null }).join(", ") || fresh(FULL_WORDS.points, [st.headline, line]))
-    : (drawPoints(st.subject, r, [st.headline, line], sharesWord) || fresh(FULL_WORDS.points, [st.headline, line]));
+  const points = typedPoints ? st.points
+    : (drawPoints(st.subject, r, [st.headline, line], sharesWord, es ? "es" : "en") || (es ? pointsOf({ ...st, points: null }).join(", ") : "") || fresh(FULL_WORDS.points, [st.headline, line]));
   // who is buying: a business name, where one is given, takes the badge (the first thing read). An ad
   // with no name on it is the pattern of the buyers nobody trusts (competitor research, 2026-11-12:
   // the brand is what carries the eye to the rest of an ad; "top dollar" is on every sign in the trade)
   const biz = String(st.biz || "").trim();
-  const claim = st.feed_claim ?? (biz ? biz.toUpperCase() : fresh(FULL_WORDS.claim, [st.headline, line, points]));
-  const burst = st.feed_burst ?? fresh(es ? FULL_WORDS.burst_es : FULL_WORDS.burst, [st.headline, line, points, claim, label]);
+  const cards = kindOf(st.subject) === "cards", W_ = k => FULL_WORDS[k + (cards ? "_cards" : "") + (es ? "_es" : "")] || FULL_WORDS[k + (es ? "_es" : "")];
+  const claim = st.feed_claim ?? (biz ? biz.toUpperCase() : fresh(W_("claim"), [st.headline, line, points]));
+  const burst = st.feed_burst ?? fresh(W_("burst"), [st.headline, line, points, claim, label]);
   const words = {
     feed_claim: claim, feed_line: line, points, points_drawn: !typedPoints, number_label: label,   // drawn points may be fewer where they do not fit; typed ones never quietly
     feed_where: st.feed_where ?? (area ? area.toUpperCase() : ""),
@@ -2445,7 +2460,8 @@ export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cu
   // (subjectDraw). Given the seed (opts.seed), only the entry it draws is loaded (poolEntryFor): a
   // pool 3-5x the size it was (2026-11-18) is pictures nobody sees. Without a seed the whole pool
   // is loaded, as the checks want it. A set picked with Picture is that set alone.
-  const auto = !(setIndex | 0) && pool.length > 0;
+  // a set picked before its pictures were barred (scripts/build_full_subjects.mjs, 2026-11-23) leaves no set to show: the pool
+  const auto = pool.length > 0 && (!(setIndex | 0) || !sets.length);
   if (!sets.length && !auto) return { ids: [], assets: {} };
   const one = auto && Number.isFinite(+opts.seed) && opts.seed !== null && opts.seed !== undefined ? poolEntryFor(pool, +opts.seed) : -1;
   const set = auto ? (one >= 0 ? pool[one].set : pool.flatMap(e => e.set)) : sets[((setIndex % sets.length) + sets.length) % sets.length], assets = {}, ids = [];

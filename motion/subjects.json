@@ -19,6 +19,11 @@
     "CASH FOR iPHONES",
     "SELL YOUR iPHONE"
    ],
+   "heads_es": [
+    "COMPRAMOS iPHONES",
+    "VENDE TU iPHONE"
+   ],
+   "models_es": "iPhone 11 y más nuevos, todos los tamaños",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
@@ -71,63 +76,25 @@
     "CASH FOR iPADS",
     "SELL YOUR iPAD"
    ],
+   "heads_es": [
+    "COMPRAMOS iPADS",
+    "VENDE TU iPAD"
+   ],
+   "models_es": "iPad, iPad mini, iPad Air y iPad Pro",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
      {
-      "file": "ipad-front-screen-off",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "ipad-pair-sizes",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "ipad-back-camera",
+      "file": "qs-ipad-pro-13-m5--silver",
       "k": 1
      },
      {
-      "file": "ipad-front-screen-off",
+      "file": "qs-ipad-pro-13-m5--space-black",
       "k": 0.92
      }
     ]
    ],
    "pool": [
-    {
-     "set": [
-      {
-       "file": "ipad-front-screen-off",
-       "k": 1
-      }
-     ],
-     "w": 3
-    },
-    {
-     "set": [
-      {
-       "file": "ipad-pair-sizes",
-       "k": 1
-      }
-     ],
-     "w": 3
-    },
-    {
-     "set": [
-      {
-       "file": "ipad-back-camera",
-       "k": 1
-      },
-      {
-       "file": "ipad-front-screen-off",
-       "k": 0.92
-      }
-     ],
-     "w": 3
-    },
     {
      "set": [
       {
@@ -485,24 +452,21 @@
     "CASH FOR MACBOOKS",
     "SELL YOUR MACBOOK"
    ],
+   "heads_es": [
+    "COMPRAMOS MACBOOKS",
+    "VENDE TU MACBOOK"
+   ],
+   "models_es": "MacBook Air y MacBook Pro, M1 o más nuevas",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
      {
-      "file": "mac-pro-open-front",
+      "file": "qs-macbook-pro-16-m5--silver",
       "k": 1
-     }
-    ],
-    [
+     },
      {
-      "file": "macbook-open-angle",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "mac-half-open-glow",
-      "k": 1
+      "file": "qs-macbook-pro-16-m5--space-black",
+      "k": 0.92
      }
     ]
    ],
@@ -992,6 +956,11 @@
     "CASH FOR MACS",
     "SELL YOUR MAC"
    ],
+   "heads_es": [
+    "COMPRAMOS MACS",
+    "VENDE TU MAC"
+   ],
+   "models_es": "iMac, Mac mini y Mac Studio, M1 o más nuevas",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
@@ -1324,36 +1293,21 @@
    "label": "Androids (all brands)",
    "models": "Samsung, Pixel, Motorola, OnePlus and more",
    "heads": [
-    "WE BUY ANDROIDS",
-    "CASH FOR ANDROIDS",
+    "WE BUY ANDROID PHONES",
+    "CASH FOR ANDROID PHONES",
     "SELL YOUR ANDROID"
    ],
+   "heads_es": [
+    "COMPRAMOS CELULARES ANDROID",
+    "VENDE TU ANDROID"
+   ],
+   "models_es": "Samsung, Pixel, Motorola, OnePlus y más",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
      {
-      "file": "sam-s24-ultra-back",
+      "file": "sam-s26-ultra-back-violet",
       "k": 1
-     },
-     {
-      "file": "pix-9-back-obsidian",
-      "k": 0.92
-     }
-    ],
-    [
-     {
-      "file": "android-trio",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "sam-fold-half",
-      "k": 1
-     },
-     {
-      "file": "pix-9-back-green",
-      "k": 0.9
      }
     ]
    ],
@@ -1361,37 +1315,20 @@
     {
      "set": [
       {
-       "file": "sam-s24-ultra-back",
+       "file": "sam-s26-ultra-back-violet",
        "k": 1
-      },
-      {
-       "file": "pix-9-back-obsidian",
-       "k": 0.92
       }
      ],
-     "w": 3
+     "w": 11
     },
     {
      "set": [
       {
-       "file": "android-trio",
+       "file": "pix-11-pro-back-moonstone",
        "k": 1
       }
      ],
-     "w": 7
-    },
-    {
-     "set": [
-      {
-       "file": "sam-fold-half",
-       "k": 1
-      },
-      {
-       "file": "pix-9-back-green",
-       "k": 0.9
-      }
-     ],
-     "w": 3
+     "w": 10
     },
     {
      "set": [
@@ -1405,11 +1342,20 @@
     {
      "set": [
       {
-       "file": "pix-9-back-obsidian",
+       "file": "sam-s26-back-skyblue",
        "k": 1
       }
      ],
-     "w": 9
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "sam-fold8-open",
+       "k": 1
+      }
+     ],
+     "w": 7
     },
     {
      "set": [
@@ -1423,11 +1369,20 @@
     {
      "set": [
       {
-       "file": "pix-9-back-green",
+       "file": "pix-11-back-lime",
        "k": 1
       }
      ],
-     "w": 7
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "sam-flip8-closed-ice",
+       "k": 1
+      }
+     ],
+     "w": 6
     },
     {
      "set": [
@@ -1468,43 +1423,52 @@
     {
      "set": [
       {
-       "file": "pix-9-front",
-       "k": 1
-      }
-     ],
-     "w": 4
-    },
-    {
-     "set": [
-      {
-       "file": "pix-trio-lineup",
-       "k": 1
-      }
-     ],
-     "w": 4
-    },
-    {
-     "set": [
-      {
-       "file": "sam-s23-back-green",
-       "k": 1
-      }
-     ],
-     "w": 3
-    },
-    {
-     "set": [
-      {
-       "file": "android-pair",
-       "k": 1
-      }
-     ],
-     "w": 3
-    },
-    {
-     "set": [
-      {
        "file": "pix-tablet-back",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "pix-11-back-indigo",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "pix-11-pro-back-obsidian",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "pix-11-pro-back-porcelain",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "pix-11-pro-front",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "pix-fold-pro-open",
        "k": 1
       }
      ],
@@ -1522,7 +1486,43 @@
     {
      "set": [
       {
+       "file": "sam-flip8-open-violet",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
        "file": "sam-fold-half",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "sam-fold8-closed-back",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s26-back-navy",
+       "k": 1
+      }
+     ],
+     "w": 2
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s26-back-pink",
        "k": 1
       }
      ],
@@ -1541,27 +1541,16 @@
     "CASH FOR PIXEL PHONES",
     "SELL YOUR PIXEL"
    ],
+   "heads_es": [
+    "COMPRAMOS CELULARES PIXEL",
+    "VENDE TU PIXEL"
+   ],
+   "models_es": "Pixel 7 o más nuevos, Pro también",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
      {
-      "file": "pix-9-back-green",
-      "k": 1
-     },
-     {
-      "file": "pix-9-back-obsidian",
-      "k": 0.92
-     }
-    ],
-    [
-     {
-      "file": "pix-trio-lineup",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "pix-9-back-green",
+      "file": "pix-11-pro-back-moonstone",
       "k": 1
      }
     ]
@@ -1570,29 +1559,7 @@
     {
      "set": [
       {
-       "file": "pix-9-back-green",
-       "k": 1
-      },
-      {
-       "file": "pix-9-back-obsidian",
-       "k": 0.92
-      }
-     ],
-     "w": 4
-    },
-    {
-     "set": [
-      {
-       "file": "pix-trio-lineup",
-       "k": 1
-      }
-     ],
-     "w": 10
-    },
-    {
-     "set": [
-      {
-       "file": "pix-9-back-green",
+       "file": "pix-11-pro-back-moonstone",
        "k": 1
       }
      ],
@@ -1601,7 +1568,7 @@
     {
      "set": [
       {
-       "file": "pix-9-back-obsidian",
+       "file": "pix-11-pro-back-obsidian",
        "k": 1
       }
      ],
@@ -1610,7 +1577,34 @@
     {
      "set": [
       {
-       "file": "pix-9-front",
+       "file": "pix-11-back-indigo",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "pix-11-pro-back-porcelain",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "pix-11-back-lime",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "pix-11-pro-front",
        "k": 1
       }
      ],
@@ -1629,6 +1623,11 @@
     "CASH FOR SAMSUNG PHONES",
     "SELL YOUR SAMSUNG"
    ],
+   "heads_es": [
+    "COMPRAMOS CELULARES SAMSUNG",
+    "VENDE TU SAMSUNG"
+   ],
+   "models_es": "Galaxy S21 o más nuevos, Ultra también",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
@@ -1697,6 +1696,33 @@
     {
      "set": [
       {
+       "file": "sam-s26-ultra-back-violet",
+       "k": 1
+      }
+     ],
+     "w": 12
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s26-ultra-back-titanium",
+       "k": 1
+      }
+     ],
+     "w": 11
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s26-back-skyblue",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
        "file": "sam-s24-ultra-front",
        "k": 1
       }
@@ -1706,7 +1732,25 @@
     {
      "set": [
       {
-       "file": "sam-s24-back-violet",
+       "file": "sam-s26-ultra-front",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s26-back-pink",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "sam-s26-back-navy",
        "k": 1
       }
      ],
@@ -1715,11 +1759,11 @@
     {
      "set": [
       {
-       "file": "sam-s23-back-green",
+       "file": "sam-s24-back-violet",
        "k": 1
       }
      ],
-     "w": 4
+     "w": 6
     },
     {
      "set": [
@@ -1743,6 +1787,11 @@
     "CASH FOR FOLDABLES",
     "SELL YOUR FOLD OR FLIP"
    ],
+   "heads_es": [
+    "COMPRAMOS PLEGABLES",
+    "VENDE TU FOLD O FLIP"
+   ],
+   "models_es": "iPhone Duo, Galaxy Z Fold y Flip, Pixel Fold",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
@@ -1812,11 +1861,56 @@
     {
      "set": [
       {
+       "file": "sam-fold8-open",
+       "k": 1
+      }
+     ],
+     "w": 12
+    },
+    {
+     "set": [
+      {
+       "file": "sam-flip8-closed-ice",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "sam-fold8-closed-back",
+       "k": 1
+      }
+     ],
+     "w": 9
+    },
+    {
+     "set": [
+      {
+       "file": "sam-flip8-open-violet",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
        "file": "sam-fold-half",
        "k": 1
       }
      ],
      "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "pix-fold-pro-open",
+       "k": 1
+      }
+     ],
+     "w": 7
     },
     {
      "set": [
@@ -1858,11 +1952,16 @@
     "CASH FOR CONSOLES",
     "SELL YOUR CONSOLE"
    ],
+   "heads_es": [
+    "COMPRAMOS CONSOLAS",
+    "VENDE TU CONSOLA"
+   ],
+   "models_es": "PS5, Xbox, Switch y controles",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
      {
-      "file": "game-console-pair",
+      "file": "photo-gaming-ps5-white",
       "k": 1
      }
     ]
@@ -1953,6 +2052,11 @@
     "CASH FOR GAMING COMPUTERS",
     "SELL YOUR GAMING PC"
    ],
+   "heads_es": [
+    "COMPRAMOS PCS GAMER",
+    "VENDE TU PC GAMER"
+   ],
+   "models_es": "De escritorio y laptops, RTX serie 30 o más nuevas",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
@@ -1985,6 +2089,11 @@
     "CASH FOR GAMING HANDHELDS",
     "SELL YOUR HANDHELD"
    ],
+   "heads_es": [
+    "COMPRAMOS CONSOLAS PORTÁTILES",
+    "VENDE TU PORTÁTIL"
+   ],
+   "models_es": "Steam Deck, ROG Ally, Legion Go y Switch",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
@@ -2053,11 +2162,16 @@
     "CASH FOR HEADPHONES",
     "SELL YOUR HEADPHONES"
    ],
+   "heads_es": [
+    "COMPRAMOS AUDÍFONOS",
+    "VENDE TUS AUDÍFONOS"
+   ],
+   "models_es": "Bose, Sony, Sennheiser, Beats y AirPods Max",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
      {
-      "file": "buds-overear-headphones",
+      "file": "photo-audio-airpods-max-front",
       "k": 1
      }
     ]
@@ -2130,23 +2244,16 @@
     "CASH FOR EARBUDS",
     "SELL YOUR EARBUDS"
    ],
+   "heads_es": [
+    "COMPRAMOS AIRPODS Y MÁS",
+    "VENDE TUS AUDÍFONOS"
+   ],
+   "models_es": "AirPods Pro, Galaxy Buds y Pixel Buds",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
      {
-      "file": "airpods-case-open",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "buds-pair-loose",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "pix-buds-case",
+      "file": "photo-audio-airpods-pro",
       "k": 1
      }
     ]
@@ -2165,15 +2272,6 @@
      "set": [
       {
        "file": "photo-audio-airpods-pro-buds",
-       "k": 1
-      }
-     ],
-     "w": 6
-    },
-    {
-     "set": [
-      {
-       "file": "photo-audio-airpods",
        "k": 1
       }
      ],
@@ -2210,6 +2308,11 @@
     "CASH FOR GAMING HEADSETS",
     "SELL YOUR HEADSET"
    ],
+   "heads_es": [
+    "COMPRAMOS AUDÍFONOS GAMER",
+    "VENDE TU HEADSET"
+   ],
+   "models_es": "Astro A50 X, Turtle Beach Stealth, SteelSeries Arctis",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [],
    "pool": []
@@ -2225,15 +2328,13 @@
     "CASH FOR SPEAKERS",
     "SELL YOUR SPEAKER"
    ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "speaker-portable",
-      "k": 1
-     }
-    ]
+   "heads_es": [
+    "COMPRAMOS BOCINAS",
+    "VENDE TU BOCINA"
    ],
+   "models_es": "Bocinas Bluetooth portátiles",
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [],
    "pool": []
   },
   {
@@ -2247,21 +2348,13 @@
     "CASH FOR MONITORS",
     "SELL YOUR MONITOR"
    ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "smart-tv-stand",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "tv-flatscreen",
-      "k": 1
-     }
-    ]
+   "heads_es": [
+    "COMPRAMOS MONITORES",
+    "VENDE TU MONITOR"
    ],
+   "models_es": "Monitores gamer y de oficina, de 24 pulgadas o más",
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [],
    "pool": []
   },
   {
@@ -2275,15 +2368,13 @@
     "CASH FOR LAPTOPS",
     "SELL YOUR LAPTOP"
    ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "laptop-windows-open",
-      "k": 1
-     }
-    ]
+   "heads_es": [
+    "COMPRAMOS LAPTOPS",
+    "VENDE TU LAPTOP"
    ],
+   "models_es": "Laptops Windows, modelos recientes",
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [],
    "pool": []
   },
   {
@@ -2291,12 +2382,17 @@
    "cat": "computers",
    "group": "Computers",
    "label": "SSDs",
-   "models": "NVMe and SATA, 1TB and up, sealed or used",
+   "models": "NVMe and SATA, 1TB and up, new in the box",
    "heads": [
     "WE BUY SEALED SSDS",
     "CASH FOR SEALED SSDS",
     "SELL YOUR SEALED SSDS"
    ],
+   "heads_es": [
+    "COMPRAMOS SSD SELLADOS",
+    "VENDE TUS SSD SELLADOS"
+   ],
+   "models_es": "NVMe y SATA, de 1TB o más, nuevos en su caja",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
@@ -2344,6 +2440,11 @@
     "CASH FOR MINI PCS",
     "SELL YOUR MINI PC"
    ],
+   "heads_es": [
+    "COMPRAMOS MINI PCS",
+    "VENDE TU MINI PC"
+   ],
+   "models_es": "Mac mini, Intel NUC, Beelink y Minisforum",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
@@ -2385,12 +2486,17 @@
    "cat": "computers",
    "group": "Computers",
    "label": "Chromebooks, sealed",
-   "models": "Sealed Chromebooks, new in the box",
+   "models": "Any brand, new in the box",
    "heads": [
     "WE BUY SEALED CHROMEBOOKS",
     "CASH FOR SEALED CHROMEBOOKS",
     "SELL YOUR SEALED CHROMEBOOK"
    ],
+   "heads_es": [
+    "COMPRAMOS CHROMEBOOKS SELLADAS",
+    "VENDE TU CHROMEBOOK SELLADA"
+   ],
+   "models_es": "De cualquier marca, nuevas en su caja",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [],
    "pool": []
@@ -2406,23 +2512,16 @@
     "CASH FOR APPLE WATCHES",
     "SELL YOUR APPLE WATCH"
    ],
+   "heads_es": [
+    "COMPRAMOS APPLE WATCH",
+    "VENDE TU APPLE WATCH"
+   ],
+   "models_es": "Apple Watch Series, SE y Ultra",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
      {
-      "file": "watch-pair-bands",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "watch-single-angle",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "apple-watch-stack-three",
+      "file": "qs-watch-ultra4",
       "k": 1
      }
     ]
@@ -2784,15 +2883,13 @@
     "CASH FOR SMARTWATCHES",
     "SELL YOUR SMARTWATCH"
    ],
-   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
-   "sets": [
-    [
-     {
-      "file": "sam-watch-pair",
-      "k": 1
-     }
-    ]
+   "heads_es": [
+    "COMPRAMOS RELOJES INTELIGENTES",
+    "VENDE TU SMARTWATCH"
    ],
+   "models_es": "Galaxy Watch, Pixel Watch y más",
+   "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
+   "sets": [],
    "pool": []
   },
   {
@@ -2806,6 +2903,11 @@
     "CASH FOR META GLASSES",
     "SELL YOUR META GLASSES"
    ],
+   "heads_es": [
+    "COMPRAMOS LENTES META",
+    "VENDE TUS LENTES META"
+   ],
+   "models_es": "Lentes Ray-Ban Meta y Oakley Meta",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
@@ -2838,26 +2940,13 @@
     "CASH FOR GOLD",
     "SELL YOUR GOLD"
    ],
+   "heads_es": [
+    "COMPRAMOS ORO",
+    "VENDE TU ORO"
+   ],
+   "models_es": "Anillos, cadenas, monedas y oro quebrado",
    "points": "TESTED FREE, PAID TODAY, NO FEES",
    "sets": [
-    [
-     {
-      "file": "gold-jewelry-mixed",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "gold-coins-pile",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "gold-scrap-mixed",
-      "k": 1
-     }
-    ],
     [
      {
       "file": "gold-necklace-single",
@@ -2914,15 +3003,6 @@
     {
      "set": [
       {
-       "file": "photo-gold-bracelet-flat",
-       "k": 1
-      }
-     ],
-     "w": 8
-    },
-    {
-     "set": [
-      {
        "file": "gold-bracelet-cuban",
        "k": 1
       }
@@ -2932,7 +3012,7 @@
     {
      "set": [
       {
-       "file": "gold-jewelry",
+       "file": "photo-gold-buffalo-2013",
        "k": 1
       }
      ],
@@ -2941,25 +3021,43 @@
     {
      "set": [
       {
-       "file": "gold-rings-scatter",
+       "file": "photo-gold-buffalo-proof",
        "k": 1
       }
      ],
-     "w": 6
+     "w": 7
     },
     {
      "set": [
       {
-       "file": "gold-watch-luxury",
+       "file": "photo-gold-eagle-proof",
        "k": 1
       }
      ],
-     "w": 6
+     "w": 7
     },
     {
      "set": [
       {
        "file": "photo-gold-double-eagle-1907",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-gold-krugerrand-obverse",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-gold-eagle-obverse",
        "k": 1
       }
      ],
@@ -2982,24 +3080,6 @@
       }
      ],
      "w": 4
-    },
-    {
-     "set": [
-      {
-       "file": "gold-teeth-dental",
-       "k": 1
-      }
-     ],
-     "w": 3
-    },
-    {
-     "set": [
-      {
-       "file": "gold-scale-weighing",
-       "k": 1
-      }
-     ],
-     "w": 2
     },
     {
      "set": [
@@ -3040,24 +3120,6 @@
     {
      "set": [
       {
-       "file": "photo-gold-buffalo-2013",
-       "k": 1
-      }
-     ],
-     "w": 2
-    },
-    {
-     "set": [
-      {
-       "file": "photo-gold-buffalo-proof",
-       "k": 1
-      }
-     ],
-     "w": 2
-    },
-    {
-     "set": [
-      {
        "file": "photo-gold-buffalo-proof-reverse",
        "k": 1
       }
@@ -3068,24 +3130,6 @@
      "set": [
       {
        "file": "photo-gold-cuba-5-pesos-1915",
-       "k": 1
-      }
-     ],
-     "w": 2
-    },
-    {
-     "set": [
-      {
-       "file": "photo-gold-eagle-proof",
-       "k": 1
-      }
-     ],
-     "w": 2
-    },
-    {
-     "set": [
-      {
-       "file": "photo-gold-krugerrand-obverse",
        "k": 1
       }
      ],
@@ -3149,29 +3193,16 @@
     "CASH FOR SILVER",
     "SELL YOUR SILVER"
    ],
+   "heads_es": [
+    "COMPRAMOS PLATA",
+    "VENDE TU PLATA"
+   ],
+   "models_es": "Monedas, barras, cubiertos y joyas",
    "points": "TESTED FREE, PAID TODAY, NO FEES",
    "sets": [
     [
      {
       "file": "silver-flatware-set",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "silver-candlesticks",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "silver-coins-spill",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "silver-jewelry-mixed",
       "k": 1
      }
     ]
@@ -3185,15 +3216,6 @@
       }
      ],
      "w": 9
-    },
-    {
-     "set": [
-      {
-       "file": "silver-candlesticks",
-       "k": 1
-      }
-     ],
-     "w": 7
     },
     {
      "set": [
@@ -3268,32 +3290,20 @@
    "models": "Old coins, silver dollars and collections",
    "heads": [
     "WE BUY COINS",
-    "CASH FOR COINS",
+    "WE BUY COIN COLLECTIONS",
     "SELL YOUR COINS"
    ],
+   "heads_es": [
+    "COMPRAMOS MONEDAS",
+    "COMPRAMOS COLECCIONES DE MONEDAS",
+    "VENDE TUS MONEDAS"
+   ],
+   "models_es": "Monedas antiguas, dólares de plata y colecciones",
    "points": "FREE QUOTE, PAID TODAY, NO FEES",
    "sets": [
     [
      {
-      "file": "coin-graded-fan-three",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "coin-slabs-stack",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "coin-silver-dollar-pair",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "coin-loose-pile",
+      "file": "photo-coin-gold-eagle-obverse",
       "k": 1
      }
     ]
@@ -3320,7 +3330,52 @@
     {
      "set": [
       {
+       "file": "photo-coin-morgan-dollar",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-ngc-slabs-pair",
+       "k": 1
+      }
+     ],
+     "w": 8
+    },
+    {
+     "set": [
+      {
        "file": "photo-coin-album",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-pcgs-morgan",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-saint-gaudens-pair",
+       "k": 1
+      }
+     ],
+     "w": 7
+    },
+    {
+     "set": [
+      {
+       "file": "photo-coin-walking-liberty-trio",
        "k": 1
       }
      ],
@@ -3356,6 +3411,15 @@
     {
      "set": [
       {
+       "file": "photo-coin-pcgs-gold-dollar",
+       "k": 1
+      }
+     ],
+     "w": 6
+    },
+    {
+     "set": [
+      {
        "file": "photo-coin-indian-cent-pair",
        "k": 1
       }
@@ -3374,20 +3438,20 @@
     {
      "set": [
       {
-       "file": "coin-single-large",
+       "file": "photo-coin-mercury-dime",
        "k": 1
       }
      ],
-     "w": 2
+     "w": 5
     },
     {
      "set": [
       {
-       "file": "photo-coin-bridgeport-half-1936",
+       "file": "photo-coin-proof-set-1995-silver",
        "k": 1
       }
      ],
-     "w": 2
+     "w": 5
     },
     {
      "set": [
@@ -3410,24 +3474,6 @@
     {
      "set": [
       {
-       "file": "photo-coin-capped-bust-half-1835-reverse",
-       "k": 1
-      }
-     ],
-     "w": 2
-    },
-    {
-     "set": [
-      {
-       "file": "photo-coin-capped-bust-half-1836-reverse",
-       "k": 1
-      }
-     ],
-     "w": 2
-    },
-    {
-     "set": [
-      {
        "file": "photo-coin-draped-bust-dollar-1795",
        "k": 1
       }
@@ -3438,15 +3484,6 @@
      "set": [
       {
        "file": "photo-coin-draped-bust-dollar-1798",
-       "k": 1
-      }
-     ],
-     "w": 2
-    },
-    {
-     "set": [
-      {
-       "file": "photo-coin-flying-eagle-cent-1856-reverse",
        "k": 1
       }
      ],
@@ -3482,34 +3519,7 @@
     {
      "set": [
       {
-       "file": "photo-coin-ike-dollar-1971",
-       "k": 1
-      }
-     ],
-     "w": 2
-    },
-    {
-     "set": [
-      {
-       "file": "photo-coin-ike-dollar-bicentennial",
-       "k": 1
-      }
-     ],
-     "w": 2
-    },
-    {
-     "set": [
-      {
        "file": "photo-coin-indian-cent-1860",
-       "k": 1
-      }
-     ],
-     "w": 2
-    },
-    {
-     "set": [
-      {
-       "file": "photo-coin-indian-eagle-1907",
        "k": 1
       }
      ],
@@ -3522,12 +3532,17 @@
    "cat": "cars",
    "group": "Cars",
    "label": "Cars and trucks",
-   "models": "Cars, trucks and SUVs, running or not",
+   "models": "Cars, trucks and SUVs of every make",
    "heads": [
     "WE BUY CARS & TRUCKS",
     "CASH FOR CARS & TRUCKS",
     "SELL YOUR CAR"
    ],
+   "heads_es": [
+    "COMPRAMOS CARROS Y CAMIONETAS",
+    "VENDE TU CARRO"
+   ],
+   "models_es": "Carros, camionetas y SUVs de toda marca",
    "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
    "sets": [
     [
@@ -3980,12 +3995,17 @@
    "cat": "cars",
    "group": "Cars",
    "label": "Classic cars",
-   "models": "Classic and vintage cars, running or restored",
+   "models": "Classic and vintage cars, project or restored",
    "heads": [
     "WE BUY CLASSIC CARS",
     "CASH FOR CLASSIC CARS",
     "SELL YOUR CLASSIC CAR"
    ],
+   "heads_es": [
+    "COMPRAMOS CARROS CLÁSICOS",
+    "VENDE TU CLÁSICO"
+   ],
+   "models_es": "Clásicos y antiguos, de proyecto o restaurados",
    "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
    "sets": [
     [
@@ -4210,6 +4230,11 @@
     "CASH FOR JDM CARS",
     "SELL YOUR JDM CAR"
    ],
+   "heads_es": [
+    "COMPRAMOS CARROS JDM",
+    "VENDE TU JDM"
+   ],
+   "models_es": "Supra, GT-R, Type R, GR86, S2000 y más",
    "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
    "sets": [
     [
@@ -4407,6 +4432,11 @@
     "CASH FOR TRUCKS",
     "SELL YOUR TRUCK"
    ],
+   "heads_es": [
+    "COMPRAMOS CAMIONETAS",
+    "VENDE TU CAMIONETA"
+   ],
+   "models_es": "F-150, Silverado, Ram, Tacoma, Tundra y más",
    "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
    "sets": [
     [
@@ -4688,6 +4718,11 @@
     "CASH FOR TOYOTAS",
     "SELL YOUR TOYOTA"
    ],
+   "heads_es": [
+    "COMPRAMOS TOYOTAS",
+    "VENDE TU TOYOTA"
+   ],
+   "models_es": "Camry, Corolla, RAV4, Tacoma, Tundra, Highlander",
    "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
    "sets": [
     [
@@ -5011,6 +5046,11 @@
     "CASH FOR HONDAS",
     "SELL YOUR HONDA"
    ],
+   "heads_es": [
+    "COMPRAMOS HONDAS",
+    "VENDE TU HONDA"
+   ],
+   "models_es": "Civic, Accord, CR-V, HR-V y más",
    "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
    "sets": [
     [
@@ -5187,6 +5227,11 @@
     "CASH FOR BMWS",
     "SELL YOUR BMW"
    ],
+   "heads_es": [
+    "COMPRAMOS BMW",
+    "VENDE TU BMW"
+   ],
+   "models_es": "Serie 3, Serie 5, X3, X5 y los M",
    "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
    "sets": [
     [
@@ -5327,6 +5372,11 @@
     "CASH FOR MERCEDES & AMG",
     "SELL YOUR MERCEDES"
    ],
+   "heads_es": [
+    "COMPRAMOS MERCEDES Y AMG",
+    "VENDE TU MERCEDES"
+   ],
+   "models_es": "Clase C, GLC, Clase G, AMG y más",
    "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
    "sets": [
     [
@@ -5473,6 +5523,11 @@
     "CASH FOR WORK VANS",
     "SELL YOUR WORK VAN"
    ],
+   "heads_es": [
+    "COMPRAMOS VANS DE TRABAJO",
+    "VENDE TU VAN"
+   ],
+   "models_es": "Sprinter, Transit, ProMaster y vans de carga",
    "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
    "sets": [
     [
@@ -5484,12 +5539,6 @@
     [
      {
       "file": "car-ram-promaster-grey",
-      "k": 1
-     }
-    ],
-    [
-     {
-      "file": "car-ldv-maxus-van-white",
       "k": 1
      }
     ]
@@ -5508,15 +5557,6 @@
      "set": [
       {
        "file": "car-ram-promaster-grey",
-       "k": 1
-      }
-     ],
-     "w": 7.8
-    },
-    {
-     "set": [
-      {
-       "file": "car-ldv-maxus-van-white",
        "k": 1
       }
      ],
@@ -5562,6 +5602,11 @@
     "CASH FOR SEMI TRUCKS",
     "SELL YOUR SEMI TRUCK"
    ],
+   "heads_es": [
+    "COMPRAMOS TRÁILERS",
+    "VENDE TU TRÁILER"
+   ],
+   "models_es": "Freightliner, Peterbilt, Kenworth y más",
    "points": "FREE QUOTE, PAID ON THE SPOT, WE COME TO YOU",
    "sets": [
     [
@@ -5609,6 +5654,11 @@
     "CASH FOR TEST STRIPS",
     "SELL YOUR TEST STRIPS"
    ],
+   "heads_es": [
+    "COMPRAMOS TIRAS REACTIVAS",
+    "VENDE TUS TIRAS REACTIVAS"
+   ],
+   "models_es": "Cajas de tiras reactivas selladas y sin vencer",
    "points": "SEALED BOXES, PAID TODAY, NO FEES",
    "sets": [
     [
@@ -5635,17 +5685,47 @@
    "cat": "pokemon",
    "group": "Cards",
    "label": "Pokémon cards",
-   "models": "Singles, slabs, binders and sealed boxes",
+   "models": "Singles, binders and graded cards",
    "heads": [
     "WE BUY POKÉMON CARDS",
-    "CASH FOR POKÉMON CARDS",
-    "SELL YOUR POKÉMON CARDS"
+    "SELL YOUR POKÉMON CARDS",
+    "BUYING POKÉMON COLLECTIONS"
    ],
+   "heads_es": [
+    "COMPRAMOS CARTAS POKÉMON",
+    "VENDE TUS CARTAS POKÉMON",
+    "COMPRAMOS COLECCIONES POKÉMON"
+   ],
+   "models_es": "Sueltas, carpetas y cartas certificadas",
    "points": "FREE QUOTE, PAID TODAY, SINGLES OR SETS",
    "sets": [
     [
      {
-      "file": "poke-psa-charizard",
+      "file": "ph-poke-slabs-trio",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "ph-poke-cards-fan",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "ph-poke-slab",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "ph-poke-collection",
+      "k": 1
+     }
+    ],
+    [
+     {
+      "file": "ph-poke-booster-box",
       "k": 1
      }
     ]
@@ -5654,7 +5734,25 @@
     {
      "set": [
       {
-       "file": "poke-psa-charizard",
+       "file": "ph-poke-slabs-trio",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-cards-fan",
+       "k": 1
+      }
+     ],
+     "w": 10
+    },
+    {
+     "set": [
+      {
+       "file": "ph-poke-slab",
        "k": 1
       }
      ],
@@ -5667,16 +5765,16 @@
        "k": 1
       }
      ],
-     "w": 8
+     "w": 11
     },
     {
      "set": [
       {
-       "file": "ph-poke-slabs-trio",
+       "file": "ph-poke-booster-box",
        "k": 1
       }
      ],
-     "w": 7
+     "w": 8
     },
     {
      "set": [
@@ -5690,38 +5788,11 @@
     {
      "set": [
       {
-       "file": "ph-poke-cards-fan",
-       "k": 1
-      }
-     ],
-     "w": 7
-    },
-    {
-     "set": [
-      {
-       "file": "ph-poke-slab",
-       "k": 1
-      }
-     ],
-     "w": 6
-    },
-    {
-     "set": [
-      {
        "file": "ph-poke-packs-fan",
        "k": 1
       }
      ],
      "w": 6
-    },
-    {
-     "set": [
-      {
-       "file": "ph-poke-booster-box",
-       "k": 1
-      }
-     ],
-     "w": 5
     },
     {
      "set": [
@@ -5740,15 +5811,6 @@
       }
      ],
      "w": 4
-    },
-    {
-     "set": [
-      {
-       "file": "poke-slabs-trio",
-       "k": 1
-      }
-     ],
-     "w": 2
     }
    ]
   },
@@ -5757,12 +5819,17 @@
    "cat": "sports",
    "group": "Cards",
    "label": "Sports cards",
-   "models": "Rookies, autos, slabs and sealed wax",
+   "models": "Baseball, football, basketball, hockey and more",
    "heads": [
     "WE BUY SPORTS CARDS",
-    "CASH FOR SPORTS CARDS",
-    "SELL YOUR SPORTS CARDS"
+    "SELL YOUR SPORTS CARDS",
+    "WE BUY CARD COLLECTIONS"
    ],
+   "heads_es": [
+    "COMPRAMOS TARJETAS DEPORTIVAS",
+    "VENDE TUS TARJETAS DEPORTIVAS"
+   ],
+   "models_es": "Béisbol, fútbol americano, básquetbol, hockey y más",
    "points": "FREE QUOTE, PAID TODAY, SINGLES OR SETS",
    "sets": [
     [
@@ -5831,15 +5898,6 @@
      "set": [
       {
        "file": "ph-sports-collection",
-       "k": 1
-      }
-     ],
-     "w": 8
-    },
-    {
-     "set": [
-      {
-       "file": "sports-slabs-stack",
        "k": 1
       }
      ],
@@ -5975,21 +6033,16 @@
     "CASH FOR CAMERAS",
     "SELL YOUR CAMERA"
    ],
+   "heads_es": [
+    "COMPRAMOS CÁMARAS",
+    "VENDE TU CÁMARA"
+   ],
+   "models_es": "Cámaras sin espejo y DSLR, y lentes",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
      {
-      "file": "camera-mirrorless",
-      "k": 1
-     },
-     {
-      "file": "camera-dslr-body",
-      "k": 0.95
-     }
-    ],
-    [
-     {
-      "file": "camera-mirrorless",
+      "file": "photo-camera-sony-a7r5",
       "k": 1
      }
     ]
@@ -6116,11 +6169,16 @@
     "CASH FOR DRONES",
     "SELL YOUR DRONE"
    ],
+   "heads_es": [
+    "COMPRAMOS DRONES",
+    "VENDE TU DRON"
+   ],
+   "models_es": "DJI Mini, Air y Mavic",
    "points": "FREE QUOTE, CASH SAME DAY, NO FEES",
    "sets": [
     [
      {
-      "file": "drone-folded",
+      "file": "photo-camera-dji-mini-4-pro",
       "k": 1
      }
     ]
