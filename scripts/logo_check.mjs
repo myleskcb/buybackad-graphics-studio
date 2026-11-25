@@ -59,10 +59,13 @@ const { BANNED } = await imp('motion/banned-words.js');
 const faces = {};
 for (const f of LOGO_FACES) { const p = join(ROOT, 'logo/glyphs', f + '.js'); if (ok(existsSync(p), 'logo/glyphs/' + f + '.js exists')) faces[f] = (await import(pathToFileURL(p).href)).default; }
 {
-  const bad = Object.entries(LOGO_VOICES).filter(([k, v]) => !TYPE_VOICES[k] || TYPE_VOICES[k].display !== v.display || TYPE_VOICES[k].label !== v.label);
-  ok(!bad.length, 'every logo voice is the catalogue\'s own pair (' + bad.map(([k]) => k).join(', ') + ')');
-  const notFull = Object.keys(LOGO_VOICES).filter((k) => k !== 'bold' && !FULL_VOICES.includes(k));
-  ok(!notFull.length, 'every logo voice is one the full ad wears, or Bold (' + notFull.join(', ') + ')');
+  const adV = Object.entries(LOGO_VOICES).filter(([, v]) => !v.logoOnly), ownV = Object.entries(LOGO_VOICES).filter(([, v]) => v.logoOnly);
+  const bad = adV.filter(([k, v]) => !TYPE_VOICES[k] || TYPE_VOICES[k].display !== v.display || TYPE_VOICES[k].label !== v.label);
+  ok(!bad.length, 'every logo voice the ads also wear is the catalogue\'s own pair (' + bad.map(([k]) => k).join(', ') + ')');
+  const notFull = adV.map(([k]) => k).filter((k) => k !== 'bold' && !FULL_VOICES.includes(k));
+  ok(!notFull.length, 'every logo voice the ads also wear is one the full ad wears, or Bold (' + notFull.join(', ') + ')');
+  // DESIGN-LAW 183: the logo's own tones, from faces the catalogue already holds, never an ad voice's key
+  ok(ownV.length >= 10 && ownV.every(([k, v]) => FONTS[v.display] && FONTS[v.label] && !TYPE_VOICES[k] && (!v.case || ['title', 'lower'].includes(v.case))), 'the logo\'s own tones: ' + ownV.length + ', each in faces of motion/catalog.js FONTS, none sharing an ad voice\'s key');
   const kinds = Object.entries(LOGO_VOICES).filter(([, v]) => (FONTS[v.display] || [])[3] !== v.kind && !(v.kind === 'condensed' && (FONTS[v.display] || [])[3] === 'condensed'));
   ok(!kinds.length, 'each voice\'s kind is its display face\'s (' + kinds.map(([k, v]) => k + ':' + v.kind + '/' + (FONTS[v.display] || [])[3]).join(', ') + ')');
   const fm = Object.keys((await imp('netlify/lib/logos.mjs')).FACE_MODULES).sort().join(','), lf = LOGO_FACES.slice().sort().join(',');
@@ -111,7 +114,8 @@ const NAMES = ['Long Beach Phone Buyers', 'Gold Rush Cash', "Sam's Coins", 'MK E
     const okd = all.filter((d) => E.logoSvg(d, faces, { bg: false }).ok).slice(0, 24);
     const pairs = okd.map((d) => d.pair), voices = {}, dark = okd.filter((d) => E.paletteOf(d.pair).dark).length;
     okd.forEach((d) => { voices[d.voice] = (voices[d.voice] || 0) + 1; });
-    const own = Object.keys(E.LOGO_LAYOUTS).filter((t) => (E.LOGO_LAYOUTS[t].cats || []).includes(cat));
+    // the calm gallery (DESIGN-LAW 183) leads with the calm layouts drawn for the line (Deco for gold, Varsity for cards)
+    const own = Object.keys(E.LOGO_LAYOUTS).filter((t) => E.LOGO_LAYOUTS[t].calm && (E.LOGO_LAYOUTS[t].cats || []).includes(cat));
     if (okd.length < 24) bad.push(cat + '/' + name + ': ' + okd.length + ' logos');
     if (new Set(pairs).size !== pairs.length) bad.push(cat + '/' + name + ': a pair twice');
     if (Math.max(...Object.values(voices)) > 2) bad.push(cat + '/' + name + ': a voice ' + Math.max(...Object.values(voices)) + ' times');
@@ -120,6 +124,30 @@ const NAMES = ['Long Beach Phone Buyers', 'Gold Rush Cash', "Sam's Coins", 'MK E
     if (new Set(okd.map((d) => d.t)).size < 12) bad.push(cat + '/' + name + ': ' + new Set(okd.map((d) => d.t)).size + ' layouts');
   }
   ok(!bad.length, 'the gallery: 24 logos for every line and name, no pair twice, no voice more than twice, dark and light, 12 layouts or more, the line\'s own layouts early (' + bad.slice(0, 4).join(' | ') + ')');
+  // DESIGN-LAW 183: the first gallery is calm; the styles narrow it; Bold is the gallery as it was
+  {
+    const cb = [];
+    for (const cat of Object.keys(E.LINE_WORDS)) {
+      const calm = E.gallery({ name: 'Harbor Exchange', cat, town: 'Long Beach' }, { seed: 1, n: 32 });
+      if (calm.some((d) => !E.LOGO_LAYOUTS[d.t].calm)) cb.push(cat + ': a Bold layout in the first gallery');
+      if (calm.some((d) => !E.CALM_PAIRS.includes(d.pair))) cb.push(cat + ': a loud pair in the first gallery');
+      if (calm.some((d) => !E.LOGO_VOICES[d.voice].logoOnly && !['bold', 'block', 'stadium', 'tech', 'luxe', 'grotesk', 'brush', 'marker'].includes(d.voice))) cb.push(cat + ': loud lettering in the first gallery');
+      if (new Set(calm.filter((d) => d.mark).map((d) => d.mark)).size < 3) cb.push(cat + ': fewer than three marks of its family');
+      for (const st of ['classic', 'modern', 'friendly', 'luxury']) {
+        const g = E.gallery({ name: 'Harbor Exchange', cat, town: 'Long Beach' }, { seed: 1, n: 24, style: st }).filter((d) => E.logoSvg(d, faces, { bg: false }).ok);
+        if (g.length < 24) cb.push(cat + '/' + st + ': ' + g.length + ' logos');
+        if (g.some((d) => !E.STYLES[st].layouts.includes(d.t))) cb.push(cat + '/' + st + ': a layout of another style');
+        if (new Set(g.map((d) => d.pair)).size !== g.length) cb.push(cat + '/' + st + ': a pair twice');
+      }
+      const bold = E.gallery({ name: 'Harbor Exchange', cat, town: 'Long Beach' }, { seed: 1, n: 32, style: 'bold' }).filter((d) => E.logoSvg(d, faces, { bg: false }).ok).slice(0, 24);
+      const ownB = Object.keys(E.LOGO_LAYOUTS).filter((t) => E.LOGO_LAYOUTS[t].bold && (E.LOGO_LAYOUTS[t].cats || []).includes(cat));
+      if (bold.length < 24 || bold.some((d) => !E.LOGO_LAYOUTS[d.t].bold) || new Set(bold.map((d) => d.t)).size < 12) cb.push(cat + '/bold: ' + bold.length + ' logos, ' + new Set(bold.map((d) => d.t)).size + ' layouts');
+      if (ownB.some((t) => !bold.slice(0, 12).some((d) => d.t === t))) cb.push(cat + '/bold: its own layouts not early');
+    }
+    const liked = E.gallery({ name: 'Gold Rush Cash', cat: 'gold' }, { seed: 1, like: { pairs: ['oxblood_cream', 'ink_gold'], marks: ['hallmark'] } });
+    if (!liked.slice(0, 4).some((d) => ['oxblood_cream', 'ink_gold'].includes(d.pair)) || !liked.some((d) => d.mark === 'hallmark')) cb.push('a taste (like) does not lead the gallery');
+    ok(!cb.length, 'the first gallery is calm (its layouts, pairs and lettering), each of the four calm styles fills 24 of its own, Bold is the gallery as it was, and a taste leads (' + cb.slice(0, 4).join(' | ') + ')');
+  }
   const g1 = E.gallery({ name: 'Gold Rush Cash', cat: 'gold' }, { seed: 1 }), g2 = E.gallery({ name: 'Gold Rush Cash', cat: 'gold' }, { seed: 2 });
   ok(JSON.stringify(g1) === JSON.stringify(E.gallery({ name: 'Gold Rush Cash', cat: 'gold' }, { seed: 1 })) && JSON.stringify(g1) !== JSON.stringify(g2), 'the gallery is the same for a seed, and More draws another');
   const groups = ['badge', 'wordmark', 'monogram', 'mark'].map((g) => E.gallery({ name: 'Kash', cat: 'phones' }, { seed: 1, group: g }).every((d) => E.LOGO_LAYOUTS[d.t].group === g));
@@ -129,6 +157,16 @@ const NAMES = ['Long Beach Phone Buyers', 'Gold Rush Cash', "Sam's Coins", 'MK E
   ok(!hit.length, 'every line a logo writes for itself passes the banned list (' + hit.join(', ') + ')');
   const v = ['pair', 'voice', 'layout', 'icon'].map((ax) => E.variants({ t: 'seal', name: 'Kash', cat: 'gold', voice: 'luxe', pair: 'black_gold' }, ax, 8));
   ok(v.every((l) => l.length >= 5 && new Set(l.map((d) => JSON.stringify(d))).size === l.length), 'the rows: the same logo in 5 to 8 other colours, voices, shapes and symbols, none twice');
+  {
+    const cd = { t: 'lockup', name: 'Kash', cat: 'gold', voice: 'classic', pair: 'navy_brass', mark: 'bar' };
+    const cv = Object.fromEntries(['pair', 'voice', 'layout', 'icon', 'corners'].map((ax) => [ax, E.variants(cd, ax, 8)]));
+    const sym = cv.icon;
+    ok(Object.values(cv).every((l) => l.length >= 2 && new Set(l.map((d) => JSON.stringify(d))).size === l.length)
+      && sym.length >= 6 && sym[0].mark === 'bar' && sym[1].mark === 'bar' && sym[1].line && sym.slice(2).every((d) => E.MARKS_FOR.gold.includes(d.mark))
+      && cv.pair.every((d) => E.CALM_PAIRS.includes(d.pair)) && cv.layout.every((d) => E.LOGO_LAYOUTS[d.t].calm)
+      && E.variantName(sym[1], 'icon') === 'Bar, line' && E.variantName(cv.corners[1], 'corners') === 'Sharp corners',
+      'a calm logo\'s rows: calm colours and shapes, its Symbol row the line\'s catalogue (the mark, drawn as a line, then its family), soft or sharp corners, each named');
+  }
   const k = E.kitFiles({ t: 'crest', name: 'Gold Rush Cash', cat: 'gold', voice: 'luxe', pair: 'green_gold', icon: 'barStack' }, faces, { phone: '(562) 555-0123' });
   ok(['logo.svg', 'logo-on-colour.svg', 'logo-black.svg', 'logo-white.svg', 'logo-side-by-side.svg', 'mark.svg', 'mark-on-colour.svg', 'profile.svg', 'cover.svg', 'README.txt'].every((n) => k[n]), 'the kit has its ten files');
   ok(/width="1080" height="1080"/.test(k['profile.svg']) && /width="1640" height="624"/.test(k['cover.svg']), 'the profile picture is 1080 square and the cover 1640 × 624');
@@ -139,6 +177,57 @@ const NAMES = ['Long Beach Phone Buyers', 'Gold Rush Cash', "Sam's Coins", 'MK E
   ok(/linearGradient/.test(fg) && /clipPath/.test(fp) && !/linearGradient|clipPath/.test(E.logoSvg(fd, faces, {}).svg), 'a gradient and a pattern finish draw; flat draws neither');
   ok(!/clipPath/.test(E.logoSvg({ ...fd, finish: 'pattern' }, faces, { mode: 'black' }).svg) && !/clipPath/.test(E.logoSvg({ ...fd, finish: 'pattern' }, faces, { mode: 'white' }).svg), 'the one-colour versions stay flat');
   ok(E.cleanDesign({ ...fd, finish: 'nope' }).finish === 'flat' && E.cleanDesign({ ...fd, finish: 'pattern' }).finish === 'pattern', 'a design keeps its finish, and only a real one');
+}
+/* ---------- DESIGN-LAW 183: the calm logos, the mark catalogue, and every design saved before them unchanged ---------- */
+{
+  // a saved design keeps drawing exactly as it was approved: every older layout, in every form, against the hashes the
+  // engine of main 5061d8a36 drew (spec/logo-approved.json, written once)
+  const { createHash } = await import('node:crypto');
+  const norm = (x) => x.replace(/id="[^"]+"/g, 'id=""').replace(/url\(#[^)]+\)/g, 'url(#)');
+  const h = (x) => createHash('sha1').update(norm(x)).digest('hex').slice(0, 16);
+  const fx = JSON.parse(readFileSync(join(ROOT, 'spec/logo-approved.json'), 'utf8')).designs, moved = [];
+  for (const r of fx) {
+    const d = r.design;
+    for (const [form, mode] of [['primary', 'colour'], ['primary', 'black'], ['mark', 'colour'], ['horizontal', 'transparent']]) if (h(E.logoSvg(d, faces, { form, mode }).svg) !== r[form + '-' + mode]) moved.push(d.t + '/' + form + '-' + mode);
+    if (h(E.profileSvg(d, faces).svg) !== r.profile) moved.push(d.t + '/profile');
+    if (h(E.coverSvg(d, faces, { phone: '(562) 555-0123' }).svg) !== r.cover) moved.push(d.t + '/cover');
+  }
+  ok(fx.length >= 150 && !moved.length, fx.length + ' designs saved before the calm logos draw exactly as they were approved, in every form (' + [...new Set(moved)].slice(0, 6).join(', ') + ')');
+  // the catalogue: six to eight marks a line, each drawn solid, as a line, soft and sharp, in every layout that wears one
+  const fam = E.MARKS_FOR, keys = Object.keys(E.LOGO_MARKS), errs = [];
+  ok(Object.keys(fam).length === 16 && Object.values(fam).every((l) => l.length >= 6 && l.length <= 8 && l.every((k) => E.LOGO_MARKS[k])) && keys.every((k) => Object.values(fam).some((l) => l.includes(k))),
+    'the mark catalogue: ' + keys.length + ' marks, every one of the 16 lines a family of 6 to 8, no mark in no family');
+  let drawnM = 0;
+  for (const [cat, list] of Object.entries(fam)) for (const mark of list) for (const [t, voice] of [['lockup', 'classic'], ['centred', 'modern'], ['tile', 'geometric'], ['heritage', 'banker']]) for (const line of [false, true]) for (const sharp of [false, true]) {
+    if (t === 'heritage' && (sharp || !line)) continue;
+    const d = { t, name: 'Harbor Exchange', cat, voice, pair: E.CALM_PAIRS[(drawnM * 5) % E.CALM_PAIRS.length], mark, line, sharp, town: 'Long Beach', since: '2009' };
+    for (const mode of ['colour', 'black', 'white']) {
+      try {
+        const r = E.logoSvg(d, faces, { mode }); drawnM++;
+        if (/NaN|undefined|Infinity/.test(r.svg)) errs.push(cat + '/' + mark + '/' + t + ': NaN');
+        if (mode === 'colour' && !r.ok) errs.push(cat + '/' + mark + '/' + t + ': small');
+        if (mode !== 'colour') { const cols = new Set((r.svg.match(/#[0-9a-f]{6}|#fff\b|#000\b/gi) || []).map((x) => x.toLowerCase())); if ([...cols].some((x) => !['#fff', '#000', '#111214', '#ffffff'].includes(x))) errs.push(cat + '/' + mark + '/' + t + ' ' + mode + ': two colours'); }
+      } catch (e) { errs.push(cat + '/' + mark + '/' + t + ': ' + e.message); }
+    }
+    const m = E.markSvg(d, faces, mark, { mode: 'black' }).svg; drawnM++;
+    if (/NaN|undefined/.test(m) || !/<path/.test(m)) errs.push(mark + ': the mark alone');
+  }
+  ok(!errs.length, drawnM + ' drawings of the catalogue (solid and line, soft and sharp, colour and one colour) without an error, NaN, a second colour or a name too small (' + errs.slice(0, 4).join(' | ') + ')');
+  // the logo's own tones set the name as real shops do: Title Case that keeps what was typed on purpose, or lower case
+  const P = (n, cs) => E.partsOf(n, cs).full;
+  ok(P('long beach phone buyers', 'title') === 'Long Beach Phone Buyers' && P('iPhones LA', 'title') === 'iPhones LA' && P('MK ELECTRONICS', 'title') === 'MK Electronics'
+    && P('Westside Buyers of Orange County', 'title') === 'Westside Buyers of Orange County' && P('Harbor Mobile', 'lower') === 'harbor mobile' && P('MK Electronics', 'lower') === 'MK Electronics' && P('Kash', true) === 'Kash',
+    'the tones set a name in Title Case (keeping iPhones, MK and LA) or lower case (Title Case when the name holds initials)');
+  const cd = E.cleanDesign({ t: 'lockup', mark: 'nope', line: 1, sharp: 'yes', since: '  2009 ' + 'x'.repeat(40) });
+  const old = E.cleanDesign({ t: 'seal', name: 'Kash' });
+  ok(cd.mark === '' && cd.line === true && cd.sharp === true && cd.since.length <= E.LIMITS.since && old.mark === '' && !old.line && !old.sharp && old.since === '',
+    'a design holds a real mark or none, line and sharp as true or false, and a "since" of at most ' + E.LIMITS.since + ' letters; one saved before them reads as none');
+  const sv = E.logoSvg({ t: 'wordmark', name: 'Harbor Mobile', cat: 'phones', voice: 'sleek', pair: 'white_cobalt', since: '2009', town: 'Long Beach', seed: 1 }, faces, {}).svg;
+  ok(/harbor mobile/.test(sv) && E.tagsOf({ t: 'lockup', voice: 'classic', pair: 'paper_navy', mark: 'bar', line: true }).drawing === 'line' && E.styleOf({ t: 'seal' }) === 'bold' && E.styleOf({ t: 'interlace', voice: 'engraved' }) === 'luxury',
+    'a logo says its tags (style, mark, drawing, corners, colours) for picking by taste, and its title is the name as the tone sets it');
+  const own = E.LOGO_OWN_PAIRS;
+  ok(own.length >= 13 && own.every((p) => E.LOGO_PAIRS.includes(p.key) && E.CALM_PAIRS.includes(p.key)) && own.filter((p) => !E.paletteOf(p.key).dark).length >= 6,
+    own.length + ' calm pairs of the logo\'s own (metal drawn as brass and ochre), light and dark, every one in the calm gallery');
 }
 
 /* ---------- 2. the function ---------- */
@@ -289,7 +378,7 @@ if (!NO_BROWSER) {
     console.log('  24 logos drawn ' + secs.toFixed(1) + ' s after Show my logos');
     ok(await tiles(page) === 24, '24 logos (' + await tiles(page) + ')');
     const kinds = await page.evaluate(() => [...document.querySelectorAll('#lg-grid .lg-tile')].map((b) => b.dataset.t));
-    ok(kinds.includes('coin') && new Set(kinds).size >= 12, 'gold\'s own Coin is among them, and 12 layouts or more (' + new Set(kinds).size + ')');
+    ok(kinds.includes('deco') && new Set(kinds).size >= 12 && kinds.every((t) => E.LOGO_LAYOUTS[t].calm), 'the first gallery is calm, gold\'s own Deco is among them, and 12 layouts or more (' + new Set(kinds).size + ')');
     await page.click('#lg-grid .lg-tile >> nth=2');
     await page.waitForFunction(() => document.getElementById('lg-edit').dataset.drawn, null, { timeout: 30000 });
     const st = await page.evaluate(() => ({ edit: !document.getElementById('lg-edit').hidden, kit: JSON.parse(localStorage.getItem('pgfx_logo_kit') || 'null'), rows: ['row-pair', 'row-voice', 'row-layout', 'row-icon'].map((id) => document.querySelectorAll('#' + id + ' button').length), files: document.querySelectorAll('#files-logo figure[data-drawn]').length }));
@@ -300,10 +389,15 @@ if (!NO_BROWSER) {
     await page.click('#row-pair button >> nth=3');
     await page.waitForFunction((p) => { const k = JSON.parse(localStorage.getItem('pgfx_logo_kit') || 'null'); return k && k.design.pair !== p; }, before, { timeout: 10000 }).catch(() => {});
     ok(await page.evaluate((p) => JSON.parse(localStorage.getItem('pgfx_logo_kit')).design.pair !== p, before), 'a colour in the row changes the logo');
-    await page.click('#lg-tabs button[data-g="monogram"]');
-    await waitTiles(page, 6);
-    ok(await page.evaluate(() => [...document.querySelectorAll('#lg-grid .lg-tile')].every((b) => ['monogram', 'roundel'].includes(b.dataset.t))), 'the Initials tab shows monograms');
-    await page.click('#lg-tabs button[data-g=""]'); await waitTiles(page, 24);
+    // the style chips (DESIGN-LAW 183): a calm style shows its own layouts; Bold is the gallery as it was
+    await page.click('#lg-tabs button[data-s="luxury"]');
+    await waitTiles(page, 24);
+    ok(await page.evaluate((ls) => [...document.querySelectorAll('#lg-grid .lg-tile')].every((b) => ls.includes(b.dataset.t)), E.STYLES.luxury.layouts), 'the Luxury chip shows Luxury\'s layouts');
+    await page.click('#lg-tabs button[data-s="bold"]');
+    await waitTiles(page, 24);
+    const boldKinds = await page.evaluate(() => [...document.querySelectorAll('#lg-grid .lg-tile')].map((b) => b.dataset.t));
+    ok(boldKinds.every((t) => E.LOGO_LAYOUTS[t].bold) && boldKinds.includes('coin'), 'the Bold chip is the gallery as it was (gold\'s Coin among them)');
+    await page.click('#lg-tabs button[data-s=""]'); await waitTiles(page, 24);
     await page.click('#lg-more'); await waitTiles(page, 48);
     ok(await tiles(page) === 48, 'More adds 24 more');
     // name ideas: the customer's words mixed into names, each a finished little logo

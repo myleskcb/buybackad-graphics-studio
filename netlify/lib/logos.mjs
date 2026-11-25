@@ -48,6 +48,14 @@ export const FACE_MODULES = {
   "protest-riot": () => import("../../logo/glyphs/protest-riot.js"),
   "boogaloo": () => import("../../logo/glyphs/boogaloo.js"),
   "galindo": () => import("../../logo/glyphs/galindo.js"),
+  // the logo's own tones (DESIGN-LAW 183)
+  "young-serif": () => import("../../logo/glyphs/young-serif.js"),
+  "zodiak": () => import("../../logo/glyphs/zodiak.js"),
+  "cormorant": () => import("../../logo/glyphs/cormorant.js"),
+  "instrument-serif": () => import("../../logo/glyphs/instrument-serif.js"),
+  "clash": () => import("../../logo/glyphs/clash.js"),
+  "roboto-slab": () => import("../../logo/glyphs/roboto-slab.js"),
+  "zilla-slab": () => import("../../logo/glyphs/zilla-slab.js"),
 };
 
 /** the kit for a design: { "logo.svg": "<svg…", …, "README.txt": "…" } */

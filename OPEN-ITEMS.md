@@ -5163,3 +5163,25 @@ Open:
 7. **The words** were written here, plain and signed WeBuy.AD; the owner has not read them yet
    (`netlify/lib/mail.mjs` resetMail and confirmMail).
 
+
+## CK. 2026-11-25 — calm logos, a catalogue of marks, five styles (DESIGN-LAW 183)
+
+Done: the research page for the owner (direction A picked), the calm first gallery, twelve new layouts, the
+68-mark catalogue drawn solid and as a line with soft or sharp corners, 16 logo pairs of their own, eleven lettering
+tones, the style chips, the Symbol and Corners rows, the "since" line, the frozen hashes of every older design, the
+contact sheets (marks.html, styles.html).
+
+Open:
+- **The questionnaire** the owner asked about on 2026-11-25: which style feels like the shop, colours liked, symbols
+  liked, then 24 logos built from the answers, with "Surprise me" on every question; and the two doors beside it,
+  start from a template or edit an existing logo. The engine already takes a taste (`gallery({ like })`, `tagsOf`);
+  the page has to ask for it. Waiting on the owner's word on the flow.
+- **Hearts on gallery tiles** that steer More (the free taste, no AI): the tags exist; the page has none yet.
+- **An AI art director** (AI credits, like the name ideas): Claude reads the shop's own words and its answers and
+  returns designs in the engine's terms (style, layout, mark, pair, tone) with a reason each; the engine draws them,
+  so no model draws a letter (rule 176). Not built.
+- **A sign-painter script** for the Sign layout (a new open-licence face, rule 140): it uses Brush and Marker today.
+- **The full ad opening in a logo's own pair**: a logo in one of the logo's own pairs opens the ad in its default
+  pair, since the ads do not wear those. A nearest house pair could stand in.
+- **Merge with custom-name-location-keywords**: it adds `iconOn` to `cleanDesign` and its own Symbol row for the
+  industry marks; this branch's `variants("icon")` keeps both (the calm logos' catalogue first).

@@ -37,10 +37,10 @@ const CATS = [["phones", "Phones & devices"], ["gaming", "Games & consoles"], ["
   ["wearables", "Watches & wearables"], ["cameras", "Cameras & drones"], ["strips", "Diabetic test strips"],
   ["devices", "Device store"], ["wholesale", "Wholesale & bulk lots"], ["resale", "Resale & trade-ins"]];
 const STORE = "pgfx_logo", KITKEY = "pgfx_logo_kit";
-const state = Object.assign({ name: "", cat: "", town: "", small: "", seed: 1, group: "", picked: null, details: {}, looks: {}, ok: {}, tier: "complete", format: "png" }, jget(STORE, null) || {});
+const state = Object.assign({ name: "", cat: "", town: "", small: "", since: "", seed: 1, group: "", style: "", picked: null, details: {}, looks: {}, ok: {}, tier: "complete", format: "png" }, jget(STORE, null) || {});
 if (!KIT.KIT_FORMATS[state.format]) state.format = "png";
 state.details ||= {}; state.looks ||= {}; state.ok ||= {};
-const keep = () => jset(STORE, { name: state.name, cat: state.cat, town: state.town, small: state.small, seed: state.seed, group: state.group, picked: state.picked, details: state.details, looks: state.looks, ok: state.ok, tier: state.tier, format: state.format });
+const keep = () => jset(STORE, { name: state.name, cat: state.cat, town: state.town, small: state.small, since: state.since, seed: state.seed, group: state.group, style: state.style, picked: state.picked, details: state.details, looks: state.looks, ok: state.ok, tier: state.tier, format: state.format });
 /** the logo the rest of the site wears: the card maker and the full ad read it */
 const keepKit = () => { if (state.picked) jset(KITKEY, { v: E.ENGINE_VERSION, design: state.picked, at: Date.now() }); };
 const spec = () => ({ design: state.picked, details: state.details, looks: state.looks });
@@ -86,11 +86,11 @@ async function paint(canvas, d, { form = "primary", fill = .78, w, h, bg = true,
 }
 
 /* ---------- step 1: the name, and name ideas ---------- */
-function input() { return { name: state.name.trim(), cat: state.cat || "phones", town: state.town.trim(), small: state.small.trim() }; }
+function input() { return { name: state.name.trim(), cat: state.cat || "phones", town: state.town.trim(), small: state.small.trim(), since: (state.since || "").trim() }; }
 function fillForm() {
   $("lg-cat").innerHTML = CATS.map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join("");
   $("lg-name").value = state.name; $("lg-cat").value = state.cat || "phones"; $("lg-town").value = state.town;
-  $("lg-small").value = state.small;
+  $("lg-small").value = state.small; $("lg-since").value = state.since || "";
   $("lg-small").placeholder = E.smallFor(state.cat || "phones");
 }
 let nmSeed = 1;
@@ -135,12 +135,13 @@ async function askAI(btn) {
 /* ---------- step 2: the gallery ---------- */
 const SHOW = 24;
 let galleryRun = 0;
-const GROUPS = { "": "", badge: "badge", wordmark: "wordmark", monogram: "monogram", mark: "mark" };
+/* the style chips (DESIGN-LAW 183): All is the calm mix for the line; Bold is the gallery as it was */
+const STYLE_KEYS = ["", "classic", "modern", "friendly", "luxury", "bold"];
 const labelOf = d => `${E.LOGO_LAYOUTS[d.t].name} in ${E.paletteOf(d.pair).name}, ${E.LOGO_VOICES[d.voice].name} lettering`;
 async function drawGallery(append = false) {
   const run = ++galleryRun, grid = $("lg-grid");
   if (!append) grid.innerHTML = "";
-  const list = E.gallery(input(), { seed: state.seed, n: SHOW + 8, group: GROUPS[state.group] || "" });
+  const list = E.gallery(input(), { seed: state.seed, n: SHOW + 8, style: STYLE_KEYS.includes(state.style) ? state.style : "" });
   const tiles = [];
   for (let i = 0; i < SHOW; i++) { const b = document.createElement("button"); b.type = "button"; b.className = "lg-tile wait"; b.setAttribute("aria-label", "A logo, loading"); grid.appendChild(b); tiles.push(b); }
   await needFor(list);
@@ -163,7 +164,7 @@ async function drawGallery(append = false) {
   grid.dataset.drawn = String(run);
   grid.dataset.count = String(grid.querySelectorAll(".lg-tile:not(.wait)").length);
 }
-const sameLogo = (a, b) => a && b && a.t === b.t && a.pair === b.pair && a.voice === b.voice && a.icon === b.icon && a.name === b.name;
+const sameLogo = (a, b) => a && b && a.t === b.t && a.pair === b.pair && a.voice === b.voice && a.icon === b.icon && a.name === b.name && (a.mark || "") === (b.mark || "") && !!a.line === !!b.line;
 async function showGallery(scroll) {
   const sec = $("lg-gallery"); sec.hidden = false;
   if (scroll) sec.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -172,7 +173,7 @@ async function showGallery(scroll) {
 
 /* ---------- step 3: the one picked ---------- */
 function pick(d, tile) {
-  state.picked = { ...d, small: state.small, town: state.town };
+  state.picked = { ...d, small: state.small, town: state.town, since: state.since || "" };
   changed(); keepKit();
   document.querySelectorAll(".lg-tile").forEach(b => b.setAttribute("aria-pressed", String(b === tile)));
   const first = $("lg-edit").hidden;
@@ -183,8 +184,9 @@ function pick(d, tile) {
 /** the logo changed: what was approved after it is looked at again */
 function changed() { state.ok = {}; keep(); rail(); }
 let pickRun = 0;
-const ROWS = [["row-pair", "pair", d => E.paletteOf(d.pair).name], ["row-voice", "voice", d => E.LOGO_VOICES[d.voice].name],
-  ["row-layout", "t", d => E.LOGO_LAYOUTS[d.t].name], ["row-icon", "icon", d => d.icon ? E.LOGO_ICONS[d.icon][1] : "Initials"], ["row-finish", "finish", d => E.FINISHES[d.finish || "flat"]]];
+// each row's choices and their names come from the engine (a calm logo's Symbol row is its line's catalogue of marks)
+const ROWS = [["row-pair", "pair"], ["row-voice", "voice"], ["row-layout", "layout"], ["row-icon", "icon"], ["row-corners", "corners"], ["row-finish", "finish"]];
+const sameDesign = (a, b) => JSON.stringify(E.cleanDesign(a)) === JSON.stringify(E.cleanDesign(b));
 async function drawPicked() {
   const run = ++pickRun, d = state.picked; if (!d) return;
   const big = $("lg-big"), mine = owned();
@@ -192,17 +194,19 @@ async function drawPicked() {
   if (run !== pickRun) return;
   big.dataset.drawn = String(run); big.dataset.marked = String(!mine);
   $("lg-big-cap").textContent = labelOf(d) + (mine ? "" : ". The WeBuy.AD mark comes off when the kit is yours.");
-  for (const [id, axis, name] of ROWS) {
-    const row = $(id), list = E.variants(d, axis === "t" ? "layout" : axis, 8);
+  for (const [id, axis] of ROWS) {
+    const row = $(id), list = E.variants(d, axis, 8), name = v => E.variantName(v, axis);
     await needFor(list);
     if (run !== pickRun) return;
     // a finish needs a body to sit on: a wordmark has none, so its row is not offered
     if (axis === "finish") { const has = /linearGradient/.test(E.logoSvg({ ...d, finish: "gradient" }, FACES, {}).svg); row.hidden = !has; row.previousElementSibling.hidden = !has; if (!has) continue; }
+    // corners: offered where soft and sharp draw differently (a mark, a tile, a frame or a plate)
+    if (axis === "corners") { const has = E.logoSvg({ ...d, sharp: false }, FACES, {}).svg !== E.logoSvg({ ...d, sharp: true }, FACES, {}).svg; row.hidden = !has; row.previousElementSibling.hidden = !has; if (!has) continue; }
     row.innerHTML = "";
     for (const v of list) {
       const b = document.createElement("button"); b.type = "button";
-      b.setAttribute("aria-pressed", String(v[axis] === d[axis])); b.setAttribute("aria-label", name(v)); b.title = name(v);
-      b.dataset.v = v[axis];
+      b.setAttribute("aria-pressed", String(sameDesign(v, d))); b.setAttribute("aria-label", name(v)); b.title = name(v);
+      b.dataset.v = axis === "icon" ? (v.mark || v.icon || "") : String(axis === "layout" ? v.t : axis === "corners" ? !!v.sharp : v[axis]);
       const c = document.createElement("canvas"); b.appendChild(c);
       const lab = document.createElement("span"); lab.textContent = name(v); b.appendChild(lab);
       row.appendChild(b);
@@ -563,8 +567,8 @@ function bind() {
   $("nm-more").onclick = () => { nmSeed++; drawIdeas(); };
   $("nm-ai").onclick = () => askAI($("nm-ai"));
   $("lg-tabs").addEventListener("click", e => {
-    const b = e.target.closest("button[data-g]"); if (!b) return;
-    state.group = b.dataset.g; keep();
+    const b = e.target.closest("button[data-s]"); if (!b) return;
+    state.style = b.dataset.s; state.seed = 1; keep();
     $("lg-tabs").querySelectorAll("button").forEach(x => x.setAttribute("aria-selected", String(x === b)));
     drawGallery(false);
   });
@@ -574,6 +578,12 @@ function bind() {
     if (!state.picked) return;
     clearTimeout(typing);
     typing = setTimeout(() => { state.picked = { ...state.picked, small: state.small }; changed(); keepKit(); drawPicked(); }, 300);
+  });
+  $("lg-since").addEventListener("input", e => {
+    state.since = e.target.value; keep();
+    if (!state.picked) return;
+    clearTimeout(typing);
+    typing = setTimeout(() => { state.picked = { ...state.picked, since: state.since }; changed(); keepKit(); drawPicked(); }, 300);
   });
   $("ok-logo").onclick = () => approve("logo");
   let resize = 0;
@@ -599,7 +609,7 @@ async function start() {
   await loadKits();
   if (state.name.trim()) {
     $("lg-gallery").hidden = false;
-    const g = $("lg-tabs").querySelector(`button[data-g="${state.group || ""}"]`); if (g) $("lg-tabs").querySelectorAll("button").forEach(x => x.setAttribute("aria-selected", String(x === g)));
+    const g = $("lg-tabs").querySelector(`button[data-s="${STYLE_KEYS.includes(state.style) ? state.style : ""}"]`); if (g) $("lg-tabs").querySelectorAll("button").forEach(x => x.setAttribute("aria-selected", String(x === g)));
     const shownGallery = drawGallery(false);
     if (state.picked) { $("lg-edit").hidden = false; await drawPicked(); }
     await shownGallery;

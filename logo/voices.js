@@ -30,6 +30,21 @@ export const LOGO_VOICES = {
   riot:    { name: "Riot",    display: "protest-riot",    label: "franklin-700",    kind: "display" },
   boogie:  { name: "Boogie",  display: "boogaloo",        label: "instrument-sans", kind: "display" },
   toon:    { name: "Toon",    display: "galindo",         label: "nunito",          kind: "display" },
+  /* The logo's own tones (DESIGN-LAW 183): what real businesses in the trade set their names in, from faces
+     the site already ships (assets/fonts, each open-licence and in motion/catalog.js FONTS). The ads never
+     wear them, so they are held to FONTS and their outlines, not to TYPE_VOICES (logoOnly). case: how the
+     name is set by the layouts drawn for them ("title", "lower" or capitals); track: the name's tracking. */
+  classic:   { name: "Classic",   display: "young-serif",      label: "manrope",         kind: "serif",     logoOnly: true, case: "title" },
+  banker:    { name: "Banker",    display: "zodiak",           label: "schibsted-700",   kind: "serif",     logoOnly: true, track: .05 },
+  engraved:  { name: "Engraved",  display: "cormorant",        label: "instrument-sans", kind: "serif",     logoOnly: true, track: .14 },
+  editorial: { name: "Editorial", display: "instrument-serif", label: "instrument-sans", kind: "serif",     logoOnly: true, case: "title" },
+  sleek:     { name: "Modern",    display: "satoshi-700",      label: "manrope",         kind: "geometric", logoOnly: true, case: "lower", track: -.02 },
+  geometric: { name: "Geometric", display: "sora",             label: "sora",            kind: "geometric", logoOnly: true, case: "title", track: -.02 },
+  clean:     { name: "Clean",     display: "instrument-sans",  label: "manrope",         kind: "grotesk",   logoOnly: true, case: "title", track: -.01 },
+  friendly:  { name: "Friendly",  display: "nunito",           label: "nunito",          kind: "geometric", logoOnly: true, case: "lower", track: -.01 },
+  studio:    { name: "Studio",    display: "clash",            label: "satoshi-700",     kind: "geometric", logoOnly: true, case: "title" },
+  sturdy:    { name: "Sturdy",    display: "roboto-slab",      label: "franklin-700",    kind: "slab",      logoOnly: true, case: "title" },
+  workshop:  { name: "Workshop",  display: "zilla-slab",       label: "barlow-cond",     kind: "slab",      logoOnly: true, case: "title" },
 };
 /** every face a logo may be set in: the modules logo/glyphs/<face>.js */
 export const LOGO_FACES = [...new Set(Object.values(LOGO_VOICES).flatMap(v => [v.display, v.label]))];

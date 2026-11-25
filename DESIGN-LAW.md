@@ -7709,3 +7709,84 @@ back in. Asked for by another session for the owner.
   against the same worktree.
 
 Not done here: OPEN-ITEMS §CJ.
+
+## 183. A logo reads as a real business: calm by default, a catalogue of marks for each line, and today's loud logos one style among five
+
+Added 2026-11-25. The owner, looking at the gallery: the logos were "a little angular and a little too sharp. They
+don't really work to fit real businesses", "One vector doesn't work; having a family of vectors in a catalogue of
+vectors to pick from is much better", and "we're also trying to build professionalism and trust within our logo and
+branding, so we don't want the exact same effects of a super eye-catching neon ad ... some of [the colours] are a
+little out there". A research page went to the owner first (real logos of phone buyback and repair shops, bullion
+and coin dealers, graders, pawn and jewellery buyers, car buyers and resale stores, checked on their own files; 13
+art styles drawn as samples; three directions), and the owner picked A: quiet by default. This rule supersedes rule
+176's three tabs and its gallery's mix; everything else in 176 and 180 stands.
+
+What the research found, and the maker now follows:
+- The established names lead with the name: a confident wordmark with at most one device. None of the twelve phone
+  and device brands checked draws a phone; their symbols come from the name or the act (going back, a screw head, a
+  ring that smiles). Templates for independent shops do the opposite (a handset with a wrench or a bolt).
+- Metal is a flat accent: brass or ochre beside navy, slate or black, and several dealers use no gold at all.
+- Recent redesigns went flatter and calmer (2018 to 2026). Heavy italics, a dollar sign and red and yellow read as
+  fast cash; cartoon ovals and swooshes as cheap or dated. Cues others own stay out: the red medical cross, a yellow
+  tag at a wordmark's corner, the circular-arrow O, graders' labels, league silhouettes. The trade's shared
+  vocabulary is free to use: the pawnbroker's three balls, the balance scale, the hallmark cartouche, the coin rim.
+
+The maker (`logo/engine.js`, `logo/voices.js`, `logo/logo.js`):
+
+1. **The first gallery is calm.** It deals 24 logos from four calm styles in the order a line suits (gold leans
+   Luxury and Classic, phones Modern and Friendly, cards Friendly): twelve new layouts and four older ones that carry
+   no stars or points (Monogram, Roundel, Stacked, Label), calm lettering and calm colours only. The new layouts:
+   Wordmark (one accent detail: a full stop or a short rule), Two-tone (the shop's word and the trade's in two
+   colours), Symbol beside, Symbol above, App tile (a superellipse), Heritage seal (fine double rings, a guilloché
+   band, the name in capitals round the top), Monogram (two initials interlaced in a hairline ring), Framed, and the
+   line's own: Deco (gold, silver, coins, watches, cameras, audio), Varsity (cards, games), Sign (a script over
+   capitals: cards, games, resale, cars, coins) and Workshop plate (wholesale, cars, devices, computers). Each layout
+   hugs what it draws, so a short name is not a small logo in a wide frame. A name whose trade part is one word stays
+   whole (Harbor Mobile); two or more of the trade's words go under it (LONG BEACH / PHONE BUYERS).
+2. **Styles narrow it.** The chips over the gallery are All (the calm mix), Classic, Modern, Friendly, Luxury and
+   Bold (`STYLES`). Bold is the gallery as it was: every older layout, the industry marks of rule 180, every house
+   pair and the ads' lettering. They replace the Badges, Words and Initials tabs (`gallery` still takes `group`).
+3. **A catalogue of marks for each line** (`MARK_SET`, `MARKS_FOR`, `LOGO_MARKS`): 68 marks, a family of six to
+   eight a line, leading with the act and the abstract (linked rings, give and take, trade arrows, signal arcs, a
+   price tag, a hallmark, a balance, the three balls, a checked seal) and keeping one or two of the goods, simplified
+   (a phone with no camera, a bar with the initials cut through, a key, a graded case with a blank label). Every
+   mark is drawn once in parts and drawn two ways: solid (cut by lines and holes in the ground's colour) or as one
+   line of even weight, its weight measured from the name's own stems; soft corners unless the design asks for sharp
+   ones. tone 1 is the ink and tone 0 what is cut, so the one-colour files hold. Never a real product's shape, a
+   grader's label, a car maker's badge, a game's buttons or a red cross (rule 180 stands).
+4. **Calm colours** (`LOGO_OWN_PAIRS`, `CALM_PAIRS`): 16 pairs of the logo's own (Navy & Brass, Ink & Gold, Forest &
+   Brass, Oxblood & Cream, Slate & Teal, Graphite & Red, Midnight & Sky, Plum & Champagne, Deep Teal & Sand, Paper &
+   Navy, White & Cobalt, Sage & Pine, Stone & Charcoal, Ivory & Oxblood, Mist & Slate, Cream & Forest), each held to
+   the same 4.5:1 and 3:1, and 24 of the house pairs: 40 calm pairs in all. Lime, aqua, hot pink, neon cyan and the
+   like stay for Bold. The ads never wear the logo's own pairs: the full ad and the card maker take a logo's pair only
+   when it is one of theirs, and draw the logo in their own otherwise.
+5. **Lettering of the trade** (`logo/voices.js`, `logoOnly`): eleven tones from faces the site already ships (Young
+   Serif, Zodiak, Cormorant Garamond, Instrument Serif, Satoshi, Sora, Instrument Sans, Nunito, Clash Display, Roboto
+   Slab, Zilla Slab), named Classic, Banker, Engraved, Editorial, Modern (key `sleek`: `modern` is an ad voice's),
+   Geometric, Clean, Friendly, Studio, Sturdy and Workshop. A tone may set the name in Title Case (keeping iPhones, MK
+   and LA as typed, small words small) or lower case (Title Case when the name holds initials). Their outlines are
+   built by `scripts/build_logo_glyphs.mjs` like every face's, and the function loads them (`FACE_MODULES`).
+6. **The rows** (`variants`, `variantName`): a calm logo's Colours and Lettering rows offer calm choices first; its
+   Symbol row is the line's catalogue (the mark as it is, the same mark drawn the other way, then the family; on a
+   wordmark, the name alone or a mark beside it; in the seal, the initials or a mark); a Corners row (soft or sharp)
+   shows where they draw differently. Each choice is named by the engine.
+7. **The shop's own facts, never invented.** "Since" (step 3, optional, 20 letters) and the town are set as a small
+   line where a layout has room (SINCE 2009 · LONG BEACH); the town is left out when the name already says it. No
+   year is ever drawn that the shop did not type.
+8. **A design saved before this draws exactly as it was approved.** Every new look is a new layout or a new field
+   (`mark`, `line`, `sharp`, `since`), and an older design reads them as none. `spec/logo-approved.json` holds the
+   hashes of 192 older designs (every older layout, six names, its four forms, the profile picture and the cover)
+   drawn by the engine of main at 5061d8a36, written once and never regenerated; `logo_check.mjs` draws them again
+   and fails on any change.
+9. **Picking by taste** (`tagsOf`, `gallery({ like })`): every logo says what it is made of (style, layout, mark and
+   its kind, solid or line, soft or sharp, lettering, colours, a dark or light ground), and the gallery leans toward
+   a taste (pairs, marks, styles, layouts, voices liked). The page does not ask for one yet (OPEN-ITEMS §CK).
+
+Held by `scripts/logo_check.mjs` (155 checks: the eleven tones in the catalogue's faces; every new layout in every
+name and voice it takes; 5,460 drawings of the catalogue, solid and line, soft and sharp, in colour and one colour,
+in the four layouts that wear a mark; the first gallery calm for all 16 lines; each calm style filling 24 of its own;
+Bold as it was, its own layouts early; a taste leading; the rows of a calm logo; the 192 approved designs unchanged;
+the page's chips and rows in Chromium). `scripts/logo_sheet.mjs` now also writes `marks.html` (every line's family,
+solid, line and sharp, with a lockup of each) and `styles.html` (one name in every style).
+
+Not done here: OPEN-ITEMS §CK.
