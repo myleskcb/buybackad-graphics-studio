@@ -680,7 +680,13 @@ export const ICONS = ["cash"];
 /** How often each badge, sticker and small line of FULL_WORDS is drawn, among those that fit an ad (fullStyle's fresh):
  *  1 where a line is not named, 0 never. Set from the owner's Tune the mix in the gallery (tuning/choices, keys badge:,
  *  sticker:; DESIGN-LAW 181): More 1.5, Less 0.5, Never 0, and a line's Spanish twin set with it. */
-export const WORD_WEIGHTS = {};
+export const WORD_WEIGHTS = {
+  // the owner's choices of 2026-11-25 (tuning/choices version 13). None of these has a Spanish twin to set with it.
+  "AN OFFER • YOU DECIDE": 0,      // Never
+  "MONEY IN YOUR POCKET": 0.5,     // Less
+  "TOP CASH": 0.5,                 // Less (the sticker)
+  "TOP $$$": 0.5,                  // Less (the sticker)
+};
 export const FULL_WORDS = {
   claim: ["LOCAL BUYER • FAIR OFFERS", "QUICK REPLIES • CASH TODAY", "FAIR OFFER • NO PRESSURE", "LOCAL BUYER • PAID TODAY", "AN OFFER • YOU DECIDE",
     "TOP DOLLAR PAID", "WE PAY TOP DOLLAR", "TOP CASH • PAID TODAY", "TOP PRICES • NO FEES", "REAL CASH • NOT CREDIT", "NO LOWBALL OFFERS",
@@ -2457,9 +2463,10 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
      that fits gave a line all the draws of the lines before it that rarely fit (WE PAY TOP DOLLAR 21% of badges, TOP
      CASH • PAID TODAY 1%, TOP $$$ a third of stickers over 4,680 ads). One draw either way, so the seed's stream holds.
      Each line weighs its WORD_WEIGHTS (the owner's Tune the mix; 1 unless set, 0 never drawn): with every weight 1 the
-     pick is the even one above, draw for draw */
-  const fresh = (list, said) => {
-    const u = r(), wt = w => WORD_WEIGHTS[w] ?? 1, live = list.filter(w => wt(w) > 0), pool = live.length ? live : list;
+     pick is the even one above, draw for draw. A card ad's own lists are not weighed (weigh false): the panel tunes
+     the other lines, and the cards keep their collector's voice as they are (rule 171) */
+  const fresh = (list, said, weigh = true) => {
+    const u = r(), wt = w => weigh ? (WORD_WEIGHTS[w] ?? 1) : 1, live = list.filter(w => wt(w) > 0), pool = live.length ? live : list;
     const ok = pool.filter(w => !said.some(x => sharesWord(w, x))), L = ok.length ? ok : pool;
     const total = L.reduce((s, w) => s + (live.length ? wt(w) : 1), 0);
     let acc = 0; for (const w of L) { acc += live.length ? wt(w) : 1; if (u * total < acc) return w; }
@@ -2481,8 +2488,8 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   // the brand is what carries the eye to the rest of an ad; "top dollar" is on every sign in the trade)
   const biz = String(st.biz || "").trim();
   const cards = kindOf(st.subject) === "cards", W_ = k => FULL_WORDS[k + (cards ? "_cards" : "") + (es ? "_es" : "")] || FULL_WORDS[k + (es ? "_es" : "")];
-  const claim = st.feed_claim ?? (biz ? biz.toUpperCase() : fresh(W_("claim"), [st.headline, line, points]));
-  const burst = st.feed_burst ?? fresh(W_("burst"), [st.headline, line, points, claim, label]);
+  const claim = st.feed_claim ?? (biz ? biz.toUpperCase() : fresh(W_("claim"), [st.headline, line, points], !cards));
+  const burst = st.feed_burst ?? fresh(W_("burst"), [st.headline, line, points, claim, label], !cards);
   const words = {
     feed_claim: claim, feed_line: line, points, points_drawn: !typedPoints, number_label: label,   // drawn points may be fewer where they do not fit; typed ones never quietly
     feed_where: st.feed_where ?? (area ? area.toUpperCase() : ""),

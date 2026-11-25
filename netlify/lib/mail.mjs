@@ -80,7 +80,7 @@ const text = (paras, link) => [...paras[0], link, ...paras[1], 'WeBuy.AD\nhttps:
 export function resetMail({ link, social }) {
   const paras = [
     ['Hi,', 'Someone asked to reset the password for your WeBuy.AD account, the one for this email address. To choose a new password, open this link:'],
-    ['The link works once, for the next ' + RESET_MINUTES + ' minutes.'
+    ['The link works once, for the next ' + RESET_MINUTES + ' minutes. A new password signs you out on every other phone or computer.'
       + (social ? ' Your account also signs in with ' + social + ', and that keeps working either way.' : ''),
     "If you didn't ask for this, you can ignore this email. Your password stays as it is.",
     'Questions? Just reply to this email.'],
