@@ -80,7 +80,7 @@
   const explain = e => {
     const m = String((e && e.message) || e || ''), s = e && e.status;
     if (/JWT_SECRET/.test(m)) return 'Accounts are not switched on for this site yet: JWT_SECRET is not set in the Netlify project\'s environment (SETUP.md).';
-    if (s === 502 || s === 503 || s === 504) return 'The account server is not answering (HTTP ' + s + '). Try again in a minute. If it stays like this after a deploy, the function shipped without its dependency: npm ci, then deploy (SETUP.md).';
+    if ((s === 502 || s === 503 || s === 504) && /^HTTP \d+$/.test(m)) return 'The account server is not answering (HTTP ' + s + '). Try again in a minute. If it stays like this after a deploy, the function shipped without its dependency: npm ci, then deploy (SETUP.md).';
     if (s === 404 && /^HTTP 404$/.test(m)) return 'There is no account server at this address (HTTP 404): the site was deployed without its function (SETUP.md).';
     return m || 'That did not work. Try again.';
   };

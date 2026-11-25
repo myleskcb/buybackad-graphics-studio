@@ -488,6 +488,32 @@ async function browserPart(chromium) {
       ok(m.sw <= m.w && !m.small.length, path.replace(/#.*/, '#t') + ' at ' + width + ': no sideways scroll, nothing under 12px (' + JSON.stringify(m) + ')');
       await ctx.close();
     }
+    /* mail not switched on yet (no POSTMARK_TOKEN): both windows say to write to support, in the
+       server's words, never that the account server is down */
+    {
+      const token = env.POSTMARK_TOKEN;
+      delete env.POSTMARK_TOKEN;
+      try {
+        const st = await open('');
+        await st.page.waitForFunction(() => typeof openAuth === 'function' && typeof setAuthMode === 'function', null, { timeout: 90000 });
+        await st.page.evaluate(() => { document.querySelectorAll('.modal-overlay.show').forEach((m) => m.classList.remove('show')); openAuth('Sign in to check'); setAuthMode('forgot'); });
+        await st.page.fill('#auth-email', 'web@shop.example');
+        await st.page.click('#auth-go');
+        await st.page.waitForFunction(() => document.getElementById('auth-err').textContent.trim(), null, { timeout: 15000 }).catch(() => {});
+        const sErr = await text(st.page, '#auth-err');
+        ok(/isn't switched on yet\. Write to support@webuy\.ad/.test(sErr) && !/not answering/.test(sErr) && !(await vis(st.page, '#auth-sent')), 'mail off, studio: Forgot password? says to write to support@webuy.ad (' + sErr + ')');
+        await st.ctx.close();
+        const mo = await open('motion/');
+        await mo.page.waitForFunction(() => !!(window.pgfxAccount && window.pgfxAccount.forgot), null, { timeout: 90000 });
+        await mo.page.evaluate(() => window.pgfxAccount.openAuth({ mode: 'forgot' }));
+        await mo.page.fill('#acct-email', 'web@shop.example');
+        await mo.page.click('#acct-go');
+        await mo.page.waitForFunction(() => document.getElementById('acct-err').textContent.trim(), null, { timeout: 15000 }).catch(() => {});
+        const mErr = await text(mo.page, '#acct-err');
+        ok(/isn't switched on yet\. Write to support@webuy\.ad/.test(mErr) && !/not answering/.test(mErr) && !(await vis(mo.page, '#acct-sent')), 'mail off, video maker: Forgot password? says to write to support@webuy.ad (' + mErr + ')');
+        await mo.ctx.close();
+      } finally { env.POSTMARK_TOKEN = token; }
+    }
     /* the studio's dialog (app.js) */
     {
       const { ctx, page } = await open('');
