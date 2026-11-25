@@ -7065,3 +7065,23 @@ Then, at the owner's word ("Yes, put it live"), `main` (15 commits on: the trimm
 its toolbar took open item CF, so this one became CH. Every check passed on the merge, and it went on `main`.
 
 RESUME HERE: the owner's notes on the scenes (§CH 1); the golden-hour city and the phone may want redrawn clips (§CH 3).
+
+## 2026-11-25 — the pitch lines in Tune the mix (DESIGN-LAW 181; OPEN-ITEMS CI)
+
+Asked: the owner, after the bold lines went live: add each pitch line to the gallery's Tune the mix.
+  - The gallery is the "Ad Background Library" artifact; its panel saves to `tuning/choices`, and any `.opt` row the
+    page has is saved by the same script, so the new rows needed no code on the page.
+  - `WORD_WEIGHTS` lets the choices reach the engine; with every weight 1 it draws exactly what the even pick drew
+    (4,680 ads measured before and after), and a test Never and More moved the shares as asked.
+
+Found:
+  - A point in the list is not a point on the ad: where four do not fit the longest drops, so a sample for "TOP
+    DOLLAR in the points" must be read from the points drawn (`ad.perks.n`), not from `st.points`.
+  - `build_recipe_stills.mjs` draws its first still two ways from the same code (r-bandKnockout-ck07-35: the same words,
+    another type pair and number plate on alternate runs). Every other still is stable. A warm-up flake, not in this
+    change; it shows as one changed still in any redraw.
+  - The owner had already set four grounds to Less in the panel (abstract, colour and shape, painted scene, house);
+    those wait for their word that the panel is done.
+
+RESUME HERE: OPEN-ITEMS §CI 1, when the owner says the panel is done (§BZ 1 for the grounds).
+
