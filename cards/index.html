@@ -29,6 +29,7 @@
   <nav aria-label="Site">
     <a href="../index.html#lp-templates">Image ads</a>
     <a href="../motion/">Video ads</a>
+    <a href="../logo/">Logo and brand kit</a>
     <a href="./" aria-current="page">Business cards</a>
     <a href="../index.html#pricing">Pricing</a>
     <a href="../about.html">About</a>
@@ -38,9 +39,28 @@
 <main id="main" class="cd-main wide">
   <div class="cd-head">
     <h1>Business cards</h1>
-    <p class="cd-sub">A card that matches your ads: your number, what you buy and your towns, front and back. It is made to print, 3.5 × 2 inches with the bleed and crop marks print shops ask for. Then find a shop near you that prints it today.</p>
+    <p class="cd-sub">Pick a finished card with your details already on it, front and back. Each one is made to print, 3.5 × 2 inches with the bleed and crop marks print shops ask for. Then find a shop near you that prints it today.</p>
   </div>
 
+  <section class="cd-gallery" id="cd-gallery" aria-labelledby="cd-gal-h">
+    <div class="cd-details" id="cd-details">
+      <div class="cd-dfield cd-dname"><label for="cd-g-name">Your business name</label><input id="cd-g-name" type="text" maxlength="40" placeholder="Long Beach Phone Buyers" autocomplete="organization"></div>
+      <div class="cd-dfield"><label for="cd-g-phone">Your phone number</label><input id="cd-g-phone" type="tel" maxlength="24" placeholder="(562) 555-0123" autocomplete="tel"></div>
+      <div class="cd-dfield"><label for="cd-g-line">What you buy</label><select id="cd-g-line"></select></div>
+    </div>
+    <div class="cd-gal-head">
+      <h2 id="cd-gal-h">Tap the card you like</h2>
+      <a class="cd-logo-link" id="cd-logo-link" href="../logo/">Make a logo for your card</a>
+    </div>
+    <div class="cd-gal" id="cd-gal" aria-live="polite"></div>
+    <div class="cd-gal-more"><button class="cd-btn" id="cd-gal-more" type="button">Show me more cards</button></div>
+  </section>
+
+  <section class="cd-custom" id="cd-custom" aria-labelledby="cd-custom-h" hidden>
+  <div class="cd-custom-head">
+    <h2 id="cd-custom-h">Customise</h2>
+    <button class="cd-btn" id="cd-back-gal" type="button">&#8592; All cards</button>
+  </div>
   <div class="cd-grid">
     <section class="cd-stage-col" aria-label="Preview">
       <div class="cd-stage" id="cd-stage">
@@ -91,6 +111,7 @@
       <div class="cd-chips" id="cd-fills" role="group" aria-label="Background"></div>
     </section>
   </div>
+  </section>
 
   <section class="cd-print" id="print" hidden aria-labelledby="print-h">
     <h2 id="print-h">Print it today</h2>
@@ -114,6 +135,7 @@
 <footer class="bottom">
   <a href="../index.html">WeBuy.AD</a>
   <a href="../motion/">Video ads</a>
+  <a href="../logo/">Logo and brand kit</a>
   <a href="../about.html">About</a>
   <a href="../terms.html">Terms</a>
   <a href="../privacy.html">Privacy</a>

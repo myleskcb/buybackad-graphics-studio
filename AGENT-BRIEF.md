@@ -760,3 +760,12 @@ produced." DESIGN-LAW rule 87. In practice:
   that touches them or the full ad's ground: `node scripts/clip_grounds_check.mjs`,
   on a server that answers byte ranges (Python's http.server does not, and a video
   that cannot seek fails it).
+
+- **The logo maker and brand kit** (rule 176, 2026-11-24): `logo/engine.js` draws a logo as SVG from a design
+  (layout, name, line, voice, pair, symbol), pure, so the page and the function (`netlify/lib/logos.mjs`,
+  `/api/logo/file`, Pro and Business by `plans.mjs logos`) draw the same file. Every word is the face's own outlines
+  (`logo/glyphs/`, `scripts/build_logo_glyphs.mjs` with fontkit and wawoff2 in a scratch folder; `--check` in CI);
+  never `<text>`, never a model's lettering. A new layout goes into `LAYOUTS` with the voice kinds it takes and must
+  keep a usual name at a readable size in all of them. The picked logo is `pgfx_logo_kit`: the card maker's Logo
+  layout and the full ad's badge (`st.claim_logo`) read it. The card maker opens on a gallery; its form is Customise.
+  Before a commit that touches any of it: `node scripts/logo_check.mjs` (and look at `node scripts/logo_sheet.mjs`).

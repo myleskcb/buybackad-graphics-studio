@@ -120,6 +120,11 @@
    stopped matching live (2026-11-24) */
 @media (max-width:1449px){[data-skin=family] #page-landing .lp-nav-links a[data-give="2"]{display:none}}
 @media (max-width:1179px){[data-skin=family] #page-landing .lp-nav-links a[data-give="1"]{display:none}}
+/* Logo & brand kit (2026-11-24, DESIGN-LAW 176) took Business cards' place in the bar: the bar is full from 1450
+   (40 to 60 px to spare) and the kit is where the card is made, from the logo (the card stays in the footer, Easy
+   Mode and the video maker's bar). It shows from 1300, where it fits at every width (6 px to spare at 1900, where
+   Business cards had 16); measured at every 30 px, 1000 to 1920. */
+@media (max-width:1299px){[data-skin=family] #page-landing .lp-nav-links a[data-give="3"]{display:none}}
 [data-skin=family] #page-landing .lp-nav-links a{font-size:14.5px;font-weight:500;color:var(--text-2);letter-spacing:-.005em;position:relative;padding:6px 0}
 [data-skin=family] #page-landing .lp-nav-links a::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1.5px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .35s var(--x-ease)}
 [data-skin=family] #page-landing .lp-nav-links a:hover{color:var(--text)}

@@ -1261,7 +1261,19 @@ export class FullAd extends Ad {
     const F = this.full = { U, e, g, wide, tall, col: [cx0, cx1], rects: {}, px: {}, left: [], layout: Lay, onGround: [], board: "", ink: gInk };
     // the claim, on its badge (a pill, a square tab, a ribbon, a bar the column's width)
     let claim = null;
-    if (st.feed_claim) {
+    /* THE CUSTOMER'S LOGO (logo/, DESIGN-LAW 176): a picture (st.claim_logo, a canvas the studio draws from
+       the brand kit, its name beside its mark) takes the badge's place, taller than a claim's
+       badge (1.8 times) and never wider than the column. It is the badge, so it is drawn as the claim is (it pops in;
+       no glow round it), and the layout keeps its room. A style without one, or one handed on as JSON (the
+       video maker's hand-off), draws the claim as ever. */
+    const logoPic = st.claim_logo && st.claim_logo.width > 0 && st.claim_logo.height > 0 ? st.claim_logo : null;
+    if (logoPic) {
+      const h0 = Math.round(U * FULL.claim * 1.7 * 1.8), k = Math.min(h0 / logoPic.height, colW / logoPic.width);
+      const c = canvas(Math.max(1, Math.round(logoPic.width * k)), Math.max(1, Math.round(logoPic.height * k))), x = c.getContext("2d");
+      x.imageSmoothingQuality = "high"; x.drawImage(logoPic, 0, 0, c.width, c.height);
+      claim = { c, fill: p.plate || p.accent, ink: gInk, px: Math.round(U * FULL.claim), glow: false, kind: "logo", logo: true };
+    }
+    if (st.feed_claim && !claim) {
       // its badge wears the plates' fill (rule 154); glass or an edge alone carries the words in the lines' ink
       const mode = st.plate_fill || (st.plate_grad ? "gradient" : "solid"), open = mode === "glass" || mode === "outline";
       const fill = p.plate || p.accent, text = st.feed_claim.toUpperCase();
@@ -2607,6 +2619,7 @@ export function fullPreflight(ad, frame) {
   let worst = 99, worstName = "";
   for (const [key, name, col, need] of lines) {
     let r = R[key]; if (!r) continue;
+    if (key === "claim" && ad.claim && ad.claim.logo) continue;   // a logo is read as its own engine set it (logo/engine.js), not as a line on a badge
     if (key === "number" && ad.st.number_style !== "underline") r = inPill(r);
     if (key === "call to action" && F.cta) r = inPill([r[0], r[1], r[2], r[1] + F.cta.h]);
     if (key === "footer" && F.footBand) r = inPill(r);

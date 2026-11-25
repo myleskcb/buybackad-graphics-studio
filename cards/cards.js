@@ -21,6 +21,13 @@
    as Google Maps searches the customer opens themselves (no service is called and nothing about
    them is sent), and what to ask for.
 
+   The page opens on a gallery of finished cards (2026-11-24, DESIGN-LAW 176: "The card maker opens
+   on a gallery of finished cards with the visitor's details filled in"): each a look drawn from one
+   style's lists, front and back, in the customer's own words; the one tapped opens Customise, the
+   form above, behind it. With a logo picked in the logo maker (logo/, localStorage pgfx_logo_kit),
+   the gallery leads with the Logo layout: the logo on the front, set in the card's own colours by the
+   logo engine, and the details on the back.
+
    window.CardMaker is for scripts/business_card_check.mjs.
    ═══════════════════════════════════════════════════════════════════════════ */
 import { FONTS, TYPE_VOICES } from "../motion/catalog.js";
@@ -48,6 +55,9 @@ const LAYOUTS = [
   { key: "pop", name: "Pop", hint: "Comic-book: halftone dots, a burst, hard shadows" },
   { key: "ticket", name: "Ticket", hint: "A ticket: your number on its printed line, what you buy on the stub" },
 ];
+/* the Logo layout: offered where the customer has picked a logo (logo/), never drawn by New look, and
+   left out of LAYOUTS, which the check walks for the five layouts' own rules */
+const LOGO_LAYOUT = { key: "logo", name: "Logo", hint: "Your logo on the front, your details on the back" };
 const PAIRS = HOUSE_COLOURS.filter(c => !c.twin);
 const PAIR_OF = Object.fromEntries(HOUSE_COLOURS.map(c => [c.key, c]));
 /* the type pairs the full ad wears (motion/full-voices.js: each one read at a feed's size and by eye),
@@ -59,7 +69,7 @@ const STORE = "pgfx_card";
 let LINES = [], LINE_OF = {};
 const state = Object.assign({
   name: "", line: "", phone: "", site: "", where: "", points: "", models: "",
-  layout: "band", pair: "", voice: "bold", fill: "", style: "", look: "", frame: false, qr: true, seed: 1,
+  layout: "band", pair: "", voice: "bold", fill: "", style: "", look: "", frame: false, qr: true, seed: 1, chosen: false, gseed: 1,
 }, jget(STORE, null) || {});
 const keep = () => jset(STORE, state);
 
@@ -385,6 +395,7 @@ function photoFile() { const L = photoList(); return L.length ? L[Math.abs(state
 /** the card's ground: a fill, "photo" (where the line has photographs) or "scene:<kind>" */
 function fillNow() {
   const k = state.fill;
+  if (state.layout === "logo" && (k === "photo" || /^scene:/.test(k))) return "glow";   // a logo stands on its own ground, never on a picture
   if (FILL_OF[k]) return k;
   if (k === "photo") return photoOk() ? k : "glow";
   if (/^scene:/.test(k) && SCENES[k.slice(6)]) return k;
@@ -549,6 +560,7 @@ function front(ctx, P, W, f, d, out, img) {
   const S = SAFE, R = rng(state.seed * 7919 + 13), disp = f.display, lab = f.label, num = numFontOf(f);
   const G = [[P.ink, 4.5], [P.accent, 3]], PL = [[P.plateInk, 4.5]];   // the words on the ground, and on the plate
   ctx.fillStyle = P.ground; ctx.fillRect(0, 0, SHEET.w, SHEET.h);
+  if (d === "logo") { frontLogo(ctx, P, W, f, out); return; }
   if (d === "band") {
     const bandTop = S.y + S.h - 170, colW = img ? S.w * .6 : S.w;
     mainField(ctx, f, 0, 0, SHEET.w, bandTop - 10, P.ground, G, S.x + colW + 24 + (S.w - colW - 24) / 2, (S.y + bandTop) / 2);
@@ -681,6 +693,45 @@ function front(ctx, P, W, f, d, out, img) {
     drawBlock(ctx, out, NB, nf, S.x, b0 + 22, { fill: P.ink, role: "name" });
     // the stub: the product, whole
     product(ctx, out, img, tearX + 30, S.y - 10, BLEED + TRIM.w - 6 - (tearX + 30), S.h + 20, { align: "center", valign: "center" });
+  }
+}
+
+/* ---------- the logo (DESIGN-LAW 176): the brand kit's logo, on the front, in the card's own colours ---------- */
+/** the logo the customer picked in the logo maker (logo/logo.js keeps it), or null */
+const kitNow = () => { const k = jget("pgfx_logo_kit", null); return k && k.design && k.design.t ? k.design : null; };
+const logos = {};
+let LOGO_NOW = null;
+/** The kit's logo as a picture, drawn by the logo engine in this card's pair, so it always matches the
+ *  card: the engine and its faces are loaded only when a card wears a logo. */
+function logoImage() {
+  const d = kitNow(); if (!d) return Promise.resolve(null);
+  const design = { ...d, pair: pairNow().key }, key = JSON.stringify(design);
+  return logos[key] || (logos[key] = (async () => {
+    const E = await import("../logo/engine.js"), faces = {};
+    for (const f of E.facesOf(design)) faces[f] = (await import(`../logo/glyphs/${f}.js`)).default;
+    const r = E.logoSvg(design, faces, { bg: false, pad: 0 });
+    const url = URL.createObjectURL(new Blob([r.svg], { type: "image/svg+xml" }));
+    const im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    return { im, w: r.w, h: r.h, url };
+  })().catch(e => { console.warn("card logo:", e); delete logos[key]; return null; }));
+}
+/** The Logo front: the logo large in the safe area on the card's field, the website (or the towns) at its
+ *  foot. The details are on the back (Split's). Without a logo it sets the name as Centred would. */
+function frontLogo(ctx, P, W, f, out) {
+  const S = SAFE, lab = f.label, cx = S.x + S.w / 2;
+  mainField(ctx, f, 0, 0, SHEET.w, SHEET.h, P.ground, [[P.ink, 4.5], [P.accent, 3]], SHEET.w / 2, SHEET.h / 2);
+  frameNow(ctx);
+  const footT = W.site || W.where;
+  let bottom = S.y + S.h;
+  if (footT) bottom = say(ctx, out, footT, lab, fitS(ctx, footT, lab, S.w * .9, 30), cx, bottom, { foot: true, align: "center", fill: P.ink, role: W.site ? "site" : "where" }).y - 30;
+  const L = LOGO_NOW;
+  if (L) {
+    const k = Math.min(S.w * .88 / L.w, (bottom - S.y - 6) / L.h), w = L.w * k, h = L.h * k, x = cx - w / 2, y = S.y + (bottom - S.y - h) / 2;
+    ctx.drawImage(L.im, x, y, w, h);
+    out.push({ role: "logo", text: "", x, y, w, h });
+  } else {
+    const { B: NB, font: nf } = nameBlock(ctx, W.name, f, 120, S.w * .9, Math.min(240, bottom - S.y - 60));
+    drawBlock(ctx, out, NB, nf, cx, S.y + Math.max(0, (bottom - S.y - blockH(ctx, NB, nf)) / 2), { align: "center", fill: P.ink, role: "name" });
   }
 }
 
@@ -866,7 +917,7 @@ function backTicket(ctx, P, W, f, out, qr, img, S) {
   else product(ctx, out, img, BLEED + 10, S.y, tearX - 30 - (BLEED + 10), S.h, { align: "center", valign: "center" });
 }
 
-const BACKS = { band: backBand, split: backSplit, center: backCenter, pop: backPop, ticket: backTicket };
+const BACKS = { band: backBand, split: backSplit, center: backCenter, pop: backPop, ticket: backTicket, logo: backSplit };
 function back(ctx, P, W, f, d, out, qr, img) { (BACKS[d] || backBand)(ctx, P, W, f, out, qr, img, SAFE); }
 
 /* ---------- the QR (qrcode-generator, as the studio loads it) ---------- */
@@ -911,22 +962,28 @@ function loadProduct(L) {
 }
 
 /** one side of the card on a canvas: { canvas, boxes } (boxes: every word, the QR and the product, for the check) */
-export async function render(side, { scale = 1, marks = false, bare = false } = {}) {
+/* One drawing at a time: the gallery draws its looks by lending them to the card's state for a moment, so
+   every drawing (the preview, a download, a gallery card) waits its turn and never sees a lent look. */
+let LOCK = Promise.resolve();
+const locked = fn => { const p = LOCK.then(fn, fn); LOCK = p.catch(() => {}); return p; };
+export function render(side, o) { return locked(() => renderRaw(side, o)); }
+async function renderRaw(side, { scale = 1, marks = false, bare = false } = {}) {
   const f = TYPE_VOICES[voiceNow()], P = paletteOf(pairNow()), W = words();
   await loadFonts([f.display, f.label, numFontOf(f)]);
   let qr = null;
   if (side === "back" && state.qr) { try { await loadQr(); qr = qrCanvas(qrText(W)); } catch (e) { qr = null; } }
   const img = await loadProduct(lineNow());
+  const logo = state.layout === "logo" && side === "front" ? await logoImage() : null;
   const kind = fillNow(), ground = imageGround(kind) ? await loadGround(kind) : null;
   const paint = (sc, scrims, bareNow) => {
     const c = document.createElement("canvas");
     c.width = Math.round(SHEET.w * sc); c.height = Math.round(SHEET.h * sc);
     const ctx = c.getContext("2d"); ctx.scale(sc, sc);
     const out = [];
-    FIELDS = []; SCRIMS = scrims; GROUND = ground; PHOTO_ON = kind === "photo" && !!ground; CUR_P = P; BARE = !!bareNow;
-    FRAME_DUE = !!state.frame && !["pop", "ticket"].includes(state.layout);   // Pop and Ticket have frames of their own
+    FIELDS = []; SCRIMS = scrims; GROUND = ground; PHOTO_ON = kind === "photo" && !!ground; CUR_P = P; BARE = !!bareNow; LOGO_NOW = logo;
+    FRAME_DUE = !!state.frame && !["pop", "ticket"].includes(state.layout);   // (Logo wears Premium's frame too)   // Pop and Ticket have frames of their own
     try { if (side === "back") back(ctx, P, W, f, state.layout, out, qr, img); else front(ctx, P, W, f, state.layout, out, img); }
-    finally { BARE = false; SCRIMS = null; GROUND = null; PHOTO_ON = false; FRAME_DUE = false; }
+    finally { BARE = false; SCRIMS = null; GROUND = null; PHOTO_ON = false; FRAME_DUE = false; LOGO_NOW = null; }
     return { canvas: c, boxes: out, fields: FIELDS.slice() };
   };
   // a picture ground: drawn once without its words, at full size (half size blurred sprinkles and blob edges
@@ -1065,6 +1122,103 @@ function showPrint(scroll) {
   if (scroll) p.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+/* ---------- the gallery: finished cards to pick from ---------- */
+const GALLERY_N = 12;
+/** Looks for the gallery: a style at a time (each of the six twice), each look from that style's own lists,
+ *  no pair twice and no layout more than twice; with a logo picked, the first three wear it in its own colours. */
+function galleryLooks(gseed) {
+  const R = rng(gseed * 92821 + 17), pick = a => a[Math.floor(R() * a.length)], shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(R() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const out = [], used = new Set(), kit = kitNow();
+  if (kit && gseed === 1) {
+    const voice = VOICES.includes(kit.voice) ? kit.voice : "bold";
+    [["pro", "glow"], ["premium", "fade"], ["bold", "flat"]].forEach(([st, fill], i) => {
+      const S = STYLE_OF[st], pair = i === 0 || !PAIR_OF[kit.pair] ? kit.pair : pick(S.pairs.filter(k => PAIR_OF[k]));
+      out.push({ layout: "logo", pair: PAIR_OF[pair] ? pair : PAIRS[0].key, voice, fill, look: st, style: st, frame: !!S.frame, seed: gseed * 100 + i });
+      used.add(pair);
+    });
+  }
+  const order = shuffle(STYLES).concat(shuffle(STYLES));
+  const lays = {};
+  for (let i = 0; out.length < GALLERY_N && i < order.length * 3; i++) {
+    const S = order[i % order.length], fresh = S.layouts.filter(l => (lays[l] || 0) < 2), layout = fresh.length ? pick(fresh) : pick(S.layouts);
+    if (fresh.length === 0 && i < order.length * 2) continue;   // no layout more than twice while another style has room
+    lays[layout] = (lays[layout] || 0) + 1;
+    const pairs = S.pairs.map(k => PAIR_OF[k]).filter(p => p && !used.has(p.key)), suits = pairs.filter(p => (p.suits || []).includes(lineNow().cat));
+    if (!pairs.length) continue;
+    const pair = pick(suits.length >= 3 && R() < .5 ? suits : pairs).key;
+    const fill = S.grounds.includes("photo") && photoOk() && layout !== "center" && R() < .25 ? "photo" : pick(S.grounds.filter(g => g !== "photo"));
+    used.add(pair);
+    out.push({ layout, pair, voice: pick(S.voices.filter(v => VOICES.includes(v))) || "bold", fill, look: S.key, style: S.key, frame: !!S.frame, seed: gseed * 100 + 10 + i });
+  }
+  return out;
+}
+const LOOK_KEYS = ["layout", "pair", "voice", "fill", "look", "style", "frame", "seed"];
+let galRun = 0;
+/** draw a look's two sides small, without disturbing the card being customised */
+function renderLook(look, scale) {
+  return locked(async () => {
+    const was = Object.fromEntries(LOOK_KEYS.map(k => [k, state[k]]));
+    Object.assign(state, look);
+    try { return [await renderRaw("front", { scale, marks: !entitled }), await renderRaw("back", { scale, marks: !entitled })]; }
+    finally { Object.assign(state, was); }
+  });
+}
+let galDrawing = Promise.resolve();
+function drawGallery(append = false) {
+  const run = ++galRun;
+  galDrawing = galDrawing.then(async () => {
+    if (run !== galRun) return;
+    const grid = $("cd-gal"); if (!append) grid.innerHTML = "";
+    const looks = galleryLooks(state.gseed), nodes = looks.map(L => {
+      const b = document.createElement("button"); b.type = "button"; b.className = "cd-pick wait";
+      b.innerHTML = `<div class="cd-pair"></div><b>${esc((STYLE_OF[L.look] || {}).name || "")} · ${esc(L.layout === "logo" ? "Logo" : (LAYOUTS.find(x => x.key === L.layout) || {}).name || "")}</b>`;
+      b.setAttribute("aria-label", "A business card, loading"); grid.appendChild(b); return b;
+    });
+    for (let i = 0; i < looks.length; i++) {
+      if (run !== galRun) return;
+      const L = looks[i], b = nodes[i];
+      try {
+        const [f, k] = await renderLook(L, .4);
+        if (run !== galRun) return;
+        const pr = b.querySelector(".cd-pair");
+        for (const [r, cls] of [[k, "bk"], [f, "fr"]]) { r.canvas.className = cls; r.canvas.setAttribute("aria-hidden", "true"); pr.appendChild(r.canvas); }
+        b.classList.remove("wait");
+        const name = (STYLE_OF[L.look] || {}).name || "", lay = L.layout === "logo" ? "Logo" : (LAYOUTS.find(x => x.key === L.layout) || {}).name || "";
+        b.setAttribute("aria-label", "Pick this card: " + name + ", " + lay + ", in " + (PAIR_OF[L.pair] || {}).name);
+        b.dataset.layout = L.layout; b.dataset.pair = L.pair;
+        b.onclick = () => pickLook(L, b);
+      } catch (e) { console.warn("card gallery:", e); b.remove(); }
+    }
+    grid.dataset.drawn = String(run);
+    grid.dataset.count = String(grid.querySelectorAll(".cd-pick:not(.wait)").length);
+  });
+  return galDrawing;
+}
+/** a card picked from the gallery: its look is the card's, and Customise opens on it */
+function pickLook(L, tile) {
+  Object.assign(state, L); state.chosen = true; keep();
+  document.querySelectorAll(".cd-pick").forEach(b => b.setAttribute("aria-pressed", String(b === tile)));
+  customise(true);
+}
+/** open Customise (the form and the large preview), on the card as it stands */
+function customise(scroll) {
+  const c = $("cd-custom"); c.hidden = false;
+  drawControls(); fillForm(); later(0);
+  if (scroll) c.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+/** the gallery's own fields: the same words as the form's */
+function bindDetails() {
+  const sel = $("cd-g-line"); sel.innerHTML = $("cd-line").innerHTML; sel.value = lineNow().key;
+  $("cd-g-name").value = state.name || ""; $("cd-g-phone").value = state.phone || "";
+  let t = 0; const again = () => { clearTimeout(t); t = setTimeout(() => drawGallery(false), 450); };
+  $("cd-g-name").addEventListener("input", e => { state.name = e.target.value; $("cd-name").value = state.name; keep(); again(); if (!$("cd-custom").hidden) later(); });
+  $("cd-g-phone").addEventListener("input", e => { state.phone = e.target.value; $("cd-phone").value = state.phone; keep(); again(); if (!$("cd-custom").hidden) later(); });
+  sel.addEventListener("change", e => { state.line = e.target.value; state.points = ""; state.models = ""; keep(); fillForm(); drawControls(); drawGallery(false); if (!$("cd-custom").hidden) later(0); });
+  $("cd-gal-more").onclick = () => { state.gseed = (state.gseed | 0) + 1; keep(); drawGallery(false); $("cd-gallery").scrollIntoView({ behavior: "smooth", block: "start" }); };
+  $("cd-back-gal").onclick = () => $("cd-gallery").scrollIntoView({ behavior: "smooth", block: "start" });
+  $("cd-logo-link").textContent = kitNow() ? "Change my logo" : "Make a logo for your card";
+}
+
 /* ---------- the page ---------- */
 let drawing = 0;
 async function draw() {
@@ -1097,7 +1251,7 @@ function chips(id, list, on, pick) {
 }
 function drawControls() {
   chips("cd-styles", [{ key: "", name: "Any", hint: "A different direction each New look" }].concat(STYLES), state.style || "", k => { state.style = k; newLook(); });
-  chips("cd-layouts", LAYOUTS, state.layout, k => { state.layout = k; keep(); later(0); });
+  chips("cd-layouts", kitNow() ? LAYOUTS.concat([LOGO_LAYOUT]) : LAYOUTS, state.layout, k => { state.layout = k; keep(); later(0); });
   const suits = PAIRS.filter(p => (p.suits || []).includes(lineNow().cat)), rest = PAIRS.filter(p => !suits.includes(p));
   const shown = suits.concat(rest).slice(0, 30); if (!shown.includes(pairNow())) shown.unshift(pairNow());   // the pair on the card is always one to see
   chips("cd-pairs", shown.map(p => ({ key: p.key, name: p.name, html: `<i style="background:${p.colors.ground}"></i><i style="background:${p.colors.accent}"></i>` })), pairNow().key,
@@ -1116,7 +1270,7 @@ function fillForm() {
   $("cd-qr").checked = !!state.qr;
 }
 function bind() {
-  for (const k of ["name", "phone", "site", "where", "points", "models"]) $("cd-" + k).addEventListener("input", e => { state[k] = e.target.value; keep(); later(); });
+  for (const k of ["name", "phone", "site", "where", "points", "models"]) $("cd-" + k).addEventListener("input", e => { state[k] = e.target.value; keep(); later(); if ($("cd-g-" + k)) $("cd-g-" + k).value = state[k]; });
   $("cd-line").addEventListener("change", e => { state.line = e.target.value; state.points = ""; state.models = ""; keep(); fillForm(); drawControls(); later(0); });
   $("cd-qr").addEventListener("change", e => { state.qr = e.target.checked; keep(); later(0); });
   $("cd-shuffle").onclick = newLook;
@@ -1134,14 +1288,18 @@ async function start() {
   for (const k of ["name", "phone", "site", "where", "line", "pair"]) if (!state[k] && st[k]) state[k] = st[k];
   if (!jget(STORE, null) && st.voice) state.voice = st.voice;
   $("pt-where").value = st.zip || st.home || "";
-  fillForm(); drawControls(); bind();
+  if (!state.name && kitNow()) state.name = kitNow().name || "";
+  fillForm(); drawControls(); bind(); bindDetails();
   await checkEntitled();
+  // the gallery first; Customise is behind it, open where a card was picked before or the address asks for it
+  if (state.chosen || /[?&]customise=1\b/.test(location.search)) $("cd-custom").hidden = false;
   await draw();
   $("cd-loading").hidden = true;
-  if (window.pgfxAccount && window.pgfxAccount.onChange) window.pgfxAccount.onChange(async () => { await checkEntitled(); later(0); });
+  drawGallery(false);
+  if (window.pgfxAccount && window.pgfxAccount.onChange) window.pgfxAccount.onChange(async () => { await checkEntitled(); later(0); drawGallery(false); });
 }
 
 window.CardMaker = { state, render, pdfOf, printFile, FILLS: FILLS.map(x => x.key), newLook, photoOk, grounds: () => groundsShown().map(x => x.key),
   STYLES: STYLES.map(s => ({ key: s.key, name: s.name, layouts: s.layouts, pairs: s.pairs, voices: s.voices, grounds: s.grounds, frame: !!s.frame })), vividPair: k => vividPair(PAIR_OF[k]), kindOf, printLinks, draw, SHEET, TRIM, SAFE, BLEED, DPI, LAYOUTS: LAYOUTS.map(l => l.key), pairs: () => PAIRS.map(p => p.key), voices: () => VOICES.slice(),
-  entitled: () => entitled, ready: null };
+  entitled: () => entitled, customise: () => customise(false), gallery: () => galDrawing, galleryLooks, kit: () => kitNow(), ready: null };
 window.CardMaker.ready = start().catch(e => { console.error("business card maker:", e); note("The card maker did not load. Reload the page.", true); });

@@ -60,7 +60,8 @@
 import { getStore } from '@netlify/blobs';
 import { libraryRoute } from '../lib/library.mjs';
 import { adLibraryRoute, ownerKey } from '../lib/adlibrary.mjs';
-import { PLANS, PACKS, PAID, planId, videoOk, cardsOk, creditState, backgroundCredits } from '../lib/plans.mjs';
+import { PLANS, PACKS, PAID, planId, videoOk, cardsOk, logosOk, creditState, backgroundCredits } from '../lib/plans.mjs';
+import { logoFiles } from '../lib/logos.mjs';
 import {
   billingOn, stripeMode, stripe, priceFor, catalog, subState, applySub, applySession, customerOf,
   syncDue, syncSub, ensureWebhook, verifyEvent, webhookSecretKey, ensurePortalConfig, portalConfigKey, TERMS_VERSION,
@@ -411,6 +412,11 @@ export default async (req) => {
       if (kind === 'card' && !cardsOk(user.plan)) {
         return json({ error: 'Print-ready business cards come with Pro and Business', needs: 'cards', user: publicUser(user, env) }, 403);
       }
+      /* the logo files and brand kit (logo/): Pro and Business (plans.mjs logos). The logo maker asks
+         here only to know whether its preview is marked; the files come from /logo/file below. */
+      if (kind === 'logo' && !logosOk(user.plan)) {
+        return json({ error: 'Logo files come with Pro and Business', needs: 'logos', user: publicUser(user, env) }, 403);
+      }
       if (kind === 'video' && !videoOk(user.plan)) {
         return json({ error: 'Video downloads come with Pro and Business', needs: 'video', user: publicUser(user, env) }, 403);
       }
@@ -429,6 +435,31 @@ export default async (req) => {
       }
       if (p === '/export') { user.exports.count++; await putUser(user); }
       return json({ user: publicUser(user, env), maxPx: m.plan.maxPx, watermark: m.plan.watermark, remaining: m.cap === null ? null : m.cap - user.exports.count });
+    }
+
+    /* THE LOGO FILES (logo/, DESIGN-LAW 176). The page sends the design it shows; the plan is checked
+       (Pro and Business: plans.mjs logos), one photo download is counted, and the files are drawn
+       here by logo/engine.js (netlify/lib/logos.mjs), so a clean vector never comes from a browser
+       that has not paid. A drawing that fails counts nothing. */
+    if (p === '/logo/file' && req.method === 'POST') {
+      const em = await readToken(req, env);
+      if (!em) return json({ error: 'Not signed in' }, 401);
+      const user = await getUser(em);
+      if (!user) return json({ error: 'Account not found' }, 404);
+      const admin = roleFor(em, env) === 'admin';
+      if (!admin) await freshUser(user, env);
+      const { design, phone } = await req.json().catch(() => ({}));
+      if (!design || typeof design !== 'object' || Array.isArray(design)) return json({ error: 'Send the logo to draw' }, 400);
+      if (!admin && !logosOk(user.plan)) return json({ error: 'Logo files come with Pro and Business', needs: 'logos', user: publicUser(user, env) }, 403);
+      const m = exportMeter(user);
+      if (!admin && m.cap !== null && m.remaining <= 0) {
+        return json({ error: 'Download limit reached: ' + m.plan.label + "'s " + m.cap + ' photo downloads this ' + m.per, kind: 'photo', limit: m.cap, per: m.per, user: publicUser(user, env) }, 402);
+      }
+      let files;
+      try { files = await logoFiles(design, phone); }
+      catch (e) { console.error('logo files:', e); return json({ error: 'The logo could not be drawn' }, 500); }
+      if (!admin) { user.exports.count++; await putUser(user); }
+      return json({ files, user: publicUser(user, env) });
     }
 
     // ---------- AI backgrounds: admin path ----------
