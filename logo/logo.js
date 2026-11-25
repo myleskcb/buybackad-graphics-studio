@@ -37,21 +37,26 @@ const CATS = [["phones", "Phones & devices"], ["gaming", "Games & consoles"], ["
   ["wearables", "Watches & wearables"], ["cameras", "Cameras & drones"], ["strips", "Diabetic test strips"],
   ["devices", "Device store"], ["wholesale", "Wholesale & bulk lots"], ["resale", "Resale & trade-ins"]];
 const STORE = "pgfx_logo", KITKEY = "pgfx_logo_kit";
-const state = Object.assign({ name: "", cat: "", town: "", small: "", seed: 1, group: "", picked: null, details: {}, looks: {}, ok: {}, tier: "complete", format: "png" }, jget(STORE, null) || {});
+const state = Object.assign({ name: "", cat: "", town: "", small: "", seed: 1, group: "", picked: null, details: {}, looks: {}, ok: {}, tier: "complete", format: "png", card: null }, jget(STORE, null) || {});
 if (!KIT.KIT_FORMATS[state.format]) state.format = "png";
 state.details ||= {}; state.looks ||= {}; state.ok ||= {};
-const keep = () => jset(STORE, { name: state.name, cat: state.cat, town: state.town, small: state.small, seed: state.seed, group: state.group, picked: state.picked, details: state.details, looks: state.looks, ok: state.ok, tier: state.tier, format: state.format });
+const keep = () => jset(STORE, { name: state.name, cat: state.cat, town: state.town, small: state.small, seed: state.seed, group: state.group, picked: state.picked, details: state.details, looks: state.looks, ok: state.ok, tier: state.tier, format: state.format, card: state.card });
 /** the logo the rest of the site wears: the card maker and the full ad read it */
 const keepKit = () => { if (state.picked) jset(KITKEY, { v: E.ENGINE_VERSION, design: state.picked, at: Date.now() }); };
-const spec = () => ({ design: state.picked, details: state.details, looks: state.looks });
+/* card: the layout and background chosen in the card maker (cards/, which writes it here; DESIGN-LAW 185) */
+const spec = () => ({ design: state.picked, details: state.details, looks: state.looks, card: state.card });
 
 /** what the customer already told the studio (app.js pgfx_brand, the full ad's pgfx_full_studio, Easy Mode's line) */
 function fromStudio() {
   const brand = jget("pgfx_brand", null) || {}, fa = jget("pgfx_full_studio", null) || {}, cat = jget("pgfx_cat", "");
   const area = brand.area || null;
-  return { name: brand.name || fa.biz || "", cat: CATS.some(c => c[0] === cat) ? cat : "", town: area && area.home ? String(area.home).split(",")[0].trim() : "", phone: brand.phone || "" };
+  return { name: brand.name || fa.biz || "", cat: CATS.some(c => c[0] === cat) ? cat : "", town: area && area.home ? String(area.home).split(",")[0].trim() : "", phone: brand.phone || "", site: brand.website || "" };
 }
 const studio = fromStudio();
+/* the details the studio already has go into the kit's own, not only into the form's boxes: the card printed
+   the sample number while the box showed the studio's (2026-11-25) */
+if (!state.details.phone && studio.phone) state.details.phone = studio.phone;
+if (!state.details.site && studio.site) state.details.site = studio.site;
 
 /* ---------- the faces: one module a face, loaded when a logo set in it is drawn ---------- */
 const FACES = {}, loading = {};
@@ -228,12 +233,14 @@ function buildSteps() {
     <p class="lg-sub">${esc(f.says)}</p>
     ${f.key === "card" ? detailsForm() : ""}
     <div class="kit-files" id="files-${f.key}"></div>
-    ${f.key === "card" ? `<div class="kit-print"><h3 class="kit-h3">Print it today</h3><p>Same-day printing near you, and what to ask for: 16 pt card stock, matte or gloss, with the bleed.</p>
+    ${f.key === "card" ? `<p class="kit-card-more"><a href="../cards/">More layouts and backgrounds for your card</a> <span class="lg-opt">the card you pick there is the one in your kit</span></p>
+      <div class="kit-print"><h3 class="kit-h3">Print it today</h3><p>FedEx Office, Staples and Office Depot OfficeMax all offer same-day business cards to pick up in the store if you order by about midday, and other print shops near you may too. Ask for 16 pt card stock, matte or gloss, with the bleed, and call ahead.</p>
       <div class="kit-print-ask"><div class="lg-field"><label for="pt-where">Your ZIP code or town</label><input id="pt-where" type="text" maxlength="40" autocomplete="postal-code" placeholder="90802"></div></div>
-      <div class="kit-print-links" id="pt-links"></div></div>` : ""}
+      <div class="kit-print-links" id="pt-links"></div>
+      <p class="kit-print-small">These open <span id="pt-maps">Google Maps</span> with the search you see. Nothing about you is sent anywhere until you open one. <button class="kit-print-switch" id="pt-switch" type="button">Use Apple Maps instead</button></p></div>` : ""}
     <div class="kit-ok-row"><button class="lg-btn" type="button" data-look="${f.key}">Try another look</button><span class="kit-ok-done" id="ok-${f.key}-done" hidden>✓ Approved</span><button class="lg-btn primary" type="button" id="ok-${f.key}" data-ok="${f.key}">Looks good. Next</button></div>
   </section>`).join("");
-  host.querySelectorAll("[data-look]").forEach(b => b.onclick = () => { const k = b.dataset.look; state.looks[k] = ((state.looks[k] || 0) + 1) % 1000; state.ok[k] = false; keep(); rail(); okUI(); drawStep(k); });
+  host.querySelectorAll("[data-look]").forEach(b => b.onclick = () => { const k = b.dataset.look; state.looks[k] = ((state.looks[k] || 0) + 1) % 1000; if (k === "card") state.card = null; state.ok[k] = false; keep(); rail(); okUI(); drawStep(k); });
   host.querySelectorAll("[data-ok]").forEach(b => b.onclick = () => approve(b.dataset.ok));
   const det = $("kit-details");
   if (det) det.addEventListener("input", e => {
@@ -242,7 +249,13 @@ function buildSteps() {
     clearTimeout(detTimer); detTimer = setTimeout(() => { for (const k of ["card", "posts", "print"]) drawStep(k); }, 350);
   });
   const pt = $("pt-where");
-  if (pt) { pt.value = jget("pgfx_print_where", "") || ""; const draw = () => { jset("pgfx_print_where", pt.value); $("pt-links").innerHTML = printLinks(pt.value).map(l => `<a class="kit-print-link${l.main ? " main" : ""}" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.name)}<span aria-hidden="true">↗</span></a>`).join(""); }; pt.addEventListener("input", draw); draw(); }
+  if (pt) {
+    // the card maker's own Print it today (print-today.js): the maps app the device has, round the area's point
+    const area = (jget("pgfx_brand", null) || {}).area || {};
+    pt.value = jget("pgfx_print_where", "") || area.zip || "";
+    pt.addEventListener("input", () => jset("pgfx_print_where", pt.value));
+    import("./print-today.js").then(T => T.mountPrint({ input: pt, links: $("pt-links"), mapsName: $("pt-maps"), switchBtn: $("pt-switch"), linkClass: "kit-print-link", esc }));
+  }
 }
 let detTimer = 0;
 const DETAILS = [["person", "Your name", "Maria Lopez", "name"], ["role", "Your title", "Owner", "organization-title"], ["phone", "Phone", "(562) 555-0123", "tel"],

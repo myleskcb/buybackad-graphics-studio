@@ -5163,3 +5163,36 @@ Open:
 7. **The words** were written here, plain and signed WeBuy.AD; the owner has not read them yet
    (`netlify/lib/mail.mjs` resetMail and confirmMail).
 
+
+## CL. 2026-11-25 — the brand card: one card for the logo, the kit and the card maker (DESIGN-LAW 185)
+
+The owner: "business cards also dont have any real brand assets? or background options?", "still not enough to
+make a consistent brand kit people will use moving forward needs to looks super clean", "Yes, build it".
+
+Done (`claude/distracted-pascal-31593b`):
+- **`logo/card.js`**: the brand card, eight layouts × eight backgrounds in the logo's own colours, pure, drawn by
+  the page and the function alike.
+- **The brand kit's card** (`logo/kit.js` card-front, card-back) is that card, in the layout and background the
+  card maker chose (`pgfx_logo.card`, kept by `cleanSpec`), or the kit's "Try another look". It no longer prints
+  sample details; the studio's number and website go into the kit's details (the card had printed
+  (555) 555-0123 while the box showed the studio's). A link from the kit's card step to the card maker.
+- **The card maker** opens on Brand cards: twelve in all eight layouts, wearing the logo (or one suggested for
+  the name, which the page says), the kit's details form, Layout and Background chips, New look through the
+  kit's looks; downloads as before (Pro and Business, rule 167). The old cards are the **Promo cards** tab, and
+  a kit's line now leads them.
+- **One Print it today** (`logo/print-today.js`) for both pages; the kit's had kept the old Google-only copy
+  that named The UPS Store.
+- Checks: `scripts/brand_card_check.mjs` (new), `business_card_check.mjs` and `logo_check.mjs` updated.
+
+Open:
+- **The other kit files still print samples.** Posts, stories, signs and the email signature (`kit.js` `det`,
+  `SAMPLE`) fill an empty phone, email, website, address or hours with a sample in the files the kit pays for.
+  The card no longer does; the rest needs the same rule (leave it off, or say "call ahead" without a number).
+- **Upload your own logo**, for shops that already have one: not built (the owner's call on whether a picture
+  logo, not drawn by the engine, may wear the kit).
+- **A vertical card** (2 × 3.5 in): not built; every layout here is landscape.
+- **The suggested logo** a brand card wears before the customer makes one is the logo maker's first suggestion
+  for the name: free to see, marked until the plan has cards, like every preview.
+- Seen locally in Chromium at 1280 and 390, light and dark, and in a contact sheet of every layout and
+  background; not on a real phone or in print. A printed proof of White and Linen would show whether the
+  textures read on 16 pt stock.

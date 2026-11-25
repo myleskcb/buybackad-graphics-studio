@@ -40,7 +40,7 @@ const UA = {
 };
 
 const browser = await chromium.launch();
-async function open({ demo = true, token = null, route = null, scheme = 'dark', width = 1300, ua = null } = {}) {
+async function open({ demo = true, token = null, route = null, scheme = 'dark', width = 1300, ua = null, mode = 'promo' } = {}) {
   const ctx = await browser.newContext({ viewport: { width, height: 1000 }, colorScheme: scheme, acceptDownloads: true, ...(ua ? { userAgent: ua } : {}) });
   const page = await ctx.newPage();
   const errors = [];
@@ -51,12 +51,15 @@ async function open({ demo = true, token = null, route = null, scheme = 'dark', 
     if (token) localStorage.setItem('pgfx_token', JSON.stringify(token)); else localStorage.removeItem('pgfx_token');
     localStorage.removeItem('pgfx_card');
     localStorage.removeItem('pgfx_card_maps');
+    localStorage.removeItem('pgfx_logo'); localStorage.removeItem('pgfx_logo_kit');
   }, [BRAND, demo, token]);
   if (route) await page.route('**/api/**', route);
   await page.goto(BASE + 'cards/?c=' + Date.now(), { waitUntil: 'load' });
   await page.waitForFunction(() => window.CardMaker && document.getElementById('cd-stage').dataset.drawn, null, { timeout: 30000 });
   // the page opens on its gallery of finished cards (DESIGN-LAW 176); these checks are the form's, so open Customise
   await page.evaluate(() => CardMaker.customise());
+  // the page opens on Brand cards (DESIGN-LAW 185); most checks here are the promo layouts', so they say which
+  await page.evaluate(async (m) => { CardMaker.mode(m); await CardMaker.draw(); }, mode);
   return { page, ctx, errors };
 }
 
@@ -290,8 +293,9 @@ stand.calls = [];
 }
 for (const scheme of ['dark', 'light']) {
   stand.calls = [];
-  const { page, ctx, errors } = await open({ demo: false, token: 'tok-pro', route: stand('pro'), scheme });
-  ok(await page.evaluate(() => document.getElementById('cd-stage').dataset.marked === 'false'), 'Pro (' + scheme + '): the preview is clean');
+  const mode = scheme === 'light' ? 'brand' : 'promo';
+  const { page, ctx, errors } = await open({ demo: false, token: 'tok-pro', route: stand('pro'), scheme, mode });
+  ok(await page.evaluate(() => document.getElementById('cd-stage').dataset.marked === 'false'), 'Pro (' + scheme + ', ' + mode + ' cards): the preview is clean');
   const dl = page.waitForEvent('download', { timeout: 20000 });
   await page.click('#cd-pdf');
   const d = await dl.catch(() => null);
@@ -330,16 +334,48 @@ for (const [who, ua, want] of [['the iPhone app', UA.iphoneApp, 'apple'], ['Safa
   ok(errors.length === 0, 'no page error on ' + who + ' (' + errors.slice(0, 2).join(' | ') + ')');
   await ctx.close();
 }
-for (const scheme of ['dark', 'light']) {
-  const { page, ctx } = await open({ width: 390, scheme });
+for (const [scheme, mode] of [['dark', 'promo'], ['light', 'promo'], ['dark', 'brand'], ['light', 'brand']]) {
+  const { page, ctx } = await open({ width: 390, scheme, mode });
   ok((await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 0, 'a phone\'s width (' + scheme + '): no sideways scroll');
-  if (SHEET_DIR) await page.screenshot({ path: join(SHEET_DIR, 'maker-390-' + scheme + '.png'), fullPage: false });
+  if (SHEET_DIR) await page.screenshot({ path: join(SHEET_DIR, 'maker-390-' + scheme + '-' + mode + '.png'), fullPage: false });
   await page.click('#cd-print');
   await page.waitForTimeout(400);
   ok((await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 0, 'a phone\'s width (' + scheme + '), Print it today open: no sideways scroll');
   const small = await page.evaluate(() => [...document.querySelectorAll('#print *')].filter((e) => e.childNodes.length && [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) && parseFloat(getComputedStyle(e).fontSize) < 12).map((e) => e.id || e.className));
   ok(!small.length, 'nothing in Print it today under 12 px (' + small.join(', ') + ')');
-  if (SHEET_DIR) await page.locator('#print').screenshot({ path: join(SHEET_DIR, 'print-390-' + scheme + '.png') });
+  if (SHEET_DIR) await page.locator('#print').screenshot({ path: join(SHEET_DIR, 'print-390-' + scheme + '-' + mode + '.png') });
+  await ctx.close();
+}
+
+/* ---------- Brand cards (DESIGN-LAW 185): the logo's card, the kit's details, the kit's choice ---------- */
+{
+  const { page, ctx, errors } = await open({ mode: 'brand', scheme: 'light' });
+  const b = await page.evaluate(() => ({ mode: CardMaker.mode(), layouts: document.querySelectorAll('#cd-blayouts button').length, grounds: document.querySelectorAll('#cd-bgrounds button').length,
+    promoHidden: getComputedStyle(document.getElementById('cd-promo-form')).display === 'none', brandShown: getComputedStyle(document.getElementById('cd-brand-form')).display !== 'none',
+    suggest: !document.getElementById('cd-suggest').hidden }));
+  ok(b.mode === 'brand' && b.layouts === 8 && b.grounds === 8 && b.promoHidden && b.brandShown, 'Brand cards: eight layouts, eight backgrounds, the kit\'s details form and not the promo one (' + JSON.stringify(b) + ')');
+  ok(b.suggest, 'with no logo made yet, the page says the cards wear a suggested one');
+  await page.fill('#cd-b-person', 'Maria Lopez'); await page.fill('#cd-b-email', 'maria@longbeachphonebuyers.com'); await page.fill('#cd-b-hours', 'Mon to Sat, 10 to 7');
+  const kit = await page.evaluate(() => JSON.parse(localStorage.getItem('pgfx_logo') || '{}').details || {});
+  ok(kit.person === 'Maria Lopez' && kit.email === 'maria@longbeachphonebuyers.com', 'the details go into the kit\'s own (pgfx_logo), for its posts and signature too (' + JSON.stringify(kit) + ')');
+  const sides = await page.evaluate(async () => { const f = await CardMaker.render('front'), bk = await CardMaker.render('back'); return { f: f.boxes, b: bk.boxes, w: f.canvas.width, h: f.canvas.height }; });
+  const texts = sides.b.map((x) => x.text).join(' | ');
+  ok(sides.w === 1125 && sides.h === 675, 'a brand card is the same sheet (' + sides.w + ' × ' + sides.h + ')');
+  ok(/MARIA LOPEZ/.test(texts) && texts.includes('maria@longbeachphonebuyers.com') && texts.includes('(562) 999-4994') && texts.includes('Mon to Sat, 10 to 7'), 'the back says what was typed, and the studio\'s number (' + texts + ')');
+  ok(!/555-0123|yourshop|123 Main/i.test(texts), 'no sample detail on the back');
+  ok(sides.f.concat(sides.b).filter((x) => x.role !== 'bigmark').every((x) => x.x0 >= 74 && x.x1 <= 1051 && x.y0 >= 74 && x.y1 <= 601), 'every word, the logo and the QR inside the safe area');
+  const before = await page.evaluate(() => CardMaker.brandChoice());
+  await page.click('#cd-shuffle');
+  const after = await page.evaluate(() => ({ c: CardMaker.brandChoice(), kit: JSON.parse(localStorage.getItem('pgfx_logo') || '{}').card }));
+  ok(JSON.stringify(after.c) !== JSON.stringify(before) && JSON.stringify(after.kit) === JSON.stringify(after.c), 'New look moves to the next layout and background, and the kit has it (' + JSON.stringify(before) + ' to ' + JSON.stringify(after.c) + ')');
+  await page.click('#cd-bgrounds button[data-k="linen"]');
+  ok((await page.evaluate(() => CardMaker.brandChoice().ground)) === 'linen', 'a background chip sets the card\'s background');
+  const pdf = await page.evaluate(async () => { const u = await CardMaker.printFile(false), t = new TextDecoder('latin1').decode(u); return { head: t.slice(0, 8), pages: (t.match(/\/Type \/Page /g) || []).length, trim: (t.match(/\/TrimBox/g) || []).length }; });
+  ok(pdf.head === '%PDF-1.4' && pdf.pages === 2 && pdf.trim === 2, 'the brand card\'s print PDF: two pages, each with its trim (' + JSON.stringify(pdf) + ')');
+  await page.click('#cd-tab-promo');
+  ok(await page.evaluate(() => CardMaker.mode() === 'promo' && getComputedStyle(document.getElementById('cd-promo-form')).display !== 'none'), 'the Promo cards tab brings the promo form and layouts back');
+  ok(errors.length === 0, 'Brand cards: no page error (' + errors.slice(0, 2).join(' | ') + ')');
+  if (SHEET_DIR) { await page.click('#cd-tab-brand'); await page.waitForTimeout(600); await page.evaluate(() => document.getElementById('cd-custom').scrollIntoView()); await page.screenshot({ path: join(SHEET_DIR, 'brand-custom.png') }); }
   await ctx.close();
 }
 await browser.close();

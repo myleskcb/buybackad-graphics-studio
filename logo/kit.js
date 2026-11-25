@@ -16,6 +16,7 @@
      cleanSpec(x)                 a kit held to what the engine draws: the logo, the details, the looks
    ═══════════════════════════════════════════════════════════════════════════ */
 import * as E from "./engine.js";
+import { brandCardSvg, cardChoice, cardValid, CARD } from "./card.js";
 
 const { K, LINE_WORDS, LOGO_ICONS, paletteOf } = E;
 const { ctxOf, drawMark, drawHorizontal, svgOf, textLine, fitSize, fitBlock, drawBlock, capOf, shapeRun, arcText, arcFit,
@@ -41,12 +42,15 @@ export function cleanDetails(x) {
 const SAMPLE = { phone: "(555) 555-0123", email: "hello@yourshop.com", site: "yourshop.com", handle: "@yourshop", address: "123 Main St", hours: "MON-SAT 10AM-7PM" };
 const det = (x, k) => x[k] || SAMPLE[k] || "";
 
-/** A kit: the logo (engine design), the details, and a look a step (the seed "Try another look" moves). */
+/** A kit: the logo (engine design), the details, a look a step (the seed "Try another look" moves), and
+ *  the card the customer chose in the card maker, a layout and a background (card.js; DESIGN-LAW 185). */
 export const STEPS = ["social", "card", "posts", "print"];
 export function cleanSpec(x) {
   const s = x && typeof x === "object" ? x : {}, looks = {};
   for (const k of STEPS) looks[k] = Math.abs((s.looks && s.looks[k]) | 0) % 1000;
-  return { design: E.cleanDesign(s.design), details: cleanDetails(s.details), looks };
+  const out = { design: E.cleanDesign(s.design), details: cleanDetails(s.details), looks };
+  if (cardValid(s.card)) out.card = { layout: s.card.layout, ground: s.card.ground };
+  return out;
 }
 
 /* ---------- the words, a line at a time (they pass motion/banned-words.js: no dashes, no superlatives) ---------- */
@@ -241,52 +245,12 @@ function highlight(spec, faces, icon, word) {
   return svgOf({ w, h, it }, c.P, { mode: "colour", bg: false, pad: 0, title: c.N.full + " highlight: " + word, size: [w, h] });
 }
 
-/* the business card, at 300 dpi on its bleed: 3.5 × 2 in plus 1/8 in a side (the card maker's sheet) */
-const CARD = { w: 1125, h: 675, bleed: 37.5 };
-function cardFront(spec, faces) {
-  const c = ctxOf(spec.design, faces), { w, h, bleed } = CARD, it = [fill(w, h)], look = lookOf(spec, "card");
-  const safe = bleed * 2;
-  if (look === "band") { it.push({ d: rectD(0, h - bleed - 120, w, bleed + 120), fill: "P", tone: 0 }); }
-  else if (look !== "frame") deco(it, c, w, h, look);
-  else it.push({ d: rectD(safe, safe, w - 2 * safe, h - 2 * safe, 14), stroke: "A", sw: 6, tone: 0 });
-  const a = art(c, "primary"), boxH = (h - 2 * safe) * (look === "band" ? .62 : .72);
-  place(it, a, safe + 40, safe + (look === "band" ? 18 : ((h - 2 * safe) - boxH) / 2), w - 2 * safe - 80, boxH);
-  if (look === "band") { const ss = fitSize(c.Lb, c.small, w - 2 * safe - 60, 26, .24); it.push(textLine(c.Lb, c.small, ss, w / 2, h - bleed - 60 + capOf(c.Lb, ss) / 2, { track: .24, fill: "Q", tone: 0 }).item); }
-  return svgOf({ w, h, it }, c.P, { mode: "colour", bg: false, pad: 0, title: c.N.full + " business card, front", size: [w, h] });
-}
-function cardBack(spec, faces) {
-  const c = ctxOf(spec.design, faces), x = spec.details, { w, h, bleed } = CARD, it = [fill(w, h)], look = lookOf(spec, "card");
-  const safe = bleed * 2, L = safe + 36, R = w - safe - 36;
-  // the mark at the right on its plate; the person and the ways to reach them at the left
-  const ms = 250, mx = R - ms, my = h / 2 - ms / 2 - (look === "band" ? 30 : 0);
-  place(it, art(c, "mark"), mx, my, ms, ms);
-  const colW = mx - L - 50;
-  let y = safe + 34;
-  if (x.person) {
-    const ns = fitSize(c.D, up(x.person), colW, 58, .02); y += capOf(c.D, ns);
-    it.push(textLine(c.D, up(x.person), ns, L, y, { align: "left", track: .02, fill: "I", tone: 0 }).item);
-    if (x.role) { const rs = fitSize(c.Lb, up(x.role), colW, 22, .2); y += 22 + capOf(c.Lb, rs); it.push(textLine(c.Lb, up(x.role), rs, L, y, { align: "left", track: .2, fill: "A", tone: 0 }).item); }
-    y += 40;
-  } else {
-    const ns = fitSize(c.D, c.N.full, colW, 50, .02); y += capOf(c.D, ns);
-    it.push(textLine(c.D, c.N.full, ns, L, y, { align: "left", track: .02, fill: "I", tone: 0 }).item); y += 40;
-  }
-  const rows = [["call", det(x, "phone")], ["mail", x.email || SAMPLE.email], ["globe", x.site || SAMPLE.site], ["pin", x.address || tidy(c.d.town) || SAMPLE.address]];
-  if (x.handle) rows.push(["chat", x.handle]);
-  const bottom = look === "band" ? h - bleed - 120 - 26 : h - safe - 10, rh = Math.min(64, (bottom - y) / rows.length);
-  const fs = Math.min(...rows.map(([, t]) => fitSize(c.Lb, t, colW - 64, rh * .38, .02)));
-  rows.forEach(([ic, t], j) => {
-    const cy = y + j * rh + rh / 2;
-    it.push(iconItem(ic, L + 18, cy, 36, "A", 0, 8));
-    it.push(textLine(c.Lb, t, fs, L + 56, cy + capOf(c.Lb, fs) / 2, { align: "left", track: .02, fill: "I", tone: 0 }).item);
-  });
-  if (look === "band") {
-    it.push({ d: rectD(0, h - bleed - 120, w, bleed + 120), fill: "P", tone: 0 });
-    const ss = fitSize(c.Lb, c.small, w - 2 * safe - 60, 26, .24);
-    it.push(textLine(c.Lb, c.small, ss, w / 2, h - bleed - 60 + capOf(c.Lb, ss) / 2, { track: .24, fill: "Q", tone: 0 }).item);
-  } else it.push({ d: rectD(L, h - safe - 4, R - L, 4, 2), fill: "A", tone: 0 });
-  return svgOf({ w, h, it }, c.P, { mode: "colour", bg: false, pad: 0, title: c.N.full + " business card, back", size: [w, h] });
-}
+/* the business card (DESIGN-LAW 185): the brand card, drawn by card.js as the card maker draws it, in the
+   layout and background the customer chose there, or the one "Try another look" lands on. Only the details
+   the customer gave: an empty one is left off the card, never printed as a sample. */
+const cardOf = spec => cardChoice(spec.card, spec.looks.card || 0);
+const cardFront = (spec, faces) => brandCardSvg(spec.design, spec.details, faces, { side: "front", ...cardOf(spec) });
+const cardBack = (spec, faces) => brandCardSvg(spec.design, spec.details, faces, { side: "back", ...cardOf(spec) });
 
 /** The email signature (shown at 600 × 180; drawn twice that for sharp screens) */
 function signature(spec, faces) {
