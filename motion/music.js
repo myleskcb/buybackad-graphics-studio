@@ -249,6 +249,46 @@ Object.assign(TUNES, {
 TUNES.carol_bells.season = "christmas";
 TUNES.toccata.season = "halloween";
 
+// Original hooks (owner, 2026-11-19: "make more tunes, songs, or chimes we can use"; "original
+// hooks", DESIGN-LAW 174): short melodies written for these ads, so nothing is a cartoon's tune and
+// nothing is anyone else's. Each was checked against the famous openings it could echo (two first
+// drafts began as "Happy Birthday" and "Mary Had a Little Lamb", and were rewritten). Every one
+// is four bars in common time, its chords under it, in the bed's key like any tune; `pair`: the
+// hook of the other mode a look plays when its bed is in that mode (engine.js harmonise).
+const HOOKS = {
+  lift: { mode: "major", tempo: [100, 124], pair: "night_drive",
+    notes: [[4, .5], [7, .5], [9, .75], [7, .25], [4, .5], [2, .5], [4, 1],  [4, .5], [7, .5], [9, .5], [12, 1], [11, .5], [9, 1],
+      [4, .5], [7, .5], [9, .75], [7, .25], [4, .5], [2, .5], [4, 1],  [4, .5], [7, .5], [9, .5], [7, .5], [4, .5], [2, .5], [0, 1]],
+    chords: [[0, "M", 4], [5, "M", 4], [9, "m", 4], [7, "M", 2], [0, "M", 2]] },
+  skyline: { mode: "major", tempo: [110, 130], pair: "rise",
+    notes: [[0, 1], [4, 1], [7, 1.5], [9, .5],  [7, 2], [4, 1], [2, 1],  [0, 1], [4, 1], [7, 1.5], [12, .5],  [12, 1], [9, 1], [7, 2]],
+    chords: [[0, "M", 4], [7, "M", 4], [9, "m", 4], [5, "M", 4]] },
+  golden: { mode: "major", tempo: [88, 104], pair: "street",
+    notes: [[2, .5], [4, .5], [11, .75], [9, .25], [7, 1], [null, 1],  [9, .5], [11, .5], [14, .75], [12, .25], [11, 1], [9, 1],
+      [2, .5], [4, .5], [11, .75], [9, .25], [7, 1], [null, 1],  [9, .5], [7, .5], [4, .5], [2, .5], [0, 2]],
+    chords: [[0, "M7", 4], [9, "m7", 4], [2, "m7", 2], [7, "7", 2], [0, "M7", 4]] },
+  bright_pluck: { mode: "major", tempo: [118, 128], fast: true, pair: "pulse_hook",
+    notes: [[12, .5], [11, .25], [12, .25], [7, .5], [4, .5], [9, .5], [7, .5], [4, 1],  [5, .5], [4, .25], [5, .25], [9, .5], [12, .5], [11, .5], [9, .5], [7, 1]],
+    chords: [[0, "M", 4], [5, "M", 2], [7, "M", 2]] },
+  night_drive: { mode: "minor", tempo: [90, 110], pair: "lift",
+    notes: [[0, .5], [3, .5], [7, 1], [5, .5], [3, .5], [2, 1],  [0, .5], [3, .5], [7, .5], [10, 1.5], [8, 1],
+      [7, .5], [5, .5], [3, 1], [2, .5], [3, .5], [5, 1],  [3, 1], [2, 1], [0, 2]],
+    chords: [[0, "m", 4], [8, "M", 4], [3, "M", 4], [10, "M", 2], [0, "m", 2]] },
+  rise: { mode: "minor", tempo: [80, 100], pair: "skyline",
+    notes: [[0, 1], [7, 1], [8, 1.5], [7, .5],  [5, 1], [3, 1], [2, 2],  [0, 1], [7, 1], [8, 1], [10, 1],  [12, 3], [null, 1]],
+    chords: [[0, "m", 4], [10, "M", 4], [8, "M", 4], [8, "M", 2], [10, "M", 2]] },
+  street: { mode: "minor", tempo: [85, 100], pair: "golden",
+    notes: [[7, .75], [7, .25], [8, .5], [7, .5], [3, 1], [null, 1],  [7, .75], [7, .25], [8, .5], [10, .5], [12, .5], [10, .5], [8, 1],
+      [7, .75], [7, .25], [8, .5], [7, .5], [3, 1], [null, 1],  [5, .5], [7, .5], [8, 1], [7, .5], [5, .5], [3, 1]],
+    chords: [[0, "m", 4], [8, "M", 4], [0, "m", 4], [5, "m", 4]] },
+  pulse_hook: { mode: "minor", tempo: [120, 140], fast: true, pair: "bright_pluck",
+    notes: [[0, .25], [0, .25], [12, .5], [10, .5], [7, .5], [0, .25], [0, .25], [12, .5], [15, .5], [14, .5],
+      [0, .25], [0, .25], [12, .5], [10, .5], [7, .5], [8, 1], [7, 1]],
+    chords: [[0, "m", 4], [8, "M", 2], [7, "M", 2]] },
+};
+for (const [id, h] of Object.entries(HOOKS)) TUNES[id] = { ...h, original: true };
+export const HOOK_IDS = Object.keys(HOOKS);
+
 export const SHAVE = [[0, 1], [-5, .5], [-5, .5], [-3, 1], [-5, 1], [null, 1], [-1, 1], [0, 1]];
 
 const QUAL = { M: [0, 4, 7], m: [0, 3, 7], "7": [0, 4, 7, 10], m7: [0, 3, 7, 10], M7: [0, 4, 7, 11], m9: [0, 3, 7, 10, 14], M9: [0, 4, 7, 11, 14] };
@@ -293,6 +333,9 @@ export const KITS = {
   deep_house: { prog: "lush", keys: ["synth_pluck", "epiano", "organ_b3"] },
   trance: { prog: "minor", keys: ["supersaw", "pad"] },
   nu_disco: { prog: "minor", keys: ["synth_brass", "synth_pluck", "funk_guitar", "clav"] },
+  // 2026-11-19 (owner: "I need like trailer commercial professional"; DESIGN-LAW 174): a trailer's
+  // bed, low strings over a pulsing synth bass, drums like taiko, a clock ticking until the hit
+  trailer: { prog: "minor", keys: ["strings", "pad"] },
 };
 
 /** The key, chords and tune of one look, laid on its beat grid. key: the pitch class the
@@ -587,6 +630,30 @@ export function groove(M, kit, A, start, total) {
           if (on("..x..x....x..x..", i)) stab(t, s16 * 1.5, .14, 66);
           if (i % 4 === 2) S.hit(t, "tamb", .12, -.3);
           break;
+        case "trailer": {
+          // Until the headline hit: a low drone, the strings and a clock ticking, all under the
+          // bed's closed filter (audio.js). On the hit the pulse and the drums come in: the pulse
+          // sixteenths on the chord's root, accented three, three, two (one of two figures, by
+          // the key); a bass drum and timpani on the bar line and the "and" of three, a tom on
+          // the "and" of two, a light snare on three; a tom run ends every second bar, a
+          // reverse cymbal leads into every fourth, and a crash opens it.
+          const post = t >= A.hit - 1e-3, phrase = bar % 4;
+          const acc = keyPc % 2 ? "x..x..x.x..x..x." : "x..x..x...x..x..";
+          // levels measured on a phone's terms (2026-11-19): the sub held back, the strings in the mids
+          if (i === 0) { stab(t, b * 3.9, post ? .2 : .22, 60); M.bass(t, bass(t), b * 3.9, post ? .08 : .17); }
+          if (!post && i % 2 === 0) { M.tock(t, i % 4 ? .022 : .034, .1); M.key(t, i % 4 ? .03 : .045); }
+          if (post) {
+            const m = bassNote(keyPc, A.chordAt(t + 1e-4)) + 12 + (i === 14 && B ? 12 : 0);
+            M.note(t, "synth_bass", m, s16 * .7, on(acc, i) ? .3 : .13);
+            if (i === 0) { M.hit(t, "bass_drum", .55); M.hit(t, "timpani", .45); M.kick(t, .42); if (phrase === 0) M.hit(t, "crash", .2); }
+            if (i === 6) { M.hit(t, "tom_lo", .35); M.tom(t, .25); }
+            if (i === 8) M.hit(t, "snare", .12);
+            if (i === 10) { M.hit(t, "bass_drum", .4); M.hit(t, "timpani", .3); }
+            if (B && i >= 12) M.hit(t, i % 2 ? "tom_hi" : "tom_lo", .22 + (i - 12) * .05);
+            if (phrase === 3 && i === 12) M.reverseCymbal(t, t + b, .05);
+          }
+          break;
+        }
         case "classical": {                               // no drums: a broken-chord accompaniment
           const c = chordTones(t, 52), pat = [0, 2, 1, 2];
           M.note(t, K, c[pat[i % 4] % c.length], s16 * 1.6, .14);

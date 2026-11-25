@@ -751,3 +751,12 @@ produced." DESIGN-LAW rule 87. In practice:
   stylesheet rule that needs the script. New galleries of server pictures get the same watch.
   Before a commit that touches the wall or the landing's library: `node scripts/wall_pictures_check.mjs`.
   And close a preview's tab when you stop its server: the owner reads the browser pane as the product.
+- **Moving grounds** (rule 175, 2026-11-24): a full ad in the video maker may stand
+  on a clip (`motion/clips.js`, `motion/clips/`), drawn as a ground photograph whose
+  `clip` names it. Every still path draws its first frame; the preview plays it
+  (`attachClip`); a download seeks a player of its own (`prepareExport`,
+  `prepareFrame`, `endExport`), so a new export path calls those three too. The
+  files come from `scripts/build_clip_grounds.sh`, never by hand. Before a commit
+  that touches them or the full ad's ground: `node scripts/clip_grounds_check.mjs`,
+  on a server that answers byte ranges (Python's http.server does not, and a video
+  that cannot seek fails it).

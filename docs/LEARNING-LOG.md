@@ -6876,6 +6876,13 @@ Found:
     (other sessions' browsers and simulators) its timed presses could not be staged. Two things of this branch it
     caught: the checks' layout had the looks first and in view, drawing two dozen while it typed (last now), and
     Back's label split off for the phones took the press from the button (pointer-events: none on it).
+  - The earbuds full ad at 16:9 "ran to the edge" in full_ad_studio_check since the ground families of 2026-11-23:
+    nothing did. The headline's shade (scrimC) is drawn over the ground every frame, and the pre-flight read what
+    is drawn against the bare ground, so the shade's soft edge over a frosted-glass outline read as a mark. A shade
+    is the ground's: measure against the ground under it, as engine.js's guards do (fixed in fullPreflight). Not the
+    small lines' layers (groundEven) too: on a photograph they are not drawn as kept, and adding them made 18
+    full_ad_check cases read the ground lighter than the picture. A baseline is checked against the frame, pixel
+    by pixel, before it is trusted.
   - "Self condensing but legible at all level": three pages at eleven widths, 320 to 1920 (no sideways scroll,
     nothing off the screen, no words under 12 px). The landing's bar ran its buttons off the edge from 1010 to
     1440; its gaps close with the window now and its links give way least needed first.
@@ -6887,8 +6894,7 @@ RESUME HERE:
   3. Open: the engine's photo pools still draw assets/bg-web (CC BY/BY-SA, ruled out 2026-11-21) and
      Golden Gate wallpapers wherever no metro is known; two LA photographs are of Griffith Observatory and
      one of the Santa Monica pier sign; "Pasadena" alone resolves to Houston (metros.js); the studio's
-     template default number is still (562) 999-4994; full_ad_studio_check's earbuds-landscape edge
-     failure is older than this branch; the founder's WhatsApp on the landing goes public with the merge.
+     template default number is still (562) 999-4994.
 
 ## 2026-11-24 — the library's pictures, clear until loaded (DESIGN-LAW 169; claude/library-pictures-clear)
 
@@ -6906,3 +6912,94 @@ seen (16 of 16).
 Lesson: run a new check against the live site after it ships, not only the local server. The race
 it found exists only at the live site's pace.
 
+## 2026-11-18 and -19 — the video ads sound like a trailer, not a game (DESIGN-LAW 174; claude/video-music-sfx-audit-3691d1)
+
+Asked: audit the music and sound effects ("like I'm playing mario kart ...
+I need like trailer commercial professional"); then the shuffle's odds; then
+"1-3 best suggestion works" (a trailer's sounds, the jazz out, the number
+sound evened); heard: "Sounds right"; then the weirder instruments and
+openers out, the most popular kept, more tunes and chimes, other genres than
+lo-fi, layers that play over each other (asked: in one key; original hooks);
+heard again: "Sounds right".
+
+Done: stand-ins for every game sound, the jazz and most lo-fi; the menus
+trimmed; the braam, two number sounds on a low hit, a trailer's bed; four
+chimes and an End chime menu; eight original hooks matched to their bed's
+mode; 23 genres in the shuffle; over a recording, its key. 98.8% of shuffles
+played a game-like sound; 4.9% do now, all confetti looks (rule 129).
+
+Found:
+  - Zeroing an option's weight reshuffles its whole axis: the hit moved on
+    71% of looks though 36% had a cartoon hit. Handing a removed option's
+    share to its neighbours keeps the draw but skews the balance (the bill
+    counter rose to 40%). A stand-in drawn on a stream of its own keeps both.
+  - The game feel was mostly the effects, not the music: rising bells (the
+    shine, the end card, the number) on most looks, before any tune.
+  - A trailer bed balanced on studio terms is a sub bed on a phone: the
+    first cut had 3.5 dB more under 120 Hz and 3.7 dB less in the mids than
+    the house groove. Measure the bands against a bed already approved.
+  - A second low hit on the number at the headline's level reads as two
+    headlines: measured -11.5 against -9.5, set 4 to 6 dB under.
+  - Two of eight first-draft hooks began as famous tunes ("Happy Birthday",
+    "Mary Had a Little Lamb"): check every new melody's opening contour
+    against the famous ones before it ships.
+  - A key reader that is right on real recordings (six of six known) is
+    wrong on the maker's own beds over short windows (9 of 24): its job is
+    the recordings; the maker's own key is known, never read.
+  - Drums locked to a recording's measured tempo drift within seconds: a
+    tempo is an estimate, a live performance moves. Layer what cannot drift.
+  - Rule numbers and open-item letters are claimed on other branches before
+    they reach `main`: grep every branch and worktree, then again before the
+    commit (138 to 153 were taken while this was written, and open items to BN; so was port 8899,
+    by another session's server, and 8901, by CapCut).
+
+Checked: in the browser pane, 1000 shuffles and 300 full ads with no game
+or retired sound and no jazz; 23 genres; the shine adding 1.8e-7; 30
+shuffled soundtracks, eight trailer beds, six trailer looks with every chime
+and hook, hooks over six genres, four recordings with chimes in their key,
+six full ads and every sound by hand at -16 LUFS (within 0.27) with peaks at
+or under -1 dBFS; the levels and bands above; the maker loading with no
+error and showing only the kept sounds; audience_check. Not run:
+motion_music_check and motion_sound_check (no puppeteer-core here),
+full_ad_check (no playwright).
+
+## 2026-11-24 — a moving scene under the full ad's words (DESIGN-LAW 175; claude/video-music-sfx-audit-3691d1)
+
+The owner wanted backgrounds that move, cheaply, as a library. A test batch on fal
+chose the model (Hailuo 02 Standard, on a scene drawn first); "Yes, build it" built
+six clips into the full ad as photographs that play, read at every moment, played in
+the preview and sought frame by frame in the export. `main` was merged in first (149
+commits behind), and this branch's sound rule renumbered twice (154, then 174).
+
+Learned:
+  - A browser seek is exact and cheap on a clip encoded for it (a key frame every
+    half second, no B-frames): 5 ms a frame, the same pixels in any order. No
+    demuxer and no decoder of our own were needed for a frame-accurate export.
+  - A small sheet of a clip reads kinder than its frames: a bright speck under a
+    line is softened (5.50:1 on the sheet, 4.40:1 on the frame), and larger tiles
+    barely helped (5.33:1). Measure the gap and hold the sheet to it; do not assume
+    a bigger sample fixes it.
+  - A share of the seeds that fit is not a share of ads. 12% of fitting seeds was
+    1.7% of ads once light words and rule 139 had their say. Count the ads.
+  - A template's colours count as picked. A choice that overrides them (a scene made
+    for light words over dark-word colours) says so in a toast.
+  - Judging a moving ground on its first frame is not judging it: the gold bars'
+    headline read 2.1:1 when the flare passed, 10.5:1 once every moment was read.
+  - On this Mac: no `timeout` command; ffmpeg in a `while read` loop eats the loop's
+    input (`-nostdin`); `read` at a last line without a newline fails under `set -e`.
+    Four browser checks at once made `full_ad_check` fail once on timing (its note
+    read at 1.5 s); alone it passed, as on `main`.
+  - Rule numbers: 170 to 173 were taken on three unmerged branches while this was
+    written. Grep every branch and worktree right before writing one.
+
+Checked: `clip_grounds_check` (all clear), `full_ad_check`, `quick_ad_check`,
+`buylist_check`, `motion_music_check` (seven of seven); in the browser pane, the
+preview on the neon street under a template's ad, and a frame of the exported MP4.
+
+Then, at the owner's word ("Yes, put it live"), `main` merged in again and put on
+`main`. The merge's pre-flight change showed a gap: the maker's pre-flight panel reads
+the preview's own ad, whose clip is playing by then, against its first frame. Lesson:
+a check that reads "the still" must draw the still, not whatever a live source shows.
+
+RESUME HERE: the owner looks at a moving scene in the maker (§CB 1); then more clips
+(§CB 4), Any look (§CB 2), stories and wide frames (§CB 3).

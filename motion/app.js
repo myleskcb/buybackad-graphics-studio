@@ -10,6 +10,8 @@ import { AUDIENCES, MOODS } from "./audiences.js";
 import { CASTS, loadVoiceBank, clipById, voiceBank } from "./voices.js";
 import { renderSoundtrack } from "./audio.js";
 import { exportMp4, recordRealtime, canEncode, recorderMime } from "./export.js";
+import { CLIPS, ClipPlayer } from "./clips.js";
+import { lum } from "./engine.js";
 import { auditLook, drawCurve } from "./audit.js";
 import { loadAccents, IOS_EMOJI } from "./accents.js";
 import { listingFor, lint, priceOf, businessOf, BUSINESS, TONES, ANGLES, ANGLE_AUDIENCE, ANGLE_ALIASES, TITLE_MAX, TITLE_FEED, BODY_MAX, readAd } from "./listing.js";
@@ -95,10 +97,13 @@ const fullOf = st => {
     ...Object.fromEntries(Object.keys(FULL_LAYOUT).filter(k => state.locked.has(k) && st[k]).map(k => [k, st[k]])),
     // the ground's kind and a photograph's treatment, locked under Background (rule 161)
     ...(state.locked.has("full_ground") && GROUND_KINDS[st.full_ground] && st.full_ground !== "look" ? { ground_kind: st.full_ground } : {}),
-    ...(state.locked.has("full_treat") && PHOTO_TREAT_NAMES[st.full_treat] ? { photo_treat: st.full_treat } : {}) };
+    ...(state.locked.has("full_treat") && PHOTO_TREAT_NAMES[st.full_treat] ? { photo_treat: st.full_treat } : {}),
+    // a moving scene picked by hand (rule 175), while what it stands on is a moving scene
+    ...(state.locked.has("full_clip") && CLIPS[st.full_clip] && (!state.locked.has("full_ground") || st.full_ground === "moving") ? { ground_kind: "moving", ground_clip: st.full_clip } : {}) };
   // the look it wears (rule 158): the look on screen when it came from Any look or the gallery's video looks
   // (full_look true), the house's own (false), or, after New look, the seed's: a video look for a third of seeds
-  const opts = { look: st.full_look === true ? "own" : st.full_look === false ? "" : "mix" };
+  // moving: a seed may stand it on a moving scene (rule 175): this is the video maker
+  const opts = { look: st.full_look === true ? "own" : st.full_look === false ? "" : "mix", moving: true };
   // a recipe brings its own pictures (kept as given: subject_set 1) and its ground photograph
   const R = state.full ? recipeOf(st) : null, rids = R ? subjects.loaded["recipe|" + R.id] || [] : [], extra = { ...(R && R.ground_photo ? { ground_hint: { ...R.ground_photo } } : {}), ...(R && R.hint ? { hint: R.hint } : {}) };   // leans, not locks (the rebuild, 2026-11-18)
   // its claim, unless a claim or a business name was typed: a named buyer takes the badge
@@ -114,6 +119,16 @@ const readyToDraw = st => Promise.all([loadFonts(fontsFor(st)), st && st.full ? 
 const settle = (st, locked = state.locked) => state.full ? fullOf(st) : harmonise(st, locked, indexById());
 const AdOf = st => st && st.full ? FullAd : Ad;
 const adFor = (st, w, h) => new (AdOf(st))(st, state.assets, w, h);
+/* A MOVING GROUND IN THE PREVIEW (rule 175, motion/clips.js): one player a clip for the page, playing only
+   under the ad on screen and kept on its moment by the preview's loop (ad.followClip). Every other draw
+   (the gallery, the audit, the pre-flight) has no player and draws the clip's first frame; a download
+   makes a player of its own (ad.prepareExport). */
+const clipPlayers = {};
+function attachClip(ad) {
+  const id = ad && ad.groundClip;
+  for (const [k, p] of Object.entries(clipPlayers)) if (k !== id) p.pause();
+  if (id && !ad.clipSrc) ad.clipSrc = clipPlayers[id] ||= new ClipPlayer(id, { live: true });
+}
 
 const BOARD_NAMES = { none: "No sign", freeway: "Green freeway sign", freeway_blue: "Blue freeway sign", poster: "Swap meet poster",
   bandit_yellow: "Yellow street sign", bandit_white: "White street sign", flyer: "Tear-off flyer", neon_box: "Neon box",
@@ -244,7 +259,7 @@ async function rebuild() {
     const k = Math.min(1, PREVIEW_MAX / Math.max(W, H));
     const ad = adFor(st, Math.round(W * k), Math.round(H * k));
     if (id !== state.buildId) return;
-    state.ad = ad;
+    state.ad = ad; attachClip(ad);
     if (state.full && state.style.points == null && document.activeElement !== $("f-points")) $("f-points").value = st.points || "";
     const c = $("preview"); c.width = ad.W; c.height = ad.H;
     state.t0 = performance.now(); state.tPaused = 0;
@@ -376,6 +391,8 @@ function loop() {
     if (ad) {
       const t = curT(), d = ad.st.duration;
       const ctx = $("preview").getContext("2d");
+      // a moving ground plays with the ad, and holds through the pause before the preview starts again
+      if (ad.groundClip) { if (!ad.clipSrc) attachClip(ad); ad.followClip(Math.min(t, d - .001), state.playing && t < d); }
       ad.frame(ctx, Math.min(t, d - .001), { subsFly: 3, subsMove: 2 });
       if (state.marks && window.PgfxMark) window.PgfxMark.draw(ctx, ad.W, ad.H);
       if (state.playing) $("scrub").value = String(Math.round(Math.min(t, d) / d * 1000));
@@ -424,7 +441,7 @@ const LAYOUT_NAMES = {
 };
 
 // what the full ad stands on (rule 161): the kind of ground, and how a photograph is laid under the words
-const GROUND_KINDS = { photo: "A photograph", product: "Your product, as the ground", abstract: "Abstract (silk, chrome, glass, foil)", shape: "Colour and shape", type: "Words (your goods' own word)",
+const GROUND_KINDS = { photo: "A photograph", moving: "A moving scene (video)", product: "Your product, as the ground", abstract: "Abstract (silk, chrome, glass, foil)", shape: "Colour and shape", type: "Words (your goods' own word)",
   pattern: "A painted pattern", gradient: "A gradient", scene: "A drawn scene", house: "The house's own", look: "The look's own" };   // the four families of rule 163 after the photograph
 const PHOTO_TREAT_NAMES = { grade: "Graded to the colours", tint: "Tinted", duotone: "Duotone", wash: "Washed at the top and foot", pattern: "Under a fine pattern" };
 
@@ -659,8 +676,10 @@ function buildPanel() {
   }
   {   // what it stands on (rule 161): a photograph, a painted pattern, a gradient...; a photograph's treatment
     const sec = document.createElement("details"); sec.className = "mo-sec mo-full-only"; sec.open = true;
-    sec.innerHTML = `<summary>Background</summary><p class="mo-note">About a third of looks stand on a photograph; when your area is in one of the 20 biggest US metros, it's a photograph of your city. The rest stand on your own product, an abstract, colour and shapes, your goods' own word, a pattern or a gradient. Pick one to keep it.</p>`;
-    for (const [k, label, names] of [["full_ground", "Stands on", GROUND_KINDS], ["full_treat", "Photo treatment", PHOTO_TREAT_NAMES]]) {
+    sec.innerHTML = `<summary>Background</summary><p class="mo-note">About a third of looks stand on a photograph; when your area is in one of the 20 biggest US metros, it's a photograph of your city. The rest stand on your own product, an abstract, colour and shapes, your goods' own word, a pattern or a gradient, and some on a moving scene that plays under the words. Pick one to keep it.</p>`;
+    // the moving scenes (rule 175): Any lets the look choose one that suits; one picked makes it stand on that scene
+    const CLIP_NAMES = { "": "Any that suits", ...Object.fromEntries(Object.entries(CLIPS).map(([id, c]) => [id, c.label])) };
+    for (const [k, label, names] of [["full_ground", "Stands on", GROUND_KINDS], ["full_clip", "Moving scene", CLIP_NAMES], ["full_treat", "Photo treatment", PHOTO_TREAT_NAMES]]) {
       const row = document.createElement("div"); row.className = "mo-set";
       row.innerHTML = `<label>${label}<select data-key="${k}">${Object.entries(names).map(([v, n]) => `<option value="${v}"${v === "look" ? " disabled" : ""}>${n}</option>`).join("")}</select></label>
         <button class="mo-lock" data-lock="${k}" aria-pressed="false" title="Lock: keep this when shuffling">&#128275;</button>`;
@@ -674,6 +693,13 @@ function buildPanel() {
     pushHistory();
     state.style[k] = typeof sample === "number" ? Number(raw) : raw;
     state.locked.add(k);                            // what you choose by hand stays put
+    // a moving scene picked stands the ad on it; Any lets the look choose again (rule 175)
+    if (k === "full_clip") { if (raw) { state.style.full_ground = "moving"; state.locked.add("full_ground"); } else state.locked.delete("full_clip"); }
+    // and the scenes are made for light words: colours with dark words give way to ones with light words, said plainly
+    if ((k === "full_clip" && raw) || (k === "full_ground" && raw === "moving")) {
+      const c = COLOUR_OF[state.style.full_palette];
+      if (c && lum(c.colors.ink) < lum(c.colors.ground)) { delete state.style.full_palette; VH().toast("The moving scenes are made for light words, so the colours now change with New look (Colours: Any)."); }
+    }
     if (k === "vibe") {                             // a vibe is a whole look: show it at once
       VIBE_AXES.forEach(a => state.locked.delete(a));
       state.style = applyVibe(state.style, (Math.random() * 1e9) | 0, state.locked);
@@ -1760,7 +1786,10 @@ async function makePhoto(st, videoName, videoShort, prog = () => {}, gate = {}) 
     try {
       const { w, h } = VS.size(W0, H0, s), ad = marked(adFor(st, w, h), gate.watermark);
       const c = document.createElement("canvas"); c.width = ad.W; c.height = ad.H;
-      ad.still = null; ad.frame(c.getContext("2d"), pick.t, { subsFly: 8, subsMove: 4 }, 1 / 30);   // the export's own quality
+      // a moving ground (rule 175): its clip at the photo's own moment, as the video has it there
+      if (ad.prepareExport) { await ad.prepareExport(); await ad.prepareFrame(pick.t); }
+      try { ad.still = null; ad.frame(c.getContext("2d"), pick.t, { subsFly: 8, subsMove: 4 }, 1 / 30); }   // the export's own quality
+      finally { if (ad.endExport) ad.endExport(); }
       return { blob: await VS.toBlob(c), name: VS.name(videoName, ad.W, ad.H), w: ad.W, h: ad.H, t: pick.t, short: s, wanted: want, pick };
     } catch (e) { last = e; if (!VH().isMemory(e)) throw e; }
   }

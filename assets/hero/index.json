@@ -1,6 +1,6 @@
 {
  "about": "Stills of the recipe and full-ad hero picks (assets/hero-picks.json), drawn by scripts/build_hero_stills.mjs; app.js scBuildWall shows them and opens each in the full ad. A pinned pick (pin) is drawn and opened in the pair it was approved in.",
- "made": "2026-11-24T07:51:29.042Z",
+ "made": "2026-11-24T20:12:42.611Z",
  "items": {
   "full-mac-v8": {
    "kind": "full",
@@ -17,7 +17,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/full-mac-v8.webp",
    "number": "(213) 555-0153",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "lavender_violet"
   },
   "full-macdesk-v2": {
@@ -35,7 +35,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/full-macdesk-v2.webp",
    "number": "(424) 555-0115",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "black_on_orange"
   },
   "full-console-v6": {
@@ -53,7 +53,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/full-console-v6.webp",
    "number": "(818) 555-0153",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "mint_green"
   },
   "full-pixel-v22": {
@@ -71,7 +71,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/full-pixel-v22.webp",
    "number": "(657) 555-0145",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "lemon_blue"
   },
   "full-car-v1": {
@@ -89,7 +89,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/full-car-v1.webp",
    "number": "(951) 555-0133",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "white_on_red"
   },
   "r-slabPoster-pp04-15": {
@@ -109,7 +109,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/r-slabPoster-pp04-15.webp",
    "number": "(714) 555-0198",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "bone_purple"
   },
   "r-neonNight-nn04-20": {
@@ -129,7 +129,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/r-neonNight-nn04-20.webp",
    "number": "(714) 555-0136",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "black_on_pink"
   },
   "r-of_ipad_center_bone": {
@@ -149,7 +149,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/r-of_ipad_center_bone.webp",
    "number": "(310) 555-0158",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "black_on_aqua"
   },
   "r-of_console_list_arctic": {
@@ -169,7 +169,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/r-of_console_list_arctic.webp",
    "number": "(626) 555-0184",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "sand_teal"
   },
   "r-scriptRetro-cd06-15": {
@@ -189,7 +189,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/r-scriptRetro-cd06-15.webp",
    "number": "(562) 555-0161",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "cream_red"
   },
   "r-bandKnockout-gl04-30": {
@@ -209,7 +209,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/r-bandKnockout-gl04-30.webp",
    "number": "(424) 555-0183",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "black_on_lilac"
   },
   "r-stepsFlow-pa05-15": {
@@ -229,7 +229,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/r-stepsFlow-pa05-15.webp",
    "number": "(657) 555-0146",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "orange_black_cobalt"
   },
   "full-iphone-v12": {
@@ -247,7 +247,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/full-iphone-v12.webp",
    "number": "(562) 555-0136",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "black_on_lime"
   },
   "r-of_iphone_split_ink": {
@@ -267,7 +267,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/r-of_iphone_split_ink.webp",
    "number": "(949) 555-0125",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "black_on_white"
   },
   "full-ipad-v12": {
@@ -285,7 +285,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/full-ipad-v12.webp",
    "number": "(818) 555-0143",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "sky_cobalt"
   },
   "full-galaxy-v3": {
@@ -303,7 +303,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/full-galaxy-v3.webp",
    "number": "(747) 555-0195",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "white_on_teal"
   },
   "r-bubblePop-pp06-35": {
@@ -323,7 +323,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/r-bubblePop-pp06-35.webp",
    "number": "(909) 555-0182",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "navy_gold"
   },
   "full-sports-v6": {
@@ -341,7 +341,7 @@
    "product": "[object Object]",
    "thumb": "assets/hero/full-sports-v6.webp",
    "number": "(213) 555-0123",
-   "engine": "88431ad043d7",
+   "engine": "1d542b7f7f7d",
    "pin": "white_on_violet"
   }
  }

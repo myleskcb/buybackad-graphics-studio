@@ -7157,3 +7157,205 @@ image rights) read every line first; their findings are OPEN-ITEMS §CA.
   corner, the echo ripples its outline out from where it stands.
 - **A full ad turns a phone a sixth less** (`motion/engine.js` FULL_TURN): about 29 degrees turned, 50 side on. Videos
   and recipes keep their angles.
+
+## 174. A video ad sounds like a trailer, not a game
+
+Added 2026-11-18, built out 2026-11-19. The owner, of the video ads' music
+and sound effects: "funny and cheerful but not always professional ... like
+I'm playing mario kart ... I need like trailer commercial professional".
+Then, of a trailer's own sounds, the jazz out of the shuffle and the number
+sound evened: "1-3 best suggestion works", "I trust you". Having heard them:
+"Sounds right", "they're good but take out the weirder instruments and
+openers.. pick the top ones", "most popular and make more tunes, songs, or
+chimes we can use.. also how about other genres other then lofi?", "make
+sure multiple songs / tunes can play over each other". Asked, the owner
+chose layers in one key and original hooks.
+
+Drawn over 2000 shuffles before this, 98.8% of looks played at least one
+game-like sound, 3.1 on average: an opening air horn, siren, referee's
+whistle or vibraslap (51%), a bell, mallet, whistle or cork number sound
+(72%), a rising bell run when the phones shine (68%), two bells rising a
+fifth on the end card (57%), an anvil, whip, gong or orchestra hit (36%), a
+famous tune played by the maker (27%, often on a xylophone or a kalimba).
+Half played the Air Force and Navy big-band jazz (51%).
+
+**Stand-ins, not weights** (`STAND_INS` in `motion/catalog.js`, `standIns`
+in `motion/engine.js`). The catalog's weights are as they were, so every
+look number draws what it always drew; one that lands on a sound a shuffle
+may no longer play takes a stand-in, drawn from a stream of its own. A
+holiday ad keeps its own tunes and opening sound.
+
+| Out of the shuffle | Stand-in |
+|---|---|
+| every opening sound | none |
+| the anvil, whip, gong and orchestra hits | the braam 2, the low hit 1, the sub drop 1 |
+| the bell, mallet, whistle and cork number sounds | ticks and a low hit 2, whoosh into a low hit 2, soft typing 1, each chime .5 |
+| every famous tune | none 3, an original hook 2 (one of eight) |
+| the marimba, xylophone, glockenspiel, kalimba | piano, electric piano, harp |
+| the circus march, the groove with a whistle on the bar | the trailer's bed |
+| lo-fi | lo-fi 1, R&B 1, radio pop 1 |
+| the big-band jazz, and the retired pieces that play it | the trailer's bed 2; radio pop .5, deep house .4, R&B .3, future bass .3, reggaeton .2, synthwave .2, nu-disco .1 |
+
+A first pass gave each removed sound's share to its neighbours in the list,
+which kept the draw but not the balance (the bill counter rose to 40% of
+number sounds); the stand-ins put each sound where it is wanted.
+
+**The most popular kept, the weirder retired** (`SOUND_ALIASES`): the maker
+no longer offers them, a saved look plays the stand-in named, and a shuffle
+never leaves one in place (`RETIRED_AXES`).
+- Opening sounds: the air horn, siren, referee's whistle, vibraslap and bell
+  tree. Kept: none, the braam, the gong, wind chimes, sleigh bells
+  (Christmas).
+- Instruments for a tune: marimba, xylophone, glockenspiel, kalimba,
+  balafon, strumstick, harmonica, clavinet, harpsichord, both organs, the
+  upright piano, the acid, G-funk, FM bell and pluck synths. Kept: piano,
+  electric piano, vibraphone, tenor sax, harp, warm synth, supersaw, synth
+  brass, nylon guitar, string section.
+- Headline hits: the whip (to the sub drop), the anvil (the low hit), the
+  orchestra hit (the braam).
+- Number sounds: the pop, two bells, "shave and a haircut", tubular bell,
+  triangle, glockenspiel run, harp sweep, whistle, message ding and phone
+  buzz, each to the nearest trailer sound or chime.
+
+The music styles are not trimmed: the circus march and the rest stay
+offered by hand.
+
+**A trailer's own sounds** (`motion/audio.js`, `motion/music.js`):
+- **The braam** (a headline hit, and an opening sound): a swell into a low
+  brass blast, the key's root, fifth and octave between C2 and B2 on detuned
+  sawtooths, driven, its filter flaring to 1.5 kHz and closing as it dies.
+  As an opening sound it is gone by a voiceover's first word.
+- **Clock ticks and a low hit**, **whoosh into a low hit** (number sounds).
+  Soft typing ends on a thump, not a pop.
+- **The trailer's bed** (100 to 112 bpm, minor): a drone, strings and a
+  clock until the hit; then sixteenths on a synth bass accented three,
+  three, two, bass drum and timpani, toms, a reverse cymbal into every
+  fourth bar.
+
+**Chimes** (in the bed's key, each on a soft low hit, nothing pitched above
+about 1.2 kHz): a piano chord, a three-note logo on electric piano, a string
+swell, a brass stab. Each is a number sound and an **end chime** (`sting`, a
+new menu, drawn last of everything so no other draw moves): half the looks
+with an end card close on one.
+
+**Original hooks** (`HOOKS` in music.js; `HOOK_MODE`, `HOOK_PAIR` in the
+catalog): Lift, Skyline, Golden, Bright (major), Night drive, Rise, Street,
+Pulse (minor), four bars each, written for these ads and checked against the
+famous openings they could echo (two drafts began as "Happy Birthday" and
+"Mary Had a Little Lamb" and were rewritten). A shuffled hook plays its twin
+of the other mode over a bed in that mode (`KIT_MODE`); one picked by hand
+plays as picked.
+
+**Layers in one key.** The music made here, a hook, the hits, the number's
+sound and the end chime already share one key and tempo. Over a real
+recording or the user's own track, that key is the one it is heard in
+(`recordingKey`: a Goertzel bank, E2 to B5, on the first 20 s, against the
+Krumhansl-Kessler profiles; null under r .5, where the seed's key plays).
+Of six recordings of known key it reads all six (the four a shuffle plays:
+Morning Mood E, the New World finale E minor, Vivaldi's Winter F minor,
+Mozart's 40th G minor; and the Moonlight, the William Tell finale); the
+Mountain King and Für Elise read a fifth above (both by hand only). Before
+this, every cue over a recording was in a key drawn from the seed. Drums
+under a recording were tried and left out: locked to its measured tempo from
+the hit they held two seconds, then drifted off its beat.
+
+**Measured** (2026-11-19, ten-second looks levelled to -16 LUFS; the loudest
+50 ms): the headline hits -6 to -9.5 dB (the braam -8.3), the trailer number
+sounds and chimes -12.6 to -15.2 (at least 4 dB under), end chimes -13.2 to
+-15; the whoosh and bell -19. After the hit the trailer's bed against the
+house groove: sub +2.2 dB, low-mid -0.6, mid -1.0, high -0.2 (a first cut
+was 3.7 dB lower in the mids and 3.5 dB heavier in the sub).
+
+**After**, over the same 2000 shuffles: 95.1% play no game-like sound and no
+jazz, and the full ad 100% of 2000 (the 4.9% left are rule 129's confetti).
+Genres in 1000 shuffles: 23; the trailer's bed 26%, house 9%, radio pop 8%,
+R&B 6%, hip-hop 6%, minimal and uplifting pop 5.5% each, deep house 5%,
+future bass 3%, synthwave and reggaeton 2.5% each, lo-fi 2% (was 5.5%). An
+original hook over 25%; the music made here in 86%, a recording in 14%.
+Against the commit before any of this (9dddf354), no look moved off a sound
+a shuffle still plays.
+
+**Checked** by `scripts/motion_music_check.mjs` part 7 (its head lists
+every measure), and the owner heard the trailer's bed, the braam and the
+ticks before the rest was built.
+
+Heard by the owner (2026-11-19), the chimes, the hooks and the genres in the
+shuffle: "Sounds right". Every sound here was built and balanced by measure
+first; the owner's ear is the last check.
+
+## 175. A video ad may stand on a moving scene: a clip that plays under the words, read at every moment
+
+Added 2026-11-24. The owner asked for backgrounds that move (cities, devices,
+cars), made cost-effectively, as a library beside the free photographs, and
+remembered a cheap Chinese model whose name began with an h. Having seen the
+test batch behind mock ads on a review page: "Yes, build it".
+
+Measured first (the motion-ground test, 2026-11-24, fifteen clips on fal for
+$4.03). MiniMax Hailuo 02 Standard (27 cents for 6 s at 768p) kept four of five
+scenes drawn first as a square still (Seedream v4, 3 cents), and one of five
+animated library photographs: on a wide photograph it mangles the small things
+(the traffic of an aerial as red bars, towers ghosting through each other,
+people at a rail). A kept clip costs about 38 cents drawn and $1.35 from a
+photograph. Hailuo Pro (48 cents, 1080p) is sharper, and kept the aerial
+cleanest; Hailuo Fast (10 cents) takes no end frame, so it cannot loop; LTX
+(2 cents) bends its subject and comes back 3:2. Given the same picture as its
+first and last frame, a Hailuo clip comes back near its start, and its last
+0.75 s faded into its opening left every seam at 8 ordinary frame steps or
+fewer.
+
+- **The library** (`motion/clips.js`; the files in `motion/clips/`, made by
+  `scripts/build_clip_grounds.sh` from the looped clips): six clips, 7 MB
+  together. The neon street at night, the glowing circuit board, the city at
+  golden hour and the phone in a light sweep were drawn; the gold bars and the
+  Los Angeles aerial (on Pro) are library photographs. Each is an MP4 with a
+  key frame every half second and no B-frames, so a seek is quick; its first
+  frame as a picture; and a sheet of twelve moments across it (every 10th
+  frame, 256 px).
+- **A photograph that moves** (`FullAd._photoGround`): a ground_photo whose src
+  is the clip's first frame and whose clip names it, graded, framed and pushed
+  in on as a photograph is (rule 161). A duotone or a tint is laid into a picture
+  once, so a clip is graded instead. Every path that draws a still (the gallery,
+  the audit, the plan, the pre-flight) draws the first frame.
+- **Where a clip may stand**, tagged as a photograph is: a scene goes with any
+  goods; the gold bars only behind gold; the phone, a drawn phone of no model
+  you can name, only by hand (a photograph of goods stands behind its own,
+  rule 161); the city at golden hour (drawn, but palm-lined) and the aerial only
+  for Los Angeles; the neon street never behind a car. A clip with a strong
+  colour only under a pair of its family (rule 139).
+- **Light words only.** The clips are night streets, glows and lit cities; under
+  dark words the grade washes them milky (the neon street on a template's
+  bone-and-purple colours). A seed draws one only under light words; a scene
+  picked in the maker takes a pair with light words, lets a template's
+  dark-word colours go and says so, and wears no video look (rule 158) over it,
+  whose palette may have dark words.
+- **How often**: picked in the maker's Background panel (Stands on: A moving
+  scene; Moving scene: Any that suits, or one), or drawn by New look in the video
+  maker for 30% of the seeds a clip fits (`CLIP_SHARE`): 6.0% of iPhone ads in
+  Long Beach. A still made anywhere else never stands on one (fullStyle's
+  `opts.moving`, given by the maker alone), and every seed that draws no clip
+  draws the ground and colours it drew before (279 of 279).
+- **Read at every moment.** `_evenGround` reads the still and the sheet's twelve
+  moments (`_clipLooks`) and evens where the worst moment is under the bar.
+  Read on the sheet, a small bright speck is softer than on the clip's own frame
+  (the neon street under a call to action: 5.50:1 on the sheet, 4.40:1 on the
+  frame; 384 px tiles read 5.33:1), so a sheet's reading is divided by its
+  measured gap (`SHEET_KIND`, 1.25). Judged on the first frame alone, the gold
+  bars' headline fell to 2.1 to 3.0:1 as the flare passed under it; read at every
+  moment, 10.5 to 11.2:1.
+- **Played, and exported frame by frame.** The preview plays one player a clip
+  under the ad on screen (`attachClip`, `followClip`). The MP4 export seeks a
+  player of its own to each frame's moment before drawing it (`prepareExport`,
+  `prepareFrame`, `endExport`): a seek lands on its exact frame in about 5 ms
+  (360 seeks in 1.8 to 2.6 s for a 15 s ad), and a 6 s square took 3.4 s against
+  1.7 s on a still photograph. The real-time recorder plays its own; the photo
+  that goes with a video is drawn on the clip at its own moment.
+
+**Checked** by `scripts/clip_grounds_check.mjs` (it needs a server that answers
+byte ranges, as a video's seek does: `.motion-test/serve.mjs` does, Python's
+http.server does not): who draws a clip; 78 ads, every line on its ground read
+at 24 moments of the clip itself, the closest 1.19 times its bar; a 6 s MP4 read
+back, its ground moving under the words; the maker's panel and preview.
+
+Not done: the looks under Any look (the plain engine) have no moving ground; a
+story or a wide frame crops the square clip (a story shows its middle 56%, at
+2.5 times), softer than a square.

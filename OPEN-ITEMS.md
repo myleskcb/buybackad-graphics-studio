@@ -4761,6 +4761,11 @@ Open:
 5. `full_ad_studio_check` fails one case on `main` (7ead02be), with or without this change: "earbuds
    landscape: Something on the ad runs to the edge of the picture". It is the full ad's, not the
    wall's; passed to the session that owns the full ad's looks.
+   DONE 2026-11-24 (claude/site-newest-designs): nothing ran to the edge. The pre-flight read the
+   headline's soft shade, where it crosses the frosted-glass ground's bright outline at the top, as a
+   mark; it reads what is drawn against the ground under the headline's shade now (motion/fullad.js
+   fullPreflight), as the engine's own guards do. The ad's pixels are unchanged; full_ad_check passes
+   before and after.
 4. When a preview server is stopped, its tab in the browser pane should be closed with it: the
    owner reads that pane as the product.
 
@@ -4826,3 +4831,90 @@ Open:
 7. The Pixel line has only the six painted Pixel 11s left; the vans line has no Sprinter (its flagged cut-outs need
    their glass retouched).
 
+## BO. 2026-11-18 — the video ads sound like a trailer, not a game (DESIGN-LAW 174)
+
+(claude/video-music-sfx-audit-3691d1, from 9dddf354.)
+
+The owner: "funny and cheerful but not always professional", "like I'm
+playing mario kart", "I need like trailer commercial professional"; "1-3
+best suggestion works"; having heard it, "Sounds right", "take out the
+weirder instruments and openers.. pick the top ones", "most popular and make
+more tunes, songs, or chimes", "other genres other then lofi", "make sure
+multiple songs / tunes can play over each other" (asked: layers in one key,
+original hooks).
+
+Done:
+- **The audit**: 98.8% of 2000 shuffles played a game-like sound; 51% jazz.
+- **Stand-ins** for every game sound, the jazz and two in three lo-fi looks;
+  every other look keeps what it drew (checked against 9dddf354).
+- **The menus trimmed** to the most popular: five opening sounds, ten
+  instruments, nine hits, eleven number sounds; the rest retired.
+- **A trailer's own**: the braam (hit and opener), two number sounds on a
+  low hit, the trailer's bed. **Four chimes** (number sound and a new End
+  chime menu). **Eight original hooks**, matched to their bed's mode.
+- **Genres**: 23 in 1000 shuffles, lo-fi 2%. **Layers in one key**: over a
+  recording or the user's own track, its key (six of six known keys read).
+- `scripts/motion_music_check.mjs` part 7. All seven parts pass (2026-11-24,
+  on the branch merged with `main`, through a `puppeteer-core` stand-in over
+  Playwright that answers request interception).
+
+Open:
+1. **Heard and approved** (2026-11-19): the trailer's sounds, then the
+   chimes, the hooks and the genres: "Sounds right", both times.
+2. **The music styles are not trimmed**: 31 are offered by hand (the circus
+   march, baile funk, jersey club and the rest). Trimming them is the
+   owner's call.
+3. **Drums under a recording** drifted off its beat and were left out. They
+   would need a beat tracker that follows the recording, not one tempo.
+4. **The explainer videos** (`tools/explainers`) still play Small Note
+   Boogaloo: they explain, they do not sell, and were left.
+5. **On `main`** with §CB (2026-11-24; its rule became 174: `main` and other
+   branches had taken 154, then 170 to 173).
+
+## CB. 2026-11-24 — a moving scene under the full ad's words (DESIGN-LAW 175)
+
+(claude/video-music-sfx-audit-3691d1, on 8529b419: the sound work merged with `main`.)
+
+The owner asked for backgrounds that move (cities, devices, cars), made
+cost-effectively, as a library beside the free photographs; having seen the
+test batch behind mock ads: "Yes, build it".
+
+Done:
+- **The test** (fifteen clips on fal, $4.03): Hailuo 02 Standard on a scene drawn
+  first (Seedream) kept four of five; on a library photograph one of five. About
+  38 cents a kept clip drawn, $1.35 from a photograph. Every clip loops.
+- **Six clips** in `motion/clips/` (7 MB), made by `scripts/build_clip_grounds.sh`:
+  the neon street, the circuit board, the city at golden hour, the phone in a light
+  sweep, the gold bars, Los Angeles from the air.
+- **The full ad draws one as a photograph that moves**: graded, framed and pushed
+  in on as a photograph; tagged for where it may stand; light words only.
+- **Background > Stands on: A moving scene**, and **Moving scene** to pick one.
+  New look draws one for 6% of iPhone ads in Long Beach; nothing outside the
+  video maker changes.
+- **Read at every moment**: the evening reads twelve moments of the clip, held to
+  the sheet's measured gap from the real frames. 78 ads, every line at 24 moments
+  of the clip itself: all at or over the bar, the closest 1.19 times it.
+- **The export seeks the clip frame by frame** (about 5 ms a seek); the preview
+  plays it; the photo with a video is drawn on the clip at its moment.
+- `scripts/clip_grounds_check.mjs` holds all of it. `full_ad_check`,
+  `quick_ad_check`, `buylist_check` and `motion_music_check` pass.
+
+Open:
+1. **The owner to look** in the maker: Full ad, Style, Background, Stands on: A
+   moving scene.
+2. **Any look** (the plain engine) has no moving ground yet.
+3. **A story or a wide frame** crops the square clips (a story shows the middle 56%,
+   at 2.5 times) and is softer than a square. Drawn in 9:16, or wider, if those
+   frames matter.
+4. **More clips**: grow the library from drawn scenes in reviewed batches of about
+   twenty (about $7.50 a batch). The light ribbons and the open road barely moved
+   and want another prompt. The test's script and its clips are in `.motion-test/`
+   of this worktree, out of git; the fal key is asked for at a hidden prompt in a
+   terminal tab, never kept.
+5. **How often New look draws a clip** (`CLIP_SHARE`, .3 of the seeds a clip
+   fits, 6%) is the owner's call.
+6. **On `main`, at the owner's word** (2026-11-24: "Yes, put it live"), after
+   `main` was merged in again (the pre-flight's headline shade). That merge
+   showed the maker's pre-flight panel reading the preview's playing clip against
+   its first frame: four of six clips were stopped with "runs to the edge". The
+   still now draws the first frame, and `clip_grounds_check` part 4 holds it.
