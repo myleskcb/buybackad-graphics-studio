@@ -6992,8 +6992,9 @@ designer to come: "needs to be super pay walled". The maker is `cards/` (`cards/
 - **Paid.** Anyone designs and sees a card; the preview carries the WeBuy.AD mark until the plan
   downloads cards. The print file comes with Pro and Business (`plans.mjs` `cards`), decided by the
   function (`/api/export/check` and `/api/export`, kind `card`) and counted as one photo download.
-- **Print it today** is Google Maps searches near the customer's ZIP or town, which they open
-  themselves: nothing about them is sent anywhere by the page.
+- **Print it today** is map searches near the customer's ZIP or town, which they open themselves:
+  nothing about them is sent anywhere by the page. Apple Maps on Apple devices and in the iPhone app,
+  Google Maps elsewhere, and only chains that offer same-day cards named: below, 167 continued.
 - **Checked** by `scripts/business_card_check.mjs` (sizes, the safe area and overlaps across layouts,
   pairs, type and a long name; the product in the trim, on every front but Centred and on every back
   without a QR but Centred's, and never on a word; nothing under 7 pt; every QR 3/4 in or more and
@@ -7004,6 +7005,47 @@ designer to come: "needs to be super pay walled". The maker is `cards/` (`cards/
   links; the paywall signed out, on Starter and on Pro, light and dark, at 390) and
   `scripts/billing_check.mjs` (the function's rule). A sweep of every layout × type pair × QR × three
   name lengths (1,740 sides) found one line under 7 pt: a 31-character website in the widest pair, at 6.7 pt, which the page names.
+
+## 167, continued (2026-11-24): Print it today opens the customer's own maps, and names only what is checked
+
+The owner, 2026-11-19: "suggest quick same day print locations near you?"; the brief that came back to
+it on 2026-11-24 asked for Apple Maps on Apple devices and in the iPhone app, Google Maps elsewhere,
+and no store named or promised the same day unless that was checked.
+
+- **Which maps.** Apple Maps on an iPhone, iPad or Mac (the user agent says iPhone, iPad, iPod or
+  Macintosh; iPadOS sends Macintosh) and always in the iPhone app (`WeBuyADApp`, where a
+  `maps.apple.com` link opens the Maps app: `ios/` `NavigationPolicy.opensInSystemApp`); Google Maps
+  everywhere else. Under the links, "Use Google Maps instead" (or Apple), remembered on the device
+  (`pgfx_card_maps`). The page says which app the links open.
+- **How Apple Maps is asked.** `https://maps.apple.com/?q=…&sll=lat,lon&spn=0.2,0.2`, the
+  long-standing form every iOS reads; Apple's newer `/search?query=&center=` form needs iOS 18.4, and
+  iOS 27 reads both. Measured in the iOS 27 simulator with Location Services off, near 90802 (Long
+  Beach): "same day business card printing near 90802" as words found T-shirt shops in Riverside and
+  Temecula; "business card printing near 90802" found copy shops 50 miles off first; "business card
+  printing" on 90802's own point found Long Beach's print shops; "FedEx Office" and "Office Depot
+  OfficeMax" on the point found the Long Beach stores. So Apple Maps gets the plain words on the
+  point, and "same day" is said on the page. Google Maps keeps "same day business card printing near
+  90802" as written.
+- **The point.** The area dialog's own `lat` and `lon` (`app.js` `resolveArea`). A place typed in
+  Near is looked up in the same tables (`assets/geo`: a whole ZIP, or a town's name with or without
+  its state, the largest town of that name), only when Apple Maps is the app and once the typing
+  pauses. A place the tables do not know goes into the search as words ("near …"); with no place at
+  all, Maps searches round where the customer is.
+- **Names only what is checked.** The chains named are those whose own sites offer same-day business
+  cards for pickup in the store, read 2026-11-24: FedEx Office (most orders the same day or within 24
+  hours), Staples (order by noon), Office Depot OfficeMax (order by 2 pm, in store). The UPS Store's
+  US pages offer business cards but promise no same day, so it is no longer named. The page says
+  "order by about midday", that other shops "may" too, and to call ahead. When a chain changes its
+  offer, this list changes with it.
+- **Not a studio format.** The brief also asked for a business card in the studio's `FORMATS`. The
+  card maker is that: each studio format keeps one 1080 px side for the templates authored on that
+  grid, so a 1050 × 600 card laid out by ad templates would be a second, weaker card maker. Easy
+  Mode's "Matching business card" is the studio's way in.
+- **Checked** by `scripts/business_card_check.mjs`: both maps' links near a ZIP, Apple's on the
+  area's point, a town, a bare town name and a ZIP typed in Near each moving it, a place the tables
+  do not know said as words, the switch and its memory, the app picked for the iPhone app, Safari on
+  an iPhone, Android and Windows, only the three chains named, and at 390 in dark and light no
+  sideways scroll and nothing in the section under 12 px.
 
 ## 168. Sign in with Apple and Google: one pair of buttons, shown when configured, checked on the server
 

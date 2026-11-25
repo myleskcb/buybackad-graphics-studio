@@ -1201,5 +1201,5 @@ async function start() {
 
 window.CardMaker = { state, render, pdfOf, printFile, FILLS: FILLS.map(x => x.key), newLook, photoOk, grounds: () => groundsShown().map(x => x.key),
   STYLES: STYLES.map(s => ({ key: s.key, name: s.name, layouts: s.layouts, pairs: s.pairs, voices: s.voices, grounds: s.grounds, frame: !!s.frame })), vividPair: k => vividPair(PAIR_OF[k]), kindOf, printLinks, draw, SHEET, TRIM, SAFE, BLEED, DPI, LAYOUTS: LAYOUTS.map(l => l.key), pairs: () => PAIRS.map(p => p.key), voices: () => VOICES.slice(),
-  entitled: () => entitled, maps: () => maps, pointOf, ready: null };
+  entitled: () => entitled, ready: null };
 window.CardMaker.ready = start().catch(e => { console.error("business card maker:", e); note("The card maker did not load. Reload the page.", true); });

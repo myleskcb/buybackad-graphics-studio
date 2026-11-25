@@ -247,8 +247,6 @@ async function open({ demo = true, token = null, route = null, scheme = 'dark', 
   ok(decodeURIComponent(apple[0].url).includes('q=business card printing&') && apple.every((l) => /near 90802|^(FedEx|Staples|Office)/.test(l.name)), 'Apple Maps: the plain search on the point, labelled with the place (' + apple.map((l) => l.name).join(', ') + ')');
   const appleNoPoint = await page.evaluate(() => CardMaker.printLinks('Downey', { maps: 'apple' }));
   ok(appleNoPoint.every((l) => !/sll=/.test(l.url) && /near Downey$/.test(decodeURIComponent(l.url.split('?q=')[1]))), 'Apple Maps without a point: the search says near the place (' + decodeURIComponent(appleNoPoint[1].url) + ')');
-  const pts = await page.evaluate(async () => ({ zip: await CardMaker.pointOf('90802'), town: await CardMaker.pointOf('Downey, CA'), bare: await CardMaker.pointOf('downey'), none: await CardMaker.pointOf('Nowhere Atall') }));
-  ok(pts.zip && pts.zip.lat === 33.77 && pts.town && pts.town.lat === 33.94 && pts.bare && pts.bare.lat === 33.94 && pts.none === null, 'a place typed is found in the ZIP and town tables (' + JSON.stringify(pts) + ')');
   ok(errors.length === 0, 'no page error (' + errors.slice(0, 2).join(' | ') + ')');
   await ctx.close();
 }
@@ -301,10 +299,17 @@ for (const scheme of ['dark', 'light']) {
   const shown = () => page.evaluate(() => ({ shown: !document.getElementById('print').hidden, near: document.getElementById('pt-where').value, maps: document.getElementById('pt-maps').textContent, sw: document.getElementById('pt-switch').textContent, links: [...document.querySelectorAll('#pt-links a')].map((a) => a.href) }));
   const pr = await shown();
   ok(pr.shown && pr.near === '90802' && pr.maps === 'Apple Maps' && pr.links.length === 4 && pr.links.every((h) => h.startsWith('https://maps.apple.com/?q=') && /sll=33\.7700,-118\.1800/.test(h)), 'after the download on a Mac, Print it today opens Apple Maps round the studio\'s area (' + JSON.stringify({ shown: pr.shown, near: pr.near, maps: pr.maps, n: pr.links.length }) + ')');
-  await page.fill('#pt-where', 'Downey, CA');
-  await page.waitForFunction(() => [...document.querySelectorAll('#pt-links a')].every((a) => /sll=33\.9400,-118\.1330/.test(a.href)), null, { timeout: 8000 }).catch(() => {});
-  const typed = await shown();
-  ok(typed.links.every((h) => /sll=33\.9400,-118\.1330/.test(h)), 'a town typed in Near moves the Apple Maps search to it (' + typed.links[0] + ')');
+  // a place typed in Near is found in the area dialog's own ZIP and town tables (assets/geo), once the typing pauses
+  for (const [typed, want] of [['Downey, CA', /sll=33\.9400,-118\.1330&/], ['downey', /sll=33\.9400,-118\.1330&/], ['90241', /sll=33\.9400,-118\.1300&/]]) {
+    await page.fill('#pt-where', typed);
+    await page.waitForFunction((re) => [...document.querySelectorAll('#pt-links a')].every((a) => new RegExp(re).test(a.href)), want.source, { timeout: 8000 }).catch(() => {});
+    const t = await shown();
+    ok(t.links.length === 4 && t.links.every((h) => want.test(h)), 'Near "' + typed + '" moves the Apple Maps search to its point (' + t.links[0] + ')');
+  }
+  await page.fill('#pt-where', 'Nowhere Atall');
+  await page.waitForTimeout(900);
+  const lost = await shown();
+  ok(lost.links.every((h) => !/sll=/.test(h) && /near Nowhere Atall$/.test(decodeURIComponent(h.split('?q=')[1]))), 'a place the tables do not know is said "near" it in the search (' + decodeURIComponent(lost.links[0]) + ')');
   await page.fill('#pt-where', '90802');
   await page.click('#pt-switch');
   const sw = await shown();
@@ -318,8 +323,8 @@ for (const scheme of ['dark', 'light']) {
 for (const [who, ua, want] of [['the iPhone app', UA.iphoneApp, 'apple'], ['Safari on an iPhone', UA.iphone, 'apple'], ['an Android phone', UA.android, 'google'], ['Windows', UA.windows, 'google']]) {
   const { page, ctx, errors } = await open({ width: 390, ua });
   await page.click('#cd-print');
-  const m = await page.evaluate(() => ({ maps: CardMaker.maps(), first: (document.querySelector('#pt-links a') || {}).href || '', text: document.getElementById('pt-maps').textContent }));
-  ok(m.maps === want && m.first.startsWith(want === 'apple' ? 'https://maps.apple.com/?q=' : 'https://www.google.com/maps/search/'), 'Where to print today on ' + who + ': ' + m.text + ' (' + m.first.slice(0, 60) + ')');
+  const m = await page.evaluate(() => ({ first: (document.querySelector('#pt-links a') || {}).href || '', text: document.getElementById('pt-maps').textContent }));
+  ok(m.text === (want === 'apple' ? 'Apple Maps' : 'Google Maps') && m.first.startsWith(want === 'apple' ? 'https://maps.apple.com/?q=' : 'https://www.google.com/maps/search/'), 'Where to print today on ' + who + ': ' + m.text + ' (' + m.first.slice(0, 60) + ')');
   ok(errors.length === 0, 'no page error on ' + who + ' (' + errors.slice(0, 2).join(' | ') + ')');
   await ctx.close();
 }
