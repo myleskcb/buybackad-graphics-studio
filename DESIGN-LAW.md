@@ -7157,3 +7157,37 @@ image rights) read every line first; their findings are OPEN-ITEMS §CA.
   corner, the echo ripples its outline out from where it stands.
 - **A full ad turns a phone a sixth less** (`motion/engine.js` FULL_TURN): about 29 degrees turned, 50 side on. Videos
   and recipes keep their angles.
+
+## 177. A card ad stands on a painted ground, never a photograph
+
+Added 2026-11-24. The owner's rule since 2026-11-21 (rules 161 and 170): photographs behind paid ads are public domain
+or CC0, read by eye, with no trademarked landmark, and the card ads stand on painted grounds until the shop shoots its
+own. The full ad still stood card ads on photographs: the sports line's pool held four credited `bg-web` ball
+photographs and the Pokémon line's three `bg-web` rooms (CC BY, a credit rule 170 keeps off a card ad), the area's city
+photographs joined every line's pool three times over, and a rebuilt recipe leaned to its card's photograph. A redraw on
+2026-11-24 put the sports-card library ad `r-voltStack-ca07-15` on the Griffith Observatory, its name across the frame.
+
+- **No card ad on a photograph, at any seed** (`motion/fullad.js` `paintedLine`, `groundFor`, `fullStyle`): a line
+  whose goods are trading cards (`motion/full-points.js` `kindOf`: Pokémon and sports cards) or whose category the table
+  paints (`spec/full-grounds.json` `painted`) draws no photograph of its line, of its area or of its recipe's card. One
+  handed to it (a `ground_photo` in the style, a look kept as its own, a ground picked by hand) gives way to the seed's
+  painted ground, and the style it returns carries none. It stands on its line's own painted grounds (slabs, binder,
+  cards, foil, stitch), a gradient, a pattern, a drawn scene, one of the four families of rule 163 or the house's own.
+- **The card ads already seen stay as they were**: a card ad keeps the photograph's part of the draw and paints it. A
+  seed that drew a photograph draws again among the painted kinds; one that drew a painted ground keeps it (1,401 of
+  1,408 in the comparison; the other seven, recipes whose lean listed a photograph, moved within their kind). No other
+  line's draw moved: 42,744 draws compared across every line, nine areas and every recipe, a photograph still 35.5% of
+  them.
+- **At the source**: the card pools are empty in `spec/full-grounds.json`; `scripts/build_recipes.mjs` carries no
+  card's photograph into a card recipe (111 left out: the `bg-web` ball and room photographs, the old designers'
+  backgrounds, and rule 170's painted slab displays, which drawn through a photograph's path read as a photograph of a
+  shop); `scripts/build_full_grounds.mjs --check` fails a painted category with a pooled photograph, a card line whose
+  category is not painted, and a card recipe that carries a photograph.
+- **The maker says so**: under Background, *A photograph* and the photo treatment are greyed out on a card ad, and the
+  panel's note says card ads always stand on a painted ground.
+- **Held by** `scripts/full_ad_check.mjs` (part `cards`): both card lines in every metro the library holds photographs
+  of and in none, 120 seeds each, with the Background set to a photograph, a photograph given with the ad, a look kept
+  as its own on one, a photograph picked by hand, and every card recipe as Easy Mode draws it. On the code before, 4,809
+  of 8,150 such card ads stood on a photograph. The 27 library ads whose ground moved were drawn again.
+- **Not decided yet** (OPEN-ITEMS §CE): the place photographs about one named landmark building, which still stand
+  behind every other line's ads.

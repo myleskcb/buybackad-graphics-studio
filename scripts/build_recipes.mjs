@@ -26,7 +26,8 @@
                    showed; none, and the line's own pool draws by the seed
      ground_photo  { src, focus, scrim, from }: the photograph it stood on, unless that is cash,
                    outer space for goods that are not about space, or a car of another make than
-                   the one it names (the research and the owner: rule 144)
+                   the one it names (the research and the owner: rule 144); never on a card line
+                   (spec/full-grounds.json painted, rule 177: a card ad stands on a painted ground)
      pair          its theme where that is one of the twelve, else the nearest of them in OKLab
                    (kept for the record: the look leans by hint, below)
      type_pair     the face pair it wore where the full ad holds it (motion/full-voices.js)
@@ -367,6 +368,8 @@ const say = t => t.subject === 'car' ? `a ${[t.make, t.model].filter(Boolean).jo
 function lineUp(ad, cat, subject, pictures, make, gp, words, notes) {
   const out = (g, pics = pictures) => { if (g) { const t = tagOf(g.src); g.shows = t.shows; if (t.subject) g.subject = t.subject; if (t.make) g.make = t.make; if (t.model) g.model = t.model; if (t.vehicle) g.vehicle = t.vehicle; if (t.floor != null) g.floor = t.floor; } return { ground_photo: g, pictures: pics }; };
   if (!gp) return out(null);
+  // a card ad stands on a painted ground (rule 177): its card's photograph is not carried into the recipe
+  if ((GROUNDS_M.GROUND_PAINTED || []).includes(cat)) { notes.push('ground left out: a card ad stands on a painted ground (rule 177)'); return out(null); }
   const t = tagOf(gp.src);
   if (!t) { notes.push('ground not in spec/ground-tags.json: left out'); return out(null); }
   if (t.never) { notes.push(`ground left out: ${t.never}`); return out(null); }

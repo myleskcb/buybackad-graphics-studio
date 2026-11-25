@@ -27,12 +27,17 @@
    35 lines): each drawn in every size with the words its line brings, held to the same rules,
    and its pictures to standing off their ground.
 
+   Then the card lines (rule 177): a card ad never stands on a photograph, at any seed, in any metro
+   or none, from a recipe's lean or its card's photograph, with a photograph given with the ad or the
+   maker's Background set to one; each draws a painted ground.
+
    Then the page: the maker opens on the full ad, its fields redraw it, Any look brings the old
    panel back, the photo downloads at 1440, nothing scrolls sideways at 390, no page error.
 
    usage:  python3 -m http.server 8931   (in the repo), then
-           [GFX_BASE=http://127.0.0.1:8931/] [SEEDS=6] [SHEET=dir] node scripts/full_ad_check.mjs
-   Exits non-zero on a failure. SHEET=dir also writes sheet.jpg, one ad per case. */
+           [GFX_BASE=http://127.0.0.1:8931/] [SEEDS=6] [SHEET=dir] [PARTS=ads,lines,cards,page] node scripts/full_ad_check.mjs
+   Exits non-zero on a failure. SHEET=dir also writes sheet.jpg, one ad per case. PARTS runs only the
+   parts named (all four by default). */
 import { createRequire } from 'node:module';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
@@ -40,6 +45,7 @@ const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8931/').replace(/\/?$/, '/');
 const SEEDS = +(process.env.SEEDS || 6), SHEET = process.env.SHEET || '';
+const PARTS = new Set((process.env.PARTS || 'ads,lines,cards,page').split(',').map(s => s.trim()));
 
 const WORDS = {
   ordinary: { headline: 'SELL YOUR IPHONE', tag: 'IPHONE 15 – 18 PRO MAX', feed_claim: 'TOP DOLLAR • FAST CASH', points: 'TEXT YOUR IMEI, CASH SAME DAY, NO FEES', number_label: 'CALL OR TEXT', feed_where: 'LONG BEACH • LAKEWOOD • DOWNEY', site: 'www.YourShop.com' },
@@ -56,7 +62,7 @@ const failures = [], notes = [];
 const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
 
 /* ---------- 1. the ad itself, drawn by the engine ---------- */
-{
+if (PARTS.has('ads')) {
   const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
   const errors = []; page.on('pageerror', e => errors.push(String(e)));
   await page.goto(BASE + 'motion/', { waitUntil: 'load', timeout: 120000 });
@@ -178,7 +184,7 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
 }
 
 /* ---------- 2. every other product ---------- */
-{
+if (PARTS.has('lines')) {
   const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
   const errors = []; page.on('pageerror', e => errors.push(String(e)));
   await page.goto(BASE + 'motion/', { waitUntil: 'load', timeout: 120000 });
@@ -243,8 +249,73 @@ const fail = m => { failures.push(m); console.log('  FAIL ' + m); };
   await page.close();
 }
 
+/* ---------- 2b. a card ad stands on a painted ground (rule 177) ---------- */
+/* The owner's rule (DESIGN-LAW 161, 170): photographs behind paid ads are public domain or CC0, read by
+   eye, and the card ads stand on painted grounds until the shop shoots its own. The card lines' own
+   pools held credited bg-web photographs, the area's city photographs joined them three times over, and
+   a rebuilt recipe could lean to its card's photograph: a sports-card library ad stood on the Griffith
+   Observatory. Every way a card ad's ground is chosen is drawn here, and none may be a photograph. */
+if (PARTS.has('cards')) {
+  const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
+  const errors = []; page.on('pageerror', e => errors.push(String(e)));
+  await page.goto(BASE + 'motion/', { waitUntil: 'load', timeout: 120000 });
+  await page.waitForFunction(() => document.getElementById('loading').hidden, null, { timeout: 120000 });
+  const out = await page.evaluate(async ({ SEEDS }) => {
+    const E = await import('/motion/engine.js'), C = await import('/motion/catalog.js'), F = await import('/motion/fullad.js');
+    const P = await import('/motion/full-points.js'), M = await import('/motion/metros.js'), G = await import('/motion/full-grounds.js');
+    const { index } = await E.loadPhones('/motion/phones/');
+    const subs = (await (await fetch('/motion/subjects.json', { cache: 'no-store' })).json()).subjects;
+    // the card lines: every line whose goods are trading cards (full-points.js kindOf), never fewer than the two
+    const cards = subs.filter(s => P.kindOf(s.key) === 'cards');
+    const R = await (await fetch('/motion/recipes.json', { cache: 'no-store' })).json();
+    const recipes = (R.recipes || []).filter(r => cards.some(s => s.key === r.subject));
+    if (R.lean) recipes.forEach(r => { if (r.hint) r.hint.lean = R.lean; });
+    // no area, and an area in each metro the library holds photographs of (a ZIP code, as Easy Mode passes it)
+    const areas = [''], seen = new Set();
+    for (let z = 0; z < 1000; z++) { const zip = String(z).padStart(3, '0') + '01', m = M.metroOf(zip); if (m && (G.GROUND_PLACES[m] || []).length && !seen.has(m)) { seen.add(m); areas.push(zip); } }
+    const sets = {};
+    for (const S of cards) { sets[S.key] = []; for (let i = 0; i < Math.max(1, S.sets.length); i++) sets[S.key].push((await F.loadSubjectSet(S, i, '/assets/cutouts/')).ids); }
+    const anyPhoto = Object.keys(G.GROUND_PHOTOS).find(f => /bg-free\/geo-/.test(f)) || Object.keys(G.GROUND_PHOTOS)[0];
+    const by = {}, bad = {}, n = { drawn: 0 };
+    const look = (why, st) => {
+      n.drawn++; const k = st.background === 'photo' || st.ground_photo ? 'photo' : st.full_ground; by[k] = (by[k] || 0) + 1;
+      if (k === 'photo') (bad[why] = bad[why] || []).push(`${st.subject} seed ${st.seed}${st.area ? ' in ' + st.area : ''}: ${st.ground_photo ? st.ground_photo.src.split('/').pop() : 'a photograph'}`);
+    };
+    const base = (S, seed, extra = {}) => ({ ...C.DEFAULT_STYLE, subject: S.key, phones: sets[S.key][seed % sets[S.key].length], headline: S.heads[seed % S.heads.length].toUpperCase(), tag: S.models.toUpperCase(),
+      number: '(562) 999-4994', aspect: '1:1', ...extra });
+    for (const S of cards) for (const area of areas) for (let s = 1; s <= SEEDS; s++) {
+      const seed = 3001 + s * 7919;
+      // the seed's own draw, as the maker and the gallery draw it
+      look('the seed\'s own draw', F.fullStyle(base(S, seed, { area }), seed, index));
+      // the maker's Background panel set to a photograph, and a photograph given with the ad
+      if (s % 4 === 0) look('Background set to a photograph', F.fullStyle(base(S, seed, { area }), seed, index, { ground_kind: 'photo' }));
+      if (s % 4 === 1) look('a ground_photo given with the ad', F.fullStyle(base(S, seed, { area, ground_photo: { src: anyPhoto, focus: [.5, .5] } }), seed, index));
+      // a look handed in on a photograph: a video look kept as its own (Any look, the gallery), a ground picked by hand
+      if (s % 4 === 2) look('a look kept as its own, on a photograph', F.fullStyle(base(S, seed, { area, background: 'photo', ground_photo: { src: anyPhoto, focus: [.5, .5] } }), seed, index, {}, [], { look: 'own' }));
+      if (s % 4 === 3) look('a photograph picked by hand', F.fullStyle(base(S, seed, { area }), seed, index, { background: 'photo' }));
+    }
+    // every card recipe as Easy Mode and the library draw it (full-ad-studio.js styleNow): its own words, its hint as a
+    // lean, its card's photograph as a ground it may stand on, the library's Long Beach ZIP; on its own seed and others
+    for (const r of recipes) {
+      const S = cards.find(s => s.key === r.subject);
+      for (const [seed, area] of [[r.seed, '90802 · Long Beach'], [r.seed, ''], ...[1, 2, 3].map(k => [r.seed + k * 104729, areas[(r.seed + k) % areas.length]])]) {
+        const st = { ...base(S, seed, { area }), ...(r.words.headline ? { headline: r.words.headline } : {}), subject_set: (r.pictures || []).length || r.words_only ? 1 : 0,
+          ...(r.ground_photo ? { ground_hint: { ...r.ground_photo } } : {}), ...(r.hint ? { hint: r.hint } : {}) };
+        look('a recipe\'s lean', F.fullStyle(st, seed, index));
+      }
+    }
+    return { lines: cards.map(s => s.key), areas: areas.length, recipes: recipes.length, drawn: n.drawn, by, bad };
+  }, { SEEDS: Math.max(SEEDS * 20, 120) });
+  if (errors.length) fail('page errors while drawing the card lines: ' + errors.slice(0, 3).join(' | '));
+  if (!out.lines.includes('pokemon') || !out.lines.includes('sports')) fail(`the card lines are ${out.lines.join(', ') || 'none'}: Pokémon and sports cards must be among them`);
+  for (const [why, L] of Object.entries(out.bad)) fail(`a card ad on a photograph (${why}): ${L.length}, e.g. ${L.slice(0, 3).join('; ')}`);
+  console.log(`drew ${out.drawn} card ads (${out.lines.join(', ')}; ${out.areas - 1} metros and none; ${out.recipes} recipes): ${Object.entries(out.by).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(', ')}`);
+  if (!Object.keys(out.bad).length) console.log('  ok   no card ad stands on a photograph: every one on a painted ground');
+  await page.close();
+}
+
 /* ---------- 3. the page ---------- */
-{
+if (PARTS.has('page')) {
   const ctx = await browser.newContext({ viewport: { width: 1400, height: 1000 }, acceptDownloads: true });
   await ctx.addInitScript(() => { try { localStorage.setItem('pgfx_local_demo', '1'); } catch (e) { /* none */ } });
   const page = await ctx.newPage();

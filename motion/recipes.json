@@ -31930,21 +31930,14 @@
     "headline": "WE BUY POKÉMON"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.44,
-    "from": "arcCrown-ck04-35",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "teal_orange",
    "type_pair": "",
    "dropped": [
     "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -31984,21 +31977,14 @@
     "headline": "WE BUY POKÉMON CARDS & SLABS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.44,
-    "from": "arcCrown-ck05-35",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_orange",
    "type_pair": "",
    "dropped": [
     "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -32041,21 +32027,14 @@
     "points": "CASH, LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.47,
-    "from": "bandKnockout-gl04-30",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_orange",
    "type_pair": "warp",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -32098,21 +32077,14 @@
     "points": "CASH, LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.47,
-    "from": "bandKnockout-ik05-30",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "midnight_cyan",
    "type_pair": "warp",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -32156,20 +32128,11 @@
     "label": "CALL OR TEXT NOW"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "bandKnockout-pa03-35",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_gold",
    "type_pair": "warp",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
@@ -32218,21 +32181,14 @@
     "burst": "CASH NOW"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.38,
-    "from": "bubblePop-ca07-15",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "blue_green",
    "type_pair": "",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -32280,21 +32236,14 @@
     "burst": "CASH NOW"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.48,
-    "from": "bubblePop-ck01-15",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "red_yellow",
    "type_pair": "",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -32343,23 +32292,14 @@
     "burst": "CASH NOW"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "bubblePop-du08-16",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "green_gold",
    "type_pair": "warp",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
    ],
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
@@ -32409,21 +32349,14 @@
     "burst": "CASH NOW"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.35,
-    "from": "bubblePop-gl02-15",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "blue_green",
    "type_pair": "warp",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -32471,21 +32404,14 @@
     "burst": "CASH NOW"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.48,
-    "from": "bubblePop-jw05-16",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "midnight_cyan",
    "type_pair": "",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -32533,21 +32459,14 @@
     "burst": "CASH NOW"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.33,
-    "from": "bubblePop-pa05-15",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "midnight_cyan",
    "type_pair": "",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -32596,21 +32515,14 @@
     "burst": "CASH NOW"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.39,
-    "from": "bubblePop-pp04-15",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "teal_orange",
    "type_pair": "warp",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -32650,23 +32562,14 @@
     "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.45,
-    "from": "checklistHero-io03-20",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_orange",
    "type_pair": "",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
    ],
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
@@ -32708,21 +32611,14 @@
     "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.6,
-    "from": "checklistHero-nn05-30",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "red_yellow",
    "type_pair": "warp",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -32762,21 +32658,14 @@
     "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.45,
-    "from": "checklistHero-pa05-15",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_gold",
    "type_pair": "",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -32970,21 +32859,14 @@
     "label": "CALL OR TEXT NOW"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.44,
-    "from": "gradientWave-gl03-35",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "teal_orange",
    "type_pair": "",
    "dropped": [
     "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -33026,22 +32908,15 @@
     "claim": "GOT ANOTHER QUOTE?"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.54,
-    "from": "hudTech-du08-20",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "blue_green",
    "type_pair": "",
    "dropped": [
     "line under it: \"GRAILS WANTED CHARIZARD · MOONBREON\" (GRAILS / APPRAISAL)",
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -33079,22 +32954,15 @@
     "headline": "WE BUY POKÉMON"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.43,
-    "from": "neonNight-du08-16",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "purple_gold",
    "type_pair": "",
    "dropped": [
     "line under it: \"GRAILS WANTED • CHARIZARD\" (GRAILS / APPRAISAL)",
     "claim: \"FAST CASH\" (FAST CASH)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -33133,21 +33001,14 @@
     "tag": "TEXT A PIC · GET A PRICE"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.45,
-    "from": "neonNight-gl04-30",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "red_yellow",
    "type_pair": "warp",
    "dropped": [
     "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -33186,23 +33047,14 @@
     "claim": "CARD BUYER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.41,
-    "from": "neonNight-ik05-20",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "teal_orange",
    "type_pair": "warp",
    "dropped": [
     "line under it: \"GRAILS WANTED • CHARIZARD\" (GRAILS / APPRAISAL)"
    ],
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
@@ -33242,23 +33094,14 @@
     "claim": "CARD BUYER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.38,
-    "from": "neonNight-ik06-20",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "blue_green",
    "type_pair": "warp",
    "dropped": [
     "line under it: \"GRAILS WANTED • CHARIZARD\" (GRAILS / APPRAISAL)"
    ],
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
@@ -33297,22 +33140,15 @@
     "headline": "WE BUY POKÉMON"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.43,
-    "from": "neonNight-jw07-15",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "midnight_cyan",
    "type_pair": "warp",
    "dropped": [
     "line under it: \"GRAILS WANTED • CHARIZARD\" (GRAILS / APPRAISAL)",
     "claim: \"FAST CASH\" (FAST CASH)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -33358,21 +33194,14 @@
     "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.52,
-    "from": "reviewProof-cd06-20",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "purple_gold",
    "type_pair": "warp",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -33418,21 +33247,14 @@
     "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "reviewProof-du08-20",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_gold",
    "type_pair": "warp",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -33478,17 +33300,7 @@
     "headline": "WE BUY POKÉMON"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_pokemon_neonNight_royal.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.62,
-    "from": "scriptRetro-jw05-16",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_gold",
    "type_pair": "",
    "dropped": [
@@ -33496,6 +33308,7 @@
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
    ],
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
@@ -33542,22 +33355,15 @@
     "headline": "WE BUY POKÉMON"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.7,
-    "from": "scriptRetro-jw07-15",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "green_gold",
    "type_pair": "",
    "dropped": [
     "line under it: \"GRAILS WANTED • CHARIZARD\" (GRAILS / APPRAISAL)",
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -33604,22 +33410,15 @@
     "headline": "WE BUY POKÉMON"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.7,
-    "from": "scriptRetro-nn01-15",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "teal_orange",
    "type_pair": "warp",
    "dropped": [
     "line under it: \"GRAILS WANTED • CHARIZARD\" (GRAILS / APPRAISAL)",
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -33661,19 +33460,12 @@
     "claim": "CASH BUYER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.69,
-    "from": "slabPoster-nn05-30",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_gold",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-stepsFlow-cd10-15",
@@ -33706,23 +33498,14 @@
     "headline": "CASH IN 3 STEPS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.35,
-    "from": "stepsFlow-cd10-15",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_orange",
    "type_pair": "",
    "dropped": [
     "claim: \"FAST CASH\" (FAST CASH)"
    ],
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
@@ -33798,23 +33581,14 @@
     "headline": "CASH IN 3 STEPS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.33,
-    "from": "stepsFlow-jw07-16",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "green_gold",
    "type_pair": "",
    "dropped": [
     "claim: \"FAST CASH\" (FAST CASH)"
    ],
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
@@ -33851,20 +33625,11 @@
     "claim": "IN 3 STEPS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_pokemon_agencyGrid_royal.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "stepsFlow-jw10-31",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "purple_gold",
    "type_pair": "warp",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-poke-slab) left to the line's pool"
    ]
   },
@@ -33908,22 +33673,15 @@
     "claim": "CASH OFFERS, CARD BY CARD"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.52,
-    "from": "ticketStub-cd06-15",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "midnight_cyan",
    "type_pair": "warp",
    "dropped": [
     "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON\" (GRAILS / APPRAISAL)",
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -33967,21 +33725,14 @@
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.47,
-    "from": "trustSeal-cd10-30",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_orange",
    "type_pair": "warp",
    "dropped": [
     "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON • ALT ARTS\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -34025,21 +33776,14 @@
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.54,
-    "from": "trustSeal-du07-25",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "green_gold",
    "type_pair": "stadium",
    "dropped": [
     "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON • ALT ARTS\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -34081,22 +33825,15 @@
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.44,
-    "from": "trustSeal-gl02-15",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_gold",
    "type_pair": "",
    "dropped": [
     "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON • ALT ARTS\" (GRAILS / APPRAISAL)",
     "claim: \"FAST CASH\" (FAST CASH)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -34139,21 +33876,14 @@
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.52,
-    "from": "trustSeal-ik05-25",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "teal_orange",
    "type_pair": "",
    "dropped": [
     "line under it: \"GRAILS WANTED • CHARIZARD • MOONBREON • ALT ARTS\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -34195,22 +33925,15 @@
     "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.41,
-    "from": "voltStack-jw07-20",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "blue_green",
    "type_pair": "",
    "dropped": [
     "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)",
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -34254,19 +33977,12 @@
     "tag": "POKÉMON CARDS • BASE SET • 1ST EDITIONS • GRADED CARDS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_pokemon_arcCrown_royal",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_gold",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_pokemon_bandKnockout_volt",
@@ -34312,19 +34028,12 @@
     "label": "GET AN OFFER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_pokemon_bandKnockout_volt",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_white_red",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_pokemon_bubblePop_royal",
@@ -34374,19 +34083,12 @@
     "label": "GET AN OFFER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_pokemon_bubblePop_royal",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_gold",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_pokemon_checklistHero_royal",
@@ -34428,19 +34130,12 @@
     "label": "GET AN OFFER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_pokemon_checklistHero_royal",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "white_on_navy",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_pokemon_gradientWave_volt",
@@ -34483,19 +34178,12 @@
     "label": "GET AN OFFER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_pokemon_gradientWave_volt",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "plum_lime",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_pokemon_neonNight_royal",
@@ -34536,19 +34224,12 @@
     "claim": "COLLECTIONS WANTED"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_pokemon_neonNight_royal",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_white_red",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_pokemon_priceAnchor_volt",
@@ -34588,19 +34269,12 @@
     "claim": "WE BUY POKÉMON"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_pokemon_priceAnchor_volt",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "plum_lime",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_pokemon_slabPoster_mono",
@@ -34642,19 +34316,12 @@
     "claim": "COLLECTIONS WANTED"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.37,
-    "from": "dl_pokemon_slabPoster_mono",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "white_on_navy",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_pokemon_voltStack_volt",
@@ -34698,19 +34365,12 @@
     "label": "GET AN OFFER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_pokemon_voltStack_volt",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "plum_lime",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-of_pokemon_band_graphite",
@@ -34742,20 +34402,11 @@
     "label": "CALL OR TEXT"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-offer/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_pokemon_band_graphite",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_gold",
    "type_pair": "",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-poke-collection) left to the line's pool"
    ]
   },
@@ -34790,20 +34441,11 @@
     "label": "CALL OR TEXT"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-offer/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_pokemon_center_sand",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_gold",
    "type_pair": "",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-poke-cards-fan) left to the line's pool"
    ]
   },
@@ -34838,20 +34480,11 @@
     "label": "CALL OR TEXT"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-offer/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_pokemon_float_teal",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "red_yellow",
    "type_pair": "",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-poke-slabs-trio) left to the line's pool"
    ]
   },
@@ -34885,20 +34518,11 @@
     "label": "CALL OR TEXT"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-offer/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_pokemon_info_lime",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "red_yellow",
    "type_pair": "",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-poke-cards-fan) left to the line's pool"
    ]
   },
@@ -34932,20 +34556,11 @@
     "label": "CALL OR TEXT"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-offer/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_pokemon_list_bone",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "red_yellow",
    "type_pair": "",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-poke-cards-fan) left to the line's pool"
    ]
   },
@@ -34981,20 +34596,11 @@
     "label": "CALL OR TEXT"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-offer/pokemon-slabs-display-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_pokemon_row_cream",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_gold",
    "type_pair": "",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-poke-slabs-trio) left to the line's pool"
    ]
   },
@@ -35027,20 +34633,11 @@
     "label": "CALL OR TEXT"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-offer/pokemon-slabs-display-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_pokemon_split_blush",
-    "shows": "product",
-    "subject": "pokemon"
-   },
+   "ground_photo": null,
    "pair": "navy_gold",
    "type_pair": "",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-poke-slabs-trio) left to the line's pool"
    ]
   },
@@ -35081,22 +34678,14 @@
     "headline": "WE BUY SPORTS CARDS & SLABS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/sports-baseball-on-grass-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "arcCrown-du05-20",
-    "shows": "scene"
-   },
+   "ground_photo": null,
    "pair": "black_green",
    "type_pair": "",
    "dropped": [
     "line under it: \"GRAILS WANTED • ROOKIES • AUTOS\" (GRAILS / APPRAISAL)"
    ],
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-slab) left to the line's pool"
    ]
   },
@@ -35138,21 +34727,14 @@
     "headline": "WE BUY SPORTS CARDS & SLABS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_glassCard_mono.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.49,
-    "from": "arcCrown-nn03-30",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "purple_gold",
    "type_pair": "warp",
    "dropped": [
     "line under it: \"GRAILS WANTED • ROOKIES • AUTOS\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -35194,22 +34776,14 @@
     "points": "CASH, LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/sports-baseball-on-grass-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "bandKnockout-ck03-20",
-    "shows": "scene"
-   },
+   "ground_photo": null,
    "pair": "black_red",
    "type_pair": "",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
    ],
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
   },
@@ -35252,21 +34826,14 @@
     "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_trustSeal_crimson.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.56,
-    "from": "bandKnockout-jw05-15",
-    "shows": "scene",
-    "floor": 0.78
-   },
+   "ground_photo": null,
    "pair": "silver_blue",
    "type_pair": "",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -35308,21 +34875,14 @@
     "points": "CASH, LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/showcase/bg/dg_cast_su01_sports_0.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.28,
-    "from": "bandKnockout-su01-35",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "green_gold",
    "type_pair": "",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -35371,19 +34931,12 @@
     "label": "TEXT NOW FOR A QUOTE"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/showcase/bg/dg_cast_cd06_sports_4.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.29,
-    "from": "bubblePop-io06-35",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "silver_blue",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-bubblePop-nn05-30",
@@ -35432,18 +34985,12 @@
     "label": "GET YOUR OFFER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_reviewProof_paper.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.7,
-    "from": "bubblePop-nn05-30",
-    "shows": "scene"
-   },
+   "ground_photo": null,
    "pair": "red_yellow",
-   "type_pair": "warp"
+   "type_pair": "warp",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-checklistHero-du07-15",
@@ -35482,21 +35029,14 @@
     "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_trustSeal_crimson.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.57,
-    "from": "checklistHero-du07-15",
-    "shows": "scene",
-    "floor": 0.78
-   },
+   "ground_photo": null,
    "pair": "black_green",
    "type_pair": "",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -35536,21 +35076,14 @@
     "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_stepsFlow_emerald.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.47,
-    "from": "checklistHero-jw10-15",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_gold",
    "type_pair": "",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -35590,21 +35123,14 @@
     "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/showcase/bg/dg_cast_cd06_sports_2.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.32,
-    "from": "checklistHero-pp09-35",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "navy_gold",
    "type_pair": "",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -35746,21 +35272,15 @@
     "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_reviewProof_paper.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.56,
-    "from": "gradientWave-du07-15",
-    "shows": "scene"
-   },
+   "ground_photo": null,
    "pair": "silver_blue",
    "type_pair": "",
    "dropped": [
     "line under it: \"GRAILS WANTED • ROOKIES • AUTOS • PATCHES\" (GRAILS / APPRAISAL)",
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -35800,22 +35320,15 @@
     "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/showcase/bg/dg_cast_gl07_sports_0.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "gradientWave-gl07-35",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "purple_gold",
    "type_pair": "",
    "dropped": [
     "line under it: \"GRAILS WANTED • ROOKIES • AUTOS • PATCHES\" (GRAILS / APPRAISAL)",
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -35855,21 +35368,15 @@
     "claim": "CASH NO FEES LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/sports-baseball-and-glove-3.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.45,
-    "from": "gradientWave-ik05-30",
-    "shows": "scene"
-   },
+   "ground_photo": null,
    "pair": "navy_orange",
    "type_pair": "",
    "dropped": [
     "line under it: \"GRAILS WANTED • ROOKIES • AUTOS • PATCHES\" (GRAILS / APPRAISAL)",
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -35910,21 +35417,14 @@
     "label": "TEXT US NOW"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_glassCard_mono.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.54,
-    "from": "gradientWave-jw05-20",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "red_yellow",
    "type_pair": "",
    "dropped": [
     "line under it: \"GRAILS WANTED • ROOKIES • AUTOS • PATCHES\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -35965,16 +35465,7 @@
     "headline": "WE BUY SPORTS CARDS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_reviewProof_paper.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "hudTech-cd06-20",
-    "shows": "scene"
-   },
+   "ground_photo": null,
    "pair": "black_green",
    "type_pair": "",
    "dropped": [
@@ -35983,6 +35474,7 @@
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
    ],
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-box) left to the line's pool"
    ]
   },
@@ -36024,23 +35516,16 @@
     "headline": "WE BUY SPORTS CARDS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_stepsFlow_emerald.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.66,
-    "from": "hudTech-jw03-20",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_gold",
    "type_pair": "",
    "dropped": [
     "line under it: \"CASH · ZELLE · VENMO · WIRE\" (ZELLE / VENMO)",
     "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)",
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -36082,22 +35567,15 @@
     "label": "CALL OR TEXT NOW"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/showcase/bg/dg_cast_nn06_sports_1.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "hudTech-nn06-35",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "red_yellow",
    "type_pair": "",
    "dropped": [
     "line under it: \"GRAILS WANTED ROOKIES · AUTOS\" (GRAILS / APPRAISAL)",
     "claim: \"ONLINE NOW\" (ONLINE NOW)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -36135,22 +35613,15 @@
     "headline": "WE BUY CARDS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_glassCard_mono.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.44,
-    "from": "neonNight-cd06-16",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "silver_blue",
    "type_pair": "",
    "dropped": [
     "line under it: \"CASH · ZELLE · VENMO · WIRE\" (ZELLE / VENMO)",
     "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -36188,17 +35659,7 @@
     "headline": "WE BUY SPORTS CARDS & SLABS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_wantedFrame_paper.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "neonNight-ck03-20",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "red_yellow",
    "type_pair": "",
    "dropped": [
@@ -36206,6 +35667,7 @@
     "claim: \"FAST CASH\" (FAST CASH)"
    ],
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
   },
@@ -36244,22 +35706,15 @@
     "headline": "WE BUY SPORTS CARDS & SLABS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_stepsFlow_emerald.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.56,
-    "from": "neonNight-du01-30",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_green",
    "type_pair": "warp",
    "dropped": [
     "line under it: \"GRAILS WANTED • ROOKIES • AUTOS\" (GRAILS / APPRAISAL)",
     "claim: \"FAST CASH\" (FAST CASH)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -36297,22 +35752,15 @@
     "headline": "WE BUY CARDS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_glassCard_mono.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.35,
-    "from": "neonNight-nn05-15",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "navy_orange",
    "type_pair": "",
    "dropped": [
     "line under it: \"CASH · ZELLE · VENMO · WIRE\" (ZELLE / VENMO)",
     "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -36357,21 +35805,14 @@
     "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_trustSeal_crimson.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.39,
-    "from": "reviewProof-cd04-20",
-    "shows": "scene",
-    "floor": 0.78
-   },
+   "ground_photo": null,
    "pair": "green_gold",
    "type_pair": "",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -36416,20 +35857,14 @@
     "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_reviewProof_paper.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "reviewProof-io03-15",
-    "shows": "scene"
-   },
+   "ground_photo": null,
    "pair": "silver_blue",
    "type_pair": "",
    "dropped": [
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -36476,16 +35911,7 @@
     "headline": "WE BUY SPORTS CARDS & SLABS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_reviewProof_paper.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.55,
-    "from": "scriptRetro-ca07-20",
-    "shows": "scene"
-   },
+   "ground_photo": null,
    "pair": "purple_gold",
    "type_pair": "warp",
    "dropped": [
@@ -36493,6 +35919,7 @@
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
    ],
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
   },
@@ -36540,21 +35967,15 @@
     "headline": "WE BUY CARDS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_reviewProof_paper.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.56,
-    "from": "scriptRetro-du07-15",
-    "shows": "scene"
-   },
+   "ground_photo": null,
    "pair": "black_green",
    "type_pair": "warp",
    "dropped": [
     "line under it: \"GRAILS WANTED • ROOKIES • AUTOS\" (GRAILS / APPRAISAL)",
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -36609,7 +36030,7 @@
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
    ],
    "notes": [
-    "ground left out: too dark (the ground pools' measure, 2026-11-18)",
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
   },
@@ -36651,24 +36072,15 @@
     "headline": "WE BUY SPORTS CARDS & SLABS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_trustSeal_crimson.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.57,
-    "from": "slabPoster-du07-20",
-    "shows": "scene",
-    "floor": 0.78
-   },
+   "ground_photo": null,
    "pair": "green_gold",
    "type_pair": "warp",
    "dropped": [
     "claim: \"FAST CASH\" (FAST CASH)"
    ],
    "notes": [
-    "left out 1 flagged or rejected picture"
+    "left out 1 flagged or rejected picture",
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -36709,21 +36121,14 @@
     "headline": "WE BUY SPORTS CARDS & SLABS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/showcase/bg/dg_cast_gl03_sports_3.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.31,
-    "from": "slabPoster-gl03-35",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "purple_gold",
    "type_pair": "warp",
    "dropped": [
     "claim: \"ONLINE NOW · TEXT US\" (ONLINE NOW)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -36758,20 +36163,11 @@
     "claim": "CARD BUYER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_stepsFlow_emerald.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.47,
-    "from": "stepsFlow-du07-15",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_green",
    "type_pair": "",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-box) left to the line's pool"
    ]
   },
@@ -36808,20 +36204,11 @@
     "claim": "IN 3 STEPS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/sports-baseball-stadium-night-3.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "stepsFlow-du07-30",
-    "shows": "scene",
-    "floor": 0.7
-   },
+   "ground_photo": null,
    "pair": "silver_blue",
    "type_pair": "warp",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
   },
@@ -36858,20 +36245,11 @@
     "claim": "IN 3 STEPS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_trustSeal_crimson.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.58,
-    "from": "stepsFlow-gl04-30",
-    "shows": "scene",
-    "floor": 0.78
-   },
+   "ground_photo": null,
    "pair": "navy_orange",
    "type_pair": "warp",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
   },
@@ -36907,22 +36285,14 @@
     "headline": "CASH IN 3 STEPS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/sports-baseball-and-glove-2.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "stepsFlow-jw07-17",
-    "shows": "scene"
-   },
+   "ground_photo": null,
    "pair": "red_yellow",
    "type_pair": "warp",
    "dropped": [
     "claim: \"FAST CASH\" (FAST CASH)"
    ],
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
   },
@@ -36966,21 +36336,14 @@
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_glassCard_mono.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.44,
-    "from": "trustSeal-cd04-30",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "purple_gold",
    "type_pair": "",
    "dropped": [
     "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -37023,22 +36386,15 @@
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_glassCard_mono.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.44,
-    "from": "trustSeal-du02-20",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "red_yellow",
    "type_pair": "warp",
    "dropped": [
     "line under it: \"GRAILS WANTED • ROOKIES • AUTOS • PATCHES • NUMBERED /99\" (GRAILS / APPRAISAL)",
     "claim: \"FAST CASH\" (FAST CASH)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -37080,16 +36436,7 @@
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/sports-baseball-and-glove-3.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "trustSeal-jw07-15",
-    "shows": "scene"
-   },
+   "ground_photo": null,
    "pair": "navy_gold",
    "type_pair": "",
    "dropped": [
@@ -37097,6 +36444,7 @@
     "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)"
    ],
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
   },
@@ -37141,21 +36489,14 @@
     "points": "TEXT A PIC, FREE QUOTE, NO FEES"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_stepsFlow_emerald.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.65,
-    "from": "trustSeal-pa05-20",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "navy_orange",
    "type_pair": "stadium",
    "dropped": [
     "claim: \"GRAILS WANTED\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -37197,16 +36538,7 @@
     "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/sports-baseball-and-glove-1.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "voltStack-ca07-15",
-    "shows": "scene"
-   },
+   "ground_photo": null,
    "pair": "midnight_cyan",
    "type_pair": "",
    "dropped": [
@@ -37214,6 +36546,7 @@
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
    ],
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-box) left to the line's pool"
    ]
   },
@@ -37256,17 +36589,7 @@
     "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-web/sports-basketball-on-court-3.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.5,
-    "from": "voltStack-du02-20",
-    "shows": "scene",
-    "floor": 0.75
-   },
+   "ground_photo": null,
    "pair": "red_yellow",
    "type_pair": "",
    "dropped": [
@@ -37274,6 +36597,7 @@
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
    ],
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
   },
@@ -37316,22 +36640,15 @@
     "points": "CASH, NO FEES, LOCAL"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/showcase/bg/dg_cast_jw09_sports_5.webp",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "voltStack-jw09-35",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "purple_gold",
    "type_pair": "",
    "dropped": [
     "claim: \"REPLYING NOW\" (ONLINE NOW)",
     "call to action: \"REQUEST AN APPRAISAL\" (GRAILS / APPRAISAL)"
+   ],
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
    ]
   },
   {
@@ -37369,19 +36686,12 @@
     "label": "GET AN OFFER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_agencyGrid_mono.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_sports_agencyGrid_mono",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_lime",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_sports_bandKnockout_emerald",
@@ -37427,19 +36737,12 @@
     "label": "GET AN OFFER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_bandKnockout_emerald.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_sports_bandKnockout_emerald",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "yellow_on_black",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_sports_checklistHero_crimson",
@@ -37481,19 +36784,12 @@
     "label": "GET AN OFFER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_checklistHero_crimson.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_sports_checklistHero_crimson",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "white_on_black",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_sports_duoSplit_mono",
@@ -37523,20 +36819,11 @@
     "claim": "PAID WHEN WE AGREE"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_duoSplit_mono.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.36,
-    "from": "dl_sports_duoSplit_mono",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "yellow_on_black",
    "type_pair": "",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
   },
@@ -37583,19 +36870,12 @@
     "label": "GET AN OFFER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_glassCard_mono.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.26,
-    "from": "dl_sports_glassCard_mono",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "white_on_black",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_sports_gradientWave_crimson",
@@ -37638,19 +36918,12 @@
     "label": "GET AN OFFER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_gradientWave_crimson.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_sports_gradientWave_crimson",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "white_on_black",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_sports_hudTech_emerald",
@@ -37695,19 +36968,12 @@
     "label": "GET AN OFFER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_hudTech_emerald.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_sports_hudTech_emerald",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_cyan",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_sports_neonNight_emerald",
@@ -37748,19 +37014,12 @@
     "claim": "COLLECTIONS WANTED"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_neonNight_emerald.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.28,
-    "from": "dl_sports_neonNight_emerald",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "white_on_green",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_sports_priceAnchor_crimson",
@@ -37800,19 +37059,12 @@
     "claim": "WE BUY SPORTS CARDS"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_priceAnchor_crimson.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_sports_priceAnchor_crimson",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "white_on_black",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_sports_scriptRetro_paper",
@@ -37863,19 +37115,12 @@
     "label": "GET AN OFFER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_scriptRetro_paper.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.3,
-    "from": "dl_sports_scriptRetro_paper",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_white_yellow",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_sports_ticketStub_crimson",
@@ -37921,19 +37166,12 @@
     "label": "GET AN OFFER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_ticketStub_crimson.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.25,
-    "from": "dl_sports_ticketStub_crimson",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_white_red",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_sports_voltStack_crimson",
@@ -37977,19 +37215,12 @@
     "label": "GET AN OFFER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_voltStack_crimson.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.27,
-    "from": "dl_sports_voltStack_crimson",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_cyan",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-dl_sports_wantedFrame_paper",
@@ -38031,19 +37262,12 @@
     "claim": "BY A LOCAL BUYER"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg/dl_sports_wantedFrame_paper.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.31,
-    "from": "dl_sports_wantedFrame_paper",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_white_yellow",
-   "type_pair": ""
+   "type_pair": "",
+   "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)"
+   ]
   },
   {
    "id": "r-of_sports_band_sand",
@@ -38076,20 +37300,11 @@
     "label": "CALL OR TEXT"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-offer/dl_sports_agencyGrid_mono.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_sports_band_sand",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_white_yellow",
    "type_pair": "",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-box) left to the line's pool"
    ]
   },
@@ -38123,20 +37338,11 @@
     "label": "CALL OR TEXT"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-offer/dl_sports_arcCrown_crimson.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_sports_center_slate",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_white_yellow",
    "type_pair": "sport",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
   },
@@ -38171,20 +37377,11 @@
     "label": "CALL OR TEXT"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-offer/dl_sports_agencyGrid_mono.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_sports_float_arctic",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_white_yellow",
    "type_pair": "",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-cards-fan) left to the line's pool"
    ]
   },
@@ -38217,20 +37414,11 @@
     "label": "CALL OR TEXT"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-offer/dl_sports_glassCard_mono.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_sports_info_forest",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_gold",
    "type_pair": "tech",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-slab) left to the line's pool"
    ]
   },
@@ -38264,20 +37452,11 @@
     "label": "CALL OR TEXT"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-offer/dl_sports_arcCrown_crimson.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_sports_list_signal",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_white_yellow",
    "type_pair": "tech",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-cards-fan) left to the line's pool"
    ]
   },
@@ -38311,20 +37490,11 @@
     "label": "CALL OR TEXT"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-offer/dl_sports_glassCard_mono.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_sports_row_graphite",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_gold",
    "type_pair": "",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-slabs-fan) left to the line's pool"
    ]
   },
@@ -38356,20 +37526,11 @@
     "label": "CALL OR TEXT"
    },
    "pictures": [],
-   "ground_photo": {
-    "src": "assets/bg-offer/dl_sports_glassCard_mono.jpg",
-    "focus": [
-     0.5,
-     0.5
-    ],
-    "scrim": 0.4,
-    "from": "of_sports_split_plum",
-    "shows": "product",
-    "subject": "sports"
-   },
+   "ground_photo": null,
    "pair": "black_gold",
    "type_pair": "",
    "notes": [
+    "ground left out: a card ad stands on a painted ground (rule 177)",
     "its picture (ph-sports-box) left to the line's pool"
    ]
   },
