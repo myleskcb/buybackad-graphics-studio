@@ -75,7 +75,7 @@ try {
       class Own extends E.Ad {}
       const sub = new Own(E.harmonise({ ...base('1:1'), seed: 77, number_label: '' }, new Set(), {}), assets, 540, 540, { plan: false });
       // what the customer typed is theirs: no number is a fix for the download, not for the look; an old phrase is a note
-      const noNum = P.lookPreflight(draw({ number: '' })), old = P.lookPreflight(draw({ headline: 'HIGHEST CASH FOR IPHONES' }));   // HIGHEST: banned on every line (TOP DOLLAR is said again since rule 180)
+      const noNum = P.lookPreflight(draw({ number: '' })), old = P.lookPreflight(draw({ headline: 'HIGHEST CASH FOR IPHONES' }));   // HIGHEST: banned on every line (TOP DOLLAR is said again since rule 181)
       return { looks, words, typed: typed.st.number_label, typedDrawn: !!typed.num.label, empty: empty.st.number_label, sub: sub.st.number_label,
         noNum: { ok: noNum.ok, lookOk: noNum.lookOk, says: noNum.findings.map(f => f.level + ': ' + f.say) }, old: old.findings.filter(f => f.code === 'words').map(f => f.level + ': ' + f.say) };
     }, N);

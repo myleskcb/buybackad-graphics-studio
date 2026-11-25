@@ -4979,12 +4979,12 @@ Open:
    26) was merged in; full_ad, quick_ad, buylist, typing_pause, look_preflight and clip_grounds checks pass.
 2. The moving-scenes session (its own worktree) edits motion/app.js too: merge with care.
 
-## CG. 2026-11-24 — the ads sell: TOP DOLLAR beside the local and fair lines (DESIGN-LAW 180)
+## CI. 2026-11-24 — the ads sell: TOP DOLLAR beside the local and fair lines (DESIGN-LAW 181)
 
 (claude/bold-sales-pitches, on `main` after pull request 26. The owner: "all I see is honest or local buyer not top
 buyer or highest paying"; asked how hard, "bold, no proof needed"; asked when, "right after PR 26".)
 
-Done: see DESIGN-LAW 180.
+Done: see DESIGN-LAW 181.
 
 Open:
 1. **The mix is a first guess.** About half the badges and stickers are bold, and the points draw `top` at .7. The

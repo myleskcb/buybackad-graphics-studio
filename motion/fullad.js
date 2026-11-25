@@ -671,7 +671,7 @@ export const ICONS = ["cash"];
  *  that puts one back). The claim is read first and, with no business name typed, is the badge:
  *  the research's verdict on TOP DOLLAR there was "replace with identity or place" (2026-11-12),
  *  and until 2026-11-18 it still stood on 33 of the 35 first full ads (OPEN-ITEMS §BI).
- *  THE ADS SELL (DESIGN-LAW 180; the owner, 2026-11-24: "all I see is honest or local buyer not top buyer
+ *  THE ADS SELL (DESIGN-LAW 181; the owner, 2026-11-24: "all I see is honest or local buyer not top buyer
  *  or highest paying. We need more sales ways to pitch yourself"): about half the badges and stickers are a
  *  buyer selling, the money first and nothing a shop can be asked to prove (TOP DOLLAR PAID, WE PAY TOP
  *  DOLLAR, REAL CASH, NO LOWBALL OFFERS). HIGHEST, BEST PRICE, #1 and WE BEAT ANY OFFER stay out of every

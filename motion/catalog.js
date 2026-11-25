@@ -370,7 +370,7 @@ export const COPY = {
     burst: ["CASH!", "LOCAL!", "TOP $$$", "{CODE}"],
     // the selling points under the words (the photo ads' stack, DESIGN-LAW 83): only what every
     // shop on the site can say, so no speed, no condition and no price promise; a buyer selling
-    // (TOP DOLLAR PAID, DESIGN-LAW 180) says the money boldly and promises no figure
+    // (TOP DOLLAR PAID, DESIGN-LAW 181) says the money boldly and promises no figure
     points: ["FREE QUOTE", "CASH PAID", "TOP DOLLAR PAID", "ALL MODELS", "LOCAL BUYER", "QUOTE BY TEXT", "TOP CASH PAID", "MEET LOCALLY"],
     // the strike-out opening (owner, 2026-11-03): "NO MORE" over what sellers are tired of, crossed out
     strike_lead: "NO MORE", strikes: ["LOWBALLS", "FAKE OFFERS", "SHADY BUYERS", "SKETCHY MEETUPS", "WASTING TIME", "TIME WASTERS",

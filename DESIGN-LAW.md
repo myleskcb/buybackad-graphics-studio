@@ -7516,7 +7516,7 @@ still stretch over 1.5 s, 2 s in an 8 s ad; the moment adds sound no more than 8
 under the headline's hit; -16 LUFS, peaks at or under -1 dBFS), with parts 1 to 4 of rule 175 still holding, and
 `full_ad_check`, `quick_ad_check`, `buylist_check` and `motion_music_check` passing.
 
-## 180. The ads sell: a buyer says TOP DOLLAR, with nothing a shop can be asked to prove
+## 181. The ads sell: a buyer says TOP DOLLAR, with nothing a shop can be asked to prove
 
 Added 2026-11-24. The owner, looking across the ads: "all I see is honest or local buyer not top buyer
 or highest paying. We need more sales ways to pitch yourself." Asked how hard a default ad should sell,
@@ -7554,4 +7554,4 @@ of the picks too.
   comma), the census's one list, and the full ad's checks drawing every line in every size with the
   new words. The library's renders and the landing's stills are drawn again in these words.
 
-Not done here: OPEN-ITEMS §CG.
+Not done here: OPEN-ITEMS §CI.
