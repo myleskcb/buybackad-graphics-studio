@@ -506,18 +506,24 @@ if (!NO_BROWSER) {
     ok((await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 0, width + ' px: no sideways scroll on the logo maker with the kit open');
     await ctx.close();
   }
-  // the card maker, led by the logo
+  // the card maker: Brand cards wear the logo (DESIGN-LAW 185); Promo cards lead with it
   {
     const { page, ctx, errors } = await open('cards/', { kit: KIT, brand: { ...BRAND, name: 'Long Beach Phone Buyers' } });
-    await page.waitForFunction(() => document.getElementById('cd-gal').dataset.drawn && !document.querySelector('#cd-gal .cd-pick.wait'), null, { timeout: 60000 });
-    const g = await page.evaluate(() => ({ n: document.querySelectorAll('#cd-gal .cd-pick').length, layouts: [...document.querySelectorAll('#cd-gal .cd-pick')].map((b) => b.dataset.layout), custom: document.getElementById('cd-custom').hidden }));
-    ok(g.n === 12 && g.layouts.slice(0, 3).every((l) => l === 'logo') && g.custom, 'the card maker opens on 12 finished cards, the logo first, Customise behind them (' + g.layouts.join(',') + ')');
-    const counts = g.layouts.reduce((a, l) => (a[l] = (a[l] || 0) + 1, a), {});
-    ok(Object.entries(counts).every(([l, n]) => l === 'logo' || n <= 2), 'no layout more than twice in the gallery (' + JSON.stringify(counts) + ')');
-    await page.click('#cd-gal .cd-pick >> nth=0');
+    const tiles = () => page.waitForFunction(() => document.getElementById('cd-gal').dataset.drawn && document.querySelectorAll('#cd-gal .cd-pick').length && !document.querySelector('#cd-gal .cd-pick.wait'), null, { timeout: 60000 });
+    await tiles();
+    const g = await page.evaluate(() => ({ n: document.querySelectorAll('#cd-gal .cd-pick').length, mode: CardMaker.mode(), layouts: [...document.querySelectorAll('#cd-gal .cd-pick')].map((b) => b.dataset.blayout), custom: document.getElementById('cd-custom').hidden }));
+    ok(g.n === 12 && g.mode === 'brand' && g.custom && new Set(g.layouts).size === 8 && g.layouts.every(Boolean), 'the card maker opens on 12 brand cards in all eight layouts, Customise behind them (' + g.layouts.join(',') + ')');
+    await page.click('#cd-gal .cd-pick >> nth=1');
     await page.waitForFunction(() => !document.getElementById('cd-custom').hidden, null, { timeout: 10000 });
-    const r = await page.evaluate(async () => { const f = await CardMaker.render('front'); const S = CardMaker.SAFE, L = f.boxes.find((b) => b.role === 'logo'); return { layout: CardMaker.state.layout, L, S }; });
-    ok(r.layout === 'logo' && r.L && r.L.x >= r.S.x - .5 && r.L.y >= r.S.y - .5 && r.L.x + r.L.w <= r.S.x + r.S.w + .5 && r.L.y + r.L.h <= r.S.y + r.S.h + .5 && r.L.w > r.S.w * .4, 'a tap opens Customise on the Logo layout, the logo large inside the safe area');
+    const r = await page.evaluate(async () => { const f = await CardMaker.render('front'), L = f.boxes.find((b) => b.role === 'logo'); return { L, kit: JSON.parse(localStorage.getItem('pgfx_logo') || '{}').card, design: CardMaker.brandDesign(), kitDesign: CardMaker.kit() }; });
+    ok(r.L && r.L.x0 >= 75 - .5 && r.L.y0 >= 75 - .5 && r.L.x1 <= 1050 + .5 && r.L.y1 <= 600 + .5 && r.L.x1 - r.L.x0 > 975 * .4, 'a tap opens Customise on the card, the logo large inside the safe area');
+    ok(r.kit && r.kit.layout === 'left' && r.kit.ground === 'paper', 'the card picked is written to the kit, so the kit\'s card is this one (' + JSON.stringify(r.kit) + ')');
+    ok(r.design.pair === r.kitDesign.pair && r.design.t === r.kitDesign.t, 'a brand card wears the logo picked in the logo maker, in its own colours');
+    await page.click('#cd-tab-promo'); await tiles();
+    const p = await page.evaluate(() => [...document.querySelectorAll('#cd-gal .cd-pick')].map((b) => b.dataset.layout));
+    ok(p.length === 12 && p.slice(0, 3).every((l) => l === 'logo'), 'Promo cards: the logo leads there too (' + p.join(',') + ')');
+    const counts = p.reduce((a, l) => (a[l] = (a[l] || 0) + 1, a), {});
+    ok(Object.entries(counts).every(([l, n]) => l === 'logo' || n <= 2), 'no promo layout more than twice in the gallery (' + JSON.stringify(counts) + ')');
     ok(errors.length === 0, 'the card maker: no page error (' + errors.slice(0, 2).join(' | ') + ')');
     await ctx.close();
   }

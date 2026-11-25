@@ -35,6 +35,10 @@ import { FONTS, TYPE_VOICES } from "../motion/catalog.js";
 import { loadFonts, fontCss, applyCase, rng, contrastOf, mix, rgba, lum } from "../motion/engine.js";
 import { HOUSE_COLOURS } from "../motion/house-colours.js";
 import { FULL_VOICES } from "../motion/full-voices.js";
+import { brandCardSvg, cardChoice, CARD_LAYOUTS, CARD_GROUNDS, CARD_LOOKS, cardPalette } from "../logo/card.js";
+import * as LE from "../logo/engine.js";
+import { cleanDetails } from "../logo/kit.js";
+import { printLinks, mountPrint } from "../logo/print-today.js";
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -71,7 +75,10 @@ let LINES = [], LINE_OF = {};
 const state = Object.assign({
   name: "", line: "", phone: "", site: "", where: "", points: "", models: "",
   layout: "band", pair: "", voice: "bold", fill: "", style: "", look: "", frame: false, qr: true, seed: 1, chosen: false, gseed: 1,
+  mode: "brand", blayout: "", bground: "",   // Brand cards (logo/card.js, DESIGN-LAW 185) or Promo cards (the layouts below)
 }, jget(STORE, null) || {});
+if (state.mode !== "promo") state.mode = "brand";
+state.blayout = ""; state.bground = "";   // a brand card's layout and background live in the kit (pgfx_logo.card), never here
 const keep = () => jset(STORE, state);
 
 /** the studio's own words for this customer, where the card has none of its own yet */
@@ -502,6 +509,11 @@ function frameNow(ctx) {
 }
 /** New look: a layout, a pair, type and a ground from one style's lists (Any: a style drawn first) */
 function newLook() {
+  if (state.mode === "brand") {
+    // the next layout and background in the kit's own order
+    const c = brandChoice(), i = CARD_LOOKS.findIndex(([l, g]) => l === c.layout && g === c.ground), [layout, ground] = CARD_LOOKS[(i + 1) % CARD_LOOKS.length];
+    setBrandChoice({ layout, ground }); drawControls(); later(0); return;
+  }
   state.seed = (state.seed | 0) + 1;
   const R = rng(state.seed * 104729), pick = a => a[Math.floor(R() * a.length)];
   const S = STYLE_OF[state.style] || pick(STYLES);
@@ -970,6 +982,7 @@ let LOCK = Promise.resolve();
 const locked = fn => { const p = LOCK.then(fn, fn); LOCK = p.catch(() => {}); return p; };
 export function render(side, o) { return locked(() => renderRaw(side, o)); }
 async function renderRaw(side, { scale = 1, marks = false, bare = false } = {}) {
+  if (state.mode === "brand") return renderBrand(side, { scale, marks });
   const f = TYPE_VOICES[voiceNow()], P = paletteOf(pairNow()), W = words();
   await loadFonts([f.display, f.label, numFontOf(f)]);
   let qr = null;
@@ -1106,77 +1119,120 @@ async function download(kind, btn) {
   finally { btn.disabled = false; btn.textContent = label; }
 }
 
-/* ---------- print it today ----------
-   The customer's own maps app: Apple Maps on an iPhone, iPad or Mac and inside the iPhone app (where
-   a maps.apple.com link opens the Maps app: ios/ NavigationPolicy opensInSystemApp), Google Maps
-   elsewhere, and a switch to the other. Only the chains whose own sites offer same-day business cards
-   for store pickup are named (checked 2026-11-24: FedEx Office, Staples, Office Depot OfficeMax; The
-   UPS Store's US pages promise no same day, so it is not named). */
-const CHAINS = ["FedEx Office", "Staples", "Office Depot OfficeMax"];
-const IN_IOS_APP = /\bWeBuyADApp\//.test(navigator.userAgent);
-const APPLE_DEVICE = IN_IOS_APP || /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent);
-const MAPS_KEY = "pgfx_card_maps";
-let maps = (() => { const m = jget(MAPS_KEY, null); return m === "apple" || m === "google" ? m : APPLE_DEVICE ? "apple" : "google"; })();
-const MAPS_NAME = { apple: "Apple Maps", google: "Google Maps" };
-/** Map searches the customer opens themselves. Apple Maps (the long-standing maps.apple.com ?q= form,
-    which every iOS reads) searches round the area's point when there is one (sll, spn): a long query
-    with "same day" and a ZIP in it found T-shirt shops 50 miles off, the plain one on the point found
-    the town's print shops (iOS 27 simulator, 2026-11-24). Without a point it says "near" the place, or
-    leaves Maps to search round where the customer is. Google Maps (the Maps URLs API: api=1&query=)
-    reads "same day … near 90802" as written. */
-export function printLinks(q, opt = {}) {
-  const where = String(q || "").trim(), app = opt.maps === "apple" ? "apple" : opt.maps === "google" ? "google" : maps;
-  const at = opt.at && Number.isFinite(opt.at.lat) && Number.isFinite(opt.at.lon) ? opt.at : null;
-  const near = where ? " near " + where : "", label = s => s + near;
-  if (app === "apple") {
-    const url = s => "https://maps.apple.com/?q=" + encodeURIComponent(at ? s : s + near) + (at ? "&sll=" + at.lat.toFixed(4) + "," + at.lon.toFixed(4) + "&spn=0.2,0.2" : "");
-    return [{ name: label("Business card printing"), url: url("business card printing"), main: true }].concat(CHAINS.map(c => ({ name: c, url: url(c) })));
-  }
-  const url = s => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(s + (near || " near me"));
-  return [{ name: label("Same-day business card printing"), url: url("same day business card printing"), main: true }].concat(CHAINS.map(c => ({ name: c, url: url(c) })));
-}
-/* The point of the place in the Near box: the studio's saved area when it is that place, else looked
-   up in the same ZIP and town tables the area dialog reads (assets/geo, fetched only when the
-   customer types another place and Apple Maps is the app; nothing is sent). */
-let STUDIO = {};
-const GEO = { zips: null, places: null };
-const geoFetch = (k, f) => GEO[k] || (GEO[k] = fetch(new URL("../assets/geo/" + f, import.meta.url)).then(r => r.ok ? r.json() : null).catch(() => null));
-const savedPoint = text => {
-  const low = String(text || "").trim().toLowerCase();
-  return low && STUDIO.at && [STUDIO.zip, STUDIO.home, String(STUDIO.home || "").split(",")[0]].some(s => s && String(s).trim().toLowerCase() === low) ? STUDIO.at : null;
-};
-async function pointOf(text) {
-  const t = String(text || "").trim(), low = t.toLowerCase();
-  if (!t) return null;
-  if (savedPoint(t)) return savedPoint(t);
-  const z = t.match(/^\d{5}$/);
-  if (z) { const zips = await geoFetch("zips", "us-zips.json"), p = zips && zips[z[0]]; return p ? { lat: p[0], lon: p[1] } : null; }
-  const m = low.match(/^(.*?)(?:[,\s]+([a-z]{2}))?$/), name = (m && m[1] || low).trim(), st = m && m[2] ? m[2].toUpperCase() : null;
-  const places = ((await geoFetch("places", "us-places.json")) || {}).places || [];
-  const hit = places.filter(p => p[0].toLowerCase() === name && (!st || p[1] === st)).sort((a, b) => b[4] - a[4])[0];   // the biggest town of that name
-  return hit ? { lat: hit[2], lon: hit[3] } : null;
-}
-let printN = 0;
-const placeLike = q => /^\d{5}$/.test(q) || (/^[^\d]{3,}$/.test(q));   // a whole ZIP or a town's name, not a ZIP half typed
-async function drawPrint() {
-  const n = ++printN, q = $("pt-where").value.trim();
-  const paint = at => {
-    $("pt-links").innerHTML = printLinks(q, { at }).map(l => `<a class="pt-link${l.main ? " main" : ""}" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.name)}<span aria-hidden="true">↗</span></a>`).join("");
-    $("pt-maps").textContent = MAPS_NAME[maps];
-    $("pt-switch").textContent = "Use " + MAPS_NAME[maps === "apple" ? "google" : "apple"] + " instead";
-  };
-  const saved = maps === "apple" ? savedPoint(q) : null;
-  paint(saved);
-  if (saved || maps !== "apple" || !placeLike(q)) return;
-  await new Promise(r => setTimeout(r, 350));   // a typed place is looked up once the typing pauses
-  if (n !== printN) return;
-  const at = await pointOf(q);
-  if (n === printN && at) paint(at);
-}
-function switchMaps() { maps = maps === "apple" ? "google" : "apple"; jset(MAPS_KEY, maps); drawPrint(); }
+/* ---------- print it today (logo/print-today.js: the one copy the brand kit's card step shares) ---------- */
+let PRINT = null;
 function showPrint(scroll) {
-  const p = $("print"); p.hidden = false; drawPrint();
+  const p = $("print"); p.hidden = false;
+  if (PRINT) PRINT.draw(); else PRINT = mountPrint({ input: $("pt-where"), links: $("pt-links"), mapsName: $("pt-maps"), switchBtn: $("pt-switch"), esc });
   if (scroll) p.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE BRAND CARDS (DESIGN-LAW 185). The owner, 2026-11-25: "business cards also dont have any real brand
+   assets? or background options?", "still not enough to make a consistent brand kit people will use moving
+   forward needs to looks super clean". A brand card is the shop's logo (the logo maker's, pgfx_logo_kit, or
+   one suggested for its name until it makes one), in the logo's own colours and lettering, with the kit's
+   details on the back (pgfx_logo.details: the same the kit's posts and signature use), drawn by
+   logo/card.js exactly as the brand kit draws its card. The layout and background picked here are written
+   to the kit (pgfx_logo.card), so the card in the kit is this card. Promo cards are the layouts above.
+   ═══════════════════════════════════════════════════════════════════════════ */
+const LOGO_STORE = "pgfx_logo";
+const BLAYOUT_OF = Object.fromEntries(CARD_LAYOUTS.map(x => [x.key, x])), BGROUND_OF = Object.fromEntries(CARD_GROUNDS.map(x => [x.key, x]));
+const DETAIL_KEYS = ["person", "role", "phone", "email", "site", "handle", "address", "hours"];
+const logoState = () => jget(LOGO_STORE, null) || {};
+const writeLogo = patch => jset(LOGO_STORE, Object.assign(logoState(), patch));
+/** the kit's details as typed, with the studio's number and website where the kit has none yet */
+function rawDetails() {
+  const d = Object.assign({}, logoState().details || {});
+  if (!d.phone && state.phone) d.phone = state.phone;
+  if (!d.site && state.site) d.site = state.site;
+  return d;
+}
+const brandDetails = () => cleanDetails(rawDetails());
+function setDetail(k, v) { const s = logoState(); s.details = Object.assign({}, s.details || {}, { [k]: v }); jset(LOGO_STORE, s); }
+/** the line a logo is drawn for: the kit's, or the card's own line where the logo engine has it */
+const logoCat = () => { const k = kitNow(); if (k && LE.LINE_WORDS[k.cat]) return k.cat; const c = lineNow().cat; return LE.LINE_WORDS[c] ? c : "phones"; };
+const suggested = {};
+/** the logo a brand card wears: the customer's own, or the first the logo maker would suggest for their name */
+function brandDesign() {
+  const k = kitNow(); if (k) return LE.cleanDesign(k);
+  const name = String(state.name || "").trim() || "Your Business", town = String(fromStudio().home || "").split(",")[0].trim(), key = name + "|" + logoCat() + "|" + town;
+  return suggested[key] || (suggested[key] = LE.gallery({ name, cat: logoCat(), town }, { seed: 1, n: 1 })[0]);
+}
+/** the layout and background: lent by the gallery for a moment, else the kit's (the customer's pick, or
+ *  the look its "Try another look" landed on) */
+function brandChoice() {
+  if (BLAYOUT_OF[state.blayout] && BGROUND_OF[state.bground]) return { layout: state.blayout, ground: state.bground };
+  const s = logoState(); return cardChoice(s.card, (s.looks && s.looks.card) || 0);
+}
+const setBrandChoice = c => writeLogo({ card: { layout: c.layout, ground: c.ground } });
+const LFACES = {};
+async function brandFaces(d) { for (const f of LE.facesOf(d)) if (!LFACES[f]) LFACES[f] = (await import(`../logo/glyphs/${f}.js`)).default; return LFACES; }
+const svgPicture = svg => new Promise((res, rej) => {
+  const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })), im = new Image();
+  im.onload = () => { URL.revokeObjectURL(url); res(im); }; im.onerror = () => { URL.revokeObjectURL(url); rej(new Error("The card could not be drawn")); };
+  im.src = url;
+});
+/** the QR for a brand card's back: to the website, or the number */
+async function brandQr(x) {
+  if (!state.qr || !(x.site || x.phone)) return null;
+  try { await loadQr(); } catch (e) { return null; }
+  const q = window.qrcode(0, "M"); q.addData(x.site ? "https://" + x.site : "tel:" + x.phone.replace(/[^\d+]/g, "")); q.make();
+  const n = q.getModuleCount(), cells = [];
+  for (let r = 0; r < n; r++) { const row = []; for (let c = 0; c < n; c++) row.push(q.isDark(r, c)); cells.push(row); }
+  return { cells, label: x.site ? "Scan to visit" : "Scan to call" };
+}
+/** one side of the brand card on a canvas, as render() returns a promo card's */
+async function renderBrand(side, { scale = 1, marks = false } = {}) {
+  const d = brandDesign(), faces = await brandFaces(d), x = brandDetails(), ch = brandChoice();
+  const qr = side === "back" ? await brandQr(x) : null;
+  const r = brandCardSvg(d, x, faces, { side, layout: ch.layout, ground: ch.ground, qr });
+  const im = await svgPicture(r.svg), c = document.createElement("canvas");
+  c.width = Math.round(SHEET.w * scale); c.height = Math.round(SHEET.h * scale);
+  const ctx = c.getContext("2d"); ctx.drawImage(im, 0, 0, c.width, c.height);
+  if (marks && window.PgfxMark) window.PgfxMark.draw(ctx, c.width, c.height);
+  return { canvas: c, boxes: r.boxes.map(b => ({ ...b, size: b.em })), fields: [], palette: r.palette, brand: true };
+}
+/** the gallery's brand cards: every layout, on its own colour and on white first, then the textures */
+const BRAND_FIRST = [["centred", "solid"], ["left", "paper"], ["corner", "solid"], ["band", "sheen"], ["split", "solid"], ["minimal", "paper"],
+  ["frame", "solid"], ["edge", "paper"], ["centred", "reverse"], ["left", "linen"], ["corner", "paper"], ["band", "mark"]];
+function brandLooks(gseed) {
+  if (gseed <= 1) return BRAND_FIRST.map(([blayout, bground], i) => ({ mode: "brand", blayout, bground, seed: i }));
+  const R = rng(gseed * 7919 + 3), lays = CARD_LAYOUTS.map(l => l.key), weights = { solid: 3, paper: 3, sheen: 1.5, reverse: 1.5, linen: 1, lines: 1, pattern: 1, mark: 1 };
+  const pickG = () => { const tot = Object.values(weights).reduce((a, b) => a + b, 0); let t = R() * tot; for (const [k, v] of Object.entries(weights)) { if ((t -= v) <= 0) return k; } return "solid"; };
+  const out = [], seen = new Set();
+  for (let i = 0; out.length < GALLERY_N && i < 200; i++) {
+    const blayout = lays[(i + gseed) % lays.length], bground = pickG(), k = blayout + bground;
+    if (seen.has(k)) continue; seen.add(k); out.push({ mode: "brand", blayout, bground, seed: i });
+  }
+  return out;
+}
+/** a background chip's swatch: the card's colour, and its texture drawn small */
+function groundSwatch(k) {
+  const P = cardPalette(brandDesign().pair, k), t = LE.mixHex(P.G, P.I, .22);
+  const tex = { sheen: `linear-gradient(${LE.mixHex(P.G, "#ffffff", .14)},${LE.mixHex(P.G, "#000000", .2)})`, linen: `repeating-linear-gradient(0deg,${t} 0 1px,transparent 1px 4px),repeating-linear-gradient(90deg,${t} 0 1px,transparent 1px 4px)`,
+    lines: `repeating-linear-gradient(45deg,${t} 0 2px,transparent 2px 6px)`, pattern: `radial-gradient(${t} 1.6px,transparent 2.2px) 0 0/8px 8px`, mark: `radial-gradient(circle at 85% 55%,${t} 0 45%,transparent 46%)` }[k];
+  return `background:${tex ? tex + "," : ""}${P.G}`;
+}
+/** Brand cards or Promo cards: the tabs, what each is, and the form and chips each shows */
+function setMode(m) {
+  state.mode = m === "promo" ? "promo" : "brand"; keep();
+  document.body.dataset.mode = state.mode;
+  for (const b of document.querySelectorAll(".cd-tabs [data-mode]")) b.setAttribute("aria-selected", String(b.dataset.mode === state.mode));
+  $("cd-tab-says").textContent = state.mode === "brand"
+    ? "Your logo, its colours and its lettering on every card, and your details on the back: the card you hand someone."
+    : "Cards that sell like your ads: what you buy, your number large, your towns and a QR code. Handouts for meet-ups and shop counters.";
+  modeDetails();
+  if (!$("cd-custom").hidden) { drawControls(); fillForm(); later(0); }
+}
+/** the gallery's own fields for the mode: a brand card's name is its logo's, where there is one */
+function modeDetails() {
+  const kit = kitNow(), brandKit = state.mode === "brand" && !!kit, nm = $("cd-g-name"), sel = $("cd-g-line");
+  nm.readOnly = brandKit; nm.title = brandKit ? "Your logo's name. Change it in the logo maker." : "";
+  nm.value = brandKit ? kit.name || "" : state.name || "";
+  sel.disabled = brandKit; sel.title = brandKit ? "Your logo's line. Change it in the logo maker." : "";
+  $("cd-suggest").hidden = !(state.mode === "brand" && !kit);
+  $("cd-g-phone").value = state.mode === "brand" ? rawDetails().phone || "" : state.phone || "";
 }
 
 /* ---------- the gallery: finished cards to pick from ---------- */
@@ -1184,6 +1240,7 @@ const GALLERY_N = 12;
 /** Looks for the gallery: a style at a time (each of the six twice), each look from that style's own lists,
  *  no pair twice and no layout more than twice; with a logo picked, the first three wear it in its own colours. */
 function galleryLooks(gseed) {
+  if (state.mode === "brand") return brandLooks(gseed);
   const R = rng(gseed * 92821 + 17), pick = a => a[Math.floor(R() * a.length)], shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(R() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const out = [], used = new Set(), kit = kitNow();
   if (kit && gseed === 1) {
@@ -1209,7 +1266,9 @@ function galleryLooks(gseed) {
   }
   return out;
 }
-const LOOK_KEYS = ["layout", "pair", "voice", "fill", "look", "style", "frame", "seed"];
+const LOOK_KEYS = ["layout", "pair", "voice", "fill", "look", "style", "frame", "seed", "mode", "blayout", "bground"];
+const lookName = L => L.mode === "brand" ? (BLAYOUT_OF[L.blayout] || {}).name + " · " + (BGROUND_OF[L.bground] || {}).name
+  : ((STYLE_OF[L.look] || {}).name || "") + " · " + (L.layout === "logo" ? "Logo" : (LAYOUTS.find(x => x.key === L.layout) || {}).name || "");
 let galRun = 0;
 /** draw a look's two sides small, without disturbing the card being customised */
 function renderLook(look, scale) {
@@ -1228,7 +1287,7 @@ function drawGallery(append = false) {
     const grid = $("cd-gal"); if (!append) grid.innerHTML = "";
     const looks = galleryLooks(state.gseed), nodes = looks.map(L => {
       const b = document.createElement("button"); b.type = "button"; b.className = "cd-pick wait";
-      b.innerHTML = `<div class="cd-pair"></div><b>${esc((STYLE_OF[L.look] || {}).name || "")} · ${esc(L.layout === "logo" ? "Logo" : (LAYOUTS.find(x => x.key === L.layout) || {}).name || "")}</b>`;
+      b.innerHTML = `<div class="cd-pair"></div><b>${esc(lookName(L))}</b>`;
       b.setAttribute("aria-label", "A business card, loading"); grid.appendChild(b); return b;
     });
     for (let i = 0; i < looks.length; i++) {
@@ -1240,9 +1299,8 @@ function drawGallery(append = false) {
         const pr = b.querySelector(".cd-pair");
         for (const [r, cls] of [[k, "bk"], [f, "fr"]]) { r.canvas.className = cls; r.canvas.setAttribute("aria-hidden", "true"); pr.appendChild(r.canvas); }
         b.classList.remove("wait");
-        const name = (STYLE_OF[L.look] || {}).name || "", lay = L.layout === "logo" ? "Logo" : (LAYOUTS.find(x => x.key === L.layout) || {}).name || "";
-        b.setAttribute("aria-label", "Pick this card: " + name + ", " + lay + ", in " + (PAIR_OF[L.pair] || {}).name);
-        b.dataset.layout = L.layout; b.dataset.pair = L.pair;
+        b.setAttribute("aria-label", "Pick this card: " + lookName(L).replace(" · ", ", ") + (L.mode === "brand" ? ", in your logo's colours" : ", in " + (PAIR_OF[L.pair] || {}).name));
+        if (L.mode === "brand") { b.dataset.blayout = L.blayout; b.dataset.bground = L.bground; } else { b.dataset.layout = L.layout; b.dataset.pair = L.pair; }
         b.onclick = () => pickLook(L, b);
       } catch (e) { console.warn("card gallery:", e); b.remove(); }
     }
@@ -1253,7 +1311,9 @@ function drawGallery(append = false) {
 }
 /** a card picked from the gallery: its look is the card's, and Customise opens on it */
 function pickLook(L, tile) {
-  Object.assign(state, L); state.chosen = true; keep();
+  if (L.mode === "brand") { state.mode = "brand"; setBrandChoice({ layout: L.blayout, ground: L.bground }); }
+  else Object.assign(state, L);
+  state.chosen = true; keep();
   document.querySelectorAll(".cd-pick").forEach(b => b.setAttribute("aria-pressed", String(b === tile)));
   customise(true);
 }
@@ -1269,11 +1329,17 @@ function bindDetails() {
   $("cd-g-name").value = state.name || ""; $("cd-g-phone").value = state.phone || "";
   let t = 0; const again = () => { clearTimeout(t); t = setTimeout(() => drawGallery(false), 450); };
   $("cd-g-name").addEventListener("input", e => { state.name = e.target.value; $("cd-name").value = state.name; keep(); again(); if (!$("cd-custom").hidden) later(); });
-  $("cd-g-phone").addEventListener("input", e => { state.phone = e.target.value; $("cd-phone").value = state.phone; keep(); again(); if (!$("cd-custom").hidden) later(); });
+  $("cd-g-phone").addEventListener("input", e => {
+    if (state.mode === "brand") { setDetail("phone", e.target.value); $("cd-b-phone").value = e.target.value; }
+    else { state.phone = e.target.value; $("cd-phone").value = state.phone; keep(); }
+    again(); if (!$("cd-custom").hidden) later();
+  });
+  for (const b of document.querySelectorAll(".cd-tabs [data-mode]")) b.onclick = () => { if (state.mode === b.dataset.mode) return; state.gseed = 1; setMode(b.dataset.mode); drawGallery(false); };
   sel.addEventListener("change", e => { state.line = e.target.value; state.points = ""; state.models = ""; keep(); fillForm(); drawControls(); drawGallery(false); if (!$("cd-custom").hidden) later(0); });
   $("cd-gal-more").onclick = () => { state.gseed = (state.gseed | 0) + 1; keep(); drawGallery(false); $("cd-gallery").scrollIntoView({ behavior: "smooth", block: "start" }); };
   $("cd-back-gal").onclick = () => $("cd-gallery").scrollIntoView({ behavior: "smooth", block: "start" });
   $("cd-logo-link").textContent = kitNow() ? "Change my logo" : "Make a logo for your card";
+  modeDetails();
 }
 
 /* ---------- the page ---------- */
@@ -1293,7 +1359,7 @@ async function draw() {
   }
   $("cd-stage").dataset.drawn = String(n);
   $("cd-stage").dataset.marked = String(!entitled);
-  const ink = $("cd-ink"); if (ink) ink.hidden = !vividPair(pairNow());
+  const ink = $("cd-ink"); if (ink) ink.hidden = f.brand ? !["G", "P", "A"].some(k => vividInk(f.palette[k])) : !vividPair(pairNow());
   // a website, towns or models line too long to print at 7 pt is set smaller; the customer is told which
   const NAMES = { site: "website", where: "towns", models: "line under what you buy" }, small = [...new Set(f.boxes.concat(b.boxes).filter(x => x.text && x.size < 29 && NAMES[x.role]).map(x => NAMES[x.role]))];
   const warn = $("cd-small");
@@ -1315,6 +1381,10 @@ function drawControls() {
     k => { state.pair = k; keep(); later(0); });
   chips("cd-voices", VOICES.map(k => ({ key: k, name: TYPE_VOICES[k].name })), voiceNow(), k => { state.voice = k; keep(); later(0); });
   chips("cd-fills", groundsShown(), fillNow(), k => { state.fill = k; keep(); later(0); });
+  const bc = brandChoice();
+  chips("cd-blayouts", CARD_LAYOUTS, bc.layout, k => { setBrandChoice({ ...brandChoice(), layout: k }); later(0); });
+  chips("cd-bgrounds", CARD_GROUNDS.map(g => ({ key: g.key, name: g.name, hint: g.hint, html: `<i style="${groundSwatch(g.key)}"></i>${esc(g.name)}` })), bc.ground,
+    k => { setBrandChoice({ ...brandChoice(), ground: k }); later(0); });
 }
 function fillForm() {
   const sel = $("cd-line"), groups = {};
@@ -1325,29 +1395,38 @@ function fillForm() {
   $("cd-points").placeholder = lineNow().points || "";
   $("cd-models").placeholder = lineNow().models || "";
   $("cd-qr").checked = !!state.qr;
+  const d = rawDetails();
+  for (const k of DETAIL_KEYS) { const el = $("cd-b-" + k); if (el && document.activeElement !== el) el.value = d[k] || ""; }
 }
 function bind() {
   for (const k of ["name", "phone", "site", "where", "points", "models"]) $("cd-" + k).addEventListener("input", e => { state[k] = e.target.value; keep(); later(); if ($("cd-g-" + k)) $("cd-g-" + k).value = state[k]; });
   $("cd-line").addEventListener("change", e => { state.line = e.target.value; state.points = ""; state.models = ""; keep(); fillForm(); drawControls(); later(0); });
   $("cd-qr").addEventListener("change", e => { state.qr = e.target.checked; keep(); later(0); });
+  let bt = 0;
+  for (const k of DETAIL_KEYS) $("cd-b-" + k).addEventListener("input", e => {
+    setDetail(k, e.target.value); later();
+    if (k === "phone") $("cd-g-phone").value = e.target.value;
+    clearTimeout(bt); bt = setTimeout(() => drawGallery(false), 600);   // the gallery's backs carry the details too
+  });
   $("cd-shuffle").onclick = newLook;
   $("cd-pdf").onclick = e => download("pdf", e.currentTarget);
   $("cd-png").onclick = e => download("png", e.currentTarget);
   $("cd-print").onclick = () => showPrint(true);
-  $("pt-where").addEventListener("input", drawPrint);
-  $("pt-switch").onclick = switchMaps;
 }
 
 async function start() {
   try { const j = await fetch(new URL("../motion/subjects.json", import.meta.url)).then(r => r.json()); LINES = j.subjects || []; } catch (e) { LINES = []; }
   try { PHOTOS = (await fetch(new URL("photos.json", import.meta.url)).then(r => r.json())).photos || {}; } catch (e) { PHOTOS = {}; }
   LINE_OF = Object.fromEntries(LINES.map(s => [s.key, s]));
-  const st = fromStudio(); STUDIO = st;
+  const st = fromStudio();
   for (const k of ["name", "phone", "site", "where", "line", "pair"]) if (!state[k] && st[k]) state[k] = st[k];
   if (!jget(STORE, null) && st.voice) state.voice = st.voice;
   $("pt-where").value = st.zip || st.home || "";
   if (!state.name && kitNow()) state.name = kitNow().name || "";
-  fillForm(); drawControls(); bind(); bindDetails();
+  // a logo made for gold is not a card that says WE BUY iPHONES: the kit's line leads (2026-11-25)
+  const kc = kitNow() && kitNow().cat;
+  if (kc && lineNow().cat !== kc && LINES.some(l => l.cat === kc)) state.line = LINES.find(l => l.cat === kc).key;
+  fillForm(); drawControls(); bind(); bindDetails(); setMode(state.mode);
   await checkEntitled();
   // the gallery first; Customise is behind it, open where a card was picked before or the address asks for it
   if (state.chosen || /[?&]customise=1\b/.test(location.search)) $("cd-custom").hidden = false;
@@ -1359,5 +1438,6 @@ async function start() {
 
 window.CardMaker = { state, render, pdfOf, printFile, FILLS: FILLS.map(x => x.key), newLook, photoOk, grounds: () => groundsShown().map(x => x.key),
   STYLES: STYLES.map(s => ({ key: s.key, name: s.name, layouts: s.layouts, pairs: s.pairs, voices: s.voices, grounds: s.grounds, frame: !!s.frame })), vividPair: k => vividPair(PAIR_OF[k]), kindOf, printLinks, draw, SHEET, TRIM, SAFE, BLEED, DPI, LAYOUTS: LAYOUTS.map(l => l.key), pairs: () => PAIRS.map(p => p.key), voices: () => VOICES.slice(),
-  entitled: () => entitled, customise: () => customise(false), gallery: () => galDrawing, galleryLooks, kit: () => kitNow(), ready: null };
+  entitled: () => entitled, customise: () => customise(false), gallery: () => galDrawing, galleryLooks, kit: () => kitNow(), ready: null,
+  mode: m => { if (m) setMode(m); return state.mode; }, brandChoice, brandDesign, brandDetails, CARD_LAYOUTS: CARD_LAYOUTS.map(l => l.key), CARD_GROUNDS: CARD_GROUNDS.map(g => g.key) };
 window.CardMaker.ready = start().catch(e => { console.error("business card maker:", e); note("The card maker did not load. Reload the page.", true); });
