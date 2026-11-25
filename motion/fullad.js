@@ -2094,6 +2094,12 @@ export function poolEntryFor(pool, seed) {
   const list = (pool || []).map((e, i) => [i, e.w]);
   return list.length ? pickWeighted(rng(mixSeed((seed >>> 0) * 197 + 31))(), list) : -1;
 }
+/* a picture's id carries its size beside the first when that is not 1: one file may stand alone in one entry and second in another */
+const poolPictureId = ({ file, k }) => "sub-" + file + (k && k !== 1 ? "@" + k : "");
+/** The ids of the pictures a seed draws from a line's pool (poolEntryFor), as loadSubjectSet names them, without
+ *  loading them: given to fullStyle as the phones, that entry is the one it draws (subjectDraw). For New look's
+ *  freshness memory, which reads looks ahead without drawing them (DESIGN-LAW 184). */
+export function poolIdsFor(pool, seed) { const e = poolEntryFor(pool, seed); return e >= 0 ? pool[e].set.map(poolPictureId) : []; }
 /** One entry of a line's pool for a seed: the one poolEntryFor names, when its pictures are loaded
  *  (null otherwise: the maker loads it first). With the whole pool loaded, as the checks load it,
  *  this is the draw it always was. */
@@ -2381,7 +2387,8 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
     const gd = groundFor(st.subject, seed, key, productFor(st.subject, have), lean && H.ground && !pick.ground_kind ? { want: H.ground, photo: st.ground_hint || null, r: lr, pick: lean.pick } : null, metroOf(st.area), { kind: pick.ground_kind || "", treat: pick.photo_treat || "", clip: handClip, seedClips: !!opts.moving });
     if (gd) Object.assign(look, gd); else delete look.ground_photo;
   }
-  if (look.ground_photo) { loadGroundPhoto(look.ground_photo.src).catch(() => {}); if (clipOf(look.ground_photo)) loadClipSheet(look.ground_photo.clip).catch(() => {}); }
+  // (opts.preload false: a look read ahead and not drawn, as New look reads eighty, loads no photograph: DESIGN-LAW 184)
+  if (look.ground_photo && opts.preload !== false) { loadGroundPhoto(look.ground_photo.src).catch(() => {}); if (clipOf(look.ground_photo)) loadClipSheet(look.ground_photo.clip).catch(() => {}); }
   /* THE LOOK'S STYLES (spec/full-styles.json, motion/full-styles.js; the owner, 2026-11-18: "notice how
      it's all same spiky circle?", "no variety in the text pure outlines?", "don't see any gradients
      really?"): the sticker's shape and fill, the headline's treatment (and the shade round its words)
@@ -2549,8 +2556,7 @@ export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cu
   if (!sets.length && !auto) return { ids: [], assets: {} };
   const one = auto && Number.isFinite(+opts.seed) && opts.seed !== null && opts.seed !== undefined ? poolEntryFor(pool, +opts.seed) : -1;
   const set = auto ? (one >= 0 ? pool[one].set : pool.flatMap(e => e.set)) : sets[((setIndex % sets.length) + sets.length) % sets.length], assets = {}, ids = [];
-  // a picture's id carries its size beside the first when that is not 1: one file may stand alone in one entry and second in another
-  const idOf = ({ file, k }) => "sub-" + file + (k && k !== 1 ? "@" + k : "");
+  const idOf = poolPictureId;   // (poolIdsFor names a seed's pictures as these are named)
   const imgs = new Map();
   await Promise.all([...new Set(set.map(p => p.file))].map(async file => {
     const img = await new Promise((res, rej) => { const i = new Image(); i.decoding = "async"; i.onload = () => res(i); i.onerror = () => rej(new Error("The picture " + file + " did not load.")); i.src = base + file + ".webp"; });

@@ -25,6 +25,9 @@
                   headline, colours and type, or the photo the maker saves of it is not the
                   picture Easy Mode saved (one ad, both files compared);
      a phone      anything scrolls sideways at 390 wide; any page error;
+     the posts    a download is not remembered, or New look, after a dozen downloads, shows a look that
+                  repeats one: a look-alike, a scheme or layout soon again, the same phones, riffs too
+                  often (the freshness memory, motion/freshness.js, DESIGN-LAW 184);
      the policy   the site's own Content-Security-Policy (netlify.toml), sent with each page
                   here as production sends it, blocks anything the full ad loads. (A plain file
                   server sends no policy: the theme toggle was dead in production for that.)
@@ -233,6 +236,43 @@ console.log('at 390 wide');
   await page.evaluate(() => showEasy()); await quiet(page); await drawn(page);
   const w = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, vw: window.innerWidth, on: FullAdStudio.isOn() }));
   ok(w.on && w.sw <= w.vw + 1, `nothing scrolls sideways (${w.sw} in ${w.vw})`, JSON.stringify(w));
+  ok(!errors.length, 'no page errors', errors.slice(0, 2).join(' | '));
+  await ctx.close();
+}
+
+/* ---------- 7. what the shop posted (the freshness memory, DESIGN-LAW 184) ----------
+   A download is remembered as a post; New look passes over a look that would repeat one: a look-alike (half its
+   fingerprint, or its picture within 0.085), the scheme of one of the last 8 posts, the layout of one of the last
+   10, the phones of the post before, a riff when one of the last four was a riff (motion/freshness.js). */
+console.log('what the shop posted');
+{
+  const { ctx, page, errors } = await open();
+  await page.evaluate(() => { localStorage.setItem('pgfx_area_asked', 'true'); localStorage.removeItem('pgfx_fresh_v1'); showEasy(); }); await quiet(page); await drawn(page);
+  await page.fill('#ez-phone', '(562) 555-0142'); await settle(page, { number: '(562) 555-0142' });
+  const s0 = await page.evaluate(() => +document.getElementById('fa-preview').dataset.seed);
+  await page.click('#fa-shuffle'); await settle(page);
+  const s1 = await page.evaluate(() => +document.getElementById('fa-preview').dataset.seed);
+  ok(s1 === s0 + 1, 'with nothing downloaded, New look moves on by one', `${s0} -> ${s1}`);
+  await page.evaluate(async () => { window.__dl.length = 0; await ezDownload(); });
+  const m = await page.evaluate(() => { const p = FullAdStudio.fresh.posts(), b = document.getElementById('fa-say'); return { n: p.length, pic: !!(p[0] && p[0].pic), say: b.hidden ? '' : b.textContent }; });
+  ok(m.n === 1 && m.pic, 'a download is remembered as a post, with its picture', JSON.stringify({ n: m.n, pic: m.pic }));
+  ok(/You downloaded this look today/.test(m.say), 'the preview says the look was downloaded', m.say || 'nothing said');
+  // eleven more: New look, then Download, as a shop posts
+  for (let i = 0; i < 11; i++) { await page.click('#fa-shuffle'); await settle(page); await page.evaluate(async () => { await ezDownload(); }); }
+  const r = await page.evaluate(async () => {
+    const F = await import('/motion/freshness.js'), posts = FullAdStudio.fresh.posts(), win = (FullAdStudio.fresh.last() || {}).win || { pairs: 8, layouts: 10, goods: true }, bad = [];
+    for (let t = 1; t < posts.length; t++) {
+      const f = posts[t], before = posts.slice(0, t), L = F.unpackLab(f.pic), at = `post ${t + 1} (seed ${f.seed})`;
+      const near = before.find(p => F.structure(f, p) >= F.TOO || F.picture({ lab: L }, { lab: F.unpackLab(p.pic) }) < F.TWIN);
+      if (near) bad.push(`${at} is a look-alike of seed ${near.seed}`);
+      if (win.pairs && before.slice(-win.pairs).some(p => p.pair === f.pair)) bad.push(`${at} wears the scheme of one of the last ${win.pairs}`);
+      if (before.slice(-win.layouts).some(p => F.layoutOf(p) === F.layoutOf(f))) bad.push(`${at} has the layout of one of the last ${win.layouts}`);
+      if (win.goods && before[t - 1].products.slice().sort().join() === f.products.slice().sort().join()) bad.push(`${at} shows the phones of the post before`);
+      if (f.riff && before.slice(-4).some(p => p.riff)) bad.push(`${at} riffs within five of a riff`);
+    }
+    return { n: posts.length, bad, riffs: posts.filter(p => p.riff).length, last: FullAdStudio.fresh.last() };
+  });
+  ok(r.n === 12 && !r.bad.length, `12 posts, each New look's next: no look-alike, scheme, layout or phones repeated, a riff one in five at most (${r.riffs} riffs)`, r.n + ' posts; ' + r.bad.slice(0, 3).join('; '));
   ok(!errors.length, 'no page errors', errors.slice(0, 2).join(' | '));
   await ctx.close();
 }

@@ -4032,6 +4032,35 @@ Open:
     - **owner**: whether any dark, muted pair should leave the draw now that the vivid look holds
       20. Candidates: Navy & Orange, Midnight & Cyan, Blue & Green, Teal & Orange, White on Navy.
       Nothing was retired without the word.
+15. **How soon a shop's posts repeat** (the owner, 2026-11-24: "How soon would these become generic
+    after how many days or what quantity of post per day", "have a similarity comparison ... there's
+    an amount that's OK but too similar", "riffing off of a good design doesn't hurt ... but then if
+    we keep doing that same thing, it becomes a repetitive cycle"). **measured; the memory built**:
+    - The test is `scripts/freshness_sim.mjs`. It draws full ads in New look's order and fingerprints
+      each: colours, ground, layout, type, details, products, words.
+    - Too similar means half the fingerprint shared, or pictures within 0.085, set by eye on the
+      closest pairs drawn.
+    - Look-alikes, 3 posts a day, two-week memory: an iPhone shop from day 4 (6% of posts), a gold
+      shop from day 3 (28%: gold has eight colour schemes).
+    - The layout goes first. Every ad is one skeleton with 60 settings, and at 3 a day 47% of posts
+      reuse a layout from the past two weeks, from day 2.
+    - Shown to the owner as a page with the pairs, 2026-11-24.
+    - **The freshness memory, done** (the owner, 2026-11-24: "Build it"; DESIGN-LAW 184,
+      `motion/freshness.js`). Product rotation and the riff cap came with it:
+      - Each download is remembered for two weeks in that browser, with its fingerprint and its picture.
+      - New look reads 80 looks ahead and takes the first that is no look-alike of a post. It also skips
+        the scheme of one of the last 8 posts, the layout of one of the last 10, and the phones of the
+        post before. Riffs are allowed one in five at most.
+      - The preview says when the look on screen was downloaded already.
+      - Replayed over 28 days at 1 to 10 a day (`freshness_sim.mjs --guard`), look-alikes went to 0% on
+        every line: iPhone from up to 9%, gold from 34%, cars from 6%. Nothing was eased.
+    - **owner**: which next, of:
+      - more layout families: split, poster, hero, card, stack. Every full ad is one skeleton with 59
+        layouts, so at 5 a day half the posts still reuse a layout from the past two weeks, memory or
+        not;
+      - more looks for gold: its eight schemes keep only four posts apart.
+    - Not covered: a video saved from the maker is not remembered, and the memory is per browser (a
+      shop on two devices has two).
 
 ## BL. 2026-11-18 — webuy.ad, the site's new address
 
