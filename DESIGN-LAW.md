@@ -7464,6 +7464,58 @@ them. Checked: full_ad_check, quick_ad_check, buylist_check, typing_pause_check
 and look_preflight_check; at 375 px nothing scrolls sideways and nothing is under
 12 px.
 
+## 179. A moving scene is one ad, not a ground under one: its moment, its light, its sound and the ad's beats together
+
+Added 2026-11-25. It widens rule 175. The owner, the day the moving grounds went live: "Having an animated
+background, doesn't really mean it's a good ad. It still needs to have other moving elements SFX, etc etc there
+needs to be conclusive cohesive elements to the ad."
+
+Measured first (six clips, look 105, 6 s square, the full ad's own layers rendered without the clip): every block
+had landed by 1.03 s (the headline's hit .70, the sticker .82, the number 1.03); after 2.5 s the ad's own layers
+stood still on 47 or 48 of 52 frames, and the longest still stretch between the number and the end card was 2.6 s
+(1.7 s in a 5 s ad, 4.6 s in an 8 s one). The soundtrack had three hits after the opening. All six scenes drew the
+same entrance, bed, hits and chimes: the clip changed nothing else. Each clip's own peak, measured on its 125
+frames, mostly fell inside the entrance, where nobody sees it (the gold bars' flare at .79 s).
+
+- **A scene's kit** (`motion/clips.js`, each clip's `scene`):
+  - its moment: the clip's own peak, in clip time (the flare .79 s, a car's lights .96 s, the circuit's pulse
+    1.33 s, the aerial's glint 1.79 s, the phone's light 2.04 s, faint; the golden-hour city has none, its light
+    moving 0.3 of a level);
+  - its light: the colour of the sweep that crosses the words at the moment;
+  - its sound at the moment: a car passing left to right, data ticking faster into a click, a cymbal drawn
+    backwards into the flare, air swelling, a long wind, a light sweep (`audio.js` `sceneSfx`), built from the
+    effects the trailer kit already has (rule 174);
+  - its choices: an entrance, the phone's idle move, a bed, a headline hit, a number sound and an end chime, one of
+    each drawn by the seed from the scene's own short list, on a stream of its own (`fullStyle`). Every sound on
+    those lists is one rule 174 keeps in a shuffle. A choice picked by hand stays; a video look (rule 158) keeps its
+    own art direction.
+- **The ad's arc on the scene** (`FullAd._sceneBeats`), every beat on the music's beat grid (the bed puts a bar line
+  on the headline's hit):
+  - the scene's moment, the first beat a second after the number lands (about 2.0 to 2.4 s). The clip starts at an
+    offset (`clipOffset`) so its own peak lands there, in the preview, the export and the photo alike. The light
+    crosses the headline, then the number; the scene's sound plays; the sticker stamps again .35 s later;
+  - the push to the call to action: the number pulses on the last beat that ends before the still's moment, about a
+    second before the end card, with a whoosh into a soft low hit;
+  - in an 8 s ad, a second light across the headline between the two;
+  - the end card as before (all but the number shades, a light crosses the number), now on the scene's chime.
+  The moment's sound sits on a low hit of .4 to .48 (the headline's .85 to .9), the push's on .32, so the bed steps
+  back under each as under every hit. At .2 to .3 the first cut was not heard: the hit ducked the bed by about what
+  it added, and the moment's window rose by -0.5 to +1.2 dB. Measured on what a sound adds (the render with it less
+  the render without it, against the bed there), not on the window's level. The still (the photo, the pre-flight) is
+  drawn at rest: no pulse, no stamp, no light.
+
+Measured after: the longest still stretch of the ad's own layers between the number and the end card, 6 s ads 2.6 s
+to 0.8 to 1.1 s, 8 s ads 4.6 s to 1.3 to 1.9 s, 5 s ads 1.7 s to 0.6 to 1.1 s; loudness -16 LUFS, peaks at or under
+-1 dBFS; the moment adds sound from 6.1 dB under the bed around it to 2.2 dB over it, and peaks 2.0 to 4.0 dB under
+the headline's hit (24 ads, six clips, four seeds, 5, 6 and 8 s). A review page put the six scene ads before and
+after side by side, with sound, for the owner (made from `main` e28ef95b for before).
+
+**Checked** by `scripts/clip_grounds_check.mjs` part 5 (24 ads: each scene draws from its own kit with its light; its
+moment lands on a beat after the number with the clip's peak under it, and the push before the still's moment; no
+still stretch over 1.5 s, 2 s in an 8 s ad; the moment adds sound no more than 8 dB under the bed and stays 1.5 dB
+under the headline's hit; -16 LUFS, peaks at or under -1 dBFS), with parts 1 to 4 of rule 175 still holding, and
+`full_ad_check`, `quick_ad_check`, `buylist_check` and `motion_music_check` passing.
+
 ## 180. The ads sell: a buyer says TOP DOLLAR, with nothing a shop can be asked to prove
 
 Added 2026-11-24. The owner, looking across the ads: "all I see is honest or local buyer not top buyer

@@ -4133,7 +4133,7 @@ export class Ad {
     this.lines.forEach((L, i) => {
       const t0 = tl.lines[i], xEnd = this.pos.xs[i] - L.pad, y = this.pos.y0 + i * this.lineH - L.pad;
       const q = prog(t, t0, .38); if (q <= 0) return;
-      const shineP = st.shine && t >= tl.shine ? prog(t, tl.shine + i * .08, .6) : 0;
+      const shineP = this._shineP(t, i * .08);
       if (L.plate && !["slide", "skew_slide"].includes(st.text_in)) {
         const f = outCubic(prog(t, t0 - .05, .3));
         ctx.save(); ctx.beginPath(); ctx.rect(xEnd + L.plateOff[0], y + L.plateOff[1], L.plate.width * f, L.plate.height); ctx.clip();
@@ -4241,6 +4241,14 @@ export class Ad {
     return this._gcache[k];
   }
 
+  /** How far a light sweep has crossed the type at t, d after each of its moments: the look's one (tl.shine), or
+   *  the moments a moving scene gives it (FullAd's shineTimes, rule 179). 0 when none is crossing. */
+  _shineP(t, d = 0) {
+    if (!this.st.shine) return 0;
+    for (const s of this.shineTimes || [this.tl.shine]) { if (t < s) continue; const p = prog(t, s + d, .6); if (p > 0 && p < 1) return p; }
+    return 0;
+  }
+
   _shine(ctx, x, y, w, h, p, spriteC) {
     // a diagonal light across the ink only
     this._shineC = this._shineC || canvas(w, h);
@@ -4250,7 +4258,8 @@ export class Ad {
     sx.globalCompositeOperation = "source-in";
     const pos = lerp(-.3, 1.3, p) * (w + h * .5);
     const g = sx.createLinearGradient(pos - w * .08, 0, pos + w * .08, h * .5);
-    g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(.5, "rgba(255,255,255,.55)"); g.addColorStop(1, "rgba(255,255,255,0)");
+    const col = this.shineCol || "#ffffff";   // a moving scene's own light (FullAd, rule 179), else white
+    g.addColorStop(0, rgba(col, 0)); g.addColorStop(.5, rgba(col, .55)); g.addColorStop(1, rgba(col, 0));
     sx.fillStyle = g; sx.fillRect(0, 0, w, h); sx.globalCompositeOperation = "source-over";
     ctx.drawImage(c, 0, 0, w, h, x, y, w, h);
   }
@@ -4316,7 +4325,7 @@ export class Ad {
         ctx.drawImage(Lc, -Lc.width / 2, -Lc.height / 2); ctx.restore();
       }
     }
-    if (st.shine && t >= tl.shine + .25) { const sp = prog(t, tl.shine + .25, .6); if (sp > 0 && sp < 1) this._shine(ctx, nx, ny, c.width, c.height, sp, c); }
+    { const sp = this._shineP(t, .25); if (sp > 0 && sp < 1) this._shine(ctx, nx, ny, c.width, c.height, sp, c); }
   }
 
   /** The starburst, the arrows at the number, the rubber stamp and the caution tape. */

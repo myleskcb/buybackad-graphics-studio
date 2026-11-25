@@ -4995,3 +4995,36 @@ Open:
    are unchanged. Only the full ad, the video maker's looks and its catalogue were changed.
 4. **The hero wall** keeps its 18 approved stills. It shows the new words once they are drawn again (`--redraw`) and
    approved.
+
+## CH. 2026-11-25 — a moving scene is one ad: its moment, its light, its sound and the ad's beats (DESIGN-LAW 179)
+
+(claude/modest-maxwell-ce019b, from `main` e28ef95b.)
+
+The owner, the day the moving grounds went live (§CB): "Having an animated background, doesn't really mean it's a
+good ad. It still needs to have other moving elements SFX, etc etc there needs to be conclusive cohesive elements
+to the ad."
+
+Done:
+- **Measured first**: every block landed by 1.03 s; after 2.5 s the ad's own layers stood still on 47 of 52
+  frames; three hits after the opening; all six scenes drew the same entrance, bed and sounds; the clips' own peaks
+  fell inside the entrance.
+- **A kit per scene** (`motion/clips.js` `scene`): its moment (measured on its 125 frames), its light, its sound,
+  and short lists for its entrance, phone move, bed, hits and end chime.
+- **The ad's arc** (`FullAd._sceneBeats`): the scene's moment on a beat about a second after the number, the clip
+  started so its peak lands there; the light across the headline and the number; the scene's sound; the sticker
+  stamping again; the push to the number before the end card; a second light in an 8 s ad.
+- **The sound** (`audio.js` `sceneSfx`): a car passing, data ticking, a cymbal into the flare, air, wind, a sweep;
+  each moment adds a layer over the bed and peaks 2 to 4 dB under the headline's hit.
+- **The longest still stretch** between the number and the end card: 6 s 2.6 s to 0.8–1.1 s, 8 s 4.6 s to
+  1.3–1.9 s, 5 s 1.7 s to 0.6–1.1 s. -16 LUFS, peaks at or under -1 dBFS.
+- **A review page** with the six scene ads before and after, with sound: https://claude.ai/artifact/DTV5waaKAqKcKHYkFKUjxY
+  (private to the owner).
+- `scripts/clip_grounds_check.mjs` part 5 holds it.
+
+Open:
+1. **The owner to watch and listen** on the review page, and say which scenes work.
+2. **On `main`, at the owner's word** (2026-11-25: "Yes, put it live"), after `main` (the trimmed toolbar, the
+   card ads) was merged in and every check passed on the result.
+3. **The golden-hour city and the phone barely move** on their own (the city's light 0.3 of a level, the phone's
+   2): the ad's light and sound carry their beat. Redrawn clips with more motion would serve them better.
+4. **Any look** (the plain engine) still has no moving ground (§CB 2), and so no scene kit.

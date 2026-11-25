@@ -923,7 +923,7 @@ export class FullAd extends Ad {
     // and a video look's shade round its words is laid into its ground once too: it is the ground's shading, as a
     // photograph's is, not something drawn on it (over a sunset's bright stripes the pre-flight read it as a mark at the edge)
     if (this.st.full_look && this.scrimC && !this.liveGround) { this.bg.getContext("2d").drawImage(this.scrimC, 0, 0, this.W, this.H); this.scrimC = null; }
-    this._photoGround();
+    this._photoGround(); this._sceneBeats();
     // a drawn scene that moves (aurora, drift) paints over the ground every frame: what must stay readable
     // over it (the shade behind the words, the pool behind a screen) is kept in layers drawn after it
     if (!this.groundImg && this.liveGround && !GROUNDS.includes(this.st.background)) { this.groundEven = {}; this.productOver = canvas(this.W, this.H); }
@@ -1005,7 +1005,7 @@ export class FullAd extends Ad {
     const st = this.st, gp = st.background === "photo" && st.ground_photo; if (!gp || !gp.src) return false;
     const img = groundImage(gp.src), clip = clipOf(gp);
     if (!img) {
-      loadGroundPhoto(gp.src).then(() => { if (this._photoGround()) { this._productLight(); this._evenProduct(); this._evenGround(); this.still = null; } }).catch(() => {});
+      loadGroundPhoto(gp.src).then(() => { if (this._photoGround()) { this._sceneBeats(); this._productLight(); this._evenProduct(); this._evenGround(); this.still = null; } }).catch(() => {});
       return false;
     }
     if (this.groundImg) return false;
@@ -1100,10 +1100,53 @@ export class FullAd extends Ad {
     return out;
   }
 
+  /** A moving scene's beats (rule 179), so the ad runs as one piece from the first frame to the end card:
+   *  - the scene's moment (sceneT): on a beat of the music once the words are in, the clip at its own peak (it starts at
+   *    clipOffset so its moment lands here), the light crossing the headline and then the number, the scene's sound,
+   *    and the sticker stamping again just after (restampT);
+   *  - the push to the call to action (pulseT): the number pulses on the last beat that ends before the still's moment,
+   *    about a second before the end card (which then shades all but the number and lights it: the engine's _outro);
+   *  - in a long ad, a second light across the headline between the two (glintT), so no stretch stands still.
+   *  Each is heard (cues: audio.js). In a short ad the moment comes as late as the end card allows, and a push with no
+   *  room before the still's moment is left out. */
+  _sceneBeats() {
+    const sc = this.groundClip && CLIPS[this.groundClip].scene; if (!sc || this.sceneT != null) return;
+    const tl = this.tl, b = 60 / (this.st.bpm || 112), out = this.tOutro != null ? this.tOutro : this.st.duration, end = out - .35;
+    const beat = x => tl.hit + Math.round((x - tl.hit) / b) * b;
+    let T = beat(Math.max((isFinite(tl.number) ? tl.number : 1) + 1.1, (this.tLanded || 0) + .9, 1.8));
+    if (T > end - .6) T = Math.max(tl.hit + b, end - .6);
+    this.sceneT = T; this.clipOffset = sc.moment != null ? sc.moment - T : 0;
+    this.shineTimes = [T - .15]; this.shineCol = sc.light;
+    this.restampT = this.burst ? T + .35 : null;
+    const last = Math.min(out, this.tHold ?? out) - .05;
+    let P = beat(out - 1); while (P + .45 > last) P -= b;
+    this.pulseT = P >= T + b ? P : null;
+    this.glintT = null;
+    if (this.pulseT != null && this.pulseT - T > 2.4) { this.glintT = beat((T + this.pulseT) / 2); this.shineTimes.push(this.glintT - .15); }
+    Object.assign(this.cues, { scene: { t: T, kind: sc.sfx }, ...(this.restampT != null ? { restamp: this.restampT } : {}),
+      ...(this.pulseT != null ? { pulse: this.pulseT } : {}), ...(this.glintT != null ? { glint: this.glintT } : {}) });
+  }
+
+  /** The number pulses once, the push to the call to action (rule 179); at rest in the still. */
+  _number(ctx, t) {
+    const k = this.pulseT != null && !this._still ? prog(t, this.pulseT, .45) : 0;
+    if (k <= 0 || k >= 1 || !this.numBox) return super._number(ctx, t);
+    const [x0, y0, x1, y1] = this.numBox, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, s = 1 + .06 * Math.sin(Math.PI * k);
+    ctx.save(); ctx.translate(cx, cy); ctx.scale(s, s); ctx.translate(-cx, -cy); super._number(ctx, t); ctx.restore();
+  }
+
+  /** The sticker stamps again just after the scene's moment (rule 179). */
+  _urgency(ctx, t) {
+    const B = this.burst, k = this.restampT != null && B && !this._still ? prog(t, this.restampT, .4) : 0;
+    if (k <= 0 || k >= 1) return super._urgency(ctx, t);
+    const s = 1 + .14 * Math.sin(Math.PI * k), a = .07 * Math.sin(Math.PI * 2 * k) * (1 - k);
+    ctx.save(); ctx.translate(B.x, B.y); ctx.rotate(a); ctx.scale(s, s); ctx.translate(-B.x, -B.y); super._urgency(ctx, t); ctx.restore();
+  }
+
   /** Where the ad's moment t is in its clip. */
-  clipTime(t) { return clipTime(t); }
+  clipTime(t) { return clipTime(t + (this.clipOffset || 0)); }
   /** The preview's player, kept near the ad's moment t (motion/app.js gives it: ad.clipSrc). */
-  followClip(t, playing) { if (this.groundClip && this.clipSrc && this.clipSrc.live) this.clipSrc.follow(t, playing); }
+  followClip(t, playing) { if (this.groundClip && this.clipSrc && this.clipSrc.live) this.clipSrc.follow(t + (this.clipOffset || 0), playing); }
   /** Before a video or a photo is drawn for keeps: a player of its own, moved to each frame's exact moment by
    *  prepareFrame and put away by endExport. A clip that will not load leaves its first frame under the ad. */
   async prepareExport() {
@@ -1112,7 +1155,7 @@ export class FullAd extends Ad {
     try { await p.load(); } catch (e) { console.warn("The moving background did not load; its first frame is drawn:", e); p.dispose(); return; }
     this._clipWas = this.clipSrc; this.clipSrc = p;
   }
-  async prepareFrame(t) { if (this._clipWas !== undefined && this.clipSrc) await this.clipSrc.seek(t); }
+  async prepareFrame(t) { if (this._clipWas !== undefined && this.clipSrc) await this.clipSrc.seek(t + (this.clipOffset || 0)); }
   endExport() { if (this._clipWas === undefined) return; this.clipSrc.dispose(); this.clipSrc = this._clipWas; delete this._clipWas; }
 
   /** A photograph moves under its overlay every frame; the engine's own live grounds otherwise. */
@@ -2384,6 +2427,15 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
       Object.assign(look, { type_pair: vid.type_pair, font: v.display, number_font: v.numberRead ? v.label : "same", full_pair: true });
     }
   } else look.full_look = false;
+  /* a moving scene's own kit (rule 179, motion/clips.js CLIPS[…].scene.kit): its entrance, the phone's move, its bed, its
+     hits and its chimes, one of each drawn on a stream of its own, so every other draw of the seed stays. What was picked
+     by hand stays, and a video look keeps its own art direction. The light sweep is on: the scene's moment crosses the words. */
+  const scene = !look.full_look && clipOf(look.ground_photo) ? CLIPS[look.ground_photo.clip].scene : null;
+  if (scene) {
+    const kr = rng(mixSeed((seed >>> 0) ^ 0x6c8e9cf5)); kr();
+    for (const [k, list] of Object.entries(scene.kit)) { const v = list[Math.floor(kr() * list.length) % list.length]; if (!(k in picked) && !kept.has(k)) look[k] = v; }
+    if (!("shine" in picked) && !kept.has("shine")) look.shine = true;
+  }
   // the layout (rule 158), on a stream of its own: what the seed drew above does not move
   Object.assign(look, drawLayout(seed, pick));
   const area = (st.area || "").trim();
