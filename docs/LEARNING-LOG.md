@@ -7020,3 +7020,22 @@ Found:
   - A ban narrowed to some lines keeps one list for every generation: scope the row (`only`), never fork the list.
 
 RESUME HERE: OPEN-ITEMS §CG 1.
+
+## 2026-11-25 — the maker's toolbar trimmed to three (DESIGN-LAW 178; claude/video-music-sfx-audit-3691d1)
+
+The owner found the bar busy and its colours mixed. Seven controls became three; the
+kind of ad and the templates moved into step 1, and the feed view stayed only in Check.
+
+Learned:
+  - Read a toolbar by what each button is: an action on the ad, a place you are, or a
+    setting. Only the first belongs in the bar; the steps already say where you are.
+  - One colour, two meanings reads as noise: filled now means "do this", an outline
+    "you are here".
+  - A button that repeats one in a step (the feed view) is the cheapest to cut: grep
+    for a second way in before keeping one.
+
+Put on `main` at the owner's word, after pull request 26 was merged in.
+
+RESUME HERE: the moving-scenes session reports on its own (§CB); merge it with care,
+as it edits motion/app.js too.
+

@@ -2246,8 +2246,8 @@ function buildTool() {
   menu.addEventListener("click", e => { if (e.target.closest("button")) shut(); });
   $("check-dl-mp4").addEventListener("click", () => $("download").click());
   $("check-dl-jpg").addEventListener("click", () => $("download-jpg").click());
-  $("feed-view").addEventListener("click", () => openFeedView().catch(e => console.warn("Feed view:", e)));
-  $("check-feed").addEventListener("click", () => $("feed-view").click());
+  // the feed view is a check, so it lives in the Check step (it left the toolbar, 2026-11-25)
+  $("check-feed").addEventListener("click", () => openFeedView().catch(e => console.warn("Feed view:", e)));
   // the start: templates first, unless a link brought a look
   const enter = step => { main.dataset.view = "edit"; show(step); window.scrollTo(0, 0); };
   $("to-start").addEventListener("click", () => { main.dataset.view = "start"; window.scrollTo(0, 0); });
@@ -2361,7 +2361,7 @@ async function openFeedView() {
     <div class="mo-feed-bar"><span><b>Today's picks</b><i>${escText(where)} &middot; 40 mi</i></span><button class="mo-feed-x" type="button" aria-label="Close">&#10005;</button></div>
     <div class="mo-feed-grid">${tiles.map(t => `<figure class="mo-feed-item${t.mine ? " mine" : ""}"><img src="${t.img}" alt="${t.mine ? "Your ad" : ""}"><figcaption><b>${escText(t.price)}</b><span>${escText(t.title)}</span><i>${escText(where)}</i></figcaption>${t.mine ? '<em>Your ad</em>' : ""}</figure>`).join("")}</div>
     <p class="mo-feed-note">A made-up feed, to show how your ad stands out among other listings. Your title and price come from the Listing step.</p></div>`;
-  const close = () => { wrap.remove(); document.removeEventListener("keydown", onKey); $("feed-view").focus(); };
+  const close = () => { wrap.remove(); document.removeEventListener("keydown", onKey); $("check-feed").focus(); };
   const onKey = e => { if (e.key === "Escape") close(); };
   wrap.addEventListener("click", e => { if (e.target === wrap || e.target.closest(".mo-feed-x")) close(); });
   document.addEventListener("keydown", onKey);

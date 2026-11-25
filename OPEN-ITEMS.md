@@ -4966,6 +4966,19 @@ Open, next steps:
 - `full_ad_studio_check` still fails its one case on `main` ("earbuds landscape: Something on the ad runs to the
   edge", §BY 5); this branch's change is inert without a logo kit, which that check never sets.
 
+## CF. 2026-11-25 — the maker's toolbar trimmed to three (DESIGN-LAW 178)
+
+(claude/video-music-sfx-audit-3691d1.) The owner: "Why does the top bar have so many
+options?", "the sideline looks easier to use", "I like the numbers"; then "Yes, trim it".
+
+Done: the bar is Back, New look and Download (the only filled button); Kind of ad and
+All templates open step 1; the feed view is in step 6 only.
+
+Open:
+1. **On `main`, at the owner's word** (2026-11-25: "Yes, put it live"), after `main` (pull request
+   26) was merged in; full_ad, quick_ad, buylist, typing_pause, look_preflight and clip_grounds checks pass.
+2. The moving-scenes session (its own worktree) edits motion/app.js too: merge with care.
+
 ## CG. 2026-11-24 — the ads sell: TOP DOLLAR beside the local and fair lines (DESIGN-LAW 180)
 
 (claude/bold-sales-pitches, on `main` after pull request 26. The owner: "all I see is honest or local buyer not top

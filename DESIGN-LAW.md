@@ -7434,6 +7434,36 @@ something you would probably be paying for". OPEN-ITEMS §BU had planned it. The
 
 Not done here: OPEN-ITEMS §CC.
 
+## 178. The maker's toolbar holds three things you do to the ad; where you are lives in the numbered steps
+
+Added 2026-11-25. The owner, of the video maker's bar: "Why does the top bar
+have so many options? Are they all necessary? ... It's kind of confusing why the
+purple for some and then darker for others and are they in order of importance",
+"the sideline looks easier to use and is more inclusive or all levels of users",
+"I like the numbers". Asked whether to trim it to Back, New look and Download:
+"Yes, trim it".
+
+What the bar held: Templates, the Full ad / Any look switch with a New badge,
+Back, New look, View in Marketplace feed and Download (Save shows for the
+library; Surprise me and Browse looks only in the checks' layout). Two repeated
+what the steps hold (the feed view was already a button in Check), one was a
+setting, not an action, and purple meant two things: a main action (New look,
+Download, both filled) and the choice you are on (Full ad, outlined).
+
+- **The bar**: ↶ Back, New look, then Download at its end. Download is its only
+  filled button: the one thing the page is for. Back shows its arrow alone on the
+  narrowest phones, so the bar is one row there.
+- **Step 1, Look** opens with "Kind of ad" (Full ad or Any look) and All templates:
+  where you start, not what you do to the ad. The New badge is gone.
+- **The feed view** is in step 6, Check, alone.
+- **Filled colour means do this; an outline in it means you are here** (the step's
+  number, the kind of ad, a choice in a panel).
+
+Every control keeps its id; the checks' layout (every step at once) still shows
+them. Checked: full_ad_check, quick_ad_check, buylist_check, typing_pause_check
+and look_preflight_check; at 375 px nothing scrolls sideways and nothing is under
+12 px.
+
 ## 180. The ads sell: a buyer says TOP DOLLAR, with nothing a shop can be asked to prove
 
 Added 2026-11-24. The owner, looking across the ads: "all I see is honest or local buyer not top buyer
