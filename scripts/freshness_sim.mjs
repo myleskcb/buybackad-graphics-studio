@@ -21,39 +21,24 @@
    remembers WINDOW days): how many posts land too close to one in the viewer's memory, and when the
    first one does.
 
+   The fingerprint, the comparisons and their lines live in motion/freshness.js, which the studio's New look keeps
+   to (DESIGN-LAW 181): what this test measures is what the studio passes over. --guard replays a shop posting with
+   that memory against New look as it was (the next seed each time), over two weeks at each rate.
+
    usage:  GFX_BASE=http://127.0.0.1:8934/ node scripts/freshness_sim.mjs --draw [--lines iphone,gold,car] [--n 200]
            node scripts/freshness_sim.mjs                 analyse what was drawn (.render/freshness/)
+           node scripts/freshness_sim.mjs --guard [--days 28]   and replay posting with the freshness memory (draw 600 a line)
            node scripts/freshness_sim.mjs --json          the analysis as JSON */
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { WEIGHTS, TOO, RIFF, TWIN, structure, picture, tooSimilar, layoutOf, rankFresh, windowsFor, twinOf, isRiff, DAYS, KEEP, AHEAD, PICTURE_TRIES } from '../motion/freshness.js';
+export { WEIGHTS, TOO, RIFF, TWIN, structure, picture, tooSimilar };
 
 const ROOT = new URL('../', import.meta.url).pathname, OUT = ROOT + '.render/freshness/';
 const BASE = (process.env.GFX_BASE || 'http://127.0.0.1:8934/').replace(/\/?$/, '/');
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
-// what a viewer notices, weighted by how much of the picture it decides (sums to 1)
-export const WEIGHTS = {
-  pair: .22, ground: .12, groundKind: .06,                                   // colour and ground: seen first
-  arrangement: .08, side: .04, align: .04, order: .04,                       // the composition
-  face: .12, treatment: .06,                                                 // the type
-  sticker: .04, number: .03, cta: .03, plates: .02,                          // the details
-  products: .06, points: .02, claim: .02,                                    // the goods and the words
-};
-/* calibrated by eye on the closest pairs drawn, 2026-11-24 (.render/freshness-calibration.jpg): pairs sharing 63-69% of their
-   fingerprint read as one ad, and so did pairs 0.068-0.08 apart in the picture even sharing only 40% (both lavender and
-   purple; both red). Every such pair shared its colour pair. */
-export const TOO = .5, RIFF = .35, TWIN = .085;   // structure shares; picture distance (mean OKLab ΔE at 24x24)
 const WINDOWS = [7, 14], RATES = [1, 2, 3, 5, 10];
 
-const kindOf = bg => /^pair_/.test(bg) ? 'gradient' : /^pat_/.test(bg) ? 'pattern' : /^shp_/.test(bg) ? 'shapes' : bg === 'photo' ? 'photo' : /^clip|^mv_/.test(bg) ? 'motion' : ['aurora', 'drift', 'sky_gradient', 'marble_soft', 'glow_orbs'].includes(bg) ? 'scene' : 'house';
-export function structure(a, b) {
-  const W = WEIGHTS, same = k => (a[k] != null && a[k] === b[k]) ? W[k] : 0;
-  const A = new Set(a.products), B = new Set(b.products), inter = [...A].filter(x => B.has(x)).length, uni = new Set([...A, ...B]).size;
-  return same('pair') + same('ground') + same('groundKind') + same('arrangement') + same('side') + same('align') + same('order')
-    + same('face') + same('treatment') + same('sticker') + same('number') + same('cta') + same('plates')
-    + (uni ? W.products * inter / uni : W.products) + same('points') + same('claim');
-}
-export function picture(a, b) { let t = 0; for (let i = 0; i < a.lab.length; i += 3) t += Math.hypot(a.lab[i] - b.lab[i], a.lab[i + 1] - b.lab[i + 1], a.lab[i + 2] - b.lab[i + 2]); return t / (a.lab.length / 3); }
-export const tooSimilar = (s, v) => s >= TOO || v < TWIN;
 
 if (process.argv.includes('--draw')) {
   mkdirSync(OUT, { recursive: true });
@@ -79,32 +64,18 @@ if (process.argv.includes('--draw')) {
         FA.line[S.cat] = S.key; FA.recipe[S.cat] = ''; FA.seed = seed; FA.pair = ''; FA.voice = ''; FA.words = {}; FA.set = {}; FA.biz = '';
         const { ad, st } = await FS.build(540, FORMATS.square);
         const frame = M.fullStill(ad);
-        const tiny = document.createElement('canvas'); tiny.width = tiny.height = 24;
-        const t = tiny.getContext('2d'); t.imageSmoothingQuality = 'high'; t.drawImage(frame, 0, 0, 24, 24);
-        const px = t.getImageData(0, 0, 24, 24).data, lab = [];
-        const lin = v => { v /= 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
-        for (let i = 0; i < px.length; i += 4) {
-          const r = lin(px[i]), g = lin(px[i + 1]), b = lin(px[i + 2]);
-          const l = Math.cbrt(.4122214708 * r + .5363325363 * g + .0514459929 * b), m = Math.cbrt(.2119034982 * r + .6806995451 * g + .1073969566 * b), s = Math.cbrt(.0883024619 * r + .2817188376 * g + .6299787005 * b);
-          lab.push(+(.2104542553 * l + .793617785 * m - .0040720468 * s).toFixed(4), +(1.9779984951 * l - 2.428592205 * m + .4505937099 * s).toFixed(4), +(.0259040371 * l + .7827717662 * m - .808675766 * s).toFixed(4));
-        }
+        // the fingerprint New look reads and the picture it draws (motion/freshness.js), as the studio reads them
+        const FF = await import('/motion/full-families.js'), FR = await import('/motion/freshness.js'), lab = FR.pictureOf(frame);
         const c = document.createElement('canvas'); c.width = c.height = 220;
         const g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(frame, 0, 0, 220, 220);
-        const ids = (ad.phones || []).map(p => (p.meta && p.meta.id) || p.id || '').filter(Boolean);
-        // the ground as a viewer sees it: a photograph is its picture and how it is laid under the words, any other its key;
-        // its family as the engine files it (motion/full-families.js: abstract, shape, product, type)
-        const FF = await import('/motion/full-families.js'), bg = String(st.background || '');
-        const ground = bg === 'photo' && st.ground_photo ? 'photo:' + String(st.ground_photo.src || '').split('/').pop() + (st.full_treat ? ':' + st.full_treat : '') : bg;
-        return {
-          seed, pair: st.full_colour || '', ground, fam: (FF.FAMILY_OF || {})[bg] || '', arrangement: st.arrangement || '', side: st.full_side ?? null, align: st.full_align ?? null,
-          order: st.full_order != null ? JSON.stringify(st.full_order) : null, pose: st.pose || '', face: st.type_pair || 'house', treatment: st.text_fx || '',
-          sticker: st.sticker_shape || '', number: st.number_style || '', cta: st.cta_mark || '', plates: st.plate_fill || '', products: ids.length ? ids : (st.phones || []).map(String),
-          points: st.points || '', claim: st.feed_claim || '', headline: st.headline || '', lab, webp: c.toDataURL('image/webp', .8),
-        };
+        return { ...FR.fingerprint(st, FF.FAMILY_OF), drawn: (ad.phones || []).map(p => (p.meta && p.meta.id) || p.id || '').filter(Boolean), lab, webp: c.toDataURL('image/webp', .8) };
       }, { line, seed });
       if (got.error) { console.error(line, seed, got.error); continue; }
       writeFileSync(`${OUT}${line}-${seed}.webp`, Buffer.from(got.webp.split(',')[1], 'base64'));
-      const { webp, fam, ...row } = got; row.groundKind = fam || kindOf(row.ground.split(':')[0]); rows.push(row);
+      const { webp, drawn, ...row } = got;
+      // the products the ad drew are the ones its style names (New look reads the style, not the picture)
+      if (drawn.length && drawn.slice().sort().join() !== row.products.slice().sort().join()) console.error(line, seed, 'drew', drawn.join(), 'but its style names', row.products.join());
+      rows.push(row);
       if (rows.length % 25 === 0) process.stdout.write(`${line} ${rows.length} `);
     }
     writeFileSync(`${OUT}${line}.json`, JSON.stringify({ line, start: START, drawn: new Date().toISOString(), rows }));
@@ -112,6 +83,51 @@ if (process.argv.includes('--draw')) {
   }
   await browser.close();
   process.exit(0);
+}
+
+// ---------- a shop posting with the freshness memory (--guard) ----------
+/* RUN days (--days, 28: a viewer's two weeks, then two more judged with it full) at P posts a day: New look as it was (the next seed each time), or with the memory (motion/freshness.js
+   pickFresh over the next AHEAD looks, against the posts of the last DAYS days, as full-ad-studio.js nextFresh reads
+   them). Each post is then judged as a viewer remembering VIEW days sees it: too close to one they saw (half its
+   fingerprint, or its picture within TWIN), the picture twins on their own, the layout of one of the last ten posts or
+   of the fortnight, the colour pair of one of the last eight, the phones of the post before, and the riffs. */
+const GUARD = process.argv.includes('--guard'), RUN = +arg('--days', 28), VIEW = 14, DAY = 864e5, guards = {};
+function replay(rows, P, memory) {
+  const bySeed = new Map(rows.map(r => [r.seed, r])), posts = [];
+  let seed = rows[0].seed, skipped = 0, eased = 0, drawnLooks = 0;
+  for (let t = 0; t < P * RUN; t++) {
+    const at = Math.floor(t / P) * DAY + (t % P) * Math.floor(DAY / P), mem = posts.filter(p => at - p.at <= DAYS * DAY).slice(-KEEP);
+    if (t > 0) {
+      if (!memory) seed += 1;
+      else {
+        const looks = []; for (let i = 1; i <= AHEAD && bySeed.has(seed + i); i++) looks.push(bySeed.get(seed + i));
+        if (looks.length < AHEAD) return { ran_out_after: t, seeds_drawn: rows.length };
+        // as nextFresh takes them: the first in rank whose picture twins no post, of the first PICTURE_TRIES
+        const order = rankFresh(looks, mem, windowsFor(looks)); let p = order[0];
+        for (const c of order.slice(0, PICTURE_TRIES)) { drawnLooks++; if (!twinOf(looks[c.i].lab, mem)) { p = c; break; } c.breaks = ['picture', ...c.breaks]; }
+        seed += 1 + p.i; skipped += p.i; if (p.breaks.length) eased++;
+      }
+    }
+    const r = bySeed.get(seed); if (!r) return { ran_out_after: t, seeds_drawn: rows.length };
+    posts.push({ ...r, at, riff: isRiff(r, mem) });
+  }
+  const n = posts.length, k = { close: 0, twins: 0, layout10: 0, layoutFortnight: 0, pair8: 0, phonesAgain: 0, riffs: 0, riffsBackToBack: 0, riffsInFiveMost: 0 };
+  let first = null;
+  for (let t = 1; t < n; t++) {
+    const f = posts[t], seen = posts.slice(0, t).filter(p => f.at - p.at <= VIEW * DAY), last = c => posts.slice(Math.max(0, t - c), t);
+    const close = seen.some(p => tooSimilar(structure(f, p), picture(f, p))); if (close) { k.close++; if (first == null) first = Math.floor(t / P) + 1; }
+    if (seen.some(p => picture(f, p) < TWIN)) k.twins++;
+    if (last(10).some(p => layoutOf(p) === layoutOf(f))) k.layout10++;
+    if (seen.some(p => layoutOf(p) === layoutOf(f))) k.layoutFortnight++;
+    if (last(8).some(p => p.pair === f.pair)) k.pair8++;
+    if (f.products.slice().sort().join() === posts[t - 1].products.slice().sort().join()) k.phonesAgain++;
+    if (f.riff) { k.riffs++; if (posts[t - 1].riff) k.riffsBackToBack++; }
+    k.riffsInFiveMost = Math.max(k.riffsInFiveMost, posts.slice(Math.max(0, t - 4), t + 1).filter(p => p.riff).length);
+  }
+  const pct = x => +(x / (n - 1)).toFixed(3);
+  return { posts: n, too_close: pct(k.close), first_close_on_day: first, picture_twins: k.twins, layout_of_last_10: pct(k.layout10), layout_of_fortnight: pct(k.layoutFortnight),
+    pair_of_last_8: pct(k.pair8), phones_as_post_before: pct(k.phonesAgain), riffs: pct(k.riffs), riffs_back_to_back: k.riffsBackToBack, riffs_in_any_five_at_most: k.riffsInFiveMost,
+    ...(memory ? { looks_passed_over: +(skipped / (n - 1)).toFixed(2), looks_drawn_a_press: +(drawnLooks / (n - 1)).toFixed(2), eased_picks: eased, seeds_used: seed - rows[0].seed + 1 } : {}) };
 }
 
 // ---------- the analysis ----------
@@ -155,6 +171,7 @@ for (const f of files) {
   const layout = {};
   for (const P of RATES) { const W = 14, mem = P * W; let hits = 0, first = null; for (let t = 1; t < n; t++) { let h = false; for (let u = Math.max(0, t - mem); u < t; u++) if (lay(rows[t]) === lay(rows[u])) { h = true; break; } if (h) { hits++; if (first == null) first = Math.floor(t / P) + 1; } } layout[`${P}/day`] = { repeat_share: +(hits / (n - 1)).toFixed(2), first_on_day: first }; }
   const q = too / pairs;
+  if (GUARD) guards[line] = Object.fromEntries(RATES.map(P => [`${P}/day`, { as_it_was: replay(rows, P, false), with_memory: replay(rows, P, true) }]));
   report[line] = {
     ads: n, pairs_compared: pairs, too_similar_pair_rate: +q.toFixed(4), riff_pair_rate: +(riff / pairs).toFixed(4), picture_twins: twins,
     // the chance the next post is too close to one of the last m (independent draws): 1-(1-q)^m
@@ -165,10 +182,19 @@ for (const f of files) {
     layout_repeats_14_days: layout,
   };
 }
-if (process.argv.includes('--json')) console.log(JSON.stringify(report, null, 1));
+if (process.argv.includes('--json')) console.log(JSON.stringify(GUARD ? { report, guards } : report, null, 1));
 else for (const [line, r] of Object.entries(report)) {
   console.log(`\n== ${line}: ${r.ads} ads, ${r.pairs_compared} pairs: too similar ${(r.too_similar_pair_rate * 100).toFixed(2)}% (${r.picture_twins} picture twins), riffs ${(r.riff_pair_rate * 100).toFixed(1)}%`);
   for (const [k, v] of Object.entries(r.schedules)) console.log(`   ${k.padEnd(26)} ${String(v.posts_in_memory).padStart(4)} in memory: ${(v.too_similar_share * 100).toFixed(1).padStart(5)}% of posts too close to one remembered; first on day ${v.first_on_day ?? '-'}`);
   console.log('   the same layout as one in the last 14 days: ' + Object.entries(r.layout_repeats_14_days).map(([k, v]) => `${k} ${Math.round(v.repeat_share * 100)}% (first day ${v.first_on_day ?? '-'})`).join('  ') + `  [${r.composition_skeleton.layouts_used} layouts]`);
   console.log('   how varied (share of pairs matching): ' + Object.entries(r.parts).map(([k, v]) => `${k} ${v.options}/${(v.match * 100).toFixed(0)}%`).join('  '));
+}
+if (GUARD && !process.argv.includes('--json')) for (const [line, G] of Object.entries(guards)) {
+  console.log(`\n== ${line}: ${RUN} days of posts, each judged against the ${VIEW} days before it: New look as it was -> with the freshness memory`);
+  const f = (a, b, key, pc = true) => { const v = x => x == null ? '-' : pc ? (x * 100).toFixed(1) + '%' : String(x); return `${key} ${v(a[key])} -> ${v(b[key])}`; };
+  for (const [rate, { as_it_was: A, with_memory: B }] of Object.entries(G)) {
+    if (A.ran_out_after != null || B.ran_out_after != null) { console.log(`   ${rate.padEnd(7)} ran out of drawn seeds (draw more with --n)`); continue; }
+    console.log(`   ${rate.padEnd(7)} ${A.posts} posts: ` + [f(A, B, 'too_close'), f(A, B, 'first_close_on_day', false), f(A, B, 'picture_twins', false), f(A, B, 'layout_of_last_10'), f(A, B, 'layout_of_fortnight'), f(A, B, 'pair_of_last_8'), f(A, B, 'phones_as_post_before'), f(A, B, 'riffs'), f(A, B, 'riffs_in_any_five_at_most', false)].join('  ')
+      + `  | passed over ${B.looks_passed_over} a press, drew ${B.looks_drawn_a_press}, ${B.eased_picks} eased, ${B.seeds_used} seeds`);
+  }
 }

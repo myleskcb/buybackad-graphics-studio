@@ -7570,3 +7570,57 @@ checkout, the Starter add-on as a one-time second line, Pro offered no add-on), 
 (the kits' and the AI names' margins) and `scripts/kit_sheet.mjs` (a contact sheet of every file).
 
 Not done here: OPEN-ITEMS §CG.
+
+## 181. New look remembers what the shop posted: no look-alike, no scheme or layout again soon, a riff now and then
+
+Added 2026-11-24. The owner asked how soon a shop's posts start to look the same ("How soon would these
+become generic after how many days or what quantity of post per day"), for "a similarity comparison ...
+there's a threshold and there's an amount that's OK but too similar", and said riffing on a good design
+"always helps but then if we keep doing that same thing, it becomes a repetitive cycle". Shown what the
+test found (OPEN-ITEMS §BJ 15) and the plan, the owner said "Build it".
+
+What New look did: it moved the seed on by one, and each seed draws on its own. Over four weeks, judged
+against the two weeks before each post, an iPhone shop at 10 a day posted a look-alike 9% of the time from
+day 5, and a gold shop at 3 a day 25% of the time from day 3; at 3 to 10 a day, 14 to 18% of posts reused a
+layout from the last ten.
+
+- **A download is a post.** The studio remembers the shop's downloads of the last two weeks (at most 200),
+  in that browser (`pgfx_fresh_v1`): each one's fingerprint and its picture at 24×24 (about 2.7 KB a post).
+  The same design again (another size, its words changed) is one post, at its latest.
+- **New look reads the next 80 looks** without drawing them (0.2 ms each) and takes the first that repeats
+  nothing the shop posted:
+  - **look-alike**: half its fingerprint shared with any post (colours .22, ground .18, layout .2, type .18,
+    details .12, goods and words .1), or its picture within 0.085 of one. Two light grounds read as one ad
+    at a glance though they share little else, so the look it would take is drawn at 540 and its picture
+    read; a twin is passed over for the next (at most four drawn a press; one almost always).
+  - **colours**: not the scheme of one of the last 8 posts;
+  - **layout**: not the layout of one of the last 10 (arrangement, side, alignment, order of the blocks);
+  - **goods**: not the products of the line's last post;
+  - **riffs**: a look sharing 35% with one of the last four posts is a riff: one in five at most, never two
+    in a row.
+- **The windows follow the line's variety**: never longer than half the options the line draws over the
+  looks read ahead (gold's eight schemes keep four posts apart). A scheme or a face picked by hand, or a
+  logo's colours, keeps no window on it, and the other parts must then differ more.
+- **Every post is still a designed ad.** When no look keeps every rule, the one that breaks the fewest is
+  taken, the gravest rule first. With nothing posted, New look moves on by one as it always did.
+- **The preview says so**: a look the shop downloaded, or one too close to a post, says "You downloaded this
+  look today. For your next post, New look picks one that doesn't repeat your recent posts."
+- The rules and their numbers live in one place, `motion/freshness.js`, which the studio and the test
+  (`scripts/freshness_sim.mjs --guard`) both import. Change a number there and replay before calling it done.
+
+Measured (600 ads drawn a line, 28 days of posts each judged against the 14 before it, New look as it was
+against New look with the memory): look-alikes went to 0% on the iPhone, gold and car lines at 1, 2, 3, 5
+and 10 posts a day (from up to 9%, 34% and 6%), picture twins to none, a layout from the last ten and a
+scheme from the last eight (gold: four) to 0%, the phones of the post before to 0%, and riffs to one in
+any five at most. No look was eased, and New look passed over about half a look a press (gold two). In the
+studio, 30 posts on the car line kept every rule, and New look took 756 ms against 576 without the memory
+(the one look drawn to read its picture).
+
+Held by `scripts/full_ad_studio_check.mjs` ("what the shop posted": New look moves on by one with nothing
+downloaded; a download is remembered with its picture and the preview says so; twelve posts in a row keep
+every rule) and by `scripts/freshness_sim.mjs --guard` (the replay above).
+
+Not done here: the layout over a fortnight. Every full ad is one skeleton with 59 layouts, so at 5 a day half
+the posts still reuse one from the past two weeks, memory or not; more layout families are §BJ 15's next
+step. A video saved from the maker is not remembered (the maker draws its own looks), and the memory is
+the browser's: a shop on two devices has two.

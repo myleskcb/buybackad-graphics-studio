@@ -40,7 +40,9 @@
 import { loadPhones, loadFonts, fontsFor } from "./motion/engine.js";
 import { DEFAULT_STYLE, DEFAULT_PHONES, TYPE_VOICES, FONTS } from "./motion/catalog.js";
 import { loadAccents, ACCENT_SETS } from "./motion/accents.js";
-import { FullAd, fullStyle, fullPreflight, fullStill, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk, poolEntryFor } from "./motion/fullad.js";
+import { FullAd, fullStyle, fullPreflight, fullStill, loadSubjectSet, COLOURWAYS, COLOUR_OF, fullVoiceOk, poolEntryFor, poolIdsFor } from "./motion/fullad.js";
+import { FAMILY_OF } from "./motion/full-families.js";
+import { fingerprint, rankFresh, windowsFor, recall, remember, postedLike, pictureOf, twinOf, AHEAD, PICTURE_TRIES } from "./motion/freshness.js";
 import * as FULL from "./motion/fullad.js";
 /* the ground photograph is loaded before an ad is drawn for keeps (fullGroundReady, 2026-11-18); a
    copy of fullad.js from before it draws no photograph and needs no wait */
@@ -124,8 +126,8 @@ const recipeNow = () => { const r = live.byId[FA.recipe[currentCat]]; const S = 
 
 /* ---------- what the ad is drawn from ---------- */
 
-/** The lines, the icon, and the pictures and faces of the line on screen. */
-function ready() {
+/** The lines, the icon, and the pictures and faces of the line on screen (for a seed: its pool entry's pictures). */
+function ready(seed = (FA.seed | 0) || 1) {
   const S = lineNow(); if (!S) return Promise.reject(new Error("no line"));
   live.base = live.base || Promise.all([
     /* the full ad draws one icon, from the "cash" set (fullad.js ICONS): its three cutouts and no
@@ -135,7 +137,7 @@ function ready() {
   // a recipe's own pictures; or none at all where its words name goods its line has no picture of (words_only)
   const R = recipeNow(), own = !!(R && R.pictures && R.pictures.length), bare = !own && !!(R && R.words_only);
   // a line's pool: only the entry this seed draws is loaded (fullad.js poolEntryFor), so the key names it
-  const iph = S.key === "iphone", set = own ? 0 : S.sets.length ? (FA.set[S.key] | 0) % S.sets.length : 0, seed = FA.seed | 0 || 1;
+  const iph = S.key === "iphone", set = own ? 0 : S.sets.length ? (FA.set[S.key] | 0) % S.sets.length : 0;
   const ent = !own && !bare && !iph && !set && (S.pool || []).length ? poolEntryFor(S.pool, seed) : -1, k = own ? "recipe|" + R.id : bare ? "bare" : S.key + "|" + set + (ent >= 0 ? "|e" + ent : "");
   if (!live.loaded[k]) live.loaded[k] = (own
     ? loadSubjectSet({ key: "recipe:" + R.id, label: S.label, sets: [R.pictures] }, 0, at("./assets/cutouts/")).then(got => { Object.assign(assets.phones, got.assets); return got.ids; })
@@ -164,8 +166,9 @@ function areaNow() {
   return a ? [a.zip, a.home].filter(Boolean).join(" · ") : "";
 }
 
-/** The style the engine draws: the visitor's words over the line's own, the house style locked. */
-function styleNow(S, ids, set, size, R = recipeNow()) {
+/** The style the engine draws: the visitor's words over the line's own, the house style locked.
+ *  o.seed: another seed's look (New look reading ahead); o.ahead: a look read and not drawn, so no photograph loads. */
+function styleNow(S, ids, set, size, R = recipeNow(), o = {}) {
   const iph = S.key === "iphone", w = FA.words[S.key] || {}, rw = (R && R.words) || {}, own = !!(R && R.pictures && R.pictures.length);
   const F = size || FORMATS[ez.format] || FORMATS.square, ar = F.w / F.h;
   const aspect = ar >= 1.3 ? "16:9" : ar <= .62 ? "9:16" : Math.abs(ar - 1) < .02 ? "1:1" : "4:5";
@@ -179,7 +182,7 @@ function styleNow(S, ids, set, size, R = recipeNow()) {
     number: el("ez-phone").value.trim(), number_label: up(w.label) || up(rw.label),
     site: el("ez-website").value.trim(), biz: String(FA.biz || "").trim(),
     // a recipe's own pictures are kept as given (subject_set: the full ad draws a line's pool only at 0)
-    aspect, seed: FA.seed | 0 || 1, subject: iph ? "" : S.key, subject_set: (own || (R && R.words_only)) && !iph ? 1 : set, phones: ids.length ? ids.slice() : ["none"] };
+    aspect, seed: o.seed | 0 || FA.seed | 0 || 1, subject: iph ? "" : S.key, subject_set: (own || (R && R.words_only)) && !iph ? 1 : set, phones: ids.length ? ids.slice() : ["none"] };
   // a library design is a lean, not a lock (the rebuild, 2026-11-18: "take them as inspiration but rebuild
   // them all"): its photograph is a ground it may stand on where it fits the product drawn, its family and
   // colourway what its seed leans toward (fullad.js fullStyle)
@@ -199,12 +202,58 @@ function styleNow(S, ids, set, size, R = recipeNow()) {
   const kit = logoOn() ? kitNow() : null;
   const pair = FA.pair || (kit && COLOUR_OF[kit.pair] ? kit.pair : ""), voice = FA.voice === "house" ? "house" : fullVoiceOk(FA.voice) ? FA.voice : "";
   const pick = { ...(COLOUR_OF[pair] ? { palette: pair } : {}), ...(voice ? { type_pair: voice } : {}) };
-  return { st: fullStyle(base, base.seed, assets.index, pick), W: F.w, H: F.h };
+  return { st: fullStyle(base, base.seed, assets.index, pick, [], o.ahead ? { preload: false } : {}), W: F.w, H: F.h };
 }
 
-async function build(px, size) {
-  const { S, ids, set, recipe } = await ready();
-  const { st, W, H } = styleNow(S, ids, set, size, recipe);
+/* ---------- the freshness memory (motion/freshness.js, DESIGN-LAW 181) ----------
+   The owner, 2026-11-24: "I need to keep this fresh", "there's a threshold and there's an amount that's OK but too
+   similar", riffs that help until "it becomes a repetitive cycle"; and of the plan, "Build it". A download is
+   remembered as a post; New look reads the next AHEAD looks and shows the first that repeats none of the shop's
+   recent posts, so every post is still a designed ad. */
+
+/** The look a seed would draw for the line on screen, as the memory reads it, without drawing it or loading a picture
+ *  (a pool line's entry for that seed by its ids: fullStyle draws the entry it is given, subjectDraw). */
+function lookAt(got, seed) {
+  const { S, ids, set, recipe } = got, own = !!(recipe && recipe.pictures && recipe.pictures.length), bare = !own && !!(recipe && recipe.words_only);
+  const pool = !own && !bare && S.key !== "iphone" && !set && (S.pool || []).length;
+  return fingerprint(styleNow(S, pool ? poolIdsFor(S.pool, seed) : ids, set, undefined, recipe, { seed, ahead: true }).st, FAMILY_OF);
+}
+/** A seed's look drawn as the test draws it (540 on its long side, freshness.js pictureOf): its picture, to read
+ *  against the posts' at a glance. */
+async function pictureAt(seed) { const { ad } = await build(540, undefined, seed); return pictureOf(fullStill(ad)); }
+/** The seed New look moves to: the next one, as it always was, when nothing has been posted; otherwise the first of
+ *  the next AHEAD that repeats no recent post (freshness.js rankFresh), the first PICTURE_TRIES of them drawn so a
+ *  twin of a post at a glance is passed over too; when every look repeats something, the one that repeats least. */
+async function nextFresh() {
+  const from = (FA.seed | 0) || 1, posts = recall();
+  live.fresh = { from, seed: from + 1, skipped: 0, breaks: [], posts: posts.length, drawn: 0 };
+  if (!posts.length) return from + 1;
+  const got = await ready(), looks = [];
+  for (let i = 1; i <= AHEAD; i++) looks.push(lookAt(got, from + i));
+  const win = windowsFor(looks), order = rankFresh(looks, posts, win), seen = posts.filter(p => p.pic);
+  let pick = order[0], drawn = 0;
+  if (seen.length) for (const c of order.slice(0, PICTURE_TRIES)) {
+    drawn++;
+    let twin = null; try { twin = twinOf(await pictureAt(from + 1 + c.i), seen); } catch (e) { break; }   // not drawn: taken unread
+    if (!twin) { pick = c; break; }
+    c.breaks = ["picture", ...c.breaks];
+  }
+  live.fresh = { from, seed: from + 1 + pick.i, skipped: pick.i, breaks: pick.breaks, win, posts: posts.length, drawn };
+  return from + 1 + pick.i;
+}
+/** What the preview says of a look the shop has posted, or one too close to a post in its parts or at a glance (a pair
+ *  or a face picked by hand keeps a look near the posts), in the visitor's words: "" when it is fresh. */
+function freshSay(f, lab) {
+  const got = postedLike(f, recall(), lab); if (!got) return "";
+  const days = Math.round((new Date().setHours(0, 0, 0, 0) - new Date(got.at).setHours(0, 0, 0, 0)) / 864e5);
+  const when = days <= 0 ? "today" : days === 1 ? "yesterday" : days + " days ago";
+  return got.kind === "posted" ? `You downloaded this look ${when}. For your next post, New look picks one that doesn't repeat your recent posts.`
+    : `This look is close to one you downloaded ${when}. New look picks a fresh one.`;
+}
+
+async function build(px, size, seed) {
+  const { S, ids, set, recipe } = await ready(seed || undefined);
+  const { st, W, H } = styleNow(S, ids, set, size, recipe, seed ? { seed } : {});
   await Promise.all([loadFonts([...fontsFor(st), "franklin"]), groundReady(st), withLogo(st)]);
   const k = px / Math.min(W, H);
   return { ad: new FullAd(st, assets, Math.round(W * k), Math.round(H * k)), st, S };
@@ -213,11 +262,12 @@ async function build(px, size) {
 /* ---------- the preview ---------- */
 
 const PLAIN = { fix: "Fix before you post", note: "Worth a look" };
-function say(pre) {
+function say(pre, fresh = "") {
   const box = el("fa-say"); if (!box) return;
   const fs = pre ? pre.findings.filter(f => f.level === "fix" || f.level === "note") : [];
-  box.hidden = !fs.length;
-  box.innerHTML = fs.slice(0, 3).map(f => `<p class="${f.level}"><b>${PLAIN[f.level]}:</b> ${esc(f.say)}</p>`).join("");
+  box.hidden = !fs.length && !fresh;
+  box.innerHTML = fs.slice(0, 3).map(f => `<p class="${f.level}"><b>${PLAIN[f.level]}:</b> ${esc(f.say)}</p>`).join("")
+    + (fresh ? `<p class="note fa-fresh"><b>Your recent posts:</b> ${esc(fresh)}</p>` : "");
 }
 /** The size the download will be for this visitor (the plan's cap on the size asked for), without
  *  asking them anything: the preview is laid out at it. */
@@ -246,9 +296,11 @@ async function draw() {
        or a saved preview is no cleaner than the Free download */
     const img = el("fa-preview"); if (img) { img.src = typeof previewJpeg === "function" ? previewJpeg(small, .9) : small.toDataURL("image/jpeg", .9); img.dataset.drawn = String(n);
       img.dataset.marked = String(typeof previewMarked === "boolean" ? previewMarked : false);
-      Object.assign(img.dataset, { number: st.number || "", line: S.key, colour: st.full_colour || "", type: st.full_pair ? st.type_pair : "", fmt: ez.format || "square" }); }
+      Object.assign(img.dataset, { number: st.number || "", line: S.key, colour: st.full_colour || "", type: st.full_pair ? st.type_pair : "", fmt: ez.format || "square", seed: String(st.seed | 0) }); }
     let pre = null; try { pre = fullPreflight(ad, frame); } catch (e) { console.warn("full ad pre-flight:", e); }
-    say(pre);
+    live.pre = pre; live.look = fingerprint(st, FAMILY_OF);
+    let lab = null; try { lab = pictureOf(frame); } catch (e) { /* read on its parts alone */ }
+    say(pre, freshSay(live.look, lab));
     await tip(ad, n);
     if (n === live.n) busy(false);            // current: the picture, what the pre-flight says of it, and the size's tip
   } catch (e) { console.warn("full ad:", e); if (n === live.n) { busy(false); fail(e); } }
@@ -388,7 +440,14 @@ function buildForm() {
     el("fa-pairs").querySelectorAll("button[data-pair]").forEach(x => { const on = x === b; x.classList.toggle("active", on); x.setAttribute("aria-pressed", on); }); tile(); later(0); });
   el("fa-voices").addEventListener("click", e => { const b = e.target.closest("button[data-voice]"); if (!b) return; FA.voice = b.dataset.voice; keep();
     el("fa-voices").querySelectorAll("button[data-voice]").forEach(x => x.classList.toggle("active", x === b)); tile(); later(0); });
-  el("fa-shuffle").onclick = () => { FA.seed = ((FA.seed | 0) || 1) + 1; keep(); tile(); later(0); };
+  /* New look: the next seed, past any look that would repeat a recent post (nextFresh, DESIGN-LAW 181). The memory
+     never stops it: a look it cannot read moves on by one, as New look always did. */
+  el("fa-shuffle").onclick = async () => {
+    if (live.looking) return; live.looking = true; busy(true);
+    let next = ((FA.seed | 0) || 1) + 1;
+    try { next = await nextFresh(); } catch (e) { console.warn("freshness memory:", e); } finally { live.looking = false; }
+    FA.seed = next; keep(); tile(); later(0);
+  };
   const lg = el("fa-logo"); if (lg) lg.addEventListener("change", e => { FA.logo = e.target.checked; keep(); live.thumbs = {}; tile(); later(0); });
   const pic = el("fa-picture"); if (pic) pic.onclick = () => { FA.set[S.key] = ((FA.set[S.key] | 0) + 1) % S.sets.length; keep(); live.thumbs = {}; tile(); later(0); };
 }
@@ -436,6 +495,8 @@ async function download() {
   a.href = url;
   a.download = String(st.headline || "full ad").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-full-ad-" + (ez.format && ez.format !== "square" ? ez.format + "-" : "") + gate.px + ".png";
   document.body.appendChild(a); a.click(); a.remove();
+  // remembered as a post, so New look passes over a look that would repeat it (DESIGN-LAW 181)
+  try { const f = fingerprint(st, FAMILY_OF), lab = pictureOf(frame); remember(f, lab); if (FA.on) say(live.pre, freshSay(f, lab)); } catch (e) { console.warn("freshness memory:", e); }
   try { await addHistory(a.download, gate.px, url, ad.W, ad.H, null); } catch (e) { /* the file is saved */ }
   toast("Downloaded, go post it!", "success");
 }
@@ -532,8 +593,11 @@ function install() {
     FA.seed = r.seed || 1;   // its own look: a recipe opens on its own seed (New look moves on from it)
     return r;
   };
+  /* for the checks and the freshness test (scripts/freshness_sim.mjs): the look a seed draws as the memory reads it,
+     the posts remembered, and what New look did last (the seed it left, the one it took, how many it passed over) */
+  const fresh = { look: async seed => lookAt(await ready(), seed), posts: () => recall(), next: nextFresh, last: () => live.fresh || null };
   window.FullAdStudio = { state: FA, enter, leave, draw, build, check, still, ref, logoOn, logoBadge, lines: () => live.subjects, aliases: () => live.aliases || {}, isOn: () => FA.on, voices: () => FULL_VOICES.filter(k => fullVoiceOk(k)), pairs: () => COLOURWAYS.slice(),
-    recipes: loadRecipes, useRecipe };
+    recipes: loadRecipes, useRecipe, fresh };
   /* Easy Mode may be open already (a module runs after the page's own scripts) */
   if (el("ez-strip") && el("page-easy") && el("page-easy").classList.contains("active")) {
     tile();

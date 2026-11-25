@@ -7069,3 +7069,41 @@ Learned:
     posts.
   - New look moves the seed on by one, and each seed draws independently. A schedule's repeats
     follow from the pair rate: 1-(1-q)^m for m posts in memory.
+
+## 2026-11-24 — the freshness memory in New look (DESIGN-LAW 181; claude/zealous-dewdney-386bf8)
+
+Asked: "Build it", the plan above. New look should pass over looks too close to the shop's recent
+posts, keep layouts and schemes from coming back soon, rotate the products and cap the riffs.
+
+Changed:
+  - `motion/freshness.js` holds the fingerprint, the two comparisons, the rules and the memory, used
+    by both the studio and the test.
+  - New look reads 80 looks ahead and takes the first fresh one. Download remembers each post, and
+    the preview says when the look was downloaded already.
+  - `fullad.js` gained `poolIdsFor`, a seed's pictures named without loading them, and `preload:
+    false`, so a look read ahead fetches no photograph.
+  - `freshness_sim.mjs --guard` replays a shop posting with the memory, and `full_ad_studio_check.mjs`
+    checks twelve posts in a row.
+  - These engine edits change no drawing. Drawn again with them, all 665 recipe stills came out as
+    committed. The builder's first still once lost a font race (a wide fallback face); drawn again, it
+    matched. The stamps were left as they were: main's stills were already stamped by an older engine
+    than main's own.
+
+Learned:
+  - "Every look-alike shared its colour scheme" held for iPhones and gold, not for cars. Bone and
+    purple read as white and pink at a glance: two light grounds. A rule standing in for a measure
+    must be replayed against the measure. The colour-scheme rule missed the cars' twins until the
+    picture itself was read.
+  - Read a look ahead from its style, not its drawing. Reading one costs 0.2 to 0.4 ms; drawing
+    one costs about 180. So all 80 are read, and only the one New look would take is drawn. A pool line's style needs
+    the pictures that seed draws named. `subjectDraw` draws whatever ids it is given, so naming them
+    is enough, and nothing loads.
+  - Let each window follow the line's variety. Half the options a line draws over the looks read
+    ahead keeps gold (8 schemes) at four posts apart, and a scheme picked by hand at none. Forty
+    looks ahead made gold's window wobble between 3 and 4. Eighty held it.
+  - Judge a replay with the viewer's memory full. Over the first fortnight alone, the iPhone at 10 a
+    day looked twice as fresh (5.8% look-alikes) as over four weeks (9%).
+  - The memory cannot fix the skeleton. With 59 layouts and 70 posts a fortnight, half the posts
+    reuse a layout from the last two weeks whatever New look does. Only more layouts can.
+
+RESUME HERE: the owner picks the next of §BJ 15 (more layout families, or more gold looks).
