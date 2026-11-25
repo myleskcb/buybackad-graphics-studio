@@ -17,9 +17,10 @@
    and Business: the function decides (/api/export/check and /api/export, kind "card":
    netlify/lib/plans.mjs cards), and a card is one of the plan's photo downloads.
 
-   After a download, "Print it today": where to print the same day near the customer's ZIP or town,
-   as Google Maps searches the customer opens themselves (no service is called and nothing about
-   them is sent), and what to ask for.
+   "Print it today" (a button, and shown after a download): where to print the same day near the
+   customer's ZIP or town, as Apple Maps searches on Apple devices and in the iPhone app and Google
+   Maps searches elsewhere, which the customer opens themselves (no service is called and nothing
+   about them is sent), and what to ask for.
 
    The page opens on a gallery of finished cards (2026-11-24, DESIGN-LAW 176: "The card maker opens
    on a gallery of finished cards with the visitor's details filled in"): each a look drawn from one
@@ -81,7 +82,8 @@ function fromStudio() {
   const where = [...new Set(towns)].slice(0, 3).join(" • ");
   const line = Object.values(fa.line || {}).find(k => LINE_OF[k]) || "";
   return { name: brand.name || fa.biz || "", phone: brand.phone || "", site: brand.website || "", where, line,
-    pair: PAIR_OF[fa.pair] ? fa.pair : "", voice: TYPE_VOICES[fa.voice] ? fa.voice : "", zip: area && area.zip || "", home: area && area.home || "" };
+    pair: PAIR_OF[fa.pair] ? fa.pair : "", voice: TYPE_VOICES[fa.voice] ? fa.voice : "", zip: area && area.zip || "", home: area && area.home || "",
+    at: area && Number.isFinite(area.lat) && Number.isFinite(area.lon) ? { lat: area.lat, lon: area.lon } : null };   // the area dialog's own point (app.js resolveArea), for Apple Maps
 }
 
 const lineNow = () => LINE_OF[state.line] || LINE_OF.iphone || LINES[0] || { key: "iphone", cat: "phones", label: "iPhones", models: "", points: "FREE QUOTE, CASH SAME DAY, NO FEES" };
@@ -1104,19 +1106,74 @@ async function download(kind, btn) {
   finally { btn.disabled = false; btn.textContent = label; }
 }
 
-/* ---------- print it today ---------- */
-const CHAINS = ["FedEx Office", "Staples", "Office Depot OfficeMax", "The UPS Store"];
-/** Google Maps searches the customer opens themselves (the Maps URLs API: api=1&query=) */
-export function printLinks(q) {
-  const where = String(q || "").trim(), near = where ? " near " + where : " near me";
-  const url = s => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(s);
-  return [{ name: "Same-day business card printing" + (where ? " near " + where : ""), url: url("same day business card printing" + near), main: true }]
-    .concat(CHAINS.map(c => ({ name: c, url: url(c + near) })));
+/* ---------- print it today ----------
+   The customer's own maps app: Apple Maps on an iPhone, iPad or Mac and inside the iPhone app (where
+   a maps.apple.com link opens the Maps app: ios/ NavigationPolicy opensInSystemApp), Google Maps
+   elsewhere, and a switch to the other. Only the chains whose own sites offer same-day business cards
+   for store pickup are named (checked 2026-11-24: FedEx Office, Staples, Office Depot OfficeMax; The
+   UPS Store's US pages promise no same day, so it is not named). */
+const CHAINS = ["FedEx Office", "Staples", "Office Depot OfficeMax"];
+const IN_IOS_APP = /\bWeBuyADApp\//.test(navigator.userAgent);
+const APPLE_DEVICE = IN_IOS_APP || /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent);
+const MAPS_KEY = "pgfx_card_maps";
+let maps = (() => { const m = jget(MAPS_KEY, null); return m === "apple" || m === "google" ? m : APPLE_DEVICE ? "apple" : "google"; })();
+const MAPS_NAME = { apple: "Apple Maps", google: "Google Maps" };
+/** Map searches the customer opens themselves. Apple Maps (the long-standing maps.apple.com ?q= form,
+    which every iOS reads) searches round the area's point when there is one (sll, spn): a long query
+    with "same day" and a ZIP in it found T-shirt shops 50 miles off, the plain one on the point found
+    the town's print shops (iOS 27 simulator, 2026-11-24). Without a point it says "near" the place, or
+    leaves Maps to search round where the customer is. Google Maps (the Maps URLs API: api=1&query=)
+    reads "same day … near 90802" as written. */
+export function printLinks(q, opt = {}) {
+  const where = String(q || "").trim(), app = opt.maps === "apple" ? "apple" : opt.maps === "google" ? "google" : maps;
+  const at = opt.at && Number.isFinite(opt.at.lat) && Number.isFinite(opt.at.lon) ? opt.at : null;
+  const near = where ? " near " + where : "", label = s => s + near;
+  if (app === "apple") {
+    const url = s => "https://maps.apple.com/?q=" + encodeURIComponent(at ? s : s + near) + (at ? "&sll=" + at.lat.toFixed(4) + "," + at.lon.toFixed(4) + "&spn=0.2,0.2" : "");
+    return [{ name: label("Business card printing"), url: url("business card printing"), main: true }].concat(CHAINS.map(c => ({ name: c, url: url(c) })));
+  }
+  const url = s => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(s + (near || " near me"));
+  return [{ name: label("Same-day business card printing"), url: url("same day business card printing"), main: true }].concat(CHAINS.map(c => ({ name: c, url: url(c) })));
 }
-function drawPrint() {
-  const q = $("pt-where").value.trim();
-  $("pt-links").innerHTML = printLinks(q).map(l => `<a class="pt-link${l.main ? " main" : ""}" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.name)}<span aria-hidden="true">↗</span></a>`).join("");
+/* The point of the place in the Near box: the studio's saved area when it is that place, else looked
+   up in the same ZIP and town tables the area dialog reads (assets/geo, fetched only when the
+   customer types another place and Apple Maps is the app; nothing is sent). */
+let STUDIO = {};
+const GEO = { zips: null, places: null };
+const geoFetch = (k, f) => GEO[k] || (GEO[k] = fetch(new URL("../assets/geo/" + f, import.meta.url)).then(r => r.ok ? r.json() : null).catch(() => null));
+const savedPoint = text => {
+  const low = String(text || "").trim().toLowerCase();
+  return low && STUDIO.at && [STUDIO.zip, STUDIO.home, String(STUDIO.home || "").split(",")[0]].some(s => s && String(s).trim().toLowerCase() === low) ? STUDIO.at : null;
+};
+async function pointOf(text) {
+  const t = String(text || "").trim(), low = t.toLowerCase();
+  if (!t) return null;
+  if (savedPoint(t)) return savedPoint(t);
+  const z = t.match(/^\d{5}$/);
+  if (z) { const zips = await geoFetch("zips", "us-zips.json"), p = zips && zips[z[0]]; return p ? { lat: p[0], lon: p[1] } : null; }
+  const m = low.match(/^(.*?)(?:[,\s]+([a-z]{2}))?$/), name = (m && m[1] || low).trim(), st = m && m[2] ? m[2].toUpperCase() : null;
+  const places = ((await geoFetch("places", "us-places.json")) || {}).places || [];
+  const hit = places.filter(p => p[0].toLowerCase() === name && (!st || p[1] === st)).sort((a, b) => b[4] - a[4])[0];   // the biggest town of that name
+  return hit ? { lat: hit[2], lon: hit[3] } : null;
 }
+let printN = 0;
+const placeLike = q => /^\d{5}$/.test(q) || (/^[^\d]{3,}$/.test(q));   // a whole ZIP or a town's name, not a ZIP half typed
+async function drawPrint() {
+  const n = ++printN, q = $("pt-where").value.trim();
+  const paint = at => {
+    $("pt-links").innerHTML = printLinks(q, { at }).map(l => `<a class="pt-link${l.main ? " main" : ""}" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.name)}<span aria-hidden="true">↗</span></a>`).join("");
+    $("pt-maps").textContent = MAPS_NAME[maps];
+    $("pt-switch").textContent = "Use " + MAPS_NAME[maps === "apple" ? "google" : "apple"] + " instead";
+  };
+  const saved = maps === "apple" ? savedPoint(q) : null;
+  paint(saved);
+  if (saved || maps !== "apple" || !placeLike(q)) return;
+  await new Promise(r => setTimeout(r, 350));   // a typed place is looked up once the typing pauses
+  if (n !== printN) return;
+  const at = await pointOf(q);
+  if (n === printN && at) paint(at);
+}
+function switchMaps() { maps = maps === "apple" ? "google" : "apple"; jset(MAPS_KEY, maps); drawPrint(); }
 function showPrint(scroll) {
   const p = $("print"); p.hidden = false; drawPrint();
   if (scroll) p.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1278,13 +1335,14 @@ function bind() {
   $("cd-png").onclick = e => download("png", e.currentTarget);
   $("cd-print").onclick = () => showPrint(true);
   $("pt-where").addEventListener("input", drawPrint);
+  $("pt-switch").onclick = switchMaps;
 }
 
 async function start() {
   try { const j = await fetch(new URL("../motion/subjects.json", import.meta.url)).then(r => r.json()); LINES = j.subjects || []; } catch (e) { LINES = []; }
   try { PHOTOS = (await fetch(new URL("photos.json", import.meta.url)).then(r => r.json())).photos || {}; } catch (e) { PHOTOS = {}; }
   LINE_OF = Object.fromEntries(LINES.map(s => [s.key, s]));
-  const st = fromStudio();
+  const st = fromStudio(); STUDIO = st;
   for (const k of ["name", "phone", "site", "where", "line", "pair"]) if (!state[k] && st[k]) state[k] = st[k];
   if (!jget(STORE, null) && st.voice) state.voice = st.voice;
   $("pt-where").value = st.zip || st.home || "";

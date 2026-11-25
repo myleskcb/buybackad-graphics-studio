@@ -52,6 +52,8 @@
 .pt-link:hover{border-color:var(--accent)}
 .pt-link.main{background:var(--btn);color:var(--accent-ink);border-color:transparent}
 .pt-small{font-size:13px;color:var(--muted)!important}
+.pt-switch{font:inherit;color:var(--accent);background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.pt-switch:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
 .pt-ask{margin:6px 0 0;padding-left:20px;max-width:760px;color:var(--text-2)}
 .pt-ask b{color:var(--text)}
 

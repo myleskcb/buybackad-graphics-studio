@@ -11,7 +11,10 @@
      - the card says what the customer typed: the name, the number, the towns, the website;
      - the print PDF: %PDF, two pages, each with a TrimBox of 3.5 × 2 in and a BleedBox 1/8 in wider,
        and an xref whose every offset lands on its object;
-     - "Print it today": Google Maps searches near the customer's ZIP, opened by them;
+     - "Print it today": Apple Maps searches on an iPhone, iPad or Mac and in the iPhone app, round the
+       area's own point (the area dialog's lat and lon, or the ZIP and town tables for a place typed),
+       Google Maps searches near the ZIP elsewhere, a switch between them that is remembered, opened by
+       the customer; only the chains whose own sites offer same-day cards are named;
      - the paywall, with the function stood in for: signed out, Download opens the account dialog;
        a plan without cards (403) gets the upsell and no file, and its preview carries the mark; a plan
        with cards gets the PDF, counted once as kind "card", with no mark on the preview.
@@ -28,11 +31,17 @@ const SHEET_DIR = process.env.SHEET || '';
 const require = createRequire(import.meta.url), { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 let fails = 0, passes = 0;
 const ok = (c, m) => { if (c) passes++; else { fails++; console.log('  FAIL ' + m); } return !!c; };
-const BRAND = { phone: '(562) 999-4994', website: 'longbeachphonebuyers.com', name: 'Long Beach Phone Buyers', area: { home: 'Long Beach, CA', zip: '90802', cover: ['Lakewood, CA', 'Downey, CA'] } };
+const BRAND = { phone: '(562) 999-4994', website: 'longbeachphonebuyers.com', name: 'Long Beach Phone Buyers', area: { home: 'Long Beach, CA', zip: '90802', lat: 33.77, lon: -118.18, cover: ['Lakewood, CA', 'Downey, CA'] } };
+const UA = {
+  iphoneApp: 'Mozilla/5.0 (iPhone; CPU iPhone OS 27_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 WeBuyADApp/1.0',
+  iphone: 'Mozilla/5.0 (iPhone; CPU iPhone OS 27_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0 Mobile/15E148 Safari/604.1',
+  android: 'Mozilla/5.0 (Linux; Android 16; Pixel 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36',
+  windows: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+};
 
 const browser = await chromium.launch();
-async function open({ demo = true, token = null, route = null, scheme = 'dark', width = 1300 } = {}) {
-  const ctx = await browser.newContext({ viewport: { width, height: 1000 }, colorScheme: scheme, acceptDownloads: true });
+async function open({ demo = true, token = null, route = null, scheme = 'dark', width = 1300, ua = null } = {}) {
+  const ctx = await browser.newContext({ viewport: { width, height: 1000 }, colorScheme: scheme, acceptDownloads: true, ...(ua ? { userAgent: ua } : {}) });
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -41,6 +50,7 @@ async function open({ demo = true, token = null, route = null, scheme = 'dark', 
     if (demo) localStorage.setItem('pgfx_local_demo', '1'); else localStorage.removeItem('pgfx_local_demo');
     if (token) localStorage.setItem('pgfx_token', JSON.stringify(token)); else localStorage.removeItem('pgfx_token');
     localStorage.removeItem('pgfx_card');
+    localStorage.removeItem('pgfx_card_maps');
   }, [BRAND, demo, token]);
   if (route) await page.route('**/api/**', route);
   await page.goto(BASE + 'cards/?c=' + Date.now(), { waitUntil: 'load' });
@@ -230,9 +240,15 @@ async function open({ demo = true, token = null, route = null, scheme = 'dark', 
   if (SHEET_DIR) { mkdirSync(SHEET_DIR, { recursive: true }); writeFileSync(join(SHEET_DIR, 'card.pdf'), buf); }
 
   /* ---------- print it today ---------- */
-  const links = await page.evaluate(() => CardMaker.printLinks('90802'));
-  ok(links.length >= 5 && links.every((l) => l.url.startsWith('https://www.google.com/maps/search/?api=1&query=') && /90802/.test(decodeURIComponent(l.url))), 'print it today: Google Maps searches near the ZIP (' + links.map((l) => l.name).join(', ') + ')');
-  ok(links.some((l) => /FedEx Office/.test(l.name)) && links.some((l) => /Staples/.test(l.name)) && links.some((l) => /same-day/i.test(l.name)), 'the same-day search and the big chains');
+  const links = await page.evaluate(() => CardMaker.printLinks('90802', { maps: 'google' }));
+  ok(links.length === 4 && links.every((l) => l.url.startsWith('https://www.google.com/maps/search/?api=1&query=') && /90802/.test(decodeURIComponent(l.url))), 'print it today: Google Maps searches near the ZIP (' + links.map((l) => l.name).join(', ') + ')');
+  ok(links.some((l) => /FedEx Office/.test(l.name)) && links.some((l) => /Staples/.test(l.name)) && links.some((l) => /Office Depot/.test(l.name)) && links.some((l) => /same-day/i.test(l.name)), 'the same-day search and the chains that offer same-day cards');
+  ok(!links.some((l) => /UPS/.test(l.name)), 'no chain is named whose own site does not offer same-day cards (The UPS Store)');
+  const apple = await page.evaluate(() => CardMaker.printLinks('90802', { maps: 'apple', at: { lat: 33.77, lon: -118.18 } }));
+  ok(apple.length === 4 && apple.every((l) => l.url.startsWith('https://maps.apple.com/?q=') && /&sll=33\.7700,-118\.1800&spn=0\.2,0\.2$/.test(l.url)), 'Apple Maps: searches round the area\'s point (' + apple[0].url + ')');
+  ok(decodeURIComponent(apple[0].url).includes('q=business card printing&') && apple.every((l) => /near 90802|^(FedEx|Staples|Office)/.test(l.name)), 'Apple Maps: the plain search on the point, labelled with the place (' + apple.map((l) => l.name).join(', ') + ')');
+  const appleNoPoint = await page.evaluate(() => CardMaker.printLinks('Downey', { maps: 'apple' }));
+  ok(appleNoPoint.every((l) => !/sll=/.test(l.url) && /near Downey$/.test(decodeURIComponent(l.url.split('?q=')[1]))), 'Apple Maps without a point: the search says near the place (' + decodeURIComponent(appleNoPoint[1].url) + ')');
   ok(errors.length === 0, 'no page error (' + errors.slice(0, 2).join(' | ') + ')');
   await ctx.close();
 }
@@ -282,17 +298,48 @@ for (const scheme of ['dark', 'light']) {
   ok(d && /long-beach-phone-buyers-card\.pdf$/.test(d.suggestedFilename()), 'Pro: Download gives the print PDF (' + (d && d.suggestedFilename()) + ')');
   ok(stand.calls.filter((c) => c === '/export:card').length === 1 && stand.calls.includes('/export/check:card'), 'Pro: checked and counted once, as a card (' + stand.calls.join(', ') + ')');
   await page.waitForSelector('#print:not([hidden])', { timeout: 5000 }).catch(() => {});
-  const pr = await page.evaluate(() => ({ shown: !document.getElementById('print').hidden, near: document.getElementById('pt-where').value, links: [...document.querySelectorAll('#pt-links a')].map((a) => a.href) }));
-  ok(pr.shown && pr.near === '90802' && pr.links.length >= 5 && pr.links.every((h) => /90802/.test(decodeURIComponent(h))), 'after the download, Print it today opens near the studio\'s ZIP (' + JSON.stringify({ shown: pr.shown, near: pr.near, n: pr.links.length }) + ')');
+  const shown = () => page.evaluate(() => ({ shown: !document.getElementById('print').hidden, near: document.getElementById('pt-where').value, maps: document.getElementById('pt-maps').textContent, sw: document.getElementById('pt-switch').textContent, links: [...document.querySelectorAll('#pt-links a')].map((a) => a.href) }));
+  const pr = await shown();
+  ok(pr.shown && pr.near === '90802' && pr.maps === 'Apple Maps' && pr.links.length === 4 && pr.links.every((h) => h.startsWith('https://maps.apple.com/?q=') && /sll=33\.7700,-118\.1800/.test(h)), 'after the download on a Mac, Print it today opens Apple Maps round the studio\'s area (' + JSON.stringify({ shown: pr.shown, near: pr.near, maps: pr.maps, n: pr.links.length }) + ')');
+  // a place typed in Near is found in the area dialog's own ZIP and town tables (assets/geo), once the typing pauses
+  for (const [typed, want] of [['Downey, CA', /sll=33\.9400,-118\.1330&/], ['downey', /sll=33\.9400,-118\.1330&/], ['90241', /sll=33\.9400,-118\.1300&/]]) {
+    await page.fill('#pt-where', typed);
+    await page.waitForFunction((re) => [...document.querySelectorAll('#pt-links a')].every((a) => new RegExp(re).test(a.href)), want.source, { timeout: 8000 }).catch(() => {});
+    const t = await shown();
+    ok(t.links.length === 4 && t.links.every((h) => want.test(h)), 'Near "' + typed + '" moves the Apple Maps search to its point (' + t.links[0] + ')');
+  }
+  await page.fill('#pt-where', 'Nowhere Atall');
+  await page.waitForTimeout(900);
+  const lost = await shown();
+  ok(lost.links.every((h) => !/sll=/.test(h) && /near Nowhere Atall$/.test(decodeURIComponent(h.split('?q=')[1]))), 'a place the tables do not know is said "near" it in the search (' + decodeURIComponent(lost.links[0]) + ')');
+  await page.fill('#pt-where', '90802');
+  await page.click('#pt-switch');
+  const sw = await shown();
+  ok(sw.maps === 'Google Maps' && /Apple Maps/.test(sw.sw) && sw.links.every((h) => h.startsWith('https://www.google.com/maps/search/') && /90802/.test(decodeURIComponent(h))), 'the switch gives Google Maps searches near the ZIP (' + sw.sw + ')');
+  ok(await page.evaluate(() => localStorage.getItem('pgfx_card_maps') === '"google"'), 'the switch is remembered on this device');
   ok((await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 0, 'no sideways scroll (' + scheme + ')');
   ok(errors.length === 0, 'no page error (' + errors.slice(0, 2).join(' | ') + ')');
   if (SHEET_DIR) { await page.evaluate(() => scrollTo(0, 0)); await page.screenshot({ path: join(SHEET_DIR, 'maker-' + scheme + '.png') }); await page.locator('#print').screenshot({ path: join(SHEET_DIR, 'print-' + scheme + '.png') }); }
   await ctx.close();
 }
-{
-  const { page, ctx } = await open({ width: 390 });
-  ok((await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 0, 'a phone\'s width: no sideways scroll');
-  if (SHEET_DIR) await page.screenshot({ path: join(SHEET_DIR, 'maker-390.png'), fullPage: false });
+for (const [who, ua, want] of [['the iPhone app', UA.iphoneApp, 'apple'], ['Safari on an iPhone', UA.iphone, 'apple'], ['an Android phone', UA.android, 'google'], ['Windows', UA.windows, 'google']]) {
+  const { page, ctx, errors } = await open({ width: 390, ua });
+  await page.click('#cd-print');
+  const m = await page.evaluate(() => ({ first: (document.querySelector('#pt-links a') || {}).href || '', text: document.getElementById('pt-maps').textContent }));
+  ok(m.text === (want === 'apple' ? 'Apple Maps' : 'Google Maps') && m.first.startsWith(want === 'apple' ? 'https://maps.apple.com/?q=' : 'https://www.google.com/maps/search/'), 'Where to print today on ' + who + ': ' + m.text + ' (' + m.first.slice(0, 60) + ')');
+  ok(errors.length === 0, 'no page error on ' + who + ' (' + errors.slice(0, 2).join(' | ') + ')');
+  await ctx.close();
+}
+for (const scheme of ['dark', 'light']) {
+  const { page, ctx } = await open({ width: 390, scheme });
+  ok((await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 0, 'a phone\'s width (' + scheme + '): no sideways scroll');
+  if (SHEET_DIR) await page.screenshot({ path: join(SHEET_DIR, 'maker-390-' + scheme + '.png'), fullPage: false });
+  await page.click('#cd-print');
+  await page.waitForTimeout(400);
+  ok((await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 0, 'a phone\'s width (' + scheme + '), Print it today open: no sideways scroll');
+  const small = await page.evaluate(() => [...document.querySelectorAll('#print *')].filter((e) => e.childNodes.length && [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) && parseFloat(getComputedStyle(e).fontSize) < 12).map((e) => e.id || e.className));
+  ok(!small.length, 'nothing in Print it today under 12 px (' + small.join(', ') + ')');
+  if (SHEET_DIR) await page.locator('#print').screenshot({ path: join(SHEET_DIR, 'print-390-' + scheme + '.png') });
   await ctx.close();
 }
 await browser.close();

@@ -4555,6 +4555,41 @@ The owner decides: the tier (Pro and Business, Business alone, or a one-time log
 like the AI credit packs), what a suggestion batch costs in credits, and the terms' line on who owns
 a logo made here.
 
+## CD. 2026-11-24 — Print it today opens the customer's own maps (DESIGN-LAW 167, continued)
+
+(CD because §CC was taken on `claude/sharp-lamport-781905`; set after §BU, which it amends.)
+
+A session was asked to build a business card designer, card layouts, a print-ready download and a "Print
+it today near you" button. §BU had built all of it on `main` (`cards/`, rule 167): five layouts and their
+backs, six styles, the 300 dpi PNGs and the 600 dpi PDF with the bleed and crop marks, Pro and Business,
+and a "Where to print today" button. So no second card maker was built. What the brief asked that `main`
+did not do, this branch does (`claude/distracted-pascal-31593b`):
+
+Done:
+- **Apple Maps on Apple devices and in the iPhone app**, Google Maps elsewhere, with a switch that is
+  remembered. Apple's searches are centred on the area's own point (the area dialog's `lat`/`lon`, or the
+  ZIP and town tables for a place typed in Near), which found Long Beach's print shops where a search in
+  words found T-shirt shops 50 miles off (iOS 27 simulator).
+- **Only chains that offer same-day cards on their own sites are named**: FedEx Office, Staples, Office
+  Depot OfficeMax. The UPS Store is dropped (its US pages promise no same day). The page no longer says
+  shops print "while you wait an hour or two", which nothing checked.
+- `scripts/business_card_check.mjs` covers it (80 checks pass).
+
+Not built, on purpose:
+- **No business card in the studio's `FORMATS`.** Each format keeps one 1080 px side for the templates
+  laid out on that grid; the card maker is the card format. Easy Mode links to it.
+
+Open:
+- **Not seen on a real device.** The Apple Maps links were opened in the iOS 27 simulator's Maps app,
+  and the page was checked in Chromium (1280 and 390, dark and light, with an iPhone, iPhone app,
+  Android and Windows user agent). Not tried: a real iPhone, the iPhone app's own build, Maps on a Mac,
+  Chrome on a Mac (where `maps.apple.com` opens Apple Maps on the web), and an Android phone.
+- **The chains' offers change.** Re-read FedEx Office's, Staples' and Office Depot's same-day pages now
+  and then; the owner may prefer naming no chain at all.
+- **`claude/sharp-lamport-781905` changes `cards/` too** (the gallery of finished cards, rule 176). A
+  trial merge of the two branches is clean; whichever lands second should run
+  `scripts/business_card_check.mjs` again.
+
 ## BV. 2026-11-19 — Sign in with Apple and Google (DESIGN-LAW 168)
 
 The owner: "apple and google sign in ?". Google's sign-in was built but switched off (no
