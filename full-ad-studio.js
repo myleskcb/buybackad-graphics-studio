@@ -205,7 +205,7 @@ function styleNow(S, ids, set, size, R = recipeNow(), o = {}) {
   return { st: fullStyle(base, base.seed, assets.index, pick, [], o.ahead ? { preload: false } : {}), W: F.w, H: F.h };
 }
 
-/* ---------- the freshness memory (motion/freshness.js, DESIGN-LAW 181) ----------
+/* ---------- the freshness memory (motion/freshness.js, DESIGN-LAW 182) ----------
    The owner, 2026-11-24: "I need to keep this fresh", "there's a threshold and there's an amount that's OK but too
    similar", riffs that help until "it becomes a repetitive cycle"; and of the plan, "Build it". A download is
    remembered as a post; New look reads the next AHEAD looks and shows the first that repeats none of the shop's
@@ -440,7 +440,7 @@ function buildForm() {
     el("fa-pairs").querySelectorAll("button[data-pair]").forEach(x => { const on = x === b; x.classList.toggle("active", on); x.setAttribute("aria-pressed", on); }); tile(); later(0); });
   el("fa-voices").addEventListener("click", e => { const b = e.target.closest("button[data-voice]"); if (!b) return; FA.voice = b.dataset.voice; keep();
     el("fa-voices").querySelectorAll("button[data-voice]").forEach(x => x.classList.toggle("active", x === b)); tile(); later(0); });
-  /* New look: the next seed, past any look that would repeat a recent post (nextFresh, DESIGN-LAW 181). The memory
+  /* New look: the next seed, past any look that would repeat a recent post (nextFresh, DESIGN-LAW 182). The memory
      never stops it: a look it cannot read moves on by one, as New look always did. */
   el("fa-shuffle").onclick = async () => {
     if (live.looking) return; live.looking = true; busy(true);
@@ -495,7 +495,7 @@ async function download() {
   a.href = url;
   a.download = String(st.headline || "full ad").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-full-ad-" + (ez.format && ez.format !== "square" ? ez.format + "-" : "") + gate.px + ".png";
   document.body.appendChild(a); a.click(); a.remove();
-  // remembered as a post, so New look passes over a look that would repeat it (DESIGN-LAW 181)
+  // remembered as a post, so New look passes over a look that would repeat it (DESIGN-LAW 182)
   try { const f = fingerprint(st, FAMILY_OF), lab = pictureOf(frame); remember(f, lab); if (FA.on) say(live.pre, freshSay(f, lab)); } catch (e) { console.warn("freshness memory:", e); }
   try { await addHistory(a.download, gate.px, url, ad.W, ad.H, null); } catch (e) { /* the file is saved */ }
   toast("Downloaded, go post it!", "success");

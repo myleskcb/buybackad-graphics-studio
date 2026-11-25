@@ -10,7 +10,7 @@
 
    - **Two more looks of every rebuilt design** (<recipe id>~2, ~3): the recipe as Easy Mode's full ad
      opens it, on the seeds after its own, as New look walks them (full-ad-studio.js fa-shuffle: seed + 1 in a
-     browser that has downloaded nothing; past the shop's recent posts once it has, DESIGN-LAW 181).
+     browser that has downloaded nothing; past the shop's recent posts once it has, DESIGN-LAW 182).
      A seed counts when its look passes the full ad's own pre-flight (fullPreflight, the download gate's
      reading) and is drawn in a colour pair this design does not wear yet, so the three are three colour
      sets, not one ad 5% off (rule 154).

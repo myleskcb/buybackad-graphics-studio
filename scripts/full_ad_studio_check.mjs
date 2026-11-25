@@ -27,7 +27,7 @@
      a phone      anything scrolls sideways at 390 wide; any page error;
      the posts    a download is not remembered, or New look, after a dozen downloads, shows a look that
                   repeats one: a look-alike, a scheme or layout soon again, the same phones, riffs too
-                  often (the freshness memory, motion/freshness.js, DESIGN-LAW 181);
+                  often (the freshness memory, motion/freshness.js, DESIGN-LAW 182);
      the policy   the site's own Content-Security-Policy (netlify.toml), sent with each page
                   here as production sends it, blocks anything the full ad loads. (A plain file
                   server sends no policy: the theme toggle was dead in production for that.)
@@ -240,7 +240,7 @@ console.log('at 390 wide');
   await ctx.close();
 }
 
-/* ---------- 7. what the shop posted (the freshness memory, DESIGN-LAW 181) ----------
+/* ---------- 7. what the shop posted (the freshness memory, DESIGN-LAW 182) ----------
    A download is remembered as a post; New look passes over a look that would repeat one: a look-alike (half its
    fingerprint, or its picture within 0.085), the scheme of one of the last 8 posts, the layout of one of the last
    10, the phones of the post before, a riff when one of the last four was a riff (motion/freshness.js). */

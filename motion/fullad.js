@@ -670,17 +670,27 @@ export const ICONS = ["cash"];
  *  list's banned phrases (spec/banned-words.json, rule 143; scripts/words_check.mjs fails a commit
  *  that puts one back). The claim is read first and, with no business name typed, is the badge:
  *  the research's verdict on TOP DOLLAR there was "replace with identity or place" (2026-11-12),
- *  and until 2026-11-18 it still stood on 33 of the 35 first full ads (OPEN-ITEMS §BI). */
+ *  and until 2026-11-18 it still stood on 33 of the 35 first full ads (OPEN-ITEMS §BI).
+ *  THE ADS SELL (DESIGN-LAW 181; the owner, 2026-11-24: "all I see is honest or local buyer not top buyer
+ *  or highest paying. We need more sales ways to pitch yourself"): about half the badges and stickers are a
+ *  buyer selling, the money first and nothing a shop can be asked to prove (TOP DOLLAR PAID, WE PAY TOP
+ *  DOLLAR, REAL CASH, NO LOWBALL OFFERS). HIGHEST, BEST PRICE, #1 and WE BEAT ANY OFFER stay out of every
+ *  default: a shop types them if they are true of it, and the pre-flight says it may be asked to prove them.
+ *  The card lines keep their collector's voice (claim_cards, burst_cards). */
 export const FULL_WORDS = {
-  claim: ["LOCAL BUYER • FAIR OFFERS", "QUICK REPLIES • CASH TODAY", "FAIR OFFER • NO PRESSURE", "LOCAL BUYER • PAID TODAY", "AN OFFER • YOU DECIDE"],
+  claim: ["LOCAL BUYER • FAIR OFFERS", "QUICK REPLIES • CASH TODAY", "FAIR OFFER • NO PRESSURE", "LOCAL BUYER • PAID TODAY", "AN OFFER • YOU DECIDE",
+    "TOP DOLLAR PAID", "WE PAY TOP DOLLAR", "TOP CASH • PAID TODAY", "TOP PRICES • NO FEES", "REAL CASH • NOT CREDIT", "NO LOWBALL OFFERS",
+    // two that share no word with the usual points (PAID, CASH, FEES, OFFER), so WE PAY TOP DOLLAR is not the only bold one left
+    "TOP PAYOUTS • NO HAGGLING", "MONEY IN YOUR POCKET"],
   line: ["ALL MODELS WANTED", "NEW, USED OR CRACKED", "ANY CARRIER • CRACKED OK"],
   points: ["FREE QUOTE, CASH SAME DAY, NO FEES", "QUOTE BY TEXT, PAID TODAY, WE MEET YOU", "TEXT US NOW, FAIR OFFER, NO HASSLE"],
   label: ["CALL OR TEXT", "TEXT US NOW", "GET YOUR OFFER"],
   // no PAID TODAY or SAME DAY: beside a point that says the day the same promise stood twice, and SAME DAY alone is a fragment
-  burst: ["CASH!", "NO FEES", "EASY SALE", "CASH PAID"],
-  burst_es: ["PAGO HOY", "SIN PRISA", "TRATO JUSTO"],
+  burst: ["CASH!", "NO FEES", "EASY SALE", "CASH PAID", "TOP CASH", "TOP $$$", "TOP DOLLAR"],
+  burst_es: ["PAGO HOY", "SIN PRISA", "TRATO JUSTO", "BUEN PAGO"],   // not PAGAMOS BIEN: its seven letters set the sticker under its floor (full_ad_check)
   // a Spanish ad's badge and small line in Spanish too (2026-11-23: they were drawn from the English lists)
-  claim_es: ["SOMOS DE AQUÍ", "RESPUESTA RÁPIDA • PAGO HOY", "COMPRADOR LOCAL • OFERTA JUSTA", "OFERTA JUSTA • SIN PRESIÓN", "SIN COMPROMISO • PAGO HOY"],
+  claim_es: ["SOMOS DE AQUÍ", "RESPUESTA RÁPIDA • PAGO HOY", "COMPRADOR LOCAL • OFERTA JUSTA", "OFERTA JUSTA • SIN PRESIÓN", "SIN COMPROMISO • PAGO HOY",
+    "PAGAMOS BIEN", "BUEN PAGO • HOY MISMO", "EFECTIVO REAL • NO CRÉDITO", "SIN OFERTAS BAJAS", "PAGAMOS BIEN • SIN COMISIONES"],
   line_es: ["TODOS LOS MODELOS", "NUEVO, USADO O ROTO", "CUALQUIER COMPAÑÍA • ROTOS OK"],
   /* a card ad's badge and sticker (2026-11-23, the owner: card ads were "screaming scalper"): a collector hears speed and
      "cash" as a low offer, so the card lines say who buys and that the seller decides. No HONEST anywhere (rule 80: a
@@ -2078,7 +2088,7 @@ export function poolEntryFor(pool, seed) {
 const poolPictureId = ({ file, k }) => "sub-" + file + (k && k !== 1 ? "@" + k : "");
 /** The ids of the pictures a seed draws from a line's pool (poolEntryFor), as loadSubjectSet names them, without
  *  loading them: given to fullStyle as the phones, that entry is the one it draws (subjectDraw). For New look's
- *  freshness memory, which reads looks ahead without drawing them (DESIGN-LAW 181). */
+ *  freshness memory, which reads looks ahead without drawing them (DESIGN-LAW 182). */
 export function poolIdsFor(pool, seed) { const e = poolEntryFor(pool, seed); return e >= 0 ? pool[e].set.map(poolPictureId) : []; }
 /** One entry of a line's pool for a seed: the one poolEntryFor names, when its pictures are loaded
  *  (null otherwise: the maker loads it first). With the whole pool loaded, as the checks load it,
@@ -2367,7 +2377,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
     const gd = groundFor(st.subject, seed, key, productFor(st.subject, have), lean && H.ground && !pick.ground_kind ? { want: H.ground, photo: st.ground_hint || null, r: lr, pick: lean.pick } : null, metroOf(st.area), { kind: pick.ground_kind || "", treat: pick.photo_treat || "", clip: handClip, seedClips: !!opts.moving });
     if (gd) Object.assign(look, gd); else delete look.ground_photo;
   }
-  // (opts.preload false: a look read ahead and not drawn, as New look reads eighty, loads no photograph: DESIGN-LAW 181)
+  // (opts.preload false: a look read ahead and not drawn, as New look reads eighty, loads no photograph: DESIGN-LAW 182)
   if (look.ground_photo && opts.preload !== false) { loadGroundPhoto(look.ground_photo.src).catch(() => {}); if (clipOf(look.ground_photo)) loadClipSheet(look.ground_photo.clip).catch(() => {}); }
   /* THE LOOK'S STYLES (spec/full-styles.json, motion/full-styles.js; the owner, 2026-11-18: "notice how
      it's all same spiky circle?", "no variety in the text pure outlines?", "don't see any gradients
@@ -2439,7 +2449,10 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   // What the customer left empty is filled from the lists, each line chosen so that it does not
   // repeat a promise the lines before it already make (the customer's own words are never changed:
   // fullWords() says where they repeat). The order is the order they are read in.
-  const fresh = (list, said) => { const start = Math.floor(r() * list.length); for (let i = 0; i < list.length; i++) { const w = list[(start + i) % list.length]; if (!said.some(x => sharesWord(w, x))) return w; } return list[start]; };
+  /* one of those that say nothing said, each as likely (2026-11-24): the walk from a random start to the next one
+     that fits gave a line all the draws of the lines before it that rarely fit (WE PAY TOP DOLLAR 21% of badges, TOP
+     CASH • PAID TODAY 1%, TOP $$$ a third of stickers over 4,680 ads). One draw either way, so the seed's stream holds */
+  const fresh = (list, said) => { const u = r(), ok = list.filter(w => !said.some(x => sharesWord(w, x))), L = ok.length ? ok : list; return L[Math.floor(u * L.length) % L.length]; };
   const label = st.number_label || (es ? "LLAMA O ESCRÍBENOS" : FULL_WORDS.label[0]);
   // a look's small line that says what the call to action says (a video look's tag CALL OR TEXT over its CALL OR
   // TEXT, rule 158) gives way to one from the list: the ad never says one thing twice

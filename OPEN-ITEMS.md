@@ -4045,7 +4045,7 @@ Open:
     - The layout goes first. Every ad is one skeleton with 60 settings, and at 3 a day 47% of posts
       reuse a layout from the past two weeks, from day 2.
     - Shown to the owner as a page with the pairs, 2026-11-24.
-    - **The freshness memory, done** (the owner, 2026-11-24: "Build it"; DESIGN-LAW 181,
+    - **The freshness memory, done** (the owner, 2026-11-24: "Build it"; DESIGN-LAW 182,
       `motion/freshness.js`). Product rotation and the riff cap came with it:
       - Each download is remembered for two weeks in that browser, with its fingerprint and its picture.
       - New look reads 80 looks ahead and takes the first that is no look-alike of a post. It also skips
@@ -5084,3 +5084,20 @@ Open, next:
   still wear the logo as before.
 - A 9:16 Instagram story post per line (the stories are generic: buying, quote, open, what we buy, follow).
 - Highlight covers in more subjects (prices per item, trade-ins, repairs when that segment comes).
+
+## CI. 2026-11-24 — the ads sell: TOP DOLLAR beside the local and fair lines (DESIGN-LAW 181)
+
+(claude/bold-sales-pitches, on `main` after pull request 26. The owner: "all I see is honest or local buyer not top
+buyer or highest paying"; asked how hard, "bold, no proof needed"; asked when, "right after PR 26".)
+
+Done: see DESIGN-LAW 181.
+
+Open:
+1. **The mix is a first guess.** About half the badges and stickers are bold, and the points draw `top` at .7. The
+   gallery's Tune the mix panel could carry each pitch line (More, Less, Same, Never) as it carries the grounds.
+2. **HIGHEST, BEST PRICE, #1 and WE BEAT ANY OFFER as a shop's own pick.** Today a shop types them. A switch in the
+   maker ("I can back this up") would offer them, with the pre-flight's note. Not built.
+3. **The photo templates and classic cards** (`app.js` TEMPLATES: LOCAL BUYER kickers on the phone and silver decks)
+   are unchanged. Only the full ad, the video maker's looks and its catalogue were changed.
+4. **The hero wall** keeps its 18 approved stills. It shows the new words once they are drawn again (`--redraw`) and
+   approved.

@@ -7004,6 +7004,23 @@ a check that reads "the still" must draw the still, not whatever a live source s
 RESUME HERE: the owner looks at a moving scene in the maker (§CB 1); then more clips
 (§CB 4), Any look (§CB 2), stories and wide frames (§CB 3).
 
+## 2026-11-24 — the ads sell (DESIGN-LAW 181; OPEN-ITEMS CI; claude/bold-sales-pitches)
+
+Asked: the owner, of the ads: "all I see is honest or local buyer not top buyer or highest paying. We need more sales
+ways to pitch yourself."
+  - One question before changing lists a rule had set: how hard to sell (bold with no proof; bold with HIGHEST and #1
+    by default; bold with no proof claims even as picks) and when (in PR 26, or right after it). The owner: bold with
+    no proof, right after.
+
+Found:
+  - The HONEST the owner saw was `main`'s own default badge (LOCAL & HONEST, HONEST BUYER • PAID TODAY): the HONEST
+    ban leaves the phone lines out, and most ads are phones. Pull request 26 had already dropped both.
+  - The landing's library is stills, not the engine: any change to the full ad dates all 665, and the deploy does not
+    say so. A change of words is not on the site until the stills are drawn again.
+  - A ban narrowed to some lines keeps one list for every generation: scope the row (`only`), never fork the list.
+
+RESUME HERE: OPEN-ITEMS §CI 1.
+
 ## 2026-11-25 — the maker's toolbar trimmed to three (DESIGN-LAW 178; claude/video-music-sfx-audit-3691d1)
 
 The owner found the bar busy and its colours mixed. Seven controls became three; the
@@ -7070,7 +7087,7 @@ Learned:
   - New look moves the seed on by one, and each seed draws independently. A schedule's repeats
     follow from the pair rate: 1-(1-q)^m for m posts in memory.
 
-## 2026-11-24 — the freshness memory in New look (DESIGN-LAW 181; claude/zealous-dewdney-386bf8)
+## 2026-11-24 — the freshness memory in New look (DESIGN-LAW 182; claude/zealous-dewdney-386bf8)
 
 Asked: "Build it", the plan above. New look should pass over looks too close to the shop's recent
 posts, keep layouts and schemes from coming back soon, rotate the products and cap the riffs.
