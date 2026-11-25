@@ -677,6 +677,10 @@ export const ICONS = ["cash"];
  *  DOLLAR, REAL CASH, NO LOWBALL OFFERS). HIGHEST, BEST PRICE, #1 and WE BEAT ANY OFFER stay out of every
  *  default: a shop types them if they are true of it, and the pre-flight says it may be asked to prove them.
  *  The card lines keep their collector's voice (claim_cards, burst_cards). */
+/** How often each badge, sticker and small line of FULL_WORDS is drawn, among those that fit an ad (fullStyle's fresh):
+ *  1 where a line is not named, 0 never. Set from the owner's Tune the mix in the gallery (tuning/choices, keys badge:,
+ *  sticker:; DESIGN-LAW 181): More 1.5, Less 0.5, Never 0, and a line's Spanish twin set with it. */
+export const WORD_WEIGHTS = {};
 export const FULL_WORDS = {
   claim: ["LOCAL BUYER • FAIR OFFERS", "QUICK REPLIES • CASH TODAY", "FAIR OFFER • NO PRESSURE", "LOCAL BUYER • PAID TODAY", "AN OFFER • YOU DECIDE",
     "TOP DOLLAR PAID", "WE PAY TOP DOLLAR", "TOP CASH • PAID TODAY", "TOP PRICES • NO FEES", "REAL CASH • NOT CREDIT", "NO LOWBALL OFFERS",
@@ -2444,8 +2448,16 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   // fullWords() says where they repeat). The order is the order they are read in.
   /* one of those that say nothing said, each as likely (2026-11-24): the walk from a random start to the next one
      that fits gave a line all the draws of the lines before it that rarely fit (WE PAY TOP DOLLAR 21% of badges, TOP
-     CASH • PAID TODAY 1%, TOP $$$ a third of stickers over 4,680 ads). One draw either way, so the seed's stream holds */
-  const fresh = (list, said) => { const u = r(), ok = list.filter(w => !said.some(x => sharesWord(w, x))), L = ok.length ? ok : list; return L[Math.floor(u * L.length) % L.length]; };
+     CASH • PAID TODAY 1%, TOP $$$ a third of stickers over 4,680 ads). One draw either way, so the seed's stream holds.
+     Each line weighs its WORD_WEIGHTS (the owner's Tune the mix; 1 unless set, 0 never drawn): with every weight 1 the
+     pick is the even one above, draw for draw */
+  const fresh = (list, said) => {
+    const u = r(), wt = w => WORD_WEIGHTS[w] ?? 1, live = list.filter(w => wt(w) > 0), pool = live.length ? live : list;
+    const ok = pool.filter(w => !said.some(x => sharesWord(w, x))), L = ok.length ? ok : pool;
+    const total = L.reduce((s, w) => s + (live.length ? wt(w) : 1), 0);
+    let acc = 0; for (const w of L) { acc += live.length ? wt(w) : 1; if (u * total < acc) return w; }
+    return L[L.length - 1];
+  };
   const label = st.number_label || (es ? "LLAMA O ESCRÍBENOS" : FULL_WORDS.label[0]);
   // a look's small line that says what the call to action says (a video look's tag CALL OR TEXT over its CALL OR
   // TEXT, rule 158) gives way to one from the list: the ad never says one thing twice

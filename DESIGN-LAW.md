@@ -7625,6 +7625,11 @@ of the picks too.
   NO FEES, REAL CASH • NOT CREDIT, NO LOWBALL OFFERS, TOP PAYOUTS • NO HAGGLING, MONEY IN YOUR POCKET.
   Its sticker adds TOP CASH, TOP $$$ and TOP DOLLAR. Over 4,680 drawn ads (39 lines, 120 seeds) 61% of
   badges and 53% of stickers are bold, and no badge is on more than a fifth of them.
+- **The owner sets the mix** (2026-11-25). The gallery's Tune the mix has a row for every badge line,
+  every sticker and the TOP DOLLAR points, each with its share and real ads (keys `badge:`, `sticker:`,
+  `point:top` in `tuning/choices`). `WORD_WEIGHTS` in `motion/fullad.js` takes the choices for the badges
+  and stickers (More 1.5, Less 0.5, Never 0, a line's Spanish twin set with it) and `PROMISES.top`'s .7
+  for the points. With every weight 1 the pick is the even one below, draw for draw.
 - **Each line that fits is as likely** (`fresh` in `fullStyle`). The badge, sticker and small line skip a
   line that repeats a word already on the ad. They used to walk from a random start to the next that
   fit, which gave a line every draw of the lines before it that rarely fit: WE PAY TOP DOLLAR took 21% of
