@@ -4833,7 +4833,11 @@ Open:
 
 Done: see DESIGN-LAW 177. The 27 library ads whose ground moved were drawn again: 22 card ads that stood on a
 photograph (20 on Los Angeles place photographs, 4 of them the Griffith Observatory's `-12` and `-13`; 2 on rule 170's
-painted slab displays) and 5 whose lean moved within its kind. No other library ad moved.
+painted slab displays) and 5 whose lean moved within its kind. No other library ad moved. All 82 card library renders
+were then drawn again in a scratch folder and compared pixel by pixel: 6 more (`r-stepsFlow-du07-15`, `-du07-30`,
+`-gl04-30`, `-jw03-20`, `-jw10-31`, `r-bubblePop-io06-35`, painted grounds all) were still the 2026-11-23 renders with the
+card words rule 171 retired (SLABS AND SEALED WAX, SAME DAY), and were drawn again too. Every card render now matches
+the engine's draw, none on a photograph.
 
 Open:
 1. **Place photographs about one named landmark: the owner's call.** The rule so far: no trademarked landmark where the
@@ -4869,3 +4873,11 @@ Open:
    painted ground of their own (a family ground), not as a photograph. The 66 old designs laid out over them keep them.
 3. **A shop's own card photographs** (§CA 1, option a): when a shop uploads its own, a card ad may stand on them. That is
    a path of its own, decided then; `paintedLine` is where it would open.
+4. **The rebuilt renders' stamp misses the line's own words.** `scripts/_rebuilt.mjs` stamps a render with its recipe's
+   seed, line, words and pictures, not the line's headlines and models in `motion/subjects.json` nor the engine, so the
+   six above kept rule 171's retired words through `--stale`. Other lines' renders may be stale the same way; the
+   comparison above (a scratch script) has only been run on the card lines.
+5. **A redraw can depend on the ad drawn before it.** `render_rebuilt_ads.mjs` draws every recipe in one Easy Mode page,
+   and something carried from one recipe to the next can change the face: `r-neonNight-du08-16` comes out in one face
+   drawn first or by `--ids` and in another after some other recipes (its ground the same). A full redraw and an `--ids`
+   redraw can disagree.

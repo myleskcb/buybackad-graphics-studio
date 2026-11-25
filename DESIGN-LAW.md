@@ -7188,6 +7188,7 @@ photographs joined every line's pool three times over, and a rebuilt recipe lean
 - **Held by** `scripts/full_ad_check.mjs` (part `cards`): both card lines in every metro the library holds photographs
   of and in none, 120 seeds each, with the Background set to a photograph, a photograph given with the ad, a look kept
   as its own on one, a photograph picked by hand, and every card recipe as Easy Mode draws it. On the code before, 4,809
-  of 8,150 such card ads stood on a photograph. The 27 library ads whose ground moved were drawn again.
+  of 8,150 such card ads stood on a photograph. The 27 library ads whose ground moved were drawn again, and 6 card
+  renders still carrying rule 171's retired words with them; every card library render now matches the engine's draw.
 - **Not decided yet** (OPEN-ITEMS §CE): the place photographs about one named landmark building, which still stand
   behind every other line's ads.
