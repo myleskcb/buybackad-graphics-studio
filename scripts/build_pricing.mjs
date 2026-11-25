@@ -46,6 +46,9 @@ ${ids.map((id) => `  ${id}: ${lit(Object.assign({}, P.PLANS[id], id === HOT ? { 
 const PACKS = {
 ${Object.entries(P.PACKS).map(([id, k]) => `  ${id}: ${lit(k)},`).join('\n')}
 };
+/* the brand kits (logo/), and what one costs added to a Starter plan's checkout */
+const KITS = ${lit(P.KITS)};
+const KIT_ADDON_OFF = ${P.KIT_ADDON_OFF};
 const PLAN_ROWS = ${lit(rows)};
 const PLAN_BULLETS = ${lit(bullets)};
 const PLAN_FOR = ${lit(P.PLAN_FOR)};
