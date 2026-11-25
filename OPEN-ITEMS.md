@@ -4975,6 +4975,7 @@ Done: the bar is Back, New look and Download (the only filled button); Kind of a
 All templates open step 1; the feed view is in step 6 only.
 
 Open:
-1. **The owner to look**, then go live (not on `main` yet).
+1. **On `main`, at the owner's word** (2026-11-25: "Yes, put it live"), after `main` (pull request
+   26) was merged in; full_ad, quick_ad, buylist, typing_pause, look_preflight and clip_grounds checks pass.
 2. The moving-scenes session (its own worktree) edits motion/app.js too: merge with care.
 

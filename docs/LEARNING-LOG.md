@@ -7017,6 +7017,8 @@ Learned:
   - A button that repeats one in a step (the feed view) is the cheapest to cut: grep
     for a second way in before keeping one.
 
-RESUME HERE: the owner looks at the trimmed bar (§CF 1) and says whether it goes live;
-the moving-scenes session reports on its own (§CB).
+Put on `main` at the owner's word, after pull request 26 was merged in.
+
+RESUME HERE: the moving-scenes session reports on its own (§CB); merge it with care,
+as it edits motion/app.js too.
 
