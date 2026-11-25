@@ -75,7 +75,7 @@ try {
       class Own extends E.Ad {}
       const sub = new Own(E.harmonise({ ...base('1:1'), seed: 77, number_label: '' }, new Set(), {}), assets, 540, 540, { plan: false });
       // what the customer typed is theirs: no number is a fix for the download, not for the look; an old phrase is a note
-      const noNum = P.lookPreflight(draw({ number: '' })), old = P.lookPreflight(draw({ headline: 'TOP DOLLAR FOR IPHONES' }));
+      const noNum = P.lookPreflight(draw({ number: '' })), old = P.lookPreflight(draw({ headline: 'HIGHEST CASH FOR IPHONES' }));   // HIGHEST: banned on every line (TOP DOLLAR is said again since rule 178)
       return { looks, words, typed: typed.st.number_label, typedDrawn: !!typed.num.label, empty: empty.st.number_label, sub: sub.st.number_label,
         noNum: { ok: noNum.ok, lookOk: noNum.lookOk, says: noNum.findings.map(f => f.level + ': ' + f.say) }, old: old.findings.filter(f => f.code === 'words').map(f => f.level + ': ' + f.say) };
     }, N);
@@ -94,7 +94,7 @@ try {
     ok(R.empty === 'CALL OR TEXT', `an empty label draws the default (${JSON.stringify(R.empty)})`);
     ok(R.sub === '', 'a subclass of the engine (FullAd, FeedAd) is left to its own label');
     ok(!R.noNum.ok && R.noNum.lookOk && R.noNum.says.some(s => /no phone number/.test(s)), `no number: the download is stopped, the look is not passed over (${R.noNum.says[0] || 'nothing said'})`);
-    ok(R.old.length && R.old.every(s => /^note: In the headline: TOP DOLLAR/.test(s)), `an old phrase typed in the headline is a note (${R.old[0] || 'nothing said'})`);
+    ok(R.old.length && R.old.every(s => /^note: In the headline: "Highest"/.test(s)), `an old phrase typed in the headline is a note (${R.old[0] || 'nothing said'})`);
     ok(!errors.length, 'no page errors' + (errors.length ? ': ' + errors[0] : ''));
     stopping = L.filter(r => !r.error && !r.lookOk && r.st).map(r => r.st);
     await page.close();
