@@ -6756,6 +6756,48 @@ a dark page); `billing_check` 176 of 177, the same fabric.js failure as before.
 RESUME HERE: the owner presses "Continue with Google" once on webuy.ad (§BV 4; automation can't open
 the popup), then Apple's Services ID (§BV 1).
 
+## 2026-11-23 — the four left open (DESIGN-LAW 170; OPEN-ITEMS BZ)
+
+The owner: "CAN WE FIX ALL 4" (2026 Samsung and Pixel pictures, Spanish points, the first-guess
+weights, the credited Charizard).
+  - The real Charizard retired everywhere: the cut-out, and the two ground photographs it came from,
+    which 66 site designs stood on. Painted display scenes took the photographs' place under new
+    names; 94 site designs re-rendered.
+  - Seventeen 2026 Galaxy and Pixel pictures painted in code and weighed first in their pools.
+  - Spanish selling points, badges and small lines in Spanish.
+  - The gallery's Tune the mix panel keeps the owner's More / Less / Same / Never for every share.
+
+Found:
+  - A licence problem is never one picture: the Charizard cut-out was cut from a photograph that two
+    grounds, 66 site designs, the offer cards and the AI picker all used. Grep for the source too.
+  - Port 8899 belonged to another session's server, serving another worktree: a re-render through it
+    drew the old code. Check which folder a port serves (lsof on its cwd) before trusting it.
+  - puppeteer-core is not installed in worktrees; a small stand-in over Playwright (scratchpad, linked
+    into the ignored node_modules) ran rethumb_showcase.mjs unchanged.
+  - Almost 400 other cut-outs (nearly every car) are CC BY or CC BY-SA: the same credit question, open.
+
+RESUME HERE: OPEN-ITEMS §BZ 1 (read the owner's choices from the gallery and set the shares), then 2.
+
+## 2026-11-23 — card copy, Spanish headlines, the goods, the grounds (DESIGN-LAW 171; OPEN-ITEMS CA)
+
+Asked: push to PR 18 (already merged: `main` merged in here instead, 24 commits, three documents by hand); then the
+owner's review of the gallery: card ads "screaming scalper", the painted cards, road and tread, the product looks, the
+turned phones; "audit extensively".
+  - Five read-only audits in parallel (collectible pictures, other pictures, grounds and looks, words, image rights)
+    before changing anything; each found something the eye on one ad would not.
+
+Found:
+  - The bar on pictures had a side door: pools were filtered, the offer family's sets were not, and an empty pool falls
+    back to the first set. Filter every path a picture takes, not the one you are looking at.
+  - The word-overlap filter (first five letters) hid the good card points under a CARDS headline and left the worst.
+    Run the real draw over thousands of seeds before judging a list by reading it.
+  - A tone-on-tone ground of thin lines disappears once thinned behind the product and shaded behind the words; solid
+    shapes with cut details survive. A wider tone step does little: the tone helper clamps it for contrast.
+  - A new ban on the one list catches every list it reads, the owner's own shop's included: scope it, ask, do not
+    rewrite someone's live ads to pass a check.
+  - A sticker breaks on spaces: its longest word, not its length, sets its size.
+
+RESUME HERE: OPEN-ITEMS §CA 1 (the owner's decision on real card pictures), 5 (motion), then §BZ 1.
 ## 2026-11-23 (late night) — a picture that does not arrive is never shown broken (DESIGN-LAW 169; claude/wall-tiles-never-broken)
 
 Asked, with a screenshot of the wall: "Can you fix this so our final product doesn't have this
@@ -6870,3 +6912,156 @@ seen (16 of 16).
 Lesson: run a new check against the live site after it ships, not only the local server. The race
 it found exists only at the live site's pace.
 
+## 2026-11-18 and -19 — the video ads sound like a trailer, not a game (DESIGN-LAW 174; claude/video-music-sfx-audit-3691d1)
+
+Asked: audit the music and sound effects ("like I'm playing mario kart ...
+I need like trailer commercial professional"); then the shuffle's odds; then
+"1-3 best suggestion works" (a trailer's sounds, the jazz out, the number
+sound evened); heard: "Sounds right"; then the weirder instruments and
+openers out, the most popular kept, more tunes and chimes, other genres than
+lo-fi, layers that play over each other (asked: in one key; original hooks);
+heard again: "Sounds right".
+
+Done: stand-ins for every game sound, the jazz and most lo-fi; the menus
+trimmed; the braam, two number sounds on a low hit, a trailer's bed; four
+chimes and an End chime menu; eight original hooks matched to their bed's
+mode; 23 genres in the shuffle; over a recording, its key. 98.8% of shuffles
+played a game-like sound; 4.9% do now, all confetti looks (rule 129).
+
+Found:
+  - Zeroing an option's weight reshuffles its whole axis: the hit moved on
+    71% of looks though 36% had a cartoon hit. Handing a removed option's
+    share to its neighbours keeps the draw but skews the balance (the bill
+    counter rose to 40%). A stand-in drawn on a stream of its own keeps both.
+  - The game feel was mostly the effects, not the music: rising bells (the
+    shine, the end card, the number) on most looks, before any tune.
+  - A trailer bed balanced on studio terms is a sub bed on a phone: the
+    first cut had 3.5 dB more under 120 Hz and 3.7 dB less in the mids than
+    the house groove. Measure the bands against a bed already approved.
+  - A second low hit on the number at the headline's level reads as two
+    headlines: measured -11.5 against -9.5, set 4 to 6 dB under.
+  - Two of eight first-draft hooks began as famous tunes ("Happy Birthday",
+    "Mary Had a Little Lamb"): check every new melody's opening contour
+    against the famous ones before it ships.
+  - A key reader that is right on real recordings (six of six known) is
+    wrong on the maker's own beds over short windows (9 of 24): its job is
+    the recordings; the maker's own key is known, never read.
+  - Drums locked to a recording's measured tempo drift within seconds: a
+    tempo is an estimate, a live performance moves. Layer what cannot drift.
+  - Rule numbers and open-item letters are claimed on other branches before
+    they reach `main`: grep every branch and worktree, then again before the
+    commit (138 to 153 were taken while this was written, and open items to BN; so was port 8899,
+    by another session's server, and 8901, by CapCut).
+
+Checked: in the browser pane, 1000 shuffles and 300 full ads with no game
+or retired sound and no jazz; 23 genres; the shine adding 1.8e-7; 30
+shuffled soundtracks, eight trailer beds, six trailer looks with every chime
+and hook, hooks over six genres, four recordings with chimes in their key,
+six full ads and every sound by hand at -16 LUFS (within 0.27) with peaks at
+or under -1 dBFS; the levels and bands above; the maker loading with no
+error and showing only the kept sounds; audience_check. Not run:
+motion_music_check and motion_sound_check (no puppeteer-core here),
+full_ad_check (no playwright).
+
+## 2026-11-24 — a moving scene under the full ad's words (DESIGN-LAW 175; claude/video-music-sfx-audit-3691d1)
+
+The owner wanted backgrounds that move, cheaply, as a library. A test batch on fal
+chose the model (Hailuo 02 Standard, on a scene drawn first); "Yes, build it" built
+six clips into the full ad as photographs that play, read at every moment, played in
+the preview and sought frame by frame in the export. `main` was merged in first (149
+commits behind), and this branch's sound rule renumbered twice (154, then 174).
+
+Learned:
+  - A browser seek is exact and cheap on a clip encoded for it (a key frame every
+    half second, no B-frames): 5 ms a frame, the same pixels in any order. No
+    demuxer and no decoder of our own were needed for a frame-accurate export.
+  - A small sheet of a clip reads kinder than its frames: a bright speck under a
+    line is softened (5.50:1 on the sheet, 4.40:1 on the frame), and larger tiles
+    barely helped (5.33:1). Measure the gap and hold the sheet to it; do not assume
+    a bigger sample fixes it.
+  - A share of the seeds that fit is not a share of ads. 12% of fitting seeds was
+    1.7% of ads once light words and rule 139 had their say. Count the ads.
+  - A template's colours count as picked. A choice that overrides them (a scene made
+    for light words over dark-word colours) says so in a toast.
+  - Judging a moving ground on its first frame is not judging it: the gold bars'
+    headline read 2.1:1 when the flare passed, 10.5:1 once every moment was read.
+  - On this Mac: no `timeout` command; ffmpeg in a `while read` loop eats the loop's
+    input (`-nostdin`); `read` at a last line without a newline fails under `set -e`.
+    Four browser checks at once made `full_ad_check` fail once on timing (its note
+    read at 1.5 s); alone it passed, as on `main`.
+  - Rule numbers: 170 to 173 were taken on three unmerged branches while this was
+    written. Grep every branch and worktree right before writing one.
+
+Checked: `clip_grounds_check` (all clear), `full_ad_check`, `quick_ad_check`,
+`buylist_check`, `motion_music_check` (seven of seven); in the browser pane, the
+preview on the neon street under a template's ad, and a frame of the exported MP4.
+
+Then, at the owner's word ("Yes, put it live"), `main` merged in again and put on
+`main`. The merge's pre-flight change showed a gap: the maker's pre-flight panel reads
+the preview's own ad, whose clip is playing by then, against its first frame. Lesson:
+a check that reads "the still" must draw the still, not whatever a live source shows.
+
+RESUME HERE: the owner looks at a moving scene in the maker (§CB 1); then more clips
+(§CB 4), Any look (§CB 2), stories and wide frames (§CB 3).
+
+## 2026-11-24 — the ads sell (DESIGN-LAW 181; OPEN-ITEMS CI; claude/bold-sales-pitches)
+
+Asked: the owner, of the ads: "all I see is honest or local buyer not top buyer or highest paying. We need more sales
+ways to pitch yourself."
+  - One question before changing lists a rule had set: how hard to sell (bold with no proof; bold with HIGHEST and #1
+    by default; bold with no proof claims even as picks) and when (in PR 26, or right after it). The owner: bold with
+    no proof, right after.
+
+Found:
+  - The HONEST the owner saw was `main`'s own default badge (LOCAL & HONEST, HONEST BUYER • PAID TODAY): the HONEST
+    ban leaves the phone lines out, and most ads are phones. Pull request 26 had already dropped both.
+  - The landing's library is stills, not the engine: any change to the full ad dates all 665, and the deploy does not
+    say so. A change of words is not on the site until the stills are drawn again.
+  - A ban narrowed to some lines keeps one list for every generation: scope the row (`only`), never fork the list.
+
+RESUME HERE: OPEN-ITEMS §CI 1.
+
+## 2026-11-25 — the maker's toolbar trimmed to three (DESIGN-LAW 178; claude/video-music-sfx-audit-3691d1)
+
+The owner found the bar busy and its colours mixed. Seven controls became three; the
+kind of ad and the templates moved into step 1, and the feed view stayed only in Check.
+
+Learned:
+  - Read a toolbar by what each button is: an action on the ad, a place you are, or a
+    setting. Only the first belongs in the bar; the steps already say where you are.
+  - One colour, two meanings reads as noise: filled now means "do this", an outline
+    "you are here".
+  - A button that repeats one in a step (the feed view) is the cheapest to cut: grep
+    for a second way in before keeping one.
+
+Put on `main` at the owner's word, after pull request 26 was merged in.
+
+RESUME HERE: the moving-scenes session reports on its own (§CB); merge it with care,
+as it edits motion/app.js too.
+
+## 2026-11-25 — a moving scene is one ad (DESIGN-LAW 179; claude/modest-maxwell-ce019b)
+
+The owner, the day the moving grounds went live: a moving background "doesn't really mean it's a good ad"; it needs
+moving elements, sound, "cohesive elements". Measured first, then each scene given a kit: its moment on a beat, its
+light, its sound, its choices; the ad's arc built round it to the end card. A review page with sound went to the owner.
+
+Learned:
+  - Measure the ad without the ground to see what the ad itself does: the full ad's own layers stood still on 47 of
+    52 late frames, under a clip that never stopped. The clip hid it.
+  - A clip's best moment is rarely where the ad needs it: the gold flare peaked inside the headline's entrance. Start
+    the clip at an offset so its moment lands on the ad's beat.
+  - A hit under a new sound ducks the bed by about what the sound adds: at .2 to .3 the scene's sound changed its
+    window's level by -0.5 to +1.2 dB. Measure what a sound adds (the render with it less the render without it), not
+    the window's level.
+  - The still is drawn at rest: every new beat (a pulse, a stamp, a light) checks `_still`, or the photo and the
+    pre-flight catch it mid-move.
+  - Rule numbers 177 and 178, and open items CD and CE, were taken on other branches the same day. Grep every branch,
+    worktree and commit message right before writing one.
+
+Checked: `clip_grounds_check` (all five parts), `full_ad_check`, `quick_ad_check`, `buylist_check`,
+`motion_music_check`; twelve exports read back (1080 square, H.264 with AAC).
+
+Then, at the owner's word ("Yes, put it live"), `main` (15 commits on: the trimmed toolbar, the card ads) merged in;
+its toolbar took open item CF, so this one became CH. Every check passed on the merge, and it went on `main`.
+
+RESUME HERE: the owner's notes on the scenes (§CH 1); the golden-hour city and the phone may want redrawn clips (§CH 3).

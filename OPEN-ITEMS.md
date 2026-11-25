@@ -4648,6 +4648,7 @@ Open:
    photograph, `assets/cutouts/ATTRIBUTION.json`): that licence asks for a credit on the ad, and the
    card's art is the maker's. Rule 161 holds new ad photographs to public domain or CC0. It still has
    weight 6 of the Pokémon pool; the owner's call whether it stays.
+   **Done 2026-11-23 (DESIGN-LAW 170):** retired with the two Charizard ground photographs; see §BZ.
 3. **Still to build from the list:** textures and materials (about 40 CC0 photographs, about 25 MB:
    needs the owner's go-ahead to download), space (NASA photographs are public domain, about 30, about
    20 MB, plus painted ones; most are dark, so under a duotone or wash), the area drawn as a map from
@@ -4673,7 +4674,7 @@ Open:
    lawyer: a player's face in a paid ad is his likeness.
 7. **Selling points vary** (DESIGN-LAW 164, done 2026-11-22): two to four per ad, drawn from each
    line's own promises and any buyer's, each said several ways. Spanish ads still draw the old
-   three from the catalogue's Spanish list; a Spanish pool is next.
+   three from the catalogue's Spanish list; a Spanish pool is next. **Done 2026-11-23** (§BZ).
 8. **The iPhone mix, by the owner's word** (done 2026-11-22): the 17 Pro Max pushed hardest, the 16
    Pro Max (the shop's best seller) close behind, the 18 Pro Max present and to grow; the colourful
    base and Plus models of 14 to 17 about a third of the draw. The iPhone 16 Plus has no render in
@@ -4690,6 +4691,7 @@ Open:
    devices. The owner's site is Apple only. Ways in: the shop's own photographs of the Samsung and
    Pixel phones it buys (cut out by the existing scripts), stock bought with ad rights, or the fal
    model drawing from a real photograph as its reference (scripts/bggen_entities.py), read by eye.
+   **Done 2026-11-23, painted** (§BZ): seventeen 2026 Galaxy and Pixel pictures in code.
 
 ## BX. 2026-11-23 — WeBuy.AD everywhere, the old domains dropped, mail, and what the site still needs
 
@@ -4801,3 +4803,307 @@ Open:
    before and after.
 4. When a preview server is stopped, its tab in the browser pane should be closed with it: the
    owner reads that pane as the product.
+
+## BZ. 2026-11-23 — the four left open: no real Charizard, the 2026 phones, Spanish points, the owner's shares (DESIGN-LAW 170)
+
+(claude/full-ad-looks-layout, after §BW. The owner: "CAN WE FIX ALL 4".)
+
+Done:
+- The graded Charizard cut-out rejected and flagged; the two Charizard ground photographs replaced by
+  painted display scenes (`scripts/paint_card_scenes.mjs`) under new names, every reference moved
+  (66 site designs, looks, ground fixes, full grounds, offer grounds and p90s, luminance), the
+  photographs removed; the 48 designs that showed the cut-out take `ph-poke-slab`; the 94 affected
+  site designs re-rendered (`scripts/rethumb_showcase.mjs`); the AI background picker no longer
+  offers it (its ref and thumb removed).
+- Seventeen 2026 Galaxy and Pixel pictures painted (`scripts/paint_phone_pictures.mjs`) and weighed
+  first in the galaxy, pixel, foldable and android pools.
+- Spanish selling points, badges and small lines (`motion/full-points.js`, `FULL_WORDS.claim_es`,
+  `line_es`).
+- The gallery (claude.ai artifact, private) has a Tune the mix panel that stores the owner's choices.
+
+Open:
+1. **The owner's shares.** When the panel has choices (`tuning/choices` in the gallery's store), set
+   `spec/full-grounds.json` shares, `PHOTO_TREAT_SHARES` and `POINT_COUNTS` from them (More x1.5,
+   Less x0.5, Never 0, then normalise) and rebuild.
+2. **Nearly 400 other cut-outs are CC BY or CC BY-SA** (`assets/cutouts/ATTRIBUTION.json`): almost every
+   car, and Commons photographs of consoles, cameras, AirPods, coins and gold. Those licences ask for a
+   credit wherever the picture is shown, the Charizard's problem without the card art. Ways out: a
+   credit line the studio adds to an ad that draws one (small, in the footer), or replacing them with
+   the shop's own photographs, painted pictures or public-domain ones line by line. The owner's call.
+3. `photo-subjects.js` keeps the Charizard photographs' focus and subject grid under the new names; the
+   painted scenes put their slab where the photograph's was, so it holds, but `scripts/photo_subjects.py`
+   should measure them when Pillow is on this Mac. The same for `scripts/bggen_entities.py`, which would
+   also offer the new phone and card pictures to the AI background picker.
+4. The painted phones are close to each line's 2026 shape but drawn: the shop's own photographs of the
+   Galaxy and Pixel phones it buys would replace them one for one.
+
+## CA. 2026-11-23 — card copy, Spanish headlines, the goods, the grounds (DESIGN-LAW 171)
+
+(claude/full-ad-looks-layout, after `main` was merged in. The owner's review of the gallery; five read-only audits.)
+
+Done: see DESIGN-LAW 171.
+
+Open:
+1. **Real card pictures: the owner's decision.** No painted card can read as one that trades: what makes a card
+   recognisable is its maker's art. The research (2026-11-23): Commons holds no usable Pokémon card; The Pokémon
+   Company's press assets are editorial and non-commercial only and may not be passed on; stock sites sell branded cards
+   as editorial only (no ads); Topps asks permission for its card images, and a player's face in an ad needs the
+   player's consent. What shops do is photograph their own stock. Options: (a) the shop's own photos, uploaded per shop
+   (lowest risk that shows real cards; the studio supplies none); (b) the studio shoots real cards once for every shop
+   (closer to the Pokellector suit); (c) painted, made better (illustrated full-art faces, real-looking slab labels,
+   shrink-wrapped boxes) but never A.
+2. **Lines with no picture now**: speaker, laptop, smartwatch, monitor (and headset, chromebook as before) draw their
+   words alone. Free photos found: Galaxy S26 Ultra and the S26 series (CC0), Switch 2 handheld (CC0), PS5 (CC0),
+   iPhone 17 Pro / Pro Max and Pixel 10 Pro (CC BY-SA, a credit). Downloads need the owner's go-ahead.
+3. **iPhones LA's feed stills** (`tools/feed-stills/cards.json`, the 2026-11-07 batch) say HONEST BUYER, FAST CASH and
+   CASH OR ZELLE: the owner's own shop, so the one list does not hold phones to them yet.
+4. **Grounds still weak**: the road on a dark pair; the binder's pockets read as windows. More patterns per category
+   (the grounds audit's list: cracked glass and app grid for phones, keyboard keys for computers, a watch dial, coin
+   stacks and bars, toploaders, yard lines, a viewfinder) and ones that suit any line (price tags, trade-in arrows).
+5. **Motion** (the owner, 2026-11-23): grounds that move in their subject's direction, the finished ad from the first
+   frame, a hook in the first second, the cover a still of the same ad. Next.
+6. **Raised camera bumps**: a turned phone in a still still reads flat; the engine's lens plateau is the larger fix.
+7. The Pixel line has only the six painted Pixel 11s left; the vans line has no Sprinter (its flagged cut-outs need
+   their glass retouched).
+
+## BO. 2026-11-18 — the video ads sound like a trailer, not a game (DESIGN-LAW 174)
+
+(claude/video-music-sfx-audit-3691d1, from 9dddf354.)
+
+The owner: "funny and cheerful but not always professional", "like I'm
+playing mario kart", "I need like trailer commercial professional"; "1-3
+best suggestion works"; having heard it, "Sounds right", "take out the
+weirder instruments and openers.. pick the top ones", "most popular and make
+more tunes, songs, or chimes", "other genres other then lofi", "make sure
+multiple songs / tunes can play over each other" (asked: layers in one key,
+original hooks).
+
+Done:
+- **The audit**: 98.8% of 2000 shuffles played a game-like sound; 51% jazz.
+- **Stand-ins** for every game sound, the jazz and two in three lo-fi looks;
+  every other look keeps what it drew (checked against 9dddf354).
+- **The menus trimmed** to the most popular: five opening sounds, ten
+  instruments, nine hits, eleven number sounds; the rest retired.
+- **A trailer's own**: the braam (hit and opener), two number sounds on a
+  low hit, the trailer's bed. **Four chimes** (number sound and a new End
+  chime menu). **Eight original hooks**, matched to their bed's mode.
+- **Genres**: 23 in 1000 shuffles, lo-fi 2%. **Layers in one key**: over a
+  recording or the user's own track, its key (six of six known keys read).
+- `scripts/motion_music_check.mjs` part 7. All seven parts pass (2026-11-24,
+  on the branch merged with `main`, through a `puppeteer-core` stand-in over
+  Playwright that answers request interception).
+
+Open:
+1. **Heard and approved** (2026-11-19): the trailer's sounds, then the
+   chimes, the hooks and the genres: "Sounds right", both times.
+2. **The music styles are not trimmed**: 31 are offered by hand (the circus
+   march, baile funk, jersey club and the rest). Trimming them is the
+   owner's call.
+3. **Drums under a recording** drifted off its beat and were left out. They
+   would need a beat tracker that follows the recording, not one tempo.
+4. **The explainer videos** (`tools/explainers`) still play Small Note
+   Boogaloo: they explain, they do not sell, and were left.
+5. **On `main`** with §CB (2026-11-24; its rule became 174: `main` and other
+   branches had taken 154, then 170 to 173).
+
+## CB. 2026-11-24 — a moving scene under the full ad's words (DESIGN-LAW 175)
+
+(claude/video-music-sfx-audit-3691d1, on 8529b419: the sound work merged with `main`.)
+
+The owner asked for backgrounds that move (cities, devices, cars), made
+cost-effectively, as a library beside the free photographs; having seen the
+test batch behind mock ads: "Yes, build it".
+
+Done:
+- **The test** (fifteen clips on fal, $4.03): Hailuo 02 Standard on a scene drawn
+  first (Seedream) kept four of five; on a library photograph one of five. About
+  38 cents a kept clip drawn, $1.35 from a photograph. Every clip loops.
+- **Six clips** in `motion/clips/` (7 MB), made by `scripts/build_clip_grounds.sh`:
+  the neon street, the circuit board, the city at golden hour, the phone in a light
+  sweep, the gold bars, Los Angeles from the air.
+- **The full ad draws one as a photograph that moves**: graded, framed and pushed
+  in on as a photograph; tagged for where it may stand; light words only.
+- **Background > Stands on: A moving scene**, and **Moving scene** to pick one.
+  New look draws one for 6% of iPhone ads in Long Beach; nothing outside the
+  video maker changes.
+- **Read at every moment**: the evening reads twelve moments of the clip, held to
+  the sheet's measured gap from the real frames. 78 ads, every line at 24 moments
+  of the clip itself: all at or over the bar, the closest 1.19 times it.
+- **The export seeks the clip frame by frame** (about 5 ms a seek); the preview
+  plays it; the photo with a video is drawn on the clip at its moment.
+- `scripts/clip_grounds_check.mjs` holds all of it. `full_ad_check`,
+  `quick_ad_check`, `buylist_check` and `motion_music_check` pass.
+
+Open:
+1. **The owner to look** in the maker: Full ad, Style, Background, Stands on: A
+   moving scene.
+2. **Any look** (the plain engine) has no moving ground yet.
+3. **A story or a wide frame** crops the square clips (a story shows the middle 56%,
+   at 2.5 times) and is softer than a square. Drawn in 9:16, or wider, if those
+   frames matter.
+4. **More clips**: grow the library from drawn scenes in reviewed batches of about
+   twenty (about $7.50 a batch). The light ribbons and the open road barely moved
+   and want another prompt. The test's script and its clips are in `.motion-test/`
+   of this worktree, out of git; the fal key is asked for at a hidden prompt in a
+   terminal tab, never kept.
+5. **How often New look draws a clip** (`CLIP_SHARE`, .3 of the seeds a clip
+   fits, 6%) is the owner's call.
+6. **On `main`, at the owner's word** (2026-11-24: "Yes, put it live"), after
+   `main` was merged in again (the pre-flight's headline shade). That merge
+   showed the maker's pre-flight panel reading the preview's playing clip against
+   its first frame: four of six clips were stopped with "runs to the edge". The
+   still now draws the first frame, and `clip_grounds_check` part 4 holds it.
+
+## CC. 2026-11-24 — the logo maker and brand kit; the card maker opens on finished cards (DESIGN-LAW 176)
+
+(176 and CC because rules 170 to 175 and §BZ, §CA and §CB were taken on other branches when this landed.)
+
+The owner, 2026-11-24: "I don't see anywhere to generate logos or business cards. We should have business assets
+generable, like we were talking about previously, but they need to be good, very, very good", and "that's something
+you would probably be paying for". §BU's plan, phases (a) to (c), built on `claude/sharp-lamport-781905`.
+
+Done:
+- **`logo/`**: the name and the line, 24 finished logos (18 hand-designed layouts in the house's type pairs and colour
+  pairs, every word outlined from the site's own fonts), More, tabs, four rows of the picked logo, and the brand kit:
+  the files, the card, the ads' badge, the profile picture and the Facebook cover.
+- **Paid**: Pro and Business (`plans.mjs logos`; the plan cards and comparison table say so, `build_pricing.mjs`).
+  `/api/logo/file` checks the plan, counts one photo download and draws the files with the same engine.
+- **The card maker** opens on twelve finished cards in the customer's words; the form is Customise behind it; a Logo
+  layout wears the picked logo. `business_card_check.mjs` opens Customise first.
+- **The full ad** wears the logo on its badge (Easy Mode), in the ad's pair, and opens in the logo's pair.
+- Links: Easy Mode's bar, the video maker's bar, the card maker, the landing's footer, the sitemap, and the landing's
+  bar as "Logo & brand kit" from 1300 px in Business cards' place (the bar had no room for both: 40 to 60 px spare
+  from 1450, and the new link ran into Log in at 1180 to 1270). The owner may want Business cards back in the bar.
+- Checks: `scripts/logo_check.mjs`, `scripts/logo_sheet.mjs`, `scripts/build_logo_glyphs.mjs --check`.
+
+Open, the owner's call:
+- **The price.** Logos are on Pro and Business today, one switch each in `plans.mjs`. For reference Looka charges
+  about $35 for a basic logo, $72 for premium files and $96 a year for a brand kit; a one-time logo pack for Free and
+  Starter (sold like the AI credit packs) would need a Stripe product, which is the owner's to make.
+- **Who owns a logo made here**, and a line in the terms that a logo is not a registered trademark until the customer
+  registers it (§BU asked the same).
+- **AI suggestions** (§BU phase d: names, taglines, which styles suit) are not built.
+- **A landing section** showing logos: the landing is built to a brief (rule 162) and the owner approved it; this
+  branch adds links only.
+
+Open, next steps:
+- **The video maker** does not wear the logo yet: Easy Mode's hand-off to it is JSON and the badge is a picture. The
+  maker can read `pgfx_logo_kit` and draw the badge as `full-ad-studio.js logoBadge` does.
+- **The photo templates** (the classic cards) do not wear the logo; only the full ad and the card do.
+- **Easy Mode's own form** was not touched (claude/design-editor-ux-075e8b rebuilt it into five tabs, unmerged): only
+  the bar's link. When that branch lands, a "Your logo" control may belong in its Words tab.
+- **The preview is drawn in the browser** by the same engine, so a visitor who reads the page's code can draw a clean
+  file; the files the plan pays for come from the function, and the mark is on every preview. Moving the previews
+  to the server would close that and cost a round trip a gallery.
+- **After the deploy**: a draft first, then POST `/api/logo/file` as a Pro account must answer 200 with the files (the
+  function imports `logo/engine.js` and each face by a literal dynamic import, which the bundler packs; a missing
+  face answers 500 and counts nothing). The type is about 2 MB across 34 faces; a page loads only the faces it draws.
+- `full_ad_studio_check` still fails its one case on `main` ("earbuds landscape: Something on the ad runs to the
+  edge", §BY 5); this branch's change is inert without a logo kit, which that check never sets.
+
+## CF. 2026-11-25 — the maker's toolbar trimmed to three (DESIGN-LAW 178)
+
+(claude/video-music-sfx-audit-3691d1.) The owner: "Why does the top bar have so many
+options?", "the sideline looks easier to use", "I like the numbers"; then "Yes, trim it".
+
+Done: the bar is Back, New look and Download (the only filled button); Kind of ad and
+All templates open step 1; the feed view is in step 6 only.
+
+Open:
+1. **On `main`, at the owner's word** (2026-11-25: "Yes, put it live"), after `main` (pull request
+   26) was merged in; full_ad, quick_ad, buylist, typing_pause, look_preflight and clip_grounds checks pass.
+2. The moving-scenes session (its own worktree) edits motion/app.js too: merge with care.
+
+## CH. 2026-11-25 — a moving scene is one ad: its moment, its light, its sound and the ad's beats (DESIGN-LAW 179)
+
+(claude/modest-maxwell-ce019b, from `main` e28ef95b.)
+
+The owner, the day the moving grounds went live (§CB): "Having an animated background, doesn't really mean it's a
+good ad. It still needs to have other moving elements SFX, etc etc there needs to be conclusive cohesive elements
+to the ad."
+
+Done:
+- **Measured first**: every block landed by 1.03 s; after 2.5 s the ad's own layers stood still on 47 of 52
+  frames; three hits after the opening; all six scenes drew the same entrance, bed and sounds; the clips' own peaks
+  fell inside the entrance.
+- **A kit per scene** (`motion/clips.js` `scene`): its moment (measured on its 125 frames), its light, its sound,
+  and short lists for its entrance, phone move, bed, hits and end chime.
+- **The ad's arc** (`FullAd._sceneBeats`): the scene's moment on a beat about a second after the number, the clip
+  started so its peak lands there; the light across the headline and the number; the scene's sound; the sticker
+  stamping again; the push to the number before the end card; a second light in an 8 s ad.
+- **The sound** (`audio.js` `sceneSfx`): a car passing, data ticking, a cymbal into the flare, air, wind, a sweep;
+  each moment adds a layer over the bed and peaks 2 to 4 dB under the headline's hit.
+- **The longest still stretch** between the number and the end card: 6 s 2.6 s to 0.8–1.1 s, 8 s 4.6 s to
+  1.3–1.9 s, 5 s 1.7 s to 0.6–1.1 s. -16 LUFS, peaks at or under -1 dBFS.
+- **A review page** with the six scene ads before and after, with sound: https://claude.ai/artifact/DTV5waaKAqKcKHYkFKUjxY
+  (private to the owner).
+- `scripts/clip_grounds_check.mjs` part 5 holds it.
+
+Open:
+1. **The owner to watch and listen** on the review page, and say which scenes work.
+2. **On `main`, at the owner's word** (2026-11-25: "Yes, put it live"), after `main` (the trimmed toolbar, the
+   card ads) was merged in and every check passed on the result.
+3. **The golden-hour city and the phone barely move** on their own (the city's light 0.3 of a level, the phone's
+   2): the ad's light and sound carry their beat. Redrawn clips with more motion would serve them better.
+4. **Any look** (the plain engine) still has no moving ground (§CB 2), and so no scene kit.
+
+## CG. 2026-11-24 — the brand kit, step by step, bought once; industry marks; name ideas (DESIGN-LAW 180)
+
+(claude/brand-kit-flow, from `main` at e28ef95b, which had just taken pull request 25 at the owner's word.
+CD, CE and CF, and rules 178 and 179, were taken on other branches.)
+
+Done:
+- **Industry marks**: thirteen marks with the shop's initials in the thing it buys, leading each line's
+  gallery; a Symbols tab. The crest's small lines fit the shield where it narrows. "MK Electronics" is MK.
+- **Three more lines** in the logo maker: device stores, wholesale and bulk lots, resale and trade-ins, with
+  their own words, symbols (trade arrows, boxes, a store front, a tablet) and colours.
+- **The kit, 20 or 50 files** (logo/kit.js), drawn by the engine on the page and the function alike: a
+  Complete kit is 50 SVGs in about 30 ms on the server, a 7 MB folder of 62 files once made into pictures.
+- **The flow**: the steps, Looks good and Try another look, the rail, the review's grid, the details for the
+  card's back, the posts and the signature, and Print it today under the card.
+- **Paid**: `/api/kits`, `/api/kits/save`, `/api/kits/file`; the checkout sells `kit` (essentials, complete,
+  upgrade) and Starter's `addKit`; a kit comes back to /logo/ and downloads; refunds handled. The plans
+  page, the comparison row and the checkout dialog say so (`build_pricing.mjs`); Starter's checkout offers
+  the kit at $5 off.
+- **Name ideas**: the free mixer, and Ask AI (`/api/names`, 2 AI credits a batch, refunded if it fails).
+- `@anthropic-ai/sdk` joins package.json for the AI names; it loads only when a batch is asked for.
+- The owner, on seeing it: "some people like logos with gradients", "or patterns", "clean simple and
+  professional": a Finish row (Flat, Gradient, Pattern) and a few in the gallery. "does it allow you to pick
+  a type or redownload in another format?": PNG, JPG, SVG, PDF or All, any time. And a script's descender
+  touching the small line under it ("where minor overlap"): a block's foot now counts its ink.
+
+Open, the owner's:
+1. **The prices.** $14.99 and $19.99 are one line each in plans.mjs KITS (the owner weighed $11.99 and
+   $15.99 too). Stripe promotion codes are allowed on the kits, so a lower price can be tried with a code.
+2. **The terms**: a one-time purchase's line (what a kit is, that it stays downloadable, refunds), and who
+   owns a logo made here (§CC asked the same). TERMS_VERSION moves with it.
+3. **AI name ideas need `ANTHROPIC_API_KEY`** in Netlify (Production), then a deploy; the button shows itself
+   when it is set. The privacy page should name Anthropic beside fal and Google when it is switched on.
+   Never run against the real API here: the request's shape follows the SDK's documentation, and the first
+   live batch should be read by eye.
+4. **A first live kit purchase** with a real card (then refunded) proves the loop end to end: Stripe makes the
+   five kit prices on first use (`/admin/billing` lists 13 prices now).
+5. Whether Starter's add-on should show on the plans page itself, not only in its checkout.
+
+Open, next:
+- The marks are on the logo maker's layouts; the card maker's own gallery and the video maker's end card
+  still wear the logo as before.
+- A 9:16 Instagram story post per line (the stories are generic: buying, quote, open, what we buy, follow).
+- Highlight covers in more subjects (prices per item, trade-ins, repairs when that segment comes).
+
+## CI. 2026-11-24 — the ads sell: TOP DOLLAR beside the local and fair lines (DESIGN-LAW 181)
+
+(claude/bold-sales-pitches, on `main` after pull request 26. The owner: "all I see is honest or local buyer not top
+buyer or highest paying"; asked how hard, "bold, no proof needed"; asked when, "right after PR 26".)
+
+Done: see DESIGN-LAW 181.
+
+Open:
+1. **The mix is a first guess.** About half the badges and stickers are bold, and the points draw `top` at .7. The
+   gallery's Tune the mix panel could carry each pitch line (More, Less, Same, Never) as it carries the grounds.
+2. **HIGHEST, BEST PRICE, #1 and WE BEAT ANY OFFER as a shop's own pick.** Today a shop types them. A switch in the
+   maker ("I can back this up") would offer them, with the pre-flight's note. Not built.
+3. **The photo templates and classic cards** (`app.js` TEMPLATES: LOCAL BUYER kickers on the phone and silver decks)
+   are unchanged. Only the full ad, the video maker's looks and its catalogue were changed.
+4. **The hero wall** keeps its 18 approved stills. It shows the new words once they are drawn again (`--redraw`) and
+   approved.

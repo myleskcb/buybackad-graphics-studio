@@ -495,6 +495,34 @@ let csPro;
   ok(after.left === 0 && after.bought === 99, "bought credits are spent after the month's 5");
 }
 
+/* the brand kits (DESIGN-LAW 180): one-time, alone or as Starter's add-on, saved on the account */
+{
+  const t = await signup('kits@x.example');
+  const r = await hit('POST', '/checkout', { consent: true, kit: 'complete' }, t);
+  const cs = [...S.sessions.values()].pop();
+  ok(r.status === 200 && cs.mode === 'payment' && S.prices.get(cs.line_items[0].price).unit_amount === 1999 && cs.metadata.kit === 'complete' && cs.allow_promotion_codes === 'true'
+    && /\/logo\/\?checkout=success/.test(cs.success_url || cs.return_url || ''), 'a Complete kit is a one-off $19.99, promotion codes allowed, and comes back to the logo maker');
+  ok(/^One-time payment for your brand kit/.test(cs.custom_text.submit.message) && /Brand kit: Complete/.test(cs.invoice_creation.invoice_data.description)
+    && cs.payment_intent_data.statement_descriptor_suffix === 'WEBUY.AD', 'its terms, its invoice and its card statement say what it is');
+  pay(cs.id);
+  const c1 = await hit('POST', '/checkout/confirm', { session_id: cs.id }, t);
+  const c2 = await hit('POST', '/checkout/confirm', { session_id: cs.id }, t);
+  const k = (await hit('GET', '/kits', undefined, t)).json;
+  ok(c1.json.applied === 'kit' && c1.json.kind === 'kit' && c2.json.applied === null && k.credits.complete === 1 && k.credits.essentials === 0, 'the kit lands once (' + JSON.stringify(k.credits) + ')');
+  const t2 = await signup('kitplan@x.example');
+  await hit('POST', '/checkout', { consent: true, plan: 'basic', interval: 'month', addKit: 'essentials' }, t2);
+  const a = [...S.sessions.values()].pop();
+  ok(a.mode === 'subscription' && a.line_items.length === 2 && S.prices.get(a.line_items[1].price).unit_amount === 999 && !(S.prices.get(a.line_items[1].price).recurring)
+    && a.metadata.kit === 'essentials' && /one-time charge on this first payment/.test(a.custom_text.submit.message), 'Starter with Essentials: two lines, the kit $9.99 once on the first payment');
+  pay(a.id);
+  await hit('POST', '/checkout/confirm', { session_id: a.id }, t2);
+  const k2 = (await hit('GET', '/kits', undefined, t2)).json;
+  ok(userBlob('kitplan@x.example').plan === 'basic' && k2.credits.essentials === 1, 'the plan and the kit both land (' + userBlob('kitplan@x.example').plan + ', ' + JSON.stringify(k2.credits) + ')');
+  await hit('POST', '/checkout', { consent: true, plan: 'pro', interval: 'month', addKit: 'complete' }, await signup('kitpro@x.example'));
+  ok([...S.sessions.values()].pop().line_items.length === 1, 'Pro: no add-on line (it includes Complete)');
+  ok((await hit('POST', '/checkout', { consent: true, kit: 'upgrade', kitId: 'nope' }, t)).status === 400, 'an upgrade needs an Essentials kit on the account');
+}
+
 /* the checkout audit (2026-10-11) */
 {
   const t = await signup('audit@x.example');
@@ -667,8 +695,8 @@ let csPro;
   ok((await hit('GET', '/admin/billing', undefined, boss)).status === 403, '/admin/billing is for operators only');
   const t = (await hit('POST', '/auth/login', { email: 'boss@studio.example', password: 'a-long-password' })).json.token;
   const st = await hit('POST', '/admin/billing', {}, t);
-  ok(st.status === 200 && st.json.on && st.json.mode === 'live' && Object.values(st.json.prices).every((v) => /^price_/.test(v)) && Object.keys(st.json.prices).length === 8,
-    '/admin/billing makes and lists every price (6 plan prices, 2 packs)');
+  ok(st.status === 200 && st.json.on && st.json.mode === 'live' && Object.values(st.json.prices).every((v) => /^price_/.test(v)) && Object.keys(st.json.prices).length === 13,
+    '/admin/billing makes and lists every price (6 plan prices, 2 packs, 5 brand kit prices)');
   ok(st.json.paymentDomain && st.json.paymentDomain.ok && st.json.paymentDomain.host === 'studio.example', '/admin/billing shows the payment method domain');
   const sg = await hit('GET', '/admin/billing', undefined, t);
   ok(sg.json.paymentDomain && sg.json.paymentDomain.ok && sg.json.paymentDomain.source === 'stored', '/admin/billing reads the stored domain registration');

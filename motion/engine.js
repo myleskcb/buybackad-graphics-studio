@@ -3,7 +3,7 @@
 
 import { FONTS, FINE_FACES, PALETTES, FINISH_PALETTES, OPTIONS, WEIGHTS, FLAGS, HEADLINES, TAGS,
   NUMBER_LABELS, DEFAULT_STYLE, HOOKS, VIBES, BOARDS, COPY, GROUND_CANDIDATES, THEME_GROUNDS, SOUND_ALIASES, LATE_OPTIONS, KEPT_OPTIONS, KIT_BPM,
-  SEASON_TUNES, SEASON_ACCENTS, SEASON_TRACKS, CLASSICAL_TUNES, TRACKS, TYPE_VOICES, VOICE_OF_FONT } from "./catalog.js";
+  SEASON_TUNES, SEASON_ACCENTS, SEASON_TRACKS, CLASSICAL_TUNES, TRACKS, TYPE_VOICES, VOICE_OF_FONT, STAND_INS, RETIRED_AXES, HOOK_MODE, HOOK_PAIR, KIT_MODE } from "./catalog.js";
 import { AUDIENCES, GENERAL } from "./audiences.js";
 import { pickVoice, voiceFits } from "./voices.js";
 import { placeAccents, drawAccents, timeAccents } from "./accents.js";
@@ -126,7 +126,25 @@ export function randomize(st, seed, locked = new Set(), phonesPool = [], content
   voiceInto(out, r, locked);
   if (!locked.has("phones") && phonesPool.length > 5) out.phones = pickPhones(phonesPool, r.pick([3, 3, 5, 5, 4]), r);
   lotInto(out, rng(seed * 3121 + 7), locked);
+  standIns(out, rng(seed * 4517 + 61), locked);
   return harmonise(out, locked);
+}
+
+/** A trailer, not a game (catalog.js STAND_INS, DESIGN-LAW 174): a sound a shuffle may no
+ *  longer play gives way to a stand-in, drawn from a stream of its own (every axis takes its
+ *  draws whether or not it needs them, so one axis never moves another's). After the audience
+ *  and the vibe, which may set the music. A holiday's own tunes and opening sound stay. */
+function standIns(out, r, locked) {
+  const own = { melody: SEASON_TUNES[out.season] || [], accent: SEASON_ACCENTS[out.season] || [] };
+  for (const [k, rules] of Object.entries(STAND_INS)) for (const S of rules) {
+    const pick = r.weighted(Object.keys(S.to), S.to), kit = S.kit ? r.weighted(Object.keys(S.kit), S.kit) : null;
+    if (locked.has(k) || !S.gone.includes(out[k]) || (own[k] || []).includes(out[k])) continue;
+    out[k] = pick;
+    if (kit && kit !== "own" && !locked.has("sound_kit") && out.sound_kit !== "none") out.sound_kit = kit;
+  }
+  // a sound taken out of the maker (SOUND_ALIASES) is never left on a shuffled look: its stand-in plays
+  for (const k of RETIRED_AXES) if (!locked.has(k) && SOUND_ALIASES[k] && SOUND_ALIASES[k][out[k]]) out[k] = SOUND_ALIASES[k][out[k]];
+  return out;
 }
 
 /** The weights a late sound option is drawn with. An ad set to a holiday by hand draws
@@ -433,7 +451,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   // confetti"): a party popper as the number lands, when the confetti starts; never without it
   if (!locked.has("number_sfx")) {
     if (st.overlay === "confetti") st.number_sfx = "confetti";
-    else if (st.number_sfx === "confetti") st.number_sfx = st.number_in === "type" ? "ticks" : "pop";
+    else if (st.number_sfx === "confetti") st.number_sfx = st.number_in === "type" ? "ticks" : "whoosh_boom";   // a cork pop is a game's (DESIGN-LAW 174)
   }
   if (!["hook_line", "word_beat", "strike_out"].includes(st.hook) && ["typewriter", "scramble", "drop_letters", "spin_letters"].includes(st.text_in) && !locked.has("text_in"))
     st.text_in = ["slide", "skew_slide", "slam", "wipe"][st.seed % 4];
@@ -481,6 +499,7 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   if (!OPTIONS.melody.includes(st.melody)) st.melody = "none";
   if (!OPTIONS.lead.includes(st.lead)) st.lead = "piano";
   if (!OPTIONS.accent.includes(st.accent)) st.accent = "none";
+  if (!OPTIONS.sting.includes(st.sting)) st.sting = "none";
   if (!OPTIONS.season.includes(st.season)) st.season = "none";
   if (!OPTIONS.tone.includes(st.tone)) st.tone = "studio";
   if (!OPTIONS.phone_idle.includes(st.phone_idle)) st.phone_idle = "spin";
@@ -506,8 +525,12 @@ export function harmonise(st, locked = new Set(), phoneIndex = {}) {
   }
   if (!locked.has("accent") && st.accent === "sleigh_bells" && st.season !== "christmas") st.accent = "none";
   if (st.sound_kit === "none" && !locked.has("melody")) st.melody = "none";
+  // an original hook drawn by a shuffle takes its bed's mode: over a bed in the other mode it plays
+  // its twin (catalog.js HOOK_PAIR); one picked by hand plays as picked (DESIGN-LAW 174)
+  { const bed = KIT_MODE[(SOUND_ALIASES.sound_kit || {})[st.sound_kit] || st.sound_kit];
+    if (!locked.has("melody") && HOOK_MODE[st.melody] && bed && bed !== HOOK_MODE[st.melody]) st.melody = HOOK_PAIR[st.melody]; }
   if (["bumblebee", "turkish_march", "fur_elise", "entertainer", "mountain_king"].includes(st.melody) && st.lead === "organ" && !locked.has("lead"))
-    st.lead = ["piano", "marimba", "xylophone", "harpsichord"][st.seed % 4];
+    st.lead = ["piano", "harp", "epiano", "strings"][st.seed % 4];   // no mallets (DESIGN-LAW 174)
   // a take that no longer fits (a shorter ad, another language, a bank that arrived late) is picked again, the same way every time
   if (!voiceFits(st)) pickVoice(st, rng(st.seed * 53 + 7), locked);
   return st;
@@ -1616,12 +1639,16 @@ const H0 = p => p.h * p.size;
 const POSE_TURN = { flat: 0, edge_left: -.6, edge_right: .6 };
 // Side on, by hand only (rule 124): turned 60 degrees, the buttons' edge toward the lens.
 const POSE_SIDE = { profile_left: -1.05, profile_right: 1.05 };
+// A full ad is mostly seen as a still, where a turn that reads in motion reads as a thin flat card
+// (owner, 2026-11-23: "going a few degrees less so you can see more phone"): it turns a sixth less,
+// about 29 degrees for a turned phone and 50 for one side on. Videos and recipes keep their angles.
+const FULL_TURN = 5 / 6;
 
 /** rest: the phones as they stand once landed, without the move they make after (a still
  *  of the ad, its photo, and what the words are measured against). */
 function phoneState(p, t, st, rest = false) {
   const s = phoneState0(p, t, st);
-  const turn = POSE_TURN[st.pose] || POSE_SIDE[st.pose] || 0;
+  const turn = (POSE_TURN[st.pose] || POSE_SIDE[st.pose] || 0) * (st.full ? FULL_TURN : 1);
   if (s && turn) s[4] += turn;
   if (s && !rest && p.tIdle != null && t > p.tIdle) phoneIdle(s, p, t, st);
   return s;
@@ -4106,7 +4133,7 @@ export class Ad {
     this.lines.forEach((L, i) => {
       const t0 = tl.lines[i], xEnd = this.pos.xs[i] - L.pad, y = this.pos.y0 + i * this.lineH - L.pad;
       const q = prog(t, t0, .38); if (q <= 0) return;
-      const shineP = st.shine && t >= tl.shine ? prog(t, tl.shine + i * .08, .6) : 0;
+      const shineP = this._shineP(t, i * .08);
       if (L.plate && !["slide", "skew_slide"].includes(st.text_in)) {
         const f = outCubic(prog(t, t0 - .05, .3));
         ctx.save(); ctx.beginPath(); ctx.rect(xEnd + L.plateOff[0], y + L.plateOff[1], L.plate.width * f, L.plate.height); ctx.clip();
@@ -4214,6 +4241,14 @@ export class Ad {
     return this._gcache[k];
   }
 
+  /** How far a light sweep has crossed the type at t, d after each of its moments: the look's one (tl.shine), or
+   *  the moments a moving scene gives it (FullAd's shineTimes, rule 179). 0 when none is crossing. */
+  _shineP(t, d = 0) {
+    if (!this.st.shine) return 0;
+    for (const s of this.shineTimes || [this.tl.shine]) { if (t < s) continue; const p = prog(t, s + d, .6); if (p > 0 && p < 1) return p; }
+    return 0;
+  }
+
   _shine(ctx, x, y, w, h, p, spriteC) {
     // a diagonal light across the ink only
     this._shineC = this._shineC || canvas(w, h);
@@ -4223,7 +4258,8 @@ export class Ad {
     sx.globalCompositeOperation = "source-in";
     const pos = lerp(-.3, 1.3, p) * (w + h * .5);
     const g = sx.createLinearGradient(pos - w * .08, 0, pos + w * .08, h * .5);
-    g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(.5, "rgba(255,255,255,.55)"); g.addColorStop(1, "rgba(255,255,255,0)");
+    const col = this.shineCol || "#ffffff";   // a moving scene's own light (FullAd, rule 179), else white
+    g.addColorStop(0, rgba(col, 0)); g.addColorStop(.5, rgba(col, .55)); g.addColorStop(1, rgba(col, 0));
     sx.fillStyle = g; sx.fillRect(0, 0, w, h); sx.globalCompositeOperation = "source-over";
     ctx.drawImage(c, 0, 0, w, h, x, y, w, h);
   }
@@ -4289,7 +4325,7 @@ export class Ad {
         ctx.drawImage(Lc, -Lc.width / 2, -Lc.height / 2); ctx.restore();
       }
     }
-    if (st.shine && t >= tl.shine + .25) { const sp = prog(t, tl.shine + .25, .6); if (sp > 0 && sp < 1) this._shine(ctx, nx, ny, c.width, c.height, sp, c); }
+    { const sp = this._shineP(t, .25); if (sp > 0 && sp < 1) this._shine(ctx, nx, ny, c.width, c.height, sp, c); }
   }
 
   /** The starburst, the arrows at the number, the rubber stamp and the caution tape. */

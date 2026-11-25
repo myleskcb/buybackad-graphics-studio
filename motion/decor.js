@@ -1976,7 +1976,9 @@ export function fullPatternGround(kind, x, st, p, W, H, sc, r) {
      otherwise moves them away from the words. */
   const step = { pat_grain: .1, pat_paper: .06, pat_riso: .1, pat_topo: .09, pat_grid: .08, pat_waves: .085,
     // the lines' own grounds are pictures of things, drawn in thin lines: a wider step, or they read as a flat ground
-    pat_cards: .15, pat_slabs: .15, pat_binder: .15, pat_foil: .13, pat_stitch: .15, pat_pixels: .12, pat_pads: .15, pat_crt: .12, pat_coins: .15, pat_reeded: .15, pat_road: .13, pat_tread: .12 }[kind] || .095;
+    pat_cards: .15, pat_slabs: .15, pat_binder: .15, pat_foil: .13, pat_stitch: .15, pat_pixels: .12, pat_pads: .15, pat_crt: .12, pat_coins: .15,
+    // solid shapes with cuts (2026-11-23): a wider step still, so the paint and the grooves read on a dark pair too
+    pat_reeded: .19, pat_road: .19, pat_tread: .19 }[kind] || .095;
   const tone = patternTone(p, step), [tr, tg, tb] = hexRgb(tone), c = canvas(W, H), m = c.getContext("2d");
   m.fillStyle = tone; m.strokeStyle = tone; m.lineCap = "round"; m.lineJoin = "round";
   const speckle = (n, alpha) => {   // a tile of single grains in the tone
@@ -2180,32 +2182,75 @@ export function fullPatternGround(kind, x, st, p, W, H, sc, r) {
       }
       break;
     }
-    case "pat_reeded": {     // a coin's reeded edge: a great rim across the frame, ridged all along it
-      const R = Math.max(W, H) * r.uniform(.75, 1), ccx = W * r.uniform(.2, .8), ccy = r() < .5 ? H + R * .55 : -R * .55, band = U * .08, n = Math.round(TAU * R / (U * .012));
-      m.lineWidth = Math.max(1.5, U * .0035);
-      m.beginPath(); m.arc(ccx, ccy, R, 0, TAU); m.stroke(); m.beginPath(); m.arc(ccx, ccy, R - band, 0, TAU); m.stroke();
-      for (let k = 0; k < n; k++) { const a = k / n * TAU; m.beginPath(); m.moveTo(ccx + Math.cos(a) * (R - band * .15), ccy + Math.sin(a) * (R - band * .15)); m.lineTo(ccx + Math.cos(a) * (R - band * .85), ccy + Math.sin(a) * (R - band * .85)); m.stroke(); }
+    /* the three below redrawn 2026-11-23 (the owner: the road "a pretty odd road photo", the tread "looks a little odd, maybe a
+       more recognizable tire pattern"; the grounds audit: thin lines in one tone vanish once thinned behind the product and
+       shaded behind the words, solid areas survive). Each is now a solid shape in the tone with its details CUT out of it,
+       so the ground's own colour shows through as the paint, the groove, the gap: still one tone, still 7:1 for the words. */
+    case "pat_reeded": {     // a coin's reeded edge: a great rim across the frame, a solid band grooved all along it
+      const R = Math.max(W, H) * r.uniform(.75, 1), ccx = W * r.uniform(.2, .8), ccy = r() < .5 ? H + R * .55 : -R * .55, band = U * .15;
+      m.beginPath(); m.arc(ccx, ccy, R, 0, TAU); m.arc(ccx, ccy, R - band, 0, TAU, true); m.fill("evenodd");
+      m.globalCompositeOperation = "destination-out";
+      const n = Math.round(TAU * R / (U * .021)), gw = Math.max(3, U * .007);
+      m.lineWidth = gw; m.lineCap = "butt";
+      for (let k = 0; k < n; k++) { const a = k / n * TAU; m.beginPath(); m.moveTo(ccx + Math.cos(a) * (R + 2), ccy + Math.sin(a) * (R + 2)); m.lineTo(ccx + Math.cos(a) * (R - band * .78), ccy + Math.sin(a) * (R - band * .78)); m.stroke(); }
+      m.lineWidth = Math.max(2, U * .004); m.beginPath(); m.arc(ccx, ccy, R - band * .86, 0, TAU); m.stroke();   // the rim's inner step
+      m.globalCompositeOperation = "source-over"; m.lineCap = "round";
       break;
     }
-    case "pat_road": {       // a road in perspective: lane lines running to a point behind the product, on asphalt grain
-      const vx = W * r.uniform(.4, .6), vy = H * r.uniform(.3, .45), lanes = 5;
-      for (let k = 0; k <= lanes; k++) {
-        const bx = -W * .4 + k * W * 1.8 / lanes, dashes = 12;
-        for (let d = 0; d < dashes; d += 2) {
-          const t0 = d / dashes, t1 = (d + 1) / dashes, e0 = t0 * t0, e1 = t1 * t1, wv = U * .02;
-          m.beginPath(); m.moveTo(vx + (bx - vx) * e0 - wv * e0, vy + (H - vy) * e0); m.lineTo(vx + (bx - vx) * e1 - wv * e1, vy + (H - vy) * e1);
-          m.lineTo(vx + (bx - vx) * e1 + wv * e1, vy + (H - vy) * e1); m.lineTo(vx + (bx - vx) * e0 + wv * e0, vy + (H - vy) * e0); m.closePath(); m.fill();
-        }
-      }
-      m.fillStyle = m.createPattern(speckle(192, () => r() < .3 ? Math.round(r() * 160) : 0), "repeat"); m.fillRect(0, 0, W, H);
+    case "pat_road": {       // a road seen from above, crossing the frame off the middle: its lane lines and a zebra crossing cut out
+      const side = r() < .5 ? -1 : 1, P = [W * (.5 + side * r.uniform(.2, .3)), H * r.uniform(.35, .65)], th = side * r.uniform(.45, .75), bw = U * .44;
+      m.save(); m.translate(P[0], P[1]); m.rotate(th);
+      m.fillRect(-D, -bw / 2, D * 2, bw);
+      m.globalCompositeOperation = "destination-out";
+      const lw = Math.max(3, U * .01);
+      for (const e of [-1, 1]) m.fillRect(-D, e * bw * .41 - lw / 2, D * 2, lw);   // the edge lines
+      const dl = U * .075, gap = U * .06, off = r() * (dl + gap);
+      for (let xx = -D - off; xx < D; xx += dl + gap) m.fillRect(xx, -lw * .6, dl, lw * 1.2);   // the dashed middle
+      // a zebra crossing: bars along the road, laid across it, toward one end of the frame
+      const zx = (r() < .5 ? -1 : 1) * D * r.uniform(.18, .28), bar = U * .028;
+      m.clearRect(zx - U * .06, -bw * .38 - 1, U * .12, bw * .76 + 2);
+      m.globalCompositeOperation = "source-over";
+      m.fillRect(zx - U * .06, -bw * .38, U * .12, bw * .76);
+      m.globalCompositeOperation = "destination-out";
+      for (let yy = -bw * .38; yy < bw * .38; yy += bar * 2) m.fillRect(zx - U * .06, yy, U * .12, bar);
+      m.globalCompositeOperation = "source-over"; m.restore();
       break;
     }
-    case "pat_tread": {      // two tyre tracks running down the frame, their tread in blocks
-      const tw = U * .2, s = U * .05;
-      for (const cxx of [W * .14, W * .86]) {
-        for (let yy = -s; yy < H + s; yy += s) {
-          m.beginPath(); m.moveTo(cxx - tw / 2, yy); m.lineTo(cxx, yy + s * .45); m.lineTo(cxx + tw / 2, yy); m.lineTo(cxx + tw / 2, yy + s * .32); m.lineTo(cxx, yy + s * .77); m.lineTo(cxx - tw / 2, yy + s * .32); m.closePath(); m.fill();
+    case "pat_tread": {      // a tyre: a wheel cut by a corner, or its tread unrolled down one side
+      if (r() < .6) {
+        const corner = [r() < .5 ? 0 : W, r() < .5 ? 0 : H], R = U * .62, ox = corner[0] + (corner[0] ? 1 : -1) * U * .1, oy = corner[1] + (corner[1] ? 1 : -1) * U * .1;
+        m.beginPath(); m.arc(ox, oy, R, 0, TAU); m.fill();   // the tyre and the wheel as one disc, then cut
+        m.globalCompositeOperation = "destination-out";
+        const blocks = 44, depth = R * .11;
+        for (let k = 0; k < blocks; k++) {   // the tread: alternating blocks round the outer edge
+          const a = k / blocks * TAU, a1 = a + TAU / blocks * .42, d = k % 2 ? depth : depth * .6;
+          m.beginPath(); m.moveTo(ox + Math.cos(a) * (R + 2), oy + Math.sin(a) * (R + 2)); m.lineTo(ox + Math.cos(a1) * (R + 2), oy + Math.sin(a1) * (R + 2));
+          m.lineTo(ox + Math.cos(a1 + .02) * (R - d), oy + Math.sin(a1 + .02) * (R - d)); m.lineTo(ox + Math.cos(a + .02) * (R - d), oy + Math.sin(a + .02) * (R - d)); m.closePath(); m.fill();
         }
+        m.lineWidth = R * .025; m.beginPath(); m.arc(ox, oy, R * .8, 0, TAU); m.stroke();   // a groove round the tyre
+        m.lineWidth = R * .03; m.beginPath(); m.arc(ox, oy, R * .62, 0, TAU); m.stroke();   // where the tyre meets the rim
+        for (let k = 0; k < 5; k++) {   // the rim's five spokes: the windows between them cut
+          const a = k / 5 * TAU + .3, w = TAU / 5;
+          m.beginPath(); m.arc(ox, oy, R * .52, a + w * .17, a + w * .83); m.arc(ox, oy, R * .2, a + w * .7, a + w * .3, true); m.closePath(); m.fill();
+        }
+        m.lineWidth = R * .015; m.beginPath(); m.arc(ox, oy, R * .14, 0, TAU); m.stroke();   // the centre cap
+        for (let k = 0; k < 5; k++) { const a = k / 5 * TAU + .3 + TAU / 10; m.beginPath(); m.arc(ox + Math.cos(a) * R * .09, oy + Math.sin(a) * R * .09, R * .018, 0, TAU); m.fill(); }
+        m.globalCompositeOperation = "source-over";
+      } else {
+        const tw = U * .38, left = r() < .5, x0 = left ? -tw * .18 : W - tw * .82, sl = U * .07 * Math.tan(.26);
+        m.fillRect(x0, 0, tw, H);
+        m.globalCompositeOperation = "destination-out";
+        const gw = U * .025, g1 = x0 + tw * .34, g2 = x0 + tw * .66;
+        m.fillRect(g1 - gw / 2, 0, gw, H); m.fillRect(g2 - gw / 2, 0, gw, H);   // two grooves down its length
+        const pitch = U * .07;
+        for (let yy = -pitch, i = 0; yy < H + pitch; yy += pitch, i++) {
+          for (const [a, b] of [[x0, g1 - gw / 2], [g2 + gw / 2, x0 + tw]]) {   // the shoulder blocks, slanted, their gaps cut
+            m.beginPath(); m.moveTo(a, yy); m.lineTo(b, yy + sl); m.lineTo(b, yy + sl + U * .014); m.lineTo(a, yy + U * .014); m.closePath(); m.fill();
+          }
+          const cy0 = yy + pitch * (i % 2 ? .25 : .65);   // thin cuts across the centre rib
+          m.fillRect(g1 + gw / 2, cy0, (g2 - g1 - gw) * .55, Math.max(2, U * .006));
+        }
+        m.globalCompositeOperation = "source-over";
       }
       break;
     }

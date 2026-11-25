@@ -562,7 +562,7 @@
       "C": 0,
       "share": 0.04
     },
-    "assets/bg-offer/pokemon-charizard-card-1.jpg": {
+    "assets/bg-offer/pokemon-slabs-display-1.jpg": {
       "w": 1080,
       "h": 1080,
       "L": 0.344,
@@ -571,7 +571,7 @@
       "C": 0,
       "share": 0.06
     },
-    "assets/bg-offer/pokemon-charizard-card-2.jpg": {
+    "assets/bg-offer/pokemon-slabs-display-2.jpg": {
       "w": 1080,
       "h": 1080,
       "L": 0.397,
@@ -931,7 +931,7 @@
       "C": 0,
       "share": 0.07
     },
-    "assets/bg-web/pokemon-charizard-card-1.jpg": {
+    "assets/bg-web/pokemon-slabs-display-1.jpg": {
       "w": 1920,
       "h": 1280,
       "L": 0.301,
@@ -940,7 +940,7 @@
       "C": 0,
       "share": 0.04
     },
-    "assets/bg-web/pokemon-charizard-card-2.jpg": {
+    "assets/bg-web/pokemon-slabs-display-2.jpg": {
       "w": 1920,
       "h": 1280,
       "L": 0.386,

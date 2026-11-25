@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logo maker and brand kit for buyers | WeBuy.AD</title>
+<meta name="description" content="Name ideas, finished logos in your business name, and a brand kit of up to 50 files: profile pictures, banners for every platform, a print-ready business card, Instagram highlights, posts, signs and a brand guide. From $14.99 once.">
+<link rel="canonical" href="https://webuy.ad/logo/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WeBuy.AD">
+<meta property="og:title" content="Logo maker and brand kit for buyers">
+<meta property="og:description" content="Finished logos in your business name, and the same logo on your card, your ads, your profile picture and your cover.">
+<meta property="og:url" content="https://webuy.ad/logo/">
+<meta property="og:image" content="https://webuy.ad/assets/brand/share-card.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../assets/brand/icon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="../assets/brand/icon-180.png">
+<link rel="stylesheet" href="../pages.css">
+<link rel="stylesheet" href="logo.css">
+<script src="../video-help.js" defer></script>
+<script src="../watermark.js" defer></script>
+<script src="../account.js" defer></script>
+<script type="module" src="logo.js"></script>
+</head>
+<body class="lg">
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <a class="brand" href="../index.html">WeBuy<em>.AD</em></a>
+  <nav aria-label="Site">
+    <a href="../index.html#lp-templates">Image ads</a>
+    <a href="../motion/">Video ads</a>
+    <a href="./" aria-current="page">Logo and brand kit</a>
+    <a href="../cards/">Business cards</a>
+    <a href="../index.html#pricing">Pricing</a>
+  </nav>
+</header>
+
+<nav class="kit-rail" id="kit-rail" aria-label="Your brand kit, step by step" hidden><ol id="kit-rail-list"></ol></nav>
+
+<main id="main" class="lg-main wide">
+  <section class="kit-mine" id="kit-mine" aria-labelledby="kit-mine-h" hidden>
+    <h2 id="kit-mine-h">Your brand kits</h2>
+    <div class="kit-mine-list" id="kit-mine-list"></div>
+  </section>
+
+  <section class="lg-start" id="lg-start" aria-labelledby="lg-h1">
+    <p class="lg-step"><span>1</span> Your name</p>
+    <h1 id="lg-h1">Your logo and brand kit</h1>
+    <p class="lg-sub">Type your business name and pick what you buy. You get a page of finished logos in your name, then every picture your business needs, one step at a time: profiles, banners, a business card, posts and signs.</p>
+    <form class="lg-form" id="lg-form" autocomplete="on">
+      <div class="lg-field lg-name">
+        <label for="lg-name">Your business name</label>
+        <input id="lg-name" type="text" maxlength="40" placeholder="Long Beach Phone Buyers" autocomplete="organization" required>
+      </div>
+      <div class="lg-field">
+        <label for="lg-cat">What you buy</label>
+        <select id="lg-cat"></select>
+      </div>
+      <div class="lg-field">
+        <label for="lg-town">Your town <span class="lg-opt">optional</span></label>
+        <input id="lg-town" type="text" maxlength="28" placeholder="Long Beach" autocomplete="address-level2">
+      </div>
+      <button class="lg-btn primary" id="lg-go" type="submit">Show my logos</button>
+    </form>
+    <div class="nm-row"><button class="lg-link" id="nm-open" type="button" aria-expanded="false" aria-controls="nm-panel">No name yet? Get name ideas</button></div>
+    <div class="nm-panel" id="nm-panel" hidden>
+      <div class="nm-ask">
+        <div class="lg-field">
+          <label for="nm-words">A few words that are yours <span class="lg-opt">your name, your street, a word you like</span></label>
+          <input id="nm-words" type="text" maxlength="80" placeholder="Maria, harbor, fair">
+        </div>
+        <button class="lg-btn primary" id="nm-go" type="button">Mix me some names</button>
+      </div>
+      <div class="nm-grid" id="nm-grid" aria-live="polite"></div>
+      <div class="nm-more" id="nm-more-row" hidden><button class="lg-btn" id="nm-more" type="button">More ideas</button><button class="lg-btn" id="nm-ai" type="button" hidden>Ask AI for ideas</button></div>
+    </div>
+  </section>
+
+  <section class="lg-gallery" id="lg-gallery" aria-labelledby="lg-h2" hidden>
+    <div class="lg-gal-head">
+      <div>
+        <p class="lg-step"><span>2</span> Pick one</p>
+        <h2 id="lg-h2">Tap the logo you like</h2>
+      </div>
+      <div class="lg-tabs" role="tablist" aria-label="Kinds of logo" id="lg-tabs">
+        <button type="button" role="tab" data-g="" aria-selected="true">All</button>
+        <button type="button" role="tab" data-g="badge" aria-selected="false">Badges</button>
+        <button type="button" role="tab" data-g="wordmark" aria-selected="false">Words</button>
+        <button type="button" role="tab" data-g="monogram" aria-selected="false">Initials</button>
+        <button type="button" role="tab" data-g="mark" aria-selected="false">Symbols</button>
+      </div>
+    </div>
+    <div class="lg-grid" id="lg-grid" aria-live="polite"></div>
+    <div class="lg-more-row"><button class="lg-btn" id="lg-more" type="button">Show me more logos</button></div>
+  </section>
+
+  <section class="lg-edit" id="lg-edit" aria-labelledby="lg-h3" hidden>
+    <p class="lg-step"><span>3</span> Make it yours</p>
+    <h2 id="lg-h3">Your logo</h2>
+    <div class="lg-edit-grid">
+      <figure class="lg-big" id="lg-big-fig"><canvas id="lg-big" width="900" height="640" aria-label="Your logo"></canvas><figcaption id="lg-big-cap"></figcaption></figure>
+      <div class="lg-rows">
+        <p class="lg-hint">Tap any of these to try it. Your logo changes; nothing else does.</p>
+        <h3>Colours</h3><div class="lg-row" id="row-pair" role="group" aria-label="Colours"></div>
+        <h3>Lettering</h3><div class="lg-row" id="row-voice" role="group" aria-label="Lettering"></div>
+        <h3>Shape</h3><div class="lg-row" id="row-layout" role="group" aria-label="Shape"></div>
+        <h3>Symbol</h3><div class="lg-row" id="row-icon" role="group" aria-label="Symbol"></div>
+        <h3>Finish</h3><div class="lg-row" id="row-finish" role="group" aria-label="Finish"></div>
+        <div class="lg-field">
+          <label for="lg-small">The small line <span class="lg-opt">under or round your name</span></label>
+          <input id="lg-small" type="text" maxlength="32" placeholder="WE BUY PHONES">
+        </div>
+      </div>
+    </div>
+    <h3 class="kit-h3">Your logo files</h3>
+    <div class="kit-files" id="files-logo"></div>
+    <div class="kit-ok-row"><span class="kit-ok-done" id="ok-logo-done" hidden>✓ Approved</span><button class="lg-btn primary" id="ok-logo" type="button">This is my logo. Next</button></div>
+  </section>
+
+  <div id="kit-steps"></div>
+
+  <section class="kit-review" id="kit-review" aria-labelledby="kit-review-h" hidden>
+    <p class="lg-step"><span>8</span> Review</p>
+    <h2 id="kit-review-h">Your whole brand kit</h2>
+    <p class="lg-sub">Everything in one place. Pick your kit, and download the whole folder: every file sized for where it goes, the logo as vectors, the card as a print-ready PDF.</p>
+    <div class="kit-tiers" id="kit-tiers" role="radiogroup" aria-label="Which kit"></div>
+    <div class="kit-all" id="kit-all"></div>
+    <div class="kit-buy" id="kit-buy" aria-live="polite"></div>
+    <div class="kit-pay" id="kit-pay"></div>
+    <div class="kit-use">
+      <a class="lg-btn" id="kit-ad-go" href="../index.html?brand=logo">Put my logo on my ads</a>
+      <a class="lg-btn" id="kit-card-go" href="../cards/?logo=1">More card designs</a>
+    </div>
+  </section>
+
+  <p class="lg-note" id="lg-note" role="status" aria-live="polite"></p>
+</main>
+
+<footer class="bottom">
+  <a href="../index.html">WeBuy.AD</a>
+  <a href="../motion/">Video ads</a>
+  <a href="../cards/">Business cards</a>
+  <a href="../about.html">About</a>
+  <a href="../terms.html">Terms</a>
+  <a href="../privacy.html">Privacy</a>
+  <span>&copy; 2026 WeBuy.AD</span>
+</footer>
+<!-- Cloudflare Web Analytics (privacy.html, "The services we use"): page visits and load times, no cookies -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "2315e63735b243f28ef4c80f1dd52673"}'></script>
+</body>
+</html>

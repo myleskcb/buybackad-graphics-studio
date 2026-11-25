@@ -32,6 +32,7 @@
   <nav aria-label="Site">
     <a href="../index.html#lp-templates">Image ads</a>
     <a href="./" aria-current="page">Video ads</a>
+    <a href="../logo/">Logo and brand kit</a>
     <a href="../cards/">Business cards</a>
     <a href="../looks.html">Look Book</a>
     <a href="../master-library.html" id="mo-adlib" style="display:none" title="The ads you saved, and their public link">📚 Library</a>
@@ -59,20 +60,14 @@
   </section>
 
   <div class="mo-editor" id="editor">
+    <!-- the toolbar: three things you do to the whole ad (owner, 2026-11-25: "Why does the top bar have so many
+         options?"); where you are lives in the numbered steps, and Download is its one filled button -->
     <div class="mo-toolbar" role="toolbar" aria-label="Ad tools">
-      <button class="mo-btn" id="to-start" type="button" title="Back to the templates" aria-label="Templates">&#9638;<span class="mo-tb-label"> Templates</span></button>
-      <div class="mo-mode" aria-label="Kind of ad">
-    <div class="mo-seg" id="mode" role="radiogroup" aria-label="Kind of ad">
-      <button data-full="1" role="radio" title="Every detail on one ad, in the house look or any of the maker's, as a photo and as a video">Full ad <span class="mo-new">New</span></button>
-      <button data-full="0" role="radio" title="Every look the maker has: street signs, neon, pastel, and more">Any look</button>
-    </div>
-      </div>
-      <span class="mo-tb-grow"></span>
       <button class="mo-btn" id="undo" title="Back to the previous look" aria-label="Back" disabled>&#8630;<span class="mo-tb-label"> Back</span></button>
-      <button class="mo-btn primary" id="shuffle-look" title="New design, same words and phones">&#10227; New look</button>
+      <button class="mo-btn" id="shuffle-look" title="New design, same words and phones">&#10227; New look</button>
       <button class="mo-btn" id="shuffle-all" title="New design, new words" hidden>&#9861; Surprise me</button>
       <a class="mo-btn" id="browse" href="#looks" hidden>&#9638; Browse looks</a>
-      <button class="mo-btn" id="feed-view" type="button" title="See the ad among other listings, as someone scrolling past would">View in Marketplace feed</button>
+      <span class="mo-tb-grow"></span>
       <button class="mo-btn star" id="mo-star" title="Make this video ad and save it to your library, with its photo, for iPhones LA to post">&#11088; Save</button>
       <span class="mo-dl" id="dl-wrap">
         <button class="mo-btn download" id="dl-toggle" type="button" aria-haspopup="true" aria-expanded="false">&#11015; Download &#9662;</button>
@@ -95,6 +90,17 @@
 
       <aside class="mo-panel" aria-label="Settings">
         <div class="mo-step" id="step-look" data-step="look" role="tabpanel" aria-labelledby="tab-look">
+  <!-- what kind of ad, and the way back to the templates: where you start, not what you do to the ad (out of the toolbar, 2026-11-25) -->
+  <div class="mo-kind">
+    <div class="mo-kind-row">
+      <span class="mo-kind-label" id="mode-label">Kind of ad</span>
+      <button class="mo-btn mo-kind-start" id="to-start" type="button" title="Back to the templates">&#9638; All templates</button>
+    </div>
+    <div class="mo-seg" id="mode" role="radiogroup" aria-labelledby="mode-label">
+      <button data-full="1" role="radio" title="Every detail on one ad, in the house look or any of the maker's, as a photo and as a video">Full ad</button>
+      <button data-full="0" role="radio" title="Every look the maker has: street signs, neon, pastel, and more">Any look</button>
+    </div>
+  </div>
   <section class="mo-looks" id="looks" aria-labelledby="looks-h">
     <div class="mo-looks-head">
       <h2 class="mo-h2" id="looks-h">More looks <span class="mo-opt" id="looks-count"></span></h2>

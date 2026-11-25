@@ -74,6 +74,15 @@
     $('co-agree-text').innerHTML = o.plan
       ? 'I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms of Service</a>, including the automatic renewal above, and I have read the <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.'
       : 'I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms of Service</a> and I have read the <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.';
+    /* a plan's add-on (Starter's brand kit, $5 less): none by default, picked here before the session exists */
+    let add = $('co-addons');
+    if (!add) { add = document.createElement('fieldset'); add.id = 'co-addons'; add.className = 'co-addons'; const ag = $('co-agree'); ag.closest('label').before(add); }
+    add.hidden = !(o.addons && o.addons.length);
+    add.innerHTML = o.addons && o.addons.length ? '<legend>Add your brand kit, $5 off with your plan</legend>'
+      + [{ key: '', label: 'No thanks', price: '' }].concat(o.addons).map((a) => '<label class="co-addon"><input type="radio" name="co-addon" value="' + esc(a.key) + '"' + (a.key ? '' : ' checked') + '> <span>' + esc(a.label) + '</span>'
+      + (a.price ? ' <b>' + esc(a.price) + '</b>' + (a.was ? ' <s>' + esc(a.was) + '</s>' : '') : '') + '</label>').join('')
+      + '<small>Your logo and its files, made at webuy.ad/logo, yours to download any time. A one-time charge on this first payment.</small>' : '';
+    if (o.onAddon) { o.onAddon(''); add.onchange = (e) => { if (e.target.name === 'co-addon') o.onAddon(e.target.value); }; }
     $('co-agree').checked = false;
     $('co-go').disabled = true;
     $('co-go').textContent = 'Continue to secure payment';

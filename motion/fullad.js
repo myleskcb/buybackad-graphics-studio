@@ -25,9 +25,10 @@ import { bannedIn } from "./banned-words.js";
 import { PHONE_WEIGHT, PHONE_REST, PHONE_VIEWS, PHONE_COUNTS, PHONE_LINEUP, pickWeighted } from "./product-demand.js";
 import { GROUND_SHARES, GROUND_SCENES, GROUND_GRADIENTS, GROUND_PATTERNS, GROUND_POOLS, GROUND_LINE_CAT, GROUND_PHOTOS, GROUND_PLACES, GROUND_LINE_PATTERNS } from "./full-grounds.js";
 import { FAMILY_GROUNDS, FAMILY_OF } from "./full-families.js";
-import { drawPoints, OLD_DEFAULTS } from "./full-points.js";
+import { drawPoints, OLD_DEFAULTS, kindOf } from "./full-points.js";
 import { metroOf } from "./metros.js";
 import { leanStream, leanPick, pairAnswers } from "./recipe-lean.js";
+import { CLIPS, CLIP_SHARE, clipsFor, clipStill, clipOf, clipTime, loadClipSheet, clipSheet, sheetTile, SHEET, SHEET_KIND, ClipPlayer } from "./clips.js";
 
 // Proportions of the frame's width. 1080 x .052 = 56px, x .044 = 48px, x .032 = 35px.
 // edge: nothing nearer the frame's edge than 38px; gap: no two stacked blocks nearer than 22px.
@@ -439,6 +440,9 @@ const groundImage = src => (GROUND_IMG.get(src) || {}).img || null;
 export async function fullGroundReady(st) {
   const src = st && st.background === "photo" && st.ground_photo && st.ground_photo.src;
   if (src) { try { await loadGroundPhoto(src); } catch (e) { /* drawn on the house gradient */ } }
+  // a moving ground's sheet too: what its readability is read on (rule 175)
+  const clip = st && st.background === "photo" && clipOf(st.ground_photo);
+  if (clip) { try { await loadClipSheet(clip); } catch (e) { /* read on its first frame alone */ } }
 }
 /** A photograph whose own colour is strong suits a pair that has its family (hues within 30 degrees,
  *  as pgHuePlan counts them); one with no strong colour suits every pair. */
@@ -530,6 +534,27 @@ export function groundFor(subject, seed, pairKey, product, lean = null, place = 
     const got = lean.pick(can, lean.want, "ground"), of = L => L[Math.floor(lean.r() * L.length) % L.length];
     if (got === "photo") { if (own) return { background: "photo", ground_photo: { ...own, ...tf } }; const src = of(pool); return { background: "photo", ground_photo: { src, focus: GROUND_PHOTOS[src].focus || [.5, .5], ...tf } }; }
     if (got) return { background: got === "scene" ? of(GROUND_SCENES) : got === "gradient" ? of(GROUND_GRADIENTS) : got === "pattern" ? of(GROUND_PATTERNS) : got === "house" ? of(GROUNDS) : got };
+  }
+  /* A MOVING GROUND (rule 175, motion/clips.js): the clip picked in the maker (want.clip); one that suits when
+     the kind is picked (want.kind "moving"); or, for CLIP_SHARE of the seeds whose line and place have a clip
+     that fits and keeps the card to two families (rule 139, as a photograph), one drawn on a stream of its own:
+     every other seed draws the ground it drew before. Seeds draw one only for the video maker (want.seedClips,
+     fullStyle's opts.moving): a still made anywhere else stands where it stood. A clip plays under a
+     photograph's grade and overlay; a duotone or a tint is laid into a picture once, so a clip is graded instead. */
+  const asClip = id => ({ background: "photo", ground_photo: { src: clipStill(id), clip: id, focus: [.5, .5], ...(["grade", "wash", "pattern"].includes(tf.treat) ? tf : { treat: "grade" }) } });
+  if (want.clip && CLIPS[want.clip]) return asClip(want.clip);
+  // the clips are night streets, glows and lit cities, made for light words as the drawn scenes are: under dark words
+  // the grade washes them milky, so a seed draws one only under light words (the maker picks such a pair: fullStyle)
+  const clips = clipsFor(cat, place), suitClips = darkWords ? [] : clips.filter(id => photoSuits(CLIPS[id], pairKey));
+  if (want.kind === "moving") {
+    // the line's and the place's, of the pair's family; then the line's and the place's; then any that is not of somewhere else
+    const free = Object.keys(CLIPS).filter(id => !CLIPS[id].byHand && (!CLIPS[id].where || CLIPS[id].where === place));
+    const L = [suitClips, clips, free, Object.keys(CLIPS).filter(id => !CLIPS[id].byHand)].find(l => l.length);
+    return asClip(L[mixSeed((seed >>> 0) ^ 0x2545f491) % L.length]);
+  }
+  if (!want.kind && !bare && want.seedClips && suitClips.length) {
+    const cr = rng(mixSeed((seed >>> 0) ^ 0x7f4a7c15)); cr();
+    if (cr() < CLIP_SHARE) return asClip(suitClips[Math.floor(cr() * suitClips.length) % suitClips.length]);
   }
   // the line's own stream: two lines on one seed do not stand on the same kind of ground
   let h = 0x811c9dc5; for (const ch of String(subject || "iphone")) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
@@ -645,14 +670,36 @@ export const ICONS = ["cash"];
  *  list's banned phrases (spec/banned-words.json, rule 143; scripts/words_check.mjs fails a commit
  *  that puts one back). The claim is read first and, with no business name typed, is the badge:
  *  the research's verdict on TOP DOLLAR there was "replace with identity or place" (2026-11-12),
- *  and until 2026-11-18 it still stood on 33 of the 35 first full ads (OPEN-ITEMS §BI). */
+ *  and until 2026-11-18 it still stood on 33 of the 35 first full ads (OPEN-ITEMS §BI).
+ *  THE ADS SELL (DESIGN-LAW 181; the owner, 2026-11-24: "all I see is honest or local buyer not top buyer
+ *  or highest paying. We need more sales ways to pitch yourself"): about half the badges and stickers are a
+ *  buyer selling, the money first and nothing a shop can be asked to prove (TOP DOLLAR PAID, WE PAY TOP
+ *  DOLLAR, REAL CASH, NO LOWBALL OFFERS). HIGHEST, BEST PRICE, #1 and WE BEAT ANY OFFER stay out of every
+ *  default: a shop types them if they are true of it, and the pre-flight says it may be asked to prove them.
+ *  The card lines keep their collector's voice (claim_cards, burst_cards). */
 export const FULL_WORDS = {
-  claim: ["LOCAL & HONEST", "QUICK REPLIES • CASH TODAY", "LOCAL BUYER • FAIR OFFERS", "FAIR OFFER • NO PRESSURE", "HONEST BUYER • PAID TODAY"],
+  claim: ["LOCAL BUYER • FAIR OFFERS", "QUICK REPLIES • CASH TODAY", "FAIR OFFER • NO PRESSURE", "LOCAL BUYER • PAID TODAY", "AN OFFER • YOU DECIDE",
+    "TOP DOLLAR PAID", "WE PAY TOP DOLLAR", "TOP CASH • PAID TODAY", "TOP PRICES • NO FEES", "REAL CASH • NOT CREDIT", "NO LOWBALL OFFERS",
+    // two that share no word with the usual points (PAID, CASH, FEES, OFFER), so WE PAY TOP DOLLAR is not the only bold one left
+    "TOP PAYOUTS • NO HAGGLING", "MONEY IN YOUR POCKET"],
   line: ["ALL MODELS WANTED", "NEW, USED OR CRACKED", "ANY CARRIER • CRACKED OK"],
   points: ["FREE QUOTE, CASH SAME DAY, NO FEES", "QUOTE BY TEXT, PAID TODAY, WE MEET YOU", "TEXT US NOW, FAIR OFFER, NO HASSLE"],
   label: ["CALL OR TEXT", "TEXT US NOW", "GET YOUR OFFER"],
-  burst: ["CASH!", "FAST CASH", "NO FEES", "PAID TODAY", "SAME DAY", "EASY SALE"],
-  burst_es: ["PAGO HOY", "PAGO YA", "FÁCIL"],
+  // no PAID TODAY or SAME DAY: beside a point that says the day the same promise stood twice, and SAME DAY alone is a fragment
+  burst: ["CASH!", "NO FEES", "EASY SALE", "CASH PAID", "TOP CASH", "TOP $$$", "TOP DOLLAR"],
+  burst_es: ["PAGO HOY", "SIN PRISA", "TRATO JUSTO", "BUEN PAGO"],   // not PAGAMOS BIEN: its seven letters set the sticker under its floor (full_ad_check)
+  // a Spanish ad's badge and small line in Spanish too (2026-11-23: they were drawn from the English lists)
+  claim_es: ["SOMOS DE AQUÍ", "RESPUESTA RÁPIDA • PAGO HOY", "COMPRADOR LOCAL • OFERTA JUSTA", "OFERTA JUSTA • SIN PRESIÓN", "SIN COMPROMISO • PAGO HOY",
+    "PAGAMOS BIEN", "BUEN PAGO • HOY MISMO", "EFECTIVO REAL • NO CRÉDITO", "SIN OFERTAS BAJAS", "PAGAMOS BIEN • SIN COMISIONES"],
+  line_es: ["TODOS LOS MODELOS", "NUEVO, USADO O ROTO", "CUALQUIER COMPAÑÍA • ROTOS OK"],
+  /* a card ad's badge and sticker (2026-11-23, the owner: card ads were "screaming scalper"): a collector hears speed and
+     "cash" as a low offer, so the card lines say who buys and that the seller decides. No HONEST anywhere (rule 80: a
+     reputation nobody gave), no FAST CASH (a payday lender's words). */
+  claim_cards: ["LOCAL CARD BUYER", "LOCAL CARD BUYER • NO PRESSURE", "BUYING COLLECTIONS • ANY ERA", "FAIR OFFER • NO PRESSURE", "AN OFFER • YOU DECIDE"],
+  claim_cards_es: ["COMPRADOR LOCAL", "COMPRAMOS COLECCIONES", "COMPRADOR LOCAL • SIN PRESIÓN", "OFERTA JUSTA • SIN COMPROMISO", "UNA OFERTA Y TÚ DECIDES"],
+  // a sticker breaks on its spaces, so its longest word sets its size: five letters or so, as the lists above
+  burst_cards: ["NO RUSH", "YOUR CALL", "ANY ERA", "FAIR OFFER", "LOCAL BUYER"],
+  burst_cards_es: ["SIN PRISA", "TRATO JUSTO"],
 };
 
 /* ONE PROMISE, ONCE. The review of 2026-11-12 found the same promise three times on one square:
@@ -876,7 +923,7 @@ export class FullAd extends Ad {
     // and a video look's shade round its words is laid into its ground once too: it is the ground's shading, as a
     // photograph's is, not something drawn on it (over a sunset's bright stripes the pre-flight read it as a mark at the edge)
     if (this.st.full_look && this.scrimC && !this.liveGround) { this.bg.getContext("2d").drawImage(this.scrimC, 0, 0, this.W, this.H); this.scrimC = null; }
-    this._photoGround();
+    this._photoGround(); this._sceneBeats();
     // a drawn scene that moves (aurora, drift) paints over the ground every frame: what must stay readable
     // over it (the shade behind the words, the pool behind a screen) is kept in layers drawn after it
     if (!this.groundImg && this.liveGround && !GROUNDS.includes(this.st.background)) { this.groundEven = {}; this.productOver = canvas(this.W, this.H); }
@@ -956,13 +1003,21 @@ export class FullAd extends Ad {
    *  the photograph as soon as it loads (a preview redraws it; fullGroundReady waits for it). */
   _photoGround() {
     const st = this.st, gp = st.background === "photo" && st.ground_photo; if (!gp || !gp.src) return false;
-    const img = groundImage(gp.src);
+    const img = groundImage(gp.src), clip = clipOf(gp);
     if (!img) {
-      loadGroundPhoto(gp.src).then(() => { if (this._photoGround()) { this._productLight(); this._evenProduct(); this._evenGround(); this.still = null; } }).catch(() => {});
+      loadGroundPhoto(gp.src).then(() => { if (this._photoGround()) { this._sceneBeats(); this._productLight(); this._evenProduct(); this._evenGround(); this.still = null; } }).catch(() => {});
       return false;
     }
     if (this.groundImg) return false;
-    const W = this.W, H = this.H, m = GROUND_PHOTOS[gp.src] || {}, treat = PHOTO_TREATS[gp.treat] != null ? gp.treat : "grade";
+    // a moving ground (rule 175) is drawn as a photograph whose picture plays: its first frame is the picture
+    // until a player is given (clipSrc: the preview's, or an export's own), and its treatment is one laid over it
+    const W = this.W, H = this.H, m = (clip ? CLIPS[clip] : GROUND_PHOTOS[gp.src]) || {};
+    const treat = PHOTO_TREATS[gp.treat] != null && !(clip && (gp.treat === "duotone" || gp.treat === "tint")) ? gp.treat : "grade";
+    if (clip) {
+      this.groundClip = clip; this.clipSrc = null;
+      // its sheet is what the evening reads (_clipLooks); one not loaded yet is read once it arrives
+      if (!clipSheet(clip)) loadClipSheet(clip).then(() => { if (this.groundOver) { this._evenGround(); this.still = null; } }).catch(() => {});
+    }
     // the treatment (PHOTO_TREATS): a duotone or a tint is laid into the picture itself, once
     this.groundImg = treat === "duotone" || treat === "tint" ? treatedPhoto(img, treat, this.p) : img; this.groundTreat = treat;
     this.groundFocus = Array.isArray(gp.focus) ? gp.focus : (m.focus || [.5, .5]);
@@ -999,8 +1054,14 @@ export class FullAd extends Ad {
 
   /** The photograph at a moment: a slow push-in round the focus and a little drift across, eased to
    *  rest at the still's moment (tHold) and held there. */
-  _drawPhoto(ctx, t) {
-    const img = this.groundImg, W = this.W, H = this.H, iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+  _drawPhoto(ctx, t, tile = null) {
+    const W = this.W, H = this.H, still = this.groundImg, iw = still.naturalWidth || still.width, ih = still.naturalHeight || still.height;
+    // a moving ground: the player's frame where one is given and can draw, else its first frame; tile: one
+    // moment of its sheet ({ img, x, y, k }: k from the clip's pixels to the sheet's), framed the same way. The still
+    // (fullStill, _still) is the first frame even under the preview's playing clip: the pre-flight reads it against
+    // this.bg, and a frame of the clip read against its first frame differed wherever the clip had moved
+    const live = !this._still && this.groundClip && this.clipSrc && this.clipSrc.ready ? this.clipSrc.v : null;
+    const img = tile ? tile.img : live || still;
     const u = clamp(t / Math.max(.5, this.tHold), 0, 1), e = 1 - (1 - u) ** 3;   // eases to rest
     const k = Math.max(W / iw, H / ih);
     let zoom = 1.02 + .07 * e, sh = H / (k * zoom), sy;
@@ -1018,8 +1079,84 @@ export class FullAd extends Ad {
     const [fx, fy] = this.groundFocus, dx = this.groundDrift * (1 - e) * iw;
     const sx = clamp(fx * iw - sw / 2 + dx, 0, Math.max(0, iw - sw));
     if (sy == null) sy = clamp(fy * ih - sh / 2, 0, Math.max(0, ih - sh));
-    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
+    if (tile) ctx.drawImage(img, tile.x + sx * tile.k, tile.y + sy * tile.k, sw * tile.k, sh * tile.k, 0, 0, W, H);
+    else ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
   }
+
+  /** A moving ground at the twelve moments of its sheet, each under the overlay and the evening as the ground
+   *  is, at a quarter of the size: what the evening reads, so the words read on every moment of the clip and
+   *  not only on its first frame (rule 175). Empty for any other ground, or before the sheet has loaded. */
+  _clipLooks(q = 4) {
+    const sheet = this.groundClip && clipSheet(this.groundClip); if (!sheet) return [];
+    const w = Math.ceil(this.W / q), h = Math.ceil(this.H / q), out = [];
+    for (let k = 0; k < SHEET.cols * SHEET.rows; k++) {
+      const c = canvas(w, h), x = c.getContext("2d", { willReadFrequently: true });
+      x.save(); x.scale(w / this.W, h / this.H);
+      this._drawPhoto(x, this.tHold, { img: sheet, ...sheetTile(this.groundClip, k) });
+      x.drawImage(this.groundOver, 0, 0);
+      for (const e of Object.values(this.groundEven || {})) x.drawImage(e, 0, 0);
+      x.restore(); out.push(c);
+    }
+    return out;
+  }
+
+  /** A moving scene's beats (rule 179), so the ad runs as one piece from the first frame to the end card:
+   *  - the scene's moment (sceneT): on a beat of the music once the words are in, the clip at its own peak (it starts at
+   *    clipOffset so its moment lands here), the light crossing the headline and then the number, the scene's sound,
+   *    and the sticker stamping again just after (restampT);
+   *  - the push to the call to action (pulseT): the number pulses on the last beat that ends before the still's moment,
+   *    about a second before the end card (which then shades all but the number and lights it: the engine's _outro);
+   *  - in a long ad, a second light across the headline between the two (glintT), so no stretch stands still.
+   *  Each is heard (cues: audio.js). In a short ad the moment comes as late as the end card allows, and a push with no
+   *  room before the still's moment is left out. */
+  _sceneBeats() {
+    const sc = this.groundClip && CLIPS[this.groundClip].scene; if (!sc || this.sceneT != null) return;
+    const tl = this.tl, b = 60 / (this.st.bpm || 112), out = this.tOutro != null ? this.tOutro : this.st.duration, end = out - .35;
+    const beat = x => tl.hit + Math.round((x - tl.hit) / b) * b;
+    let T = beat(Math.max((isFinite(tl.number) ? tl.number : 1) + 1.1, (this.tLanded || 0) + .9, 1.8));
+    if (T > end - .6) T = Math.max(tl.hit + b, end - .6);
+    this.sceneT = T; this.clipOffset = sc.moment != null ? sc.moment - T : 0;
+    this.shineTimes = [T - .15]; this.shineCol = sc.light;
+    this.restampT = this.burst ? T + .35 : null;
+    const last = Math.min(out, this.tHold ?? out) - .05;
+    let P = beat(out - 1); while (P + .45 > last) P -= b;
+    this.pulseT = P >= T + b ? P : null;
+    this.glintT = null;
+    if (this.pulseT != null && this.pulseT - T > 2.4) { this.glintT = beat((T + this.pulseT) / 2); this.shineTimes.push(this.glintT - .15); }
+    Object.assign(this.cues, { scene: { t: T, kind: sc.sfx }, ...(this.restampT != null ? { restamp: this.restampT } : {}),
+      ...(this.pulseT != null ? { pulse: this.pulseT } : {}), ...(this.glintT != null ? { glint: this.glintT } : {}) });
+  }
+
+  /** The number pulses once, the push to the call to action (rule 179); at rest in the still. */
+  _number(ctx, t) {
+    const k = this.pulseT != null && !this._still ? prog(t, this.pulseT, .45) : 0;
+    if (k <= 0 || k >= 1 || !this.numBox) return super._number(ctx, t);
+    const [x0, y0, x1, y1] = this.numBox, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, s = 1 + .06 * Math.sin(Math.PI * k);
+    ctx.save(); ctx.translate(cx, cy); ctx.scale(s, s); ctx.translate(-cx, -cy); super._number(ctx, t); ctx.restore();
+  }
+
+  /** The sticker stamps again just after the scene's moment (rule 179). */
+  _urgency(ctx, t) {
+    const B = this.burst, k = this.restampT != null && B && !this._still ? prog(t, this.restampT, .4) : 0;
+    if (k <= 0 || k >= 1) return super._urgency(ctx, t);
+    const s = 1 + .14 * Math.sin(Math.PI * k), a = .07 * Math.sin(Math.PI * 2 * k) * (1 - k);
+    ctx.save(); ctx.translate(B.x, B.y); ctx.rotate(a); ctx.scale(s, s); ctx.translate(-B.x, -B.y); super._urgency(ctx, t); ctx.restore();
+  }
+
+  /** Where the ad's moment t is in its clip. */
+  clipTime(t) { return clipTime(t + (this.clipOffset || 0)); }
+  /** The preview's player, kept near the ad's moment t (motion/app.js gives it: ad.clipSrc). */
+  followClip(t, playing) { if (this.groundClip && this.clipSrc && this.clipSrc.live) this.clipSrc.follow(t + (this.clipOffset || 0), playing); }
+  /** Before a video or a photo is drawn for keeps: a player of its own, moved to each frame's exact moment by
+   *  prepareFrame and put away by endExport. A clip that will not load leaves its first frame under the ad. */
+  async prepareExport() {
+    if (!this.groundClip || this._clipWas !== undefined) return;
+    const p = new ClipPlayer(this.groundClip);
+    try { await p.load(); } catch (e) { console.warn("The moving background did not load; its first frame is drawn:", e); p.dispose(); return; }
+    this._clipWas = this.clipSrc; this.clipSrc = p;
+  }
+  async prepareFrame(t) { if (this._clipWas !== undefined && this.clipSrc) await this.clipSrc.seek(t + (this.clipOffset || 0)); }
+  endExport() { if (this._clipWas === undefined) return; this.clipSrc.dispose(); this.clipSrc = this._clipWas; delete this._clipWas; }
 
   /** A photograph moves under its overlay every frame; the engine's own live grounds otherwise. */
   _drawLiveGround(ctx, t) {
@@ -1059,14 +1196,23 @@ export class FullAd extends Ad {
     // a photograph or a drawn scene has small bright or dark detail (a keyboard's keys under a line): there
     // every pixel is read and its worst twentieth counts, as the pre-flight reads the delivered picture
     const fine = !GROUNDS.includes(this.st.background), step = fine ? 1 : 5, tail = fine ? .05 : .1;
-    const reads = r => {
-      const x0 = Math.max(0, r[0] | 0), y0 = Math.max(0, r[1] | 0), w = Math.min(W, Math.ceil(r[2])) - x0, h = Math.min(H, Math.ceil(r[3])) - y0;
+    const readOn = (x, r, q, st) => {
+      const x0 = Math.max(0, (r[0] / q) | 0), y0 = Math.max(0, (r[1] / q) | 0), w = Math.min(x.canvas.width, Math.ceil(r[2] / q)) - x0, h = Math.min(x.canvas.height, Math.ceil(r[3] / q)) - y0;
       if (w < 2 || h < 2) return 99;
-      const d = bx.getImageData(x0, y0, w, h).data, Ls = [];
-      for (let i = 0; i < d.length; i += 4 * step) Ls.push(.2126 * lin(d[i]) + .7152 * lin(d[i + 1]) + .0722 * lin(d[i + 2]));
+      const d = x.getImageData(x0, y0, w, h).data, Ls = [];
+      for (let i = 0; i < d.length; i += 4 * st) Ls.push(.2126 * lin(d[i]) + .7152 * lin(d[i + 1]) + .0722 * lin(d[i + 2]));
       Ls.sort((a, b) => a - b);
       const worst = Ls[Math.min(Ls.length - 1, Math.floor(Ls.length * (light ? 1 - tail : tail)))];
       return (Math.max(Li, worst) + .05) / (Math.min(Li, worst) + .05);
+    };
+    // a moving ground is read at every moment of its sheet too, and its worst moment counts (rule 175): the
+    // still is one moment, and a light sweep or a flare can pass under a line later (_clipLooks, made again
+    // after each coat of evening), held to the sheet's measured gap from the clip's own frames (SHEET_KIND)
+    let looks = null;
+    const reads = r => {
+      let v = readOn(bx, r, 1, step);
+      if (this.groundClip) { looks ||= this._clipLooks(4); for (const c of looks) v = Math.min(v, readOn(c.getContext("2d", { willReadFrequently: true }), r, W / c.width, 1) / SHEET_KIND); }
+      return v;
     };
     F.evened = [];
     // the house gradients are the pair's own colours; a photograph or a drawn scene has detail of its own, so the headline is read too
@@ -1084,6 +1230,7 @@ export class FullAd extends Ad {
           x.save(); x.globalAlpha = a; x.fillStyle = this.p.ground; x.shadowColor = this.p.ground; x.shadowBlur = blur;
           x.beginPath(); x.roundRect(r[0] - pad, r[1] - pad * .5, r[2] - r[0] + pad * 2, r[3] - r[1] + pad, pad); x.fill(); x.restore();
         }
+        looks = null;
         if (!F.evened.includes(name)) F.evened.push(name);
       }
     }
@@ -1167,7 +1314,19 @@ export class FullAd extends Ad {
     const F = this.full = { U, e, g, wide, tall, col: [cx0, cx1], rects: {}, px: {}, left: [], layout: Lay, onGround: [], board: "", ink: gInk };
     // the claim, on its badge (a pill, a square tab, a ribbon, a bar the column's width)
     let claim = null;
-    if (st.feed_claim) {
+    /* THE CUSTOMER'S LOGO (logo/, DESIGN-LAW 176): a picture (st.claim_logo, a canvas the studio draws from
+       the brand kit, its name beside its mark) takes the badge's place, taller than a claim's
+       badge (1.8 times) and never wider than the column. It is the badge, so it is drawn as the claim is (it pops in;
+       no glow round it), and the layout keeps its room. A style without one, or one handed on as JSON (the
+       video maker's hand-off), draws the claim as ever. */
+    const logoPic = st.claim_logo && st.claim_logo.width > 0 && st.claim_logo.height > 0 ? st.claim_logo : null;
+    if (logoPic) {
+      const h0 = Math.round(U * FULL.claim * 1.7 * 1.8), k = Math.min(h0 / logoPic.height, colW / logoPic.width);
+      const c = canvas(Math.max(1, Math.round(logoPic.width * k)), Math.max(1, Math.round(logoPic.height * k))), x = c.getContext("2d");
+      x.imageSmoothingQuality = "high"; x.drawImage(logoPic, 0, 0, c.width, c.height);
+      claim = { c, fill: p.plate || p.accent, ink: gInk, px: Math.round(U * FULL.claim), glow: false, kind: "logo", logo: true };
+    }
+    if (st.feed_claim && !claim) {
       // its badge wears the plates' fill (rule 154); glass or an edge alone carries the words in the lines' ink
       const mode = st.plate_fill || (st.plate_grad ? "gradient" : "solid"), open = mode === "glass" || mode === "outline";
       const fill = p.plate || p.accent, text = st.feed_claim.toUpperCase();
@@ -2171,7 +2330,15 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   let first = drawPair(pairs, r(), st.subject);
   // its colourway: a pair of its tone and hue (or a neutral ground), of those that suit the line and its words
   if (lean && (H.tone || H.hue != null || H.neutral)) first = lean.pick(pairs, pairs.filter(k => pairAnswers(COLOUR_OF[k], H)), "colour") || first;
-  const key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, type_pair: _t, type_any: _a, ground_kind: _gk, photo_treat: _pt, ...picked } = pick;
+  /* a moving ground picked (rule 175): a pair with light words, as the clips are night streets, glows and lit cities
+     (under dark words the grade washed the neon street milky, 2026-11-24), that keeps the card to two families with
+     the clip picked (rule 139): the seed's pair where it does, else the first of the line's pairs that does */
+  const handClip = CLIPS[pick.ground_clip] ? pick.ground_clip : "", wantsClip = !!handClip || pick.ground_kind === "moving";
+  if (wantsClip) {
+    const light = k => !!COLOUR_OF[k] && lum(COLOUR_OF[k].colors.ink) >= lum(COLOUR_OF[k].colors.ground), ok = k => light(k) && (!handClip || photoSuits(CLIPS[handClip], k));
+    if (!ok(first)) first = pairs.find(ok) || pairs.find(light) || first;
+  }
+  const key = COLOUR_OF[pick.palette] ? pick.palette : first, { palette: _p, type_pair: _t, type_any: _a, ground_kind: _gk, photo_treat: _pt, ground_clip: _gc, ...picked } = pick;
   // the type: the house's one face, or one of the owner's pairs when one is picked (pick.type_pair, a
   // TYPE_VOICES key that FULL_VOICES holds). Carried in the look, after QUIET, so it is the face drawn.
   /* THE FACE A SEED DRAWS (2026-11-18, rule 154): every seeded full ad was set in the one house face,
@@ -2201,10 +2368,10 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   // the ground: a photograph given with the ad as given; otherwise the seed's own draw (groundFor), unless one was picked by hand
   if (st.ground_photo && st.ground_photo.src && (!pick.ground_kind || pick.ground_kind === "photo")) { look.background = "photo"; look.ground_photo = { ...st.ground_photo, ...(PHOTO_TREATS[pick.photo_treat] != null ? { treat: pick.photo_treat } : {}) }; }
   else if (!("background" in picked)) {
-    const gd = groundFor(st.subject, seed, key, productFor(st.subject, have), lean && H.ground && !pick.ground_kind ? { want: H.ground, photo: st.ground_hint || null, r: lr, pick: lean.pick } : null, metroOf(st.area), { kind: pick.ground_kind || "", treat: pick.photo_treat || "" });
+    const gd = groundFor(st.subject, seed, key, productFor(st.subject, have), lean && H.ground && !pick.ground_kind ? { want: H.ground, photo: st.ground_hint || null, r: lr, pick: lean.pick } : null, metroOf(st.area), { kind: pick.ground_kind || "", treat: pick.photo_treat || "", clip: handClip, seedClips: !!opts.moving });
     if (gd) Object.assign(look, gd); else delete look.ground_photo;
   }
-  if (look.ground_photo) loadGroundPhoto(look.ground_photo.src).catch(() => {});
+  if (look.ground_photo) { loadGroundPhoto(look.ground_photo.src).catch(() => {}); if (clipOf(look.ground_photo)) loadClipSheet(look.ground_photo.clip).catch(() => {}); }
   /* THE LOOK'S STYLES (spec/full-styles.json, motion/full-styles.js; the owner, 2026-11-18: "notice how
      it's all same spiky circle?", "no variety in the text pure outlines?", "don't see any gradients
      really?"): the sticker's shape and fill, the headline's treatment (and the shade round its words)
@@ -2225,7 +2392,8 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   for (const [k, v] of Object.entries(styles)) if (!(k in picked)) look[k] = held(k) ? st[k] : v;
   // a video look (videoLookFor): its own art direction over the house's draw; the full ad's sticker, its fills and
   // the number's mark stay the seed's
-  const vid = opts.look ? videoLookFor(st, seed, opts.look) : null;
+  // (not under a moving scene picked: a video look's own palette may have dark words, which wash a clip milky)
+  const vid = opts.look && !wantsClip ? videoLookFor(st, seed, opts.look) : null;
   if (vid && PALETTES[vid.palette]) {
     // a kind of ground locked in the maker's Background panel (rule 161) holds under a video look too
     const heldGround = pick.ground_kind ? { background: look.background, ground_photo: look.ground_photo } : null;
@@ -2259,28 +2427,43 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
       Object.assign(look, { type_pair: vid.type_pair, font: v.display, number_font: v.numberRead ? v.label : "same", full_pair: true });
     }
   } else look.full_look = false;
+  /* a moving scene's own kit (rule 179, motion/clips.js CLIPS[…].scene.kit): its entrance, the phone's move, its bed, its
+     hits and its chimes, one of each drawn on a stream of its own, so every other draw of the seed stays. What was picked
+     by hand stays, and a video look keeps its own art direction. The light sweep is on: the scene's moment crosses the words. */
+  const scene = !look.full_look && clipOf(look.ground_photo) ? CLIPS[look.ground_photo.clip].scene : null;
+  if (scene) {
+    const kr = rng(mixSeed((seed >>> 0) ^ 0x6c8e9cf5)); kr();
+    for (const [k, list] of Object.entries(scene.kit)) { const v = list[Math.floor(kr() * list.length) % list.length]; if (!(k in picked) && !kept.has(k)) look[k] = v; }
+    if (!("shine" in picked) && !kept.has("shine")) look.shine = true;
+  }
   // the layout (rule 158), on a stream of its own: what the seed drew above does not move
   Object.assign(look, drawLayout(seed, pick));
   const area = (st.area || "").trim();
   // What the customer left empty is filled from the lists, each line chosen so that it does not
   // repeat a promise the lines before it already make (the customer's own words are never changed:
   // fullWords() says where they repeat). The order is the order they are read in.
-  const fresh = (list, said) => { const start = Math.floor(r() * list.length); for (let i = 0; i < list.length; i++) { const w = list[(start + i) % list.length]; if (!said.some(x => sharesWord(w, x))) return w; } return list[start]; };
-  const label = st.number_label || (es ? "LLAMA O MANDA TEXTO" : FULL_WORDS.label[0]);
+  /* one of those that say nothing said, each as likely (2026-11-24): the walk from a random start to the next one
+     that fits gave a line all the draws of the lines before it that rarely fit (WE PAY TOP DOLLAR 21% of badges, TOP
+     CASH • PAID TODAY 1%, TOP $$$ a third of stickers over 4,680 ads). One draw either way, so the seed's stream holds */
+  const fresh = (list, said) => { const u = r(), ok = list.filter(w => !said.some(x => sharesWord(w, x))), L = ok.length ? ok : list; return L[Math.floor(u * L.length) % L.length]; };
+  const label = st.number_label || (es ? "LLAMA O ESCRÍBENOS" : FULL_WORDS.label[0]);
   // a look's small line that says what the call to action says (a video look's tag CALL OR TEXT over its CALL OR
   // TEXT, rule 158) gives way to one from the list: the ad never says one thing twice
-  const line = st.feed_line ?? (st.tag && !sharesWord(st.tag, label) ? st.tag : st.tag ? fresh(FULL_WORDS.line, [st.headline, label]) : one(FULL_WORDS.line));
+  const LINES = es ? FULL_WORDS.line_es : FULL_WORDS.line;
+  const line = st.feed_line ?? (st.tag && !sharesWord(st.tag, label) ? st.tag : st.tag ? fresh(LINES, [st.headline, label]) : one(LINES));
   /* the selling points (rule 164, motion/full-points.js): typed ones as typed; otherwise two to four drawn by the seed from
-     the line's own promises and any buyer's, each in one of its phrasings (a line's old fixed list counts as untyped) */
+     the line's own promises and any buyer's, each in one of its phrasings, in the ad's language (a line's old fixed list
+     counts as untyped) */
   const typedPoints = st.points != null && !OLD_DEFAULTS.has(String(st.points).trim().toUpperCase());
-  const points = typedPoints ? st.points : es ? (pointsOf({ ...st, points: null }).join(", ") || fresh(FULL_WORDS.points, [st.headline, line]))
-    : (drawPoints(st.subject, r, [st.headline, line], sharesWord) || fresh(FULL_WORDS.points, [st.headline, line]));
+  const points = typedPoints ? st.points
+    : (drawPoints(st.subject, r, [st.headline, line], sharesWord, es ? "es" : "en") || (es ? pointsOf({ ...st, points: null }).join(", ") : "") || fresh(FULL_WORDS.points, [st.headline, line]));
   // who is buying: a business name, where one is given, takes the badge (the first thing read). An ad
   // with no name on it is the pattern of the buyers nobody trusts (competitor research, 2026-11-12:
   // the brand is what carries the eye to the rest of an ad; "top dollar" is on every sign in the trade)
   const biz = String(st.biz || "").trim();
-  const claim = st.feed_claim ?? (biz ? biz.toUpperCase() : fresh(FULL_WORDS.claim, [st.headline, line, points]));
-  const burst = st.feed_burst ?? fresh(es ? FULL_WORDS.burst_es : FULL_WORDS.burst, [st.headline, line, points, claim, label]);
+  const cards = kindOf(st.subject) === "cards", W_ = k => FULL_WORDS[k + (cards ? "_cards" : "") + (es ? "_es" : "")] || FULL_WORDS[k + (es ? "_es" : "")];
+  const claim = st.feed_claim ?? (biz ? biz.toUpperCase() : fresh(W_("claim"), [st.headline, line, points]));
+  const burst = st.feed_burst ?? fresh(W_("burst"), [st.headline, line, points, claim, label]);
   const words = {
     feed_claim: claim, feed_line: line, points, points_drawn: !typedPoints, number_label: label,   // drawn points may be fewer where they do not fit; typed ones never quietly
     feed_where: st.feed_where ?? (area ? area.toUpperCase() : ""),
@@ -2296,7 +2479,7 @@ export function fullStyle(st, seed, phoneIndex = [], pick = {}, keep = [], opts 
   // the voice-over's lines are about phones: an ad for anything else plays its music alone
   const quiet = subject ? { voice: "off", vo_clip: "", vo_text: "" } : {};
   // what it stands on, by kind, and a photograph's treatment: the maker's Background panel shows them (rule 161)
-  const bgk = look.background, drawnGround = { full_ground: bgk === "photo" ? "photo" : /^pat_/.test(bgk) ? "pattern" : /^pair_/.test(bgk) ? "gradient" : GROUND_SCENES.includes(bgk) ? "scene" : GROUNDS.includes(bgk) ? "house" : FAMILY_OF[bgk] || "look",
+  const bgk = look.background, moving = clipOf(look.ground_photo), drawnGround = { full_clip: moving || "", full_ground: bgk === "photo" ? (moving ? "moving" : "photo") : /^pat_/.test(bgk) ? "pattern" : /^pair_/.test(bgk) ? "gradient" : GROUND_SCENES.includes(bgk) ? "scene" : GROUNDS.includes(bgk) ? "house" : FAMILY_OF[bgk] || "look",
     full_treat: (look.ground_photo && look.ground_photo.treat) || "grade" };
   return { ...out, ...QUIET, ...look, ...words, ...quiet, ...drawnGround, full: true, phones: subject ? have : (out.phones || []).slice(0, most) };
 }
@@ -2342,7 +2525,8 @@ export async function loadSubjectSet(subject, setIndex = 0, base = "../assets/cu
   // (subjectDraw). Given the seed (opts.seed), only the entry it draws is loaded (poolEntryFor): a
   // pool 3-5x the size it was (2026-11-18) is pictures nobody sees. Without a seed the whole pool
   // is loaded, as the checks want it. A set picked with Picture is that set alone.
-  const auto = !(setIndex | 0) && pool.length > 0;
+  // a set picked before its pictures were barred (scripts/build_full_subjects.mjs, 2026-11-23) leaves no set to show: the pool
+  const auto = pool.length > 0 && (!(setIndex | 0) || !sets.length);
   if (!sets.length && !auto) return { ids: [], assets: {} };
   const one = auto && Number.isFinite(+opts.seed) && opts.seed !== null && opts.seed !== undefined ? poolEntryFor(pool, +opts.seed) : -1;
   const set = auto ? (one >= 0 ? pool[one].set : pool.flatMap(e => e.set)) : sets[((setIndex % sets.length) + sets.length) % sets.length], assets = {}, ids = [];
@@ -2500,6 +2684,7 @@ export function fullPreflight(ad, frame) {
   let worst = 99, worstName = "";
   for (const [key, name, col, need] of lines) {
     let r = R[key]; if (!r) continue;
+    if (key === "claim" && ad.claim && ad.claim.logo) continue;   // a logo is read as its own engine set it (logo/engine.js), not as a line on a badge
     if (key === "number" && ad.st.number_style !== "underline") r = inPill(r);
     if (key === "call to action" && F.cta) r = inPill([r[0], r[1], r[2], r[1] + F.cta.h]);
     if (key === "footer" && F.footBand) r = inPill(r);

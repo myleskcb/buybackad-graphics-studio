@@ -60,9 +60,11 @@
 import { getStore } from '@netlify/blobs';
 import { libraryRoute } from '../lib/library.mjs';
 import { adLibraryRoute, ownerKey } from '../lib/adlibrary.mjs';
-import { PLANS, PACKS, PAID, planId, videoOk, cardsOk, creditState, backgroundCredits } from '../lib/plans.mjs';
+import { PLANS, PACKS, KITS, KIT_UPGRADE, KIT_ADDON_OFF, kitIncluded, PAID, planId, videoOk, cardsOk, logosOk, creditState, backgroundCredits, creditsFor, spendCredits, refundCredits } from '../lib/plans.mjs';
+import { logoFiles, brandKitFiles, cleanKitSpec } from '../lib/logos.mjs';
+import { aiNameIdeas, namesOn, NAMES_COST_KEY } from '../lib/names.mjs';
 import {
-  billingOn, stripeMode, stripe, priceFor, catalog, subState, applySub, applySession, customerOf,
+  billingOn, stripeMode, stripe, priceFor, catalog, subState, applySub, applySession, customerOf, kitsOf, kitCredits, refundKit,
   syncDue, syncSub, ensureWebhook, verifyEvent, webhookSecretKey, ensurePortalConfig, portalConfigKey, TERMS_VERSION,
   ensurePaymentDomain, paymentDomainKey, STATEMENT_SUFFIX, ownSession, ownSubscription,
 } from '../lib/billing.mjs';
@@ -230,7 +232,7 @@ export default async (req) => {
       /* billingMode and embedded say, without a secret, whether checkout is
          test or live and whether its form opens inside the site (the deploy
          check in .github/workflows/deploy.yml reads them) */
-      return json({ plans: PLANS, packs: PACKS, ai: { background: backgroundCredits(env) }, billing: billingOn(env),
+      return json({ plans: PLANS, packs: PACKS, kits: KITS, ai: { background: backgroundCredits(env), names: namesOn(env) ? creditsFor(NAMES_COST_KEY, env) : null }, billing: billingOn(env),
         billingMode: billingOn(env) ? stripeMode(env) : null, embedded: billingOn(env) && !!formKey(env) });
     }
     /* One probe for a deploy (SETUP.md; the workflow's "What went live"):
@@ -411,6 +413,11 @@ export default async (req) => {
       if (kind === 'card' && !cardsOk(user.plan)) {
         return json({ error: 'Print-ready business cards come with Pro and Business', needs: 'cards', user: publicUser(user, env) }, 403);
       }
+      /* the logo files and brand kit (logo/): Pro and Business (plans.mjs logos). The logo maker asks
+         here only to know whether its preview is marked; the files come from /logo/file below. */
+      if (kind === 'logo' && !logosOk(user.plan)) {
+        return json({ error: 'Logo files come with Pro and Business', needs: 'logos', user: publicUser(user, env) }, 403);
+      }
       if (kind === 'video' && !videoOk(user.plan)) {
         return json({ error: 'Video downloads come with Pro and Business', needs: 'video', user: publicUser(user, env) }, 403);
       }
@@ -429,6 +436,108 @@ export default async (req) => {
       }
       if (p === '/export') { user.exports.count++; await putUser(user); }
       return json({ user: publicUser(user, env), maxPx: m.plan.maxPx, watermark: m.plan.watermark, remaining: m.cap === null ? null : m.cap - user.exports.count });
+    }
+
+    /* THE LOGO FILES (logo/, DESIGN-LAW 176). The page sends the design it shows; the plan is checked
+       (Pro and Business: plans.mjs logos), one photo download is counted, and the files are drawn
+       here by logo/engine.js (netlify/lib/logos.mjs), so a clean vector never comes from a browser
+       that has not paid. A drawing that fails counts nothing. */
+    if (p === '/logo/file' && req.method === 'POST') {
+      const em = await readToken(req, env);
+      if (!em) return json({ error: 'Not signed in' }, 401);
+      const user = await getUser(em);
+      if (!user) return json({ error: 'Account not found' }, 404);
+      const admin = roleFor(em, env) === 'admin';
+      if (!admin) await freshUser(user, env);
+      const { design, phone } = await req.json().catch(() => ({}));
+      if (!design || typeof design !== 'object' || Array.isArray(design)) return json({ error: 'Send the logo to draw' }, 400);
+      if (!admin && !logosOk(user.plan)) return json({ error: 'Logo files come with Pro and Business', needs: 'logos', user: publicUser(user, env) }, 403);
+      const m = exportMeter(user);
+      if (!admin && m.cap !== null && m.remaining <= 0) {
+        return json({ error: 'Download limit reached: ' + m.plan.label + "'s " + m.cap + ' photo downloads this ' + m.per, kind: 'photo', limit: m.cap, per: m.per, user: publicUser(user, env) }, 402);
+      }
+      let files;
+      try { files = await logoFiles(design, phone); }
+      catch (e) { console.error('logo files:', e); return json({ error: 'The logo could not be drawn' }, 500); }
+      if (!admin) { user.exports.count++; await putUser(user); }
+      return json({ files, user: publicUser(user, env) });
+    }
+
+    /* THE BRAND KITS (logo/kit.js, DESIGN-LAW 180). A kit bought (alone at $14.99 or $19.99, or as the
+       add-on at a Starter plan's checkout) is a credit on the account until a kit is saved with it: one
+       business name, its design free to change after, its files drawn here by the engine and downloaded
+       again any time, never counted against the photo downloads. Pro and Business include Complete. */
+    if (p === '/kits' || p === '/kits/save' || p === '/kits/file') {
+      const em = await readToken(req, env);
+      if (!em) return json({ error: 'Not signed in' }, 401);
+      const user = await getUser(em);
+      if (!user) return json({ error: 'Account not found' }, 404);
+      const admin = roleFor(em, env) === 'admin';
+      if (!admin) await freshUser(user, env);
+      const view = () => {
+        const k = kitsOf(user);
+        return { included: admin ? 'complete' : kitIncluded(user.plan), credits: kitCredits(user),
+          saved: k.saved.filter((x) => !x.refunded).map((x) => ({ id: x.id, name: x.name, tier: x.tier, spec: x.spec, at: x.at, via: x.via })),
+          prices: { essentials: KITS.essentials.price, complete: KITS.complete.price, upgrade: KIT_UPGRADE.price, addonOff: KIT_ADDON_OFF } };
+      };
+      if (p === '/kits' && req.method === 'GET') return json(view());
+      if (req.method !== 'POST') return json({ error: 'Not found' }, 404);
+      const body = await req.json().catch(() => ({}));
+      if (p === '/kits/save') {
+        let spec;
+        try { spec = await cleanKitSpec(body.spec); } catch (e) { return json({ error: 'Send the kit to save' }, 400); }
+        const k = user.kits = kitsOf(user), key = String(spec.design.name || '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim();
+        if (!key) return json({ error: 'Your kit needs a business name' }, 400);
+        let kit = k.saved.find((x) => x.key === key && !x.refunded);
+        if (kit) { kit.spec = spec; kit.at = Date.now(); }
+        else {
+          const inc = admin ? 'complete' : kitIncluded(user.plan);
+          let tier = inc, via = admin ? 'admin' : 'plan', b = null;
+          if (!inc) {
+            const order = body.tier === 'essentials' ? ['essentials', 'complete'] : ['complete', 'essentials'];
+            b = order.map((t) => k.bought.find((x) => x.tier === t && !x.used && !x.refunded)).find(Boolean);
+            if (!b) return json({ error: 'Buy a brand kit to keep this one', needs: 'kit', ...view() }, 402);
+            tier = b.tier; via = 'bought';
+          }
+          kit = { id: 'k' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), key, name: spec.design.name, tier, spec, at: Date.now(), via };
+          if (b) b.used = kit.id;
+          k.saved.unshift(kit);
+          if (k.saved.length > 100) return json({ error: 'This account has 100 kits. Ask support to keep more.' }, 409);
+        }
+        await putUser(user);
+        return json({ kit: { id: kit.id, name: kit.name, tier: kit.tier, spec: kit.spec, at: kit.at, via: kit.via }, ...view() });
+      }
+      if (p === '/kits/file') {
+        const kit = kitsOf(user).saved.find((x) => x.id === body.id && !x.refunded);
+        if (!kit) return json({ error: 'That kit is not on this account' }, 404);
+        try { return json({ kit: { id: kit.id, name: kit.name, tier: kit.tier }, ...(await brandKitFiles(kit.spec, kit.tier)) }); }
+        catch (e) { console.error('kit files:', e); return json({ error: 'The kit could not be drawn' }, 500); }
+      }
+    }
+
+    /* AI NAME IDEAS (netlify/lib/names.mjs, DESIGN-LAW 180): Claude mixes the shop's own words into
+       names. The credits are taken first (an operator is never charged) and given back if it fails. */
+    if (p === '/names' && req.method === 'POST') {
+      const em = await readToken(req, env);
+      if (!em) return json({ error: 'Sign in to ask the AI for names' }, 401);
+      const user = await getUser(em);
+      if (!user) return json({ error: 'Account not found' }, 404);
+      if (!namesOn(env)) return json({ error: 'AI name ideas are not switched on yet' }, 503);
+      const cost = creditsFor(NAMES_COST_KEY, env);
+      if (cost === null) return json({ error: 'AI name ideas are not priced yet' }, 503);
+      const admin = roleFor(em, env) === 'admin';
+      const body = await req.json().catch(() => ({}));
+      const spent = admin ? null : spendCredits(user, cost);
+      if (!admin && !spent) return json({ error: 'Not enough AI credits: name ideas take ' + cost, needs: 'credits', cost, user: publicUser(user, env) }, 402);
+      if (spent) await putUser(user);
+      try {
+        const got = await aiNameIdeas(env, { keywords: body.keywords, cat: body.cat, town: body.town });
+        return json({ ...got, cost: admin ? 0 : cost, user: publicUser(user, env) });
+      } catch (e) {
+        if (spent) { const u = await getUser(em); refundCredits(u, spent); await putUser(u); }
+        console.error('names:', e.message);
+        return json({ error: e.message || 'The AI did not answer' }, e.status || 502);
+      }
     }
 
     // ---------- AI backgrounds: admin path ----------
@@ -560,9 +669,14 @@ export default async (req) => {
       if (!user) return json({ error: 'Account not found' }, 404);
       const body = await req.json().catch(() => ({}));
       const pack = PACKS[body.pack] ? body.pack : null;
-      const plan = pack ? null : planId(body.plan);
+      /* a brand kit alone (essentials, complete, or upgrade: a saved Essentials kit to Complete), or as the
+         add-on at a Starter plan's checkout, KIT_ADDON_OFF less (plans.mjs KITS) */
+      const kit = !pack && (KITS[body.kit] || body.kit === 'upgrade') ? body.kit : null;
+      const plan = pack || kit ? null : planId(body.plan);
       const interval = body.interval === 'year' ? 'year' : 'month';
-      if (!pack && (!PAID.includes(plan) || !PLANS[plan].price[interval])) return json({ error: 'Unknown plan' }, 400);
+      if (!pack && !kit && (!PAID.includes(plan) || !PLANS[plan].price[interval])) return json({ error: 'Unknown plan' }, 400);
+      const addKit = plan === 'basic' && KITS[body.addKit] ? body.addKit : null;
+      const kitId = kit === 'upgrade' ? String(body.kitId || '') : '';
       /* the customer agrees to the Terms, and to the automatic renewal for a
          plan, in the site's checkout dialog before any session exists; the
          agreement goes on the session, the subscription or the payment, and
@@ -570,6 +684,8 @@ export default async (req) => {
       if (body.consent !== true) return json({ error: 'Agree to the Terms of Service to continue.', consent: true }, 400);
       const consentAt = new Date().toISOString();
       await freshUser(user, env);
+      if (kit === 'upgrade' && !kitsOf(user).saved.some((x) => x.id === kitId && x.tier === 'essentials' && !x.refunded)) return json({ error: 'That kit is not an Essentials kit on this account' }, 400);
+      if (kit && kit !== 'upgrade' && kitIncluded(user.plan)) return json({ error: 'Your plan already includes the Complete brand kit', included: true }, 409);
       if (plan && planId(user.plan) !== 'free' && user.sub && user.sub.id && user.sub.status !== 'gone') {
         return json({ error: 'You already have a plan. Switch it instead.', switch: true }, 409);
       }
@@ -594,11 +710,16 @@ export default async (req) => {
       if (wh.status === 'rejected') console.warn('billing: the webhook could not be registered; the return page and the sign-in check carry the plan', wh.reason && wh.reason.message);
       if (pmd.status === 'rejected') console.warn('billing: the payment method domain could not be registered; cards still work, wallets may not show', pmd.reason && pmd.reason.message);
       let price;
-      try { price = await priceFor(env, plan ? plan + '_' + interval : pack); }
+      let addPrice = null;
+      try {
+        price = await priceFor(env, plan ? plan + '_' + interval : pack || 'kit_' + kit);
+        if (addKit) addPrice = await priceFor(env, 'kit_' + addKit + '_addon');
+      }
       catch (e) { return json({ error: 'Checkout could not start: ' + e.message }, 502); }
       const customer = customerOf(user, env);
-      const md = Object.assign(plan ? { email: em, plan, interval } : { email: em, pack, credits: PACKS[pack].credits },
-        { terms: TERMS_VERSION, consent_at: consentAt });
+      const label = pack ? PACKS[pack].label : kit ? (kit === 'upgrade' ? KIT_UPGRADE.label : KITS[kit].label) : '';
+      const md = Object.assign(plan ? { email: em, plan, interval } : pack ? { email: em, pack, credits: PACKS[pack].credits } : { email: em, kit },
+        addKit ? { kit: addKit } : {}, kitId ? { kit_id: kitId } : {}, { terms: TERMS_VERSION, consent_at: consentAt });
       const money = (c) => '$' + (c / 100).toLocaleString('en-US', { minimumFractionDigits: c % 100 ? 2 : 0 });
       /* Embedded Checkout (owner, 2026-10-11: "a functional checkout that is
          also wrapped so we don't show the main generic Stripe checkout. It's
@@ -615,17 +736,19 @@ export default async (req) => {
          supported. Use embedded_page instead."). */
       const pk = formKey(env);
       const embed = body.embedded === true && !!pk;
-      const back = site + '/?checkout=success&session_id={CHECKOUT_SESSION_ID}';
+      // a kit bought on the logo maker comes back to it; a plan or a pack to the studio
+      const home = kit ? site + '/logo/' : site + '/';
+      const back = home + '?checkout=success&session_id={CHECKOUT_SESSION_ID}';
       const params = {
         mode: plan ? 'subscription' : 'payment',
-        line_items: [{ price, quantity: 1 }],
+        line_items: [{ price, quantity: 1 }, ...(addPrice ? [{ price: addPrice, quantity: 1 }] : [])],
         customer: customer || undefined,
         customer_email: customer ? undefined : em,
         customer_creation: !plan && !customer ? 'always' : undefined,
         client_reference_id: em,
         metadata: md,
         // partner and creator discounts are Stripe promotion codes, on the plans
-        allow_promotion_codes: plan ? 'true' : undefined,
+        allow_promotion_codes: plan || kit ? 'true' : undefined,
         subscription_data: plan ? { metadata: { email: em, plan, terms: TERMS_VERSION, consent_at: consentAt } } : undefined,
         payment_intent_data: plan ? undefined : { metadata: md, statement_descriptor_suffix: STATEMENT_SUFFIX },
         /* B2B: a business can add its tax ID (and the name and address it
@@ -635,14 +758,16 @@ export default async (req) => {
         tax_id_collection: { enabled: 'true' },
         customer_update: customer ? { name: 'auto', address: 'auto' } : undefined,
         automatic_tax: env.STRIPE_TAX === 'on' ? { enabled: 'true' } : undefined,
-        invoice_creation: plan ? undefined : { enabled: 'true', invoice_data: { description: PACKS[pack].label + ' for WeBuy.AD', metadata: md } },
+        invoice_creation: plan ? undefined : { enabled: 'true', invoice_data: { description: label + ' for WeBuy.AD', metadata: md } },
         // the renewal terms, next to Stripe's own pay button
         custom_text: { submit: { message: plan
           ? 'Renews automatically every ' + interval + ' at ' + money(PLANS[plan].price[interval]) + ' plus any tax until you cancel. Cancel any time in Plan & billing; your plan stays on to the end of the period you paid for.'
-          : 'One-time payment for ' + PACKS[pack].credits + ' AI credits. Bought credits never expire.' } },
+            + (addKit ? ' The brand kit is a one-time charge on this first payment.' : '')
+          : pack ? 'One-time payment for ' + PACKS[pack].credits + ' AI credits. Bought credits never expire.'
+          : 'One-time payment for your brand kit. It stays on your account: download it again any time.' } },
         ...(embed
           ? { ui_mode: 'embedded_page', return_url: back, redirect_on_completion: 'if_required' }
-          : { success_url: back, cancel_url: site + '/?checkout=cancel' }),
+          : { success_url: back, cancel_url: home + '?checkout=cancel' }),
       };
       let j = await stripe(env, 'POST', '/checkout/sessions', params).catch((e) => ({ error: e.message }));
       if (j.error && customer && /no such customer/i.test(j.error)) {
@@ -653,7 +778,7 @@ export default async (req) => {
       }
       if (j.error) return json({ error: j.error }, 502);
       user.checkout = { id: j.id, ts: Date.now() };
-      user.consent = { terms: TERMS_VERSION, at: consentAt, for: plan ? plan + '_' + interval : pack };
+      user.consent = { terms: TERMS_VERSION, at: consentAt, for: plan ? plan + '_' + interval + (addKit ? '+kit_' + addKit : '') : pack || 'kit_' + kit };
       await putUser(user);
       if (embed) return json({ clientSecret: j.client_secret, publishableKey: pk, sessionId: j.id });
       return json({ url: j.url, sessionId: j.id });   // the iPhone app keeps the id and confirms it when the customer comes back from Safari
@@ -677,7 +802,7 @@ export default async (req) => {
       if (cs.status !== 'complete') return json({ pending: true, user: publicUser(user, env) });
       const got = applySession(user, cs, typeof cs.subscription === 'object' ? cs.subscription : null, env);
       if (got) await putUser(user);
-      return json({ applied: got, kind: cs.mode === 'payment' ? 'credits' : 'plan', user: publicUser(user, env) });
+      return json({ applied: got, kind: (cs.metadata || {}).pack ? 'credits' : cs.mode === 'payment' ? 'kit' : 'plan', user: publicUser(user, env) });
     }
 
     /* A paid account moves to another plan or interval on the same
@@ -732,6 +857,11 @@ export default async (req) => {
         const pi = await stripe(env, 'GET', '/payment_intents/' + piId).catch(() => null);
         const pmd = (pi && pi.metadata) || {};
         const pem = String(pmd.email || '').toLowerCase();
+        if (pem && (KITS[pmd.kit] || pmd.kit === 'upgrade')) {
+          const list = await stripe(env, 'GET', '/checkout/sessions', { payment_intent: piId, limit: 1 }).catch(() => null);
+          const cs = list && list.data && list.data[0], kuser = cs ? await getUser(pem) : null;
+          if (kuser && refundKit(kuser, cs.id)) await putUser(kuser);
+        }
         const puser = pem && PACKS[pmd.pack] ? await getUser(pem) : null;
         if (puser) {
           puser.refunded = Array.isArray(puser.refunded) ? puser.refunded : [];

@@ -7128,3 +7128,527 @@ failed one drew the browser's mark and its alt text across the tile, for good.
   fail, which is how a still missing from a build is caught before a visitor finds it.
 
 Not done here: OPEN-ITEMS §BY.
+
+## 170. No real card art and no credited photograph on a card ad; the 2026 phones painted; Spanish ads in Spanish
+
+Added 2026-11-23. The owner, of the four things left open on 2026-11-22 (the 2026 Samsung and Pixel
+pictures, the Spanish selling points, the first-guess weights, the credited Charizard): "CAN WE FIX ALL 4".
+
+- **The real Charizard is gone, everywhere.** The graded Charizard cut-out (`poke-psa-charizard`) and
+  the two Pokémon ground photographs it was cut from (`assets/bg-web/pokemon-charizard-card-1` and `-2`)
+  were CC BY-SA (a credit on every ad) and carried the maker's art and a photographer's mark: rule 161
+  already said a paid ad may carry neither. The cut-out is rejected (`assets/approved-assets.json`
+  reason `real-card-art`) and flagged (`assets/cutout-flags.json`), so no pool, template audit or AI
+  background picker draws it; the offer family, the street templates and the category cut-outs take
+  the painted ph-poke-* pictures; the 48 site designs that showed it take `ph-poke-slab` (the same
+  shape, 0.605 to 1). The grounds are painted again as the same scene (`scripts/paint_card_scenes.mjs`,
+  `pokemon-slabs-display-1` and `-2`: a glossy display table, slabs of no grader on clear stands, a
+  shop blurred behind), so the 66 designs laid out over the photographs keep their light where their
+  words stand; their bg-offer crops, p90s, luminance rows and every reference moved with them, the
+  photographs left the library, and the 94 site designs that drew either were re-rendered.
+- **The 2026 Galaxy and Pixel, painted** (`scripts/phone-painter.js`, `scripts/paint_phone_pictures.mjs`):
+  Commons has no 2026 Galaxy or Pixel photograph an ad can use, so seventeen are drawn the way the card
+  pictures are: the Galaxy S26 and S26 Ultra with the lenses in one raised pill, the Z Fold 8 open and
+  closed, the Z Flip 8 with its cover screen and open, the Pixel 11 and 11 Pro with the camera bar, a
+  Pixel foldable open, each in its own finishes; no maker's logo, no word on a back, nobody's software
+  on a screen (a clock and colour fields only). They lead the galaxy, pixel, foldable and android
+  pools; the older pictures stay in the draw. A photograph of the shop's own stock replaces any one.
+- **Spanish ads say it in Spanish** (`motion/full-points.js` PROMISES_ES, KINDS_ES): the same promises
+  as rule 164 by the same keys and weights, each said two to five ways in Spanish, 18 letters at most,
+  no comma; a Spanish full ad draws them as the English one does (it drew the catalogue's one Spanish
+  list before, TODOS LOS MODELOS on a gold ad). Its badge and small line come from Spanish lists too
+  (FULL_WORDS.claim_es, line_es): they were drawn from the English ones. `scripts/words_check.mjs`
+  reads every phrasing in both languages and fails one longer than 18 or with a comma.
+- **The shares are the owner's to set**: the gallery's Tune the mix panel shows real ads for each kind
+  of ground (nine), each photo treatment (five) and each number of points (three), and keeps the
+  owner's More, Less, Same or Never in the page's own store (`tuning/choices`); the weights in
+  `spec/full-grounds.json`, `PHOTO_TREAT_SHARES` and `POINT_COUNTS` follow it.
+
+## 171. Card ads in a collector's voice; Spanish ads in Spanish from the headline down; the goods recognisable; grounds that read
+
+Added 2026-11-23. The owner, reviewing the gallery: the sports-card ad "this ad no good", "the copy on the sports
+cards is just kind of bad ... we're aliens trying to appeal to a collector that would easily see through this type of
+ad ... Cards are screaming scalper"; the painted cards "look like energy Pokémon cards, which no one trades and booster
+box of something generic just doesn't look real"; the cars' road "a pretty odd road photo", the trucks' tread "maybe a
+more recognizable tire pattern"; Product wall, close-up and echo "getting a bit lost in translation"; the turned phones
+"look rather flat ... going a few degrees less so you can see more Phone". Five audits (pictures twice, grounds, words,
+image rights) read every line first; their findings are OPEN-ITEMS §CA.
+
+- **A card seller is a collector, or a collector's family.** The card lines draw their own points (`motion/full-points.js`
+  KINDS.cards: one card or a lot, whole collections, graded or raw, card by card, you decide, any era) and say the shared
+  promises their own way (KIND_SAYS: send photos first, paid when we agree; no NO FEES), their own badge and sticker
+  (`FULL_WORDS.claim_cards`, `burst_cards`, Spanish too), headlines without CASH FOR (`scripts/build_full_subjects.mjs`
+  HEADS, coins too) and sublines in plain words (`offer-library.js`). No sealed boxes, packs or bulk (a flipper buys
+  those), no hobby words in a row, no speed. A sticker's longest word stays about five letters: it breaks on spaces.
+- **The words the trade distrusts are on the one list** (`spec/banned-words.json`): HONEST (rule 80: a reputation
+  nobody gave), IN MINUTES, NO APPOINTMENT, FAST CASH, ONLINE NOW, the payment apps; on the card lines GRAILS, chase-card
+  names, SEALED WAX and APPRAISAL. The library designs were rebuilt so their card words drop out. Phones are not yet held
+  to HONEST and FAST CASH: iPhones LA's own feed stills say them, the owner's call.
+- **A Spanish ad is Spanish from the headline down**: every line has `heads_es` and `models_es` (carros, camionetas,
+  audífonos, bocinas), and the video maker uses them when a line is picked, a design opened, or the language changed
+  (`motion/app.js` lineWords, relang). `scripts/words_check.mjs` reads them.
+- **A picture the owner rejected or the audits flagged is never drawn**: the offer family's sets go through the same bar
+  as the pools (a line whose pool was empty drew its first set: a rejected speaker, laptop and smartwatch on every ad), a
+  set picked before its pictures were barred falls back to the pool, and 30 more pictures are flagged with their reason
+  (`assets/cutout-flags.json`: empty slabs, mislabelled Pixels, TVs on the monitor line, AI renders with a made-up brand, the
+  1933 double eagle, which no one may own). The coin and gold pools name their recognisable bullion first.
+- **Grounds that read at feed size**: road, tread and reeded edge are solid shapes in the tone with their details cut
+  out (a road from above with its lane lines and a zebra crossing; a tyre and five-spoke wheel cut by a corner, or its
+  tread unrolled with grooves and slanted blocks; a grooved rim), at a wider step. The product grounds keep what makes the
+  goods the goods: the wall is the real picture tinted on shelves, the close-up shows the product's top in an upper
+  corner, the echo ripples its outline out from where it stands.
+- **A full ad turns a phone a sixth less** (`motion/engine.js` FULL_TURN): about 29 degrees turned, 50 side on. Videos
+  and recipes keep their angles.
+
+## 174. A video ad sounds like a trailer, not a game
+
+Added 2026-11-18, built out 2026-11-19. The owner, of the video ads' music
+and sound effects: "funny and cheerful but not always professional ... like
+I'm playing mario kart ... I need like trailer commercial professional".
+Then, of a trailer's own sounds, the jazz out of the shuffle and the number
+sound evened: "1-3 best suggestion works", "I trust you". Having heard them:
+"Sounds right", "they're good but take out the weirder instruments and
+openers.. pick the top ones", "most popular and make more tunes, songs, or
+chimes we can use.. also how about other genres other then lofi?", "make
+sure multiple songs / tunes can play over each other". Asked, the owner
+chose layers in one key and original hooks.
+
+Drawn over 2000 shuffles before this, 98.8% of looks played at least one
+game-like sound, 3.1 on average: an opening air horn, siren, referee's
+whistle or vibraslap (51%), a bell, mallet, whistle or cork number sound
+(72%), a rising bell run when the phones shine (68%), two bells rising a
+fifth on the end card (57%), an anvil, whip, gong or orchestra hit (36%), a
+famous tune played by the maker (27%, often on a xylophone or a kalimba).
+Half played the Air Force and Navy big-band jazz (51%).
+
+**Stand-ins, not weights** (`STAND_INS` in `motion/catalog.js`, `standIns`
+in `motion/engine.js`). The catalog's weights are as they were, so every
+look number draws what it always drew; one that lands on a sound a shuffle
+may no longer play takes a stand-in, drawn from a stream of its own. A
+holiday ad keeps its own tunes and opening sound.
+
+| Out of the shuffle | Stand-in |
+|---|---|
+| every opening sound | none |
+| the anvil, whip, gong and orchestra hits | the braam 2, the low hit 1, the sub drop 1 |
+| the bell, mallet, whistle and cork number sounds | ticks and a low hit 2, whoosh into a low hit 2, soft typing 1, each chime .5 |
+| every famous tune | none 3, an original hook 2 (one of eight) |
+| the marimba, xylophone, glockenspiel, kalimba | piano, electric piano, harp |
+| the circus march, the groove with a whistle on the bar | the trailer's bed |
+| lo-fi | lo-fi 1, R&B 1, radio pop 1 |
+| the big-band jazz, and the retired pieces that play it | the trailer's bed 2; radio pop .5, deep house .4, R&B .3, future bass .3, reggaeton .2, synthwave .2, nu-disco .1 |
+
+A first pass gave each removed sound's share to its neighbours in the list,
+which kept the draw but not the balance (the bill counter rose to 40% of
+number sounds); the stand-ins put each sound where it is wanted.
+
+**The most popular kept, the weirder retired** (`SOUND_ALIASES`): the maker
+no longer offers them, a saved look plays the stand-in named, and a shuffle
+never leaves one in place (`RETIRED_AXES`).
+- Opening sounds: the air horn, siren, referee's whistle, vibraslap and bell
+  tree. Kept: none, the braam, the gong, wind chimes, sleigh bells
+  (Christmas).
+- Instruments for a tune: marimba, xylophone, glockenspiel, kalimba,
+  balafon, strumstick, harmonica, clavinet, harpsichord, both organs, the
+  upright piano, the acid, G-funk, FM bell and pluck synths. Kept: piano,
+  electric piano, vibraphone, tenor sax, harp, warm synth, supersaw, synth
+  brass, nylon guitar, string section.
+- Headline hits: the whip (to the sub drop), the anvil (the low hit), the
+  orchestra hit (the braam).
+- Number sounds: the pop, two bells, "shave and a haircut", tubular bell,
+  triangle, glockenspiel run, harp sweep, whistle, message ding and phone
+  buzz, each to the nearest trailer sound or chime.
+
+The music styles are not trimmed: the circus march and the rest stay
+offered by hand.
+
+**A trailer's own sounds** (`motion/audio.js`, `motion/music.js`):
+- **The braam** (a headline hit, and an opening sound): a swell into a low
+  brass blast, the key's root, fifth and octave between C2 and B2 on detuned
+  sawtooths, driven, its filter flaring to 1.5 kHz and closing as it dies.
+  As an opening sound it is gone by a voiceover's first word.
+- **Clock ticks and a low hit**, **whoosh into a low hit** (number sounds).
+  Soft typing ends on a thump, not a pop.
+- **The trailer's bed** (100 to 112 bpm, minor): a drone, strings and a
+  clock until the hit; then sixteenths on a synth bass accented three,
+  three, two, bass drum and timpani, toms, a reverse cymbal into every
+  fourth bar.
+
+**Chimes** (in the bed's key, each on a soft low hit, nothing pitched above
+about 1.2 kHz): a piano chord, a three-note logo on electric piano, a string
+swell, a brass stab. Each is a number sound and an **end chime** (`sting`, a
+new menu, drawn last of everything so no other draw moves): half the looks
+with an end card close on one.
+
+**Original hooks** (`HOOKS` in music.js; `HOOK_MODE`, `HOOK_PAIR` in the
+catalog): Lift, Skyline, Golden, Bright (major), Night drive, Rise, Street,
+Pulse (minor), four bars each, written for these ads and checked against the
+famous openings they could echo (two drafts began as "Happy Birthday" and
+"Mary Had a Little Lamb" and were rewritten). A shuffled hook plays its twin
+of the other mode over a bed in that mode (`KIT_MODE`); one picked by hand
+plays as picked.
+
+**Layers in one key.** The music made here, a hook, the hits, the number's
+sound and the end chime already share one key and tempo. Over a real
+recording or the user's own track, that key is the one it is heard in
+(`recordingKey`: a Goertzel bank, E2 to B5, on the first 20 s, against the
+Krumhansl-Kessler profiles; null under r .5, where the seed's key plays).
+Of six recordings of known key it reads all six (the four a shuffle plays:
+Morning Mood E, the New World finale E minor, Vivaldi's Winter F minor,
+Mozart's 40th G minor; and the Moonlight, the William Tell finale); the
+Mountain King and Für Elise read a fifth above (both by hand only). Before
+this, every cue over a recording was in a key drawn from the seed. Drums
+under a recording were tried and left out: locked to its measured tempo from
+the hit they held two seconds, then drifted off its beat.
+
+**Measured** (2026-11-19, ten-second looks levelled to -16 LUFS; the loudest
+50 ms): the headline hits -6 to -9.5 dB (the braam -8.3), the trailer number
+sounds and chimes -12.6 to -15.2 (at least 4 dB under), end chimes -13.2 to
+-15; the whoosh and bell -19. After the hit the trailer's bed against the
+house groove: sub +2.2 dB, low-mid -0.6, mid -1.0, high -0.2 (a first cut
+was 3.7 dB lower in the mids and 3.5 dB heavier in the sub).
+
+**After**, over the same 2000 shuffles: 95.1% play no game-like sound and no
+jazz, and the full ad 100% of 2000 (the 4.9% left are rule 129's confetti).
+Genres in 1000 shuffles: 23; the trailer's bed 26%, house 9%, radio pop 8%,
+R&B 6%, hip-hop 6%, minimal and uplifting pop 5.5% each, deep house 5%,
+future bass 3%, synthwave and reggaeton 2.5% each, lo-fi 2% (was 5.5%). An
+original hook over 25%; the music made here in 86%, a recording in 14%.
+Against the commit before any of this (9dddf354), no look moved off a sound
+a shuffle still plays.
+
+**Checked** by `scripts/motion_music_check.mjs` part 7 (its head lists
+every measure), and the owner heard the trailer's bed, the braam and the
+ticks before the rest was built.
+
+Heard by the owner (2026-11-19), the chimes, the hooks and the genres in the
+shuffle: "Sounds right". Every sound here was built and balanced by measure
+first; the owner's ear is the last check.
+
+## 175. A video ad may stand on a moving scene: a clip that plays under the words, read at every moment
+
+Added 2026-11-24. The owner asked for backgrounds that move (cities, devices,
+cars), made cost-effectively, as a library beside the free photographs, and
+remembered a cheap Chinese model whose name began with an h. Having seen the
+test batch behind mock ads on a review page: "Yes, build it".
+
+Measured first (the motion-ground test, 2026-11-24, fifteen clips on fal for
+$4.03). MiniMax Hailuo 02 Standard (27 cents for 6 s at 768p) kept four of five
+scenes drawn first as a square still (Seedream v4, 3 cents), and one of five
+animated library photographs: on a wide photograph it mangles the small things
+(the traffic of an aerial as red bars, towers ghosting through each other,
+people at a rail). A kept clip costs about 38 cents drawn and $1.35 from a
+photograph. Hailuo Pro (48 cents, 1080p) is sharper, and kept the aerial
+cleanest; Hailuo Fast (10 cents) takes no end frame, so it cannot loop; LTX
+(2 cents) bends its subject and comes back 3:2. Given the same picture as its
+first and last frame, a Hailuo clip comes back near its start, and its last
+0.75 s faded into its opening left every seam at 8 ordinary frame steps or
+fewer.
+
+- **The library** (`motion/clips.js`; the files in `motion/clips/`, made by
+  `scripts/build_clip_grounds.sh` from the looped clips): six clips, 7 MB
+  together. The neon street at night, the glowing circuit board, the city at
+  golden hour and the phone in a light sweep were drawn; the gold bars and the
+  Los Angeles aerial (on Pro) are library photographs. Each is an MP4 with a
+  key frame every half second and no B-frames, so a seek is quick; its first
+  frame as a picture; and a sheet of twelve moments across it (every 10th
+  frame, 256 px).
+- **A photograph that moves** (`FullAd._photoGround`): a ground_photo whose src
+  is the clip's first frame and whose clip names it, graded, framed and pushed
+  in on as a photograph is (rule 161). A duotone or a tint is laid into a picture
+  once, so a clip is graded instead. Every path that draws a still (the gallery,
+  the audit, the plan, the pre-flight) draws the first frame.
+- **Where a clip may stand**, tagged as a photograph is: a scene goes with any
+  goods; the gold bars only behind gold; the phone, a drawn phone of no model
+  you can name, only by hand (a photograph of goods stands behind its own,
+  rule 161); the city at golden hour (drawn, but palm-lined) and the aerial only
+  for Los Angeles; the neon street never behind a car. A clip with a strong
+  colour only under a pair of its family (rule 139).
+- **Light words only.** The clips are night streets, glows and lit cities; under
+  dark words the grade washes them milky (the neon street on a template's
+  bone-and-purple colours). A seed draws one only under light words; a scene
+  picked in the maker takes a pair with light words, lets a template's
+  dark-word colours go and says so, and wears no video look (rule 158) over it,
+  whose palette may have dark words.
+- **How often**: picked in the maker's Background panel (Stands on: A moving
+  scene; Moving scene: Any that suits, or one), or drawn by New look in the video
+  maker for 30% of the seeds a clip fits (`CLIP_SHARE`): 6.0% of iPhone ads in
+  Long Beach. A still made anywhere else never stands on one (fullStyle's
+  `opts.moving`, given by the maker alone), and every seed that draws no clip
+  draws the ground and colours it drew before (279 of 279).
+- **Read at every moment.** `_evenGround` reads the still and the sheet's twelve
+  moments (`_clipLooks`) and evens where the worst moment is under the bar.
+  Read on the sheet, a small bright speck is softer than on the clip's own frame
+  (the neon street under a call to action: 5.50:1 on the sheet, 4.40:1 on the
+  frame; 384 px tiles read 5.33:1), so a sheet's reading is divided by its
+  measured gap (`SHEET_KIND`, 1.25). Judged on the first frame alone, the gold
+  bars' headline fell to 2.1 to 3.0:1 as the flare passed under it; read at every
+  moment, 10.5 to 11.2:1.
+- **Played, and exported frame by frame.** The preview plays one player a clip
+  under the ad on screen (`attachClip`, `followClip`). The MP4 export seeks a
+  player of its own to each frame's moment before drawing it (`prepareExport`,
+  `prepareFrame`, `endExport`): a seek lands on its exact frame in about 5 ms
+  (360 seeks in 1.8 to 2.6 s for a 15 s ad), and a 6 s square took 3.4 s against
+  1.7 s on a still photograph. The real-time recorder plays its own; the photo
+  that goes with a video is drawn on the clip at its own moment.
+
+**Checked** by `scripts/clip_grounds_check.mjs` (it needs a server that answers
+byte ranges, as a video's seek does: `.motion-test/serve.mjs` does, Python's
+http.server does not): who draws a clip; 78 ads, every line on its ground read
+at 24 moments of the clip itself, the closest 1.19 times its bar; a 6 s MP4 read
+back, its ground moving under the words; the maker's panel and preview.
+
+Not done: the looks under Any look (the plain engine) have no moving ground; a
+story or a wide frame crops the square clip (a story shows its middle 56%, at
+2.5 times), softer than a square.
+
+## 176. A logo is drawn, never generated: hand-made layouts in the house's type and colours, picked from finished results, paid for as files
+
+(Written as 176 because rules 170 to 175 were taken on other branches when this landed: full-ad-looks-layout,
+merge-15-17-19, design-editor-ux-075e8b and video-music-sfx-audit.)
+
+Added 2026-11-24. The owner: "I don't see anywhere to generate logos or business cards. We should have business
+assets generable, like we were talking about previously, but they need to be good, very, very good", and "that's
+something you would probably be paying for". OPEN-ITEMS §BU had planned it. The maker is `logo/` (`logo/engine.js`,
+`logo/logo.js`); the customers came because they can't design, so every step shows finished results to pick from.
+
+- **Finished results, not settings.** The customer types the business name once and picks what they buy (Easy
+  Mode's thirteen lines, in plain words). The page shows 24 finished logos in that name at once
+  (`engine.js gallery`); More adds 24; three tabs narrow them to badges, words or initials. The one tapped shows
+  four rows of itself, each a finished thumbnail: other colours, lettering, shapes and symbols. No slider, no
+  colour picker, nothing to read twice. A new visitor typed a name, saw 24 logos, picked one and had its kit drawn
+  in about 7 seconds in the check (`logo_check.mjs` prints it); the brief was a minute.
+- **Hand-designed layouts.** Eighteen, the looks buying shops wear: Seal, Coin (gold, silver, coins, cards, watches),
+  Emblem (a bar across a ringed circle), Crest (a shield and a ribbon), Stamp, Tag, Ribbon, Hexagon, Balloon, Burst,
+  Plate (cars), Stacked, Monogram, Roundel, Speed, Label, Luxe (gold, jewellery, watches, coins and the like) and
+  Arch. A layout sets the name whole or as its lead and its trail (LONG BEACH / PHONE BUYERS: the generic words
+  after the name's own, `partsOf`), and the initials. Each says which kinds of face it takes: a script never goes
+  round a ring. A name a layout would set under capitals 46 high on its 1000 artboard is left out of the gallery
+  (`ok`), never shrunk to nothing; a usual name keeps every layout in every voice it takes.
+- **The house's type and colours, and variety by rule.** Voices are the full ad's vetted pairs and Bold
+  (`logo/voices.js`, held to `motion/catalog.js TYPE_VOICES`); colours are the house pairs (`LOGO_PAIRS`), each held
+  to words 4.5:1 on the ground and on the band and the accent 3:1. A gallery has no pair twice, no voice more than
+  twice, at least twelve layouts, dark and light grounds by turns, and the line's own layouts and pairs first (gold's
+  Coin, black and gold; cars' Plate). Cohesive by rules, never one house look (the owner's "ad variety").
+- **No drawn lettering.** Every word is the face's own outlines (`logo/glyphs/<face>.js`, written by
+  `scripts/build_logo_glyphs.mjs` from the site's own font files, its kerning read from the face's GPOS), so the SVG
+  is a vector with no font to install and no `<text>`; no model draws a letter (they garble words). Text round a
+  circle is set glyph by glyph on its middle radius. A letter a face lacks is set as its plain letter, never dropped.
+- **Symbols** come from the house set (`assets/icon-set.svg`, twenty), and five drawn in its grammar for the lines
+  it had none for (controller, laptop, headphones, watch, camera). Generic silhouettes, never a brand's mark; no
+  logo writes another firm's name (Pokémon is TRADING CARDS).
+- **Three forms, four versions.** Every logo is also its mark (its initials or its symbol in its layout's own
+  shape: circle, square, shield or hexagon) and a side-by-side lockup (the mark and the name). Each comes in colour,
+  see-through, black and white; a one-colour file cuts its knock-outs through with a mask, so it holds one colour.
+- **The brand kit: one logo everywhere.** The logo picked is kept for the site (`pgfx_logo_kit`).
+  - The business card: a Logo layout, the logo large in the safe area on the card's field, set in the card's own pair
+    by the engine, the details on Split's back (`cards/cards.js frontLogo`). Never on a picture ground.
+  - The full ad: the side-by-side lockup on a pill of its ground takes the badge at the top (`motion/fullad.js
+    st.claim_logo`, 1.8 times a claim's height, never wider than the column), in the ad's own pair (the logo's own on a
+    video look). With a logo on and no pair picked, the ad opens in the logo's pair. "Your logo on the badge" turns it
+    off. The pre-flight reads the badge as the logo's own, not as a line of words on a plate; every other check is as
+    it was. A style handed on as JSON (the video maker's hand-off) carries no logo and draws its claim.
+  - The profile picture: 1080 square, a round logo whole and any other its mark, inside the middle 76% (the circle
+    Facebook, Instagram and OfferUp crop to).
+  - The Facebook cover: 1640 × 624, the lockup, what is bought and the number in the middle 1100 (what a phone shows),
+    the mark in the ground's light tone off the right edge and rules off the left as decoration a phone may crop.
+- **Paid as files.** Anyone designs and previews; the preview carries the WeBuy.AD mark until the plan includes
+  logos. The files come with Pro and Business (`plans.mjs logos`), drawn by the function (`/api/logo/file`,
+  `netlify/lib/logos.mjs`) with the same engine and faces after it has checked the plan and counted one photo
+  download; nothing is counted when it refuses. The page makes the PNGs from those SVGs (2400 px on the long side,
+  the mark 1024, a 180 icon, the profile picture and the cover) and saves one zip with a note of the colours and
+  faces. A design is held to what the engine draws (`cleanDesign`) before the function draws it.
+- **The card maker opens on finished cards** (the owner's VistaPrint): twelve looks, front and back, each from one
+  style's lists (the six styles twice), no pair twice and no layout more than twice, in the customer's own words from
+  the studio, the Logo layout first when a logo is kept. The form above is Customise, behind the gallery; a tap opens
+  it on that card. Drawing is one at a time: the gallery lends a look to the card's state only while it draws it.
+- **Findable:** Logo and brand kit in Easy Mode's bar, the video maker's bar, the card maker's, the landing's footer
+  and the sitemap; in the landing's bar as "Logo & brand kit" from 1300 px, in Business cards' place (the bar is
+  full from 1450 and the kit is where the card is made from the logo; `landing.css`, measured 1000 to 1920).
+- **Held by** `scripts/logo_check.mjs` (103 checks: the voices against the catalogue, the glyphs and the function's
+  faces, the twenty symbols, every pair's contrast; every layout drawn for eight kinds of name in every voice it
+  takes, in every form and version, with no NaN, no missing letter and one colour in a one-colour file; the gallery
+  for 13 lines and 6 names; the banned list on every line a logo writes; the function's 403, 400, 402 and counts; the
+  page from a typed name to a picked logo, timed; the rows, the tabs and More; the zip's files and sizes; the paywall
+  signed out, on Starter and on Pro, light and dark; the card gallery and its Logo layout in the safe area; the full
+  ad's badge and its pre-flight; no sideways scroll at 390) and by `business_card_check.mjs` and `billing_check.mjs`.
+  `scripts/logo_sheet.mjs` draws a contact sheet: look at it before and after any change to a layout.
+
+Not done here: OPEN-ITEMS §CC.
+
+## 178. The maker's toolbar holds three things you do to the ad; where you are lives in the numbered steps
+
+Added 2026-11-25. The owner, of the video maker's bar: "Why does the top bar
+have so many options? Are they all necessary? ... It's kind of confusing why the
+purple for some and then darker for others and are they in order of importance",
+"the sideline looks easier to use and is more inclusive or all levels of users",
+"I like the numbers". Asked whether to trim it to Back, New look and Download:
+"Yes, trim it".
+
+What the bar held: Templates, the Full ad / Any look switch with a New badge,
+Back, New look, View in Marketplace feed and Download (Save shows for the
+library; Surprise me and Browse looks only in the checks' layout). Two repeated
+what the steps hold (the feed view was already a button in Check), one was a
+setting, not an action, and purple meant two things: a main action (New look,
+Download, both filled) and the choice you are on (Full ad, outlined).
+
+- **The bar**: ↶ Back, New look, then Download at its end. Download is its only
+  filled button: the one thing the page is for. Back shows its arrow alone on the
+  narrowest phones, so the bar is one row there.
+- **Step 1, Look** opens with "Kind of ad" (Full ad or Any look) and All templates:
+  where you start, not what you do to the ad. The New badge is gone.
+- **The feed view** is in step 6, Check, alone.
+- **Filled colour means do this; an outline in it means you are here** (the step's
+  number, the kind of ad, a choice in a panel).
+
+Every control keeps its id; the checks' layout (every step at once) still shows
+them. Checked: full_ad_check, quick_ad_check, buylist_check, typing_pause_check
+and look_preflight_check; at 375 px nothing scrolls sideways and nothing is under
+12 px.
+
+## 179. A moving scene is one ad, not a ground under one: its moment, its light, its sound and the ad's beats together
+
+Added 2026-11-25. It widens rule 175. The owner, the day the moving grounds went live: "Having an animated
+background, doesn't really mean it's a good ad. It still needs to have other moving elements SFX, etc etc there
+needs to be conclusive cohesive elements to the ad."
+
+Measured first (six clips, look 105, 6 s square, the full ad's own layers rendered without the clip): every block
+had landed by 1.03 s (the headline's hit .70, the sticker .82, the number 1.03); after 2.5 s the ad's own layers
+stood still on 47 or 48 of 52 frames, and the longest still stretch between the number and the end card was 2.6 s
+(1.7 s in a 5 s ad, 4.6 s in an 8 s one). The soundtrack had three hits after the opening. All six scenes drew the
+same entrance, bed, hits and chimes: the clip changed nothing else. Each clip's own peak, measured on its 125
+frames, mostly fell inside the entrance, where nobody sees it (the gold bars' flare at .79 s).
+
+- **A scene's kit** (`motion/clips.js`, each clip's `scene`):
+  - its moment: the clip's own peak, in clip time (the flare .79 s, a car's lights .96 s, the circuit's pulse
+    1.33 s, the aerial's glint 1.79 s, the phone's light 2.04 s, faint; the golden-hour city has none, its light
+    moving 0.3 of a level);
+  - its light: the colour of the sweep that crosses the words at the moment;
+  - its sound at the moment: a car passing left to right, data ticking faster into a click, a cymbal drawn
+    backwards into the flare, air swelling, a long wind, a light sweep (`audio.js` `sceneSfx`), built from the
+    effects the trailer kit already has (rule 174);
+  - its choices: an entrance, the phone's idle move, a bed, a headline hit, a number sound and an end chime, one of
+    each drawn by the seed from the scene's own short list, on a stream of its own (`fullStyle`). Every sound on
+    those lists is one rule 174 keeps in a shuffle. A choice picked by hand stays; a video look (rule 158) keeps its
+    own art direction.
+- **The ad's arc on the scene** (`FullAd._sceneBeats`), every beat on the music's beat grid (the bed puts a bar line
+  on the headline's hit):
+  - the scene's moment, the first beat a second after the number lands (about 2.0 to 2.4 s). The clip starts at an
+    offset (`clipOffset`) so its own peak lands there, in the preview, the export and the photo alike. The light
+    crosses the headline, then the number; the scene's sound plays; the sticker stamps again .35 s later;
+  - the push to the call to action: the number pulses on the last beat that ends before the still's moment, about a
+    second before the end card, with a whoosh into a soft low hit;
+  - in an 8 s ad, a second light across the headline between the two;
+  - the end card as before (all but the number shades, a light crosses the number), now on the scene's chime.
+  The moment's sound sits on a low hit of .4 to .48 (the headline's .85 to .9), the push's on .32, so the bed steps
+  back under each as under every hit. At .2 to .3 the first cut was not heard: the hit ducked the bed by about what
+  it added, and the moment's window rose by -0.5 to +1.2 dB. Measured on what a sound adds (the render with it less
+  the render without it, against the bed there), not on the window's level. The still (the photo, the pre-flight) is
+  drawn at rest: no pulse, no stamp, no light.
+
+Measured after: the longest still stretch of the ad's own layers between the number and the end card, 6 s ads 2.6 s
+to 0.8 to 1.1 s, 8 s ads 4.6 s to 1.3 to 1.9 s, 5 s ads 1.7 s to 0.6 to 1.1 s; loudness -16 LUFS, peaks at or under
+-1 dBFS; the moment adds sound from 6.1 dB under the bed around it to 2.2 dB over it, and peaks 2.0 to 4.0 dB under
+the headline's hit (24 ads, six clips, four seeds, 5, 6 and 8 s). A review page put the six scene ads before and
+after side by side, with sound, for the owner (made from `main` e28ef95b for before).
+
+**Checked** by `scripts/clip_grounds_check.mjs` part 5 (24 ads: each scene draws from its own kit with its light; its
+moment lands on a beat after the number with the clip's peak under it, and the push before the still's moment; no
+still stretch over 1.5 s, 2 s in an 8 s ad; the moment adds sound no more than 8 dB under the bed and stays 1.5 dB
+under the headline's hit; -16 LUFS, peaks at or under -1 dBFS), with parts 1 to 4 of rule 175 still holding, and
+`full_ad_check`, `quick_ad_check`, `buylist_check` and `motion_music_check` passing.
+
+## 180. A brand kit is bought once and made a step at a time; a logo's mark is the shop's initials in the thing it buys
+
+(Written as 180 because 178 and 179 were taken on other branches when this landed.)
+
+Added 2026-11-24. The owner: "a logo maker that has industry relevant assets and elements so they feel
+personalized and actually graphic design oriented"; "a logo brand kit fee ... one time you can save these and
+re-download them at any time and it makes you up to 20 different images"; "a more expensive pack ... 50
+images and covers more platforms ... Instagram story [highlight] bubbles"; "go through each step and approve
+each one and then review them ... download the whole folder or ... the flow of making it, but they can't
+download it and it's watermarked and not enough quality"; "How about 1499 and 1999"; "five dollars off if you
+buy a month subscription as well"; "does it have name suggestions?", "tries to mix words into a working name?",
+"can it connect to an AI thinking model?".
+
+1. **The mark is the shop's own initials built into what it buys** (engine.js MARKS): struck into a reeded coin
+   under a laurel, stamped on a cast bar, on a graded slab's label, lit on a phone's screen, between a
+   controller's grips, in a watch dial, under a speedometer's needle, etched on a chip, in a lens's blades,
+   inside trade arrows, on a crate's side, in a drop, under headphones. Thirteen marks, each for its lines, and
+   they lead that line's gallery (the Symbols tab). Never a brand's shape: no real phone's camera, no grading
+   company's label, no car badge. Tone 1 is the ink and tone 0 what is cut from it, so the one-colour files read.
+2. **The kit is every file a shop needs, drawn from the one logo** (kit.js FORMATS): Essentials, 20 files (the
+   logo six ways, three profile pictures, five banners sized to each platform's safe area, the card's front
+   and back, three web icons, an email signature); Complete, 50 (and eight Instagram highlight covers, five
+   stories inside the story's own bars, six posts and five more platforms, a window poster, a door sign, a
+   sticker, a photo watermark, an email header, a one-page brand guide). One look a step, the same in every
+   file of that step; Try another look moves it.
+3. **The flow is the kit's steps, approved one at a time** (logo.js): name, logo, make it yours, profiles and
+   banners, the business card with the customer's details and printing near them, posts, signs and web, then
+   the review: every file in a grid with its title and size, Essentials or Complete, and one download as a
+   folder numbered in the steps' order (each file a PNG at its size, the vectors kept as SVG, the card's print
+   PDF with its bleed). A rail at the top ticks what is approved; changing the logo un-ticks what came after.
+4. **Seen free, small and marked; the files only when it's theirs**: a preview is at most 420 px on its long
+   side and wears the WeBuy.AD mark until the kit is bought or the plan includes it. The files are drawn by the
+   function for a kit saved on the account (`/api/kits/file`), never counted against the photo downloads.
+5. **Bought once, kept**: Essentials $14.99, Complete $19.99 (plans.mjs KITS), $5 less as the add-on at a
+   Starter plan's checkout, $5 to take Essentials to Complete; Pro and Business include Complete. A kit bought
+   is a credit until it is saved for one business name; the design under that name may change any time, a new
+   name takes a new kit. A refund takes the credit back, or stops the kit it made.
+6. **Finish and file type are the customer's**: a logo may be flat (the default), a gradient (a gentle sheen
+   down its body, its own colour lighter to darker) or a pattern (a faint texture in its own colour: engraved
+   rings on a round body, pinstripes or dots), never a second colour and never in the one-colour versions; the
+   gallery shows a few. A kit downloads as PNG (with the vectors and the card's print PDF), JPG, SVG, PDF (each
+   file a page, print pieces at their size in inches) or all of them, again any time: the same designs, any
+   file type. The line under a name is set below the name's ink, so a script's descenders never touch it.
+7. **Names**: the free mixer (names.js) blends the customer's words with the line's goods, its town and the
+   trade's words, shown as little logos; the AI's (netlify/lib/names.mjs, Claude Opus 5.5) for AI credits, only
+   with `ANTHROPIC_API_KEY`. Both keep the same never-list: no other firm's name or mark, no claim.
+
+Checked by `scripts/logo_check.mjs` (the kits on the function: 402 with none, saved once a name, the files
+byte for byte the page's, the upgrade, a refund; the flow, the review's 50 and 20, the demo's folder and its
+sizes, the paywall signed out, on Starter and on Pro; 390 and 768 px), `scripts/billing_check.mjs` (a kit's
+checkout, the Starter add-on as a one-time second line, Pro offered no add-on), `scripts/plan_economics.mjs`
+(the kits' and the AI names' margins) and `scripts/kit_sheet.mjs` (a contact sheet of every file).
+
+Not done here: OPEN-ITEMS §CG.
+
+## 181. The ads sell: a buyer says TOP DOLLAR, with nothing a shop can be asked to prove
+
+Added 2026-11-24. The owner, looking across the ads: "all I see is honest or local buyer not top buyer
+or highest paying. We need more sales ways to pitch yourself." Asked how hard a default ad should sell,
+they chose bold with no proof needed, over drawing HIGHEST and #1 by default and over leaving them out
+of the picks too.
+
+- **About half of what an ad says unasked is a buyer selling.** The full ad's badge draws from thirteen
+  lines, eight of them bold: TOP DOLLAR PAID, WE PAY TOP DOLLAR, TOP CASH • PAID TODAY, TOP PRICES •
+  NO FEES, REAL CASH • NOT CREDIT, NO LOWBALL OFFERS, TOP PAYOUTS • NO HAGGLING, MONEY IN YOUR POCKET.
+  Its sticker adds TOP CASH, TOP $$$ and TOP DOLLAR. Over 4,680 drawn ads (39 lines, 120 seeds) 61% of
+  badges and 53% of stickers are bold, and no badge is on more than a fifth of them.
+- **Each line that fits is as likely** (`fresh` in `fullStyle`). The badge, sticker and small line skip a
+  line that repeats a word already on the ad. They used to walk from a random start to the next that
+  fit, which gave a line every draw of the lines before it that rarely fit: WE PAY TOP DOLLAR took 21% of
+  badges and TOP CASH • PAID TODAY 1%, TOP $$$ a third of stickers. One draw either way, so the rest of
+  a seed's ad is drawn as before.
+  Its selling points gain a promise of their own (`top` in `motion/full-points.js`, weighed .7 beside
+  the money's 1): TOP DOLLAR PAID, TOP CASH PAID, WE PAY TOP DOLLAR, TOP PRICES PAID. Spanish says it
+  the way a seller hears it (PAGAMOS BIEN, BUEN PAGO, BUEN PRECIO, EFECTIVO REAL • NO CRÉDITO,
+  SIN OFERTAS BAJAS; the sticker BUEN PAGO, not PAGAMOS BIEN, whose seven letters set it under its
+  floor). The local and fair lines stay in the same lists: one look is never one voice.
+- **The video maker too.** Two looks in three that said LOCAL BUYER say TOP DOLLAR PAID, TOP CASH PAID
+  or WE PAY TOP DOLLAR (12 of 18 in English, 2 of 4 in Spanish), and its points, ticker, sticker and
+  tags carry them (`motion/themes.js`, `motion/catalog.js`).
+- **Nothing a shop can be asked to prove is drawn for it.** HIGHEST, BEST PRICE, #1 and WE BEAT ANY
+  OFFER stay out of every default list: these ads speak for other businesses, and a measurable
+  superlative is a claim made in their name. A shop that can stand behind one types it, and the
+  pre-flight's note ("a claim you may be asked to prove") still says so. TOP DOLLAR states no fact
+  anyone can check; the research's ban on it (rule 143, 5.2: the most generic phrase in the trade) was
+  a judgement of taste, and the owner's word replaces it.
+- **The card lines keep their collector's voice** (rule 171). `spec/banned-words.json` keeps TOP DOLLAR
+  off the pokemon and sports lines alone, their badge and sticker lists are unchanged, and their
+  points have no `top` promise (`KIND_SAYS.cards.top: null`).
+- **Held by** `scripts/words_check.mjs` (every phrasing in both languages, 18 letters for a point, no
+  comma), the census's one list, and the full ad's checks drawing every line in every size with the
+  new words. The library's renders and the landing's stills are drawn again in these words.
+
+Not done here: OPEN-ITEMS §CI.

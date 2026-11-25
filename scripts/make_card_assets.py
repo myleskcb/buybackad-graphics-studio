@@ -273,10 +273,13 @@ def box(arts):
 
 def main():
     made = {}
-    try:
-        made['poke-psa-charizard'] = charizard()
-    except ImportError:
-        print('opencv-python-headless not installed: skipping poke-psa-charizard')
+    # retired 2026-11-23 (DESIGN-LAW 161: the maker's art in a CC BY-SA photograph, flagged in
+    # assets/cutout-flags.json); its source photograph left the library, so it is no longer cut
+    if os.path.exists(os.path.join(ROOT, 'assets/bg-web/pokemon-charizard-card-2.jpg')):
+        try:
+            made['poke-psa-charizard'] = charizard()
+        except ImportError:
+            print('opencv-python-headless not installed: skipping poke-psa-charizard')
     arts = {s: card(s) for s in SPORT}
     for s, a in arts.items(): made['ph-sports-card-' + s] = a
     made['ph-sports-slab'] = slab(arts['basketball'], 'basketball')

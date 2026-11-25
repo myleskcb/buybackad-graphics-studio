@@ -20,7 +20,7 @@
  *  - And without any webhook at all, an account whose paid period has run
  *    out is checked against Stripe the next time it signs in (syncDue).
  */
-import { PLANS, PACKS, planId } from './plans.mjs';
+import { PLANS, PACKS, KITS, KIT_UPGRADE, KIT_ADDON_OFF, planId } from './plans.mjs';
 
 const API = 'https://api.stripe.com/v1';
 export const WEBHOOK_EVENTS = [
@@ -29,14 +29,14 @@ export const WEBHOOK_EVENTS = [
   'customer.subscription.created',
   'customer.subscription.updated',
   'customer.subscription.deleted',
-  'charge.refunded',   // a refunded credit pack takes its credits back
+  'charge.refunded',   // a refunded credit pack takes its credits back, a refunded brand kit its kit
 ];
 
 /** The terms a customer agrees to at checkout (terms.html carries the same
  *  date); recorded on the Checkout session, the subscription or the payment,
  *  and the account, with the time it was given. 2026-11-18: Pro's videos are
  *  counted apart, 30 a month, and Business's are unlimited (plans.mjs). */
-export const TERMS_VERSION = '2026-11-23';
+export const TERMS_VERSION = '2026-11-24';   // 2026-11-24: brand kits (section 7) and AI name ideas
 /** statuses that keep the plan on: past_due is Stripe still retrying the card */
 const LIVE = new Set(['active', 'trialing', 'past_due']);
 
@@ -84,6 +84,12 @@ export function catalog() {
   for (const [id, k] of Object.entries(PACKS)) {
     out[id] = { key: id, product: 'bbad_credits', name: 'WeBuy.AD AI credits', amount: k.price, credits: k.credits, pack: id, label: k.label };
   }
+  /* the brand kits (plans.mjs KITS): one-time, alone or as the add-on at a Starter plan's checkout */
+  for (const [id, k] of Object.entries(KITS)) {
+    out['kit_' + id] = { key: 'kit_' + id, product: 'bbad_brandkit', name: 'WeBuy.AD brand kit', amount: k.price, kit: id, label: k.label };
+    out['kit_' + id + '_addon'] = { key: 'kit_' + id + '_addon', product: 'bbad_brandkit', name: 'WeBuy.AD brand kit', amount: k.price - KIT_ADDON_OFF, kit: id, label: k.label + ' (with a plan)' };
+  }
+  out.kit_upgrade = { key: 'kit_upgrade', product: 'bbad_brandkit', name: 'WeBuy.AD brand kit', amount: KIT_UPGRADE.price, kit: 'upgrade', label: KIT_UPGRADE.label };
   return out;
 }
 const lookupKey = (key) => 'bbad_' + key;
@@ -102,7 +108,7 @@ export const STATEMENT_SUFFIX = 'WEBUY.AD';
    subscription bought with the same email must not end a WeBuy.AD plan. */
 export function ownSession(cs) {
   const md = (cs && cs.metadata) || {};
-  return !!((md.plan && planId(md.plan) !== 'free') || PACKS[md.pack]);
+  return !!((md.plan && planId(md.plan) !== 'free') || PACKS[md.pack] || KITS[md.kit] || md.kit === 'upgrade');
 }
 export function ownSubscription(sub, env) {
   const item = sub && sub.items && sub.items.data && sub.items.data[0];
@@ -138,7 +144,7 @@ export async function priceFor(env, key) {
       lookup_key: lookupKey(key), transfer_lookup_key: 'true',
       nickname: item.plan ? PLANS[item.plan].label + ' ' + (item.interval === 'year' ? 'yearly' : 'monthly') : item.label,
       recurring: item.interval ? { interval: item.interval } : undefined,
-      metadata: { plan: item.plan, interval: item.interval, pack: item.pack, credits: item.credits },
+      metadata: { plan: item.plan, interval: item.interval, pack: item.pack, credits: item.credits, kit: item.kit },
     });
   }
   priceIds.set(ck, price.id);
@@ -191,7 +197,17 @@ export const customerOf = (user, env) => (user.stripeCustomer && (user.stripeMod
  *  once. `sub` is the session's subscription, expanded. Returns what changed. */
 export function applySession(user, session, sub, env) {
   const md = session.metadata || {};
-  if (session.mode === 'subscription' && sub) { applySub(user, subState(sub, env), env); return 'plan'; }
+  if (session.mode === 'subscription' && sub) {
+    applySub(user, subState(sub, env), env);
+    // the brand kit added at a Starter plan's checkout rides on its first invoice
+    if (KITS[md.kit] && (session.payment_status === 'paid' || session.payment_status === 'no_payment_required')) grantKit(user, session.id, md.kit);
+    return 'plan';
+  }
+  if (session.mode === 'payment' && session.payment_status === 'paid' && (KITS[md.kit] || md.kit === 'upgrade')) {
+    if (!grantKit(user, session.id, md.kit, md.kit_id)) return null;
+    if (session.customer) { user.stripeCustomer = typeof session.customer === 'string' ? session.customer : session.customer.id; user.stripeMode = stripeMode(env); }
+    return 'kit';
+  }
   if (session.mode === 'payment' && session.payment_status === 'paid' && PACKS[md.pack]) {
     user.paid = Array.isArray(user.paid) ? user.paid : [];
     if (user.paid.includes(session.id)) return null;
@@ -202,6 +218,42 @@ export function applySession(user, session, sub, env) {
     return 'credits';
   }
   return null;
+}
+
+/* ---------- the brand kits on an account (DESIGN-LAW 180) ----------
+   user.kits = { bought: [{ s: session, tier, at, used: kit id or null, refunded }], saved: [{ id, key, name, tier,
+   spec, at, via: "bought" | "plan" | "admin", refunded }] }. A bought kit is a credit until a kit is saved with it;
+   a saved kit is one business name, its design free to change, downloaded again any time. */
+export function kitsOf(user) {
+  const k = (user && user.kits) || {};
+  return { bought: Array.isArray(k.bought) ? k.bought : [], saved: Array.isArray(k.saved) ? k.saved : [] };
+}
+/** a paid kit onto the account, once a session; an upgrade lifts the saved kit it names to Complete */
+export function grantKit(user, sid, tier, kitId) {
+  const k = user.kits = kitsOf(user);
+  if (k.bought.some((b) => b.s === sid)) return false;
+  if (tier === 'upgrade') {
+    const kit = k.saved.find((x) => x.id === kitId);
+    k.bought.unshift({ s: sid, tier: 'upgrade', at: Date.now(), used: kit ? kit.id : null });
+    if (kit) kit.tier = 'complete';
+    else k.bought.unshift({ s: sid + ':credit', tier: 'complete', at: Date.now(), used: null });   // the kit is gone: a Complete credit instead
+  } else k.bought.unshift({ s: sid, tier, at: Date.now(), used: null });
+  k.bought.length = Math.min(k.bought.length, 200);
+  return true;
+}
+/** the kits bought and not yet used, a tier */
+export const kitCredits = (user) => {
+  const out = { essentials: 0, complete: 0 };
+  for (const b of kitsOf(user).bought) if (!b.used && !b.refunded && out[b.tier] !== undefined) out[b.tier]++;
+  return out;
+};
+/** a refunded kit's purchase: its credit goes, or the kit made with it stops downloading */
+export function refundKit(user, sid) {
+  const k = user.kits = kitsOf(user), b = k.bought.find((x) => x.s === sid);
+  if (!b || b.refunded) return false;
+  b.refunded = true;
+  if (b.used) { const kit = k.saved.find((x) => x.id === b.used); if (kit) { if (b.tier === 'upgrade') kit.tier = 'essentials'; else kit.refunded = true; } }
+  return true;
 }
 
 /** Is the stored subscription due a look at Stripe? Its paid period ran out

@@ -66,8 +66,11 @@ export async function exportMp4(ad, onProgress = () => {}, { fps = 30, audioBuf,
     const frames = Math.round(ad.st.duration * fps), dt = 1 / fps;
     ad.still = null;
     const draw = frameGuard(frames);
+    // a moving ground (rule 175): a player of the ad's own, moved to each frame's exact moment before it is drawn
+    if (ad.prepareExport) await ad.prepareExport();
     for (let i = 0; i < frames; i++) {
       if (failed) throw failed;
+      if (ad.prepareFrame) await ad.prepareFrame(i * dt);
       draw(() => ad.frame(ctx, i * dt, EXPORT_QUALITY, dt));
       const vf = new VideoFrame(c, { timestamp: Math.round(i * 1e6 / fps), duration: Math.round(1e6 / fps) });
       venc.encode(vf, { keyFrame: i % (fps * 2) === 0 });
@@ -89,7 +92,7 @@ export async function exportMp4(ad, onProgress = () => {}, { fps = 30, audioBuf,
     }
     if (failed) throw failed;
     muxer.finalize();
-  } finally { shut(); }
+  } finally { shut(); if (ad.endExport) ad.endExport(); }
   onProgress(1, "Done");
   return { blob: new Blob([muxer.target.buffer], { type: "video/mp4" }), ext: "mp4", audio: !!acodec, soundLost: !!audioBuf && !acodec };
 }
@@ -150,6 +153,9 @@ export async function recordRealtime(ad, onProgress = () => {}, { fps = 30, audi
   ad.still = null;
   const draw = frameGuard(Math.round(ad.st.duration * fps));
   let failed = null;
+  // a moving ground (rule 175) plays in real time here, on a player of the ad's own
+  if (ad.prepareExport) await ad.prepareExport();
+  if (ad.prepareFrame) await ad.prepareFrame(0);
   draw(() => ad.frame(ctx, 0));
   try {
     rec.start(250);
@@ -164,6 +170,7 @@ export async function recordRealtime(ad, onProgress = () => {}, { fps = 30, audi
         if (hidden) return;
         const t = (performance.now() - t0) / 1000;
         if (t >= ad.st.duration) { resolve(); return; }
+        if (ad.clipSrc && ad.clipSrc.follow) ad.clipSrc.follow(t, true);
         try { draw(() => ad.frame(ctx, t, { subsFly: 3, subsMove: 2 })); } catch (e) { failed = e; resolve(); return; }
         onProgress(t / ad.st.duration, "Recording");
         n = Math.max(n + 1, Math.floor((performance.now() - t0) / step) + 1);
@@ -172,6 +179,7 @@ export async function recordRealtime(ad, onProgress = () => {}, { fps = 30, audi
       tick();
     });
   } finally {
+    if (ad.endExport) ad.endExport();
     document.removeEventListener("visibilitychange", onVis);
     try { rec.state !== "inactive" && rec.stop(); } catch (e) { /* stopped */ }
     if (src) try { src.stop(); } catch (e) { /* stopped */ }

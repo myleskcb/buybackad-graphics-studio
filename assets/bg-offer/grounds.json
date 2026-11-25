@@ -15,12 +15,12 @@
  ],
  "pokemon": [
   {
-   "file": "pokemon-charizard-card-1",
-   "p90": 198
+   "file": "pokemon-slabs-display-1",
+   "p90": 225
   },
   {
-   "file": "pokemon-charizard-card-2",
-   "p90": 218
+   "file": "pokemon-slabs-display-2",
+   "p90": 230
   }
  ],
  "strips": [

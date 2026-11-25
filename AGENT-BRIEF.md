@@ -751,3 +751,29 @@ produced." DESIGN-LAW rule 87. In practice:
   stylesheet rule that needs the script. New galleries of server pictures get the same watch.
   Before a commit that touches the wall or the landing's library: `node scripts/wall_pictures_check.mjs`.
   And close a preview's tab when you stop its server: the owner reads the browser pane as the product.
+- **Moving grounds** (rule 175, 2026-11-24): a full ad in the video maker may stand
+  on a clip (`motion/clips.js`, `motion/clips/`), drawn as a ground photograph whose
+  `clip` names it. Every still path draws its first frame; the preview plays it
+  (`attachClip`); a download seeks a player of its own (`prepareExport`,
+  `prepareFrame`, `endExport`), so a new export path calls those three too. The
+  files come from `scripts/build_clip_grounds.sh`, never by hand. Each clip's `scene`
+  (rule 179) is its kit: its moment, light, sound and choices; `FullAd._sceneBeats` lays the
+  ad's beats round it and every new beat is at rest in the still (`_still`). Before a commit
+  that touches them, the full ad's ground or a scene's sound (`audio.js` `sceneSfx`): `node scripts/clip_grounds_check.mjs`,
+  on a server that answers byte ranges (Python's http.server does not, and a video
+  that cannot seek fails it).
+
+- **The logo maker and brand kit** (rule 176, 2026-11-24): `logo/engine.js` draws a logo as SVG from a design
+  (layout, name, line, voice, pair, symbol), pure, so the page and the function (`netlify/lib/logos.mjs`,
+  `/api/logo/file`, Pro and Business by `plans.mjs logos`) draw the same file. Every word is the face's own outlines
+  (`logo/glyphs/`, `scripts/build_logo_glyphs.mjs` with fontkit and wawoff2 in a scratch folder; `--check` in CI);
+  never `<text>`, never a model's lettering. A new layout goes into `LAYOUTS` with the voice kinds it takes and must
+  keep a usual name at a readable size in all of them. The picked logo is `pgfx_logo_kit`: the card maker's Logo
+  layout and the full ad's badge (`st.claim_logo`) read it. The card maker opens on a gallery; its form is Customise.
+  Before a commit that touches any of it: `node scripts/logo_check.mjs` (and look at `node scripts/logo_sheet.mjs`).
+- **The brand kit** (rule 180, 2026-11-24): `logo/kit.js` lists every file of a kit (`FORMATS`: its tier,
+  step, folder and size) and draws it from the one logo with the engine's own tools (`engine.js K`); the page
+  previews them small and marked, `/api/kits/file` draws them for a kit saved on the account. A new file is a
+  `FORMATS` entry; a new industry mark is an `engine.js MARKS` entry and a `markLayout` for its lines. Prices
+  are `plans.mjs KITS` (run `scripts/build_pricing.mjs`). Before a commit that touches any of it:
+  `node scripts/logo_check.mjs`, `node scripts/billing_check.mjs`, and look at `node scripts/kit_sheet.mjs`.

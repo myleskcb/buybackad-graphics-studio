@@ -9,7 +9,9 @@
 // The copy follows the house rules every line of the maker follows: nothing claims a
 // person answers every message, urgency is only ever true (phones lose value; "text
 // now" is an invitation), never a deadline, a countdown, a price about to move, a
-// ranking or a promise about condition or speed the shop has not made.
+// ranking or a promise about condition or speed the shop has not made. A buyer selling is not a
+// ranking (DESIGN-LAW 181, the owner, 2026-11-24): TOP DOLLAR PAID and WE PAY TOP DOLLAR stand where
+// LOCAL BUYER stood on two looks in three; HIGHEST, BEST and #1 stay out.
 
 const P = (ground, light, ink, accent, plate, plate_ink, more = {}) => ({ ground, light, ink, accent, plate, plate_ink, ...more });
 
@@ -135,7 +137,7 @@ export const THEMES = {
     fonts: ["marker", "kalam", "cabin-sketch"], boards: ["chalkboard"], boardChance: 1, numbers: ["underline", "plain"],
     accent_sets: ["sparkle", "checks"], accent_kinds: ["symbol"], phone_angles: ["flat", "angled"],
     style: { accent_in: ["fade", "pop"], text_in: ["wipe", "typewriter", "rise_mask"], grade: ["warm", "film"], sound_kit: ["lofi", "minimal"] },
-    copy: { en: { headlines: ["ON THE MENU: CASH FOR IPHONES", "TODAY'S SPECIAL: YOUR OLD IPHONE", "WE BUY IPHONES"], tags: ["ASK FOR A QUOTE", "ALL MODELS", "LOCAL BUYER"] },
+    copy: { en: { headlines: ["ON THE MENU: CASH FOR IPHONES", "TODAY'S SPECIAL: YOUR OLD IPHONE", "WE BUY IPHONES"], tags: ["ASK FOR A QUOTE", "ALL MODELS", "TOP DOLLAR PAID"] },
       es: { headlines: ["EN EL MENÚ: EFECTIVO POR IPHONES", "COMPRAMOS IPHONES"], tags: ["PIDE TU COTIZACIÓN"] } } }),
   pawn_gold: T("Signs & shops", "Pawn counter gold", { palettes: ["pawn_black", "black_gold"], backgrounds: ["carbon", "velvet", "brushed_metal"],
     fonts: ["rye", "zodiak", "gloock", "cormorant"], fx: ["gold", "foil", "chrome"], boards: ["lightbox", "none"], boardChance: .3, numbers: ["gold", "chrome", "box"],
@@ -165,7 +167,7 @@ export const THEMES = {
     fonts: ["bungee", "luckiest", "russo", "tilt-warp"], fx: ["sticker", "extrude", "double_outline"], boards: ["store_sign", "none"], boardChance: .4, numbers: ["pill", "sticker", "ticket"],
     accent_sets: ["sparkle"], accent_kinds: ["symbol"], phone_angles: ["wide_spin", "turntable"],
     style: { accent_in: ["zoom", "pop", "orbit"], accent_idle: ["pulse", "bob"], overlay: ["bokeh_drift", "shimmer"], grade: ["clean", "punchy"] },
-    copy: { en: { headlines: ["SPARKLING CASH FOR OLD IPHONES", "WE BUY IPHONES", "SELL YOUR IPHONE"], tags: ["ALL MODELS", "FREE QUOTE", "LOCAL BUYER"] },
+    copy: { en: { headlines: ["SPARKLING CASH FOR OLD IPHONES", "WE BUY IPHONES", "SELL YOUR IPHONE"], tags: ["ALL MODELS", "FREE QUOTE", "TOP CASH PAID"] },
       es: { headlines: ["COMPRAMOS IPHONES", "VENDE TU IPHONE"], tags: ["TODOS LOS MODELOS"] } } }),
   taco_truck: T("Signs & shops", "Taco truck", { palettes: ["taco_fiesta"], backgrounds: ["racing_stripes", "tile", "stripes"],
     fonts: ["luckiest", "bungee", "kaushan", "knewave"], fx: ["sticker", "extrude", "hard_shadow"], boards: ["chalkboard", "store_sign", "none"], boardChance: .5, numbers: ["sticker", "tag", "pill"],
@@ -215,7 +217,7 @@ export const THEMES = {
     fonts: ["marker", "special-elite", "kalam"], fx: ["flat", "highlighter"], boards: ["sticky_note", "none"], boardChance: .5, numbers: ["underline", "plain"],
     accent_sets: ["sparkle", "checks"], accent_kinds: ["symbol"], phone_angles: ["flat", "angled"],
     style: { accent_in: ["slide", "swing"], accent_idle: ["still", "bob"], sound_kit: ["lofi", "boombap"], grade: ["film"], overlay: ["dust", "grain_live"] },
-    copy: { en: { headlines: ["SIDE A: YOUR OLD IPHONE. SIDE B: CASH.", "SELL YOUR OLD IPHONE", "WE BUY IPHONES"], tags: ["TEXT US NOW", "LOCAL BUYER"] },
+    copy: { en: { headlines: ["SIDE A: YOUR OLD IPHONE. SIDE B: CASH.", "SELL YOUR OLD IPHONE", "WE BUY IPHONES"], tags: ["TEXT US NOW", "WE PAY TOP DOLLAR"] },
       es: { headlines: ["VENDE TU IPHONE VIEJO", "COMPRAMOS IPHONES"], tags: ["MÁNDANOS TEXTO"] } } }),
   disco_night: T("Retro & pop", "Disco night", { palettes: ["disco_gold", "club_violet"], backgrounds: ["beams_cross", "bokeh", "beams_stage"],
     fonts: ["shrikhand", "tilt-warp", "unbounded"], fx: ["gold", "foil", "glow"], boards: ["none", "marquee"], boardChance: .3, numbers: ["gold", "pill"],
@@ -271,7 +273,7 @@ export const THEMES = {
     fonts: ["clash", "satoshi", "unbounded"], fx: ["glow", "gradient", "flat"], boards: ["none"], numbers: ["pill", "neon"],
     accent_sets: ["sparkle"], accent_kinds: ["symbol"], phone_angles: ["turntable", "wide_spin"],
     style: { accent_in: ["fade", "orbit"], accent_idle: ["float", "pulse"], overlay: ["bloom", "none"], grade: ["cool"], sound_kit: ["lofi", "edm", "minimal"] },
-    copy: { en: { headlines: ["CASH FOR YOUR IPHONE", "SELL YOUR IPHONE", "WE BUY IPHONES"], tags: ["FREE QUOTE", "LOCAL BUYER"] },
+    copy: { en: { headlines: ["CASH FOR YOUR IPHONE", "SELL YOUR IPHONE", "WE BUY IPHONES"], tags: ["FREE QUOTE", "TOP DOLLAR PAID"] },
       es: { headlines: ["EFECTIVO POR TU IPHONE", "COMPRAMOS IPHONES"], tags: ["COTIZACIÓN GRATIS"] } } }),
 
   // ----------------------------------------------------------------- night & neon
@@ -297,7 +299,7 @@ export const THEMES = {
     fonts: ["kaushan", "clash", "shrikhand"], fx: ["shadow", "sticker", "glow"], boards: ["none"], decor: ["palms", "skyline"], decorMax: 1, numbers: ["pill", "sticker"],
     accent_sets: ["local", "sparkle"], accent_kinds: ["mix"], phone_angles: ["angled", "turntable"],
     style: { accent_in: ["fade", "drop"], accent_idle: ["float"], grade: ["warm", "film"], overlay: ["light_leak", "none"], sound_kit: ["lofi", "house"] },
-    copy: { en: { headlines: ["{AREA}, CASH FOR YOUR OLD IPHONE", "SELL YOUR IPHONE", "WE BUY IPHONES"], tags: ["FROM THE {CODE}", "LOCAL BUYER"] },
+    copy: { en: { headlines: ["{AREA}, CASH FOR YOUR OLD IPHONE", "SELL YOUR IPHONE", "WE BUY IPHONES"], tags: ["FROM THE {CODE}", "TOP CASH PAID"] },
       es: { headlines: ["{AREA}, EFECTIVO POR TU IPHONE", "COMPRAMOS IPHONES"], tags: ["SOMOS DE {AREA}"] } } }),
   prize_counter: T("Night & neon", "Prize counter", { palettes: ["prize_counter"], backgrounds: ["starfield", "bokeh", "rays"],
     fonts: ["press-start", "bungee", "luckiest"], fx: ["sticker", "neon", "extrude"], boards: ["ticket_stub", "led_panel", "none"], boardChance: .6, numbers: ["ticket", "neon"],
@@ -317,7 +319,7 @@ export const THEMES = {
     fonts: ["roboto-slab", "zilla-slab", "special-elite", "franklin"], fx: ["flat", "box"], boards: ["none", "receipt"], boardChance: .3, numbers: ["box", "plain", "underline"],
     accent_sets: ["checks"], accent_kinds: ["symbol"], phone_angles: ["flat", "angled"],
     style: { text_in: ["typewriter", "wipe"], accent_in: ["fade"], accent_idle: ["still"], grade: ["matte", "film"], sound_kit: ["minimal", "boombap"] },
-    copy: { en: { headlines: ["WANTED: IPHONES. CASH PAID.", "IPHONES WANTED", "WE BUY IPHONES"], tags: ["ALL MODELS", "CALL OR TEXT", "LOCAL BUYER"] },
+    copy: { en: { headlines: ["WANTED: IPHONES. CASH PAID.", "IPHONES WANTED", "WE BUY IPHONES"], tags: ["ALL MODELS", "CALL OR TEXT", "WE PAY TOP DOLLAR"] },
       es: { headlines: ["SE BUSCAN IPHONES. PAGO EN EFECTIVO.", "COMPRAMOS IPHONES"], tags: ["LLAMA O MANDA TEXTO"] } } }),
   wanted_poster: T("Paper & print", "Wanted poster", { palettes: ["wanted_paper"], backgrounds: ["wood", "kraft"],
     fonts: ["rye", "pirata", "roboto-slab"], fx: ["flat"], boards: ["wanted_poster"], boardChance: 1, numbers: ["box", "plain"],
@@ -373,13 +375,13 @@ export const THEMES = {
     fonts: ["big-shoulders", "rye", "oswald", "sofia-xcond"], fx: ["flat", "box", "hard_shadow"], boards: ["poster", "none"], boardChance: .4, numbers: ["box", "ticket"],
     accent_sets: ["hype"], accent_kinds: ["symbol"], phone_angles: ["angled", "flat"],
     style: { text_in: ["slam", "stomp"], accent_in: ["zoom", "pop"], accent_idle: ["still"], grade: ["film", "punchy"], overlay: ["dust", "grain_live"], sound_kit: ["drumline", "boombap"] },
-    copy: { en: { headlines: ["YOUR IPHONE VS. THE DRAWER", "MAIN EVENT: CASH FOR IPHONES", "WE BUY IPHONES"], tags: ["ALL MODELS", "LOCAL BUYER"] },
+    copy: { en: { headlines: ["YOUR IPHONE VS. THE DRAWER", "MAIN EVENT: CASH FOR IPHONES", "WE BUY IPHONES"], tags: ["ALL MODELS", "TOP DOLLAR PAID"] },
       es: { headlines: ["TU IPHONE VS. EL CAJÓN", "COMPRAMOS IPHONES"], tags: ["TODOS LOS MODELOS"] } } }),
   skate_park: T("Street & sport", "Skate park", { palettes: ["skate_concrete", "spray_concrete"], backgrounds: ["concrete", "asphalt"],
     fonts: ["sedgwick", "wet-paint", "marker", "knewave"], fx: ["flat", "glow", "double_outline"], boards: ["none", "sticky_note"], boardChance: .2, decor: ["spray_halo"], decorMin: 0, numbers: ["sticker", "plain"],
     accent_sets: ["hype", "sparkle"], accent_kinds: ["symbol"], phone_angles: ["angled", "wide_spin"],
     style: { accent_in: ["fly", "slide", "drop"], accent_idle: ["wiggle"], camera: ["handheld", "whip_in"], sound_kit: ["boombap", "trap"] },
-    copy: { en: { headlines: ["DROP IN: CASH FOR IPHONES", "WE BUY IPHONES", "SELL YOUR IPHONE"], tags: ["FROM THE {CODE}", "LOCAL BUYER"] },
+    copy: { en: { headlines: ["DROP IN: CASH FOR IPHONES", "WE BUY IPHONES", "SELL YOUR IPHONE"], tags: ["FROM THE {CODE}", "TOP CASH PAID"] },
       es: { headlines: ["COMPRAMOS IPHONES", "VENDE TU IPHONE"], tags: ["SOMOS DE AQUÍ"] } } }),
   street_market: T("Street & sport", "Farmers market", { palettes: ["market_green", "chalk_wood"], backgrounds: ["wood", "kraft"],
     fonts: ["kalam", "cabin-sketch", "marker", "young-serif"], fx: ["flat"], boards: ["chalkboard", "price_tag"], boardChance: .8, numbers: ["tag", "underline"],
@@ -445,7 +447,7 @@ export const THEMES = {
     accent_sets: ["la_sun", "cash"], accent_kinds: ["asset", "mix"], phone_angles: ["angled", "turntable"],
     style: { grade: ["warm"], text_in: ["skew_slide", "slam", "slide"], accent_in: ["slide", "fly"] },
     copy: { en: { headlines: ["CASH FOR YOUR IPHONE", "WE BUY IPHONES, {AREA}", "SELL YOUR IPHONE"], tags: ["LOCAL BUYER", "FREE QUOTE", "ALL MODELS"] },
-      es: { headlines: ["EFECTIVO POR TU IPHONE", "COMPRAMOS IPHONES"], tags: ["COMPRADOR LOCAL", "COTIZACIÓN GRATIS"] } } }),
+      es: { headlines: ["EFECTIVO POR TU IPHONE", "COMPRAMOS IPHONES"], tags: ["PAGAMOS BIEN", "COTIZACIÓN GRATIS"] } } }),
   night_drive: T("LA & coast", "Night drive", { palettes: ["night_drive"], backgrounds: ["night_drive"],
     fonts: ["audiowide", "russo", "saira-cond", "tilt-warp"], fx: ["neon", "glow", "rgb_split", "outline"], boards: ["neon_box", "none"], boardChance: .3, numbers: ["neon", "outline", "pill"],
     accent_sets: ["hype", "phones"], accent_kinds: ["symbol"], phone_angles: ["turntable", "angled"],
@@ -456,14 +458,14 @@ export const THEMES = {
     fonts: ["oswald", "big-shoulders", "barlow-cond", "franklin"], fx: ["flat", "hard_shadow"], boards: ["billboard"], boardChance: 1, numbers: ["box", "pill", "ticket"],
     accent_sets: ["la_sun", "local"], accent_kinds: ["asset", "mix"], phone_angles: ["flat", "angled"],
     style: { grade: ["warm", "clean"], accent_in: ["drop", "slide"] },
-    copy: { en: { headlines: ["WE BUY IPHONES", "CASH FOR IPHONES, {AREA}", "SELL YOUR IPHONE HERE"], tags: ["LOCAL BUYER", "FREE QUOTE"] },
+    copy: { en: { headlines: ["WE BUY IPHONES", "CASH FOR IPHONES, {AREA}", "SELL YOUR IPHONE HERE"], tags: ["WE PAY TOP DOLLAR", "FREE QUOTE"] },
       es: { headlines: ["COMPRAMOS IPHONES", "VENDE TU IPHONE AQUÍ"], tags: ["COMPRADOR LOCAL"] } } }),
   skyline_poster: T("LA & coast", "Skyline poster", { palettes: ["skyline_teal"], backgrounds: ["skyline_poster"],
     fonts: ["sofia-xcond", "big-shoulders", "oswald", "stencil"], fx: ["outline_shadow", "extrude", "double_outline"], skew: [8, 0], numbers: ["sticker", "pill", "box"],
     accent_sets: ["la_sun", "cash"], accent_kinds: ["asset", "mix"], phone_angles: ["angled", "turntable"],
     style: { grade: ["warm"], text_in: ["skew_slide", "slam"] },
-    copy: { en: { headlines: ["{AREA} BUYS IPHONES", "CASH FOR YOUR IPHONE", "WE BUY IPHONES"], tags: ["LOCAL BUYER", "ALL MODELS"] },
-      es: { headlines: ["COMPRAMOS IPHONES EN {AREA}", "EFECTIVO POR TU IPHONE"], tags: ["COMPRADOR LOCAL"] } } }),
+    copy: { en: { headlines: ["{AREA} BUYS IPHONES", "CASH FOR YOUR IPHONE", "WE BUY IPHONES"], tags: ["TOP DOLLAR PAID", "ALL MODELS"] },
+      es: { headlines: ["COMPRAMOS IPHONES EN {AREA}", "EFECTIVO POR TU IPHONE"], tags: ["BUEN PAGO"] } } }),
   tiki_bar: T("LA & coast", "Tiki bar", { palettes: ["tiki_wood"], backgrounds: ["bamboo"],
     fonts: ["shrikhand", "knewave", "luckiest", "rye"], fx: ["extrude", "hard_shadow", "sticker"], boards: ["tiki_plank", "none"], boardChance: .6, numbers: ["tag", "pill", "sticker"],
     accent_sets: ["sparkle", "la_sun"], accent_kinds: ["symbol", "mix"], phone_angles: ["angled", "turntable"],
@@ -486,7 +488,7 @@ export const THEMES = {
     fonts: ["bungee", "luckiest", "shrikhand", "oswald"], fx: ["sticker", "box", "hard_shadow"], numbers: ["pill", "ticket", "sticker"],
     accent_sets: ["la_sun", "party"], accent_kinds: ["symbol", "mix"], phone_angles: ["angled", "flat"],
     style: { grade: ["warm"], accent_in: ["drop", "pop"] },
-    copy: { en: { headlines: ["BEACH DAY CASH FOR IPHONES", "SELL YOUR IPHONE", "WE BUY IPHONES"], tags: ["FREE QUOTE", "LOCAL BUYER"] },
+    copy: { en: { headlines: ["BEACH DAY CASH FOR IPHONES", "SELL YOUR IPHONE", "WE BUY IPHONES"], tags: ["FREE QUOTE", "TOP CASH PAID"] },
       es: { headlines: ["VENDE TU IPHONE", "COMPRAMOS IPHONES"], tags: ["COMPRADOR LOCAL"] } } }),
 
   // ----------------------------------------------------------------- Art & studio (2026-11-18)
@@ -494,7 +496,7 @@ export const THEMES = {
     fonts: ["marker", "kalam", "knewave", "cabin-sketch"], fx: ["flat", "sticker", "highlighter"], numbers: ["underline", "pill", "plain"],
     accent_sets: ["sparkle", "checks"], accent_kinds: ["symbol"], phone_angles: ["flat", "angled"],
     style: { accent_in: ["pop", "swing"], text_in: ["wipe", "word_pop"] },
-    copy: { en: { headlines: ["WE BUY IPHONES", "CASH FOR YOUR IPHONE", "SELL YOUR OLD IPHONE"], tags: ["FREE QUOTE", "LOCAL BUYER"] },
+    copy: { en: { headlines: ["WE BUY IPHONES", "CASH FOR YOUR IPHONE", "SELL YOUR OLD IPHONE"], tags: ["FREE QUOTE", "WE PAY TOP DOLLAR"] },
       es: { headlines: ["COMPRAMOS IPHONES", "VENDE TU IPHONE"], tags: ["COTIZACIÓN GRATIS"] } } }),
   soft_glow: T("Art & studio", "Soft glow", { palettes: ["glow_white", "glow_black"], backgrounds: ["soft_blobs"],
     fonts: ["satoshi", "clash", "unbounded", "sora", "bricolage"], fx: ["flat", "shadow", "glass"], numbers: ["pill", "box"],

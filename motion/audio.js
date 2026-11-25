@@ -12,6 +12,11 @@
 //  - one room reverb under everything, and the music ducks under the hits;
 //  - every ad is levelled to the same loudness (-16 LUFS, peaks under -1 dBFS), so no
 //    look is louder than the next and nothing clips.
+// And a trailer, not a game (owner, 2026-11-18: "like I'm playing mario kart ... I need like
+// trailer commercial professional"; DESIGN-LAW 174): no bell runs on the shine or the end
+// card, no cork pop on the sticker, and the horns, whistles, anvils, mallets and famous tunes
+// only where someone picks them (catalog.js STAND_INS). Its own sounds (2026-11-19): the
+// braam, two number sounds that land on a low hit, and a trailer's bed (music.js).
 // Real instruments (music.js, 2026-10-01) play in that same bed: thirteen grooves of
 // their own (reggaeton to bossa nova, and eleven more offered by hand since 2026-10-02)
 // beside the six scored kits, a famous public-domain tune over any of them, and recorded
@@ -124,7 +129,7 @@ async function mixBed(ad, voDur, rec) {
 
 /** The bed's graph, built in ctx. rec: the recordings it may play (recordingsFor). */
 function compose(ad, ctx, voDur, rec) {
-  const st = { ...ad.st, melody: alias("melody", ad.st.melody) }, tl = ad.tl, T = st.duration;
+  const st = { ...ad.st, melody: alias("melody", ad.st.melody), lead: alias("lead", ad.st.lead), accent: alias("accent", ad.st.accent) }, tl = ad.tl, T = st.duration;
   const kit = alias("sound_kit", st.sound_kit || "uplift"), hitKind = alias("hit", st.hit), numKind = alias("number_sfx", st.number_sfx);
   const r = rng(st.seed * 17 + 3);
   const noise = noiseBuffer(ctx, 2, st.seed);
@@ -169,7 +174,12 @@ function compose(ad, ctx, voDur, rec) {
   const musicLevel = (st.music_volume ?? .5) * 1.3, music = bus(musicLevel, true, tone.input);
 
   // ---- the key and the chords, drawn from the seed
-  const tonic = r.pick([57, 58, 60, 62, 55, 53]);          // A, Bb, C, D, G, F
+  // Layers in one key (owner, 2026-11-19, DESIGN-LAW 174): over a real recording or the user's own
+  // track, the key it is heard in (recordingKey), so every hit, chime and bell agrees with it;
+  // else one drawn from the seed (drawn either way, so the seed's other draws never move).
+  const drawn = r.pick([57, 58, 60, 62, 55, 53]);          // A, Bb, C, D, G, F
+  const heard = recording ? recordingKey(recording) : null;
+  const tonic = heard ? 53 + ((heard.pc - 53) % 12 + 12) % 12 : drawn;
   const prog = PROGS[kit] ? r.pick(PROGS[kit]) : PROGS.uplift[0];
   const bpm = st.bpm || 112, b = 60 / bpm, bar = 4 * b;
   const start = hit - Math.ceil(hit / bar) * bar;            // a bar line lands exactly on the headline hit
@@ -178,7 +188,7 @@ function compose(ad, ctx, voDur, rec) {
   // the number all agree.
   const A = arrange(st, start, hit, tonic % 12);
   const chordAt = A.tune ? A.chordAt : t => prog[((Math.floor((t - start) / bar + 1e-6) % prog.length) + prog.length) % prog.length];
-  const minor = A.tune || KITS[kit] ? A.minor : !MAJOR_KITS.has(kit);
+  const minor = heard ? heard.minor : A.tune || KITS[kit] ? A.minor : !MAJOR_KITS.has(kit);
   const bell1 = hz(tonic % 12 + 72), bell2 = hz(tonic % 12 + 79);   // tonic and fifth, C5 to B5
 
   const S = synth(ctx, noise, r, sfx, rec), M = synth(ctx, noise, r, music, rec);
@@ -232,6 +242,7 @@ function compose(ad, ctx, voDur, rec) {
     case "bell_tree": S.hit(0, "bell_tree", .5, -.3, 1, 0, clear); break;
     case "vibraslap": S.hit(0, "vibraslap", .6, 0, 1, 0, clear); break;
     case "sleigh_bells": S.hit(0, "sleigh_shake", .6, .2, 1, 0, clear); break;   // a Christmas ad's own
+    case "braam": S.braam(0, .42, 36 + A.keyPc, clear); break;                     // a trailer's opening (2026-11-19)
   }
 
   // ---- the headline hit
@@ -254,21 +265,42 @@ function compose(ad, ctx, voDur, rec) {
       [root, root + 12, root + (minor ? 15 : 16), root + 19, root + 24].forEach(m => S.note(hit, "organ", m, .45, .3));
       boom(hit, .4); break;
     }
+    // a trailer's braam (2026-11-19, DESIGN-LAW 174): a swell into a low brass blast over the low hit
+    case "braam": S.swell(hit - 1.1, hit, .16); S.braam(hit, .5, 36 + A.keyPc); boom(hit, .7); break;
     default: S.swish(tl.text - .45, .5, true, -.3, .11); boom(hit, .9);
   }
   if (ad.lines.length > 1) S.thump(tl.lines[1] + .3, .12, 0);
   if (["slide_letters", "drop_letters", "typewriter", "scramble", "spin_letters"].includes(st.text_in))
     ad.lines.forEach((L, i) => S.swish(tl.lines[i], .35, true, 0, .05));
 
+  // ---- chimes in the bed's key (2026-11-19: "make more tunes, songs, or chimes we can use";
+  // DESIGN-LAW 174): on the number, or on the end card (st.sting). Each lands on a soft low hit,
+  // so the music steps back under it; nothing in them is pitched above about 1.2 kHz.
+  const chime = (kind, t) => {
+    const root = 60 + A.keyPc, third = minor ? 3 : 4;
+    switch (kind) {
+      case "chime_piano": [root - 12, root - 5, root + 2, root + third].forEach((m, i) => S.note(t + i * .012, "piano", m, 1.6, .3)); boom(t, .18); break;
+      case "chime_logo": [[7, .5, .38, -.1], [14, .5, .36, .15], [12, 1.3, .42, 0]].forEach(([iv, d, g, pan], i) => S.note(t + i * .16, "epiano", root + iv, d, g, pan)); boom(t + .32, .16); break;
+      case "chime_strings": [root - 12, root - 5, root + third, root + 7].forEach(m => S.note(t - .45, "strings", m, 1.7, .32)); boom(t, .22); break;
+      case "chime_brass": [root - 12, root - 5, root, root + 7].forEach(m => S.note(t, "synth_brass", m, .5, .34)); boom(t, .24); break;
+    }
+  };
+
   // ---- the number
   const n = ad.num.text.replace(/\s/g, "").length;
   switch (st.number_in === "type" && numKind !== "confetti" ? "ticks" : numKind) {
     case "ticks": { const k = Math.min(n, 12), step = Math.min(.06, .7 / k);
       for (let i = 0; i < k; i++) S.key(tl.number + i * step, .09 * (.8 + .4 * r()));
-      S.pop(tl.number + k * step + .02, .13, bell1); break; }
+      S.thump(tl.number + k * step + .02, .3, 0); break; }        // it ended on a cork pop until 2026-11-19
     case "register": S.register(tl.number + .05, .32, bell1); break;
     case "chime": S.bell(tl.number + .05, bell1, .15); S.bell(tl.number + .15, bell2, .13); break;
     case "whoosh_ding": S.swish(tl.number - .25, .35, true, .3, .09); S.bell(tl.number + .12, bell2, .15); break;
+    // a trailer's (2026-11-19, DESIGN-LAW 174): a clock's three dry ticks into the number, then a
+    // low hit on it; or a whoosh rising into the low hit. The music steps back under the hit,
+    // which sits under the headline's (measured: the headline's -8 to -9 dB, these -15).
+    case "tick_boom": [-.42, -.28, -.14].forEach((d, i) => { S.key(tl.number + d, .1 + i * .02); S.tock(tl.number + d, .035 + i * .01, .15); }); boom(tl.number, .24); break;
+    case "whoosh_boom": S.swish(tl.number - .42, .45, true, .2, .11); boom(tl.number + .02, .24); break;
+    case "chime_piano": case "chime_logo": case "chime_strings": case "chime_brass": chime(numKind, tl.number + .02); break;
     // played and recorded (music.js), in the bed's key
     case "shave_haircut": {                          // "shave and a haircut... two bits"
       const inst = st.melody !== "none" && st.lead && st.lead !== "synth" ? st.lead : "xylophone", top = (LEADS[inst] || LEADS.xylophone).center;
@@ -295,13 +327,24 @@ function compose(ad, ctx, voDur, rec) {
     }
     default: S.pop(tl.number + .05, .15, bell1);
   }
-  if (st.shine || st.sparkles) S.sparkle(tl.shine, .045, tonic);
+  // Trailer, not a game (DESIGN-LAW 174, 2026-11-18): the phones' shine is silent (it was a
+  // rising four-bell run, a game's power-up), the sticker lands with a soft thump (it was a cork
+  // pop just after the headline hit), and the end card comes in on a soft whoosh (it was two
+  // bells rising a fifth)
   const cues = ad.cues || {};
   if (cues.board != null) { S.tock(cues.board, .1, 0); S.thump(cues.board + .04, .12, 0); }
-  if (cues.burst != null) S.pop(cues.burst, .1, bell2);
+  if (cues.burst != null) S.thump(cues.burst, .1, 0);
   if (cues.stamp != null) { S.thump(cues.stamp + .2, .32, 0); S.tock(cues.stamp + .2, .08, 0); }
   if (cues.tape != null) S.swish(cues.tape, .38, false, .3, .08);
-  if (ad.tOutro != null) { S.bell(ad.tOutro, bell1, .08); S.bell(ad.tOutro + .09, bell2, .07); }
+  if (ad.tOutro != null) { S.swish(ad.tOutro - .35, .4, true, 0, .08); if (st.sting && st.sting !== "none") chime(st.sting, ad.tOutro + .05); }
+  // a moving scene's beats (DESIGN-LAW 179, FullAd._sceneBeats): the scene's own sound into the moment the clip and the
+  // light share, the sticker stamping again just after, the push to the call to action, and in a long ad a soft whoosh
+  // under the second light. The moment's low hit .4 to .48 against the headline's .85 to .9 (its loudest tenth of a
+  // second under the headline's, as rule 174's chimes sit), the push's .32, so the bed steps back under each
+  if (cues.scene) sceneSfx(S, boom, cues.scene.kind, cues.scene.t);
+  if (cues.restamp != null) { S.thump(cues.restamp, .2, 0); S.tock(cues.restamp + .01, .08, 0); }
+  if (cues.pulse != null) { S.swish(cues.pulse - .32, .36, true, .2, .13); boom(cues.pulse, .32); }
+  if (cues.glint != null) S.swish(cues.glint - .2, .45, true, -.2, .1);
 
   // ---- the bed: a real recording in place of the music made here, or a scored kit or a
   // groove of its own (music.js) with a tune over either. Music that cannot be laid out
@@ -329,6 +372,20 @@ function compose(ad, ctx, voDur, rec) {
   // in over 10 ms (no click), out over the last 0.7 s
   master.gain.setValueAtTime(0, 0); master.gain.linearRampToValueAtTime(1, .01);
   master.gain.setValueAtTime(1, Math.max(.02, T - .7)); master.gain.linearRampToValueAtTime(0, T);
+}
+
+/** A moving scene's own sound at its moment t (motion/clips.js scene.sfx): a car passing left to right; data ticking
+ *  faster into a click; a cymbal drawn backwards into the gold's flare; air swelling; a long wind; a light sweep. Built
+ *  from the effects the trailer kit already has (rule 174: nothing a game would play). */
+function sceneSfx(S, boom, kind, t) {
+  switch (kind) {
+    case "pass": S.swish(t - .55, .6, true, -.55, .24); S.swish(t - .02, .55, false, .55, .2); boom(t, .45); break;
+    case "data": for (let i = 0; i < 7; i++) S.key(t - .45 + i * .065, .1 + i * .015); S.tock(t, .16, 0); boom(t, .45); break;
+    case "flare": S.reverseCymbal(t - 1, t, .16); boom(t, .42); break;
+    case "air": S.swell(t - 1, t, .22); boom(t, .42); break;
+    case "wind": S.swish(t - 1.1, 1.3, true, 0, .2); boom(t, .45); break;
+    case "sweep": S.reverseCymbal(t - .7, t, .13); S.swish(t - .15, .45, false, .3, .14); boom(t, .4); break;
+  }
 }
 
 /** The voice sits on top of a mix that already peaks near full scale, so a
@@ -544,6 +601,23 @@ function synth(ctx, noise, r, bus, rec) {
       const gk = ctx.createGain(); env(gk, t, .002, gain * .3, .14); kn.connect(gk); out(gk, 0, .3);
       const n = noiseSrc(t, .12), gn = ctx.createGain(); env(gn, t, .002, gain * .3, .07); n.connect(filt("lowpass", 2500)).connect(gn); out(gn, 0, .4);
     },
+    /** A trailer's braam: a low brass blast, the root, its fifth and its octave on detuned
+     *  sawtooths, driven, the filter flaring open and closing as it dies (under 1.5 kHz). */
+    braam(t, gain, root, until = Infinity) {
+      if (t < -.02) return;
+      t = T0(t);
+      const pre = ctx.createGain(), ws = ctx.createWaveShaper(), lp = filt("lowpass", 180, 2.2), g = ctx.createGain(), gate = ctx.createGain();
+      // gone by `until` (an opening under a voiceover is gone by the first word), faded over 80 ms
+      if (until < t + 2.2) { gate.gain.setValueAtTime(1, Math.max(t, until - .08)); gate.gain.linearRampToValueAtTime(0, Math.max(t + .01, until)); }
+      pre.gain.value = .5; ws.curve = curve(2.4);
+      lp.frequency.setValueAtTime(180, t); lp.frequency.exponentialRampToValueAtTime(1500, t + .07); lp.frequency.exponentialRampToValueAtTime(300, t + 1.7);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + .035); g.gain.exponentialRampToValueAtTime(gain * .5, t + .35);
+      g.gain.exponentialRampToValueAtTime(gain * .18, t + 1.1); g.gain.exponentialRampToValueAtTime(.0003, t + 2.2); g.gain.linearRampToValueAtTime(0, t + 2.25);
+      for (const [iv, lvl] of [[0, .5], [7, .3], [12, .35]]) for (const c of [-9, 0, 9]) {
+        const o = osc("sawtooth", t, 2.3, hz(root + iv)), og = ctx.createGain(); o.detune.value = c; og.gain.value = lvl / 3; o.connect(og).connect(pre);
+      }
+      pre.connect(ws).connect(lp).connect(g).connect(gate); out(gate, 0, .45);
+    },
     subDrop(t, gain) {
       const o = osc("sine", t, 1.6, 96); o.frequency.exponentialRampToValueAtTime(36, t + .9);
       const g = ctx.createGain(); env(g, t, .008, gain * .75, 1.1); o.connect(g); out(g, 0, .1);
@@ -603,9 +677,6 @@ function synth(ctx, noise, r, bus, rec) {
     },
     key(t, gain) {
       const n = noiseSrc(t, .02), g = ctx.createGain(); env(g, t, .001, gain, .012); n.connect(filt("bandpass", 2200, 1.5)).connect(g); out(g, 0, .05);
-    },
-    sparkle(t, gain, tonic) {
-      [0, 4, 7, 12].forEach((iv, i) => { const f = hz(tonic % 12 + 84 + iv); if (f < 2700) S.bell(t + i * .05, f, gain); });
     },
     // ---------------------------------------------------------------- instruments
     kick(t, gain) {
@@ -879,6 +950,43 @@ function recordingGain(buf) {
  *  on the headline hit, so the words land on its first downbeat (each clip starts on a
  *  strong beat; an upload plays from its start), into the music's own bus, open by then:
  *  ducked under the hits and the voice, toned, and levelled with the rest. */
+// Drums under a real recording were tried (2026-11-19) and left out: locked to a recording's
+// measured tempo from the hit, they held for two seconds and then drifted off its beat (the
+// Mountain King speeds up; the measured tempos are an estimate). Over a recording, what layers
+// is what cannot drift: the hits, the chimes and the number's sound, in its key (recordingKey).
+
+// Krumhansl-Kessler key profiles (major, minor), from the tonic up
+const KK = [[6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88], [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17]];
+const HEARD = new WeakMap();
+/** The key a recording is heard in: its pitch classes over the clip (a Goertzel bank, E2 to B5,
+ *  on 370 ms Hann frames after a fourfold decimation) against the Krumhansl-Kessler profiles.
+ *  { pc, minor, r }, or null where no key fits clearly (r under .5). Measured once a recording. */
+export function recordingKey(buf) {
+  if (HEARD.has(buf)) return HEARD.get(buf);
+  // the first 20 s: what plays under an ad (a whole uploaded song would take a second to read)
+  const D = 4, n = Math.floor(Math.min(buf.length, buf.sampleRate * 20) / D), x = new Float32Array(n), C = buf.numberOfChannels;
+  for (let c = 0; c < C; c++) { const d = buf.getChannelData(c); for (let i = 0; i < n; i++) { let q = 0; for (let j = 0; j < D; j++) q += d[i * D + j]; x[i] += q / (D * C); } }
+  const fs = buf.sampleRate / D, N = 4096, hop = 2048, win = new Float32Array(N), chroma = new Float64Array(12);
+  for (let i = 0; i < N; i++) win[i] = .5 - .5 * Math.cos(2 * Math.PI * i / (N - 1));
+  for (let m = 40; m <= 83; m++) {
+    const w = 2 * Math.cos(2 * Math.PI * 440 * 2 ** ((m - 69) / 12) / fs);
+    for (let s0 = 0; s0 + N <= n; s0 += hop) {
+      let a = 0, b = 0; for (let i = 0; i < N; i++) { const y = x[s0 + i] * win[i] + w * a - b; b = a; a = y; }
+      chroma[m % 12] += Math.sqrt(Math.max(0, a * a + b * b - w * a * b));
+    }
+  }
+  const corr = (p, q) => { const mp = p.reduce((s, v) => s + v, 0) / 12, mq = q.reduce((s, v) => s + v, 0) / 12; let sxy = 0, sxx = 0, syy = 0;
+    for (let i = 0; i < 12; i++) { sxy += (p[i] - mp) * (q[i] - mq); sxx += (p[i] - mp) ** 2; syy += (q[i] - mq) ** 2; } return sxy / Math.sqrt(sxx * syy + 1e-12); };
+  let best = null;
+  for (let pc = 0; pc < 12; pc++) for (const minor of [false, true]) {
+    const prof = Array.from({ length: 12 }, (_, i) => KK[+minor][((i - pc) % 12 + 12) % 12]), r = corr([...chroma], prof);
+    if (!best || r > best.r) best = { pc, minor, r };
+  }
+  const out = best && best.r >= .5 ? best : null;
+  HEARD.set(buf, out);
+  return out;
+}
+
 function playRecording(ctx, buf, dest, hit, T) {
   const t0 = Math.max(0, hit - .02), s = ctx.createBufferSource(), g = ctx.createGain(), level = recordingGain(buf);
   s.buffer = buf;

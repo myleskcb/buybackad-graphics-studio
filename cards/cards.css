@@ -56,3 +56,31 @@
 .pt-switch:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
 .pt-ask{margin:6px 0 0;padding-left:20px;max-width:760px;color:var(--text-2)}
 .pt-ask b{color:var(--text)}
+
+/* the gallery (DESIGN-LAW 176): finished cards with the customer's details in them, the form behind */
+.cd-details{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1.2fr);gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:16px 18px;margin:0 0 22px}
+@media (max-width:760px){.cd-details{grid-template-columns:1fr 1fr}.cd-dname{grid-column:1/-1}}
+@media (max-width:420px){.cd-details{grid-template-columns:1fr}}
+.cd-dfield{display:flex;flex-direction:column;gap:6px;min-width:0}
+.cd-dfield label{font-size:13.5px;font-weight:650;color:var(--text)}
+.cd-dfield input,.cd-dfield select{width:100%;box-sizing:border-box;font:500 15.5px -apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',sans-serif;color:var(--text);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:11px 13px;min-height:46px}
+.cd-dfield input:focus,.cd-dfield select:focus{outline:none;border-color:var(--accent)}
+.cd-gal-head,.cd-custom-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+.cd-gal-head h2,.cd-custom-head h2{margin:0;padding:0;border:0;font-size:clamp(22px,2.4vw,30px)}
+.cd-logo-link{font-weight:650;font-size:15px;color:var(--accent)}
+.cd-gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px}
+@media (max-width:420px){.cd-gal{grid-template-columns:minmax(0,1fr)}}
+.cd-pick{position:relative;display:block;padding:14px 14px 18px;border:0;border-radius:18px;background:var(--panel);box-shadow:0 0 0 1px color-mix(in srgb,var(--line) 70%,transparent);cursor:pointer;text-align:left;transition:transform .2s cubic-bezier(.22,.7,.2,1),box-shadow .2s}
+.cd-pick:hover{transform:translateY(-2px);box-shadow:0 16px 34px -20px rgba(0,0,0,.6),0 0 0 1px var(--accent)}
+.cd-pick:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.cd-pick[aria-pressed=true]{box-shadow:0 0 0 3px var(--btn)}
+.cd-pair{position:relative;aspect-ratio:1125/860}
+.cd-pair canvas{position:absolute;width:86%;height:auto;border-radius:7px;box-shadow:0 12px 26px -14px rgba(0,0,0,.65),0 0 0 1px rgba(0,0,0,.08)}
+.cd-pair .bk{right:0;top:0;transform:rotate(2.2deg)}
+.cd-pair .fr{left:0;bottom:0;transform:rotate(-1.4deg)}
+.cd-pick.wait .cd-pair{border-radius:10px;background:linear-gradient(100deg,var(--panel) 30%,color-mix(in srgb,var(--line) 50%,var(--panel)) 50%,var(--panel) 70%);background-size:300% 100%;animation:cd-wait 1.2s linear infinite}
+@keyframes cd-wait{to{background-position:-150% 0}}
+@media (prefers-reduced-motion:reduce){.cd-pick.wait .cd-pair{animation:none}.cd-pick{transition:none}}
+.cd-pick b{display:block;margin-top:12px;font-size:14.5px;font-weight:650;color:var(--text)}
+.cd-gal-more{display:flex;justify-content:center;margin:20px 0 0}
+.cd-custom{margin-top:clamp(36px,5vw,60px);scroll-margin-top:88px}
