@@ -91,8 +91,25 @@
         <button type="button" role="tab" data-s="bold" aria-selected="false" title="Loud and eye-catching, like an ad">Bold</button>
       </div>
     </div>
+    <!-- the questionnaire (DESIGN-LAW 183): three questions, each answered by tapping logos in the shop's own name -->
+    <div class="lq" id="lg-quiz" hidden>
+      <div class="lq-top">
+        <p class="lq-count" id="lq-count">Question 1 of 3</p>
+        <h3 class="lq-q" id="lq-q">Which feels like your shop?</h3>
+        <p class="lq-hint" id="lq-hint">Pick one or two. Each is a logo in your name.</p>
+      </div>
+      <div class="lq-grid" id="lq-grid" role="group" aria-labelledby="lq-q" aria-live="polite"></div>
+      <div class="lq-acts">
+        <button class="lg-btn" type="button" id="lq-back">Back</button>
+        <span class="lq-gap"></span>
+        <button class="lg-btn" type="button" id="lq-skip">Surprise me</button>
+        <button class="lg-btn primary" type="button" id="lq-next" disabled>Next</button>
+      </div>
+    </div>
+    <p class="lq-sum" id="lq-sum" hidden></p>
+    <div class="lq-doors" id="lq-doors"></div>
     <div class="lg-grid" id="lg-grid" aria-live="polite"></div>
-    <div class="lg-more-row"><button class="lg-btn" id="lg-more" type="button">Show me more logos</button></div>
+    <div class="lg-more-row" id="lg-more-row"><span class="lq-hearts" id="lq-hearts" hidden></span><button class="lg-btn" id="lg-more" type="button">Show me more logos</button></div>
   </section>
 
   <section class="lg-edit" id="lg-edit" aria-labelledby="lg-h3" hidden>

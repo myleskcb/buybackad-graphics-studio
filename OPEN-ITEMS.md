@@ -5175,14 +5175,12 @@ tones, the style chips, the Symbol and Corners rows, the "since" line, the froze
 contact sheets (marks.html, styles.html).
 
 Open:
-- **The questionnaire** the owner asked about on 2026-11-25: which style feels like the shop, colours liked, symbols
-  liked, then 24 logos built from the answers, with "Surprise me" on every question; and the two doors beside it,
-  start from a template or edit an existing logo. The engine already takes a taste (`gallery({ like })`, `tagsOf`);
-  the page has to ask for it. Waiting on the owner's word on the flow.
-- **Hearts on gallery tiles** that steer More (the free taste, no AI): the tags exist; the page has none yet.
-- **An AI art director** (AI credits, like the name ideas): Claude reads the shop's own words and its answers and
-  returns designs in the engine's terms (style, layout, mark, pair, tone) with a reason each; the engine draws them,
-  so no model draws a letter (rule 176). Not built.
+- Done the same day, at the owner's word ("Build it here"): the questionnaire, hearts that steer More, Start from a
+  template and Edit the logo I picked (DESIGN-LAW 183, 10).
+- **An AI art director** (AI credits, like the name ideas): Claude reads the shop's own words and the questionnaire's
+  answers and returns designs in the engine's terms (style, layout, mark, pair, tone) with a reason each; the engine
+  draws them, so no model draws a letter (rule 176). It would sit beside the questions as "Ask AI to pick for me".
+  Not built.
 - **A sign-painter script** for the Sign layout (a new open-licence face, rule 140): it uses Brush and Marker today.
 - **The full ad opening in a logo's own pair**: a logo in one of the logo's own pairs opens the ad in its default
   pair, since the ads do not wear those. A nearest house pair could stand in.

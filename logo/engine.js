@@ -2009,19 +2009,32 @@ export function tagsOf(design) {
 export function gallery(input, { seed = 1, n = 24, group = "", style = "", like = null } = {}) {
   const base = { name: tidy(input.name), cat: LINE_WORDS[input.cat] ? input.cat : "phones", small: tidy(input.small), town: tidy(input.town), since: tidy(input.since) };
   const R = rng(hash(base.name.toUpperCase() + "|" + base.cat + (style ? "|" + style : "") + (like ? "|" + JSON.stringify(like) : "")) ^ (seed * 2654435761));
-  if (style === "bold") return boldGallery(base, R, { seed, n, group });
   const L0 = like || {}, has = (k, v) => Array.isArray(L0[k]) && L0[k].length && L0[k].includes(v);
+  const likedPairs = Array.isArray(L0.pairs) ? L0.pairs.filter(k => PAIR_OF[k]) : [];
+  if (style === "bold") return boldGallery(base, R, { seed, n, group, liked: likedPairs });
+  // a taste that likes Bold: the Bold gallery, or Bold dealt in turn with the calm styles liked beside it
+  const likedS = Array.isArray(L0.styles) ? L0.styles.filter(s => STYLES[s]) : [];
+  if (!style && likedS.includes("bold")) {
+    const boldList = boldGallery(base, R, { seed, n, group, liked: likedPairs }), calmS = likedS.filter(s => s !== "bold");
+    if (!calmS.length) return boldList;
+    const calmList = gallery(input, { seed, n, group, like: { ...L0, styles: calmS } }), out = [], usedP = new Set();
+    for (let i = 0; out.length < n + 8 && (i < calmList.length || i < boldList.length); i++) for (const d of [calmList[i], boldList[i]]) if (d && !usedP.has(d.pair)) { usedP.add(d.pair); out.push(d); }
+    return out;
+  }
   const seq = style && STYLES[style] ? [style] : Array.isArray(L0.styles) && L0.styles.length ? L0.styles.filter(s => STYLES[s] && s !== "bold") : linesStyles(base.cat);
   const styles = seq.length ? seq : linesStyles(base.cat);
   let lays = calmLayoutsFor(base.cat).filter(k => !group || LAYOUTS[k].group === group);
   if (style && STYLES[style]) { const only = lays.filter(k => STYLES[style].layouts.includes(k)); if (only.length) lays = only; }
+  else if (likedS.length) { const u = new Set(likedS.flatMap(s => STYLES[s].layouts)), only = lays.filter(k => u.has(k)); if (only.length >= 4) lays = only; }
   if (Array.isArray(L0.layouts) && L0.layouts.length) { const only = lays.filter(k => L0.layouts.includes(k)); if (only.length >= 3) lays = only; }
   if (!lays.length) return [];
   const own = lays.filter(k => LAYOUTS[k].cats), order = [];
   while (order.length < n + 16) order.push(...(order.length ? shuffle(lays, R) : [...shuffle(own, R), ...shuffle(lays.filter(k => !own.includes(k)), R)]));
-  const liked = Array.isArray(L0.pairs) ? L0.pairs.filter(k => PAIR_OF[k]) : [];
+  const liked = likedPairs;
   const stylePairs = [...new Set(styles.flatMap(s => STYLES[s].pairs))];
-  const pool = [...new Set([...liked, ...shuffle(LINE_CALM[base.cat] || [], R), ...shuffle(stylePairs, R), ...shuffle(CALM_PAIRS, R)])];
+  // colours the customer chose come back on every other logo; the slots between suggest others (never the chosen)
+  const pool = [...new Set([...shuffle(LINE_CALM[base.cat] || [], R), ...shuffle(stylePairs, R), ...shuffle(CALM_PAIRS, R)])].filter(k => !liked.includes(k));
+  let li = 0;
   const darkQ = pool.filter(k => paletteOf(k).dark), lightQ = pool.filter(k => !paletteOf(k).dark);
   const fam = MARKS_FOR[base.cat] || MARKS_FOR.phones, usedV = {}, usedM = {}, icons = ICONS_FOR[base.cat] || ICONS_FOR.phones, out = [], seen = new Set();
   for (let i = 0; out.length < n + 8 && i < order.length; i++) {
@@ -2029,7 +2042,7 @@ export function gallery(input, { seed = 1, n = 24, group = "", style = "", like 
     const st = styles.find((s, j) => j >= i % styles.length && STYLES[s].layouts.includes(t)) || styles.find(s => STYLES[s].layouts.includes(t)) || ["classic", "modern", "friendly", "luxury"].find(s => STYLES[s].layouts.includes(t)) || "modern";
     const S = STYLES[st];
     const q = (out.length % 2 === 0) === (seed % 2 === 1) ? darkQ : lightQ;
-    const pair = q.length ? q.shift() : (darkQ.shift() || lightQ.shift() || "navy_brass");
+    const pair = liked.length && out.length % 2 === 0 ? liked[li++ % liked.length] : q.length ? q.shift() : (darkQ.shift() || lightQ.shift() || "navy_brass");
     const fit = v => LOGO_VOICES[v] && L.kinds.includes(LOGO_VOICES[v].kind) && (usedV[v] || 0) < 2;
     const likedV = (L0.voices || []).filter(fit), styleV = shuffle(S.voices.filter(fit), R), anyV = shuffle(Object.keys(LOGO_VOICES).filter(v => fit(v) && (LOGO_VOICES[v].logoOnly || ["bold", "block", "stadium", "tech", "luxe", "grotesk", "brush", "marker"].includes(v))), R);
     const voice = [...likedV, ...styleV.sort((a, b) => (usedV[a] || 0) - (usedV[b] || 0)), ...anyV][0];
@@ -2050,12 +2063,12 @@ export function gallery(input, { seed = 1, n = 24, group = "", style = "", like 
   return out;
 }
 /** The Bold style: the gallery as it was before the calm one, every older layout in the voices and pairs it had. */
-function boldGallery(base, R, { seed, n, group }) {
+function boldGallery(base, R, { seed, n, group, liked = [] }) {
   let lays = layoutsFor(base.cat).filter(k => !group || LAYOUTS[k].group === group);
   const own = lays.filter(k => LAYOUTS[k].cats);
   const order = [];
   while (order.length < n + 8) order.push(...(order.length ? shuffle(lays, R) : [...shuffle(own, R), ...shuffle(lays.filter(k => !own.includes(k)), R)]));
-  const pref = shuffle(LINE_PAIRS[base.cat] || [], R), rest = shuffle(LOGO_PAIRS.filter(k => !pref.includes(k) && !PAIR_OF[k].logoOnly), R);
+  const pref = [...new Set([...liked, ...shuffle(LINE_PAIRS[base.cat] || [], R)])], rest = shuffle(LOGO_PAIRS.filter(k => !pref.includes(k) && !PAIR_OF[k].logoOnly), R);
   const darkQ = [...pref, ...rest].filter(k => paletteOf(k).dark), lightQ = [...pref, ...rest].filter(k => !paletteOf(k).dark);
   const usedV = {}, icons = ICONS_FOR[base.cat] || ICONS_FOR.phones, out = [], seen = new Set();
   for (let i = 0; out.length < n + 8 && i < order.length; i++) {
@@ -2072,6 +2085,59 @@ function boldGallery(base, R, { seed, n, group }) {
     out.push(d);
   }
   return out;
+}
+/* ---------- the questionnaire and the templates (DESIGN-LAW 183) ----------
+   The owner, 2026-11-25: "how could this become some sort of a questionnaire where you choose assets, color schemes
+   you like, suggested builds and then you end up with the final pick ... or you can build your own from a template
+   or existing edit". Three questions, each answered by tapping finished logos in the shop's own name (never a
+   setting): which style feels like the shop, colours liked, symbols liked. The answers are a taste the gallery leans
+   toward (gallery({ like })), and a heart on a logo adds to it. */
+export const QUIZ = [
+  { key: "styles", q: "Which feels like your shop?", hint: "Pick one or two. Each is a logo in your name.", max: 2 },
+  { key: "pairs", q: "Which colours do you like?", hint: "Pick up to three.", max: 3 },
+  { key: "marks", q: "Which symbols suit you?", hint: "Pick up to three, or just your name, or your initials.", max: 3 },
+];
+const NAME_LAYOUTS = ["wordmark", "split", "framed", "deco", "varsity", "signboard", "shopplate", "label", "stacked"];
+const INIT_LAYOUTS = ["interlace", "tile", "monogram", "roundel", "heritage"];
+const MARK_LAYOUTS = ["lockup", "centred", "tile", "heritage"];
+/** the colours the second question offers: the liked styles' and the line's, dark and light by turns, no near twins */
+export function pairChoices(input, styles = [], n = 10) {
+  const cat = LINE_WORDS[input && input.cat] ? input.cat : "phones", st = (styles || []).filter(s => STYLES[s]);
+  const pool = [...new Set([...(st.length ? st : linesStyles(cat)).flatMap(s => s === "bold" ? LINE_PAIRS[cat] || [] : [...(LINE_CALM[cat] || []).filter(k => STYLES[s].pairs.includes(k)), ...STYLES[s].pairs]), ...(LINE_CALM[cat] || []), ...CALM_PAIRS])].filter(k => PAIR_OF[k]);
+  const dark = pool.filter(k => paletteOf(k).dark), light = pool.filter(k => !paletteOf(k).dark), out = [];
+  while (out.length < n && (dark.length || light.length)) {
+    const q = out.length % 2 ? light : dark, k = (q.length ? q : dark.length ? dark : light).shift();
+    if (out.every(p => !nearTwin(p, k))) out.push(k);
+  }
+  return out;
+}
+/** the third question's answers: the line's family of marks, then "just my name" and "my initials" */
+export const markChoices = cat => [...(MARKS_FOR[cat] || MARKS_FOR.phones), "name", "initials"];
+/** a taste from the answers and the hearted logos: what the gallery leans toward */
+export function tasteOf(answers, hearts = []) {
+  const a = answers || {}, hs = (hearts || []).map(h => cleanDesign(h));
+  const uniq = xs => [...new Set(xs.filter(Boolean))];
+  const styles = uniq([...(a.styles || []).filter(s => STYLES[s]), ...hs.map(styleOf)]);
+  const pairs = uniq([...(a.pairs || []).filter(k => PAIR_OF[k]), ...hs.map(h => h.pair)]);
+  const ms = a.marks || [], marks = uniq([...ms.filter(k => MARK_SET[k]), ...hs.map(h => h.mark)]);
+  const layouts = uniq([...(ms.some(k => MARK_SET[k]) ? MARK_LAYOUTS : []), ...(ms.includes("name") ? NAME_LAYOUTS : []), ...(ms.includes("initials") ? INIT_LAYOUTS : [])]);
+  const voices = uniq(hs.map(h => h.voice));
+  const out = {};
+  for (const [k, v] of Object.entries({ styles, pairs, marks, layouts, voices })) if (v.length) out[k] = v;
+  return Object.keys(out).length ? out : null;
+}
+/** Every layout as a finished logo in the shop's name: the templates to start from. The calm ones first, each in a
+ *  style it belongs to, then Bold's. */
+export function templates(input) {
+  const base = { name: tidy(input.name), cat: LINE_WORDS[input.cat] ? input.cat : "phones", small: tidy(input.small), town: tidy(input.town), since: tidy(input.since) };
+  const fam = MARKS_FOR[base.cat] || MARKS_FOR.phones, calmP = [...new Set([...(LINE_CALM[base.cat] || []), ...CALM_PAIRS])], boldP = [...new Set([...(LINE_PAIRS[base.cat] || []), ...LOGO_PAIRS.filter(k => !PAIR_OF[k].logoOnly)])];
+  const voiceFor = (L, list) => list.find(v => LOGO_VOICES[v] && L.kinds.includes(LOGO_VOICES[v].kind)) || Object.keys(LOGO_VOICES).find(v => L.kinds.includes(LOGO_VOICES[v].kind));
+  const calm = calmLayoutsFor(base.cat).map((t, i) => {
+    const L = LAYOUTS[t], st = linesStyles(base.cat).find(s => STYLES[s].layouts.includes(t)) || ["classic", "modern", "friendly", "luxury"].find(s => STYLES[s].layouts.includes(t)) || "modern";
+    return cleanDesign({ ...base, t, voice: voiceFor(L, STYLES[st].voices), pair: calmP[(i * 3) % calmP.length], mark: L.usesMark ? fam[i % fam.length] : "", icon: CALM_OLD.includes(t) ? (ICONS_FOR[base.cat] || ICONS_FOR.phones)[0] : "", seed: 1 + i });
+  });
+  const bold = layoutsFor(base.cat).filter(t => !CALM_OLD.includes(t)).map((t, i) => cleanDesign({ ...base, t, voice: voiceFor(LAYOUTS[t], AD_VOICES), pair: boldP[(i * 5) % boldP.length], icon: (ICONS_FOR[base.cat] || ICONS_FOR.phones)[0], seed: 1 + i }));
+  return [...calm, ...bold];
 }
 /** The same logo in other colours, faces, shapes, symbols or finishes: the rows under the one picked. A calm logo's
  *  rows offer calm choices first; its Symbol row is its line's catalogue (the mark as it is, the same mark drawn the
@@ -2138,7 +2204,16 @@ export function variantName(design, axis) {
 /** two pairs too alike to offer side by side: the same ground and accent to the eye */
 function nearTwin(a, b) {
   const A = paletteOf(a), B = paletteOf(b);
-  return contrast(A.G, B.G) < 1.25 && contrast(A.A, B.A) < 1.25;
+  return contrast(A.G, B.G) < 1.25 && contrast(A.A, B.A) < 1.25 && !hueApart(A.G, B.G) && !hueApart(A.A, B.A);
+}
+/** two colours of clearly different hue (oxblood and navy at one lightness are not twins), each with some colour */
+function hueApart(a, b) {
+  const hs = h => { const [r, g, bl] = rgbOf(h).map(v => v / 255), mx = Math.max(r, g, bl), mn = Math.min(r, g, bl), d = mx - mn;
+    if (!d) return [0, 0];
+    const hue = mx === r ? ((g - bl) / d + 6) % 6 : mx === g ? (bl - r) / d + 2 : (r - g) / d + 4;
+    return [hue * 60, d / (1 - Math.abs(mx + mn - 1) || 1)]; };
+  const [h1, s1] = hs(a), [h2, s2] = hs(b), dh = Math.min(Math.abs(h1 - h2), 360 - Math.abs(h1 - h2));
+  return s1 > .15 && s2 > .15 && dh > 30;
 }
 
 /* ---------- for the brand kit (logo/kit.js): the engine's own tools, so a kit file is drawn the way a

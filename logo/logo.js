@@ -37,10 +37,10 @@ const CATS = [["phones", "Phones & devices"], ["gaming", "Games & consoles"], ["
   ["wearables", "Watches & wearables"], ["cameras", "Cameras & drones"], ["strips", "Diabetic test strips"],
   ["devices", "Device store"], ["wholesale", "Wholesale & bulk lots"], ["resale", "Resale & trade-ins"]];
 const STORE = "pgfx_logo", KITKEY = "pgfx_logo_kit";
-const state = Object.assign({ name: "", cat: "", town: "", small: "", since: "", seed: 1, group: "", style: "", picked: null, details: {}, looks: {}, ok: {}, tier: "complete", format: "png", card: null }, jget(STORE, null) || {});
+const state = Object.assign({ name: "", cat: "", town: "", small: "", since: "", seed: 1, group: "", style: "", picked: null, details: {}, looks: {}, ok: {}, tier: "complete", format: "png", card: null, view: "", quiz: null, answers: null, hearts: [] }, jget(STORE, null) || {});
 if (!KIT.KIT_FORMATS[state.format]) state.format = "png";
 state.details ||= {}; state.looks ||= {}; state.ok ||= {};
-const keep = () => jset(STORE, { name: state.name, cat: state.cat, town: state.town, small: state.small, since: state.since, seed: state.seed, group: state.group, style: state.style, picked: state.picked, details: state.details, looks: state.looks, ok: state.ok, tier: state.tier, format: state.format, card: state.card });
+const keep = () => jset(STORE, { name: state.name, cat: state.cat, town: state.town, small: state.small, since: state.since, seed: state.seed, group: state.group, style: state.style, picked: state.picked, details: state.details, looks: state.looks, ok: state.ok, tier: state.tier, format: state.format, card: state.card, view: state.view, quiz: state.quiz, answers: state.answers, hearts: state.hearts });
 /** the logo the rest of the site wears: the card maker and the full ad read it */
 const keepKit = () => { if (state.picked) jset(KITKEY, { v: E.ENGINE_VERSION, design: state.picked, at: Date.now() }); };
 /* card: the layout and background chosen in the card maker (cards/, which writes it here; DESIGN-LAW 185) */
@@ -91,6 +91,11 @@ async function paint(canvas, d, { form = "primary", fill = .78, w, h, bg = true,
 }
 
 /* ---------- step 1: the name, and name ideas ---------- */
+/** a new name or line starts the questionnaire afresh: its answers and hearts were for another business */
+function newBusiness(was) {
+  if (was === state.name.trim().toUpperCase() + "|" + state.cat && state.view) return;
+  state.answers = null; state.hearts = []; state.quiz = { step: 0, styles: [], pairs: [], marks: [] }; state.view = "quiz"; state.style = "";
+}
 function input() { return { name: state.name.trim(), cat: state.cat || "phones", town: state.town.trim(), small: state.small.trim(), since: (state.since || "").trim() }; }
 function fillForm() {
   $("lg-cat").innerHTML = CATS.map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join("");
@@ -111,7 +116,7 @@ async function drawIdeas(given = null, append = false) {
     b.setAttribute("aria-label", "Use the name " + x.name);
     const c = document.createElement("canvas"); b.appendChild(c);
     const cap = document.createElement("span"); cap.innerHTML = `<b>${esc(x.name)}</b><small>${esc(x.why)}</small>`; b.appendChild(cap);
-    b.onclick = () => { $("lg-name").value = x.name; state.name = x.name; state.cat = cat; state.town = $("lg-town").value; state.seed = 1; state.picked = null; state.ok = {}; keep(); fillForm(); showGallery(true); };
+    b.onclick = () => { const was = state.name.trim().toUpperCase() + "|" + state.cat; $("lg-name").value = x.name; state.name = x.name; state.cat = cat; state.town = $("lg-town").value; newBusiness(was); state.seed = 1; state.picked = null; state.ok = {}; keep(); fillForm(); showGallery(true); };
     grid.appendChild(b);
     paint(c, designs[i], { w: 260, h: 130, fill: .86 }).catch(() => {});
   });
@@ -143,12 +148,25 @@ let galleryRun = 0;
 /* the style chips (DESIGN-LAW 183): All is the calm mix for the line; Bold is the gallery as it was */
 const STYLE_KEYS = ["", "classic", "modern", "friendly", "luxury", "bold"];
 const labelOf = d => `${E.LOGO_LAYOUTS[d.t].name} in ${E.paletteOf(d.pair).name}, ${E.LOGO_VOICES[d.voice].name} lettering`;
+/* the gallery shows one of three views: the questionnaire, the logos (built from its answers and hearts), or the
+   templates (every layout in the shop's name, to start from) */
+const VIEWS = ["quiz", "logos", "templates"];
+const viewNow = () => VIEWS.includes(state.view) ? state.view : state.answers || state.picked ? "logos" : "quiz";
+const HEARTS = 12;
+/** a heart keeps what a logo is made of, not the logo (the taste, DESIGN-LAW 183) */
+const heartOf = d => ({ t: d.t, voice: d.voice, pair: d.pair, mark: d.mark || "", line: !!d.line, icon: d.icon || "" });
+const hearted = d => (state.hearts || []).some(h => h.t === d.t && h.voice === d.voice && h.pair === d.pair && (h.mark || "") === (d.mark || ""));
+const taste = () => E.tasteOf(state.answers, state.hearts);
 async function drawGallery(append = false) {
-  const run = ++galleryRun, grid = $("lg-grid");
+  const run = ++galleryRun, grid = $("lg-grid"), view = viewNow(), tpl = view === "templates";
   if (!append) grid.innerHTML = "";
-  const list = E.gallery(input(), { seed: state.seed, n: SHOW + 8, style: STYLE_KEYS.includes(state.style) ? state.style : "" });
-  const tiles = [];
-  for (let i = 0; i < SHOW; i++) { const b = document.createElement("button"); b.type = "button"; b.className = "lg-tile wait"; b.setAttribute("aria-label", "A logo, loading"); grid.appendChild(b); tiles.push(b); }
+  const list = tpl ? E.templates(input()) : E.gallery(input(), { seed: state.seed, n: SHOW + 8, style: STYLE_KEYS.includes(state.style) ? state.style : "", like: taste() });
+  const tiles = [], n = tpl ? list.length : SHOW;
+  for (let i = 0; i < n; i++) {
+    const cell = document.createElement("div"); cell.className = "lg-cell";
+    const b = document.createElement("button"); b.type = "button"; b.className = "lg-tile wait"; b.setAttribute("aria-label", "A logo, loading");
+    cell.appendChild(b); grid.appendChild(cell); tiles.push(b);
+  }
   await needFor(list);
   if (run !== galleryRun) return;
   let t = 0;
@@ -159,27 +177,140 @@ async function drawGallery(append = false) {
     try { b.appendChild(c); r = await paint(c, d, { fill: .8 }); } catch (e) { c.remove(); continue; }
     if (run !== galleryRun) return;
     if (!r.ok) { c.remove(); continue; }   // a name too long for this layout at a size a logo is read at
-    b.classList.remove("wait"); b.setAttribute("aria-label", "Pick this logo: " + labelOf(d)); b.title = labelOf(d);
-    b.dataset.t = d.t; b.dataset.pair = d.pair; b.dataset.voice = d.voice;
+    b.classList.remove("wait"); b.setAttribute("aria-label", (tpl ? "Start from this template: " : "Pick this logo: ") + labelOf(d)); b.title = labelOf(d);
+    b.dataset.t = d.t; b.dataset.pair = d.pair; b.dataset.voice = d.voice; b.dataset.mark = d.mark || "";
     b.setAttribute("aria-pressed", String(!!state.picked && sameLogo(d, state.picked)));
     b.onclick = () => pick(d, b);
+    if (!tpl) {
+      // a heart: More leans toward what the hearted logos are made of
+      const h = document.createElement("button"); h.type = "button"; h.className = "lg-heart"; h.textContent = "♥";
+      const set = on => { h.setAttribute("aria-pressed", String(on)); h.setAttribute("aria-label", (on ? "Hearted: " : "Heart this logo: ") + labelOf(d)); };
+      set(hearted(d));
+      h.onclick = () => {
+        const on = !hearted(d);
+        state.hearts = (state.hearts || []).filter(x => !(x.t === d.t && x.voice === d.voice && x.pair === d.pair && (x.mark || "") === (d.mark || "")));
+        if (on) state.hearts = [...state.hearts, heartOf(d)].slice(-HEARTS);
+        keep(); set(on); heartsUI();
+      };
+      b.parentElement.appendChild(h);
+    }
     t++;
   }
-  for (; t < tiles.length; t++) tiles[t].remove();
+  for (; t < tiles.length; t++) tiles[t].parentElement.remove();
   grid.dataset.drawn = String(run);
   grid.dataset.count = String(grid.querySelectorAll(".lg-tile:not(.wait)").length);
 }
 const sameLogo = (a, b) => a && b && a.t === b.t && a.pair === b.pair && a.voice === b.voice && a.icon === b.icon && a.name === b.name && (a.mark || "") === (b.mark || "") && !!a.line === !!b.line;
+function heartsUI() {
+  const n = (state.hearts || []).length, el = $("lq-hearts");
+  el.hidden = !n || viewNow() !== "logos";
+  el.textContent = n === 1 ? "More leans toward the logo you hearted." : "More leans toward the " + n + " logos you hearted.";
+}
+/** the way in and out of each view: the questionnaire, 24 logos now, a template, the logo already picked */
+function doorsUI() {
+  const view = viewNow(), d = [];
+  if (view !== "quiz") d.push(["quiz", state.answers ? "Change my answers" : "Answer 3 quick questions"]);
+  if (view !== "logos") d.push(["logos", view === "quiz" ? "Show me 24 logos now" : "Back to the logos"]);
+  if (view !== "templates") d.push(["templates", "Start from a template"]);
+  if (state.picked) d.push(["edit", "Edit the logo I picked"]);
+  $("lq-doors").innerHTML = `<span>Or</span>` + d.map(([k, l]) => `<button class="lg-link" type="button" data-go="${k}">${esc(l)}</button>`).join("");
+  const sum = $("lq-sum");
+  if (view === "templates") { sum.hidden = false; sum.innerHTML = "<b>Templates:</b> every layout, in your name. Tap one, then make it yours: colours, lettering, symbol and words."; }
+  else if (view === "logos" && state.answers) {
+    const a = state.answers, names = [...(a.styles || []).map(k => E.STYLES[k] && E.STYLES[k].name), ...(a.pairs || []).map(k => E.paletteOf(k).name), ...(a.marks || []).map(k => k === "name" ? "Just my name" : k === "initials" ? "My initials" : E.LOGO_MARKS[k] && E.LOGO_MARKS[k].name)].filter(Boolean);
+    sum.hidden = false; sum.innerHTML = names.length ? "<b>Built from your answers:</b> " + esc(names.join(", ")) + "." : "<b>Built from your answers:</b> a surprise in every style that suits what you buy.";
+  } else sum.hidden = true;
+}
+/** step 2 as the view says: the questionnaire, or a grid of logos or templates */
+async function renderStep2() {
+  const view = viewNow();
+  $("lg-quiz").hidden = view !== "quiz"; $("lg-grid").hidden = view === "quiz"; $("lg-tabs").hidden = view !== "logos";
+  $("lg-more-row").hidden = view !== "logos";
+  $("lg-h2").textContent = view === "quiz" ? "Tell us what you like" : view === "templates" ? "Start from a template" : "Tap the logo you like";
+  doorsUI(); heartsUI();
+  if (view === "quiz") return renderQuiz();
+  return drawGallery(false);
+}
 async function showGallery(scroll) {
   const sec = $("lg-gallery"); sec.hidden = false;
   if (scroll) sec.scrollIntoView({ behavior: "smooth", block: "start" });
-  await drawGallery(false);
+  await renderStep2();
+}
+function go(view) {
+  if (view === "edit") { if (!state.picked) return; $("lg-edit").hidden = false; drawPicked(); $("lg-edit").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+  if (view === "quiz") state.quiz = { step: 0, styles: (state.answers || {}).styles || [], pairs: (state.answers || {}).pairs || [], marks: (state.answers || {}).marks || [] };
+  if (view === "logos") state.seed = 1;
+  state.view = view; keep(); renderStep2();
+  $("lg-gallery").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/* ---------- the questionnaire (DESIGN-LAW 183) ---------- */
+const QUIZ_STYLES = ["classic", "modern", "friendly", "luxury", "bold"];
+let quizRun = 0;
+/** a logo to dress in each answer: one of the first liked style's (a mark beside or above the name, where there is one) */
+function quizBase(q, inp) {
+  const st = (q.styles || []).find(s => s !== "bold") || "";
+  const g = E.gallery(inp, { seed: 1, n: 12, style: st });
+  const d = g.find(x => x.t === "lockup" || x.t === "centred") || g[0];
+  return { ...d, pair: (q.pairs || [])[0] || d.pair };
+}
+function quizCards(q, inp) {
+  if (q.step === 0) return QUIZ_STYLES.map(s => ({ key: s, label: E.STYLES[s].name, sub: E.STYLES[s].says, designs: E.gallery(inp, { seed: 1, n: 8, style: s }) }));
+  const base = quizBase(q, inp);
+  if (q.step === 1) return E.pairChoices(inp, q.styles).map(k => ({ key: k, label: E.paletteOf(k).name, designs: [{ ...base, pair: k }] }));
+  // a symbol is judged by itself: each card shows the mark alone, large, in the shop's colours and initials
+  return E.markChoices(inp.cat).map(k => ({ key: k, label: k === "name" ? "Just my name" : k === "initials" ? "My initials" : E.LOGO_MARKS[k].name,
+    form: k === "name" ? "primary" : "mark",
+    designs: [k === "name" ? { ...base, t: "wordmark", mark: "" } : k === "initials" ? { ...base, t: "interlace", mark: "" } : { ...base, t: "centred", mark: k, line: false }] }));
+}
+async function renderQuiz() {
+  const run = ++quizRun, inp = input();
+  const q = state.quiz && typeof state.quiz.step === "number" ? state.quiz : (state.quiz = { step: 0, styles: [], pairs: [], marks: [] });
+  q.step = Math.max(0, Math.min(E.QUIZ.length - 1, q.step | 0));
+  const Q = E.QUIZ[q.step], picks = q[Q.key] || (q[Q.key] = []);
+  $("lq-count").textContent = `Question ${q.step + 1} of ${E.QUIZ.length}`; $("lq-q").textContent = Q.q; $("lq-hint").textContent = Q.hint;
+  $("lq-back").hidden = q.step === 0;
+  const last = q.step === E.QUIZ.length - 1, next = $("lq-next");
+  next.textContent = last ? "Show my logos" : "Next"; next.disabled = !picks.length;
+  const grid = $("lq-grid"), cards = quizCards(q, inp);
+  grid.innerHTML = ""; grid.dataset.step = String(q.step); delete grid.dataset.drawn;
+  const btns = cards.map(card => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "lq-card"; b.dataset.key = card.key;
+    b.setAttribute("aria-pressed", String(picks.includes(card.key)));
+    b.innerHTML = `<canvas></canvas><span>${esc(card.label)}${card.sub ? `<small>${esc(card.sub)}</small>` : ""}</span>`;
+    b.setAttribute("aria-label", card.label + (card.sub ? ": " + card.sub : ""));
+    b.onclick = () => {
+      const i = picks.indexOf(card.key);
+      if (i >= 0) picks.splice(i, 1); else { picks.push(card.key); while (picks.length > Q.max) picks.shift(); }
+      grid.querySelectorAll(".lq-card").forEach(x => x.setAttribute("aria-pressed", String(picks.includes(x.dataset.key))));
+      next.disabled = !picks.length; keep();
+    };
+    grid.appendChild(b);
+    return [b, card];
+  });
+  await needFor(cards.flatMap(c => c.designs.slice(0, 3)));
+  for (const [b, card] of btns) {
+    if (run !== quizRun) return;
+    const c = b.querySelector("canvas");
+    for (const d of card.designs.slice(0, 4)) { try { const r = await paint(c, d, { fill: card.form === "mark" ? .62 : .8, w: 320, h: 240, form: card.form || "primary" }); if (r.ok) break; } catch (e) { /* the next one */ } }
+  }
+  if (run === quizRun) grid.dataset.drawn = String(run);
+}
+/** the next question, or the logos built from the answers; skip: this question answered "surprise me" */
+function quizNext(skip) {
+  const q = state.quiz; if (!q) return;
+  if (skip) q[E.QUIZ[q.step].key] = [];
+  if (q.step < E.QUIZ.length - 1) { q.step++; keep(); renderQuiz(); $("lg-gallery").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+  state.answers = { styles: q.styles || [], pairs: q.pairs || [], marks: q.marks || [] };
+  state.quiz = null; state.view = "logos"; state.seed = 1; state.style = "";
+  $("lg-tabs").querySelectorAll("button").forEach(x => x.setAttribute("aria-selected", String(x.dataset.s === "")));
+  keep(); renderStep2(); $("lg-gallery").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 /* ---------- step 3: the one picked ---------- */
 function pick(d, tile) {
   state.picked = { ...d, small: state.small, town: state.town, since: state.since || "" };
-  changed(); keepKit();
+  changed(); keepKit(); doorsUI();
   document.querySelectorAll(".lg-tile").forEach(b => b.setAttribute("aria-pressed", String(b === tile)));
   const first = $("lg-edit").hidden;
   $("lg-edit").hidden = false;
@@ -204,9 +335,9 @@ async function drawPicked() {
     await needFor(list);
     if (run !== pickRun) return;
     // a finish needs a body to sit on: a wordmark has none, so its row is not offered
-    if (axis === "finish") { const has = /linearGradient/.test(E.logoSvg({ ...d, finish: "gradient" }, FACES, {}).svg); row.hidden = !has; row.previousElementSibling.hidden = !has; if (!has) continue; }
+    if (axis === "finish") { const has = /linearGradient/.test(E.logoSvg({ ...d, finish: "gradient" }, FACES, {}).svg); row.hidden = !has; row.previousElementSibling.hidden = !has; if (!has) { row.innerHTML = ""; continue; } }
     // corners: offered where soft and sharp draw differently (a mark, a tile, a frame or a plate)
-    if (axis === "corners") { const has = E.logoSvg({ ...d, sharp: false }, FACES, {}).svg !== E.logoSvg({ ...d, sharp: true }, FACES, {}).svg; row.hidden = !has; row.previousElementSibling.hidden = !has; if (!has) continue; }
+    if (axis === "corners") { const has = E.logoSvg({ ...d, sharp: false }, FACES, {}).svg !== E.logoSvg({ ...d, sharp: true }, FACES, {}).svg; row.hidden = !has; row.previousElementSibling.hidden = !has; if (!has) { row.innerHTML = ""; continue; } }
     row.innerHTML = "";
     for (const v of list) {
       const b = document.createElement("button"); b.type = "button";
@@ -364,7 +495,7 @@ function openSaved(id) {
   const s = k.spec || {};
   state.picked = s.design; state.details = s.details || {}; state.looks = s.looks || {}; state.name = s.design.name; state.cat = s.design.cat; state.town = s.design.town || ""; state.small = s.design.small || "";
   state.ok = { logo: true, social: true, card: true, posts: true, print: true }; state.tier = k.tier; keep(); keepKit(); fillForm();
-  $("lg-gallery").hidden = false; drawGallery(false); $("lg-edit").hidden = false; buildSteps(); drawPicked().then(() => $("kit-review").scrollIntoView({ behavior: "smooth" }));
+  state.view = "logos"; $("lg-gallery").hidden = false; renderStep2(); $("lg-edit").hidden = false; buildSteps(); drawPicked().then(() => $("kit-review").scrollIntoView({ behavior: "smooth" }));
 }
 
 function tiersUI() {
@@ -569,10 +700,16 @@ let typing = 0;
 function bind() {
   $("lg-form").addEventListener("submit", e => {
     e.preventDefault();
+    const was = state.name.trim().toUpperCase() + "|" + state.cat;
     state.name = $("lg-name").value; state.cat = $("lg-cat").value; state.town = $("lg-town").value;
     if (!state.name.trim()) { $("lg-name").focus(); return; }
-    state.seed = 1; keep(); fillForm(); showGallery(true);
+    newBusiness(was); state.seed = 1; keep(); fillForm(); showGallery(true);
   });
+  // the questionnaire's buttons and the ways in and out of it (DESIGN-LAW 183)
+  $("lq-next").onclick = () => quizNext(false);
+  $("lq-skip").onclick = () => quizNext(true);
+  $("lq-back").onclick = () => { if (state.quiz && state.quiz.step > 0) { state.quiz.step--; keep(); renderQuiz(); } };
+  $("lq-doors").addEventListener("click", e => { const b = e.target.closest("button[data-go]"); if (b) go(b.dataset.go); });
   $("lg-cat").addEventListener("change", e => { state.cat = e.target.value; $("lg-small").placeholder = E.smallFor(state.cat); });
   $("nm-open").onclick = () => { const p = $("nm-panel"), open = p.hidden; p.hidden = !open; $("nm-open").setAttribute("aria-expanded", String(open)); if (open) { $("nm-words").focus(); if (!$("nm-grid").children.length) drawIdeas(); } };
   $("nm-go").onclick = () => { nmSeed = 1; drawIdeas(); };
@@ -623,7 +760,7 @@ async function start() {
   if (state.name.trim()) {
     $("lg-gallery").hidden = false;
     const g = $("lg-tabs").querySelector(`button[data-s="${STYLE_KEYS.includes(state.style) ? state.style : ""}"]`); if (g) $("lg-tabs").querySelectorAll("button").forEach(x => x.setAttribute("aria-selected", String(x === g)));
-    const shownGallery = drawGallery(false);
+    const shownGallery = renderStep2();
     if (state.picked) { $("lg-edit").hidden = false; await drawPicked(); }
     await shownGallery;
   }
@@ -631,6 +768,6 @@ async function start() {
   if (window.pgfxAccount && window.pgfxAccount.onChange) window.pgfxAccount.onChange(async () => { await loadKits(); if (state.picked) { drawPicked(); } });
 }
 
-window.LogoMaker = { state, E, KIT, FACES, need, zip, input, owned, kits: () => acctKits, drawGallery, drawReview, approve, spec,
+window.LogoMaker = { state, E, KIT, FACES, need, zip, input, owned, kits: () => acctKits, drawGallery, renderStep2, go, drawReview, approve, spec,
   pick: i => { const b = document.querySelectorAll(".lg-tile:not(.wait)")[i]; if (b) b.click(); }, localFiles, downloadFiles, ready: null };
 window.LogoMaker.ready = start().catch(e => { console.error("logo maker:", e); note("The logo maker did not load. Reload the page.", true); });

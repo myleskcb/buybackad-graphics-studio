@@ -7786,15 +7786,30 @@ The maker (`logo/engine.js`, `logo/voices.js`, `logo/logo.js`):
    hashes of 192 older designs (every older layout, six names, its four forms, the profile picture and the cover)
    drawn by the engine of main at 5061d8a36, written once and never regenerated; `logo_check.mjs` draws them again
    and fails on any change.
-9. **Picking by taste** (`tagsOf`, `gallery({ like })`): every logo says what it is made of (style, layout, mark and
-   its kind, solid or line, soft or sharp, lettering, colours, a dark or light ground), and the gallery leans toward
-   a taste (pairs, marks, styles, layouts, voices liked). The page does not ask for one yet (OPEN-ITEMS §CK).
+9. **Picking by taste** (`tagsOf`, `tasteOf`, `gallery({ like })`): every logo says what it is made of (style,
+   layout, mark and its kind, solid or line, soft or sharp, lettering, colours, a dark or light ground), and the
+   gallery leans toward a taste: the colours chosen come back on every other logo (the slots between suggest
+   others), the symbols chosen lead, the layouts held to the styles and kinds of answer chosen.
+10. **The questionnaire** (the owner, 2026-11-25: "some sort of a questionnaire where you choose assets, color
+   schemes you like, suggested builds and then you end up with the final pick ... or you can build your own from a
+   template or existing edit"). Show my logos opens step 2 on three questions (`QUIZ`), each answered by tapping
+   finished logos in the shop's own name, never a setting: which style feels like the shop (the five, one or two),
+   which colours (ten from the styles chosen and the line, `pairChoices`, up to three), which symbols (the line's
+   family drawn alone and large, or just the name, or the initials, `markChoices`, up to three). Every question has
+   Back, Surprise me (no answer: anything goes) and Next; the last says Show my logos. The answers are said back over
+   the 24 logos built from them ("Built from your answers: ..."), with Change my answers. A heart on a logo keeps
+   what it is made of (at most twelve, `state.hearts`) and More leans toward them. Beside the questions, always: Show
+   me 24 logos now (the calm gallery, as before), Start from a template (`templates`: every layout once, in the
+   shop's name, the calm ones first; a tap opens the editor) and, once a logo is picked, Edit the logo I picked. A
+   new name or line starts the questions afresh; a visitor coming back finds the view they left.
 
-Held by `scripts/logo_check.mjs` (155 checks: the eleven tones in the catalogue's faces; every new layout in every
+Held by `scripts/logo_check.mjs` (166 checks: the eleven tones in the catalogue's faces; every new layout in every
 name and voice it takes; 5,460 drawings of the catalogue, solid and line, soft and sharp, in colour and one colour,
 in the four layouts that wear a mark; the first gallery calm for all 16 lines; each calm style filling 24 of its own;
 Bold as it was, its own layouts early; a taste leading; the rows of a calm logo; the 192 approved designs unchanged;
-the page's chips and rows in Chromium). `scripts/logo_sheet.mjs` now also writes `marks.html` (every line's family,
+the page's chips and rows in Chromium; Show my logos opening the questionnaire, its whole path to 24 logos in the
+chosen style, colours and symbol, hearts and More, Start from a template and the editor it opens; no sideways scroll
+and nothing under 12 px from 320 px, looked at by hand). `scripts/logo_sheet.mjs` now also writes `marks.html` (every line's family,
 solid, line and sharp, with a lockup of each) and `styles.html` (one name in every style).
 
 Not done here: OPEN-ITEMS §CK.

@@ -372,9 +372,16 @@ if (!NO_BROWSER) {
     await page.fill('#lg-name', 'Gold Rush Cash');
     await page.selectOption('#lg-cat', 'gold');
     await page.click('#lg-go');
+    // DESIGN-LAW 183: Show my logos opens the questionnaire, its first answers already logos in the name
+    const quizAt = (step) => page.waitForFunction((st) => { const g = document.getElementById('lq-grid'); return !document.getElementById('lg-quiz').hidden && g.dataset.step === String(st) && g.dataset.drawn; }, step, { timeout: 60000 });
+    await quizAt(0);
+    const q0 = (Date.now() - t0) / 1000;
+    ok(q0 < 20 && await page.evaluate(() => document.querySelectorAll('#lq-grid .lq-card canvas').length === 5 && document.getElementById('lg-grid').hidden),
+      'Show my logos opens the questionnaire: five styles, each a logo in the name, ' + q0.toFixed(1) + ' s after');
+    await page.click('#lq-doors button[data-go="logos"]');
     await waitTiles(page, 24);
     const secs = (Date.now() - t0) / 1000;
-    ok(secs < 20, '24 finished logos in ' + secs.toFixed(1) + ' s after Show my logos (a minute is the brief)');
+    ok(secs < 20, '24 finished logos in ' + secs.toFixed(1) + ' s after Show my logos and Show me 24 logos now (a minute is the brief)');
     console.log('  24 logos drawn ' + secs.toFixed(1) + ' s after Show my logos');
     ok(await tiles(page) === 24, '24 logos (' + await tiles(page) + ')');
     const kinds = await page.evaluate(() => [...document.querySelectorAll('#lg-grid .lg-tile')].map((b) => b.dataset.t));
@@ -400,6 +407,37 @@ if (!NO_BROWSER) {
     await page.click('#lg-tabs button[data-s=""]'); await waitTiles(page, 24);
     await page.click('#lg-more'); await waitTiles(page, 48);
     ok(await tiles(page) === 48, 'More adds 24 more');
+    // the questionnaire's whole path: a style, two colours, a symbol; then 24 logos built from the answers
+    await page.click('#lq-doors button[data-go="quiz"]');
+    await quizAt(0);
+    await page.click('#lq-grid .lq-card[data-key="luxury"]');
+    ok(await page.evaluate(() => !document.getElementById('lq-next').disabled), 'an answer lets Next on');
+    await page.click('#lq-next'); await quizAt(1);
+    const chosen = await page.evaluate(() => [...document.querySelectorAll('#lq-grid .lq-card')].slice(0, 2).map((b) => b.dataset.key));
+    for (const k of chosen) await page.click(`#lq-grid .lq-card[data-key="${k}"]`);
+    await page.click('#lq-next'); await quizAt(2);
+    const markKeys = await page.evaluate(() => [...document.querySelectorAll('#lq-grid .lq-card')].map((b) => b.dataset.key));
+    ok(markKeys.length === E.MARKS_FOR.gold.length + 2 && markKeys.includes('name') && markKeys.includes('initials'), 'the third question: the line\'s marks, just the name and the initials (' + markKeys.length + ')');
+    await page.click('#lq-grid .lq-card[data-key="hallmark"]');
+    await page.click('#lq-next'); await waitTiles(page, 24);
+    const res = await page.evaluate(() => ({ tiles: [...document.querySelectorAll('#lg-grid .lg-tile:not(.wait)')].map((b) => ({ t: b.dataset.t, pair: b.dataset.pair, mark: b.dataset.mark })), sum: document.getElementById('lq-sum').textContent, answers: window.LogoMaker.state.answers }));
+    ok(res.tiles.length === 24 && res.tiles.filter((x) => chosen.includes(x.pair)).length >= 10 && res.tiles.some((x) => x.mark === 'hallmark') && res.tiles.every((x) => E.STYLES.luxury.layouts.includes(x.t))
+      && /Luxury/.test(res.sum) && res.answers.pairs.join() === chosen.join(),
+      '24 logos built from the answers: Luxury\'s layouts, half in the chosen colours (' + res.tiles.filter((x) => chosen.includes(x.pair)).length + '), the hallmark among them, the answers said back');
+    // hearts steer More
+    await page.click('#lg-grid .lg-heart >> nth=1'); await page.click('#lg-grid .lg-heart >> nth=4');
+    ok(await page.evaluate(() => window.LogoMaker.state.hearts.length === 2 && document.querySelectorAll('#lg-grid .lg-heart[aria-pressed=true]').length === 2 && !document.getElementById('lq-hearts').hidden), 'a heart is kept and said back');
+    await page.click('#lg-more'); await waitTiles(page, 48);
+    ok(await tiles(page) === 48, 'More, leaning toward the hearts, adds 24 more');
+    // the template door: every layout in the name; one tapped opens the editor, and the way back to it shows
+    await page.click('#lq-doors button[data-go="templates"]');
+    await page.waitForFunction(() => document.getElementById('lg-grid').dataset.drawn && !document.querySelector('#lg-grid .lg-tile.wait') && document.querySelectorAll('#lg-grid .lg-tile').length > 20, null, { timeout: 60000 });
+    const tpl = await page.evaluate(() => [...document.querySelectorAll('#lg-grid .lg-tile')].map((b) => b.dataset.t));
+    ok(tpl.length >= 25 && new Set(tpl).size === tpl.length && await page.evaluate(() => document.getElementById('lg-tabs').hidden && !document.querySelector('#lg-grid .lg-heart')), 'Start from a template: every layout once, in the name (' + tpl.length + ')');
+    await page.click('#lg-grid .lg-tile >> nth=5');
+    await page.waitForFunction(() => !document.getElementById('lg-edit').hidden && document.getElementById('lg-edit').dataset.drawn, null, { timeout: 30000 });
+    ok(await page.evaluate((t) => window.LogoMaker.state.picked.t === t && !!document.querySelector('#lq-doors button[data-go="edit"]'), tpl[5]), 'a template opens in the editor, and Edit the logo I picked shows');
+    await page.click('#lq-doors button[data-go="logos"]'); await waitTiles(page, 24);
     // name ideas: the customer's words mixed into names, each a finished little logo
     await page.click('#nm-open'); await page.fill('#nm-words', 'Maria, harbor'); await page.click('#nm-go');
     await page.waitForFunction(() => document.querySelectorAll('#nm-grid .nm-idea').length >= 12, null, { timeout: 20000 });

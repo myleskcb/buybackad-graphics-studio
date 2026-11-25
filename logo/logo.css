@@ -41,7 +41,41 @@
 .lg-tile.wait{background:linear-gradient(100deg,var(--panel) 30%,color-mix(in srgb,var(--line) 50%,var(--panel)) 50%,var(--panel) 70%);background-size:300% 100%;animation:lg-wait 1.2s linear infinite}
 @keyframes lg-wait{to{background-position:-150% 0}}
 @media (prefers-reduced-motion:reduce){.lg-tile.wait{animation:none}.lg-tile{transition:none}}
-.lg-more-row{display:flex;justify-content:center;margin-top:20px}
+.lg-more-row{display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;margin-top:20px}
+
+/* the questionnaire (DESIGN-LAW 183): each answer a finished logo in the shop's name */
+.lq[hidden],.lq-sum[hidden],.lq-hearts[hidden],.lg-more-row[hidden],.lg-grid[hidden],.lg-tabs[hidden],.lg-btn[hidden],.lg-link[hidden]{display:none}
+.lq{background:var(--panel);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);border-radius:22px;padding:clamp(16px,2.4vw,26px);margin-bottom:16px}
+.lq-top{margin-bottom:16px}
+.lq-count{margin:0 0 6px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.lq-q{margin:0 0 4px;font-size:clamp(22px,2.6vw,30px);font-weight:800;text-wrap:balance}
+.lq-hint{margin:0;color:var(--text-2);font-size:15.5px}
+.lq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+@media (min-width:900px){.lq-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media (max-width:520px){.lq-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+.lq-card{position:relative;display:flex;flex-direction:column;padding:0;border:0;border-radius:16px;overflow:hidden;cursor:pointer;background:var(--bg);color:var(--text);text-align:left;box-shadow:0 0 0 1px color-mix(in srgb,var(--line) 70%,transparent);transition:box-shadow .15s}
+.lq-card canvas{display:block;width:100%;aspect-ratio:4/3;height:auto}
+.lq-card span{display:block;padding:9px 12px 11px;font:650 14.5px -apple-system,BlinkMacSystemFont,system-ui,sans-serif;line-height:1.3}
+.lq-card small{display:block;font-weight:500;font-size:13px;color:var(--muted)}
+.lq-card:hover{box-shadow:0 0 0 1.5px var(--accent)}
+.lq-card[aria-pressed=true]{box-shadow:0 0 0 3px var(--btn)}
+.lq-card[aria-pressed=true]::after{content:'✓';position:absolute;top:8px;right:8px;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--btn);color:var(--accent-ink);font:800 14px system-ui}
+.lq-card:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.lq-acts{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:18px}
+.lq-gap{flex:1}
+@media (max-width:520px){.lq-gap{display:none}.lq-acts .lg-btn{flex:1 1 auto}}
+.lq-doors{display:flex;gap:6px 18px;flex-wrap:wrap;align-items:center;margin:0 0 16px;font-size:14.5px;color:var(--muted)}
+.lq-doors .lg-link{font-size:14.5px}
+.lq-sum{margin:0 0 12px;font-size:15px;color:var(--text-2)}
+.lq-sum b{color:var(--text)}
+.lq-hearts{font-size:14px;color:var(--muted)}
+/* a heart on a gallery logo: it steers More */
+.lg-cell{position:relative;min-width:0}
+.lg-cell .lg-tile{width:100%}
+.lg-heart{position:absolute;right:8px;bottom:8px;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;border:0;cursor:pointer;background:color-mix(in srgb,var(--panel) 88%,transparent);color:var(--muted);font:700 17px system-ui;box-shadow:0 0 0 1px color-mix(in srgb,var(--line) 70%,transparent)}
+.lg-heart:hover{color:var(--text)}
+.lg-heart[aria-pressed=true]{color:#e0574b;background:var(--panel)}
+.lg-heart:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
 /* step 3: make it yours */
 .lg-edit-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:start;margin-top:14px}
