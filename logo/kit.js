@@ -466,7 +466,7 @@ export function readme(spec, tier, faces) {
     "",
     "Your lettering",
     "  " + face(V.display) + " for the name, " + face(V.label) + " for the small lines.",
-    "  Both are free fonts under the SIL Open Font License (fonts.google.com, or fontshare.com for Satoshi).",
+    "  Both are free fonts: Google Fonts ones under the SIL Open Font License (fonts.google.com), Satoshi under Fontshare's free licence (fontshare.com).",
     "",
     "Download your kit again any time at webuy.ad/logo, signed in with the account that bought it.",
     "",
