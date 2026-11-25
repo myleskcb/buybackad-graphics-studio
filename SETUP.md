@@ -115,5 +115,6 @@ working directory:
 - [ ] http://localhost:4477/backgrounds.html shows 129/129 live
 - [ ] http://localhost:8877 loads, sign-in works, templates show photo backdrops
 - [ ] `curl https://webuy.ad/api/health` answers `"accounts":true` and `"store":"ok"` after a deploy. `502` means the function shipped without `npm ci`; `404` means the site shipped without its function; `"accounts":false` means `JWT_SECRET` is not set on that Netlify project. The sign-in dialog says the same thing in those three cases, so a visitor's "cannot log in" names its cause
+- [ ] Once `POSTMARK_TOKEN` is set (`docs/MAIL-SETUP.md`): `/api/health` also says `"mail":true`, and Forgot password? on your own address brings a mail from support@webuy.ad whose Show original says SPF, DKIM and DMARC pass
 - [ ] `netlify deploy --prod` from graphics-studio succeeds
 - [ ] ORCHARD approve on any slot writes a JPG into apps/graphics-studio/assets/bg

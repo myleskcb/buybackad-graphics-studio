@@ -4733,7 +4733,7 @@ ai, google false, billing (test mode).
 | `SITE_URL` | not set, not needed | Netlify's `URL` is the primary domain, https://webuy.ad |
 | Google sign-in | **live, 2026-11-23**: Google Cloud project `webuy-ad` (myleskcb@gmail.com), app WeBuy.AD in production, External, client "WeBuy.AD website" for https://webuy.ad and https://www.webuy.ad; `GOOGLE_CLIENT_ID` set; the owner's own sign-in by Google opened the operator account | Apple: `docs/SIGN-IN-SETUP.md` |
 | Mail in | live | none |
-| Mail out | none: no password reset, no address check | a build: a mail provider, its DNS records at Namecheap, and the reset flow |
+| Mail out | **built 2026-11-24, not live** (§CJ, DESIGN-LAW 182): Forgot password?, the reset page, the address check, through Postmark | the owner: Postmark, three DNS records at Namecheap, `POSTMARK_TOKEN` in Netlify (`docs/MAIL-SETUP.md`) |
 | Search | **Search Console verified 2026-11-23** (Domain property webuy.ad, myleskcb@gmail.com, TXT `google-site-verification` at Namecheap); https://webuy.ad/sitemap.xml submitted ("Couldn't fetch" on the first day; the file answers 200) | Bing Webmaster Tools can import from Search Console |
 | Analytics | **Cloudflare Web Analytics, live 2026-11-23** (195b5f1d): site webuy.ad in myleskcb@gmail.com's Cloudflare account, beside iphones.la and reselling.us; the beacon on the 26 public pages, its two CSP entries, the privacy row. No cookies | none |
 | Legal pages | live as WeBuy.AD | none |
@@ -5107,3 +5107,53 @@ Open:
    are unchanged. Only the full ad, the video maker's looks and its catalogue were changed.
 4. **The hero wall** keeps its 18 approved stills. It shows the new words once they are drawn again (`--redraw`) and
    approved.
+
+## CJ. 2026-11-24 — mail out: Forgot password?, the reset page and the address check (DESIGN-LAW 182)
+
+(claude/funny-darwin-2b0c40, from `main` at 2bcf032c4, `main` merged in at d2465c806. Main's highest
+were rule 181 and §CI, with §CD taken by the print-it-today branch, so this is 182 and CJ; renumber at
+the merge if another branch took them first.)
+
+Asked for by another session for the owner: "Build outgoing email for webuy.ad: a password reset flow
+and an email address check for new email-and-password accounts", §BX's "Mail out: none".
+
+Done: see DESIGN-LAW 182. The provider is **Postmark**: Namecheap's free Email Forwarding owns the
+domain's MX records and cannot share the domain with another mail service, and Resend needs an MX on
+`send.webuy.ad` (Custom MX, which switches the forwarding off); Postmark needs a DKIM TXT and a
+Return-Path CNAME only. Free Developer plan: 100 emails a month, no expiry; Basic $15 for 10,000.
+`scripts/mail_check.mjs` passes 107 checks, including `scripts/social_signin_check.mjs` against this
+worktree. `billing_check.mjs` (141 without the browser), `appleid_check`, `googleid_check`,
+`library_api_check` and `sync_css_fallback --check` pass. In a browser, `billing_check` and
+`ad_library_check` each fail one check (`fabric is not defined` with cdnjs blocked; `TYPE_VOICES`
+before initialization) on a clean copy of `main` as well, so not from this work.
+
+**The owner's steps** (`docs/MAIL-SETUP.md`):
+1. Sign up at Postmark, name the server WeBuy.AD, add the domain `webuy.ad`, ask for account approval
+   if it says pending.
+2. Namecheap → webuy.ad → Advanced DNS, three new host records: TXT `<date>pm._domainkey` (Postmark's
+   DKIM value), CNAME `pm-bounces` → `pm.mtasv.net`, TXT `_dmarc` `v=DMARC1; p=none;`. Mail Settings
+   stays Email Forwarding; the MX and the root SPF are not touched.
+3. Verify DKIM and Return-Path in Postmark.
+4. Netlify → buybackad-finished-copy → `POSTMARK_TOKEN` = the server's API token (secret, Functions,
+   Production), then a deploy.
+5. `/api/health` says `"mail":true`; Forgot password? on your own address; Gmail's Show original says
+   SPF, DKIM and DMARC pass.
+
+Open:
+1. **Not on `main`, not live.** The branch waits for the owner's word; the mail waits for the steps
+   above. Merged without the token, Forgot password? says to write to support@webuy.ad and nothing asks
+   anyone to confirm.
+2. **A reset does not sign other devices out.** Sign-in tokens last 30 days and carry no password
+   version. The account records `passwordAt`; a next step is to stamp tokens with their time and refuse
+   ones older than the last reset.
+3. **No "change password" or "change email" while signed in.** The reset link is the only way to a new
+   password; a new address needs support.
+4. **Apple's Hide My Email addresses** get no mail until `webuy.ad` and `support@webuy.ad` are
+   registered for Sign in with Apple's email relay (Apple Developer; `docs/MAIL-SETUP.md`).
+5. **The iPhone app** shows Forgot password? (it is the website's window); the mailed link opens in
+   Safari, which is signed in after the reset, not the app. The app signs in with the new password.
+6. **100 emails a month** on the free plan. Past it, the site still says a link is on its way and
+   nothing arrives; Netlify's function log says `Postmark: …`.
+7. **The words** were written here, plain and signed WeBuy.AD; the owner has not read them yet
+   (`netlify/lib/mail.mjs` resetMail and confirmMail).
+

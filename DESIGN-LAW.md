@@ -7652,3 +7652,54 @@ of the picks too.
   new words. The library's renders and the landing's stills are drawn again in these words.
 
 Not done here: OPEN-ITEMS §CI.
+
+
+## 182. Mail out: a reset link that tells nobody who has an account, and an address check that locks nobody out
+
+Added 2026-11-24, for §BX's "Mail out: none": a paying customer who forgot their password had no way
+back in. Asked for by another session for the owner.
+
+- **One provider, one key, nothing about the forwarding touched.** `netlify/lib/mail.mjs` sends through
+  Postmark's email API with `POSTMARK_TOKEN`, from `WeBuy.AD <support@webuy.ad>`, replies to
+  support@webuy.ad, on the transactional stream. Namecheap's free Email Forwarding owns webuy.ad's MX
+  records and cannot share the domain with another mail service, so a provider that needs an MX (Resend's
+  `send.webuy.ad`) is out: Postmark needs a DKIM TXT and a Return-Path CNAME on names of their own, and
+  the root's SPF stays the forwarding's (`docs/MAIL-SETUP.md`). No open or link tracking: a link in our
+  mail is the site's own address.
+- **Plain words, signed WeBuy.AD.** Hi; what happened; the one thing to do, as a button and as the
+  address; how long it works; what to do if it was not them ("ignore this email"); reply for help; then
+  WeBuy.AD and webuy.ad. No "click here", no shouting, no marketing in an account mail.
+- **Forgot password? sits on the Sign in side of both windows** (`app.js` and `account.js`), under the
+  password, and is a step of that window: the email alone, Send reset link, Back. The answer is the same
+  words for every address ("If … has a WeBuy.AD account, a link … is on its way"), and the server's reply
+  is the same status and body: the lookup and the mail run after the reply (`context.waitUntil`), so
+  neither the words nor the time say who has an account.
+- **A link works once, for a short time, and only the newest.** 32 random bytes after a `#` (never sent
+  to a server or in a Referer), kept only as their SHA-256 (`mt:<hash>`); a reset link works for 60
+  minutes, a confirmation link for 7 days; asking again retires the older; using one deletes it; deleting
+  the account deletes its links. A link's address is `SITE_URL`, else Netlify's `URL`, never the request's
+  Host.
+- **The pages a link opens are the site's information pages** (`reset.html`, `confirm.html`, `pages.css`,
+  one script `mail-link.js` under the production CSP): the token leaves the address bar at once, no
+  analytics and no Referer on them, `noindex`. A good reset link names the account and asks for the new
+  password; saving it signs the visitor in. A used or expired link says so and offers a new one on the
+  same page.
+- **Limits count every request, account or not**, in windows kept by hashes, never an address or an IP:
+  reset links 3 an hour for an address and 10 from an IP; confirmation links 3 an hour for an account and
+  10 from an IP, sign-ups included (the 11th account is still made, without mail); tries at a link 30 an
+  hour from an IP.
+- **The address check never locks anyone out.** A sign-up with a password mails a confirmation link and
+  works at once. Until it is opened, both account menus carry one gentle line, "Confirm your email so we
+  can always help you back in", with Send the link; nothing is gated on it. Google and Apple vouch for
+  their addresses, so their accounts are never asked, and a reset link confirms the address it came to.
+  A Google or Apple account can use Forgot password? to add a password; its button keeps working.
+- **Off until the key is in.** Without `POSTMARK_TOKEN` Forgot password? says to write to support@webuy.ad
+  (the same for every address) and no account is asked to confirm. `/api/health` and `/api/auth/config`
+  say `mail`.
+- **Held by** `scripts/mail_check.mjs`: the real function with a stand-in Postmark (the mail's sender,
+  words, link and tracking; the same reply for every address; once, 60 minutes, the newest; the limits and
+  their windows; the confirm flow; Google and Apple accounts; Postmark failing), both windows and both
+  pages in Chromium under the production CSP from 320 to 1280, and `scripts/social_signin_check.mjs` run
+  against the same worktree.
+
+Not done here: OPEN-ITEMS §CJ.

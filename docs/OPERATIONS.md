@@ -1,6 +1,6 @@
 # Operations — hosting, deploy, URLs, repo hygiene
 
-State verified 2026-08-28; the URLs, mail and logins 2026-11-23 (OPEN-ITEMS §BX).
+State verified 2026-08-28; the URLs, mail and logins 2026-11-23 (OPEN-ITEMS §BX); mail out written 2026-11-24 (§CJ).
 
 ## Live URLs
 
@@ -25,8 +25,23 @@ Redirect Email; MX `eforward1-5.registrar-servers.com`, SPF
 | support@webuy.ad | myleskcb@gmail.com and contact@iphones.la |
 | hello@webuy.ad | myleskcb@gmail.com |
 
-The terms and privacy policy give support@webuy.ad. Nothing on the site sends
-mail: there is no password reset or address check yet (README, Notes).
+The terms and privacy policy give support@webuy.ad.
+
+**Mail out** (DESIGN-LAW 182, OPEN-ITEMS §CJ; built 2026-11-24, not live until the
+owner's steps in `docs/MAIL-SETUP.md`): the password reset link and the address check,
+from `WeBuy.AD <support@webuy.ad>` through Postmark, switched on by `POSTMARK_TOKEN`
+in Netlify. It adds three records at Namecheap and changes nothing above:
+
+| Record | Host | Value |
+|---|---|---|
+| TXT (DKIM) | `<date>pm._domainkey`, as Postmark's DNS page shows it | `k=rsa;p=…` from that page |
+| CNAME (Return-Path) | `pm-bounces` | `pm.mtasv.net` |
+| TXT (DMARC) | `_dmarc` | `v=DMARC1; p=none;` |
+
+Mail Settings stays **Email Forwarding** (never Custom MX, which switches the forwarding
+off), and the root's SPF stays the forwarding's: Postmark's Return-Path carries its own.
+`/api/health` says `"mail":true` once the token is in. Postmark's free plan is 100 emails
+a month; the dashboard shows the count.
 
 ### Accounts that hold the site
 
@@ -35,6 +50,7 @@ mail: there is no password reset or address check yet (README, Notes).
 | webuy.ad (registrar and DNS) | Namecheap, BasicDNS | account `myleskcb` (also holds iphones.la, reselling.us; not scans.ad) |
 | `buybackad-finished-copy` (webuy.ad, `main`) | Netlify team myleskcb2 | myleskcb2@gmail.com, with Google |
 | `buybackad-graphics-studio` (the old project) | Netlify team KCB | myleskcb@gmail.com |
+| Mail out (reset links, address checks) | Postmark, server **WeBuy.AD**, domain webuy.ad | not made yet: the owner's, `docs/MAIL-SETUP.md` |
 
 One browser holds one Netlify login at a time. Keep webuy.ad's DNS at Namecheap:
 do not move a domain to Netlify DNS unless its nameservers at the registrar move
